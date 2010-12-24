@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="9.00"
+	Name="MediaEnginePRX"
+	ProjectGUID="{86920961-F64A-486B-BE49-842086D4DFF8}"
+	RootNamespace="MediaEnginePRX"
+	Keyword="MakeFileProj"
+	TargetFrameworkVersion="131072"
+	>
+	<Platforms>
+		<Platform
+			Name="Win32"
+		/>
+	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="$(ProjectDir)\bin\$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectDir)\obj\$(ConfigurationName)"
+			ConfigurationType="0"
+			BuildLogFile="$(IntDir)\$(ProjectName)BuildLog.htm"
+			>
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="vsmake"
+				ReBuildCommandLine="vsmake clean &amp;&amp; vsmake"
+				CleanCommandLine="vsmake clean"
+				Output="MediaEnginePRX.exe"
+				PreprocessorDefinitions="WIN32;_DEBUG"
+				IncludeSearchPath=""
+				ForcedIncludes=""
+				AssemblySearchPath=""
+				ForcedUsingAssemblies=""
+				CompileAsManaged=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(ProjectDir)\bin\$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectDir)\obj\$(ConfigurationName)"
+			ConfigurationType="0"
+			BuildLogFile="$(IntDir)\$(ProjectName)BuildLog.htm"
+			>
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="vsmake"
+				ReBuildCommandLine="vsmake clean &amp;&amp; vsmake"
+				CleanCommandLine="vsmake clean"
+				Output="MediaEnginePRX.exe"
+				PreprocessorDefinitions="WIN32;NDEBUG"
+				IncludeSearchPath=""
+				ForcedIncludes=""
+				AssemblySearchPath=""
+				ForcedUsingAssemblies=""
+				CompileAsManaged=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release PSP|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="0"
+			BuildLogFile="$(IntDir)\$(ProjectName)BuildLog.htm"
+			>
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="vsmake"
+				ReBuildCommandLine="vsmake clean &amp;&amp; vsmake"
+				CleanCommandLine="vsmake clean"
+				Output="MediaEnginePRX.exe"
+				PreprocessorDefinitions="WIN32;NDEBUG"
+				IncludeSearchPath=""
+				ForcedIncludes=""
+				AssemblySearchPath=""
+				ForcedUsingAssemblies=""
+				CompileAsManaged=""
+			/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
+			<File
+				RelativePath=".\exports.exp"
+				>
+			</File>
+			<File
+				RelativePath=".\main.c"
+				>
+			</File>
+			<File
+				RelativePath=".\me_stub.S"
+				>
+			</File>
+			<File
+				RelativePath=".\sceSysreg_driver371.S"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Generated"
+			>
+			<File
+				RelativePath=".\MediaEngine.S"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Lib"
+			>
+			<File
+				RelativePath=".\me.c"
+				>
+			</File>
+			<File
+				RelativePath=".\me.h"
+				>
+			</File>
+		</Filter>
+		<File
+			RelativePath=".\Makefile"
+			>
+		</File>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

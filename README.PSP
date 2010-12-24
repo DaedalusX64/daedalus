@@ -1,0 +1,17 @@
+To make DaedalusX64 for the PSP in linux:
+
+First you need to make the mediaengine.prx. Doing so will also make a
+file required by the emulator. You must make this before making the
+emulator or you'll get a file not found error.
+
+cd Source/SysPSP/MediaEnginePRX
+make
+
+
+Now just cd back to the root directory and make the emulator.
+
+cd ../../..
+make
+
+To make in Windows: Read README.txt
+

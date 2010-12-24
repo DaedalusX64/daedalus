@@ -1,0 +1,48 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DaedalusPSP", "DaedalusPSP.vcproj", "{52A6C596-EDA5-4822-A48B-890BD9AF9147}"
+	ProjectSection(ProjectDependencies) = postProject
+		{86920961-F64A-486B-BE49-842086D4DFF8} = {86920961-F64A-486B-BE49-842086D4DFF8}
+		{E5DED0CD-E3CE-41C3-A897-3118DEBF903E} = {E5DED0CD-E3CE-41C3-A897-3118DEBF903E}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MediaEnginePRX", "Source\SysPSP\MediaEnginePRX\MediaEnginePRX.vcproj", "{86920961-F64A-486B-BE49-842086D4DFF8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DveMgr", "Source\SysPSP\DveMgr\DveMgr.vcproj", "{E5DED0CD-E3CE-41C3-A897-3118DEBF903E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|PSP = Debug|PSP
+		Debug|Win32 = Debug|Win32
+		Release|PSP = Release|PSP
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{52A6C596-EDA5-4822-A48B-890BD9AF9147}.Debug|PSP.ActiveCfg = Debug|Win32
+		{52A6C596-EDA5-4822-A48B-890BD9AF9147}.Debug|PSP.Build.0 = Debug|Win32
+		{52A6C596-EDA5-4822-A48B-890BD9AF9147}.Debug|Win32.ActiveCfg = Debug|Win32
+		{52A6C596-EDA5-4822-A48B-890BD9AF9147}.Debug|Win32.Build.0 = Debug|Win32
+		{52A6C596-EDA5-4822-A48B-890BD9AF9147}.Release|PSP.ActiveCfg = Release|Win32
+		{52A6C596-EDA5-4822-A48B-890BD9AF9147}.Release|PSP.Build.0 = Release|Win32
+		{52A6C596-EDA5-4822-A48B-890BD9AF9147}.Release|Win32.ActiveCfg = Release|Win32
+		{52A6C596-EDA5-4822-A48B-890BD9AF9147}.Release|Win32.Build.0 = Release|Win32
+		{86920961-F64A-486B-BE49-842086D4DFF8}.Debug|PSP.ActiveCfg = Debug|Win32
+		{86920961-F64A-486B-BE49-842086D4DFF8}.Debug|PSP.Build.0 = Debug|Win32
+		{86920961-F64A-486B-BE49-842086D4DFF8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{86920961-F64A-486B-BE49-842086D4DFF8}.Debug|Win32.Build.0 = Debug|Win32
+		{86920961-F64A-486B-BE49-842086D4DFF8}.Release|PSP.ActiveCfg = Release|Win32
+		{86920961-F64A-486B-BE49-842086D4DFF8}.Release|PSP.Build.0 = Release|Win32
+		{86920961-F64A-486B-BE49-842086D4DFF8}.Release|Win32.ActiveCfg = Release|Win32
+		{86920961-F64A-486B-BE49-842086D4DFF8}.Release|Win32.Build.0 = Release|Win32
+		{E5DED0CD-E3CE-41C3-A897-3118DEBF903E}.Debug|PSP.ActiveCfg = Debug|Win32
+		{E5DED0CD-E3CE-41C3-A897-3118DEBF903E}.Debug|PSP.Build.0 = Debug|Win32
+		{E5DED0CD-E3CE-41C3-A897-3118DEBF903E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E5DED0CD-E3CE-41C3-A897-3118DEBF903E}.Release|PSP.ActiveCfg = Release|Win32
+		{E5DED0CD-E3CE-41C3-A897-3118DEBF903E}.Release|PSP.Build.0 = Release|Win32
+		{E5DED0CD-E3CE-41C3-A897-3118DEBF903E}.Release|Win32.ActiveCfg = Release|Win32
+		{E5DED0CD-E3CE-41C3-A897-3118DEBF903E}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
