@@ -313,7 +313,7 @@ static bool	Initialize()
 	}
 
 	//Set up the DveMgr (TV Display) and Detect PSP Slim or newer models
-	if ( kuKernelGetModel() != PSP_MODEL_STANDARD )
+	if ( kuKernelGetModel() == PSP_MODEL_SLIM_AND_LITE )	// PSP SLIM
 	{
 		PSP_IS_SLIM = true;
 		HAVE_DVE = pspSdkLoadStartModule("dvemgr.prx", PSP_MEMORY_PARTITION_KERNEL);
@@ -322,6 +322,14 @@ static bool	Initialize()
 		if (PSP_TV_CABLE == 1)
 			PSP_TV_LACED = 1; // composite cable => interlaced
 	}
+	else if( kuKernelGetModel() == PSP_MODEL_STANDARD )	{}	// PSP PHAT
+	else													// PSP Go and PSP3k
+	{
+		// Currently HEN doesn't work well with our kernelbuttons nor extra memory
+		//
+		gButtons.mode = false;
+	}
+
 	HAVE_DVE = (HAVE_DVE < 0) ? 0 : 1; // 0 == no dvemgr, 1 == dvemgr
 
     //setup Pad
