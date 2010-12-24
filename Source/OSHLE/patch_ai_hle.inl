@@ -1,7 +1,6 @@
 
 #define TEST_DISABLE_AI_FUNCS //return PATCH_RET_NOT_PROCESSED;
 
-static u32 current_length = 0;
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -12,11 +11,13 @@ TEST_DISABLE_AI_FUNCS
 	// Also if osAiSetNextBuffer is patched, AI_LEN_REG is no longer valid
 	// Aerogauge doesn't use osAiSetNextBuffer.. so fall back to reading from memory
 	//
-	u32 len = current_length;
+	u32 len = gCurrentLength;
+
 	if( len == 0 )
 	{
 		len = Memory_AI_GetRegister(AI_LEN_REG);
 	}
+	printf("len %d\n",len);
 	// Note : Aerogage length is 1408
 	//
 #if 0 // Aerogauge speed hack, we should be able to apply this for other roms too soon
@@ -35,36 +36,37 @@ u32 Patch_osAiSetNextBuffer()
 {
 TEST_DISABLE_AI_FUNCS
 
-	// The addr argument points to the buffer in DRAM
-	//
-	u32 addr = gGPR[REG_a0]._u32_0 & 0xFFFFFF;
-	u32 len  = gGPR[REG_a1]._u32_0;
-	u32 inter=0;
-
-	//DBGConsole_Msg(0, "osAiNextBuffer() %08X len %d bytes",addr,len);
-
-	if(len > 32768)
+	if( gAudioPluginEnabled )
 	{
-		DAEDALUS_ERROR("Reached max DMA length (%d)",len);
-		len=32768;
-	}
+		// The addr argument points to the buffer in DRAM, must be aligned too
+		//
+		u32 addr = gGPR[REG_a0]._u32_0 & 0xFFFFFF;
+		u32 len  = gGPR[REG_a1]._u32_0;
+		
+		//DBGConsole_Msg(0, "osAiNextBuffer() %08X len %d bytes",addr,len);
 
-	current_length = len;
+		// Highly unlike it to happen
+		/*
+		if(len > 32768)
+		{
+			DAEDALUS_ERROR("Reached max DMA length (%d)",len);
+			len=32768;
+		}
+		*/
+		DAEDALUS_ASSERT( len < 32768, "Reached max DMA length (%d)",len );
 
-	if( gAudioPluginEnabled > APM_DISABLED )
-	{
+		gCurrentLength = len;
+
 		// g_pu8RamBase might not be required
 		g_pAiPlugin->AddBufferHLE( g_pu8RamBase + addr,len );
-		inter = 0;
+		gGPR[REG_v0]._u32_0 = 0;
 	}
 	else
 	{
 		// Stop DMA operation
-		inter = -1;
+		gGPR[REG_v0]._u32_0 = -1;
 	}
-
 	// I think is v0..	
-	gGPR[REG_v0]._u64 = inter;
 	//gGPR[REG_v1]._u64 = inter;
 
 	return PATCH_RET_JR_RA;

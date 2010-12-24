@@ -93,6 +93,7 @@ static const char * g_szEventStrings[23] =
 };
 #endif	// DUMPOSFUNCTIONS
 
+u32 gCurrentLength;
 u32 gNumOfOSFunctions;
 
 #define TEST_DISABLE_FUNCS //return PATCH_RET_NOT_PROCESSED;
@@ -104,7 +105,7 @@ u32 gNumOfOSFunctions;
 #define PATCH_RET_ERET RET_JR_ERET()
 
 // Increase this number every time we changed the symbol table
-static const u32 MAGIC_HEADER = 0x80000113;
+static const u32 MAGIC_HEADER = 0x80000114;
 
 bool gPatchesInstalled = false;
 
@@ -127,6 +128,7 @@ static u32  nPatchVariables;
 void Patch_Reset()
 {
 	gPatchesInstalled = false;
+	gCurrentLength = 0;
 	gNumOfOSFunctions = 0;
 	Patch_ResetSymbolTable();
 }
