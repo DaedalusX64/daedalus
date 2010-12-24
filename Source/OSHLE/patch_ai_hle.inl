@@ -17,7 +17,7 @@ TEST_DISABLE_AI_FUNCS
 	{
 		len = Memory_AI_GetRegister(AI_LEN_REG);
 	}
-	printf("len %d\n",len);
+	//printf("len %d\n",len);
 	// Note : Aerogage length is 1408
 	//
 #if 0 // Aerogauge speed hack, we should be able to apply this for other roms too soon

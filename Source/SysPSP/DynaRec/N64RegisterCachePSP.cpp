@@ -54,10 +54,10 @@ void	CN64RegisterCachePSP::Reset()
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CN64RegisterCachePSP::SetCachedReg( EN64Reg n64_reg, u32 lo_hi_idx, EPspReg psp_reg )
-{
-	mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].PspRegister = psp_reg;
-}
+//void	CN64RegisterCachePSP::SetCachedReg( EN64Reg n64_reg, u32 lo_hi_idx, EPspReg psp_reg )
+//{
+//	mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].PspRegister = psp_reg;
+//}
 
 //*****************************************************************************
 //
@@ -76,43 +76,43 @@ void	CN64RegisterCachePSP::ClearCachedReg( EN64Reg n64_reg, u32 lo_hi_idx )
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	CN64RegisterCachePSP::IsCached( EN64Reg reg, u32 lo_hi_idx ) const
-{
-	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister != PspReg_R0;
-}
+//bool	CN64RegisterCachePSP::IsCached( EN64Reg reg, u32 lo_hi_idx ) const
+//{
+//	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister != PspReg_R0;
+//}
 
 //*****************************************************************************
 //
 //*****************************************************************************
-EPspReg		CN64RegisterCachePSP::GetCachedReg( EN64Reg reg, u32 lo_hi_idx ) const
-{
-	DAEDALUS_ASSERT( IsCached( reg, lo_hi_idx ), "Trying to retreive an uncached register" );
-
-	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister;
-}
+//EPspReg		CN64RegisterCachePSP::GetCachedReg( EN64Reg reg, u32 lo_hi_idx ) const
+//{
+//	DAEDALUS_ASSERT( IsCached( reg, lo_hi_idx ), "Trying to retreive an uncached register" );
+//
+//	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister;
+//}
 
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	CN64RegisterCachePSP::IsTemporary( EN64Reg reg, u32 lo_hi_idx ) const
-{
-	if( IsCached( reg, lo_hi_idx ) )
-	{
-		return PspReg_IsTemporary( mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister );
-	}
-
-	return false;
-}
+//bool	CN64RegisterCachePSP::IsTemporary( EN64Reg reg, u32 lo_hi_idx ) const
+//{
+//	if( IsCached( reg, lo_hi_idx ) )
+//	{
+//		return PspReg_IsTemporary( mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister );
+//	}
+//
+//	return false;
+//}
 
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	CN64RegisterCachePSP::IsValid( EN64Reg reg, u32 lo_hi_idx ) const
-{
-	DAEDALUS_ASSERT( !mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid || IsCached( reg, lo_hi_idx ), "Checking register is valid but uncached?" );
-
-	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid;
-}
+//bool	CN64RegisterCachePSP::IsValid( EN64Reg reg, u32 lo_hi_idx ) const
+//{
+//	DAEDALUS_ASSERT( !mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid || IsCached( reg, lo_hi_idx ), "Checking register is valid but uncached?" );
+//
+//	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid;
+//}
 
 //*****************************************************************************
 //
@@ -133,91 +133,92 @@ bool	CN64RegisterCachePSP::IsDirty( EN64Reg reg, u32 lo_hi_idx ) const
 #endif
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	CN64RegisterCachePSP::MarkAsValid( EN64Reg reg, u32 lo_hi_idx, bool valid )
-{
-	DAEDALUS_ASSERT( IsCached( reg, lo_hi_idx ), "Changing valid flag on uncached register?" );
-
-	mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid = valid;
-}
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CN64RegisterCachePSP::MarkAsDirty( EN64Reg reg, u32 lo_hi_idx, bool dirty )
-{
-#ifdef DAEDALUS_ENABLE_ASSERTS
-	if( dirty )
-	{ 	 
-		 DAEDALUS_ASSERT( IsKnownValue( reg, lo_hi_idx ) || IsCached( reg, lo_hi_idx ), "Setting dirty flag on unknown/uncached register?" ); 	 
-	}
-#endif
-	mRegisterCacheInfo[ reg ][ lo_hi_idx ].Dirty = dirty;
-}
+//void	CN64RegisterCachePSP::MarkAsValid( EN64Reg reg, u32 lo_hi_idx, bool valid )
+//{
+//	DAEDALUS_ASSERT( IsCached( reg, lo_hi_idx ), "Changing valid flag on uncached register?" );
+//
+//	mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid = valid;
+//}
 
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	CN64RegisterCachePSP::IsKnownValue( EN64Reg reg, u32 lo_hi_idx ) const
-{
-	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Known;
-}
+//void	CN64RegisterCachePSP::MarkAsDirty( EN64Reg reg, u32 lo_hi_idx, bool dirty )
+//{
+//#ifdef DAEDALUS_ENABLE_ASSERTS
+//	if( dirty )
+//	{ 	 
+//		 DAEDALUS_ASSERT( IsKnownValue( reg, lo_hi_idx ) || IsCached( reg, lo_hi_idx ), "Setting dirty flag on unknown/uncached register?" ); 	 
+//	}
+//#endif
+//	mRegisterCacheInfo[ reg ][ lo_hi_idx ].Dirty = dirty;
+//}
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CN64RegisterCachePSP::SetKnownValue( EN64Reg reg, u32 lo_hi_idx, s32 value )
-{
-	mRegisterCacheInfo[ reg ][ lo_hi_idx ].Known = true;
-	mRegisterCacheInfo[ reg ][ lo_hi_idx ].KnownValue._u32 = value;
-}
+//bool	CN64RegisterCachePSP::IsKnownValue( EN64Reg reg, u32 lo_hi_idx ) const
+//{
+//	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Known;
+//}
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CN64RegisterCachePSP::ClearKnownValue( EN64Reg reg, u32 lo_hi_idx )
-{
-	mRegisterCacheInfo[ reg ][ lo_hi_idx ].Known = false;
-}
+//void	CN64RegisterCachePSP::SetKnownValue( EN64Reg reg, u32 lo_hi_idx, s32 value )
+//{
+//	mRegisterCacheInfo[ reg ][ lo_hi_idx ].Known = true;
+//	mRegisterCacheInfo[ reg ][ lo_hi_idx ].KnownValue._u32 = value;
+//}
 
 //*****************************************************************************
 //
 //*****************************************************************************
-REG32		CN64RegisterCachePSP::GetKnownValue( EN64Reg reg, u32 lo_hi_idx ) const
-{
-	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].KnownValue;
-}
+//void	CN64RegisterCachePSP::ClearKnownValue( EN64Reg reg, u32 lo_hi_idx )
+//{
+//	mRegisterCacheInfo[ reg ][ lo_hi_idx ].Known = false;
+//}
 
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	CN64RegisterCachePSP::IsFPValid( EN64FloatReg reg ) const
-{
-	return mFPRegisterCacheInfo[ reg ].Valid;
-}
+//REG32		CN64RegisterCachePSP::GetKnownValue( EN64Reg reg, u32 lo_hi_idx ) const
+//{
+//	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].KnownValue;
+//}
 
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	CN64RegisterCachePSP::IsFPDirty( EN64FloatReg reg ) const
-{
-	return mFPRegisterCacheInfo[ reg ].Dirty;
-}
+//bool	CN64RegisterCachePSP::IsFPValid( EN64FloatReg reg ) const
+//{
+//	return mFPRegisterCacheInfo[ reg ].Valid;
+//}
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CN64RegisterCachePSP::MarkFPAsValid( EN64FloatReg reg, bool valid )
-{
-	mFPRegisterCacheInfo[ reg ].Valid = valid;
-}
+//bool	CN64RegisterCachePSP::IsFPDirty( EN64FloatReg reg ) const
+//{
+//	return mFPRegisterCacheInfo[ reg ].Dirty;
+//}
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CN64RegisterCachePSP::MarkFPAsDirty( EN64FloatReg reg, bool dirty )
-{
-	mFPRegisterCacheInfo[ reg ].Dirty = dirty;
-}
+//void	CN64RegisterCachePSP::MarkFPAsValid( EN64FloatReg reg, bool valid )
+//{
+//	mFPRegisterCacheInfo[ reg ].Valid = valid;
+//}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+//void	CN64RegisterCachePSP::MarkFPAsDirty( EN64FloatReg reg, bool dirty )
+//{
+//	mFPRegisterCacheInfo[ reg ].Dirty = dirty;
+//}
