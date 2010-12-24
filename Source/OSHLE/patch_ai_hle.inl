@@ -17,13 +17,17 @@ TEST_DISABLE_AI_FUNCS
 	{
 		len = Memory_AI_GetRegister(AI_LEN_REG);
 	}
-
+	// Note : Aerogage length is 1408
+	//
+#ifdef 1 // Aerogauge speed hack, we should be able to apply this for other roms too soon
+	gGPR[REG_v0]._u32_0 = 2880; // overflow length this causes to kill completely sound and get 40%+ speed up
+#else
 	gGPR[REG_v0]._u32_0 = len; 
+#endif
 	//gGPR[REG_v0]._s64 = (s64)(s32)len;
 
 	return PATCH_RET_JR_RA;
 }
-
 //*****************************************************************************
 //
 //*****************************************************************************
