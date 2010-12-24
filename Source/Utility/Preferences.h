@@ -103,7 +103,7 @@ enum ETVType
 
 struct SGlobalPreferences
 {
-	bool						DisplayFramerate;
+	u32							DisplayFramerate;
 	bool						SoftwareClipping;
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	bool						HighlightInexactBlendModes;

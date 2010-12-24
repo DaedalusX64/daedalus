@@ -230,7 +230,16 @@ void CGraphicsPluginPsp::UpdateScreen()
 				pspDebugScreenSetTextColor( 0xffffffff );
 				pspDebugScreenSetBackColor(0);
 				pspDebugScreenSetXY(0, 0);
-				pspDebugScreenPrintf( "FPS %#.1f | VB %d/%d | Sync %#.1f%%   ", gCurrentFramerate, u32( Fsync * f32( FramerateLimiter_GetTvFrequencyHz() ) ), FramerateLimiter_GetTvFrequencyHz(), Fsync * 100.0f );
+				
+				switch(gGlobalPreferences.DisplayFramerate)
+				{
+					case 1:
+						pspDebugScreenPrintf( "%#.1f  ", gCurrentFramerate );
+						break;
+					case 2:
+						pspDebugScreenPrintf( "FPS %#.1f | VB %d/%d | Sync %#.1f%%   ", gCurrentFramerate, u32( Fsync * f32( FramerateLimiter_GetTvFrequencyHz() ) ), FramerateLimiter_GetTvFrequencyHz(), Fsync * 100.0f );
+						break;
+				}
 			}
 			if( gGlobalPreferences.BatteryWarning )
 			{

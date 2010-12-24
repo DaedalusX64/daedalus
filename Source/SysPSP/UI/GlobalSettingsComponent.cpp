@@ -224,13 +224,12 @@ namespace
 			// Below was borrowed from Corn's tooltip code <3
 			static u32 count=0;
 			const char * const		status[] =
-			{"The emulator will exit if resetting settings",
-			"No need to exit if resetting only hle cache",
-			"Hold (X) + ([]) to reset settings + hle cache",
-			"Hold (X) + (/\\) to only reset settings",
-			"Hold (X) + (O) to only reset hle cache"};
-			count++;
-			return status[(count >> 8) % ARRAYSIZE( status )];
+			{"Daedalus will QUIT when resetting settings",
+			"HLE cache resetting don't require QUIT",
+			"Hold (X) + ([ ]) -> RESET settings & HLE",
+			"Hold (X) + (/\\) -> RESET settings",
+			"Hold (X) + (O) -> RESET HLE"};
+			return status[(++count >> 8) % ARRAYSIZE( status )];
 		}
 	};
 
@@ -285,6 +284,28 @@ namespace
 		}
 	};
 
+	class CInfoSetting : public CUISetting
+	{
+	public:
+		CInfoSetting(  const char * name, const char * description )
+			:	CUISetting( name, description )
+		{
+		}
+
+		virtual	void		OnNext()		{ (gGlobalPreferences.DisplayFramerate >= 2) ? 0 : gGlobalPreferences.DisplayFramerate++; }
+		virtual	void		OnPrevious()	{ (gGlobalPreferences.DisplayFramerate <= 0) ? 0 : gGlobalPreferences.DisplayFramerate--; }
+
+		virtual const char *	GetSettingName() const
+		{
+			switch ( gGlobalPreferences.DisplayFramerate )
+			{
+				case 0:		return "No";
+				case 1:		return "FPS";
+				case 2:		return "FPS + VB + SYNC";
+			}
+			return "?";
+		}
+	};
 
 }
 
@@ -335,7 +356,7 @@ CGlobalSettingsComponent *	CGlobalSettingsComponent::Create( CUIContext * p_cont
 IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 :	CGlobalSettingsComponent( p_context )
 {
-	mElements.Add( new CBoolSetting( &gGlobalPreferences.DisplayFramerate, "Display Framerate", "Whether to show the framerate while the rom is running.", "Yes", "No" ) );
+	mElements.Add( new CInfoSetting( "Display Info", "Whether to show additional info while the rom is running.") );
 	mElements.Add( new CViewPortSetting( "Viewport Size", "The size of the viewport on the PSP." ) );
 
 	if (HAVE_DVE && PSP_TV_CABLE > 0)

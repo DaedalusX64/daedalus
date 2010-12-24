@@ -23,69 +23,126 @@ TEST_DISABLE_MATH_FUNCS
 
 
 // By Jun Su
+// Used by SM64 and Space station Silicon Valley
 u32 Patch___ll_div() 
 { 
 TEST_DISABLE_MATH_FUNCS
-	s64 op1, op2, result; 
-	
 	// Fixed by  StrmnNrmn - regs cast to 32 bits so shift didn't work
 	// This was breaking 007
-	op1 = (s64)((u64)gGPR[REG_a0]._u32_0 << 32 | (u64)gGPR[REG_a1]._u32_0); 
-	op2 = (s64)((u64)gGPR[REG_a2]._u32_0 << 32 | (u64)gGPR[REG_a3]._u32_0); 
-	
-	if (op2==0) 
-	{ 
-		return PATCH_RET_NOT_PROCESSED; 
-	} 
-	else 
-	{ 
-		result = op1 / op2; 
-		// StrmnNrmn - the s32 casts were originally u32. Not sure if this is needed
-		gGPR[REG_v1]._s64 = (s64)(s32)(result & 0xffffffff); 
-		gGPR[REG_v0]._s64 = (s64)(s32)(result>>32); 
-		return PATCH_RET_JR_RA; 
-	} 
+	// Check if data is 32bit(cheap) or 64bit(expensive) //Corn
+	// (note. complete check should include top most bit in low 32bit value)
+
+	if( ((gGPR[REG_a0]._u32_0 + (gGPR[REG_a1]._u32_0 >> 31)) +
+		 (gGPR[REG_a2]._u32_0 + (gGPR[REG_a3]._u32_0 >> 31)) == 0) )
+	{
+		//Do 32bit
+		//printf("DIV32\n");
+		s32 op1 = (s32)gGPR[REG_a1]._u32_0; 
+		s32 op2 = (s32)gGPR[REG_a3]._u32_0; 
+
+		if (op2 == 0) 
+		{ 
+			return PATCH_RET_NOT_PROCESSED; 
+		} 
+		else 
+		{ 
+			s32 result = op1 / op2; 
+			// StrmnNrmn - the s32 casts were originally u32. Not sure if this is needed
+			gGPR[REG_v1]._s64 = (s64)result; 
+			gGPR[REG_v0]._s64 = (s64)result >> 32; 
+			return PATCH_RET_JR_RA; 
+		} 
+	}
+	else
+	{
+		//Do 64bit
+		//printf("DIV64\n");
+		s64 op1 = (s64)((u64)gGPR[REG_a0]._u32_0 << 32 | (u64)gGPR[REG_a1]._u32_0); 
+		s64 op2 = (s64)((u64)gGPR[REG_a2]._u32_0 << 32 | (u64)gGPR[REG_a3]._u32_0); 
+
+		if (op2 == 0) 
+		{ 
+			return PATCH_RET_NOT_PROCESSED; 
+		} 
+		else 
+		{ 
+			s64 result = op1 / op2; 
+			// StrmnNrmn - the s32 casts were originally u32. Not sure if this is needed
+			gGPR[REG_v1]._s64 = (s64)(s32)(result & 0xffffffff); 
+			gGPR[REG_v0]._s64 = (s64)(s32)(result >> 32); 
+			return PATCH_RET_JR_RA; 
+		} 
+	}
 } 
 
 // By Jun Su
+//Used by AeroGauge
 u32 Patch___ull_div() 
 { 
 TEST_DISABLE_MATH_FUNCS
-	u64 op1, op2, result; 
-	
 	// Fixed by  StrmnNrmn - regs cast to 32 bits so shift didn't work
-	op1 = (u64)((u64)gGPR[REG_a0]._u32_0 << 32 | (u64)gGPR[REG_a1]._u32_0); 
-	op2 = (u64)((u64)gGPR[REG_a2]._u32_0 << 32 | (u64)gGPR[REG_a3]._u32_0); 
-	
-	if (op2==0) 
-	{ 
-		return PATCH_RET_NOT_PROCESSED; 
-	} 
-	else 
-	{ 
-		result = op1 / op2; 
-		// StrmnNrmn - the s32 casts were originally u32. Not sure if this is needed
-		gGPR[REG_v1]._s64 = (s64)(s32)(result & 0xffffffff); 
-		gGPR[REG_v0]._s64 = (s64)(s32)(result>>32); 
-		return PATCH_RET_JR_RA; 
-	} 
+	// Check if data is 32bit(cheap) or 64bit(expensive) //Corn
+
+	if( (gGPR[REG_a0]._u32_0 | gGPR[REG_a2]._u32_0) == 0 )
+	{
+		//Do 32bit
+		//printf("UDIV32\n");
+		u32 op1 = gGPR[REG_a1]._u32_0; 
+		u32 op2 = gGPR[REG_a3]._u32_0; 
+		
+		if (op2==0) 
+		{ 
+			return PATCH_RET_NOT_PROCESSED; 
+		} 
+		else 
+		{ 
+			u32 result = op1 / op2; 
+			// StrmnNrmn - the s32 casts were originally u32. Not sure if this is needed
+			gGPR[REG_v1]._s64 = (s64)result; 
+			gGPR[REG_v0]._s64 = (s64)result >> 32; 
+			return PATCH_RET_JR_RA; 
+		} 	
+	}
+	else
+	{
+		//Do 64bit
+		//printf("UDIV64\n");
+		u64 op1 = (u64)((u64)gGPR[REG_a0]._u32_0 << 32 | (u64)gGPR[REG_a1]._u32_0); 
+		u64 op2 = (u64)((u64)gGPR[REG_a2]._u32_0 << 32 | (u64)gGPR[REG_a3]._u32_0); 
+		
+		if (op2==0) 
+		{ 
+			return PATCH_RET_NOT_PROCESSED; 
+		} 
+		else 
+		{ 
+			u64 result = op1 / op2; 
+			// StrmnNrmn - the s32 casts were originally u32. Not sure if this is needed
+			gGPR[REG_v1]._s64 = (s64)(s32)(result & 0xffffffff); 
+			gGPR[REG_v0]._s64 = (s64)(s32)(result >> 32); 
+			return PATCH_RET_JR_RA; 
+		} 
+	}
 } 
 
 
 // By Jun Su
+//Used heavily by Super Smash Brothers
 u32 Patch___ull_rshift() 
 { 
 TEST_DISABLE_MATH_FUNCS
-	u64 op1, op2, result; 
-	
+	//printf("Rshift\n");
 	// Fixed by  StrmnNrmn - regs cast to 32 bits so shift didn't work
-	op1 = (u64)((u64)gGPR[REG_a0]._u32_0 << 32 | (u64)gGPR[REG_a1]._u32_0); 
-	op2 = (u64)((u64)gGPR[REG_a2]._u32_0 << 32 | (u64)gGPR[REG_a3]._u32_0); 
+	u64 op1 = (u64)((u64)gGPR[REG_a0]._u32_0 << 32 | (u64)gGPR[REG_a1]._u32_0); 
+	//u64 op2 = (u64)((u64)gGPR[REG_a2]._u32_0 << 32 | (u64)gGPR[REG_a3]._u32_0); 
+	u32 op2 = gGPR[REG_a3]._u32_0; 
 	
-	result = op1 >> op2; 
+	u64 result = op1 >> op2; 
 	// StrmnNrmn - the s32 casts were originally u32. Not sure if this is needed
-	gGPR[REG_v1]._s64 = (s64)(s32)(result & 0xffffffff); 
-	gGPR[REG_v0]._s64 = (s64)(s32)(result>>32); 
+	//gGPR[REG_v1]._s64 = (s64)(s32)(result & 0xffffffff); 
+	//gGPR[REG_v0]._s64 = (s64)(s32)(result>>32); 
+	gGPR[REG_v1]._u64 = result & 0xffffffff; 
+	gGPR[REG_v0]._u64 = result >> 32; 
 	return PATCH_RET_JR_RA; 
 } 
 
@@ -93,36 +150,35 @@ TEST_DISABLE_MATH_FUNCS
 u32 Patch___ll_lshift() 
 { 
 TEST_DISABLE_MATH_FUNCS
-	s64 op1, result; 
-	u64 op2; 
-
+	//printf("Lshift\n");
 	// Fixed by  StrmnNrmn - regs cast to 32 bits so shift didn't work
-	op1 = (s64)((u64)gGPR[REG_a0]._u32_0 << 32 | (u64)gGPR[REG_a1]._u32_0); 
-	op2 = (u64)((u64)gGPR[REG_a2]._u32_0 << 32 | (u64)gGPR[REG_a3]._u32_0); 
+	s64 op1 = (s64)((u64)gGPR[REG_a0]._u32_0 << 32 | (u64)gGPR[REG_a1]._u32_0); 
+	//u64 op2 = (u64)((u64)gGPR[REG_a2]._u32_0 << 32 | (u64)gGPR[REG_a3]._u32_0); 
+	u32 op2 = gGPR[REG_a3]._u32_0; 
 	
-	result = op1 << op2; 
+	s64 result = op1 << op2; 
 	// StrmnNrmn - the s32 casts were originally u32. Not sure if this is needed
 	gGPR[REG_v1]._s64 = (s64)(s32)(result & 0xffffffff); 
-	gGPR[REG_v0]._s64 = (s64)(s32)(result>>32); 
+	gGPR[REG_v0]._s64 = (s64)(s32)(result >> 32); 
 	return PATCH_RET_JR_RA; 
 } 
 
 
 // By Jun Su
+//Used by SSV
 u32 Patch___ll_rshift() 
 { 
 TEST_DISABLE_MATH_FUNCS
-	s64 op1, result; 
-	u64 op2; 
-	
+	//printf("ARshift\n");
 	// Fixed by  StrmnNrmn - regs cast to 32 bits so shift didn't work
-	op1 = (s64)((u64)gGPR[REG_a0]._u32_0 << 32 | (u64)gGPR[REG_a1]._u32_0); 
-	op2 = (u64)((u64)gGPR[REG_a2]._u32_0 << 32 | (u64)gGPR[REG_a3]._u32_0); 
+	s64 op1 = (s64)((u64)gGPR[REG_a0]._u32_0 << 32 | (u64)gGPR[REG_a1]._u32_0); 
+	//u64 op2 = (u64)((u64)gGPR[REG_a2]._u32_0 << 32 | (u64)gGPR[REG_a3]._u32_0); 
+	u32 op2 = gGPR[REG_a3]._u32_0; 
 	
-	result = op1 >> op2; 
+	s64 result = op1 >> op2; 
 	// StrmnNrmn - the s32 casts were originally u32. Not sure if this is needed
-	gGPR[REG_v1]._s64 = (s64)(s32)(result & 0xffffffff); 
-	gGPR[REG_v0]._s64 = (s64)(s32)(result>>32); 
+	gGPR[REG_v1]._s64 = (s32)(result & 0xffffffff);  
+	gGPR[REG_v0]._s64 = (result >> 32); 
 	return PATCH_RET_JR_RA; 
 } 
 
@@ -130,11 +186,10 @@ TEST_DISABLE_MATH_FUNCS
 u32 Patch___ll_mod() 
 { 
 TEST_DISABLE_MATH_FUNCS
-	s64 op1, op2, result; 
-	
+	//printf("MOD\n");
 	// Fixed by  StrmnNrmn - regs cast to 32 bits so shift didn't work
-	op1 = (s64)((u64)gGPR[REG_a0]._u32_0 << 32 | (u64)gGPR[REG_a1]._u32_0); 
-	op2 = (s64)((u64)gGPR[REG_a2]._u32_0 << 32 | (u64)gGPR[REG_a3]._u32_0); 
+	s64 op1 = (s64)((u64)gGPR[REG_a0]._u32_0 << 32 | (u64)gGPR[REG_a1]._u32_0); 
+	s64 op2 = (s64)((u64)gGPR[REG_a2]._u32_0 << 32 | (u64)gGPR[REG_a3]._u32_0); 
 	
 	if (op2==0) 
 	{ 
@@ -142,10 +197,10 @@ TEST_DISABLE_MATH_FUNCS
 	} 
 	else 
 	{ 
-		result = op1 % op2; 
+		s64 result = op1 % op2; 
 		// StrmnNrmn - the s32 casts were originally u32. Not sure if this is needed
-		gGPR[REG_v1]._s64 = (s64)(s32)(result & 0xffffffff); 
-		gGPR[REG_v0]._s64 = (s64)(s32)(result>>32); 
+		gGPR[REG_v1]._s64 = (s32)(result & 0xffffffff); 
+		gGPR[REG_v0]._s64 = (result >> 32); 
 		return PATCH_RET_JR_RA; 
 	} 
 } 
@@ -203,10 +258,8 @@ TEST_DISABLE_MATH_FUNCS
 
 u32 Patch___ull_rem()
 {
-	u64 op1, op2, result; 
-
-	op1 = (u64)((u64)gGPR[REG_a0]._u32_0 << 32 | (u64)gGPR[REG_a1]._u32_0); 
-	op2 = (u64)((u64)gGPR[REG_a2]._u32_0 << 32 | (u64)gGPR[REG_a3]._u32_0); 
+	u64 op1 = (u64)((u64)gGPR[REG_a0]._u32_0 << 32 | (u64)gGPR[REG_a1]._u32_0); 
+	u64 op2 = (u64)((u64)gGPR[REG_a2]._u32_0 << 32 | (u64)gGPR[REG_a3]._u32_0); 
 
 	if (op2==0) 
 	{ 
@@ -214,7 +267,7 @@ u32 Patch___ull_rem()
 	} 
 	else 
 	{ 
-		result = op1 % op2; 
+		u64 result = op1 % op2; 
 		// StrmnNrmn - the s32 casts were originally u32. Not sure if this is needed
 		gGPR[REG_v1]._s64 = (s64)(s32)(result & 0xffffffff); 
 		gGPR[REG_v0]._s64 = (s64)(s32)(result>>32); 
@@ -232,6 +285,7 @@ u32 Patch___ull_divremi()
 
 u32 Patch___lldiv()
 {
+	//Calls ll_div and ull_mul
 	return PATCH_RET_NOT_PROCESSED;
 }
 

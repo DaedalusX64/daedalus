@@ -8,8 +8,8 @@ u32 Patch___osDisableInt_Mario()
 TEST_DISABLE_REG_FUNCS
 	u32 CurrSR = gCPUState.CPUControl[C0_SR]._u32_0;
 
-	gCPUState.CPUControl[C0_SR]._u64 = CurrSR & ~SR_IE;
-	gGPR[REG_v0]._u64 = CurrSR & SR_IE;
+	gCPUState.CPUControl[C0_SR]._u32_0 = CurrSR & ~SR_IE;
+	gGPR[REG_v0]._u32_0 = CurrSR & SR_IE;
 
 	return PATCH_RET_JR_RA;
 }
@@ -23,8 +23,8 @@ TEST_DISABLE_REG_FUNCS
 	// Same as the above
 	u32 CurrSR = gCPUState.CPUControl[C0_SR]._u32_0;
 
-	gCPUState.CPUControl[C0_SR]._u64 = CurrSR & ~SR_IE;
-	gGPR[REG_v0]._u64 = CurrSR & SR_IE;
+	gCPUState.CPUControl[C0_SR]._u32_0 = CurrSR & ~SR_IE;
+	gGPR[REG_v0]._u32_0 = CurrSR & SR_IE;
 
 	return PATCH_RET_JR_RA;
 }
@@ -37,7 +37,7 @@ TEST_DISABLE_REG_FUNCS
 u32 Patch___osRestoreInt()
 {
 TEST_DISABLE_REG_FUNCS
-	gCPUState.CPUControl[C0_SR]._u64 |= gGPR[REG_a0]._u64;
+	gCPUState.CPUControl[C0_SR]._u32_0 |= gGPR[REG_a0]._u32_0;
 
 	// Check next interrupt, otherwise Doom64 and other games won't boot.
 	//
@@ -56,7 +56,7 @@ u32 Patch_osGetCount()
 {
 TEST_DISABLE_REG_FUNCS
 	// Why is this 32bit? See R4300.cpp
-	gGPR[REG_v0]._s64 = (s64)gCPUState.CPUControl[C0_COUNT]._s32_0;	
+	gGPR[REG_v0]._u32_0 = gCPUState.CPUControl[C0_COUNT]._u32_0;	
 
 	return PATCH_RET_JR_RA;
 }
@@ -68,7 +68,7 @@ u32 Patch___osGetCause()
 {
 TEST_DISABLE_REG_FUNCS
 	// Why is this 32bit? See R4300.cpp
-	gGPR[REG_v0]._s64 = (s64)gCPUState.CPUControl[C0_CAUSE]._s32_0;
+	gGPR[REG_v0]._u32_0 = (s64)gCPUState.CPUControl[C0_CAUSE]._u32_0;
 
 	return PATCH_RET_JR_RA;
 }
@@ -106,7 +106,7 @@ u32 Patch___osGetSR()
 {
 TEST_DISABLE_REG_FUNCS
 	// Why is this 32bit?
-	gGPR[REG_v0]._s64 = (s64)gCPUState.CPUControl[C0_SR]._s32_0;
+	gGPR[REG_v0]._u32_0 = gCPUState.CPUControl[C0_SR]._u32_0;
 
 	//DBGConsole_Msg(0, "__osGetSR()");
 	
@@ -120,7 +120,7 @@ u32 Patch___osSetFpcCsr()
 {
 TEST_DISABLE_REG_FUNCS
 	// Why is the CFC1 32bit?
-	gGPR[REG_v0]._s64 = (s64)gCPUState.FPUControl[31]._s32_0;
+	gGPR[REG_v0]._u32_0 = gCPUState.FPUControl[31]._u32_0;
 	gCPUState.FPUControl[31] = gGPR[REG_a0];
 	
 	DBGConsole_Msg(0, "__osSetFpcCsr()");
