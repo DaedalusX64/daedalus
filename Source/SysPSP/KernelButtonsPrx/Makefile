@@ -1,4 +1,4 @@
-TARGET = kernelbuttons
+TARGET = imposectrl
 OBJS = main.o
 
 INCDIR =
@@ -16,18 +16,18 @@ USE_KERNEL_LIBS=1
  
 LIBDIR =
 LDFLAGS = -mno-ctr0 -nostartfiles
-LIBS=$(STDLIBS)$(YOURLIBS)
+LIBS = -lpspctrl_driver
 
 PSP_FW_VERSION=500
 
 PSPSDK=$(shell psp-config --pspsdk-path)
 include $(PSPSDK)/lib/build.mak
 
-EXTRA_TARGETS += kernelbuttons.S
-EXTRA_CLEAN += kernelbuttons.o
+EXTRA_TARGETS += imposectrl.S
+EXTRA_CLEAN += imposectrl.o
 
-kernelbuttons.S : $(PRX_EXPORTS)
+imposectrl.S : $(PRX_EXPORTS)
 	psp-build-exports --build-stubs $(PRX_EXPORTS)
 
-all: $(FINAL_TARGET) kernelbuttons.S
+all: $(FINAL_TARGET) imposectrl.S
 	cp $(FINAL_TARGET) "../../.."

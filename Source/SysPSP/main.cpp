@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspsdk.h>
 #include <pspdisplay.h>
 #include <pspgu.h>
+#include <pspkernel.h>
 #include <kubridge.h>
 #include <pspsysmem.h>
 
@@ -66,7 +67,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ConfigOptions.h"
 
 /* Undef to kill Exit Callback */
-#define DAEDALUS_CALLBACKS
+//#define DAEDALUS_CALLBACKS
 
 char gDaedalusExePath[MAX_PATH+1] = DAEDALUS_PSP_PATH( "" );
 
@@ -218,11 +219,7 @@ static int PanicThread( SceSize args, void * argp )
 	while(1)
 	{
 		SceCtrlData pad;
-
-		if( gButtons.mode )
-			KernelPeekBufferPositive(&pad, 1); 
-		else
-			sceCtrlPeekBufferPositive(&pad, 1); 
+		sceCtrlPeekBufferPositive(&pad, 1); 
 
 		// Start reading our buttons
 		DaedalusReadButtons( pad.Buttons );
@@ -295,6 +292,9 @@ static bool	Initialize()
 	// Set up our Kernel Buttons : Home, Vol- +, etc
 	InitButtons();
 
+	// Unset home button and imposed to allow use it as normal button
+	SetImposeHomeButton(0x10000, 0); 
+
 	// Force non-kernelbuttons when profiling
 #ifdef DAEDALUS_PSP_GPROF
 	gButtons.mode = false;
@@ -312,8 +312,8 @@ static bool	Initialize()
 #endif
 	}
 
-	//Set up the DveMgr (TV Display) and Detect PSP Slim or newer models
-	if ( kuKernelGetModel() == PSP_MODEL_SLIM_AND_LITE )	// PSP SLIM
+	//Set up the DveMgr (TV Display) and Detect PSP Slim 
+	if ( kuKernelGetModel() == PSP_MODEL_SLIM_AND_LITE )
 	{
 		PSP_IS_SLIM = true;
 		HAVE_DVE = pspSdkLoadStartModule("dvemgr.prx", PSP_MEMORY_PARTITION_KERNEL);
@@ -321,13 +321,6 @@ static bool	Initialize()
 			PSP_TV_CABLE = pspDveMgrCheckVideoOut();
 		if (PSP_TV_CABLE == 1)
 			PSP_TV_LACED = 1; // composite cable => interlaced
-	}
-	else if( kuKernelGetModel() == PSP_MODEL_STANDARD )	{}	// PSP PHAT
-	else													// PSP Go and PSP3k
-	{
-		// Currently HEN doesn't work well with our kernelbuttons nor extra memory
-		//
-		gButtons.mode = false;
 	}
 
 	HAVE_DVE = (HAVE_DVE < 0) ? 0 : 1; // 0 == no dvemgr, 1 == dvemgr
@@ -441,7 +434,7 @@ void HandleEndOfFrame()
 
 	if(oldButtons != gButtons.type)
 	{
-		if(gButtons.type & PSP_CTRL_HOME)
+		if(gButtons.type & gButtons.style)
 		{
 			activate_pause_menu = true;
 		}

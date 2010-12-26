@@ -19,26 +19,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <pspsdk.h>
 #include <pspkernel.h>
-#include <pspctrl.h>
+#include <pspctrl_kernel.h>
  
-PSP_MODULE_INFO("kbuttons", 0x1000, 1, 1);
+PSP_MODULE_INFO("impose ctrl", 0x1000, 1, 1);
+PSP_MAIN_THREAD_ATTR(0);
 //PSP_HEAP_SIZE_KB(32);
 //PSP_NO_CREATE_MAIN_THREAD();
 //*************************************************************************************
 //
 //*************************************************************************************
-u32 KernelPeekBufferPositive(SceCtrlData * ctrl, u32 count)
+u32 SetImposeHomeButton(u32 mask, u32 type)
 {
-	int k1 = pspSdkSetK1 (0);
-	int ret = sceCtrlPeekBufferPositive(ctrl, count);
-	pspSdkSetK1 (k1);
-	return ret;
+	sceCtrlSetButtonMasks(mask, type);
+	return 0;
 }
 
 //*************************************************************************************
 //
 //*************************************************************************************
-int module_start(SceSize args, void *argp)
+u32 module_start(SceSize args, void *argp)
 {
 	return 0;
 }
@@ -46,7 +45,7 @@ int module_start(SceSize args, void *argp)
 //*************************************************************************************
 //
 //*************************************************************************************
-int module_stop()
+u32 module_stop()
 {
 	return 0;
 }
