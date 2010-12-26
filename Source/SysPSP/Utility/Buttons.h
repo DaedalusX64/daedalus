@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 extern "C" 
 {
-	u32 KernelPeekBufferPositive(SceCtrlData * ctrl, u32 count);
+	int SetImposeHomeButton(u32 ctrl, u32 count);
 }
 
 //*************************************************************************************

@@ -35,7 +35,7 @@ PSPButtons gButtons;
 //*****************************************************************************
 void InitButtons()
 {
-	int gGetKernelButtons = pspSdkLoadStartModule("kernelbuttons.prx", PSP_MEMORY_PARTITION_KERNEL);
+	int gGetKernelButtons = pspSdkLoadStartModule("imposectrl.prx", PSP_MEMORY_PARTITION_KERNEL);
 
 
 	// Start our stack for either kernel or usermode buttons

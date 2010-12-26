@@ -117,7 +117,7 @@ DAED_PSP_SRCS =		Source/SysPSP/Graphics/DrawText.cpp \
 			Source/SysPSP/MediaEnginePRX/MediaEngine.S \
 			Source/SysPSP/MediaEnginePRX/me.c \
 			Source/SysPSP/DveMgr/pspDveManager.S \
-			Source/SysPSP/KernelButtonsPrx/kernelbuttons.S \
+			Source/SysPSP/KernelButtonsPrx/imposectrl.S \
 			Source/SysPSP/Utility/Buttons.cpp \
 			Source/SysPSP/Utility/exception.cpp
 
@@ -224,7 +224,7 @@ LIBDIR = $(PSPDEV)/SDK/lib ./SDK/lib
 
 LIBS = -lsupc++ -lstdc++ -lpsppower -lpspgu -lpspaudiolib -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspvfpu -lpspkubridge
 
-EXTRA_TARGETS = EBOOT.PBP dvemgr.prx exception.prx mediaengine.prx kernelbuttons.prx
+EXTRA_TARGETS = EBOOT.PBP dvemgr.prx exception.prx mediaengine.prx imposectrl.prx
 
 PSP_EBOOT_TITLE = DaedalusX64 Alpha
 PSP_EBOOT_ICON  = icon0.png
@@ -319,10 +319,10 @@ mediaengine.prx:
 exception.prx:
 	$(MAKE) -C Source/SysPSP/ExceptionHandler/prx all
 
-Source/SysPSP/KernelButtonsPrx/kernelbuttons.o:
-	$(MAKE) -C Source/SysPSP/KernelButtonsPrx kernelbuttons.o
+Source/SysPSP/KernelButtonsPrx/imposectrl.o:
+	$(MAKE) -C Source/SysPSP/KernelButtonsPrx imposectrl.o
 
-kernelbuttons.prx:
+imposectrl.prx:
 	$(MAKE) -C Source/SysPSP/KernelButtonsPrx all
 
 allclean: clean
