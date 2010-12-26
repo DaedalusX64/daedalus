@@ -22,18 +22,17 @@
 #include "../stdafx.h"
 #include "UcodeDefs.h"
 
+#define MAX_UCODE		16	// Increase this everytime a new ucode table is added !
+#define UCODE_CACHED	MAX_UCODE + 1
+
 typedef void(*MicroCodeInstruction)(MicroCodeCommand command);
 #define UcodeFunc(name)	void name(MicroCodeCommand)
 
-extern const MicroCodeInstruction gInstructionLookup[13][256];
+extern const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256];
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
 extern const char * gInstructionName[3][256];
-//DKR: 00229BA8: 05710080 001E4AF0 CMD G_DMATRI  Triangles 9 at 801E4AF0
 #endif
-//
-// This mostly based from ucode.h from Rice Video and Glide Napalm :)
-//
 
 //*****************************************************************************
 // GBI1

@@ -20,7 +20,7 @@
 #include "Ucode.h"
 #include "stdafx.h"
 
-const MicroCodeInstruction gInstructionLookup[13][256] =
+const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256] =
 {
 	// uCode 0 - RSP SW 2.0X
 	// Games: Super Mario 64, Tetrisphere, Demos
