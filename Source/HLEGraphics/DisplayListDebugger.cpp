@@ -54,7 +54,7 @@
 
 using std::sort;
 
-extern float	DECAL_Z_OFFSET;
+extern float	TEST_VARX, TEST_VARY;
 extern void		PrintMux( FILE * fh, u64 mux );
 
 namespace
@@ -666,23 +666,31 @@ class CDecalOffsetDebugMenuOption : public CDebugMenuOption
 	public:	
 		virtual void			Display() const;
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
-		virtual const char *	GetDescription() const									{ return "Decal Offset"; }
+		virtual const char *	GetDescription() const									{ return "TEST variable"; }
 };
 
 void CDecalOffsetDebugMenuOption::Display() const
 {
-	printf( "ZDecal offset is %f\n", DECAL_Z_OFFSET );
+	printf( "TEST variable X:%0.2f Y:%0.2f\n", TEST_VARX, TEST_VARY );
 	printf( "   Use [] to return\n" );
-	printf( "   Use stick up/down to adjust\n" );
+	printf( "   Use stick up/down & left/right to adjust\n" );
 }
 
 void CDecalOffsetDebugMenuOption::Update( const SPspPadState & pad_state, float elapsed_time )
 {
-	const float DECAL_Z_CHANGE_PER_SECOND = 1;
+	const float CHANGE_PER_SECOND = 10;
 
+	if( pad_state.Stick.x != 0 )
+	{
+		//TEST_VAR += pad_state.Stick.y * CHANGE_PER_SECOND * elapsed_time;
+		if(pad_state.Stick.x > 0) TEST_VARX += CHANGE_PER_SECOND * elapsed_time;
+		else TEST_VARX -= CHANGE_PER_SECOND * elapsed_time;
+		InvalidateDisplay();
+	}
 	if( pad_state.Stick.y != 0 )
 	{
-		DECAL_Z_OFFSET += pad_state.Stick.y * DECAL_Z_CHANGE_PER_SECOND * elapsed_time;
+		if(pad_state.Stick.y < 0) TEST_VARY += CHANGE_PER_SECOND * elapsed_time;
+		else TEST_VARY -= CHANGE_PER_SECOND * elapsed_time;
 		InvalidateDisplay();
 	}
 }

@@ -163,7 +163,9 @@ bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char * str,
 u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size)
 {
 	u32 i;
-	u32 ucode_version;
+	u32 ucode_version = 0;
+	MicrocodeData microcode;
+	microcode.ucode = 0;
 	char str[256] = "";
 	char* title = (char*)g_ROM.settings.GameName.c_str();
 	if( code_size == 0 ) code_size = 0x1000;
@@ -191,7 +193,6 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 		}
 	}
 #endif
-	MicrocodeData microcode;
 
 	// Cheap way to cache ucodes, we don't check for empty strings though, but they should be handled by the match switch, and then cached.
 	// This only needed when games use LoadUcode, else is handled else DLParser_Process :)

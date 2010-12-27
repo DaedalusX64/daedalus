@@ -115,12 +115,11 @@ void PrintMux( FILE * fh, u64 mux )
 /* To Devs,
  Once blendmodes are complete please clean up after yourself before commiting.
  
- Blending Options
-
+* Blending Options
  details.ColourAdjuster.SetRGB();
  details.ColourAdjuster.SetA();
  details.ColourAdjuster.SetRGBA();
-details.ColourAdjuster.ModulateA();
+ details.ColourAdjuster.ModulateA();
  
 **** These things go into above brackets
  
@@ -137,14 +136,14 @@ details.ColourAdjuster.ModulateA();
  -- Closure of blend
  sceGuTexFunc(xx,yy); - This is used in the texture function when a constant color is needed.
  
- xx 
+* xx 
  GU_TFX_MODULATE - The texture is multiplied with the current diffuse fragment
  GU_TFX_REPLACE - The texture replaces the fragment
  GU_TFX_ADD - The texture is added on-top of the diffuse fragment
  GU_TFX_BLEND - 
  GU_TFX_DECAL - 
  
-
+* yy
  The fields TCC_RGB and TCC_RGBA specify components that differ between the two different component modes.
 
  Component-modes only !!! (TCC)

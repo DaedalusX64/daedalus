@@ -517,7 +517,7 @@ static void	DLParser_ProcessDList()
 	MicroCodeCommand command;
 
 	//Clean frame buffer at DList start if selected
-	if( gCleanSceneEnabled && CGraphicsContext::CleanScene )
+	if( gCleanSceneEnabled & CGraphicsContext::CleanScene )
 	{
 		CGraphicsContext::Get()->Clear(true, false);
 		CGraphicsContext::CleanScene = false;
@@ -543,38 +543,37 @@ static void	DLParser_ProcessDList()
 		do
 		{
 			DLParser_FetchNextCommand(&command);
-		}
-		while( (command.inst.cmd > 0xE5) && (command.inst.cmd < 0xE9) ); 
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		//use the gInstructionName table for fecthing names.
-		//we use the table as is for GBI0, GBI1 and GBI2
-		//we fallback to GBI0 for custom ucodes (ucode_ver>2)
-		DL_PF("[%05d] 0x%08x: %08x %08x %-10s", gCurrentInstructionCount, pc, command.inst.cmd0, command.inst.cmd1, gUcodeName[command.inst.cmd ]);
-		gCurrentInstructionCount++;
+			//use the gInstructionName table for fecthing names.
+			//we use the table as is for GBI0, GBI1 and GBI2
+			//we fallback to GBI0 for custom ucodes (ucode_ver>2)
+			DL_PF("[%05d] 0x%08x: %08x %08x %-10s", gCurrentInstructionCount, pc, command.inst.cmd0, command.inst.cmd1, gUcodeName[command.inst.cmd ]);
+			gCurrentInstructionCount++;
 
-		if( gInstructionCountLimit != UNLIMITED_INSTRUCTION_COUNT )
-		{
-			if( gCurrentInstructionCount >= gInstructionCountLimit )
+			if( gInstructionCountLimit != UNLIMITED_INSTRUCTION_COUNT )
 			{
-				return;
+				if( gCurrentInstructionCount >= gInstructionCountLimit )
+				{
+					return;
+				}
 			}
-		}
 #endif
+		}
+		while( (command.inst.cmd > 0xE5) && (command.inst.cmd < 0xE9) ); 
 
 		//Profile current Ucode
 		PROFILE_DL_CMD( command.inst.cmd );
 
 		//Run Ucode command
-		//gInstructionLookup[ ucode_ver ][ command.inst.cmd ]( command ); 
 		gUcode[ command.inst.cmd ]( command ); 
 
 		// Check limit
 		if ( !gDisplayListStack.empty() )
 		{
-			// This is broken, we never reach EndDLInMem - Fix me
-			// Also there's a warning in debug mode of this always being false
-			if ( --gDisplayListStack.back().limit < 0 )
+			// This is broken, we never reach EndDLInMem - Fix me (not sure why but neither did the old way //Corn)
+			// Also there's a warning in debug mode of this always being false (FIXED //Corn)
+			if ( gDisplayListStack.back().limit-- == 0)
 			{
 				DL_PF("**EndDLInMem");
 				gDisplayListStack.pop_back();

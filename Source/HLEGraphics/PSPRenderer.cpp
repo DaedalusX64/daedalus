@@ -146,7 +146,9 @@ static const float gTexRectDepth( 0.0f );
 bool bStarOrigin = false;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST	
-f32 DECAL_Z_OFFSET = +3.14f;		// Found through trial an error for the PSP
+// General purpose variable used for debugging
+f32 TEST_VARX = 0.0f;
+f32 TEST_VARY = 0.0f;		
 
 ALIGNED_GLOBAL(u32,gWhiteTexture[gPlaceholderTextureWidth * gPlaceholderTextureHeight ], DATA_ALIGN);
 ALIGNED_GLOBAL(u32,gPlaceholderTexture[gPlaceholderTextureWidth * gPlaceholderTextureHeight ], DATA_ALIGN);
@@ -1423,7 +1425,7 @@ bool PSPRenderer::FlushTris()
 		{
 			for ( u32 v = 0; v < num_vertices; v++ )
 			{
-				p_vertices[v].Position.z += DECAL_Z_OFFSET;
+				p_vertices[v].Position.z += 3.14;
 			}
 		}*/
 	}

@@ -327,13 +327,15 @@ void RSP_HLE_ProcessTask()
 #endif
 			break;
 	}
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
+u32		status;
+#endif
 	switch( result )
 	{
 	case PR_STARTED:
 		// Started using HLE. No need to change cores
 #ifdef DAEDALUS_ENABLE_ASSERTS
-		u32		status( Memory_SP_GetRegister( SP_STATUS_REG ) );
+		status = Memory_SP_GetRegister( SP_STATUS_REG );
 		DAEDALUS_ASSERT( !gRSPHLEActive || (status & SP_STATUS_HALT) == 0, "HLE active (%d), but HALT set (%08x - was %08x on entry)", gRSPHLEActive, status, orig_status );
 #endif
 		break;
