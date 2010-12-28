@@ -29,15 +29,15 @@ private:
 	u32			LoadAddress;				// Corresponds to Address in Tile
 	//s16		Left;
 	//s16		Top;
-	u16			Width;
-	u16			Height;
+	u32			Width;
+	u32			Height;
 	u32			Pitch;
 
-	u16			TmemAddress;
-	unsigned	TLutIndex : 4;
-	unsigned	Format : 3;		// e.g. RGBA, IA
-	unsigned	Size : 2;		// e.g. 16bpp
-	unsigned	TLutFmt : 2;
+	u32			TmemAddress;
+	u32			TLutIndex : 4;
+	u32			Format : 3;		// e.g. RGBA, IA
+	u32			Size : 2;		// e.g. 16bpp
+	u32			TLutFmt : 2;
 	bool		Swapped : 1;	// Are odd lines word swapped?
 	bool		MirrorS : 1;
 	bool		MirrorT : 1;
@@ -72,14 +72,14 @@ public:
 	inline bool				IsSwapped() const				{ return Swapped; }
 
 	inline void				SetLoadAddress( u32 address )	{ LoadAddress = address; }
-	inline void				SetTmemAddress( u16 address )	{ TmemAddress = address; }
+	inline void				SetTmemAddress( u32 address )	{ TmemAddress = address; }
 	inline void				SetFormat( u32 format )			{ Format = format; }
 	inline void				SetSize( u32 size )				{ Size = size; }
-	inline void				SetWidth( u16 width )			{ Width = width; }
-	inline void				SetHeight( u16 height )			{ Height = height; }
+	inline void				SetWidth( u32 width )			{ Width = width; }
+	inline void				SetHeight( u32 height )			{ Height = height; }
 	inline void				SetPitch( u32 pitch )			{ Pitch = pitch; }
 	void					SetTLutFormat( u32 format );
-	inline void				SetTLutIndex( u8 index )		{ TLutIndex = index; }
+	inline void				SetTLutIndex( u32 index )		{ TLutIndex = index; }
 	inline void				SetSwapped( bool swapped )		{ Swapped = swapped; }
 	inline void				SetMirrorS( bool mirror_s )		{ MirrorS = mirror_s; }
 	inline void				SetMirrorT( bool mirror_t )		{ MirrorT = mirror_t; }

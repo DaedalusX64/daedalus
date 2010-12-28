@@ -31,6 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Profiler.h"
 #include "Utility/Hash.h"
 
+#include "Core/ROM.h"
+
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 //*************************************************************************************
 //
@@ -79,8 +81,9 @@ u32	TextureInfo::GetTLutFormat() const
 const void *	TextureInfo::GetPalettePtr() const
 {
 	// Want to advance 16x16bpp palette entries (i.e. 32 bytes into tmem for each palette), i.e. <<5.
-	u32 address = ( 0x100 + ( u32( TLutIndex ) << 2 ) ) << 3;
-	return &gTextureMemory[ address ];
+	// Fix for black textures MM but breaks Aerogauge //Corn
+	if ( GetSize() == G_IM_SIZ_4b && g_ROM.GameHacks == ZELDA_MM ) return &gTextureMemory[ ( 0x100 + ( TLutIndex << 4 ) ) << 3 ];
+	else return &gTextureMemory[ ( 0x100 + ( TLutIndex << 2 ) ) << 3 ];
 }
 
 //*************************************************************************************

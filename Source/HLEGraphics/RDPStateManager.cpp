@@ -94,7 +94,7 @@ void	CRDPStateManager::SetTileSize( u32 idx, const RDP_TileSize & tile_size )
 //*****************************************************************************
 void	CRDPStateManager::LoadBlock( u32 idx, u32 address, bool swapped )
 {
-	u32	tmem_address( mTiles[ idx ].tmem & 0xfff );
+	u32	tmem_address( mTiles[ idx ].tmem );
 
 	SLoadDetails &	load_details( mLoadMap[ tmem_address ] );
 	load_details.Address = address;
@@ -110,7 +110,7 @@ void	CRDPStateManager::LoadBlock( u32 idx, u32 address, bool swapped )
 void	CRDPStateManager::LoadTile( const RDP_TileSize & tile_size )
 {
 	u32 idx( tile_size.tile_idx );
-	u32	tmem_address( mTiles[ idx ].tmem & 0xfff );
+	u32	tmem_address( mTiles[ idx ].tmem );
 	
 	SLoadDetails &	load_details( mLoadMap[ tmem_address ] );
 	load_details.Address = g_TI.GetAddress( tile_size.left/4, tile_size.top/4 );
@@ -160,7 +160,7 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 
 		const RDP_Tile &		rdp_tile( mTiles[ idx ] );
 		const RDP_TileSize &	rdp_tilesize( mTileSizes[ idx ] );
-		u32						tmem_address( rdp_tile.tmem & 0xfff );
+		u32						tmem_address( rdp_tile.tmem );
 
 		LoadDetailsMap::const_iterator it( mLoadMap.find( tmem_address ) );
 
@@ -217,6 +217,8 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		{
 			palette = rdp_tile.palette;
 		}
+		
+		//if(rdp_tile.size == G_IM_SIZ_4b) printf("%d\n", palette);
 
 		ti.SetTmemAddress( rdp_tile.tmem );
 		ti.SetTLutIndex( palette ); 

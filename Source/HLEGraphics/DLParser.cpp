@@ -1576,6 +1576,54 @@ void DLParser_SetTImg( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
+#if 1
+void DLParser_LoadBlock( MicroCodeCommand command )
+{
+	u32 uls			= command.loadtile.sl;
+	u32 ult			= command.loadtile.tl;
+	u32 tile_idx	= command.loadtile.tile;
+	u32 lrs			= command.loadtile.sh;		// Number of bytes-1
+	u32 dxt			= command.loadtile.th;		// 1.11 fixed point
+
+	use(lrs);
+	//u32 size = lrs + 1;
+
+	bool	swapped;
+	//u32		bytes;
+
+	if (dxt == 0)
+	{
+		//bytes = 1 << 3;
+		swapped = true;
+	}
+	else
+	{
+		//bytes = ((2047 + dxt) / dxt) << 3;						// #bytes
+		swapped = false;
+	}
+
+	//u32		width( bytes2pixels( bytes, g_TI.Size ) );
+	//u32		pixel_offset( (width * ult) + uls );
+	//u32		offset( pixels2bytes( pixel_offset, g_TI.Size ) );
+	//u32		src_offset(g_TI.Address + offset);
+
+	//u32		src_offset = g_TI.Address + ult * bytes + (uls << g_TI.Size >> 1);
+	u32		src_offset = g_TI.Address + ult * (g_TI.Width << g_TI.Size >> 1) + (uls << g_TI.Size >> 1);
+
+	DL_PF("    Tile:%d (%d,%d - %d) DXT:0x%04x = %d Bytes => %d pixels/line", tile_idx, uls, ult, lrs, dxt, (g_TI.Width << g_TI.Size >> 1), width);
+	DL_PF("    Offset: 0x%08x", src_offset);
+
+	gRDPStateManager.LoadBlock( tile_idx, src_offset, swapped );
+
+	if( gTMEMemulation )
+	{
+		RDP_TileSize tile;
+		tile.cmd0 = command.inst.cmd0;
+		tile.cmd1 = command.inst.cmd1;
+		RDP_LoadBlock( tile );
+	}
+}
+#else
 void DLParser_LoadBlock( MicroCodeCommand command )
 {
 	u32 uls			= command.loadtile.sl;
@@ -1620,7 +1668,7 @@ void DLParser_LoadBlock( MicroCodeCommand command )
 		RDP_LoadBlock( tile );
 	}
 }
-
+#endif
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -1643,21 +1691,25 @@ void DLParser_LoadTile( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_LoadTLut( MicroCodeCommand command )
 {
-	u32 uls     = command.loadtile.sl/4;
-	u32 ult		= command.loadtile.tl/4;
+	u32 uls     = command.loadtile.sl >> 2;
+	u32 ult		= command.loadtile.tl >> 2;
 	u32 tile_idx= command.loadtile.tile;
-	u32 lrs     = command.loadtile.sh/4;
+	u32 lrs     = command.loadtile.sh >> 2;
 
 	//This corresponds to the number of palette entries (16 or 256)
-	u32 count = (lrs - uls)+1;
+	u32 count = (lrs - uls) + 1;
+	if(count & ~0x110) return; //bail if not 16/256, MM gives 64 on occation wich is wrong //Corn
 
 	// Format is always 16bpp - RGBA16 or IA16:
-	u32 offset = (uls + ult*g_TI.Width)*2;
+	u32 offset = ((uls + ult * g_TI.Width) * 2);
+	//offset &= 0x0FFF;
 
 	//Copy PAL to the PAL memory
 	u32 tmem = gRDPTiles[ tile_idx ].tmem << 3;
-	u16 * p_source = (u16 *)&g_pu8RamBase[ g_TI.Address + offset ];
-	u16 * p_dest = (u16*)&gTextureMemory[ tmem ];
+	u16 * p_source = (u16*)&g_pu8RamBase[ g_TI.Address + offset ];
+	u16 * p_dest   = (u16*)&gTextureMemory[ tmem ];
+
+	//printf("Addr %08X : TMEM %03X : Tile %d : P %d : Orig %d\n",g_TI.Address + offset, tmem, tile_idx, count, offset); 
 
 #if 1
 	memcpy_vfpu_BE(p_dest, p_source, count << 1);
@@ -1665,7 +1717,9 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	for (u32 i=0; i<count; i++)
 	{
 		p_dest[ i ] = p_source[ i ];
+		//if(count & 0x10) printf("%04X ",p_source[ i ]);
 	}
+	//if(count & 0x10) printf("\n");
 #endif
 
 	// Format is always 16bpp - RGBA16 or IA16:
@@ -1675,7 +1729,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	//gPalAddresses[ rdp_tile.tmem ] = g_TI.Address + offset;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	u32 lrt = command.loadtile.th/4;
+	u32 lrt = command.loadtile.th >> 2;
 
 	if (gDisplayListFile != NULL)
 	{
