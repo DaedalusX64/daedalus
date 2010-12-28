@@ -178,9 +178,9 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	// This only needed for GBI1/SDEX1 games that use LoadUcode, else is we only check when t.ucode changes, which most of the time only happens once :)
 	//
 	// Breaks Yoshi, it mixes both gbi1/s2dex1 together.. will fix later
-	//
-	if( UcodeInfo.bUcodeKnown && ucode_version == microcode.ucode )
-		return UcodeInfo.bUcodeKnown;
+	// Breaks Fzero, it loads two ucode 2, even though is the same ucode table if the second ucode isn't load it, it will fail.. weird!
+	//if( UcodeInfo.bUcodeKnown && ucode_version == microcode.ucode )
+		//return UcodeInfo.bUcodeKnown;
 
 	UcodeInfo.bUcodeKnown = true;
 	//

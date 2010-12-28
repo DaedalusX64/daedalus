@@ -304,10 +304,6 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 		{
 			settings.CheckN64FPUsageDisable = p_property->GetBooleanValue( false );
 		}                 
-		if( p_section->FindProperty( "TMEMemulation", &p_property ) ) 	 
-		{ 	 
-			settings.TMEMemulation = p_property->GetBooleanValue( false ); 	 
-		}
 		if( p_section->FindProperty( "AudioRateMatch", &p_property ) ) 	 
 		{ 	 
 			settings.AudioRateMatch = p_property->GetBooleanValue( false ); 	 
@@ -435,8 +431,7 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	if( settings.DoubleDisplayEnabled )			fprintf(fh, "DoubleDisplayEnabled=no\n");
 	if( settings.SimulateDoubleDisabled )		fprintf(fh, "SimulateDoubleDisabled=yes\n");
 	if( settings.CleanSceneEnabled )			fprintf(fh, "CleanSceneEnabled=yes\n");
-	if( settings.CheckN64FPUsageDisable )		fprintf(fh, "CheckN64FPUsageDisable=yes\n");
-	if( settings.TMEMemulation )				fprintf(fh, "TMEMemulation=yes\n"); 	 	
+	if( settings.CheckN64FPUsageDisable )		fprintf(fh, "CheckN64FPUsageDisable=yes\n"); 	
 	if( settings.AudioRateMatch )				fprintf(fh, "AudioRateMatch=yes\n"); 
 	if( settings.FogEnabled )					fprintf(fh, "FogEnabled=yes\n"); 
 
@@ -497,7 +492,6 @@ RomSettings::RomSettings()
 ,	SimulateDoubleDisabled( false )
 ,	CleanSceneEnabled( false )
 ,	CheckN64FPUsageDisable( false )
-,   TMEMemulation( false )
 ,	AudioRateMatch( false )
 ,	FogEnabled( false )
 ,	RescanCount(0)
@@ -530,7 +524,6 @@ void	RomSettings::Reset()
 	SimulateDoubleDisabled = false;
 	CleanSceneEnabled = false;
 	CheckN64FPUsageDisable = false;
-	TMEMemulation = false;
 	AudioRateMatch = false;
 	FogEnabled = false;
 	RescanCount = 0;

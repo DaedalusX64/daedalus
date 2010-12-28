@@ -147,7 +147,6 @@ struct SRomPreferences
 	bool						SimulateDoubleDisabled;
 	bool						CleanSceneEnabled;
 	bool						CheckN64FPUsageDisable;
-	bool                        TMEMemulation;
 	bool						AudioRateMatch;
 	bool						FogEnabled;
 

@@ -76,6 +76,7 @@ void	RDP_SetMux( u64 mux )
 //
 void RDP_LoadBlock( RDP_TileSize command )
 {
+#if RDP_EMULATE_TMEM
 	//u32 dwULS		= command.left / 4;		// 0
 	//u32 dwULT		= command.top  / 4;		// 0
 	u32 dwTile		= command.tile_idx;
@@ -138,6 +139,7 @@ void RDP_LoadBlock( RDP_TileSize command )
 			ram += dwBytesPerLine;
 		}
 	}
+#endif
 }
 
 //*************************************************************************************

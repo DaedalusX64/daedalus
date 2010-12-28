@@ -124,7 +124,6 @@ IAdvancedOptionsScreen::IAdvancedOptionsScreen( CUIContext * p_context, const Ro
 	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecLoopOptimisation, "Dynamic Loop Optimisation", "Whether the dynarec loop optimisation is enabled for this rom", "Enabled", "Disabled" ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.DoubleDisplayEnabled, "Double Display Lists", "Whether or not Double Display Lists are enabled", "Enabled", "Disabled" ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.CheckN64FPUsageDisable, "Disable N64 FP Usage Check", "Disabling it can cause many bad side effects, on the other hand sometimes it can fix or improve some games",  "Yes", "No" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.TMEMemulation, "Basic TMEM Emulation", "Whether partial emulation of the N64 texture memory area is enabled (This can slow down the emulator)", "Enabled", "Disabled" ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.AudioRateMatch, "Audio Rate Match", "Whether to match audio rate to the frame rate (works between 50-100% sync)", "Yes", "No" ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.FogEnabled, "Fog Emulation", "Whether to enable or disable fog emulation   (Experimental)", "Enabled", "Disabled" ) );
 

@@ -54,7 +54,6 @@ extern bool	gSpeedSyncEnabled;
 extern bool gDoubleDisplayEnabled;
 extern bool gSimulateDoubleDisabled;
 extern bool gCheckN64FPUsageDisable;
-extern bool gTMEMemulation;
 extern bool gAudioRateMatch;
 extern bool gFogEnabled;
 //ToDo: Needs moving to Graphics plugin config

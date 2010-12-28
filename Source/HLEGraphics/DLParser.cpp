@@ -1610,18 +1610,17 @@ void DLParser_LoadBlock( MicroCodeCommand command )
 	//u32		src_offset = g_TI.Address + ult * bytes + (uls << g_TI.Size >> 1);
 	u32		src_offset = g_TI.Address + ult * (g_TI.Width << g_TI.Size >> 1) + (uls << g_TI.Size >> 1);
 
-	DL_PF("    Tile:%d (%d,%d - %d) DXT:0x%04x = %d Bytes => %d pixels/line", tile_idx, uls, ult, lrs, dxt, (g_TI.Width << g_TI.Size >> 1), width);
+	DL_PF("    Tile:%d (%d,%d - %d) DXT:0x%04x = %d Bytes => %d pixels/line", tile_idx, uls, ult, lrs, dxt, (g_TI.Width << g_TI.Size >> 1));
 	DL_PF("    Offset: 0x%08x", src_offset);
 
 	gRDPStateManager.LoadBlock( tile_idx, src_offset, swapped );
 
-	if( gTMEMemulation )
-	{
-		RDP_TileSize tile;
-		tile.cmd0 = command.inst.cmd0;
-		tile.cmd1 = command.inst.cmd1;
-		RDP_LoadBlock( tile );
-	}
+#if RDP_EMULATE_TMEM
+	RDP_TileSize tile;
+	tile.cmd0 = command.inst.cmd0;
+	tile.cmd1 = command.inst.cmd1;
+	RDP_LoadBlock( tile );
+#endif
 }
 #else
 void DLParser_LoadBlock( MicroCodeCommand command )
@@ -1660,13 +1659,12 @@ void DLParser_LoadBlock( MicroCodeCommand command )
 
 	gRDPStateManager.LoadBlock( tile_idx, src_offset, swapped );
 
-	if( gTMEMemulation )
-	{
-		RDP_TileSize tile;
-		tile.cmd0 = command.inst.cmd0;
-		tile.cmd1 = command.inst.cmd1;
-		RDP_LoadBlock( tile );
-	}
+#if RDP_EMULATE_TMEM
+	RDP_TileSize tile;
+	tile.cmd0 = command.inst.cmd0;
+	tile.cmd1 = command.inst.cmd1;
+	RDP_LoadBlock( tile );
+#endif
 }
 #endif
 //*****************************************************************************
