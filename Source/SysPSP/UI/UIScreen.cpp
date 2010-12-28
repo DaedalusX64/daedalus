@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <pspctrl.h>
 
-//const u32 PSP_BUTTONS_MASK( 0xffff );		// Mask off e.g. PSP_CTRL_HOME, PSP_CTRL_HOLD etc
+const u32 PSP_BUTTONS_MASK( 0xffff );		// Mask off e.g. PSP_CTRL_HOME, PSP_CTRL_HOLD etc
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -58,18 +58,18 @@ void	CUIScreen::Run()
 	static const s32	STICK_DEADZONE = 20;
 
 	CTimer		timer;
+	SceCtrlData	pad;
 
 	// Simple rom chooser
 	while( !IsFinished() )
 	{
 		// Only stick reading is needed.
-		SceCtrlData		pad2;
-		sceCtrlPeekBufferPositive(&pad2, 1);
+		sceCtrlPeekBufferPositive(&pad, 1);
 
 		float		elapsed_time( timer.GetElapsedSeconds() );
 
-		s32		stick_x( pad2.Lx - 128 );
-		s32		stick_y( pad2.Ly - 128 );
+		s32		stick_x( pad.Lx - 128 );
+		s32		stick_y( pad.Ly - 128 );
 
 
 		if(stick_x >= -STICK_DEADZONE && stick_x <= STICK_DEADZONE)
@@ -101,14 +101,11 @@ void	CUIScreen::Run()
 
 	//
 	//	Wait until all buttons are release before continuing
-	//
+	//  We do this to avoid any undesirable button input after returning to the emulation from pause menu.
 	
-	/*while( (pad.Buttons & PSP_BUTTONS_MASK) != 0 )
+	while( (gButtons.type & PSP_BUTTONS_MASK) != 0 )
 	{
-		if( gKernelButtons.mode )
-			KernelPeekBufferPositive(&pad, 1); 
-		else
-			sceCtrlPeekBufferPositive(&pad, 1); 
-	}*/
+		sceCtrlPeekBufferPositive(&pad, 1); 
+	}
 
 }

@@ -376,7 +376,7 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 //***************************************************************************** 
 // 
 //***************************************************************************** 
-// AST, Yoshi's World, Scooby Doo, and Mario Golf use this 
+// AST, Yoshi's World, Scooby Doo
 //
 void DLParser_GBI1_LoadUCode( MicroCodeCommand command ) 
 { 
@@ -386,6 +386,14 @@ void DLParser_GBI1_LoadUCode( MicroCodeCommand command )
     u32 data_size = (command.inst.cmd0 & 0xFFFF) + 1; // set into range otherwise can go loco (SSV) as -1358952448.. which misses our expected 4096 size...
 
 	DLParser_InitMicrocode( code_base, code_size, data_base, data_size ); 
+}
+
+//***************************************************************************** 
+// 
+//***************************************************************************** 
+void DLParser_GBI2_LoadUCode( MicroCodeCommand command ) 
+{
+	DL_PF( "	GBI2_LoadUCode (Ignored)" );
 }
 
 //*****************************************************************************

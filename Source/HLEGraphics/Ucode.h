@@ -22,7 +22,7 @@
 #include "../stdafx.h"
 #include "UcodeDefs.h"
 
-#define MAX_UCODE		16	// Increase this everytime a new ucode table is added !
+#define MAX_UCODE		12	// Increase this everytime a new ucode table is added !
 #define UCODE_CACHED	MAX_UCODE + 1
 
 typedef void(*MicroCodeInstruction)(MicroCodeCommand command);

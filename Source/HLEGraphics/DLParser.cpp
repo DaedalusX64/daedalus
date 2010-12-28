@@ -110,7 +110,7 @@ extern LastUcodeInfo UcodeInfo;
 
 const MicroCodeInstruction *gUcode = gInstructionLookup[0];
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-const MicroCodeInstruction *gUcodeName = gInstructionName[0];
+//const char gUcodeName = gInstructionName[0];
 #endif
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
@@ -453,7 +453,7 @@ void	DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 
 	// Check if ucode has been set or cached
 	//
-	//if ( ucode == UCODE_CACHED )	return; // breaks LoadUcode
+	//if ( ucode == UCODE_CACHED )	return;
 
 	//
 	// This is the multiplier applied to vertex indices. 
@@ -472,19 +472,19 @@ void	DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 		2,		// Conker BFD
 		10,		// Perfect Dark
 		2,		// Yoshi's Story, Pokemon Puzzle League
-		2		// Kirby 64
 	};
 
+	//DBGConsole_Msg(0, "ucode=%d", ucode);
 	// Detect correct ucode table
 	gUcode = gInstructionLookup[ ucode ];
 
 	// Detect Correct Vtx Stride
 	gVertexStride = vertex_stride[ ucode ];
-
+	
 	//if ucode version is other than 0,1 or 2 then default to 0 (with non valid function names) 
 	//
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-	gUcodeName = gUcodeName[ gbi_version <= 2 ? ucode : 0 ];
+	//gUcodeName = gUcodeName[ ucode <= 2 ? ucode : 0 ];
 #endif
 
 }
@@ -499,7 +499,7 @@ SProfileItemHandle * gpProfileItemHandles[ 256 ];
 #define PROFILE_DL_CMD( cmd )								\
 	if(gpProfileItemHandles[ (cmd) ] == NULL)				\
 	{														\
-		gpProfileItemHandles[ (cmd) ] = new SProfileItemHandle( CProfiler::Get()->AddItem(  gUcodeName[ (cmd) ] );		\
+		gpProfileItemHandles[ (cmd) ] = new SProfileItemHandle( CProfiler::Get()->AddItem( /* gUcodeName[ (cmd)*/0 ] );		\
 	}														\
 	CAutoProfile		_auto_profile( *gpProfileItemHandles[ (cmd) ] )
 
@@ -548,7 +548,7 @@ static void	DLParser_ProcessDList()
 			//use the gInstructionName table for fecthing names.
 			//we use the table as is for GBI0, GBI1 and GBI2
 			//we fallback to GBI0 for custom ucodes (ucode_ver>2)
-			DL_PF("[%05d] 0x%08x: %08x %08x %-10s", gCurrentInstructionCount, pc, command.inst.cmd0, command.inst.cmd1, gUcodeName[command.inst.cmd ]);
+			//DL_PF("[%05d] 0x%08x: %08x %08x %-10s", gCurrentInstructionCount, pc, command.inst.cmd0, command.inst.cmd1, gUcodeName[command.inst.cmd ]);
 			gCurrentInstructionCount++;
 
 			if( gInstructionCountLimit != UNLIMITED_INSTRUCTION_COUNT )

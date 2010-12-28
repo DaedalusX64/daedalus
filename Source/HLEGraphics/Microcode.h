@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef MICROCODE_H__
 #define MICROCODE_H__
 
-
+/*
 enum UCodeVersion
 {
 	FAST3D,
@@ -30,7 +30,7 @@ enum UCodeVersion
 	S2DEX
 	//L3DEX
 };
-
+*/
 enum GBIVersion
 {
 	GBI_0 = 0,
@@ -45,7 +45,6 @@ enum GBIVersion
 	GBI_0_CK,
 	GBI_0_PD,
 	S2DEX_GBI_1,
-	S2DEX_GBI_2,
 	GBI_0_UNK	// This always has to be the last one
 };
 

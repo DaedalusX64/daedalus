@@ -164,12 +164,25 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 {
 	u32 i;
 	u32 ucode_version = 0;
-	MicrocodeData microcode;
-	microcode.ucode = 0;
+	MicrocodeData       microcode;
+	microcode.ucode	  = 0;
+	UcodeInfo.ucStart = code_base;
+
 	char str[256] = "";
 	char* title = (char*)g_ROM.settings.GameName.c_str();
 	if( code_size == 0 ) code_size = 0x1000;
 
+	DAEDALUS_ASSERT( code_base != 0, "Warning : Returning Null string after ucStart?" );
+
+	// Cheap way to cache ucodes, we don't check for empty strings though, but they should be handled by the match switch, and then cached.
+	// This only needed for GBI1/SDEX1 games that use LoadUcode, else is we only check when t.ucode changes, which most of the time only happens once :)
+	//
+	// Breaks Yoshi, it mixes both gbi1/s2dex1 together.. will fix later
+	//
+	if( UcodeInfo.bUcodeKnown && ucode_version == microcode.ucode )
+		return UcodeInfo.bUcodeKnown;
+
+	UcodeInfo.bUcodeKnown = true;
 	//
 	//	Try to find the version string in the microcode data. This is faster than calculating a crc of the code
 	//
@@ -194,18 +207,6 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	}
 #endif
 
-	// Cheap way to cache ucodes, we don't check for empty strings though, but they should be handled by the match switch, and then cached.
-	// This only needed when games use LoadUcode, else is handled else DLParser_Process :)
-	// ToDo : Cached ucodes in array?
-	//
-	if( UcodeInfo.bUcodeKnown && ucode_version == microcode.ucode )
-		return UCODE_CACHED;
-
-	UcodeInfo.bUcodeKnown = true;
-	UcodeInfo.ucStart	  = code_base;
-
-	DAEDALUS_ASSERT( code_base != 0, "Warning : Returning Null string after ucStart?" );
-
 	u32 code_hash( murmur2_neutral_hash( &g_pu8RamBase[ code_base ], code_size, 0 ) );
 
 	// It wasn't the same as last time around, so we'll hash it and check the array. Don't bother checking for matches when ucode was found in array
@@ -214,7 +215,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	{
 		if ( code_hash == gMicrocodeData[i].code_hash )
 		{
-			DBGConsole_Msg(0, "Ucode has been Detected in Array :[M\%s, ucode=%d]", str, gMicrocodeData[ i ].ucode);
+			DBGConsole_Msg(0, "Ucode has been Detected in Array :[M\%s, Ucode %d]", str, gMicrocodeData[ i ].ucode);
 			microcode = gMicrocodeData[ i ];
 			return microcode.ucode;
 		}
@@ -231,20 +232,16 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 
 	if( match )
 	{
-
-		if( !strncmp(match, "S2DEX", 5))
+		if( strstr(match, "fifo") || strstr(match, "xbus") )
 		{
-			if( strstr(match, "fifo") || strstr(match, "xbus"))
-				ucode_version = S2DEX_GBI_2;
-			else
-				ucode_version = S2DEX_GBI_1;
+			ucode_version = GBI_2;
 		}
 		else
 		{
-			if( strstr(match, "fifo") || strstr(match, "xbus"))
-				ucode_version = GBI_2;
+			if( !strncmp(match, "S2DEX", 5) )
+				ucode_version = S2DEX_GBI_1;
 			else
-				ucode_version = GBI_1;
+				ucode_version = GBI_1;	
 		}
 	}
 	else
@@ -257,7 +254,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	microcode.rom_name = title;
 	microcode.code_hash = code_hash;
 
-	DBGConsole_Msg(0, "Detected Ucode is: [M{ ucode=%d, 0x%08x, \"%s\", \"%s\"}] \n",ucode_version, code_hash, str, title );
+	DBGConsole_Msg(0, "Detected Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"] \n",ucode_version, code_hash, str, title );
 
 #ifndef DAEDALUS_PUBLIC_RELEASE
 	if (gGlobalPreferences.LogMicrocodes)

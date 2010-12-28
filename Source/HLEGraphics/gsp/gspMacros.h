@@ -46,6 +46,7 @@ UcodeFunc( DLParser_GBI1_EndDL );
 UcodeFunc( DLParser_GBI2_EndDL );
 UcodeFunc( DLParser_GBI1_BranchZ );
 UcodeFunc( DLParser_GBI1_LoadUCode );
+UcodeFunc( DLParser_GBI2_LoadUCode );
 
 UcodeFunc( DLParser_GBI1_SetGeometryMode );
 UcodeFunc( DLParser_GBI1_ClearGeometryMode );
