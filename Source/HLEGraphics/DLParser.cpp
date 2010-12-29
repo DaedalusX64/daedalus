@@ -178,7 +178,7 @@ u32 gAmbientLightIdx = 0;
 u32 gTextureTile = 0;
 u32 gTextureLevel = 0;
 
-static u32 gFillColor		= 0xFFFFFFFF;
+u32 gFillColor		= 0xFFFFFFFF;
 
 u32 gVertexStride;
  
@@ -1696,7 +1696,9 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 
 	//This corresponds to the number of palette entries (16 or 256)
 	u32 count = (lrs - uls) + 1;
-	if(count & ~0x110) return; //bail if not 16/256, MM gives 64 on occation wich is wrong //Corn
+
+	//bail if not 16/256, MM gives 64 on occation wich is wrong //Corn
+	//if(count & ~0x110) return;	// breaks some textures in SSB
 
 	// Format is always 16bpp - RGBA16 or IA16:
 	u32 offset = ((uls + ult * g_TI.Width) * 2);

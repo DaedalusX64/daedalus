@@ -49,41 +49,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*************************************************************************************
 //
 //*************************************************************************************
-#define gRT_s64						gGPR[op_code.rt]._s64
-#define gRS_s64						gGPR[op_code.rs]._s64
-#define gRD_s64						gGPR[op_code.rd]._s64
-
-#define gRT_u64						gGPR[op_code.rt]._u64
-#define gRS_u64						gGPR[op_code.rs]._u64
-#define gRD_u64						gGPR[op_code.rd]._u64
-
-#define gRT_s32						gGPR[op_code.rt]._s32_0
-#define gRD_s32						gGPR[op_code.rd]._s32_0
-#define gRS_s32						gGPR[op_code.rs]._s32_0
-
-#define gRT_u32						gGPR[op_code.rt]._u32_0
-#define gRD_u32						gGPR[op_code.rd]._u32_0
-#define gRS_u32						gGPR[op_code.rs]._u32_0
-//*************************************************************************************
-//
-//*************************************************************************************
-// Some of these macros were borrowed from 1964 :)
-// Will remove most of these soon, since we avoid most masks/casts anyways..
-#define uLOGIC(Sum, Operand1, OPERATOR, Operand2)	Sum = (s32) ((u32) Operand1 OPERATOR Operand2)
-#define sLOGIC(Sum, Operand1, OPERATOR, Operand2)	Sum = (Operand1 OPERATOR Operand2)
-#define sDLOGIC(Sum, Operand1, OPERATOR, Operand2)	Sum = (Operand1 OPERATOR Operand2)
-#define uDLOGIC(Sum, Operand1, OPERATOR, Operand2)	Sum = (Operand1 OPERATOR Operand2)
-
-//*************************************************************************************
-//
-//*************************************************************************************
-#define sLOGICAL(OPERATOR)							sLOGIC(gRD_s64, gRS_s32, OPERATOR, gRT_s32)		//untested..//
-#define sDLOGICAL(OPERATOR)							sDLOGIC(gRD_s64, gRS_s32, OPERATOR, gRT_s32)	// s64 a must, see Paper Mario
-#define uDLOGICAL(OPERATOR)							uDLOGIC(gRD_u64, gRS_u64, OPERATOR, gRT_u64)	// u64 a must here// Need to test !
-#define sDLOGICAL_WITH_IMM(OPERATOR)				sDLOGIC(gRT_s32, gRS_s32, OPERATOR, (s16) OFFSET_IMMEDIATE)	// s64 not a must:0 atleast M64 and SSV didn't complain, saved around 6 inst :) //
-#define uDLOGICAL_WITH_IMM(OPERATOR)				uDLOGIC(gRT_u64, gRS_u64, OPERATOR, (u16) OFFSET_IMMEDIATE) // u64 a must here//
-#define sLOGICAL_WITH_IMM(OPERATOR)					sLOGIC(gRT_s64, gRS_s32, OPERATOR, (s16) OFFSET_IMMEDIATE) // s64 a must here//
-#define uLOGICAL_SHIFT(OPERATOR, ShiftAmount)		uLOGIC(gRD_u64, gRT_u32, OPERATOR, (ShiftAmount))	// u64 a must here//
 
 #ifndef DAEDALUS_SILENT
 
@@ -334,7 +299,7 @@ __forceinline void StoreFPR_Single( u32 reg, f32 value )
 //	int -> float conversion routines
 //
 //*****************************************************************************
-/*
+
 __forceinline f32 s32_to_f32( s32 x )
 {
 	return (f32)x;
@@ -354,13 +319,13 @@ __forceinline d64 s64_to_d64( s64 x )
 {
 	return (d64)x;
 }
-*/
+
 //*****************************************************************************
 //
 //	float -> float conversion routines
 //
 //*****************************************************************************
-/*
+
 __forceinline d64 f32_to_d64( f32 x )
 {
 	return (d64)x;
@@ -371,7 +336,6 @@ __forceinline f32 d64_to_f32( d64 x )
 	return (f32)x;
 }
 
-*/
 //*****************************************************************************
 //
 //	Float -> int conversion routines
@@ -390,8 +354,6 @@ inline void SET_ROUND_MODE( ERoundingMode mode )
 	// I don't think anything is required here
 }
 
-// These conversions seem rather unnecessary... we need to be careful, will start gettin' rid of em soon.. - Salvy
-//
 inline s32 f32_to_s32_cvt( f32 x )					{ s32 r; asm volatile ( "cvt.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
 inline s32 f32_to_s32_trunc( f32 x )				{ s32 r; asm volatile ( "trunc.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
 inline s32 f32_to_s32_round( f32 x )				{ s32 r; asm volatile ( "round.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
@@ -401,8 +363,8 @@ inline s32 f32_to_s32( f32 x, ERoundingMode mode )	{ pspfpu_set_roundmode( gNati
 
 inline s64 f32_to_s64_trunc( f32 x )				{ return (s64)x; }
 inline s64 f32_to_s64_round( f32 x )				{ return (s64)( x + 0.5f ); }
-inline s64 f32_to_s64_ceil( f32 x )					{ return (s64)pspFpuCeil( x ); }
-inline s64 f32_to_s64_floor( f32 x )				{ return (s64)pspFpuFloor( x ); }
+inline s64 f32_to_s64_ceil( f32 x )					{ return (s64)ceilf( x ); }
+inline s64 f32_to_s64_floor( f32 x )				{ return (s64)floorf( x ); }
 inline s64 f32_to_s64( f32 x, ERoundingMode mode )	{ pspfpu_set_roundmode( gNativeRoundingModes[ mode ] ); return (s64)x; }	// XXXX Need to do a cvt really
 
 inline s32 d64_to_s32_cvt( d64 x )					{ return f32_to_s32_cvt( (f32)x ); }
@@ -414,8 +376,8 @@ inline s32 d64_to_s32( d64 x, ERoundingMode mode )	{ pspfpu_set_roundmode( gNati
 
 inline s64 d64_to_s64_trunc( d64 x )				{ return (s64)x; }
 inline s64 d64_to_s64_round( d64 x )				{ return (s64)( x + 0.5f ); }
-inline s64 d64_to_s64_ceil( d64 x )					{ return (s64)pspFpuCeil( x ); }
-inline s64 d64_to_s64_floor( d64 x )				{ return (s64)pspFpuFloor( x ); }
+inline s64 d64_to_s64_ceil( d64 x )					{ return (s64)ceilf( x ); }
+inline s64 d64_to_s64_floor( d64 x )				{ return (s64)floorf( x ); }
 inline s64 d64_to_s64( d64 x, ERoundingMode mode )	{ pspfpu_set_roundmode( gNativeRoundingModes[ mode ] ); return (s64)x; }	// XXXX Need to do a cvt really
 
 
@@ -566,7 +528,7 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 
 	bool interrupts_enabled_before =(gCPUState.CPUControl[C0_SR]._u32_0 & SR_IE) != 0;
 
-	gCPUState.CPUControl[C0_SR]._u32_0 = (u32) new_value;
+	gCPUState.CPUControl[C0_SR]._s64 = (s64)(s32)new_value;
 
 	bool interrupts_enabled_after = (gCPUState.CPUControl[C0_SR]._u32_0 & SR_IE) != 0;
 
@@ -802,8 +764,7 @@ static void R4300_CALL_TYPE R4300_DADDI( R4300_CALL_SIGNATURE ) 			// Doubleword
 	// Reserved Instruction exception
 
 	//rt = rs + immediate
-	//gGPR[op_code.rt]._s64 = gGPR[op_code.rs]._s64 + (s32)(s16)op_code.immediate;
-	sDLOGICAL_WITH_IMM(+);
+	gGPR[op_code.rt]._s64 = gGPR[op_code.rs]._s64 + (s32)(s16)op_code.immediate;
 }
 
 static void R4300_CALL_TYPE R4300_DADDIU( R4300_CALL_SIGNATURE ) 			// Doubleword ADD Immediate Unsigned
@@ -813,8 +774,7 @@ static void R4300_CALL_TYPE R4300_DADDIU( R4300_CALL_SIGNATURE ) 			// Doublewor
 	// Reserved Instruction exception
 
 	//rt = rs + immediate
-	//gGPR[op_code.rt]._s64 = gGPR[op_code.rs]._s64 + (s32)(s16)op_code.immediate;
-	sDLOGICAL_WITH_IMM(+);
+	gGPR[op_code.rt]._s64 = gGPR[op_code.rs]._s64 + (s32)(s16)op_code.immediate;
 }
 
 static void R4300_CALL_TYPE R4300_ADDI( R4300_CALL_SIGNATURE )
@@ -824,8 +784,7 @@ static void R4300_CALL_TYPE R4300_ADDI( R4300_CALL_SIGNATURE )
 	// Generates overflow exception
 
 	//rt = rs + immediate
-	//gGPR[op_code.rt]._s64 = (s64)(s32)(gGPR[op_code.rs]._s32_0 + (s32)(s16)op_code.immediate);
-	sLOGICAL_WITH_IMM(+);
+	gGPR[op_code.rt]._s64 = (s64)(s32)(gGPR[op_code.rs]._s32_0 + (s32)(s16)op_code.immediate);
 }
 
 static void R4300_CALL_TYPE R4300_ADDIU( R4300_CALL_SIGNATURE ) 		// Add Immediate Unsigned
@@ -833,8 +792,7 @@ static void R4300_CALL_TYPE R4300_ADDIU( R4300_CALL_SIGNATURE ) 		// Add Immedia
 	R4300_CALL_MAKE_OP( op_code );
 
 	//rt = rs + immediate
-	//gGPR[op_code.rt]._s64 = (s64)(s32)(gGPR[op_code.rs]._s32_0 + (s32)(s16)op_code.immediate);
-	sLOGICAL_WITH_IMM(+);
+	gGPR[op_code.rt]._s64 = (s64)(s32)(gGPR[op_code.rs]._s32_0 + (s32)(s16)op_code.immediate);
 }
 
 static void R4300_CALL_TYPE R4300_SLTI( R4300_CALL_SIGNATURE ) 			// Set on Less Than Immediate
@@ -877,8 +835,7 @@ static void R4300_CALL_TYPE R4300_ANDI( R4300_CALL_SIGNATURE ) 				// AND Immedi
 	R4300_CALL_MAKE_OP( op_code );
 
 	//rt = rs & immediate
-	//gGPR[op_code.rt]._u64 = gGPR[op_code.rs]._u64 & (u64)(u16)op_code.immediate;
-	uDLOGICAL_WITH_IMM( & );
+	gGPR[op_code.rt]._u64 = gGPR[op_code.rs]._u64 & (u64)(u16)op_code.immediate;
 }
 
 
@@ -887,8 +844,7 @@ static void R4300_CALL_TYPE R4300_ORI( R4300_CALL_SIGNATURE ) 				// OR Immediat
 	R4300_CALL_MAKE_OP( op_code );
 
 	//rt = rs | immediate
-	//gGPR[op_code.rt]._u64 = gGPR[op_code.rs]._u64 | (u64)(u16)op_code.immediate;
-	uDLOGICAL_WITH_IMM( | );
+	gGPR[op_code.rt]._u64 = gGPR[op_code.rs]._u64 | (u64)(u16)op_code.immediate;
 }
 
 static void R4300_CALL_TYPE R4300_XORI( R4300_CALL_SIGNATURE ) 				// XOR Immediate
@@ -896,8 +852,7 @@ static void R4300_CALL_TYPE R4300_XORI( R4300_CALL_SIGNATURE ) 				// XOR Immedi
 	R4300_CALL_MAKE_OP( op_code );
 
 	//rt = rs ^ immediate
-	//gGPR[op_code.rt]._u64 = gGPR[op_code.rs]._u64 ^ (u64)(u16)op_code.immediate;
-	uDLOGICAL_WITH_IMM( ^ );
+	gGPR[op_code.rt]._u64 = gGPR[op_code.rs]._u64 ^ (u64)(u16)op_code.immediate;
 }
 
 static void R4300_CALL_TYPE R4300_LUI( R4300_CALL_SIGNATURE ) 				// Load Upper Immediate
@@ -1379,8 +1334,7 @@ static void R4300_CALL_TYPE R4300_Special_SLLV( R4300_CALL_SIGNATURE ) 		// Shif
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	//gGPR[ op_code.rd ]._s64 = (s64)(s32)( (gGPR[ op_code.rt ]._u32_0 << ( gGPR[ op_code.rs ]._u32_0 & 0x1F ) ) & 0xFFFFFFFF );
-	uLOGICAL_SHIFT( << , (gGPR[ op_code.rs ]._u32_0 & 0x1F));
+	gGPR[ op_code.rd ]._s64 = (s64)(s32)( (gGPR[ op_code.rt ]._u32_0 << ( gGPR[ op_code.rs ]._u32_0 & 0x1F ) ) & 0xFFFFFFFF );
 }
 
 static void R4300_CALL_TYPE R4300_Special_SRLV( R4300_CALL_SIGNATURE ) 		// Shift word Right Logical Variable
@@ -1614,8 +1568,7 @@ static void R4300_CALL_TYPE R4300_Special_SUB( R4300_CALL_SIGNATURE ) 			// SUB 
 	R4300_CALL_MAKE_OP( op_code );
 
 	// Can generate overflow exception
-	//gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rs ]._s32_0 - gGPR[ op_code.rt ]._s32_0 );
-	sLOGICAL(-);
+	gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rs ]._s32_0 - gGPR[ op_code.rt ]._s32_0 );
 }
 
 
@@ -1623,32 +1576,28 @@ static void R4300_CALL_TYPE R4300_Special_SUBU( R4300_CALL_SIGNATURE ) 			// SUB
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	//gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rs ]._s32_0 - gGPR[ op_code.rt ]._s32_0 );
-	sLOGICAL(-);
+	gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rs ]._s32_0 - gGPR[ op_code.rt ]._s32_0 );
 }
 
 static void R4300_CALL_TYPE R4300_Special_AND( R4300_CALL_SIGNATURE ) 				// logical AND
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 & gGPR[ op_code.rt ]._u64;
-	uDLOGICAL( & );
+	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 & gGPR[ op_code.rt ]._u64;
 }
 
 static void R4300_CALL_TYPE R4300_Special_OR( R4300_CALL_SIGNATURE ) 				// logical OR
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 | gGPR[ op_code.rt ]._u64;
-	uDLOGICAL( | );
+	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 | gGPR[ op_code.rt ]._u64;
 }
 
 static void R4300_CALL_TYPE R4300_Special_XOR( R4300_CALL_SIGNATURE ) 				// logical XOR
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 ^ gGPR[ op_code.rt ]._u64;
-	uDLOGICAL( ^ );
+	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 ^ gGPR[ op_code.rt ]._u64;
 }
 
 static void R4300_CALL_TYPE R4300_Special_NOR( R4300_CALL_SIGNATURE ) 				// logical Not OR
@@ -1694,32 +1643,28 @@ static void R4300_CALL_TYPE R4300_Special_DADD( R4300_CALL_SIGNATURE )//CYRUS64
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 + gGPR[ op_code.rs ]._u64;
-	sDLOGICAL(+);
+	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 + gGPR[ op_code.rs ]._u64;
 }
 
 static void R4300_CALL_TYPE R4300_Special_DADDU( R4300_CALL_SIGNATURE )//CYRUS64
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 + gGPR[ op_code.rs ]._u64;
-	sDLOGICAL(+);
+	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 + gGPR[ op_code.rs ]._u64;
 }
 
 static void R4300_CALL_TYPE R4300_Special_DSUB( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 - gGPR[ op_code.rs ]._u64;
-	sDLOGICAL(-);
+	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 - gGPR[ op_code.rs ]._u64;
 }
 
 static void R4300_CALL_TYPE R4300_Special_DSUBU( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 - gGPR[ op_code.rs ]._u64;
-	sDLOGICAL(-);
+	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 - gGPR[ op_code.rs ]._u64;
 }
 
 static void R4300_CALL_TYPE R4300_Special_DSLL( R4300_CALL_SIGNATURE )
@@ -1908,8 +1853,6 @@ static void R4300_CALL_TYPE R4300_Cop0_MFC0( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	u32 wired = gCPUState.CPUControl[C0_WIRED]._u32_0 & 0x1F;
-
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	if ( op_code.fs == C0_CAUSE )
 	{
@@ -1920,25 +1863,20 @@ static void R4300_CALL_TYPE R4300_Cop0_MFC0( R4300_CALL_SIGNATURE )
 	}
 #endif
 
-	switch( op_code.fs )
+	if( op_code.fs == C0_RAND )	// Copy from FS to RT
 	{
-	case C0_RAND:	// Copy from FS to RT
+		u32 wired = gCPUState.CPUControl[C0_WIRED]._u32_0 & 0x1F;
 
 		// Select a value between wired and 31.
 		// We should use TLB least-recently used here too?
-		//gGPR[ op_code.rt ]._s32_0 = vfpu_randf(wired, 32);
-		gGPR[ op_code.rt ]._s32_0 = (pspFastRand()%(32-wired)) + wired;
+		gGPR[ op_code.rt ]._s64 = (pspFastRand()%(32-wired)) + wired;
 
 		DBGConsole_Msg(0, "[MWarning reading MFC0 random register]");
-		break;
-
-		// Should we handle C0_COUNT??
-
-	default:
+	}
+	else	// Should we handle C0_COUNT??
+	{
 		// No specific handling needs for reads to these registers.
-		//gGPR[ op_code.rt ]._s32_0 = gCPUState.CPUControl[ op_code.fs ]._s32_0; // Brakes Conker
 		gGPR[ op_code.rt ]._s64 = (s64)gCPUState.CPUControl[ op_code.fs ]._s32_0;
-		break;
 	}
 }
 
@@ -1948,7 +1886,7 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 	R4300_CALL_MAKE_OP( op_code );
 
 	// Copy from RT to FS
-	u32 new_value = gGPR[ op_code.rt ]._u32_0;
+	u32 new_value = gGPR[ op_code.rt ]._u64;
 
 	switch ( op_code.fs )
 	{
@@ -1959,14 +1897,14 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 
 		case C0_CONTEXT:
 			DBGConsole_Msg(0, "Setting context register to 0x%08x", (u32)new_value);
-			gCPUState.CPUControl[ op_code.fs ]._u32_0 = new_value;
+			gCPUState.CPUControl[ op_code.fs ]._u64 = new_value;
 			break;
 
 		case C0_WIRED:
 			// Set to top limit on write to wired
 			gCPUState.CPUControl[C0_RAND]._u32_0 = 32-1;
 			DBGConsole_Msg(0, "Setting Wired register to 0x%08x", (u32)new_value);
-			gCPUState.CPUControl[ op_code.fs ]._u32_0 = new_value;
+			gCPUState.CPUControl[ op_code.fs ]._u64 = new_value;
 			break;
 		case C0_RAND:	
 		case C0_BADVADDR:
@@ -1982,14 +1920,14 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 			//  Other bits are CE (copro error) BD (branch delay), the other
 			// Interrupt pendings and EscCode.
 #ifndef DAEDALUS_SILENT
-			if ( (new_value&~(CAUSE_SW1|CAUSE_SW2)) != (gCPUState.CPUControl[C0_CAUSE]._u32_0&~(CAUSE_SW1|CAUSE_SW2))  )
+			if ( (new_value&~(CAUSE_SW1|CAUSE_SW2)) != (gCPUState.CPUControl[C0_CAUSE]._u64&~(CAUSE_SW1|CAUSE_SW2))  )
 			{
 				DBGConsole_Msg( 0, "[MWas previously clobbering CAUSE REGISTER" );
 			}
 #endif
 			DPF( DEBUG_REGS, "CAUSE set to 0x%08x (was: 0x%08x)", (u32)new_value, gGPR[ op_code.rt ]._u32_0 );
-			gCPUState.CPUControl[C0_CAUSE]._u32_0 &=             ~(CAUSE_SW1|CAUSE_SW2);
-			gCPUState.CPUControl[C0_CAUSE]._u32_0 |= (new_value & (CAUSE_SW1|CAUSE_SW2));
+			gCPUState.CPUControl[C0_CAUSE]._u64 &=             ~(CAUSE_SW1|CAUSE_SW2);
+			gCPUState.CPUControl[C0_CAUSE]._u64 |= (new_value & (CAUSE_SW1|CAUSE_SW2));
 			break;
 		case C0_SR:
 			// Software can enable/disable interrupts here. We check if Interrupt Enable is
@@ -2004,7 +1942,7 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 				// See comments below for COMPARE.
 				// When this register is set, we need to check whether the next timed interrupt will
 				//  be due to vertical blank or COMPARE
-				gCPUState.CPUControl[C0_COUNT]._u32_0 = new_value;
+				gCPUState.CPUControl[C0_COUNT]._u64 = new_value;
 				DBGConsole_Msg(0, "Count set - setting int");
 				// XXXX Do we need to update any existing events?
 				break;
@@ -2025,20 +1963,21 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 		// Probably provide a warning on writes, just so that we know
 		case C0_WATCHLO:
 			DBGConsole_Msg( 0, "[MWROTE TO WATCHLO REGISTER!" );
-			gCPUState.CPUControl[ op_code.fs ]._u32_0 = new_value;
+			gCPUState.CPUControl[ op_code.fs ]._u64 = new_value;
 			break;
 		case C0_WATCHHI:
 			DBGConsole_Msg( 0, "[MWROTE TO WATCHHI REGISTER!" );
-			gCPUState.CPUControl[ op_code.fs ]._u32_0 = new_value;
+			gCPUState.CPUControl[ op_code.fs ]._u64 = new_value;
 			break;
 
 		default:
 			// No specific handling needs for writes to these registers.
-			gCPUState.CPUControl[ op_code.fs ]._u32_0 = new_value;
+			gCPUState.CPUControl[ op_code.fs ]._u64 = new_value;
 			break;
 	}
 }
 
+// XXX don't think TLB needs to be 64bit - Salvy
 
 static void R4300_CALL_TYPE R4300_TLB_TLBR( R4300_CALL_SIGNATURE ) 				// TLB Read
 {
@@ -2140,7 +2079,7 @@ static void R4300_CALL_TYPE R4300_TLB_ERET( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	if( gCPUState.CPUControl[C0_SR]._u32_0 & SR_ERL )
+	if( gCPUState.CPUControl[C0_SR]._u64 & SR_ERL )
 	{
 		// Returning from an error trap
 		DPF(DEBUG_INTR, "ERET: Returning from error trap");
@@ -2220,8 +2159,8 @@ static void R4300_CALL_TYPE R4300_Cop1_CFC1( R4300_CALL_SIGNATURE ) 		// move Co
 	//Saves a compare //Corn
 	if( !((op_code.fs + 1) & 0x1E) )
 	{
-		//gGPR[ op_code.rt ]._s64 = (s64)gCPUState.FPUControl[ op_code.fs ]._s32_0;
-		gGPR[ op_code.rt ]._s32_0 = gCPUState.FPUControl[ op_code.fs ]._s32_0;  //copy only low part
+		gGPR[ op_code.rt ]._s64 = (s64)gCPUState.FPUControl[ op_code.fs ]._s32_0;
+		//gGPR[ op_code.rt ]._s32_0 = gCPUState.FPUControl[ op_code.fs ]._s32_0;  //copy only low part
 	}
 }
 
@@ -2229,6 +2168,7 @@ static void R4300_CALL_TYPE R4300_Cop1_CTC1( R4300_CALL_SIGNATURE ) 		// move Co
 {
 	R4300_CALL_MAKE_OP( op_code );
 
+	DAEDALUS_ASSERT( op_code.fs != 0, "CTC1 : Reg zero unhandled");
 	// Only defined for reg 0 or 31
 	// TODO - Maybe an exception was raised?
 	// Not needed for 0?
@@ -2333,9 +2273,9 @@ static void R4300_CALL_TYPE R4300_Cop1_W_CVT_S( R4300_CALL_SIGNATURE )
 
 	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
-	f32 nTemp = LoadFPR_Word( op_code.fs );
+	s32 nTemp = LoadFPR_Word( op_code.fs );
 
-	StoreFPR_Single( op_code.fd, nTemp );
+	StoreFPR_Single( op_code.fd, s32_to_f32( nTemp ) );
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_W_CVT_D( R4300_CALL_SIGNATURE )
@@ -2344,14 +2284,14 @@ static void R4300_CALL_TYPE R4300_Cop1_W_CVT_D( R4300_CALL_SIGNATURE )
 
 	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
-	d64 nTemp = LoadFPR_Word( op_code.fs );
+	s32 nTemp = LoadFPR_Word( op_code.fs );
 
 	// Convert using current rounding mode?
 
 	if (gCPUState.CPUControl[C0_SR]._u32_0 & SR_FR)
-		StoreFPR_Double<true>( op_code.fd, nTemp );
+		StoreFPR_Double<true>( op_code.fd, s32_to_d64( nTemp ) );
 	else
-		StoreFPR_Double<false>( op_code.fd, nTemp );
+		StoreFPR_Double<false>( op_code.fd, s32_to_d64( nTemp ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -2368,25 +2308,25 @@ static void R4300_CALL_TYPE R4300_Cop1_L_CVT_S( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	f32 nTemp = LoadFPR_Long( op_code.fs );
+	s64 nTemp = LoadFPR_Long( op_code.fs );
 
 	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
-	StoreFPR_Single( op_code.fd, nTemp );
+	StoreFPR_Single( op_code.fd, s64_to_f32( nTemp ));
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_L_CVT_D( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	d64 nTemp = LoadFPR_Long( op_code.fs );
+	s64 nTemp = LoadFPR_Long( op_code.fs );
 
 	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	if (gCPUState.CPUControl[C0_SR]._u32_0 & SR_FR)
-		StoreFPR_Double<true>( op_code.fd, nTemp );
+		StoreFPR_Double<true>( op_code.fd, s64_to_d64( nTemp ) );
 	else
-		StoreFPR_Double<false>( op_code.fd, nTemp );
+		StoreFPR_Double<false>( op_code.fd, s64_to_d64( nTemp ) );
 }
 
 
@@ -2624,15 +2564,15 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
-	d64 fX = LoadFPR_Single( op_code.fs );
+	f32 fX = LoadFPR_Single( op_code.fs );
 
 
 	if (gCPUState.CPUControl[C0_SR]._u32_0 & SR_FR)
-		StoreFPR_Double<true>( op_code.fd, fX );
+		StoreFPR_Double<true>( op_code.fd, f32_to_d64( fX ) );
 	else
-		StoreFPR_Double<false>( op_code.fd, fX );
+		StoreFPR_Double<false>( op_code.fd, f32_to_d64( fX ) );
 }
 
 
