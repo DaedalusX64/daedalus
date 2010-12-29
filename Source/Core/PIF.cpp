@@ -564,148 +564,110 @@ bool	IController::ProcessCommand(u32 i, u32 iError, u32 channel, u32 ucWrite, u3
 	switch ( command )
 	{
 	case CONT_RESET:
+		DAEDALUS_ASSERT( channel < NUM_CONTROLLERS, "Trying to reset for invalid controller channel!" );
+		DAEDALUS_ASSERT( channel == PC_EEPROM, "Executing Reset on EEPROM - is this ok?" );
+	
+		DPF_PIF("Controller: Command is RESET");
 
-		if (channel < NUM_CONTROLLERS)
+		if (mContPresent[channel])
 		{
-			DPF_PIF("Controller: Command is RESET");
+			DAEDALUS_ASSERT( ucRead <= 3, "Reading too many bytes for RESET command" );
 
-			if (mContPresent[channel])
+			if ( ucRead < 3 )
 			{
-				DAEDALUS_ASSERT( ucRead <= 3, "Reading too many bytes for RESET command" );
-
-				if ( ucRead < 3 )
-				{
-					DAEDALUS_ERROR( "Overrun on RESET" );
-					WriteStatusBits( iError, CONT_OVERRUN_ERROR );				// Transfer error...
-				}
-
-				Write16Bits( i, CONT_TYPE_NORMAL );
-				Write8Bits( i+2, mContMemPackPresent[channel] ? CONT_CARD_ON : 0 );	// Is the mempack plugged in?
+				DAEDALUS_ERROR( "Overrun on RESET" );
+				WriteStatusBits( iError, CONT_OVERRUN_ERROR );				// Transfer error...
 			}
-			else
-			{
-				WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );				// Not connected
-			}
-		}
-		else if (channel == PC_EEPROM)
-		{
-			DAEDALUS_ERROR( "Executing Reset on EEPROM - is this ok?" );
-			success = CommandStatusEeprom( i, iError, ucWrite, ucRead );
+
+			Write16Bits( i, CONT_TYPE_NORMAL );
+			Write8Bits( i+2, mContMemPackPresent[channel] ? CONT_CARD_ON : 0 );	// Is the mempack plugged in?
 		}
 		else
 		{
-			//DPF_PIF(DSPrintf("Controller: UnkStatus, Channel = %d", channel));
-			DAEDALUS_ERROR( "Trying to reset for invalid controller channel!" );
-		}	
+			WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );				// Not connected
+		}
 		break;
 
 	case CONT_GET_STATUS:
-		if (channel < NUM_CONTROLLERS)
+		DAEDALUS_ASSERT( channel < NUM_CONTROLLERS, "Trying to get status for invalid controller channel!" );
+		DAEDALUS_ASSERT( channel == PC_EEPROM, "Controller: Executing GET_EEPROM_STATUS?" );
+
+		DPF_PIF("Controller: Executing GET_STATUS");
+
+		if (mContPresent[channel])
 		{
-			DPF_PIF("Controller: Executing GET_STATUS");
+			DAEDALUS_ASSERT( ucRead <= 3, "Reading too many bytes for STATUS command" );
 
-			if (mContPresent[channel])
+			if (ucRead < 3)
 			{
-				DAEDALUS_ASSERT( ucRead <= 3, "Reading too many bytes for STATUS command" );
-
-				if (ucRead < 3)
-				{
-					DAEDALUS_ERROR( "Overrun on GET_STATUS" );
-					WriteStatusBits( iError, CONT_OVERRUN_ERROR );				// Transfer error...
-				}
-
-				Write16Bits( i, CONT_TYPE_NORMAL );
-				Write8Bits( i+2, mContMemPackPresent[channel] ? CONT_CARD_ON : 0 );	// Is the mempack plugged in?
+				DAEDALUS_ERROR( "Overrun on GET_STATUS" );
+				WriteStatusBits( iError, CONT_OVERRUN_ERROR );				// Transfer error...
 			}
-			else
-			{
-				WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );				// Not connected
-			}
-		}
-		else if (channel == PC_EEPROM)
-		{
-			// This is eeprom status?
-			DPF_PIF("Controller: Executing GET_EEPROM_STATUS?");
 
-			success = CommandStatusEeprom( i, iError, ucWrite, ucRead );
+			Write16Bits( i, CONT_TYPE_NORMAL );
+			Write8Bits( i+2, mContMemPackPresent[channel] ? CONT_CARD_ON : 0 );	// Is the mempack plugged in?
 		}
 		else
 		{
-			//DPF_PIF("Controller: UnkStatus, Channel = %d", channel);
-			DAEDALUS_ERROR( "Trying to get status for invalid controller channel!" );
-		}	
+			WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );				// Not connected
+		}
 		break;
 
 
 	case CONT_READ_CONTROLLER:		// Controller
-		if ( channel < NUM_CONTROLLERS )
+		DAEDALUS_ASSERT( channel < NUM_CONTROLLERS, "Trying to read from invalid controller channel!" );
+
+		DPF_PIF("Controller: Executing READ_CONTROLLER");
+		// This is controller status
+		if (mContPresent[channel])
 		{
-			DPF_PIF("Controller: Executing READ_CONTROLLER");
-			// This is controller status
-			if (mContPresent[channel])
-			{
-				DAEDALUS_ASSERT( ucRead <= 4, "Reading too many bytes for READ_CONT command" );
+			DAEDALUS_ASSERT( ucRead <= 4, "Reading too many bytes for READ_CONT command" );
 
-				if (ucRead < 4)
-				{
-					DAEDALUS_ERROR( "Overrun on READ_CONT" );
-					WriteStatusBits( iError, CONT_OVERRUN_ERROR );
-				}
-
-				// Hack - we need to only write the number of bytes asked for!
-				Write16Bits_Swapped( i, mContPads[channel].button );
-				Write8Bits( i+2, mContPads[channel].stick_x );
-				Write8Bits( i+3, mContPads[channel].stick_y );	
-			}
-			else
+			if (ucRead < 4)
 			{
-				// Not connected			
-				WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
+				DAEDALUS_ERROR( "Overrun on READ_CONT" );
+				WriteStatusBits( iError, CONT_OVERRUN_ERROR );
 			}
+
+			// Hack - we need to only write the number of bytes asked for!
+			Write16Bits_Swapped( i, mContPads[channel].button );
+			Write8Bits( i+2, mContPads[channel].stick_x );
+			Write8Bits( i+3, mContPads[channel].stick_y );	
 		}
 		else
 		{
-			DAEDALUS_ERROR( "Trying to read from invalid controller channel!" );
+			// Not connected			
+			WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
 		}
 		break;
 
 	case CONT_READ_MEMPACK:
-		if ( channel < NUM_CONTROLLERS )
+		DAEDALUS_ASSERT( channel < NUM_CONTROLLERS, "Trying to read mempack from invalid controller channel!" );
+
+		DPF_PIF("Controller: Command is READ_MEMPACK");
+		if (mContPresent[channel] && g_ROM.GameHacks != CHAMELEON_TWIST)
 		{
-			DPF_PIF("Controller: Command is READ_MEMPACK");
-			if (mContPresent[channel] && g_ROM.GameHacks != CHAMELEON_TWIST)
-			{
-				DPF_PIF( "Mempack present" );
-				success = CommandReadMemPack(i, iError, channel, ucWrite, ucRead);
-			}
-			else
-			{
-				DPF_PIF( "Mempack not present" );
-				WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
-			}
+			DPF_PIF( "Mempack present" );
+			success = CommandReadMemPack(i, iError, channel, ucWrite, ucRead);
 		}
 		else
 		{
-			DAEDALUS_ERROR( "Trying to read mempack from invalid controller channel!" );
+			DPF_PIF( "Mempack not present" );
+			WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
 		}
 		break;
 
 	case CONT_WRITE_MEMPACK:
-		if ( channel < NUM_CONTROLLERS )
+		DAEDALUS_ASSERT( channel < NUM_CONTROLLERS, "Trying to write mempack to invalid controller channel!" );
+	
+		DPF_PIF("Controller: Command is WRITE_MEMPACK");
+		if (mContPresent[channel])
 		{
-			DPF_PIF("Controller: Command is WRITE_MEMPACK");
-			if (mContPresent[channel])
-			{
-				success = CommandWriteMemPack(i, iError, channel, ucWrite, ucRead);
-			}
-			else
-			{
-				WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
-			}
+			success = CommandWriteMemPack(i, iError, channel, ucWrite, ucRead);
 		}
 		else
 		{
-			DAEDALUS_ERROR( "Trying to write mempack to invalid controller channel!" );
+			WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
 		}
 		break;
 

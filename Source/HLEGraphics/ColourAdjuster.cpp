@@ -40,86 +40,88 @@ void CColourAdjuster::Process( DaedalusVtx * p_vertices, u32 num_verts ) const
 {
 	DAEDALUS_ASSERT( (mSetMask & mModulateMask & mSubtractMask) == 0, "Setting and modulating the same component" );
 
-	if( mSetMask != 0 )
-	{
-		if( mSetMask == COL32_MASK_RGBA )
-		{
-			for(u32 v = 0; v < num_verts; v++)
-			{
-				p_vertices[v].Colour = mSetColour;
-			}
-		}
-		else
-		{
-			u32		clear_bits( ~mSetMask );
-			u32		set_bits( mSetColour.GetColour() & mSetMask );
+	if( (mSetMask != 0) || (mSubtractMask != 0) || (mModulateMask != 0) )	return;
 
-			for(u32 v = 0; v < num_verts; v++)
-			{
-				p_vertices[v].Colour = c32( (p_vertices[v].Colour.GetColour() & clear_bits) | set_bits );
-			}
+	if( mSetMask == COL32_MASK_RGBA )
+	{
+		for(u32 v = 0; v < num_verts; v++)
+		{
+			p_vertices[v].Colour = mSetColour;
+		}
+	}
+	else
+	{
+		u32		clear_bits( ~mSetMask );
+		u32		set_bits( mSetColour.GetColour() & mSetMask );
+
+		for(u32 v = 0; v < num_verts; v++)
+		{
+			p_vertices[v].Colour = c32( (p_vertices[v].Colour.GetColour() & clear_bits) | set_bits );
 		}
 	}
 
-	if(mSubtractMask != 0)
+	switch( mSubtractMask )
 	{
-		if( mSubtractMask == COL32_MASK_RGB )
+	case COL32_MASK_RGB:
 		{
 			for(u32 v = 0; v < num_verts; v++)
 			{
 				p_vertices[v].Colour = p_vertices[v].Colour.SubRGB( mSubtractColour );
 			}
 		}
-		else if( mSubtractMask == COL32_MASK_A )
+		break;
+	case COL32_MASK_A:
 		{
 			for(u32 v = 0; v < num_verts; v++)
 			{
 				p_vertices[v].Colour = p_vertices[v].Colour.SubA( mSubtractColour );
 			}
 		}
-		else if( mSubtractMask == COL32_MASK_RGBA )
+		break;
+	case COL32_MASK_RGBA:
 		{
 			for(u32 v = 0; v < num_verts; v++)
 			{
 				p_vertices[v].Colour = p_vertices[v].Colour.Sub( mSubtractColour );
 			}
 		}
-		else
-		{
+		break;
+	default:
 			DAEDALUS_ERROR( "Unhandled mSubtractMask" );
-		}
+			break;
 	}
 
 
-	if(mModulateMask != 0)
+	switch( mSubtractMask )
 	{
-		if( mModulateMask == COL32_MASK_RGB )
+	case COL32_MASK_RGB:
 		{
 			for(u32 v = 0; v < num_verts; v++)
 			{
 				p_vertices[v].Colour = p_vertices[v].Colour.ModulateRGB( mModulateColour );
 			}
 		}
-		else if( mModulateMask == COL32_MASK_A )
+		break;
+	case COL32_MASK_A:
 		{
 			for(u32 v = 0; v < num_verts; v++)
 			{
 				p_vertices[v].Colour = p_vertices[v].Colour.ModulateA( mModulateColour );
 			}
 		}
-		else if( mModulateMask == COL32_MASK_RGBA )
+		break;
+	case COL32_MASK_RGBA:
 		{
 			for(u32 v = 0; v < num_verts; v++)
 			{
 				p_vertices[v].Colour = p_vertices[v].Colour.Modulate( mModulateColour );
 			}
 		}
-		else
-		{
+		break;
+	default:
 			DAEDALUS_ERROR( "Unhandled mModulateMask" );
-		}
+			break;
 	}
-
 }
 
 //*****************************************************************************

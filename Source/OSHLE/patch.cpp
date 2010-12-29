@@ -995,12 +995,8 @@ static bool Patch_GetCache()
 
 static u32 RET_NOT_PROCESSED(PatchSymbol* ps)
 {
-#ifndef DAEDALUS_SILENT
-	if (ps == NULL)
-	{
-		DAEDALUS_ERROR("Not Supported.");
-	}
-#endif
+	DAEDALUS_ASSERT( ps != NULL, "Not Supported" );
+
 	gCPUState.CurrentPC = PHYS_TO_K0(ps->location);
 	//DBGConsole_Msg(0, "%s RET_NOT_PROCESSED PC=0x%08x RA=0x%08x", ps->szName, gCPUState.TargetPC, gGPR[REG_ra]._u32_0);
 

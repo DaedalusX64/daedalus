@@ -195,28 +195,23 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 		u32				target_address( it->Address );
 		CJumpLocation	jump( it->Jump );
 
-		if( jump.IsSet() )
-		{
-#if DAEDALUS_DEBUG_DYNAREC
-			CFragment * p_fragment( LookupFragment( target_address ) );
-#else
-			CFragment * p_fragment( LookupFragmentQ( target_address ) );
-#endif
-			if( p_fragment != NULL )
-			{
-				PatchJumpLongAndFlush( jump, p_fragment->GetEntryTarget() );
+		DAEDALUS_ASSERT( jump.IsSet(), "No exit jump?" );
 
-				DAEDALUS_ASSERT( mJumpMap.find( target_address ) == mJumpMap.end(), "Jump map still contains an entry for this" );
-			}
-			else if( target_address != u32(~0) )
-			{
-				// Store the address for later processing
-				mJumpMap[ target_address ].push_back( jump );
-			}
-		}
-		else
+#if DAEDALUS_DEBUG_DYNAREC
+		CFragment * p_fragment( LookupFragment( target_address ) );
+#else
+		CFragment * p_fragment( LookupFragmentQ( target_address ) );
+#endif
+		if( p_fragment != NULL )
 		{
-			DAEDALUS_ERROR( "No exit jump?" );
+			PatchJumpLongAndFlush( jump, p_fragment->GetEntryTarget() );
+
+			DAEDALUS_ASSERT( mJumpMap.find( target_address ) == mJumpMap.end(), "Jump map still contains an entry for this" );
+		}
+		else if( target_address != u32(~0) )
+		{
+			// Store the address for later processing
+			mJumpMap[ target_address ].push_back( jump );
 		}
 	}
 

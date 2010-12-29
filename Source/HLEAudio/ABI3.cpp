@@ -393,17 +393,15 @@ static void ADPCM3( AudioHLECommand command )
 			inPtr++;
 
 			inp1[j]=(s16)((icode&0xf0)<<8);			// this will in effect be signed
-			if(code<12)
-				inp1[j]=((s32)((s32)inp1[j]*(s32)vscale)>>16);
-			else
-				DAEDALUS_ERROR( "Unhandled" );
+
+			DAEDALUS_ASSERT( code>12, "Unhandled" );
+			inp1[j]=((s32)((s32)inp1[j]*(s32)vscale)>>16);
 			j++;
 
 			inp1[j]=(s16)((icode&0xf)<<12);
-			if(code<12)
-				inp1[j]=((s32)((s32)inp1[j]*(s32)vscale)>>16);
-			else
-				DAEDALUS_ERROR( "Unhandled" );
+
+			DAEDALUS_ASSERT( code>12, "Unhandled" );
+			inp1[j]=((s32)((s32)inp1[j]*(s32)vscale)>>16);
 			j++;
 		}
 		j=0;
@@ -413,17 +411,15 @@ static void ADPCM3( AudioHLECommand command )
 			inPtr++;
 
 			inp2[j]=(s16)((icode&0xf0)<<8);			// this will in effect be signed
-			if(code<12)
-				inp2[j]=((s32)((s32)inp2[j]*(s32)vscale)>>16);
-			else
-				DAEDALUS_ERROR( "Unhandled" );
+
+			DAEDALUS_ASSERT( code>12, "Unhandled" );
+			inp2[j]=((s32)((s32)inp2[j]*(s32)vscale)>>16);
 			j++;
 
 			inp2[j]=(s16)((icode&0xf)<<12);
-			if(code<12)
-				inp2[j]=((s32)((s32)inp2[j]*(s32)vscale)>>16);
-			else
-				DAEDALUS_ERROR( "Unhandled" );
+
+			DAEDALUS_ASSERT( code>12, "Unhandled" );
+			inp2[j]=((s32)((s32)inp2[j]*(s32)vscale)>>16);
 			j++;
 		}
 

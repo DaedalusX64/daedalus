@@ -388,16 +388,11 @@ bool IIniFile::Open( const char * filename )
 				tidy( key );
 				tidy( value );
 
-				if( p_current_section != NULL )
-				{
-					IIniFileProperty * p_property( new IIniFileProperty( key, value ) );
+				DAEDALUS_ASSERT( p_current_section != NULL, "There is no current section" );
 
-					p_current_section->AddProperty( p_property );
-				}
-				else
-				{
-					DAEDALUS_ERROR( "There is no current section" );
-				}
+				IIniFileProperty * p_property( new IIniFileProperty( key, value ) );
+
+				p_current_section->AddProperty( p_property );
 			}
 		}
 	}
