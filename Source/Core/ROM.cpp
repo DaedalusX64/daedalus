@@ -79,7 +79,7 @@ u32 g_dwNumFrames = 0;
 //
 //*****************************************************************************
 RomInfo g_ROM;
-
+bool gTLUTalt_mode;
 
 #ifndef DAEDALUS_SILENT
 //*****************************************************************************
@@ -444,6 +444,10 @@ void ROM_Unload()
 //*****************************************************************************
 void SpecificGameHacks( const ROMHeader & id )
 {
+	//printf("ROM ID:%04X\n", id.CartID);
+
+	gTLUTalt_mode = false;	//Alternate Texture mode
+	
 	switch( id.CartID )
 	{
 	case 0x4547: g_ROM.GameHacks = GOLDEN_EYE;			break;
@@ -451,12 +455,21 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5546: g_ROM.GameHacks = CONKER;				break;
 	case 0x5750: g_ROM.GameHacks = PILOT_WINGS;			break;
 	case 0x4c5a: g_ROM.GameHacks = ZELDA_OOT;			break;
-	case 0x535a: g_ROM.GameHacks = ZELDA_MM;			break;
+	case 0x535a:
+		gTLUTalt_mode = true;
+		g_ROM.GameHacks = ZELDA_MM;
+		break;
 	case 0x3954: g_ROM.GameHacks = TIGERS_HONEY_HUNT;	break;
 	case 0x5443: g_ROM.GameHacks = CHAMELEON_TWIST;		break;
 	case 0x4f52: g_ROM.GameHacks = ROAD_RASH;			break;
 	case 0x524c: g_ROM.GameHacks = LOAD_RUNNER;			break;
 	case 0x494b: g_ROM.GameHacks = KILLER_INSTINCT;		break;
+	case 0x5653:	//SSV	
+	case 0x5547:	//Sin and punishment	
+	case 0x4641:	//Animal crossing	
+	case 0x4446:	//Flying Dragon	
+		gTLUTalt_mode = true;
+		break;
 	case 0x324e: 
 	case 0x4339:
 		g_ROM.GameHacks = NASCAR;

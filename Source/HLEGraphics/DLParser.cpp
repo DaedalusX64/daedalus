@@ -914,12 +914,14 @@ void DLParser_SetConvert( MicroCodeCommand command )
 void DLParser_SetPrimDepth( MicroCodeCommand command )
 {
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	u32 z  = (command.inst.cmd1 >> 16) & 0xFFFF;
+	u32 z  = (command.inst.cmd1 >> 16) & 0x7FFF;
+	//u32 z  = (command.inst.cmd1 >> 16) & 0xFFFF;
 	u32 dz = (command.inst.cmd1      ) & 0xFFFF;
 
 	DL_PF("SetPrimDepth: 0x%08x 0x%08x - z: 0x%04x dz: 0x%04x", command.inst.cmd0, command.inst.cmd1, z, dz);
 #endif	
 	// Not implemented!
+	//PSPRenderer::Get()->SetPrimitiveDepth( z );
 }
 
 //*****************************************************************************
@@ -1695,21 +1697,18 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	u32 lrs     = command.loadtile.sh >> 2;
 
 	//This corresponds to the number of palette entries (16 or 256)
+	//Seems partial load of palette is alowed -> count != 16 or 256 (MM, SSB, Starfox64, MRC) //Corn
 	u32 count = (lrs - uls) + 1;
 
-	//bail if not 16/256, MM gives 64 on occation wich is wrong //Corn
-	//if(count & ~0x110) return;	// breaks some textures in SSB
-
 	// Format is always 16bpp - RGBA16 or IA16:
-	u32 offset = ((uls + ult * g_TI.Width) * 2);
-	//offset &= 0x0FFF;
+	u32 offset = (uls + ult * g_TI.Width) << 1;
 
 	//Copy PAL to the PAL memory
 	u32 tmem = gRDPTiles[ tile_idx ].tmem << 3;
 	u16 * p_source = (u16*)&g_pu8RamBase[ g_TI.Address + offset ];
 	u16 * p_dest   = (u16*)&gTextureMemory[ tmem ];
 
-	//printf("Addr %08X : TMEM %03X : Tile %d : P %d : Orig %d\n",g_TI.Address + offset, tmem, tile_idx, count, offset); 
+	//printf("Addr %08X : TMEM %03X : Tile %d : PAL %d : Offset %d\n",g_TI.Address + offset, tmem, tile_idx, count, offset); 
 
 #if 1
 	memcpy_vfpu_BE(p_dest, p_source, count << 1);

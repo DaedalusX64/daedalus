@@ -113,6 +113,7 @@ public:
 	inline void			SetLighting(bool enable)				{ if( enable ) mTnLModeFlags |= TNL_LIGHT;	 else mTnLModeFlags &= ~TNL_LIGHT; }
 	inline void			SetTextureGen(bool enable)				{ if( enable ) mTnLModeFlags |= TNL_TEXGEN;  else mTnLModeFlags &= ~TNL_TEXGEN; }
 
+	//inline void			SetPrimitiveDepth( u32 z )				{ gTexRectDepth = (float)z; }}
 	inline void			SetPrimitiveColour( c32 colour )		{ mPrimitiveColour = colour; }
 	inline void			SetEnvColour( c32 colour )				{ mEnvColour = colour; }
 	inline void			ZBufferEnable(bool bZBuffer)			{ m_bZBuffer = bZBuffer; }

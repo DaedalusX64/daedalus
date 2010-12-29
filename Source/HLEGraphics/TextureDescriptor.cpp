@@ -82,7 +82,7 @@ const void *	TextureInfo::GetPalettePtr() const
 {
 	// Want to advance 16x16bpp palette entries (i.e. 32 bytes into tmem for each palette), i.e. <<5.
 	// Fix for black textures MM but breaks Aerogauge //Corn
-	if ( GetSize() == G_IM_SIZ_4b && g_ROM.GameHacks == ZELDA_MM ) return &gTextureMemory[ ( 0x100 + ( TLutIndex << 4 ) ) << 3 ];
+	if ( (GetSize() == G_IM_SIZ_4b) & gTLUTalt_mode ) return &gTextureMemory[ ( 0x100 + ( TLutIndex << 4 ) ) << 3 ];
 	else return &gTextureMemory[ ( 0x100 + ( TLutIndex << 2 ) ) << 3 ];
 }
 

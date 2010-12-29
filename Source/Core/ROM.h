@@ -152,5 +152,6 @@ const char *	ROM_GetCicTypeName( ECicType cic_type );
 //*****************************************************************************
 extern RomInfo g_ROM;
 extern u32 g_dwNumFrames;
+extern bool gTLUTalt_mode;
 
 #endif // DAEDALUS_ROM_H_

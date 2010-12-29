@@ -1621,7 +1621,7 @@ bool	PSPRenderer::RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts
 	DaedalusVtx*	p_vertices( (DaedalusVtx*)sceGuGetMemory(num_verts*sizeof(DaedalusVtx)) );
 	memcpy( p_vertices, p_verts, num_verts*sizeof(DaedalusVtx));
 
-	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
+	//sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
 	RenderUsingCurrentBlendMode( p_vertices, num_verts, RM_RENDER_2D, disable_zbuffer );
 
 	return true;
