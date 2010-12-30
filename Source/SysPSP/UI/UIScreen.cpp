@@ -92,7 +92,7 @@ void	CUIScreen::Run()
 
 		mpContext->Update( elapsed_time );
 
-		Update( elapsed_time, stick, old_buttons, (pad.Buttons & PSP_BUTTONS_MASK) );
+		Update( elapsed_time, stick, old_buttons, pad.Buttons );
 		
 		mpContext->BeginRender();
 

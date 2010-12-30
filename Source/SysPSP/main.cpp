@@ -73,6 +73,9 @@ char gDaedalusExePath[MAX_PATH+1] = DAEDALUS_PSP_PATH( "" );
 
 extern "C" 
 { 
+	/* Impose Home button */
+	void SetImposeHomeButton();
+
 	/* Disable FPU exceptions */
 	void _DisableFPUExceptions(); 
 
@@ -290,7 +293,7 @@ static bool	Initialize()
 	InitButtons();
 
 	// Unset home button and imposed to allow use it as normal button
-	SetImposeHomeButton(0x10000, 0); 
+	SetImposeHomeButton(); 
 
 	// Force non-kernelbuttons when profiling
 #ifdef DAEDALUS_PSP_GPROF

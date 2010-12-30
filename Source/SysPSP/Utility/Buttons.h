@@ -22,15 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 // This a wrapper to easy up the use of kernel buttons prx
 //
-#include <pspctrl.h>
-//*****************************************************************************
-// Extern from main.c / KernelButtonsPrx to get Kernelmode input style
-//*****************************************************************************
-extern "C" 
-{
-	int SetImposeHomeButton(u32 ctrl, u32 count);
-}
-
 //*************************************************************************************
 //
 //*************************************************************************************

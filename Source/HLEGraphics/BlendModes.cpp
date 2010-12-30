@@ -1136,11 +1136,11 @@ void BlendMode_0x00127e2455fdf8fcLL (BLEND_MODE_ARGS)
 //aA1  : (0            - 0           ) * 0            + Combined
 void BlendMode_0x0030fe045ffefdf8LL (BLEND_MODE_ARGS)
 {
-	
-	details.ColourAdjuster.SetRGB( details.EnvColour );
-	details.ColourAdjuster.SetAOpaque();
-	sceGuTexEnvColor( details.PrimColour.GetColour() );
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);	
+
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+	// This looks like the real deal but doesn't match with the terrain blendmode :(
+	/*details.ColourAdjuster.SetRGBA( details.EnvColour );
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);	*/
 }
 //Kirby 64 - Flowers
 //case 0x0040fe8155fef379LL:
@@ -1150,9 +1150,7 @@ void BlendMode_0x0030fe045ffefdf8LL (BLEND_MODE_ARGS)
 //aA1  : (0            - 0           ) * 0            + Texel0
 void BlendMode_0x0040fe8155fef379LL (BLEND_MODE_ARGS)
 {
-	
-	details.ColourAdjuster.SetRGB( details.EnvColour );
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);	
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 //Kirby 64 - Far Terrain
 //case 0x0040fe8155fefd7eLL:
@@ -1163,9 +1161,7 @@ void BlendMode_0x0040fe8155fef379LL (BLEND_MODE_ARGS)
 
 void BlendMode_0x0040fe8155fefd7eLL (BLEND_MODE_ARGS)
 {
-	details.ColourAdjuster.SetRGB( details.EnvColour );
-	details.ColourAdjuster.SetAOpaque();
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);	
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
 }
 
 /*

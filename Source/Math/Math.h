@@ -37,6 +37,7 @@
 
 // Interesting note, if we don't make thse funcs inline, we'll get compiling errors.. weird
 
+//#define DOUBLE_CONVERSION // Define to use double and other related conversions.
 #define PI   3.141592653589793f
 
 //Do SIN/COS in one go on VFPU //Corn
@@ -388,6 +389,17 @@ inline int pspFpuIsNaN(float f)
 	return (v);
 }
 
+//Speedy random number 1 - (2^32)-1 //Corn
+inline u32 pspFastRand()
+{
+	static u32 IO_RAND=0x12345678;
+	IO_RAND = (IO_RAND << 1) | (((IO_RAND >> 31) ^ (IO_RAND >> 28)) & 1);
+	return IO_RAND;
+}
+
+
+#ifdef DOUBLE_CONVERSION
+
 //Yoyo games glog (Mike Dailly), modified Corn
 //Convert Double (float) to 32bit signed integer
 inline s32 Double2Int( f64 *d )
@@ -668,15 +680,8 @@ inline f32 pspFpuDoubleToFloat(f64 *f)
 #undef fs10	
 #undef fs11	
 
-//Speedy random number 1 - (2^32)-1 //Corn
-inline u32 pspFastRand()
-{
-	static u32 IO_RAND=0x12345678;
-	IO_RAND = (IO_RAND << 1) | (((IO_RAND >> 31) ^ (IO_RAND >> 28)) & 1);
-	return IO_RAND;
-}
 
-/*
+
 //Fast way to check IsNaN on doubles //Corn
 inline bool IsNaN_Double(double x)
  {
@@ -704,7 +709,7 @@ inline bool IsNaN_Float(float x)
 
 	 return (Conv.val_I & 0x7fffffff) > 0x7f800000;
 }
-*/
 
+#endif // DOUBLE_CONVERSION
 #endif // DAEDMATHS_H__
 
