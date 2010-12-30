@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "gspCommon.h"
+#include "../SysPSP/Utility/FastMemcpy.h"
 
 //*****************************************************************************
 //
@@ -271,6 +272,17 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 
 	ti.SetTLutIndex        (objBg->imagePal);
 	ti.SetTLutFormat       (2 << 14);  //RGBA16 >> (2 << G_MDSFT_TEXTLUT)
+
+	if(g_ROM.GameHacks == KIRBY64)
+	{
+		//Need to load PAL to TMEM //Corn
+		//Calc offset to palette
+		u8* p_source = (u8*)&g_pu8RamBase[ RDPSegAddr(objBg->imagePtr) + imageW * imageH];
+		//Load to TMEM area
+		u8* p_dest   = (u8*)&gTextureMemory[ ( 0x800 + ( objBg->imagePal << 5 ) ) & 0xFFF ];
+		//Copy the palette to TMEM (Always RGBA16 eg. 512 bytes)
+		memcpy_vfpu_BE(p_dest, p_source, 512);
+	}
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();

@@ -444,7 +444,7 @@ void ROM_Unload()
 //*****************************************************************************
 void SpecificGameHacks( const ROMHeader & id )
 {
-	//printf("ROM ID:%04X\n", id.CartID);
+	printf("ROM ID:%04X\n", id.CartID);
 
 	gTLUTalt_mode = false;	//Alternate Texture mode
 	
@@ -464,6 +464,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x4f52: g_ROM.GameHacks = ROAD_RASH;			break;
 	case 0x524c: g_ROM.GameHacks = LOAD_RUNNER;			break;
 	case 0x494b: g_ROM.GameHacks = KILLER_INSTINCT;		break;
+	case 0x344b: g_ROM.GameHacks = KIRBY64;				break;
 	case 0x5653:	//SSV	
 	case 0x5547:	//Sin and punishment	
 	case 0x4641:	//Animal crossing	

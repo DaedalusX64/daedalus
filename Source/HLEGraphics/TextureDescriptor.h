@@ -60,6 +60,7 @@ public:
 
 	u32						GetWidthInBytes() const;
 
+	const void *			GetPalettePtr() const;
 	inline u32				GetLoadAddress() const			{ return LoadAddress; }
 	inline u32				GetTmemAddress() const			{ return TmemAddress; }
 	inline u32				GetFormat() const				{ return Format; }
@@ -68,8 +69,10 @@ public:
 	inline u32				GetHeight() const				{ return Height; }
 	inline u32				GetPitch() const				{ return Pitch; }
 	u32						GetTLutFormat() const;
-	inline u8				GetTLutIndex() const			{ return TLutIndex; }
+	inline u32				GetTLutIndex() const			{ return TLutIndex; }
 	inline bool				IsSwapped() const				{ return Swapped; }
+	inline bool				GetMirrorS() const				{ return MirrorS; }
+	inline bool				GetMirrorT() const				{ return MirrorT; }
 
 	inline void				SetLoadAddress( u32 address )	{ LoadAddress = address; }
 	inline void				SetTmemAddress( u32 address )	{ TmemAddress = address; }
@@ -83,10 +86,6 @@ public:
 	inline void				SetSwapped( bool swapped )		{ Swapped = swapped; }
 	inline void				SetMirrorS( bool mirror_s )		{ MirrorS = mirror_s; }
 	inline void				SetMirrorT( bool mirror_t )		{ MirrorT = mirror_t; }
-	inline bool				GetMirrorS() const				{ return MirrorS; }
-	inline bool				GetMirrorT() const				{ return MirrorT; }
-
-	const void *			GetPalettePtr() const;
 
 	ETextureFormat			SelectNativeFormat() const;
 

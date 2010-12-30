@@ -112,7 +112,8 @@ enum EGameHacks
 	ROAD_RASH,
 	NASCAR,
 	LOAD_RUNNER,
-	KILLER_INSTINCT
+	KILLER_INSTINCT,
+	KIRBY64
 };
 
 //*****************************************************************************
