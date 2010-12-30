@@ -947,7 +947,7 @@ void MemoryUpdateDP( u32 flags )
 	
 	// Do we need this?
 	// Write back the value
-	Memory_DPC_SetRegister(DPC_STATUS_REG, dpc_status);
+	//Memory_DPC_SetRegister(DPC_STATUS_REG, dpc_status);
 
 }
 
@@ -957,7 +957,7 @@ void MemoryUpdateDP( u32 flags )
 void MemoryUpdateMI( u32 value )
 {
 	u32 mi_intr_mask_reg = Memory_MI_GetRegister(MI_INTR_MASK_REG);
-	//u32 mi_intr_reg		 = Memory_MI_GetRegister(MI_INTR_REG);
+	u32 mi_intr_reg		 = Memory_MI_GetRegister(MI_INTR_REG);
 
 	//bool interrupts_live_before((mi_intr_mask_reg & mi_intr_reg) != 0);
 
@@ -1000,11 +1000,14 @@ void MemoryUpdateMI( u32 value )
 	if((value & MI_INTR_MASK_SET_DP)) mi_intr_mask_reg |= MI_INTR_MASK_DP;
     else if((value & MI_INTR_MASK_CLR_DP)) mi_intr_mask_reg &= ~MI_INTR_MASK_DP;
 #endif
-	// Looks suspicious
-	//Memory_MI_SetRegister( MI_INTR_REG, mi_intr_reg );	
-	Memory_MI_SetRegister( MI_INTR_MASK_REG, mi_intr_mask_reg );
 
-	R4300_Interrupt_UpdateCause3();
+	if(mi_intr_mask_reg & 0x0000003F & mi_intr_reg)
+	{
+		Memory_MI_SetRegister( MI_INTR_REG, mi_intr_reg );	
+		Memory_MI_SetRegister( MI_INTR_MASK_REG, mi_intr_mask_reg );
+
+		R4300_Interrupt_UpdateCause3();
+	}
 }
 
 //*****************************************************************************

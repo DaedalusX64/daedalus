@@ -221,12 +221,9 @@ static int PanicThread( SceSize args, void * argp )
 		SceCtrlData pad;
 		sceCtrlPeekBufferPositive(&pad, 1); 
 
-		// Start reading our buttons
-		DaedalusReadButtons( pad.Buttons );
-
 		if( (pad.Buttons & MASK) == MASK )
 		{
-			if(++count > 30 )		//If button presse for more that 2sec we return to main menu
+			 if(++count > 5)         //If button press for more that 2sec we return to main menu
 			{
 				count = 0;
 				CGraphicsContext::Get()->ClearAllSurfaces();
@@ -235,8 +232,8 @@ static int PanicThread( SceSize args, void * argp )
 		}
 		else count = 0;
 
-		//Idle here, only check button 13.5 times/sec not to hog CPU time from EMU
-		ThreadSleepMs(77);	
+		//Idle here, only check button 3 times/sec not to hog CPU time from EMU
+		ThreadSleepMs(300);
 	}
 
 	return 0;
@@ -247,7 +244,7 @@ static int PanicThread( SceSize args, void * argp )
 //*************************************************************************************
 static int SetupPanic()
 {
-	int thidf = sceKernelCreateThread( "PanicThread", PanicThread, 0x11, 0xFA0, PSP_THREAD_ATTR_USER, 0 );
+	int thidf = sceKernelCreateThread( "PanicThread", PanicThread, 0x18, 0xFA0, PSP_THREAD_ATTR_USER, 0 );
 
 	if(thidf >= 0)
 	{
@@ -431,15 +428,18 @@ void HandleEndOfFrame()
 	// If kernelbuttons.prx couldn't be loaded, allow select button to be used instead
 	//
 	static u32 oldButtons = 0;
+	SceCtrlData pad;
 
-	if(oldButtons != gButtons.type)
+	sceCtrlPeekBufferPositive(&pad, 1); 
+
+	if(oldButtons != pad.Buttons)
 	{
-		if(gButtons.type & gButtons.style)
+		if(pad.Buttons & gButtons.style)
 		{
 			activate_pause_menu = true;
 		}
 	}
-	oldButtons = gButtons.type;
+	oldButtons = pad.Buttons;
 
 	if(activate_pause_menu)
 	{

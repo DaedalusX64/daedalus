@@ -53,24 +53,29 @@ void	CUIScreen::Run()
 {
 	DAEDALUS_ASSERT( mpContext != NULL, "No context" );
 
-	u32		old_buttons = gButtons.type;
+	SceCtrlData		pad;
+	sceCtrlPeekBufferPositive(&pad, 1);
+	u32		old_buttons = (pad.Buttons & PSP_BUTTONS_MASK);
+
+	// Start reading our buttons, only issue is that this only runs on the gui :(
+	// We should find a better place it can be access in both in game and gui
+	//
+	DaedalusReadButtons( pad.Buttons );
 
 	static const s32	STICK_DEADZONE = 20;
 
 	CTimer		timer;
-	SceCtrlData	pad;
 
 	// Simple rom chooser
 	while( !IsFinished() )
 	{
-		// Only stick reading is needed.
-		sceCtrlPeekBufferPositive(&pad, 1);
-
 		float		elapsed_time( timer.GetElapsedSeconds() );
+
+		old_buttons = (pad.Buttons & PSP_BUTTONS_MASK);
+		sceCtrlPeekBufferPositive(&pad, 1);
 
 		s32		stick_x( pad.Lx - 128 );
 		s32		stick_y( pad.Ly - 128 );
-
 
 		if(stick_x >= -STICK_DEADZONE && stick_x <= STICK_DEADZONE)
 		{
@@ -82,16 +87,13 @@ void	CUIScreen::Run()
 		}
 
 		v2	stick;
-		stick.x = f32(stick_x) / 128.0f;
-		stick.y = f32(stick_y) / 128.0f;
+		stick.x = float(stick_x) / 128.0f;
+		stick.y = float(stick_y) / 128.0f;
 
 		mpContext->Update( elapsed_time );
 
-		Update( elapsed_time, stick, old_buttons, gButtons.type );
-
-		// Otherwise gButtons.type will fail
-		old_buttons = gButtons.type;
-
+		Update( elapsed_time, stick, old_buttons, (pad.Buttons & PSP_BUTTONS_MASK) );
+		
 		mpContext->BeginRender();
 
 		Render();
@@ -102,10 +104,9 @@ void	CUIScreen::Run()
 	//
 	//	Wait until all buttons are release before continuing
 	//  We do this to avoid any undesirable button input after returning to the emulation from pause menu.
-	
-	while( (gButtons.type & PSP_BUTTONS_MASK) != 0 )
+	//
+	while( (pad.Buttons & PSP_BUTTONS_MASK) != 0 )
 	{
-		sceCtrlPeekBufferPositive(&pad, 1); 
+		sceCtrlPeekBufferPositive(&pad, 1);
 	}
-
 }
