@@ -40,7 +40,8 @@ RDP_Mux				gRDPMux;
 RDP_Tile			gRDPTiles[8];
 RDP_TileSize		gRDPTileSizes[8];
 
-u8		gTextureMemory[ 4096 ];
+//u8		gTextureMemory[ 4096 ];
+u8 *gTextureMemory;
 
 
 

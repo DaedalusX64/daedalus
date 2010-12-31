@@ -159,6 +159,7 @@ public:
 	void				SetWorldView(const Matrix4x4 & mat, bool bPush, bool bReplace);
 	inline void			PopProjection() {if (mProjectionTop > 0) --mProjectionTop;	mWorldProjectValid = false;}
 	inline void			PopWorldView()	{if (mModelViewTop > 0)	 --mModelViewTop;	mWorldProjectValid = false;}
+	void				InsertMatrix(u32 w0, u32 w1);
 
 	// Vertex stuff	
 	void				SetNewVertexInfoConker(u32 address, u32 v0, u32 n);	// For conker..	

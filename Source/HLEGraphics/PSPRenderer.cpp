@@ -2490,3 +2490,42 @@ void PSPRenderer::SetFogMinMax(float fMin, float fMax)
 //*****************************************************************************
 //
 //*****************************************************************************
+void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
+{
+	f32 fraction;
+
+	if( !mWorldProjectValid )
+	{
+		mWorldProject = mModelViewStack[mModelViewTop] * mProjectionStack[mProjectionTop];
+		mWorldProjectValid = true;
+	}
+
+	u32 x = (w0 & 0x1F) >> 1;
+	u32 y = x >> 2;
+	x &= 3;
+
+	if (w0 & 0x20)
+	{
+		//Change fraction part
+		fraction = (w1 >> 16) / 65536.0f;
+		mWorldProject.m[y][x] = (f32)(s32)mWorldProject.m[y][x];
+		mWorldProject.m[y][x] += fraction;
+
+		fraction = (w1 & 0xFFFF) / 65536.0f;
+		mWorldProject.m[y][x+1] = (f32)(s32)mWorldProject.m[y][x+1];
+		mWorldProject.m[y][x+1] += fraction;
+	}
+	else
+	{
+		//Change integer part
+		fraction = (f32)fabs(mWorldProject.m[y][x] - (s32)mWorldProject.m[y][x]);
+		mWorldProject.m[y][x]	= (f32)(s16)(w1 >> 16) + fraction;
+
+		fraction = (f32)fabs(mWorldProject.m[y][x+1] - (s32)mWorldProject.m[y][x+1]);
+		mWorldProject.m[y][x+1] = (f32)(s16)(w1 & 0xFFFF) + fraction;
+	}
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************

@@ -993,8 +993,9 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 	{
 	case G_MW_MATRIX:
 		DL_PF("    G_MW_MATRIX");
-		RDP_NOIMPL_WARN("GBI1: G_MW_MATRIX Not Implemented");
+		//RDP_NOIMPL_WARN("GBI1: G_MW_MATRIX Not Implemented");
 		// Insert Matrix is needed here !
+		PSPRenderer::Get()->InsertMatrix(command.inst.cmd0, command.inst.cmd1);
 		break;
 	case G_MW_NUMLIGHT:
 		//#define NUML(n)		(((n)+1)*32 + 0x80000000)
@@ -1118,8 +1119,9 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 	{
 	case G_MW_MATRIX:
 		DL_PF("    G_MW_MATRIX");
-		RDP_NOIMPL_WARN( "GBI2: G_MW_MATRIX not implemented" );
+		//RDP_NOIMPL_WARN( "GBI2: G_MW_MATRIX not implemented" );
 		// Insert Matrix is needed here !
+		PSPRenderer::Get()->InsertMatrix(command.inst.cmd0, command.inst.cmd1);
 		break;
 	case G_MW_NUMLIGHT:
 		{
@@ -1574,11 +1576,9 @@ void DLParser_SetTImg( MicroCodeCommand command )
 	DL_PF("    Image: 0x%08x Fmt: %s/%s Width: %d (Pitch: %d)", g_TI.Address, gFormatNames[g_TI.Format], gSizeNames[g_TI.Size], g_TI.Width, g_TI.GetPitch());
 }
 
-
 //*****************************************************************************
 //
 //*****************************************************************************
-#if 1
 void DLParser_LoadBlock( MicroCodeCommand command )
 {
 	u32 uls			= command.loadtile.sl;
@@ -1624,51 +1624,7 @@ void DLParser_LoadBlock( MicroCodeCommand command )
 	RDP_LoadBlock( tile );
 #endif
 }
-#else
-void DLParser_LoadBlock( MicroCodeCommand command )
-{
-	u32 uls			= command.loadtile.sl;
-	u32 ult			= command.loadtile.tl;
-	u32 tile_idx	= command.loadtile.tile;
-	u32 lrs			= command.loadtile.sh;		// Number of bytes-1?
-	u32 dxt			= command.loadtile.th;		// 1.11 fixed point
 
-	use(lrs);
-
-	u32		quadwords;
-	bool	swapped;
-
-	if (dxt == 0)
-	{
-		quadwords = 1;
-		swapped = true;
-	}
-	else
-	{
-		quadwords = 2048 / dxt;						// #Quad Words
-		swapped = false;
-	}
-
-	u32		bytes( quadwords * 8 );
-	u32		width( bytes2pixels( bytes, g_TI.Size ) );
-	u32		pixel_offset( (width * ult) + uls );
-	u32		offset( pixels2bytes( pixel_offset, g_TI.Size ) );
-
-	u32		src_offset(g_TI.Address + offset);
-
-	DL_PF("    Tile:%d (%d,%d - %d) DXT:0x%04x = %d QWs => %d pixels/line", tile_idx, uls, ult, lrs, dxt, quadwords, width);
-	DL_PF("    Offset: 0x%08x", src_offset);
-
-	gRDPStateManager.LoadBlock( tile_idx, src_offset, swapped );
-
-#if RDP_EMULATE_TMEM
-	RDP_TileSize tile;
-	tile.cmd0 = command.inst.cmd0;
-	tile.cmd1 = command.inst.cmd1;
-	RDP_LoadBlock( tile );
-#endif
-}
-#endif
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -1697,7 +1653,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	u32 lrs     = command.loadtile.sh >> 2;
 
 	//This corresponds to the number of palette entries (16 or 256)
-	//Seems partial load of palette is alowed -> count != 16 or 256 (MM, SSB, Starfox64, MRC) //Corn
+	//Seems partial load of palette is allowed -> count != 16 or 256 (MM, SSB, Starfox64, MRC) //Corn
 	u32 count = (lrs - uls) + 1;
 
 	// Format is always 16bpp - RGBA16 or IA16:

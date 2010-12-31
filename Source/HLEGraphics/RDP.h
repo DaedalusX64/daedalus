@@ -303,7 +303,8 @@ extern RDP_OtherMode		gRDPOtherMode;
 extern RDP_Mux				gRDPMux;
 
 
-extern u8 gTextureMemory[ 4096 ];
+//extern u8 gTextureMemory[ 4096 ];
+extern u8 *gTextureMemory;
 extern 	RDP_TileSize gRDPTileSizes[8];
 extern	RDP_Tile gRDPTiles[8];
 extern	u32 gTextureTile;

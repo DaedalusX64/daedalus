@@ -56,6 +56,17 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 	ti.SetTLutIndex        (objBg->imagePal);
 	ti.SetTLutFormat       (2 << 14);  //RGBA16 
 
+	if(g_ROM.GameHacks == KIRBY64)
+	{
+		//Need to load PAL to TMEM //Corn
+		//Calc offset to palette
+		u8* p_source = (u8*)&g_pu8RamBase[ RDPSegAddr(objBg->imagePtr) + imageW * imageH];
+		//Load to TMEM area
+		u8* p_dest   = (u8*)&gTextureMemory[ ( 0x800 + ( objBg->imagePal << 5 ) ) & 0xFFF ];
+		//Copy the palette to TMEM (Always RGBA16 eg. 512 bytes)
+		memcpy_vfpu_BE(p_dest, p_source, 512);
+	}
+
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();
 
