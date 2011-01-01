@@ -1136,12 +1136,26 @@ void BlendMode_0x00127e2455fdf8fcLL (BLEND_MODE_ARGS)
 //aA1  : (0            - 0           ) * 0            + Combined
 void BlendMode_0x0030fe045ffefdf8LL (BLEND_MODE_ARGS)
 {
-
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
 	// This looks like the real deal but doesn't match with the terrain blendmode :(
 	/*details.ColourAdjuster.SetRGBA( details.EnvColour );
 	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);	*/
 }
+
+//Kirby 64 - some parts of the Ground
+//case 0x00309e045ffefdf8LL:
+//aRGB0: (Primitive    - Env         ) * Texel0       + Env         
+//aA0  : (Texel0       - 0           ) * 0            + 1           
+//aRGB1: (Combined     - 0           ) * Shade        + 0           
+//aA1  : (0            - 0           ) * 0            + Combined    
+void BlendMode_0x00309e045ffefdf8LL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+	// This looks like the real deal but doesn't match with the terrain blendmode :(
+	/*details.ColourAdjuster.SetRGBA( details.EnvColour );
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);	*/
+}
+
 //Kirby 64 - Flowers
 //case 0x0040fe8155fef379LL:
 //aRGB0: (Shade        - Env         ) * Texel0       + Env
@@ -4693,6 +4707,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 	BLEND_MODE(0x0027fe041ffcfdfeLL);
 	BLEND_MODE(0x00309661552efb7dLL);
 	BLEND_MODE(0x00309861550eff4fLL);
+	BLEND_MODE(0x00309e045ffefdf8LL);//Kirby
 	BLEND_MODE(0x0030abff5ffe9238LL);
 	BLEND_MODE(0x0030b2045ffefff8LL);//HorsedustatLonLonRanch
 	BLEND_MODE(0x0030b26144664924LL);

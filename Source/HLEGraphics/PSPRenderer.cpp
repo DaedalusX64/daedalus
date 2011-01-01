@@ -2241,7 +2241,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	mTileTopLeft[ index ] = v2( f32( tile_size.left) * (1.0f / 4.0f), f32(tile_size.top)* (1.0f / 4.0f) );
 
 	DL_PF( "     *Performing texture map load:" );
-	DL_PF( "     *  Address: 0x%08x, Pitch: %d, Format: %s, Size: %dbpp, %dx%d",
+	DL_PF( "     *Address: 0x%08x, Pitch: %d, Format: %s, Size: %dbpp, %dx%d",
 			ti.GetLoadAddress(), ti.GetPitch(),
 			ti.GetFormatName(), ti.GetSizeInBits(),
 			ti.GetWidth(), ti.GetHeight() );
@@ -2478,17 +2478,7 @@ void PSPRenderer::Draw2DTexture( float imageX, float imageY, float frameX, float
 }
 
 //*****************************************************************************
-//
-//*****************************************************************************
-void PSPRenderer::SetFogMinMax(float fMin, float fMax)
-{
-	//printf(" Fog %.3f..%.3f\n",fMin,fMax);
-	//printf("Set Fog: Min=%f, Max=%f",fMin,fMax);
-	sceGuFog(fMin, fMax, mFogColour.GetColour());
-}
-
-//*****************************************************************************
-//
+//Modify the WorldProject matrix
 //*****************************************************************************
 void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 {
@@ -2526,6 +2516,25 @@ void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 	}
 }
 
+//*****************************************************************************
+//Replaces the WorldProject matrix
+//*****************************************************************************
+void PSPRenderer::ForceMatrix(const Matrix4x4 & mat)
+{
+#if 0	//1-> show matrix, 0-> skip
+	for(u32 i=0;i<4;i++) printf("%.3f ",mat.mRaw[i]);
+	printf("\n");
+	for(u32 i=4;i<8;i++) printf("%.3f ",mat.mRaw[i]);
+	printf("\n");
+	for(u32 i=8;i<12;i++) printf("%.3f ",mat.mRaw[i]);
+	printf("\n");
+	for(u32 i=12;i<16;i++) printf("%.3f ",mat.mRaw[i]);
+	printf("\n\n");
+#endif
+
+	mWorldProject = mat;
+	mWorldProjectValid = true;
+}
 //*****************************************************************************
 //
 //*****************************************************************************

@@ -139,7 +139,7 @@ public:
 
 	// Fog stuff
 	inline void			SetFogEnable(bool Enable)				{ if(Enable & gFogEnabled) sceGuEnable(GU_FOG); else sceGuDisable(GU_FOG); }
-	void				SetFogMinMax(float fMin, float fMax);
+	inline void			SetFogMinMax(float fMin, float fMax)	{ sceGuFog(fMin, fMax, mFogColour.GetColour()); }
 	void				SetFogColour( c32 colour )				{ mFogColour = colour; }
 	// Unused.. will remove soon
 	inline void			SetFogMult( float fFogMult )			{ mTnLParams.FogMult = fFogMult; }
@@ -160,6 +160,7 @@ public:
 	inline void			PopProjection() {if (mProjectionTop > 0) --mProjectionTop;	mWorldProjectValid = false;}
 	inline void			PopWorldView()	{if (mModelViewTop > 0)	 --mModelViewTop;	mWorldProjectValid = false;}
 	void				InsertMatrix(u32 w0, u32 w1);
+	void				ForceMatrix(const Matrix4x4 & mat);
 
 	// Vertex stuff	
 	void				SetNewVertexInfoConker(u32 address, u32 v0, u32 n);	// For conker..	
