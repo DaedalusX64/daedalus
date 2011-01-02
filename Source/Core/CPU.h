@@ -125,8 +125,8 @@ ALIGNED_EXTERN(SCPUState, gCPUState, CACHE_ALIGN);
 //*****************************************************************************
 void	CPU_Reset();
 void	CPU_Finalise();
-void	CPU_Step();
-void	CPU_Skip();
+//void	CPU_Step();
+//void	CPU_Skip();
 bool	CPU_Run();
 //bool	CPU_StartThread( char * p_failure_reason, u32 length );
 //void	CPU_StopThread();

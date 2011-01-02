@@ -228,6 +228,15 @@ pointer_null_x:
 #define WriteValueAddress FuncTableWriteValueAddress
 #else
 
+
+inline u8 FastRead8bits(u32 address)
+{
+
+	return(*((u8 *)(g_ReadAddressLookupTable)[address>>18](address)));
+}
+
+#define FastWrite32Bits( address,  data)		*(u32 *)(g_WriteAddressValueLookupTable[address>>18](address, data)) = data;
+
 inline void* ReadAddress( u32 address )
 {
 	s32 tableEntry = reinterpret_cast< s32 >( g_ReadAddressPointerLookupTable[address >> 18] ) + address;

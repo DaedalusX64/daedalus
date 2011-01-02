@@ -30,8 +30,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Debug/DBGConsole.h"
 
+// Define this to queque interrupts to R4300_Handle_Exception ?
+// Need tests to see if is safe or faster to handle the interrupts directly
+//
+#define DAEDALUS_QUEQUE_INTERRUPTS
 
-static ETLBExceptionReason g_nTLBExceptionReason;
+//static ETLBExceptionReason g_nTLBExceptionReason;
 #ifdef DAEDALUS_PROFILE_EXECUTION
 u32 gNumExceptions = 0;
 u32 gNumInterrupts = 0;
@@ -50,88 +54,8 @@ u32		gExceptionVector( ~0 );
 //*****************************************************************************
 //
 //*****************************************************************************
-void R4300_Interrupt_CheckPostponed()
-{
-	u32 intr_bits = Memory_MI_GetRegister(MI_INTR_REG);
-	u32 intr_mask = Memory_MI_GetRegister(MI_INTR_MASK_REG);
-
-	if ((intr_bits & intr_mask) != 0)
-	{
-		gCPUState.CPUControl[C0_CAUSE]._u64 |= CAUSE_IP3;
-	}
-
-	if(gCPUState.CPUControl[C0_SR]._u64 & gCPUState.CPUControl[C0_CAUSE]._u64 & CAUSE_IPMASK)		// Are interrupts pending/wanted
-	{
-		if(gCPUState.CPUControl[C0_SR]._u64 & SR_IE)								// Are interrupts enabled
-		{
-			if((gCPUState.CPUControl[C0_SR]._u64 & (SR_EXL|SR_ERL)) == 0x0000)		// Ensure ERL/EXL are not set
-			{
-				R4300_JumpToInterruptVector(E_VEC);								// Go
-				return;
-			}
-		}
-	}
-}
-
-//*****************************************************************************
+// Todo simplify this
 //
-//*****************************************************************************
-//void R4300_Interrupt_UpdateCause3()
-//{
-//	//
-//	// If any interrupts pending when they are unmasked, the interrupt fires
-//	//
-//	if ((Memory_MI_GetRegister(MI_INTR_MASK_REG) &
-//		 Memory_MI_GetRegister(MI_INTR_REG)) == 0)
-//	{
-//		// Clear the Cause register
-//		gCPUState.CPUControl[C0_CAUSE]._u32_0 &= ~CAUSE_IP3;
-//	}
-//	else
-//	{
-//		gCPUState.CPUControl[C0_CAUSE]._u32_0 |= CAUSE_IP3;
-//		gCPUState.AddJob( CPU_CHECK_INTERRUPTS );
-//	}
-//}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void R4300_Exception_Break()
-{
-	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
-	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
-
-	// Clear CAUSE_EXCMASK
-	gCPUState.CPUControl[C0_CAUSE]._u64 &= ~CAUSE_EXCMASK;
-	gCPUState.CPUControl[C0_CAUSE]._u64 |= EXC_BREAK;
-
-	gExceptionVector = E_VEC;
-	gExceptionPC = gCPUState.CurrentPC;
-	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
-	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void R4300_Exception_Syscall()
-{
-	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
-	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
-
-	// Clear CAUSE_EXCMASK
-	gCPUState.CPUControl[C0_CAUSE]._u64 &= ~CAUSE_EXCMASK;
-	gCPUState.CPUControl[C0_CAUSE]._u64 |= EXC_SYSCALL;
-	gExceptionVector = E_VEC;
-	gExceptionPC = gCPUState.CurrentPC;
-	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
-	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
 void R4300_Exception_CopUnusuable()
 {
 	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
@@ -150,63 +74,58 @@ void R4300_Exception_CopUnusuable()
 //*****************************************************************************
 //
 //*****************************************************************************
-void R4300_Exception_FP()
+void R4300_Exception_TLB_Invalid( u32 virtual_address, ETLBExceptionReason reason )
 {
-	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
-	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
+	gCPUState.CPUControl[C0_BADVADDR]._u32_0 = virtual_address;
 
-	// Clear CAUSE_EXCMASK
-	gCPUState.CPUControl[C0_CAUSE]._u64 &= ~CAUSE_EXCMASK;
-	gCPUState.CPUControl[C0_CAUSE]._u64 |= EXC_FPE;
+	gCPUState.CPUControl[C0_CONTEXT]._u32_0 &= 0xFF800000;	// Mask off bottom 23 bits
+	gCPUState.CPUControl[C0_CONTEXT]._u32_0 |= ((virtual_address >> 13) << 4);
+
+	gCPUState.CPUControl[C0_ENTRYHI]._u32_0 &= 0x00001FFF;	// Mask off the top bit 13-31 
+	gCPUState.CPUControl[C0_ENTRYHI]._u32_0 |= (virtual_address & 0xFFFFE000);
+
+	if( reason == EXCEPTION_TLB_STORE )
+		SET_EXCEPTION(EXC_WMISS) 
+	else
+		SET_EXCEPTION(EXC_RMISS) 
+
+#ifdef DAEDALUS_QUEQUE_INTERRUPTS
 	gExceptionVector = E_VEC;
 	gExceptionPC = gCPUState.CurrentPC;
 	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
 	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
-}
+#else
 
+	R4300_JumpToInterruptVector( E_VEC );
+#endif
+}
 //*****************************************************************************
 //
 //*****************************************************************************
-void R4300_Exception_TLB( u32 virtual_address, ETLBExceptionReason reason )
+void R4300_Exception_TLB_Refill( u32 virtual_address, ETLBExceptionReason reason )
 {
-	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
-	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
+	gCPUState.CPUControl[C0_BADVADDR]._u32_0 = virtual_address;
 
-	u32 dwVPN2;
+	gCPUState.CPUControl[C0_CONTEXT]._u32_0 &= 0xFF800000;	// Mask off bottom 23 bits
+	gCPUState.CPUControl[C0_CONTEXT]._u32_0 |= ((virtual_address >> 13) << 4);
 
-	gCPUState.CPUControl[C0_BADVADDR]._u64 = (s64)(s32)virtual_address;			//!! XXXX Added sign extension - Check this!
+	gCPUState.CPUControl[C0_ENTRYHI]._u32_0 &= 0x00001FFF;	// Mask off the top bit 13-31 
+	gCPUState.CPUControl[C0_ENTRYHI]._u32_0 |= (virtual_address & 0xFFFFE000);
 
-	dwVPN2 = (virtual_address>>TLBHI_VPN2SHIFT);	// Shift off odd/even indicator
+	if( reason == EXCEPTION_TLB_STORE )
+		SET_EXCEPTION(EXC_WMISS) 
+	else
+		SET_EXCEPTION(EXC_RMISS) 
 
-	gCPUState.CPUControl[C0_CONTEXT]._u64 &= ~0x007FFFFF;	// Mask off bottom 23 bits
-	gCPUState.CPUControl[C0_CONTEXT]._u64 |= (dwVPN2<<4);
-
-	gCPUState.CPUControl[C0_ENTRYHI]._u64 = (s64)(s32)(dwVPN2 << TLBHI_VPN2SHIFT);
-
-	g_nTLBExceptionReason = reason;
-
-	u32		exception_code( 0 );
-	u32		exception_vector( E_VEC );
-
-	// Jump to common exception vector, use TLBL or TLBS in ExcCode field
-	switch ( reason )
-	{
-	case EXCEPTION_TLB_REFILL_LOAD:		exception_code = EXC_RMISS; exception_vector = UT_VEC; break;
-	case EXCEPTION_TLB_REFILL_STORE:	exception_code = EXC_WMISS;	exception_vector = UT_VEC; break;
-	case EXCEPTION_TLB_INVALID_LOAD:	exception_code = EXC_RMISS;	exception_vector = E_VEC; break;
-	case EXCEPTION_TLB_INVALID_STORE:	exception_code = EXC_WMISS;	exception_vector = E_VEC; break;
-
-	default:
-		DAEDALUS_ERROR( "Unknown TLB error" );
-	}
-
-	gCPUState.CPUControl[C0_CAUSE]._u64 &= ~CAUSE_EXCMASK;
-	gCPUState.CPUControl[C0_CAUSE]._u64 |= exception_code;
-
-	gExceptionVector = exception_vector;
+#ifdef DAEDALUS_QUEQUE_INTERRUPTS
+	gExceptionVector = UT_VEC;
 	gExceptionPC = gCPUState.CurrentPC;
 	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
 	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
+#else
+
+	R4300_JumpToInterruptVector( UT_VEC );
+#endif
 }
 
 //*****************************************************************************
@@ -243,24 +162,17 @@ void R4300_Handle_Interrupt()
 	DAEDALUS_ASSERT( mi_interrupt_set == cause_int_3_set, "CAUSE_IP3 inconsistant with MI_INTR_REG (%08x)", Memory_MI_GetRegister(MI_INTR_MASK_REG) & Memory_MI_GetRegister(MI_INTR_REG) );
 #endif
 
-	if(gCPUState.CPUControl[C0_SR]._u64 & gCPUState.CPUControl[C0_CAUSE]._u64 & CAUSE_IPMASK)	// Are interrupts pending/wanted?
+	if(gCPUState.CPUControl[C0_SR]._u32_0 & gCPUState.CPUControl[C0_CAUSE]._u32_0 & CAUSE_IPMASK)  
 	{
-		if(gCPUState.CPUControl[C0_SR]._u64 & SR_IE)									// Are interrupts enabled?
+		if(gCPUState.CPUControl[C0_SR]._u32_0 & SR_IE)
 		{
-			if((gCPUState.CPUControl[C0_SR]._u64 & (SR_EXL|SR_ERL)) == 0x0000)		// Ensure ERL/EXL are not set
-			{
-			#ifdef DAEDALUS_PROFILE_EXECUTION
-				gNumInterrupts++;
-			#endif
-
-				// Clear CAUSE_EXCMASK
-				gCPUState.CPUControl[C0_CAUSE]._u64 &= ~CAUSE_EXCMASK;
-				gCPUState.CPUControl[C0_CAUSE]._u64 |= EXC_INT;			// This is actually 0
-
-				R4300_JumpToInterruptVector(E_VEC);
-			}
-		}
-	}
+			if((gCPUState.CPUControl[C0_SR]._u32_0 & 0x0006/*(SR_EXL|SR_ERL)*/) == 0x0000) // SR_EXL + SR_ERL = 0x00000006
+			{       
+				SET_EXCEPTION( EXC_INT )
+				R4300_JumpToInterruptVector( E_VEC );
+			} 
+		} 
+    } 
 }
 
 //*****************************************************************************
@@ -268,53 +180,114 @@ void R4300_Handle_Interrupt()
 //*****************************************************************************
 void R4300_JumpToInterruptVector(u32 exception_vector)
 {
-#ifdef DAEDALUS_PROFILE_EXECUTION
-#ifdef DAEDALUS_ENABLE_ASSERTS
+
+#if defined(DAEDALUS_ENABLE_ASSERTS) || defined(DAEDALUS_PROFILE_EXECUTION)
 	bool	mi_interrupt_set( (Memory_MI_GetRegister(MI_INTR_MASK_REG) & Memory_MI_GetRegister(MI_INTR_REG)) != 0 );
 	bool	cause_int_3_set( (gCPUState.CPUControl[C0_CAUSE]._u32_0 & CAUSE_IP3) != 0 );
 
 	DAEDALUS_ASSERT( mi_interrupt_set == cause_int_3_set, "CAUSE_IP3 inconsistant with MI_INTR_REG" );
 #endif
-#endif
-	// If EXL is already set, we jump
-	if (gCPUState.CPUControl[C0_SR]._u64 & SR_EXL)
-	{
-		CPU_Halt("Exception in exception");
-		DBGConsole_Msg(0, "[MException within exception] at [R%08x]", gCPUState.CurrentPC);
 
-		// Force default exception handler
-		exception_vector = E_VEC;
+
+
+	gCPUState.CPUControl[C0_SR]._u32_0 |= SR_EXL;							
+	gCPUState.CPUControl[C0_EPC]._u32_0  = gCPUState.CurrentPC;          
+
+	if(gCPUState.Delay == EXEC_DELAY)
+	{
+		gCPUState.CPUControl[C0_CAUSE]._u32_0 |= CAUSE_BD;				
+		gCPUState.CPUControl[C0_EPC]._u32_0   -= 4;						
 	}
 	else
 	{
-		gCPUState.CPUControl[C0_SR]._u64 |= SR_EXL;		// Set the EXeption Level (EXL) in STATUS reg (in Kernel mode)
-
-		DAEDALUS_ASSERT( gCPUState.Delay == NO_DELAY || gCPUState.Delay == EXEC_DELAY, "Unexpected branch delay status when handling interrupt" );
-		if (gCPUState.Delay == EXEC_DELAY)
-		{
-			gCPUState.CPUControl[C0_CAUSE]._u64 |= CAUSE_BD;	// Set the BD (Branch Delay) flag in the CAUSE reg
-			gCPUState.CPUControl[C0_EPC]._u64   = gCPUState.CurrentPC - 4;	// We want the immediately preceeding instruction
-		}
-		else
-		{
-			gCPUState.CPUControl[C0_CAUSE]._u64 &= ~CAUSE_BD;	// Clear the BD (Branch Delay) flag
-			gCPUState.CPUControl[C0_EPC]._u64   = gCPUState.CurrentPC;		// We want the current instruction
-		}
+		gCPUState.CPUControl[C0_CAUSE]._u32_0 &= ~CAUSE_BD;				
 	}
 
-	if (gCPUState.CPUControl[C0_SR]._u64 & SR_BEV)
-	{
-		// Use Boot Exception Vectors...
-		// 0xBFC00200 + OFFSET
-		CPU_SetPC(exception_vector);		// Set the Program Counter to the interrupt vector
-	}
-	else
-	{
-		// Use normal exception vectors..
-		// 0x80000000 + OFFSET
-		CPU_SetPC(exception_vector);		// Set the Program Counter to the interrupt vector
-	}
-	// Clear CPU_DO_DELAY????
-	gCPUState.Delay = NO_DELAY;				// Ensure we don't execute delayed instruction
-
+	CPU_SetPC( exception_vector );							
+	gCPUState.Delay = NO_DELAY;											
 }
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void R4300_Exception_FP()
+{
+	// Clear CAUSE_EXCMASK
+	SET_EXCEPTION( EXC_FPE ) 
+
+#ifdef DAEDALUS_QUEQUE_INTERRUPTS
+	gExceptionVector = E_VEC;
+	gExceptionPC = gCPUState.CurrentPC;
+	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
+	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
+
+#else
+	R4300_JumpToInterruptVector( E_VEC );
+#endif
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void R4300_Exception_Syscall()
+{
+	// Clear CAUSE_EXCMASK
+	SET_EXCEPTION( EXC_SYSCALL ) 
+	
+#ifdef DAEDALUS_QUEQUE_INTERRUPTS
+	gExceptionVector = E_VEC;
+	gExceptionPC = gCPUState.CurrentPC;
+	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
+	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
+
+#else
+	R4300_JumpToInterruptVector( E_VEC );
+#endif
+} 
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void R4300_Exception_Break()
+{
+	// Clear CAUSE_EXCMASK
+	SET_EXCEPTION( EXC_BREAK )
+
+#ifdef DAEDALUS_QUEQUE_INTERRUPTS
+	gExceptionVector = E_VEC;
+	gExceptionPC = gCPUState.CurrentPC;
+	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
+	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
+
+#else
+	R4300_JumpToInterruptVector( E_VEC );
+#endif
+} 
+
+//*****************************************************************************
+// Unused..
+//*****************************************************************************
+/*
+void R4300_Interrupt_CheckPostponed()
+{
+	u32 intr_bits = Memory_MI_GetRegister(MI_INTR_REG);
+	u32 intr_mask = Memory_MI_GetRegister(MI_INTR_MASK_REG);
+
+	if ((intr_bits & intr_mask) != 0)
+	{
+		gCPUState.CPUControl[C0_CAUSE]._u64 |= CAUSE_IP3;
+	}
+
+	if(gCPUState.CPUControl[C0_SR]._u64 & gCPUState.CPUControl[C0_CAUSE]._u64 & CAUSE_IPMASK)		// Are interrupts pending/wanted
+	{
+		if(gCPUState.CPUControl[C0_SR]._u64 & SR_IE)								// Are interrupts enabled
+		{
+			if((gCPUState.CPUControl[C0_SR]._u64 & (SR_EXL|SR_ERL)) == 0x0000)		// Ensure ERL/EXL are not set
+			{
+				R4300_JumpToInterruptVector(E_VEC);								// Go
+				return;
+			}
+		}
+	}
+}
+*/

@@ -78,14 +78,15 @@ static void * ReadMapped( u32 address )
 	{
 		if (missing)
 		{
-			Memory_TLBRefillLoad(address);
+			R4300_Exception_TLB_Refill( address, EXCEPTION_TLB_LOAD );
 
 			return g_pMemoryBuffers[MEM_UNUSED];
 		}
 		else
 		{
 			// should be invalid
-			Memory_TLBInvalidLoad(address);
+			R4300_Exception_TLB_Invalid( address, EXCEPTION_TLB_LOAD );
+
 			return g_pMemoryBuffers[MEM_UNUSED];
 		}
 	}	
@@ -169,13 +170,21 @@ static void *Read_8400_8400( u32 address )
 	{
 		DPF( DEBUG_MEMORY_SP_IMEM, "Reading from SP_MEM: 0x%08x", address );
 		return (u8 *)g_pMemoryBuffers[MEM_SP_MEM] + (address & 0x1FFF);
+		//return g_pu8SpDmemBase + (address & 0x1FFF);
+
 	}
+	// Need to find a game that reads to imem first..
+	//
+	/*else if(MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) < 0x04002000))
+	{
+		printf("read  - sp imem\n");
+		return g_pu8SpImemBase + (address & 0x1FFF);
+	}*/
 	else
 	{
 		return ReadInvalid(address);
 	}
 }
-
 
 //*****************************************************************************
 //
@@ -364,7 +373,7 @@ static void *Read_8450_845F( u32 address )
 	{
 		u32 offset = address & 0xFF;
 
-#ifdef DISPLAY_AI_READS
+//#ifdef DISPLAY_AI_READS
 		switch (AI_BASE_REG + offset)
 		{
 		case AI_DRAM_ADDR_REG:
@@ -386,7 +395,7 @@ static void *Read_8450_845F( u32 address )
 			break;
 
 		}
-#endif
+//#endif
 		DPF( DEBUG_MEMORY_AI, "Reading from AI Registers: 0x%08x", address );
 		return (u8 *)g_pMemoryBuffers[MEM_AI_REG] + offset;
 	}

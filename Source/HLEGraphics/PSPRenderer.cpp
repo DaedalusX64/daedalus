@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 
 #include "PSPRenderer.h"
-#include "Blender.h"
 #include "Texture.h"
 #include "TextureCache.h"
 #include "RDP.h"
@@ -318,7 +317,7 @@ void PSPRenderer::RestoreRenderStates()
 	//sceGuFog(near,far,mFogColour);
 	// Texturing stuff
 	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGB);
-	sceGuTexFilter(GU_LINEAR,GU_LINEAR);
+	//sceGuTexFilter(GU_LINEAR,GU_LINEAR);
 	sceGuTexWrap(GU_REPEAT,GU_REPEAT); 
 
 	//sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
@@ -710,6 +709,7 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 		sceGuDrawArray( DRAW_MODE, render_flags, num_vertices, NULL, p_vertices );
 	}
 }
+extern void InitBlenderMode();
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -2112,10 +2112,9 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 //*****************************************************************************
 inline void PSPRenderer::SetVtxColor( u32 vert, c32 color )
 {
-	//if ( vert < MAX_VERTS )
-	//{
+	DAEDALUS_ASSERT( vert > MAX_VERTS, " SetVtxColor : Reached max of verts");
+
 	mVtxProjected[vert].Colour = color.GetColourV4();
-	//}
 }
 
 //*****************************************************************************
@@ -2123,13 +2122,10 @@ inline void PSPRenderer::SetVtxColor( u32 vert, c32 color )
 //*****************************************************************************
 inline void PSPRenderer::SetVtxXY( u32 vert, float x, float y )
 {
-	//if ( vert < MAX_VERTS )
-	//{
-	// XXX Needs reprojection?
-	// printf( "SetVtxXY\n" );
+	DAEDALUS_ASSERT( vert > MAX_VERTS, " SetVtxXY : Reached max of verts");
+
 	mVtxProjected[vert].TransformedPos.x = x;
 	mVtxProjected[vert].TransformedPos.y = y;
-	//}
 }
 
 //*****************************************************************************

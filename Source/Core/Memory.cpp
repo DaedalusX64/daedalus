@@ -108,12 +108,6 @@ u32			gTLBWriteHit( 0 );
 u8 * g_pu8RamBase_8000 = NULL;
 u8 * g_pu8RamBase_A000 = NULL;
 
-
-static void Memory_TLBRefillStore( u32 virtual_addr );
-static void Memory_TLBInvalidStore( u32 virtual_addr );
-static void Memory_TLBRefillLoad( u32 virtual_addr );
-static void Memory_TLBInvalidLoad( u32 virtual_addr );
-
 // Flash RAM Support
 extern u32 FlashStatus[2];
 void Flash_DoCommand(u32);
@@ -1121,55 +1115,4 @@ void MemoryUpdatePIF()
 	}
 
 
-}
-
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void Memory_TLBRefillLoad( u32 virtual_addr )
-{
-	//DBGConsole_Msg(0, "[WTLB: Refill] 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC);
-	DPF( DEBUG_TLB, "TLB: Refill - 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC );
-	//CPU_Halt("TLBRefill");
-
-	R4300_Exception_TLB( virtual_addr, EXCEPTION_TLB_REFILL_LOAD );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void Memory_TLBInvalidLoad( u32 virtual_addr )
-{
-	//DBGConsole_Msg(0, "[WTLB: Invalid] 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC);
-	DPF( DEBUG_TLB, "TLB: Invalid - 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC );
-	//CPU_Halt("TLBInvalid");
-
-	R4300_Exception_TLB( virtual_addr, EXCEPTION_TLB_INVALID_LOAD );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void Memory_TLBRefillStore( u32 virtual_addr )
-{
-	// Disabled - for some roms this causes so much spam it breaks the batch mode processing
-	//DBGConsole_Msg(0, "TLB: Refill - 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC);
-	DPF( DEBUG_TLB, "TLB: Refill - 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC );
-	//CPU_Halt("TLBRefill");
-
-	R4300_Exception_TLB( virtual_addr, EXCEPTION_TLB_REFILL_STORE );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void Memory_TLBInvalidStore( u32 virtual_addr )
-{
-	// Disabled - for some roms this causes so much spam it breaks the batch mode processing
-	//DBGConsole_Msg(0, "TLB: Invalid - 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC);
-	DPF( DEBUG_TLB, "TLB: Invalid - 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC );
-	//CPU_Halt("TLBStore");
-
-	R4300_Exception_TLB( virtual_addr, EXCEPTION_TLB_INVALID_STORE );
 }

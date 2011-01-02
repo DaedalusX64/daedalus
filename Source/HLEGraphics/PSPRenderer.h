@@ -250,6 +250,7 @@ private:
 
 	bool				RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts, bool disable_zbuffer = false );
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST	
 	enum EPlaceholderTextureType
 	{
 		PTT_WHITE = 0,
@@ -258,7 +259,7 @@ private:
 	};
 
 	void				SelectPlaceholderTexture( EPlaceholderTextureType type );
-
+#endif
 private:
 	enum { MAX_VERTS = 80 };		// F3DLP.Rej supports up to 80 verts!
 

@@ -160,7 +160,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	CAUSE_IPMASK	0x0000FF00
 #define	CAUSE_IPSHIFT	8
 
-#define	CAUSE_EXCMASK	0x0000007C
+#define NOT_CAUSE_EXCMASK	0xFFFFFF83
+#define	CAUSE_EXCMASK		0x0000007C
 
 #define	CAUSE_EXCSHIFT	2
 
