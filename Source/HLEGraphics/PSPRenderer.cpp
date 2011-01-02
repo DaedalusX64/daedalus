@@ -2302,14 +2302,29 @@ void PSPRenderer::SetProjection(const Matrix4x4 & mat, bool bPush, bool bReplace
 {
 
 #if 0	//1-> show matrix, 0-> skip
-	for(u32 i=0;i<4;i++) printf("%.3f ",mat.mRaw[i]);
+	for(u32 i=0;i<4;i++) printf("%+9.3f ",mat.mRaw[i]);
 	printf("\n");
-	for(u32 i=4;i<8;i++) printf("%.3f ",mat.mRaw[i]);
+	for(u32 i=4;i<8;i++) printf("%+9.3f ",mat.mRaw[i]);
 	printf("\n");
-	for(u32 i=8;i<12;i++) printf("%.3f ",mat.mRaw[i]);
+	for(u32 i=8;i<12;i++) printf("%+9.3f ",mat.mRaw[i]);
 	printf("\n");
-	for(u32 i=12;i<16;i++) printf("%.3f ",mat.mRaw[i]);
+	for(u32 i=12;i<16;i++) printf("%+9.3f ",mat.mRaw[i]);
 	printf("\n\n");
+#endif
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	if (gDisplayListFile != NULL)
+	{
+		DL_PF(
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
+			mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
+			mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
+			mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
+			mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
+	}
 #endif
 
 	// Projection
@@ -2355,14 +2370,29 @@ void PSPRenderer::SetWorldView(const Matrix4x4 & mat, bool bPush, bool bReplace)
 {
 
 #if 0	//1-> show matrix, 0-> skip
-	for(u32 i=0;i<4;i++) printf("%.3f ",mat.mRaw[i]);
+	for(u32 i=0;i<4;i++) printf("%+9.3f ",mat.mRaw[i]);
 	printf("\n");
-	for(u32 i=4;i<8;i++) printf("%.3f ",mat.mRaw[i]);
+	for(u32 i=4;i<8;i++) printf("%+9.3f ",mat.mRaw[i]);
 	printf("\n");
-	for(u32 i=8;i<12;i++) printf("%.3f ",mat.mRaw[i]);
+	for(u32 i=8;i<12;i++) printf("%+9.3f ",mat.mRaw[i]);
 	printf("\n");
-	for(u32 i=12;i<16;i++) printf("%.3f ",mat.mRaw[i]);
+	for(u32 i=12;i<16;i++) printf("%+9.3f ",mat.mRaw[i]);
 	printf("\n\n");
+#endif
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	if (gDisplayListFile != NULL)
+	{
+		DL_PF(
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
+			mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
+			mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
+			mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
+			mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
+	}
 #endif
 
 	// ModelView
@@ -2510,6 +2540,21 @@ void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 		fraction = (f32)fabs(mWorldProject.m[y][x+1] - (s32)mWorldProject.m[y][x+1]);
 		mWorldProject.m[y][x+1] = (f32)(s16)(w1 & 0xFFFF) + fraction;
 	}
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	if (gDisplayListFile != NULL)
+	{
+		DL_PF(
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
+			mWorldProject.m[0][0], mWorldProject.m[0][1], mWorldProject.m[0][2], mWorldProject.m[0][3],
+			mWorldProject.m[1][0], mWorldProject.m[1][1], mWorldProject.m[1][2], mWorldProject.m[1][3],
+			mWorldProject.m[2][0], mWorldProject.m[2][1], mWorldProject.m[2][2], mWorldProject.m[2][3],
+			mWorldProject.m[3][0], mWorldProject.m[3][1], mWorldProject.m[3][2], mWorldProject.m[3][3]);
+	}
+#endif
 }
 
 //*****************************************************************************
@@ -2518,14 +2563,29 @@ void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 void PSPRenderer::ForceMatrix(const Matrix4x4 & mat)
 {
 #if 0	//1-> show matrix, 0-> skip
-	for(u32 i=0;i<4;i++) printf("%.3f ",mat.mRaw[i]);
+	for(u32 i=0;i<4;i++) printf("%+9.3f ",mat.mRaw[i]);
 	printf("\n");
-	for(u32 i=4;i<8;i++) printf("%.3f ",mat.mRaw[i]);
+	for(u32 i=4;i<8;i++) printf("%+9.3f ",mat.mRaw[i]);
 	printf("\n");
-	for(u32 i=8;i<12;i++) printf("%.3f ",mat.mRaw[i]);
+	for(u32 i=8;i<12;i++) printf("%+9.3f ",mat.mRaw[i]);
 	printf("\n");
-	for(u32 i=12;i<16;i++) printf("%.3f ",mat.mRaw[i]);
+	for(u32 i=12;i<16;i++) printf("%+9.3f ",mat.mRaw[i]);
 	printf("\n\n");
+#endif
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	if (gDisplayListFile != NULL)
+	{
+		DL_PF(
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
+			mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
+			mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
+			mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
+			mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
+	}
 #endif
 
 	mWorldProject = mat;

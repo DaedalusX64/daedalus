@@ -450,6 +450,7 @@ void	DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 {
 	// Start ucode detector
 	u32 ucode = GBIMicrocode_DetectVersion( code_base, code_size, data_base, data_size );
+	
 	//
 	// This is the multiplier applied to vertex indices. 
 	//
@@ -481,6 +482,10 @@ void	DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 	last.code_base = code_base;
 	last.data_base = data_base;
 	last.code_size = code_size;
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	gucode_ver = ucode;
+#endif
 }
 
 //*****************************************************************************
@@ -1214,7 +1219,7 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 		break;
 
 	case G_MW_POINTS:
-		DL_PF("     Ignored : Force Matrix");
+		DL_PF("     G_MW_POINTS : Ignored");
 		break;
 
 	default:
@@ -1271,6 +1276,7 @@ void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 			DL_PF("    G_MV_TXTATT");
 			break;
 		case G_MV_MATRIX_1:
+			DL_PF("		Force Matrix(1): addr=%08X", address);
 			RDP_Force_Matrix(address);
 			gDisplayListStack.back().addr += 24;	// Next 3 cmds are part of ForceMtx, skip 'em
 			break;
@@ -1387,7 +1393,7 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 
 		}
 	 case G_GBI2_MV_MATRIX:
-		DL_PF("		Force Matrix: addr=%08X", address);
+		DL_PF("		Force Matrix(2): addr=%08X", address);
 		RDP_Force_Matrix(address);
 		break;
 	case G_GBI2_MVO_L0:
