@@ -47,11 +47,22 @@ enum GBIVersion
 	S2DEX_GBI_1,
 	GBI_0_UNK	// This always has to be the last one
 };
-
+/*
 struct LastUcodeInfo
 {
 	bool bUcodeKnown;
 	u32	 ucStart;
+};
+*/
+struct UcodeInfo
+{
+	bool used;
+	u32	ucode;
+	
+	u32	code_base;
+	u32	code_size;
+	u32	data_base;
+	//u32	data_size;
 };
 
 u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size );

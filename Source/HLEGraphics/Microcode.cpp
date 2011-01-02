@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Hash.h"
 #include "Utility/IO.h"
 #include "Utility/Preferences.h"
-
+#include "Math/Math.h"	// VFPU Math
 
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // define this to use old ucode cache code (slower)
 //#define DAEDALUS_UCODE_CACHE
 
-LastUcodeInfo UcodeInfo;
+
 
 struct MicrocodeData
 {
@@ -99,6 +99,8 @@ static const u32				MICROCODE_HISTORY_MAX = 10;
 static MicrocodeString			gMicrocodeHistory[ MICROCODE_HISTORY_MAX ];
 #endif
 
+UcodeInfo last;
+UcodeInfo used[MAX_UCODE];
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -163,26 +165,35 @@ bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char * str,
 u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size)
 {
 	u32 i;
+	u32 index;
 	u32 ucode_version = 0;
 	MicrocodeData       microcode;
 	microcode.ucode	  = 0;
-	UcodeInfo.ucStart = code_base;
 
 	char str[256] = "";
 	char* title = (char*)g_ROM.settings.GameName.c_str();
 	if( code_size == 0 ) code_size = 0x1000;
 
-	DAEDALUS_ASSERT( code_base != 0, "Warning : Returning Null string after ucStart?" );
+	DAEDALUS_ASSERT( code_base != 0, "Warning : Last Ucode might be ignored!" );
 
-	// Cheap way to cache ucodes, we don't check for empty strings though, but they should be handled by the match switch, and then cached.
+	// Cheap way to cache ucodes, don't check for strings (too slow!) but check last used ucode info which is alot faster than doing sting comparison with strcmp.
 	// This only needed for GBI1/SDEX1 games that use LoadUcode, else is we only check when t.ucode changes, which most of the time only happens once :)
 	//
-	// Breaks Yoshi, it mixes both gbi1/s2dex1 together.. will fix later
-	// Breaks Fzero, it loads two ucode 2, even though is the same ucode table if the second ucode isn't load it, it will fail.. weird!
-	//if( UcodeInfo.bUcodeKnown && ucode_version == microcode.ucode )
-		//return UcodeInfo.bUcodeKnown;
+	for( index = 0; index < MAX_UCODE; index++ )
+	{
+		if( used[ index ].used == false )	
+			break;
 
-	UcodeInfo.bUcodeKnown = true;
+		if( used[ index ].code_base == code_base && used[ index ].code_size == code_size && used[ index ].data_base == data_base )
+		{
+			//
+			//Retain last info for easier access
+			//
+			last = used[ index ];
+			return last.ucode;
+		}
+	}
+
 	//
 	//	Try to find the version string in the microcode data. This is faster than calculating a crc of the code
 	//
@@ -202,14 +213,16 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	{
 		if ( gMicrocodeCache[ i ].Matches( str, title, ucode_version ) )
 		{
-			return UCODE_CACHED;
+			break;
 		}
 	}
 #endif
 
 	u32 code_hash( murmur2_neutral_hash( &g_pu8RamBase[ code_base ], code_size, 0 ) );
 
-	// It wasn't the same as last time around, so we'll hash it and check the array. Don't bother checking for matches when ucode was found in array
+	// It wasn't the same as last time around, so we'll hash it and check the array. 
+	// Don't bother checking for matches when ucode was found in array
+	// This only used for custom ucodes
 	//
 	for ( i = 0; i < ARRAYSIZE(gMicrocodeData); i++ )
 	{
@@ -220,7 +233,10 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 			return microcode.ucode;
 		}
 	}
-
+	//
+	// If it wasn't found in the array
+	// See if we can identify it by string, if no match was found. Try to guess it with Fast3D ucode
+	//
 	const char *ucodes[] = { "F3", "L3", "S2DEX" };
 	char *match = 0;
 
@@ -249,12 +265,21 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 		ucode_version = GBI_0;
 	}
 
+	// Retain used ucode info which will be cached
+	// Todo : Redactor this
+	//
+	used[ index ].code_base = code_base;
+	used[ index ].code_size = code_size;
+	used[ index ].data_base = data_base;
+	used[ index ].ucode = ucode_version;
+	used[ index ].used = true;
+
 	microcode.ucode = ucode_version;
 	microcode.ucode_name = str;
 	microcode.rom_name = title;
 	microcode.code_hash = code_hash;
 
-	DBGConsole_Msg(0, "Detected Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"] \n",ucode_version, code_hash, str, title );
+	DBGConsole_Msg(0,"Detected Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]\n",ucode_version, code_hash, str, title );
 
 #ifndef DAEDALUS_PUBLIC_RELEASE
 	if (gGlobalPreferences.LogMicrocodes)
