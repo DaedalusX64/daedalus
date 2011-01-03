@@ -33,12 +33,32 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspkernel.h>
 
 #ifdef DAEDALUS_PSP_USE_ME
-bool gLoadedMediaEnginePRX = false;
-
-volatile me_struct *mei;
+static bool bMEStarted = false;
+static bool bNeedStartME = true;
+static volatile me_struct *mei;
 #endif
 CJobManager gJobManager( 1024, TM_ASYNC_ME );
 //CJobManager gJobManager( 1024, TM_SYNC );
+
+#ifdef DAEDALUS_PSP_USE_ME
+static void StartJobManager()
+{
+	bNeedStartME = false;
+
+	mei = (volatile struct me_struct *)malloc_64(sizeof(struct me_struct));
+	mei = (volatile struct me_struct *)(MAKE_UNCACHED_PTR(mei));
+	sceKernelDcacheWritebackInvalidateAll();
+
+	if (InitME( mei ) == 0)
+	{
+		bMEStarted = true;
+	}
+	else
+	{
+		printf(" Couldn't initialize MediaEngine Instance\n");
+	}
+}
+#endif
 
 void InitialiseJobManager()
 {
@@ -49,24 +69,11 @@ void InitialiseJobManager()
 	modid =  pspSdkLoadStartModule( "mediaengine.prx", PSP_MEMORY_PARTITION_KERNEL );
 	if( modid < 0 )
 	{
-		printf( "Failed to load mediaengine.prx\n" );
+		printf( "Failed to load mediaengine.prx: %08x\n", modid );
+		bNeedStartME = false;
 		return;
 	}
 	printf( "Successfully loaded mediaengine.prx: %08X\n", modid );
-
-
-	mei = (volatile struct me_struct *)malloc_64(sizeof(struct me_struct));
-	mei = (volatile struct me_struct *)(MAKE_UNCACHED_PTR(mei));
-	sceKernelDcacheWritebackInvalidateAll();
-
-	if (InitME(mei) == 0)
-	{
-		gLoadedMediaEnginePRX = true;
-	}
-	else
-	{
-		printf(" Couldn't initialize MediaEngine Instance\n");
-	}
 #endif
 }
 
@@ -200,7 +207,9 @@ void CJobManager::Run()
 			SJob *	job( static_cast< SJob * >( mJobBuffer ) );
 
 #ifdef DAEDALUS_PSP_USE_ME
-			if( gLoadedMediaEnginePRX && mTaskMode == TM_ASYNC_ME )
+			if (bNeedStartME && mTaskMode == TM_ASYNC_ME)
+				StartJobManager();
+			if( bMEStarted && mTaskMode == TM_ASYNC_ME )
 			{
 				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
 
@@ -252,7 +261,7 @@ void CJobManager::Run()
 
 			// check if finished function and ME finished
 #ifdef DAEDALUS_PSP_USE_ME
-			if( gLoadedMediaEnginePRX && mTaskMode == TM_ASYNC_ME )
+			if( bMEStarted && mTaskMode == TM_ASYNC_ME )
 			{
 				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
 
