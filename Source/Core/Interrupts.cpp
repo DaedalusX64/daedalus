@@ -58,6 +58,7 @@ u32		gExceptionVector( ~0 );
 //*****************************************************************************
 // Todo simplify this
 //
+/*
 void R4300_Exception_CopUnusuable()
 {
 #ifdef DAEDALUS_ENABLE_ASSERTS
@@ -80,7 +81,7 @@ void R4300_Exception_CopUnusuable()
 	R4300_JumpToInterruptVector( E_VEC );
 #endif
 }
-/*
+*/
 void R4300_Exception_CopUnusuable()
 {
 #ifdef DAEDALUS_ENABLE_ASSERTS
@@ -90,17 +91,18 @@ void R4300_Exception_CopUnusuable()
 	gExceptionPC = gCPUState.CurrentPC;
 #endif
 
+	// Clear CAUSE_EXCMASK
+	// XXXX check we're not inside exception handler before snuffing CAUSE reg?
 	SET_EXCEPTION(EXC_CPU) 
 
     gCPUState.CPUControl[C0_CAUSE]._u32_0 &= 0xCFFFFFFF;
     gCPUState.CPUControl[C0_CAUSE]._u32_0 |= SR_CU0;
 
-
 	// We are at a delay slot ?
-    if(gCPUState.Delay == EXEC_DELAY)
+   /* if(gCPUState.Delay == EXEC_DELAY)
         gCPUState.CPUControl[C0_CAUSE]._u32_0 |= CAUSE_BD;
     else
-         gCPUState.CPUControl[C0_CAUSE]._u32_0 &= ~CAUSE_BD;
+         gCPUState.CPUControl[C0_CAUSE]._u32_0 &= ~CAUSE_BD;*/
 
 #ifdef DAEDALUS_QUEQUE_INTERRUPTS	
 	gExceptionVector = E_VEC;
@@ -110,7 +112,7 @@ void R4300_Exception_CopUnusuable()
 
 	R4300_JumpToInterruptVector( E_VEC );
 #endif
-}*/
+}
 //*****************************************************************************
 //
 //*****************************************************************************
