@@ -115,7 +115,8 @@ enum EGameHacks
 	KILLER_INSTINCT,
 	KIRBY64,
 	TARZAN,
-	DONALD
+	DONALD,
+	RAYMAN
 };
 
 //*****************************************************************************

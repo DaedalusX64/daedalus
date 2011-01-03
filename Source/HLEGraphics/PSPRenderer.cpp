@@ -2629,6 +2629,12 @@ void PSPRenderer::ForceMatrix(const Matrix4x4 & mat)
 								0.0f, 0.0f, -0.01532359917019646f, -0.01532359917019646f,
 								0.0f, 0.0f, -0.9845562638123093f, 0.015443736187690802f );
 
+	//The inverted projection matrix for Rayman2
+	const Matrix4x4	invRayman(	1.138355758941784f, 0.0f, 0.0f, 0.0f,
+								0.0f, 0.8537522410996328f, 0.0f, 0.0f,
+								0.0f, 0.0f, 0.0f, -0.00779724116453668f,
+								0.0f, 0.0f, -1.0f, 0.00782772837749002f );
+
 	if( g_ROM.GameHacks == TARZAN )
 	{
 		mModelViewStack[mModelViewTop] = mat * invTarzan;
@@ -2636,6 +2642,10 @@ void PSPRenderer::ForceMatrix(const Matrix4x4 & mat)
 	else if( g_ROM.GameHacks == DONALD )
 	{
 		mModelViewStack[mModelViewTop] = mat * invDonald;
+	}
+	else if( g_ROM.GameHacks == RAYMAN )
+	{
+		mModelViewStack[mModelViewTop] = mat * invRayman;
 	}
 
 	mWorldProject = mat;
