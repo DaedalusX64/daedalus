@@ -207,6 +207,7 @@ void R4300_Handle_Exception()
 
 	// We only handle EXEC_DELAY, not sure why we check if NO_DELAY? -Salvy
 	//gCPUState.Delay = gExceptionWasDelay ? EXEC_DELAY : NO_DELAY;		// And this...
+	gCPUState.Delay = EXEC_DELAY;		// And this...
 	R4300_JumpToInterruptVector( gExceptionVector );
 
 	// Reset these, to ensure we set them correctly before next call to this function
