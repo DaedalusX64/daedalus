@@ -465,6 +465,8 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x524c: g_ROM.GameHacks = LOAD_RUNNER;			break;
 	case 0x494b: g_ROM.GameHacks = KILLER_INSTINCT;		break;
 	case 0x344b: g_ROM.GameHacks = KIRBY64;				break;
+	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
+	case 0x5144: g_ROM.GameHacks = DONALD;				break;
 	case 0x5653:	//SSV	
 	case 0x5547:	//Sin and punishment	
 	case 0x4641:	//Animal crossing	

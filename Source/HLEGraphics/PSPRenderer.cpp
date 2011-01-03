@@ -2080,6 +2080,9 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 				u16 y = (u16)(val & 0xFFFF) >> 2;
 				DL_PF("		Modify vert %d: x=%d, y=%d", vert, x, y);
 
+				//x -= fViWidth / 2.0f;
+				//y = fViHeight / 2.0f - y;
+
 				u32 current_scale = Memory_VI_GetRegister(VI_X_SCALE_REG);
 				if((current_scale&0xF) != 0 )
 				{
@@ -2124,8 +2127,17 @@ inline void PSPRenderer::SetVtxXY( u32 vert, float x, float y )
 {
 	DAEDALUS_ASSERT( vert > MAX_VERTS, " SetVtxXY : Reached max of verts");
 
+#if 1
 	mVtxProjected[vert].TransformedPos.x = x;
 	mVtxProjected[vert].TransformedPos.y = y;
+#else
+	mVtxProjected[vert].ProjectedPos.x = x;
+	mVtxProjected[vert].ProjectedPos.y = y;
+
+	mVtxProjected[vert].TransformedPos.x = x * mVtxProjected[vert].TransformedPos.w;
+	mVtxProjected[vert].TransformedPos.y = y * mVtxProjected[vert].TransformedPos.w;
+	mVtxProjected[vert].TransformedPos.z = mVtxProjected[vert].ProjectedPos.z * mVtxProjected[vert].TransformedPos.w;
+#endif
 }
 
 //*****************************************************************************
@@ -2315,11 +2327,12 @@ void PSPRenderer::SetProjection(const Matrix4x4 & mat, bool bPush, bool bReplace
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if (gDisplayListFile != NULL)
 	{
-		DL_PF(
+		DL_PF("Level = %d\n"
 			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
+			mProjectionTop,
 			mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
 			mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
 			mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
@@ -2383,11 +2396,12 @@ void PSPRenderer::SetWorldView(const Matrix4x4 & mat, bool bPush, bool bReplace)
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if (gDisplayListFile != NULL)
 	{
-		DL_PF(
+		DL_PF("Level = %d\n"
 			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
+			mModelViewTop,
 			mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
 			mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
 			mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
@@ -2508,6 +2522,10 @@ void PSPRenderer::Draw2DTexture( float imageX, float imageY, float frameX, float
 //*****************************************************************************
 void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 {
+	//Used to check if Enemy DLIST is visible or not in KIRBY64
+	//We skip it for now //Corn
+	return;
+
 	f32 fraction;
 
 	if( !mWorldProjectValid )
@@ -2540,6 +2558,16 @@ void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 		fraction = (f32)fabs(mWorldProject.m[y][x+1] - (s32)mWorldProject.m[y][x+1]);
 		mWorldProject.m[y][x+1] = (f32)(s16)(w1 & 0xFFFF) + fraction;
 	}
+
+	//We use it to get back the modelview matrix since we need it for proper rendering //Corn
+	//The inverted projection matrix for Kirby64
+	const Matrix4x4	invKirby(	0.4656035385868933f, 0.0f, 0.0f, 0.0f,
+								0.0f, 0.2669450013213778f, 0.0f, 0.0f,
+								0.0f, 0.0f, 0.0f, -0.004960937577514649f,
+								0.0f, 0.0f, -1.0f, 0.005039072344360504f );
+	
+	mModelViewStack[mModelViewTop] = mWorldProject * invKirby;
+
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if (gDisplayListFile != NULL)
@@ -2587,6 +2615,28 @@ void PSPRenderer::ForceMatrix(const Matrix4x4 & mat)
 			mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
 	}
 #endif
+
+	//We use it to get back the modelview matrix since we need it for proper rendering //Corn
+	//The inverted projection matrix for Tarzan
+	const Matrix4x4	invTarzan(	0.8381105635455429f, 0.0f, 0.0f, 0.0f,
+								0.0f, -0.3838638972166029f, 0.0f, 0.0f,
+								0.0f, 0.0f, 0.0f, -0.009950865610873192f,
+								0.0f, 0.0f, 1.0f, 0.010049080654452511f );
+
+	//The inverted projection matrix for Donald duck
+	const Matrix4x4	invDonald(	0.6841395918423196f, 0.0f, 0.0f, 0.0f,
+								0.0f, 0.5131073266595174f, 0.0f, 0.0f,
+								0.0f, 0.0f, -0.01532359917019646f, -0.01532359917019646f,
+								0.0f, 0.0f, -0.9845562638123093f, 0.015443736187690802f );
+
+	if( g_ROM.GameHacks == TARZAN )
+	{
+		mModelViewStack[mModelViewTop] = mat * invTarzan;
+	}
+	else if( g_ROM.GameHacks == DONALD )
+	{
+		mModelViewStack[mModelViewTop] = mat * invDonald;
+	}
 
 	mWorldProject = mat;
 	mWorldProjectValid = true;

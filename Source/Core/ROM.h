@@ -113,7 +113,9 @@ enum EGameHacks
 	NASCAR,
 	LOAD_RUNNER,
 	KILLER_INSTINCT,
-	KIRBY64
+	KIRBY64,
+	TARZAN,
+	DONALD
 };
 
 //*****************************************************************************
