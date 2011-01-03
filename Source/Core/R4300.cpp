@@ -393,6 +393,12 @@ static void R4300_CALL_TYPE R4300_Special( R4300_CALL_SIGNATURE );
 static void R4300_CALL_TYPE R4300_RegImm( R4300_CALL_SIGNATURE );
 static void R4300_CALL_TYPE R4300_Cop0_TLB( R4300_CALL_SIGNATURE );
 
+static void R4300_CALL_TYPE R4300_LWC1( R4300_CALL_SIGNATURE );
+static void R4300_CALL_TYPE R4300_LDC1( R4300_CALL_SIGNATURE );
+static void R4300_CALL_TYPE R4300_SWC1( R4300_CALL_SIGNATURE );
+static void R4300_CALL_TYPE R4300_SDC1( R4300_CALL_SIGNATURE );
+
+
 //*****************************************************************************
 //	Returns true if the specified opcode handler needs a valid entry in
 //	gCPUState.CurrentPC to function correctly.
@@ -496,6 +502,7 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 //*****************************************************************************
 //
 //*****************************************************************************
+/*
 static void R4300_CALL_TYPE R4300_SetCop1Enable( bool enable )
 {
 	if ( enable )
@@ -507,6 +514,83 @@ static void R4300_CALL_TYPE R4300_SetCop1Enable( bool enable )
 		R4300Instruction[OP_COPRO1] = R4300_CoPro1_Disabled;
 	}
 }
+*/
+// START CODE BASED FROM 1964
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void InterpreterCheckCP1Unusable(void OpcodeAddress(u32), R4300_CALL_SIGNATURE)
+{
+	if(gCPUState.CPUControl[C0_SR]._u64 & SR_CU1)
+	{
+		OpcodeAddress(R4300_CALL_ARGUMENTS);
+	}
+	else
+	{
+		R4300_Exception_CopUnusuable();
+	}
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void R4300_CALL_TYPE CU1_R4300_LWC1( R4300_CALL_SIGNATURE )
+{
+    InterpreterCheckCP1Unusable(&R4300_LWC1, R4300_CALL_ARGUMENTS);
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void R4300_CALL_TYPE CU1_R4300_LDC1( R4300_CALL_SIGNATURE )
+{
+    InterpreterCheckCP1Unusable(&R4300_LDC1, R4300_CALL_ARGUMENTS);
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void R4300_CALL_TYPE CU1_R4300_SWC1( R4300_CALL_SIGNATURE )
+{
+    InterpreterCheckCP1Unusable(&R4300_SWC1, R4300_CALL_ARGUMENTS);
+}
+//*****************************************************************************
+//
+//*****************************************************************************
+void R4300_CALL_TYPE CU1_R4300_SDC1( R4300_CALL_SIGNATURE )
+{
+    InterpreterCheckCP1Unusable(&R4300_SDC1, R4300_CALL_ARGUMENTS);
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void DisableFPUUnusableException(void)
+{
+
+    R4300Instruction[0x11] = R4300_CoPro1;	
+
+	// Seems safe to ignore 'em here
+	//
+	// R4300Instruction[49] = R4300_LWC1;
+	// R4300Instruction[53] = R4300_LDC1;
+	// R4300Instruction[57] = R4300_SWC1;
+	// R4300Instruction[61] = R4300_SDC1;
+}
+void EnableFPUUnusableException(void)
+{
+    R4300Instruction[0x11] = R4300_CoPro1;	
+
+	// Needed otherwise SSB will fail once you start a battle
+	//
+    R4300Instruction[49] = CU1_R4300_LWC1;
+	R4300Instruction[53] = CU1_R4300_LDC1;
+    R4300Instruction[57] = CU1_R4300_SWC1;
+    R4300Instruction[61] = CU1_R4300_SDC1;
+}
+
+// END CODE BASED FROM 1964
 
 //*****************************************************************************
 //
@@ -539,10 +623,13 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 -	Still needs a bit of work, but so far we are on the right path now.
 	*/
 
-	if(!gCheckN64FPUsageDisable)	// Check FP usage
-	{
+	// Too hackish.. disabling this check causes several games ex SSB to go crazy..
+	// Also you need to restart the emu to restore the interrupts correctly
+	//
+	//if(!gCheckN64FPUsageDisable)	// Check FP usage
+	/*{
 		R4300_SetCop1Enable( (gCPUState.CPUControl[C0_SR]._u64 & SR_CU1) != 0 );
-	}
+	}*/
 
 	if ( !interrupts_enabled_before && interrupts_enabled_after )
 	{
@@ -552,13 +639,16 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 		}
 	}
 
-	/*if(gCheckN64FPUsage)	// Check FP usage
+	// Based from 1964, all the games work fine, even SSB that had issues with the hack I had.
+	//
+	if(new_value & SR_CU1)
 	{
-		if (new_value & SR_CU1)
-			R4300_SetCop1Enable(true);	//Enabling FP	0014525
-		else
-			R4300_SetCop1Enable(false);	//Disabling FP	3125809
-	}*/
+		DisableFPUUnusableException();
+	}
+	else
+	{
+		EnableFPUUnusableException();
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -568,7 +658,7 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 #define WARN_NOIMPL(op)		{ DAEDALUS_ASSERT( false, "Instruction Not Implemented" ); }
 
 static void R4300_CALL_TYPE R4300_Unk( R4300_CALL_SIGNATURE )     { WARN_NOEXIST("R4300_Unk"); }
-
+/*
 static void R4300_CALL_TYPE R4300_CoPro1_Disabled( R4300_CALL_SIGNATURE )
 {
 	// Cop1 Unusable
@@ -578,7 +668,7 @@ static void R4300_CALL_TYPE R4300_CoPro1_Disabled( R4300_CALL_SIGNATURE )
 
 	R4300_Exception_CopUnusuable();
 }
-
+*/
 // These are the only unimplemented R4300 instructions now:
 static void R4300_CALL_TYPE R4300_LL( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("LL"); }
 static void R4300_CALL_TYPE R4300_LLD( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("LLD"); }
