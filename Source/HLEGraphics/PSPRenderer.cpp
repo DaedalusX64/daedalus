@@ -2076,13 +2076,16 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 
 		case G_MWO_POINT_XYSCREEN:
 			{
-				u16 x = (u16)(val>>16) >> 2;
-				u16 y = (u16)(val & 0xFFFF) >> 2;
+				if( g_ROM.GameHacks == TARZAN ) return;
+
+				s16 x = (u16)(val>>16) >> 2;
+				s16 y = (u16)(val & 0xFFFF) >> 2;
+
+				x -= uViWidth / 2.0f;
+				y = uViHeight / 2.0f - y;
+
 				DL_PF("		Modify vert %d: x=%d, y=%d", vert, x, y);
-
-				//x -= fViWidth / 2.0f;
-				//y = fViHeight / 2.0f - y;
-
+				
 				u32 current_scale = Memory_VI_GetRegister(VI_X_SCALE_REG);
 				if((current_scale&0xF) != 0 )
 				{
