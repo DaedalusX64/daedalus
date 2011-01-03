@@ -388,7 +388,7 @@ static void R4300_CALL_TYPE R4300_Cop1_WInstr( R4300_CALL_SIGNATURE );
 static void R4300_CALL_TYPE R4300_Cop1_LInstr( R4300_CALL_SIGNATURE );
 static void R4300_CALL_TYPE R4300_CoPro0( R4300_CALL_SIGNATURE );
 static void R4300_CALL_TYPE R4300_CoPro1( R4300_CALL_SIGNATURE );
-//static void R4300_CALL_TYPE R4300_CoPro1_Disabled( R4300_CALL_SIGNATURE );
+static void R4300_CALL_TYPE R4300_CoPro1_Disabled( R4300_CALL_SIGNATURE );
 static void R4300_CALL_TYPE R4300_Special( R4300_CALL_SIGNATURE );
 static void R4300_CALL_TYPE R4300_RegImm( R4300_CALL_SIGNATURE );
 static void R4300_CALL_TYPE R4300_Cop0_TLB( R4300_CALL_SIGNATURE );
@@ -564,25 +564,23 @@ void R4300_CALL_TYPE CU1_R4300_SDC1( R4300_CALL_SIGNATURE )
 }
 
 //*****************************************************************************
-// Calling this function will disable detection of Coprocessor Unusable Exceptions
+//
 //*****************************************************************************
 void DisableFPUUnusableException(void)
 {
 
     R4300Instruction[0x11] = R4300_CoPro1;	
 
+	// Seems safe to ignore 'em here
+	//
 	R4300Instruction[49] = R4300_LWC1;
 	R4300Instruction[53] = R4300_LDC1;
 	R4300Instruction[57] = R4300_SWC1;
 	R4300Instruction[61] = R4300_SDC1;
 }
-
-//*****************************************************************************
-// Calling this function will enable detection of Coprocessor Unusable Exceptions
-//*****************************************************************************
 void EnableFPUUnusableException(void)
 {
-    R4300Instruction[0x11] = R4300_CoPro1;	
+    R4300Instruction[0x11] = R4300_CoPro1_Disabled;	// Workaround.. TODO : Implement CU_CoPro1
 
 	// Needed otherwise SSB will fail once you start a battle
 	//
@@ -660,7 +658,7 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 #define WARN_NOIMPL(op)		{ DAEDALUS_ASSERT( false, "Instruction Not Implemented" ); }
 
 static void R4300_CALL_TYPE R4300_Unk( R4300_CALL_SIGNATURE )     { WARN_NOEXIST("R4300_Unk"); }
-/*
+
 static void R4300_CALL_TYPE R4300_CoPro1_Disabled( R4300_CALL_SIGNATURE )
 {
 	// Cop1 Unusable
@@ -670,7 +668,7 @@ static void R4300_CALL_TYPE R4300_CoPro1_Disabled( R4300_CALL_SIGNATURE )
 
 	R4300_Exception_CopUnusuable();
 }
-*/
+
 // These are the only unimplemented R4300 instructions now:
 static void R4300_CALL_TYPE R4300_LL( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("LL"); }
 static void R4300_CALL_TYPE R4300_LLD( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("LLD"); }
