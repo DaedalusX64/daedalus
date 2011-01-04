@@ -701,7 +701,8 @@ void DLParser_GBI2_Quad( MicroCodeCommand command )
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
         if ( command.inst.cmd == G_GBI2_QUAD )
         {
-                DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
+                //DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
+                DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_QUAD");
         }
 #endif
     }
@@ -746,7 +747,8 @@ void DLParser_GBI2_Line3D( MicroCodeCommand command )
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
         if ( command.inst.cmd == G_GBI2_LINE3D )
         {
-                DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
+                //DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
+                DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_LINE3D");
         }
 #endif
     }
@@ -785,7 +787,8 @@ void DLParser_GBI2_Tri1( MicroCodeCommand command )
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
         if ( command.inst.cmd == G_GBI2_TRI1 )
         {
-                DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
+                //DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
+                DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI1");
         }
 #endif			
     }
@@ -829,7 +832,8 @@ void DLParser_GBI2_Tri2( MicroCodeCommand command )
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
         if ( command.inst.cmd == G_GBI2_TRI2 )
         {
-                DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
+                //DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
+                DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI2");
         }
 #endif
 	}

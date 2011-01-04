@@ -116,7 +116,9 @@ enum EGameHacks
 	KIRBY64,
 	TARZAN,
 	DONALD,
-	RAYMAN
+	RAYMAN,
+	SWRACER,
+	TGRALLY
 };
 
 //*****************************************************************************

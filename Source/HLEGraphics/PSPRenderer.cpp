@@ -2081,8 +2081,8 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 				s16 x = (u16)(val>>16) >> 2;
 				s16 y = (u16)(val & 0xFFFF) >> 2;
 
-				x -= uViWidth / 2.0f;
-				y = uViHeight / 2.0f - y;
+				x -= uViWidth / 2;
+				y = uViHeight / 2 - y;
 
 				DL_PF("		Modify vert %d: x=%d, y=%d", vert, x, y);
 				
@@ -2638,6 +2638,18 @@ void PSPRenderer::ForceMatrix(const Matrix4x4 & mat)
 								0.0f, 0.0f, 0.0f, -0.00779724116453668f,
 								0.0f, 0.0f, -1.0f, 0.00782772837749002f );
 
+	//The inverted projection matrix for StarWars racer I (need to find proper inv project matrix)
+	const Matrix4x4	invSWracer(	0.9999100080992712f, 0.0f, 0.0f, 0.0f,
+								0.0f, 0.0f, 0.47363958869138123f, 0.047316594957585584f,
+								0.0f, 0.0f, 0.0f, -0.09990000009990001f,
+								0.0f, 1.0f, 0.0f, 0.10009980010009982f );
+
+	//The inverted projection matrix for Top Gear Rally (need to find proper inv project matrix)
+	const Matrix4x4	invTGrally(	0.5522878524286858f, 0.0f, 0.0f, 0.0f,
+								0.0f, 0.4142158893215144f, 0.0f, 0.0f,
+								0.0f, 0.0f, 0.0f, -0.0034482758620689655f,
+								0.0f, 0.0f, -1.0f, 0.003462068965517241f );
+
 	if( g_ROM.GameHacks == TARZAN )
 	{
 		mModelViewStack[mModelViewTop] = mat * invTarzan;
@@ -2650,7 +2662,15 @@ void PSPRenderer::ForceMatrix(const Matrix4x4 & mat)
 	{
 		mModelViewStack[mModelViewTop] = mat * invRayman;
 	}
-
+	else if( g_ROM.GameHacks == SWRACER )
+	{
+		mModelViewStack[mModelViewTop] = mat * invSWracer;
+	}
+	else if( g_ROM.GameHacks == TGRALLY )
+	{
+		mModelViewStack[mModelViewTop] = mat * invTGrally;
+	}
+	
 	mWorldProject = mat;
 	mWorldProjectValid = true;
 }
