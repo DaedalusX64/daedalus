@@ -52,7 +52,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 //
 //*****************************************************************************
-const char *gGameHackNames[13] = 
+const char *gGameHackNames[ MAX_HACK_NAMES ] = 
 {
 	"No Game Specific Hack",
 	"TLB Hack", 
@@ -66,6 +66,13 @@ const char *gGameHackNames[13] =
 	"1/2 ZBuffer Hack",
 	"Depth Hack",
 	"Width Hack"
+	"osTimer Disabled Hack",
+	"S2DEX Palette Hack",
+	"Tarzan Misc Hacks",
+	"Force Mtx Donald Duck Hack",
+	"Force Mtx Rayman",
+	"Force Mtx StarWars Racer",
+	"Force Mtx Top Rally"
 };
 #endif
 
