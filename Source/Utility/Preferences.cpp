@@ -38,6 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern EFrameskipValue gFrameskipValue;
 extern f32 gZoomX;
+extern u32 gScrnUpd;
 
 //*****************************************************************************
 //
@@ -288,6 +289,10 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		{
 			preferences.ZoomX = (float) atof( property->GetValue() );
 		}
+		if( section->FindProperty( "ScrnUpd", &property ) )
+		{
+			preferences.ScrnUpd = (float) atoi( property->GetValue() );
+		}
 		if( section->FindProperty( "Controller", &property ) )
 		{
 			preferences.ControllerIndex = CInputManager::Get()->GetConfigurationFromName( property->GetValue() );
@@ -327,6 +332,7 @@ void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences
 	fprintf(fh, "Frameskip=%d\n", ROM_GetFrameskipValueAsInt( preferences.Frameskip ) );
 	fprintf(fh, "AudioEnabled=%d\n", preferences.AudioEnabled);
 	fprintf(fh, "ZoomX=%f\n", preferences.ZoomX );
+	fprintf(fh, "ScrnUpd=%d\n", preferences.ScrnUpd );
 	fprintf(fh, "Controller=%s\n", CInputManager::Get()->GetConfigurationName( preferences.ControllerIndex ));
 	fprintf(fh, "\n");			// Spacer
 }
@@ -472,6 +478,7 @@ SRomPreferences::SRomPreferences()
 	,	AudioEnabled( APM_DISABLED )
 //	,	AudioAdaptFrequency( false )
 	,	ZoomX( 1.0f )
+	,	ScrnUpd( 0 )
 	,	ControllerIndex( 0 )
 {
 }
@@ -497,6 +504,7 @@ void SRomPreferences::Reset()
 	AudioEnabled = APM_DISABLED;
 //	AudioAdaptFrequency = false;
 	ZoomX = 1.0f;
+	ScrnUpd = 0;
 	ControllerIndex = 0;
 }
 
@@ -519,6 +527,7 @@ void	SRomPreferences::Apply() const
 	gCheckTextureHashFrequency = ROM_GetTexureHashFrequencyAsFrames( CheckTextureHashFrequency );
 	gFrameskipValue = Frameskip;
 	gZoomX = ZoomX;
+	gScrnUpd = ScrnUpd;
 
 	gAudioPluginEnabled = AudioEnabled;
 //	gAdaptFrequency = AudioAdaptFrequency;

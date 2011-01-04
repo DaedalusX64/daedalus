@@ -149,13 +149,15 @@ struct SRomPreferences
 	bool						CheckN64FPUsageDisable;
 	bool						AudioRateMatch;
 	bool						FogEnabled;
+//	bool						AudioAdaptFrequency;
+	f32							ZoomX;
+	u32							ScrnUpd;
+	u32							ControllerIndex;
+	u32							PAD1;
 
 	ETextureHashFrequency		CheckTextureHashFrequency;
 	EFrameskipValue				Frameskip;
 	EAudioPluginMode			AudioEnabled;
-//	bool						AudioAdaptFrequency;
-	f32							ZoomX;
-	u32							ControllerIndex;
 
 	SRomPreferences();
 

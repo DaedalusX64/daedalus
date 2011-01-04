@@ -55,6 +55,34 @@ namespace
 
 }
 
+//*************************************************************************************
+//
+//*************************************************************************************
+class CScrnSetting : public CUISetting
+	{
+	public:
+		CScrnSetting( u32 * setting, const char * name, const char * description )
+			:	CUISetting( name, description )
+			,	mSetting( setting )
+		{
+		}
+
+		virtual	void			OnNext()				{ (*mSetting < 1) ? *mSetting += 1 : *mSetting = 1; }
+		virtual	void			OnPrevious()			{ (*mSetting > 0) ? *mSetting -= 1 : *mSetting = 0; }
+
+		virtual const char *	GetSettingName() const
+		{
+			switch ( *mSetting )
+			{
+				case 0:		return "Dlist start";
+				case 1:		return "Dlist end";
+			}
+			return "?";
+		}
+
+	private:
+		u32		*mSetting;
+	};
 
 //*************************************************************************************
 //
@@ -126,6 +154,7 @@ IAdvancedOptionsScreen::IAdvancedOptionsScreen( CUIContext * p_context, const Ro
 	mElements.Add( new CBoolSetting( &mRomPreferences.CheckN64FPUsageDisable, "Disable N64 FP Usage Check", "Disabling it can cause many bad side effects, on the other hand sometimes it can fix or improve some games",  "Yes", "No" ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.AudioRateMatch, "Audio Rate Match", "Whether to match audio rate to the frame rate (works between 50-100% sync)", "Yes", "No" ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.FogEnabled, "Fog Emulation", "Whether to enable or disable fog emulation   (Experimental)", "Enabled", "Disabled" ) );
+	mElements.Add( new CScrnSetting( &mRomPreferences.ScrnUpd, "Update Screen", "Set to when screen will be updated (can cause shaking)." ) );
 
 	//	mElements.Add( new CUISpacer( 16 ) );
 #ifndef DAEDALUS_PUBLIC_RELEASE	// Below option is irrelevant to end user or game especific, we force this option on roms.ini
