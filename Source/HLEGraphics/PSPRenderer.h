@@ -170,6 +170,7 @@ public:
 	void				SetVtxColor( u32 vert, c32 color );
 	inline void			SetVtxTextureCoord( u32 vert, short tu, short tv ) {mVtxProjected[vert].Texture.x = (f32)tu * (1.0f / 32.0f); mVtxProjected[vert].Texture.y = (f32)tv * (1.0f / 32.0f);}
 	void				SetVtxXY( u32 vert, float x, float y );
+	void				SetVtxZ( u32 vert, float z );
 
 	// TextRect stuff
 	bool				TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 );

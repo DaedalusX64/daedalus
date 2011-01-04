@@ -2067,7 +2067,7 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 
 		case G_MWO_POINT_ST:
 			{
-				s16 tu = s16(val>>16);
+				s16 tu = s16(val >> 16);
 				s16 tv = s16(val & 0xFFFF);
 				DL_PF( "      Setting tu/tv to %f, %f", tu/32.0f, tv/32.0f );
 				SetVtxTextureCoord( vert, tu, tv );
@@ -2078,7 +2078,7 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 			{
 				if( g_ROM.GameHacks == TARZAN ) return;
 
-				s16 x = (u16)(val>>16) >> 2;
+				s16 x = (u16)(val >> 16) >> 2;
 				s16 y = (u16)(val & 0xFFFF) >> 2;
 
 				x -= uViWidth / 2;
@@ -2086,6 +2086,10 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 
 				DL_PF("		Modify vert %d: x=%d, y=%d", vert, x, y);
 				
+#if 1
+				// Megaman and other games
+				SetVtxXY( vert, f32(x<<1) / fViWidth , f32(y<<1) / fViHeight );
+#else
 				u32 current_scale = Memory_VI_GetRegister(VI_X_SCALE_REG);
 				if((current_scale&0xF) != 0 )
 				{
@@ -2097,12 +2101,17 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 					// Megaman and other games
 					SetVtxXY( vert, f32(x<<1) / fViWidth , f32(y<<1) / fViHeight );
 				}
+#endif
 			}
 			break;
 
 		case G_MWO_POINT_ZSCREEN:
 			{
-				DL_PF( "      Setting ZScreen to 0x%08x", val );
+				s32 z = val >> 16;
+				DL_PF( "      Setting ZScreen to 0x%08x", z );
+				//Not sure about the scaling here //Corn
+				//SetVtxZ( vert, (( (f32)z / 0x03FF ) + 0.5f ) / 2.0f );
+				SetVtxZ( vert, (( (f32)z ) + 0.5f ) / 2.0f );
 			}
 			break;
 
@@ -2121,6 +2130,24 @@ inline void PSPRenderer::SetVtxColor( u32 vert, c32 color )
 	DAEDALUS_ASSERT( vert > MAX_VERTS, " SetVtxColor : Reached max of verts");
 
 	mVtxProjected[vert].Colour = color.GetColourV4();
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void PSPRenderer::SetVtxZ( u32 vert, float z )
+{
+	DAEDALUS_ASSERT( vert > MAX_VERTS, " SetVtxZ : Reached max of verts");
+
+#if 1
+	mVtxProjected[vert].TransformedPos.z = z;
+#else
+	mVtxProjected[vert].ProjectedPos.z = z;
+
+	mVtxProjected[vert].TransformedPos.x = x * mVtxProjected[vert].TransformedPos.w;
+	mVtxProjected[vert].TransformedPos.y = y * mVtxProjected[vert].TransformedPos.w;
+	mVtxProjected[vert].TransformedPos.z = z * mVtxProjected[vert].TransformedPos.w;
+#endif
 }
 
 //*****************************************************************************

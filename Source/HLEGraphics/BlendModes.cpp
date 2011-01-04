@@ -2632,6 +2632,18 @@ void BlendMode_0x00551aaa1134fe7fLL (BLEND_MODE_ARGS)
 //#T
 */
 
+//Tarzan
+//case 0x00121824ff33ffffLL:
+//aRGB0: (Texel0       - 0           ) * Shade        + 0
+//aA0  : (Texel0       - 0           ) * Shade        + 0
+//aRGB1: (Texel0       - 0           ) * Shade        + 0
+//aA1  : (Texel0       - 0           ) * Shade        + 0
+void BlendMode_0x00121824ff33ffffLL( BLEND_MODE_ARGS )
+{
+	details.ColourAdjuster.SetAOpaque();
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
 // Tetrissphere
 //case 0x0026a0041f0c93ffLL:
 //aRGB0: (Texel1       - Texel0      ) * LOD_Frac     + Texel0      
@@ -4551,6 +4563,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 	BLEND_MODE(0x00121803ff5bfff8LL);
 	BLEND_MODE(0x00121804f3ffff78LL);
 	BLEND_MODE(0x001218245531feffLL);
+	BLEND_MODE(0x00121824ff33ffffLL);//Tarzan
 	BLEND_MODE(0x001218c1f0c7fe00LL);//HiddentextureforBarinade(??)
 	BLEND_MODE(0x00121a03ff5bfff8LL);
 	BLEND_MODE(0x0012680322fd7eb8LL);

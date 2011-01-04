@@ -2162,12 +2162,11 @@ void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 //*************************************************************************************
 //
 //*************************************************************************************
-// Arrrg this isn't right, need to implement it correctly...
-// Donald Duck, Tarzan, all wrestling games use this
+// Rayman 2, Donald Duck, Tarzan, all wrestling games use this
 //
 static void RDP_Force_Matrix(u32 address)
 {
-	// Fix me !
+
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST	
 	if (address + 64 > MAX_RAM_ADDRESS)
 	{
@@ -2175,8 +2174,14 @@ static void RDP_Force_Matrix(u32 address)
 		return;
 	}
 #endif
+
 	Matrix4x4 mat;
+
 	MatrixFromN64FixedPoint(mat,address);
+
+#if 1	//1->hacky way A, 0->hacky way B :)
 	PSPRenderer::Get()->ForceMatrix(mat);
-	//PSPRenderer::Get()->SetProjection(mat, true, true);
+#else
+	PSPRenderer::Get()->SetProjection(mat, true, true);
+#endif
 }
