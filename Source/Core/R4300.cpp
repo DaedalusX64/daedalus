@@ -381,6 +381,12 @@ inline s64 d64_to_s64_floor( d64 x )				{ return (s64)floorf( x ); }
 inline s64 d64_to_s64( d64 x, ERoundingMode mode )	{ pspfpu_set_roundmode( gNativeRoundingModes[ mode ] ); return (s64)x; }	// XXXX Need to do a cvt really
 
 
+static void CU1_R4300_CoPro1( R4300_CALL_SIGNATURE );
+static void R4300_CALL_TYPE CU1_R4300_LWC1( R4300_CALL_SIGNATURE );
+static void R4300_CALL_TYPE CU1_R4300_LDC1( R4300_CALL_SIGNATURE );
+static void R4300_CALL_TYPE CU1_R4300_SWC1( R4300_CALL_SIGNATURE );
+static void R4300_CALL_TYPE CU1_R4300_SDC1( R4300_CALL_SIGNATURE );
+
 static void R4300_CALL_TYPE R4300_Cop1_BCInstr( R4300_CALL_SIGNATURE );
 static void R4300_CALL_TYPE R4300_Cop1_SInstr( R4300_CALL_SIGNATURE );
 static void R4300_CALL_TYPE R4300_Cop1_DInstr( R4300_CALL_SIGNATURE );
@@ -515,57 +521,11 @@ static void R4300_CALL_TYPE R4300_SetCop1Enable( bool enable )
 	}
 }
 */
-// START CODE BASED FROM 1964
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void InterpreterCheckCP1Unusable(void OpcodeAddress(u32), R4300_CALL_SIGNATURE)
-{
-	if(gCPUState.CPUControl[C0_SR]._u64 & SR_CU1)
-	{
-		OpcodeAddress(R4300_CALL_ARGUMENTS);
-	}
-	else
-	{
-		R4300_Exception_CopUnusuable();
-	}
-}
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void R4300_CALL_TYPE CU1_R4300_LWC1( R4300_CALL_SIGNATURE )
-{
-    InterpreterCheckCP1Unusable(&R4300_LWC1, R4300_CALL_ARGUMENTS);
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void R4300_CALL_TYPE CU1_R4300_LDC1( R4300_CALL_SIGNATURE )
-{
-    InterpreterCheckCP1Unusable(&R4300_LDC1, R4300_CALL_ARGUMENTS);
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void R4300_CALL_TYPE CU1_R4300_SWC1( R4300_CALL_SIGNATURE )
-{
-    InterpreterCheckCP1Unusable(&R4300_SWC1, R4300_CALL_ARGUMENTS);
-}
-//*****************************************************************************
-//
-//*****************************************************************************
-void R4300_CALL_TYPE CU1_R4300_SDC1( R4300_CALL_SIGNATURE )
-{
-    InterpreterCheckCP1Unusable(&R4300_SDC1, R4300_CALL_ARGUMENTS);
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
 void DisableFPUUnusableException(void)
 {
 
@@ -580,7 +540,7 @@ void DisableFPUUnusableException(void)
 }
 void EnableFPUUnusableException(void)
 {
-    R4300Instruction[0x11] = R4300_CoPro1_Disabled;	// Workaround.. TODO : Implement CU_CoPro1
+    R4300Instruction[0x11] = CU1_R4300_CoPro1;	// Workaround.. TODO : Implement CU_CoPro1
 
 	// Needed otherwise SSB will fail once you start a battle
 	//
@@ -589,8 +549,6 @@ void EnableFPUUnusableException(void)
     R4300Instruction[57] = CU1_R4300_SWC1;
     R4300Instruction[61] = CU1_R4300_SDC1;
 }
-
-// END CODE BASED FROM 1964
 
 //*****************************************************************************
 //
@@ -3367,7 +3325,7 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_NGT( R4300
 }
 
 #include "R4300_Jump.inl"		// Jump table
-
+#include "COP1Unstable_Jump.inl"
 //*****************************************************************************
 //
 //*****************************************************************************
