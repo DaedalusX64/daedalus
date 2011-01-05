@@ -54,9 +54,29 @@
 
 using std::sort;
 
+//*****************************************************************************
+//
+//*****************************************************************************
 extern float	TEST_VARX, TEST_VARY;
 extern void		PrintMux( FILE * fh, u64 mux );
+//*****************************************************************************
+//
+//*****************************************************************************
+extern u32	gTXTFUNC;
 
+extern u32	gSetRGB;
+extern u32	gSetA;
+extern u32	gSetRGBA;
+extern u32	gModA;
+extern u32	gAOpaque;
+
+extern u32	gsceENV;
+
+extern const char *gPSPtxtFunc[10];
+extern const char *gCAdj[4];
+//*****************************************************************************
+//
+//*****************************************************************************
 namespace
 {
 	//	const char * const TERMINAL_TOP_LEFT			= "\033[2A\033[2K";
@@ -666,7 +686,7 @@ class CDecalOffsetDebugMenuOption : public CDebugMenuOption
 	public:	
 		virtual void			Display() const;
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
-		virtual const char *	GetDescription() const									{ return "TEST variable"; }
+		virtual const char *	GetDescription() const									{ return "Test variables"; }
 };
 
 void CDecalOffsetDebugMenuOption::Display() const
@@ -694,8 +714,101 @@ void CDecalOffsetDebugMenuOption::Update( const SPspPadState & pad_state, float 
 		InvalidateDisplay();
 	}
 }
+
+//*****************************************************************************
+//
+//*****************************************************************************
+class CBlendDebugMenuOption : public CDebugMenuOption
+{
+	public:	
+		CBlendDebugMenuOption();
+		virtual void			Display() const;
+		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
+		virtual const char *	GetDescription() const									{ return "Blender Explorer"; }
+
+	private:
+		u32				mIdx;
+		u32				mSel;
+		bool			modify;
+
+};
+
+CBlendDebugMenuOption::CBlendDebugMenuOption()
+:	mIdx( 0 )
+,	mSel( 0 )
+,	modify( false )
+{
 }
 
+void CBlendDebugMenuOption::Display() const
+{
+	if( mSel == 0 && modify ) gSetRGB = mIdx & 3;
+	if( mSel == 1 && modify ) gSetA = mIdx & 3;
+	if( mSel == 2 && modify ) gSetRGBA = mIdx & 3;
+	if( mSel == 3 && modify ) gModA = mIdx & 3;
+	if( mSel == 4 && modify ) gAOpaque = mIdx & 1;
+	if( mSel == 5 && modify ) gsceENV = mIdx % 3;
+	if( mSel == 6 && modify ) gTXTFUNC = mIdx % 10;
+
+	printf( "Blender Explorer\n");
+	printf( "   Use [] to return\n" );
+	printf( "   Use X to modify\n" );
+	printf( "   Use up/down to choose & left/right to adjust\n\n\n" );
+
+	printf( " Blending Options (Color Adjuster)\n" );
+	printf( "   %s%cSetRGB: %s\n",		(mSel==0 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==0 ? '*' : ' ', gCAdj[gSetRGB]);
+	printf( "   %s%cSetA: %s\n",		(mSel==1 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==1 ? '*' : ' ', gCAdj[gSetA]);
+	printf( "   %s%cSetRGBA: %s\n",		(mSel==2 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==2 ? '*' : ' ', gCAdj[gSetRGBA]);
+	printf( "   %s%cModifyA: %s\n",		(mSel==3 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==3 ? '*' : ' ', gCAdj[gModA]);
+	printf( "   %s%cSetAOpaque: %s\n",	(mSel==4 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==4 ? '*' : ' ', gAOpaque ? "ON" : "OFF");
+	printf( "%s\n", TERMINAL_WHITE );
+	printf( " Environment Color in SDK\n" );
+	printf( "   %s%cTexEnvColor: %s\n",	(mSel==5 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==5 ? '*' : ' ', gsceENV ? ((gsceENV==1) ? "EnvColor" : "PrimColor") : "OFF");
+	printf( "%s\n", TERMINAL_WHITE );
+	printf( " PSP Texture Function\n" );
+	printf( "   %s%c%s\n",				(mSel==6 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==6 ? '*' : ' ', gPSPtxtFunc[gTXTFUNC]);
+
+	printf( "%s\n", TERMINAL_WHITE );
+}
+
+void CBlendDebugMenuOption::Update( const SPspPadState & pad_state, float elapsed_time )
+{
+
+	if(pad_state.OldButtons != pad_state.NewButtons)
+	{
+		if(pad_state.NewButtons & PSP_CTRL_UP)
+		{
+			mSel = (mSel > 0) ? mSel - 1 : mSel;
+			modify = 0;
+		}
+
+		if(pad_state.NewButtons & PSP_CTRL_DOWN)
+		{
+			mSel = (mSel < 6) ? mSel + 1 : mSel;
+			modify = 0;
+		}
+
+		if(pad_state.NewButtons & PSP_CTRL_LEFT)
+		{
+			mIdx = (mIdx > 0) ? mIdx - 1 : mIdx;
+		}
+
+		if(pad_state.NewButtons & PSP_CTRL_RIGHT)
+		{
+			mIdx = (mIdx < 9) ? mIdx + 1 : mIdx;
+		}
+
+		if(pad_state.NewButtons & PSP_CTRL_CROSS)
+		{
+			modify ^= true;
+		}
+	
+		InvalidateDisplay();
+
+	}
+}
+
+}
 
 //*************************************************************************************
 //
@@ -761,6 +874,7 @@ void IDisplayListDebugger::Run()
 	menu_options.push_back( new CTextureExplorerDebugMenuOption );
 	menu_options.push_back( new CDisplayListLengthDebugMenuOption );
 	menu_options.push_back( new CDecalOffsetDebugMenuOption );
+	menu_options.push_back( new CBlendDebugMenuOption );
 
 	u32		highlighted_option( 0 );
 	CDebugMenuOption *			p_current_option( NULL );
