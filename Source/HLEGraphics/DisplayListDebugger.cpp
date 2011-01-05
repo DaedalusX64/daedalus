@@ -72,6 +72,8 @@ extern u32	gAOpaque;
 
 extern u32	gsceENV;
 
+extern u32	gNumCyc;
+
 extern const char *gPSPtxtFunc[10];
 extern const char *gCAdj[4];
 //*****************************************************************************
@@ -749,6 +751,7 @@ void CBlendDebugMenuOption::Display() const
 	if( mSel == 4 && modify ) gAOpaque = mIdx & 1;
 	if( mSel == 5 && modify ) gsceENV = mIdx % 3;
 	if( mSel == 6 && modify ) gTXTFUNC = mIdx % 10;
+	if( mSel == 7 && modify ) gNumCyc = (mIdx % 3) + 1;
 
 	printf( "Blender Explorer\n");
 	printf( "   Use [] to return\n" );
@@ -767,7 +770,9 @@ void CBlendDebugMenuOption::Display() const
 	printf( "%s\n", TERMINAL_WHITE );
 	printf( " PSP Texture Function\n" );
 	printf( "   %s%c%s\n",				(mSel==6 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==6 ? '*' : ' ', gPSPtxtFunc[gTXTFUNC]);
-
+	printf( "%s\n", TERMINAL_WHITE );
+	printf( " Cycle\n" );
+	printf( "   %s%c%s\n",				(mSel==7 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==7 ? '*' : ' ', gNumCyc==3 ? "ALL" :((gNumCyc==1) ? "1" : "2"));
 	printf( "%s\n", TERMINAL_WHITE );
 }
 
@@ -784,7 +789,7 @@ void CBlendDebugMenuOption::Update( const SPspPadState & pad_state, float elapse
 
 		if(pad_state.NewButtons & PSP_CTRL_DOWN)
 		{
-			mSel = (mSel < 6) ? mSel + 1 : mSel;
+			mSel = (mSel < 7) ? mSel + 1 : mSel;
 			modify = 0;
 		}
 

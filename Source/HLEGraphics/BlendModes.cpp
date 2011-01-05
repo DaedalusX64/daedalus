@@ -114,17 +114,19 @@ void PrintMux( FILE * fh, u64 mux )
 
 //***************************************************************************
 //*General blender used for testing //Corn
-//*Inside a blender paste (only)-> "General_Blender( num_cycles, details );"
+//*Inside a (empty) blender paste (only)-> BLEND_MODE_MAKER
 //***************************************************************************
-u32	gTXTFUNC;
+u32	gTXTFUNC=0;
 
-u32	gSetRGB;
-u32	gSetA;
-u32	gSetRGBA;
-u32	gModA;
-u32	gAOpaque;
+u32	gSetRGB=0;
+u32	gSetA=0;
+u32	gSetRGBA=0;
+u32	gModA=0;
+u32	gAOpaque=0;
 
-u32	gsceENV;
+u32	gsceENV=0;
+
+u32	gNumCyc=3;
 
 const char *gPSPtxtFunc[10] =
 {
@@ -148,61 +150,57 @@ const char *gCAdj[4] =
 	"Env Color"
 };
 
-inline void General_Blender( BLEND_MODE_ARGS )
-{
-	const u32 PSPtxtFunc[5] =
-	{
-		GU_TFX_MODULATE,
-		GU_TFX_BLEND,
-		GU_TFX_ADD,
-		GU_TFX_REPLACE,
-		GU_TFX_DECAL
-	};
+#define BLEND_MODE_MAKER \
+{ \
+	const u32 PSPtxtFunc[5] = \
+	{ \
+		GU_TFX_MODULATE, \
+		GU_TFX_BLEND, \
+		GU_TFX_ADD, \
+		GU_TFX_REPLACE, \
+		GU_TFX_DECAL \
+	}; \
+	const u32 PSPtxtA[2] = \
+	{ \
+		GU_TCC_RGB, \
+		GU_TCC_RGBA \
+	}; \
+	if( num_cycles & gNumCyc ) \
+	{ \
+		if( gSetRGB ) \
+		{ \
+			if( gSetRGB==1 ) details.ColourAdjuster.SetRGB( details.PrimColour ); \
+			if( gSetRGB==2 ) details.ColourAdjuster.SetRGB( details.PrimColour.ReplicateAlpha() ); \
+			if( gSetRGB==3 ) details.ColourAdjuster.SetRGB( details.EnvColour ); \
+		} \
+		if( gSetA ) \
+		{ \
+			if( gSetA==1 ) details.ColourAdjuster.SetA( details.PrimColour ); \
+			if( gSetA==2 ) details.ColourAdjuster.SetA( details.PrimColour.ReplicateAlpha() ); \
+			if( gSetA==3 ) details.ColourAdjuster.SetA( details.EnvColour ); \
+		} \
+		if( gSetRGBA ) \
+		{ \
+			if( gSetRGBA==1 ) details.ColourAdjuster.SetRGBA( details.PrimColour ); \
+			if( gSetRGBA==2 ) details.ColourAdjuster.SetRGBA( details.PrimColour.ReplicateAlpha() ); \
+			if( gSetRGBA==3 ) details.ColourAdjuster.SetRGBA( details.EnvColour ); \
+		} \
+		if( gModA ) \
+		{ \
+			if( gModA==1 ) details.ColourAdjuster.ModulateA( details.PrimColour ); \
+			if( gModA==2 ) details.ColourAdjuster.ModulateA( details.PrimColour.ReplicateAlpha() ); \
+			if( gModA==3 ) details.ColourAdjuster.ModulateA( details.EnvColour ); \
+		} \
+		if( gAOpaque ) details.ColourAdjuster.SetAOpaque(); \
+		if( gsceENV ) \
+		{ \
+			if( gsceENV==1 ) sceGuTexEnvColor( details.EnvColour.GetColour() ); \
+			if( gsceENV==2 ) sceGuTexEnvColor( details.PrimColour.GetColour() ); \
+		} \
+		sceGuTexFunc( PSPtxtFunc[ (gTXTFUNC >> 1) % 6 ], PSPtxtA[ gTXTFUNC & 1 ] ); \
+	} \
+} \
 
-	const u32 PSPtxtA[2] =
-	{
-		GU_TCC_RGB,
-		GU_TCC_RGBA
-	};
-
-	if( gSetRGB )
-	{
-		if( gSetRGB==1 ) details.ColourAdjuster.SetRGB( details.PrimColour );
-		if( gSetRGB==2 ) details.ColourAdjuster.SetRGB( details.PrimColour.ReplicateAlpha() );
-		if( gSetRGB==3 ) details.ColourAdjuster.SetRGB( details.EnvColour );
-	}
-
-	if( gSetA )
-	{
-		if( gSetA==1 ) details.ColourAdjuster.SetA( details.PrimColour );
-		if( gSetA==2 ) details.ColourAdjuster.SetA( details.PrimColour.ReplicateAlpha() );
-		if( gSetA==3 ) details.ColourAdjuster.SetA( details.EnvColour );
-	}
-
-	if( gSetRGBA )
-	{
-		if( gSetRGBA==1 ) details.ColourAdjuster.SetRGBA( details.PrimColour );
-		if( gSetRGBA==2 ) details.ColourAdjuster.SetRGBA( details.PrimColour.ReplicateAlpha() );
-		if( gSetRGBA==3 ) details.ColourAdjuster.SetRGBA( details.EnvColour );
-	}
-
-	if( gModA )
-	{
-		if( gModA==1 ) details.ColourAdjuster.ModulateA( details.PrimColour );
-		if( gModA==2 ) details.ColourAdjuster.ModulateA( details.PrimColour.ReplicateAlpha() );
-		if( gModA==3 ) details.ColourAdjuster.ModulateA( details.EnvColour );
-	}
-
-	if( gAOpaque ) details.ColourAdjuster.SetAOpaque();
-
-	if( gsceENV )
-	{
-		if( gsceENV==1 ) sceGuTexEnvColor( details.EnvColour.GetColour() );
-		if( gsceENV==2 ) sceGuTexEnvColor( details.PrimColour.GetColour() );
-	}
-
-	sceGuTexFunc( PSPtxtFunc[ (gTXTFUNC >> 1) % 6 ], PSPtxtA[ gTXTFUNC & 1 ] );
-}
 #endif
 /* To Devs,
  Once blendmodes are complete please clean up after yourself before commiting.
@@ -817,7 +815,6 @@ void BlendMode_0x00122bfffffffe38LL( BLEND_MODE_ARGS )
 {
 	//details.ColourAdjuster.SetAOpaque();
 	//sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
-	//General_Blender( num_cycles, details );
 }
 
 //Donald duck shadow
@@ -830,7 +827,6 @@ void BlendMode_0x00522bfffffffe38LL( BLEND_MODE_ARGS )
 {
 	//details.ColourAdjuster.SetAOpaque();
 	//sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
-	//General_Blender( num_cycles, details );
 }
 
 //Doom Ceiling and detail and sky
@@ -2741,7 +2737,6 @@ void BlendMode_0x00547ea833fdf2f9LL (BLEND_MODE_ARGS)
 
 void BlendMode_0x00551aaa1134fe7fLL (BLEND_MODE_ARGS)
 {
-	
 	details.ColourAdjuster.SetRGBA( details.PrimColour.ReplicateAlpha() );
 	details.ColourAdjuster.SetA( details.EnvColour);
 	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
@@ -2750,7 +2745,7 @@ void BlendMode_0x00551aaa1134fe7fLL (BLEND_MODE_ARGS)
 //#T
 */
 
-//Tarzan birds wings, Mario shadow in SM64
+//Tarzan birds wings, Marios drop shadows in SM64
 //case 0x00121824ff33ffffLL:
 //aRGB0: (Texel0       - 0           ) * Shade        + 0
 //aA0  : (Texel0       - 0           ) * Shade        + 0
@@ -2758,8 +2753,8 @@ void BlendMode_0x00551aaa1134fe7fLL (BLEND_MODE_ARGS)
 //aA1  : (Texel0       - 0           ) * Shade        + 0
 void BlendMode_0x00121824ff33ffffLL( BLEND_MODE_ARGS )
 {
-	details.ColourAdjuster.SetA( c32(0,0,0,0xD8) );
-	//details.ColourAdjuster.SetAOpaque();
+	//details.ColourAdjuster.SetA( c32(0,0,0,0xD8) );
+	if( g_ROM.GameHacks == TARZAN ) details.ColourAdjuster.SetAOpaque();
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
@@ -4514,7 +4509,7 @@ void BlendMode_0x00177e6035fcfd78LL (BLEND_MODE_ARGS)
 }
 
 // Pokemon Stadium 2 - Pokeball
-//ZELDA - OOT - Spiritual Stone Gems
+// ZELDA - OOT - Spiritual Stone Gems
 //case 0x00272c60350c937fLL:
 //aRGB0: (Texel1       - Primitive   ) * PrimLODFrac  + Texel0
 //aA0  : (Texel1       - Texel0      ) * 1            + Texel0
@@ -4522,18 +4517,10 @@ void BlendMode_0x00177e6035fcfd78LL (BLEND_MODE_ARGS)
 //aA1  : (Combined     - 0           ) * Primitive    + 0
 void BlendMode_0x00272c60350c937fLL (BLEND_MODE_ARGS)
 {
-#ifdef CHECK_FIRST_CYCLE
-	if (num_cycles == 1)
-	{
-		details.ColourAdjuster.SetRGB( details.PrimColour );
-		sceGuTexFunc(GU_TFX_BLEND, GU_TCC_RGB);
-	}
-	else
-#endif
-	{
-		details.ColourAdjuster.SetRGBA( details.PrimColour );
-		sceGuTexFunc(GU_TFX_BLEND, GU_TCC_RGBA);
-	}
+	details.InstallTexture = true;
+	details.ColourAdjuster.SetRGB( details.EnvColour );
+	sceGuTexEnvColor( details.PrimColour.GetColour() );
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);	
 }
 
 //ZELDA - OOT - Graveyard Beam
