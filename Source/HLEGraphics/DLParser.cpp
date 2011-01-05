@@ -519,7 +519,7 @@ static void	DLParser_ProcessDList()
 	MicroCodeCommand command;
 
 	//Clean frame buffer at DList start if selected
-	if( gCleanSceneEnabled & CGraphicsContext::CleanScene )
+	if( gCleanSceneEnabled && CGraphicsContext::CleanScene )
 	{
 		CGraphicsContext::Get()->Clear(true, false);
 		CGraphicsContext::CleanScene = false;
@@ -537,37 +537,28 @@ static void	DLParser_ProcessDList()
 	}
 #endif
 
-
 	while(1)
 	{
-		//This lets us skip DLParser_RDPLoadSync, DLParser_RDPPipeSync & DLParser_RDPTileSync
-		//early and saves us wasted time jumping for empty functions (worth since they happen a lot)
-		do
-		{
-			DLParser_FetchNextCommand(&command);
+		DLParser_FetchNextCommand( &command );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-			//use the gInstructionName table for fecthing names.
-			//we use the table as is for GBI0, GBI1 and GBI2
-			//we fallback to GBI0 for custom ucodes (ucode_ver>2)
-			DL_PF("[%05d] 0x%08x: %08x %08x %-10s", gCurrentInstructionCount, pc, command.inst.cmd0, command.inst.cmd1, gInstructionName[ gucode_ver ][command.inst.cmd ]);
-			gCurrentInstructionCount++;
+		//use the gInstructionName table for fecthing names.
+		//we use the table as is for GBI0, GBI1 and GBI2
+		//we fallback to GBI0 for custom ucodes (ucode_ver>2)
+		DL_PF("[%05d] 0x%08x: %08x %08x %-10s", gCurrentInstructionCount, pc, command.inst.cmd0, command.inst.cmd1, gInstructionName[ gucode_ver ][command.inst.cmd ]);
+		gCurrentInstructionCount++;
 
-			if( gInstructionCountLimit != UNLIMITED_INSTRUCTION_COUNT )
+		if( gInstructionCountLimit != UNLIMITED_INSTRUCTION_COUNT )
+		{
+			if( gCurrentInstructionCount >= gInstructionCountLimit )
 			{
-				if( gCurrentInstructionCount >= gInstructionCountLimit )
-				{
-					return;
-				}
+				return;
 			}
-#endif
 		}
-		while( (command.inst.cmd > 0xE5) && (command.inst.cmd < 0xE9) ); 
+#endif
 
-		//Profile current Ucode
 		PROFILE_DL_CMD( command.inst.cmd );
 
-		//Run Ucode command
 		gUcode[ command.inst.cmd ]( command ); 
 
 		// Check limit

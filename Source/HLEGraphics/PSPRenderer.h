@@ -346,8 +346,8 @@ private:
 	bool				mRecordCombinerStates;
 	std::set< u64 >		mRecordedCombinerStates;
 	std::set< u64 >		mDisabledCombinerStates;
-#endif
 	std::set< u64 >		mUnhandledCombinderStates;
+#endif
 };
 
 

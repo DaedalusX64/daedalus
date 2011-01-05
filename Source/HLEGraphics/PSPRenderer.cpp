@@ -2108,7 +2108,7 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 		case G_MWO_POINT_ZSCREEN:
 			{
 				s32 z = val >> 16;
-				DL_PF( "      Setting ZScreen to 0x%08x", z );
+				DAEDALUS_ERROR( "      Setting ZScreen to 0x%08x", z );
 				//Not sure about the scaling here //Corn
 				//SetVtxZ( vert, (( (f32)z / 0x03FF ) + 0.5f ) / 2.0f );
 				SetVtxZ( vert, (( (f32)z ) + 0.5f ) / 2.0f );
@@ -2376,6 +2376,7 @@ void PSPRenderer::SetProjection(const Matrix4x4 & mat, bool bPush, bool bReplace
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		if (mProjectionTop >= (MATRIX_STACK_SIZE-1))
 			DBGConsole_Msg(0, "Pushing past proj stack limits! %d/%d", mProjectionTop, MATRIX_STACK_SIZE);
+		else
 #endif
 		++mProjectionTop;
 
@@ -2446,6 +2447,7 @@ void PSPRenderer::SetWorldView(const Matrix4x4 & mat, bool bPush, bool bReplace)
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		if (mModelViewTop >= (MATRIX_STACK_SIZE-1))
 			DBGConsole_Msg(0, "Pushing past modelview stack limits! %d/%d", mModelViewTop, MATRIX_STACK_SIZE);
+		else
 #endif
 		++mModelViewTop;
 

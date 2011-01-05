@@ -42,40 +42,26 @@ static void SPNOOP( AudioHLECommand command )
 	DBGConsole_Msg( 0, "AudioHLE: Unknown/Unimplemented Audio Command %i in ABI 3", command.cmd );
 }
 
-/*
-static void SETVOL3( AudioHLECommand command )
-{
-	// Swapped Rate_Left and Vol
-	u8 Flags = (u8)(command.cmd0 >> 0x10);
-	if (Flags & 0x4) { // 288
-		if (Flags & 0x2) { // 290
-			gAudioHLEState.VolTrgLeft  = *(s16*)&command.cmd0;
-			gAudioHLEState.VolRampLeft = command.cmd1;
-		} else {
-			gAudioHLEState.VolTrgRight  = *(s16*)&command.cmd0;
-			gAudioHLEState.VolRampRight = command.cmd1;
-		}
-	} else {
-		gAudioHLEState.VolLeft	= *(s16*)&command.cmd0;
-		gAudioHLEState.EnvDry = (s16)(command.cmd1 >> 16);
-		gAudioHLEState.EnvWet = (s16)command.cmd1;
-	}
-}
-*/
 static void SETVOL3( AudioHLECommand command )
 {
 	u8 Flags = (u8)(command.cmd0 >> 0x10);
-	if (Flags & 0x4) { // 288
-		if (Flags & 0x2) { // 290
+	if (Flags & 0x4) 
+	{ // 288
+		if (Flags & 0x2) 
+		{ // 290
 			gAudioHLEState.VolLeft  = (s16)command.cmd0; // 0x50
 			gAudioHLEState.EnvDry	= (s16)(command.cmd1 >> 16); // 0x4E
 			gAudioHLEState.EnvWet	= (s16)command.cmd1; // 0x4C
-		} else {
+		} 
+		else 
+		{
 			gAudioHLEState.VolTrgRight  = (s16)command.cmd0; // 0x46
 			//gAudioHLEState.VolRampRight = (u16)(command.cmd1 >> 16) | (s32)(s16)(command.cmd1 << 0x10);
 			gAudioHLEState.VolRampRight = command.cmd1; // 0x48/0x4A
 		}
-	} else {
+	} 
+	else
+	{
 		gAudioHLEState.VolTrgLeft  = (s16)command.cmd0; // 0x40
 		gAudioHLEState.VolRampLeft = command.cmd1; // 0x42/0x44
 	}
@@ -739,51 +725,18 @@ static void WHATISTHIS( AudioHLECommand command )
 }
 
 //static FILE *fp = fopen ("d:\\mp3info.txt", "wt");
-u32 setaddr;
+//u32 setaddr;
 static void MP3ADDY( AudioHLECommand command )
 {
-	setaddr = (command.cmd1 & 0xffffff);
-	//__asm int 3;
-	//fprintf (fp, "mp3addy: cmd0: %08X, cmd1: %08X, LoopVal: %08X\n", command.cmd0, command.cmd1, gAudioHLEState.LoopVal);
+	//setaddr = (command.cmd1 & 0xffffff);
 }
 
-extern "C" {
-	void rsp_run();
-	void mp3setup (u32 k0, u32 t9, u32 t8);
-}
 
-extern u32 base, dmembase;
-extern "C" {
-	extern char *pDMEM;
-}
 void MP3( AudioHLECommand command );
+
+
 /*
- {
-//	return;
-	// Setup Registers...
-	mp3setup(command.cmd0, command.cmd1, 0xFA0);
-	
-	// Setup Memory Locations...
-	//u32 base = ((u32*)dmem)[0xFD0/4]; // Should be 000291A0
-	memcpy (gAudioHLEState.Buffer, dmembase+rdram, 0x10);
-	((u32*)gAudioHLEState.Buffer)[0x0] = base;
-	((u32*)gAudioHLEState.Buffer)[0x008/4] += base;
-	((u32*)gAudioHLEState.Buffer)[0xFFC/4] = gAudioHLEState.LoopVal;
-	((u32*)gAudioHLEState.Buffer)[0xFF8/4] = dmembase;
-	//__asm int 3;
-	memcpy (imem+0x238, rdram+((u32*)gAudioHLEState.Buffer)[0x008/4], 0x9C0);
-	((u32*)gAudioHLEState.Buffer)[0xFF4/4] = setaddr;
-	pDMEM = (char *)gAudioHLEState.Buffer;
-	rsp_run ();
-	dmembase = ((u32*)gAudioHLEState.Buffer)[0xFF8/4];
-	gAudioHLEState.LoopVal  = ((u32*)gAudioHLEState.Buffer)[0xFFC/4];
-//0x1A98  SW       S1, 0x0FF4 (R0)
-//0x1A9C  SW       S0, 0x0FF8 (R0)
-//0x1AA0  SW       T7, 0x0FFC (R0)
-//0x1AA4  SW       T3, 0x0FF0 (R0)
-	//fprintf (fp, "mp3: cmd0: %08X, cmd1: %08X\n", command.cmd0, command.cmd1);
-}*/
-/*
+
 FFT = Fast Fourier Transform
 DCT = Discrete Cosine Transform
 MPEG-1 Layer 3 retains Layer 2’s 1152-sample window, as well as the FFT polyphase filter for 
