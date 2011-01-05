@@ -132,7 +132,8 @@ const char * sc_szBlA2[4]  = { "1-A", "AMem", "1",      "?" };
 //*****************************************************************************
 //
 //*****************************************************************************
-
+//64 bit macros - useless now
+/*
 #define MAKE_BLEND_MODE( a, b )			( (a) | (b) )
 #define BLEND_NOOP1				0x00000000		//GBL_c1(G_BL_CLR_IN, G_BL_1MA, G_BL_CLR_IN, G_BL_1MA)
 #define BLEND_NOOP2				0x00000000
@@ -168,15 +169,15 @@ const char * sc_szBlA2[4]  = { "1-A", "AMem", "1",      "?" };
 #define BLEND_NOOP4				0xcc080000		// Fog * 0 + In * 1
 #define BLEND_NOOP5				0xcc480000		// Fog * 0 + Mem * 1
 #define BLEND_UNK				0x33120000
-
+*/
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 //*****************************************************************************
 //
 //*****************************************************************************
-void DebugBlender()	
+void DebugBlender( u32 blender )	
 {
-	u32 blendmode_1 = u32( gRDPOtherMode.blender & 0xcccc );
-	u32 blendmode_2 = u32( gRDPOtherMode.blender & 0x3333 );
+	//u32 blendmode_1 = u32( gRDPOtherMode.blender & 0xcccc );
+	//u32 blendmode_2 = u32( gRDPOtherMode.blender & 0x3333 );
 
 	u32 m1A_1 = (gRDPOtherMode.blender>>14) & 0x3;
 	u32 m1B_1 = (gRDPOtherMode.blender>>10) & 0x3;
@@ -188,65 +189,51 @@ void DebugBlender()
 	u32 m2A_2 = (gRDPOtherMode.blender>>4) & 0x3;
 	u32 m2B_2 = (gRDPOtherMode.blender   ) & 0x3;
 
-	DAEDALUS_ERROR( "Unknown Blender:%04x - :%s * %s + %s * %s || %04x - :%s * %s + %s * %s", blendmode_1,
-			sc_szBlClr[m1A_1], sc_szBlA1[m1B_1], sc_szBlClr[m2A_1], sc_szBlA2[m2B_1], blendmode_2,
+	DAEDALUS_ERROR( "Unknown Blender: %04x - :%s * %s + %s * %s || :%s * %s + %s * %s", blender,
+			sc_szBlClr[m1A_1], sc_szBlA1[m1B_1], sc_szBlClr[m2A_1], sc_szBlA2[m2B_1],
 			sc_szBlClr[m1A_2], sc_szBlA1[m1B_2], sc_szBlClr[m2A_2], sc_szBlA2[m2B_2]);
 
 }
 #endif
+
 //*****************************************************************************
-//
+// This version uses a 16bit hash, which is around 4X times faster than the old 64bit version
 //*****************************************************************************
-void InitBlenderMode()					// Set Alpha Blender mode
+void InitBlenderMode( u32 blender )					// Set Alpha Blender mode
 {
-	u32 blendmode = u32( gRDPOtherMode._u64 & 0xffff0000 );
+	u32 blendmode = blender >> 16;
 
 	int		blend_op  = GU_ADD;
 	int		blend_src = GU_SRC_ALPHA;
 	int		blend_dst = GU_ONE_MINUS_SRC_ALPHA;
 	bool	enable_blend( false );
-
-	switch( blendmode )
+	//
+	// Note : If you need transperency, use blend_op = GU_ADD; blend_src = GU_SRC_COLOR; blend_dst = GU_DST_COLOR;
+	//
+	switch ( blendmode )
 	{
-	case MAKE_BLEND_MODE( BLEND_PASS1, BLEND_PASS2 ):
-	case MAKE_BLEND_MODE( BLEND_FOG_ASHADE1, BLEND_OPA2 ):
-	case MAKE_BLEND_MODE( BLEND_OPA1, BLEND_OPA2 ):
-	case MAKE_BLEND_MODE( BLEND_OPA1, BLEND_NOOP2 ):
-	case MAKE_BLEND_MODE( BLEND_PASS1, BLEND_OPA2 ):
-	case MAKE_BLEND_MODE( BLEND_MEM1, BLEND_MEM2 ):
-	case MAKE_BLEND_MODE( BLEND_NOOP4, BLEND_NOOP2 ):		// cc08 || 0000 - SSV - TV window
-	case MAKE_BLEND_MODE( BLEND_FOG_ASHADE1, BLEND_PASS3 ): // c800 || 3200 - F-Zero - Tracks
-	case MAKE_BLEND_MODE( BLEND_FOG_ASHADE1, BLEND_PASS2 ): // c800 || 0302 - Hey You Pikachu - Body and Face
-	case MAKE_BLEND_MODE( BLEND_FOG_ASHADE1, BLEND_NOOP1 ): // c800 || 0000 - F-Zero - Cars
-	case MAKE_BLEND_MODE( BLEND_FOG_3, BLEND_PASS2 ):		// c000 || 0302 - ISS64 - Ground
-	case MAKE_BLEND_MODE( BLEND_PASS1, BLEND_NOOP1 ):		// 0c08 || 0000 - 1080 - Sky
-	case MAKE_BLEND_MODE( BLEND_FOG_APRIM1, BLEND_PASS2 ):	// c400 || 0302 - Donald Duck - Sky
-	case MAKE_BLEND_MODE( BLEND_FOG_APRIM1, BLEND_OPA2 ):	// c400 || 0011 - Donald Duck and GoldenEye - Items and Truck spots.
-	case MAKE_BLEND_MODE( BLEND_FOG_MEM_FOG_MEM, BLEND_PASS2 ):// 04c0 - :In * AFog + Fog * 1-A || 0302 - :In * 0 + In * 1 - Conker's face and body
+	case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen
 		enable_blend = false;
 		break;
-	case MAKE_BLEND_MODE( BLEND_NOOP1, BLEND_XLU2 ):		// 0000 || 0010 - Hey You Pikachu - Shade
-	case MAKE_BLEND_MODE( BLEND_NOOP1, BLEND_NOOP2 ):
-	case MAKE_BLEND_MODE( BLEND_XLU1, BLEND_XLU2 ):
-	case MAKE_BLEND_MODE( BLEND_XLU1, BLEND_NOOP2 ):
-	case MAKE_BLEND_MODE( BLEND_PASS1, BLEND_XLU2 ):
-	case MAKE_BLEND_MODE( BLEND_FOG_ASHADE1, BLEND_XLU2 ):
-		blend_op = GU_ADD; blend_src = GU_SRC_ALPHA; blend_dst = GU_ONE_MINUS_SRC_ALPHA;
-		enable_blend = true;
-		break;
-	case MAKE_BLEND_MODE( BLEND_XLU1, BLEND_ADD2 ):			
-		blend_op = GU_ADD; blend_src = GU_SRC_COLOR; blend_dst = GU_DST_COLOR;	// Transparency
-		enable_blend = true;
-		break;
-	default:
+		//
+		// Add here blenders which work fine with default case but causes too much spam, this disabled in release mode
+		//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DebugBlender();
-#endif
-		DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", gRDPOtherMode.blender );
+
+	case 0x0f0a:					// In * 0 + In * 1 || :In * 0 + In * 1 :				SSV - Shadows, HUD, and Waterfall
 		blend_op = GU_ADD; blend_src = GU_SRC_ALPHA; blend_dst = GU_ONE_MINUS_SRC_ALPHA;
 		enable_blend = true;
 		break;
-	}	
+#endif
+		//
+		// default case should handle most blenders, ignore most unknown blenders unless something is messed up
+		//
+	default:			
+		DebugBlender( blendmode );
+		blend_op = GU_ADD; blend_src = GU_SRC_ALPHA; blend_dst = GU_ONE_MINUS_SRC_ALPHA;
+		enable_blend = true;
+		break;
+	}
 
 	if( enable_blend )
 	{
