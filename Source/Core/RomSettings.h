@@ -71,6 +71,7 @@ struct RomSettings
 	bool				CheckN64FPUsageDisable;
 	bool				AudioRateMatch;
 	bool				FogEnabled;
+	bool                MemoryAccessOptimisation;
 
 	u32					RescanCount;
 	

@@ -1254,7 +1254,7 @@ void	CCodeGeneratorPSP::GetBaseRegisterAndOffset( const void * p_address, EPspRe
 //	Generates instruction handler for the specified op code.
 //	Returns a jump location if an exception handler is required
 //*****************************************************************************
-CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool branch_delay_slot, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
+CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool branch_delay_slot, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump, StaticAnalysis::MemAcess memory )
 {
 	DAEDALUS_PROFILE( "CCodeGeneratorPSP::GenerateOpCode" );
 
@@ -1273,6 +1273,8 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		}
 		return CJumpLocation();
 	}
+
+	mQuickLoad = memory;
 
 	const EN64Reg	rs = EN64Reg( op_code.rs );
 	const EN64Reg	rt = EN64Reg( op_code.rt );
@@ -1723,7 +1725,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 	EPspReg		reg_base( GetRegisterAndLoadLo( n64_base, PspReg_A0 ) );
 	EPspReg		reg_address( reg_base );
 
-	if(gDynarecStackOptimisation && n64_base == N64Reg_SP)
+	if( (gDynarecStackOptimisation && n64_base == N64Reg_SP)  || (gMemoryAccessOptimisation && mQuickLoad == StaticAnalysis::Segment_8000 && load_op != OP_LB)) // Don't do optimisation for LB, otherwise Mario 64 won't work :/
 	{
 		if( swizzle != 0 )
 		{
@@ -1956,7 +1958,7 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 	EPspReg		reg_base( GetRegisterAndLoadLo( n64_base, PspReg_A0 ) );
 	EPspReg		reg_address( reg_base );
 
-	if (gDynarecStackOptimisation && n64_base == N64Reg_SP)
+	if ( (gDynarecStackOptimisation && n64_base == N64Reg_SP)  || (gMemoryAccessOptimisation && mQuickLoad == StaticAnalysis::Segment_8000))
 	{
 		if( swizzle != 0 )
 		{

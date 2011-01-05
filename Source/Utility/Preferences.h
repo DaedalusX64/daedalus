@@ -149,6 +149,7 @@ struct SRomPreferences
 	bool						CheckN64FPUsageDisable;
 	bool						AudioRateMatch;
 	bool						FogEnabled;
+	bool                        MemoryAccessOptimisation;
 //	bool						AudioAdaptFrequency;
 	f32							ZoomX;
 	u32							ScrnUpd;

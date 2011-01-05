@@ -297,7 +297,10 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		{
 			preferences.ControllerIndex = CInputManager::Get()->GetConfigurationFromName( property->GetValue() );
 		}
-
+		if( section->FindProperty( "MemoryAccessOptimisation", &property ) )
+		{
+			preferences.MemoryAccessOptimisation = property->GetBooleanValue( false );
+		}
 		mPreferences[ id ] = preferences;
 	}
 
@@ -333,6 +336,7 @@ void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences
 	fprintf(fh, "AudioEnabled=%d\n", preferences.AudioEnabled);
 	fprintf(fh, "ZoomX=%f\n", preferences.ZoomX );
 	fprintf(fh, "ScrnUpd=%d\n", preferences.ScrnUpd );
+	fprintf(fh, "MemoryAccessOptimisation=%d\n",preferences.MemoryAccessOptimisation);
 	fprintf(fh, "Controller=%s\n", CInputManager::Get()->GetConfigurationName( preferences.ControllerIndex ));
 	fprintf(fh, "\n");			// Spacer
 }
@@ -473,6 +477,7 @@ SRomPreferences::SRomPreferences()
 	,	CheckN64FPUsageDisable( false )
 	,	AudioRateMatch( false )
 	,	FogEnabled( false )
+	,   MemoryAccessOptimisation( false )
 	,	CheckTextureHashFrequency( THF_DISABLED )
 	,	Frameskip( FV_DISABLED )
 	,	AudioEnabled( APM_DISABLED )
@@ -499,6 +504,7 @@ void SRomPreferences::Reset()
 	CheckN64FPUsageDisable = false;
 	AudioRateMatch = false;
 	FogEnabled = false;
+	MemoryAccessOptimisation = false;
 	CheckTextureHashFrequency = THF_DISABLED;
 	Frameskip = FV_DISABLED;
 	AudioEnabled = APM_DISABLED;
@@ -525,6 +531,7 @@ void	SRomPreferences::Apply() const
 	gAudioRateMatch = g_ROM.settings.AudioRateMatch || AudioRateMatch;
 	gFogEnabled = g_ROM.settings.FogEnabled || FogEnabled;
 	gCheckTextureHashFrequency = ROM_GetTexureHashFrequencyAsFrames( CheckTextureHashFrequency );
+	gMemoryAccessOptimisation = g_ROM.settings.MemoryAccessOptimisation || MemoryAccessOptimisation;
 	gFrameskipValue = Frameskip;
 	gZoomX = ZoomX;
 	gScrnUpd = ScrnUpd;

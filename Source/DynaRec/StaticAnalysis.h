@@ -23,6 +23,12 @@ struct OpCode;
 
 namespace StaticAnalysis
 {
+	enum MemAcess
+	{
+		Segment_Unknown = 0,
+		Segment_8000 = 1,
+		Segment_A000 = 2
+	};
 
 	struct RegSrcUse
 	{
@@ -49,11 +55,13 @@ namespace StaticAnalysis
 		u32			RegReads;
 		u32			RegWrites;
 		u32			RegBase;
+		MemAcess    Memory;
 
 		RegisterUsage()
 			:	RegReads( 0 )
 			,	RegWrites( 0 )
 			,	RegBase( 0 )
+			,   Memory( Segment_Unknown )
 		{
 		}
 
@@ -94,6 +102,20 @@ namespace StaticAnalysis
 		void		Record( RegBaseUse b )
 		{
 			RegBase = (1<<b.Reg);
+		}
+
+		void		Access(u32 address)
+		{
+			if (address >= 0x80000000 && address < 0x80000000 + gRamSize)
+			{
+				  Memory = Segment_8000;
+			}
+			else if (address >= 0xA0000000 && address < 0xA0000000 + gRamSize)
+			{
+				  Memory = Segment_A000;
+			}
+
+			DAEDALUS_ASSERT(!(RegBase == 1 << 29 && Memory == Segment_Unknown), "Why Stack Point to static segment: 0x%08x", address);
 		}
 			
 	};

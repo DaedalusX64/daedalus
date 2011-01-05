@@ -312,6 +312,10 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 		{ 	 
 			settings.FogEnabled = p_property->GetBooleanValue( false ); 	 
 		}
+		if( p_section->FindProperty( "MemoryAccessOptimisation", &p_property ) )
+		{
+			settings.MemoryAccessOptimisation = p_property->GetBooleanValue( false );
+		}
 
 		SetSettings( id, settings );
 	}
@@ -434,6 +438,7 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	if( settings.CheckN64FPUsageDisable )		fprintf(fh, "CheckN64FPUsageDisable=yes\n"); 	
 	if( settings.AudioRateMatch )				fprintf(fh, "AudioRateMatch=yes\n"); 
 	if( settings.FogEnabled )					fprintf(fh, "FogEnabled=yes\n"); 
+	 if( settings.MemoryAccessOptimisation )    fprintf(fh, "MemoryAccessOptimisation=yes\n");
 
 	if ( settings.ExpansionPakUsage != PAK_STATUS_UNKNOWN )	fprintf(fh, "ExpansionPakUsage=%s\n", ROM_GetExpansionPakUsageName( settings.ExpansionPakUsage ) );
 	if ( settings.SaveType != SAVE_TYPE_UNKNOWN )			fprintf(fh, "SaveType=%s\n", ROM_GetSaveTypeName( settings.SaveType ) );
@@ -494,6 +499,7 @@ RomSettings::RomSettings()
 ,	CheckN64FPUsageDisable( false )
 ,	AudioRateMatch( false )
 ,	FogEnabled( false )
+,   MemoryAccessOptimisation( false )
 ,	RescanCount(0)
 {
 }
@@ -526,5 +532,6 @@ void	RomSettings::Reset()
 	CheckN64FPUsageDisable = false;
 	AudioRateMatch = false;
 	FogEnabled = false;
+	MemoryAccessOptimisation = false;
 	RescanCount = 0;
 }

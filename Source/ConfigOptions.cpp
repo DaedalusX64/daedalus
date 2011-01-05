@@ -41,6 +41,7 @@ bool	gCleanSceneEnabled			= false;	// Clean our Scenes, it gets rid of many glit
 bool	gCheckN64FPUsageDisable		= false;	// This fixes several games, check R4300.cpp > R4300_SetSR : 511
 bool	gAudioRateMatch				= false;	// Matches audio rate with framerate, only works if 50-100% sync rate
 bool	gFogEnabled					= false;	// Enable fog
+bool    gMemoryAccessOptimisation   = false;    // Enable the memory access optmisation
 u32		gControllerIndex			= 0;		// Which controller config to set
 
 DaedalusConfig g_DaedalusConfig =

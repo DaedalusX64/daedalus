@@ -181,96 +181,115 @@ void StaticAnalysis_BGTZL( OpCode op_code, RegisterUsage & recorder ) 		// Branc
 void StaticAnalysis_LB( OpCode op_code, RegisterUsage & recorder ) 			// Load Byte
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_LBU( OpCode op_code, RegisterUsage & recorder ) 			// Load Byte Unsigned -- Zero extend byte...
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_LH( OpCode op_code, RegisterUsage & recorder ) 		// Load Halfword
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_LHU( OpCode op_code, RegisterUsage & recorder )			// Load Halfword Unsigned -- Zero extend word
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_LWL( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Left
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_LDL( OpCode op_code, RegisterUsage & recorder )
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_LWR( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Right
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_LDR( OpCode op_code, RegisterUsage & recorder )
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_LW( OpCode op_code, RegisterUsage & recorder ) 			// Load Word
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_LWU( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Unsigned
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_LD( OpCode op_code, RegisterUsage & recorder ) 				// Load Doubleword
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_SW( OpCode op_code, RegisterUsage & recorder ) 			// Store Word
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_SH( OpCode op_code, RegisterUsage & recorder ) 			// Store Halfword
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_SB( OpCode op_code, RegisterUsage & recorder ) 			// Store Byte
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_SWL( OpCode op_code, RegisterUsage & recorder ) 			// Store Word Left
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_SWR( OpCode op_code, RegisterUsage & recorder ) 			// Store Word Right 
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_SD( OpCode op_code, RegisterUsage & recorder )			// Store Doubleword
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_SDL( OpCode op_code, RegisterUsage & recorder )
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_SDR( OpCode op_code, RegisterUsage & recorder )
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_CACHE( OpCode op_code, RegisterUsage & recorder )
@@ -282,24 +301,28 @@ void StaticAnalysis_LWC1( OpCode op_code, RegisterUsage & recorder ) 				// Load
 {
 	RegFPRWrite( op_code.ft );
 	recorder.Record( RegBaseUse( op_code.base ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_LDC1( OpCode op_code, RegisterUsage & recorder )				// Load Doubleword to Copro 1 (FPU)
 {
 	RegFPRWrite( op_code.ft );
 	recorder.Record( RegBaseUse( op_code.base ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_SWC1( OpCode op_code, RegisterUsage & recorder ) 			// Store Word From Copro 1
 {
 	RegFPRRead( op_code.ft );
 	recorder.Record( RegBaseUse( op_code.base ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_SDC1( OpCode op_code, RegisterUsage & recorder )		// Store Doubleword From Copro 1
 {
 	RegFPRRead( op_code.ft );
 	recorder.Record( RegBaseUse( op_code.base ) );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

@@ -254,6 +254,7 @@ IRomPreferencesScreen::IRomPreferencesScreen( CUIContext * p_context, const RomI
 	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecEnabled, "Dynamic Recompilation", "Whether dynamic recompilation is enabled for this rom", "Enabled", "Disabled" ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecStackOptimisation, "Dynamic Stack Optimisation", "Whether the dynarec stack optimisation is enabled for this rom", "Enabled", "Disabled" ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.PatchesEnabled, "High Level Emulation", "Whether the High Level Emulation is enabled for this rom", "Enabled", "Disabled" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.MemoryAccessOptimisation, "Memory Access Optimisation", "Whether memory access optimization is enabled for this rom", "Enabled", "Disabled" ) );
 	mElements.Add( new CAudioSetting( &mRomPreferences.AudioEnabled, "Audio", "Whether or not to enable audio emulation, and whether to process the audio asynchronously or synchronously." ) );
 //	mElements.Add( new CAdjustFrequencySetting( &mRomPreferences.AudioAdaptFrequency, &mRomPreferences.AudioEnabled, " Adjust Frequency", "When enabled, this mode tries to avoid gaps in the audio by adjusting the pitch of the audio stream." ) );  //Not Used May be restored separately later
 	mElements.Add( new CAdjustControllerSetting( &mRomPreferences.ControllerIndex, "Controller" ) );
