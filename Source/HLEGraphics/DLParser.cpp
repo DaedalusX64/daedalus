@@ -257,7 +257,9 @@ bool DLParser_Initialise()
 	//
 	// Reset all the RDP registers
 	//
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	gRDPOtherMode._u64 = 0;
+#endif
 	gRDPOtherMode.pad = G_RDP_RDPSETOTHERMODE;
 	gRDPOtherMode.blender = 0x0050;
 
@@ -607,7 +609,7 @@ void DLParser_Process()
 	// Update Screen only when something is drawn, otherwise several games ex Army Men will flash or shake.
 	// Update Screen earlier, otherwise several games like ex Mario won't work.
 	//
-	//if(!gScrnUpd) gGraphicsPlugin->UpdateScreen();
+	if(!gScrnUpd) gGraphicsPlugin->UpdateScreen();
 
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 	u32 code_base = (u32)pTask->t.ucode & 0x1fffffff;
@@ -626,7 +628,9 @@ void DLParser_Process()
 	//
 	// Not sure what to init this with. We should probably read it from the dmem
 	//
-	gRDPOtherMode._u64 = 0;
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	gRDPOtherMode._u64 = 0;			// Use gOtherModeL instead, pretty much the same and cheap on the psp
+#endif
 	gRDPOtherMode.pad = G_RDP_RDPSETOTHERMODE;
 	gRDPOtherMode.blender = 0x0050;
 	gRDPOtherMode.alpha_compare = 1;
@@ -671,8 +675,8 @@ void DLParser_Process()
 		DLParser_ProcessDList();
 		PSPRenderer::Get()->EndScene();
 	}
-	gGraphicsPlugin->UpdateScreen();
-	//if(gScrnUpd == 1) gGraphicsPlugin->UpdateScreen();
+
+	if(gScrnUpd == 1) gGraphicsPlugin->UpdateScreen();
 
 	// Do this regardless!
 	FinishRDPJob();

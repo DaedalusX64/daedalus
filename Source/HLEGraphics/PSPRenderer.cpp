@@ -711,7 +711,7 @@ extern void InitBlenderMode( u32 blender );
 //*****************************************************************************
 void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, ERenderMode mode, bool disable_zbuffer )
 {
-	bool			gZFightingEnabled	= false;
+	static bool		gZFightingEnabled	= false;
 	bool			gLastUseZBuffer		= false;
 
 	u32 blender				( gOtherModeL );
