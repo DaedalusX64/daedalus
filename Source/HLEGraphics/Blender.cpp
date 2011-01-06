@@ -224,7 +224,10 @@ void InitBlenderMode( u32 blender )					// Set Alpha Blender mode
 	case 0x0c18:					// In * 0 + In * 1 || :In * AIn + Mem * 1-A:			SSV - WaterFall and dust
 	case 0x0f0a:					// In * 0 + In * 1 || :In * 0 + In * 1 :				SSV - Shadows, and HUD
 	case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
-		blend_op = GU_ADD; blend_src = GU_SRC_ALPHA; blend_dst = GU_ONE_MINUS_SRC_ALPHA;
+	case 0x0040:					// In * AIn + Mem * 1-A || :In * AIn + In * 1-A			Mario - Princess peach text
+	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A    Paper Mario Menu
+			
+	blend_op = GU_ADD; blend_src = GU_SRC_ALPHA; blend_dst = GU_ONE_MINUS_SRC_ALPHA;
 		enable_blend = true;
 		break;
 //#endif
