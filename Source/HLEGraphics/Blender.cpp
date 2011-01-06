@@ -211,21 +211,23 @@ void InitBlenderMode( u32 blender )					// Set Alpha Blender mode
 	// Note : If you need transperency, use blend_op = GU_ADD; blend_src = GU_SRC_COLOR; blend_dst = GU_DST_COLOR;
 	//
 	switch ( blendmode )
-	{
-	/*case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen
+	{	
+	/*case 0x0c18:					//Fog * AShade + In * 1-A || :In * AIn + Mem * 1-A		SSV - Fog? fog isn't supported in SSV not sure if this correct..
 		enable_blend = false;
 		break;*/
 		//
 		// Add here blenders which work fine with default case but causes too much spam, this disabled in release mode
 		//
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+//#ifdef DAEDALUS_DEBUG_DISPLAYLIST // tempraly disabled, else we'll get error in release until we use the flase case..
 
-	case 0x0f0a:					// In * 0 + In * 1 || :In * 0 + In * 1 :				SSV - Shadows, HUD, and Waterfall
+	case 0xc810:					//Fog * AShade + In * 1-A || :In * AIn + Mem * 1-A		SSV - Fog? fog isn't supported in SSV not sure if this correct..
+	case 0x0c18:					// In * 0 + In * 1 || :In * AIn + Mem * 1-A:			SSV - WaterFall and dust
+	case 0x0f0a:					// In * 0 + In * 1 || :In * 0 + In * 1 :				SSV - Shadows, and HUD
 	case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
 		blend_op = GU_ADD; blend_src = GU_SRC_ALPHA; blend_dst = GU_ONE_MINUS_SRC_ALPHA;
 		enable_blend = true;
 		break;
-#endif
+//#endif
 		//
 		// default case should handle most blenders, ignore most unknown blenders unless something is messed up
 		//
