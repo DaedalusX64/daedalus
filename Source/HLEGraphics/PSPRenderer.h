@@ -316,9 +316,12 @@ private:
 	mutable Matrix4x4	mWorldProject;
 	Matrix4x4			mProjectionStack[MATRIX_STACK_SIZE];
 	Matrix4x4			mModelViewStack[MATRIX_STACK_SIZE];
+	Matrix4x4			mInvProjection;
 	u32					mProjectionTop;
 	u32					mModelViewTop;
 	mutable bool		mWorldProjectValid;
+	bool				mProjisNew;
+	bool				mWPmodified;
 		
 	u16					m_swIndexBuffer[500];
 	u32					m_dwNumIndices;
