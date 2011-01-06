@@ -129,52 +129,12 @@ const char * sc_szBlA1[4]  = { "AIn", "AFog", "AShade", "0" };
 const char * sc_szBlA2[4]  = { "1-A", "AMem", "1",      "?" };
 #endif
 
-//*****************************************************************************
-//
-//*****************************************************************************
-//64 bit macros - useless now
-/*
-#define MAKE_BLEND_MODE( a, b )			( (a) | (b) )
-#define BLEND_NOOP1				0x00000000		//GBL_c1(G_BL_CLR_IN, G_BL_1MA, G_BL_CLR_IN, G_BL_1MA)
-#define BLEND_NOOP2				0x00000000
 
-#define BLEND_FOG_ASHADE1		0xc8000000		// Fog * AShade + In * 1-A
-#define BLEND_FOG_ASHADE2		0xc8000000		// Fog * AShade + In * 1-A
-#define BLEND_FOG_APRIM1		0xc4000000
-#define BLEND_FOG_3				0xc0000000		// Fog * AIn + In * 1-A
-#define BLEND_FOG_MEM_FOG_MEM	0x04c00000		// In * AFog + Fog * 1-A
-
-
-#define BLEND_PASS1				0x0c080000		//GBL_c1(G_BL_CLR_IN, G_BL_0, G_BL_CLR_IN, G_BL_1)
-#define BLEND_PASS2				0x03020000
-#define BLEND_PASS3				0x32000000
-
-#define BLEND_OPA1				0x00440000
-#define BLEND_OPA2				0x00110000
-
-#define BLEND_XLU1				0x00400000
-#define BLEND_XLU2				0x00100000
-
-#define BLEND_ADD1				0x04400000		//GBL_c##clk(G_BL_CLR_IN, G_BL_A_FOG, G_BL_CLR_MEM, G_BL_1)
-#define BLEND_ADD2				0x01100000
-#define BLEND_ADD3				0x44000000		//GBL_c##clk(G_BL_CLR_IN, G_BL_A_FOG, G_BL_CLR_MEM, G_BL_1)
-#define BLEND_ADD4				0x11000000
-
-#define BLEND_BI_AFOG			0x84000000		// Bl * AFog + In * 1-A
-
-#define BLEND_MEM1				0x4c400000		// Mem*0 + Mem*(1-0)?!
-#define BLEND_MEM2				0x13100000		// Mem*0 + Mem*(1-0)?!
-
-#define BLEND_NOOP3				0x0c480000		// In * 0 + Mem * 1
-#define BLEND_NOOP4				0xcc080000		// Fog * 0 + In * 1
-#define BLEND_NOOP5				0xcc480000		// Fog * 0 + Mem * 1
-#define BLEND_UNK				0x33120000
-*/
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 //*****************************************************************************
 //
 //*****************************************************************************
-void DebugBlender( u32 blender )	
+static void DebugBlender( u32 blender )	
 {
 	//u32 blendmode_1 = u32( gRDPOtherMode.blender & 0xcccc );
 	//u32 blendmode_2 = u32( gRDPOtherMode.blender & 0x3333 );
@@ -212,25 +172,25 @@ void InitBlenderMode( u32 blender )					// Set Alpha Blender mode
 	//
 	switch ( blendmode )
 	{	
-	/*case 0x0c18:					//Fog * AShade + In * 1-A || :In * AIn + Mem * 1-A		SSV - Fog? fog isn't supported in SSV not sure if this correct..
+	case 0xc302:					// Fog * AIn + In * 1-A || :In * 0 + In * 1				ISS64 - Ground
+	//case 0xff5a:					// Fog * 0 + Mem * 1 || :Fog * 0 + Mem * 1				ISSS - This looks suspicious to me..
 		enable_blend = false;
-		break;*/
+		break;
 		//
 		// Add here blenders which work fine with default case but causes too much spam, this disabled in release mode
 		//
-//#ifdef DAEDALUS_DEBUG_DISPLAYLIST // tempraly disabled, else we'll get error in release until we use the flase case..
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST 
 
 	case 0xc810:					//Fog * AShade + In * 1-A || :In * AIn + Mem * 1-A		SSV - Fog? fog isn't supported in SSV not sure if this correct..
 	case 0x0c18:					// In * 0 + In * 1 || :In * AIn + Mem * 1-A:			SSV - WaterFall and dust
 	case 0x0f0a:					// In * 0 + In * 1 || :In * 0 + In * 1 :				SSV - Shadows, and HUD
 	case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
 	case 0x0040:					// In * AIn + Mem * 1-A || :In * AIn + In * 1-A			Mario - Princess peach text
-	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A    Paper Mario Menu
-			
-	blend_op = GU_ADD; blend_src = GU_SRC_ALPHA; blend_dst = GU_ONE_MINUS_SRC_ALPHA;
+	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A    Paper Mario Menu	
+		blend_op = GU_ADD; blend_src = GU_SRC_ALPHA; blend_dst = GU_ONE_MINUS_SRC_ALPHA;
 		enable_blend = true;
 		break;
-//#endif
+#endif
 		//
 		// default case should handle most blenders, ignore most unknown blenders unless something is messed up
 		//

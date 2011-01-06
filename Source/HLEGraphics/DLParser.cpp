@@ -607,7 +607,7 @@ void DLParser_Process()
 	// Update Screen only when something is drawn, otherwise several games ex Army Men will flash or shake.
 	// Update Screen earlier, otherwise several games like ex Mario won't work.
 	//
-	if(!gScrnUpd) gGraphicsPlugin->UpdateScreen();
+	//if(!gScrnUpd) gGraphicsPlugin->UpdateScreen();
 
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 	u32 code_base = (u32)pTask->t.ucode & 0x1fffffff;
@@ -631,8 +631,8 @@ void DLParser_Process()
 	gRDPOtherMode.blender = 0x0050;
 	gRDPOtherMode.alpha_compare = 1;
 
-	gOtherModeL = u32( gRDPOtherMode._u64 );
-	gOtherModeH = u32( gRDPOtherMode._u64 >> 32 );
+	gOtherModeL = 0;
+	gOtherModeH = 0;
 
 	gRDPFrame++;
 
@@ -671,8 +671,8 @@ void DLParser_Process()
 		DLParser_ProcessDList();
 		PSPRenderer::Get()->EndScene();
 	}
-
-	if(gScrnUpd == 1) gGraphicsPlugin->UpdateScreen();
+	gGraphicsPlugin->UpdateScreen();
+	//if(gScrnUpd == 1) gGraphicsPlugin->UpdateScreen();
 
 	// Do this regardless!
 	FinishRDPJob();

@@ -541,11 +541,6 @@ inline v2 PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords ) const
 //*****************************************************************************
 //
 //*****************************************************************************
-RDP_OtherMode	gLastRDPOtherMode;
-
-bool			gLastUseZBuffer = false;
-
-
 PSPRenderer::SBlendStateEntry	PSPRenderer::LookupBlendState( u64 mux, bool two_cycles )
 {
 	DAEDALUS_PROFILE( "PSPRenderer::LookupBlendState" );
@@ -716,9 +711,14 @@ extern void InitBlenderMode( u32 blender );
 //*****************************************************************************
 void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, ERenderMode mode, bool disable_zbuffer )
 {
-	static bool Zfight_IsOn = false;
+	bool			gZFightingEnabled	= false;
+	bool			gLastUseZBuffer		= false;
+
+	u32 blender				( gOtherModeL );
+	u32	gLastRDPOtherMode	( 0 );
 
 	DAEDALUS_PROFILE( "PSPRenderer::RenderUsingCurrentBlendMode" );
+
 
 	// Hack for nascar games..to be honest I don't know why these games are so different...might be tricky to have a proper fix..
 	// Hack accuracy : works 100%
@@ -729,7 +729,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	}
 	else
 	{
-		if ((gRDPOtherMode._u64 != gLastRDPOtherMode._u64) ||
+		if ((blender != gLastRDPOtherMode) ||
 				(m_bZBuffer != gLastUseZBuffer) )
 		{
 			// Only update if ZBuffer is enabled
@@ -742,12 +742,12 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 					// Fixes Zfighting issues we have on the PSP.
 					if( IsZModeDecal() )
 					{
-						Zfight_IsOn = true;						
+						gZFightingEnabled = true;						
 						sceGuDepthRange(65535,80);
 					}
-					else if( Zfight_IsOn )
+					else if( gZFightingEnabled )
 					{
-						Zfight_IsOn = false;						
+						gZFightingEnabled = false;						
 						sceGuDepthRange(65535,0);
 					}
  				}
@@ -768,7 +768,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		}
 	}
 
-	gLastRDPOtherMode._u64 = gRDPOtherMode._u64;
+	gLastRDPOtherMode = blender;
 
 	sceGuShadeModel( mSmooth ? GU_SMOOTH : GU_FLAT );
 	//
@@ -795,17 +795,13 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 			sceGuTexFilter(GU_LINEAR,GU_LINEAR);
 			break;
 	}
-
-	u32 blender( gOtherModeL );
 	//
 	// Initiate Blender
 	//
-	// Only update if 1/2CYCLE is enabled.
 	if( (blender & 0x4000) && (gRDPOtherMode.cycle_type < CYCLE_COPY) )
 	{
 		InitBlenderMode( blender );
 	}
-	//
 	//
 	// I can't think why the hand in mario's menu screen is rendered with an opaque rendermode,
 	// and no alpha threshold. We set the alpha reference to 1 to ensure that the transparent pixels
@@ -1368,7 +1364,11 @@ bool PSPRenderer::FlushTris()
 {
 	DAEDALUS_PROFILE( "PSPRenderer::FlushTris" );
 
-	if (m_dwNumIndices == 0)	return true;
+	if ( m_dwNumIndices == 0 )
+	{
+		mVtxClipFlagsUnion = 0; // Avoid clipping non visible tris
+		return true;
+	}
 
 	u32				num_vertices;
 	DaedalusVtx *	p_vertices;
