@@ -71,7 +71,7 @@ extern u32	gModA;
 extern u32	gAOpaque;
 
 extern u32	gsceENV;
-
+extern u32  gTexInstall;
 extern u32	gNumCyc;
 
 extern const char *gPSPtxtFunc[10];
@@ -744,14 +744,16 @@ CBlendDebugMenuOption::CBlendDebugMenuOption()
 
 void CBlendDebugMenuOption::Display() const
 {
-	if( mSel == 0 && modify ) gSetRGB = mIdx & 3;
-	if( mSel == 1 && modify ) gSetA = mIdx & 3;
-	if( mSel == 2 && modify ) gSetRGBA = mIdx & 3;
-	if( mSel == 3 && modify ) gModA = mIdx & 3;
-	if( mSel == 4 && modify ) gAOpaque = mIdx & 1;
-	if( mSel == 5 && modify ) gsceENV = mIdx % 3;
-	if( mSel == 6 && modify ) gTXTFUNC = mIdx % 10;
-	if( mSel == 7 && modify ) gNumCyc = (mIdx % 3) + 1;
+	if( mSel == 0 && modify ) gTexInstall = mIdx & 3;
+	if( mSel == 1 && modify ) gSetRGB = mIdx & 3;
+	if( mSel == 2 && modify ) gSetA = mIdx & 3;
+	if( mSel == 3 && modify ) gSetRGBA = mIdx & 3;
+	if( mSel == 4 && modify ) gModA = mIdx & 3;
+	if( mSel == 5 && modify ) gAOpaque = mIdx & 1;
+	if( mSel == 6 && modify ) gsceENV = mIdx % 3;
+	if( mSel == 7 && modify ) gTXTFUNC = mIdx % 10;
+	if( mSel == 8 && modify ) gNumCyc = (mIdx % 3) + 1;
+	
 
 	printf( "Blender Explorer\n");
 	printf( "   Use [] to return\n" );
@@ -759,20 +761,22 @@ void CBlendDebugMenuOption::Display() const
 	printf( "   Use up/down to choose & left/right to adjust\n\n\n" );
 
 	printf( " Blending Options (Color Adjuster)\n" );
-	printf( "   %s%cSetRGB: %s\n",		(mSel==0 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==0 ? '*' : ' ', gCAdj[gSetRGB]);
-	printf( "   %s%cSetA: %s\n",		(mSel==1 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==1 ? '*' : ' ', gCAdj[gSetA]);
-	printf( "   %s%cSetRGBA: %s\n",		(mSel==2 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==2 ? '*' : ' ', gCAdj[gSetRGBA]);
-	printf( "   %s%cModifyA: %s\n",		(mSel==3 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==3 ? '*' : ' ', gCAdj[gModA]);
-	printf( "   %s%cSetAOpaque: %s\n",	(mSel==4 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==4 ? '*' : ' ', gAOpaque ? "ON" : "OFF");
+	
+	printf( "   %s%cTextureEnabled: %s\n",(mSel==0 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==0 ? '*' : ' ', gTexInstall ? "OFF" : "ON");
+	printf( "   %s%cSetRGB: %s\n",		  (mSel==1 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==1 ? '*' : ' ', gCAdj[gSetRGB]);
+	printf( "   %s%cSetA: %s\n",		  (mSel==2 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==2 ? '*' : ' ', gCAdj[gSetA]);
+	printf( "   %s%cSetRGBA: %s\n",		  (mSel==3 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==3 ? '*' : ' ', gCAdj[gSetRGBA]);
+	printf( "   %s%cModifyA: %s\n",		  (mSel==4 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==4 ? '*' : ' ', gCAdj[gModA]);
+	printf( "   %s%cSetAOpaque: %s\n",	  (mSel==5 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==5 ? '*' : ' ', gAOpaque ? "ON" : "OFF");
 	printf( "%s\n", TERMINAL_WHITE );
 	printf( " Environment Color in SDK\n" );
-	printf( "   %s%cTexEnvColor: %s\n",	(mSel==5 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==5 ? '*' : ' ', gsceENV ? ((gsceENV==1) ? "EnvColor" : "PrimColor") : "OFF");
+	printf( "   %s%cTexEnvColor: %s\n",   (mSel==6 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==6 ? '*' : ' ', gsceENV ? ((gsceENV==1) ? "EnvColor" : "PrimColor") : "OFF");
 	printf( "%s\n", TERMINAL_WHITE );
 	printf( " PSP Texture Function\n" );
-	printf( "   %s%c%s\n",				(mSel==6 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==6 ? '*' : ' ', gPSPtxtFunc[gTXTFUNC]);
+	printf( "   %s%c%s\n",				(mSel==7 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==7 ? '*' : ' ', gPSPtxtFunc[gTXTFUNC]);
 	printf( "%s\n", TERMINAL_WHITE );
 	printf( " Cycle\n" );
-	printf( "   %s%c%s\n",				(mSel==7 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==7 ? '*' : ' ', gNumCyc==3 ? "ALL" :((gNumCyc==1) ? "1" : "2"));
+	printf( "   %s%c%s\n",				(mSel==8 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==8 ? '*' : ' ', gNumCyc==3 ? "ALL" :((gNumCyc==1) ? "1" : "2"));
 	printf( "%s\n", TERMINAL_WHITE );
 }
 
@@ -789,7 +793,7 @@ void CBlendDebugMenuOption::Update( const SPspPadState & pad_state, float elapse
 
 		if(pad_state.NewButtons & PSP_CTRL_DOWN)
 		{
-			mSel = (mSel < 7) ? mSel + 1 : mSel;
+			mSel = (mSel < 8) ? mSel + 1 : mSel;
 			modify = 0;
 		}
 

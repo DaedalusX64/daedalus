@@ -127,6 +127,7 @@ u32	gAOpaque=0;
 u32	gsceENV=0;
 
 u32	gNumCyc=3;
+u32 gTexInstall=0;
 
 const char *gPSPtxtFunc[10] =
 {
@@ -196,6 +197,10 @@ const char *gCAdj[4] =
 		{ \
 			if( gsceENV==1 ) sceGuTexEnvColor( details.EnvColour.GetColour() ); \
 			if( gsceENV==2 ) sceGuTexEnvColor( details.PrimColour.GetColour() ); \
+		} \
+		if ( gTexInstall ) \
+		{  if( gTexInstall==1 ) details.InstallTexture = false; \
+		   if( gTexInstall==2 ) details.InstallTexture = true;  \
 		} \
 		sceGuTexFunc( PSPtxtFunc[ (gTXTFUNC >> 1) % 6 ], PSPtxtA[ gTXTFUNC & 1 ] ); \
 	} \
@@ -1754,18 +1759,7 @@ void BlendMode_0x0010a2c3f00fd23fLL (BLEND_MODE_ARGS)
 //aA1  : (0            - 0           ) * 0            + Combined    
 void BlendMode_0x00317fff5ffef438LL (BLEND_MODE_ARGS)
 {
-	// This blend is broken for some reasons, but nobody seems to bother to find out why.. - Salvy
-	c32		blend( details.EnvColour.Interpolate( details.PrimColour, details.EnvColour ) );
-#ifdef CHECK_FIRST_CYCLE	
-	if( num_cycles == 1 )
-	{
-		details.ColourAdjuster.SetRGB( blend );
-	}
-	else
-#endif
-	{
-		details.ColourAdjuster.SetRGB( blend );
-	}
+BLEND_MODE_MAKER
 }
 // Pokemon Stadium 2 - Sky Changing Effect and Bases of Stadiums.
 //case 0x00127ffffffdfe3fLL:
@@ -3397,9 +3391,7 @@ void BlendMode_0x0030ec045fdaedf6LL (BLEND_MODE_ARGS)
 
 void BlendMode_0x0011fffffffffc38LL (BLEND_MODE_ARGS)
 {
-	//details.ColourAdjuster.SetA( c32::White );
-	details.ColourAdjuster.SetAOpaque();
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+	BLEND_MODE_MAKER
 }
 
 // OOT - Lens of Truth
@@ -3859,9 +3851,7 @@ void BlendMode_0x00ffadfffffd9238LL( BLEND_MODE_ARGS )
 //aA1  : (0            - 0           ) * 0            + Texel0     
 void BlendMode_0x0071fee311fcf279LL (BLEND_MODE_ARGS)
 {
-	details.ColourAdjuster.ModulateRGB( details.PrimColour );
-	details.ColourAdjuster.SetAOpaque();
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+	BLEND_MODE_MAKER
 }
 
 // OOT - Effect when you get hit by enemies
