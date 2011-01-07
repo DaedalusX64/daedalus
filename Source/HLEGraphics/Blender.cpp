@@ -170,6 +170,7 @@ void InitBlenderMode( u32 blender )					// Set Alpha Blender mode
 
 	switch ( blendmode )
 	{	
+	case 0x0c08:					// In * 0 + In * 1 || :In * AIn + In * 1-A				Tarzan - Medalion in bottom part of the screen
 	case 0x0f0a:					// In * 0 + In * 1 || :In * 0 + In * 1 :				SSV - ??? and MM - Walls
 	case 0xc302:					// Fog * AIn + In * 1-A || :In * 0 + In * 1				ISS64 - Ground
 	case 0xc702:					// Fog * AFog + In * 1-A || :In * 0 + In * 1			Donald Duck - Sky
