@@ -302,8 +302,10 @@ void PSPRenderer::RestoreRenderStates()
 
 	sceGuAlphaFunc(GU_GEQUAL, 0x04, 0xff );
 	sceGuEnable(GU_ALPHA_TEST);
-	sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-	sceGuEnable(GU_BLEND);
+
+	//sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+	//sceGuEnable(GU_BLEND);
+	sceGuDisable( GU_BLEND );
 
 	// Default is ZBuffer disabled
 	sceGuDepthMask(GL_TRUE);	// GL_TRUE to disable z-writes
