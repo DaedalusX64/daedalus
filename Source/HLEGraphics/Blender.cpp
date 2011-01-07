@@ -167,26 +167,34 @@ void InitBlenderMode( u32 blender )					// Set Alpha Blender mode
 	int		blend_src = GU_SRC_ALPHA;
 	int		blend_dst = GU_ONE_MINUS_SRC_ALPHA;
 	bool	enable_blend( false );
-	//
-	// Note : If you need transperency, use blend_op = GU_ADD; blend_src = GU_SRC_COLOR; blend_dst = GU_DST_COLOR;
-	//
+
 	switch ( blendmode )
 	{	
+	case 0x0f0a:					// In * 0 + In * 1 || :In * 0 + In * 1 :				SSV - ??? and MM - Walls
 	case 0xc302:					// Fog * AIn + In * 1-A || :In * 0 + In * 1				ISS64 - Ground
-	//case 0xff5a:					// Fog * 0 + Mem * 1 || :Fog * 0 + Mem * 1				ISSS - This looks suspicious to me..
+	case 0xc702:					// Fog * AFog + In * 1-A || :In * 0 + In * 1			Donald Duck - Sky
+	case 0xfa00:					// Fog * AShade + In * 1-A || :Fog * AShade + In * 1-A	F-Zero - Power Roads
 		enable_blend = false;
 		break;
+	//
+	// Used for transperency, still haven't found any blender that needs this though
+	//
+	/*case 0x0000:	
+		blend_op = GU_ADD; blend_src = GU_SRC_COLOR; blend_dst = GU_DST_COLOR;
+		enable_blend = true;
+		break;*/
 		//
 		// Add here blenders which work fine with default case but causes too much spam, this disabled in release mode
 		//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST 
-
-	case 0xc810:					//Fog * AShade + In * 1-A || :In * AIn + Mem * 1-A		SSV - Fog? fog isn't supported in SSV not sure if this correct..
+	//case 0x0c08:					// In * 0 + In * 1 || :In * AIn + In * 1-A				Aerogauge - ????
+	case 0x0010:					// In * AIn + In * 1-A || :In * AIn + Mem * 1-A			Hey You Pikachu - Shadow
+	case 0xc410:					// Fog * AFog + In * 1-A || :In * AIn + Mem * 1-A		Donald Duck - Stars
+	case 0xc810:					// Fog * AShade + In * 1-A || :In * AIn + Mem * 1-A		SSV - Fog? and MM - Shadows
 	case 0x0c18:					// In * 0 + In * 1 || :In * AIn + Mem * 1-A:			SSV - WaterFall and dust
-	case 0x0f0a:					// In * 0 + In * 1 || :In * 0 + In * 1 :				SSV - Shadows, and HUD
 	case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
 	case 0x0040:					// In * AIn + Mem * 1-A || :In * AIn + In * 1-A			Mario - Princess peach text
-	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A    Paper Mario Menu	
+	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A		Paper Mario Menu	
 		blend_op = GU_ADD; blend_src = GU_SRC_ALPHA; blend_dst = GU_ONE_MINUS_SRC_ALPHA;
 		enable_blend = true;
 		break;

@@ -762,7 +762,7 @@ void CBlendDebugMenuOption::Display() const
 
 	printf( " Blending Options (Color Adjuster)\n" );
 	
-	printf( "   %s%cTextureEnabled: %s\n",(mSel==0 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==0 ? '*' : ' ', gTexInstall ? "OFF" : "ON");
+	printf( "   %s%cTextureEnabled: %s\n",(mSel==0 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==0 ? '*' : ' ', gTexInstall ? "ON" : "OFF");
 	printf( "   %s%cSetRGB: %s\n",		  (mSel==1 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==1 ? '*' : ' ', gCAdj[gSetRGB]);
 	printf( "   %s%cSetA: %s\n",		  (mSel==2 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==2 ? '*' : ' ', gCAdj[gSetA]);
 	printf( "   %s%cSetRGBA: %s\n",		  (mSel==3 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==3 ? '*' : ' ', gCAdj[gSetRGBA]);

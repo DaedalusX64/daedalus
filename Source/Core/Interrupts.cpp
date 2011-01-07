@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #define SET_EXCEPTION(exception)	{ gCPUState.CPUControl[C0_CAUSE]._u32_0 &= NOT_CAUSE_EXCMASK/*CAUSE_EXCMASK*/; gCPUState.CPUControl[C0_CAUSE]._u32_0 |= exception; }
 
-static ETLBExceptionReason g_nTLBExceptionReason;
+//static ETLBExceptionReason g_nTLBExceptionReason;
 #ifdef DAEDALUS_PROFILE_EXECUTION
 u32 gNumExceptions = 0;
 u32 gNumInterrupts = 0;
@@ -53,6 +53,7 @@ u32		gExceptionVector( ~0 );
 //*****************************************************************************
 //
 //*****************************************************************************
+/*
 void R4300_Interrupt_CheckPostponed()
 {
 	u32 intr_bits = Memory_MI_GetRegister(MI_INTR_REG);
@@ -75,7 +76,7 @@ void R4300_Interrupt_CheckPostponed()
 		}
 	}
 }
-
+*/
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -126,6 +127,11 @@ void R4300_Exception_CopUnusuable()
     gCPUState.CPUControl[C0_CAUSE]._u32_0 &= 0xCFFFFFFF;
     gCPUState.CPUControl[C0_CAUSE]._u32_0 |= SR_CU0;
 
+	/*if(gCPUState.Delay == EXEC_DELAY)
+        gCPUState.CPUControl[C0_CAUSE]._u32_0 |= CAUSE_BD;
+    else
+         gCPUState.CPUControl[C0_CAUSE]._u32_0 &= ~CAUSE_BD;*/
+
 	gExceptionVector = E_VEC;
 	gExceptionPC = gCPUState.CurrentPC;
 	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
@@ -152,43 +158,60 @@ void R4300_Exception_FP()
 //*****************************************************************************
 //
 //*****************************************************************************
-void R4300_Exception_TLB( u32 virtual_address, ETLBExceptionReason reason )
+void R4300_Exception_TLB_Invalid( u32 virtual_address, ETLBExceptionReason reason )
 {
 	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
 	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
 
-	u32 dwVPN2;
+	gCPUState.CPUControl[C0_BADVADDR]._u32_0 = virtual_address;
 
-	gCPUState.CPUControl[C0_BADVADDR]._u64 = (s64)(s32)virtual_address;			//!! XXXX Added sign extension - Check this!
+	gCPUState.CPUControl[C0_CONTEXT]._u32_0 &= 0xFF800000;	// Mask off bottom 23 bits
+	gCPUState.CPUControl[C0_CONTEXT]._u32_0 |= ((virtual_address >> 13) << 4);
 
-	dwVPN2 = (virtual_address>>TLBHI_VPN2SHIFT);	// Shift off odd/even indicator
-
-	gCPUState.CPUControl[C0_CONTEXT]._u64 &= ~0x007FFFFF;	// Mask off bottom 23 bits
-	gCPUState.CPUControl[C0_CONTEXT]._u64 |= (dwVPN2<<4);
-
-	gCPUState.CPUControl[C0_ENTRYHI]._u64 = (s64)(s32)(dwVPN2 << TLBHI_VPN2SHIFT);
-
-	g_nTLBExceptionReason = reason;
+	gCPUState.CPUControl[C0_ENTRYHI]._u32_0 &= 0x00001FFF;	// Mask off the top bit 13-31 
+	gCPUState.CPUControl[C0_ENTRYHI]._u32_0 |= (virtual_address & 0xFFFFE000);
 
 	u32		exception_code( 0 );
-	u32		exception_vector( E_VEC );
 
-	// Jump to common exception vector, use TLBL or TLBS in ExcCode field
-	switch ( reason )
-	{
-	case EXCEPTION_TLB_REFILL_LOAD:		exception_code = EXC_RMISS; exception_vector = UT_VEC; break;
-	case EXCEPTION_TLB_REFILL_STORE:	exception_code = EXC_WMISS;	exception_vector = UT_VEC; break;
-	case EXCEPTION_TLB_INVALID_LOAD:	exception_code = EXC_RMISS;	exception_vector = E_VEC; break;
-	case EXCEPTION_TLB_INVALID_STORE:	exception_code = EXC_WMISS;	exception_vector = E_VEC; break;
+	if( reason == EXCEPTION_TLB_STORE )
+		exception_code = EXC_WMISS; 
+	else
+		exception_code = EXC_RMISS; 
 
-	default:
-		DAEDALUS_ERROR( "Unknown TLB error" );
-	}
+	SET_EXCEPTION( exception_code ) 
 
-	gCPUState.CPUControl[C0_CAUSE]._u64 &= ~CAUSE_EXCMASK;
-	gCPUState.CPUControl[C0_CAUSE]._u64 |= exception_code;
+	gExceptionVector = E_VEC;
+	gExceptionPC = gCPUState.CurrentPC;
+	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
+	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
+}
 
-	gExceptionVector = exception_vector;
+//*****************************************************************************
+//
+//*****************************************************************************
+void R4300_Exception_TLB_Refill( u32 virtual_address, ETLBExceptionReason reason )
+{
+	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
+	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
+
+	gCPUState.CPUControl[C0_BADVADDR]._u32_0 = virtual_address;
+
+	gCPUState.CPUControl[C0_CONTEXT]._u32_0 &= 0xFF800000;	// Mask off bottom 23 bits
+	gCPUState.CPUControl[C0_CONTEXT]._u32_0 |= ((virtual_address >> 13) << 4);
+
+	gCPUState.CPUControl[C0_ENTRYHI]._u32_0 &= 0x00001FFF;	// Mask off the top bit 13-31 
+	gCPUState.CPUControl[C0_ENTRYHI]._u32_0 |= (virtual_address & 0xFFFFE000);
+
+	u32		exception_code( 0 );
+
+	if( reason == EXCEPTION_TLB_STORE )
+		exception_code = EXC_WMISS; 
+	else
+		exception_code = EXC_RMISS; 
+
+	SET_EXCEPTION( exception_code ) 
+
+	gExceptionVector = UT_VEC;
 	gExceptionPC = gCPUState.CurrentPC;
 	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
 	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );

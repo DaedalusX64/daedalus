@@ -341,7 +341,7 @@ void DLParser_GBI2_DL_Count( MicroCodeCommand command )
 
 	DList dl;
 	dl.addr = address;
-	dl.limit = ((command.inst.cmd0)&0xFFFF);;
+	dl.limit = ((command.inst.cmd0)&0xFFFF);
 	gDisplayListStack.push_back(dl);
 }
 //*****************************************************************************

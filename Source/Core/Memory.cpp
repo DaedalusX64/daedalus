@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //Define to use TRUE REALITYs memory model
 //Seems more compatible (Salvy/Corn)
-#define REALITY_MEM
+//#define REALITY_MEM // Breaks GE007 and Paper Mario :(
 
 // Various stuff to map an address onto the correct memory region
 
@@ -1483,7 +1483,7 @@ void Memory_TLBRefillLoad( u32 virtual_addr )
 	DPF( DEBUG_TLB, "TLB: Refill - 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC );
 	//CPU_Halt("TLBRefill");
 
-	R4300_Exception_TLB( virtual_addr, EXCEPTION_TLB_REFILL_LOAD );
+	R4300_Exception_TLB_Refill( virtual_addr, EXCEPTION_TLB_LOAD );
 }
 
 //*****************************************************************************
@@ -1495,7 +1495,7 @@ void Memory_TLBInvalidLoad( u32 virtual_addr )
 	DPF( DEBUG_TLB, "TLB: Invalid - 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC );
 	//CPU_Halt("TLBInvalid");
 
-	R4300_Exception_TLB( virtual_addr, EXCEPTION_TLB_INVALID_LOAD );
+	R4300_Exception_TLB_Invalid( virtual_addr, EXCEPTION_TLB_LOAD );
 }
 
 //*****************************************************************************
@@ -1508,7 +1508,7 @@ void Memory_TLBRefillStore( u32 virtual_addr )
 	DPF( DEBUG_TLB, "TLB: Refill - 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC );
 	//CPU_Halt("TLBRefill");
 
-	R4300_Exception_TLB( virtual_addr, EXCEPTION_TLB_REFILL_STORE );
+	R4300_Exception_TLB_Refill( virtual_addr, EXCEPTION_TLB_STORE );
 }
 
 //*****************************************************************************
@@ -1521,5 +1521,5 @@ void Memory_TLBInvalidStore( u32 virtual_addr )
 	DPF( DEBUG_TLB, "TLB: Invalid - 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC );
 	//CPU_Halt("TLBStore");
 
-	R4300_Exception_TLB( virtual_addr, EXCEPTION_TLB_INVALID_STORE );
+	R4300_Exception_TLB_Invalid( virtual_addr, EXCEPTION_TLB_STORE );
 }
