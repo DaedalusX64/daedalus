@@ -60,7 +60,7 @@ struct UcodeInfo
 	u32	ucode;
 	
 	u32	code_base;
-	u32	code_size;
+	//u32	code_size;
 	u32	data_base;
 	//u32	data_size;
 };

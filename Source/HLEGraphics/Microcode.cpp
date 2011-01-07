@@ -172,10 +172,11 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 
 	char str[256] = "";
 	char* title = (char*)g_ROM.settings.GameName.c_str();
-	if( code_size == 0 ) code_size = 0x1000;
+	//if( code_size == 0 ) 
+	code_size = 0x1000;
 
 	DAEDALUS_ASSERT( code_base != 0, "Warning : Last Ucode might be ignored!" );
-
+	printf("code %d\n",code_size);
 	// Cheap way to cache ucodes, don't check for strings (too slow!) but check last used ucode info which is alot faster than doing sting comparison with strcmp.
 	// This only needed for GBI1/SDEX1 games that use LoadUcode, else is we only check when t.ucode changes, which most of the time only happens once :)
 	//
@@ -184,7 +185,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 		if( used[ index ].used == false )	
 			break;
 
-		if( used[ index ].code_base == code_base && used[ index ].code_size == code_size && used[ index ].data_base == data_base )
+		if( used[ index ].code_base == code_base && used[ index ].data_base == data_base ) // code_size is always 4096, no need to check for it
 		{
 			//
 			//Retain last info for easier access
@@ -269,7 +270,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	// Todo : Redactor this
 	//
 	used[ index ].code_base = code_base;
-	used[ index ].code_size = code_size;
+	//used[ index ].code_size = code_size;
 	used[ index ].data_base = data_base;
 	used[ index ].ucode = ucode_version;
 	used[ index ].used = true;

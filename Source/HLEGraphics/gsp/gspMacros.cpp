@@ -330,9 +330,9 @@ void DLParser_GBI2_DL_Count( MicroCodeCommand command )
 
 	// This cmd is likely to execute number of ucode at the given address
 	u32 address  = RDPSegAddr(command.inst.cmd1);
-	u32 count	 = command.inst.cmd0 & 0xFFFF;
+	//u32 count	 = command.inst.cmd0 & 0xFFFF;
 
-	// For SSB
+	// For SSB and Kirby, otherwise we'll end up scrapping the pc
 	if (address == 0)
 	{
 		DAEDALUS_ERROR("Invalid DL Count");
@@ -341,7 +341,7 @@ void DLParser_GBI2_DL_Count( MicroCodeCommand command )
 
 	DList dl;
 	dl.addr = address;
-	dl.limit = count;
+	dl.limit = ((command.inst.cmd0)&0xFFFF);;
 	gDisplayListStack.push_back(dl);
 }
 //*****************************************************************************
