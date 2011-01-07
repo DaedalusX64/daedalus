@@ -1799,11 +1799,19 @@ void PSPRenderer::SetNewVertexInfoVFPU(u32 address, u32 v0, u32 n)
 	const Matrix4x4 & matWorldProject( GetWorldProject() );
 
 	//If WoldProjectmatrix has modified due to insert matrix
-	//we need to update our modelView (fixes NMEs in Kirby) //Corn
+	//we need to update our modelView (fixes NMEs in Kirby and SSB) //Corn
 	if( mWPmodified )
 	{
 		mWPmodified = false;
-		mModelViewStack[mModelViewTop] = mWorldProject * mProjectionStack[mProjectionTop].Inverse();
+		
+		//Only calculate inverse if there is a new Projectmatrix
+		if( mProjisNew )
+		{
+			mProjisNew = false;
+			mInvProjection = mProjectionStack[mProjectionTop].Inverse();
+		}
+		
+		mModelViewStack[mModelViewTop] = mWorldProject * mInvProjection;
 	}
 
 	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );

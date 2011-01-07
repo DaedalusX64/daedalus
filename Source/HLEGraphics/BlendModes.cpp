@@ -127,7 +127,7 @@ u32	gAOpaque=0;
 u32	gsceENV=0;
 
 u32	gNumCyc=3;
-u32 gTexInstall=0;
+u32 gTexInstall=1;
 
 const char *gPSPtxtFunc[10] =
 {
