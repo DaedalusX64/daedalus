@@ -218,8 +218,6 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 			palette = rdp_tile.palette;
 		}
 		
-		//if(rdp_tile.size == G_IM_SIZ_4b) printf("%d\n", palette);
-
 		ti.SetTmemAddress( rdp_tile.tmem );
 		ti.SetTLutIndex( palette ); 
 

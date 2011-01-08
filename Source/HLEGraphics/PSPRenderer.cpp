@@ -138,7 +138,7 @@ static f32 fViHeight = 240.0f;
 static u32 uViWidth = 320;
 static u32 uViHeight = 240;
 
-f32 gZoomX;	//Default is 1.0f
+f32 gZoomX=1.0;	//Default is 1.0f
 
 static const float gTexRectDepth( 0.0f );
 

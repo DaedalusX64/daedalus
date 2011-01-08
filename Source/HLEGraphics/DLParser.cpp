@@ -105,7 +105,7 @@ u32 gRDPFrame = 0;
 u32 gOtherModeL   = 0;
 u32 gOtherModeH   = 0;
 u32 gRDPHalf1 = 0;
-u32 gScrnUpd;	//Default is 0f
+u32 gScrnUpd = 0;	//Default is 0
 
 extern UcodeInfo last;
 //////////////////////////////////////////////////////////
@@ -689,6 +689,8 @@ void DLParser_Process()
 	}
 
 	gTotalInstructionCount = gCurrentInstructionCount;
+
+	//printf("%d\n", gTotalInstructionCount);
 #endif
 
 #ifdef DAEDALUS_BATCH_TEST_ENABLED
@@ -991,9 +993,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 	switch (command.mw1.type)
 	{
 	case G_MW_MATRIX:
-		DL_PF("    G_MW_MATRIX");
-		//RDP_NOIMPL_WARN("GBI1: G_MW_MATRIX Not Implemented");
-		// Insert Matrix is needed here !
+		DL_PF("    G_MW_MATRIX(1)");
 		PSPRenderer::Get()->InsertMatrix(command.inst.cmd0, command.inst.cmd1);
 		break;
 	case G_MW_NUMLIGHT:
@@ -1117,9 +1117,7 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 	switch (command.mw2.type)
 	{
 	case G_MW_MATRIX:
-		DL_PF("    G_MW_MATRIX");
-		//RDP_NOIMPL_WARN( "GBI2: G_MW_MATRIX not implemented" );
-		// Insert Matrix is needed here !
+		DL_PF("    G_MW_MATRIX(2)");
 		PSPRenderer::Get()->InsertMatrix(command.inst.cmd0, command.inst.cmd1);
 		break;
 	case G_MW_NUMLIGHT:
@@ -1535,7 +1533,7 @@ void DLParser_SetTile( MicroCodeCommand command )
 	RDP_SetTile( tile );
 	gRDPStateManager.SetTile( tile.tile_idx, tile );
 
-	DL_PF( "    Tile:%d  Fmt: %s/%s Line:%d TMem:0x%04x Palette:%d", tile.tile_idx, gFormatNames[tile.format], gSizeNames[tile.size], tile.line, tile.tmem, tile.palette);
+	DL_PF( "    Tile:%d  Fmt: %s/%s Line:%d TMem:0x%04x Palette:%d", tile.tile_idx, gFormatNames[tile.format], gSizeNames[tile.size], tile.line, tile.tmem<<3, tile.palette);
 	DL_PF( "         S: Clamp:%s Mirror:%s Mask:0x%x Shift:0x%x", gOnOffNames[tile.clamp_s],gOnOffNames[tile.mirror_s], tile.mask_s, tile.shift_s );
 	DL_PF( "         T: Clamp:%s Mirror:%s Mask:0x%x Shift:0x%x", gOnOffNames[tile.clamp_t],gOnOffNames[tile.mirror_t], tile.mask_t, tile.shift_t );
 }
@@ -1572,7 +1570,7 @@ void DLParser_SetTImg( MicroCodeCommand command )
 	g_TI.Address	= RDPSegAddr(command.img.addr);
 	//g_TI.bpl		= g_TI.Width << g_TI.Size >> 1; // Do we need to handle?
 
-	DL_PF("    Image: 0x%08x Fmt: %s/%s Width: %d (Pitch: %d)", g_TI.Address, gFormatNames[g_TI.Format], gSizeNames[g_TI.Size], g_TI.Width, g_TI.GetPitch());
+	DL_PF("    Image: 0x%08x Fmt: %s/%s Width: %d (Pitch: %d) Bytes/line:%d", g_TI.Address, gFormatNames[g_TI.Format], gSizeNames[g_TI.Size], g_TI.Width, g_TI.GetPitch(), g_TI.Width << g_TI.Size >> 1 );
 }
 
 //*****************************************************************************
@@ -1699,7 +1697,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 		u32 i;
 
 
-		DL_PF("    LoadTLut Tile:%d, (%d,%d) -> (%d,%d), Count %d",
+		DL_PF("    LoadTLut Addr:0x%08x Offset:0x%05x TMEM:0x%04x Tile:%d, (%d,%d) -> (%d,%d), Count %d", g_TI.Address, offset, tmem,
 			tile_idx, uls, ult, lrs, lrt, count);
 		// This is sometimes wrong (in 007) tlut fmt is set after 
 		// tlut load, but before tile load
