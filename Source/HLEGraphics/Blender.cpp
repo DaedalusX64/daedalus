@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "RDP.h"
 #include "DebugDisplayList.h"
-#include "OSHLE/ultra_gbi.h"
 
 #include <pspgu.h>
 
@@ -163,11 +162,6 @@ void InitBlenderMode( u32 blender )					// Set Alpha Blender mode
 {
 	u32 blendmode = blender >> 16;
 
-	int		blend_op  = GU_ADD;
-	int		blend_src = GU_SRC_ALPHA;
-	int		blend_dst = GU_ONE_MINUS_SRC_ALPHA;
-	bool	enable_blend( false );
-
 	switch ( blendmode )
 	{	
 	case 0x0c08:					// In * 0 + In * 1 || :In * AIn + In * 1-A				Tarzan - Medalion in bottom part of the screen
@@ -175,20 +169,11 @@ void InitBlenderMode( u32 blender )					// Set Alpha Blender mode
 	case 0xc302:					// Fog * AIn + In * 1-A || :In * 0 + In * 1				ISS64 - Ground
 	case 0xc702:					// Fog * AFog + In * 1-A || :In * 0 + In * 1			Donald Duck - Sky
 	case 0xfa00:					// Fog * AShade + In * 1-A || :Fog * AShade + In * 1-A	F-Zero - Power Roads
-		enable_blend = false;
 		break;
 	//
-	// Used for transperency, still haven't found any blender that needs this though
+	// Add here blenders which work fine with default case but causes too much spam, this disabled in release mode
 	//
-	/*case 0x0000:	
-		blend_op = GU_ADD; blend_src = GU_SRC_COLOR; blend_dst = GU_DST_COLOR;
-		enable_blend = true;
-		break;*/
-		//
-		// Add here blenders which work fine with default case but causes too much spam, this disabled in release mode
-		//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST 
-	//case 0x0c08:					// In * 0 + In * 1 || :In * AIn + In * 1-A				Aerogauge - ????
 	case 0x0010:					// In * AIn + In * 1-A || :In * AIn + Mem * 1-A			Hey You Pikachu - Shadow
 	case 0xc410:					// Fog * AFog + In * 1-A || :In * AIn + Mem * 1-A		Donald Duck - Stars
 	case 0xc810:					// Fog * AShade + In * 1-A || :In * AIn + Mem * 1-A		SSV - Fog? and MM - Shadows
@@ -196,30 +181,20 @@ void InitBlenderMode( u32 blender )					// Set Alpha Blender mode
 	case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
 	case 0x0040:					// In * AIn + Mem * 1-A || :In * AIn + In * 1-A			Mario - Princess peach text
 	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A		Paper Mario Menu	
-		blend_op = GU_ADD; blend_src = GU_SRC_ALPHA; blend_dst = GU_ONE_MINUS_SRC_ALPHA;
-		enable_blend = true;
+		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+		sceGuEnable( GU_BLEND );
 		break;
 #endif
-		//
-		// default case should handle most blenders, ignore most unknown blenders unless something is messed up
-		//
+	//
+	// Default case should handle most blenders, ignore most unknown blenders unless something is messed up
+	//
 	default:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		DebugBlender( blendmode );
 #endif
-		blend_op = GU_ADD; blend_src = GU_SRC_ALPHA; blend_dst = GU_ONE_MINUS_SRC_ALPHA;
-		enable_blend = true;
-		break;
-	}
-
-	if( enable_blend )
-	{
-		sceGuBlendFunc( blend_op, blend_src, blend_dst, 0, 0);
+		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
 		sceGuEnable( GU_BLEND );
-	}
-	else
-	{
-		sceGuDisable( GU_BLEND );
+		break;
 	}
 }	
 	
