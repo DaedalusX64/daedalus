@@ -693,14 +693,14 @@ class CDecalOffsetDebugMenuOption : public CDebugMenuOption
 
 void CDecalOffsetDebugMenuOption::Display() const
 {
-	printf( "TEST variable X:%0.2f Y:%0.2f\n", TEST_VARX, TEST_VARY );
+	printf( "Test variable X:%0.2f Y:%0.2f\n", TEST_VARX, TEST_VARY );
 	printf( "   Use [] to return\n" );
 	printf( "   Use stick up/down & left/right to adjust\n" );
 }
 
 void CDecalOffsetDebugMenuOption::Update( const SPspPadState & pad_state, float elapsed_time )
 {
-	const float CHANGE_PER_SECOND = 10;
+	const float CHANGE_PER_SECOND = 1000;
 
 	if( pad_state.Stick.x != 0 )
 	{

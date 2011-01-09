@@ -198,10 +198,7 @@ const char *gCAdj[4] =
 			if( gsceENV==1 ) sceGuTexEnvColor( details.EnvColour.GetColour() ); \
 			if( gsceENV==2 ) sceGuTexEnvColor( details.PrimColour.GetColour() ); \
 		} \
-		if ( gTexInstall ) \
-		{  if( gTexInstall==1 ) details.InstallTexture = false; \
-		   if( gTexInstall==2 ) details.InstallTexture = true;  \
-		} \
+		details.InstallTexture = gTexInstall; \
 		sceGuTexFunc( PSPtxtFunc[ (gTXTFUNC >> 1) % 6 ], PSPtxtA[ gTXTFUNC & 1 ] ); \
 	} \
 } \
