@@ -738,7 +738,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 			// Only update if ZBuffer is enabled
 			if (m_bZBuffer)
 			{
-				if(gRDPOtherMode.z_cmp)
+				if(gRDPOtherMode.z_cmp || g_ROM.GameHacks == FZERO)
 				{
 					sceGuEnable(GU_DEPTH_TEST);
 					

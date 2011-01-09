@@ -466,6 +466,7 @@ void SpecificGameHacks( const ROMHeader & id )
 		gTLUTalt_mode = true;
 		g_ROM.GameHacks = ZELDA_MM;
 		break;
+	case 0x5a46: g_ROM.GameHacks = FZERO;				break;
 	case 0x3954: g_ROM.GameHacks = TIGERS_HONEY_HUNT;	break;
 	case 0x5443: g_ROM.GameHacks = CHAMELEON_TWIST;		break;
 	case 0x4f52: g_ROM.GameHacks = ROAD_RASH;			break;
