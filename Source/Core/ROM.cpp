@@ -475,11 +475,15 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x344b: g_ROM.GameHacks = KIRBY64;				break;
 	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
 	case 0x5144: g_ROM.GameHacks = DONALD;				break;
-	case 0x5653:	//SSV	
+	case 0x5653:
+		gTLUTalt_mode = true;
+		g_ROM.GameHacks = SILICONVALLEY;
+		break;
 	case 0x5547:	//Sin and punishment	
 	case 0x4641:	//Animal crossing	
 	case 0x4446:	//Flying Dragon	
 		gTLUTalt_mode = true;
+		g_ROM.GameHacks = NO_GAME_HACK;
 		break;
 	case 0x324e: 
 	case 0x4339:
