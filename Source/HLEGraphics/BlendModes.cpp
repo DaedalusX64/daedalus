@@ -2564,7 +2564,18 @@ void BlendMode_0x00272c6015fc9378LL( BLEND_MODE_ARGS )
 	}
 #endif
 }
-	 
+
+//Space Station Silicon Valley - Power Spheres
+//case 0x00377fff1ffcf438LL:
+//aRGB0: (Primitive    - Texel0      ) * PrimLODFrac  + Texel0
+//aA0  : (0            - 0           ) * 0            + Texel1
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x00377fff1ffcf438LL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
 //Super Bowling 64 - Character
 //case 0x00327feffffff638LL:
 //aRGB0: (Primitive    - 0           ) * Shade        + 0
@@ -4887,6 +4898,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 	BLEND_MODE(0x00fffe04f3fcf378LL);
 	BLEND_MODE(0x00ffffffff09f63fLL);
 	BLEND_MODE(0x00fffffffffcfa7dLL);
+	BLEND_MODE(0x00377fff1ffcf438LL);
 	//BLEND_MODE(0x00522bfffffffe38LL);//Donald
 	//BLEND_MODE(0x00122bfffffffe38LL);//Donald
 

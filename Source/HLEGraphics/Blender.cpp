@@ -25,44 +25,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspgu.h>
 
 
-/* 
-
-To Devs:
-
- Once blenders are complete please clean up after yourself before commiting.
- Incomplete blenders shouldn't be summitted, also please test and make sure the XX blender actually works !
- also please check common games (Mario, Zelda, Majora's Mask before commiting)
- Note : Please edo not create extra brakes and such, only do so if is really needed.
-		For example adding a hack on XXX blender.
-
- Deafult case, should work most of the time, ignore most unknown blenders, if the XXX looks correct of course.
-
- Please avoid using 0xXXXX, instead use our defines for ex : BLEND_NOOP1
-
- To create new blenders :
-
- Daedalus should output everything you need to create new blenders, for example :
- Blender: c800 - First:  Fog * AShade + In * 1-A 0000 - Second:  In * AIn + In * 1-A
-
- As you can see c800 goes first, and is our defined ==> BLEND_FOG_ASHADE1,
- now our second is 0000, which is a BLEND_NOOP1.
-
- Now our blender has been finished, this how it looks
- case MAKE_BLEND_MODE( BLEND_FOG_ASHADE1, BLEND_NOOP1 ):
-
- Next step is figuring out how to handled the created blender.
- I'll leave this step to common sense since you only have three choices :) 
-
- The format that our blenders should be for example :
-
-	// Blender:
-	// Used on the F-Zero - Tracks Correction
-case MAKE_BLEND_MODE( BLEND_FOG_ASHADE1, BLEND_PASS3 ):
-	// c800 - First:  Fog * AShade + In * 1-A 
-	// 3200 - Second:  Fog * AShade + In * 1-A
-
-
-*/
 /*
 
 // P or M
@@ -158,10 +120,8 @@ static void DebugBlender( u32 blender )
 //*****************************************************************************
 // This version uses a 16bit hash, which is around 4X times faster than the old 64bit version
 //*****************************************************************************
-void InitBlenderMode( u32 blender )					// Set Alpha Blender mode
+void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 {
-	u32 blendmode = blender >> 16;
-
 	switch ( blendmode )
 	{	
 	case 0x0c08:					// In * 0 + In * 1 || :In * AIn + In * 1-A				Tarzan - Medalion in bottom part of the screen
@@ -171,7 +131,7 @@ void InitBlenderMode( u32 blender )					// Set Alpha Blender mode
 	case 0xfa00:					// Fog * AShade + In * 1-A || :Fog * AShade + In * 1-A	F-Zero - Power Roads
 	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A		Paper Mario Menu	
 	case 0x0fa5:					//:In * 0 + Bl * AMem || :In * 0 + Bl * AMem			OOT Menu
-			
+		sceGuDisable( GU_BLEND );	
 		break;
 	//
 	// Add here blenders which work fine with default case but causes too much spam, this disabled in release mode
@@ -183,7 +143,6 @@ void InitBlenderMode( u32 blender )					// Set Alpha Blender mode
 	case 0x0c18:					// In * 0 + In * 1 || :In * AIn + Mem * 1-A:			SSV - WaterFall and dust
 	case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
 	case 0x0040:					// In * AIn + Mem * 1-A || :In * AIn + In * 1-A			Mario - Princess peach text
-
 		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
 		sceGuEnable( GU_BLEND );
 		break;
