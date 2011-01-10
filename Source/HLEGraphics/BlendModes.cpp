@@ -112,97 +112,6 @@ void PrintMux( FILE * fh, u64 mux )
 	fprintf(fh, "\t\t//aA1  : (%s - %s) * %s + %s\n", sc_colcombtypes8[aA1],  sc_colcombtypes8[bA1], sc_colcombtypes8[cA1],  sc_colcombtypes8[dA1]);
 }
 
-//***************************************************************************
-//*General blender used for testing //Corn
-//*Inside a (empty) blender paste (only)-> BLEND_MODE_MAKER
-//***************************************************************************
-u32	gTXTFUNC=0;
-
-u32	gSetRGB=0;
-u32	gSetA=0;
-u32	gSetRGBA=0;
-u32	gModA=0;
-u32	gAOpaque=0;
-
-u32	gsceENV=0;
-
-u32	gNumCyc=3;
-u32 gTexInstall=1;
-
-const char *gPSPtxtFunc[10] =
-{
-	"Modulate RGB",
-	"Modulate RGBA",
-	"Blend RGB",
-	"Blend RGBA",
-	"Add RGB",
-	"Add RGBA",
-	"Replace RGB",
-	"Replace RGBA",
-	"Decal RGB",
-	"Decal RGBA"
-};
-
-const char *gCAdj[4] =
-{
-	"OFF",
-	"Prim Color",
-	"Prim Color Replicate Alpha",
-	"Env Color"
-};
-
-#define BLEND_MODE_MAKER \
-{ \
-	const u32 PSPtxtFunc[5] = \
-	{ \
-		GU_TFX_MODULATE, \
-		GU_TFX_BLEND, \
-		GU_TFX_ADD, \
-		GU_TFX_REPLACE, \
-		GU_TFX_DECAL \
-	}; \
-	const u32 PSPtxtA[2] = \
-	{ \
-		GU_TCC_RGB, \
-		GU_TCC_RGBA \
-	}; \
-	if( num_cycles & gNumCyc ) \
-	{ \
-		if( gSetRGB ) \
-		{ \
-			if( gSetRGB==1 ) details.ColourAdjuster.SetRGB( details.PrimColour ); \
-			if( gSetRGB==2 ) details.ColourAdjuster.SetRGB( details.PrimColour.ReplicateAlpha() ); \
-			if( gSetRGB==3 ) details.ColourAdjuster.SetRGB( details.EnvColour ); \
-		} \
-		if( gSetA ) \
-		{ \
-			if( gSetA==1 ) details.ColourAdjuster.SetA( details.PrimColour ); \
-			if( gSetA==2 ) details.ColourAdjuster.SetA( details.PrimColour.ReplicateAlpha() ); \
-			if( gSetA==3 ) details.ColourAdjuster.SetA( details.EnvColour ); \
-		} \
-		if( gSetRGBA ) \
-		{ \
-			if( gSetRGBA==1 ) details.ColourAdjuster.SetRGBA( details.PrimColour ); \
-			if( gSetRGBA==2 ) details.ColourAdjuster.SetRGBA( details.PrimColour.ReplicateAlpha() ); \
-			if( gSetRGBA==3 ) details.ColourAdjuster.SetRGBA( details.EnvColour ); \
-		} \
-		if( gModA ) \
-		{ \
-			if( gModA==1 ) details.ColourAdjuster.ModulateA( details.PrimColour ); \
-			if( gModA==2 ) details.ColourAdjuster.ModulateA( details.PrimColour.ReplicateAlpha() ); \
-			if( gModA==3 ) details.ColourAdjuster.ModulateA( details.EnvColour ); \
-		} \
-		if( gAOpaque ) details.ColourAdjuster.SetAOpaque(); \
-		if( gsceENV ) \
-		{ \
-			if( gsceENV==1 ) sceGuTexEnvColor( details.EnvColour.GetColour() ); \
-			if( gsceENV==2 ) sceGuTexEnvColor( details.PrimColour.GetColour() ); \
-		} \
-		details.InstallTexture = gTexInstall; \
-		sceGuTexFunc( PSPtxtFunc[ (gTXTFUNC >> 1) % 6 ], PSPtxtA[ gTXTFUNC & 1 ] ); \
-	} \
-} \
-
 #endif
 /* To Devs,
  Once blendmodes are complete please clean up after yourself before commiting.
@@ -806,30 +715,6 @@ void BlendMode_0x00ffd5fffffcf238LL( BLEND_MODE_ARGS )
 /*
 //#D
 */
-
-//Donald duck fight
-//case 0x00122bfffffffe38LL:
-//aRGB0: (Texel0       - 0           ) * Shade        + 0
-//aA0  : (Texel1       - 0           ) * Env          + 0
-//aRGB1: (0            - 0           ) * 0            + Combined
-//aA1  : (0            - 0           ) * 0            + Combined
-void BlendMode_0x00122bfffffffe38LL( BLEND_MODE_ARGS )
-{
-	//details.ColourAdjuster.SetAOpaque();
-	//sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
-}
-
-//Donald duck shadow
-//case 0x00522bfffffffe38LL:
-//aRGB0: (Env          - 0           ) * Shade        + 0
-//aA0  : (Texel1       - 0           ) * Env          + 0
-//aRGB1: (0            - 0           ) * 0            + Combined
-//aA1  : (0            - 0           ) * 0            + Combined
-void BlendMode_0x00522bfffffffe38LL( BLEND_MODE_ARGS )
-{
-	//details.ColourAdjuster.SetAOpaque();
-	//sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
-}
 
 //Doom Ceiling and detail and sky
 //case 0x00177e2efffefd7eLL:
@@ -4899,8 +4784,6 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 	BLEND_MODE(0x00ffffffff09f63fLL);
 	BLEND_MODE(0x00fffffffffcfa7dLL);
 	BLEND_MODE(0x00377fff1ffcf438LL);
-	//BLEND_MODE(0x00522bfffffffe38LL);//Donald
-	//BLEND_MODE(0x00122bfffffffe38LL);//Donald
 
 #undef BLEND_MODE
 	}

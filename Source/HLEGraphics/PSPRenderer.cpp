@@ -154,6 +154,119 @@ ALIGNED_GLOBAL(u32,gPlaceholderTexture[gPlaceholderTextureWidth * gPlaceholderTe
 ALIGNED_GLOBAL(u32,gSelectedTexture[gPlaceholderTextureWidth * gPlaceholderTextureHeight ], DATA_ALIGN);
 
 extern void		PrintMux( FILE * fh, u64 mux );
+
+//***************************************************************************
+//*General blender used for testing //Corn
+//***************************************************************************
+u32 gTexInstall=1;
+u32	gSetRGB=0;
+u32	gSetA=0;
+u32	gSetRGBA=0;
+u32	gModA=0;
+u32	gAOpaque=0;
+
+u32	gsceENV=0;
+
+u32	gTXTFUNC=0;
+
+u32	gNumCyc=3;
+
+u32	gForceRGB=0;
+
+const char *gForceColor[7] =
+{
+	"OFF",
+	"Black",
+	"Red",
+	"Green",
+	"Blue",
+	"Magenta",
+	"Gold"
+};
+
+const char *gPSPtxtFunc[10] =
+{
+	"Modulate RGB",
+	"Modulate RGBA",
+	"Blend RGB",
+	"Blend RGBA",
+	"Add RGB",
+	"Add RGBA",
+	"Replace RGB",
+	"Replace RGBA",
+	"Decal RGB",
+	"Decal RGBA"
+};
+
+const char *gCAdj[4] =
+{
+	"OFF",
+	"Prim Color",
+	"Prim Color Replicate Alpha",
+	"Env Color"
+};
+
+#define BLEND_MODE_MAKER \
+{ \
+	const u32 PSPtxtFunc[5] = \
+	{ \
+		GU_TFX_MODULATE, \
+		GU_TFX_BLEND, \
+		GU_TFX_ADD, \
+		GU_TFX_REPLACE, \
+		GU_TFX_DECAL \
+	}; \
+	const u32 PSPtxtA[2] = \
+	{ \
+		GU_TCC_RGB, \
+		GU_TCC_RGBA \
+	}; \
+	if( num_cycles & gNumCyc ) \
+	{ \
+		if( gForceRGB ) \
+		{ \
+			if( gForceRGB==1 ) details.ColourAdjuster.SetRGB( c32::Black ); \
+			else if( gForceRGB==2 ) details.ColourAdjuster.SetRGB( c32::Red ); \
+			else if( gForceRGB==3 ) details.ColourAdjuster.SetRGB( c32::Green ); \
+			else if( gForceRGB==4 ) details.ColourAdjuster.SetRGB( c32::Blue ); \
+			else if( gForceRGB==5 ) details.ColourAdjuster.SetRGB( c32::Magenta ); \
+			else if( gForceRGB==6 ) details.ColourAdjuster.SetRGB( c32::Gold ); \
+		} \
+		if( gSetRGB ) \
+		{ \
+			if( gSetRGB==1 ) details.ColourAdjuster.SetRGB( details.PrimColour ); \
+			else if( gSetRGB==2 ) details.ColourAdjuster.SetRGB( details.PrimColour.ReplicateAlpha() ); \
+			else if( gSetRGB==3 ) details.ColourAdjuster.SetRGB( details.EnvColour ); \
+		} \
+		if( gSetA ) \
+		{ \
+			if( gSetA==1 ) details.ColourAdjuster.SetA( details.PrimColour ); \
+			else if( gSetA==2 ) details.ColourAdjuster.SetA( details.PrimColour.ReplicateAlpha() ); \
+			else if( gSetA==3 ) details.ColourAdjuster.SetA( details.EnvColour ); \
+		} \
+		if( gSetRGBA ) \
+		{ \
+			if( gSetRGBA==1 ) details.ColourAdjuster.SetRGBA( details.PrimColour ); \
+			else if( gSetRGBA==2 ) details.ColourAdjuster.SetRGBA( details.PrimColour.ReplicateAlpha() ); \
+			else if( gSetRGBA==3 ) details.ColourAdjuster.SetRGBA( details.EnvColour ); \
+		} \
+		if( gModA ) \
+		{ \
+			if( gModA==1 ) details.ColourAdjuster.ModulateA( details.PrimColour ); \
+			else if( gModA==2 ) details.ColourAdjuster.ModulateA( details.PrimColour.ReplicateAlpha() ); \
+			else if( gModA==3 ) details.ColourAdjuster.ModulateA( details.EnvColour ); \
+		} \
+		if( gAOpaque ) details.ColourAdjuster.SetAOpaque(); \
+		if( gsceENV ) \
+		{ \
+			if( gsceENV==1 ) sceGuTexEnvColor( details.EnvColour.GetColour() ); \
+			else if( gsceENV==2 ) sceGuTexEnvColor( details.PrimColour.GetColour() ); \
+		} \
+		details.InstallTexture = gTexInstall; \
+		sceGuTexFunc( PSPtxtFunc[ (gTXTFUNC >> 1) % 6 ], PSPtxtA[ gTXTFUNC & 1 ] ); \
+	} \
+} \
+
 #endif
 
 //*****************************************************************************
@@ -868,13 +981,57 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if(IsCombinerStateDisabled( gRDPMux._u64 ))
 	{
+	#if 1 //1->Allow Blend Explorer, 0->Nasty texture //Corn
+		SBlendModeDetails		details;
+		u32	num_cycles = gRDPOtherMode.cycle_type == CYCLE_2CYCLE ? 2 : 1;
+
+		details.InstallTexture = true;
+		details.EnvColour = mEnvColour;
+		details.PrimColour = mPrimitiveColour;
+		details.ColourAdjuster.Reset();
+		details.RecolourTextureWhite = false;
+
+		//Insert the Blend Explorer
+		BLEND_MODE_MAKER
+
+		bool	installed_texture( false );
+
+		if( details.InstallTexture )
+		{
+			if( mpTexture[ 0 ] != NULL )
+			{
+				CRefPtr<CNativeTexture> texture;
+
+				if(details.RecolourTextureWhite)
+				{
+					texture = mpTexture[ 0 ]->GetRecolouredTexture( c32::White );
+				}
+				else
+				{
+					texture = mpTexture[ 0 ]->GetTexture();
+				}
+
+				if(texture != NULL)
+				{
+					texture->InstallTexture();
+					installed_texture = true;
+				}
+			}
+		}
+
+		// If no texture was specified, or if we couldn't load it, clear it out
+		if( !installed_texture ) sceGuDisable( GU_TEXTURE_2D );
+		details.ColourAdjuster.Process( p_vertices, num_vertices );
+		sceGuDrawArray( DRAW_MODE, render_flags, num_vertices, NULL, p_vertices );
+	
+	#else
 		// Use the nasty placeholder texture
 		sceGuEnable(GU_TEXTURE_2D);
 		SelectPlaceholderTexture( PTT_SELECTED );
 		sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
 		sceGuTexMode(GU_PSM_8888,0,0,GL_TRUE);		// maxmips/a2/swizzle = 0
-
 		sceGuDrawArray( DRAW_MODE, render_flags, num_vertices, NULL, p_vertices );
+	#endif
 	}
 	else
 #endif
