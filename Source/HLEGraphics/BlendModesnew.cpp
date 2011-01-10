@@ -313,7 +313,19 @@ void BlendMode_0x00fffffffffcfa7dLL (BLEND_MODE_ARGS)
 //aRGB0: (Texel0       - Shade       ) * Texel0_Alp   + Shade       
 //aA0  : (0            - 0           ) * 0            + Env         
 //aRGB1: (Texel0       - Shade       ) * Texel0_Alp   + Shade       
-//aA1  : (0            - 0           ) * 0            + Env         
+//aA1  : (0            - 0           ) * 0            + Env       
+
+//SSB Walking Dust
+//case 0x0030b2615566db6dLL:
+//aRGB0: (Primitive    - Env         ) * Texel0       + Env         
+//aA0  : (Primitive    - Env         ) * Texel0       + Env         
+//aRGB1: (Primitive    - Env         ) * Texel0       + Env         
+//aA1  : (Primitive    - Env         ) * Texel0       + Env      
+void BlendMode_0x0030b2615566db6dLL (BLEND_MODE_ARGS)
+{
+sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+	
+}
 
 //
 /*
@@ -568,7 +580,7 @@ void BlendMode_0x0030b3ff5ffeda38LL (BLEND_MODE_ARGS)
 	
 }
 
-// Zelda Shop Items (Second Shelf) and Zelda Letter, and Bombs, Jars
+// Zelda Arrows
 //case 0x0030ec045fdaedf6LL:
 //aRGB0: (Primitive    - Env         ) * Texel0       + Env         
 //aA0  : (1            - 1           ) * 1            + 1           
@@ -576,18 +588,21 @@ void BlendMode_0x0030b3ff5ffeda38LL (BLEND_MODE_ARGS)
 //aA1  : (1            - 1           ) * 1            + 1      
 void BlendMode_0x0030ec045fdaedf6LL (BLEND_MODE_ARGS)
 {
-#ifdef CHECK_FIRST_CYCLE
-	if (num_cycles == 1)
-	{
-		
-	}
-	else
-#endif
-	{
-		details.ColourAdjuster.SetRGB( details.EnvColour );
+	details.ColourAdjuster.SetRGB(details.PrimColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+}
 
-	}
-			sceGuTexFunc(GU_TFX_MODULATE, GU_TCC_RGBA);
+// Zelda OOT Deku Nut Core
+//		case 0x00276c6035d8ed76LL:
+//aRGB0: (Texel1       - Primitive   ) * PrimLODFrac  + Texel0      
+//aA0  : (1            - 1           ) * 1            + 1           
+//aRGB1: (Primitive    - Env         ) * Combined     + Env         
+//aA1  : (1            - 1           ) * 1            + 1   
+
+void BlendMode_0x00276c6035d8ed76LL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.PrimColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
 }
 
 OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
@@ -610,10 +625,13 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 			BLEND_MODE(0x00267e041ffcfdf8LL); // Zelda OOT Grass
 			BLEND_MODE(0x00262a041f5893f8LL); // Zelda Deku Tree
 			BLEND_MODE(0x00272c60350ce37fLL); // OOT Logo / Flames
+			BLEND_MODE(0x00276c6035d8ed76LL); // OOT Deku Nut Core
 			BLEND_MODE(0x0030b2045ffefff8LL); // OOT - Eponas Dust
+			BLEND_MODE(0x0030b2615566db6dLL); // SSB Character Dust
 			BLEND_MODE(0x0030b3ff5ffeda38LL); // OOT Sign Cut (Sword)
 			BLEND_MODE(0x0030ec045fdaedf6LL); // Zelda Arrows in Shop
 			BLEND_MODE(0x0030fe045ffefdfeLL); // Zelda Kokori Sword Handle
+			BLEND_MODE(0x00fffffffffcfa7dLL); // Mario 64 Stars
 			
 	#undef BLEND_MODE 
 	}

@@ -169,6 +169,9 @@ void InitBlenderMode( u32 blender )					// Set Alpha Blender mode
 	case 0xc302:					// Fog * AIn + In * 1-A || :In * 0 + In * 1				ISS64 - Ground
 	case 0xc702:					// Fog * AFog + In * 1-A || :In * 0 + In * 1			Donald Duck - Sky
 	case 0xfa00:					// Fog * AShade + In * 1-A || :Fog * AShade + In * 1-A	F-Zero - Power Roads
+	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A		Paper Mario Menu	
+	case 0x0fa5:					//:In * 0 + Bl * AMem || :In * 0 + Bl * AMem			OOT Menu
+			
 		break;
 	//
 	// Add here blenders which work fine with default case but causes too much spam, this disabled in release mode
@@ -180,7 +183,7 @@ void InitBlenderMode( u32 blender )					// Set Alpha Blender mode
 	case 0x0c18:					// In * 0 + In * 1 || :In * AIn + Mem * 1-A:			SSV - WaterFall and dust
 	case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
 	case 0x0040:					// In * AIn + Mem * 1-A || :In * AIn + In * 1-A			Mario - Princess peach text
-	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A		Paper Mario Menu	
+
 		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
 		sceGuEnable( GU_BLEND );
 		break;
