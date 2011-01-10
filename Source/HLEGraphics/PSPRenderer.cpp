@@ -173,9 +173,10 @@ u32	gNumCyc=3;
 
 u32	gForceRGB=0;
 
-const char *gForceColor[7] =
+const char *gForceColor[8] =
 {
 	"OFF",
+	"White",
 	"Black",
 	"Red",
 	"Green",
@@ -225,12 +226,13 @@ const char *gCAdj[4] =
 	{ \
 		if( gForceRGB ) \
 		{ \
-			if( gForceRGB==1 ) details.ColourAdjuster.SetRGB( c32::Black ); \
-			else if( gForceRGB==2 ) details.ColourAdjuster.SetRGB( c32::Red ); \
-			else if( gForceRGB==3 ) details.ColourAdjuster.SetRGB( c32::Green ); \
-			else if( gForceRGB==4 ) details.ColourAdjuster.SetRGB( c32::Blue ); \
-			else if( gForceRGB==5 ) details.ColourAdjuster.SetRGB( c32::Magenta ); \
-			else if( gForceRGB==6 ) details.ColourAdjuster.SetRGB( c32::Gold ); \
+			if( gForceRGB==1 ) details.ColourAdjuster.SetRGB( c32::White ); \
+			else if( gForceRGB==2 ) details.ColourAdjuster.SetRGB( c32::Black ); \
+			else if( gForceRGB==3 ) details.ColourAdjuster.SetRGB( c32::Red ); \
+			else if( gForceRGB==4 ) details.ColourAdjuster.SetRGB( c32::Green ); \
+			else if( gForceRGB==5 ) details.ColourAdjuster.SetRGB( c32::Blue ); \
+			else if( gForceRGB==6 ) details.ColourAdjuster.SetRGB( c32::Magenta ); \
+			else if( gForceRGB==7 ) details.ColourAdjuster.SetRGB( c32::Gold ); \
 		} \
 		if( gSetRGB ) \
 		{ \

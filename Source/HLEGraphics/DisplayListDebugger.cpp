@@ -77,7 +77,7 @@ extern u32	gNumCyc;
 
 extern u32	gForceRGB;
 
-extern const char *gForceColor[7];
+extern const char *gForceColor[8];
 extern const char *gPSPtxtFunc[10];
 extern const char *gCAdj[4];
 //*****************************************************************************
@@ -323,7 +323,7 @@ void CBlendDebugMenuOption::Display() const
 	if( mSel == 6 && modify ) gsceENV = mIdx % 3;
 	if( mSel == 7 && modify ) gTXTFUNC = mIdx % 10;
 	if( mSel == 8 && modify ) gNumCyc = (mIdx % 3) + 1;
-	if( mSel == 9 && modify ) gForceRGB = mIdx % 7;
+	if( mSel == 9 && modify ) gForceRGB = mIdx % 8;
 	
 
 	printf( "Blender Explorer\n");
