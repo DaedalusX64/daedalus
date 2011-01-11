@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2001,2006,2007 StrmnNrmn
+Copyright (C) 2001,2006,2007,2010 StrmnNrmn
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -112,98 +112,15 @@ void PrintMux( FILE * fh, u64 mux )
 	fprintf(fh, "\t\t//aA1  : (%s - %s) * %s + %s\n", sc_colcombtypes8[aA1],  sc_colcombtypes8[bA1], sc_colcombtypes8[cA1],  sc_colcombtypes8[dA1]);
 }
 
-//***************************************************************************
-//*General blender used for testing //Corn
-//*Inside a (empty) blender paste (only)-> BLEND_MODE_MAKER
-//***************************************************************************
-u32	gTXTFUNC=0;
-
-u32	gSetRGB=0;
-u32	gSetA=0;
-u32	gSetRGBA=0;
-u32	gModA=0;
-u32	gAOpaque=0;
-
-u32	gsceENV=0;
-
-u32	gNumCyc=3;
-u32 gTexInstall=1;
-
-const char *gPSPtxtFunc[10] =
-{
-	"Modulate RGB",
-	"Modulate RGBA",
-	"Blend RGB",
-	"Blend RGBA",
-	"Add RGB",
-	"Add RGBA",
-	"Replace RGB",
-	"Replace RGBA",
-	"Decal RGB",
-	"Decal RGBA"
-};
-
-const char *gCAdj[4] =
-{
-	"OFF",
-	"Prim Color",
-	"Prim Color Replicate Alpha",
-	"Env Color"
-};
-
-#define BLEND_MODE_MAKER \
-{ \
-	const u32 PSPtxtFunc[5] = \
-	{ \
-		GU_TFX_MODULATE, \
-		GU_TFX_BLEND, \
-		GU_TFX_ADD, \
-		GU_TFX_REPLACE, \
-		GU_TFX_DECAL \
-	}; \
-	const u32 PSPtxtA[2] = \
-	{ \
-		GU_TCC_RGB, \
-		GU_TCC_RGBA \
-	}; \
-	if( num_cycles & gNumCyc ) \
-	{ \
-		if( gSetRGB ) \
-		{ \
-			if( gSetRGB==1 ) details.ColourAdjuster.SetRGB( details.PrimColour ); \
-			if( gSetRGB==2 ) details.ColourAdjuster.SetRGB( details.PrimColour.ReplicateAlpha() ); \
-			if( gSetRGB==3 ) details.ColourAdjuster.SetRGB( details.EnvColour ); \
-		} \
-		if( gSetA ) \
-		{ \
-			if( gSetA==1 ) details.ColourAdjuster.SetA( details.PrimColour ); \
-			if( gSetA==2 ) details.ColourAdjuster.SetA( details.PrimColour.ReplicateAlpha() ); \
-			if( gSetA==3 ) details.ColourAdjuster.SetA( details.EnvColour ); \
-		} \
-		if( gSetRGBA ) \
-		{ \
-			if( gSetRGBA==1 ) details.ColourAdjuster.SetRGBA( details.PrimColour ); \
-			if( gSetRGBA==2 ) details.ColourAdjuster.SetRGBA( details.PrimColour.ReplicateAlpha() ); \
-			if( gSetRGBA==3 ) details.ColourAdjuster.SetRGBA( details.EnvColour ); \
-		} \
-		if( gModA ) \
-		{ \
-			if( gModA==1 ) details.ColourAdjuster.ModulateA( details.PrimColour ); \
-			if( gModA==2 ) details.ColourAdjuster.ModulateA( details.PrimColour.ReplicateAlpha() ); \
-			if( gModA==3 ) details.ColourAdjuster.ModulateA( details.EnvColour ); \
-		} \
-		if( gAOpaque ) details.ColourAdjuster.SetAOpaque(); \
-		if( gsceENV ) \
-		{ \
-			if( gsceENV==1 ) sceGuTexEnvColor( details.EnvColour.GetColour() ); \
-			if( gsceENV==2 ) sceGuTexEnvColor( details.PrimColour.GetColour() ); \
-		} \
-		details.InstallTexture = gTexInstall; \
-		sceGuTexFunc( PSPtxtFunc[ (gTXTFUNC >> 1) % 6 ], PSPtxtA[ gTXTFUNC & 1 ] ); \
-	} \
-} \
-
 #endif
+
+/*
+	
+	To Devs, Please make sure blendmodes are as simple as possible, we only accept max 3 lines per blendmode here !!! unless is really necesary which shouldn't happen
+
+*/
+
+
 /* To Devs,
  Placeholder for blendmode maker guide
  */
@@ -243,6 +160,17 @@ const char *gCAdj[4] =
 /*
 #G
 */
+
+//GoldenEye 007 - Dead Enemies
+//case 0x00159a045ffefff8LL:
+//aRGB0: (Texel0       - Env         ) * Shade_Alpha  + Env
+//aA0  : (Texel0       - 0           ) * Env          + 0
+//aRGB1: (Combined     - 0           ) * Shade        + 0
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x00159a045ffefff8LL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
 
 /*
 //#H
@@ -323,8 +251,29 @@ void BlendMode_0x00fffffffffcfa7dLL (BLEND_MODE_ARGS)
 //aA1  : (Primitive    - Env         ) * Texel0       + Env      
 void BlendMode_0x0030b2615566db6dLL (BLEND_MODE_ARGS)
 {
-sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
-	
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
+// Space Station Silicon Valley - Power Spheres
+//case 0x00377fff1ffcf438LL:
+//aRGB0: (Primitive    - Texel0      ) * PrimLODFrac  + Texel0
+//aA0  : (0            - 0           ) * 0            + Texel1
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x00377fff1ffcf438LL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
+// Space Station Silicon Valley - Cave inside Waterfalls
+// case 0x00277e041ffcf3fcLL:
+//aRGB0: (Texel1       - Texel0      ) * PrimLODFrac  + Texel0
+//aA0  : (0            - 0           ) * 0            + Texel0
+//aRGB1: (Combined     - 0           ) * Shade        + 0
+//aA1  : (0            - 0           ) * 0            + Shade
+void BlendMode_0x00277e041ffcf3fcLL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
 //
@@ -344,7 +293,7 @@ sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 /*
 //#W
 */
-//Wetrix backdrop
+//Wetrix Wackdrop
 //case 0x00127e2433fdf8fcLL:
 //aRGB0: (Texel0       - Primitive   ) * Shade        + Primitive   
 //aA0  : (0            - 0           ) * 0            + Shade       
@@ -379,7 +328,6 @@ void BlendMode_0x00127e2433fdf8fcLL (BLEND_MODE_ARGS)
 
 void BlendMode_0x00267e041ffcfdf8LL (BLEND_MODE_ARGS)
 {
-	details.InstallTexture = true;
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
@@ -405,11 +353,8 @@ void BlendMode_0x00167e6035fcff7eLL( BLEND_MODE_ARGS )
 
 void BlendMode_0x002527ff1ffc9238LL (BLEND_MODE_ARGS)
 {
-	if( num_cycles == 1)
+	if( num_cycles != 1)
 	{
-			// Do not touch this cycle.
-	}
-	else {
 		details.PrimColour.ReplicateAlpha();
 		details.ColourAdjuster.SetRGB(details.PrimColour);
 	}
@@ -432,7 +377,7 @@ void BlendMode_0x0030b2045ffefff8LL (BLEND_MODE_ARGS)
 	
 }
 
-// Zelda OoT logo / flames // Placeholder (Flames do not show up)
+// Zelda OoT logo / flames // Placeholder (Flames do not show up) - Fix me / Simplify
 //case 0x00272c60350ce37fLL:
 //aRGB0: (Texel1       - Primitive   ) * PrimLODFrac  + Texel0      
 //aA0  : (Texel1       - 1           ) * 1            + Texel0      
@@ -441,24 +386,23 @@ void BlendMode_0x0030b2045ffefff8LL (BLEND_MODE_ARGS)
 void BlendMode_0x00272c60350ce37fLL( BLEND_MODE_ARGS )
 {
 #ifdef CHECK_FIRST_CYCLE
-// XXXX placeholder implementation
-if( num_cycles == 1 )
-{
-	// RGB = T0 + x(T1-Prim)
-	// A   = T0+T1-1
-	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);		// XXXX No T1
-}
-else
+	// XXXX placeholder implementation
+	if( num_cycles == 1 )
+	{
+		// RGB = T0 + x(T1-Prim)
+		// A   = T0+T1-1
+		sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);		// XXXX No T1
+	}
+	else
 #endif
-{
-	// RGB = Blend(Env, Prim, (T0 + x(t1-Prim)))
-	// A   = (T0+T1-1)*Prim
-	details.ColourAdjuster.SetRGB( details.EnvColour );
-	details.ColourAdjuster.SetA( details.PrimColour  );
-	sceGuTexEnvColor( details.PrimColour.GetColour() );
-	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);		// XXXX No T1
-	
-}
+	{
+		// RGB = Blend(Env, Prim, (T0 + x(t1-Prim)))
+		// A   = (T0+T1-1)*Prim
+		details.ColourAdjuster.SetRGB( details.EnvColour );
+		details.ColourAdjuster.SetA( details.PrimColour  );
+		sceGuTexEnvColor( details.PrimColour.GetColour() );
+		sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);		// XXXX No T1
+	}
 }
 
 // Zelda Paths
@@ -483,12 +427,9 @@ void BlendMode_0x00121603ff5bfff8LL (BLEND_MODE_ARGS)
 
 void BlendMode_0x00262a60150c937fLL (BLEND_MODE_ARGS)
 {
-if( num_cycles == 1 )
-{
+	if( num_cycles == 1 )
+	{
 		details.ColourAdjuster.SetRGB(details.EnvColour);
-}
-	else {
-// Do not touch First cycle
 	}
 	
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
@@ -593,7 +534,7 @@ void BlendMode_0x0030ec045fdaedf6LL (BLEND_MODE_ARGS)
 }
 
 // Zelda OOT Deku Nut Core
-//		case 0x00276c6035d8ed76LL:
+// case 0x00276c6035d8ed76LL:
 //aRGB0: (Texel1       - Primitive   ) * PrimLODFrac  + Texel0      
 //aA0  : (1            - 1           ) * 1            + 1           
 //aRGB1: (Primitive    - Env         ) * Combined     + Env         
@@ -610,12 +551,13 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 #ifndef DAEDALUS_PUBLIC_RELEASE
 	if(!gGlobalPreferences.CustomBlendModes) return NULL;
 #endif
-	switch(mux)
+	switch( mux )
 	{
 #define BLEND_MODE( x )		case (x):	return BlendMode_##x;
 			BLEND_MODE(0x0011fffffffffc38LL); // Zelda Rupees
 			BLEND_MODE(0x00121603ff5bfff8LL); // Zelda Paths
 			BLEND_MODE(0x00127e2433fdf8fcLL); // Wetrix Background / Banjo Kazooie
+			BLEND_MODE(0x00159a045ffefff8LL); // GE07 : Dead enemies
 			BLEND_MODE(0x00167e6035fcff7eLL); // OOT, MM Intro (N64 Logo)
 			BLEND_MODE(0x00177e6035fcfd7eLL); // Zelda Kokori Sword Blade
 			BLEND_MODE(0x0020ac60350c937fLL); // Zelda Chest Opening Light
@@ -626,11 +568,13 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 			BLEND_MODE(0x00262a041f5893f8LL); // Zelda Deku Tree
 			BLEND_MODE(0x00272c60350ce37fLL); // OOT Logo / Flames
 			BLEND_MODE(0x00276c6035d8ed76LL); // OOT Deku Nut Core
+			BLEND_MODE(0x00277e041ffcf3fcLL); // SSV - Inside Caves
 			BLEND_MODE(0x0030b2045ffefff8LL); // OOT - Eponas Dust
 			BLEND_MODE(0x0030b2615566db6dLL); // SSB Character Dust
 			BLEND_MODE(0x0030b3ff5ffeda38LL); // OOT Sign Cut (Sword)
 			BLEND_MODE(0x0030ec045fdaedf6LL); // Zelda Arrows in Shop
 			BLEND_MODE(0x0030fe045ffefdfeLL); // Zelda Kokori Sword Handle
+			BLEND_MODE(0x00377fff1ffcf438LL); // SSV Power Spheres
 			BLEND_MODE(0x00fffffffffcfa7dLL); // Mario 64 Stars
 			
 	#undef BLEND_MODE 

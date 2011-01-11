@@ -135,8 +135,8 @@ extern u32 SCR_HEIGHT;
 
 static f32 fViWidth = 320.0f;
 static f32 fViHeight = 240.0f;
-static u32 uViWidth = 320;
-static u32 uViHeight = 240;
+//static u32 uViWidth = 320;
+//static u32 uViHeight = 240;
 
 f32 gZoomX=1.0;	//Default is 1.0f
 
@@ -504,8 +504,8 @@ void PSPRenderer::SetVIScales()
 	}
 
 	//Used to set a limit on Scissors //Corn
-	uViWidth  = (u32)fViWidth - 1;
-	uViHeight = (u32)fViHeight - 1;
+	//uViWidth  = (u32)fViWidth - 1;
+	//uViHeight = (u32)fViHeight - 1;
 }
 
 //*****************************************************************************
@@ -840,9 +840,8 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 	DAEDALUS_PROFILE( "PSPRenderer::RenderUsingCurrentBlendMode" );
 
-	// Hack for nascar games..to be honest I don't know why these games are so different...might be tricky to have a proper fix..
-	// Hack accuracy : works 100%
-	if ( disable_zbuffer || (gRDPOtherMode.depth_source && g_ROM.GameHacks == NASCAR) )
+
+	if ( disable_zbuffer )
 	{
 		sceGuDisable(GU_DEPTH_TEST);
 		sceGuDepthMask( GL_TRUE );	// GL_TRUE to disable z-writes
@@ -1679,7 +1678,12 @@ bool PSPRenderer::FlushTris()
 	
 	sceGuSetMatrix( GU_PROJECTION, p_psp_proj );
 
-	RenderUsingCurrentBlendMode( p_vertices, num_vertices, RM_RENDER_3D, false );
+	// Hack for nascar games..to be honest I don't know why these games are so different...might be tricky to have a proper fix..
+	// Hack accuracy : works 100%
+	//
+	bool bIsZBuffer = (gRDPOtherMode.depth_source && g_ROM.GameHacks == NASCAR) ? true : false;
+
+	RenderUsingCurrentBlendMode( p_vertices, num_vertices, RM_RENDER_3D, bIsZBuffer );
 
 	sceGuDisable(GU_CULL_FACE);
 
@@ -2291,8 +2295,8 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 				s16 x = (u16)(val >> 16) >> 2;
 				s16 y = (u16)(val & 0xFFFF) >> 2;
 
-				x -= uViWidth / 2;
-				y = uViHeight / 2 - y;
+				//x -= uViWidth / 2;
+				//y = uViHeight / 2 - y;
 
 				DL_PF("		Modify vert %d: x=%d, y=%d", vert, x, y);
 				
@@ -2337,7 +2341,7 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 //*****************************************************************************
 inline void PSPRenderer::SetVtxColor( u32 vert, c32 color )
 {
-	DAEDALUS_ASSERT( vert > MAX_VERTS, " SetVtxColor : Reached max of verts");
+	DAEDALUS_ASSERT( vert < MAX_VERTS, " SetVtxColor : Reached max of verts");
 
 	mVtxProjected[vert].Colour = color.GetColourV4();
 }
@@ -2347,7 +2351,7 @@ inline void PSPRenderer::SetVtxColor( u32 vert, c32 color )
 //*****************************************************************************
 inline void PSPRenderer::SetVtxZ( u32 vert, float z )
 {
-	DAEDALUS_ASSERT( vert > MAX_VERTS, " SetVtxZ : Reached max of verts");
+	DAEDALUS_ASSERT( vert < MAX_VERTS, " SetVtxZ : Reached max of verts");
 
 #if 1
 	mVtxProjected[vert].TransformedPos.z = z;
@@ -2365,7 +2369,7 @@ inline void PSPRenderer::SetVtxZ( u32 vert, float z )
 //*****************************************************************************
 inline void PSPRenderer::SetVtxXY( u32 vert, float x, float y )
 {
-	DAEDALUS_ASSERT( vert > MAX_VERTS, " SetVtxXY : Reached max of verts");
+	DAEDALUS_ASSERT( vert < MAX_VERTS, " SetVtxXY : Reached max of verts %d",vert);
 
 #if 1
 	mVtxProjected[vert].TransformedPos.x = x;
@@ -2531,8 +2535,8 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 void	PSPRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 {
 	//Clamp scissor to max N64 screen resolution //Corn
-	if( x1 > uViWidth )  x1 = uViWidth;
-	if( y1 > uViHeight ) y1 = uViHeight;
+	//if( x1 > uViWidth )  x1 = uViWidth;
+	//if( y1 > uViHeight ) y1 = uViHeight;
 
 	v2		n64_coords_tl( x0, y0 );
 	v2		n64_coords_br( x1, y1 );

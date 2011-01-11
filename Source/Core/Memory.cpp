@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //Define to use TRUE REALITYs memory model
 //Seems more compatible (Salvy/Corn)
-//#define REALITY_MEM // Breaks GE007 and Paper Mario :(
+//#define REALITY_MEM // Breaks GE007 and Paper Mario, but Fixes Fzero U and Pokemon Stadium 1
 
 // Various stuff to map an address onto the correct memory region
 
@@ -230,7 +230,8 @@ MemMapEntry MemMapEntries[] =
 	{ 0xA470, 0xA47F, Read_8470_847F,	WriteInvalid,	WriteValue_8470_847F,	MEM_RI_REG, MEM_RI_REG },	// RI Reg
 	{ 0xA480, 0xA48F, Read_8480_848F,	WriteInvalid,	WriteValue_8480_848F,	0,			0 },			// SI Reg
 	{ 0xA490, 0xA4FF, ReadInvalid,		WriteInvalid,	WriteValueInvalid,		0,			0 },			// Unused
-	{ 0xA500, 0xA5FF, ReadROM,			WriteInvalid,	WriteValue_Cartridge,	0,			0 },			// Cartridge Domain 2 Address 1
+	//{ 0xA500, 0xA5FF, ReadROM,			WriteInvalid,	WriteValue_Cartridge,	0,			0 },			// Cartridge Domain 2 Address 1
+	{ 0xA500, 0xA5FF, Read_Noise,		WriteInvalid,	WriteValueNoise,		0,			0 },			// Cartridge Domain 2 Address 1 - set this area as invalid else Pokemon Stadium 1 won't boot ~ Salvy
 	{ 0xA600, 0xA7FF, ReadROM,			WriteInvalid,	WriteValue_Cartridge,	0,			0 },			// Cartridge Domain 1 Address 1
 	{ 0xA800, 0xAFFF, ReadROM,			WriteInvalid,	WriteValue_Cartridge,	0,			0 },			// Cartridge Domain 2 Address 2
 	{ 0xB000, 0xBFBF, ReadROM,			WriteInvalid,	WriteValue_Cartridge,	0,			0 },			// Cartridge Domain 1 Address 2
