@@ -2115,6 +2115,18 @@ sceGuTexFunc(GU_TFX_MODULATE, GU_TCC_RGBA);
 //#R
 */
 
+//Road Rush 64 trees
+//case 0x00129bfffffdf638LL:
+//aRGB0: (Texel0       - 0           ) * Env          + Primitive
+//aA0  : (Texel0       - 0           ) * Env          + Primitive
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x00129bfffffdf638LL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB( details.EnvColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+	 
 //Rush 2 - Cars
 //case 0x001216acf0fffe38LL:
 //aRGB0: (Texel0       - 0           ) * Shade        + 0
@@ -4784,6 +4796,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 	BLEND_MODE(0x00ffffffff09f63fLL);
 	BLEND_MODE(0x00fffffffffcfa7dLL);
 	BLEND_MODE(0x00377fff1ffcf438LL);
+	BLEND_MODE(0x00129bfffffdf638LL);//Road Rush64
 
 #undef BLEND_MODE
 	}

@@ -301,7 +301,6 @@ PSPRenderer::PSPRenderer()
 ,	mSmooth( true )
 ,	mSmoothShade( true )
 
-,	mEnPDepth( false )
 ,	mPrimDepth( 0.0f )
 
 ,	mFogColour(0x00FFFFFF)
@@ -836,9 +835,6 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 	DAEDALUS_PROFILE( "PSPRenderer::RenderUsingCurrentBlendMode" );
 
-	//SSV doesnt want us to clear it...strange...
-	if( g_ROM.GameHacks != SILICONVALLEY ) mEnPDepth = false;	//We clear SetPrimDepth flag here for now //Corn
-
 	// Hack for nascar games..to be honest I don't know why these games are so different...might be tricky to have a proper fix..
 	// Hack accuracy : works 100%
 	if ( disable_zbuffer || (gRDPOtherMode.depth_source && g_ROM.GameHacks == NASCAR) )
@@ -927,6 +923,40 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	// don't get rendered. (We also do this in Super Smash Bothers to ensure transparent pixels
 	// are not rendered. Also fixes other games - Kreationz). I hope this doesn't fuck anything up though. 
 	//
+#if 1	//1->Rice ALPHA, 0->Daedalus ALPHA //Corn
+    if( gRDPOtherMode.alpha_compare == 0 )
+	{
+		if( gRDPOtherMode.cvg_x_alpha && ( gRDPOtherMode.alpha_cvg_sel || gRDPOtherMode.aa_en ) )
+		{
+			// Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
+			// Is above still valid? //Corn
+			sceGuAlphaFunc(GU_GREATER, 0x80, 0xff);
+			sceGuEnable(GU_ALPHA_TEST);
+		}
+		else
+		{
+			sceGuDisable(GU_ALPHA_TEST);
+		}
+	}
+    else if( gRDPOtherMode.alpha_compare == 3 )
+		{
+			//RDP_ALPHA_COMPARE_DITHER
+			sceGuDisable(GU_ALPHA_TEST);
+		}
+    else if( gRDPOtherMode.alpha_cvg_sel && !gRDPOtherMode.cvg_x_alpha )
+        {
+            // Use CVG for pixel alpha
+            sceGuDisable(GU_ALPHA_TEST);
+        }
+        else
+        {
+            // RDP_ALPHA_COMPARE_THRESHOLD || RDP_ALPHA_COMPARE_DITHER
+			sceGuAlphaFunc( mAlphaThreshold ? GU_GREATER : GU_GEQUAL, mAlphaThreshold, 0xff);
+			sceGuEnable(GU_ALPHA_TEST);
+        }
+
+#else
+
 	if ( gRDPOtherMode.alpha_compare == 0 )
 	{
 		if ( gRDPOtherMode.cvg_x_alpha )	// I think this implies that alpha is coming from
@@ -961,6 +991,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 			sceGuEnable(GU_ALPHA_TEST);
 		}
 	}
+#endif
 
 	SBlendStateEntry		blend_entry;
 
@@ -1176,18 +1207,18 @@ bool PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	//DL_PF( "      Screen:  %f,%f -> %f,%f", screen0.x, screen0.y, screen1.x, screen1.y );
 	//DL_PF( "      Texture: %f,%f -> %f,%f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
 
-	// Weird Road Rash...*sigh*
-	// Fixes 1/2 sky covering the screen issue in RR..
-	bool bIsZBuffer = (mEnPDepth || g_ROM.GameHacks == ROAD_RASH) ? false : true;
-
 	DaedalusVtx trv[ 6 ];
+
+	f32 depth;
+	if( gRDPOtherMode.depth_source ) depth = mPrimDepth;
+	else depth = 0.0f;
 
 	v3	positions[ 4 ] =
 	{
-		v3( screen0.x, screen0.y, mPrimDepth ),
-		v3( screen1.x, screen0.y, mPrimDepth ),
-		v3( screen1.x, screen1.y, mPrimDepth ),
-		v3( screen0.x, screen1.y, mPrimDepth ),
+		v3( screen0.x, screen0.y, depth ),
+		v3( screen1.x, screen0.y, depth ),
+		v3( screen1.x, screen1.y, depth ),
+		v3( screen0.x, screen1.y, depth ),
 	};
 	v2	tex_coords[ 4 ] =
 	{
@@ -1205,7 +1236,7 @@ bool PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	trv[4] = DaedalusVtx( positions[ 0 ], 0xffffffff, tex_coords[ 0 ] );
 	trv[5] = DaedalusVtx( positions[ 3 ], 0xffffffff, tex_coords[ 3 ] );
 
-	return RenderTriangleList( trv, 6, bIsZBuffer );
+	return RenderTriangleList( trv, 6, gRDPOtherMode.depth_source ? false : true );
 }
 
 //*****************************************************************************
@@ -1228,10 +1259,10 @@ bool PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 
 	v3	positions[ 4 ] =
 	{
-		v3( screen0.x, screen0.y, mPrimDepth ),
-		v3( screen1.x, screen0.y, mPrimDepth ),
-		v3( screen1.x, screen1.y, mPrimDepth ),
-		v3( screen0.x, screen1.y, mPrimDepth ),
+		v3( screen0.x, screen0.y, gTexRectDepth ),
+		v3( screen1.x, screen0.y, gTexRectDepth ),
+		v3( screen1.x, screen1.y, gTexRectDepth ),
+		v3( screen0.x, screen1.y, gTexRectDepth ),
 	};
 	v2	tex_coords[ 4 ] =
 	{
@@ -1249,7 +1280,7 @@ bool PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	trv[4] = DaedalusVtx( positions[ 0 ], 0xffffffff, tex_coords[ 0 ] );
 	trv[5] = DaedalusVtx( positions[ 3 ], 0xffffffff, tex_coords[ 3 ] );
 
-	return RenderTriangleList( trv, 6, ~mEnPDepth );
+	return RenderTriangleList( trv, 6, true );
 }
 
 //*****************************************************************************

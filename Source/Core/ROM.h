@@ -113,15 +113,13 @@ enum EGameHacks
 	ZELDA_MM,
 	TIGERS_HONEY_HUNT,
 	CHAMELEON_TWIST,
-	ROAD_RASH,
 	NASCAR,
 	LOAD_RUNNER,
 	KILLER_INSTINCT,
 	KIRBY64,
 	TARZAN,
 	DONALD,
-	FZERO,
-	SILICONVALLEY
+	FZERO
 };
 
 //*****************************************************************************

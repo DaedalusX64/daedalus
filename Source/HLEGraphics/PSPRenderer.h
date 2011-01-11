@@ -113,8 +113,8 @@ public:
 	inline void			SetLighting(bool enable)				{ if( enable ) mTnLModeFlags |= TNL_LIGHT;	 else mTnLModeFlags &= ~TNL_LIGHT; }
 	inline void			SetTextureGen(bool enable)				{ if( enable ) mTnLModeFlags |= TNL_TEXGEN;  else mTnLModeFlags &= ~TNL_TEXGEN; }
 
-	// PrimDepth will replace the z value of next primitive rendered //Corn
-	inline void			SetPrimitiveDepth( u32 z )				{ mPrimDepth = (f32)( ( 32767 - z ) << 1); mEnPDepth = true; }
+	// PrimDepth will replace the z value if depth_source=1 //Corn
+	inline void			SetPrimitiveDepth( u32 z )				{ mPrimDepth = (f32)( ( ( 32767 - z ) << 1) + 1 ); }
 	inline void			SetPrimitiveColour( c32 colour )		{ mPrimitiveColour = colour; }
 	inline void			SetEnvColour( c32 colour )				{ mEnvColour = colour; }
 	inline void			ZBufferEnable(bool bZBuffer)			{ m_bZBuffer = bZBuffer; }
@@ -295,7 +295,6 @@ private:
 	bool				mSmooth;
 	bool				mSmoothShade;
 
-	bool				mEnPDepth;
 	f32					mPrimDepth;
 
 	c32					mFogColour;
