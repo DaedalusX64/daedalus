@@ -79,7 +79,7 @@ extern u32	gForceRGB;
 
 extern const char *gForceColor[8];
 extern const char *gPSPtxtFunc[10];
-extern const char *gCAdj[4];
+extern const char *gCAdj[5];
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -315,10 +315,10 @@ CBlendDebugMenuOption::CBlendDebugMenuOption()
 void CBlendDebugMenuOption::Display() const
 {
 	if( mSel == 0 && modify ) gTexInstall = mIdx & 1;
-	if( mSel == 1 && modify ) gSetRGB = mIdx & 3;
-	if( mSel == 2 && modify ) gSetA = mIdx & 3;
-	if( mSel == 3 && modify ) gSetRGBA = mIdx & 3;
-	if( mSel == 4 && modify ) gModA = mIdx & 3;
+	if( mSel == 1 && modify ) gSetRGB = mIdx % 5;
+	if( mSel == 2 && modify ) gSetA = mIdx % 5;
+	if( mSel == 3 && modify ) gSetRGBA = mIdx % 5;
+	if( mSel == 4 && modify ) gModA = mIdx % 5;
 	if( mSel == 5 && modify ) gAOpaque = mIdx & 1;
 	if( mSel == 6 && modify ) gsceENV = mIdx % 3;
 	if( mSel == 7 && modify ) gTXTFUNC = mIdx % 10;

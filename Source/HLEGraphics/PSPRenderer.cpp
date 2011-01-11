@@ -167,11 +167,11 @@ u32	gAOpaque=0;
 
 u32	gsceENV=0;
 
-u32	gTXTFUNC=0;
+u32	gTXTFUNC=6;	//defaults to replace
 
 u32	gNumCyc=3;
 
-u32	gForceRGB=0;
+u32	gForceRGB=6;	//defaults to magenta
 
 const char *gForceColor[8] =
 {
@@ -199,12 +199,13 @@ const char *gPSPtxtFunc[10] =
 	"Decal RGBA"
 };
 
-const char *gCAdj[4] =
+const char *gCAdj[5] =
 {
 	"OFF",
 	"Prim Color",
 	"Prim Color Replicate Alpha",
-	"Env Color"
+	"Env Color",
+	"Env Color Replicate Alpha",
 };
 
 #define BLEND_MODE_MAKER \
@@ -239,24 +240,28 @@ const char *gCAdj[4] =
 			if( gSetRGB==1 ) details.ColourAdjuster.SetRGB( details.PrimColour ); \
 			else if( gSetRGB==2 ) details.ColourAdjuster.SetRGB( details.PrimColour.ReplicateAlpha() ); \
 			else if( gSetRGB==3 ) details.ColourAdjuster.SetRGB( details.EnvColour ); \
+			else if( gSetRGB==4 ) details.ColourAdjuster.SetRGB( details.EnvColour.ReplicateAlpha() ); \
 		} \
 		if( gSetA ) \
 		{ \
 			if( gSetA==1 ) details.ColourAdjuster.SetA( details.PrimColour ); \
 			else if( gSetA==2 ) details.ColourAdjuster.SetA( details.PrimColour.ReplicateAlpha() ); \
 			else if( gSetA==3 ) details.ColourAdjuster.SetA( details.EnvColour ); \
+			else if( gSetA==4 ) details.ColourAdjuster.SetA( details.EnvColour.ReplicateAlpha() ); \
 		} \
 		if( gSetRGBA ) \
 		{ \
 			if( gSetRGBA==1 ) details.ColourAdjuster.SetRGBA( details.PrimColour ); \
 			else if( gSetRGBA==2 ) details.ColourAdjuster.SetRGBA( details.PrimColour.ReplicateAlpha() ); \
 			else if( gSetRGBA==3 ) details.ColourAdjuster.SetRGBA( details.EnvColour ); \
+			else if( gSetRGBA==4 ) details.ColourAdjuster.SetRGBA( details.EnvColour.ReplicateAlpha() ); \
 		} \
 		if( gModA ) \
 		{ \
 			if( gModA==1 ) details.ColourAdjuster.ModulateA( details.PrimColour ); \
 			else if( gModA==2 ) details.ColourAdjuster.ModulateA( details.PrimColour.ReplicateAlpha() ); \
 			else if( gModA==3 ) details.ColourAdjuster.ModulateA( details.EnvColour ); \
+			else if( gModA==4 ) details.ColourAdjuster.ModulateA( details.EnvColour.ReplicateAlpha() ); \
 		} \
 		if( gAOpaque ) details.ColourAdjuster.SetAOpaque(); \
 		if( gsceENV ) \
@@ -923,14 +928,43 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	// don't get rendered. (We also do this in Super Smash Bothers to ensure transparent pixels
 	// are not rendered. Also fixes other games - Kreationz). I hope this doesn't fuck anything up though. 
 	//
-#if 1	//1->Rice ALPHA, 0->Daedalus ALPHA //Corn
-    if( gRDPOtherMode.alpha_compare == 0 )
+#if 1	//1->Daedalus ALPHA, 0->Rice ALPHA //Corn
+	if( gRDPOtherMode.alpha_compare == 0 )
+	{
+		if( gRDPOtherMode.cvg_x_alpha )	// I think this implies that alpha is coming from
+		{
+			bStarOrigin = true;	// Used to enable Mario 64 star blend when alpha origs, we do this to avoid messing the text.
+			sceGuAlphaFunc(GU_GREATER, 0x70, 0xff); // Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
+			sceGuEnable(GU_ALPHA_TEST);
+		}
+		else
+		{
+			sceGuDisable(GU_ALPHA_TEST);
+		}
+	}
+	else
+	{
+		if( gRDPOtherMode.alpha_cvg_sel && !gRDPOtherMode.cvg_x_alpha ) //We need cvg_sel for SSVN characters to display
+		{
+			// Use CVG for pixel alpha
+			sceGuDisable(GU_ALPHA_TEST);
+		}
+		else
+		{
+			// G_AC_THRESHOLD || G_AC_DITHER
+			sceGuAlphaFunc( mAlphaThreshold ? GU_GREATER : GU_GEQUAL, mAlphaThreshold, 0xff);
+			sceGuEnable(GU_ALPHA_TEST);
+		}
+	}
+
+#else
+	if( gRDPOtherMode.alpha_compare == 0 )
 	{
 		if( gRDPOtherMode.cvg_x_alpha && ( gRDPOtherMode.alpha_cvg_sel || gRDPOtherMode.aa_en ) )
 		{
 			// Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
-			// Is above still valid? //Corn
-			sceGuAlphaFunc(GU_GREATER, 0x80, 0xff);
+			bStarOrigin = true;	// Used to enable Mario 64 star blend when alpha origs, we do this to avoid messing the text.
+			sceGuAlphaFunc(GU_GREATER, 0x70, 0xff);
 			sceGuEnable(GU_ALPHA_TEST);
 		}
 		else
@@ -954,43 +988,6 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 			sceGuAlphaFunc( mAlphaThreshold ? GU_GREATER : GU_GEQUAL, mAlphaThreshold, 0xff);
 			sceGuEnable(GU_ALPHA_TEST);
         }
-
-#else
-
-	if ( gRDPOtherMode.alpha_compare == 0 )
-	{
-		if ( gRDPOtherMode.cvg_x_alpha )	// I think this implies that alpha is coming from
-		{
-			bStarOrigin = true;	// Used to enable Mario 64 star blend when alpha origs, we do this to avoid messing the text.
-			sceGuAlphaFunc(GU_GREATER, 0x70, 0xff); // Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
-			sceGuEnable(GU_ALPHA_TEST);
-		}
-		else
-		{
-			sceGuDisable(GU_ALPHA_TEST);
-		}
-	}
-	else
-	{
-		if( (gRDPOtherMode.alpha_cvg_sel ) && !gRDPOtherMode.cvg_x_alpha ) //We need cvg_sel for SSVN characters to display
-		{
-			// Use CVG for pixel alpha
-			sceGuDisable(GU_ALPHA_TEST);
-		}
-		else
-		{
-			// G_AC_THRESHOLD || G_AC_DITHER
-			if(	mAlphaThreshold==0 )
-			{
-				sceGuAlphaFunc(GU_GREATER, 0, 0xff);
-			}
-			else
-			{
-				sceGuAlphaFunc(GU_GEQUAL, mAlphaThreshold, 0xff);
-			}
-			sceGuEnable(GU_ALPHA_TEST);
-		}
-	}
 #endif
 
 	SBlendStateEntry		blend_entry;
