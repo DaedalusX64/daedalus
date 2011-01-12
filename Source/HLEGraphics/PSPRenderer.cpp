@@ -113,8 +113,7 @@ u32		_ClipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, const 
 
 // Test all but Z_NEG (for No Near Plane microcodes)
 //static const u32 CLIP_TEST_FLAGS( X_POS | X_NEG | Y_POS | Y_NEG | Z_POS );
-//Skip Z clip all together according to RICE //Corn
-static const u32 CLIP_TEST_FLAGS( X_POS | X_NEG | Y_POS | Y_NEG );
+static const u32 CLIP_TEST_FLAGS( X_POS | X_NEG | Y_POS | Y_NEG | Z_POS | Z_NEG );
 
 #define GL_TRUE                           1
 #define GL_FALSE                          0
@@ -832,14 +831,13 @@ extern void InitBlenderMode( u32 blender );
 //*****************************************************************************
 void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, ERenderMode mode, bool disable_zbuffer )
 {
-	static bool		gZFightingEnabled	= false;
-	bool			gLastUseZBuffer		= false;
-
+	//These has to be static!!! //Corn
+	static u32	gLastRDPOtherMode	( 0 );
+	static bool	gZFightingEnabled	= false;
+	static bool	gLastUseZBuffer		= false;
 	u32 blender				( gOtherModeL );
-	u32	gLastRDPOtherMode	( 0 );
 
 	DAEDALUS_PROFILE( "PSPRenderer::RenderUsingCurrentBlendMode" );
-
 
 	if ( disable_zbuffer )
 	{
@@ -1188,6 +1186,18 @@ inline	v2	GetEdgeForCycleMode( void )
 }
 
 //*****************************************************************************
+// Used for TexRect, TexRectFlip, FillRect
+//*****************************************************************************
+void PSPRenderer::RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts, bool disable_zbuffer )
+{
+	DaedalusVtx*	p_vertices( (DaedalusVtx*)sceGuGetMemory(num_verts*sizeof(DaedalusVtx)) );
+	memcpy( p_vertices, p_verts, num_verts*sizeof(DaedalusVtx));
+
+	//sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
+	RenderUsingCurrentBlendMode( p_vertices, num_verts, RM_RENDER_2D, disable_zbuffer );
+}
+
+//*****************************************************************************
 //
 //*****************************************************************************
 bool PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
@@ -1205,9 +1215,7 @@ bool PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 
 	DaedalusVtx trv[ 6 ];
 
-	f32 depth;
-	if( gRDPOtherMode.depth_source ) depth = mPrimDepth;
-	else depth = 0.0f;
+	f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
 	v3	positions[ 4 ] =
 	{
@@ -1232,7 +1240,9 @@ bool PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	trv[4] = DaedalusVtx( positions[ 0 ], 0xffffffff, tex_coords[ 0 ] );
 	trv[5] = DaedalusVtx( positions[ 3 ], 0xffffffff, tex_coords[ 3 ] );
 
-	return RenderTriangleList( trv, 6, gRDPOtherMode.depth_source ? false : true );
+	RenderTriangleList( trv, 6, gRDPOtherMode.depth_source ? false : true );
+	
+	return true;
 }
 
 //*****************************************************************************
@@ -1276,7 +1286,9 @@ bool PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	trv[4] = DaedalusVtx( positions[ 0 ], 0xffffffff, tex_coords[ 0 ] );
 	trv[5] = DaedalusVtx( positions[ 3 ], 0xffffffff, tex_coords[ 3 ] );
 
-	return RenderTriangleList( trv, 6, true );
+	RenderTriangleList( trv, 6, true );
+
+	return true;
 }
 
 //*****************************************************************************
@@ -1333,7 +1345,9 @@ bool PSPRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	trv[4] = DaedalusVtx( positions[ 0 ], color, tex_coords[ 0 ] );
 	trv[5] = DaedalusVtx( positions[ 3 ], color, tex_coords[ 3 ] );
 
-	return RenderTriangleList( trv, 6, true );
+	RenderTriangleList( trv, 6, true );
+
+	return true;
 }
 
 //*****************************************************************************
@@ -1807,21 +1821,6 @@ void PSPRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num
 	_ConvertVerticesIndexed( p_vertices, mVtxProjected, num_vertices, m_swIndexBuffer );
 	*p_p_vertices = p_vertices;
 	*p_num_vertices = num_vertices;
-}
-
-//*****************************************************************************
-// Used for TexRect, TexRectFlip, FillRect
-//*****************************************************************************
-bool	PSPRenderer::RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts, bool disable_zbuffer )
-{
-
-	DaedalusVtx*	p_vertices( (DaedalusVtx*)sceGuGetMemory(num_verts*sizeof(DaedalusVtx)) );
-	memcpy( p_vertices, p_verts, num_verts*sizeof(DaedalusVtx));
-
-	//sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
-	RenderUsingCurrentBlendMode( p_vertices, num_verts, RM_RENDER_2D, disable_zbuffer );
-
-	return true;
 }
 
 // Ununsed... we might remove this, or keep it for check-in

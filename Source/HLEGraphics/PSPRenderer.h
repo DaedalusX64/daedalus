@@ -250,7 +250,7 @@ private:
 
 	v4					LightVert( const v3 & norm ) const;
 
-	bool				RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts, bool disable_zbuffer = false );
+	void				RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts, bool disable_zbuffer );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST	
 	enum EPlaceholderTextureType
