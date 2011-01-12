@@ -3,7 +3,6 @@
 #define __KULIBRARY__
 
 #include <pspsdk.h>
-#include <pspkernel.h>
 #include <pspsysmem_kernel.h>
 #include <pspctrl.h>
 

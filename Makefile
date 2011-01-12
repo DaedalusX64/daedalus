@@ -11,165 +11,166 @@
 
 TARGET = Daedalus
 
-DAED_MAIN_SRCS =	Source/ConfigOptions.cpp \
-			Source/SysPSP/main.cpp \
-			Source/Test/BatchTest.cpp
 
-DAED_DEBUG_SRCS =	Source/SysPSP/Debug/DBGConsolePSP.cpp \
-			Source/Debug/DebugLog.cpp \
-			Source/Debug/Dump.cpp
+DAED_MAIN_SRCS =	Source/ConfigOptions.o \
+			Source/SysPSP/main.o \
+			Source/Test/BatchTest.o
 
-DAED_CORE_SRCS =	Source/System.cpp \
-			Source/Core/CPU.cpp \
-			Source/Core/DMA.cpp \
-			Source/Core/Interrupts.cpp \
-			Source/Core/Memory.cpp \
-			Source/Core/PIF.cpp \
-			Source/Core/R4300.cpp \
-			Source/Core/Registers.cpp \
-			Source/Core/ROM.cpp \
-			Source/Core/RomSettings.cpp \
-			Source/Core/ROMBuffer.cpp \
-			Source/Core/ROMImage.cpp \
-			Source/Core/RSP.cpp \
-			Source/Core/RSP_HLE.cpp \
-			Source/Core/Savestate.cpp \
-			Source/Core/TLB.cpp \
-			Source/Core/Dynamo.cpp \
-			Source/Core/Interpret.cpp \
-			Source/Core/Save.cpp \
-			Source/Core/JpegTask.cpp \
-			Source/Core/FlashMem.cpp
+DAED_DEBUG_SRCS =	Source/SysPSP/Debug/DBGConsolePSP.o \
+			Source/Debug/DebugLog.o \
+			Source/Debug/Dump.o
 
-DAED_INTERFACE_SRCS =	Source/Interface/RomDB.cpp
+DAED_CORE_SRCS =	Source/System.o \
+			Source/Core/CPU.o \
+			Source/Core/DMA.o \
+			Source/Core/Interrupts.o \
+			Source/Core/Memory.o \
+			Source/Core/PIF.o \
+			Source/Core/R4300.o \
+			Source/Core/Registers.o \
+			Source/Core/ROM.o \
+			Source/Core/RomSettings.o \
+			Source/Core/ROMBuffer.o \
+			Source/Core/ROMImage.o \
+			Source/Core/RSP.o \
+			Source/Core/RSP_HLE.o \
+			Source/Core/Savestate.o \
+			Source/Core/TLB.o \
+			Source/Core/Dynamo.o \
+			Source/Core/Interpret.o \
+			Source/Core/Save.o \
+			Source/Core/JpegTask.o \
+			Source/Core/FlashMem.o
 
-DAED_INPUT_SRCS =	Source/SysPSP/Input/InputManagerPSP.cpp
+DAED_INTERFACE_SRCS =	Source/Interface/RomDB.o
 
-DAED_DYNREC_SRCS =  	Source/SysPSP/DynaRec/AssemblyUtilsPSP.cpp \
-			Source/SysPSP/DynaRec/AssemblyWriterPSP.cpp \
-			Source/SysPSP/DynaRec/CodeBufferManagerPSP.cpp \
-			Source/SysPSP/DynaRec/CodeGeneratorPSP.cpp \
-			Source/SysPSP/DynaRec/DynarecTargetPSP.cpp \
-			Source/SysPSP/DynaRec/N64RegisterCachePSP.cpp \
-			Source/SysPSP/DynaRec/DynaRecStubs.S \
-			Source/DynaRec/BranchType.cpp \
-			Source/DynaRec/DynaRecProfile.cpp \
-			Source/DynaRec/Fragment.cpp \
-			Source/DynaRec/FragmentCache.cpp \
-			Source/DynaRec/IndirectExitMap.cpp \
-			Source/DynaRec/StaticAnalysis.cpp \
-			Source/DynaRec/TraceRecorder.cpp
+DAED_INPUT_SRCS =	Source/SysPSP/Input/InputManagerPSP.o
 
-DAED_UTILITY_SRCS =	Source/Utility/CRC.cpp \
-			Source/Utility/FramerateLimiter.cpp \
-			Source/Utility/IniFile.cpp \
-			Source/Utility/Hash.cpp \
-			Source/Utility/MemoryHeap.cpp \
-			Source/Utility/Preferences.cpp \
-			Source/Utility/Profiler.cpp \
-			Source/Utility/ROMFile.cpp \
-			Source/Utility/ROMFileCache.cpp \
-			Source/Utility/ROMFileCompressed.cpp \
-			Source/Utility/ROMFileUncompressed.cpp \
-			Source/Utility/Stream.cpp \
-			Source/Utility/Timer.cpp \
-			Source/Utility/unzip.cpp \
-			Source/Utility/ZLibWrapper.cpp \
-			Source/Utility/PrintOpCode.cpp \
-			Source/Math/Matrix4x4.cpp
+DAED_DYNREC_SRCS =  	Source/SysPSP/DynaRec/AssemblyUtilsPSP.o \
+			Source/SysPSP/DynaRec/AssemblyWriterPSP.o \
+			Source/SysPSP/DynaRec/CodeBufferManagerPSP.o \
+			Source/SysPSP/DynaRec/CodeGeneratorPSP.o \
+			Source/SysPSP/DynaRec/DynarecTargetPSP.o \
+			Source/SysPSP/DynaRec/N64RegisterCachePSP.o \
+			Source/SysPSP/DynaRec/DynaRecStubs.o \
+			Source/DynaRec/BranchType.o \
+			Source/DynaRec/DynaRecProfile.o \
+			Source/DynaRec/Fragment.o \
+			Source/DynaRec/FragmentCache.o \
+			Source/DynaRec/IndirectExitMap.o \
+			Source/DynaRec/StaticAnalysis.o \
+			Source/DynaRec/TraceRecorder.o
 
-DAED_PSP_SRCS =		Source/SysPSP/Graphics/DrawText.cpp \
-			Source/SysPSP/Graphics/GraphicsContext.cpp \
-			Source/SysPSP/Graphics/NativeTexturePSP.cpp \
-			Source/SysPSP/Graphics/VideoMemoryManager.cpp \
-			Source/SysPSP/Graphics/PngUtilPSP.cpp \
+DAED_UTILITY_SRCS =	Source/Utility/CRC.o \
+			Source/Utility/FramerateLimiter.o \
+			Source/Utility/IniFile.o \
+			Source/Utility/Hash.o \
+			Source/Utility/MemoryHeap.o \
+			Source/Utility/Preferences.o \
+			Source/Utility/Profiler.o \
+			Source/Utility/ROMFile.o \
+			Source/Utility/ROMFileCache.o \
+			Source/Utility/ROMFileCompressed.o \
+			Source/Utility/ROMFileUncompressed.o \
+			Source/Utility/Stream.o \
+			Source/Utility/Timer.o \
+			Source/Utility/unzip.o \
+			Source/Utility/ZLibWrapper.o \
+			Source/Utility/PrintOpCode.o \
+			Source/Math/Matrix4x4.o
+
+DAED_PSP_SRCS =		Source/SysPSP/Graphics/DrawText.o \
+			Source/SysPSP/Graphics/GraphicsContext.o \
+			Source/SysPSP/Graphics/NativeTexturePSP.o \
+			Source/SysPSP/Graphics/VideoMemoryManager.o \
+			Source/SysPSP/Graphics/PngUtilPSP.o \
 			Source/SysPSP/Graphics/intraFont/intraFont.c \
 			Source/SysPSP/Graphics/intraFont/libccc.c \
-			Source/SysPSP/Debug/DaedalusAssertPSP.cpp \
-			Source/Graphics/ColourValue.cpp \
-			Source/SysPSP/UI/UIContext.cpp \
-			Source/SysPSP/UI/UIElement.cpp \
-			Source/SysPSP/UI/UICommand.cpp \
-			Source/SysPSP/UI/UIComponent.cpp \
-			Source/SysPSP/UI/UISetting.cpp \
-			Source/SysPSP/UI/UIScreen.cpp \
-			Source/SysPSP/UI/AboutComponent.cpp \
-			Source/SysPSP/UI/ColourPulser.cpp \
-			Source/SysPSP/UI/GlobalSettingsComponent.cpp \
-			Source/SysPSP/UI/RomPreferencesScreen.cpp \
-			Source/SysPSP/UI/AdvancedOptionsScreen.cpp \
-			Source/SysPSP/UI/SavestateSelectorComponent.cpp \
-			Source/SysPSP/UI/PauseOptionsComponent.cpp \
-			Source/SysPSP/UI/SelectedRomComponent.cpp \
-			Source/SysPSP/UI/AdjustDeadzoneScreen.cpp \
-			Source/SysPSP/UI/MainMenuScreen.cpp \
-			Source/SysPSP/UI/PauseScreen.cpp \
-			Source/SysPSP/UI/SplashScreen.cpp \
-			Source/SysPSP/Utility/AtomicPrimitives.S \
-			Source/SysPSP/Utility/BatteryPSP.cpp \
-			Source/SysPSP/Utility/JobManager.cpp \
-			Source/SysPSP/Utility/DebugMemory.cpp \
-			Source/SysPSP/Utility/DisableFPUExceptions.S \
-			Source/SysPSP/Utility/IOPSP.cpp \
-			Source/SysPSP/Utility/ThreadPSP.cpp \
-			Source/SysPSP/Utility/TimingPSP.cpp \
-			Source/SysPSP/Utility/FastMemcpy.cpp \
-			Source/SysPSP/MediaEnginePRX/MediaEngine.S \
+			Source/SysPSP/Debug/DaedalusAssertPSP.o \
+			Source/Graphics/ColourValue.o \
+			Source/SysPSP/UI/UIContext.o \
+			Source/SysPSP/UI/UIElement.o \
+			Source/SysPSP/UI/UICommand.o \
+			Source/SysPSP/UI/UIComponent.o \
+			Source/SysPSP/UI/UISetting.o \
+			Source/SysPSP/UI/UIScreen.o \
+			Source/SysPSP/UI/AboutComponent.o \
+			Source/SysPSP/UI/ColourPulser.o \
+			Source/SysPSP/UI/GlobalSettingsComponent.o \
+			Source/SysPSP/UI/RomPreferencesScreen.o \
+			Source/SysPSP/UI/AdvancedOptionsScreen.o \
+			Source/SysPSP/UI/SavestateSelectorComponent.o \
+			Source/SysPSP/UI/PauseOptionsComponent.o \
+			Source/SysPSP/UI/SelectedRomComponent.o \
+			Source/SysPSP/UI/AdjustDeadzoneScreen.o \
+			Source/SysPSP/UI/MainMenuScreen.o \
+			Source/SysPSP/UI/PauseScreen.o \
+			Source/SysPSP/UI/SplashScreen.o \
+			Source/SysPSP/Utility/AtomicPrimitives.o \
+			Source/SysPSP/Utility/BatteryPSP.o \
+			Source/SysPSP/Utility/JobManager.o \
+			Source/SysPSP/Utility/DebugMemory.o \
+			Source/SysPSP/Utility/DisableFPUExceptions.o \
+			Source/SysPSP/Utility/IOPSP.o \
+			Source/SysPSP/Utility/ThreadPSP.o \
+			Source/SysPSP/Utility/TimingPSP.o \
+			Source/SysPSP/Utility/FastMemcpy.o \
+			Source/SysPSP/MediaEnginePRX/MediaEngine.o \
 			Source/SysPSP/MediaEnginePRX/me.c \
-			Source/SysPSP/DveMgr/pspDveManager.S \
-			Source/SysPSP/KernelButtonsPrx/imposectrl.S \
-			Source/SysPSP/Utility/Buttons.cpp \
-			Source/SysPSP/Utility/exception.cpp
+			Source/SysPSP/DveMgr/pspDveManager.o \
+			Source/SysPSP/KernelButtonsPrx/imposectrl.o \
+			Source/SysPSP/Utility/Buttons.o \
+			Source/SysPSP/Utility/exception.o
 
-DAED_HLEGFX_SRCS =	Source/SysPSP/Plugins/GraphicsPluginPSP.cpp \
-			Source/Plugins/GraphicsPlugin.cpp \
-			Source/HLEGraphics/Blender.cpp \
-			Source/HLEGraphics/BlendModes.cpp \
-			Source/HLEGraphics/ColourAdjuster.cpp \
-			Source/HLEGraphics/ConvertImage.cpp \
-			Source/HLEGraphics/DisplayListDebugger.cpp \
-			Source/HLEGraphics/DLParser.cpp \
-			Source/HLEGraphics/Microcode.cpp \
-			Source/HLEGraphics/RDP.cpp \
-			Source/HLEGraphics/RDPStateManager.cpp \
-			Source/HLEGraphics/PSPRenderer.cpp \
-			Source/HLEGraphics/Texture.cpp \
-			Source/HLEGraphics/TextureCache.cpp \
-			Source/HLEGraphics/TextureDescriptor.cpp \
-			Source/HLEGraphics/Ucode.cpp \
-			Source/HLEGraphics/gsp/gspMacros.cpp \
-			Source/HLEGraphics/gsp/gspSprite2D.cpp \
-			Source/HLEGraphics/gsp/gspS2DEX.cpp \
-			Source/HLEGraphics/gsp/gspCustom.cpp \
-			Source/SysPSP/HLEGraphics/ConvertVertices.S \
-			Source/SysPSP/HLEGraphics/TransformWithColour.S\
-			Source/SysPSP/HLEGraphics/TransformWithLighting.S\
-			Source/SysPSP/HLEGraphics/VectorClipping.S \
-			Source/HLEGraphics/Combiner/CombinerExpression.cpp \
-			Source/HLEGraphics/Combiner/CombinerTree.cpp \
-			Source/HLEGraphics/Combiner/RenderSettings.cpp
+DAED_HLEGFX_SRCS =	Source/SysPSP/Plugins/GraphicsPluginPSP.o \
+			Source/Plugins/GraphicsPlugin.o \
+			Source/HLEGraphics/Blender.o \
+			Source/HLEGraphics/BlendModes.o \
+			Source/HLEGraphics/ColourAdjuster.o \
+			Source/HLEGraphics/ConvertImage.o \
+			Source/HLEGraphics/DisplayListDebugger.o \
+			Source/HLEGraphics/DLParser.o \
+			Source/HLEGraphics/Microcode.o \
+			Source/HLEGraphics/RDP.o \
+			Source/HLEGraphics/RDPStateManager.o \
+			Source/HLEGraphics/PSPRenderer.o \
+			Source/HLEGraphics/Texture.o \
+			Source/HLEGraphics/TextureCache.o \
+			Source/HLEGraphics/TextureDescriptor.o \
+			Source/HLEGraphics/Ucode.o \
+			Source/HLEGraphics/gsp/gspMacros.o \
+			Source/HLEGraphics/gsp/gspSprite2D.o \
+			Source/HLEGraphics/gsp/gspS2DEX.o \
+			Source/HLEGraphics/gsp/gspCustom.o \
+			Source/SysPSP/HLEGraphics/ConvertVertices.o \
+			Source/SysPSP/HLEGraphics/TransformWithColour.o\
+			Source/SysPSP/HLEGraphics/TransformWithLighting.o\
+			Source/SysPSP/HLEGraphics/VectorClipping.o \
+			Source/HLEGraphics/Combiner/CombinerExpression.o \
+			Source/HLEGraphics/Combiner/CombinerTree.o \
+			Source/HLEGraphics/Combiner/RenderSettings.o
 
-DAED_AUDIO_SRCS =  	Source/HLEAudio/ABI1.cpp \
-			Source/HLEAudio/ABI2.cpp \
-			Source/HLEAudio/ABI3.cpp \
-			Source/HLEAudio/ABI3mp3.cpp \
-			Source/HLEAudio/AudioBuffer.cpp \
-			Source/HLEAudio/AudioHLEProcessor.cpp \
-			Source/HLEAudio/HLEMain.cpp \
-			Source/SysPSP/HLEAudio/AudioCodePSP.cpp \
-			Source/SysPSP/HLEAudio/AudioPluginPSP.cpp
+DAED_AUDIO_SRCS =  	Source/HLEAudio/ABI1.o \
+			Source/HLEAudio/ABI2.o \
+			Source/HLEAudio/ABI3.o \
+			Source/HLEAudio/ABI3mp3.o \
+			Source/HLEAudio/AudioBuffer.o \
+			Source/HLEAudio/AudioHLEProcessor.o \
+			Source/HLEAudio/HLEMain.o \
+			Source/SysPSP/HLEAudio/AudioCodePSP.o \
+			Source/SysPSP/HLEAudio/AudioPluginPSP.o
 
-DAED_OSHLE_SRCS = 	Source/OSHLE/OS.cpp \
-			Source/OSHLE/patch.cpp
+DAED_OSHLE_SRCS = 	Source/OSHLE/OS.o \
+			Source/OSHLE/patch.o
 
-DAED_RELEASE_SRCS 	= 	Source/SysPSP/UI/RomSelectorComponent.cpp 
+DAED_RELEASE_SRCS 	= 	Source/SysPSP/UI/RomSelectorComponent.o 
 
-DAED_GPROF_SRCS 	= 	Source/SysPSP/Debug/prof.c \
-			Source/SysPSP/Debug/mcount.S
+DAED_GPROF_SRCS 	= 	Source/SysPSP/Debug/prof.o \
+			Source/SysPSP/Debug/mcount.o
 
-ADDITIONAL_DEBUG_SRCS = Source/SysPSP/UI/RomSelectorComponent.cpp
+ADDITIONAL_DEBUG_SRCS = Source/SysPSP/UI/RomSelectorComponent.o
 
-ADDITIONAL_SYNC_SRCS  = Source/Utility/Synchroniser.cpp Source/Utility/ZLibWrapper.cpp
+ADDITIONAL_SYNC_SRCS  = Source/Utility/Synchroniser.o Source/Utility/ZLibWrapper.o
 
 CORE_SRCS = $(DAED_MAIN_SRCS) $(DAED_DEBUG_SRCS) $(DAED_CORE_SRCS) $(DAED_INTERFACE_SRCS) \
 	    $(DAED_INPUT_SRCS) $(DAED_DYNREC_SRCS) $(DAED_UTILITY_SRCS) $(DAED_PSP_SRCS) \
@@ -190,7 +191,7 @@ ifdef DEBUG
 				  -Wredundant-decls -Wshadow -Wwrite-strings
 				#-Winline -Wcast-align 
 
-	SRCS			= $(CORE_SRCS) $(ADDITIONAL_DEBUG_SRCS) $(ADDITIONAL_SYNC_SRCS)
+	OBJS 			= $(CORE_SRCS) $(ADDITIONAL_DEBUG_SRCS) $(ADDITIONAL_SYNC_SRCS)
 else 
 	CFLAGS			= -O2 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant
 					#-fno-builtin
@@ -198,9 +199,13 @@ else
 					#-funroll-loops 
 	LDFLAGS 		= "-Wl,-O1"
 
-	SRCS			= $(CORE_SRCS) $(DAED_RELEASE_SRCS)
+	OBJS 			= $(CORE_SRCS) $(DAED_RELEASE_SRCS)
 endif
 endif
+
+#PSPPORT = Source/ConfigOptions.o Source/Test/BatchTest.o $(CORE_SRCS) $(DAED_RELEASE_SRCS)
+#OBJS = Source/SysPSP/main.o $(PSPPORT)
+
 
 ifndef CONFIG
 	CONFIG=Release
@@ -208,13 +213,13 @@ endif
 
 CXXFLAGS = -fno-exceptions -fno-rtti -iquote./Source/SysPSP/Include -iquote./Source/Config/$(CONFIG) -iquote./Source -iquote./Source/SysPSP
 
-OBJS := $(SRCS:.cpp=.o)
-OBJS := $(OBJS:.c=.o)
-OBJS := $(OBJS:.S=.o)
+#OBJS := $(SRCS:.o=.o)
+#OBJS := $(OBJS:.c=.o)
+#OBJS := $(OBJS:.S=.o)
 
-DEP_FILES := $(SRCS:.cpp=.d)
-DEP_FILES := $(DEP_FILES:.c=.d)
-DEP_FILES := $(DEP_FILES:.S=.d)
+#DEP_FILES := $(SRCS:.o=.d)
+#DEP_FILES := $(DEP_FILES:.c=.d)
+#DEP_FILES := $(DEP_FILES:.S=.d)
 
 ASFLAGS =
 
@@ -331,5 +336,5 @@ allclean: clean
 	$(MAKE) -C Source/SysPSP/DveMgr clean
 	$(MAKE) -C Source/SysPSP/KernelButtonsPrx clean
 
--include $(DEP_FILES)
+#-include $(DEP_FILES)
 
