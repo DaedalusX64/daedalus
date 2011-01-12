@@ -34,6 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Preferences.h"
 #include "Utility/Timing.h"
 
+#include <pspdisplay.h>
 #include <pspdebug.h>
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -230,7 +231,10 @@ void CGraphicsPluginPsp::UpdateScreen()
 				pspDebugScreenSetTextColor( 0xffffffff );
 				pspDebugScreenSetBackColor(0);
 				pspDebugScreenSetXY(0, 0);
-				
+
+				// Native fps counter, doesn't seem to work :(
+				//printf( "%#.1f\n", sceDisplayGetFramePerSec() );
+
 				switch(gGlobalPreferences.DisplayFramerate)
 				{
 					case 1:

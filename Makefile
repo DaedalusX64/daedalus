@@ -84,8 +84,8 @@ DAED_PSP_SRCS =		Source/SysPSP/Graphics/DrawText.o \
 			Source/SysPSP/Graphics/NativeTexturePSP.o \
 			Source/SysPSP/Graphics/VideoMemoryManager.o \
 			Source/SysPSP/Graphics/PngUtilPSP.o \
-			Source/SysPSP/Graphics/intraFont/intraFont.c \
-			Source/SysPSP/Graphics/intraFont/libccc.c \
+			Source/SysPSP/Graphics/intraFont/intraFont.o \
+			Source/SysPSP/Graphics/intraFont/libccc.o \
 			Source/SysPSP/Debug/DaedalusAssertPSP.o \
 			Source/Graphics/ColourValue.o \
 			Source/SysPSP/UI/UIContext.o \
@@ -116,7 +116,7 @@ DAED_PSP_SRCS =		Source/SysPSP/Graphics/DrawText.o \
 			Source/SysPSP/Utility/TimingPSP.o \
 			Source/SysPSP/Utility/FastMemcpy.o \
 			Source/SysPSP/MediaEnginePRX/MediaEngine.o \
-			Source/SysPSP/MediaEnginePRX/me.c \
+			Source/SysPSP/MediaEnginePRX/me.o \
 			Source/SysPSP/DveMgr/pspDveManager.o \
 			Source/SysPSP/KernelButtonsPrx/imposectrl.o \
 			Source/SysPSP/Utility/Buttons.o \
@@ -187,13 +187,15 @@ ifdef DEBUG
 	CONFIG=Dev #default config in Debug build is "Dev"
 
 	CFLAGS			= -g -O1 -fno-omit-frame-pointer -G0 -D_DEBUG -MD \
-				  -W -Wcast-qual -Wchar-subscripts -Wno-unused -Wpointer-arith\
-				  -Wredundant-decls -Wshadow -Wwrite-strings
-				#-Winline -Wcast-align 
+					-W -Wcast-qual -Wchar-subscripts -Wno-unused -Wpointer-arith\
+					-Wredundant-decls -Wshadow -Wwrite-strings
+					# -MD 
+					#-Winline -Wcast-align 
 
 	OBJS 			= $(CORE_SRCS) $(ADDITIONAL_DEBUG_SRCS) $(ADDITIONAL_SYNC_SRCS)
 else 
-	CFLAGS			= -O2 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant
+	CFLAGS			= -O2 -G0 -DNDEBUG -Wall -ffast-math -fsingle-precision-constant
+					# -MD 
 					#-fno-builtin
 					#-fgcse-after-reload
 					#-funroll-loops 
