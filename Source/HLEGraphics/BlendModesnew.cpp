@@ -128,6 +128,16 @@ void PrintMux( FILE * fh, u64 mux )
 /*
 //#A
 */
+//Aerogauge Water
+//case 0x00157fff2ffd7a38LL:
+//aRGB0: (Texel0       - Texel1      ) * Prim_Alpha   + Texel1      
+//aA0  : (0            - 0           ) * 0            + Env         
+//aRGB1: (0            - 0           ) * 0            + Combined    
+//aA1  : (0            - 0           ) * 0            + Combined    
+void BlendMode_0x00157fff2ffd7a38LL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
 
 /* 
 //#B
@@ -208,8 +218,19 @@ void BlendMode_0x002698041f14ffffLL( BLEND_MODE_ARGS )
 */
 
 /*
-#G
+//#G
 */
+
+//GoldenEye 007 - Dead Enemies
+//case 0x00159a045ffefff8LL:
+//aRGB0: (Texel0       - Env         ) * Shade_Alpha  + Env
+//aA0  : (Texel0       - 0           ) * Env          + 0
+//aRGB1: (Combined     - 0           ) * Shade        + 0
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x00159a045ffefff8LL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
 
 /*
 //#H
@@ -268,6 +289,27 @@ void BlendMode_0x00fffffffffcfa7dLL (BLEND_MODE_ARGS)
 /* 
 //#S
 */
+//Space Station Silicon Valley - Power Spheres
+//case 0x00377fff1ffcf438LL:
+//aRGB0: (Primitive    - Texel0      ) * PrimLODFrac  + Texel0
+//aA0  : (0            - 0           ) * 0            + Texel1
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x00377fff1ffcf438LL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
+// Space Station Silicon Valley - Cave inside Waterfalls
+// case 0x00277e041ffcf3fcLL:
+//aRGB0: (Texel1       - Texel0      ) * PrimLODFrac  + Texel0
+//aA0  : (0            - 0           ) * 0            + Texel0
+//aRGB1: (Combined     - 0           ) * Shade        + 0
+//aA1  : (0            - 0           ) * 0            + Shade
+void BlendMode_0x00277e041ffcf3fcLL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
 
 //SSSV - Environments
 //	case 0x0026a0041ffc93fcLL:
@@ -280,19 +322,17 @@ void BlendMode_0x0026a0041ffc93fcLL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
-// Mario 64 Head
-//case 0x0030b26144664924LL:
-//aRGB0: (Primitive    - Shade       ) * Texel0       + Shade       
-//aA0  : (Primitive    - Shade       ) * Texel0       + Shade       
-//aRGB1: (Primitive    - Shade       ) * Texel0       + Shade       
-//aA1  : (Primitive    - Shade       ) * Texel0       + Shade       
-
-//Mario 64
+// Super Mario 64 - Mario Face
 //case 0x00147e2844fe7b3dLL:
 //aRGB0: (Texel0       - Shade       ) * Texel0_Alp   + Shade       
 //aA0  : (0            - 0           ) * 0            + Env         
 //aRGB1: (Texel0       - Shade       ) * Texel0_Alp   + Shade       
-//aA1  : (0            - 0           ) * 0            + Env       
+//aA1  : (0            - 0           ) * 0            + Env     
+void BlendMode_0x00147e2844fe7b3dLL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_DECAL,GU_TCC_RGBA);
+}
+
 
 //SSB Walking Dust
 //case 0x0030b2615566db6dLL:
@@ -399,7 +439,6 @@ void BlendMode_0x002527ff1ffc9238LL (BLEND_MODE_ARGS)
 void BlendMode_0x0030b2045ffefff8LL (BLEND_MODE_ARGS)
 {
 	details.ColourAdjuster.SetRGB( c32::White );
-	sceGuTexEnvColor( details.PrimColour.GetColour() );
 	sceGuTexFunc(GU_TFX_BLEND, GU_TCC_RGBA);
 	
 }
@@ -772,6 +811,70 @@ void BlendMode_0x0030fe045ffef3f8LL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
+
+//Zelda Cukuaan Egg
+//case 0x0030ec6155daed76LL:
+//aRGB0: (Primitive    - Env         ) * Texel0       + Env         
+//aA0  : (1            - 1           ) * 1            + 1           
+//aRGB1: (Primitive    - Env         ) * Texel0       + Env         
+//aA1  : (1            - 1           ) * 1            + 1           
+void BlendMode_0x0030ec6155daed76LL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
+}
+
+// Zelda Butterflies
+//case 0x00119604ff5bfff8LL:
+//aRGB0: (Texel0       - 0           ) * Primitive    + 0           
+//aA0  : (Texel0       - 0           ) * Primitive    + 0           
+//aRGB1: (Combined     - 0           ) * Shade        + 0           
+//aA1  : (Texel1       - 0           ) * 1            + Combined  
+void BlendMode_0x00119604ff5bfff8LL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+
+//OOT Hyrule Castle Wall Shadow
+//	case 0x00267e031ffcfdf8LL:
+//aRGB0: (Texel1       - Texel0      ) * Env_Alpha    + Texel0      
+//aA0  : (0            - 0           ) * 0            + 1           
+//aRGB1: (Combined     - 0           ) * Primitive    + 0           
+//aA1  : (0            - 0           ) * 0            + Combined    
+void BlendMode_0x00267e031ffcfdf8LL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.EnvColour.ReplicateAlpha());		
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
+//OOT Castle light
+//case 0x00272c60340c933fLL:
+//aRGB0: (Texel1       - Primitive   ) * PrimLODFrac  + Texel0      
+//aA0  : (Texel1       - Texel0      ) * 1            + Texel0      
+//aRGB1: (Primitive    - Shade       ) * Combined     + Shade       
+//aA1  : (Combined     - 0           ) * Primitive    + 0   
+	
+void BlendMode_0x00272c60340c933fLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.PrimColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
+// OOT - Song of Time
+//		case 0x00262a603510937fLL:
+//aRGB0: (Texel1       - Primitive   ) * Env_Alpha    + Texel0      
+//aA0  : (Texel1       - Texel0      ) * Env          + Texel0      
+//aRGB1: (Primitive    - Env         ) * Combined     + Env         
+//aA1  : (Combined     - 0           ) * Shade        + 0       
+
+void BlendMode_0x00262a603510937fLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+	
+	
+	
+	
+	
+	
 OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 {
 #ifndef DAEDALUS_PUBLIC_RELEASE
@@ -780,10 +883,13 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 	switch(mux)
 	{
 #define BLEND_MODE( x )		case (x):	return BlendMode_##x;
+			BLEND_MODE(0x00119604ff5bfff8LL); // Zelda Butterflies
 			BLEND_MODE(0x0011fffffffffc38LL); // Zelda Rupees
 			BLEND_MODE(0x00121603ff5bfff8LL); // Zelda Paths
 			BLEND_MODE(0x00127e2433fdf8fcLL); // Wetrix Background / Banjo Kazooie
 			BLEND_MODE(0x001298043f15ffffLL); // Banjo Kazooie N64 Logo / Characters
+			BLEND_MODE(0x00157fff2ffd7a38LL); // Aerogauge Water 
+			BLEND_MODE(0x00159a045ffefff8LL); // Goldeneye 007 - Dead Enemies
 			BLEND_MODE(0x00167e6035fcff7eLL); // OOT, MM Intro (N64 Logo)
 			BLEND_MODE(0x0017166035fcff78LL); // OOT Deku tree Flash
 			BLEND_MODE(0x00171c6035fd6578LL); // Gold Skulltula Badge Placeholder
@@ -794,8 +900,10 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 			BLEND_MODE(0x0020ac60350c937fLL); // Zelda Chest Opening Light
 			BLEND_MODE(0x002527ff1ffc9238LL); // OOT Sky
 			BLEND_MODE(0x00262a041f0c93ffLL); // OOT Fog in Deku Tree
+			BLEND_MODE(0x00262a603510937fLL); // OOT - Song of Time
 			BLEND_MODE(0x0026a060150c937fLL); // Zelda Boss Portal
 			BLEND_MODE(0x0026a0041ffc93fcLL); // SSSV Environments
+			BLEND_MODE(0x00267e031ffcfdf8LL); // OOT Hyrule Castle Shadows
 			BLEND_MODE(0x00262a041f5893f8LL); // Zelda Deku Tree
 			BLEND_MODE(0x00262a60150c937fLL); // Zelda Fairies
 			BLEND_MODE(0x00267e041f0cfdffLL); // Zelda OOT Water
@@ -803,20 +911,24 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 			BLEND_MODE(0x002698041f14ffffLL); // Banjo Kazooie Paths
 			BLEND_MODE(0x00271860350cff7fLL); // Deku Tree Light
 			BLEND_MODE(0x00271c6035fcf378LL); // Zelda Fairy Spirit.
+			BLEND_MODE(0x00272c60340c933fLL); // Zelda Castle Light
 			BLEND_MODE(0x00272c60150c937fLL); // Zelda Heart Container
 			BLEND_MODE(0x00272c60350c937fLL); // OOT Spiritual Stones / Pokeball
 			BLEND_MODE(0x00272c60350ce37fLL); // OOT Logo / Flames
 			BLEND_MODE(0x00272c6035fc9378LL); // Zelda Bottled Water
 			BLEND_MODE(0x00272c6035fce378LL); // Zelda Blue Fire Lamp
 			BLEND_MODE(0x00276c6035d8ed76LL); // OOT Deku Nut Core
+			BLEND_MODE(0x00277e041ffcf3fcLL); // SSSV - Caves inside waterfalls
 			BLEND_MODE(0x00277e6035fcf778LL); // Zelda Triforce
 			BLEND_MODE(0x0030b2045ffefff8LL); // OOT - Eponas Dust
 			BLEND_MODE(0x0030b2615566db6dLL); // SSB Character Dust
 			BLEND_MODE(0x0030b3ff5ffeda38LL); // OOT Sign Cut (Sword)
+			BLEND_MODE(0x0030ec6155daed76LL); // Cucukan Egg
 			BLEND_MODE(0x0030ec045fdaedf6LL); // Zelda Arrows in Shop
 			BLEND_MODE(0x0030fe045f0ef3ffLL); // Gold Skulltula Eyes
 			BLEND_MODE(0x0030fe045ffef3f8LL); // Zelda Bottle Decal
 			BLEND_MODE(0x0030fe045ffefdfeLL); // Zelda Kokori Sword Handle
+			BLEND_MODE(0x00377fff1ffcf438LL); // Space Station Silicon Valley - Power Spheres
 			BLEND_MODE(0x0062fe043f15f9ffLL); // Banjo Kazooie Backdrop
 			BLEND_MODE(0x00772c60f5fce378LL); // Zelda Poe
 			BLEND_MODE(0x00fffffffffcfa7dLL); // Mario 64 Stars
