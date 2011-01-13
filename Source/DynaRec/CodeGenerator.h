@@ -52,7 +52,7 @@ class CCodeGenerator
 		virtual						~CCodeGenerator() {}
 
 		virtual void				Initialise( u32 entry_address, u32 exit_address, u32 * hit_counter, const void * p_base, const SRegisterUsageInfo & register_usage ) = 0;
-		virtual void				Finalise( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps ) = 0;
+		virtual void				Finalise() = 0;
 
 		virtual void				UpdateRegisterCaching( u32 instruction_idx ) = 0;
 

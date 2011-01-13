@@ -295,7 +295,7 @@ void StaticAnalysis_SDR( OpCode op_code, RegisterUsage & recorder )
 void StaticAnalysis_CACHE( OpCode op_code, RegisterUsage & recorder )
 {
 	recorder.Record( RegBaseUse( op_code.base ) );
-	//recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_LWC1( OpCode op_code, RegisterUsage & recorder ) 				// Load Word to Copro 1 (FPU)

@@ -212,18 +212,21 @@ namespace
 				NODEFAULT;
 		}
 	}
-
-	void UpdateCountAndHandleException( u32 instructions_executed )
-	{
 #ifdef UPDATE_COUNTER_ON_EXCEPTION
+	void UpdateCountAndHandleException_Counter( u32 instructions_executed )
+	{
 		// If we're updating the counter on every instruction, there's no need to do this...
 	#ifndef IMMEDIATE_COUNTER_UPDATE
 		CPU_UpdateCounterNoInterrupt( instructions_executed );
 	#endif
-#endif
 		HandleException();
 	}
-
+#else
+	void UpdateCountAndHandleException()
+	{
+		HandleException();
+	}
+#endif
 	void CheckCop1Usable()
 	{
 		if( (gCPUState.CPUControl[C0_SR]._u32_0 & SR_CU1) == 0 )
@@ -286,7 +289,11 @@ CFragment * CFragment::Simulate()
 			CheckCop1Usable();
 			if(gCPUState.GetStuffToDo() != 0)
 			{
-				UpdateCountAndHandleException( instructions_executed );
+#ifdef UPDATE_COUNTER_ON_EXCEPTION
+				UpdateCountAndHandleException_Counter( instructions_executed );
+#else
+				UpdateCountAndHandleException();
+#endif
 				return NULL;
 			}
 		}
@@ -302,7 +309,11 @@ CFragment * CFragment::Simulate()
 
 		if(gCPUState.GetStuffToDo() != 0)
 		{
-			UpdateCountAndHandleException( instructions_executed );
+#ifdef UPDATE_COUNTER_ON_EXCEPTION
+			UpdateCountAndHandleException_Counter( instructions_executed );
+#else
+			UpdateCountAndHandleException();
+#endif
 			return NULL;
 		}
 
@@ -434,21 +445,29 @@ CFragment * CFragment::Simulate()
 				CheckCop1Usable();
 				if(gCPUState.GetStuffToDo() != 0)
 				{
-					UpdateCountAndHandleException( instructions_executed );
+#ifdef UPDATE_COUNTER_ON_EXCEPTION
+					UpdateCountAndHandleException_Counter( instructions_executed );
+#else
+					UpdateCountAndHandleException();
+#endif
 					return NULL;
 				}
 			}
 
 			CPU_ExecuteOpRaw( count_entry+instructions_executed, delay_address, delay_op_code, R4300Instruction[ delay_op_code.op ], &dummy_branch_taken );
 
-	#ifdef IMMEDIATE_COUNTER_UPDATE
+#ifdef IMMEDIATE_COUNTER_UPDATE
 			CPU_UpdateCounter( 1 );
-	#endif
+#endif
 			instructions_executed++;
 
 			if(gCPUState.GetStuffToDo() != 0)
 			{
-				UpdateCountAndHandleException( instructions_executed );
+#ifdef UPDATE_COUNTER_ON_EXCEPTION
+				UpdateCountAndHandleException_Counter( instructions_executed );
+#else
+				UpdateCountAndHandleException();
+#endif
 				return NULL;
 			}
 
@@ -625,7 +644,6 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 				DBGConsole_Msg( 0, "Found skip to event speedhack at: %08x (0x%08x)", ti.Address, op_code._u32 );
 				p_generator->ExecuteNativeFunction( CCodeLabel( reinterpret_cast< const void * >( CPU_SkipToNextEvent ) ) );
 			}
-#ifndef DAEDALUS_SILENT
 			if (p_branch->SpeedHack == SHACK_COPYREG)
 			{
 				DBGConsole_Msg( 0, "Found a copyreg speedhack at: %08x (0x%08x)", ti.Address, op_code._u32 );
@@ -634,7 +652,6 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 			{
 				DBGConsole_Msg( 0, "Found a unknow speedhack at: %08x (0x%08x)", ti.Address, op_code._u32 );
 			}
-#endif
 		}
 
 		CJumpLocation	branch_jump( NULL );
@@ -754,8 +771,10 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 			}
 		}
 	}
+	// We handle exceptions directly with _ReturnFromDynaRecIfStuffToDo - we should never get here on the psp
+	DAEDALUS_ASSERT( exception_handler_jumps.empty(), "Not expecting to have any exception handler jumps to process" );
 
-	p_generator->Finalise( HandleException, exception_handler_jumps );
+	p_generator->Finalise();
 
 	mFragmentFunctionLength = p_manager->FinaliseCurrentBlock();
 	mOutputLength = mFragmentFunctionLength - ADDITIONAL_OUTPUT_BYTES;
@@ -787,7 +806,10 @@ void CFragment::Assemble( CCodeBufferManager * p_manager, CCodeLabel function_pt
 	AssemblyUtils::PatchJumpLong(jump, p_generator->GetCurrentLocation());
 	p_generator->GenerateEretExitCode(100, mpIndirectExitMap);
 
-	p_generator->Finalise( HandleException, exception_handler_jumps );
+	// We handle exceptions directly with _ReturnFromDynaRecIfStuffToDo - we should never get here on the psp
+	DAEDALUS_ASSERT( exception_handler_jumps.empty(), "Not expecting to have any exception handler jumps to process" );
+
+	p_generator->Finalise();
 	mFragmentFunctionLength = p_manager->FinaliseCurrentBlock();
 	mOutputLength = mFragmentFunctionLength - ADDITIONAL_OUTPUT_BYTES;
 	
