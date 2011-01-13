@@ -1010,9 +1010,11 @@ void BlendMode_0x0026a0031ffc93f9LL( BLEND_MODE_ARGS )
 //aA1  : (0            - 0           ) * 0            + Combined 
 void BlendMode_0x0030fe045ffefbf8LL (BLEND_MODE_ARGS)
 {
-	
-	details.ColourAdjuster.SetRGBA( details.EnvColour );
-	//sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);		/Do not use it !
+	if( num_cycles == 2 )
+	{
+		details.ColourAdjuster.SetRGBA( details.EnvColour );
+		sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+	}
 }
 
 // F-Zero X - Texture for cars.

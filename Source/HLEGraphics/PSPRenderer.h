@@ -174,9 +174,9 @@ public:
 	void				SetVtxZ( u32 vert, float z );
 
 	// TextRect stuff
-	bool				TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 );
-	bool				TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 );
-	bool				FillRect( const v2 & xy0, const v2 & xy1, u32 color );
+	void				TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 );
+	void				TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 );
+	void				FillRect( const v2 & xy0, const v2 & xy1, u32 color );
 		
 	// Returns true if triangle visible and rendered, false otherwise
 	bool				AddTri(u32 v0, u32 v1, u32 v2);

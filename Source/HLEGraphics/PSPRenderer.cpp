@@ -1200,7 +1200,7 @@ void PSPRenderer::RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts
 //*****************************************************************************
 //
 //*****************************************************************************
-bool PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
+void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
 	EnableTexturing( tile_idx );
 
@@ -1241,14 +1241,12 @@ bool PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	trv[5] = DaedalusVtx( positions[ 3 ], 0xffffffff, tex_coords[ 3 ] );
 
 	RenderTriangleList( trv, 6, gRDPOtherMode.depth_source ? false : true );
-	
-	return true;
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-bool PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
+void PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
 	EnableTexturing( tile_idx );
 
@@ -1287,29 +1285,27 @@ bool PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	trv[5] = DaedalusVtx( positions[ 3 ], 0xffffffff, tex_coords[ 3 ] );
 
 	RenderTriangleList( trv, 6, true );
-
-	return true;
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-bool PSPRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
+void PSPRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 {
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if ( (gRDPOtherMode._u64 & 0xffff0000) == 0x5f500000 )	//Used by Wave Racer
 	{
 		// this blend mode is mem*0 + mem*1, so we don't need to render it... Very odd!
 		DAEDALUS_ERROR("	mem*0 + mem*1 - skipped");
-		return true;
+		return;
 	}
 #endif
 
 	// Unless we support fb emulation, we can safetly skip here
-	if( g_CI.Size != G_IM_SIZ_16b )	return true;
+	if( g_CI.Size != G_IM_SIZ_16b )	return;
 
 	// This if for C&C - It might break other stuff (I'm not sure if we should allow alpha or not..)
-//	color |= 0xff000000;
+	//color |= 0xff000000;
 
 	//
 	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
@@ -1346,8 +1342,6 @@ bool PSPRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	trv[5] = DaedalusVtx( positions[ 3 ], color, tex_coords[ 3 ] );
 
 	RenderTriangleList( trv, 6, true );
-
-	return true;
 }
 
 //*****************************************************************************
