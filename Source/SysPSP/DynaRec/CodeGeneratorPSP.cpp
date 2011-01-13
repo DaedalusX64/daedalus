@@ -1281,8 +1281,8 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	const EN64Reg	rd = EN64Reg( op_code.rd );
 	const u32		sa = op_code.sa;
 	const EN64Reg	base = EN64Reg( op_code.base );
-	const u32		jump_target( (address&0xF0000000) | (op_code.target<<2) );
-	const u32		branch_target( address + ( ((s32)(s16)op_code.immediate)<<2 ) + 4);
+	//const u32		jump_target( (address&0xF0000000) | (op_code.target<<2) );
+	//const u32		branch_target( address + ( ((s32)(s16)op_code.immediate)<<2 ) + 4);
 	const u32		ft = op_code.ft;
 
 	//
@@ -1291,8 +1291,8 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	switch( op_code.op )
 	{
 
-	case OP_J:			/* nothing to do */ handled = true; break;
-	case OP_JAL:		GenerateJAL( address, jump_target );	handled = true; break;
+	case OP_J:			/* nothing to do */		handled = true; break;
+	case OP_JAL:		GenerateJAL( address );	handled = true; break;
 
 	case OP_ADDI:		GenerateADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
 	case OP_ADDIU:		GenerateADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
@@ -1318,16 +1318,16 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 
 	case OP_BEQ:
 	case OP_BEQL:
-		GenerateBEQ( rs, rt, branch_target, p_branch, p_branch_jump ); handled = true; break;
+		GenerateBEQ( rs, rt, p_branch, p_branch_jump ); handled = true; break;
 	case OP_BNE:
 	case OP_BNEL:
-		GenerateBNE( rs, rt, branch_target, p_branch, p_branch_jump ); handled = true; break;
+		GenerateBNE( rs, rt, p_branch, p_branch_jump ); handled = true; break;
 	case OP_BLEZ:
 	case OP_BLEZL:
-		GenerateBLEZ( rs, branch_target, p_branch, p_branch_jump ); handled = true; break;
+		GenerateBLEZ( rs, p_branch, p_branch_jump ); handled = true; break;
 	case OP_BGTZ:
 	case OP_BGTZL:
-		GenerateBGTZ( rs, branch_target, p_branch, p_branch_jump ); handled = true; break;
+		GenerateBGTZ( rs, p_branch, p_branch_jump ); handled = true; break;
 
 
 	case OP_CACHE:		GenerateCACHE( base, op_code.immediate, rt ); handled = true; break;
@@ -1338,11 +1338,11 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 				// These can be handled by the same Generate function, as the 'likely' bit is handled elsewhere
 		case RegImmOp_BLTZ:
 		case RegImmOp_BLTZL:
-			GenerateBLTZ( rs, branch_target, p_branch, p_branch_jump ); handled = true; break;
+			GenerateBLTZ( rs, p_branch, p_branch_jump ); handled = true; break;
 
 		case RegImmOp_BGEZ:
 		case RegImmOp_BGEZL:
-			GenerateBGEZ( rs, branch_target, p_branch, p_branch_jump ); handled = true; break;
+			GenerateBGEZ( rs, p_branch, p_branch_jump ); handled = true; break;
 		}
 		break;
 
@@ -1725,7 +1725,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 	EPspReg		reg_base( GetRegisterAndLoadLo( n64_base, PspReg_A0 ) );
 	EPspReg		reg_address( reg_base );
 
-	if( (gDynarecStackOptimisation && n64_base == N64Reg_SP)  || (gMemoryAccessOptimisation && mQuickLoad == StaticAnalysis::Segment_8000 && load_op != OP_LB)) // Don't do optimisation for LB, otherwise Mario 64 won't work :/
+	if( (gDynarecStackOptimisation && n64_base == N64Reg_SP)  || (gMemoryAccessOptimisation && mQuickLoad == StaticAnalysis::Segment_8000 /*&& load_op != OP_LB*/))
 	{
 		if( swizzle != 0 )
 		{
@@ -2038,12 +2038,12 @@ inline void	CCodeGeneratorPSP::GenerateCACHE( EN64Reg base, s16 offset, u32 cach
 	//u32 cache_op  = op_code.rt;
 	//u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 
-	u32 dwCache = cache_op & 0x3;
-	u32 dwAction = (cache_op >> 2) & 0x7;
+	u32 cache = cache_op & 0x3;
+	u32 action = (cache_op >> 2) & 0x7;
 
 	// For instruction cache invalidation, make sure we let the CPU know so the whole
 	// dynarec system can be invalidated
-	if(dwCache == 0 && dwAction == 0)// && address == 0x80000000)
+	if(cache == 0 && action == 0)// && address == 0x80000000)
 	{
 		FlushAllRegisters(mRegisterCache, true);
 		LoadRegister(PspReg_A0, base, 0);
@@ -2051,16 +2051,16 @@ inline void	CCodeGeneratorPSP::GenerateCACHE( EN64Reg base, s16 offset, u32 cach
 		JAL( CCodeLabel( reinterpret_cast< const void * >( CPU_InvalidateICacheRange ) ), false );
 		ORI(PspReg_A1, PspReg_R0, 0x20);
 	}
-	else
-	{
+	//else
+	//{
 		// We don't care about data cache etc
-	}
+	//}
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void	CCodeGeneratorPSP::GenerateJAL( u32 address, u32 target )
+inline void	CCodeGeneratorPSP::GenerateJAL( u32 address )
 {
 	//gGPR[REG_ra]._s64 = (s64)(s32)(gCPUState.CurrentPC + 8);		// Store return address
 	//u32	new_pc( (gCPUState.CurrentPC & 0xF0000000) | (op_code.target<<2) );
@@ -3151,7 +3151,7 @@ inline void	CCodeGeneratorPSP::GenerateCTC1( u32 fs, EN64Reg rt )
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void	CCodeGeneratorPSP::GenerateBEQ( EN64Reg rs, EN64Reg rt, u32 target, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
+inline void	CCodeGeneratorPSP::GenerateBEQ( EN64Reg rs, EN64Reg rt, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BEQ?" );
@@ -3177,7 +3177,7 @@ inline void	CCodeGeneratorPSP::GenerateBEQ( EN64Reg rs, EN64Reg rt, u32 target, 
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void	CCodeGeneratorPSP::GenerateBNE( EN64Reg rs, EN64Reg rt, u32 target, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
+inline void	CCodeGeneratorPSP::GenerateBNE( EN64Reg rs, EN64Reg rt, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BNE?" );
@@ -3203,7 +3203,7 @@ inline void	CCodeGeneratorPSP::GenerateBNE( EN64Reg rs, EN64Reg rt, u32 target, 
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void	CCodeGeneratorPSP::GenerateBLEZ( EN64Reg rs, u32 target, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
+inline void	CCodeGeneratorPSP::GenerateBLEZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BLEZ?" );
@@ -3226,7 +3226,7 @@ inline void	CCodeGeneratorPSP::GenerateBLEZ( EN64Reg rs, u32 target, const SBran
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void	CCodeGeneratorPSP::GenerateBGTZ( EN64Reg rs, u32 target, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
+inline void	CCodeGeneratorPSP::GenerateBGTZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BGTZ?" );
@@ -3249,7 +3249,7 @@ inline void	CCodeGeneratorPSP::GenerateBGTZ( EN64Reg rs, u32 target, const SBran
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void	CCodeGeneratorPSP::GenerateBLTZ( EN64Reg rs, u32 target, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
+inline void	CCodeGeneratorPSP::GenerateBLTZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BLTZ?" );
@@ -3272,7 +3272,7 @@ inline void	CCodeGeneratorPSP::GenerateBLTZ( EN64Reg rs, u32 target, const SBran
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void	CCodeGeneratorPSP::GenerateBGEZ( EN64Reg rs, u32 target, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
+inline void	CCodeGeneratorPSP::GenerateBGEZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BGEZ?" );

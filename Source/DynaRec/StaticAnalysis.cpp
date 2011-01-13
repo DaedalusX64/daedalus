@@ -181,7 +181,7 @@ void StaticAnalysis_BGTZL( OpCode op_code, RegisterUsage & recorder ) 		// Branc
 void StaticAnalysis_LB( OpCode op_code, RegisterUsage & recorder ) 			// Load Byte
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	//recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset ); // Don't do optimisation for LB, otherwise Mario 64 won't work :/
 }
 
 void StaticAnalysis_LBU( OpCode op_code, RegisterUsage & recorder ) 			// Load Byte Unsigned -- Zero extend byte...
@@ -229,7 +229,7 @@ void StaticAnalysis_LDR( OpCode op_code, RegisterUsage & recorder )
 void StaticAnalysis_LW( OpCode op_code, RegisterUsage & recorder ) 			// Load Word
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	//recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );	// Breaks Paper Mario
 }
 
 void StaticAnalysis_LWU( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Unsigned
@@ -295,6 +295,7 @@ void StaticAnalysis_SDR( OpCode op_code, RegisterUsage & recorder )
 void StaticAnalysis_CACHE( OpCode op_code, RegisterUsage & recorder )
 {
 	recorder.Record( RegBaseUse( op_code.base ) );
+	//recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_LWC1( OpCode op_code, RegisterUsage & recorder ) 				// Load Word to Copro 1 (FPU)

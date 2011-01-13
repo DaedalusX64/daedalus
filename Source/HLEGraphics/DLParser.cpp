@@ -937,7 +937,9 @@ void DLParser_RDPSetOtherMode( MicroCodeCommand command )
 	gOtherModeH = command.inst.cmd0;
 	gOtherModeL = command.inst.cmd1;
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	RDP_SetOtherMode( command.inst.cmd0, command.inst.cmd1 );
+#endif
 }
 
 //*****************************************************************************
@@ -961,7 +963,7 @@ void DLParser_GBI1_RDPHalf_2( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_RDPHalf_1( MicroCodeCommand command )
 {
-	gRDPHalf1 = u32(command.inst.cmd1);
+	gRDPHalf1 = command.inst.cmd1;
 }
 
 //*****************************************************************************
@@ -981,9 +983,6 @@ void DLParser_RDPFullSync( MicroCodeCommand command )
 
 	/*DL_PF("FullSync: (Generating Interrupt)");*/
 }
-
-
-
 
 //*****************************************************************************
 //
