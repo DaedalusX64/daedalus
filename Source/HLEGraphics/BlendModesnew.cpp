@@ -111,11 +111,19 @@ void PrintMux( FILE * fh, u64 mux )
 	fprintf(fh, "\t\t//aRGB1: (%s - %s) * %s + %s\n", sc_colcombtypes16[aRGB1], sc_colcombtypes16[bRGB1], sc_colcombtypes32[cRGB1], sc_colcombtypes8[dRGB1]);		
 	fprintf(fh, "\t\t//aA1  : (%s - %s) * %s + %s\n", sc_colcombtypes8[aA1],  sc_colcombtypes8[bA1], sc_colcombtypes8[cA1],  sc_colcombtypes8[dA1]);
 }
-
+#endif
 
 /* To Devs,
  Placeholder for blendmode maker guide
  */
+
+
+//*****************************************************************************
+// Basic generic blendmode
+//*****************************************************************************
+// This should handle most inexact blends :)
+//
+inline void BlendMode_Generic( BLEND_MODE_ARGS ){	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);	}
 
 
 
@@ -932,6 +940,8 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 			BLEND_MODE(0x0062fe043f15f9ffLL); // Banjo Kazooie Backdrop
 			BLEND_MODE(0x00772c60f5fce378LL); // Zelda Poe
 			BLEND_MODE(0x00fffffffffcfa7dLL); // Mario 64 Stars
+			default:
+				return BlendMode_Generic;	  // Basic generic blenmode
 			
 	#undef BLEND_MODE 
 	}

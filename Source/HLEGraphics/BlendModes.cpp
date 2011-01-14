@@ -169,10 +169,18 @@ void PrintMux( FILE * fh, u64 mux )
 
 // Start Blends
 
+//*****************************************************************************
+// Basic generic blendmode
+//*****************************************************************************
+// This should handle most inexact blends :)
+//
+inline void BlendMode_Generic( BLEND_MODE_ARGS ){	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);	}
+
+
+
 /* 
 //##
 */
-
 
 // 1080 Snowboarding Sky
 
@@ -2464,16 +2472,6 @@ void BlendMode_0x00272c6015fc9378LL( BLEND_MODE_ARGS )
 #endif
 }
 
-//Space Station Silicon Valley - Power Spheres
-//case 0x00377fff1ffcf438LL:
-//aRGB0: (Primitive    - Texel0      ) * PrimLODFrac  + Texel0
-//aA0  : (0            - 0           ) * 0            + Texel1
-//aRGB1: (0            - 0           ) * 0            + Combined
-//aA1  : (0            - 0           ) * 0            + Combined
-void BlendMode_0x00377fff1ffcf438LL (BLEND_MODE_ARGS)
-{
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
-}
 
 //Super Bowling 64 - Character
 //case 0x00327feffffff638LL:
@@ -4523,6 +4521,7 @@ void BlendMode_0x00262a60350c937fLL(BLEND_MODE_ARGS)
 	details.ColourAdjuster.ModulateA(details.PrimColour);
 	sceGuTexFunc(GU_TFX_ADD,GU_TCC_RGB);
 }
+
 /*
  We just need to declare correct installed blends with TextureInstalled = true;
  More commonly found with Second Texture not being found.
@@ -4797,8 +4796,10 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 	BLEND_MODE(0x00fffe04f3fcf378LL);
 	BLEND_MODE(0x00ffffffff09f63fLL);
 	BLEND_MODE(0x00fffffffffcfa7dLL);
-	BLEND_MODE(0x00377fff1ffcf438LL);
 	BLEND_MODE(0x00129bfffffdf638LL);//Road Rush64
+	default:
+		return BlendMode_Generic;   // Basic generic blenmode
+
 
 #undef BLEND_MODE
 	}
