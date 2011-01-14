@@ -846,7 +846,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	static u32	gLastRDPOtherMode	( 0 );
 	static bool	gZFightingEnabled	= false;
 	static bool	gLastUseZBuffer		= false;
-	u32 blender				( gOtherModeL );
+	u32 blender	( gOtherModeL );
 
 	DAEDALUS_PROFILE( "PSPRenderer::RenderUsingCurrentBlendMode" );
 
@@ -857,8 +857,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	}
 	else
 	{
-		if ((blender != gLastRDPOtherMode) ||
-				(m_bZBuffer != gLastUseZBuffer) )
+		if ( (blender != gLastRDPOtherMode) || (m_bZBuffer != gLastUseZBuffer) )
 		{
 			// Only update if ZBuffer is enabled
 			if (m_bZBuffer)
@@ -2599,12 +2598,10 @@ void PSPRenderer::SetProjection(const Matrix4x4 & mat, bool bPush, bool bReplace
 	// Projection
 	if (bPush)
 	{
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		if (mProjectionTop >= (MATRIX_STACK_SIZE-1))
 			DBGConsole_Msg(0, "Pushing past proj stack limits! %d/%d", mProjectionTop, MATRIX_STACK_SIZE);
 		else
-#endif
-		++mProjectionTop;
+			++mProjectionTop;
 
 		if (bReplace)
 			// Load projection matrix
@@ -2670,13 +2667,10 @@ void PSPRenderer::SetWorldView(const Matrix4x4 & mat, bool bPush, bool bReplace)
 	// ModelView
 	if (bPush)
 	{
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		if (mModelViewTop >= (MATRIX_STACK_SIZE-1))
 			DBGConsole_Msg(0, "Pushing past modelview stack limits! %d/%d", mModelViewTop, MATRIX_STACK_SIZE);
 		else
-#endif
-		++mModelViewTop;
+			++mModelViewTop;
 
 		// We should store the current projection matrix...
 		if (bReplace)

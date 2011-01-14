@@ -735,7 +735,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 		break;
 	case CPU_EVENT_COMPARE:
 		{
-			gCPUState.CPUControl[C0_CAUSE]._u64 |= CAUSE_IP8;
+			gCPUState.CPUControl[C0_CAUSE]._u32_0 |= CAUSE_IP8;
 			gCPUState.AddJob( CPU_CHECK_INTERRUPTS );
 		}
 		break;
@@ -763,7 +763,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 //*****************************************************************************
 void CPU_SetCompare(u64 value)
 {
-	gCPUState.CPUControl[C0_CAUSE]._u64 &= ~CAUSE_IP8;
+	gCPUState.CPUControl[C0_CAUSE]._u32_0 &= ~CAUSE_IP8;
 
 	DPF( DEBUG_REGS, "COMPARE set to 0x%08x.", (u32)value );
 	//DBGConsole_Msg(0, "COMPARE set to 0x%08x Count is 0x%08x.", (u32)value, (u32)gCPUState.CPUControl[C0_COUNT]);

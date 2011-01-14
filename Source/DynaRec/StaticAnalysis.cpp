@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Core/R4300OpCode.h"
 #include "Core/CPU.h"
+#include "Core/ROM.h"
 
 using namespace StaticAnalysis;
 
@@ -229,7 +230,7 @@ void StaticAnalysis_LDR( OpCode op_code, RegisterUsage & recorder )
 void StaticAnalysis_LW( OpCode op_code, RegisterUsage & recorder ) 			// Load Word
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
-	//recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );	// Breaks Paper Mario
+	if( g_ROM.GameHacks != PMARIO ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );	// Breaks Paper Mario
 }
 
 void StaticAnalysis_LWU( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Unsigned

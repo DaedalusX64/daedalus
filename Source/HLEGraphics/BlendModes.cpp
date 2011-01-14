@@ -223,7 +223,7 @@ void BlendMode_0x00147e2844fe793cLL( BLEND_MODE_ARGS )
 	sceGuTexFunc(GU_TFX_DECAL,GU_TCC_RGBA);
 }
 
-//F-Zero X - Texture Cars second layer <- Needs more work.
+//F-Zero X - Texture Cars second layer.
 //case 0x0030fe045ffefbf8LL:
 //aRGB0: (Primitive    - Env         ) * Texel0       + Env
 //aA0  : (0            - 0           ) * 0            + Env
@@ -325,6 +325,17 @@ void BlendMode_0x00fffffffffcfa7dLL (BLEND_MODE_ARGS)
 /* 
  //#R
  */
+//Road Rush 64 trees
+//case 0x00129bfffffdf638LL:
+//aRGB0: (Texel0       - 0           ) * Env          + Primitive
+//aA0  : (Texel0       - 0           ) * Env          + Primitive
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x00129bfffffdf638LL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB( details.EnvColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
 
 /* 
  //#S
@@ -869,6 +880,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 			BLEND_MODE(0x00121603ff5bfff8LL); // Zelda Paths
 			BLEND_MODE(0x00127e2433fdf8fcLL); // Wetrix Background / Banjo Kazooie
 			BLEND_MODE(0x001298043f15ffffLL); // Banjo Kazooie N64 Logo / Characters
+			BLEND_MODE(0x00129bfffffdf638LL); // Road Rush64 trees
 			BLEND_MODE(0x00147e045ffefbf8LL); // FZerp other ships
 			BLEND_MODE(0x00147e2844fe793cLL); // FZero tracks / Mario 64 penguin's eyes
 			BLEND_MODE(0x00167e6035fcff7eLL); // OOT, MM Intro (N64 Logo)
