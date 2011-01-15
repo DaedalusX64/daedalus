@@ -359,6 +359,19 @@ void BlendMode_0x00147e2844fe7b3dLL (BLEND_MODE_ARGS)
  */
 
 
+//Tarzan birds wings, Marios drop shadows in SM64
+//case 0x00121824ff33ffffLL:
+//aRGB0: (Texel0       - 0           ) * Shade        + 0
+//aA0  : (Texel0       - 0           ) * Shade        + 0
+//aRGB1: (Texel0       - 0           ) * Shade        + 0
+//aA1  : (Texel0       - 0           ) * Shade        + 0
+void BlendMode_0x00121824ff33ffffLL( BLEND_MODE_ARGS )
+{
+	//details.ColourAdjuster.SetA( c32(0,0,0,0xD8) );
+	if( g_ROM.GameHacks == TARZAN ) details.ColourAdjuster.SetAOpaque();
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
 /*
  //#U
  */
@@ -866,9 +879,30 @@ void BlendMode_0x00272c041f0c93ffLL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
 }
 
-	
-	
-	
+
+//*****************************************************************************
+// This only for hacks etc these are non-inexact blendmodes
+//*****************************************************************************
+OverrideBlendModeFn		LookupOverrideBlendModeFunction1( u64 mux )
+{
+#ifndef DAEDALUS_PUBLIC_RELEASE
+	if(!gGlobalPreferences.CustomBlendModes) return NULL;
+#endif
+	switch(mux)
+	{	
+#define BLEND_MODE( x )		case (x):	return BlendMode_##x;
+			BLEND_MODE(0x00fffffffffcfa7dLL); // Mario 64 Stars
+			BLEND_MODE(0x00121824ff33ffffLL);//Tarzan
+
+	#undef BLEND_MODE 
+	}
+
+	return NULL;
+
+}
+//*****************************************************************************
+// Inexact blendmodes, we find a match or try to guess a correct blending
+//*****************************************************************************	
 OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 {
 #ifndef DAEDALUS_PUBLIC_RELEASE
@@ -920,7 +954,6 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 			BLEND_MODE(0x0040fe8155fef97cLL); // GoldenEye Sky
 			BLEND_MODE(0x0062fe043f15f9ffLL); // Banjo Kazooie Backdrop
 			BLEND_MODE(0x00772c60f5fce378LL); // Zelda Poe
-			BLEND_MODE(0x00fffffffffcfa7dLL); // Mario 64 Stars
 			default:
 				return BlendMode_Generic;	  // Basic generic blenmode
 			

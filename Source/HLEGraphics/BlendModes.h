@@ -38,6 +38,7 @@ struct SBlendModeDetails
 typedef void (*OverrideBlendModeFn)( BLEND_MODE_ARGS );
 
 OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux );
+OverrideBlendModeFn		LookupOverrideBlendModeFunction1( u64 mux );
 
 #endif // BLENDMODES_H__
 

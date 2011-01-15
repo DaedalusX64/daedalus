@@ -49,16 +49,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*************************************************************************************
 //
 //*************************************************************************************
-
 #ifndef DAEDALUS_SILENT
-
-#define CATCH_NAN_EXCEPTION(valX, valY) \
+#define CATCH_NAN_EXCEPTION(op, valX, valY) \
 	if(pspFpuIsNaN(valX + valY)) \
 	{ \
-		DBGConsole_Msg( 0, "[MShould throw fp nan exception?]" ); \
+		DBGConsole_Msg( 0, "Should throw fp nan exception in %s ?",op ); \
 		return; \
 	}
-
+#else
+	#define CATCH_NAN_EXCEPTION(op, valX, valY)
 #endif
 
 //
@@ -394,7 +393,7 @@ static void R4300_CALL_TYPE R4300_Cop1_WInstr( R4300_CALL_SIGNATURE );
 static void R4300_CALL_TYPE R4300_Cop1_LInstr( R4300_CALL_SIGNATURE );
 static void R4300_CALL_TYPE R4300_CoPro0( R4300_CALL_SIGNATURE );
 static void R4300_CALL_TYPE R4300_CoPro1( R4300_CALL_SIGNATURE );
-static void R4300_CALL_TYPE R4300_CoPro1_Disabled( R4300_CALL_SIGNATURE );
+//static void R4300_CALL_TYPE R4300_CoPro1_Disabled( R4300_CALL_SIGNATURE );
 static void R4300_CALL_TYPE R4300_Special( R4300_CALL_SIGNATURE );
 static void R4300_CALL_TYPE R4300_RegImm( R4300_CALL_SIGNATURE );
 static void R4300_CALL_TYPE R4300_Cop0_TLB( R4300_CALL_SIGNATURE );
@@ -520,28 +519,30 @@ static void R4300_CALL_TYPE R4300_SetCop1Enable( bool enable )
 		R4300Instruction[OP_COPRO1] = R4300_CoPro1_Disabled;
 	}
 }
+
 */
-
 //*****************************************************************************
-//
+//Calling this function will disable detection of Coprocessor Unusable Exceptions.
 //*****************************************************************************
-
 void DisableFPUUnusableException(void)
 {
-
     R4300Instruction[0x11] = R4300_CoPro1;	
 	R4300Instruction[49] = R4300_LWC1;
 	R4300Instruction[53] = R4300_LDC1;
 	R4300Instruction[57] = R4300_SWC1;
 	R4300Instruction[61] = R4300_SDC1;
 }
+
+//*****************************************************************************
+//Calling this function will enable detection of Coprocessor Unusable Exceptions.
+//*****************************************************************************
 void EnableFPUUnusableException(void)
 {
-    R4300Instruction[0x11] = CU1_R4300_CoPro1;	// Workaround.. TODO : Implement CU_CoPro1
-    R4300Instruction[49] = CU1_R4300_LWC1;
+    R4300Instruction[0x11] = CU1_R4300_CoPro1;
+   R4300Instruction[49] = CU1_R4300_LWC1;
 	R4300Instruction[53] = CU1_R4300_LDC1;
-    R4300Instruction[57] = CU1_R4300_SWC1;
-    R4300Instruction[61] = CU1_R4300_SDC1;
+   // R4300Instruction[57] = CU1_R4300_SWC1; // Breaks Kirby
+   // R4300Instruction[61] = CU1_R4300_SDC1;
 }
 
 //*****************************************************************************
@@ -577,9 +578,8 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 
 	// Too hackish.. disabling this check causes several games ex SSB to go crazy..
 	// Also you need to restart the emu to restore the interrupts correctly
-	//
-	//if(!gCheckN64FPUsageDisable)	// Check FP usage
-	/*{
+	/*if(!gCheckN64FPUsageDisable)	// Check FP usage
+	{
 		R4300_SetCop1Enable( (gCPUState.CPUControl[C0_SR]._u64 & SR_CU1) != 0 );
 	}*/
 
@@ -591,7 +591,7 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 		}
 	}
 
-	// Based from 1964, all the games work fine, even SSB that had issues with the hack I had.
+	// Based from 1964, all the games work fine, even SSB/Kirby that had issues with the hack I had.
 	//
 	if(new_value & SR_CU1)
 	{
@@ -610,7 +610,7 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 #define WARN_NOIMPL(op)		{ DAEDALUS_ASSERT( false, "Instruction Not Implemented" ); }
 
 static void R4300_CALL_TYPE R4300_Unk( R4300_CALL_SIGNATURE )     { WARN_NOEXIST("R4300_Unk"); }
-
+/*
 static void R4300_CALL_TYPE R4300_CoPro1_Disabled( R4300_CALL_SIGNATURE )
 {
 	// Cop1 Unusable
@@ -620,7 +620,7 @@ static void R4300_CALL_TYPE R4300_CoPro1_Disabled( R4300_CALL_SIGNATURE )
 
 	R4300_Exception_CopUnusuable();
 }
-
+*/
 // These are the only unimplemented R4300 instructions now:
 static void R4300_CALL_TYPE R4300_LL( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("LL"); }
 static void R4300_CALL_TYPE R4300_LLD( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("LLD"); }
@@ -817,6 +817,7 @@ static void R4300_CALL_TYPE R4300_DADDIU( R4300_CALL_SIGNATURE ) 			// Doublewor
 
 	//rt = rs + immediate
 	gGPR[op_code.rt]._s64 = gGPR[op_code.rs]._s64 + (s32)(s16)op_code.immediate;
+
 }
 
 static void R4300_CALL_TYPE R4300_ADDI( R4300_CALL_SIGNATURE )
@@ -1693,6 +1694,7 @@ static void R4300_CALL_TYPE R4300_Special_DADDU( R4300_CALL_SIGNATURE )//CYRUS64
 	R4300_CALL_MAKE_OP( op_code );
 
 	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 + gGPR[ op_code.rs ]._u64;
+
 }
 
 static void R4300_CALL_TYPE R4300_Special_DSUB( R4300_CALL_SIGNATURE )
@@ -2157,7 +2159,6 @@ static void R4300_CALL_TYPE R4300_Cop1_Unk( R4300_CALL_SIGNATURE )     { WARN_NO
 
 
 
-
 static void R4300_CALL_TYPE R4300_Cop1_MTC1( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2618,6 +2619,9 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D( R4300_CALL_SIGNATURE )
 }
 
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_EQ( R4300_CALL_SIGNATURE ) 				// Compare for Equality
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2632,6 +2636,9 @@ static void R4300_CALL_TYPE R4300_Cop1_S_EQ( R4300_CALL_SIGNATURE ) 				// Compa
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_LT( R4300_CALL_SIGNATURE ) 				// Compare for Equality
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2646,6 +2653,9 @@ static void R4300_CALL_TYPE R4300_Cop1_S_LT( R4300_CALL_SIGNATURE ) 				// Compa
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_NGE( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2653,9 +2663,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_NGE( R4300_CALL_SIGNATURE )
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
-#ifndef DAEDALUS_SILENT
-	CATCH_NAN_EXCEPTION( fX, fY );
-#endif
+	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_NGE", fX, fY );
 
 	if(fX < fY)
 		gCPUState.FPUControl[31]._u64 |= FPCSR_C;
@@ -2664,6 +2672,9 @@ static void R4300_CALL_TYPE R4300_Cop1_S_NGE( R4300_CALL_SIGNATURE )
 
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_LE( R4300_CALL_SIGNATURE ) 				// Compare for Equality
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2672,9 +2683,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_LE( R4300_CALL_SIGNATURE ) 				// Compa
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
-#ifndef DAEDALUS_SILENT
-	CATCH_NAN_EXCEPTION( fX, fY );
-#endif
+	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_LE", fX, fY );
 
 	if ( fX <= fY )
 		gCPUState.FPUControl[31]._u64 |= FPCSR_C;
@@ -2683,6 +2692,9 @@ static void R4300_CALL_TYPE R4300_Cop1_S_LE( R4300_CALL_SIGNATURE ) 				// Compa
 
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_SEQ( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2690,9 +2702,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_SEQ( R4300_CALL_SIGNATURE )
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
-#ifndef DAEDALUS_SILENT
-	CATCH_NAN_EXCEPTION( fX, fY );
-#endif
+	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_SEQ", fX, fY );
 
 	if(fX == fY)
 		gCPUState.FPUControl[31]._u64 |= FPCSR_C;
@@ -2700,6 +2710,9 @@ static void R4300_CALL_TYPE R4300_Cop1_S_SEQ( R4300_CALL_SIGNATURE )
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_UEQ( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2707,29 +2720,35 @@ static void R4300_CALL_TYPE R4300_Cop1_S_UEQ( R4300_CALL_SIGNATURE )
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
+	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_UEQ", fX, fY );
+
 	if( pspFpuIsNaN(fX + fY) || fX == fY )
+	//if( fX == fY )
 		gCPUState.FPUControl[31]._u64 |= FPCSR_C;
 	else
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_NGLE( R4300_CALL_SIGNATURE )	
 {
 	R4300_CALL_MAKE_OP( op_code );
 
+#ifndef DAEDALUS_SILENT
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
-	use( fX );
-	use( fY );
-
-#ifndef DAEDALUS_SILENT
-	CATCH_NAN_EXCEPTION( fX, fY );
+	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_NGLE", fX, fY );
 #endif
 
 	gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_OLE( R4300_CALL_SIGNATURE )	
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2737,12 +2756,18 @@ static void R4300_CALL_TYPE R4300_Cop1_S_OLE( R4300_CALL_SIGNATURE )
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
+	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_OLE", fX, fY );
+
 	if (!pspFpuIsNaN(fX + fY) && fX <= fY )
+	//if ( fX <= fY )
 		gCPUState.FPUControl[31]._u64 |= FPCSR_C;
 	else
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_ULE( R4300_CALL_SIGNATURE )	
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2756,6 +2781,9 @@ static void R4300_CALL_TYPE R4300_Cop1_S_ULE( R4300_CALL_SIGNATURE )
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_UN( R4300_CALL_SIGNATURE )	
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2769,6 +2797,9 @@ static void R4300_CALL_TYPE R4300_Cop1_S_UN( R4300_CALL_SIGNATURE )
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_F( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2776,6 +2807,9 @@ static void R4300_CALL_TYPE R4300_Cop1_S_F( R4300_CALL_SIGNATURE )
 	gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 // Blast Corps fails here.
 static void R4300_CALL_TYPE R4300_Cop1_S_NGT( R4300_CALL_SIGNATURE ) 
 {
@@ -2784,9 +2818,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_NGT( R4300_CALL_SIGNATURE )
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
-#ifndef DAEDALUS_SILENT
-	CATCH_NAN_EXCEPTION( fX, fY );
-#endif
+	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_NGT", fX, fY );
 
 	if ( fX <= fY )
 		gCPUState.FPUControl[31]._u64 |= FPCSR_C;
@@ -2794,6 +2826,9 @@ static void R4300_CALL_TYPE R4300_Cop1_S_NGT( R4300_CALL_SIGNATURE )
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_ULT( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2807,23 +2842,26 @@ static void R4300_CALL_TYPE R4300_Cop1_S_ULT( R4300_CALL_SIGNATURE )
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_SF( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
+#ifndef DAEDALUS_SILENT
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
-	use( fX );
-	use( fY );
-
-#ifndef DAEDALUS_SILENT
-	CATCH_NAN_EXCEPTION( fX, fY );
+	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_SF", fX, fY );
 #endif
 
 	gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_NGL( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2831,9 +2869,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_NGL( R4300_CALL_SIGNATURE )
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
-#ifndef DAEDALUS_SILENT
-	CATCH_NAN_EXCEPTION( fX, fY );
-#endif
+	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_NGL", fX, fY );
 
 	if ( fX == fY )
 		gCPUState.FPUControl[31]._u64 |= FPCSR_C;
@@ -2841,6 +2877,9 @@ static void R4300_CALL_TYPE R4300_Cop1_S_NGL( R4300_CALL_SIGNATURE )
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_OLT( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2848,7 +2887,10 @@ static void R4300_CALL_TYPE R4300_Cop1_S_OLT( R4300_CALL_SIGNATURE )
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
+	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_OLT", fX, fY );
+
 	if (!pspFpuIsNaN(fX + fY) && fX < fY )
+	//if ( fX < fY )
 		gCPUState.FPUControl[31]._u64 |= FPCSR_C;
 	else
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
@@ -3036,7 +3078,9 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_CEIL_L( R4
 
 	StoreFPR_LongT< FullLength >( op_code.fd, d64_to_s64_ceil( fX ) );
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_FLOOR_W( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3045,7 +3089,9 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_FLOOR_W( R
 
 	StoreFPR_Word( op_code.fd, d64_to_s32_floor( fX ) );
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_FLOOR_L( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3054,7 +3100,9 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_FLOOR_L( R
 
 	StoreFPR_LongT< FullLength >( op_code.fd, d64_to_s64_floor( fX ) );
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_CVT_S( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3065,7 +3113,9 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_CVT_S( R43
 
 	StoreFPR_Single( op_code.fd, fX );
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 // Convert f64 to word...
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_CVT_W( R4300_CALL_SIGNATURE )
 {
@@ -3075,7 +3125,9 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_CVT_W( R43
 
 	StoreFPR_Word( op_code.fd, d64_to_s32( fX, gRoundingMode ) );
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_CVT_L( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3084,7 +3136,9 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_CVT_L( R43
 
 	StoreFPR_LongT< FullLength >( op_code.fd, d64_to_s64( fX, gRoundingMode ) );
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_EQ( R4300_CALL_SIGNATURE )				// Compare for Equality
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3098,7 +3152,9 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_EQ( R4300_
 	else
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_LE( R4300_CALL_SIGNATURE )				// Compare for Less Than or Equal
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3114,7 +3170,9 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_LE( R4300_
 
 }
 
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_LT( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3129,14 +3187,18 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_LT( R4300_
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 
 }
+//*****************************************************************************
 //
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_F( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
 	gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_UN( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3149,7 +3211,9 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_UN( R4300_
 	else
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_UEQ( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3162,7 +3226,9 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_UEQ( R4300
 	else
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_OLT( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3175,7 +3241,9 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_OLT( R4300
 	else
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_ULT( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3188,7 +3256,9 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_ULT( R4300
 	else
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_OLE( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3201,7 +3271,9 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_OLE( R4300
 	else
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_ULE( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3214,42 +3286,41 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_ULE( R4300
 	else
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_SF( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
+#ifndef DAEDALUS_SILENT
 	d64 fX = LoadFPR_Double< FullLength >( op_code.fs );
 	d64 fY = LoadFPR_Double< FullLength >( op_code.ft );
 
-	use( fX );
-	use( fY );
-
-#ifndef DAEDALUS_SILENT
-	CATCH_NAN_EXCEPTION( fX, fY );
+	CATCH_NAN_EXCEPTION( "R4300_Cop1_D_SF", fX, fY );
 #endif
 
 	gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
-
+//*****************************************************************************
 // Same as above..
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_NGLE( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
+#ifndef DAEDALUS_SILENT
 	d64 fX = LoadFPR_Double< FullLength >( op_code.fs );
 	d64 fY = LoadFPR_Double< FullLength >( op_code.ft );
 
-	use( fX );
-	use( fY );
-
-#ifndef DAEDALUS_SILENT
-	CATCH_NAN_EXCEPTION( fX, fY );
+	CATCH_NAN_EXCEPTION( "R4300_Cop1_D_NGLE", fX, fY );
 #endif
 
 	gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_SEQ( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3257,9 +3328,7 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_SEQ( R4300
 	d64 fX = LoadFPR_Double< FullLength >( op_code.fs );
 	d64 fY = LoadFPR_Double< FullLength >( op_code.ft );
 
-#ifndef DAEDALUS_SILENT
-	CATCH_NAN_EXCEPTION( fX, fY );
-#endif
+	CATCH_NAN_EXCEPTION( "R4300_Cop1_D_SEQ", fX, fY );
 
 	if( fX == fY )
 		gCPUState.FPUControl[31]._u64 |= FPCSR_C;
@@ -3267,7 +3336,9 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_SEQ( R4300
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
 
+//*****************************************************************************
 // Same as above..
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_NGL( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3275,16 +3346,16 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_NGL( R4300
 	d64 fX = LoadFPR_Double< FullLength >( op_code.fs );
 	d64 fY = LoadFPR_Double< FullLength >( op_code.ft );
 
-#ifndef DAEDALUS_SILENT
-	CATCH_NAN_EXCEPTION( fX, fY );
-#endif
+	CATCH_NAN_EXCEPTION( "R4300_Cop1_D_NGL", fX, fY );
 
 	if( fX == fY )
 		gCPUState.FPUControl[31]._u64 |= FPCSR_C;
 	else
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_NGE( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3292,16 +3363,16 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_NGE( R4300
 	d64 fX = LoadFPR_Double< FullLength >( op_code.fs );
 	d64 fY = LoadFPR_Double< FullLength >( op_code.ft );
 
-#ifndef DAEDALUS_SILENT
-	CATCH_NAN_EXCEPTION( fX, fY );
-#endif
+	CATCH_NAN_EXCEPTION( "R4300_Cop1_D_NGE", fX, fY );
 
 	if( fX < fY )
 		gCPUState.FPUControl[31]._u64 |= FPCSR_C;
 	else
 		gCPUState.FPUControl[31]._u64 &= ~FPCSR_C;
 }
-
+//*****************************************************************************
+//
+//*****************************************************************************
 template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_NGT( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3309,9 +3380,8 @@ template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_D_NGT( R4300
 	d64 fX = LoadFPR_Double< FullLength >( op_code.fs );
 	d64 fY = LoadFPR_Double< FullLength >( op_code.ft );
 
-#ifndef DAEDALUS_SILENT
-	CATCH_NAN_EXCEPTION( fX, fY );
-#endif
+	CATCH_NAN_EXCEPTION( "R4300_Cop1_D_NGT", fX, fY );
+
 	if( fX <= fY )
 		gCPUState.FPUControl[31]._u64 |= FPCSR_C;
 	else
