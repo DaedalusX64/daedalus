@@ -92,9 +92,12 @@ namespace
 		const char * const TERMINAL_SAVE_POS			= "\033[2s";
 		const char * const TERMINAL_RESTORE_POS			= "\033[2u";
 
-		const char * const TERMINAL_YELLOW				= "\033[1;33m";
+		const char * const TERMINAL_RED					= "\033[1;31m";
 		const char * const TERMINAL_GREEN				= "\033[1;32m";
+		const char * const TERMINAL_YELLOW				= "\033[1;33m";
+		const char * const TERMINAL_BLUE				= "\033[1;34m";
 		const char * const TERMINAL_MAGENTA				= "\033[1;35m";
+		const char * const TERMINAL_CYAN				= "\033[1;36m";
 		const char * const TERMINAL_WHITE				= "\033[1;37m";
 
 const char * const gDDLOText[] = 

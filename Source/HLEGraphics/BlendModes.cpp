@@ -283,6 +283,54 @@ void BlendMode_0x0040fe8155fef97cLL (BLEND_MODE_ARGS)
 /*
  #K
  */ 
+//Kirby 64 - Ground
+//case 0x0030fe045ffefdf8LL:
+//aRGB0: (Primitive    - Env         ) * Texel0       + Env
+//aA0  : (0            - 0           ) * 0            + 1
+//aRGB1: (Combined     - 0           ) * Shade        + 0
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x0030fe045ffefdf8LL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+}
+
+//Kirby 64 - some parts of the Ground
+//case 0x00309e045ffefdf8LL:
+//aRGB0: (Primitive    - Env         ) * Texel0       + Env         
+//aA0  : (Texel0       - 0           ) * 0            + 1           
+//aRGB1: (Combined     - 0           ) * Shade        + 0           
+//aA1  : (0            - 0           ) * 0            + Combined    
+void BlendMode_0x00309e045ffefdf8LL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+}
+
+//Kirby 64 - Far Terrain
+//case 0x0040fe8155fefd7eLL:
+//aRGB0: (Shade        - Env         ) * Texel0       + Env
+//aA0  : (0            - 0           ) * 0            + 1
+//aRGB1: (Shade        - Env         ) * Texel0       + Env
+//aA1  : (0            - 0           ) * 0            + 1
+
+void BlendMode_0x0040fe8155fefd7eLL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+}
+
+// Kirby - Air seeds, Ridge Racer 64 menu text 
+//case 0x0030b2615566db6dLL:
+//aRGB0: (Primitive    - Env         ) * Texel0       + Env
+//aA0  : (Primitive    - Env         ) * Texel0       + Env
+//aRGB1: (Primitive    - Env         ) * Texel0       + Env
+//aA1  : (Primitive    - Env         ) * Texel0       + Env
+void BlendMode_0x0030b2615566db6dLL( BLEND_MODE_ARGS )
+{
+	// Modulate the texture*shade for RGBA
+	details.ColourAdjuster.SetRGB( details.EnvColour );
+	details.ColourAdjuster.SetA( details.PrimColour );
+	sceGuTexEnvColor( details.PrimColour.GetColour() );
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);			// XXXX Argh - need to interpolate alpha too!? We're just doing modulate(t,prim) for now
+}
 
 /*
  //#M
@@ -359,7 +407,7 @@ void BlendMode_0x00147e2844fe7b3dLL (BLEND_MODE_ARGS)
  */
 
 
-//Tarzan birds wings, Marios drop shadows in SM64
+//Tarzan birds wings, Marios drop shadows in SM64, Kirby64 Fence
 //case 0x00121824ff33ffffLL:
 //aRGB0: (Texel0       - 0           ) * Shade        + 0
 //aA0  : (Texel0       - 0           ) * Shade        + 0
@@ -367,7 +415,6 @@ void BlendMode_0x00147e2844fe7b3dLL (BLEND_MODE_ARGS)
 //aA1  : (Texel0       - 0           ) * Shade        + 0
 void BlendMode_0x00121824ff33ffffLL( BLEND_MODE_ARGS )
 {
-	//details.ColourAdjuster.SetA( c32(0,0,0,0xD8) );
 	if( g_ROM.GameHacks == TARZAN ) details.ColourAdjuster.SetAOpaque();
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
@@ -891,8 +938,8 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction1( u64 mux )
 	switch(mux)
 	{	
 #define BLEND_MODE( x )		case (x):	return BlendMode_##x;
+			BLEND_MODE(0x00121824ff33ffffLL); // Tarzan
 			BLEND_MODE(0x00fffffffffcfa7dLL); // Mario 64 Stars
-			BLEND_MODE(0x00121824ff33ffffLL);//Tarzan
 
 	#undef BLEND_MODE 
 	}
@@ -943,15 +990,19 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 			BLEND_MODE(0x00272c6035fce378LL); // Zelda Blue Fire Lamp
 			BLEND_MODE(0x00276c6035d8ed76LL); // OOT Deku Nut Core
 			BLEND_MODE(0x00277e6035fcf778LL); // Zelda Triforce
+			BLEND_MODE(0x00309e045ffefdf8LL); // Kirby some parts of the Ground
 			BLEND_MODE(0x0030b2045ffefff8LL); // OOT - Eponas Dust
+			BLEND_MODE(0x0030b2615566db6dLL); // Kirby Air seeds, Ridge racer text
 			BLEND_MODE(0x0030b3ff5ffeda38LL); // OOT Sign Cut (Sword)
 			BLEND_MODE(0x0030ec6155daed76LL); // Cucukan Egg
 			BLEND_MODE(0x0030ec045fdaedf6LL); // Zelda Arrows in Shop
 			BLEND_MODE(0x0030fe045f0ef3ffLL); // Gold Skulltula Eyes
 			BLEND_MODE(0x0030fe045ffef3f8LL); // Zelda Bottle Decal
 			BLEND_MODE(0x0030fe045ffefbf8LL); // FZero main ship
+			BLEND_MODE(0x0030fe045ffefdf8LL); // Kirby Ground
 			BLEND_MODE(0x0030fe045ffefdfeLL); // Zelda Kokori Sword Handle
 			BLEND_MODE(0x0040fe8155fef97cLL); // GoldenEye Sky
+			BLEND_MODE(0x0040fe8155fefd7eLL); // Kirby Far Terrain
 			BLEND_MODE(0x0062fe043f15f9ffLL); // Banjo Kazooie Backdrop
 			BLEND_MODE(0x00772c60f5fce378LL); // Zelda Poe
 			default:
