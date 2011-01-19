@@ -212,6 +212,30 @@ void BlendMode_0x002698041f14ffffLL( BLEND_MODE_ARGS )
  //#F
  */
 
+//F1 World GP Wheels
+//case 0x0027fe041ffcfdfeLL:
+//aRGB0: (Texel1       - Texel0      ) * K5           + Texel0      
+//aA0  : (0            - 0           ) * 0            + 1           
+//aRGB1: (Combined     - 0           ) * Shade        + 0           
+//aA1  : (0            - 0           ) * 0            + 1 
+void BlendMode_0x0027fe041ffcfdfeLL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+}
+
+//F1 World GP Sky
+//case 0x0055a68730fd923eLL:
+//aRGB0: (Env          - Primitive   ) * Shade_Alpha  + Primitive   
+//aA0  : (Texel1       - Texel0      ) * Primitive    + Texel0      
+//aRGB1: (Shade        - Combined    ) * CombAlp      + Combined    
+//aA1  : (0            - 0           ) * 0            + 1   
+void BlendMode_0x0055a68730fd923eLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.PrimColour);
+	sceGuTexFunc(GU_TFX_DECAL,GU_TCC_RGBA);
+}
+
+
 // F- Zero Tracks / Mario 64 Penguin / Owl / Canon dude Eyes / Face /
 //case 0x00147e2844fe793cLL:
 //aRGB0: (Texel0       - Shade       ) * Texel0_Alp   + Shade       
@@ -957,12 +981,14 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 #endif
 	switch(mux)
 	{
+			
+			
 #define BLEND_MODE( x )		case (x):	return BlendMode_##x;
 			BLEND_MODE(0x00121603ff5bfff8LL); // Zelda Paths
 			BLEND_MODE(0x00127e2433fdf8fcLL); // Wetrix Background / Banjo Kazooie
 			BLEND_MODE(0x001298043f15ffffLL); // Banjo Kazooie N64 Logo / Characters
 			BLEND_MODE(0x00129bfffffdf638LL); // Road Rush64 trees
-			BLEND_MODE(0x00147e045ffefbf8LL); // FZerp other ships
+			BLEND_MODE(0x00147e045ffefbf8LL); // FZero other ships
 			BLEND_MODE(0x00147e2844fe793cLL); // FZero tracks / Mario 64 penguin's eyes
 			BLEND_MODE(0x00167e6035fcff7eLL); // OOT, MM Intro (N64 Logo)
 			BLEND_MODE(0x0017166035fcff78LL); // OOT Deku tree Flash
@@ -990,6 +1016,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 			BLEND_MODE(0x00272c6035fce378LL); // Zelda Blue Fire Lamp
 			BLEND_MODE(0x00276c6035d8ed76LL); // OOT Deku Nut Core
 			BLEND_MODE(0x00277e6035fcf778LL); // Zelda Triforce
+			BLEND_MODE(0x0027fe041ffcfdfeLL); // F1 World GP Wheels
 			BLEND_MODE(0x00309e045ffefdf8LL); // Kirby some parts of the Ground
 			BLEND_MODE(0x0030b2045ffefff8LL); // OOT - Eponas Dust
 			BLEND_MODE(0x0030b2615566db6dLL); // Kirby Air seeds, Ridge racer text
@@ -1003,6 +1030,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
 			BLEND_MODE(0x0030fe045ffefdfeLL); // Zelda Kokori Sword Handle
 			BLEND_MODE(0x0040fe8155fef97cLL); // GoldenEye Sky
 			BLEND_MODE(0x0040fe8155fefd7eLL); // Kirby Far Terrain
+			BLEND_MODE(0x0055a68730fd923eLL); // F1 World GP Sky
 			BLEND_MODE(0x0062fe043f15f9ffLL); // Banjo Kazooie Backdrop
 			BLEND_MODE(0x00772c60f5fce378LL); // Zelda Poe
 			default:
