@@ -130,7 +130,14 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	case 0xc702:					// Fog * AFog + In * 1-A || :In * 0 + In * 1			Donald Duck - Sky
 	case 0xfa00:					// Fog * AShade + In * 1-A || :Fog * AShade + In * 1-A	F-Zero - Power Roads
 	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A		Paper Mario Menu	
-	case 0x0fa5:					//:In * 0 + Bl * AMem || :In * 0 + Bl * AMem			OOT Menu
+	case 0x0fa5:					// In * 0 + Bl * AMem || :In * 0 + Bl * AMem			OOT Menu
+	case 0x55f0:					// Mem * AFog + Fog * 1-A || :Mem * AFog + Fog * 1-A		Bust a Move 3
+	case 0xcb02:					// Fog * AShade + In * 1-A || :In * 0 + In * 1			Doom 64
+	case 0x0150:					//In * AIn + Mem * 1-A || :In * AFog + Mem * 1-A		Spiderman 
+	case 0x0f5a:					//In * 0 + Mem * 1 || :In * 0 + Mem * 1					Starwars Racer
+			
+
+
 		sceGuDisable( GU_BLEND );	
 		break;
 	//
