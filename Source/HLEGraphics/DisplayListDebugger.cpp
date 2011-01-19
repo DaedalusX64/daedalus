@@ -183,7 +183,11 @@ void CCombinerExplorerDebugMenuOption::Display() const
 
 	printf( "Combiner States in use:\n" );
 	printf( "   Use [] to return\n" );
-	printf( "   Use O to toggle on/off:\n" );
+	printf( "   Use O to select on/off\n" );
+	printf( "   Use up/down to move cursor\n\n" );
+	printf( "   %sHandled Inexact Blend\n", TERMINAL_GREEN );
+	printf( "   %sForced Blend\n", TERMINAL_MAGENTA );
+	printf( "   %sUse in Blend Explorer\n\n", TERMINAL_RED );
 
 	u32		idx( 0 );
 	u64		selected_mux( 0 );
@@ -193,28 +197,30 @@ void CCombinerExplorerDebugMenuOption::Display() const
 
 		bool	selected( idx == mSelectedIdx );
 		bool	disabled( PSPRenderer::Get()->IsCombinerStateDisabled( state ) );
-		bool	unhandled( PSPRenderer::Get()->IsCombinerStateUnhandled( state ) );
+		//bool	unhandled( PSPRenderer::Get()->IsCombinerStateUnhandled( state ) );
+		bool	forced( PSPRenderer::Get()->IsCombinerStateForced( state ) );
 		const char *	text_col;
 
 		if(selected)
 		{
-			text_col = TERMINAL_YELLOW;
+			//text_col = TERMINAL_YELLOW;
 			selected_mux = state;
 		}
-		else if(disabled)
+
+		if(disabled)
 		{
-			text_col = TERMINAL_GREEN;
+			text_col = TERMINAL_RED;
 		}
-		else if(unhandled)
+		else if(forced)
 		{
 			text_col = TERMINAL_MAGENTA;
 		}
 		else
 		{
-			text_col = TERMINAL_WHITE;
+			text_col = TERMINAL_GREEN;
 		}
 
-		printf( " %s%c%08x%08x\n", text_col, selected ? '*' : ' ', u32(state >> 32), u32(state) );
+		printf( "  %s%c%08x%08x\n", text_col, selected ? '*' : ' ', u32(state >> 32), u32(state) );
 
 		idx++;
 	}

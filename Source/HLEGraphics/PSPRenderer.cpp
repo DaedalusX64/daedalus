@@ -166,7 +166,7 @@ u32	gAOpaque=0;
 
 u32	gsceENV=0;
 
-u32	gTXTFUNC=6;	//defaults to replace
+u32	gTXTFUNC=0;	//defaults to MODULATE_RGB
 
 u32	gNumCyc=3;
 
@@ -704,12 +704,12 @@ PSPRenderer::SBlendStateEntry	PSPRenderer::LookupBlendState( u64 mux, bool two_c
 	//
 	if( entry.States->IsInexact() )
 	{
-		entry.OverrideFunction = LookupOverrideBlendModeFunction( mux );
+		entry.OverrideFunction = LookupOverrideBlendModeInexact( mux );
 	}
 	else
 	{
 		// This is for non-inexact blends, errg hacks and such to be more precise
-		entry.OverrideFunction = LookupOverrideBlendModeFunction1( mux );
+		entry.OverrideFunction = LookupOverrideBlendModeForced( mux );
 	}
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST	
@@ -1088,7 +1088,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		//
 		if( inexact && gGlobalPreferences.HighlightInexactBlendModes)
 		{
-			if(mUnhandledCombinderStates.find( gRDPMux._u64 ) == mUnhandledCombinderStates.end())
+			if(mUnhandledCombinerStates.find( gRDPMux._u64 ) == mUnhandledCombinerStates.end())
 			{
 				char szFilePath[MAX_PATH+1];
 
@@ -1096,14 +1096,14 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 				IO::Path::Append(szFilePath, "missing_mux.txt");
 
-				FILE * fh( fopen(szFilePath, mUnhandledCombinderStates.empty() ? "w" : "a") );
+				FILE * fh( fopen(szFilePath, mUnhandledCombinerStates.empty() ? "w" : "a") );
 				if(fh != NULL)
 				{
 					PrintMux( fh, gRDPMux._u64 );
 					fclose(fh);
 				}
 
-				mUnhandledCombinderStates.insert( gRDPMux._u64 );
+				mUnhandledCombinerStates.insert( gRDPMux._u64 );
 			}
 		}
 

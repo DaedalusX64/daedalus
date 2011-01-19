@@ -954,7 +954,7 @@ void BlendMode_0x00272c041f0c93ffLL (BLEND_MODE_ARGS)
 //*****************************************************************************
 // This only for hacks etc these are non-inexact blendmodes
 //*****************************************************************************
-OverrideBlendModeFn		LookupOverrideBlendModeFunction1( u64 mux )
+OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 {
 #ifndef DAEDALUS_PUBLIC_RELEASE
 	if(!gGlobalPreferences.CustomBlendModes) return NULL;
@@ -974,7 +974,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeFunction1( u64 mux )
 //*****************************************************************************
 // Inexact blendmodes, we find a match or try to guess a correct blending
 //*****************************************************************************	
-OverrideBlendModeFn		LookupOverrideBlendModeFunction( u64 mux )
+OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 {
 #ifndef DAEDALUS_PUBLIC_RELEASE
 	if(!gGlobalPreferences.CustomBlendModes) return NULL;
