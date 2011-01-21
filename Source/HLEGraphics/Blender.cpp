@@ -126,81 +126,25 @@ Possible Blending Factors:
 const char * sc_szBlClr[4] = { "In",  "Mem",  "Bl",     "Fog" };
 const char * sc_szBlA1[4]  = { "AIn", "AFog", "AShade", "0" };
 const char * sc_szBlA2[4]  = { "1-A", "AMem", "1",      "?" };
-#endif
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-//*****************************************************************************
-//
-//*****************************************************************************
 static void DebugBlender( u32 blender )	
 {
-	DAEDALUS_ERROR( "Unknown Blender: %04x - :%s * %s + %s * %s || %s * %s + %s * %s", blender,
+	DAEDALUS_ERROR( "Unknown Blender: %04x - :%s * %s + %s * %s || %04x - :%s * %s + %s * %s",
+			blender & 0xcccc,
 			sc_szBlClr[(blender>>14) & 0x3], sc_szBlA1[(blender>>10) & 0x3], sc_szBlClr[(blender>>6) & 0x3], sc_szBlA2[(blender>>2) & 0x3],
+			blender & 0x3333,
 			sc_szBlClr[(blender>>12) & 0x3], sc_szBlA1[(blender>> 8) & 0x3], sc_szBlClr[(blender>>4) & 0x3], sc_szBlA2[(blender   ) & 0x3]);
 
 }
 #endif
 //*****************************************************************************
-// 1->Fast version, 0->Modified old version
+// 1->Modified old version, 0->New version
 //*****************************************************************************
 #if 1
 
-
-//*****************************************************************************
-// This version uses a 16bit hash, which is around 4X times faster than the old 64bit version
-//*****************************************************************************
-void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
-{
-	switch ( blendmode )
-	{	
-	case 0x0c08:					// In * 0 + In * 1 || :In * AIn + In * 1-A				Tarzan - Medalion in bottom part of the screen
-	case 0x0f0a:					// In * 0 + In * 1 || :In * 0 + In * 1 :				SSV - ??? and MM - Walls
-	case 0xc302:					// Fog * AIn + In * 1-A || :In * 0 + In * 1				ISS64 - Ground
-	case 0xc702:					// Fog * AFog + In * 1-A || :In * 0 + In * 1			Donald Duck - Sky
-	case 0xfa00:					// Fog * AShade + In * 1-A || :Fog * AShade + In * 1-A	F-Zero - Power Roads
-	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A		Paper Mario Menu	
-	case 0x0fa5:					// In * 0 + Bl * AMem || :In * 0 + Bl * AMem			OOT Menu
-	case 0x55f0:					// Mem * AFog + Fog * 1-A || :Mem * AFog + Fog * 1-A		Bust a Move 3
-	case 0xcb02:					// Fog * AShade + In * 1-A || :In * 0 + In * 1			Doom 64
-	case 0x0150:					//In * AIn + Mem * 1-A || :In * AFog + Mem * 1-A		Spiderman 
-	case 0x0f5a:					//In * 0 + Mem * 1 || :In * 0 + Mem * 1					Starwars Racer
-			
-
-
-		sceGuDisable( GU_BLEND );	
-		break;
-	//
-	// Add here blenders which work fine with default case but causes too much spam, this disabled in release mode
-	//
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST 
-	case 0x0010:					// In * AIn + In * 1-A || :In * AIn + Mem * 1-A			Hey You Pikachu - Shadow
-	case 0xc410:					// Fog * AFog + In * 1-A || :In * AIn + Mem * 1-A		Donald Duck - Stars
-	case 0xc810:					// Fog * AShade + In * 1-A || :In * AIn + Mem * 1-A		SSV - Fog? and MM - Shadows
-	case 0x0c18:					// In * 0 + In * 1 || :In * AIn + Mem * 1-A:			SSV - WaterFall and dust
-	case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
-	case 0x0040:					// In * AIn + Mem * 1-A || :In * AIn + In * 1-A			Mario - Princess peach text
-		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-		sceGuEnable( GU_BLEND );
-		break;
-#endif
-	//
-	// Default case should handle most blenders, ignore most unknown blenders unless something is messed up
-	//
-	default:
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DebugBlender( blendmode );
-#endif
-		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-		sceGuEnable( GU_BLEND );
-		break;
-	}
-}	
-
-#else
 //*****************************************************************************
 //BLEND MACROS
 //*****************************************************************************
-
 #define MAKE_BLEND_MODE( a, b )			( (a) | (b) )
 #define BLEND_NOOP1				0x0000		//GBL_c1(G_BL_CLR_IN, G_BL_1MA, G_BL_CLR_IN, G_BL_1MA)
 #define BLEND_NOOP2				0x0000
@@ -210,7 +154,6 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 #define BLEND_FOG_APRIM1		0xc400
 #define BLEND_FOG_3				0xc000		// Fog * AIn + In * 1-A
 #define BLEND_FOG_MEM_FOG_MEM	0x04c0		// In * AFog + Fog * 1-A
-
 
 #define BLEND_PASS1				0x0c08		//GBL_c1(G_BL_CLR_IN, G_BL_0, G_BL_CLR_IN, G_BL_1)
 #define BLEND_PASS2				0x0302
@@ -238,15 +181,10 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 #define BLEND_UNK				0x3312
 
 //*****************************************************************************
-//
+// Rehashed version of old blender (16bit)
 //*****************************************************************************
 void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 {
-	int		blend_op  = GU_ADD;
-	int		blend_src = GU_SRC_ALPHA;
-	int		blend_dst = GU_ONE_MINUS_SRC_ALPHA;
-	bool	enable_blend( false );
-
 	switch( blendmode )
 	{
 	case MAKE_BLEND_MODE( BLEND_PASS1, BLEND_PASS2 ):
@@ -264,7 +202,10 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	case MAKE_BLEND_MODE( BLEND_FOG_APRIM1, BLEND_PASS2 ):	// c400 || 0302 - Donald Duck - Sky
 	case MAKE_BLEND_MODE( BLEND_FOG_APRIM1, BLEND_OPA2 ):	// c400 || 0011 - Donald Duck and GoldenEye - Items and Truck spots.
 	case MAKE_BLEND_MODE( BLEND_FOG_MEM_FOG_MEM, BLEND_PASS2 ):// 04c0 - :In * AFog + Fog * 1-A || 0302 - :In * 0 + In * 1 - Conker's face and body
-		enable_blend = false;
+		sceGuDisable( GU_BLEND );
+		return;
+	case MAKE_BLEND_MODE( BLEND_XLU1, BLEND_ADD2 ):			
+		sceGuBlendFunc( GU_ADD, GU_SRC_COLOR, GU_DST_COLOR, 0, 0);	// Transparency
 		break;
 	case MAKE_BLEND_MODE( BLEND_NOOP1, BLEND_XLU2 ):		// 0000 || 0010 - Hey You Pikachu - Shade
 	case MAKE_BLEND_MODE( BLEND_NOOP1, BLEND_NOOP2 ):
@@ -272,33 +213,67 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	case MAKE_BLEND_MODE( BLEND_XLU1, BLEND_NOOP2 ):
 	case MAKE_BLEND_MODE( BLEND_PASS1, BLEND_XLU2 ):
 	case MAKE_BLEND_MODE( BLEND_FOG_ASHADE1, BLEND_XLU2 ):
-		blend_op = GU_ADD; blend_src = GU_SRC_ALPHA; blend_dst = GU_ONE_MINUS_SRC_ALPHA;
-		enable_blend = true;
-		break;
-	case MAKE_BLEND_MODE( BLEND_XLU1, BLEND_ADD2 ):			
-		blend_op = GU_ADD; blend_src = GU_SRC_COLOR; blend_dst = GU_DST_COLOR;	// Transparency
-		enable_blend = true;
-		break;
 	default:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		DebugBlender( blendmode );
-#endif
 		DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", blendmode );
-		blend_op = GU_ADD; blend_src = GU_SRC_ALPHA; blend_dst = GU_ONE_MINUS_SRC_ALPHA;
-		enable_blend = true;
+#endif
+		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
 		break;
 	}	
 
-	if( enable_blend )
-	{
-		sceGuBlendFunc( blend_op, blend_src, blend_dst, 0, 0);
+	sceGuEnable( GU_BLEND );
+}	
+#else
+
+//*****************************************************************************
+// This version uses a 16bit hash, which is around 4X times faster than the old 64bit version
+//*****************************************************************************
+void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
+{
+	switch ( blendmode )
+	{	
+	case 0x0c08:					// In * 0 + In * 1 || :In * AIn + In * 1-A				Tarzan - Medalion in bottom part of the screen
+	case 0x0f0a:					// In * 0 + In * 1 || :In * 0 + In * 1 :				SSV - ??? and MM - Walls
+	case 0xc302:					// Fog * AIn + In * 1-A || :In * 0 + In * 1				ISS64 - Ground
+	case 0xc702:					// Fog * AFog + In * 1-A || :In * 0 + In * 1			Donald Duck - Sky
+	case 0xfa00:					// Fog * AShade + In * 1-A || :Fog * AShade + In * 1-A	F-Zero - Power Roads
+	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A		Paper Mario Menu	
+	case 0x0fa5:					// In * 0 + Bl * AMem || :In * 0 + Bl * AMem			OOT Menu
+	case 0x55f0:					// Mem * AFog + Fog * 1-A || :Mem * AFog + Fog * 1-A		Bust a Move 3
+	case 0xcb02:					// Fog * AShade + In * 1-A || :In * 0 + In * 1			Doom 64
+	case 0x0150:					//In * AIn + Mem * 1-A || :In * AFog + Mem * 1-A		Spiderman 
+	case 0x0f5a:					//In * 0 + Mem * 1 || :In * 0 + Mem * 1					Starwars Racer
+		sceGuDisable( GU_BLEND );	
+		break;
+	//
+	// Add here blenders which work fine with default case but causes too much spam, this disabled in release mode
+	//
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST 
+	case 0x0010:					// In * AIn + In * 1-A || :In * AIn + Mem * 1-A			Hey You Pikachu - Shadow
+	case 0xc410:					// Fog * AFog + In * 1-A || :In * AIn + Mem * 1-A		Donald Duck - Stars
+	case 0xc810:					// Fog * AShade + In * 1-A || :In * AIn + Mem * 1-A		SSV - Fog? and MM - Shadows
+	case 0x0c18:					// In * 0 + In * 1 || :In * AIn + Mem * 1-A:			SSV - WaterFall and dust
+	case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
+	case 0x0040:					// In * AIn + Mem * 1-A || :In * AIn + In * 1-A			Mario - Princess peach text
+		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
 		sceGuEnable( GU_BLEND );
-	}
-	else
-	{
-		sceGuDisable( GU_BLEND );
+		break;
+#endif
+	//
+	// Default case should handle most blenders, ignore most unknown blenders unless something is messed up
+	//
+	default:
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+		DebugBlender( blendmode );
+		DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", blendmode );
+#endif
+		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+		sceGuEnable( GU_BLEND );
+		break;
 	}
 }	
+
 #endif	
 //*****************************************************************************
 //

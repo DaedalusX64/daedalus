@@ -350,7 +350,9 @@ void	ApplyAlphaModulateTerm( CAlphaRenderSettings * settings, const CCombinerOpe
 			break;
 
 		default:
+#ifndef DAEDALUS_PUBLIC_RELEASE
 			printf( "Unhandled Alpha Input: %s\n", GetCombinerInputName( input->GetInput() ) );
+#endif
 			settings->SetInexact();
 			break;
 		}
@@ -367,12 +369,13 @@ void	ApplyAlphaModulateTerm( CAlphaRenderSettings * settings, const CCombinerOpe
 		}
 		else
 		{
+#ifndef DAEDALUS_PUBLIC_RELEASE
 			COutputStringStream	str;
 			operand->Stream( str );
 			printf( "\n********************************\n" );
 			printf( "Unhandled alpha - not a simple term: %s\n", str.c_str() );
 			printf( "********************************\n\n" );
-
+#endif
 			settings->SetInexact();
 		}
 	}

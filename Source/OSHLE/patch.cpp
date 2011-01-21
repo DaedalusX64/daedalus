@@ -468,6 +468,7 @@ void Patch_RecurseAndFind()
 #ifdef DAEDALUS_DEBUG_CONSOLE
 		CDebugConsole::Get()->MsgOverwrite(0, "OS HLE: %d / %d Looking for [G%s]",
 			i, nPatchSymbols, g_PatchSymbols[i]->szName);
+		fflush(stdout);
 #else
 
 		//Update patching progress on PSPscreen
