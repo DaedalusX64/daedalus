@@ -87,6 +87,7 @@ u32 g_dwNumFrames = 0;
 //*****************************************************************************
 RomInfo g_ROM;
 bool gTLUTalt_mode;
+bool gForceZcmp;
 
 #ifndef DAEDALUS_SILENT
 //*****************************************************************************
@@ -454,6 +455,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	printf("ROM ID:%04X\n", id.CartID);
 
 	gTLUTalt_mode = false;	//Alternate Texture mode
+	gForceZcmp = false;	//Force Z compare
 	
 	switch( id.CartID )
 	{
@@ -467,7 +469,10 @@ void SpecificGameHacks( const ROMHeader & id )
 		g_ROM.GameHacks = ZELDA_MM;
 		break;
 	case 0x514D: g_ROM.GameHacks = PMARIO;				break;
-	case 0x5a46: g_ROM.GameHacks = FZERO;				break;
+	case 0x5a46:	//FZERO
+	case 0x5a52:	//RidgeRacer 64
+		gForceZcmp = true;
+		break;
 	case 0x3954: g_ROM.GameHacks = TIGERS_HONEY_HUNT;	break;
 	case 0x5443: g_ROM.GameHacks = CHAMELEON_TWIST;		break;
 	case 0x524c: g_ROM.GameHacks = LOAD_RUNNER;			break;

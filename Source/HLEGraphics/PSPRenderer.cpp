@@ -137,11 +137,10 @@ static f32 fViHeight = 240.0f;
 //static u32 uViWidth = 320;
 //static u32 uViHeight = 240;
 
-f32 gZoomX=1.0;	//Default is 1.0f
-
 static const float gTexRectDepth( 0.0f );
-
+f32 gZoomX=1.0;	//Default is 1.0f
 bool bStarOrigin = false;
+extern bool gForceZcmp;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST	
 // General purpose variable used for debugging
@@ -865,7 +864,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 			// Only update if ZBuffer is enabled
 			if (m_bZBuffer)
 			{
-				if(gRDPOtherMode.z_cmp || g_ROM.GameHacks == FZERO)
+				if( gRDPOtherMode.z_cmp || gForceZcmp )
 				{
 					sceGuEnable(GU_DEPTH_TEST);
 					
@@ -928,7 +927,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	//
 	// Initiate Blender
 	//
-	if( (blender & 0x4000) && (gRDPOtherMode.cycle_type < CYCLE_COPY) )
+	if( gRDPOtherMode.force_bl && (gRDPOtherMode.cycle_type < CYCLE_COPY) )
 	{
 		InitBlenderMode( blender >> 16 );
 	}
