@@ -454,6 +454,7 @@ void SpecificGameHacks( const ROMHeader & id )
 {
 	printf("ROM ID:%04X\n", id.CartID);
 
+	g_ROM.GameHacks = NO_GAME_HACK;	//Default to no game hacks
 	gTLUTalt_mode = false;	//Alternate Texture mode
 	gForceZcmp = false;	//Force Z compare
 	
@@ -464,15 +465,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5546: g_ROM.GameHacks = CONKER;				break;
 	case 0x5750: g_ROM.GameHacks = PILOT_WINGS;			break;
 	case 0x4c5a: g_ROM.GameHacks = ZELDA_OOT;			break;
-	case 0x535a:
-		gTLUTalt_mode = true;
-		g_ROM.GameHacks = ZELDA_MM;
-		break;
 	case 0x514D: g_ROM.GameHacks = PMARIO;				break;
-	case 0x5a46:	//FZERO
-	case 0x5a52:	//RidgeRacer 64
-		gForceZcmp = true;
-		break;
 	case 0x3954: g_ROM.GameHacks = TIGERS_HONEY_HUNT;	break;
 	case 0x5443: g_ROM.GameHacks = CHAMELEON_TWIST;		break;
 	case 0x524c: g_ROM.GameHacks = LOAD_RUNNER;			break;
@@ -480,12 +473,19 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x344b: g_ROM.GameHacks = KIRBY64;				break;
 	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
 	case 0x5144: g_ROM.GameHacks = DONALD;				break;
+	case 0x535a:
+		gTLUTalt_mode = true;
+		g_ROM.GameHacks = ZELDA_MM;
+		break;
+	case 0x5a46:	//FZERO
+	case 0x5a52:	//RidgeRacer 64
+		gForceZcmp = true;
+		break;
 	case 0x5653:	//SSV
 	case 0x5547:	//Sin and punishment	
 	case 0x4641:	//Animal crossing	
 	case 0x4446:	//Flying Dragon	
 		gTLUTalt_mode = true;
-		g_ROM.GameHacks = NO_GAME_HACK;
 		break;
 	case 0x324e: 
 	case 0x4339:

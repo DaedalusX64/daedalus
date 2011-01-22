@@ -584,10 +584,6 @@ void DLParser_Process()
 {
 	DAEDALUS_PROFILE( "DLParser_Process" );
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	gTotalInstructionCount = 0;
-#endif
-
 	if ( !CGraphicsContext::Get()->IsInitialised() || !PSPRenderer::IsAvailable() )
 	{
 		return;
@@ -610,7 +606,7 @@ void DLParser_Process()
 	// Update Screen earlier, otherwise several games like ex Mario won't work.
 	//
 	if(!gScrnUpd) gGraphicsPlugin->UpdateScreen();
-
+	
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 	u32 code_base = (u32)pTask->t.ucode & 0x1fffffff;
 	u32 code_size = pTask->t.ucode_size;
@@ -619,6 +615,7 @@ void DLParser_Process()
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	GBIMicrocode_ResetMicrocodeHistory();
+	gRDPOtherMode._u64 = 0;			// Use gOtherModeL instead, pretty much the same and cheap on the psp
 #endif
 	if ( last.code_base != code_base )
 	{
@@ -628,26 +625,18 @@ void DLParser_Process()
 	//
 	// Not sure what to init this with. We should probably read it from the dmem
 	//
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	gRDPOtherMode._u64 = 0;			// Use gOtherModeL instead, pretty much the same and cheap on the psp
-#endif
+	gOtherModeL = 0;
+	gOtherModeH = 0;
+
 	gRDPOtherMode.pad = G_RDP_RDPSETOTHERMODE;
 	gRDPOtherMode.blender = 0x0050;
 	gRDPOtherMode.alpha_compare = 1;
-
-	gOtherModeL = 0;
-	gOtherModeH = 0;
 
 	gRDPFrame++;
 
 	CTextureCache::Get()->PurgeOldTextures();
 
 	// Initialise stack
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	gCurrentInstructionCount = 0;
-	gNumDListsCulled = 0;
-	gNumVertices = 0;
-#endif
 	gDisplayListStack.clear();
 	DList dl;
 	dl.addr = (u32)pTask->t.data_ptr;
@@ -656,10 +645,15 @@ void DLParser_Process()
 
 	gRDPStateManager.Reset();
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	gTotalInstructionCount = 0;
+	gCurrentInstructionCount = 0;
+	gNumDListsCulled = 0;
+	gNumVertices = 0;
+
 	//
 	// Prepare to dump this displaylist, if necessary
 	//
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	HandleDumpDisplayList( pTask );
 #endif
 
