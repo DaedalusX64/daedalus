@@ -88,12 +88,12 @@ void PrintMux( FILE * fh, u64 mux )
 	u32 bRGB0  = (mux1>>28)&0x0F;	// c1 c2		// b0
 	u32 cRGB0  = (mux0>>15)&0x1F;	// c1 c3		// c0
 	u32 dRGB0  = (mux1>>15)&0x07;	// c1 c4		// d0
-
+	
 	u32 aA0    = (mux0>>12)&0x07;	// c1 a1		// Aa0
 	u32 bA0    = (mux1>>12)&0x07;	// c1 a2		// Ab0
 	u32 cA0    = (mux0>>9 )&0x07;	// c1 a3		// Ac0
 	u32 dA0    = (mux1>>9 )&0x07;	// c1 a4		// Ad0
-
+	
 	u32 aRGB1  = (mux0>>5 )&0x0F;	// c2 c1		// a1
 	u32 bRGB1  = (mux1>>24)&0x0F;	// c2 c2		// b1
 	u32 cRGB1  = (mux0    )&0x1F;	// c2 c3		// c1
@@ -103,12 +103,12 @@ void PrintMux( FILE * fh, u64 mux )
 	u32 bA1    = (mux1>>3 )&0x07;	// c2 a2		// Ab1
 	u32 cA1    = (mux1>>18)&0x07;	// c2 a3		// Ac1
 	u32 dA1    = (mux1    )&0x07;	// c2 a4		// Ad1
-
-	fprintf(fh, "\n//case 0x%08x%08xLL:\n", mux0, mux1);
-	fprintf(fh, "//aRGB0: (%s - %s) * %s + %s\n", sc_colcombtypes16[aRGB0], sc_colcombtypes16[bRGB0], sc_colcombtypes32[cRGB0], sc_colcombtypes8[dRGB0]);		
-	fprintf(fh, "//aA0  : (%s - %s) * %s + %s\n", sc_colcombtypes8[aA0], sc_colcombtypes8[bA0], sc_colcombtypes8[cA0], sc_colcombtypes8[dA0]);
-	fprintf(fh, "//aRGB1: (%s - %s) * %s + %s\n", sc_colcombtypes16[aRGB1], sc_colcombtypes16[bRGB1], sc_colcombtypes32[cRGB1], sc_colcombtypes8[dRGB1]);		
-	fprintf(fh, "//aA1  : (%s - %s) * %s + %s\n\n", sc_colcombtypes8[aA1],  sc_colcombtypes8[bA1], sc_colcombtypes8[cA1],  sc_colcombtypes8[dA1]);
+	
+	fprintf(fh, "\n\t\tcase 0x%08x%08xLL:\n", mux0, mux1);
+	fprintf(fh, "\t\t//aRGB0: (%s - %s) * %s + %s\n", sc_colcombtypes16[aRGB0], sc_colcombtypes16[bRGB0], sc_colcombtypes32[cRGB0], sc_colcombtypes8[dRGB0]);		
+	fprintf(fh, "\t\t//aA0  : (%s - %s) * %s + %s\n", sc_colcombtypes8[aA0], sc_colcombtypes8[bA0], sc_colcombtypes8[cA0], sc_colcombtypes8[dA0]);
+	fprintf(fh, "\t\t//aRGB1: (%s - %s) * %s + %s\n", sc_colcombtypes16[aRGB1], sc_colcombtypes16[bRGB1], sc_colcombtypes32[cRGB1], sc_colcombtypes8[dRGB1]);		
+	fprintf(fh, "\t\t//aA1  : (%s - %s) * %s + %s\n", sc_colcombtypes8[aA1],  sc_colcombtypes8[bA1], sc_colcombtypes8[cA1],  sc_colcombtypes8[dA1]);
 }
 #endif
 /* To Devs,
@@ -377,6 +377,54 @@ void BlendMode_0x00fffffffffcfa7dLL (BLEND_MODE_ARGS)
 	}
 }
 
+// MRC - Car Windows
+// case 0x0030fe045ffef7f8LL:
+//aRGB0: (Primitive    - Env         ) * Texel0       + Env
+//aA0  : (0            - 0           ) * 0            + Primitive
+//aRGB1: (Combined     - 0           ) * Shade        + 0
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x0030fe045ffef7f8LL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	sceGuTexFunc(GU_TFX_DECAL,GU_TCC_RGBA);
+}
+
+// Mario Party - River
+// case 0x00127624ffef93c9LL:
+//aRGB0: (Texel0       - 0           ) * Shade        + 0
+//aA0  : (0            - Texel0      ) * Primitive    + Texel0
+//aRGB1: (Texel0       - 0           ) * Shade        + 0
+//aA1  : (0            - Texel0      ) * Primitive    + Texel0
+void BlendMode_0x00127624ffef93c9LL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetA(details.PrimColour);
+	details.ColourAdjuster.ModulateA(details.PrimColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+}
+
+// Mortal Kombat 4 - Text
+// case 0x0011fe2344fe7339LL:
+//aRGB0: (Texel0       - Shade       ) * Primitive    + Shade
+//aA0  : (0            - 0           ) * 0            + Texel0
+//aRGB1: (Texel0       - Shade       ) * Primitive    + Shade
+//aA1  : (0            - 0           ) * 0            + Texel0
+void BlendMode_0x0011fe2344fe7339LL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
+
+// Mortal Kombat 4 - Character Selection Background / Tower
+// case 0x0011fe2355fefd7eLL:
+//aRGB0: (Texel0       - Env         ) * Primitive    + Env
+//aA0  : (0            - 0           ) * 0            + 1
+//aRGB1: (Texel0       - Env         ) * Primitive    + Env
+//aA1  : (0            - 0           ) * 0            + 1
+void BlendMode_0x0011fe2355fefd7eLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGBA(details.PrimColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+}
+
 /* 
  //#N
  */
@@ -385,10 +433,90 @@ void BlendMode_0x00fffffffffcfa7dLL (BLEND_MODE_ARGS)
  //#O
  */
 
+// Ogre Battle - Intro Dust
+// case 0x003432685566ff7fLL:
+//aRGB0: (Primitive    - Env         ) * Texel0_Alp   + Env
+//aA0  : (Primitive    - 0           ) * Texel0       + 0
+//aRGB1: (Primitive    - Env         ) * Texel0_Alp   + Env
+//aA1  : (Primitive    - 0           ) * Texel0       + 0
+void BlendMode_0x003432685566ff7fLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGBA(details.PrimColour);
+	details.ColourAdjuster.ModulateA(details.PrimColour);
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
+
 /*
  //#P
  */
 
+/* 
+ //#Q
+ */
+
+/*
+ //#P
+ */
+// Paper Mario - Intro Water
+// case 0x0020a203ff13ff7fLL:
+//aRGB0: (Texel1       - 0           ) * Texel0       + 0
+//aA0  : (Texel1       - 0           ) * Texel0       + 0
+//aRGB1: (Combined     - 0           ) * Primitive    + Env
+//aA1  : (Combined     - 0           ) * Shade        + 0
+void BlendMode_0x0020a203ff13ff7fLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.PrimColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
+// Paper Mario - Intro Lighting
+// case 0x0061a5ff1f10d23fLL:
+//aRGB0: (1            - Texel0      ) * Primitive    + Texel0
+//aA0  : (Texel1       - Env         ) * Texel1       + Texel0
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (Combined     - 0           ) * Shade        + 0
+void BlendMode_0x0061a5ff1f10d23fLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.PrimColour);
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
+
+// Pokemon Stadium - Balloons
+// case 0x003096045ffefff8LL:
+//aRGB0: (Primitive    - Env         ) * Texel0       + Env
+//aA0  : (Texel0       - 0           ) * Primitive    + 0
+//aRGB1: (Combined     - 0           ) * Shade        + 0
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x003096045ffefff8LL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
+
+// Pokemon Stadium - Thunder
+// case 0x00272c60150c937dLL:
+//aRGB0: (Texel1       - Texel0      ) * PrimLODFrac  + Texel0
+//aA0  : (Texel1       - Texel0      ) * 1            + Texel0
+//aRGB1: (Primitive    - Env         ) * Combined     + Env
+//aA1  : (Combined     - 0           ) * Primitive    + Env
+void BlendMode_0x00272c60150c937dLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
+// Pokemon Stadium - Fire Spin
+// case 0x00277e60150cf37fLL:
+//aRGB0: (Texel1       - Texel0      ) * PrimLODFrac  + Texel0
+//aA0  : (0            - 0           ) * 0            + Texel0
+//aRGB1: (Primitive    - Env         ) * Combined     + Env
+//aA1  : (Combined     - 0           ) * Primitive    + 0
+void BlendMode_0x00277e60150cf37fLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.PrimColour);
+	details.ColourAdjuster.SetA(details.PrimColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
 
 /*
  //#Q
@@ -397,7 +525,7 @@ void BlendMode_0x00fffffffffcfa7dLL (BLEND_MODE_ARGS)
 /* 
  //#R
  */
-//Road Rush 64 trees
+//Road Rash 64 trees
 //case 0x00129bfffffdf638LL:
 //aRGB0: (Texel0       - 0           ) * Env          + Primitive
 //aA0  : (Texel0       - 0           ) * Env          + Primitive
@@ -424,6 +552,16 @@ void BlendMode_0x00147e2844fe7b3dLL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_DECAL,GU_TCC_RGBA);
 }
 
+// Super Smash Bros - Dream Land Water & MM Ground in town
+// case 0x00272c041f0c93ffLL:
+//aRGB0: (Texel1       - Texel0      ) * PrimLODFrac  + Texel0
+//aA0  : (Texel1       - Texel0      ) * 1            + Texel0
+//aRGB1: (Combined     - 0           ) * Shade        + 0
+//aA1  : (Combined     - 0           ) * Primitive    + 0
+void BlendMode_0x00272c041f0c93ffLL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
+}
 
 //
 /*
@@ -939,16 +1077,6 @@ void BlendMode_0x0025266015fc9378LL (BLEND_MODE_ARGS)
 {
 	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
 }
-//MM Ground in town
-//	case 0x00272c041f0c93ffLL:
-//aRGB0: (Texel1       - Texel0      ) * PrimLODFrac  + Texel0      
-//aA0  : (Texel1       - Texel0      ) * 1            + Texel0      
-//aRGB1: (Combined     - 0           ) * Shade        + 0           
-//aA1  : (Combined     - 0           ) * Primitive    + 0    
-void BlendMode_0x00272c041f0c93ffLL (BLEND_MODE_ARGS)
-{
-	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
-}
 
 
 //*****************************************************************************
@@ -992,10 +1120,14 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			
 			
 #define BLEND_MODE( x )		case (x):	return BlendMode_##x;
+			BLEND_MODE(0x0011fe2344fe7339LL); // Mortal Kombat 4 - Text
+			BLEND_MODE(0x0011fe2355fefd7eLL); // Mortal Kombat 4 -Character Selection screen background / Tower
 			BLEND_MODE(0x00121603ff5bfff8LL); // Zelda Paths
+			BLEND_MODE(0x00127624ffef93c9LL); // Mario Party - River
 			BLEND_MODE(0x00127e2433fdf8fcLL); // Wetrix Background / Banjo Kazooie
 			BLEND_MODE(0x001298043f15ffffLL); // Banjo Kazooie N64 Logo / Characters
 			BLEND_MODE(0x00129bfffffdf638LL); // Road Rush64 trees
+			BLEND_MODE(0x00147e2844fe7b3dLL); // Mario's Head
 			BLEND_MODE(0x00147e045ffefbf8LL); // FZero other ships
 			BLEND_MODE(0x00147e2844fe793cLL); // FZero tracks / Mario 64 penguin's eyes
 			BLEND_MODE(0x00167e6035fcff7eLL); // OOT, MM Intro (N64 Logo)
@@ -1005,6 +1137,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00177e6035fcfd7eLL); // Zelda Kokori Sword Blade
 			BLEND_MODE(0x00177e6035fcfd78LL); // Gold Skulltula Chin
 			BLEND_MODE(0x0020ac60350c937fLL); // Zelda Chest Opening Light
+			BLEND_MODE(0x0020a203ff13ff7fLL); // Paper Mario -Intro Water
 			BLEND_MODE(0x002527ff1ffc9238LL); // OOT Sky
 			BLEND_MODE(0x00262a041f0c93ffLL); // OOT Fog in Deku Tree
 			BLEND_MODE(0x00262a603510937fLL); // OOT - Song of Time
@@ -1032,13 +1165,17 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0030ec6155daed76LL); // Cucukan Egg
 			BLEND_MODE(0x0030ec045fdaedf6LL); // Zelda Arrows in Shop
 			BLEND_MODE(0x0030fe045f0ef3ffLL); // Gold Skulltula Eyes
+			BLEND_MODE(0x0030fe045ffef7f8LL); // MRC - Car Windows
 			BLEND_MODE(0x0030fe045ffef3f8LL); // Zelda Bottle Decal
 			BLEND_MODE(0x0030fe045ffefbf8LL); // FZero main ship
 			BLEND_MODE(0x0030fe045ffefdf8LL); // Kirby Ground
 			BLEND_MODE(0x0030fe045ffefdfeLL); // Zelda Kokori Sword Handle
+			BLEND_MODE(0x003096045ffefff8LL); // Pokemon Stadium - Balloons
+			BLEND_MODE(0x003432685566ff7fLL); // Ogre Battle - Intro Dust
 			BLEND_MODE(0x0040fe8155fef97cLL); // GoldenEye Sky
 			BLEND_MODE(0x0040fe8155fefd7eLL); // Kirby Far Terrain
 			BLEND_MODE(0x0055a68730fd923eLL); // F1 World GP Sky
+			BLEND_MODE(0x0061a5ff1f10d23fLL); // Paper Mario - Intro Lighting
 			BLEND_MODE(0x0062fe043f15f9ffLL); // Banjo Kazooie Backdrop
 			BLEND_MODE(0x00772c60f5fce378LL); // Zelda Poe
 			default:
