@@ -87,17 +87,19 @@ int HAVE_DVE = -1; // default is no DVE Manager
 int PSP_TV_CABLE = -1; // default is no cable
 int PSP_TV_LACED = 0; // default is not interlaced
 
-#ifdef DAEDALUS_SCRN_16BIT
+#define ENABLE_DITHERING
+
+#if defined(DAEDALUS_SCRN_16BIT) && defined(ENABLE_DITHERING)
 static const ScePspIMatrix4 dither_matrixA =
 		{{-2, 1,-1, 2},
 		 {-1, 2,-2, 1},
 		 { 2,-1, 1,-2},
 		 { 1,-2, 2,-1}};
 static const ScePspIMatrix4 dither_matrixB =
-		{{ 2,-1, 1,-2},
-		 { 1,-2, 2,-1},
-		 {-2, 1,-1, 2},
-		 {-1, 2,-2, 1}};
+		{{-2,-1, 2, 1},
+		 { 1, 2,-1,-2},
+		 {-1,-2, 1, 2},
+		 { 2, 1,-2,-1}};
 #endif
 
 // Implementation
@@ -282,7 +284,7 @@ void IGraphicsContext::BeginFrame()
 	}*/
 
 //Toggle dither matrices between frames to smooth 16bit color even further //Corn
-#ifdef DAEDALUS_SCRN_16BIT
+#if defined(DAEDALUS_SCRN_16BIT) && defined(ENABLE_DITHERING)
 
 	if(listNum)
 		sceGuSetDither(&dither_matrixB);
@@ -635,7 +637,7 @@ bool IGraphicsContext::Initialise()
 	sceDisplaySetMode(0, 480, 272);
 
 	sceGuStart(GU_DIRECT,list[0]);
-#ifdef DAEDALUS_SCRN_16BIT
+#if defined(DAEDALUS_SCRN_16BIT) && defined(ENABLE_DITHERING)
 	//Do some dithering to simulate more colors //Corn
 	sceGuSetDither(&dither_matrixA);
 	sceGuEnable(GU_DITHER);

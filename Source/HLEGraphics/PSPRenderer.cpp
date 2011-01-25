@@ -975,14 +975,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		else
 		{
 			// G_AC_THRESHOLD || G_AC_DITHER
-			if(	mAlphaThreshold==0 )
-			{
-				sceGuAlphaFunc(GU_GREATER, 0, 0xff);
-			}
-			else
-			{
-				sceGuAlphaFunc(GU_GEQUAL, mAlphaThreshold, 0xff);
-			}
+			sceGuAlphaFunc( mAlphaThreshold ? GU_GEQUAL : GU_GREATER, mAlphaThreshold, 0xff);
 			sceGuEnable(GU_ALPHA_TEST);
 		}
 	}

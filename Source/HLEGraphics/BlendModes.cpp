@@ -203,6 +203,17 @@ void BlendMode_0x002698041f14ffffLL( BLEND_MODE_ARGS )
 /*
  //#D
  */
+//DOOM64 Weapons
+//case 0x00671603fffcff78LL:
+//aRGB0: (1            - 0           ) * PrimLODFrac  + Texel0      
+//aA0  : (Texel0       - 0           ) * Primitive    + 0           
+//aRGB1: (Combined     - 0           ) * Primitive    + Env         
+//aA1  : (0            - 0           ) * 0            + Combined   
+void BlendMode_0x00671603fffcff78LL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB( details.PrimColour );
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
 
 /*
  //#E
@@ -1177,6 +1188,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0055a68730fd923eLL); // F1 World GP Sky
 			BLEND_MODE(0x0061a5ff1f10d23fLL); // Paper Mario - Intro Lighting
 			BLEND_MODE(0x0062fe043f15f9ffLL); // Banjo Kazooie Backdrop
+			BLEND_MODE(0x00671603fffcff78LL); // DOOM64 weapons
 			BLEND_MODE(0x00772c60f5fce378LL); // Zelda Poe
 			default:
 				return BlendMode_Generic;	  // Basic generic blenmode

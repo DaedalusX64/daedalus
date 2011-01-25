@@ -184,9 +184,9 @@ public:
 	bool				FlushTris();
 	
 	bool				TestVerts( u32 v0, u32 vn ) const;				// Returns true if bounding volume is visible, false if culled
-	v4					GetTransformedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].TransformedPos; }
-	v4					GetProjectedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].ProjectedPos; }
-	u32					GetVtxFlags( u32 i ) const				{ return mVtxProjected[ i ].ClipFlags; }
+	inline v4			GetTransformedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].TransformedPos; }
+	inline v4			GetProjectedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].ProjectedPos; }
+	inline u32			GetVtxFlags( u32 i ) const				{ return mVtxProjected[ i ].ClipFlags; }
 
 	// Rendering stats
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST

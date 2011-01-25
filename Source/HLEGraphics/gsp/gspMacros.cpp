@@ -349,16 +349,22 @@ void DLParser_GBI2_DL_Count( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 {
-	// Seems are Z axis is inverted... Might be tricky to get it right on the PSP
-	// Games seem not to bother if we don't branch less than z
-#if 0
+	//Always branching will usually just waste a bit of fillrate (PSP got plenty)
+	//Games seem not to bother if we branch less than Z
+
 	u32 vtx		 = command.branchz.vtx;
+	
+	//Works in Aerogauge (skips rendering ship shadows and exaust plumes from a far)
+	//Fails in OOT : Death Mountain and MM : Outside of Clock Town
+	// Seems are Z axis is inverted... Might be tricky to get it right on the PSP
 
-	//Proper? Atleast according to Rice, but fails in OOT : Death Mountain and MM : Outside of Clock Town
-	f32 vtxdepth = PSPRenderer::Get()->GetTransformedVtxPos(vtx).y/PSPRenderer::Get()->GetTransformedVtxPos(vtx).w;
+	f32 vtxdepth = 65536.0f * (1.0f - PSPRenderer::Get()->GetProjectedVtxPos(vtx).z / PSPRenderer::Get()->GetProjectedVtxPos(vtx).w);
 
-	if( vtxdepth <= (s32)command.branchz.value ) // This is still not right
-#endif
+	s32 zval = (s32)( command.branchz.value & 0x7FFF );
+
+	//printf("%0.0f %d\n", vtxdepth, zval);
+
+	if( (vtxdepth >= zval) || (g_ROM.GameHacks == ZELDA_OOT) || (g_ROM.GameHacks == ZELDA_MM) )
 	{					
 		u32 pc = gDisplayListStack.back().addr;
 		u32 dl = *(u32 *)(g_pu8RamBase + pc-12);
