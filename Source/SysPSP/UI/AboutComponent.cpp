@@ -51,15 +51,15 @@ namespace
 
 	const char * const		INFO_TEXT[] =
 	{
-		"Copyright (C) 2008-2010 DaedalusX64 Team",
+		"Copyright (C) 2008-2011 DaedalusX64 Team",
 		"Copyright (C) 2001-2009 StrmnNrmn",
 		"Audio HLE code by Azimer",
 		"",
 		"For news and updates visit:",
 	};
 
-	const char * const		URL_TEXT_1 = "http://sf.net/projects/DaedalusX64/";
-	const char * const		URL_TEXT_2 = "http://DaedalusX64.com/";
+	const char * const		URL_TEXT_1 = "http://DaedalusX64.com/";
+	const char * const		URL_TEXT_2 = "http://sf.net/projects/daedalusx64/";
 
 	const char * const		LOGO_FILENAME = DAEDALUS_PSP_PATH( "Resources/logo.png" );
 }

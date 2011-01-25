@@ -38,12 +38,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <pspkernel.h>
 #include <pspctrl.h>
+#include <psputility.h>
 #include <pspgu.h>
 
 extern u32 HAVE_DVE;
 extern u32 PSP_TV_CABLE;
 extern u32 PSP_TV_LACED;
 extern bool PSP_IS_SLIM;
+
+pspUtilityMsgDialogParams GloSetPopUp; //Message Pop Up.
+
+bool						mHleTriggered;
 
 
 namespace
@@ -196,40 +201,34 @@ namespace
 
 		virtual	void			OnSelected()
 		{
+			if (!mHleTriggered) {
+				mHleTriggered=true;
+				
+				memset(&GloSetPopUp, 0, sizeof(GloSetPopUp));
 
-			if( gButtons.type & PSP_CTRL_SQUARE )
-			{
-				IO::Path::DeleteRecursive((char*)"SaveGames",(char*)".hle");
-				remove(DAEDALUS_PSP_PATH("preferences.ini"));
-				remove(DAEDALUS_PSP_PATH("rom.db"));
-				ThreadSleepMs(1000);	//safety wait for s
-				sceKernelExitGame();
-			}
-			else if( gButtons.type & PSP_CTRL_CIRCLE )
-			{
-				IO::Path::DeleteRecursive((char*)"SaveGames",(char*)".hle");
-				ThreadSleepMs(1000);	//safety wait for s
-			}
-			else if( gButtons.type & PSP_CTRL_TRIANGLE )
-			{
-				remove(DAEDALUS_PSP_PATH("preferences.ini"));
-				remove(DAEDALUS_PSP_PATH("rom.db"));
-				ThreadSleepMs(1000);	//safety wait for s
-				sceKernelExitGame();
+				GloSetPopUp.base.size = sizeof(GloSetPopUp);
+							
+				GloSetPopUp.base.language = PSP_SYSTEMPARAM_LANGUAGE_ENGLISH;
+				GloSetPopUp.base.buttonSwap = PSP_UTILITY_ACCEPT_CROSS;
+
+				GloSetPopUp.base.graphicsThread = 0x11;
+				GloSetPopUp.base.accessThread = 0x13;
+				GloSetPopUp.base.fontThread = 0x12;
+				GloSetPopUp.base.soundThread = 0x10;
+				
+				GloSetPopUp.mode = PSP_UTILITY_MSGDIALOG_MODE_TEXT;
+				GloSetPopUp.options = PSP_UTILITY_MSGDIALOG_OPTION_TEXT;
+				GloSetPopUp.options |= PSP_UTILITY_MSGDIALOG_OPTION_YESNO_BUTTONS|PSP_UTILITY_MSGDIALOG_OPTION_DEFAULT_NO;		
+
+				strcpy(GloSetPopUp.message, "Do you want to reset Hle?");
+
+				sceUtilityMsgDialogInitStart(&GloSetPopUp);
 			}
 		}
 
 		virtual const char *	GetSettingName() const
 		{
-			// Below was borrowed from Corn's tooltip code <3
-			static u32 count=0;
-			const char * const		status[] =
-			{"Daedalus will QUIT when resetting settings",
-			"HLE cache resetting don't require QUIT",
-			"Hold (X) + ([ ]) -> RESET settings & HLE",
-			"Hold (X) + (/\\) -> RESET settings",
-			"Hold (X) + (O) -> RESET HLE"};
-			return status[(++count >> 8) % ARRAYSIZE( status )];
+			return "Press X";
 		}
 	};
 
@@ -291,7 +290,7 @@ namespace
 			:	CUISetting( name, description )
 		{
 		}
-
+ 
 		virtual	void		OnNext()		{ (gGlobalPreferences.DisplayFramerate >= 2) ? 0 : gGlobalPreferences.DisplayFramerate++; }
 		virtual	void		OnPrevious()	{ (gGlobalPreferences.DisplayFramerate <= 0) ? 0 : gGlobalPreferences.DisplayFramerate--; }
 
@@ -306,6 +305,8 @@ namespace
 			return "?";
 		}
 	};
+
+
 
 }
 
@@ -325,6 +326,16 @@ class IGlobalSettingsComponent : public CGlobalSettingsComponent
 
 	private:
 		CUIElementBag				mElements;
+		
+		bool						mHleInit;
+		bool						mSettingsStart;
+		bool						mSettingsTriggered;
+		bool						mSettingsInit;
+		bool						mResetStart;
+		bool						mResetTriggered;
+		bool						mResetInit;
+		bool						mQuitTriggered;
+		bool						mQuitInit;
 };
 
 //*************************************************************************************
@@ -355,6 +366,15 @@ CGlobalSettingsComponent *	CGlobalSettingsComponent::Create( CUIContext * p_cont
 //*************************************************************************************
 IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 :	CGlobalSettingsComponent( p_context )
+,	mHleInit(false)
+,	mSettingsStart(false)
+,	mSettingsTriggered(false)
+,	mSettingsInit(false)
+,	mResetStart(false)
+,	mResetTriggered(false)
+,	mResetInit(false)
+,	mQuitTriggered(false)
+,	mQuitInit(false)
 {
 	mElements.Add( new CInfoSetting( "Display Info", "Whether to show additional info while the rom is running.") );
 	mElements.Add( new CViewPortSetting( "Viewport Size", "The size of the viewport on the PSP." ) );
@@ -399,31 +419,143 @@ IGlobalSettingsComponent::~IGlobalSettingsComponent()
 //*************************************************************************************
 void	IGlobalSettingsComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
-	if(old_buttons != new_buttons)
-	{
-		if( new_buttons & PSP_CTRL_UP )
-		{
-			mElements.SelectPrevious();
-		}
-		if( new_buttons & PSP_CTRL_DOWN )
-		{
-			mElements.SelectNext();
-		}
 
-		CUIElement *	element( mElements.GetSelectedElement() );
-		if( element != NULL )
+	if (mHleInit) {
+		if (!mHleTriggered) { 
+			IO::Path::DeleteRecursive((char*)"SaveGames",(char*)".hle");
+			ThreadSleepMs(1000);	//safety wait for s
+			mHleInit = 0;
+		}
+	}
+	if (mSettingsInit) {
+		if (!mSettingsTriggered) { 
+			remove(DAEDALUS_PSP_PATH("preferences.ini"));
+			remove(DAEDALUS_PSP_PATH("rom.db"));
+			ThreadSleepMs(1000);	//safety wait for s
+			sceKernelExitGame();
+			mSettingsInit = 0;
+		}
+	}
+	if (mResetInit) {
+		if (!mResetTriggered) { 
+			mResetInit = 0;
+			sceKernelExitGame(); 
+		}
+	}	
+	if (mQuitInit) {
+		if (!mQuitTriggered) { sceKernelExitGame(); }
+	}
+	
+	if ((mSettingsStart) && (!mHleInit)) {
+		if (!mSettingsTriggered) {
+			mSettingsTriggered=true;
+			
+			memset(&GloSetPopUp, 0, sizeof(GloSetPopUp));
+
+			GloSetPopUp.base.size = sizeof(GloSetPopUp);
+						
+			GloSetPopUp.base.language = PSP_SYSTEMPARAM_LANGUAGE_ENGLISH;
+			GloSetPopUp.base.buttonSwap = PSP_UTILITY_ACCEPT_CROSS;
+
+			GloSetPopUp.base.graphicsThread = 0x11;
+			GloSetPopUp.base.accessThread = 0x13;
+			GloSetPopUp.base.fontThread = 0x12;
+			GloSetPopUp.base.soundThread = 0x10;
+			
+			GloSetPopUp.mode = PSP_UTILITY_MSGDIALOG_MODE_TEXT;
+			GloSetPopUp.options = PSP_UTILITY_MSGDIALOG_OPTION_TEXT;
+			GloSetPopUp.options |= PSP_UTILITY_MSGDIALOG_OPTION_YESNO_BUTTONS|PSP_UTILITY_MSGDIALOG_OPTION_DEFAULT_NO;		
+
+			strcpy(GloSetPopUp.message, "Do you want to reset Settings?\nThis will reset DaedalusX64.");
+
+			sceUtilityMsgDialogInitStart(&GloSetPopUp);
+			
+			mSettingsStart = false;	
+		}
+	}
+	if ((mResetStart) && (!mSettingsInit)) {
+		if (!mResetTriggered) {
+			mResetTriggered=true;
+			
+			memset(&GloSetPopUp, 0, sizeof(GloSetPopUp));
+
+			GloSetPopUp.base.size = sizeof(GloSetPopUp);
+						
+			GloSetPopUp.base.language = PSP_SYSTEMPARAM_LANGUAGE_ENGLISH;
+			GloSetPopUp.base.buttonSwap = PSP_UTILITY_ACCEPT_CROSS;
+
+			GloSetPopUp.base.graphicsThread = 0x11;
+			GloSetPopUp.base.accessThread = 0x13;
+			GloSetPopUp.base.fontThread = 0x12;
+			GloSetPopUp.base.soundThread = 0x10;
+			
+			GloSetPopUp.mode = PSP_UTILITY_MSGDIALOG_MODE_TEXT;
+			GloSetPopUp.options = PSP_UTILITY_MSGDIALOG_OPTION_TEXT;
+			GloSetPopUp.options |= PSP_UTILITY_MSGDIALOG_OPTION_YESNO_BUTTONS|PSP_UTILITY_MSGDIALOG_OPTION_DEFAULT_NO;		
+
+			strcpy(GloSetPopUp.message, "Do you want to reset DaedalusX64?");
+
+			sceUtilityMsgDialogInitStart(&GloSetPopUp);
+		
+			mResetStart = false;
+		}
+	}
+
+	if ((!mHleTriggered) && (!mSettingsTriggered) && (!mResetTriggered) && (!mQuitTriggered)) {
+		if(old_buttons != new_buttons)
 		{
-			if( new_buttons & PSP_CTRL_LEFT )
+			if( new_buttons & PSP_CTRL_UP )
 			{
-				element->OnPrevious();
+				mElements.SelectPrevious();
 			}
-			if( new_buttons & PSP_CTRL_RIGHT )
+			if( new_buttons & PSP_CTRL_DOWN )
 			{
-				element->OnNext();
+				mElements.SelectNext();
 			}
-			if( new_buttons & (PSP_CTRL_CROSS|PSP_CTRL_START) )
+			
+	#ifndef DAEDALUS_PSP_GPROF	
+			if((new_buttons & PSP_CTRL_HOME) && (!mQuitTriggered))
+			{ 
+				mQuitTriggered=true;
+				
+				memset(&GloSetPopUp, 0, sizeof(GloSetPopUp));
+
+				GloSetPopUp.base.size = sizeof(GloSetPopUp);
+							
+				GloSetPopUp.base.language = PSP_SYSTEMPARAM_LANGUAGE_ENGLISH;
+				GloSetPopUp.base.buttonSwap = PSP_UTILITY_ACCEPT_CROSS;
+
+				GloSetPopUp.base.graphicsThread = 0x11;
+				GloSetPopUp.base.accessThread = 0x13;
+				GloSetPopUp.base.fontThread = 0x12;
+				GloSetPopUp.base.soundThread = 0x10;
+				
+				GloSetPopUp.mode = PSP_UTILITY_MSGDIALOG_MODE_TEXT;
+				GloSetPopUp.options = PSP_UTILITY_MSGDIALOG_OPTION_TEXT;
+				GloSetPopUp.options |= PSP_UTILITY_MSGDIALOG_OPTION_YESNO_BUTTONS|PSP_UTILITY_MSGDIALOG_OPTION_DEFAULT_NO;		
+
+				strcpy(GloSetPopUp.message, "Do you want to quit?");
+
+				sceUtilityMsgDialogInitStart(&GloSetPopUp);
+
+			}
+	#endif
+
+			CUIElement *	element( mElements.GetSelectedElement() );
+			if( element != NULL )
 			{
-				element->OnSelected();
+				if( new_buttons & PSP_CTRL_LEFT )
+				{
+					element->OnPrevious();
+				}
+				if( new_buttons & PSP_CTRL_RIGHT )
+				{
+					element->OnNext();
+				}
+				if( new_buttons & (PSP_CTRL_CROSS|PSP_CTRL_START) )
+				{
+					element->OnSelected();
+				}
 			}
 		}
 	}
@@ -448,5 +580,94 @@ void	IGlobalSettingsComponent::Render()
 								 DrawTextUtilities::TextWhite,
 								 VA_BOTTOM );
 	}
+	if (mHleTriggered) {
+		switch(sceUtilityMsgDialogGetStatus()) {
+			case 2:
+				sceUtilityMsgDialogUpdate(1);
+				break;
+				
+			case 3:
+				sceUtilityMsgDialogShutdownStart();		
+				if (GloSetPopUp.buttonPressed == PSP_UTILITY_MSGDIALOG_RESULT_YES) {
+					mHleInit = true;
+				}					
+				
+				break;
+				
+			case 4:
+				mHleTriggered = false;		
+				mSettingsStart = 1;	
+				break;
+				
+			case 0:
+				return;			
+		}
+	}
+	if (mSettingsTriggered) {
+		switch(sceUtilityMsgDialogGetStatus()) {
+			case 2:
+				sceUtilityMsgDialogUpdate(1);
+				break;
+				
+			case 3:
+				sceUtilityMsgDialogShutdownStart();	
+				if (GloSetPopUp.buttonPressed == PSP_UTILITY_MSGDIALOG_RESULT_YES) {
+					mSettingsInit = true;
+				}					
+				break;
+				
+			case 4:
+				mSettingsTriggered = false;			
+				mResetStart = 1;	
+				break;
+				
+			case 0:
+				return;			
+		}
+	}	
+	if (mResetTriggered) {
+		switch(sceUtilityMsgDialogGetStatus()) {
+			case 2:
+				sceUtilityMsgDialogUpdate(1);
+				break;
+				
+			case 3:
+				sceUtilityMsgDialogShutdownStart();		
+				if (GloSetPopUp.buttonPressed == PSP_UTILITY_MSGDIALOG_RESULT_YES) {
+					mResetInit = true;
+				}					
+				break;
+				
+			case 4:
+				mResetTriggered = false;			
+				break;
+				
+			case 0:
+				return;			
+		}
+	}	
+#ifndef DAEDALUS_PSP_GPROF		
+	if (mQuitTriggered) {
+		switch(sceUtilityMsgDialogGetStatus()) {
+			case 2:
+				sceUtilityMsgDialogUpdate(1);
+				break;
+				
+			case 3:
+				sceUtilityMsgDialogShutdownStart();		
+				if (GloSetPopUp.buttonPressed == PSP_UTILITY_MSGDIALOG_RESULT_YES) {
+					mQuitInit = true;
+				}					
+				break;
+				
+			case 4:
+				mQuitTriggered = false;			
+				break;
+				
+			case 0:
+				return;			
+		}
+	}
+#endif
 }
 

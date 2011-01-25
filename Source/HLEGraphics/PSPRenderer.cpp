@@ -423,9 +423,9 @@ void PSPRenderer::RestoreRenderStates()
 	sceGuAlphaFunc(GU_GEQUAL, 0x04, 0xff );
 	sceGuEnable(GU_ALPHA_TEST);
 
-	//sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-	//sceGuEnable(GU_BLEND);
-	sceGuDisable( GU_BLEND );
+	sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+	sceGuEnable(GU_BLEND);
+	//sceGuDisable( GU_BLEND ); // Breaks Tarzan's text in menus
 
 	// Default is ZBuffer disabled
 	sceGuDepthMask(GL_TRUE);	// GL_TRUE to disable z-writes
@@ -931,6 +931,17 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	{
 		InitBlenderMode( blender >> 16 );
 	}
+	else if ( blender & 0x2000 )	// This is a special case for Tarzan's characters
+	{
+		sceGuDisable( GU_BLEND );
+	}
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	else
+	{
+		// If blender state couldn't be handled, default blending is used
+		//printf("Unhandled Blender State 0x%04x\n",blender);
+	}
+#endif
 	//
 	// I can't think why the hand in mario's menu screen is rendered with an opaque rendermode,
 	// and no alpha threshold. We set the alpha reference to 1 to ensure that the transparent pixels
@@ -1706,12 +1717,11 @@ bool PSPRenderer::FlushTris()
 	
 	sceGuSetMatrix( GU_PROJECTION, p_psp_proj );
 
-	// Hack for nascar games..to be honest I don't know why these games are so different...might be tricky to have a proper fix..
-	// Hack accuracy : works 100%
-	//
-	bool bIsZBuffer = (gRDPOtherMode.depth_source && g_ROM.GameHacks == NASCAR) ? true : false;
+	DAEDALUS_ASSERT( !gRDPOtherMode.depth_source, " Warning : Using depth source in flushtris" );
 
-	RenderUsingCurrentBlendMode( p_vertices, num_vertices, RM_RENDER_3D, bIsZBuffer );
+	// Check for depth source, this is for Nascar games, hopefully won't mess up anything
+	//
+	RenderUsingCurrentBlendMode( p_vertices, num_vertices, RM_RENDER_3D, gRDPOtherMode.depth_source ? true : false );
 
 	sceGuDisable(GU_CULL_FACE);
 
@@ -1723,7 +1733,7 @@ bool PSPRenderer::FlushTris()
 //*****************************************************************************
 //
 //*****************************************************************************
-namespace
+namespace 
 {
 	DaedalusVtx4		temp_a[ 8 ];
 	DaedalusVtx4		temp_b[ 8 ];

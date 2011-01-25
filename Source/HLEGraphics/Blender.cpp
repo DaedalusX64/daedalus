@@ -140,7 +140,7 @@ static void DebugBlender( u32 blender )
 //*****************************************************************************
 // 1->Modified old version, 0->New version
 //*****************************************************************************
-#if 1
+#if 0
 
 //*****************************************************************************
 //BLEND MACROS
@@ -241,7 +241,6 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A		Paper Mario Menu	
 	case 0x0fa5:					// In * 0 + Bl * AMem || :In * 0 + Bl * AMem			OOT Menu
 	case 0x55f0:					// Mem * AFog + Fog * 1-A || :Mem * AFog + Fog * 1-A		Bust a Move 3
-	case 0xcb02:					// Fog * AShade + In * 1-A || :In * 0 + In * 1			Doom 64
 	case 0x0150:					//In * AIn + Mem * 1-A || :In * AFog + Mem * 1-A		Spiderman 
 	case 0x0f5a:					//In * 0 + Mem * 1 || :In * 0 + Mem * 1					Starwars Racer
 		sceGuDisable( GU_BLEND );	
@@ -250,6 +249,7 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	// Add here blenders which work fine with default case but causes too much spam, this disabled in release mode
 	//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST 
+	case 0xcb02:					// Fog * AShade + In * 1-A || :In * 0 + In * 1			Doom 64 - Weapons
 	case 0x0010:					// In * AIn + In * 1-A || :In * AIn + Mem * 1-A			Hey You Pikachu - Shadow
 	case 0xc410:					// Fog * AFog + In * 1-A || :In * AIn + Mem * 1-A		Donald Duck - Stars
 	case 0xc810:					// Fog * AShade + In * 1-A || :In * AIn + Mem * 1-A		SSV - Fog? and MM - Shadows
