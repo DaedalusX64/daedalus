@@ -341,6 +341,8 @@ PSPRenderer::PSPRenderer()
 
 	gRDPMux._u64 = 0;
 
+	bStarOrigin = false;
+
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	memset( gWhiteTexture, 0xff, sizeof(gWhiteTexture) );
 
@@ -933,7 +935,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		{
 			InitBlenderMode( blender >> 16 );
 		}
-		else if ( blender & 0x2000 )	// This is a special case for Tarzan's characters
+		else if ( gRDPOtherMode.alpha_cvg_sel )	// This is a special case for Tarzan's characters
 		{
 			sceGuDisable( GU_BLEND );
 		}
@@ -1008,7 +1010,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
         else
         {
             // RDP_ALPHA_COMPARE_THRESHOLD || RDP_ALPHA_COMPARE_DITHER
-			sceGuAlphaFunc( mAlphaThreshold ? GU_GREATER : GU_GEQUAL, mAlphaThreshold, 0xff);
+			sceGuAlphaFunc( mAlphaThreshold ? GU_GEQUAL : GU_GREATER, mAlphaThreshold, 0xff);
 			sceGuEnable(GU_ALPHA_TEST);
         }
 #endif
