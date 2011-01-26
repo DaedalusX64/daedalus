@@ -215,6 +215,25 @@ void BlendMode_0x00671603fffcff78LL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
+// Duke 3D menu text and Mario 64 : Mario's 3D head
+//case 0x0030b26144664924LL:
+//aRGB0: (Primitive    - Shade       ) * Texel0       + Shade       
+//aA0  : (Primitive    - Shade       ) * Texel0       + Shade       
+//aRGB1: (Primitive    - Shade       ) * Texel0       + Shade       
+//aA1  : (Primitive    - Shade       ) * Texel0       + Shade       
+void BlendMode_0x0030b26144664924LL( BLEND_MODE_ARGS )
+{
+	//This blend only partially fixes Duke 32
+	//Complete fix interferes with Mario head
+	//Combiner needs debugging
+	// Need to modulate the texture*shade for RGBA for Duke
+	//
+	// This makes Mario's 3D head shiny as supposed to be.
+	
+	details.ColourAdjuster.SetA( details.EnvColour );
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
+
 /*
  //#E
  */ 
@@ -460,14 +479,30 @@ void BlendMode_0x003432685566ff7fLL (BLEND_MODE_ARGS)
 /*
  //#P
  */
+//Pilot Wings 64 sky
+//case 0x00627fff1ffcfc38LL:
+//aRGB0: (1            - Texel0      ) * Shade        + Texel0
+//aA0  : (0            - 0           ) * 0            + 1
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x00627fff1ffcfc38LL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetA( details.PrimColour );
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+}
 
-/* 
- //#Q
- */
+//Pilot Wings 64 sky
+//case 0x0015fec4f0fff83cLL:
+//aRGB0: (Texel0       - 0           ) * Shade_Alpha  + 0
+//aA0  : (0            - 0           ) * 0            + Shade
+//aRGB1: (1            - Combined    ) * Shade        + Combined
+//aA1  : (0            - 0           ) * 0            + Shade
+void BlendMode_0x0015fec4f0fff83cLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetA( details.PrimColour );
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+}
 
-/*
- //#P
- */
 // Paper Mario - Intro Water
 // case 0x0020a203ff13ff7fLL:
 //aRGB0: (Texel1       - 0           ) * Texel0       + 0
@@ -1129,7 +1164,6 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 	switch(mux)
 	{
 			
-			
 #define BLEND_MODE( x )		case (x):	return BlendMode_##x;
 			BLEND_MODE(0x0011fe2344fe7339LL); // Mortal Kombat 4 - Text
 			BLEND_MODE(0x0011fe2355fefd7eLL); // Mortal Kombat 4 -Character Selection screen background / Tower
@@ -1141,6 +1175,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00147e2844fe7b3dLL); // Mario's Head
 			BLEND_MODE(0x00147e045ffefbf8LL); // FZero other ships
 			BLEND_MODE(0x00147e2844fe793cLL); // FZero tracks / Mario 64 penguin's eyes
+			BLEND_MODE(0x0015fec4f0fff83cLL); // Pilot Wings 64 sky
 			BLEND_MODE(0x00167e6035fcff7eLL); // OOT, MM Intro (N64 Logo)
 			BLEND_MODE(0x0017166035fcff78LL); // OOT Deku tree Flash
 			BLEND_MODE(0x00176c6035d8ed76LL); // Zelda Hylian Shield Triforce Badge
@@ -1171,6 +1206,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0027fe041ffcfdfeLL); // F1 World GP Wheels
 			BLEND_MODE(0x00309e045ffefdf8LL); // Kirby some parts of the Ground
 			BLEND_MODE(0x0030b2045ffefff8LL); // OOT - Eponas Dust
+			BLEND_MODE(0x0030b26144664924LL); // Duke 3D and Mario Head
 			BLEND_MODE(0x0030b2615566db6dLL); // Kirby Air seeds, Ridge racer text
 			BLEND_MODE(0x0030b3ff5ffeda38LL); // OOT Sign Cut (Sword)
 			BLEND_MODE(0x0030ec6155daed76LL); // Cucukan Egg
@@ -1187,6 +1223,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0040fe8155fefd7eLL); // Kirby Far Terrain
 			BLEND_MODE(0x0055a68730fd923eLL); // F1 World GP Sky
 			BLEND_MODE(0x0061a5ff1f10d23fLL); // Paper Mario - Intro Lighting
+			BLEND_MODE(0x00627fff1ffcfc38LL); // Pilot Wings 64 sky
 			BLEND_MODE(0x0062fe043f15f9ffLL); // Banjo Kazooie Backdrop
 			BLEND_MODE(0x00671603fffcff78LL); // DOOM64 weapons
 			BLEND_MODE(0x00772c60f5fce378LL); // Zelda Poe
@@ -1198,3 +1235,4 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 
 	return NULL;
 }
+

@@ -850,7 +850,6 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	static u32	gLastRDPOtherMode	( 0 );
 	static bool	gZFightingEnabled	= false;
 	static bool	gLastUseZBuffer		= false;
-	u32 blender	( gOtherModeL );
 
 	DAEDALUS_PROFILE( "PSPRenderer::RenderUsingCurrentBlendMode" );
 
@@ -861,7 +860,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	}
 	else
 	{
-		if ( (blender != gLastRDPOtherMode) || (m_bZBuffer != gLastUseZBuffer) )
+		if ( (gOtherModeL != gLastRDPOtherMode) || (m_bZBuffer != gLastUseZBuffer) )
 		{
 			// Only update if ZBuffer is enabled
 			if (m_bZBuffer)
@@ -899,7 +898,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		}
 	}
 
-	gLastRDPOtherMode = blender;
+	gLastRDPOtherMode = gOtherModeL;
 
 	sceGuShadeModel( mSmooth ? GU_SMOOTH : GU_FLAT );
 	//
@@ -933,7 +932,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	{
 		if( gRDPOtherMode.force_bl ) //0x4000
 		{
-			InitBlenderMode( blender >> 16 );
+			InitBlenderMode( gOtherModeL >> 16 );
 		}
 		else if ( gRDPOtherMode.alpha_cvg_sel )	// This is a special case for Tarzan's characters
 		{
