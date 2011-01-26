@@ -14,7 +14,15 @@ homepage: http://wordpress.fx-world.org
 //
 u64	GetCurrent();	// For profilling
 //
-
+//*****************************************************************************
+//
+//*****************************************************************************
+//
+// Original Mempcpy (LE?)
+//
+void memcpy_vfpu( void* dst, void* src, u32 size );
+//
+//
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -57,12 +65,12 @@ void memcpy_vfpu_o( void* dst, void* src, u32 size );
             memcpy(d, s, n);                                                    \
         gcc_elapsed = (int)(GetCurrent()-time);									\
     }                                                                           \
-    int vfpu_elapsed = 0;														\
+    int vfpu_le_elapsed = 0;														\
     {                                                                           \
         u64 time = GetCurrent();												\
         for (int j=0; j<100; ++j)                                              \
             memcpy_vfpu_LE(d, s, n);												\
-        vfpu_elapsed = (int)(GetCurrent()-time);								\
+        vfpu_le_elapsed = (int)(GetCurrent()-time);								\
     }                                                                           \
     int cpu_elapsed = 0;														\
     {                                                                           \
@@ -70,9 +78,23 @@ void memcpy_vfpu_o( void* dst, void* src, u32 size );
         for (int j=0; j<100; ++j)                                              \
             memcpy_cpu_LE(d, s, n);												\
         cpu_elapsed = (int)(GetCurrent()-time);									\
-    }                                                                           \
+    }																			\
+    int vfpu_be_elapsed = 0;													\
+    {                                                                           \
+        u64 time = GetCurrent();												\
+        for (int j=0; j<100; ++j)                                              \
+            memcpy_vfpu_BE(d, s, n);											\
+        vfpu_be_elapsed = (int)(GetCurrent()-time);								\
+    }																			\
+    int vfpu_orig_elapsed = 0;													\
+    {                                                                           \
+        u64 time = GetCurrent();												\
+        for (int j=0; j<100; ++j)                                              \
+            memcpy_vfpu(d, s, n);											\
+        vfpu_orig_elapsed = (int)(GetCurrent()-time);								\
+    }																			\
     scePowerTick(0);                                                            \
-	printf("%6d bytes | GCC%5d | VFPU%5d | CPU%5d\n", (int)n, gcc_elapsed, vfpu_elapsed, cpu_elapsed); \
+	printf("%6d bytes | GCC%5d | VFPU Orig%5d | VFPULE%5d | VFPUBE%5d | CPU%5d\n", (int)n, gcc_elapsed, vfpu_orig_elapsed, vfpu_le_elapsed, vfpu_be_elapsed, cpu_elapsed); \
     }
 
 #endif // FASTMEMCPY_H_

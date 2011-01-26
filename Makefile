@@ -192,7 +192,7 @@ ifdef DEBUG
 
 	SRCS			= $(CORE_SRCS) $(ADDITIONAL_DEBUG_SRCS) $(ADDITIONAL_SYNC_SRCS)
 else 
-	CFLAGS			= -O2 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant
+	CFLAGS			= -O2 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant -Wextra
 					#-fno-builtin
 					#-fgcse-after-reload
 					#-funroll-loops 
@@ -222,7 +222,7 @@ INCDIR = $(PSPDEV)/SDK/include ./SDK/include
 LIBDIR = $(PSPDEV)/SDK/lib ./SDK/lib
 
 
-LIBS = -lsupc++ -lstdc++ -lpsppower -lpspgu -lpspaudiolib -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspvfpu -lpspkubridge
+LIBS = -lstdc++ -lpsppower -lpspgu -lpspaudiolib -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge
 
 EXTRA_TARGETS = EBOOT.PBP dvemgr.prx exception.prx mediaengine.prx imposectrl.prx
 

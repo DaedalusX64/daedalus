@@ -99,14 +99,12 @@ LIBS     := $(LIBS) $(PSPSDK_LIBS) $(PSPSDK_LIBC_LIB) -lpspkernel
 else
 ifeq ($(USE_USER_LIBS),1)
 PSPSDK_LIBS = -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk
-LIBS     := $(LIBS) $(PSPSDK_LIBS) $(PSPSDK_LIBC_LIB) -lpspnet \
-			-lpspnet_inet -lpspnet_apctl -lpspnet_resolver -lpsputility \
-			-lpspuser
+LIBS     := $(LIBS) $(PSPSDK_LIBS) $(PSPSDK_LIBC_LIB) -lpsputility -lpspuser \
+
 else
 PSPSDK_LIBS = -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk
-LIBS     := $(LIBS) $(PSPSDK_LIBS) $(PSPSDK_LIBC_LIB) -lpspnet \
-			-lpspnet_inet -lpspnet_apctl -lpspnet_resolver -lpsputility \
-			-lpspuser -lpspkernel
+LIBS     := $(LIBS) $(PSPSDK_LIBS) $(PSPSDK_LIBC_LIB) -lpsputility -lpspuser -lpspkernel \
+
 endif
 endif
 

@@ -68,7 +68,7 @@ u32 Patch___osGetCause()
 {
 TEST_DISABLE_REG_FUNCS
 	// Why is this 32bit? See R4300.cpp
-	gGPR[REG_v0]._u32_0 = (s64)gCPUState.CPUControl[C0_CAUSE]._u32_0;
+	gGPR[REG_v0]._u32_0 = gCPUState.CPUControl[C0_CAUSE]._u32_0;
 
 	return PATCH_RET_JR_RA;
 }
@@ -80,7 +80,7 @@ u32 Patch___osSetCompare()
 {
 TEST_DISABLE_REG_FUNCS
 
-	CPU_SetCompare(gGPR[REG_a0]._u64);
+	CPU_SetCompare( gGPR[REG_a0]._u32_0 );
 
 	return PATCH_RET_JR_RA;
 }
@@ -121,7 +121,7 @@ u32 Patch___osSetFpcCsr()
 TEST_DISABLE_REG_FUNCS
 	// Why is the CFC1 32bit?
 	gGPR[REG_v0]._u32_0 = gCPUState.FPUControl[31]._u32_0;
-	gCPUState.FPUControl[31] = gGPR[REG_a0];
+	gCPUState.FPUControl[31]._u32_0 = gGPR[REG_a0]._u32_0;
 	
 	DBGConsole_Msg(0, "__osSetFpcCsr()");
 

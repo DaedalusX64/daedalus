@@ -7,25 +7,23 @@ TEST_DISABLE_UTIL_FUNCS
 
 	u32 p = gGPR[REG_a0]._u32_0;
 	u32 value = Read32Bits(p);
-	u32 retval;
 
 	if (value != 0)
 	{
 		Write32Bits(p, value - 1);
-		retval = 1;
+		gGPR[REG_v0]._u32_0 = 1;
 	}
 	else
 	{
-		retval = 0;
+		gGPR[REG_v0]._u32_0 = 0;
 	}
 	
-	gGPR[REG_v0]._u32_0 = retval;
-
 	return PATCH_RET_JR_RA;
 }
 
-
-
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch_memcpy()
 {
 TEST_DISABLE_UTIL_FUNCS
@@ -35,18 +33,20 @@ TEST_DISABLE_UTIL_FUNCS
 	u32 i;
 
 	//DBGConsole_Msg(0, "memcpy(0x%08x, 0x%08x, %d)", dst, src, len);
-
 	for (i = 0; i < len; i++)
 	{
 		Write8Bits(dst + i,  Read8Bits(src + i));
 	}
 
 	// return value of dest
-	gGPR[REG_v0] = gGPR[REG_a0];	
+	gGPR[REG_v0]._u32_0 = gGPR[REG_a0]._u32_0;	
 
 	return PATCH_RET_JR_RA;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch_strlen()
 {
 TEST_DISABLE_UTIL_FUNCS
@@ -62,7 +62,9 @@ TEST_DISABLE_UTIL_FUNCS
 
 }
 
-
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch_strchr()
 {
 TEST_DISABLE_UTIL_FUNCS
@@ -89,12 +91,14 @@ TEST_DISABLE_UTIL_FUNCS
 		}
 	}
 
-
-	gGPR[REG_v0]._s64 = (s64)(s32)MatchAddr;
+	gGPR[REG_v0]._u32_0 = MatchAddr;
 
 	return PATCH_RET_JR_RA;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch_strcmp()
 {
 	u32 i;
@@ -120,8 +124,9 @@ u32 Patch_strcmp()
 	return PATCH_RET_JR_RA;
 }
 
-
-
+//*****************************************************************************
+//
+//*****************************************************************************
 /*void * bcopy(const void * src, void * dst, len) */
 // Note different order to src/dst than memcpy!
 u32 Patch_bcopy()
@@ -132,7 +137,7 @@ TEST_DISABLE_UTIL_FUNCS
 	u32 len = gGPR[REG_a2]._u32_0;
 
 	// Set return val here (return dest)
-	gGPR[REG_v0] = gGPR[REG_a1];
+	gGPR[REG_v0]._u32_0 = gGPR[REG_a1]._u32_0;
 
 	if (len == 0)
 		return PATCH_RET_JR_RA;
@@ -157,12 +162,14 @@ TEST_DISABLE_UTIL_FUNCS
 		}
 	}
 
-	gGPR[REG_v0]._s64 = 0;
+	gGPR[REG_v0]._u32_0 = 0;
 
 	return PATCH_RET_JR_RA;
 }
 
-
+//*****************************************************************************
+//
+//*****************************************************************************
 // By Jun Su
 u32 Patch_bzero() 
 { 
@@ -174,7 +181,7 @@ u32 Patch_bzero()
 	memset(pDst, 0, len);
 	
 	// return value of dest 
-	gGPR[REG_v0] = gGPR[REG_a0]; 
+	gGPR[REG_v0]._u32_0 = gGPR[REG_a0]._u32_0; 
 	
 	return PATCH_RET_JR_RA; 
 } 

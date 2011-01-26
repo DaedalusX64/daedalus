@@ -58,7 +58,7 @@ TEST_DISABLE_AI_FUNCS
 	}
 	else
 	{
-		gGPR[REG_v0]._u32_0 = -1;	// Stop DMA operation
+		gGPR[REG_v0]._u32_0 = ~0;	// Stop DMA operation
 	}
 	// I think is v0..	
 	//gGPR[REG_v1]._u64 = inter;
