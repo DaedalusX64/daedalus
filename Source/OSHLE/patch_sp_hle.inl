@@ -15,7 +15,6 @@ inline bool IsSpDeviceBusy()
 //*****************************************************************************
 //
 //*****************************************************************************
-
 inline u32 SpGetStatus()
 {
 	return Memory_SP_GetRegister( SP_STATUS_REG );
@@ -102,25 +101,27 @@ TEST_DISABLE_SP_FUNCS
 //
 //*****************************************************************************
 // Very similar to osSpDeviceBusy, 
+// I think osSpGetStatus is not defined correctly in our symbol table, It didn't show up in any game I tried..
 u32 Patch___osSpGetStatus_Mario()
 {
 TEST_DISABLE_SP_FUNCS
-	printf("status\n");
-	gGPR[REG_v0]._u32_0 = Memory_SP_GetRegister( SP_STATUS_REG );
+	DAEDALUS_ERROR("osSpGetStatus_Mario");
+	u32 status = SpGetStatus();
 
+	gGPR[REG_v0]._s64 = (s64)(s32)status;
 	return PATCH_RET_JR_RA;
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-// Same as above
 u32 Patch___osSpGetStatus_Rugrats()
 {
 TEST_DISABLE_SP_FUNCS
-	printf("rugrats\n");
-	gGPR[REG_v0]._u32_0 = Memory_SP_GetRegister( SP_STATUS_REG );
-
+	DAEDALUS_ERROR("osSpGetStatus_Rugrats");
+	u32 status = SpGetStatus();
+	
+	gGPR[REG_v0]._s64 = (s64)(s32)status;
 	return PATCH_RET_JR_RA;
 }
 
@@ -194,6 +195,7 @@ TEST_DISABLE_SP_FUNCS
 		// We'd have to loop, and we can't do this...
 		return PATCH_RET_NOT_PROCESSED;
 	}
+	
 	OSTask * pSrcTask = (OSTask *)ReadAddress(task);
 	OSTask * pDstTask = (OSTask *)ReadAddress(VAR_ADDRESS(osSpTaskLoadTempTask));
 
@@ -277,12 +279,11 @@ TEST_DISABLE_SP_FUNCS
 		// LOOP Until device not busy -
 		// we can't do this, so we just exit. What we could to is
 		// a speed hack and jump to the next interrupt
-		//
+
 		return PATCH_RET_NOT_PROCESSED;
 	}
 
 	//DBGConsole_Msg(0, "__osSpTaskStartGo()");
-
 
 	//Memory_SP_SetRegister(SP_STATUS_REG, (SP_SET_INTR_BREAK|SP_CLR_SSTEP|SP_CLR_BROKE|SP_CLR_HALT));
 	Write32Bits(PHYS_TO_K1(SP_STATUS_REG), (SP_SET_INTR_BREAK|SP_CLR_SSTEP|SP_CLR_BROKE|SP_CLR_HALT));

@@ -1,6 +1,5 @@
 #define TEST_DISABLE_MESG_FUNCS //return PATCH_RET_NOT_PROCESSED;
 
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -81,6 +80,10 @@ TEST_DISABLE_MESG_FUNCS
 	return PATCH_RET_NOT_PROCESSED;
 #endif
 }
+
+//*****************************************************************************
+//
+//*****************************************************************************
 // Exactly the same - just optimised slightly
 u32 Patch_osCreateMesgQueue_Rugrats()
 {
@@ -107,7 +110,7 @@ u32 Patch_osRecvMesg()
 TEST_DISABLE_MESG_FUNCS
 
 	// osRecvMesg brakes OOT's in-game menu
-	// ToDo : Fix me
+	// ToDo : Fix Me
 	if( g_ROM.GameHacks == ZELDA_OOT ) 
 	{
 		return PATCH_RET_NOT_PROCESSED0(osRecvMesg);
@@ -135,7 +138,7 @@ TEST_DISABLE_MESG_FUNCS
 		if (BlockFlag == OS_MESG_NOBLOCK)
 		{
 			// Don't block
-			gGPR[REG_v0]._u32_0 = ~0;
+			gGPR[REG_v0]._s64 = (s64)(s32)~0;
 			return PATCH_RET_JR_RA;
 		}
 		else
@@ -210,7 +213,7 @@ TEST_DISABLE_MESG_FUNCS
 	}
 
 	// Set success status
-	gGPR[REG_v0]._u32_0 = 0;
+	gGPR[REG_v0]._u64 = 0;
 
 	return PATCH_RET_JR_RA;
 }
@@ -223,7 +226,7 @@ u32 Patch_osSendMesg()
 TEST_DISABLE_MESG_FUNCS
 
 	// osSendMesg brakes OOT's in-game menu
-	// ToDo : Fix me
+	// ToDo : Fix Me
 	if( g_ROM.GameHacks == ZELDA_OOT )
 	{
 		return PATCH_RET_NOT_PROCESSED0(osSendMesg);
@@ -251,7 +254,7 @@ TEST_DISABLE_MESG_FUNCS
 		if (BlockFlag == OS_MESG_NOBLOCK)
 		{
 			// Don't block
-			gGPR[REG_v0]._u32_0 = ~0;
+			gGPR[REG_v0]._s64 = (s64)(s32)~0;
 			return PATCH_RET_JR_RA;
 		}
 		else
@@ -262,11 +265,10 @@ TEST_DISABLE_MESG_FUNCS
 	}
 
 	//DBGConsole_Msg(0, "  Processing Pending");
-
-	u32 first = Read32Bits(queue + 0x0c);
-
 	DAEDALUS_ASSERT( MsgCount != 0, "Invalid message count" );
 	DAEDALUS_ASSERT( MsgCount != u32(~0) && first+ValidCount != 0x80000000, "Invalid message count" );
+
+	u32 first = Read32Bits(queue + 0x0c);
 	
 	// Point first to the next valid message
 	/*if (MsgCount == 0)
@@ -279,10 +281,10 @@ TEST_DISABLE_MESG_FUNCS
 		DBGConsole_Msg(0, "Invalid message count/first");
 		// We would break here!
 	}
-	else
-	{*/
+	else*/
+	//{
 	u32 slot = (first + ValidCount) % MsgCount;
-		
+	
 	u32 MsgBase = Read32Bits(queue + 0x14);
 
 	// Offset to first valid message
@@ -317,7 +319,7 @@ TEST_DISABLE_MESG_FUNCS
 	}
 
 	// Set success status
-	gGPR[REG_v0]._u32_0 = 0;
+	gGPR[REG_v0]._u64 = 0;
 
 	return PATCH_RET_JR_RA;
 }
