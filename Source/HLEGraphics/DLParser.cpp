@@ -2062,7 +2062,7 @@ void DLParser_TriRSP( MicroCodeCommand command ){ DL_PF("RSP Tri: (Ignored)"); }
 //*************************************************************************************
 // 
 //*************************************************************************************
-#if 1 //1->unrolled, 0->looped //Corn
+#if 0 //1->unrolled, 0->looped //Corn
 void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 {
 	struct N64Fmat
@@ -2137,16 +2137,26 @@ void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 {
 	const f32	fRecip = 1.0f / 65536.0f;
 	const u8 *	base( g_pu8RamBase );
+	s16 hi;
+	u16 lo;
 
 	for (u32 i = 0; i < 4; i++)
 	{
-		for (u32 j = 0; j < 4; j++) 
-		{
-			s16 hi = *(s16 *)(base + ((address+(i<<3)+(j<<1)     )^0x2));
-			u16 lo = *(u16 *)(base + ((address+(i<<3)+(j<<1) + 32)^0x2));
+		hi = *(s16 *)(base + address+(i<<3)+(((0)     )^0x2));
+		lo = *(u16 *)(base + address+(i<<3)+(((0) + 32)^0x2));
+		mat.m[i][0] = ((hi<<16) | (lo)) * fRecip;
 
-			mat.m[i][j] = ((hi<<16) | (lo)) * fRecip;
-		}
+		hi = *(s16 *)(base + address+(i<<3)+(((2)     )^0x2));
+		lo = *(u16 *)(base + address+(i<<3)+(((2) + 32)^0x2));
+		mat.m[i][1] = ((hi<<16) | (lo)) * fRecip;
+
+		hi = *(s16 *)(base + address+(i<<3)+(((4)     )^0x2));
+		lo = *(u16 *)(base + address+(i<<3)+(((4) + 32)^0x2));
+		mat.m[i][2] = ((hi<<16) | (lo)) * fRecip;
+
+		hi = *(s16 *)(base + address+(i<<3)+(((6)     )^0x2));
+		lo = *(u16 *)(base + address+(i<<3)+(((6) + 32)^0x2));
+		mat.m[i][3] = ((hi<<16) | (lo)) * fRecip;
 	}
 }
 #endif
