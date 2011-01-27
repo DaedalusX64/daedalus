@@ -1,5 +1,7 @@
 #define TEST_DISABLE_THREAD_FUNCS DAEDALUS_PROFILE(__FUNCTION__);
-
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch_osCreateThread_Mario()
 {
 TEST_DISABLE_THREAD_FUNCS
@@ -54,6 +56,9 @@ TEST_DISABLE_THREAD_FUNCS
 
 	return PATCH_RET_JR_RA;
 }
+//*****************************************************************************
+//
+//*****************************************************************************
 // Identical to Mario code - just more optimised
 u32 Patch_osCreateThread_Rugrats()
 {
@@ -61,6 +66,10 @@ TEST_DISABLE_THREAD_FUNCS
 	return Patch_osCreateThread_Mario();
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
+// ToDo : Implement me
 u32 Patch_osSetThreadPri()
 {
 TEST_DISABLE_THREAD_FUNCS
@@ -79,6 +88,9 @@ TEST_DISABLE_THREAD_FUNCS
 	return PATCH_RET_NOT_PROCESSED;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch_osGetThreadPri()
 {
 TEST_DISABLE_THREAD_FUNCS
@@ -96,6 +108,9 @@ TEST_DISABLE_THREAD_FUNCS
 	return PATCH_RET_JR_RA;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch___osDequeueThread()
 {
 TEST_DISABLE_THREAD_FUNCS
@@ -125,6 +140,9 @@ TEST_DISABLE_THREAD_FUNCS
 	return PATCH_RET_JR_RA;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch___osDispatchThread_Mario()
 {
 TEST_DISABLE_THREAD_FUNCS
@@ -198,6 +216,7 @@ TEST_DISABLE_THREAD_FUNCS
 		// Restore control reg
 		gCPUState.FPUControl[31]._u64 = QuickRead32Bits(pThreadBase, offsetof(OSThread, context.fpcsr));
 
+		// Looks suspicious.. both seems to do ala doubles anyways.. We should optimize this when in 32bit mode
 		if (gCPUState.CPUControl[C0_SR]._u32_0 & SR_FR)
 		{
 			// Doubles
@@ -232,12 +251,19 @@ TEST_DISABLE_THREAD_FUNCS
 	return PATCH_RET_ERET;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 // Neither of these are correct- they ignore the interrupt mask thing
 u32 Patch___osDispatchThread_MarioKart()
 {
 TEST_DISABLE_THREAD_FUNCS
 	return Patch___osDispatchThread_Mario();
 }
+
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch___osDispatchThread_Rugrats()
 {
 TEST_DISABLE_THREAD_FUNCS
@@ -330,6 +356,7 @@ TEST_DISABLE_THREAD_FUNCS
 		// Restore control reg
 		gCPUState.FPUControl[31]._u64 = QuickRead32Bits(pThreadBase, offsetof(OSThread, context.fpcsr));
 
+		// Looks suspicious.. both seems to do ala doubles anyways.. We should optimize this when in 32bit mode
 		if (gCPUState.CPUControl[C0_SR]._u32_0 & SR_FR)
 		{
 			// Doubles
@@ -397,6 +424,9 @@ TEST_DISABLE_THREAD_FUNCS
 
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch_osDestroyThread_Mario()
 {
 TEST_DISABLE_THREAD_FUNCS
@@ -463,6 +493,10 @@ TEST_DISABLE_THREAD_FUNCS
 
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
+// ToDo : Implement me
 u32 Patch_osDestroyThread_Zelda()
 {
 TEST_DISABLE_THREAD_FUNCS
@@ -475,7 +509,9 @@ TEST_DISABLE_THREAD_FUNCS
 	return PATCH_RET_NOT_PROCESSED0(osDestroyThread);
 }
 
-
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch___osEnqueueThread_Mario()
 {
 TEST_DISABLE_THREAD_FUNCS
@@ -510,6 +546,9 @@ TEST_DISABLE_THREAD_FUNCS
 	return PATCH_RET_JR_RA;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 // Identical - just different compilation
 u32 Patch___osEnqueueThread_Rugrats()
 {
@@ -545,8 +584,9 @@ TEST_DISABLE_THREAD_FUNCS
 	return PATCH_RET_JR_RA;
 }
 
-
-
+//*****************************************************************************
+//
+//*****************************************************************************
 // Gets active thread in a1. Adds to queue in a0 (if specified), dispatches
 u32 Patch___osEnqueueAndYield_Mario()
 {
@@ -618,7 +658,7 @@ TEST_DISABLE_THREAD_FUNCS
 	}
 	
 	// Set interrupt mask...does this do anything???
-	u32 rcp = Read32Bits(PHYS_TO_K1(MI_INTR_MASK_REG));
+	u32 rcp = Memory_MI_GetRegister( MI_INTR_MASK_REG );
 	QuickWrite32Bits(pThreadBase, 0x128,  rcp);
 
 	// Call EnqueueThread if queue is set
@@ -631,6 +671,9 @@ TEST_DISABLE_THREAD_FUNCS
 	return CALL_PATCHED_FUNCTION(__osDispatchThread);
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch___osEnqueueAndYield_MarioKart()
 {
 TEST_DISABLE_THREAD_FUNCS
@@ -638,6 +681,9 @@ TEST_DISABLE_THREAD_FUNCS
 
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch_osStartThread()
 {
 TEST_DISABLE_THREAD_FUNCS
@@ -755,6 +801,9 @@ TEST_DISABLE_THREAD_FUNCS
 	return PATCH_RET_JR_RA;	
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch___osPopThread()
 {
 TEST_DISABLE_THREAD_FUNCS

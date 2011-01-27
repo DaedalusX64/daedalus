@@ -101,27 +101,25 @@ TEST_DISABLE_SP_FUNCS
 //
 //*****************************************************************************
 // Very similar to osSpDeviceBusy, 
-// I think osSpGetStatus is not defined correctly in our symbol table, It didn't show up in any game I tried..
+// I think osSpGetStatus_Mario is not defined correctly in our symbol table, I have yet to see a game that uses it..
 u32 Patch___osSpGetStatus_Mario()
 {
 TEST_DISABLE_SP_FUNCS
 	DAEDALUS_ERROR("osSpGetStatus_Mario");
-	u32 status = SpGetStatus();
 
-	gGPR[REG_v0]._s64 = (s64)(s32)status;
+	gGPR[REG_v0]._u32_0 = Memory_SP_GetRegister( SP_STATUS_REG );
 	return PATCH_RET_JR_RA;
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
+// Ogre Battle uses this
 u32 Patch___osSpGetStatus_Rugrats()
 {
 TEST_DISABLE_SP_FUNCS
-	DAEDALUS_ERROR("osSpGetStatus_Rugrats");
-	u32 status = SpGetStatus();
 	
-	gGPR[REG_v0]._s64 = (s64)(s32)status;
+	gGPR[REG_v0]._u32_0 = Memory_SP_GetRegister( SP_STATUS_REG );
 	return PATCH_RET_JR_RA;
 }
 
@@ -168,11 +166,11 @@ TEST_DISABLE_SP_FUNCS
 		// Halted, we can safely set the pc:
 		gRSPState.CurrentPC = pc;
 
-		gGPR[REG_v0]._s64 = (s64)(s32)0;
+		gGPR[REG_v0]._u32_0 = 0;
 	}
 	else
 	{
-		gGPR[REG_v0]._s64 = (s64)(s32)~0;
+		gGPR[REG_v0]._u32_0 = ~0;
 	}
 
 	return PATCH_RET_JR_RA;
@@ -279,7 +277,7 @@ TEST_DISABLE_SP_FUNCS
 		// LOOP Until device not busy -
 		// we can't do this, so we just exit. What we could to is
 		// a speed hack and jump to the next interrupt
-
+		DBGConsole_Msg(0, "Sp Device is is BUSY, looping until not busy");
 		return PATCH_RET_NOT_PROCESSED;
 	}
 

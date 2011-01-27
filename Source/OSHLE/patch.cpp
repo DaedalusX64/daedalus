@@ -105,7 +105,7 @@ u32 gNumOfOSFunctions;
 #define PATCH_RET_ERET RET_JR_ERET()
 
 // Increase this number every time we changed the symbol table
-static const u32 MAGIC_HEADER = 0x80000115;
+static const u32 MAGIC_HEADER = 0x80000116;
 
 bool gPatchesInstalled = false;
 
@@ -163,6 +163,8 @@ void Patch_ApplyPatches()
 	if (!Patch_GetCache())
 	{
 		Patch_RecurseAndFind();
+
+		// Tip : Disable this when working on oshle funcs, you save the time to delete hle cache everyttime you need to test :p
 		Patch_FlushCache();
 	}
 	// Do this every time or just when originally patched
@@ -1154,11 +1156,6 @@ u32 Patch_osUnmapTLBAll_Mario()
 u32 Patch_osUnmapTLBAll_Rugrats()
 {
 	return PATCH_RET_NOT_PROCESSED;
-}
-
-u32 Patch_osViSetEvent() 	 
-{ 	 
-     return PATCH_RET_NOT_PROCESSED; 	 
 }
 
 u32 Patch___osPackRequestData()
