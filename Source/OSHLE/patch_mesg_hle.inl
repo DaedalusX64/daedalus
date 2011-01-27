@@ -165,6 +165,7 @@ TEST_DISABLE_MESG_FUNCS
 		Write32Bits(msg, Read32Bits(MsgBase));
 
 	}
+	first = (first + 1) % MsgCount;
 
 	DAEDALUS_ASSERT( MsgCount != 0, "Invalid message count" );
 	DAEDALUS_ASSERT( MsgCount != u32(~0) && first+ValidCount != 0x80000000, "Invalid message count" );
@@ -182,7 +183,6 @@ TEST_DISABLE_MESG_FUNCS
 	else*/
 	//{
 	//DBGConsole_Msg(0, "  Generating next valid message number");
-	first = (first + 1) % MsgCount;
 
 	Write32Bits(queue + 0x0c, first);
 	//}
@@ -264,11 +264,11 @@ TEST_DISABLE_MESG_FUNCS
 		}
 	}
 
+	u32 first = Read32Bits(queue + 0x0c);
+
 	//DBGConsole_Msg(0, "  Processing Pending");
 	DAEDALUS_ASSERT( MsgCount != 0, "Invalid message count" );
 	DAEDALUS_ASSERT( MsgCount != u32(~0) && first+ValidCount != 0x80000000, "Invalid message count" );
-
-	u32 first = Read32Bits(queue + 0x0c);
 	
 	// Point first to the next valid message
 	/*if (MsgCount == 0)

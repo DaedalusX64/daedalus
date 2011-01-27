@@ -1,6 +1,8 @@
 #define TEST_DISABLE_VI_FUNCS //return PATCH_RET_NOT_PROCESSED;
 
-
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch_osViSetMode()
 {
 TEST_DISABLE_VI_FUNCS
@@ -20,6 +22,9 @@ TEST_DISABLE_VI_FUNCS
 	return PATCH_RET_NOT_PROCESSED;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch_osViBlack()
 {
 TEST_DISABLE_VI_FUNCS
@@ -31,7 +36,9 @@ TEST_DISABLE_VI_FUNCS
 	return PATCH_RET_NOT_PROCESSED;
 }
 
-
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch_osViSwapBuffer()
 {
 TEST_DISABLE_VI_FUNCS
@@ -53,3 +60,13 @@ TEST_DISABLE_VI_FUNCS
 	return PATCH_RET_JR_RA;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
+// ToDo : Implement me
+u32 Patch_osViSetEvent()
+{
+TEST_DISABLE_MESG_FUNCS
+
+	return PATCH_RET_NOT_PROCESSED;
+}
