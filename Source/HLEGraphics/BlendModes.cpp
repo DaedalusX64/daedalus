@@ -245,6 +245,30 @@ void BlendMode_0x00522bfffffffe38LL( BLEND_MODE_ARGS )
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
+// Doubutsu no Mori - Player Shadow
+// case 0x00ff95ffff0dfe3fLL:
+//aRGB0: (0            - 0           ) * 0            + Primitive
+//aA0  : (Texel0       - 0           ) * Texel1       + 0
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (Combined     - 0           ) * Primitive    + 0
+void BlendMode_0x00ff95ffff0dfe3fLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGBA(details.PrimColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
+// Doubutsu no Mori - Buried Gold
+// case 0x00149460f50fff7fLL:
+//aRGB0: (Texel0       - 0           ) * Texel1_Alp   + 0
+//aA0  : (Texel0       - 0           ) * Texel1       + 0
+//aRGB1: (Primitive    - Env         ) * Combined     + Env
+//aA1  : (Combined     - 0           ) * Primitive    + 0
+void BlendMode_0x00149460f50fff7fLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
+
 /*
  //#E
  */ 
@@ -562,19 +586,46 @@ void BlendMode_0x00272c60150c937dLL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
-// Pokemon Stadium - Fire Spin
-// case 0x00277e60150cf37fLL:
+// Paper Mario - Intro Fireball
+// case 0x00322bff5f0e923fLL:
+//aRGB0: (Primitive    - Env         ) * Shade        + Env
+//aA0  : (Texel1       - Texel0      ) * Env          + Texel0
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (Combined     - 0           ) * Primitive    + 0
+void BlendMode_0x00322bff5f0e923fLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.PrimColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
+// Pokemon Stadium - Surf
+// case 0x00277e601510f77fLL:
 //aRGB0: (Texel1       - Texel0      ) * PrimLODFrac  + Texel0
-//aA0  : (0            - 0           ) * 0            + Texel0
+//aA0  : (0            - 0           ) * 0            + Primitive
+//aRGB1: (Primitive    - Env         ) * Combined     + Env
+//aA1  : (Combined     - 0           ) * Shade        + 0
+void BlendMode_0x00277e601510f77fLL (BLEND_MODE_ARGS)
+{
+	// The blend is colored correctly, but it looks as if it is compressed
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+}
+
+// Pokemon Stadium - Fire Blast
+// case 0x00277e60150cf37fLL:
+//aRGB0: (Texel1       - Texel0      ) * PrimLODFrac  + Texel
+//aA0  : (0            - 0           ) * 0            + Texel
 //aRGB1: (Primitive    - Env         ) * Combined     + Env
 //aA1  : (Combined     - 0           ) * Primitive    + 0
 void BlendMode_0x00277e60150cf37fLL (BLEND_MODE_ARGS)
 {
-	details.ColourAdjuster.SetRGB(details.PrimColour);
-	details.ColourAdjuster.SetA(details.PrimColour);
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+	// Fixes most fire type attacks
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	details.ColourAdjuster.ModulateA(details.PrimColour);
+	sceGuTexEnvColor(details.PrimColour.GetColour());
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
 }
-
+	
 /*
  //#Q
  */ 
@@ -1257,6 +1308,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00147e2844fe7b3dLL); // Mario's Head
 			BLEND_MODE(0x00147e045ffefbf8LL); // FZero other ships
 			BLEND_MODE(0x00147e2844fe793cLL); // FZero tracks / Mario 64 penguin's eyes
+			BLEND_MODE(0x00149460f50fff7fLL); // Animal Crossing Gold
 			BLEND_MODE(0x0015fec4f0fff83cLL); // Pilot Wings 64 sky
 			BLEND_MODE(0x00167e6035fcff7eLL); // OOT, MM Intro (N64 Logo)
 			BLEND_MODE(0x0017166035fcff78LL); // OOT Deku tree Flash
@@ -1277,7 +1329,9 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00267e041f0cfdffLL); // Zelda OOT Water
 			BLEND_MODE(0x002698041f14ffffLL); // Banjo Kazooie Paths
 			BLEND_MODE(0x00271860350cff7fLL); // Deku Tree Light
-			BLEND_MODE(0x00271c6035fcf378LL); // Zelda Fairy Spirit.
+			BLEND_MODE(0x00271c6035fcf378LL); // Zelda Fairy Spirit
+			BLEND_MODE(0x00272c041f0c93ffLL); // SSB Dreamland Water
+			BLEND_MODE(0x00272c60150c937dLL); // Pokemon Thunder
 			BLEND_MODE(0x00272c60340c933fLL); // Zelda Castle Light
 			BLEND_MODE(0x00272c60150c937fLL); // Zelda Heart Container
 			BLEND_MODE(0x00272c60350c937fLL); // OOT Spiritual Stones / Pokeball
@@ -1285,6 +1339,8 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00272c6035fc9378LL); // Zelda Bottled Water
 			BLEND_MODE(0x00272c6035fce378LL); // Zelda Blue Fire Lamp
 			BLEND_MODE(0x00276c6035d8ed76LL); // OOT Deku Nut Core
+			BLEND_MODE(0x00277e60150cf37fLL); // Pokemon Fire Blast
+			BLEND_MODE(0x00277e601510f77fLL); // Pokemon Surf
 			BLEND_MODE(0x00277e6035fcf778LL); // Zelda Triforce
 			BLEND_MODE(0x0027fe041ffcfdfeLL); // F1 World GP Wheels
 			BLEND_MODE(0x00309e045ffefdf8LL); // Kirby some parts of the Ground
@@ -1301,6 +1357,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0030fe045ffefdf8LL); // Kirby Ground
 			BLEND_MODE(0x0030fe045ffefdfeLL); // Zelda Kokori Sword Handle
 			BLEND_MODE(0x003096045ffefff8LL); // Pokemon Stadium - Balloons
+			BLEND_MODE(0x00322bff5f0e923fLL); // Paper Mario Fireblast
 			BLEND_MODE(0x003432685566ff7fLL); // Ogre Battle - Intro Dust
 			BLEND_MODE(0x0040fe8155fef97cLL); // GoldenEye Sky
 			BLEND_MODE(0x0040fe8155fefd7eLL); // Kirby Far Terrain
@@ -1314,6 +1371,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0062fe043f15f9ffLL); // Banjo Kazooie Backdrop
 			BLEND_MODE(0x00671603fffcff78LL); // DOOM64 weapons
 			BLEND_MODE(0x00772c60f5fce378LL); // Zelda Poe
+			BLEND_MODE(0x00ff95ffff0dfe3fLL); // Animal Crossing Player Shadow
 			default:
 				return BlendMode_Generic;	  // Basic generic blenmode
 			
