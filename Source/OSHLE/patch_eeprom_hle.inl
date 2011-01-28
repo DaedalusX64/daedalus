@@ -1,7 +1,9 @@
 #define TEST_DISABLE_EEPROM_FUNCS //return PATCH_RET_NOT_PROCESSED;
 
 // I don't think for Eeprom patches we need to cast 64bit types - Salvy
-
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch___osEepStatus()
 {
 TEST_DISABLE_EEPROM_FUNCS
@@ -35,6 +37,9 @@ TEST_DISABLE_EEPROM_FUNCS
 	return PATCH_RET_JR_RA;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 // Used in Mario Kart
 // Why cast to u64/s64?
 u32 Patch_osEepromProbe()
@@ -62,6 +67,9 @@ TEST_DISABLE_EEPROM_FUNCS
 	return PATCH_RET_JR_RA;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch_osEepromRead()
 {
 TEST_DISABLE_EEPROM_FUNCS
@@ -77,7 +85,9 @@ TEST_DISABLE_EEPROM_FUNCS
 	return PATCH_RET_NOT_PROCESSED;
 }
 
-
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch_osEepromLongRead()
 {
 TEST_DISABLE_EEPROM_FUNCS
@@ -94,6 +104,9 @@ TEST_DISABLE_EEPROM_FUNCS
 
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch_osEepromWrite()
 {
 TEST_DISABLE_EEPROM_FUNCS
@@ -112,6 +125,9 @@ TEST_DISABLE_EEPROM_FUNCS
 	return PATCH_RET_NOT_PROCESSED;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch_osEepromLongWrite()
 {
 TEST_DISABLE_EEPROM_FUNCS
@@ -126,5 +142,35 @@ TEST_DISABLE_EEPROM_FUNCS
 
 
 	return PATCH_RET_NOT_PROCESSED;
+}
 
+//#define PAD_ADDR 0x0BBBFD98
+//*****************************************************************************
+//
+//*****************************************************************************
+u32 Patch___osContGetInitData()
+{
+
+	u32 data = gGPR[REG_a0]._u32_0;
+	//u32 pad = gGPR[REG_a1]._u32_0;
+	OSContPad	   cont[ 4 ];
+
+	// I don't know why SSV crashes, bail out in the meanwhile :(
+	if (data == 0x80288DF7 )
+	{
+		printf("SSV\n");
+		return PATCH_RET_NOT_PROCESSED0(__osContGetInitData);
+	}
+
+	// Get stick data and button settings to the location pointed to by the pad argument.
+	//
+	u32 pad = *(u32 *)&cont;
+	printf("Pad 0x%08X\n", pad);
+
+	Write32Bits(data, pad);
+
+	// CONT_A | CONT_B | CONT_G | CONT_START | CONT_UP | CONT_DOWN | CONT_LEFT | CONT_RIGHT | CONT_L | CONT_R |CONT_E |CONT_D |CONT_C | CONT_F
+	gGPR[REG_v0]._s64 = 0; 
+
+	return PATCH_RET_JR_RA;
 }
