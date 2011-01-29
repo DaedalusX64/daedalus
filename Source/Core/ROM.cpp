@@ -460,6 +460,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	
 	switch( id.CartID )
 	{
+	case 0x4741: g_ROM.GameHacks = AEROGAUGE;			break;
 	case 0x4547: g_ROM.GameHacks = GOLDEN_EYE;			break;
 	case 0x5742: g_ROM.GameHacks = SUPER_BOWLING;		break;
 	case 0x5546: g_ROM.GameHacks = CONKER;				break;

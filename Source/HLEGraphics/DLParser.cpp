@@ -1472,8 +1472,8 @@ void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts)
 			psSrc += 8;			// Increase by 16 bytes
 			pcSrc += 16;
 
-			DL_PF(" #%02d Flags: 0x%04x Pos:{% 6f,% 6f,% 6f} Tex:{%+7.2f,%+7.2f}, Extra: %02x %02x %02x %02x (tran:{% 6f,% 6f,% 6f,% 6f} proj:{% 6f,% 6f,% 6f,% 6f})",
-				idx, wFlags, x, y, z, tu, tv, a, b, c, d, t.x, t.y, t.z, t.w, p.x, p.y, p.z, p.w);
+			DL_PF(" #%02d Flags: 0x%04x Pos:{% 6f,% 6f,% 6f} Tex:{%+7.2f,%+7.2f} Extra: %02x %02x %02x %02x Tran:{% 6f,% 6f,% 6f,% 6f} Proj:{% 6f,% 6f,% 6f,% 6f}",
+				idx, wFlags, x, y, z, tu, tv, a, b, c, d, t.x, t.y, t.z, t.w, p.x/p.w, p.y/p.w, p.z/p.w, p.w);
 		}
 	}
 }
@@ -1822,6 +1822,17 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_FillRect( MicroCodeCommand command )
 { 
+	// Note, in some modes, the right/bottom lines aren't drawn
+	DL_PF("    (%d,%d) (%d,%d)", command.fillrect.x0, command.fillrect.y0, command.fillrect.x1, command.fillrect.y1);
+
+	//Always clear Zbuffer if Depthbuffer is selected //Corn
+	if (g_DI.Address == g_CI.Address)
+	{
+		CGraphicsContext::Get()->Clear( false, true );
+		DL_PF("    Clearing ZBuffer");
+		return;
+	}
+
 	// Removes unnecesary fillrects in Golden Eye and other games.
 	if( command.fillrect.x0 >= scissors.right || command.fillrect.y0 >= scissors.bottom ||
 		command.fillrect.x1 <  scissors.left  || command.fillrect.y1 <  scissors.top )
@@ -1832,50 +1843,37 @@ void DLParser_FillRect( MicroCodeCommand command )
 	v2 xy0( command.fillrect.x0, command.fillrect.y0 );
 	v2 xy1( command.fillrect.x1, command.fillrect.y1 );
 
-	// Note, in some modes, the right/bottom lines aren't drawn
-
-	DL_PF("    (%d,%d) (%d,%d)", command.fillrect.x0, command.fillrect.y0, command.fillrect.x1, command.fillrect.y1);
-
 	// TODO - In 1/2cycle mode, skip bottom/right edges!?
+	// This is done in PSPrenderer.
 
-	if (g_DI.Address == g_CI.Address)
+	// Clear the screen if large rectangle?
+	// This seems to mess up with the Zelda game select screen
+	// For some reason it draws a large rect over the entire
+	// display, right at the end of the dlist. It sets the primitive
+	// colour just before, so maybe I'm missing something??
+
+	// TODO - Check colour image format to work out how this should be decoded!
+
+	c32		colour;
+	
+	// We only care for G_IM_SIZ_16b, Note this might change once framebuffer emulation is implemented
+	//
+	if ( g_CI.Size == G_IM_SIZ_16b )
 	{
-		// Clear the Z Buffer
-		CGraphicsContext::Get()->Clear( false, true );
+		PixelFormats::N64::Pf5551	c( (u16)gFillColor );
 
-		DL_PF("    Clearing ZBuffer");
+		colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf5551 >( c );
+
+		//printf( "FillRect: %08x, %04x\n", colour.GetColour(), c.Bits );
+
 	}
 	else
 	{
-		// Clear the screen if large rectangle?
-		// This seems to mess up with the Zelda game select screen
-		// For some reason it draws a large rect over the entire
-		// display, right at the end of the dlist. It sets the primitive
-		// colour just before, so maybe I'm missing something??
-
-		// TODO - Check colour image format to work out how this should be decoded!
-
-		c32		colour;
-		
-		// We only care for G_IM_SIZ_16b, Note this might change once framebuffer emulation is implemented
-		//
-		if ( g_CI.Size == G_IM_SIZ_16b )
-		{
-			PixelFormats::N64::Pf5551	c( (u16)gFillColor );
-
-			colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf5551 >( c );
-
-			//printf( "FillRect: %08x, %04x\n", colour.GetColour(), c.Bits );
-
-		}
-		else
-		{
-			colour = c32( gFillColor );
-		}
-
-		DL_PF("    Filling Rectangle");
-		PSPRenderer::Get()->FillRect( xy0, xy1, colour.GetColour() );
+		colour = c32( gFillColor );
 	}
+
+	DL_PF("    Filling Rectangle");
+	PSPRenderer::Get()->FillRect( xy0, xy1, colour.GetColour() );
 }
 
 //*****************************************************************************
@@ -2180,7 +2178,7 @@ static void RDP_Force_Matrix(u32 address)
 
 	MatrixFromN64FixedPoint(mat,address);
 
-#if 1	//1->hacky way A, 0->hacky way B :)
+#if 1	//1->Proper, 0->Hacky way :)
 	PSPRenderer::Get()->ForceMatrix(mat);
 #else
 	PSPRenderer::Get()->SetProjection(mat, true, true);

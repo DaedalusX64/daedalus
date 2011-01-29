@@ -119,7 +119,8 @@ enum EGameHacks
 	KIRBY64,
 	TARZAN,
 	DONALD,
-	PMARIO
+	PMARIO,
+	AEROGAUGE
 };
 
 //*****************************************************************************

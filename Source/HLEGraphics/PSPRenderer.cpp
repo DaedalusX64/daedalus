@@ -1349,7 +1349,7 @@ void PSPRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	v2 screen0( ConvertN64ToPsp( xy0 ) );
 	v2 screen1( ConvertN64ToPsp( xy1 + edge ) );
 
-	DL_PF( "      Screen:  %f,%f -> %f,%f", screen0.x, screen0.y, screen1.x, screen1.y );
+	DL_PF( "      Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 
 	DaedalusVtx trv[ 6 ];
 
@@ -2575,7 +2575,7 @@ void	PSPRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 	//Clamp TOP and LEFT values to 0 if < 0 , needed for zooming //Corn
 	//printf("%d %d %d %d\n", s32(psp_coords_tl.x),s32(psp_coords_tl.y),s32(psp_coords_br.x),s32(psp_coords_br.y));
 	sceGuScissor( s32(psp_coords_tl.x) < 0 ? 0 : s32(psp_coords_tl.x), s32(psp_coords_tl.y) < 0 ? 0 : s32(psp_coords_tl.y),
-				  s32(psp_coords_br.x), s32(psp_coords_br.y) );
+				  s32(psp_coords_br.x) - 1, s32(psp_coords_br.y) - 1 );
 }
 
 //*****************************************************************************

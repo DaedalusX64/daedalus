@@ -354,7 +354,7 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 
 	u32 vtx		 = command.branchz.vtx;
 	
-	//Works in Aerogauge (skips rendering ship shadows and exaust plumes from a far)
+	//Works in Aerogauge (skips rendering ship shadows and exaust plumes from afar)
 	//Fails in OOT : Death Mountain and MM : Outside of Clock Town
 	// Seems are Z axis is inverted... Might be tricky to get it right on the PSP
 
@@ -364,7 +364,7 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 
 	//printf("%0.0f %d\n", vtxdepth, zval);
 
-	if( (vtxdepth >= zval) || (g_ROM.GameHacks == ZELDA_OOT) || (g_ROM.GameHacks == ZELDA_MM) )
+	if( (g_ROM.GameHacks != AEROGAUGE) || (vtxdepth >= zval) )
 	{					
 		u32 pc = gDisplayListStack.back().addr;
 		u32 dl = *(u32 *)(g_pu8RamBase + pc-12);
