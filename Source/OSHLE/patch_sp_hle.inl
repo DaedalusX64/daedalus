@@ -231,12 +231,13 @@ TEST_DISABLE_SP_FUNCS
 	}
 	// Writeback the DCache for pDstTask
 
-	Write32Bits(PHYS_TO_K1(SP_STATUS_REG),
-		SP_CLR_SIG2|SP_CLR_SIG1|SP_CLR_SIG0|SP_SET_INTR_BREAK);	
+	//Write32Bits(PHYS_TO_K1(SP_STATUS_REG),SP_CLR_SIG2|SP_CLR_SIG1|SP_CLR_SIG0|SP_SET_INTR_BREAK);	
+	Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_CLR_SIG2|SP_CLR_SIG1|SP_CLR_SIG0|SP_SET_INTR_BREAK);
 
 
 	// Set the PC
-	Write32Bits(PHYS_TO_K1(SP_PC_REG), 0x04001000);
+	//Write32Bits(PHYS_TO_K1(SP_PC_REG), 0x04001000);
+	gRSPState.CurrentPC = 0x04001000;
 
 	// Copy the task info to dmem
 	Write32Bits(PHYS_TO_K1(SP_MEM_ADDR_REG), 0x04000fc0);
@@ -277,7 +278,7 @@ TEST_DISABLE_SP_FUNCS
 		// LOOP Until device not busy -
 		// we can't do this, so we just exit. What we could to is
 		// a speed hack and jump to the next interrupt
-		DBGConsole_Msg(0, "Sp Device is is BUSY, looping until not busy");
+		DBGConsole_Msg(0, "Sp Device is BUSY, looping until not busy");
 		return PATCH_RET_NOT_PROCESSED;
 	}
 
