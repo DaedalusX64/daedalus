@@ -362,9 +362,9 @@ static void *Read_8450_845F( u32 address )
 {
 	if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) <= AI_LAST_REG))
 	{
-#ifndef DISPLAY_AI_READS
 		u32 offset = address & 0xFF;
 
+#ifdef DISPLAY_AI_READS
 		switch (AI_BASE_REG + offset)
 		{
 		case AI_DRAM_ADDR_REG:

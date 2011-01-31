@@ -43,7 +43,7 @@ TEST_DISABLE_SP_FUNCS
 
 	if (IsSpDeviceBusy())
 	{
-		gGPR[REG_v0]._s64 = (s64)(s32)~0;
+		gGPR[REG_v0]._u32_0 = ~0;
 	}
 	else
 	{
@@ -57,16 +57,9 @@ TEST_DISABLE_SP_FUNCS
 		Memory_SP_SetRegister( SP_MEM_ADDR_REG, SPAddr);
 		Memory_SP_SetRegister( SP_DRAM_ADDR_REG, PAddr);
 		
-		if (RWflag == OS_READ)  
-		{
-			Write32Bits( SP_WR_LEN_REG | 0xA0000000, len - 1 );
-		}
-		else
-		{
-			Write32Bits( SP_RD_LEN_REG | 0xA0000000, len - 1 );
-		}
+		Write32Bits( RWflag == OS_READ ? SP_WR_LEN_REG : SP_RD_LEN_REG | 0xA0000000, len - 1 );
 
-		gGPR[REG_v0]._u64 = 0;
+		gGPR[REG_v0]._u32_0 = 0;
 	}
 
 	return PATCH_RET_JR_RA;
@@ -107,7 +100,7 @@ u32 Patch___osSpGetStatus_Mario()
 TEST_DISABLE_SP_FUNCS
 	DAEDALUS_ERROR("osSpGetStatus_Mario");
 
-	gGPR[REG_v0]._u32_0 = Memory_SP_GetRegister( SP_STATUS_REG );
+	gGPR[REG_v0]._u32_0 = IsSpDeviceBusy();
 	return PATCH_RET_JR_RA;
 }
 
@@ -119,7 +112,7 @@ u32 Patch___osSpGetStatus_Rugrats()
 {
 TEST_DISABLE_SP_FUNCS
 	
-	gGPR[REG_v0]._u32_0 = Memory_SP_GetRegister( SP_STATUS_REG );
+	gGPR[REG_v0]._u32_0 = IsSpDeviceBusy();
 	return PATCH_RET_JR_RA;
 }
 
@@ -131,8 +124,8 @@ u32 Patch___osSpSetStatus_Mario()
 TEST_DISABLE_SP_FUNCS
 	u32 status = gGPR[REG_a0]._u32_0;
 
-	//Memory_SP_SetRegister(SP_STATUS_REG, status);
-	Write32Bits(0xa4040010, status);
+	Memory_SP_SetRegisterBits(SP_STATUS_REG, status);
+	//Write32Bits(0xa4040010, status);
 	return PATCH_RET_JR_RA;
 }
 
@@ -144,8 +137,8 @@ u32 Patch___osSpSetStatus_Rugrats()
 TEST_DISABLE_SP_FUNCS
 	u32 status = gGPR[REG_a0]._u32_0;
 
-	//Memory_SP_SetRegister(SP_STATUS_REG, status);
-	Write32Bits(0xa4040010, status);
+	Memory_SP_SetRegisterBits(SP_STATUS_REG, status);
+	//Write32Bits(0xa4040010, status);
 	return PATCH_RET_JR_RA;
 }
 
@@ -229,19 +222,18 @@ TEST_DISABLE_SP_FUNCS
 
 		pSrcTask->t.flags &= ~(OS_TASK_YIELDED);
 	}
-	// Writeback the DCache for pDstTask
 
-	//Write32Bits(PHYS_TO_K1(SP_STATUS_REG),SP_CLR_SIG2|SP_CLR_SIG1|SP_CLR_SIG0|SP_SET_INTR_BREAK);	
-	Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_CLR_SIG2|SP_CLR_SIG1|SP_CLR_SIG0|SP_SET_INTR_BREAK);
+	// Writeback the DCache for pDstTask
+	Memory_SP_SetRegister(SP_STATUS_REG, SP_CLR_SIG2|SP_CLR_SIG1|SP_CLR_SIG0|SP_SET_INTR_BREAK);
 
 
 	// Set the PC
-	//Write32Bits(PHYS_TO_K1(SP_PC_REG), 0x04001000);
 	gRSPState.CurrentPC = 0x04001000;
 
 	// Copy the task info to dmem
-	Write32Bits(PHYS_TO_K1(SP_MEM_ADDR_REG), 0x04000fc0);
-	Write32Bits(PHYS_TO_K1(SP_DRAM_ADDR_REG), VAR_ADDRESS(osSpTaskLoadTempTask));
+	Memory_SP_SetRegister(SP_MEM_ADDR_REG, 0x04000fc0);
+	Memory_SP_SetRegister(SP_DRAM_ADDR_REG, VAR_ADDRESS(osSpTaskLoadTempTask));
+
 	Write32Bits(PHYS_TO_K1(SP_RD_LEN_REG), 64 - 1);
 
 
@@ -258,8 +250,9 @@ TEST_DISABLE_SP_FUNCS
 	//RSP_HLE_ProcessTask();
 
 	// We know that we're not busy!
-	Write32Bits(PHYS_TO_K1(SP_MEM_ADDR_REG), 0x04001000);
-	Write32Bits(PHYS_TO_K1(SP_DRAM_ADDR_REG), (u32)pDstTask->t.ucode_boot);//	-> Translate boot ucode to physical address!
+	Memory_SP_SetRegister(SP_MEM_ADDR_REG, 0x04001000);
+	Memory_SP_SetRegister(SP_DRAM_ADDR_REG, (u32)pDstTask->t.ucode_boot);//	-> Translate boot ucode to physical address!
+
 	Write32Bits(PHYS_TO_K1(SP_RD_LEN_REG), pDstTask->t.ucode_boot_size - 1);
 	
 	return PATCH_RET_JR_RA;
