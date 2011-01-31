@@ -63,13 +63,13 @@ void DMA_SP_CopyFromRDRAM()
 
 	if ((spmem_address_reg & 0x1000) > 0)
 	{
-		memcpy_vfpu_LE(&g_pu8SpImemBase[(spmem_address_reg & 0xFFF)],
+		memcpy_vfpu_BE(&g_pu8SpImemBase[(spmem_address_reg & 0xFFF)],
 					   &g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
 					  (rdlen_reg & 0xFFF)+1 );
 	}
 	else
 	{
-		memcpy_vfpu_LE(&g_pu8SpDmemBase[(spmem_address_reg & 0xFFF)],
+		memcpy_vfpu_BE(&g_pu8SpDmemBase[(spmem_address_reg & 0xFFF)],
 					   &g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
 					  (rdlen_reg & 0xFFF)+1 ); 
 	}
@@ -86,13 +86,13 @@ void DMA_SP_CopyToRDRAM()
     
 	if ((spmem_address_reg & 0x1000) > 0)
 	{
-		memcpy_vfpu_LE(&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
+		memcpy_vfpu_BE(&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
 					   &g_pu8SpImemBase[(spmem_address_reg & 0xFFF)],
 					  (wrlen_reg & 0xFFF)+1 ); 
 	}
 	else
 	{
-		memcpy_vfpu_LE(&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
+		memcpy_vfpu_BE(&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
 					   &g_pu8SpDmemBase[(spmem_address_reg & 0xFFF)],
 					  (wrlen_reg & 0xFFF)+1 ); 
 	}
@@ -108,7 +108,7 @@ void DMA_SI_CopyFromDRAM( )
 
 	DPF( DEBUG_MEMORY_PIF, "DRAM (0x%08x) -> PIF Transfer ", mem );
 
-	memcpy_vfpu_LE(p_dst, p_src, 64);
+	memcpy_vfpu_BE(p_dst, p_src, 64);
 
 #ifndef DAEDALUS_PUBLIC_RELEASE
 	u8 control_byte = p_dst[ 63 ^ U8_TWIDDLE ];
@@ -138,7 +138,7 @@ void DMA_SI_CopyToDRAM( )
 	// Check controller status!
 	CController::Get()->Process();
 
-	memcpy_vfpu_LE(p_dst, p_src, 64);
+	memcpy_vfpu_BE(p_dst, p_src, 64);
 
 	Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SI);
@@ -166,7 +166,7 @@ void DMA_SI_CopyToDRAM( )
 //*****************************************************************************
 bool DMA_HandleTransfer( u8 * p_dst, u32 dst_offset, u32 dst_size, const u8 * p_src, u32 src_offset, u32 src_size, u32 length )
 {
-	if( ( s32( length ) < 0 ) ||
+	if( ( s32( length ) <= 0 ) ||
 		(src_offset + length) > src_size ||
 		(dst_offset + length) > dst_size )
 	{
@@ -174,9 +174,33 @@ bool DMA_HandleTransfer( u8 * p_dst, u32 dst_offset, u32 dst_size, const u8 * p_
 	}
 
 #if 1 //1->new, 0->old
-	//Little Endian
 	//Doesn't like that we use VFPU here //Corn
-	memcpy_cpu_LE(&p_dst[dst_offset],  (void*)&p_src[src_offset], length);
+	//Little Endian
+	// We only have to fiddle the bytes when
+	// a) the src is not word aligned
+	// b) the dst is not word aligned
+	// c) the length is not a multiple of 4 (although we can copy most directly)
+	// If the source/dest are word aligned, we can simply copy most of the
+	// words using memcpy. Any remaining bytes are then copied individually
+	if( !(dst_offset & 0x3) & !(src_offset & 0x3) )
+	{
+		// Optimise for u32 alignment - do multiple of four using memcpy
+		u32 block_length(length & ~0x3);
+
+		// Might be 0 if xref is less than 4 bytes in total
+		// memcpy_vfpu seems to fail here, maybe still needs some tweak for border copy cases to work properly //Corn
+		if( block_length ) memcpy(&p_dst[dst_offset],  (void*)&p_src[src_offset], block_length);
+
+		// Do remainder - this is only 0->3 bytes
+		for(u32 i = block_length; i < length; ++i)
+		{
+			p_dst[(i + dst_offset)^U8_TWIDDLE] = p_src[(i + src_offset)^U8_TWIDDLE];
+		}
+	}
+	else
+	{
+		memcpy_cpu_LE(&p_dst[dst_offset],  (void*)&p_src[src_offset], length);
+	}
 
 #else
 	//Todo:Try to optimize futher Little Endian code

@@ -600,6 +600,11 @@ void DLParser_Process()
 		CGraphicsContext::Get()->ClearAllSurfaces();
 
 		gFirstCall = false;
+
+		scissors.top=0;
+		scissors.left=0;
+		scissors.right=320;
+		scissors.bottom=240;
 	}
 
 	// Update Screen only when something is drawn, otherwise several games ex Army Men will flash or shake.

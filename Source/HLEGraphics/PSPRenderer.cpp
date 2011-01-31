@@ -2691,10 +2691,10 @@ void PSPRenderer::SetWorldView(const Matrix4x4 & mat, bool bPush, bool bReplace)
 		// We should store the current projection matrix...
 		if (bReplace)
 		{
-			// Load projection matrix
+			// Load ModelView matrix
 			mModelViewStack[mModelViewTop] = mat;
 		}
-		else			// Multiply projection matrix
+		else			// Multiply ModelView matrix
 		{
 			mModelViewStack[mModelViewTop] = mat * mModelViewStack[mModelViewTop-1];
 		}
@@ -2703,12 +2703,12 @@ void PSPRenderer::SetWorldView(const Matrix4x4 & mat, bool bPush, bool bReplace)
 	{
 		if (bReplace)
 		{
-			// Load projection matrix
+			// Load ModelView matrix
 			mModelViewStack[mModelViewTop] = mat;
 		}
 		else
 		{
-			// Multiply projection matrix
+			// Multiply ModelView matrix
 			mModelViewStack[mModelViewTop] = mat * mModelViewStack[mModelViewTop];
 		}
 	}
