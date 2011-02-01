@@ -94,13 +94,13 @@ TEST_DISABLE_SP_FUNCS
 //
 //*****************************************************************************
 // Very similar to osSpDeviceBusy, 
-// I think osSpGetStatus_Mario is not defined correctly in our symbol table, I have yet to see a game that uses it..
+// Used in Pokemon Stadium 1
 u32 Patch___osSpGetStatus_Mario()
 {
 TEST_DISABLE_SP_FUNCS
-	DAEDALUS_ERROR("osSpGetStatus_Mario");
 
-	gGPR[REG_v0]._u32_0 = IsSpDeviceBusy();
+	gGPR[REG_v0]._u32_0 = SpGetStatus();
+
 	return PATCH_RET_JR_RA;
 }
 
@@ -112,7 +112,8 @@ u32 Patch___osSpGetStatus_Rugrats()
 {
 TEST_DISABLE_SP_FUNCS
 	
-	gGPR[REG_v0]._u32_0 = IsSpDeviceBusy();
+	gGPR[REG_v0]._u32_0 = SpGetStatus();
+
 	return PATCH_RET_JR_RA;
 }
 
@@ -124,8 +125,8 @@ u32 Patch___osSpSetStatus_Mario()
 TEST_DISABLE_SP_FUNCS
 	u32 status = gGPR[REG_a0]._u32_0;
 
-	Memory_SP_SetRegisterBits(SP_STATUS_REG, status);
-	//Write32Bits(0xa4040010, status);
+	Memory_SP_SetRegisterBits( SP_STATUS_REG, status );
+
 	return PATCH_RET_JR_RA;
 }
 
@@ -137,8 +138,8 @@ u32 Patch___osSpSetStatus_Rugrats()
 TEST_DISABLE_SP_FUNCS
 	u32 status = gGPR[REG_a0]._u32_0;
 
-	Memory_SP_SetRegisterBits(SP_STATUS_REG, status);
-	//Write32Bits(0xa4040010, status);
+	Memory_SP_SetRegisterBits( SP_STATUS_REG, status );
+
 	return PATCH_RET_JR_RA;
 }
 
@@ -192,7 +193,7 @@ TEST_DISABLE_SP_FUNCS
 
 	// Translate virtual addresses to physical...
 	memcpy(pDstTask, pSrcTask, sizeof(OSTask));
-
+	/*
 	if (pDstTask->t.ucode != 0)
 		pDstTask->t.ucode = (u64 *)ConvertToPhysics((u32)pDstTask->t.ucode);
 
@@ -207,13 +208,15 @@ TEST_DISABLE_SP_FUNCS
 	
 	if (pDstTask->t.output_buff_size != 0)
 		pDstTask->t.output_buff_size = (u64 *)ConvertToPhysics((u32)pDstTask->t.output_buff_size);
-	
+	*/
+
+	// Only data_ptr seems to be required, otherwise our tasks ex video will fail..
 	if (pDstTask->t.data_ptr != 0)
 		pDstTask->t.data_ptr = (u64 *)ConvertToPhysics((u32)pDstTask->t.data_ptr);
-	
+	/*
 	if (pDstTask->t.yield_data_ptr != 0)
 		pDstTask->t.yield_data_ptr = (u64 *)ConvertToPhysics((u32)pDstTask->t.yield_data_ptr);
-	
+	*/
 	// If yielded, use the yield data info
 	if (pSrcTask->t.flags & OS_TASK_YIELDED)
 	{
@@ -226,7 +229,6 @@ TEST_DISABLE_SP_FUNCS
 	// Writeback the DCache for pDstTask
 	Memory_SP_SetRegister(SP_STATUS_REG, SP_CLR_SIG2|SP_CLR_SIG1|SP_CLR_SIG0|SP_SET_INTR_BREAK);
 
-
 	// Set the PC
 	gRSPState.CurrentPC = 0x04001000;
 
@@ -235,7 +237,6 @@ TEST_DISABLE_SP_FUNCS
 	Memory_SP_SetRegister(SP_DRAM_ADDR_REG, VAR_ADDRESS(osSpTaskLoadTempTask));
 
 	Write32Bits(PHYS_TO_K1(SP_RD_LEN_REG), 64 - 1);
-
 
 	//Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SP);
 	//R4300_Interrupt_UpdateCause3();
@@ -265,8 +266,8 @@ TEST_DISABLE_SP_FUNCS
 u32 Patch_osSpTaskStartGo()
 {
 TEST_DISABLE_SP_FUNCS
-	// Device busy? 
-	if (IsSpDeviceBusy())
+	
+	if (IsSpDeviceBusy())	// Device busy? 
 	{
 		// LOOP Until device not busy -
 		// we can't do this, so we just exit. What we could to is
@@ -284,7 +285,16 @@ TEST_DISABLE_SP_FUNCS
 	//RSP_HLE_ProcessTask();
 
 	return PATCH_RET_JR_RA;
+}
 
+//*****************************************************************************
+//
+//*****************************************************************************
+// ToDo Implement me
+u32 Patch___osSpTaskLoadInitTask()
+{
+TEST_DISABLE_SP_FUNCS
+	return PATCH_RET_NOT_PROCESSED;
 }
 
 //*****************************************************************************
@@ -293,10 +303,11 @@ TEST_DISABLE_SP_FUNCS
 //
 // This is really weird, In Mario 64 osSpTaskYield_Mario / osSpTaskYielded most of the time isn't patched..
 // There seems to be a bug in our scanning procedure? Maybe do two phase to be sure we find all the symbols / variables.
-//
+// Actually seems when osSpTaskLoad is patched these aren't ever called?
 
 u32 Patch_osSpTaskYield_Mario()
 {
+TEST_DISABLE_SP_FUNCS
 	DAEDALUS_ERROR("osSpTaskYield_Mario");
 	gGPR[REG_v0]._s64 = 0;
 
@@ -308,6 +319,7 @@ u32 Patch_osSpTaskYield_Mario()
 //*****************************************************************************
 u32 Patch_osSpTaskYield_Rugrats()
 {
+TEST_DISABLE_SP_FUNCS
 	DAEDALUS_ERROR("osSpTaskYield_Rugrats");
 	gGPR[REG_v0]._s64 = 0;
 
@@ -319,6 +331,7 @@ u32 Patch_osSpTaskYield_Rugrats()
 //*****************************************************************************
 u32 Patch_osSpTaskYielded()
 {
+TEST_DISABLE_SP_FUNCS
 	DAEDALUS_ERROR("SpTaskYielded");
 	gGPR[REG_v0]._s64 = 1; // OS_TASK_YIELDED
 

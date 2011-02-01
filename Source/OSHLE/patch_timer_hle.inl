@@ -106,19 +106,27 @@ u32 Patch___osTimerServicesInit_Mario()
 {
 TEST_DISABLE_TIMER_FUNCS
 
-	// osTimerServicesInit causes KI not to boot. 
-	if(g_ROM.GameHacks == KILLER_INSTINCT)
-	{
-		return PATCH_RET_NOT_PROCESSED0(__osTimerServicesInit);
-	}
+	u32 TimeHi		= VAR_ADDRESS(osSystemTimeHi);
+	u32 TimeLo		= VAR_ADDRESS(osSystemTimeLo);
+	u32 SystemCount = VAR_ADDRESS(osSystemCount);
+	u32 FrameCount  = VAR_ADDRESS(osFrameCount);
 
+	// In some games we can't obtain TimeLo, which results in a bsod, ex Killer Instinct
+	// Try to calculate TimeLo and writeback the result obtained
+	//
+	if(TimeLo == 0)
+	{
+		DBGConsole_Msg( 0, "TimeLo NULL, trying to caluclate.." );
+		TimeLo = SystemCount-(FrameCount-SystemCount);
+	}
+	
 	DBGConsole_Msg(0, "Initialising Timer Services");
 
-	Write32Bits(VAR_ADDRESS(osSystemTimeLo), 0);
-	Write32Bits(VAR_ADDRESS(osSystemTimeHi), 0);
+	Write32Bits(TimeHi, 0);
+	Write32Bits(TimeLo, 0);
 
-	Write32Bits(VAR_ADDRESS(osSystemCount), 0);
-	Write32Bits(VAR_ADDRESS(osFrameCount), 0);
+	Write32Bits(SystemCount, 0);
+	Write32Bits(FrameCount, 0);
 
 	u32 timer = Read32Bits(VAR_ADDRESS(osTopTimer));
 

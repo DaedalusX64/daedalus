@@ -156,17 +156,12 @@ TEST_DISABLE_EEPROM_FUNCS
 u32 Patch___osContGetInitData()
 {
 TEST_DISABLE_EEPROM_FUNCS
-	u32 data = gGPR[REG_a0]._u32_0;
+	//u32 data = gGPR[REG_a0]._u32_0;
 	//u32 pad = gGPR[REG_a1]._u32_0;
 
-	DBGConsole_Msg(0, "osContGetInitData (0x%08x)", data);
 	//OSContPad	   cont[ 4 ];
-
-	// I don't know why SSV crashes, bail out in the meanwhile :(
-	if( g_ROM.GameHacks == SSV ) 
-	{
-		return PATCH_RET_NOT_PROCESSED0(__osContGetInitData);
-	}
+	//gGPR[REG_v0]._s64 = (s64)(s32)pad;
+	//OSContPad	   cont[ 4 ];
 
 	// Get stick data and button settings to the location pointed to by the pad argument.
 	//
@@ -175,10 +170,14 @@ TEST_DISABLE_EEPROM_FUNCS
 
 	// Seems anything in the range of 0x0BBBFDFF is fine for games, for pad argument
 	// Let's cheat and just write back that value
-	Write32Bits(data, 0x0BBBFD98);
+	// Several games were crashing due specifying a strange data
+	// Let's cheat even futher and just write back according the data gathered from Mario
+	// Errrg Aerogauge stilll dodgy, reports control not found... is best to disable this until we can implement it correctly
+	//
+	Write32Bits(0x8033b078, 0x0BBBFD98);
 
 	// CONT_A | CONT_B | CONT_G | CONT_START | CONT_UP | CONT_DOWN | CONT_LEFT | CONT_RIGHT | CONT_L | CONT_R |CONT_E |CONT_D |CONT_C | CONT_F
-	//gGPR[REG_v0]._s64 = 0; // Not needed?
+	//gGPR[REG_v0]._s64 = 0;
 
 	return PATCH_RET_JR_RA;
 }
