@@ -105,7 +105,7 @@ u32 gNumOfOSFunctions;
 #define PATCH_RET_ERET RET_JR_ERET()
 
 // Increase this number every time we changed the symbol table
-static const u32 MAGIC_HEADER = 0x80000119;
+static const u32 MAGIC_HEADER = 0x80000120;
 
 bool gPatchesInstalled = false;
 
@@ -1135,23 +1135,6 @@ TEST_DISABLE_FUNCS
 	u32 address = gGPR[REG_a0]._u32_0;
 	DBGConsole_Msg(0, "__osContAddressCrc(0x%08x)", address);
 #endif
-	return PATCH_RET_NOT_PROCESSED;
-}
-
-
-
-u32 Patch_osMapTLBRdb()
-{
-	return PATCH_RET_NOT_PROCESSED;
-}
-
-u32 Patch_osUnmapTLBAll_Mario()
-{
-	return PATCH_RET_NOT_PROCESSED;
-}
-// Identical to mario, different loop structure
-u32 Patch_osUnmapTLBAll_Rugrats()
-{
 	return PATCH_RET_NOT_PROCESSED;
 }
 
