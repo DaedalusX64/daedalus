@@ -978,7 +978,8 @@ void DLParser_RDPTileSync( MicroCodeCommand command )	{ /*DL_PF("TileSync: (Igno
 void DLParser_RDPFullSync( MicroCodeCommand command )
 { 
 	// We now do this regardless
-	FinishRDPJob();
+	// This is done after DLIST processing anyway
+	//FinishRDPJob();
 
 	/*DL_PF("FullSync: (Generating Interrupt)");*/
 }

@@ -538,6 +538,22 @@ static void BlendMode_0x0015fec4f0fff83cLL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
 }
 
+//Paper Mario Lava Room - Mario & His Partner
+//case 0x00117e80f5fff438LL:
+//aRGB0: (Texel0       - 0           ) * Texel1       + 0           
+//aA0  : (0            - 0           ) * 0            + Texel1      
+//aRGB1: (Shade        - Env         ) * Combined     + Combined    
+//aA1  : (0            - 0           ) * 0            + Combined    
+void BlendMode_0x00117e80f5fff438LL (BLEND_MODE_ARGS)
+{
+	//Needs T1 for full fix!!!!!!! 
+	//Makes Mario & his partner appear as black boxes.( This game has this same problem everywhere.)
+	//Seems like a core issue to me -Salvy
+
+	details.ColourAdjuster.SetRGBA( details.EnvColour );
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+}
+
 // Paper Mario - Intro Water
 // case 0x0020a203ff13ff7fLL:
 //aRGB0: (Texel1       - 0           ) * Texel0       + 0
@@ -989,10 +1005,10 @@ static void BlendMode_0x00276c6035d8ed76LL (BLEND_MODE_ARGS)
 //aA0  : (Texel0       - 1           ) * 1            + Texel1
 //aRGB1: (Primitive    - Env         ) * Combined     + Env
 //aA1  : (0            - 0           ) * 0            + Combined
-static void BlendMode_0x00171c6035fd6578LL (BLEND_MODE_ARGS)
-{
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);	
-}
+//static void BlendMode_0x00171c6035fd6578LL (BLEND_MODE_ARGS)
+//{
+//	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);	
+//}
 
 // OOT - Gold Skulltula Eyes
 //case 0x0030fe045f0ef3ffLL:
@@ -1244,8 +1260,8 @@ static void BlendMode_0x00262a603510937fLL (BLEND_MODE_ARGS)
 	details.ColourAdjuster.SetRGB(details.EnvColour);
 	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
 }
-// MM - Sky
 
+// MM - Sky
 //	case 0x0025266015fc9378LL:
 //aRGB0: (Texel1       - Texel0      ) * Prim_Alpha   + Texel0      
 //aA0  : (Texel1       - Texel0      ) * Primitive    + Texel0      
@@ -1253,7 +1269,8 @@ static void BlendMode_0x00262a603510937fLL (BLEND_MODE_ARGS)
 //aA1  : (0            - 0           ) * 0            + Combined    
 static void BlendMode_0x0025266015fc9378LL (BLEND_MODE_ARGS)
 {
-	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
+	details.ColourAdjuster.SetRGB( details.PrimColour.ReplicateAlpha() );	
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
 }
 
 
@@ -1298,6 +1315,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			
 #define BLEND_MODE( x )		case (x):	return BlendMode_##x;
 			BLEND_MODE(0x001114a7f3fffef8LL); // Sin and Punishment - Sky <----- Needs work
+			BLEND_MODE(0x00117e80f5fff438LL); // Paper Mario block texture partial fix
 			BLEND_MODE(0x0011fe2344fe7339LL); // Mortal Kombat 4 - Text
 			BLEND_MODE(0x0011fe2355fefd7eLL); // Mortal Kombat 4 -Character Selection screen background / Tower
 			BLEND_MODE(0x00121603ff5bfff8LL); // Zelda Paths
@@ -1319,6 +1337,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0020ac60350c937fLL); // Zelda Chest Opening Light
 			BLEND_MODE(0x0020a203ff13ff7fLL); // Paper Mario -Intro Water
 			BLEND_MODE(0x0022ffff1ffcfa38LL); // Wave racer - sky
+			BLEND_MODE(0x0025266015fc9378LL); // MM Sky
 			BLEND_MODE(0x002527ff1ffc9238LL); // OOT Sky
 			BLEND_MODE(0x00262a041f0c93ffLL); // OOT Fog in Deku Tree
 			BLEND_MODE(0x00262a603510937fLL); // OOT - Song of Time
