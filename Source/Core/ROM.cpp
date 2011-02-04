@@ -474,6 +474,10 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x344b: g_ROM.GameHacks = KIRBY64;				break;
 	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
 	case 0x5144: g_ROM.GameHacks = DONALD;				break;
+	case 0x3358:	//GEX3
+	case 0x3258:	//GEX64
+		g_ROM.GameHacks = GEX_GECKO;
+		break;
 	case 0x535a:
 		gTLUTalt_mode = true;
 		g_ROM.GameHacks = ZELDA_MM;

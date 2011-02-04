@@ -120,7 +120,8 @@ enum EGameHacks
 	TARZAN,
 	DONALD,
 	PMARIO,
-	AEROGAUGE
+	AEROGAUGE,
+	GEX_GECKO
 };
 
 //*****************************************************************************

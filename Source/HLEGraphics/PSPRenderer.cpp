@@ -2636,7 +2636,7 @@ void PSPRenderer::SetProjection(const Matrix4x4 & mat, bool bPush, bool bReplace
 			//it renders at Z cordinate = 0.0f that gets clipped away.
 			//so we translate them a bit along Z to make them stick :) //Corn
 			//
-			if((g_ROM.GameHacks == ZELDA_OOT) || (g_ROM.GameHacks == ZELDA_MM))
+			if((g_ROM.GameHacks == ZELDA_OOT) | (g_ROM.GameHacks == ZELDA_MM))
 				mProjectionStack[mProjectionTop].mRaw[14] += 0.4f;
 		}
 		else
@@ -2693,6 +2693,8 @@ void PSPRenderer::SetWorldView(const Matrix4x4 & mat, bool bPush, bool bReplace)
 		{
 			// Load ModelView matrix
 			mModelViewStack[mModelViewTop] = mat;
+			//Hack to make GEX games work, need to multiply all elements with 2.0 //Corn
+			if( g_ROM.GameHacks == GEX_GECKO ) for(u32 i=0;i<16;i++) mModelViewStack[mModelViewTop].mRaw[i] *= 2.0f;
 		}
 		else			// Multiply ModelView matrix
 		{
