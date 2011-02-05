@@ -156,7 +156,7 @@ extern void		PrintMux( FILE * fh, u64 mux );
 //***************************************************************************
 //*General blender used for testing //Corn
 //***************************************************************************
-u32 gTexInstall=1;
+u32 gTexInstall=1;	//defaults to texture on
 u32	gSetRGB=0;
 u32	gSetA=0;
 u32	gSetRGBA=0;
@@ -167,43 +167,43 @@ u32	gsceENV=0;
 
 u32	gTXTFUNC=0;	//defaults to MODULATE_RGB
 
-u32	gNumCyc=3;
+u32	gNumCyc=3;	//defaults All cycles
 
-u32	gForceRGB=6;	//defaults to magenta
+u32	gForceRGB=0;	//defaults to OFF
 
 const char *gForceColor[8] =
 {
-	"OFF",
-	"White",
-	"Black",
-	"Red",
-	"Green",
-	"Blue",
-	"Magenta",
-	"Gold"
+	"( OFF )",
+	"( c32::White )",
+	"( c32::Black )",
+	"( c32::Red )",
+	"( c32::Green )",
+	"( c32::Blue )",
+	"( c32::Magenta )",
+	"( c32::Gold )"
 };
 
 const char *gPSPtxtFunc[10] =
 {
-	"Modulate RGB",
-	"Modulate RGBA",
-	"Blend RGB",
-	"Blend RGBA",
-	"Add RGB",
-	"Add RGBA",
-	"Replace RGB",
-	"Replace RGBA",
-	"Decal RGB",
-	"Decal RGBA"
+	"( GU_TFX_MODULATE, GU_TCC_RGB )",
+	"( GU_TFX_MODULATE, GU_TCC_RGBA )",
+	"( GU_TFX_BLEND, GU_TCC_RGB )",
+	"( GU_TFX_BLEND, GU_TCC_RGBA )",
+	"( GU_TFX_ADD, GU_TCC_RGB )",
+	"( GU_TFX_ADD, GU_TCC_RGBA )",
+	"( GU_TFX_REPLACE, GU_TCC_RGB )",
+	"( GU_TFX_REPLACE, GU_TCC_RGBA )",
+	"( GU_TFX_DECAL, GU_TCC_RGB )",
+	"( GU_TFX_DECAL, GU_TCC_RGBA )"
 };
 
 const char *gCAdj[5] =
 {
-	"OFF",
-	"Prim Color",
-	"Prim Color Replicate Alpha",
-	"Env Color",
-	"Env Color Replicate Alpha",
+	"( OFF )",
+	"( details.PrimColour )",
+	"( details.PrimColour.ReplicateAlpha() )",
+	"( details.EnvColour )",
+	"( details.EnvColour.ReplicateAlpha() )",
 };
 
 #define BLEND_MODE_MAKER \

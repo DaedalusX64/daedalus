@@ -198,7 +198,16 @@ static void BlendMode_0x002698041f14ffffLL( BLEND_MODE_ARGS )
 /*
  //#C
  */
-
+//Conker mouth/tail
+//case 0x00fffe8ff517f8ffLL:
+//aRGB0: (0            - 0           ) * 0            + 0
+//aA0  : (0            - 0           ) * 0            + Shade
+//aRGB1: (Shade        - Env         ) * K5           + Primitiv
+//aA1  : (Combined     - 0           ) * Env          + 0
+static void BlendMode_0x00fffe8ff517f8ffLL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+}
 
 /*
  //#D
@@ -242,6 +251,7 @@ static void BlendMode_0x0030b26144664924LL( BLEND_MODE_ARGS )
 //aA1  : (0            - 0           ) * 0            + Combined
 static void BlendMode_0x00522bfffffffe38LL( BLEND_MODE_ARGS )
 {
+	details.ColourAdjuster.ModulateA( details.PrimColour );
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
@@ -1294,6 +1304,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 	{	
 #define BLEND_MODE( x )		case (x):	return BlendMode_##x;
 			BLEND_MODE(0x00121824ff33ffffLL); // Tarzan
+			BLEND_MODE(0x00522bfffffffe38LL); // Donald Duck rain
 			BLEND_MODE(0x00fffffffffcfa7dLL); // Mario 64 Stars
 
 	#undef BLEND_MODE 
@@ -1380,7 +1391,6 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x003432685566ff7fLL); // Ogre Battle - Intro Dust
 			BLEND_MODE(0x0040fe8155fef97cLL); // GoldenEye Sky
 			BLEND_MODE(0x0040fe8155fefd7eLL); // Kirby Far Terrain
-			BLEND_MODE(0x00522bfffffffe38LL); // Donald Duck rain
 			BLEND_MODE(0x00541aa83335feffLL); // Sin and Punishment Grass
 			BLEND_MODE(0x00547ea833fdf2f9LL); // Sin and Punishment - Ground
 			BLEND_MODE(0x00551aaa1134fe7fLL); // Sin and Punishment - Particles and Explosions
@@ -1391,6 +1401,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00671603fffcff78LL); // DOOM64 weapons
 			BLEND_MODE(0x00772c60f5fce378LL); // Zelda Poe
 			BLEND_MODE(0x00ff95ffff0dfe3fLL); // Animal Crossing Player Shadow
+			BLEND_MODE(0x00fffe8ff517f8ffLL); // Conker Mouth/Tail
 			default:
 				return BlendMode_Generic;	  // Basic generic blenmode
 			

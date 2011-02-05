@@ -329,15 +329,15 @@ CBlendDebugMenuOption::CBlendDebugMenuOption()
 
 void CBlendDebugMenuOption::Display() const
 {
-	if( mSel == 0 && modify ) gTexInstall = mIdx & 1;
-	if( mSel == 1 && modify ) gSetRGB = mIdx % 5;
-	if( mSel == 2 && modify ) gSetA = mIdx % 5;
-	if( mSel == 3 && modify ) gSetRGBA = mIdx % 5;
-	if( mSel == 4 && modify ) gModA = mIdx % 5;
-	if( mSel == 5 && modify ) gAOpaque = mIdx & 1;
-	if( mSel == 6 && modify ) gsceENV = mIdx % 3;
-	if( mSel == 7 && modify ) gTXTFUNC = mIdx % 10;
-	if( mSel == 8 && modify ) gNumCyc = (mIdx % 3) + 1;
+	if( mSel == 0 && modify ) gSetRGB = mIdx % 5;
+	if( mSel == 1 && modify ) gSetA = mIdx % 5;
+	if( mSel == 2 && modify ) gSetRGBA = mIdx % 5;
+	if( mSel == 3 && modify ) gModA = mIdx % 5;
+	if( mSel == 4 && modify ) gAOpaque = mIdx & 1;
+	if( mSel == 5 && modify ) gsceENV = mIdx % 3;
+	if( mSel == 6 && modify ) gTXTFUNC = mIdx % 10;
+	if( mSel == 7 && modify ) gNumCyc = (mIdx % 3) + 1;
+	if( mSel == 8 && modify ) gTexInstall = mIdx & 1;
 	if( mSel == 9 && modify ) gForceRGB = mIdx % 8;
 	
 
@@ -346,25 +346,23 @@ void CBlendDebugMenuOption::Display() const
 	printf( "   Use X to modify\n" );
 	printf( "   Use up/down to choose & left/right to adjust\n\n\n" );
 
-	printf( " Blending Options (Color Adjuster)\n" );
-	printf( "   %s%cTexture Enabled: %s\n",(mSel==0 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==0 ? '*' : ' ', gTexInstall ? "ON" : "OFF");
-	printf( "   %s%cSetRGB: %s\n",		  (mSel==1 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==1 ? '*' : ' ', gCAdj[gSetRGB]);
-	printf( "   %s%cSetA: %s\n",		  (mSel==2 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==2 ? '*' : ' ', gCAdj[gSetA]);
-	printf( "   %s%cSetRGBA: %s\n",		  (mSel==3 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==3 ? '*' : ' ', gCAdj[gSetRGBA]);
-	printf( "   %s%cModifyA: %s\n",		  (mSel==4 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==4 ? '*' : ' ', gCAdj[gModA]);
-	printf( "   %s%cSetAOpaque: %s\n",	  (mSel==5 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==5 ? '*' : ' ', gAOpaque ? "ON" : "OFF");
+	printf( " Blending Options\n" );
+	printf( "   %s%cdetails.ColourAdjuster.SetRGB%s\n",		  (mSel==0 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==0 ? '*' : ' ', gCAdj[gSetRGB]);
+	printf( "   %s%cdetails.ColourAdjuster.SetA%s\n",		  (mSel==1 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==1 ? '*' : ' ', gCAdj[gSetA]);
+	printf( "   %s%cdetails.ColourAdjuster.SetRGBA%s\n",		  (mSel==2 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==2 ? '*' : ' ', gCAdj[gSetRGBA]);
+	printf( "   %s%cdetails.ColourAdjuster.ModulateA%s\n",		(mSel==3 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==3 ? '*' : ' ', gCAdj[gModA]);
+	printf( "   %s%cdetails.ColourAdjuster.SetAOpaque()%s\n",	  (mSel==4 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==4 ? '*' : ' ', gAOpaque ? " ON" : " OFF");
 	printf( "%s\n", TERMINAL_WHITE );
 	printf( " Environment Color in PSP SDK\n" );
-	printf( "   %s%cTexEnvColor: %s\n",   (mSel==6 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==6 ? '*' : ' ', gsceENV ? ((gsceENV==1) ? "EnvColor" : "PrimColor") : "OFF");
+	printf( "   %s%csceGuTexEnvColor%s\n",   (mSel==5 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==5 ? '*' : ' ', gsceENV ? ((gsceENV==1) ? "( details.EnvColour.GetColour() )" : "( details.PrimColour.GetColour() )") : "( OFF )");
 	printf( "%s\n", TERMINAL_WHITE );
 	printf( " PSP Texture Blending Function\n" );
-	printf( "   %s%c%s\n",				(mSel==7 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==7 ? '*' : ' ', gPSPtxtFunc[gTXTFUNC]);
+	printf( "   %s%csceGuTexFunc%s\n",				(mSel==6 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==6 ? '*' : ' ', gPSPtxtFunc[gTXTFUNC]);
 	printf( "%s\n", TERMINAL_WHITE );
-	printf( " Use Cycle(s)\n" );
-	printf( "   %s%c%s\n",				(mSel==8 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==8 ? '*' : ' ', gNumCyc==3 ? "ALL" :((gNumCyc==1) ? "1" : "2"));
-	printf( "%s\n", TERMINAL_WHITE );
-	printf( " Force RGB color\n" );
-	printf( "   %s%c%s\n",				(mSel==9 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==9 ? '*' : ' ', gForceColor[gForceRGB]);
+	printf( " Other Options\n" );
+	printf( "   %s%cCycle: %s\n",				(mSel==7 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==7 ? '*' : ' ', gNumCyc==3 ? "ALL" :((gNumCyc==1) ? "1" : "2"));
+	printf( "   %s%cTexture Enabled: %s\n",(mSel==8 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==8 ? '*' : ' ', gTexInstall ? "ON" : "OFF");
+	printf( "   %s%cdetails.ColourAdjuster.SetRGB%s\n",		(mSel==9 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==9 ? '*' : ' ', gForceColor[gForceRGB]);
 	printf( "%s\n", TERMINAL_WHITE );
 }
 
