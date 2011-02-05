@@ -908,14 +908,14 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	switch( gGlobalPreferences.ForceTextureFilter )
 	{
 		case FORCE_DEFAULT_FILTER:
-			switch(gRDPOtherMode.text_filt)
-			{
-				case 2:			//G_TF_BILERP:	// 2
-					sceGuTexFilter(GU_LINEAR,GU_LINEAR);
-					break;
-				default:		//G_TF_POINT:	// 0
-					sceGuTexFilter(GU_NEAREST,GU_NEAREST);
-					break;
+			if( gRDPOtherMode.text_filt == 0 )
+			{	//G_TF_POINT:	// 0
+				sceGuTexFilter(GU_NEAREST,GU_NEAREST);
+			}
+			else
+			{	//G_TF_AVERAGE:	// 1	We do Bilinear anyway here //Corn
+				//G_TF_BILERP:	// 2
+				sceGuTexFilter(GU_LINEAR,GU_LINEAR);
 			}
 			break;
 		case FORCE_POINT_FILTER:
@@ -2692,9 +2692,9 @@ void PSPRenderer::SetWorldView(const Matrix4x4 & mat, bool bPush, bool bReplace)
 		if (bReplace)
 		{
 			// Load ModelView matrix
-			mModelViewStack[mModelViewTop] = mat;
 			//Hack to make GEX games work, need to multiply all elements with 2.0 //Corn
-			if( g_ROM.GameHacks == GEX_GECKO ) for(u32 i=0;i<16;i++) mModelViewStack[mModelViewTop].mRaw[i] *= 2.0f;
+			if( g_ROM.GameHacks == GEX_GECKO ) for(u32 i=0;i<16;i++) mModelViewStack[mModelViewTop].mRaw[i] = 2.0f * mat.mRaw[i];
+			else mModelViewStack[mModelViewTop] = mat;
 		}
 		else			// Multiply ModelView matrix
 		{
