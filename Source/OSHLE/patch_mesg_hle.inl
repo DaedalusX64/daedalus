@@ -111,10 +111,10 @@ TEST_DISABLE_MESG_FUNCS
 
 	// osRecvMesg brakes OOT's in-game menu
 	// ToDo : Fix Me
-	if( g_ROM.GameHacks == ZELDA_OOT ) 
+	/*if( g_ROM.GameHacks == ZELDA_OOT ) 
 	{
 		return PATCH_RET_NOT_PROCESSED0(osRecvMesg);
-	}
+	}*/
 
 	u32 queue     = gGPR[REG_a0]._u32_0;
 	u32 msg       = gGPR[REG_a1]._u32_0;

@@ -125,7 +125,8 @@ u32 Patch___osSpSetStatus_Mario()
 TEST_DISABLE_SP_FUNCS
 	u32 status = gGPR[REG_a0]._u32_0;
 
-	Memory_SP_SetRegisterBits( SP_STATUS_REG, status );
+	//Memory_SP_SetRegisterBits( SP_STATUS_REG, status ); // Breaks Gex 64 and several games
+	Write32Bits(PHYS_TO_K1( SP_STATUS_REG ), status );
 
 	return PATCH_RET_JR_RA;
 }
@@ -138,7 +139,8 @@ u32 Patch___osSpSetStatus_Rugrats()
 TEST_DISABLE_SP_FUNCS
 	u32 status = gGPR[REG_a0]._u32_0;
 
-	Memory_SP_SetRegisterBits( SP_STATUS_REG, status );
+	//Memory_SP_SetRegisterBits( SP_STATUS_REG, status );
+	Write32Bits(PHYS_TO_K1( SP_STATUS_REG ), status );
 
 	return PATCH_RET_JR_RA;
 }
