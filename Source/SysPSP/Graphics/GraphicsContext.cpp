@@ -351,6 +351,8 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 
 	SetDebugScreenTarget( TS_BACKBUFFER );	//Used to print FPS and other stats
 
+	// Should we skip this when we are in the GUI? 
+	//
 	if(gDoubleDisplayEnabled) 
 	{
 		sceGuStart(GU_DIRECT,callList);

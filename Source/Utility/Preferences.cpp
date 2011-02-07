@@ -242,7 +242,7 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		}
 		if( section->FindProperty( "DoubleDisplayEnabled", &property ) )
 		{
-			preferences.DoubleDisplayEnabled = property->GetBooleanValue( false );
+			preferences.DoubleDisplayEnabled = property->GetBooleanValue( true );
 		}
 		if( section->FindProperty( "SimulateDoubleDisabled", &property ) )
 		{
@@ -524,7 +524,7 @@ void	SRomPreferences::Apply() const
 	gDynarecEnabled		= g_ROM.settings.DynarecSupported && DynarecEnabled;
 	gDynarecStackOptimisation	= g_ROM.settings.DynarecStackOptimisation && DynarecStackOptimisation;
 	gDynarecLoopOptimisation	= g_ROM.settings.DynarecLoopOptimisation && DynarecLoopOptimisation;
-	gDoubleDisplayEnabled = g_ROM.settings.DoubleDisplayEnabled || DoubleDisplayEnabled;
+	gDoubleDisplayEnabled = g_ROM.settings.DoubleDisplayEnabled && DoubleDisplayEnabled; // I don't know why DD won't disabled if we set ||
 	gSimulateDoubleDisabled = g_ROM.settings.SimulateDoubleDisabled || SimulateDoubleDisabled;
 	gCleanSceneEnabled = g_ROM.settings.CleanSceneEnabled || CleanSceneEnabled;
 	gCheckN64FPUsageDisable = g_ROM.settings.CheckN64FPUsageDisable || CheckN64FPUsageDisable;

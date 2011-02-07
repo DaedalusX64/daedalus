@@ -432,7 +432,7 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	if( !settings.DynarecSupported )			fprintf(fh, "DynarecSupported=no\n");
 	if( !settings.DynarecStackOptimisation )	fprintf(fh, "DynarecStackOptimisation=no\n");
 	if( !settings.DynarecLoopOptimisation )		fprintf(fh, "DynarecLoopOptimisation=no\n");
-	if( settings.DoubleDisplayEnabled )			fprintf(fh, "DoubleDisplayEnabled=no\n");
+	if( !settings.DoubleDisplayEnabled )		fprintf(fh, "DoubleDisplayEnabled=no\n");
 	if( settings.SimulateDoubleDisabled )		fprintf(fh, "SimulateDoubleDisabled=yes\n");
 	if( settings.CleanSceneEnabled )			fprintf(fh, "CleanSceneEnabled=yes\n");
 	if( settings.CheckN64FPUsageDisable )		fprintf(fh, "CheckN64FPUsageDisable=yes\n"); 	
