@@ -64,15 +64,14 @@ const char *gGameHackNames[ MAX_HACK_NAMES ] =
 	"Flat Shade Disabled Hack",
 	"Rumble Pak Disabled Hack",
 	"1/2 ZBuffer Hack",
-	"Depth Hack",
 	"Width Hack"
-	"osTimer Disabled Hack",
 	"S2DEX Palette Hack",
 	"Tarzan Misc Hacks",
 	"Force Mtx Donald Duck Hack",
-	"Force Mtx Rayman",
-	"Force Mtx StarWars Racer",
-	"Force Mtx Top Rally"
+	"Disable LW MemAcces Optimisation",
+	"BranchZ Hack",
+	"Gex Depth Hack",
+	"Disable osRestoreInt"
 };
 #endif
 
@@ -455,8 +454,8 @@ void SpecificGameHacks( const ROMHeader & id )
 	printf("ROM ID:%04X\n", id.CartID);
 
 	g_ROM.GameHacks = NO_GAME_HACK;	//Default to no game hacks
-	gTLUTalt_mode = false;	//Alternate Texture mode
-	gForceZcmp = false;	//Force Z compare
+	gTLUTalt_mode	= false;		//Alternate Texture mode
+	gForceZcmp		= false;		//Force Z compare
 	
 	switch( id.CartID )
 	{
@@ -470,7 +469,6 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x3954: g_ROM.GameHacks = TIGERS_HONEY_HUNT;	break;
 	case 0x5443: g_ROM.GameHacks = CHAMELEON_TWIST;		break;
 	case 0x524c: g_ROM.GameHacks = LOAD_RUNNER;			break;
-	case 0x494b: g_ROM.GameHacks = KILLER_INSTINCT;		break;
 	case 0x344b: g_ROM.GameHacks = KIRBY64;				break;
 	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
 	case 0x5144: g_ROM.GameHacks = DONALD;				break;
@@ -482,22 +480,23 @@ void SpecificGameHacks( const ROMHeader & id )
 		gTLUTalt_mode = true;
 		g_ROM.GameHacks = ZELDA_MM;
 		break;
-	case 0x5a46:	//FZERO
 	case 0x5a52:	//RidgeRacer 64
+		gForceZcmp = true;
+		g_ROM.GameHacks = RIDGE_RACER;
+		break;
+	case 0x5a46:	//FZERO
 		gForceZcmp = true;
 		break;
 	case 0x5547:	//Sin and punishment	
 	case 0x4641:	//Animal crossing	
 	case 0x4446:	//Flying Dragon	
-		gTLUTalt_mode = true;
-		break;
 	case 0x5653:	//SSV
-		g_ROM.GameHacks = SSV;
 		gTLUTalt_mode = true;
 		break;
-	default:
+	// No default case needed, NO_GAME_HACK already set default
+	/*default:
 		g_ROM.GameHacks = NO_GAME_HACK;
-		break;
+		break;**/
 	}
 }
 

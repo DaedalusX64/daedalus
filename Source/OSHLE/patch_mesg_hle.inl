@@ -225,12 +225,13 @@ u32 Patch_osSendMesg()
 {
 TEST_DISABLE_MESG_FUNCS
 
+	// Zelda Hack handled now in Patch_RecurseAndFind
 	// osSendMesg brakes OOT's in-game menu
 	// ToDo : Fix Me
-	if( g_ROM.GameHacks == ZELDA_OOT )
+	/*if( g_ROM.GameHacks == ZELDA_OOT )
 	{
 		return PATCH_RET_NOT_PROCESSED0(osSendMesg);
-	}
+	}*/
 
 	u32 queue     = gGPR[REG_a0]._u32_0;
 	u32 msg       = gGPR[REG_a1]._u32_0;

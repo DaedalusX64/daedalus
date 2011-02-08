@@ -1225,7 +1225,7 @@ static void BlendMode_0x00271c6035fcf378LL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
-//Zelda Bottle Detail
+//Zelda Bottle Detail / Ridge Racer Fences
 //case 0x0030fe045ffef3f8LL:
 //aRGB0: (Primitive    - Env         ) * Texel0       + Env         
 //aA0  : (0            - 0           ) * 0            + Texel0      
@@ -1234,9 +1234,10 @@ static void BlendMode_0x00271c6035fcf378LL (BLEND_MODE_ARGS)
 static void BlendMode_0x0030fe045ffef3f8LL (BLEND_MODE_ARGS)
 {
 	details.ColourAdjuster.SetRGB(details.EnvColour);
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
-}
 
+	// WE need BLEND for RR's fences, otherwise they appear red..
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA); 
+}
 
 //Zelda Cukuaan Egg
 //case 0x0030ec6155daed76LL:
@@ -1399,7 +1400,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0030ec045fdaedf6LL); // Zelda Arrows in Shop
 			BLEND_MODE(0x0030fe045f0ef3ffLL); // Gold Skulltula Eyes
 			BLEND_MODE(0x0030fe045ffef7f8LL); // MRC - Car Windows
-			BLEND_MODE(0x0030fe045ffef3f8LL); // Zelda Bottle Decal
+			BLEND_MODE(0x0030fe045ffef3f8LL); // Zelda Bottle Decal / Ridge Racer Fences
 			BLEND_MODE(0x0030fe045ffefbf8LL); // FZero main ship
 			BLEND_MODE(0x0030fe045ffefdf8LL); // Kirby Ground
 			BLEND_MODE(0x0030fe045ffefdfeLL); // Zelda Kokori Sword Handle
