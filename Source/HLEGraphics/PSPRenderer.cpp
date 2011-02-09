@@ -169,7 +169,7 @@ u32	gTXTFUNC=0;	//defaults to MODULATE_RGB
 
 u32	gNumCyc=3;	//defaults All cycles
 
-u32	gForceRGB=0;	//defaults to OFF
+u32	gForceRGB=6;	//defaults to Magenta
 
 const char *gForceColor[8] =
 {
@@ -340,8 +340,6 @@ PSPRenderer::PSPRenderer()
 	mTnLParams.TextureScaleY = 1.0f;
 
 	gRDPMux._u64 = 0;
-
-	bStarOrigin = false;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	memset( gWhiteTexture, 0xff, sizeof(gWhiteTexture) );
@@ -516,6 +514,8 @@ void PSPRenderer::SetVIScales()
 void	PSPRenderer::Reset()
 {
 	ResetMatrices();
+
+	bStarOrigin = false;
 
 	m_dwNumIndices = 0;
 	mVtxClipFlagsUnion = 0;
