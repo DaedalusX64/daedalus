@@ -185,8 +185,8 @@ void CCombinerExplorerDebugMenuOption::Display() const
 	printf( "   Use O to select on/off\n" );
 	printf( "   Use up/down to move cursor\n\n" );
 	printf( "   %sHandled Inexact Blend\n", TERMINAL_GREEN );
-	printf( "   %sDefault Inexact Blend\n", TERMINAL_CYAN );
 	printf( "   %sForced Blend\n", TERMINAL_MAGENTA );
+	printf( "   %sAuto Combined or Default Inexact Blend\n", TERMINAL_CYAN );
 	printf( "   %sSelected for Blend Explorer\n\n", TERMINAL_RED );
 	printf( "%sCombiner States in use:\n", TERMINAL_WHITE );
 
