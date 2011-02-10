@@ -770,6 +770,17 @@ static void BlendMode_0x00551aaa1134fe7fLL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
 }
 
+// SpiderMan - Waterfall Intro
+//case 0x0017e2052ffd75f8LL:
+//aRGB0: (Texel0       - Texel1      ) * K5           + Texel1
+//aA0  : (1            - 0           ) * Texel0       + Texel1
+//aRGB1: (Combined     - 0           ) * Env          + 0
+//aA1  : (0            - 0           ) * 0            + Combined
+static void BlendMode_0x0017e2052ffd75f8LL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGBA( details.EnvColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
 //
 /*
  //#T
@@ -1420,6 +1431,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00772c60f5fce378LL); // Zelda Poe
 			BLEND_MODE(0x00ff95ffff0dfe3fLL); // Animal Crossing Player Shadow
 			BLEND_MODE(0x00fffe8ff517f8ffLL); // Conker Mouth/Tail
+			BLEND_MODE(0x0017e2052ffd75f8LL); // SpiderMan - Waterfall Intro
 			default:
 				return BlendMode_Generic;	  // Basic generic blenmode
 			

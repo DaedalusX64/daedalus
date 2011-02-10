@@ -136,6 +136,15 @@ static void DebugBlender( u32 blender )
 			sc_szBlClr[(blender>>12) & 0x3], sc_szBlA1[(blender>> 8) & 0x3], sc_szBlClr[(blender>>4) & 0x3], sc_szBlA2[(blender   ) & 0x3]);
 
 }
+
+static void DebugBlenderNew( u32 blender )	
+{
+	DAEDALUS_ERROR( "Unknown Blender: %04x - :%s * %s + %s * %s || - :%s * %s + %s * %s",
+			blender,
+			sc_szBlClr[(blender>>14) & 0x3], sc_szBlA1[(blender>>10) & 0x3], sc_szBlClr[(blender>>6) & 0x3], sc_szBlA2[(blender>>2) & 0x3],
+			sc_szBlClr[(blender>>12) & 0x3], sc_szBlA1[(blender>> 8) & 0x3], sc_szBlClr[(blender>>4) & 0x3], sc_szBlA2[(blender   ) & 0x3]);
+
+}
 #endif
 //*****************************************************************************
 // 1->Modified old version, 0->New version
@@ -238,9 +247,7 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	case 0x0c08:					// In * 0 + In * 1 || :In * AIn + In * 1-A				Tarzan - Medalion in bottom part of the screen
 	//case 0x0c19:					// ?
 	case 0x0f0a:					// In * 0 + In * 1 || :In * 0 + In * 1					SSV - ??? and MM - Walls
-	//case 0x0f5a:					// In * 0 + Mem * 1 || :In * 0 + Mem * 1				Starwars Racer
 	case 0x0fa5:					// In * 0 + Bl * AMem || :In * 0 + Bl * AMem			OOT Menu
-	case 0x55f0:					// Mem * AFog + Fog * 1-A || :Mem * AFog + Fog * 1-A	Bust a Move 3
 	//case 0x5f50:					// ?
 	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A		Paper Mario Menu	
 	case 0xc302:					// Fog * AIn + In * 1-A || :In * 0 + In * 1				ISS64 - Ground
@@ -249,15 +256,13 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	case 0xfa00:					// Fog * AShade + In * 1-A || :Fog * AShade + In * 1-A	F-Zero - Power Roads
 		sceGuDisable( GU_BLEND );	
 		break;
-
-	case 0x0150:					// In * AIn + Mem * 1-A || :In * AFog + Mem * 1-A		Spiderman 
-		sceGuBlendFunc( GU_ADD, GU_SRC_COLOR, GU_DST_COLOR, 0, 0);	// Transparency
-		sceGuEnable( GU_BLEND );
-		break;
 	//
 	// Add here blenders which work fine with default case but causes too much spam, this disabled in release mode
 	//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST 
+	//case 0x55f0:					// Mem * AFog + Fog * 1-A || :Mem * AFog + Fog * 1-A	Bust a Move 3 - ???
+	case 0x0150:					// In * AIn + Mem * 1-A || :In * AFog + Mem * 1-A		Spiderman - Waterfall Intro
+	case 0x0f5a:					// In * 0 + Mem * 1 || :In * 0 + Mem * 1				Starwars Racer
 	case 0x0010:					// In * AIn + In * 1-A || :In * AIn + Mem * 1-A			Hey You Pikachu - Shadow
 	case 0x0040:					// In * AIn + Mem * 1-A || :In * AIn + In * 1-A			Mario - Princess peach text
 	case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
@@ -274,7 +279,7 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	//
 	default:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DebugBlender( blendmode );
+		DebugBlenderNew( blendmode );
 		DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", blendmode );
 #endif
 		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);

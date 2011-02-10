@@ -196,7 +196,7 @@ namespace IO
 		}
 
 		
-		int DeleteRecursive(char * p_path, char * p_extension) 
+		int DeleteRecursive(const char * p_path, const char * p_extension) 
 		{
 			SceUID fh;
 
