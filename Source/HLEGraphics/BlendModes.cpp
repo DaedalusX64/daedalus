@@ -279,6 +279,19 @@ static void BlendMode_0x00149460f50fff7fLL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
 }
 
+// Doubutsu no Mori - Intro Leaves
+//  case 0x0017166045fe7f78LL:
+//aRGB0: (Texel0       - Shade       ) * PrimLODFrac  + Shade
+//aA0  : (Texel0       - 0           ) * Primitive    + 0
+//aRGB1: (Primitive    - Env         ) * Combined     + Env
+//aA1  : (0            - 0           ) * 0            + Combined
+static void BlendMode_0x0017166045fe7f78LL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetA(details.PrimColour);
+	sceGuTexEnvColor(details.PrimColour.GetColour());
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
+
 /*
  //#E
  */ 
@@ -651,6 +664,118 @@ static void BlendMode_0x00277e60150cf37fLL (BLEND_MODE_ARGS)
 	sceGuTexEnvColor(details.PrimColour.GetColour());
 	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
 }
+
+// Pokemos Stadium 2 - Intro
+// case 0x0017666025fd7f78LL:
+//aRGB0: (Texel0       - Texel1      ) * PrimLODFrac  + Texel1
+//aA0  : (1            - 0           ) * Primitive    + 0
+//aRGB1: (Primitive    - Env         ) * Combined     + Env
+//aA1  : (0            - 0           ) * 0            + Combined
+static void BlendMode_0x0017666025fd7f78LL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	details.ColourAdjuster.SetA(details.PrimColour);
+	sceGuTexEnvColor(details.PrimColour.GetColour());
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+}
+
+// Pokemos Stadium 2 - Intro: Pichu
+// case 0x0077666045fd7f78LL:
+//aRGB0: (CombAlp      - Shade       ) * PrimLODFrac  + Texel1
+//aA0  : (1            - 0           ) * Primitive    + 0
+//aRGB1: (Primitive    - Env         ) * Combined     + Env
+//aA1  : (0            - 0           ) * 0            + Combined
+static void BlendMode_0x0077666045fd7f78LL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	details.ColourAdjuster.SetA(details.PrimColour);
+	sceGuTexEnvColor(details.PrimColour.GetColour());
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+}
+
+// Pokemos Stadium 2 - Pokemon Selection Menu
+// case 0x0071fffffffefc38LL:
+//aRGB0: (CombAlp      - 0           ) * Primitive    + Env
+//aA0  : (0            - 0           ) * 0            + 1
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (0            - 0           ) * 0            + Combined
+static void BlendMode_0x0071fffffffefc38LL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	sceGuTexEnvColor(details.EnvColour.GetColour());
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+}
+
+// Pokemon Stadium 2 - Text Dialog Box
+// case 0x0071fee344fe793cLL:
+//aRGB0: (CombAlp      - Shade       ) * Primitive    + Shade
+//aA0  : (0            - 0           ) * 0            + Shade
+//aRGB1: (CombAlp      - Shade       ) * Primitive    + Shade
+//aA1  : (0            - 0           ) * 0            + Shade
+static void BlendMode_0x0071fee344fe793cLL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+}
+
+// Pokemon Stadium 2 - Pokemon Selection Box
+// case 0x0050d2a133a5b6dbLL:
+//aRGB0: (Env          - Primitive   ) * Texel0       + Primitive
+//aA0  : (Env          - Primitive   ) * Texel0       + Primitive
+//aRGB1: (Env          - Primitive   ) * Texel0       + Primitive
+//aA1  : (Env          - Primitive   ) * Texel0       + Primitive
+static void BlendMode_0x0050d2a133a5b6dbLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+}
+
+// Pokemon Stadium 2 - Stadium Ground
+// case 0x00457fff3ffcfe3fLL:
+//aRGB0: (Shade        - 0           ) * Primitive    + 0
+//aA0  : (0            - 0           ) * 0            + 0
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (0            - 0           ) * 0            + 0
+static void BlendMode_0x00457fff3ffcfe3fLL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+}
+
+// Pokemon Stadium 2 - Stadium N64 Logo
+// case 0x00627fff3ffe7e3fLL:
+//aRGB0: (Shade        - 0           ) * Primitive    + 0
+//aA0  : (0            - 0           ) * 0            + 0
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (0            - 0           ) * 0            + 0
+static void BlendMode_0x00627fff3ffe7e3fLL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_DECAL,GU_TCC_RGBA);
+}
+
+// Pokemon Stadium 2 - Battle HUD
+// case 0x00119623ff2fffffLL:
+//aRGB0: (Texel0       - 0           ) * Primitive    + 0
+//aA0  : (Texel0       - 0           ) * Primitive    + 0
+//aRGB1: (Texel0       - 0           ) * Primitive    + 0
+//aA1  : (Texel0       - 0           ) * Primitive    + 0
+static void BlendMode_0x00119623ff2fffffLL (BLEND_MODE_ARGS)
+{
+	// Stops HUD ghosting effect
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	sceGuTexEnvColor(details.PrimColour.GetColour());
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
+
+// Pokemon Stadium 2 - Pokeball Swirls
+// case 0x00272c603510e37fLL:
+//aRGB0: (Texel1       - Primitive   ) * PrimLODFrac  + Texel0
+//aA0  : (Texel1       - 1           ) * 1            + Texel0
+//aRGB1: (Primitive    - Env         ) * Combined     + Env
+//aA1  : (Combined     - 0           ) * Shade        + 0
+static void BlendMode_0x00272c603510e37fLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	sceGuTexFunc(GU_TFX_ADD,GU_TCC_RGBA);
+}
 	
 /*
  //#Q
@@ -688,8 +813,6 @@ void BlendMode_0x00127eacf0fff238LL( BLEND_MODE_ARGS )
 	details.ColourAdjuster.SetRGB( details.EnvColour );	
 	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA); //Not sure if BLEND is doing anything?
 }
-
-
 
 // Super Mario 64 - Mario Face
 //case 0x00147e2844fe7b3dLL:
@@ -891,7 +1014,8 @@ static void BlendMode_0x0030b2045ffefff8LL (BLEND_MODE_ARGS)
 //aRGB1: (Primitive    - Env         ) * Combined     + Env         
 //aA1  : (Combined     - 0           ) * Primitive    + 0           
 static void BlendMode_0x00272c60350ce37fLL( BLEND_MODE_ARGS )
-{
+{	
+	// Uses the same blend as Pokemon Stadium 2 - Pokeball Exit Glowing Light
 	details.ColourAdjuster.SetRGB(details.EnvColour);
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
@@ -1171,8 +1295,16 @@ static void BlendMode_0x00176c6035d8ed76LL (BLEND_MODE_ARGS)
 //aA1  : (Combined     - 0           ) * Primitive    + 0
 static void BlendMode_0x00272c60350c937fLL (BLEND_MODE_ARGS)
 {
-	details.ColourAdjuster.SetRGB( details.EnvColour );
-	sceGuTexFunc(GU_TFX_DECAL,GU_TCC_RGBA);	
+	if( g_ROM.GameHacks == ZELDA_OOT )
+	{
+		details.ColourAdjuster.SetRGB( details.EnvColour );
+		sceGuTexFunc(GU_TFX_DECAL,GU_TCC_RGBA);
+	}
+	else
+	{
+		details.ColourAdjuster.SetRGB(details.PrimColour);
+		sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+	}
 }
 //Zelda Triforce (Needs PrimLODFrac to be properly coloured and Shiny.
 //case 0x00277e6035fcf778LL:
@@ -1331,8 +1463,11 @@ OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 	switch(mux)
 	{	
 #define BLEND_MODE( x )		case (x):	return BlendMode_##x;
+			BLEND_MODE(0x00119623ff2fffffLL); // Pokemon Stadium 2 HUD
 			BLEND_MODE(0x00121824ff33ffffLL); // Tarzan
+			BLEND_MODE(0x00457fff3ffcfe3fLL); // Pokemon Stadium 2 Arena Floor
 			BLEND_MODE(0x00522bfffffffe38LL); // Donald Duck rain
+			BLEND_MODE(0x00627fff3ffe7e3fLL); // Pokemon Stadium 2 N64 Logo
 			BLEND_MODE(0x00fffffffffcfa7dLL); // Mario 64 Stars
 
 	#undef BLEND_MODE 
@@ -1370,6 +1505,8 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0015fec4f0fff83cLL); // Pilot Wings 64 sky
 			BLEND_MODE(0x00167e6035fcff7eLL); // OOT, MM Intro (N64 Logo)
 			BLEND_MODE(0x0017166035fcff78LL); // OOT Deku tree Flash
+			BLEND_MODE(0x0017166045fe7f78LL); // Animal Crossing Leaves
+			BLEND_MODE(0x0017666025fd7f78LL); // Pokemon Stadium 2 Intro
 			BLEND_MODE(0x00176c6035d8ed76LL); // Zelda Hylian Shield Triforce Badge
 			BLEND_MODE(0x00177e60350cf37fLL); // Zelda Heart Container Frame
 			BLEND_MODE(0x00177e6035fcfd7eLL); // Zelda Kokori Sword Blade
@@ -1395,6 +1532,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00272c60150c937fLL); // Zelda Heart Container
 			BLEND_MODE(0x00272c60350c937fLL); // OOT Spiritual Stones / Pokeball
 			BLEND_MODE(0x00272c60350ce37fLL); // OOT Logo / Flames
+			BLEND_MODE(0x00272c603510e37fLL); // Pokemon Stadium 2 - Pokeball Swirls
 			BLEND_MODE(0x00272c6035fc9378LL); // Zelda Bottled Water
 			BLEND_MODE(0x00272c6035fce378LL); // Zelda Blue Fire Lamp
 			BLEND_MODE(0x00276c6035d8ed76LL); // OOT Deku Nut Core
@@ -1420,6 +1558,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x003432685566ff7fLL); // Ogre Battle - Intro Dust
 			BLEND_MODE(0x0040fe8155fef97cLL); // GoldenEye Sky
 			BLEND_MODE(0x0040fe8155fefd7eLL); // Kirby Far Terrain
+			BLEND_MODE(0x0050d2a133a5b6dbLL); // Pokemon Stadium 2 Pokemon Select Box
 			BLEND_MODE(0x00541aa83335feffLL); // Sin and Punishment Grass
 			BLEND_MODE(0x00547ea833fdf2f9LL); // Sin and Punishment - Ground
 			BLEND_MODE(0x00551aaa1134fe7fLL); // Sin and Punishment - Particles and Explosions
@@ -1428,7 +1567,10 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00627fff1ffcfc38LL); // Pilot Wings 64 sky
 			BLEND_MODE(0x0062fe043f15f9ffLL); // Banjo Kazooie Backdrop
 			BLEND_MODE(0x00671603fffcff78LL); // DOOM64 weapons
+			BLEND_MODE(0x0071fee344fe793cLL); // Pokemon Stadium 2 Text box
+			BLEND_MODE(0x0071fffffffefc38LL); // Pokemon Stadium 2 Pokemon Select Menu
 			BLEND_MODE(0x00772c60f5fce378LL); // Zelda Poe
+			BLEND_MODE(0x0077666045fd7f78LL); // Pokemon Stadium 2 Intro Pichu
 			BLEND_MODE(0x00ff95ffff0dfe3fLL); // Animal Crossing Player Shadow
 			BLEND_MODE(0x00fffe8ff517f8ffLL); // Conker Mouth/Tail
 			BLEND_MODE(0x0017e2052ffd75f8LL); // SpiderMan - Waterfall Intro
