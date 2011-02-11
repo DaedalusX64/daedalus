@@ -10,10 +10,16 @@
 #include "Graphics/ColourValue.h"
 #include "Utility/Preferences.h"
 
-static unsigned int __attribute__((aligned(16))) list[262144];
+#include <pspdisplay.h>
+#include <pspgu.h>
+#include <pspkernel.h>
+#include <string.h>
 
-EasyMessage::EasyMessage() {
-    bgcolor = 0;
+static u32 __attribute__((aligned(16))) list[262144];
+
+
+EasyMessage::EasyMessage() 
+{
     memset(&params, 0, sizeof (params));
     params.base.size = sizeof (params);
     sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &params.base.language); // Prompt language
@@ -27,58 +33,20 @@ EasyMessage::EasyMessage() {
 EasyMessage::~EasyMessage() {
 }
 
-void EasyMessage::InitGU() {
-    sceGuInit();
-    sceGuStart(GU_DIRECT, list);
-    sceGuDrawBuffer(GU_PSM_8888, (void*) 0, 512);
-    sceGuDispBuffer(480, 272, (void*) 0x88000, 512);
-    sceGuDepthBuffer((void*) 0x110000, 512);
-    sceGuOffset(2048 - (480 / 2), 2048 - (272 / 2));
-    sceGuViewport(2048, 2048, 480, 272);
-    sceGuDepthRange(0xc350, 0x2710);
-    sceGuScissor(0, 0, 480, 272);
-    sceGuEnable(GU_SCISSOR_TEST);
-    sceGuDepthFunc(GU_GEQUAL);
-    sceGuEnable(GU_DEPTH_TEST);
-    sceGuFrontFace(GU_CW);
-    sceGuShadeModel(GU_SMOOTH);
-    sceGuEnable(GU_CULL_FACE);
-    sceGuEnable(GU_CLIP_PLANES);
-    sceGuEnable(GU_BLEND);
-    sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-    sceGuFinish();
-    sceGuSync(0, 0);
-
-    sceDisplayWaitVblankStart();
-    sceGuDisplay(GU_TRUE);
-}
-
-void EasyMessage::TermGU() {
-    sceGuTerm();
-}
-
-void EasyMessage::SetBGColor(unsigned int color) {
-    bgcolor = color;
-}
-
-int EasyMessage::ShowMessage(const char* message, bool yesno) {
+u32 EasyMessage::ShowMessage(const char* message, bool yesno)
+{
     params.mode = PSP_UTILITY_MSGDIALOG_MODE_TEXT;
     params.options = PSP_UTILITY_MSGDIALOG_OPTION_TEXT;
+
     if (yesno)
         params.options |= PSP_UTILITY_MSGDIALOG_OPTION_YESNO_BUTTONS | PSP_UTILITY_MSGDIALOG_OPTION_DEFAULT_NO;
+
     strcpy(params.message, message);
 
     _RunDialog();
 
     if (params.buttonPressed == PSP_UTILITY_MSGDIALOG_RESULT_YES) return 1;
     else return 0;
-}
-
-void EasyMessage::ShowError(unsigned int error) {
-    params.mode = PSP_UTILITY_MSGDIALOG_MODE_ERROR;
-    params.options = PSP_UTILITY_MSGDIALOG_OPTION_ERROR;
-    params.errorValue = error;
-    _RunDialog();
 }
 
 void EasyMessage::_RunDialog() 
@@ -106,7 +74,8 @@ void EasyMessage::_RunDialog()
         sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);
         sceGuFinish();
         sceGuSync(0, 0);
-        switch (sceUtilityMsgDialogGetStatus()) {
+        switch (sceUtilityMsgDialogGetStatus())
+		{
 
             case PSP_UTILITY_DIALOG_VISIBLE:
                 sceUtilityMsgDialogUpdate(1);

@@ -34,6 +34,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/GraphicsContext.h"
 #include "SysPSP/Graphics/DrawText.h"
 
+#include "EasyMsg/easymessage.h"
+
 #include "Core/CPU.h"
 #include "Core/Dynamo.h"
 #include "Core/ROM.h"
@@ -102,8 +104,6 @@ class IPauseOptionsComponent : public CPauseOptionsComponent
 	private:
 		CFunctor *					mOnResume;
 		CFunctor *					mOnReset;
-		
-		bool						mExitConfirmation;
 
 		CUIElementBag				mElements;
 };
@@ -138,7 +138,6 @@ IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context, CFunctor
 :	CPauseOptionsComponent( p_context )
 ,	mOnResume( on_resume )
 ,	mOnReset( on_reset )
-,	mExitConfirmation(false)
 {
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::EditPreferences ), "Edit Preferences", "Edit various preferences for this rom." ) );
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::AdvancedOptions ), "Advanced Options", "Edit advanced options for this rom." ) );
@@ -149,12 +148,12 @@ IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context, CFunctor
 
 
 
-	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::DebugDisplayList ), "Debug Display List", "Debug display list on resume." ) );
-	#endif
-	#ifdef DAEDALUS_KERNEL_MODE
+#endif
+#ifdef DAEDALUS_KERNEL_MODE
 		mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::ProfileNextFrame ), "Profile Frame", "Profile the next frame on resume." ) );
-	#endif
+#endif
 
 
 #ifndef DAEDALUS_PUBLIC_RELEASE
@@ -164,16 +163,21 @@ IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context, CFunctor
 	#endif			
 #endif
 
-	#ifdef DAEDALUS_ENABLE_DYNAREC
+#ifdef DAEDALUS_ENABLE_DYNAREC
 	#ifdef DAEDALUS_DEBUG_DYNAREC
 		mElements.Add( new CUICommandImpl( new CStaticFunctor( CPU_DumpFragmentCache ), "Dump Fragment Cache", "Dump the contents of the dynarec fragment cache to disk." ) );
 	#endif
-	#endif
+#endif
 
 	mElements.Add( new CUISpacer( 16 ) );
 
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::OnResume ), "Resume Emulation", "Resume emulation." ) );
+
+#ifdef DAEDALUS_DIALOGS
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::ExitConfirmation ), "Return to Main Menu", "Return to the main menu." ) );
+#else
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::OnReset ), "Return to Main Menu", "Return to the main menu." ) );
+#endif
 }
 
 //*************************************************************************************
@@ -188,46 +192,31 @@ IPauseOptionsComponent::~IPauseOptionsComponent()
 //*************************************************************************************
 void	IPauseOptionsComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
-	if( mExitConfirmation )
+	if(old_buttons != new_buttons)
 	{
-		if(new_buttons & PSP_CTRL_TRIANGLE)
+		if( new_buttons & PSP_CTRL_UP )
 		{
-			OnReset();
+			mElements.SelectPrevious();
 		}
-		else if(new_buttons & PSP_CTRL_CIRCLE)
+		if( new_buttons & PSP_CTRL_DOWN )
 		{
-			mExitConfirmation=false;
-			return;
+			mElements.SelectNext();
 		}
-	}
-	else
-	{
-		if(old_buttons != new_buttons)
+			
+		CUIElement *	element( mElements.GetSelectedElement() );
+		if( element != NULL )
 		{
-			if( new_buttons & PSP_CTRL_UP )
+			if( new_buttons & PSP_CTRL_LEFT )
 			{
-				mElements.SelectPrevious();
+				element->OnPrevious();
 			}
-			if( new_buttons & PSP_CTRL_DOWN )
+			if( new_buttons & PSP_CTRL_RIGHT )
 			{
-				mElements.SelectNext();
+				element->OnNext();
 			}
-				
-			CUIElement *	element( mElements.GetSelectedElement() );
-			if( element != NULL )
+			if( new_buttons & (PSP_CTRL_CROSS|PSP_CTRL_START) )
 			{
-				if( new_buttons & PSP_CTRL_LEFT )
-				{
-					element->OnPrevious();
-				}
-				if( new_buttons & PSP_CTRL_RIGHT )
-				{
-					element->OnNext();
-				}
-				if( new_buttons & (PSP_CTRL_CROSS|PSP_CTRL_START) )
-				{
-					element->OnSelected();
-				}
+				element->OnSelected();
 			}
 		}
 	}
@@ -238,23 +227,11 @@ void	IPauseOptionsComponent::Update( float elapsed_time, const v2 & stick, u32 o
 //*************************************************************************************
 void	IPauseOptionsComponent::Render()
 {
-	if( mExitConfirmation)
-	{
-		mpContext->DrawTextAlign(0,480,AT_CENTRE,105,"Any unsaved progress will be lost",
-			       	DrawTextUtilities::TextRed);
-		mpContext->DrawTextAlign(0,480,AT_CENTRE,120,"Are you sure you want to return to the main menu?",
-			       	DrawTextUtilities::TextRed);
-		mpContext->DrawTextAlign(0,480,AT_CENTRE,135,"Press Triangle to confirm",
-			       	DrawTextUtilities::TextRed);
-		mpContext->DrawTextAlign(0,480,AT_CENTRE,150,"Press Circle to cancel",
-			       	DrawTextUtilities::TextRed);
-	}
-	else
-		mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, TEXT_AREA_TOP );
 
-		CUIElement *	element( mElements.GetSelectedElement() );
+	mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, TEXT_AREA_TOP );
+
+	CUIElement *	element( mElements.GetSelectedElement() );
 	if( element != NULL )
-	
 	{
 		const char *		p_description( element->GetDescription() );
 
@@ -265,7 +242,6 @@ void	IPauseOptionsComponent::Render()
 								 p_description,
 								 DrawTextUtilities::TextWhite,
 								 VA_BOTTOM );
-
 	}
 }
 //*************************************************************************************
@@ -273,7 +249,16 @@ void	IPauseOptionsComponent::Render()
 //*************************************************************************************
 void IPauseOptionsComponent::ExitConfirmation()
 {
-	mExitConfirmation=true;
+	EasyMessage msg;
+
+	if(msg.ShowMessage("Return to main menu?\nAny unsaved progress will be lost", 1))
+	{
+		(*mOnReset)();
+	}
+	else
+	{
+		return;
+	}
 }
 
 //*************************************************************************************

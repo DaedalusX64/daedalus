@@ -204,7 +204,7 @@ namespace
 		{
 			EasyMessage msg;
 
-			if(msg.ShowMessage("This will guide you to reset the settings in Daedalus.\n \nDo You want to Reset HLE Cache?.", 1))
+			if(msg.ShowMessage("This will guide you to reset the settings in Daedalus\n \nDo you want to reset HLE cache?", 1))
 			{
 				IO::Path::DeleteRecursive("SaveGames",".hle");
 				ThreadSleepMs(1000);	//safety wait for s
@@ -392,7 +392,7 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.BatteryWarning, "Low Battery Warning",	"Whether to allow Daedalus to notify when the battery is low.", "Yes", "No" ) );
 	mElements.Add( new CGuiType( "Gui Style",	"Select Gui Type either CoverFlow Style or Classic Style" ) );
 	mElements.Add( new CColorSetting( "GUI Color", "Change GUI Color" ) );
-	mElements.Add( new CResetSetting( "Reset Settings", "Resets all preferences to default, and removes rom.db and all *.hle* cache files. Note : Will exit emulator if resetting settings" ) );
+	mElements.Add( new CResetSetting( "Reset Settings", "Will guide you to reset preferences to default, and hle cache files. Note : emulator will exit if resetting settings" ) );
 
 #ifndef DAEDALUS_PUBLIC_RELEASE
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.SkipSplash, "Skip Splash Screen",	"Whether or not to skip the logo screen.", "Yes", "No" ) );

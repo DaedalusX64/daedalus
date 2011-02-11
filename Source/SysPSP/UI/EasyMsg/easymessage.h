@@ -8,11 +8,7 @@
 #ifndef _EASYMESSAGE_H
 #define	_EASYMESSAGE_H
 
-#include <pspdisplay.h>
-#include <pspgu.h>
-#include <pspkernel.h>
 #include <psputility.h>
-#include <string.h>
 
 class EasyMessage {
 public:
@@ -27,7 +23,7 @@ public:
      *
      * @return 1 of user pressed yes (only when yesno is set to TRUE, otherwise 0
      */
-    int ShowMessage(const char * message, bool yesno);
+	u32 ShowMessage(const char * message, bool yesno);
 
     /**
      * Shows a psp error.
@@ -37,28 +33,27 @@ public:
      *
      * @param error - Error code
      */
-    void ShowError(unsigned int error);
+    //void ShowError(unsigned int error);
 
     /**
      * Sets the background color of the dialog.
      *
      * @param color - the background collor
      */
-    void SetBGColor(unsigned int color);
+    //void SetBGColor(unsigned int color);
 
     /** Inits the GU with the recommanded settings. Should be usable for most
      * applications. (compatible with intrafont)
      */
-    void InitGU();
+    //void InitGU();
 
     /**
      * Terminates the GU.
      */
-    void TermGU();
+    //void TermGU();
 private:
     void _RunDialog();
     pspUtilityMsgDialogParams params;
-    unsigned int bgcolor;
 };
 
 #endif	/* _EASYMESSAGE_H */
