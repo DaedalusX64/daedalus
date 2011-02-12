@@ -1834,7 +1834,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 	//Always clear Zbuffer if Depthbuffer is selected //Corn
 	if (g_DI.Address == g_CI.Address)
 	{
-		CGraphicsContext::Get()->Clear( false, true );
+		CGraphicsContext::Get()->ClearZBuffer( 0 );
 		DL_PF("    Clearing ZBuffer");
 		return;
 	}

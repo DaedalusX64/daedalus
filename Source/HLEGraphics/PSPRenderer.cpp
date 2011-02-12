@@ -950,7 +950,6 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	{
 		if( gRDPOtherMode.cvg_x_alpha )	// I think this implies that alpha is coming from
 		{
-			bStarOrigin = true;	// Used to enable Mario 64 star blend when alpha origs, we do this to avoid messing the text.
 			sceGuAlphaFunc(GU_GREATER, 0x70, 0xff); // Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
 			sceGuEnable(GU_ALPHA_TEST);
 		}
@@ -980,7 +979,6 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		if( gRDPOtherMode.cvg_x_alpha && ( gRDPOtherMode.alpha_cvg_sel || gRDPOtherMode.aa_en ) )
 		{
 			// Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
-			bStarOrigin = true;	// Used to enable Mario 64 star blend when alpha origs, we do this to avoid messing the text.
 			sceGuAlphaFunc(GU_GREATER, 0x70, 0xff);
 			sceGuEnable(GU_ALPHA_TEST);
 		}
@@ -2517,6 +2515,9 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 			ti.GetLoadAddress(), ti.GetPitch(),
 			ti.GetFormatName(), ti.GetSizeInBits(),
 			ti.GetWidth(), ti.GetHeight() );
+
+	//SM64 black Star hack (maybe only works on U ROM?) //Corn
+	( ti.GetLoadAddress() == 0x000de6a0 ) ? bStarOrigin = true : bStarOrigin = false;
 
 	if( (mpTexture[ index ] != NULL) && (mpTexture[ index ]->GetTextureInfo() == ti) ) return;
 

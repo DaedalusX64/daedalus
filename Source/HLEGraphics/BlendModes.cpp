@@ -458,7 +458,7 @@ static void BlendMode_0x00fffffffffcfa7dLL (BLEND_MODE_ARGS)
 {
 	// Check to be sure we are blending the star !!!
 	// We should make this check more robust to avoid messing any other stuff.
-	if( num_cycles == 1 && bStarOrigin )
+	if( (num_cycles == 1) & bStarOrigin )
 	{
 		details.ColourAdjuster.SetRGB( c32::Gold );
 		sceGuTexFunc(GU_TFX_BLEND, GU_TCC_RGB);
