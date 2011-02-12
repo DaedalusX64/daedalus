@@ -129,17 +129,7 @@ const char * sc_szBlA2[4]  = { "1-A", "AMem", "1",      "?" };
 
 static void DebugBlender( u32 blender )	
 {
-	DAEDALUS_ERROR( "Unknown Blender: %04x - :%s * %s + %s * %s || %04x - :%s * %s + %s * %s",
-			blender & 0xcccc,
-			sc_szBlClr[(blender>>14) & 0x3], sc_szBlA1[(blender>>10) & 0x3], sc_szBlClr[(blender>>6) & 0x3], sc_szBlA2[(blender>>2) & 0x3],
-			blender & 0x3333,
-			sc_szBlClr[(blender>>12) & 0x3], sc_szBlA1[(blender>> 8) & 0x3], sc_szBlClr[(blender>>4) & 0x3], sc_szBlA2[(blender   ) & 0x3]);
-
-}
-
-static void DebugBlenderNew( u32 blender )	
-{
-	DAEDALUS_ERROR( "Unknown Blender: %04x - :%s * %s + %s * %s || - :%s * %s + %s * %s",
+	DAEDALUS_ERROR( "Unknown Blender: %04x - %s * %s + %s * %s || %s * %s + %s * %s",
 			blender,
 			sc_szBlClr[(blender>>14) & 0x3], sc_szBlA1[(blender>>10) & 0x3], sc_szBlClr[(blender>>6) & 0x3], sc_szBlA2[(blender>>2) & 0x3],
 			sc_szBlClr[(blender>>12) & 0x3], sc_szBlA1[(blender>> 8) & 0x3], sc_szBlClr[(blender>>4) & 0x3], sc_szBlA2[(blender   ) & 0x3]);
@@ -279,7 +269,7 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	//
 	default:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DebugBlenderNew( blendmode );
+		DebugBlender( blendmode );
 		DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", blendmode );
 #endif
 		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);

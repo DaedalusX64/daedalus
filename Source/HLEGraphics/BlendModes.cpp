@@ -740,30 +740,30 @@ static void BlendMode_0x00457fff3ffcfe3fLL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
 }
 
-// Pokemon Stadium 2 - Stadium N64 Logo
+// Pokemon Stadium 2 - Stadium N64 Logo (Dangerous)
 // case 0x00627fff3ffe7e3fLL:
 //aRGB0: (Shade        - 0           ) * Primitive    + 0
 //aA0  : (0            - 0           ) * 0            + 0
 //aRGB1: (0            - 0           ) * 0            + Combined
 //aA1  : (0            - 0           ) * 0            + 0
-static void BlendMode_0x00627fff3ffe7e3fLL (BLEND_MODE_ARGS)
-{
-	sceGuTexFunc(GU_TFX_DECAL,GU_TCC_RGBA);
-}
+//static void BlendMode_0x00627fff3ffe7e3fLL (BLEND_MODE_ARGS)
+//{
+//	sceGuTexFunc(GU_TFX_DECAL,GU_TCC_RGBA);
+//}
 
-// Pokemon Stadium 2 - Battle HUD
+// Pokemon Stadium 2 - Battle HUD (Breaks RR64)
 // case 0x00119623ff2fffffLL:
 //aRGB0: (Texel0       - 0           ) * Primitive    + 0
 //aA0  : (Texel0       - 0           ) * Primitive    + 0
 //aRGB1: (Texel0       - 0           ) * Primitive    + 0
 //aA1  : (Texel0       - 0           ) * Primitive    + 0
-static void BlendMode_0x00119623ff2fffffLL (BLEND_MODE_ARGS)
-{
-	// Stops HUD ghosting effect
-	details.ColourAdjuster.SetRGB(details.EnvColour);
-	sceGuTexEnvColor(details.PrimColour.GetColour());
-	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
-}
+//static void BlendMode_0x00119623ff2fffffLL (BLEND_MODE_ARGS)
+//{
+//	// Stops HUD ghosting effect
+//	details.ColourAdjuster.SetRGB(details.EnvColour);
+//	sceGuTexEnvColor(details.PrimColour.GetColour());
+//	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+//}
 
 // Pokemon Stadium 2 - Pokeball Swirls
 // case 0x00272c603510e37fLL:
@@ -1376,10 +1376,9 @@ static void BlendMode_0x00271c6035fcf378LL (BLEND_MODE_ARGS)
 //aA1  : (0            - 0           ) * 0            + Combined
 static void BlendMode_0x0030fe045ffef3f8LL (BLEND_MODE_ARGS)
 {
-	details.ColourAdjuster.SetRGB(details.EnvColour);
-
-	// WE need BLEND for RR's fences, otherwise they appear red..
-	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA); 
+	// details.EnvColour breaks stuff in RR64
+	if( g_ROM.GameHacks == ZELDA_OOT ) details.ColourAdjuster.SetRGB(details.EnvColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA); 
 }
 
 //Zelda Cukuaan Egg
@@ -1463,19 +1462,19 @@ OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 	switch(mux)
 	{	
 #define BLEND_MODE( x )		case (x):	return BlendMode_##x;
-			BLEND_MODE(0x00119623ff2fffffLL); // Pokemon Stadium 2 HUD
+			//BLEND_MODE(0x00119623ff2fffffLL); // Pokemon Stadium 2 HUD //Ruins RR64
 			BLEND_MODE(0x00121824ff33ffffLL); // Tarzan
 			BLEND_MODE(0x00457fff3ffcfe3fLL); // Pokemon Stadium 2 Arena Floor
-			BLEND_MODE(0x00522bfffffffe38LL); // Donald Duck rain
-			BLEND_MODE(0x00627fff3ffe7e3fLL); // Pokemon Stadium 2 N64 Logo
+			BLEND_MODE(0x00522bfffffffe38LL); // Donald Duck rain (makes it transparent not really a fix)
+			//BLEND_MODE(0x00627fff3ffe7e3fLL); // Pokemon Stadium 2 N64 Logo //Dangerous!!
 			BLEND_MODE(0x00fffffffffcfa7dLL); // Mario 64 Stars
 
 	#undef BLEND_MODE 
 	}
 
 	return NULL;
-
 }
+
 //*****************************************************************************
 // Inexact blendmodes, we find a match or try to guess a correct blending
 //*****************************************************************************	
@@ -1511,6 +1510,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00177e60350cf37fLL); // Zelda Heart Container Frame
 			BLEND_MODE(0x00177e6035fcfd7eLL); // Zelda Kokori Sword Blade
 			BLEND_MODE(0x00177e6035fcfd78LL); // Gold Skulltula Chin
+			BLEND_MODE(0x0017e2052ffd75f8LL); // SpiderMan - Waterfall Intro
 			BLEND_MODE(0x0020ac60350c937fLL); // Zelda Chest Opening Light
 			BLEND_MODE(0x0020a203ff13ff7fLL); // Paper Mario -Intro Water
 			BLEND_MODE(0x0022ffff1ffcfa38LL); // Wave racer - sky
@@ -1573,7 +1573,6 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0077666045fd7f78LL); // Pokemon Stadium 2 Intro Pichu
 			BLEND_MODE(0x00ff95ffff0dfe3fLL); // Animal Crossing Player Shadow
 			BLEND_MODE(0x00fffe8ff517f8ffLL); // Conker Mouth/Tail
-			BLEND_MODE(0x0017e2052ffd75f8LL); // SpiderMan - Waterfall Intro
 			default:
 				return BlendMode_Generic;	  // Basic generic blenmode
 			
