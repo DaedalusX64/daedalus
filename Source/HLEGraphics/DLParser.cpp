@@ -523,7 +523,7 @@ static void	DLParser_ProcessDList()
 	//Clean frame buffer at DList start if selected
 	if( gCleanSceneEnabled && CGraphicsContext::CleanScene )
 	{
-		CGraphicsContext::Get()->ClearZBuffer(0);
+		CGraphicsContext::Get()->Clear(true, false);
 		CGraphicsContext::CleanScene = false;
 	}
 
