@@ -480,7 +480,7 @@ void Patch_RecurseAndFind()
 		intraFontPrintf( ltn8, 480/2, (272>>1), "OS HLE Patching: %d%%", i * 100 / (nPatchSymbols-1));
 		intraFontPrintf( ltn8, 480/2, (272>>1)-50, "Searching for %s", g_PatchSymbols[i]->szName );
 		CGraphicsContext::Get()->EndFrame();
-		CGraphicsContext::Get()->UpdateFrame( true );
+		CGraphicsContext::Get()->UpdateFrameGUI( true );
 #endif
 		// Skip symbol if already found, or if it is a variable
 		if (g_PatchSymbols[i]->bFound)
@@ -584,7 +584,7 @@ void Patch_RecurseAndFind()
 		intraFontPrintf( ltn8, 480/2, (272>>1), "Symbols Identified: %d%%",100 * nFound / (nPatchSymbols-1));
 		intraFontPrintf( ltn8, 480/2, (272>>1)+50, "Range 0x%08x -> 0x%08x", first, last );
 		CGraphicsContext::Get()->EndFrame();
-		CGraphicsContext::Get()->UpdateFrame( true );
+		CGraphicsContext::Get()->UpdateFrameGUI( true );
 #endif
 	}
 
@@ -623,7 +623,7 @@ void Patch_RecurseAndFind()
 		CGraphicsContext::Get()->Clear(true,true);
 		intraFontPrintf( ltn8, 480/2, 272>>1, "Variables Identified: %d%%", 100 * nFound / (nPatchVariables-1) );
 		CGraphicsContext::Get()->EndFrame();
-		CGraphicsContext::Get()->UpdateFrame( true );
+		CGraphicsContext::Get()->UpdateFrameGUI( true );
 #endif
 	}
 

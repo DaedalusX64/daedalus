@@ -379,6 +379,7 @@ bool IGraphicsContext::UpdateFrameGUI( bool wait_for_vbl )
 	if(wait_for_vbl) 
 		sceDisplayWaitVblankStart();
 
+	// We should skip this in GUI, see bellow why not (yet)
 	if(gDoubleDisplayEnabled) 
 		sceGuFinish();
 
@@ -403,7 +404,7 @@ bool IGraphicsContext::UpdateFrameGUI( bool wait_for_vbl )
 		p_back = sceGuSwapBuffers();
 	}
 
-	// We skip this when we are in the GUI, but doing so causes the gui to crash when starting
+	// We should skip this when we are in the GUI, but doing so causes the gui to crash when starting
 	// This is due the way we have DD set up, should we make EndFrame and BeginFrame for GUI only?
 	// Ex Removing if(!gDoubleDisplayEnabled) checks there fixes the BSOD
 	//

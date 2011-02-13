@@ -285,7 +285,7 @@ static bool	Initialize()
 	pspDebugScreenInitEx( NULL , GU_PSM_5650, 1); //Sets debug output to 16bit mode
 #endif
 
-// This Breaks gdb, better disable it in debug biol;d
+// This Breaks gdb, better disable it in debug build
 //
 #ifdef DAEDALUS_PUBLIC_RELEASE
 	initExceptionHandler();
