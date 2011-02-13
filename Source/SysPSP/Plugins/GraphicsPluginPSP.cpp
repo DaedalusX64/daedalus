@@ -255,7 +255,7 @@ void CGraphicsPluginPsp::UpdateScreen()
 				CGraphicsContext::Get()->DumpNextScreen();
 				gTakeScreenshot = false;
 			}
-			CGraphicsContext::Get()->UpdateFrame();
+			CGraphicsContext::Get()->UpdateFrame( false );
 		}
 
 		static u32 current_frame = 0;

@@ -121,8 +121,7 @@ public:
 
 	void				BeginFrame();
 	void				EndFrame();
-	bool				UpdateFrame();
-	bool				UpdateFrameGUI( bool wait_for_vbl );
+	bool				UpdateFrame( bool wait_for_vbl );
 	bool				GetBufferSize( u32 * p_width, u32 * p_height );
 	bool				Initialise();
 
@@ -220,7 +219,7 @@ void IGraphicsContext::ClearAllSurfaces()
 		Clear( true, true );
 		EndFrame();
 		//Get Ready for next Frame
-		UpdateFrame();
+		UpdateFrame( false );
 	}
 }
 
@@ -308,7 +307,7 @@ void IGraphicsContext::EndFrame()
 //*****************************************************************************
 //
 //*****************************************************************************
-bool IGraphicsContext::UpdateFrame()
+bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 {
 	DAEDALUS_PROFILE( "IGraphicsContext::UpdateFrame" );
 
@@ -316,6 +315,14 @@ bool IGraphicsContext::UpdateFrame()
 
 	if(gDoubleDisplayEnabled) 
 		sceGuFinish();
+	
+	sceGuSync(0,0);
+
+	//Used for GUI menu to slow things down, in game we skip this
+	if(wait_for_vbl)
+	{
+		sceDisplayWaitVblankStart();
+	}
 
 	if (PSP_TV_LACED)
 	{
@@ -347,6 +354,8 @@ bool IGraphicsContext::UpdateFrame()
 
 	SetDebugScreenTarget( TS_BACKBUFFER );	//Used to print FPS and other stats
 
+	// Should we skip this when we are in the GUI? 
+	//
 	if(gDoubleDisplayEnabled) 
 	{
 		sceGuStart(GU_DIRECT,callList);
@@ -363,69 +372,7 @@ bool IGraphicsContext::UpdateFrame()
 	//printf("%d %d\n",listNum,gDoubleDisplayEnabled);
 	return true;
 }
-// This used for the GUI
-//*****************************************************************************
-//
-//*****************************************************************************
-bool IGraphicsContext::UpdateFrameGUI( bool wait_for_vbl )
-{
-	DAEDALUS_PROFILE( "IGraphicsContext::UpdateFrame" );
 
-	void * p_back;
-	
-	sceGuSync(0,0);
-
-	//Used for GUI menu to slow things down, in game we skip this
-	if(wait_for_vbl) 
-		sceDisplayWaitVblankStart();
-
-	// We should skip this in GUI, see bellow why not (yet)
-	if(gDoubleDisplayEnabled) 
-		sceGuFinish();
-
-	// I don't think this is required for the GUI
-	// Check me with tv out
-	if (PSP_TV_LACED)
-	{
-		u32 src = (u32)MAKE_UNCACHED_PTR((void*)LACED_DRAW);
-		u32 dst = (u32)MAKE_UNCACHED_PTR((void*)LACED_DISP);
-
-		sceGuStart(GU_DIRECT,ilist);
-		sceGuCopyImage(SCR_MODE, 0, 0, 720, 240, 768*2, reinterpret_cast< void * >(src + 768*4), 0, 0, 768, reinterpret_cast< void * >(dst));
-		sceGuTexSync();
-		sceGuCopyImage(SCR_MODE, 0, 0, 720, 240, 768*2, reinterpret_cast< void * >(src), 0, 0, 768, reinterpret_cast< void * >(dst + 768*262*4));
-		sceGuTexSync();
-		sceGuFinish();
-		sceGuSync(0,0);
-		p_back = mpBuffers[ 0 ]; // back buffer always draw_buffer on interlaced
-	}
-	else
-	{
-		p_back = sceGuSwapBuffers();
-	}
-
-	// We should skip this when we are in the GUI, but doing so causes the gui to crash when starting
-	// This is due the way we have DD set up, should we make EndFrame and BeginFrame for GUI only?
-	// Ex Removing if(!gDoubleDisplayEnabled) checks there fixes the BSOD
-	//
-	if(gDoubleDisplayEnabled) 
-	{
-		sceGuStart(GU_DIRECT,callList);
-		sceGuCallList(list[listNum]);
-		sceGuFinish(); //Display Frame
-		listNum ^= 1;	//Toggle lists 0 & 1
-		sceGuStart(GU_CALL,list[listNum]); //Begin other Display List
-	}
-	else 
-		listNum ^= 1;	//Toggle lists 0 & 1
-
-	mpCurrentBackBuffer = p_back;
-
-	// I don't think we print or need to print debug text onto the screen on the gui
-	//
-	//SetDebugScreenTarget( TS_BACKBUFFER );	//Used to print FPS and other stats
-	return true;
-}
 //*****************************************************************************
 //	Set the target for the debug screen
 //*****************************************************************************

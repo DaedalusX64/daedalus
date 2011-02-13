@@ -56,8 +56,7 @@ public:
 	virtual void Clear(u32 frame_buffer_col, u32 depth) = 0;
 	virtual	void BeginFrame() = 0;
 	virtual void EndFrame() = 0;
-	virtual bool UpdateFrame() = 0;
-	virtual bool UpdateFrameGUI( bool wait_for_vbl ) = 0;
+	virtual bool UpdateFrame( bool wait_for_vbl ) = 0;
 
 	virtual bool GetBufferSize(u32 * p_width, u32 * p_height) = 0;
 	virtual void SetDebugScreenTarget( ETargetSurface buffer ) = 0;
