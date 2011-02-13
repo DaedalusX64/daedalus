@@ -120,7 +120,8 @@ enum EGameHacks
 	PMARIO,
 	AEROGAUGE,
 	GEX_GECKO,
-	RIDGE_RACER
+	RIDGE_RACER,
+	WONDER_PROJECTJ2
 };
 
 //*****************************************************************************

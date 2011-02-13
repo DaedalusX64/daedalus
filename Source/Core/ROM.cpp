@@ -459,6 +459,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	
 	switch( id.CartID )
 	{
+	case 0x324a: g_ROM.GameHacks = WONDER_PROJECTJ2;	break;
 	case 0x4741: g_ROM.GameHacks = AEROGAUGE;			break;
 	case 0x4547: g_ROM.GameHacks = GOLDEN_EYE;			break;
 	case 0x5742: g_ROM.GameHacks = SUPER_BOWLING;		break;

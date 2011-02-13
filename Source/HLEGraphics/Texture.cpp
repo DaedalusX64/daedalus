@@ -634,12 +634,14 @@ bool	CTexture::IsFresh() const
 //*************************************************************************************
 bool	CTexture::HasExpired() const
 {
+	//Hack to make WONDER PROJECT J2 work (need to reload textures every frame!) //Corn
+	if( g_ROM.GameHacks == WONDER_PROJECTJ2 ) return true;
+
 	//Needs to be cleared anytime a texture is updated to avoid graphical bugs
 	//This will force a texture to be reloaded if hash is different //Corn
 	if (!IsFresh())
 	{
 		u32 hash_value( mTextureInfo.GenerateHashValue() );
-
 		if (mTextureContentsHash != hash_value) return true;	//Drop current texture and load the new one //Corn
 	}
 

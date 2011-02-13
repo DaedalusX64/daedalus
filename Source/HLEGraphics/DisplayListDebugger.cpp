@@ -961,7 +961,7 @@ void IDisplayListDebugger::Run()
 			framerate = 1000.0f / elapsed_ms;
 		}
 
-		CGraphicsContext::Get()->UpdateFrame( false );
+		CGraphicsContext::Get()->UpdateFrame();
 
 		//sceDisplayWaitVblankStart();
 
