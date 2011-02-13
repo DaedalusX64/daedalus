@@ -285,7 +285,11 @@ static bool	Initialize()
 	pspDebugScreenInitEx( NULL , GU_PSM_5650, 1); //Sets debug output to 16bit mode
 #endif
 
+// This Breaks gdb, better disable it in debug biol;d
+//
+#ifdef DAEDALUS_PUBLIC_RELEASE
 	initExceptionHandler();
+#endif
 
 	_DisableFPUExceptions();
 
@@ -451,7 +455,7 @@ void HandleEndOfFrame()
 //#ifdef DAEDALUS_DEBUG_MEMORY
 		//CVideoMemoryManager::Get()->DisplayDebugInfo();
 //#endif
-		Save::Flush(true);
+		//Save::Flush(true);
 		// switch back to the LCD display
 		CGraphicsContext::Get()->SwitchToLcdDisplay();
 

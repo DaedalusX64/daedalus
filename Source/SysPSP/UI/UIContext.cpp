@@ -169,7 +169,7 @@ IUIContext::~IUIContext()
 		CGraphicsContext::Get()->BeginFrame();
 		CGraphicsContext::Get()->Clear( true, true );
 		CGraphicsContext::Get()->EndFrame();
-		CGraphicsContext::Get()->UpdateFrame( false );
+		CGraphicsContext::Get()->UpdateFrameGUI( false );
 	}
 }
 
@@ -475,5 +475,5 @@ void	IUIContext::BeginRender()
 void	IUIContext::EndRender()
 {
 	CGraphicsContext::Get()->EndFrame();
-	CGraphicsContext::Get()->UpdateFrame( true );
+	CGraphicsContext::Get()->UpdateFrameGUI( true );
 }

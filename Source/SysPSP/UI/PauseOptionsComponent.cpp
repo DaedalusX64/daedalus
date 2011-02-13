@@ -255,10 +255,6 @@ void IPauseOptionsComponent::ExitConfirmation()
 	{
 		(*mOnReset)();
 	}
-	else
-	{
-		return;
-	}
 }
 
 //*************************************************************************************

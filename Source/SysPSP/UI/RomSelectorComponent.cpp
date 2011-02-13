@@ -2080,10 +2080,6 @@ void	IRomSelectorComponent::Update_old( float elapsed_time, const v2 & stick, u3
 			{
 				sceKernelExitGame();
 			}
-			else
-			{
-				return;
-			}
 #else
 			sceKernelExitGame();
 #endif
@@ -2325,10 +2321,6 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 			if(msg.ShowMessage("Do you want to exit?", 1))
 			{
 				sceKernelExitGame();
-			}
-			else
-			{
-				return;
 			}
 #else
 			sceKernelExitGame();
