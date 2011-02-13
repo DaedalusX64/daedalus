@@ -53,7 +53,8 @@ enum ETextureHashFrequency
 enum EFrameskipValue
 {
 	FV_DISABLED = 0,
-	FV_AUTO,
+	FV_AUTO1,
+	FV_AUTO2,
 	FV_1,
 	FV_2,
 	FV_3,

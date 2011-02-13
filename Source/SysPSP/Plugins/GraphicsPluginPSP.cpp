@@ -217,6 +217,9 @@ void CGraphicsPluginPsp::UpdateScreen()
 
 	static u32		last_origin = 0;
 	u32 current_origin = Memory_VI_GetRegister(VI_ORIGIN_REG);
+	static bool Old_FrameskipActive = false;
+	static bool Older_FrameskipActive = false;
+
 	if( current_origin != last_origin )
 	{
 		//printf( "Flip (%08x, %08x)\n", current_origin, last_origin );
@@ -258,6 +261,9 @@ void CGraphicsPluginPsp::UpdateScreen()
 		static u32 current_frame = 0;
 		current_frame++;
 
+		
+		Older_FrameskipActive = Old_FrameskipActive;
+		Old_FrameskipActive = gFrameskipActive;
 		if( gFrameskipValue == FV_DISABLED )
 		{
 			gFrameskipActive = false;
@@ -265,15 +271,19 @@ void CGraphicsPluginPsp::UpdateScreen()
 		else
 		{
 			//skip next frame if in auto mode and we are running slow //Corn
-			if(gFrameskipValue == FV_AUTO)
+			if(gFrameskipValue == FV_AUTO1)
 			{
-				if(!gFrameskipActive && (Fsync < 0.965f)) gFrameskipActive = true;
+				if(!Old_FrameskipActive && (Fsync < 0.965f)) gFrameskipActive = true;
+				else gFrameskipActive = false;
+			}
+			else if(gFrameskipValue == FV_AUTO2)
+			{
+				if((!Old_FrameskipActive | !Older_FrameskipActive) && (Fsync < 0.965f)) gFrameskipActive = true;
 				else gFrameskipActive = false;
 			}
 			//Or skip frames as set in menu
-			else gFrameskipActive = (current_frame % gFrameskipValue) != 0;
+			else gFrameskipActive = (current_frame % (gFrameskipValue - 1)) != 0;
 		}
-
 		last_origin = current_origin;
 	}
 

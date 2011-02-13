@@ -864,10 +864,13 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		if ( (gOtherModeL != Old_OtherModeL) || (m_bZBuffer != Old_UseZBuffer) )
 		{
 			// Fixes Zfighting issues we have on the PSP.
-			if( IsZModeDecal() & !ZFightingEnabled )
+			if( IsZModeDecal() )
 			{
-				ZFightingEnabled = true;						
-				sceGuDepthRange(65535,80);
+				if( !ZFightingEnabled )
+				{
+					ZFightingEnabled = true;						
+					sceGuDepthRange(65535,80);
+				}
 			}
 			else if( ZFightingEnabled )
 			{

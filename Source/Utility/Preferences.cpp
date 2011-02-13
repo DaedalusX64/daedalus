@@ -649,7 +649,8 @@ const char *			ROM_GetFrameskipDescription( EFrameskipValue value )
 	switch( value )
 	{
 	case FV_DISABLED:		return "Disabled";
-	case FV_AUTO:			return "Auto";
+	case FV_AUTO1:			return "Auto 1";
+	case FV_AUTO2:			return "Auto 2";
 	case FV_1:				return "1";
 	case FV_2:				return "2";
 	case FV_3:				return "3";
