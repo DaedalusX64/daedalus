@@ -57,11 +57,6 @@ void	CUIScreen::Run()
 	sceCtrlPeekBufferPositive(&pad, 1);
 	u32		old_buttons = (pad.Buttons & PSP_BUTTONS_MASK);
 
-	// Start reading our buttons, only issue is that this only runs on the gui :(
-	// We should find a better place it can be access in both in game and gui
-	//
-	DaedalusReadButtons( pad.Buttons );
-
 	static const s32	STICK_DEADZONE = 20;
 
 	CTimer		timer;

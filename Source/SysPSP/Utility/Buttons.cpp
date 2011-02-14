@@ -26,33 +26,35 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspkernel.h>
 
 //
-/****** Wrapper for Kernel Buttons functions ******/
+/****** Wrapper for Home Button functions ******/
 //
 
 PSPButtons gButtons;
 //*****************************************************************************
 //	Init our buttons, various stats etc
 //*****************************************************************************
-void InitButtons()
+void InitHomeButton()
 {
 	int gGetKernelButtons = pspSdkLoadStartModule("imposectrl.prx", PSP_MEMORY_PARTITION_KERNEL);
 
-
 	// Start our stack for either kernel or usermode buttons
 	//
-	gButtons.mode			=  ( gGetKernelButtons >= 0 )	  ? true : false;
-	gButtons.style			=  ( gButtons.mode == true ) ? PSP_CTRL_HOME : PSP_CTRL_SELECT;
+	gButtons.mode  =  ( gGetKernelButtons >= 0 ) ? true : false;
+	gButtons.style =  ( gButtons.mode == true  ) ? PSP_CTRL_HOME : PSP_CTRL_SELECT;
 
-	printf( "%s to load kernelbuttons.prx: %08X\n", 
-			gButtons.mode ? "Successfully" : "Failed",
+	printf( "%s to load imposectrl.prx: %08X\n", gButtons.mode ? "Successfully" : "Failed",
 			gGetKernelButtons );
 }
 
 //*****************************************************************************
-//
+// // Function to avoid reading buttons in tight loops
 //*****************************************************************************
-
-
+/*
+void DaedalusReadButtons(u32 buttons)	
+{ 
+	gButtons.type = buttons; 
+}
+*/
 
 
 

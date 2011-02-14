@@ -293,8 +293,8 @@ static bool	Initialize()
 
 	_DisableFPUExceptions();
 
-	// Set up our Kernel Buttons : Home, Vol- +, etc
-	InitButtons();
+	// Set up our Kernel Home button or User Button
+	InitHomeButton();
 
 	// Unset home button and imposed to allow use it as normal button
 	SetImposeHomeButton(); 
@@ -432,13 +432,13 @@ void HandleEndOfFrame()
 	//
 	//	Enter the debug menu as soon as select is newly pressed
 	//
-	// If kernelbuttons.prx couldn't be loaded, allow select button to be used instead
-	//
 	static u32 oldButtons = 0;
 	SceCtrlData pad;
 
 	sceCtrlPeekBufferPositive(&pad, 1); 
 
+	// If kernelbuttons.prx couldn't be loaded, allow select button to be used instead
+	//
 	if(oldButtons != pad.Buttons)
 	{
 		if(pad.Buttons & gButtons.style)

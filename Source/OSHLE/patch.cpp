@@ -93,6 +93,7 @@ static const char * g_szEventStrings[23] =
 };
 #endif	// DUMPOSFUNCTIONS
 
+bool applied = false;
 u32 gCurrentLength;
 u32 gNumOfOSFunctions;
 
@@ -127,6 +128,7 @@ static u32  nPatchVariables;
 
 void Patch_Reset()
 {
+	applied = false;
 	gPatchesInstalled = false;
 	gCurrentLength = 0;
 	gNumOfOSFunctions = 0;
@@ -152,7 +154,6 @@ void Patch_ResetSymbolTable()
 	nPatchVariables = i;
 }
 
-static bool applied = false;
 void Patch_ApplyPatches()
 {
 	applied = true;
@@ -178,8 +179,9 @@ void Patch_ApplyPatches()
 void Patch_PatchAll()
 {
 	if (!applied)
+	{
 		Patch_ApplyPatches();
-
+	}
 #ifdef DUMPOSFUNCTIONS
 	FILE *fp;
 	char path[MAX_PATH + 1];

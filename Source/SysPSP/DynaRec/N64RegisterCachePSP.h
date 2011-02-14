@@ -52,7 +52,22 @@ inline bool	IsValid( EN64Reg reg, u32 lo_hi_idx ) const
 
 	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid;
 }
-		bool				IsDirty( EN64Reg reg, u32 lo_hi_idx ) const;
+//		bool				IsDirty( EN64Reg reg, u32 lo_hi_idx ) const;
+inline bool	IsDirty( EN64Reg reg, u32 lo_hi_idx ) const
+{
+#ifdef DAEDALUS_ENABLE_ASSERTS
+	bool	is_dirty( mRegisterCacheInfo[ reg ][ lo_hi_idx ].Dirty );
+
+	if( is_dirty )
+	{
+		DAEDALUS_ASSERT( IsKnownValue( reg, lo_hi_idx ) || IsCached( reg, lo_hi_idx ), "Checking dirty flag on unknown/uncached register?" );
+	}
+
+	return is_dirty;
+#else
+	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Dirty;
+#endif
+}
 
 //		bool				IsTemporary( EN64Reg reg, u32 lo_hi_idx ) const;
 inline bool	IsTemporary( EN64Reg reg, u32 lo_hi_idx ) const
@@ -95,7 +110,6 @@ inline void	MarkAsDirty( EN64Reg reg, u32 lo_hi_idx, bool dirty )
 
 //		bool				IsKnownValue( EN64Reg reg, u32 lo_hi_idx ) const;
 inline bool	IsKnownValue( EN64Reg reg, u32 lo_hi_idx ) const {	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Known; }
-
 //		void				SetKnownValue( EN64Reg reg, u32 lo_hi_idx, s32 value );
 inline void	SetKnownValue( EN64Reg reg, u32 lo_hi_idx, s32 value )
 {

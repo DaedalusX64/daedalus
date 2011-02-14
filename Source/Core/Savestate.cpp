@@ -424,6 +424,10 @@ bool SaveState_LoadFromFile( const char * filename )
 	stream.read(g_pMemoryBuffers[MEM_RD_RAM], gRamSize);
 	stream.read_memory_buffer(MEM_SP_MEM); //, 0x84000000);
 
+#ifdef DAEDALUS_ENABLE_OS_HOOKS
+	Patch_PatchAll();
+#endif
+
 	return true;
 }
 

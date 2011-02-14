@@ -117,21 +117,21 @@ void	CN64RegisterCachePSP::ClearCachedReg( EN64Reg n64_reg, u32 lo_hi_idx )
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	CN64RegisterCachePSP::IsDirty( EN64Reg reg, u32 lo_hi_idx ) const
-{
-#ifdef DAEDALUS_ENABLE_ASSERTS
-	bool	is_dirty( mRegisterCacheInfo[ reg ][ lo_hi_idx ].Dirty );
-
-	if( is_dirty )
-	{
-		DAEDALUS_ASSERT( IsKnownValue( reg, lo_hi_idx ) || IsCached( reg, lo_hi_idx ), "Checking dirty flag on unknown/uncached register?" );
-	}
-
-	return is_dirty;
-#else
-	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Dirty;
-#endif
-}
+//bool	CN64RegisterCachePSP::IsDirty( EN64Reg reg, u32 lo_hi_idx ) const
+//{
+//#ifdef DAEDALUS_ENABLE_ASSERTS
+//	bool	is_dirty( mRegisterCacheInfo[ reg ][ lo_hi_idx ].Dirty );
+//
+//	if( is_dirty )
+//	{
+//		DAEDALUS_ASSERT( IsKnownValue( reg, lo_hi_idx ) || IsCached( reg, lo_hi_idx ), "Checking dirty flag on unknown/uncached register?" );
+//	}
+//
+//	return is_dirty;
+//#else
+//	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Dirty;
+//#endif
+//}
 
 
 //*****************************************************************************
