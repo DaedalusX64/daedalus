@@ -66,16 +66,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ConfigOptions.h"
 
-/* Undef to kill Exit Callback */
-//#define DAEDALUS_CALLBACKS
+/* Define to enable Exit Callback */
+// Do not enable this, callbacks don't get along with our exit dialog :p
+//
+//#define DAEDALUS_CALLBACKS 
 
 char gDaedalusExePath[MAX_PATH+1] = DAEDALUS_PSP_PATH( "" );
 
 extern "C" 
 { 
-	/* Impose Home button */
-	void SetImposeHomeButton();
-
 	/* Disable FPU exceptions */
 	void _DisableFPUExceptions(); 
 
@@ -296,19 +295,16 @@ static bool	Initialize()
 	// Set up our Kernel Home button or User Button
 	InitHomeButton();
 
-	// Unset home button and imposed to allow use it as normal button
-	SetImposeHomeButton(); 
-
 	// Force non-kernelbuttons when profiling
 #ifdef DAEDALUS_PSP_GPROF
-	gButtons.mode = false;
+	gButtons.kmode = false;
 #endif
 
 	//Init Panic button thread
 	SetupPanic();
 
 	// We have to Callbacks if kernelbuttons.prx failed
-	if( gButtons.mode == false )
+	if( gButtons.kmode == false )
 	{
 #ifdef DAEDALUS_CALLBACKS
 		//Set up callback for our thread

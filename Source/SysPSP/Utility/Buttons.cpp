@@ -28,6 +28,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 /****** Wrapper for Home Button functions ******/
 //
+extern "C" 
+{ 
+	/* Impose Home button */
+	void SetImposeHomeButton();
+}
 
 PSPButtons gButtons;
 //*****************************************************************************
@@ -39,10 +44,16 @@ void InitHomeButton()
 
 	// Start our stack for either kernel or usermode buttons
 	//
-	gButtons.mode  =  ( gGetKernelButtons >= 0 ) ? true : false;
-	gButtons.style =  ( gButtons.mode == true  ) ? PSP_CTRL_HOME : PSP_CTRL_SELECT;
+	gButtons.kmode  =  ( gGetKernelButtons >= 0 ) ? true : false;
+	gButtons.style  =  ( gButtons.kmode == true  ) ? PSP_CTRL_HOME : PSP_CTRL_SELECT;
 
-	printf( "%s to load imposectrl.prx: %08X\n", gButtons.mode ? "Successfully" : "Failed",
+	if( gButtons.kmode == true )
+	{
+		// Unset home button and imposed to allow use it as normal button
+		SetImposeHomeButton(); 
+	}
+
+	printf( "%s to load imposectrl.prx: %08X\n", gButtons.kmode ? "Successfully" : "Failed",
 			gGetKernelButtons );
 }
 

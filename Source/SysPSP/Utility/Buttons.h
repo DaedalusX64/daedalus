@@ -29,7 +29,7 @@ struct PSPButtons
 {
 	//u32		type;			// input type of our buttons, X,O,[] etc, kernel inputs supported too.
 	u32		style;			// input style for either kernel or non-kernel button	
-	bool	mode;			// returns true if kernelbuttons.prx loaded correctly
+	bool	kmode;			// returns true if kernelbuttons.prx loaded correctly
 };
 
 
