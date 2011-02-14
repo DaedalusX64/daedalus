@@ -1,33 +1,31 @@
 
 #define TEST_DISABLE_AI_FUNCS //return PATCH_RET_NOT_PROCESSED;
-
 //*****************************************************************************
 //
 //*****************************************************************************
 u32 Patch_osAiGetLength()
 {
 TEST_DISABLE_AI_FUNCS
+
 	// Getting length from osAiSetNextBuffer is faster than reading it from memory
 	// Also if osAiSetNextBuffer is patched, AI_LEN_REG is no longer valid
-	// Aerogauge doesn't use osAiSetNextBuffer.. so fall back to reading from memory
 	//
 	u32 len = gCurrentLength;
 
-	if( len == 0 )
+	// This check is cuz gCurrentLength will always return 0 when audio is disabled
+	// As a result we'll end up wasting time in trying to get it from memory
+	//
+	if( gAudioPluginEnabled )
 	{
-		len = Memory_AI_GetRegister(AI_LEN_REG);
+		// Aerogauge doesn't use osAiSetNextBuffer.. so fall back to reading from memory
+		//
+		if( len == 0 )
+		{
+			len = Memory_AI_GetRegister(AI_LEN_REG);
+		}
 	}
-	//
-	// Note : Aerogage length is 1408
-	//
-	// Aerogauge speed hack, we should be able to apply this for other roms too soon
-	// overflow length this causes to kill completely sound and get 40%+ speed up
-	//
-#if 0
-	gGPR[REG_v0]._u32_0 = 2880; 
-#else
-	gGPR[REG_v0]._u32_0 = len; 
-#endif
+
+	gGPR[REG_v0]._u32_0 = len; // hardcoding 2880 here causes Aerogauge to get 40%+ speed up, yammy!
 	//gGPR[REG_v0]._s64 = (s64)(s32)len;
 
 	return PATCH_RET_JR_RA;
@@ -58,7 +56,7 @@ TEST_DISABLE_AI_FUNCS
 	}
 	else
 	{
-		gGPR[REG_v0]._u32_0 = ~0;	// Stop DMA operation
+		gGPR[REG_v0]._u32_0 = ~0;
 	}
 	// I think is v0..	
 	//gGPR[REG_v1]._u64 = inter;

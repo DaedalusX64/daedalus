@@ -47,9 +47,16 @@ void InitHomeButton()
 	gButtons.kmode  =  ( gGetKernelButtons >= 0 ) ? true : false;
 	gButtons.style  =  ( gButtons.kmode == true  ) ? PSP_CTRL_HOME : PSP_CTRL_SELECT;
 
+	// Force non-kernelbuttons when profiling
+	//
+#ifdef DAEDALUS_PSP_GPROF
+	gButtons.kmode = false;
+#endif
+
 	if( gButtons.kmode == true )
 	{
 		// Unset home button and imposed to allow use it as normal button
+		//
 		SetImposeHomeButton(); 
 	}
 

@@ -295,11 +295,6 @@ static bool	Initialize()
 	// Set up our Kernel Home button or User Button
 	InitHomeButton();
 
-	// Force non-kernelbuttons when profiling
-#ifdef DAEDALUS_PSP_GPROF
-	gButtons.kmode = false;
-#endif
-
 	//Init Panic button thread
 	SetupPanic();
 
