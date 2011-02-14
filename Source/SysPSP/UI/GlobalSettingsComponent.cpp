@@ -304,7 +304,7 @@ namespace
 		{
 			switch ( gGlobalPreferences.DisplayFramerate )
 			{
-				case 0:		return "No";
+				case 0:		return "None";
 				case 1:		return "FPS";
 				case 2:		return "FPS + VB + SYNC";
 			}
