@@ -97,7 +97,7 @@ struct SRomPreferences;
 
 // Increase this everytime you add a new hack, don't forget to add it in gGameHackNames too !!!
 //
-#define MAX_HACK_NAMES 18
+#define MAX_HACK_NAMES 20
 //
 //*****************************************************************************
 //	Hacks for games etc.
@@ -121,7 +121,8 @@ enum EGameHacks
 	AEROGAUGE,
 	GEX_GECKO,
 	RIDGE_RACER,
-	WONDER_PROJECTJ2
+	WONDER_PROJECTJ2,
+	ANIMAL_CROSSING
 };
 
 //*****************************************************************************

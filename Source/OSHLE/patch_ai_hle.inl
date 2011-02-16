@@ -13,19 +13,16 @@ TEST_DISABLE_AI_FUNCS
 	u32 len = gCurrentLength;
 
 	// This check is cuz gCurrentLength will always return 0 when audio is disabled
-	// As a result we'll end up wasting time in trying to get it from memory
+	// Aerogauge doesn't use osAiSetNextBuffer.. so fall back to reading from memory
 	//
-	if( gAudioPluginEnabled )
+	if( gAudioPluginEnabled && len == 0)
 	{
-		// Aerogauge doesn't use osAiSetNextBuffer.. so fall back to reading from memory
-		//
-		if( len == 0 )
-		{
-			len = Memory_AI_GetRegister(AI_LEN_REG);
-		}
+		len = Memory_AI_GetRegister(AI_LEN_REG);
 	}
 
-	gGPR[REG_v0]._u32_0 = len; // hardcoding 2880 here causes Aerogauge to get 40%+ speed up, yammy!
+	// hardcoding 2880 here causes Aerogauge to get 40%+ speed up, yammy!
+	//
+	gGPR[REG_v0]._u32_0 = len; 
 	//gGPR[REG_v0]._s64 = (s64)(s32)len;
 
 	return PATCH_RET_JR_RA;

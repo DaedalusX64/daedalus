@@ -106,7 +106,7 @@ u32 gNumOfOSFunctions;
 #define PATCH_RET_ERET RET_JR_ERET()
 
 // Increase this number every time we changed the symbol table
-static const u32 MAGIC_HEADER = 0x80000121;
+static const u32 MAGIC_HEADER = 0x80000123;
 
 bool gPatchesInstalled = false;
 
@@ -546,8 +546,8 @@ void Patch_RecurseAndFind()
 			// Eventually we should fix them though 
 			//
 			// osSendMesg - Breaks the in game menu in Zelda OOT
-			//
-			if( ( g_ROM.GameHacks == ZELDA_OOT ) && ( strcmp("osSendMesg",g_PatchSymbols[i]->szName) == 0) )
+			// osSendMesg - Causes Animal Corssing to freeze after the N64 logo
+			if( ( g_ROM.GameHacks == ZELDA_OOT ) || (g_ROM.GameHacks == ANIMAL_CROSSING) && ( strcmp("osSendMesg",g_PatchSymbols[i]->szName) == 0) )
 			{
 				DBGConsole_Msg(0, "Zelda OOT Hack : Disabling [R%s]",g_PatchSymbols[i]->szName);
 				g_PatchSymbols[i]->bFound = false;

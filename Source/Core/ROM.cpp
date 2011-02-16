@@ -72,6 +72,7 @@ const char *gGameHackNames[ MAX_HACK_NAMES ] =
 	"BranchZ Hack",
 	"Gex Depth Hack",
 	"Disable osRestoreInt"
+	"Disable osSendMesg"
 };
 #endif
 
@@ -488,11 +489,14 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5a46:	//FZERO
 		gForceZcmp = true;
 		break;
-	case 0x5547:	//Sin and punishment	
-	case 0x4641:	//Animal crossing	
+	case 0x5547:	//Sin and punishment		
 	case 0x4446:	//Flying Dragon	
 	case 0x5653:	//SSV
 		gTLUTalt_mode = true;
+		break;
+	case 0x4641:	//Animal crossing
+		gTLUTalt_mode = true;
+		g_ROM.GameHacks = ANIMAL_CROSSING;
 		break;
 	// No default case needed, NO_GAME_HACK already set default
 	/*default:
