@@ -547,7 +547,7 @@ void Patch_RecurseAndFind()
 			//
 			// osSendMesg - Breaks the in game menu in Zelda OOT
 			// osSendMesg - Causes Animal Corssing to freeze after the N64 logo
-			if( ( g_ROM.GameHacks == ZELDA_OOT ) || (g_ROM.GameHacks == ANIMAL_CROSSING) && ( strcmp("osSendMesg",g_PatchSymbols[i]->szName) == 0) )
+			if( ((g_ROM.GameHacks == ZELDA_OOT ) || (g_ROM.GameHacks == ANIMAL_CROSSING)) && ( strcmp("osSendMesg",g_PatchSymbols[i]->szName) == 0) )
 			{
 				DBGConsole_Msg(0, "Zelda OOT Hack : Disabling [R%s]",g_PatchSymbols[i]->szName);
 				g_PatchSymbols[i]->bFound = false;

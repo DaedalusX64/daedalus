@@ -1191,30 +1191,6 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 }
 
 //*****************************************************************************
-//
-//*****************************************************************************
-namespace
-{
-inline	v2	GetEdgeForCycleMode( void )
-	{
-		v2 edge( 0.f, 0.f );
-
-		//
-		// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
-		//
-		switch ( gRDPOtherMode.cycle_type )
-		{
-			case CYCLE_COPY:			edge.x += 1.0f; edge.y += 1.0f;	break;
-			case CYCLE_FILL:			edge.x += 1.0f; edge.y += 1.0f;	break;
-			case CYCLE_1CYCLE:											break;
-			case CYCLE_2CYCLE:											break;
-		}
-
-		return edge;
-	}
-}
-
-//*****************************************************************************
 // Used for TexRect, TexRectFlip, FillRect
 //*****************************************************************************
 void PSPRenderer::RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts, bool disable_zbuffer )
@@ -1233,9 +1209,8 @@ void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 {
 	EnableTexturing( tile_idx );
 
-	v2 edge( GetEdgeForCycleMode() );
 	v2 screen0( ConvertN64ToPsp( xy0 ) );
-	v2 screen1( ConvertN64ToPsp( xy1 + edge ) );
+	v2 screen1( ConvertN64ToPsp( xy1 ) );
 	v2 tex_uv0( uv0 - mTileTopLeft[ 0 ] );
 	v2 tex_uv1( uv1 - mTileTopLeft[ 0 ] );
 
@@ -1279,9 +1254,8 @@ void PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 {
 	EnableTexturing( tile_idx );
 
-	v2 edge( GetEdgeForCycleMode() );
 	v2 screen0( ConvertN64ToPsp( xy0 ) );
-	v2 screen1( ConvertN64ToPsp( xy1 + edge ) );
+	v2 screen1( ConvertN64ToPsp( xy1 ) );
 	v2 tex_uv0( uv0 - mTileTopLeft[ 0 ] );
 	v2 tex_uv1( uv1 - mTileTopLeft[ 0 ] );
 
@@ -1336,12 +1310,8 @@ void PSPRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	// This if for C&C - It might break other stuff (I'm not sure if we should allow alpha or not..)
 	//color |= 0xff000000;
 
-	//
-	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
-	//
-	v2 edge( GetEdgeForCycleMode() );
 	v2 screen0( ConvertN64ToPsp( xy0 ) );
-	v2 screen1( ConvertN64ToPsp( xy1 + edge ) );
+	v2 screen1( ConvertN64ToPsp( xy1 ) );
 
 	DL_PF( "      Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 

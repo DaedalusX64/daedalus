@@ -1730,6 +1730,16 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
+enum CycleType
+{
+	CYCLE_1CYCLE = 0,		// Please keep in this order - matches RDP
+	CYCLE_2CYCLE,
+	CYCLE_COPY,
+	CYCLE_FILL,
+};
+//*****************************************************************************
+//
+//*****************************************************************************
 void DLParser_TexRect( MicroCodeCommand command )
 {
 	MicroCodeCommand command2;
@@ -1762,13 +1772,25 @@ void DLParser_TexRect( MicroCodeCommand command )
 	//Not using floats here breaks GE 007 intro
 	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
 	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
-	v2 xy1( tex_rect.x1 / 4.0f, tex_rect.y1 / 4.0f );
+	v2 xy1;
 	v2 uv0( tex_rect.s / 32.0f, tex_rect.t / 32.0f );
 	v2 uv1;
 
-	if ((gOtherModeH & G_CYC_COPY) == G_CYC_COPY)
+	//
+	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
+	//
+	switch ( gRDPOtherMode.cycle_type )
 	{
-		d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
+		case CYCLE_COPY:
+			d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
+		case CYCLE_FILL:
+			xy1.x = (tex_rect.x1 + 4) / 4.0f;
+			xy1.y = (tex_rect.y1 + 4) / 4.0f;
+			break;
+		default:
+			xy1.x = tex_rect.x1 / 4.0f;
+			xy1.y = tex_rect.y1 / 4.0f;
+			break;
 	}
 
 	uv1.x = uv0.x + d.x * ( xy1.x - xy0.x );
@@ -1803,13 +1825,25 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 
 	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
 	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
-	v2 xy1( tex_rect.x1 / 4.0f, tex_rect.y1 / 4.0f );
+	v2 xy1;
 	v2 uv0( tex_rect.s / 32.0f, tex_rect.t / 32.0f );
 	v2 uv1;
 
-	if ((gOtherModeH & G_CYC_COPY) == G_CYC_COPY)
+	//
+	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
+	//
+	switch ( gRDPOtherMode.cycle_type )
 	{
-		d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
+		case CYCLE_COPY:
+			d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
+		case CYCLE_FILL:
+			xy1.x = (tex_rect.x1 + 4) / 4.0f;
+			xy1.y = (tex_rect.y1 + 4) / 4.0f;
+			break;
+		default:
+			xy1.x = tex_rect.x1 / 4.0f;
+			xy1.y = tex_rect.y1 / 4.0f;
+			break;
 	}
 
 	uv1.x = uv0.x + d.x * ( xy1.y - xy0.y );		// Flip - use y
@@ -1821,7 +1855,6 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	
 	PSPRenderer::Get()->TexRectFlip( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );
 }
-
 
 //*****************************************************************************
 //
@@ -1847,7 +1880,23 @@ void DLParser_FillRect( MicroCodeCommand command )
 	}
 
 	v2 xy0( command.fillrect.x0, command.fillrect.y0 );
-	v2 xy1( command.fillrect.x1, command.fillrect.y1 );
+	v2 xy1;
+
+	//
+	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
+	//
+	switch ( gRDPOtherMode.cycle_type )
+	{
+		case CYCLE_COPY:
+		case CYCLE_FILL:
+			xy1.x = command.fillrect.x1 + 1;
+			xy1.y = command.fillrect.y1 + 1;
+			break;
+		default:
+			xy1.x = command.fillrect.x1;
+			xy1.y = command.fillrect.y1;
+			break;
+	}
 
 	// TODO - In 1/2cycle mode, skip bottom/right edges!?
 	// This is done in PSPrenderer.
