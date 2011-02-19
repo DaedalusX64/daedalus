@@ -72,7 +72,9 @@ const char *gGameHackNames[ MAX_HACK_NAMES ] =
 	"BranchZ Hack",
 	"Gex Depth Hack",
 	"Disable osRestoreInt"
-	"Disable osSendMesg"
+	"Texture Update Hack",
+	"Disable osSendMesg",
+	"Screen Update Hack"
 };
 #endif
 
@@ -470,6 +472,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x514D: g_ROM.GameHacks = PMARIO;				break;
 	case 0x3954: g_ROM.GameHacks = TIGERS_HONEY_HUNT;	break;
 	case 0x5443: g_ROM.GameHacks = CHAMELEON_TWIST;		break;
+	case 0x5632: g_ROM.GameHacks = CHAMELEON_TWIST_2;	break;
 	case 0x524c: g_ROM.GameHacks = LOAD_RUNNER;			break;
 	case 0x344b: g_ROM.GameHacks = KIRBY64;				break;
 	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
@@ -498,6 +501,7 @@ void SpecificGameHacks( const ROMHeader & id )
 		gTLUTalt_mode = true;
 		g_ROM.GameHacks = ANIMAL_CROSSING;
 		break;
+	
 	// No default case needed, NO_GAME_HACK already set default
 	/*default:
 		g_ROM.GameHacks = NO_GAME_HACK;

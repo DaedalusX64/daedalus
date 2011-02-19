@@ -76,7 +76,6 @@ static void DumpInformation(PspDebugRegBlock * regs)
 		fprintf(fp, "\tDynarecStackOptimisation:      %01d\n", gDynarecStackOptimisation);
 		fprintf(fp, "\tDynarecLoopOptimisation:       %01d\n", gDynarecLoopOptimisation);	
 		fprintf(fp, "\tOSHooksEnabled:                %01d\n", gOSHooksEnabled);
-		fprintf(fp, "\tCheckN64FPUsageDisable:        %01d\n", gCheckN64FPUsageDisable);
 	}
 
 	fprintf(fp, "\nEmulation CPU State:\n");

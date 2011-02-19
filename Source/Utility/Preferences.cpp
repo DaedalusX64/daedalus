@@ -38,8 +38,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern EFrameskipValue gFrameskipValue;
 extern f32 gZoomX;
-extern u32 gScrnUpd;
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -252,10 +250,6 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		{
 			preferences.CleanSceneEnabled = property->GetBooleanValue( false );
 		}
-		if( section->FindProperty( "CheckN64FPUsageDisable", &property ) )
-		{
-			preferences.CheckN64FPUsageDisable = property->GetBooleanValue( false );
-		}
 		if( section->FindProperty( "AudioRateMatch", &property ) ) 	 
 		{ 	 
             preferences.AudioRateMatch = property->GetBooleanValue( false ); 	 
@@ -287,11 +281,7 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 //		}
 		if( section->FindProperty( "ZoomX", &property ) )
 		{
-			preferences.ZoomX = (float) atof( property->GetValue() );
-		}
-		if( section->FindProperty( "ScrnUpd", &property ) )
-		{
-			preferences.ScrnUpd = (float) atoi( property->GetValue() );
+			preferences.ZoomX = (f32)atof( property->GetValue() );
 		}
 		if( section->FindProperty( "Controller", &property ) )
 		{
@@ -328,14 +318,12 @@ void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences
 	fprintf(fh, "DoubleDisplayEnabled=%d\n",preferences.DoubleDisplayEnabled);
 	fprintf(fh, "SimulateDoubleDisabled=%d\n",preferences.SimulateDoubleDisabled);
 	fprintf(fh, "CleanSceneEnabled=%d\n",preferences.CleanSceneEnabled);
-	fprintf(fh, "CheckN64FPUsageDisable=%d\n",preferences.CheckN64FPUsageDisable);
 	fprintf(fh, "AudioRateMatch=%d\n",preferences.AudioRateMatch);
 	fprintf(fh, "FogEnabled=%d\n",preferences.FogEnabled);
 	fprintf(fh, "CheckTextureHashFrequency=%d\n", ROM_GetTexureHashFrequencyAsFrames( preferences.CheckTextureHashFrequency ) );
 	fprintf(fh, "Frameskip=%d\n", ROM_GetFrameskipValueAsInt( preferences.Frameskip ) );
 	fprintf(fh, "AudioEnabled=%d\n", preferences.AudioEnabled);
 	fprintf(fh, "ZoomX=%f\n", preferences.ZoomX );
-	fprintf(fh, "ScrnUpd=%d\n", preferences.ScrnUpd );
 	fprintf(fh, "MemoryAccessOptimisation=%d\n",preferences.MemoryAccessOptimisation);
 	fprintf(fh, "Controller=%s\n", CInputManager::Get()->GetConfigurationName( preferences.ControllerIndex ));
 	fprintf(fh, "\n");			// Spacer
@@ -474,7 +462,6 @@ SRomPreferences::SRomPreferences()
 	,	DoubleDisplayEnabled( true )
 	,	SimulateDoubleDisabled( false )
 	,	CleanSceneEnabled( false )
-	,	CheckN64FPUsageDisable( false )
 	,	AudioRateMatch( false )
 	,	FogEnabled( false )
 	,   MemoryAccessOptimisation( false )
@@ -483,7 +470,6 @@ SRomPreferences::SRomPreferences()
 	,	Frameskip( FV_DISABLED )
 	,	AudioEnabled( APM_DISABLED )
 	,	ZoomX( 1.0f )
-	,	ScrnUpd( 0 )
 	,	ControllerIndex( 0 )
 {
 }
@@ -501,7 +487,6 @@ void SRomPreferences::Reset()
 	DoubleDisplayEnabled = true;
 	SimulateDoubleDisabled = false;
 	CleanSceneEnabled = false;
-	CheckN64FPUsageDisable = false;
 	AudioRateMatch = false;
 	FogEnabled = false;
 	MemoryAccessOptimisation = false;
@@ -510,7 +495,6 @@ void SRomPreferences::Reset()
 	AudioEnabled = APM_DISABLED;
 //	AudioAdaptFrequency = false;
 	ZoomX = 1.0f;
-	ScrnUpd = 0;
 	ControllerIndex = 0;
 }
 
@@ -527,14 +511,12 @@ void	SRomPreferences::Apply() const
 	gDoubleDisplayEnabled = g_ROM.settings.DoubleDisplayEnabled && DoubleDisplayEnabled; // I don't know why DD won't disabled if we set ||
 	gSimulateDoubleDisabled = g_ROM.settings.SimulateDoubleDisabled || SimulateDoubleDisabled;
 	gCleanSceneEnabled = g_ROM.settings.CleanSceneEnabled || CleanSceneEnabled;
-	gCheckN64FPUsageDisable = g_ROM.settings.CheckN64FPUsageDisable || CheckN64FPUsageDisable;
 	gAudioRateMatch = g_ROM.settings.AudioRateMatch || AudioRateMatch;
 	gFogEnabled = g_ROM.settings.FogEnabled || FogEnabled;
 	gCheckTextureHashFrequency = ROM_GetTexureHashFrequencyAsFrames( CheckTextureHashFrequency );
 	gMemoryAccessOptimisation = g_ROM.settings.MemoryAccessOptimisation || MemoryAccessOptimisation;
 	gFrameskipValue = Frameskip;
 	gZoomX = ZoomX;
-	gScrnUpd = ScrnUpd;
 
 	gAudioPluginEnabled = AudioEnabled;
 //	gAdaptFrequency = AudioAdaptFrequency;

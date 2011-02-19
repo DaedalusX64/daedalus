@@ -105,7 +105,6 @@ u32 gRDPFrame = 0;
 u32 gOtherModeL   = 0;
 u32 gOtherModeH   = 0;
 u32 gRDPHalf1 = 0;
-u32 gScrnUpd = 0;	//Default is 0
 
 extern UcodeInfo last;
 //////////////////////////////////////////////////////////
@@ -610,7 +609,7 @@ void DLParser_Process()
 	// Update Screen only when something is drawn, otherwise several games ex Army Men will flash or shake.
 	// Update Screen earlier, otherwise several games like ex Mario won't work.
 	//
-	if(!gScrnUpd) gGraphicsPlugin->UpdateScreen();
+	if( g_ROM.GameHacks != CHAMELEON_TWIST_2 ) gGraphicsPlugin->UpdateScreen();
 	
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 	u32 code_base = (u32)pTask->t.ucode & 0x1fffffff;
@@ -675,7 +674,9 @@ void DLParser_Process()
 		PSPRenderer::Get()->EndScene();
 	}
 
-	if(gScrnUpd == 1) gGraphicsPlugin->UpdateScreen();
+	// Hack for Chameleon Twist 2, only works if screen is update at last
+	//
+	if( g_ROM.GameHacks == CHAMELEON_TWIST_2 ) gGraphicsPlugin->UpdateScreen();
 
 	// Do this regardless!
 	FinishRDPJob();

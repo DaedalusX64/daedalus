@@ -209,7 +209,7 @@ namespace
 				IO::Path::DeleteRecursive("SaveGames",".hle");
 				ThreadSleepMs(1000);	//safety wait for s
 
-				if (msg.ShowMessage("Do you want to reset settings to default?\n \nNote : This will exit the emulator !", 1))
+				if (msg.ShowMessage("Do you want to reset settings to default?\n \nNote : This will exit the emulator", 1))
 				{
 					remove(DAEDALUS_PSP_PATH("preferences.ini"));
 					remove(DAEDALUS_PSP_PATH("rom.db"));
@@ -220,7 +220,7 @@ namespace
 					sceKernelExitGame();
 				}
 			}
-			else if(msg.ShowMessage("Do you want to reset settings to default?\n \nNote : This will exit the emulator !", 1))
+			else if(msg.ShowMessage("Do you want to reset settings to default?\n \nNote : This will exit the emulator", 1))
 			{
 				remove(DAEDALUS_PSP_PATH("preferences.ini"));
 				remove(DAEDALUS_PSP_PATH("rom.db"));

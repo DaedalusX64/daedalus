@@ -68,7 +68,6 @@ struct RomSettings
 	bool				DoubleDisplayEnabled;
 	bool				SimulateDoubleDisabled;
 	bool				CleanSceneEnabled;
-	bool				CheckN64FPUsageDisable;
 	bool				AudioRateMatch;
 	bool				FogEnabled;
 	bool                MemoryAccessOptimisation;

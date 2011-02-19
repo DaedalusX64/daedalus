@@ -53,7 +53,6 @@ extern bool gOSHooksEnabled;			// Apply os-hooks
 extern bool	gSpeedSyncEnabled;
 extern bool gDoubleDisplayEnabled;
 extern bool gSimulateDoubleDisabled;
-extern bool gCheckN64FPUsageDisable;
 extern bool gAudioRateMatch;
 extern bool gFogEnabled;
 extern bool gMemoryAccessOptimisation;

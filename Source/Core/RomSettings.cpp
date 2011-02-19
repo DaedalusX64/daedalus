@@ -299,11 +299,7 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 		if( p_section->FindProperty( "CleanSceneEnabled", &p_property ) )
 		{
 			settings.CleanSceneEnabled = p_property->GetBooleanValue( false );
-		}
-		if( p_section->FindProperty( "CheckN64FPUsageDisable", &p_property ) )
-		{
-			settings.CheckN64FPUsageDisable = p_property->GetBooleanValue( false );
-		}                 
+		}              
 		if( p_section->FindProperty( "AudioRateMatch", &p_property ) ) 	 
 		{ 	 
 			settings.AudioRateMatch = p_property->GetBooleanValue( false ); 	 
@@ -434,8 +430,7 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	if( !settings.DynarecLoopOptimisation )		fprintf(fh, "DynarecLoopOptimisation=no\n");
 	if( !settings.DoubleDisplayEnabled )		fprintf(fh, "DoubleDisplayEnabled=no\n");
 	if( settings.SimulateDoubleDisabled )		fprintf(fh, "SimulateDoubleDisabled=yes\n");
-	if( settings.CleanSceneEnabled )			fprintf(fh, "CleanSceneEnabled=yes\n");
-	if( settings.CheckN64FPUsageDisable )		fprintf(fh, "CheckN64FPUsageDisable=yes\n"); 	
+	if( settings.CleanSceneEnabled )			fprintf(fh, "CleanSceneEnabled=yes\n");	
 	if( settings.AudioRateMatch )				fprintf(fh, "AudioRateMatch=yes\n"); 
 	if( settings.FogEnabled )					fprintf(fh, "FogEnabled=yes\n"); 
 	 if( settings.MemoryAccessOptimisation )    fprintf(fh, "MemoryAccessOptimisation=yes\n");
@@ -496,7 +491,6 @@ RomSettings::RomSettings()
 ,	DoubleDisplayEnabled( true )
 ,	SimulateDoubleDisabled( false )
 ,	CleanSceneEnabled( false )
-,	CheckN64FPUsageDisable( false )
 ,	AudioRateMatch( false )
 ,	FogEnabled( false )
 ,   MemoryAccessOptimisation( false )
@@ -529,7 +523,6 @@ void	RomSettings::Reset()
 	DoubleDisplayEnabled = true;
 	SimulateDoubleDisabled = false;
 	CleanSceneEnabled = false;
-	CheckN64FPUsageDisable = false;
 	AudioRateMatch = false;
 	FogEnabled = false;
 	MemoryAccessOptimisation = false;

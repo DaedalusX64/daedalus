@@ -147,7 +147,6 @@ struct SRomPreferences
 	bool						DoubleDisplayEnabled;
 	bool						SimulateDoubleDisabled;
 	bool						CleanSceneEnabled;
-	bool						CheckN64FPUsageDisable;
 	bool						AudioRateMatch;
 	bool						FogEnabled;
 	bool                        MemoryAccessOptimisation;
@@ -156,7 +155,6 @@ struct SRomPreferences
 	EFrameskipValue				Frameskip;
 	EAudioPluginMode			AudioEnabled;
 	f32							ZoomX;
-	u32							ScrnUpd;
 	u32							ControllerIndex;
 	u32							PAD1;
 
