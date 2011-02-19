@@ -185,20 +185,20 @@ u32 Patch_bzero()
 	if( (dst & 0x3) | (len & 0x3) ) for(u32 i = 0; i < len; i++) Write8Bits(dst + i, 0);
 	else memset( (void *)ReadAddress(dst), 0, len);
 #else
-	//Copy the unaligned start(if any), byte by byte...
+	//Write(0) to the unaligned start(if any), byte by byte...
 	while((dst & 0x3) && len)
 	{
 		Write8Bits(dst++ , 0);
 		len--;
 	}
 	
-	//Copy the aligned part
+	//Write(0) to the aligned part
 	memset( (void *)ReadAddress(dst), 0, len & ~0x3);
 
-	len &= 0x3;
 	dst += len & ~0x3;
+	len &= 0x3;
 
-	//Copy the unaligned remains(if any), byte by byte...
+	//Write(0) to the unaligned remains(if any), byte by byte...
 	while(len--)
 	{
 		Write8Bits(dst++ , 0);
