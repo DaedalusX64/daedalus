@@ -444,6 +444,46 @@ void Patch_DumpOsEventInfo()
 
 #endif	// DUMPOSFUNCTIONS
 
+bool Patch_Hacks( PatchSymbol * ps )
+{
+	bool	bfound( false );
+
+	// Hacks to disable certain os funcs in games that causes issues
+	// This alot cheaper than adding a check on the func itself, this is only checked once -Salvy
+	// Eventually we should fix them though 
+	//
+	// osSendMesg - Breaks the in game menu in Zelda OOT
+	// osSendMesg - Causes Animal Corssing to freeze after the N64 logo
+	//
+	switch( g_ROM.GameHacks )
+	{
+	case ZELDA_OOT:
+	case ANIMAL_CROSSING:
+		if( strcmp("osSendMesg",ps->szName) == 0) 
+		{
+			bfound = true;
+			break;
+			
+		}
+		break;
+	//
+	// osRestoreInt causes Ridge Racer to BSOD when quick race is about to start
+	//
+	case RIDGE_RACER:
+		if( strcmp("__osRestoreInt",ps->szName) == 0)
+		{
+			bfound = true;
+			break;
+			
+		}
+		break;
+	default:
+		break;
+	}
+	
+	return bfound;
+}
+
 
 //ToDo: Add Status bar for loading OSHLE Patch Symbols.
 void Patch_RecurseAndFind()
@@ -541,23 +581,11 @@ void Patch_RecurseAndFind()
 					break;
 				}
 			}
-			// Hacks to disable certain os funcs in games that causes issues
-			// This alot cheaper than adding a check on the func itself, this is only checked once -Salvy
-			// Eventually we should fix them though 
+			// Disable certain os funcs where it causes issues in some games ex Zelda
 			//
-			// osSendMesg - Breaks the in game menu in Zelda OOT
-			// osSendMesg - Causes Animal Corssing to freeze after the N64 logo
-			if( ((g_ROM.GameHacks == ZELDA_OOT ) || (g_ROM.GameHacks == ANIMAL_CROSSING)) && ( strcmp("osSendMesg",g_PatchSymbols[i]->szName) == 0) )
+			if( Patch_Hacks(g_PatchSymbols[i]) )
 			{
-				DBGConsole_Msg(0, "Zelda OOT Hack : Disabling [R%s]",g_PatchSymbols[i]->szName);
-				g_PatchSymbols[i]->bFound = false;
-				break;
-			}
-			// osRestoreInt causes Ridge Racer to BSOD when quick race is about to start
-			//
-			else if( ( g_ROM.GameHacks == RIDGE_RACER ) && ( strcmp("__osRestoreInt",g_PatchSymbols[i]->szName) == 0) )
-			{
-				DBGConsole_Msg(0, "Ridge Racer Hack : Disabling [R%s]",g_PatchSymbols[i]->szName);
+				DBGConsole_Msg(0, "[ROS Hack : Disabling %s]",g_PatchSymbols[i]->szName);
 				g_PatchSymbols[i]->bFound = false;
 				break;
 			}
