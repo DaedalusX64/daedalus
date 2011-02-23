@@ -206,6 +206,7 @@ static void BlendMode_0x002698041f14ffffLL( BLEND_MODE_ARGS )
 //aA1  : (Combined     - 0           ) * Env          + 0
 static void BlendMode_0x00fffe8ff517f8ffLL (BLEND_MODE_ARGS)
 {
+	sceGuTexEnvColor(details.EnvColour.GetColour());
 	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
 }
 
