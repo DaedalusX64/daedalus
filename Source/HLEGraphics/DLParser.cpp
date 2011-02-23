@@ -619,7 +619,6 @@ void DLParser_Process()
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	GBIMicrocode_ResetMicrocodeHistory();
-	gRDPOtherMode._u64 = 0;			// Use gOtherModeL instead, pretty much the same and cheap on the psp
 #endif
 	if ( last.code_base != code_base )
 	{
@@ -629,6 +628,7 @@ void DLParser_Process()
 	//
 	// Not sure what to init this with. We should probably read it from the dmem
 	//
+	gRDPOtherMode._u64 = 0;	//Better clear this here at Dlist start
 	gOtherModeL = 0;
 	gOtherModeH = 0;
 
@@ -937,9 +937,7 @@ void DLParser_RDPSetOtherMode( MicroCodeCommand command )
 	gOtherModeH = command.inst.cmd0;
 	gOtherModeL = command.inst.cmd1;
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	RDP_SetOtherMode( command.inst.cmd0, command.inst.cmd1 );
-#endif
 }
 
 //*****************************************************************************
