@@ -839,7 +839,7 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 		sceGuDrawArray( DRAW_MODE, render_flags, num_vertices, NULL, p_vertices );
 	}
 }
-extern u32 gOtherModeL;
+
 extern void InitBlenderMode( u32 blender );
 //*****************************************************************************
 //
@@ -861,7 +861,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	}
 	else
 	{
-		if ( (gOtherModeL != Old_OtherModeL) || (m_bZBuffer != Old_UseZBuffer) )
+		if ( (gRDPOtherMode.L != Old_OtherModeL) || (m_bZBuffer != Old_UseZBuffer) )
 		{
 			// Fixes Zfighting issues we have on the PSP.
 			if( gRDPOtherMode.zmode == 3 )
@@ -892,7 +892,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 			sceGuDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
 
 			Old_UseZBuffer = m_bZBuffer;
-			Old_OtherModeL = gOtherModeL;
+			Old_OtherModeL = gRDPOtherMode.L;
 		}
 	}
 
@@ -926,11 +926,11 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	//
 	if(gRDPOtherMode.cycle_type < CYCLE_COPY)
 	{
-		if( gRDPOtherMode.force_bl ) //gOtherModeL & 0x4000 -> gRDPOtherMode.force_bl
+		if( gRDPOtherMode.force_bl ) //gRDPOtherMode.L & 0x4000 -> gRDPOtherMode.force_bl
 		{
-			InitBlenderMode( gRDPOtherMode.blender );	//gOtherModeL >> 16
+			InitBlenderMode( gRDPOtherMode.blender );	//gRDPOtherMode.L >> 16
 		}
-		else if ( gRDPOtherMode.alpha_cvg_sel )	// gOtherModeL & 0x2000 -> gRDPOtherMode.alpha_cvg_sel This is a special case for Tarzan's characters
+		else if ( gRDPOtherMode.alpha_cvg_sel )	// gRDPOtherMode.L & 0x2000 -> gRDPOtherMode.alpha_cvg_sel This is a special case for Tarzan's characters
 		{
 			sceGuDisable( GU_BLEND );
 		}

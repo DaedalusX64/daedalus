@@ -571,9 +571,11 @@ void DLParser_GBI1_SetOtherModeL( MicroCodeCommand command )
 
     u32 mask = ((1 << length) - 1) << shift;
 
-    gOtherModeL = (gOtherModeL&(~mask)) | data;
+    gRDPOtherMode.L = (gRDPOtherMode.L&(~mask)) | data;
 
-    RDP_SetOtherMode( gOtherModeH, gOtherModeL );
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+		RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );
+#endif
 }
 
 //*****************************************************************************
@@ -587,9 +589,11 @@ void DLParser_GBI1_SetOtherModeH( MicroCodeCommand command )
 
     u32 mask = ((1 << length) - 1) << shift;
 
-    gOtherModeH = (gOtherModeH&(~mask)) | data;
+    gRDPOtherMode.H = (gRDPOtherMode.H&(~mask)) | data;
 
-    RDP_SetOtherMode( gOtherModeH, gOtherModeL );
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+		RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );
+#endif
 }
 
 //*****************************************************************************
@@ -604,9 +608,11 @@ void DLParser_GBI2_SetOtherModeL( MicroCodeCommand command )
 	// Mask is constructed slightly differently
 	u32 mask = (u32)((s32)(0x80000000) >> length) >> shift;
 
-	gOtherModeL = (gOtherModeL&(~mask)) | data;
+	gRDPOtherMode.L = (gRDPOtherMode.L&(~mask)) | data;
 
-	RDP_SetOtherMode( gOtherModeH, gOtherModeL );
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+		RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );
+#endif
 }
 
 //*****************************************************************************
@@ -621,9 +627,11 @@ void DLParser_GBI2_SetOtherModeH( MicroCodeCommand command )
     // Mask is constructed slightly differently
     u32 mask = (u32)((s32)(0x80000000) >> length) >> shift;
 
-    gOtherModeH = (gOtherModeH&(~mask)) | data;
+    gRDPOtherMode.H = (gRDPOtherMode.H&(~mask)) | data;
 
-    RDP_SetOtherMode( gOtherModeH, gOtherModeL );
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+		RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );
+#endif
 }
 
 //*****************************************************************************

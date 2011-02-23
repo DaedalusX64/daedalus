@@ -102,8 +102,6 @@ u32 gRDPFrame = 0;
 //*****************************************************************************
 //
 //*****************************************************************************
-u32 gOtherModeL   = 0;
-u32 gOtherModeH   = 0;
 u32 gRDPHalf1 = 0;
 
 extern UcodeInfo last;
@@ -628,9 +626,9 @@ void DLParser_Process()
 	//
 	// Not sure what to init this with. We should probably read it from the dmem
 	//
-	gRDPOtherMode._u64 = 0;	//Better clear this here at Dlist start
-	gOtherModeL = 0;
-	gOtherModeH = 0;
+	//gRDPOtherMode._u64 = 0;	//Better clear this here at Dlist start
+	gRDPOtherMode.L = 0;
+	gRDPOtherMode.H = 0;
 
 	gRDPOtherMode.pad = G_RDP_RDPSETOTHERMODE;
 	gRDPOtherMode.blender = 0x0050;
@@ -934,10 +932,12 @@ void DLParser_RDPSetOtherMode( MicroCodeCommand command )
 {
 	DL_PF( "      RDPSetOtherMode: 0x%08x 0x%08x", command.inst.cmd0, command.inst.cmd1 );
 
-	gOtherModeH = command.inst.cmd0;
-	gOtherModeL = command.inst.cmd1;
+	gRDPOtherMode.H = command.inst.cmd0;
+	gRDPOtherMode.L = command.inst.cmd1;
 
-	RDP_SetOtherMode( command.inst.cmd0, command.inst.cmd1 );
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );
+#endif
 }
 
 //*****************************************************************************

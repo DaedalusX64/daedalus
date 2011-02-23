@@ -711,7 +711,7 @@ const char *	GetBlenderModeDescription( u32 mode )
 //*****************************************************************************
 void	RDP_SetOtherMode( u32 cmd_hi, u32 cmd_lo )
 {
-	gRDPOtherMode._u64 = u64( cmd_hi ) << 32 | u64( cmd_lo );
+	//gRDPOtherMode._u64 = u64( cmd_hi ) << 32 | u64( cmd_lo );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if (gDisplayListFile != NULL)

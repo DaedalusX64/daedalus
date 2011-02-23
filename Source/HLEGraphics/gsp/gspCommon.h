@@ -61,8 +61,6 @@ struct DList
 extern u32 gSegments[16];
 const  u32 MAX_RAM_ADDRESS = (8*1024*1024);
 extern u32 gVertexStride;
-extern u32 gOtherModeL;
-extern u32 gOtherModeH;
 extern u32 gTextureLevel;
 extern u32 gRDPHalf1;
 extern u32 gAmbientLightIdx;

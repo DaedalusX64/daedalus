@@ -545,7 +545,7 @@ void DLParser_TexRect_Last_Legion( MicroCodeCommand command )
 	v2 uv0( tex_rect.s / 32.0f, tex_rect.t / 32.0f );
 	v2 uv1;
 
-	if ((gOtherModeH & G_CYC_COPY) == G_CYC_COPY)
+	if ((gRDPOtherMode.H & G_CYC_COPY) == G_CYC_COPY)
 	{
 		d.x /= 4.0f;	// In copy mode 4 pixels are copied at once.
 	}

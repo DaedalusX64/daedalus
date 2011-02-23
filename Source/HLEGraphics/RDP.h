@@ -120,7 +120,12 @@ typedef struct
 			unsigned int		pad : 8;					// 24..31 - padding
 
 		};
-		u64			_u64;
+		//u64			_u64;
+		struct
+		{
+			u32	L;
+			u32	H;
+		};
 
 	};
 } RDP_OtherMode;
