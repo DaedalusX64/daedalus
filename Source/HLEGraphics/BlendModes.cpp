@@ -1008,6 +1008,7 @@ static void BlendMode_0x0030b2045ffefff8LL (BLEND_MODE_ARGS)
 }
 
 // Zelda OoT logo / flames
+// Uses the same blend as Pokemon Stadium 2 - Pokeball Exit Glowing Light
 //case 0x00272c60350ce37fLL:
 //aRGB0: (Texel1       - Primitive   ) * PrimLODFrac  + Texel0      
 //aA0  : (Texel1       - 1           ) * 1            + Texel0      
@@ -1015,9 +1016,13 @@ static void BlendMode_0x0030b2045ffefff8LL (BLEND_MODE_ARGS)
 //aA1  : (Combined     - 0           ) * Primitive    + 0           
 static void BlendMode_0x00272c60350ce37fLL( BLEND_MODE_ARGS )
 {	
-	// Uses the same blend as Pokemon Stadium 2 - Pokeball Exit Glowing Light
-	details.ColourAdjuster.SetRGB(details.EnvColour);
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+
+	// RGB = Blend(Env, Prim, (T0 + x(t1-Prim)))
+	// A   = (T0+T1-1)*Prim
+	details.ColourAdjuster.SetRGB( details.EnvColour );
+	details.ColourAdjuster.SetA( details.PrimColour  );
+	sceGuTexEnvColor( details.PrimColour.GetColour() );
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);		// XXXX No T1
 }
 
 // Zelda Paths
@@ -1438,8 +1443,8 @@ static void BlendMode_0x00262a603510937fLL (BLEND_MODE_ARGS)
 //aA1  : (0            - 0           ) * 0            + Combined    
 static void BlendMode_0x0025266015fc9378LL (BLEND_MODE_ARGS)
 {
-	details.ColourAdjuster.SetRGB( details.PrimColour.ReplicateAlpha() );	
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+	details.ColourAdjuster.SetRGBA( details.PrimColour.ReplicateAlpha() );
+	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA); //Wally says is REPLACE
 }
 
 

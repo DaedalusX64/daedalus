@@ -236,7 +236,6 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	//case 0x0055:					// ?
 	case 0x0c08:					// In * 0 + In * 1 || :In * AIn + In * 1-A				Tarzan - Medalion in bottom part of the screen
 	//case 0x0c19:					// ?
-	case 0x0f0a:					// In * 0 + In * 1 || :In * 0 + In * 1					SSV - ??? and MM - Walls
 	case 0x0fa5:					// In * 0 + Bl * AMem || :In * 0 + Bl * AMem			OOT Menu
 	//case 0x5f50:					// ?
 	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A		Paper Mario Menu	
@@ -244,6 +243,7 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	case 0xc702:					// Fog * AFog + In * 1-A || :In * 0 + In * 1			Donald Duck - Sky
 	//case 0xc811:					// ?
 	case 0xfa00:					// Fog * AShade + In * 1-A || :Fog * AShade + In * 1-A	F-Zero - Power Roads
+	//case 0x0f0a:					// In * 0 + In * 1 || :In * 0 + In * 1					SSV - ??? and MM - Walls - Already handled
 		sceGuDisable( GU_BLEND );	
 		break;
 	//
