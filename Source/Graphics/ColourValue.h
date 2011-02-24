@@ -76,6 +76,10 @@ class c32 /*: public PixelFormats::Psp::Pf8888*/
 		static const c32	Blue;
 		static const c32	Gold;
 		static const c32	Magenta;
+		static const c32	Turquoise;
+		static const c32	Orange;
+		static const c32	Purple;
+		static const c32	Grey;
 	private:
 		u32		mColour;
 };

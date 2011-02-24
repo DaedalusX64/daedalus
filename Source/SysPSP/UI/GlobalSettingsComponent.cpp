@@ -283,6 +283,10 @@ namespace
 				case GREEN:		return "Green";
 				case MAGENTA:	return "Magenta";
 				case BLUE:		return "Blue";
+				case TURQUOISE:	return "Turquoise";
+				case ORANGE:	return "Orange";
+				case PURPLE:	return "Purple";
+				case GREY:		return "Grey";
 			}
 			DAEDALUS_ERROR( "Unknown Color" );
 			return "?";

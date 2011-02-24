@@ -68,6 +68,10 @@ class CUIContext
 			case GREEN:		BACKGROUND_COLOUR = c32::Green;		break;
 			case MAGENTA:	BACKGROUND_COLOUR = c32::Magenta;	break;
 			case BLUE:		BACKGROUND_COLOUR = c32::Blue;		break;
+			case TURQUOISE:	BACKGROUND_COLOUR = c32::Turquoise;	break;
+			case ORANGE:	BACKGROUND_COLOUR = c32::Orange;	break;
+			case PURPLE:	BACKGROUND_COLOUR = c32::Purple;	break;
+			case GREY:		BACKGROUND_COLOUR = c32::Grey;		break;
 			}
 			ClearBackground( BACKGROUND_COLOUR ); 
 		}

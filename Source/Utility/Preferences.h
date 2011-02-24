@@ -77,8 +77,12 @@ enum EGuiColor
 	GREEN,
 	MAGENTA,
 	BLUE,
+	TURQUOISE,
+	ORANGE,
+	PURPLE,
+	GREY,
 };
-const u32 NUM_COLOR_TYPES = BLUE+1;
+const u32 NUM_COLOR_TYPES = GREY+1;
 
 enum EForceTextureFilter
 {
