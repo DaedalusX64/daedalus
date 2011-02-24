@@ -677,17 +677,17 @@ PSPRenderer::SBlendStateEntry	PSPRenderer::LookupBlendState( u64 mux, bool two_c
 	union
 	{
 		u64		key;
-		u32		kpart[2];
+		struct
+		{
+			u32	L;
+			u32	H;
+		};
 	}un;
 
 	un.key = mux;
 
 	// Top 8 bits are never set - use the very top one to differentiate between 1/2 cycles
-#if 1	//1->faster, 0->old
-	un.kpart[1] |= (two_cycles << 31);
-#else
-	if( two_cycles ) un.key |= u64(1)<<63;
-#endif
+	un.H |= (two_cycles << 31);
 
 	BlendStatesMap::const_iterator	it( mBlendStatesMap.find( un.key ) );
 	if( it != mBlendStatesMap.end() )

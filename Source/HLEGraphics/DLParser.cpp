@@ -916,7 +916,6 @@ void DLParser_SetPrimDepth( MicroCodeCommand command )
 	u32 z  = (command.inst.cmd1 >> 16) & 0x7FFF;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	//u32 z  = (command.inst.cmd1 >> 16) & 0xFFFF;
 	u32 dz = (command.inst.cmd1      ) & 0xFFFF;
 
 	DL_PF("SetPrimDepth: 0x%08x 0x%08x - z: 0x%04x dz: 0x%04x", command.inst.cmd0, command.inst.cmd1, z, dz);
@@ -1736,6 +1735,7 @@ enum CycleType
 	CYCLE_COPY,
 	CYCLE_FILL,
 };
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -1783,12 +1783,12 @@ void DLParser_TexRect( MicroCodeCommand command )
 		case CYCLE_COPY:
 			d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
 		case CYCLE_FILL:
-			xy1.x = (tex_rect.x1 + 4) / 4.0f;
-			xy1.y = (tex_rect.y1 + 4) / 4.0f;
+			xy1.x = (tex_rect.x1 + 4) * 0.25f;
+			xy1.y = (tex_rect.y1 + 4) * 0.25f;
 			break;
 		default:
-			xy1.x = tex_rect.x1 / 4.0f;
-			xy1.y = tex_rect.y1 / 4.0f;
+			xy1.x = tex_rect.x1 * 0.25f;
+			xy1.y = tex_rect.y1 * 0.25f;
 			break;
 	}
 
@@ -1836,12 +1836,12 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 		case CYCLE_COPY:
 			d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
 		case CYCLE_FILL:
-			xy1.x = (tex_rect.x1 + 4) / 4.0f;
-			xy1.y = (tex_rect.y1 + 4) / 4.0f;
+			xy1.x = (tex_rect.x1 + 4) * 0.25f;
+			xy1.y = (tex_rect.y1 + 4) * 0.25f;
 			break;
 		default:
-			xy1.x = tex_rect.x1 / 4.0f;
-			xy1.y = tex_rect.y1 / 4.0f;
+			xy1.x = tex_rect.x1 * 0.25f;
+			xy1.y = tex_rect.y1 * 0.25f;
 			break;
 	}
 

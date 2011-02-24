@@ -62,6 +62,10 @@ void EasyMessage::_RunDialog()
 	case GREEN:		colour = c32::Green;		break;
 	case MAGENTA:	colour = c32::Magenta;	break;
 	case BLUE:		colour = c32::Blue;		break;
+	case TURQUOISE:	colour = c32::Turquoise;		break;
+	case ORANGE:	colour = c32::Orange;		break;
+	case PURPLE:	colour = c32::Purple;		break;
+	case GREY:		colour = c32::Grey;		break;
 	}
 
 	
