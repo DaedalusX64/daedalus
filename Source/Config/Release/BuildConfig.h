@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #undef	DAEDALUS_DEBUG_PIF					// Enable to enable various debugging options for PIF (Peripheral interface)
 #undef	DAEDALUS_DEBUG_CONSOLE				// Enable debug console
-#define DAEDALUS_ALIGN_REGISTERS			// On occasions it seems to slow things down if defined //Corn
+#undef DAEDALUS_ALIGN_REGISTERS			// On occasions it seems to slow things down if defined //Corn
 #undef  DAEDALUS_DEBUG_DYNAREC				// Enable to enable various debugging options for the dynarec
 #undef  DAEDALUS_ENABLE_SYNCHRONISATION		// Enable for sync testing
 #undef  DAEDALUS_LOG						// Enable various logging
