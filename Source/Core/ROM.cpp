@@ -490,6 +490,7 @@ void SpecificGameHacks( const ROMHeader & id )
 		g_ROM.GameHacks = RIDGE_RACER;
 		break;
 	case 0x5a46:	//FZERO
+	case 0x5057:	//WipeOut
 		gForceZcmp = true;
 		break;
 	case 0x5547:	//Sin and punishment		

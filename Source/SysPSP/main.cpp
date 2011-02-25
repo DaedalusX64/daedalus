@@ -101,7 +101,7 @@ bool PSP_IS_SLIM = false;
 //*************************************************************************************
 //Set up our initial eviroment settings for the PSP
 //*************************************************************************************
-PSP_MODULE_INFO( DaedalusX64 Alpha, 0, 1, 1 );
+PSP_MODULE_INFO( DaedalusX64 Beta 3, 0, 1, 1 );
 PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
 //PSP_HEAP_SIZE_KB(20000);// Set Heapsize to 18.5mb
 PSP_HEAP_SIZE_KB(-256);

@@ -826,17 +826,6 @@ static void BlendMode_0x00147e2844fe7b3dLL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_DECAL,GU_TCC_RGBA);
 }
 
-// Super Smash Bros - Dream Land Water & MM Ground in town
-// case 0x00272c041f0c93ffLL:
-//aRGB0: (Texel1       - Texel0      ) * PrimLODFrac  + Texel0
-//aA0  : (Texel1       - Texel0      ) * 1            + Texel0
-//aRGB1: (Combined     - 0           ) * Shade        + 0
-//aA1  : (Combined     - 0           ) * Primitive    + 0
-static void BlendMode_0x00272c041f0c93ffLL (BLEND_MODE_ARGS)
-{
-	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
-}
-
 //Sin and Punishment Grass
 //case 0x00541aa83335feffLL:
 //aRGB0: (Env          - Primitive   ) * Texel0_Alp   + Primitive   
@@ -1048,14 +1037,7 @@ static void BlendMode_0x00121603ff5bfff8LL (BLEND_MODE_ARGS)
 
 static void BlendMode_0x00262a60150c937fLL (BLEND_MODE_ARGS)
 {
-	if( num_cycles == 1 )
-	{
-		details.ColourAdjuster.SetRGB(details.EnvColour);
-	}
-	else {
-		// Do not touch First cycle
-	}
-	
+	details.ColourAdjuster.SetRGB( details.PrimColour );
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
@@ -1448,6 +1430,18 @@ static void BlendMode_0x0025266015fc9378LL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA); //Wally says is REPLACE
 }
 
+// Super Smash Bros - Dream Land Water & MM Ground in town
+// Majora's Mask - Water,bells,trees,ground,inside rooms and grass.
+//case 0x00272c041f0c93ffLL:
+//aRGB0: (Texel1       - Texel0      ) * PrimLODFrac  + Texel0
+//aA0  : (Texel1       - Texel0      ) * 1            + Texel0
+//aRGB1: (Combined     - 0           ) * Shade        + 0
+//aA1  : (Combined     - 0           ) * Primitive    + 0
+static void BlendMode_0x00272c041f0c93ffLL (BLEND_MODE_ARGS)
+{	
+	details.ColourAdjuster.SetA( details.PrimColour );
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
 
 //*****************************************************************************
 // Check if Inexact blend is using default blend

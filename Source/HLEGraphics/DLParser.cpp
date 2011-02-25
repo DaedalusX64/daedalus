@@ -254,9 +254,10 @@ bool DLParser_Initialise()
 	//
 	// Reset all the RDP registers
 	//
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	gRDPOtherMode._u64 = 0;
-#endif
+	//gRDPOtherMode._u64 = 0;
+	gRDPOtherMode.L = 0;
+	gRDPOtherMode.H = 0;
+
 	gRDPOtherMode.pad = G_RDP_RDPSETOTHERMODE;
 	gRDPOtherMode.blender = 0x0050;
 

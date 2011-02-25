@@ -228,7 +228,7 @@ LIBS = -lstdc++ -lpsppower -lpspgu -lpspaudiolib -lpspaudio -lpsprtc -lc -lpng -
 
 EXTRA_TARGETS = EBOOT.PBP dvemgr.prx exception.prx mediaengine.prx imposectrl.prx
 
-PSP_EBOOT_TITLE = DaedalusX64 Alpha
+PSP_EBOOT_TITLE = DaedalusX64 Beta 3
 PSP_EBOOT_ICON  = icon0.png
 PSP_EBOOT_PIC1  = pic1.png
 #PSP_EBOOT_ICON1 = ICON1.PMF

@@ -1295,15 +1295,14 @@ void PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 //*****************************************************************************
 void PSPRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 {
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+/*
 	if ( (gRDPOtherMode._u64 & 0xffff0000) == 0x5f500000 )	//Used by Wave Racer
 	{
 		// this blend mode is mem*0 + mem*1, so we don't need to render it... Very odd!
 		DAEDALUS_ERROR("	mem*0 + mem*1 - skipped");
 		return;
 	}
-#endif
-
+*/
 	// Unless we support fb emulation, we can safetly skip here
 	if( g_CI.Size != G_IM_SIZ_16b )	return;
 
