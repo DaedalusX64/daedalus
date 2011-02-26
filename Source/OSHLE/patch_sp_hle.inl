@@ -195,7 +195,7 @@ TEST_DISABLE_SP_FUNCS
 
 	// Translate virtual addresses to physical...
 	memcpy(pDstTask, pSrcTask, sizeof(OSTask));
-	/*
+	
 	if (pDstTask->t.ucode != 0)
 		pDstTask->t.ucode = (u64 *)ConvertToPhysics((u32)pDstTask->t.ucode);
 
@@ -210,15 +210,15 @@ TEST_DISABLE_SP_FUNCS
 	
 	if (pDstTask->t.output_buff_size != 0)
 		pDstTask->t.output_buff_size = (u64 *)ConvertToPhysics((u32)pDstTask->t.output_buff_size);
-	*/
+	
 
 	// Only data_ptr seems to be required, otherwise our tasks ex video will fail..
 	if (pDstTask->t.data_ptr != 0)
 		pDstTask->t.data_ptr = (u64 *)ConvertToPhysics((u32)pDstTask->t.data_ptr);
-	/*
+	
 	if (pDstTask->t.yield_data_ptr != 0)
 		pDstTask->t.yield_data_ptr = (u64 *)ConvertToPhysics((u32)pDstTask->t.yield_data_ptr);
-	*/
+	
 	// If yielded, use the yield data info
 	if (pSrcTask->t.flags & OS_TASK_YIELDED)
 	{

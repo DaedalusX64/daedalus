@@ -15,7 +15,7 @@ TEST_DISABLE_AI_FUNCS
 	// This check is cuz gCurrentLength will always return 0 when audio is disabled
 	// Aerogauge doesn't use osAiSetNextBuffer.. so fall back to reading from memory
 	//
-	if( gAudioPluginEnabled && len == 0)
+	if( len == 0)
 	{
 		len = Memory_AI_GetRegister(AI_LEN_REG);
 	}
