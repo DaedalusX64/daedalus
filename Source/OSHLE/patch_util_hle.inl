@@ -177,8 +177,11 @@ u32 Patch_bzero()
 	u32 len = gGPR[REG_a1]._u32_0; 
 
 	//Faster but breaks Chameleon Twist 2
-	//memset( (void *)ReadAddress(dst), 0, len);
-
+	memset( (void *)ReadAddress(dst), 0, len);
+	
+	// We need to profile below code, bzero is one of the most used oshle funcs -Salvy
+	//
+/*
 #if 0 //1->Normal, 0->Optimized //Corn
 	// Assume we will only access RAM range
 	//Todo optimize unaligned/odd destinations and lengths //Corn
@@ -205,7 +208,7 @@ u32 Patch_bzero()
 	}
 
 #endif	
-
+*/
 	// return value of dest 
 	gGPR[REG_v0]._u32_0 = gGPR[REG_a0]._u32_0; 
 	
