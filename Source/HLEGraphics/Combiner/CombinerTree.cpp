@@ -454,7 +454,9 @@ void	ApplyModulateTerm( CRenderSettingsModulate * settings, const CCombinerOpera
 			break;
 
 		default:
+#ifndef DAEDALUS_PUBLIC_RELEASE
 			printf( "Unhandled Input: %s\n", GetCombinerInputName( input->GetInput() ) );
+#endif
 			settings->SetInexact();
 			break;
 		}
@@ -471,12 +473,13 @@ void	ApplyModulateTerm( CRenderSettingsModulate * settings, const CCombinerOpera
 		}
 		else
 		{
+#ifndef DAEDALUS_PUBLIC_RELEASE
 			COutputStringStream	str;
 			operand->Stream( str );
 			printf( "\n********************************\n" );
 			printf( "Unhandled rgb - not a simple term: %s\n", str.c_str() );
 			printf( "********************************\n\n" );
-
+#endif
 			settings->SetInexact();
 		}
 	}
@@ -597,7 +600,9 @@ void	CCombinerTree::GenerateRenderSettings( CBlendStates * states, const CCombin
 
 		if( !handled )
 		{
+#ifndef DAEDALUS_PUBLIC_RELEASE
 			printf( "CANNOT BLEND!\n" );
+#endif
 			states->AddColourSettings( new CRenderSettingsInvalid( str.c_str() ) );
 		}
 
@@ -606,11 +611,11 @@ void	CCombinerTree::GenerateRenderSettings( CBlendStates * states, const CCombin
 	{
 		COutputStringStream	str;
 		operand->Stream( str );
-
+#ifndef DAEDALUS_PUBLIC_RELEASE
 		printf( "\n********************************\n" );
 		printf( "Unhandled - inner operand is not an input/product/sum: %s\n", str.c_str() );
 		printf( "********************************\n\n" );
-
+#endif
 		states->AddColourSettings( new CRenderSettingsInvalid( str.c_str() ) );
 	}
 
