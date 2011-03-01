@@ -514,6 +514,21 @@ static void BlendMode_0x0011fe2355fefd7eLL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
 }
 
+// Mega Man 64 - Explosion / Electric Barrier
+// case 0x00ffb3ffff00fe3fLL:
+//aRGB0: (0            - 0           ) * 0            + Texel0
+//aA0  : (Primitive    - 0           ) * Texel0       + 0
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (Combined     - 0           ) * Combined     + 0
+static void BlendMode_0x00ffb3ffff00fe3fLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.PrimColour);
+	details.ColourAdjuster.SetA(details.PrimColour);
+	details.ColourAdjuster.ModulateA(details.PrimColour);
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
+
+
 /* 
  //#N
  */
@@ -1572,6 +1587,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00772c60f5fce378LL); // Zelda Poe
 			BLEND_MODE(0x0077666045fd7f78LL); // Pokemon Stadium 2 Intro Pichu
 			BLEND_MODE(0x00ff95ffff0dfe3fLL); // Animal Crossing Player Shadow
+			BLEND_MODE(0x00ffb3ffff00fe3fLL); // Mega Man 64 Explosion
 			BLEND_MODE(0x00fffe8ff517f8ffLL); // Conker Mouth/Tail
 			default:
 				return BlendMode_Generic;	  // Basic generic blenmode
