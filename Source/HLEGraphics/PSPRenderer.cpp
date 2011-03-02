@@ -312,6 +312,7 @@ PSPRenderer::PSPRenderer()
 ,	mModelViewTop(0)
 ,	mWorldProjectValid(false)
 ,	mProjisNew(true)
+,	mProjUpd(true)
 ,	mWPmodified(false)
 
 ,	m_dwNumIndices(0)
@@ -1674,15 +1675,20 @@ bool PSPRenderer::FlushTris()
 	//	Render out our vertices
 	//	XXXX Should be using GetWorldProject()?
 	//
-	const Matrix4x4 &	projection( mProjectionStack[mProjectionTop] );
+	// Check if Projmatrix has been updated to avoid loading it time and again //Corn
+	if(mProjUpd)
+	{
+		mProjUpd = false;
+		const Matrix4x4 &	projection( mProjectionStack[mProjectionTop] );
 
-	//If decal polys, we shift near/far plane a bit with projection matrix to eliminate z-fight //Corn
-	//Works well in most games and is practically "free", however OOT does not work :(
-	//if( (gRDPOtherMode.zmode == 3) && gRemoveZFighting ) projection.mRaw[10] += 0.0004f;
+		//If decal polys, we shift near/far plane a bit with projection matrix to eliminate z-fight //Corn
+		//Works well in most games and is practically "free", however OOT does not work :(
+		//if( gRDPOtherMode.zmode == 3 ) projection.mRaw[10] += 0.0004f;
 
-	const ScePspFMatrix4 *	p_psp_proj( reinterpret_cast< const ScePspFMatrix4 * >( &projection ) );
-	
-	sceGuSetMatrix( GU_PROJECTION, p_psp_proj );
+		const ScePspFMatrix4 *	p_psp_proj( reinterpret_cast< const ScePspFMatrix4 * >( &projection ) );
+
+		sceGuSetMatrix( GU_PROJECTION, p_psp_proj );
+	}
 
 	DAEDALUS_ASSERT( !gRDPOtherMode.depth_source, " Warning : Using depth source in flushtris" );
 
@@ -2609,7 +2615,7 @@ void PSPRenderer::SetProjection(const Matrix4x4 & mat, bool bPush, bool bReplace
 			mProjectionStack[mProjectionTop] = mat * mProjectionStack[mProjectionTop];
 	}
 
-	mProjisNew = true;	// Note when a new P-matrix has been loaded
+	mProjUpd = mProjisNew = true;	// Note when a new P-matrix has been loaded
 	mWorldProjectValid = false;
 }
 

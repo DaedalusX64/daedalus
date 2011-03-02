@@ -176,39 +176,40 @@ u32 Patch_bzero()
 	u32 dst = gGPR[REG_a0]._u32_0; 
 	u32 len = gGPR[REG_a1]._u32_0; 
 
-	//Faster but breaks Chameleon Twist 2
-	memset( (void *)ReadAddress(dst), 0, len);
+
 	
 	// We need to profile below code, bzero is one of the most used oshle funcs -Salvy
 	//
-/*
+
 #if 0 //1->Normal, 0->Optimized //Corn
 	// Assume we will only access RAM range
 	//Todo optimize unaligned/odd destinations and lengths //Corn
-	if( (dst & 0x3) | (len & 0x3) ) for(u32 i = 0; i < len; i++) Write8Bits(dst + i, 0);
-	else memset( (void *)ReadAddress(dst), 0, len);
+	//Faster but breaks Chameleon Twist 2
+	memset( (void *)ReadAddress(dst), 0, len);
 #else
+	u8 *pdst = (u8*)ReadAddress(dst);
+	
 	//Write(0) to the unaligned start(if any), byte by byte...
-	while((dst & 0x3) && len)
+	while(((u32)pdst & 0x3) && len)
 	{
-		Write8Bits(dst++ , 0);
+		*(u8*)((u32)pdst++ ^ 3) = 0;
 		len--;
 	}
 	
-	//Write(0) to the aligned part
-	memset( (void *)ReadAddress(dst), 0, len & ~0x3);
+	//Write(0) to the 32bit aligned part
+	memset( (void *)pdst, 0, len & ~0x3);
 
-	dst += len & ~0x3;
+	pdst = (u8*)((u32)pdst + (len & ~0x3));
 	len &= 0x3;
 
 	//Write(0) to the unaligned remains(if any), byte by byte...
 	while(len--)
 	{
-		Write8Bits(dst++ , 0);
+		*(u8*)((u32)pdst++ ^ 3) = 0;
 	}
 
 #endif	
-*/
+
 	// return value of dest 
 	gGPR[REG_v0]._u32_0 = gGPR[REG_a0]._u32_0; 
 	
