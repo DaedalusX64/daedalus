@@ -1296,9 +1296,8 @@ void MemoryUpdateDP( u32 flags )
 	DBGConsole_Msg( 0, "Modified DPC_STATUS_REG - now %08x", dpc_status );
 #endif
 	
-	// Do we need this?
 	// Write back the value
-	//Memory_DPC_SetRegister(DPC_STATUS_REG, dpc_status);
+	Memory_DPC_SetRegister(DPC_STATUS_REG, dpc_status);
 
 }
 

@@ -60,19 +60,27 @@ void DMA_SP_CopyFromRDRAM()
 	u32 spmem_address_reg = Memory_SP_GetRegister(SP_MEM_ADDR_REG);
 	u32 rdram_address_reg = Memory_SP_GetRegister(SP_DRAM_ADDR_REG);
 	u32 rdlen_reg         = Memory_SP_GetRegister(SP_RD_LEN_REG);
+	u32 splen			 = (rdlen_reg & 0xFFF) + 1;	//[0-11] is length to transfer
 
-	if ((spmem_address_reg & 0x1000) > 0)
+	//if ((spmem_address_reg & 0x1000) > 0)
+	if(spmem_address_reg & 0x1000)
 	{
-		memcpy_vfpu_BE(&g_pu8SpImemBase[(spmem_address_reg & 0xFFF)],
-					   &g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
-					  (rdlen_reg & 0xFFF)+1 );
+		// Ignore IMEM for speed (we don't use low-level RSP anyways on the PSP)
+		// 
+		/*memcpy_vfpu_BE(&g_pu8SpImemBase[spmem_address_reg],
+					   &g_pu8RamBase[rdram_address_reg], rdlen_reg );*/
 	}
 	else
 	{
-		memcpy_vfpu_BE(&g_pu8SpDmemBase[(spmem_address_reg & 0xFFF)],
-					   &g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
-					  (rdlen_reg & 0xFFF)+1 ); 
+		memcpy_vfpu_BE(&g_pu8SpMemBase[(spmem_address_reg & 0xFFF)],
+					   &g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)], splen); 
+
 	}
+
+	//Clear the DMA Busy
+	Memory_SP_SetRegister(SP_DMA_BUSY_REG, 0);
+	Memory_SP_ClrRegisterBits(SP_STATUS_REG, SP_STATUS_DMA_BUSY);
+
 }
 
 //*****************************************************************************
@@ -83,19 +91,27 @@ void DMA_SP_CopyToRDRAM()
 	u32 spmem_address_reg = Memory_SP_GetRegister(SP_MEM_ADDR_REG);
 	u32 rdram_address_reg = Memory_SP_GetRegister(SP_DRAM_ADDR_REG);
 	u32 wrlen_reg         = Memory_SP_GetRegister(SP_WR_LEN_REG);
+	u32 splen			 = (wrlen_reg & 0xFFF) + 1;	//[0-11] is length to transfer
     
-	if ((spmem_address_reg & 0x1000) > 0)
+	//if ((spmem_address_reg & 0x1000) > 0)
+	if(spmem_address_reg & 0x1000)
 	{
-		memcpy_vfpu_BE(&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
+		// Ignore IMEM for speed (we don't use low-level RSP anyways on the PSP)
+		// 
+		/*memcpy_vfpu_BE(&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
 					   &g_pu8SpImemBase[(spmem_address_reg & 0xFFF)],
-					  (wrlen_reg & 0xFFF)+1 ); 
+					  (wrlen_reg & 0xFFF)+1 ); */
 	}
 	else
 	{
 		memcpy_vfpu_BE(&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
-					   &g_pu8SpDmemBase[(spmem_address_reg & 0xFFF)],
-					  (wrlen_reg & 0xFFF)+1 ); 
+					   &g_pu8SpMemBase[(spmem_address_reg & 0xFFF)], splen);
 	}
+
+	//Clear the DMA Busy
+	Memory_SP_SetRegister(SP_DMA_BUSY_REG, 0);
+	Memory_SP_ClrRegisterBits(SP_STATUS_REG, SP_STATUS_DMA_BUSY);
+
 }
 //*****************************************************************************
 // Copy 64bytes from DRAM to PIF_RAM
