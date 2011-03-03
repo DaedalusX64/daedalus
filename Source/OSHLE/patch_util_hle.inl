@@ -1,4 +1,5 @@
 #define TEST_DISABLE_UTIL_FUNCS //DAEDALUS_PROFILE(__FUNCTION__);
+#include "../SysPSP/Utility/FastMemcpy.h"
 
 u32 Patch___osAtomicDec()
 {
@@ -30,13 +31,18 @@ TEST_DISABLE_UTIL_FUNCS
 	u32 dst = gGPR[REG_a0]._u32_0;
 	u32 src = gGPR[REG_a1]._u32_0;
 	u32 len = gGPR[REG_a2]._u32_0;
-	u32 i;
 
+#if 1	//1->Fast, 0->Old way
+	memcpy_vfpu_LE( (void *)ReadAddress(dst), (void *)ReadAddress(src), len);
+#else
 	//DBGConsole_Msg(0, "memcpy(0x%08x, 0x%08x, %d)", dst, src, len);
-	for (i = 0; i < len; i++)
+	u8 *pdst = (u8*)ReadAddress(dst);
+	u8 *psrc = (u8*)ReadAddress(src);
+	while(len--)
 	{
-		Write8Bits(dst + i,  Read8Bits(src + i));
+		*(u8*)((u32)pdst++ ^ 3) = *(u8*)((u32)psrc++ ^ 3);
 	}
+#endif
 
 	// return value of dest
 	gGPR[REG_v0]._u32_0 = gGPR[REG_a0]._u32_0;	
@@ -145,21 +151,30 @@ TEST_DISABLE_UTIL_FUNCS
 	if (src == dst)
 		return PATCH_RET_JR_RA;
 
+
 	//DBGConsole_Msg(0, "bcopy(0x%08x,0x%08x,%d)", src, dst, len);
 
 	if (dst > src && dst < src + len)
 	{
-		for (int i = len - 1; i >= 0; i--)
+		u8 *pdst = (u8*)ReadAddress(dst + len);
+		u8 *psrc = (u8*)ReadAddress(src + len);
+		while(len--)
 		{
-			Write8Bits(dst + i,  Read8Bits(src + i));
+			*(u8*)((u32)pdst-- ^ 3) = *(u8*)((u32)psrc-- ^ 3);
 		}
 	}
 	else
 	{
-		for (u32 i = 0; i < len; i++)
+#if 1	//1->Fast, 0->Old way
+		memcpy_vfpu_LE( (void *)ReadAddress(dst), (void *)ReadAddress(src), len);
+#else
+		u8 *pdst = (u8*)ReadAddress(dst);
+		u8 *psrc = (u8*)ReadAddress(src);
+		while(len--)
 		{
-			Write8Bits(dst + i,  Read8Bits(src + i));
+			*(u8*)((u32)pdst++ ^ 3) = *(u8*)((u32)psrc++ ^ 3);
 		}
+#endif
 	}
 
 	gGPR[REG_v0]._u32_0 = 0;

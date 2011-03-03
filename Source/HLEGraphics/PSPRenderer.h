@@ -325,7 +325,6 @@ private:
 	u32					mModelViewTop;
 	mutable bool		mWorldProjectValid;
 	bool				mProjisNew;
-	bool				mProjUpd;
 	bool				mWPmodified;
 		
 	u16					m_swIndexBuffer[500];
