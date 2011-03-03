@@ -679,9 +679,9 @@ void Memory_Reset()
 	DBGConsole_Msg(0, "Reseting Memory - %d MB", main_mem/(1024*1024));
 
 	s_nNumDmaTransfers = 0;
-	s_nTotalDmaTransferSize = 0;
-	s_nNumSPTransfers = 0;
-	s_nTotalSPTransferSize = 0;
+	//s_nTotalDmaTransferSize = 0;
+	//s_nNumSPTransfers = 0;
+	//s_nTotalSPTransferSize = 0;
 
 	if(main_mem > MAXIMUM_MEM_SIZE)
 	{

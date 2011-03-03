@@ -41,9 +41,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/patch.h"
 
 u32 s_nNumDmaTransfers = 0;		// Incremented on every Cart->RDRAM Xfer
-u32 s_nTotalDmaTransferSize = 0;	// Total size of every Cart->RDRAM Xfer
-u32 s_nNumSPTransfers = 0;			// Incremented on every RDRAM->SPMem Xfer
-u32 s_nTotalSPTransferSize = 0;	// Total size of every RDRAM->SPMem Xfer
+//u32 s_nTotalDmaTransferSize = 0;	// Total size of every Cart->RDRAM Xfer
+//u32 s_nNumSPTransfers = 0;			// Incremented on every RDRAM->SPMem Xfer
+//u32 s_nTotalSPTransferSize = 0;	// Total size of every RDRAM->SPMem Xfer
 
 bool gDMAUsed = false;
 
@@ -62,6 +62,14 @@ void DMA_SP_CopyFromRDRAM()
 	u32 rdlen_reg         = Memory_SP_GetRegister(SP_RD_LEN_REG);
 	u32 splen			 = (rdlen_reg & 0xFFF) + 1;	//[0-11] is length to transfer
 
+	// Need to debug first
+#ifndef DAEDALUS_PUBLIC_RELEASE
+	if(splen & 0x1)
+	{
+		DAEDALUS_ERROR("Warning, PI DMA DRAM from SP, odd length = %d", splen);
+		splen++;
+	}
+#endif
 	//if ((spmem_address_reg & 0x1000) > 0)
 	if(spmem_address_reg & 0x1000)
 	{
@@ -92,7 +100,15 @@ void DMA_SP_CopyToRDRAM()
 	u32 rdram_address_reg = Memory_SP_GetRegister(SP_DRAM_ADDR_REG);
 	u32 wrlen_reg         = Memory_SP_GetRegister(SP_WR_LEN_REG);
 	u32 splen			 = (wrlen_reg & 0xFFF) + 1;	//[0-11] is length to transfer
-    
+
+	// Need to debug first
+#ifndef DAEDALUS_PUBLIC_RELEASE
+    if(splen & 0x1)
+	{
+		DAEDALUS_ERROR("Warning, PI DMA DRAM to SP, odd length = %d", splen);
+		splen++;
+	}
+#endif
 	//if ((spmem_address_reg & 0x1000) > 0)
 	if(spmem_address_reg & 0x1000)
 	{
@@ -273,8 +289,7 @@ void DMA_PI_CopyToRDRAM()
 		DBGConsole_Msg(0, "Warning, PI DMA, odd length");
 
 		//This makes Doraemon 3 work !
-
-		pi_length_reg ++;
+		pi_length_reg++;
 	}
 
 	if ( IsDom2Addr1( cart_address ) )
@@ -334,7 +349,7 @@ void DMA_PI_CopyToRDRAM()
 
 	if(copy_succeeded)
 	{
-		s_nTotalDmaTransferSize += pi_length_reg;
+		//s_nTotalDmaTransferSize += pi_length_reg;
 
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
 		// Note if dwRescanCount is 0, the rom is only scanned when the
