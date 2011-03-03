@@ -13,7 +13,7 @@
 #
 #	a0		dest vertices			- must be aligned to 16 bytes
 #	a1		source vertices			- must be aligned to 16 bytes
-#	a2		plane
+#	a2		plane					- must be aligned to 16 bytes
 #	a3		in_vertex_count
 #
 #	v0		out_vertex_count
@@ -36,7 +36,7 @@ _ClipToHyperPlane:
 	#	M300		- b
 	#
 	
-	ulv.q		R000, 0($a2)				// load plane equation (we reuse a2 for another purpose)
+	lv.q		R000, 0($a2)				// load plane equation (we reuse a2 for another purpose)
 	
 	or			$a2, $a1, $0				// take a copy of the original source pointer
 	sll			$t1, $a3, 6					// t1 = num_verts*64

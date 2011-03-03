@@ -1435,7 +1435,7 @@ inline v4 PSPRenderer::LightVert( const v3 & norm ) const
 //	Copyright (C) 2002-2006 Nikolaus Gebhardt/Alten Thomas
 //
 //*****************************************************************************
-static const v4 NDCPlane[6] =
+const v4 __attribute__((aligned(16))) NDCPlane[6] =
 {
 	v4(  0.f,  0.f, -1.f, -1.f ),	// near
 	v4(  0.f,  0.f,  1.f, -1.f ),	// far
