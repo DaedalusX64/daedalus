@@ -366,6 +366,6 @@ typedef void ( * AudioHLEInstruction )( AudioHLECommand command );
 #define rdram	((u8*)g_pMemoryBuffers[MEM_RD_RAM])
 
 // Use these functions to interface with the HLE Audio...
-s32 Audio_Ucode();
+void Audio_Ucode();
 
 extern const u16 ResampleLUT[0x200];
