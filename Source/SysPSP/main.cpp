@@ -434,7 +434,14 @@ void HandleEndOfFrame()
 	{
 		if(pad.Buttons & gButtons.style)
 		{
-			activate_pause_menu = true;
+			while(!activate_pause_menu)
+			{
+				sceCtrlPeekBufferPositive(&pad, 1);
+				if(!(pad.Buttons & gButtons.style))
+				{
+					activate_pause_menu = true;
+				}
+			}
 		}
 	}
 	oldButtons = pad.Buttons;

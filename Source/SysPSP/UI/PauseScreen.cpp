@@ -212,6 +212,13 @@ bool	IPauseScreen::IsOptionValid( EMenuOption option ) const
 //*************************************************************************************
 void	IPauseScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
+	static bool button_released(false);
+
+	if(!(new_buttons & gButtons.style) && button_released)
+	{
+		button_released = false;
+		mIsFinished = true;
+	}
 
 	if(old_buttons != new_buttons)
 	{
@@ -227,7 +234,7 @@ void	IPauseScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons
 		}
 		if(new_buttons & gButtons.style)
 		{
-			mIsFinished = true;
+			button_released = true;
 			new_buttons &= ~gButtons.style;
 		}
 	}
