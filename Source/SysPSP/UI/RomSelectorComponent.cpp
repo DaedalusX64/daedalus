@@ -1919,6 +1919,9 @@ void IRomSelectorComponent::Render()
 		return;
 	}
 
+	sceGuEnable(GU_SCISSOR_TEST);
+	sceGuScissor(0,0, 480,272);
+
 	ICON_AREA_TOP = 48;
 	ICON_AREA_LEFT = 20;
 	ICON_AREA_WIDTH = 256;
