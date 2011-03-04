@@ -79,7 +79,7 @@ AudioHLEInstruction *ABI=ABIUnknown;
 //*****************************************************************************
 //
 //*****************************************************************************
-void Audio_Ucode_Detect(OSTask * pTask)
+inline void Audio_Ucode_Detect(OSTask * pTask)
 {
 	if (*(u32*)(g_pu8RamBase + (u32)pTask->t.ucode_data + 0) != 0x01)
 	{

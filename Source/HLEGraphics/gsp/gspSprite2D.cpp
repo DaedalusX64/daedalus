@@ -90,8 +90,8 @@ void DLParser_GBI1_Sprite2DScaleFlip( MicroCodeCommand command )
 void DLParser_GBI1_Sprite2DDraw( MicroCodeCommand command )
 {
     //DL_PF("Not fully implemented");
-    g_Sprite2DInfo.px = (s32)(((command.inst.cmd1)>>16)&0xFFFF)/4;
-    g_Sprite2DInfo.py = (s32)( (command.inst.cmd1)     &0xFFFF)/4;
+    g_Sprite2DInfo.px = (u16)(((command.inst.cmd1)>>16)&0xFFFF)/4;
+    g_Sprite2DInfo.py = (u16)( (command.inst.cmd1)     &0xFFFF)/4;
 
 	DAEDALUS_ASSERT( g_Sprite2DInfo.spritePtr, "g_Sprite2DInfo Null" );
 
@@ -123,16 +123,20 @@ void DLParser_GBI1_Sprite2DDraw( MicroCodeCommand command )
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();
 
-	f32 imageX              = g_Sprite2DInfo.spritePtr->SourceImageOffsetS;
-	f32 imageY              = g_Sprite2DInfo.spritePtr->SourceImageOffsetT;
-	f32 imageW              = ti.GetWidth();
-	f32 imageH              = ti.GetHeight();
+	int imageX, imageY, imageW, imageH;
 
-	f32 frameX              = g_Sprite2DInfo.px;
-	f32 frameY              = g_Sprite2DInfo.py;
-	f32 frameW              = g_Sprite2DInfo.spritePtr->SubImageWidth / g_Sprite2DInfo.scaleX;
-	f32 frameH              = g_Sprite2DInfo.spritePtr->SubImageHeight / g_Sprite2DInfo.scaleY;
+	imageX              = g_Sprite2DInfo.spritePtr->SourceImageOffsetS;
+	imageY              = g_Sprite2DInfo.spritePtr->SourceImageOffsetT;
+	imageW              = ti.GetWidth();
+	imageH              = ti.GetHeight();
 
-	PSPRenderer::Get()->Draw2DTexture( imageX, imageY, frameX ,frameY, imageW, imageH, frameW, frameH);
+	int frameX, frameY, frameW, frameH;
+
+	frameX              = g_Sprite2DInfo.px;
+	frameY              = g_Sprite2DInfo.py;
+	frameW              = g_Sprite2DInfo.spritePtr->SubImageWidth / g_Sprite2DInfo.scaleX;
+	frameH              = g_Sprite2DInfo.spritePtr->SubImageHeight / g_Sprite2DInfo.scaleY;
+
+	PSPRenderer::Get()->Draw2DTexture( (f32)imageX, (f32)imageY, (f32)frameX ,(f32)frameY, (f32)imageW, (f32)imageH, (f32)frameW, (f32)frameH);
 	//g_Sprite2DInfo.spritePtr = 0; // Why ?
 }
