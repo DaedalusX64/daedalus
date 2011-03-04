@@ -1579,11 +1579,10 @@ bool PSPRenderer::FlushTris()
 		PrepareTrisUnclipped( &p_vertices, &num_vertices );
 	}
 
-	// Hack for Conker BFD || no vertices to render? //Corn
-	extern bool bConkerHideShadow;
-	if( (bConkerHideShadow && (g_ROM.GameHacks == CONKER)) || num_vertices == 0)
+	// no vertices to render? //Corn
+	if( num_vertices == 0)
 	{
-		DAEDALUS_ERROR("Warning: Hack for Conker shadow || No Vtx to render" );
+		DAEDALUS_ERROR("No Vtx to render");
 		m_dwNumIndices = 0;
 		mVtxClipFlagsUnion = 0;
 		return true;
@@ -2302,11 +2301,12 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 
 		case G_MWO_POINT_ZSCREEN:
 			{
-				s32 z = val >> 16;
-				DAEDALUS_ERROR( "      Setting ZScreen to 0x%08x", z );
+				//s32 z = val >> 16;
+				//DL_PF( "      Setting ZScreen to 0x%08x", z );
+				DL_PF( "      Setting ZScreen");
 				//Not sure about the scaling here //Corn
 				//SetVtxZ( vert, (( (f32)z / 0x03FF ) + 0.5f ) / 2.0f );
-				SetVtxZ( vert, (( (f32)z ) + 0.5f ) / 2.0f );
+				//SetVtxZ( vert, (( (f32)z ) + 0.5f ) / 2.0f );
 			}
 			break;
 
@@ -2330,6 +2330,7 @@ inline void PSPRenderer::SetVtxColor( u32 vert, c32 color )
 //*****************************************************************************
 //
 //*****************************************************************************
+/*
 inline void PSPRenderer::SetVtxZ( u32 vert, float z )
 {
 	DAEDALUS_ASSERT( vert < MAX_VERTS, " SetVtxZ : Reached max of verts");
@@ -2344,7 +2345,7 @@ inline void PSPRenderer::SetVtxZ( u32 vert, float z )
 	mVtxProjected[vert].TransformedPos.z = z * mVtxProjected[vert].TransformedPos.w;
 #endif
 }
-
+*/
 //*****************************************************************************
 //
 //*****************************************************************************

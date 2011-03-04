@@ -57,7 +57,6 @@ const char *gGameHackNames[ MAX_HACK_NAMES ] =
 	"No Game Specific Hack",
 	"TLB Hack", 
 	"Viewport Hack", 
-	"Conker's Flushtris Hack", 
 	"Pilot Wings' Flushtris Hack",
 	"Zelda OOT Hacks", 
 	"Zelda MM Hacks",
@@ -466,7 +465,6 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x4741: g_ROM.GameHacks = AEROGAUGE;			break;
 	case 0x4547: g_ROM.GameHacks = GOLDEN_EYE;			break;
 	case 0x5742: g_ROM.GameHacks = SUPER_BOWLING;		break;
-	case 0x5546: g_ROM.GameHacks = CONKER;				break;
 	case 0x5750: g_ROM.GameHacks = PILOT_WINGS;			break;
 	case 0x4c5a: g_ROM.GameHacks = ZELDA_OOT;			break;
 	case 0x514D: g_ROM.GameHacks = PMARIO;				break;

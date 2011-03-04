@@ -1974,7 +1974,6 @@ void DLParser_SetCImg( MicroCodeCommand command )
 	g_CI.Width = width;
 }
 
-bool bConkerHideShadow = false;
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -1988,15 +1987,6 @@ void DLParser_SetCombine( MicroCodeCommand command )
 
 	un.mpart[0] = command.inst.cmd1;
 	un.mpart[1] = command.inst.cmd0 & 0x00FFFFFF;
-
-
-	if( g_ROM.GameHacks == CONKER )
-	{
-		if( un.mpart[0] == 0xffd21f0f && un.mpart[1] == 0x00ffe9ff )
-			bConkerHideShadow = true;
-		else
-			bConkerHideShadow = false;
-	}
 
 	RDP_SetMux( un.mux );
 	
