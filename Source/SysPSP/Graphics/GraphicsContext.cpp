@@ -324,16 +324,22 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 		sceDisplayWaitVblankStart();
 	}
 
-	if (PSP_TV_LACED)
+	if( PSP_TV_LACED )
 	{
 		u32 src = (u32)MAKE_UNCACHED_PTR((void*)LACED_DRAW);
 		u32 dst = (u32)MAKE_UNCACHED_PTR((void*)LACED_DISP);
 
 		sceGuStart(GU_DIRECT,ilist);
+#if defined(DAEDALUS_SCRN_16BIT) && defined(ENABLE_DITHERING)
+		sceGuDisable(GU_DITHER);
+#endif
 		sceGuCopyImage(SCR_MODE, 0, 0, 720, 240, 768*2, reinterpret_cast< void * >(src + 768*4), 0, 0, 768, reinterpret_cast< void * >(dst));
 		sceGuTexSync();
 		sceGuCopyImage(SCR_MODE, 0, 0, 720, 240, 768*2, reinterpret_cast< void * >(src), 0, 0, 768, reinterpret_cast< void * >(dst + 768*262*4));
 		sceGuTexSync();
+#if defined(DAEDALUS_SCRN_16BIT) && defined(ENABLE_DITHERING)
+		sceGuEnable(GU_DITHER);
+#endif
 		sceGuFinish();
 		sceGuSync(0,0);
 		p_back = mpBuffers[ 0 ]; // back buffer always draw_buffer on interlaced
@@ -343,7 +349,7 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 		p_back = sceGuSwapBuffers();
 	}
 
-	if ( mDumpNextScreen )
+	if( mDumpNextScreen )
 	{
 		mDumpNextScreen--;
 		if (!mDumpNextScreen)

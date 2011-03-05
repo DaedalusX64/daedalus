@@ -165,8 +165,8 @@ TEST_DISABLE_UTIL_FUNCS
 	}
 	else
 	{
-#if 0	// 0 -> Fast way, but breaks Clay Fighter 63 1-3
-		memcpy_vfpu_LE( (void *)ReadAddress(dst), (void *)ReadAddress(src), len);
+#if 1	// 1->Fast way, 0->Old way, Using VFPU breaks Clay Fighter 63 1-3 for some reason???
+		memcpy_cpu_LE( (void *)ReadAddress(dst), (void *)ReadAddress(src), len);
 #else
 		u8 *pdst = (u8*)ReadAddress(dst);
 		u8 *psrc = (u8*)ReadAddress(src);

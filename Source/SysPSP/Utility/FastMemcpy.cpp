@@ -52,8 +52,8 @@ void memcpy_vfpu_LE( void* dst, void* src, u32 size )
 	u8* udst8;
 	u8* dst64a;
 
-	// < 8 isn't worth trying any optimisations...
-	if (size<8) goto bytecopy;
+	// < 4 isn't worth trying any optimisations...
+	if (size<4) goto bytecopy;
 
 	// Align dst on 4 bytes or just resume if already done
 	while (((((u32)dst8) & 0x3)!=0) && size)
@@ -106,16 +106,7 @@ void memcpy_vfpu_LE( void* dst, void* src, u32 size )
 
 vfpucopy:
 	// Align dst on 16 bytes to gain from vfpu aligned stores
-
-	//printf("1 %8X %8X %d\n",(u32)dst8,(u32)src8,size);
-
-	//while ((((u32)dst8) & 0xF)!=0 && size)
-	//{
-	//	*(u8*)((u32)dst8++ ^ 3) = *(u8*)((u32)src8++ ^ 3);
-	//	size--;
-	//}
-
-	while (((u32)dst32 & 0xF)!=0 && size)
+	while (((u32)dst32 & 0xF)!=0 )
 	{
 		*dst32++ = *src32++;
 		size -= 4;
@@ -401,8 +392,8 @@ void memcpy_vfpu_BE( void* dst, void* src, u32 size )
 	u8* udst8;
 	u8* dst64a;
 
-	// < 8 isn't worth trying any optimisations...
-	if (size<8) goto bytecopy;
+	// < 4 isn't worth trying any optimisations...
+	if (size<4) goto bytecopy;
 
 	// < 64 means we don't gain anything from using vfpu...
 	if (size<64)
@@ -457,7 +448,7 @@ void memcpy_vfpu_BE( void* dst, void* src, u32 size )
 	}
 
 	// Align dst on 16 bytes to gain from vfpu aligned stores
-	while ((((u32)dst8) & 0xF)!=0 && size)
+	while ((((u32)dst8) & 0xF)!=0 )
 	{
 		*dst8++ = *src8++;
 		size--;
@@ -738,8 +729,8 @@ void memcpy_cpu_LE( void* dst, void* src, u32 size )
 	u32* src32;
 	u32* dst32;
 
-	// < 8 isn't worth trying any optimisations...
-	if (size<8) goto bytecopy;
+	// < 4 isn't worth trying any optimisations...
+	if (size<4) goto bytecopy;
 
 	// Align dst on 4 bytes or just resume if already done
 	while (((((u32)dst8) & 0x3)!=0) && size)
