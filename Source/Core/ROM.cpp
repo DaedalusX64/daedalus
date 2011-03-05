@@ -73,7 +73,8 @@ const char *gGameHackNames[ MAX_HACK_NAMES ] =
 	"Disable osRestoreInt"
 	"Texture Update Hack",
 	"Disable osSendMesg",
-	"Screen Update Hack"
+	"Screen Update Hack",
+	"Disable bcopy and osSendMes Hack"
 };
 #endif
 
@@ -475,6 +476,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x344b: g_ROM.GameHacks = KIRBY64;				break;
 	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
 	case 0x5144: g_ROM.GameHacks = DONALD;				break;
+	case 0x4643: g_ROM.GameHacks = CLAY_FIGHTER_63;		break;
 	case 0x3358:	//GEX3
 	case 0x3258:	//GEX64
 		g_ROM.GameHacks = GEX_GECKO;

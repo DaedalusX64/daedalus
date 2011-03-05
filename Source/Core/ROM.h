@@ -122,7 +122,8 @@ enum EGameHacks
 	RIDGE_RACER,
 	WONDER_PROJECTJ2,
 	ANIMAL_CROSSING,
-	CHAMELEON_TWIST_2
+	CHAMELEON_TWIST_2,
+	CLAY_FIGHTER_63
 };
 
 //*****************************************************************************

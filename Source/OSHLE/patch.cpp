@@ -45,6 +45,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DebugLog.h"
 #include "Debug/DBGConsole.h"
 
+#include "../SysPSP/Utility/FastMemcpy.h"
+
 #include "Math/Math.h"	// VFPU Math
 
 #include "DynaRec/Fragment.h"
@@ -106,7 +108,7 @@ u32 gNumOfOSFunctions;
 #define PATCH_RET_ERET RET_JR_ERET()
 
 // Increase this number every time we changed the symbol table
-static const u32 MAGIC_HEADER = 0x80000125;
+static const u32 MAGIC_HEADER = 0x80000126;
 
 bool gPatchesInstalled = false;
 
@@ -454,11 +456,13 @@ bool Patch_Hacks( PatchSymbol * ps )
 	//
 	// osSendMesg - Breaks the in game menu in Zelda OOT
 	// osSendMesg - Causes Animal Corssing to freeze after the N64 logo
+	// osSendMesg - Causes Clay Fighter 63 1-3 to not boot
 	//
 	switch( g_ROM.GameHacks )
 	{
 	case ZELDA_OOT:
 	case ANIMAL_CROSSING:
+	case CLAY_FIGHTER_63:
 		if( strcmp("osSendMesg",ps->szName) == 0) 
 		{
 			bfound = true;

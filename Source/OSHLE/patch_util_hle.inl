@@ -1,5 +1,5 @@
 #define TEST_DISABLE_UTIL_FUNCS //DAEDALUS_PROFILE(__FUNCTION__);
-#include "../SysPSP/Utility/FastMemcpy.h"
+
 
 u32 Patch___osAtomicDec()
 {
@@ -165,7 +165,7 @@ TEST_DISABLE_UTIL_FUNCS
 	}
 	else
 	{
-#if 1	//1->Fast, 0->Old way
+#if 0	// 0 -> Fast way, but breaks Clay Fighter 63 1-3
 		memcpy_vfpu_LE( (void *)ReadAddress(dst), (void *)ReadAddress(src), len);
 #else
 		u8 *pdst = (u8*)ReadAddress(dst);
