@@ -927,6 +927,18 @@ static void BlendMode_0x00121824ff33ffffLL( BLEND_MODE_ARGS )
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
+// Tony Hawk's Pro Skater - Text
+// case 0x00ffffffff09f63fLL:
+//aRGB0: (0            - 0           ) * 0            + Primitive
+//aA0  : (0            - 0           ) * 0            + Primitive
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (Combined     - 0           ) * Texel1       + 0
+static void BlendMode_0x00ffffffff09f63fLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGBA(details.PrimColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
 /*
  //#U
  */
@@ -995,21 +1007,6 @@ static void BlendMode_0x002527ff1ffc9238LL (BLEND_MODE_ARGS)
 {
 	details.ColourAdjuster.SetRGBA(details.PrimColour.ReplicateAlpha());
 	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
-}
-
-
-// OOT - Eponas dust tracks
-//case 0x0030b2045ffefff8LL:
-//aRGB0: (Primitive    - Env         ) * Texel0       + Env         
-//aA0  : (Primitive    - 0           ) * Texel0       + 0           
-//aRGB1: (Combined     - 0           ) * Shade        + 0           
-//aA1  : (0            - 0           ) * 0            + Combined    
-
-static void BlendMode_0x0030b2045ffefff8LL (BLEND_MODE_ARGS)
-{
-	details.ColourAdjuster.SetRGB( c32::White );
-	sceGuTexFunc(GU_TFX_BLEND, GU_TCC_RGBA);
-	
 }
 
 // Zelda OoT logo / flames
@@ -1278,6 +1275,7 @@ static void BlendMode_0x0017166035fcff78LL (BLEND_MODE_ARGS)
 }
 
 //Zelda OOT - Hylian Shield Triforce Badge
+// OOT - Gold Boss Key
 //	case 0x00176c6035d8ed76LL:
 //aRGB0: (Texel0       - Primitive   ) * PrimLODFrac  + Texel0      
 //aA0  : (1            - 1           ) * 1            + 1           
@@ -1285,6 +1283,10 @@ static void BlendMode_0x0017166035fcff78LL (BLEND_MODE_ARGS)
 //aA1  : (1            - 1           ) * 1            + 1           
 static void BlendMode_0x00176c6035d8ed76LL (BLEND_MODE_ARGS)
 {
+	// Fix for Gold Boss Key
+	// sceGuTexEnvColor(details.EnvColour.GetColour());
+	// sceGuTexFunc(GU_TFX_BLEND, GU_TCC_RGB);
+	// details.ColourAdjuster.SetRGB(c32::Gold);
 	details.ColourAdjuster.SetRGB(details.PrimColour);
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
@@ -1396,13 +1398,17 @@ static void BlendMode_0x0030ec6155daed76LL (BLEND_MODE_ARGS)
 }
 
 //OOT Hyrule Castle Wall Shadow
-//	case 0x00267e031ffcfdf8LL:
+// OOT - Temple of Time Pedestal
+// case 0x00267e031ffcfdf8LL:
 //aRGB0: (Texel1       - Texel0      ) * Env_Alpha    + Texel0      
 //aA0  : (0            - 0           ) * 0            + 1           
 //aRGB1: (Combined     - 0           ) * Primitive    + 0           
 //aA1  : (0            - 0           ) * 0            + Combined    
 static void BlendMode_0x00267e031ffcfdf8LL (BLEND_MODE_ARGS)
 {
+	//Fixes Temple of Time Pedestal
+	//details.ColourAdjuster.SetRGB(details.PrimColour);
+	//sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
 	details.ColourAdjuster.SetRGB(details.EnvColour.ReplicateAlpha());		
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
@@ -1456,6 +1462,21 @@ static void BlendMode_0x00272c041f0c93ffLL (BLEND_MODE_ARGS)
 {	
 	details.ColourAdjuster.SetA( details.PrimColour );
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
+// Xena - StrmnNrmn 
+// OOT Horse dust
+//case 0x0030b2045ffefff8LL:
+//aRGB0: (Primitive    - Env         ) * Texel0       + Env         
+//aA0  : (Primitive    - 0           ) * Texel0       + 0           
+//aRGB1: (Combined     - 0           ) * Shade        + 0           
+//aA1  : (0            - 0           ) * 0            + Combined    
+void BlendMode_0x0030b2045ffefff8LL(BLEND_MODE_ARGS)
+{
+	//Copied from old blend file (Possibly could be shorter?)
+	details.ColourAdjuster.SetRGB( c32::White );
+	sceGuTexEnvColor( details.PrimColour.GetColour() );
+	sceGuTexFunc(GU_TFX_BLEND, GU_TCC_RGBA);
 }
 
 //*****************************************************************************
@@ -1589,6 +1610,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00ff95ffff0dfe3fLL); // Animal Crossing Player Shadow
 			BLEND_MODE(0x00ffb3ffff00fe3fLL); // Mega Man 64 Explosion
 			BLEND_MODE(0x00fffe8ff517f8ffLL); // Conker Mouth/Tail
+			BLEND_MODE(0x00ffffffff09f63fLL); // THPS Text
 			default:
 				return BlendMode_Generic;	  // Basic generic blenmode
 			
