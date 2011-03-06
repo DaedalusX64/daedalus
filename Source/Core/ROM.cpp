@@ -89,7 +89,6 @@ u32 g_dwNumFrames = 0;
 //*****************************************************************************
 RomInfo g_ROM;
 bool gTLUTalt_mode;
-bool gForceZcmp;
 
 #ifndef DAEDALUS_SILENT
 //*****************************************************************************
@@ -458,7 +457,6 @@ void SpecificGameHacks( const ROMHeader & id )
 
 	g_ROM.GameHacks = NO_GAME_HACK;	//Default to no game hacks
 	gTLUTalt_mode	= false;		//Alternate Texture mode
-	gForceZcmp		= false;		//Force Z compare
 	
 	switch( id.CartID )
 	{
@@ -477,6 +475,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
 	case 0x5144: g_ROM.GameHacks = DONALD;				break;
 	case 0x4643: g_ROM.GameHacks = CLAY_FIGHTER_63;		break;
+	case 0x5a52: g_ROM.GameHacks = RIDGE_RACER;			break;
 	case 0x3358:	//GEX3
 	case 0x3258:	//GEX64
 		g_ROM.GameHacks = GEX_GECKO;
@@ -484,14 +483,6 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x535a:
 		gTLUTalt_mode = true;
 		g_ROM.GameHacks = ZELDA_MM;
-		break;
-	case 0x5a52:	//RidgeRacer 64
-		gForceZcmp = true;
-		g_ROM.GameHacks = RIDGE_RACER;
-		break;
-	case 0x5a46:	//FZERO
-	case 0x5057:	//WipeOut
-		gForceZcmp = true;
 		break;
 	case 0x5547:	//Sin and punishment		
 	case 0x4446:	//Flying Dragon	
