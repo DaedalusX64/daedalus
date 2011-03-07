@@ -206,8 +206,8 @@ public:
 	void				DisableCombinerState( u64 state )			{ mDisabledCombinerStates.insert( state ); }
 	void				EnableCombinerState( u64 state )			{ mDisabledCombinerStates.erase( state ); }
 
-	void				ToggleDisableCombinerState( u64 state )		{ if( IsCombinerStateDisabled( state )) { EnableCombinerState(state); } else { DisableCombinerState( state ); } }
-
+	void				ToggleDisableCombinerState( u64 state )		{ if( IsCombinerStateDisabled( state )) { EnableCombinerState(state); } else { DisableCombinerState( state ); mNastyTexture = false; } }
+	void				ToggleNastyTexture( bool enable )			{ if( enable =! mNastyTexture ) mNastyTexture = true; else mNastyTexture = false;}
 #endif
 
 	struct SBlendStateEntry
@@ -263,6 +263,7 @@ private:
 	};
 
 	void				SelectPlaceholderTexture( EPlaceholderTextureType type );
+	bool				DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u32 render_flags, u64 mux );
 #endif
 private:
 	enum { MAX_VERTS = 80 };		// F3DLP.Rej supports up to 80 verts!
@@ -350,6 +351,7 @@ private:
 	u32					m_dwNumTrisClipped;
 
 	// Debugging
+	bool				mNastyTexture;
 	bool				mRecordCombinerStates;
 	std::set< u64 >		mRecordedCombinerStates;
 	std::set< u64 >		mDisabledCombinerStates;

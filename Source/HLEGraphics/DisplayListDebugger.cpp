@@ -183,6 +183,7 @@ void CCombinerExplorerDebugMenuOption::Display() const
 
 	printf( "   Use [] to return\n" );
 	printf( "   Use O to select on/off\n" );
+	printf( "   Use /\\ to highlight texture\n" );
 	printf( "   Use up/down to move cursor\n\n" );
 	printf( "   %sHandled Inexact Blend\n", TERMINAL_GREEN );
 	printf( "   %sForced Blend\n", TERMINAL_MAGENTA );
@@ -291,12 +292,22 @@ void CCombinerExplorerDebugMenuOption::Update( const SPspPadState & pad_state, f
 			InvalidateDisplay();
 		}
 
+		if(pad_state.NewButtons & PSP_CTRL_TRIANGLE)
+		{
+			if(selected_state != 0)
+			{
+				PSPRenderer::Get()->ToggleDisableCombinerState( selected_state );
+				PSPRenderer::Get()->ToggleNastyTexture( true );
+				InvalidateDisplay();
+			}
+		}
+
 		if(pad_state.NewButtons & PSP_CTRL_CIRCLE)
 		{
 			if(selected_state != 0)
 			{
 				PSPRenderer::Get()->ToggleDisableCombinerState( selected_state );
-				InvalidateDisplay();
+				InvalidateDisplay(); 
 			}
 		}
 	}
