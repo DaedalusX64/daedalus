@@ -210,6 +210,40 @@ static void BlendMode_0x00fffe8ff517f8ffLL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
 }
 
+//Command & Conquer - Water
+//case 0x001147fffffffe38LL:
+//aRGB0: (Texel0       - 0           ) * Texel1       + 0
+//aA0  : (Shade        - 0           ) * Primitive    + 0
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x001147fffffffe38LL (BLEND_MODE_ARGS)
+{
+	//details.ColourAdjuster.SetA( details.PrimColour );
+	//sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+	sceGuTexFunc(GU_TFX_ADD,GU_TCC_RGBA);
+}
+//Command $ Conquer - Smoke
+//case 0x0041c2835587dfefLL:
+//aRGB0: (Shade        - Env         ) * Primitive    + 0
+//aA0  : (Shade        - Env         ) * Texel0       + 0
+//aRGB1: (Shade        - Env         ) * Primitive    + 0
+//aA1  : (Shade        - Env         ) * Texel0       + 0
+void BlendMode_0x0041c2835587dfefLL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+}
+//Command $ Conquer - Everything
+//case 0x0015982bff327f3fLL:
+//aRGB0: (Texel0       - 0           ) * Shade_Alpha  + Shade
+//aA0  : (Texel0       - 0           ) * Shade        + 0
+//aRGB1: (Texel0       - 0           ) * Shade_Alpha  + Shade
+//aA1  : (Texel0       - 0           ) * Shade        + 0
+void BlendMode_0x0015982bff327f3fLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetA( details.PrimColour );
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);	
+}
+
 /*
  //#D
  */
@@ -1611,6 +1645,9 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00ffb3ffff00fe3fLL); // Mega Man 64 Explosion
 			BLEND_MODE(0x00fffe8ff517f8ffLL); // Conker Mouth/Tail
 			BLEND_MODE(0x00ffffffff09f63fLL); // THPS Text
+			BLEND_MODE(0x0015982bff327f3fLL);
+			BLEND_MODE(0x0041c2835587dfefLL);
+			BLEND_MODE(0x001147fffffffe38LL);
 			default:
 				return BlendMode_Generic;	  // Basic generic blenmode
 			

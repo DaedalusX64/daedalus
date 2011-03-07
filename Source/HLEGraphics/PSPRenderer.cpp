@@ -845,6 +845,8 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 //*****************************************************************************
 //
 //*****************************************************************************
+/// Used for Blend Explorer, or Nasty texture
+//
 bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u32 render_flags, u64 mux )
 {
 	if( mNastyTexture && IsCombinerStateDisabled( mux ) )
@@ -914,7 +916,51 @@ bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u3
 
 	return false;
 }
-#endif
+
+//*****************************************************************************
+//
+//*****************************************************************************
+bool PSPRenderer::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 render_flags, u64 mux)
+{
+	bool	inexact( states->IsInexact() );
+
+	// Only dump missing_mux when we awant to search for inexact blends aka HighlightInexactBlendModes is enabled.
+	// Otherwise will dump lotsa of missing_mux even though is not needed since was handled correctly by auto blendmode thing - Salvy
+	//
+	if( inexact && gGlobalPreferences.HighlightInexactBlendModes)
+	{
+		if(mUnhandledCombinerStates.find( mux ) == mUnhandledCombinerStates.end())
+		{
+			char szFilePath[MAX_PATH+1];
+
+			Dump_GetDumpDirectory(szFilePath, g_ROM.settings.GameName.c_str());
+
+			IO::Path::Append(szFilePath, "missing_mux.txt");
+
+			FILE * fh( fopen(szFilePath, mUnhandledCombinerStates.empty() ? "w" : "a") );
+			if(fh != NULL)
+			{
+				PrintMux( fh, mux );
+				fclose(fh);
+			}
+
+			mUnhandledCombinerStates.insert( mux );
+		}
+	}
+
+	if(inexact && gGlobalPreferences.HighlightInexactBlendModes)
+	{
+		sceGuEnable( GU_TEXTURE_2D );
+		sceGuTexMode( GU_PSM_8888, 0, 0, GL_TRUE );		// maxmips/a2/swizzle = 0
+
+		// Use the nasty placeholder texture
+		SelectPlaceholderTexture( PTT_MISSING );
+		sceGuTexFunc( GU_TFX_REPLACE, GU_TCC_RGBA );
+		sceGuDrawArray( DRAW_MODE, render_flags, num_vertices, NULL, p_vertices );
+	}
+}
+
+#endif	// DAEDALUS_DEBUG_DISPLAYLIST
 
 extern void InitBlenderMode( u32 blender );
 //*****************************************************************************
@@ -1070,105 +1116,68 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	case RM_RENDER_2D:		render_flags |= GU_TRANSFORM_2D; break;
 	case RM_RENDER_3D:		render_flags |= GU_TRANSFORM_3D; break;
 	}
-	/// Used for Blend Explorer, or Nasty texture
+
+	// Used for Blend Explorer, or Nasty texture
 	//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST	
-	if( DebugBlendmode( p_vertices, num_vertices, render_flags, gRDPMux._u64 ) );
-	else
+	if( DebugBlendmode( p_vertices, num_vertices, render_flags, gRDPMux._u64 ) )	return;
 #endif
+
 	// This check is for inexact blends which were handled either by a custom blendmode or auto blendmode thing
-	// This will always return true now, we should remove the null check eventually - Salvy
+	// 
 	if( blend_entry.OverrideFunction != NULL )
 	{
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST	
-		bool	inexact( blend_entry.States->IsInexact() );
-
-		// Only dump missing_mux when we awant to search for inexact blends aka HighlightInexactBlendModes is enabled.
-		// Otherwise will dump lotsa of missing_mux even though is not needed since was handled correctly by auto blendmode thing - Salvy
+		// Used for dumping mux and highlight inexact blend
 		//
-		if( inexact && gGlobalPreferences.HighlightInexactBlendModes)
-		{
-			if(mUnhandledCombinerStates.find( gRDPMux._u64 ) == mUnhandledCombinerStates.end())
-			{
-				char szFilePath[MAX_PATH+1];
-
-				Dump_GetDumpDirectory(szFilePath, g_ROM.settings.GameName.c_str());
-
-				IO::Path::Append(szFilePath, "missing_mux.txt");
-
-				FILE * fh( fopen(szFilePath, mUnhandledCombinerStates.empty() ? "w" : "a") );
-				if(fh != NULL)
-				{
-					PrintMux( fh, gRDPMux._u64 );
-					fclose(fh);
-				}
-
-				mUnhandledCombinerStates.insert( gRDPMux._u64 );
-			}
-		}
-
-		if(inexact && gGlobalPreferences.HighlightInexactBlendModes)
-		{
-			
-			sceGuEnable( GU_TEXTURE_2D );
-			sceGuTexMode( GU_PSM_8888, 0, 0, GL_TRUE );		// maxmips/a2/swizzle = 0
-
-			// Use the nasty placeholder texture
-			SelectPlaceholderTexture( PTT_MISSING );
-			sceGuTexFunc( GU_TFX_REPLACE, GU_TCC_RGBA );
-			sceGuDrawArray( DRAW_MODE, render_flags, num_vertices, NULL, p_vertices );
-		}
-		else
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+		if( DebugMux( blend_entry.States, p_vertices, num_vertices, render_flags, gRDPMux._u64 ) )	return;
 #endif
+
+		// Local vars for now
+		SBlendModeDetails		details;
+
+		details.InstallTexture = true;
+		details.EnvColour = mEnvColour;
+		details.PrimColour = mPrimitiveColour;
+		details.ColourAdjuster.Reset();
+		details.RecolourTextureWhite = false;
+
+		blend_entry.OverrideFunction( gRDPOtherMode.cycle_type == CYCLE_2CYCLE ? 2 : 1, details );
+
+		bool	installed_texture( false );
+
+		if( details.InstallTexture )
 		{
-
-			// Local vars for now
-			SBlendModeDetails		details;
-
-			details.InstallTexture = true;
-			details.EnvColour = mEnvColour;
-			details.PrimColour = mPrimitiveColour;
-			details.ColourAdjuster.Reset();
-			details.RecolourTextureWhite = false;
-
-			blend_entry.OverrideFunction( gRDPOtherMode.cycle_type == CYCLE_2CYCLE ? 2 : 1, details );
-
-			bool	installed_texture( false );
-
-			if( details.InstallTexture )
+			if( mpTexture[ 0 ] != NULL )
 			{
-				if( mpTexture[ 0 ] != NULL )
+				CRefPtr<CNativeTexture> texture;
+
+				if(details.RecolourTextureWhite)
 				{
-					CRefPtr<CNativeTexture> texture;
+					texture = mpTexture[ 0 ]->GetRecolouredTexture( c32::White );
+				}
+				else
+				{
+					texture = mpTexture[ 0 ]->GetTexture();
+				}
 
-					if(details.RecolourTextureWhite)
-					{
-						texture = mpTexture[ 0 ]->GetRecolouredTexture( c32::White );
-					}
-					else
-					{
-						texture = mpTexture[ 0 ]->GetTexture();
-					}
-
-					if(texture != NULL)
-					{
-						texture->InstallTexture();
-						installed_texture = true;
-					}
+				if(texture != NULL)
+				{
+					texture->InstallTexture();
+					installed_texture = true;
 				}
 			}
-
-			// If no texture was specified, or if we couldn't load it, clear it out
-			if( !installed_texture )
-			{
-				sceGuDisable( GU_TEXTURE_2D );
-			}
-
-			details.ColourAdjuster.Process( p_vertices, num_vertices );
-
-			sceGuDrawArray( DRAW_MODE, render_flags, num_vertices, NULL, p_vertices );
 		}
+
+		// If no texture was specified, or if we couldn't load it, clear it out
+		if( !installed_texture )
+		{
+			sceGuDisable( GU_TEXTURE_2D );
+		}
+
+		details.ColourAdjuster.Process( p_vertices, num_vertices );
+
+		sceGuDrawArray( DRAW_MODE, render_flags, num_vertices, NULL, p_vertices );
 	}
 	else if( blend_entry.States != NULL )
 	{
@@ -2771,10 +2780,10 @@ void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 	{
 		//Change integer part
 		fraction = (f32)fabs(mWorldProject.m[y][x] - (s32)mWorldProject.m[y][x]);
-		mWorldProject.m[y][x]	= (f32)(s16)(w1 >> 16) + fraction;
+		mWorldProject.m[y][x]	= (f32)(s16)(w1 >> 16);// + fraction;	// Breaks the trees in Dream Land (SSB)
 
 		fraction = (f32)fabs(mWorldProject.m[y][x+1] - (s32)mWorldProject.m[y][x+1]);
-		mWorldProject.m[y][x+1] = (f32)(s16)(w1 & 0xFFFF) + fraction;
+		mWorldProject.m[y][x+1] = (f32)(s16)(w1 & 0xFFFF);// + fraction; // Breaks the trees in Dream Land (SSB)
 	}
 
 	mWPmodified = true;	//Mark that Worldproject matrix is changed
