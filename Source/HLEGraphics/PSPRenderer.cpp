@@ -920,7 +920,7 @@ bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u3
 //*****************************************************************************
 //
 //*****************************************************************************
-bool PSPRenderer::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 render_flags, u64 mux)
+void PSPRenderer::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 render_flags, u64 mux)
 {
 	bool	inexact( states->IsInexact() );
 
@@ -1130,7 +1130,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		// Used for dumping mux and highlight inexact blend
 		//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		if( DebugMux( blend_entry.States, p_vertices, num_vertices, render_flags, gRDPMux._u64 ) )	return;
+		DebugMux( blend_entry.States, p_vertices, num_vertices, render_flags, gRDPMux._u64 );
 #endif
 
 		// Local vars for now
@@ -2749,7 +2749,7 @@ void PSPRenderer::Draw2DTexture( float imageX, float imageY, float frameX, float
 }
 
 //*****************************************************************************
-//Modify the WorldProject matrix, used by Kirby mostly //Corn
+//Modify the WorldProject matrix, used by Kirby & SSB //Corn
 //*****************************************************************************
 void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 {
@@ -2779,10 +2779,10 @@ void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 	else
 	{
 		//Change integer part
-		fraction = (f32)fabs(mWorldProject.m[y][x] - (s32)mWorldProject.m[y][x]);
+		//fraction = (f32)fabs(mWorldProject.m[y][x] - (s32)mWorldProject.m[y][x]);
 		mWorldProject.m[y][x]	= (f32)(s16)(w1 >> 16);// + fraction;	// Breaks the trees in Dream Land (SSB)
 
-		fraction = (f32)fabs(mWorldProject.m[y][x+1] - (s32)mWorldProject.m[y][x+1]);
+		//fraction = (f32)fabs(mWorldProject.m[y][x+1] - (s32)mWorldProject.m[y][x+1]);
 		mWorldProject.m[y][x+1] = (f32)(s16)(w1 & 0xFFFF);// + fraction; // Breaks the trees in Dream Land (SSB)
 	}
 

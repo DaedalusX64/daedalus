@@ -519,11 +519,11 @@ static void	DLParser_ProcessDList()
 	MicroCodeCommand command;
 
 	//Clean frame buffer at DList start if selected
-	if( gCleanSceneEnabled && CGraphicsContext::CleanScene )
+	/*if( gCleanSceneEnabled && CGraphicsContext::CleanScene )
 	{
 		CGraphicsContext::Get()->Clear(true, false);
 		CGraphicsContext::CleanScene = false;
-	}
+	}*/
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	//Check if address is outside legal RDRAM

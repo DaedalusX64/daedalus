@@ -66,7 +66,7 @@ public:
 	virtual void DumpNextScreen() = 0;
 	virtual void DumpScreenShot() = 0;
 
-	static bool CleanScene;
+	//static bool CleanScene;
 
 
 };
