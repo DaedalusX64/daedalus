@@ -152,8 +152,13 @@ void DMA_SI_CopyFromDRAM( )
 #endif
 
 	Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
+
+#ifdef EXPERIMENTAL_INTERRUPTS
+	Trigger_SIInterrupt();
+#else
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SI);
 	R4300_Interrupt_UpdateCause3();
+#endif
 }
 
 //*****************************************************************************
@@ -173,8 +178,13 @@ void DMA_SI_CopyToDRAM( )
 	memcpy_vfpu_BE(p_dst, p_src, 64);
 
 	Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
+
+#ifdef EXPERIMENTAL_INTERRUPTS
+	Trigger_SIInterrupt();
+#else
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SI);
 	R4300_Interrupt_UpdateCause3();
+#endif
 }
 
 
@@ -388,10 +398,14 @@ void DMA_PI_CopyToRDRAM()
 		else
 			Write32Bits(0x800003F0, gRamSize);
 	}
-
 	Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
+
+#ifdef EXPERIMENTAL_INTERRUPTS
+	Trigger_PIInterrupt();	
+#else
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_PI);
 	R4300_Interrupt_UpdateCause3();
+#endif
 }
 
 //*****************************************************************************
@@ -485,7 +499,13 @@ void DMA_PI_CopyFromRDRAM()
 #endif
 
 	Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
+
+#ifdef EXPERIMENTAL_INTERRUPTS
+	Trigger_PIInterrupt();
+#else
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_PI);
 	R4300_Interrupt_UpdateCause3();
+#endif
+
 }
 

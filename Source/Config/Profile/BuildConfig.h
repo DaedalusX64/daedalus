@@ -49,6 +49,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #undef  DAEDALUS_IS_LEGACY					// Old code, unused etc.. Kept for reference, undef to save space on the elf. Will remove soon.
 #undef	DAEDALUS_DIALOGS					// Enable this to show dialogs in the gui
 
+#define EXPERIMENTAL_INTERRUPTS				// Experimental, based from 1964, more compatible ex: body harvest etc boots now.
+
 // Define this to turn off various debugging features for public release.
 #define DAEDALUS_PUBLIC_RELEASE
 
