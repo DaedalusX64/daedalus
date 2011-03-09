@@ -481,6 +481,23 @@ bool Patch_Hacks( PatchSymbol * ps )
 			
 		}
 		break;
+	//
+	// __osDispatchThread and __osEnqueueAndYield causes Body Harvest to not boot
+	//
+	case BODY_HARVEST:
+		if( strcmp("__osDispatchThread",ps->szName) == 0)
+		{
+			bfound = true;
+			break;
+			
+		}
+		if( strcmp("__osEnqueueAndYield",ps->szName) == 0)
+		{
+			bfound = true;
+			break;
+			
+		}
+		break;
 	default:
 		break;
 	}
@@ -591,7 +608,6 @@ void Patch_RecurseAndFind()
 			{
 				DBGConsole_Msg(0, "[ROS Hack : Disabling %s]",g_PatchSymbols[i]->szName);
 				g_PatchSymbols[i]->bFound = false;
-				break;
 			}
 
 			if (!found_duplicate)
