@@ -1351,13 +1351,17 @@ void MemoryUpdateMI( u32 value )
     else if((value & MI_INTR_MASK_CLR_DP)) mi_intr_mask_reg &= ~MI_INTR_MASK_DP;
 #endif
 
-	if(mi_intr_mask_reg & 0x0000003F & mi_intr_reg)
-	{
-		Memory_MI_SetRegister( MI_INTR_REG, mi_intr_reg );	
-		Memory_MI_SetRegister( MI_INTR_MASK_REG, mi_intr_mask_reg );
+	// Write back
+	Memory_MI_SetRegister( MI_INTR_MASK_REG, mi_intr_mask_reg );
 
+	//if(mi_intr_mask_reg & 0x0000003F & mi_intr_reg)
+	if(mi_intr_mask_reg & mi_intr_reg)
+	{
+		// Trigger an interrupt here, to avoid setting up unnecesary IQRs
+		//
 		R4300_Interrupt_UpdateCause3();
 	}
+
 }
 
 //*****************************************************************************
@@ -1376,6 +1380,9 @@ void MemoryModeRegMI( u32 value )
 	if(value & MI_SET_EBUS) mi_mode_reg |= MI_MODE_EBUS;
     else if(value & MI_CLR_EBUS) mi_mode_reg &= ~MI_MODE_EBUS;
 
+	// Write back
+	Memory_MI_SetRegister( MI_MODE_REG, mi_mode_reg );
+
 	if (value & MI_CLR_DP_INTR)
 	{ 
 		//Only MI_CLR_DP_INTR needs to clear our interrupts
@@ -1383,7 +1390,6 @@ void MemoryModeRegMI( u32 value )
 		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_DP); 
 		R4300_Interrupt_UpdateCause3(); 
 	}
-
 }
 
 #ifdef DAEDALUS_LOG

@@ -1086,7 +1086,13 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	}
 	else
 	{
-		if( (gRDPOtherMode.alpha_cvg_sel ) && !gRDPOtherMode.cvg_x_alpha ) //We need cvg_sel for SSVN characters to display
+		// I don't know what up with the sky on this game, breaks completely our logic of alpha threshold..
+		//
+		// cvg_x_alpha:   0			(!gRDPOtherMode.cvg_x_alpha)
+		// alpha_cvg_sel: 0			(!gRDPOtherMode.alpha_cvg_sel)
+		// alpha_compare: Threshold (gRDPOtherMode.alpha_compare == 1)
+		//
+		if( (g_ROM.GameHacks == AIDYN_CRONICLES || gRDPOtherMode.alpha_cvg_sel ) && !gRDPOtherMode.cvg_x_alpha )
 		{
 			// Use CVG for pixel alpha
 			sceGuDisable(GU_ALPHA_TEST);
@@ -2455,7 +2461,6 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	int mode_u = (rdp_tile.clamp_s || rdp_tile.mask_s == 0) ? GU_CLAMP : GU_REPEAT;
 	int mode_v = (rdp_tile.clamp_t || rdp_tile.mask_t == 0)	? GU_CLAMP : GU_REPEAT;
 
-	//
 	//	In CRDPStateManager::GetTextureDescriptor, we limit the maximum dimension of a
 	//	texture to that define by the mask_s/mask_t value.
 	//	It this happens, the tile size can be larger than the truncated width/height

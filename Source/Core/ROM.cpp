@@ -74,7 +74,8 @@ const char *gGameHackNames[ MAX_HACK_NAMES ] =
 	"Texture Update Hack",
 	"Disable osSendMesg",
 	"Screen Update Hack",
-	"Disable bcopy and osSendMes Hack"
+	"Disable bcopy and osSendMes Hack",
+	"Ignore Alpha"
 };
 #endif
 
@@ -472,6 +473,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5443: g_ROM.GameHacks = CHAMELEON_TWIST;		break;
 	case 0x5632: g_ROM.GameHacks = CHAMELEON_TWIST_2;	break;
 	case 0x524c: g_ROM.GameHacks = LOAD_RUNNER;			break;
+	case 0x5941: g_ROM.GameHacks = AIDYN_CRONICLES;		break;
 	case 0x344b: g_ROM.GameHacks = KIRBY64;				break;
 	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
 	case 0x5144: g_ROM.GameHacks = DONALD;				break;

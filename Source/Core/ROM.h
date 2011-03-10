@@ -97,7 +97,7 @@ struct SRomPreferences;
 
 // Increase this everytime you add a new hack, don't forget to add it in gGameHackNames too !!!
 //
-#define MAX_HACK_NAMES 22
+#define MAX_HACK_NAMES 23
 //
 //*****************************************************************************
 //	Hacks for games etc.
@@ -124,7 +124,8 @@ enum EGameHacks
 	ANIMAL_CROSSING,
 	CHAMELEON_TWIST_2,
 	CLAY_FIGHTER_63,
-	BODY_HARVEST
+	BODY_HARVEST,
+	AIDYN_CRONICLES
 };
 
 //*****************************************************************************
