@@ -181,6 +181,12 @@ u32 gFillColor		= 0xFFFFFFFF;
 
 u32 gVertexStride;
  
+#define SCISSOR_RECT( x0, y0, x1, y1 ) \
+	if( x0 >= scissors.right || y0 >= scissors.bottom ||  \
+		x1 < scissors.left || y1 < scissors.top ) \
+	{ \
+		return; \
+	}
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 //                      Strings                         //
@@ -1489,31 +1495,24 @@ void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts)
 //*****************************************************************************
 void DLParser_SetScissor( MicroCodeCommand command )
 {
-	u32 addr = RDPSegAddr(command.inst.cmd1);
-
 	// The coords are all in 8:2 fixed point
-	u32 x0   = command.scissor.x0;
-	u32 y0   = command.scissor.y0;
-	u32 mode = command.scissor.mode;
-	u32 x1   = command.scissor.x1;
-	u32 y1   = command.scissor.y1;
-
 	// Set up scissoring zone, we'll use it to scissor other stuff ex Texrect
-	scissors.left	= x0 >> 2;
-	scissors.top	= y0 >> 2;
-	scissors.right	= x1 >> 2;
-	scissors.bottom	= y1 >> 2;
-
-	use(mode);
+	//
+	scissors.left    = command.scissor.x0>> 2;
+	scissors.top	 = command.scissor.y0>> 2;
+	scissors.right   = command.scissor.x1>> 2;
+	scissors.bottom  = command.scissor.y1>> 2;
 
 	// Hack to correct Super Bowling's right screen, left screen needs fb emulation
 	if ( g_ROM.GameHacks == SUPER_BOWLING && g_CI.Address%0x100 != 0 )
 	{
+		u32 addr = RDPSegAddr(command.inst.cmd1);
+
 		// right half screen
 		RDP_MoveMemViewport( addr );
 	}
 
-	DL_PF("    x0=%d y0=%d x1=%d y1=%d mode=%d addr=%08X", scissors.left, scissors.top, scissors.right, scissors.bottom, mode, addr);
+	DL_PF("    x0=%d y0=%d x1=%d y1=%d mode=%d", scissors.left, scissors.top, scissors.right, scissors.bottom, command.scissor.mode);
 
 	// Set the cliprect now...
 	if ( scissors.left < scissors.right && scissors.top < scissors.bottom )
@@ -1585,35 +1584,10 @@ void DLParser_LoadBlock( MicroCodeCommand command )
 	u32 dxt			= command.loadtile.th;		// 1.11 fixed point
 
 	use(lrs);
-	//u32 size = lrs + 1;
 
-#if 1	//two different ways to calc offset
-	bool	swapped = (dxt)? false : true;
+	bool	swapped = (dxt) ? false : true;
 
 	u32		src_offset = g_TI.Address + ult * (g_TI.Width << g_TI.Size >> 1) + (uls << g_TI.Size >> 1);
-
-#else
-	bool	swapped;
-	u32		bytes;
-
-	if (dxt == 0)
-	{
-		bytes = 1 << 3;
-		swapped = true;
-	}
-	else
-	{
-		bytes = ((2047 + dxt) / dxt) << 3;						// #bytes
-		swapped = false;
-	}
-
-	//u32		width( bytes2pixels( bytes, g_TI.Size ) );
-	//u32		pixel_offset( (width * ult) + uls );
-	//u32		offset( pixels2bytes( pixel_offset, g_TI.Size ) );
-	//u32		src_offset(g_TI.Address + offset);
-
-	u32		src_offset = g_TI.Address + ult * bytes + (uls << g_TI.Size >> 1);
-#endif
 
 	DL_PF("    Tile:%d (%d,%d - %d) DXT:0x%04x = %d Bytes => %d pixels/line", tile_idx, uls, ult, lrs, dxt, (g_TI.Width << g_TI.Size >> 1), bytes2pixels( (g_TI.Width << g_TI.Size >> 1), g_TI.Size ));
 	DL_PF("    Offset: 0x%08x", src_offset);
@@ -1757,17 +1731,15 @@ void DLParser_TexRect( MicroCodeCommand command )
 	tex_rect.cmd2 = command2.inst.cmd1;
 	tex_rect.cmd3 = command3.inst.cmd1;
 
-	// Removes offscreen texrect, also fixes several glitches like in John Romero's Daikatana
 	// Do compare with integers saves CPU //Corn
 	u32	x0 = tex_rect.x0 >> 2;
 	u32	y0 = tex_rect.y0 >> 2;
 	u32	x1 = tex_rect.x1 >> 2;
 	u32	y1 = tex_rect.y1 >> 2;
 
-	if( x0 >= scissors.right || y0 >= scissors.bottom || x1 < scissors.left || y1 < scissors.top )
-	{
-		return;
-	}
+	// Removes offscreen texrect, also fixes several glitches like in John Romero's Daikatana
+	//
+	SCISSOR_RECT( x0, y0, x1, y1 );
 
 	//Not using floats here breaks GE 007 intro
 	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
@@ -1873,11 +1845,9 @@ void DLParser_FillRect( MicroCodeCommand command )
 	}
 
 	// Removes unnecesary fillrects in Golden Eye and other games.
-	if( command.fillrect.x0 >= scissors.right || command.fillrect.y0 >= scissors.bottom ||
-		command.fillrect.x1 <  scissors.left  || command.fillrect.y1 <  scissors.top )
-	{
-		return;
-	}
+	//
+	SCISSOR_RECT( command.fillrect.x0, command.fillrect.y0, 
+				  command.fillrect.x1, command.fillrect.y1 );
 
 	v2 xy0( command.fillrect.x0, command.fillrect.y0 );
 	v2 xy1;
@@ -1908,27 +1878,25 @@ void DLParser_FillRect( MicroCodeCommand command )
 	// colour just before, so maybe I'm missing something??
 
 	// TODO - Check colour image format to work out how this should be decoded!
+	//c32		colour;
 
-	c32		colour;
-	
-	// We only care for G_IM_SIZ_16b, Note this might change once framebuffer emulation is implemented
-	//
 	if ( g_CI.Size == G_IM_SIZ_16b )
 	{
 		PixelFormats::N64::Pf5551	c( (u16)gFillColor );
 
-		colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf5551 >( c );
+		c32 colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf5551 >( c );
 
 		//printf( "FillRect: %08x, %04x\n", colour.GetColour(), c.Bits );
+		DL_PF("    Filling Rectangle");
+		PSPRenderer::Get()->FillRect( xy0, xy1, colour.GetColour() );
 
 	}
 	else
 	{
-		colour = c32( gFillColor );
+		//colour = c32( gFillColor );
+		// Unless we support fb emulation, we can safetly ignore this fillrect
+		//
 	}
-
-	DL_PF("    Filling Rectangle");
-	PSPRenderer::Get()->FillRect( xy0, xy1, colour.GetColour() );
 }
 
 //*****************************************************************************

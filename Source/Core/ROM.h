@@ -97,7 +97,7 @@ struct SRomPreferences;
 
 // Increase this everytime you add a new hack, don't forget to add it in gGameHackNames too !!!
 //
-#define MAX_HACK_NAMES 23
+#define MAX_HACK_NAMES 22
 //
 //*****************************************************************************
 //	Hacks for games etc.
@@ -112,7 +112,6 @@ enum EGameHacks
 	ZELDA_MM,
 	TIGERS_HONEY_HUNT,
 	CHAMELEON_TWIST,
-	LOAD_RUNNER,
 	KIRBY64,
 	TARZAN,
 	DONALD,

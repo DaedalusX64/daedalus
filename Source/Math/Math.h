@@ -350,7 +350,7 @@ inline int pspFpuRound(float fs)
 
 // I'm not sure if the vfpu_fmaxf and vfpu_fminf it's slwoer or faster than fpu version
 // Let's do regardless to avoid overhead.
-
+/*
 inline float pspFpuMax(float fs1, float fs2)
 {
 	register float fd;
@@ -364,7 +364,7 @@ inline float pspFpuMin(float fs1, float fs2)
 	fd = (fs1 < fs2) ? fs1 : fs2;
 	return (fd);
 }
-
+*/
 inline int pspFpuIsNaN(float f)
 {
 	int v;

@@ -111,6 +111,28 @@ inline void swizzle_fast(u8* out, const u8* in, u32 width, u32 height)
 	DAEDALUS_ASSERT( (width & 15 ) == 0, "Width is not a multiple of 16 - is %d", width );
 	DAEDALUS_ASSERT( (height & 7 ) == 0, "Height is not a multiple of 8 - is %d", height );
 
+#if 1	//1->Raphaels version, 0->Original
+	u32 rowblocks = (width / 16);
+	u32 rowblocks_add = (rowblocks - 1) * 128;
+	u32 block_address = 0;
+	u32 *src = (u32*)in;
+
+	for (u32 j = 0; j < height; j++,block_address+=16)
+	{
+		u32 *block = (u32*)&out[block_address];
+		
+		for (u32 i = 0; i < rowblocks; i++)
+		{
+			*block++ = *src++;
+			*block++ = *src++;
+			*block++ = *src++;
+			*block++ = *src++;
+			block += 28;
+		}
+
+		if ((j & 0x7) == 0x7) block_address += rowblocks_add;
+	}
+#else
 	u32 width_blocks = (width / 16);
 	u32 height_blocks = (height / 8);
 
@@ -138,6 +160,7 @@ inline void swizzle_fast(u8* out, const u8* in, u32 width, u32 height)
 		}
 		ysrc += src_row;
 	}
+#endif
 }
 
 //*****************************************************************************
@@ -224,7 +247,7 @@ u32	GetTextureBlockWidth( u32 dimension, ETextureFormat texture_format )
 u32	CorrectDimension( u32 dimension )
 {
 	static const u32 MIN_TEXTURE_DIMENSION = 1;
-	return pspFpuMax( GetNextPowerOf2( dimension ), MIN_TEXTURE_DIMENSION );
+	return Max( GetNextPowerOf2( dimension ), MIN_TEXTURE_DIMENSION );
 }
 
 }

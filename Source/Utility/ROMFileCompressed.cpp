@@ -243,7 +243,7 @@ bool	ROMFileCompressed::Seek( u32 offset, u8 * p_scratch_block, u32 block_size )
 	while( current_offset < offset )
 	{
 		u32 bytes_remaining( offset - current_offset );
-		u32	bytes_to_read( pspFpuMin( bytes_remaining, block_size ) );
+		u32	bytes_to_read( Min( bytes_remaining, block_size ) );
 
 		u32 bytes_read( unzReadCurrentFile( mZipFile, p_scratch_block, bytes_to_read ) );
 		if(bytes_read != bytes_to_read)

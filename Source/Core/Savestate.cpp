@@ -62,7 +62,7 @@ public:
 
 	inline void write_memory_buffer(int buffernum, u32 size = 0)
 	{
-		write(g_pMemoryBuffers[buffernum], size ? pspFpuMin(MemoryRegionSizes[buffernum], size) : MemoryRegionSizes[buffernum]);
+		write(g_pMemoryBuffers[buffernum], size ? Min(MemoryRegionSizes[buffernum], size) : MemoryRegionSizes[buffernum]);
 		if(size > MemoryRegionSizes[buffernum])
 			skip(size - MemoryRegionSizes[buffernum]);
 	}
@@ -70,7 +70,7 @@ public:
 	// I had to add this as the PIF ram now lies in the same chunk as the PIF rom.
 	inline void write_memory_buffer_offset(int buffernum, u32 offset, u32 size )
 	{
-		write((u8*)g_pMemoryBuffers[buffernum] + offset, size ? pspFpuMin(MemoryRegionSizes[buffernum], size) : MemoryRegionSizes[buffernum]);
+		write((u8*)g_pMemoryBuffers[buffernum] + offset, size ? Min(MemoryRegionSizes[buffernum], size) : MemoryRegionSizes[buffernum]);
 		if(size > MemoryRegionSizes[buffernum])
 			skip(size - MemoryRegionSizes[buffernum]);
 	}
@@ -104,7 +104,7 @@ public:
 			size_t	remaining( size );
 			while( remaining > 0 )
 			{
-				u32		max_to_write( pspFpuMin( remaining, MAX_ZEROES ) );
+				u32		max_to_write( Min( remaining, MAX_ZEROES ) );
 
 				mStream.WriteData( zeroes, max_to_write );
 
@@ -145,14 +145,14 @@ public:
 
 	inline void read_memory_buffer(int buffernum, u32 size = 0)
 	{
-		read(g_pMemoryBuffers[buffernum], size ? pspFpuMin(MemoryRegionSizes[buffernum], size) : MemoryRegionSizes[buffernum]);
+		read(g_pMemoryBuffers[buffernum], size ? Min(MemoryRegionSizes[buffernum], size) : MemoryRegionSizes[buffernum]);
 		if(size > MemoryRegionSizes[buffernum])
 			skip(size - MemoryRegionSizes[buffernum]);
 	}
 
 	inline void read_memory_buffer_offset(int buffernum, u32 offset, u32 size )
 	{
-		read((u8*)g_pMemoryBuffers[buffernum] + offset, size ? pspFpuMin(MemoryRegionSizes[buffernum], size) : MemoryRegionSizes[buffernum]);
+		read((u8*)g_pMemoryBuffers[buffernum] + offset, size ? Min(MemoryRegionSizes[buffernum], size) : MemoryRegionSizes[buffernum]);
 		if(size > MemoryRegionSizes[buffernum])
 			skip(size - MemoryRegionSizes[buffernum]);
 	}
@@ -200,7 +200,7 @@ public:
 			size_t		remaining( size );
 			while( remaining > 0 )
 			{
-				u32		max_to_read( pspFpuMin( remaining, BUFFER_SIZE ) );
+				u32		max_to_read( Min( remaining, BUFFER_SIZE ) );
 
 				mStream.ReadData( buffer, max_to_read );
 

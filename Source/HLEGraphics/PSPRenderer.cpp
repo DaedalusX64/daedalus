@@ -486,22 +486,18 @@ void PSPRenderer::SetVIScales()
 	if( width > 0x300 )	
 		fViHeight *= 2.0f;
 
-	//Sometimes HStartReg and VStartReg are zero
-	//This fixes gaps is some games ex: CyberTiger
-	if( fViWidth < 100)
-	{
-		// Load Runner in game sets zero for fViWidth, but VI_WIDTH_REG sets 640..which is wrong
-		//
-		if( g_ROM.GameHacks == LOAD_RUNNER )
-			fViWidth = 320.0f;
-		else
-			fViWidth = (f32)Memory_VI_GetRegister( VI_WIDTH_REG );
-	}
+	// Sometimes HStartReg and VStartReg are zero
+	// This fixes gaps is some games ex: CyberTiger
+	// Height has priority - Bug fix for Load Runner
+	//
 	if( fViHeight < 100) 
 	{
 		fViHeight = fViWidth * 0.75f; //sRatio
 	}
-
+	else if( fViWidth < 100) 
+	{
+		fViWidth = (f32)Memory_VI_GetRegister( VI_WIDTH_REG );
+	}
 	//Used to set a limit on Scissors //Corn
 	//uViWidth  = (u32)fViWidth - 1;
 	//uViHeight = (u32)fViHeight - 1;
@@ -1311,9 +1307,6 @@ void PSPRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 		return;
 	}
 */
-	// Unless we support fb emulation, we can safetly skip here
-	if( g_CI.Size != G_IM_SIZ_16b )	return;
-
 	// This if for C&C - It might break other stuff (I'm not sure if we should allow alpha or not..)
 	//color |= 0xff000000;
 
