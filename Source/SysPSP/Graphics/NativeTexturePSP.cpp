@@ -79,59 +79,54 @@ EPspTextureFormat	GetPspTextureFormat( ETextureFormat texture_format )
 	return PspTexFmt_8888;
 }
 
-
 //*****************************************************************************
 //	This is slower, but necessary because it deals with heights of < 8
 //*****************************************************************************
-void swizzle_slow(u8* out, const u8* in, unsigned int width, unsigned int height)
+/*void swizzle_slow(u8* out, const u8* in, u32 width, u32 height)
 {
-	unsigned int i,j;
-	unsigned int rowblocks = (width / 16);
+	u32 rowblocks = (width / 16);
 
-	for (j = 0; j < height; ++j)
+	for (u32 j = 0; j < height; ++j)
 	{
-		for (i = 0; i < width; ++i)
+		for (u32 i = 0; i < width; ++i)
 		{
-			unsigned int blockx = i / 16;
-			unsigned int blocky = j / 8;
+			u32 blockx = i / 16;
+			u32 blocky = j / 8;
 
-			unsigned int x = (i - blockx*16);
-			unsigned int y = (j - blocky*8);
-			unsigned int block_index = blockx + ((blocky) * rowblocks);
-			unsigned int block_address = block_index * 16 * 8;
+			u32 x = (i - blockx * 16);
+			u32 y = (j - blocky * 8);
+			u32 block_index = blockx + ((blocky) * rowblocks);
+			u32 block_address = block_index * 16 * 8;
 
-			out[block_address + x + y * 16] = in[i+j*width];
+			out[block_address + x + y * 16] = in[i + j * width];
 		}
 	}
 }
-
+*/
 //*****************************************************************************
 //
 //*****************************************************************************
-void swizzle_fast(u8* out, const u8* in, unsigned int width, unsigned int height)
+inline void swizzle_fast(u8* out, const u8* in, u32 width, u32 height)
 {
 	DAEDALUS_ASSERT( (width & 15 ) == 0, "Width is not a multiple of 16 - is %d", width );
 	DAEDALUS_ASSERT( (height & 7 ) == 0, "Height is not a multiple of 8 - is %d", height );
 
-	unsigned int blockx, blocky;
-	unsigned int j;
+	u32 width_blocks = (width / 16);
+	u32 height_blocks = (height / 8);
 
-	unsigned int width_blocks = (width / 16);
-	unsigned int height_blocks = (height / 8);
-
-	unsigned int src_pitch = (width-16)/4;
-	unsigned int src_row = width * 8;
+	u32 src_pitch = (width - 16) / 4;
+	u32 src_row = width * 8;
 
 	const u8* ysrc = in;
 	u32* dst = (u32*)out;
 
-	for (blocky = 0; blocky < height_blocks; ++blocky)
+	for (u32 blocky = 0; blocky < height_blocks; ++blocky)
 	{
 		const u8* xsrc = ysrc;
-		for (blockx = 0; blockx < width_blocks; ++blockx)
+		for (u32 blockx = 0; blockx < width_blocks; ++blockx)
 		{
 			const u32* src = (u32*)xsrc;
-			for (j = 0; j < 8; ++j)
+			for (u32 j = 0; j < 8; ++j)
 			{
 				*(dst++) = *(src++);
 				*(dst++) = *(src++);
@@ -148,7 +143,7 @@ void swizzle_fast(u8* out, const u8* in, unsigned int width, unsigned int height
 //*****************************************************************************
 //
 //*****************************************************************************
-bool swizzle(u8* out, const u8* in, unsigned int width, unsigned int height)
+inline bool swizzle(u8* out, const u8* in, u32 width, u32 height)
 {
 	if(width < 16 || height < 8)
 	{
@@ -167,16 +162,16 @@ bool swizzle(u8* out, const u8* in, unsigned int width, unsigned int height)
 //*****************************************************************************
 //	Swizzle the texture, explicitly setting the texture colour to the specified value (alpha is left alone!)
 //*****************************************************************************
-void swizzle_fast_setcolour(u8* out, const u8* in, unsigned int width, unsigned int height, u32 mask, u32 colour)
+/*void swizzle_fast_setcolour(u8* out, const u8* in, u32 width, u32 height, u32 mask, u32 colour)
 {
-	unsigned int blockx, blocky;
-	unsigned int j;
+	u32 blockx, blocky;
+	u32 j;
 
-	unsigned int width_blocks = (width / 16);
-	unsigned int height_blocks = (height / 8);
+	u32 width_blocks = (width / 16);
+	u32 height_blocks = (height / 8);
 
-	unsigned int src_pitch = (width-16)/4;
-	unsigned int src_row = width * 8;
+	u32 src_pitch = (width-16)/4;
+	u32 src_row = width * 8;
 
 	const u8* ysrc = in;
 	u32* dst = (u32*)out;
@@ -206,7 +201,7 @@ void swizzle_fast_setcolour(u8* out, const u8* in, unsigned int width, unsigned 
 		ysrc += src_row;
 	}
 }
-
+*/
 //*****************************************************************************
 //
 //*****************************************************************************

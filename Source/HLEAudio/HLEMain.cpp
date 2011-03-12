@@ -102,29 +102,31 @@ inline void Audio_Ucode_Detect(OSTask * pTask)
 //*****************************************************************************
 void Audio_Ucode()
 {
-	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
+	DAEDALUS_PROFILE( "HLEMain::Audio_Ucode" );
 
+	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 	static u32	last_code_base = 0;
 	u32 code_base = (u32)pTask->t.ucode & 0x1fffffff;
-	u32 ucode_size = pTask->t.data_size/4;
 
 	// Only detect ABI once, unless is a different ucode
 	//
 	if ( last_code_base != code_base )
 	{
+		last_code_base = code_base;
 		Audio_Ucode_Detect( pTask );
 	}
-	last_code_base = code_base;
 	
-	u32 * p_alist = (u32 *)(g_pu8RamBase + (u32)pTask->t.data_ptr);
 	//gAudioHLEState.LoopVal = 0;
 	//memset( gAudioHLEState.Segments, 0, sizeof( gAudioHLEState.Segments ) );
+	u32 * p_alist = (u32 *)(g_pu8RamBase + (u32)pTask->t.data_ptr);
+	u32 ucode_size = (pTask->t.data_size / 8) + 1;
 
-	for (u32 i = 0; i < ucode_size;)
+	AudioHLECommand command;
+
+	while(ucode_size--)
     {
-		AudioHLECommand command;
-        command.cmd0 = p_alist[i++];
-        command.cmd1 = p_alist[i++];
+        command.cmd0 = *p_alist++;
+        command.cmd1 = *p_alist++;
         ABI[command.cmd](command);
 		//printf("%08X %08X\n",command.cmd0,command.cmd1);
 	}

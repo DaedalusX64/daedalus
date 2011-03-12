@@ -1092,7 +1092,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		// alpha_cvg_sel: 0			(!gRDPOtherMode.alpha_cvg_sel)
 		// alpha_compare: Threshold (gRDPOtherMode.alpha_compare == 1)
 		//
-		if( (g_ROM.GameHacks == AIDYN_CRONICLES || gRDPOtherMode.alpha_cvg_sel ) && !gRDPOtherMode.cvg_x_alpha )
+		if( (g_ROM.GameHacks == AIDYN_CRONICLES) | (gRDPOtherMode.alpha_cvg_sel & !gRDPOtherMode.cvg_x_alpha) )
 		{
 			// Use CVG for pixel alpha
 			sceGuDisable(GU_ALPHA_TEST);
@@ -2458,8 +2458,8 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	//
 	// Initialise the clamping state. When the mask is 0, it forces clamp mode.
 	//
-	int mode_u = (rdp_tile.clamp_s || rdp_tile.mask_s == 0) ? GU_CLAMP : GU_REPEAT;
-	int mode_v = (rdp_tile.clamp_t || rdp_tile.mask_t == 0)	? GU_CLAMP : GU_REPEAT;
+	u32 mode_u = (rdp_tile.clamp_s || rdp_tile.mask_s == 0) ? GU_CLAMP : GU_REPEAT;
+	u32 mode_v = (rdp_tile.clamp_t || rdp_tile.mask_t == 0)	? GU_CLAMP : GU_REPEAT;
 
 	//	In CRDPStateManager::GetTextureDescriptor, we limit the maximum dimension of a
 	//	texture to that define by the mask_s/mask_t value.
