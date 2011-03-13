@@ -127,7 +127,7 @@ const char * sc_szBlClr[4] = { "In",  "Mem",  "Bl",     "Fog" };
 const char * sc_szBlA1[4]  = { "AIn", "AFog", "AShade", "0" };
 const char * sc_szBlA2[4]  = { "1-A", "AMem", "1",      "?" };
 
-static void DebugBlender( u32 blender )	
+inline void DebugBlender( u32 blender )	
 {
 	printf( "Unknown Blender: %04x - %s * %s + %s * %s || %s * %s + %s * %s\n",
 			blender,

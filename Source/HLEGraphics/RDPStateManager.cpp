@@ -244,9 +244,9 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		//
 		if((g_ROM.GameHacks == ZELDA_OOT) | (g_ROM.GameHacks == ZELDA_MM))
 		{
-			if( address == 0x00520920 || 
-				address == 0x00520720 || 
-				address == 0x00520340 )
+			if( (address == 0x00520920) |
+				(address == 0x00520720) | 
+				(address == 0x00520340) )
 			{
 				//ti.SetHeight( tile_height );	// (fix me)
 				ti.SetWidth( tile_width/2 );	

@@ -512,8 +512,6 @@ void	PSPRenderer::Reset()
 {
 	ResetMatrices();
 
-	bStarOrigin = false;
-
 	m_dwNumIndices = 0;
 	mVtxClipFlagsUnion = 0;
 
@@ -1646,17 +1644,6 @@ bool PSPRenderer::FlushTris()
 	sceGuTexOffset( offset.x * scale.x, offset.y * scale.y );
 	sceGuTexScale( scale.x, scale.y );
 
-
-	//
-	// If smooth shading is turned off, duplicate the first diffuse color for all three verts
-	//
-	//if ( !mSmoothShade )
-
-
-	//
-	//	If the depth source is prim, use the depth from the prim command
-	//
-
 	//
 	//	For now do all clipping though ge -
 	//	Some billboards (Koopa air) in Mario Kart have issues if Cull gets (re)moved
@@ -1671,12 +1658,11 @@ bool PSPRenderer::FlushTris()
 	}
 
 	//
-	//	Render out our vertices
-
+	// Check for depth source, this is for Nascar games, hopefully won't mess up anything
 	DAEDALUS_ASSERT( !gRDPOtherMode.depth_source, " Warning : Using depth source in flushtris" );
 
-	// Check for depth source, this is for Nascar games, hopefully won't mess up anything
 	//
+	//	Render out our vertices
 	RenderUsingCurrentBlendMode( p_vertices, num_vertices, RM_RENDER_3D, gRDPOtherMode.depth_source ? true : false );
 
 	sceGuDisable(GU_CULL_FACE);
@@ -1723,6 +1709,7 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 		u32 idx1 = m_swIndexBuffer[ i++ ];
 		u32 idx2 = m_swIndexBuffer[ i++ ];
 
+		//Check if any of the vertices are outside the clipbox (NDC), if so we need to clip the triangle
 		if(mVtxProjected[idx0].ClipFlags | mVtxProjected[idx1].ClipFlags | mVtxProjected[idx2].ClipFlags)
 		{
 			temp_a[ 0 ] = mVtxProjected[ idx0 ];
@@ -1734,6 +1721,8 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 			DL_PF( "i%d: %f,%f,%f,%f", i-1, temp_a[2].ProjectedPos.x, temp_a[2].ProjectedPos.y, temp_a[2].ProjectedPos.z, temp_a[2].ProjectedPos.w );
 
 			u32 out = clip_tri_to_frustum_vfpu( temp_a, temp_b );
+			//If we have less than 3 vertices left after the clipping
+			//we can't make a triangle so we bail and skip rendering it.
 			if( out < 3 )
 				continue;
 
@@ -1744,6 +1733,7 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 				DAEDALUS_ERROR( "Too many clipped verts: %d", new_num_vertices );
 				break;
 			}
+			//Make new triangles from the vertices we got back from clipping the original triangle
 			for( u32 j = 0; j <= out - 3; ++j)
 			{
 				clipped_vertices[ num_vertices++ ] = temp_a[ 0 ];
@@ -1751,7 +1741,7 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 				clipped_vertices[ num_vertices++ ] = temp_a[ j + 2 ];
 			}
 		}
-		else
+		else	//Triangle is inside the clipbox so we just add it as it is.
 		{
 			if( num_vertices > (MAX_CLIPPED_VERTS - 3) )
 			{
