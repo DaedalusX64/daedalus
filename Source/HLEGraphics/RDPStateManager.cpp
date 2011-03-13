@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "RDPStateManager.h"
 
+
+#include "Core/ROM.h"
 #include "DebugDisplayList.h"
 
 #include "Math/MathUtil.h"
@@ -238,6 +240,19 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		ti.SetMirrorS( rdp_tile.mirror_s );
 		ti.SetMirrorT( rdp_tile.mirror_t );
 
+		// Hack to fix the sun in Zelda
+		//
+		if((g_ROM.GameHacks == ZELDA_OOT) | (g_ROM.GameHacks == ZELDA_MM))
+		{
+			if( address == 0x00520920 || 
+				address == 0x00520720 || 
+				address == 0x00520340 )
+			{
+				//ti.SetHeight( tile_height );	// (fix me)
+				ti.SetWidth( tile_width/2 );	
+				ti.SetPitch( pitch/2 );	
+			}
+		}
 		// Hack - Extreme-G specifies RGBA/8 textures, but they're really CI8
 		if (ti.GetFormat() == G_IM_FMT_RGBA &&
 			(ti.GetSize() == G_IM_SIZ_8b || ti.GetSize() == G_IM_SIZ_4b))
