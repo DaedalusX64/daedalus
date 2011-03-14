@@ -47,7 +47,6 @@ struct GBI1_Matrix
 	u32 addr;
 };
 
-
 struct GBI1_PopMatrix
 {
 	u32	:24;
@@ -179,22 +178,10 @@ struct SetColor
 	u32	pad:8;
 	u32	cmd:8;
 
-	union 
-	{
-		u32	color;
-		struct 
-		{
-			u32 fillcolor:16;
-			u32 fillcolor2:16;
-		};
-		struct 
-		{
-			u32 a:8;
-			u32 b:8;
-			u32 g:8;
-			u32 r:8;
-		};
-	};
+	u32 a:8;
+	u32 b:8;
+	u32 g:8;
+	u32 r:8;
 };
 
 struct GBI1_MoveWord
@@ -349,6 +336,15 @@ struct SetFillRect
 	u32 pad2	: 8;
 };
 
+struct SetPrimDepth
+{
+	u32 pad0:24;
+	u32 cmd:8; 
+    u32 dz:16;   
+    u32 z:15;   
+	u32 pad:1;
+};
+
 union MicroCodeCommand
 {
 	Instruction		inst;
@@ -377,8 +373,9 @@ union MicroCodeCommand
 	SetScissor		scissor;
 	SetLoadTile		loadtile;
 	SetFillRect		fillrect;
+	SetPrimDepth	primdepth;
 
-	//u64	force_structure_alignment;
+	u64	force_structure_alignment;
 };
 
 

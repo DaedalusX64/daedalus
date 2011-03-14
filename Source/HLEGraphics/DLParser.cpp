@@ -914,21 +914,15 @@ void DLParser_SetConvert( MicroCodeCommand command )
 	DL_PF( "	SetConvert (Ignored)" );
 }
 
-
 //*****************************************************************************
 //
 //*****************************************************************************
 void DLParser_SetPrimDepth( MicroCodeCommand command )
 {
-	u32 z  = (command.inst.cmd1 >> 16) & 0x7FFF;
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	u32 dz = (command.inst.cmd1      ) & 0xFFFF;
-
-	DL_PF("SetPrimDepth: 0x%08x 0x%08x - z: 0x%04x dz: 0x%04x", command.inst.cmd0, command.inst.cmd1, z, dz);
-#endif	
-	// Not implemented!
-	PSPRenderer::Get()->SetPrimitiveDepth( z );
+	DL_PF("SetPrimDepth: 0x%08x 0x%08x - z: 0x%04x dz: 0x%04x", 
+		   command.inst.cmd0, command.inst.cmd1, command.primdepth.z, command.primdepth.dz);	
+	
+	PSPRenderer::Get()->SetPrimitiveDepth( command.primdepth.z );
 }
 
 //*****************************************************************************
