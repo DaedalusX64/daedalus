@@ -88,14 +88,13 @@ void memcpy_vfpu_LE( void* dst, void* src, u32 size )
 			dst8 = (u8*)dst32;
 			break;
 		default:
-			register u32 a, b, c, d;
+			register u32 tmp;
 			while (size>=4)
 			{
-				a = *(u8*)((u32)src8++ ^ 3);
-				b = *(u8*)((u32)src8++ ^ 3);
-				c = *(u8*)((u32)src8++ ^ 3);
-				d = *(u8*)((u32)src8++ ^ 3);
-				*dst32++ = (a << 24) | (b << 16) | (c << 8) | d;
+				tmp = *(u8*)((u32)src8++ ^ 3);
+				tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
+				tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
+				*dst32++ = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
 				size -= 4;
 			}
 			if (size==0) return;		// fast out
@@ -764,14 +763,13 @@ void memcpy_cpu_LE( void* dst, void* src, u32 size )
 			dst8 = (u8*)dst32;
 			break;
 		default: //At least dst is aligned
-			register u32 a, b, c, d;
+			register u32 tmp;
 			while (size>=4)
 			{
-				a = *(u8*)((u32)src8++ ^ 3);
-				b = *(u8*)((u32)src8++ ^ 3);
-				c = *(u8*)((u32)src8++ ^ 3);
-				d = *(u8*)((u32)src8++ ^ 3);
-				*dst32++ = (a << 24) | (b << 16) | (c << 8) | d;
+				tmp = *(u8*)((u32)src8++ ^ 3);
+				tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
+				tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
+				*dst32++ = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
 				size -= 4;
 			}
 			if (size==0) return;		// fast out
