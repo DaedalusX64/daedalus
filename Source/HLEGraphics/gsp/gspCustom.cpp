@@ -168,7 +168,7 @@ void DLParser_GBI0_Vtx_SOTE( MicroCodeCommand command )
 		n = 32 - v0;
 	}
 
-	PSPRenderer::Get()->SetNewVertexInfoVFPU( address, v0, n );
+	PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	gNumVertices += n;
@@ -389,7 +389,7 @@ void DLParser_GBI0_Vtx_WRUS( MicroCodeCommand command )
 		return;
 	}
 
-	PSPRenderer::Get()->SetNewVertexInfoVFPU( address, v0, n );
+	PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	gNumVertices += n;
@@ -802,7 +802,7 @@ void RSP_Vtx_PD( MicroCodeCommand command )
 
 	// Doesn't work anyways
 	// Todo : Implement proper vertex info for PD
-	PSPRenderer::Get()->SetNewVertexInfoVFPU( address, v0, n );
+	PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
       gNumVertices += n;

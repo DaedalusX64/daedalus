@@ -165,7 +165,7 @@ public:
 
 	// Vertex stuff	
 	void				SetNewVertexInfoConker(u32 address, u32 v0, u32 n);	// For conker..	
-	void				SetNewVertexInfoVFPU(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!	
+	void				SetNewVertexInfo(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!	
 	void				ModifyVertexInfo(u32 whered, u32 vert, u32 val);
 	void				SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum);	// Assumes dwAddress has already been checked!	
 	void				SetVtxColor( u32 vert, c32 color );
@@ -240,12 +240,10 @@ private:
 // Old code, kept for reference
 #ifdef DAEDALUS_IS_LEGACY
 	void 				TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world );
+#endif
 
 	template< bool FogEnable, int TextureMode >
 	void ProcessVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world );
-
-	void				SetNewVertexInfoCPU(u32 dwAddress, u32 dwV0, u32 dwNum);	// Assumes dwAddress has already been checked!	
-#endif
 
 	void				PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_vertices ) const;
 	void				PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num_vertices ) const;

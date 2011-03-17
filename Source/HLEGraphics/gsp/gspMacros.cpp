@@ -52,11 +52,11 @@ void DLParser_GBI0_Vtx( MicroCodeCommand command )
     // Check that address is valid... mario golf/tennis
     if ( (address + (n*16)) > MAX_RAM_ADDRESS )
     {
-        DBGConsole_Msg( 0, "SetNewVertexInfoVFPU: Address out of range (0x%08x)", address );
+        DBGConsole_Msg( 0, "SetNewVertexInfo: Address out of range (0x%08x)", address );
     }
     else
     {
-        PSPRenderer::Get()->SetNewVertexInfoVFPU( address, v0, n );
+        PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
         gNumVertices += n;
@@ -102,7 +102,7 @@ void DLParser_GBI1_Vtx( MicroCodeCommand command )
         return;
     }
 
-    PSPRenderer::Get()->SetNewVertexInfoVFPU( address, v0, n );
+    PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
     gNumVertices += n;
@@ -133,11 +133,11 @@ void DLParser_GBI2_Vtx( MicroCodeCommand command )
     // Check that address is valid...
     if ( (address + (n*16) ) > MAX_RAM_ADDRESS )
     {
-        DBGConsole_Msg( 0, "SetNewVertexInfoVFPU: Address out of range (0x%08x)", address );
+        DBGConsole_Msg( 0, "SetNewVertexInfo: Address out of range (0x%08x)", address );
     }
     else
     {
-        PSPRenderer::Get()->SetNewVertexInfoVFPU( address, v0, n );
+        PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
         gNumVertices += n;

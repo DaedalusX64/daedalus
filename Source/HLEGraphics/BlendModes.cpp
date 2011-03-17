@@ -34,8 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <pspgu.h>
 
-extern bool bStarOrigin;
-
 /* Define to handle first cycle */
 
 //#define CHECK_FIRST_CYCLE
@@ -489,16 +487,16 @@ static void BlendMode_0x0030b2615566db6dLL( BLEND_MODE_ARGS )
 //aA0	: (0		- 0		) * 0	+ Env 
 //aRGB1	: (0		- 0		) * 0	+ Texel0 
 //aA1	: (0		- 0		) * 0	+ Env 
-static void BlendMode_0x00fffffffffcfa7dLL (BLEND_MODE_ARGS)
-{
-	// Check to be sure we are blending the star !!!
-	// We should make this check more robust to avoid messing any other stuff.
-	if( (num_cycles == 1) & bStarOrigin )
-	{
-		details.ColourAdjuster.SetRGB( c32::Gold );
-		sceGuTexFunc(GU_TFX_BLEND, GU_TCC_RGB);
-	}
-}
+//static void BlendMode_0x00fffffffffcfa7dLL (BLEND_MODE_ARGS)
+//{
+//	// Check to be sure we are blending the star !!!
+//	// We should make this check more robust to avoid messing any other stuff.
+//	if( (num_cycles == 1) & bStarOrigin )
+//	{
+//		details.ColourAdjuster.SetRGB( c32::Gold );
+//		sceGuTexFunc(GU_TFX_BLEND, GU_TCC_RGB);
+//	}
+//}
 
 // MRC - Car Windows
 // case 0x0030fe045ffef7f8LL:
@@ -1537,7 +1535,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 			BLEND_MODE(0x00457fff3ffcfe3fLL); // Pokemon Stadium 2 Arena Floor
 			BLEND_MODE(0x00522bfffffffe38LL); // Donald Duck rain (makes it transparent not really a fix)
 			//BLEND_MODE(0x00627fff3ffe7e3fLL); // Pokemon Stadium 2 N64 Logo //Dangerous!!
-			BLEND_MODE(0x00fffffffffcfa7dLL); // Mario 64 Stars
+			//BLEND_MODE(0x00fffffffffcfa7dLL); // Mario 64 Stars
 
 	#undef BLEND_MODE 
 	}
