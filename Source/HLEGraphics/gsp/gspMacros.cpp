@@ -401,7 +401,7 @@ inline void DLParser_InitGeometryMode()
 	// CULL_BACK has priority, Fixes Mortal Kombat 4
 	bool bCullFront         = (gGeometryMode & G_CULL_FRONT)		? true : false;
 	bool bCullBack          = (gGeometryMode & G_CULL_BACK)			? true : false;
-	PSPRenderer::Get()->SetCullMode(gGeometryMode & G_CULL_FRONT, gGeometryMode & G_CULL_BACK);
+	PSPRenderer::Get()->SetCullMode(bCullFront, bCullBack);
 
 	bool bShade				= (gGeometryMode & G_SHADE)				? true : false;
 	PSPRenderer::Get()->SetSmooth( bShade );
