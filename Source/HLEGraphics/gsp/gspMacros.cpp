@@ -151,18 +151,9 @@ void DLParser_GBI2_Vtx( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_ModifyVtx( MicroCodeCommand command )
 {
-	u32 offset =  command.modifyvtx.offset;
-	u32 vert   = command.modifyvtx.vtx;
-	u32 value  = command.modifyvtx.value;
 
-	// Cures crash after swinging in Mario Golf
-	if( vert > 80 )
-	{
-		DAEDALUS_ERROR("ModifyVtx: Invalid vertex number: %d", vert);
-		return;
-	}
-
-	PSPRenderer::Get()->ModifyVertexInfo(offset, vert, value);
+	PSPRenderer::Get()->ModifyVertexInfo( command.modifyvtx.offset, command.modifyvtx.vtx, command.modifyvtx.value );
+	
 }
 
 //*****************************************************************************
@@ -410,7 +401,7 @@ inline void DLParser_InitGeometryMode()
 	// CULL_BACK has priority, Fixes Mortal Kombat 4
 	bool bCullFront         = (gGeometryMode & G_CULL_FRONT)		? true : false;
 	bool bCullBack          = (gGeometryMode & G_CULL_BACK)			? true : false;
-	PSPRenderer::Get()->SetCullMode(bCullFront, bCullBack);
+	PSPRenderer::Get()->SetCullMode(gGeometryMode & G_CULL_FRONT, gGeometryMode & G_CULL_BACK);
 
 	bool bShade				= (gGeometryMode & G_SHADE)				? true : false;
 	PSPRenderer::Get()->SetSmooth( bShade );

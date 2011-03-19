@@ -2281,6 +2281,13 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 //*****************************************************************************
 void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 {
+	// Cures crash after swinging in Mario Golf
+	if( vert > 80 )
+	{
+		DAEDALUS_ERROR("ModifyVtx: Invalid vertex number: %d", vert);
+		return;
+	}
+
 	switch ( whered )
 	{
 		case G_MWO_POINT_RGBA:
