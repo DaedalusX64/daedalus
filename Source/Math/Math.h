@@ -36,9 +36,23 @@
 */
 
 // Interesting note, if we don't make thse funcs inline, we'll get compiling errors.. weird
+// Its because its a .h file, but inlining these short functions is ok. Means also that they take no space unless used.
 
 //#define DOUBLE_CONVERSION // Define to use double and other related conversions.
 #define PI   3.141592653589793f
+
+//Do ACOS(x) ACOS(y) and save in 2D vector on VFPU //Corn
+inline void vfpu_Acos_2Dvec(float x, float y, float *s) {
+	__asm__ volatile (
+		"mtv      %1, S000\n"
+		"mtv      %2, S001\n"
+		"vasin.p  C100, C000\n"
+		"vocp.p	  C000, C100\n"
+		"vmul.p	  C000, C100[1/2,1/2], C000\n"
+		"sv.s     S000, 0 + %0\n"	//save result.x
+		"sv.s     S001, 4 + %0\n"	//save result.y
+		: "=m"(*s): "r"(x), "r"(y) : "memory");
+}
 
 //Do SIN/COS in one go on VFPU //Corn
 inline void vfpu_sincos(float r, float *s, float *c) {

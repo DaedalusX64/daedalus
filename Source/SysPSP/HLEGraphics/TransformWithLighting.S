@@ -97,7 +97,7 @@ next_vertex_\function:
 	.word		0xd0398080 | (8<<8) | (40)	// vc2i.s		R200, S200					// R200 = [?,z,y,x]
 	vi2f.q		R200, R200, 0				// int -> float (obliterates world transform)
 	vmov.q		R201, R200[w,z,y,0]			// Unfiddle
-	vtfm3.t		R200, M000, R201			// Transform with the world view matrix
+	vtfm3.t		R200, M100, R201			// Transform with projworld matrix, looks nicer (only need 3x3)//Corn
 	
 	vdot.t		S201, R200, R200			// S201 = x*x + y*y + z*z
 	vrsq.s		S201, S201					// S201 = 1/sqrt(x*x + y*y + z*z)
@@ -124,33 +124,32 @@ next_vertex_\function:
 # EnvMapped
 #	t.x = (0.5f * ( 1.0f + ( n.x*world.m11 + n.y*world.m21 + n.z*world.m31 ) ));
 #	t.y = (0.5f * ( 1.0f - ( n.x*world.m12 + n.y*world.m22 + n.z*world.m32 ) ));
+//	vdot.t		S202, R200, C000					// n.x*m.11 + n.y*m.21 + n.z*m.31
+//	vdot.t		S203, R200, C010					// n.x*m.12 + n.y*m.22 + n.z*m.32
+//	vadd.p      C202, C202[1,1], C202[x,-y]			// 1+x, 1-y
+//	vmul.p		C202, C202[1/2,1/2], C202			// * 0.5
+//	sv.s		S202, 0x30($a3)						// Store Texture.x
+//	sv.s		S203, 0x34($a3)						// Store Texture.y
 
-#	vdot.t		S202, R200, C000					// n.x*m.11 + n.y*m.21 + n.z*m.31
-#	vdot.t		S203, R200, C010					// n.x*m.12 + n.y*m.22 + n.z*m.32
-#	vadd.s      S202, S202[1], S202					// 1+
-#	vsub.s      S203, S203[1], S203					// 1-
-#	vscl.q		R202, R202[1/2,1/2,1/2,1/2], S202	// * 0.5
-#	vscl.q		R203, R203[1/2,1/2,1/2,1/2], S203
-#	sv.s		S202, 0x30($a3)						// Store Texture.x
-#	sv.s		S203, 0x34($a3)						// Store Texture.y
-
-# t.x = Acos(n.x) / PI
-# t.y = Acos(n.y) / PI
-
-#	vasin.p		R202, R200							// Asin()
-#	vocp.p		R202, R202							// 1-Asin() = Acos()
-#	vmul.p		R202, R202[1/2,1/2], R202			// * 0.5
-#	sv.s		S202, 0x30($a3)						// Store Texture.x
-#	sv.s		S212, 0x34($a3)						// Store Texture.y
+# t.x = Acos(n.x) / Pi
+# t.y = Acos(n.y) / Pi
+//	vasin.p		R202, R200							// Asin()
+//	vocp.p		R202, R202							// 1.0-Asin() = Acos()
+//	vmul.p		R202, R202[1/2,1/2], R202			// * 0.5
+//	sv.s		S202, 0x30($a3)						// Store Texture.x
+//	sv.s		S212, 0x34($a3)						// Store Texture.y
 
 # t.x = 0.5 * (1.0 + n.x)
 # t.y = 0.5 * (1.0 - n.y)
+//	vadd.p		R202, R202[1,1], R200[x,-y]			// 1+x, 1-y
+//	vmul.p		R202, R202[1/2,1/4], R202			// X * 0.5, Y * 0.25
+//	sv.s		S202, 0x30($a3)						// Store Texture.x
+//	sv.s		S212, 0x34($a3)						// Store Texture.y
 
-	vadd.p		R202, R202[1,1], R200[x,-y]			// 1+x, 1-y
-	vmul.p		R202, R202[1/4,1/4], R202			// * 0.5
-	sv.s		S202, 0x30($a3)						// Store Texture.x
-	sv.s		S212, 0x34($a3)						// Store Texture.y
-	
+# Store X&Y vertice normals to calc ENV MAPPING with CPU
+	sv.s		S200, 0x30($a3)						// Store NormalX in Texture.x
+	sv.s		S210, 0x34($a3)						// Store NormalY in Texture.y
+		
 .endif
 
 	# Lighting calculation

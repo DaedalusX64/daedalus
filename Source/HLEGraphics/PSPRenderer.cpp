@@ -1841,10 +1841,10 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	case            TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithColour_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
 
 		// TNL_TEXGEN is ignored when TNL_TEXTURE is disabled
-	case TNL_LIGHT                                     : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
-	case TNL_LIGHT |                        TNL_TEXTURE: _TransformVerticesWithLighting_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
-	case TNL_LIGHT |           TNL_TEXGEN              : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
-	case TNL_LIGHT |           TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithLighting_f0_t2( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
+	case TNL_LIGHT                          : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
+	case TNL_LIGHT |             TNL_TEXTURE: _TransformVerticesWithLighting_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
+	case TNL_LIGHT |TNL_TEXGEN              : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
+	case TNL_LIGHT |TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithLighting_f0_t2( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
 
 #else
 	switch( mTnLModeFlags & (TNL_TEXTURE|TNL_TEXGEN|TNL_FOG|TNL_LIGHT) )
@@ -1876,24 +1876,26 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 
 	//TestVFPUVerts( v0, n, pVtxBase, matWorld );
 
-	//Make a special pass for env mapping
+	//Make a special pass for env mapping of textures //Corn
 	if( (mTnLModeFlags & (TNL_LIGHT|TNL_TEXGEN|TNL_TEXTURE)) == (TNL_LIGHT|TNL_TEXGEN|TNL_TEXTURE) )
 	{
-		u32 vend( v0 + n );
-		for (u32 i = v0; i < vend; i++)
+		for (u32 i = v0; i < (v0 + n); i++)
 		{
-			const FiddledVtx & vert = pVtxBase[i - v0];
-			v3 vecTransformedNormal;		// Used only when TNL_LIGHT set
-			v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
+			//Normal has been calculated by VFPU already //Corn
+			f32 NormX = mVtxProjected[i].Texture.x;
+			f32 NormY = mVtxProjected[i].Texture.y;
 
-			vecTransformedNormal = matWorldProject.TransformNormal( model_normal );
-			vecTransformedNormal.Normalise();
+			mVtxProjected[i].Texture.x = acosf(NormX) / 3.14159265f;
+			mVtxProjected[i].Texture.y = acosf(NormY) / 3.14159265f;
 
-			const v3 & norm = vecTransformedNormal;
+			//Cheaper way to do Acos(x)/Pi //Corn
+			//mVtxProjected[i].Texture.x = -0.125f * NormX * NormX * NormX - 0.125f * NormX + 0.25f; 
+			//mVtxProjected[i].Texture.y = +0.125f * NormY * NormY * NormY + 0.125f * NormY + 0.25f;
 
-			mVtxProjected[i].Texture.x = acosf(norm.x) / 3.14159265f;
-			mVtxProjected[i].Texture.y = acosf(norm.y) / 3.14159265f;
+			//mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x);
+			//mVtxProjected[i].Texture.y = 0.25f * ( 1.0f + norm.y);
 
+			//printf("%f -> %f | %f -> %f | %f -> %f\n",acosf(NormX) / 3.14159265f, mVtxProjected[i].Texture.x, acosf(NormY) / 3.14159265f, mVtxProjected[i].Texture.y, NormX, NormY);
 		}
 	}
 }
@@ -2281,13 +2283,6 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 //*****************************************************************************
 void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 {
-	// Cures crash after swinging in Mario Golf
-	if( vert > 80 )
-	{
-		DAEDALUS_ERROR("ModifyVtx: Invalid vertex number: %d", vert);
-		return;
-	}
-
 	switch ( whered )
 	{
 		case G_MWO_POINT_RGBA:

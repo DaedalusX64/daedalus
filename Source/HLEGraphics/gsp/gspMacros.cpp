@@ -151,6 +151,12 @@ void DLParser_GBI2_Vtx( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_ModifyVtx( MicroCodeCommand command )
 {
+	// Cures crash after swinging in Mario Golf
+	if( command.modifyvtx.vtx > 80 )
+	{
+		DAEDALUS_ERROR("ModifyVtx: Invalid vertex number: %d", command.modifyvtx.vtx);
+		return;
+	}
 
 	PSPRenderer::Get()->ModifyVertexInfo( command.modifyvtx.offset, command.modifyvtx.vtx, command.modifyvtx.value );
 	
@@ -521,34 +527,29 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
     gGeometryMode &= and_bits;
     gGeometryMode |= or_bits;
 
-
     bool bCullFront         = (gGeometryMode & G_ZELDA_CULL_FRONT)			? true : false;
     bool bCullBack          = (gGeometryMode & G_ZELDA_CULL_BACK)			? true : false;
+    PSPRenderer::Get()->SetCullMode(bCullFront, bCullBack);
 
 //  bool bShade				= (gGeometryMode & G_SHADE)						? true : false;
 //  bool bFlatShade         = (gGeometryMode & G_ZELDA_SHADING_SMOOTH)		? true : false;
 	bool bFlatShade         = (gGeometryMode & G_ZELDA_TEXTURE_GEN_LINEAR)	? true : false;
-    if (g_ROM.GameHacks == TIGERS_HONEY_HUNT)
-		bFlatShade			= false;	// Hack for Tiger Honey Hunt
+    if (g_ROM.GameHacks == TIGERS_HONEY_HUNT) bFlatShade			= false;	// Hack for Tiger Honey Hunt
+    PSPRenderer::Get()->SetSmooth( !bFlatShade );
 
     bool bFog				= (gGeometryMode & G_ZELDA_FOG)					? true : false;
-    bool bTextureGen        = (gGeometryMode & G_ZELDA_TEXTURE_GEN)			? true : false;
-
-    bool bLighting			= (gGeometryMode & G_ZELDA_LIGHTING)			? true : false;
-    bool bZBuffer           = (gGeometryMode & G_ZELDA_ZBUFFER)				? true : false;
-
-    PSPRenderer::Get()->SetCullMode(bCullFront, bCullBack);
-
-    PSPRenderer::Get()->SetSmooth( !bFlatShade );
-    PSPRenderer::Get()->SetSmoothShade( true );             // Always do this - not sure which bit to use
-
     PSPRenderer::Get()->SetFogEnable( bFog );
+
+	bool bTextureGen        = (gGeometryMode & G_ZELDA_TEXTURE_GEN)			? true : false;
     PSPRenderer::Get()->SetTextureGen(bTextureGen);
 
+    bool bLighting			= (gGeometryMode & G_ZELDA_LIGHTING)			? true : false;
     PSPRenderer::Get()->SetLighting( bLighting );
+
+	bool bZBuffer           = (gGeometryMode & G_ZELDA_ZBUFFER)				? true : false;
     PSPRenderer::Get()->ZBufferEnable( bZBuffer );
 
-    //DLParser_InitGeometryMode();
+    PSPRenderer::Get()->SetSmoothShade( true );             // Always do this - not sure which bit to use
 }
 
 //*****************************************************************************
