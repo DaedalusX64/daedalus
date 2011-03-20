@@ -97,7 +97,8 @@ next_vertex_\function:
 	.word		0xd0398080 | (8<<8) | (40)	// vc2i.s		R200, S200					// R200 = [?,z,y,x]
 	vi2f.q		R200, R200, 0				// int -> float (obliterates world transform)
 	vmov.q		R201, R200[w,z,y,0]			// Unfiddle
-	vtfm3.t		R200, M100, R201			// Transform with projworld matrix, looks nicer (only need 3x3)//Corn
+	vmov.q		R203, R201					// store temporary
+	vtfm3.t		R200, M000, R201			// Transform with world matrix (only need 3x3)//Corn
 	
 	vdot.t		S201, R200, R200			// S201 = x*x + y*y + z*z
 	vrsq.s		S201, S201					// S201 = 1/sqrt(x*x + y*y + z*z)
@@ -131,9 +132,19 @@ next_vertex_\function:
 //	sv.s		S202, 0x30($a3)						// Store Texture.x
 //	sv.s		S203, 0x34($a3)						// Store Texture.y
 
+# We use worldproject matrix to calc normals it gives a nicer effect (model view result is in R200) //Corn
+	vtfm3.t		R202, M100, R203					// Transform with projworld matrix, looks nicer (only need 3x3)
+	vdot.t		S201, R202, R202					// S201 = x*x + y*y + z*z
+	vrsq.s		S201, S201							// S201 = 1/sqrt(x*x + y*y + z*z)
+	vscl.q		R202, R202, S201					// R202 = v.normalise().
+
+# Store X&Y vertice normals to calc ENV MAPPING with CPU
+//	sv.s		S202, 0x30($a3)						// Store NormalX in Texture.x
+//	sv.s		S212, 0x34($a3)						// Store NormalY in Texture.y
+		
 # t.x = Acos(n.x) / Pi
 # t.y = Acos(n.y) / Pi
-//	vasin.p		R202, R200							// Asin()
+//	vasin.p		R202, R202							// Asin()
 //	vocp.p		R202, R202							// 1.0-Asin() = Acos()
 //	vmul.p		R202, R202[1/2,1/2], R202			// * 0.5
 //	sv.s		S202, 0x30($a3)						// Store Texture.x
@@ -141,15 +152,22 @@ next_vertex_\function:
 
 # t.x = 0.5 * (1.0 + n.x)
 # t.y = 0.5 * (1.0 - n.y)
-//	vadd.p		R202, R202[1,1], R200[x,-y]			// 1+x, 1-y
+//	vadd.p		R202, R202[1,1], R202[x,-y]			// 1+x, 1-y
 //	vmul.p		R202, R202[1/2,1/4], R202			// X * 0.5, Y * 0.25
 //	sv.s		S202, 0x30($a3)						// Store Texture.x
 //	sv.s		S212, 0x34($a3)						// Store Texture.y
 
-# Store X&Y vertice normals to calc ENV MAPPING with CPU
-	sv.s		S200, 0x30($a3)						// Store NormalX in Texture.x
-	sv.s		S210, 0x34($a3)						// Store NormalY in Texture.y
-		
+# Cheap way to do acos(x)/PI -> 0.5f - 0.25f * absf(x) - 0.25f * absf(x) * absf(x) * absf(x) //Corn
+	vmov.p		R202, R202[|x|,|y|]					// absf(x), absf(y)
+	vmov.p		R203, R200[1/2,1/2]					// result = 0.5
+	vmul.p		R222, R202[1/4,1/4], R202			// X * 0.25, Y * 0.25
+	vsub.p		R203, R203, R222					// result -= X * 0.25
+	vmul.p		R222, R202, R222					// X * X * 0.25, Y * Y * 0.25
+	vmul.p		R222, R202, R222					// X * X * X * 0.25, Y * Y * Y * 0.25
+	vsub.p		R203, R203, R222					// result -= X * X * X * 0.25
+	sv.s		S203, 0x30($a3)						// Store Texture.x
+	sv.s		S213, 0x34($a3)						// Store Texture.y
+	
 .endif
 
 	# Lighting calculation

@@ -1876,28 +1876,28 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 
 	//TestVFPUVerts( v0, n, pVtxBase, matWorld );
 
-	//Make a special pass for env mapping of textures //Corn
+#if 0	//Make a special pass for env mapping of textures //Corn
 	if( (mTnLModeFlags & (TNL_LIGHT|TNL_TEXGEN|TNL_TEXTURE)) == (TNL_LIGHT|TNL_TEXGEN|TNL_TEXTURE) )
 	{
 		for (u32 i = v0; i < (v0 + n); i++)
 		{
 			//Normal has been calculated by VFPU already //Corn
-			f32 NormX = mVtxProjected[i].Texture.x;
-			f32 NormY = mVtxProjected[i].Texture.y;
-
-			mVtxProjected[i].Texture.x = acosf(NormX) / 3.14159265f;
-			mVtxProjected[i].Texture.y = acosf(NormY) / 3.14159265f;
+			//mVtxProjected[i].Texture.x = acosf( mVtxProjected[i].Texture.x ) / 3.14159265f;
+			//mVtxProjected[i].Texture.y = acosf( mVtxProjected[i].Texture.y ) / 3.14159265f;
 
 			//Cheaper way to do Acos(x)/Pi //Corn
-			//mVtxProjected[i].Texture.x = -0.125f * NormX * NormX * NormX - 0.125f * NormX + 0.25f; 
-			//mVtxProjected[i].Texture.y = +0.125f * NormY * NormY * NormY + 0.125f * NormY + 0.25f;
+			f32 NormX = absf( mVtxProjected[i].Texture.x );
+			f32 NormY = absf( mVtxProjected[i].Texture.y );
+			mVtxProjected[i].Texture.x = -0.25f * NormX * NormX * NormX - 0.25f * NormX + 0.5f; 
+			mVtxProjected[i].Texture.y = -0.25f * NormY * NormY * NormY - 0.25f * NormY + 0.5f;
 
-			//mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x);
-			//mVtxProjected[i].Texture.y = 0.25f * ( 1.0f + norm.y);
+			//mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + NormX);
+			//mVtxProjected[i].Texture.y = 0.5f * ( 1.0f - NormY);
 
 			//printf("%f -> %f | %f -> %f | %f -> %f\n",acosf(NormX) / 3.14159265f, mVtxProjected[i].Texture.x, acosf(NormY) / 3.14159265f, mVtxProjected[i].Texture.y, NormX, NormY);
 		}
 	}
+#endif
 }
 
 #ifdef DAEDALUS_IS_LEGACY

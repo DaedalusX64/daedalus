@@ -20,20 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef GSP_MACROS_H
 #define GSP_MACROS_H
 
-
-//*****************************************************************************
-// Macros
-//*****************************************************************************
-
-#define G_ZELDA_ZBUFFER				G_ZBUFFER	// Guess 
-#define G_ZELDA_CULL_BACK			0x00000200  /*G_CULL_FRONT */ 
-#define G_ZELDA_CULL_FRONT			0x00000400  /*G_CULL_BACK  */
-#define G_ZELDA_FOG					G_FOG 
-#define G_ZELDA_LIGHTING			G_LIGHTING 
-#define G_ZELDA_TEXTURE_GEN			G_TEXTURE_GEN 
-#define G_ZELDA_TEXTURE_GEN_LINEAR	G_TEXTURE_GEN_LINEAR 
-#define G_ZELDA_SHADING_SMOOTH		0x00200000
-
 //***************************************************************************** 
 //
 //***************************************************************************** 

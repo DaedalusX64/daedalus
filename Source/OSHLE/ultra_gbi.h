@@ -270,14 +270,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	G_BL_1			2
 #define	G_BL_0			3
 
-
 //
 // flags for G_SETGEOMETRYMODE
-//
+// GBI1
 #define G_ZBUFFER				0x00000001
 #define G_TEXTURE_ENABLE		0x00000002	// Microcode use only 
 #define G_SHADE					0x00000004	// enable Gouraud interp 
-//
 #define G_SHADING_SMOOTH		0x00000200	// flat or smooth shaded 
 #define G_CULL_FRONT			0x00001000
 #define G_CULL_BACK				0x00002000
@@ -287,6 +285,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define G_TEXTURE_GEN			0x00040000
 #define G_TEXTURE_GEN_LINEAR	0x00080000
 #define G_LOD					0x00100000	// NOT IMPLEMENTED 
+
+//
+// flags for G_SETGEOMETRYMODE
+// GBI2
+#define G_ZELDA_ZBUFFER				G_ZBUFFER
+#define G_ZELDA_CULL_BACK			0x00000200
+#define G_ZELDA_CULL_FRONT			0x00000400
+#define G_ZELDA_FOG					G_FOG
+#define G_ZELDA_LIGHTING			G_LIGHTING
+#define G_ZELDA_TEXTURE_GEN			G_TEXTURE_GEN
+#define G_ZELDA_TEXTURE_GEN_LINEAR	G_TEXTURE_GEN_LINEAR
+#define G_ZELDA_SHADING_SMOOTH		0x00200000
 
 //
 // G_SETIMG fmt: set image formats

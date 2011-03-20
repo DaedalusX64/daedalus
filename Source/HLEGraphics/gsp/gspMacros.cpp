@@ -533,8 +533,9 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 
 //  bool bShade				= (gGeometryMode & G_SHADE)						? true : false;
 //  bool bFlatShade         = (gGeometryMode & G_ZELDA_SHADING_SMOOTH)		? true : false;
+
 	bool bFlatShade         = (gGeometryMode & G_ZELDA_TEXTURE_GEN_LINEAR)	? true : false;
-    if (g_ROM.GameHacks == TIGERS_HONEY_HUNT) bFlatShade			= false;	// Hack for Tiger Honey Hunt
+    if (g_ROM.GameHacks == TIGERS_HONEY_HUNT) bFlatShade = false;	// Hack for Tiger Honey Hunt
     PSPRenderer::Get()->SetSmooth( !bFlatShade );
 
     bool bFog				= (gGeometryMode & G_ZELDA_FOG)					? true : false;
