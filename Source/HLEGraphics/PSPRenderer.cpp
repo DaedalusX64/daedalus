@@ -140,8 +140,8 @@ extern u32 SCR_HEIGHT;
 
 static f32 fViWidth = 320.0f;
 static f32 fViHeight = 240.0f;
-//static u32 uViWidth = 320;
-//static u32 uViHeight = 240;
+static u32 uViWidth = 320;
+static u32 uViHeight = 240;
 
 static const float gTexRectDepth( 0.0f );
 f32 gZoomX=1.0;	//Default is 1.0f
@@ -505,8 +505,8 @@ void PSPRenderer::SetVIScales()
 		fViWidth = (f32)Memory_VI_GetRegister( VI_WIDTH_REG );
 	}
 	//Used to set a limit on Scissors //Corn
-	//uViWidth  = (u32)fViWidth - 1;
-	//uViHeight = (u32)fViHeight - 1;
+	uViWidth  = (u32)fViWidth - 1;
+	uViHeight = (u32)fViHeight - 1;
 }
 
 //*****************************************************************************
@@ -2323,8 +2323,10 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 				s16 x = (u16)(val >> 16) >> 2;
 				s16 y = (u16)(val & 0xFFFF) >> 2;
 
-				//x -= uViWidth / 2;
-				//y = uViHeight / 2 - y;
+				// Fixes the blocks lining up backwards in New Tetris
+				//
+				x -= uViWidth / 2;
+				y = uViHeight / 2 - y;
 
 				DL_PF("		Modify vert %d: x=%d, y=%d", vert, x, y);
 				
@@ -2567,8 +2569,8 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 void	PSPRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 {
 	//Clamp scissor to max N64 screen resolution //Corn
-	//if( x1 > uViWidth )  x1 = uViWidth;
-	//if( y1 > uViHeight ) y1 = uViHeight;
+	if( x1 > uViWidth )  x1 = uViWidth;
+	if( y1 > uViHeight ) y1 = uViHeight;
 
 	v2		n64_coords_tl( x0, y0 );
 	v2		n64_coords_br( x1, y1 );
