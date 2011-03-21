@@ -129,6 +129,12 @@ enum CycleType
 	CYCLE_FILL,
 };
 
+struct ViewportInfo
+{
+	u32	Width;
+	f32 Zoom;
+};
+
 extern u32 SCR_WIDTH;
 extern u32 SCR_HEIGHT;
 
@@ -283,6 +289,7 @@ template<> bool CSingleton< PSPRenderer >::Create()
 	return mpInstance != NULL;
 }
 
+ViewportInfo	mView;
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -339,7 +346,8 @@ PSPRenderer::PSPRenderer()
 	mTnLParams.TextureScaleY = 1.0f;
 
 	gRDPMux._u64 = 0;
-
+	
+	mView.Zoom	 = 0.0f;	//Force to check viewport/zoom
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	memset( gWhiteTexture, 0xff, sizeof(gWhiteTexture) );
 
@@ -533,16 +541,24 @@ void PSPRenderer::BeginScene()
 	mRecordedCombinerStates.clear();
 #endif
 
-	u32		display_width( 0 );
-	u32		display_height( 0 );
-	u32		frame_width( 480 );
-	u32		frame_height( 272 );
+	u32				display_width( 0 );
+	u32				display_height( 0 );
+	u32				frame_width( 480 );
+	u32				frame_height( 272 );
 	//
 	//	We do this each frame as it lets us adapt to changes in the viewport dynamically
 	//
 	CGraphicsContext::Get()->ViewportType(&display_width, &display_height, &frame_width, &frame_height );
 
 	DAEDALUS_ASSERT( display_width != 0 && display_height != 0, "Unhandled viewport type" );
+
+	// Check wherever our viewport has changed.
+	// This only happens when the user changes it in pause menu. 
+	//
+	if( mView.Width == display_width && mView.Zoom == gZoomX )	return;
+
+	mView.Width	 = display_width;
+	mView.Zoom	 = gZoomX;
 
 	s32		display_x( (frame_width - display_width)/2 );
 	s32		display_y( (frame_height - display_height)/2 );
@@ -554,7 +570,6 @@ void PSPRenderer::BeginScene()
 
 	SetN64Viewport( scale, trans );
 }
-
 //*****************************************************************************
 //
 //*****************************************************************************
