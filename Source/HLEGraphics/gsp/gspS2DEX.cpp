@@ -211,7 +211,7 @@ void DLParser_S2DEX_RDPHalf_0( MicroCodeCommand command )
 	//0x001d3c90: b4000000 00000000 RSP_RDPHALF_1
 	//0x001d3c98: b3000000 04000400 RSP_RDPHALF_2
 
-	u32 pc = gDisplayListStack.back().addr;             // This points to the next instruction
+	u32 pc = gDlistStack[gDlistStackPointer].pc;             // This points to the next instruction
 	u32 NextUcode = *(u32 *)(g_pu8RamBase + pc);
 
 	if( (NextUcode>>24) != G_GBI2_SELECT_DL )

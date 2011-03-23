@@ -263,7 +263,7 @@ const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256] =
 		DLParser_Nothing,		DLParser_Nothing,			DLParser_Nothing,			DLParser_Nothing,
 		DLParser_Nothing,		DLParser_GBI2_DL_Count,		DLParser_GBI2_DMA_IO,		DLParser_GBI2_Texture,
 		DLParser_GBI2_PopMtx,	DLParser_GBI2_GeometryMode, DLParser_GBI2_Mtx,			DLParser_GBI2_MoveWord,
-		DLParser_GBI2_MoveMem,	DLParser_GBI2_LoadUCode,	DLParser_GBI1_DL,			DLParser_GBI1_EndDL,
+		DLParser_GBI2_MoveMem,	DLParser_GBI2_LoadUCode,	DLParser_GBI2_DL,			DLParser_GBI1_EndDL,
 		//e0
 		DLParser_GBI1_SpNoop,	DLParser_GBI1_RDPHalf_1,	DLParser_GBI2_SetOtherModeL,DLParser_GBI2_SetOtherModeH,
 		DLParser_TexRect,		DLParser_TexRectFlip,		DLParser_RDPLoadSync,		DLParser_RDPPipeSync,
@@ -862,7 +862,7 @@ const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256] =
 		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
 		DLParser_Nothing, DLParser_GBI2_DL_Count, DLParser_GBI2_DMA_IO, DLParser_GBI2_Texture,
 		DLParser_GBI2_PopMtx, DLParser_GBI2_GeometryMode, DLParser_GBI2_Mtx, RSP_MoveWord_Conker,
-		RSP_MoveMem_Conker, DLParser_GBI2_LoadUCode, DLParser_GBI1_DL, DLParser_GBI1_EndDL,
+		RSP_MoveMem_Conker, DLParser_GBI2_LoadUCode, DLParser_GBI2_DL, DLParser_GBI1_EndDL,
 		//e0
 		DLParser_GBI1_SpNoop, DLParser_GBI1_RDPHalf_1, DLParser_GBI2_SetOtherModeL, DLParser_GBI2_SetOtherModeH,
 		DLParser_TexRect, DLParser_TexRectFlip, DLParser_RDPLoadSync, DLParser_RDPPipeSync,

@@ -146,18 +146,8 @@ SImageDescriptor g_DI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 
 //u32		gPalAddresses[ 4096 ];
 
-
-// The display list PC stack. Before this was an array of 10
-// items, but this way we can nest as deeply as necessary. 
-
-struct DList
-{
-	u32 addr;
-	u32 limit;
-	// Push/pop?
-};
-
-std::vector< DList > gDisplayListStack;
+DListStack	gDlistStack[MAX_DL_STACK_SIZE];
+s32			gDlistStackPointer = -1;
 
 const MicroCodeInstruction *gUcode = gInstructionLookup[0];
 
@@ -353,6 +343,7 @@ static void	DLParser_DumpTaskInfo( const OSTask * pTask )
 //*****************************************************************************
 //
 //*****************************************************************************
+/*
 void DLParser_PushDisplayList( const DList & dl )
 {
 	gDisplayListStack.push_back( dl );
@@ -382,21 +373,18 @@ void DLParser_CallDisplayList( const DList & dl )
 	DL_PF("\\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
 	DL_PF("############################################");
 }
-
+*/
 //*****************************************************************************
 //
 //*****************************************************************************
 void DLParser_PopDL()
 {
-	DL_PF("      Returning from DisplayList");
+	DL_PF("Returning from DisplayList: level=%d", gDlistStackPointer+1);
 	DL_PF("############################################");
 	DL_PF("/\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\");
 	DL_PF(" ");
 
-	if( !gDisplayListStack.empty() )
-	{
-		gDisplayListStack.pop_back();
-	}
+	gDlistStackPointer--;
 }
 
 //*****************************************************************************
@@ -405,13 +393,12 @@ void DLParser_PopDL()
 inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
 {
 	// Current PC is the last value on the stack
-	DList &		entry( gDisplayListStack.back() );
-	u32			pc( entry.addr );
+	u32			pc( gDlistStack[gDlistStackPointer].pc );
 
 	p_command->inst.cmd0 = g_pu32RamBase[(pc>>2)+0];
 	p_command->inst.cmd1 = g_pu32RamBase[(pc>>2)+1];
 
-	entry.addr = pc + 8;
+	gDlistStack[gDlistStackPointer].pc += 8;
 }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -533,8 +520,7 @@ static void	DLParser_ProcessDList()
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	//Check if address is outside legal RDRAM
-	DList &		entry( gDisplayListStack.back() );
-	u32			pc( entry.addr );
+	u32			pc( gDlistStack[gDlistStackPointer].pc );
 
 	if ( pc > MAX_RAM_ADDRESS )
 	{
@@ -543,7 +529,7 @@ static void	DLParser_ProcessDList()
 	}
 #endif
 
-	while(1)
+	while(gDlistStackPointer >= 0)
 	{
 		DLParser_FetchNextCommand( &command );
 
@@ -568,17 +554,12 @@ static void	DLParser_ProcessDList()
 		gUcode[ command.inst.cmd ]( command ); 
 
 		// Check limit
-		if ( !gDisplayListStack.empty() )
+		if ( --gDlistStack[gDlistStackPointer].countdown < 0 && gDlistStackPointer >= 0)
 		{
-			// This is broken, we never reach EndDLInMem - Fix me (not sure why but neither did the old way //Corn)
-			// Also there's a warning in debug mode of this always being false (FIXED //Corn)
-			if ( gDisplayListStack.back().limit-- == 0)
-			{
-				DL_PF("**EndDLInMem");
-				gDisplayListStack.pop_back();
-			}	
+			DL_PF("**EndDLInMem");
+			gDlistStackPointer--;
 		}
-		else return;
+
 	}
 }
 //*****************************************************************************
@@ -646,11 +627,9 @@ void DLParser_Process()
 	CTextureCache::Get()->PurgeOldTextures();
 
 	// Initialise stack
-	gDisplayListStack.clear();
-	DList dl;
-	dl.addr = (u32)pTask->t.data_ptr;
-	dl.limit = ~0;
-	gDisplayListStack.push_back(dl);
+	gDlistStackPointer=0;
+	gDlistStack[gDlistStackPointer].pc = (u32)pTask->t.data_ptr;
+	gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
 
 	gRDPStateManager.Reset();
 
@@ -1276,7 +1255,7 @@ void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 		case G_MV_MATRIX_1:
 			DL_PF("		Force Matrix(1): addr=%08X", address);
 			RDP_Force_Matrix(address);
-			gDisplayListStack.back().addr += 24;	// Next 3 cmds are part of ForceMtx, skip 'em
+			//gDlistStack[gDlistStackPointer].pc += 24;	// Next 3 cmds are part of ForceMtx, skip 'em
 			break;
 		//Next 3 MATRIX commands should not appear, since they were in the previous command.
 		case G_MV_MATRIX_2:	/*IGNORED*/	DL_PF("     G_MV_MATRIX_2");											break;

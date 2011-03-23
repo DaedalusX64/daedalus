@@ -133,15 +133,11 @@ void DLParser_GBI0_DL_SOTE( MicroCodeCommand command )
 
     DL_PF("    Address=0x%08x Push: 0x%02x", address, command.dlist.param);
 
-    DList dl;
-    dl.addr = address;
-    dl.limit = ~0;
+	if( command.dlist.param == G_DL_PUSH )
+		gDlistStackPointer++;
 
-    switch (command.dlist.param)
-    {
-        case G_DL_PUSH:                 DLParser_PushDisplayList( dl );         break;
-        case G_DL_NOPUSH:               DLParser_CallDisplayList( dl );         break;
-    }
+	gDlistStack[gDlistStackPointer].pc = address;
+	gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
 }
 //*****************************************************************************
 //
@@ -192,15 +188,21 @@ void DLParser_DLInMem( MicroCodeCommand command )
 	u32		address( 0x00000000 | command.inst.cmd1 ); //RDPSegAddr(command.inst.cmd1);
 
 	DL_PF("    Address=0x%08x Push: 0x%02x", address, push);
-
-	DList dl;
-	dl.addr = address;
-	dl.limit = length;
-
+	
 	switch (push)
 	{
-	case G_DL_PUSH:			DLParser_PushDisplayList( dl );		break;
-	case G_DL_NOPUSH:		DLParser_CallDisplayList( dl );		break;
+	case G_DL_PUSH:
+		DL_PF("    Pushing DisplayList 0x%08x", address);
+		gDlistStackPointer++;
+		gDlistStack[gDlistStackPointer].pc = address;
+		gDlistStack[gDlistStackPointer].countdown = length;
+
+		break;
+	case G_DL_NOPUSH:
+		DL_PF("    Jumping to DisplayList 0x%08x", address);
+		gDlistStack[gDlistStackPointer].pc = address;
+		gDlistStack[gDlistStackPointer].countdown = length;
+		break;
 	}
 }
 
@@ -462,7 +464,7 @@ void DLParser_DmaTri( MicroCodeCommand command )
 
 void DLParser_RSP_Last_Legion_0x80( MicroCodeCommand command )
 {     
-      gDisplayListStack.back().addr += 16;
+      gDlistStack[gDlistStackPointer].pc += 16;
 	  DL_PF("DLParser_RSP_Last_Legion_0x80");
 }
 
@@ -472,7 +474,7 @@ void DLParser_RSP_Last_Legion_0x80( MicroCodeCommand command )
 void DLParser_RSP_Last_Legion_0x00( MicroCodeCommand command )
 {
 
-	gDisplayListStack.back().addr += 16;
+	gDlistStack[gDlistStackPointer].pc += 16;
 	DL_PF("DLParser_RSP_Last_Legion_0x00");
 
 	if( (command.inst.cmd0) == 0 && (command.inst.cmd1) )
@@ -492,19 +494,17 @@ void DLParser_RSP_Last_Legion_0x00( MicroCodeCommand command )
 		if( pc1 && pc1 != 0xffffff && pc1 < MAX_RAM_ADDRESS)
 		{
 			// Need to call both DL
-			DList dl;
-			dl.addr = pc1;
-			dl.limit = ~0;
-			gDisplayListStack.push_back(dl);
+			gDlistStackPointer++;
+			gDlistStack[gDlistStackPointer].pc = pc1;
+			gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
 		}
 
 		if( pc2 && pc2 != 0xffffff && pc2 < MAX_RAM_ADDRESS )
 		{
 			// Need to call both DL
-			DList dl;
-			dl.addr = pc2;
-			dl.limit = ~0;
-			gDisplayListStack.push_back(dl);
+			gDlistStackPointer++;
+			gDlistStack[gDlistStackPointer].pc = pc2;
+			gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
 		}
 	}
 	else if( (command.inst.cmd1) == 0 )
@@ -534,11 +534,11 @@ enum CycleType
 //*****************************************************************************
 void DLParser_TexRect_Last_Legion( MicroCodeCommand command )
 {
-	u32 pc = gDisplayListStack.back().addr;		// This points to the next instruction
+	u32 pc = gDlistStack[gDlistStackPointer].pc;		// This points to the next instruction
 	u32 command2 = *(u32 *)(g_ps8RamBase + pc);
 	u32 command3 = *(u32 *)(g_ps8RamBase + pc+4);
 
-	gDisplayListStack.back().addr += 8;
+	gDlistStack[gDlistStackPointer].pc += 8;
 
 	DL_PF("0x%08x: %08x %08x", pc, *(u32 *)(g_ps8RamBase + pc+0), *(u32 *)(g_ps8RamBase + pc+4));
 
@@ -590,7 +590,7 @@ void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 		return;
 
 	u32 tile = 0;
-	u32 pc = gDisplayListStack.back().addr;		// This points to the next instruction
+	u32 pc = gDlistStack[gDlistStackPointer].pc;		// This points to the next instruction
 	u32 * Cmd = (u32 *)(g_pu8RamBase + pc);
 
 	// Indices
@@ -626,7 +626,7 @@ void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 	//DL_PF("    Tile:%d Screen(%f,%f) -> (%f,%f)",				   tile, xy0, xy1, uv0, uv1);
 	PSPRenderer::Get()->TexRect( tile, xy0, xy1, uv0, uv1 );
 
-	gDisplayListStack.back().addr += 312;
+	gDlistStack[gDlistStackPointer].pc += 312;
 }
 
 //*****************************************************************************
@@ -635,7 +635,7 @@ void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 void DLParser_GBI2_Conker( MicroCodeCommand command )
 {
 
-	u32 pc = gDisplayListStack.back().addr;		// This points to the next instruction
+	u32 pc = gDlistStack[gDlistStackPointer].pc;		// This points to the next instruction
 
     bool tris_added = false;
 
@@ -676,7 +676,7 @@ void DLParser_GBI2_Conker( MicroCodeCommand command )
 		pc += 8;
     }
 
-	gDisplayListStack.back().addr = pc-8;
+	gDlistStack[gDlistStackPointer].pc = pc-8;
 
     if (tris_added)
     {

@@ -30,14 +30,12 @@ Sprite2DInfo g_Sprite2DInfo;
 bool Sprite2D_FetchNextCommand( MicroCodeCommand * p_command, u32 ucode_name )
 {
 	// Current PC is the last value on the stack
-	DList &		entry( gDisplayListStack.back() );
-	u32			pc( entry.addr );
+	u32			pc( gDlistStack[gDlistStackPointer].pc );
 
 	p_command->inst.cmd0 = g_pu32RamBase[(pc>>2)+0];
 	p_command->inst.cmd1 = g_pu32RamBase[(pc>>2)+1];
 
-	entry.addr = pc + 8;
-
+	gDlistStack[gDlistStackPointer].pc += 8;
 	return p_command->inst.cmd == ucode_name ? true : false;
 }
 //*****************************************************************************
