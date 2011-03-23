@@ -122,7 +122,7 @@ next_vertex_\function:
 	
 
 .elseif \texture_mode == 2
-# EnvMapped
+# EnvMapped G_TEXTURE_GEN_LINEAR
 #	t.x = (0.5f * ( 1.0f + ( n.x*world.m11 + n.y*world.m21 + n.z*world.m31 ) ));
 #	t.y = (0.5f * ( 1.0f - ( n.x*world.m12 + n.y*world.m22 + n.z*world.m32 ) ));
 //	vdot.t		S202, R200, C000					// n.x*m.11 + n.y*m.21 + n.z*m.31
@@ -138,10 +138,6 @@ next_vertex_\function:
 	vrsq.s		S201, S201							// S201 = 1/sqrt(x*x + y*y + z*z)
 	vscl.q		R202, R202, S201					// R202 = v.normalise().
 
-# Store X&Y vertice normals to calc ENV MAPPING with CPU
-//	sv.s		S202, 0x30($a3)						// Store NormalX in Texture.x
-//	sv.s		S212, 0x34($a3)						// Store NormalY in Texture.y
-		
 # t.x = Acos(n.x) / Pi
 # t.y = Acos(n.y) / Pi
 //	vasin.p		R202, R202							// Asin()
@@ -150,15 +146,8 @@ next_vertex_\function:
 //	sv.s		S202, 0x30($a3)						// Store Texture.x
 //	sv.s		S212, 0x34($a3)						// Store Texture.y
 
-# t.x = 0.5 * (1.0 + n.x)
-# t.y = 0.5 * (1.0 - n.y)
-//	vadd.p		R202, R202[1,1], R202[x,-y]			// 1+x, 1-y
-//	vmul.p		R202, R202[1/2,1/4], R202			// X * 0.5, Y * 0.25
-//	sv.s		S202, 0x30($a3)						// Store Texture.x
-//	sv.s		S212, 0x34($a3)						// Store Texture.y
-
 # Cheap way to do acos(x)/PI -> 0.5f - 0.25f * absf(x) - 0.25f * absf(x) * absf(x) * absf(x) //Corn
-	vmov.p		R202, R202[|x|,|y|]					// absf(x), absf(y)
+//	vmov.p		R202, R202[|x|,|y|]					// absf(x), absf(y)
 	vmov.p		R203, R200[1/2,1/2]					// result = 0.5
 	vmul.p		R222, R202[1/4,1/4], R202			// X * 0.25, Y * 0.25
 	vsub.p		R203, R203, R222					// result -= X * 0.25
@@ -167,6 +156,21 @@ next_vertex_\function:
 	vsub.p		R203, R203, R222					// result -= X * X * X * 0.25
 	sv.s		S203, 0x30($a3)						// Store Texture.x
 	sv.s		S213, 0x34($a3)						// Store Texture.y
+
+.elseif \texture_mode == 3
+# EnvMapped G_TEXTURE_GEN
+# We use worldproject matrix to calc normals it gives a nicer effect (model view result is in R200) //Corn
+	vtfm3.t		R202, M100, R203					// Transform with projworld matrix, looks nicer (only need 3x3)
+	vdot.t		S201, R202, R202					// S201 = x*x + y*y + z*z
+	vrsq.s		S201, S201							// S201 = 1/sqrt(x*x + y*y + z*z)
+	vscl.q		R202, R202, S201					// R202 = v.normalise().
+
+# t.x = 0.5 * (1.0 + n.x)
+# t.y = 0.25 * (1.0 + n.y)
+	vadd.p		R202, R202[1,1], R202[x,y]			// 1+x, 1+y
+	vmul.p		R202, R202[1/2,1/4], R202			// X * 0.5, Y * 0.25
+	sv.s		S202, 0x30($a3)						// Store Texture.x
+	sv.s		S212, 0x34($a3)						// Store Texture.y
 	
 .endif
 
@@ -227,6 +231,7 @@ finished_\function:
 TransformWithLightingM _TransformVerticesWithLighting_f0_t0, 0, 0
 TransformWithLightingM _TransformVerticesWithLighting_f0_t1, 0, 1
 TransformWithLightingM _TransformVerticesWithLighting_f0_t2, 0, 2
+TransformWithLightingM _TransformVerticesWithLighting_f0_t3, 0, 3
 TransformWithLightingM _TransformVerticesWithLighting_f1_t0, 1, 0
 TransformWithLightingM _TransformVerticesWithLighting_f1_t1, 1, 1
 TransformWithLightingM _TransformVerticesWithLighting_f1_t2, 1, 2

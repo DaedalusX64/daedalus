@@ -84,6 +84,7 @@ extern "C"
 void	_TransformVerticesWithLighting_f0_t0( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const DaedalusLight * p_lights, u32 num_lights );
 void	_TransformVerticesWithLighting_f0_t1( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const DaedalusLight * p_lights, u32 num_lights );
 void	_TransformVerticesWithLighting_f0_t2( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const DaedalusLight * p_lights, u32 num_lights );
+void	_TransformVerticesWithLighting_f0_t3( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const DaedalusLight * p_lights, u32 num_lights );
 void	_TransformVerticesWithLighting_f1_t0( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const DaedalusLight * p_lights, u32 num_lights );
 void	_TransformVerticesWithLighting_f1_t1( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const DaedalusLight * p_lights, u32 num_lights );
 void	_TransformVerticesWithLighting_f1_t2( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const DaedalusLight * p_lights, u32 num_lights );
@@ -1822,6 +1823,8 @@ void PSPRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num
 //*****************************************************************************
 //Transform using VFPU
 //*****************************************************************************
+extern u32 gGeometryMode;
+
 void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
@@ -1859,7 +1862,10 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	case TNL_LIGHT                          : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
 	case TNL_LIGHT |             TNL_TEXTURE: _TransformVerticesWithLighting_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
 	case TNL_LIGHT |TNL_TEXGEN              : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
-	case TNL_LIGHT |TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithLighting_f0_t2( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
+	case TNL_LIGHT |TNL_TEXGEN | TNL_TEXTURE:
+		if( gGeometryMode & G_TEXTURE_GEN_LINEAR ) _TransformVerticesWithLighting_f0_t2( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights );
+		else _TransformVerticesWithLighting_f0_t3( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights );
+		break;
 
 #else
 	switch( mTnLModeFlags & (TNL_TEXTURE|TNL_TEXGEN|TNL_FOG|TNL_LIGHT) )
@@ -2502,8 +2508,8 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	//
 	// Initialise the clamping state. When the mask is 0, it forces clamp mode.
 	//
-	u32 mode_u = (rdp_tile.clamp_s || rdp_tile.mask_s == 0) ? GU_CLAMP : GU_REPEAT;
-	u32 mode_v = (rdp_tile.clamp_t || rdp_tile.mask_t == 0)	? GU_CLAMP : GU_REPEAT;
+	u32 mode_u = (rdp_tile.clamp_s | ( rdp_tile.mask_s == 0)) ? GU_CLAMP : GU_REPEAT;
+	u32 mode_v = (rdp_tile.clamp_t | ( rdp_tile.mask_t == 0)) ? GU_CLAMP : GU_REPEAT;
 
 	//	In CRDPStateManager::GetTextureDescriptor, we limit the maximum dimension of a
 	//	texture to that define by the mask_s/mask_t value.
@@ -2582,7 +2588,7 @@ void	PSPRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 	//Clamp TOP and LEFT values to 0 if < 0 , needed for zooming //Corn
 	//printf("%d %d %d %d\n", s32(psp_coords_tl.x),s32(psp_coords_tl.y),s32(psp_coords_br.x),s32(psp_coords_br.y));
 	sceGuScissor( s32(psp_coords_tl.x) < 0 ? 0 : s32(psp_coords_tl.x), s32(psp_coords_tl.y) < 0 ? 0 : s32(psp_coords_tl.y),
-				  s32(psp_coords_br.x) - 1, s32(psp_coords_br.y) );
+				  s32(psp_coords_br.x), s32(psp_coords_br.y) );
 }
 
 //*****************************************************************************
