@@ -147,7 +147,7 @@ next_vertex_\function:
 //	sv.s		S212, 0x34($a3)						// Store Texture.y
 
 # Cheap way to do acos(x)/PI -> 0.5f - 0.25f * absf(x) - 0.25f * absf(x) * absf(x) * absf(x) //Corn
-//	vmov.p		R202, R202[|x|,|y|]					// absf(x), absf(y)
+	vmov.p		R202, R202[|x|,|y|]					// absf(x), absf(y)
 	vmov.p		R203, R200[1/2,1/2]					// result = 0.5
 	vmul.p		R222, R202[1/4,1/4], R202			// X * 0.25, Y * 0.25
 	vsub.p		R203, R203, R222					// result -= X * 0.25

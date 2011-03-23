@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gspCommon.h"
 
 
-u32 gGeometryMode = 0;
+static u32 gGeometryMode = 0;
 //*****************************************************************************
 // gSPVertex( Vtx *v, u32 n, u32 v0 )
 //*****************************************************************************
