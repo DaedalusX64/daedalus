@@ -151,15 +151,18 @@ void DLParser_GBI2_Vtx( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_ModifyVtx( MicroCodeCommand command )
 {
+	u32 offset =  command.modifyvtx.offset;
+	u32 vert   = command.modifyvtx.vtx;
+	u32 value  = command.modifyvtx.value;
+
 	// Cures crash after swinging in Mario Golf
-	if( command.modifyvtx.vtx > 80 )
+	if( vert > 80 )
 	{
-		DAEDALUS_ERROR("ModifyVtx: Invalid vertex number: %d", command.modifyvtx.vtx);
+		DAEDALUS_ERROR("ModifyVtx: Invalid vertex number: %d", vert);
 		return;
 	}
-
-	PSPRenderer::Get()->ModifyVertexInfo( command.modifyvtx.offset, command.modifyvtx.vtx, command.modifyvtx.value );
 	
+	PSPRenderer::Get()->ModifyVertexInfo( offset, vert, value );
 }
 
 //*****************************************************************************
@@ -302,12 +305,12 @@ void DLParser_GBI1_DL( MicroCodeCommand command )
 
 	gDlistStack[gDlistStackPointer].pc = address;
 	gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
-
 }
 
 //*****************************************************************************
 // 
 //*****************************************************************************
+/*
 void DLParser_GBI2_DL( MicroCodeCommand command )
 {
     u32 address = RDPSegAddr(command.dlist.addr);
@@ -339,7 +342,7 @@ void DLParser_GBI2_DL( MicroCodeCommand command )
 		break;
 	}
 }
-
+*/
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -708,7 +711,6 @@ void DLParser_GBI2_Texture( MicroCodeCommand command )
 void DLParser_GBI2_Quad( MicroCodeCommand command )
 {
     // While the next command pair is Tri2, add vertices
-    //u32 pc = gDisplayListStack.back().addr;
 	u32 pc = gDlistStack[gDlistStackPointer].pc;
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
@@ -743,7 +745,7 @@ void DLParser_GBI2_Quad( MicroCodeCommand command )
         }
 #endif
     }
-   // gDisplayListStack.back().addr = pc-8;
+
 	gDlistStack[gDlistStackPointer].pc = pc-8;
 
     if (tris_added)
@@ -759,7 +761,6 @@ void DLParser_GBI2_Quad( MicroCodeCommand command )
 void DLParser_GBI2_Line3D( MicroCodeCommand command )
 {
 	// While the next command pair is Tri2, add vertices
-    //u32 pc = gDisplayListStack.back().addr;
 	u32 pc = gDlistStack[gDlistStackPointer].pc;
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
@@ -791,7 +792,7 @@ void DLParser_GBI2_Line3D( MicroCodeCommand command )
         }
 #endif
     }
-    //gDisplayListStack.back().addr = pc-8;
+	
 	gDlistStack[gDlistStackPointer].pc = pc-8;
 
     if (tris_added)
@@ -806,7 +807,6 @@ void DLParser_GBI2_Line3D( MicroCodeCommand command )
 void DLParser_GBI2_Tri1( MicroCodeCommand command )
 {
     // While the next command pair is Tri1, add vertices
-    //u32 pc = gDisplayListStack.back().addr;
 	u32 pc = gDlistStack[gDlistStackPointer].pc;
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
@@ -833,7 +833,7 @@ void DLParser_GBI2_Tri1( MicroCodeCommand command )
         }
 #endif			
     }
-    //gDisplayListStack.back().addr = pc-8;
+
 	gDlistStack[gDlistStackPointer].pc = pc-8;
 
     if (tris_added)
@@ -847,7 +847,6 @@ void DLParser_GBI2_Tri1( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_Tri2( MicroCodeCommand command )
 {
-    //u32 pc = gDisplayListStack.back().addr;
 	u32 pc = gDlistStack[gDlistStackPointer].pc;
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
@@ -880,7 +879,7 @@ void DLParser_GBI2_Tri2( MicroCodeCommand command )
         }
 #endif
 	}
-    //gDisplayListStack.back().addr = pc-8;
+
 	gDlistStack[gDlistStackPointer].pc = pc-8;
 
     if (tris_added)
@@ -895,7 +894,6 @@ void DLParser_GBI2_Tri2( MicroCodeCommand command )
 void DLParser_GBI1_Tri2( MicroCodeCommand command )
 {
     // While the next command pair is Tri2, add vertices
-    //u32 pc = gDisplayListStack.back().addr;
 	u32 pc = gDlistStack[gDlistStackPointer].pc;
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
@@ -927,7 +925,7 @@ void DLParser_GBI1_Tri2( MicroCodeCommand command )
 		}
 #endif
     }
-    //gDisplayListStack.back().addr = pc-8;
+
 	gDlistStack[gDlistStackPointer].pc = pc-8;
 
     if (tris_added)
@@ -942,7 +940,6 @@ void DLParser_GBI1_Tri2( MicroCodeCommand command )
 void DLParser_GBI1_Line3D( MicroCodeCommand command )
 {
     // While the next command pair is Tri1, add vertices
-    //u32 pc = gDisplayListStack.back().addr;
 	u32 pc = gDlistStack[gDlistStackPointer].pc;
     u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
 
@@ -978,7 +975,6 @@ void DLParser_GBI1_Line3D( MicroCodeCommand command )
 #endif
 	}
 
-	//gDisplayListStack.back().addr = pc-8;
 	gDlistStack[gDlistStackPointer].pc = pc-8;
 
 	if (tris_added)
@@ -994,7 +990,6 @@ void DLParser_GBI1_Tri1( MicroCodeCommand command )
 {
     //DAEDALUS_PROFILE( "DLParser_GBI1_Tri1_T" );
     // While the next command pair is Tri1, add vertices
-    //u32 pc = gDisplayListStack.back().addr;
 	u32 pc = gDlistStack[gDlistStackPointer].pc;
     u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
 
@@ -1022,7 +1017,6 @@ void DLParser_GBI1_Tri1( MicroCodeCommand command )
 #endif
     }
 
-    //gDisplayListStack.back().addr = pc-8;
 	gDlistStack[gDlistStackPointer].pc = pc-8;
 
     if (tris_added)
@@ -1038,7 +1032,6 @@ void DLParser_GBI0_Tri4( MicroCodeCommand command )
 {
 	//DAEDALUS_ERROR("GBI0_Tri4 ");
     // While the next command pair is Tri2, add vertices
-    //u32 pc = gDisplayListStack.back().addr;
 	u32 pc = gDlistStack[gDlistStackPointer].pc;
 
     bool tris_added = false;
@@ -1089,7 +1082,6 @@ void DLParser_GBI0_Tri4( MicroCodeCommand command )
 #endif
     }
 
-    //gDisplayListStack.back().addr = pc-8;
 	gDlistStack[gDlistStackPointer].pc = pc-8;
 
     if (tris_added)
@@ -1099,7 +1091,7 @@ void DLParser_GBI0_Tri4( MicroCodeCommand command )
 }
 
 //*****************************************************************************
-// Actually line3d, not supported I think - From Glide
+// Actually line3d, not supported I think.
 //*****************************************************************************
 void DLParser_GBI0_Quad( MicroCodeCommand command ) 
 {

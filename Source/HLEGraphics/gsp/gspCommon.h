@@ -24,7 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../DLParser.h"
 #include "../PSPRenderer.h"
-#include "../RDP.h"
 #include "../RDPStateManager.h"
 #include "../DebugDisplayList.h"
 #include "../TextureCache.h"
@@ -34,31 +33,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../Utility/Profiler.h"
 
-#include "../Graphics/GraphicsContext.h"
-
 #include "../Debug/Dump.h"
 #include "../Debug/DBGConsole.h"
 
 #include "../Core/ROM.h"
 #include "../Core/CPU.h"
 
-#include "../OSHLE/ultra_sptask.h"
 #include "../OSHLE/ultra_gbi.h"
-#include "../OSHLE/ultra_rcp.h"
 
 #include "../ConfigOptions.h"
 
-#include <vector>
 
-/*
-struct DList
-{
-	u32 addr;
-	u32 limit;
-	// Push/pop?
-};
-*/
-//extern LastUcodeInfo UcodeInfo;
+
 extern u32 gSegments[16];
 const  u32 MAX_RAM_ADDRESS = (8*1024*1024);
 extern u32 gVertexStride;
@@ -66,10 +52,7 @@ extern u32 gTextureLevel;
 extern u32 gRDPHalf1;
 extern u32 gAmbientLightIdx;
 
-//extern std::vector< DList > gDisplayListStack;
-
 #define RDPSegAddr(seg) 		( (gSegments[((seg)>>24)&0x0F]&0x00ffffff) + ((seg)&0x00FFFFFF) )
-
 //#define SetCommand( cmd, func ) 	gInstructionLookup[ cmd ] = func; gInstructionName[ cmd ] = #cmd;
 
 #define RDP_NOIMPL_WARN(op)             DAEDALUS_DL_ERROR( op )
@@ -81,7 +64,6 @@ void DLParser_PushDisplayList( const DList & dl );
 void DLParser_CallDisplayList( const DList & dl );*/
 void DLParser_PopDL();
 void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
-bool DLParser_FetchNextCommand( MicroCodeCommand *p_command );
 void RDP_MoveMemLight(u32 light_idx, u32 address);
 
 

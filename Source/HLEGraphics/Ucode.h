@@ -23,7 +23,6 @@
 #include "UcodeDefs.h"
 
 #define MAX_UCODE		12	// Increase this everytime a new ucode table is added !
-#define UCODE_CACHED	MAX_UCODE + 1
 
 typedef void(*MicroCodeInstruction)(MicroCodeCommand command);
 #define UcodeFunc(name)	void name(MicroCodeCommand)
@@ -55,7 +54,7 @@ UcodeFunc( DLParser_GBI1_Noop );
 UcodeFunc( DLParser_GBI2_DMA_IO );
 UcodeFunc( DLParser_GBI2_MoveWord );
 UcodeFunc( DLParser_GBI2_MoveMem );
-UcodeFunc( DLParser_GBI2_DL );
+//UcodeFunc( DLParser_GBI2_DL );
 
 //*****************************************************************************
 // Include ucode header files

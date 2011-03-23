@@ -828,6 +828,18 @@ static void BlendMode_0x00272c603510e37fLL (BLEND_MODE_ARGS)
 /*
  //#Q
  */ 
+ 
+// Quest 64 - Bubbles
+// case 0x00629bff1ffcfe38LL:
+//aRGB0: (1            - Texel0      ) * Env          + Texel0
+//aA0  : (Texel0       - 0           ) * Env          + 0
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (0            - 0           ) * 0            + Combined
+static void BlendMode_0x00629bff1ffcfe38LL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGBA(details.EnvColour);
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
 
 /* 
  //#R
@@ -1404,7 +1416,17 @@ static void BlendMode_0x00271c6035fcf378LL (BLEND_MODE_ARGS)
 	details.ColourAdjuster.SetRGB(details.PrimColour);
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
-
+// OOT - Lens of Truth
+//case 0x00373c6e117b9fcfLL:
+//aRGB0: (Primitive    - Texel0      ) * PrimLODFrac  + 0           
+//aA0  : (Primitive    - Texel0      ) * 1            + 0           
+//aRGB1: (Primitive    - Texel0      ) * PrimLODFrac  + 0           
+//aA1  : (Primitive    - Texel0      ) * 1            + 0   
+void BlendMode_0x00373c6e117b9fcfLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetA( details.PrimColour );
+	sceGuTexFunc( GU_TFX_REPLACE, GU_TCC_RGB );
+}
 //Zelda Bottle Detail / Ridge Racer Fences
 //case 0x0030fe045ffef3f8LL:
 //aRGB0: (Primitive    - Env         ) * Texel0       + Env         
@@ -1624,6 +1646,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x003096045ffefff8LL); // Pokemon Stadium - Balloons
 			BLEND_MODE(0x00322bff5f0e923fLL); // Paper Mario Fireblast
 			BLEND_MODE(0x003432685566ff7fLL); // Ogre Battle - Intro Dust
+			BLEND_MODE(0x00373c6e117b9fcfLL); // OOT - Lens of Truth
 			BLEND_MODE(0x0040fe8155fef97cLL); // GoldenEye Sky
 			BLEND_MODE(0x0040fe8155fefd7eLL); // Kirby Far Terrain
 			BLEND_MODE(0x0050d2a133a5b6dbLL); // Pokemon Stadium 2 Pokemon Select Box
@@ -1633,6 +1656,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0055a68730fd923eLL); // F1 World GP Sky
 			BLEND_MODE(0x0061a5ff1f10d23fLL); // Paper Mario - Intro Lighting
 			BLEND_MODE(0x00627fff1ffcfc38LL); // Pilot Wings 64 sky
+			BLEND_MODE(0x00629bff1ffcfe38LL); // Quest 64 - Bubbles
 			BLEND_MODE(0x0062fe043f15f9ffLL); // Banjo Kazooie Backdrop
 			BLEND_MODE(0x00671603fffcff78LL); // DOOM64 weapons
 			BLEND_MODE(0x0071fee344fe793cLL); // Pokemon Stadium 2 Text box
