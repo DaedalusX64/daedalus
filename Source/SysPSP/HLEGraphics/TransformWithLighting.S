@@ -168,7 +168,7 @@ next_vertex_\function:
 # t.x = 0.5 * (1.0 + n.x)
 # t.y = 0.25 * (1.0 + n.y)
 	vadd.p		R202, R202[1,1], R202[x,y]			// 1+x, 1+y
-	vmul.p		R202, R202[1/2,1/4], R202			// X * 0.5, Y * 0.25
+	vmul.p		R202, R202[1/2,1/2], R202			// X * 0.5, Y * 0.25
 	sv.s		S202, 0x30($a3)						// Store Texture.x
 	sv.s		S212, 0x34($a3)						// Store Texture.y
 	
