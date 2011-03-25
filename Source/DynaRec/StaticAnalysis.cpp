@@ -230,6 +230,8 @@ void StaticAnalysis_LDR( OpCode op_code, RegisterUsage & recorder )
 void StaticAnalysis_LW( OpCode op_code, RegisterUsage & recorder ) 			// Load Word
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+
+	// Causes P Mario to BSOD in intro
 	if( g_ROM.GameHacks != PMARIO ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );	// Breaks Paper Mario
 }
 
@@ -254,7 +256,9 @@ void StaticAnalysis_SW( OpCode op_code, RegisterUsage & recorder ) 			// Store W
 void StaticAnalysis_SH( OpCode op_code, RegisterUsage & recorder ) 			// Store Halfword
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+
+	// Causes Zelda MM to BSOD when you enter clock town
+	if( g_ROM.GameHacks != ZELDA_MM ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_SB( OpCode op_code, RegisterUsage & recorder ) 			// Store Byte
