@@ -782,7 +782,7 @@ void RDP_MoveMemViewport(u32 address)
 	v3 vec_scale( scale[0] * 0.25f, scale[1] * 0.25f, scale[2] * 0.25f );
 	v3 vec_trans( trans[0] * 0.25f, trans[1] * 0.25f, trans[2] * 0.25f );
 
-	PSPRenderer::Get()->SetN64Viewport( vec_scale, vec_trans );
+	PSPRenderer::Get()->SetViewport( vec_scale, vec_trans, PSPRenderer::N64_VIEWPORT );
 
 	DL_PF("        Scale: %d %d %d %d", scale[0], scale[1], scale[2], scale[3]);
 	DL_PF("        Trans: %d %d %d %d", trans[0], trans[1], trans[2], trans[3]);

@@ -134,8 +134,13 @@ public:
 	void                Draw2DTexture(float, float, float, float, float, float, float, float);
 
 	// Viewport stuff
-	void				SetPSPViewport( s32 x, s32 y, u32 w, u32 h );
-	void				SetN64Viewport( const v3 & scale, const v3 & trans );
+	enum EViewportStyle
+	{ 
+		N64_VIEWPORT, 
+		PSP_VIEWPORT,
+	};
+	
+	void				SetViewport( const v3 & scale, const v3 & trans, EViewportStyle style );
 	void				SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 );
 
 	// Fog stuff
@@ -224,7 +229,9 @@ private:
 	void				EnableTexturing( u32 index, u32 tile_idx );
 
 	void				RestoreRenderStates();
-
+	
+	void				SetPSPViewport( s32 x, s32 y, u32 w, u32 h );
+	void				SetN64Viewport( const v3 & scale, const v3 & trans );
 	void				UpdateViewport();
 
 	v2					ConvertN64ToPsp( const v2 & n64_coords ) const;
@@ -327,7 +334,8 @@ private:
 	bool				mProjisNew;
 	bool				mWPmodified;
 		
-	u16					m_swIndexBuffer[500];
+	static const u32 	MAX_VERTICES = 500;	
+	u16					m_swIndexBuffer[MAX_VERTICES];
 	u32					m_dwNumIndices;
 
 	// Processed vertices waiting for output...

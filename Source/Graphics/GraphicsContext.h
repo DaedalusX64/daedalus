@@ -61,7 +61,7 @@ public:
 	virtual bool GetBufferSize(u32 * p_width, u32 * p_height) = 0;
 	virtual void SetDebugScreenTarget( ETargetSurface buffer ) = 0;
 
-	virtual void ViewportType(u32 * d_width, u32 * d_height, u32 * f_width, u32 * f_height ) =0;
+	virtual void ViewportType( u32 * d_width, u32 * d_height ) =0;
 
 	virtual void DumpNextScreen() = 0;
 	virtual void DumpScreenShot() = 0;

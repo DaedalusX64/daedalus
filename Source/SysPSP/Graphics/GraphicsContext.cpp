@@ -127,7 +127,7 @@ public:
 
 	void				SetDebugScreenTarget( ETargetSurface buffer );
 
-	void				ViewportType(u32 * d_width, u32 * d_height, u32 * f_width, u32 * f_height );
+	void				ViewportType( u32 * d_width, u32 * d_height );
 	void				DumpScreenShot();
 	void				DumpNextScreen()			{ mDumpNextScreen = 2; }
 
@@ -416,7 +416,7 @@ void IGraphicsContext::SetDebugScreenTarget( ETargetSurface buffer )
 // Change current viewport, either for tv out or PSP itself
 // 
 //*****************************************************************************
-void IGraphicsContext::ViewportType(u32 * d_width, u32 * d_height, u32 * f_width, u32 * f_height )
+void IGraphicsContext::ViewportType( u32 * d_width, u32 * d_height )
 {
 	if( gGlobalPreferences.TVEnable && PSP_TV_CABLE > 0)
 	{
@@ -451,8 +451,6 @@ void IGraphicsContext::ViewportType(u32 * d_width, u32 * d_height, u32 * f_width
 			*d_height = 460; // 460 seems to be the limit due to renderer conversions
 			break;
  		}
- 		*f_width = 720;
- 		*f_height = 480;
 	}
 	else
 	{
@@ -551,12 +549,19 @@ void IGraphicsContext::DumpScreenShot()
 
 	} while( IO::File::Exists( unique_filename ) );
 
-	u32		display_width( 0 );
-	u32		display_height( 0 );
-	u32		frame_width( 480 );
-	u32		frame_height( 272 );
+	u32		display_width = 0;
+	u32		display_height= 0;
+	
+	u32		frame_width = 480;
+	u32		frame_height= 272;
+		
+	if ( PSP_TV_CABLE > 0 )	// Tv Out
+	{
+		frame_width = 720;
+		frame_height=  480;
+	}
 
-	ViewportType(&display_width, &display_height, &frame_width, &frame_height );
+	ViewportType( &display_width, &display_height );
 
 	DAEDALUS_ASSERT( display_width != 0 && display_height != 0, "Unhandled viewport type" );
 
