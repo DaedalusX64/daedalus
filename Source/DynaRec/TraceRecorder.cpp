@@ -120,6 +120,7 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 		{
 			if (op_code._u32 == 0)
 			{
+				printf("hack\n");
 				mBranchDetails[ mActiveBranchIdx ].SpeedHack = SHACK_SKIPTOEVENT;
 			}else if (op_code.op == OP_ADDIU || op_code.op == OP_DADDI
 				|| op_code.op == OP_ADDI || op_code.op == OP_DADDIU)

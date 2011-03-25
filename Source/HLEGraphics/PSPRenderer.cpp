@@ -555,73 +555,39 @@ void PSPRenderer::BeginScene()
 	mRecordedCombinerStates.clear();
 #endif
 
+	u32	display_width, display_height( 0 );
+
+	CGraphicsContext::Get()->ViewportType(&display_width, &display_height);
+
+	DAEDALUS_ASSERT( display_width && display_height, "Unhandled viewport type" );
+
+	// Update viewport only if user changed it in settings or vi register changed it
+	// Both happen really rare
+	//
+	if( mView.ViWidth == fViWidth    && // Viewport wasn't changed in pased menu
+		mView.ViHeight == fViHeight  && // Zoom wasn't changed in pased menu
+		mView.Width == display_width && // VI register didn't width? (bug fix GE007)
+		mView.Zoom == gZoomX )			// VI register didn't changed height
+		return;
+
+	u32 frame_width(  PSP_TV_CABLE <= 0 ? 480 : 720 );
+	u32	frame_height( PSP_TV_CABLE <= 0 ? 272 : 272 );
+
 	v3 scale( 640.0f*0.25f, 480.0f*0.25f, 511.0f*0.25f );
 	v3 trans( 640.0f*0.25f, 480.0f*0.25f, 511.0f*0.25f );
 
-	SetViewport( scale, trans, PSP_VIEWPORT );
+	s32		display_x( (frame_width - display_width)/2 );
+	s32		display_y( (frame_height - display_height)/2 );
+
+	SetPSPViewport( display_x, display_y, display_width, display_height );
+	SetN64Viewport( scale, trans );
+
+	mView.Width	 	= display_width;
+	mView.Zoom	 	= gZoomX;
+	mView.ViWidth	= fViWidth;
+	mView.ViHeight	= fViHeight;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void PSPRenderer::SetViewport(  const v3 & scale, const v3 & trans, EViewportStyle style)
-{
-
-	switch(style)
-	{
-	case N64_VIEWPORT:
-
-		// ToDo
-		//if(mView.Scale0X == scale.x && mView.Scale0Y == scale.y)	return;
-			
-		SetN64Viewport( scale, trans );
-		
-		mView.Scale0X	= scale.x;
-		mView.Scale0Y	= scale.y;	
-		break;
-		
-	case PSP_VIEWPORT:
-	
-		u32		frame_width = 480;
-		u32		frame_height= 272;
-		
-		u32				display_width( 0 );
-		u32				display_height( 0 );
-		//
-		//	We do this each frame as it lets us adapt to changes in the viewport dynamically
-		//
-		CGraphicsContext::Get()->ViewportType(&display_width, &display_height);
-
-		DAEDALUS_ASSERT( display_width != 0 && display_height != 0, "Unhandled viewport type" );
-		
-		if( mView.ViWidth == fViWidth && mView.ViHeight == fViHeight && 
-			mView.Width == display_width && mView.Zoom == gZoomX &&
-			mView.ScaleX == scale.x && mView.ScaleY == scale.y)	
-			return;
-		
-		if ( PSP_TV_CABLE > 0 )	// Tv Out
-		{
-			printf("tv\n");
-			frame_width = 720;
-			frame_height=  480;
-		}
-		
-		s32		display_x( (frame_width - display_width)/2 );
-		s32		display_y( (frame_height - display_height)/2 );
-
-		SetPSPViewport( display_x, display_y, display_width, display_height );
-	
-		SetN64Viewport( scale, trans );
-		
-		mView.Width	 	= display_width;
-		mView.Zoom	 	= gZoomX;
-		mView.ViWidth	= fViWidth;
-		mView.ViHeight	= fViHeight;
-		mView.ScaleX	= scale.x;
-		mView.ScaleY	= scale.y;	
-		break;
-	}
-}	
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -673,6 +639,10 @@ void PSPRenderer::SetPSPViewport( s32 x, s32 y, u32 w, u32 h )
 //*****************************************************************************
 void PSPRenderer::SetN64Viewport( const v3 & scale, const v3 & trans )
 {
+	// Only Update viewport when it actually changed, this happens rarely 
+	//
+	if( mVpTrans.x == scale.x && mVpTrans.y == scale.y )	return;
+
 	mVpScale = scale;
 	mVpTrans = trans;
 	

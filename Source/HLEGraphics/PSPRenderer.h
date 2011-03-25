@@ -134,13 +134,7 @@ public:
 	void                Draw2DTexture(float, float, float, float, float, float, float, float);
 
 	// Viewport stuff
-	enum EViewportStyle
-	{ 
-		N64_VIEWPORT, 
-		PSP_VIEWPORT,
-	};
-	
-	void				SetViewport( const v3 & scale, const v3 & trans, EViewportStyle style );
+	void				SetN64Viewport( const v3 & scale, const v3 & trans );
 	void				SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 );
 
 	// Fog stuff
@@ -231,7 +225,6 @@ private:
 	void				RestoreRenderStates();
 	
 	void				SetPSPViewport( s32 x, s32 y, u32 w, u32 h );
-	void				SetN64Viewport( const v3 & scale, const v3 & trans );
 	void				UpdateViewport();
 
 	v2					ConvertN64ToPsp( const v2 & n64_coords ) const;
