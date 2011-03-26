@@ -155,6 +155,8 @@ void DLParser_GBI1_ModifyVtx( MicroCodeCommand command )
 	u32 vert   = command.modifyvtx.vtx;
 	u32 value  = command.modifyvtx.value;
 
+	DAEDALUS_ASSERT( offset, " ModifyVtx : Can't handle" );
+
 	// Cures crash after swinging in Mario Golf
 	if( vert > 80 )
 	{
@@ -590,13 +592,9 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_SetOtherModeL( MicroCodeCommand command )
 {
-    u32 shift  = (command.inst.cmd0 >> 8) & 0xFF;
-    u32 length = (command.inst.cmd0     ) & 0xFF;
-    u32 data   =  command.inst.cmd1;
+    u32 mask		= ((1 << command.othermode.len) - 1) << command.othermode.sft;
 
-    u32 mask = ((1 << length) - 1) << shift;
-
-    gRDPOtherMode.L = (gRDPOtherMode.L&(~mask)) | data;
+    gRDPOtherMode.L = (gRDPOtherMode.L&(~mask)) | command.othermode.data;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );
@@ -608,13 +606,9 @@ void DLParser_GBI1_SetOtherModeL( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_SetOtherModeH( MicroCodeCommand command )
 {
-    u32 shift  = (command.inst.cmd0 >> 8) & 0xFF;
-    u32 length = (command.inst.cmd0     ) & 0xFF;
-    u32 data   =  command.inst.cmd1;
+    u32 mask		= ((1 << command.othermode.len) - 1) << command.othermode.sft;
 
-    u32 mask = ((1 << length) - 1) << shift;
-
-    gRDPOtherMode.H = (gRDPOtherMode.H&(~mask)) | data;
+    gRDPOtherMode.H = (gRDPOtherMode.H&(~mask)) | command.othermode.data;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );
@@ -626,14 +620,10 @@ void DLParser_GBI1_SetOtherModeH( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_SetOtherModeL( MicroCodeCommand command )
 {
-	u32 shift  = (command.inst.cmd0 >> 8) & 0xFF;
-	u32 length = (command.inst.cmd0     ) & 0xFF;
-	u32 data   =  command.inst.cmd1;
-
 	// Mask is constructed slightly differently
-	u32 mask = (u32)((s32)(0x80000000) >> length) >> shift;
+	u32 mask		= (u32)((s32)(0x80000000) >> command.othermode.len) >> command.othermode.sft;
 
-	gRDPOtherMode.L = (gRDPOtherMode.L&(~mask)) | data;
+	gRDPOtherMode.L = (gRDPOtherMode.L&(~mask)) | command.othermode.data;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );
@@ -645,14 +635,10 @@ void DLParser_GBI2_SetOtherModeL( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_SetOtherModeH( MicroCodeCommand command )
 {
-    u32 shift  = (command.inst.cmd0 >> 8) & 0xFF;
-    u32 length = (command.inst.cmd0     ) & 0xFF;
-    u32 data   =  command.inst.cmd1;
-
     // Mask is constructed slightly differently
-    u32 mask = (u32)((s32)(0x80000000) >> length) >> shift;
+    u32 mask		= (u32)((s32)(0x80000000) >> command.othermode.len) >> command.othermode.sft;
 
-    gRDPOtherMode.H = (gRDPOtherMode.H&(~mask)) | data;
+    gRDPOtherMode.H = (gRDPOtherMode.H&(~mask)) | command.othermode.data;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );

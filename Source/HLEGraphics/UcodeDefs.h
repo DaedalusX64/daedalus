@@ -289,6 +289,32 @@ struct GBI0_Tri4
 	u32 v10:4;
 	u32 v11:4;
 };
+/*
+struct Conker_Tri4 
+{
+	// Tri 3
+	u32 v6:5; 
+	u32 v7:5;
+	u32 v8:5;
+
+	// Tri 4 # Doesn't work :/
+	u32 v11:5;
+	u32 v10:5;
+	u32 v9lo:2;
+	u32 v9hi:3;
+
+	// Tri 1
+	u32 v0:5;
+	u32 v1:5;
+	u32 v2:5;
+
+	// Tri 2
+	u32 v3:5;
+	u32 v4:5;
+	u32 v5:5;
+	u32 cmd:4;
+};
+*/
 
 struct GBI1_Dlist
 {
@@ -345,6 +371,23 @@ struct SetPrimDepth
 	u32 pad:1;
 };
 
+struct SetOthermode
+{
+	u32	len:8;
+	u32	sft:8;
+	u32	cmd:8;
+	u32	data;
+};
+
+/*
+struct GBI1_LoadUcode
+{
+    u32 size:16;     
+    u32 pad:8;
+    u32 cmd:8;
+    u32 base:24;
+};
+*/
 union MicroCodeCommand
 {
 	Instruction		inst;
@@ -363,10 +406,12 @@ union MicroCodeCommand
 	GBI2_Tri1		gbi2tri1;
 	GBI2_Tri2		gbi2tri2;
 	GBI0_Tri4		tri4;
+	//Conker_Tri4		conkertri4;
 	GBI1_MoveWord	mw1;
 	GBI2_MoveWord	mw2;
 	GBI_Texture		texture;
 	GBI1_Dlist		dlist;
+	//GBI1_LoadUcode	loaducode;
 	SetCullDL		culldl;		
 	SetColor		color;
 	SetTImg			img;
@@ -374,6 +419,7 @@ union MicroCodeCommand
 	SetLoadTile		loadtile;
 	SetFillRect		fillrect;
 	SetPrimDepth	primdepth;
+	SetOthermode	othermode;
 
 	u64	force_structure_alignment;
 };
