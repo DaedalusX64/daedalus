@@ -27,14 +27,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/DLParser.h"
 
 #include "Graphics/GraphicsContext.h"
-#include "SysPSP/Graphics/VideoMemoryManager.h"
 
 #include "Utility/Profiler.h"
 #include "Utility/FramerateLimiter.h"
 #include "Utility/Preferences.h"
 #include "Utility/Timing.h"
 
-#include <pspdisplay.h>
 #include <pspdebug.h>
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -255,7 +253,9 @@ void CGraphicsPluginPsp::UpdateScreen()
 				CGraphicsContext::Get()->DumpNextScreen();
 				gTakeScreenshot = false;
 			}
+
 			CGraphicsContext::Get()->UpdateFrame( false );
+			HandleEndOfFrame();
 		}
 
 		static u32 current_frame = 0;
@@ -264,30 +264,27 @@ void CGraphicsPluginPsp::UpdateScreen()
 		
 		Older_FrameskipActive = Old_FrameskipActive;
 		Old_FrameskipActive = gFrameskipActive;
-		if( gFrameskipValue == FV_DISABLED )
+
+		switch(gFrameskipValue)
 		{
+		case FV_DISABLED:
 			gFrameskipActive = false;
+			break;
+		case FV_AUTO1:
+			if(!Old_FrameskipActive && (Fsync < 0.965f)) gFrameskipActive = true;
+			else gFrameskipActive = false;
+			break;
+		case FV_AUTO2:
+			if((!Old_FrameskipActive | !Older_FrameskipActive) && (Fsync < 0.965f)) gFrameskipActive = true;
+			else gFrameskipActive = false;
+			break;
+		default:
+			gFrameskipActive = (current_frame % (gFrameskipValue - 1)) != 0;
+			break;
 		}
-		else
-		{
-			//skip next frame if in auto mode and we are running slow //Corn
-			if(gFrameskipValue == FV_AUTO1)
-			{
-				if(!Old_FrameskipActive && (Fsync < 0.965f)) gFrameskipActive = true;
-				else gFrameskipActive = false;
-			}
-			else if(gFrameskipValue == FV_AUTO2)
-			{
-				if((!Old_FrameskipActive | !Older_FrameskipActive) && (Fsync < 0.965f)) gFrameskipActive = true;
-				else gFrameskipActive = false;
-			}
-			//Or skip frames as set in menu
-			else gFrameskipActive = (current_frame % (gFrameskipValue - 1)) != 0;
-		}
+
 		last_origin = current_origin;
 	}
-
-	HandleEndOfFrame();
 }
 
 //*****************************************************************************

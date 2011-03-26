@@ -313,15 +313,15 @@ static bool	Initialize()
 	{
 		// Check if mediaengine.prx could be initiated, we need it to unlock the extra memory
 		// This tells us if the user's psp have kmode access too
+		//
 		if( bNeedStartME )
-		{
 			PSP_IS_SLIM = true;
-			HAVE_DVE = pspSdkLoadStartModule("dvemgr.prx", PSP_MEMORY_PARTITION_KERNEL);
-			if (HAVE_DVE >= 0)
-				PSP_TV_CABLE = pspDveMgrCheckVideoOut();
-			if (PSP_TV_CABLE == 1)
-				PSP_TV_LACED = 1; // composite cable => interlaced
-		}
+
+		HAVE_DVE = pspSdkLoadStartModule("dvemgr.prx", PSP_MEMORY_PARTITION_KERNEL);
+		if (HAVE_DVE >= 0)
+			PSP_TV_CABLE = pspDveMgrCheckVideoOut();
+		if (PSP_TV_CABLE == 1)
+			PSP_TV_LACED = 1; // composite cable => interlaced
 	}
 
 	HAVE_DVE = (HAVE_DVE < 0) ? 0 : 1; // 0 == no dvemgr, 1 == dvemgr
