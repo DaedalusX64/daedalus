@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_PSP_USE_ME
 static bool bMEStarted = false;
-static bool bNeedStartME = true;
+bool bNeedStartME = true;
 static volatile me_struct *mei;
 #endif
 CJobManager gJobManager( 1024, TM_ASYNC_ME );

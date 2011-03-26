@@ -2544,15 +2544,18 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	//	It sets up a texture with a mask_s/t of 6/6 (64x64), but sets the tile size to
 	//	256*128. clamp_s/t are set, meaning the texture wraps 4x and 2x.
 	//
-	if( tile_size.GetWidth()  > ti.GetWidth()  ) mode_u = GU_REPEAT; 
+	if( tile_size.GetWidth()  > ti.GetWidth()  )
+	{
+		// This breaks the Sun, and other textures in Zelda. Breaks Mario's hat in SSB, and other textures, and foes in Kirby 64's cutscenes
+		// ToDo : Find a proper workaround for this, if this disabled the castle in Link's stage in SSB is broken :/
+		// Do a hack just for Zelda for now..
+		//
+		if((g_ROM.GameHacks == ZELDA_OOT) | (g_ROM.GameHacks == ZELDA_MM))
+			 mode_u = GU_CLAMP;
+		else
+			mode_u = GU_REPEAT; 
+	}
 	if( tile_size.GetHeight() > ti.GetHeight() ) mode_v = GU_REPEAT;
-
-	// Above check, breaks the Sun, and other textures in Zelda. Breaks Mario's hat in SSB, and other textures, and foes in Kirby 64's cutscenes
-	// ToDo : Find a proper workaround for this, if this disabled the castle in Link's stage in SSB is broken :/
-	// Do a hack just for Zelda for now..
-	//
-	if((g_ROM.GameHacks == ZELDA_OOT) | (g_ROM.GameHacks == ZELDA_MM))
-		 mode_u = GU_CLAMP;
 
 	sceGuTexWrap( mode_u, mode_v );
 
