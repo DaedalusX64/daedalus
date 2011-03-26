@@ -289,7 +289,7 @@ struct GBI0_Tri4
 	u32 v10:4;
 	u32 v11:4;
 };
-/*
+
 struct Conker_Tri4 
 {
 	// Tri 3
@@ -297,11 +297,11 @@ struct Conker_Tri4
 	u32 v7:5;
 	u32 v8:5;
 
-	// Tri 4 # Doesn't work :/
-	u32 v11:5;
-	u32 v10:5;
-	u32 v9lo:2;
+	// Tri 4
 	u32 v9hi:3;
+	u32 v10:5;
+	u32 v11:5;
+	u32 pad:4;
 
 	// Tri 1
 	u32 v0:5;
@@ -312,9 +312,9 @@ struct Conker_Tri4
 	u32 v3:5;
 	u32 v4:5;
 	u32 v5:5;
-	u32 cmd:4;
+	u32 v9lo:2;
 };
-*/
+
 
 struct GBI1_Dlist
 {
@@ -406,7 +406,7 @@ union MicroCodeCommand
 	GBI2_Tri1		gbi2tri1;
 	GBI2_Tri2		gbi2tri2;
 	GBI0_Tri4		tri4;
-	//Conker_Tri4		conkertri4;
+	Conker_Tri4		conkertri4;
 	GBI1_MoveWord	mw1;
 	GBI2_MoveWord	mw2;
 	GBI_Texture		texture;

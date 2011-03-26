@@ -639,37 +639,19 @@ void DLParser_GBI2_Conker( MicroCodeCommand command )
 
     bool tris_added = false;
 
-	while ( (command.inst.cmd > 0x0F) && (command.inst.cmd < 0x20) )
+	while ( (command.inst.cmd > 0x0F) & (command.inst.cmd < 0x20) )
     {
-		u32 idx[12];
-
 		//Tri #1
-		idx[0] = (command.inst.cmd1   )&0x1F;
-		idx[1] = (command.inst.cmd1>> 5)&0x1F;
-		idx[2] = (command.inst.cmd1>>10)&0x1F;
-
-		tris_added |= PSPRenderer::Get()->AddTri(idx[0], idx[1], idx[2]);
+		tris_added |= PSPRenderer::Get()->AddTri(command.conkertri4.v0, command.conkertri4.v1, command.conkertri4.v2);
 
 		//Tri #2
-		idx[3] = (command.inst.cmd1>>15)&0x1F;
-		idx[4] = (command.inst.cmd1>>20)&0x1F;
-		idx[5] = (command.inst.cmd1>>25)&0x1F;
-
-		tris_added |= PSPRenderer::Get()->AddTri(idx[3], idx[4], idx[5]);
+		tris_added |= PSPRenderer::Get()->AddTri(command.conkertri4.v3, command.conkertri4.v4, command.conkertri4.v5);
 
 		//Tri #3
-		idx[6] = (command.inst.cmd0    )&0x1F;
-		idx[7] = (command.inst.cmd0>> 5)&0x1F;
-		idx[8] = (command.inst.cmd0>>10)&0x1F;
-
-		tris_added |= PSPRenderer::Get()->AddTri(idx[6], idx[7], idx[8]);
+		tris_added |= PSPRenderer::Get()->AddTri(command.conkertri4.v6, command.conkertri4.v7, command.conkertri4.v8);
 
 		//Tri #4
-		idx[ 9] = (((command.inst.cmd0>>15)&0x7)<<2)|(command.inst.cmd1>>30);
-		idx[10] = (command.inst.cmd0>>18)&0x1F;
-		idx[11] = (command.inst.cmd0>>23)&0x1F;
-
-		tris_added |= PSPRenderer::Get()->AddTri(idx[9], idx[10], idx[11]);
+		tris_added |= PSPRenderer::Get()->AddTri((command.conkertri4.v9hi << 2) | command.conkertri4.v9lo, command.conkertri4.v10, command.conkertri4.v11);
 
 		command.inst.cmd0			= *(u32 *)(g_pu8RamBase + pc+0);
 		command.inst.cmd1			= *(u32 *)(g_pu8RamBase + pc+4);
