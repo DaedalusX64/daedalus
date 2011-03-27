@@ -46,7 +46,6 @@ ECicType ROM_GenerateCICType( const u8 * p_rom_base )
 	}
 }
 
-#ifndef DAEDALUS_SILENT
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -62,6 +61,5 @@ const char * ROM_GetCicName( ECicType cic_type )
 	default:		return "?";
 	}
 }
-#endif
 
 

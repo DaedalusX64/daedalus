@@ -214,7 +214,9 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	case MAKE_BLEND_MODE( BLEND_FOG_ASHADE1, BLEND_XLU2 ):
 	default:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	#ifndef DAEDALUS_SILENT
 		DebugBlender( blendmode );
+	#endif
 		DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", blendmode );
 #endif
 		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
@@ -271,7 +273,9 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	//
 	default:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	#ifndef DAEDALUS_SILENT
 		DebugBlender( blendmode );
+	#endif
 		DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", blendmode );
 #endif
 		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);

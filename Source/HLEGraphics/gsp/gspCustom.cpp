@@ -636,6 +636,39 @@ void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
+#if 1	//1->Struct, 0->Old
+void DLParser_GBI2_Conker( MicroCodeCommand command )
+{
+	u32 pc = gDlistStack[gDlistStackPointer].pc;		// This points to the next instruction
+
+    bool tris_added = false;
+
+	do{	//Tri #1
+		tris_added |= PSPRenderer::Get()->AddTri(command.conkertri4.v0, command.conkertri4.v1, command.conkertri4.v2);
+
+		//Tri #2
+		tris_added |= PSPRenderer::Get()->AddTri(command.conkertri4.v3, command.conkertri4.v4, command.conkertri4.v5);
+
+		//Tri #3
+		tris_added |= PSPRenderer::Get()->AddTri(command.conkertri4.v6, command.conkertri4.v7, command.conkertri4.v8);
+
+		//Tri #4
+		tris_added |= PSPRenderer::Get()->AddTri((command.conkertri4.v9hi << 2) | command.conkertri4.v9lo, command.conkertri4.v10, command.conkertri4.v11);
+
+		command.inst.cmd0			= *(u32 *)(g_pu8RamBase + pc+0);
+		command.inst.cmd1			= *(u32 *)(g_pu8RamBase + pc+4);
+		pc += 8;
+    }while ( command.conkertri4.cmd == 1 );
+
+	gDlistStack[gDlistStackPointer].pc = pc-8;
+
+    if (tris_added)
+    {
+            PSPRenderer::Get()->FlushTris();
+    }
+}
+
+#else
 void DLParser_GBI2_Conker( MicroCodeCommand command )
 {
 	u32 pc = gDlistStack[gDlistStackPointer].pc;		// This points to the next instruction
@@ -686,7 +719,7 @@ void DLParser_GBI2_Conker( MicroCodeCommand command )
             PSPRenderer::Get()->FlushTris();
     }
 }
-
+#endif
 //*****************************************************************************
 //
 //*****************************************************************************

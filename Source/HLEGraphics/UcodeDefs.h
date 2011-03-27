@@ -301,7 +301,7 @@ struct Conker_Tri4
 	u32 v9hi:3;
 	u32 v10:5;
 	u32 v11:5;
-	u32 pad:4;
+	u32 cmd:4;
 
 	// Tri 1
 	u32 v0:5;

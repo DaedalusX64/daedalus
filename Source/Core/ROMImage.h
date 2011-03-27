@@ -82,8 +82,6 @@ enum ECicType
 
 ECicType		ROM_GenerateCICType( const u8 * rom_base );
 
-#ifndef DAEDALUS_SILENT
 const char *	ROM_GetCicName( ECicType cic_type );
-#endif
 
 #endif // ROMIMAGE_H_

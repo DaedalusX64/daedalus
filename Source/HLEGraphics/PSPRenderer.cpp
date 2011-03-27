@@ -645,7 +645,6 @@ void PSPRenderer::SetN64Viewport( const v3 & scale, const v3 & trans )
 	if( mVpScale.x == scale.x && mVpScale.y == scale.y && 
 		mVpTrans.x == trans.x && mVpTrans.y == trans.y )	
 		return;
-	printf("%f %f\n",trans.x,trans.y);
 	mVpScale = scale;
 	mVpTrans = trans;
 	
