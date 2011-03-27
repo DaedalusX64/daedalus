@@ -459,7 +459,7 @@ void HandleEndOfFrame()
 //#ifdef DAEDALUS_DEBUG_MEMORY
 		//CVideoMemoryManager::Get()->DisplayDebugInfo();
 //#endif
-		//Save::Flush(true);
+		Save::Flush(true);	//Seems important to do on PHATs to get back memory //Corn
 		// switch back to the LCD display
 		CGraphicsContext::Get()->SwitchToLcdDisplay();
 
