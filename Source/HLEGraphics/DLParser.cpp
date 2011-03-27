@@ -104,7 +104,7 @@ u32 gRDPFrame = 0;
 //*****************************************************************************
 u32 gRDPHalf1 = 0;
 
-extern UcodeInfo last;
+UcodeInfo last;
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 //                      Dumping                         //
@@ -593,6 +593,7 @@ void DLParser_Process()
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	GBIMicrocode_ResetMicrocodeHistory();
 #endif
+
 	if ( last.code_base != code_base )
 	{
 		DLParser_InitMicrocode( code_base, code_size, data_base, data_size );

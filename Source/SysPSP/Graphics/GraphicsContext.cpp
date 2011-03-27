@@ -21,6 +21,7 @@
 #include "stdafx.h"
 
 #include "../HLEGraphics/RDP.h"
+#include "../HLEGraphics/PSPRenderer.h"
 
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/PngUtil.h"
@@ -66,7 +67,8 @@ static u32 __attribute__((aligned(16))) list[2][262144];
 static u32 __attribute__((aligned(16))) callList[64];
 static u32 __attribute__((aligned(16))) ilist[256];
 
-int listNum = 0;
+u32 listNum = 0;
+extern ViewportInfo	mView;
 //////////////////////////////////////////////
 //bool CGraphicsContext::CleanScene = false;
 //////////////////////////////////////////////
@@ -221,6 +223,8 @@ void IGraphicsContext::ClearAllSurfaces()
 		//Get Ready for next Frame
 		UpdateFrame( false );
 	}
+
+	mView.Update = true;
 }
 
 //*****************************************************************************

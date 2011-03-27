@@ -35,6 +35,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <set>
 #include <map>
 
+struct ViewportInfo
+{
+	f32  ViWidth;
+	f32  ViHeight;
+
+	bool Update;
+};
 
 class CTexture;
 class CNativeTexture;

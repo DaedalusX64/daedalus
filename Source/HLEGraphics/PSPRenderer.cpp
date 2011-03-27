@@ -130,22 +130,6 @@ enum CycleType
 	CYCLE_FILL,
 };
 
-struct ViewportInfo
-{
-	u32	Width;
-	f32 Zoom;
-	
-	f32 ViWidth;
-	f32 ViHeight;
-	f32	ScaleX;
-	f32	ScaleY;
-	
-	f32	Scale0X;
-	f32	Scale0Y;
-	f32 TransX;
-	f32 TransY;
-};
-
 extern int PSP_TV_CABLE; 
 
 extern u32 SCR_WIDTH;
@@ -542,7 +526,7 @@ void	PSPRenderer::Reset()
 #endif
 
 }
-
+extern bool bUpdatePause;
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -556,7 +540,8 @@ void PSPRenderer::BeginScene()
 	mRecordedCombinerStates.clear();
 #endif
 
-	u32	display_width, display_height( 0 );
+	u32	display_width( 0 );
+	u32 display_height( 0 );
 
 	CGraphicsContext::Get()->ViewportType(&display_width, &display_height);
 
@@ -565,12 +550,13 @@ void PSPRenderer::BeginScene()
 	// Update viewport only if user changed it in settings or vi register changed it
 	// Both happen really rare
 	//
-	if( mView.ViWidth == fViWidth    && // VI register changed width? (bug fix GE007) 
-		mView.ViHeight == fViHeight  && // VI register changed height?
-		mView.Width == display_width && // Viewport changed in paused menu?
-		mView.Zoom == gZoomX )			// Zoom changed in paused menu?
+
+	if( !mView.Update &&				  // We need to update after pause menu?
+		mView.ViWidth == fViWidth    &&  //  VI register changed width? (bug fix GE007) 
+		mView.ViHeight == fViHeight )   //  VI register changed height?
 		return;
 
+	printf("width %d %f %f %f\n",display_width,fViWidth,fViHeight,gZoomX);
 	u32 frame_width(  PSP_TV_CABLE <= 0 ? 480 : 720 );
 	u32	frame_height( PSP_TV_CABLE <= 0 ? 272 : 272 );
 
@@ -583,8 +569,7 @@ void PSPRenderer::BeginScene()
 	SetPSPViewport( display_x, display_y, display_width, display_height );
 	SetN64Viewport( scale, trans );
 
-	mView.Width	 	= display_width;
-	mView.Zoom	 	= gZoomX;
+	mView.Update	= false;
 	mView.ViWidth	= fViWidth;
 	mView.ViHeight	= fViHeight;
 }
@@ -645,6 +630,7 @@ void PSPRenderer::SetN64Viewport( const v3 & scale, const v3 & trans )
 	if( mVpScale.x == scale.x && mVpScale.y == scale.y && 
 		mVpTrans.x == trans.x && mVpTrans.y == trans.y )	
 		return;
+
 	mVpScale = scale;
 	mVpTrans = trans;
 	

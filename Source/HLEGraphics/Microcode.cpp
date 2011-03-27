@@ -64,7 +64,6 @@ static const u32				MICROCODE_HISTORY_MAX = 10;
 static MicrocodeString			gMicrocodeHistory[ MICROCODE_HISTORY_MAX ];
 #endif
 
-UcodeInfo last;
 UcodeInfo used[ MAX_UCODE_CACHE_ENTRIES ];
 //*****************************************************************************
 //
@@ -141,6 +140,8 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 
 	// Cheap way to cache ucodes, don't check for strings (too slow!) but check last used ucode info which is alot faster than doing sting comparison with strcmp.
 	// This only needed for GBI1/SDEX1 games that use LoadUcode, else is we only check when t.ucode changes, which most of the time only happens once :)
+	//
+	// ToDo : Cache ucodes that are detected in the array, pretty much just last legion needs it though
 	//
 	for( index = 0; index < MAX_UCODE_CACHE_ENTRIES; index++ )
 	{
@@ -226,7 +227,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	used[ index ].ucode 		= ucode_version;
 	used[ index ].used 			= true;
 
-	DBGConsole_Msg(0,"Detected Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]\n",ucode_version, code_hash, str, title );
+	DBGConsole_Msg(0,"Detected Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]",ucode_version, code_hash, str, title );
 
 #ifndef DAEDALUS_PUBLIC_RELEASE
 	if (gGlobalPreferences.LogMicrocodes)
