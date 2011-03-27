@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __DLPARSER_H__
 #define __DLPARSER_H__
 
+#include "Core/Memory.h"
+#include "UcodeDefs.h"
 //*************************************************************************************
 // 
 //*************************************************************************************
@@ -28,20 +30,9 @@ bool DLParser_Initialise();
 void DLParser_Finalise();
 void DLParser_Process();
 
-// Various debugger commands:
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-
-const u32	UNLIMITED_INSTRUCTION_COUNT( u32( ~0 ) );
-
-void		DLParser_DumpNextDisplayList();
-u32			DLParser_GetTotalInstructionCount();
-u32			DLParser_GetInstructionCountLimit();
-void		DLParser_SetInstructionCountLimit( u32 limit );
-
-#endif
-
-// ---- We should move these somewhere
-
+//*************************************************************************************
+// 
+//*************************************************************************************
 #define MAX_DL_STACK_SIZE	32
 #define MAX_DL_COUNT		100000// Maybe excesive large? 1000000
 
@@ -56,5 +47,34 @@ struct DListStack
 
 extern DListStack	gDlistStack[MAX_DL_STACK_SIZE];
 extern s32			gDlistStackPointer;
-// ----
+//*****************************************************************************
+// Reads the next command from the display list, updates the PC.
+//*****************************************************************************
+inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
+{
+	// Current PC is the last value on the stack
+	u32			pc( gDlistStack[gDlistStackPointer].pc );
+
+	p_command->inst.cmd0 = g_pu32RamBase[(pc>>2)+0];
+	p_command->inst.cmd1 = g_pu32RamBase[(pc>>2)+1];
+
+	gDlistStack[gDlistStackPointer].pc += 8;
+}
+
+//*************************************************************************************
+// 
+//*************************************************************************************
+// Various debugger commands:
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+
+const u32	UNLIMITED_INSTRUCTION_COUNT( u32( ~0 ) );
+
+void		DLParser_DumpNextDisplayList();
+u32			DLParser_GetTotalInstructionCount();
+u32			DLParser_GetInstructionCountLimit();
+void		DLParser_SetInstructionCountLimit( u32 limit );
+
+#endif
+
+
 #endif	// __DLPARSER_H__

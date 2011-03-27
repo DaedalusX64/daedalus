@@ -534,21 +534,23 @@ enum CycleType
 //*****************************************************************************
 void DLParser_TexRect_Last_Legion( MicroCodeCommand command )
 {
-	u32 pc = gDlistStack[gDlistStackPointer].pc;		// This points to the next instruction
-	u32 command2 = *(u32 *)(g_ps8RamBase + pc);
-	u32 command3 = *(u32 *)(g_ps8RamBase + pc+4);
+	MicroCodeCommand command2;
+	MicroCodeCommand command3;
 
-	gDlistStack[gDlistStackPointer].pc += 8;
-
-	DL_PF("0x%08x: %08x %08x", pc, *(u32 *)(g_ps8RamBase + pc+0), *(u32 *)(g_ps8RamBase + pc+4));
+	//
+	// Fetch the next two instructions
+	//
+	DLParser_FetchNextCommand( &command2 );
+	DLParser_FetchNextCommand( &command3 );
 
 	RDP_TexRect tex_rect;
 	tex_rect.cmd0 = command.inst.cmd0;
 	tex_rect.cmd1 = command.inst.cmd1;
-	
-	//Fisnihing up instructions ! 
-	tex_rect.cmd2 = command2;
-	tex_rect.cmd3 = command3;
+
+	// Note : these are in a different order than normal texrect!
+	//
+	tex_rect.cmd2 = command3.inst.cmd1;
+	tex_rect.cmd3 = command2.inst.cmd1;
 
 	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
 	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
@@ -589,7 +591,6 @@ void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 	if ( (command.inst.cmd1)>>24 != 0xce )	
 		return;
 
-	u32 tile = 0;
 	u32 pc = gDlistStack[gDlistStackPointer].pc;		// This points to the next instruction
 	u32 * Cmd = (u32 *)(g_pu8RamBase + pc);
 
@@ -607,11 +608,14 @@ void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 	u32 a8 = *Cmd+8*7+4;
 	u32 a9 = *Cmd+8*8+4;
 #endif
-	// Coordinates, textures, and color
-	f32 x0 = (s32)(a3>>16)/32768.0f;	// Loads our texture coordinates
-	f32 y0 = int(a1&0xFFFF)/4;			// Loads color etc
-	f32 x1 = 320*100;					// Loads Both screen coordinates and texture coordinates.
-	f32 y1 = int(a1>>16)/4;				// Loads texture, color etc
+
+	// Note : Color itself is handled elsewhere N.B Blendmode.cpp
+	//
+	// Coordinates, textures
+	s32 x0 = s32(a3>>16)>>24;	// Loads our texture coordinates
+	s32 y0 = s32(a1&0xFFFF)/4;	// Loads color coordinates etc
+	s32 x1 = 320*100;			// Loads Both screen coordinates and texture coordinates.
+	s32 y1 = s32(a1>>16)/4;		// Loads texture etc
 
 	// TIP : f32 x1 can be modified to render the sky differently.
 	// Need to check on real hardware to tweak our sky correctly if needed.
@@ -624,7 +628,7 @@ void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 
 	//DL_PF(" Word 1: %u, Word 2: %u, Word 3: %u, Word 4: %u, Word 5: %u, Word 6: %u, Word 7: %u, Word 8: %u, Word 9: %u", a1, a2, a3, a4, a5, a6, a7, a8, a9);
 	//DL_PF("    Tile:%d Screen(%f,%f) -> (%f,%f)",				   tile, xy0, xy1, uv0, uv1);
-	PSPRenderer::Get()->TexRect( tile, xy0, xy1, uv0, uv1 );
+	PSPRenderer::Get()->TexRect( 0, xy0, xy1, uv0, uv1 );
 
 	gDlistStack[gDlistStackPointer].pc += 312;
 }
@@ -634,24 +638,41 @@ void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_Conker( MicroCodeCommand command )
 {
-
 	u32 pc = gDlistStack[gDlistStackPointer].pc;		// This points to the next instruction
 
     bool tris_added = false;
 
-	while ( (command.inst.cmd > 0x0F) & (command.inst.cmd < 0x20) )
+	while ( (command.inst.cmd > 0x0F) && (command.inst.cmd < 0x20) )
     {
+		u32 idx[12];
+
 		//Tri #1
-		tris_added |= PSPRenderer::Get()->AddTri(command.conkertri4.v0, command.conkertri4.v1, command.conkertri4.v2);
+		idx[0] = (command.inst.cmd1   )&0x1F;
+		idx[1] = (command.inst.cmd1>> 5)&0x1F;
+		idx[2] = (command.inst.cmd1>>10)&0x1F;
+
+		tris_added |= PSPRenderer::Get()->AddTri(idx[0], idx[1], idx[2]);
 
 		//Tri #2
-		tris_added |= PSPRenderer::Get()->AddTri(command.conkertri4.v3, command.conkertri4.v4, command.conkertri4.v5);
+		idx[3] = (command.inst.cmd1>>15)&0x1F;
+		idx[4] = (command.inst.cmd1>>20)&0x1F;
+		idx[5] = (command.inst.cmd1>>25)&0x1F;
+
+		tris_added |= PSPRenderer::Get()->AddTri(idx[3], idx[4], idx[5]);
 
 		//Tri #3
-		tris_added |= PSPRenderer::Get()->AddTri(command.conkertri4.v6, command.conkertri4.v7, command.conkertri4.v8);
+		idx[6] = (command.inst.cmd0    )&0x1F;
+		idx[7] = (command.inst.cmd0>> 5)&0x1F;
+		idx[8] = (command.inst.cmd0>>10)&0x1F;
+
+		tris_added |= PSPRenderer::Get()->AddTri(idx[6], idx[7], idx[8]);
 
 		//Tri #4
-		tris_added |= PSPRenderer::Get()->AddTri((command.conkertri4.v9hi << 2) | command.conkertri4.v9lo, command.conkertri4.v10, command.conkertri4.v11);
+		idx[ 9] = (((command.inst.cmd0>>15)&0x7)<<2)|(command.inst.cmd1>>30);
+		idx[10] = (command.inst.cmd0>>18)&0x1F;
+		idx[11] = (command.inst.cmd0>>23)&0x1F;
+
+		tris_added |= PSPRenderer::Get()->AddTri(idx[9], idx[10], idx[11]);
 
 		command.inst.cmd0			= *(u32 *)(g_pu8RamBase + pc+0);
 		command.inst.cmd1			= *(u32 *)(g_pu8RamBase + pc+4);

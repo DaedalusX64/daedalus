@@ -518,6 +518,7 @@ void PSPRenderer::SetVIScales()
 	{
 		fViWidth = (f32)Memory_VI_GetRegister( VI_WIDTH_REG );
 	}
+
 	//Used to set a limit on Scissors //Corn
 	uViWidth  = (u32)fViWidth - 1;
 	uViHeight = (u32)fViHeight - 1;
@@ -564,10 +565,10 @@ void PSPRenderer::BeginScene()
 	// Update viewport only if user changed it in settings or vi register changed it
 	// Both happen really rare
 	//
-	if( mView.ViWidth == fViWidth    && // Viewport wasn't changed in pased menu
-		mView.ViHeight == fViHeight  && // Zoom wasn't changed in pased menu
-		mView.Width == display_width && // VI register didn't width? (bug fix GE007)
-		mView.Zoom == gZoomX )			// VI register didn't changed height
+	if( mView.ViWidth == fViWidth    && // VI register changed width? (bug fix GE007) 
+		mView.ViHeight == fViHeight  && // VI register changed height?
+		mView.Width == display_width && // Viewport changed in paused menu?
+		mView.Zoom == gZoomX )			// Zoom changed in paused menu?
 		return;
 
 	u32 frame_width(  PSP_TV_CABLE <= 0 ? 480 : 720 );
@@ -641,8 +642,10 @@ void PSPRenderer::SetN64Viewport( const v3 & scale, const v3 & trans )
 {
 	// Only Update viewport when it actually changed, this happens rarely 
 	//
-	if( mVpTrans.x == scale.x && mVpTrans.y == scale.y )	return;
-
+	if( mVpScale.x == scale.x && mVpScale.y == scale.y && 
+		mVpTrans.x == trans.x && mVpTrans.y == trans.y )	
+		return;
+	printf("%f %f\n",trans.x,trans.y);
 	mVpScale = scale;
 	mVpTrans = trans;
 	

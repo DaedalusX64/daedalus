@@ -24,37 +24,26 @@ Sprite2DInfo g_Sprite2DInfo;
 //*****************************************************************************
 //
 //*****************************************************************************
-// Similar to DLParser_FetchNextCommand, we should use it eventually
-// returns true if next fetched ucode matches
-//
-bool Sprite2D_FetchNextCommand( MicroCodeCommand * p_command, u32 ucode_name )
-{
-	// Current PC is the last value on the stack
-	u32			pc( gDlistStack[gDlistStackPointer].pc );
-
-	p_command->inst.cmd0 = g_pu32RamBase[(pc>>2)+0];
-	p_command->inst.cmd1 = g_pu32RamBase[(pc>>2)+1];
-
-	gDlistStack[gDlistStackPointer].pc += 8;
-	return p_command->inst.cmd == ucode_name ? true : false;
-}
-//*****************************************************************************
-//
-//*****************************************************************************
 void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 {
-    u32 address = RDPSegAddr(command.inst.cmd1);
-    address &= (MAX_RAM_ADDRESS-1);
+    u32 address = RDPSegAddr(command.dlist.addr) & (MAX_RAM_ADDRESS-1);
     g_Sprite2DInfo.spritePtr = (SpriteStruct *)(g_ps8RamBase + address);
 
-	DAEDALUS_ASSERT( Sprite2D_FetchNextCommand(&command, G_GBI1_SPRITE2D_SCALEFLIP), "Sprite2D : Check logic" );
+	//
+	// Fetch the next instruction (Scaleflip)
+	//
+	DLParser_FetchNextCommand(&command);
 
-	if( Sprite2D_FetchNextCommand(&command, G_GBI1_SPRITE2D_SCALEFLIP) )
+	if( command.inst.cmd == G_GBI1_SPRITE2D_SCALEFLIP )
 	{
 		DLParser_GBI1_Sprite2DScaleFlip( command );
 	}
+	//
+	// Fetch the next instruction (Draw)
+	//
+	DLParser_FetchNextCommand(&command);
 
-	if( Sprite2D_FetchNextCommand(&command, G_GBI1_SPRITE2D_DRAW) )
+	if( command.inst.cmd == G_GBI1_SPRITE2D_DRAW )
 	{
 		DLParser_GBI1_Sprite2DDraw( command );
 	}

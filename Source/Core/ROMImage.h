@@ -27,14 +27,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 //
 //*****************************************************************************
-const u32 RAMROM_FONTDATA_SIZE		= 1152;
-const u32 RAMROM_CLOCKRATE_MASK		= 0xfffffff0;
+//const u32 RAMROM_FONTDATA_SIZE		= 1152;
+//const u32 RAMROM_CLOCKRATE_MASK		= 0xfffffff0;
 
-const u32 RAMROM_CLOCKRATE_OFFSET	= 0x4;
-const u32 RAMROM_BOOTADDR_OFFSET	= 0x8;
-const u32 RAMROM_RELEASE_OFFSET		= 0xc;
+//const u32 RAMROM_CLOCKRATE_OFFSET	= 0x4;
+//const u32 RAMROM_BOOTADDR_OFFSET	= 0x8;
+//const u32 RAMROM_RELEASE_OFFSET	= 0xc;
 const u32 RAMROM_BOOTSTRAP_OFFSET	= 0x40;
-const u32 RAMROM_FONTDATA_OFFSET	= 0xb70;
+//const u32 RAMROM_FONTDATA_OFFSET	= 0xb70;
 const u32 RAMROM_GAME_OFFSET		= 0x1000;
 
 //*****************************************************************************
@@ -81,8 +81,9 @@ enum ECicType
 };
 
 ECicType		ROM_GenerateCICType( const u8 * rom_base );
+
+#ifndef DAEDALUS_SILENT
 const char *	ROM_GetCicName( ECicType cic_type );
-u32				ROM_GetCicValue( ECicType cic_type );
-bool			ROM_DoCicCheckSum( ECicType cic_type, u32 * crc1, u32 * crc2 );
+#endif
 
 #endif // ROMIMAGE_H_

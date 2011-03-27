@@ -388,20 +388,6 @@ void DLParser_PopDL()
 	gDlistStackPointer--;
 }
 
-//*****************************************************************************
-// Reads the next command from the display list, updates the PC.
-//*****************************************************************************
-inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
-{
-	// Current PC is the last value on the stack
-	u32			pc( gDlistStack[gDlistStackPointer].pc );
-
-	p_command->inst.cmd0 = g_pu32RamBase[(pc>>2)+0];
-	p_command->inst.cmd1 = g_pu32RamBase[(pc>>2)+1];
-
-	gDlistStack[gDlistStackPointer].pc += 8;
-}
-
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 //*************************************************************************************
 // 
