@@ -526,7 +526,7 @@ void	PSPRenderer::Reset()
 #endif
 
 }
-extern bool bUpdatePause;
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -556,7 +556,6 @@ void PSPRenderer::BeginScene()
 		mView.ViHeight == fViHeight )   //  VI register changed height?
 		return;
 
-	printf("width %d %f %f %f\n",display_width,fViWidth,fViHeight,gZoomX);
 	u32 frame_width(  PSP_TV_CABLE <= 0 ? 480 : 720 );
 	u32	frame_height( PSP_TV_CABLE <= 0 ? 272 : 272 );
 
