@@ -540,6 +540,14 @@ void PSPRenderer::BeginScene()
 	mRecordedCombinerStates.clear();
 #endif
 
+	// Update viewport only if user changed it in settings or vi register changed it
+	// Both happen really rare
+	//
+	if( !mView.Update &&				  // We need to update after pause menu?
+		mView.ViWidth == fViWidth    &&  //  VI register changed width? (bug fix GE007) 
+		mView.ViHeight == fViHeight )   //  VI register changed height?
+		return;
+
 	u32	display_width( 0 );
 	u32 display_height( 0 );
 
@@ -547,14 +555,6 @@ void PSPRenderer::BeginScene()
 
 	DAEDALUS_ASSERT( display_width && display_height, "Unhandled viewport type" );
 
-	// Update viewport only if user changed it in settings or vi register changed it
-	// Both happen really rare
-	//
-
-	if( !mView.Update &&				  // We need to update after pause menu?
-		mView.ViWidth == fViWidth    &&  //  VI register changed width? (bug fix GE007) 
-		mView.ViHeight == fViHeight )   //  VI register changed height?
-		return;
 
 	u32 frame_width(  PSP_TV_CABLE <= 0 ? 480 : 720 );
 	u32	frame_height( PSP_TV_CABLE <= 0 ? 272 : 272 );
@@ -1041,29 +1041,17 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	sceGuShadeModel( mSmooth ? GU_SMOOTH : GU_FLAT );
 	//
 	// Initiate Filter
+	// G_TF_AVERAGE : 1, G_TF_BILERP : 2 (linear)
+	// G_TF_POINT   : 0 (nearest)
 	//
-	//This sets our filtering either through gRDPOtherMode by default or we force it
-	switch( gGlobalPreferences.ForceTextureFilter )
+	if( (gRDPOtherMode.text_filt != G_TF_POINT) || (gGlobalPreferences.ForceLinearFilter))
 	{
-		case FORCE_DEFAULT_FILTER:
-			if( gRDPOtherMode.text_filt == 0 )
-			{	//G_TF_POINT:	// 0
-				sceGuTexFilter(GU_NEAREST,GU_NEAREST);
-			}
-			else
-			{	//G_TF_AVERAGE:	// 1	We do Bilinear anyway here //Corn
-				//G_TF_BILERP:	// 2
-				sceGuTexFilter(GU_LINEAR,GU_LINEAR);
-			}
-			break;
-		case FORCE_POINT_FILTER:
-			sceGuTexFilter(GU_NEAREST,GU_NEAREST);
-			break;
-		case FORCE_LINEAR_FILTER:
-			sceGuTexFilter(GU_LINEAR,GU_LINEAR);
-			break;
+		sceGuTexFilter(GU_LINEAR,GU_LINEAR);
 	}
-	//
+	else
+	{
+		sceGuTexFilter(GU_NEAREST,GU_NEAREST);
+	}
 	// Initiate Blender
 	//
 	if(gRDPOtherMode.cycle_type < CYCLE_COPY)

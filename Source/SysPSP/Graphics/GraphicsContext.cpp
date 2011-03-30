@@ -287,8 +287,6 @@ void IGraphicsContext::BeginFrame()
 		sceGuClear(GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);	//Clear Zbuffer
 	}*/
 
-	if( gCleanSceneEnabled ) sceGuClear(GU_COLOR_BUFFER_BIT | GU_FAST_CLEAR_BIT);	//Clear screen
-
 //Toggle dither matrices between frames to smooth 16bit color even further //Corn
 #if defined(DAEDALUS_SCRN_16BIT) && defined(ENABLE_DITHERING)
 
@@ -379,6 +377,8 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 	else 
 		listNum ^= 1;	//Toggle lists 0 & 1
 
+	if( gCleanSceneEnabled ) 
+		sceGuClear(GU_COLOR_BUFFER_BIT | GU_FAST_CLEAR_BIT);	//Clear screen
 	//if( gCleanSceneEnabled )	CleanScene = true;
 
 	//printf("%d %d\n",listNum,gDoubleDisplayEnabled);

@@ -84,14 +84,6 @@ enum EGuiColor
 };
 const u32 NUM_COLOR_TYPES = GREY+1;
 
-enum EForceTextureFilter
-{
-	FORCE_DEFAULT_FILTER = 0,
-	FORCE_POINT_FILTER,
-	FORCE_LINEAR_FILTER,
-};
-const u32 NUM_FILTER_TYPES = FORCE_LINEAR_FILTER+1;
-
 enum EViewportType
 {
 	VT_UNSCALED_4_3 = 0,
@@ -115,12 +107,12 @@ struct SGlobalPreferences
 #endif
 	bool						BatteryWarning;
 	bool						LargeROMBuffer;
+	bool						ForceLinearFilter;
 #ifndef DAEDALUS_PUBLIC_RELEASE
 	bool						CustomBlendModes;
 	bool						SkipSplash;
 	bool						LogMicrocodes;
 #endif
-	EForceTextureFilter			ForceTextureFilter;
 	EGuiType					GuiType;
 	EGuiColor					GuiColor;
 

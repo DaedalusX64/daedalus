@@ -148,6 +148,7 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		const SGlobalPreferences	defaults;
 
 		INT_SETTING( gGlobalPreferences, DisplayFramerate, defaults );
+		BOOL_SETTING( gGlobalPreferences, ForceLinearFilter, defaults );
 		BOOL_SETTING( gGlobalPreferences, SoftwareClipping, defaults );
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		BOOL_SETTING( gGlobalPreferences, HighlightInexactBlendModes, defaults );
@@ -181,14 +182,6 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 			}
 		}
 
-		if( section->FindProperty( "ForceTextureFilter", &property ) )
-		{
-			u32 value( property->GetIntValue(defaults.ForceTextureFilter) );
-			if( value < NUM_FILTER_TYPES ) //value >= 0 && not needed as it's always True
-			{
-				gGlobalPreferences.ForceTextureFilter = EForceTextureFilter( value );
-			}
-		}
 		if( section->FindProperty( "ViewportType", &property ) )
 		{
 			u32	value( property->GetIntValue( defaults.ViewportType ) );
@@ -344,6 +337,7 @@ void IPreferences::Commit()
 #define OUTPUT_INT( b, nm, def )		fprintf( fh, "%s=%d\n", #nm, b.nm );
 
 		OUTPUT_INT( gGlobalPreferences, DisplayFramerate, defaults );
+		OUTPUT_BOOL( gGlobalPreferences, ForceLinearFilter, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, SoftwareClipping, defaults );
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		OUTPUT_BOOL( gGlobalPreferences, HighlightInexactBlendModes, defaults );
@@ -352,7 +346,6 @@ void IPreferences::Commit()
 		OUTPUT_BOOL( gGlobalPreferences, LargeROMBuffer, defaults );
 		OUTPUT_INT( gGlobalPreferences, GuiType, defaults );
 		OUTPUT_INT( gGlobalPreferences, GuiColor, defaults )
-		OUTPUT_INT( gGlobalPreferences, ForceTextureFilter, defaults );
 		OUTPUT_FLOAT( gGlobalPreferences, StickMinDeadzone, defaults );
 		OUTPUT_FLOAT( gGlobalPreferences, StickMaxDeadzone, defaults );
 		OUTPUT_INT( gGlobalPreferences, ViewportType, defaults );
@@ -425,7 +418,7 @@ SGlobalPreferences::SGlobalPreferences()
 #endif
 ,	BatteryWarning( false )
 ,	LargeROMBuffer( true )
-,	ForceTextureFilter( FORCE_DEFAULT_FILTER )
+,	ForceLinearFilter( false )
 ,	GuiType( COVERFLOW )
 ,	GuiColor( BLACK )
 ,	StickMinDeadzone( 0.28f )
