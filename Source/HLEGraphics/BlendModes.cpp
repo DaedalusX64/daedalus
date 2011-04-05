@@ -379,7 +379,7 @@ static void BlendMode_0x0030fe045ffefbf8LL (BLEND_MODE_ARGS)
 	if( num_cycles == 2 )
 	{
 		details.ColourAdjuster.SetRGBA( details.EnvColour );
-		sceGuTexEnvColor( details.EnvColour.GetColour() );
+		//sceGuTexEnvColor( details.EnvColour.GetColour() );
 		sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
 	}
 }

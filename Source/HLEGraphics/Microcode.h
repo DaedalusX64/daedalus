@@ -61,5 +61,10 @@ struct UcodeInfo
 
 u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+u32                             GBIMicrocode_GetMicrocodeHistoryStringCount();
+const char *    GBIMicrocode_GetMicrocodeHistoryString( u32 i );
+void                    GBIMicrocode_ResetMicrocodeHistory();
+#endif
 
 #endif // MICROCODE_H__

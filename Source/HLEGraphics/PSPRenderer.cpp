@@ -998,26 +998,25 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	}
 	else
 	{
+		// Fixes Zfighting issues we have on the PSP.
+		if( gRDPOtherMode.zmode == 3 )
+		{
+			if( !ZFightingEnabled )
+			{
+				ZFightingEnabled = true;						
+				sceGuDepthRange(65535,80);
+			}
+		}
+		else if( ZFightingEnabled )
+		{
+			ZFightingEnabled = false;						
+			sceGuDepthRange(65535,0);
+		}
 
 		// Enable or Disable ZBuffer test
 		if ( (m_bZBuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd )
 		{
-			// Fixes Zfighting issues we have on the PSP.
-			if( gRDPOtherMode.zmode == 3 )
-			{
-				if( !ZFightingEnabled )
-				{
-					ZFightingEnabled = true;						
-					sceGuDepthRange(65535,80);
-				}
-			}
-			else if( ZFightingEnabled )
-			{
-				ZFightingEnabled = false;						
-				sceGuDepthRange(65535,0);
-			}
-			else
-				sceGuEnable(GU_DEPTH_TEST);
+			sceGuEnable(GU_DEPTH_TEST);
 		}
 		else
 		{
@@ -1026,7 +1025,6 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 		// GL_TRUE to disable z-writes
 		sceGuDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
-
 	}
 
 	sceGuShadeModel( mSmooth ? GU_SMOOTH : GU_FLAT );
@@ -1035,7 +1033,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	// G_TF_AVERAGE : 1, G_TF_BILERP : 2 (linear)
 	// G_TF_POINT   : 0 (nearest)
 	//
-	if( (gRDPOtherMode.text_filt != G_TF_POINT) || (gGlobalPreferences.ForceLinearFilter))
+	if( (gRDPOtherMode.text_filt != G_TF_POINT) | (gGlobalPreferences.ForceLinearFilter) )
 	{
 		sceGuTexFilter(GU_LINEAR,GU_LINEAR);
 	}
