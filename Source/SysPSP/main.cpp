@@ -107,14 +107,39 @@ PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
 PSP_HEAP_SIZE_KB(-256);
 
 //*************************************************************************************
+//
+//*************************************************************************************
+static void DaedalusArt()
+{
+	pspDebugScreenPrintf("XXXXXXX       XXXXXXX        66666666         444444444\n" );  
+	pspDebugScreenPrintf("X:::::X       X:::::X       6::::::6         4::::::::4\n" );  
+	pspDebugScreenPrintf("X:::::X       X:::::X      6::::::6         4:::::::::4\n" );  
+	pspDebugScreenPrintf("X::::::X     X::::::X     6::::::6         4::::44::::4\n" );  
+	pspDebugScreenPrintf("XXX:::::X   X:::::XXX    6::::::6         4::::4 4::::4\n" );  
+	pspDebugScreenPrintf("   X:::::X X:::::X      6::::::6         4::::4  4::::4\n" );  
+	pspDebugScreenPrintf("    X:::::X:::::X      6::::::6         4::::4   4::::4\n" );  
+	pspDebugScreenPrintf("     X:::::::::X      6::::::::66666   4::::444444::::444\n" );
+	pspDebugScreenPrintf("     X:::::::::X     6::::::::::::::66 4::::::::::::::::4\n" );
+	pspDebugScreenPrintf( "   X:::::X:::::X    6::::::66666:::::64444444444:::::444\n" );
+	pspDebugScreenPrintf("   X:::::X X:::::X   6:::::6     6:::::6         4::::4\n" );  
+	pspDebugScreenPrintf("XXX:::::X   X:::::XXX6:::::6     6:::::6         4::::4\n" );  
+	pspDebugScreenPrintf("X::::::X     X::::::X6::::::66666::::::6         4::::4\n" );  
+	pspDebugScreenPrintf("X:::::X       X:::::X 66:::::::::::::66        44::::::44\n" );
+	pspDebugScreenPrintf("X:::::X       X:::::X   66:::::::::66          4::::::::4\n" );
+	pspDebugScreenPrintf("XXXXXXX       XXXXXXX     666666666            4444444444\n" );
+}
+
+//*************************************************************************************
 //Used to check for compatible FW, we don't allow anything lower than 4.01
 //*************************************************************************************
 static void DaedalusFWCheck()
 {
+// ##define PSP_FIRMWARE Borrowed from Davee
+#define PSP_FIRMWARE(f) ((((f >> 8) & 0xF) << 24) | (((f >> 4) & 0xF) << 16) | ((f & 0xF) << 8) | 0x10)
+
 	u32 ver = sceKernelDevkitVersion();
 
-	//if(ver < 0x05050010)
-	if(ver < 0x04000110)
+	if(ver <= PSP_FIRMWARE(0x401) )
 	{
 		pspDebugScreenInit();
 		pspDebugScreenSetTextColor(0xffffff);
@@ -122,22 +147,7 @@ static void DaedalusFWCheck()
 		pspDebugScreenSetXY(0, 0);
 		pspDebugScreenClear();
 		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf("XXXXXXX       XXXXXXX        66666666         444444444\n" );  
-		pspDebugScreenPrintf("X:::::X       X:::::X       6::::::6         4::::::::4\n" );  
-		pspDebugScreenPrintf("X:::::X       X:::::X      6::::::6         4:::::::::4\n" );  
-		pspDebugScreenPrintf("X::::::X     X::::::X     6::::::6         4::::44::::4\n" );  
-		pspDebugScreenPrintf("XXX:::::X   X:::::XXX    6::::::6         4::::4 4::::4\n" );  
-		pspDebugScreenPrintf("   X:::::X X:::::X      6::::::6         4::::4  4::::4\n" );  
-		pspDebugScreenPrintf("    X:::::X:::::X      6::::::6         4::::4   4::::4\n" );  
-		pspDebugScreenPrintf("     X:::::::::X      6::::::::66666   4::::444444::::444\n" );
-		pspDebugScreenPrintf("     X:::::::::X     6::::::::::::::66 4::::::::::::::::4\n" );
-		pspDebugScreenPrintf( "   X:::::X:::::X    6::::::66666:::::64444444444:::::444\n" );
-		pspDebugScreenPrintf("   X:::::X X:::::X   6:::::6     6:::::6         4::::4\n" );  
-		pspDebugScreenPrintf("XXX:::::X   X:::::XXX6:::::6     6:::::6         4::::4\n" );  
-		pspDebugScreenPrintf("X::::::X     X::::::X6::::::66666::::::6         4::::4\n" );  
-		pspDebugScreenPrintf("X:::::X       X:::::X 66:::::::::::::66        44::::::44\n" );
-		pspDebugScreenPrintf("X:::::X       X:::::X   66:::::::::66          4::::::::4\n" );
-		pspDebugScreenPrintf("XXXXXXX       XXXXXXX     666666666            4444444444\n" );
+		DaedalusArt();
 		pspDebugScreenPrintf( "\n" );
 		pspDebugScreenPrintf( "\n" );
 		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
@@ -163,6 +173,39 @@ static void DaedalusFWCheck()
 		}    
 		sceKernelExitGame();
 	}
+	else if( ver <= PSP_FIRMWARE(0x550) && !gButtons.kmode )
+	{
+		pspDebugScreenInit();
+		pspDebugScreenSetTextColor(0xffffff);
+		pspDebugScreenSetBackColor(0x000000);
+		pspDebugScreenSetXY(0, 0);
+		pspDebugScreenClear();
+		pspDebugScreenPrintf( "\n" );
+		DaedalusArt();
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf( "	Error: imposectrl.prx is either missing or damaged" );
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf( "	Daedalus requires imposectrl to work properly for this firmware\n" );
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
+		sceKernelDelayThread(1000000);
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf("\nPress O to Exit");
+		for (;;)
+		{
+			SceCtrlData pad;
+			sceCtrlPeekBufferPositive(&pad, 1);
+			if (pad.Buttons & PSP_CTRL_CIRCLE)
+				break;
+		}    
+		sceKernelExitGame();
+	}
+
 }
 #ifdef DAEDALUS_CALLBACKS
 //*************************************************************************************
@@ -263,6 +306,9 @@ extern bool bNeedStartME;
 //*************************************************************************************
 static bool	Initialize()
 {
+	// Set up our Kernel Home button or User Button
+	InitHomeButton();
+
 	// Check for unsupported FW
 	DaedalusFWCheck();
 
@@ -292,9 +338,6 @@ static bool	Initialize()
 #endif
 
 	_DisableFPUExceptions();
-
-	// Set up our Kernel Home button or User Button
-	InitHomeButton();
 
 	//Init Panic button thread
 	SetupPanic();
@@ -438,12 +481,12 @@ void HandleEndOfFrame()
 	//
 	if(oldButtons != pad.Buttons)
 	{
-		if(pad.Buttons & gButtons.style)
+		if(pad.Buttons & PSP_CTRL_HOME)
 		{
 			while(!activate_pause_menu)
 			{
 				sceCtrlPeekBufferPositive(&pad, 1);
-				if(!(pad.Buttons & gButtons.style))
+				if(!(pad.Buttons & PSP_CTRL_HOME))
 				{
 					activate_pause_menu = true;
 				}

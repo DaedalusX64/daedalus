@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 struct PSPButtons
 {
 	//u32		type;			// input type of our buttons, X,O,[] etc, kernel inputs supported too.
-	u32		style;			// input style for either kernel or non-kernel button	
+	//u32		style;			// input style for either kernel or non-kernel button	
 	bool	kmode;			// returns true if kernelbuttons.prx loaded correctly
 };
 

@@ -214,7 +214,7 @@ void	IPauseScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons
 {
 	static bool button_released(false);
 
-	if(!(new_buttons & gButtons.style) && button_released)
+	if(!(new_buttons & PSP_CTRL_HOME) && button_released)
 	{
 		button_released = false;
 		mIsFinished = true;
@@ -232,10 +232,10 @@ void	IPauseScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons
 			mCurrentOption = GetNextValidOption();
 			new_buttons &= ~PSP_CTRL_RTRIGGER;
 		}
-		if(new_buttons & gButtons.style)
+		if(new_buttons & PSP_CTRL_HOME)
 		{
 			button_released = true;
-			new_buttons &= ~gButtons.style;
+			new_buttons &= ~PSP_CTRL_HOME;
 		}
 	}
 

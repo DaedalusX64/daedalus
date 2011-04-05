@@ -21,6 +21,28 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _UCODE_DEFS_H_
 #define _UCODE_DEFS_H_
 
+/*
+struct MicroCodeCommand
+{
+	union
+	{
+		u64		_u64;
+
+		struct
+		{
+			u32		cmd1;
+			u32		cmd0;
+		};
+
+		struct
+		{
+			int		: 32;
+			int		: 24;
+			unsigned int		cmd : 8;
+		};
+	};
+};
+*/
 
 struct Instruction
 {

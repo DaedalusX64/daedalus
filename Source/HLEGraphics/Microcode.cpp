@@ -26,9 +26,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/Dump.h"
 #include "Debug/DBGConsole.h"
 
+#include "Math/Math.h"	// pspFastRand()
+
 #include "Utility/Hash.h"
 #include "Utility/IO.h"
 #include "Utility/Preferences.h"
+
+// Limit cache ucode entries to 12
+// This is done for performance reasons
+//
+// Increase this number to cache more ucode entries
+// At the expense of more time required each pass
+//
+#define MAX_UCODE_CACHE_ENTRIES 12
+
 
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
@@ -45,8 +56,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //F3FLP.Rej: Like F3DLX.Rej. Vertex cache is 80
 //L3DEX: Line processing, Vertex cache is 32.
 
-#define MAX_UCODE_CACHE_ENTRIES 12
-
+//
 // Used for custom ucodes' array
 //
 struct MicrocodeData
@@ -57,14 +67,6 @@ struct MicrocodeData
 	const char *	rom_name;
 };
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-typedef 						CFixedString<255> MicrocodeString;
-static u32						gMicrocodeHistoryCount = 0;
-static const u32				MICROCODE_HISTORY_MAX = 10;
-static MicrocodeString			gMicrocodeHistory[ MICROCODE_HISTORY_MAX ];
-#endif
-
-UcodeInfo used[ MAX_UCODE_CACHE_ENTRIES ];
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -79,16 +81,20 @@ static const MicrocodeData gMicrocodeData[] =
 	{ GBI_0_DKR, 0xa3f481d8, "", "Diddy Kong Racing (v1.0)"}, 
 	{ GBI_0_DKR, 0xd5d68f00, "", "Diddy Kong Racing (v1.1)"}, 
 	{ GBI_0_GE,  0x96c35300, "RSP SW Version: 2.0G, 09-30-96", "GoldenEye 007"}, 
-	{ GBI_0_JFG, 0x58823aab, "", "Jet Force Gemini"},														// Mickey's Speedway USA uses the same string mapping
-	{ GBI_0_LL,  0x85185534, "", "Last Legion UX"},															// Toukon 2 uses the same string mapping
+	{ GBI_0_JFG, 0x58823aab, "", "Jet Force Gemini"},														
+	{ GBI_0_LL,  0x85185534, "", "Last Legion UX"},							
 	{ GBI_0_PD,  0x84c127f1, "", "Perfect Dark (v1.1)"}, 
 	{ GBI_0_SE,  0xd010d659, "RSP SW Version: 2.0D, 04-01-96", "Star Wars - Shadows of the Empire (v1.0)"}, 
 	{ GBI_0_LL,  0xf9ec7828, "", "Toukon Road - Brave Spirits"},											
 	{ GBI_0_WR,  0xbb5a808d, "RSP SW Version: 2.0D, 04-01-96", "Wave Race 64"},
-	{ GBI_0_UNK, 0x10b092bf, "", "World Driver Championship"},												// Stunt Racer 64 uses the same string
-	{ GBI_0_UNK, 0x5719c8de, "", "Star Wars - Rogue Squadron"}, 
-
+	//{ GBI_0_UNK, 0x10b092bf, "", "World Driver Championship"},		
+	//{ GBI_0_UNK, 0x5719c8de, "", "Star Wars - Rogue Squadron"}, 
 };
+
+//
+// Used to keep track of used ucode entries
+//
+UcodeInfo used[ MAX_UCODE_CACHE_ENTRIES ];
 
 //*****************************************************************************
 //
@@ -129,32 +135,29 @@ void GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char * str,
 //*****************************************************************************
 u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size)
 {
-	u32 i;
-	u32 index;
-
-	char str[256] = "";
+#ifndef DAEDALUS_PUBLIC_RELEASE
 	char* title = (char*)g_ROM.settings.GameName.c_str();
+#endif
+	u32 index;
+	char str[256] = "";
 	if( code_size == 0 ) code_size = 0x1000;
-	
+
 	DAEDALUS_ASSERT( code_base, "Warning : Last Ucode might be ignored!" );
 
-	// Cheap way to cache ucodes, don't check for strings (too slow!) but check last used ucode info which is alot faster than doing sting comparison with strcmp.
-	// This only needed for GBI1/SDEX1 games that use LoadUcode, else is we only check when t.ucode changes, which most of the time only happens once :)
+	// Cheap way to cache ucodes, don't check for strings (too slow!) but check last used ucode entries which is alot faster than string comparison.
+	// This only needed for GBI1/SDEX1 ucodes that use LoadUcode, else we only check when t.ucode changes, which most of the time only happens once :)
 	//
-	// ToDo : Cache ucodes that are detected in the array, pretty much just last legion needs it though
+	// ToDo : Cache ucodes that are detected in the array, pretty much only last legion needs it though
 	//
 	for( index = 0; index < MAX_UCODE_CACHE_ENTRIES; index++ )
 	{
 		if( used[ index ].used == false )	
 			break;
 			
-		// Check if the microcode is the same to a last used ucode (We cache up to 12 ucodes)
+		// Check if the microcode is the same to the last used ucodes (We cache up to 12 entries)
 		//
 		if( used[ index ].code_base == code_base && used[ index ].data_base == data_base )
 		{
-			//
-			//Retain last info for easier access
-			//
 			return used[ index ].ucode;
 		}
 	}
@@ -164,19 +167,13 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	//
 	GBIMicrocode_DetectVersionString( data_base, data_size, str, 256 );
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	if( gMicrocodeHistoryCount < MICROCODE_HISTORY_MAX )
-	{
-		gMicrocodeHistory[gMicrocodeHistoryCount++] = str;
-	}
-#endif
-
-	u32 code_hash( murmur2_neutral_hash( &g_pu8RamBase[ code_base ], code_size, 0 ) );
-
-	// It wasn't the same as last time around, so we'll hash it and check the array. 
+	// It wasn't the same as the last time around, we'll hash it and check the array. 
 	// Don't bother checking for matches when ucode was found in array
 	// This only used for custom ucodes
 	//
+	u32 i;
+	u32 code_hash( murmur2_neutral_hash( &g_pu8RamBase[ code_base ], code_size, 0 ) );
+
 	for ( i = 0; i < ARRAYSIZE(gMicrocodeData); i++ )
 	{
 		if ( code_hash == gMicrocodeData[i].code_hash )
@@ -187,7 +184,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	}
 	//
 	// If it wasn't found in the array
-	// See if we can identify it by string, if no match was found. Try to guess it with Fast3D ucode
+	// See if we can identify it by string, if no match was found. Set default ucode (Fast3D)
 	//
 	const char  *ucodes[] = { "F3", "L3", "S2DEX" };
 	char 		*match = 0;
@@ -218,16 +215,26 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 		ucode_version = GBI_0;
 	}
 
+	//
+	// If the max of ucode entries is reached, spread it randomly
+	// Otherwise we'll keep overriding the last entry
+	// 
+	if( index >= MAX_UCODE_CACHE_ENTRIES )
+	{
+		DBGConsole_Msg(0, "Warning : Reached max of ucode entries (%d), spreading entry",index );
+		index = pspFastRand()%MAX_UCODE_CACHE_ENTRIES;
+	}
+
+	//
 	// Retain used ucode info which will be cached
-	// Todo : Refactor this
 	//
 	used[ index ].code_base 	= code_base;
-	//used[ index ].code_size 	= code_size;
 	used[ index ].data_base 	= data_base;
 	used[ index ].ucode 		= ucode_version;
 	used[ index ].used 			= true;
 
 	DBGConsole_Msg(0,"Detected Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]",ucode_version, code_hash, str, title );
+
 
 #ifndef DAEDALUS_PUBLIC_RELEASE
 	if (gGlobalPreferences.LogMicrocodes)
@@ -243,33 +250,3 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 
 	return ucode_version;
 }
-
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-//*****************************************************************************
-//
-//*****************************************************************************
-u32 GBIMicrocode_GetMicrocodeHistoryStringCount()
-{
-	return gMicrocodeHistoryCount = 0;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-const char * GBIMicrocode_GetMicrocodeHistoryString( u32 i )
-{
-	if( i < gMicrocodeHistoryCount )
-		return gMicrocodeHistory[ i ];
-
-	return NULL;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void GBIMicrocode_ResetMicrocodeHistory()
-{
-	gMicrocodeHistoryCount = 0;
-}
-#endif

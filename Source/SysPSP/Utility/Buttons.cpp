@@ -40,12 +40,12 @@ PSPButtons gButtons;
 //*****************************************************************************
 void InitHomeButton()
 {
-	int gGetKernelButtons = pspSdkLoadStartModule("imposectrl.prx", PSP_MEMORY_PARTITION_KERNEL);
+	u32 gGetKernelButtons = pspSdkLoadStartModule("imposectrl.prx", PSP_MEMORY_PARTITION_KERNEL);
 
 	// Start our stack for either kernel or usermode buttons
 	//
 	gButtons.kmode  =  ( gGetKernelButtons >= 0 ) ? true : false;
-	gButtons.style  =  ( gButtons.kmode == true  ) ? PSP_CTRL_HOME : PSP_CTRL_SELECT;
+	//gButtons.style  =  ( gButtons.kmode == true  ) ? PSP_CTRL_HOME : PSP_CTRL_SELECT;
 
 	// Force non-kernelbuttons when profiling
 	//

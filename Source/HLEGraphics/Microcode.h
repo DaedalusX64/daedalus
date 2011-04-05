@@ -44,16 +44,10 @@ enum GBIVersion
 	GBI_0_GE,
 	GBI_0_CK,
 	GBI_0_PD,
-	S2DEX_GBI_1,
-	GBI_0_UNK	// This always has to be the last one
+	S2DEX_GBI_1
+	//GBI_0_UNK	// This always has to be the last one
 };
-/*
-struct LastUcodeInfo
-{
-	bool bUcodeKnown;
-	u32	 ucStart;
-};
-*/
+
 struct UcodeInfo
 {
 	bool used;
@@ -66,34 +60,6 @@ struct UcodeInfo
 };
 
 u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
-/*
-struct MicroCodeCommand
-{
-	union
-	{
-		u64		_u64;
-
-		struct
-		{
-			u32		cmd1;
-			u32		cmd0;
-		};
-
-		struct
-		{
-			int		: 32;
-			int		: 24;
-			unsigned int		cmd : 8;
-		};
-	};
-};
-*/
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-u32				GBIMicrocode_GetMicrocodeHistoryStringCount();
-const char *	GBIMicrocode_GetMicrocodeHistoryString( u32 i );
-void			GBIMicrocode_ResetMicrocodeHistory();
-#endif
 
 
 #endif // MICROCODE_H__
