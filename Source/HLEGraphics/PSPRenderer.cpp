@@ -986,11 +986,8 @@ extern void InitBlenderMode( u32 blender );
 //*****************************************************************************
 void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, ERenderMode mode, bool disable_zbuffer )
 {
-	//These has to be static!!! //Corn
-	static u32	Old_OtherModeH( 0 );
-	static u32	Old_OtherModeL( 0 );
+
 	static bool	ZFightingEnabled( false );
-	static bool	Old_UseZBuffer( false );
 
 	DAEDALUS_PROFILE( "PSPRenderer::RenderUsingCurrentBlendMode" );
 
@@ -998,11 +995,12 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	{
 		sceGuDisable(GU_DEPTH_TEST);
 		sceGuDepthMask( GL_TRUE );	// GL_TRUE to disable z-writes
-		Old_OtherModeL = 0;	//This forces to check Zbuffer setting next time
 	}
 	else
 	{
-		if ( ((gRDPOtherMode.H ^ gRDPOtherMode.L ^ Old_OtherModeH ^ Old_OtherModeL) != 0) | (m_bZBuffer ^ Old_UseZBuffer) )
+
+		// Enable or Disable ZBuffer test
+		if ( (m_bZBuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd )
 		{
 			// Fixes Zfighting issues we have on the PSP.
 			if( gRDPOtherMode.zmode == 3 )
@@ -1018,24 +1016,17 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 				ZFightingEnabled = false;						
 				sceGuDepthRange(65535,0);
 			}
-
-			// Enable or Disable ZBuffer test
-			if ( (m_bZBuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd )
-			{
-				sceGuEnable(GU_DEPTH_TEST);
-			}
 			else
-			{
-				sceGuDisable(GU_DEPTH_TEST);
-			}
-
-			// GL_TRUE to disable z-writes
-			sceGuDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
-
-			Old_UseZBuffer = m_bZBuffer;
-			Old_OtherModeL = gRDPOtherMode.L;
-			Old_OtherModeH = gRDPOtherMode.H;
+				sceGuEnable(GU_DEPTH_TEST);
 		}
+		else
+		{
+			sceGuDisable(GU_DEPTH_TEST);
+		}
+
+		// GL_TRUE to disable z-writes
+		sceGuDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
+
 	}
 
 	sceGuShadeModel( mSmooth ? GU_SMOOTH : GU_FLAT );

@@ -40,7 +40,7 @@ PSPButtons gButtons;
 //*****************************************************************************
 void InitHomeButton()
 {
-	u32 gGetKernelButtons = pspSdkLoadStartModule("imposectrl.prx", PSP_MEMORY_PARTITION_KERNEL);
+	s32 gGetKernelButtons = pspSdkLoadStartModule("imposectrl.prx", PSP_MEMORY_PARTITION_KERNEL);
 
 	// Start our stack for either kernel or usermode buttons
 	//

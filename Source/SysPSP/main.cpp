@@ -107,26 +107,27 @@ PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
 PSP_HEAP_SIZE_KB(-256);
 
 //*************************************************************************************
-//
+// This could potentially give a false positive, but still will be valid error
 //*************************************************************************************
-static void DaedalusArt()
+// List all the errors we want to show here
+//
+static void DaedalusError(u32 version)
 {
-	pspDebugScreenPrintf("XXXXXXX       XXXXXXX        66666666         444444444\n" );  
-	pspDebugScreenPrintf("X:::::X       X:::::X       6::::::6         4::::::::4\n" );  
-	pspDebugScreenPrintf("X:::::X       X:::::X      6::::::6         4:::::::::4\n" );  
-	pspDebugScreenPrintf("X::::::X     X::::::X     6::::::6         4::::44::::4\n" );  
-	pspDebugScreenPrintf("XXX:::::X   X:::::XXX    6::::::6         4::::4 4::::4\n" );  
-	pspDebugScreenPrintf("   X:::::X X:::::X      6::::::6         4::::4  4::::4\n" );  
-	pspDebugScreenPrintf("    X:::::X:::::X      6::::::6         4::::4   4::::4\n" );  
-	pspDebugScreenPrintf("     X:::::::::X      6::::::::66666   4::::444444::::444\n" );
-	pspDebugScreenPrintf("     X:::::::::X     6::::::::::::::66 4::::::::::::::::4\n" );
-	pspDebugScreenPrintf( "   X:::::X:::::X    6::::::66666:::::64444444444:::::444\n" );
-	pspDebugScreenPrintf("   X:::::X X:::::X   6:::::6     6:::::6         4::::4\n" );  
-	pspDebugScreenPrintf("XXX:::::X   X:::::XXX6:::::6     6:::::6         4::::4\n" );  
-	pspDebugScreenPrintf("X::::::X     X::::::X6::::::66666::::::6         4::::4\n" );  
-	pspDebugScreenPrintf("X:::::X       X:::::X 66:::::::::::::66        44::::::44\n" );
-	pspDebugScreenPrintf("X:::::X       X:::::X   66:::::::::66          4::::::::4\n" );
-	pspDebugScreenPrintf("XXXXXXX       XXXXXXX     666666666            4444444444\n" );
+	// ToDo : Add more errors for missing/damaged/old rom.db, preferences.ini ohle cache, and other prxs?
+	//
+	if( gButtons.kmode )
+	{
+		pspDebugScreenPrintf( "	Unsupported Firmware Detected : 0x%08X\n", version );
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf( "	Daedalus requires atleast 4.01 M33 Custom Firmware\n" );
+	}
+	else
+	{
+
+		pspDebugScreenPrintf( "	Error: imposectrl.prx is either missing or damaged" );
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf( "	Daedalus requires imposectrl to work properly for this firmware\n" );
+	}
 }
 
 //*************************************************************************************
@@ -139,7 +140,7 @@ static void DaedalusFWCheck()
 
 	u32 ver = sceKernelDevkitVersion();
 
-	if(ver <= PSP_FIRMWARE(0x401) )
+	if( (ver <= PSP_FIRMWARE(0x401)) || (ver <= PSP_FIRMWARE(0x550) && !gButtons.kmode) )
 	{
 		pspDebugScreenInit();
 		pspDebugScreenSetTextColor(0xffffff);
@@ -147,14 +148,27 @@ static void DaedalusFWCheck()
 		pspDebugScreenSetXY(0, 0);
 		pspDebugScreenClear();
 		pspDebugScreenPrintf( "\n" );
-		DaedalusArt();
+		pspDebugScreenPrintf("XXXXXXX       XXXXXXX        66666666         444444444\n" );  
+		pspDebugScreenPrintf("X:::::X       X:::::X       6::::::6         4::::::::4\n" );  
+		pspDebugScreenPrintf("X:::::X       X:::::X      6::::::6         4:::::::::4\n" );  
+		pspDebugScreenPrintf("X::::::X     X::::::X     6::::::6         4::::44::::4\n" );  
+		pspDebugScreenPrintf("XXX:::::X   X:::::XXX    6::::::6         4::::4 4::::4\n" );  
+		pspDebugScreenPrintf("   X:::::X X:::::X      6::::::6         4::::4  4::::4\n" );  
+		pspDebugScreenPrintf("    X:::::X:::::X      6::::::6         4::::4   4::::4\n" );  
+		pspDebugScreenPrintf("     X:::::::::X      6::::::::66666   4::::444444::::444\n" );
+		pspDebugScreenPrintf("     X:::::::::X     6::::::::::::::66 4::::::::::::::::4\n" );
+		pspDebugScreenPrintf( "   X:::::X:::::X    6::::::66666:::::64444444444:::::444\n" );
+		pspDebugScreenPrintf("   X:::::X X:::::X   6:::::6     6:::::6         4::::4\n" );  
+		pspDebugScreenPrintf("XXX:::::X   X:::::XXX6:::::6     6:::::6         4::::4\n" );  
+		pspDebugScreenPrintf("X::::::X     X::::::X6::::::66666::::::6         4::::4\n" );  
+		pspDebugScreenPrintf("X:::::X       X:::::X 66:::::::::::::66        44::::::44\n" );
+		pspDebugScreenPrintf("X:::::X       X:::::X   66:::::::::66          4::::::::4\n" );
+		pspDebugScreenPrintf("XXXXXXX       XXXXXXX     666666666            4444444444\n" );
 		pspDebugScreenPrintf( "\n" );
 		pspDebugScreenPrintf( "\n" );
 		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
 		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "	Unsupported Firmware Detected : 0x%08X\n", ver );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "	Daedalus requires atleast 4.01 M33 Custom Firmware\n" );
+		DaedalusError( ver );
 		pspDebugScreenPrintf( "\n" );
 		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
 		sceKernelDelayThread(1000000);
@@ -170,38 +184,6 @@ static void DaedalusFWCheck()
 				break;
 			if (pad.Buttons & PSP_CTRL_SQUARE)
 				return;
-		}    
-		sceKernelExitGame();
-	}
-	else if( ver <= PSP_FIRMWARE(0x550) && !gButtons.kmode )
-	{
-		pspDebugScreenInit();
-		pspDebugScreenSetTextColor(0xffffff);
-		pspDebugScreenSetBackColor(0x000000);
-		pspDebugScreenSetXY(0, 0);
-		pspDebugScreenClear();
-		pspDebugScreenPrintf( "\n" );
-		DaedalusArt();
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "	Error: imposectrl.prx is either missing or damaged" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "	Daedalus requires imposectrl to work properly for this firmware\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
-		sceKernelDelayThread(1000000);
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf("\nPress O to Exit");
-		for (;;)
-		{
-			SceCtrlData pad;
-			sceCtrlPeekBufferPositive(&pad, 1);
-			if (pad.Buttons & PSP_CTRL_CIRCLE)
-				break;
 		}    
 		sceKernelExitGame();
 	}
