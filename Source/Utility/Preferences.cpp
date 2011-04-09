@@ -149,7 +149,6 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 
 		INT_SETTING( gGlobalPreferences, DisplayFramerate, defaults );
 		BOOL_SETTING( gGlobalPreferences, ForceLinearFilter, defaults );
-		BOOL_SETTING( gGlobalPreferences, SoftwareClipping, defaults );
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		BOOL_SETTING( gGlobalPreferences, HighlightInexactBlendModes, defaults );
 #endif
@@ -338,7 +337,6 @@ void IPreferences::Commit()
 
 		OUTPUT_INT( gGlobalPreferences, DisplayFramerate, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, ForceLinearFilter, defaults );
-		OUTPUT_BOOL( gGlobalPreferences, SoftwareClipping, defaults );
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		OUTPUT_BOOL( gGlobalPreferences, HighlightInexactBlendModes, defaults );
 #endif
@@ -412,7 +410,6 @@ void	IPreferences::SetRomPreferences( const RomID & id, const SRomPreferences & 
 //*****************************************************************************
 SGlobalPreferences::SGlobalPreferences()
 :	DisplayFramerate( 0 )
-,	SoftwareClipping( true )
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 ,	HighlightInexactBlendModes( false )
 #endif

@@ -4,6 +4,7 @@
 #include <pspkernel.h>
 #include <pspsdk.h>
 #include <pspctrl.h>
+#include <kubridge.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -12,6 +13,8 @@
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
 #include "Core/CPU.h"
+
+#include "svnversion.h"
 
 PspDebugRegBlock *exception_regs;
 
@@ -34,6 +37,13 @@ static const unsigned char regName[32][5] =
     "s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7",
     "t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra"
 };
+
+static const char *pspModel[5] =
+{
+    "PSP PHAT", "PSP SLIM", "PSP BRITE", "PSP GO", "UNKNOWN PSP"
+};
+
+extern bool PSP_IS_SLIM;
 
 static void DumpInformation(PspDebugRegBlock * regs)
 {
@@ -67,6 +77,14 @@ static void DumpInformation(PspDebugRegBlock * regs)
 		fprintf(fp, "\tManufacturer:    0x%02x\n", g_ROM.rh.Manufacturer);
 		fprintf(fp, "\tCartID:          0x%04x\n", g_ROM.rh.CartID);
 		fprintf(fp, "\tCountryID:       0x%02x - '%c'\n", g_ROM.rh.CountryID, (char)g_ROM.rh.CountryID);
+	}
+
+	fprintf(fp, "\nPSP Infomation:\n");
+	{
+		fprintf(fp, "\tFirmware:			0x%08x\n", sceKernelDevkitVersion());
+		fprintf(fp, "\tModel:				%s\n", pspModel[ kuKernelGetModel() ]);
+		fprintf(fp, "\t64MB Available:		%s\n", PSP_IS_SLIM ? "Yes" : "No");
+		fprintf(fp, "\tEmulator Version:	"SVNVERSION"\n");
 	}
 
 	fprintf(fp, "\nSettings:\n");
@@ -105,9 +123,13 @@ void ExceptionHandler(PspDebugRegBlock * regs)
     pspDebugScreenSetBackColor(0x00FF0000);
     pspDebugScreenSetTextColor(0xFFFFFFFF);
     pspDebugScreenClear();
-    pspDebugScreenPrintf("Your PSP has just crashed!\n");
+    pspDebugScreenPrintf("\nYour PSP has just crashed!\n\n");
     pspDebugScreenPrintf("Exception details:\n\n");
-	pspDebugScreenPrintf("Game Name - %s\n\n",   g_ROM.settings.GameName.c_str());
+	pspDebugScreenPrintf("Game Name - %s\n",   g_ROM.settings.GameName.c_str());
+	pspDebugScreenPrintf("Firmware  - %08X\n", sceKernelDevkitVersion());
+	pspDebugScreenPrintf("Model	- %s\n", pspModel[ kuKernelGetModel() ]);
+	pspDebugScreenPrintf("64MB	 - %s\n", PSP_IS_SLIM ? "Yes" : "No");
+	pspDebugScreenPrintf("Revision  - "SVNVERSION"\n\n");
     pspDebugScreenPrintf("Exception - %s\n",codeTxt[(regs->cause >> 2) & 31]);
     pspDebugScreenPrintf("EPC       - %08X\n", (int)regs->epc);
     pspDebugScreenPrintf("Cause     - %08X\n", (int)regs->cause);

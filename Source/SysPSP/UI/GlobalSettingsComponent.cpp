@@ -356,7 +356,6 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 		gGlobalPreferences.TVEnable = false;
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.ForceLinearFilter,"Force Linear Filter", "Enable to force linear filter, this can improve the look of textures", "Yes", "No" ) );
 	mElements.Add( new CAdjustDeadzoneSetting( mpContext, "Stick Deadzone", "Adjust the size of the deadzone applied to the PSP stick while playing. Press Start/X to edit." ) );
-	mElements.Add( new CBoolSetting( &gGlobalPreferences.SoftwareClipping, "Software Clipping",	"Enable software clipping of vertices. Disable this for a small speedup, at the expense of image quality.", "Enabled", "Disabled" ) );
 	if (PSP_IS_SLIM) mElements.Add( new CBoolSetting( &gGlobalPreferences.LargeROMBuffer, "Use Large ROM Buffer", "Disable this for faster loading with a small slowdown during scene changes on large ROMs. Takes effect only when loading ROM.", "Yes", "No" ) );
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.HighlightInexactBlendModes, "Highlight Inexact Blend Modes",	"Replace inexact blend modes with a placeholder texture.", "Yes", "No" ) );

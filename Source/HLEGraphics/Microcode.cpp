@@ -67,13 +67,6 @@ struct MicrocodeData
 	const char *	rom_name;
 };
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-typedef	CFixedString<255> MicrocodeString;
-static u32	gMicrocodeHistoryCount = 0;
-static const u32	MICROCODE_HISTORY_MAX = 10;
-static MicrocodeString	gMicrocodeHistory[ MICROCODE_HISTORY_MAX ];
-#endif
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -257,32 +250,3 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 
 	return ucode_version;
 }
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-//*****************************************************************************
-//
-//*****************************************************************************
-u32 GBIMicrocode_GetMicrocodeHistoryStringCount()
-{
-        return gMicrocodeHistoryCount = 0;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-const char * GBIMicrocode_GetMicrocodeHistoryString( u32 i )
-{
-        if( i < gMicrocodeHistoryCount )
-                return gMicrocodeHistory[ i ];
-
-        return NULL;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void GBIMicrocode_ResetMicrocodeHistory()
-{
-        gMicrocodeHistoryCount = 0;
-}
-#endif

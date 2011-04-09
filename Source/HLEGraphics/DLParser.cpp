@@ -590,10 +590,6 @@ void DLParser_Process()
 	u32 data_base = (u32)pTask->t.ucode_data & 0x1fffffff;
 	u32 data_size = pTask->t.ucode_data_size;
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	GBIMicrocode_ResetMicrocodeHistory();
-#endif
-
 	if ( last.code_base != code_base )
 	{
 		DLParser_InitMicrocode( code_base, code_size, data_base, data_size );

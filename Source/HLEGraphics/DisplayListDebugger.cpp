@@ -76,10 +76,6 @@ extern u32	gTXTFUNC;
 extern u32	gNumCyc;
 
 extern u32	gForceRGB;
-
-extern const char *gForceColor[8];
-extern const char *gPSPtxtFunc[10];
-extern const char *gCAdj[5];
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -108,6 +104,41 @@ const char * const gDDLOText[] =
 	"Texture Viewer",		// DDLO_TEXTURE_VIEWER
 	"Dump Textures",		// DDLO_DUMP_TEXTURES
 	"Dump Dlist",			// DDLO_DUMP_DLIST
+};
+
+const char *gForceColor[8] =
+{
+	"( OFF )",
+	"( c32::White )",
+	"( c32::Black )",
+	"( c32::Red )",
+	"( c32::Green )",
+	"( c32::Blue )",
+	"( c32::Magenta )",
+	"( c32::Gold )"
+};
+
+const char *gPSPtxtFunc[10] =
+{
+	"( GU_TFX_MODULATE, GU_TCC_RGB )",
+	"( GU_TFX_MODULATE, GU_TCC_RGBA )",
+	"( GU_TFX_BLEND, GU_TCC_RGB )",
+	"( GU_TFX_BLEND, GU_TCC_RGBA )",
+	"( GU_TFX_ADD, GU_TCC_RGB )",
+	"( GU_TFX_ADD, GU_TCC_RGBA )",
+	"( GU_TFX_REPLACE, GU_TCC_RGB )",
+	"( GU_TFX_REPLACE, GU_TCC_RGBA )",
+	"( GU_TFX_DECAL, GU_TCC_RGB )",
+	"( GU_TFX_DECAL, GU_TCC_RGBA )"
+};
+
+const char *gCAdj[5] =
+{
+	"( OFF )",
+	"( details.PrimColour )",
+	"( details.PrimColour.ReplicateAlpha() )",
+	"( details.EnvColour )",
+	"( details.EnvColour.ReplicateAlpha() )",
 };
 
 struct SPspPadState
@@ -1019,11 +1050,6 @@ void IDisplayListDebugger::Run()
 			printf( TERMINAL_CLEAR_SCREEN );
 			printf( TERMINAL_TOP_LEFT );
 			printf( "Dlist took %dms (%fhz) [%d/%d]\n", s32(elapsed_ms), framerate, DLParser_GetInstructionCountLimit(), total_instruction_count );
-			printf( "\n" );
-			for( u32 i = 0; i < GBIMicrocode_GetMicrocodeHistoryStringCount(); ++i )
-			{
-				printf( "%s\n", GBIMicrocode_GetMicrocodeHistoryString( i ) );
-			}
 			printf( "\n" );
 
 			if( p_current_option != NULL )
