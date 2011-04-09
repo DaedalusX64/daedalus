@@ -157,7 +157,7 @@ u32 gucode_ver=0;	//Need this global ucode version to get correct ucode names
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 static u32					gCurrentInstructionCount = 0;			// Used for debugging display lists
-static u32					gTotalInstructionCount = 0;
+u32					gTotalInstructionCount = 0;
 static u32					gInstructionCountLimit = UNLIMITED_INSTRUCTION_COUNT;
 #endif
 

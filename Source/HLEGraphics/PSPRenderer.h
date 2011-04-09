@@ -196,8 +196,8 @@ public:
 
 	// Rendering stats
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	u32					GetNumTrisRendered() const				{ return m_dwNumTrisRendered; }
-	u32					GetNumTrisClipped() const				{ return m_dwNumTrisClipped; }
+	inline u32			GetNumTrisRendered() const				{ return m_dwNumTrisRendered; }
+	inline u32			GetNumTrisClipped() const				{ return m_dwNumTrisClipped; }
 #endif
 
 	// Debugging

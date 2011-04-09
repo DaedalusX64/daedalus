@@ -206,6 +206,10 @@ void CGraphicsPluginPsp::ProcessDList()
 #endif
 }
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+extern u32 gTotalInstructionCount;
+extern u32 gNumDListsCulled;
+#endif
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -241,6 +245,11 @@ void CGraphicsPluginPsp::UpdateScreen()
 						break;
 					case 2:
 						pspDebugScreenPrintf( "FPS %#.1f | VB %d/%d | Sync %#.1f%%   ", gCurrentFramerate, u32( Fsync * f32( FramerateLimiter_GetTvFrequencyHz() ) ), FramerateLimiter_GetTvFrequencyHz(), Fsync * 100.0f );
+						break;
+					case 3:
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+						pspDebugScreenPrintf( "Dlist Inst/Cull:%d/%d | Tris Render/Cull:%d/%d   ", gTotalInstructionCount, gNumDListsCulled, PSPRenderer::Get()->GetNumTrisRendered(), PSPRenderer::Get()->GetNumTrisClipped());
+#endif
 						break;
 				}
 			}

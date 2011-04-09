@@ -277,7 +277,7 @@ namespace
 		{
 		}
  
-		virtual	void		OnNext()		{ (gGlobalPreferences.DisplayFramerate >= 2) ? 0 : gGlobalPreferences.DisplayFramerate++; }
+		virtual	void		OnNext()		{ (gGlobalPreferences.DisplayFramerate >= 3) ? 0 : gGlobalPreferences.DisplayFramerate++; }
 		virtual	void		OnPrevious()	{ (gGlobalPreferences.DisplayFramerate <= 0) ? 0 : gGlobalPreferences.DisplayFramerate--; }
 
 		virtual const char *	GetSettingName() const
@@ -287,6 +287,7 @@ namespace
 				case 0:		return "None";
 				case 1:		return "FPS";
 				case 2:		return "FPS + VB + SYNC";
+				case 3:		return "Render stats";
 			}
 			return "?";
 		}
@@ -343,7 +344,7 @@ CGlobalSettingsComponent *	CGlobalSettingsComponent::Create( CUIContext * p_cont
 IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 :	CGlobalSettingsComponent( p_context )
 {
-	mElements.Add( new CInfoSetting( "Display Info", "Whether to show additional info while the rom is running.") );
+	mElements.Add( new CInfoSetting( "Display Info", "Whether to show additional info while the rom is running. Some modes are only available in DEBUG mode") );
 	mElements.Add( new CViewPortSetting( "Viewport Size", "The size of the viewport on the PSP." ) );
 
 	if (HAVE_DVE && PSP_TV_CABLE > 0)
