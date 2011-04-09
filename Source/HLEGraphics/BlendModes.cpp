@@ -937,6 +937,18 @@ static void BlendMode_0x0017e2052ffd75f8LL (BLEND_MODE_ARGS)
 	details.ColourAdjuster.SetRGBA( details.EnvColour);
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
+
+//Space Station Silicon Valley - Fences and windshield
+//case 0x0026a0041ffc93e0LL:
+//aRGB0: (Texel1       - Texel0      ) * LOD_Frac     + Texel0
+//aA0  : (Texel1       - Texel0      ) * Combined     + Texel0
+//aRGB1: (Combined     - 0           ) * Shade        + 0
+//aA1  : (0            - Shade       ) * 0            + Combined
+static void BlendMode_0x0026a0041ffc93e0LL( BLEND_MODE_ARGS )
+{
+	details.ColourAdjuster.SetAOpaque();
+}
+
 //
 /*
  //#T
@@ -1589,6 +1601,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0022ffff1ffcfa38LL); // Wave racer - sky
 			BLEND_MODE(0x0025266015fc9378LL); // MM Sky
 			BLEND_MODE(0x002527ff1ffc9238LL); // OOT Sky
+			BLEND_MODE(0x0026a0041ffc93e0LL); // SSV Fences
 			BLEND_MODE(0x00262a041f0c93ffLL); // OOT Fog in Deku Tree
 			BLEND_MODE(0x00262a603510937fLL); // OOT - Song of Time
 			BLEND_MODE(0x0026a060150c937fLL); // Zelda Boss Portal

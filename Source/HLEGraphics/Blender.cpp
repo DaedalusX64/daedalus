@@ -129,103 +129,20 @@ const char * sc_szBlA2[4]  = { "1-A", "AMem", "1",      "?" };
 
 inline void DebugBlender( u32 blender )	
 {
-	printf( "Unknown Blender: %04x - %s * %s + %s * %s || %s * %s + %s * %s\n",
-			blender,
-			sc_szBlClr[(blender>>14) & 0x3], sc_szBlA1[(blender>>10) & 0x3], sc_szBlClr[(blender>>6) & 0x3], sc_szBlA2[(blender>>2) & 0x3],
-			sc_szBlClr[(blender>>12) & 0x3], sc_szBlA1[(blender>> 8) & 0x3], sc_szBlClr[(blender>>4) & 0x3], sc_szBlA2[(blender   ) & 0x3]);
+	static u32 mBlender = 0;
 
+	if(mBlender != blender)
+	{
+		printf( "********************************\n\n" );
+		printf( "Unknown Blender: %04x - %s * %s + %s * %s || %s * %s + %s * %s\n",
+				blender,
+				sc_szBlClr[(blender>>14) & 0x3], sc_szBlA1[(blender>>10) & 0x3], sc_szBlClr[(blender>>6) & 0x3], sc_szBlA2[(blender>>2) & 0x3],
+				sc_szBlClr[(blender>>12) & 0x3], sc_szBlA1[(blender>> 8) & 0x3], sc_szBlClr[(blender>>4) & 0x3], sc_szBlA2[(blender   ) & 0x3]);
+		printf( "********************************\n\n" );
+		mBlender = blender;
+	}
 }
 #endif
-//*****************************************************************************
-// 1->Modified old version, 0->New version
-//*****************************************************************************
-#if 0
-
-//*****************************************************************************
-//BLEND MACROS
-//*****************************************************************************
-#define MAKE_BLEND_MODE( a, b )			( (a) | (b) )
-#define BLEND_NOOP1				0x0000		//GBL_c1(G_BL_CLR_IN, G_BL_1MA, G_BL_CLR_IN, G_BL_1MA)
-#define BLEND_NOOP2				0x0000
-
-#define BLEND_FOG_ASHADE1		0xc800		// Fog * AShade + In * 1-A
-#define BLEND_FOG_ASHADE2		0xc800		// Fog * AShade + In * 1-A
-#define BLEND_FOG_APRIM1		0xc400
-#define BLEND_FOG_3				0xc000		// Fog * AIn + In * 1-A
-#define BLEND_FOG_MEM_FOG_MEM	0x04c0		// In * AFog + Fog * 1-A
-
-#define BLEND_PASS1				0x0c08		//GBL_c1(G_BL_CLR_IN, G_BL_0, G_BL_CLR_IN, G_BL_1)
-#define BLEND_PASS2				0x0302
-#define BLEND_PASS3				0x3200
-
-#define BLEND_OPA1				0x0044
-#define BLEND_OPA2				0x0011
-
-#define BLEND_XLU1				0x0040
-#define BLEND_XLU2				0x0010
-
-#define BLEND_ADD1				0x0440		//GBL_c##clk(G_BL_CLR_IN, G_BL_A_FOG, G_BL_CLR_MEM, G_BL_1)
-#define BLEND_ADD2				0x0110
-#define BLEND_ADD3				0x4400		//GBL_c##clk(G_BL_CLR_IN, G_BL_A_FOG, G_BL_CLR_MEM, G_BL_1)
-#define BLEND_ADD4				0x1100
-
-#define BLEND_BI_AFOG			0x8400		// Bl * AFog + In * 1-A
-
-#define BLEND_MEM1				0x4c40		// Mem*0 + Mem*(1-0)?!
-#define BLEND_MEM2				0x1310		// Mem*0 + Mem*(1-0)?!
-
-#define BLEND_NOOP3				0x0c48		// In * 0 + Mem * 1
-#define BLEND_NOOP4				0xcc08		// Fog * 0 + In * 1
-#define BLEND_NOOP5				0xcc48		// Fog * 0 + Mem * 1
-#define BLEND_UNK				0x3312
-
-//*****************************************************************************
-// Rehashed version of old blender (16bit)
-//*****************************************************************************
-void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
-{
-	switch( blendmode )
-	{
-	case MAKE_BLEND_MODE( BLEND_PASS1, BLEND_PASS2 ):
-	case MAKE_BLEND_MODE( BLEND_FOG_ASHADE1, BLEND_OPA2 ):
-	case MAKE_BLEND_MODE( BLEND_OPA1, BLEND_OPA2 ):
-	case MAKE_BLEND_MODE( BLEND_OPA1, BLEND_NOOP2 ):
-	case MAKE_BLEND_MODE( BLEND_PASS1, BLEND_OPA2 ):
-	case MAKE_BLEND_MODE( BLEND_MEM1, BLEND_MEM2 ):
-	case MAKE_BLEND_MODE( BLEND_NOOP4, BLEND_NOOP2 ):		// cc08 || 0000 - SSV - TV window
-	case MAKE_BLEND_MODE( BLEND_FOG_ASHADE1, BLEND_PASS3 ): // c800 || 3200 - F-Zero - Tracks
-	case MAKE_BLEND_MODE( BLEND_FOG_ASHADE1, BLEND_PASS2 ): // c800 || 0302 - Hey You Pikachu - Body and Face
-	case MAKE_BLEND_MODE( BLEND_FOG_ASHADE1, BLEND_NOOP1 ): // c800 || 0000 - F-Zero - Cars
-	case MAKE_BLEND_MODE( BLEND_FOG_3, BLEND_PASS2 ):		// c000 || 0302 - ISS64 - Ground
-	case MAKE_BLEND_MODE( BLEND_PASS1, BLEND_NOOP1 ):		// 0c08 || 0000 - 1080 - Sky
-	case MAKE_BLEND_MODE( BLEND_FOG_APRIM1, BLEND_PASS2 ):	// c400 || 0302 - Donald Duck - Sky
-	case MAKE_BLEND_MODE( BLEND_FOG_APRIM1, BLEND_OPA2 ):	// c400 || 0011 - Donald Duck and GoldenEye - Items and Truck spots.
-	case MAKE_BLEND_MODE( BLEND_FOG_MEM_FOG_MEM, BLEND_PASS2 ):// 04c0 - :In * AFog + Fog * 1-A || 0302 - :In * 0 + In * 1 - Conker's face and body
-		sceGuDisable( GU_BLEND );
-		return;
-	case MAKE_BLEND_MODE( BLEND_XLU1, BLEND_ADD2 ):			
-		sceGuBlendFunc( GU_ADD, GU_SRC_COLOR, GU_DST_COLOR, 0, 0);	// Transparency
-		break;
-	case MAKE_BLEND_MODE( BLEND_NOOP1, BLEND_XLU2 ):		// 0000 || 0010 - Hey You Pikachu - Shade
-	case MAKE_BLEND_MODE( BLEND_NOOP1, BLEND_NOOP2 ):
-	case MAKE_BLEND_MODE( BLEND_XLU1, BLEND_XLU2 ):
-	case MAKE_BLEND_MODE( BLEND_XLU1, BLEND_NOOP2 ):
-	case MAKE_BLEND_MODE( BLEND_PASS1, BLEND_XLU2 ):
-	case MAKE_BLEND_MODE( BLEND_FOG_ASHADE1, BLEND_XLU2 ):
-	default:
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	#ifndef DAEDALUS_SILENT
-		DebugBlender( blendmode );
-	#endif
-		DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", blendmode );
-#endif
-		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-		break;
-	}	
-
-	sceGuEnable( GU_BLEND );
-}	
-#else
 
 //*****************************************************************************
 // This version uses a 16bit hash, which is around 4X times faster than the old 64bit version
@@ -273,9 +190,7 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	//
 	default:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	#ifndef DAEDALUS_SILENT
 		DebugBlender( blendmode );
-	#endif
 		DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", blendmode );
 #endif
 		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
@@ -284,7 +199,6 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	}
 }	
 
-#endif	
 //*****************************************************************************
 //
 //*****************************************************************************

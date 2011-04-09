@@ -135,11 +135,8 @@ void GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char * str,
 //*****************************************************************************
 u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size)
 {
-#ifndef DAEDALUS_PUBLIC_RELEASE
-	char* title = (char*)g_ROM.settings.GameName.c_str();
-#endif
+
 	u32 index;
-	char str[256] = "";
 	if( code_size == 0 ) code_size = 0x1000;
 
 	DAEDALUS_ASSERT( code_base, "Warning : Last Ucode might be ignored!" );
@@ -165,6 +162,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	//
 	//	Try to find the version string in the microcode data. This is faster than calculating a crc of the code
 	//
+	char str[256] = "";
 	GBIMicrocode_DetectVersionString( data_base, data_size, str, 256 );
 
 	// It wasn't the same as the last time around, we'll hash it and check the array. 
@@ -233,7 +231,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	used[ index ].ucode 		= ucode_version;
 	used[ index ].used 			= true;
 
-	DBGConsole_Msg(0,"Detected Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]",ucode_version, code_hash, str, title );
+	DBGConsole_Msg(0,"Detected Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]",ucode_version, code_hash, str, g_ROM.settings.GameName.c_str() );
 
 
 #ifndef DAEDALUS_PUBLIC_RELEASE
@@ -242,7 +240,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 		FILE * fh = fopen( "ucodes.txt", "a" );
 		if ( fh )
 		{
-			fprintf( fh,  "{ ucode=%d, 0x%08x, \"%s\", \"%s\"}, \n", ucode_version, code_hash, str, title );
+			fprintf( fh,  "{ ucode=%d, 0x%08x, \"%s\", \"%s\"}, \n", ucode_version, code_hash, str, g_ROM.settings.GameName.c_str() );
 			fclose(fh);
 		}
 	}

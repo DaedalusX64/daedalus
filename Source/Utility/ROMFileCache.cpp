@@ -31,7 +31,7 @@ extern bool PSP_IS_SLIM;
 namespace
 {
 	//ToDo: Optimize chunk size for Slim and Phat based on cache size
-	static  u32	CHUNK_SIZE = (PSP_IS_SLIM) ? 32 * 1024 : 2 * 1024;
+	static  u32 CHUNK_SIZE = 2 * 1024;
 	static  u32	CACHE_SIZE = 1024;
 
 	static  u32	STORAGE_BYTES = CACHE_SIZE * CHUNK_SIZE;
@@ -66,6 +66,12 @@ ROMFileCache::ROMFileCache()
 ,	mpChunkMap( NULL )
 ,	mMRUIdx( 0 )
 {
+	//ToDo: Optimize chunk size for Slim and Phat based on cache size 	 
+	if (PSP_IS_SLIM) 	 
+	{ 	 
+		 CHUNK_SIZE = 24 * 1024; 	 
+		 STORAGE_BYTES = CACHE_SIZE * CHUNK_SIZE; 	 
+	}
 	mpStorage = new u8[ STORAGE_BYTES ];
 	mpChunkInfo = new SChunkInfo[ CACHE_SIZE ];
 }
