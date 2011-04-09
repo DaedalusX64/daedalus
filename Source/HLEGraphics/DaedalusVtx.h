@@ -34,7 +34,7 @@ ALIGNED_TYPE(struct, DaedalusVtx4, 16)
     v2	Texture;
 	
 	u32	ClipFlags;
-	u8	Padding[4];
+	f32 iW;	// 1.0f / projW
 
 	void			Interpolate( const DaedalusVtx4 & lhs, const DaedalusVtx4 & rhs, float factor );
 };

@@ -58,6 +58,8 @@ next_vertex_\function:
 	
 	sv.q		R201, 0($a3)				// Store world transform
 	sv.q		R202, 16($a3)				// Store projection transform
+	vrcp.s		S231, S232					// 1.0 / projected.w
+	sv.s		S231, 60($a3)				// Store 1.0 / projected.w
 	
 .if \fog_mode == 1
 	#	Calculate the Colour alpha value from the foq. We do this while the projected point
@@ -74,12 +76,12 @@ next_vertex_\function:
 .endif
 
 	# Compute the clip flags
-	vcmp.q		GT, R202[-x,-y,-z,0], R202[w,w,w,0]		//-x>w,-y>w,-z>w
+	vcmp.q		LT, R202, R202[-w,-w,-w,0]	// x < -w, y < -w, z < -w
 	vnop
 	mfvc		$t4, $131					// VFPU_CC. Corresponds to X_NEG/Y_NEG/Z_NEG (will become X_POS/Y_POS/Z_POS later)
 	andi		$t4, $t4, 0x7				// Mask out the condition codes we don't care about
 	
-	vcmp.q		GT, R202, R202[w,w,w,0]		// x>w, y>w, z>w
+	vcmp.q		GT, R202, R202[w,w,w,0]		// x > w, y > w, z > w
 	vnop
 	mfvc		$t5, $131					// VFPU_CC. Corresponds to X_NEG/Y_NEG/Z_NEG
 	andi		$t5, $t5, 0x7				// Mask out the condition codes we don't care about
@@ -102,7 +104,7 @@ next_vertex_\function:
 	
 	vdot.t		S201, R200, R200			// S201 = x*x + y*y + z*z
 	vrsq.s		S201, S201					// S201 = 1/sqrt(x*x + y*y + z*z)
-	vscl.q		R200, R200, S201			// S200 = v.normalise().
+	vscl.t		R200, R200, S201			// S200 = v.normalise().
 
 
 .if \texture_mode == 0

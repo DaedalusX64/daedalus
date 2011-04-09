@@ -1164,18 +1164,6 @@ void PSPRenderer::RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts
 	DaedalusVtx*	p_vertices( (DaedalusVtx*)sceGuGetMemory(num_verts*sizeof(DaedalusVtx)) );
 	memcpy( p_vertices, p_verts, num_verts*sizeof(DaedalusVtx));
 
-	// In some games ex Mario 64, we cull up to 25% of all rects here
-	//
-	if( m_bCull )
-	{
-		sceGuFrontFace(m_bCull_mode);
-		sceGuEnable(GU_CULL_FACE);
-	}
-	else
-	{
-		sceGuDisable(GU_CULL_FACE);
-	}
-
 	//sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
 	RenderUsingCurrentBlendMode( p_vertices, num_verts, RM_RENDER_2D, disable_zbuffer );
 }
@@ -1330,9 +1318,8 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 
 	if ( f0 & f1 & f2 & CLIP_TEST_FLAGS )
 	{
-		DL_PF("   Tri: %d,%d,%d (clipped)", v0, v1, v2);
-
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
+		DL_PF("   Tri: %d,%d,%d (clipped)", v0, v1, v2);
 		++m_dwNumTrisClipped;
 #endif
 		return false;
@@ -1340,7 +1327,46 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	}
 	else
 	{
+		//
+		//Cull BACK or FRONT faceing tris early in the pipeline //Corn
+		//
+
+		//Dont try to cull tris before near plane
+		if( m_bCull & !((f0 | f1 | f2) & Z_POS) )
+		{
+			v4 & t0( mVtxProjected[v0].ProjectedPos );
+			v4 & t1( mVtxProjected[v1].ProjectedPos );
+			v4 & t2( mVtxProjected[v2].ProjectedPos );
+
+			f32 & iW0( mVtxProjected[v0].iW );	//Get 1.0f / projW
+			f32 & iW1( mVtxProjected[v1].iW );
+			f32 & iW2( mVtxProjected[v2].iW );
+
+			if( (t1.x*iW1-t0.x*iW0)*(t2.y*iW2-t0.y*iW0) < (t2.x*iW2-t0.x*iW0)*(t1.y*iW1-t0.y*iW0) )
+			{
+				if( m_bCull_mode == GU_CCW )
+				{
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+					DL_PF("   Tri: %d,%d,%d (Back culled)", v0, v1, v2);
+					++m_dwNumTrisClipped;
+#endif
+					return false;
+				}
+			}
+			else if( m_bCull_mode == GU_CW )
+			{
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+				DL_PF("   Tri: %d,%d,%d (Front culled)", v0, v1, v2);
+				++m_dwNumTrisClipped;
+#endif
+				return false;
+			}
+		}
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		DL_PF("   Tri: %d,%d,%d", v0, v1, v2);
+		++m_dwNumTrisRendered;
+#endif
 
 		m_swIndexBuffer[ m_dwNumIndices++ ] = (u16)v0;
 		m_swIndexBuffer[ m_dwNumIndices++ ] = (u16)v1;
@@ -1348,9 +1374,6 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 
 		mVtxClipFlagsUnion |= f0 | f1 | f2;
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		++m_dwNumTrisRendered;
-#endif
 		return true;
 	}
 }
@@ -1495,17 +1518,17 @@ bool PSPRenderer::FlushTris()
 	sceGuTexScale( scale.x, scale.y );
 
 	//
-	//	For now do all clipping though ge -
-	//	Some billboards (Koopa air) in Mario Kart have issues if Cull gets (re)moved
-	if( m_bCull )
-	{
-		sceGuFrontFace(m_bCull_mode);
-		sceGuEnable(GU_CULL_FACE);
-	}
-	else
-	{
-		sceGuDisable(GU_CULL_FACE);
-	}
+	//	Do BACK/FRONT culling in sceGE
+	//	
+	//if( m_bCull )
+	//{
+	//	sceGuFrontFace(m_bCull_mode);
+	//	sceGuEnable(GU_CULL_FACE);
+	//}
+	//else
+	//{
+	//	sceGuDisable(GU_CULL_FACE);
+	//}
 
 	//
 	// Check for depth source, this is for Nascar games, hopefully won't mess up anything
@@ -1515,7 +1538,7 @@ bool PSPRenderer::FlushTris()
 	//	Render out our vertices
 	RenderUsingCurrentBlendMode( p_vertices, num_vertices, RM_RENDER_3D, gRDPOtherMode.depth_source ? true : false );
 
-	sceGuDisable(GU_CULL_FACE);
+	//sceGuDisable(GU_CULL_FACE);
 
 	m_dwNumIndices = 0;
 	mVtxClipFlagsUnion = 0;
@@ -2093,6 +2116,7 @@ void PSPRenderer::SetNewVertexInfo(u32 dwAddress, u32 dwV0, u32 dwNum)
 		v4		w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
 
 		mVtxProjected[i].ProjectedPos = matWorldProject.Transform( w );
+		mVtxProjected[i].iW = 1.0f / mVtxProjected[i].ProjectedPos.w;
 		mVtxProjected[i].TransformedPos = matWorld.Transform( w );
 
 		DL_PF( "p%d: (%f,%f,%f) -> (%f,%f,%f,%f)", i, w.x, w.y, w.z, mVtxProjected[i].ProjectedPos.x, mVtxProjected[i].ProjectedPos.y, mVtxProjected[i].ProjectedPos.z, mVtxProjected[i].ProjectedPos.w );
