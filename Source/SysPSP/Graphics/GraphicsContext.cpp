@@ -54,8 +54,8 @@ namespace
 	#define PIXEL_SIZE (4) /* change this if you change to another screenmode */
 	#define SCR_MODE GU_PSM_8888
 #else
-	#define PIXEL_SIZE (2) /* change this if you change to another screenmode */
-	#define SCR_MODE GU_PSM_5650
+	static u32 PIXEL_SIZE = 2; /* change this if you change to another screenmode */
+	static u32 SCR_MODE	  = GU_PSM_5650;
 #endif
 #define FRAME_SIZE (BUF_WIDTH * SCR_HEIGHT * PIXEL_SIZE)
 #define DEPTH_SIZE (BUF_WIDTH * SCR_HEIGHT * 2)
@@ -612,6 +612,13 @@ bool IGraphicsContext::Initialise()
 		BUF_WIDTH = 768;
 		SCR_WIDTH = 720;
 		SCR_HEIGHT = 480;
+
+		// Hack, Tv out doesn't work in 16bit for some reasons
+		//
+#ifdef DAEDALUS_SCRN_16BIT
+		PIXEL_SIZE = 4;
+		SCR_MODE = GU_PSM_8888;
+#endif
 	}
 
 	//Alloc all buffers with one call to save alloc list overhead //Corn

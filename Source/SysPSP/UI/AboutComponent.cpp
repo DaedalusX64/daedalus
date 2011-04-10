@@ -168,14 +168,19 @@ void	IAboutComponent::Render()
 
 	CFixedString<128>	version( DAEDALUS_VERSION_TEXT );
 
-	version += " (";
+	version += " - ";
 	version += DAEDALUS_CONFIG_VERSION;
-	version += ")";
+	//version += ")";
 
+	CFixedString<128>	date( DATE_TEXT );
+
+	date += " (";
+	date += pspModel[ kuKernelGetModel() ];
+	date += ")";
 
 	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, version, DrawTextUtilities::TextWhite ); y += line_height;
-	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, DATE_TEXT, DrawTextUtilities::TextWhite ); y += line_height;
-	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, pspModel[ kuKernelGetModel() ], DrawTextUtilities::TextWhite ); y += line_height;
+	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, date, DrawTextUtilities::TextWhite ); y += line_height;
+	//mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, pspModel[ kuKernelGetModel() ], DrawTextUtilities::TextWhite ); y += line_height;
 
 	// Spacer
 	y += line_height;
