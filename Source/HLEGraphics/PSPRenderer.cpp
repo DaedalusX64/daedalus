@@ -1330,9 +1330,7 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 		//
 		//Cull BACK or FRONT faceing tris early in the pipeline //Corn
 		//
-
-		//Dont try to cull tris before near plane
-		if( m_bCull & !((f0 | f1 | f2) & Z_POS) )
+		if( m_bCull )
 		{
 			v4 & t0( mVtxProjected[v0].ProjectedPos );
 			v4 & t1( mVtxProjected[v1].ProjectedPos );
@@ -1342,7 +1340,7 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 			f32 & iW1( mVtxProjected[v1].iW );
 			f32 & iW2( mVtxProjected[v2].iW );
 
-			if( (t1.x*iW1-t0.x*iW0)*(t2.y*iW2-t0.y*iW0) < (t2.x*iW2-t0.x*iW0)*(t1.y*iW1-t0.y*iW0) )
+			if( (((t1.x*iW1-t0.x*iW0)*(t2.y*iW2-t0.y*iW0) - (t2.x*iW2-t0.x*iW0)*(t1.y*iW1-t0.y*iW0)) * iW0 * iW1 * iW2) <= 0.f )
 			{
 				if( m_bCull_mode == GU_CCW )
 				{
