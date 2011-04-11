@@ -95,6 +95,7 @@ void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts);
 
 u32 gNumDListsCulled;
 u32 gNumVertices;
+u32	gNunRectsClipped;
 #endif
 
 u32 gRDPFrame = 0;
@@ -175,6 +176,7 @@ u32 gVertexStride;
 	if( x0 >= scissors.right || y0 >= scissors.bottom ||  \
 		x1 < scissors.left || y1 < scissors.top ) \
 	{ \
+		++gNunRectsClipped; \
 		return; \
 	}
 //////////////////////////////////////////////////////////
@@ -246,6 +248,13 @@ bool DLParser_Initialise()
 #endif
 
 	gFirstCall = true;
+
+	// Reset scissor to default
+	//
+	scissors.top = 0;
+	scissors.left = 0;
+	scissors.right = 320;
+	scissors.bottom = 240;
 
 	//
 	// Reset all the RDP registers
@@ -535,6 +544,7 @@ static void	DLParser_ProcessDList()
 			}
 		}
 #endif
+		//if(!(gCurrentInstructionCount % 1024)) printf("%d\n",gCurrentInstructionCount);
 
 		PROFILE_DL_CMD( command.inst.cmd );
 
@@ -572,11 +582,6 @@ void DLParser_Process()
 		CGraphicsContext::Get()->ClearAllSurfaces();
 
 		gFirstCall = false;
-
-		scissors.top=0;
-		scissors.left=0;
-		scissors.right=320;
-		scissors.bottom=240;
 	}
 
 	// Update Screen only when something is drawn, otherwise several games ex Army Men will flash or shake.
@@ -622,7 +627,7 @@ void DLParser_Process()
 	gCurrentInstructionCount = 0;
 	gNumDListsCulled = 0;
 	gNumVertices = 0;
-
+	gNunRectsClipped =0;
 	//
 	// Prepare to dump this displaylist, if necessary
 	//

@@ -151,7 +151,7 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 {
 	switch ( blendmode )
 	{	
-	case 0x04d0:					// In * AFog + Fog * 1-A || In * AIn + Mem * 1-A		Conker - Enviroments
+	//case 0x04d0:					// In * AFog + Fog * 1-A || In * AIn + Mem * 1-A		Conker - Enviroments
 	//case 0x0044:					// ?
 	//case 0x0055:					// ?
 	case 0x0c08:					// In * 0 + In * 1 || :In * AIn + In * 1-A				Tarzan - Medalion in bottom part of the screen

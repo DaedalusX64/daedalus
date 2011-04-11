@@ -95,15 +95,13 @@ static const MicrocodeData gMicrocodeData[] =
 // Used to keep track of used ucode entries
 //
 UcodeInfo used[ MAX_UCODE_CACHE_ENTRIES ];
-
 //*****************************************************************************
 //
 //*****************************************************************************
-void GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char * str, u32 str_len )
+bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char * str, u32 str_len )
 {
-
 	DAEDALUS_ASSERT( data_base < (8*1024*1024) + 0x1000 ,"DetectVersionString out of bound %08X", data_base );
-	
+
 	const s8 * ram( g_ps8RamBase );
 
 	for ( u32 i = 0; i+2 < data_size; i++ )
@@ -126,8 +124,10 @@ void GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char * str,
 				++i;
 			}
 			*p++ = 0;
+			return true;
 		}
 	}
+	return false;
 }
 
 //*****************************************************************************
