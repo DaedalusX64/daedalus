@@ -160,6 +160,21 @@ u32 gucode_ver=0;	//Need this global ucode version to get correct ucode names
 static u32					gCurrentInstructionCount = 0;			// Used for debugging display lists
 u32					gTotalInstructionCount = 0;
 static u32					gInstructionCountLimit = UNLIMITED_INSTRUCTION_COUNT;
+
+#define SCISSOR_RECT( x0, y0, x1, y1 ) \
+	if( x0 >= scissors.right || y0 >= scissors.bottom ||  \
+		x1 < scissors.left || y1 < scissors.top ) \
+	{ \
+		++gNunRectsClipped; \
+		return; \
+	}
+#else
+#define SCISSOR_RECT( x0, y0, x1, y1 ) \
+	if( x0 >= scissors.right || y0 >= scissors.bottom ||  \
+		x1 < scissors.left || y1 < scissors.top ) \
+	{ \
+		return; \
+	}
 #endif
 
 static bool gFirstCall = true;	// Used to keep track of when we're processing the first display list
@@ -172,13 +187,7 @@ u32 gFillColor		= 0xFFFFFFFF;
 
 u32 gVertexStride;
  
-#define SCISSOR_RECT( x0, y0, x1, y1 ) \
-	if( x0 >= scissors.right || y0 >= scissors.bottom ||  \
-		x1 < scissors.left || y1 < scissors.top ) \
-	{ \
-		++gNunRectsClipped; \
-		return; \
-	}
+
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 //                      Strings                         //
