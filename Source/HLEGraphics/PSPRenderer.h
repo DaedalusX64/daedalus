@@ -292,7 +292,7 @@ private:
 
 	u32					mTnLModeFlags;
 
-	s32					m_dwNumLights;
+	u32					m_dwNumLights;
 
 	bool				m_bZBuffer;
 
@@ -310,7 +310,7 @@ private:
 	c32					mPrimitiveColour;
 	c32					mEnvColour;
 
-	DaedalusLight		mLights[8];
+	DaedalusLight		mLights[16];	//Conker uses more than 8
 
 	// Texturing
 	static const u32 NUM_N64_TEXTURES = 2;

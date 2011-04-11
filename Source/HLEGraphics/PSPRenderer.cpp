@@ -1401,15 +1401,15 @@ inline v4 PSPRenderer::LightVert( const v3 & norm ) const
 	// Do ambient
 	v4	result( mTnLParams.Ambient );
 
-	for ( s32 l = 0; l < m_dwNumLights; l++ )
+	for ( u32 i = 0; i < m_dwNumLights; i++ )
 	{
-		f32 fCosT = norm.Dot( mLights[l].Direction );
+		f32 fCosT = norm.Dot( mLights[i].Direction );
 		if (fCosT > 0.0f)
 		{
-			result.x += mLights[l].Colour.x * fCosT;
-			result.y += mLights[l].Colour.y * fCosT;
-			result.z += mLights[l].Colour.z * fCosT;
-		//	result.w += mLights[l].Colour.w * fCosT;
+			result.x += mLights[i].Colour.x * fCosT;
+			result.y += mLights[i].Colour.y * fCosT;
+			result.z += mLights[i].Colour.z * fCosT;
+		//	result.w += mLights[i].Colour.w * fCosT;
 		}
 	}
 

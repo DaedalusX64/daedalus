@@ -249,7 +249,7 @@ void CGraphicsPluginPsp::UpdateScreen()
 						break;
 					case 3:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-						pspDebugScreenPrintf( "Dlist Inst/Cull:%d/%d | Tris Render/Cull:%d/%d | Rects Clip:%d", gTotalInstructionCount, gNumDListsCulled, PSPRenderer::Get()->GetNumTrisRendered(), PSPRenderer::Get()->GetNumTrisClipped(),gNunRectsClipped);
+						pspDebugScreenPrintf( "Dlist[%d] Cull[%d] | Tris[%d] Cull[%d] | RectClip[%d] ", gTotalInstructionCount, gNumDListsCulled, PSPRenderer::Get()->GetNumTrisRendered(), PSPRenderer::Get()->GetNumTrisClipped(),gNunRectsClipped);
 #endif
 						break;
 				}
