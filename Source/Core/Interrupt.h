@@ -41,7 +41,7 @@ enum ETLBExceptionReason
 void R4300_Exception_TLB_Invalid( u32 virtual_address, ETLBExceptionReason reason );
 void R4300_Exception_TLB_Refill( u32 virtual_address, ETLBExceptionReason reason );
 
-void R4300_JumpToInterruptVector(u32 exception_vector);
+//void R4300_JumpToInterruptVector(u32 exception_vector);
 
 void R4300_Exception_Break();
 void R4300_Exception_Syscall();

@@ -3119,9 +3119,9 @@ inline void	CCodeGeneratorPSP::GenerateMTC1( u32 fs, EN64Reg rt )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateCFC1( EN64Reg rt, u32 fs )
 {
-	//if( fs == 0 || fs == 31 )
 	//Saves a compare //Corn
-	if( !((fs + 1) & 0x1E) )
+	//if( !((fs + 1) & 0x1E) ) // Risky
+	if( fs == 0 || fs == 31 )
 	{
 		EPspReg			reg_dst( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 
