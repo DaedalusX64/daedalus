@@ -285,6 +285,7 @@ PSPRenderer::PSPRenderer()
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 ,	m_dwNumTrisRendered( 0 )
 ,	m_dwNumTrisClipped( 0 )
+,	m_dwNumRect( 0 )
 ,	mNastyTexture(false)
 ,	mRecordCombinerStates( false )
 #endif
@@ -486,6 +487,7 @@ void	PSPRenderer::Reset()
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	m_dwNumTrisRendered = 0;
 	m_dwNumTrisClipped = 0;
+	m_dwNumRect = 0;
 #endif
 
 }
@@ -1166,6 +1168,10 @@ void PSPRenderer::RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts
 
 	//sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
 	RenderUsingCurrentBlendMode( p_vertices, num_verts, RM_RENDER_2D, disable_zbuffer );
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	++m_dwNumRect;
+#endif
 }
 
 //*****************************************************************************
@@ -1409,7 +1415,6 @@ inline v4 PSPRenderer::LightVert( const v3 & norm ) const
 			result.x += mLights[i].Colour.x * fCosT;
 			result.y += mLights[i].Colour.y * fCosT;
 			result.z += mLights[i].Colour.z * fCosT;
-		//	result.w += mLights[i].Colour.w * fCosT;
 		}
 	}
 
@@ -1417,7 +1422,7 @@ inline v4 PSPRenderer::LightVert( const v3 & norm ) const
 	if( result.x > 1.0f ) result.x = 1.0f;
 	if( result.y > 1.0f ) result.y = 1.0f;
 	if( result.z > 1.0f ) result.z = 1.0f;
-	if( result.w > 1.0f ) result.w = 1.0f;
+	result.w = 1.0f;
 
 	return result;
 }
@@ -1723,9 +1728,10 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 			temp_a[ 1 ] = mVtxProjected[ idx1 ];
 			temp_a[ 2 ] = mVtxProjected[ idx2 ];
 
-			DL_PF( "i%d: %f,%f,%f,%f", i-3, temp_a[0].ProjectedPos.x, temp_a[0].ProjectedPos.y, temp_a[0].ProjectedPos.z, temp_a[0].ProjectedPos.w );
-			DL_PF( "i%d: %f,%f,%f,%f", i-2, temp_a[1].ProjectedPos.x, temp_a[1].ProjectedPos.y, temp_a[1].ProjectedPos.z, temp_a[1].ProjectedPos.w );
-			DL_PF( "i%d: %f,%f,%f,%f", i-1, temp_a[2].ProjectedPos.x, temp_a[2].ProjectedPos.y, temp_a[2].ProjectedPos.z, temp_a[2].ProjectedPos.w );
+			DL_PF("Clip & Tesselate [%d,%d,%d]", i-3, i-2, i-1);
+			DL_PF("%#5.3f, %#5.3f, %#5.3f, %#5.3f", temp_a[0].ProjectedPos.x, temp_a[0].ProjectedPos.y, temp_a[0].ProjectedPos.z, temp_a[0].ProjectedPos.w );
+			DL_PF("%#5.3f, %#5.3f, %#5.3f, %#5.3f", temp_a[1].ProjectedPos.x, temp_a[1].ProjectedPos.y, temp_a[1].ProjectedPos.z, temp_a[1].ProjectedPos.w );
+			DL_PF("%#5.3f, %#5.3f, %#5.3f, %#5.3f", temp_a[2].ProjectedPos.x, temp_a[2].ProjectedPos.y, temp_a[2].ProjectedPos.z, temp_a[2].ProjectedPos.w );
 
 			u32 out = clip_tri_to_frustum( temp_a, temp_b );
 			//If we have less than 3 vertices left after the clipping
@@ -2128,6 +2134,7 @@ void PSPRenderer::SetNewVertexInfo(u32 dwAddress, u32 dwV0, u32 dwNum)
 			vecTransformedNormal.Normalise();
 
 			mVtxProjected[i].Colour = LightVert(vecTransformedNormal);
+			mVtxProjected[i].Colour.w = vert.rgba_a * (1.0f / 255.0f);
 		}
 		else
 		{
@@ -2187,8 +2194,6 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 {
-	
-
 #ifndef NO_VFPU_FOG
 	s32 nFogR, nFogG, nFogB, nFogA;
 	if (mTnLModeFlags & TNL_FOG)
@@ -2204,7 +2209,7 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 	const Matrix4x4 & matWorldProject( GetWorldProject() );
 
 	u32 i;
-	s32 nOff;
+	u32 nOff;
 
 	nOff = 0;
 	for (i = dwV0; i < dwV0 + dwNum; i++)
@@ -2299,10 +2304,7 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 
 		++nOff;
 	}
-
 }
-
-// Ununsed... we might remove this, or keep it for check-in
 
 //*****************************************************************************
 //

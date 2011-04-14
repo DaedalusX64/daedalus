@@ -198,6 +198,7 @@ public:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	inline u32			GetNumTrisRendered() const				{ return m_dwNumTrisRendered; }
 	inline u32			GetNumTrisClipped() const				{ return m_dwNumTrisClipped; }
+	inline u32			GetNumRect() const						{ return m_dwNumRect; }
 #endif
 
 	// Debugging
@@ -356,6 +357,7 @@ private:
 	//
 	u32					m_dwNumTrisRendered;
 	u32					m_dwNumTrisClipped;
+	u32					m_dwNumRect;
 
 	// Debugging
 	bool				mNastyTexture;

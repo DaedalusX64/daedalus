@@ -34,6 +34,9 @@
 	lv.q		R700, PARAMS_AMBIENT($t1)		// Load ambient
 	lv.q		R701, PARAMS_FOG_TXSCAL($t1)	// Load params [fog_m, fog_o, tscale_x, tscale_y]
 	
+	# Load 1/256 (vuc2i/vi2f end up converting 0xff to 256.0)
+	vfim.s		S400, 0.00390625
+	
 	# Calculate the last light index
 	or			$t6, $t2, $0		// first_light = p_lights
 	sll			$t7, $t3, 5			// num_lights*32
@@ -94,8 +97,15 @@ next_vertex_\function:
 	sw			$t4, 56($a3)				// Store ClipFlags
 	
 	
+	# Convert the alpha in R200 to float and store for later
+	lv.s		S200, 12($a2)				// load normal word [w,z,y,x]
+	vmov.s		S203, S200					// store temporary
+	.word		0xd0380000 | (8<<8) | (40)	// vuc2i.s	R200, S200					// R200 = [?,z,y,x]
+	vi2f.s		S200, S200, 23				// int -> float
+	vmul.s		S431, S400, S200			// R431 = [a * 1/256]
+	
 	# Convert the normal in R200 to float and transform
-	lv.s		S200, 12($a2)				// load normal word [?,z,y,x]
+	vmov.s		S200, S203					// store temporary
 	.word		0xd0398080 | (8<<8) | (40)	// vc2i.s		R200, S200					// R200 = [?,z,y,x]
 	vi2f.q		R200, R200, 0				// int -> float (obliterates world transform)
 	vmov.q		R201, R200[w,z,y,0]			// Unfiddle
@@ -187,6 +197,8 @@ next_vertex_\function:
 	# R301: Light normal
 	# R302: Light colour
 	# R303: Scratch
+	# R400: 1/256
+	# R431: current vertex Alpha value
 	# R600: Computed fog colour
 	# R700: Ambient
 	# t1 = last_light
@@ -194,36 +206,36 @@ next_vertex_\function:
 	# t6 = first_light
 	# t7 = last_light
 	
-	vmov.q		R201, R700			// Colour = ambient
+	vmov.q		R201, R700					// Colour = ambient
 
 	beq			$t6, $t7, done_lighting_\function		// cur_light == last_light?
-	or			$t4, $t6, $0		// cur_light = p_lights
+	or			$t4, $t6, $0				// cur_light = p_lights
 next_light_\function:
 	lv.q		R301, 0($t4)				// Load normal
 	vdot.t		S303[0:1], R200, R301		// x = clamp(dot(normal,(x,y,z,0)),0,1)
 
 	lv.q		R302, 16($t4)				// Load colour
 	addiu		$t4, $t4, 32				// Skip to the next light
-	vscl.q		R303, R302, S303			// r,g,b,a = r*x, g*x, b*x, a*x
+	vscl.t		R303, R302, S303			// r,g,b,a = r*x, g*x, b*x, a*x
 
 	bne			$t4, $t7, next_light_\function
-	vadd.q		R201, R201, R303			// col += r,g,b,a
+	vadd.t		R201, R201, R303			// col += r,g,b,a
 
 done_lighting_\function:
-	vmov.q		R200[0:1,0:1,0:1,0:1], R201			// Clamp 0..1
+	vmov.t		R401[0:1,0:1,0:1], R201		// Clamp 0..1 and merge with vertex alpha in S431
 	
 .if \fog_mode == 1
 	# Merge in the computed fog colour
-	vmov.s		S230, S600
+	vmov.s		S431, S600
 .endif
 
 	
-	addiu		$a2, $a2, 16		// Next input vertex
-	sv.q		R200, 32($a3)						// Store colour
+	addiu		$a2, $a2, 16				// Next input vertex
+	sv.q		R401, 32($a3)				// Store colour
 
 	# Continue with the next vertex
 	bne			$a2, $t0, next_vertex_\function
-	addiu		$a3, $a3, 64		// Next output vertex
+	addiu		$a3, $a3, 64				// Next output vertex
 
 finished_\function:	
 	jr			$ra
