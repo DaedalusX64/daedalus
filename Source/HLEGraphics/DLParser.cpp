@@ -475,7 +475,7 @@ void	DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 	//if ucode version is other than 0,1 or 2 then default to 0 (with non valid function names) 
 	//
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-	gucode_ver = (ucode <= 2) ? ucode : 0;
+	gucode_ver = (ucode <= 2) ? ucode : 3;
 #endif
 }
 

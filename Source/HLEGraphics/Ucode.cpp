@@ -1047,7 +1047,7 @@ const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256] =
 };
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-const char * gInstructionName[3][256] =
+const char * gInstructionName[4][256] =
 {
 	// uCode 0 - RSP SW 2.0X
 	// Games: Super Mario 64, Tetrisphere, Demos
@@ -1290,7 +1290,91 @@ const char * gInstructionName[3][256] =
 		"G_LoadTile", "G_SetTile", "G_FillRect", "G_SetFillColor",
 		"G_SetFogColor", "G_SetBlendColor", "G_SetPrimColor", "G_SetEnvColor",
 		"G_SetCombine", "G_SetTImg", "G_SetZImg", "G_SetCImg"
-	}
+	},
 
+	//Ucode":"F3DEX_GBI_2
+	//Conker BFD
+	{
+		"G_GBI1_Noop", "G_GBI2_Vtx", "G_GBI1_ModifyVtx", "G_GBI2_CullDL",
+		"G_GBI1_BranchZ", "G_GBI2_Tri1", "G_GBI2_Tri2", "G_GBI2_Quad",
+		/*G_GBI2_0x8*/"G_GBI2_Line3D", "G_S2DEX_Bg1cyc", "G_S2DEX_BgCopy", "G_S2DEX_ObjRendermode",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//10
+		"G_Tri4", "G_Tri4", "G_Tri4", "G_Tri4",
+		"G_Tri4", "G_Tri4", "G_Tri4", "G_Tri4",
+		"G_Tri4", "G_Tri4", "G_Tri4", "G_Tri4",
+		"G_Tri4", "G_Tri4", "G_Tri4", "G_Tri4",
+		//20
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//30
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//40
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//50
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//60
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//70
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+
+		//80
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//90
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//a0
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_GBI1_LoadUCode",
+		//b0
+		"G_GBI1_BranchZ", "G_GBI0_Tri4", "G_GBI1_ModifyVtx", "G_GBI1_RDPHalf_2",
+		"G_GBI1_RDPHalf_1", "G_GBI1_Line3D", "G_GBI1_ClearGeometryMode", "G_GBI1_SetGeometryMode",
+		"G_GBI1_EndDL", "G_GBI1_SetOtherModeL", "G_GBI1_SetOtherModeH", "G_GBI1_Texture",
+		"G_GBI1_MoveWord", "G_GBI1_PopMtx", "G_GBI1_CullDL", "G_GBI1_Tri1",
+		//c0
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_TriRSP", "G_TriRSP", "G_TriRSP", "G_TriRSP",
+		"G_TriRSP", "G_TriRSP", "G_TriRSP", "G_TriRSP",
+		//d0
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_GBI2_DL_Count", "G_GBI2_DMA_IO", "G_GBI2_Texture",
+		"G_GBI2_PopMtx", "G_GBI2_GeometryMode", "G_GBI2_Mtx", "G_GBI2_MoveWord",
+		"G_GBI2_MoveMem", "G_GBI1_LoadUCode", "G_GBI2_DL", "G_GBI2_EndDL",
+		//e0
+		"G_GBI1_SpNoop", "G_GBI1_RDPHalf_1", "G_GBI2_SetOtherModeL", "G_GBI2_SetOtherModeH",
+		"G_TexRect", "G_TexRectFlip", "G_RDPLoadSync", "G_RDPPipeSync",
+		"G_RDPTileSync", "G_RDPFullSync", "G_SetKeyGB", "G_SetKeyR",
+		"G_SetConvert", "G_SetScissor", "G_SetPrimDepth", "G_RDPSetOtherMode",
+		//f0
+		"G_LoadTLut", "G_Nothing", "G_SetTileSize", "G_LoadBlock", 
+		"G_LoadTile", "G_SetTile", "G_FillRect", "G_SetFillColor",
+		"G_SetFogColor", "G_SetBlendColor", "G_SetPrimColor", "G_SetEnvColor",
+		"G_SetCombine", "G_SetTImg", "G_SetZImg", "G_SetCImg"
+	}
 };
 #endif

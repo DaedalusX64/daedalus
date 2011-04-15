@@ -1351,8 +1351,9 @@ void MemoryUpdateMI( u32 value )
     else if((value & MI_INTR_MASK_CLR_DP)) mi_intr_mask_reg &= ~MI_INTR_MASK_DP;
 #endif
 
-#if 0 //0-> Slower but proper // 1 -> Faster but risky
+#if 1 //1 -> Slower but proper //0 -> Faster but risky (Crashes Animal crossing)
 
+	// Write back
 	Memory_MI_SetRegister( MI_INTR_MASK_REG, mi_intr_mask_reg );
 
 	//if(mi_intr_mask_reg & 0x0000003F & mi_intr_reg)
@@ -1363,14 +1364,12 @@ void MemoryUpdateMI( u32 value )
 		R4300_Interrupt_UpdateCause3();
 	}
 #else
-	//if(mi_intr_mask_reg & 0x0000003F & mi_intr_reg)
 	if(mi_intr_mask_reg & mi_intr_reg)
 	{
-		// Trigger an interrupt here, to avoid setting up unnecesary IQRs
-		//
-		
 		// Write back
 		Memory_MI_SetRegister( MI_INTR_MASK_REG, mi_intr_mask_reg );
+		// Trigger an interrupt here, to avoid setting up unnecesary IQRs
+		//
 		R4300_Interrupt_UpdateCause3();
 	}
 #endif

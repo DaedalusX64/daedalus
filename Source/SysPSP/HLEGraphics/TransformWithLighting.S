@@ -97,19 +97,17 @@ next_vertex_\function:
 	sw			$t4, 56($a3)				// Store ClipFlags
 	
 	
-	# Convert the alpha in R200 to float and store for later
+	# Convert the alpha in R200 to float and pass it along to light color
 	lv.s		S200, 12($a2)				// load normal word [w,z,y,x]
-	vmov.s		S203, S200					// store temporary
-	.word		0xd0380000 | (8<<8) | (40)	// vuc2i.s	R200, S200					// R200 = [?,z,y,x]
-	vi2f.s		S200, S200, 23				// int -> float
-	vmul.s		S431, S400, S200			// R431 = [a * 1/256]
+	.word		0xd0380000 | (8<<8) | (43)	// vuc2i.s	R203, S200					// R200 = [?,z,y,x]
+	vi2f.s		S203, S203, 23				// int -> float
+	vmul.s		S431, S400, S203			// R431 = [a * 1/256]
 	
 	# Convert the normal in R200 to float and transform
-	vmov.s		S200, S203					// store temporary
 	.word		0xd0398080 | (8<<8) | (40)	// vc2i.s		R200, S200					// R200 = [?,z,y,x]
 	vi2f.q		R200, R200, 0				// int -> float (obliterates world transform)
 	vmov.q		R201, R200[w,z,y,0]			// Unfiddle
-	vmov.q		R203, R201					// store temporary
+	vmov.q		R203, R201					// store vertice normal temporary for env map later
 	vtfm3.t		R200, M000, R201			// Transform with world matrix (only need 3x3)//Corn
 	
 	vdot.t		S201, R200, R200			// S201 = x*x + y*y + z*z

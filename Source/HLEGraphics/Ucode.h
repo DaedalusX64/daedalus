@@ -30,7 +30,7 @@ typedef void(*MicroCodeInstruction)(MicroCodeCommand command);
 extern const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256];
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-extern const char * gInstructionName[3][256];
+extern const char * gInstructionName[4][256];
 #endif
 
 //*****************************************************************************
