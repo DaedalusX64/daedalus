@@ -94,6 +94,7 @@ DAED_PSP_SRCS =		Source/SysPSP/Graphics/DrawText.cpp \
 			Source/SysPSP/UI/UIComponent.cpp \
 			Source/SysPSP/UI/UISetting.cpp \
 			Source/SysPSP/UI/UIScreen.cpp \
+			Source/SysPSP/UI/CheatOptionsScreen.cpp \
 			Source/SysPSP/UI/AboutComponent.cpp \
 			Source/SysPSP/UI/ColourPulser.cpp \
 			Source/SysPSP/UI/GlobalSettingsComponent.cpp \

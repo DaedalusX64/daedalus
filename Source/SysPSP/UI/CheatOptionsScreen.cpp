@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2007 StrmnNrmn
+Copyright (C) 2006 StrmnNrmn
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -18,35 +18,38 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "SelectedRomComponent.h"
-
-#include "RomPreferencesScreen.h"
-#include "AdvancedOptionsScreen.h"
 #include "CheatOptionsScreen.h"
 
 #include "UIContext.h"
 #include "UIScreen.h"
 #include "UISetting.h"
-#include "UICommand.h"
 #include "UISpacer.h"
-#include "SysPSP/Graphics/DrawText.h"
-#include "Graphics/ColourValue.h"
+#include "UICommand.h"
 
+#include "Core/Cheats.h"
 #include "Core/ROM.h"
+#include "Core/RomSettings.h"
+
+#include "Utility/Preferences.h"
 
 #include "Input/InputManager.h"
 
+#include "Graphics/ColourValue.h"
+#include "SysPSP/Graphics/DrawText.h"
+
+#include "ConfigOptions.h"
+
 #include <pspctrl.h>
-#include <pspgu.h>
 
 namespace
 {
-	const u32		TEXT_AREA_TOP = 15+16+16;
+	const u32		TITLE_AREA_TOP = 10;
+
 	const u32		TEXT_AREA_LEFT = 40;
 	const u32		TEXT_AREA_RIGHT = 440;
 
 	const s32		DESCRIPTION_AREA_TOP = 0;		// We render text aligned from the bottom, so this is largely irrelevant
-	const s32		DESCRIPTION_AREA_BOTTOM = 272-10;
+	const s32		DESCRIPTION_AREA_BOTTOM = 272-6;
 	const s32		DESCRIPTION_AREA_LEFT = 16;
 	const s32		DESCRIPTION_AREA_RIGHT = 480-16;
 
@@ -56,86 +59,85 @@ namespace
 //*************************************************************************************
 //
 //*************************************************************************************
-class ISelectedRomComponent : public CSelectedRomComponent
+class ICheatOptionsScreen : public CCheatOptionsScreen, public CUIScreen
 {
 	public:
 
-		ISelectedRomComponent( CUIContext * p_context, CFunctor * on_start_emulation );
-		~ISelectedRomComponent();
+		ICheatOptionsScreen( CUIContext * p_context, const RomID & rom_id );
+		~ICheatOptionsScreen();
 
-		// CUIComponent
+		// CCheatOptionsScreen
+		virtual void				Run();
+
+		// CUIScreen
 		virtual void				Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons );
 		virtual void				Render();
-
-		virtual void				SetRomID( const RomID & rom_id )			{ mRomID = rom_id; }
-
-	private:
-		void						EditPreferences();
-		void						AdvancedOptions();
-		void						CheatOptions();
-		void						StartEmulation();
+		virtual bool				IsFinished() const									{ return mIsFinished; }
 
 	private:
-		CFunctor *					OnStartEmulation;
+				void				OnConfirm();
+				void				OnCancel();
+
+	private:
+		RomID						mRomID;
+		std::string					mRomName;
+		SRomPreferences				mRomPreferences;
+
+		bool						mIsFinished;
 
 		CUIElementBag				mElements;
-
-		RomID						mRomID;
 };
 
 //*************************************************************************************
 //
 //*************************************************************************************
-CSelectedRomComponent::CSelectedRomComponent( CUIContext * p_context )
-:	CUIComponent( p_context )
+CCheatOptionsScreen::~CCheatOptionsScreen()
 {
 }
 
 //*************************************************************************************
 //
 //*************************************************************************************
-CSelectedRomComponent::~CSelectedRomComponent()
+CCheatOptionsScreen *	CCheatOptionsScreen::Create( CUIContext * p_context, const RomID & rom_id )
+{
+	return new ICheatOptionsScreen( p_context, rom_id );
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & rom_id )
+:	CUIScreen( p_context )
+,	mRomID( rom_id )
+,	mRomName( "?" )
+,	mIsFinished( false )
+{
+	CPreferences::Get()->GetRomPreferences( mRomID, &mRomPreferences );
+
+	RomSettings			settings;
+	if ( CRomSettingsDB::Get()->GetSettings( rom_id, &settings ) )
+	{
+ 		mRomName = settings.GameName;
+	}
+
+	mElements.Add( new CBoolSetting( &mRomPreferences.Cheats, "Cheat Codes", "Enable this to use cheat codes (WARNING, this can affect negative the framerate of games).", "Enabled", "Disabled" ) );
+
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< ICheatOptionsScreen >( this, &ICheatOptionsScreen::OnConfirm ), "Save & Return", "Confirm changes to settings and return." ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< ICheatOptionsScreen >( this, &ICheatOptionsScreen::OnCancel ), "Cancel", "Cancel changes to settings and return." ) );
+
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+ICheatOptionsScreen::~ICheatOptionsScreen()
 {
 }
 
 //*************************************************************************************
 //
 //*************************************************************************************
-CSelectedRomComponent *	CSelectedRomComponent::Create( CUIContext * p_context, CFunctor * on_start_emulation )
-{
-	return new ISelectedRomComponent( p_context, on_start_emulation );
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
-ISelectedRomComponent::ISelectedRomComponent( CUIContext * p_context, CFunctor * on_start_emulation )
-:	CSelectedRomComponent( p_context )
-,	OnStartEmulation( on_start_emulation )
-{
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< ISelectedRomComponent >( this, &ISelectedRomComponent::EditPreferences ), "Edit Preferences", "Edit various preferences for this rom." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< ISelectedRomComponent >( this, &ISelectedRomComponent::AdvancedOptions ), "Advanced Options", "Edit advanced options for this rom." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< ISelectedRomComponent >( this, &ISelectedRomComponent::CheatOptions ), "Cheats", "Enable and select cheats for this rom." ) );
-
-	mElements.Add( new CUISpacer( 16 ) );
-
-	u32 i = mElements.Add( new CUICommandImpl( new CMemberFunctor< ISelectedRomComponent >( this, &ISelectedRomComponent::StartEmulation ), "Start Emulation", "Start emulating the selected rom." ) );
-
-	mElements.SetSelected( i );
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
-ISelectedRomComponent::~ISelectedRomComponent()
-{
-	delete OnStartEmulation;
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
-void	ISelectedRomComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
+void	ICheatOptionsScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	if(old_buttons != new_buttons)
 	{
@@ -159,7 +161,7 @@ void	ISelectedRomComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 			{
 				element->OnNext();
 			}
-			if( new_buttons & (PSP_CTRL_CROSS|PSP_CTRL_START) )
+			if( new_buttons & (PSP_CTRL_CROSS/*|PSP_CTRL_START*/) )
 			{
 				element->OnSelected();
 			}
@@ -170,9 +172,28 @@ void	ISelectedRomComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 //*************************************************************************************
 //
 //*************************************************************************************
-void	ISelectedRomComponent::Render()
+void	ICheatOptionsScreen::Render()
 {
-	mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, TEXT_AREA_TOP );
+	mpContext->ClearBackground();
+
+	u32		font_height( mpContext->GetFontHeight() );
+	u32		line_height( font_height + 2 );
+	s32		y;
+
+	const char * const title_text = "Cheat Options";
+	mpContext->SetFontStyle( CUIContext::FS_HEADING );
+	u32		heading_height( mpContext->GetFontHeight() );
+	y = TITLE_AREA_TOP + heading_height;
+	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() ); y += heading_height;
+	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
+
+	y += 2;
+
+	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, mRomName.c_str(), mpContext->GetDefaultTextColour() ); y += line_height;
+
+	y += 4;
+
+	mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y );
 
 	CUIElement *	element( mElements.GetSelectedElement() );
 	if( element != NULL )
@@ -192,39 +213,30 @@ void	ISelectedRomComponent::Render()
 //*************************************************************************************
 //
 //*************************************************************************************
-void	ISelectedRomComponent::EditPreferences()
+void	ICheatOptionsScreen::Run()
 {
-	CRomPreferencesScreen *	edit_preferences( CRomPreferencesScreen::Create( mpContext, mRomID ) );
-	edit_preferences->Run();
-	delete edit_preferences;
+	CUIScreen::Run();
+}
+
+
+//*************************************************************************************
+//
+//*************************************************************************************
+void	ICheatOptionsScreen::OnConfirm()
+{
+	CPreferences::Get()->SetRomPreferences( mRomID, mRomPreferences );
+
+	CPreferences::Get()->Commit();
+
+	mRomPreferences.Apply();
+
+	mIsFinished = true;
 }
 
 //*************************************************************************************
 //
 //*************************************************************************************
-void	ISelectedRomComponent::AdvancedOptions()
+void	ICheatOptionsScreen::OnCancel()
 {
-	CAdvancedOptionsScreen *	advanced_options( CAdvancedOptionsScreen::Create( mpContext, mRomID ) );
-	advanced_options->Run();
-	delete advanced_options;
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
-void	ISelectedRomComponent::CheatOptions()
-{
-	CCheatOptionsScreen *	cheat_options( CCheatOptionsScreen::Create( mpContext, mRomID ) );
-	cheat_options->Run();
-	delete cheat_options;
-}
-//*************************************************************************************
-//
-//*************************************************************************************
-void	ISelectedRomComponent::StartEmulation()
-{
-	if(OnStartEmulation != NULL)
-	{
-		(*OnStartEmulation)();
-	}
+	mIsFinished = true;
 }

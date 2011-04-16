@@ -71,6 +71,7 @@ struct RomSettings
 	bool				AudioRateMatch;
 	bool				FogEnabled;
 	bool                MemoryAccessOptimisation;
+	bool				Cheats;
 
 	u32					RescanCount;
 	

@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "RomPreferencesScreen.h"
 #include "AdvancedOptionsScreen.h"
 #include "SavestateSelectorComponent.h"
+#include "CheatOptionsScreen.h"
 
 #include "UIContext.h"
 #include "UIScreen.h"
@@ -86,6 +87,7 @@ class IPauseOptionsComponent : public CPauseOptionsComponent
 				void				OnReset();
 				void				EditPreferences();
 				void				AdvancedOptions();
+				void				CheatOptions();
 				void				SaveState();
 				void				LoadState();
 				void				TakeScreenshot();
@@ -141,6 +143,7 @@ IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context, CFunctor
 {
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::EditPreferences ), "Edit Preferences", "Edit various preferences for this rom." ) );
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::AdvancedOptions ), "Advanced Options", "Edit advanced options for this rom." ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::CheatOptions ), "Cheats", "Edit advanced options for this rom." ) );
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::SaveState ), "Save State", "Save the current state." ) );
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::LoadState ), "Load/Delete State", "Restore or delete a previously saved state." ) );
 
@@ -293,6 +296,15 @@ void	IPauseOptionsComponent::AdvancedOptions()
 	delete advanced_options;
 }
 
+//*************************************************************************************
+//
+//*************************************************************************************
+void	IPauseOptionsComponent::CheatOptions()
+{
+	CCheatOptionsScreen *	cheat_options( CCheatOptionsScreen::Create( mpContext, g_ROM.mRomID ) );
+	cheat_options->Run();
+	delete cheat_options;
+}
 //*************************************************************************************
 //
 //*************************************************************************************

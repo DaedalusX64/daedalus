@@ -41,6 +41,7 @@ bool	gCleanSceneEnabled			= false;	// Clean our Scenes, it gets rid of many glit
 bool	gAudioRateMatch				= false;	// Matches audio rate with framerate, only works if 50-100% sync rate
 bool	gFogEnabled					= false;	// Enable fog
 bool    gMemoryAccessOptimisation   = false;    // Enable the memory access optmisation
+bool	gCheatsEnabled				= false;	// Enable cheat codes
 u32		gControllerIndex			= 0;		// Which controller config to set
 
 DaedalusConfig g_DaedalusConfig =

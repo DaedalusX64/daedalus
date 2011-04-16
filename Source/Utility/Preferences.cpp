@@ -283,6 +283,10 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		{
 			preferences.MemoryAccessOptimisation = property->GetBooleanValue( false );
 		}
+		if( section->FindProperty( "Cheats", &property ) )
+		{
+			preferences.Cheats = property->GetBooleanValue( false );
+		}
 		mPreferences[ id ] = preferences;
 	}
 
@@ -317,6 +321,7 @@ void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences
 	fprintf(fh, "AudioEnabled=%d\n", preferences.AudioEnabled);
 	fprintf(fh, "ZoomX=%f\n", preferences.ZoomX );
 	fprintf(fh, "MemoryAccessOptimisation=%d\n",preferences.MemoryAccessOptimisation);
+	fprintf(fh, "Cheats=%d\n",preferences.Cheats);
 	fprintf(fh, "Controller=%s\n", CInputManager::Get()->GetConfigurationName( preferences.ControllerIndex ));
 	fprintf(fh, "\n");			// Spacer
 }
@@ -460,6 +465,7 @@ SRomPreferences::SRomPreferences()
 	,	Frameskip( FV_DISABLED )
 	,	AudioEnabled( APM_DISABLED )
 	,	ZoomX( 1.0f )
+	,	Cheats( false )
 	,	ControllerIndex( 0 )
 {
 }
@@ -485,6 +491,7 @@ void SRomPreferences::Reset()
 	AudioEnabled = APM_DISABLED;
 //	AudioAdaptFrequency = false;
 	ZoomX = 1.0f;
+	Cheats = false;
 	ControllerIndex = 0;
 }
 
@@ -507,6 +514,7 @@ void	SRomPreferences::Apply() const
 	gMemoryAccessOptimisation = g_ROM.settings.MemoryAccessOptimisation || MemoryAccessOptimisation;
 	gFrameskipValue = Frameskip;
 	gZoomX = ZoomX;
+	gCheatsEnabled = g_ROM.settings.Cheats || Cheats;
 
 	gAudioPluginEnabled = AudioEnabled;
 //	gAdaptFrequency = AudioAdaptFrequency;

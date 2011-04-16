@@ -702,8 +702,11 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 				VI_INTR_CYCLES = (vertical_sync_reg+1) * 1500;
 			}
 
-			//CheatCodes_Apply();
-
+			// Apply cheatcodes, if enabled
+			if( gCheatsEnabled )
+			{
+				CheatCodes_Apply();
+			}
 			// Add another Interrupt at the next time:
 			CPU_AddEvent(VI_INTR_CYCLES, CPU_EVENT_VBL);
 

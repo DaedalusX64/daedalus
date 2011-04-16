@@ -150,6 +150,7 @@ struct SRomPreferences
 	EFrameskipValue				Frameskip;
 	EAudioPluginMode			AudioEnabled;
 	f32							ZoomX;
+	bool						Cheats;
 	u32							ControllerIndex;
 	u32							PAD1;
 

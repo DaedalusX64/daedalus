@@ -56,6 +56,7 @@ extern bool gSimulateDoubleDisabled;
 extern bool gAudioRateMatch;
 extern bool gFogEnabled;
 extern bool gMemoryAccessOptimisation;
+extern bool gCheatsEnabled;
 //ToDo: Needs moving to Graphics plugin config
 extern bool	gCleanSceneEnabled;
 extern u32	gCheckTextureHashFrequency;
