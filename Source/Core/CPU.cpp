@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Dynamo.h"
 #include "Interpret.h"
 #include "Save.h"
+#include "Cheats.h"
 
 #include "Utility/PrintOpCode.h"
 #include "Utility/Profiler.h"
@@ -700,6 +701,8 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			{
 				VI_INTR_CYCLES = (vertical_sync_reg+1) * 1500;
 			}
+
+			//CheatCodes_Apply();
 
 			// Add another Interrupt at the next time:
 			CPU_AddEvent(VI_INTR_CYCLES, CPU_EVENT_VBL);

@@ -1,0 +1,324 @@
+/*
+Copyright (C) 2011 StrmnNrmn
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+*/
+
+#include "stdafx.h"
+
+#include "Cheats.h"
+#include "Rom.h"
+#include "Memory.h"
+#include "CPU.h"
+
+#include "Utility/IO.h"
+#include "OSHLE/ultra_R4300.h"
+
+#include "ConfigOptions.h"
+
+//
+// Cheat code format and codebase is based from 1964 and PJ64
+//
+
+CODEGROUP *codegrouplist;
+u32		codegroupcount		= 0;
+s32		currentgroupindex	= -1;
+char	current_rom_name[30];
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void CheatCodes_Apply() 
+{
+	u32 index;
+	u32 i;
+	u32 address;
+
+	for (index = 0; index < codegroupcount; index++) 
+	{
+		for (i = 0; i < codegrouplist[index].codecount; i ++) 
+		{
+			switch (codegrouplist[index].codelist[i].addr & 0xFF000000)
+			//switch(codegrouplist[index].codelist[i].addr / 0x1000000)
+			{
+			case 0x80000000:
+			case 0xA0000000:
+				address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
+				Write8Bits(address,(u8)codegrouplist[index].codelist[i].val);
+				break;
+			case 0x81000000:
+			case 0xA1000000:
+				address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
+				Write16Bits(address,codegrouplist[index].codelist[i].val);
+				break;
+			case 0: 
+				i = codegrouplist[index].codecount;
+				break;
+			}
+		}
+	} 
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+static void CheatCodes_Clear()
+{
+	u32 i;
+
+	for(i = 0; i < codegroupcount; i++) 
+	{
+		codegrouplist[i].codecount = 0;
+	}
+
+	codegroupcount = 0;
+
+	if(codegrouplist != NULL)
+	{
+		memset(codegrouplist, 0, sizeof(codegrouplist));
+	}
+}
+
+//*****************************************************************************
+// (STRMNNRMN - Strip spaces from end of names)
+//*****************************************************************************
+static char * tidy(char * s)
+{
+	if (s == NULL || *s == '\0')
+		return s;
+	
+	char * p = s + strlen(s);
+
+	p--;
+	while (p >= s && (*p == ' ' || *p == '\r' || *p == '\n'))
+	{
+		*p = 0;
+		p--;
+	}
+	return s;
+}
+
+//*****************************************************************************
+//  I should not need to write such a stupid function to convert String to Int  .
+//	However, the sscanf() function does not work for me to input hex number from input string. 
+//  I spent some time to debug it, no use, so I wrote  this function to do the converting myself. 
+//  Someone could help me to elimiate this function.
+//*****************************************************************************
+u32 ConvertHexCharToInt(char c)
+{
+	if(c >= '0' && c <= '9')
+		return c - '0';
+	else if(c >= 'A' && c <= 'F')
+		return c - 'A' + 10;
+	else if(c >= 'a' && c <= 'f')
+		return c - 'a' + 10;
+	else
+		return 0;
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+u32 ConvertHexStringToInt(const char *str, int nchars)
+{
+	/*~~~~~~~~~~~~~~~*/
+	int		i;
+	u32		result = 0;
+	/*~~~~~~~~~~~~~~~*/
+
+	for(i = 0; i < nchars; i++) 
+	{
+		result = result * 16 + ConvertHexCharToInt(str[i]);
+	}
+	return result;
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+bool CheatCodes_Read(char *rom_name, char *file)
+{
+	char			path[MAX_PATH];
+	char			line[2048], romname[256], errormessage[400];	//changed line length to 2048 previous was 256
+	bool			bfound;
+	u32				c1, c2;
+	FILE			*stream;
+
+	CheatCodes_Clear();
+	strcpy(current_rom_name, rom_name);
+
+	strcpy(path, gDaedalusExePath);
+	strcat(path, file);
+
+	stream = fopen(path, "rt");
+	if(stream == NULL)
+	{
+		// File does not exist, try to create a new empty one
+		stream = fopen(path, "wt");
+
+		if(stream == NULL)
+		{
+			printf("Cannot find Daedalus.cht file and cannot create it.");
+			return false;
+		}
+
+		printf("Cannot find Daedalus.cht file, creating an empty one\n");
+		fclose(stream);
+		return true;
+	}
+
+	// g_ROM.rh.Name adds extra spaces, remove 'em
+	//
+	tidy( current_rom_name );
+
+	// Locate the entry for current rom by searching for g_ROM.rh.Name
+	//
+	sprintf(romname, "[%s]", current_rom_name);
+	
+	bfound = false;
+
+	while(fgets(line, 256, stream))
+	{
+		// Remove any extra character that is added at the end of the string
+		//
+		tidy(line);
+
+		if(strcmp(line, romname) == 0)
+		{
+			// Found cheatcode entry
+			bfound = true;
+			break;
+		}
+		else
+		{
+			// No match? Keep looking for cheatcode..
+			continue;
+		}
+	}
+
+	if( bfound )
+	{
+		u32 numberofgroups;
+
+		// First step, read the number of (cheat) groups for the current rom
+		//
+		if(fgets(line, 256, stream))
+		{
+			tidy(line);
+			if(strncmp(line, "NumberOfGroups=", 15) == 0)
+			{
+				numberofgroups = atoi(line + 15);
+				if( numberofgroups > MAX_CHEATCODE_GROUP_PER_ROM )
+				{
+					numberofgroups = MAX_CHEATCODE_GROUP_PER_ROM;
+				}
+			}
+			else
+			{
+				numberofgroups = MAX_CHEATCODE_GROUP_PER_ROM;
+			}
+		}
+		else
+		{
+			// Auch no number of groups? Cheat must be formated incorrectly
+			return false;
+		}
+
+		// Allocate memory for groups
+		//
+		codegrouplist = (CODEGROUP *) malloc(numberofgroups *sizeof(CODEGROUP));
+		if(codegrouplist == NULL)
+		{
+			printf("Cannot allocate memory to load cheat codes");
+			return false;
+		}
+	
+		codegroupcount = 0;
+		while(codegroupcount < numberofgroups && fgets(line, 32767, stream) && strlen(line) > 8)	// 32767 makes sure the entire line is read
+		{																							
+			// Codes for the group are in the string line[]
+			for(c1 = 0; line[c1] != '=' && line[c1] != '\0'; c1++) codegrouplist[codegroupcount].name[c1] = line[c1];
+
+			if(codegrouplist[codegroupcount].name[c1 - 2] != ',')
+			{
+				codegrouplist[codegroupcount].country = 0;
+				codegrouplist[codegroupcount].name[c1] = '\0';
+			}
+			else
+			{
+				codegrouplist[codegroupcount].country = codegrouplist[codegroupcount].name[c1 - 1] - '0';
+				codegrouplist[codegroupcount].name[c1 - 2] = '\0';
+			}
+
+			if(line[c1 + 1] == '"')
+			{
+				// we have a note for this cheat code group
+				u32 c3;
+
+				for(c3 = 0; line[c3 + c1 + 2] != '"' && line[c3 + c1 + 2] != '\0'; c3++)
+				{
+					codegrouplist[codegroupcount].note[c3] = line[c3 + c1 + 2];
+				}
+
+				codegrouplist[codegroupcount].note[c3] = '\0';
+				c1 = c1 + c3 + 3;
+			}
+			else
+			{
+				codegrouplist[codegroupcount].note[0] = '\0';
+			}
+
+			codegrouplist[codegroupcount].active = line[c1 + 1] - '0';
+
+			c1 += 2;
+
+			for(c2 = 0; c2 < (strlen(line) - c1 - 1) / 14; c2++, codegrouplist[codegroupcount].codecount++)
+			{
+				if (c2 < MAX_CHEATCODE_PER_GROUP)
+				{
+					codegrouplist[codegroupcount].codelist[c2].addr = ConvertHexStringToInt(line + c1 + 1 + c2 * 14, 8);
+					codegrouplist[codegroupcount].codelist[c2].val = (u16) ConvertHexStringToInt
+						(
+							line + c1 + 1 + c2 * 14 + 9,
+							4
+						);
+				}
+				else
+				{
+					codegrouplist[codegroupcount].codecount=MAX_CHEATCODE_PER_GROUP;
+					sprintf (errormessage,
+						     "Too many codes for cheat: %s (Max = %d)! Cheat will be truncated and won't work!",
+							 codegrouplist[codegroupcount].name,
+							 MAX_CHEATCODE_PER_GROUP);
+					printf (errormessage);
+					break;
+				}
+			}
+
+			codegroupcount++;
+		}
+
+		printf("Succesfully Loaded %d groups of cheat codes\n", codegroupcount);
+	}
+	else
+	{
+		// Cannot find entry for the current rom
+		printf("Cannot find entry %d groups of cheat code\n", codegroupcount);
+	}
+
+	fclose(stream);
+	return true;
+}

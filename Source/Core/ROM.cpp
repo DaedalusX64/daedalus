@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ROMBuffer.h"
 #include "ROMImage.h"
 #include "RomSettings.h"
+#include "Cheats.h"
 
 #include "Interface/RomDB.h"
 
@@ -83,7 +84,6 @@ const char *gGameHackNames[ MAX_HACK_NAMES ] =
 // the graphics plugin really
 //*****************************************************************************
 u32 g_dwNumFrames = 0;
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -563,6 +563,7 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	const char *filename(g_ROM.szFileName);
 	DBGConsole_Msg(0, "Reading rom image: [C%s]", filename);
 #endif
+
 	// Get information about the rom header
 	RomBuffer::GetRomBytesRaw( &g_ROM.rh, 0, sizeof(ROMHeader) );
 	
@@ -578,6 +579,9 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	g_ROM.settings = settings;
 	g_ROM.TvType = ROM_GetTvTypeFromID( g_ROM.rh.CountryID );
 
+	// Game specific hacks..
+	SpecificGameHacks( g_ROM.rh );
+
 #ifndef DAEDALUS_SILENT
 	DumpROMInfo( g_ROM.rh );
 #endif
@@ -586,10 +590,11 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	//
 	preferences.Apply();
 
-	// Game specific hacks..
-	SpecificGameHacks( g_ROM.rh );
 
-	DBGConsole_Msg(0, "[G%s]", g_ROM.settings.GameName.c_str());
+	/* Read hack code for this rom */
+	CheatCodes_Read((char*)g_ROM.rh.Name,"Daedalus.cht");
+
+	DBGConsole_Msg(0, "[G%s]",  g_ROM.settings.GameName.c_str());
 	DBGConsole_Msg(0, "This game has been certified as [G%s] (%s)", g_ROM.settings.Comment.c_str(), g_ROM.settings.Info.c_str());
 	DBGConsole_Msg(0, "SaveType: [G%s]", ROM_GetSaveTypeName( g_ROM.settings.SaveType ) );
 	DBGConsole_Msg(0, "ApplyPatches: [G%s]", gOSHooksEnabled ? "on" : "off");

@@ -39,7 +39,8 @@ DAED_CORE_SRCS =	Source/System.cpp \
 			Source/Core/Interpret.cpp \
 			Source/Core/Save.cpp \
 			Source/Core/JpegTask.cpp \
-			Source/Core/FlashMem.cpp
+			Source/Core/FlashMem.cpp \
+			Source/Core/Cheats.cpp
 
 DAED_INTERFACE_SRCS =	Source/Interface/RomDB.cpp
 
