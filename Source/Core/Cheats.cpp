@@ -48,7 +48,7 @@ void CheatCodes_Apply()
 
 	for (index = 0; index < codegroupcount; index++) 
 	{
-		if(codegrouplist[index].active)	// Apply only enabled cheats
+		//if(codegrouplist[index].active)	// Apply only enabled cheats
 		{
 			//printf("enabled %s\n", codegrouplist[index].name);
 			for (i = 0; i < codegrouplist[index].codecount; i ++) 

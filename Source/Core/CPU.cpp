@@ -703,7 +703,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			}
 
 			// Apply cheatcodes, if enabled
-			if( gCheatsEnabled )
+			//if( gCheatsEnabled )
 			{
 				CheatCodes_Apply();
 			}
