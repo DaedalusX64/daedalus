@@ -283,9 +283,13 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		{
 			preferences.MemoryAccessOptimisation = property->GetBooleanValue( false );
 		}
-		if( section->FindProperty( "Cheats", &property ) )
+		if( section->FindProperty( "CheatsEnabled", &property ) )
 		{
-			preferences.Cheats = property->GetBooleanValue( false );
+			preferences.CheatsEnabled = property->GetBooleanValue( false );
+		}
+		if( section->FindProperty( "CheatType", &property ) )
+		{
+			preferences.CheatType = property->GetIntValue( 0 );
 		}
 		mPreferences[ id ] = preferences;
 	}
@@ -321,7 +325,8 @@ void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences
 	fprintf(fh, "AudioEnabled=%d\n", preferences.AudioEnabled);
 	fprintf(fh, "ZoomX=%f\n", preferences.ZoomX );
 	fprintf(fh, "MemoryAccessOptimisation=%d\n",preferences.MemoryAccessOptimisation);
-	fprintf(fh, "Cheats=%d\n",preferences.Cheats);
+	fprintf(fh, "CheatsEnabled=%d\n",preferences.CheatsEnabled);
+	fprintf(fh, "CheatType=%d\n",preferences.CheatType);
 	fprintf(fh, "Controller=%s\n", CInputManager::Get()->GetConfigurationName( preferences.ControllerIndex ));
 	fprintf(fh, "\n");			// Spacer
 }
@@ -465,7 +470,8 @@ SRomPreferences::SRomPreferences()
 	,	Frameskip( FV_DISABLED )
 	,	AudioEnabled( APM_DISABLED )
 	,	ZoomX( 1.0f )
-	,	Cheats( false )
+	,	CheatsEnabled( false )
+	,	CheatType( 0 )
 	,	ControllerIndex( 0 )
 {
 }
@@ -491,7 +497,8 @@ void SRomPreferences::Reset()
 	AudioEnabled = APM_DISABLED;
 //	AudioAdaptFrequency = false;
 	ZoomX = 1.0f;
-	Cheats = false;
+	CheatsEnabled = false;
+	CheatType = 0;
 	ControllerIndex = 0;
 }
 
@@ -514,8 +521,8 @@ void	SRomPreferences::Apply() const
 	gMemoryAccessOptimisation = g_ROM.settings.MemoryAccessOptimisation || MemoryAccessOptimisation;
 	gFrameskipValue = Frameskip;
 	gZoomX = ZoomX;
-	gCheatsEnabled = g_ROM.settings.Cheats || Cheats;
-
+	gCheatsEnabled = g_ROM.settings.CheatsEnabled || CheatsEnabled;
+	gCheatType = g_ROM.settings.CheatType || CheatType;
 	gAudioPluginEnabled = AudioEnabled;
 //	gAdaptFrequency = AudioAdaptFrequency;
 

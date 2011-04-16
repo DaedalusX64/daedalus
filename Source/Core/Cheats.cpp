@@ -28,9 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/ultra_R4300.h"
 
 #include "ConfigOptions.h"
-
 //
-// Cheat code format and codebase is based from 1964 and PJ64
+// Mostly based from 1964 and PJ64
 //
 
 CODEGROUP *codegrouplist;
@@ -49,24 +48,28 @@ void CheatCodes_Apply()
 
 	for (index = 0; index < codegroupcount; index++) 
 	{
-		for (i = 0; i < codegrouplist[index].codecount; i ++) 
+		if(codegrouplist[index].active)	// Apply only enabled cheats
 		{
-			switch (codegrouplist[index].codelist[i].addr & 0xFF000000)
-			//switch(codegrouplist[index].codelist[i].addr / 0x1000000)
+			//printf("enabled %s\n", codegrouplist[index].name);
+			for (i = 0; i < codegrouplist[index].codecount; i ++) 
 			{
-			case 0x80000000:
-			case 0xA0000000:
-				address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-				Write8Bits(address,(u8)codegrouplist[index].codelist[i].val);
-				break;
-			case 0x81000000:
-			case 0xA1000000:
-				address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-				Write16Bits(address,codegrouplist[index].codelist[i].val);
-				break;
-			case 0: 
-				i = codegrouplist[index].codecount;
-				break;
+				switch (codegrouplist[index].codelist[i].addr & 0xFF000000)
+				//switch(codegrouplist[index].codelist[i].addr / 0x1000000)
+				{
+				case 0x80000000:
+				case 0xA0000000:
+					address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
+					Write8Bits(address,(u8)codegrouplist[index].codelist[i].val);
+					break;
+				case 0x81000000:
+				case 0xA1000000:
+					address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
+					Write16Bits(address,codegrouplist[index].codelist[i].val);
+					break;
+				case 0: 
+					i = codegrouplist[index].codecount;
+					break;
+				}
 			}
 		}
 	} 
@@ -254,11 +257,13 @@ bool CheatCodes_Read(char *rom_name, char *file)
 
 			if(codegrouplist[codegroupcount].name[c1 - 2] != ',')
 			{
+				codegrouplist[codegroupcount].number=0;
 				codegrouplist[codegroupcount].country = 0;
 				codegrouplist[codegroupcount].name[c1] = '\0';
 			}
 			else
 			{
+				codegrouplist[codegroupcount].number=codegrouplist[codegroupcount].name[c1-3] - '0'; // Only support one char, make sure not to go over 9 chars!
 				codegrouplist[codegroupcount].country = codegrouplist[codegroupcount].name[c1 - 1] - '0';
 				codegrouplist[codegroupcount].name[c1 - 2] = '\0';
 			}

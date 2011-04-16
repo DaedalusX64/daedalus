@@ -1,0 +1,4 @@
+[Silicon Valley]
+NumberOfGroups=2
+Always Snowing,0,4="Make it snow in any level",0,803F2D6D-0005,
+Always Raining,1,4="Make it rain in any level",1=0,803F2D6F-0005,

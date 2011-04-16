@@ -84,6 +84,7 @@ enum EGuiColor
 };
 const u32 NUM_COLOR_TYPES = GREY+1;
 
+
 enum EViewportType
 {
 	VT_UNSCALED_4_3 = 0,
@@ -150,7 +151,8 @@ struct SRomPreferences
 	EFrameskipValue				Frameskip;
 	EAudioPluginMode			AudioEnabled;
 	f32							ZoomX;
-	bool						Cheats;
+	bool						CheatsEnabled;
+	u32							CheatType;
 	u32							ControllerIndex;
 	u32							PAD1;
 

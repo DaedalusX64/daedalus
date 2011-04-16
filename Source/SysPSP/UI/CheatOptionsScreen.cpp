@@ -33,7 +33,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Preferences.h"
 
 #include "Input/InputManager.h"
-
+#include "../../Utility/Stream.h"
+#include "../../Utility/IO.h"
 #include "Graphics/ColourValue.h"
 #include "SysPSP/Graphics/DrawText.h"
 
@@ -55,7 +56,12 @@ namespace
 
 
 }
+extern bool current_0;
+extern bool current_1;
+extern bool current_2;
 
+extern u32 current_cheat;
+u32 current_cheat1=0;
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -87,6 +93,99 @@ class ICheatOptionsScreen : public CCheatOptionsScreen, public CUIScreen
 
 		CUIElementBag				mElements;
 };
+//*************************************************************************************
+//
+//*************************************************************************************
+	class CCheatType0 : public CUISetting
+	{
+	public:
+		CCheatType0(  const char * name, const char * description )
+			:	CUISetting( name, description )
+		{
+		}
+		virtual	void			OnSelected()
+		{
+
+			if(codegrouplist[0].number==0)
+			{
+				if(!codegrouplist[0].active)
+				{
+					codegrouplist[0].active = true;
+				}
+				else
+				{
+					codegrouplist[0].active = false;
+
+				}
+			}
+	
+		}
+		virtual const char *	GetSettingName() const
+		{
+			return codegrouplist[0].active ? "Enabled" : "Disabled";
+		}
+	};
+//*************************************************************************************
+//
+//*************************************************************************************
+	class CCheatType1 : public CUISetting
+	{
+	public:
+		CCheatType1(  const char * name, const char * description )
+			:	CUISetting( name, description )
+		{
+		}
+		virtual	void			OnSelected()
+		{
+
+			if(codegrouplist[1].number==1)
+			{
+				if(!codegrouplist[1].active)
+				{
+					codegrouplist[1].active = true;
+				}
+				else
+				{
+					codegrouplist[1].active = false;
+				}
+			}
+	
+		}
+		virtual const char *	GetSettingName() const
+		{
+			return codegrouplist[1].active ? "Enabled" : "Disabled";
+		}
+	};
+//*************************************************************************************
+//
+//*************************************************************************************
+	class CCheatType2 : public CUISetting
+	{
+	public:
+		CCheatType2(  const char * name, const char * description )
+			:	CUISetting( name, description )
+		{
+		}
+		virtual	void			OnSelected()
+		{
+			if(codegrouplist[2].number==2)
+			{
+				if(!codegrouplist[2].active)
+				{
+					codegrouplist[2].active = true;
+				}
+				else
+				{
+					codegrouplist[2].active = false;
+				}
+			}
+
+		}
+		virtual const char *	GetSettingName() const
+		{
+			return codegrouplist[2].active ? "Enabled" : "Disabled";
+		}
+	};
 
 //*************************************************************************************
 //
@@ -120,7 +219,19 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
  		mRomName = settings.GameName;
 	}
 
-	mElements.Add( new CBoolSetting( &mRomPreferences.Cheats, "Cheat Codes", "Enable this to use cheat codes (WARNING, this can affect negative the framerate of games).", "Enabled", "Disabled" ) );
+
+	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Enable cheat Codes",  "Yes", "No" ) );
+
+	// Generate list of cheat codes
+	// This really messy and hacky, atm only generate 3 entries, it will make code huge if we don't figure out how to slim this :(
+	//
+	if(codegroupcount > 0)
+	{
+		mElements.Add( new CCheatType0(  codegrouplist[0].name, codegrouplist[0].note ) );
+		mElements.Add( new CCheatType1(  codegrouplist[1].name, codegrouplist[1].note ) );
+		mElements.Add( new CCheatType2(  codegrouplist[2].name, codegrouplist[2].note ) );
+	}
+
 
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< ICheatOptionsScreen >( this, &ICheatOptionsScreen::OnConfirm ), "Save & Return", "Confirm changes to settings and return." ) );
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< ICheatOptionsScreen >( this, &ICheatOptionsScreen::OnCancel ), "Cancel", "Cancel changes to settings and return." ) );
