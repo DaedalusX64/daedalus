@@ -99,22 +99,33 @@ class ICheatOptionsScreen : public CCheatOptionsScreen, public CUIScreen
 	class CCheatType0 : public CUISetting
 	{
 	public:
-		CCheatType0(  const char * name, const char * description )
+		CCheatType0(  const char * name, bool * cheat_enabled, const char * description )
 			:	CUISetting( name, description )
+			//,	mSetting( codegrouplist[0].active )
+			,	mCheatEnabled( cheat_enabled )
 		{
 		}
+		// Disable this if cheatcodes aren't enabled
+		//
+		virtual bool			IsReadOnly() const		{ return !(*mCheatEnabled); }
+
+		virtual	void			OnNext()				{ if( !IsReadOnly() ) codegrouplist[0].active = !codegrouplist[0].active; }
+		virtual	void			OnPrevious()			{ if( !IsReadOnly() ) codegrouplist[0].active = !codegrouplist[0].active; }
+
 		virtual	void			OnSelected()
 		{
 
 			if(codegrouplist[0].number==0)
 			{
-				//if(!codegrouplist[0].active)
+				if(!codegrouplist[0].active)
 				{
+					//printf("Enable\n");
 					codegrouplist[0].active = true;
 				}
-				//else
+				else
 				{
-					//codegrouplist[0].active = false;
+					//printf("Disable\n");
+					codegrouplist[0].active = false;
 
 				}
 			}
@@ -124,6 +135,9 @@ class ICheatOptionsScreen : public CCheatOptionsScreen, public CUIScreen
 		{
 			return codegrouplist[0].active ? "Enabled" : "Disabled";
 		}
+
+	private:
+		bool *					mCheatEnabled;
 	};
 //*************************************************************************************
 //
@@ -138,16 +152,16 @@ class ICheatOptionsScreen : public CCheatOptionsScreen, public CUIScreen
 		virtual	void			OnSelected()
 		{
 
-			if(codegrouplist[1].number==1)
+			if(!codegrouplist[1].active)
 			{
-				//if(!codegrouplist[1].active)
-				{
-					codegrouplist[1].active = true;
-				}
-				//else
-				{
-					//codegrouplist[1].active = false;
-				}
+				printf("Enable\n");
+				codegrouplist[1].active = true;
+			}
+			else
+			{
+				printf("Disable\n");
+				codegrouplist[1].active = false;
+
 			}
 	
 		}
@@ -155,6 +169,7 @@ class ICheatOptionsScreen : public CCheatOptionsScreen, public CUIScreen
 		{
 			return codegrouplist[1].active ? "Enabled" : "Disabled";
 		}
+
 	};
 //*************************************************************************************
 //
@@ -170,13 +185,13 @@ class ICheatOptionsScreen : public CCheatOptionsScreen, public CUIScreen
 		{
 			if(codegrouplist[2].number==2)
 			{
-				//if(!codegrouplist[2].active)
+				if(!codegrouplist[2].active)
 				{
 					codegrouplist[2].active = true;
 				}
-				//else
+				else
 				{
-					//codegrouplist[2].active = false;
+					codegrouplist[2].active = false;
 				}
 			}
 
@@ -187,6 +202,32 @@ class ICheatOptionsScreen : public CCheatOptionsScreen, public CUIScreen
 		}
 	};
 
+//*************************************************************************************
+//
+//*************************************************************************************
+class CCheatNotFound : public CUISetting
+	{
+	public:
+		CCheatNotFound(  const char * name, bool * cheat_enabled, const char * description )
+			:	CUISetting( name, description )
+			,	mCheatEnabled( cheat_enabled )
+		{
+		}
+		// Disable this if cheatcodes aren't enabled
+		//
+		virtual bool			IsReadOnly() const		{ return true; }
+
+		//virtual	void			OnSelected(){}
+
+		virtual const char *	GetSettingName() const
+		{
+			return "N/A";
+		}
+
+	private:
+		bool *					mSetting;
+		bool *					mCheatEnabled;
+	};
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -219,19 +260,31 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
  		mRomName = settings.GameName;
 	}
 
+	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Cheat Codes", "Enable cheat Codes", "Enabled", "Disabled" ) );
 
-	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Enable cheat Codes",  "Yes", "No" ) );
-
-	// Generate list of cheat codes
-	// This really messy and hacky, atm only generate 2 entries, it will make code huge if we don't figure out how to slim this :(
+	// Make sure to only display the cheat list when the cheatfile been loaded correctly and there were cheats found
 	//
 	if(codegroupcount > 0)
 	{
-		mElements.Add( new CCheatType0(  codegrouplist[0].name, codegrouplist[0].note ) );
-		mElements.Add( new CCheatType1(  codegrouplist[1].name, codegrouplist[1].note ) );
+		// Hacky and barely working way to generate list of cheats
+		// We must slim down this :(
+		// I only display 1 entry since generating the list barely working, but we support a max of 6 entries per group :)
+		//
+		mElements.Add( new CCheatType0(  codegrouplist[0].name, &mRomPreferences.CheatsEnabled, codegrouplist[0].note ) );
+		//mElements.Add( new CCheatType1(  codegrouplist[1].name, codegrouplist[1].note ) );
 		//mElements.Add( new CCheatType2(  codegrouplist[2].name, codegrouplist[2].note ) );
 	}
+	else
+	{	
+		// Display Msg to user if he opens the cheat list without loading the cheatfile or no cheats found
+		//
+		for(u32 i = 0; i < 6; i++)
+		{
+			//codegrouplist[i].active = false;	// Most likley overkill, but meh just to be sure
+			mElements.Add( new CCheatNotFound("No cheatcodes found for this ROM", &mRomPreferences.CheatsEnabled, "Make sure codes are formatted correctly, and ROM was started with Cheat Codes option enabled. Note : Cheats won't be displayed until you start the ROM first." ) );
 
+		}
+	}
 
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< ICheatOptionsScreen >( this, &ICheatOptionsScreen::OnConfirm ), "Save & Return", "Confirm changes to settings and return." ) );
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< ICheatOptionsScreen >( this, &ICheatOptionsScreen::OnCancel ), "Cancel", "Cancel changes to settings and return." ) );

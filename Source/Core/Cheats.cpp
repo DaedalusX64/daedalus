@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2011 StrmnNrmn
+Copyright (C) 1999-2004 Joel Middendorf, <schibo@emulation64.com>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -22,14 +23,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Cheats.h"
 #include "Rom.h"
 #include "Memory.h"
-#include "CPU.h"
 
 #include "Utility/IO.h"
 #include "OSHLE/ultra_R4300.h"
 
 #include "ConfigOptions.h"
+
 //
-// Mostly based from 1964 and PJ64
+// Cheatcode routines based from 1964 and followed PJ64's gameshark format
 //
 
 CODEGROUP *codegrouplist;
@@ -40,37 +41,30 @@ char	current_rom_name[30];
 //*****************************************************************************
 //
 //*****************************************************************************
-void CheatCodes_Apply() 
+static void CheatCodes_Apply(u32 index) 
 {
-	u32 index;
 	u32 i;
 	u32 address;
 
-	for (index = 0; index < codegroupcount; index++) 
+	//printf("enabled %s\n", codegrouplist[index].name);
+	for (i = 0; i < codegrouplist[index].codecount; i ++) 
 	{
-		//if(codegrouplist[index].active)	// Apply only enabled cheats
+		switch (codegrouplist[index].codelist[i].addr & 0xFF000000)
+		//switch(codegrouplist[index].codelist[i].addr / 0x1000000)
 		{
-			//printf("enabled %s\n", codegrouplist[index].name);
-			for (i = 0; i < codegrouplist[index].codecount; i ++) 
-			{
-				switch (codegrouplist[index].codelist[i].addr & 0xFF000000)
-				//switch(codegrouplist[index].codelist[i].addr / 0x1000000)
-				{
-				case 0x80000000:
-				case 0xA0000000:
-					address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-					Write8Bits(address,(u8)codegrouplist[index].codelist[i].val);
-					break;
-				case 0x81000000:
-				case 0xA1000000:
-					address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-					Write16Bits(address,codegrouplist[index].codelist[i].val);
-					break;
-				case 0: 
-					i = codegrouplist[index].codecount;
-					break;
-				}
-			}
+		case 0x80000000:
+		case 0xA0000000:
+			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
+			Write8Bits(address,(u8)codegrouplist[index].codelist[i].val);
+			break;
+		case 0x81000000:
+		case 0xA1000000:
+			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
+			Write16Bits(address,codegrouplist[index].codelist[i].val);
+			break;
+		case 0: 
+			i = codegrouplist[index].codecount;
+			break;
 		}
 	} 
 }
@@ -78,11 +72,26 @@ void CheatCodes_Apply()
 //*****************************************************************************
 //
 //*****************************************************************************
-static void CheatCodes_Clear()
+void CheatCodes_Activate()
 {
-	u32 i;
+	for(u32 i = 0; i < codegroupcount; i++)
+	{
+		// Apply only enabled cheats
+		//
+		if(codegrouplist[i].active)
+		{
+			//printf("Cheacode enabled %s\n", codegrouplist[i].name);
+			CheatCodes_Apply( i );
+		}
+	}
+}
 
-	for(i = 0; i < codegroupcount; i++) 
+//*****************************************************************************
+//
+//*****************************************************************************
+void CheatCodes_Clear()
+{
+	for(u32 i = 0; i < codegroupcount; i++) 
 	{
 		codegrouplist[i].codecount = 0;
 	}
@@ -120,7 +129,7 @@ static char * tidy(char * s)
 //  I spent some time to debug it, no use, so I wrote  this function to do the converting myself. 
 //  Someone could help me to elimiate this function.
 //*****************************************************************************
-u32 ConvertHexCharToInt(char c)
+static u32 ConvertHexCharToInt(char c)
 {
 	if(c >= '0' && c <= '9')
 		return c - '0';
@@ -135,12 +144,10 @@ u32 ConvertHexCharToInt(char c)
 //*****************************************************************************
 //
 //*****************************************************************************
-u32 ConvertHexStringToInt(const char *str, int nchars)
+static u32 ConvertHexStringToInt(const char *str, int nchars)
 {
-	/*~~~~~~~~~~~~~~~*/
 	int		i;
 	u32		result = 0;
-	/*~~~~~~~~~~~~~~~*/
 
 	for(i = 0; i < nchars; i++) 
 	{
@@ -160,7 +167,6 @@ bool CheatCodes_Read(char *rom_name, char *file)
 	u32				c1, c2;
 	FILE			*stream;
 
-	CheatCodes_Clear();
 	strcpy(current_rom_name, rom_name);
 
 	strcpy(path, gDaedalusExePath);

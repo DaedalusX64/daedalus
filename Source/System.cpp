@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 
 #include "Core/Memory.h"
+#include "Core/Cheats.h"
 #include "Core/CPU.h"
 #include "Core/Save.h"
 #include "Core/PIF.h"
@@ -151,6 +152,7 @@ RomEntityEntry RomInitTable[] =
 	//{"RSP", RSP_Reset, NULL},
 	{"CPU", CPU_Reset, CPU_Finalise},
 	{"ROM", ROM_ReBoot, ROM_Unload},
+	{"Cheats", NULL, CheatCodes_Clear},
 	{"Controller", CController::Reset, CController::RomClose},
 	{"Save", Save::Reset, Save::Fini},
 #ifdef DAEDALUS_ENABLE_SYNCHRONISATION

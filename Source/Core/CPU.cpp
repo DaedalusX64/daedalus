@@ -703,9 +703,9 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			}
 
 			// Apply cheatcodes, if enabled
-			//if( gCheatsEnabled )
+			if( gCheatsEnabled )
 			{
-				CheatCodes_Apply();
+				CheatCodes_Activate();
 			}
 			// Add another Interrupt at the next time:
 			CPU_AddEvent(VI_INTR_CYCLES, CPU_EVENT_VBL);

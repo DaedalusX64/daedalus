@@ -582,21 +582,20 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	// Game specific hacks..
 	SpecificGameHacks( g_ROM.rh );
 
-	if( gCheatsEnabled )
-	{
-		/* Read hack code for this rom */
-		CheatCodes_Read((char*)g_ROM.rh.Name,"Daedalus.cht");
-	}
-
 #ifndef DAEDALUS_SILENT
 	DumpROMInfo( g_ROM.rh );
 #endif
 	//
 	//
+	// Read and apply preferences from preferences.ini
 	//
 	preferences.Apply();
 
-
+	if( gCheatsEnabled )
+	{
+		// Read hack code for this rom
+		CheatCodes_Read((char*)g_ROM.rh.Name,"Daedalus.cht");
+	}
 
 	DBGConsole_Msg(0, "[G%s]",  g_ROM.settings.GameName.c_str());
 	DBGConsole_Msg(0, "This game has been certified as [G%s] (%s)", g_ROM.settings.Comment.c_str(), g_ROM.settings.Info.c_str());
@@ -606,6 +605,7 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	DBGConsole_Msg(0, "SpeedSync: [G%s]", gSpeedSyncEnabled ? "on" : "off");
 	DBGConsole_Msg(0, "DynaRec: [G%s]", gDynarecEnabled ? "on" : "off");
 	DBGConsole_Msg(0, "Aplying: [G%s]", gGameHackNames[g_ROM.GameHacks]);
+	DBGConsole_Msg(0, "Cheats: [G%s]", gCheatsEnabled ? "on" : "off");
 
 	//Patch_ApplyPatches();
 
