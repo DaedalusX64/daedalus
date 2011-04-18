@@ -28,14 +28,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //Cannot exceed 254 groups, must be represented by using 1 byte
 #define MAX_CHEATCODE_GROUP_PER_ROM 254
 
-#define CHEAT0 0x1
-#define CHEAT1 0x2
-#define CHEAT2 0x3
-#define CHEAT3 0x4
-#define CHEAT4 0x5
-#define CHEAT5 0x6
-#define CHEAT6 0x7
-
 struct CODENODE_STRUCT
 {
 	u32	addr;
@@ -46,7 +38,6 @@ typedef struct CODENODE_STRUCT	CHEATCODENODE;
 
 struct CODEGROUP_STRUCT
 {
-	u32				number;
 	u32				country;
 	u32				codecount;
 	bool			active;

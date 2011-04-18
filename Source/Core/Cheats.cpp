@@ -263,13 +263,11 @@ bool CheatCodes_Read(char *rom_name, char *file)
 
 			if(codegrouplist[codegroupcount].name[c1 - 2] != ',')
 			{
-				codegrouplist[codegroupcount].number=0;
 				codegrouplist[codegroupcount].country = 0;
 				codegrouplist[codegroupcount].name[c1] = '\0';
 			}
 			else
 			{
-				codegrouplist[codegroupcount].number=codegrouplist[codegroupcount].name[c1-3] - '0'; // Only support one char, make sure not to go over 9 chars!
 				codegrouplist[codegroupcount].country = codegrouplist[codegroupcount].name[c1 - 1] - '0';
 				codegrouplist[codegroupcount].name[c1 - 2] = '\0';
 			}
