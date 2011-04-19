@@ -40,6 +40,7 @@ struct CODEGROUP_STRUCT
 {
 	u32				country;
 	u32				codecount;
+	bool			enable;
 	bool			active;
 	char			name[80];
 	char			note[256];

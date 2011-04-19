@@ -115,6 +115,7 @@ public:
 
 	virtual	void			OnSelected()
 	{
+
 		if(!codegrouplist[mIndex].active)
 		{
 			//printf("Enable %d\n",index);
@@ -197,12 +198,13 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 
 	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Enable cheat Codes", "Yes", "No" ) );
 
-	// Make sure to only display the cheat list when the cheatfile been loaded correctly and there were cheats found
-	// ToDo: add a check/msg if cheatcodes were truncated, aka MAX_CHEATCODE_PER_GROUP is passed
-	//
-	if(codegroupcount > 0)
+
+	for(u32 i = 0; i < MAX_CHEATCODE_PER_GROUP; i++)
 	{
-		for(u32 i = 0; i < MAX_CHEATCODE_PER_GROUP; i++)
+		// Only display the cheat list when the cheatfile been loaded correctly and there were cheats found
+		// ToDo: add a check/msg if cheatcodes were truncated, aka MAX_CHEATCODE_PER_GROUP is passed
+		//
+		if(codegroupcount > 0)
 		{
 			// Check for only available entries, if any entry isn't available, compesate it with a note to the user
 			//
@@ -218,13 +220,10 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 				mElements.Add( new CCheatNotFound("No cheat codes found for this entry", &mRomPreferences.CheatsEnabled, "Make sure codes are formatted correctly for this entry. Daedalus supports a max of six cheats per game." ) );
 			}
 		}
-	}
-	else
-	{	
-		// Display Msg to user if he opens the cheat list without loading the cheatfile or no cheats found
-		//
-		for(u32 i = 0; i < MAX_CHEATCODE_PER_GROUP; i++)
-		{
+		else
+		{	
+			// Display Msg to user if he opens the cheat list without loading the cheatfile or no cheats found
+			//
 			//codegrouplist[i].active = false; // Overkill IMO
 			mElements.Add( new CCheatNotFound("No cheat codes found for this ROM", &mRomPreferences.CheatsEnabled, "Make sure codes are formatted correctly, and ROM was started with Cheat Codes option enabled. Note : Cheats won't be displayed until you start the ROM first." ) );
 

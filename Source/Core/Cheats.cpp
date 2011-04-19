@@ -46,6 +46,7 @@ static void CheatCodes_Apply(u32 index)
 {
 	u32 i;
 	u32 address;
+	u16 value;
 
 	//printf("enabled %s\n", codegrouplist[index].name);
 	for (i = 0; i < codegrouplist[index].codecount; i ++) 
@@ -56,12 +57,32 @@ static void CheatCodes_Apply(u32 index)
 		case 0x80000000:
 		case 0xA0000000:
 			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-			Write8Bits(address,(u8)codegrouplist[index].codelist[i].val);
+			// Cheat code is no longer active, restore to normal, we do this by reading it from memory
+			//
+			if(codegrouplist[index].enable==false)
+			{
+				value = Read8Bits(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
+			}
+			else
+			{
+				value = codegrouplist[index].codelist[i].val;
+			}
+			Write8Bits(address,(u8)value);
 			break;
 		case 0x81000000:
 		case 0xA1000000:
 			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-			Write16Bits(address,codegrouplist[index].codelist[i].val);
+			// Cheat code is no longer active, restore to normal, we do this by reading it from memory
+			//
+			if(codegrouplist[i].enable==false)
+			{
+				value = Read16Bits(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
+			}
+			else
+			{
+				value = codegrouplist[index].codelist[i].val;
+			}
+			Write16Bits(address, value);
 			break;
 		case 0: 
 			i = codegrouplist[index].codecount;
@@ -75,15 +96,34 @@ static void CheatCodes_Apply(u32 index)
 //*****************************************************************************
 void CheatCodes_Activate()
 {
+	static bool bDisable = false;
 	for(u32 i = 0; i < codegroupcount; i++)
 	{
 		// Apply only enabled cheats
 		//
 		if(codegrouplist[i].active)
 		{
+			// Keep track of active cheatcodes, when they are disable, 
+			// this flag will signal that we need to restore the hacked value to normal
+			//
+			bDisable = true;
+			codegrouplist[i].enable = true;
+
 			//printf("Cheacode enabled %s\n", codegrouplist[i].name);
 			CheatCodes_Apply( i );
 		}
+		// Cheat is no longer active, disable it from memory as well
+		//
+		else if(codegrouplist[i].enable && bDisable)
+		{
+			/*DAEDALUS_ASSERT(codegrouplist[i].active && codegrouplist[i].disable, 
+			" Trying to disable cheat %s which been already disabled!!", codegrouplist[i].name);
+			*/
+			bDisable = false;
+			codegrouplist[i].enable = false;
+			CheatCodes_Apply( i );
+		}
+
 	}
 }
 
