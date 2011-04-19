@@ -101,12 +101,12 @@ class CCheatType : public CUISetting
 public:
 	CCheatType( u32 i,const char * name, bool * cheat_enabled, const char * description )
 		:	CUISetting( name, description )
-		//,	mSetting( codegrouplist[i].active )
 		,	mIndex( i )
 		,	mCheatEnabled( cheat_enabled )
 	{
 	}
 	// Disable this if cheatcodes aren't enabled
+	// ToDo : Force all cheats disabled when is read only, aka CheatsEnabled is disabled
 	//
 	virtual bool			IsReadOnly() const		{ return !(*mCheatEnabled); }
 
@@ -135,7 +135,6 @@ public:
 
 private:
 	u32						mIndex;
-	//bool					mSetting;
 	bool *					mCheatEnabled;
 };
 
@@ -199,15 +198,25 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Enable cheat Codes", "Yes", "No" ) );
 
 	// Make sure to only display the cheat list when the cheatfile been loaded correctly and there were cheats found
+	// ToDo: add a check/msg if cheatcodes were truncated, aka MAX_CHEATCODE_PER_GROUP is passed
 	//
 	if(codegroupcount > 0)
 	{
-		// Generate list of available cheatcodes
-		//
-		for(u32 i = 0; i < codegroupcount; i++)
+		for(u32 i = 0; i < MAX_CHEATCODE_PER_GROUP; i++)
 		{
-			mElements.Add( new CCheatType( i,codegrouplist[i].name, &mRomPreferences.CheatsEnabled, codegrouplist[i].note ) );
+			// Check for only available entries, if any entry isn't available, compesate it with a note to the user
+			//
+			if(codegroupcount > i)
+			{
+				// Generate list of available cheatcodes
+				//
+				mElements.Add( new CCheatType( i, codegrouplist[i].name, &mRomPreferences.CheatsEnabled, codegrouplist[i].note ) );
 
+			}
+			else
+			{
+				mElements.Add( new CCheatNotFound("No cheat codes found for this entry", &mRomPreferences.CheatsEnabled, "Make sure codes are formatted correctly for this entry. Daedalus supports a max of six cheats per game." ) );
+			}
 		}
 	}
 	else
@@ -216,10 +225,12 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 		//
 		for(u32 i = 0; i < MAX_CHEATCODE_PER_GROUP; i++)
 		{
-			mElements.Add( new CCheatNotFound("No cheatcodes found for this ROM", &mRomPreferences.CheatsEnabled, "Make sure codes are formatted correctly, and ROM was started with Cheat Codes option enabled. Note : Cheats won't be displayed until you start the ROM first." ) );
+			//codegrouplist[i].active = false; // Overkill IMO
+			mElements.Add( new CCheatNotFound("No cheat codes found for this ROM", &mRomPreferences.CheatsEnabled, "Make sure codes are formatted correctly, and ROM was started with Cheat Codes option enabled. Note : Cheats won't be displayed until you start the ROM first." ) );
 
 		}
 	}
+
 
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< ICheatOptionsScreen >( this, &ICheatOptionsScreen::OnConfirm ), "Save & Return", "Confirm changes to settings and return." ) );
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< ICheatOptionsScreen >( this, &ICheatOptionsScreen::OnCancel ), "Cancel", "Cancel changes to settings and return." ) );
