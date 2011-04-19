@@ -38,6 +38,7 @@ u32		codegroupcount		= 0;
 s32		currentgroupindex	= -1;
 char	current_rom_name[30];
 
+enum { CHEAT_ALL_COUNTRY, CHEAT_USA, CHEAT_JAPAN, CHEAT_USA_AND_JAPAN, CHEAT_EUR, CHEAT_AUS, CHEAT_FR, CHEAT_GER };
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -123,6 +124,86 @@ static char * tidy(char * s)
 	return s;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
+static bool IsCodeMatchRomCountryCode(u32 cheat_country_code, u8 rom_country_code)
+{
+	//
+	// Added by Witten (witten@pj64cheats.net)
+	//
+	switch (cheat_country_code)
+	{
+	case CHEAT_ALL_COUNTRY: // all countries
+		{
+			return true;
+		}
+	case CHEAT_USA: // USA
+		{
+			if (rom_country_code == 0x45) 
+				return true;
+			else
+				return false;
+		}
+	case CHEAT_JAPAN: // JAP
+		{
+			if (rom_country_code == 0x4A)
+				return true;
+			else
+			    return false;
+		}
+	case CHEAT_USA_AND_JAPAN: // USA&JAP
+		{
+			if (rom_country_code == 0x41)
+				return true;
+			else
+			    return false;
+		}
+	case CHEAT_EUR: // Europe
+		{
+			switch(rom_country_code)
+			{
+			case 0x50:
+			case 0x58:
+			case 0x20:
+			case 0x21:
+			case 0x38:
+			case 0x70:
+					return true;
+			default:
+			    return false;
+			}
+		}
+	case CHEAT_AUS: // Australia
+		{
+			if (rom_country_code == 0x55 || 0x59)
+				return true;
+			else
+				return false;
+		}
+		break;
+	case CHEAT_FR: // France
+		{
+			if (rom_country_code == 0x46)
+				return true;
+			else
+				return false;
+		}
+		break;
+	case CHEAT_GER: // Germany
+		{
+			if (rom_country_code == 0x44)
+				return true;
+			else
+				return false;
+		}
+	default :
+		{
+			return false;
+		}
+		break;
+	}
+}
 //*****************************************************************************
 //  I should not need to write such a stupid function to convert String to Int  .
 //	However, the sscanf() function does not work for me to input hex number from input string. 
@@ -270,6 +351,12 @@ bool CheatCodes_Read(char *rom_name, char *file)
 			{
 				codegrouplist[codegroupcount].country = codegrouplist[codegroupcount].name[c1 - 1] - '0';
 				codegrouplist[codegroupcount].name[c1 - 2] = '\0';
+
+				if(IsCodeMatchRomCountryCode(codegrouplist[codegroupcount].country, g_ROM.rh.CountryID) == false)
+				{
+					printf("Wrong country id %d for cheatcode\n",codegrouplist[codegroupcount].country);
+					continue;
+				}
 			}
 
 			if(line[c1 + 1] == '"')
