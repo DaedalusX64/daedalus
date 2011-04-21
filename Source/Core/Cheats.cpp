@@ -96,7 +96,6 @@ static void CheatCodes_Apply(u32 index)
 //*****************************************************************************
 void CheatCodes_Activate()
 {
-	static bool bDisable = false;
 	for(u32 i = 0; i < codegroupcount; i++)
 	{
 		// Apply only enabled cheats
@@ -106,20 +105,14 @@ void CheatCodes_Activate()
 			// Keep track of active cheatcodes, when they are disable, 
 			// this flag will signal that we need to restore the hacked value to normal
 			//
-			bDisable = true;
 			codegrouplist[i].enable = true;
 
 			//printf("Cheacode enabled %s\n", codegrouplist[i].name);
 			CheatCodes_Apply( i );
 		}
-		// Cheat is no longer active, disable it from memory as well
-		//
-		else if(codegrouplist[i].enable && bDisable)
+		else if(codegrouplist[i].enable)
 		{
-			/*DAEDALUS_ASSERT(codegrouplist[i].active && codegrouplist[i].disable, 
-			" Trying to disable cheat %s which been already disabled!!", codegrouplist[i].name);
-			*/
-			bDisable = false;
+			//printf("Cheacode disabled %s\n", codegrouplist[i].name);
 			codegrouplist[i].enable = false;
 			CheatCodes_Apply( i );
 		}
@@ -418,6 +411,7 @@ bool CheatCodes_Read(char *rom_name, char *file)
 			}
 
 			codegrouplist[codegroupcount].active = line[c1 + 1] - '0';
+			codegrouplist[codegroupcount].enable = false;
 
 			c1 += 2;
 
