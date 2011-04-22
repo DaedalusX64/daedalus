@@ -32,6 +32,7 @@ struct CODENODE_STRUCT
 {
 	u32	addr;
 	u16	val;
+	u16	orig;
 };
 
 typedef struct CODENODE_STRUCT	CHEATCODENODE;
@@ -40,8 +41,6 @@ struct CODEGROUP_STRUCT
 {
 	u32				country;
 	u32				codecount;
-	u16				orig;
-	u16				old_orig;
 	bool			enable;
 	bool			active;
 	char			name[80];

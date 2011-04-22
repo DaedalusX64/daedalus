@@ -33,11 +33,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Cheatcode routines based from 1964 and followed PJ64's gameshark format
 //
 
-static bool bStoreCheat = false;
 CODEGROUP *codegrouplist;
 u32		codegroupcount		= 0;
 s32		currentgroupindex	= -1;
 char	current_rom_name[30];
+
+
+#define CHEAT_CODE_MAGIC_VALUE 0xDEAD
 
 enum { CHEAT_ALL_COUNTRY, CHEAT_USA, CHEAT_JAPAN, CHEAT_USA_AND_JAPAN, CHEAT_EUR, CHEAT_AUS, CHEAT_FR, CHEAT_GER };
 //*****************************************************************************
@@ -59,10 +61,17 @@ static void CheatCodes_Apply(u32 index)
 			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
 			value	= codegrouplist[index].codelist[i].val;
 
+			// Check if orig value is unitialized and valid to store current value
+			//
+			if(codegrouplist[index].codelist[i].orig && (codegrouplist[index].codelist[i].orig == CHEAT_CODE_MAGIC_VALUE))
+			{
+				codegrouplist[index].codelist[i].orig = Read8Bits(address);
+				printf("Saving restore value (%d)\n",(u8)codegrouplist[index].codelist[i].orig);
+			}
 			// Cheat code is no longer active, restore to original value
 			//
 			if(codegrouplist[index].enable==false)
-				value = codegrouplist[index].orig;
+				value = codegrouplist[index].codelist[i].orig;
 
 			Write8Bits(address,(u8)value);
 			break;
@@ -71,10 +80,17 @@ static void CheatCodes_Apply(u32 index)
 			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
 			value   = codegrouplist[index].codelist[i].val;
 
+			// Check if orig value is unitialized and valid to store current value
+			//
+			if(codegrouplist[index].codelist[i].orig && (codegrouplist[index].codelist[i].orig == CHEAT_CODE_MAGIC_VALUE))
+			{
+				codegrouplist[index].codelist[i].orig = Read16Bits(address);
+				printf("Saving restore value (%d)\n",codegrouplist[index].codelist[i].orig);
+			}
 			// Cheat code is no longer active, restore to original value
 			//
 			if(codegrouplist[index].enable==false)
-				value = codegrouplist[index].orig;
+				value = codegrouplist[index].codelist[i].orig;
 	
 			Write16Bits(address, value);
 			break;
@@ -83,50 +99,6 @@ static void CheatCodes_Apply(u32 index)
 			break;
 		}
 	} 
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-// This could be done alot more efficiently, but atm is the best I can think of..
-//
-static void CheatCodes_StoreValue( u32 index)
-{
-	u32 i;
-	u32 address;
-	
-	// Make sure we only restore orginal value once per cheat call
-	//
-	if(codegrouplist[index].old_orig == codegrouplist[index].orig)	
-		return;
-
-	//for(index = 0; index < codegroupcount; index++)
-	{
-		for (i = 0; i < codegrouplist[index].codecount; i ++) 
-		{
-			switch (codegrouplist[index].codelist[i].addr & 0xFF000000)
-			//switch(codegrouplist[index].codelist[i].addr / 0x1000000)
-			{
-			case 0x80000000:
-			case 0xA0000000:
-				address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-				codegrouplist[index].orig = Read8Bits(address);
-				codegrouplist[index].old_orig = codegrouplist[index].orig;
-				printf("Saving restore value %d\n",(u8)codegrouplist[index].orig);
-				break;
-			case 0x81000000:
-			case 0xA1000000:
-				address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-				codegrouplist[index].orig = Read16Bits(address);
-				codegrouplist[index].old_orig = codegrouplist[index].orig;
-				printf("Saving restore value %d\n",codegrouplist[index].orig);
-				break;
-			case 0: 
-				i = codegrouplist[index].codecount;
-				break;
-			}
-		}
-	}
 }
 
 //*****************************************************************************
@@ -145,12 +117,6 @@ void CheatCodes_Activate()
 			//
 			codegrouplist[i].enable = true;
 
-			// Store original value, before writing hacked value
-			// We do this right after the cheat is enabled to make sure to restore the most close state of the retrived value
-			// This routine could be done more simpler I think
-			//
-			CheatCodes_StoreValue( i );
-
 			CheatCodes_Apply( i );
 		}
 		else if(codegrouplist[i].enable)	// If cheat code is no longer disabled, do one pass to restore value
@@ -158,7 +124,6 @@ void CheatCodes_Activate()
 			codegrouplist[i].enable = false;
 			CheatCodes_Apply( i );
 		}
-
 	}
 }
 
@@ -172,7 +137,6 @@ void CheatCodes_Clear()
 		codegrouplist[i].codecount = 0;
 	}
 
-	bStoreCheat	   = false;
 	codegroupcount = 0;
 
 	if(codegrouplist != NULL)
@@ -462,6 +426,7 @@ bool CheatCodes_Read(char *rom_name, char *file)
 			{
 				if (c2 < MAX_CHEATCODE_PER_GROUP)
 				{
+					codegrouplist[codegroupcount].codelist[c2].orig = CHEAT_CODE_MAGIC_VALUE;
 					codegrouplist[codegroupcount].codelist[c2].addr = ConvertHexStringToInt(line + c1 + 1 + c2 * 14, 8);
 					codegrouplist[codegroupcount].codelist[c2].val = (u16) ConvertHexStringToInt
 						(
