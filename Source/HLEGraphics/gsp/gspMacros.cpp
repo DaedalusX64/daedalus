@@ -702,8 +702,7 @@ void DLParser_GBI2_Quad( MicroCodeCommand command )
 
 	bool tris_added = false;
 
-	while ( command.inst.cmd == G_GBI2_QUAD )
-    {
+    do{
         // Vertex indices are multiplied by 2
         u32 v0_idx = command.gbi2line3d.v0 >> 1;
         u32 v1_idx = command.gbi2line3d.v1 >> 1;
@@ -730,7 +729,7 @@ void DLParser_GBI2_Quad( MicroCodeCommand command )
                 DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_QUAD");
         }
 #endif
-    }
+    }while( command.inst.cmd == G_GBI2_QUAD );
 
 	gDlistStack[gDlistStackPointer].pc = pc-8;
 
@@ -752,8 +751,7 @@ void DLParser_GBI2_Line3D( MicroCodeCommand command )
 
     bool tris_added = false;
 
-	while ( command.inst.cmd == G_GBI2_LINE3D )
-    {
+    do{
         u32 v0_idx = command.gbi2line3d.v0 >> 1;
         u32 v1_idx = command.gbi2line3d.v1 >> 1;
         u32 v2_idx = command.gbi2line3d.v2 >> 1;
@@ -777,7 +775,7 @@ void DLParser_GBI2_Line3D( MicroCodeCommand command )
                 DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_LINE3D");
         }
 #endif
-    }
+    }while( command.inst.cmd == G_GBI2_LINE3D );
 	
 	gDlistStack[gDlistStackPointer].pc = pc-8;
 
@@ -798,8 +796,7 @@ void DLParser_GBI2_Tri1( MicroCodeCommand command )
 
     bool tris_added = false;
 
-    while ( command.inst.cmd == G_GBI2_TRI1 )
-    {
+    do{
         //u32 flags = (command.inst.cmd1>>24)&0xFF;
         u32 v0_idx = command.gbi2tri1.v0 >> 1;
 		u32 v1_idx = command.gbi2tri1.v1 >> 1;
@@ -818,7 +815,7 @@ void DLParser_GBI2_Tri1( MicroCodeCommand command )
                 DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI1");
         }
 #endif			
-    }
+    }while( command.inst.cmd == G_GBI2_TRI1 );
 
 	gDlistStack[gDlistStackPointer].pc = pc-8;
 
@@ -838,8 +835,7 @@ void DLParser_GBI2_Tri2( MicroCodeCommand command )
 
     bool tris_added = false;
 
-    while ( command.inst.cmd == G_GBI2_TRI2 )
-    {
+    do{
 		// Vertex indices are exact !
         u32 v0_idx = command.gbi2tri2.v0;
         u32 v1_idx = command.gbi2tri2.v1;
@@ -864,7 +860,7 @@ void DLParser_GBI2_Tri2( MicroCodeCommand command )
                 DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI2");
         }
 #endif
-	}
+	}while( command.inst.cmd == G_GBI2_TRI2 );
 
 	gDlistStack[gDlistStackPointer].pc = pc-8;
 
@@ -885,8 +881,7 @@ void DLParser_GBI1_Tri2( MicroCodeCommand command )
 
     bool tris_added = false;
 
-    while (command.inst.cmd == G_GBI1_TRI2)
-    {
+    do{
 		// Vertex indices are multiplied by 10 for GBI0, by 2 for GBI1
 		u32 v0_idx = command.gbi1tri2.v0 / gVertexStride;
 		u32 v1_idx = command.gbi1tri2.v1 / gVertexStride;
@@ -910,7 +905,7 @@ void DLParser_GBI1_Tri2( MicroCodeCommand command )
 	//		DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
 		}
 #endif
-    }
+    }while( command.inst.cmd == G_GBI1_TRI2 );
 
 	gDlistStack[gDlistStackPointer].pc = pc-8;
 
@@ -939,8 +934,7 @@ void DLParser_GBI1_Line3D( MicroCodeCommand command )
 		return;
 	}
 
-	while ( command.inst.cmd == G_GBI1_LINE3D )
-	{
+	do{
 		u32 v0_idx   = command.gbi1line3d.v0 / gVertexStride;
 		u32 v1_idx   = command.gbi1line3d.v1 / gVertexStride;
 		u32 v2_idx   = command.gbi1line3d.v2 / gVertexStride;
@@ -959,7 +953,7 @@ void DLParser_GBI1_Line3D( MicroCodeCommand command )
 //			DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
 		}
 #endif
-	}
+	}while( command.inst.cmd == G_GBI1_LINE3D );
 
 	gDlistStack[gDlistStackPointer].pc = pc-8;
 
@@ -981,8 +975,7 @@ void DLParser_GBI1_Tri1( MicroCodeCommand command )
 
     bool tris_added = false;
 
-    while (command.inst.cmd == G_GBI1_TRI1)
-    {
+    do{
         //u32 flags = (command.inst.cmd1>>24)&0xFF;
         // Vertex indices are multiplied by 10 for Mario64, by 2 for MarioKart
         u32 v0_idx = command.gbi1tri1.v0 / gVertexStride;
@@ -1001,7 +994,7 @@ void DLParser_GBI1_Tri1( MicroCodeCommand command )
 //				DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
         }
 #endif
-    }
+    }while( command.inst.cmd == G_GBI1_TRI1 );
 
 	gDlistStack[gDlistStackPointer].pc = pc-8;
 
@@ -1022,8 +1015,7 @@ void DLParser_GBI0_Tri4( MicroCodeCommand command )
 
     bool tris_added = false;
 
-    while (command.inst.cmd == G_GBI1_TRI2)
-    {
+    do{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
         u32 flags = (command.inst.cmd0 >> 16) & 0xFF;
 		DL_PF("    GBI0 Tri4: 0x%08x 0x%08x Flag: 0x%02x", command.inst.cmd0, command.inst.cmd1, flags);
@@ -1066,7 +1058,7 @@ void DLParser_GBI0_Tri4( MicroCodeCommand command )
 //			DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
         }
 #endif
-    }
+    }while( command.inst.cmd == G_GBI1_TRI2 );
 
 	gDlistStack[gDlistStackPointer].pc = pc-8;
 

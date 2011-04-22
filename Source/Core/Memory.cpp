@@ -1351,7 +1351,7 @@ void MemoryUpdateMI( u32 value )
     else if((value & MI_INTR_MASK_CLR_DP)) mi_intr_mask_reg &= ~MI_INTR_MASK_DP;
 #endif
 
-#if 1 //1 -> Slower but proper //0 -> Faster but risky (Crashes Animal crossing)
+#if 1 //1 -> Slower but proper //0 -> Faster but risky (Crashes Animal crossing but make Rocket-robot on wheels work)
 
 	// Write back
 	Memory_MI_SetRegister( MI_INTR_MASK_REG, mi_intr_mask_reg );
