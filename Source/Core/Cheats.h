@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef CHEATS_H_
 #define CHEATS_H_
 
-//enum APPLYCHEATMODE { INGAME, BOOTUPONCE, GSBUTTON, ONLYIN1964 };
+enum APPLYCHEATMODE { INGAME, BOOTUPONCE, GSBUTTON, ONLYIN1964 };
 
 // Limit the number of cheatcodes on the PSP, for performance reasons
 #define MAX_CHEATCODE_PER_GROUP		6
@@ -40,6 +40,8 @@ struct CODEGROUP_STRUCT
 {
 	u32				country;
 	u32				codecount;
+	u16				orig;
+	u16				old_orig;
 	bool			enable;
 	bool			active;
 	char			name[80];
