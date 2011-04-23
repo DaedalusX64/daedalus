@@ -15,7 +15,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
 */
 
 #include "stdafx.h"
@@ -64,10 +63,8 @@ static void CheatCodes_Apply(u32 index)
 			// Check if orig value is unitialized and valid to store current value
 			//
 			if(codegrouplist[index].codelist[i].orig && (codegrouplist[index].codelist[i].orig == CHEAT_CODE_MAGIC_VALUE))
-			{
 				codegrouplist[index].codelist[i].orig = Read8Bits(address);
-				printf("Saving restore value (%d)\n",(u8)codegrouplist[index].codelist[i].orig);
-			}
+		
 			// Cheat code is no longer active, restore to original value
 			//
 			if(codegrouplist[index].enable==false)
@@ -83,10 +80,8 @@ static void CheatCodes_Apply(u32 index)
 			// Check if orig value is unitialized and valid to store current value
 			//
 			if(codegrouplist[index].codelist[i].orig && (codegrouplist[index].codelist[i].orig == CHEAT_CODE_MAGIC_VALUE))
-			{
 				codegrouplist[index].codelist[i].orig = Read16Bits(address);
-				printf("Saving restore value (%d)\n",codegrouplist[index].codelist[i].orig);
-			}
+
 			// Cheat code is no longer active, restore to original value
 			//
 			if(codegrouplist[index].enable==false)
@@ -301,11 +296,11 @@ bool CheatCodes_Read(char *rom_name, char *file)
 
 		if(stream == NULL)
 		{
-			printf("Cannot find Daedalus.cht file and cannot create it.");
+			//printf("Cannot find Daedalus.cht file and cannot create it.");
 			return false;
 		}
 
-		printf("Cannot find Daedalus.cht file, creating an empty one\n");
+		//printf("Cannot find Daedalus.cht file, creating an empty one\n");
 		fclose(stream);
 		return true;
 	}
@@ -372,7 +367,7 @@ bool CheatCodes_Read(char *rom_name, char *file)
 		codegrouplist = (CODEGROUP *) malloc(numberofgroups *sizeof(CODEGROUP));
 		if(codegrouplist == NULL)
 		{
-			printf("Cannot allocate memory to load cheat codes");
+			//printf("Cannot allocate memory to load cheat codes");
 			return false;
 		}
 	
@@ -394,7 +389,7 @@ bool CheatCodes_Read(char *rom_name, char *file)
 
 				if(IsCodeMatchRomCountryCode(codegrouplist[codegroupcount].country, g_ROM.rh.CountryID) == false)
 				{
-					printf("Wrong country id %d for cheatcode\n",codegrouplist[codegroupcount].country);
+					//printf("Wrong country id %d for cheatcode\n",codegrouplist[codegroupcount].country);
 					continue;
 				}
 			}
@@ -437,11 +432,11 @@ bool CheatCodes_Read(char *rom_name, char *file)
 				else
 				{
 					codegrouplist[codegroupcount].codecount=MAX_CHEATCODE_PER_GROUP;
-					sprintf (errormessage,
+					/*sprintf (errormessage,
 						     "Too many codes for cheat: %s (Max = %d)! Cheat will be truncated and won't work!",
 							 codegrouplist[codegroupcount].name,
 							 MAX_CHEATCODE_PER_GROUP);
-					printf (errormessage);
+					printf (errormessage);*/
 					break;
 				}
 			}
@@ -449,12 +444,12 @@ bool CheatCodes_Read(char *rom_name, char *file)
 			codegroupcount++;
 		}
 
-		printf("Succesfully Loaded %d groups of cheat codes\n", codegroupcount);
+		//printf("Succesfully Loaded %d groups of cheat codes\n", codegroupcount);
 	}
 	else
 	{
 		// Cannot find entry for the current rom
-		printf("Cannot find entry %d groups of cheat code\n", codegroupcount);
+		//printf("Cannot find entry %d groups of cheat code\n", codegroupcount);
 	}
 
 	fclose(stream);

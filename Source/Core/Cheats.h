@@ -1,5 +1,6 @@
 /*
-Copyright (C) 2001 StrmnNrmn
+Copyright (C) 2011 StrmnNrmn
+Copyright (C) 1999-2004 Joel Middendorf, <schibo@emulation64.com>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,8 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifndef CHEATS_H_
 #define CHEATS_H_
-
-enum APPLYCHEATMODE { INGAME, BOOTUPONCE, GSBUTTON, ONLYIN1964 };
 
 // Limit the number of cheatcodes on the PSP, for performance reasons
 #define MAX_CHEATCODE_PER_GROUP		6

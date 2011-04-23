@@ -524,7 +524,7 @@ static void R4300_CALL_TYPE R4300_SetCop1Enable( bool enable )
 //*****************************************************************************
 //Calling this function will disable detection of Coprocessor Unusable Exceptions.
 //*****************************************************************************
-void DisableFPUUnusableException(void)
+static void DisableFPUUnusableException()
 {
     R4300Instruction[0x11] = R4300_CoPro1;	
 	R4300Instruction[49] = R4300_LWC1;
@@ -536,10 +536,10 @@ void DisableFPUUnusableException(void)
 //*****************************************************************************
 //Calling this function will enable detection of Coprocessor Unusable Exceptions.
 //*****************************************************************************
-void EnableFPUUnusableException(void)
+static void EnableFPUUnusableException()
 {
-    R4300Instruction[0x11] = CU1_R4300_CoPro1;
-   R4300Instruction[49] = CU1_R4300_LWC1;
+	R4300Instruction[0x11] = CU1_R4300_CoPro1;
+	R4300Instruction[49] = CU1_R4300_LWC1;
 	R4300Instruction[53] = CU1_R4300_LDC1;
    // R4300Instruction[57] = CU1_R4300_SWC1; // Breaks Kirby
    // R4300Instruction[61] = CU1_R4300_SDC1;
