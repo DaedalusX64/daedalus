@@ -7,7 +7,7 @@ Always Raining,1=0,803F2D6F-0005,
 NumberOfGroups=4
 Metal Mario No Cap,1="Only use One Cap Option At A Time",0,8133B176-0025,
 Debug Mode,1=0,A032D598-0001,
-Hyper Hacker's Speed Hack,1="Small Speed UP. Makes The Game Sync At 60fps. FS2 recommended.",0,80248154-0000,
+Hyper Hacker's Speed Hack,1="Small Speed Up. Makes The Game Sync At 60fps. FS2 recommended. Make Sure To Enable This Right After The Game Booted",0,80248154-0000,
 Music Fast,1=0,81222622-2000,
 
 [F-ZERO X]
