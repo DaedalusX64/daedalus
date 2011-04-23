@@ -121,8 +121,8 @@ u32 Patch___osSetFpcCsr()
 TEST_DISABLE_REG_FUNCS
 	// Why is the CFC1 32bit?
 	gGPR[REG_v0]._u32_0 = gCPUState.FPUControl[31]._u32_0;
-	gCPUState.FPUControl[31]._u32_0 = gGPR[REG_a0]._u32_0;
-	
+
+	gCPUState.FPUControl[31] = gGPR[REG_a0];
 	DBGConsole_Msg(0, "__osSetFpcCsr()");
 
 	return PATCH_RET_JR_RA;
