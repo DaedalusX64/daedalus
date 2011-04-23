@@ -140,7 +140,7 @@ static void DaedalusFWCheck()
 
 	u32 ver = sceKernelDevkitVersion();
 
-	if( (ver <= PSP_FIRMWARE(0x401)) || (ver <= PSP_FIRMWARE(0x550) && !gButtons.kmode) )
+	if( (ver < PSP_FIRMWARE(0x401)) || (ver <= PSP_FIRMWARE(0x550) && !gButtons.kmode) )
 	{
 		pspDebugScreenInit();
 		pspDebugScreenSetTextColor(0xffffff);
