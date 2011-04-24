@@ -836,7 +836,7 @@ void DLParser_GBI2_Tri2( MicroCodeCommand command )
     bool tris_added = false;
 
     do{
-		// Vertex indices are exact !
+		// Vertex indices already divided in ucodedef
         u32 v0_idx = command.gbi2tri2.v0;
         u32 v1_idx = command.gbi2tri2.v1;
         u32 v2_idx = command.gbi2tri2.v2;
@@ -883,15 +883,15 @@ void DLParser_GBI1_Tri2( MicroCodeCommand command )
 
     do{
 		// Vertex indices are multiplied by 10 for GBI0, by 2 for GBI1
-		u32 v0_idx = command.gbi1tri2.v0 / gVertexStride;
-		u32 v1_idx = command.gbi1tri2.v1 / gVertexStride;
-		u32 v2_idx = command.gbi1tri2.v2 / gVertexStride;
+		u32 v0_idx = command.gbi1tri2.v0 >> 1;
+		u32 v1_idx = command.gbi1tri2.v1 >> 1;
+		u32 v2_idx = command.gbi1tri2.v2 >> 1;
 
 		tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
 
-		u32 v3_idx = command.gbi1tri2.v3 / gVertexStride;
-		u32 v4_idx = command.gbi1tri2.v4 / gVertexStride;
-		u32 v5_idx = command.gbi1tri2.v5 / gVertexStride;
+		u32 v3_idx = command.gbi1tri2.v3 >> 1;
+		u32 v4_idx = command.gbi1tri2.v4 >> 1;
+		u32 v5_idx = command.gbi1tri2.v5 >> 1;
 
 		tris_added |= PSPRenderer::Get()->AddTri(v3_idx, v4_idx, v5_idx);
 
