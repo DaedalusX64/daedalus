@@ -296,16 +296,17 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_DL( MicroCodeCommand command )
 {
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
     u32 address = RDPSegAddr(command.dlist.addr);
 
-	DAEDALUS_ASSERT( address < MAX_RAM_ADDRESS, "DL addr out of range (0x%08x)", address );
-
-    DL_PF("    Address=0x%08x Push: 0x%02x", address, command.dlist.param);
+	DAEDALUS_ASSERT( RDPSegAddr(command.dlist.addr) < MAX_RAM_ADDRESS, "DL addr out of range (0x%08x)", RDPSegAddr(command.dlist.addr) );
+    DL_PF("    Address=0x%08x Push: 0x%02x", RDPSegAddr(command.dlist.addr), command.dlist.param);
+#endif
 
 	if( command.dlist.param == G_DL_PUSH )
 		gDlistStackPointer++;
 
-	gDlistStack[gDlistStackPointer].pc = address;
+	gDlistStack[gDlistStackPointer].pc = RDPSegAddr(command.dlist.addr);
 	gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
 }
 
@@ -650,22 +651,22 @@ void DLParser_GBI2_SetOtherModeH( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_Texture( MicroCodeCommand command )
 {
-
     gTextureLevel = command.texture.level;
     gTextureTile  = command.texture.tile;
 
-    bool enable = command.texture.enable_gbi0;                        // Seems to use 0x01
-	if( enable )
-	{
-		f32 scale_s = f32(command.texture.scaleS) * (1.0f / (65536.0f * 32.0f));
-		f32 scale_t = f32(command.texture.scaleT) * (1.0f / (65536.0f * 32.0f));
-
-		DL_PF("    ScaleS: %f, ScaleT: %f", scale_s*32.0f, scale_t*32.0f);
-		PSPRenderer::Get()->SetTextureScale( scale_s, scale_t );
-	}
+	// Seems to use 0x01
+    bool enable = command.texture.enable_gbi0;
 
 	DL_PF("    Level: %d Tile: %d %s", gTextureLevel, gTextureTile, enable ? "enabled":"disabled");
 	PSPRenderer::Get()->SetTextureEnable( enable );
+
+	if( !enable )	return;
+
+	f32 scale_s = f32(command.texture.scaleS)  / (65536.0f * 32.0f);
+	f32 scale_t = f32(command.texture.scaleT)  / (65536.0f * 32.0f);
+
+	DL_PF("    ScaleS: %f, ScaleT: %f", scale_s*32.0f, scale_t*32.0f);
+	PSPRenderer::Get()->SetTextureScale( scale_s, scale_t );
 }
 
 //*****************************************************************************
@@ -676,19 +677,18 @@ void DLParser_GBI2_Texture( MicroCodeCommand command )
     gTextureLevel = command.texture.level;
     gTextureTile  = command.texture.tile;
 
-
     bool enable = command.texture.enable_gbi2;                        // Seems to use 0x02
-	if( enable )
-	{
-		f32 scale_s = f32(command.texture.scaleS) * (1.0f / (65536.0f * 32.0f));
-		f32 scale_t = f32(command.texture.scaleT) * (1.0f / (65536.0f * 32.0f));
-
-		DL_PF("    ScaleS: %f, ScaleT: %f", scale_s*32.0f, scale_t*32.0f);
-		PSPRenderer::Get()->SetTextureScale( scale_s, scale_t );
-	}
 
 	DL_PF("    Level: %d Tile: %d %s", gTextureLevel, gTextureTile, enable ? "enabled":"disabled");
     PSPRenderer::Get()->SetTextureEnable( enable );
+
+	if( !enable )	return;
+	
+	f32 scale_s = f32(command.texture.scaleS) / (65536.0f * 32.0f);
+	f32 scale_t = f32(command.texture.scaleT)  / (65536.0f * 32.0f);
+
+	DL_PF("    ScaleS: %f, ScaleT: %f", scale_s*32.0f, scale_t*32.0f);
+	PSPRenderer::Get()->SetTextureScale( scale_s, scale_t );
 }
 
 //*****************************************************************************
