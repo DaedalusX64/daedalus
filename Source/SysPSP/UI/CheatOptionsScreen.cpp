@@ -196,8 +196,23 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
  		mRomName = settings.GameName;
 	}
 
-	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Enable cheat Codes", "Yes", "No" ) );
+	// Always clear cheats before parsing
+	// ToDo : only clear cheat list/parse when the rom is different.
+	CheatCodes_Clear();
 
+	if( mRomPreferences.CheatsEnabled )
+	{
+		// Read hack code for this rom, and also check if we have to parse again
+		// Or if error is found in the cheatcodes
+		if( CheatCodes_Read( (char*)mRomName.c_str(), "Daedalus.cht", mRomID.CountryID ) == false )
+		{
+			//printf("Clearing cheatcode\n");
+			// Clear any previous cheat info stored
+			//CheatCodes_Clear();
+		}
+	}
+
+	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Enable cheat Codes. Please re-load the cheat menu when chaging this option", "Yes", "No" ) );
 
 	for(u32 i = 0; i < MAX_CHEATCODE_PER_GROUP; i++)
 	{
