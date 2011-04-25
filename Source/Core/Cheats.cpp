@@ -46,12 +46,19 @@ enum { CHEAT_ALL_COUNTRY, CHEAT_USA, CHEAT_JAPAN, CHEAT_USA_AND_JAPAN, CHEAT_EUR
 //*****************************************************************************
 static void CheatCodes_Apply(u32 index) 
 {
-	u32 i;
-	u32 address;
-	u16 value;
+	u32		i;
+	u32		address;
+	u16		value;
+	bool	executenext = true;
 
 	for (i = 0; i < codegrouplist[index].codecount; i ++) 
 	{
+		if(executenext == false)					// OK, skip this code
+		{
+			executenext = true;
+			continue;
+		}
+
 		switch (codegrouplist[index].codelist[i].addr & 0xFF000000)
 		//switch(codegrouplist[index].codelist[i].addr / 0x1000000)
 		{
@@ -88,6 +95,18 @@ static void CheatCodes_Apply(u32 index)
 				value = codegrouplist[index].codelist[i].orig;
 	
 			Write16Bits(address, value);
+			break;
+		// case 0xD8000000:
+		case 0xD0000000:
+			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
+			value   = codegrouplist[index].codelist[i].val;
+            if(Read8Bits(address) != value) executenext = false;
+			break;
+		//case 0xD9000000:
+		case 0xD1000000:
+			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
+			value   = codegrouplist[index].codelist[i].val;
+            if(Read16Bits(address) != value) executenext = false;
 			break;
 		case 0: 
 			i = codegrouplist[index].codecount;
