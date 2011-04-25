@@ -275,8 +275,9 @@ static u32 ConvertHexStringToInt(const char *str, int nchars)
 //*****************************************************************************
 //
 //*****************************************************************************
-bool CheatCodes_Read(char *rom_name, char *file)
+bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 {
+	static char		*last_rom_name = 0;
 	char			path[MAX_PATH];
 	char			line[2048], romname[256], errormessage[400];	//changed line length to 2048 previous was 256
 	bool			bfound;
@@ -284,6 +285,15 @@ bool CheatCodes_Read(char *rom_name, char *file)
 	FILE			*stream;
 
 	strcpy(current_rom_name, rom_name);
+
+	// Doesn't work well..
+	//
+	/*if(last_rom_name != current_rom_name)
+	{
+		//printf("Cheat file isn't parsed for this ROM yet\n");
+		last_rom_name = current_rom_name;
+		return false;
+	}*/
 
 	strcpy(path, gDaedalusExePath);
 	strcat(path, file);
@@ -387,7 +397,7 @@ bool CheatCodes_Read(char *rom_name, char *file)
 				codegrouplist[codegroupcount].country = codegrouplist[codegroupcount].name[c1 - 1] - '0';
 				codegrouplist[codegroupcount].name[c1 - 2] = '\0';
 
-				if(IsCodeMatchRomCountryCode(codegrouplist[codegroupcount].country, g_ROM.rh.CountryID) == false)
+				if(IsCodeMatchRomCountryCode(codegrouplist[codegroupcount].country, countryID) == false)
 				{
 					//printf("Wrong country id %d for cheatcode\n",codegrouplist[codegroupcount].country);
 					continue;

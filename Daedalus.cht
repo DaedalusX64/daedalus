@@ -1,19 +1,24 @@
-[Silicon Valley]
+[Spacestation Silicon Valley]
 NumberOfGroups=2
 Always Snowing,1=0,803F2D6D-0005,
 Always Raining,1=0,803F2D6F-0005,
 
-[SUPER MARIO 64]
+[Super Mario 64]
 NumberOfGroups=4
 Metal Mario No Cap,1="Only use One Cap Option At A Time",0,8133B176-0025,
 Debug Mode,1=0,A032D598-0001,
 Hyper Hacker's Speed Hack,1="Small Speed Up. Makes The Game Sync At 60fps. FS2 recommended. Make Sure To Enable This Right After The Game Booted",0,80248154-0000,
 Music Fast,1=0,81222622-2000,
 
-[F-ZERO X]
+[F-Zero X]
 NumberOfGroups=1
 Megafast,1=0,812C4984-2222,
 
-[THE LEGEND OF ZELDA]
+[The Legend of Zelda - Ocarina of Time (v1.0)]
 NumberOfGroups=1
-Sub Menu Delay Fix,1="For v1.0 ROM. Fixes Delay When Entering The Sub menu."0,801DA5CB-0002,
+Sub Menu Delay Fix,1="For v1.0 ROM. Fixes Delay When Entering The Sub menu.",0,801DA5CB-0002,
+
+[Pokemon Snap]
+NumberOfGroups=2
+Controller Fix 1st Level,1="Fixes Camera Movement In First Level",0,D1382D1C-802C,80382D0F-0000,
+Make Picture Selectable,1=0,D11E3184-2881,811E3184-2001,D11E3186-0098,811E3186-0001,

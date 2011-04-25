@@ -591,12 +591,6 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	//
 	preferences.Apply();
 
-	if( gCheatsEnabled )
-	{
-		// Read hack code for this rom
-		CheatCodes_Read((char*)g_ROM.rh.Name,"Daedalus.cht");
-	}
-
 	DBGConsole_Msg(0, "[G%s]",  g_ROM.settings.GameName.c_str());
 	DBGConsole_Msg(0, "This game has been certified as [G%s] (%s)", g_ROM.settings.Comment.c_str(), g_ROM.settings.Info.c_str());
 	DBGConsole_Msg(0, "SaveType: [G%s]", ROM_GetSaveTypeName( g_ROM.settings.SaveType ) );

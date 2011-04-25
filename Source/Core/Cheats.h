@@ -53,7 +53,7 @@ extern CODEGROUP	*codegrouplist;
 
 void				CheatCodes_Clear();
 void				CheatCodes_Activate();
-bool				CheatCodes_Read(char *rom_name, char *file);
+bool				CheatCodes_Read(char *rom_name, char *file, u8 countryID);
 
 
 #endif // CHEATS_H_
