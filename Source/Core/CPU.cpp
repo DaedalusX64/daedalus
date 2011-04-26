@@ -723,7 +723,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 
 			//ToDo: Has to be a better way than this???
 			//Maybe After each X frames instead of each 60 VI?
-			if ((gVerticalInterrupts & 0x3C) == 0) // once every 60 VBLs
+			if ((gVerticalInterrupts & 0x3F) == 0) // once every 60 VBLs
 				Save::Flush();
 			//Same here?
 			if( gSaveStateOperation != SSO_NONE )
