@@ -705,7 +705,11 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			// Apply cheatcodes, if enabled
 			if( gCheatsEnabled )
 			{
-				CheatCodes_Activate();
+				// Apply cheats once every 60 VBLs, to avoid hogging the emulator
+				//
+				if ((gVerticalInterrupts & 0x3F) == 0)
+					CheatCodes_Activate();
+
 			}
 			// Add another Interrupt at the next time:
 			CPU_AddEvent(VI_INTR_CYCLES, CPU_EVENT_VBL);
@@ -719,7 +723,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 
 			//ToDo: Has to be a better way than this???
 			//Maybe After each X frames instead of each 60 VI?
-			if ((gVerticalInterrupts & 0x3C) == 0) // every 60 VBLs
+			if ((gVerticalInterrupts & 0x3C) == 0) // once every 60 VBLs
 				Save::Flush();
 			//Same here?
 			if( gSaveStateOperation != SSO_NONE )

@@ -53,8 +53,12 @@ static void CheatCodes_Apply(u32 index)
 
 	for (i = 0; i < codegrouplist[index].codecount; i ++) 
 	{
-		if(executenext == false)					// OK, skip this code
+		// Used by activator codes, skip until the specified button is pressed
+		// OK, skip this code
+		//
+		if(executenext == false)
 		{
+			//printf("skip\n");
 			executenext = true;
 			continue;
 		}
@@ -107,6 +111,56 @@ static void CheatCodes_Apply(u32 index)
 			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
 			value   = codegrouplist[index].codelist[i].val;
             if(Read16Bits(address) != value) executenext = false;
+			break;
+		case 0xD2000000:
+			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
+			value   = codegrouplist[index].codelist[i].val;
+			if(Read8Bits(address) == value) executenext = false;
+			break;
+		case 0xD3000000:
+			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
+			value   = codegrouplist[index].codelist[i].val;
+			if(Read16Bits(address) == value) executenext = false;
+			break;
+		case 0x50000000:						
+			{
+				address			= PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
+				value			= codegrouplist[index].codelist[i].val;
+				s32	repeatcount = (address & 0x0000FF00) >> 8;
+				u32	addroffset	= (address & 0x000000FF);
+				u16	valinc		= value;
+
+
+				if(i + 1 < codegrouplist[index].codecount)
+				{
+					u32 type	= codegrouplist[index].codelist[i + 1].addr / 0x1000000;
+					address		= PHYS_TO_K0(codegrouplist[index].codelist[i + 1].addr & 0x00FFFFFF);
+					value		= codegrouplist[index].codelist[i + 1].val;
+					u8 valbyte = (u8)value;
+
+					if( type == 0x80 )
+					{
+						do
+						{
+							Write8Bits(address,valbyte);
+							address += addroffset;
+							valbyte += (u8)valinc;
+							repeatcount--;
+						} while(repeatcount > 0);
+					}
+					else if( type == 0x81 )
+					{
+						do
+						{
+							Write16Bits(address, value);
+							address += addroffset;
+							value += valinc;
+							repeatcount--;
+						} while(repeatcount > 0);
+					}
+				}
+			}
+			executenext = false;
 			break;
 		case 0: 
 			i = codegrouplist[index].codecount;

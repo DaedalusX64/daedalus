@@ -200,6 +200,8 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 	// ToDo : only clear cheat list/parse when the rom is different.
 	CheatCodes_Clear();
 
+	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Enable cheat Codes. Please re-load the cheat menu when chaging this option", "Yes", "No" ) );
+	
 	if( mRomPreferences.CheatsEnabled )
 	{
 		// Read hack code for this rom, and also check if we have to parse again
@@ -211,8 +213,6 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 			//CheatCodes_Clear();
 		}
 	}
-
-	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Enable cheat Codes. Please re-load the cheat menu when chaging this option", "Yes", "No" ) );
 
 	for(u32 i = 0; i < MAX_CHEATCODE_PER_GROUP; i++)
 	{
