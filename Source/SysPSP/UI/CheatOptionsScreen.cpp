@@ -105,10 +105,20 @@ public:
 		,	mCheatEnabled( cheat_enabled )
 	{
 	}
-	// Disable this if cheatcodes aren't enabled
-	// ToDo : Force all cheats disabled when is read only, aka CheatsEnabled is disabled
-	//
-	virtual bool			IsReadOnly() const		{ return !(*mCheatEnabled); }
+	// Make read only the cheat list if enable cheat code option is disable
+	virtual bool			IsReadOnly() const		
+	{ 
+		// Check for any active cheat codes
+		if(!(*mCheatEnabled) && codegrouplist[mIndex].enable)
+		{
+			// Disable 'em
+			codegrouplist[mIndex].active = false;
+			// Do one pass to restore their value too
+			CheatCodes_Activate();
+		}
+
+		return !(*mCheatEnabled); 
+	}
 
 	virtual	void			OnNext()				{ if( !IsReadOnly() ) codegrouplist[mIndex].active = !codegrouplist[mIndex].active; }
 	virtual	void			OnPrevious()			{ if( !IsReadOnly() ) codegrouplist[mIndex].active = !codegrouplist[mIndex].active; }
