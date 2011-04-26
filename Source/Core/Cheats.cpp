@@ -62,14 +62,14 @@ static void CheatCodes_Apply(u32 index)
 			continue;
 		}
 
+		address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
+		value	= codegrouplist[index].codelist[i].val;
+
 		switch (codegrouplist[index].codelist[i].addr & 0xFF000000)
 		//switch(codegrouplist[index].codelist[i].addr / 0x1000000)
 		{
 		case 0x80000000:
 		case 0xA0000000:
-			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-			value	= codegrouplist[index].codelist[i].val;
-
 			// Check if orig value is unitialized and valid to store current value
 			//
 			if(codegrouplist[index].codelist[i].orig && (codegrouplist[index].codelist[i].orig == CHEAT_CODE_MAGIC_VALUE))
@@ -84,9 +84,6 @@ static void CheatCodes_Apply(u32 index)
 			break;
 		case 0x81000000:
 		case 0xA1000000:
-			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-			value   = codegrouplist[index].codelist[i].val;
-
 			// Check if orig value is unitialized and valid to store current value
 			//
 			if(codegrouplist[index].codelist[i].orig && (codegrouplist[index].codelist[i].orig == CHEAT_CODE_MAGIC_VALUE))
@@ -101,34 +98,23 @@ static void CheatCodes_Apply(u32 index)
 			break;
 		// case 0xD8000000:
 		case 0xD0000000:
-			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-			value   = codegrouplist[index].codelist[i].val;
             if(Read8Bits(address) != value) executenext = false;
 			break;
 		//case 0xD9000000:
 		case 0xD1000000:
-			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-			value   = codegrouplist[index].codelist[i].val;
             if(Read16Bits(address) != value) executenext = false;
 			break;
 		case 0xD2000000:
-			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-			value   = codegrouplist[index].codelist[i].val;
 			if(Read8Bits(address) == value) executenext = false;
 			break;
 		case 0xD3000000:
-			address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-			value   = codegrouplist[index].codelist[i].val;
 			if(Read16Bits(address) == value) executenext = false;
 			break;
 		case 0x50000000:						
 			{
-				address			= PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-				value			= codegrouplist[index].codelist[i].val;
 				s32	repeatcount = (address & 0x0000FF00) >> 8;
 				u32	addroffset	= (address & 0x000000FF);
 				u16	valinc		= value;
-
 
 				if(i + 1 < codegrouplist[index].codecount)
 				{
@@ -351,7 +337,7 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 {
 	static char		last_rom_name[128];
 	char			path[MAX_PATH];
-	char			line[2048], romname[256], errormessage[400];	//changed line length to 2048 previous was 256
+	char			line[2048], romname[256]/*, errormessage[400]*/;	//changed line length to 2048 previous was 256
 	bool			bfound;
 	u32				c1, c2;
 	FILE			*stream;
