@@ -196,24 +196,14 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
  		mRomName = settings.GameName;
 	}
 
-	// Always clear cheats before parsing
-	// ToDo : only clear cheat list/parse when the rom is different.
-	CheatCodes_Clear();
+	// Read hack code for this rom
+	// We always parse the cheat file when the cheat menu is accessed, to always have cheats ready to be used by the user without hassle
+	// Also we do this to make sure we clear any non-associated cheats, we only parse once per ROM access too :)
+	//
+	CheatCodes_Read( (char*)mRomName.c_str(), "Daedalus.cht", mRomID.CountryID );
 
-	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Enable cheat Codes. Please re-load the cheat menu when chaging this option", "Yes", "No" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Whether to use cheat codes for this ROM", "Yes", "No" ) );
 	
-	if( mRomPreferences.CheatsEnabled )
-	{
-		// Read hack code for this rom, and also check if we have to parse again
-		// Or if error is found in the cheatcodes
-		if( CheatCodes_Read( (char*)mRomName.c_str(), "Daedalus.cht", mRomID.CountryID ) == false )
-		{
-			//printf("Clearing cheatcode\n");
-			// Clear any previous cheat info stored
-			//CheatCodes_Clear();
-		}
-	}
-
 	for(u32 i = 0; i < MAX_CHEATCODE_PER_GROUP; i++)
 	{
 		// Only display the cheat list when the cheatfile been loaded correctly and there were cheats found
