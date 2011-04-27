@@ -708,7 +708,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 				// Apply cheats once every 60 VBLs, to avoid hogging the emulator
 				//
 				if ((gVerticalInterrupts & 0x3F) == 0)
-					CheatCodes_Activate();
+					CheatCodes_Activate( IN_GAME );
 
 			}
 			// Add another Interrupt at the next time:

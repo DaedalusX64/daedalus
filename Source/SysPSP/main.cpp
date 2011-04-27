@@ -40,6 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/RomSettings.h"
 #include "Core/Memory.h"
 #include "Core/CPU.h"
+#include "Core/Cheats.h"
 #include "Core/PIF.h"
 #include "Core/CPU.h"
 #include "Core/Save.h"
@@ -463,6 +464,11 @@ void HandleEndOfFrame()
 	//
 	if(oldButtons != pad.Buttons)
 	{
+		if(pad.Buttons & PSP_CTRL_SELECT)
+		{
+			printf("press\n");
+			CheatCodes_Activate( GS_BUTTON );
+		}
 		if(pad.Buttons & PSP_CTRL_HOME)
 		{
 			while(!activate_pause_menu)

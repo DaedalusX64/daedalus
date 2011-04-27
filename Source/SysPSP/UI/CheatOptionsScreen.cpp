@@ -114,7 +114,7 @@ public:
 			// Disable 'em
 			codegrouplist[mIndex].active = false;
 			// Do one pass to restore their value too
-			CheatCodes_Activate();
+			CheatCodes_Activate(IN_GAME);
 		}
 
 		return !(*mCheatEnabled); 

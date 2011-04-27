@@ -44,10 +44,11 @@ enum { CHEAT_ALL_COUNTRY, CHEAT_USA, CHEAT_JAPAN, CHEAT_USA_AND_JAPAN, CHEAT_EUR
 //*****************************************************************************
 //
 //*****************************************************************************
-static void CheatCodes_Apply(u32 index) 
+static void CheatCodes_Apply(u32 index, u32 mode) 
 {
 	u32		i;
 	u32		address;
+	u32		type;
 	u16		value;
 	bool	executenext = true;
 
@@ -64,100 +65,117 @@ static void CheatCodes_Apply(u32 index)
 
 		address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
 		value	= codegrouplist[index].codelist[i].val;
+		type	= codegrouplist[index].codelist[i].addr & 0xFF000000;
 
-		switch (codegrouplist[index].codelist[i].addr & 0xFF000000)
-		//switch(codegrouplist[index].codelist[i].addr / 0x1000000)
+		if( mode == GS_BUTTON )
 		{
-		case 0x80000000:
-		case 0xA0000000:
-			// Check if orig value is unitialized and valid to store current value
-			//
-			if(codegrouplist[index].codelist[i].orig && (codegrouplist[index].codelist[i].orig == CHEAT_CODE_MAGIC_VALUE))
-				codegrouplist[index].codelist[i].orig = Read8Bits(address);
-		
-			// Cheat code is no longer active, restore to original value
-			//
-			if(codegrouplist[index].enable==false)
-				value = codegrouplist[index].codelist[i].orig;
-
-			Write8Bits(address,(u8)value);
-			break;
-		case 0x81000000:
-		case 0xA1000000:
-			// Check if orig value is unitialized and valid to store current value
-			//
-			if(codegrouplist[index].codelist[i].orig && (codegrouplist[index].codelist[i].orig == CHEAT_CODE_MAGIC_VALUE))
-				codegrouplist[index].codelist[i].orig = Read16Bits(address);
-
-			// Cheat code is no longer active, restore to original value
-			//
-			if(codegrouplist[index].enable==false)
-				value = codegrouplist[index].codelist[i].orig;
-	
-			Write16Bits(address, value);
-			break;
-		// case 0xD8000000:
-		case 0xD0000000:
-            if(Read8Bits(address) != value) executenext = false;
-			break;
-		//case 0xD9000000:
-		case 0xD1000000:
-            if(Read16Bits(address) != value) executenext = false;
-			break;
-		case 0xD2000000:
-			if(Read8Bits(address) == value) executenext = false;
-			break;
-		case 0xD3000000:
-			if(Read16Bits(address) == value) executenext = false;
-			break;
-		case 0x50000000:						
+			switch(type)
 			{
-				s32	repeatcount = (address & 0x0000FF00) >> 8;
-				u32	addroffset	= (address & 0x000000FF);
-				u16	valinc		= value;
+			case 0x88000000:			
+				Write8Bits(address,(u8)value);
+				break;
+			case 0x89000000:
+				Write16Bits(address, value);
+				break;
+			}
+			break;	
+		}
+		else
+		{
+			switch(type)
+			//switch(codegrouplist[index].codelist[i].addr / 0x1000000)
+			{
+			case 0x80000000:
+			case 0xA0000000:
+				// Check if orig value is unitialized and valid to store current value
+				//
+				if(codegrouplist[index].codelist[i].orig && (codegrouplist[index].codelist[i].orig == CHEAT_CODE_MAGIC_VALUE))
+					codegrouplist[index].codelist[i].orig = Read8Bits(address);
+			
+				// Cheat code is no longer active, restore to original value
+				//
+				if(codegrouplist[index].enable==false)
+					value = codegrouplist[index].codelist[i].orig;
 
-				if(i + 1 < codegrouplist[index].codecount)
+				Write8Bits(address,(u8)value);
+				break;
+			case 0x81000000:
+			case 0xA1000000:
+				// Check if orig value is unitialized and valid to store current value
+				//
+				if(codegrouplist[index].codelist[i].orig && (codegrouplist[index].codelist[i].orig == CHEAT_CODE_MAGIC_VALUE))
+					codegrouplist[index].codelist[i].orig = Read16Bits(address);
+
+				// Cheat code is no longer active, restore to original value
+				//
+				if(codegrouplist[index].enable==false)
+					value = codegrouplist[index].codelist[i].orig;
+		
+				Write16Bits(address, value);
+				break;
+			// case 0xD8000000:
+			case 0xD0000000:
+				if(Read8Bits(address) != value) executenext = false;
+				break;
+			//case 0xD9000000:
+			case 0xD1000000:
+				if(Read16Bits(address) != value) executenext = false;
+				break;
+			case 0xD2000000:
+				if(Read8Bits(address) == value) executenext = false;
+				break;
+			case 0xD3000000:
+				if(Read16Bits(address) == value) executenext = false;
+				break;
+			case 0x50000000:						
 				{
-					u32 type	= codegrouplist[index].codelist[i + 1].addr / 0x1000000;
-					address		= PHYS_TO_K0(codegrouplist[index].codelist[i + 1].addr & 0x00FFFFFF);
-					value		= codegrouplist[index].codelist[i + 1].val;
-					u8 valbyte = (u8)value;
+					s32	repeatcount = (address & 0x0000FF00) >> 8;
+					u32	addroffset	= (address & 0x000000FF);
+					u16	valinc		= value;
 
-					if( type == 0x80 )
+					if(i + 1 < codegrouplist[index].codecount)
 					{
-						do
+						u32 type	= codegrouplist[index].codelist[i + 1].addr / 0x1000000;
+						address		= PHYS_TO_K0(codegrouplist[index].codelist[i + 1].addr & 0x00FFFFFF);
+						value		= codegrouplist[index].codelist[i + 1].val;
+						u8 valbyte = (u8)value;
+
+						if( type == 0x80 )
 						{
-							Write8Bits(address,valbyte);
-							address += addroffset;
-							valbyte += (u8)valinc;
-							repeatcount--;
-						} while(repeatcount > 0);
-					}
-					else if( type == 0x81 )
-					{
-						do
+							do
+							{
+								Write8Bits(address,valbyte);
+								address += addroffset;
+								valbyte += (u8)valinc;
+								repeatcount--;
+							} while(repeatcount > 0);
+						}
+						else if( type == 0x81 )
 						{
-							Write16Bits(address, value);
-							address += addroffset;
-							value += valinc;
-							repeatcount--;
-						} while(repeatcount > 0);
+							do
+							{
+								Write16Bits(address, value);
+								address += addroffset;
+								value += valinc;
+								repeatcount--;
+							} while(repeatcount > 0);
+						}
 					}
 				}
+				executenext = false;
+				break;
+			case 0: 
+				i = codegrouplist[index].codecount;
+				break;
 			}
-			executenext = false;
-			break;
-		case 0: 
-			i = codegrouplist[index].codecount;
-			break;
-		}
-	} 
+		} 
+	}	
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void CheatCodes_Activate()
+void CheatCodes_Activate( CHEAT_MODE mode )
 {
 	for(u32 i = 0; i < codegroupcount; i++)
 	{
@@ -170,12 +188,12 @@ void CheatCodes_Activate()
 			//
 			codegrouplist[i].enable = true;
 
-			CheatCodes_Apply( i );
+			CheatCodes_Apply( i, mode);
 		}
 		else if(codegrouplist[i].enable)	// If cheat code is no longer disabled, do one pass to restore value
 		{
 			codegrouplist[i].enable = false;
-			CheatCodes_Apply( i );
+			CheatCodes_Apply( i, mode);
 		}
 	}
 }

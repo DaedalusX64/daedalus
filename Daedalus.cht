@@ -8,13 +8,15 @@ Always Snowing,1=0,803F2D6D-0005,
 Always Raining,1=0,803F2D6F-0005,
 
 [Super Mario 64]
-NumberOfGroups=6
+NumberOfGroups=8
 Metal Mario No Cap,1="Only use One Cap Option At A Time",0,8133B176-0025,
 Debug Mode,1=0,A032D598-0001,
 Hyper Hacker's Speed Hack,1="Small Speed Up. Makes The Game Sync At 60fps. FS2 recommended. Make Sure To Enable This Right After The Game Booted",0,80248154-0000,
 Music Fast,1=0,81222622-2000,
 Have All 175,1="you will see a new option in Save Slot A.",0,8020770B-FFFF,50000D02-0000,8120770C-FFFF,
 NES Fire Mario,1=0,8107EC40-0000,8107EC42-0000,8107EC38-FFFF,8107EC3A-FF00,8107EC20-FF00,8107EC22-0000,8107EC28-0000,8107EC2A-0000,8107EC70-FF00,8107EC72-0000,8107EC68-FF00,8107EC6A-0000,8107EC50-FFAA,8107EC52-0000,8107EC58-0000,8107EC5A-0000,8107EC80-FFAA,8107EC82-0000,8107EC88-0000,8107EC8A-0000,
+Monsters Don't Hurt Mario,1=0,A033B197-0001,
+Press SELECT For 255 Coins,1="Press SELECT Once on a Level To Get that amount of Coins",0,8933B218-00FF,
 
 [F-Zero X]
 NumberOfGroups=1
