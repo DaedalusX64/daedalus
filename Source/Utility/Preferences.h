@@ -26,6 +26,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ConfigOptions.h"
 
+#define CHEAT_EVERY_VBL   0
+#define CHEAT_EVERY3_VBL  3
+#define CHEAT_EVERY7_VBL  7
+#define CHEAT_EVERY15_VBL 15
+#define CHEAT_EVERY31_VBL 31
+#define CHEAT_EVERY63_VBL 63
+
 enum EGuiType
 {
 	COVERFLOW=0,
@@ -48,6 +55,18 @@ enum ETextureHashFrequency
 	THF_EVERY_30,
 
 	NUM_THF,
+};
+//0,1,3,7,15,31,63
+enum ECheatFrequency
+{
+	CF_EVERY_FRAME = 0,
+	CF_EVERY_3,
+	CF_EVERY_7,
+	CF_EVERY_15,
+	CF_EVERY_31,
+	CF_EVERY_63,
+
+	NUM_CF,
 };
 
 enum EFrameskipValue
@@ -152,7 +171,7 @@ struct SRomPreferences
 	EAudioPluginMode			AudioEnabled;
 	f32							ZoomX;
 	bool						CheatsEnabled;
-	u32							CheatType;
+	ECheatFrequency				CheatFrequency;
 	u32							ControllerIndex;
 	u32							PAD1;
 
@@ -187,6 +206,10 @@ class CPreferences : public CSingleton< CPreferences >
 u32						ROM_GetTexureHashFrequencyAsFrames( ETextureHashFrequency thf );
 ETextureHashFrequency	ROM_GetTextureHashFrequencyFromFrames( u32 frames );
 const char *			ROM_GetTextureHashFrequencyDescription( ETextureHashFrequency thf );
+
+u32						ROM_GetCheatFrequencyAsFrames( ECheatFrequency cf );
+ECheatFrequency			ROM_GetCheatFrequencyFromFrames( u32 frames );
+const char *			ROM_GetCheatFrequencyDescription( ECheatFrequency cf );
 
 u32						ROM_GetFrameskipValueAsInt( EFrameskipValue value );
 EFrameskipValue			ROM_GetFrameskipValueFromInt( u32 value );

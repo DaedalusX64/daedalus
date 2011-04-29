@@ -172,6 +172,28 @@ class CCheatNotFound : public CUISetting
 
 		virtual const char *	GetSettingName() const	{ return "N/A";	}
 	};
+
+//*************************************************************************************
+//
+//*************************************************************************************
+	class CCheatFrequency : public CUISetting
+	{
+	public:
+		CCheatFrequency( ECheatFrequency * setting, const char * name, const char * description )
+			:	CUISetting( name, description )
+			,	mSetting( setting )
+		{
+		}
+
+		virtual	void			OnNext()				{ *mSetting = ECheatFrequency( ( *mSetting + 1 ) % NUM_CF ); }
+		virtual	void			OnPrevious()			{ *mSetting = ECheatFrequency( ( *mSetting + NUM_CF - 1 ) % NUM_CF ); }
+
+		virtual const char *	GetSettingName() const	{ return ROM_GetCheatFrequencyDescription( *mSetting ); }
+
+	private:
+		ECheatFrequency *	mSetting;
+	};
+
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -186,7 +208,9 @@ CCheatOptionsScreen *	CCheatOptionsScreen::Create( CUIContext * p_context, const
 {
 	return new ICheatOptionsScreen( p_context, rom_id );
 }
-
+/*	]|a1|[Cornholio	x is 0,1,2,3
+	]|a1|[Cornholio	will give you the numbers 0, 3,15,63
+	]|a1|[Cornholio	(1<<(x<<1))-1*/
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -211,6 +235,8 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 	CheatCodes_Read( (char*)mRomName.c_str(), "Daedalus.cht", mRomID.CountryID );
 
 	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Whether to use cheat codes for this ROM", "Yes", "No" ) );
+	mElements.Add( new CCheatFrequency( &mRomPreferences.CheatFrequency, "Apply Cheat Codes Frequency", "The higher this value, the less cheats will hog the emulator at the expense that certain cheats won't work properly." ) );
+
 	
 	for(u32 i = 0; i < MAX_CHEATCODE_PER_GROUP; i++)
 	{

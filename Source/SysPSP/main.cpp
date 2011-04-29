@@ -464,11 +464,12 @@ void HandleEndOfFrame()
 	//
 	if(oldButtons != pad.Buttons)
 	{
-		if(pad.Buttons & PSP_CTRL_SELECT)
+		if( gCheatsEnabled && (pad.Buttons & PSP_CTRL_SELECT) )
 		{
 			printf("press\n");
 			CheatCodes_Activate( GS_BUTTON );
 		}
+
 		if(pad.Buttons & PSP_CTRL_HOME)
 		{
 			while(!activate_pause_menu)
@@ -490,7 +491,13 @@ void HandleEndOfFrame()
 //#ifdef DAEDALUS_DEBUG_MEMORY
 		//CVideoMemoryManager::Get()->DisplayDebugInfo();
 //#endif
-		Save::Flush(true);	//Seems important to do on PHATs to get back memory //Corn
+
+		// Supposedly Save::Flush helps to solve the Phat issue with HOME< I have yet to see this being true, since the Phat still has issues with HOME
+		// Anyways no point to add innecesary delays to newer models for a especulative fix for PHATs, so skip this for newer models - Salvy
+		//
+		if(!PSP_IS_SLIM)
+			Save::Flush(true);	//Seems important to do on PHATs to get back memory //Corn
+
 		// switch back to the LCD display
 		CGraphicsContext::Get()->SwitchToLcdDisplay();
 
