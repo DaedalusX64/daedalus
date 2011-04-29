@@ -26,13 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ConfigOptions.h"
 
-#define CHEAT_EVERY_VBL   0
-#define CHEAT_EVERY3_VBL  3
-#define CHEAT_EVERY7_VBL  7
-#define CHEAT_EVERY15_VBL 15
-#define CHEAT_EVERY31_VBL 31
-#define CHEAT_EVERY63_VBL 63
-
 enum EGuiType
 {
 	COVERFLOW=0,
@@ -53,15 +46,15 @@ enum ETextureHashFrequency
 
 	NUM_THF,
 };
-//0,1,3,7,15,31,63
+
 enum ECheatFrequency
 {
 	CF_EVERY_FRAME = 0,
-	CF_EVERY_3,
-	CF_EVERY_7,
-	CF_EVERY_15,
-	CF_EVERY_31,
-	CF_EVERY_63,
+	CF_EVERY_4,
+	CF_EVERY_8,
+	CF_EVERY_16,
+	CF_EVERY_32,
+	CF_EVERY_64,
 
 	NUM_CF,
 };

@@ -1,6 +1,5 @@
 /*
 Copyright (C) 2009 StrmnNrmn
-Copyright (C) 2003-2009 Rice1964
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -296,12 +295,10 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_DL( MicroCodeCommand command )
 {
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-    //u32 address = RDPSegAddr(command.dlist.addr);
 
 	DAEDALUS_ASSERT( RDPSegAddr(command.dlist.addr) < MAX_RAM_ADDRESS, "DL addr out of range (0x%08x)", RDPSegAddr(command.dlist.addr) );
+
     DL_PF("    Address=0x%08x Push: 0x%02x", RDPSegAddr(command.dlist.addr), command.dlist.param);
-#endif
 
 	if( command.dlist.param == G_DL_PUSH )
 		gDlistStackPointer++;
@@ -421,7 +418,7 @@ void DLParser_GBI1_LoadUCode( MicroCodeCommand command )
 	u32 code_base = (command.inst.cmd1 & 0x1fffffff);
     u32 code_size = 0x1000; 
     u32 data_base = gRDPHalf1 & 0x1fffffff;         // Preceeding RDP_HALF1 sets this up
-    u32 data_size = (command.inst.cmd0 & 0xFFFF) + 1; // set into range otherwise can go loco (SSV) as -1358952448.. which misses our expected 4096 size...
+    u32 data_size = (command.inst.cmd0 & 0xFFFF) + 1;
 
 	DLParser_InitMicrocode( code_base, code_size, data_base, data_size ); 
 }
@@ -899,7 +896,7 @@ void DLParser_GBI1_Tri2( MicroCodeCommand command )
 		command.inst.cmd1= *pCmdBase++;
 		pc += 8;
 
-	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		if ( command.inst.cmd == G_GBI1_TRI2 )
 		{
 	//		DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);

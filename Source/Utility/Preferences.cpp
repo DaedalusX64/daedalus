@@ -471,7 +471,7 @@ SRomPreferences::SRomPreferences()
 	,	AudioEnabled( APM_DISABLED )
 	,	ZoomX( 1.0f )
 	,	CheatsEnabled( false )
-	,	CheatFrequency( CF_EVERY_31 )
+	,	CheatFrequency( CF_EVERY_32 )
 	,	ControllerIndex( 0 )
 {
 }
@@ -498,7 +498,7 @@ void SRomPreferences::Reset()
 //	AudioAdaptFrequency = false;
 	ZoomX = 1.0f;
 	CheatsEnabled = false;
-	CheatFrequency = CF_EVERY_31;
+	CheatFrequency = CF_EVERY_32;
 	ControllerIndex = 0;
 }
 
@@ -598,19 +598,17 @@ const char * ROM_GetTextureHashFrequencyDescription( ETextureHashFrequency thf )
 	return "?";
 }
 
-
-////0,1,3,7,15,31,63
 //*****************************************************************************
 //
 //*****************************************************************************
 static const u32 gCheatFreqeuncies[] =
 {
-	1,	
-	3,	
-	7,	
-	15,	
-	31,	
-	63,	
+	0,	
+	4,	
+	8,	
+	16,	
+	32,	
+	64,	
 };
 
 static const char * const gCheatFreqeuncyDescriptions[] =
@@ -649,7 +647,7 @@ ECheatFrequency	ROM_GetCheatFrequencyFromFrames( u32 frames )
 		}
 	}
 
-	return CF_EVERY_31;	// Return the maximum
+	return CF_EVERY_32;	// Return the maximum
 }
 
 //*****************************************************************************

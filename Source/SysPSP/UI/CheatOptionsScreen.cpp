@@ -157,8 +157,8 @@ private:
 class CCheatNotFound : public CUISetting
 	{
 	public:
-		CCheatNotFound(  const char * name, const char * description )
-			:	CUISetting( name, description )
+		CCheatNotFound(  const char * name )
+			:	CUISetting( name, "" )
 		{
 		}
 		// Always show as read only when no cheats are found
@@ -208,9 +208,7 @@ CCheatOptionsScreen *	CCheatOptionsScreen::Create( CUIContext * p_context, const
 {
 	return new ICheatOptionsScreen( p_context, rom_id );
 }
-/*	]|a1|[Cornholio	x is 0,1,2,3
-	]|a1|[Cornholio	will give you the numbers 0, 3,15,63
-	]|a1|[Cornholio	(1<<(x<<1))-1*/
+
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -256,7 +254,8 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 			}
 			else
 			{
-				mElements.Add( new CCheatNotFound("No cheat codes found for this entry", "Make sure codes are formatted correctly for this entry. Daedalus supports a max of eight cheats per game." ) );
+				//mElements.Add( new CCheatNotFound("No cheat codes found for this entry", "Make sure codes are formatted correctly for this entry. Daedalus supports a max of eight cheats per game." ) );
+				mElements.Add( new CCheatNotFound("No cheat codes found for this entry" ) );
 			}
 		}
 		else
@@ -264,7 +263,8 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 			// Display Msg to user if he opens the cheat list without loading the cheatfile or no cheats found
 			//
 			//codegrouplist[i].active = false; // Overkill IMO
-			mElements.Add( new CCheatNotFound("No cheat codes found for this entry", "Make sure codes are formatted correctly for this entry. Daedalus supports a max of eight cheats per game." ) );
+			//mElements.Add( new CCheatNotFound("No cheat codes found for this entry", "Make sure codes are formatted correctly for this entry. Daedalus supports a max of eight cheats per game." ) );
+			mElements.Add( new CCheatNotFound("No cheat codes found for this entry" ) );
 
 		}
 	}

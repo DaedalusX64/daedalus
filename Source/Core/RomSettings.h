@@ -72,7 +72,6 @@ struct RomSettings
 	bool				FogEnabled;
 	bool                MemoryAccessOptimisation;
 	bool				CheatsEnabled;
-	u32					CheatType;
 
 	u32					RescanCount;
 	
