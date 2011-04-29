@@ -482,7 +482,7 @@ bool CTexture::Initialise()
 
 		if(gCheckTextureHashFrequency > 0)
 		{
-			mFrameLastUpToDate += pspFastRand() % gCheckTextureHashFrequency;
+			mFrameLastUpToDate += pspFastRand() & (gCheckTextureHashFrequency - 1);
 		}
 		UpdateTexture( mTextureInfo, mpTexture, false, c32::White );
 	}

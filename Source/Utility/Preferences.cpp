@@ -539,13 +539,10 @@ static const u32 gTextureHashFreqeuncies[] =
 	0,	//THF_DISABLED = 0,
 	1,	//THF_EVERY_FRAME,
 	2,	//THF_EVERY_2,
-	3,	//THF_EVERY_3,
 	4,	//THF_EVERY_4,
-	5,	//THF_EVERY_5,
-	10,	//THF_EVERY_10,
-	15,	//THF_EVERY_15,
-	20,	//THF_EVERY_20,
-	30,	//THF_EVERY_30,
+	8,	//THF_EVERY_8,
+	16,	//THF_EVERY_16,
+	32,	//THF_EVERY_32,
 };
 
 static const char * const gTextureHashFreqeuncyDescriptions[] =
@@ -553,13 +550,10 @@ static const char * const gTextureHashFreqeuncyDescriptions[] =
 	"Disabled",			//THF_DISABLED = 0,
 	"Every Frame",		//THF_EVERY_FRAME,
 	"Every 2 Frames",	//THF_EVERY_2,
-	"Every 3 Frames",	//THF_EVERY_3,
 	"Every 4 Frames",	//THF_EVERY_4,
-	"Every 5 Frames",	//THF_EVERY_5,
-	"Every 10 Frames",	//THF_EVERY_10,
-	"Every 15 Frames",	//THF_EVERY_15,
-	"Every 20 Frames",	//THF_EVERY_20,
-	"Every 30 Frames",	//THF_EVERY_30,
+	"Every 8 Frames",	//THF_EVERY_8,
+	"Every 16 Frames",	//THF_EVERY_16,
+	"Every 32 Frames",	//THF_EVERY_32,
 };
 
 //*****************************************************************************
@@ -588,7 +582,7 @@ ETextureHashFrequency	ROM_GetTextureHashFrequencyFromFrames( u32 frames )
 		}
 	}
 
-	return THF_EVERY_30;	// Return the maximum
+	return THF_EVERY_32;	// Return the maximum
 }
 
 //*****************************************************************************
@@ -622,11 +616,11 @@ static const u32 gCheatFreqeuncies[] =
 static const char * const gCheatFreqeuncyDescriptions[] =
 {
 	"Every VBLS",	
-	"Every 3 VBLS",	
-	"Every 7 VBLS",	
-	"Every 15 VBLS",	
-	"Every 31 VBLS",	
-	"Every 63 VBLS",	
+	"Every 4 VBLS",	
+	"Every 8 VBLS",	
+	"Every 16 VBLS",	
+	"Every 32 VBLS",	
+	"Every 64 VBLS",	
 };
 
 //*****************************************************************************

@@ -297,7 +297,7 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 void DLParser_GBI1_DL( MicroCodeCommand command )
 {
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-    u32 address = RDPSegAddr(command.dlist.addr);
+    //u32 address = RDPSegAddr(command.dlist.addr);
 
 	DAEDALUS_ASSERT( RDPSegAddr(command.dlist.addr) < MAX_RAM_ADDRESS, "DL addr out of range (0x%08x)", RDPSegAddr(command.dlist.addr) );
     DL_PF("    Address=0x%08x Push: 0x%02x", RDPSegAddr(command.dlist.addr), command.dlist.param);
