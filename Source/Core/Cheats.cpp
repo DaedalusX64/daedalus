@@ -46,13 +46,9 @@ enum { CHEAT_ALL_COUNTRY, CHEAT_USA, CHEAT_JAPAN, CHEAT_USA_AND_JAPAN, CHEAT_EUR
 //*****************************************************************************
 static void CheatCodes_Apply(u32 index, u32 mode) 
 {
-	u32		i;
-	u32		address;
-	u32		type;
-	u16		value;
 	bool	executenext = true;
 
-	for (i = 0; i < codegrouplist[index].codecount; i ++) 
+	for (u32 i = 0; i < codegrouplist[index].codecount; i ++) 
 	{
 		// Used by activator codes, skip until the specified button is pressed
 		// OK, skip this code
@@ -63,18 +59,18 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 			continue;
 		}
 
-		address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-		value	= codegrouplist[index].codelist[i].val;
-		type	= codegrouplist[index].codelist[i].addr & 0xFF000000;
+		u32 address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
+		u16 value	= codegrouplist[index].codelist[i].val;
+		u32 type	= (codegrouplist[index].codelist[i].addr >> 24) & 0xFF;
 
 		if( mode == GS_BUTTON )
 		{
 			switch(type)
 			{
-			case 0x88000000:			
+			case 0x88:			
 				Write8Bits(address,(u8)value);
 				break;
-			case 0x89000000:
+			case 0x89:
 				Write16Bits(address, value);
 				break;
 			}
@@ -83,10 +79,9 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 		else
 		{
 			switch(type)
-			//switch(codegrouplist[index].codelist[i].addr / 0x1000000)
 			{
-			case 0x80000000:
-			case 0xA0000000:
+			case 0x80:
+			case 0xA0:
 				// Check if orig value is unitialized and valid to store current value
 				//
 				if(codegrouplist[index].codelist[i].orig && (codegrouplist[index].codelist[i].orig == CHEAT_CODE_MAGIC_VALUE))
@@ -99,8 +94,8 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 
 				Write8Bits(address,(u8)value);
 				break;
-			case 0x81000000:
-			case 0xA1000000:
+			case 0x81:
+			case 0xA1:
 				// Check if orig value is unitialized and valid to store current value
 				//
 				if(codegrouplist[index].codelist[i].orig && (codegrouplist[index].codelist[i].orig == CHEAT_CODE_MAGIC_VALUE))
@@ -113,21 +108,28 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 		
 				Write16Bits(address, value);
 				break;
-			// case 0xD8000000:
-			case 0xD0000000:
+			//case 0xD8:
+			case 0xD0:
 				if(Read8Bits(address) != value) executenext = false;
 				break;
-			//case 0xD9000000:
-			case 0xD1000000:
+			//case 0xD9:
+			case 0xD1:
 				if(Read16Bits(address) != value) executenext = false;
 				break;
-			case 0xD2000000:
+			case 0xD2:
 				if(Read8Bits(address) == value) executenext = false;
 				break;
-			case 0xD3000000:
+			case 0xD3:
 				if(Read16Bits(address) == value) executenext = false;
 				break;
-			case 0x50000000:						
+			case 0x04:
+				switch((codegrouplist[index].codelist[i].addr >> 20) & 0xF)
+				{
+					case 0x5:
+							Memory_AI_SetRegister(codegrouplist[index].codelist[i].addr & 0x0FFFFFFF, value);
+							break;
+				}
+			case 0x50:	
 				{
 					s32	repeatcount = (address & 0x0000FF00) >> 8;
 					u32	addroffset	= (address & 0x000000FF);
@@ -135,33 +137,35 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 
 					if(i + 1 < codegrouplist[index].codecount)
 					{
-						u32 type	= codegrouplist[index].codelist[i + 1].addr / 0x1000000;
+						type	= codegrouplist[index].codelist[i + 1].addr >> 24;
 						address		= PHYS_TO_K0(codegrouplist[index].codelist[i + 1].addr & 0x00FFFFFF);
 						value		= codegrouplist[index].codelist[i + 1].val;
 						u8 valbyte = (u8)value;
 
-						if( type == 0x80 )
+						switch(type)
 						{
-							do
-							{
-								Write8Bits(address,valbyte);
-								address += addroffset;
-								valbyte += (u8)valinc;
-								repeatcount--;
-							} while(repeatcount > 0);
-						}
-						else if( type == 0x81 )
-						{
-							do
-							{
-								Write16Bits(address, value);
-								address += addroffset;
-								value += valinc;
-								repeatcount--;
-							} while(repeatcount > 0);
+							case 0x80:
+								do
+								{
+									Write8Bits(address,valbyte);
+									address += addroffset;
+									valbyte += (u8)valinc;
+									repeatcount--;
+								} while(repeatcount > 0);
+								break;
+							case 0x81:
+								do
+								{
+									Write16Bits(address, value);
+									address += addroffset;
+									value += valinc;
+									repeatcount--;
+								} while(repeatcount > 0);
+								break;
 						}
 					}
 				}
+
 				executenext = false;
 				break;
 			case 0: 

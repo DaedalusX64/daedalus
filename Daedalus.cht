@@ -1,6 +1,7 @@
 [AeroGauge]
-NumberOfGroups=1
+NumberOfGroups=2
 No Damage Player 1,1=0,50000402-0000,8113FFD8-0000,
+Corn&Salvy speedhack,1="Audio won't work with this speed hack",0,04500004-0B40,
 
 [Spacestation Silicon Valley]
 NumberOfGroups=2
