@@ -604,11 +604,11 @@ const char * ROM_GetTextureHashFrequencyDescription( ETextureHashFrequency thf )
 static const u32 gCheatFreqeuncies[] =
 {
 	0,	
-	4,	
-	8,	
-	16,	
-	32,	
-	64,	
+	3,	
+	7,	
+	15,	
+	31,	
+	63,	
 };
 
 static const char * const gCheatFreqeuncyDescriptions[] =
