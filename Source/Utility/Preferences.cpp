@@ -216,7 +216,7 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		}
 		if( section->FindProperty( "SpeedSyncEnabled", &property ) )
 		{
-			preferences.SpeedSyncEnabled = property->GetBooleanValue( false );
+			preferences.SpeedSyncEnabled = atoi( property->GetValue() );
 		}
 		if( section->FindProperty( "DynarecEnabled", &property ) )
 		{
@@ -455,7 +455,6 @@ void SGlobalPreferences::Apply() const
 //*****************************************************************************
 SRomPreferences::SRomPreferences()
 	:	PatchesEnabled( true )
-	,	SpeedSyncEnabled( false )
 	,	DynarecEnabled( true )
 	,	DynarecStackOptimisation( true )
 	,	DynarecLoopOptimisation( true )
@@ -465,13 +464,14 @@ SRomPreferences::SRomPreferences()
 	,	AudioRateMatch( false )
 	,	FogEnabled( false )
 	,   MemoryAccessOptimisation( false )
+	,	CheatsEnabled( false )
 //	,	AudioAdaptFrequency( false )
 	,	CheckTextureHashFrequency( THF_DISABLED )
 	,	Frameskip( FV_DISABLED )
 	,	AudioEnabled( APM_DISABLED )
-	,	ZoomX( 1.0f )
-	,	CheatsEnabled( false )
 	,	CheatFrequency( CF_EVERY_32 )
+	,	ZoomX( 1.0f )
+	,	SpeedSyncEnabled( 0 )
 	,	ControllerIndex( 0 )
 {
 }
@@ -482,7 +482,7 @@ SRomPreferences::SRomPreferences()
 void SRomPreferences::Reset()
 {
 	PatchesEnabled = true;
-	SpeedSyncEnabled = false;
+	SpeedSyncEnabled = 0;
 	DynarecEnabled = true;
 	DynarecStackOptimisation = true;
 	DynarecLoopOptimisation = true;

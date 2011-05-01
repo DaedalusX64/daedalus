@@ -274,7 +274,7 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 		}
 		if( p_section->FindProperty( "SpeedSyncEnabled", &p_property ) )
 		{
-			settings.SpeedSyncEnabled = p_property->GetBooleanValue( false );
+			settings.SpeedSyncEnabled = atoi( p_property->GetValue() );
 		}
 		if( p_section->FindProperty( "DynarecSupported", &p_property ) )
 		{
@@ -427,7 +427,7 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	if( !settings.Info.empty() )				fprintf(fh, "Info=%s\n", settings.Info.c_str());
 	if( !settings.Preview.empty() )				fprintf(fh, "Preview=%s\n", settings.Preview.c_str());
 	if( !settings.PatchesEnabled )				fprintf(fh, "PatchesEnabled=no\n");
-	if( !settings.SpeedSyncEnabled )			fprintf(fh, "SpeedSyncEnabled=yes\n");
+	if( !settings.SpeedSyncEnabled )			fprintf(fh, "SpeedSyncEnabled=%d\n", settings.SpeedSyncEnabled);
 	if( !settings.DynarecSupported )			fprintf(fh, "DynarecSupported=no\n");
 	if( !settings.DynarecStackOptimisation )	fprintf(fh, "DynarecStackOptimisation=no\n");
 	if( !settings.DynarecLoopOptimisation )		fprintf(fh, "DynarecLoopOptimisation=no\n");
@@ -488,7 +488,7 @@ RomSettings::RomSettings()
 :	ExpansionPakUsage( PAK_STATUS_UNKNOWN )
 ,	SaveType( SAVE_TYPE_UNKNOWN )
 ,	PatchesEnabled( true )
-,	SpeedSyncEnabled( false )
+,	SpeedSyncEnabled( 0 )
 ,	DynarecSupported( true )
 ,	DynarecStackOptimisation( true )
 ,	DynarecLoopOptimisation( true )
@@ -521,7 +521,7 @@ void	RomSettings::Reset()
 	ExpansionPakUsage = PAK_STATUS_UNKNOWN;
 	SaveType = SAVE_TYPE_UNKNOWN;
 	PatchesEnabled = true;
-	SpeedSyncEnabled = false;
+	SpeedSyncEnabled = 0;
 	DynarecSupported = true;
 	DynarecStackOptimisation = true;
 	DynarecLoopOptimisation = true;

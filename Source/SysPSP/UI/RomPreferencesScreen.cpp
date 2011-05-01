@@ -180,6 +180,32 @@ namespace
 		EFrameskipValue *		mSetting;
 	};
 
+	class CFSkipSetting : public CUISetting
+	{
+	public:
+		CFSkipSetting( u32 * setting, const char * name, const char * description )
+			:	CUISetting( name, description )
+			,	mSetting( setting )
+		{
+		}
+
+		virtual	void			OnNext()				{ *mSetting = (*mSetting < 2) ? (*mSetting + 1) : 0; }
+		virtual	void			OnPrevious()			{ *mSetting = (*mSetting > 0) ? (*mSetting - 1) : 2; }
+
+		virtual const char *	GetSettingName() const
+		{
+			switch ( *mSetting )
+			{
+				case 0:		return "No";
+				case 1:		return "Full speed";
+				case 2:		return "Half speed";
+			}
+			return "?";
+		}
+
+	private:
+		u32		*mSetting;
+	};
 }
 
 //*************************************************************************************
@@ -250,7 +276,7 @@ IRomPreferencesScreen::IRomPreferencesScreen( CUIContext * p_context, const RomI
 	mElements.Add( new CTextureHashFrequency( &mRomPreferences.CheckTextureHashFrequency, "Texture Update Check",	"Whether to check for texture updates between frames. Disable this to improve framerate at the expense of graphics quality in some ROMs." ) );
 	mElements.Add( new CAdjustFrameskipSetting( &mRomPreferences.Frameskip, "Frameskip", "This determines how many frames are skipped before rendering a new frame. Increasing this value should give a small speedup, at the expense of more jerky graphics." ) );
 	mElements.Add( new CZoomSetting( &mRomPreferences.ZoomX, "Zoom", "Increase screen size, the value will override the default screen size, 100% is default." ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.SpeedSyncEnabled, "Limit Framerate", "This determines whether the refresh rate is limited to 50Hz (for PAL games) or 60Hz (for NTSC games).", "Yes", "No" ) );
+	mElements.Add( new CFSkipSetting( &mRomPreferences.SpeedSyncEnabled, "Limit Framerate", "Limit the refresh rate to 50/25Hz (PAL) or 60/30Hz (NTSC)." ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecEnabled, "Dynamic Recompilation", "Dynamic recompilation gives a considerable speed-up for the ROM emulation.", "Enabled", "Disabled" ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecStackOptimisation, "Dynamic Stack Optimisation", "Dynarec Stack Optimisation, enabled for a small speed-up.", "Enabled", "Disabled" ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.PatchesEnabled, "High Level Emulation", "Whether to use replicated OS function calls (faster) instead of emulating the real ones (slower) (WARNING, can cause instability and/or crash on certain ROMs).", "Enabled", "Disabled" ) );

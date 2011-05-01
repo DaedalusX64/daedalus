@@ -145,7 +145,6 @@ extern SGlobalPreferences	gGlobalPreferences;
 struct SRomPreferences
 {
 	bool						PatchesEnabled;
-	bool						SpeedSyncEnabled;
 	bool						DynarecEnabled;				// Requires DynarceSupported in RomSettings
 	bool						DynarecStackOptimisation;
 	bool						DynarecLoopOptimisation;
@@ -155,15 +154,16 @@ struct SRomPreferences
 	bool						AudioRateMatch;
 	bool						FogEnabled;
 	bool                        MemoryAccessOptimisation;
+	bool						CheatsEnabled;
 //	bool						AudioAdaptFrequency;
 	ETextureHashFrequency		CheckTextureHashFrequency;
 	EFrameskipValue				Frameskip;
 	EAudioPluginMode			AudioEnabled;
-	f32							ZoomX;
-	bool						CheatsEnabled;
 	ECheatFrequency				CheatFrequency;
+	f32							ZoomX;
+	u32							SpeedSyncEnabled;
 	u32							ControllerIndex;
-	u32							PAD1;
+//	u32							PAD1;	//Some Bug in GCC that require to pad the struct some times...(?)
 
 	SRomPreferences();
 

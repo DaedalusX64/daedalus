@@ -127,7 +127,7 @@ void FramerateLimiter_Limit()
 	}
 	gLastOrigin = current_origin;
 
-	u64		now;
+	u64	now;
 
 	NTiming::GetPreciseTime(&now);
 	if( gLastVITime != 0 )
@@ -142,19 +142,26 @@ void FramerateLimiter_Limit()
 			// This is a bit of a hack - busy wait until we're exactly on schedule
 			//	Ideally we should call Sleep() or similar here to avoid this.
 			//
-			u64		required_ticks( gTicksBetweenVbls * gVblsSinceFlip );
+			u64	required_ticks( gTicksBetweenVbls * gVblsSinceFlip );
+			
+			if( gSpeedSyncEnabled == 2 ) required_ticks = required_ticks << 1;	//½ speed //Corn
+			
 			while( elapsed_ticks < required_ticks )
 			{
-				u64		delay_ticks( required_ticks - elapsed_ticks );
 				if( gTicksPerSecond != 0 )
 				{
-					u64		delay_ms( 1000 * delay_ticks / gTicksPerSecond );
-					u32		sleep_ms = u32( delay_ms );			// Need to deal with potential overflow?
+					u64	delay_ticks( required_ticks - elapsed_ticks );
+					u64	delay_ms( 1000 * delay_ticks / gTicksPerSecond );
+					u32	sleep_ms = u32( delay_ms );			// Need to deal with potential overflow?
 
-					if( sleep_ms > 1 )
+					if( sleep_ms > 0 )
 					{
 						//printf( "Delay ticks: %d, ms: %d, sleep: %d\n", u32( delay_ticks ), u32( delay_ms ), sleep_ms );
 						ThreadSleepMs( sleep_ms );
+						
+						NTiming::GetPreciseTime(&gLastVITime);
+						gVblsSinceFlip = 0;
+
 						return;	//Return early //Corn
 					}
 				}
@@ -202,20 +209,22 @@ u32	FramerateLimiter_GetSyncI()
 //*****************************************************************************
 //
 //*****************************************************************************
+/*
 void	FramerateLimiter_SetLimit( bool limit )
 {
 	gSpeedSyncEnabled = limit;
 	FramerateLimiter_Reset();
 }
-
+*/
 //*****************************************************************************
 //
 //*****************************************************************************
+/*
 bool	FramerateLimiter_GetLimit()
 {
 	return gSpeedSyncEnabled;
 }
-
+*/
 //*****************************************************************************
 //
 //*****************************************************************************

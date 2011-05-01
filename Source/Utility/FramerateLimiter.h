@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef FRAMERATELIMITER_H_
 #define FRAMERATELIMITER_H_
 
-extern bool			gSpeedSyncEnabled;
+extern u32			gSpeedSyncEnabled;
 
 void			FramerateLimiter_Reset();
 void			FramerateLimiter_Limit();

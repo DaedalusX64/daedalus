@@ -596,7 +596,7 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	DBGConsole_Msg(0, "SaveType: [G%s]", ROM_GetSaveTypeName( g_ROM.settings.SaveType ) );
 	DBGConsole_Msg(0, "ApplyPatches: [G%s]", gOSHooksEnabled ? "on" : "off");
 	DBGConsole_Msg(0, "Check Texture Hash Freq: [G%d]", gCheckTextureHashFrequency);
-	DBGConsole_Msg(0, "SpeedSync: [G%s]", gSpeedSyncEnabled ? "on" : "off");
+	DBGConsole_Msg(0, "SpeedSync: [G%d]", gSpeedSyncEnabled);
 	DBGConsole_Msg(0, "DynaRec: [G%s]", gDynarecEnabled ? "on" : "off");
 	DBGConsole_Msg(0, "Aplying: [G%s]", gGameHackNames[g_ROM.GameHacks]);
 	DBGConsole_Msg(0, "Cheats: [G%s]", gCheatsEnabled ? "on" : "off");
