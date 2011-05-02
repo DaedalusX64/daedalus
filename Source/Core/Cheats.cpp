@@ -37,10 +37,27 @@ u32		codegroupcount		= 0;
 s32		currentgroupindex	= -1;
 char	current_rom_name[128];
 
-
 #define CHEAT_CODE_MAGIC_VALUE 0xDEAD
 
 enum { CHEAT_ALL_COUNTRY, CHEAT_USA, CHEAT_JAPAN, CHEAT_USA_AND_JAPAN, CHEAT_EUR, CHEAT_AUS, CHEAT_FR, CHEAT_GER };
+
+// Apply game shark code
+
+//Supports N64 game shark code types: 
+//
+//Code Type Format Code Type Description 
+//80-XXXXXX 00YY	8-Bit Constant Write 
+//81-XXXXXX YYYY 16-Bit Constant Write 
+//50-00AABB CCCC Serial Repeater 
+//88-XXXXXX 00YY 8-Bit GS Button Write 
+//89-XXXXXX YYYY 16-Bit GS Button Write 
+//A0-XXXXXX 00YY 8-Bit Constant Write (Uncached) 
+//A1-XXXXXX YYYY 16-Bit Constant Write (Uncached) 
+//D0-XXXXXX 00YY 8-Bit If Equal To 
+//D1-XXXXXX YYYY 16-Bit If Equal To 
+//D2-XXXXXX 00YY 8-Bit If Not Equal To 
+//D3-XXXXXX YYYY 16-Bit If Not Equal To 
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -51,7 +68,6 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 	for (u32 i = 0; i < codegrouplist[index].codecount; i ++) 
 	{
 		// Used by activator codes, skip until the specified button is pressed
-		// OK, skip this code
 		//
 		if(executenext == false)
 		{
@@ -165,7 +181,6 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 						}
 					}
 				}
-
 				executenext = false;
 				break;
 			case 0: 
@@ -183,7 +198,7 @@ void CheatCodes_Activate( CHEAT_MODE mode )
 {
 	for(u32 i = 0; i < codegroupcount; i++)
 	{
-		// Apply only enabled cheats
+		// Apply only activated cheats
 		//
 		if(codegrouplist[i].active)
 		{
@@ -194,7 +209,9 @@ void CheatCodes_Activate( CHEAT_MODE mode )
 
 			CheatCodes_Apply( i, mode);
 		}
-		else if(codegrouplist[i].enable)	// If cheat code is no longer disabled, do one pass to restore value
+		// If cheat code is no longer active, but was enabled, do one pass to restore original value
+		//
+		else if(codegrouplist[i].enable)
 		{
 			codegrouplist[i].enable = false;
 			CheatCodes_Apply( i, mode);
@@ -205,7 +222,7 @@ void CheatCodes_Activate( CHEAT_MODE mode )
 //*****************************************************************************
 //
 //*****************************************************************************
-void CheatCodes_Clear()
+static void CheatCodes_Clear()
 {
 	for(u32 i = 0; i < codegroupcount; i++) 
 	{

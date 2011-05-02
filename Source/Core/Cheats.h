@@ -57,7 +57,6 @@ typedef struct		CODEGROUP_STRUCT CODEGROUP;
 extern u32			codegroupcount;
 extern CODEGROUP	*codegrouplist;
 
-void				CheatCodes_Clear();
 void				CheatCodes_Activate( CHEAT_MODE mode );
 bool				CheatCodes_Read(char *rom_name, char *file, u8 countryID);
 

@@ -435,7 +435,7 @@ static void HandleDumpDisplayList( OSTask * pTask )
 //*****************************************************************************
 // 
 //*****************************************************************************
-void	DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size )
+void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size )
 {
 	// Start ucode detector
 	u32 ucode = GBIMicrocode_DetectVersion( code_base, code_size, data_base, data_size );
@@ -465,12 +465,6 @@ void	DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 
 	// Detect Correct Vtx Stride
 	gVertexStride = vertex_stride[ ucode ];
-
-	// Retain last used ucode info
-	last.used	   = true;
-	last.code_base = code_base;
-	last.data_base = data_base;
-	//last.code_size = code_size;
 
 	//if ucode version is other than 0,1 or 2 then default to 2 (with potentially non valid function names) 
 	//
@@ -610,6 +604,7 @@ void DLParser_Process()
 	if ( last.code_base != code_base )
 	{
 		DLParser_InitMicrocode( code_base, code_size, data_base, data_size );
+		last.code_base = code_base;
 	}
 
 	//
@@ -1344,20 +1339,23 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 		{
 			u32 offset2 = (command.inst.cmd0 >> 5) & 0x3FFF;
 
-			s8 * pcBase = g_ps8RamBase + address;
-			use(pcBase);
-
 		switch (offset2)
 		{
 		case 0x00:
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			{
+				s8 * pcBase = g_ps8RamBase + address;
 				DL_PF("    G_MV_LOOKATX %f %f %f", f32(pcBase[8 ^ 0x3]), f32(pcBase[9 ^ 0x3]), f32(pcBase[10 ^ 0x3]));
 			}
+#endif
 			break;
 		case 0x18:
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			{
+				s8 * pcBase = g_ps8RamBase + address;
 				DL_PF("    G_MV_LOOKATY %f %f %f", f32(pcBase[8 ^ 0x3]), f32(pcBase[9 ^ 0x3]), f32(pcBase[10 ^ 0x3]));
 			}
+#endif
 			break;
 		default:		//0x30/48/60
 			{
