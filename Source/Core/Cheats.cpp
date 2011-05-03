@@ -1,5 +1,6 @@
 /*
-Copyright (C) 2011 StrmnNrmn
+Copyright (C) 2011 Salvy6735
+Copyright (C) 2001-2009 StrmnNrmn
 Copyright (C) 1999-2004 Joel Middendorf, <schibo@emulation64.com>
 
 This program is free software; you can redistribute it and/or
@@ -182,9 +183,6 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 					}
 				}
 				executenext = false;
-				break;
-			case 0: 
-				i = codegrouplist[index].codecount;
 				break;
 			}
 		} 
@@ -526,6 +524,10 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 			codegrouplist[codegroupcount].enable = false;
 
 			c1 += 2;
+
+
+			// BUG FIX - Make sure to initialize codecount, otherwise we'll store bogus counts
+			codegrouplist[codegroupcount].codecount = 0;
 
 			for(c2 = 0; c2 < (strlen(line) - c1 - 1) / 14; c2++, codegrouplist[codegroupcount].codecount++)
 			{
