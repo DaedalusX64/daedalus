@@ -133,6 +133,27 @@ bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char * str,
 //*****************************************************************************
 //
 //*****************************************************************************
+void GBIMicrocode_Cache( u32 index, u32 code_base, u32 data_base, u32 ucode_version)
+{
+	//
+	// If the max of ucode entries is reached, spread it randomly
+	// Otherwise we'll keep overriding the last entry
+	// 
+	if( index >= MAX_UCODE_CACHE_ENTRIES )
+	{
+		DBGConsole_Msg(0, "Warning : Reached max of ucode entries (%d), spreading entry",index );
+		index = pspFastRand()%MAX_UCODE_CACHE_ENTRIES;
+	}
+
+	used[ index ].code_base 	= code_base;
+	used[ index ].data_base 	= data_base;
+	used[ index ].ucode 		= ucode_version;
+	used[ index ].used 			= true;
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
 u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size)
 {
 
@@ -143,8 +164,6 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 
 	// Cheap way to cache ucodes, don't check for strings (too slow!) but check last used ucode entries which is alot faster than string comparison.
 	// This only needed for GBI1/SDEX1 ucodes that use LoadUcode, else we only check when t.ucode changes, which most of the time only happens once :)
-	//
-	// ToDo : Cache ucodes that are detected in the array, pretty much only last legion needs it though
 	//
 	for( index = 0; index < MAX_UCODE_CACHE_ENTRIES; index++ )
 	{
@@ -176,6 +195,11 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	{
 		if ( code_hash == gMicrocodeData[i].code_hash )
 		{
+			//
+			// Retain used ucode info which will be cached
+			//
+			GBIMicrocode_Cache( index, code_base, data_base, gMicrocodeData[ i ].ucode);
+
 			DBGConsole_Msg(0, "Ucode has been Detected in Array :[M\%s, Ucode %d]", str, gMicrocodeData[ i ].ucode);
 			return gMicrocodeData[ i ].ucode;
 		}
@@ -214,22 +238,9 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	}
 
 	//
-	// If the max of ucode entries is reached, spread it randomly
-	// Otherwise we'll keep overriding the last entry
-	// 
-	if( index >= MAX_UCODE_CACHE_ENTRIES )
-	{
-		DBGConsole_Msg(0, "Warning : Reached max of ucode entries (%d), spreading entry",index );
-		index = pspFastRand()%MAX_UCODE_CACHE_ENTRIES;
-	}
-
-	//
 	// Retain used ucode info which will be cached
 	//
-	used[ index ].code_base 	= code_base;
-	used[ index ].data_base 	= data_base;
-	used[ index ].ucode 		= ucode_version;
-	used[ index ].used 			= true;
+	GBIMicrocode_Cache( index, code_base, data_base, ucode_version);
 
 	DBGConsole_Msg(0,"Detected Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]",ucode_version, code_hash, str, g_ROM.settings.GameName.c_str() );
 

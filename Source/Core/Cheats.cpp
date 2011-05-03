@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ConfigOptions.h"
 
 //
-// Cheatcode routines based from 1964 and followed PJ64's gameshark format
+// Cheatcode routines and format based from 1964
 //
 
 CODEGROUP *codegrouplist;
@@ -58,6 +58,7 @@ enum { CHEAT_ALL_COUNTRY, CHEAT_USA, CHEAT_JAPAN, CHEAT_USA_AND_JAPAN, CHEAT_EUR
 //D1-XXXXXX YYYY 16-Bit If Equal To 
 //D2-XXXXXX 00YY 8-Bit If Not Equal To 
 //D3-XXXXXX YYYY 16-Bit If Not Equal To 
+//04-XXXXXX ---- Write directly to Audio Interface (Daedalus only)
 
 //*****************************************************************************
 //
@@ -222,11 +223,6 @@ void CheatCodes_Activate( CHEAT_MODE mode )
 //*****************************************************************************
 static void CheatCodes_Clear()
 {
-	for(u32 i = 0; i < codegroupcount; i++) 
-	{
-		codegrouplist[i].codecount = 0;
-	}
-
 	codegroupcount = 0;
 
 	if(codegrouplist != NULL)
