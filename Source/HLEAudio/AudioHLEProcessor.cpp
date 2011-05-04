@@ -735,14 +735,14 @@ void	AudioHLEState::SaveBuffer( u32 ram_dst, u16 dmem_src, u16 count )
 		memcpy( rdram+(ram_dst&0xfffffc), Buffer+(dmem_src&0xFFFC), (count+3)&0xFFFC );
 	}
 }
-
+/*
 void	AudioHLEState::SetSegment( u8 segment, u32 address )
 {
 	DAEDALUS_ASSERT( segment < 16, "Invalid segment" );
 
 	Segments[segment&0xf] = address;
 }
-
+*/
 void	AudioHLEState::SetLoop( u32 loopval )
 {
 	LoopVal = loopval;

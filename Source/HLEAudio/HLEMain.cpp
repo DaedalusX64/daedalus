@@ -116,8 +116,9 @@ void Audio_Ucode()
 		Audio_Ucode_Detect( pTask );
 	}
 	
-	//gAudioHLEState.LoopVal = 0;
+	gAudioHLEState.LoopVal = 0;
 	//memset( gAudioHLEState.Segments, 0, sizeof( gAudioHLEState.Segments ) );
+
 	u32 * p_alist = (u32 *)(g_pu8RamBase + (u32)pTask->t.data_ptr);
 	u32 ucode_size = (pTask->t.data_size / 8) + 1;
 
