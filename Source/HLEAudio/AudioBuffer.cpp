@@ -159,7 +159,7 @@ void	CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 
 	//Todo: Check Cache Routines
 	// Ensure samples array is written back before mWritePtr
-	dcache_wbinv_range_unaligned( mBufferBegin, mBufferEnd );
+	//dcache_wbinv_range_unaligned( mBufferBegin, mBufferEnd );
 
 	mWritePtr = write_ptr;		// Needs cache wbinv
 }
@@ -171,7 +171,7 @@ void	CAudioBuffer::Fill( Sample * samples, u32 num_samples )
 {
 	//Todo: Check Cache Routines
 	// Ideally we could just invalidate this range?
-	dcache_wbinv_range_unaligned( mBufferBegin, mBufferEnd );
+	//dcache_wbinv_range_unaligned( mBufferBegin, mBufferEnd );
 
 	const Sample *	read_ptr( mReadPtr );		// No need to invalidate, as this is uncached/volatile
 	const Sample *	write_ptr( mWritePtr );		//

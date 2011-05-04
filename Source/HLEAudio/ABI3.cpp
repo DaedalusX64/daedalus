@@ -224,8 +224,8 @@ static void ENVMIXER3( AudioHLECommand command )
 
 static void CLEARBUFF3( AudioHLECommand command )
 {
-	u16 addr = (u16)(command.cmd0 & 0xffff);
-	u16 count = (u16)(command.cmd1 & 0xffff);
+	u16 addr = (u16)(command.cmd0 & (N64_AUDIO_BUFF - 1));
+	u16 count = (u16)(command.cmd1 & (N64_AUDIO_BUFF - 1));
 	memset(gAudioHLEState.Buffer+addr+0x4f0, 0, count);
 }
 
@@ -288,9 +288,9 @@ static void DMEMMOVE3( AudioHLECommand command )
 	// Needs accuracy verification...
 	u32 v0, v1;
 	u32 cnt;
-	v0 = (command.cmd0 & 0xFFFF) + 0x4f0;
-	v1 = (command.cmd1 >> 0x10) + 0x4f0;
-	u32 count = ((command.cmd1+3) & 0xfffc);
+	v0 = (command.cmd0 & (N64_AUDIO_BUFF - 1)) + 0x4f0;
+	v1 = ((command.cmd1 >> 0x10) & (N64_AUDIO_BUFF - 1)) + 0x4f0;
+	u32 count = ((command.cmd1+3) & (N64_AUDIO_BUFF - 4));
 
 	//memcpy (dmem+v1, dmem+v0, count-1);
 	for (cnt = 0; cnt < count; cnt++)
