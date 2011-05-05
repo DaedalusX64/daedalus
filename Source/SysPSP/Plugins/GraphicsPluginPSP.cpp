@@ -245,7 +245,7 @@ void CGraphicsPluginPsp::UpdateScreen()
 						pspDebugScreenPrintf( "%#.1f  ", gCurrentFramerate );
 						break;
 					case 2:
-						pspDebugScreenPrintf( "FPS %#.1f | VB %d/%d | Sync %#.1f%%   ", gCurrentFramerate, u32( Fsync * f32( FramerateLimiter_GetTvFrequencyHz() ) ), FramerateLimiter_GetTvFrequencyHz(), Fsync * 100.0f );
+						pspDebugScreenPrintf( "FPS[%#.1f] VB[%d/%d] Sync[%#.1f%%]   ", gCurrentFramerate, u32( Fsync * f32( FramerateLimiter_GetTvFrequencyHz() ) ), FramerateLimiter_GetTvFrequencyHz(), Fsync * 100.0f );
 						break;
 					case 3:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST

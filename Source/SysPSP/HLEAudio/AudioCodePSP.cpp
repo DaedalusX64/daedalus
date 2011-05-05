@@ -55,18 +55,16 @@ static const u32	BUFFER_SIZE = 1024 * 8;		// Usually have to provide 1024 sample
 
 static const u32	PSP_NUM_SAMPLES = 2048;
 
-typedef short int int16;
-
 // Global variables
 static SceUID bufferEmpty;
 
-static int sound_channel = PSP_AUDIO_NEXT_CHANNEL;
-static volatile int sound_volume = PSP_AUDIO_VOLUME_MAX;
+static s32 sound_channel = PSP_AUDIO_NEXT_CHANNEL;
+static volatile s32 sound_volume = PSP_AUDIO_VOLUME_MAX;
 static volatile u32 sound_status = 0;
 
 static volatile int pcmflip = 0;
-static int16 __attribute__((aligned(16))) pcmout1[PSP_NUM_SAMPLES * 2]; // # of stereo samples
-static int16 __attribute__((aligned(16))) pcmout2[PSP_NUM_SAMPLES * 2];
+static s16 __attribute__((aligned(16))) pcmout1[PSP_NUM_SAMPLES * 2]; // # of stereo samples
+static s16 __attribute__((aligned(16))) pcmout2[PSP_NUM_SAMPLES * 2];
 
 static bool audio_open = false;
 
@@ -82,7 +80,7 @@ namespace
 
 static int fillBuffer(SceSize args, void *argp)
 {
-	int16 *fillbuf;
+	s16 *fillbuf;
 
 	while(sound_status != 0xDEADBEEF)
 	{
@@ -103,7 +101,7 @@ static int fillBuffer(SceSize args, void *argp)
 
 static int audioOutput(SceSize args, void *argp)
 {
-	int16 *playbuf;
+	s16 *playbuf;
 
 	while(sound_status != 0xDEADBEEF)
 	{
@@ -132,7 +130,7 @@ static void AudioInit(void)
 	sound_status = 0; // threads running
 
 	// create audio playback thread to provide timing
-	int audioThid = sceKernelCreateThread("audioOutput", audioOutput, 0x16, 0x1800, PSP_THREAD_ATTR_USER, NULL);
+	int audioThid = sceKernelCreateThread("audioOutput", audioOutput, 0x15, 0x1800, PSP_THREAD_ATTR_USER, NULL);
 	if(audioThid < 0)
 	{
 		printf("FATAL: Cannot create audioOutput thread\n");
@@ -141,7 +139,7 @@ static void AudioInit(void)
 	sceKernelStartThread(audioThid, 0, NULL);
 
 	// Start streaming thread
-	int bufferThid = sceKernelCreateThread("bufferFilling", fillBuffer, 0x15, 0x1800, PSP_THREAD_ATTR_USER, NULL);
+	int bufferThid = sceKernelCreateThread("bufferFilling", fillBuffer, 0x14, 0x1800, PSP_THREAD_ATTR_USER, NULL);
 	if(bufferThid < 0)
 	{
 		sound_status = 0xDEADBEEF; // kill the audioOutput thread
