@@ -72,6 +72,11 @@ bool	WaitForThreadTermination( ThreadHandle handle, s32 timeout );
 void	ThreadSleepMs( u32 ms );
 
 //
+//	Sleep for the specified number of ticks
+//
+void	ThreadSleepTicks( u32 ticks );
+
+//
 //	Yield for a short time
 //
 void	ThreadYield();
