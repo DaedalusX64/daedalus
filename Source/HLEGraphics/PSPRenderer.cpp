@@ -130,6 +130,8 @@ enum CycleType
 	CYCLE_FILL,
 };
 
+extern bool bN64IsDrawingTextureBuffer;
+
 extern u32 SCR_WIDTH;
 extern u32 SCR_HEIGHT;
 
@@ -1163,6 +1165,10 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 //*****************************************************************************
 void PSPRenderer::RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts, bool disable_zbuffer )
 {
+	// Remove offscreen rects, maybe do it early in texrect/fillrect etc?
+	/// Removes the annoying black box in Conker, Note this will break framebuffer effects.
+	if( bN64IsDrawingTextureBuffer )	return;
+
 	DaedalusVtx*	p_vertices( (DaedalusVtx*)sceGuGetMemory(num_verts*sizeof(DaedalusVtx)) );
 	memcpy( p_vertices, p_verts, num_verts*sizeof(DaedalusVtx));
 
@@ -1452,8 +1458,9 @@ bool PSPRenderer::FlushTris()
 		PrepareTrisUnclipped( &p_vertices, &num_vertices );
 	}
 
-	// no vertices to render? //Corn
-	if( num_vertices == 0)
+	// No vertices to render? //Corn
+	// Remove offscreen tris
+	if( num_vertices == 0 || bN64IsDrawingTextureBuffer )
 	{
 		DAEDALUS_ERROR("No Vtx to render");
 		m_dwNumIndices = 0;

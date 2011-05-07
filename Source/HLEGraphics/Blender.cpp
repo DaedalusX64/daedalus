@@ -151,7 +151,6 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 {
 	switch ( blendmode )
 	{	
-	//case 0x04d0:					// In * AFog + Fog * 1-A || In * AIn + Mem * 1-A		Conker - Enviroments
 	//case 0x0044:					// ?
 	//case 0x0055:					// ?
 	case 0x0c08:					// In * 0 + In * 1 || :In * AIn + In * 1-A				Tarzan - Medalion in bottom part of the screen
@@ -177,6 +176,7 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	case 0x0010:					// In * AIn + In * 1-A || :In * AIn + Mem * 1-A			Hey You Pikachu - Shadow
 	case 0x0040:					// In * AIn + Mem * 1-A || :In * AIn + In * 1-A			Mario - Princess peach text
 	case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
+	case 0x04d0:					// In * AFog + Fog * 1-A || In * AIn + Mem * 1-A		Conker's Eyes
 	case 0x0c18:					// In * 0 + In * 1 || :In * AIn + Mem * 1-A:			SSV - WaterFall and dust
 	case 0xc410:					// Fog * AFog + In * 1-A || :In * AIn + Mem * 1-A		Donald Duck - Stars
 	case 0xc810:					// Fog * AShade + In * 1-A || :In * AIn + Mem * 1-A		SSV - Fog? and MM - Shadows

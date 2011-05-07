@@ -114,6 +114,7 @@ struct RDP_Scissor
 };
 
 
+bool bN64IsDrawingTextureBuffer = false;
 u32	gSegments[16];
 static RDP_Scissor scissors;
 static N64Light  g_N64Lights[16];	//Conker uses more than 8
@@ -1912,6 +1913,12 @@ void DLParser_SetCImg( MicroCodeCommand command )
 	g_CI.Format = format;
 	g_CI.Size = size;
 	g_CI.Width = width;
+
+	// Used to remove offscreen stuff, atm it only works in a few games, mostly helps Conker, it removes the black box in the right side of the screen :)
+	//
+	bN64IsDrawingTextureBuffer = ( g_CI.Size != G_IM_SIZ_16b || g_CI.Format != G_IM_FMT_RGBA || g_CI.Width < 200 
+	/*|| ( g_CI.Address != g_DI.Address && g_CI.Width != 512 && !g_pFrameBufferManager->HasAddrBeenDisplayed(newCI.dwAddr, newCI.dwWidth))*/ ); // ToDo : Port Me.
+
 }
 
 //*****************************************************************************
