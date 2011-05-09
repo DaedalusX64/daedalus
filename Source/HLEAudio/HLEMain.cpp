@@ -120,16 +120,14 @@ void Audio_Ucode()
 	//memset( gAudioHLEState.Segments, 0, sizeof( gAudioHLEState.Segments ) );
 
 	u32 * p_alist = (u32 *)(g_pu8RamBase + (u32)pTask->t.data_ptr);
-	u32 ucode_size = (pTask->t.data_size / 8) + 1;
+	u32 ucode_size = (pTask->t.data_size >> 3);
 
 	AudioHLECommand command;
-
-	while(ucode_size--)
-    {
+	
+    do{
         command.cmd0 = *p_alist++;
         command.cmd1 = *p_alist++;
         ABI[command.cmd](command);
 		//printf("%08X %08X\n",command.cmd0,command.cmd1);
-	}
+	}while(--ucode_size);
 }
-
