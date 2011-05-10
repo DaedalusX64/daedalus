@@ -197,7 +197,11 @@ static void *Read_8404_8404( u32 address )
 //*****************************************************************************
 static void *Read_8408_8408( u32 address )
 {
-	u32 offset = (address&0x1FFFFFFF) - 0x04080000;
+	// We don't support LLE RSP emulation in the PSP, so is ok to skip this reg -Salvy
+	//
+	return ReadInvalid(address);
+
+	/*u32 offset = (address&0x1FFFFFFF) - 0x04080000;
 
 	// 0x04080000 to 0x04080003  SP_PC_REG
 	if (offset < 0x04)
@@ -216,7 +220,7 @@ static void *Read_8408_8408( u32 address )
 	else
 	{
 		return ReadInvalid(address);
-	}
+	}*/
 }
 
 #undef DISPLAY_DPC_READS

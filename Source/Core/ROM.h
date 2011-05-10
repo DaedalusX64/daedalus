@@ -163,7 +163,10 @@ const char *	ROM_GetCicTypeName( ECicType cic_type );
 // Externs (urgh)
 //*****************************************************************************
 extern RomInfo g_ROM;
-extern u32 g_dwNumFrames;
 extern bool gTLUTalt_mode;
+
+#ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
+extern u32 g_dwNumFrames;
+#endif
 
 #endif // DAEDALUS_ROM_H_

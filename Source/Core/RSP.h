@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifndef __RSP_H__
 #define __RSP_H__
-
+/*
 ALIGNED_TYPE(struct, SRSPState, CACHE_ALIGN)
 {
 	REG32			CPU[32];				// 0x000 .. 0x100
@@ -33,12 +33,14 @@ ALIGNED_TYPE(struct, SRSPState, CACHE_ALIGN)
 };
 
 ALIGNED_EXTERN(SRSPState, gRSPState, CACHE_ALIGN);
-
+*/
+#ifdef DAEDAULUS_ENABLEASSERTS
 extern volatile bool gRSPHLEActive;
-
-bool RSP_IsRunning();		// Returns true if the rsp is running either LLE or HLE
 bool RSP_IsRunningLLE();	// Returns true if the rsp is running with LLE
 bool RSP_IsRunningHLE();	// Returns true if the rsp is running with HLE
+#endif
+
+bool RSP_IsRunning();		// Returns true if the rsp is running either LLE or HLE
 
 #if 0
 void RSP_DumpVector(u32 reg);

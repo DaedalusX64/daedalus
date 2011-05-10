@@ -42,17 +42,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 
 // We need similar registers to the main CPU
-ALIGNED_GLOBAL(SRSPState, gRSPState, CACHE_ALIGN);
-
+//ALIGNED_GLOBAL(SRSPState, gRSPState, CACHE_ALIGN);
+#ifdef DAEDALUS_ENABLE_ASSERTS
 volatile bool gRSPHLEActive = false;
-//*****************************************************************************
-//
-//*****************************************************************************
-
-bool RSP_IsRunning()
-{
-	return (Memory_SP_GetRegister( SP_STATUS_REG ) & SP_STATUS_HALT) == 0;
-}
 
 //*****************************************************************************
 //
@@ -68,6 +60,16 @@ bool RSP_IsRunningLLE()
 bool RSP_IsRunningHLE()
 {
 	return RSP_IsRunning() && gRSPHLEActive;
+}
+#endif	//DAEDALUS_ENABLE_ASSERTS
+
+//*****************************************************************************
+//
+//*****************************************************************************
+
+bool RSP_IsRunning()
+{
+	return (Memory_SP_GetRegister( SP_STATUS_REG ) & SP_STATUS_HALT) == 0;
 }
 
 #if 0

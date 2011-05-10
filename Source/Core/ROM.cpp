@@ -79,11 +79,13 @@ const char *gGameHackNames[ MAX_HACK_NAMES ] =
 };
 #endif
 
+#ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
 //*****************************************************************************
 // This isn't really the most appropriate place. Need to check with
 // the graphics plugin really
 //*****************************************************************************
 u32 g_dwNumFrames = 0;
+#endif
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -415,8 +417,10 @@ void ROM_ReBoot()
 	}
 #endif
 	// XXXX Update this rom's boot info
-
+#ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
 	g_dwNumFrames = 0;
+#endif
+
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
 	Patch_Reset();
 #endif

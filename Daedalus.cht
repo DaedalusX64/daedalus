@@ -39,3 +39,7 @@ Press L To Levitate,1="Press L To Levitate & Let go to land",0,D038127B-0020,813
 NumberOfGroups=2
 Controller Fix 1st Level,1="Fixes Camera Movement In First Level",0,D1382D1C-802C,80382D0F-0000,
 Make Picture Selectable,1=0,D11E3184-2881,811E3184-2001,D11E3186-0098,811E3186-0001,
+
+[MRC - Multi Racing Championship]
+NumberOfGroups=1
+Corn&Salvy speedhack,1="Audio won't work with this speed hack",0,04500004-0B40,
