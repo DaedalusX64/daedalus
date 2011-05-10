@@ -34,7 +34,7 @@ ALIGNED_TYPE(struct, SRSPState, CACHE_ALIGN)
 
 ALIGNED_EXTERN(SRSPState, gRSPState, CACHE_ALIGN);
 */
-#ifdef DAEDAULUS_ENABLEASSERTS
+#ifdef DAEDALUS_ENABLE_ASSERTS
 extern volatile bool gRSPHLEActive;
 bool RSP_IsRunningLLE();	// Returns true if the rsp is running with LLE
 bool RSP_IsRunningHLE();	// Returns true if the rsp is running with HLE

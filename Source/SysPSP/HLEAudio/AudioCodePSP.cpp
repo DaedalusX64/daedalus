@@ -54,8 +54,7 @@ static const u32	MAX_OUTPUT_FREQUENCY = DESIRED_OUTPUT_FREQUENCY * 4;
 //static const u32	BUFFER_SIZE = 1024 * 8;		// Usually have to provide 1024 samples at a time, so this gives us 8 batches of them
 static const u32	BUFFER_SIZE = 1024 * 4;
 
-//static const u32	PSP_NUM_SAMPLES = 2048;
-static const u32	PSP_NUM_SAMPLES = 1024;
+static const u32	PSP_NUM_SAMPLES = 2048;
 
 // Global variables
 static SceUID bufferEmpty;

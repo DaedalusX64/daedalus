@@ -130,7 +130,7 @@ enum CycleType
 	CYCLE_FILL,
 };
 
-extern bool bN64IsDrawingTextureBuffer;
+extern bool bIsOffScreen;
 
 extern u32 SCR_WIDTH;
 extern u32 SCR_HEIGHT;
@@ -1165,10 +1165,6 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 //*****************************************************************************
 void PSPRenderer::RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts, bool disable_zbuffer )
 {
-	// Remove offscreen rects, maybe do it early in texrect/fillrect etc?
-	/// Removes the annoying black box in Conker, Note this will break framebuffer effects.
-	if( bN64IsDrawingTextureBuffer )	return;
-
 	DaedalusVtx*	p_vertices( (DaedalusVtx*)sceGuGetMemory(num_verts*sizeof(DaedalusVtx)) );
 	memcpy( p_vertices, p_verts, num_verts*sizeof(DaedalusVtx));
 
@@ -1185,6 +1181,11 @@ void PSPRenderer::RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts
 //*****************************************************************************
 void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
+
+	/// Removes the annoying black box in Conker, Note this will break framebuffer effects.
+	//
+	if( bIsOffScreen )	return;
+
 	EnableTexturing( tile_idx );
 
 	v2 screen0( ConvertN64ToPsp( xy0 ) );
@@ -1328,6 +1329,8 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	u8	f1( mVtxProjected[v1].ClipFlags );
 	u8	f2( mVtxProjected[v2].ClipFlags );
 
+	if( bIsOffScreen )	return false;
+
 	if ( f0 & f1 & f2 & CLIP_TEST_FLAGS )
 	{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -1459,8 +1462,7 @@ bool PSPRenderer::FlushTris()
 	}
 
 	// No vertices to render? //Corn
-	// Remove offscreen tris
-	if( num_vertices == 0 || bN64IsDrawingTextureBuffer )
+	if( num_vertices == 0 )
 	{
 		DAEDALUS_ERROR("No Vtx to render");
 		m_dwNumIndices = 0;

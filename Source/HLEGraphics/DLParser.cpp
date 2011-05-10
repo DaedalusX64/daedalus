@@ -114,7 +114,7 @@ struct RDP_Scissor
 };
 
 
-bool bN64IsDrawingTextureBuffer = false;
+bool bIsOffScreen = false;
 u32	gSegments[16];
 static RDP_Scissor scissors;
 static N64Light  g_N64Lights[16];	//Conker uses more than 8
@@ -1809,6 +1809,9 @@ void DLParser_FillRect( MicroCodeCommand command )
 	// Note, in some modes, the right/bottom lines aren't drawn
 	DL_PF("    (%d,%d) (%d,%d)", command.fillrect.x0, command.fillrect.y0, command.fillrect.x1, command.fillrect.y1);
 
+	// Unless we support fb emulation, we can safetly ignore this fillrect
+	if( bIsOffScreen )	return;
+
 	//Always clear Zbuffer if Depthbuffer is selected //Corn
 	if (g_DI.Address == g_CI.Address)
 	{
@@ -1851,13 +1854,13 @@ void DLParser_FillRect( MicroCodeCommand command )
 	// colour just before, so maybe I'm missing something??
 
 	// TODO - Check colour image format to work out how this should be decoded!
-	//c32		colour;
+	c32		colour;
 
 	if ( g_CI.Size == G_IM_SIZ_16b )
 	{
 		PixelFormats::N64::Pf5551	c( (u16)gFillColor );
 
-		c32 colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf5551 >( c );
+		colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf5551 >( c );
 
 		//printf( "FillRect: %08x, %04x\n", colour.GetColour(), c.Bits );
 		DL_PF("    Filling Rectangle");
@@ -1866,9 +1869,10 @@ void DLParser_FillRect( MicroCodeCommand command )
 	}
 	else
 	{
-		//colour = c32( gFillColor );
-		// Unless we support fb emulation, we can safetly ignore this fillrect
-		//
+		// Used by Superman 64's sky.. 
+		// There seems to be a bug with gFillColor? since the sky color is incorrect and dims when pause menu is showed up
+		colour = c32( gFillColor );
+		PSPRenderer::Get()->FillRect( xy0, xy1, colour.GetColour() );
 	}
 }
 
@@ -1914,11 +1918,12 @@ void DLParser_SetCImg( MicroCodeCommand command )
 	g_CI.Size = size;
 	g_CI.Width = width;
 
-	// Used to remove offscreen stuff, atm it only works in a few games, mostly helps Conker, it removes the black box in the right side of the screen :)
-	//
-	bN64IsDrawingTextureBuffer = ( g_CI.Size != G_IM_SIZ_16b || g_CI.Format != G_IM_FMT_RGBA || g_CI.Width < 200 
-	/*|| ( g_CI.Address != g_DI.Address && g_CI.Width != 512 && !g_pFrameBufferManager->HasAddrBeenDisplayed(newCI.dwAddr, newCI.dwWidth))*/ ); // ToDo : Port Me.
-
+	// Used to remove offscreen, it removes the black box in the right side of the screen too :)
+	// This will break FB, maybe add an option for this when FB is implemented?
+	if(g_ROM.GameHacks != SUPERMAN64)
+		bIsOffScreen = ( g_CI.Size != G_IM_SIZ_16b || g_CI.Format != G_IM_FMT_RGBA || g_CI.Width < 200 );
+	else
+		bIsOffScreen = false; // Superman specifies all their texture's size wrong...
 }
 
 //*****************************************************************************
