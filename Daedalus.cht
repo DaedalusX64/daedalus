@@ -29,15 +29,15 @@ Megafast,1=0,812C4984-2222,
 
 [The Legend of Zelda - Ocarina of Time (v1.0)]
 NumberOfGroups=1
-Sub Menu Delay Fix,1="For v1.0 ROM. Fixes Delay When Entering The Sub menu.",0,801DA5CB-0002,
+Sub Menu Delay Fix,1="For v1.0 ROM. Fixes Delay When Entering The Sub menu.",1,801DA5CB-0002,
 
 [The Legend of Zelda - Ocarina of Time (v1.1)]
 NumberOfGroups=1
-Sub Menu Delay Fix,1="For v1.1 ROM. Fixes Delay When Entering The Sub menu.",0,801DA78B-0002,
+Sub Menu Delay Fix,1="For v1.1 ROM. Fixes Delay When Entering The Sub menu.",1,801DA78B-0002,
 
 [The Legend of Zelda - Ocarina of Time (v1.2)]
 NumberOfGroups=1
-Sub Menu Delay Fix,1="For v1.2 ROM. Fixes Delay When Entering The Sub menu.",0,801DAE8B-0002 ,
+Sub Menu Delay Fix,1="For v1.2 ROM. Fixes Delay When Entering The Sub menu.",1,801DAE8B-0002,
 
 [The Legend of Zelda - Majora's Mask (GC)]
 NumberOfGroups=1
@@ -45,8 +45,8 @@ Press L To Levitate,1="Press L To Levitate & Let go to land",0,D038127B-0020,813
 
 [Pokemon Snap]
 NumberOfGroups=2
-Controller Fix 1st Level,1="Fixes Camera Movement In First Level",0,D1382D1C-802C,80382D0F-0000,
-Make Picture Selectable,1=0,D11E3184-2881,811E3184-2001,D11E3186-0098,811E3186-0001,
+Controller Fix 1st Level,1="Fixes Camera Movement In First Level",1,D1382D1C-802C,80382D0F-0000,
+Make Picture Selectable,1="Allows to select pictures at the end of the course",1,D11E3184-2881,811E3184-2001,D11E3186-0098,811E3186-0001,
 
 [MRC - Multi Racing Championship]
 NumberOfGroups=1
