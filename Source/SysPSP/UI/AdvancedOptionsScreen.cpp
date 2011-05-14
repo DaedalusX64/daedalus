@@ -58,35 +58,6 @@ namespace
 //*************************************************************************************
 //
 //*************************************************************************************
-class CScrnSetting : public CUISetting
-	{
-	public:
-		CScrnSetting( u32 * setting, const char * name, const char * description )
-			:	CUISetting( name, description )
-			,	mSetting( setting )
-		{
-		}
-
-		virtual	void			OnNext()				{ (*mSetting < 1) ? *mSetting += 1 : *mSetting = 1; }
-		virtual	void			OnPrevious()			{ (*mSetting > 0) ? *mSetting -= 1 : *mSetting = 0; }
-
-		virtual const char *	GetSettingName() const
-		{
-			switch ( *mSetting )
-			{
-				case 0:		return "Dlist start";
-				case 1:		return "Dlist end";
-			}
-			return "?";
-		}
-
-	private:
-		u32		*mSetting;
-	};
-
-//*************************************************************************************
-//
-//*************************************************************************************
 class IAdvancedOptionsScreen : public CAdvancedOptionsScreen, public CUIScreen
 {
 	public:

@@ -318,12 +318,16 @@ extern	u32 gTextureTile;
 //*****************************************************************************
 // Functions
 //*****************************************************************************
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 void	RDP_SetOtherMode( u32 cmd_hi, u32 cmd_lo );
+#endif
 void	RDP_SetMux( u64	mux );
 void	RDP_SetTile( RDP_Tile tile );
 void	RDP_SetTileSize( RDP_TileSize tile_tile );
+#if RDP_EMULATE_TMEM
 void	RDP_LoadBlock( RDP_TileSize command );
 void	RDP_LoadTile( RDP_TileSize tile_size  );
+#endif
 //*****************************************************************************
 //
 //*****************************************************************************

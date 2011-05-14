@@ -49,7 +49,7 @@ DAEDALUS_STATIC_ASSERT( sizeof( s64 ) == 8 );
 DAEDALUS_STATIC_ASSERT( sizeof( f32 ) == 4 );
 DAEDALUS_STATIC_ASSERT( sizeof( f64 ) == 8 );
 
-
+/*
 union VECTOR
 {
 	s64		_s64[2];
@@ -63,6 +63,7 @@ union VECTOR
 };
 
 DAEDALUS_STATIC_ASSERT( sizeof( VECTOR ) == 16 );
+*/
 
 union REG64
 {

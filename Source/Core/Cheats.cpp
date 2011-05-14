@@ -232,6 +232,23 @@ static void CheatCodes_Clear()
 }
 
 //*****************************************************************************
+//
+//*****************************************************************************
+// Works, but unused ATM
+/*
+void CheatCodes_Delete(u32 index)
+{
+	if(index < codegroupcount - 1)
+	{
+		for(u32 j = index; j < codegroupcount - 1; j++)
+		{
+			memcpy(&codegrouplist[j], &codegrouplist[j + 1], sizeof(CODEGROUP));
+		}
+	}
+	codegroupcount--;
+}
+*/
+//*****************************************************************************
 // (STRMNNRMN - Strip spaces from end of names)
 //*****************************************************************************
 static char * tidy(char * s)

@@ -29,9 +29,9 @@
 #include "OSHLE/ultra_gbi.h"
 #include "Core/Memory.h"
 
-
+#if RDP_EMULATE_TMEM
 extern SImageDescriptor g_TI;
-
+#endif
 //*****************************************************************************
 // RDP state
 //*****************************************************************************
@@ -42,8 +42,6 @@ RDP_TileSize		gRDPTileSizes[8];
 
 //u8		gTextureMemory[ 4096 ];
 u8 *gTextureMemory;
-
-
 
 //*************************************************************************************
 // Set the RDP tile
@@ -68,16 +66,12 @@ void	RDP_SetMux( u64 mux )
 	gRDPMux._u64 = mux;
 }
 
+#if RDP_EMULATE_TMEM
 //*****************************************************************************
 //
 //*****************************************************************************
-// ToDO : Optimize RDP_LoadBlock, it causes a big impact to emulation (as expected, but we should be able to make it faster) 
-// Also try to improve it since sometimes it doesn't work as expected.
-// Good test case is Majora's Mask/
-//
 void RDP_LoadBlock( RDP_TileSize command )
 {
-#if RDP_EMULATE_TMEM
 	//u32 dwULS		= command.left / 4;		// 0
 	//u32 dwULT		= command.top  / 4;		// 0
 	u32 dwTile		= command.tile_idx;
@@ -140,7 +134,6 @@ void RDP_LoadBlock( RDP_TileSize command )
 			ram += dwBytesPerLine;
 		}
 	}
-#endif
 }
 
 //*************************************************************************************
@@ -148,7 +141,6 @@ void RDP_LoadBlock( RDP_TileSize command )
 //*************************************************************************************
 void	RDP_LoadTile( RDP_TileSize tile_size  )
 {
-#if RDP_EMULATE_TMEM
 	u32 left	= tile_size.left/4;
 	u32 top		= tile_size.top/4;
 	u32 dwTile	= tile_size.tile_idx;
@@ -197,8 +189,8 @@ void	RDP_LoadTile( RDP_TileSize tile_size  )
 		tmem = ( tmem + bytes_per_line + 7 ) & ~7;
 		ram += pitch;
 	}
-#endif
 }
+#endif	//RDP_EMULATE_TMEM
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 //*****************************************************************************
@@ -704,7 +696,6 @@ const char *	GetBlenderModeDescription( u32 mode )
 	sprintf( buffer, "Unknown: %08x", mode  );
 	return buffer;
 }
-#endif	// DAEDALUS_DEBUG_DISPLAYLIST
 
 //*****************************************************************************
 //
@@ -713,7 +704,6 @@ void	RDP_SetOtherMode( u32 cmd_hi, u32 cmd_lo )
 {
 	//gRDPOtherMode._u64 = u64( cmd_hi ) << 32 | u64( cmd_lo );
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if (gDisplayListFile != NULL)
 	{
 		// High
@@ -775,5 +765,5 @@ void	RDP_SetOtherMode( u32 cmd_hi, u32 cmd_lo )
 		DL_PF( "      %s", GetBlenderModeDescription( c1_mode ) );
 		DL_PF( "      %s", GetBlenderModeDescription( c2_mode ) );
 	}
-#endif
 }
+#endif	//DAEDALUS_DEBUG_DISPLAYLIST

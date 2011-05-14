@@ -1858,6 +1858,8 @@ void DLParser_FillRect( MicroCodeCommand command )
 
 	if ( g_CI.Size == G_IM_SIZ_16b )
 	{
+		DAEDALUS_ASSERT( gRDPOtherMode.cycle_type != CYCLE_FILL, "Fillrect : Check Me");
+
 		PixelFormats::N64::Pf5551	c( (u16)gFillColor );
 
 		colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf5551 >( c );
@@ -1957,9 +1959,10 @@ void DLParser_SetFillColor( MicroCodeCommand command )
 {
 	gFillColor = command.inst.cmd1;
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	PixelFormats::N64::Pf5551	n64col( (u16)gFillColor );
-
 	DL_PF( "    Color5551=0x%04x", n64col.Bits );
+#endif
 }
 
 //*****************************************************************************

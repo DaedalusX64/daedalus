@@ -220,6 +220,7 @@ void BlendMode_0x001147fffffffe38LL (BLEND_MODE_ARGS)
 	//sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
 	sceGuTexFunc(GU_TFX_ADD,GU_TCC_RGBA);
 }
+
 //Command $ Conquer - Smoke
 //case 0x0041c2835587dfefLL:
 //aRGB0: (Shade        - Env         ) * Primitive    + 0
@@ -230,6 +231,7 @@ void BlendMode_0x0041c2835587dfefLL (BLEND_MODE_ARGS)
 {
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
 }
+
 //Command $ Conquer - Everything
 //case 0x0015982bff327f3fLL:
 //aRGB0: (Texel0       - 0           ) * Shade_Alpha  + Shade
