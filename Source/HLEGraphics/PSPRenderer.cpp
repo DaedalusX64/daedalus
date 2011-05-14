@@ -1182,10 +1182,6 @@ void PSPRenderer::RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts
 void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
 
-	/// Removes the annoying black box in Conker, Note this will break framebuffer effects.
-	//
-	if( bIsOffScreen )	return;
-
 	EnableTexturing( tile_idx );
 
 	v2 screen0( ConvertN64ToPsp( xy0 ) );
@@ -1329,8 +1325,6 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	u8	f1( mVtxProjected[v1].ClipFlags );
 	u8	f2( mVtxProjected[v2].ClipFlags );
 
-	if( bIsOffScreen )	return false;
-
 	if ( f0 & f1 & f2 & CLIP_TEST_FLAGS )
 	{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -1360,7 +1354,7 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 				if( m_bCull_mode == GU_CCW )
 				{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-					DL_PF("   Tri: %d,%d,%d (Back culled)", v0, v1, v2);
+					DL_PF("   Tri: %d,%d,%d (Back Culled)", v0, v1, v2);
 					++m_dwNumTrisClipped;
 #endif
 					return false;
@@ -1369,11 +1363,22 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 			else if( m_bCull_mode == GU_CW )
 			{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-				DL_PF("   Tri: %d,%d,%d (Front culled)", v0, v1, v2);
+				DL_PF("   Tri: %d,%d,%d (Front Culled)", v0, v1, v2);
 				++m_dwNumTrisClipped;
 #endif
 				return false;
 			}
+		}
+
+		// Remove off screen tris
+		//
+		if( bIsOffScreen )	
+		{
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+				DL_PF("   Tri: %d,%d,%d (Off-Screen)", v0, v1, v2);
+				++m_dwNumTrisClipped;
+#endif
+			return false;
 		}
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST

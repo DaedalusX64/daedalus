@@ -1704,6 +1704,11 @@ void DLParser_TexRect( MicroCodeCommand command )
 	tex_rect.cmd2 = command2.inst.cmd1;
 	tex_rect.cmd3 = command3.inst.cmd1;
 
+	
+	/// Note this will break framebuffer effects.
+	//
+	if( bIsOffScreen )	return;
+
 	// Do compare with integers saves CPU //Corn
 	u32	x0 = tex_rect.x0 >> 2;
 	u32	y0 = tex_rect.y0 >> 2;
@@ -1809,9 +1814,6 @@ void DLParser_FillRect( MicroCodeCommand command )
 	// Note, in some modes, the right/bottom lines aren't drawn
 	DL_PF("    (%d,%d) (%d,%d)", command.fillrect.x0, command.fillrect.y0, command.fillrect.x1, command.fillrect.y1);
 
-	// Unless we support fb emulation, we can safetly ignore this fillrect
-	if( bIsOffScreen )	return;
-
 	//Always clear Zbuffer if Depthbuffer is selected //Corn
 	if (g_DI.Address == g_CI.Address)
 	{
@@ -1819,6 +1821,9 @@ void DLParser_FillRect( MicroCodeCommand command )
 		DL_PF("    Clearing ZBuffer");
 		return;
 	}
+
+	// Unless we support fb emulation, we can safetly ignore this fillrect
+	if( bIsOffScreen )	return;
 
 	// Removes unnecesary fillrects in Golden Eye and other games.
 	//
@@ -1922,10 +1927,11 @@ void DLParser_SetCImg( MicroCodeCommand command )
 
 	// Used to remove offscreen, it removes the black box in the right side of the screen too :)
 	// This will break FB, maybe add an option for this when FB is implemented?
+	// Borrowed from Rice Video
 	if(g_ROM.GameHacks != SUPERMAN64)
 		bIsOffScreen = ( g_CI.Size != G_IM_SIZ_16b || g_CI.Format != G_IM_FMT_RGBA || g_CI.Width < 200 );
 	else
-		bIsOffScreen = false; // Superman specifies all their texture's size wrong...
+		bIsOffScreen = false; // Superman specifies size 32b for all textures...
 }
 
 //*****************************************************************************
