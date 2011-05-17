@@ -35,7 +35,7 @@ enum EDelayType
 	DO_DELAY
 };
 
-
+#ifdef DAEDALUS_BREAKPOINTS_ENABLED
 struct DBG_BreakPoint
 {
 	OpCode mOriginalOp;
@@ -46,7 +46,7 @@ struct DBG_BreakPoint
 									// The patch bp r4300 instruction clears this
 									// when it is next executed
 };
-
+#endif
 //
 // CPU Jobs
 //
@@ -155,6 +155,25 @@ inline void CPU_SetPC( u32 pc )		{ gCPUState.CurrentPC = pc; }
 inline void INCREMENT_PC()			{ gCPUState.CurrentPC += 4; }
 inline void DECREMENT_PC()			{ gCPUState.CurrentPC -= 4; }
 
+
+#define COUNTER_INCREMENT_PER_OP			1
+//*****************************************************************************
+//
+//*****************************************************************************
+static u32		gLastPC = 0xffffffff;
+static u8 *		gLastAddress = NULL;
+
+// Take advantage of the cooperative multitasking
+// of the PSP to make locking/unlocking as fast as possible.
+//
+static volatile u32 eventQueueLocked;
+
+#define LOCK_EVENT_QUEUE() CSpinLock _lock( &eventQueueLocked )
+#define RESET_EVENT_QUEUE_LOCK() eventQueueLocked = 0;
+
+//*****************************************************************************
+//
+//*****************************************************************************
 enum ECPUBranchType
 {
 	CPU_BRANCH_DIRECT = 0,		// i.e. jump to a fixed address
@@ -173,15 +192,11 @@ extern "C"
 }
 
 extern	void (* g_pCPUCore)();
-
 //***********************************************
 //These two functions gets called *alot* //Corn
 //CPU_FetchInstruction
 //CPU_FetchInstruction_Refill
 //***********************************************
-static u32		gLastPC = 0xffffffff;
-static u8 *		gLastAddress = NULL;
-
 inline bool CPU_FetchInstruction_Refill( u32 pc, OpCode * opcode )
 {
 	gLastAddress = (u8 *)ReadAddress( pc );
@@ -190,7 +205,9 @@ inline bool CPU_FetchInstruction_Refill( u32 pc, OpCode * opcode )
 	return gCPUState.GetStuffToDo() == 0;
 }
 
-//extern bool CPU_FetchInstruction( u32 pc, OpCode * opcode );
+//*****************************************************************************
+//
+//*****************************************************************************
 inline bool CPU_FetchInstruction( u32 pc, OpCode * opcode )
 {
 	const u32 PAGE_MASK_BITS = 12;		// 1<<12 == 4096
@@ -209,16 +226,10 @@ inline bool CPU_FetchInstruction( u32 pc, OpCode * opcode )
 	return CPU_FetchInstruction_Refill( pc, opcode );
 }
 
-
-#define COUNTER_INCREMENT_PER_OP			1
-
 //***********************************************
 //This function gets called *alot* //Corn
 //CPU_ProcessEventCycles
 //***********************************************
-//extern bool CPU_ProcessEventCycles( u32 cycles );
-static volatile u32 eventQueueLocked;
-#define LOCK_EVENT_QUEUE() CSpinLock _lock( &eventQueueLocked )
 inline bool CPU_ProcessEventCycles( u32 cycles )
 {
 	LOCK_EVENT_QUEUE();

@@ -42,14 +42,15 @@ namespace
 	const u32				TEXT_AREA_LEFT = 40;
 	const u32				TEXT_AREA_RIGHT = 480-40;
 	
-/*
+	#define MAX_PSP_MODEL 6
+
 #ifdef DAEDALUS_SCRN_16BIT
 	const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 16BIT Revision "SVNVERSION"";
 #else
 	const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 32BIT Revision "SVNVERSION"";
 #endif
-*/
-	const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Beta 3 Update";
+
+	//const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Beta 3 Update";
 	
 	const char * const		DATE_TEXT = "Built " __DATE__;
 
@@ -62,9 +63,9 @@ namespace
 		"For news and updates visit:",
 	};
 
-	const char * const		pspModel[5] =
+	const char * const		pspModel[ MAX_PSP_MODEL ] =
 	{
-		"PSP PHAT", "PSP SLIM", "PSP BRITE", "PSP GO", "UNKNOWN PSP"
+		"PSP PHAT", "PSP SLIM", "PSP BRITE", "PSP BRITE", "PSP GO", "UNKNOWN PSP"
 	};
 
 	const char * const		URL_TEXT_1 = "http://DaedalusX64.com/";
@@ -143,6 +144,8 @@ void	IAboutComponent::Update( float elapsed_time, const v2 & stick, u32 old_butt
 //*************************************************************************************
 void	IAboutComponent::Render()
 {
+#define IsPSPModelValid( ver )		( (ver) >= PSP_MODEL_STANDARD && (ver) < MAX_PSP_MODEL )
+
 	u32		text_top( 38 );
 
 	if(mpTexture != NULL)
@@ -175,7 +178,7 @@ void	IAboutComponent::Render()
 	CFixedString<128>	date( DATE_TEXT );
 
 	date += " (";
-	date += pspModel[ kuKernelGetModel() ];
+	date += IsPSPModelValid( kuKernelGetModel() ) ? pspModel[ kuKernelGetModel() ] : "UNKNOWN PSP";
 	date += ")";
 
 	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, version, DrawTextUtilities::TextWhite ); y += line_height;

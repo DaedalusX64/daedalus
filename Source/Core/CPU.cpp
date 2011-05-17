@@ -59,12 +59,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //#include "Utility/SpinLock.h"
 
-// Take advantage of the cooperative multitasking
-//    of the PSP to make locking/unlocking as fast as possible.
-//static volatile u32 eventQueueLocked;
-//#define LOCK_EVENT_QUEUE() CSpinLock _lock( &eventQueueLocked )
-#define RESET_EVENT_QUEUE_LOCK() eventQueueLocked = 0;
-
 
 //
 //	New dynarec engine

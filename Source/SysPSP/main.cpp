@@ -140,7 +140,14 @@ static void DaedalusFWCheck()
 #define PSP_FIRMWARE(f) ((((f >> 8) & 0xF) << 24) | (((f >> 4) & 0xF) << 16) | ((f & 0xF) << 8) | 0x10)
 
 	u32 ver = sceKernelDevkitVersion();
-
+/*
+	FILE * fh = fopen( "firmware.txt", "a" );
+	if ( fh )
+	{
+		fprintf( fh,  "version=%d, firmware=0x%08x\n", kuKernelGetModel(), ver );
+		fclose(fh);
+	}
+*/
 	if( (ver < PSP_FIRMWARE(0x401)) || (ver <= PSP_FIRMWARE(0x550) && !gButtons.kmode) )
 	{
 		pspDebugScreenInit();
@@ -466,7 +473,6 @@ void HandleEndOfFrame()
 	{
 		if( gCheatsEnabled && (pad.Buttons & PSP_CTRL_SELECT) )
 		{
-			printf("press\n");
 			CheatCodes_Activate( GS_BUTTON );
 		}
 

@@ -38,11 +38,10 @@ static const unsigned char regName[32][5] =
     "t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra"
 };
 
-static const char *pspModel[5] =
+const char * const		pspModel[6] =
 {
-    "PSP PHAT", "PSP SLIM", "PSP BRITE", "PSP GO", "UNKNOWN PSP"
+	"PSP PHAT", "PSP SLIM", "PSP BRITE", "PSP BRITE", "PSP GO", "UNKNOWN PSP"
 };
-
 extern bool PSP_IS_SLIM;
 
 static void DumpInformation(PspDebugRegBlock * regs)
