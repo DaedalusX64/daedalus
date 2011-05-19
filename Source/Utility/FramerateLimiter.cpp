@@ -142,15 +142,12 @@ void FramerateLimiter_Limit()
 		
 		if( gSpeedSyncEnabled == 2 ) required_ticks = required_ticks << 1;	// Slow down to 1/2 speed //Corn
 		
-		if( elapsed_ticks < required_ticks )
-		{
-			s32	delay_ticks( required_ticks - elapsed_ticks - 50);	//Remove ~50 ticks for additional processing
+		s32	delay_ticks( required_ticks - elapsed_ticks - 50);	//Remove ~50 ticks for additional processing
 
-			if( delay_ticks > 0 )
-			{
-				//printf( "Delay ticks: %d\n", u32( delay_ticks ) );
-				ThreadSleepTicks( delay_ticks );
-			}
+		if( delay_ticks > 0 )
+		{
+			//printf( "Delay ticks: %d\n", u32( delay_ticks ) );
+			ThreadSleepTicks( delay_ticks );
 		}
 
 		NTiming::GetPreciseTime(&now);
