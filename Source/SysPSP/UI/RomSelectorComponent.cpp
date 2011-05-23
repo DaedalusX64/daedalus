@@ -64,8 +64,6 @@ float romseltextscale = 0.0f;
 bool isnextset = 0;
 char catstr[85] = " #  a  b  c  d  e  f  g  h  i  j  k  l  m  n  o  p  q  r  s  t  u  v  w  x  y  z  ? ";
 
-pspUtilityMsgDialogParams RomSelPopUp; //Message Pop Up.
-
 namespace
 {
 	const char * const		gRomsDirectories[] = 

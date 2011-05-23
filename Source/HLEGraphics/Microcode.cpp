@@ -67,6 +67,21 @@ struct MicrocodeData
 	const char *	rom_name;
 };
 
+//
+// Used to cache ucodes
+//
+struct UcodeInfo
+{
+	bool used;
+
+	u32	ucode;
+	u32	code_base;
+	u32	data_base;
+};
+
+#ifdef DAEDALUS_ENABLE_ASSERTS
+extern const u32 MAX_RAM_ADDRESS;
+#endif
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -98,9 +113,9 @@ UcodeInfo used[ MAX_UCODE_CACHE_ENTRIES ];
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char * str, u32 str_len )
+static bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char * str, u32 str_len )
 {
-	DAEDALUS_ASSERT( data_base < (8*1024*1024) + 0x1000 ,"DetectVersionString out of bound %08X", data_base );
+	DAEDALUS_ASSERT( data_base < MAX_RAM_ADDRESS + 0x1000 ,"GBIMicrocode out of bound %08X", data_base );
 
 	const s8 * ram( g_ps8RamBase );
 
@@ -133,7 +148,7 @@ bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char * str,
 //*****************************************************************************
 //
 //*****************************************************************************
-void GBIMicrocode_Cache( u32 index, u32 code_base, u32 data_base, u32 ucode_version)
+static void GBIMicrocode_Cache( u32 index, u32 code_base, u32 data_base, u32 ucode_version)
 {
 	//
 	// If the max of ucode entries is reached, spread it randomly
@@ -188,10 +203,9 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	// Don't bother checking for matches when ucode was found in array
 	// This only used for custom ucodes
 	//
-	u32 i;
 	u32 code_hash( murmur2_neutral_hash( &g_pu8RamBase[ code_base ], code_size, 0 ) );
 
-	for ( i = 0; i < ARRAYSIZE(gMicrocodeData); i++ )
+	for ( u32 i = 0; i < ARRAYSIZE(gMicrocodeData); i++ )
 	{
 		if ( code_hash == gMicrocodeData[i].code_hash )
 		{

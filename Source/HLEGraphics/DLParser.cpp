@@ -92,8 +92,6 @@ inline void 	FinishRDPJob()
 u32 gRDPHalf1 = 0;
 u32 gRDPFrame = 0;
 
-UcodeInfo last;
-
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 //                     GFX State                        //
@@ -596,16 +594,18 @@ void DLParser_Process()
 	//
 	if( g_ROM.GameHacks != CHAMELEON_TWIST_2 ) gGraphicsPlugin->UpdateScreen();
 	
+	static u32 last_codebase = 0;
+	
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 	u32 code_base = (u32)pTask->t.ucode & 0x1fffffff;
 	u32 code_size = pTask->t.ucode_size;
 	u32 data_base = (u32)pTask->t.ucode_data & 0x1fffffff;
 	u32 data_size = pTask->t.ucode_data_size;
-
-	if ( last.code_base != code_base )
+	
+	if ( last_codebase != code_base )
 	{
 		DLParser_InitMicrocode( code_base, code_size, data_base, data_size );
-		last.code_base = code_base;
+		last_codebase = code_base;
 	}
 
 	//
@@ -1862,6 +1862,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 	c32		colour;
 
 	if ( g_CI.Size == G_IM_SIZ_16b )
+	//if ( gRDPOtherMode.cycle_type != CYCLE_FILL )
 	{
 		DAEDALUS_ASSERT( gRDPOtherMode.cycle_type != CYCLE_FILL, "Fillrect : Check Me");
 
