@@ -39,17 +39,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <pspkernel.h>
 #include <pspctrl.h>
-#include <psputility.h>
 #include <pspgu.h>
 
 extern u32 HAVE_DVE;
 extern u32 PSP_TV_CABLE;
-extern u32 PSP_TV_LACED;
 extern bool PSP_IS_SLIM;
-
-pspUtilityMsgDialogParams GloSetPopUp; //Message Pop Up.
-
-bool						mHleTriggered;
 
 
 namespace
@@ -178,31 +172,30 @@ namespace
 
 		virtual	void			OnSelected()
 		{
-			EasyMessage msg;
 
-			if(msg.ShowMessage("This will guide you to reset the settings in Daedalus\n \nDo you want to reset HLE cache?", 1))
+			if(ShowMessage("This will guide you to reset the settings in Daedalus\n \nDo you want to reset HLE cache?", 1))
 			{
 				IO::Path::DeleteRecursive("SaveGames",".hle");
 				ThreadSleepMs(1000);	//safety wait for s
 
-				if (msg.ShowMessage("Do you want to reset settings to default?\n \nNote : This will exit the emulator", 1))
+				if (ShowMessage("Do you want to reset settings to default?\n \nNote : This will exit the emulator", 1))
 				{
 					remove(DAEDALUS_PSP_PATH("preferences.ini"));
 					remove(DAEDALUS_PSP_PATH("rom.db"));
 					ThreadSleepMs(1000);	//safety wait for s
 
-					msg.ShowMessage("Daedalus will exit now",0);
+					ShowMessage("Daedalus will exit now",0);
 
 					sceKernelExitGame();
 				}
 			}
-			else if(msg.ShowMessage("Do you want to reset settings to default?\n \nNote : This will exit the emulator", 1))
+			else if(ShowMessage("Do you want to reset settings to default?\n \nNote : This will exit the emulator", 1))
 			{
 				remove(DAEDALUS_PSP_PATH("preferences.ini"));
 				remove(DAEDALUS_PSP_PATH("rom.db"));
 				ThreadSleepMs(1000);	//safety wait for s
 
-				msg.ShowMessage("Daedalus will exit now",0);
+				ShowMessage("Daedalus will exit now",0);
 
 				sceKernelExitGame();
 			}

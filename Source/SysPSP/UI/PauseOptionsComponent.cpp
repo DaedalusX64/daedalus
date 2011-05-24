@@ -252,9 +252,7 @@ void	IPauseOptionsComponent::Render()
 //*************************************************************************************
 void IPauseOptionsComponent::ExitConfirmation()
 {
-	EasyMessage msg;
-
-	if(msg.ShowMessage("Return to main menu?\nAny unsaved progress will be lost", 1))
+	if(ShowMessage("Return to main menu?\nAny unsaved progress will be lost", 1))
 	{
 		(*mOnReset)();
 	}

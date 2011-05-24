@@ -2043,9 +2043,7 @@ void	IRomSelectorComponent::Update_old( float elapsed_time, const v2 & stick, u3
 		if(new_buttons & PSP_CTRL_HOME)
 		{
 #ifdef DAEDALUS_DIALOGS
-			EasyMessage msg;
-
-			if(msg.ShowMessage("Do you want to quit Daedalus?", 1))
+			if(ShowMessage("Do you want to quit Daedalus?", 1))
 			{
 				sceKernelExitGame();
 			}
@@ -2285,9 +2283,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		if(new_buttons & PSP_CTRL_HOME)
 		{
 #ifdef DAEDALUS_DIALOGS
-			EasyMessage msg;
-
-			if(msg.ShowMessage("Do you want to quit Daedalus?", 1))
+			if(ShowMessage("Do you want to quit Daedalus?", 1))
 			{
 				sceKernelExitGame();
 			}
