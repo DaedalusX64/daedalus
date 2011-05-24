@@ -534,6 +534,10 @@ static void	DLParser_ProcessDList()
 	{
 		DLParser_FetchNextCommand( &command );
 
+		// Note: if instruction (gCurrentInstructionCount) is zero (aka dlist was culled) and we happen to launch the dlist debugger
+		// it won't work since that display list was culled and nothing will be shown
+		// I don't think there's a way to "fix" that without sacrficing performance or adding a hack for debug builds -Salvy
+		//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		//use the gInstructionName table for fecthing names.
 		//we use the table as is for GBI0, GBI1 and GBI2
@@ -1929,10 +1933,9 @@ void DLParser_SetCImg( MicroCodeCommand command )
 	// Used to remove offscreen, it removes the black box in the right side of the screen too :)
 	// This will break FB, maybe add an option for this when FB is implemented?
 	// Borrowed from Rice Video
-	if(g_ROM.GameHacks != SUPERMAN64)
-		bIsOffScreen = ( g_CI.Size != G_IM_SIZ_16b || g_CI.Format != G_IM_FMT_RGBA || g_CI.Width < 200 );
-	else
-		bIsOffScreen = false; // Superman specifies size 32b for all textures...
+	// Do not check texture size, it breaks Superman and Doom64..
+	//
+	bIsOffScreen = ( /*g_CI.Size != G_IM_SIZ_16b ||*/ g_CI.Format != G_IM_FMT_RGBA || g_CI.Width < 200 );
 }
 
 //*****************************************************************************

@@ -80,7 +80,7 @@ struct UcodeInfo
 };
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
-extern const u32 MAX_RAM_ADDRESS;
+const u32	MAX_RAM_ADDRESS = (8*1024*1024);
 #endif
 //*****************************************************************************
 //

@@ -1366,6 +1366,21 @@ static void BlendMode_0x00277e6035fcf778LL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
+// OoT ground texture and water temple walls
+//case 0x00267e041ffcfdf8LL:
+//aRGB0: (Texel1       - Texel0      ) * Env_Alpha    + Texel0      
+//aA0  : (0            - 0           ) * 0            + 1           
+//aRGB1: (Combined     - 0           ) * Shade        + 0           
+//aA1  : (0            - 0           ) * 0            + Combined    
+static void BlendMode_0x00267e041ffcfdf8LL( BLEND_MODE_ARGS )
+{
+	// XXXX placeholder implementation - ok except t1?
+	// RGB = Blend(T0, T1, EnvAlpha) * Shade
+	// A   = 1
+	details.ColourAdjuster.SetAOpaque();	// Alpha 1.0
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+}
+
 //Zelda Bottled Water
 //case 0x00272c6035fc9378LL:
 //aRGB0: (Texel1       - Primitive   ) * PrimLODFrac  + Texel0      
@@ -1611,6 +1626,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00262a041f5893f8LL); // Zelda Deku Tree
 			BLEND_MODE(0x00262a60150c937fLL); // Zelda Fairies
 			BLEND_MODE(0x00267e041f0cfdffLL); // Zelda OOT Water
+			BLEND_MODE(0x00267e041ffcfdf8LL); // Zelda OOT Walls
 			BLEND_MODE(0x002698041f14ffffLL); // Banjo Kazooie Paths
 			BLEND_MODE(0x00271860350cff7fLL); // Deku Tree Light
 			BLEND_MODE(0x00271c6035fcf378LL); // Zelda Fairy Spirit
