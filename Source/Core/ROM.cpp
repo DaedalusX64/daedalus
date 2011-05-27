@@ -58,12 +58,10 @@ const char *gGameHackNames[ MAX_HACK_NAMES ] =
 	"No Game Specific Hack",
 	"TLB Hack", 
 	"Viewport Hack", 
-	"Pilot Wings' Flushtris Hack",
 	"Zelda OOT Hacks", 
 	"Zelda MM Hacks",
 	"Flat Shade Disabled Hack",
 	"Rumble Pak Disabled Hack",
-	"1/2 ZBuffer Hack",
 	"S2DEX Palette Hack",
 	"Tarzan Misc Hacks",
 	"Force Mtx Donald Duck Hack",
@@ -76,7 +74,6 @@ const char *gGameHackNames[ MAX_HACK_NAMES ] =
 	"Screen Update Hack",
 	"Disable bcopy and osSendMes Hack",
 	"Ignore Alpha",
-	"Render Offscreen"
 };
 #endif
 
@@ -470,7 +467,6 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x4547: g_ROM.GameHacks = GOLDEN_EYE;			break;
 	case 0x4842: g_ROM.GameHacks = BODY_HARVEST;		break;
 	case 0x5742: g_ROM.GameHacks = SUPER_BOWLING;		break;
-	case 0x5750: g_ROM.GameHacks = PILOT_WINGS;			break;
 	case 0x4c5a: g_ROM.GameHacks = ZELDA_OOT;			break;
 	case 0x514D: g_ROM.GameHacks = PMARIO;				break;
 	case 0x3954: g_ROM.GameHacks = TIGERS_HONEY_HUNT;	break;
@@ -482,7 +478,6 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5144: g_ROM.GameHacks = DONALD;				break;
 	case 0x4643: g_ROM.GameHacks = CLAY_FIGHTER_63;		break;
 	case 0x5a52: g_ROM.GameHacks = RIDGE_RACER;			break;
-	case 0x5053: g_ROM.GameHacks = SUPERMAN64;			break;
 	case 0x3358:	//GEX3
 	case 0x3258:	//GEX64
 		g_ROM.GameHacks = GEX_GECKO;

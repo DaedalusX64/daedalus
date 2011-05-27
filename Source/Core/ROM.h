@@ -97,7 +97,7 @@ struct SRomPreferences;
 
 // Increase this everytime you add a new hack, don't forget to add it in gGameHackNames too !!!
 //
-#define MAX_HACK_NAMES 23
+#define MAX_HACK_NAMES 21
 //
 //*****************************************************************************
 //	Hacks for games etc.
@@ -107,7 +107,6 @@ enum EGameHacks
 	NO_GAME_HACK = 0,
 	GOLDEN_EYE,
 	SUPER_BOWLING,
-	PILOT_WINGS,
 	ZELDA_OOT,
 	ZELDA_MM,
 	TIGERS_HONEY_HUNT,
@@ -125,7 +124,6 @@ enum EGameHacks
 	CLAY_FIGHTER_63,
 	BODY_HARVEST,
 	AIDYN_CRONICLES,
-	SUPERMAN64
 };
 
 //*****************************************************************************

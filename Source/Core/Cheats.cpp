@@ -33,14 +33,42 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Cheatcode routines and format based from 1964
 //
 
+#define CHEAT_CODE_MAGIC_VALUE 0xDEAD
+
 CODEGROUP *codegrouplist;
 u32		codegroupcount		= 0;
 s32		currentgroupindex	= -1;
 char	current_rom_name[128];
 
-#define CHEAT_CODE_MAGIC_VALUE 0xDEAD
-
 enum { CHEAT_ALL_COUNTRY, CHEAT_USA, CHEAT_JAPAN, CHEAT_USA_AND_JAPAN, CHEAT_EUR, CHEAT_AUS, CHEAT_FR, CHEAT_GER };
+//*****************************************************************************
+//
+//*****************************************************************************
+// This is similar to ROM_GetCountryNameFromID but we don't get the whole name as Europe or USA to avoid slowing down parsing by adding inecesary strings 
+// We can get just the country ID name from it but they are really confusing.. ex E for USA..
+// Since this such a small function is alright even though it seems rebundant
+//
+const char * GetCountryName( u8 country )
+{
+	switch(country)
+	{
+	case 0x45:	return " (U)";		//USA
+	case 0x50:	return " (E)";		//Europe
+	case 0x4A:	return " (J)";		//Japan
+	case 0x46:	return " (F)";		//French
+	case 0x44:	return " (G)";		//Germany
+	case 0x53:	return " (S)";		//Spanish
+	case 0x55:	return " (A)";		//Australia
+	case 0x49:	return " (I)";		//Italian
+	case 0x37:	return " (B)";		//Beta (7)
+	case 0x59:	return " (P)";		//PAL
+	default:	return " (?)";		//0x41/0x58
+	}
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
 
 // Apply game shark code
 
@@ -394,6 +422,9 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 
 	strcpy(current_rom_name, rom_name);
 
+	// Add country ID to this ROM name, to avoid mixing cheat codes of different region in the same entry
+	strcat(current_rom_name, GetCountryName(countryID));
+
 	// Do not parse again, if we already parsed for this ROM
 	if(strcmp(current_rom_name, last_rom_name) == 0)
 	{
@@ -427,8 +458,8 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 	}
 
 	// g_ROM.rh.Name adds extra spaces, remove 'em
-	//
-	tidy( current_rom_name );
+	// No longer needed as we now fetch ROM name from Rom.ini
+	//tidy( current_rom_name );
 
 	// Locate the entry for current rom by searching for g_ROM.rh.Name
 	//
