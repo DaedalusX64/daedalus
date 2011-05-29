@@ -121,7 +121,7 @@ DAED_PSP_SRCS =		Source/SysPSP/Graphics/DrawText.cpp \
 			Source/SysPSP/DveMgr/pspDveManager.S \
 			Source/SysPSP/KernelButtonsPrx/imposectrl.S \
 			Source/SysPSP/Utility/Buttons.cpp \
-			Source/SysPSP/UI/EasyMsg/easymessage.cpp \
+			Source/SysPSP/UI/Dialogs.cpp \
 			Source/SysPSP/Utility/exception.cpp
 
 DAED_HLEGFX_SRCS =	Source/SysPSP/Plugins/GraphicsPluginPSP.cpp \

@@ -104,11 +104,7 @@ ISplashScreen::~ISplashScreen()
 void	ISplashScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	// If any button was unpressed and is now pressed, exit
-#ifndef DAEDALUS_PUBLIC_RELEASE
-	if(((~old_buttons) & new_buttons) || gGlobalPreferences.SkipSplash )
-#else
 	if((~old_buttons) & new_buttons)
-#endif
 	{
 		mIsFinished = true;
 	}

@@ -113,15 +113,12 @@ struct SGlobalPreferences
 	u32							DisplayFramerate;
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	bool						HighlightInexactBlendModes;
+	bool						CustomBlendModes;
 #endif
 	bool						BatteryWarning;
 	bool						LargeROMBuffer;
 	bool						ForceLinearFilter;
-#ifndef DAEDALUS_PUBLIC_RELEASE
-	bool						CustomBlendModes;
-	bool						SkipSplash;
-	bool						LogMicrocodes;
-#endif
+
 	EGuiType					GuiType;
 	EGuiColor					GuiColor;
 

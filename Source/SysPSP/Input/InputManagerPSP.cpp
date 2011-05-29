@@ -417,7 +417,7 @@ const SButtonNameMapping	gButtonNameMappings[] =
 	{ "PSP.Right",		PSP_CTRL_RIGHT },
 };
 
-int GetOperatorPrecedence( char op )
+u32 GetOperatorPrecedence( char op )
 {
 	switch ( op )
 	{
@@ -598,8 +598,8 @@ CButtonMapping *	CButtonMappingExpressionEvaluator::Parse( const char * expressi
 			if( !operator_stack.empty() )
 			{
 				char	prevOp( operator_stack.top() );
-				s32		newPrecedence( GetOperatorPrecedence( c ) );
-				s32		prevPrecedence( GetOperatorPrecedence( prevOp ) );
+				u32		newPrecedence( GetOperatorPrecedence( c ) );
+				u32		prevPrecedence( GetOperatorPrecedence( prevOp ) );
 
 				// If the new precedence is less than that of the previous operator then
 				// consume the previous operator before continuing

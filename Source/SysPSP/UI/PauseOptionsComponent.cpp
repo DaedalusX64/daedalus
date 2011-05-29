@@ -35,8 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/GraphicsContext.h"
 #include "SysPSP/Graphics/DrawText.h"
 
-#include "EasyMsg/easymessage.h"
-
 #include "Core/CPU.h"
 #include "Core/Dynamo.h"
 #include "Core/ROM.h"
@@ -175,12 +173,12 @@ IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context, CFunctor
 	mElements.Add( new CUISpacer( 16 ) );
 
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::OnResume ), "Resume Emulation", "Resume emulation." ) );
-
+/*
 #ifdef DAEDALUS_DIALOGS
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::ExitConfirmation ), "Return to Main Menu", "Return to the main menu." ) );
-#else
+#else*/
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::OnReset ), "Return to Main Menu", "Return to the main menu." ) );
-#endif
+//#endif
 }
 
 //*************************************************************************************
@@ -252,7 +250,7 @@ void	IPauseOptionsComponent::Render()
 //*************************************************************************************
 void IPauseOptionsComponent::ExitConfirmation()
 {
-	if(ShowMessage("Return to main menu?\nAny unsaved progress will be lost", 1))
+	//if(ShowMessage("Return to main menu?\nAny unsaved progress will be lost", 1))
 	{
 		(*mOnReset)();
 	}

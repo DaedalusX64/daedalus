@@ -35,7 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/IO.h"
 
 #include "Input/InputManager.h"
-#include "EasyMsg/easymessage.h"
 
 #include <pspkernel.h>
 #include <pspctrl.h>
@@ -173,7 +172,7 @@ namespace
 		virtual	void			OnSelected()
 		{
 
-			if(ShowMessage("This will guide you to reset the settings in Daedalus\n \nDo you want to reset HLE cache?", 1))
+		/*	if(ShowMessage("This will guide you to reset the settings in Daedalus\n \nDo you want to reset HLE cache?", 1))
 			{
 				IO::Path::DeleteRecursive("SaveGames",".hle");
 				ThreadSleepMs(1000);	//safety wait for s
@@ -198,7 +197,7 @@ namespace
 				ShowMessage("Daedalus will exit now",0);
 
 				sceKernelExitGame();
-			}
+			}*/
 		}
 
 		virtual const char *	GetSettingName() const
@@ -353,17 +352,12 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 	if (PSP_IS_SLIM) mElements.Add( new CBoolSetting( &gGlobalPreferences.LargeROMBuffer, "Use Large ROM Buffer", "Disable this for faster loading with a small slowdown during scene changes on large ROMs. Takes effect only when loading ROM.", "Yes", "No" ) );
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.HighlightInexactBlendModes, "Highlight Inexact Blend Modes",	"Replace inexact blend modes with a placeholder texture.", "Yes", "No" ) );
+	mElements.Add( new CBoolSetting( &gGlobalPreferences.CustomBlendModes, "Use Custom Blend Modes",	"Debugging tool to disable custom blendmodes.", "Yes", "No" ) );
 #endif
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.BatteryWarning, "Low Battery Warning",	"Whether to allow Daedalus to notify when the battery is low.", "Yes", "No" ) );
 	mElements.Add( new CGuiType( "Gui Style",	"Select Gui Type either CoverFlow Style or Classic Style" ) );
 	mElements.Add( new CColorSetting( "GUI Color", "Change GUI Color" ) );
 	mElements.Add( new CResetSetting( "Reset Settings", "Will guide you to reset preferences to default, and hle cache files. Note : emulator will exit if resetting settings" ) );
-
-#ifndef DAEDALUS_PUBLIC_RELEASE
-	mElements.Add( new CBoolSetting( &gGlobalPreferences.SkipSplash, "Skip Splash Screen",	"Whether or not to skip the logo screen.", "Yes", "No" ) );
-	mElements.Add( new CBoolSetting( &gGlobalPreferences.CustomBlendModes, "Use Custom Blend Modes",	"Debugging tool to disable custom blendmodes.", "Yes", "No" ) );
-	mElements.Add( new CBoolSetting( &gGlobalPreferences.LogMicrocodes, "Log Microcodes",	"Debugging tool to log Microcodes to ucodes.txt.", "Yes", "No" ) );
-#endif
 
 }
 
@@ -379,8 +373,6 @@ IGlobalSettingsComponent::~IGlobalSettingsComponent()
 //*************************************************************************************
 void	IGlobalSettingsComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
-
-//if ((!mHleTriggered) && (!mSettingsTriggered) && (!mResetTriggered) && (!mQuitTriggered)) {
 	if(old_buttons != new_buttons)
 	{
 		if( new_buttons & PSP_CTRL_UP )

@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "RomSelectorComponent.h"
 #include "UIContext.h"
 #include "UIScreen.h"
+#include "Dialogs.h"
 
 #include <psptypes.h>
 #include <pspkernel.h>
@@ -32,8 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Graphics/DrawText.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/NativeTexture.h"
-
-#include "EasyMsg/easymessage.h"
 
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
@@ -266,6 +265,7 @@ class IRomSelectorComponent : public CRomSelectorComponent
 		float						mTimeSinceScroll;		// 
 
 		bool						mRomDelete;
+		bool						mQuitTriggered;
 };
 
 //*************************************************************************************
@@ -305,6 +305,7 @@ IRomSelectorComponent::IRomSelectorComponent( CUIContext * p_context, CFunctor1<
 ,	mPreviewLoadedTime( 0.0f )
 ,	mTimeSinceScroll( 0.0f )
 ,	mRomDelete(false)
+,	mQuitTriggered(false)
 {
 	for( u32 i = 0; i < ARRAYSIZE( gRomsDirectories ); ++i )
 	{
@@ -1894,7 +1895,18 @@ void IRomSelectorComponent::Render_old()
 	c32 color;
 	if(count & 0x80) color = c32( ~count<<1, 0, 0, 255);
 	else color = c32( count<<1, 0, 0, 255);
-	
+
+	if(mQuitTriggered)
+	{
+
+		Dialog _dialog;
+		if(_dialog.ShowDialog(mpContext,"Do you want to exit?", 1))
+		{
+			sceKernelExitGame();
+		}
+		mQuitTriggered=false;
+
+	}
 	if(mRomDelete)
 	{
 		mpContext->DrawTextAlign(0,470,AT_RIGHT,CATEGORY_AREA_TOP + mpContext->GetFontHeight(),"(X) -> Confirm", color);
@@ -2042,14 +2054,7 @@ void	IRomSelectorComponent::Update_old( float elapsed_time, const v2 & stick, u3
 		}
 		if(new_buttons & PSP_CTRL_HOME)
 		{
-#ifdef DAEDALUS_DIALOGS
-			if(ShowMessage("Do you want to quit Daedalus?", 1))
-			{
-				sceKernelExitGame();
-			}
-#else
-			sceKernelExitGame();
-#endif
+			mQuitTriggered = true;
 		}
 		if(new_buttons & PSP_CTRL_CROSS && mRomDelete)	// DONT CHANGE ORDER
 		{
@@ -2281,15 +2286,15 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 			}
 		}
 		if(new_buttons & PSP_CTRL_HOME)
-		{
+		{/*
 #ifdef DAEDALUS_DIALOGS
 			if(ShowMessage("Do you want to quit Daedalus?", 1))
 			{
 				sceKernelExitGame();
 			}
-#else
+#else*/
 			sceKernelExitGame();
-#endif
+//#endif
 		}
 		if(new_buttons & PSP_CTRL_CROSS && mRomDelete)	// DONT CHANGE ORDER
 		{

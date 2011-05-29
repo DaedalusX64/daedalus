@@ -151,17 +151,12 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		BOOL_SETTING( gGlobalPreferences, ForceLinearFilter, defaults );
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		BOOL_SETTING( gGlobalPreferences, HighlightInexactBlendModes, defaults );
+		BOOL_SETTING( gGlobalPreferences, CustomBlendModes, defaults );
 #endif
 		BOOL_SETTING( gGlobalPreferences, BatteryWarning, defaults );
 		BOOL_SETTING( gGlobalPreferences, LargeROMBuffer, defaults );
 		FLOAT_SETTING( gGlobalPreferences, StickMinDeadzone, defaults );
 		FLOAT_SETTING( gGlobalPreferences, StickMaxDeadzone, defaults );
-
-#ifndef DAEDALUS_PUBLIC_RELEASE
-		BOOL_SETTING( gGlobalPreferences, CustomBlendModes, defaults );
-		BOOL_SETTING( gGlobalPreferences, SkipSplash, defaults );
-		BOOL_SETTING( gGlobalPreferences, LogMicrocodes, defaults );
-#endif
 		
 		if( section->FindProperty( "GuiType", &property ) )
 		{
@@ -349,6 +344,7 @@ void IPreferences::Commit()
 		OUTPUT_BOOL( gGlobalPreferences, ForceLinearFilter, defaults );
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		OUTPUT_BOOL( gGlobalPreferences, HighlightInexactBlendModes, defaults );
+		OUTPUT_BOOL( gGlobalPreferences, CustomBlendModes, defaults );
 #endif
 		OUTPUT_BOOL( gGlobalPreferences, BatteryWarning, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, LargeROMBuffer, defaults );
@@ -360,12 +356,6 @@ void IPreferences::Commit()
 		OUTPUT_BOOL( gGlobalPreferences, TVEnable, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, TVLaced, defaults );
 		OUTPUT_INT( gGlobalPreferences, TVType, defaults );
-
-#ifndef DAEDALUS_PUBLIC_RELEASE
-		OUTPUT_BOOL( gGlobalPreferences, CustomBlendModes, defaults );
-		OUTPUT_BOOL( gGlobalPreferences, SkipSplash, defaults );
-		OUTPUT_BOOL( gGlobalPreferences, LogMicrocodes, defaults );
-#endif
 
 		fprintf( fh, "\n\n" ); //Spacer to go before Rom Settings
 
@@ -422,6 +412,7 @@ SGlobalPreferences::SGlobalPreferences()
 :	DisplayFramerate( 0 )
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 ,	HighlightInexactBlendModes( false )
+,	CustomBlendModes( true )
 #endif
 ,	BatteryWarning( false )
 ,	LargeROMBuffer( true )
@@ -434,11 +425,6 @@ SGlobalPreferences::SGlobalPreferences()
 ,	TVEnable( false )
 ,	TVLaced( false )
 ,	TVType( TT_4_3 )
-#ifndef DAEDALUS_PUBLIC_RELEASE
-,	CustomBlendModes( true )
-,	SkipSplash( false )
-,	LogMicrocodes( false )
-#endif
 {
 }
 

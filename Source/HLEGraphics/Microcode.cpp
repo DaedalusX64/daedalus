@@ -258,18 +258,16 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 
 	DBGConsole_Msg(0,"Detected Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]",ucode_version, code_hash, str, g_ROM.settings.GameName.c_str() );
 
-
-#ifndef DAEDALUS_PUBLIC_RELEASE
-	if (gGlobalPreferences.LogMicrocodes)
+// This is no longer needed as we now have an auto ucode detector, I'll leave it as reference ~Salvy
+//
+/*
+	FILE * fh = fopen( "ucodes.txt", "a" );
+	if ( fh )
 	{
-		FILE * fh = fopen( "ucodes.txt", "a" );
-		if ( fh )
-		{
-			fprintf( fh,  "{ ucode=%d, 0x%08x, \"%s\", \"%s\"}, \n", ucode_version, code_hash, str, g_ROM.settings.GameName.c_str() );
-			fclose(fh);
-		}
+		fprintf( fh,  "{ ucode=%d, 0x%08x, \"%s\", \"%s\"}, \n", ucode_version, code_hash, str, g_ROM.settings.GameName.c_str() );
+		fclose(fh);
 	}
-#endif
+*/
 
 	return ucode_version;
 }
