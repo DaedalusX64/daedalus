@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "AdvancedOptionsScreen.h"
 #include "SavestateSelectorComponent.h"
 #include "CheatOptionsScreen.h"
+#include "Dialogs.h"
 
 #include "UIContext.h"
 #include "UIScreen.h"
@@ -89,8 +90,9 @@ class IPauseOptionsComponent : public CPauseOptionsComponent
 				void				SaveState();
 				void				LoadState();
 				void				TakeScreenshot();
+#ifdef DAEDALUS_DIALOGS
 				void				ExitConfirmation();
-
+#endif
 				void				OnSaveStateSlotSelected( const char * filename );
 				void				OnLoadStateSlotSelected( const char * filename );
 
@@ -173,12 +175,12 @@ IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context, CFunctor
 	mElements.Add( new CUISpacer( 16 ) );
 
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::OnResume ), "Resume Emulation", "Resume emulation." ) );
-/*
+
 #ifdef DAEDALUS_DIALOGS
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::ExitConfirmation ), "Return to Main Menu", "Return to the main menu." ) );
-#else*/
+#else
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::OnReset ), "Return to Main Menu", "Return to the main menu." ) );
-//#endif
+#endif
 }
 
 //*************************************************************************************
@@ -245,17 +247,18 @@ void	IPauseOptionsComponent::Render()
 								 VA_BOTTOM );
 	}
 }
+#ifdef DAEDALUS_DIALOGS
 //*************************************************************************************
 //
 //*************************************************************************************
 void IPauseOptionsComponent::ExitConfirmation()
 {
-	//if(ShowMessage("Return to main menu?\nAny unsaved progress will be lost", 1))
+	if(gShowDialog.Render( mpContext,"Return to main menu?", false) )
 	{
 		(*mOnReset)();
 	}
 }
-
+#endif
 //*************************************************************************************
 //
 //*************************************************************************************

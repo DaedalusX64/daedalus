@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UIContext.h"
 #include "UIScreen.h"
 #include "UISetting.h"
+#include "Dialogs.h"
+
 #include "AdjustDeadzoneScreen.h"
 #include "SysPSP/Graphics/DrawText.h"
 #include "Graphics/ColourValue.h"
@@ -164,46 +166,52 @@ namespace
 	class CResetSetting : public CUISetting
 	{
 	public:
-		CResetSetting(  const char * name, const char * description )
+		CResetSetting(  CUIContext * p_context, const char * name, const char * description )
 			:	CUISetting( name, description )
+			,	mpContext( p_context )
 		{
 		}
 
 		virtual	void			OnSelected()
 		{
-
-		/*	if(ShowMessage("This will guide you to reset the settings in Daedalus\n \nDo you want to reset HLE cache?", 1))
+#ifdef DAEDALUS_DIALOGS
+			if(gShowDialog.Render( mpContext,"Reset HLE cache?", false) )
 			{
 				IO::Path::DeleteRecursive("SaveGames",".hle");
 				ThreadSleepMs(1000);	//safety wait for s
 
-				if (ShowMessage("Do you want to reset settings to default?\n \nNote : This will exit the emulator", 1))
+				if(gShowDialog.Render( mpContext,"Reset settings?", false) )
 				{
 					remove(DAEDALUS_PSP_PATH("preferences.ini"));
 					remove(DAEDALUS_PSP_PATH("rom.db"));
 					ThreadSleepMs(1000);	//safety wait for s
 
-					ShowMessage("Daedalus will exit now",0);
+					gShowDialog.Render( mpContext,"Daedalus will exit now",true);
 
 					sceKernelExitGame();
 				}
 			}
-			else if(ShowMessage("Do you want to reset settings to default?\n \nNote : This will exit the emulator", 1))
+			if(gShowDialog.Render( mpContext,"Reset settings?", false) )
 			{
+
 				remove(DAEDALUS_PSP_PATH("preferences.ini"));
 				remove(DAEDALUS_PSP_PATH("rom.db"));
 				ThreadSleepMs(1000);	//safety wait for s
 
-				ShowMessage("Daedalus will exit now",0);
+				gShowDialog.Render( mpContext,"Daedalus will exit now",true);
 
 				sceKernelExitGame();
-			}*/
+			}
 		}
 
+#endif
 		virtual const char *	GetSettingName() const
 		{
-			return "Press X";
+			return "Press X to Start";
 		}
+
+	private:
+		CUIContext *			mpContext;
 	};
 
 	class CGuiType : public CUISetting
@@ -357,7 +365,7 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.BatteryWarning, "Low Battery Warning",	"Whether to allow Daedalus to notify when the battery is low.", "Yes", "No" ) );
 	mElements.Add( new CGuiType( "Gui Style",	"Select Gui Type either CoverFlow Style or Classic Style" ) );
 	mElements.Add( new CColorSetting( "GUI Color", "Change GUI Color" ) );
-	mElements.Add( new CResetSetting( "Reset Settings", "Will guide you to reset preferences to default, and hle cache files. Note : emulator will exit if resetting settings" ) );
+	mElements.Add( new CResetSetting( mpContext, "Reset Settings", "Will guide you to reset preferences to default, and hle cache files. Note : emulator will exit if resetting settings" ) );
 
 }
 

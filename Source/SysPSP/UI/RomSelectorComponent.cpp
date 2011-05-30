@@ -265,7 +265,9 @@ class IRomSelectorComponent : public CRomSelectorComponent
 		float						mTimeSinceScroll;		// 
 
 		bool						mRomDelete;
+#ifdef DAEDALUS_DIALOGS
 		bool						mQuitTriggered;
+#endif
 };
 
 //*************************************************************************************
@@ -305,7 +307,9 @@ IRomSelectorComponent::IRomSelectorComponent( CUIContext * p_context, CFunctor1<
 ,	mPreviewLoadedTime( 0.0f )
 ,	mTimeSinceScroll( 0.0f )
 ,	mRomDelete(false)
+#ifdef DAEDALUS_DIALOGS
 ,	mQuitTriggered(false)
+#endif
 {
 	for( u32 i = 0; i < ARRAYSIZE( gRomsDirectories ); ++i )
 	{
@@ -1896,17 +1900,20 @@ void IRomSelectorComponent::Render_old()
 	if(count & 0x80) color = c32( ~count<<1, 0, 0, 255);
 	else color = c32( count<<1, 0, 0, 255);
 
+#ifdef DAEDALUS_DIALOGS
 	if(mQuitTriggered)
 	{
 
-		Dialog _dialog;
-		if(_dialog.ShowDialog(mpContext,"Do you want to exit?", 1))
+		if(gShowDialog.Render( mpContext,"Do you want to exit?", false) )
 		{
 			sceKernelExitGame();
 		}
 		mQuitTriggered=false;
-
 	}
+#else
+	sceKernelExitGame();
+#endif
+
 	if(mRomDelete)
 	{
 		mpContext->DrawTextAlign(0,470,AT_RIGHT,CATEGORY_AREA_TOP + mpContext->GetFontHeight(),"(X) -> Confirm", color);
@@ -2052,10 +2059,12 @@ void	IRomSelectorComponent::Update_old( float elapsed_time, const v2 & stick, u3
 				mCurrentSelection++;
 			}
 		}
+#ifdef DAEDALUS_DIALOGS
 		if(new_buttons & PSP_CTRL_HOME)
 		{
 			mQuitTriggered = true;
 		}
+#endif
 		if(new_buttons & PSP_CTRL_CROSS && mRomDelete)	// DONT CHANGE ORDER
 		{
 			remove( mSelectedRom.c_str() );
@@ -2286,15 +2295,20 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 			}
 		}
 		if(new_buttons & PSP_CTRL_HOME)
-		{/*
+		{
 #ifdef DAEDALUS_DIALOGS
-			if(ShowMessage("Do you want to quit Daedalus?", 1))
+			if(mQuitTriggered)
 			{
-				sceKernelExitGame();
+
+				if(gShowDialog.Render( mpContext,"Do you want to exit?", false) )
+				{
+					sceKernelExitGame();
+				}
+				mQuitTriggered=false;
 			}
-#else*/
+#else
 			sceKernelExitGame();
-//#endif
+#endif
 		}
 		if(new_buttons & PSP_CTRL_CROSS && mRomDelete)	// DONT CHANGE ORDER
 		{
