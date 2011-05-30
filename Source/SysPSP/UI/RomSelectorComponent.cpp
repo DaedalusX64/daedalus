@@ -1903,15 +1903,12 @@ void IRomSelectorComponent::Render_old()
 #ifdef DAEDALUS_DIALOGS
 	if(mQuitTriggered)
 	{
-
 		if(gShowDialog.Render( mpContext,"Do you want to exit?", false) )
 		{
 			sceKernelExitGame();
 		}
 		mQuitTriggered=false;
 	}
-#else
-	sceKernelExitGame();
 #endif
 
 	if(mRomDelete)
@@ -1970,6 +1967,17 @@ void IRomSelectorComponent::Render()
 	} else if (sortbyletter) { 
 		RenderCategoryList();
 	}
+
+#ifdef DAEDALUS_DIALOGS
+	if(mQuitTriggered)
+	{
+		if(gShowDialog.Render( mpContext,"Do you want to exit?", false) )
+		{
+			sceKernelExitGame();
+		}
+		mQuitTriggered=false;
+	}
+#endif
 
 	if(mRomDelete)
 	{
@@ -2059,12 +2067,15 @@ void	IRomSelectorComponent::Update_old( float elapsed_time, const v2 & stick, u3
 				mCurrentSelection++;
 			}
 		}
-#ifdef DAEDALUS_DIALOGS
 		if(new_buttons & PSP_CTRL_HOME)
 		{
+#ifdef DAEDALUS_DIALOGS
 			mQuitTriggered = true;
-		}
+#else
+			sceKernelExitGame();
 #endif
+		}
+
 		if(new_buttons & PSP_CTRL_CROSS && mRomDelete)	// DONT CHANGE ORDER
 		{
 			remove( mSelectedRom.c_str() );
@@ -2297,15 +2308,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		if(new_buttons & PSP_CTRL_HOME)
 		{
 #ifdef DAEDALUS_DIALOGS
-			if(mQuitTriggered)
-			{
-
-				if(gShowDialog.Render( mpContext,"Do you want to exit?", false) )
-				{
-					sceKernelExitGame();
-				}
-				mQuitTriggered=false;
-			}
+			mQuitTriggered = true;
 #else
 			sceKernelExitGame();
 #endif

@@ -43,7 +43,14 @@ CDialog::~CDialog()
 bool CDialog::Render( CUIContext * p_context, const char* message, bool only_dialog )
 {
 	SceCtrlData pad;
-	
+	//
+	//	Wait until all buttons are release before continuing
+	//  We do this to avoid any undesirable button input that can be triggered or passed whithin the GUI.
+	//
+	while( (pad.Buttons & 0xffff) != 0 )
+	{
+		sceCtrlPeekBufferPositive(&pad, 1);
+	}
 
 	for(;;) 
 	{
