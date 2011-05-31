@@ -44,8 +44,6 @@ u32				gVblsSinceFlip( 0 );				// The number of vertical blanks that have occurr
 
 u32				gCurrentAverageTicksPerVbl( 0 );
 
-const u32		NUM_SYNC_SAMPLES( 8 );				// These are all for keeping track of the current sync rate
-
 const u32		gTvFrequencies[] = 
 {
 	50,		//OS_TV_PAL,
@@ -93,6 +91,8 @@ u32 FramerateLimiter_UpdateAverageTicksPerVbl( u32 elapsed_ticks )
 	return (u32)avg;
 }
 #else
+const u32		NUM_SYNC_SAMPLES( 8 );				// These are all for keeping track of the current sync rate
+
 template< typename T > T Average( const T * arr, const u32 count )
 {
 	T sum = 0;

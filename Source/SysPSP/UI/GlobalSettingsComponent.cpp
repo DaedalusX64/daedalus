@@ -174,7 +174,7 @@ namespace
 
 		virtual	void			OnSelected()
 		{
-#ifdef DAEDALUS_DIALOGS
+//#ifdef DAEDALUS_DIALOGS
 			if(gShowDialog.Render( mpContext,"Reset HLE cache?", false) )
 			{
 				IO::Path::DeleteRecursive("SaveGames",".hle");
@@ -202,9 +202,9 @@ namespace
 
 				sceKernelExitGame();
 			}
+//#endif
 		}
 
-#endif
 		virtual const char *	GetSettingName() const
 		{
 			return "Press X to Start";

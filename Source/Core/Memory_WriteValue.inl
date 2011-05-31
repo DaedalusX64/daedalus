@@ -166,8 +166,8 @@ static void WriteValue_8408_8408( u32 address, u32 value )
 	// We don't support LLE RSP emulation in the PSP, so is ok to skip this reg -Salvy
 	//
 	//WriteValueInvalid(address, value); // No worth the extra jump since is jsut an empty func imo
-
-	/*u32 offset = (address&0x1FFFFFFF) - 0x04080000;
+#if 0
+	u32 offset = (address&0x1FFFFFFF) - 0x04080000;
 
 	if (offset == 0)
 	{
@@ -185,7 +185,8 @@ static void WriteValue_8408_8408( u32 address, u32 value )
 	else
 	{
 		WriteValueInvalid(address, value);
-	}*/
+	}
+#endif
 }
 
 //*****************************************************************************
