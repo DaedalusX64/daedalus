@@ -265,7 +265,7 @@ static void BlendMode_0x00671603fffcff78LL (BLEND_MODE_ARGS)
 //aA0  : (Primitive    - Shade       ) * Texel0       + Shade       
 //aRGB1: (Primitive    - Shade       ) * Texel0       + Shade       
 //aA1  : (Primitive    - Shade       ) * Texel0       + Shade       
-static void BlendMode_0x0030b26144664924LL( BLEND_MODE_ARGS )
+static void BlendMode_0x0030b26144664924LL (BLEND_MODE_ARGS)
 {
 	//This blend only partially fixes Duke 32
 	//Complete fix interferes with Mario head
@@ -276,6 +276,17 @@ static void BlendMode_0x0030b26144664924LL( BLEND_MODE_ARGS )
 	
 	details.ColourAdjuster.SetA( details.EnvColour );
 	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
+
+// Duke Nukem 64 - Menu Text and HUD
+// case 0x0050fea144fe7339LL:
+//aRGB0: (Env          - Shade       ) * Texel0       + Shade
+//aA0  : (0            - 0           ) * 0            + Texel0
+//aRGB1: (Env          - Shade       ) * Texel0       + Shade
+//aA1  : (0            - 0           ) * 0            + Texel0
+static void BlendMode_0x0050fea144fe7339LL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
 //Donald duck rain
@@ -494,6 +505,18 @@ static void BlendMode_0x0030fe045ffef7f8LL (BLEND_MODE_ARGS)
 {
 	details.ColourAdjuster.SetRGB(details.EnvColour);
 	sceGuTexFunc(GU_TFX_DECAL,GU_TCC_RGBA);
+}
+
+//MRC - Waterfall
+// case 0x00272c031f0c93ffLL:
+//aRGB0: (Texel1       - Texel0      ) * PrimLODFrac  + Texel0
+//aA0  : (Texel1       - Texel0      ) * 1            + Texel0
+//aRGB1: (Combined     - 0           ) * Primitive    + 0
+//aA1  : (Combined     - 0           ) * Primitive    + 0
+static void BlendMode_0x00272c031f0c93ffLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGBA(details.PrimColour);
+	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGB);
 }
 
 // Mario Party - River
@@ -1570,6 +1593,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 			BLEND_MODE(0x00457fff3ffcfe3fLL); // Pokemon Stadium 2 Arena Floor
 			BLEND_MODE(0x00522bfffffffe38LL); // Donald Duck rain (makes it transparent not really a fix)
 			//BLEND_MODE(0x00627fff3ffe7e3fLL); // Pokemon Stadium 2 N64 Logo //Dangerous!!
+			BLEND_MODE(0x0050fea144fe7339LL); // Duke Nukem Menu and HUD
 
 	#undef BLEND_MODE 
 	}
@@ -1630,6 +1654,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x002698041f14ffffLL); // Banjo Kazooie Paths
 			BLEND_MODE(0x00271860350cff7fLL); // Deku Tree Light
 			BLEND_MODE(0x00271c6035fcf378LL); // Zelda Fairy Spirit
+			BLEND_MODE(0x00272c031f0c93ffLL); // MRC Waterfall
 			BLEND_MODE(0x00272c041f0c93ffLL); // SSB Dreamland Water
 			BLEND_MODE(0x00272c60150c937dLL); // Pokemon Thunder
 			BLEND_MODE(0x00272c60340c933fLL); // Zelda Castle Light
