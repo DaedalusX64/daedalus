@@ -178,6 +178,10 @@ class	IController : public CController
 			CONT_TX_SIZE_DUMMYDATA  = 0xFF,					// Dummy Data
 			CONT_TX_SIZE_FORMAT_END = 0xFE,					// Format End
 			CONT_TX_SIZE_CHANRESET  = 0xFD,					// Channel Reset
+
+			//CONT_TX_SIZE_NOP_S		= 0xB4,					// NOP?
+			//CONT_TX_SIZE_NOP_T		= 0x56,					// NOP?
+			//CONT_TX_SIZE_NOP_W		= 0xB8,					// NOP?
 		};
 
 		u8 *			mpPifRam;
@@ -379,6 +383,7 @@ void IController::FormatChannels()
 
 		case CONT_TX_SIZE_DUMMYDATA:
 			DPF_PIF( "Code 0x%02x - DummyData", tx_data_size );
+			mChannelFormat[ channel ].Skipped = true;
 			i++;
 			break;
 
@@ -486,8 +491,6 @@ void IController::Process()
 	}
 	SetPifByte( 63, 0 );
 
-	CInputManager::Get()->GetState( mContPads );
-
 	// Ignore the status - just use the previous values
 
 	for( u32 channel = 0; channel < NUM_CHANNELS; ++channel )
@@ -555,6 +558,12 @@ bool	IController::ProcessCommand(u32 i, u32 iError, u32 channel, u32 ucWrite, u3
 
 	WriteStatusBits( iError, 0 );					// Clear error flags
 	
+	if( !mContPresent[channel] )
+	{
+		DAEDALUS_ERROR( "Controller not connected!" );
+		WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );				// Not connected
+		return false;
+	}
 
 	// From the patent, it says that if a controller is plugged in and the memory card is removed, the CONT_CARD_PULL flag will be set.
 	// Cleared if CONT_RESET or CONT_GET_STATUS is issued.
@@ -569,23 +578,17 @@ bool	IController::ProcessCommand(u32 i, u32 iError, u32 channel, u32 ucWrite, u3
 		{
 			DPF_PIF("Controller: Command is RESET");
 
-			if (mContPresent[channel])
-			{
-				DAEDALUS_ASSERT( ucRead <= 3, "Reading too many bytes for RESET command" );
+			DAEDALUS_ASSERT( ucRead <= 3, "Reading too many bytes for RESET command" );
 
-				if ( ucRead < 3 )
-				{
-					DAEDALUS_ERROR( "Overrun on RESET" );
-					WriteStatusBits( iError, CONT_OVERRUN_ERROR );				// Transfer error...
-				}
-
-				Write16Bits( i, CONT_TYPE_NORMAL );
-				Write8Bits( i+2, mContMemPackPresent[channel] ? CONT_CARD_ON : 0 );	// Is the mempack plugged in?
-			}
-			else
+			if ( ucRead < 3 )
 			{
-				WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );				// Not connected
+				DAEDALUS_ERROR( "Overrun on RESET" );
+				WriteStatusBits( iError, CONT_OVERRUN_ERROR );				// Transfer error...
 			}
+
+			Write16Bits( i, CONT_TYPE_NORMAL );
+			Write8Bits( i+2, mContMemPackPresent[channel] ? CONT_CARD_ON : 0 );	// Is the mempack plugged in?
+
 		}
 		else if (channel == PC_EEPROM)
 		{
@@ -604,23 +607,17 @@ bool	IController::ProcessCommand(u32 i, u32 iError, u32 channel, u32 ucWrite, u3
 		{
 			DPF_PIF("Controller: Executing GET_STATUS");
 
-			if (mContPresent[channel])
-			{
-				DAEDALUS_ASSERT( ucRead <= 3, "Reading too many bytes for STATUS command" );
+			DAEDALUS_ASSERT( ucRead <= 3, "Reading too many bytes for STATUS command" );
 
-				if (ucRead < 3)
-				{
-					DAEDALUS_ERROR( "Overrun on GET_STATUS" );
-					WriteStatusBits( iError, CONT_OVERRUN_ERROR );				// Transfer error...
-				}
-
-				Write16Bits( i, CONT_TYPE_NORMAL );
-				Write8Bits( i+2, mContMemPackPresent[channel] ? CONT_CARD_ON : 0 );	// Is the mempack plugged in?
-			}
-			else
+			if (ucRead < 3)
 			{
-				WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );				// Not connected
+				DAEDALUS_ERROR( "Overrun on GET_STATUS" );
+				WriteStatusBits( iError, CONT_OVERRUN_ERROR );				// Transfer error...
 			}
+
+			Write16Bits( i, CONT_TYPE_NORMAL );
+			Write8Bits( i+2, mContMemPackPresent[channel] ? CONT_CARD_ON : 0 );	// Is the mempack plugged in?
+
 		}
 		else if (channel == PC_EEPROM)
 		{
@@ -640,28 +637,23 @@ bool	IController::ProcessCommand(u32 i, u32 iError, u32 channel, u32 ucWrite, u3
 	case CONT_READ_CONTROLLER:		// Controller
 		if ( channel < NUM_CONTROLLERS )
 		{
+			CInputManager::Get()->GetState( mContPads );
+
 			DPF_PIF("Controller: Executing READ_CONTROLLER");
 			// This is controller status
-			if (mContPresent[channel])
-			{
-				DAEDALUS_ASSERT( ucRead <= 4, "Reading too many bytes for READ_CONT command" );
+			DAEDALUS_ASSERT( ucRead <= 4, "Reading too many bytes for READ_CONT command" );
 
-				if (ucRead < 4)
-				{
-					DAEDALUS_ERROR( "Overrun on READ_CONT" );
-					WriteStatusBits( iError, CONT_OVERRUN_ERROR );
-				}
-
-				// Hack - we need to only write the number of bytes asked for!
-				Write16Bits_Swapped( i, mContPads[channel].button );
-				Write8Bits( i+2, mContPads[channel].stick_x );
-				Write8Bits( i+3, mContPads[channel].stick_y );	
-			}
-			else
+			if (ucRead < 4)
 			{
-				// Not connected			
-				WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
+				DAEDALUS_ERROR( "Overrun on READ_CONT" );
+				WriteStatusBits( iError, CONT_OVERRUN_ERROR );
 			}
+
+			// Hack - we need to only write the number of bytes asked for!
+			Write16Bits_Swapped( i, mContPads[channel].button );
+			Write8Bits( i+2, mContPads[channel].stick_x );
+			Write8Bits( i+3, mContPads[channel].stick_y );	
+
 		}
 		else
 		{
@@ -673,7 +665,7 @@ bool	IController::ProcessCommand(u32 i, u32 iError, u32 channel, u32 ucWrite, u3
 		if ( channel < NUM_CONTROLLERS )
 		{
 			DPF_PIF("Controller: Command is READ_MEMPACK");
-			if (mContPresent[channel] && g_ROM.GameHacks != CHAMELEON_TWIST)
+			if (g_ROM.GameHacks != CHAMELEON_TWIST)
 			{
 				DPF_PIF( "Mempack present" );
 				success = CommandReadMemPack(i, iError, channel, ucWrite, ucRead);
@@ -694,14 +686,8 @@ bool	IController::ProcessCommand(u32 i, u32 iError, u32 channel, u32 ucWrite, u3
 		if ( channel < NUM_CONTROLLERS )
 		{
 			DPF_PIF("Controller: Command is WRITE_MEMPACK");
-			if (mContPresent[channel])
-			{
-				success = CommandWriteMemPack(i, iError, channel, ucWrite, ucRead);
-			}
-			else
-			{
-				WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
-			}
+			success = CommandWriteMemPack(i, iError, channel, ucWrite, ucRead);
+
 		}
 		else
 		{
@@ -913,14 +899,9 @@ bool	IController::CommandReadMemPack( u32 i, u32 iError, u32 channel, u32 ucWrit
 	i += 2;	
 	ucWrite -= 2;
 
+	DAEDALUS_ASSERT( address < 0x400,"ReadMemPack: Address out of range: 0x%08x", address );
 
-	if (address > 0x400)
-	{
-		// SOME OTHER ERROR!
-		DAEDALUS_ERROR( "ReadMemPack: Address out of range: 0x%08x", address );
-		return false;
-	}
-	else if ( address == 0x400 )
+	if ( address == 0x400 )
 	{
 		memset( rumble, 0, 32 );
 

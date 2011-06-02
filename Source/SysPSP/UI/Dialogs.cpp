@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspdisplay.h>
 #include <pspgu.h>
 
-CDialog				gShowDialog;
+CDialog	gShowDialog;
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -73,7 +73,7 @@ bool CDialog::Render( CUIContext * p_context, const char* message, bool only_dia
 
 		p_context->EndRender();
 
-		sceCtrlReadBufferPositive(&pad, 1);
+		sceCtrlPeekBufferPositive(&pad, 1);
 		if( only_dialog && (pad.Buttons & 0xffff)!= 0 )	 // Mask off button
 			return true;
 		else if( pad.Buttons & PSP_CTRL_CROSS )

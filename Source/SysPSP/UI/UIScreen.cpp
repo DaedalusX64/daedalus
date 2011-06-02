@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <pspctrl.h>
 
-const u32 PSP_BUTTONS_MASK( 0xffff );		// Mask off e.g. PSP_CTRL_HOME, PSP_CTRL_HOLD etc
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -53,9 +52,10 @@ void	CUIScreen::Run()
 {
 	DAEDALUS_ASSERT( mpContext != NULL, "No context" );
 
+	const u32 PSP_BUTTONS_MASK( 0xffff );		// Mask off e.g. PSP_CTRL_HOME, PSP_CTRL_HOLD etc
+
 	SceCtrlData		pad;
 	sceCtrlPeekBufferPositive(&pad, 1);
-	u32		old_buttons = (pad.Buttons & PSP_BUTTONS_MASK);
 
 	static const s32	STICK_DEADZONE = 20;
 
@@ -64,9 +64,9 @@ void	CUIScreen::Run()
 	// Simple rom chooser
 	while( !IsFinished() )
 	{
-		float		elapsed_time( timer.GetElapsedSeconds() );
+		f32		elapsed_time( timer.GetElapsedSeconds() );
 
-		old_buttons = (pad.Buttons & PSP_BUTTONS_MASK);
+		u32 old_buttons = (pad.Buttons & PSP_BUTTONS_MASK);
 		sceCtrlPeekBufferPositive(&pad, 1);
 
 		s32		stick_x( pad.Lx - 128 );
@@ -74,16 +74,16 @@ void	CUIScreen::Run()
 
 		if(stick_x >= -STICK_DEADZONE && stick_x <= STICK_DEADZONE)
 		{
-			stick_x = 0;
+			stick_x = 0.0f;
 		}
 		if(stick_y >= -STICK_DEADZONE && stick_y <= STICK_DEADZONE)
 		{
-			stick_y = 0;
+			stick_y = 0.0f;
 		}
 
 		v2	stick;
-		stick.x = float(stick_x) / 128.0f;
-		stick.y = float(stick_y) / 128.0f;
+		stick.x = f32(stick_x) / 128.0f;
+		stick.y = f32(stick_y) / 128.0f;
 
 		mpContext->Update( elapsed_time );
 
