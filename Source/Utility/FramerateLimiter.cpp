@@ -134,7 +134,7 @@ void FramerateLimiter_Limit()
 
 	u32 elapsed_ticks = (u32)(now - gLastVITime);
 
-	if( gVblsSinceFlip ) gCurrentAverageTicksPerVbl = FramerateLimiter_UpdateAverageTicksPerVbl( elapsed_ticks / gVblsSinceFlip );
+	gCurrentAverageTicksPerVbl = FramerateLimiter_UpdateAverageTicksPerVbl( elapsed_ticks / gVblsSinceFlip );
 
 	if( gSpeedSyncEnabled )
 	{
@@ -146,8 +146,8 @@ void FramerateLimiter_Limit()
 
 		if( delay_ticks > 0 )
 		{
-			//printf( "Delay ticks: %d\n", u32( delay_ticks ) );
-			ThreadSleepTicks( delay_ticks );
+			//printf( "Delay ticks: %d\n", delay_ticks );
+			ThreadSleepTicks( delay_ticks & 0xFFFF );
 		}
 
 		NTiming::GetPreciseTime(&now);
