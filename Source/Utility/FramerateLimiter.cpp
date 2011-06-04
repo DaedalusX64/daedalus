@@ -148,9 +148,8 @@ void FramerateLimiter_Limit()
 		{
 			//printf( "Delay ticks: %d\n", delay_ticks );
 			ThreadSleepTicks( delay_ticks & 0xFFFF );
+			NTiming::GetPreciseTime(&now);
 		}
-
-		NTiming::GetPreciseTime(&now);
 	}
 
 	gLastVITime = now;

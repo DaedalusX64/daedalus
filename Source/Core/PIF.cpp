@@ -101,6 +101,8 @@ area assignment does not change. After Tx/RxData assignment, this flag is reset 
 
 #include "OSHLE/ultra_os.h"
 
+#include <time.h>
+
 #ifdef _MSC_VER
 #pragma warning(default : 4002) 
 #endif
@@ -132,9 +134,11 @@ class	IController : public CController
 		//
 		//
 		//
-		void			FormatChannels();
+		//void			FormatChannels();
 
-		bool			ProcessCommand(u32 i, u32 iError, u32 channel, u32 ucWrite, u32 ucRead);
+		bool			ProcessController(u32 i, u32 iError, u32 channel, u32 ucWrite, u32 ucRead);
+
+		bool			ProcessEeprom(u32 i, u32 iError, u32 ucWrite, u32 ucRead);
 
 		bool			CommandStatusEeprom(u32 i, u32 iError, u32 ucWrite, u32 ucRead);
 		bool			CommandReadEeprom(u32 i, u32 iError, u32 ucWrite, u32 ucRead);
@@ -190,7 +194,7 @@ class	IController : public CController
 		u8				mpInput[ 64 ];
 #endif
 
-		struct SChannelFormat
+		/*struct SChannelFormat
 		{
 			bool		Skipped;
 			u32			StatusByte;
@@ -198,7 +202,7 @@ class	IController : public CController
 			u32			RxDataLength;
 			u32			TxDataStart;
 			u32			TxDataLength;
-		};
+		};*/
 
 		enum EPIFChannels
 		{
@@ -224,7 +228,7 @@ class	IController : public CController
 
 		u8				*mMemPack[ NUM_CONTROLLERS ];
 
-		SChannelFormat	mChannelFormat[ NUM_CHANNELS ];
+		//SChannelFormat	mChannelFormat[ NUM_CHANNELS ];
 		u8				rumble[32];
 
 	#ifdef DAEDALUS_DEBUG_PIF
@@ -264,11 +268,11 @@ IController::IController() :
 	}
 	mContMemPackPresent[ 0 ] = true;
 
-	memset( mChannelFormat, 0, sizeof( mChannelFormat ) );
-	for ( u32 i = 0; i < NUM_CHANNELS; i++ )
+	//memset( mChannelFormat, 0, sizeof( mChannelFormat ) );
+	/*for ( u32 i = 0; i < NUM_CHANNELS; i++ )
 	{
 		mChannelFormat[ i ].Skipped = true;
-	}
+	}*/
 }
 
 //*****************************************************************************
@@ -338,139 +342,7 @@ void IController::OnRomClose()
 {
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void IController::FormatChannels()
-{
-#ifdef DAEDALUS_DEBUG_PIF
-	DPF_PIF("");
-	DPF_PIF("");
-	DPF_PIF("*********************************************");
-	DPF_PIF("**                                         **");
-	DPF_PIF("Formatting:");
-
-	for ( u32 x = 0; x < 64; x+=8 )
-	{
-		DPF_PIF( "0x%02x%02x%02x%02x : 0x%02x%02x%02x%02x",
-			mpPifRam[(x + 0) ^ U8_TWIDDLE],  mpPifRam[(x + 1) ^ U8_TWIDDLE],  mpPifRam[(x + 2) ^ U8_TWIDDLE],  mpPifRam[(x + 3) ^ U8_TWIDDLE],
-			mpPifRam[(x + 4) ^ U8_TWIDDLE],  mpPifRam[(x + 5) ^ U8_TWIDDLE],  mpPifRam[(x + 6) ^ U8_TWIDDLE],  mpPifRam[(x + 7) ^ U8_TWIDDLE] );
-	}
-	DPF_PIF("");
-	DPF_PIF("");
-
-#endif
-
-	// Ignore the status - just use the previous values
-	u32		i( 0 );
-	u32		channel( 0 );
-	bool	finished( false );
-
-	while ( i < 64 && channel < NUM_CHANNELS && !finished )
-	{
-		u8 tx_data_size;
-		u8 rx_data_size;
-		tx_data_size = GetPifByte( i );
-
-		switch ( tx_data_size )
-		{
-		case CONT_TX_SIZE_CHANSKIP:
-			DPF_PIF( "Code 0x%02x - ChanSkip(%d)", tx_data_size, channel );
-			mChannelFormat[ channel ].Skipped = true;
-			channel++;
-			i++;
-			break;
-
-		case CONT_TX_SIZE_DUMMYDATA:
-			DPF_PIF( "Code 0x%02x - DummyData", tx_data_size );
-			mChannelFormat[ channel ].Skipped = true;
-			i++;
-			break;
-
-		case CONT_TX_SIZE_FORMAT_END:
-			DPF_PIF( "Code 0x%02x - FormatEnd", tx_data_size );
-			finished = true;
-			break;
-			
-		case CONT_TX_SIZE_CHANRESET:
-			DPF_PIF( "Code 0x%02x - ChanReset (Ignoring)", tx_data_size );
-			mChannelFormat[ channel ].Skipped = true;
-			channel++;
-			i++;
-			break;
-
-		default:
-			rx_data_size = GetPifByte( i + 1 );
-			if (rx_data_size == CONT_TX_SIZE_FORMAT_END)
-			{
-				finished = true;
-				break;
-			}
-			// Set up error pointer and skip read/write bytes of input
-			u32 iError = i + 1;
-			i += 2;
-
-			// Mask off high 2 bits. In rx this is used for error status. Not sure about tx, but we can only reference 1<6 bits anyway.
-			tx_data_size &= 0x3f;
-			rx_data_size &= 0x3f;
-
-			mChannelFormat[ channel ].Skipped = false;
-			mChannelFormat[ channel ].StatusByte = iError;
-			mChannelFormat[ channel ].TxDataStart = i;
-			mChannelFormat[ channel ].TxDataLength = tx_data_size;
-			mChannelFormat[ channel ].RxDataStart = i + tx_data_size;
-			mChannelFormat[ channel ].RxDataLength = rx_data_size;
-
-			// Did skip 1 byte for write/read mempack here. Think this was wrong
-			//if( GetPifByte( i ) == CONT_READ_MEMPACK || GetPifByte( i ) == CONT_WRITE_MEMPACK )
-			//{
-			//	i++;
-			//}
-
-			DPF_PIF( "Channel %d, TxSize %d (@%d), RxSize %d (@%d)", channel, tx_data_size, i, rx_data_size, i+tx_data_size );
-
-			i += tx_data_size + rx_data_size;
-			channel++;
-			break;
-		}
-	}
-
-	// Set the remaining channels to skipped
-	while( channel < NUM_CHANNELS )
-	{
-		mChannelFormat[ channel ].Skipped = true;
-		channel++;
-	}
-
-#ifdef DAEDALUS_DEBUG_PIF
-
-	DPF_PIF("Results:");
-
-	for( u32 channel = 0; channel < NUM_CHANNELS; ++channel )
-	{
-		const SChannelFormat & format( mChannelFormat[ channel ] );
-		if( format.Skipped )
-		{
-			DPF_PIF( "%02d: Skipped", channel );
-		}
-		else
-		{
-			DPF_PIF( "%02d: StatusIdx: %02d, TxSize %02d (@%02d), RxSize %02d (@%02d)",
-								channel,
-								format.StatusByte, 
-								format.TxDataLength, format.TxDataStart,
-								format.RxDataLength, format.RxDataStart );
-		}
-	}
-
-	DPF_PIF("");
-	DPF_PIF("");
-	DPF_PIF("**                                         **");
-	DPF_PIF("*********************************************");
-
-#endif
-}
-
+extern u32 gNunRectsClipped;
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -483,34 +355,79 @@ void IController::Process()
 	DPF_PIF("*********************************************");
 	DPF_PIF("**                                         **");
 #endif
-	
-	// Clear to indicate success - we might set this again in the handler code
-	if( GetPifByte( 63 ) == 1 )
+	u32		i( 0 );
+	u32		channel( 0 );
+
+	// Read controller data here (here gets called fewer times than CONT_READ_CONTROLLER)
+	CInputManager::Get()->GetState( mContPads );
+
+	while(i < 64)
 	{
-		FormatChannels();
-	}
-	SetPifByte( 63, 0 );
+		u8 tx_data_size = GetPifByte( i );
 
-	// Ignore the status - just use the previous values
-
-	for( u32 channel = 0; channel < NUM_CHANNELS; ++channel )
-	{
-		const SChannelFormat & format( mChannelFormat[ channel ] );
-
-		if( format.Skipped )
+		// command is ready
+		if(tx_data_size == CONT_TX_SIZE_FORMAT_END)
 		{
-			DPF_PIF( "Skipping channel %d", channel );
+			i = 64;
+			break;
+		}
+
+		// dummy data..
+		if((tx_data_size == CONT_TX_SIZE_DUMMYDATA) || (tx_data_size == CONT_TX_SIZE_CHANRESET))
+		{
+			i++;
 			continue;
 		}
 
-		// XXXX Check tx/rx status flags here??
-
-		if ( !ProcessCommand( format.TxDataStart, format.StatusByte, channel, format.TxDataLength, format.RxDataLength ) )
+		// next channel please
+		if(tx_data_size == CONT_TX_SIZE_CHANSKIP)
 		{
-			break;
+			i++;
+			channel++;
+			continue;
 		}
-	}
 
+		u8 rx_data_size = GetPifByte( i + 1 );
+
+		// Set up error pointer and skip read/write bytes of input
+		u32 iError = i + 1;
+		i += 2;
+
+		// Mask off high 2 bits. In rx this is used for error status. Not sure about tx, but we can only reference 1<6 bits anyway.
+		tx_data_size &= 0x3f;
+		rx_data_size &= 0x3f;
+
+		switch( channel )
+		{
+		case PC_CONTROLLER_0:
+		case PC_CONTROLLER_1:
+		case PC_CONTROLLER_2:
+		case PC_CONTROLLER_3:
+			if ( !ProcessController( i, iError, channel, tx_data_size, rx_data_size ) )
+			{
+				i = 64;
+				break;
+			}
+			break;
+		case PC_EEPROM:
+			if ( !ProcessEeprom( i, iError, tx_data_size, rx_data_size ) )
+			{
+				i = 64;
+				break;
+			}
+			break;
+		default:
+			DAEDALUS_ERROR( "Trying to read from invalid controller channel!" );
+			return;
+		}
+
+		i += tx_data_size + rx_data_size;
+		channel++;
+
+		//Set the last bit is 0 as successfully return
+		SetPifByte( 63, 0 );
+
+	}
 #ifdef DAEDALUS_DEBUG_PIF
 	DPF_PIF("Before | After:");
 
@@ -548,11 +465,12 @@ void IController::DumpInput() const
 //*****************************************************************************
 // i points to start of command
 //*****************************************************************************
-bool	IController::ProcessCommand(u32 i, u32 iError, u32 channel, u32 ucWrite, u32 ucRead)
+bool	IController::ProcessController(u32 i, u32 iError, u32 channel, u32 ucWrite, u32 ucRead)
 {
+
 	bool	success( true );
 	u8		command( GetPifByte( i + 0 ) );			// Read command
-
+	
 	i++;
 	ucWrite--;
 
@@ -573,130 +491,57 @@ bool	IController::ProcessCommand(u32 i, u32 iError, u32 channel, u32 ucWrite, u3
 	switch ( command )
 	{
 	case CONT_RESET:
-
-		if (channel < NUM_CONTROLLERS)
-		{
-			DPF_PIF("Controller: Command is RESET");
-
-			DAEDALUS_ASSERT( ucRead <= 3, "Reading too many bytes for RESET command" );
-
-			if ( ucRead < 3 )
-			{
-				DAEDALUS_ERROR( "Overrun on RESET" );
-				WriteStatusBits( iError, CONT_OVERRUN_ERROR );				// Transfer error...
-			}
-
-			Write16Bits( i, CONT_TYPE_NORMAL );
-			Write8Bits( i+2, mContMemPackPresent[channel] ? CONT_CARD_ON : 0 );	// Is the mempack plugged in?
-
-		}
-		else if (channel == PC_EEPROM)
-		{
-			DAEDALUS_ERROR( "Executing Reset on EEPROM - is this ok?" );
-			success = CommandStatusEeprom( i, iError, ucWrite, ucRead );
-		}
-		else
-		{
-			//DPF_PIF(DSPrintf("Controller: UnkStatus, Channel = %d", channel));
-			DAEDALUS_ERROR( "Trying to reset for invalid controller channel!" );
-		}	
-		break;
-
 	case CONT_GET_STATUS:
-		if (channel < NUM_CONTROLLERS)
+		DPF_PIF("Controller: Command is RESET/STATUS");
+
+		DAEDALUS_ASSERT( ucRead <= 3, "Reading too many bytes for RESET/STATUS command" );
+
+		if ( ucRead < 3 )
 		{
-			DPF_PIF("Controller: Executing GET_STATUS");
-
-			DAEDALUS_ASSERT( ucRead <= 3, "Reading too many bytes for STATUS command" );
-
-			if (ucRead < 3)
-			{
-				DAEDALUS_ERROR( "Overrun on GET_STATUS" );
-				WriteStatusBits( iError, CONT_OVERRUN_ERROR );				// Transfer error...
-			}
-
-			Write16Bits( i, CONT_TYPE_NORMAL );
-			Write8Bits( i+2, mContMemPackPresent[channel] ? CONT_CARD_ON : 0 );	// Is the mempack plugged in?
-
+			DAEDALUS_ERROR( "Overrun on RESET/STATUS" );
+			WriteStatusBits( iError, CONT_OVERRUN_ERROR );				// Transfer error...
 		}
-		else if (channel == PC_EEPROM)
-		{
-			// This is eeprom status?
-			DPF_PIF("Controller: Executing GET_EEPROM_STATUS?");
 
-			success = CommandStatusEeprom( i, iError, ucWrite, ucRead );
-		}
-		else
-		{
-			//DPF_PIF("Controller: UnkStatus, Channel = %d", channel);
-			DAEDALUS_ERROR( "Trying to get status for invalid controller channel!" );
-		}	
+		Write16Bits( i, CONT_TYPE_NORMAL );
+		Write8Bits( i+2, mContMemPackPresent[channel] ? CONT_CARD_ON : 0 );	// Is the mempack plugged in?
 		break;
-
 
 	case CONT_READ_CONTROLLER:		// Controller
-		if ( channel < NUM_CONTROLLERS )
+		DPF_PIF("Controller: Executing READ_CONTROLLER");
+		// This is controller status
+		DAEDALUS_ASSERT( ucRead <= 4, "Reading too many bytes for READ_CONT command" );
+
+		if (ucRead < 4)
 		{
-			CInputManager::Get()->GetState( mContPads );
-
-			DPF_PIF("Controller: Executing READ_CONTROLLER");
-			// This is controller status
-			DAEDALUS_ASSERT( ucRead <= 4, "Reading too many bytes for READ_CONT command" );
-
-			if (ucRead < 4)
-			{
-				DAEDALUS_ERROR( "Overrun on READ_CONT" );
-				WriteStatusBits( iError, CONT_OVERRUN_ERROR );
-			}
-
-			// Hack - we need to only write the number of bytes asked for!
-			Write16Bits_Swapped( i, mContPads[channel].button );
-			Write8Bits( i+2, mContPads[channel].stick_x );
-			Write8Bits( i+3, mContPads[channel].stick_y );	
-
+			DAEDALUS_ERROR( "Overrun on READ_CONT" );
+			WriteStatusBits( iError, CONT_OVERRUN_ERROR );
 		}
-		else
-		{
-			DAEDALUS_ERROR( "Trying to read from invalid controller channel!" );
-		}
+
+		// Hack - we need to only write the number of bytes asked for!
+		Write16Bits_Swapped( i, mContPads[channel].button );
+		Write8Bits( i+2, mContPads[channel].stick_x );
+		Write8Bits( i+3, mContPads[channel].stick_y );	
 		break;
 
 	case CONT_READ_MEMPACK:
-		if ( channel < NUM_CONTROLLERS )
+		DPF_PIF("Controller: Command is READ_MEMPACK");
+		if (g_ROM.GameHacks != CHAMELEON_TWIST)
 		{
-			DPF_PIF("Controller: Command is READ_MEMPACK");
-			if (g_ROM.GameHacks != CHAMELEON_TWIST)
-			{
-				DPF_PIF( "Mempack present" );
-				success = CommandReadMemPack(i, iError, channel, ucWrite, ucRead);
-			}
-			else
-			{
-				DPF_PIF( "Mempack not present" );
-				WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
-			}
+			DPF_PIF( "Mempack present" );
+			success = CommandReadMemPack(i, iError, channel, ucWrite, ucRead);
 		}
 		else
 		{
-			DAEDALUS_ERROR( "Trying to read mempack from invalid controller channel!" );
+			DPF_PIF( "Mempack not present" );
+			WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
 		}
 		break;
 
 	case CONT_WRITE_MEMPACK:
-		if ( channel < NUM_CONTROLLERS )
-		{
-			DPF_PIF("Controller: Command is WRITE_MEMPACK");
-			success = CommandWriteMemPack(i, iError, channel, ucWrite, ucRead);
+		DPF_PIF("Controller: Command is WRITE_MEMPACK");
+		success = CommandWriteMemPack(i, iError, channel, ucWrite, ucRead);
 
-		}
-		else
-		{
-			DAEDALUS_ERROR( "Trying to write mempack to invalid controller channel!" );
-		}
 		break;
-
-	case CONT_READ_EEPROM:		return CommandReadEeprom(i, iError, ucWrite, ucRead);
-	case CONT_WRITE_EEPROM:		return CommandWriteEeprom(i, iError, ucWrite, ucRead);
 
 	default:
 		DAEDALUS_ERROR( "Unknown controller command: %02x", command );
@@ -707,7 +552,45 @@ bool	IController::ProcessCommand(u32 i, u32 iError, u32 channel, u32 ucWrite, u3
 	return success;
 }
 
+//*****************************************************************************
+// i points to start of command
+//*****************************************************************************
+bool	IController::ProcessEeprom(u32 i, u32 iError, u32 ucWrite, u32 ucRead)
+{
 
+	bool	success( true );
+	u8		command( GetPifByte( i + 0 ) );			// Read command
+	
+	i++;
+	ucWrite--;
+
+	WriteStatusBits( iError, 0 );					// Clear error flags
+	
+
+	// i Currently points to data to write to
+	switch ( command )
+	{
+	case CONT_RESET:
+		DAEDALUS_ERROR( "Executing Reset on EEPROM - is this ok?" );
+		success = CommandStatusEeprom( i, iError, ucWrite, ucRead );
+		break;
+
+	case CONT_GET_STATUS:
+		DPF_PIF("Controller: Executing GET_EEPROM_STATUS?");
+		success = CommandStatusEeprom( i, iError, ucWrite, ucRead );
+		break;
+
+	case CONT_READ_EEPROM:		return CommandReadEeprom(i, iError, ucWrite, ucRead);
+	case CONT_WRITE_EEPROM:		return CommandWriteEeprom(i, iError, ucWrite, ucRead);
+
+	default:
+		DAEDALUS_ERROR( "Unknown Eeprom command: %02x", command );
+		//DPF_PIF( DSPrintf("Unknown controller command: %02x", command) );
+		break;
+	}
+
+	return success;
+}
 
 //*****************************************************************************
 // i points to start of command
