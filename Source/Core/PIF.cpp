@@ -136,28 +136,19 @@ class	IController : public CController
 		//
 		//void			FormatChannels();
 
-		bool			ProcessController(u32 i, u32 iError, u32 channel, u32 ucWrite, u32 ucRead);
+		bool			ProcessController(u8 *cmd, u32 device);
+		bool			ProcessEeprom(u8 *cmd);
 
-		bool			ProcessEeprom(u32 i, u32 iError, u32 ucWrite, u32 ucRead);
-
-		bool			CommandStatusEeprom(u32 i, u32 iError, u32 ucWrite, u32 ucRead);
-		bool			CommandReadEeprom(u32 i, u32 iError, u32 ucWrite, u32 ucRead);
-		bool			CommandWriteEeprom(u32 i, u32 iError, u32 ucWrite, u32 ucRead);
-		bool			CommandReadMemPack(u32 i, u32 iError, u32 channel, u32 ucWrite, u32 ucRead);
-		bool			CommandWriteMemPack(u32 i, u32 iError, u32 channel, u32 ucWrite, u32 ucRead);
+		void			CommandReadEeprom(unsigned char *dest, long offset);
+		void			CommandWriteEeprom(char *src, long offset);
+		void			CommandReadMemPack(int device, u8 *cmd);
+		void			CommandWriteMemPack(int device, u8 *cmd);
 
 		u8				CalculateDataCrc(u8 * pBuf);
 
 		bool			IsEepromPresent() const						{ return mpEepromData != NULL; }
-		u16				GetEepromContType() const					{ return mEepromContType; }
+		u8				GetEepromContType() const					{ return mEepromContType; }
 
-		void			SetPifByte( u32 index, u8 value )			{ mpPifRam[ index ^ U8_TWIDDLE ] = value; }
-		u8				GetPifByte( u32 index ) const				{ return mpPifRam[ index ^ U8_TWIDDLE ]; }
-
-		void			WriteStatusBits( u32 index, u8 value );
-		void			Write8Bits( u32 index, u8 value )			{ mpPifRam[ index ^ U8_TWIDDLE ] = value; }
-		void			Write16Bits( u32 index, u16 value );
-		void			Write16Bits_Swapped( u32 index, u16 value );
 
 	#ifdef DAEDALUS_DEBUG_PIF
 		void			DumpInput() const;
@@ -173,6 +164,9 @@ class	IController : public CController
 			CONT_WRITE_MEMPACK   = 0x03,
 			CONT_READ_EEPROM     = 0x04,
 			CONT_WRITE_EEPROM    = 0x05,
+			CONT_RTC_STATUS		 = 0x06,
+			CONT_RTC_READ		 = 0x07,
+			CONT_RTC_WRITE		 = 0x08,
 			CONT_RESET           = 0xff
 		};
 
@@ -223,7 +217,7 @@ class	IController : public CController
 		bool			mContMemPackPresent[ NUM_CONTROLLERS ];
 
 		u8 *			mpEepromData;
-		u16				mEepromContType;					// 0, CONT_EEPROM or CONT_EEP16K
+		u8				mEepromContType;					// 0, CONT_EEPROM or CONT_EEP16K
 		u32				mEepromSize;
 
 		u8				*mMemPack[ NUM_CONTROLLERS ];
@@ -305,7 +299,7 @@ bool IController::OnRomOpen()
 	{
 		mEepromSize = 4096/8;					// 4k bits
 		mpEepromData = (u8*)g_pMemoryBuffers[MEM_SAVE];
-		mEepromContType = CONT_EEPROM;
+		mEepromContType = 0x80;
 
 		DBGConsole_Msg( 0, "Initialising EEPROM to [M%d] bytes", mEepromSize );
 	}
@@ -313,7 +307,7 @@ bool IController::OnRomOpen()
 	{
 		mEepromSize = 16384/8;					// 16 kbits
 		mpEepromData = (u8*)g_pMemoryBuffers[MEM_SAVE];
-		mEepromContType = CONT_EEP16K | CONT_EEPROM;
+		mEepromContType = 0xC0;
 
 		DBGConsole_Msg( 0, "Initialising EEPROM to [M%d] bytes", mEepromSize );
 	}
@@ -321,7 +315,7 @@ bool IController::OnRomOpen()
 	{
 		mEepromSize = 0;
 		mpEepromData = NULL;
-		mEepromContType = 0;
+		mEepromContType = 0x00;
 	}
 
 	u32 channel;
@@ -342,7 +336,6 @@ void IController::OnRomClose()
 {
 }
 
-extern u32 gNunRectsClipped;
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -355,79 +348,98 @@ void IController::Process()
 	DPF_PIF("*********************************************");
 	DPF_PIF("**                                         **");
 #endif
-	u32		i( 0 );
-	u32		channel( 0 );
+
+	u32 i = 0;
+	u32 count = 0;
+	u32 channel = 0;
+	u8  bufin[64];
 
 	// Read controller data here (here gets called fewer times than CONT_READ_CONTROLLER)
 	CInputManager::Get()->GetState( mContPads );
 
-	while(i < 64)
+	u32 *buf_ptr32 = (u32*)bufin;
+	u32 *mPIF_ptr32 = (u32*)mpPifRam;
+
+	// Fuse 4 reads and 4 writes to just one which is a lot faster - Corn
+	for(i = 0; i < 16; i++)
 	{
-		u8 tx_data_size = GetPifByte( i );
+		u32 tmp = *mPIF_ptr32++;
+		*buf_ptr32++ = (tmp >> 24) | ((tmp >> 8) & 0xFF00) | ((tmp & 0xFF00) << 8) | ((tmp & 0x00FF) << 24);
+	}
+
+	while(count < 64)
+	{
+		u8 *cmd = &bufin[count];
 
 		// command is ready
-		if(tx_data_size == CONT_TX_SIZE_FORMAT_END)
+		if(cmd[0] == CONT_TX_SIZE_FORMAT_END)
 		{
-			i = 64;
+			count = 64;
 			break;
 		}
 
 		// dummy data..
-		if((tx_data_size == CONT_TX_SIZE_DUMMYDATA) || (tx_data_size == CONT_TX_SIZE_CHANRESET))
+		if((cmd[0] == CONT_TX_SIZE_DUMMYDATA) || (cmd[0] == CONT_TX_SIZE_CHANRESET))
 		{
-			i++;
+			count++;
 			continue;
 		}
 
+		/*if((cmd[0] ==  0xB4) || (cmd[0] == 0x56) || (cmd[0] == 0xB8))
+		{ 
+			count++;
+			continue;
+		}*/
+
 		// next channel please
-		if(tx_data_size == CONT_TX_SIZE_CHANSKIP)
+		if(cmd[0] == CONT_TX_SIZE_CHANSKIP)
 		{
-			i++;
+			count++;
 			channel++;
 			continue;
 		}
 
-		u8 rx_data_size = GetPifByte( i + 1 );
-
-		// Set up error pointer and skip read/write bytes of input
-		u32 iError = i + 1;
-		i += 2;
-
-		// Mask off high 2 bits. In rx this is used for error status. Not sure about tx, but we can only reference 1<6 bits anyway.
-		tx_data_size &= 0x3f;
-		rx_data_size &= 0x3f;
-
-		switch( channel )
+		// 0-3 = controller channel
+		if( channel < PC_EEPROM )
 		{
-		case PC_CONTROLLER_0:
-		case PC_CONTROLLER_1:
-		case PC_CONTROLLER_2:
-		case PC_CONTROLLER_3:
-			if ( !ProcessController( i, iError, channel, tx_data_size, rx_data_size ) )
+			if ( !ProcessController( cmd, channel ) )
 			{
-				i = 64;
+				count = 64;
 				break;
 			}
-			break;
-		case PC_EEPROM:
-			if ( !ProcessEeprom( i, iError, tx_data_size, rx_data_size ) )
+		}
+		// 4 = eeprom channel
+		else if( channel == PC_EEPROM)
+		{
+			if ( !ProcessEeprom( cmd ) )
 			{
-				i = 64;
+				count = 64;
 				break;
 			}
-			break;
-		default:
+		}
+		else
+		{
 			DAEDALUS_ERROR( "Trying to read from invalid controller channel!" );
 			return;
 		}
 
-		i += tx_data_size + rx_data_size;
-		channel++;
-
-		//Set the last bit is 0 as successfully return
-		SetPifByte( 63, 0 );
+		channel++;	
+		count += cmd[0] + (cmd[1] & 0x3f) + 2;
 
 	}
+
+	bufin[63] = 0;	// Set the last bit is 0 as successfully return 
+
+	buf_ptr32 = (u32*)bufin;
+	mPIF_ptr32 = (u32*)mpPifRam;
+
+	// Fuse 4 reads and 4 writes to just one which is a lot faster - Corn
+	for(i = 0; i < 16; i++)
+	{
+		u32 tmp = *buf_ptr32++;
+		*mPIF_ptr32++ = (tmp >> 24) | ((tmp >> 8) & 0xFF00) | ((tmp & 0xFF00) << 8) | ((tmp & 0x00FF) << 24);
+	}
+
 #ifdef DAEDALUS_DEBUG_PIF
 	DPF_PIF("Before | After:");
 
@@ -465,473 +477,188 @@ void IController::DumpInput() const
 //*****************************************************************************
 // i points to start of command
 //*****************************************************************************
-bool	IController::ProcessController(u32 i, u32 iError, u32 channel, u32 ucWrite, u32 ucRead)
+bool	IController::ProcessController(u8 *cmd, u32 channel)
 {
 
-	bool	success( true );
-	u8		command( GetPifByte( i + 0 ) );			// Read command
-	
-	i++;
-	ucWrite--;
-
-	WriteStatusBits( iError, 0 );					// Clear error flags
-	
 	if( !mContPresent[channel] )
 	{
 		DAEDALUS_ERROR( "Controller not connected!" );
-		WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );				// Not connected
-		return false;
+        cmd[1] |= 0x80;
+        cmd[3] = 0xFF;
+        cmd[4] = 0xFF;
+        cmd[5] = 0xFF;			// Not connected
+		return true;
 	}
 
 	// From the patent, it says that if a controller is plugged in and the memory card is removed, the CONT_CARD_PULL flag will be set.
 	// Cleared if CONT_RESET or CONT_GET_STATUS is issued.
 	// Might need to set this if mContMemPackPresent is false?
-
+	//printf("status %02x\n",cmd[2]);
 	// i Currently points to data to write to
-	switch ( command )
+	switch ( cmd[2] )
 	{
 	case CONT_RESET:
 	case CONT_GET_STATUS:
 		DPF_PIF("Controller: Command is RESET/STATUS");
+		cmd[3] = 0x05;	
+		cmd[4] = 0x00;	
+		if( mContMemPackPresent[channel] ) 
+			cmd[5] = 0x01;
+		else
+			cmd[5] = 0x00;
 
-		DAEDALUS_ASSERT( ucRead <= 3, "Reading too many bytes for RESET/STATUS command" );
-
-		if ( ucRead < 3 )
-		{
-			DAEDALUS_ERROR( "Overrun on RESET/STATUS" );
-			WriteStatusBits( iError, CONT_OVERRUN_ERROR );				// Transfer error...
-		}
-
-		Write16Bits( i, CONT_TYPE_NORMAL );
-		Write8Bits( i+2, mContMemPackPresent[channel] ? CONT_CARD_ON : 0 );	// Is the mempack plugged in?
 		break;
 
 	case CONT_READ_CONTROLLER:		// Controller
 		DPF_PIF("Controller: Executing READ_CONTROLLER");
-		// This is controller status
-		DAEDALUS_ASSERT( ucRead <= 4, "Reading too many bytes for READ_CONT command" );
-
-		if (ucRead < 4)
-		{
-			DAEDALUS_ERROR( "Overrun on READ_CONT" );
-			WriteStatusBits( iError, CONT_OVERRUN_ERROR );
-		}
-
 		// Hack - we need to only write the number of bytes asked for!
-		Write16Bits_Swapped( i, mContPads[channel].button );
-		Write8Bits( i+2, mContPads[channel].stick_x );
-		Write8Bits( i+3, mContPads[channel].stick_y );	
+		// This is controller status
+		cmd[3] = mContPads[channel].button >> 8;
+		cmd[4] = mContPads[channel].button &0xff;
+		cmd[5] = mContPads[channel].stick_x;
+		cmd[6] = mContPads[channel].stick_y;
 		break;
 
 	case CONT_READ_MEMPACK:
 		DPF_PIF("Controller: Command is READ_MEMPACK");
-		if (g_ROM.GameHacks != CHAMELEON_TWIST)
-		{
-			DPF_PIF( "Mempack present" );
-			success = CommandReadMemPack(i, iError, channel, ucWrite, ucRead);
-		}
-		else
-		{
-			DPF_PIF( "Mempack not present" );
-			WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
-		}
+		CommandReadMemPack(channel, &cmd[2]);
+		//return false;
 		break;
 
 	case CONT_WRITE_MEMPACK:
 		DPF_PIF("Controller: Command is WRITE_MEMPACK");
-		success = CommandWriteMemPack(i, iError, channel, ucWrite, ucRead);
-
+		CommandWriteMemPack(channel, &cmd[2]);
+		//return false;
 		break;
 
 	default:
-		DAEDALUS_ERROR( "Unknown controller command: %02x", command );
+		DAEDALUS_ERROR( "Unknown controller command: %02x", cmd[2] );
 		//DPF_PIF( DSPrintf("Unknown controller command: %02x", command) );
 		break;
 	}
 
-	return success;
+	return true;
+}
+//*****************************************************************************
+// 
+//*****************************************************************************
+unsigned char byte2bcd(int n)
+{
+	n %= 100;
+	return ((n / 10) << 4) | (n % 10);
 }
 
 //*****************************************************************************
 // i points to start of command
 //*****************************************************************************
-bool	IController::ProcessEeprom(u32 i, u32 iError, u32 ucWrite, u32 ucRead)
+bool	IController::ProcessEeprom(u8 *cmd)
 {
-
-	bool	success( true );
-	u8		command( GetPifByte( i + 0 ) );			// Read command
-	
-	i++;
-	ucWrite--;
-
-	WriteStatusBits( iError, 0 );					// Clear error flags
-	
-
-	// i Currently points to data to write to
-	switch ( command )
+	switch(cmd[2])
 	{
 	case CONT_RESET:
-		DAEDALUS_ERROR( "Executing Reset on EEPROM - is this ok?" );
-		success = CommandStatusEeprom( i, iError, ucWrite, ucRead );
-		break;
-
 	case CONT_GET_STATUS:
-		DPF_PIF("Controller: Executing GET_EEPROM_STATUS?");
-		success = CommandStatusEeprom( i, iError, ucWrite, ucRead );
+		cmd[3] = 0x00;
+		cmd[4] = GetEepromContType();
+		cmd[5] = 0x00;
 		break;
 
-	case CONT_READ_EEPROM:		return CommandReadEeprom(i, iError, ucWrite, ucRead);
-	case CONT_WRITE_EEPROM:		return CommandWriteEeprom(i, iError, ucWrite, ucRead);
+	case CONT_READ_EEPROM:		
+		CommandReadEeprom(&cmd[4], cmd[3] * 8);
+		break;
 
+	case CONT_WRITE_EEPROM:	
+		CommandWriteEeprom((char*)&cmd[4], cmd[3] * 8);
+		break;
+
+	/* RTC, credit: Mupen64 source */
+	case CONT_RTC_STATUS: // RTC status query
+	    cmd[3] = 0x00;
+	    cmd[4] = 0x10;
+	    cmd[5] = 0x00;
+		break;
+
+	case CONT_RTC_READ:	// read RTC block
+		{
+			switch (cmd[3]) // block number
+			{ 
+			case 0:
+				cmd[4] = 0x00;
+				cmd[5] = 0x02;
+				cmd[12] = 0x00;
+				break;
+			case 1:
+				//DAEDALUS_ERROR("RTC command in EepromCommand(): read block %d", cmd[2]);
+				break;
+			case 2:
+				time_t curtime_time;
+				struct tm curtime;
+
+				time(&curtime_time);
+				memcpy(&curtime, localtime(&curtime_time), sizeof(curtime)); // fd's fix
+
+				cmd[4] = byte2bcd(curtime.tm_sec);
+				cmd[5] = byte2bcd(curtime.tm_min);
+				cmd[6] = 0x80 + byte2bcd(curtime.tm_hour);
+				cmd[7] = byte2bcd(curtime.tm_mday);
+				cmd[8] = byte2bcd(curtime.tm_wday);
+				cmd[9] = byte2bcd(curtime.tm_mon + 1);
+				cmd[10] = byte2bcd(curtime.tm_year);
+				cmd[11] = byte2bcd(curtime.tm_year / 100);
+				cmd[12] = 0x00;       // status
+				break;
+			}
+		}
+		break;
+	case CONT_RTC_WRITE:	// write RTC block
+		DAEDALUS_ERROR("RTC write : %02x not yet implemented", cmd[2]);
+		break;
 	default:
-		DAEDALUS_ERROR( "Unknown Eeprom command: %02x", command );
+		DAEDALUS_ERROR( "Unknown Eeprom command: %02x", cmd[2] );
 		//DPF_PIF( DSPrintf("Unknown controller command: %02x", command) );
 		break;
 	}
 
-	return success;
-}
-
-//*****************************************************************************
-// i points to start of command
-//*****************************************************************************
-bool	IController::CommandStatusEeprom(u32 i, u32 iError, u32 ucWrite, u32 ucRead)
-{
-
-	DPF_PIF("Controller: GetStatusEEPROM");
-
-	if (ucWrite != 0 || ucRead > 3)
-	{
-		WriteStatusBits( iError, CONT_OVERRUN_ERROR );
-		DAEDALUS_ERROR( "GetEepromStatus Overflow" );
-		return false;
-	}
-
-	DAEDALUS_ASSERT( ucRead == 3, "Why is ucRead not 3 for an Eeprom read?" );
-
-	if ( IsEepromPresent() )
-	{
-		Write16Bits(i, GetEepromContType() );
-		Write8Bits(i+2, 0x00);
-
-		i += 3;
-		ucRead -= 3;
-	}
-	else
-	{
-		DAEDALUS_ERROR( "ROM is accessing the EEPROM, but none is present" );
-		WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
-	}
-
-	DAEDALUS_ASSERT( ucWrite == 0 && ucRead == 0, "GetEepromStatus Read / Write bytes remaining" );
 	return true;
-
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	IController::CommandReadEeprom(u32 i, u32 iError, u32 ucWrite, u32 ucRead)
+void	IController::CommandReadEeprom(unsigned char *dest, long offset)
 {
-	u8 block;
-
-	DPF_PIF("Controller: ReadEEPROM");
-
-	DAEDALUS_ASSERT( ucWrite+1 == 2, "Why is tx_data_size not 2 for READ_EEP?" );
-	DAEDALUS_ASSERT( ucRead == 8, "Why is rx_data_size not 1 for WRITE_EEP?" );
-
-	if (ucWrite != 1 || ucRead > 8)
-	{
-		WriteStatusBits( iError, CONT_OVERRUN_ERROR );
-		DAEDALUS_ERROR( "ReadEeprom Overflow" );
-		return false;
-	}
-
-
-	// Read the block 
-	block = GetPifByte( i + 0 );
-	i++;
-	ucWrite--;
-
-#ifdef DAEDALUS_DEBUG_PIF
-	if ( ucRead < 8 )
-	{
-		DAEDALUS_ERROR( "Overrun on READ_EEPROM" );
-	}
-#endif
 
 	if ( IsEepromPresent() )
 	{
-		// TODO limit block to mEepromSize / 8
-#ifdef DAEDALUS_DEBUG_PIF
-		if (block*8+ucRead > mEepromSize)
-		{
-			DAEDALUS_ERROR( "Reading outside of EEPROM bounds" );
-		}
-#endif
-		u32 j = 0;
-		while (ucRead)
-		{
-			SetPifByte( i, mpEepromData[(block*8 + j) ^ U8_TWIDDLE] );
-
-			i++;
-			j++;
-			ucRead--;
-		}
+		memcpy(dest, &mpEepromData[offset], 8);
 	}
 	else
 	{
-		WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
+		//WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
 	}
 
-	DAEDALUS_ASSERT( ucWrite == 0 && ucRead == 0, "ReadEeprom Read / Write bytes remaining" );
-	return true;
+	//DAEDALUS_ASSERT( ucWrite == 0 && ucRead == 0, "ReadEeprom Read / Write bytes remaining" );
 }
-
-
 
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	IController::CommandWriteEeprom(u32 i, u32 iError, u32 ucWrite, u32 ucRead)
+void	IController::CommandWriteEeprom(char *src, long offset)
 {
-	u8 block;
 
 	DPF_PIF("Controller: WriteEEPROM");
-	DAEDALUS_ASSERT( ucWrite+1 == 10, "Why is tx_data_size not 10 for WRITE_EEP?" );
-	// Forsaken 64
-	DAEDALUS_ASSERT( ucRead == 1, "Why is rx_data_size not 1 for WRITE_EEP?" );
 
-	// 9 bytes of input remaining - 8 bytes data + block
-	if (ucWrite != 9 /*|| ucRead != 1*/)
-	{
-		WriteStatusBits( iError, CONT_OVERRUN_ERROR );
-		DAEDALUS_ERROR( "WriteEeprom Overflow" );
-		return false;
-	}
-
-	// Read the block 
-	block = GetPifByte( i + 0 );
-	i++;
-	ucWrite--;
 
 	if ( IsEepromPresent() )
 	{
 		Save::MarkSaveDirty();
 
-		// TODO limit block to mEepromSize / 8
-#ifdef DAEDALUS_DEBUG_PIF
-		if (block*8+ucWrite > mEepromSize)
-		{
-			DAEDALUS_ERROR( "Writing outside of EEPROM bounds" );
-		}
-#endif
-		u32 j = 0;
-		while (ucWrite)
-		{
-			mpEepromData[(block*8 + j) ^ U8_TWIDDLE] = GetPifByte( i );
+		memcpy(&mpEepromData[offset], src, 8);
 
-			i++;
-			j++;
-			ucWrite--;
-		}
 	}
 	else
 	{
-		WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
+		//WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
 	}
-
-	// What on earth is this for??
-	ucRead--;
-
-	DAEDALUS_ASSERT( ucWrite == 0 && ucRead == 0, "WriteEeprom Read / Write bytes remaining" );
-	return true;
-}
-
-//*****************************************************************************
-// Returns new position to continue reading
-// i is the address of the first write info (after command itself)
-//*****************************************************************************
-bool	IController::CommandReadMemPack( u32 i, u32 iError, u32 channel, u32 ucWrite, u32 ucRead )
-{
-	DPF_PIF( "CommandReadMemPack(%d, %d, %d, %d, %d)", i, iError, channel, ucWrite, ucRead );
-	u32 j;
-	u32 address_crc;
-	u32 address;
-	u32 dwCRC;
-	u8 ucDataCRC;
-	u8 * pBuf;
-	
-	// There must be exactly 2 bytes to write, and 33 bytes to read
-	if (ucWrite != 2 || ucRead != 33)
-	{
-		// TRANSFER ERROR!!!!
-		DBGConsole_Msg( 0, "RMemPack with bad tx/rxdata size (%d/%d)\n", ucWrite, ucRead );
-		WriteStatusBits( iError, CONT_OVERRUN_ERROR );
-		return false;
-	}
-#ifdef DAEDALUS_DEBUG_PIF
-	//DPF_PIF( DSPrintf("ReadMemPack: Channel %d, i is %d", channel, i) );
-	DAEDALUS_ERROR( "ReadMemPack: Channel %d, i is %d", channel, i );
-#endif
-	// Get address..
-	address_crc = (GetPifByte( i + 0 ) << 8) | GetPifByte( i + 1 );
-
-	address = (address_crc >> 5);
-	dwCRC = (address_crc & 0x1f);
-	i += 2;	
-	ucWrite -= 2;
-
-	DAEDALUS_ASSERT( address < 0x400,"ReadMemPack: Address out of range: 0x%08x", address );
-
-	if ( address == 0x400 )
-	{
-		memset( rumble, 0, 32 );
-
-		for (j = 0; j < 32; j++)
-		{
-			if (i < 64)
-			{
-				SetPifByte( i, rumble[j] );
-			}
-			i++;
-			ucRead--;
-		}
-
-		// For some reason this seems to be negated when operating on this address
-		// If I negate the result here, Zelda OoT stops working :/
-		ucDataCRC = CalculateDataCrc(rumble);
-	}
-	else
-	{
-		pBuf = &mMemPack[channel][address * 32];
-#ifdef DAEDALUS_DEBUG_PIF
-		//DPF_PIF( DSPrintf("Controller: Reading from block 0x%04x (crc: 0x%02x)", address, dwCRC) );
-		DAEDALUS_ERROR( "Controller: Reading from block 0x%04x (crc: 0x%02x)", address, dwCRC );
-#endif		
-		for (j = 0; j < 32; j++)
-		{
-			if (i < 64)
-			{
-				SetPifByte( i, pBuf[j] );
-			}
-			i++;
-			ucRead--;
-		}
-
-		ucDataCRC = CalculateDataCrc(pBuf);
-	}
-#ifdef DAEDALUS_DEBUG_PIF	
-	//DPF_PIF( DSPrintf("Controller: data crc is 0x%02x", ucDataCRC) );
-	DAEDALUS_ERROR( "Controller: data crc is 0x%02x", ucDataCRC );
-#endif
-	// Write the crc value:
-	SetPifByte( i, ucDataCRC );
-	i++;
-	ucRead--;
-#ifdef DAEDALUS_DEBUG_PIF	
-	//DPF_PIF( DSPrintf("Returning, setting i to %d", i + 1) );
-	DAEDALUS_ERROR( "Returning, setting i to %d", i + 1 );
-#endif
-	// With wetrix, there is still a padding byte?
-	DAEDALUS_ASSERT( ucWrite == 0 && ucRead == 0, "ReadMemPack / Write bytes remaining" );
-	return true;
-}
-
-
-//*****************************************************************************
-// Returns new position to continue reading
-// i is the address of the first write info (after command itself)
-//*****************************************************************************
-bool	IController::CommandWriteMemPack(u32 i, u32 iError, u32 channel, u32 ucWrite, u32 ucRead)
-{
-	u32 j;
-	u32 address_crc;
-	u32 address;
-	u32 dwCRC;
-	u8 ucDataCRC;
-	u8 * pBuf;
-
-	// There must be exactly 32+2 bytes to read
-
-	if (ucWrite != 34 || ucRead != 1)
-	{
-		DAEDALUS_ERROR( "WriteMemPack with bad tx/rxdata size (%d/%d)", ucWrite, ucRead );
-		DBGConsole_Msg( 0, "WMemPack with bad tx/rxdata size (%d/%d)\n", ucWrite, ucRead );
-		WriteStatusBits( iError, CONT_OVERRUN_ERROR );
-		return false;
-	}
-#ifdef DAEDALUS_DEBUG_PIF
-	//DPF_PIF( DSPrintf("WriteMemPack: Channel %d, i is %d", channel, i) );
-	DAEDALUS_ERROR("WriteMemPack: Channel %d, i is %d", channel, i );
-#endif
-	// Get address..
-	address_crc = (GetPifByte( i + 0 ) << 8) | GetPifByte( i + 1 );
-
-	address = (address_crc >>5);
-	dwCRC = (address_crc & 0x1f);
-	i += 2;	
-	ucWrite -= 2;
-
-
-	if (address > 0x400/* && address != 0x600*/)
-	{
-		// 0x600 is mempack enable address?
-		/*if (address == 0x600)
-		{
-			pBuf = &arrTemp[0];
-		}*/
-		DAEDALUS_ERROR( "Attempting to write to non-existing block 0x%08x", address );
-		return false;
-	}
-	else if ( address == 0x400 )
-	{
-		// Do nothing - enable rumblepak eventually
-		for (j = 0; j < 32; j++)
-		{
-			if (i < 64)
-			{
-				rumble[j] = GetPifByte( i );
-			}
-			i++;
-			ucWrite--;
-		}
-		
-		// For some reason this seems to be negated when operating on this address
-		// If I negate the result here, Zelda OoT stops working :/
-		ucDataCRC = CalculateDataCrc(rumble);
-	}
-	else
-	{
-		pBuf = &mMemPack[channel][address * 32];
-#ifdef DAEDALUS_DEBUG_PIF
-		//DPF_PIF( DSPrintf("Controller: Writing block 0x%04x (crc: 0x%02x)", address, dwCRC) );
-		DAEDALUS_ERROR( "Controller: data crc is 0x%02x", ucDataCRC );
-#endif
-		for (j = 0; j < 32; j++)
-		{
-			if (i < 64)
-			{
-				pBuf[j] = GetPifByte( i );
-			}
-			i++;
-			ucWrite--;
-		}
-		ucDataCRC = CalculateDataCrc(pBuf);
-	}
-#ifdef DAEDALUS_DEBUG_PIF
-	//DPF_PIF( DSPrintf("Controller: data crc is 0x%02x", ucDataCRC) );
-	DAEDALUS_ERROR( "Controller: data crc is 0x%02x", ucDataCRC );
-#endif
-	// Write the crc value:
-	SetPifByte( i, ucDataCRC );
-	i++;
-	ucRead--;
-	
-	// With wetrix, there is still a padding byte?
-	DAEDALUS_ASSERT( ucWrite == 0 && ucRead == 0, "WriteMemPack / Write bytes remaining" );
-
-	return true;
 }
 
 //*****************************************************************************
@@ -968,31 +695,46 @@ u8 IController::CalculateDataCrc(u8 * pBuf)
 	return c;
 }
 
+
 //*****************************************************************************
-//
+// Returns new position to continue reading
+// i is the address of the first write info (after command itself)
 //*****************************************************************************
-void IController::WriteStatusBits(u32 i, u8 val)
+void	IController::CommandReadMemPack( int device, u8 *cmd )
 {
-	mpPifRam[(i + 0) ^ U8_TWIDDLE] &= 0x3F;
-	mpPifRam[(i + 0) ^ U8_TWIDDLE] |= val;
+	u16	offset = *(u16 *) &cmd[1];
+	offset = (offset >> 8) | (offset << 8);
+	offset = offset >> 5;
+
+	if(offset <= 0x400)
+	{
+		memcpy(&cmd[3], &mMemPack[device][offset * 32], 32);
+	}
+
+	cmd[35] =  CalculateDataCrc(&cmd[3]);
+}
+
+
+//*****************************************************************************
+// Returns new position to continue reading
+// i is the address of the first write info (after command itself)
+//*****************************************************************************
+void	IController::CommandWriteMemPack(int device, u8 *cmd)
+{
+
+	u16	offset = *(u16 *) &cmd[1];
+	offset = (offset >> 8) | (offset << 8);
+	offset = offset >> 5;
+
+	if(offset <= 0x400)
+	{
+		memcpy(&mMemPack[device][offset * 32], &cmd[3], 32);
+	}
+
+	cmd[35] =  CalculateDataCrc(&cmd[3]);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void IController::Write16Bits(u32 i, u16 val)
-{
-	mpPifRam[(i + 0) ^ U8_TWIDDLE] = (u8)(val&0xff);	// Lo
-	mpPifRam[(i + 1) ^ U8_TWIDDLE] = (u8)(val>>8);	// Hi
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void IController::Write16Bits_Swapped(u32 i, u16 val)
-{
-	mpPifRam[(i + 0) ^ U8_TWIDDLE] = (u8)(val>>8);	// Hi
-	mpPifRam[(i + 1) ^ U8_TWIDDLE] = (u8)(val&0xff);	// Lo
-}
-
 
