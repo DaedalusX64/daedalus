@@ -141,18 +141,20 @@ class	IController : public CController
 
 		void			CommandReadEeprom(unsigned char *dest, long offset);
 		void			CommandWriteEeprom(char *src, long offset);
-		void			CommandReadMemPack(int device, u8 *cmd);
-		void			CommandWriteMemPack(int device, u8 *cmd);
+		void			CommandReadMemPack(u32 channel, u8 *cmd);
+		void			CommandWriteMemPack(u32 channel, u8 *cmd);
 
 		u8				CalculateDataCrc(u8 * pBuf);
 
 		bool			IsEepromPresent() const						{ return mpEepromData != NULL; }
 		u8				GetEepromContType() const					{ return mEepromContType; }
 
+		u8				byte2bcd(int n)								{ n %= 100; return ((n / 10) << 4) | (n % 10); }
 
-	#ifdef DAEDALUS_DEBUG_PIF
+
+#ifdef DAEDALUS_DEBUG_PIF
 		void			DumpInput() const;
-	#endif
+#endif
 
 	private:
 		
@@ -176,10 +178,6 @@ class	IController : public CController
 			CONT_TX_SIZE_DUMMYDATA  = 0xFF,					// Dummy Data
 			CONT_TX_SIZE_FORMAT_END = 0xFE,					// Format End
 			CONT_TX_SIZE_CHANRESET  = 0xFD,					// Channel Reset
-
-			//CONT_TX_SIZE_NOP_S		= 0xB4,					// NOP?
-			//CONT_TX_SIZE_NOP_T		= 0x56,					// NOP?
-			//CONT_TX_SIZE_NOP_W		= 0xB8,					// NOP?
 		};
 
 		u8 *			mpPifRam;
@@ -223,7 +221,7 @@ class	IController : public CController
 		u8				*mMemPack[ NUM_CONTROLLERS ];
 
 		//SChannelFormat	mChannelFormat[ NUM_CHANNELS ];
-		u8				rumble[32];
+		//u8				rumble[32];
 
 	#ifdef DAEDALUS_DEBUG_PIF
 		FILE *			mDebugFile;
@@ -521,13 +519,15 @@ bool	IController::ProcessController(u8 *cmd, u32 channel)
 
 	case CONT_READ_MEMPACK:
 		DPF_PIF("Controller: Command is READ_MEMPACK");
-		CommandReadMemPack(channel, &cmd[2]);
+
+		CommandReadMemPack(channel, cmd);
 		//return false;
 		break;
 
 	case CONT_WRITE_MEMPACK:
 		DPF_PIF("Controller: Command is WRITE_MEMPACK");
-		CommandWriteMemPack(channel, &cmd[2]);
+
+		CommandWriteMemPack(channel, cmd);
 		//return false;
 		break;
 
@@ -538,14 +538,6 @@ bool	IController::ProcessController(u8 *cmd, u32 channel)
 	}
 
 	return true;
-}
-//*****************************************************************************
-// 
-//*****************************************************************************
-unsigned char byte2bcd(int n)
-{
-	n %= 100;
-	return ((n / 10) << 4) | (n % 10);
 }
 
 //*****************************************************************************
@@ -582,12 +574,12 @@ bool	IController::ProcessEeprom(u8 *cmd)
 			switch (cmd[3]) // block number
 			{ 
 			case 0:
-				cmd[4] = 0x00;
-				cmd[5] = 0x02;
+				cmd[4]	= 0x00;
+				cmd[5]	= 0x02;
 				cmd[12] = 0x00;
 				break;
 			case 1:
-				//DAEDALUS_ERROR("RTC command in EepromCommand(): read block %d", cmd[2]);
+				//DAEDALUS_ERROR("RTC command : Read Block %d", cmd[2]);
 				break;
 			case 2:
 				time_t curtime_time;
@@ -596,12 +588,12 @@ bool	IController::ProcessEeprom(u8 *cmd)
 				time(&curtime_time);
 				memcpy(&curtime, localtime(&curtime_time), sizeof(curtime)); // fd's fix
 
-				cmd[4] = byte2bcd(curtime.tm_sec);
-				cmd[5] = byte2bcd(curtime.tm_min);
-				cmd[6] = 0x80 + byte2bcd(curtime.tm_hour);
-				cmd[7] = byte2bcd(curtime.tm_mday);
-				cmd[8] = byte2bcd(curtime.tm_wday);
-				cmd[9] = byte2bcd(curtime.tm_mon + 1);
+				cmd[4]	= byte2bcd(curtime.tm_sec);
+				cmd[5]	= byte2bcd(curtime.tm_min);
+				cmd[6]	= 0x80 + byte2bcd(curtime.tm_hour);
+				cmd[7]	= byte2bcd(curtime.tm_mday);
+				cmd[8]	= byte2bcd(curtime.tm_wday);
+				cmd[9]	= byte2bcd(curtime.tm_mon + 1);
 				cmd[10] = byte2bcd(curtime.tm_year);
 				cmd[11] = byte2bcd(curtime.tm_year / 100);
 				cmd[12] = 0x00;       // status
@@ -609,9 +601,11 @@ bool	IController::ProcessEeprom(u8 *cmd)
 			}
 		}
 		break;
+
 	case CONT_RTC_WRITE:	// write RTC block
-		DAEDALUS_ERROR("RTC write : %02x not yet implemented", cmd[2]);
+		DAEDALUS_ERROR("RTC Write : %02x Not Implemented", cmd[2]);
 		break;
+
 	default:
 		DAEDALUS_ERROR( "Unknown Eeprom command: %02x", cmd[2] );
 		//DPF_PIF( DSPrintf("Unknown controller command: %02x", command) );
@@ -646,7 +640,6 @@ void	IController::CommandWriteEeprom(char *src, long offset)
 {
 
 	DPF_PIF("Controller: WriteEEPROM");
-
 
 	if ( IsEepromPresent() )
 	{
@@ -700,18 +693,30 @@ u8 IController::CalculateDataCrc(u8 * pBuf)
 // Returns new position to continue reading
 // i is the address of the first write info (after command itself)
 //*****************************************************************************
-void	IController::CommandReadMemPack( int device, u8 *cmd )
+void	IController::CommandReadMemPack(u32 channel, u8 *cmd)
 {
-	u16	offset = *(u16 *) &cmd[1];
-	offset = (offset >> 8) | (offset << 8);
-	offset = offset >> 5;
+	u32 addr = ((cmd[3] << 8) | cmd[4]);
 
-	if(offset <= 0x400)
+	if (addr == 0x8001)
 	{
-		memcpy(&cmd[3], &mMemPack[device][offset * 32], 32);
+		memset(&cmd[5], 0, 32);
+		cmd[37] = CalculateDataCrc(&cmd[5]);
+		return;
 	}
 
-	cmd[35] =  CalculateDataCrc(&cmd[3]);
+	addr &= 0xFFE0;
+
+	if (addr <= 0x7FE0) 
+	{
+		memcpy(&cmd[5], &mMemPack[channel][addr], 32);
+	} 
+	else 
+	{
+		// rumblepak 
+		memset( &cmd[5], 0, 32 );
+	}
+
+	cmd[37] = CalculateDataCrc(&cmd[5]);
 }
 
 
@@ -719,22 +724,28 @@ void	IController::CommandReadMemPack( int device, u8 *cmd )
 // Returns new position to continue reading
 // i is the address of the first write info (after command itself)
 //*****************************************************************************
-void	IController::CommandWriteMemPack(int device, u8 *cmd)
+void	IController::CommandWriteMemPack(u32 channel, u8 *cmd)
 {
+	u32 addr = ((cmd[3] << 8) | cmd[4]);
 
-	u16	offset = *(u16 *) &cmd[1];
-	offset = (offset >> 8) | (offset << 8);
-	offset = offset >> 5;
-
-	if(offset <= 0x400)
+	if (addr == 0x8001)
 	{
-		memcpy(&mMemPack[device][offset * 32], &cmd[3], 32);
+		cmd[37] = CalculateDataCrc(&cmd[5]);
+		return;
 	}
 
-	cmd[35] =  CalculateDataCrc(&cmd[3]);
+	addr &= 0xFFE0;
+
+	if (addr <= 0x7FE0) 
+	{
+		memcpy(&mMemPack[channel][addr], &cmd[5], 32);
+	} 
+	else 
+	{
+		//Do nothing - enable rumblepak eventually
+	}
+
+	cmd[37] = CalculateDataCrc(&cmd[5]);
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 
