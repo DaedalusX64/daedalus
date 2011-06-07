@@ -396,7 +396,7 @@ void IController::Process()
 			channel++;
 			continue;
 		}
-
+	
 		// 0-3 = controller channel
 		if( channel < PC_EEPROM )
 		{
@@ -480,7 +480,7 @@ bool	IController::ProcessController(u8 *cmd, u32 channel)
 
 	if( !mContPresent[channel] )
 	{
-		DAEDALUS_ERROR( "Controller not connected!" );
+		DAEDALUS_ERROR("MemPak/Controller : Not connected!");
         cmd[1] |= 0x80;
         cmd[3] = 0xFF;
         cmd[4] = 0xFF;
@@ -491,8 +491,7 @@ bool	IController::ProcessController(u8 *cmd, u32 channel)
 	// From the patent, it says that if a controller is plugged in and the memory card is removed, the CONT_CARD_PULL flag will be set.
 	// Cleared if CONT_RESET or CONT_GET_STATUS is issued.
 	// Might need to set this if mContMemPackPresent is false?
-	//printf("status %02x\n",cmd[2]);
-	// i Currently points to data to write to
+
 	switch ( cmd[2] )
 	{
 	case CONT_RESET:
@@ -500,11 +499,7 @@ bool	IController::ProcessController(u8 *cmd, u32 channel)
 		DPF_PIF("Controller: Command is RESET/STATUS");
 		cmd[3] = 0x05;	
 		cmd[4] = 0x00;	
-		if( mContMemPackPresent[channel] ) 
-			cmd[5] = 0x01;
-		else
-			cmd[5] = 0x00;
-
+		cmd[5] = mContMemPackPresent[channel] ? 0x01 : 0x00;
 		break;
 
 	case CONT_READ_CONTROLLER:		// Controller
@@ -512,23 +507,22 @@ bool	IController::ProcessController(u8 *cmd, u32 channel)
 		// Hack - we need to only write the number of bytes asked for!
 		// This is controller status
 		cmd[3] = mContPads[channel].button >> 8;
-		cmd[4] = mContPads[channel].button &0xff;
+		cmd[4] = mContPads[channel].button;
 		cmd[5] = mContPads[channel].stick_x;
 		cmd[6] = mContPads[channel].stick_y;
 		break;
 
 	case CONT_READ_MEMPACK:
 		DPF_PIF("Controller: Command is READ_MEMPACK");
-
 		CommandReadMemPack(channel, cmd);
-		//return false;
+		return false;
 		break;
 
 	case CONT_WRITE_MEMPACK:
 		DPF_PIF("Controller: Command is WRITE_MEMPACK");
 
 		CommandWriteMemPack(channel, cmd);
-		//return false;
+		return false;
 		break;
 
 	default:
@@ -612,7 +606,7 @@ bool	IController::ProcessEeprom(u8 *cmd)
 		break;
 	}
 
-	return true;
+	return false;
 }
 
 //*****************************************************************************
