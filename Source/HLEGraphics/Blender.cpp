@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "RDP.h"
 #include "DebugDisplayList.h"
+#include "Core/ROM.h"
 
 #include <pspgu.h>
 
@@ -175,7 +176,7 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	case 0x0f5a:					// In * 0 + Mem * 1 || :In * 0 + Mem * 1				Starwars Racer
 	case 0x0010:					// In * AIn + In * 1-A || :In * AIn + Mem * 1-A			Hey You Pikachu - Shadow
 	case 0x0040:					// In * AIn + Mem * 1-A || :In * AIn + In * 1-A			Mario - Princess peach text
-	case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
+	//case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
 	case 0x04d0:					// In * AFog + Fog * 1-A || In * AIn + Mem * 1-A		Conker's Eyes
 	case 0x0c18:					// In * 0 + In * 1 || :In * AIn + Mem * 1-A:			SSV - WaterFall and dust
 	case 0xc410:					// Fog * AFog + In * 1-A || :In * AIn + Mem * 1-A		Donald Duck - Stars
@@ -189,12 +190,29 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	// Default case should handle most blenders, ignore most unknown blenders unless something is messed up
 	//
 	default:
+		// Hack for shadows in ISS64
+		if(g_ROM.GameHacks == ISS64)
+		{
+			if (blendmode == 0xff5a)	// Actual shadow
+			{
+				sceGuBlendFunc(GU_REVERSE_SUBTRACT, GU_SRC_ALPHA,GU_FIX, 0, 0);
+				sceGuEnable( GU_BLEND );
+			}
+			else if (blendmode == 0x0050) // Box that appears under the players..
+			{
+				sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_FIX, 0, 0x00ffffff);
+				sceGuEnable( GU_BLEND );
+			}
+		}
+		else
+		{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DebugBlender( blendmode );
-		DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", blendmode );
+			DebugBlender( blendmode );
+			DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", blendmode );
 #endif
-		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-		sceGuEnable( GU_BLEND );
+			sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+			sceGuEnable( GU_BLEND );
+		}
 		break;
 	}
 }	

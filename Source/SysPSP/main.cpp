@@ -498,11 +498,8 @@ void HandleEndOfFrame()
 		//CVideoMemoryManager::Get()->DisplayDebugInfo();
 //#endif
 
-		// Supposedly Save::Flush helps to solve the Phat issue with HOME< I have yet to see this being true, since the Phat still has issues with HOME
-		// Anyways no point to add innecesary delays to newer models for a especulative fix for PHATs, so skip this for newer models - Salvy
-		//
-		if(!PSP_IS_SLIM)
-			Save::Flush(true);	//Seems important to do on PHATs to get back memory //Corn
+		// No longer needed since we save normally now, and not jsut when entering the pause menu ;)
+		//Save::Flush(true);
 
 		// switch back to the LCD display
 		CGraphicsContext::Get()->SwitchToLcdDisplay();

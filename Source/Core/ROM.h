@@ -110,7 +110,6 @@ enum EGameHacks
 	ZELDA_OOT,
 	ZELDA_MM,
 	TIGERS_HONEY_HUNT,
-	CHAMELEON_TWIST,
 	KIRBY64,
 	TARZAN,
 	DONALD,
@@ -124,6 +123,7 @@ enum EGameHacks
 	CLAY_FIGHTER_63,
 	BODY_HARVEST,
 	AIDYN_CRONICLES,
+	ISS64,
 };
 
 //*****************************************************************************

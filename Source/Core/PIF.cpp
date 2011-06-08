@@ -520,7 +520,6 @@ bool	IController::ProcessController(u8 *cmd, u32 channel)
 
 	case CONT_WRITE_MEMPACK:
 		DPF_PIF("Controller: Command is WRITE_MEMPACK");
-
 		CommandWriteMemPack(channel, cmd);
 		return false;
 		break;
@@ -623,8 +622,6 @@ void	IController::CommandReadEeprom(unsigned char *dest, long offset)
 	{
 		//WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
 	}
-
-	//DAEDALUS_ASSERT( ucWrite == 0 && ucRead == 0, "ReadEeprom Read / Write bytes remaining" );
 }
 
 //*****************************************************************************
@@ -681,7 +678,6 @@ u8 IController::CalculateDataCrc(u8 * pBuf)
 
 	return c;
 }
-
 
 //*****************************************************************************
 // Returns new position to continue reading
