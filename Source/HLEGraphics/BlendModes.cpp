@@ -432,8 +432,19 @@ static void BlendMode_0x0040fe8155fef97cLL (BLEND_MODE_ARGS)
 }
 
 /*
- //#H
- */ 
+//#H
+*/ 
+ 
+// Hexen - Arms and Weapons
+// case 0x00129bfffffffe38LL:
+//aRGB0: (Texel0       - 0           ) * Env          + 0
+//aA0  : (Texel0       - 0           ) * Env          + 0
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (0            - 0           ) * 0            + Combined
+static void BlendMode_0x00129bfffffffe38LL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
+}
 
 /*
  #I
@@ -442,6 +453,32 @@ static void BlendMode_0x0040fe8155fef97cLL (BLEND_MODE_ARGS)
 /*
  #K
  */ 
+ 
+// Killer Instinct Gold - Character Shadows
+// case 0x00f517eaff2fffffLL:
+//aRGB0: (0            - 0           ) * Prim_Alpha   + 0
+//aA0  : (Texel0       - 0           ) * Primitive    + 0
+//aRGB1: (0            - 0           ) * Prim_Alpha   + 0
+//aA1  : (Texel0       - 0           ) * Primitive    + 0
+static void BlendMode_0x00f517eaff2fffffLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGBA(details.PrimColour);
+	details.ColourAdjuster.ModulateA(details.PrimColour);
+	sceGuTexEnvColor(details.EnvColour.GetColour());
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
+
+//Killer Instinct Gold - Characters and HUD
+// case 0x00fffe6af5fcf438LL:
+//aRGB0: (0            - 0           ) * 0            + Texel0
+//aA0  : (0            - 0           ) * 0            + Texel1
+//aRGB1: (Primitive    - Env         ) * Prim_Alpha   + Combined
+//aA1  : (0            - 0           ) * 0            + Combined
+static void BlendMode_0x00fffe6af5fcf438LL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+}
+ 
 //Kirby 64 - Ground
 //case 0x0030fe045ffefdf8LL:
 //aRGB0: (Primitive    - Env         ) * Texel0       + Env
@@ -450,7 +487,8 @@ static void BlendMode_0x0040fe8155fef97cLL (BLEND_MODE_ARGS)
 //aA1  : (0            - 0           ) * 0            + Combined
 static void BlendMode_0x0030fe045ffefdf8LL (BLEND_MODE_ARGS)
 {
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
 }
 
 //Kirby 64 - some parts of the Ground
@@ -461,7 +499,8 @@ static void BlendMode_0x0030fe045ffefdf8LL (BLEND_MODE_ARGS)
 //aA1  : (0            - 0           ) * 0            + Combined    
 static void BlendMode_0x00309e045ffefdf8LL (BLEND_MODE_ARGS)
 {
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
 }
 
 //Kirby 64 - Far Terrain
@@ -473,7 +512,8 @@ static void BlendMode_0x00309e045ffefdf8LL (BLEND_MODE_ARGS)
 
 static void BlendMode_0x0040fe8155fefd7eLL (BLEND_MODE_ARGS)
 {
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
 }
 
 // Kirby - Air seeds, Ridge Racer 64 menu text 
@@ -484,11 +524,16 @@ static void BlendMode_0x0040fe8155fefd7eLL (BLEND_MODE_ARGS)
 //aA1  : (Primitive    - Env         ) * Texel0       + Env
 static void BlendMode_0x0030b2615566db6dLL( BLEND_MODE_ARGS )
 {
+
+	//Proper fix for Kirby 64 seeds without breaking RR64.
+	details.ColourAdjuster.SetRGBA(details.PrimColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+	// I didn't see any adverse effects to RR64, but just in case, I'll leave the previous blend below.
 	// Modulate the texture*shade for RGBA
-	details.ColourAdjuster.SetRGB( details.EnvColour );
-	details.ColourAdjuster.SetA( details.PrimColour );
-	sceGuTexEnvColor( details.PrimColour.GetColour() );
-	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);			// XXXX Argh - need to interpolate alpha too!? We're just doing modulate(t,prim) for now
+	//details.ColourAdjuster.SetRGB( details.EnvColour );
+	//details.ColourAdjuster.SetA( details.PrimColour );
+	//sceGuTexEnvColor( details.PrimColour.GetColour() );
+	//sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);			// XXXX Argh - need to interpolate alpha too!? We're just doing modulate(t,prim) for now
 }
 
 /*
@@ -1372,8 +1417,8 @@ static void BlendMode_0x00272c60350c937fLL (BLEND_MODE_ARGS)
 	}
 	else
 	{
-		details.ColourAdjuster.SetRGB(details.PrimColour);
-		sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+		details.ColourAdjuster.SetRGBA(details.EnvColour);
+		sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
 	}
 }
 //Zelda Triforce (Needs PrimLODFrac to be properly coloured and Shiny.
@@ -1594,6 +1639,9 @@ OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 			BLEND_MODE(0x00522bfffffffe38LL); // Donald Duck rain (makes it transparent not really a fix)
 			//BLEND_MODE(0x00627fff3ffe7e3fLL); // Pokemon Stadium 2 N64 Logo //Dangerous!!
 			BLEND_MODE(0x0050fea144fe7339LL); // Duke Nukem Menu and HUD
+			BLEND_MODE(0x00ffffffff09f63fLL); // THPS Text
+			BLEND_MODE(0x00129bfffffffe38LL); // Hexen - Arms
+			BLEND_MODE(0x00fffe6af5fcf438LL); // Killer Instinct Characters and HUD
 
 	#undef BLEND_MODE 
 	}
@@ -1702,10 +1750,10 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0071fffffffefc38LL); // Pokemon Stadium 2 Pokemon Select Menu
 			BLEND_MODE(0x00772c60f5fce378LL); // Zelda Poe
 			BLEND_MODE(0x0077666045fd7f78LL); // Pokemon Stadium 2 Intro Pichu
+			BLEND_MODE(0x00f517eaff2fffffLL); // Killer Instinct Shadows
 			BLEND_MODE(0x00ff95ffff0dfe3fLL); // Animal Crossing Player Shadow
 			BLEND_MODE(0x00ffb3ffff00fe3fLL); // Mega Man 64 Explosion
 			BLEND_MODE(0x00fffe8ff517f8ffLL); // Conker Mouth/Tail
-			BLEND_MODE(0x00ffffffff09f63fLL); // THPS Text
 			BLEND_MODE(0x0015982bff327f3fLL);
 			BLEND_MODE(0x0041c2835587dfefLL);
 			BLEND_MODE(0x001147fffffffe38LL);

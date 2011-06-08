@@ -1,56 +1,284 @@
 [AeroGauge (U)]
-NumberOfGroups=2
-No Damage Player 1,1=0,50000402-0000,8113FFD8-0000,
+NumberOfGroups=3
+No Damage,1=0,50000402-0000,8113FFD8-0000,
 Corn&Salvy Speedhack,1="Audio won't work with this speed hack",0,04500004-0B40,
+Unlock Hidden Tracks & Cars,1=0,8108F29C-0100,
+
+[Aidyn Chronicles (U)]
+NumberOfGroups=3
+Infinite Max Health,1=0,80278B98-001E,
+Have Max Gold,1=0,81277336-FFFF,81277337-FFFF,
+Have Max Total XP,1=0,81278BAE-FFFF,81278BAF-FFFF,
+
+[Asteroid Hyper (U)]
+NumberOfGroups=6
+Infinite Lives,1=0,8007F90E-0063,
+Infinite Points,1=0,8107F8FE-FFFF,
+Infinite Armageddon,1=0,8107F892-0001,
+Infinite Numbered Items On Pickup,1=0,8107F8A2-270F,
+Unlock Classic Asteroids,1=0,8106DF5A-0001,
+Infinite Lives (Classic Asteroids),1=0,8007F90F-002F,
 
 [Automobili Lamborghini (U)]
-NumberOfGroups=1
-Corn&Salvy Speedhack,1="Audio won't work with this speed hack",0,04500004-0B40,
-
-[Spacestation Silicon Valley (U)]
 NumberOfGroups=2
-Always Snowing,1=0,803F2D6D-0005,
-Always Raining,1=0,803F2D6F-0005,
+Corn&Salvy Speedhack,1="Audio won't work with this speed hack",0,04500004-0B40,
+Access All Bonus Cars,1=0,50000302-0000,800985C3-0001,50000302-0000,800985CB-0001,
 
-[Super Mario 64 (U)]
-NumberOfGroups=8
-Metal Mario No Cap,1="Only use One Cap Option At A Time",0,8133B176-0025,
-Debug Mode,1=0,A032D598-0001,
-Hyper Hacker's Speed Hack,1="Small Speed Up. Makes The Game Sync At 60fps too. FS2 recommended. Make sure to enable it before starting the game",0,80248154-0000,
-Music Fast,1=0,81222622-2000,
-Have All 175,1="you will see a new option in Save Slot A.",0,8020770B-FFFF,50000D02-0000,8120770C-FFFF,
-NES Fire Mario,1=0,8107EC40-0000,8107EC42-0000,8107EC38-FFFF,8107EC3A-FF00,8107EC20-FF00,8107EC22-0000,8107EC28-0000,8107EC2A-0000,8107EC70-FF00,8107EC72-0000,8107EC68-FF00,8107EC6A-0000,8107EC50-FFAA,8107EC52-0000,8107EC58-0000,8107EC5A-0000,8107EC80-FFAA,8107EC82-0000,8107EC88-0000,8107EC8A-0000,
-Monsters Don't Hurt Mario,1=0,A033B197-0001,
-Press SELECT For 255 Coins,1="Press SELECT Once on a Level To Get that amount of Coins",0,8933B218-00FF,
+[Banjo-Kazooie (U)]
+NumberOfGroups=12
+Press L To Levitate,1=0,D0281251-0020,8137C4BC-43E0,
+Take Off And Fly From Anywhere,1="Press A Button",0,8037C1D1-0001,
+Shock spring From Anywhere,1="Press B Button",0,8037C1D2-0002,
+Infinite Lives,1=0,80385F8B-00FF,
+Infinite Health,1=0,80385F83-0008,80385F870-008,
+Infinite 8 Skulls,1=0,80385FC7-00FF,
+Infinite 255 Jigsaws,1=0,80385FCB-00FF,
+Infinite Air,1=0,81385F8E-0E10,
+Infinite 255 Notes,1=0,80385FF2-00FF,80385F62-0001,
+Infinite 255 Eggs,1=0,80385F67-00FF,
+Infinite 255 Gold Feathers,1=0,80385F73-00FF,
+Infinite 255 Red Feathers,1=0,80385F6F-00FF,
+
+[Batman Beyond - Return of the Joker (U)]
+NumberOfGroups=4
+Infinite Health,1=0,802086F2-0064,
+Infinite Lives,1=0,802086F1-0063,
+Infinite Dark Night Discus's,1=0,802086FE-0063,
+Infinite Max Charge & Magnetic Nun Chaku,1=0,802086B9-0064,
+
+[Bomberman Hero (U)]
+NumberOfGroups=4
+Full Bomb Power,1=0,8016523F-0003,
+Full Fire Power,1=0,80165240-0008,
+Infinite Health,1=0,80165244-0004,
+Infinite Lives,1=0,80165243-0009,
+
+[Bomberman 64 (U)]
+NumberOfGroups=9
+Infinite Lives,1=0,802AC627-0063,
+Stop Timer,1=0,802AC643-0000,
+Infinite Credits,1=0,802AC62B-0063,
+99 Gems,1=0,802AC62F-0063,
+Battle Mode - Gutter Stage,1=0,802AC61F-0006,802AC703-0006,
+Battle Mode Sea Sick Stage,1=0,802AC61F-0007,802AC703-0007,
+Battle Mode - Blizzard Battle,1=0,802AC61F-0008,802AC703-0008,
+Battle Mode Lost At Sea Stage,1=0,802AC61F-0009,802AC703-0009,
+Have All Gold Cards,1=0,8008E575-00FF,8108E576-FFFF,50000702 0000,8108E578-FFFF,
+
+[Buck Bumble (U)]
+NumberOfGroups=7
+Have All Guns & Infinite Ammo,1="Press C Left to receive all Guns",0,810FFF8A-0001,50000B04-0000,810E92E6-03E8,
+Infinite Health,1=0,810E92D8-42B0,
+Infinite 99 Lives,1=0,810E9652-0005,
+Level Select,1=0,810FF64A-0EF0,
+Have All Keys,1=0,810E92E0-0101,800E92E2-0001,
+High Score,1=0,810E92D6-FFFF,
+Max Bonus,1=0,810E964A-270F,
+
+[Bust-A-Move 2 - Arcade Edition (U)]
+NumberOfGroups=1
+Infinite Credits,1=0,80120171-0005,
+
+[Chameleon Twist (U)]
+NumberOfGroups=2
+Extra Crowns,1=0,80251767-0015,
+Access All Levels,1=0,8020850E-00FF,80208510-00FF,
+
+[Chameleon Twist 2 (U)]
+NumberOfGroups=6
+All Costumes,1=0,8016451A-00FE,
+Have 6 Carrots,1=0,80164519-007E,
+Infinite Health,1=0,8018BA7D-000F,
+Max Collectable Items,1=0,80164501-0063,
+All Levels Unlocked,1=0,80164508-003F,
+Press L To Levitate,1=0,D018BAB5-0020,8118B9E0-4200,
+
+[Clay Fighter 63 1/3 (U)]
+NumberOfGroups=1
+Extra Characters/Secret Options,1=0,801A2B41-000F,
+
+[Conker's Bad Fur Day (U)]
+NumberOfGroups=1
+Super Sprinter,1=0,800CC738-4080,
+
+[Destruction Derby 64 (U)]
+NumberOfGroups=3
+All Cars And Tracks,1=0,50000602-0000,81097A18-0101,
+Have All Difficulty Levels,1=0,81097A16-0003,
+Infinite Health/Damage Meter,1=0,80125FD9-0026,
+
+[Doom 64 (U)]
+NumberOfGroups=10
+Invincible,1=0,8006330B-0002,
+Infinite Armor,1=0,8006331F-00FF,
+Rapid Fire,1=0,810633EA-0B94,
+Have all Weapons,1=0,50000A04-0000,810632BA-0001,
+Infinite Ammo all Weapons,1=0,50000404-0000,810632E2-013C,
+Have all Keys,1=0,50000504-0000,8106328E-FFFF,
+Enable Cheat Menu,1=0,8005A7D3-0001,
+Always Have Bio Suite,1=0,80063333-00FF,
+Always in Berserk Mode,1=0,8006332B-00FF,
+Always in Invincibility Mode,1=0,80063327-00FF,
+
+[Doubutsu No Mori (J)]
+NumberOfGroups=2
+Press L To Levitate,2=0,D0145B31-0020,81248A8F-FFFF,
+Max Cash,2=0,813BC34C-FFFF,
+
+[Duke Nukem 64 (U)]
+NumberOfGroups=
+All Cheats in Cheat Menu,1=0,801012D8-0001,801012DC-0001,801012E0-0001,801012E4-0001,801012E8-0001,
+Invincibility,1=0,802AAA68-0001,
+Have All Keys,1=0,802A5A47-000F,
+Have Vitamin X (Can Use),1=0,802A5A92-0063,
+Infinite Armor,1=0,812A5A92-0064,
 
 [F-Zero X (U)]
-NumberOfGroups=1
+NumberOfGroups=6
 Megafast,1=0,812C4984-2222,
+Have Boost From Start,1=0,D02C4DAC-003F,802C4925-0050,
+Infinite Lives,1=0,800E5ED9-0005,
+Infinite Shield,1=0,812C4B48-4326,812C4B4C-4326,
+Unlock Everything,1=0,800CD3C8-0001,
+Always Place 1st,1=0,812C4BC0-0000,812C4BC2-0001,
 
-[The Legend of Zelda - Ocarina of Time (v1.0) (U)]
+[Gex 3 - Deep Cover Gecko (U)]
+NumberOfGroups=3
+Start With 50 Remotes,1=0,D00A54EB-0000,800A54EB-0032,
+Infinite Health,1=0,800A54D9-0004,
+Extra Flies,1=0,D00A54DF-0000,800A54DF-0032,
+
+[Gex 64 - Enter the Gecko (U)]
+NumberOfGroups=3
+Infinite Health,1=0,800C56BB-0005,
+Infinite Lives,1=0,800C56B7-0005,
+Have All Artifacts,1=0,800C56BF-0063,800C56C3-0063,800C56C7-0063,
+
+[Glover (U)]
+NumberOfGroups=4
+Infinite Health,1=0,8829018F-0028,
+Infinite Lives,1=0,80290193-0005,
+Infinite Double Jumps,1=0,8028FC07-0000,
+Press L Button To Levitate,1=0,D02AE905-0020,81290334-43E0,
+
+[GoldenEye 007 (U)]
+NumberOfGroups=9
+Enable All Levels & In-Built Cheat Menu,1="This code gives you all of the levels all of the in-game cheats,so you can play the Special Cheats Missions",0,8006992E-FFFF,80069930-FFFF,80069967-FFFF,8006996C-FFFF,80069971-FFFF,80069976-FFFF,8006997B-FFFF,8006992F-FFFF,80069965-FFFF,8006996A-FFFF,8006996F-FFFF,80069974-FFFF,80069979-FFFF,
+Infinite Ammo,1=0,80079E3B-0001,
+Bulletproof Bond,1=0,8002CE44-0030,
+Weak Enemies,1=0,8002CE48-0048,
+Walk through doors objects,1=0,800364CB-0000,
+All Objectives Complete,1=0,80036FD3-0001,
+Gain Access To Aztec Level Without Beating Secret Agent Or 00 Agent,1=0,8002A8FB-001A,
+Gain Access To Egyptian Level Without Beating Secret Agent Or 00 Agent,1=0,8002A8FB-0001,
+Secret Island on Dam Level,1=0,D0064F31-0030,800D33ED-0050,880D33ED-0000,
+
+[Harvest Moon 64 (U)]
+NumberOfGroups=11
+Infinite Health,1=0,80189060-FFFF,
+Infinite Stamina,1=0,80189060-00FF,
+Infinite Money,1=0,811FD60E-FFFF,
+Infinite Medals For Horse & Dog Races,1=0,81189B06-270F,81205206-270F,
+Unlimited fodder,1=0,80180715-0099,
+Infinite Lumber,1=0,81189e50-03e7,
+Make Elli Fall In Love With You,1=0,801C3F92 00FF,
+Make Maria Fall In Love With You,1=0,801C3F90-00FF,
+Make Popuri Fall In Love You With,1=0,801C3F91-00FF,
+Make Karen Fall In Love With You,1=0,801C3F94-00FF,
+Never Need To Refill Watering Can,1=0,8016FBCD-0080,
+
+[Hexen (U)]
+NumberOfGroups=6
+Invincibility,1=0,8113DB4C FFFF,
+Infinite Blue Mana,1=0,8013DB7D 00CF,
+Infinite Green Mana,1=0,8013DB7F 00CF,
+Infinite Ammo & Items,1=0,50002004 0000,8013DAC3 0064,
+Open Main Cheat Menu,1=0,80136773 0005,
+Have All Keys,1=0,8113DB5C 07FF,
+
+[Hydro Thunder (U)
+NumberOfGroups=6
+Place 1st,1=0,812C4C96-0001,
+Infinite Time,1=0,812B4890-42C8,
+Infinite Turbo,1=0,802C4C9D-00FF,
+Enable All Tracks,1=0,50000702-0000,812B5C94-0101,
+Enable All Ships,1=0,50000702-0000,812B5CA2-0101,
+Infinite Boost,1=0,812C4C9C-4190,
+
+[John Romero's Daikatana (U)]
+NumberOfGroups=9
+Infinite Health,1=0,8020A965-0064,
+Infinite Armor,1=0,8020A987-0064,
+Infinite Experience,1=0,8020A967-00FF,
+Maximum Vitality,1=0,8020A969-0007,
+Maximum Attack,1=0,8020A96B-0007,
+Maximum Speed,1=0,8020A96D-0007,
+Maximum Acro,1=0,8020A96F-0007,
+Maximum Power,1=0,8020A971-0007,
+Have All Weapons,1=0,8120A8F6-FFFF,
+
+[Kirby 64 - The Crystal Shards (U)]
+NumberOfGroups=5
+Infinite Lives,1=0,800D6F4F-0009,
+Infinite Health,1=0,810D6E50-40C0,
+Max Stars (Press L & R),1=0,D0098AB5-0030,810D6E60-0000,D0098AB5-0030,810D6E62-001D,
+Have All Crystals,1=0,50000701-0000,800D6BC0-0001,50001701-0000,800D6BC8-0007,
+All Stages Complete,1=0,50002B01-0000,800D6BE0-0002,
+
+[LEGO Racers (U)]
 NumberOfGroups=1
-Sub Menu Delay Fix,1="For v1.0 ROM. Fixes Delay When Entering The Sub menu.",1,801DA5CB-0002,
+Have All Tracks and Building Pieces,1=0,812576D4-FFFF,812576D6-FFFF,
 
-[The Legend of Zelda - Ocarina of Time (v1.1) (U)]
+[Mario Kart 64 (U)]
+NumberOfGroups=
+No Laps to Race,1=0,81164390-0000,81164392-0002,
+Infinite Invincible Star Player 1,1="Only use one item option at a time.",0,80165F5D-000A,80165F8A-000A,
+Infinite Lightning Player 1,1="Only use one item option at a time.",0,80165F5D-0008,80165F8A-0008,
+Infinite Blue Spiny Shell Player 1,1="Only use one item option at a time.",0,80165F5D-0007,80165F8A-0007,
+
+[Mario Party (U)]
 NumberOfGroups=1
-Sub Menu Delay Fix,1="For v1.1 ROM. Fixes Delay When Entering The Sub menu.",1,801DA78B-0002,
+Infinite Lives On Mini-Game Island,1=0,800F37BB-0063,
 
-[The Legend of Zelda - Ocarina of Time (v1.2) (U)]
+[Mario Party (E)]
+NumberOfGroups=3
+Have 100 stars in the bank,4=0,800F990C-6400,
+Have infinite coins in bank,4=0,800F990A-FFFF,
+Infinite Lives On Mini-Game Island,4=0,801008B3-0063,
+
+[Mario Party 2 (U)]
 NumberOfGroups=1
-Sub Menu Delay Fix,1="For v1.2 ROM. Fixes Delay When Entering The Sub menu.",1,801DAE8B-0002,
+Infinite Coins,1=0,810F8CD2-FFFF,
 
-[The Legend of Zelda - Majora's Mask (GC) (U)]
+[Mario Party 3 (U)]
 NumberOfGroups=1
-Press L To Levitate,1="Press L To Levitate & Let go to land",0,D038127B-0020,8139A558-40CB,
+Enable Mini-Games,1=0,810CC0DE-FFFF,810CC0E0-FFFF,810CC0E2-FFFF,810CC0E4-FFFF,
 
-[Pokemon Snap (U)]
-NumberOfGroups=2
-Controller Fix 1st Level,1="Fixes Camera Movement In First Level",1,D1382D1C-802C,80382D0F-0000,
-Make Picture Selectable,1="Allows to select pictures at the end of the course",1,D11E3184-2881,811E3184-2001,D11E3186-0098,811E3186-0001,
+[Mega Man 64 (U)]
+NumberOfGroups=6
+Rapid Fire,1=0,80204EB3-0002,
+Infinite Health,1=0,81204A1E-0050,
+Infinite Zenny,1=0,811BC404-E0FF,811BC406-05F5,
+Have Normal Items,1=0,81205650-FFFF,81205652-FFFF,81205654-FFFF,81205656-FFFF,
+Have Special Items,1=0,8120564C-FFFF,8120564E-FFFF,
+Infinite Ammo,1=0,81204EBA-0080,81204EC2-0010,81204ECA-0708,81204ED2-0018,81204EDA-0010,81204EE2-0708,81204EEA-0020,81204EF2-0020,81204EFA-0020,81204F02-0018,81204F0A-012C,81204F12-0258,
 
 [MRC - Multi Racing Championship (U)]
 NumberOfGroups=1
 Corn&Salvy Speedhack,1="Audio won't work with this speed hack",0,04500004-0B40,
+Infinite Time,1=0,D0094E97-000A,80094E97-0064,
+Always Place 1st,1=0,800A960F-0000,
+
+[Paper Mario (U)]
+NumberOfGroups=8
+Lots Of Coins,1=0,8110F29C-03E7,
+Infinite HP,1=0,8010F292-0063,8010F293-0063,
+Infinite FP,1=0,8010F295-0063,8010F296-0063,
+Have All Spirits,1=0,8010F51E-0007,
+Max Level,1=0,8010F299-0063,
+Max Star Points,1=0,8010F2A0-0063,
+Max Badge Points,1=0,8010F298-007F,
+Max Star Pieces,1=0,8010F29F-0063,
 
 [Pilot Wings 64 (U)]
 NumberOfGroups=1
@@ -64,6 +292,181 @@ Shadow Fix,4=" Removes annoying shadow that appears below planes",1,D0264361-001
 NumberOfGroups=1
 Shadow Fix,2="Removes annoying shadow that appears below planes",1,D02639B1-0012,802639B1-00FF,D0264231-0012,80264231-00FF,D02643F1-0012,802643F1-00FF,D0263E31-0012,80263E31-00FF,D0263CF1-0012,80263CF1-00FF,D0263CB1-0012,80263CB1-00FF,D0263FF1-0012,80263FF1-00FF,D02641F1-0012,802641F1-00FF,D02640F1-0012,802640F1-00FF,D0263831-0020,80263831-00FF,D0263F31-0020,80263F31-00FF,D02643B1-0020,802643B1-00FF,D0264071-0020,80264071-00FF,D0263BF1-0020,80263BF1-00FF,D0263DF1-0020,80263DF1-00FF,D02638F1-0029,802638F1-00FF,D0263F71-0029,80263F71-00FF,D0263C71-0029,80263C71-00FF,D0264071-0029,80264071-00FF,D02642B1-0029,802642B1-00FF,D0263DF1-0029,80263DF1-00FF,D0264631-0029,80264631-00FF,D02647B1-0029,802647B1-00FF,D02640F1-0029,802640F1-00FF,D0263831-003D,80263831-00FF,D0264031-003D,80264031-00FF,D0263BB1-003D,80263BB1-00FF,D0263D31-003D,80263D31-00FF,D0263D71-003D,80263D71-00FF,
 
-[Chameleon Twist (U)]
+[Pokemon Snap (U)]
+NumberOfGroups=5
+Controller Fix 1st Level,1="Fixes Camera Movement In First Level",1,D1382D1C-802C,80382D0F-0000,
+Make Picture Selectable,1="Allows to select pictures at the end of the course",1,D11E3184-2881,811E3184-2001,D11E3186-0098,811E3186-0001,
+See Entire Introduction Fully & Various In-Game Effects,1=0,81049C7E-025A,
+Have Rapid Fire Apples and Bombs,1=0,80382CB7-0000,
+Enable All Levels,1=0,810C2212-0006,
+
+[Pokemon Stadium (U)]
 NumberOfGroups=1
-MemPak Fix,1=0,800EA073-0000,
+Ultimate Code,1="This maxes out your Pokemon's stats.",0,81171F3C-FF01,81171F3E-FF01,81171F40-FF01,81171F42-FF01,81171F44-FF01,
+
+[Pokemon Stadium 2 (U)]
+NumberOfGroups=
+Press R+L to KO Opponents,1="Press R+L Activate",0,D10CE066-0030,80145767-0000,D10CE066-0030,801457C7-0000,D10CE066-0030,8014576F-0000,D10CE066-0030,8014581F-0000,
+Infinite Continues,1=0,8114738C-0009,
+One Hit KO,1=0,8014576F-0000,801457C7-0000,8014581F-0000,
+
+[Quake 64 (U)]
+NumberOfGroups=11
+Infinite Ammo,1=1,50000202-0000,80163A2D-0064,50000402-0000,81163A2C-03E7,
+Have All Weapons,1=1,801639EB-007F,
+Debug Mode,1=0,8006C4C2-0001,
+Have All Keys,1=1,801639E9-000F,
+Infinite Armor,1=1,81163944-42C8,
+Infinite Health,1=1,81163930-42C8,
+Infinite Bio Suit,1=0,81163980-42C8,
+Have Quad Damage,1=1,8116397C-42C8,
+Have Ring of Shadows,1=1,811639E8-42C8,
+Rapid Fire,1=1,D00CA9E0-0020,8016396D-0001,
+Press L for Peaceful Enemies,1="Press L at the beginning of each stage and as long as you dont attack the enemies in any given room they wont attack you.",0,D00CA9E1-0020,811639F2-42C8,
+
+[Quest 64 (U)]
+NumberOfGroups=5
+Have All Elements,1=0,8107BAA4-3232,8107BAA6-3232,
+Infinite Health,1=0,8107BA84-01F4,8107BA86-01F4,
+Infinite Magic Points,1=0,8107BA88-01F4,8107BA8A-01F4,
+Super Defense,1=0,8107BA8C-01F4,
+Super Agility,1=0,8107BA8E-01F4,
+
+[Rampage - World Tour (U)]
+NumberOfGroups=8
+Unlock Cheat Menu,1=0,810D5710-0001,
+Curtis Infinite Health,1=0,811541B8-0044,
+Boris Infinite Health,1=0,811543D4-0044,
+Ruby Infinite Health,1=0,811545F0-0044,
+George Infinite Health,1=0,8115480C-0044,
+Lizzie Infinite Health,1=0,81154A28-0044,
+Ralph Infinite Health,1=0,81154C44-0044,
+Myukus Codes Infinite Health,1=0,81154E60-0044,
+
+[RR64 - Ridge Racer 64 (U)]
+NumberOfGroups=4
+Enable All Cars,1=0,8102F19C-FFFF,8102F19E-FFFF,
+Infinite Time,1=0,811269CA-0700,
+Always Place 1st,1=0,81056444-0001,
+All Tracks And All Trophies,1=0,81043530-FFFF,81043532-FFFF,81043534-FFFF,81043536-FFFF,
+
+[Scooby-Doo - Classic Creep Capers (U)]
+NumberOfGroups=1
+Infinite Health,1=0,81086BCA-0038,800BAF97-0007,
+
+[Spacestation Silicon Valley (U)]
+NumberOfGroups=2
+Always Snowing,1=0,803F2D6D-0005,
+Always Raining,1=0,803F2D6F-0005,
+Have All Power Cells,1=0,803F2D3D-000F,
+All Levels,1=0,50002001-0000,803F7DE0-0001,
+
+[Spider-Man (U)]
+NumberOfGroups=5
+Unlocked All Costumes,1=0,810ECD7E-FFFF,
+Unlocked All Levels,1=0,810ECD74-0105,810ECDB0-FFFF,
+Have All Characters In Viewer,1=0,810ECD80-FFFF,810ECD82-FFFF,
+Infinite Health,1=0,800F5F26-0001,
+Infinite Webbing,1=0,800F5F53-0001,
+
+[Star Fox 64 (U)]
+NumberOfGroups=6
+Infinite Lives,1=0,80157911-0063,
+Infinite Smart Bombs,1=0,8016DC13-0004,
+Infinite Energy,1=0,80137C47-00FF,8013AB27-00FF,
+Peppy Infinite Energy,1=0,8016D72F-00FF,
+Slippy Infinite Energy,1=0,8016D72B-00FF,
+Falco Infinite Energy,1=0,8016D727-00FF,
+
+[Super Mario 64 (U)]
+NumberOfGroups=9
+Metal Mario No Cap,1="Only use One Cap Option At A Time",0,8133B176-0025,
+Debug Mode,1=0,A032D598-0001,
+Hyper Hacker's Speed Hack,1="Small Speed Up. Makes The Game Sync At 60fps too. FS2 recommended. Make sure to enable it before starting the game",0,80248154-0000,
+Music Fast,1=0,81222622-2000,
+Have All 175,1="You will see a new option in Save Slot A.",0,8020770B-FFFF,50000D02-0000,8120770C-FFFF,
+NES Fire Mario,1=0,8107EC40-0000,8107EC42-0000,8107EC38-FFFF,8107EC3A-FF00,8107EC20-FF00,8107EC22-0000,8107EC28-0000,8107EC2A-0000,8107EC70-FF00,8107EC72-0000,8107EC68-FF00,8107EC6A-0000,8107EC50-FFAA,8107EC52-0000,8107EC58-0000,8107EC5A-0000,8107EC80-FFAA,8107EC82-0000,8107EC88-0000,8107EC8A-0000,
+Monsters Don't Hurt Mario,1=0,A033B197-0001,
+Press SELECT For 255 Coins,1="Press SELECT Once on a Level To Get that amount of Coins",0,8933B218-00FF,
+Infinite Lives,1=0,8033B21D-0064,
+
+[Super Smash Brothers (U)]
+NumberOfGroups=5
+Have All Characters,1=0,810A4938-0FF0,
+Story Mode Skip Straight To Master Hand,1=0,800A4AE7-000D,
+Story Mode Infinite Time,1=0,810A4B2E-43CB,
+Story Mode Infinite Lives,1=0,800A4B43-0004,
+Story Mode Always Get Pacifist (60,000 Points),1=0,810A4B6E-0000,
+
+[The Legend of Zelda - Ocarina of Time (v1.0) (U)]
+NumberOfGroups=8
+Sub Menu Delay Fix,1="For v1.0 ROM. Fixes Delay When Entering The Sub menu.",1,801DA5CB-0002,
+Infinite 999 Rupees,1=0,8011A672-0067,8111A604-03E7,
+Have All Equipment,1=0,8111A66C-7777,8011A64B-0008,8011A650-000E,8011A651-000F,8011A653-0011,8011A644-0000,8011A645-0001,8011A646-0002,8011A647-0003,8011A64A-0006,8011A64C-0009,8011A648-0004,8011A64E-000C,8011A654-0012,8011A652-0010,8011A64F-000D,8011A655-0013,8011A649-0005,
+Have All Quest Status Items,1=0,8111A674-30FF,8111A676-FFFF,
+Max Heart Containers,1=0,8111A5FE-0140,
+Infinite Energy,1=0,8111A600-0140,
+Infinite Magic,1=0,D011A609-0008,8011A60A-0001,8011A60C-0001,8011A603-0060,
+Press L  To Levitate,1="Press The L Button To Levitate & Let go to come down Again",0,D01C84B5-0020,811DAA90-40CB,
+
+[The Legend of Zelda - Ocarina of Time (v1.1) (U)]
+NumberOfGroups=8
+Sub Menu Delay Fix,1="For v1.1 ROM. Fixes Delay When Entering The Sub menu.",1,801DA78B-0002,
+Infinite 999 Rupees,1=0,8011A672-0067,8111A604-03E7,
+Have All Equipment,1=0,8111A66C-7777,8011A64B-0008,8011A650-000E,8011A651-000F,8011A653-0011,8011A644-0000,8011A645-0001,8011A646-0002,8011A647-0003,8011A64A-0006,8011A64C-0009,8011A648-0004,8011A64E-000C,8011A654-0012,8011A652-0010,8011A64F-000D,8011A655-0013,8011A649-0005,
+Have All Quest Status Items,1=0,8111A674-30FF,8111A676-FFFF,
+Max Heart Containers,1=0,8111A5FE-0140,
+Infinite Energy,1=0,8111A600-0140,
+Infinite Magic,1=0,D011A609-0008,8011A60A-0001,8011A60C-0001,8011A603-0060,
+Press L  To Levitate,1="Press The L Button To Levitate & Let go to come down Again",0,D01C84B5-0020,811DAA90-40CB,
+
+[The Legend of Zelda - Ocarina of Time (v1.2) (U)]
+NumberOfGroups=8
+Sub Menu Delay Fix,1="For v1.2 ROM. Fixes Delay When Entering The Sub menu.",1,801DAE8B-0002,
+Infinite 999 Rupees,1=0,8011A672-0067,8111A604-03E7,
+Have All Equipment,1=0,8111A66C-7777,8011A64B-0008,8011A650-000E,8011A651-000F,8011A653-0011,8011A644-0000,8011A645-0001,8011A646-0002,8011A647-0003,8011A64A-0006,8011A64C-0009,8011A648-0004,8011A64E-000C,8011A654-0012,8011A652-0010,8011A64F-000D,8011A655-0013,8011A649-0005,
+Have All Quest Status Items,1=0,8111A674-30FF,8111A676-FFFF,
+Max Heart Containers,1=0,8111A5FE-0140,
+Infinite Energy,1=0,8111A600-0140,
+Infinite Magic,1=0,D011A609-0008,8011A60A-0001,8011A60C-0001,8011A603-0060,
+Press L  To Levitate,1="Press The L Button To Levitate & Let go to come down Again",0,D01C84B5-0020,811DAA90-40CB,
+
+[The Legend of Zelda - Majora's Mask (GC) (U)]
+NumberOfGroups=1
+Press L To Levitate,1="Press L To Levitate & Let go to land",0,D038127B-0020,8139A558-40CB,
+
+[The Legend of Zelda - Majora's Mask (U)]
+NumberOfGroups=8
+Infinite Max Health,1=0,811EF6A4-0140,811EF6A6-0E37,
+Invincibility,1=0,811EF6A6-0140,
+Have All Quest Status Items,1=0,801EF72D-0005,811EF72E-F7CF,
+Infinite Rupees,1=0,811EF6AA-03E7,
+Infinite Magic,1=0,801EF6A9-0030,
+Press L To Levitate,1=0,D03E6B3B 0020,813FFE18-40CB,
+Have All Masks,1=0,801EF6F8-003E,801EF6F9-0038,801EF6FA-0047,801EF6FB-0045,801EF6FC-0040,801EF6FD-0032,801EF6FE-003A,801EF6FF-0046,801EF700-0039,801EF701-0042,801EF702-0048,801EF703-0033,801EF704-003C,801EF705-003D,801EF706-0037,801EF707-003F,801EF708-0036,801EF709-0034,801EF70A-0043,801EF70B-0041,801EF70C-003B,801EF70D-0044,801EF70E-0049,801EF70F-0035,
+All Equipment Upgrades,1="This will up-grade all Items & Weapons to thier full power & Means.",0,801EF6DD-0023,811EF72A-201B,801EF6BC-004F,
+
+[Tony Hawk's Pro Skater (U)]
+NumberOfGroups=
+Have All Tracks,1=0,813D6E42-FFFF,813D4FFA-FFFF,813D5D62-FFFF,813D84E2-FFFF,813D4FCA-FFFF,813D5F2A-FFFF,813D8C52-FFFF,813D5602-FFFF,813D6D3A-FFFF,
+Max Points,1=0,813D6E42-FFFF,813D4FFA-FFFF,813D5D62-FFFF,813D84E2-FFFF,813D4FCA-FFFF,813D5F2A-FFFF,813D8C52-FFFF,813D5602-FFFF,813D6D3A-FFFF,
+Super Max Player,1=0,800D561C-FFFF,800D561D-FFFF,800D561E-FFFF,800D561F-FFFF,800D5620-FFFF,
+Have Perfect Balance,1=0,800DDB83-0001,
+Max Trick Score,1=0,813D6E42-FFFF,813D4FFA-FFFF,813D5D62-FFFF,813D84E2-FFFF,813D4FCA-FFFF,813D5F2A-FFFF,813D8C52-FFFF,813D5602-FFFF,813D6D3A-FFFF,
+
+[Tony Hawk's Pro Skater 2 (U)]
+NumberOfGroups=8
+Infinte Time,1=0,810E87AA-0000,
+Unlock Spider Man,1=0,800E9DD8-0001,800F089B-0001,
+Unlock Officer Dick,1=0,800E9DDC-0001,800F087B-0001,
+1 Million Points,1=0,8119054C-000F,8119054E-4240,
+All Gaps,1=0,800E9CC5-00FF,810E9CC6-FFFF,810E9CDC-FFFF,810E9CDE-FFFF,800E9CE3-000F,810E9D0C-FFFF,810E9D0E-FFFF,810E9D12-0FFF,810E9CD0-FFFF,810E9CD2-FFFF,810E9CD6-0FFF,810E9D00-FFFF,810E9D02-FFFF,800E9D07-000F,810E9CF4-FFFF,810E9CF6-FFFF,810E9CFA-0FFF,
+Always Special On Cheat,1=0,800E9DEC-0001,
+Perfect Balance Cheat,1=0,800E9DE8-0001,
+Unlock Hoffman Factory & Skate Heaven,1=0,800EA0CB-003F,
+
+[War Gods (U)]
+NumberOfGroups=3
+Access Cheat Menu,1=0,80336593-0001,
+Infinite Time,1=0,8033F31B-0063,
+Infinite Credits,1=0,81336582 0005,8133658E-0004,
