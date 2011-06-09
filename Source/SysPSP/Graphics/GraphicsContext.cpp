@@ -377,8 +377,11 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 	else 
 		listNum ^= 1;	//Toggle lists 0 & 1
 
-	if( gCleanSceneEnabled ) 
+	if( gCleanSceneEnabled )
+	{
+		sceGuScissor(0,0,SCR_WIDTH,SCR_HEIGHT);	//Make sure we clear whole screen
 		sceGuClear(GU_COLOR_BUFFER_BIT | GU_FAST_CLEAR_BIT);	//Clear screen
+	}
 	//if( gCleanSceneEnabled )	CleanScene = true;
 
 	//printf("%d %d\n",listNum,gDoubleDisplayEnabled);

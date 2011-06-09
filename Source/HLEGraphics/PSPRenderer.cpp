@@ -132,6 +132,8 @@ enum CycleType
 
 extern bool bIsOffScreen;
 
+extern bool gRumblePakActive;
+
 extern u32 SCR_WIDTH;
 extern u32 SCR_HEIGHT;
 
@@ -507,13 +509,20 @@ void PSPRenderer::BeginScene()
 	mRecordedCombinerStates.clear();
 #endif
 
+	static bool last_rumblepak = false;
+
 	// Update viewport only if user changed it in settings or vi register changed it
 	// Both happen really rare
 	//
 	if( !mView.Update &&				  // We need to update after pause menu?
 		mView.ViWidth == fViWidth    &&  //  VI register changed width? (bug fix GE007) 
-		mView.ViHeight == fViHeight )   //  VI register changed height?
+		mView.ViHeight == fViHeight &&   //  VI register changed height?
+		!last_rumblepak & !gRumblePakActive )
+	{
 		return;
+	}
+
+	last_rumblepak = gRumblePakActive;
 
 	u32	display_width( 0 );
 	u32 display_height( 0 );
@@ -582,6 +591,12 @@ void PSPRenderer::SetPSPViewport( s32 x, s32 y, u32 w, u32 h )
 
 	mN64ToPSPTranslate.x  = f32( x - pspFpuRound(0.55f * (gZoomX - 1.0f) * fViWidth));
 	mN64ToPSPTranslate.y  = f32( y - pspFpuRound(0.55f * (gZoomX - 1.0f) * fViHeight));
+	
+	if( gRumblePakActive )
+	{
+	    mN64ToPSPTranslate.x += (pspFastRand() & 3);
+		mN64ToPSPTranslate.y += (pspFastRand() & 3);
+	}
 
 	UpdateViewport();
 }

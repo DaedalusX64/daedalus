@@ -149,6 +149,7 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 
 		INT_SETTING( gGlobalPreferences, DisplayFramerate, defaults );
 		BOOL_SETTING( gGlobalPreferences, ForceLinearFilter, defaults );
+		BOOL_SETTING( gGlobalPreferences, RumblePak, defaults );
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		BOOL_SETTING( gGlobalPreferences, HighlightInexactBlendModes, defaults );
 		BOOL_SETTING( gGlobalPreferences, CustomBlendModes, defaults );
@@ -342,6 +343,7 @@ void IPreferences::Commit()
 
 		OUTPUT_INT( gGlobalPreferences, DisplayFramerate, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, ForceLinearFilter, defaults );
+		OUTPUT_BOOL( gGlobalPreferences, RumblePak, defaults );
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		OUTPUT_BOOL( gGlobalPreferences, HighlightInexactBlendModes, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, CustomBlendModes, defaults );
@@ -417,6 +419,7 @@ SGlobalPreferences::SGlobalPreferences()
 ,	BatteryWarning( false )
 ,	LargeROMBuffer( true )
 ,	ForceLinearFilter( false )
+,	RumblePak ( false )
 ,	GuiType( COVERFLOW )
 ,	GuiColor( BLACK )
 ,	StickMinDeadzone( 0.28f )

@@ -94,6 +94,7 @@ area assignment does not change. After Tx/RxData assignment, this flag is reset 
 #include "Save.h"
 
 #include "Math/MathUtil.h"
+#include "Utility/Preferences.h"
 
 #include "Debug/DBGConsole.h"
 #include "Input/InputManager.h"
@@ -112,6 +113,8 @@ area assignment does not change. After Tx/RxData assignment, this flag is reset 
 #else
 	#define DPF_PIF( ... )
 #endif
+
+bool gRumblePakActive = false;
 
 //*****************************************************************************
 //
@@ -687,12 +690,12 @@ void	IController::CommandReadMemPack(u32 channel, u8 *cmd)
 {
 	u32 addr = ((cmd[3] << 8) | cmd[4]);
 
-	if (addr == 0x8001)
-	{
-		memset(&cmd[5], 0, 32);
-		cmd[37] = CalculateDataCrc(&cmd[5]);
-		return;
-	}
+	//if (addr == 0x8001)
+	//{
+	//	memset(&cmd[5], 0, 32);
+	//	cmd[37] = CalculateDataCrc(&cmd[5]);
+	//	return;
+	//}
 
 	addr &= 0xFFE0;
 
@@ -700,12 +703,17 @@ void	IController::CommandReadMemPack(u32 channel, u8 *cmd)
 	{
 		memcpy(&cmd[5], &mMemPack[channel][addr], 32);
 	} 
-	else 
+	else if ( gGlobalPreferences.RumblePak ) 
 	{
 		// rumblepak 
-		memset( &cmd[5], 0, 32 );
+		memset( &cmd[5], 0x80, 32 );
 	}
-
+	else 
+	{
+		// Mempak 
+		memset( &cmd[5], 0x00, 32 );
+	}
+	
 	cmd[37] = CalculateDataCrc(&cmd[5]);
 }
 
@@ -730,10 +738,14 @@ void	IController::CommandWriteMemPack(u32 channel, u8 *cmd)
 	{
 		memcpy(&mMemPack[channel][addr], &cmd[5], 32);
 	} 
-	else 
+	else if (addr <= 0xC000 && gGlobalPreferences.RumblePak)
 	{
-		//Do nothing - enable rumblepak eventually
+		//Rumble the pak
+		//printf("%02X\n",cmd[5]);
+		gRumblePakActive = cmd[5];
 	}
+
+	if ( !gGlobalPreferences.RumblePak ) gRumblePakActive = false;
 
 	cmd[37] = CalculateDataCrc(&cmd[5]);
 }

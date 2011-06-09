@@ -118,6 +118,7 @@ struct SGlobalPreferences
 	bool						BatteryWarning;
 	bool						LargeROMBuffer;
 	bool						ForceLinearFilter;
+	bool						RumblePak;
 
 	EGuiType					GuiType;
 	EGuiColor					GuiColor;
