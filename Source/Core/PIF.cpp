@@ -146,7 +146,8 @@ class	IController : public CController
 		void			CommandWriteEeprom(char *src, long offset);
 		void			CommandReadMemPack(u32 channel, u8 *cmd);
 		void			CommandWriteMemPack(u32 channel, u8 *cmd);
-
+		void			CommandReadRumblePack(u8 *cmd);
+		void			CommandWriteRumblePack(u8 *cmd);
 		u8				CalculateDataCrc(u8 * pBuf);
 
 		bool			IsEepromPresent() const						{ return mpEepromData != NULL; }
@@ -290,6 +291,8 @@ bool IController::OnRomOpen()
 {
 	ESaveType save_type  = g_ROM.settings.SaveType;
 	mpPifRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + 0x7C0;
+
+	gRumblePakActive = false;
 	
 	if ( mpEepromData )
 	{
@@ -517,13 +520,19 @@ bool	IController::ProcessController(u8 *cmd, u32 channel)
 
 	case CONT_READ_MEMPACK:
 		DPF_PIF("Controller: Command is READ_MEMPACK");
-		CommandReadMemPack(channel, cmd);
+		if(gGlobalPreferences.RumblePak)
+			CommandReadRumblePack(cmd);
+		else
+			CommandReadMemPack(channel, cmd);
 		return false;
 		break;
 
 	case CONT_WRITE_MEMPACK:
 		DPF_PIF("Controller: Command is WRITE_MEMPACK");
-		CommandWriteMemPack(channel, cmd);
+		if(gGlobalPreferences.RumblePak)
+			CommandWriteRumblePack(cmd);
+		else
+			CommandWriteMemPack(channel, cmd);
 		return false;
 		break;
 
@@ -690,12 +699,12 @@ void	IController::CommandReadMemPack(u32 channel, u8 *cmd)
 {
 	u32 addr = ((cmd[3] << 8) | cmd[4]);
 
-	//if (addr == 0x8001)
-	//{
-	//	memset(&cmd[5], 0, 32);
-	//	cmd[37] = CalculateDataCrc(&cmd[5]);
-	//	return;
-	//}
+	if (addr == 0x8001)
+	{
+		memset(&cmd[5], 0, 32);
+		cmd[37] = CalculateDataCrc(&cmd[5]);
+		return;
+	}
 
 	addr &= 0xFFE0;
 
@@ -703,20 +712,14 @@ void	IController::CommandReadMemPack(u32 channel, u8 *cmd)
 	{
 		memcpy(&cmd[5], &mMemPack[channel][addr], 32);
 	} 
-	else if ( gGlobalPreferences.RumblePak ) 
-	{
-		// rumblepak 
-		memset( &cmd[5], 0x80, 32 );
-	}
 	else 
 	{
-		// Mempak 
+		// RumblePak 
 		memset( &cmd[5], 0x00, 32 );
 	}
 	
 	cmd[37] = CalculateDataCrc(&cmd[5]);
 }
-
 
 //*****************************************************************************
 // Returns new position to continue reading
@@ -738,16 +741,51 @@ void	IController::CommandWriteMemPack(u32 channel, u8 *cmd)
 	{
 		memcpy(&mMemPack[channel][addr], &cmd[5], 32);
 	} 
-	else if (addr <= 0xC000 && gGlobalPreferences.RumblePak)
+	else
 	{
-		//Rumble the pak
-		//printf("%02X\n",cmd[5]);
-		gRumblePakActive = cmd[5];
+		// Do nothing, eventually enable rumblepak
 	}
-
-	if ( !gGlobalPreferences.RumblePak ) gRumblePakActive = false;
 
 	cmd[37] = CalculateDataCrc(&cmd[5]);
 }
+
+//*****************************************************************************
+// 
+//
+//*****************************************************************************
+void	IController::CommandReadRumblePack(u8 *cmd)
+{
+	u32 addr = ((cmd[3] << 8) | cmd[4]) & 0xFFE0;
+
+	if ( addr == 0x8000 )
+	{
+		// rumblepak 
+		memset( &cmd[5], 0x80, 32 );
+	}
+	else 
+	{
+		// Not connected? 
+		memset( &cmd[5], 0x00, 32 );
+	}
+	
+	cmd[37] = CalculateDataCrc(&cmd[5]);
+}
+
+//*****************************************************************************
+//
+//
+//*****************************************************************************
+void	IController::CommandWriteRumblePack(u8 *cmd)
+{
+	u32 addr = ((cmd[3] << 8) | cmd[4]) & 0xFFE0;
+
+	if ( addr == 0xC000 )
+	{
+		gRumblePakActive = cmd[5];
+	}
+
+	cmd[37] = CalculateDataCrc(&cmd[5]);
+}
+
 
 
