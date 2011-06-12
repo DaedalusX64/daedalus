@@ -1930,7 +1930,7 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 	R4300_CALL_MAKE_OP( op_code );
 
 	// Copy from RT to FS
-	u32 new_value = gGPR[ op_code.rt ]._u64;
+	u64 new_value = gGPR[ op_code.rt ]._u64;
 
 	switch ( op_code.fs )
 	{
@@ -1946,7 +1946,7 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 
 		case C0_WIRED:
 			// Set to top limit on write to wired
-			gCPUState.CPUControl[C0_RAND]._u32_0 = 32-1;
+			gCPUState.CPUControl[C0_RAND]._u64 = 32-1;
 			DBGConsole_Msg(0, "Setting Wired register to 0x%08x", (u32)new_value);
 			gCPUState.CPUControl[ op_code.fs ]._u64 = new_value;
 			break;
@@ -2029,10 +2029,10 @@ static void R4300_CALL_TYPE R4300_TLB_TLBR( R4300_CALL_SIGNATURE ) 				// TLB Re
 
 	u32 index = gCPUState.CPUControl[C0_INX]._u32_0 & 0x1F;
 
-	gCPUState.CPUControl[C0_PAGEMASK]._u32_0 = g_TLBs[index].mask;
-	gCPUState.CPUControl[C0_ENTRYHI ]._u32_0 = g_TLBs[index].hi   & (~g_TLBs[index].pagemask);
-	gCPUState.CPUControl[C0_ENTRYLO0]._u32_0 = g_TLBs[index].pfne | g_TLBs[index].g;
-	gCPUState.CPUControl[C0_ENTRYLO1]._u32_0 = g_TLBs[index].pfno | g_TLBs[index].g;
+	gCPUState.CPUControl[C0_PAGEMASK]._u64 = g_TLBs[index].mask;
+	gCPUState.CPUControl[C0_ENTRYHI ]._u64 = g_TLBs[index].hi   & (~g_TLBs[index].pagemask);
+	gCPUState.CPUControl[C0_ENTRYLO0]._u64 = g_TLBs[index].pfne | g_TLBs[index].g;
+	gCPUState.CPUControl[C0_ENTRYLO1]._u64 = g_TLBs[index].pfno | g_TLBs[index].g;
 
 	DPF( DEBUG_TLB, "TLBR: INDEX: 0x%04x. PAGEMASK: 0x%08x.", index, gCPUState.CPUControl[C0_PAGEMASK]._u32_0 );
 	DPF( DEBUG_TLB, "      ENTRYHI: 0x%08x. ENTRYLO1: 0x%08x. ENTRYLO0: 0x%08x", gCPUState.CPUControl[C0_ENTRYHI]._u32_0, gCPUState.CPUControl[C0_ENTRYLO1]._u32_0, gCPUState.CPUControl[C0_ENTRYLO0]._u32_0 );
@@ -2047,10 +2047,10 @@ static void R4300_CALL_TYPE R4300_TLB_TLBWI( R4300_CALL_SIGNATURE )			// TLB Wri
 
 	DPF( DEBUG_TLB, "TLBWI: INDEX: 0x%04x. ", i );
 
-	g_TLBs[i].UpdateValue(gCPUState.CPUControl[C0_PAGEMASK]._u32_0,
-						gCPUState.CPUControl[C0_ENTRYHI ]._u32_0,
-						gCPUState.CPUControl[C0_ENTRYLO1]._u32_0,
-						gCPUState.CPUControl[C0_ENTRYLO0]._u32_0);
+	g_TLBs[i].UpdateValue(gCPUState.CPUControl[C0_PAGEMASK]._u64,
+						gCPUState.CPUControl[C0_ENTRYHI ]._u64,
+						gCPUState.CPUControl[C0_ENTRYLO1]._u64,
+						gCPUState.CPUControl[C0_ENTRYLO0]._u64);
 }
 
 static void R4300_CALL_TYPE R4300_TLB_TLBWR( R4300_CALL_SIGNATURE )
@@ -2069,10 +2069,10 @@ static void R4300_CALL_TYPE R4300_TLB_TLBWR( R4300_CALL_SIGNATURE )
 
 	DPF( DEBUG_TLB, "TLBWR: INDEX: 0x%04x. ", i );
 
-	g_TLBs[i].UpdateValue(gCPUState.CPUControl[C0_PAGEMASK]._u32_0,
-						gCPUState.CPUControl[C0_ENTRYHI ]._u32_0,
-						gCPUState.CPUControl[C0_ENTRYLO1]._u32_0,
-						gCPUState.CPUControl[C0_ENTRYLO0]._u32_0);
+	g_TLBs[i].UpdateValue(gCPUState.CPUControl[C0_PAGEMASK]._u64,
+						gCPUState.CPUControl[C0_ENTRYHI ]._u64,
+						gCPUState.CPUControl[C0_ENTRYLO1]._u64,
+						gCPUState.CPUControl[C0_ENTRYLO0]._u64);
 }
 
 
@@ -2097,7 +2097,7 @@ static void R4300_CALL_TYPE R4300_TLB_TLBP( R4300_CALL_SIGNATURE ) 				// TLB Pr
 				 (dwEntryHi    & TLBHI_PIDMASK))
 			) ) {
 				DPF( DEBUG_TLB, "   Found matching TLB Entry - 0x%04x", i );
-				gCPUState.CPUControl[C0_INX]._u32_0 = i;
+				gCPUState.CPUControl[C0_INX]._u64 = i;
 				bFound = true;
 				break;
             }
@@ -2107,7 +2107,7 @@ static void R4300_CALL_TYPE R4300_TLB_TLBP( R4300_CALL_SIGNATURE ) 				// TLB Pr
 	{
 		//DBGConsole_Msg(0, "   No matching TLB Entry Found for 0x%08x", dwEntryHi);
 		DPF( DEBUG_TLB, "   No matching TLB Entry Found for 0x%08x", dwEntryHi );
-		gCPUState.CPUControl[C0_INX]._u32_0 = TLBINX_PROBE;
+		gCPUState.CPUControl[C0_INX]._u64 = TLBINX_PROBE;
 
 		//CPUHalt();
 	}
@@ -2128,14 +2128,14 @@ static void R4300_CALL_TYPE R4300_TLB_ERET( R4300_CALL_SIGNATURE )
 		// Returning from an error trap
 		DPF(DEBUG_INTR, "ERET: Returning from error trap");
 		CPU_SetPC( gCPUState.CPUControl[C0_ERROR_EPC]._u32_0 );
-		gCPUState.CPUControl[C0_SR]._u32_0 &= ~SR_ERL;
+		gCPUState.CPUControl[C0_SR]._u64 &= ~SR_ERL;
 	}
 	else
 	{
 		DPF(DEBUG_INTR, "ERET: Returning from interrupt/exception");
 		// Returning from an exception
 		CPU_SetPC( gCPUState.CPUControl[C0_EPC]._u32_0 );
-		gCPUState.CPUControl[C0_SR]._u32_0 &= ~SR_EXL;
+		gCPUState.CPUControl[C0_SR]._u64 &= ~SR_EXL;
 	}
 	// Point to previous instruction (as we increment the pointer immediately afterwards
 	DECREMENT_PC();
