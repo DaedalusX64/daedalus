@@ -47,6 +47,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static const	u32					gMaxFragmentCacheSize = 9000; //3K is way too low... many games hit it too often - Kreationz
 //static const	u32					gMaxHotTraceMapSize = 3000; //Need to find the best value for this to have few clears and fast code... //Is needed?
+static const	u32					gMaxHotTraceMapSize = 2500;
 static const u32					gHotTraceThreshold = 20;
 
 //typedef CMemoryPoolAllocator< std::pair< const u32, u32 > > MyAllocator;
@@ -488,7 +489,7 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 
 					// If there is no fragment for this target, start tracing
 					u32 trace_count( ++gHotTraceCountMap[ gCPUState.CurrentPC ] );
-/*					if( gHotTraceCountMap.size() >= gMaxHotTraceMapSize )
+					if( gHotTraceCountMap.size() >= gMaxHotTraceMapSize )
 					{
 						DBGConsole_Msg( 0, "Hot trace cache hit %d, dumping", gHotTraceCountMap.size() );
 						gHotTraceCountMap.clear();
@@ -496,8 +497,8 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
 						Patch_PatchAll();
 #endif
-					} else*/
-					if( trace_count == gHotTraceThreshold )
+					} 
+					else if( trace_count == gHotTraceThreshold )
 					{
 						//DBGConsole_Msg( 0, "Identified hot trace at [R%08x]! (size is %d)", gCPUState.CurrentPC, gHotTraceCountMap.size() );
 						gTraceRecorder.StartTrace( gCPUState.CurrentPC );
