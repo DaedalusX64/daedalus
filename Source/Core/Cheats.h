@@ -44,7 +44,7 @@ typedef struct CODENODE_STRUCT	CHEATCODENODE;
 
 struct CODEGROUP_STRUCT
 {
-	u32				country;
+	//u32				country;
 	u32				codecount;
 	bool			enable;
 	bool			active;

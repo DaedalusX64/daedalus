@@ -1,8 +1,8 @@
 [AeroGauge (U)]
 NumberOfGroups=3
-No Damage,1=0,50000402-0000,8113FFD8-0000,
-Corn&Salvy Speedhack,1="Audio won't work with this speed hack",0,04500004-0B40,
-Unlock Hidden Tracks & Cars,1=0,8108F29C-0100,
+No Damage,=0,50000402-0000,8113FFD8-0000,
+Corn&Salvy Speedhack,="Audio won't work with this speed hack",0,04500004-0B40,
+Unlock Hidden Tracks & Cars,=0,8108F29C-0100,
 
 [Aidyn Chronicles (U)]
 NumberOfGroups=3
