@@ -446,13 +446,13 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 			// Codes for the group are in the string line[]
 			for(c1 = 0; line[c1] != '=' && line[c1] != '\0'; c1++) codegrouplist[codegroupcount].name[c1] = line[c1];
 
-			if(codegrouplist[codegroupcount].name[c1 - 2] != ',')
+			if(codegrouplist[codegroupcount].name[c1 - 1] != ',')
 			{
 				codegrouplist[codegroupcount].name[c1] = '\0';
 			}
 			else
 			{
-				codegrouplist[codegroupcount].name[c1 - 2] = '\0';
+				codegrouplist[codegroupcount].name[c1 - 1] = '\0';
 			}
 
 			if(line[c1 + 1] == '"')
