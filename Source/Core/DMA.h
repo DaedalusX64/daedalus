@@ -36,9 +36,9 @@ bool DMA_FLASH_CopyToDRAM(u32 dest, u32 StartOffset, u32 len);
 bool DMA_FLASH_CopyFromDRAM(u32 dest, u32 len);
 
 extern u32 s_nNumDmaTransfers;			// Incremented on every Cart->RDRAM Xfer
-extern u32 s_nTotalDmaTransferSize;		// Total size of every Cart->RDRAM Xfer
-extern u32 s_nNumSPTransfers;			// Incremented on every RDRAM->SPMem Xfer
-extern u32 s_nTotalSPTransferSize;		// Total size of every RDRAM->SPMem Xfer
+//extern u32 s_nTotalDmaTransferSize;		// Total size of every Cart->RDRAM Xfer
+//extern u32 s_nNumSPTransfers;			// Incremented on every RDRAM->SPMem Xfer
+//extern u32 s_nTotalSPTransferSize;		// Total size of every RDRAM->SPMem Xfer
 
 extern bool gDMAUsed;
 

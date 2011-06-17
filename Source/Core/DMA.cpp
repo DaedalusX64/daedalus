@@ -419,8 +419,7 @@ void DMA_PI_CopyFromRDRAM()
 
 	DPF(DEBUG_MEMORY_PI, "PI: Copying %d bytes of data from 0x%08x to 0x%08x", pi_length_reg, mem_address, cart_address );
 
-	bool copy_succeeded;
-
+	/*
 	if(pi_length_reg & 0x1)
 	{
 		DBGConsole_Msg(0, "PI Copy RDRAM to CART %db from %08X to %08X", pi_length_reg, cart_address|0xA0000000, mem_address);
@@ -430,82 +429,35 @@ void DMA_PI_CopyFromRDRAM()
 
 		pi_length_reg ++;
 	}
+	*/
 
-	if ( IsDom2Addr1( cart_address ) ) //  0x05000000
+	// Only care for DOM2/ADDR2
+	//
+	if(cart_address == PI_DOM2_ADDR2)
 	{
-		//DBGConsole_Msg(0, "[YWriting to Cart domain 2/addr1]");
-		u8 *	p_dst( (u8 *)g_pMemoryBuffers[MEM_SAVE] );
-		u32		dst_size( MemoryRegionSizes[MEM_SAVE] );
-		cart_address -= PI_DOM2_ADDR1;
-
-		copy_succeeded = DMA_HandleTransfer( p_dst, cart_address, dst_size, g_pu8RamBase, mem_address, gRamSize, pi_length_reg );
-		Save::MarkSaveDirty();
-	}
-	else if ( IsDom1Addr1( cart_address ) )
-	{
-		//DBGConsole_Msg(0, "[YWriting to Cart domain 1/addr1]");
-		cart_address -= PI_DOM1_ADDR1;
-
-		copy_succeeded = RomBuffer::CopyFromRam( cart_address, g_pu8RamBase, mem_address, gRamSize, pi_length_reg );
-	}
-	else if ( IsDom2Addr2( cart_address ) )
-	{
-		//DBGConsole_Msg(0, "[YWriting to Cart domain 2/addr2]");
-		//DBGConsole_Msg(0, "PI: Copying %d bytes of data from 0x%08x to 0x%08x",
-		//	pi_length_reg, mem_address, cart_address);
 		u8 *	p_dst( (u8 *)g_pMemoryBuffers[MEM_SAVE] );
 		u32		dst_size( MemoryRegionSizes[MEM_SAVE] );
 		cart_address -= PI_DOM2_ADDR2;
 
+		DBGConsole_Msg(0, "[YWriting to Cart domain 2/addr2 0x%08x]", cart_address);
+
 		if (g_ROM.settings.SaveType != SAVE_TYPE_FLASH)
-			copy_succeeded = DMA_HandleTransfer( p_dst, cart_address, dst_size, g_pu8RamBase, mem_address, gRamSize, pi_length_reg );
+			DMA_HandleTransfer( p_dst, cart_address, dst_size, g_pu8RamBase, mem_address, gRamSize, pi_length_reg );
 		else
-			copy_succeeded = DMA_FLASH_CopyFromDRAM(mem_address, pi_length_reg);
+			DMA_FLASH_CopyFromDRAM(mem_address, pi_length_reg);
+
 		Save::MarkSaveDirty();
-	}
-	else if ( IsDom1Addr2( cart_address ) )
-	{
-		//DBGConsole_Msg(0, "[YWriting to Cart domain 1/addr2]");
-		cart_address -= PI_DOM1_ADDR2;
-		copy_succeeded = RomBuffer::CopyFromRam( cart_address, g_pu8RamBase, mem_address, gRamSize, pi_length_reg );
-	}
-	else if ( IsDom1Addr3( cart_address ) )
-	{
-		//DBGConsole_Msg(0, "[YWriting to Cart domain 1/addr3]");
-		cart_address -= PI_DOM1_ADDR3;
-		copy_succeeded = RomBuffer::CopyFromRam( cart_address, g_pu8RamBase, mem_address, gRamSize, pi_length_reg );
 	}
 	else
 	{
 		DBGConsole_Msg(0, "[YUnknown PI Address 0x%08x]", cart_address);
-		Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
-		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_PI);
-		R4300_Interrupt_UpdateCause3();
-		return;
 	}
-// XXX irrelevant to end user
-#ifndef DAEDALUS_PUBLIC_RELEASE
-	if (copy_succeeded)
-	{
-		// Nothing to do
-	}
-	else
-	{
-		DBGConsole_Msg(0, "PI: Copying %d bytes of data from 0x%08x to 0x%08x",
-			pi_length_reg, mem_address, cart_address);
-		DBGConsole_Msg(0, "PIXFer: Copy overlaps RAM/ROM boundary");
-		DBGConsole_Msg(0, "PIXFer: Not copying, but issuing interrupt");
-	}
-#endif
 
+	
 	Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
-
-#ifdef EXPERIMENTAL_INTERRUPTS
-	Trigger_PIInterrupt();
-#else
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_PI);
 	R4300_Interrupt_UpdateCause3();
-#endif
+
 
 }
 

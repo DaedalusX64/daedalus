@@ -1686,14 +1686,17 @@ static void R4300_CALL_TYPE R4300_Special_DADD( R4300_CALL_SIGNATURE )//CYRUS64
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 + gGPR[ op_code.rs ]._u64;
+	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 + gGPR[ op_code.rs ]._u64;
+	gGPR[ op_code.rd ]._s64 = (s64)( gGPR[ op_code.rt ]._s32_0 + gGPR[ op_code.rs ]._s32_0 );
+
 }
 
 static void R4300_CALL_TYPE R4300_Special_DADDU( R4300_CALL_SIGNATURE )//CYRUS64
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 + gGPR[ op_code.rs ]._u64;
+	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 + gGPR[ op_code.rs ]._u64;
+	gGPR[ op_code.rd ]._s64 = (s64)( gGPR[ op_code.rt ]._s32_0 + gGPR[ op_code.rs ]._s32_0 ); //BUG FIX for Excite Bike - Salvy
 
 }
 
@@ -2198,9 +2201,9 @@ static void R4300_CALL_TYPE R4300_Cop1_CFC1( R4300_CALL_SIGNATURE ) 		// move Co
 	R4300_CALL_MAKE_OP( op_code );
 
 	// Only defined for reg 0 or 31
-	//if ( op_code.fs == 0 || op_code.fs == 31 )
+	if ( op_code.fs == 0 || op_code.fs == 31 )
 	//Saves a compare //Corn
-	if( !((op_code.fs + 1) & 0x1E) )
+	//if( !((op_code.fs + 1) & 0x1E) )
 	{
 		gGPR[ op_code.rt ]._s64 = (s64)gCPUState.FPUControl[ op_code.fs ]._s32_0;
 		//gGPR[ op_code.rt ]._s32_0 = gCPUState.FPUControl[ op_code.fs ]._s32_0;  //copy only low part
@@ -2607,7 +2610,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
+	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	f32 fX = LoadFPR_Single( op_code.fs );
 

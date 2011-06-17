@@ -76,10 +76,8 @@ void	CRDPStateManager::SetTileSize( u32 idx, const RDP_TileSize & tile_size )
 {
 	if( mTileSizes[ idx ] != tile_size )
 	{
-
 		// XXXX might be able to remove this with recent tile loading fixes?
 		// Wetrix hack
-		//printf(" top%d, bottom%d, left%d,right%d\n", tile_size.top,tile_size.bottom,tile_size.left,tile_size.right);
 		if (tile_size.top > tile_size.bottom || tile_size.left > tile_size.right)
 		{
 			DAEDALUS_DL_ERROR( "Specifying negative width/height for tile descriptor" );
@@ -244,9 +242,6 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		//
 		if((g_ROM.GameHacks == ZELDA_OOT) | (g_ROM.GameHacks == ZELDA_MM))
 		{
-			/*if( (address == 0x00520920) |
-				(address == 0x00520720) | 
-				(address == 0x00520340) )*/
 			if(gRDPOtherMode.L == 0x0c184241 && ti.GetFormat() == G_IM_FMT_I /*&& ti.GetWidth() == 64*/)	
 			{
 				//ti.SetHeight( tile_height );	// (fix me)

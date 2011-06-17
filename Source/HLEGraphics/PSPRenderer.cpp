@@ -2935,27 +2935,29 @@ void PSPRenderer::ForceMatrix(const Matrix4x4 & mat)
 	}
 #endif
 
-	//We use it to get back the modelview matrix since we need it for proper rendering on PSP//Corn
-	//The inverted projection matrix for Tarzan
-	const Matrix4x4	invTarzan(	0.838109861116815f, 0.0f, 0.0f, 0.0f,
-								0.0f, -0.38386429506604247f, 0.0f, 0.0f,
-								0.0f, 0.0f, 0.0f, -0.009950865175186414f,
-								0.0f, 0.0f, 1.0f, 0.010049104096541923f );
-
-	//The inverted projection matrix for Donald duck
-	const Matrix4x4	invDonald(	0.6841395918423196f, 0.0f, 0.0f, 0.0f,
-								0.0f, 0.5131073266595174f, 0.0f, 0.0f,
-								0.0f, 0.0f, -0.01532359917019646f, -0.01532359917019646f,
-								0.0f, 0.0f, -0.9845562638123093f, 0.015443736187690802f );
-
 	//Some games have permanent project matrixes so we can save CPU by storing the inverse
 	//If that fails we invert the top project matrix to figure out the model matrix //Corn
+	//
 	if( g_ROM.GameHacks == TARZAN )
 	{
+		//We use it to get back the modelview matrix since we need it for proper rendering on PSP//Corn
+		//The inverted projection matrix for Tarzan
+		const Matrix4x4	invTarzan(	0.838109861116815f, 0.0f, 0.0f, 0.0f,
+									0.0f, -0.38386429506604247f, 0.0f, 0.0f,
+									0.0f, 0.0f, 0.0f, -0.009950865175186414f,
+									0.0f, 0.0f, 1.0f, 0.010049104096541923f );
+
 		mModelViewStack[mModelViewTop] = mat * invTarzan;
 	}
 	else if( g_ROM.GameHacks == DONALD )
 	{
+		
+		//The inverted projection matrix for Donald duck
+		const Matrix4x4	invDonald(	0.6841395918423196f, 0.0f, 0.0f, 0.0f,
+									0.0f, 0.5131073266595174f, 0.0f, 0.0f,
+									0.0f, 0.0f, -0.01532359917019646f, -0.01532359917019646f,
+									0.0f, 0.0f, -0.9845562638123093f, 0.015443736187690802f );
+
 		mModelViewStack[mModelViewTop] = mat * invDonald;
 	}
 	else

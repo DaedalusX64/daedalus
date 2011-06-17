@@ -30,7 +30,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 QueueVector g_MessageQueues;
 #endif
 
-
+//*****************************************************************************
+//
+//*****************************************************************************
 bool OS_Reset()
 {
 #ifdef DAED_OS_MESSAGE_QUEUES
@@ -41,6 +43,9 @@ bool OS_Reset()
 }
 
 #ifdef DAED_OS_MESSAGE_QUEUES
+//*****************************************************************************
+//
+//*****************************************************************************
 void OS_HLE_osCreateMesgQueue(u32 queue, u32 msgBuffer, u32 msgCount)
 {
 	COSMesgQueue q(queue);
@@ -65,6 +70,9 @@ void OS_HLE_osCreateMesgQueue(u32 queue, u32 msgBuffer, u32 msgCount)
 }
 #endif
 
+//*****************************************************************************
+//
+//*****************************************************************************
 // ENTRYHI left untouched after call
 u32 OS_HLE___osProbeTLB(u32 vaddr)
 {
@@ -74,11 +82,10 @@ u32 OS_HLE___osProbeTLB(u32 vaddr)
 	u32 vpn2 = vaddr & TLBHI_VPN2MASK;
 	u32 pageMask;
 	u32 entryLo;
-	int i;
 
 	// Code from TLBP and TLBR
 
-    for(i = 0; i < 32; i++)
+    for(u32 i = 0; i < 32; i++)
 	{
 		if( ((g_TLBs[i].hi & TLBHI_VPN2MASK) == vpn2) &&
 			(

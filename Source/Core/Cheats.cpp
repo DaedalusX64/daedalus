@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 
 #include "Cheats.h"
-#include "Rom.h"
 #include "Memory.h"
 
 #include "OSHLE/ultra_R4300.h"
@@ -38,7 +37,7 @@ u32		codegroupcount		= 0;
 s32		currentgroupindex	= -1;
 char	current_rom_name[128];
 
-enum { CHEAT_ALL_COUNTRY, CHEAT_USA, CHEAT_JAPAN, CHEAT_USA_AND_JAPAN, CHEAT_EUR, CHEAT_AUS, CHEAT_FR, CHEAT_GER };
+//enum { CHEAT_ALL_COUNTRY, CHEAT_USA, CHEAT_JAPAN, CHEAT_USA_AND_JAPAN, CHEAT_EUR, CHEAT_AUS, CHEAT_FR, CHEAT_GER };
 //*****************************************************************************
 //
 //*****************************************************************************

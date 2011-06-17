@@ -1557,16 +1557,14 @@ void DLParser_LoadBlock( MicroCodeCommand command )
 	u32 uls			= command.loadtile.sl;
 	u32 ult			= command.loadtile.tl;
 	u32 tile_idx	= command.loadtile.tile;
-	u32 lrs			= command.loadtile.sh;		// Number of bytes-1
+	//u32 lrs			= command.loadtile.sh;		// Number of bytes-1
 	u32 dxt			= command.loadtile.th;		// 1.11 fixed point
-
-	use(lrs);
 
 	bool	swapped = (dxt) ? false : true;
 
 	u32		src_offset = g_TI.Address + ult * (g_TI.Width << g_TI.Size >> 1) + (uls << g_TI.Size >> 1);
 
-	DL_PF("    Tile:%d (%d,%d - %d) DXT:0x%04x = %d Bytes => %d pixels/line", tile_idx, uls, ult, lrs, dxt, (g_TI.Width << g_TI.Size >> 1), bytes2pixels( (g_TI.Width << g_TI.Size >> 1), g_TI.Size ));
+	DL_PF("    Tile:%d (%d,%d - %d) DXT:0x%04x = %d Bytes => %d pixels/line", tile_idx, uls, ult, command.loadtile.sh, dxt, (g_TI.Width << g_TI.Size >> 1), bytes2pixels( (g_TI.Width << g_TI.Size >> 1), g_TI.Size ));
 	DL_PF("    Offset: 0x%08x", src_offset);
 
 	gRDPStateManager.LoadBlock( tile_idx, src_offset, swapped );
@@ -1908,7 +1906,7 @@ void DLParser_SetCImg( MicroCodeCommand command )
 	u32 format = command.img.fmt;
 	u32 size   = command.img.siz;
 	u32 width  = command.img.width + 1;
-	u32 newaddr	= RDPSegAddr(command.img.addr) & 0x00FFFFFF;
+	u32 newaddr	= RDPSegAddr(command.img.addr);
 	//u32 bpl		= width << size >> 1;	// Do we need to handle?
 
 	DL_PF("    Image: 0x%08x", RDPSegAddr(command.inst.cmd1));

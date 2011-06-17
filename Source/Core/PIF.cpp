@@ -148,12 +148,14 @@ class	IController : public CController
 		void			CommandWriteMemPack(u32 channel, u8 *cmd);
 		void			CommandReadRumblePack(u8 *cmd);
 		void			CommandWriteRumblePack(u8 *cmd);
+		void			CommandReadRTC(u8 *cmd);
+
 		u8				CalculateDataCrc(u8 * pBuf);
 
 		bool			IsEepromPresent() const						{ return mpEepromData != NULL; }
 		u8				GetEepromContType() const					{ return mEepromContType; }
 
-		u8				byte2bcd(int n)								{ n %= 100; return ((n / 10) << 4) | (n % 10); }
+		u8				Byte2Bcd(int n)								{ n %= 100; return ((n / 10) << 4) | (n % 10); }
 
 
 #ifdef DAEDALUS_DEBUG_PIF
@@ -389,6 +391,7 @@ void IController::Process()
 			continue;
 		}
 
+		DAEDALUS_ASSERT( (cmd[0] !=  0xB4) || (cmd[0] != 0x56) || (cmd[0] != 0xB8), "PIF : NOP command? %02x", cmd[0] );
 		/*if((cmd[0] ==  0xB4) || (cmd[0] == 0x56) || (cmd[0] == 0xB8))
 		{ 
 			count++;
@@ -423,7 +426,7 @@ void IController::Process()
 		}
 		else
 		{
-			DAEDALUS_ERROR( "Trying to read from invalid controller channel!" );
+			DAEDALUS_ERROR( "Trying to read from invalid controller channel! %d", channel );
 			return;
 		}
 
@@ -575,36 +578,7 @@ bool	IController::ProcessEeprom(u8 *cmd)
 		break;
 
 	case CONT_RTC_READ:	// read RTC block
-		{
-			switch (cmd[3]) // block number
-			{ 
-			case 0:
-				cmd[4]	= 0x00;
-				cmd[5]	= 0x02;
-				cmd[12] = 0x00;
-				break;
-			case 1:
-				//DAEDALUS_ERROR("RTC command : Read Block %d", cmd[2]);
-				break;
-			case 2:
-				time_t curtime_time;
-				struct tm curtime;
-
-				time(&curtime_time);
-				memcpy(&curtime, localtime(&curtime_time), sizeof(curtime)); // fd's fix
-
-				cmd[4]	= byte2bcd(curtime.tm_sec);
-				cmd[5]	= byte2bcd(curtime.tm_min);
-				cmd[6]	= 0x80 + byte2bcd(curtime.tm_hour);
-				cmd[7]	= byte2bcd(curtime.tm_mday);
-				cmd[8]	= byte2bcd(curtime.tm_wday);
-				cmd[9]	= byte2bcd(curtime.tm_mon + 1);
-				cmd[10] = byte2bcd(curtime.tm_year);
-				cmd[11] = byte2bcd(curtime.tm_year / 100);
-				cmd[12] = 0x00;       // status
-				break;
-			}
-		}
+		CommandReadRTC( cmd );
 		break;
 
 	case CONT_RTC_WRITE:	// write RTC block
@@ -786,6 +760,47 @@ void	IController::CommandWriteRumblePack(u8 *cmd)
 
 	cmd[37] = CalculateDataCrc(&cmd[5]);
 }
+
+//*****************************************************************************
+// 
+//
+//*****************************************************************************
+void	IController::CommandReadRTC(u8 *cmd)
+{
+	switch (cmd[3]) // block number
+	{ 
+	case 0:
+		cmd[4]	= 0x00;
+		cmd[5]	= 0x02;
+		cmd[12] = 0x00;
+		break;
+	case 1:
+		//DAEDALUS_ERROR("RTC command : Read Block %d", cmd[2]);
+		break;
+	case 2:
+		time_t curtime_time;
+		struct tm curtime;
+
+		time(&curtime_time);
+		memcpy(&curtime, localtime(&curtime_time), sizeof(curtime)); // fd's fix
+
+		cmd[4]	= Byte2Bcd(curtime.tm_sec);
+		cmd[5]	= Byte2Bcd(curtime.tm_min);
+		cmd[6]	= 0x80 + Byte2Bcd(curtime.tm_hour);
+		cmd[7]	= Byte2Bcd(curtime.tm_mday);
+		cmd[8]	= Byte2Bcd(curtime.tm_wday);
+		cmd[9]	= Byte2Bcd(curtime.tm_mon + 1);
+		cmd[10] = Byte2Bcd(curtime.tm_year);
+		cmd[11] = Byte2Bcd(curtime.tm_year / 100);
+		cmd[12] = 0x00;       // status
+		break;
+	default:
+		DAEDALUS_ERROR( "Unknown Eeprom command: %02x", cmd[3] );
+		break;
+	}
+
+}
+
 
 
 
