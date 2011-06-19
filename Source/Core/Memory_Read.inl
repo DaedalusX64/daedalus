@@ -25,11 +25,13 @@ static void * ReadInvalid( u32 address )
 {
 	DPF( DEBUG_MEMORY, "Illegal Memory Access - Tried to Read From 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC );
 
+#ifndef DAEDALUS_PUBLIC_RELEASE
 	if (g_DaedalusConfig.WarnMemoryErrors)
 	{
 		CPU_Halt("Illegal Memory Access");
 		DBGConsole_Msg(0, "Illegal Memory Access - Tried to Read From 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC);
 	}
+#endif
 	return g_pMemoryBuffers[MEM_UNUSED];
 
 }

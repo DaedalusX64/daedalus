@@ -24,11 +24,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 static void WriteValueInvalid( u32 address, u32 value )
 {
 	DPF( DEBUG_MEMORY, "Illegal Memory Access Tried to Write To 0x%08x PC: 0x%08x", address, gCPUState.CurrentPC );
+
+#ifndef DAEDALUS_PUBLIC_RELEASE
 	if (g_DaedalusConfig.WarnMemoryErrors)
 	{
 		CPU_Halt("Illegal Memory Access");
 		DBGConsole_Msg(0, "Illegal Memory Access: Tried to Write To 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC);
 	}
+#endif
 }
 
 //*****************************************************************************
