@@ -291,40 +291,6 @@ static char * tidy(char * s)
 	}
 	return s;
 }
-
-//*****************************************************************************
-//  I should not need to write such a stupid function to convert String to Int  .
-//	However, the sscanf() function does not work for me to input hex number from input string. 
-//  I spent some time to debug it, no use, so I wrote  this function to do the converting myself. 
-//  Someone could help me to elimiate this function.
-//*****************************************************************************
-static u32 ConvertHexCharToInt(char c)
-{
-	if(c >= '0' && c <= '9')
-		return c - '0';
-	else if(c >= 'A' && c <= 'F')
-		return c - 'A' + 10;
-	else if(c >= 'a' && c <= 'f')
-		return c - 'a' + 10;
-	else
-		return 0;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-static u32 ConvertHexStringToInt(const char *str, int nchars)
-{
-	int		i;
-	u32		result = 0;
-
-	for(i = 0; i < nchars; i++) 
-	{
-		result = result * 16 + ConvertHexCharToInt(str[i]);
-	}
-	return result;
-}
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -473,6 +439,7 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 				codegrouplist[codegroupcount].note[0] = '\0';
 			}
 
+			u32 addr, value;
 			codegrouplist[codegroupcount].active = line[c1 + 1] - '0';
 			codegrouplist[codegroupcount].enable = false;
 			codegrouplist[codegroupcount].codecount = 0;
@@ -483,13 +450,11 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 			{
 				if (c2 < MAX_CHEATCODE_PER_GROUP)
 				{
+					sscanf( line + c1 + 1 + c2 * 14,"%08x-%04x", &addr, &value );
+
 					codegrouplist[codegroupcount].codelist[c2].orig = CHEAT_CODE_MAGIC_VALUE;
-					codegrouplist[codegroupcount].codelist[c2].addr = ConvertHexStringToInt(line + c1 + 1 + c2 * 14, 8);
-					codegrouplist[codegroupcount].codelist[c2].val = (u16) ConvertHexStringToInt
-						(
-							line + c1 + 1 + c2 * 14 + 9,
-							4
-						);
+					codegrouplist[codegroupcount].codelist[c2].addr = addr;
+					codegrouplist[codegroupcount].codelist[c2].val = (u16)value;
 				}
 				else
 				{
