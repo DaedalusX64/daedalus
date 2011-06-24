@@ -433,7 +433,7 @@ void DMA_PI_CopyFromRDRAM()
 
 	// Only care for DOM2/ADDR2
 	//
-	if(cart_address == PI_DOM2_ADDR2)
+	if(cart_address >= PI_DOM2_ADDR2 && cart_address < 0x08010000)
 	{
 		u8 *	p_dst( (u8 *)g_pMemoryBuffers[MEM_SAVE] );
 		u32		dst_size( MemoryRegionSizes[MEM_SAVE] );
