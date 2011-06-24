@@ -3016,6 +3016,13 @@ inline void	CCodeGeneratorPSP::GenerateLW( u32 address, bool set_branch_delay, E
 {
 	EPspReg	reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
 
+	// This is for San Francisco 2049, otherwise it crashes when the race is about to start.
+	if(rt == 0)
+	{
+		DAEDALUS_ERROR("Attempted write to r0!");
+		return;
+	}
+
 	GenerateLoad( address, reg_dst, base, offset, OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
 
 	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND, PspReg_T0 );

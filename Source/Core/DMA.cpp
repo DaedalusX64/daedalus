@@ -432,6 +432,7 @@ void DMA_PI_CopyFromRDRAM()
 	*/
 
 	// Only care for DOM2/ADDR2
+	// PI_DOM2_ADDR2 (FlashRAM) && < 0x08010000 (SRAM)
 	//
 	if(cart_address >= PI_DOM2_ADDR2 && cart_address < 0x08010000)
 	{
