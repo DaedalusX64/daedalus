@@ -63,6 +63,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 	gCPUState.Delay = DO_DELAY; \
 }
 
+
+#define SUB_S32( a, b, c)	a = (s64) ((s32) b - (s32) c)
 #define ADDI_S32( a, b, c)	a = (s64) ((s32) b + (s32) c)
 #define ADDI_S64( a, b, c)	a = (s64)b + (s64)c
 #define ANDI_U64( a, b, c)	a = (u64)b & (u64)c
@@ -229,7 +231,7 @@ static void R4300_CALL_TYPE R4300_DADDI( R4300_CALL_SIGNATURE ) 			// Doubleword
 	// Reserved Instruction exception
 
 	//irt = irs + immediate
-	ADDI_S64( irt, irs, iimmediate );
+	ADDI_S64( irt, irs, (s16)iimmediate );
 }
 
 //*************************************************************************************
@@ -242,7 +244,7 @@ static void R4300_CALL_TYPE R4300_DADDIU( R4300_CALL_SIGNATURE ) 			// Doublewor
 	// Reserved Instruction exception
 
 	//irt = irs + immediate
-	ADDI_S64( irt, irs, iimmediate );
+	ADDI_S64( irt, irs, (s16)iimmediate );
 
 }
 
@@ -256,7 +258,7 @@ static void R4300_CALL_TYPE R4300_ADDI( R4300_CALL_SIGNATURE )
 	// Generates overflow exception
 
 	//irt = irs + immediate
-	ADDI_S32( irt, irs, iimmediate );
+	ADDI_S32( irt, irs, (s16)iimmediate );
 }
 
 //*************************************************************************************
@@ -267,7 +269,7 @@ static void R4300_CALL_TYPE R4300_ADDIU( R4300_CALL_SIGNATURE ) 		// Add Immedia
 	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rt );
 
 	//irt = irs + immediate
-	ADDI_S32( irt, irs, iimmediate );
+	ADDI_S32( irt, irs, (s16)iimmediate );
 }
 
 
@@ -1121,4 +1123,136 @@ static void R4300_CALL_TYPE R4300_Special_DDIVU( R4300_CALL_SIGNATURE ) 			// Do
 		ilo = nDividend / nDivisor;
 		ihi = nDividend % nDivisor;
 	}
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_ADD( R4300_CALL_SIGNATURE ) 			// ADD signed - may throw exception
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	// Can generate overflow exception
+	ird = (s64) ((s32) irs + (s32) irt);
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_ADDU( R4300_CALL_SIGNATURE ) 			// ADD Unsigned - doesn't throw exception
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	ird = (s64) ((s32) irs + (s32) irt);
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_SUB( R4300_CALL_SIGNATURE ) 			// SUB Signed - may throw exception
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	// Can generate overflow exception
+	SUB_S32( ird , irs, irt );
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_SUBU( R4300_CALL_SIGNATURE ) 			// SUB Unsigned - doesn't throw exception
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	SUB_S32( ird , irs, irt );
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_AND( R4300_CALL_SIGNATURE ) 				// logical AND
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	ANDI_U64( ird, irs, irt );
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_OR( R4300_CALL_SIGNATURE ) 				// logical OR
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	ORI_U64( ird, irs, irt );
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_XOR( R4300_CALL_SIGNATURE ) 				// logical XOR
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	XORI_U64( ird, irs, irt );
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_NOR( R4300_CALL_SIGNATURE ) 				// logical Not OR
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	ird = ~((u64) irs | (u64) irt);
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_SLT( R4300_CALL_SIGNATURE ) 				// Set on Less Than
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	// Cast to s32s to ensure sign is taken into account
+	if(irs < irt)
+		ird = 1;
+	else
+		ird = 0;
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_SLTU( R4300_CALL_SIGNATURE ) 				// Set on Less Than Unsigned
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	// Treated as unsigned....
+	if((u64) irs < (u64) irt)
+		ird = 1;
+	else
+		ird = 0;
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_DADD( R4300_CALL_SIGNATURE )//CYRUS64
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	ADDI_S64( ird, irs, irt );
+
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_DADDU( R4300_CALL_SIGNATURE )//CYRUS64
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	ADDI_S64( ird, irs, irt );
+
 }
