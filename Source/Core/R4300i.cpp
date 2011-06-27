@@ -48,6 +48,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define ihi				gCPUState.MultHi._s64
 #define ilo				gCPUState.MultLo._s64
 
+#define ifs				gCPUState.CPUControl[ op_code.fs ]._s32_0
+
 #define itarget			( (ipc & 0xF0000000) | (op_code.target<<2) )
 #define link(x)			{ gGPR[x]._s64 = (s32) (ipc + 8); }
 #define iimmediate		((s16)op_code.immediate)
@@ -64,6 +66,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 }
 
 
+#define SUB_S64( a, b, c)	a = (s64)b - (s64)c
 #define SUB_S32( a, b, c)	a = (s64) ((s32) b - (s32) c)
 #define ADDI_S32( a, b, c)	a = (s64) ((s32) b + (s32) c)
 #define ADDI_S64( a, b, c)	a = (s64)b + (s64)c
@@ -1255,4 +1258,254 @@ static void R4300_CALL_TYPE R4300_Special_DADDU( R4300_CALL_SIGNATURE )//CYRUS64
 
 	ADDI_S64( ird, irs, irt );
 
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_DSUB( R4300_CALL_SIGNATURE )
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	SUB_S64( ird, irs, irt );
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_DSUBU( R4300_CALL_SIGNATURE )
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	SUB_S64( ird, irs, irt );
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_DSLL( R4300_CALL_SIGNATURE )
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	// Reserved Instruction exception
+	ird = (u64) irt << op_code.sa;
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_DSRL( R4300_CALL_SIGNATURE )
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	// Reserved Instruction exception
+	ird = (u64) irt >> op_code.sa;
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_DSRA( R4300_CALL_SIGNATURE )
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	// Reserved Instruction exception
+	ird = irt >> op_code.sa;
+}
+
+
+static void R4300_CALL_TYPE R4300_Special_DSLL32( R4300_CALL_SIGNATURE ) 			// Double Shift Left Logical 32
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	// Reserved Instruction exception
+	ird = (u64) irt << (32 + op_code.sa);
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_DSRL32( R4300_CALL_SIGNATURE ) 			// Double Shift Right Logical 32
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	// Reserved Instruction exception
+	ird = (u64) irt >> (op_code.sa + 32);
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Special_DSRA32( R4300_CALL_SIGNATURE ) 			// Double Shift Right Arithmetic 32
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
+
+	// Reserved Instruction exception
+	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._s64 >> ( 32 + op_code.sa );
+#if 0
+	int rd = op_code.rd;
+    int rt = op_code.rt;
+   
+    * (u32 *) &gGPR[rd]._s64      = *((u32 *) &gGPR[rt]._s64 + 1);
+    *((u32 *) &gGPR[rd]._s64 + 1) = *((u32 *) &gGPR[rt]._s64 + 1);
+
+    *((s32 *) &gGPR[rd]._s64 + 1) >>= 31;
+    *((s32 *) &gGPR[rd]._s64)     >>= op_code.sa;
+#else
+	ird = irt >> (op_code.sa + 32);
+#endif
+
+}
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+//static void R4300_CALL_TYPE R4300_RegImm_Unk( R4300_CALL_SIGNATURE ) {  WARN_NOEXIST("R4300_RegImm_Unk"); }
+static void R4300_CALL_TYPE R4300_RegImm_BLTZ( R4300_CALL_SIGNATURE ) 			// Branch on Less than Zero
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	//branch if rs < 0
+	if ( irs < 0 )
+	{
+		if( iimmediate == -1 )	SpeedHack( ipc, op_code );
+
+		delay_set( iimmediate );
+	}
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_RegImm_BLTZL( R4300_CALL_SIGNATURE ) 			// Branch on Less than Zero Likely
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	//branch if rs < 0
+	if ( irs < 0 )
+	{
+		//if( iimmediate == -1 )	SpeedHack( ipc, op_code ); // Check Me
+
+		delay_set( iimmediate );
+	}
+	else
+	{
+		// Don't execute subsequent instruction
+		INCREMENT_PC();
+	}
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_RegImm_BLTZAL( R4300_CALL_SIGNATURE ) 		// Branch on Less than Zero And Link
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	//branch if rs >= 0
+	// Store the return address even if branch not taken
+
+	// Store return address
+	link( REG_ra );
+
+	if ( irs < 0 )
+	{
+		//if( iimmediate == -1 )	SpeedHack( ipc, op_code );	// Check Me
+
+		delay_set( iimmediate );
+	}
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_RegImm_BGEZ( R4300_CALL_SIGNATURE ) 			// Branch on Greater than or Equal to Zero
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	//branch if rs >= 0
+	if ( irs >= 0 )
+	{
+		if( iimmediate == -1 )	SpeedHack( ipc, op_code );
+
+		delay_set( iimmediate );
+	}
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_RegImm_BGEZL( R4300_CALL_SIGNATURE ) 			// Branch on Greater than or Equal to Zero Likely
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	//branch if rs >= 0
+	if ( irs >= 0 )
+	{
+		delay_set( iimmediate );
+	}
+	else
+	{
+		// Don't execute subsequent instruction
+		INCREMENT_PC();
+	}
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_RegImm_BGEZAL( R4300_CALL_SIGNATURE ) 		// Branch on Greater than or Equal to Zero And Link
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	//branch if rs >= 0
+	// This always happens, even if branch not taken
+
+	// Store return address
+	link( REG_ra );
+
+	if ( irs >= 0 )
+	{
+		delay_set( iimmediate );
+	}
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+//static void R4300_CALL_TYPE R4300_Cop0_Unk( R4300_CALL_SIGNATURE ) { WARN_NOEXIST("R4300_Cop0_Unk"); }
+//static void R4300_CALL_TYPE R4300_TLB_Unk( R4300_CALL_SIGNATURE )  { WARN_NOEXIST("R4300_TLB_Unk"); }
+static void R4300_CALL_TYPE R4300_Cop0_MFC0( R4300_CALL_SIGNATURE )
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	if( op_code.fs == C0_RAND )	// Copy from FS to RT
+	{
+		u32 wired = gCPUState.CPUControl[C0_WIRED]._u32_0 & 0x1F;
+
+		// Select a value between wired and 31.
+		// We should use TLB least-recently used here too?
+		irt = (pspFastRand()%(32-wired)) + wired;
+
+		DBGConsole_Msg(0, "[MWarning reading MFC0 random register]");
+	}
+	else	// Should we handle C0_COUNT??
+	{
+		CHECK_R0( op_code.rt );
+
+		// No specific handling needs for reads to these registers.
+		irt = (s64) (s32) ifs;
+	}
 }
