@@ -553,6 +553,8 @@ bool	IController::ProcessController(u8 *cmd, u32 channel)
 //*****************************************************************************
 bool	IController::ProcessEeprom(u8 *cmd)
 {
+	DAEDALUS_ASSERT( IsEepromPresent(), "ROM is accessing the EEPROM, but none is present");
+
 	switch(cmd[2])
 	{
 	case CONT_RESET:
@@ -562,7 +564,7 @@ bool	IController::ProcessEeprom(u8 *cmd)
 		cmd[5] = 0x00;
 		break;
 
-	case CONT_READ_EEPROM:		
+	case CONT_READ_EEPROM:
 		CommandReadEeprom(&cmd[4], cmd[3] * 8);
 		break;
 
@@ -570,7 +572,8 @@ bool	IController::ProcessEeprom(u8 *cmd)
 		CommandWriteEeprom((char*)&cmd[4], cmd[3] * 8);
 		break;
 
-	/* RTC, credit: Mupen64 source */
+	// RTC credit: Mupen64 source
+	//
 	case CONT_RTC_STATUS: // RTC status query
 	    cmd[3] = 0x00;
 	    cmd[4] = 0x10;
@@ -599,15 +602,7 @@ bool	IController::ProcessEeprom(u8 *cmd)
 //*****************************************************************************
 void	IController::CommandReadEeprom(unsigned char *dest, long offset)
 {
-
-	if ( IsEepromPresent() )
-	{
-		memcpy(dest, &mpEepromData[offset], 8);
-	}
-	else
-	{
-		//WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
-	}
+	memcpy(dest, &mpEepromData[offset], 8);
 }
 
 //*****************************************************************************
@@ -615,20 +610,8 @@ void	IController::CommandReadEeprom(unsigned char *dest, long offset)
 //*****************************************************************************
 void	IController::CommandWriteEeprom(char *src, long offset)
 {
-
-	DPF_PIF("Controller: WriteEEPROM");
-
-	if ( IsEepromPresent() )
-	{
-		Save::MarkSaveDirty();
-
-		memcpy(&mpEepromData[offset], src, 8);
-
-	}
-	else
-	{
-		//WriteStatusBits( iError, CONT_NO_RESPONSE_ERROR );
-	}
+	Save::MarkSaveDirty();
+	memcpy(&mpEepromData[offset], src, 8);
 }
 
 //*****************************************************************************

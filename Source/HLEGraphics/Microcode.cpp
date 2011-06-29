@@ -63,8 +63,8 @@ struct MicrocodeData
 {
 	u32				ucode;
 	u32				code_hash;
-	const char *	ucode_name;
-	const char *	rom_name;
+	//const char *	ucode_name;
+	//const char *	rom_name;
 };
 
 //
@@ -91,17 +91,17 @@ static const MicrocodeData gMicrocodeData[] =
 	//	If you believe a title should be here post the line for it from ucodes.txt @ http://www.daedalusx64.com
 	//	Note - Games are in alphabetical order by game title
 	//
-	{ GBI_0_CK,  0x10372b79, "RSP Gfx ucode F3DEXBG.NoN fifo 2.08  Yoshitaka Yasumoto 1999 Nintendo.", "Conker's Bad Fur Day"}, 
-	{ GBI_0_LL,  0x9a824412, "", "Dark Rift"},
-	{ GBI_0_DKR, 0xa3f481d8, "", "Diddy Kong Racing (v1.0)"}, 
-	{ GBI_0_DKR, 0xd5d68f00, "", "Diddy Kong Racing (v1.1)"}, 
-	{ GBI_0_GE,  0x96c35300, "RSP SW Version: 2.0G, 09-30-96", "GoldenEye 007"}, 
-	{ GBI_0_JFG, 0x58823aab, "", "Jet Force Gemini"},														
-	{ GBI_0_LL,  0x85185534, "", "Last Legion UX"},							
-	{ GBI_0_PD,  0x84c127f1, "", "Perfect Dark (v1.1)"}, 
-	{ GBI_0_SE,  0xd010d659, "RSP SW Version: 2.0D, 04-01-96", "Star Wars - Shadows of the Empire (v1.0)"}, 
-	{ GBI_0_LL,  0xf9ec7828, "", "Toukon Road - Brave Spirits"},											
-	{ GBI_0_WR,  0xbb5a808d, "RSP SW Version: 2.0D, 04-01-96", "Wave Race 64"},
+	{ GBI_0_CK,  0x10372b79	},// "RSP Gfx ucode F3DEXBG.NoN fifo 2.08  Yoshitaka Yasumoto 1999 Nintendo.", "Conker's Bad Fur Day"}, 
+	{ GBI_0_LL,  0x9a824412	},//"", "Dark Rift"},
+	{ GBI_0_DKR, 0xa3f481d8	},//"", "Diddy Kong Racing (v1.0)"}, 
+	{ GBI_0_DKR, 0xd5d68f00	},//"", "Diddy Kong Racing (v1.1)"}, 
+	{ GBI_0_GE,  0x96c35300	},//"RSP SW Version: 2.0G, 09-30-96", "GoldenEye 007"}, 
+	{ GBI_0_JFG, 0x58823aab	},//"", "Jet Force Gemini"},														
+	{ GBI_0_LL,  0x85185534	},//"", "Last Legion UX"},							
+	{ GBI_0_PD,  0x84c127f1	},//"", "Perfect Dark (v1.1)"}, 
+	{ GBI_0_SE,  0xd010d659	},//"RSP SW Version: 2.0D, 04-01-96", "Star Wars - Shadows of the Empire (v1.0)"}, 
+	{ GBI_0_LL,  0xf9ec7828	},//"", "Toukon Road - Brave Spirits"},											
+	{ GBI_0_WR,  0xbb5a808d	},//"RSP SW Version: 2.0D, 04-01-96", "Wave Race 64"},
 	//{ GBI_0_UNK, 0x10b092bf, "", "World Driver Championship"},		
 	//{ GBI_0_UNK, 0x5719c8de, "", "Star Wars - Rogue Squadron"}, 
 };
@@ -150,20 +150,10 @@ static bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char
 //*****************************************************************************
 static void GBIMicrocode_Cache( u32 index, u32 code_base, u32 data_base, u32 ucode_version)
 {
-	//
-	// If the max of ucode entries is reached, spread it randomly
-	// Otherwise we'll keep overriding the last entry
-	// 
-	if( index >= MAX_UCODE_CACHE_ENTRIES )
-	{
-		DBGConsole_Msg(0, "Warning : Reached max of ucode entries (%d), spreading entry",index );
-		index = pspFastRand()%MAX_UCODE_CACHE_ENTRIES;
-	}
-
-	used[ index ].code_base 	= code_base;
-	used[ index ].data_base 	= data_base;
-	used[ index ].ucode 		= ucode_version;
-	used[ index ].used 			= true;
+	used[ index ].code_base = code_base;
+	used[ index ].data_base = data_base;
+	used[ index ].ucode 	= ucode_version;
+	used[ index ].used 		= true;
 }
 
 //*****************************************************************************
@@ -191,6 +181,18 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 		{
 			return used[ index ].ucode;
 		}
+	}
+
+	//
+	// If the max of ucode entries is reached, spread it randomly
+	// Otherwise we'll keep overriding the last entry
+	// 
+	if( index >= MAX_UCODE_CACHE_ENTRIES )
+	{
+		DBGConsole_Msg(0, "Warning : Reached max of ucode entries!");
+
+		index = pspFastRand()%MAX_UCODE_CACHE_ENTRIES;
+		DBGConsole_Msg(0, "Spreading entry to (%d)",index );
 	}
 
 	//
