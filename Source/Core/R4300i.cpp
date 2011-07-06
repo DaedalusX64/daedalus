@@ -48,7 +48,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define ihi				gCPUState.MultHi._s64
 #define ilo				gCPUState.MultLo._s64
 
-#define ifs				gCPUState.CPUControl[ op_code.fs ]._s32_0
+#define c0FD			gCPUState.CPUControl[ op_code.fd ]._u32_0
+#define c0FS			gCPUState.CPUControl[ op_code.fs ]._u32_0
+#define c0FT			gCPUState.CPUControl[ op_code.ft ]._u32_0
+
+//ToDo : When FP is in 64bit, these need to extend to 64 entries!
+#define cFD				gCPUState.FPU[op_code.rd]._u32_0
+#define cFS				gCPUState.FPU[op_code.fs]._u32_0
+#define cRT				gCPUState.FPU[op_code.rt]._u32_0
+#define cFT				gCPUState.FPU[op_code.ft]._u32_0
+
+#define	cCONFS			gCPUState.FPUControl[ op_code.fs ]._u32_0
+#define	cCON31			gCPUState.FPUControl[31]._u32_0
 
 #define itarget			( (ipc & 0xF0000000) | (op_code.target<<2) )
 #define link(x)			{ gGPR[x]._s64 = (s32) (ipc + 8); }
@@ -75,10 +86,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define ORI_U64( a, b, c)	a = (u64)b | (u64)c
 #define SHIFT_U32( a, b, c)	a = (s64) (s32) ((u32) b << (u32)c)
 
-//ToDo : 32bit 64 items needed, not 64bit 32 items (cheaper on the PSP)
-#define ifd				gCPUState.FPU[op_code.rd]._u64
-#define ift				gCPUState.FPU[op_code.rt]._u64
-#define ifs				gCPUState.FPU[op_code.rs]._u64
+inline void write_64bit_fpu_reg(u32 reg, u32 *val)
+{
+	gCPUState.FPU[reg]._u32_0 = val[0];
+	gCPUState.FPU[reg + 1]._u32_0 = val[1];
+}
+
 
 #ifndef DAEDALUS_SILENT
 inline void CHECK_R0( u32 op )
@@ -95,6 +108,37 @@ inline void CHECK_R0( u32 op )
 #else
 	inline void CHECK_R0( u32 op ) {}
 #endif
+
+//	Abstract away the different rounding modes between targets
+//
+enum ERoundingMode
+{
+	RM_ROUND = 0,
+	RM_TRUNC,
+	RM_CEIL,
+	RM_FLOOR,
+	RM_NUM_MODES,
+};
+static ERoundingMode	gRoundingMode( RM_ROUND );
+
+//*****************************************************************************
+//
+//	Float -> int conversion routines
+//
+//*****************************************************************************
+static const PspFpuRoundMode		gNativeRoundingModes[ RM_NUM_MODES ] =
+{
+	PSP_FPU_RN,	// RM_ROUND,
+	PSP_FPU_RZ,	// RM_TRUNC,
+	PSP_FPU_RP,	// RM_CEIL,
+	PSP_FPU_RM,	// RM_FLOOR,
+};
+
+inline void SET_ROUND_MODE( ERoundingMode mode )
+{
+	// I don't think anything is required here
+}
+
 
 inline void SpeedHack( u32 current_pc, OpCode op )
 {
@@ -398,7 +442,15 @@ static void R4300_CALL_TYPE R4300_BLEZL( R4300_CALL_SIGNATURE ) 		// Branch on L
 	//branch if irs <= 0
 	if (irs <= 0)
 	{
-		if( iimmediate == -1 )	SpeedHack( ipc, op_code );
+		/*if( iimmediate == -1 )	
+		{
+			SpeedHack( ipc, op_code );
+		}
+
+		if (op_code.rs == N64Reg_R0)
+		{
+			SpeedHack( ipc, op_code );
+		}*/
 
 		delay_set( iimmediate );
 	}
@@ -680,7 +732,7 @@ static void R4300_CALL_TYPE R4300_LWC1( R4300_CALL_SIGNATURE ) 				// Load Word 
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	 *(u32 *)&ift = Read32Bits(iaddress);	// check me
+	 *(u32 *)&cFT = Read32Bits(iaddress);	// check me
 }
 
 //*************************************************************************************
@@ -690,7 +742,19 @@ static void R4300_CALL_TYPE R4300_LDC1( R4300_CALL_SIGNATURE )				// Load Double
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	 *(u64*)&ift = Read64Bits(iaddress);
+	// CONKER BUGDIX - GREEN TEXTURES
+	u32	reg[2];
+
+	reg[0] = Read32Bits(iaddress + 4);
+	reg[1] = Read32Bits(iaddress);
+	write_64bit_fpu_reg(op_code.ft, (u32 *) &reg[0]);
+
+	// Green textures are fixed only if we ignore FullLength aka writing the low and high bits in 32bit as the FP is in 32bit mode as above.
+	// even though is setting the status reg to 64bit
+	// Conker sets the status reg and FullLength is noted and thus this bug occurs in the old interpreter as well
+	// I believe theres a deeper issue, NOTE I believe this is set in R4300_TLB_ERET and not R4300_SetSR since the status reg returns 0 there (32bit).
+	// 
+	//*(u64*)&cFT = *(u64*)&Read64Bits(iaddress);
 }
 
 //*************************************************************************************
@@ -711,11 +775,12 @@ static void R4300_CALL_TYPE R4300_SWC1( R4300_CALL_SIGNATURE ) 			// Store Word 
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	//u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
-	//Write32Bits(address, (u32)gCPUState.FPU[dwFT]);
-	//Write32Bits(address, LoadFPR_Word(op_code.ft));
+	Write32Bits(iaddress, (u32)cFT);
 }
 
+//*************************************************************************************
+//
+//*************************************************************************************
 static void R4300_CALL_TYPE R4300_SDC1( R4300_CALL_SIGNATURE )		// Store Doubleword From Copro 1
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -725,7 +790,9 @@ static void R4300_CALL_TYPE R4300_SDC1( R4300_CALL_SIGNATURE )		// Store Doublew
 	Write64Bits(address, LoadFPR_Long(op_code.ft));*/
 }
 
-
+//*************************************************************************************
+//
+//*************************************************************************************
 static void R4300_CALL_TYPE R4300_SD( R4300_CALL_SIGNATURE )			// Store Doubleword
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -1170,6 +1237,7 @@ static void R4300_CALL_TYPE R4300_Special_SUBU( R4300_CALL_SIGNATURE ) 			// SUB
 	SUB_S32( ird , irs, irt );
 }
 
+
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -1257,7 +1325,6 @@ static void R4300_CALL_TYPE R4300_Special_DADDU( R4300_CALL_SIGNATURE )//CYRUS64
 	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rd );
 
 	ADDI_S64( ird, irs, irt );
-
 }
 
 //*************************************************************************************
@@ -1485,27 +1552,403 @@ static void R4300_CALL_TYPE R4300_RegImm_BGEZAL( R4300_CALL_SIGNATURE ) 		// Bra
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-//static void R4300_CALL_TYPE R4300_Cop0_Unk( R4300_CALL_SIGNATURE ) { WARN_NOEXIST("R4300_Cop0_Unk"); }
-//static void R4300_CALL_TYPE R4300_TLB_Unk( R4300_CALL_SIGNATURE )  { WARN_NOEXIST("R4300_TLB_Unk"); }
-static void R4300_CALL_TYPE R4300_Cop0_MFC0( R4300_CALL_SIGNATURE )
+//static void R4300_CALL_TYPE R4300_Cop1_Unk( R4300_CALL_SIGNATURE )     { WARN_NOEXIST("R4300_Cop1_Unk"); }
+static void R4300_CALL_TYPE R4300_Cop1_MTC1( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	if( op_code.fs == C0_RAND )	// Copy from FS to RT
+	// Manual says top bits undefined after load
+	* (u32 *) &cFS = (u32) irt;
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Cop1_DMTC1( R4300_CALL_SIGNATURE )
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	// Manual says top bits undefined after load
+	 *(u64*)&cFS = irt;
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Cop1_MFC1( R4300_CALL_SIGNATURE )
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rt );
+
+	// MFC1 in the manual says this is a sign-extended result
+	(*(s64 *) &irt) = (s64) (*((s32 *) &cFS));
+
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Cop1_DMFC1( R4300_CALL_SIGNATURE )
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rt );
+
+	irt = *(u64*)&cFS;
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Cop1_CFC1( R4300_CALL_SIGNATURE ) 		// move Control word From Copro 1
+{
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rt );
+
+	// Only defined for reg 0 or 31
+	if ( op_code.fs == 0 || op_code.fs == 31 )
 	{
-		u32 wired = gCPUState.CPUControl[C0_WIRED]._u32_0 & 0x1F;
-
-		// Select a value between wired and 31.
-		// We should use TLB least-recently used here too?
-		irt = (pspFastRand()%(32-wired)) + wired;
-
-		DBGConsole_Msg(0, "[MWarning reading MFC0 random register]");
+		irt = (s64) (s32) cCONFS;
 	}
-	else	// Should we handle C0_COUNT??
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_Cop1_CTC1( R4300_CALL_SIGNATURE ) 		// move Control word To Copro 1
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	if ( op_code.fs == 31 )
 	{
-		CHECK_R0( op_code.rt );
+		cCON31 = (u32) irt;
 
-		// No specific handling needs for reads to these registers.
-		irt = (s64) (s32) ifs;
+		switch ( cCON31 & FPCSR_RM_MASK )
+		{
+		case FPCSR_RM_RN:		gRoundingMode = RM_ROUND;	break;
+		case FPCSR_RM_RZ:		gRoundingMode = RM_TRUNC;	break;
+		case FPCSR_RM_RP:		gRoundingMode = RM_CEIL;	break;
+		case FPCSR_RM_RM:		gRoundingMode = RM_FLOOR;	break;
+		default:				NODEFAULT;
+		}
+
+		SET_ROUND_MODE( gRoundingMode );
 	}
+
+	// Now generate lots of exceptions :-)
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_BC1_BC1F( R4300_CALL_SIGNATURE )		// Branch on FPU False
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	if((((u32) cCON31 & FPCSR_C)) == 0)
+	{
+		//ToDO : SpeedHack?
+
+		delay_set( iimmediate );
+	}
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_BC1_BC1T( R4300_CALL_SIGNATURE )	// Branch on FPU True
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	if((((u32)cCON31 & FPCSR_C)) != 0)
+	{
+		//ToDO : SpeedHack?
+
+		delay_set( iimmediate );
+	}
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_BC1_BC1FL( R4300_CALL_SIGNATURE )	// Branch on FPU False Likely
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	if((((u32) cCON31 & FPCSR_C)) == 0)
+	{
+		//ToDO : SpeedHack?
+
+		delay_set( iimmediate );
+	}
+	else
+	{
+		// Don't execute subsequent instruction
+		INCREMENT_PC();
+	}
+}
+//*************************************************************************************
+//
+//*************************************************************************************
+static void R4300_CALL_TYPE R4300_BC1_BC1TL( R4300_CALL_SIGNATURE )		// Branch on FPU True Likely
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	if((((u32)cCON31 & FPCSR_C)) != 0)
+	{
+		//ToDO : SpeedHack?
+
+		delay_set( iimmediate )
+	}
+	else
+	{
+		// Don't execute subsequent instruction
+		INCREMENT_PC();
+	}
+}
+//*************************************************************************************
+//
+//*************************************************************************************
+/*
+static void R4300_CALL_TYPE R4300_Cop1_C_S_Generic( R4300_CALL_SIGNATURE )
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	// fs < ft?
+	float	fX, fY;
+	bool less, equal, unordered, cond, cond0, cond1, cond2, cond3;
+
+	cond0 = (op_code._u32   ) & 0x1;
+	cond1 = (op_code._u32>>1) & 0x1;
+	cond2 = (op_code._u32>>2) & 0x1;
+	cond3 = (op_code._u32>>3) & 0x1;
+
+	fX = *((float *) &cFS);
+	fY = *((float *) &cRT);
+
+	if (pspFpuIsNaN(fX) || pspFpuIsNaN(fY))
+	{
+		//DBGConsole_Msg(0, "is nan");
+		less = false;
+		equal = false;
+		unordered = true;
+
+		// exception
+		if (cond3)
+		{
+			// Exception
+			printf( "Should throw fp nan exception?\n" );
+			return;
+		}
+	}
+	else
+	{
+		less  = (fX < fY);
+		equal = (fX == fY);
+		unordered = false;
+
+	}
+
+	cond = ((cond0 && unordered) || (cond1 && equal) || (cond2 && less));
+
+    cCON31 &= ~FPCSR_C;
+
+	if(cond)
+		cCON31 |= FPCSR_C;
+
+}
+
+template < bool FullLength > static void R4300_CALL_TYPE R4300_Cop1_C_D_Generic( R4300_CALL_SIGNATURE )
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	// fs < ft?
+	float	fX, fY;
+	bool less, equal, unordered, cond, cond0, cond1, cond2, cond3;
+
+	cond0 = (op_code._u32   ) & 0x1;
+	cond1 = (op_code._u32>>1) & 0x1;
+	cond2 = (op_code._u32>>2) & 0x1;
+	cond3 = (op_code._u32>>3) & 0x1;
+
+	fX = *((double *) &cFS);
+	fY = *((double *) &cRT);
+
+	if (pspFpuIsNaN(fX) || pspFpuIsNaN(fY))
+	{
+		//DBGConsole_Msg(0, "is nan");
+		less = false;
+		equal = false;
+		unordered = true;
+
+		// exception
+		if (cond3)
+		{
+			// Exception
+			printf( "Should throw fp nan exception?\n" );
+			return;
+		}
+	}
+	else
+	{
+		less  = (fX < fY);
+		equal = (fX == fY);
+		unordered = false;
+
+	}
+
+	cond = ((cond0 && unordered) || (cond1 && equal) || (cond2 && less));
+
+    cCON31 &= ~FPCSR_C;
+
+	if(cond)
+		cCON31 |= FPCSR_C;
+
+
+}
+*/
+void R4300_New( OpCode op_code, u32 op_code_bits )
+{
+
+	switch( op_code.op )
+	{
+	case OP_J:			R4300_J( op_code_bits );		 break;
+	case OP_JAL:		R4300_JAL( op_code_bits );		 break;
+
+	case OP_ADDI:		R4300_ADDI( op_code_bits );		 break;
+	case OP_ADDIU:		R4300_ADDIU( op_code_bits );	 break;
+	case OP_SLTI:		R4300_SLTI( op_code_bits );		 break;
+	case OP_SLTIU:		R4300_SLTIU( op_code_bits );	 break;
+
+	case OP_ANDI:		R4300_ANDI( op_code_bits );		 break;
+	case OP_ORI:		R4300_ORI( op_code_bits );		 break;
+	case OP_XORI:		R4300_XORI( op_code_bits );		 break;
+	case OP_LUI:		R4300_LUI( op_code_bits );		 break;
+
+	case OP_LB:			R4300_LB( op_code_bits );		 break;
+	case OP_LBU:		R4300_LBU( op_code_bits );		 break;
+	case OP_LH:			R4300_LH( op_code_bits );		 break;
+	case OP_LHU:		R4300_LHU( op_code_bits );		 break;
+	case OP_LW:			R4300_LW( op_code_bits );		 break;
+	case OP_LWC1:		R4300_LWC1( op_code_bits );		 break;
+	case OP_LDC1:		R4300_LDC1( op_code_bits );		 break;
+	case OP_LD:			R4300_LD( op_code_bits );		 break;
+
+	case OP_SB:			R4300_SB( op_code_bits );		 break;
+	case OP_SH:			R4300_SH( op_code_bits );		 break;
+	case OP_SW:			R4300_SW( op_code_bits );		 break;
+	case OP_SWC1:		R4300_SWC1( op_code_bits );		 break;
+	case OP_SD:			R4300_SD( op_code_bits );		 break;
+
+	case OP_BEQ:		R4300_BEQ( op_code_bits );		 break;
+	case OP_BEQL:		R4300_BEQL( op_code_bits );		 break;
+	case OP_BNE:		R4300_BNE( op_code_bits );		 break;
+	case OP_BNEL:		R4300_BNEL( op_code_bits );		 break;
+	case OP_BLEZ:		R4300_BLEZ( op_code_bits );		 break;
+	case OP_BLEZL:		R4300_BLEZL( op_code_bits );	 break;
+	case OP_BGTZ:		R4300_BGTZ( op_code_bits );		 break;
+	case OP_BGTZL:		R4300_BGTZL( op_code_bits );	 break;
+
+	case OP_CACHE:		R4300_CACHE( op_code_bits );	 break;
+
+	case OP_REGIMM:
+		switch( op_code.regimm_op )
+		{
+		case RegImmOp_BLTZ:		R4300_RegImm_BLTZ( op_code_bits );	 break;
+		case RegImmOp_BLTZL:	R4300_RegImm_BLTZL( op_code_bits );	 break;
+
+		case RegImmOp_BGEZ:		R4300_RegImm_BGEZ( op_code_bits );	 break;
+		case RegImmOp_BGEZL:	R4300_RegImm_BGEZL( op_code_bits );	 break;
+
+		case RegImmOp_BLTZAL:	R4300_RegImm_BLTZAL( op_code_bits ); break;
+		case RegImmOp_BGEZAL:	R4300_RegImm_BGEZAL( op_code_bits ); break;
+		}
+		break;
+
+	case OP_SPECOP:
+		switch( op_code.spec_op )
+		{
+		case SpecOp_SLL:	R4300_Special_SLL( op_code_bits );  break;
+		case SpecOp_SRA:	R4300_Special_SRA( op_code_bits );  break;
+		case SpecOp_SRL:	R4300_Special_SRL( op_code_bits );  break;
+		case SpecOp_SLLV:	R4300_Special_SLLV( op_code_bits ); break;
+		case SpecOp_SRAV:	R4300_Special_SRAV( op_code_bits ); break;
+		case SpecOp_SRLV:	R4300_Special_SRLV( op_code_bits ); break;
+
+		case SpecOp_JR:		R4300_Special_JR( op_code_bits );   break;
+		case SpecOp_JALR:	R4300_Special_JALR( op_code_bits ); break;
+
+		case SpecOp_MFLO:	R4300_Special_MFLO( op_code_bits ); break;
+		case SpecOp_MFHI:	R4300_Special_MFHI( op_code_bits ); break;
+		case SpecOp_MTLO:	R4300_Special_MTLO( op_code_bits ); break;
+		case SpecOp_MTHI:	R4300_Special_MTHI( op_code_bits ); break;
+
+		//XXXX
+		case SpecOp_DSLLV:	R4300_Special_DSLLV( op_code_bits ); break;
+		case SpecOp_DSRLV:	R4300_Special_DSRLV( op_code_bits ); break;
+		case SpecOp_DSRAV:	R4300_Special_DSRAV( op_code_bits ); break;
+
+		case SpecOp_MULT:	R4300_Special_MULT( op_code_bits ); break;
+		case SpecOp_MULTU:	R4300_Special_MULTU( op_code_bits ); break;
+
+		case SpecOp_DMULT:	R4300_Special_DMULT( op_code_bits ); break;
+		case SpecOp_DMULTU: R4300_Special_DMULTU( op_code_bits ); break;
+		case SpecOp_DDIV:	R4300_Special_DDIV( op_code_bits ); break;
+		case SpecOp_DDIVU:	R4300_Special_DDIVU( op_code_bits ); break;
+
+		case SpecOp_DIV:	R4300_Special_DIV( op_code_bits ); break;
+		case SpecOp_DIVU:	R4300_Special_DIVU( op_code_bits ); break;
+
+		case SpecOp_ADD:	R4300_Special_ADD( op_code_bits ); break;
+		case SpecOp_ADDU:	R4300_Special_ADDU( op_code_bits ); break;
+		case SpecOp_SUB:	R4300_Special_SUB( op_code_bits ); break;
+		case SpecOp_SUBU:	R4300_Special_SUBU( op_code_bits ); break;
+
+		case SpecOp_AND:	R4300_Special_AND( op_code_bits );    break;
+		case SpecOp_OR:		R4300_Special_OR( op_code_bits );     break;
+		case SpecOp_XOR:	R4300_Special_XOR( op_code_bits );    break;
+		case SpecOp_NOR:	R4300_Special_NOR( op_code_bits );    break;
+
+		case SpecOp_SLT:	R4300_Special_SLT( op_code_bits );    break;
+		case SpecOp_SLTU:	R4300_Special_SLTU( op_code_bits );	  break;
+
+		case SpecOp_DADD:	R4300_Special_DADD( op_code_bits );   break;
+		case SpecOp_DADDU:	R4300_Special_DADDU( op_code_bits );  break;
+		case SpecOp_DSUB:	R4300_Special_DSUB( op_code_bits );   break;
+		case SpecOp_DSUBU:	R4300_Special_DSUBU( op_code_bits );  break;
+
+		case SpecOp_DSLL:	R4300_Special_DSLL( op_code_bits );	  break;
+		case SpecOp_DSRL:	R4300_Special_DSRL( op_code_bits );	  break;
+		case SpecOp_DSRA:	R4300_Special_DSRA( op_code_bits );	  break;
+		case SpecOp_DSLL32: R4300_Special_DSLL32( op_code_bits ); break;
+		case SpecOp_DSRL32: R4300_Special_DSRL32( op_code_bits ); break;
+		case SpecOp_DSRA32: R4300_Special_DSRA32( op_code_bits ); break;
+
+		default:
+			printf(" %d\n",op_code.spec_op);
+			break;
+		}
+		break;
+/*
+	case OP_COPRO0:
+		switch( op_code.cop0_op )
+		{
+		case Cop0Op_MFC0:	R4300_Cop0_MFC0( op_code_bits ); break;
+		case Cop0Op_MTC0:	R4300_Cop0_MTC0( op_code_bits ); break;
+		default:	// TLB
+			switch( op_code.cop0tlb_funct )
+			{
+			case OP_TLBR:	R4300_TLB_TLBR( op_code_bits );	 break;
+			case OP_TLBWI:	R4300_TLB_TLBWI( op_code_bits ); break;
+			case OP_TLBWR:	R4300_TLB_TLBWR( op_code_bits ); break;
+			case OP_TLBBP:	R4300_TLB_TLBP( op_code_bits ); break;
+			case OP_ERET:	R4300_TLB_ERET( op_code_bits );  break;
+			default:
+				printf(" %d\n",op_code.cop0tlb_funct);
+				break;
+			}
+		}
+		break;
+*/
+	default:			
+		R4300_ExecuteInstruction_Generic( op_code );	
+		break;
+	}
+
 }
