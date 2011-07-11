@@ -193,9 +193,11 @@ static void BlendMode_0x002698041f14ffffLL( BLEND_MODE_ARGS )
 	details.ColourAdjuster.ModulateA( details.EnvColour );
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
+
 /*
  //#C
  */
+ 
 //Conker mouth/tail
 //case 0x00fffe8ff517f8ffLL:
 //aRGB0: (0            - 0           ) * 0            + 0
@@ -206,6 +208,21 @@ static void BlendMode_0x00fffe8ff517f8ffLL (BLEND_MODE_ARGS)
 {
 	sceGuTexEnvColor(details.EnvColour.GetColour());
 	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+}
+
+// Conker - Chainsaw Smoke
+// Ogre Battle 64 - Intro Dust
+// case 0x003432685566ff7fLL:
+//aRGB0: (Primitive    - Env         ) * Texel0_Alp   + Env
+//aA0  : (Primitive    - 0           ) * Texel0       + 0
+//aRGB1: (Primitive    - Env         ) * Texel0_Alp   + Env
+//aA1  : (Primitive    - 0           ) * Texel0       + 0
+static void BlendMode_0x003432685566ff7fLL (BLEND_MODE_ARGS)
+{
+	//Properly fixes both Ogre Battle and Conker.
+	details.ColourAdjuster.SetA(details.PrimColour);
+	sceGuTexEnvColor(details.EnvColour.GetColour());
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
 }
 
 //Command & Conquer - Water
@@ -335,6 +352,29 @@ static void BlendMode_0x0017166045fe7f78LL (BLEND_MODE_ARGS)
 {
 	details.ColourAdjuster.SetA(details.PrimColour);
 	sceGuTexEnvColor(details.PrimColour.GetColour());
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
+
+// Doubutsu no Mori - River
+// case 0x0030e2045f1af47bLL:
+//aRGB0: (Primitive    - Env         ) * Texel0       + Env
+//aA0  : (1            - 0           ) * Texel0       + Texel1
+//aRGB1: (Combined     - 0           ) * Shade        + Texel0
+//aA1  : (Combined     - 0           ) * 1            + Primitive
+static void BlendMode_0x0030e2045f1af47bLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.EnvColour);
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+}
+
+// Doubutsu no Mori - Running Smoke
+// case 0x00ffac80ff0d93ffLL:
+//aRGB0: (0            - 0           ) * 0            + Primitive
+//aA0  : (Texel1       - Texel0      ) * 1            + Texel0
+//aRGB1: (Shade        - 0           ) * Combined     + 0
+//aA1  : (Combined     - 0           ) * Primitive    + 0
+static void BlendMode_0x00ffac80ff0d93ffLL (BLEND_MODE_ARGS)
+{
 	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
 }
 
@@ -487,8 +527,10 @@ static void BlendMode_0x00fffe6af5fcf438LL (BLEND_MODE_ARGS)
 //aA1  : (0            - 0           ) * 0            + Combined
 static void BlendMode_0x0030fe045ffefdf8LL (BLEND_MODE_ARGS)
 {
-	details.ColourAdjuster.SetRGB(details.EnvColour);
-	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+	//Below blend fixes the ground on the first level, but breaks many other things. Reverted.
+	//details.ColourAdjuster.SetRGB(details.EnvColour);
+	//sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
 }
 
 //Kirby 64 - some parts of the Ground
@@ -623,19 +665,6 @@ static void BlendMode_0x00ffb3ffff00fe3fLL (BLEND_MODE_ARGS)
  //#O
  */
 
-// Ogre Battle - Intro Dust
-// case 0x003432685566ff7fLL:
-//aRGB0: (Primitive    - Env         ) * Texel0_Alp   + Env
-//aA0  : (Primitive    - 0           ) * Texel0       + 0
-//aRGB1: (Primitive    - Env         ) * Texel0_Alp   + Env
-//aA1  : (Primitive    - 0           ) * Texel0       + 0
-static void BlendMode_0x003432685566ff7fLL (BLEND_MODE_ARGS)
-{
-	details.ColourAdjuster.SetRGBA(details.PrimColour);
-	details.ColourAdjuster.ModulateA(details.PrimColour);
-	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
-}
-
 /*
  //#P
  */
@@ -701,6 +730,23 @@ static void BlendMode_0x0061a5ff1f10d23fLL (BLEND_MODE_ARGS)
 {
 	details.ColourAdjuster.SetRGB(details.PrimColour);
 	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
+
+//Paper Mario - Dust When Characters Walk.
+//case 0x00ffabffff0d92ffLL:
+//aRGB0: (0            - 0           ) * 0            + Primitive   
+//aA0  : (Texel1       - Texel0      ) * Env          + Texel0      
+//aRGB1: (0            - 0           ) * 0            + Primitive   
+//aA1  : (Combined     - 0           ) * Primitive    + 0       
+static void BlendMode_0x00ffabffff0d92ffLL (BLEND_MODE_ARGS)
+{
+	//Copied from old blend file.	
+	if( num_cycles != 1 )
+	{
+		details.ColourAdjuster.SetA( details.EnvColour );
+	}
+	details.ColourAdjuster.SetRGB( details.PrimColour );
+	sceGuTexFunc(GU_TFX_ADD,GU_TCC_RGBA);
 }
 
 // Pokemon Stadium - Balloons
@@ -1082,6 +1128,18 @@ static void BlendMode_0x00127e2433fdf8fcLL (BLEND_MODE_ARGS)
 static void BlendMode_0x0022ffff1ffcfa38LL (BLEND_MODE_ARGS)
 {
 	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+}
+
+// Wave Race 64 - Menu
+// case 0x00fffffffffe793cLL:
+//aRGB0: (0            - 0           ) * 0            + Shade
+//aA0  : (0            - 0           ) * 0            + Shade
+//aRGB1: (0            - 0           ) * 0            + Shade
+//aA1  : (0            - 0           ) * 0            + Shade
+static void BlendMode_0x00fffffffffe793cLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.ModulateA(details.PrimColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
 /*
@@ -1642,6 +1700,8 @@ OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 			BLEND_MODE(0x00ffffffff09f63fLL); // THPS Text
 			BLEND_MODE(0x00129bfffffffe38LL); // Hexen - Arms
 			BLEND_MODE(0x00fffe6af5fcf438LL); // Killer Instinct Characters and HUD
+			BLEND_MODE(0x00fffffffffe793cLL); // Wave Race 64 - Menu
+			
 
 	#undef BLEND_MODE 
 	}
@@ -1722,6 +1782,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0030b26144664924LL); // Duke 3D and Mario Head
 			BLEND_MODE(0x0030b2615566db6dLL); // Kirby Air seeds, Ridge racer text
 			BLEND_MODE(0x0030b3ff5ffeda38LL); // OOT Sign Cut (Sword)
+			BLEND_MODE(0x0030e2045f1af47bLL); // Animal Crossing - River
 			BLEND_MODE(0x0030ec6155daed76LL); // Cucukan Egg
 			BLEND_MODE(0x0030ec045fdaedf6LL); // Zelda Arrows in Shop
 			BLEND_MODE(0x0030fe045f0ef3ffLL); // Gold Skulltula Eyes
@@ -1732,7 +1793,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0030fe045ffefdfeLL); // Zelda Kokori Sword Handle
 			BLEND_MODE(0x003096045ffefff8LL); // Pokemon Stadium - Balloons
 			BLEND_MODE(0x00322bff5f0e923fLL); // Paper Mario Fireblast
-			BLEND_MODE(0x003432685566ff7fLL); // Ogre Battle - Intro Dust
+			BLEND_MODE(0x003432685566ff7fLL); // Ogre Battle - Intro Dust / Conker - Chainsaw Smoke
 			BLEND_MODE(0x00373c6e117b9fcfLL); // OOT - Lens of Truth
 			BLEND_MODE(0x0040fe8155fef97cLL); // GoldenEye Sky
 			BLEND_MODE(0x0040fe8155fefd7eLL); // Kirby Far Terrain
@@ -1752,6 +1813,8 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0077666045fd7f78LL); // Pokemon Stadium 2 Intro Pichu
 			BLEND_MODE(0x00f517eaff2fffffLL); // Killer Instinct Shadows
 			BLEND_MODE(0x00ff95ffff0dfe3fLL); // Animal Crossing Player Shadow
+			BLEND_MODE(0x00ffabffff0d92ffLL); // Paper Mario - Walking Dust
+			BLEND_MODE(0x00ffac80ff0d93ffLL); // Animal Crossing - Running Smoke
 			BLEND_MODE(0x00ffb3ffff00fe3fLL); // Mega Man 64 Explosion
 			BLEND_MODE(0x00fffe8ff517f8ffLL); // Conker Mouth/Tail
 			BLEND_MODE(0x0015982bff327f3fLL);
