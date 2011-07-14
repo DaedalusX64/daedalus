@@ -1131,17 +1131,24 @@ static void BlendMode_0x0022ffff1ffcfa38LL (BLEND_MODE_ARGS)
 }
 
 // Wave Race 64 - Menu
+//Breaks Super Mario 64.
 // case 0x00fffffffffe793cLL:
 //aRGB0: (0            - 0           ) * 0            + Shade
 //aA0  : (0            - 0           ) * 0            + Shade
 //aRGB1: (0            - 0           ) * 0            + Shade
 //aA1  : (0            - 0           ) * 0            + Shade
-//static void BlendMode_0x00fffffffffe793cLL (BLEND_MODE_ARGS)
-//{
-	//Breaks Super Mario 64.
-	//details.ColourAdjuster.ModulateA(details.PrimColour);
-	//sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
-//}
+static void BlendMode_0x00fffffffffe793cLL (BLEND_MODE_ARGS)
+{
+	if (g_ROM.GameHacks == WAVERACER) 
+	{
+		details.ColourAdjuster.ModulateA(details.PrimColour);
+		sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+	}
+	else
+	{
+		details.InstallTexture = false;
+	}
+}
 
 /*
  //#X
@@ -1701,7 +1708,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 			BLEND_MODE(0x00ffffffff09f63fLL); // THPS Text
 			BLEND_MODE(0x00129bfffffffe38LL); // Hexen - Arms
 			BLEND_MODE(0x00fffe6af5fcf438LL); // Killer Instinct Characters and HUD
-			//BLEND_MODE(0x00fffffffffe793cLL); // Wave Race 64 - Menu
+			BLEND_MODE(0x00fffffffffe793cLL); // Wave Race 64 - Menu
 			
 
 	#undef BLEND_MODE 

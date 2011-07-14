@@ -124,6 +124,7 @@ enum EGameHacks
 	BODY_HARVEST,
 	AIDYN_CRONICLES,
 	ISS64,
+	WAVERACER,
 };
 
 //*****************************************************************************
