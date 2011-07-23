@@ -20,17 +20,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Microcode.h"
 
 #include "Core/Memory.h"
-#include "Core/ROM.h"
-#include "Core/R4300OpCode.h"
-
-#include "Debug/Dump.h"
 #include "Debug/DBGConsole.h"
-
 #include "Math/Math.h"	// pspFastRand()
-
 #include "Utility/Hash.h"
-#include "Utility/IO.h"
-#include "Utility/Preferences.h"
 
 // Limit cache ucode entries to 12
 // This is done for performance reasons
@@ -72,11 +64,11 @@ struct MicrocodeData
 //
 struct UcodeInfo
 {
-	bool used;
-
 	u32	ucode;
 	u32	code_base;
 	u32	data_base;
+
+	bool used;
 };
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
@@ -216,7 +208,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 			//
 			GBIMicrocode_Cache( index, code_base, data_base, gMicrocodeData[ i ].ucode);
 
-			DBGConsole_Msg(0, "Ucode has been Detected in Array :[M\%s, Ucode %d]", str, gMicrocodeData[ i ].ucode);
+			DBGConsole_Msg(0, "Ucode has been Detected in Array :[M\"%s\", Ucode %d]", str, gMicrocodeData[ i ].ucode);
 			return gMicrocodeData[ i ].ucode;
 		}
 	}

@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "gspCommon.h"
 
 
-u32 ConkerVtxZAddr = 0;
+u32 gConkerVtxZAddr = 0;
 u32 PDCIAddr = 0;
 
 // DKR verts are extra 4 bytes
@@ -720,14 +720,6 @@ void DLParser_GBI2_Conker( MicroCodeCommand command )
     }
 }
 #endif
-//*****************************************************************************
-//
-//*****************************************************************************
-void RDP_GFX_Force_Vertex_Z_Conker(u32 address)
-{
-
-	ConkerVtxZAddr = address;
-}
 
 //*****************************************************************************
 //
@@ -739,7 +731,7 @@ void RSP_MoveMem_Conker( MicroCodeCommand command )
 
 	if( type == G_GBI2_MV_MATRIX )
 	{
-		RDP_GFX_Force_Vertex_Z_Conker(address);
+		gConkerVtxZAddr = address;
 	}
 	else if( type == G_GBI2_MV_LIGHT )
 	{

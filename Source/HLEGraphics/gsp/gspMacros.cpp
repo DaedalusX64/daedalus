@@ -193,13 +193,13 @@ void DLParser_GBI1_Mtx( MicroCodeCommand command )
 	}
 }
 
-extern u32 ConkerVtxZAddr;
+extern u32 gConkerVtxZAddr;
 //*****************************************************************************
 //
 //*****************************************************************************
 void DLParser_GBI2_Mtx( MicroCodeCommand command )
 {
-	ConkerVtxZAddr = 0;	// For Conker BFD
+	gConkerVtxZAddr = 0;	// For Conker BFD
 	u32 address = RDPSegAddr(command.mtx2.addr);
 
 	DL_PF("    Command: %s %s %s Length %d Address 0x%08x",
