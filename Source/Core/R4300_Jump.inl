@@ -251,27 +251,16 @@ CPU_Instruction R4300Cop1SInstruction[64] = {
 */
 
 // Double Jump Table
-CPU_Instruction R4300Cop1DInstruction_64[64] = {
-    R4300_Cop1_D_ADD<true>,     R4300_Cop1_D_SUB<true>,     R4300_Cop1_D_MUL<true>,    R4300_Cop1_D_DIV<true>,     R4300_Cop1_D_SQRT<true>,    R4300_Cop1_D_ABS<true>,     R4300_Cop1_D_MOV<true>,    R4300_Cop1_D_NEG<true>,
-    R4300_Cop1_D_ROUND_L<true>, R4300_Cop1_D_TRUNC_L<true>, R4300_Cop1_D_CEIL_L<true>, R4300_Cop1_D_FLOOR_L<true>, R4300_Cop1_D_ROUND_W<true>, R4300_Cop1_D_TRUNC_W<true>, R4300_Cop1_D_CEIL_W<true>, R4300_Cop1_D_FLOOR_W<true>,
-    R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_Unk<true>,    R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_Unk<true>,    R4300_Cop1_D_Unk<true>, 
-    R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_Unk<true>,    R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_Unk<true>,    R4300_Cop1_D_Unk<true>, 
-    R4300_Cop1_D_CVT_S<true>,   R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_Unk<true>,    R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_CVT_W<true>,   R4300_Cop1_D_CVT_L<true>,   R4300_Cop1_D_Unk<true>,    R4300_Cop1_D_Unk<true>,
-    R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_Unk<true>,    R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_Unk<true>,     R4300_Cop1_D_Unk<true>,    R4300_Cop1_D_Unk<true>, 
-    R4300_Cop1_D_F<true>,       R4300_Cop1_D_UN<true>,      R4300_Cop1_D_EQ<true>,     R4300_Cop1_D_UEQ<true>,     R4300_Cop1_D_OLT<true>,     R4300_Cop1_D_ULT<true>,     R4300_Cop1_D_OLE<true>,    R4300_Cop1_D_ULE<true>,
-    R4300_Cop1_D_SF<true>,      R4300_Cop1_D_NGLE<true>,    R4300_Cop1_D_SEQ<true>,    R4300_Cop1_D_NGL<true>,     R4300_Cop1_D_LT<true>,      R4300_Cop1_D_NGE<true>,     R4300_Cop1_D_LE<true>,     R4300_Cop1_D_NGT<true>,
-};
-
 CPU_Instruction R4300Cop1DInstruction_32[64] =
 {
-    R4300_Cop1_D_ADD<false>,     R4300_Cop1_D_SUB<false>,     R4300_Cop1_D_MUL<false>,    R4300_Cop1_D_DIV<false>,     R4300_Cop1_D_SQRT<false>,    R4300_Cop1_D_ABS<false>,     R4300_Cop1_D_MOV<false>,    R4300_Cop1_D_NEG<false>,
-    R4300_Cop1_D_ROUND_L<false>, R4300_Cop1_D_TRUNC_L<false>, R4300_Cop1_D_CEIL_L<false>, R4300_Cop1_D_FLOOR_L<false>, R4300_Cop1_D_ROUND_W<false>, R4300_Cop1_D_TRUNC_W<false>, R4300_Cop1_D_CEIL_W<false>, R4300_Cop1_D_FLOOR_W<false>,
-    R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_Unk<false>,    R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_Unk<false>,    R4300_Cop1_D_Unk<false>, 
-    R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_Unk<false>,    R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_Unk<false>,    R4300_Cop1_D_Unk<false>, 
-    R4300_Cop1_D_CVT_S<false>,   R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_Unk<false>,    R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_CVT_W<false>,   R4300_Cop1_D_CVT_L<false>,   R4300_Cop1_D_Unk<false>,    R4300_Cop1_D_Unk<false>,
-    R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_Unk<false>,    R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_Unk<false>,     R4300_Cop1_D_Unk<false>,    R4300_Cop1_D_Unk<false>, 
-    R4300_Cop1_D_F<false>,       R4300_Cop1_D_UN<false>,      R4300_Cop1_D_EQ<false>,     R4300_Cop1_D_UEQ<false>,     R4300_Cop1_D_OLT<false>,     R4300_Cop1_D_ULT<false>,     R4300_Cop1_D_OLE<false>,    R4300_Cop1_D_ULE<false>,
-    R4300_Cop1_D_SF<false>,      R4300_Cop1_D_NGLE<false>,    R4300_Cop1_D_SEQ<false>,    R4300_Cop1_D_NGL<false>,     R4300_Cop1_D_LT<false>,      R4300_Cop1_D_NGE<false>,     R4300_Cop1_D_LE<false>,     R4300_Cop1_D_NGT<false>,
+    R4300_Cop1_D_ADD,     R4300_Cop1_D_SUB,     R4300_Cop1_D_MUL,    R4300_Cop1_D_DIV,     R4300_Cop1_D_SQRT,    R4300_Cop1_D_ABS,     R4300_Cop1_D_MOV,    R4300_Cop1_D_NEG,
+    R4300_Cop1_D_ROUND_L, R4300_Cop1_D_TRUNC_L, R4300_Cop1_D_CEIL_L, R4300_Cop1_D_FLOOR_L, R4300_Cop1_D_ROUND_W, R4300_Cop1_D_TRUNC_W, R4300_Cop1_D_CEIL_W, R4300_Cop1_D_FLOOR_W,
+    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk, 
+    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk, 
+    R4300_Cop1_D_CVT_S,   R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk,     R4300_Cop1_D_CVT_W,   R4300_Cop1_D_CVT_L,   R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk,
+    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk, 
+    R4300_Cop1_D_F,       R4300_Cop1_D_UN,      R4300_Cop1_D_EQ,     R4300_Cop1_D_UEQ,     R4300_Cop1_D_OLT,     R4300_Cop1_D_ULT,     R4300_Cop1_D_OLE,    R4300_Cop1_D_ULE,
+    R4300_Cop1_D_SF,      R4300_Cop1_D_NGLE,    R4300_Cop1_D_SEQ,    R4300_Cop1_D_NGL,     R4300_Cop1_D_LT,      R4300_Cop1_D_NGE,     R4300_Cop1_D_LE,     R4300_Cop1_D_NGT,
 };
 
 
@@ -286,14 +275,7 @@ void R4300_CALL_TYPE R4300_Cop1_DInstr( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	if (gCPUState.CPUControl[C0_SR]._u32_0 & SR_FR)
-	{
-		R4300Cop1DInstruction_64[ op_code.cop1_funct ]( R4300_CALL_ARGUMENTS );
-	}
-	else
-	{
-		R4300Cop1DInstruction_32[ op_code.cop1_funct ]( R4300_CALL_ARGUMENTS );
-	}
+	R4300Cop1DInstruction_32[ op_code.cop1_funct ]( R4300_CALL_ARGUMENTS );
 }
 
 void R4300_CALL_TYPE R4300_Cop1_LInstr( R4300_CALL_SIGNATURE )
