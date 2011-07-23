@@ -40,12 +40,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #define	R4300_CALL_MAKE_OP( var )	OpCode	var;	var._u32 = op_code_bits
 
-#define INSTR_TARGET		( (gCPUState.CurrentPC & 0xF0000000) | (op_code.target<<2) )
-#define OFFSET_IMMEDIATE	((s16)(op_code.immediate))
-
-// Cheat to avoid int long long, let's see how it goes..
-#define STORE_LINK(X)	{ gGPR[X]._s32_0 = (s32)(gCPUState.CurrentPC + 8 ); } 
-
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -665,11 +659,12 @@ static void R4300_CALL_TYPE R4300_J( R4300_CALL_SIGNATURE ) 				// Jump
 
 	u32 new_pc( (gCPUState.CurrentPC & 0xF0000000) | (op_code.target<<2) );
 
-	if( new_pc == gCPUState.CurrentPC )
+	// Doesn't do anything.. should be gCPUState.CurrentPC == gCPUState.TargetPC, but breaks PMario for some reasons
+	/*if( new_pc == gCPUState.CurrentPC )
 	{
 		SpeedHack( gCPUState.CurrentPC, op_code );
-	}
-	CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+	}*/
+	CPU_TakeBranch( new_pc );
 }
 
 static void R4300_CALL_TYPE R4300_JAL( R4300_CALL_SIGNATURE ) 				// Jump And Link
@@ -677,11 +672,10 @@ static void R4300_CALL_TYPE R4300_JAL( R4300_CALL_SIGNATURE ) 				// Jump And Li
 	R4300_CALL_MAKE_OP( op_code );
 
 	// Store return address
-	STORE_LINK(REG_ra);
+	gGPR[REG_ra]._s64 = (s64)(s32)(gCPUState.CurrentPC + 8);		// Store return address
+	u32	new_pc( (gCPUState.CurrentPC & 0xF0000000) | (op_code.target<<2) );
 
-	u32 new_pc = INSTR_TARGET;
-
-	CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+	CPU_TakeBranch( new_pc );
 }
 
 static void R4300_CALL_TYPE R4300_BEQ( R4300_CALL_SIGNATURE ) 		// Branch on Equal
@@ -701,7 +695,7 @@ static void R4300_CALL_TYPE R4300_BEQ( R4300_CALL_SIGNATURE ) 		// Branch on Equ
 		}
 
 		u32 new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 }
 
@@ -722,7 +716,7 @@ static void R4300_CALL_TYPE R4300_BNE( R4300_CALL_SIGNATURE )             // Bra
 		}
 
 		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 }
 
@@ -744,7 +738,7 @@ static void R4300_CALL_TYPE R4300_BLEZ( R4300_CALL_SIGNATURE ) 			// Branch on L
 		}
 
 		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 }
 
@@ -766,7 +760,7 @@ static void R4300_CALL_TYPE R4300_BGTZ( R4300_CALL_SIGNATURE ) 			// Branch on G
 		}
 
 		u32 new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 }
 
@@ -913,7 +907,7 @@ static void R4300_CALL_TYPE R4300_BEQL( R4300_CALL_SIGNATURE ) 			// Branch on E
 		}
 
 		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 	else
 	{
@@ -937,7 +931,7 @@ static void R4300_CALL_TYPE R4300_BNEL( R4300_CALL_SIGNATURE ) 			// Branch on N
 		}
 
 		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 	else
 	{
@@ -958,7 +952,7 @@ static void R4300_CALL_TYPE R4300_BLEZL( R4300_CALL_SIGNATURE ) 		// Branch on L
 			SpeedHack( gCPUState.CurrentPC, op_code );
 		}
 		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 	else
 	{
@@ -975,7 +969,7 @@ static void R4300_CALL_TYPE R4300_BGTZL( R4300_CALL_SIGNATURE ) 		// Branch on G
 	if ( gGPR[op_code.rs]._s64 > 0 )
 	{
 		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 	else
 	{
@@ -1434,7 +1428,7 @@ static void R4300_CALL_TYPE R4300_Special_JR( R4300_CALL_SIGNATURE ) 			// Jump 
 
 	u32	new_pc( gGPR[ op_code.rs ]._u32_0 );
 
-	CPU_TakeBranch( new_pc, CPU_BRANCH_INDIRECT );
+	CPU_TakeBranch( new_pc );
 }
 
 
@@ -1445,10 +1439,9 @@ static void R4300_CALL_TYPE R4300_Special_JALR( R4300_CALL_SIGNATURE ) 		// Jump
 	// Jump And Link
 	u32	new_pc( gGPR[ op_code.rs ]._u32_0 );
 
-	// Store return address
-	STORE_LINK( op_code.rd );
+	gGPR[ op_code.rd ]._s64 = (s64)(s32)(gCPUState.CurrentPC + 8);		// Store return address;
 
-	CPU_TakeBranch( new_pc, CPU_BRANCH_INDIRECT );
+	CPU_TakeBranch( new_pc );
 }
 
 
@@ -1874,7 +1867,7 @@ static void R4300_CALL_TYPE R4300_RegImm_BLTZ( R4300_CALL_SIGNATURE ) 			// Bran
 		}
 
 		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 }
 
@@ -1886,7 +1879,7 @@ static void R4300_CALL_TYPE R4300_RegImm_BLTZL( R4300_CALL_SIGNATURE ) 			// Bra
 	if ( gGPR[ op_code.rs ]._s64 < 0 )
 	{
 		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 	else
 	{
@@ -1903,12 +1896,12 @@ static void R4300_CALL_TYPE R4300_RegImm_BLTZAL( R4300_CALL_SIGNATURE ) 		// Bra
 	// Store the return address even if branch not taken
 
 	// Store return address
-	STORE_LINK( REG_ra );
+	gGPR[REG_ra]._s64 = (s64)(s32)(gCPUState.CurrentPC + 8);		// Store return address	
 
 	if ( gGPR[ op_code.rs ]._s64 < 0 )
 	{
 		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 }
 
@@ -1927,7 +1920,7 @@ static void R4300_CALL_TYPE R4300_RegImm_BGEZ( R4300_CALL_SIGNATURE ) 			// Bran
 		}
 
 		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 }
 
@@ -1939,7 +1932,7 @@ static void R4300_CALL_TYPE R4300_RegImm_BGEZL( R4300_CALL_SIGNATURE ) 			// Bra
 	if ( gGPR[ op_code.rs ]._s64 >= 0 )
 	{
 		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 	else
 	{
@@ -1955,13 +1948,12 @@ static void R4300_CALL_TYPE R4300_RegImm_BGEZAL( R4300_CALL_SIGNATURE ) 		// Bra
 	//branch if rs >= 0
 	// This always happens, even if branch not taken
 
-	// Store return address
-	STORE_LINK( REG_ra );
+	gGPR[REG_ra]._s64 = (s64)(s32)(gCPUState.CurrentPC + 8);		// Store return address	
 
 	if ( gGPR[ op_code.rs ]._s64 >= 0 )
 	{
 		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 }
 
@@ -2347,7 +2339,7 @@ static void R4300_CALL_TYPE R4300_BC1_BC1F( R4300_CALL_SIGNATURE )		// Branch on
 	if ( !(gCPUState.FPUControl[31]._u64 & FPCSR_C) )
 	{
 		u32	new_pc( gCPUState.CurrentPC + (s32)(s16)op_code.immediate*4 + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 }
 
@@ -2358,7 +2350,7 @@ static void R4300_CALL_TYPE R4300_BC1_BC1T( R4300_CALL_SIGNATURE )	// Branch on 
 	if ( gCPUState.FPUControl[31]._u64 & FPCSR_C )
 	{
 		u32	new_pc( gCPUState.CurrentPC + (s32)(s16)op_code.immediate*4 + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 }
 
@@ -2369,7 +2361,7 @@ static void R4300_CALL_TYPE R4300_BC1_BC1FL( R4300_CALL_SIGNATURE )	// Branch on
 	if ( !(gCPUState.FPUControl[31]._u64 & FPCSR_C) )
 	{
 		u32	new_pc( gCPUState.CurrentPC + (s32)(s16)op_code.immediate*4 + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 	else
 	{
@@ -2385,7 +2377,7 @@ static void R4300_CALL_TYPE R4300_BC1_BC1TL( R4300_CALL_SIGNATURE )		// Branch o
 	if ( gCPUState.FPUControl[31]._u64 & FPCSR_C )
 	{
 		u32	new_pc( gCPUState.CurrentPC + (s32)(s16)op_code.immediate*4 + 4 );
-		CPU_TakeBranch( new_pc, CPU_BRANCH_DIRECT );
+		CPU_TakeBranch( new_pc );
 	}
 	else
 	{

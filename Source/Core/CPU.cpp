@@ -896,16 +896,6 @@ void CPU_UpdateCounterNoInterrupt( u32 ops_executed )
 }
 
 //*****************************************************************************
-//
-//*****************************************************************************
-void CPU_TakeBranch( u32 new_pc, ECPUBranchType branch_type )
-{
-	gCPUState.TargetPC = new_pc;
-	gCPUState.Delay = DO_DELAY;
-}
-
-
-//*****************************************************************************
 //	Return true if change the core
 //*****************************************************************************
 bool	CPU_CheckStuffToDo()

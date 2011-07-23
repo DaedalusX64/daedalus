@@ -119,7 +119,6 @@ ALIGNED_TYPE(struct, SCPUState, CACHE_ALIGN)
 ALIGNED_EXTERN(SCPUState, gCPUState, CACHE_ALIGN);
 
 #define gGPR (gCPUState.CPU)
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -155,6 +154,8 @@ inline void CPU_SetPC( u32 pc )		{ gCPUState.CurrentPC = pc; }
 inline void INCREMENT_PC()			{ gCPUState.CurrentPC += 4; }
 inline void DECREMENT_PC()			{ gCPUState.CurrentPC -= 4; }
 
+inline void CPU_TakeBranch( u32 new_pc ){	gCPUState.TargetPC = new_pc;	gCPUState.Delay = DO_DELAY;	}
+
 
 #define COUNTER_INCREMENT_PER_OP			1
 //*****************************************************************************
@@ -174,13 +175,16 @@ static volatile u32 eventQueueLocked;
 //*****************************************************************************
 //
 //*****************************************************************************
+/*
 enum ECPUBranchType
 {
 	CPU_BRANCH_DIRECT = 0,		// i.e. jump to a fixed address
 	CPU_BRANCH_INDIRECT,		// i.e. jump to the contents of a register
 };
-
-void	CPU_TakeBranch( u32 new_pc, ECPUBranchType branch_type );
+*/
+//*****************************************************************************
+//
+//*****************************************************************************
 void	CPU_ExecuteOpRaw( u32 count, u32 address, OpCode op_code, CPU_Instruction p_instruction, bool * p_branch_taken );
 
 // Needs to be callable from assembly

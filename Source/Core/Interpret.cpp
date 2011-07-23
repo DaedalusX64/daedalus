@@ -55,9 +55,9 @@ template< bool TranslateOp > __forceinline void CPU_EXECUTE_OP()
 		return;
 	}
 
+#ifdef DAEDALUS_BREAKPOINTS_ENABLED
 	if ( TranslateOp )
 	{
-#ifdef DAEDALUS_BREAKPOINTS_ENABLED
 		// Handle breakpoints correctly
 		if (op_code.op == OP_DBG_BKPT)
 		{
@@ -74,11 +74,11 @@ template< bool TranslateOp > __forceinline void CPU_EXECUTE_OP()
 			}
 		}
 		else
-#endif
 		{
 			op_code = GetCorrectOp( op_code );
 		}
 	}
+#endif
 
 	SYNCH_POINT( DAED_SYNC_REG_PC, gCPUState.CurrentPC, "Program Counter doesn't match" );
 	SYNCH_POINT( DAED_SYNC_FRAGMENT_PC, gCPUState.CurrentPC + gCPUState.Delay, "Program Counter/Delay doesn't match while interpreting" );
