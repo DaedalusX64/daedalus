@@ -137,7 +137,6 @@ class	IController : public CController
 		//
 		//
 		//
-		//void			FormatChannels();
 
 		bool			ProcessController(u8 *cmd, u32 device);
 		bool			ProcessEeprom(u8 *cmd);
@@ -151,8 +150,9 @@ class	IController : public CController
 		void			CommandReadRTC(u8 *cmd);
 
 		u8				CalculateDataCrc(u8 * pBuf);
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 		bool			IsEepromPresent() const						{ return mpEepromData != NULL; }
+#endif
 		u8				GetEepromContType() const					{ return mEepromContType; }
 
 		u8				Byte2Bcd(int n)								{ n %= 100; return ((n / 10) << 4) | (n % 10); }
@@ -192,16 +192,6 @@ class	IController : public CController
 		u8				mpInput[ 64 ];
 #endif
 
-		/*struct SChannelFormat
-		{
-			bool		Skipped;
-			u32			StatusByte;
-			u32			RxDataStart;
-			u32			RxDataLength;
-			u32			TxDataStart;
-			u32			TxDataLength;
-		};*/
-
 		enum EPIFChannels
 		{
 			PC_CONTROLLER_0 = 0,
@@ -222,16 +212,12 @@ class	IController : public CController
 
 		u8 *			mpEepromData;
 		u8				mEepromContType;					// 0, CONT_EEPROM or CONT_EEP16K
-		u32				mEepromSize;
 
 		u8				*mMemPack[ NUM_CONTROLLERS ];
 
-		//SChannelFormat	mChannelFormat[ NUM_CHANNELS ];
-		//u8				rumble[32];
-
-	#ifdef DAEDALUS_DEBUG_PIF
+#ifdef DAEDALUS_DEBUG_PIF
 		FILE *			mDebugFile;
-	#endif
+#endif
 
 };
 
@@ -253,8 +239,7 @@ template<> bool	CSingleton< CController >::Create()
 //*****************************************************************************
 IController::IController() :
 	mpPifRam( NULL ),
-	mpEepromData( NULL ),
-	mEepromSize( 0 )
+	mpEepromData( NULL )
 {
 #ifdef DAEDALUS_DEBUG_PIF
 	mDebugFile = fopen( "controller.txt", "w" );
@@ -265,12 +250,6 @@ IController::IController() :
 		mContMemPackPresent[ i ] = false;
 	}
 	mContMemPackPresent[ 0 ] = true;
-
-	//memset( mChannelFormat, 0, sizeof( mChannelFormat ) );
-	/*for ( u32 i = 0; i < NUM_CHANNELS; i++ )
-	{
-		mChannelFormat[ i ].Skipped = true;
-	}*/
 }
 
 //*****************************************************************************
@@ -303,23 +282,21 @@ bool IController::OnRomOpen()
 
 	if ( save_type == SAVE_TYPE_EEP4K )
 	{
-		mEepromSize = 4096/8;					// 4k bits
+						
 		mpEepromData = (u8*)g_pMemoryBuffers[MEM_SAVE];
-		mEepromContType = 0x80;
-
-		DBGConsole_Msg( 0, "Initialising EEPROM to [M%d] bytes", mEepromSize );
+		mEepromContType = 0x80;	
+		DBGConsole_Msg( 0, "Initialising EEPROM to [M%d] bytes", 4096/8 );	// 4k bits
 	}
 	else if ( save_type == SAVE_TYPE_EEP16K )
 	{
-		mEepromSize = 16384/8;					// 16 kbits
+		
 		mpEepromData = (u8*)g_pMemoryBuffers[MEM_SAVE];
 		mEepromContType = 0xC0;
+		DBGConsole_Msg( 0, "Initialising EEPROM to [M%d] bytes", 16384/8 );	// 16 kbits
 
-		DBGConsole_Msg( 0, "Initialising EEPROM to [M%d] bytes", mEepromSize );
 	}
 	else
 	{
-		mEepromSize = 0;
 		mpEepromData = NULL;
 		mEepromContType = 0x00;
 	}

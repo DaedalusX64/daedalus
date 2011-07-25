@@ -87,9 +87,6 @@ static ERoundingMode	gRoundingMode( RM_ROUND );
 // If the hardware doesn't support doubles in hardware - use 32 bits floats and accept the loss in precision
 typedef f32 d64;
 
-// Buck Bumble doesn't like floats, we use this type to for our "hack" to fix it :)
-typedef f64 b64;
-
 
 inline void SpeedHack( u32 pc, OpCode op )
 {
@@ -162,7 +159,7 @@ inline u64 LoadFPR_Long( u32 reg )
 	res._u32_0 = gCPUState.FPU[reg+0]._u32_0;
 
 	// Disabled, looks suspicious to me, I don't think it does what we want here? ~Salvy
-	/*if (res._u64_sim == SIMULATESIG)
+	/*if (res._f64_unused == SIMULATESIG)
 	{
 		res._f64 = (f64)res._f64_sim;
 	}*/
@@ -180,7 +177,7 @@ inline d64 LoadFPR_Double( u32 reg )
 	res._u32_1 = gCPUState.FPU[reg+1]._u32_0;
 	res._u32_0 = gCPUState.FPU[reg+0]._u32_0;
 
-	if (res._u64_sim == SIMULATESIG)
+	if (res._f64_unused == SIMULATESIG)
 	{
 		// converted
 		return (d64)res._f64_sim;
@@ -197,8 +194,8 @@ inline d64 LoadFPR_Double( u32 reg )
 inline void StoreFPR_Double( u32 reg, d64 value )
 {
 	REG64 r; 
-	r._u64_sim = SIMULATESIG;
-	r._f64_sim = f32( value );
+	r._f64_unused = SIMULATESIG;
+	r._f64_sim	  = f32( value );
 
 	// This fixes Mario Party's draft mini game.
 	// And green / static textures bug in Conker.
@@ -219,7 +216,7 @@ inline void StoreFPR_Double( u32 reg, d64 value )
 // Check R4300_Cop1_D_ADD for reference.
 //
 // ToDO : Simplify this or find a workaround for this hack..
-inline void StoreFPR_Double_2( u32 reg, b64 value )
+void StoreFPR_Double_2( u32 reg, f64 value )
 {
 	REG64	r;
 	r._f64 = f64( value );	// double.. float won't work for buck bumble
@@ -586,10 +583,7 @@ static void R4300_CALL_TYPE R4300_CoPro1_Disabled( R4300_CALL_SIGNATURE )
 }
 */
 // These are the only unimplemented R4300 instructions now:
-static void R4300_CALL_TYPE R4300_LL( R4300_CALL_SIGNATURE ) 
-{ 
-	WARN_NOIMPL("LL"); 
-}
+static void R4300_CALL_TYPE R4300_LL( R4300_CALL_SIGNATURE ) { WARN_NOIMPL("LL"); }
 static void R4300_CALL_TYPE R4300_LLD( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("LLD"); }
 
 static void R4300_CALL_TYPE R4300_SC( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("SC"); }

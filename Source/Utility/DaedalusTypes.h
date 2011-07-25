@@ -72,11 +72,11 @@ union REG64
 	u64		_u64;
 
 	// Legacy - removing soon, left in to make committing less painful
-#ifdef DAEDALUS_IS_LEGACY
+/*
 	f32		_f32[2];
 	s32		_s32[2];
 	u32		_u32[2];
-#endif	
+*/
 	struct { u32 _f64_unused; f32 _f64_sim;};	
 
 	struct { f32 _f32_0, _f32_1; };
@@ -86,10 +86,10 @@ union REG64
 	//struct { s16 _s16_3, _s16_2, _s16_1, _s16_0; };
 	//struct { u16 _u16_3, _u16_2, _u16_1, _u16_0; };
 
-	s16		_s16[4];
+	/*s16	_s16[4];
 	u16		_u16[4];
 	s8		_s8[8];
-	u8		_u8[8];
+	u8		_u8[8];*/
 };
 
 DAEDALUS_STATIC_ASSERT( sizeof( REG64 ) == sizeof( u64 ) );
