@@ -72,9 +72,21 @@ extern AudioHLEInstruction ABI3[0x20];
 // Below functions were updated
 //
 
-//---------------------------------------------------------------------------------------------
+
 AudioHLEInstruction *ABI=ABIUnknown;
-//---------------------------------------------------------------------------------------------
+bool bAudioChanged = false;
+extern bool isMKABI;
+extern bool isZeldaABI;
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void Audio_Reset()
+{
+	bAudioChanged = false;
+	isMKABI		  = false;
+	isZeldaABI	  = false;
+}
 
 //*****************************************************************************
 //
@@ -105,14 +117,12 @@ void Audio_Ucode()
 	DAEDALUS_PROFILE( "HLEMain::Audio_Ucode" );
 
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
-	static u32	last_code_base = 0;
-	u32 code_base = (u32)pTask->t.ucode & 0x1fffffff;
 
 	// Only detect ABI once, unless is a different ucode
 	//
-	if ( last_code_base != code_base )
+	if ( !bAudioChanged )
 	{
-		last_code_base = code_base;
+		bAudioChanged = true;
 		Audio_Ucode_Detect( pTask );
 	}
 	

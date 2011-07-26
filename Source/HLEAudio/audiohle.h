@@ -367,5 +367,4 @@ typedef void ( * AudioHLEInstruction )( AudioHLECommand command );
 
 // Use these functions to interface with the HLE Audio...
 void Audio_Ucode();
-
-extern const u16 ResampleLUT[0x200];
+void Audio_Reset();
