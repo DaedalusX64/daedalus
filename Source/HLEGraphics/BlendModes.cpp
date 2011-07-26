@@ -1359,6 +1359,18 @@ static void BlendMode_0x0030fe045f0ef3ffLL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
+// OOT
+// Zora's Domain Water // Correct except T1
+//case 0x00267e031f0cfdffLL:
+//aRGB0: (Texel1       - Texel0      ) * Env_Alpha    + Texel0      
+//aA0  : (0            - 0           ) * 0            + 1           
+//aRGB1: (Combined     - 0           ) * Primitive    + 0           
+//aA1  : (Combined     - 0           ) * Primitive    + 0   
+void BlendMode_0x00267e031f0cfdffLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetA( details.PrimColour );
+	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGB);	
+}
 
 // OOT - Gold Skulltula Chin
 //case 0x00177e6035fcfd78LL:
@@ -1765,6 +1777,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00267e031ffcfdf8LL); // OOT Hyrule Castle Shadows
 			BLEND_MODE(0x00262a041f5893f8LL); // Zelda Deku Tree
 			BLEND_MODE(0x00262a60150c937fLL); // Zelda Fairies
+			BLEND_MODE(0x00267e031f0cfdffLL); // Zelda OOT - Zora's Domain Water
 			BLEND_MODE(0x00267e041f0cfdffLL); // Zelda OOT Water
 			BLEND_MODE(0x00267e041ffcfdf8LL); // Zelda OOT Walls
 			BLEND_MODE(0x002698041f14ffffLL); // Banjo Kazooie Paths
