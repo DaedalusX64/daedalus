@@ -167,6 +167,12 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	//case 0x07c2:					// In * AFog + Fog * 1-A || In * 0 + In * 1				Conker - ??
 		sceGuDisable( GU_BLEND );	
 		break;
+
+	// this blend mode is mem*0 + mem*1, so we don't need to render it... Very odd!
+	case 0x5f50:					// Mem * 0 + Mem * 1-A || Mem * 0 + Mem * 1-A			Wave Racer - Menu fix
+		sceGuBlendFunc(GU_ADD, GU_SRC_COLOR, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+		sceGuEnable( GU_BLEND );
+		break;
 	//
 	// Add here blenders which work fine with default case but causes too much spam, this disabled in release mode
 	//
