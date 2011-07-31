@@ -166,14 +166,14 @@ void DMA_SI_CopyFromDRAM( )
 //*****************************************************************************
 void DMA_SI_CopyToDRAM( )
 {
+	// Check controller status!
+	CController::Get()->Process();
+
 	u32 mem = Memory_SI_GetRegister(SI_DRAM_ADDR_REG) & 0x1fffffff;
 	u8 * p_src = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + 0x7C0;
 	u8 * p_dst = g_pu8RamBase + mem;
 
 	DPF( DEBUG_MEMORY_PIF, "PIF -> DRAM (0x%08x) Transfer ", mem );
-
-	// Check controller status!
-	CController::Get()->Process();
 
 	memcpy_vfpu_BE(p_dst, p_src, 64);
 

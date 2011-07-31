@@ -2216,43 +2216,16 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 	// We only handle Env Map for Conker ATM, but using the CPU :(
 	//
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
-
 	const Matrix4x4 & matWorldProject( GetWorldProject() );
-
-	//If WoldProjectmatrix has modified due to insert matrix
-	//we need to update our modelView (fixes NMEs in Kirby and SSB) //Corn
-	if( mWPmodified )
-	{
-		mWPmodified = false;
-		
-		//Only calculate inverse if there is a new Projectmatrix
-		if( mProjisNew )
-		{
-			mProjisNew = false;
-			mInvProjection = mProjectionStack[mProjectionTop].Inverse();
-		}
-		
-		mModelViewStack[mModelViewTop] = mWorldProject * mInvProjection;
-	}
-
 	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
 
-	switch( mTnLModeFlags & (TNL_TEXTURE|TNL_TEXGEN) )
+	switch( mTnLModeFlags & (TNL_TEXTURE | TNL_TEXGEN) )
 	{
 		// TNL_TEXGEN is ignored when TNL_LIGHT is disabled
 	case                                   0: _TransformVerticesWithColour_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
 	case                         TNL_TEXTURE: _TransformVerticesWithColour_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
 	case            TNL_TEXGEN              : _TransformVerticesWithColour_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
 	case            TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithColour_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
-
-		// TNL_TEXGEN is ignored when TNL_TEXTURE is disabled
-	case TNL_LIGHT                          : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
-	case TNL_LIGHT |             TNL_TEXTURE: _TransformVerticesWithLighting_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
-	case TNL_LIGHT |TNL_TEXGEN              : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
-	//case TNL_LIGHT |TNL_TEXGEN | TNL_TEXTURE:
-	//	if( gGeometryMode & G_TEXTURE_GEN_LINEAR ) _TransformVerticesWithLighting_f0_t3( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights );
-	//	else _TransformVerticesWithLighting_f0_t2( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights );
-	//	break;
 	default:
 		NODEFAULT;
 		break;
@@ -2264,10 +2237,9 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 	{
 		for (u32 i = v0; i < (v0 + n); i++)
 		{
-			v3 vecTransformedNormal;		// Used only when TNL_LIGHT set
 			v3	model_normal(f32( (float)*(char*)(g_pu8RamBase+ (((i<<1)+0)^3)+gConkerVtxZAddr) ), f32( (float)*(char*)(g_pu8RamBase+ (((i<<1)+1)^3)+gConkerVtxZAddr) ), f32( (float)*(char*)(g_pu8RamBase+ (((i<<1)+2)^3)+gConkerVtxZAddr) ) );
 		
-			vecTransformedNormal = matWorld.TransformNormal( model_normal );
+			v3 vecTransformedNormal = matWorld.TransformNormal( model_normal );
 			vecTransformedNormal.Normalise();
 
 			const v3 & norm = vecTransformedNormal;
@@ -2287,10 +2259,8 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 			}
 		}
 	}
-
-	//TestVFPUVerts( v0, n, pVtxBase, matWorld );
-
 }
+
 //*****************************************************************************
 // Assumes dwAddress has already been checked!
 // Don't inline - it's too big with the transform macros
