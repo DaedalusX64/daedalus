@@ -1739,7 +1739,7 @@ static void R4300_CALL_TYPE R4300_Special_DADD( R4300_CALL_SIGNATURE )//CYRUS64
 
 	CHECK_R0( op_code.rd );
 
-	gGPR[ op_code.rd ]._s64 = gGPR[ op_code.rt ]._s64 + gGPR[ op_code.rs ]._s64;
+	gGPR[ op_code.rd ]._s64 = gGPR[ op_code.rs ]._s64 + gGPR[ op_code.rt ]._s64;
 
 }
 
@@ -1749,7 +1749,7 @@ static void R4300_CALL_TYPE R4300_Special_DADDU( R4300_CALL_SIGNATURE )//CYRUS64
 
 	CHECK_R0( op_code.rd );
 
-	gGPR[ op_code.rd ]._s64 = gGPR[ op_code.rt ]._s64 + gGPR[ op_code.rs ]._s64;
+	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 + gGPR[ op_code.rt ]._u64;
 
 	//BUG FIX for Excite Bike - Salvy
 	// I don't know why Excite bike only works if the operand is 32bit.. this for sure is wrong as docs say.
@@ -1764,7 +1764,7 @@ static void R4300_CALL_TYPE R4300_Special_DSUB( R4300_CALL_SIGNATURE )
 
 	CHECK_R0( op_code.rd );
 
-	gGPR[ op_code.rd ]._s64 = gGPR[ op_code.rs ]._u64 - gGPR[ op_code.rt ]._s64;
+	gGPR[ op_code.rd ]._s64 = gGPR[ op_code.rs ]._s64 - gGPR[ op_code.rt ]._s64;
 }
 
 static void R4300_CALL_TYPE R4300_Special_DSUBU( R4300_CALL_SIGNATURE )
@@ -1776,7 +1776,7 @@ static void R4300_CALL_TYPE R4300_Special_DSUBU( R4300_CALL_SIGNATURE )
 	// The order of rs and rt was wrong! It should be rs - rt, not rt - rs!!
 	// It caused several lock ups in games ex Animal Crossing, and Conker to crash in last boss
 	// Also signed extended to be safe
-	gGPR[ op_code.rd ]._s64 = gGPR[ op_code.rs ]._s64 - gGPR[ op_code.rt ]._s64;
+	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 - gGPR[ op_code.rt ]._u64;
 }
 
 static void R4300_CALL_TYPE R4300_Special_DSLL( R4300_CALL_SIGNATURE )
