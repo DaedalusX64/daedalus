@@ -269,20 +269,6 @@ struct RDP_TileSize
 	}
 };
 
-
-typedef struct
-{
-	union
-	{
-		u64		_u64;
-
-		struct
-		{
-			u32		cmd1;
-			u32		cmd0;
-		};	};
-} RDP_Mux;
-
 typedef struct
 {
 	union
@@ -305,7 +291,6 @@ typedef struct
 // Externs
 //*****************************************************************************
 extern RDP_OtherMode		gRDPOtherMode;
-extern RDP_Mux				gRDPMux;
 
 
 //extern u8 gTextureMemory[ 4096 ];
@@ -321,7 +306,6 @@ extern	u32 gTextureTile;
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 void	RDP_SetOtherMode( u32 cmd_hi, u32 cmd_lo );
 #endif
-void	RDP_SetMux( u64	mux );
 void	RDP_SetTile( RDP_Tile tile );
 void	RDP_SetTileSize( RDP_TileSize tile_tile );
 #if RDP_EMULATE_TMEM
@@ -331,7 +315,7 @@ void	RDP_LoadTile( RDP_TileSize tile_size  );
 //*****************************************************************************
 //
 //*****************************************************************************
-static inline bool	IsZModeDecal()
+inline bool	IsZModeDecal()
 {
 	return gRDPOtherMode.zmode == 3;		// TODO enum or #def!
 }

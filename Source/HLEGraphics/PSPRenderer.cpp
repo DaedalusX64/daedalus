@@ -260,6 +260,7 @@ ViewportInfo	mView;
 PSPRenderer::PSPRenderer()
 :	mN64ToPSPScale( 2.0f, 2.0f )
 ,	mN64ToPSPTranslate( 0.0f, 0.0f )
+,	mMux( 0 )
 ,	mTnLModeFlags( 0 )
 
 ,	m_dwNumLights(0)
@@ -309,8 +310,6 @@ PSPRenderer::PSPRenderer()
 	mTnLParams.FogOffset = 0.0f;
 	mTnLParams.TextureScaleX = 1.0f;
 	mTnLParams.TextureScaleY = 1.0f;
-
-	gRDPMux._u64 = 0;
 	
 	memset( &mView, 0, sizeof(mView) );
 
@@ -1043,43 +1042,25 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		}
 #endif
 	}
-	//
-	// I can't think why the hand in mario's menu screen is rendered with an opaque rendermode,
-	// and no alpha threshold. We set the alpha reference to 1 to ensure that the transparent pixels
-	// don't get rendered. (We also do this in Super Smash Bothers to ensure transparent pixels
-	// are not rendered. Also fixes other games - Kreationz). I hope this doesn't fuck anything up though. 
-	//
-	if( gRDPOtherMode.alpha_compare == 0 )
+
+	if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
 	{
-		if( gRDPOtherMode.cvg_x_alpha )	// I think this implies that alpha is coming from
-		{
-			sceGuAlphaFunc(GU_GREATER, 0x70, 0xff); // Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
-			sceGuEnable(GU_ALPHA_TEST);
-		}
-		else
-		{
-			sceGuDisable(GU_ALPHA_TEST);
-		}
+		// G_AC_THRESHOLD || G_AC_DITHER
+		sceGuAlphaFunc( GU_GEQUAL, mAlphaThreshold, 0xff);
+		sceGuEnable(GU_ALPHA_TEST);
+	}
+	// I think this implies that alpha is coming from
+	else if (gRDPOtherMode.cvg_x_alpha)
+	{
+		// Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
+		// ALso going over 0x30 breaks the birds in Tarzan :(. Need to find a better way to leverage this.
+		sceGuAlphaFunc(GU_GREATER, 0x70, 0xff); 
+		sceGuEnable(GU_ALPHA_TEST);
 	}
 	else
 	{
-		// I don't know what up with the sky on this game, breaks completely our logic of alpha threshold..
-		//
-		// cvg_x_alpha:   0			(!gRDPOtherMode.cvg_x_alpha)
-		// alpha_cvg_sel: 0			(!gRDPOtherMode.alpha_cvg_sel)
-		// alpha_compare: Threshold (gRDPOtherMode.alpha_compare == 1)
-		//
-		if( (g_ROM.GameHacks == AIDYN_CRONICLES) | (gRDPOtherMode.alpha_cvg_sel & !gRDPOtherMode.cvg_x_alpha) )
-		{
-			// Use CVG for pixel alpha
-			sceGuDisable(GU_ALPHA_TEST);
-		}
-		else
-		{
-			// G_AC_THRESHOLD || G_AC_DITHER
-			sceGuAlphaFunc( mAlphaThreshold ? GU_GEQUAL : GU_GREATER, mAlphaThreshold, 0xff);
-			sceGuEnable(GU_ALPHA_TEST);
-		}
+		// Use CVG for pixel alpha
+        sceGuDisable(GU_ALPHA_TEST);	
 	}
 
 	SBlendStateEntry		blend_entry;
@@ -1088,8 +1069,8 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	{
 		case CYCLE_COPY:		blend_entry.States = mCopyBlendStates; break;
 		case CYCLE_FILL:		blend_entry.States = mFillBlendStates; break;
-		case CYCLE_1CYCLE:		blend_entry = LookupBlendState( gRDPMux._u64, false ); break;
-		case CYCLE_2CYCLE:		blend_entry = LookupBlendState( gRDPMux._u64, true ); break;
+		case CYCLE_1CYCLE:		blend_entry = LookupBlendState( mMux, false ); break;
+		case CYCLE_2CYCLE:		blend_entry = LookupBlendState( mMux, true ); break;
 	}
 
 	u32		render_flags( DAEDALUS_VERTEX_FLAGS );
@@ -1103,7 +1084,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	// Used for Blend Explorer, or Nasty texture
 	//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST	
-	if( DebugBlendmode( p_vertices, num_vertices, render_flags, gRDPMux._u64 ) )	return;
+	if( DebugBlendmode( p_vertices, num_vertices, render_flags, mMux ) )	return;
 #endif
 
 	// This check is for inexact blends which were handled either by a custom blendmode or auto blendmode thing
@@ -1113,7 +1094,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		// Used for dumping mux and highlight inexact blend
 		//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DebugMux( blend_entry.States, p_vertices, num_vertices, render_flags, gRDPMux._u64 );
+		DebugMux( blend_entry.States, p_vertices, num_vertices, render_flags, mMux );
 #endif
 
 		// Local vars for now

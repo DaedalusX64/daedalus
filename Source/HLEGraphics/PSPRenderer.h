@@ -131,6 +131,7 @@ public:
 	void				SetLightDirection(u32 l, float x, float y, float z);
 	inline void			SetAmbientLight( const v4 & colour )	{ mTnLParams.Ambient = colour; }
 
+	inline void			SetMux( u64 mux )						{ mMux = mux; }
 	inline void			SetSmooth( bool bSmooth )				{ mSmooth = bSmooth; }
 	inline void			SetSmoothShade( bool bSmoothShade )		{ mSmoothShade = bSmoothShade; }
 	inline void			SetAlphaRef(u32 dwAlpha)				{ mAlphaThreshold = dwAlpha; }
@@ -290,6 +291,8 @@ private:
 		TNL_FOG			= 1 << 2,
 		TNL_LIGHT		= 1 << 3,
 	};
+
+	u64					mMux;
 
 	u32					mTnLModeFlags;
 

@@ -1934,6 +1934,7 @@ void DLParser_SetCImg( MicroCodeCommand command )
 	// Do not check texture size, it breaks Superman and Doom64..
 	//
 	bIsOffScreen = ( /*g_CI.Size != G_IM_SIZ_16b ||*/ g_CI.Format != G_IM_FMT_RGBA || g_CI.Width < 200 );
+	//bIsOffScreen = false;
 }
 
 //*****************************************************************************
@@ -1950,7 +1951,7 @@ void DLParser_SetCombine( MicroCodeCommand command )
 	un.mpart[0] = command.inst.cmd1;
 	un.mpart[1] = command.inst.cmd0 & 0x00FFFFFF;
 
-	RDP_SetMux( un.mux );
+	PSPRenderer::Get()->SetMux( un.mux );
 	
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if (gDisplayListFile != NULL)

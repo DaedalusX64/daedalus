@@ -36,7 +36,6 @@ extern SImageDescriptor g_TI;
 // RDP state
 //*****************************************************************************
 RDP_OtherMode		gRDPOtherMode;
-RDP_Mux				gRDPMux;
 RDP_Tile			gRDPTiles[8];
 RDP_TileSize		gRDPTileSizes[8];
 
@@ -57,13 +56,6 @@ void	RDP_SetTile( RDP_Tile tile )
 void	RDP_SetTileSize( RDP_TileSize tile_size )
 {
 	gRDPTileSizes[ tile_size.tile_idx ] = tile_size;
-}
-//*****************************************************************************
-//
-//*****************************************************************************
-void	RDP_SetMux( u64 mux )
-{
-	gRDPMux._u64 = mux;
 }
 
 #if RDP_EMULATE_TMEM
