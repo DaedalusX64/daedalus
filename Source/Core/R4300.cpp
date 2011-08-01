@@ -193,19 +193,20 @@ inline d64 LoadFPR_Double( u32 reg )
 //*****************************************************************************
 inline void StoreFPR_Double( u32 reg, d64 value )
 {
-	REG64 r; 
-	r._f64_unused = SIMULATESIG;
-	r._f64_sim	  = f32( value );
-
 	// This fixes Mario Party's draft mini game.
 	// And green / static textures bug in Conker.
 	if(gSimulateDoubleDisabled)
 	{
-		r._f64 = f32( value );	
+		REG64 r; 
+		r._f64 = pspFpuFloatToDouble( value );	//r._f64 = f32( value );	
+		gCPUState.FPU[reg+0]._u32_0 = r._u32_0;
+		gCPUState.FPU[reg+1]._u32_0 = r._u32_1;
 	}
-
-	gCPUState.FPU[reg+0]._u32_0 = r._u32_0;
-	gCPUState.FPU[reg+1]._u32_0 = r._u32_1;
+	else
+	{
+		gCPUState.FPU[reg+0]._u32_0 = SIMULATESIG;
+		gCPUState.FPU[reg+1]._f32_0 = f32( value );
+	}
 }
 
 //*****************************************************************************
