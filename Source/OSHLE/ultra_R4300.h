@@ -133,16 +133,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define	SR_IMASKSHIFT	8
 
-#define	SR_KX		0x00000080
-#define	SR_SX		0x00000040
-#define	SR_UX		0x00000020
-#define	SR_KSU_MASK	0x00000018
-#define	SR_KSU_USR	0x00000010
-#define	SR_KSU_SUP	0x00000008
-#define	SR_KSU_KER	0x00000000
-#define	SR_ERL		0x00000004
-#define	SR_EXL		0x00000002
-#define	SR_IE		0x00000001
+#define	SR_KX			0x00000080
+#define	SR_SX			0x00000040
+#define	SR_UX			0x00000020
+#define	SR_KSU_MASK		0x00000018
+#define	SR_KSU_USR		0x00000010
+#define	SR_KSU_SUP		0x00000008
+#define	SR_KSU_KER		0x00000000
+#define SR_EXL_OR_ERL	0x00000006
+#define	SR_ERL			0x00000004
+#define	SR_EXL			0x00000002
+#define	SR_IE			0x00000001
 
 #define	CAUSE_BD		0x80000000
 #define	CAUSE_CEMASK	0x30000000
@@ -262,11 +263,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	FPCSR_FO		0x00000010
 #define	FPCSR_FU		0x00000008
 #define	FPCSR_FI		0x00000004
-#define	FPCSR_RM_MASK	0x00000003
-#define	FPCSR_RM_RN		0x00000000
-#define	FPCSR_RM_RZ		0x00000001
-#define	FPCSR_RM_RP		0x00000002
-#define	FPCSR_RM_RM		0x00000003
+#define	FPCSR_RM_MASK	3
+#define	FPCSR_RM_RN		0
+#define	FPCSR_RM_RZ		1
+#define	FPCSR_RM_RP		2
+#define	FPCSR_RM_RM		3
 
 
 #endif // __ULTRA_R4300_H__

@@ -2046,14 +2046,18 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 			//  Other bits are CE (copro error) BD (branch delay), the other
 			// Interrupt pendings and EscCode.
 #ifndef DAEDALUS_SILENT
-			if ( (new_value&~(CAUSE_SW1|CAUSE_SW2)) != (gCPUState.CPUControl[C0_CAUSE]._u64&~(CAUSE_SW1|CAUSE_SW2))  )
+			if ( ((u32)new_value&~0x300) != (gCPUState.CPUControl[C0_CAUSE]._u32_0&~0x300)  )
 			{
 				DBGConsole_Msg( 0, "[MWas previously clobbering CAUSE REGISTER" );
 			}
 #endif
 			DPF( DEBUG_REGS, "CAUSE set to 0x%08x (was: 0x%08x)", (u32)new_value, gGPR[ op_code.rt ]._u32_0 );
-			gCPUState.CPUControl[C0_CAUSE]._u64 &=             ~(CAUSE_SW1|CAUSE_SW2);
-			gCPUState.CPUControl[C0_CAUSE]._u64 |= (new_value & (CAUSE_SW1|CAUSE_SW2));
+			//(CAUSE_SW1|CAUSE_SW2) = 0x300
+			gCPUState.CPUControl[C0_CAUSE]._u32_0 &= ~0x300;
+			gCPUState.CPUControl[C0_CAUSE]._u32_0 |= (u32)new_value & 0x300;
+
+			//gCPUState.CPUControl[C0_CAUSE]._u64 &=             ~(CAUSE_SW1|CAUSE_SW2);
+			//gCPUState.CPUControl[C0_CAUSE]._u64 |= (new_value & (CAUSE_SW1|CAUSE_SW2));
 			break;
 		case C0_SR:
 			// Software can enable/disable interrupts here. We check if Interrupt Enable is
