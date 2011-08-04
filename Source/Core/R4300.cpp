@@ -1605,14 +1605,31 @@ static void R4300_CALL_TYPE R4300_Special_DDIV( R4300_CALL_SIGNATURE ) 				// Do
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	s64 qwDividend = gGPR[ op_code.rs ]._s64;
-	s64 qwDivisor = gGPR[ op_code.rt ]._s64;
+	// Check if this operation can be done in 32bit rather than 64bit //Corn
+	if( ((gGPR[op_code.rs]._u32_1 + (gGPR[op_code.rs]._u32_0 >> 31)) +
+		 (gGPR[op_code.rt]._u32_1 + (gGPR[op_code.rt]._u32_0 >> 31)) == 0) )
+	{	//32bit
+		s32 qwDividend = gGPR[ op_code.rs ]._s32_0;
+		s32 qwDivisor = gGPR[ op_code.rt ]._s32_0;
 
-	// Reserved Instruction exception
-	if (qwDivisor)
-	{
-		gCPUState.MultLo._u64 = qwDividend / qwDivisor;
-		gCPUState.MultHi._u64 = qwDividend % qwDivisor;
+		// Reserved Instruction exception
+		if (qwDivisor)
+		{
+			gCPUState.MultLo._u64 = qwDividend / qwDivisor;
+			gCPUState.MultHi._u64 = qwDividend % qwDivisor;
+		}
+	}
+	else
+	{	//64bit
+		s64 qwDividend = gGPR[ op_code.rs ]._s64;
+		s64 qwDivisor = gGPR[ op_code.rt ]._s64;
+
+		// Reserved Instruction exception
+		if (qwDivisor)
+		{
+			gCPUState.MultLo._u64 = qwDividend / qwDivisor;
+			gCPUState.MultHi._u64 = qwDividend % qwDivisor;
+		}
 	}
 }
 
@@ -1620,14 +1637,30 @@ static void R4300_CALL_TYPE R4300_Special_DDIVU( R4300_CALL_SIGNATURE ) 			// Do
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	u64 qwDividend = gGPR[ op_code.rs ]._u64;
-	u64 qwDivisor = gGPR[ op_code.rt ]._u64;
+	// Check if this operation can be done in 32bit rather than 64bit //Corn
+	if( (gGPR[op_code.rs]._u32_1 | gGPR[op_code.rt]._u32_1) == 0 )
+	{	//32bit
+		u32 qwDividend = gGPR[ op_code.rs ]._u32_0;
+		u32 qwDivisor = gGPR[ op_code.rt ]._u32_0;
 
-	// Reserved Instruction exception
-	if (qwDivisor)
-	{
-		gCPUState.MultLo._u64 = qwDividend / qwDivisor;
-		gCPUState.MultHi._u64 = qwDividend % qwDivisor;
+		// Reserved Instruction exception
+		if (qwDivisor)
+		{
+			gCPUState.MultLo._u64 = qwDividend / qwDivisor;
+			gCPUState.MultHi._u64 = qwDividend % qwDivisor;
+		}
+	}
+	else
+	{	//64bit
+		u64 qwDividend = gGPR[ op_code.rs ]._u64;
+		u64 qwDivisor = gGPR[ op_code.rt ]._u64;
+
+		// Reserved Instruction exception
+		if (qwDivisor)
+		{
+			gCPUState.MultLo._u64 = qwDividend / qwDivisor;
+			gCPUState.MultHi._u64 = qwDividend % qwDivisor;
+		}
 	}
 }
 

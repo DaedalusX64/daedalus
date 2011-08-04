@@ -55,7 +55,7 @@ u32		gExceptionVector( ~0 );
 //*****************************************************************************
 //
 //*****************************************************************************
-static void R4300_JumpToInterruptVector(u32 exception_vector)
+void R4300_JumpToInterruptVector(u32 exception_vector)
 {
 
 #if defined(DAEDALUS_ENABLE_ASSERTS) || defined(DAEDALUS_PROFILE_EXECUTION)
@@ -249,7 +249,6 @@ void R4300_Handle_Exception()
 //*****************************************************************************
 //
 //*****************************************************************************
-
 void R4300_Handle_Interrupt()
 {
 #ifdef DAEDALUS_ENABLE_ASSERTS
@@ -259,22 +258,16 @@ void R4300_Handle_Interrupt()
 	DAEDALUS_ASSERT( mi_interrupt_set == cause_int_3_set, "CAUSE_IP3 inconsistant with MI_INTR_REG (%08x)", Memory_MI_GetRegister(MI_INTR_MASK_REG) & Memory_MI_GetRegister(MI_INTR_REG) );
 #endif
 
-	// Check if interrupts are enabled first to avoid wating time checking for pending interrupts etc - Salvy
-	//
-	if(gCPUState.CPUControl[C0_SR]._u32_0 & SR_IE)												// Are interrupts enabled?
+	if( (gCPUState.CPUControl[C0_SR]._u32_0 & (SR_EXL | SR_ERL | SR_IE)) == SR_IE ) // Ensure ERL/EXL are "0" and IE is "1"
 	{
 		if(gCPUState.CPUControl[C0_SR]._u32_0 & gCPUState.CPUControl[C0_CAUSE]._u32_0 & CAUSE_IPMASK)  // Are interrupts pending/wanted?
 		{
-			// SR_EXL + SR_ERL = 0x00000006
-			if( (gCPUState.CPUControl[C0_SR]._u32_0 & SR_EXL_OR_ERL) == 0x0000 ) // Ensure ERL/EXL are not set
-			{       
 #ifdef DAEDALUS_PROFILE_EXECUTION
-				gNumInterrupts++;
+			gNumInterrupts++;
 #endif
-				// Clear CAUSE_EXCMASK
-				SET_EXCEPTION( EXC_INT )
-				R4300_JumpToInterruptVector( E_VEC );
-			}
-		} 
-    } 
+			// Clear CAUSE_EXCMASK
+			SET_EXCEPTION( EXC_INT )
+			R4300_JumpToInterruptVector( E_VEC );
+		}
+	} 
 }

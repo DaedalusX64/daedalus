@@ -140,7 +140,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	SR_KSU_USR		0x00000010
 #define	SR_KSU_SUP		0x00000008
 #define	SR_KSU_KER		0x00000000
-#define SR_EXL_OR_ERL	0x00000006
 #define	SR_ERL			0x00000004
 #define	SR_EXL			0x00000002
 #define	SR_IE			0x00000001
