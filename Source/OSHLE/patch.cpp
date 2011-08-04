@@ -1095,17 +1095,17 @@ static u32 inline RET_JR_RA()
 
 static u32 RET_JR_ERET()
 {
-	if( gCPUState.CPUControl[C0_SR]._u64 & SR_ERL )
+	if( gCPUState.CPUControl[C0_SR]._u32_0 & SR_ERL )
 	{
 		// Returning from an error trap
 		CPU_SetPC( gCPUState.CPUControl[C0_ERROR_EPC]._u32_0 );
-		gCPUState.CPUControl[C0_SR]._u64 &= ~SR_ERL;
+		gCPUState.CPUControl[C0_SR]._u32_0 &= ~SR_ERL;
 	}
 	else
 	{
 		// Returning from an exception
 		CPU_SetPC( gCPUState.CPUControl[C0_EPC]._u32_0 );
-		gCPUState.CPUControl[C0_SR]._u64 &= ~SR_EXL;
+		gCPUState.CPUControl[C0_SR]._u32_0 &= ~SR_EXL;
 	}
 	// Point to previous instruction (as we increment the pointer immediately afterwards
 	DECREMENT_PC();

@@ -527,7 +527,7 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 
 	bool interrupts_enabled_before =(gCPUState.CPUControl[C0_SR]._u32_0 & SR_IE) != 0;
 
-	gCPUState.CPUControl[C0_SR]._s64 = (s64)(s32)new_value;
+	gCPUState.CPUControl[C0_SR]._u32_0 = new_value;
 
 	bool interrupts_enabled_after = (gCPUState.CPUControl[C0_SR]._u32_0 & SR_IE) != 0;
 
@@ -2209,19 +2209,19 @@ static void R4300_CALL_TYPE R4300_TLB_ERET( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	if( gCPUState.CPUControl[C0_SR]._u64 & SR_ERL )
+	if( gCPUState.CPUControl[C0_SR]._u32_0 & SR_ERL )
 	{
 		// Returning from an error trap
 		DPF(DEBUG_INTR, "ERET: Returning from error trap");
 		CPU_SetPC( gCPUState.CPUControl[C0_ERROR_EPC]._u32_0 );
-		gCPUState.CPUControl[C0_SR]._u64 &= ~SR_ERL;
+		gCPUState.CPUControl[C0_SR]._u32_0 &= ~SR_ERL;
 	}
 	else
 	{
 		DPF(DEBUG_INTR, "ERET: Returning from interrupt/exception");
 		// Returning from an exception
 		CPU_SetPC( gCPUState.CPUControl[C0_EPC]._u32_0 );
-		gCPUState.CPUControl[C0_SR]._u64 &= ~SR_EXL;
+		gCPUState.CPUControl[C0_SR]._u32_0 &= ~SR_EXL;
 	}
 	// Point to previous instruction (as we increment the pointer immediately afterwards
 	DECREMENT_PC();

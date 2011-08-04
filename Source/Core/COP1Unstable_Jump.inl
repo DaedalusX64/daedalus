@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 void InterpreterCheckCP1Unusable(void OpcodeAddress(u32), R4300_CALL_SIGNATURE)
 {
-	if(gCPUState.CPUControl[C0_SR]._u64 & SR_CU1)
+	if(gCPUState.CPUControl[C0_SR]._u32_0 & SR_CU1)
 	{
 		OpcodeAddress(R4300_CALL_ARGUMENTS);
 	}

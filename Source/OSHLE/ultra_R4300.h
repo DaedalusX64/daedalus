@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	R_VEC		(K1BASE+0x1fc00000)
 #define	XUT_VEC		(K0BASE+0x80)
 #define	ECC_VEC		(K0BASE+0x100)
-#define	E_VEC		(K0BASE+0x180)
+#define	E_VEC		0x80000180
 
 #define	K0_TO_K1(x)		((u32)(x)|0xA0000000)
 #define	K1_TO_K0(x)		((u32)(x)&0x9FFFFFFF)
@@ -166,26 +166,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define	CAUSE_EXCSHIFT	2
 
-#define	EXC_CODE(x)	((x)<<2)
+#define EXC_INT		0
+#define EXC_MOD		4
+#define EXC_RMISS	8
+#define EXC_WMISS	12
+#define EXC_RADE	16
+#define EXC_WADE	20
+#define EXC_IBE		24
+#define EXC_DBE		28
+#define EXC_SYSCALL 32
+#define EXC_BREAK	36
+#define EXC_II		40
+#define EXC_CPU		44
+#define EXC_OV		48
+#define EXC_TRAP	52
+#define EXC_VCEI	56
+#define EXC_FPE		60
+#define EXC_WATCH	92
+#define EXC_VCED	124
 
-#define	EXC_INT		EXC_CODE(0)
-#define	EXC_MOD		EXC_CODE(1)
-#define	EXC_RMISS	EXC_CODE(2)
-#define	EXC_WMISS	EXC_CODE(3)
-#define	EXC_RADE	EXC_CODE(4)
-#define	EXC_WADE	EXC_CODE(5)
-#define	EXC_IBE		EXC_CODE(6)
-#define	EXC_DBE		EXC_CODE(7)
-#define	EXC_SYSCALL	EXC_CODE(8)
-#define	EXC_BREAK	EXC_CODE(9)
-#define	EXC_II		EXC_CODE(10)
-#define	EXC_CPU		EXC_CODE(11)
-#define	EXC_OV		EXC_CODE(12)
-#define	EXC_TRAP	EXC_CODE(13)
-#define	EXC_VCEI	EXC_CODE(14)
-#define	EXC_FPE		EXC_CODE(15)
-#define	EXC_WATCH	EXC_CODE(23)
-#define	EXC_VCED	EXC_CODE(31)
 
 #define REG_r0 0x00
 #define REG_at 0x01
@@ -263,11 +262,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	FPCSR_FO		0x00000010
 #define	FPCSR_FU		0x00000008
 #define	FPCSR_FI		0x00000004
-#define	FPCSR_RM_MASK	3
-#define	FPCSR_RM_RN		0
-#define	FPCSR_RM_RZ		1
-#define	FPCSR_RM_RP		2
-#define	FPCSR_RM_RM		3
+#define	FPCSR_RM_MASK	0x00000003
+#define	FPCSR_RM_RN		0x00000000
+#define	FPCSR_RM_RZ		0x00000001
+#define	FPCSR_RM_RP		0x00000002
+#define	FPCSR_RM_RM		0x00000003
 
 
 #endif // __ULTRA_R4300_H__
