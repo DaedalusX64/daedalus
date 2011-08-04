@@ -70,7 +70,15 @@ inline void CHECK_R0( u32 op )
 	inline void CHECK_R0( u32 op ) {}
 #endif
 
-
+#define CHECK_COP1_UNUSUABLE \
+{ \
+	if (!(gCPUState.CPUControl[C0_SR]._u32_0 & SR_CU1)) \
+	{ \
+		DBGConsole_Msg(0, "Thread accessing Cop1, throwing COP1 unusuable exception"); \
+		R4300_Exception_CopUnusuable(); \
+		return; \
+	} \
+}
 //
 //	Abstract away the different rounding modes between targets
 //
@@ -339,9 +347,9 @@ inline s64 d64_to_s64_floor( d64 x )				{ return (s64)floorf( x ); }
 inline s64 d64_to_s64( d64 x, ERoundingMode mode )	{ pspFpuSetRoundmode( gNativeRoundingModes[ mode ] ); return (s64)x; }	// XXXX Need to do a cvt really
 
 
-static void CU1_R4300_CoPro1( R4300_CALL_SIGNATURE );
-static void R4300_CALL_TYPE CU1_R4300_LWC1( R4300_CALL_SIGNATURE );
-static void R4300_CALL_TYPE CU1_R4300_LDC1( R4300_CALL_SIGNATURE );
+//static void CU1_R4300_CoPro1( R4300_CALL_SIGNATURE );
+//static void R4300_CALL_TYPE CU1_R4300_LWC1( R4300_CALL_SIGNATURE );
+//static void R4300_CALL_TYPE CU1_R4300_LDC1( R4300_CALL_SIGNATURE );
 //static void R4300_CALL_TYPE CU1_R4300_SWC1( R4300_CALL_SIGNATURE );
 //static void R4300_CALL_TYPE CU1_R4300_SDC1( R4300_CALL_SIGNATURE );
 
@@ -483,7 +491,7 @@ static void R4300_CALL_TYPE R4300_SetCop1Enable( bool enable )
 //*****************************************************************************
 //Calling this function will disable detection of Coprocessor Unusable Exceptions.
 //*****************************************************************************
-static void DisableFPUUnusableException()
+/*static void DisableFPUUnusableException()
 {
     R4300Instruction[0x11] = R4300_CoPro1;	
 
@@ -494,11 +502,11 @@ static void DisableFPUUnusableException()
 	R4300Instruction[57] = R4300_SWC1;
 	R4300Instruction[61] = R4300_SDC1;
 }
-
+*/
 //*****************************************************************************
 //Calling this function will enable detection of Coprocessor Unusable Exceptions.
 //*****************************************************************************
-static void EnableFPUUnusableException()
+/*static void EnableFPUUnusableException()
 {
 	R4300Instruction[0x11] = CU1_R4300_CoPro1;
 	R4300Instruction[49] = CU1_R4300_LWC1;
@@ -506,7 +514,7 @@ static void EnableFPUUnusableException()
    // R4300Instruction[57] = CU1_R4300_SWC1; // Breaks Kirby
    // R4300Instruction[61] = CU1_R4300_SDC1;
 }
-
+*/
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -555,14 +563,14 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 
 	// Based from 1964, all the games work fine, even SSB/Kirby that had issues with the hack I had.
 	//
-	if(new_value & SR_CU1)
+	/*if(new_value & SR_CU1)
 	{
 		DisableFPUUnusableException();
 	}
 	else
 	{
 		EnableFPUUnusableException();
-	}
+	}*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -1294,7 +1302,7 @@ static void R4300_CALL_TYPE R4300_CACHE( R4300_CALL_SIGNATURE )
 
 static void R4300_CALL_TYPE R4300_LWC1( R4300_CALL_SIGNATURE ) 				// Load Word to Copro 1 (FPU)
 {
-	R4300_CALL_MAKE_OP( op_code );
+	R4300_CALL_MAKE_OP( op_code );	CHECK_COP1_UNUSUABLE
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 	StoreFPR_Word( op_code.ft, Read32Bits(address) );
@@ -1303,7 +1311,7 @@ static void R4300_CALL_TYPE R4300_LWC1( R4300_CALL_SIGNATURE ) 				// Load Word 
 
 static void R4300_CALL_TYPE R4300_LDC1( R4300_CALL_SIGNATURE )				// Load Doubleword to Copro 1 (FPU)
 {
-	R4300_CALL_MAKE_OP( op_code );
+	R4300_CALL_MAKE_OP( op_code );	CHECK_COP1_UNUSUABLE
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 	StoreFPR_Long( op_code.ft, Read64Bits(address));
@@ -1323,7 +1331,7 @@ static void R4300_CALL_TYPE R4300_LD( R4300_CALL_SIGNATURE ) 				// Load Doublew
 
 static void R4300_CALL_TYPE R4300_SWC1( R4300_CALL_SIGNATURE ) 			// Store Word From Copro 1
 {
-	R4300_CALL_MAKE_OP( op_code );
+	R4300_CALL_MAKE_OP( op_code );	CHECK_COP1_UNUSUABLE
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 	//Write32Bits(address, (u32)gCPUState.FPU[dwFT]);
@@ -1332,7 +1340,7 @@ static void R4300_CALL_TYPE R4300_SWC1( R4300_CALL_SIGNATURE ) 			// Store Word 
 
 static void R4300_CALL_TYPE R4300_SDC1( R4300_CALL_SIGNATURE )		// Store Doubleword From Copro 1
 {
-	R4300_CALL_MAKE_OP( op_code );
+	R4300_CALL_MAKE_OP( op_code );	CHECK_COP1_UNUSUABLE
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 
@@ -3481,7 +3489,6 @@ static void R4300_CALL_TYPE R4300_Cop1_D_NGT( R4300_CALL_SIGNATURE )
 }
 
 #include "R4300_Jump.inl"		// Jump table
-#include "COP1Unstable_Jump.inl"
 //*****************************************************************************
 //
 //*****************************************************************************

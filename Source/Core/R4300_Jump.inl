@@ -267,7 +267,12 @@ CPU_Instruction R4300Cop1DInstruction_32[64] =
 void R4300_CALL_TYPE R4300_Special( R4300_CALL_SIGNATURE ) { R4300_CALL_MAKE_OP( op_code ); R4300SpecialInstruction[ op_code.spec_op ]( R4300_CALL_ARGUMENTS ); }
 void R4300_CALL_TYPE R4300_RegImm( R4300_CALL_SIGNATURE )  { R4300_CALL_MAKE_OP( op_code ); R4300RegImmInstruction[ op_code.regimm_op ]( R4300_CALL_ARGUMENTS );     }
 void R4300_CALL_TYPE R4300_CoPro0( R4300_CALL_SIGNATURE )  { R4300_CALL_MAKE_OP( op_code ); R4300Cop0Instruction[ op_code.cop0_op ]( R4300_CALL_ARGUMENTS );  }
-void R4300_CALL_TYPE R4300_CoPro1( R4300_CALL_SIGNATURE )  { R4300_CALL_MAKE_OP( op_code ); R4300Cop1Instruction[ op_code.cop1_op ]( R4300_CALL_ARGUMENTS );  }
+void R4300_CALL_TYPE R4300_CoPro1( R4300_CALL_SIGNATURE )  
+{ 
+	R4300_CALL_MAKE_OP( op_code );	CHECK_COP1_UNUSUABLE
+
+	R4300Cop1Instruction[ op_code.cop1_op ]( R4300_CALL_ARGUMENTS );  
+}
 void R4300_CALL_TYPE R4300_Cop0_TLB( R4300_CALL_SIGNATURE ) { R4300_CALL_MAKE_OP( op_code ); R4300TLBInstruction[ op_code.cop0tlb_funct ]( R4300_CALL_ARGUMENTS ); }
 void R4300_CALL_TYPE R4300_Cop1_BCInstr( R4300_CALL_SIGNATURE ) { R4300_CALL_MAKE_OP( op_code ); R4300Cop1BC1Instruction[ op_code.cop1_bc ]( R4300_CALL_ARGUMENTS ); }
 void R4300_CALL_TYPE R4300_Cop1_SInstr( R4300_CALL_SIGNATURE )  { R4300_CALL_MAKE_OP( op_code ); R4300Cop1SInstruction[ op_code.cop1_funct ]( R4300_CALL_ARGUMENTS ); }
