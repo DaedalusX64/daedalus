@@ -474,50 +474,6 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 //*****************************************************************************
 //
 //*****************************************************************************
-/*
-static void R4300_CALL_TYPE R4300_SetCop1Enable( bool enable )
-{
-	if ( enable )
-	{
-		R4300Instruction[OP_COPRO1] = R4300_CoPro1;
-	}
-	else
-	{
-		R4300Instruction[OP_COPRO1] = R4300_CoPro1_Disabled;
-	}
-}
-
-*/
-//*****************************************************************************
-//Calling this function will disable detection of Coprocessor Unusable Exceptions.
-//*****************************************************************************
-/*static void DisableFPUUnusableException()
-{
-    R4300Instruction[0x11] = R4300_CoPro1;	
-
-	// Seems safe to ignore 'em here
-	//
-	R4300Instruction[49] = R4300_LWC1;
-	R4300Instruction[53] = R4300_LDC1;
-	R4300Instruction[57] = R4300_SWC1;
-	R4300Instruction[61] = R4300_SDC1;
-}
-*/
-//*****************************************************************************
-//Calling this function will enable detection of Coprocessor Unusable Exceptions.
-//*****************************************************************************
-/*static void EnableFPUUnusableException()
-{
-	R4300Instruction[0x11] = CU1_R4300_CoPro1;
-	R4300Instruction[49] = CU1_R4300_LWC1;
-	R4300Instruction[53] = CU1_R4300_LDC1;
-   // R4300Instruction[57] = CU1_R4300_SWC1; // Breaks Kirby
-   // R4300Instruction[61] = CU1_R4300_SDC1;
-}
-*/
-//*****************************************************************************
-//
-//*****************************************************************************
 void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 {
 #ifndef DAEDALUS_SILENT
@@ -560,17 +516,6 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 			gCPUState.AddJob( CPU_CHECK_INTERRUPTS );
 		}
 	}
-
-	// Based from 1964, all the games work fine, even SSB/Kirby that had issues with the hack I had.
-	//
-	/*if(new_value & SR_CU1)
-	{
-		DisableFPUUnusableException();
-	}
-	else
-	{
-		EnableFPUUnusableException();
-	}*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -2122,7 +2067,7 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 			{
 				// When the value of COUNT equals the value of COMPARE, IP7 of the CAUSE register is set
 				// (Timer interrupt). Writing to this register clears the timer interrupt pending flag.
-				CPU_SetCompare(new_value);
+				CPU_SetCompare((u32)new_value);
 			}
 			break;
 

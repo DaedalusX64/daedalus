@@ -767,30 +767,37 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 //*****************************************************************************
 //
 //*****************************************************************************
-void CPU_SetCompare(u64 value)
+void CPU_SetCompare(u32 value)
 {
 	gCPUState.CPUControl[C0_CAUSE]._u32_0 &= ~CAUSE_IP8;
 
-	DPF( DEBUG_REGS, "COMPARE set to 0x%08x.", (u32)value );
-	//DBGConsole_Msg(0, "COMPARE set to 0x%08x Count is 0x%08x.", (u32)value, (u32)gCPUState.CPUControl[C0_COUNT]);
+	DPF( DEBUG_REGS, "COMPARE set to 0x%08x.", value );
+	//DBGConsole_Msg(0, "COMPARE set to 0x%08x Count is 0x%08x.", value, gCPUState.CPUControl[C0_COUNT]_u32_0);
 
 	// Add an event for this compare:
-	if (value == gCPUState.CPUControl[C0_COMPARE]._u64)
+	if (value == gCPUState.CPUControl[C0_COMPARE]._u32_0)
 	{
 		//DBGConsole_Msg(0, "Clear");
 	}
 	else
 	{
-		// XXXX Looks very suspicious to me...was this the Oot timer fix?
-		u32		diff_32( (u32)value - gCPUState.CPUControl[C0_COUNT]._u32_0 );
-		
-		// We could simplify this even more
-		if ((u32)value > gCPUState.CPUControl[C0_COUNT]._u32_0 || (value != 0))
+		if(value != 0)
 		{
-			CPU_SetCompareEvent( diff_32 );
+			if (value > gCPUState.CPUControl[C0_COUNT]._u32_0)
+			{
+				// XXXX Looks very suspicious to me...was this the Oot timer fix?
+				u32		diff_32( value - gCPUState.CPUControl[C0_COUNT]._u32_0 );
+
+				CPU_SetCompareEvent( diff_32 );
+			}
+			else
+			{
+				//0x100000000 + value - gCPUState.CPUControl[C0_COUNT]._u32_0
+				DAEDALUS_ERROR(" SetCompare Underflow : Need to handle");
+			}
 		}
 
-		gCPUState.CPUControl[C0_COMPARE]._u64 = value;
+		gCPUState.CPUControl[C0_COMPARE]._u32_0 = value;
 	}
 }
 

@@ -138,7 +138,7 @@ void	CPU_SetVideoInterruptEventCount( u32 count );
 void	CPU_DynarecEnable();
 void	R4300_CALL_TYPE CPU_InvalidateICacheRange( u32 address, u32 length );
 void	R4300_CALL_TYPE CPU_InvalidateICache();
-void	CPU_SetCompare(u64 value);
+void	CPU_SetCompare(u32 value);
 #ifdef DAEDALUS_BREAKPOINTS_ENABLED
 void	CPU_AddBreakPoint( u32 address );						// Add a break point at address dwAddress
 void	CPU_EnableBreakPoint( u32 address, bool enable );		// Enable/Disable the breakpoint as the specified address
