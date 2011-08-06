@@ -1387,6 +1387,16 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		}
 		break;
 
+	case OP_COPRO0:
+		switch( op_code.cop0_op )
+		{
+		case Cop0Op_MFC0:	GenerateMFC0( rt, op_code.fs ); handled = true; break;
+		//case Cop0Op_MTC0:	GenerateMTC0( rt, op_code.fs ); handled = true; break;	//ToDo
+		default:
+			break;
+		}
+		break;
+
 	case OP_COPRO1:
 		switch( op_code.cop1_op )
 		{
@@ -3655,4 +3665,18 @@ inline void	CCodeGeneratorPSP::GenerateCVT_S_W( u32 fd, u32 fs )
 	CVT_S_W( psp_fd, psp_fs );
 
 	UpdateFloatRegister( n64_fd );
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateMFC0( EN64Reg rt, u32 fs )
+{
+	// Never seen this to happen, no reason to bother to handle it
+	DAEDALUS_ASSERT( fs != C0_RAND, "Reading MFC0 random register is unhandled");
+
+	EPspReg			reg_dst( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
+
+	GetVar( reg_dst, &gCPUState.CPUControl[ fs ]._u32_0 );
+	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND, PspReg_T0 );
 }

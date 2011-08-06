@@ -146,6 +146,8 @@ private:
 				void				GenerateCVT_S_W( u32 fd, u32 fs );
 				void				GenerateTRUNC_W_S( u32 fd, u32 fs );
 
+				void				GenerateMFC0( EN64Reg rt, u32 fs );
+
 				CJumpLocation		GenerateBranchAlways( CCodeLabel target );
 				CJumpLocation		GenerateBranchIfSet( const u32 * p_var, CCodeLabel target );
 				CJumpLocation		GenerateBranchIfNotSet( const u32 * p_var, CCodeLabel target );
