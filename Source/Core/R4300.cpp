@@ -1998,7 +1998,7 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 	R4300_CALL_MAKE_OP( op_code );
 
 	// Copy from RT to FS
-	u64 new_value = gGPR[ op_code.rt ]._u64;
+	u32 new_value = gGPR[ op_code.rt ]._u32_0;
 
 	switch ( op_code.fs )
 	{
@@ -2008,22 +2008,23 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 			break;*/
 
 		case C0_CONTEXT:
-			DBGConsole_Msg(0, "Setting context register to 0x%08x", (u32)new_value);
-			gCPUState.CPUControl[ op_code.fs ]._u64 = new_value;
+			DBGConsole_Msg(0, "Setting context register to 0x%08x", new_value);
+			gCPUState.CPUControl[ op_code.fs ]._u32_0 = new_value;
 			break;
 
 		case C0_WIRED:
 			// Set to top limit on write to wired
-			gCPUState.CPUControl[C0_RAND]._u64 = 32-1;
-			DBGConsole_Msg(0, "Setting Wired register to 0x%08x", (u32)new_value);
-			gCPUState.CPUControl[ op_code.fs ]._u64 = new_value;
+			gCPUState.CPUControl[C0_RAND]._u32_0 = 31;
+			DBGConsole_Msg(0, "Setting Wired register to 0x%08x", new_value);
+			gCPUState.CPUControl[C0_WIRED]._u32_0 = new_value;
 			break;
+
 		case C0_RAND:	
 		case C0_BADVADDR:
 		case C0_PRID:
 		case C0_CACHE_ERR:			// Furthermore, this reg must return 0 on reads.
 			// All these registers are read only - make sure that software doesn't write to them
-			DBGConsole_Msg(0, "MTC0. Software attempted to write to read only reg %s: 0x%08x", Cop0RegNames[ op_code.fs ], (u32)new_value);
+			DBGConsole_Msg(0, "MTC0. Software attempted to write to read only reg %s: 0x%08x", Cop0RegNames[ op_code.fs ], new_value);
 			break;
 
 		case C0_CAUSE:
@@ -2031,26 +2032,25 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 			// On writes, set all others to 0. Is this correct?
 			//  Other bits are CE (copro error) BD (branch delay), the other
 			// Interrupt pendings and EscCode.
+
+			DAEDALUS_ASSERT(new_value == 0, "CAUSE register invalid writing");
+
 #ifndef DAEDALUS_SILENT
-			if ( ((u32)new_value&~0x300) != (gCPUState.CPUControl[C0_CAUSE]._u32_0&~0x300)  )
+			if ( (new_value&~0x300) != (gCPUState.CPUControl[C0_CAUSE]._u32_0&~0x300)  )
 			{
 				DBGConsole_Msg( 0, "[MWas previously clobbering CAUSE REGISTER" );
 			}
 #endif
-			DPF( DEBUG_REGS, "CAUSE set to 0x%08x (was: 0x%08x)", (u32)new_value, gGPR[ op_code.rt ]._u32_0 );
-			//(CAUSE_SW1|CAUSE_SW2) = 0x300
+			DPF( DEBUG_REGS, "CAUSE set to 0x%08x (was: 0x%08x)", new_value, gGPR[ op_code.rt ]._u32_0 );
 			gCPUState.CPUControl[C0_CAUSE]._u32_0 &= ~0x300;
-			gCPUState.CPUControl[C0_CAUSE]._u32_0 |= (u32)new_value & 0x300;
-
-			//gCPUState.CPUControl[C0_CAUSE]._u64 &=             ~(CAUSE_SW1|CAUSE_SW2);
-			//gCPUState.CPUControl[C0_CAUSE]._u64 |= (new_value & (CAUSE_SW1|CAUSE_SW2));
+			gCPUState.CPUControl[C0_CAUSE]._u32_0 |= new_value & 0x300;
 			break;
 		case C0_SR:
 			// Software can enable/disable interrupts here. We check if Interrupt Enable is
 			//  set, and if there are any pending interrupts. If there are, then we set the
 			//  CHECK_POSTPONED_INTERRUPTS flag to make sure we check for interrupts that have
 			//  occurred since we disabled interrupts
-			R4300_SetSR((u32)new_value);
+			R4300_SetSR(new_value);
 			break;
 
 		case C0_COUNT:
@@ -2058,7 +2058,7 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 				// See comments below for COMPARE.
 				// When this register is set, we need to check whether the next timed interrupt will
 				//  be due to vertical blank or COMPARE
-				gCPUState.CPUControl[C0_COUNT]._u64 = new_value;
+				gCPUState.CPUControl[C0_COUNT]._u32_0 = new_value;
 				DBGConsole_Msg(0, "Count set - setting int");
 				// XXXX Do we need to update any existing events?
 				break;
@@ -2067,7 +2067,7 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 			{
 				// When the value of COUNT equals the value of COMPARE, IP7 of the CAUSE register is set
 				// (Timer interrupt). Writing to this register clears the timer interrupt pending flag.
-				CPU_SetCompare((u32)new_value);
+				CPU_SetCompare(new_value);
 			}
 			break;
 
@@ -2077,34 +2077,35 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 
 		// WatchHi/WatchLo are used to create a Watch Trap. This may not need implementing, but we should
 		// Probably provide a warning on writes, just so that we know
-		case C0_WATCHLO:
+		/*case C0_WATCHLO:
 			DBGConsole_Msg( 0, "[MWROTE TO WATCHLO REGISTER!" );
-			gCPUState.CPUControl[ op_code.fs ]._u64 = new_value;
+			gCPUState.CPUControl[ op_code.fs ]._u32_0 = new_value;
 			break;
 		case C0_WATCHHI:
 			DBGConsole_Msg( 0, "[MWROTE TO WATCHHI REGISTER!" );
-			gCPUState.CPUControl[ op_code.fs ]._u64 = new_value;
-			break;
+			gCPUState.CPUControl[ op_code.fs ]._u32_0 = new_value;
+			break;*/
 
 		default:
 			// No specific handling needs for writes to these registers.
-			gCPUState.CPUControl[ op_code.fs ]._u64 = new_value;
+			gCPUState.CPUControl[ op_code.fs ]._u32_0 = new_value;
 			break;
 	}
 }
 
 // XXX don't think TLB needs to be 64bit - Salvy
-
+// UpdateValue(u32 _pagemask, u32 _hi, u32 _pfno, u32 _pfne) - So yea no need for 64bit..
+//
 static void R4300_CALL_TYPE R4300_TLB_TLBR( R4300_CALL_SIGNATURE ) 				// TLB Read
 {
 	R4300_CALL_MAKE_OP( op_code );
 
 	u32 index = gCPUState.CPUControl[C0_INX]._u32_0 & 0x1F;
 
-	gCPUState.CPUControl[C0_PAGEMASK]._u64 = g_TLBs[index].mask;
-	gCPUState.CPUControl[C0_ENTRYHI ]._u64 = g_TLBs[index].hi   & (~g_TLBs[index].pagemask);
-	gCPUState.CPUControl[C0_ENTRYLO0]._u64 = g_TLBs[index].pfne | g_TLBs[index].g;
-	gCPUState.CPUControl[C0_ENTRYLO1]._u64 = g_TLBs[index].pfno | g_TLBs[index].g;
+	gCPUState.CPUControl[C0_PAGEMASK]._u32_0 = g_TLBs[index].mask;
+	gCPUState.CPUControl[C0_ENTRYHI ]._u32_0 = g_TLBs[index].hi   & (~g_TLBs[index].pagemask);
+	gCPUState.CPUControl[C0_ENTRYLO0]._u32_0 = g_TLBs[index].pfne | g_TLBs[index].g;
+	gCPUState.CPUControl[C0_ENTRYLO1]._u32_0 = g_TLBs[index].pfno | g_TLBs[index].g;
 
 	DPF( DEBUG_TLB, "TLBR: INDEX: 0x%04x. PAGEMASK: 0x%08x.", index, gCPUState.CPUControl[C0_PAGEMASK]._u32_0 );
 	DPF( DEBUG_TLB, "      ENTRYHI: 0x%08x. ENTRYLO1: 0x%08x. ENTRYLO0: 0x%08x", gCPUState.CPUControl[C0_ENTRYHI]._u32_0, gCPUState.CPUControl[C0_ENTRYLO1]._u32_0, gCPUState.CPUControl[C0_ENTRYLO0]._u32_0 );
@@ -2119,10 +2120,10 @@ static void R4300_CALL_TYPE R4300_TLB_TLBWI( R4300_CALL_SIGNATURE )			// TLB Wri
 
 	DPF( DEBUG_TLB, "TLBWI: INDEX: 0x%04x. ", i );
 
-	g_TLBs[i].UpdateValue(gCPUState.CPUControl[C0_PAGEMASK]._u64,
-						gCPUState.CPUControl[C0_ENTRYHI ]._u64,
-						gCPUState.CPUControl[C0_ENTRYLO1]._u64,
-						gCPUState.CPUControl[C0_ENTRYLO0]._u64);
+	g_TLBs[i].UpdateValue(gCPUState.CPUControl[C0_PAGEMASK]._u32_0,
+						gCPUState.CPUControl[C0_ENTRYHI ]._u32_0,
+						gCPUState.CPUControl[C0_ENTRYLO1]._u32_0,
+						gCPUState.CPUControl[C0_ENTRYLO0]._u32_0);
 }
 
 static void R4300_CALL_TYPE R4300_TLB_TLBWR( R4300_CALL_SIGNATURE )
@@ -2141,10 +2142,10 @@ static void R4300_CALL_TYPE R4300_TLB_TLBWR( R4300_CALL_SIGNATURE )
 
 	DPF( DEBUG_TLB, "TLBWR: INDEX: 0x%04x. ", i );
 
-	g_TLBs[i].UpdateValue(gCPUState.CPUControl[C0_PAGEMASK]._u64,
-						gCPUState.CPUControl[C0_ENTRYHI ]._u64,
-						gCPUState.CPUControl[C0_ENTRYLO1]._u64,
-						gCPUState.CPUControl[C0_ENTRYLO0]._u64);
+	g_TLBs[i].UpdateValue(gCPUState.CPUControl[C0_PAGEMASK]._u32_0,
+						gCPUState.CPUControl[C0_ENTRYHI ]._u32_0,
+						gCPUState.CPUControl[C0_ENTRYLO1]._u32_0,
+						gCPUState.CPUControl[C0_ENTRYLO0]._u32_0);
 }
 
 
