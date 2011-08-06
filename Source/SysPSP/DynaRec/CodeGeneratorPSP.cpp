@@ -3150,13 +3150,19 @@ inline void	CCodeGeneratorPSP::GenerateCFC1( EN64Reg rt, u32 fs )
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void	CCodeGeneratorPSP::GenerateCTC1( u32 fs, EN64Reg rt )
+// This breaks BombreMan Hero, not sure how to fix it though, maybe because we don't set the rounding mode?
+// http://forums.daedalusx64.com/viewtopic.php?f=77&t=2258&p=36374&hilit=GenerateCTC1#p36374
+//
+void	CCodeGeneratorPSP::GenerateCTC1( u32 fs, EN64Reg rt )
 {
+	DAEDALUS_ASSERT( fs == 31, "CTC1 register is invalid");
+
 	EPspReg			psp_rt_lo( GetRegisterAndLoadLo( rt, PspReg_T0 ) );
 	SetVar( &gCPUState.FPUControl[ fs ]._u32_0, psp_rt_lo );
 
-	EPspReg			psp_rt_hi( GetRegisterAndLoadHi( rt, PspReg_T0 ) );
-	SetVar( &gCPUState.FPUControl[ fs ]._u32_1, psp_rt_hi );
+	// Only the lo part is ever set - Salvy
+	//EPspReg			psp_rt_hi( GetRegisterAndLoadHi( rt, PspReg_T0 ) );
+	//SetVar( &gCPUState.FPUControl[ fs ]._u32_1, psp_rt_hi );
 
 	//XXXX TODO:
 	// Change the rounding mode
