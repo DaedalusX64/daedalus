@@ -420,7 +420,7 @@ void	CCodeGeneratorPSP::UpdateRegisterCaching( u32 instruction_idx )
 			}
 
 			// Only process live intervals
-			if( instruction_idx >= span.SpanStart && instruction_idx <= span.SpanEnd )
+			if( (instruction_idx >= span.SpanStart) & (instruction_idx <= span.SpanEnd) )
 			{
 				if( !mRegisterCache.IsCached( span.Register, 0 ) )
 				{
@@ -1190,7 +1190,7 @@ void	CCodeGeneratorPSP::GetFloatVar( EPspFloatReg dst_reg, const f32 * p_var )
 void	CCodeGeneratorPSP::GetBaseRegisterAndOffset( const void * p_address, EPspReg * p_reg, s16 * p_offset )
 {
 	s32		base_pointer_offset( reinterpret_cast< const u8 * >( p_address ) - mpBasePointer );
-	if( base_pointer_offset > SHRT_MIN && base_pointer_offset < SHRT_MAX )
+	if( (base_pointer_offset > SHRT_MIN) & (base_pointer_offset < SHRT_MAX) )
 	{
 		*p_reg = mBaseRegister;
 		*p_offset = base_pointer_offset;
@@ -1518,7 +1518,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			address = 0;
 		}
 
-		UpdateAddressAndDelay( address, branch_delay_slot && need_pc );
+		UpdateAddressAndDelay( address, branch_delay_slot & need_pc );
 
 		GenerateGenericR4300( op_code, R4300_GetInstructionHandler( op_code ) );
 
@@ -1732,7 +1732,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 	EPspReg		reg_base( GetRegisterAndLoadLo( n64_base, PspReg_A0 ) );
 	EPspReg		reg_address( reg_base );
 
-	if( (gDynarecStackOptimisation && n64_base == N64Reg_SP)  || (gMemoryAccessOptimisation && mQuickLoad == StaticAnalysis::Segment_8000 /*&& load_op != OP_LB*/))
+	if((gDynarecStackOptimisation & (n64_base == N64Reg_SP)) || (gMemoryAccessOptimisation & (mQuickLoad == StaticAnalysis::Segment_8000) /*&& load_op != OP_LB*/))
 	{
 		if( swizzle != 0 )
 		{
@@ -1965,7 +1965,7 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 	EPspReg		reg_base( GetRegisterAndLoadLo( n64_base, PspReg_A0 ) );
 	EPspReg		reg_address( reg_base );
 
-	if ( (gDynarecStackOptimisation && n64_base == N64Reg_SP)  || (gMemoryAccessOptimisation && mQuickLoad == StaticAnalysis::Segment_8000))
+	if((gDynarecStackOptimisation & (n64_base == N64Reg_SP)) || (gMemoryAccessOptimisation & (mQuickLoad == StaticAnalysis::Segment_8000)))
 	{
 		if( swizzle != 0 )
 		{
@@ -2045,12 +2045,13 @@ inline void	CCodeGeneratorPSP::GenerateCACHE( EN64Reg base, s16 offset, u32 cach
 	//u32 cache_op  = op_code.rt;
 	//u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 
-	u32 cache = cache_op & 0x3;
-	u32 action = (cache_op >> 2) & 0x7;
+	//u32 cache = cache_op & 0x3;
+	//u32 action = (cache_op >> 2) & 0x7;
 
 	// For instruction cache invalidation, make sure we let the CPU know so the whole
 	// dynarec system can be invalidated
-	if(cache == 0 && action == 0)// && address == 0x80000000)
+	//if(cache == 0 && action == 0)// && address == 0x80000000)
+	if(!(cache_op & 0x1E))
 	{
 		FlushAllRegisters(mRegisterCache, true);
 		LoadRegister(PspReg_A0, base, 0);
@@ -2407,7 +2408,7 @@ inline void	CCodeGeneratorPSP::GenerateAND( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 			mRegisterCache.GetKnownValue(rs, 1)._u32 & mRegisterCache.GetKnownValue(rt, 1)._u32
 			);
 	}
-	else if (rs == N64Reg_R0 || rt == N64Reg_R0)
+	else if ((rs == N64Reg_R0) | (rt == N64Reg_R0))
 	{
 		SetRegister64( rd, 0, 0 );
 	}
@@ -2559,7 +2560,7 @@ inline void	CCodeGeneratorPSP::GenerateSLT( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	// a temporary instead, to avoid overwriting the contents.
 	EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
 
-	if(rd == rs || rd == rt)
+	if((rd == rs) | (rd == rt))
 	{
 		reg_lo_d = PspReg_T0;
 	}
@@ -2599,7 +2600,7 @@ inline void	CCodeGeneratorPSP::GenerateSLTU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	// a temporary instead, to avoid overwriting the contents.
 	EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
 
-	if(rd == rs || rd == rt)
+	if((rd == rs) | (rd == rt))
 	{
 		reg_lo_d = PspReg_T0;
 	}
@@ -3138,7 +3139,7 @@ inline void	CCodeGeneratorPSP::GenerateCFC1( EN64Reg rt, u32 fs )
 {
 	//Saves a compare //Corn
 	//if( !((fs + 1) & 0x1E) ) // Risky
-	if( fs == 0 || fs == 31 )
+	if( (fs == 0) | (fs == 31) )
 	{
 		EPspReg			reg_dst( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 
