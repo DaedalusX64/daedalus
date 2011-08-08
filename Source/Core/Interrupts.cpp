@@ -55,7 +55,7 @@ u32		gExceptionVector( ~0 );
 //*****************************************************************************
 //
 //*****************************************************************************
-void R4300_JumpToInterruptVector(u32 exception_vector)
+inline void R4300_JumpToInterruptVector(u32 exception_vector)
 {
 
 #if defined(DAEDALUS_ENABLE_ASSERTS) || defined(DAEDALUS_PROFILE_EXECUTION)
