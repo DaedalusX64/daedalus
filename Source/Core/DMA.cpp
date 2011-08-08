@@ -454,11 +454,12 @@ void DMA_PI_CopyFromRDRAM()
 		DBGConsole_Msg(0, "[YUnknown PI Address 0x%08x]", cart_address);
 	}
 
-	
-	Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
+#ifdef EXPERIMENTAL_INTERRUPTS
+	Trigger_PIInterrupt();	
+#else
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_PI);
 	R4300_Interrupt_UpdateCause3();
-
+#endif
 
 }
 
