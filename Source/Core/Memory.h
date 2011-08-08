@@ -33,11 +33,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // In any case, reads and writes to the hardware registers is 
 // relatively rare, and so the actual speedup is likely to be very
 // slight
-//#ifdef DAEDALUS_PUBLIC_RELEASE
-//#define MEMORY_BOUNDS_CHECKING(x) 1
-//#else
+
+// Seems to work fine now 8/8/11- Salvy
+// For this work properly, make sure to set optimisation atleast -02, otherwise the compiler won't discard the unused code and will cause to overlap!
+
+#ifdef DAEDALUS_PUBLIC_RELEASE
+#define MEMORY_BOUNDS_CHECKING(x) 1
+#else
 #define MEMORY_BOUNDS_CHECKING(x) x
-//#endif
+#endif
 
 enum MEMBANKTYPE
 {
