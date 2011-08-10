@@ -97,7 +97,6 @@ struct SRomPreferences;
 
 // Increase this everytime you add a new hack, don't forget to add it in gGameHackNames too !!!
 //
-#define MAX_HACK_NAMES 21
 //
 //*****************************************************************************
 //	Hacks for games etc.
@@ -125,7 +124,10 @@ enum EGameHacks
 	AIDYN_CRONICLES,
 	ISS64,
 	WAVERACER,
+	LAST_ENTRY
 };
+
+#define MAX_HACK_NAMES LAST_ENTRY
 
 //*****************************************************************************
 //

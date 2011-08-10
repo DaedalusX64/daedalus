@@ -316,6 +316,10 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 		{
 			settings.CheatsEnabled = p_property->GetBooleanValue( false );
 		}
+		if( p_section->FindProperty( "UseIRQmode", &p_property ) )
+		{
+			settings.UseIRQmode = p_property->GetBooleanValue( false );
+		}
 		SetSettings( id, settings );
 	}
 
@@ -438,6 +442,7 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	if( settings.FogEnabled )					fprintf(fh, "FogEnabled=yes\n"); 
 	if( settings.MemoryAccessOptimisation )		fprintf(fh, "MemoryAccessOptimisation=yes\n");
 	if( settings.CheatsEnabled )				fprintf(fh, "CheatsEnabled=yes\n");
+	if( settings.UseIRQmode )					fprintf(fh, "UseIRQmode=yes\n");
 
 	if ( settings.ExpansionPakUsage != PAK_STATUS_UNKNOWN )	fprintf(fh, "ExpansionPakUsage=%s\n", ROM_GetExpansionPakUsageName( settings.ExpansionPakUsage ) );
 	if ( settings.SaveType != SAVE_TYPE_UNKNOWN )			fprintf(fh, "SaveType=%s\n", ROM_GetSaveTypeName( settings.SaveType ) );
@@ -499,6 +504,7 @@ RomSettings::RomSettings()
 ,	FogEnabled( false )
 ,   MemoryAccessOptimisation( false )
 ,   CheatsEnabled( false )
+,	UseIRQmode( false )
 ,	RescanCount(0)
 {
 }
@@ -531,6 +537,7 @@ void	RomSettings::Reset()
 	AudioRateMatch = false;
 	FogEnabled = false;
 	CheatsEnabled = false;
+	UseIRQmode = false;
 	MemoryAccessOptimisation = false;
 	RescanCount = 0;
 }
