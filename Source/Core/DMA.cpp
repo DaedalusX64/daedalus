@@ -153,12 +153,7 @@ void DMA_SI_CopyFromDRAM( )
 
 	Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SI);
-
-#ifdef EXPERIMENTAL_INTERRUPTS
-	Trigger_SIInterrupt();
-#else
 	R4300_Interrupt_UpdateCause3();
-#endif
 }
 
 //*****************************************************************************
@@ -180,12 +175,11 @@ void DMA_SI_CopyToDRAM( )
 	Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SI);
 
-#ifdef EXPERIMENTAL_INTERRUPTS
-	Trigger_SIInterrupt();
-#else
-	if (g_ROM.settings.UseIRQmode) Trigger_SIInterrupt();
-	else R4300_Interrupt_UpdateCause3();
-#endif
+	//Skipping this IRQ fixes allows Body Harvest and Nightmare Creatures to boot
+	//ToDo: Found the cause and fix it of course ;)
+	//
+	if (!g_ROM.settings.UseIRQmode) 
+		R4300_Interrupt_UpdateCause3();
 }
 
 
@@ -399,14 +393,10 @@ void DMA_PI_CopyToRDRAM()
 		else
 			Write32Bits(0x800003F0, gRamSize);
 	}
+
 	Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_PI);
-
-#ifdef EXPERIMENTAL_INTERRUPTS
-	Trigger_PIInterrupt();	
-#else
 	R4300_Interrupt_UpdateCause3();
-#endif
 }
 
 //*****************************************************************************
@@ -455,13 +445,9 @@ void DMA_PI_CopyFromRDRAM()
 		DBGConsole_Msg(0, "[YUnknown PI Address 0x%08x]", cart_address);
 	}
 
+	Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_PI);
-
-#ifdef EXPERIMENTAL_INTERRUPTS
-	Trigger_PIInterrupt();	
-#else
 	R4300_Interrupt_UpdateCause3();
-#endif
 
 }
 

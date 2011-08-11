@@ -180,13 +180,7 @@ void RSP_HLE_Finished()
 	if( status & SP_STATUS_INTR_BREAK )
 	{
 		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SP);
-
-#ifdef EXPERIMENTAL_INTERRUPTS
-		Trigger_SPInterrupt();
-#else
-		R4300_Interrupt_UpdateCause3();
-#endif
-		
+		R4300_Interrupt_UpdateCause3();	
 	}
 }
 

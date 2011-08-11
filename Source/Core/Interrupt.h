@@ -52,32 +52,6 @@ inline void R4300_Interrupt_UpdateCause3()
 	}
 }
 
-inline void Trigger_SIInterrupt(void)
-{
-	if( Memory_MI_GetRegister(MI_INTR_MASK_REG) & Memory_MI_GetRegister(MI_INTR_MASK_SI) )
-	{
-		gCPUState.CPUControl[C0_CAUSE]._u32_0 |= CAUSE_IP3;
-		gCPUState.AddJob( CPU_CHECK_INTERRUPTS );
-	}
-}
-
-inline void Trigger_PIInterrupt(void)
-{
-	if( Memory_MI_GetRegister(MI_INTR_MASK_REG) & Memory_MI_GetRegister(MI_INTR_MASK_PI) )
-	{
-		gCPUState.CPUControl[C0_CAUSE]._u32_0 |= CAUSE_IP3;
-		gCPUState.AddJob( CPU_CHECK_INTERRUPTS );
-	}
-}
-inline void Trigger_SPInterrupt(void)
-{
-	if( Memory_MI_GetRegister(MI_INTR_MASK_REG) & Memory_MI_GetRegister(MI_INTR_MASK_SP) )
-	{
-		gCPUState.CPUControl[C0_CAUSE]._u32_0 |= CAUSE_IP3;
-		gCPUState.AddJob( CPU_CHECK_INTERRUPTS );
-	}
-}
-
 void R4300_Handle_Exception();
 void R4300_Handle_Interrupt();
 
