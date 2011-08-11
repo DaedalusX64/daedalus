@@ -66,10 +66,6 @@ static void MemoryUpdatePIF();
 //static void MemoryDoDP();
 
 static void Memory_InitTables();
-static void Memory_TLBRefillStore( u32 virtual_addr );
-static void Memory_TLBInvalidStore( u32 virtual_addr );
-static void Memory_TLBRefillLoad( u32 virtual_addr );
-static void Memory_TLBInvalidLoad( u32 virtual_addr );
 
 #ifdef REALITY_MEM
 static void init_fast_mem();
@@ -1487,56 +1483,4 @@ void MemoryUpdatePIF()
 		break;
 	}
 
-}
-//*****************************************************************************
-//
-//*****************************************************************************
-//*****************************************************************************
-//
-//*****************************************************************************
-void Memory_TLBRefillLoad( u32 virtual_addr )
-{
-	//DBGConsole_Msg(0, "[WTLB: Refill] 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC);
-	DPF( DEBUG_TLB, "TLB: Refill - 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC );
-	//CPU_Halt("TLBRefill");
-
-	R4300_Exception_TLB_Refill( virtual_addr, EXCEPTION_TLB_LOAD );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void Memory_TLBInvalidLoad( u32 virtual_addr )
-{
-	//DBGConsole_Msg(0, "[WTLB: Invalid] 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC);
-	DPF( DEBUG_TLB, "TLB: Invalid - 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC );
-	//CPU_Halt("TLBInvalid");
-
-	R4300_Exception_TLB_Invalid( virtual_addr, EXCEPTION_TLB_LOAD );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void Memory_TLBRefillStore( u32 virtual_addr )
-{
-	// Disabled - for some roms this causes so much spam it breaks the batch mode processing
-	//DBGConsole_Msg(0, "TLB: Refill - 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC);
-	DPF( DEBUG_TLB, "TLB: Refill - 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC );
-	//CPU_Halt("TLBRefill");
-
-	R4300_Exception_TLB_Refill( virtual_addr, EXCEPTION_TLB_STORE );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void Memory_TLBInvalidStore( u32 virtual_addr )
-{
-	// Disabled - for some roms this causes so much spam it breaks the batch mode processing
-	//DBGConsole_Msg(0, "TLB: Invalid - 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC);
-	DPF( DEBUG_TLB, "TLB: Invalid - 0x%08x at 0x%08x", virtual_addr, gCPUState.CurrentPC );
-	//CPU_Halt("TLBStore");
-
-	R4300_Exception_TLB_Invalid( virtual_addr, EXCEPTION_TLB_STORE );
 }

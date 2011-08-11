@@ -80,14 +80,13 @@ static void * ReadMapped( u32 address )
 	{
 		if (missing)
 		{
-			Memory_TLBRefillLoad(address);
-
+			R4300_Exception_TLB(address, EXC_RMISS, UT_VEC);
 			return g_pMemoryBuffers[MEM_UNUSED];
 		}
 		else
 		{
 			// should be invalid
-			Memory_TLBInvalidLoad(address);
+			R4300_Exception_TLB(address, EXC_RMISS, E_VEC);
 			return g_pMemoryBuffers[MEM_UNUSED];
 		}
 	}	

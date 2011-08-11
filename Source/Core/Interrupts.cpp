@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Debug/DBGConsole.h"
 
-#define SET_EXCEPTION(exception)	{ gCPUState.CPUControl[C0_CAUSE]._u32_0 &= ~CAUSE_EXCMASK; gCPUState.CPUControl[C0_CAUSE]._u32_0 |= exception; }
+#define SET_EXCEPTION(mask, exception)	{ gCPUState.CPUControl[C0_CAUSE]._u32_0 &= ~mask; gCPUState.CPUControl[C0_CAUSE]._u32_0 |= exception; }
 
 // Do not use CAUSE_EXCMASK, else most games will fail when CAUSE is set 32bits
 //
@@ -92,7 +92,7 @@ void R4300_Exception_Break()
 	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
 
 	// Clear CAUSE_EXCMASK
-	SET_EXCEPTION( EXC_BREAK ) 
+	SET_EXCEPTION( CAUSE_EXCMASK, EXC_BREAK ) 
 
 	gExceptionVector = E_VEC;
 	gExceptionPC = gCPUState.CurrentPC;
@@ -109,7 +109,7 @@ void R4300_Exception_Syscall()
 	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
 
 	// Clear CAUSE_EXCMASK
-	SET_EXCEPTION( EXC_SYSCALL ) 
+	SET_EXCEPTION( CAUSE_EXCMASK, EXC_SYSCALL ) 
 
 	gExceptionVector = E_VEC;
 	gExceptionPC = gCPUState.CurrentPC;
@@ -128,10 +128,10 @@ void R4300_Exception_CopUnusuable()
 
 	// Clear CAUSE_EXCMASK
 	// XXXX check we're not inside exception handler before snuffing CAUSE reg?
-	SET_EXCEPTION( EXC_CPU ) 
+	SET_EXCEPTION( (CAUSE_EXCMASK|CAUSE_CEMASK), (EXC_CPU|SR_CU0) ) 
 
-    gCPUState.CPUControl[C0_CAUSE]._u32_0 &= 0xCFFFFFFF;
-	gCPUState.CPUControl[C0_CAUSE]._u32_0 |= SR_CU0;
+    /*gCPUState.CPUControl[C0_CAUSE]._u32_0 &= 0xCFFFFFFF;
+	gCPUState.CPUControl[C0_CAUSE]._u32_0 |= SR_CU0;*/
 
 	/*if(gCPUState.Delay == EXEC_DELAY)
         gCPUState.CPUControl[C0_CAUSE]._u32_0 |= CAUSE_BD;
@@ -153,7 +153,7 @@ void R4300_Exception_FP()
 	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
 
 	// Clear CAUSE_EXCMASK
-	SET_EXCEPTION( EXC_FPE ) 
+	SET_EXCEPTION( CAUSE_EXCMASK, EXC_FPE ) 
 
 	gExceptionVector = E_VEC;
 	gExceptionPC = gCPUState.CurrentPC;
@@ -164,7 +164,7 @@ void R4300_Exception_FP()
 //*****************************************************************************
 //
 //*****************************************************************************
-void R4300_Exception_TLB_Invalid( u32 virtual_address, ETLBExceptionReason reason )
+void R4300_Exception_TLB( u32 virtual_address, u32 exception_code, u32 exception_vector )
 {
 	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
 	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
@@ -177,48 +177,9 @@ void R4300_Exception_TLB_Invalid( u32 virtual_address, ETLBExceptionReason reaso
 	gCPUState.CPUControl[C0_ENTRYHI]._u32_0 &= 0x00001FFF;	// Mask off the top bit 13-31 
 	gCPUState.CPUControl[C0_ENTRYHI]._u32_0 |= (virtual_address & 0xFFFFE000);
 
-	u32		exception_code( 0 );
+	SET_EXCEPTION( CAUSE_EXCMASK, exception_code ) 
 
-	if( reason == EXCEPTION_TLB_STORE )
-		exception_code = EXC_WMISS; 
-	else
-		exception_code = EXC_RMISS; 
-
-	SET_EXCEPTION( exception_code ) 
-
-	gExceptionVector = E_VEC;
-	gExceptionPC = gCPUState.CurrentPC;
-	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
-	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void R4300_Exception_TLB_Refill( u32 virtual_address, ETLBExceptionReason reason )
-{
-
-	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
-	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
-
-	gCPUState.CPUControl[C0_BADVADDR]._u32_0 = virtual_address;
-
-	gCPUState.CPUControl[C0_CONTEXT]._u32_0 &= 0xFF800000;	// Mask off bottom 23 bits
-	gCPUState.CPUControl[C0_CONTEXT]._u32_0 |= ((virtual_address >> 13) << 4);
-
-	gCPUState.CPUControl[C0_ENTRYHI]._u32_0 &= 0x00001FFF;	// Mask off the top bit 13-31 
-	gCPUState.CPUControl[C0_ENTRYHI]._u32_0 |= (virtual_address & 0xFFFFE000);
-
-	u32		exception_code( 0 );
-
-	if( reason == EXCEPTION_TLB_STORE )
-		exception_code = EXC_WMISS; 
-	else
-		exception_code = EXC_RMISS; 
-
-	SET_EXCEPTION( exception_code ) 
-
-	gExceptionVector = UT_VEC;
+	gExceptionVector = exception_vector;
 	gExceptionPC = gCPUState.CurrentPC;
 	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
 	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
@@ -266,7 +227,7 @@ void R4300_Handle_Interrupt()
 			gNumInterrupts++;
 #endif
 			// Clear CAUSE_EXCMASK
-			SET_EXCEPTION( EXC_INT )
+			SET_EXCEPTION( CAUSE_EXCMASK, EXC_INT )
 			R4300_JumpToInterruptVector( E_VEC );
 		}
 	} 

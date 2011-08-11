@@ -69,14 +69,13 @@ static void * WriteMapped( u32 address )
 	{
 		if (missing)
 		{
-			Memory_TLBRefillStore(address);
-
+			R4300_Exception_TLB(address, EXC_WMISS, UT_VEC);
 			return g_pMemoryBuffers[MEM_UNUSED];
 		}
 		else
 		{
 			// should be invalid
-			Memory_TLBInvalidStore(address);
+			R4300_Exception_TLB(address, EXC_WMISS, E_VEC);
 			return g_pMemoryBuffers[MEM_UNUSED];
 		}
 	}	
