@@ -72,7 +72,7 @@ struct RomSettings
 	bool				FogEnabled;
 	bool                MemoryAccessOptimisation;
 	bool				CheatsEnabled;
-	bool				UseIRQmode;
+	bool				SkipPifIRQ;
 
 	u32					RescanCount;
 	

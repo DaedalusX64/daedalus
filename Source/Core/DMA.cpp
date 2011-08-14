@@ -175,10 +175,10 @@ void DMA_SI_CopyToDRAM( )
 	Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SI);
 
-	//Skipping this IRQ fixes allows Body Harvest and Nightmare Creatures to boot
+	//Skipping this IRQ fixes allows Body Harvest and Nightmare Creatures to boot but make Animal crossing fail
 	//ToDo: Found the cause and fix it of course ;)
 	//
-	if (!g_ROM.settings.UseIRQmode) 
+	if (!g_ROM.settings.SkipPifIRQ) 
 		R4300_Interrupt_UpdateCause3();
 }
 

@@ -594,6 +594,33 @@ void	IController::CommandWriteEeprom(char *src, long offset)
 //*****************************************************************************
 //
 //*****************************************************************************
+#if 1	//1-> Unrolled fast 0-> old way //Corn
+u8 IController::CalculateDataCrc(u8 * pBuf)
+{
+	u32 c = 0;
+	for (u32 i = 0; i < 32; i++)
+	{
+		u32 s = pBuf[i];
+
+		c = (((c << 1) | ((s >> 7) & 1))) ^ ((c & 0x80) ? 0x85 : 0);
+		c = (((c << 1) | ((s >> 6) & 1))) ^ ((c & 0x80) ? 0x85 : 0);
+		c = (((c << 1) | ((s >> 5) & 1))) ^ ((c & 0x80) ? 0x85 : 0);
+		c = (((c << 1) | ((s >> 4) & 1))) ^ ((c & 0x80) ? 0x85 : 0);
+		c = (((c << 1) | ((s >> 3) & 1))) ^ ((c & 0x80) ? 0x85 : 0);
+		c = (((c << 1) | ((s >> 2) & 1))) ^ ((c & 0x80) ? 0x85 : 0);
+		c = (((c << 1) | ((s >> 1) & 1))) ^ ((c & 0x80) ? 0x85 : 0);
+		c = (((c << 1) | ((s >> 0) & 1))) ^ ((c & 0x80) ? 0x85 : 0);
+	}
+
+	for (u32 i = 8; i != 0; i--)
+	{		
+		c = (c << 1) ^ ((c & 0x80) ? 0x85 : 0);
+	}
+
+	return c;
+}
+
+#else
 u8 IController::CalculateDataCrc(u8 * pBuf)
 {
 	u8 c;
@@ -624,7 +651,7 @@ u8 IController::CalculateDataCrc(u8 * pBuf)
 
 	return c;
 }
-
+#endif
 //*****************************************************************************
 // Returns new position to continue reading
 // i is the address of the first write info (after command itself)
