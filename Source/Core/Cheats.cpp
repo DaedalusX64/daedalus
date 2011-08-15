@@ -36,7 +36,7 @@ CODEGROUP *codegrouplist;
 u32		codegroupcount		= 0;
 s32		currentgroupindex	= -1;
 char	current_rom_name[128];
-
+extern void* malloc_volatile(size_t size);
 //enum { CHEAT_ALL_COUNTRY, CHEAT_USA, CHEAT_JAPAN, CHEAT_USA_AND_JAPAN, CHEAT_EUR, CHEAT_AUS, CHEAT_FR, CHEAT_GER };
 //*****************************************************************************
 //
@@ -399,7 +399,7 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 
 		// Allocate memory for groups
 		//
-		codegrouplist = (CODEGROUP *) malloc(numberofgroups *sizeof(CODEGROUP));
+		codegrouplist = (CODEGROUP *) malloc_volatile(numberofgroups *sizeof(CODEGROUP));
 		if(codegrouplist == NULL)
 		{
 			//printf("Cannot allocate memory to load cheat codes");

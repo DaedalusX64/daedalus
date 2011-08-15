@@ -69,8 +69,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /* Define to enable Exit Callback */
 // Do not enable this, callbacks don't get along with our exit dialog :p
+// Only needed for gprof
 //
-//#define DAEDALUS_CALLBACKS 
+#ifdef DAEDALUS_PSP_GPROF
+#define DAEDALUS_CALLBACKS 
+#else
+#undef DAEDALUS_CALLBACKS
+#endif
 
 char gDaedalusExePath[MAX_PATH+1] = DAEDALUS_PSP_PATH( "" );
 
@@ -96,6 +101,8 @@ extern void initExceptionHandler();
 extern int HAVE_DVE;
 extern int PSP_TV_CABLE;
 extern int PSP_TV_LACED;
+
+extern void VolatileMemInit();
 
 
 bool PSP_IS_SLIM = false;
@@ -331,6 +338,9 @@ static bool	Initialize()
 
 	//Init Panic button thread
 	SetupPanic();
+
+	// Init volatile memory
+	VolatileMemInit();
 
 	// We have to Callbacks if kernelbuttons.prx failed
 	if( gButtons.kmode == false )
