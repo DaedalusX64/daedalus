@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "JobManager.h"
 
+#include "Utility/ModulePSP.h"
 #include "Utility/CritSect.h"
 #include "Utility/Thread.h"
 
@@ -63,17 +64,13 @@ static void StartJobManager()
 void InitialiseJobManager()
 {
 #ifdef DAEDALUS_PSP_USE_ME
-	SceUID modid;
 
-	printf("\nTrying to load mediaengine.prx\n");
-	modid =  pspSdkLoadStartModule( "mediaengine.prx", PSP_MEMORY_PARTITION_KERNEL );
-	if( modid < 0 )
+	if( CModule::Load("mediaengine.prx") < 0 )	
 	{
-		printf( "Failed to load mediaengine.prx: %08x\n", modid );
 		bNeedStartME = false;
-		return;
 	}
-	printf( "Successfully loaded mediaengine.prx: %08X\n", modid );
+
+
 #endif
 }
 

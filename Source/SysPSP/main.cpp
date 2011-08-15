@@ -50,6 +50,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Preferences.h"
 #include "Utility/Timer.h"
 #include "Utility/Thread.h"
+#include "Utility/ModulePSP.h"
 
 #include "Graphics/GraphicsContext.h"
 
@@ -106,6 +107,7 @@ extern void VolatileMemInit();
 
 
 bool PSP_IS_SLIM = false;
+static bool bKernelHomeButton = false;
 //*************************************************************************************
 //Set up our initial eviroment settings for the PSP
 //*************************************************************************************
@@ -123,7 +125,7 @@ static void DaedalusError(u32 version)
 {
 	// ToDo : Add more errors for missing/damaged/old rom.db, preferences.ini ohle cache, and other prxs?
 	//
-	if( gButtons.kmode )
+	if( bKernelHomeButton )
 	{
 		pspDebugScreenPrintf( "	Unsupported Firmware Detected : 0x%08X\n", version );
 		pspDebugScreenPrintf( "\n" );
@@ -155,7 +157,7 @@ static void DaedalusFWCheck()
 		fclose(fh);
 	}
 */
-	if( (ver < PSP_FIRMWARE(0x401)) || (ver <= PSP_FIRMWARE(0x550) && !gButtons.kmode) )
+	if( (ver < PSP_FIRMWARE(0x401)) || (ver <= PSP_FIRMWARE(0x550) && !bKernelHomeButton) )
 	{
 		pspDebugScreenInit();
 		pspDebugScreenSetTextColor(0xffffff);
@@ -303,11 +305,6 @@ extern bool bNeedStartME;
 //*************************************************************************************
 static bool	Initialize()
 {
-	// Set up our Kernel Home button or User Button
-	InitHomeButton();
-
-	// Check for unsupported FW
-	DaedalusFWCheck();
 
 	printf( "Cpu was: %dMHz, Bus: %dMHz\n", scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency() );
 	if (scePowerSetClockFrequency(333, 333, 166) != 0)
@@ -316,6 +313,13 @@ static bool	Initialize()
 	}
 	printf( "Cpu now: %dMHz, Bus: %dMHz\n", scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency() );
 
+	// Set up our Kernel Home button or User Button
+	bKernelHomeButton = InitHomeButton();
+
+	// Check for unsupported FW
+	DaedalusFWCheck();
+
+	// Initiate MediaEngine
 	InitialiseJobManager();
 
 // Disable for profiling
@@ -342,8 +346,8 @@ static bool	Initialize()
 	// Init volatile memory
 	VolatileMemInit();
 
-	// We have to Callbacks if kernelbuttons.prx failed
-	if( gButtons.kmode == false )
+	// let callbacks go in the wild if imposectrl.prx failed
+	if( !bKernelHomeButton )
 	{
 #ifdef DAEDALUS_CALLBACKS
 		//Set up callback for our thread
@@ -359,21 +363,14 @@ static bool	Initialize()
 		//
 		if( bNeedStartME )
 			PSP_IS_SLIM = true;
-
-		HAVE_DVE = pspSdkLoadStartModule("dvemgr.prx", PSP_MEMORY_PARTITION_KERNEL);
+		
+		HAVE_DVE = CModule::Load("dvemgr.prx");
 		if (HAVE_DVE >= 0)
 			PSP_TV_CABLE = pspDveMgrCheckVideoOut();
 		if (PSP_TV_CABLE == 1)
 			PSP_TV_LACED = 1; // composite cable => interlaced
-
-		if(PSP_TV_CABLE == 0)
-		{
-			// Stop and unload dvemgr.prx since no video cable was connected
-			//
-			sceKernelStopModule(HAVE_DVE, 0, NULL, NULL, NULL);
-			s32 ret = sceKernelUnloadModule(HAVE_DVE);
-			if(ret < 0)	printf("Couldn't unload dvemgr.prx! : 0x%08X\n",ret);
-		}
+		else if( PSP_TV_CABLE == 0 )
+			CModule::Unload( HAVE_DVE );	// Stop and unload dvemgr.prx since if no video cable is
 	}
 
 	HAVE_DVE = (HAVE_DVE < 0) ? 0 : 1; // 0 == no dvemgr, 1 == dvemgr

@@ -21,9 +21,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "Buttons.h"
 
+#include "Utility/ModulePSP.h"
+
 #include <pspctrl.h>
-#include <pspsdk.h>
-#include <pspkernel.h>
 
 //
 /****** Wrapper for Home Button functions ******/
@@ -34,41 +34,40 @@ extern "C"
 	void SetImposeHomeButton();
 }
 
-PSPButtons gButtons;
+
 //*****************************************************************************
 //	Init our buttons, various stats etc
 //*****************************************************************************
-void InitHomeButton()
+bool InitHomeButton()
 {
-	s32 gGetKernelButtons = pspSdkLoadStartModule("imposectrl.prx", PSP_MEMORY_PARTITION_KERNEL);
-
 	// Start our stack for either kernel or usermode buttons
 	//
-	gButtons.kmode  =  ( gGetKernelButtons >= 0 ) ? true : false;
-	//gButtons.style  =  ( gButtons.kmode == true  ) ? PSP_CTRL_HOME : PSP_CTRL_SELECT;
+	int impose = CModule::Load("imposectrl.prx");
 
-	// Force non-kernelbuttons when profiling
 	//
-#ifdef DAEDALUS_PSP_GPROF
-	gButtons.kmode = false;
-#endif
-
-	if( gButtons.kmode == true )
+	// if imposectrl.prx loaded correctly, let's do some magic to take (forcely) control of HOME button 
+	//
+	if(impose >= 0)
 	{
+		//
 		// Unset home button and imposed to allow use it as normal button
 		//
 		SetImposeHomeButton(); 
+
+		//
+		// Stop and unload imposectrl.prx since we only needed it once to impose HOME button
+		//
+		CModule::Unload( impose );
+
+		return true;
 	}
 
-	printf( "%s to load imposectrl.prx: %08X\n", gButtons.kmode ? "Successfully" : "Failed",
-			gGetKernelButtons );
-
-	// Stop and unload imposectrl.prx since we only need it one to impose HOME button
 	//
-	sceKernelStopModule(gGetKernelButtons, 0, NULL, NULL, NULL);
-	s32 ret = sceKernelUnloadModule(gGetKernelButtons);
-	if(ret < 0)	printf("Couldn't unload imposectrl.prx! : 0x%08X\n",ret);
-
+	// Errg for some reasons we couldn't load imposectrl.prx, OFW?
+	// Anyways it'll sort of works in >=6XX
+	// BTW We didn't load anything.. so no point to unload anything at this point
+	//
+	return false;	// In < 5XX Daedalus will be crippled.. warn user what up..
 }
 
 //*****************************************************************************

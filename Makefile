@@ -121,6 +121,7 @@ DAED_PSP_SRCS =		Source/SysPSP/Graphics/DrawText.cpp \
 			Source/SysPSP/DveMgr/pspDveManager.S \
 			Source/SysPSP/KernelButtonsPrx/imposectrl.S \
 			Source/SysPSP/Utility/Buttons.cpp \
+			Source/SysPSP/Utility/ModulePSP.cpp \
 			Source/SysPSP/SysEventPRX/sysevent.S \
 			Source/SysPSP/Utility/VolatileMemPSP.cpp \
 			Source/SysPSP/UI/Dialogs.cpp \
