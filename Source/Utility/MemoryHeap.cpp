@@ -193,7 +193,7 @@ void* IMemoryHeap::Alloc( u32 size )
 			{
 #ifdef SHOW_MEM
 				mMemAlloc += size;
-				printf("Mem %d +\n", mMemAlloc);
+				printf("VRAM %d +\n", mMemAlloc);
 #endif
 				return InsertNew( i, adr, size );
 			}
@@ -209,7 +209,7 @@ void* IMemoryHeap::Alloc( u32 size )
 
 #ifdef SHOW_MEM
 	mMemAlloc += size;
-	printf("Mem %d +\n", mMemAlloc);
+	printf("VRAM %d +\n", mMemAlloc);
 #endif
 	return InsertNew( mMemMapLen, adr, size );
 }
@@ -243,7 +243,7 @@ void  IMemoryHeap::Free( void * ptr )
 		}
 	}
 #ifdef SHOW_MEM
-	printf("Mem %d -\n", mMemAlloc);
+	printf("VRAM %d -\n", mMemAlloc);
 #endif
 }
 

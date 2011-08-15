@@ -643,10 +643,9 @@ bool	CTexture::HasExpired() const
 		if( mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
 	}
 
-	//Otherwise we wait 20+random(7) frames to avoid cache thrashing
-	//May need further adjustment (based on the ROM's Framrate)
-	//Spread them over time so not all get killed at once, lower value uses less cache tho //Corn
-	return gRDPFrame - mFrameLastUsed > (20 + (pspFastRand() & 0x7)); 
+	//Otherwise we wait 30+random(7) frames before trashing the texture if unused
+	//Spread trashing them over time so not all get killed at once (lower value uses less VRAM) //Corn
+	return gRDPFrame - mFrameLastUsed > (30 + (pspFastRand() & 0x7)); 
 }
 
 //*****************************************************************************
