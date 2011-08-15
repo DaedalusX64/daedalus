@@ -62,6 +62,13 @@ void InitHomeButton()
 
 	printf( "%s to load imposectrl.prx: %08X\n", gButtons.kmode ? "Successfully" : "Failed",
 			gGetKernelButtons );
+
+	// Stop and unload imposectrl.prx since we only need it one to impose HOME button
+	//
+	sceKernelStopModule(gGetKernelButtons, 0, NULL, NULL, NULL);
+	s32 ret = sceKernelUnloadModule(gGetKernelButtons);
+	if(ret < 0)	printf("Couldn't unload imposectrl.prx! : 0x%08X\n",ret);
+
 }
 
 //*****************************************************************************

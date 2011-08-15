@@ -365,6 +365,15 @@ static bool	Initialize()
 			PSP_TV_CABLE = pspDveMgrCheckVideoOut();
 		if (PSP_TV_CABLE == 1)
 			PSP_TV_LACED = 1; // composite cable => interlaced
+
+		if(PSP_TV_CABLE == 0)
+		{
+			// Stop and unload dvemgr.prx since no video cable was connected
+			//
+			sceKernelStopModule(HAVE_DVE, 0, NULL, NULL, NULL);
+			s32 ret = sceKernelUnloadModule(HAVE_DVE);
+			if(ret < 0)	printf("Couldn't unload dvemgr.prx! : 0x%08X\n",ret);
+		}
 	}
 
 	HAVE_DVE = (HAVE_DVE < 0) ? 0 : 1; // 0 == no dvemgr, 1 == dvemgr
