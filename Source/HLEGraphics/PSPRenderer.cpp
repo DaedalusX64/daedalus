@@ -1046,7 +1046,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
 	{
 		// G_AC_THRESHOLD || G_AC_DITHER
-		sceGuAlphaFunc( GU_GEQUAL, mAlphaThreshold, 0xff);
+		sceGuAlphaFunc( ( mAlphaThreshold || g_ROM.GameHacks == AIDYN_CRONICLES ) ? GU_GEQUAL : GU_GREATER, mAlphaThreshold, 0xff);
 		sceGuEnable(GU_ALPHA_TEST);
 	}
 	// I think this implies that alpha is coming from
