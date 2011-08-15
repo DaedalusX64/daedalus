@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2005 StrmnNrmn
+Copyright (C) 2011 Salvy6735
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

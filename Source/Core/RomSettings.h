@@ -63,7 +63,6 @@ struct RomSettings
 	bool				PatchesEnabled;
 	bool				SpeedSyncEnabled;
 	bool				DynarecSupported;
-	bool				DynarecStackOptimisation;
 	bool				DynarecLoopOptimisation;
 	bool				DoubleDisplayEnabled;
 	bool				SimulateDoubleDisabled;
@@ -72,7 +71,6 @@ struct RomSettings
 	bool				FogEnabled;
 	bool                MemoryAccessOptimisation;
 	bool				CheatsEnabled;
-	bool				SkipPifIRQ;
 
 	u32					RescanCount;
 	

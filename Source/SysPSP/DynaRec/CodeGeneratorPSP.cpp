@@ -1732,7 +1732,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 	EPspReg		reg_base( GetRegisterAndLoadLo( n64_base, PspReg_A0 ) );
 	EPspReg		reg_address( reg_base );
 
-	if((gDynarecStackOptimisation & (n64_base == N64Reg_SP)) || (gMemoryAccessOptimisation & (mQuickLoad == StaticAnalysis::Segment_8000) /*&& load_op != OP_LB*/))
+	if( (n64_base == N64Reg_SP) || (gMemoryAccessOptimisation & (mQuickLoad == StaticAnalysis::Segment_8000) /*&& load_op != OP_LB*/))
 	{
 		if( swizzle != 0 )
 		{
@@ -1965,7 +1965,7 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 	EPspReg		reg_base( GetRegisterAndLoadLo( n64_base, PspReg_A0 ) );
 	EPspReg		reg_address( reg_base );
 
-	if((gDynarecStackOptimisation & (n64_base == N64Reg_SP)) || (gMemoryAccessOptimisation & (mQuickLoad == StaticAnalysis::Segment_8000)))
+	if( (n64_base == N64Reg_SP) || (gMemoryAccessOptimisation & (mQuickLoad == StaticAnalysis::Segment_8000)))
 	{
 		if( swizzle != 0 )
 		{

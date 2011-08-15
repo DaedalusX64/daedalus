@@ -218,10 +218,6 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		{
 			preferences.DynarecEnabled = property->GetBooleanValue( true );
 		}
-		if( section->FindProperty( "DynarecStackOptimisation", &property ) )
-		{
-			preferences.DynarecStackOptimisation = property->GetBooleanValue( true );
-		}
 		if( section->FindProperty( "DynarecLoopOptimisation", &property ) )
 		{
 			preferences.DynarecLoopOptimisation = property->GetBooleanValue( true );
@@ -309,7 +305,6 @@ void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences
 	fprintf(fh, "PatchesEnabled=%d\n",preferences.PatchesEnabled);
 	fprintf(fh, "SpeedSyncEnabled=%d\n",preferences.SpeedSyncEnabled);
 	fprintf(fh, "DynarecEnabled=%d\n",preferences.DynarecEnabled);
-	fprintf(fh, "DynarecStackOptimisation=%d\n",preferences.DynarecStackOptimisation);
 	fprintf(fh, "DynarecLoopOptimisation=%d\n",preferences.DynarecLoopOptimisation);
 	fprintf(fh, "DoubleDisplayEnabled=%d\n",preferences.DoubleDisplayEnabled);
 	fprintf(fh, "SimulateDoubleDisabled=%d\n",preferences.SimulateDoubleDisabled);
@@ -445,7 +440,6 @@ void SGlobalPreferences::Apply() const
 SRomPreferences::SRomPreferences()
 	:	PatchesEnabled( true )
 	,	DynarecEnabled( true )
-	,	DynarecStackOptimisation( true )
 	,	DynarecLoopOptimisation( true )
 	,	DoubleDisplayEnabled( true )
 	,	SimulateDoubleDisabled( false )
@@ -473,7 +467,6 @@ void SRomPreferences::Reset()
 	PatchesEnabled = true;
 	SpeedSyncEnabled = 0;
 	DynarecEnabled = true;
-	DynarecStackOptimisation = true;
 	DynarecLoopOptimisation = true;
 	DoubleDisplayEnabled = true;
 	SimulateDoubleDisabled = false;
@@ -499,7 +492,6 @@ void	SRomPreferences::Apply() const
 	gOSHooksEnabled		= PatchesEnabled;
 	gSpeedSyncEnabled	= SpeedSyncEnabled;
 	gDynarecEnabled		= g_ROM.settings.DynarecSupported && DynarecEnabled;
-	gDynarecStackOptimisation	= g_ROM.settings.DynarecStackOptimisation && DynarecStackOptimisation;
 	gDynarecLoopOptimisation	= g_ROM.settings.DynarecLoopOptimisation && DynarecLoopOptimisation;
 	gDoubleDisplayEnabled = g_ROM.settings.DoubleDisplayEnabled && DoubleDisplayEnabled; // I don't know why DD won't disabled if we set ||
 	gSimulateDoubleDisabled = g_ROM.settings.SimulateDoubleDisabled || SimulateDoubleDisabled;

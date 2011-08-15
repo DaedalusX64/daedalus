@@ -464,7 +464,6 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x324a: g_ROM.GameHacks = WONDER_PROJECTJ2;	break;
 	case 0x4741: g_ROM.GameHacks = AEROGAUGE;			break;
 	case 0x4547: g_ROM.GameHacks = GOLDEN_EYE;			break;
-	case 0x4842: g_ROM.GameHacks = BODY_HARVEST;		break;
 	case 0x5742: g_ROM.GameHacks = SUPER_BOWLING;		break;
 	case 0x4c5a: g_ROM.GameHacks = ZELDA_OOT;			break;
 	case 0x514D: g_ROM.GameHacks = PMARIO;				break;
@@ -494,6 +493,10 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x4641:	//Animal crossing
 		gTLUTalt_mode = true;
 		g_ROM.GameHacks = ANIMAL_CROSSING;
+		break;
+	case 0x4842:	//Body Harvest
+	case 0x434E:	// Nightmare Creatures
+		g_ROM.GameHacks = BODY_HARVEST;		
 		break;
 	
 	// No default case needed, NO_GAME_HACK already set default

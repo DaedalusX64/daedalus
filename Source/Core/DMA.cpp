@@ -178,7 +178,7 @@ void DMA_SI_CopyToDRAM( )
 	//Skipping this IRQ fixes allows Body Harvest and Nightmare Creatures to boot but make Animal crossing fail
 	//ToDo: Found the cause and fix it of course ;)
 	//
-	if (!g_ROM.settings.SkipPifIRQ) 
+	if (g_ROM.GameHacks != BODY_HARVEST) 
 		R4300_Interrupt_UpdateCause3();
 }
 

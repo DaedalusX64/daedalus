@@ -144,7 +144,6 @@ struct SRomPreferences
 {
 	bool						PatchesEnabled;
 	bool						DynarecEnabled;				// Requires DynarceSupported in RomSettings
-	bool						DynarecStackOptimisation;
 	bool						DynarecLoopOptimisation;
 	bool						DoubleDisplayEnabled;
 	bool						SimulateDoubleDisabled;

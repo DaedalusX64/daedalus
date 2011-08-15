@@ -278,7 +278,6 @@ IRomPreferencesScreen::IRomPreferencesScreen( CUIContext * p_context, const RomI
 	mElements.Add( new CZoomSetting( &mRomPreferences.ZoomX, "Zoom", "Increase screen size, the value will override the default screen size, 100% is default." ) );
 	mElements.Add( new CFSkipSetting( &mRomPreferences.SpeedSyncEnabled, "Limit Framerate", "Limit the refresh rate to 50/25Hz (PAL) or 60/30Hz (NTSC)." ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecEnabled, "Dynamic Recompilation", "Dynamic recompilation gives a considerable speed-up for the ROM emulation.", "Enabled", "Disabled" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecStackOptimisation, "Dynamic Stack Optimisation", "Dynarec Stack Optimisation, enabled for a small speed-up.", "Enabled", "Disabled" ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.PatchesEnabled, "High Level Emulation", "Whether to use replicated OS function calls (faster) instead of emulating the real ones (slower) (WARNING, can cause instability and/or crash on certain ROMs).", "Enabled", "Disabled" ) );
 	mElements.Add( new CAudioSetting( &mRomPreferences.AudioEnabled, "Audio", "Whether or not to enable audio emulation, and whether to process the audio asynchronously(fast/buggy) or synchronously(slow)." ) );
 //	mElements.Add( new CAdjustFrequencySetting( &mRomPreferences.AudioAdaptFrequency, &mRomPreferences.AudioEnabled, " Adjust Frequency", "When enabled, this mode tries to avoid gaps in the audio by adjusting the pitch of the audio stream." ) );  //Not Used May be restored separately later

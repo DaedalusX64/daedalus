@@ -280,10 +280,6 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 		{
 			settings.DynarecSupported = p_property->GetBooleanValue( true );
 		}
-		if( p_section->FindProperty( "DynarecStackOptimisation", &p_property ) )
-		{
-			settings.DynarecStackOptimisation = p_property->GetBooleanValue( true );
-		}
 		if( p_section->FindProperty( "DynarecLoopOptimisation", &p_property ) )
 		{
 			settings.DynarecLoopOptimisation = p_property->GetBooleanValue( true );
@@ -315,10 +311,6 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 		if( p_section->FindProperty( "CheatsEnabled", &p_property ) )
 		{
 			settings.CheatsEnabled = p_property->GetBooleanValue( false );
-		}
-		if( p_section->FindProperty( "SkipPifIRQ", &p_property ) )
-		{
-			settings.SkipPifIRQ = p_property->GetBooleanValue( false );
 		}
 		SetSettings( id, settings );
 	}
@@ -433,7 +425,6 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	if( !settings.PatchesEnabled )				fprintf(fh, "PatchesEnabled=no\n");
 	if( !settings.SpeedSyncEnabled )			fprintf(fh, "SpeedSyncEnabled=%d\n", settings.SpeedSyncEnabled);
 	if( !settings.DynarecSupported )			fprintf(fh, "DynarecSupported=no\n");
-	if( !settings.DynarecStackOptimisation )	fprintf(fh, "DynarecStackOptimisation=no\n");
 	if( !settings.DynarecLoopOptimisation )		fprintf(fh, "DynarecLoopOptimisation=no\n");
 	if( !settings.DoubleDisplayEnabled )		fprintf(fh, "DoubleDisplayEnabled=no\n");
 	if( settings.SimulateDoubleDisabled )		fprintf(fh, "SimulateDoubleDisabled=yes\n");
@@ -442,7 +433,6 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	if( settings.FogEnabled )					fprintf(fh, "FogEnabled=yes\n"); 
 	if( settings.MemoryAccessOptimisation )		fprintf(fh, "MemoryAccessOptimisation=yes\n");
 	if( settings.CheatsEnabled )				fprintf(fh, "CheatsEnabled=yes\n");
-	if( settings.SkipPifIRQ )					fprintf(fh, "SkipPifIRQ=yes\n");
 
 	if ( settings.ExpansionPakUsage != PAK_STATUS_UNKNOWN )	fprintf(fh, "ExpansionPakUsage=%s\n", ROM_GetExpansionPakUsageName( settings.ExpansionPakUsage ) );
 	if ( settings.SaveType != SAVE_TYPE_UNKNOWN )			fprintf(fh, "SaveType=%s\n", ROM_GetSaveTypeName( settings.SaveType ) );
@@ -495,7 +485,6 @@ RomSettings::RomSettings()
 ,	PatchesEnabled( true )
 ,	SpeedSyncEnabled( 0 )
 ,	DynarecSupported( true )
-,	DynarecStackOptimisation( true )
 ,	DynarecLoopOptimisation( true )
 ,	DoubleDisplayEnabled( true )
 ,	SimulateDoubleDisabled( false )
@@ -504,7 +493,6 @@ RomSettings::RomSettings()
 ,	FogEnabled( false )
 ,   MemoryAccessOptimisation( false )
 ,   CheatsEnabled( false )
-,	SkipPifIRQ( false )
 ,	RescanCount(0)
 {
 }
@@ -529,7 +517,6 @@ void	RomSettings::Reset()
 	PatchesEnabled = true;
 	SpeedSyncEnabled = 0;
 	DynarecSupported = true;
-	DynarecStackOptimisation = true;
 	DynarecLoopOptimisation = true;
 	DoubleDisplayEnabled = true;
 	SimulateDoubleDisabled = false;
@@ -537,7 +524,6 @@ void	RomSettings::Reset()
 	AudioRateMatch = false;
 	FogEnabled = false;
 	CheatsEnabled = false;
-	SkipPifIRQ = false;
 	MemoryAccessOptimisation = false;
 	RescanCount = 0;
 }
