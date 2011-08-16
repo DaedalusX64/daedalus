@@ -105,7 +105,7 @@ extern int PSP_TV_LACED;
 
 extern void VolatileMemInit();
 
-
+bool g32bitColorMode = false;
 bool PSP_IS_SLIM = false;
 static bool bKernelHomeButton = false;
 //*************************************************************************************
@@ -316,6 +316,13 @@ static bool	Initialize()
 	// Set up our Kernel Home button or User Button
 	bKernelHomeButton = InitHomeButton();
 
+	// If (o) is pressed during boot the Emulator will use 32bit
+	// else use default 16bit color mode
+	SceCtrlData pad;
+	sceCtrlPeekBufferPositive(&pad, 1); 
+	if( pad.Buttons & PSP_CTRL_CIRCLE ) g32bitColorMode = true;
+	else g32bitColorMode = false;
+
 	// Check for unsupported FW
 	DaedalusFWCheck();
 
@@ -326,11 +333,8 @@ static bool	Initialize()
 //	srand(time(0));
 
 	//Set the debug output to default
-#ifndef DAEDALUS_SCRN_16BIT
-	pspDebugScreenInit();
-#else
-	pspDebugScreenInitEx( NULL , GU_PSM_5650, 1); //Sets debug output to 16bit mode
-#endif
+	if( g32bitColorMode ) pspDebugScreenInit();
+	else pspDebugScreenInitEx( NULL , GU_PSM_5650, 1); //Sets debug output to 16bit mode
 
 // This Breaks gdb, better disable it in debug build
 //

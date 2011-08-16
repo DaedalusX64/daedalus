@@ -50,13 +50,9 @@ namespace
 	const char *	gScreenDumpDumpPathFormat = "sd%04d.png";
 }
 
-#ifndef DAEDALUS_SCRN_16BIT
-	#define PIXEL_SIZE (4) /* change this if you change to another screenmode */
-	#define SCR_MODE GU_PSM_8888
-#else
-	static u32 PIXEL_SIZE = 2; /* change this if you change to another screenmode */
-	static u32 SCR_MODE	  = GU_PSM_5650;
-#endif
+static u32 PIXEL_SIZE = 2; /* change this if you change to another screenmode */
+static u32 SCR_MODE	  = GU_PSM_5650;
+
 #define FRAME_SIZE (BUF_WIDTH * SCR_HEIGHT * PIXEL_SIZE)
 #define DEPTH_SIZE (BUF_WIDTH * SCR_HEIGHT * 2)
 
@@ -69,6 +65,7 @@ static u32 __attribute__((aligned(16))) ilist[256];
 
 u32 listNum = 0;
 extern ViewportInfo	mView;
+extern bool g32bitColorMode;
 //////////////////////////////////////////////
 //bool CGraphicsContext::CleanScene = false;
 //////////////////////////////////////////////
@@ -89,9 +86,6 @@ int HAVE_DVE = -1; // default is no DVE Manager
 int PSP_TV_CABLE = -1; // default is no cable
 int PSP_TV_LACED = 0; // default is not interlaced
 
-#define ENABLE_DITHERING
-
-#if defined(DAEDALUS_SCRN_16BIT) && defined(ENABLE_DITHERING)
 static const ScePspIMatrix4 dither_matrixA =
 		{{-2, 1,-1, 2},
 		 {-1, 2,-2, 1},
@@ -102,7 +96,6 @@ static const ScePspIMatrix4 dither_matrixB =
 		 { 1, 2,-1,-2},
 		 {-1,-2, 1, 2},
 		 { 2, 1,-2,-1}};
-#endif
 
 // Implementation
 class IGraphicsContext : public CGraphicsContext
@@ -288,14 +281,13 @@ void IGraphicsContext::BeginFrame()
 	}*/
 
 //Toggle dither matrices between frames to smooth 16bit color even further //Corn
-#if defined(DAEDALUS_SCRN_16BIT) && defined(ENABLE_DITHERING)
-
-	if(listNum)
-		sceGuSetDither(&dither_matrixB);
-	else 
-		sceGuSetDither(&dither_matrixA);
-
-#endif
+	if( !g32bitColorMode )
+	{
+		if(listNum)
+			sceGuSetDither(&dither_matrixB);
+		else 
+			sceGuSetDither(&dither_matrixA);
+	}
 }
 
 //*****************************************************************************
@@ -603,6 +595,17 @@ bool IGraphicsContext::Initialise()
 	void *	disp_buffer;
 	void *	depth_buffer;
 
+	if( g32bitColorMode )
+	{
+		PIXEL_SIZE = 4; /* change this if you change to another screenmode */
+		SCR_MODE = GU_PSM_8888;
+	}
+	else
+	{
+		PIXEL_SIZE = 2; /* change this if you change to another screenmode */
+		SCR_MODE = GU_PSM_5650;
+	}
+
 	// compute and allocate buffers for largest possible frame
 	if ( PSP_TV_CABLE > 0 )
 	{
@@ -610,12 +613,10 @@ bool IGraphicsContext::Initialise()
 		SCR_WIDTH = 720;
 		SCR_HEIGHT = 480;
 
-		// Hack, Tv out doesn't work in 16bit for some reasons
+		// Hack, Tv out doesn't work in 16bit for some reasons so we use 32bit
 		//
-#ifdef DAEDALUS_SCRN_16BIT
 		PIXEL_SIZE = 4;
 		SCR_MODE = GU_PSM_8888;
-#endif
 	}
 
 	//Alloc all buffers with one call to save alloc list overhead //Corn
@@ -663,11 +664,15 @@ bool IGraphicsContext::Initialise()
 	sceDisplaySetMode(0, 480, 272);
 
 	sceGuStart(GU_DIRECT,list[0]);
-#if defined(DAEDALUS_SCRN_16BIT) && defined(ENABLE_DITHERING)
-	//Do some dithering to simulate more colors //Corn
-	sceGuSetDither(&dither_matrixA);
-	sceGuEnable(GU_DITHER);
-#endif
+	if( !g32bitColorMode )
+	{
+		//Do some dithering to simulate more colors //Corn
+		sceGuSetDither(&dither_matrixA);
+		sceGuEnable(GU_DITHER);
+	}
+	else
+		sceGuDisable(GU_DITHER);
+
 	sceGuDrawBuffer(SCR_MODE,draw_buffer_rel,BUF_WIDTH);
 	sceGuDispBuffer(SCR_WIDTH,SCR_HEIGHT,disp_buffer_rel,BUF_WIDTH);
 	sceGuDepthBuffer(depth_buffer_rel,BUF_WIDTH);

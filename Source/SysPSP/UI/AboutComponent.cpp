@@ -37,6 +37,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspctrl.h>
 #include <pspgu.h>
 
+extern bool g32bitColorMode;
+
 namespace
 {
 	const u32				TEXT_AREA_LEFT = 40;
@@ -44,11 +46,11 @@ namespace
 	
 	#define MAX_PSP_MODEL 6
 
-#ifdef DAEDALUS_SCRN_16BIT
-	const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 16BIT Revision "SVNVERSION"";
-#else
-	const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 32BIT Revision "SVNVERSION"";
-#endif
+	const char * const DAEDALUS_VERSION_TEXT[] = 
+	{
+		"DaedalusX64 16BIT Revision "SVNVERSION"",
+		"DaedalusX64 32BIT Revision "SVNVERSION""
+	};
 
 	//const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Beta 3 Update";
 	
@@ -169,7 +171,7 @@ void	IAboutComponent::Render()
 
 	y = text_top;
 
-	CFixedString<128>	version( DAEDALUS_VERSION_TEXT );
+	CFixedString<128>	version( DAEDALUS_VERSION_TEXT[g32bitColorMode] );
 
 	version += " - ";
 	version += DAEDALUS_CONFIG_VERSION;
