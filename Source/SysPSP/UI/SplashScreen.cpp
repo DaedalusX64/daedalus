@@ -20,6 +20,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "SplashScreen.h"
 
+#include "Graphics/GraphicsContext.h"
+#include "../Graphics/intraFont/intraFont.h"
+
 #include "UIContext.h"
 #include "UIScreen.h"
 #include "Graphics/ColourValue.h"
@@ -32,6 +35,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <pspctrl.h>
 #include <pspgu.h>
+
+extern bool g32bitColorMode;
 
 namespace
 {
@@ -131,6 +136,15 @@ void	ISplashScreen::Render()
 
 	mpContext->ClearBackground();
 	mpContext->RenderTexture( mpTexture, (480 - 328)/2, (272-90)/2, colour );
+
+	// Load our font here
+	intraFont* ltn8  = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ASCII);
+	intraFontSetStyle( ltn8, 2.0f, 0xFF000000, 0xFFFFFFFF, INTRAFONT_ALIGN_CENTER );
+
+	intraFontPrintf( ltn8, 480/2, 272-50, "%s", g32bitColorMode? "32Bit" : "16Bit" );
+
+	// Unload font after we are done
+	intraFontUnload( ltn8 );
 }
 
 //*************************************************************************************

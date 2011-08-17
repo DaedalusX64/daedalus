@@ -280,14 +280,8 @@ void IGraphicsContext::BeginFrame()
 		sceGuClear(GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);	//Clear Zbuffer
 	}*/
 
-//Toggle dither matrices between frames to smooth 16bit color even further //Corn
-	if( !g32bitColorMode )
-	{
-		if(listNum)
-			sceGuSetDither(&dither_matrixB);
-		else 
-			sceGuSetDither(&dither_matrixA);
-	}
+	//Toggle dither matrices between frames to smooth 16bit color even further //Corn
+	sceGuSetDither( listNum? &dither_matrixB : &dither_matrixA );
 }
 
 //*****************************************************************************
@@ -664,14 +658,17 @@ bool IGraphicsContext::Initialise()
 	sceDisplaySetMode(0, 480, 272);
 
 	sceGuStart(GU_DIRECT,list[0]);
-	if( !g32bitColorMode )
+
+	if( g32bitColorMode )
+	{
+		sceGuDisable(GU_DITHER);
+	}
+	else
 	{
 		//Do some dithering to simulate more colors //Corn
 		sceGuSetDither(&dither_matrixA);
 		sceGuEnable(GU_DITHER);
 	}
-	else
-		sceGuDisable(GU_DITHER);
 
 	sceGuDrawBuffer(SCR_MODE,draw_buffer_rel,BUF_WIDTH);
 	sceGuDispBuffer(SCR_WIDTH,SCR_HEIGHT,disp_buffer_rel,BUF_WIDTH);
