@@ -67,6 +67,7 @@ class ISplashScreen : public CSplashScreen, public CUIScreen
 		bool						mIsFinished;
 		float						mElapsedTime;
 		CRefPtr<CNativeTexture>		mpTexture;
+		intraFont*					mltn8;
 };
 
 //*************************************************************************************
@@ -93,7 +94,9 @@ ISplashScreen::ISplashScreen( CUIContext * p_context )
 ,	mElapsedTime( 0.0f )
 ,	mpTexture( CNativeTexture::CreateFromPng( LOGO_FILENAME, TexFmt_8888 ) )
 {
-
+	// Load our font here
+	mltn8  = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ASCII);
+	intraFontSetStyle( mltn8, 2.0f, 0xFF000000, 0xFFFFFFFF, INTRAFONT_ALIGN_CENTER );
 }
 
 //*************************************************************************************
@@ -101,6 +104,8 @@ ISplashScreen::ISplashScreen( CUIContext * p_context )
 //*************************************************************************************
 ISplashScreen::~ISplashScreen()
 {
+	// Unload font after we are done
+	intraFontUnload( mltn8 );
 }
 
 //*************************************************************************************
@@ -137,14 +142,7 @@ void	ISplashScreen::Render()
 	mpContext->ClearBackground();
 	mpContext->RenderTexture( mpTexture, (480 - 328)/2, (272-90)/2, colour );
 
-	// Load our font here
-	intraFont* ltn8  = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ASCII);
-	intraFontSetStyle( ltn8, 2.0f, 0xFF000000, 0xFFFFFFFF, INTRAFONT_ALIGN_CENTER );
-
-	intraFontPrintf( ltn8, 480/2, 272-50, "%s", g32bitColorMode? "32Bit" : "16Bit" );
-
-	// Unload font after we are done
-	intraFontUnload( ltn8 );
+	intraFontPrintf( mltn8, 480/2, 272-50, "%s", g32bitColorMode? "32Bit" : "16Bit" );
 }
 
 //*************************************************************************************

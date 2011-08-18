@@ -981,6 +981,9 @@ static void R4300_CALL_TYPE R4300_LWL( R4300_CALL_SIGNATURE ) 			// Load Word Le
 
 	u32 nReg = gGPR[op_code.rt]._u32_0;
 
+#if 1 //1-> tighter code, 0->old way //Corn	
+	nReg = (nReg & ~(~0 << ((address & 0x3) << 3))) | (nMemory << ((address & 0x3) << 3));
+#else
 	switch (address % 4)
 	{
         case 0: nReg = nMemory; break;
@@ -988,6 +991,7 @@ static void R4300_CALL_TYPE R4300_LWL( R4300_CALL_SIGNATURE ) 			// Load Word Le
         case 2: nReg = ((nReg & 0x0000FFFF) | (nMemory << 16)); break;
         case 3: nReg = ((nReg & 0x00FFFFFF) | (nMemory << 24)); break;
     }
+#endif
 
 	gGPR[op_code.rt]._s64 = (s64)(s32)nReg;
 }
@@ -1004,6 +1008,9 @@ static void R4300_CALL_TYPE R4300_LDL( R4300_CALL_SIGNATURE )
 
 	u64 nReg = gGPR[op_code.rt]._u64;
 
+#if 1 //1-> tighter code, 0->old way //Corn	
+	nReg = (nReg & ~(~0LL << ((address & 0x7) << 3))) | (nMemory << ((address & 0x7) << 3));
+#else
 	switch (address % 8)
 	{
         case 0: nReg = nMemory; break;
@@ -1015,6 +1022,7 @@ static void R4300_CALL_TYPE R4300_LDL( R4300_CALL_SIGNATURE )
         case 6: nReg = ((nReg & 0x0000FFFFFFFFFFFFLL) | (nMemory << 48)); break;
         case 7: nReg = ((nReg & 0x00FFFFFFFFFFFFFFLL) | (nMemory << 56)); break;
    }
+#endif
 
 	gGPR[op_code.rt]._u64 = nReg;
 }
@@ -1031,7 +1039,9 @@ static void R4300_CALL_TYPE R4300_LWR( R4300_CALL_SIGNATURE ) 			// Load Word Ri
 
 	u32 nReg = gGPR[op_code.rt]._u32_0;
 
-
+#if 1 //1-> tighter code, 0->old way //Corn	
+	nReg = (nReg & (~0 << ( ((address & 0x3) + 1) << 3))) | (nMemory >> ((~address & 0x3) << 3));
+#else
 	switch (address % 4)
 	{
         case 0: nReg = (nReg & 0xFFFFFF00) | (nMemory >> 24); break;
@@ -1039,6 +1049,7 @@ static void R4300_CALL_TYPE R4300_LWR( R4300_CALL_SIGNATURE ) 			// Load Word Ri
         case 2: nReg = (nReg & 0xFF000000) | (nMemory >>  8); break;
         case 3: nReg = nMemory; break;
     }
+#endif
 
 	gGPR[op_code.rt]._s64 = (s64)(s32)nReg;
 }
@@ -1055,6 +1066,9 @@ static void R4300_CALL_TYPE R4300_LDR( R4300_CALL_SIGNATURE )
 
 	u64 nReg = gGPR[op_code.rt]._u64;
 
+#if 1 //1-> tighter code, 0->old way //Corn	
+	nReg = (nReg & (~0LL << ( ((address & 0x7) + 1) << 3))) | (nMemory >> ((~address & 0x7) << 3));
+#else
 	switch (address % 8)
 	{
         case 0: nReg = (nReg & 0xFFFFFFFFFFFFFF00LL) | (nMemory >> 56); break;
@@ -1066,6 +1080,7 @@ static void R4300_CALL_TYPE R4300_LDR( R4300_CALL_SIGNATURE )
         case 6: nReg = (nReg & 0xFF00000000000000LL) | (nMemory >>  8); break;
         case 7: nReg = nMemory; break;
     }
+#endif
 
 	gGPR[op_code.rt]._u64 = nReg;
 }
@@ -1131,15 +1146,20 @@ static void R4300_CALL_TYPE R4300_SWL( R4300_CALL_SIGNATURE ) 			// Store Word L
 
 	u32 dwMemory = Read32Bits(address & ~0x3);
 	u32 dwReg = gGPR[op_code.rt]._u32_0;
-	u32 dwNew = 0;
 
+#if 1 //1-> tighter code, 0->old way //Corn	
+	u32 dwNew = (dwMemory & ((~0 << (((~address & 0x3) + 1 ) << 3)))) | (dwReg >> ((address & 0x3) << 3));
+#else
+	u32 dwNew;
 	switch (address % 4)
 	{
 	case 0:	dwNew = dwReg; break;			// Aligned
 	case 1:	dwNew = (dwMemory & 0xFF000000) | (dwReg >> 8 ); break;
 	case 2:	dwNew = (dwMemory & 0xFFFF0000) | (dwReg >> 16); break;
-	case 3:	dwNew = (dwMemory & 0xFFFFFF00) | (dwReg >> 24); break;
+	default:dwNew = (dwMemory & 0xFFFFFF00) | (dwReg >> 24); break;
 	}
+#endif
+
 	Write32Bits(address & ~0x3, dwNew);
 }
 
@@ -1151,15 +1171,20 @@ static void R4300_CALL_TYPE R4300_SWR( R4300_CALL_SIGNATURE ) 			// Store Word R
 
 	u32 dwMemory = Read32Bits(address & ~0x3);
 	u32 dwReg = gGPR[op_code.rt]._u32_0;
-	u32 dwNew = 0;
 
+#if 1 //1-> tighter code, 0->old way //Corn	
+	u32 dwNew = (dwMemory & ~(~0 << ((~address & 0x3) << 3))) | (dwReg << ((~address & 0x3) << 3));
+#else
+	u32 dwNew;
 	switch (address % 4)
 	{
 	case 0:	dwNew = (dwMemory & 0x00FFFFFF) | (dwReg << 24); break;
 	case 1:	dwNew = (dwMemory & 0x0000FFFF) | (dwReg << 16); break;
 	case 2:	dwNew = (dwMemory & 0x000000FF) | (dwReg << 8); break;
-	case 3:	dwNew = dwReg; break;			// Aligned
+	default:dwNew = dwReg; break;			// Aligned
 	}
+#endif
+
 	Write32Bits(address & ~0x3, dwNew);
 
 }
@@ -1172,8 +1197,11 @@ static void R4300_CALL_TYPE R4300_SDL( R4300_CALL_SIGNATURE )//CYRUS64
 
 	u64 nMemory = Read64Bits(address & ~0x7);
 	u64 nReg = gGPR[op_code.rt]._u64;
-	u64 nNew = 0;
 
+#if 1 //1-> tighter code, 0->old way //Corn	
+	u64 nNew = (nMemory & ((~0LL << (((~address & 0x7) + 1 ) << 3)))) | (nReg >> ( (address & 0x7) << 3));
+#else
+	u64 nNew;
 	switch (address % 8)
 	{
 	case 0:	nNew = nReg; break;			// Aligned
@@ -1185,6 +1213,8 @@ static void R4300_CALL_TYPE R4300_SDL( R4300_CALL_SIGNATURE )//CYRUS64
 	case 6:	nNew = (nMemory & 0xFFFFFFFFFFFF0000LL) | (nReg >> 48); break;
 	default:nNew = (nMemory & 0xFFFFFFFFFFFFFF00LL) | (nReg >> 56); break;
 	}
+#endif
+
 	Write64Bits(address & ~0x7, nNew);
 }
 
@@ -1193,13 +1223,14 @@ static void R4300_CALL_TYPE R4300_SDR( R4300_CALL_SIGNATURE )//CYRUS64
 	R4300_CALL_MAKE_OP( op_code );
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate);
+	//DBGConsole_Msg(0,"Address:		0x%08x", dwAddress );
 
 	u64 nMemory = Read64Bits(address & ~0x7);
 	u64 nReg = gGPR[op_code.rt]._u64;
-	u64 nNew = 0;
-
-	//DBGConsole_Msg(0,"Address:		0x%08x", dwAddress );
-
+#if 1 //1-> tighter code, 0->old way //Corn	
+	u64 nNew = (nMemory & ~(~0LL << ((~address & 0x7) << 3))) | (nReg << ((~address & 0x7) << 3));
+#else
+	u64 nNew;
 	switch (address % 8)
 	{
 	case 0:	nNew = (nMemory & 0x00FFFFFFFFFFFFFFLL) | (nReg << 56); break;
@@ -1211,6 +1242,8 @@ static void R4300_CALL_TYPE R4300_SDR( R4300_CALL_SIGNATURE )//CYRUS64
 	case 6:	nNew = (nMemory & 0x00000000000000FFLL) | (nReg << 8); break;
 	default:nNew = nReg; break;			// Aligned
 	}
+#endif
+
 	Write64Bits(address & ~0x7, nNew);
 }
 
