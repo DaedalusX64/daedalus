@@ -21,12 +21,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SplashScreen.h"
 
 #include "Graphics/GraphicsContext.h"
-#include "../Graphics/intraFont/intraFont.h"
 
 #include "UIContext.h"
 #include "UIScreen.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/NativeTexture.h"
+
+#include "SysPSP/Graphics/DrawText.h"
 
 #include "Math/Math.h"	// VFPU Math
 
@@ -67,7 +68,6 @@ class ISplashScreen : public CSplashScreen, public CUIScreen
 		bool						mIsFinished;
 		float						mElapsedTime;
 		CRefPtr<CNativeTexture>		mpTexture;
-		intraFont*					mltn8;
 };
 
 //*************************************************************************************
@@ -94,9 +94,6 @@ ISplashScreen::ISplashScreen( CUIContext * p_context )
 ,	mElapsedTime( 0.0f )
 ,	mpTexture( CNativeTexture::CreateFromPng( LOGO_FILENAME, TexFmt_8888 ) )
 {
-	// Load our font here
-	mltn8  = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ASCII);
-	intraFontSetStyle( mltn8, 2.0f, 0xFF000000, 0xFFFFFFFF, INTRAFONT_ALIGN_CENTER );
 }
 
 //*************************************************************************************
@@ -104,8 +101,6 @@ ISplashScreen::ISplashScreen( CUIContext * p_context )
 //*************************************************************************************
 ISplashScreen::~ISplashScreen()
 {
-	// Unload font after we are done
-	intraFontUnload( mltn8 );
 }
 
 //*************************************************************************************
@@ -142,7 +137,10 @@ void	ISplashScreen::Render()
 	mpContext->ClearBackground();
 	mpContext->RenderTexture( mpTexture, (480 - 328)/2, (272-90)/2, colour );
 
-	intraFontPrintf( mltn8, 480/2, 272-50, "%s", g32bitColorMode? "32Bit" : "16Bit" );
+	char msg[64];
+	sprintf (msg, "%s Color Selected", g32bitColorMode? "32Bit" : "16Bit" );
+	mpContext->SetFontStyle( CUIContext::FS_HEADING );
+	mpContext->DrawTextAlign(0,480,AT_CENTRE,158,msg,DrawTextUtilities::TextWhite);
 }
 
 //*************************************************************************************
