@@ -140,7 +140,7 @@ void	ISplashScreen::Render()
 	char msg[64];
 	sprintf (msg, "%s Color Selected", g32bitColorMode? "32Bit" : "16Bit" );
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
-	mpContext->DrawTextAlign(0,480,AT_CENTRE,158,msg,DrawTextUtilities::TextWhite);
+	mpContext->DrawTextAlign(0,480,AT_CENTRE,272-50,msg,DrawTextUtilities::TextWhite);
 }
 
 //*************************************************************************************

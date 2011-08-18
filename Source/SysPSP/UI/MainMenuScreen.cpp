@@ -48,8 +48,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <string>
 
-extern bool g32bitColorMode;
-
 namespace
 {
 	const u32				TEXT_AREA_TOP = 8;
@@ -297,8 +295,7 @@ void	IMainMenuScreen::Render()
 	{
 		EMenuOption		option( AsMenuOption( mCurrentOption + i ) );
 		c32				text_col( IsOptionValid( option ) ? valid_colour : invalid_colour );
-		char option_text[32] = {""};
-		sprintf(option_text, "%s%s", gMenuOptionNames[ option ], option==1?(g32bitColorMode? " 32Bit":" 16Bit"):"");
+		const char *	option_text( gMenuOptionNames[ option ] );
 		u32				text_width( mpContext->GetTextWidth( option_text ) );
 
 		f32				diff( f32( mCurrentOption + i ) - mCurrentDisplayOption );
