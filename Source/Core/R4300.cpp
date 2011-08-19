@@ -145,6 +145,28 @@ inline void SpeedHack( u32 pc, OpCode op )
 //*****************************************************************************
 //
 //*****************************************************************************
+inline void QuickWrite_Long( u32 addr, u32 val0, u32 val1 )
+{
+	u32	*psrc = (u32 *)WriteAddress( addr );
+
+	psrc[1] = val0;
+	psrc[0] = val1;	
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void QuickRead_Long( u32 addr, u32 val0, u32 val1 )
+{
+	u32	*pdst = (u32 *)ReadAddress( addr );
+
+	val0 = pdst[1];
+	val1 = pdst[0];
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
 inline void StoreFPR_Long( u32 reg, u64 value )
 {
 	REG64	r;
@@ -1292,7 +1314,9 @@ static void R4300_CALL_TYPE R4300_LDC1( R4300_CALL_SIGNATURE )				// Load Double
 	R4300_CALL_MAKE_OP( op_code );	CHECK_COP1_UNUSUABLE
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
-	StoreFPR_Long( op_code.ft, Read64Bits(address));
+
+	//StoreFPR_Long( op_code.ft, Read64Bits(address));
+	QuickRead_Long( address, gCPUState.FPU[op_code.ft+0]._u32_0, gCPUState.FPU[op_code.ft+1]._u32_0);
 }
 
 
