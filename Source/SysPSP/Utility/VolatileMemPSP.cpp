@@ -1,4 +1,12 @@
 
+/*
+
+Copyright (C) 2011 JJS
+
+http://gitorious.org/~jjs/ags/ags-for-psp
+
+*/
+
 #include "stdafx.h"
 
 #include "Utility/ModulePSP.h"
@@ -12,6 +20,9 @@
 
 #include <malloc.h>
 
+//
+//	Refactor me
+//
 
 bool bVolatileMem = false;
 
@@ -77,7 +88,7 @@ void VolatileMemInit()
 	}
 
 }
-u32 malloc_p5_memory_used = 0;
+//u32 malloc_p5_memory_used = 0;
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -89,20 +100,20 @@ void* malloc_volatile(size_t size)
 
 	//void* result = (void*)malloc(size);
 
-	struct mallinfo info = _mallinfo_r(NULL);
-	printf("used memory %d of %d - %d\n", info.usmblks + info.uordblks, info.arena, malloc_p5_memory_used);
+	//struct mallinfo info = _mallinfo_r(NULL);
+//	printf("used memory %d of %d - %d\n", info.usmblks + info.uordblks, info.arena, malloc_p5_memory_used);
 
 	// Only try to allocate to volatile mem if we run out of mem.
 	//
-	/* if (result)
-	return result;*/
+	/*if (result)
+		return result;*/
 
 	SceUID uid = sceKernelAllocPartitionMemory(5, "", PSP_SMEM_Low, size + 8, NULL);
 	if (uid >= 0)
 	{
 
-		printf("getting memory from p5 %d KBS\n", size / 1024);  
-		malloc_p5_memory_used += size;
+//		printf("getting memory from p5 %d KBS\n", size / 1024);  
+//		malloc_p5_memory_used += size;
 
 		u32* pointer = (u32*)sceKernelGetBlockHeadAddr(uid);
 		*pointer = uid;
@@ -112,7 +123,7 @@ void* malloc_volatile(size_t size)
 	else
 	{
 
-		printf("*****failed to allocate %d byte from p5\n", size);
+//		printf("*****failed to allocate %d byte from p5\n", size);
 		return NULL;
 	}
 }

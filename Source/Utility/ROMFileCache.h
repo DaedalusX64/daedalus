@@ -45,8 +45,8 @@ class ROMFileCache
 
 		CacheIdx			GetCacheIndex( u32 address );
 
-		static u32			AddressToChunkMapIndex( u32 address );
-		static u32			GetChunkStartAddress( u32 address );
+		inline u32			AddressToChunkMapIndex( u32 address );
+		inline u32			GetChunkStartAddress( u32 address );
 		
 	private:
 		ROMFile *			mpROMFile;

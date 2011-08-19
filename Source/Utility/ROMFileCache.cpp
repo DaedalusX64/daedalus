@@ -44,10 +44,12 @@ struct SChunkInfo
 	u32				StartOffset;
 	mutable u32		LastUseIdx;
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	bool		ContainsAddress( u32 address ) const
 	{
 		return address >= StartOffset && address < StartOffset + CHUNK_SIZE;
 	}
+#endif
 
 	bool		InUse() const
 	{
@@ -128,7 +130,7 @@ void	ROMFileCache::Close()
 //*****************************************************************************
 //
 //*****************************************************************************
-u32		ROMFileCache::AddressToChunkMapIndex( u32 address )
+inline u32		ROMFileCache::AddressToChunkMapIndex( u32 address )
 {
 	return address / CHUNK_SIZE;
 }
@@ -136,7 +138,7 @@ u32		ROMFileCache::AddressToChunkMapIndex( u32 address )
 //*****************************************************************************
 //
 //*****************************************************************************
-u32		ROMFileCache::GetChunkStartAddress( u32 address )
+inline u32		ROMFileCache::GetChunkStartAddress( u32 address )
 {
 	return ( address / CHUNK_SIZE ) * CHUNK_SIZE;
 }
@@ -218,7 +220,6 @@ ROMFileCache::CacheIdx	ROMFileCache::GetCacheIndex( u32 address )
 		u8 *	p_dst( mpStorage + storage_offset );
 
 		//DBGConsole_Msg( 0, "[CRomCache - loading %02x, %08x-%08x", selected_idx, chunk_info.StartOffset, chunk_info.StartOffset + CHUNK_SIZE );
-
 		mpROMFile->ReadChunk( chunk_info.StartOffset, p_dst, CHUNK_SIZE );
 
 		idx = selected_idx;
