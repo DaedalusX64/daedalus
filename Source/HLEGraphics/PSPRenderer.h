@@ -35,6 +35,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <set>
 #include <map>
 
+class CTexture;
+class CNativeTexture;
+class CBlendStates;
+
 struct ViewportInfo
 {
 	f32  ViWidth;
@@ -43,9 +47,25 @@ struct ViewportInfo
 	bool Update;
 };
 
-class CTexture;
-class CNativeTexture;
-class CBlendStates;
+struct TextureVtx
+{
+	v2  t0;
+	v3  pos;
+};
+
+struct FiddledVtxDKR
+{
+	s16 y;
+	s16 x;
+
+	u8 a;
+	u8 b;
+	s16 z;
+
+	u8 g;
+	u8 r;
+};
+
 struct FiddledVtx
 {
         s16 y;
@@ -75,6 +95,7 @@ struct FiddledVtx
                 };
         };
 };
+DAEDALUS_STATIC_ASSERT( sizeof(FiddledVtx) == 16 );
 
 struct TextureVtx;
 
@@ -370,27 +391,5 @@ private:
 	std::set< u64 >		mUnhandledCombinerStates;
 #endif
 };
-
-
-struct TextureVtx
-{
-	v2  t0;
-	v3  pos;
-};
-
-struct FiddledVtxDKR
-{
-	s16 y;
-	s16 x;
-
-	u8 a;
-	u8 b;
-	s16 z;
-
-	u8 g;
-	u8 r;
-};
-
-DAEDALUS_STATIC_ASSERT( sizeof(FiddledVtx) == 16 );
 
 #endif // __DAEDALUS_D3DRENDER_H__

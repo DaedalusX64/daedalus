@@ -283,10 +283,8 @@ void DLParser_Mtx_DKR( MicroCodeCommand command )
 		break;
 	}
 
-	DL_PF("    Command: %s %s %s Length %d Address 0x%08x",
-		(mtx_command & G_GBI1_MTX_PROJECTION) ? "Projection" : "ModelView",
-		(mtx_command & G_GBI1_MTX_LOAD) ? "Load" : "Mul",	
-		(mtx_command & G_GBI1_MTX_PUSH) ? "Push" : "NoPush",
+	DL_PF("    Mtx_DKR: Index %d %s Length %d Address 0x%08x",
+		(mul) ? "Mul" : "Load",	
 		length, address);
 
 	if (address + 64 > MAX_RAM_ADDRESS)

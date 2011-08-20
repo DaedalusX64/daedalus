@@ -2334,8 +2334,8 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 
 		if (mTnLModeFlags & TNL_LIGHT)
 		{
-			s16 wA = *(s16*)((pVtxBase + nOff + 0) ^ 2);;
-			s16 wB = *(s16*)((pVtxBase + nOff + 0) ^ 2);;
+			s16 wA = *(s16*)((pVtxBase + nOff + 6) ^ 2);;
+			s16 wB = *(s16*)((pVtxBase + nOff + 8) ^ 2);;
 
 			s8 r = (s8)(wA >> 8);
 			s8 g = (s8)(wA);
@@ -2356,8 +2356,8 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 		}
 		else
 		{
-			u16 wA = *(u16*)((pVtxBase + nOff + 0) ^ 2);;
-			u16 wB = *(u16*)((pVtxBase + nOff + 0) ^ 2);;
+			u16 wA = *(u16*)((pVtxBase + nOff + 6) ^ 2);;
+			u16 wB = *(u16*)((pVtxBase + nOff + 8) ^ 2);;
 
 			u8 r = (u8)(wA >> 8);
 			u8 g = (u8)(wA);
@@ -2373,13 +2373,13 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 		/*if (mTnLModeFlags & TNL_TEXTURE)
 		{
 			// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
-			v2 & t = m_vecTexture[i];
+			v2 & t = mVtxProjected[i].Texture;
 
 			// If the vert is already lit, then there is no normal (and hence we
 			// can't generate tex coord)
 			if ((mTnLModeFlags & (TNL_LIGHT|TNL_TEXGEN)) == (TNL_LIGHT|TNL_TEXGEN))
 			{
-				const Matrix4x4 & matWV = mModelViewStack[mModelViewTop];
+				const Matrix4x4 & matWV = matWorldProject;
 				v3 & norm = vecTransformedNormal;
 
 				// Assign the spheremap's texture coordinates
