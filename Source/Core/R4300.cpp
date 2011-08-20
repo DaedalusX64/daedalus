@@ -967,7 +967,7 @@ static void R4300_CALL_TYPE R4300_LBU( R4300_CALL_SIGNATURE ) 			// Load Byte Un
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate);
 
-	gGPR[op_code.rt]._s64 = (s64)(u8)Read8Bits(address);
+	gGPR[op_code.rt]._u64 = (u64)(u8)Read8Bits(address);
 }
 
 static void R4300_CALL_TYPE R4300_LH( R4300_CALL_SIGNATURE ) 		// Load Halfword
@@ -977,6 +977,7 @@ static void R4300_CALL_TYPE R4300_LH( R4300_CALL_SIGNATURE ) 		// Load Halfword
 	CHECK_R0( op_code.rt );
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
+
 	gGPR[op_code.rt]._s64 = (s64)(s16)Read16Bits(address);
 }
 

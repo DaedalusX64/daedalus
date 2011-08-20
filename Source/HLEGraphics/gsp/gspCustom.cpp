@@ -20,6 +20,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "gspCommon.h"
 
+u32 gDKRMatrixAddr = 0;
+u32 gDKRVtxAddr = 0;
+u32 gDKRVtxCount = 0;
+u32 gDKRCMatrixIndex = 0;
+Matrix4x4 gDKRMatrixes[4];
+bool gDKRBillBoard = false;
 
 u32 gConkerVtxZAddr = 0;
 u32 PDCIAddr = 0;
@@ -185,7 +191,7 @@ void DLParser_DLInMem( MicroCodeCommand command )
 {
 	u32		length( (command.inst.cmd0 >> 16) & 0xFF );
 	u32		push( G_DL_PUSH ); //(command.inst.cmd0 >> 16) & 0xFF;
-	u32		address( 0x00000000 | command.inst.cmd1 ); //RDPSegAddr(command.inst.cmd1);
+	u32		address( command.inst.cmd1 ); //RDPSegAddr(command.inst.cmd1);
 
 	DL_PF("    Address=0x%08x Push: 0x%02x", address, push);
 	
@@ -220,12 +226,96 @@ void DLParser_DLInMem( MicroCodeCommand command )
 // 0x80 seems to be mul
 // 0x40 load
 
-
-void DLParser_MtxDKR( MicroCodeCommand command )
+#if 1	//1->Rice, 0->old
+void DLParser_Mtx_DKR( MicroCodeCommand command )
 {	
-	u32 address     = RDPSegAddr(command.inst.cmd1);
-	u32 mtx_command = (command.inst.cmd0>>16)&0xFF;
-	u32 length      = (command.inst.cmd0)    &0xFFFF;
+	//u32 address     = RDPSegAddr(command.inst.cmd1);
+	u32 address		= command.inst.cmd1 + RDPSegAddr(gDKRMatrixAddr);
+
+	u32 mtx_command = (command.inst.cmd0 >> 16)& 0xFF;
+	u32 length      = (command.inst.cmd0      )& 0xFFFF;
+
+	use(length);
+
+	bool mul = false;
+	u32 index = 0;
+
+	switch( mtx_command )
+	{
+	case 0xC0:	// DKR
+		gDKRCMatrixIndex = index = 3;
+		break;
+	case 0x80:	// DKR
+		gDKRCMatrixIndex = index = 2;
+		break;
+	case 0x40:	// DKR
+		gDKRCMatrixIndex = index = 1;
+		break;
+	case 0x20:	// DKR
+		gDKRCMatrixIndex = index = 0;
+		break;
+	case 0x00:
+		gDKRCMatrixIndex = index = 0;
+		break;
+	case 0x01:
+		gDKRCMatrixIndex = index = 1;
+		break;
+	case 0x02:
+		gDKRCMatrixIndex = index = 2;
+		break;
+	case 0x03:
+		gDKRCMatrixIndex = index = 3;
+		break;
+	case 0x81:
+		index = 1;
+		mul = true;
+		break;
+	case 0x82:
+		index = 2;
+		mul = true;
+		break;
+	case 0x83:
+		index = 3;
+		mul = true;
+		break;
+	default:
+		break;
+	}
+
+	DL_PF("    Command: %s %s %s Length %d Address 0x%08x",
+		(mtx_command & G_GBI1_MTX_PROJECTION) ? "Projection" : "ModelView",
+		(mtx_command & G_GBI1_MTX_LOAD) ? "Load" : "Mul",	
+		(mtx_command & G_GBI1_MTX_PUSH) ? "Push" : "NoPush",
+		length, address);
+
+	if (address + 64 > MAX_RAM_ADDRESS)
+	{
+		DBGConsole_Msg(0, "Mtx: Address invalid (0x%08x)", address);
+		return;
+	}
+
+	// Load matrix from address
+	Matrix4x4 mat;
+	MatrixFromN64FixedPoint( mat, address );
+
+	if( mul )
+	{
+		gDKRMatrixes[index] = mat * gDKRMatrixes[0];
+	}
+	else
+	{
+		gDKRMatrixes[index] = mat;
+	}
+}
+
+#else
+void DLParser_Mtx_DKR( MicroCodeCommand command )
+{	
+	//u32 address     = RDPSegAddr(command.inst.cmd1);
+	u32 address		= command.inst.cmd1 + RDPSegAddr(gDKRMatrixAddr);
+
+	u32 mtx_command = (command.inst.cmd0 >> 16)& 0xFF;
+	u32 length      = (command.inst.cmd0      )& 0xFFFF;
 
 	use(length);
 
@@ -297,7 +387,7 @@ void DLParser_MtxDKR( MicroCodeCommand command )
 
 	}*/
 }
-
+#endif
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -308,35 +398,62 @@ void DLParser_MoveWord_DKR( MicroCodeCommand command )
 	switch ((command.inst.cmd0) & 0xFF)
 	{
 	case G_MW_NUMLIGHT:
-		{
-			num_lights = (command.inst.cmd1)&0x7;
-			DL_PF("    G_MW_NUMLIGHT: Val:%d", num_lights);
+		num_lights = command.inst.cmd1 & 0x7;
+		gDKRBillBoard = (command.inst.cmd1 & 0x7) ? true : false;
 
-			gAmbientLightIdx = num_lights;
-			PSPRenderer::Get()->SetNumLights(num_lights);
-		}
+		DL_PF("    G_MW_NUMLIGHT: Val:%d", num_lights);
+
+		gAmbientLightIdx = num_lights;
+		PSPRenderer::Get()->SetNumLights(num_lights);
+		break;
 	case G_MW_LIGHTCOL:
-		{
-			//DKR
-			PSPRenderer::Get()->ResetMatrices();
-		}
+		//DKR
+		gDKRCMatrixIndex = (command.inst.cmd1 >> 6) & 0x7;
+		//PSPRenderer::Get()->ResetMatrices();
 		break;
 	default:
 		DLParser_GBI1_MoveWord( command );
 		break;
 	}
 }
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_Set_Addr_DKR( MicroCodeCommand command )
+{
+	gDKRMatrixAddr = command.inst.cmd0 & 0x00FFFFFF;
+	gDKRVtxAddr = command.inst.cmd1 & 0x00FFFFFF;
+	gDKRVtxCount=0;
+}
+
 //*****************************************************************************
 //
 //*****************************************************************************
 void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 {
-	u32 address = RDPSegAddr(command.inst.cmd1);
-	u32 v0_idx =  0;
-	u32 num_verts  = ((command.inst.cmd0 & 0xFFF) - 0x08) / 0x12;
+	//u32 address = RDPSegAddr(command.inst.cmd1);
+	u32 address = command.inst.cmd1 + RDPSegAddr(gDKRVtxAddr);
+
+	u32 v0_idx =  ((command.inst.cmd0 >> 9) & 0x1F);
+	u32 num_verts  = ((command.inst.cmd0 >> 19) & 0x1F) + 1;
 
 	DL_PF("    Address 0x%08x, v0: %d, Num: %d", address, v0_idx, num_verts);
 
+	
+	if( command.inst.cmd0 & 0x00010000 )
+	{
+		if( gDKRBillBoard )
+			gDKRVtxCount = 1;
+	}
+	else
+	{
+		gDKRVtxCount = 0;
+	}
+
+	v0_idx += gDKRVtxCount;
+	
+	
 	if (v0_idx >= 32)
 		v0_idx = 31;
 	
@@ -362,6 +479,59 @@ void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 #endif
 
 	}
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+//DKR: 00229BA8: 05710080 001E4AF0 CMD G_DMATRI  Triangles 9 at 801E4AF0
+void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
+{
+	//If bit is set then do backface culling on tris
+	PSPRenderer::Get()->SetCullMode(false, (command.inst.cmd0 & 0x00010000));
+
+	u32 address = RDPSegAddr(command.inst.cmd1);
+	u32 count = (command.inst.cmd0 >> 4) & 0xFFF;
+	u32 * pData = &g_pu32RamBase[address >> 2];
+
+	bool tris_added = false;
+
+	for (u32 i = 0; i < count; i++)
+	{
+		DL_PF("    0x%08x: %08x %08x %08x %08x", address + i*16, pData[0], pData[1], pData[2], pData[3]);
+
+		u32 info = pData[ 0 ];
+
+		u32 v0_idx = (info >> 16) & 0x1F;
+		u32 v1_idx = (info >>  8) & 0x1F;
+		u32 v2_idx = (info      ) & 0x1F;
+
+		if( PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx) )
+		{
+			tris_added = true;
+
+			//// Generate texture coordinates
+			s16 s0( s16(pData[1] >> 16) );
+			s16 t0( s16(pData[1] & 0xFFFF) );
+			s16 s1( s16(pData[2] >> 16) );
+			s16 t1( s16(pData[2] & 0xFFFF) );
+			s16 s2( s16(pData[3] >> 16) );
+			s16 t2( s16(pData[3] & 0xFFFF) );
+
+			PSPRenderer::Get()->SetVtxTextureCoord( v0_idx, s0, t0 );
+			PSPRenderer::Get()->SetVtxTextureCoord( v1_idx, s1, t1 );
+			PSPRenderer::Get()->SetVtxTextureCoord( v2_idx, s2, t2 );
+		}
+
+		pData += 4;
+	}
+
+	if (tris_added)	
+	{
+		PSPRenderer::Get()->FlushTris();
+	}
+
+	gDKRVtxCount = 0;
 }
 
 //*****************************************************************************
@@ -400,59 +570,6 @@ void DLParser_GBI0_Vtx_WRUS( MicroCodeCommand command )
 
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-//DKR: 00229BA8: 05710080 001E4AF0 CMD G_DMATRI  Triangles 9 at 801E4AF0
-void DLParser_DmaTri( MicroCodeCommand command )
-{
-	bool tris_added = false;
-	u32 address = RDPSegAddr(command.inst.cmd1);
-
-
-	u32 flag = (command.inst.cmd0 & 0x00FF0000) >> 16;
-	if (flag&1) 
-		PSPRenderer::Get()->SetCullMode(false,true);
-	else
-		PSPRenderer::Get()->SetCullMode(false,false);
-
-
-	u32 count = ((command.inst.cmd0 & 0xFFF0) >> 4);
-	u32 i;
-	u32 * pData = &g_pu32RamBase[address/4];
-
-	for (i = 0; i < count; i++)
-	{
-		DL_PF("    0x%08x: %08x %08x %08x %08x", address + i*16, pData[0], pData[1], pData[2], pData[3]);
-
-		u32 info = pData[ 0 ];
-
-		u32 v0_idx = (info >> 16) & 0x1F;
-		u32 v1_idx = (info >>  8) & 0x1F;
-		u32 v2_idx = (info      ) & 0x1F;
-
-		//// Generate texture coordinates
-		s16 s0( s16(pData[1]>>16) );
-		s16 t0( s16(pData[1]&0xFFFF) );
-		s16 s1( s16(pData[2]>>16) );
-		s16 t1( s16(pData[2]&0xFFFF) );
-		s16 s2( s16(pData[3]>>16) );
-		s16 t2( s16(pData[3]&0xFFFF) );
-
-		tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
-
-		PSPRenderer::Get()->SetVtxTextureCoord( v0_idx, s0, t0 );
-		PSPRenderer::Get()->SetVtxTextureCoord( v1_idx, s1, t1 );
-		PSPRenderer::Get()->SetVtxTextureCoord( v2_idx, s2, t2 );
-
-		pData += 4;
-	}
-
-	if (tris_added)	
-	{
-		PSPRenderer::Get()->FlushTris();
-	}
-}
 //*****************************************************************************
 
 //IS called Last Legion, but is used for several other games like: Dark Rift, Toukon Road, Toukon Road 2.
@@ -726,7 +843,7 @@ void DLParser_GBI2_Conker( MicroCodeCommand command )
 //*****************************************************************************
 void RSP_MoveMem_Conker( MicroCodeCommand command )
 {
-	u32 type = ((command.inst.cmd0)     ) & 0xFE;
+	u32 type = command.inst.cmd0 & 0xFE;
 	u32 address = RDPSegAddr(command.inst.cmd1);
 
 	if( type == G_GBI2_MV_MATRIX )
@@ -735,7 +852,7 @@ void RSP_MoveMem_Conker( MicroCodeCommand command )
 	}
 	else if( type == G_GBI2_MV_LIGHT )
 	{
-		u32 offset2 = ((command.inst.cmd0) >> 5) & 0x3FFF;
+		u32 offset2 = (command.inst.cmd0 >> 5) & 0x3FFF;
 		u32 light = 0xFF;
 
 		if( offset2 >= 0x30 )
@@ -762,7 +879,7 @@ void RSP_MoveMem_Conker( MicroCodeCommand command )
 //*****************************************************************************
 void RSP_MoveWord_Conker( MicroCodeCommand command )
 {
-	u32 type = ((command.inst.cmd0) >> 16) & 0xFF;
+	u32 type = (command.inst.cmd0 >> 16) & 0xFF;
 
 	if( type != G_MW_NUMLIGHT )
 	{
@@ -770,10 +887,10 @@ void RSP_MoveWord_Conker( MicroCodeCommand command )
 	}
 	else
 	{
-		u32 num_lights = command.inst.cmd1/48;
+		u32 num_lights = command.inst.cmd1 / 48;
 		DL_PF("     G_MW_NUMLIGHT: %d", num_lights);
 
-		gAmbientLightIdx = num_lights+1;
+		gAmbientLightIdx = num_lights + 1;
 		PSPRenderer::Get()->SetNumLights(num_lights);
 	}
 }
@@ -783,17 +900,13 @@ void RSP_MoveWord_Conker( MicroCodeCommand command )
 //*****************************************************************************
 void RSP_Vtx_Conker( MicroCodeCommand command )
 {
-	
 	u32 address = RDPSegAddr(command.inst.cmd1);
-	u32 len    = ((command.inst.cmd0   )&0xFFF)/2;
-	u32 n      = ((command.inst.cmd0>>12)&0xFFF);
+	u32 len    = ((command.inst.cmd0      )& 0xFFF) >> 1;
+	u32 n      = ((command.inst.cmd0 >> 12)& 0xFFF);
 	u32 v0		= len - n;
-
-	use(len);
 
 	DL_PF("    Vtx: address 0x%08x, len: %d, v0: %d, n: %d", address, len, v0, n);
 
-	// XXX Fix me
 	PSPRenderer::Get()->SetNewVertexInfoConker( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST

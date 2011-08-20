@@ -2249,6 +2249,12 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 // Don't inline - it's too big with the transform macros
 // DKR seems to use longer vert info
 //*****************************************************************************
+extern bool gDKRBillBoard;
+extern u32 gDKRCMatrixIndex;
+extern Matrix4x4 gDKRMatrixes[4];
+extern u32 gDKRVtxCount;
+v4 gDKRBaseVecP, gDKRBaseVecT;
+
 void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 {
 #ifndef NO_VFPU_FOG
@@ -2261,63 +2267,80 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 		nFogA = mFogColour.GetA();
 	}
 #endif
-	s16 * pVtxBase = (s16*)(g_pu8RamBase + dwAddress);
 
-	const Matrix4x4 & matWorldProject( GetWorldProject() );
+	u32 pVtxBase = u32(g_pu8RamBase + dwAddress);
 
-	u32 i;
-	u32 nOff;
+	const Matrix4x4 & matWorldProject( gDKRMatrixes[gDKRCMatrixIndex] );
 
-	nOff = 0;
-	for (i = dwV0; i < dwV0 + dwNum; i++)
+	//ToDo: avoid setting the matrix here all the time //Corn
+	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject) );
+
+	bool addbase = !((!gDKRBillBoard) | (gDKRCMatrixIndex != 2));
+
+	if( addbase & (gDKRVtxCount == 0) & (dwNum > 1) ) gDKRVtxCount++;
+
+	u32 nOff = 0;
+	v4 w;
+
+	for (u32 i = dwV0; i < dwV0 + dwNum; i++)
 	{
-		v4 w;
-		u32 dwFlags;
-
-		w.x = (float)pVtxBase[(  nOff) ^ 1];
-		w.y = (float)pVtxBase[(++nOff) ^ 1];
-		w.z = (float)pVtxBase[(++nOff) ^ 1];
+		w.x = (f32)*(s16*)((pVtxBase + nOff + 0) ^ 2);
+		w.y = (f32)*(s16*)((pVtxBase + nOff + 2) ^ 2);
+		w.z = (f32)*(s16*)((pVtxBase + nOff + 4) ^ 2);
 		w.w = 1.0f;
+
+		v4 & transformed( mVtxProjected[i].TransformedPos );
+		transformed = w;
 
 		v4 & projected( mVtxProjected[i].ProjectedPos );
 		projected = matWorldProject.Transform( w );	// Convert to w=1
 
-		//float	rhw;
-		//if(fabsf(projected.w) > 0.0f)
-		//{
-		//	rhw = 1.0f / ( projected.w );
-		//}
-		//else
-		//{
-		//	rhw = 1.0f;
-		//}
+		if( (gDKRVtxCount == 0) & (dwNum == 1) )
+		{
+			gDKRBaseVecP = projected;
+			gDKRBaseVecT = transformed;
+		}
+		else if( addbase )
+		{
+			projected.x += gDKRBaseVecP.x;
+			projected.y += gDKRBaseVecP.y;
+			projected.z += gDKRBaseVecP.z;
+			projected.w  = gDKRBaseVecP.w;
 
-		dwFlags = 0;
+			transformed.x += gDKRBaseVecT.x;
+			transformed.y += gDKRBaseVecT.y;
+			transformed.z += gDKRBaseVecT.z;
+			transformed.w  = gDKRBaseVecT.w;
+		}
 
+		//Used for tris front/back culling //Corn
+		mVtxProjected[i].iW = 1.0f / projected.w;
+
+		gDKRVtxCount++;
+
+		// ToDo fix proper clipping if possible //Corn
 		// Clip
-		mVtxProjected[i].ClipFlags = dwFlags;
+		mVtxProjected[i].ClipFlags = 0;
 
-		s16 wA = pVtxBase[(++nOff) ^ 1];
-		s16 wB = pVtxBase[(++nOff) ^ 1];
-
-		s8 r = (s8)(wA >> 8);
-		s8 g = (s8)(wA);
-		s8 b = (s8)(wB >> 8);
-		s8 a = (s8)(wB);
-
-		v3 vecTransformedNormal;
 		v4 colour;
 
 		if (mTnLModeFlags & TNL_LIGHT)
 		{
+			s16 wA = *(s16*)((pVtxBase + nOff + 0) ^ 2);;
+			s16 wB = *(s16*)((pVtxBase + nOff + 0) ^ 2);;
+
+			s8 r = (s8)(wA >> 8);
+			s8 g = (s8)(wA);
+			s8 b = (s8)(wB >> 8);
+			u8 a = (u8)(wB);
+
 			v3 mn;		// modelnorm
-			const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
 
 			mn.x = (float)r; //norma_x;
 			mn.y = (float)g; //norma_y;
 			mn.z = (float)b; //norma_z;
 
-			vecTransformedNormal = matWorld.TransformNormal( mn );
+			v3 vecTransformedNormal = matWorldProject.TransformNormal( mn );
 			vecTransformedNormal.Normalise();
 
 			colour = LightVert(vecTransformedNormal);
@@ -2325,6 +2348,14 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 		}
 		else
 		{
+			u16 wA = *(u16*)((pVtxBase + nOff + 0) ^ 2);;
+			u16 wB = *(u16*)((pVtxBase + nOff + 0) ^ 2);;
+
+			u8 r = (u8)(wA >> 8);
+			u8 g = (u8)(wA);
+			u8 b = (u8)(wB >> 8);
+			u8 a = (u8)(wB);
+
 			colour = v4( r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f) );
 		}
 
@@ -2359,7 +2390,7 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 			}
 		}*/
 
-		++nOff;
+		nOff += 10;
 	}
 }
 

@@ -120,7 +120,7 @@ public:
 	inline void			SetLighting(bool enable)				{ if( enable ) mTnLModeFlags |= TNL_LIGHT;	 else mTnLModeFlags &= ~TNL_LIGHT; }
 	inline void			SetTextureGen(bool enable)				{ if( enable ) mTnLModeFlags |= TNL_TEXGEN;  else mTnLModeFlags &= ~TNL_TEXGEN; }
 
-	// PrimDepth will replace the z value if depth_source=1 //Corn
+	// PrimDepth will replace the z value if depth_source=1 (z range 32767-0 while PSP depthbuffer range 0-65535)//Corn
 	inline void			SetPrimitiveDepth( u32 z )				{ mPrimDepth = (f32)( ( ( 32767 - z ) << 1) + 1 ); }
 	inline void			SetPrimitiveColour( c32 colour )		{ mPrimitiveColour = colour; }
 	inline void			SetEnvColour( c32 colour )				{ mEnvColour = colour; }

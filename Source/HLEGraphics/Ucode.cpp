@@ -366,8 +366,8 @@ const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256] =
 	// uCode 6 - RSP SW 2.0 Diddy
 	// Games: Diddy Kong Racing
 	{
-		DLParser_GBI1_SpNoop, DLParser_MtxDKR, DLParser_GBI1_Reserved, DLParser_GBI1_MoveMem,
-		DLParser_GBI0_Vtx_DKR, DLParser_DmaTri, DLParser_GBI1_DL, DLParser_DLInMem,
+		DLParser_GBI1_SpNoop, DLParser_Mtx_DKR, DLParser_GBI1_Reserved, DLParser_GBI1_MoveMem,
+		DLParser_GBI0_Vtx_DKR, DLParser_DMA_Tri_DKR, DLParser_GBI1_DL, DLParser_DLInMem,
 		DLParser_GBI1_Reserved, DLParser_GBI1_Sprite2DBase, DLParser_Nothing, DLParser_Nothing,
 		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
 		//10
@@ -424,7 +424,7 @@ const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256] =
 		DLParser_Nothing, DLParser_GBI0_Tri4, DLParser_GBI1_RDPHalf_Cont, DLParser_GBI1_RDPHalf_2,
 		DLParser_GBI1_RDPHalf_1, DLParser_GBI1_Line3D, DLParser_GBI1_ClearGeometryMode, DLParser_GBI1_SetGeometryMode,
 		DLParser_GBI1_EndDL, DLParser_GBI1_SetOtherModeL, DLParser_GBI1_SetOtherModeH, DLParser_GBI1_Texture,
-		DLParser_MoveWord_DKR, DLParser_GBI1_PopMtx, DLParser_GBI1_CullDL, DLParser_GBI1_Tri1,/*addr6*/
+		DLParser_MoveWord_DKR, DLParser_GBI1_PopMtx, DLParser_GBI1_CullDL, /*DLParser_GBI1_Tri1*/ DLParser_Set_Addr_DKR,/*addr6*/
 		//c0
 		DLParser_GBI1_Noop, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
 		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
@@ -451,8 +451,8 @@ const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256] =
 	// uCode 11 - RSP SW 2.0 Gemini
 	// Games: Gemini and Mickey
 	{
-		DLParser_GBI1_SpNoop, DLParser_MtxDKR, DLParser_GBI1_Reserved, DLParser_GBI1_MoveMem,
-		DLParser_GBI0_Vtx_Gemini, DLParser_DmaTri, DLParser_GBI1_DL, DLParser_DLInMem,
+		DLParser_GBI1_SpNoop, DLParser_Mtx_DKR, DLParser_GBI1_Reserved, DLParser_GBI1_MoveMem,
+		DLParser_GBI0_Vtx_Gemini, DLParser_DMA_Tri_DKR, DLParser_GBI1_DL, DLParser_DLInMem,
 		DLParser_GBI1_Reserved, DLParser_GBI1_Sprite2DBase, DLParser_Nothing, DLParser_Nothing,
 		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
 		//10
@@ -509,7 +509,7 @@ const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256] =
 		DLParser_Nothing, DLParser_GBI0_Tri4, DLParser_GBI1_RDPHalf_Cont, DLParser_GBI1_RDPHalf_2,
 		DLParser_GBI1_RDPHalf_1, DLParser_GBI1_Line3D, DLParser_GBI1_ClearGeometryMode, DLParser_GBI1_SetGeometryMode,
 		DLParser_GBI1_EndDL, DLParser_GBI1_SetOtherModeL, DLParser_GBI1_SetOtherModeH, DLParser_GBI1_Texture,
-		DLParser_MoveWord_DKR, DLParser_GBI1_PopMtx, DLParser_GBI1_CullDL, DLParser_GBI1_Tri1,/*addr6*/
+		DLParser_MoveWord_DKR, DLParser_GBI1_PopMtx, DLParser_GBI1_CullDL, /*DLParser_GBI1_Tri1*/ DLParser_Set_Addr_DKR,/*addr6*/
 		//c0
 		DLParser_GBI1_Noop, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
 		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
