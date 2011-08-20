@@ -2086,7 +2086,7 @@ void PSPRenderer::ProcessVerts( u32 v0, u32 num, const FiddledVtx * verts, const
 		}
 
 		//
-		//	Initialise the clipping flags (always done on the VFPU, so skip here)
+		//	Initialise the clipping flags
 		//
 		mVtxProjected[i].ClipFlags = CalcClipFlags( projected );
 	}
@@ -2247,7 +2247,7 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 // Assumes dwAddress has already been checked!
 // Don't inline - it's too big with the transform macros
-// DKR seems to use longer vert info
+// DKR/Gemini seems to use longer vert info
 //*****************************************************************************
 extern bool gDKRBillBoard;
 extern u32 gDKRCMatrixIndex;
@@ -2281,13 +2281,13 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 
 	u32 nOff = 0;
 	v4 w;
+	w.w = 1.0f;
 
 	for (u32 i = dwV0; i < dwV0 + dwNum; i++)
 	{
 		w.x = (f32)*(s16*)((pVtxBase + nOff + 0) ^ 2);
 		w.y = (f32)*(s16*)((pVtxBase + nOff + 2) ^ 2);
 		w.z = (f32)*(s16*)((pVtxBase + nOff + 4) ^ 2);
-		w.w = 1.0f;
 
 		v4 & transformed( mVtxProjected[i].TransformedPos );
 		transformed = w;
@@ -2318,9 +2318,17 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 
 		gDKRVtxCount++;
 
-		// ToDo fix proper clipping if possible //Corn
-		// Clip
-		mVtxProjected[i].ClipFlags = 0;
+		// Set Clipflags //Corn
+		u32 clip_flags = 0;
+		if		(-projected.x > projected.w)	clip_flags |= X_POS;
+		else if (+projected.x > projected.w)	clip_flags |= X_NEG;
+
+		if		(-projected.y > projected.w)	clip_flags |= Y_POS;
+		else if (+projected.y > projected.w)	clip_flags |= Y_NEG;
+
+		if		(-projected.z > projected.w)	clip_flags |= Z_POS;
+		else if (+projected.z > projected.w)	clip_flags |= Z_NEG;
+		mVtxProjected[i].ClipFlags = clip_flags;
 
 		v4 colour;
 

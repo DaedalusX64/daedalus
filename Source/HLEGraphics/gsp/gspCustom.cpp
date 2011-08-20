@@ -94,9 +94,10 @@ void DLParser_DumpVtxInfoDKR(u32 address, u32 v0_idx, u32 num_verts)
 
 void DLParser_GBI0_Vtx_Gemini( MicroCodeCommand command )
 {
-	u32 address = RDPSegAddr(command.inst.cmd1);
-	u32 v0_idx =  ((command.inst.cmd0>>9)&0x1F);
-	u32 num_verts  = ((command.inst.cmd0>>19)&0x1F);
+	//u32 address = RDPSegAddr(command.inst.cmd1);
+	u32 address		= command.inst.cmd1 + RDPSegAddr(gDKRVtxAddr);
+	u32 v0_idx		= (command.inst.cmd0 >> 9 ) & 0x1F;
+	u32 num_verts	= (command.inst.cmd0 >> 19) & 0x1F;
 
 
 	DL_PF("    Address 0x%08x, v0: %d, Num: %d", address, v0_idx, num_verts);
