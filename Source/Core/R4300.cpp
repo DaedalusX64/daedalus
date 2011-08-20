@@ -1315,8 +1315,7 @@ static void R4300_CALL_TYPE R4300_LDC1( R4300_CALL_SIGNATURE )				// Load Double
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 
-	//StoreFPR_Long( op_code.ft, Read64Bits(address));
-	QuickRead_Long( address, gCPUState.FPU[op_code.ft+0]._u32_0, gCPUState.FPU[op_code.ft+1]._u32_0);
+	StoreFPR_Long( op_code.ft, Read64Bits(address));
 }
 
 
