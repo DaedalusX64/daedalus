@@ -20,11 +20,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "gspCommon.h"
 
+Matrix4x4 gDKRMatrixes[4];
+u32 gDKRCMatrixIndex = 0;
 u32 gDKRMatrixAddr = 0;
 u32 gDKRVtxAddr = 0;
 u32 gDKRVtxCount = 0;
-u32 gDKRCMatrixIndex = 0;
-Matrix4x4 gDKRMatrixes[4];
 bool gDKRBillBoard = false;
 
 u32 gConkerVtxZAddr = 0;
@@ -930,7 +930,6 @@ void RSP_Set_Vtx_CI_PD( MicroCodeCommand command )
 //*****************************************************************************
 void RSP_Vtx_PD( MicroCodeCommand command )
 {
-	
 	u32 address = RDPSegAddr(command.inst.cmd1);
 	u32 v0 =  ((command.inst.cmd0)>>16)&0x0F;
 	u32 n  = (((command.inst.cmd0)>>20)&0x0F)+1;
@@ -942,14 +941,48 @@ void RSP_Vtx_PD( MicroCodeCommand command )
 
 	// Doesn't work anyways
 	// Todo : Implement proper vertex info for PD
-	PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
+	PSPRenderer::Get()->SetNewVertexInfoPD( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
       gNumVertices += n;
       DLParser_DumpVtxInfo( address, v0, n );
 #endif
-
 }
+
+//*****************************************************************************
+//
+//*****************************************************************************
+/*
+void RSP_Tri4_PD( MicroCodeCommand command )
+{
+	// While the next command pair is Tri2, add vertices
+	u32 pc = gDlistStack[gDlistStackPointer].pc;
+
+	bool tris_added = false;
+
+	do {
+		for( u32 i=0; i<4; i++)
+		{
+			u32 v0_idx = (command.inst.cmd1>>(4+(i<<3))) & 0xF;
+			u32 v1_idx = (command.inst.cmd1>>(  (i<<3))) & 0xF;
+			u32 v2_idx = (command.inst.cmd0>>(  (i<<2))) & 0xF;
+			tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
+		}
+
+		command.inst.cmd0 = *(u32 *)(g_pu8RamBase + pc + 0);
+		command.inst.cmd1 = *(u32 *)(g_pu8RamBase + pc + 4);
+		pc += 8;
+
+	} while (command.inst.cmd == G_GBI2_TRI2);
+
+	gDlistStack[gDlistStackPointer].pc = pc-8;
+
+    if (tris_added)
+    {
+            PSPRenderer::Get()->FlushTris();
+    }
+}
+*/
 //*****************************************************************************
 //
 //*****************************************************************************

@@ -21,12 +21,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef GSP_CUSTOM_H
 #define GSP_CUSTOM_H
 
-
-
 //*****************************************************************************
 // Custom
 //*****************************************************************************
-
 UcodeFunc( DLParser_GBI0_DL_SOTE );
 UcodeFunc( DLParser_GBI0_Vtx_SOTE );
 //UcodeFunc( DLParser_GBI0_Line3D_SOTE );
@@ -49,6 +46,7 @@ UcodeFunc( RSP_MoveWord_Conker );
 UcodeFunc( RSP_Vtx_Conker );
 UcodeFunc( RSP_Set_Vtx_CI_PD );
 UcodeFunc( RSP_Vtx_PD );
+//UcodeFunc( RSP_Tri4_PD );
 
 //*****************************************************************************
 //

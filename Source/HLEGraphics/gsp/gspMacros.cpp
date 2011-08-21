@@ -1002,7 +1002,7 @@ void DLParser_GBI1_Tri1( MicroCodeCommand command )
 }
 
 //*****************************************************************************
-// It's used by Golden Eye
+// It's used by Golden Eye and PD
 //*****************************************************************************
 void DLParser_GBI0_Tri4( MicroCodeCommand command )
 {

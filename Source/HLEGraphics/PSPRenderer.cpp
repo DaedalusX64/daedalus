@@ -2124,8 +2124,7 @@ void PSPRenderer::SetNewVertexInfo(u32 dwAddress, u32 dwV0, u32 dwNum)
 	// or
 	// Transform and Project with Colour
 
-	u32 i;
-	for (i = dwV0; i < dwV0 + dwNum; i++)
+	for (u32 i = dwV0; i < dwV0 + dwNum; i++)
 	{
 		const FiddledVtx & vert = pVtxBase[i - dwV0];
 
@@ -2249,11 +2248,10 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 // Don't inline - it's too big with the transform macros
 // DKR/Gemini seems to use longer vert info
 //*****************************************************************************
-extern bool gDKRBillBoard;
-extern u32 gDKRCMatrixIndex;
 extern Matrix4x4 gDKRMatrixes[4];
+extern u32 gDKRCMatrixIndex;
 extern u32 gDKRVtxCount;
-v4 gDKRBaseVecP, gDKRBaseVecT;
+extern bool gDKRBillBoard;
 
 void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 {
@@ -2280,41 +2278,33 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 	if( addbase & (gDKRVtxCount == 0) & (dwNum > 1) ) gDKRVtxCount++;
 
 	u32 nOff = 0;
-	v4 w;
-	w.w = 1.0f;
 
 	for (u32 i = dwV0; i < dwV0 + dwNum; i++)
 	{
-		w.x = (f32)*(s16*)((pVtxBase + nOff + 0) ^ 2);
-		w.y = (f32)*(s16*)((pVtxBase + nOff + 2) ^ 2);
-		w.z = (f32)*(s16*)((pVtxBase + nOff + 4) ^ 2);
-
 		v4 & transformed( mVtxProjected[i].TransformedPos );
-		transformed = w;
+		transformed.x = (f32)*(s16*)((pVtxBase + nOff + 0) ^ 2);
+		transformed.y = (f32)*(s16*)((pVtxBase + nOff + 2) ^ 2);
+		transformed.z = (f32)*(s16*)((pVtxBase + nOff + 4) ^ 2);
+		transformed.w = 1.0f;
 
 		v4 & projected( mVtxProjected[i].ProjectedPos );
-		projected = matWorldProject.Transform( w );	// Convert to w=1
-
-		if( (gDKRVtxCount == 0) & (dwNum == 1) )
-		{
-			gDKRBaseVecP = projected;
-			gDKRBaseVecT = transformed;
-		}
-		else if( addbase )
-		{
-			projected.x += gDKRBaseVecP.x;
-			projected.y += gDKRBaseVecP.y;
-			projected.z += gDKRBaseVecP.z;
-			projected.w  = gDKRBaseVecP.w;
-
-			transformed.x += gDKRBaseVecT.x;
-			transformed.y += gDKRBaseVecT.y;
-			transformed.z += gDKRBaseVecT.z;
-			transformed.w  = gDKRBaseVecT.w;
-		}
+		projected = matWorldProject.Transform( transformed );	// Convert to w=1
 
 		//Used for tris front/back culling //Corn
 		mVtxProjected[i].iW = 1.0f / projected.w;
+
+		v4 gDKRBaseVec;
+		if( (gDKRVtxCount == 0) & (dwNum == 1) )
+		{
+			gDKRBaseVec = transformed;
+		}
+		else if( addbase )
+		{
+			transformed.x += gDKRBaseVec.x;
+			transformed.y += gDKRBaseVec.y;
+			transformed.z += gDKRBaseVec.z;
+			transformed.w  = gDKRBaseVec.w;
+		}
 
 		gDKRVtxCount++;
 
@@ -2370,38 +2360,102 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 		// Assign true vert colour after lighting/fogging
 		mVtxProjected[i].Colour = colour;
 
-		/*if (mTnLModeFlags & TNL_TEXTURE)
-		{
-			// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
-			v2 & t = mVtxProjected[i].Texture;
-
-			// If the vert is already lit, then there is no normal (and hence we
-			// can't generate tex coord)
-			if ((mTnLModeFlags & (TNL_LIGHT|TNL_TEXGEN)) == (TNL_LIGHT|TNL_TEXGEN))
-			{
-				const Matrix4x4 & matWV = matWorldProject;
-				v3 & norm = vecTransformedNormal;
-
-				// Assign the spheremap's texture coordinates
-				t.x = (0.5f * ( 1.0f + ( norm.x*matWV.m00 +
-										 norm.y*matWV.m10 +
-										 norm.z*matWV.m20 ) ));
-
-				t.y = (0.5f * ( 1.0f - ( norm.x*matWV.m01 +
-										 norm.y*matWV.m11 +
-										 norm.z*matWV.m21 ) ));
-			}
-			else
-			{
-				t.x = (float)vert.t.x * mTnLParams.TextureScaleX;
-				t.y = (float)vert.t.y * mTnLParams.TextureScaleY;
-			}
-		}*/
+		// No texture scaling? (These dont seem to do any good anyway) //Corn
+		//mVtxProjected[i].Texture.x = mVtxProjected[i].Texture.y = 1.0f;
 
 		nOff += 10;
 	}
 }
 
+//*****************************************************************************
+// Perfect Dark Transform (Project + Lighting or Project + Colour)
+//*****************************************************************************
+void PSPRenderer::SetNewVertexInfoPD(u32 dwAddress, u32 dwV0, u32 dwNum)
+{
+	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + dwAddress);
+
+	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
+	const Matrix4x4 & matWorldProject( GetWorldProject() );
+
+	for (u32 i = dwV0; i < dwV0 + dwNum; i++)
+	{
+		const FiddledVtxPD & vert = pVtxBase[i - dwV0];
+
+		v4 w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
+
+		v4 & projected( mVtxProjected[i].ProjectedPos );
+		projected = matWorldProject.Transform( w );
+		mVtxProjected[i].iW = 1.0f / mVtxProjected[i].ProjectedPos.w;
+		mVtxProjected[i].TransformedPos = matWorld.Transform( w );
+
+		DL_PF( "p%d: (%f,%f,%f) -> (%f,%f,%f,%f)", i, w.x, w.y, w.z, mVtxProjected[i].ProjectedPos.x, mVtxProjected[i].ProjectedPos.y, mVtxProjected[i].ProjectedPos.z, mVtxProjected[i].ProjectedPos.w );
+
+		// Set Clipflags //Corn
+		u32 clip_flags = 0;
+		if		(-projected.x > projected.w)	clip_flags |= X_POS;
+		else if (+projected.x > projected.w)	clip_flags |= X_NEG;
+
+		if		(-projected.y > projected.w)	clip_flags |= Y_POS;
+		else if (+projected.y > projected.w)	clip_flags |= Y_NEG;
+
+		if		(-projected.z > projected.w)	clip_flags |= Z_POS;
+		else if (+projected.z > projected.w)	clip_flags |= Z_NEG;
+		mVtxProjected[i].ClipFlags = clip_flags;
+
+		// ToDo: Fix lights & texgen!!! //Corn
+		//if (mTnLModeFlags & TNL_LIGHT)
+		//{
+		//	v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
+
+		//	v3 vecTransformedNormal;		// Used only when TNL_LIGHT set
+		//	vecTransformedNormal = matWorld.TransformNormal( model_normal );
+		//	vecTransformedNormal.Normalise();
+
+		//	mVtxProjected[i].Colour = LightVert(vecTransformedNormal);
+		//	mVtxProjected[i].Colour.w = vert.rgba_a * (1.0f / 255.0f);
+		//}
+		//else
+		//{
+		//	mVtxProjected[i].Colour = v4( vert.rgba_r * (1.0f / 255.0f), vert.rgba_g * (1.0f / 255.0f), vert.rgba_b * (1.0f / 255.0f), vert.rgba_a * (1.0f / 255.0f) );
+		//}
+
+		if ((mTnLModeFlags & (TNL_LIGHT | TNL_TEXGEN)) == (TNL_LIGHT | TNL_TEXGEN))
+		{
+		/*	// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
+
+			// If the vert is already lit, then there is no normal (and hence we
+			// can't generate tex coord)
+			v3 vecTransformedNormal;		// Used only when TNL_LIGHT set
+			v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
+
+			//On VFPU we use matWorldProject instead of mat_world for nicer effect //Corn
+			vecTransformedNormal = mat_world.TransformNormal( model_normal );
+			vecTransformedNormal.Normalise();
+
+			const v3 & norm = vecTransformedNormal;
+
+			//Env mapping
+			if( gGeometryMode & G_TEXTURE_GEN_LINEAR )
+			{
+				mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x);
+				mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y);
+			}
+			else
+			{
+				//Cheaper way to do Acos(x)/Pi //Corn
+				f32 NormX = absf( norm.x );
+				f32 NormY = absf( norm.y );
+				mVtxProjected[i].Texture.x =  0.5f - 0.25f * NormX - 0.25f * NormX * NormX * NormX; 
+				mVtxProjected[i].Texture.y =  0.5f - 0.25f * NormY - 0.25f * NormY * NormY * NormY;
+			}*/
+		}
+		else
+		{
+			mVtxProjected[i].Texture.x = (float)vert.s * mTnLParams.TextureScaleX;
+			mVtxProjected[i].Texture.y = (float)vert.t * mTnLParams.TextureScaleY;
+		}
+	}
+}	
 //*****************************************************************************
 //
 //*****************************************************************************

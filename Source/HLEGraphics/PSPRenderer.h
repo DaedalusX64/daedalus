@@ -66,6 +66,16 @@ struct FiddledVtxDKR
 	u8 r;
 };
 
+struct FiddledVtxPD 
+{
+	s16 y;
+	s16	x;
+	u16	cidx;
+	s16 z;
+	s16 t;
+	s16 s;
+};
+
 struct FiddledVtx
 {
         s16 y;
@@ -192,10 +202,11 @@ public:
 	void				ForceMatrix(const Matrix4x4 & mat);
 
 	// Vertex stuff	
-	void				SetNewVertexInfoConker(u32 address, u32 v0, u32 n);	// For conker..	
 	void				SetNewVertexInfo(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!	
-	void				ModifyVertexInfo(u32 whered, u32 vert, u32 val);
+	void				SetNewVertexInfoConker(u32 address, u32 v0, u32 n);	// For conker..	
 	void				SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum);	// Assumes dwAddress has already been checked!	
+	void				SetNewVertexInfoPD(u32 dwAddress, u32 dwV0, u32 dwNum);	// Assumes dwAddress has already been checked!	
+	void				ModifyVertexInfo(u32 whered, u32 vert, u32 val);
 	void				SetVtxColor( u32 vert, c32 color );
 	inline void			SetVtxTextureCoord( u32 vert, short tu, short tv ) {mVtxProjected[vert].Texture.x = (f32)tu * (1.0f / 32.0f); mVtxProjected[vert].Texture.y = (f32)tv * (1.0f / 32.0f);}
 	void				SetVtxXY( u32 vert, float x, float y );
