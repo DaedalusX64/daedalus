@@ -1829,13 +1829,13 @@ void PSPRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num
 //*****************************************************************************
 //*****************************************************************************
 //*****************************************************************************
+extern u32 gGeometryMode;
+
 #if	1	//1->VFPU, 0->FPU/CPU
 
 //*****************************************************************************
-//Transform using VFPU
+// Standard rendering pipeline using VFPU
 //*****************************************************************************
-extern u32 gGeometryMode;
-
 void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
@@ -1989,11 +1989,9 @@ void PSPRenderer::TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, cons
 #endif	//DAEDALUS_IS_LEGACY
 
 
-#else
-
-extern u32 gGeometryMode;
+#else	//Transform VFPU/FPU
 //*****************************************************************************
-//Transform Using FPU/CPU
+// Transform Using FPU/CPU
 //*****************************************************************************
 static u32 CalcClipFlags( const v4 & projected )
 {
@@ -2072,8 +2070,8 @@ void PSPRenderer::ProcessVerts( u32 v0, u32 num, const FiddledVtx * verts, const
 				//mVtxProjected[i].Texture.y = acosf(norm.y) / 3.14159265f;
 
 				//Cheaper way to do Acos(x)/Pi //Corn
-				f32 NormX = absf( norm.x );
-				f32 NormY = absf( norm.y );
+				f32 NormX = pspFpuAbs( norm.x );
+				f32 NormY = pspFpuAbs( norm.y );
 				mVtxProjected[i].Texture.x =  0.5f - 0.25f * NormX - 0.25f * NormX * NormX * NormX; 
 				mVtxProjected[i].Texture.y =  0.5f - 0.25f * NormY - 0.25f * NormY * NormY * NormY;
 			}
@@ -2093,7 +2091,7 @@ void PSPRenderer::ProcessVerts( u32 v0, u32 num, const FiddledVtx * verts, const
 }
 
 //*****************************************************************************
-//Transform Using FPU/CPU
+// Standard rendering pipeline using FPU/CPU
 //*****************************************************************************
 void PSPRenderer::SetNewVertexInfo(u32 dwAddress, u32 dwV0, u32 dwNum)
 {
@@ -2186,10 +2184,11 @@ void PSPRenderer::SetNewVertexInfo(u32 dwAddress, u32 dwV0, u32 dwNum)
 
 #endif	//Transform VFPU/FPU
 
+//*****************************************************************************
+// Conker Bad fur day rendering pipeline
+//*****************************************************************************
 extern u32 gConkerVtxZAddr;
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
 	// Light not handled for Conker
@@ -2229,10 +2228,8 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 				else
 				{
 					//Cheaper way to do Acos(x)/Pi //Corn
-					f32 NormX = absf( norm.x );
-					f32 NormY = absf( norm.y );
-					mVtxProjected[i].Texture.x =  0.5f - 0.25f * NormX - 0.25f * NormX * NormX * NormX; 
-					mVtxProjected[i].Texture.y =  0.5f - 0.25f * NormY - 0.25f * NormY * NormY * NormY;
+					mVtxProjected[i].Texture.x =  0.5f - 0.25f * norm.x - 0.25f * norm.x * norm.x * norm.x;
+					mVtxProjected[i].Texture.y =  0.5f - 0.25f * norm.y - 0.25f * norm.y * norm.y * norm.y;
 				}
 			}
 		}
@@ -2245,8 +2242,8 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 
 //*****************************************************************************
 // Assumes dwAddress has already been checked!
-// Don't inline - it's too big with the transform macros
-// DKR/Gemini seems to use longer vert info
+// DKR/Jet Force Gemini rendering pipeline
+// Seems to use longer vert info
 //*****************************************************************************
 extern Matrix4x4 gDKRMatrixes[4];
 extern u32 gDKRCMatrixIndex;
@@ -2368,8 +2365,10 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 }
 
 //*****************************************************************************
-// Perfect Dark Transform (Project + Lighting or Project + Colour)
+// Perfect Dark rendering pipeline
 //*****************************************************************************
+extern u32 PDCIAddr;
+
 void PSPRenderer::SetNewVertexInfoPD(u32 dwAddress, u32 dwV0, u32 dwNum)
 {
 	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + dwAddress);
@@ -2402,60 +2401,59 @@ void PSPRenderer::SetNewVertexInfoPD(u32 dwAddress, u32 dwV0, u32 dwNum)
 		else if (+projected.z > projected.w)	clip_flags |= Z_NEG;
 		mVtxProjected[i].ClipFlags = clip_flags;
 
-		// ToDo: Fix lights & texgen!!! //Corn
-		//if (mTnLModeFlags & TNL_LIGHT)
-		//{
-		//	v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
-
-		//	v3 vecTransformedNormal;		// Used only when TNL_LIGHT set
-		//	vecTransformedNormal = matWorld.TransformNormal( model_normal );
-		//	vecTransformedNormal.Normalise();
-
-		//	mVtxProjected[i].Colour = LightVert(vecTransformedNormal);
-		//	mVtxProjected[i].Colour.w = vert.rgba_a * (1.0f / 255.0f);
-		//}
-		//else
-		//{
-		//	mVtxProjected[i].Colour = v4( vert.rgba_r * (1.0f / 255.0f), vert.rgba_g * (1.0f / 255.0f), vert.rgba_b * (1.0f / 255.0f), vert.rgba_a * (1.0f / 255.0f) );
-		//}
-
-		if ((mTnLModeFlags & (TNL_LIGHT | TNL_TEXGEN)) == (TNL_LIGHT | TNL_TEXGEN))
+		if( mTnLModeFlags & TNL_LIGHT )
 		{
-		/*	// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
+			s8 *addr = (s8*)(g_pu8RamBase + PDCIAddr + (vert.cidx & 0xFF));
+			v3	model_normal((f32)addr[3], (f32)addr[2], (f32)addr[1] );
 
-			// If the vert is already lit, then there is no normal (and hence we
-			// can't generate tex coord)
 			v3 vecTransformedNormal;		// Used only when TNL_LIGHT set
-			v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
-
-			//On VFPU we use matWorldProject instead of mat_world for nicer effect //Corn
-			vecTransformedNormal = mat_world.TransformNormal( model_normal );
+			vecTransformedNormal = matWorld.TransformNormal( model_normal );
 			vecTransformedNormal.Normalise();
 
-			const v3 & norm = vecTransformedNormal;
+			mVtxProjected[i].Colour = LightVert(vecTransformedNormal);
+			mVtxProjected[i].Colour.w = (f32)addr[0] * (1.0f / 255.0f);
 
-			//Env mapping
-			if( gGeometryMode & G_TEXTURE_GEN_LINEAR )
+			if ( mTnLModeFlags & TNL_TEXGEN )
 			{
-				mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x);
-				mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y);
+				const v3 & norm = vecTransformedNormal;
+
+				//Env mapping
+				if( gGeometryMode & G_TEXTURE_GEN_LINEAR )
+				{
+					mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x);
+					mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y);
+				}
+				else
+				{
+					//Cheaper way to do Acos(x)/Pi //Corn
+					mVtxProjected[i].Texture.x =  0.5f - 0.25f * norm.x - 0.25f * norm.x * norm.x * norm.x;
+					mVtxProjected[i].Texture.y =  0.5f - 0.25f * norm.y - 0.25f * norm.y * norm.y * norm.y;
+				}
 			}
 			else
 			{
-				//Cheaper way to do Acos(x)/Pi //Corn
-				f32 NormX = absf( norm.x );
-				f32 NormY = absf( norm.y );
-				mVtxProjected[i].Texture.x =  0.5f - 0.25f * NormX - 0.25f * NormX * NormX * NormX; 
-				mVtxProjected[i].Texture.y =  0.5f - 0.25f * NormY - 0.25f * NormY * NormY * NormY;
-			}*/
+				mVtxProjected[i].Texture.x = (float)vert.s * mTnLParams.TextureScaleX;
+				mVtxProjected[i].Texture.y = (float)vert.t * mTnLParams.TextureScaleY;
+			}
 		}
 		else
 		{
+			if( (gGeometryMode & G_SHADE) == 0 )	//Shade is disabled
+			{
+				mVtxProjected[i].Colour = mPrimitiveColour.GetColourV4();
+			}
+			else	//FLAT shade
+			{
+				u8 *addr = (u8*)(g_pu8RamBase + PDCIAddr + (vert.cidx & 0xFF));
+				mVtxProjected[i].Colour = v4( (f32)addr[3] * (1.0f / 255.0f), (f32)addr[2] * (1.0f / 255.0f), (f32)addr[1] * (1.0f / 255.0f), (f32)addr[0] * (1.0f / 255.0f) );
+			}
+
 			mVtxProjected[i].Texture.x = (float)vert.s * mTnLParams.TextureScaleX;
 			mVtxProjected[i].Texture.y = (float)vert.t * mTnLParams.TextureScaleY;
 		}
 	}
-}	
+}
+
 //*****************************************************************************
 //
 //*****************************************************************************
