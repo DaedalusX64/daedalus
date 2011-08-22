@@ -96,17 +96,17 @@ namespace
 		const char * const TERMINAL_CYAN				= "\033[1;36m";
 		const char * const TERMINAL_WHITE				= "\033[1;37m";
 
-const char * const gDDLOText[] = 
-{
-	"Combiner Explorer",	// DDLO_COMBINER_EXPLORER
-	"Display List Length",	// DDLO_DLIST_LENGTH
-	"Decal Offset",			// DDLO_DECAL_OFFSET
-	"Texture Viewer",		// DDLO_TEXTURE_VIEWER
-	"Dump Textures",		// DDLO_DUMP_TEXTURES
-	"Dump Dlist",			// DDLO_DUMP_DLIST
-};
+//const char * const gDDLOText[] = 
+//{
+//	"Combiner Explorer",	// DDLO_COMBINER_EXPLORER
+//	"Display List Length",	// DDLO_DLIST_LENGTH
+//	"Decal Offset",			// DDLO_DECAL_OFFSET
+//	"Texture Viewer",		// DDLO_TEXTURE_VIEWER
+//	"Dump Textures",		// DDLO_DUMP_TEXTURES
+//	"Dump Dlist",			// DDLO_DUMP_DLIST
+//};
 
-const char *gForceColor[8] =
+const char * const gForceColor[8] =
 {
 	"( OFF )",
 	"( c32::White )",
@@ -118,7 +118,7 @@ const char *gForceColor[8] =
 	"( c32::Gold )"
 };
 
-const char *gPSPtxtFunc[10] =
+const char * const gPSPtxtFunc[10] =
 {
 	"( GU_TFX_MODULATE, GU_TCC_RGB )",
 	"( GU_TFX_MODULATE, GU_TCC_RGBA )",
@@ -132,7 +132,7 @@ const char *gPSPtxtFunc[10] =
 	"( GU_TFX_DECAL, GU_TCC_RGBA )"
 };
 
-const char *gCAdj[5] =
+const char * const gCAdj[5] =
 {
 	"( OFF )",
 	"( details.PrimColour )",
@@ -1058,6 +1058,8 @@ void IDisplayListDebugger::Run()
 			}
 			else
 			{
+				printf( "(SELECT) -> resume game\n" );
+				printf( "(START) -> take picture\n\n" );
 				u32 idx = 0;
 				for( DebugMenuOptionVector::const_iterator it = menu_options.begin(); it != menu_options.end(); ++it, idx++ )
 				{

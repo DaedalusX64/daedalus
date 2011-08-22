@@ -79,6 +79,7 @@ bool IVideoMemoryManager::Alloc( u32 size, void ** data, bool * isvidmem )
 {
 	void * mem;
 
+	// Try to alloc fast VRAM
 	mem = mVideoMemoryHeap->Alloc( size );
 	if( mem != NULL )
 	{
@@ -87,8 +88,9 @@ bool IVideoMemoryManager::Alloc( u32 size, void ** data, bool * isvidmem )
 		return true;
 	}
 
-	DAEDALUS_ERROR( "Video Buffer Full (allocating of %d bytes RAM)", size );
+	DAEDALUS_ERROR( "Failed to allocate %d bytes of VRAM", size );
 
+	// Try to alloc normal RAM
 	mem = mRamMemoryHeap->Alloc( size );
 	if( mem != NULL )
 	{
@@ -97,8 +99,9 @@ bool IVideoMemoryManager::Alloc( u32 size, void ** data, bool * isvidmem )
 		return true;
 	}
 
-	DAEDALUS_ERROR( "Video Buffer Full (allocation of %d bytes failed)", size );
+	DAEDALUS_ERROR( "Failed to allocate %d bytes of RAM (risk for BSOD)", size );
 
+	// It failed, there is no MEMORY left
 	*data = NULL;
 	*isvidmem = false;
 	return false;

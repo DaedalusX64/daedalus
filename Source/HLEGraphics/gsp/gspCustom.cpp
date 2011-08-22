@@ -284,6 +284,7 @@ void DLParser_Mtx_DKR( MicroCodeCommand command )
 	}
 
 	DL_PF("    Mtx_DKR: Index %d %s Length %d Address 0x%08x",
+		index,
 		(mul) ? "Mul" : "Load",	
 		length, address);
 
