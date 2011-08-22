@@ -70,8 +70,10 @@ struct FiddledVtxPD
 {
 	s16 y;
 	s16	x;
+
 	u16	cidx;
 	s16 z;
+
 	s16 t;
 	s16 s;
 };
@@ -192,8 +194,10 @@ public:
 		MATRIX_MUL,
 	};
 
-	void				ResetMatrices();
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	void				PrintActive();
+#endif
+	void				ResetMatrices();
 	void				SetProjection(const Matrix4x4 & mat, bool bPush, bool bReplace);
 	void				SetWorldView(const Matrix4x4 & mat, bool bPush, bool bReplace);
 	inline void			PopProjection() {if (mProjectionTop > 0) --mProjectionTop;	mWorldProjectValid = false;}

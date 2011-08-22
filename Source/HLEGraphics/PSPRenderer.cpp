@@ -1831,7 +1831,7 @@ void PSPRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num
 //*****************************************************************************
 extern u32 gGeometryMode;
 
-#if	1	//1->VFPU, 0->FPU/CPU
+#if	1	//1->VFPU, 0->FPU/CPU (for Standard rendering pipeline)
 
 //*****************************************************************************
 // Standard rendering pipeline using VFPU
@@ -2222,14 +2222,14 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 
 				if( gGeometryMode & G_TEXTURE_GEN_LINEAR )
 				{
-					mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x);
-					mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y);
-				}
-				else
-				{
 					//Cheaper way to do Acos(x)/Pi //Corn
 					mVtxProjected[i].Texture.x =  0.5f - 0.25f * norm.x - 0.25f * norm.x * norm.x * norm.x;
 					mVtxProjected[i].Texture.y =  0.5f - 0.25f * norm.y - 0.25f * norm.y * norm.y * norm.y;
+				}
+				else
+				{
+					mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x);
+					mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y);
 				}
 			}
 		}
@@ -2321,37 +2321,33 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 
 		if (mTnLModeFlags & TNL_LIGHT)
 		{
-			s16 wA = *(s16*)((pVtxBase + nOff + 6) ^ 2);;
-			s16 wB = *(s16*)((pVtxBase + nOff + 8) ^ 2);;
+			s16 wA = *(s16*)((pVtxBase + nOff + 6) ^ 2);
+			s16 wB = *(s16*)((pVtxBase + nOff + 8) ^ 2);
 
 			s8 r = (s8)(wA >> 8);
 			s8 g = (s8)(wA);
 			s8 b = (s8)(wB >> 8);
 			u8 a = (u8)(wB);
 
-			v3 mn;		// modelnorm
-
-			mn.x = (float)r; //norma_x;
-			mn.y = (float)g; //norma_y;
-			mn.z = (float)b; //norma_z;
+			v3 mn = v3( (f32)r, (f32)g, (f32)b );		// modelnorm
 
 			v3 vecTransformedNormal = matWorldProject.TransformNormal( mn );
 			vecTransformedNormal.Normalise();
 
 			colour = LightVert(vecTransformedNormal);
-			colour.w = a * (1.0f / 255.0f);
+			colour.w = (f32)a * (1.0f / 255.0f);
 		}
 		else
 		{
-			u16 wA = *(u16*)((pVtxBase + nOff + 6) ^ 2);;
-			u16 wB = *(u16*)((pVtxBase + nOff + 8) ^ 2);;
+			u16 wA = *(u16*)((pVtxBase + nOff + 6) ^ 2);
+			u16 wB = *(u16*)((pVtxBase + nOff + 8) ^ 2);
 
 			u8 r = (u8)(wA >> 8);
 			u8 g = (u8)(wA);
 			u8 b = (u8)(wB >> 8);
 			u8 a = (u8)(wB);
 
-			colour = v4( r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f) );
+			colour = v4( (f32)r * (1.0f / 255.0f), (f32)g * (1.0f / 255.0f), (f32)b * (1.0f / 255.0f), (f32)a * (1.0f / 255.0f) );
 		}
 
 		// Assign true vert colour after lighting/fogging
@@ -2420,14 +2416,14 @@ void PSPRenderer::SetNewVertexInfoPD(u32 dwAddress, u32 dwV0, u32 dwNum)
 				//Env mapping
 				if( gGeometryMode & G_TEXTURE_GEN_LINEAR )
 				{
-					mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x);
-					mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y);
-				}
-				else
-				{
 					//Cheaper way to do Acos(x)/Pi //Corn
 					mVtxProjected[i].Texture.x =  0.5f - 0.25f * norm.x - 0.25f * norm.x * norm.x * norm.x;
 					mVtxProjected[i].Texture.y =  0.5f - 0.25f * norm.y - 0.25f * norm.y * norm.y * norm.y;
+				}
+				else
+				{
+					mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x);
+					mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y);
 				}
 			}
 			else
@@ -2912,10 +2908,9 @@ inline Matrix4x4 & PSPRenderer::GetWorldProject() const
 //*****************************************************************************
 //
 //*****************************************************************************
-
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 void PSPRenderer::PrintActive()
 {
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if (gDisplayListFile != NULL)
 	{
 		const Matrix4x4 & mat( GetWorldProject() );
@@ -2929,8 +2924,8 @@ void PSPRenderer::PrintActive()
 			mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
 			mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
 	}
-#endif
 }
+#endif
 
 //*****************************************************************************
 //
