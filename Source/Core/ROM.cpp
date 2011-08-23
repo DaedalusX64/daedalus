@@ -64,7 +64,6 @@ const char *gGameHackNames[ MAX_HACK_NAMES ] =
 	"Tarzan Misc Hacks",
 	"Force Mtx Donald Duck Hack",
 	"Disable LW MemAcces Optimisation",
-	"BranchZ Hack",
 	"Gex Depth Hack",
 	"Disable osRestoreInt"
 	"Texture Update Hack",
@@ -462,7 +461,6 @@ void SpecificGameHacks( const ROMHeader & id )
 	switch( id.CartID )
 	{
 	case 0x324a: g_ROM.GameHacks = WONDER_PROJECTJ2;	break;
-	case 0x4741: g_ROM.GameHacks = AEROGAUGE;			break;
 	case 0x4547: g_ROM.GameHacks = GOLDEN_EYE;			break;
 	case 0x5742: g_ROM.GameHacks = SUPER_BOWLING;		break;
 	case 0x4c5a: g_ROM.GameHacks = ZELDA_OOT;			break;

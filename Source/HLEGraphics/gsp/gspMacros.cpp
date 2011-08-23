@@ -381,16 +381,18 @@ void DLParser_GBI2_DL_Count( MicroCodeCommand command )
 void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 {
 	//Always branching will usually just waste a bit of fillrate (PSP got plenty)
-	//Games seem not to bother if we branch less than Z
+	//Games seem not to bother if we branch less than Z all the time
 	
-	//Works in Aerogauge (skips rendering ship shadows and exaust plumes from afar)
-	//Fails in OOT : Death Mountain and MM : Outside of Clock Town
-	// Seems are Z axis is inverted... Might be tricky to get it right on the PSP
+	//Penny racers (cars)
+	//Aerogauge (skips rendering ship shadows and exaust plumes from afar)
+	//OOT : Death Mountain and MM : Clock Town
+	
+	//Seems to work differently for non Zelda games as if Z axis is inverted... //Corn
 
-	//printf("VtxDepth[%d] Zval[%d] Vtx[%d]\n", PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx), (s32)( command.branchz.value & 0x7FFF ), command.branchz.vtx);
-	DL_PF("BranchZ VtxDepth[%d] Zval[%d] Vtx[%d]", PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx), (s32)( command.branchz.value & 0x7FFF ), command.branchz.vtx);
+	//printf("VtxDepth[%d] Zval[%d] Vtx[%d]\n", PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx), (s32)command.branchz.value, command.branchz.vtx);
+	DL_PF("BranchZ VtxDepth[%d] Zval[%d] Vtx[%d]", PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx), (s32)command.branchz.value, command.branchz.vtx);
 
-	if( (g_ROM.GameHacks != AEROGAUGE) || (PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx) >= (s32)( command.branchz.value & 0x7FFF )) )
+	if( PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx) <= (s32)command.branchz.value )
 	{					
 		u32 pc = gDlistStack[gDlistStackPointer].pc;
 		u32 dl = *(u32 *)(g_pu8RamBase + pc-12);

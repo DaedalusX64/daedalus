@@ -244,8 +244,8 @@ public:
 	void				FlushTris();
 	
 	// Returns true if bounding volume is visible within NDC box, false if culled
-	inline bool			TestVerts( u32 v0, u32 vn ) const		{ u32 f=mVtxProjected[v0].ClipFlags; for ( u32 i=v0+1; i<=vn; i++ )	f&=mVtxProjected[i].ClipFlags; return (f&CLIP_TEST_FLAGS) == 0; }
-	inline s32			GetVtxDepth( u32 i ) const				{ return (s32)(65536.0f * (1.0f - mVtxProjected[ i ].ProjectedPos.z * mVtxProjected[ i ].iW)); }
+	inline bool			TestVerts( u32 v0, u32 vn ) const		{ u32 f=mVtxProjected[v0].ClipFlags; for( u32 i=v0+1; i<=vn; i++ ) f&=mVtxProjected[i].ClipFlags; return (f&CLIP_TEST_FLAGS)==0; }
+	inline s32			GetVtxDepth( u32 i ) const				{ return (s32)mVtxProjected[ i ].ProjectedPos.z; }
 	inline v4			GetTransformedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].TransformedPos; }
 	inline v4			GetProjectedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].ProjectedPos; }
 	inline u32			GetVtxFlags( u32 i ) const				{ return mVtxProjected[ i ].ClipFlags; }

@@ -472,7 +472,7 @@ void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 {
 	//If bit is set then do backface culling on tris
-	PSPRenderer::Get()->SetCullMode(false, (command.inst.cmd0 & 0x00010000));
+	//PSPRenderer::Get()->SetCullMode(false, (command.inst.cmd0 & 0x00010000));
 
 	u32 address = RDPSegAddr(command.inst.cmd1);
 	u32 count = (command.inst.cmd0 >> 4) & 0xFFF;
