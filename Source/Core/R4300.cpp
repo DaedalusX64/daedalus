@@ -149,8 +149,8 @@ inline void QuickWrite_Long( u32 addr, u32 val0, u32 val1 )
 {
 	u32	*psrc = (u32 *)WriteAddress( addr );
 
-	psrc[1] = val0;
 	psrc[0] = val1;	
+	psrc[1] = val0;
 }
 
 //*****************************************************************************
@@ -160,8 +160,8 @@ inline void QuickRead_Long( u32 addr, u32 val0, u32 val1 )
 {
 	u32	*pdst = (u32 *)ReadAddress( addr );
 
-	val0 = pdst[1];
 	val1 = pdst[0];
+	val0 = pdst[1];
 }
 
 //*****************************************************************************
@@ -177,10 +177,31 @@ inline void StoreFPR_Long( u32 reg, u64 value )
 	gCPUState.FPU[reg+1]._u32_0 = r._u32_1;
 }
 
-#define SIMULATESIG 0x12345678
 //*****************************************************************************
 //
 //*****************************************************************************
+#define SIMULATESIG 0x1234	//Reduce signature to load value with one OP
+
+#if 1	//1->new way, 0->old way //Corn
+inline u64 LoadFPR_Long( u32 reg )
+{
+	if (gCPUState.FPU[reg+0]._u32_0 == SIMULATESIG)
+	{
+		// convert f32->f64/d64
+		REG64 res;
+		res._f64 = (f64)gCPUState.FPU[reg+1]._f32_0;
+		return res._u64;
+	}
+	else
+	{
+		REG64 res;
+		res._u32_0 = gCPUState.FPU[reg+0]._u32_0;
+		res._u32_1 = gCPUState.FPU[reg+1]._u32_0;
+		return res._u64;
+	}
+}
+
+#else
 inline u64 LoadFPR_Long( u32 reg )
 {
 	REG64 res;
@@ -188,18 +209,36 @@ inline u64 LoadFPR_Long( u32 reg )
 	res._u32_1 = gCPUState.FPU[reg+1]._u32_0;
 	res._u32_0 = gCPUState.FPU[reg+0]._u32_0;
 
-	// Disabled, looks suspicious to me, I don't think it does what we want here? ~Salvy
-	/*if (res._f64_unused == SIMULATESIG)
+	if (res._f64_unused == SIMULATESIG)
 	{
 		res._f64 = (f64)res._f64_sim;
-	}*/
+	}
 
 	return res._u64;
 }
+#endif
 
 //*****************************************************************************
 //
 //*****************************************************************************
+#if 1	//1->new way, 0->old way //Corn
+inline d64 LoadFPR_Double( u32 reg )
+{
+	if (gCPUState.FPU[reg+0]._u32_0 == SIMULATESIG)
+	{
+		// convert f32 -> d64
+		return (d64)gCPUState.FPU[reg+1]._f32_0;
+	}
+	else
+	{
+		REG64 res;
+		res._u32_0 = gCPUState.FPU[reg+0]._u32_0;
+		res._u32_1 = gCPUState.FPU[reg+1]._u32_0;
+		return (d64)res._f64;
+	}
+}
+
+#else
 inline d64 LoadFPR_Double( u32 reg )
 {
 	REG64 res;
@@ -217,7 +256,7 @@ inline d64 LoadFPR_Double( u32 reg )
 		return (d64)res._f64;
 	}
 }
-
+#endif
 //*****************************************************************************
 //
 //*****************************************************************************
