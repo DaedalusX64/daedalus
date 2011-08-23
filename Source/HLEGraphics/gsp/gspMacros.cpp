@@ -382,26 +382,21 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 {
 	//Always branching will usually just waste a bit of fillrate (PSP got plenty)
 	//Games seem not to bother if we branch less than Z
-
-	u32 vtx		 = command.branchz.vtx;
 	
 	//Works in Aerogauge (skips rendering ship shadows and exaust plumes from afar)
 	//Fails in OOT : Death Mountain and MM : Outside of Clock Town
 	// Seems are Z axis is inverted... Might be tricky to get it right on the PSP
 
-	f32 vtxdepth = 65536.0f * (1.0f - PSPRenderer::Get()->GetProjectedVtxPos(vtx).z / PSPRenderer::Get()->GetProjectedVtxPos(vtx).w);
+	//printf("VtxDepth[%d] Zval[%d] Vtx[%d]\n", PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx), (s32)( command.branchz.value & 0x7FFF ), command.branchz.vtx);
+	DL_PF("BranchZ VtxDepth[%d] Zval[%d] Vtx[%d]", PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx), (s32)( command.branchz.value & 0x7FFF ), command.branchz.vtx);
 
-	s32 zval = (s32)( command.branchz.value & 0x7FFF );
-
-	//printf("%0.0f %d\n", vtxdepth, zval);
-
-	if( (g_ROM.GameHacks != AEROGAUGE) || (vtxdepth >= zval) )
+	if( (g_ROM.GameHacks != AEROGAUGE) || (PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx) >= (s32)( command.branchz.value & 0x7FFF )) )
 	{					
 		u32 pc = gDlistStack[gDlistStackPointer].pc;
 		u32 dl = *(u32 *)(g_pu8RamBase + pc-12);
 		u32 address = RDPSegAddr(dl);
 
-		DL_PF("BranchZ to DisplayList 0x%08x", address);
+		DL_PF("   Jump -> DisplayList 0x%08x", address);
 
 		gDlistStack[gDlistStackPointer].pc = address;
 		gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
@@ -653,10 +648,13 @@ void DLParser_GBI1_Texture( MicroCodeCommand command )
 
 	// Seems to use 0x01
     bool enable = command.texture.enable_gbi0;
-	bool IsDKR  = (current.ucode == GBI_0_DKR);	// Should we use  g_ROM.GameHacks instead?
 	
-	DL_PF("    Level: %d Tile: %d %s", gTextureLevel, gTextureTile, enable ? "enabled":"disabled");
-	PSPRenderer::Get()->SetTextureEnable( IsDKR ? true : enable );	// Force enable texture in DKR, fixes static texture bug etc
+	// Detect if Ucode is DKR/JFG/Mickey
+	// Should we use  g_ROM.GameHacks instead?
+	bool IsDKR  = ((current.ucode == GBI_0_DKR) | (current.ucode == GBI_0_JFG));
+	
+	DL_PF("    Level: %d Tile: %d %s", gTextureLevel, gTextureTile, (enable | IsDKR) ? "enabled":"disabled");
+	PSPRenderer::Get()->SetTextureEnable( IsDKR ? true : enable );	// Force enable texture in DKR Ucode, fixes static texture bug etc
 
 	if( !enable )	return;
 

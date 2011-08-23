@@ -100,22 +100,6 @@ void	_ConvertVerticesIndexed( DaedalusVtx * dest, const DaedalusVtx4 * source, u
 u32		_ClipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, const v4 * plane, u32 num_verts );
 }
 
-// Bits for clipping
-// +-+-+-
-// xxyyzz
-
-// NB: These are ordered such that the VFPU can generate them easily - make sure you keep the VFPU code up to date if changing these.
-#define X_NEG  0x01
-#define Y_NEG  0x02
-#define Z_NEG  0x04
-#define X_POS  0x08
-#define Y_POS  0x10
-#define Z_POS  0x20
-
-// Test all but Z_NEG (for No Near Plane microcodes)
-//static const u32 CLIP_TEST_FLAGS( X_POS | X_NEG | Y_POS | Y_NEG | Z_POS );
-static const u32 CLIP_TEST_FLAGS( X_POS | X_NEG | Y_POS | Y_NEG | Z_POS | Z_NEG );
-
 #define GL_TRUE                           1
 #define GL_FALSE                          0
 
@@ -1321,10 +1305,11 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	u8	f1( mVtxProjected[v1].ClipFlags );
 	u8	f2( mVtxProjected[v2].ClipFlags );
 
-	if ( f0 & f1 & f2 & CLIP_TEST_FLAGS )
+	//if ( f0 & f1 & f2 & CLIP_TEST_FLAGS )
+	if ( f0 & f1 & f2 )
 	{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DL_PF("   Tri: %d,%d,%d (clipped)", v0, v1, v2);
+		DL_PF("   Tri: %d,%d,%d (Culled against NDC box)", v0, v1, v2);
 		++m_dwNumTrisClipped;
 #endif
 		return false;
@@ -1350,7 +1335,7 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 				if( m_bCull_mode == GU_CCW )
 				{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-					DL_PF("   Tri: %d,%d,%d (Back Culled)", v0, v1, v2);
+					DL_PF("   Tri: %d,%d,%d (Culled Back Face)", v0, v1, v2);
 					++m_dwNumTrisClipped;
 #endif
 					return false;
@@ -1359,7 +1344,7 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 			else if( m_bCull_mode == GU_CW )
 			{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-				DL_PF("   Tri: %d,%d,%d (Front Culled)", v0, v1, v2);
+				DL_PF("   Tri: %d,%d,%d (Culled Front Face)", v0, v1, v2);
 				++m_dwNumTrisClipped;
 #endif
 				return false;
@@ -1371,7 +1356,7 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 		if( bIsOffScreen )	
 		{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-				DL_PF("   Tri: %d,%d,%d (Off-Screen)", v0, v1, v2);
+				DL_PF("   Tri: %d,%d,%d (Culled Off-Screen)", v0, v1, v2);
 				++m_dwNumTrisClipped;
 #endif
 			return false;
@@ -1390,23 +1375,6 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 
 		return true;
 	}
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-bool PSPRenderer::TestVerts( u32 v0, u32 vn ) const
-{
-	u32 flags = mVtxProjected[v0].ClipFlags;
-
-//v0 and Vn already clipped to maximum 15 //Corn 
-//	for ( u32 i = v0+1; i <= vn && i < MAX_VERTS; i++ )
-	for ( u32 i = v0+1; i <= vn; i++ )
-	{
-		flags &= mVtxProjected[i].ClipFlags;
-	}
-
-	return (flags & CLIP_TEST_FLAGS) == 0;
 }
 
 //*****************************************************************************
@@ -1440,19 +1408,21 @@ inline v4 PSPRenderer::LightVert( const v3 & norm ) const
 //*****************************************************************************
 //
 //*****************************************************************************
-bool PSPRenderer::FlushTris()
+void PSPRenderer::FlushTris()
 {
 	DAEDALUS_PROFILE( "PSPRenderer::FlushTris" );
 
 	if ( m_dwNumIndices == 0 )
 	{
-		mVtxClipFlagsUnion = 0; // Avoid clipping non visible tris
-		return true;
+		DAEDALUS_ERROR("Call to FlushTris() with nothing to render");
+		mVtxClipFlagsUnion = 0; // Reset software clipping detector
+		return;
 	}
 
 	u32				num_vertices;
 	DaedalusVtx *	p_vertices;
 
+	// If any bit is set here it means we have to clip the trianlges since PSP HW clipping sux!
 	if(mVtxClipFlagsUnion != 0)
 	{
 		PrepareTrisClipped( &p_vertices, &num_vertices );
@@ -1468,7 +1438,7 @@ bool PSPRenderer::FlushTris()
 		DAEDALUS_ERROR("No Vtx to render");
 		m_dwNumIndices = 0;
 		mVtxClipFlagsUnion = 0;
-		return true;
+		return;
 	}
 
 	// This no longer needed since we handle this with a cheat.
@@ -1483,14 +1453,14 @@ bool PSPRenderer::FlushTris()
 			m_dwNumIndices = 0;
 			mVtxClipFlagsUnion = 0;
 			skipNext = true;
-			return true;
+			return;
 		}
 		else if( skipNext )
 		{
 			skipNext = false;
 			m_dwNumIndices = 0;
 			mVtxClipFlagsUnion = 0;
-			return true;
+			return;
 		}	
 	}*/
 	
@@ -1557,7 +1527,6 @@ bool PSPRenderer::FlushTris()
 
 	m_dwNumIndices = 0;
 	mVtxClipFlagsUnion = 0;
-	return true;
 }
 
 //*****************************************************************************

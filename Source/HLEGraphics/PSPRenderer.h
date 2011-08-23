@@ -130,6 +130,22 @@ ALIGNED_TYPE(struct, TnLParams, 16)
 };
 DAEDALUS_STATIC_ASSERT( sizeof( TnLParams ) == 32 );
 
+// Bits for clipping
+// +-+-+-
+// xxyyzz
+
+// NB: These are ordered such that the VFPU can generate them easily - make sure you keep the VFPU code up to date if changing these.
+#define X_NEG  0x01
+#define Y_NEG  0x02
+#define Z_NEG  0x04
+#define X_POS  0x08
+#define Y_POS  0x10
+#define Z_POS  0x20
+
+// Test all but Z_NEG (for No Near Plane microcodes)
+//const u32 CLIP_TEST_FLAGS( X_POS | X_NEG | Y_POS | Y_NEG | Z_POS );
+const u32 CLIP_TEST_FLAGS( X_POS | X_NEG | Y_POS | Y_NEG | Z_POS | Z_NEG );
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -221,12 +237,15 @@ public:
 	void				TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 );
 	void				FillRect( const v2 & xy0, const v2 & xy1, u32 color );
 		
-	// Returns true if triangle visible and rendered, false otherwise
+	// Returns true if triangle visible, false otherwise
 	bool				AddTri(u32 v0, u32 v1, u32 v2);
 
-	bool				FlushTris();
+	// Render our current triangle list to screen
+	void				FlushTris();
 	
-	bool				TestVerts( u32 v0, u32 vn ) const;				// Returns true if bounding volume is visible, false if culled
+	// Returns true if bounding volume is visible within NDC box, false if culled
+	inline bool			TestVerts( u32 v0, u32 vn ) const		{ u32 f=mVtxProjected[v0].ClipFlags; for ( u32 i=v0+1; i<=vn; i++ )	f&=mVtxProjected[i].ClipFlags; return (f&CLIP_TEST_FLAGS) == 0; }
+	inline s32			GetVtxDepth( u32 i ) const				{ return (s32)(65536.0f * (1.0f - mVtxProjected[ i ].ProjectedPos.z * mVtxProjected[ i ].iW)); }
 	inline v4			GetTransformedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].TransformedPos; }
 	inline v4			GetProjectedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].ProjectedPos; }
 	inline u32			GetVtxFlags( u32 i ) const				{ return mVtxProjected[ i ].ClipFlags; }

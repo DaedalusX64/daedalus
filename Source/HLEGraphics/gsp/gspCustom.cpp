@@ -60,16 +60,15 @@ void DLParser_DumpVtxInfoDKR(u32 address, u32 v0_idx, u32 num_verts)
 			u8 c = u8(wB>>8);
 			u8 d = u8(wB);
 
-			const v4 & t = PSPRenderer::Get()->GetTransformedVtxPos( idx );
+			const v4 & t = PSPRenderer::Get()->GetProjectedVtxPos( idx );
 
-
-			DL_PF(" #%02d Pos: {% 6f,% 6f,% 6f} Extra: %02x %02x %02x %02x (transf: {% 6f,% 6f,% 6f})",
-				idx, x, y, z, a, b, c, d, t.x, t.y, t.z );
+			DL_PF(" #%02d Pos: {% 3f,% 3f,% 3f} Extra: %02x %02x %02x %02x (Proj: {% 3f,% 3f,% 3f,% 3f})",
+				idx, x, y, z, a, b, c, d, t.x, t.y, t.z, t.w );
 
 			i+=5;
 		}
 
-
+		/*
 		u16 * pwSrc = (u16 *)(g_pu8RamBase + address);
 		i = 0;
 		for( u32 idx = v0_idx; idx < v0_idx + num_verts; idx++ )
@@ -83,6 +82,7 @@ void DLParser_DumpVtxInfoDKR(u32 address, u32 v0_idx, u32 num_verts)
 			
 			i += 5;
 		}
+		*/
 
 	}
 #endif
