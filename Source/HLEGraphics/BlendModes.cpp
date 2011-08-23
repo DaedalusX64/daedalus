@@ -1139,6 +1139,18 @@ static void BlendMode_0x0022ffff1ffcfa38LL (BLEND_MODE_ARGS)
  //#Z
  */
 
+// Majora's Mask - Mountain outside Clock Town
+//case 0x0020ac04ff0f93ffLL:
+//aRGB0: (Texel1       - 0           ) * Texel0       + 0
+//aA0  : (Texel1       - Texel0      ) * 1            + Texel0
+//aRGB1: (Combined     - 0           ) * Shade        + 0
+//aA1  : (Combined     - 0           ) * Primitive    + 0
+ void BlendMode_0x0020ac04ff0f93ffLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetA( details.PrimColour );
+	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);	// For nice effect in grass
+}
+
 // OoT intro, MM Intro (N64 Logo) 
 //case 0x00167e6035fcff7eLL:
 //aRGB0: (Texel0       - Primitive   ) * Env_Alpha    + Texel0      
@@ -1744,6 +1756,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00177e6035fcfd7eLL); // Zelda Kokori Sword Blade
 			BLEND_MODE(0x00177e6035fcfd78LL); // Gold Skulltula Chin
 			BLEND_MODE(0x0017e2052ffd75f8LL); // SpiderMan - Waterfall Intro
+			BLEND_MODE(0x0020ac04ff0f93ffLL); // Zelda MM : Mountain outside Clock Town
 			BLEND_MODE(0x0020ac60350c937fLL); // Zelda Chest Opening Light
 			BLEND_MODE(0x0020a203ff13ff7fLL); // Paper Mario -Intro Water
 			BLEND_MODE(0x0022ffff1ffcfa38LL); // Wave racer - sky

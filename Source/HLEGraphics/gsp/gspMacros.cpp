@@ -653,9 +653,10 @@ void DLParser_GBI1_Texture( MicroCodeCommand command )
 
 	// Seems to use 0x01
     bool enable = command.texture.enable_gbi0;
-
+	bool IsDKR  = (current.ucode == GBI_0_DKR);	// Should we use  g_ROM.GameHacks instead?
+	
 	DL_PF("    Level: %d Tile: %d %s", gTextureLevel, gTextureTile, enable ? "enabled":"disabled");
-	PSPRenderer::Get()->SetTextureEnable( enable );
+	PSPRenderer::Get()->SetTextureEnable( IsDKR ? true : enable );	// Force enable texture in DKR, fixes static texture bug etc
 
 	if( !enable )	return;
 
@@ -1063,6 +1064,8 @@ void DLParser_GBI0_Tri4( MicroCodeCommand command )
     {
 		PSPRenderer::Get()->FlushTris();
 	}
+
+	gDKRVtxCount = 0;
 }
 
 //*****************************************************************************

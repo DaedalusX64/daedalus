@@ -190,27 +190,11 @@ void DLParser_GBI0_Vtx_SOTE( MicroCodeCommand command )
 
 void DLParser_DLInMem( MicroCodeCommand command )
 {
-	u32		length( (command.inst.cmd0 >> 16) & 0xFF );
-	u32		push( G_DL_PUSH ); //(command.inst.cmd0 >> 16) & 0xFF;
-	u32		address( command.inst.cmd1 ); //RDPSegAddr(command.inst.cmd1);
+	gDlistStackPointer++;
+	gDlistStack[gDlistStackPointer].pc = command.inst.cmd1;
+	gDlistStack[gDlistStackPointer].countdown = (command.inst.cmd0 >> 16) & 0xFF;
 
-	DL_PF("    Address=0x%08x Push: 0x%02x", address, push);
-	
-	switch (push)
-	{
-	case G_DL_PUSH:
-		DL_PF("    Pushing DisplayList 0x%08x", address);
-		gDlistStackPointer++;
-		gDlistStack[gDlistStackPointer].pc = address;
-		gDlistStack[gDlistStackPointer].countdown = length;
-
-		break;
-	case G_DL_NOPUSH:
-		DL_PF("    Jumping to DisplayList 0x%08x", address);
-		gDlistStack[gDlistStackPointer].pc = address;
-		gDlistStack[gDlistStackPointer].countdown = length;
-		break;
-	}
+	DL_PF("    DLInMem : Address=0x%08x", command.inst.cmd1);
 }
 
 //*****************************************************************************

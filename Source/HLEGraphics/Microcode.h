@@ -20,17 +20,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef MICROCODE_H__
 #define MICROCODE_H__
 
-/*
-enum UCodeVersion
+//*****************************************************************************
+// Struct
+//*****************************************************************************
+struct UcodeInfo
 {
-	FAST3D,
-	F3DEX,
-	F3DLX,
-	F3DLP,
-	S2DEX
-	//L3DEX
+	u32	ucode;
+	u32	code_base;
+	u32	data_base;
+
+	bool used;
 };
-*/
+//*****************************************************************************
+// Enum
+//*****************************************************************************
 enum GBIVersion
 {
 	GBI_0 = 0,
@@ -45,11 +48,14 @@ enum GBIVersion
 	GBI_0_CK,
 	GBI_0_PD,
 	S2DEX_GBI_1
-	//GBI_0_UNK	// This always has to be the last one
 };
-
-
+//*****************************************************************************
+// Function
+//*****************************************************************************
 u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
-
+//*****************************************************************************
+// Extern
+//*****************************************************************************
+extern UcodeInfo current;
 
 #endif // MICROCODE_H__

@@ -57,25 +57,18 @@ struct MicrocodeData
 {
 	u32				ucode;
 	u32				code_hash;
-	//const char *	ucode_name;
-	//const char *	rom_name;
 };
 
-//
-// Used to cache ucodes
-//
-struct UcodeInfo
-{
-	u32	ucode;
-	u32	code_base;
-	u32	data_base;
-
-	bool used;
-};
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
 const u32	MAX_RAM_ADDRESS = (8*1024*1024);
 #endif
+
+//
+// Used to keep track of used ucode entries
+//
+UcodeInfo used[ MAX_UCODE_CACHE_ENTRIES ];
+UcodeInfo current;
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -100,10 +93,6 @@ static const MicrocodeData gMicrocodeData[] =
 	//{ GBI_0_UNK, 0x5719c8de, "", "Star Wars - Rogue Squadron"}, 
 };
 
-//
-// Used to keep track of used ucode entries
-//
-UcodeInfo used[ MAX_UCODE_CACHE_ENTRIES ];
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -138,7 +127,7 @@ static bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char
 	}
 	return false;
 }
-
+u32 mCurrentUcode = 0;
 //*****************************************************************************
 //
 //*****************************************************************************

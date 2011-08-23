@@ -51,6 +51,7 @@ extern u32 gVertexStride;
 extern u32 gTextureLevel;
 extern u32 gRDPHalf1;
 extern u32 gAmbientLightIdx;
+extern u32 gDKRVtxCount;
 
 #define RDPSegAddr(seg) 		( (gSegments[((seg)>>24)&0x0F]&0x00ffffff) + ((seg)&0x00FFFFFF) )
 //#define SetCommand( cmd, func ) 	gInstructionLookup[ cmd ] = func; gInstructionName[ cmd ] = #cmd;

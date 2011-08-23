@@ -465,6 +465,9 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 	// Detect Correct Vtx Stride
 	gVertexStride = vertex_stride[ ucode ];
 
+	current.code_base = code_base;
+	current.ucode	   = ucode; 
+
 	//if ucode version is other than 0,1 or 2 then default to 2 (with potentially non valid function names) 
 	//
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
@@ -598,18 +601,15 @@ void DLParser_Process()
 	//
 	if( g_ROM.GameHacks != CHAMELEON_TWIST_2 ) gGraphicsPlugin->UpdateScreen();
 	
-	static u32 last_codebase = 0;
-	
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 	u32 code_base = (u32)pTask->t.ucode & 0x1fffffff;
 	u32 code_size = pTask->t.ucode_size;
 	u32 data_base = (u32)pTask->t.ucode_data & 0x1fffffff;
 	u32 data_size = pTask->t.ucode_data_size;
 	
-	if ( last_codebase != code_base )
+	if ( current.code_base != code_base )
 	{
 		DLParser_InitMicrocode( code_base, code_size, data_base, data_size );
-		last_codebase = code_base;
 	}
 
 	//
