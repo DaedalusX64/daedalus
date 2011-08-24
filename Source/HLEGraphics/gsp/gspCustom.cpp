@@ -211,71 +211,26 @@ void DLParser_DLInMem( MicroCodeCommand command )
 // 0x80 seems to be mul
 // 0x40 load
 
-#if 1	//1->Rice, 0->old
 void DLParser_Mtx_DKR( MicroCodeCommand command )
 {	
 	//u32 address     = RDPSegAddr(command.inst.cmd1);
 	u32 address		= command.inst.cmd1 + RDPSegAddr(gDKRMatrixAddr);
 
-	u32 mtx_command = (command.inst.cmd0 >> 16)& 0xFF;
-	u32 length      = (command.inst.cmd0      )& 0xFFFF;
-
-	use(length);
+	u8 mtx_command = (u8)((command.inst.cmd0 >> 16) & 0xF);
+	//u32 length      = (command.inst.cmd0      )& 0xFFFF;
 
 	bool mul = false;
-	u32 index = 0;
 
-	switch( mtx_command )
+	if (mtx_command == 0)
 	{
-	case 0xC0:	// DKR
-		gDKRCMatrixIndex = index = 3;
-		break;
-	case 0x80:	// DKR
-		gDKRCMatrixIndex = index = 2;
-		break;
-	case 0x40:	// DKR
-		gDKRCMatrixIndex = index = 1;
-		break;
-	case 0x20:	// DKR
-		gDKRCMatrixIndex = index = 0;
-		break;
-	case 0x00:
-		gDKRCMatrixIndex = index = 0;
-		break;
-	case 0x01:
-		gDKRCMatrixIndex = index = 1;
-		break;
-	case 0x02:
-		gDKRCMatrixIndex = index = 2;
-		break;
-	case 0x03:
-		gDKRCMatrixIndex = index = 3;
-		break;
-	case 0x81:
-		index = 1;
-		mul = true;
-		break;
-	case 0x82:
-		index = 2;
-		mul = true;
-		break;
-	case 0x83:
-		index = 3;
-		mul = true;
-		break;
-	default:
-		break;
+		//DKR : no mult
+		mtx_command = (u8)(command.inst.cmd0 >> 22) & 0x3;
+		mul = false;
 	}
-
-	DL_PF("    Mtx_DKR: Index %d %s Length %d Address 0x%08x",
-		index,
-		(mul) ? "Mul" : "Load",	
-		length, address);
-
-	if (address + 64 > MAX_RAM_ADDRESS)
+	else
 	{
-		DBGConsole_Msg(0, "Mtx: Address invalid (0x%08x)", address);
-		return;
+		//JFG : mult but only if bit is set
+		mul = ((command.inst.cmd0 >> 23) & 0x1) ? true : false;
 	}
 
 	// Load matrix from address
@@ -284,94 +239,16 @@ void DLParser_Mtx_DKR( MicroCodeCommand command )
 
 	if( mul )
 	{
-		gDKRMatrixes[index] = mat * gDKRMatrixes[0];
+		gDKRMatrixes[ mtx_command ] = mat * gDKRMatrixes[0];
 	}
 	else
 	{
-		gDKRMatrixes[index] = mat;
+		gDKRMatrixes[ mtx_command ] = mat;
 	}
+
+	gDKRCMatrixIndex = mtx_command;
 }
 
-#else
-void DLParser_Mtx_DKR( MicroCodeCommand command )
-{	
-	//u32 address     = RDPSegAddr(command.inst.cmd1);
-	u32 address		= command.inst.cmd1 + RDPSegAddr(gDKRMatrixAddr);
-
-	u32 mtx_command = (command.inst.cmd0 >> 16)& 0xFF;
-	u32 length      = (command.inst.cmd0      )& 0xFFFF;
-
-	use(length);
-
-	PSPRenderer::EMatrixLoadStyle load_command = mtx_command & G_GBI1_MTX_LOAD ? PSPRenderer::MATRIX_LOAD : PSPRenderer::MATRIX_MUL;
-	bool push( ( mtx_command & G_GBI1_MTX_PUSH ) != 0 );
-	
-	if (mtx_command == 0)
-	{
-	//	PSPRenderer::Get()->ResetMatrices();
-		load_command = PSPRenderer::MATRIX_LOAD;
-	}
-
-	if (mtx_command & 0x80)
-	{
-		load_command = PSPRenderer::MATRIX_MUL;
-	}
-	else
-	{	
-		load_command = PSPRenderer::MATRIX_LOAD;
-	}
-		load_command = PSPRenderer::MATRIX_LOAD;
-//00229B00: BC000008 64009867 CMD G_MOVEWORD  Mem[8][00]=64009867 Fogrange 0.203..0.984 zmax=0.000000
-//0x0021eef0: bc000008 64009867 G_MOVEWORD
-	
-/*
-	if (mtx_command & 0x40)
-	{*/
-		push = false;
-/*	}
-	else
-	{
-		push = true;
-	}*/
-	DL_PF("    Command: %s %s %s Length %d Address 0x%08x",
-		(mtx_command & G_GBI1_MTX_PROJECTION) ? "Projection" : "ModelView",
-		(mtx_command & G_GBI1_MTX_LOAD) ? "Load" : "Mul",	
-		(mtx_command & G_GBI1_MTX_PUSH) ? "Push" : "NoPush",
-		length, address);
-
-	if (address + 64 > MAX_RAM_ADDRESS)
-	{
-		DBGConsole_Msg(0, "Mtx: Address invalid (0x%08x)", address);
-		return;
-	}
-
-	// Load matrix from address
-	Matrix4x4 mat;
-	MatrixFromN64FixedPoint( mat, address );
-
-	//mat.m[3][0] = mat.m[3][1] = mat.m[3][2] = 0;
-	//mat.m[3][3] = 1;
-
-	/*if (mtx_command & G_GBI1_MTX_PROJECTION)
-	{
-		// So far only Extreme-G seems to Push/Pop projection matrices	
-		PSPRenderer::Get()->SetProjection(mat, push, load_command);
-	}
-	else*/
-	//if (push)
-	{
-		PSPRenderer::Get()->SetWorldView(mat, push, load_command);
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		PSPRenderer::Get()->PrintActive();
-#endif
-	}
-	/*else
-	{
-
-	}*/
-}
-#endif
 //*****************************************************************************
 //
 //*****************************************************************************
