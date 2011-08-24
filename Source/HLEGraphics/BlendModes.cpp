@@ -343,7 +343,7 @@ static void BlendMode_0x00149460f50fff7fLL (BLEND_MODE_ARGS)
 }
 
 // Doubutsu no Mori - Intro Leaves
-//  case 0x0017166045fe7f78LL:
+// case 0x0017166045fe7f78LL:
 //aRGB0: (Texel0       - Shade       ) * PrimLODFrac  + Shade
 //aA0  : (Texel0       - 0           ) * Primitive    + 0
 //aRGB1: (Primitive    - Env         ) * Combined     + Env
@@ -376,6 +376,52 @@ static void BlendMode_0x0030e2045f1af47bLL (BLEND_MODE_ARGS)
 static void BlendMode_0x00ffac80ff0d93ffLL (BLEND_MODE_ARGS)
 {
 	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
+
+// Diddy Kong Racing - Diddy Kong Intro / Taj / Clock Guy
+// case 0x001596a430fdfe38LL:
+//aRGB0: (Texel0       - Primitive   ) * Shade_Alpha  + Primitive
+//aA0  : (Texel0       - 0           ) * Primitive    + 0
+//aRGB1: (Env          - Combined    ) * Shade        + Combined
+//aA1  : (0            - 0           ) * 0            + Combined
+static void BlendMode_0x001596a430fdfe38LL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+}
+
+// Diddy Kong Racing - Intro River
+// case 0x002266ac1010923fLL:
+//aRGB0: (Texel1       - Texel0      ) * Shade        + Texel0
+//aA0  : (1            - Texel0      ) * Primitive    + Texel0
+//aRGB1: (Env          - Combined    ) * Env_Alpha    + Combined
+//aA1  : (Combined     - 0           ) * Shade        + 0
+static void BlendMode_0x002266ac1010923fLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.PrimColour.ReplicateAlpha());
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
+
+// Diddy Kong Racing - Turtle Shell
+// case 0x00567e034f0e77ffLL:
+//aRGB0: (Env          - Shade       ) * Env_Alpha    + Shade
+//aA0  : (0            - 0           ) * 0            + Primitiv
+//aRGB1: (Combined     - 0           ) * Primitive    + 0
+//aA1  : (Combined     - 0           ) * Primitive    + 0
+static void BlendMode_0x00567e034f0e77ffLL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+}
+
+// Diddy Kong Racing - Dialog Text
+// case 0x005616ac112cfe7fLL:
+//aRGB0: (Env          - Texel0      ) * Env_Alpha    + Texel0
+//aA0  : (Texel0       - 0           ) * Primitive    + 0
+//aRGB1: (Env          - Texel0      ) * Env_Alpha    + Texel0
+//aA1  : (Texel0       - 0           ) * Primitive    + 0
+static void BlendMode_0x005616ac112cfe7fLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetRGB(details.PrimColour.ReplicateAlpha());
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
 /*
@@ -1746,6 +1792,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00147e045ffefbf8LL); // FZero other ships
 			BLEND_MODE(0x00147e2844fe793cLL); // FZero tracks / Mario 64 penguin's eyes
 			BLEND_MODE(0x00149460f50fff7fLL); // Animal Crossing Gold
+			BLEND_MODE(0x001596a430fdfe38LL); // DKR Intro Plane
 			BLEND_MODE(0x0015fec4f0fff83cLL); // Pilot Wings 64 sky
 			BLEND_MODE(0x00167e6035fcff7eLL); // OOT, MM Intro (N64 Logo)
 			BLEND_MODE(0x0017166035fcff78LL); // OOT Deku tree Flash
@@ -1759,6 +1806,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0020ac04ff0f93ffLL); // Zelda MM : Mountain outside Clock Town
 			BLEND_MODE(0x0020ac60350c937fLL); // Zelda Chest Opening Light
 			BLEND_MODE(0x0020a203ff13ff7fLL); // Paper Mario -Intro Water
+			BLEND_MODE(0x002266ac1010923fLL); // DKR River
 			BLEND_MODE(0x0022ffff1ffcfa38LL); // Wave racer - sky
 			BLEND_MODE(0x0025266015fc9378LL); // MM Sky
 			BLEND_MODE(0x002527ff1ffc9238LL); // OOT Sky
@@ -1815,6 +1863,8 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00547ea833fdf2f9LL); // Sin and Punishment - Ground
 			BLEND_MODE(0x00551aaa1134fe7fLL); // Sin and Punishment - Particles and Explosions
 			BLEND_MODE(0x0055a68730fd923eLL); // F1 World GP Sky
+			BLEND_MODE(0x005616ac112cfe7fLL); // DKR Dialog Text
+			BLEND_MODE(0x00567e034f0e77ffLL); // DKR Turtle Shell
 			BLEND_MODE(0x0061a5ff1f10d23fLL); // Paper Mario - Intro Lighting
 			BLEND_MODE(0x00627fff1ffcfc38LL); // Pilot Wings 64 sky
 			BLEND_MODE(0x00629bff1ffcfe38LL); // Quest 64 - Bubbles
