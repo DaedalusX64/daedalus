@@ -1960,106 +1960,6 @@ void PSPRenderer::TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, cons
 
 #else	//Transform VFPU/FPU
 //*****************************************************************************
-// Transform Using FPU/CPU
-//*****************************************************************************
-static u32 CalcClipFlags( const v4 & projected )
-{
-	u32 clip_flags = 0;
-	if		(-projected.x > projected.w)	clip_flags |= X_POS;
-	else if (+projected.x > projected.w)	clip_flags |= X_NEG;
-
-	if		(-projected.y > projected.w)	clip_flags |= Y_POS;
-	else if (+projected.y > projected.w)	clip_flags |= Y_NEG;
-
-	if		(-projected.z > projected.w)	clip_flags |= Z_POS;
-	else if (+projected.z > projected.w)	clip_flags |= Z_NEG;
-
-	return clip_flags;
-}
-
-template< bool FogEnable, int TextureMode >
-void PSPRenderer::ProcessVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world )
-{
-	u32 vend( v0 + num );
-	for (u32 i = v0; i < vend; i++)
-	{
-		const FiddledVtx & vert = verts[i - v0];
-		const v4 &	projected( mVtxProjected[i].ProjectedPos );
-
-		if (FogEnable)
-		{
-			float	fog_coeff;
-			//if(fabsf(projected.w) > 0.0f)
-			{
-				float eyespace_z = projected.z / projected.w;
-				fog_coeff = (eyespace_z * mTnLParams.FogMult) + mTnLParams.FogOffset;
-			}
-			//else
-			//{
-			//	fog_coeff = m_fFogOffset;
-			//}
-
-			// Set the alpha
-			mVtxProjected[i].Colour.w = Clamp< f32 >( fog_coeff, 0.0f, 1.0f );
-		}
-
-		if (TextureMode == 2)
-		{
-			// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
-
-			// If the vert is already lit, then there is no normal (and hence we
-			// can't generate tex coord)
-			v3 vecTransformedNormal;		// Used only when TNL_LIGHT set
-			v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
-
-			//On VFPU we use matWorldProject instead of mat_world for nicer effect //Corn
-			vecTransformedNormal = mat_world.TransformNormal( model_normal );
-			vecTransformedNormal.Normalise();
-
-			const v3 & norm = vecTransformedNormal;
-
-			//Env mapping
-			if( gGeometryMode & G_TEXTURE_GEN_LINEAR )
-			{
-				mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x);
-				mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y);
-			}
-			else
-			{
-				// Assign the spheremap's texture coordinates
-				//mVtxProjected[i].Texture.x = (0.5f * ( 1.0f + ( norm.x*mat_world.m11 +
-				//											    norm.y*mat_world.m21 +
-				//											    norm.z*mat_world.m31 ) ));
-
-				//mVtxProjected[i].Texture.y = (0.5f * ( 1.0f - ( norm.x*mat_world.m12 +
-				//											    norm.y*mat_world.m22 +
-				//											    norm.z*mat_world.m32 ) ));
-				
-				//mVtxProjected[i].Texture.x = acosf(norm.x) / 3.14159265f;
-				//mVtxProjected[i].Texture.y = acosf(norm.y) / 3.14159265f;
-
-				//Cheaper way to do Acos(x)/Pi //Corn
-				f32 NormX = pspFpuAbs( norm.x );
-				f32 NormY = pspFpuAbs( norm.y );
-				mVtxProjected[i].Texture.x =  0.5f - 0.25f * NormX - 0.25f * NormX * NormX * NormX; 
-				mVtxProjected[i].Texture.y =  0.5f - 0.25f * NormY - 0.25f * NormY * NormY * NormY;
-			}
-		}
-		else if(TextureMode == 1)
-		{
-			mVtxProjected[i].Texture.x = (float)vert.tu * mTnLParams.TextureScaleX;
-			mVtxProjected[i].Texture.y = (float)vert.tv * mTnLParams.TextureScaleY;
-			//mVtxProjected[i].t1 = mVtxProjected[i].t0;
-		}
-
-		//
-		//	Initialise the clipping flags
-		//
-		mVtxProjected[i].ClipFlags = CalcClipFlags( projected );
-	}
-}
-
-//*****************************************************************************
 // Standard rendering pipeline using FPU/CPU
 //*****************************************************************************
 void PSPRenderer::SetNewVertexInfo(u32 dwAddress, u32 dwV0, u32 dwNum)
@@ -2095,14 +1995,32 @@ void PSPRenderer::SetNewVertexInfo(u32 dwAddress, u32 dwV0, u32 dwNum)
 	{
 		const FiddledVtx & vert = pVtxBase[i - dwV0];
 
-		v4		w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
+		v4 w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
 
-		mVtxProjected[i].ProjectedPos = matWorldProject.Transform( w );
+		// VTX Transform
+		//
+		v4 & projected( mVtxProjected[i].ProjectedPos );
+		projected = matWorldProject.Transform( w );
 		mVtxProjected[i].iW = 1.0f / mVtxProjected[i].ProjectedPos.w;
 		mVtxProjected[i].TransformedPos = matWorld.Transform( w );
 
+		//	Initialise the clipping flags
+		//
+		u32 clip_flags = 0;
+		if		(-projected.x > projected.w)	clip_flags |= X_POS;
+		else if (+projected.x > projected.w)	clip_flags |= X_NEG;
+
+		if		(-projected.y > projected.w)	clip_flags |= Y_POS;
+		else if (+projected.y > projected.w)	clip_flags |= Y_NEG;
+
+		if		(-projected.z > projected.w)	clip_flags |= Z_POS;
+		else if (+projected.z > projected.w)	clip_flags |= Z_NEG;
+		mVtxProjected[i].ClipFlags = clip_flags;
+
 		DL_PF( "p%d: (%f,%f,%f) -> (%f,%f,%f,%f)", i, w.x, w.y, w.z, mVtxProjected[i].ProjectedPos.x, mVtxProjected[i].ProjectedPos.y, mVtxProjected[i].ProjectedPos.z, mVtxProjected[i].ProjectedPos.w );
 
+		// LIGHTING OR COLOR
+		//
 		if (mTnLModeFlags & TNL_LIGHT)
 		{
 			v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
@@ -2118,36 +2036,74 @@ void PSPRenderer::SetNewVertexInfo(u32 dwAddress, u32 dwV0, u32 dwNum)
 		{
 			mVtxProjected[i].Colour = v4( vert.rgba_r * (1.0f / 255.0f), vert.rgba_g * (1.0f / 255.0f), vert.rgba_b * (1.0f / 255.0f), vert.rgba_a * (1.0f / 255.0f) );
 		}
-	}
 
-	//
-	//	Template processing function to hoist conditional checks out of loop
-	//
-	switch( mTnLModeFlags & (TNL_TEXTURE|TNL_TEXGEN|TNL_FOG|TNL_LIGHT) )
-	{
-		// TNL_TEXGEN is ignored when TNL_LIGHT is disabled
-	case                                              0: ProcessVerts< false, 0 >( dwV0, dwNum, pVtxBase, matWorld );	break;
-	case                                    TNL_TEXTURE: ProcessVerts< false, 1 >( dwV0, dwNum, pVtxBase, matWorld );	break;
-	case                       TNL_TEXGEN              : ProcessVerts< false, 0 >( dwV0, dwNum, pVtxBase, matWorld );	break;
-	case                       TNL_TEXGEN | TNL_TEXTURE: ProcessVerts< false, 1 >( dwV0, dwNum, pVtxBase, matWorld );	break;
-	case             TNL_FOG                           : ProcessVerts< true,  0 >( dwV0, dwNum, pVtxBase, matWorld );	break;
-	case             TNL_FOG |              TNL_TEXTURE: ProcessVerts< true,  1 >( dwV0, dwNum, pVtxBase, matWorld );	break;
-	case             TNL_FOG | TNL_TEXGEN              : ProcessVerts< true,  0 >( dwV0, dwNum, pVtxBase, matWorld );	break;
-	case             TNL_FOG | TNL_TEXGEN | TNL_TEXTURE: ProcessVerts< true,  1 >( dwV0, dwNum, pVtxBase, matWorld );	break;
+		// ENV MAPPING
+		//
+		if ( (mTnLModeFlags & (TNL_LIGHT | TNL_TEXGEN | TNL_TEXTURE)) == (TNL_LIGHT | TNL_TEXGEN | TNL_TEXTURE))
+		{
+			// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
 
-		// TNL_TEXGEN is ignored when TNL_TEXTURE is disabled
-	case TNL_LIGHT                                     : ProcessVerts< false, 0 >( dwV0, dwNum, pVtxBase, matWorld );	break;
-	case TNL_LIGHT |                        TNL_TEXTURE: ProcessVerts< false, 1 >( dwV0, dwNum, pVtxBase, matWorld );	break;
-	case TNL_LIGHT |           TNL_TEXGEN              : ProcessVerts< false, 0 >( dwV0, dwNum, pVtxBase, matWorld );	break;
-	case TNL_LIGHT |           TNL_TEXGEN | TNL_TEXTURE: ProcessVerts< false, 2 >( dwV0, dwNum, pVtxBase, matWorld );	break;
-	case TNL_LIGHT | TNL_FOG                           : ProcessVerts< true,  0 >( dwV0, dwNum, pVtxBase, matWorld );	break;
-	case TNL_LIGHT | TNL_FOG |              TNL_TEXTURE: ProcessVerts< true,  1 >( dwV0, dwNum, pVtxBase, matWorld );	break;
-	case TNL_LIGHT | TNL_FOG | TNL_TEXGEN              : ProcessVerts< true,  0 >( dwV0, dwNum, pVtxBase, matWorld );	break;
-	case TNL_LIGHT | TNL_FOG | TNL_TEXGEN | TNL_TEXTURE: ProcessVerts< true,  2 >( dwV0, dwNum, pVtxBase, matWorld );	break;
+			// If the vert is already lit, then there is no normal (and hence we can't generate tex coord)
+			v3 vecTransformedNormal;		// Used only when TNL_LIGHT set
+			v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
 
-	default:
-		NODEFAULT;
-		break;
+			//Lets use matWorldProject instead of mat_world for nicer effect //Corn
+			vecTransformedNormal = matWorldProject.TransformNormal( model_normal );
+			vecTransformedNormal.Normalise();
+			const v3 & norm = vecTransformedNormal;
+
+			if( gGeometryMode & G_TEXTURE_GEN_LINEAR )
+			{
+				mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x);
+				mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y);
+			}
+			else
+			{
+				// Assign the spheremap's texture coordinates
+				//mVtxProjected[i].Texture.x = (0.5f * ( 1.0f + ( norm.x*mat_world.m11 +
+				//											    norm.y*mat_world.m21 +
+				//											    norm.z*mat_world.m31 ) ));
+
+				//mVtxProjected[i].Texture.y = (0.5f * ( 1.0f - ( norm.x*mat_world.m12 +
+				//											    norm.y*mat_world.m22 +
+				//											    norm.z*mat_world.m32 ) ));
+				
+				//mVtxProjected[i].Texture.x = acosf(norm.x) / 3.14159265f;
+				//mVtxProjected[i].Texture.y = acosf(norm.y) / 3.14159265f;
+
+				//Cheaper way to do Acos(x)/Pi (abs() fixes star in SM64 sort of) //Corn
+				f32 NormX = pspFpuAbs( norm.x );
+				f32 NormY = pspFpuAbs( norm.y );
+				mVtxProjected[i].Texture.x =  0.5f - 0.25f * NormX - 0.25f * NormX * NormX * NormX; 
+				mVtxProjected[i].Texture.y =  0.5f - 0.25f * NormY - 0.25f * NormY * NormY * NormY;
+			}
+		}
+		else if(mTnLModeFlags & TNL_TEXTURE)
+		{
+			mVtxProjected[i].Texture.x = (float)vert.tu * mTnLParams.TextureScaleX;
+			mVtxProjected[i].Texture.y = (float)vert.tv * mTnLParams.TextureScaleY;
+		}
+
+		/*
+		// FOG
+		//
+		if ( mTnLModeFlags & TNL_FOG )
+		{
+			float	fog_coeff;
+			//if(fabsf(projected.w) > 0.0f)
+			{
+				float eyespace_z = projected.z / projected.w;
+				fog_coeff = (eyespace_z * mTnLParams.FogMult) + mTnLParams.FogOffset;
+			}
+			//else
+			//{
+			//	fog_coeff = m_fFogOffset;
+			//}
+
+			// Set the alpha
+			mVtxProjected[i].Colour.w = Clamp< f32 >( fog_coeff, 0.0f, 1.0f );
+		}
+		*/
 	}
 }
 
