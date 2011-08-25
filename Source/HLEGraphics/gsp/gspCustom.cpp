@@ -34,16 +34,14 @@ u32 PDCIAddr = 0;
 //*****************************************************************************
 //
 //*****************************************************************************
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 void DLParser_DumpVtxInfoDKR(u32 address, u32 v0_idx, u32 num_verts)
 {
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if (gDisplayListFile != NULL)
 	{
-		s32 i;
-
 		s16 * psSrc = (s16 *)(g_pu8RamBase + address);
 
-		i = 0;
+		u32 i = 0;
 		for ( u32 idx = v0_idx; idx < v0_idx + num_verts; idx++ )
 		{
 			f32 x = f32(psSrc[(i + 0) ^ 1]);
@@ -63,7 +61,7 @@ void DLParser_DumpVtxInfoDKR(u32 address, u32 v0_idx, u32 num_verts)
 			const v4 & t = PSPRenderer::Get()->GetProjectedVtxPos( idx );
 
 			DL_PF(" #%02d Pos: {% 3f,% 3f,% 3f} Extra: %02x %02x %02x %02x (Proj: {% 3f,% 3f,% 3f,% 3f})",
-				idx, x, y, z, a, b, c, d, t.x, t.y, t.z, t.w );
+				idx, x, y, z, a, b, c, d, t.x/t.w, t.y/t.w, t.z/t.w, t.w );
 
 			i+=5;
 		}
@@ -85,8 +83,8 @@ void DLParser_DumpVtxInfoDKR(u32 address, u32 v0_idx, u32 num_verts)
 		*/
 
 	}
-#endif
 }
+#endif
 
 //*****************************************************************************
 //
@@ -245,7 +243,22 @@ void DLParser_Mtx_DKR( MicroCodeCommand command )
 
 	gDKRCMatrixIndex = mtx_command;
 
-	DL_PF("    Mtx_DKR: Index %d %s Address 0x%08x", mtx_command, mul ? "Mul" : "Load", address);
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	if (gDisplayListFile != NULL)
+	{
+		DL_PF("    Mtx_DKR: Index %d %s Address 0x%08x\n"
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
+			mtx_command, mul ? "Mul" : "Load", address,
+			mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
+			mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
+			mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
+			mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
+	}
+#endif
+
 }
 
 //*****************************************************************************

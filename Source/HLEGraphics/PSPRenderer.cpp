@@ -1717,6 +1717,7 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 			u32 out = clip_tri_to_frustum( temp_a, temp_b );
 			//If we have less than 3 vertices left after the clipping
 			//we can't make a triangle so we bail and skip rendering it.
+			DL_PF("Retesselate with %d Vtx (if less than 3 skip it)", out);
 			if( out < 3 )
 				continue;
 
@@ -2031,57 +2032,59 @@ void PSPRenderer::SetNewVertexInfo(u32 dwAddress, u32 dwV0, u32 dwNum)
 
 			mVtxProjected[i].Colour = LightVert(vecTransformedNormal);
 			mVtxProjected[i].Colour.w = vert.rgba_a * (1.0f / 255.0f);
+
+			// ENV MAPPING
+			//
+			if ( (mTnLModeFlags & (TNL_TEXGEN | TNL_TEXTURE)) == (TNL_TEXGEN | TNL_TEXTURE) )
+			{
+				// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
+				// If the vert is already lit, then there is no normal (and hence we can't generate tex coord)
+				// Lets use matWorldProject instead of mat_world for nicer effect //Corn
+				vecTransformedNormal = matWorldProject.TransformNormal( model_normal );
+				vecTransformedNormal.Normalise();
+				const v3 & norm = vecTransformedNormal;
+
+				if( gGeometryMode & G_TEXTURE_GEN_LINEAR )
+				{
+					mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x);
+					mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y);
+				}
+				else
+				{
+					// Assign the spheremap's texture coordinates
+					//mVtxProjected[i].Texture.x = (0.5f * ( 1.0f + ( norm.x*mat_world.m11 +
+					//											    norm.y*mat_world.m21 +
+					//											    norm.z*mat_world.m31 ) ));
+
+					//mVtxProjected[i].Texture.y = (0.5f * ( 1.0f - ( norm.x*mat_world.m12 +
+					//											    norm.y*mat_world.m22 +
+					//											    norm.z*mat_world.m32 ) ));
+					
+					//mVtxProjected[i].Texture.x = acosf(norm.x) / 3.14159265f;
+					//mVtxProjected[i].Texture.y = acosf(norm.y) / 3.14159265f;
+
+					//Cheaper way to do Acos(x)/Pi (abs() fixes star in SM64 sort of) //Corn
+					f32 NormX = pspFpuAbs( norm.x );
+					f32 NormY = pspFpuAbs( norm.y );
+					mVtxProjected[i].Texture.x =  0.5f - 0.25f * NormX - 0.25f * NormX * NormX * NormX; 
+					mVtxProjected[i].Texture.y =  0.5f - 0.25f * NormY - 0.25f * NormY * NormY * NormY;
+				}
+			}
+			else if(mTnLModeFlags & TNL_TEXTURE)
+			{
+				mVtxProjected[i].Texture.x = (float)vert.tu * mTnLParams.TextureScaleX;
+				mVtxProjected[i].Texture.y = (float)vert.tv * mTnLParams.TextureScaleY;
+			}
 		}
 		else
 		{
 			mVtxProjected[i].Colour = v4( vert.rgba_r * (1.0f / 255.0f), vert.rgba_g * (1.0f / 255.0f), vert.rgba_b * (1.0f / 255.0f), vert.rgba_a * (1.0f / 255.0f) );
-		}
 
-		// ENV MAPPING
-		//
-		if ( (mTnLModeFlags & (TNL_LIGHT | TNL_TEXGEN | TNL_TEXTURE)) == (TNL_LIGHT | TNL_TEXGEN | TNL_TEXTURE))
-		{
-			// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
-
-			// If the vert is already lit, then there is no normal (and hence we can't generate tex coord)
-			v3 vecTransformedNormal;		// Used only when TNL_LIGHT set
-			v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
-
-			//Lets use matWorldProject instead of mat_world for nicer effect //Corn
-			vecTransformedNormal = matWorldProject.TransformNormal( model_normal );
-			vecTransformedNormal.Normalise();
-			const v3 & norm = vecTransformedNormal;
-
-			if( gGeometryMode & G_TEXTURE_GEN_LINEAR )
+			if(mTnLModeFlags & TNL_TEXTURE)
 			{
-				mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x);
-				mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y);
+				mVtxProjected[i].Texture.x = (float)vert.tu * mTnLParams.TextureScaleX;
+				mVtxProjected[i].Texture.y = (float)vert.tv * mTnLParams.TextureScaleY;
 			}
-			else
-			{
-				// Assign the spheremap's texture coordinates
-				//mVtxProjected[i].Texture.x = (0.5f * ( 1.0f + ( norm.x*mat_world.m11 +
-				//											    norm.y*mat_world.m21 +
-				//											    norm.z*mat_world.m31 ) ));
-
-				//mVtxProjected[i].Texture.y = (0.5f * ( 1.0f - ( norm.x*mat_world.m12 +
-				//											    norm.y*mat_world.m22 +
-				//											    norm.z*mat_world.m32 ) ));
-				
-				//mVtxProjected[i].Texture.x = acosf(norm.x) / 3.14159265f;
-				//mVtxProjected[i].Texture.y = acosf(norm.y) / 3.14159265f;
-
-				//Cheaper way to do Acos(x)/Pi (abs() fixes star in SM64 sort of) //Corn
-				f32 NormX = pspFpuAbs( norm.x );
-				f32 NormY = pspFpuAbs( norm.y );
-				mVtxProjected[i].Texture.x =  0.5f - 0.25f * NormX - 0.25f * NormX * NormX * NormX; 
-				mVtxProjected[i].Texture.y =  0.5f - 0.25f * NormY - 0.25f * NormY * NormY * NormY;
-			}
-		}
-		else if(mTnLModeFlags & TNL_TEXTURE)
-		{
-			mVtxProjected[i].Texture.x = (float)vert.tu * mTnLParams.TextureScaleX;
-			mVtxProjected[i].Texture.y = (float)vert.tv * mTnLParams.TextureScaleY;
 		}
 
 		/*
@@ -2199,6 +2202,10 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 
 	if( addbase & (gDKRVtxCount == 0) & (dwNum > 1) ) gDKRVtxCount++;
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	DL_PF( "    CMtx[%d] Add base=%s", gDKRCMatrixIndex, addbase? "true":"false");
+#endif
+
 	u32 nOff = 0;
 
 	for (u32 i = dwV0; i < dwV0 + dwNum; i++)
@@ -2215,7 +2222,7 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum)
 		//Used for tris front/back culling //Corn
 		mVtxProjected[i].iW = 1.0f / projected.w;
 
-		v4 gDKRBaseVec;
+		static v4 gDKRBaseVec;
 		if( (gDKRVtxCount == 0) & (dwNum == 1) )
 		{
 			gDKRBaseVec = transformed;
@@ -2308,7 +2315,7 @@ void PSPRenderer::SetNewVertexInfoPD(u32 dwAddress, u32 dwV0, u32 dwNum)
 		mVtxProjected[i].iW = 1.0f / mVtxProjected[i].ProjectedPos.w;
 		mVtxProjected[i].TransformedPos = matWorld.Transform( w );
 
-		DL_PF( "p%d: (%f,%f,%f) -> (%f,%f,%f,%f)", i, w.x, w.y, w.z, mVtxProjected[i].ProjectedPos.x, mVtxProjected[i].ProjectedPos.y, mVtxProjected[i].ProjectedPos.z, mVtxProjected[i].ProjectedPos.w );
+		DL_PF( "p%d: (%f,%f,%f) -> (%f,%f,%f,%f)", i, w.x, w.y, w.z, projected.x/projected.w, projected.y/projected.w, projected.z/projected.w, projected.w );
 
 		// Set Clipflags //Corn
 		u32 clip_flags = 0;
