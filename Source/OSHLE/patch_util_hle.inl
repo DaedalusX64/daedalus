@@ -25,6 +25,8 @@ TEST_DISABLE_UTIL_FUNCS
 //*****************************************************************************
 //
 //*****************************************************************************
+//Breaks Spiderman
+/*
 u32 Patch_memcpy()
 {
 TEST_DISABLE_UTIL_FUNCS
@@ -32,7 +34,7 @@ TEST_DISABLE_UTIL_FUNCS
 	u32 src = gGPR[REG_a1]._u32_0;
 	u32 len = gGPR[REG_a2]._u32_0;
 
-#if 1	//1->Fast, 0->Old way
+#if 0	//1->Fast, 0->Old way
 	memcpy_vfpu_LE( (void *)ReadAddress(dst), (void *)ReadAddress(src), len);
 #else
 	//DBGConsole_Msg(0, "memcpy(0x%08x, 0x%08x, %d)", dst, src, len);
@@ -43,6 +45,25 @@ TEST_DISABLE_UTIL_FUNCS
 		*(u8*)((u32)pdst++ ^ 3) = *(u8*)((u32)psrc++ ^ 3);
 	}
 #endif
+
+	// return value of dest
+	gGPR[REG_v0]._u32_0 = gGPR[REG_a0]._u32_0;	
+
+	return PATCH_RET_JR_RA;
+}*/
+u32 Patch_memcpy()
+{
+TEST_DISABLE_UTIL_FUNCS
+	u32 dst = gGPR[REG_a0]._u32_0;
+	u32 src = gGPR[REG_a1]._u32_0;
+	u32 len = gGPR[REG_a2]._u32_0;
+	u32 i;
+
+	//DBGConsole_Msg(0, "memcpy(0x%08x, 0x%08x, %d)", dst, src, len);
+	for (i = 0; i < len; i++)
+	{
+		Write8Bits(dst + i,  Read8Bits(src + i));
+	}
 
 	// return value of dest
 	gGPR[REG_v0]._u32_0 = gGPR[REG_a0]._u32_0;	
@@ -165,7 +186,7 @@ TEST_DISABLE_UTIL_FUNCS
 	}
 	else
 	{
-#if 1	// 1->Fast way, 0->Old way, Using VFPU breaks Clay Fighter 63 1-3 for some reason???
+#if 0	// 1->Fast way, 0->Old way, Using VFPU breaks Clay Fighter 63 1-3 for some reason???
 		memcpy_cpu_LE( (void *)ReadAddress(dst), (void *)ReadAddress(src), len);
 #else
 		u8 *pdst = (u8*)ReadAddress(dst);
