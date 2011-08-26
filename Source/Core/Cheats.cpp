@@ -37,6 +37,7 @@ u32		codegroupcount		= 0;
 s32		currentgroupindex	= -1;
 char	current_rom_name[128];
 extern void* malloc_volatile(size_t size);
+extern bool bVolatileMem;
 //enum { CHEAT_ALL_COUNTRY, CHEAT_USA, CHEAT_JAPAN, CHEAT_USA_AND_JAPAN, CHEAT_EUR, CHEAT_AUS, CHEAT_FR, CHEAT_GER };
 //*****************************************************************************
 //
@@ -381,14 +382,17 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 			if(strncmp(line, "NumberOfGroups=", 15) == 0)
 			{
 				numberofgroups = atoi(line + 15);
-				if( numberofgroups > MAX_CHEATCODE_GROUP_PER_ROM )
+
+				// Remove any excess of cheats to avoid wasting memory
+				if( numberofgroups > MAX_CHEATCODE_PER_GROUP )
 				{
-					numberofgroups = MAX_CHEATCODE_GROUP_PER_ROM;
+					numberofgroups = MAX_CHEATCODE_PER_GROUP;
 				}
 			}
 			else
 			{
-				numberofgroups = MAX_CHEATCODE_GROUP_PER_ROM;
+				// If for some reason NumberOfGroups is incorrect or invalid, just set the max of cheatcodes we allow
+				numberofgroups = MAX_CHEATCODE_PER_GROUP;
 			}
 		}
 		else
@@ -399,6 +403,7 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 
 		// Allocate memory for groups
 		//
+//		printf("number of cheats loaded %d | %d kbs used of memory\n",numberofgroups,(numberofgroups *sizeof(CODEGROUP))/ 1024);
 		codegrouplist = (CODEGROUP *) malloc_volatile(numberofgroups *sizeof(CODEGROUP));
 		if(codegrouplist == NULL)
 		{
