@@ -32,11 +32,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define SET_EXCEPTION(mask, exception)	{ gCPUState.CPUControl[C0_CAUSE]._u32_0 &= ~mask; gCPUState.CPUControl[C0_CAUSE]._u32_0 |= exception; }
 
-// Do not use CAUSE_EXCMASK, else most games will fail when CAUSE is set 32bits
-//
-//#define SET_EXCEPTION(exception)	{ gCPUState.CPUControl[C0_CAUSE]._u32_0 &= NOT_CAUSE_EXCMASK/*CAUSE_EXCMASK*/; gCPUState.CPUControl[C0_CAUSE]._u32_0 |= exception; }
-
-//static ETLBExceptionReason g_nTLBExceptionReason;
 #ifdef DAEDALUS_PROFILE_EXECUTION
 u32 gNumExceptions = 0;
 u32 gNumInterrupts = 0;
@@ -120,7 +115,6 @@ void R4300_Exception_Syscall()
 //*****************************************************************************
 //
 //*****************************************************************************
-// ToDo : Revise me
 void R4300_Exception_CopUnusuable()
 {
 	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
@@ -130,13 +124,8 @@ void R4300_Exception_CopUnusuable()
 	// XXXX check we're not inside exception handler before snuffing CAUSE reg?
 	SET_EXCEPTION( (CAUSE_EXCMASK|CAUSE_CEMASK), (EXC_CPU|SR_CU0) ) 
 
-    /*gCPUState.CPUControl[C0_CAUSE]._u32_0 &= 0xCFFFFFFF;
-	gCPUState.CPUControl[C0_CAUSE]._u32_0 |= SR_CU0;*/
-
-	/*if(gCPUState.Delay == EXEC_DELAY)
-        gCPUState.CPUControl[C0_CAUSE]._u32_0 |= CAUSE_BD;
-    else
-         gCPUState.CPUControl[C0_CAUSE]._u32_0 &= ~CAUSE_BD;*/
+    //gCPUState.CPUControl[C0_CAUSE]._u32_0 &= 0xCFFFFFFF;
+	//gCPUState.CPUControl[C0_CAUSE]._u32_0 |= SR_CU0;
 
 	gExceptionVector = E_VEC;
 	gExceptionPC = gCPUState.CurrentPC;

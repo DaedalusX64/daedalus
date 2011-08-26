@@ -54,6 +54,8 @@ namespace
 	const s32		DESCRIPTION_AREA_LEFT = 16;
 	const s32		DESCRIPTION_AREA_RIGHT = 480-16;
 
+	const u32				TEXT_AREA_TOP = 272 / 2;
+
 
 }
 
@@ -332,11 +334,18 @@ void	ICheatOptionsScreen::Render()
 
 	y += 2;
 
-	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, mRomName.c_str(), mpContext->GetDefaultTextColour() ); y += line_height;
+	//mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, mRomName.c_str(), mpContext->GetDefaultTextColour() ); y += line_height;
 
 	y += 4;
 
-	mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y );
+	// Very basic scroller for cheats, note ROM tittle is disabled since it overlaps when scrolling - FIX ME
+	//
+	if( mElements.GetSelectedIndex() > 1 )
+		mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, TEXT_AREA_TOP - mElements.GetSelectedIndex()*11 );
+	else
+		mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, TEXT_AREA_TOP - mElements.GetSelectedIndex());
+
+	//mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y );
 
 	CUIElement *	element( mElements.GetSelectedElement() );
 	if( element != NULL )

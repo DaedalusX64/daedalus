@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define CHEATS_H_
 
 // Limit the number of cheatcodes on the PSP, for performance reasons
-#define MAX_CHEATCODE_PER_GROUP		8
+#define MAX_CHEATCODE_PER_GROUP		16
 
 //Cannot exceed 254 groups, must be represented by using 1 byte
 #define MAX_CHEATCODE_GROUP_PER_ROM 254
