@@ -193,21 +193,11 @@ static void ConvertGeneric( const TextureDestInfo & dst,
 {
 	OutT *				p_dst( reinterpret_cast< OutT * >( dst.pSurface ) );
 	
-#if RDP_EMULATE_TMEM
-	u32					blah( ti.GetSize() == G_IM_SIZ_32b ? 2 : 1 );
-
-	const u8 *			p_src_base( gTextureMemory );
-	u32					base_offset( ti.GetTmemAddress() << 3 );
-	u32					src_pitch( gRDPTiles[ gTextureTile ].line * 8 * blah );
-	const bool			force_swapped( true );
-#else
 	const u8 *			p_src_base( g_pu8RamBase );
 	u32					base_offset( ti.GetLoadAddress() );
 	u32					src_pitch( ti.GetPitch() );
-	const bool			force_swapped( false );
-#endif
 
-	if (force_swapped || ti.IsSwapped())
+	if ( ti.IsSwapped())
 	{
 		for (u32 y = 0; y < ti.GetHeight(); y++)
 		{
@@ -244,23 +234,13 @@ void ConvertGenericPalettised( const TextureDestInfo & dst, const TextureInfo & 
 {
 	Psp::Pf8888 *		p_dst( reinterpret_cast< Psp::Pf8888 * >( dst.pSurface ) );
 
-#if RDP_EMULATE_TMEM
-	u32					blah( ti.GetSize() == G_IM_SIZ_32b ? 2 : 1 );
-
-	const u8 *			p_src_base( gTextureMemory );
-	u32					base_offset( ti.GetTmemAddress() << 3 );
-	u32					src_pitch( gRDPTiles[ gTextureTile ].line * 8 * blah );
-	const bool			force_swapped( true );
-#else
 	const u8 *			p_src_base( g_pu8RamBase );
 	u32					base_offset( ti.GetLoadAddress() );
 	u32					src_pitch( ti.GetPitch() );
-	const bool			force_swapped( false );
-#endif
 
 	const u16 *			p_palette( reinterpret_cast< const u16 * >( ti.GetPalettePtr() ) );
 
-	if (force_swapped || ti.IsSwapped())
+	if (ti.IsSwapped())
 	{
 		for (u32 y = 0; y < ti.GetHeight(); y++)
 		{
@@ -297,21 +277,11 @@ void ConvertGenericPalettisedCI4( const TextureDestInfo & dst, const TextureInfo
 {
 	Psp::PfCI44 *		p_dst( reinterpret_cast< Psp::PfCI44 * >( dst.pSurface ) );
 
-#if RDP_EMULATE_TMEM
-	u32					blah( ti.GetSize() == G_IM_SIZ_32b ? 2 : 1 );
-
-	const u8 *			p_src_base( gTextureMemory );
-	u32					base_offset( ti.GetTmemAddress() << 3 );
-	u32					src_pitch( gRDPTiles[ gTextureTile ].line * 8 * blah );
-	const bool			force_swapped( true );
-#else
 	const u8 *			p_src_base( g_pu8RamBase );
 	u32					base_offset( ti.GetLoadAddress() );
 	u32					src_pitch( ti.GetPitch() );
-	const bool			force_swapped( false );
-#endif
 
-	if (force_swapped || ti.IsSwapped())
+	if (ti.IsSwapped())
 	{
 		for (u32 y = 0; y < ti.GetHeight(); y++)
 		{
@@ -352,21 +322,11 @@ void ConvertGenericPalettisedCI8( const TextureDestInfo & dst, const TextureInfo
 {
 	Psp::PfCI8 *		p_dst( reinterpret_cast< Psp::PfCI8 * >( dst.pSurface ) );
 
-#if RDP_EMULATE_TMEM
-	u32					blah( ti.GetSize() == G_IM_SIZ_32b ? 2 : 1 );
-
-	const u8 *			p_src_base( gTextureMemory );
-	u32					base_offset( ti.GetTmemAddress() << 3 );
-	u32					src_pitch( gRDPTiles[ gTextureTile ].line * 8 * blah );
-	const bool			force_swapped( true );
-#else
 	const u8 *			p_src_base( g_pu8RamBase );
 	u32					base_offset( ti.GetLoadAddress() );
 	u32					src_pitch( ti.GetPitch() );
-	const bool			force_swapped( false );
-#endif
 
-	if (force_swapped || ti.IsSwapped())
+	if (ti.IsSwapped())
 	{
 		for (u32 y = 0; y < ti.GetHeight(); y++)
 		{

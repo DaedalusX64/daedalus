@@ -1194,7 +1194,7 @@ static void BlendMode_0x0022ffff1ffcfa38LL (BLEND_MODE_ARGS)
  void BlendMode_0x0020ac04ff0f93ffLL (BLEND_MODE_ARGS)
 {
 	details.ColourAdjuster.SetA( details.PrimColour );
-	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);	// For nice effect in grass
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
 // OoT intro, MM Intro (N64 Logo) 

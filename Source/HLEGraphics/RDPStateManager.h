@@ -40,8 +40,8 @@ public:
 	inline const RDP_Tile &			GetTile( u32 idx ) const				{ return mTiles[ idx ]; }
 	inline const RDP_TileSize &		GetTileSize( u32 idx ) const			{ return mTileSizes[ idx ]; }
 
-	void							SetTile( u32 idx, const RDP_Tile & tile );
-	void							SetTileSize( u32 idx, const RDP_TileSize & tile_size );
+	void							SetTile( const RDP_Tile & tile );
+	void							SetTileSize( const RDP_TileSize & tile_size );
 	void							LoadBlock( u32 idx, u32 address, bool swapped );
 	void							LoadTile( const RDP_TileSize & tile_size );
 

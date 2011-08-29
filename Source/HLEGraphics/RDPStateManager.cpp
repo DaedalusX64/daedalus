@@ -60,8 +60,10 @@ void CRDPStateManager::Reset()
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CRDPStateManager::SetTile( u32 idx, const RDP_Tile & tile )
+void	CRDPStateManager::SetTile( const RDP_Tile & tile )
 {
+	u32 idx( tile.tile_idx );
+
 	if( mTiles[ idx ] != tile )
 	{
 		mTiles[ idx ] = tile;
@@ -72,8 +74,10 @@ void	CRDPStateManager::SetTile( u32 idx, const RDP_Tile & tile )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CRDPStateManager::SetTileSize( u32 idx, const RDP_TileSize & tile_size )
+void	CRDPStateManager::SetTileSize( const RDP_TileSize & tile_size )
 {
+	u32 idx( tile_size.tile_idx );
+
 	if( mTileSizes[ idx ] != tile_size )
 	{
 		// XXXX might be able to remove this with recent tile loading fixes?
@@ -185,18 +189,14 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		if ( pitch == u32(~0) )
 		{
 			// It was a block load - the pitch is determined by the tile size
-			switch(rdp_tile.size)
-			{
-				case G_IM_SIZ_4b:  pitch = (rdp_tile.line*8); break;
-				case G_IM_SIZ_8b:  pitch = (rdp_tile.line*8); break;
-				case G_IM_SIZ_16b: pitch = (rdp_tile.line*8); break;
-				case G_IM_SIZ_32b: pitch = (rdp_tile.line*8)*2; break;
-			}
+			pitch = rdp_tile.line*8;
+			if( rdp_tile.size == G_IM_SIZ_32b )	pitch = pitch*2;
+
 		}
-		else
-		{
+		//else
+		//{
 			// It was a tile - the pitch is set when the tile is loaded
-		}
+		//}
 
 		//
 		//	Limit the tile's width/height to the number of bits specified by mask_s/t.

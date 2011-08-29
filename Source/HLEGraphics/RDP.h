@@ -27,8 +27,6 @@
 #endif // _MSC_VER > 1000
 
 
-#define RDP_EMULATE_TMEM	0
-
 inline u32 pixels2bytes( u32 pixels, u32 size )
 {
 	return ((pixels << size)+1) / 2;
@@ -295,8 +293,6 @@ extern RDP_OtherMode		gRDPOtherMode;
 
 //extern u8 gTextureMemory[ 4096 ];
 extern u8 *gTextureMemory;
-extern 	RDP_TileSize gRDPTileSizes[8];
-extern	RDP_Tile gRDPTiles[8];
 extern	u32 gTextureTile;
 
 
@@ -308,10 +304,7 @@ void	RDP_SetOtherMode( u32 cmd_hi, u32 cmd_lo );
 #endif
 void	RDP_SetTile( RDP_Tile tile );
 void	RDP_SetTileSize( RDP_TileSize tile_tile );
-#if RDP_EMULATE_TMEM
-void	RDP_LoadBlock( RDP_TileSize command );
-void	RDP_LoadTile( RDP_TileSize tile_size  );
-#endif
+
 //*****************************************************************************
 //
 //*****************************************************************************

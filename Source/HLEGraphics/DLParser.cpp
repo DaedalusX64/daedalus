@@ -1506,8 +1506,7 @@ void DLParser_SetTile( MicroCodeCommand command )
 	tile.cmd0 = command.inst.cmd0;
 	tile.cmd1 = command.inst.cmd1;
 	
-	RDP_SetTile( tile );
-	gRDPStateManager.SetTile( tile.tile_idx, tile );
+	gRDPStateManager.SetTile( tile );
 
 	DL_PF( "    Tile:%d  Fmt: %s/%s Line:%d TMem:0x%04x Palette:%d", tile.tile_idx, gFormatNames[tile.format], gSizeNames[tile.size], tile.line, tile.tmem, tile.palette);
 	DL_PF( "         S: Clamp:%s Mirror:%s Mask:0x%x Shift:0x%x", gOnOffNames[tile.clamp_s],gOnOffNames[tile.mirror_s], tile.mask_s, tile.shift_s );
@@ -1523,15 +1522,13 @@ void DLParser_SetTileSize( MicroCodeCommand command )
 	tile.cmd0 = command.inst.cmd0;
 	tile.cmd1 = command.inst.cmd1;
 
-	RDP_SetTileSize( tile );
-
 	DL_PF("    Tile:%d (%d,%d) -> (%d,%d) [%d x %d]",
 		tile.tile_idx, tile.left/4, tile.top/4,
 		        tile.right/4, tile.bottom/4,
 				((tile.right/4) - (tile.left/4)) + 1,
 				((tile.bottom/4) - (tile.top/4)) + 1);
 
-	gRDPStateManager.SetTileSize( tile.tile_idx, tile );
+	gRDPStateManager.SetTileSize( tile );
 }
 
 
@@ -1568,13 +1565,6 @@ void DLParser_LoadBlock( MicroCodeCommand command )
 	DL_PF("    Offset: 0x%08x", src_offset);
 
 	gRDPStateManager.LoadBlock( tile_idx, src_offset, swapped );
-
-#if RDP_EMULATE_TMEM
-	RDP_TileSize tile;
-	tile.cmd0 = command.inst.cmd0;
-	tile.cmd1 = command.inst.cmd1;
-	RDP_LoadBlock( tile );
-#endif
 }
 
 //*****************************************************************************
@@ -1588,9 +1578,7 @@ void DLParser_LoadTile( MicroCodeCommand command )
 	
 	DL_PF("    Tile:%d (%d,%d) -> (%d,%d) [%d x %d]",	tile.tile_idx, tile.left/4, tile.top/4, tile.right/4 + 1, tile.bottom / 4 + 1, (tile.right - tile.left)/4+1, (tile.bottom - tile.top)/4+1);
 	DL_PF("    Offset: 0x%08x",							g_TI.GetOffset( tile.left, tile.top ) );
-#if RDP_EMULATE_TMEM
-	RDP_LoadTile( tile );
-#endif
+
 	gRDPStateManager.LoadTile( tile );
 }
 
@@ -1611,8 +1599,10 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	// Format is always 16bpp - RGBA16 or IA16:
 	u32 offset = (uls + ult * g_TI.Width) << 1;
 
+	const RDP_Tile &	rdp_tile( gRDPStateManager.GetTile( tile_idx ) );
+
 	//Copy PAL to the PAL memory
-	u32 tmem = gRDPTiles[ tile_idx ].tmem << 3;
+	u32 tmem = rdp_tile.tmem << 3;
 	u16 * p_source = (u16*)&g_pu8RamBase[ g_TI.Address + offset ];
 	u16 * p_dest   = (u16*)&gTextureMemory[ tmem ];
 
@@ -1646,7 +1636,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 		u32 i;
 
 
-		DL_PF("    LoadTLut Addr:0x%08x Offset:0x%05x TMEM:0x%04x Tile:%d, (%d,%d) -> (%d,%d), Count %d", g_TI.Address, offset, gRDPTiles[ tile_idx ].tmem,
+		DL_PF("    LoadTLut Addr:0x%08x Offset:0x%05x TMEM:0x%04x Tile:%d, (%d,%d) -> (%d,%d), Count %d", g_TI.Address, offset, rdp_tile.tmem,
 			tile_idx, uls, ult, lrs, lrt, count);
 		// This is sometimes wrong (in 007) tlut fmt is set after 
 		// tlut load, but before tile load
