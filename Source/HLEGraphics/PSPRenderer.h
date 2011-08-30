@@ -45,6 +45,7 @@ struct ViewportInfo
 	f32  ViHeight;
 
 	bool Update;
+	bool Rumble;
 };
 
 struct TextureVtx

@@ -492,20 +492,16 @@ void PSPRenderer::BeginScene()
 	mRecordedCombinerStates.clear();
 #endif
 
-	static bool last_rumblepak = false;
-
 	// Update viewport only if user changed it in settings or vi register changed it
 	// Both happen really rare
 	//
-	if( !mView.Update &&				  // We need to update after pause menu?
-		mView.ViWidth == fViWidth    &&  //  VI register changed width? (bug fix GE007) 
-		mView.ViHeight == fViHeight &&   //  VI register changed height?
-		!last_rumblepak & !gRumblePakActive )
+	if( !mView.Update				  &&		//  We need to update after pause menu?
+		mView.ViWidth  == fViWidth    &&		//  VI register changed width? (bug fix GE007) 
+		mView.ViHeight == fViHeight   &&		//  VI register changed height?
+		mView.Rumble   == gRumblePakActive )	//  RumblePak active? Don't bother to update if no rumble feedback too
 	{
 		return;
 	}
-
-	last_rumblepak = gRumblePakActive;
 
 	u32	display_width( 0 );
 	u32 display_height( 0 );
@@ -527,6 +523,7 @@ void PSPRenderer::BeginScene()
 	SetPSPViewport( display_x, display_y, display_width, display_height );
 	SetN64Viewport( scale, trans );
 
+	mView.Rumble	= gRumblePakActive;
 	mView.Update	= false;
 	mView.ViWidth	= fViWidth;
 	mView.ViHeight	= fViHeight;
