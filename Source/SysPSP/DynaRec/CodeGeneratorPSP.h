@@ -54,7 +54,7 @@ class CCodeGeneratorPSP : public CCodeGenerator, public CAssemblyWriterPSP
 
 		virtual void				GenerateBranchHandler( CJumpLocation branch_handler_jump, RegisterSnapshotHandle snapshot );
 
-		virtual CJumpLocation		GenerateOpCode( const STraceEntry& ti, bool branch_delay_slot, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump, StaticAnalysis::MemAcess memory);
+		virtual CJumpLocation		GenerateOpCode( const STraceEntry& ti, bool branch_delay_slot, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump);
 
 		virtual CJumpLocation		ExecuteNativeFunction( CCodeLabel speed_hack, bool check_return = false );
 
@@ -274,7 +274,7 @@ private:
 				std::stack<EPspReg>	mAvailableRegisters;
 
 				bool							mBranchDelaySet;
-				StaticAnalysis::MemAcess        mQuickLoad;
+				bool							mQuickLoad;
 
 				std::vector< SAddressCheckFixup >	mAddressCheckFixups;
 };
