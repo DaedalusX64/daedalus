@@ -21,6 +21,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/Memory.h"
 struct OpCode;
 
+#define IS_SEG_8000(x)			((x & 0xE0000000) == 0x80000000)
+#define IS_SEG_A000(x)			((x & 0xE0000000) == 0xA0000000)
+
 namespace StaticAnalysis
 {
 	/*enum MemAcess
@@ -107,9 +110,10 @@ namespace StaticAnalysis
 		// Compiler was already inlining this, but just in case..
 		inline void		Access(u32 address)
 		{
-			//ToDO : Should we handle mem access @ A000? Do they happen frequently?
+			// ToDO : Should we handle mem access @ A000?
+			// Mmm doesn't seem to work as I get BSODs in most games :/
 			//
-			mAccess_8000 = (address >= 0x80000000 && address < 0x80000000 + gRamSize);
+			mAccess_8000 = IS_SEG_8000(address)/* || IS_SEG_A000(address)*/;
 			/*if (address >= 0x80000000 && address < 0x80000000 + gRamSize)
 			{
 				  Memory = Segment_8000;
