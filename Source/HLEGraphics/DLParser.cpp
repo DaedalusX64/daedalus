@@ -478,6 +478,11 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 		case 2:	//GBI2	
 			gucode_ver = ucode;
 			break;
+		case 4:	//DKR	
+		case 5:	//JFG	
+		case 10:	//PD	
+			gucode_ver = 0;
+			break;
 		case 9:	//Conker
 			gucode_ver = 3;
 			break;
@@ -514,13 +519,6 @@ SProfileItemHandle * gpProfileItemHandles[ 256 ];
 static void	DLParser_ProcessDList()
 {
 	MicroCodeCommand command;
-
-	//Clean frame buffer at DList start if selected
-	/*if( gCleanSceneEnabled && CGraphicsContext::CleanScene )
-	{
-		CGraphicsContext::Get()->Clear(true, false);
-		CGraphicsContext::CleanScene = false;
-	}*/
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	//Check if address is outside legal RDRAM
@@ -1460,7 +1458,7 @@ void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts)
 			psSrc += 8;			// Increase by 16 bytes
 			pcSrc += 16;
 
-			DL_PF(" #%02d Flags: 0x%04x Pos:{% 6f,% 6f,% 6f} Tex:{%+7.2f,%+7.2f} Extra: %02x %02x %02x %02x Tran:{% 6f,% 6f,% 6f,% 6f} Proj:{% 6f,% 6f,% 6f,% 6f}",
+			DL_PF("   #%02d Flags: 0x%04x Pos:{% 6f,% 6f,% 6f} Tex:{%+7.2f,%+7.2f} Extra: %02x %02x %02x %02x Tran:{% 6f,% 6f,% 6f,% 6f} Proj:{% 6f,% 6f,% 6f,% 6f}",
 				idx, wFlags, x, y, z, tu, tv, a, b, c, d, t.x, t.y, t.z, t.w, p.x/p.w, p.y/p.w, p.z/p.w, p.w);
 		}
 	}
@@ -1738,9 +1736,8 @@ void DLParser_TexRect( MicroCodeCommand command )
 	uv1.x = uv0.x + d.x * ( xy1.x - xy0.x );
 	uv1.y = uv0.y + d.y * ( xy1.y - xy0.y );
 
-	DL_PF("    Tile:%d Screen(%f,%f) -> (%f,%f)",				   tex_rect.tile_idx, xy0.x, xy0.y, xy1.x, xy1.y);
-	DL_PF("           Tex:(%#5f,%#5f) -> (%#5f,%#5f) (DSDX:%#5f DTDY:%#5f)",          uv0.x, uv0.y, uv1.x, uv1.y, d.x, d.y);
-	//DL_PF(" ");
+	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile:%d", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
+	DL_PF("    Tex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", uv0.x, uv0.y, uv1.x, uv1.y, d.x, d.y);
 
 	PSPRenderer::Get()->TexRect( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );
 }
@@ -1791,8 +1788,8 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	uv1.x = uv0.x + d.x * ( xy1.y - xy0.y );		// Flip - use y
 	uv1.y = uv0.y + d.y * ( xy1.x - xy0.x );		// Flip - use x
 
-	DL_PF("    Tile:%d Screen(%f,%f) -> (%f,%f)",				   tex_rect.tile_idx, xy0.x, xy0.y, xy1.x, xy1.y);
-	DL_PF("        FLIPTex:(%#5f,%#5f) -> (%#5f,%#5f) (DSDX:%#5f DTDY:%#5f)",          uv0.x, uv0.y, uv1.x, uv1.y, d.x, d.y);
+	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile:%d ", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
+	DL_PF("    FLIPTex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", uv0.x, uv0.y, uv1.x, uv1.y, d.x, d.y);
 	//DL_PF(" ");
 	
 	PSPRenderer::Get()->TexRectFlip( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );

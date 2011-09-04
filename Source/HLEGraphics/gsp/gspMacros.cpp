@@ -433,28 +433,33 @@ void DLParser_GBI2_LoadUCode( MicroCodeCommand command )
 //*****************************************************************************
 inline void DLParser_InitGeometryMode()
 {
+	DL_PF("  ZBuffer %s", (gGeometryMode & G_ZBUFFER) ? "On" : "Off");
+	DL_PF("  Culling %s", (gGeometryMode & G_CULL_BACK) ? "Back face" : (gGeometryMode & G_CULL_FRONT) ? "Front face" : "Off");
+	DL_PF("  Shade %s", (gGeometryMode & G_SHADE) ? "On" : "Off");
+	DL_PF("  Smooth Shading %s", (gGeometryMode & G_SHADING_SMOOTH) ? "On" : "Off");
+	DL_PF("  Lighting %s", (gGeometryMode & G_LIGHTING) ? "On" : "Off");
+	DL_PF("  Texture %s", (gGeometryMode & G_TEXTURE_ENABLE) ? "On" : "Off");
+	DL_PF("  Texture Gen %s", (gGeometryMode & G_TEXTURE_GEN) ? "On" : "Off");
+	DL_PF("  Texture Gen Linear %s", (gGeometryMode & G_TEXTURE_GEN_LINEAR) ? "On" : "Off");
+	DL_PF("  Fog %s", (gGeometryMode & G_FOG) ? "On" : "Off");
+	DL_PF("  LOD %s", (gGeometryMode & G_LOD) ? "On" : "Off");
+
 	// CULL_BACK has priority, Fixes Mortal Kombat 4
-	bool bCullFront         = (gGeometryMode & G_CULL_FRONT)		? true : false;
-	bool bCullBack          = (gGeometryMode & G_CULL_BACK)			? true : false;
-	PSPRenderer::Get()->SetCullMode(bCullFront, bCullBack);
+	PSPRenderer::Get()->SetCullMode( gGeometryMode & G_CULL_FRONT, gGeometryMode & G_CULL_BACK );
 
-	bool bShade				= (gGeometryMode & G_SHADE)				? true : false;
-	PSPRenderer::Get()->SetSmooth( bShade );
+	PSPRenderer::Get()->SetSmooth( gGeometryMode & G_SHADE );
 
-	bool bShadeSmooth       = (gGeometryMode & G_SHADING_SMOOTH)	? true : false;
-	PSPRenderer::Get()->SetSmoothShade( bShadeSmooth );
+	PSPRenderer::Get()->SetSmoothShade( gGeometryMode & G_SHADING_SMOOTH );
 
-	bool bFog				= (gGeometryMode & G_FOG)				? true : false;
-	PSPRenderer::Get()->SetFogEnable( bFog );
+	PSPRenderer::Get()->SetFogEnable( gGeometryMode & G_FOG );
 
-	bool bTextureGen        = (gGeometryMode & G_TEXTURE_GEN)		? true : false;
-	PSPRenderer::Get()->SetTextureGen(bTextureGen);
+	PSPRenderer::Get()->SetTextureGen( gGeometryMode & G_TEXTURE_GEN );
 
-	bool bLighting			= (gGeometryMode & G_LIGHTING)			? true : false;
-	PSPRenderer::Get()->SetLighting( bLighting );
+	PSPRenderer::Get()->SetTextureGenLin( gGeometryMode & G_TEXTURE_GEN_LINEAR );
 
-	bool bZBuffer           = (gGeometryMode & G_ZBUFFER)			? true : false;
-	PSPRenderer::Get()->ZBufferEnable( bZBuffer );
+	PSPRenderer::Get()->SetLighting( gGeometryMode & G_LIGHTING );
+
+	PSPRenderer::Get()->ZBufferEnable( gGeometryMode & G_ZBUFFER );
 }
 
 //***************************************************************************** 
@@ -466,25 +471,9 @@ void DLParser_GBI1_ClearGeometryMode( MicroCodeCommand command )
     
     gGeometryMode &= ~mask;
 
-    DLParser_InitGeometryMode();
+    DL_PF("  Clearing mask -> 0x%08x", mask);
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-    if (gDisplayListFile != NULL)
-    {
-            DL_PF("    Mask=0x%08x", mask);
-            if (mask & G_ZBUFFER)                           DL_PF("  Disabling ZBuffer");
-            if (mask & G_TEXTURE_ENABLE)                    DL_PF("  Disabling Texture");
-            if (mask & G_SHADE)                             DL_PF("  Disabling Shade");
-            if (mask & G_SHADING_SMOOTH)                    DL_PF("  Disabling Smooth Shading");
-            if (mask & G_CULL_FRONT)                        DL_PF("  Disabling Front Culling");
-            if (mask & G_CULL_BACK)                         DL_PF("  Disabling Back Culling");
-            if (mask & G_FOG)                               DL_PF("  Disabling Fog");
-            if (mask & G_LIGHTING)                          DL_PF("  Disabling Lighting");
-            if (mask & G_TEXTURE_GEN)                       DL_PF("  Disabling Texture Gen");
-            if (mask & G_TEXTURE_GEN_LINEAR)                DL_PF("  Disabling Texture Gen Linear");
-            if (mask & G_LOD)                               DL_PF("  Disabling LOD (no impl)");
-    }
-#endif
+	DLParser_InitGeometryMode();
 }
 
 //*****************************************************************************
@@ -496,25 +485,9 @@ void DLParser_GBI1_SetGeometryMode(  MicroCodeCommand command  )
 
     gGeometryMode |= mask;
 
-    DLParser_InitGeometryMode();
+    DL_PF("  Setting mask -> 0x%08x", mask);
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-    if (gDisplayListFile != NULL)
-    {
-            DL_PF("    Mask=0x%08x", mask);
-            if (mask & G_ZBUFFER)                           DL_PF("  Enabling ZBuffer");
-            if (mask & G_TEXTURE_ENABLE)                    DL_PF("  Enabling Texture");
-            if (mask & G_SHADE)                             DL_PF("  Enabling Shade");
-            if (mask & G_SHADING_SMOOTH)                    DL_PF("  Enabling Smooth Shading");
-            if (mask & G_CULL_FRONT)                        DL_PF("  Enabling Front Culling");
-            if (mask & G_CULL_BACK)                         DL_PF("  Enabling Back Culling");
-            if (mask & G_FOG)                               DL_PF("  Enabling Fog");
-            if (mask & G_LIGHTING)                          DL_PF("  Enabling Lighting");
-            if (mask & G_TEXTURE_GEN)                       DL_PF("  Enabling Texture Gen");
-            if (mask & G_TEXTURE_GEN_LINEAR)                DL_PF("  Enabling Texture Gen Linear");
-            if (mask & G_LOD)                               DL_PF("  Enabling LOD (no impl)");
-    }
-#endif
+	DLParser_InitGeometryMode();
 }
 
 //*****************************************************************************
@@ -528,58 +501,36 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
     u32 and_bits = (command.inst.cmd0) & 0x00FFFFFF;
     u32 or_bits  = (command.inst.cmd1) & 0x00FFFFFF;
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-    if (gDisplayListFile != NULL)
-    {
-            DL_PF("    0x%08x 0x%08x =(x & 0x%08x) | 0x%08x", command.inst.cmd0, command.inst.cmd1, and_bits, or_bits);
-
-            if ((~and_bits) & G_ZELDA_ZBUFFER)						DL_PF("  Disabling ZBuffer");
-            if ((~and_bits) & G_ZELDA_SHADING_SMOOTH)				DL_PF("  Disabling Flat Shading");
-            if ((~and_bits) & G_ZELDA_CULL_FRONT)                   DL_PF("  Disabling Front Culling");
-            if ((~and_bits) & G_ZELDA_CULL_BACK)                    DL_PF("  Disabling Back Culling");
-            if ((~and_bits) & G_ZELDA_FOG)							DL_PF("  Disabling Fog");
-            if ((~and_bits) & G_ZELDA_LIGHTING)						DL_PF("  Disabling Lighting");
-            if ((~and_bits) & G_ZELDA_TEXTURE_GEN)                  DL_PF("  Disabling Texture Gen");
-			if ((~and_bits) & G_ZELDA_TEXTURE_GEN_LINEAR)			DL_PF("  Enabling Texture Gen Linear");
-
-            if (or_bits & G_ZELDA_ZBUFFER)							DL_PF("  Enabling ZBuffer");
-            if (or_bits & G_ZELDA_SHADING_SMOOTH)					DL_PF("  Enabling Flat Shading");
-            if (or_bits & G_ZELDA_CULL_FRONT)						DL_PF("  Enabling Front Culling");
-            if (or_bits & G_ZELDA_CULL_BACK)						DL_PF("  Enabling Back Culling");
-            if (or_bits & G_ZELDA_FOG)								DL_PF("  Enabling Fog");
-            if (or_bits & G_ZELDA_LIGHTING)							DL_PF("  Enabling Lighting");
-            if (or_bits & G_ZELDA_TEXTURE_GEN)						DL_PF("  Enabling Texture Gen");
-			if (or_bits & G_ZELDA_TEXTURE_GEN_LINEAR)               DL_PF("  Enabling Texture Gen Linear");
-    }
-#endif
-
     gGeometryMode &= and_bits;
     gGeometryMode |= or_bits;
 
-    bool bCullFront         = (gGeometryMode & G_ZELDA_CULL_FRONT)			? true : false;
-    bool bCullBack          = (gGeometryMode & G_ZELDA_CULL_BACK)			? true : false;
-    PSPRenderer::Get()->SetCullMode(bCullFront, bCullBack);
+	DL_PF("  0x%08x 0x%08x =(x & 0x%08x) | 0x%08x", command.inst.cmd0, command.inst.cmd1, and_bits, or_bits);
+	DL_PF("  ZBuffer %s", (gGeometryMode & G_ZELDA_ZBUFFER) ? "On" : "Off");
+	DL_PF("  Culling %s", (gGeometryMode & G_ZELDA_CULL_BACK) ? "Back face" : (gGeometryMode & G_ZELDA_CULL_FRONT) ? "Front face" : "Off");
+	DL_PF("  Flat Shading %s", (gGeometryMode & G_ZELDA_SHADING_SMOOTH) ? "On" : "Off");
+	DL_PF("  Lighting %s", (gGeometryMode & G_ZELDA_LIGHTING) ? "On" : "Off");
+	DL_PF("  Texture Gen %s", (gGeometryMode & G_ZELDA_TEXTURE_GEN) ? "On" : "Off");
+	DL_PF("  Texture Gen Linear %s", (gGeometryMode & G_ZELDA_TEXTURE_GEN_LINEAR) ? "On" : "Off");
+	DL_PF("  Fog %s", (gGeometryMode & G_ZELDA_FOG) ? "On" : "Off");
 
-//  bool bShade				= (gGeometryMode & G_SHADE)						? true : false;
-//  bool bFlatShade         = (gGeometryMode & G_ZELDA_SHADING_SMOOTH)		? true : false;
+    PSPRenderer::Get()->SetCullMode( gGeometryMode & G_ZELDA_CULL_FRONT, gGeometryMode & G_ZELDA_CULL_BACK );
 
-	bool bFlatShade         = (gGeometryMode & G_ZELDA_TEXTURE_GEN_LINEAR)	? true : false;
-    if (g_ROM.GameHacks == TIGERS_HONEY_HUNT) bFlatShade = false;	// Hack for Tiger Honey Hunt
+	//bool bShade				= (gGeometryMode & G_SHADE)						? true : false;
+	//bool bFlatShade         = (gGeometryMode & G_ZELDA_SHADING_SMOOTH)		? true : false;
+
+	bool bFlatShade         = (gGeometryMode & G_ZELDA_TEXTURE_GEN_LINEAR & (g_ROM.GameHacks != TIGERS_HONEY_HUNT))	? true : false;
     PSPRenderer::Get()->SetSmooth( !bFlatShade );
-
-    bool bFog				= (gGeometryMode & G_ZELDA_FOG)					? true : false;
-    PSPRenderer::Get()->SetFogEnable( bFog );
-
-	bool bTextureGen        = (gGeometryMode & G_ZELDA_TEXTURE_GEN)			? true : false;
-    PSPRenderer::Get()->SetTextureGen(bTextureGen);
-
-    bool bLighting			= (gGeometryMode & G_ZELDA_LIGHTING)			? true : false;
-    PSPRenderer::Get()->SetLighting( bLighting );
-
-	bool bZBuffer           = (gGeometryMode & G_ZELDA_ZBUFFER)				? true : false;
-    PSPRenderer::Get()->ZBufferEnable( bZBuffer );
-
     PSPRenderer::Get()->SetSmoothShade( true );             // Always do this - not sure which bit to use
+
+    PSPRenderer::Get()->SetFogEnable( gGeometryMode & G_ZELDA_FOG );
+
+    PSPRenderer::Get()->SetTextureGen( gGeometryMode & G_ZELDA_TEXTURE_GEN );
+
+	PSPRenderer::Get()->SetTextureGenLin( gGeometryMode & G_ZELDA_TEXTURE_GEN_LINEAR );
+
+    PSPRenderer::Get()->SetLighting( gGeometryMode & G_ZELDA_LIGHTING );
+
+    PSPRenderer::Get()->ZBufferEnable( gGeometryMode & G_ZELDA_ZBUFFER );
 }
 
 //*****************************************************************************
@@ -701,7 +652,9 @@ void DLParser_GBI2_Quad( MicroCodeCommand command )
 	bool tris_added = false;
 
     do{
-        // Vertex indices are multiplied by 2
+        DL_PF("   0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_QUAD");
+
+		// Vertex indices are multiplied by 2
         u32 v0_idx = command.gbi2line3d.v0 >> 1;
         u32 v1_idx = command.gbi2line3d.v1 >> 1;
         u32 v2_idx = command.gbi2line3d.v2 >> 1;
@@ -719,14 +672,6 @@ void DLParser_GBI2_Quad( MicroCodeCommand command )
 		command.inst.cmd0 = *pCmdBase++;
         command.inst.cmd1 = *pCmdBase++;
         pc += 8;
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-        if ( command.inst.cmd == G_GBI2_QUAD )
-        {
-                //DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
-                DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_QUAD");
-        }
-#endif
     }while( command.inst.cmd == G_GBI2_QUAD );
 
 	gDlistStack[gDlistStackPointer].pc = pc-8;
@@ -750,7 +695,9 @@ void DLParser_GBI2_Line3D( MicroCodeCommand command )
     bool tris_added = false;
 
     do{
-        u32 v0_idx = command.gbi2line3d.v0 >> 1;
+        DL_PF("   0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_LINE3D");
+
+		u32 v0_idx = command.gbi2line3d.v0 >> 1;
         u32 v1_idx = command.gbi2line3d.v1 >> 1;
         u32 v2_idx = command.gbi2line3d.v2 >> 1;
 
@@ -765,14 +712,6 @@ void DLParser_GBI2_Line3D( MicroCodeCommand command )
         command.inst.cmd0 = *pCmdBase++;
         command.inst.cmd1 = *pCmdBase++;
         pc += 8;
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-        if ( command.inst.cmd == G_GBI2_LINE3D )
-        {
-                //DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
-                DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_LINE3D");
-        }
-#endif
     }while( command.inst.cmd == G_GBI2_LINE3D );
 	
 	gDlistStack[gDlistStackPointer].pc = pc-8;
@@ -795,8 +734,9 @@ void DLParser_GBI2_Tri1( MicroCodeCommand command )
     bool tris_added = false;
 
     do{
-        //u32 flags = (command.inst.cmd1>>24)&0xFF;
-        u32 v0_idx = command.gbi2tri1.v0 >> 1;
+        DL_PF("   0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI1");
+
+		u32 v0_idx = command.gbi2tri1.v0 >> 1;
 		u32 v1_idx = command.gbi2tri1.v1 >> 1;
 		u32 v2_idx = command.gbi2tri1.v2 >> 1;
 
@@ -805,14 +745,6 @@ void DLParser_GBI2_Tri1( MicroCodeCommand command )
         command.inst.cmd0 = *pCmdBase++;
         command.inst.cmd1 = *pCmdBase++;
         pc += 8;
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-        if ( command.inst.cmd == G_GBI2_TRI1 )
-        {
-                //DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
-                DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI1");
-        }
-#endif			
     }while( command.inst.cmd == G_GBI2_TRI1 );
 
 	gDlistStack[gDlistStackPointer].pc = pc-8;
@@ -834,6 +766,8 @@ void DLParser_GBI2_Tri2( MicroCodeCommand command )
     bool tris_added = false;
 
     do{
+        DL_PF("   0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI2");
+
 		// Vertex indices already divided in ucodedef
         u32 v0_idx = command.gbi2tri2.v0;
         u32 v1_idx = command.gbi2tri2.v1;
@@ -850,14 +784,6 @@ void DLParser_GBI2_Tri2( MicroCodeCommand command )
         command.inst.cmd0 = *pCmdBase++;
         command.inst.cmd1 = *pCmdBase++;
         pc += 8;
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-        if ( command.inst.cmd == G_GBI2_TRI2 )
-        {
-                //DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
-                DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI2");
-        }
-#endif
 	}while( command.inst.cmd == G_GBI2_TRI2 );
 
 	gDlistStack[gDlistStackPointer].pc = pc-8;
@@ -880,6 +806,8 @@ void DLParser_GBI1_Tri2( MicroCodeCommand command )
     bool tris_added = false;
 
     do{
+        DL_PF("   0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_TRI2");
+
 		// Vertex indices are multiplied by 10 for GBI0, by 2 for GBI1
 		u32 v0_idx = command.gbi1tri2.v0 >> 1;
 		u32 v1_idx = command.gbi1tri2.v1 >> 1;
@@ -896,13 +824,6 @@ void DLParser_GBI1_Tri2( MicroCodeCommand command )
 		command.inst.cmd0= *pCmdBase++;
 		command.inst.cmd1= *pCmdBase++;
 		pc += 8;
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		if ( command.inst.cmd == G_GBI1_TRI2 )
-		{
-	//		DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
-		}
-#endif
     }while( command.inst.cmd == G_GBI1_TRI2 );
 
 	gDlistStack[gDlistStackPointer].pc = pc-8;
@@ -918,12 +839,6 @@ void DLParser_GBI1_Tri2( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_Line3D( MicroCodeCommand command )
 {
-    // While the next command pair is Tri1, add vertices
-	u32 pc = gDlistStack[gDlistStackPointer].pc;
-    u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
-
-    bool tris_added = false;
-
 	if( command.gbi1line3d.v3 == 0 )
 	{
 		// This removes the tris that cover the screen in Flying Dragon
@@ -932,7 +847,15 @@ void DLParser_GBI1_Line3D( MicroCodeCommand command )
 		return;
 	}
 
+    // While the next command pair is Tri1, add vertices
+	u32 pc = gDlistStack[gDlistStackPointer].pc;
+    u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
+
+    bool tris_added = false;
+
 	do{
+        DL_PF("   0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_LINE3D");
+
 		u32 v0_idx   = command.gbi1line3d.v0 / gVertexStride;
 		u32 v1_idx   = command.gbi1line3d.v1 / gVertexStride;
 		u32 v2_idx   = command.gbi1line3d.v2 / gVertexStride;
@@ -944,13 +867,6 @@ void DLParser_GBI1_Line3D( MicroCodeCommand command )
 		command.inst.cmd0 = *pCmdBase++;
 		command.inst.cmd1 = *pCmdBase++;
 		pc += 8;
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		if ( command.inst.cmd == G_GBI1_LINE3D )
-		{
-//			DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
-		}
-#endif
 	}while( command.inst.cmd == G_GBI1_LINE3D );
 
 	gDlistStack[gDlistStackPointer].pc = pc-8;
@@ -974,8 +890,9 @@ void DLParser_GBI1_Tri1( MicroCodeCommand command )
     bool tris_added = false;
 
     do{
-        //u32 flags = (command.inst.cmd1>>24)&0xFF;
-        // Vertex indices are multiplied by 10 for Mario64, by 2 for MarioKart
+        DL_PF("   0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_TRI1");
+
+		// Vertex indices are multiplied by 10 for Mario64, by 2 for MarioKart
         u32 v0_idx = command.gbi1tri1.v0 / gVertexStride;
         u32 v1_idx = command.gbi1tri1.v1 / gVertexStride;
         u32 v2_idx = command.gbi1tri1.v2 / gVertexStride;
@@ -985,13 +902,6 @@ void DLParser_GBI1_Tri1( MicroCodeCommand command )
         command.inst.cmd0= *pCmdBase++;
         command.inst.cmd1= *pCmdBase++;
         pc += 8;
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-        if ( command.inst.cmd == G_GBI1_TRI1 )
-        {
-//				DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
-        }
-#endif
     }while( command.inst.cmd == G_GBI1_TRI1 );
 
 	gDlistStack[gDlistStackPointer].pc = pc-8;
@@ -1007,17 +917,14 @@ void DLParser_GBI1_Tri1( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI0_Tri4( MicroCodeCommand command )
 {
-	//DAEDALUS_ERROR("GBI0_Tri4 ");
     // While the next command pair is Tri2, add vertices
 	u32 pc = gDlistStack[gDlistStackPointer].pc;
 
     bool tris_added = false;
 
     do{
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-        u32 flags = (command.inst.cmd0 >> 16) & 0xFF;
-		DL_PF("    GBI0 Tri4: 0x%08x 0x%08x Flag: 0x%02x", command.inst.cmd0, command.inst.cmd1, flags);
-#endif
+		DL_PF("   0x%08x: %08x %08x Flag: 0x%02x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, (command.inst.cmd0 >> 16) & 0xFF, "G_GBI1_TRI4");
+
 		//Tri #1
 		u32 v0 = command.tri4.v0;
 		u32 v1 = command.tri4.v1;
@@ -1049,13 +956,6 @@ void DLParser_GBI0_Tri4( MicroCodeCommand command )
 		command.inst.cmd0			= *(u32 *)(g_pu8RamBase + pc+0);
 		command.inst.cmd1			= *(u32 *)(g_pu8RamBase + pc+4);
 		pc += 8;
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-        if ( command.inst.cmd == G_GBI1_TRI2 )
-        {
-//			DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
-        }
-#endif
     }while( command.inst.cmd == G_GBI1_TRI2 );
 
 	gDlistStack[gDlistStackPointer].pc = pc-8;

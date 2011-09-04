@@ -72,11 +72,12 @@ struct FiddledVtxPD
 	s16 y;
 	s16	x;
 
-	u16	cidx;
+	u8	cidx;
+	u8	pad;
 	s16 z;
 
-	s16 t;
-	s16 s;
+	s16 tv;
+	s16 tu;
 };
 
 struct FiddledVtx
@@ -166,9 +167,19 @@ public:
 	void				Reset();
 
 	// Verious rendering states
+	enum ETnLModeFlags
+	{
+		TNL_LIGHT		= 1 << 0,
+		TNL_TEXTURE		= 1 << 1,
+		TNL_TEXGEN		= 1 << 2,
+		TNL_TEXGENLIN	= 1 << 3,
+		TNL_FOG			= 1 << 4,
+	};
+
 	inline void			SetTextureEnable(bool enable)			{ if( enable ) mTnLModeFlags |= TNL_TEXTURE; else mTnLModeFlags &= ~TNL_TEXTURE; }
 	inline void			SetLighting(bool enable)				{ if( enable ) mTnLModeFlags |= TNL_LIGHT;	 else mTnLModeFlags &= ~TNL_LIGHT; }
 	inline void			SetTextureGen(bool enable)				{ if( enable ) mTnLModeFlags |= TNL_TEXGEN;  else mTnLModeFlags &= ~TNL_TEXGEN; }
+	inline void			SetTextureGenLin(bool enable)			{ if( enable ) mTnLModeFlags |= TNL_TEXGENLIN;  else mTnLModeFlags &= ~TNL_TEXGENLIN; }
 
 	// PrimDepth will replace the z value if depth_source=1 (z range 32767-0 while PSP depthbuffer range 0-65535)//Corn
 	inline void			SetPrimitiveDepth( u32 z )				{ mPrimDepth = (f32)( ( ( 32767 - z ) << 1) + 1 ); }
@@ -339,14 +350,6 @@ private:
 
 	v3					mVpScale;
 	v3					mVpTrans;
-
-	enum ETnLModeFlags
-	{
-		TNL_TEXTURE		= 1 << 0,
-		TNL_TEXGEN		= 1 << 1,
-		TNL_FOG			= 1 << 2,
-		TNL_LIGHT		= 1 << 3,
-	};
 
 	u64					mMux;
 
