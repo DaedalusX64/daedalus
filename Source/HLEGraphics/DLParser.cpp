@@ -1673,7 +1673,6 @@ enum CycleType
 	CYCLE_COPY,
 	CYCLE_FILL,
 };
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -1709,35 +1708,37 @@ void DLParser_TexRect( MicroCodeCommand command )
 	//
 	SCISSOR_RECT( x0, y0, x1, y1 );
 
-	//Not using floats here breaks GE 007 intro
+	// Not using floats here breaks GE 007 intro
+	// Diving with integer is cheaper for xy1/xy0
+	//
 	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
-	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
-	v2 xy1;
+	v2 xy0( tex_rect.x0 / 4, tex_rect.y0 / 4 );
+	v2 xy1( tex_rect.x1 / 4, tex_rect.y1 / 4 );
 	v2 uv0( tex_rect.s / 32.0f, tex_rect.t / 32.0f );
 	v2 uv1;
 
+	u32 cycle = gRDPOtherMode.cycle_type;
 	//
 	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
 	//
-	switch ( gRDPOtherMode.cycle_type )
+	if (cycle == CYCLE_COPY)
 	{
-		case CYCLE_COPY:
-			d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
-		case CYCLE_FILL:
-			xy1.x = (tex_rect.x1 + 4) * 0.25f;
-			xy1.y = (tex_rect.y1 + 4) * 0.25f;
-			break;
-		default:
-			xy1.x = tex_rect.x1 * 0.25f;
-			xy1.y = tex_rect.y1 * 0.25f;
-			break;
+		d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
+		xy1.x++;
+		xy1.y++;
+	}
+	else if (cycle == CYCLE_FILL)
+	{
+		xy1.x++;
+		xy1.y++;
 	}
 
 	uv1.x = uv0.x + d.x * ( xy1.x - xy0.x );
 	uv1.y = uv0.y + d.y * ( xy1.y - xy0.y );
 
-	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile:%d", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
-	DL_PF("    Tex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", uv0.x, uv0.y, uv1.x, uv1.y, d.x, d.y);
+	DL_PF("    Tile:%d Screen(%f,%f) -> (%f,%f)",				   tex_rect.tile_idx, xy0.x, xy0.y, xy1.x, xy1.y);
+	DL_PF("           Tex:(%#5f,%#5f) -> (%#5f,%#5f) (DSDX:%#5f DTDY:%#5f)",          uv0.x, uv0.y, uv1.x, uv1.y, d.x, d.y);
+	//DL_PF(" ");
 
 	PSPRenderer::Get()->TexRect( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );
 }
@@ -1762,34 +1763,35 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	tex_rect.cmd2 = command2.inst.cmd1;
 	tex_rect.cmd3 = command3.inst.cmd1;
 
+	// Diving with integer is cheaper for xy1/xy0
+	//
 	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
-	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
-	v2 xy1;
+	v2 xy0( tex_rect.x0 / 4, tex_rect.y0 / 4 );
+	v2 xy1( tex_rect.x1 / 4, tex_rect.y1 / 4 );
 	v2 uv0( tex_rect.s / 32.0f, tex_rect.t / 32.0f );
 	v2 uv1;
 
+	u32 cycle = gRDPOtherMode.cycle_type;
 	//
 	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
 	//
-	switch ( gRDPOtherMode.cycle_type )
+	if (cycle == CYCLE_COPY)
 	{
-		case CYCLE_COPY:
-			d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
-		case CYCLE_FILL:
-			xy1.x = (tex_rect.x1 + 4) * 0.25f;
-			xy1.y = (tex_rect.y1 + 4) * 0.25f;
-			break;
-		default:
-			xy1.x = tex_rect.x1 * 0.25f;
-			xy1.y = tex_rect.y1 * 0.25f;
-			break;
+		d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
+		xy1.x++;
+		xy1.y++;
+	}
+	else if (cycle == CYCLE_FILL)
+	{
+		xy1.x++;
+		xy1.y++;
 	}
 
 	uv1.x = uv0.x + d.x * ( xy1.y - xy0.y );		// Flip - use y
 	uv1.y = uv0.y + d.y * ( xy1.x - xy0.x );		// Flip - use x
 
-	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile:%d ", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
-	DL_PF("    FLIPTex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", uv0.x, uv0.y, uv1.x, uv1.y, d.x, d.y);
+	DL_PF("    Tile:%d Screen(%f,%f) -> (%f,%f)",				   tex_rect.tile_idx, xy0.x, xy0.y, xy1.x, xy1.y);
+	DL_PF("        FLIPTex:(%#5f,%#5f) -> (%#5f,%#5f) (DSDX:%#5f DTDY:%#5f)",          uv0.x, uv0.y, uv1.x, uv1.y, d.x, d.y);
 	//DL_PF(" ");
 	
 	PSPRenderer::Get()->TexRectFlip( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );

@@ -287,7 +287,8 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 
 	DL_PF(" No vertices were visible, culling rest of display list");
 
-	DLParser_PopDL();
+	//DLParser_PopDL();
+	gDlistStackPointer--;
 }
 
 //*****************************************************************************
@@ -348,7 +349,8 @@ void DLParser_GBI2_DL( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_EndDL( MicroCodeCommand command )
 {
-	DLParser_PopDL();
+	//DLParser_PopDL();
+	gDlistStackPointer--;
 }
 
 //*****************************************************************************
@@ -396,11 +398,10 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 	{					
 		u32 pc = gDlistStack[gDlistStackPointer].pc;
 		u32 dl = *(u32 *)(g_pu8RamBase + pc-12);
-		u32 address = RDPSegAddr(dl);
 
 		DL_PF("   Jump -> DisplayList 0x%08x", address);
 
-		gDlistStack[gDlistStackPointer].pc = address;
+		gDlistStack[gDlistStackPointer].pc = RDPSegAddr(dl);
 		gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
 	}
 }
