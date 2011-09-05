@@ -543,7 +543,7 @@ void DLParser_TexRect_Last_Legion( MicroCodeCommand command )
 	tex_rect.cmd3 = command2.inst.cmd1;
 
 	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
-	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
+	v2 xy0( tex_rect.x0, tex_rect.y0 );
 	v2 xy1;
 	v2 uv0( tex_rect.s / 32.0f, tex_rect.t / 32.0f );
 	v2 uv1;
@@ -556,12 +556,12 @@ void DLParser_TexRect_Last_Legion( MicroCodeCommand command )
 		case CYCLE_COPY:
 			d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
 		case CYCLE_FILL:
-			xy1.x = (tex_rect.x1 + 4) * 0.25f;
-			xy1.y = (tex_rect.y1 + 4) * 0.25f;
+			xy1.x = tex_rect.x1 + 1;
+			xy1.y = tex_rect.y1 + 1;
 			break;
 		default:
-			xy1.x = tex_rect.x1 * 0.25f;
-			xy1.y = tex_rect.y1 * 0.25f;
+			xy1.x = tex_rect.x1;
+			xy1.y = tex_rect.y1;
 			break;
 	}
 
