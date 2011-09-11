@@ -196,7 +196,7 @@ public:
 	inline void			SetSmooth( bool bSmooth )				{ mSmooth = bSmooth; }
 	inline void			SetSmoothShade( bool bSmoothShade )		{ mSmoothShade = bSmoothShade; }
 	inline void			SetAlphaRef(u32 dwAlpha)				{ mAlphaThreshold = dwAlpha; }
-	inline void			SetCullMode(bool bCullFront, bool bCullBack)	{ m_bCull = bCullFront | bCullBack; if( bCullBack ) m_bCull_mode = GU_CCW; else m_bCull_mode = GU_CW; }
+	inline void			SetCullMode(bool bFront, bool bBack)	{ m_bCull = bFront | bBack; if( bBack ) m_bCull_mode = GU_CCW; else m_bCull_mode = GU_CW; }
 
 	// Texture stuff
 	inline void			SetTextureScale(float fScaleX, float fScaleY)	{ mTnLParams.TextureScaleX = fScaleX; mTnLParams.TextureScaleY = fScaleY; }
@@ -236,8 +236,8 @@ public:
 	// Vertex stuff	
 	void				SetNewVertexInfo(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!	
 	void				SetNewVertexInfoConker(u32 address, u32 v0, u32 n);	// For conker..	
-	void				SetNewVertexInfoDKR(u32 dwAddress, u32 dwV0, u32 dwNum);	// Assumes dwAddress has already been checked!	
-	void				SetNewVertexInfoPD(u32 dwAddress, u32 dwV0, u32 dwNum);	// Assumes dwAddress has already been checked!	
+	void				SetNewVertexInfoDKR(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!	
+	void				SetNewVertexInfoPD(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!	
 	void				ModifyVertexInfo(u32 whered, u32 vert, u32 val);
 	void				SetVtxColor( u32 vert, c32 color );
 	inline void			SetVtxTextureCoord( u32 vert, short tu, short tv ) {mVtxProjected[vert].Texture.x = (f32)tu * (1.0f / 32.0f); mVtxProjected[vert].Texture.y = (f32)tv * (1.0f / 32.0f);}
@@ -316,10 +316,9 @@ private:
 // Old code, kept for reference
 #ifdef DAEDALUS_IS_LEGACY
 	void 				TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world );
-#endif
-
 	template< bool FogEnable, int TextureMode >
 	void ProcessVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world );
+#endif
 
 	void				PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_vertices ) const;
 	void				PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num_vertices ) const;

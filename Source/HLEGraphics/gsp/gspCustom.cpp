@@ -386,13 +386,14 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 			//// Generate texture coordinates
 			s16 s0( s16(pData[1] >> 16) );
 			s16 t0( s16(pData[1] & 0xFFFF) );
+			PSPRenderer::Get()->SetVtxTextureCoord( v0_idx, s0, t0 );
+
 			s16 s1( s16(pData[2] >> 16) );
 			s16 t1( s16(pData[2] & 0xFFFF) );
+			PSPRenderer::Get()->SetVtxTextureCoord( v1_idx, s1, t1 );
+
 			s16 s2( s16(pData[3] >> 16) );
 			s16 t2( s16(pData[3] & 0xFFFF) );
-
-			PSPRenderer::Get()->SetVtxTextureCoord( v0_idx, s0, t0 );
-			PSPRenderer::Get()->SetVtxTextureCoord( v1_idx, s1, t1 );
 			PSPRenderer::Get()->SetVtxTextureCoord( v2_idx, s2, t2 );
 		}
 
@@ -719,39 +720,126 @@ void RSP_MoveMem_Conker( MicroCodeCommand command )
 	u32 type = command.inst.cmd0 & 0xFE;
 	u32 address = RDPSegAddr(command.inst.cmd1);
 
-	if( type == G_GBI2_MV_MATRIX )
+	switch ( type )
 	{
-		gConkerVtxZAddr = address;
-	}
-	else if( type == G_GBI2_MV_LIGHT )
-	{
-		u32 offset2 = (command.inst.cmd0 >> 5) & 0x3FFF;
-		u32 light = 0xFF;
-
-		if( offset2 >= 0x30 )
+	case G_GBI2_MV_MATRIX:	//Get address to Light Normals
 		{
-			light = (offset2 - 0x30)/0x30;
-			DL_PF("    Light %d:", light);
-
-			RDP_MoveMemLight(light, address);
+			gConkerVtxZAddr = address;
 		}
-		else
+		break;
+	case G_GBI2_MV_LIGHT:
 		{
-			// fix me
-			//DBGConsole_Msg(0, "Check me in DLParser_MoveMem_Conker - MoveMem Light");
+			u32 offset2 = (command.inst.cmd0 >> 5) & 0x3FFF;
+
+			if( offset2 >= 0x30 )
+			{
+				u32 light = (offset2 - 0x30)/0x30;
+				DL_PF("    Light %d:", light);
+				RDP_MoveMemLight(light, address);
+			}
+			else
+			{
+				// fix me
+				//DBGConsole_Msg(0, "Check me in DLParser_MoveMem_Conker - MoveMem Light");
+			}
 		}
-	}
-	else
-	{
+		break;
+	default:
 		DLParser_GBI2_MoveMem( command );
+		break;
 	}
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
+f32 gCoord_Mod[16];
+
 void RSP_MoveWord_Conker( MicroCodeCommand command )
 {
+#if 1
+	switch (command.mw2.type)
+	{
+	case G_MW_NUMLIGHT:
+		{
+			u32 num_lights = command.inst.cmd1 / 48;
+			DL_PF("     G_MW_NUMLIGHT: %d", num_lights);
+
+			gAmbientLightIdx = num_lights;
+			PSPRenderer::Get()->SetNumLights(num_lights);
+		}
+		break;
+		
+	case G_MW_SEGMENT:
+		{
+			u32 segment = command.mw2.offset >> 2;
+			u32 address	= command.mw2.value;
+
+			DL_PF( "      G_MW_SEGMENT Segment[%d] = 0x%08x", segment, address );
+
+			gSegments[segment] = address;
+		}
+		break;
+		
+	/*
+	case G_MW_CLIP:
+		//if (offset == 0x04)
+		//{
+		//	rdp.clip_ratio = sqrt((float)rdp.cmd1);
+		//	rdp.update |= UPDATE_VIEWPORT;
+		//}
+		DL_PF("     G_MoveWord_Conker: CLIP");
+		break;
+		
+	case G_MW_FOG:
+		//rdp.fog_multiplier = (short)(rdp.cmd1 >> 16);
+		//rdp.fog_offset = (short)(rdp.cmd1 & 0x0000FFFF);
+		DL_PF("     G_MoveWord_Conker: Fog");
+		break;
+		
+	case G_MW_POINTS:
+		DL_PF("     G_MoveWord_Conker: forcemtx");
+		break;
+		
+	case G_MW_PERSPNORM:
+		DL_PF("     G_MoveWord_Conker: perspnorm");
+		break;
+		*/
+	case 0x10:  // moveword coord mod
+		{
+			DL_PF("     G_MoveWord_Conker: coord mod");
+
+			if ( command.inst.cmd0 & 8 ) return;
+
+			u32 idx = (command.inst.cmd0 >> 1) & 3;
+			u32 pos = command.inst.cmd0 & 0x30;
+
+			if (pos == 0)
+			{
+				gCoord_Mod[0+idx] = (s16)(command.inst.cmd1 >> 16);
+				gCoord_Mod[1+idx] = (s16)(command.inst.cmd1 & 0xFFFF);
+			}
+			else if (pos == 0x10)
+			{
+				gCoord_Mod[4+idx] = (command.inst.cmd1 >> 16) / 65536.0f;
+				gCoord_Mod[5+idx] = (command.inst.cmd1 & 0xFFFF) / 65536.0f;
+				gCoord_Mod[12+idx] = gCoord_Mod[0+idx] + gCoord_Mod[4+idx];
+				gCoord_Mod[13+idx] = gCoord_Mod[1+idx] + gCoord_Mod[5+idx];
+				
+			}
+			else if (pos == 0x20)
+			{
+				gCoord_Mod[8+idx] = (s16)(command.inst.cmd1 >> 16);
+				gCoord_Mod[9+idx] = (s16)(command.inst.cmd1 & 0xFFFF);
+			}
+		}
+		break;
+		
+	default:
+		DL_PF("     G_MoveWord_Conker: Unknown");
+  }
+
+#else
 	u32 type = (command.inst.cmd0 >> 16) & 0xFF;
 
 	if( type != G_MW_NUMLIGHT )
@@ -766,6 +854,7 @@ void RSP_MoveWord_Conker( MicroCodeCommand command )
 		gAmbientLightIdx = num_lights + 1;
 		PSPRenderer::Get()->SetNumLights(num_lights);
 	}
+#endif
 }
 
 //*****************************************************************************

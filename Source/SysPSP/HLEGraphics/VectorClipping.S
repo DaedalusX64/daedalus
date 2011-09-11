@@ -90,10 +90,11 @@ a_is_inside:
 	vsub.q		R102, R202, R302			//
 	vsub.q		R103, R203, R303			//
 
-	vscl.q		R100, R100, S001			// (a-b)*x
-	vscl.q		R101, R101, S001			//
-	vscl.q		R102, R102, S001			//
-	vscl.q		R103, R103, S001			//
+	vmscl.q		M100, M100, S001			// (a-b)*x
+	//vscl.q		R100, R100, S001			// (a-b)*x
+	//vscl.q		R101, R101, S001			//
+	//vscl.q		R102, R102, S001			//
+	//vscl.q		R103, R103, S001			//
 
 	vadd.q		R100, R300, R100			// b + (a-b)*x
 	vadd.q		R101, R301, R101			//
@@ -134,10 +135,11 @@ a_is_outside:
 	vsub.q		R102, R202, R302			//
 	vsub.q		R103, R203, R303			//
 
-	vscl.q		R100, R100, S001			// (a-b)*x
-	vscl.q		R101, R101, S001			//
-	vscl.q		R102, R102, S001			//
-	vscl.q		R103, R103, S001			//
+	vmscl.q		M100, M100, S001			// (a-b)*x
+	//vscl.q		R100, R100, S001			// (a-b)*x
+	//vscl.q		R101, R101, S001			//
+	//vscl.q		R102, R102, S001			//
+	//vscl.q		R103, R103, S001			//
 
 	vadd.q		R100, R300, R100			// b + (a-b)*x
 	vadd.q		R101, R301, R101			//
