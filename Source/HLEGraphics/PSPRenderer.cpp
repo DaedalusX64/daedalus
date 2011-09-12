@@ -2102,7 +2102,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 extern u32 gConkerVtxZAddr;
 
-#if 1	//1->VFPU, 0->FPU
+#if 1	//1->VFPU, 0->FPU	//Corn
 void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
@@ -2146,7 +2146,7 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 
 #else
 //FPU/CPU version //Corn
-extern f32 gCoord_Mod[16];
+//extern f32 gCoord_Mod[16];
 
 void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
@@ -2269,10 +2269,10 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 
 	const Matrix4x4 & matWorldProject( gDKRMatrixes[gDKRCMatrixIndex] );
 
-	//ToDo: avoid setting the matrix here all the time //Corn
-	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject) );
+	bool addbase = gDKRBillBoard & (gDKRCMatrixIndex == 2);
 
-	bool addbase = !((!gDKRBillBoard) | (gDKRCMatrixIndex != 2));
+	//ToDo: avoid setting the matrix here all the time //Corn
+	if( !addbase ) sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject) );
 
 	if( addbase & (gDKRVtxCount == 0) & (n > 1) ) gDKRVtxCount++;
 
@@ -2285,15 +2285,12 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 	for (u32 i = v0; i < v0 + n; i++)
 	{
 		v4 & transformed( mVtxProjected[i].TransformedPos );
-		transformed.x = (f32)*(s16*)((pVtxBase + nOff + 0) ^ 2);
-		transformed.y = (f32)*(s16*)((pVtxBase + nOff + 2) ^ 2);
-		transformed.z = (f32)*(s16*)((pVtxBase + nOff + 4) ^ 2);
+		transformed.x = *(s16*)((pVtxBase + nOff + 0) ^ 2);
+		transformed.y = *(s16*)((pVtxBase + nOff + 2) ^ 2);
+		transformed.z = *(s16*)((pVtxBase + nOff + 4) ^ 2);
 		transformed.w = 1.0f;
 
 		v4 & projected( mVtxProjected[i].ProjectedPos );
-		projected = matWorldProject.Transform( transformed );	// Convert to w=1
-
-		mVtxProjected[i].iW = 1.0f / projected.w;	//Used for tris front/back culling //Corn
 
 		static v4 gDKRBaseVec;
 		if( (gDKRVtxCount == 0) & (n == 1) )
@@ -2307,56 +2304,36 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 			transformed.z += gDKRBaseVec.z;
 			transformed.w  = gDKRBaseVec.w;
 		}
+		else
+		{
+			projected = matWorldProject.Transform( transformed );	//Do projection
+			mVtxProjected[i].iW = 1.0f / projected.w;	//Used for tris front/back culling //Corn
+		}
 
 		gDKRVtxCount++;
 
-		// Set Clipflags //Corn
+		// Set Clipflags, zero clippflags if billbording //Corn
 		u32 clip_flags = 0;
-		if		(-projected.x > projected.w)	clip_flags |= X_POS;
-		else if (+projected.x > projected.w)	clip_flags |= X_NEG;
+		if( !addbase )
+		{
+			if		(-projected.x > projected.w)	clip_flags |= X_POS;
+			else if (+projected.x > projected.w)	clip_flags |= X_NEG;
 
-		if		(-projected.y > projected.w)	clip_flags |= Y_POS;
-		else if (+projected.y > projected.w)	clip_flags |= Y_NEG;
+			if		(-projected.y > projected.w)	clip_flags |= Y_POS;
+			else if (+projected.y > projected.w)	clip_flags |= Y_NEG;
 
-		if		(-projected.z > projected.w)	clip_flags |= Z_POS;
-		else if (+projected.z > projected.w)	clip_flags |= Z_NEG;
+			if		(-projected.z > projected.w)	clip_flags |= Z_POS;
+			else if (+projected.z > projected.w)	clip_flags |= Z_NEG;
+		}
 		mVtxProjected[i].ClipFlags = clip_flags;
 
-		v4 colour;
+		// Assign true vert colour
+		f32 r = *(u8*)((pVtxBase + nOff + 6) ^ 3);
+		f32 g = *(u8*)((pVtxBase + nOff + 7) ^ 3);
+		f32 b = *(u8*)((pVtxBase + nOff + 8) ^ 3);
+		f32 a = *(u8*)((pVtxBase + nOff + 9) ^ 3);
 
-		if (mTnLModeFlags & TNL_LIGHT)
-		{
-			s16 wA = *(s16*)((pVtxBase + nOff + 6) ^ 2);
-			s16 wB = *(s16*)((pVtxBase + nOff + 8) ^ 2);
-
-			s8 r = (s8)(wA >> 8);
-			s8 g = (s8)(wA);
-			s8 b = (s8)(wB >> 8);
-			u8 a = (u8)(wB);
-
-			v3 mn = v3( (f32)r, (f32)g, (f32)b );		// modelnorm
-
-			v3 vecTransformedNormal = matWorldProject.TransformNormal( mn );
-			vecTransformedNormal.Normalise();
-
-			colour = LightVert(vecTransformedNormal);
-			colour.w = (f32)a * (1.0f / 255.0f);
-		}
-		else
-		{
-			u16 wA = *(u16*)((pVtxBase + nOff + 6) ^ 2);
-			u16 wB = *(u16*)((pVtxBase + nOff + 8) ^ 2);
-
-			u8 r = (u8)(wA >> 8);
-			u8 g = (u8)(wA);
-			u8 b = (u8)(wB >> 8);
-			u8 a = (u8)(wB);
-
-			colour = v4( (f32)r * (1.0f / 255.0f), (f32)g * (1.0f / 255.0f), (f32)b * (1.0f / 255.0f), (f32)a * (1.0f / 255.0f) );
-		}
-
-		// Assign true vert colour after lighting/fogging
-		mVtxProjected[i].Colour = colour;
+		mVtxProjected[i].Colour = v4( r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f) );
 
 		// No texture scaling? (These dont seem to do any good anyway) //Corn
 		//mVtxProjected[i].Texture.x = mVtxProjected[i].Texture.y = 1.0f;

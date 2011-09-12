@@ -753,7 +753,7 @@ void RSP_MoveMem_Conker( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-f32 gCoord_Mod[16];
+//f32 gCoord_Mod[16];
 
 void RSP_MoveWord_Conker( MicroCodeCommand command )
 {
@@ -804,7 +804,7 @@ void RSP_MoveWord_Conker( MicroCodeCommand command )
 	case G_MW_PERSPNORM:
 		DL_PF("     G_MoveWord_Conker: perspnorm");
 		break;
-		*/
+		
 	case 0x10:  // moveword coord mod
 		{
 			DL_PF("     G_MoveWord_Conker: coord mod");
@@ -834,7 +834,7 @@ void RSP_MoveWord_Conker( MicroCodeCommand command )
 			}
 		}
 		break;
-		
+		*/
 	default:
 		DL_PF("     G_MoveWord_Conker: Unknown");
   }
