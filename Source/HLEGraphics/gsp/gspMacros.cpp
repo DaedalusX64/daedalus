@@ -605,7 +605,7 @@ void DLParser_GBI1_Texture( MicroCodeCommand command )
 	// Force enable texture in DKR Ucode, fixes static texture bug etc
     bool enable = command.texture.enable_gbi0 || (current.ucode == GBI_DKR);
 	
-	DL_PF("    Level: %d Tile: %d %s", gTextureLevel, gTextureTile, (enable | IsDKR) ? "enabled":"disabled");
+	DL_PF("    Level: %d Tile: %d %s", gTextureLevel, gTextureTile, enable? "enabled":"disabled");
 	PSPRenderer::Get()->SetTextureEnable( enable );
 
 	if( !enable )	return;

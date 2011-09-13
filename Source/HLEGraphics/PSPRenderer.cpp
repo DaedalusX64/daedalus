@@ -2271,51 +2271,46 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 
 	bool addbase = gDKRBillBoard & (gDKRCMatrixIndex == 2);
 
-	//ToDo: avoid setting the matrix here all the time //Corn
-	if( !addbase ) sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject) );
-
-	if( addbase & (gDKRVtxCount == 0) & (n > 1) ) gDKRVtxCount++;
-
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnLParams.Ambient.x, mTnLParams.Ambient.y, mTnLParams.Ambient.z, mTnLParams.TextureScaleX, mTnLParams.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnLModeFlags&TNL_LIGHT)? "On":"Off", (mTnLModeFlags&TNL_TEXTURE)? "On":"Off", (mTnLModeFlags&TNL_TEXGEN)? (mTnLModeFlags&TNL_TEXGENLIN)? "Linear":"Spherical":"Off", (mTnLModeFlags&TNL_FOG)? "On":"Off");
 	DL_PF( "    CMtx[%d] Add base[%s]", gDKRCMatrixIndex, addbase? "On":"Off");
 
-	u32 nOff = 0;
-
-	for (u32 i = v0; i < v0 + n; i++)
-	{
-		v4 & transformed( mVtxProjected[i].TransformedPos );
-		transformed.x = *(s16*)((pVtxBase + nOff + 0) ^ 2);
-		transformed.y = *(s16*)((pVtxBase + nOff + 2) ^ 2);
-		transformed.z = *(s16*)((pVtxBase + nOff + 4) ^ 2);
-		transformed.w = 1.0f;
-
-		v4 & projected( mVtxProjected[i].ProjectedPos );
-
-		static v4 gDKRBaseVec;
-		if( (gDKRVtxCount == 0) & (n == 1) )
-		{
-			gDKRBaseVec = transformed;
-		}
-		else if( addbase )
-		{
-			transformed.x += gDKRBaseVec.x;
-			transformed.y += gDKRBaseVec.y;
-			transformed.z += gDKRBaseVec.z;
-			transformed.w  = gDKRBaseVec.w;
-		}
-		else
-		{
-			projected = matWorldProject.Transform( transformed );	//Do projection
-			mVtxProjected[i].iW = 1.0f / projected.w;	//Used for tris front/back culling //Corn
-		}
-
+	static v4 gDKRBaseVec;
+	if( (gDKRVtxCount == 0) && (n == 1) )
+	{	//Copy base vector (used for billbording)
 		gDKRVtxCount++;
 
-		// Set Clipflags, zero clippflags if billbording //Corn
-		u32 clip_flags = 0;
-		if( !addbase )
+		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject) );
+
+		gDKRBaseVec.x = *(s16*)((pVtxBase + 0) ^ 2);
+		gDKRBaseVec.y = *(s16*)((pVtxBase + 2) ^ 2);
+		gDKRBaseVec.z = *(s16*)((pVtxBase + 4) ^ 2);
+		gDKRBaseVec.w = 1.0f;
+
+		return;
+	}
+
+	u32 nOff = 0;
+
+	if( !addbase )
+	{	//Normal path for transform of triangles
+		//ToDo: avoid setting the matrix here all the time //Corn
+		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject) );
+
+		for (u32 i = v0; i < v0 + n; i++)
 		{
+			v4 & transformed( mVtxProjected[i].TransformedPos );
+			transformed.x = *(s16*)((pVtxBase + nOff + 0) ^ 2);
+			transformed.y = *(s16*)((pVtxBase + nOff + 2) ^ 2);
+			transformed.z = *(s16*)((pVtxBase + nOff + 4) ^ 2);
+			transformed.w = 1.0f;
+
+			v4 & projected( mVtxProjected[i].ProjectedPos );
+			projected = matWorldProject.Transform( transformed );	//Do projection
+			mVtxProjected[i].iW = 1.0f / projected.w;	//Used for tris front/back culling //Corn
+
+			// Set Clipflags
+			u32 clip_flags = 0;
 			if		(-projected.x > projected.w)	clip_flags |= X_POS;
 			else if (+projected.x > projected.w)	clip_flags |= X_NEG;
 
@@ -2324,21 +2319,50 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 
 			if		(-projected.z > projected.w)	clip_flags |= Z_POS;
 			else if (+projected.z > projected.w)	clip_flags |= Z_NEG;
+			mVtxProjected[i].ClipFlags = clip_flags;
+
+			// Assign true vert colour
+			f32 r = *(u8*)((pVtxBase + nOff + 6) ^ 3);
+			f32 g = *(u8*)((pVtxBase + nOff + 7) ^ 3);
+			f32 b = *(u8*)((pVtxBase + nOff + 8) ^ 3);
+			f32 a = *(u8*)((pVtxBase + nOff + 9) ^ 3);
+
+			mVtxProjected[i].Colour = v4( r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f) );
+
+			// No texture scaling? (These dont seem to do any good anyway) //Corn
+			//mVtxProjected[i].Texture.x = mVtxProjected[i].Texture.y = 1.0f;
+
+			gDKRVtxCount++;
+			nOff += 10;
 		}
-		mVtxProjected[i].ClipFlags = clip_flags;
+	}
+	else
+	{	//Copy vertices adding base vector and the color data (No transform)
+		for (u32 i = v0; i < v0 + n; i++)
+		{
+			v4 & transformed( mVtxProjected[i].TransformedPos );
+			transformed.x = gDKRBaseVec.x + (f32)*(s16*)((pVtxBase + nOff + 0) ^ 2);
+			transformed.y = gDKRBaseVec.y + (f32)*(s16*)((pVtxBase + nOff + 2) ^ 2);
+			transformed.z = gDKRBaseVec.z + (f32)*(s16*)((pVtxBase + nOff + 4) ^ 2);
+			transformed.w = 1.0f;
 
-		// Assign true vert colour
-		f32 r = *(u8*)((pVtxBase + nOff + 6) ^ 3);
-		f32 g = *(u8*)((pVtxBase + nOff + 7) ^ 3);
-		f32 b = *(u8*)((pVtxBase + nOff + 8) ^ 3);
-		f32 a = *(u8*)((pVtxBase + nOff + 9) ^ 3);
+			// Set Clipflags, zero clippflags if billbording //Corn
+			mVtxProjected[i].ClipFlags = 0;
 
-		mVtxProjected[i].Colour = v4( r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f) );
+			// Assign true vert colour
+			f32 r = *(u8*)((pVtxBase + nOff + 6) ^ 3);
+			f32 g = *(u8*)((pVtxBase + nOff + 7) ^ 3);
+			f32 b = *(u8*)((pVtxBase + nOff + 8) ^ 3);
+			f32 a = *(u8*)((pVtxBase + nOff + 9) ^ 3);
 
-		// No texture scaling? (These dont seem to do any good anyway) //Corn
-		//mVtxProjected[i].Texture.x = mVtxProjected[i].Texture.y = 1.0f;
+			mVtxProjected[i].Colour = v4( r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f) );
 
-		nOff += 10;
+			// No texture scaling? (These dont seem to do any good anyway) //Corn
+			//mVtxProjected[i].Texture.x = mVtxProjected[i].Texture.y = 1.0f;
+
+			gDKRVtxCount++;
+			nOff += 10;
+		}
 	}
 }
 
