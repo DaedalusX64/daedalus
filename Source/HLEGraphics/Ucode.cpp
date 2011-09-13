@@ -364,95 +364,10 @@ const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256] =
 	},
 
 	// uCode 6 - RSP SW 2.0 Diddy
-	// Games: Diddy Kong Racing
+	// Games: Diddy Kong Racing, Gemini, and Mickey
 	{
 		DLParser_GBI1_SpNoop, DLParser_Mtx_DKR, DLParser_GBI1_Reserved, DLParser_GBI1_MoveMem,
 		DLParser_GBI0_Vtx_DKR, DLParser_DMA_Tri_DKR, DLParser_GBI1_DL, DLParser_DLInMem,
-		DLParser_GBI1_Reserved, DLParser_GBI1_Sprite2DBase, DLParser_Nothing, DLParser_Nothing,
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		//10
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		//20
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
-		//30
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		//40
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		//50
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		//60
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
-		//70
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		//80
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
-		//90
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
-		//a0
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		//b0
-		DLParser_Nothing, DLParser_GBI0_Tri4, DLParser_GBI1_RDPHalf_Cont, DLParser_GBI1_RDPHalf_2,
-		DLParser_GBI1_RDPHalf_1, DLParser_GBI1_Line3D, DLParser_GBI1_ClearGeometryMode, DLParser_GBI1_SetGeometryMode,
-		DLParser_GBI1_EndDL, DLParser_GBI1_SetOtherModeL, DLParser_GBI1_SetOtherModeH, DLParser_GBI1_Texture,
-		DLParser_MoveWord_DKR, DLParser_GBI1_PopMtx, DLParser_GBI1_CullDL, /*DLParser_GBI1_Tri1*/ DLParser_Set_Addr_DKR,/*addr6*/
-		//c0
-		DLParser_GBI1_Noop, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
-		DLParser_TriRSP, DLParser_TriRSP, DLParser_TriRSP, DLParser_TriRSP,
-		DLParser_TriRSP, DLParser_TriRSP, DLParser_TriRSP, DLParser_TriRSP,
-		//d0
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
-		//e0
-		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
-		DLParser_TexRect, DLParser_TexRectFlip, DLParser_RDPLoadSync, DLParser_RDPPipeSync,
-		DLParser_RDPTileSync, DLParser_RDPFullSync, DLParser_SetKeyGB, DLParser_SetKeyR,
-		DLParser_SetConvert, DLParser_SetScissor, DLParser_SetPrimDepth, DLParser_RDPSetOtherMode,
-		//f0
-		DLParser_LoadTLut, DLParser_Nothing, DLParser_SetTileSize, DLParser_LoadBlock, 
-		DLParser_LoadTile, DLParser_SetTile, DLParser_FillRect, DLParser_SetFillColor,
-		DLParser_SetFogColor, DLParser_SetBlendColor, DLParser_SetPrimColor, DLParser_SetEnvColor,
-		DLParser_SetCombine, DLParser_SetTImg, DLParser_SetZImg, DLParser_SetCImg
-			//g0
-	},
-
-	// uCode 11 - RSP SW 2.0 Gemini
-	// Games: Gemini and Mickey
-	{
-		DLParser_GBI1_SpNoop, DLParser_Mtx_DKR, DLParser_GBI1_Reserved, DLParser_GBI1_MoveMem,
-		DLParser_GBI0_Vtx_Gemini, DLParser_DMA_Tri_DKR, DLParser_GBI1_DL, DLParser_DLInMem,
 		DLParser_GBI1_Reserved, DLParser_GBI1_Sprite2DBase, DLParser_Nothing, DLParser_Nothing,
 		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, 
 		//10

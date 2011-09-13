@@ -362,8 +362,6 @@ void DLParser_GBI1_EndDL( MicroCodeCommand command )
 //
 void DLParser_GBI2_DL_Count( MicroCodeCommand command )
 {
-	//DAEDALUS_ERROR("DL_COUNT");
-
 	// This cmd is likely to execute number of ucode at the given address
 	u32 address  = RDPSegAddr(command.inst.cmd1);
 	//u32 count	 = command.inst.cmd0 & 0xFFFF;
@@ -604,14 +602,11 @@ void DLParser_GBI1_Texture( MicroCodeCommand command )
     gTextureTile  = command.texture.tile;
 
 	// Seems to use 0x01
-    bool enable = command.texture.enable_gbi0;
-	
-	// Detect if Ucode is DKR/JFG/Mickey
-	// Should we use  g_ROM.GameHacks instead?
-	bool IsDKR  = ((current.ucode == GBI_0_DKR) | (current.ucode == GBI_0_JFG));
+	// Force enable texture in DKR Ucode, fixes static texture bug etc
+    bool enable = command.texture.enable_gbi0 || (current.ucode == GBI_DKR);
 	
 	DL_PF("    Level: %d Tile: %d %s", gTextureLevel, gTextureTile, (enable | IsDKR) ? "enabled":"disabled");
-	PSPRenderer::Get()->SetTextureEnable( IsDKR ? true : enable );	// Force enable texture in DKR Ucode, fixes static texture bug etc
+	PSPRenderer::Get()->SetTextureEnable( enable );
 
 	if( !enable )	return;
 

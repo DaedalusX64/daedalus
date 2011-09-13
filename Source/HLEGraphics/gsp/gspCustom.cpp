@@ -86,44 +86,6 @@ void DLParser_DumpVtxInfoDKR(u32 address, u32 v0_idx, u32 num_verts)
 }
 #endif
 
-//*****************************************************************************
-//
-//*****************************************************************************
-
-void DLParser_GBI0_Vtx_Gemini( MicroCodeCommand command )
-{
-	//u32 address = RDPSegAddr(command.inst.cmd1);
-	u32 address		= command.inst.cmd1 + RDPSegAddr(gDKRVtxAddr);
-	u32 v0_idx		= (command.inst.cmd0 >> 9 ) & 0x1F;
-	u32 num_verts	= (command.inst.cmd0 >> 19) & 0x1F;
-
-
-	DL_PF("    Address 0x%08x, v0: %d, Num: %d", address, v0_idx, num_verts);
-
-	if(v0_idx >= 32)
-		v0_idx = 31;
-
-	if ((v0_idx + num_verts) > 32)
-	{
-		DBGConsole_Msg(0, "Warning, attempting to load into invalid vertex positions");
-		num_verts = 32 - v0_idx;
-	}
-
-	// Check that address is valid...
-	if ((address + (num_verts*16)) > MAX_RAM_ADDRESS)
-	{
-		DBGConsole_Msg(0, "SetNewVertexInfoDKR: Address out of range (0x%08x)", address);
-	}
-	else
-	{
-		PSPRenderer::Get()->SetNewVertexInfoDKR(address, v0_idx, num_verts);
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		gNumVertices += num_verts;
-		DLParser_DumpVtxInfoDKR(address, v0_idx, num_verts);
-#endif
-	}
-}
 
 //*****************************************************************************
 //
@@ -266,21 +228,17 @@ void DLParser_Mtx_DKR( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_MoveWord_DKR( MicroCodeCommand command )
 {
-	u32 num_lights;
-
-	switch ((command.inst.cmd0) & 0xFF)
+	switch( command.inst.cmd0 & 0xFF )
 	{
 	case G_MW_NUMLIGHT:
-		num_lights = command.inst.cmd1 & 0x7;
-		gDKRBillBoard = (command.inst.cmd1 & 0x7) ? true : false;
+		gDKRBillBoard = command.inst.cmd1 & 0x7;
+		DL_PF("    DKR BillBoard: %d", gDKRBillBoard);
 
-		DL_PF("    G_MW_NUMLIGHT: Val:%d", num_lights);
-
-		gAmbientLightIdx = num_lights;
-		PSPRenderer::Get()->SetNumLights(num_lights);
+		// Doesn't seem needed
+		//gAmbientLightIdx = num_lights;
+		//PSPRenderer::Get()->SetNumLights(num_lights);
 		break;
 	case G_MW_LIGHTCOL:
-		//DKR
 		gDKRCMatrixIndex = (command.inst.cmd1 >> 6) & 0x7;
 		//PSPRenderer::Get()->ResetMatrices();
 		break;
@@ -295,9 +253,9 @@ void DLParser_MoveWord_DKR( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_Set_Addr_DKR( MicroCodeCommand command )
 {
-	gDKRMatrixAddr = command.inst.cmd0 & 0x00FFFFFF;
-	gDKRVtxAddr = command.inst.cmd1 & 0x00FFFFFF;
-	gDKRVtxCount=0;
+	gDKRMatrixAddr  = command.inst.cmd0 & 0x00FFFFFF;
+	gDKRVtxAddr		= command.inst.cmd1 & 0x00FFFFFF;
+	gDKRVtxCount	= 0;
 }
 
 //*****************************************************************************
@@ -306,14 +264,13 @@ void DLParser_Set_Addr_DKR( MicroCodeCommand command )
 void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 {
 	//u32 address = RDPSegAddr(command.inst.cmd1);
-	u32 address = command.inst.cmd1 + RDPSegAddr(gDKRVtxAddr);
+	u32 address		= command.inst.cmd1 + RDPSegAddr(gDKRVtxAddr);
+	u32 num_verts   = ((command.inst.cmd0 >> 19) & 0x1F);
 
-	u32 v0_idx =  ((command.inst.cmd0 >> 9) & 0x1F);
-	u32 num_verts  = ((command.inst.cmd0 >> 19) & 0x1F) + 1;
+	// Increase by one num verts for DKR
+	if( g_ROM.GameHacks == DKR )
+		num_verts++;
 
-	DL_PF("    Address 0x%08x, v0: %d, Num: %d", address, v0_idx, num_verts);
-
-	
 	if( command.inst.cmd0 & 0x00010000 )
 	{
 		if( gDKRBillBoard )
@@ -324,34 +281,19 @@ void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 		gDKRVtxCount = 0;
 	}
 
-	v0_idx += gDKRVtxCount;
-	
-	
-	if (v0_idx >= 32)
-		v0_idx = 31;
-	
-	if ((v0_idx + num_verts) > 32)
-	{
-		DL_PF("        Warning, attempting to load into invalid vertex positions");
-		DBGConsole_Msg(0, "DLParser_GBI0_Vtx_DKR: Warning, attempting to load into invalid vertex positions");
-		num_verts = 32 - v0_idx;
-	}
+	u32 v0_idx = ((command.inst.cmd0 >> 9) & 0x1F) + gDKRVtxCount;
 
-	// Check that address is valid...
-	if ((address + (num_verts*16)) > MAX_RAM_ADDRESS)
-	{
-		DBGConsole_Msg(0, "SetNewVertexInfoDKR: Address out of range (0x%08x)", address);
-	}
-	else
-	{
-		PSPRenderer::Get()->SetNewVertexInfoDKR(address, v0_idx, num_verts);
+	DL_PF("    Address 0x%08x, v0: %d, Num: %d", address, v0_idx, num_verts);
+
+	DAEDALUS_ASSERT( v0_idx < 32, "DKR : v0 out of bound! %d" );
+
+	PSPRenderer::Get()->SetNewVertexInfoDKR(address, v0_idx, num_verts);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		gNumVertices += num_verts;
-		DLParser_DumpVtxInfoDKR(address, v0_idx, num_verts);
+	gNumVertices += num_verts;
+	DLParser_DumpVtxInfoDKR(address, v0_idx, num_verts);
 #endif
 
-	}
 }
 
 //*****************************************************************************

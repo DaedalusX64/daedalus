@@ -474,7 +474,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x4643: g_ROM.GameHacks = CLAY_FIGHTER_63;		break;
 	case 0x5a52: g_ROM.GameHacks = RIDGE_RACER;			break;
 	case 0x504A: g_ROM.GameHacks = ISS64;				break;
-	case 0x5257: g_ROM.GameHacks = WAVERACER;			break;
+	case 0x5944: g_ROM.GameHacks = DKR;					break;
 	case 0x3358:	//GEX3
 	case 0x3258:	//GEX64
 		g_ROM.GameHacks = GEX_GECKO;
@@ -496,11 +496,8 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x434E:	// Nightmare Creatures
 		g_ROM.GameHacks = BODY_HARVEST;		
 		break;
-	
-	// No default case needed, NO_GAME_HACK already set default
-	/*default:
-		g_ROM.GameHacks = NO_GAME_HACK;
-		break;**/
+	default:
+		break;
 	}
 }
 

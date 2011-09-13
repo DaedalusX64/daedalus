@@ -39,14 +39,13 @@ enum GBIVersion
 	GBI_0 = 0,
 	GBI_1,
 	GBI_2,
-	GBI_0_WR,
-	GBI_0_DKR,
-	GBI_0_JFG,
-	GBI_0_LL,
-	GBI_0_SE,
-	GBI_0_GE,
-	GBI_0_CK,
-	GBI_0_PD,
+	GBI_WR,
+	GBI_DKR,
+	GBI_LL,
+	GBI_SE,
+	GBI_GE,
+	GBI_CONKER,
+	GBI_PD,
 	S2DEX_GBI_1
 };
 //*****************************************************************************
