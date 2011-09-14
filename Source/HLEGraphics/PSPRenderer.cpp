@@ -247,11 +247,11 @@ PSPRenderer::PSPRenderer()
 ,	mMux( 0 )
 ,	mTnLModeFlags( 0 )
 
-,	m_dwNumLights(0)
-,	m_bZBuffer(false)
+,	mNumLights(0)
+,	mZBuffer(false)
 
-,	m_bCull(true)
-,	m_bCull_mode(GU_CCW)
+,	mCull(false)
+,	mCullMode(GU_CCW)
 
 ,	mAlphaThreshold(0)
 
@@ -626,13 +626,12 @@ void	PSPRenderer::UpdateViewport()
 //*****************************************************************************
 //
 //*****************************************************************************
-	// GE 007 and Megaman can act up on this
-	// We round these value here, so that when we scale up the coords to our screen
-	// coords we don't get any gaps.
-	// Avoid temporary object
-	//
+// GE 007 and Megaman can act up on this
+// We round these value here, so that when we scale up the coords to our screen
+// coords we don't get any gaps.
+//
 #if 1
-v2 PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords ) const
+inline v2 PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords ) const
 {
 	v2 answ;
 	vfpu_N64_2_PSP( &answ.x, &n64_coords.x, &mN64ToPSPScale.x, &mN64ToPSPTranslate.x);
@@ -823,10 +822,8 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 //*****************************************************************************
-//
+// Used for Blend Explorer, or Nasty texture
 //*****************************************************************************
-/// Used for Blend Explorer, or Nasty texture
-//
 bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u32 render_flags, u64 mux )
 {
 	if( mNastyTexture && IsCombinerStateDisabled( mux ) )
@@ -976,7 +973,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		}
 
 		// Enable or Disable ZBuffer test
-		if ( (m_bZBuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd )
+		if ( (mZBuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd )
 		{
 			sceGuEnable(GU_DEPTH_TEST);
 		}
@@ -1015,13 +1012,6 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		{
 			sceGuDisable( GU_BLEND );
 		}
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		else
-		{
-			// If blender state couldn't be handled, default blending is used
-			//printf("Unhandled Blender State 0x%04x\n",blender);
-		}
-#endif
 	}
 
 	if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
@@ -1312,66 +1302,62 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 		return false;
 
 	}
-	else
+
+	//
+	//Cull BACK or FRONT faceing tris early in the pipeline //Corn
+	//
+	if( mCull )
 	{
-		//
-		//Cull BACK or FRONT faceing tris early in the pipeline //Corn
-		//
-		if( m_bCull )
+		const v4 & t0( mVtxProjected[v0].ProjectedPos );
+		const v4 & t1( mVtxProjected[v1].ProjectedPos );
+		const v4 & t2( mVtxProjected[v2].ProjectedPos );
+
+		const f32 & iW0( mVtxProjected[v0].iW );	//Get 1.0f / projW
+		const f32 & iW1( mVtxProjected[v1].iW );
+		const f32 & iW2( mVtxProjected[v2].iW );
+
+		if( (((t1.x*iW1-t0.x*iW0)*(t2.y*iW2-t0.y*iW0) - (t2.x*iW2-t0.x*iW0)*(t1.y*iW1-t0.y*iW0)) * iW0 * iW1 * iW2) <= 0.f )
 		{
-			const v4 & t0( mVtxProjected[v0].ProjectedPos );
-			const v4 & t1( mVtxProjected[v1].ProjectedPos );
-			const v4 & t2( mVtxProjected[v2].ProjectedPos );
-
-			const f32 & iW0( mVtxProjected[v0].iW );	//Get 1.0f / projW
-			const f32 & iW1( mVtxProjected[v1].iW );
-			const f32 & iW2( mVtxProjected[v2].iW );
-
-			if( (((t1.x*iW1-t0.x*iW0)*(t2.y*iW2-t0.y*iW0) - (t2.x*iW2-t0.x*iW0)*(t1.y*iW1-t0.y*iW0)) * iW0 * iW1 * iW2) <= 0.f )
-			{
-				if( m_bCull_mode == GU_CCW )
-				{
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-					DL_PF("   Tri: %d,%d,%d (Culled -> Back Face)", v0, v1, v2);
-					++m_dwNumTrisClipped;
-#endif
-					return false;
-				}
-			}
-			else if( m_bCull_mode == GU_CW )
+			if( mCullMode == GU_CCW )
 			{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-				DL_PF("   Tri: %d,%d,%d (Culled -> Front Face)", v0, v1, v2);
+				DL_PF("   Tri: %d,%d,%d (Culled -> Back Face)", v0, v1, v2);
 				++m_dwNumTrisClipped;
 #endif
 				return false;
 			}
 		}
-
-		// Remove off screen tris
-		//
-		if( bIsOffScreen )	
+		else if( mCullMode == GU_CW )
 		{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-				DL_PF("   Tri: %d,%d,%d (Culled -> Off-Screen)", v0, v1, v2);
-				++m_dwNumTrisClipped;
+			DL_PF("   Tri: %d,%d,%d (Culled -> Front Face)", v0, v1, v2);
+			++m_dwNumTrisClipped;
 #endif
 			return false;
 		}
+	}
+
+	if( bIsOffScreen )	
+	{
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+		DL_PF("   Tri: %d,%d,%d (Culled -> Off-Screen)", v0, v1, v2);
+		++m_dwNumTrisClipped;
+#endif
+		return false;
+	}
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DL_PF("   Tri: %d,%d,%d", v0, v1, v2);
-		++m_dwNumTrisRendered;
+	DL_PF("   Tri: %d,%d,%d", v0, v1, v2);
+	++m_dwNumTrisRendered;
 #endif
 
-		m_swIndexBuffer[ m_dwNumIndices++ ] = (u16)v0;
-		m_swIndexBuffer[ m_dwNumIndices++ ] = (u16)v1;
-		m_swIndexBuffer[ m_dwNumIndices++ ] = (u16)v2;
+	m_swIndexBuffer[ m_dwNumIndices++ ] = (u16)v0;
+	m_swIndexBuffer[ m_dwNumIndices++ ] = (u16)v1;
+	m_swIndexBuffer[ m_dwNumIndices++ ] = (u16)v2;
 
-		mVtxClipFlagsUnion |= f0 | f1 | f2;
+	mVtxClipFlagsUnion |= f0 | f1 | f2;
 
-		return true;
-	}
+	return true;
 }
 
 //*****************************************************************************
@@ -1474,9 +1460,9 @@ void PSPRenderer::FlushTris()
 	//
 	//	Do BACK/FRONT culling in sceGE
 	//	
-	//if( m_bCull )
+	//if( mCull )
 	//{
-	//	sceGuFrontFace(m_bCull_mode);
+	//	sceGuFrontFace(mCullMode);
 	//	sceGuEnable(GU_CULL_FACE);
 	//}
 	//else
@@ -1764,7 +1750,7 @@ inline v4 PSPRenderer::LightVert( const v3 & norm ) const
 	// Do ambient
 	v4	result( mTnLParams.Ambient );
 
-	for ( u32 i = 0; i < m_dwNumLights; i++ )
+	for ( u32 i = 0; i < mNumLights; i++ )
 	{
 		f32 fCosT = norm.Dot( mLights[i].Direction );
 		if (fCosT > 0.0f)
@@ -1838,12 +1824,12 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	case            TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithColour_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
 
 		// TNL_TEXGEN is ignored when TNL_TEXTURE is disabled
-	case TNL_LIGHT                          : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
-	case TNL_LIGHT |             TNL_TEXTURE: _TransformVerticesWithLighting_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
-	case TNL_LIGHT |TNL_TEXGEN              : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
+	case TNL_LIGHT                          : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
+	case TNL_LIGHT |             TNL_TEXTURE: _TransformVerticesWithLighting_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
+	case TNL_LIGHT |TNL_TEXGEN              : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
 	case TNL_LIGHT |TNL_TEXGEN | TNL_TEXTURE:
-		if( mTnLModeFlags & TNL_TEXGENLIN ) _TransformVerticesWithLighting_f0_t3( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights );
-		else _TransformVerticesWithLighting_f0_t2( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights );
+		if( mTnLModeFlags & TNL_TEXGENLIN ) _TransformVerticesWithLighting_f0_t3( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights );
+		else _TransformVerticesWithLighting_f0_t2( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights );
 		break;
 
 #else
@@ -1860,14 +1846,14 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	case  TNL_FOG | TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithColour_f1_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
 
 		// TNL_TEXGEN is ignored when TNL_TEXTURE is disabled
-	case TNL_LIGHT                                     : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
-	case TNL_LIGHT |                        TNL_TEXTURE: _TransformVerticesWithLighting_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
-	case TNL_LIGHT |           TNL_TEXGEN              : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
-	case TNL_LIGHT |           TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithLighting_f0_t2( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
-	case TNL_LIGHT | TNL_FOG                           : _TransformVerticesWithLighting_f1_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
-	case TNL_LIGHT | TNL_FOG |              TNL_TEXTURE: _TransformVerticesWithLighting_f1_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
-	case TNL_LIGHT | TNL_FOG | TNL_TEXGEN              : _TransformVerticesWithLighting_f1_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
-	case TNL_LIGHT | TNL_FOG | TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithLighting_f1_t2( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, m_dwNumLights ); break;
+	case TNL_LIGHT                                     : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
+	case TNL_LIGHT |                        TNL_TEXTURE: _TransformVerticesWithLighting_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
+	case TNL_LIGHT |           TNL_TEXGEN              : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
+	case TNL_LIGHT |           TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithLighting_f0_t2( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
+	case TNL_LIGHT | TNL_FOG                           : _TransformVerticesWithLighting_f1_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
+	case TNL_LIGHT | TNL_FOG |              TNL_TEXTURE: _TransformVerticesWithLighting_f1_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
+	case TNL_LIGHT | TNL_FOG | TNL_TEXGEN              : _TransformVerticesWithLighting_f1_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
+	case TNL_LIGHT | TNL_FOG | TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithLighting_f1_t2( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
 #endif
 	default:
 		NODEFAULT;
@@ -1875,10 +1861,10 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	}
 }
 
+#ifdef DAEDALUS_IS_LEGACY
 //*****************************************************************************
 //
 //*****************************************************************************
-#ifdef DAEDALUS_IS_LEGACY
 void PSPRenderer::TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world )
 {
 	bool	env_map( (mTnLModeFlags & (TNL_LIGHT|TNL_TEXGEN)) == (TNL_LIGHT|TNL_TEXGEN) );
@@ -2192,7 +2178,7 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 		{
 			v4	result( mTnLParams.Ambient );
 
-			for ( u32 k = 1; k < m_dwNumLights; k++ )
+			for ( u32 k = 1; k < mNumLights; k++ )
 			{
 				result.x += mLights[k].Colour.x;
 				result.y += mLights[k].Colour.y;
@@ -2623,7 +2609,7 @@ void PSPRenderer::ResetMatrices()
 //*****************************************************************************
 //
 //*****************************************************************************
-void	PSPRenderer::EnableTexturing( u32 tile_idx )
+inline void	PSPRenderer::EnableTexturing( u32 tile_idx )
 {
 	EnableTexturing( 0, tile_idx );
 
@@ -3094,6 +3080,3 @@ void PSPRenderer::ForceMatrix(const Matrix4x4 & mat)
 	mWorldProject = mat;
 	mWorldProjectValid = true;
 }
-//*****************************************************************************
-//
-//*****************************************************************************

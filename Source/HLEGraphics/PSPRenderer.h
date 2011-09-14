@@ -185,9 +185,9 @@ public:
 	inline void			SetPrimitiveDepth( u32 z )				{ mPrimDepth = (f32)( ( ( 32767 - z ) << 1) + 1 ); }
 	inline void			SetPrimitiveColour( c32 colour )		{ mPrimitiveColour = colour; }
 	inline void			SetEnvColour( c32 colour )				{ mEnvColour = colour; }
-	inline void			ZBufferEnable(bool bZBuffer)			{ m_bZBuffer = bZBuffer; }
+	inline void			ZBufferEnable(bool bZBuffer)			{ mZBuffer = bZBuffer; }
 
-	inline void			SetNumLights(u32 dwNumLights)			{ m_dwNumLights = dwNumLights; }
+	inline void			SetNumLights(u32 num)					{ mNumLights = num; }
 	void				SetLightCol(u32 light, u32 colour);
 	void				SetLightDirection(u32 l, float x, float y, float z);
 	inline void			SetAmbientLight( const v4 & colour )	{ mTnLParams.Ambient = colour; }
@@ -195,8 +195,8 @@ public:
 	inline void			SetMux( u64 mux )						{ mMux = mux; }
 	inline void			SetSmooth( bool bSmooth )				{ mSmooth = bSmooth; }
 	inline void			SetSmoothShade( bool bSmoothShade )		{ mSmoothShade = bSmoothShade; }
-	inline void			SetAlphaRef(u32 dwAlpha)				{ mAlphaThreshold = dwAlpha; }
-	inline void			SetCullMode(bool bFront, bool bBack)	{ m_bCull = bFront | bBack; if( bBack ) m_bCull_mode = GU_CCW; else m_bCull_mode = GU_CW; }
+	inline void			SetAlphaRef(u32 alpha)					{ mAlphaThreshold = alpha; }
+	inline void			SetCullMode(bool bFront, bool bBack)	{ mCull = bFront | bBack; if( bBack ) mCullMode = GU_CCW; else mCullMode = GU_CW; }
 
 	// Texture stuff
 	inline void			SetTextureScale(float fScaleX, float fScaleY)	{ mTnLParams.TextureScaleX = fScaleX; mTnLParams.TextureScaleY = fScaleY; }
@@ -209,7 +209,7 @@ public:
 	// Fog stuff
 	inline void			SetFogEnable(bool Enable)				{ if(Enable & gFogEnabled) sceGuEnable(GU_FOG); else sceGuDisable(GU_FOG); }
 	inline void			SetFogMinMax(float fMin, float fMax)	{ sceGuFog(fMin, fMax, mFogColour.GetColour()); }
-	void				SetFogColour( c32 colour )				{ mFogColour = colour; }
+	inline void			SetFogColour( c32 colour )				{ mFogColour = colour; }
 	// Unused.. will remove soon
 	inline void			SetFogMult( float fFogMult )			{ mTnLParams.FogMult = fFogMult; }
 	inline void			SetFogOffset( float fFogOffset )		{ mTnLParams.FogOffset = fFogOffset; }
@@ -241,7 +241,7 @@ public:
 	void				ModifyVertexInfo(u32 whered, u32 vert, u32 val);
 	void				SetVtxColor( u32 vert, c32 color );
 	inline void			SetVtxTextureCoord( u32 vert, short tu, short tv ) {mVtxProjected[vert].Texture.x = (f32)tu * (1.0f / 32.0f); mVtxProjected[vert].Texture.y = (f32)tv * (1.0f / 32.0f);}
-	void				SetVtxXY( u32 vert, float x, float y );
+	inline void			SetVtxXY( u32 vert, float x, float y );
 	void				SetVtxZ( u32 vert, float z );
 
 	// TextRect stuff
@@ -295,7 +295,7 @@ public:
 	SBlendStateEntry	LookupBlendState( u64 mux, bool two_cycles );
 
 private:
-	void				EnableTexturing( u32 tile_idx );
+	inline void			EnableTexturing( u32 tile_idx );
 	void				EnableTexturing( u32 index, u32 tile_idx );
 
 	void				RestoreRenderStates();
@@ -354,12 +354,12 @@ private:
 
 	u32					mTnLModeFlags;
 
-	u32					m_dwNumLights;
+	u32					mNumLights;
 
-	bool				m_bZBuffer;
+	bool				mZBuffer;
 
-	bool				m_bCull;
-	int					m_bCull_mode;
+	bool				mCull;
+	int					mCullMode;
 	
 	u32					mAlphaThreshold;
 

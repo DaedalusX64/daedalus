@@ -988,6 +988,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 		break;
 	case G_MW_CLIP:	// Seems to be unused?
 		{
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			switch (command.mw1.offset)
 			{
 			case G_MWO_CLIP_RNX:
@@ -995,8 +996,11 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 			case G_MWO_CLIP_RPX:
 			case G_MWO_CLIP_RPY:
 				break;
-			default:					DL_PF("    G_MW_CLIP  ?   : 0x%08x", command.inst.cmd1);					break;
+			default:					
+				DL_PF("    G_MW_CLIP  ?   : 0x%08x", command.inst.cmd1);					
+				break;
 			}
+#endif
 		}
 		break;
 	case G_MW_SEGMENT:
@@ -1115,6 +1119,7 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 
 	case G_MW_CLIP:	// Seems to be unused?
 		{
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			switch (command.mw2.offset)
 			{
 			case G_MWO_CLIP_RNX:
@@ -1122,8 +1127,11 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 			case G_MWO_CLIP_RPX:
 			case G_MWO_CLIP_RPY:
 				break;
-			default:					DL_PF("     G_MW_CLIP");											break;
+			default:					
+				DL_PF("     G_MW_CLIP");											
+				break;
 			}
+#endif
 		}
 		break;
 
