@@ -1702,17 +1702,24 @@ void DLParser_TexRect( MicroCodeCommand command )
 	tex_rect.cmd2 = command2.inst.cmd1;
 	tex_rect.cmd3 = command3.inst.cmd1;
 
+	
 	/// Note this will break framebuffer effects.
 	//
 	if( bIsOffScreen )	return;
 
+	// Do compare with integers saves CPU //Corn
+	u32	x0 = tex_rect.x0 >> 2;
+	u32	y0 = tex_rect.y0 >> 2;
+	u32	x1 = tex_rect.x1 >> 2;
+	u32	y1 = tex_rect.y1 >> 2;
+
 	// Removes offscreen texrect, also fixes several glitches like in John Romero's Daikatana
 	//
-	SCISSOR_RECT( tex_rect.x0, tex_rect.y0, tex_rect.x1, tex_rect.y1 );
+	SCISSOR_RECT( x0, y0, x1, y1 );
 
 	//Not using floats here breaks GE 007 intro
 	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
-	v2 xy0( tex_rect.x0, tex_rect.y0 );
+	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
 	v2 xy1;
 	v2 uv0( tex_rect.s / 32.0f, tex_rect.t / 32.0f );
 	v2 uv1;
@@ -1725,12 +1732,12 @@ void DLParser_TexRect( MicroCodeCommand command )
 		case CYCLE_COPY:
 			d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
 		case CYCLE_FILL:
-			xy1.x = tex_rect.x1 + 1;
-			xy1.y = tex_rect.y1 + 1;
+			xy1.x = (tex_rect.x1 + 4) * 0.25f;
+			xy1.y = (tex_rect.y1 + 4) * 0.25f;
 			break;
 		default:
-			xy1.x = tex_rect.x1;
-			xy1.y = tex_rect.y1;
+			xy1.x = tex_rect.x1 * 0.25f;
+			xy1.y = tex_rect.y1 * 0.25f;
 			break;
 	}
 
@@ -1764,7 +1771,7 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	tex_rect.cmd3 = command3.inst.cmd1;
 
 	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
-	v2 xy0( tex_rect.x0, tex_rect.y0 );
+	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
 	v2 xy1;
 	v2 uv0( tex_rect.s / 32.0f, tex_rect.t / 32.0f );
 	v2 uv1;
@@ -1777,12 +1784,12 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 		case CYCLE_COPY:
 			d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
 		case CYCLE_FILL:
-			xy1.x = tex_rect.x1 + 1;
-			xy1.y = tex_rect.y1 + 1;
+			xy1.x = (tex_rect.x1 + 4) * 0.25f;
+			xy1.y = (tex_rect.y1 + 4) * 0.25f;
 			break;
 		default:
-			xy1.x = tex_rect.x1;
-			xy1.y = tex_rect.y1;
+			xy1.x = tex_rect.x1 * 0.25f;
+			xy1.y = tex_rect.y1 * 0.25f;
 			break;
 	}
 

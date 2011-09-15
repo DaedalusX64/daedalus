@@ -152,20 +152,16 @@ typedef struct
 			s32		s : 16;
 
 			// cmd1
-			u32		pad5: 2;
-			u32		y0 : 10;
-			u32		pad4: 2;
-			u32		x0 : 10;
+			u32		y0 : 12;
+			u32		x0 : 12;
 			u32		tile_idx : 3;
 			s32		pad1 : 5;
 
 			// cmd0
-			u32		pad3: 2;
-			u32		y1 : 10;
-			u32		pad2: 2;
-			u32		x1 : 10;
+			u32		y1 : 12;
+			u32		x1 : 12;
 
-			s32		pad0 : 8;
+			u32		cmd : 8;
 		};
 
 	};

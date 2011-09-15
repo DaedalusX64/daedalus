@@ -23,7 +23,7 @@
 #include "UcodeDefs.h"
 
 // Errg keep this a multiple of two to make sure the compiler uses a fast shitf instead of an expensive div?
-#define MAX_UCODE		12	// Increase this everytime a new ucode table is added !
+#define MAX_UCODE		11	// Increase this everytime a new ucode table is added !
 
 typedef void(*MicroCodeInstruction)(MicroCodeCommand command);
 #define UcodeFunc(name)	void name(MicroCodeCommand)
