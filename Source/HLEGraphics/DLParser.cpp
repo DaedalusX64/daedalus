@@ -449,7 +449,6 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 		2,		// Zelda, and newer games
 		5,		// Wave Racer USA
 		10,		// Diddy Kong Racing
-		10,		// Gemini and Mickey
 		2,		// Last Legion, Toukon, Toukon 2
 		5,		// Shadows of the Empire (SOTE)
 		10,		// Golden Eye
@@ -479,7 +478,6 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 			gucode_ver = ucode;
 			break;
 		case 4:	//DKR	
-		case 5:	//JFG	
 		case 10:	//PD	
 			gucode_ver = 0;
 			break;
