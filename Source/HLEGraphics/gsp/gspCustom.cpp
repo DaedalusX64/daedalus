@@ -23,12 +23,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 Matrix4x4 gDKRMatrixes[4];
 u32 gDKRCMatrixIndex = 0;
 u32 gDKRMatrixAddr = 0;
-u32 gDKRVtxAddr = 0;
 u32 gDKRVtxCount = 0;
 bool gDKRBillBoard = false;
 
-u32 gConkerVtxZAddr = 0;
-u32 PDCIAddr = 0;
+u32 gAuxAddr = 0;
 
 // DKR verts are extra 4 bytes
 //*****************************************************************************
@@ -254,7 +252,7 @@ void DLParser_MoveWord_DKR( MicroCodeCommand command )
 void DLParser_Set_Addr_DKR( MicroCodeCommand command )
 {
 	gDKRMatrixAddr  = command.inst.cmd0 & 0x00FFFFFF;
-	gDKRVtxAddr		= command.inst.cmd1 & 0x00FFFFFF;
+	gAuxAddr		= command.inst.cmd1 & 0x00FFFFFF;
 	gDKRVtxCount	= 0;
 }
 
@@ -263,8 +261,7 @@ void DLParser_Set_Addr_DKR( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 {
-	//u32 address = RDPSegAddr(command.inst.cmd1);
-	u32 address		= command.inst.cmd1 + RDPSegAddr(gDKRVtxAddr);
+	u32 address		= command.inst.cmd1 + RDPSegAddr(gAuxAddr);
 	u32 num_verts   = ((command.inst.cmd0 >> 19) & 0x1F);
 
 	// Increase by one num verts for DKR
@@ -666,7 +663,7 @@ void RSP_MoveMem_Conker( MicroCodeCommand command )
 	{
 	case G_GBI2_MV_MATRIX:	//Get address to Light Normals
 		{
-			gConkerVtxZAddr = address;
+			gAuxAddr = address;		//Conker VtxZ address	
 		}
 		break;
 	case G_GBI2_MV_LIGHT:
@@ -826,8 +823,8 @@ void RSP_Vtx_Conker( MicroCodeCommand command )
 //*****************************************************************************
 void RSP_Set_Vtx_CI_PD( MicroCodeCommand command )
 {
-	// Color index buf address
-	PDCIAddr = RDPSegAddr(command.inst.cmd1);
+	// PD Color index buf address
+	gAuxAddr = RDPSegAddr(command.inst.cmd1);
 }
 
 //*****************************************************************************

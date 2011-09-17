@@ -71,7 +71,7 @@ ROMFileCache::ROMFileCache()
 	//ToDo: Optimize chunk size for Slim and Phat based on cache size 	 
 	if (PSP_IS_SLIM) 	 
 	{ 	 
-		 CHUNK_SIZE = 24 * 1024; 	 
+		 CHUNK_SIZE = 16 * 1024; 	 
 		 STORAGE_BYTES = CACHE_SIZE * CHUNK_SIZE; 	 
 	}
 	mpStorage = new u8[ STORAGE_BYTES ];
