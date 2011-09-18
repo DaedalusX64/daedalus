@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 Matrix4x4 gDKRMatrixes[4];
 u32 gDKRCMatrixIndex = 0;
 u32 gDKRMatrixAddr = 0;
+u32 gDKRAddr = 0;
 u32 gDKRVtxCount = 0;
 bool gDKRBillBoard = false;
 
@@ -235,7 +236,7 @@ void DLParser_MoveWord_DKR( MicroCodeCommand command )
 		break;
 	case G_MW_LIGHTCOL:
 		gDKRCMatrixIndex = (command.inst.cmd1 >> 6) & 0x7;
-		//PSPRenderer::Get()->ResetMatrices();
+		DL_PF("    DKR MtxIndx: %d", gDKRCMatrixIndex);
 		break;
 	default:
 		DLParser_GBI1_MoveWord( command );
@@ -249,7 +250,7 @@ void DLParser_MoveWord_DKR( MicroCodeCommand command )
 void DLParser_Set_Addr_DKR( MicroCodeCommand command )
 {
 	gDKRMatrixAddr  = command.inst.cmd0 & 0x00FFFFFF;
-	gAuxAddr		= command.inst.cmd1 & 0x00FFFFFF;
+	gDKRAddr		= RDPSegAddr(command.inst.cmd1 & 0x00FFFFFF);
 	gDKRVtxCount	= 0;
 }
 
@@ -258,7 +259,7 @@ void DLParser_Set_Addr_DKR( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 {
-	u32 address		= command.inst.cmd1 + RDPSegAddr(gAuxAddr);
+	u32 address		= command.inst.cmd1 + gDKRAddr;
 	u32 num_verts   = ((command.inst.cmd0 >> 19) & 0x1F);
 
 	// Increase by one num verts for DKR

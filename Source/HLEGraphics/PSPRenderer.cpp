@@ -2252,42 +2252,26 @@ extern bool gDKRBillBoard;
 void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 {
 	u32 pVtxBase = u32(g_pu8RamBase + address);
-
 	const Matrix4x4 & matWorldProject( gDKRMatrixes[gDKRCMatrixIndex] );
-
-	bool addbase = gDKRBillBoard & (gDKRCMatrixIndex == 2);
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnLParams.Ambient.x, mTnLParams.Ambient.y, mTnLParams.Ambient.z, mTnLParams.TextureScaleX, mTnLParams.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnLModeFlags&TNL_LIGHT)? "On":"Off", (mTnLModeFlags&TNL_TEXTURE)? "On":"Off", (mTnLModeFlags&TNL_TEXGEN)? (mTnLModeFlags&TNL_TEXGENLIN)? "Linear":"Spherical":"Off", (mTnLModeFlags&TNL_FOG)? "On":"Off");
-	DL_PF( "    CMtx[%d] Add base[%s]", gDKRCMatrixIndex, addbase? "On":"Off");
+	DL_PF( "    CMtx[%d] Add base[%s]", gDKRCMatrixIndex, gDKRBillBoard? "On":"Off");
 
-	v4 & BaseVec( mVtxProjected[0].TransformedPos );
-
-	if( (gDKRVtxCount == 0) && (n == 1) )
-	{	//Copy base vector (used for billbording)
-		gDKRVtxCount++;
-
-		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject) );
-
-		BaseVec.x = *(s16*)((pVtxBase + 0) ^ 2);
-		BaseVec.y = *(s16*)((pVtxBase + 2) ^ 2);
-		BaseVec.z = *(s16*)((pVtxBase + 4) ^ 2);
-		BaseVec.w = 1.0f;
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		v4 & projected( mVtxProjected[0].ProjectedPos );
-		projected = matWorldProject.Transform( BaseVec );
-		mVtxProjected[0].ClipFlags = 0;
-#endif
-		return;
-	}
-
-	if( addbase )
+	if( gDKRBillBoard )
 	{	//Copy vertices adding base vector and the color data
+		v4 & BaseVec( mVtxProjected[0].TransformedPos );
+	
+		//Hack to worldproj matrix to scale and rotate billbords //Corn
+		Matrix4x4 mat( gDKRMatrixes[0]);
+		mat.mRaw[0] *= gDKRMatrixes[2].mRaw[0] * 0.33f;
+		mat.mRaw[5] *= gDKRMatrixes[2].mRaw[5] * 0.33f;
+		mat.mRaw[10] *= gDKRMatrixes[2].mRaw[10] * 0.33f;
+
 		for (u32 i = v0; i < v0 + n; i++)
 		{
 			v3 w( *(s16*)((pVtxBase + 0) ^ 2), *(s16*)((pVtxBase + 2) ^ 2), *(s16*)((pVtxBase + 4) ^ 2));
-			w = gDKRMatrixes[0].TransformNormal( w );
+			w = mat.TransformNormal( w );
 
 			v4 & transformed( mVtxProjected[i].TransformedPos );
 			transformed.x = BaseVec.x + w.x;
