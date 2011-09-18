@@ -2274,12 +2274,46 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 		BaseVec.z = *(s16*)((pVtxBase + 4) ^ 2);
 		BaseVec.w = 1.0f;
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+		v4 & projected( mVtxProjected[0].ProjectedPos );
+		projected = matWorldProject.Transform( BaseVec );
+		mVtxProjected[0].ClipFlags = 0;
+#endif
 		return;
 	}
 
-	u32 nOff = 0;
+	if( addbase )
+	{	//Copy vertices adding base vector and the color data
+		for (u32 i = v0; i < v0 + n; i++)
+		{
+			v3 w( *(s16*)((pVtxBase + 0) ^ 2), *(s16*)((pVtxBase + 2) ^ 2), *(s16*)((pVtxBase + 4) ^ 2));
+			w = gDKRMatrixes[0].TransformNormal( w );
 
-	if( !addbase )
+			v4 & transformed( mVtxProjected[i].TransformedPos );
+			transformed.x = BaseVec.x + w.x;
+			transformed.y = BaseVec.y + w.y;
+			transformed.z = BaseVec.z + w.z;
+			transformed.w = 1.0f;
+
+			// Set Clipflags, zero clippflags if billbording //Corn
+			mVtxProjected[i].ClipFlags = 0;
+
+			// Assign true vert colour
+			f32 r = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 6) ^ 3);
+			f32 g = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 7) ^ 3);
+			f32 b = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 8) ^ 3);
+			f32 a = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 9) ^ 3);
+
+			mVtxProjected[i].Colour = v4( r, g, b, a );
+
+			// No texture scaling? (These dont seem to do any good anyway) //Corn
+			//mVtxProjected[i].Texture.x = mVtxProjected[i].Texture.y = 1.0f;
+
+			gDKRVtxCount++;
+			pVtxBase += 10;
+		}
+	}
+	else
 	{	//Normal path for transform of triangles
 		//ToDo: avoid setting the matrix here all the time //Corn
 		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject) );
@@ -2287,9 +2321,9 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 		for (u32 i = v0; i < v0 + n; i++)
 		{
 			v4 & transformed( mVtxProjected[i].TransformedPos );
-			transformed.x = *(s16*)((pVtxBase + nOff + 0) ^ 2);
-			transformed.y = *(s16*)((pVtxBase + nOff + 2) ^ 2);
-			transformed.z = *(s16*)((pVtxBase + nOff + 4) ^ 2);
+			transformed.x = *(s16*)((pVtxBase + 0) ^ 2);
+			transformed.y = *(s16*)((pVtxBase + 2) ^ 2);
+			transformed.z = *(s16*)((pVtxBase + 4) ^ 2);
 			transformed.w = 1.0f;
 
 			v4 & projected( mVtxProjected[i].ProjectedPos );
@@ -2309,53 +2343,18 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 			mVtxProjected[i].ClipFlags = clip_flags;
 
 			// Assign true vert colour
-			f32 r = *(u8*)((pVtxBase + nOff + 6) ^ 3);
-			f32 g = *(u8*)((pVtxBase + nOff + 7) ^ 3);
-			f32 b = *(u8*)((pVtxBase + nOff + 8) ^ 3);
-			f32 a = *(u8*)((pVtxBase + nOff + 9) ^ 3);
+			f32 r = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 6) ^ 3);
+			f32 g = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 7) ^ 3);
+			f32 b = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 8) ^ 3);
+			f32 a = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 9) ^ 3);
 
-			mVtxProjected[i].Colour = v4( r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f) );
-
-			// No texture scaling? (These dont seem to do any good anyway) //Corn
-			//mVtxProjected[i].Texture.x = mVtxProjected[i].Texture.y = 1.0f;
-
-			gDKRVtxCount++;
-			nOff += 10;
-		}
-	}
-	else
-	{	//Copy vertices adding base vector and the color data (No transform)
-		for (u32 i = v0; i < v0 + n; i++)
-		{
-			v4 & transformed( mVtxProjected[i].TransformedPos );
-			transformed.x = (f32)*(s16*)((pVtxBase + nOff + 0) ^ 2);
-			transformed.y = (f32)*(s16*)((pVtxBase + nOff + 2) ^ 2);
-			transformed.z = (f32)*(s16*)((pVtxBase + nOff + 4) ^ 2);
-			transformed.w = 1.0f;
-
-			transformed = matWorldProject.Transform( transformed );
-
-			transformed.x += BaseVec.x;
-			transformed.y += BaseVec.y;
-			transformed.z += BaseVec.z;
-			transformed.w = 1.0f;
-
-			// Set Clipflags, zero clippflags if billbording //Corn
-			mVtxProjected[i].ClipFlags = 0;
-
-			// Assign true vert colour
-			f32 r = *(u8*)((pVtxBase + nOff + 6) ^ 3);
-			f32 g = *(u8*)((pVtxBase + nOff + 7) ^ 3);
-			f32 b = *(u8*)((pVtxBase + nOff + 8) ^ 3);
-			f32 a = *(u8*)((pVtxBase + nOff + 9) ^ 3);
-
-			mVtxProjected[i].Colour = v4( r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f) );
+			mVtxProjected[i].Colour = v4( r, g, b, a );
 
 			// No texture scaling? (These dont seem to do any good anyway) //Corn
 			//mVtxProjected[i].Texture.x = mVtxProjected[i].Texture.y = 1.0f;
 
 			gDKRVtxCount++;
-			nOff += 10;
+			pVtxBase += 10;
 		}
 	}
 }

@@ -37,31 +37,28 @@ void DLParser_DumpVtxInfoDKR(u32 address, u32 v0_idx, u32 num_verts)
 {
 	if (gDisplayListFile != NULL)
 	{
-		s16 * psSrc = (s16 *)(g_pu8RamBase + address);
+		u32 psSrc = (u32)(g_pu8RamBase + address);
 
-		u32 i = 0;
 		for ( u32 idx = v0_idx; idx < v0_idx + num_verts; idx++ )
 		{
-			f32 x = f32(psSrc[(i + 0) ^ 1]);
-			f32 y = f32(psSrc[(i + 1) ^ 1]);
-			f32 z = f32(psSrc[(i + 2) ^ 1]);
+			f32 x = *(s16*)((psSrc + 0) ^ 2);
+			f32 y = *(s16*)((psSrc + 2) ^ 2);
+			f32 z = *(s16*)((psSrc + 4) ^ 2);
 
 			//u16 wFlags = PSPRenderer::Get()->GetVtxFlags( idx ); //(u16)psSrc[3^0x1];
 
-			u16 wA = psSrc[(i + 3) ^ 1];
-			u16 wB = psSrc[(i + 4) ^ 1];
+			u8 a = *(u8*)((psSrc + 6) ^ 3);	//R
+			u8 b = *(u8*)((psSrc + 7) ^ 3);	//G
+			u8 c = *(u8*)((psSrc + 8) ^ 3);	//B
+			u8 d = *(u8*)((psSrc + 9) ^ 3);	//A
 
-			u8 a = u8(wA>>8);
-			u8 b = u8(wA);
-			u8 c = u8(wB>>8);
-			u8 d = u8(wB);
+			const v4 & t = PSPRenderer::Get()->GetTransformedVtxPos( idx );
+			const v4 & p = PSPRenderer::Get()->GetProjectedVtxPos( idx );
 
-			const v4 & t = PSPRenderer::Get()->GetProjectedVtxPos( idx );
+			DL_PF(" #%02d Pos:{% 3f,% 3f,% 3f}->{% 3f,% 3f,% 3f} Proj:{% 3f,% 3f,% 3f,% 3f} RGBA:{%02x%02x%02x%02x}",
+				idx, x, y, z, t.x, t.y, t.z, p.x/p.w, p.y/p.w, p.z/p.w, p.w, a, b, c, d );
 
-			DL_PF(" #%02d Pos: {% 3f,% 3f,% 3f} Extra: %02x %02x %02x %02x (Proj: {% 3f,% 3f,% 3f,% 3f})",
-				idx, x, y, z, a, b, c, d, t.x/t.w, t.y/t.w, t.z/t.w, t.w );
-
-			i+=5;
+			psSrc+=10;
 		}
 
 		/*
