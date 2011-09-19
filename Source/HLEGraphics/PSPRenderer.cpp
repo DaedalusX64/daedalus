@@ -2265,7 +2265,13 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 		//Hack to worldproj matrix to scale and rotate billbords //Corn
 		Matrix4x4 mat( gDKRMatrixes[0]);
 		mat.mRaw[0] *= gDKRMatrixes[2].mRaw[0] * 0.33f;
-		mat.mRaw[5] *= gDKRMatrixes[2].mRaw[5] * 0.33f;
+		mat.mRaw[4] *= gDKRMatrixes[2].mRaw[0] * 0.33f;
+		mat.mRaw[8] *= gDKRMatrixes[2].mRaw[0] * 0.33f;
+		mat.mRaw[1] *= gDKRMatrixes[2].mRaw[0] * 0.25f;
+		mat.mRaw[5] *= gDKRMatrixes[2].mRaw[0] * 0.25f;
+		mat.mRaw[9] *= gDKRMatrixes[2].mRaw[0] * 0.25f;
+		mat.mRaw[2] *= gDKRMatrixes[2].mRaw[10] * 0.33f;
+		mat.mRaw[6] *= gDKRMatrixes[2].mRaw[10] * 0.33f;
 		mat.mRaw[10] *= gDKRMatrixes[2].mRaw[10] * 0.33f;
 
 		for (u32 i = v0; i < v0 + n; i++)
