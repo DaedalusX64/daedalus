@@ -2260,6 +2260,8 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 
 	if( gDKRBillBoard )
 	{	//Copy vertices adding base vector and the color data
+		mWPmodified = false;
+
 		v4 & BaseVec( mVtxProjected[0].TransformedPos );
 	
 		//Hack to worldproj matrix to scale and rotate billbords //Corn
@@ -2305,8 +2307,11 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 	}
 	else
 	{	//Normal path for transform of triangles
-		//ToDo: avoid setting the matrix here all the time //Corn
-		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject) );
+		if( mWPmodified )
+		{	//Only reload matrix if it has been changed and no billbording //Corn
+			mWPmodified = false;
+			sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject) );
+		}
 
 		for (u32 i = v0; i < v0 + n; i++)
 		{

@@ -201,6 +201,8 @@ void DLParser_Mtx_DKR( MicroCodeCommand command )
 
 	gDKRCMatrixIndex = mtx_command;
 
+	PSPRenderer::Get()->Mtxchanged();
+
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if (gDisplayListFile != NULL)
 	{
@@ -236,6 +238,7 @@ void DLParser_MoveWord_DKR( MicroCodeCommand command )
 		break;
 	case G_MW_LIGHTCOL:
 		gDKRCMatrixIndex = (command.inst.cmd1 >> 6) & 0x7;
+		PSPRenderer::Get()->Mtxchanged();
 		DL_PF("    DKR MtxIndx: %d", gDKRCMatrixIndex);
 		break;
 	default:

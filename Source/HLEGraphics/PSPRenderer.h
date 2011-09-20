@@ -232,6 +232,7 @@ public:
 	inline void			PopWorldView()	{if (mModelViewTop > 0)	 --mModelViewTop;	mWorldProjectValid = false;}
 	void				InsertMatrix(u32 w0, u32 w1);
 	void				ForceMatrix(const Matrix4x4 & mat);
+	inline void			Mtxchanged()	{mWPmodified = true;}
 
 	// Vertex stuff	
 	void				SetNewVertexInfo(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!	
