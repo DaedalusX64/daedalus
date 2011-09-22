@@ -91,10 +91,7 @@ namespace
 		dst.Width = texture_info.GetWidth();
 		dst.Height = texture_info.GetHeight();
 		dst.Pitch = pitch;
-
 		dst.Palette = palette;
-		// TODO: Only need 16 entries for CI4
-		dst.PaletteEntries = palette ? 256 : 0;
 
 		if( ConvertTexture( dst, texture_info ) )
 		{

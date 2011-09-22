@@ -82,8 +82,22 @@ const void *	TextureInfo::GetPalettePtr() const
 {
 	// Want to advance 16x16bpp palette entries in TMEM(i.e. 32 bytes into tmem for each palette), i.e. <<5.
 	// Fix for black textures MM & others but breaks Aerogauge //Corn
-	if ( (GetSize() == G_IM_SIZ_4b) & gTLUTalt_mode ) return &gTextureMemory[ 0x800 + ( TLutIndex << 7 ) ];
-	else return &gTextureMemory[ 0x800 + ( TLutIndex << 5 ) ];
+#ifndef DAEDALUS_TMEM
+	if ( (GetSize() == G_IM_SIZ_4b) & gTLUTalt_mode )
+	{
+		if(gTextureMemory[ 0x200 + ( TLutIndex << 5 )] == 0) return (void *)(gTextureMemory[ 0x200 ] + ( TLutIndex << 7 ));
+		else return (void *)gTextureMemory[ 0x200 + ( TLutIndex << 5 ) ];
+	}
+	else
+	{
+		if(gTextureMemory[ 0x200 + ( TLutIndex << 3 )] == 0) return (void *)(gTextureMemory[ 0x200 ] + ( TLutIndex << 5 ));
+		else return (void *)gTextureMemory[ 0x200 + ( TLutIndex << 3 ) ];
+	}
+#else
+
+	if ( (GetSize() == G_IM_SIZ_4b) & gTLUTalt_mode ) return (void *)&gTextureMemory[ 0x200 + ( TLutIndex << 5 ) ];
+	else return (void *)&gTextureMemory[ 0x200 + ( TLutIndex << 3 ) ];
+#endif
 }
 
 //*************************************************************************************

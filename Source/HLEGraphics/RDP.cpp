@@ -36,8 +36,7 @@
 //*****************************************************************************
 RDP_OtherMode		gRDPOtherMode;
 
-//u8		gTextureMemory[ 4096 ];
-u8 *gTextureMemory;
+u32 gTextureMemory[ 4096 >> 2 ];
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 //*****************************************************************************

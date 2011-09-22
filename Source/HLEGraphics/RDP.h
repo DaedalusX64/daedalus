@@ -291,8 +291,7 @@ typedef struct
 extern RDP_OtherMode		gRDPOtherMode;
 
 
-//extern u8 gTextureMemory[ 4096 ];
-extern u8 *gTextureMemory;
+extern u32 gTextureMemory[ 4096 >> 2 ];
 extern	u32 gTextureTile;
 
 

@@ -135,12 +135,20 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 	if(g_ROM.GameHacks == KIRBY64)
 	{
 		//Need to load PAL to TMEM //Corn
+#ifndef DAEDALUS_TMEM
 		//Calc offset to palette
-		u8* p_source = (u8*)&g_pu8RamBase[ RDPSegAddr(objBg->imagePtr) + imageW * imageH];
+		u32 p_source = (u32)&g_pu8RamBase[ RDPSegAddr(objBg->imagePtr) + imageW * imageH];
 		//Load to TMEM area
-		u8* p_dest   = (u8*)&gTextureMemory[ ( 0x800 + ( objBg->imagePal << 5 ) ) & 0xFFF ];
+		gTextureMemory[ ( 0x200 + ( objBg->imagePal << 3 ) ) & 0x3FF ] = p_source;
 		//Copy the palette to TMEM (Always RGBA16 eg. 512 bytes)
-		memcpy_vfpu_BE(p_dest, p_source, 512);
+#else
+        //Calc offset to palette
+        u8* p_source = (u8*)&g_pu8RamBase[ RDPSegAddr(objBg->imagePtr) + imageW * imageH];
+        //Load to TMEM area
+        u8* p_dest   = (u8*)&gTextureMemory[ ( 0x800 + ( objBg->imagePal << 5 ) ) & 0xFFF ];
+        //Copy the palette to TMEM (Always RGBA16 eg. 512 bytes)
+        memcpy_vfpu_BE(p_dest, p_source, 512);
+#endif
 	}
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
@@ -363,12 +371,20 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 	if(g_ROM.GameHacks == KIRBY64)
 	{
 		//Need to load PAL to TMEM //Corn
+#ifndef DAEDALUS_TMEM
 		//Calc offset to palette
-		u8* p_source = (u8*)&g_pu8RamBase[ RDPSegAddr(objBg->imagePtr) + imageW * imageH];
+		u32 p_source = (u32)&g_pu8RamBase[ RDPSegAddr(objBg->imagePtr) + imageW * imageH];
 		//Load to TMEM area
-		u8* p_dest   = (u8*)&gTextureMemory[ ( 0x800 + ( objBg->imagePal << 5 ) ) & 0xFFF ];
+		gTextureMemory[ ( 0x200 + ( objBg->imagePal << 3 ) ) & 0x3FF ] = p_source;
 		//Copy the palette to TMEM (Always RGBA16 eg. 512 bytes)
-		memcpy_vfpu_BE(p_dest, p_source, 512);
+#else
+        //Calc offset to palette
+        u8* p_source = (u8*)&g_pu8RamBase[ RDPSegAddr(objBg->imagePtr) + imageW * imageH];
+        //Load to TMEM area
+        u8* p_dest   = (u8*)&gTextureMemory[ ( 0x800 + ( objBg->imagePal << 5 ) ) & 0xFFF ];
+        //Copy the palette to TMEM (Always RGBA16 eg. 512 bytes)
+        memcpy_vfpu_BE(p_dest, p_source, 512);
+#endif
 	}
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );

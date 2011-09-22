@@ -43,7 +43,6 @@ struct TextureDestInfo
 		,	Pitch( 0 )
 		,	pSurface( NULL )
 		,	Palette( NULL )
-		,	PaletteEntries( 0 )
 	{
 	}
 
@@ -54,7 +53,6 @@ struct TextureDestInfo
 	void *						pSurface;		// Pointer to the top left pixel of the image
 
 	PixelFormats::Psp::Pf8888 *	Palette;
-	u32							PaletteEntries;
 };
 
 

@@ -614,20 +614,17 @@ bool IGraphicsContext::Initialise()
 	}
 
 	//Alloc all buffers with one call to save alloc list overhead //Corn
-	//Alloc also 4KB of fast VRAM for TMEM emulation //Corn
 	if ( PSP_TV_CABLE > 0 )
 	{
-		CVideoMemoryManager::Get()->Alloc( FRAME_SIZE + LACED_SIZE + DEPTH_SIZE + 4096, &draw_buffer, &is_videmem );
+		CVideoMemoryManager::Get()->Alloc( FRAME_SIZE + LACED_SIZE + DEPTH_SIZE, &draw_buffer, &is_videmem );
 		disp_buffer =  (void*)((u32)draw_buffer + FRAME_SIZE);
 		depth_buffer = (void*)((u32)draw_buffer + FRAME_SIZE + LACED_SIZE);
-		gTextureMemory = (u8*)((u32)draw_buffer + FRAME_SIZE + LACED_SIZE + DEPTH_SIZE);
 	}
 	else
 	{
-		CVideoMemoryManager::Get()->Alloc( FRAME_SIZE + FRAME_SIZE + DEPTH_SIZE + 4096, &draw_buffer, &is_videmem );
+		CVideoMemoryManager::Get()->Alloc( FRAME_SIZE + FRAME_SIZE + DEPTH_SIZE, &draw_buffer, &is_videmem );
 		disp_buffer =  (void*)((u32)draw_buffer + FRAME_SIZE);
 		depth_buffer = (void*)((u32)draw_buffer + FRAME_SIZE + FRAME_SIZE);
-		gTextureMemory = (u8*)((u32)draw_buffer + FRAME_SIZE + FRAME_SIZE + DEPTH_SIZE);
 	}
 
 	void *	draw_buffer_rel( VramAddrAsOffset( draw_buffer ) );
@@ -641,7 +638,6 @@ bool IGraphicsContext::Initialise()
 	printf( "Alloc %d bytes for draw buffer A at %p\n", FRAME_SIZE, draw_buffer );
 	printf( "Alloc %d bytes for draw buffer B at %p\n", FRAME_SIZE, disp_buffer );
 	printf( "Alloc %d bytes for Z buffer at %p\n", DEPTH_SIZE, depth_buffer );
-	printf( "Alloc %d bytes for TMEM buffer at %p\n", 4096, gTextureMemory );
 #endif
 
 	// buffer pointers for interlaced blits

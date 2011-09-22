@@ -47,5 +47,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #undef  DAEDALUS_SILENT						// Define to quiet Debug Messages
 #undef  DAEDALUS_IS_LEGACY					// Old code, unused etc.. Kept for reference, undef to save space on the elf. Will remove soon.	
 #undef	DAEDALUS_DIALOGS					// Enable this to ask confimation dialogs in the GUI
+#undef	DAEDALUS_TMEM						// Use full TMEM emulation for palettes
 
 #endif // CONFIG_H_
