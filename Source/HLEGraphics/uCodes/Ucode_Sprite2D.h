@@ -1,6 +1,5 @@
 /*
-Copyright (C) 2009 Grazz
-Copyright (C) 2003-2009 Rice1964
+Copyright (C) 2009 StrmnNrmn
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -18,7 +17,46 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "gspCommon.h"
+#ifndef UCODE_SPRITE2D_H__
+#define UCODE_SPRITE2D_H__
+
+//*****************************************************************************
+// Needed by Sprite2D
+//*****************************************************************************
+
+struct SpriteStruct
+{
+  u32 SourceImagePointer;
+  u32 TlutPointer;
+
+  u16 SubImageWidth;
+  u16 Stride;
+
+  u8  SourceImageBitSize;
+  u8  SourceImageType;
+  u16 SubImageHeight;
+
+  u16 SourceImageOffsetT;
+  u16 SourceImageOffsetS;
+
+  char  dummy[4];
+};
+
+//*****************************************************************************
+// 
+//*****************************************************************************
+
+struct Sprite2DInfo
+{
+    u16 px;
+    u16 py;
+    f32 scaleX;
+    f32 scaleY;
+    u8  flipX;
+    u8  flipY;
+    SpriteStruct *spritePtr;
+};
+
 
 Sprite2DInfo g_Sprite2DInfo;
 //*****************************************************************************
@@ -127,3 +165,5 @@ void DLParser_GBI1_Sprite2DDraw( MicroCodeCommand command )
 	PSPRenderer::Get()->Draw2DTexture( (f32)imageX, (f32)imageY, (f32)frameX ,(f32)frameY, (f32)imageW, (f32)imageH, (f32)frameW, (f32)frameH);
 	//g_Sprite2DInfo.spritePtr = 0; // Why ?
 }
+
+#endif // UCODE_SPRITE2D_H__

@@ -1,6 +1,5 @@
 /*
-Copyright (C) 2009 Grazz
-Copyright (C) 2003-2009 Rice1964
+Copyright (C) 2009 StrmnNrmn
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -18,8 +17,85 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "gspCommon.h"
+#ifndef UCODE_S2DEX_H__
+#define UCODE_S2DEX_H__
+
 #include "../SysPSP/Utility/FastMemcpy.h"
+
+//*****************************************************************************
+// Needed by S2DEX
+//*****************************************************************************
+
+#define	G_GBI2_SELECT_DL		0x04
+#define	S2DEX_OBJLT_TXTRBLOCK	0x00001033
+#define	S2DEX_OBJLT_TXTRTILE	0x00fc1034
+#define	S2DEX_OBJLT_TLUT		0x00000030
+#define	S2DEX_BGLT_LOADBLOCK	0x0033
+#define	S2DEX_BGLT_LOADTILE		0xfff4
+
+
+//*****************************************************************************
+// 
+//*****************************************************************************
+struct uObjBg
+{
+    u16 imageW;
+    u16 imageX;
+    u16 frameW;
+    s16 frameX;
+    u16 imageH;
+    u16 imageY;
+    u16 frameH;
+    s16 frameY;
+
+    u32 imagePtr;
+    u8  imageSiz;
+    u8  imageFmt;
+    u16 imageLoad;
+    u16 imageFlip;
+    u16 imagePal;
+
+    u16 tmemH;
+    u16 tmemW;
+    u16 tmemLoadTH;
+    u16 tmemLoadSH;
+    u16 tmemSize;
+    u16 tmemSizeW;
+};
+
+//*****************************************************************************
+//
+//*****************************************************************************
+struct	uObjScaleBg
+{	
+	u16	imageW;		
+	u16	imageX;		
+
+	u16	frameW;		
+	s16	frameX;		
+
+	u16	imageH;		
+	u16	imageY; 	
+
+	u16	frameH;		
+	s16	frameY;		
+
+	u32	imagePtr;	
+
+	u8	imageSiz;	
+	u8	imageFmt;	
+	u16	imageLoad;	
+
+	u16	imageFlip;	
+	u16	imagePal; 	
+
+	u16	scaleH;		
+	u16	scaleW;		
+
+	s32	imageYorig;	
+	u8	padding[4];
+};
+
 
 //*****************************************************************************
 //
@@ -343,3 +419,5 @@ void DLParser_S2DEX_ObjRendermode_2( MicroCodeCommand command )
 
 	DLParser_S2DEX_ObjRendermode(command);
 }
+
+#endif // UCODE_S2DEX_H__

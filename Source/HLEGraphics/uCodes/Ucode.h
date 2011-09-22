@@ -34,6 +34,55 @@ extern const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256];
 extern const char * gInstructionName[4][256];
 #endif
 
+UcodeFunc( DLParser_GBI1_CullDL );
+UcodeFunc( DLParser_GBI2_CullDL );
+UcodeFunc( DLParser_GBI1_DL );
+UcodeFunc( DLParser_GBI2_DL );
+UcodeFunc( DLParser_GBI1_EndDL );
+UcodeFunc( DLParser_GBI2_EndDL );
+UcodeFunc( DLParser_GBI1_BranchZ );
+UcodeFunc( DLParser_GBI1_LoadUCode );
+UcodeFunc( DLParser_GBI2_LoadUCode );
+
+UcodeFunc( DLParser_GBI1_SetGeometryMode );
+UcodeFunc( DLParser_GBI1_ClearGeometryMode );
+UcodeFunc( DLParser_GBI2_GeometryMode );
+UcodeFunc( DLParser_GBI1_SetOtherModeL );
+UcodeFunc( DLParser_GBI1_SetOtherModeH );
+UcodeFunc( DLParser_GBI2_SetOtherModeL );
+UcodeFunc( DLParser_GBI2_SetOtherModeH );
+
+UcodeFunc( DLParser_GBI1_Texture );
+UcodeFunc( DLParser_GBI2_Texture );
+
+UcodeFunc( DLParser_GBI0_Vtx );
+UcodeFunc( DLParser_GBI1_Vtx );
+UcodeFunc( DLParser_GBI2_Vtx );
+UcodeFunc( DLParser_GBI1_ModifyVtx );
+
+UcodeFunc( DLParser_GBI1_Mtx );
+UcodeFunc( DLParser_GBI2_Mtx );
+UcodeFunc( DLParser_GBI1_PopMtx );
+UcodeFunc( DLParser_GBI2_PopMtx );
+
+UcodeFunc( DLParser_GBI0_Tri4 );
+UcodeFunc( DLParser_GBI0_Quad );
+
+UcodeFunc( DLParser_GBI2_Quad );
+UcodeFunc( DLParser_GBI2_Line3D );
+UcodeFunc( DLParser_GBI2_Tri1 );
+UcodeFunc( DLParser_GBI2_Tri2 );
+
+UcodeFunc( DLParser_GBI1_Tri1 );
+UcodeFunc( DLParser_GBI1_Tri2 );
+UcodeFunc( DLParser_GBI1_Line3D );
+
+//*****************************************************************************
+// New GBI2 ucodes
+//*****************************************************************************
+UcodeFunc( DLParser_GBI2_DL_Count );
+//UcodeFunc( DLParser_GBI2_0x8 );
+
 //*****************************************************************************
 // GBI1
 //*****************************************************************************
@@ -58,13 +107,43 @@ UcodeFunc( DLParser_GBI2_MoveMem );
 //UcodeFunc( DLParser_GBI2_DL );
 
 //*****************************************************************************
-// Include ucode header files
+// Sprite2D
 //*****************************************************************************
 
-#include "gsp/gspMacros.h"
-#include "gsp/gspSprite2D.h"
-#include "gsp/gspS2DEX.h"
-#include "gsp/gspCustom.h"
+UcodeFunc( DLParser_GBI1_Sprite2DBase );
+UcodeFunc( DLParser_GBI1_Sprite2DScaleFlip );
+UcodeFunc( DLParser_GBI1_Sprite2DDraw );
+
+//*****************************************************************************
+// S2DEX
+//*****************************************************************************
+
+UcodeFunc( DLParser_S2DEX_BgCopy );
+UcodeFunc( DLParser_S2DEX_SelectDl );
+UcodeFunc( DLParser_S2DEX_ObjSprite );
+UcodeFunc( DLParser_S2DEX_ObjRectangle );
+UcodeFunc( DLParser_S2DEX_ObjRendermode );
+UcodeFunc( DLParser_S2DEX_ObjLoadTxtr );
+UcodeFunc( DLParser_S2DEX_ObjLdtxSprite );
+UcodeFunc( DLParser_S2DEX_ObjLdtxRect );
+UcodeFunc( DLParser_S2DEX_ObjLdtxRectR );
+UcodeFunc( DLParser_S2DEX_RDPHalf_0 );
+UcodeFunc( DLParser_S2DEX_ObjMoveMem );
+UcodeFunc( DLParser_S2DEX_Bg1cyc );
+UcodeFunc( DLParser_S2DEX_ObjRectangleR );
+UcodeFunc( DLParser_S2DEX_ObjRendermode_2 );
+UcodeFunc( DLParser_S2DEX_Bg1cyc_2 );
+
+
+
+//*****************************************************************************
+// Include ucode header files
+//*****************************************************************************
+//
+//#include "gsp/gspMacros.h"
+//#include "gsp/gspSprite2D.h"
+//#include "gsp/gspS2DEX.h"
+//#include "gsp/gspCustom.h"
 
 
 //*****************************************************************************
@@ -102,12 +181,33 @@ UcodeFunc( DLParser_SetCImg );
 //*****************************************************************************
 // RSP Tri Command
 //*****************************************************************************
-
 UcodeFunc( DLParser_TriRSP );
 
 //*****************************************************************************
-//
+// Custom
 //*****************************************************************************
+UcodeFunc( DLParser_GBI0_DL_SOTE );
+UcodeFunc( DLParser_GBI0_Vtx_SOTE );
+//UcodeFunc( DLParser_GBI0_Line3D_SOTE );
+//UcodeFunc( DLParser_GBI0_Tri1_SOTE );
+UcodeFunc( DLParser_RSP_Last_Legion_0x80 );
+UcodeFunc( DLParser_RSP_Last_Legion_0x00 );
+UcodeFunc( DLParser_TexRect_Last_Legion );
+UcodeFunc( DLParser_RDPHalf1_GoldenEye );
+UcodeFunc( DLParser_DLInMem );
+UcodeFunc( DLParser_Mtx_DKR );
+UcodeFunc( DLParser_MoveWord_DKR );
+UcodeFunc( DLParser_Set_Addr_DKR );
+UcodeFunc( DLParser_GBI0_Vtx_DKR );
+UcodeFunc( DLParser_GBI0_Vtx_WRUS );
+UcodeFunc( DLParser_DMA_Tri_DKR );
+UcodeFunc( DLParser_GBI0_Vtx_Gemini );
+UcodeFunc( DLParser_GBI2_Conker );
+UcodeFunc( RSP_MoveMem_Conker );
+UcodeFunc( RSP_MoveWord_Conker );
+UcodeFunc( RSP_Vtx_Conker );
+UcodeFunc( RSP_Set_Vtx_CI_PD );
+UcodeFunc( RSP_Vtx_PD );
+//UcodeFunc( RSP_Tri4_PD );
 
-
-#endif
+#endif // UCODE_H__

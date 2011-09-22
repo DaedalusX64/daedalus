@@ -21,8 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __DLPARSER_H__
 #define __DLPARSER_H__
 
-#include "Core/Memory.h"
-#include "UcodeDefs.h"
+
 //*************************************************************************************
 // 
 //*************************************************************************************
@@ -47,26 +46,6 @@ struct DListStack
 
 extern DListStack	gDlistStack[MAX_DL_STACK_SIZE];
 extern s32			gDlistStackPointer;
-//*****************************************************************************
-// Reads the next command from the display list, updates the PC.
-//*****************************************************************************
-inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
-{
-	// Current PC is the last value on the stack
-	u32			pc( gDlistStack[gDlistStackPointer].pc );
-
-	// 1-> Copy command in 64bit in one go
-	//
-#if 1	
-	*p_command = *(MicroCodeCommand*)&g_pu32RamBase[(pc>>2)];
-#else
-	p_command->inst.cmd0 = g_pu32RamBase[(pc>>2)+0];
-	p_command->inst.cmd1 = g_pu32RamBase[(pc>>2)+1];
-#endif
-
-	gDlistStack[gDlistStackPointer].pc += 8;
-
-}
 
 //*************************************************************************************
 // 

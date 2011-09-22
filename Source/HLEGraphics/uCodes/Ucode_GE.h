@@ -1,0 +1,76 @@
+/*
+Copyright (C) 2009 StrmnNrmn
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+*/
+
+#ifndef UCODE_GE_H__
+#define UCODE_GE_H__
+
+#undef __GE_NOTHING
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
+{
+	// Check for invalid address
+	if ( (command.inst.cmd1)>>24 != 0xce )	
+		return;
+
+	u32 pc = gDlistStack[gDlistStackPointer].pc;		// This points to the next instruction
+	u32 * Cmd = (u32 *)(g_pu8RamBase + pc);
+
+	// Indices
+	u32 a1 = *Cmd+8*0+4;
+	u32 a3 = *Cmd+8*2+4;
+
+	// Unused for now
+#ifdef __GE_NOTHING
+	u32 a2 = *Cmd+8*1+4;
+	u32 a4 = *Cmd+8*3+4;
+	u32 a5 = *Cmd+8*4+4;
+	u32 a6 = *Cmd+8*5+4;
+	u32 a7 = *Cmd+8*6+4;
+	u32 a8 = *Cmd+8*7+4;
+	u32 a9 = *Cmd+8*8+4;
+#endif
+
+	// Note : Color itself is handled elsewhere N.B Blendmode.cpp
+	//
+	// Coordinates, textures
+	s32 x0 = s32(a3>>16)>>24;	// Loads our texture coordinates
+	s32 y0 = s32(a1&0xFFFF)/4;	// Loads color coordinates etc
+	s32 x1 = 320*100;			// Loads Both screen coordinates and texture coordinates.
+	s32 y1 = s32(a1>>16)/4;		// Loads texture etc
+
+	// TIP : f32 x1 can be modified to render the sky differently.
+	// Need to check on real hardware to tweak our sky correctly if needed.
+
+	// Loads texrect
+	v2 xy0( x0, x0 );
+	v2 xy1( x1, x1 );
+	v2 uv0( y0 / 40.0f, y0 / 40.0f );
+	v2 uv1( y1 / 40.0f, y1 / 40.0f );
+
+	//DL_PF(" Word 1: %u, Word 2: %u, Word 3: %u, Word 4: %u, Word 5: %u, Word 6: %u, Word 7: %u, Word 8: %u, Word 9: %u", a1, a2, a3, a4, a5, a6, a7, a8, a9);
+	//DL_PF("    Tile:%d Screen(%f,%f) -> (%f,%f)",				   tile, xy0, xy1, uv0, uv1);
+	PSPRenderer::Get()->TexRect( 0, xy0, xy1, uv0, uv1 );
+
+	gDlistStack[gDlistStackPointer].pc += 312;
+}
+
+
+#endif // UCODE_GE_H__

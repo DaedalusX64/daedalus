@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-
+#include "uCodes/Ucode.h"
 #include "DLParser.h"
 #include "PSPRenderer.h"
 #include "PixelFormatN64.h"
@@ -29,8 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TextureCache.h"
 #include "ConvertImage.h"			// Convert555ToRGBA
 #include "Microcode.h"
-#include "UcodeDefs.h"
-#include "Ucode.h"
+#include "Ucodes/UcodeDefs.h"
 
 #include "Utility/Profiler.h"
 #include "Utility/IO.h"
@@ -57,13 +56,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <vector>
 
-
 const u32	MAX_RAM_ADDRESS = (8*1024*1024);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 const char *	gDisplayListRootPath = "DisplayLists";
 const char *	gDisplayListDumpPathFormat = "dl%04d.txt";
 #endif
+
+//*****************************************************************************
+//
+//*****************************************************************************
+#define RDP_NOIMPL_WARN(op)				DAEDALUS_DL_ERROR( op )
+#define RDP_NOIMPL( op, cmd0, cmd1 )	DAEDALUS_DL_ERROR( "Not Implemented: %s 0x%08x 0x%08x", op, cmd0, cmd1 )
 
 #define N64COL_GETR( col )		(u8((col) >> 24))
 #define N64COL_GETG( col )		(u8((col) >> 16))
@@ -75,7 +79,16 @@ const char *	gDisplayListDumpPathFormat = "dl%04d.txt";
 #define N64COL_GETB_F( col )	(N64COL_GETB(col) * (1.0f/255.0f))
 #define N64COL_GETA_F( col )	(N64COL_GETA(col) * (1.0f/255.0f))
 
+// Mask down to 0x003FFFFF?
+#define RDPSegAddr(seg) ( (gSegments[((seg)>>24)&0x0F]&0x00ffffff) + ((seg)&0x00FFFFFF) )
+
 static void RDP_Force_Matrix(u32 address);
+void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
+void DLParser_PopDL();
+void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
+void RDP_MoveMemLight(u32 light_idx, u32 address);
+void DLParser_InitGeometryMode();
+
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -86,12 +99,33 @@ inline void 	FinishRDPJob()
 	gCPUState.AddJob(CPU_CHECK_INTERRUPTS);
 }
 
+//*****************************************************************************
+// Reads the next command from the display list, updates the PC.
+//*****************************************************************************
+inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
+{
+	// Current PC is the last value on the stack
+	u32			pc( gDlistStack[gDlistStackPointer].pc );
+
+	// 1-> Copy command in 64bit in one go
+	//
+#if 1	
+	*p_command = *(MicroCodeCommand*)&g_pu32RamBase[(pc>>2)];
+#else
+	p_command->inst.cmd0 = g_pu32RamBase[(pc>>2)+0];
+	p_command->inst.cmd1 = g_pu32RamBase[(pc>>2)+1];
+#endif
+
+	gDlistStack[gDlistStackPointer].pc += 8;
+
+}
 //*************************************************************************************
 //
 //*************************************************************************************
 u32 gRDPHalf1 = 0;
 u32 gRDPFrame = 0;
-
+u32 gAuxAddr = 0;
+u32 gGeometryMode = 0;
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 //                     GFX State                        //
@@ -109,6 +143,14 @@ struct N64Light
 struct RDP_Scissor
 {
 	u32 left, top, right, bottom;
+};
+
+enum CycleType
+{
+	CYCLE_1CYCLE = 0,		// Please keep in this order - matches RDP
+	CYCLE_2CYCLE,
+	CYCLE_COPY,
+	CYCLE_FILL,
 };
 
 
@@ -176,6 +218,18 @@ u32 gFillColor		= 0xFFFFFFFF;
 
 u32 gVertexStride;
  
+#include "uCodes/Ucode_GBI0.h"
+#include "uCodes/Ucode_GBI1.h"
+#include "uCodes/Ucode_GBI2.h"
+#include "uCodes/Ucode_DKR.h"
+#include "uCodes/Ucode_GE.h"
+#include "uCodes/Ucode_PD.h"
+#include "uCodes/Ucode_Conker.h"
+#include "uCodes/Ucode_LL.h"
+#include "uCodes/Ucode_WRUS.h"
+#include "uCodes/Ucode_SOTE.h"
+#include "uCodes/Ucode_Sprite2D.h"
+#include "uCodes/Ucode_S2DEX.h"
 
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
@@ -232,8 +286,6 @@ const char *sc_colcombtypes8[8] =
 }
 #endif
 
-// Mask down to 0x003FFFFF?
-#define RDPSegAddr(seg) ( (gSegments[((seg)>>24)&0x0F]&0x00ffffff) + ((seg)&0x00FFFFFF) )
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -431,6 +483,7 @@ static void HandleDumpDisplayList( OSTask * pTask )
 	}
 }
 #endif
+
 //*****************************************************************************
 // 
 //*****************************************************************************
@@ -787,12 +840,6 @@ void RDP_MoveMemViewport(u32 address)
 //*****************************************************************************
 //
 //*****************************************************************************
-#define RDP_NOIMPL_WARN(op)				DAEDALUS_DL_ERROR( op )
-#define RDP_NOIMPL( op, cmd0, cmd1 )	DAEDALUS_DL_ERROR( "Not Implemented: %s 0x%08x 0x%08x", op, cmd0, cmd1 )
-
-//*****************************************************************************
-//
-//*****************************************************************************
 
 
 //Nintro64 uses Sprite2d 
@@ -959,6 +1006,39 @@ void DLParser_RDPFullSync( MicroCodeCommand command )
 	/*DL_PF("FullSync: (Generating Interrupt)");*/
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_InitGeometryMode()
+{
+	DL_PF("  ZBuffer %s", (gGeometryMode & G_ZBUFFER) ? "On" : "Off");
+	DL_PF("  Culling %s", (gGeometryMode & G_CULL_BACK) ? "Back face" : (gGeometryMode & G_CULL_FRONT) ? "Front face" : "Off");
+	DL_PF("  Shade %s", (gGeometryMode & G_SHADE) ? "On" : "Off");
+	DL_PF("  Smooth Shading %s", (gGeometryMode & G_SHADING_SMOOTH) ? "On" : "Off");
+	DL_PF("  Lighting %s", (gGeometryMode & G_LIGHTING) ? "On" : "Off");
+	DL_PF("  Texture %s", (gGeometryMode & G_TEXTURE_ENABLE) ? "On" : "Off");
+	DL_PF("  Texture Gen %s", (gGeometryMode & G_TEXTURE_GEN) ? "On" : "Off");
+	DL_PF("  Texture Gen Linear %s", (gGeometryMode & G_TEXTURE_GEN_LINEAR) ? "On" : "Off");
+	DL_PF("  Fog %s", (gGeometryMode & G_FOG) ? "On" : "Off");
+	DL_PF("  LOD %s", (gGeometryMode & G_LOD) ? "On" : "Off");
+
+	// CULL_BACK has priority, Fixes Mortal Kombat 4
+	PSPRenderer::Get()->SetCullMode( gGeometryMode & G_CULL_FRONT, gGeometryMode & G_CULL_BACK );
+
+	PSPRenderer::Get()->SetSmooth( gGeometryMode & G_SHADE );
+
+	PSPRenderer::Get()->SetSmoothShade( gGeometryMode & G_SHADING_SMOOTH );
+
+	PSPRenderer::Get()->SetFogEnable( gGeometryMode & G_FOG );
+
+	PSPRenderer::Get()->SetTextureGen( gGeometryMode & G_TEXTURE_GEN );
+
+	PSPRenderer::Get()->SetTextureGenLin( gGeometryMode & G_TEXTURE_GEN_LINEAR );
+
+	PSPRenderer::Get()->SetLighting( gGeometryMode & G_LIGHTING );
+
+	PSPRenderer::Get()->ZBufferEnable( gGeometryMode & G_ZBUFFER );
+}
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -1668,17 +1748,6 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	}
 #endif
 }
-
-//*****************************************************************************
-//
-//*****************************************************************************
-enum CycleType
-{
-	CYCLE_1CYCLE = 0,		// Please keep in this order - matches RDP
-	CYCLE_2CYCLE,
-	CYCLE_COPY,
-	CYCLE_FILL,
-};
 
 //*****************************************************************************
 //
