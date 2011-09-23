@@ -85,7 +85,7 @@ const char *	gDisplayListDumpPathFormat = "dl%04d.txt";
 static void RDP_Force_Matrix(u32 address);
 void RDP_MoveMemViewport(u32 address);
 void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
-void DLParser_PopDL();
+static void DLParser_PopDL();
 void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
 void RDP_MoveMemLight(u32 light_idx, u32 address);
 void DLParser_InitGeometryMode();
@@ -438,7 +438,7 @@ void DLParser_CallDisplayList( const DList & dl )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_PopDL()
+static void DLParser_PopDL()
 {
 	DL_PF("Returning from DisplayList: level=%d", gDlistStackPointer+1);
 	DL_PF("############################################");
@@ -1750,6 +1750,14 @@ void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 	s16 hi;
 	u16 lo;
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	if (address + 64 > MAX_RAM_ADDRESS)
+	{
+		DBGConsole_Msg(0, "Mtx: Address invalid (0x%08x)", address);
+		return;
+	}
+#endif
+
 	for (u32 i = 0; i < 4; i++)
 	{
 		hi = *(s16 *)(base + address+(i<<3)+(((0)     )^0x2));
@@ -1778,16 +1786,7 @@ void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 static void RDP_Force_Matrix(u32 address)
 {
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST	
-	if (address + 64 > MAX_RAM_ADDRESS)
-	{
-		DBGConsole_Msg(0, "ForceMtx: Address invalid (0x%08x)", address);
-		return;
-	}
-#endif
-
 	Matrix4x4 mat;
-
 	MatrixFromN64FixedPoint(mat,address);
 
 #if 1	//1->Proper, 0->Hacky way :)

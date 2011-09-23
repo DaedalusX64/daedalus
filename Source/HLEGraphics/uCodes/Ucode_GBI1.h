@@ -339,12 +339,13 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 	}
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DL_PF(" No vertices were visible, culling rest of display list");
 	++gNumDListsCulled;
-	DLParser_PopDL();
-#else
-	gDlistStackPointer--;
 #endif
+
+	DL_PF(" No vertices were visible, culling rest of display list");
+
+	DLParser_PopDL();
+
 }
 
 
@@ -371,11 +372,7 @@ void DLParser_GBI1_DL( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_EndDL( MicroCodeCommand command )
 {
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DLParser_PopDL();
-#else
-	gDlistStackPointer--;
-#endif
 }
 
 //*****************************************************************************
