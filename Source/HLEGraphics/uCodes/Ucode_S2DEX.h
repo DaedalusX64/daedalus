@@ -20,8 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef UCODE_S2DEX_H__
 #define UCODE_S2DEX_H__
 
-#include "../SysPSP/Utility/FastMemcpy.h"
-
 //*****************************************************************************
 // Needed by S2DEX
 //*****************************************************************************
@@ -158,19 +156,11 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 }
 
 //*****************************************************************************
-//
+// YoshiStory - 0x04
 //*****************************************************************************
 void DLParser_S2DEX_SelectDl( MicroCodeCommand command )
 {	
-	// YoshiStory - 0x04
-	static bool warned = false;
-
-	DL_PF( "~*Not Implemented" );
-	if (!warned)
-	{
-		RDP_NOIMPL("RDP: S2DEX_SelectDl", command.inst.cmd0, command.inst.cmd1);
-		warned = true;
-	}
+	DL_PF( "	S2DEX_SelectDl (Ignored)" );
 }
 
 //*****************************************************************************
@@ -179,6 +169,7 @@ void DLParser_S2DEX_SelectDl( MicroCodeCommand command )
 void DLParser_S2DEX_ObjSprite( MicroCodeCommand command )
 {	
 	// YoshiStory uses this - 0x06
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	static bool warned = false;
 
 	DL_PF( "~*Not Implemented" );
@@ -187,6 +178,7 @@ void DLParser_S2DEX_ObjSprite( MicroCodeCommand command )
 		RDP_NOIMPL("RDP: S2DEX_ObjSprite", command.inst.cmd0, command.inst.cmd1);
 		warned = true;
 	}
+#endif
 }
 
 //*****************************************************************************
@@ -195,6 +187,7 @@ void DLParser_S2DEX_ObjSprite( MicroCodeCommand command )
 void DLParser_S2DEX_ObjRectangle( MicroCodeCommand command )
 {	
 	// YoshiStory uses this - 0x01
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	static bool warned = false;
 
 	DL_PF( "~*Not Implemented" );
@@ -203,22 +196,15 @@ void DLParser_S2DEX_ObjRectangle( MicroCodeCommand command )
 		RDP_NOIMPL("RDP: S2DEX_ObjRectangle", command.inst.cmd0, command.inst.cmd1);
 		warned = true;
 	}
+#endif
 }
 
 //*****************************************************************************
-//
+// Majora's Mask ,Doubutsu no Mori, and YoshiStory Menus uses this - 0x0b
 //*****************************************************************************
 void DLParser_S2DEX_ObjRendermode( MicroCodeCommand command )
 {	
-	// Majora's Mask ,Doubutsu no Mori, and YoshiStory Menus uses this - 0x0b
-	static bool warned = false;
-
-	DL_PF( "~*Not Implemented" );
-	if (!warned)
-	{
-		RDP_NOIMPL("RDP: S2DEX_ObjRendermode", command.inst.cmd0, command.inst.cmd1);
-		warned = true;
-	}
+	DL_PF( "	S2DEX_ObjRendermode (Ignored)" );
 }
 
 //*****************************************************************************
@@ -227,6 +213,7 @@ void DLParser_S2DEX_ObjRendermode( MicroCodeCommand command )
 void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 {	
 	// Command and Conquer and YoshiStory uses this - 0x05
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	static bool warned = false;
 
 	DL_PF( "~*Not Implemented" );
@@ -235,6 +222,7 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 		RDP_NOIMPL("RDP: S2DEX_ObjLoadTxtr)", command.inst.cmd0, command.inst.cmd1);
 		warned = true;
 	}
+#endif
 }
 
 //*****************************************************************************
@@ -243,6 +231,7 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 {	
 	// YoshiStory uses this - 0xc2
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	static bool warned = false;
 
 	DL_PF( "~*Not Implemented" );
@@ -251,6 +240,7 @@ void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 		RDP_NOIMPL("RDP: S2DEX_ObjLdtxSprite", command.inst.cmd0, command.inst.cmd1);
 		warned = true;
 	}
+#endif
 }
 
 //*****************************************************************************
@@ -259,6 +249,7 @@ void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 void DLParser_S2DEX_ObjLdtxRect( MicroCodeCommand command )
 {	
 	// YoshiStory uses this - 0x07
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	static bool warned = false;
 
 	DL_PF( "~*Not Implemented" );
@@ -267,6 +258,7 @@ void DLParser_S2DEX_ObjLdtxRect( MicroCodeCommand command )
 		RDP_NOIMPL("RDP: S2DEX_ObjLdtxRect", command.inst.cmd0, command.inst.cmd1);
 		warned = true;
 	}
+#endif
 }
 
 //*****************************************************************************
@@ -275,6 +267,7 @@ void DLParser_S2DEX_ObjLdtxRect( MicroCodeCommand command )
 void DLParser_S2DEX_ObjLdtxRectR( MicroCodeCommand command )
 {	
 	// YoshiStory uses this - 0x08
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	static bool warned = false;
 
 	DL_PF( "~*Not Implemented" );
@@ -283,6 +276,7 @@ void DLParser_S2DEX_ObjLdtxRectR( MicroCodeCommand command )
 		RDP_NOIMPL("RDP: S2DEX_ObjLdtxRectR", command.inst.cmd0, command.inst.cmd1);
 		warned = true;
 	}
+#endif
 }
 
 //*****************************************************************************
@@ -322,6 +316,7 @@ void DLParser_S2DEX_RDPHalf_0( MicroCodeCommand command )
 void DLParser_S2DEX_ObjMoveMem( MicroCodeCommand command )
 {	
 	// Ogre Battle 64 and YoshiStory uses this - 0xdc
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	static bool warned = false;
 
 	DL_PF( "~*Not Implemented" );
@@ -330,6 +325,7 @@ void DLParser_S2DEX_ObjMoveMem( MicroCodeCommand command )
 		RDP_NOIMPL("RDP: S2DEX_ObjMoveMem", command.inst.cmd0, command.inst.cmd1);
 		warned = true;
 	}
+#endif
 }
 
 //*****************************************************************************
@@ -399,6 +395,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 void DLParser_S2DEX_ObjRectangleR( MicroCodeCommand command )
 {	
 	// Ogre Battle 64 and YoshiStory uses this - 0xda
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	static bool warned = false;
 
 	DL_PF( "~*Not Implemented" );
@@ -407,8 +404,12 @@ void DLParser_S2DEX_ObjRectangleR( MicroCodeCommand command )
 		RDP_NOIMPL("RDP: S2DEX_ObjRectangleR", command.inst.cmd0, command.inst.cmd1);
 		warned = true;
 	}
+#endif
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 void DLParser_S2DEX_Bg1cyc_2( MicroCodeCommand command )
 {
 	
@@ -422,6 +423,9 @@ void DLParser_S2DEX_Bg1cyc_2( MicroCodeCommand command )
 	DLParser_S2DEX_Bg1cyc(command);
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 void DLParser_S2DEX_ObjRendermode_2( MicroCodeCommand command )
 {
 

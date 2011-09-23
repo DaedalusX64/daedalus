@@ -137,6 +137,193 @@ void DLParser_GBI1_PopMtx( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
+void DLParser_GBI1_MoveMem( MicroCodeCommand command )
+{
+	u32 type     = (command.inst.cmd0>>16)&0xFF;
+	u32 length   = (command.inst.cmd0)&0xFFFF;
+	u32 address  = RDPSegAddr(command.inst.cmd1);
+
+	use(length);
+
+	switch (type)
+	{
+		case G_MV_VIEWPORT:
+			{
+				DL_PF("    G_MV_VIEWPORT. Address: 0x%08x, Length: 0x%04x", address, length);
+				RDP_MoveMemViewport( address );
+			}
+			break;
+		case G_MV_LOOKATY:
+			DL_PF("    G_MV_LOOKATY");
+			break;
+		case G_MV_LOOKATX:
+			DL_PF("    G_MV_LOOKATX");
+			break;
+		case G_MV_L0:
+		case G_MV_L1:
+		case G_MV_L2:
+		case G_MV_L3:
+		case G_MV_L4:
+		case G_MV_L5:
+		case G_MV_L6:
+		case G_MV_L7:
+			{
+				u32 light_idx = (type-G_MV_L0)/2;
+				DL_PF("    G_MV_L%d", light_idx);
+				DL_PF("    Light%d: Length:0x%04x, Address: 0x%08x", light_idx, length, address);
+
+				RDP_MoveMemLight(light_idx, address);
+			}
+			break;
+		case G_MV_TXTATT:
+			DL_PF("    G_MV_TXTATT");
+			break;
+		case G_MV_MATRIX_1:
+			DL_PF("		Force Matrix(1): addr=%08X", address);
+			RDP_Force_Matrix(address);
+			//gDlistStack[gDlistStackPointer].pc += 24;	// Next 3 cmds are part of ForceMtx, skip 'em
+			break;
+		//Next 3 MATRIX commands should not appear, since they were in the previous command.
+		case G_MV_MATRIX_2:	/*IGNORED*/	DL_PF("     G_MV_MATRIX_2");											break;
+		case G_MV_MATRIX_3:	/*IGNORED*/	DL_PF("     G_MV_MATRIX_3");											break;
+		case G_MV_MATRIX_4:	/*IGNORED*/	DL_PF("     G_MV_MATRIX_4");											break;
+		default:
+			DL_PF("    MoveMem Type: Unknown");
+			DBGConsole_Msg(0, "MoveMem: Unknown, cmd=%08X, %08X", command.inst.cmd0, command.inst.cmd1);
+			break;
+	}
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_GBI1_MoveWord( MicroCodeCommand command )
+{
+	// Type of movement is in low 8bits of cmd0.
+
+	switch (command.mw1.type)
+	{
+	case G_MW_MATRIX:
+		DL_PF("    G_MW_MATRIX(1)");
+		PSPRenderer::Get()->InsertMatrix(command.inst.cmd0, command.inst.cmd1);
+		break;
+	case G_MW_NUMLIGHT:
+		//#define NUML(n)		(((n)+1)*32 + 0x80000000)
+		{
+			u32 num_lights = ((command.mw1.value-0x80000000)/32) - 1;
+
+			DL_PF("    G_MW_NUMLIGHT: Val:%d", num_lights);
+
+			gAmbientLightIdx = num_lights;
+			PSPRenderer::Get()->SetNumLights(num_lights);
+
+		}
+		break;
+	case G_MW_CLIP:	// Seems to be unused?
+		{
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+			switch (command.mw1.offset)
+			{
+			case G_MWO_CLIP_RNX:
+			case G_MWO_CLIP_RNY:
+			case G_MWO_CLIP_RPX:
+			case G_MWO_CLIP_RPY:
+				break;
+			default:					
+				DL_PF("    G_MW_CLIP  ?   : 0x%08x", command.inst.cmd1);					
+				break;
+			}
+#endif
+		}
+		break;
+	case G_MW_SEGMENT:
+		{
+			u32 segment = (command.mw1.offset >> 2) & 0xF;
+			u32 base = command.mw1.value;
+			DL_PF("    G_MW_SEGMENT Seg[%d] = 0x%08x", segment, base);
+			gSegments[segment] = base;
+		}
+		break;
+	case G_MW_FOG: // WIP, only works for a few games
+		{
+			f32 a = command.mw1.value >> 16;
+			f32 b = command.mw1.value & 0xFFFF;
+
+			//f32 min = b - a;
+			//f32 max = b + a;
+			//min = min * (1.0f / 16.0f);
+			//max = max * (1.0f / 4.0f);
+			f32 min = a / 256.0f;
+			f32 max = b / 6.0f;
+
+			//DL_PF(" G_MW_FOG. Mult = 0x%04x (%f), Off = 0x%04x (%f)", wMult, 255.0f * fMult, wOff, 255.0f * fOff );
+
+			PSPRenderer::Get()->SetFogMinMax(min, max);
+
+			//printf("1Fog %.0f | %.0f || %.0f | %.0f\n", min, max, a, b);
+		}
+		break;
+	case G_MW_LIGHTCOL:
+		{
+			u32 light_idx = command.mw1.offset / 0x20;
+			u32 field_offset = (command.mw1.offset & 0x7);
+
+			DL_PF("    G_MW_LIGHTCOL/0x%08x: 0x%08x", command.mw1.offset, command.inst.cmd1);
+
+			switch (field_offset)
+			{
+			case 0:
+				//g_N64Lights[light_idx].Colour = command->cmd1;
+				// Light col, not the copy
+				if (light_idx == gAmbientLightIdx)
+				{
+					u32 n64col( command.mw1.value );
+
+					PSPRenderer::Get()->SetAmbientLight( v4( N64COL_GETR_F(n64col), N64COL_GETG_F(n64col), N64COL_GETB_F(n64col), 1.0f ) );
+				}
+				else
+				{
+					PSPRenderer::Get()->SetLightCol(light_idx, command.mw1.value);
+				}
+				break;
+
+			case 4:
+				break;
+
+			default:
+				//DBGConsole_Msg(0, "G_MW_LIGHTCOL with unknown offset 0x%08x", field_offset);
+				break;
+			}
+		}
+
+		break;
+	case G_MW_POINTS:	// Used in FIFA 98
+		{
+			u32 vtx = command.mw1.offset/40;
+			u32 offset = command.mw1.offset%40;
+			u32 val = command.mw1.value;
+
+			DL_PF("    G_MW_POINTS");
+
+			PSPRenderer::Get()->ModifyVertexInfo(offset, vtx, val);
+		}
+ 		break;
+	case G_MW_PERSPNORM:
+		DL_PF("    G_MW_PERSPNORM");
+		//RDP_NOIMPL_WARN("G_MW_PESPNORM Not Implemented");		// Used in Starfox - sets to 0xa
+	//	if ((short)command->cmd1 != 10)
+	//		DBGConsole_Msg(0, "PerspNorm: 0x%04x", (short)command->cmd1);	
+		break;
+	default:
+		DL_PF("    Type: Unknown");
+		RDP_NOIMPL_WARN("Unknown MoveWord");
+		break;
+	}
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
 void DLParser_GBI1_CullDL( MicroCodeCommand command )
 {
 	u32 first = command.culldl.first;
