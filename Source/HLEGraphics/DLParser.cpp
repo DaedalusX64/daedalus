@@ -108,14 +108,7 @@ inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
 	// Current PC is the last value on the stack
 	u32			pc( gDlistStack[gDlistStackPointer].pc );
 
-	// 1-> Copy command in 64bit in one go
-	//
-#if 1	
 	*p_command = *(MicroCodeCommand*)&g_pu32RamBase[(pc>>2)];
-#else
-	p_command->inst.cmd0 = g_pu32RamBase[(pc>>2)+0];
-	p_command->inst.cmd1 = g_pu32RamBase[(pc>>2)+1];
-#endif
 
 	gDlistStack[gDlistStackPointer].pc += 8;
 
@@ -154,7 +147,6 @@ enum CycleType
 	CYCLE_FILL,
 };
 
-
 bool bIsOffScreen = false;
 u32	gSegments[16];
 static RDP_Scissor scissors;
@@ -162,8 +154,6 @@ static N64Light  g_N64Lights[16];	//Conker uses more than 8
 SImageDescriptor g_TI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 SImageDescriptor g_CI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 SImageDescriptor g_DI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
-
-//u32		gPalAddresses[ 4096 ];
 
 DListStack	gDlistStack[MAX_DL_STACK_SIZE];
 s32			gDlistStackPointer = -1;
@@ -308,16 +298,6 @@ bool DLParser_Initialise()
 	scissors.right = 320;
 	scissors.bottom = 240;
 
-	//
-	// Reset all the RDP registers
-	//
-	//gRDPOtherMode._u64 = 0;
-	gRDPOtherMode.L = 0;
-	gRDPOtherMode.H = 0;
-
-	gRDPOtherMode.pad = G_RDP_RDPSETOTHERMODE;
-	gRDPOtherMode.blender = 0x0050;
-
 	return true;
 }
 
@@ -370,13 +350,10 @@ static void DLParser_DumpMux( u64 mux )
 	DL_PF("    RGB1: (%s - %s) * %s + %s", sc_colcombtypes16[aRGB1], sc_colcombtypes16[bRGB1], sc_colcombtypes32[cRGB1], sc_colcombtypes8[dRGB1]);		
 	DL_PF("    A1  : (%s - %s) * %s + %s", sc_colcombtypes8[aA1],  sc_colcombtypes8[bA1], sc_colcombtypes8[cA1],  sc_colcombtypes8[dA1]);
 }
-#endif
-
 
 //*****************************************************************************
 //
 //*****************************************************************************
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 static void	DLParser_DumpTaskInfo( const OSTask * pTask )
 {
 	DL_PF( "Task:         %08x",      pTask->t.type  );
@@ -399,8 +376,43 @@ static void	DLParser_DumpTaskInfo( const OSTask * pTask )
 	DL_PF( "YieldData:    %08x", (u32)pTask->t.yield_data_ptr );
 	DL_PF( "YieldDataSize:%08x",      pTask->t.yield_data_size );
 }
-#endif
+
+//*************************************************************************************
+// 
+//*************************************************************************************
+static void HandleDumpDisplayList( OSTask * pTask )
+{
+	if (gDumpNextDisplayList)
+	{
+		DBGConsole_Msg( 0, "Dumping display list" );
+		static u32 count = 0;
+
+		char szFilePath[MAX_PATH+1];
+		char szFileName[MAX_PATH+1];
+		char szDumpDir[MAX_PATH+1];
+
+		IO::Path::Combine(szDumpDir, g_ROM.settings.GameName.c_str(), gDisplayListRootPath);
 	
+		Dump_GetDumpDirectory(szFilePath, szDumpDir);
+
+		sprintf(szFileName, "dl%04d.txt", count++);
+
+		IO::Path::Append(szFilePath, szFileName);
+
+		gDisplayListFile = fopen( szFilePath, "w" );
+		if (gDisplayListFile != NULL)
+			DBGConsole_Msg(0, "RDP: Dumping Display List as %s", szFilePath);
+		else
+			DBGConsole_Msg(0, "RDP: Couldn't create dumpfile %s", szFilePath);
+
+		DLParser_DumpTaskInfo( pTask );
+
+		// Clear flag as we're done
+		gDumpNextDisplayList = false;
+	}
+}
+#endif
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -448,43 +460,6 @@ static void DLParser_PopDL()
 
 	gDlistStackPointer--;
 }
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-//*************************************************************************************
-// 
-//*************************************************************************************
-static void HandleDumpDisplayList( OSTask * pTask )
-{
-	if (gDumpNextDisplayList)
-	{
-		DBGConsole_Msg( 0, "Dumping display list" );
-		static u32 count = 0;
-
-		char szFilePath[MAX_PATH+1];
-		char szFileName[MAX_PATH+1];
-		char szDumpDir[MAX_PATH+1];
-
-		IO::Path::Combine(szDumpDir, g_ROM.settings.GameName.c_str(), gDisplayListRootPath);
-	
-		Dump_GetDumpDirectory(szFilePath, szDumpDir);
-
-		sprintf(szFileName, "dl%04d.txt", count++);
-
-		IO::Path::Append(szFilePath, szFileName);
-
-		gDisplayListFile = fopen( szFilePath, "w" );
-		if (gDisplayListFile != NULL)
-			DBGConsole_Msg(0, "RDP: Dumping Display List as %s", szFilePath);
-		else
-			DBGConsole_Msg(0, "RDP: Couldn't create dumpfile %s", szFilePath);
-
-		DLParser_DumpTaskInfo( pTask );
-
-		// Clear flag as we're done
-		gDumpNextDisplayList = false;
-	}
-}
-#endif
 
 #define UCODE_SIZE 1024 
 
@@ -625,16 +600,16 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
 	switch (ucode)
 	{
-		case 0:	//GBI0
-		case 1:	//GBI1
-		case 2:	//GBI2	
+		case GBI_0:	//GBI0
+		case GBI_1:	//GBI1
+		case GBI_2:	//GBI2	
 			gucode_ver = ucode;
 			break;
-		case 4:	//DKR	
-		case 10:	//PD	
+		case GBI_DKR:	//DKR	
+		case GBI_PD:	//PD	
 			gucode_ver = 0;
 			break;
-		case 9:	//Conker
+		case GBI_CONKER:	//Conker
 			gucode_ver = 3;
 			break;
 		default:	//Default to 2 otherwise
@@ -764,13 +739,8 @@ void DLParser_Process()
 	//
 	// Not sure what to init this with. We should probably read it from the dmem
 	//
-	//gRDPOtherMode._u64 = 0;	//Better clear this here at Dlist start
-	gRDPOtherMode.L = 0;
+	gRDPOtherMode.L = 0x00500001;
 	gRDPOtherMode.H = 0;
-
-	gRDPOtherMode.pad = G_RDP_RDPSETOTHERMODE;
-	gRDPOtherMode.blender = 0x0050;
-	gRDPOtherMode.alpha_compare = 1;
 
 	gRDPFrame++;
 
@@ -800,7 +770,6 @@ void DLParser_Process()
 	extern bool gFrameskipActive;
 	if(!gFrameskipActive)
 	{
-	// ZBuffer/BackBuffer clearing is caught elsewhere, but we could force it here
 		PSPRenderer::Get()->SetVIScales();
 		PSPRenderer::Get()->Reset();
 		PSPRenderer::Get()->BeginScene();
@@ -1325,11 +1294,11 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	// Format is always 16bpp - RGBA16 or IA16:
 	u32 offset = (uls + ult * g_TI.Width) << 1;
 
-	const RDP_Tile &	rdp_tile( gRDPStateManager.GetTile( tile_idx ) );
+	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tile_idx ) );
 
 #ifndef DAEDALUS_TMEM
-	//Store location of PAL //Corn
-	gTextureMemory[ rdp_tile.tmem << 1 ] = (u32)&g_pu8RamBase[ g_TI.Address + offset ];
+	//Store address of PAL (assuming PAL is only stored in upper half of TMEM) //Corn
+	gTextureMemory[ rdp_tile.tmem & 0xFF ] = (u32*)&g_pu8RamBase[ g_TI.Address + offset ];
 #else
 	//Copy PAL to the PAL memory
 	u16 * p_source = (u16*)&g_pu8RamBase[ g_TI.Address + offset ];
@@ -1349,9 +1318,6 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 
 	// Format is always 16bpp - RGBA16 or IA16:
 	// I've no idea why these two are added - seems to work for 007!
-
-	//const RDP_Tile &	rdp_tile( gRDPStateManager.GetTile( tile_idx ) );
-	//gPalAddresses[ rdp_tile.tmem ] = g_TI.Address + offset;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	u32 lrt = command.loadtile.th >> 2;
@@ -1894,6 +1860,7 @@ static void RDP_Force_Matrix(u32 address)
 #if 1	//1->Proper, 0->Hacky way :)
 	PSPRenderer::Get()->ForceMatrix(mat);
 #else
+	//WWF games dont like proper way need to figure out why...
 	PSPRenderer::Get()->SetProjection(mat, true, true);
 #endif
 }

@@ -135,9 +135,9 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 		//Need to load PAL to TMEM //Corn
 #ifndef DAEDALUS_TMEM
 		//Calc offset to palette
-		u32 p_source = (u32)&g_pu8RamBase[ RDPSegAddr(objBg->imagePtr) + imageW * imageH];
+		u32 *p_source = (u32*)&g_pu8RamBase[ RDPSegAddr(objBg->imagePtr) + imageW * imageH];
 		//Load to TMEM area
-		gTextureMemory[ ( 0x200 + ( objBg->imagePal << 3 ) ) & 0x3FF ] = p_source;
+		gTextureMemory[ ( objBg->imagePal << 2 ) & 0xFF ] = p_source;
 		//Copy the palette to TMEM (Always RGBA16 eg. 512 bytes)
 #else
         //Calc offset to palette
@@ -369,9 +369,9 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 		//Need to load PAL to TMEM //Corn
 #ifndef DAEDALUS_TMEM
 		//Calc offset to palette
-		u32 p_source = (u32)&g_pu8RamBase[ RDPSegAddr(objBg->imagePtr) + imageW * imageH];
+		u32 *p_source = (u32*)&g_pu8RamBase[ RDPSegAddr(objBg->imagePtr) + imageW * imageH];
 		//Load to TMEM area
-		gTextureMemory[ ( 0x200 + ( objBg->imagePal << 3 ) ) & 0x3FF ] = p_source;
+		gTextureMemory[ ( objBg->imagePal << 2 ) & 0xFF ] = p_source;
 		//Copy the palette to TMEM (Always RGBA16 eg. 512 bytes)
 #else
         //Calc offset to palette

@@ -85,13 +85,13 @@ const void *	TextureInfo::GetPalettePtr() const
 #ifndef DAEDALUS_TMEM
 	if ( (GetSize() == G_IM_SIZ_4b) & gTLUTalt_mode )
 	{
-		if(gTextureMemory[ 0x200 + ( TLutIndex << 5 )] == 0) return (void *)(gTextureMemory[ 0x200 ] + ( TLutIndex << 7 ));
-		else return (void *)gTextureMemory[ 0x200 + ( TLutIndex << 5 ) ];
+		if(gTextureMemory[ TLutIndex << 4 ] == NULL) return (void *)((u32)gTextureMemory[ 0 ] + ( TLutIndex << 7 ));
+		else return (void *)gTextureMemory[ TLutIndex << 4 ];
 	}
 	else
 	{
-		if(gTextureMemory[ 0x200 + ( TLutIndex << 3 )] == 0) return (void *)(gTextureMemory[ 0x200 ] + ( TLutIndex << 5 ));
-		else return (void *)gTextureMemory[ 0x200 + ( TLutIndex << 3 ) ];
+		if(gTextureMemory[ TLutIndex << 2 ] == NULL) return (void *)((u32)gTextureMemory[ 0 ] + ( TLutIndex << 5 ));
+		else return (void *)gTextureMemory[ TLutIndex << 2 ];
 	}
 #else
 
