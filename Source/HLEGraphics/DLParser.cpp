@@ -1029,6 +1029,9 @@ void DLParser_InitGeometryMode()
 	bool bTextureGen        = (gGeometryMode & G_TEXTURE_GEN)		? true : false;
 	PSPRenderer::Get()->SetTextureGen(bTextureGen);
 
+	bool bTextureGenLin        = (gGeometryMode & G_TEXTURE_GEN_LINEAR)			? true : false;
+	PSPRenderer::Get()->SetTextureGenLin( bTextureGenLin );
+
 	bool bLighting			= (gGeometryMode & G_LIGHTING)			? true : false;
 	PSPRenderer::Get()->SetLighting( bLighting );
 
@@ -1042,7 +1045,7 @@ void DLParser_InitGeometryMode()
 	DL_PF("  Lighting %s", bLighting ? "On" : "Off");
 	DL_PF("  Texture %s", (gGeometryMode & G_TEXTURE_ENABLE) ? "On" : "Off");
 	DL_PF("  Texture Gen %s", bTextureGen ? "On" : "Off");
-	DL_PF("  Texture Gen Linear %s", (gGeometryMode & G_TEXTURE_GEN_LINEAR) ? "On" : "Off");
+	DL_PF("  Texture Gen Linear %s", bTextureGenLin ? "On" : "Off");
 	DL_PF("  Fog %s", bFog ? "On" : "Off");
 	DL_PF("  LOD %s", (gGeometryMode & G_LOD) ? "On" : "Off");
 }

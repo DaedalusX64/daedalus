@@ -474,6 +474,9 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 	bool bTextureGen        = (gGeometryMode & G_ZELDA_TEXTURE_GEN)			? true : false;
     PSPRenderer::Get()->SetTextureGen(bTextureGen);
 
+	bool bTextureGenLin        = (gGeometryMode & G_ZELDA_TEXTURE_GEN_LINEAR)			? true : false;
+	PSPRenderer::Get()->SetTextureGenLin( bTextureGenLin );
+
     bool bLighting			= (gGeometryMode & G_ZELDA_LIGHTING)			? true : false;
     PSPRenderer::Get()->SetLighting( bLighting );
 
