@@ -168,6 +168,7 @@ SImageDescriptor g_DI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 DListStack	gDlistStack[MAX_DL_STACK_SIZE];
 s32			gDlistStackPointer = -1;
 
+MicroCodeInstruction gInstructionLookupCustom[256];
 const MicroCodeInstruction *gUcode = gInstructionLookup[0];
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
@@ -485,6 +486,125 @@ static void HandleDumpDisplayList( OSTask * pTask )
 }
 #endif
 
+#define UCODE_SIZE 1024 
+
+#define SetCommand( cmd, func )					\
+		gInstructionLookupCustom[ cmd ] = func;
+
+#define SetCustom( ucode, stride, size )			\
+			gVertexStride = stride;					\
+			gUcode = gInstructionLookupCustom;		\
+			memcpy( &gInstructionLookupCustom, 		\
+				    &gInstructionLookup[ ucode ], size );
+
+#define SetNormal( ucode, stride )			\
+			gVertexStride = stride;					\
+			gUcode = gInstructionLookup[ ucode ];
+//*************************************************************************************
+// 
+//*************************************************************************************
+void DLParser_SetUcode( u32 ucode )
+{
+	switch( ucode )
+	{
+		case GBI_0:	//GBI0
+			SetNormal( ucode, 10 );
+			break;
+
+		case GBI_1:	//GBI1
+		case GBI_2:	//GBI2	
+		case S2DEX_GBI_1:
+			SetNormal( ucode, 2 );
+			break;
+
+		// Modified uCode 0 - RSP SW 2.0X
+		// Games: Golden Eye
+		case GBI_GE:
+			SetCustom( 0, 10, UCODE_SIZE);
+
+			SetCommand( G_GBI1_RDPHALF_1, DLParser_RDPHalf1_GoldenEye );
+			break;
+
+		// Modified uCode 0 - FAST3D.XX
+		// 00-3f
+		// Games: Wave Racer USA
+		case GBI_WR:
+			SetCustom( 0, 5, UCODE_SIZE);
+
+			SetCommand( G_GBI1_VTX,  DLParser_GBI0_Vtx_WRUS );
+			SetCommand( G_GBI1_TRI2, DLParser_Nothing ); // Just in case
+			break;
+
+		// Modified uCode 0 - RSP SW 2.0D EXT
+		// Games: Star Wars: Shadows of the Empire
+		case GBI_SE:
+			SetCustom( 0, 5, UCODE_SIZE);
+
+			SetCommand( G_GBI1_VTX, DLParser_GBI0_Vtx_SOTE );
+			SetCommand( G_GBI1_DL,  DLParser_GBI0_DL_SOTE );
+			break;
+
+		// Modified uCode 1 - F3DEX Last Legion
+		// 00-3f
+		// Games: Last Legion, Toukon, Toukon 2 
+		case GBI_LL:
+			SetCustom( 1, 2, UCODE_SIZE);
+
+			SetCommand( 0x80,		   DLParser_RSP_Last_Legion_0x80 );
+			SetCommand( 0x00,		   DLParser_RSP_Last_Legion_0x00 );
+			SetCommand( G_RDP_TEXRECT, DLParser_TexRect_Last_Legion );
+			break;
+
+		// Modified uCode 0 - Unknown
+		// Games: Perfect Dark
+		case GBI_PD:
+			SetCustom( 0, 10, UCODE_SIZE);
+
+			SetCommand( G_GBI1_VTX,		  RSP_Vtx_PD );
+			SetCommand( G_GBI1_RESERVED2, RSP_Set_Vtx_CI_PD );
+			SetCommand( G_GBI1_RDPHALF_1, DLParser_RDPHalf1_GoldenEye );
+			break;
+
+		// Modified uCode 0 - RSP SW 2.0 Diddy
+		// Games: Diddy Kong Racing, Gemini, and Mickey
+		case GBI_DKR:
+			SetCustom( 0, 10, UCODE_SIZE);
+
+			SetCommand( G_GBI1_MTX,		  DLParser_Mtx_DKR );
+			SetCommand( G_GBI1_VTX,		  DLParser_GBI0_Vtx_DKR );
+			SetCommand( G_GBI1_RESERVED1, DLParser_DMA_Tri_DKR );
+			SetCommand( G_GBI1_RESERVED2, DLParser_DLInMem );
+			SetCommand( G_GBI1_MOVEWORD,  DLParser_MoveWord_DKR );
+			SetCommand( G_GBI1_TRI1,	  DLParser_Set_Addr_DKR );
+			break;
+
+		// Modified uCode 2:  F3DEXBGxx Conker
+		// Games : Conker BFD
+		case GBI_CONKER:
+			SetCustom( 2, 2, UCODE_SIZE);
+
+			SetCommand( 0x01, RSP_Vtx_Conker );
+			SetCommand( 0x10, DLParser_GBI2_Conker );
+			SetCommand( 0x11, DLParser_GBI2_Conker );
+			SetCommand( 0x12, DLParser_GBI2_Conker );
+			SetCommand( 0x13, DLParser_GBI2_Conker );
+			SetCommand( 0x14, DLParser_GBI2_Conker );
+			SetCommand( 0x15, DLParser_GBI2_Conker );
+			SetCommand( 0x16, DLParser_GBI2_Conker );
+			SetCommand( 0x17, DLParser_GBI2_Conker );
+			SetCommand( 0x18, DLParser_GBI2_Conker );
+			SetCommand( 0x19, DLParser_GBI2_Conker );
+			SetCommand( 0x1a, DLParser_GBI2_Conker );
+			SetCommand( 0x1b, DLParser_GBI2_Conker );
+			SetCommand( 0x1c, DLParser_GBI2_Conker );
+			SetCommand( 0x1d, DLParser_GBI2_Conker );
+			SetCommand( 0x1e, DLParser_GBI2_Conker );
+			SetCommand( 0x1f, DLParser_GBI2_Conker );
+			SetCommand( 0xdb, RSP_MoveWord_Conker );
+			SetCommand( 0xdc, RSP_MoveMem_Conker );
+			break;
+	}
+}
 //*****************************************************************************
 // 
 //*****************************************************************************
@@ -492,31 +612,10 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 {
 	// Start ucode detector
 	u32 ucode = GBIMicrocode_DetectVersion( code_base, code_size, data_base, data_size );
-	
-	//
-	// This is the multiplier applied to vertex indices. 
-	//
-	const u32 vertex_stride[] =
-	{
-		10,		// Super Mario 64, Tetrisphere, Demos
-		2,		// Mario Kart, Star Fox
-		2,		// Zelda, and newer games
-		5,		// Wave Racer USA
-		10,		// Diddy Kong Racing
-		2,		// Last Legion, Toukon, Toukon 2
-		5,		// Shadows of the Empire (SOTE)
-		10,		// Golden Eye
-		2,		// Conker BFD
-		10,		// Perfect Dark
-		2,		// Yoshi's Story, Pokemon Puzzle League
-	};
 
-	//printf("ucode=%d\n", ucode);
-	// Detect correct ucode table
-	gUcode = gInstructionLookup[ ucode ];
-
-	// Detect Correct Vtx Stride
-	gVertexStride = vertex_stride[ ucode ];
+	// Set up ucode table, patch custom ucodes, set up vtx multiplier etc
+	//
+	DLParser_SetUcode( ucode );
 
 	current.code_base = code_base;
 	current.ucode	   = ucode; 

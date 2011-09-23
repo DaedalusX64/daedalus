@@ -39,14 +39,14 @@ enum GBIVersion
 	GBI_0 = 0,
 	GBI_1,
 	GBI_2,
+	S2DEX_GBI_1,
 	GBI_WR,
 	GBI_DKR,
 	GBI_LL,
 	GBI_SE,
 	GBI_GE,
 	GBI_CONKER,
-	GBI_PD,
-	S2DEX_GBI_1
+	GBI_PD
 };
 //*****************************************************************************
 // Function
