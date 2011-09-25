@@ -588,7 +588,7 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 	// Store useful information about this ucode for caching purpose
 	current.code_base = code_base;
 	current.ucode	  = ucode; 
-	current.custom	  = ( ucode >= GBI_1_S2DEX );
+	current.custom	  = ( ucode > GBI_1_S2DEX );
 
 	// Set up ucode table, patch custom ucodes, set up vtx multiplier etc
 	DLParser_SetUcode( ucode );
