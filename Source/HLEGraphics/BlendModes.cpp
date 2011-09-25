@@ -587,22 +587,22 @@ void BlendMode_0x0030fe045ffefdf8LL (BLEND_MODE_ARGS)
 //aA1  : (0            - 0           ) * 0            + Combined    
 void BlendMode_0x00309e045ffefdf8LL (BLEND_MODE_ARGS)
 {
-	details.ColourAdjuster.SetRGB(details.EnvColour);
-	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+	//details.ColourAdjuster.SetRGB(details.EnvColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
 }
 
 //Kirby 64 - Far Terrain
+//Breaks Rocket-Robot on wheels
 //case 0x0040fe8155fefd7eLL:
 //aRGB0: (Shade        - Env         ) * Texel0       + Env
 //aA0  : (0            - 0           ) * 0            + 1
 //aRGB1: (Shade        - Env         ) * Texel0       + Env
 //aA1  : (0            - 0           ) * 0            + 1
-
-void BlendMode_0x0040fe8155fefd7eLL (BLEND_MODE_ARGS)
-{
-	details.ColourAdjuster.SetRGB(details.EnvColour);
-	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
-}
+//void BlendMode_0x0040fe8155fefd7eLL (BLEND_MODE_ARGS)
+//{
+//	details.ColourAdjuster.SetRGB(details.EnvColour);
+//	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
+//}
 
 // Kirby - Air seeds, Ridge Racer 64 menu text 
 //case 0x0030b2615566db6dLL:
@@ -1857,7 +1857,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x003432685566ff7fLL); // Ogre Battle - Intro Dust / Conker - Chainsaw Smoke
 			BLEND_MODE(0x00373c6e117b9fcfLL); // OOT - Lens of Truth
 			BLEND_MODE(0x0040fe8155fef97cLL); // GoldenEye Sky
-			BLEND_MODE(0x0040fe8155fefd7eLL); // Kirby Far Terrain
+			//BLEND_MODE(0x0040fe8155fefd7eLL); // Kirby Far Terrain -> Breaks Rocket-robot on wheels
 			BLEND_MODE(0x0050d2a133a5b6dbLL); // Pokemon Stadium 2 Pokemon Select Box
 			BLEND_MODE(0x00541aa83335feffLL); // Sin and Punishment Grass
 			BLEND_MODE(0x00547ea833fdf2f9LL); // Sin and Punishment - Ground

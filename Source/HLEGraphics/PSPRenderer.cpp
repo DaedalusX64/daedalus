@@ -1508,7 +1508,7 @@ const v4 __attribute__((aligned(16))) NDCPlane[6] =
 //*****************************************************************************
 //*****************************************************************************
 //*****************************************************************************
-//Triangle clip using VFPU(fast) or FPU/CPU(slow and also broken) 
+//Triangle clip using VFPU(fast) or FPU/CPU(slower) 
 //*****************************************************************************
 //*****************************************************************************
 //*****************************************************************************
@@ -1523,11 +1523,11 @@ u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
 {
 	u32 vOut( 3 );
 
-	vOut = _ClipToHyperPlane( v1, v0, &NDCPlane[0], vOut ); if( vOut < 3 ) return 0;		// near
-	vOut = _ClipToHyperPlane( v0, v1, &NDCPlane[1], vOut ); if( vOut < 3 ) return 0;		// left
-	vOut = _ClipToHyperPlane( v1, v0, &NDCPlane[2], vOut ); if( vOut < 3 ) return 0;		// right
-	vOut = _ClipToHyperPlane( v0, v1, &NDCPlane[3], vOut ); if( vOut < 3 ) return 0;		// bottom
-	vOut = _ClipToHyperPlane( v1, v0, &NDCPlane[4], vOut ); if( vOut < 3 ) return 0;		// top
+	vOut = _ClipToHyperPlane( v1, v0, &NDCPlane[0], vOut ); if( vOut < 3 ) return vOut;		// near
+	vOut = _ClipToHyperPlane( v0, v1, &NDCPlane[1], vOut ); if( vOut < 3 ) return vOut;		// left
+	vOut = _ClipToHyperPlane( v1, v0, &NDCPlane[2], vOut ); if( vOut < 3 ) return vOut;		// right
+	vOut = _ClipToHyperPlane( v0, v1, &NDCPlane[3], vOut ); if( vOut < 3 ) return vOut;		// bottom
+	vOut = _ClipToHyperPlane( v1, v0, &NDCPlane[4], vOut ); if( vOut < 3 ) return vOut;		// top
 	vOut = _ClipToHyperPlane( v0, v1, &NDCPlane[5], vOut );		// far
 
 	return vOut;
@@ -1535,7 +1535,7 @@ u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
 
 #else
 //*****************************************************************************
-//CPU tris clip
+//CPU interpolate tris parameters
 //*****************************************************************************
 void DaedalusVtx4::Interpolate( const DaedalusVtx4 & lhs, const DaedalusVtx4 & rhs, float factor )
 {
@@ -1547,75 +1547,70 @@ void DaedalusVtx4::Interpolate( const DaedalusVtx4 & lhs, const DaedalusVtx4 & r
 }
 
 //*****************************************************************************
-//CPU tris clip
+//CPU tris clip to plane
 //*****************************************************************************
 static u32 clipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, u32 inCount, const v4 &plane )
 {
-	u32 outCount = 0;
-	DaedalusVtx4 * out = dest;
+	u32 outCount(0);
+	DaedalusVtx4 * out(dest);
 
 	const DaedalusVtx4 * a;
-	const DaedalusVtx4 * b = source;
-
-	f32 bDotPlane;
-
-	bDotPlane = b->ProjectedPos.Dot( plane );
+	const DaedalusVtx4 * b(source);
 
 	for( u32 i = 1; i < inCount + 1; ++i)
 	{
-		const s32 condition = i - inCount;
-		const s32 index = (( ( condition >> 31 ) & ( i ^ condition ) ) ^ condition ) << 1;
+		a = &source[i%inCount];
+		f32 aDotPlane = a->ProjectedPos.Dot( plane );
+		f32 bDotPlane = b->ProjectedPos.Dot( plane );
 
-		a = &source[ index ];
-	
 		// current point inside
-		if ( a->ProjectedPos.Dot( plane ) <= 0.f )
+		if ( aDotPlane <= 0.f )
 		{
 			// last point outside
 			if ( bDotPlane > 0.f )
 			{
 				// intersect line segment with plane
 				out->Interpolate( *b, *a, bDotPlane / (b->ProjectedPos - a->ProjectedPos).Dot( plane ) );
-				out += 2;
-				outCount += 1;
+				out += 1;
+				++outCount;
 			}
 			// copy current to out
-			memcpy( out, a, sizeof( DaedalusVtx4 ) * 2);
+			*out = *a;
 			b = out;
 
-			out += 2;
-			outCount += 1;
+			out += 1;
+			++outCount;
 		}
 		else
 		{
 			// current point outside
 			if ( bDotPlane <= 0.f )
 			{
-				// previous was inside
-				// intersect line segment with plane
+				// previous was inside, intersect line segment with plane
 				out->Interpolate( *b, *a, bDotPlane / (b->ProjectedPos - a->ProjectedPos).Dot( plane ) );
 
-				out += 2;
-				outCount += 1;
+				out += 1;
+				++outCount;
 			}
 			b = a;
 		}
-
-		bDotPlane = b->ProjectedPos.Dot( plane );
 	}
 
 	return outCount;
 }
 
-u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
+//*****************************************************************************
+//CPU tris clip to frustum
+//*****************************************************************************
+u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1)
 {
-	u32 vOut( 3 );
+	u32 vOut(3);
 
-	vOut = clipToHyperPlane( v1, v0, vOut, NDCPlane[0] ); if( vOut < 3 ) return 0;		// near
-	vOut = clipToHyperPlane( v0, v1, vOut, NDCPlane[1] ); if( vOut < 3 ) return 0;		// left
-	vOut = clipToHyperPlane( v1, v0, vOut, NDCPlane[2] ); if( vOut < 3 ) return 0;		// right
-	vOut = clipToHyperPlane( v0, v1, vOut, NDCPlane[3] ); if( vOut < 3 ) return 0;		// bottom
-	vOut = clipToHyperPlane( v1, v0, vOut, NDCPlane[4] ); if( vOut < 3 ) return 0;		// top
+	vOut = clipToHyperPlane( v1, v0, vOut, NDCPlane[0] ); if ( vOut < 3 ) return vOut;		// right
+	vOut = clipToHyperPlane( v0, v1, vOut, NDCPlane[1] ); if ( vOut < 3 ) return vOut;		// left 
+	vOut = clipToHyperPlane( v1, v0, vOut, NDCPlane[2] ); if ( vOut < 3 ) return vOut;		// top
+	vOut = clipToHyperPlane( v0, v1, vOut, NDCPlane[3] ); if ( vOut < 3 ) return vOut;		// bottom
+	vOut = clipToHyperPlane( v1, v0, vOut, NDCPlane[4] ); if ( vOut < 3 ) return vOut;		// near
 	vOut = clipToHyperPlane( v0, v1, vOut, NDCPlane[5] );		// far
 
 	return vOut;
