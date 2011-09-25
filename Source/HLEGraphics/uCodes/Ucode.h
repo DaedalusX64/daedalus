@@ -19,12 +19,16 @@
 #ifndef UCODE_H
 #define UCODE_H
 
-#include "../stdafx.h"
+#include "stdafx.h"
 #include "UcodeDefs.h"
 
-#define MAX_UCODE		4	// Increase this everytime a new ucode table is added !
+// Increase this everytime a new ucode table is added !
+// Do not add any custom ucode table here! instead just patch any of these 4 tables for all your custom ucode needs..
+// See DLParser_SetUcode for more info
+//
+#define MAX_UCODE		4	
 
-typedef void(*MicroCodeInstruction)(MicroCodeCommand command);
+typedef void(*MicroCodeInstruction)(MicroCodeCommand);
 #define UcodeFunc(name)	void name(MicroCodeCommand)
 
 extern const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256];
@@ -132,18 +136,6 @@ UcodeFunc( DLParser_S2DEX_Bg1cyc );
 UcodeFunc( DLParser_S2DEX_ObjRectangleR );
 UcodeFunc( DLParser_S2DEX_ObjRendermode_2 );
 UcodeFunc( DLParser_S2DEX_Bg1cyc_2 );
-
-
-
-//*****************************************************************************
-// Include ucode header files
-//*****************************************************************************
-//
-//#include "gsp/gspMacros.h"
-//#include "gsp/gspSprite2D.h"
-//#include "gsp/gspS2DEX.h"
-//#include "gsp/gspCustom.h"
-
 
 //*****************************************************************************
 // RDP Commands

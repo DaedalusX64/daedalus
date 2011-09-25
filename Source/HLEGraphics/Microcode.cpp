@@ -227,7 +227,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 		else
 		{
 			if( !strncmp(match, "S2DEX", 5) )
-				ucode_version = S2DEX_GBI_1;
+				ucode_version = GBI_1_S2DEX;
 			else
 				ucode_version = GBI_1;	
 		}
@@ -257,3 +257,4 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 
 	return ucode_version;
 }
+
