@@ -14,7 +14,7 @@
 #	a0		dest vertices			- must be aligned to 16 bytes
 #	a1		source vertices			- must be aligned to 16 bytes
 #	a2		plane					- must be aligned to 16 bytes
-#	a3		in_vertex_count
+#	a3		in_vertex_count			- must be > 0 or we need to re apply check
 #
 #	v0		out_vertex_count
 #
@@ -36,24 +36,25 @@ _ClipToHyperPlane:
 	#	M300		- b
 	#
 	
+	//beq			$a3, $0, finished_all_vertices	// verts_remaining == 0 --> finished_all_vertices
+	//nop
+
 	lv.q		R000, 0($a2)				// load plane equation (we reuse a2 for another purpose)
 	
 	or			$a2, $a1, $0				// take a copy of the original source pointer
 	sll			$t1, $a3, 6					// t1 = num_verts*64
 	addu		$t1, $a1, $t1				// source_end = source + num_verts*64
 	
-	lv.q		R300, 0($a1)				// load initial values for b
-	lv.q		R301, 16($a1)
-	lv.q		R302, 32($a1)
-	lv.q		R303, 48($a1)
+	// load initial values for b
+	lv.q		R300, 0($a1)				// TransformedPos(V4)
+	lv.q		R301, 16($a1)				// ProjectedPos(V4)
+	lv.q		R302, 32($a1)				// Color(V4)
+	lv.q		R303, 48($a1)				// Texture(V2) + Clipflags + 1/w
 	addiu		$a1, $a1, 64				// skip the first vertex
 
 	vdot.q		S013, R301, R000			// bDotPlane = dot( b.ProjectedPos, plane )
-	
+
 	or			$v0, $0, $0					// out_count = 0
-	
-	beq			$a3, $0, finished_all_vertices	// verts_remaining == 0 --> finished_all_vertices
-	nop
 	
 get_next_vertex:
 	// Wrap around the source pointer if necessary
@@ -153,8 +154,8 @@ a_is_outside:
 	addiu		$a0, $a0, 64				// out++
 	
 finished_vertex:
-	vdot.q		S013, R201, R000			// bDotPlane = dot( b.ProjectedPos, plane )
 	vmmov.q		M300, M200					// b = lat_point
+	vmov.s		S013, S003					// move old aDotPlane as new bDotPlane
 
 	addiu		$a3, $a3, -1				// verts_remaining--
 	bne			$a3, $0, get_next_vertex	// verts_remaining != 0 --> get_next_vertex
