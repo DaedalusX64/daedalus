@@ -34,9 +34,9 @@ ALIGNED_TYPE(struct, DaedalusVtx4, 16)
     v2	Texture;
 	
 	u32	ClipFlags;
-	f32 iW;	// 1.0f / projW
+	u32 Pad;
 
-	void			Interpolate( const DaedalusVtx4 & lhs, const DaedalusVtx4 & rhs, float factor );
+	void Interpolate( const DaedalusVtx4 & lhs, const DaedalusVtx4 & rhs, float factor );
 };
 
 DAEDALUS_STATIC_ASSERT( sizeof(DaedalusVtx4) == 64 );
@@ -62,7 +62,5 @@ struct DaedalusVtx
 };
 
 DAEDALUS_STATIC_ASSERT( sizeof(DaedalusVtx) == 24 );
-
-#define DAEDALUS_VERTEX_FLAGS (GU_TEXTURE_32BITF|GU_COLOR_8888|GU_VERTEX_32BITF )
 
 #endif // __DAEDALUS_DAEDALUSVTX_H__

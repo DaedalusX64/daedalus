@@ -1046,13 +1046,10 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		case CYCLE_2CYCLE:		blend_entry = LookupBlendState( mMux, true ); break;
 	}
 
-	u32		render_flags( DAEDALUS_VERTEX_FLAGS );
+	u32 render_flags( GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF );
 
-	switch( mode )
-	{
-	case RM_RENDER_2D:		render_flags |= GU_TRANSFORM_2D; break;
-	case RM_RENDER_3D:		render_flags |= GU_TRANSFORM_3D; break;
-	}
+	if( mode == RM_RENDER_2D ) render_flags |= GU_TRANSFORM_2D;
+	else render_flags |= GU_TRANSFORM_3D;
 
 	// Used for Blend Explorer, or Nasty texture
 	//
@@ -1294,7 +1291,6 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	const u32 & f1( mVtxProjected[v1].ClipFlags );
 	const u32 & f2( mVtxProjected[v2].ClipFlags );
 
-	//if ( f0 & f1 & f2 & CLIP_TEST_FLAGS )
 	if ( f0 & f1 & f2 )
 	{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -1314,11 +1310,8 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 		const v4 & t1( mVtxProjected[v1].ProjectedPos );
 		const v4 & t2( mVtxProjected[v2].ProjectedPos );
 
-		const f32 & iW0( mVtxProjected[v0].iW );	//Get 1.0f / projW
-		const f32 & iW1( mVtxProjected[v1].iW );
-		const f32 & iW2( mVtxProjected[v2].iW );
-
-		if( (((t1.x*iW1-t0.x*iW0)*(t2.y*iW2-t0.y*iW0) - (t2.x*iW2-t0.x*iW0)*(t1.y*iW1-t0.y*iW0)) * iW0 * iW1 * iW2) <= 0.f )
+		//Avoid using 1/w, it will use a few more mults but is still faster //Corn
+		if( (((t1.x*t0.w*t2.w - t0.x*t1.w*t2.w)*(t2.y*t0.w*t1.w - t0.y*t2.w*t1.w) - (t2.x*t0.w*t1.w - t0.x*t2.w*t1.w)*(t1.y*t0.w*t2.w - t0.y*t1.w*t2.w)) * t0.w * t1.w * t2.w) <= 0.f )
 		{
 			if( mCullMode == GU_CCW )
 			{
@@ -1561,7 +1554,11 @@ static u32 clipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, u
 
 	for( u32 i = 1; i < inCount + 1; ++i)
 	{
-		a = &source[i%inCount];
+		//a = &source[i%inCount];
+		const s32 condition = i - inCount;
+		const s32 index = (( ( condition >> 31 ) & ( i ^ condition ) ) ^ condition ); 
+		a = &source[index];
+
 		f32 aDotPlane = a->ProjectedPos.Dot( plane );
 
 		// current point inside
@@ -1667,9 +1664,9 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 			//If we have less than 3 vertices left after the clipping
 			//we can't make a triangle so we bail and skip rendering it.
 			DL_PF("Clip & re-tesselate [%d,%d,%d] with %d vertices", i-3, i-2, i-1, out);
-			DL_PF("%#5.3f, %#5.3f, %#5.3f", mVtxProjected[ idx0 ].ProjectedPos.x*mVtxProjected[ idx0 ].iW, mVtxProjected[ idx0 ].ProjectedPos.y*mVtxProjected[ idx0 ].iW, mVtxProjected[ idx0 ].ProjectedPos.z*mVtxProjected[ idx0 ].iW);
-			DL_PF("%#5.3f, %#5.3f, %#5.3f", mVtxProjected[ idx1 ].ProjectedPos.x*mVtxProjected[ idx1 ].iW, mVtxProjected[ idx1 ].ProjectedPos.y*mVtxProjected[ idx1 ].iW, mVtxProjected[ idx1 ].ProjectedPos.z*mVtxProjected[ idx1 ].iW);
-			DL_PF("%#5.3f, %#5.3f, %#5.3f", mVtxProjected[ idx2 ].ProjectedPos.x*mVtxProjected[ idx2 ].iW, mVtxProjected[ idx2 ].ProjectedPos.y*mVtxProjected[ idx2 ].iW, mVtxProjected[ idx2 ].ProjectedPos.z*mVtxProjected[ idx2 ].iW);
+			DL_PF("%#5.3f, %#5.3f, %#5.3f", mVtxProjected[ idx0 ].ProjectedPos.x/mVtxProjected[ idx0 ].ProjectedPos.w, mVtxProjected[ idx0 ].ProjectedPos.y/mVtxProjected[ idx0 ].ProjectedPos.w, mVtxProjected[ idx0 ].ProjectedPos.z/mVtxProjected[ idx0 ].ProjectedPos.w);
+			DL_PF("%#5.3f, %#5.3f, %#5.3f", mVtxProjected[ idx1 ].ProjectedPos.x/mVtxProjected[ idx1 ].ProjectedPos.w, mVtxProjected[ idx1 ].ProjectedPos.y/mVtxProjected[ idx1 ].ProjectedPos.w, mVtxProjected[ idx1 ].ProjectedPos.z/mVtxProjected[ idx1 ].ProjectedPos.w);
+			DL_PF("%#5.3f, %#5.3f, %#5.3f", mVtxProjected[ idx2 ].ProjectedPos.x/mVtxProjected[ idx2 ].ProjectedPos.w, mVtxProjected[ idx2 ].ProjectedPos.y/mVtxProjected[ idx2 ].ProjectedPos.w, mVtxProjected[ idx2 ].ProjectedPos.z/mVtxProjected[ idx2 ].ProjectedPos.w);
 
 			if( out < 3 )
 				continue;
@@ -1984,20 +1981,19 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		//
 		v4 & projected( mVtxProjected[i].ProjectedPos );
 		projected = matWorldProject.Transform( w );
-		mVtxProjected[i].iW = 1.0f / mVtxProjected[i].ProjectedPos.w;	//Used for tris front/back culling //Corn
 		mVtxProjected[i].TransformedPos = matWorld.Transform( w );
 
 		//	Initialise the clipping flags
 		//
 		u32 clip_flags = 0;
-		if		(-projected.x > projected.w)	clip_flags |= X_POS;
-		else if (+projected.x > projected.w)	clip_flags |= X_NEG;
+		if		(projected.x < -projected.w)	clip_flags |= X_POS;
+		else if (projected.x > projected.w)	clip_flags |= X_NEG;
 
-		if		(-projected.y > projected.w)	clip_flags |= Y_POS;
-		else if (+projected.y > projected.w)	clip_flags |= Y_NEG;
+		if		(projected.y < -projected.w)	clip_flags |= Y_POS;
+		else if (projected.y > projected.w)	clip_flags |= Y_NEG;
 
-		if		(-projected.z > projected.w)	clip_flags |= Z_POS;
-		else if (+projected.z > projected.w)	clip_flags |= Z_NEG;
+		if		(projected.z < -projected.w)	clip_flags |= Z_POS;
+		else if (projected.z > projected.w)	clip_flags |= Z_NEG;
 		mVtxProjected[i].ClipFlags = clip_flags;
 
 		// LIGHTING OR COLOR
@@ -2153,20 +2149,19 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 		//
 		v4 & projected( mVtxProjected[i].ProjectedPos );
 		projected = matWorldProject.Transform( w );
-		mVtxProjected[i].iW = 1.0f / mVtxProjected[i].ProjectedPos.w;	//Used for tris front/back culling //Corn
 		mVtxProjected[i].TransformedPos = matWorld.Transform( w );
 
 		//	Initialise the clipping flags
 		//
 		u32 clip_flags = 0;
-		if		(-projected.x > projected.w)	clip_flags |= X_POS;
-		else if (+projected.x > projected.w)	clip_flags |= X_NEG;
+		if		(projected.x < -projected.w)	clip_flags |= X_POS;
+		else if (projected.x > projected.w)	clip_flags |= X_NEG;
 
-		if		(-projected.y > projected.w)	clip_flags |= Y_POS;
-		else if (+projected.y > projected.w)	clip_flags |= Y_NEG;
+		if		(projected.y < -projected.w)	clip_flags |= Y_POS;
+		else if (projected.y > projected.w)	clip_flags |= Y_NEG;
 
-		if		(-projected.z > projected.w)	clip_flags |= Z_POS;
-		else if (+projected.z > projected.w)	clip_flags |= Z_NEG;
+		if		(projected.z < -projected.w)	clip_flags |= Z_POS;
+		else if (projected.z > projected.w)	clip_flags |= Z_NEG;
 		mVtxProjected[i].ClipFlags = clip_flags;
 
 		// LIGHTING OR COLOR
@@ -2320,18 +2315,17 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 
 			v4 & projected( mVtxProjected[i].ProjectedPos );
 			projected = matWorldProject.Transform( transformed );	//Do projection
-			mVtxProjected[i].iW = 1.0f / projected.w;	//Used for tris front/back culling //Corn
 
 			// Set Clipflags
 			u32 clip_flags = 0;
-			if		(-projected.x > projected.w)	clip_flags |= X_POS;
-			else if (+projected.x > projected.w)	clip_flags |= X_NEG;
+			if		(projected.x < -projected.w)	clip_flags |= X_POS;
+			else if (projected.x > projected.w)	clip_flags |= X_NEG;
 
-			if		(-projected.y > projected.w)	clip_flags |= Y_POS;
-			else if (+projected.y > projected.w)	clip_flags |= Y_NEG;
+			if		(projected.y < -projected.w)	clip_flags |= Y_POS;
+			else if (projected.y > projected.w)	clip_flags |= Y_NEG;
 
-			if		(-projected.z > projected.w)	clip_flags |= Z_POS;
-			else if (+projected.z > projected.w)	clip_flags |= Z_NEG;
+			if		(projected.z < -projected.w)	clip_flags |= Z_POS;
+			else if (projected.z > projected.w)	clip_flags |= Z_NEG;
 			mVtxProjected[i].ClipFlags = clip_flags;
 
 			// Assign true vert colour
@@ -2372,19 +2366,18 @@ void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 
 		v4 & projected( mVtxProjected[i].ProjectedPos );
 		projected = matWorldProject.Transform( w );
-		mVtxProjected[i].iW = 1.0f / mVtxProjected[i].ProjectedPos.w;	//Used for tris front/back culling //Corn
 		mVtxProjected[i].TransformedPos = matWorld.Transform( w );
 
 		// Set Clipflags //Corn
 		u32 clip_flags = 0;
-		if		(-projected.x > projected.w)	clip_flags |= X_POS;
-		else if (+projected.x > projected.w)	clip_flags |= X_NEG;
+		if		(projected.x < -projected.w)	clip_flags |= X_POS;
+		else if (projected.x > projected.w)	clip_flags |= X_NEG;
 
-		if		(-projected.y > projected.w)	clip_flags |= Y_POS;
-		else if (+projected.y > projected.w)	clip_flags |= Y_NEG;
+		if		(projected.y < -projected.w)	clip_flags |= Y_POS;
+		else if (projected.y > projected.w)	clip_flags |= Y_NEG;
 
-		if		(-projected.z > projected.w)	clip_flags |= Z_POS;
-		else if (+projected.z > projected.w)	clip_flags |= Z_NEG;
+		if		(projected.z < -projected.w)	clip_flags |= Z_POS;
+		else if (projected.z > projected.w)	clip_flags |= Z_NEG;
 		mVtxProjected[i].ClipFlags = clip_flags;
 
 		if( mTnLModeFlags & TNL_LIGHT )

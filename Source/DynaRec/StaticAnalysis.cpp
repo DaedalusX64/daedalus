@@ -188,7 +188,7 @@ void StaticAnalysis_LB( OpCode op_code, RegisterUsage & recorder ) 			// Load By
 void StaticAnalysis_LBU( OpCode op_code, RegisterUsage & recorder ) 			// Load Byte Unsigned -- Zero extend byte...
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	if( g_ROM.GameHacks != PERFECT_DARK ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );	//PD dont like this
 }
 
 void StaticAnalysis_LH( OpCode op_code, RegisterUsage & recorder ) 		// Load Halfword

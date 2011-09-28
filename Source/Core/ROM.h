@@ -123,6 +123,7 @@ enum EGameHacks
 	AIDYN_CRONICLES,
 	ISS64,
 	DKR,
+	PERFECT_DARK,
 	LAST_ENTRY
 };
 

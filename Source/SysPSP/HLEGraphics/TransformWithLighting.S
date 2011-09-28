@@ -61,8 +61,6 @@ next_vertex_\function:
 	
 	sv.q		R201, 0($a3)				// Store world transform
 	sv.q		R202, 16($a3)				// Store projection transform
-	vrcp.s		S231, S232					// 1.0 / projected.w
-	sv.s		S231, 60($a3)				// Store 1.0 / projected.w
 	
 .if \fog_mode == 1
 	#	Calculate the Colour alpha value from the foq. We do this while the projected point
@@ -83,15 +81,12 @@ next_vertex_\function:
 	vnop
 	mfvc		$t4, $131					// VFPU_CC. Corresponds to X_NEG/Y_NEG/Z_NEG (will become X_POS/Y_POS/Z_POS later)
 	andi		$t4, $t4, 0x7				// Mask out the condition codes we don't care about
+	sll			$t4, $t4, 3					// Shift up to create X_POS/Y_POS/Z_POS	
 	
 	vcmp.q		GT, R202, R202[w,w,w,0]		// x > w, y > w, z > w
 	vnop
 	mfvc		$t5, $131					// VFPU_CC. Corresponds to X_NEG/Y_NEG/Z_NEG
 	andi		$t5, $t5, 0x7				// Mask out the condition codes we don't care about
-	
-	nor			$t1, $t4, $t4				// If X_POS etc is set, don't set X_NEG
-	and			$t5, $t5, $t1				// mask out any values which are already set
-	sll			$t4, $t4, 3					// Shift up to create X_POS/Y_POS/Z_POS	
 	or			$t4, $t4, $t5
 
 	sw			$t4, 56($a3)				// Store ClipFlags
@@ -263,7 +258,7 @@ _CalcClipFlagsVFPU:
 	mfvc		$t0, $131			// VFPU_CC. Corresponds to X_NEG/Y_NEG/Z_NEG
 	andi		$t0, $t0, 0x7
 	
-	nor			$t1, $v0, $v0
+	nor			$t1, $v0, $v0		// If X_POS etc is set, don't set X_NEG
 	and			$t0, $t0, $t1		// mask out any values which are already set
 
 
