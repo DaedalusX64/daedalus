@@ -227,7 +227,7 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 	// We always parse the cheat file when the cheat menu is accessed, to always have cheats ready to be used by the user without hassle
 	// Also we do this to make sure we clear any non-associated cheats, we only parse once per ROM access too :)
 	//
-	CheatCodes_Read( (char*)mRomName.c_str(), "Daedalus.cht", mRomID.CountryID );
+	CheatCodes_Read( (char*)mRomName.c_str(), (char*)"Daedalus.cht", mRomID.CountryID );
 
 	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Whether to use cheat codes for this ROM", "Yes", "No" ) );
 	mElements.Add( new CCheatFrequency( &mRomPreferences.CheatFrequency, "Apply Cheat Codes Frequency", "The higher this value, the less cheats will hog the emulator at the expense that certain cheats won't work properly." ) );
@@ -321,8 +321,8 @@ void	ICheatOptionsScreen::Render()
 {
 	mpContext->ClearBackground();
 
-	u32		font_height( mpContext->GetFontHeight() );
-	u32		line_height( font_height + 2 );
+	//u32		font_height( mpContext->GetFontHeight() );
+	//u32		line_height( font_height + 2 );
 	s32		y;
 
 	const char * const title_text = "Cheat Options";

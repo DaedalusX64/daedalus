@@ -1310,8 +1310,15 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 		const v4 & t1( mVtxProjected[v1].ProjectedPos );
 		const v4 & t2( mVtxProjected[v2].ProjectedPos );
 
-		//Avoid using 1/w, it will use a few more mults but is still faster //Corn
-		if( (((t1.x*t0.w*t2.w - t0.x*t1.w*t2.w)*(t2.y*t0.w*t1.w - t0.y*t2.w*t1.w) - (t2.x*t0.w*t1.w - t0.x*t2.w*t1.w)*(t1.y*t0.w*t2.w - t0.y*t1.w*t2.w)) * t0.w * t1.w * t2.w) <= 0.f )
+		//Avoid using 1/w, will use five more mults but save three divides //Corn
+		//Precalc reused w combos so compiler does a proper job
+		const f32 t01(t0.w*t1.w);
+		const f32 t02(t0.w*t2.w);
+		const f32 t12(t1.w*t2.w);
+		const f32 t0x12(t0.x*t12);
+		const f32 t0y12(t0.y*t12);
+
+		if( (((t1.x*t02 - t0x12)*(t2.y*t01 - t0y12) - (t2.x*t01 - t0x12)*(t1.y*t02 - t0y12)) * t01 * t2.w) <= 0.f )
 		{
 			if( mCullMode == GU_CCW )
 			{
@@ -1521,7 +1528,7 @@ u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
 #else	// FPU/CPU(slower) 
 
 //*****************************************************************************
-//CPU interpolate tris parameters
+//CPU interpolate line parameters
 //*****************************************************************************
 void DaedalusVtx4::Interpolate( const DaedalusVtx4 & lhs, const DaedalusVtx4 & rhs, float factor )
 {
@@ -1533,7 +1540,7 @@ void DaedalusVtx4::Interpolate( const DaedalusVtx4 & lhs, const DaedalusVtx4 & r
 }
 
 //*****************************************************************************
-//CPU tris clip to plane
+//CPU line clip to plane
 //*****************************************************************************
 static u32 clipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, u32 inCount, const v4 &plane )
 {

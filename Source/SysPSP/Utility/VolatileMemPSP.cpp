@@ -70,7 +70,7 @@ void VolatileMemInit()
 			// Register sysevent handler to prevent suspend mode because p5 memory cannot be resumed
 			memset(&malloc_p5_sysevent_handler_struct, 0, sizeof(struct PspSysEventHandler));
 			malloc_p5_sysevent_handler_struct.size = sizeof(struct PspSysEventHandler);
-			malloc_p5_sysevent_handler_struct.name = "p5_suspend_handler";
+			malloc_p5_sysevent_handler_struct.name = (char*) "p5_suspend_handler";
 			malloc_p5_sysevent_handler_struct.handler = &malloc_p5_sysevent_handler;
 			malloc_p5_sysevent_handler_struct.type_mask = 0x0000FF00;
 			kernel_sceKernelRegisterSysEventHandler(&malloc_p5_sysevent_handler_struct);
