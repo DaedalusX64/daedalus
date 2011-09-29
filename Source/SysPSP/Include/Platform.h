@@ -35,6 +35,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DAEDALUS_PSP_USE_ME
 #define DAEDALUS_ENABLE_OS_HOOKS
 
+ // We have a VFPU :) 	 
+#define DAEDALUS_PSP_USE_VFPU
+
 #define DAEDALUS_EXPECT_LIKELY(c) __builtin_expect((c),1)
 #define DAEDALUS_EXPECT_UNLIKELY(c) __builtin_expect((c),0)
 
@@ -45,5 +48,3 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define MAKE_UNCACHED_PTR(x)	(reinterpret_cast< void * >( reinterpret_cast<u32>( (x) ) | 0x40000000 ))
 
 #endif // PLATFORM_H_
-
-//ToDo: Use these to further clean code of excess Non-PSP code

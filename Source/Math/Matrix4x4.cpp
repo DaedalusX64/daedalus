@@ -11,8 +11,13 @@
 // http://forums.ps2dev.org/viewtopic.php?t=5557
 // http://bradburn.net/mr.mr/vfpu.html
 
-//ToDo: Move to Math.h?
+// Many of these mtx funcs should be inline since they are simple enough and called frequently - Salvy
 
+#ifdef DAEDALUS_PSP_USE_VFPU
+//*****************************************************************************
+//
+//*****************************************************************************
+/*
 inline void vsincosf(float angle, v4* result)
 {
 	__asm__ volatile (
@@ -21,7 +26,10 @@ inline void vsincosf(float angle, v4* result)
 		"usv.q C010, 0 + %0\n"
 	: "+m"(*result) : "r"(angle));
 }
-
+*/
+//*****************************************************************************
+//
+//*****************************************************************************
 void matrixMultiplyUnaligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b)
 {
 	__asm__ volatile (
@@ -46,6 +54,9 @@ void matrixMultiplyUnaligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Ma
 		: "=m" (*m_out) : "m" (*mat_a) ,"m" (*mat_b) : "memory" );
 } 
 
+//*****************************************************************************
+//
+//*****************************************************************************
 void matrixMultiplyAligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b)
 {
 	__asm__ volatile (
@@ -70,7 +81,10 @@ void matrixMultiplyAligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matr
 		: "=m" (*m_out) : "m" (*mat_a) ,"m" (*mat_b) : "memory" );
 } 
 
-
+//*****************************************************************************
+//
+//*****************************************************************************
+/*
 void myCopyMatrix(Matrix4x4 *m_out, const Matrix4x4 *m_in)
 {
 	__asm__ volatile (
@@ -85,7 +99,11 @@ void myCopyMatrix(Matrix4x4 *m_out, const Matrix4x4 *m_in)
 		"sv.q   R003, 0x30(%0)\n"
 	: : "r" (m_out) , "r" (m_in) );
 }
-
+*/
+//*****************************************************************************
+//
+//*****************************************************************************
+/*
 void myApplyMatrix(v4 *v_out, const Matrix4x4 *mat, const v4 *v_in)
 {
 	__asm__ volatile (
@@ -99,14 +117,20 @@ void myApplyMatrix(v4 *v_out, const Matrix4x4 *mat, const v4 *v_in)
 		"vtfm4.q R200, E000, R100\n"
 		"sv.q   R200, 0x0(%0)\n"
 	: : "r" (v_out) , "r" (mat) ,"r" (v_in) );
-}
-
+}*/
+#endif // DAEDALUS_PSP_USE_VFPU
+//*****************************************************************************
+//
+//*****************************************************************************
 Matrix4x4 & Matrix4x4::SetIdentity()
 {
 	*this = gMatrixIdentity;
 	return *this;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 Matrix4x4 & Matrix4x4::SetScaling( float scale )
 {
 	for ( u32 r = 0; r < 4; ++r )
@@ -119,6 +143,9 @@ Matrix4x4 & Matrix4x4::SetScaling( float scale )
 	return *this;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 Matrix4x4 & Matrix4x4::SetRotateX( float angle )
 {
 //	float	s( vfpu_sinf( angle ) );
@@ -134,6 +161,9 @@ Matrix4x4 & Matrix4x4::SetRotateX( float angle )
 	return *this;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 Matrix4x4 & Matrix4x4::SetRotateY( float angle )
 {
 //	float	s( vfpu_sinf( angle ) );
@@ -149,6 +179,9 @@ Matrix4x4 & Matrix4x4::SetRotateY( float angle )
 	return *this;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 Matrix4x4 & Matrix4x4::SetRotateZ( float angle )
 {
 //	float	s( vfpu_sinf( angle ) );
@@ -164,6 +197,9 @@ Matrix4x4 & Matrix4x4::SetRotateZ( float angle )
 	return *this;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 v3 Matrix4x4::TransformCoord( const v3 & vec ) const
 {
 	return v3( vec.x * m11 + vec.y * m21 + vec.z * m31 + m41, 
@@ -171,6 +207,9 @@ v3 Matrix4x4::TransformCoord( const v3 & vec ) const
 			   vec.x * m13 + vec.y * m23 + vec.z * m33 + m43 );
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 v3 Matrix4x4::TransformNormal( const v3 & vec ) const
 {
 	return v3( vec.x * m11 + vec.y * m21 + vec.z * m31, 
@@ -178,6 +217,9 @@ v3 Matrix4x4::TransformNormal( const v3 & vec ) const
 			   vec.x * m13 + vec.y * m23 + vec.z * m33 );
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 v4 Matrix4x4::Transform( const v4 & vec ) const
 {
 	return v4( vec.x * m11 + vec.y * m21 + vec.z * m31 + vec.w * m41, 
@@ -186,6 +228,9 @@ v4 Matrix4x4::Transform( const v4 & vec ) const
 			   vec.x * m14 + vec.y * m24 + vec.z * m34 + vec.w * m44 );
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 v3 Matrix4x4::Transform( const v3 & vec ) const
 {
 	v4	trans( vec.x * m11 + vec.y * m21 + vec.z * m31 + m41, 
@@ -201,6 +246,9 @@ v3 Matrix4x4::Transform( const v3 & vec ) const
 	return v3(trans.x, trans.y, trans.z);
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 Matrix4x4		Matrix4x4::Transpose() const
 {
 	return Matrix4x4( m11, m21, m31, m41,
@@ -209,6 +257,9 @@ Matrix4x4		Matrix4x4::Transpose() const
 					  m14, m24, m34, m44 );
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 Matrix4x4	Matrix4x4::Inverse() const
 {
 	/*Matrix4x4 temp;
@@ -290,6 +341,9 @@ Matrix4x4	Matrix4x4::Inverse() const
 					  augmented[ 2 ][ 4 ], augmented[ 2 ][ 5 ], augmented[ 2 ][ 6 ], augmented[ 2 ][ 7 ],
 					  augmented[ 3 ][ 4 ], augmented[ 3 ][ 5 ], augmented[ 3 ][ 6 ], augmented[ 3 ][ 7 ] );
 }
+//*****************************************************************************
+//
+//*****************************************************************************
 /*
 void myMulMatrixCPU(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b)
 {
@@ -306,16 +360,21 @@ void myMulMatrixCPU(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *
 
 }
 */
-//#include "Utility/Timing.h"
 
+//#include "Utility/Timing.h"
+//*****************************************************************************
+//
+//*****************************************************************************
 Matrix4x4 Matrix4x4::operator*( const Matrix4x4 & rhs ) const
 {
 	Matrix4x4 r;
 
 //VFPU
+#ifdef DAEDALUS_PSP_USE_VFPU
 	matrixMultiplyUnaligned( &r, this, &rhs );
 //CPU
-/*	for ( u32 i = 0; i < 4; ++i )
+#else
+	for ( u32 i = 0; i < 4; ++i )
 	{
 		for ( u32 j = 0; j < 4; ++j )
 		{
@@ -324,12 +383,18 @@ Matrix4x4 Matrix4x4::operator*( const Matrix4x4 & rhs ) const
 							m[ i ][ 2 ] * rhs.m[ 2 ][ j ] +
 							m[ i ][ 3 ] * rhs.m[ 3 ][ j ];
 		}
-	}*/
-
-
+	}
+#endif
 	return r;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
+const Matrix4x4	gMatrixIdentity( 1.0f, 0.0f, 0.0f, 0.0f,
+								 0.0f, 1.0f, 0.0f, 0.0f,
+								 0.0f, 0.0f, 1.0f, 0.0f,
+								 0.0f, 0.0f, 0.0f, 1.0f );
 //void test( const Matrix4x4 & rhs )
 //{
 //	Matrix4x4 r;
@@ -395,8 +460,4 @@ void	Matrix4x4::print() const
 }
 */
 
-const Matrix4x4	gMatrixIdentity( 1.0f, 0.0f, 0.0f, 0.0f,
-								 0.0f, 1.0f, 0.0f, 0.0f,
-								 0.0f, 0.0f, 1.0f, 0.0f,
-								 0.0f, 0.0f, 0.0f, 1.0f );
 

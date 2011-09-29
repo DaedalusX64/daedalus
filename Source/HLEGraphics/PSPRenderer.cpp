@@ -632,7 +632,7 @@ void	PSPRenderer::UpdateViewport()
 // We round these value here, so that when we scale up the coords to our screen
 // coords we don't get any gaps.
 //
-#if 1
+#ifdef DAEDALUS_PSP_USE_VFPU
 inline v2 PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords ) const
 {
 	v2 answ;
@@ -1496,19 +1496,11 @@ const v4 __attribute__((aligned(16))) NDCPlane[6] =
 	v4(  0.f, -1.f,  0.f, -1.f )	// top
 };
 
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//Triangle clip using VFPU(fast) or FPU/CPU(slower) 
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-#if 1 //1->VFPU clip, 0->FPU/CPU clip
+//
+//Triangle clip using VFPU(fast)
+//
 
+#ifdef DAEDALUS_PSP_USE_VFPU
 //*****************************************************************************
 //VFPU tris clip
 //*****************************************************************************
@@ -1526,7 +1518,8 @@ u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
 	return vOut;
 }
 
-#else
+#else	// FPU/CPU(slower) 
+
 //*****************************************************************************
 //CPU interpolate tris parameters
 //*****************************************************************************
@@ -1707,7 +1700,20 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 	//	Maybe we should allocate all vertex buffers from VRAM?
 	//
 	DaedalusVtx *	p_vertices( (DaedalusVtx*)sceGuGetMemory(num_vertices*sizeof(DaedalusVtx)) );
+
+#ifdef DAEDALUS_PSP_USE_VFPU
 	_ConvertVertices( p_vertices, clipped_vertices, num_vertices );
+#else 	 
+     for( u32 i = 0; i < num_vertices; ++i ) 	 
+     { 	 
+             p_vertices[ i ].Texture = clipped_vertices[ i ].Texture; 	 
+             p_vertices[ i ].Colour = c32( clipped_vertices[ i ].Colour ); 	 
+             p_vertices[ i ].Position.x = clipped_vertices[ i ].TransformedPos.x; 	 
+             p_vertices[ i ].Position.y = clipped_vertices[ i ].TransformedPos.y; 	 
+             p_vertices[ i ].Position.z = clipped_vertices[ i ].TransformedPos.z; 	 
+     } 	 
+#endif
+
 	*p_p_vertices = p_vertices;
 	*p_num_vertices = num_vertices;
 }
@@ -1733,7 +1739,25 @@ void PSPRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num
 	//  ToDo: Test Allocating vertex buffers to VRAM
 	//	ToDo: Why Indexed below?
 	DAEDALUS_STATIC_ASSERT( MAX_CLIPPED_VERTS > ARRAYSIZE(m_swIndexBuffer) );
+
+#ifdef DAEDALUS_PSP_USE_VFPU
 	_ConvertVerticesIndexed( p_vertices, mVtxProjected, num_vertices, m_swIndexBuffer );
+#else 	  
+	 // 	 
+	 //      Now we just shuffle all the data across directly (potentially duplicating verts) 	 
+	 // 	 
+	 for( u32 i = 0; i < m_dwNumIndices; ++i ) 	 
+	 { 	 
+			 u32                     index( m_swIndexBuffer[ i ] ); 	 
+
+			 p_vertices[ i ].Texture = mVtxProjected[ index ].Texture; 	 
+			 p_vertices[ i ].Colour = c32( mVtxProjected[ index ].Colour ); 	 
+			 p_vertices[ i ].Position.x = mVtxProjected[ index ].TransformedPos.x; 	 
+			 p_vertices[ i ].Position.y = mVtxProjected[ index ].TransformedPos.y; 	 
+			 p_vertices[ i ].Position.z = mVtxProjected[ index ].TransformedPos.z; 	 
+	 } 	 
+ #endif
+
 	*p_p_vertices = p_vertices;
 	*p_num_vertices = num_vertices;
 }
@@ -1766,20 +1790,11 @@ inline v4 PSPRenderer::LightVert( const v3 & norm ) const
 	return result;
 }
 
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//Transform using VFPU(fast) or FPU/CPU(slow)  
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
-//*****************************************************************************
+//
+//Transform using VFPU(fast)
+//
 
-#if	1	//1->VFPU, 0->FPU/CPU (for Standard rendering pipeline)
-
+#ifdef DAEDALUS_PSP_USE_VFPU
 //*****************************************************************************
 // Standard rendering pipeline using VFPU
 //*****************************************************************************
@@ -1857,11 +1872,10 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	}
 }
 
-#ifdef DAEDALUS_IS_LEGACY
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world )
+/*void PSPRenderer::TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world )
 {
 	bool	env_map( (mTnLModeFlags & (TNL_LIGHT|TNL_TEXGEN)) == (TNL_LIGHT|TNL_TEXGEN) );
 
@@ -1933,11 +1947,13 @@ void PSPRenderer::TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, cons
 		//	printf( "flags wrong: %02x != %02x\n", mVtxProjected[i].ClipFlags, flags );
 		//}
 	}
-}
-#endif	//DAEDALUS_IS_LEGACY
+}*/
 
+//
+//Transform using VFPU(fast) or FPU/CPU(slow)  
+//
 
-#else	//Transform VFPU/FPU
+#else
 //*****************************************************************************
 // Standard rendering pipeline using FPU/CPU
 //*****************************************************************************
@@ -2078,10 +2094,10 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 
 #endif	//Transform VFPU/FPU
 
+#ifdef DAEDALUS_PSP_USE_VFPU
 //*****************************************************************************
-// Conker Bad fur day rendering pipeline
+// Conker Bad Fur Day rendering pipeline
 //*****************************************************************************
-#if 1	//1->VFPU, 0->FPU	//Corn
 void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
