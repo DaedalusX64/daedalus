@@ -188,15 +188,14 @@ inline u64 LoadFPR_Long( u32 reg )
 	if (gCPUState.FPU[reg+0]._u32_0 == SIMULATESIG)
 	{
 		// convert f32->f64/d64
-		REG64 res;
-		res._f64 = (f64)gCPUState.FPU[reg+1]._f32_0;
-		return res._u64;
+		return gCPUState.FPU[reg+1]._u32_0;
 	}
 	else
 	{
 		REG64 res;
 		res._u32_0 = gCPUState.FPU[reg+0]._u32_0;
 		res._u32_1 = gCPUState.FPU[reg+1]._u32_0;
+
 		return res._u64;
 	}
 }
@@ -267,7 +266,7 @@ inline void StoreFPR_Double( u32 reg, d64 value )
 	if(gSimulateDoubleDisabled)
 	{
 		REG64 r; 
-		r._f64 = pspFpuFloatToDouble( value );	//r._f64 = f32( value );	
+		r._f64 = f32( value );	//r._f64 = f32( value );	
 		gCPUState.FPU[reg+0]._u32_0 = r._u32_0;
 		gCPUState.FPU[reg+1]._u32_0 = r._u32_1;
 	}
@@ -2232,6 +2231,7 @@ static void R4300_CALL_TYPE R4300_TLB_TLBWR( R4300_CALL_SIGNATURE )
 	// Select a value for index between wired and 31
 	
 	// errrg the vfpu here for rand causes alot of overhead :/
+	// was cuz we were comparing ints with floats
 	//i = vfpu_randf(wired, 32);
 	
 	i = (pspFastRand()%(32-wired)) + wired;
@@ -2249,43 +2249,22 @@ static void R4300_CALL_TYPE R4300_TLB_TLBP( R4300_CALL_SIGNATURE ) 				// TLB Pr
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	bool bFound = false;
+	u32 entryH = gCPUState.CPUControl[C0_ENTRYHI]._u32_0;
 
-	u32 dwEntryHi = gCPUState.CPUControl[C0_ENTRYHI]._u32_0;
-
-	DPF( DEBUG_TLB, "TLBP: ENTRYHI: 0x%08x", dwEntryHi );
-	//DBGConsole_Msg(0, "TLBP: ENTRYHI: 0x%08x", dwEntryHi);
+	DPF( DEBUG_TLB, "TLBP: ENTRYHI: 0x%08x", entryH );
 
     for( u32 i = 0; i < 32; i++ )
 	{
-		if( ((g_TLBs[i].hi & TLBHI_VPN2MASK) ==
-		     (dwEntryHi    & TLBHI_VPN2MASK)) &&
-			(
-				 (g_TLBs[i].g) ||
-				((g_TLBs[i].hi & TLBHI_PIDMASK) ==
-				 (dwEntryHi    & TLBHI_PIDMASK))
-			) ) {
-				DPF( DEBUG_TLB, "   Found matching TLB Entry - 0x%04x", i );
-				gCPUState.CPUControl[C0_INX]._u64 = i;
-				bFound = true;
-				break;
-            }
+		if( ((g_TLBs[i].hi & TLBHI_VPN2MASK) == (entryH & TLBHI_VPN2MASK)) && ( (g_TLBs[i].g) 
+			|| ((g_TLBs[i].hi & TLBHI_PIDMASK) ==  (entryH    & TLBHI_PIDMASK))) ) 
+		{
+			DPF( DEBUG_TLB, "   Found matching TLB Entry - 0x%04x", i );
+			gCPUState.CPUControl[C0_INX]._u32_0 = i;
+			return;
+		}
     }
 
-	if (!bFound)
-	{
-		//DBGConsole_Msg(0, "   No matching TLB Entry Found for 0x%08x", dwEntryHi);
-		DPF( DEBUG_TLB, "   No matching TLB Entry Found for 0x%08x", dwEntryHi );
-		gCPUState.CPUControl[C0_INX]._u64 = TLBINX_PROBE;
-
-		//CPUHalt();
-	}
-	/*else
-	{
-		//DBGConsole_Msg(0, "   Matching TLB Entry Found for 0x%08x", dwEntryHi);
-		//CPUHalt();
-	}*/
-
+	DPF( DEBUG_TLB, "   No matching TLB Entry Found for 0x%08x", entryH );
 }
 
 static void R4300_CALL_TYPE R4300_TLB_ERET( R4300_CALL_SIGNATURE )
