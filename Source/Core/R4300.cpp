@@ -2264,6 +2264,8 @@ static void R4300_CALL_TYPE R4300_TLB_TLBP( R4300_CALL_SIGNATURE ) 				// TLB Pr
 		}
     }
 
+	gCPUState.CPUControl[C0_INX]._u32_0 = TLBINX_PROBE;
+
 	DPF( DEBUG_TLB, "   No matching TLB Entry Found for 0x%08x", entryH );
 }
 
