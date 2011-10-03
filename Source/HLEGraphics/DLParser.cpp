@@ -158,8 +158,7 @@ SImageDescriptor g_DI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 DListStack	gDlistStack[MAX_DL_STACK_SIZE];
 s32			gDlistStackPointer = -1;
 
-MicroCodeInstruction gInstructionLookupCustom[256];
-const MicroCodeInstruction *gUcode = gInstructionLookup[0];
+MicroCodeInstruction *gUcode = gInstructionLookup[0];
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
 u32 gucode_ver=0;	//Need this global ucode version to get correct ucode names
@@ -461,27 +460,20 @@ static void DLParser_PopDL()
 	gDlistStackPointer--;
 }
 
-#define UCODE_SIZE 1024 
-
 #define SetCommand( cmd, func )					\
-		gInstructionLookupCustom[ cmd ] = func;
+		gUcode[ cmd ] = func;
 
-#define SetCustom( ucode, stride, size )			\
-			gVertexStride = stride;					\
-			gUcode = gInstructionLookupCustom;		\
-			memcpy( &gInstructionLookupCustom, 		\
-				    &gInstructionLookup[ ucode ], size );
-
-#define SetNormal( ucode, stride )			\
-			gVertexStride = stride;					\
-			gUcode = gInstructionLookup[ ucode ];
+#define SetMicrocode( ucode, stride )			\
+			gVertexStride = stride;				\
+			gUcode		  = gInstructionLookup[ ucode ];
 
 //*************************************************************************************
 // 
 //*************************************************************************************
+// ToDo : Find a clean way to undo patching after patching a normal ucode table
 void DLParser_SetUcode( u32 ucode )
 {	
-	// This is the multiplier applied to vertex indices. 
+	// This is the multiplier applied to vertex indices
 	const u32 stride[] =
 	{
 		10,		// Super Mario 64, Tetrisphere, Demos
@@ -497,10 +489,10 @@ void DLParser_SetUcode( u32 ucode )
 		10,		// Perfect Dark
 	};
 
-	// This a normal ucode, just retrive the correct ucode table
+	// This a normal ucode, just retrive the correct uCode table and exit
 	if( !current.custom )
 	{
-		SetNormal( ucode, stride[ ucode ] );
+		SetMicrocode( ucode, stride[ ucode ] );
 		return;
 	}
 
@@ -519,40 +511,41 @@ void DLParser_SetUcode( u32 ucode )
 		0,		// Modified uCode 0 - Unknown
 	};
 
-	// First build array based from a normal uCode table
-	SetCustom( info[ ucode-MAX_UCODE ], stride[ ucode ], UCODE_SIZE);
+	// Retrive uCode table which we will modify
+	// ToDo : rebundant, remove me
+	SetMicrocode( info[ ucode-MAX_UCODE ], stride[ ucode ] );
 
-	// Now let's patch it, to create our custom ucode ;)
+	// Now let's patch it, to create our custom ucode table ;)
 	switch( ucode )
 	{
 		case GBI_GE:
-			SetCommand( G_GBI1_RDPHALF_1, DLParser_RDPHalf1_GoldenEye );
+			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye );
 			break;
 		case GBI_WR:
-			SetCommand( G_GBI1_VTX,  DLParser_GBI0_Vtx_WRUS );
-			SetCommand( G_GBI1_TRI2, DLParser_Nothing ); // Just in case
+			SetCommand( 0x04, DLParser_GBI0_Vtx_WRUS );
+			SetCommand( 0xb1, DLParser_Nothing ); // Just in case
 			break;
 		case GBI_SE:
-			SetCommand( G_GBI1_VTX, DLParser_GBI0_Vtx_SOTE );
-			SetCommand( G_GBI1_DL,  DLParser_GBI0_DL_SOTE );
+			SetCommand( 0x04, DLParser_GBI0_Vtx_SOTE );
+			SetCommand( 0x06, DLParser_GBI0_DL_SOTE );
 			break;
 		case GBI_LL:
-			SetCommand( 0x80,		   DLParser_RSP_Last_Legion_0x80 );
-			SetCommand( 0x00,		   DLParser_RSP_Last_Legion_0x00 );
-			SetCommand( G_RDP_TEXRECT, DLParser_TexRect_Last_Legion );
+			SetCommand( 0x80, DLParser_RSP_Last_Legion_0x80 );
+			SetCommand( 0x00, DLParser_RSP_Last_Legion_0x00 );
+			SetCommand( 0xe4, DLParser_TexRect_Last_Legion );
 			break;
 		case GBI_PD:
-			SetCommand( G_GBI1_VTX,		  RSP_Vtx_PD );
-			SetCommand( G_GBI1_RESERVED2, RSP_Set_Vtx_CI_PD );
-			SetCommand( G_GBI1_RDPHALF_1, DLParser_RDPHalf1_GoldenEye );
+			SetCommand( 0x04, RSP_Vtx_PD );
+			SetCommand( 0x07, RSP_Set_Vtx_CI_PD );
+			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye );
 			break;
 		case GBI_DKR:
-			SetCommand( G_GBI1_MTX,		  DLParser_Mtx_DKR );
-			SetCommand( G_GBI1_VTX,		  DLParser_GBI0_Vtx_DKR );
-			SetCommand( G_GBI1_RESERVED1, DLParser_DMA_Tri_DKR );
-			SetCommand( G_GBI1_RESERVED2, DLParser_DLInMem );
-			SetCommand( G_GBI1_MOVEWORD,  DLParser_MoveWord_DKR );
-			SetCommand( G_GBI1_TRI1,	  DLParser_Set_Addr_DKR );
+			SetCommand( 0x01, DLParser_Mtx_DKR );
+			SetCommand( 0x04, DLParser_GBI0_Vtx_DKR );
+			SetCommand( 0x05, DLParser_DMA_Tri_DKR );
+			SetCommand( 0x07, DLParser_DLInMem );
+			SetCommand( 0xbc, DLParser_MoveWord_DKR );
+			SetCommand( 0xbf, DLParser_Set_Addr_DKR );
 			break;
 		case GBI_CONKER:
 			SetCommand( 0x01, RSP_Vtx_Conker );
