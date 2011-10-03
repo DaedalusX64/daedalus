@@ -54,6 +54,7 @@ struct TextureVtx
 	v3  pos;
 };
 
+//Cant be used for DKR since pointer start as odd and even addresses //Corn
 struct FiddledVtxDKR
 {
 	s16 y;
@@ -85,7 +86,15 @@ struct FiddledVtx
         s16 y;
         s16 x;
 
-        s16 flag;
+        union
+        {
+			s16 flag;
+            struct
+            {
+				s8 normz;
+				u8 pad;
+            };
+        };
         s16 z;
 
         s16 tv;
@@ -93,25 +102,23 @@ struct FiddledVtx
 
         union
         {
-                struct
-                {
-                        u8 rgba_a;
-                        u8 rgba_b;
-                        u8 rgba_g;
-                        u8 rgba_r;
-                };
-                struct
-                {
-                        s8 norm_a;
-                        s8 norm_z;      // b
-                        s8 norm_y;      // g
-                        s8 norm_x;      // r
-                };
+            struct
+            {
+                    u8 rgba_a;
+                    u8 rgba_b;
+                    u8 rgba_g;
+                    u8 rgba_r;
+            };
+            struct
+            {
+                    s8 norm_a;
+                    s8 norm_z;      // b
+                    s8 norm_y;      // g
+                    s8 norm_x;      // r
+            };
         };
 };
 DAEDALUS_STATIC_ASSERT( sizeof(FiddledVtx) == 16 );
-
-struct TextureVtx;
 
 ALIGNED_TYPE(struct, DaedalusLight, 16)
 {

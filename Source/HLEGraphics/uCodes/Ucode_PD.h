@@ -50,7 +50,7 @@ void RSP_Vtx_PD( MicroCodeCommand command )
 void RSP_Set_Vtx_CI_PD( MicroCodeCommand command )
 {
 	// PD Color index buf address
-	gAuxAddr = RDPSegAddr(command.inst.cmd1);
+	gAuxAddr = (u32)g_pu8RamBase + RDPSegAddr(command.inst.cmd1);
 }
 
 //*****************************************************************************

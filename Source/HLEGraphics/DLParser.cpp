@@ -118,7 +118,7 @@ inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
 //*************************************************************************************
 u32 gRDPHalf1 = 0;
 u32 gRDPFrame = 0;
-u32 gAuxAddr = 0;
+u32 gAuxAddr = (u32)g_pu8RamBase;
 u32 gGeometryMode = 0;
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
