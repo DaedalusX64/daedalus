@@ -34,7 +34,7 @@ typedef void(*MicroCodeInstruction)(MicroCodeCommand);
 extern const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256];
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-extern const char * gInstructionName[4][256];
+extern char * gInstructionName[4][256];
 #endif
 
 UcodeFunc( DLParser_GBI1_CullDL );

@@ -162,7 +162,8 @@ const MicroCodeInstruction *gUcode = gInstructionLookup[0];
 MicroCodeInstruction gInstructionLookupCustom[256];
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-u32 gucode_ver=0;	//Need this global ucode version to get correct ucode names
+char ** gUcodeName = gInstructionName[0];
+char * gInstructionNameCustom[256];
 #endif
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -209,7 +210,10 @@ u32 gTextureLevel = 0;
 u32 gFillColor		= 0xFFFFFFFF;
 
 u32 gVertexStride;
- 
+
+//*****************************************************************************
+// Include ucode header files
+//*****************************************************************************
 #include "uCodes/Ucode_GBI0.h"
 #include "uCodes/Ucode_GBI1.h"
 #include "uCodes/Ucode_GBI2.h"
@@ -431,18 +435,40 @@ static void DLParser_PopDL()
 //*****************************************************************************
 #define UCODE_SIZE 1024 
 
-#define SetCommand( cmd, func )					\
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+#define SetCommand( cmd, func, name )						\
+		gInstructionLookupCustom[ cmd ] = func;				\
+		gInstructionNameCustom[ cmd ] = name;
+
+#define SetCustom( ucode, stride, size )					\
+			gVertexStride = stride;							\
+			gUcode = gInstructionLookupCustom;				\
+			gUcodeName = gInstructionNameCustom;			\
+			memcpy( &gInstructionLookupCustom, 				\
+				    &gInstructionLookup[ ucode ], size );	\
+			memcpy( gInstructionNameCustom, 				\
+				    gInstructionName[ ucode ], size );
+
+#define SetNormal( ucode, stride )							\
+			gVertexStride = stride;							\
+			gUcode = gInstructionLookup[ ucode ];			\
+			gUcodeName = gInstructionName[ ucode ];	
+#else
+
+#define SetCommand( cmd, func, name )						\
 		gInstructionLookupCustom[ cmd ] = func;
 
-#define SetCustom( ucode, stride, size )			\
-			gVertexStride = stride;					\
-			gUcode = gInstructionLookupCustom;		\
-			memcpy( &gInstructionLookupCustom, 		\
+#define SetCustom( ucode, stride, size )					\
+			gVertexStride = stride;							\
+			gUcode = gInstructionLookupCustom;				\
+			memcpy( &gInstructionLookupCustom, 				\
 				    &gInstructionLookup[ ucode ], size );
 
-#define SetNormal( ucode, stride )			\
-			gVertexStride = stride;					\
+#define SetNormal( ucode, stride )							\
+			gVertexStride = stride;							\
 			gUcode = gInstructionLookup[ ucode ];
+#endif	
+
 
 //*************************************************************************************
 // 
@@ -495,54 +521,54 @@ void DLParser_SetUcode( u32 ucode )
 	switch( ucode )
 	{
 		case GBI_GE:
-			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye );
+			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye, "G_RDPHalf1_GoldenEye" );
 			break;
 		case GBI_WR:
-			SetCommand( 0x04, DLParser_GBI0_Vtx_WRUS );
-			SetCommand( 0xb1, DLParser_Nothing ); // Just in case
+			SetCommand( 0x04, DLParser_GBI0_Vtx_WRUS, "G_Vtx_WRUS" );
+			SetCommand( 0xb1, DLParser_Nothing, "G_Nothing" ); // Just in case
 			break;
 		case GBI_SE:
-			SetCommand( 0x04, DLParser_GBI0_Vtx_SOTE );
-			SetCommand( 0x06, DLParser_GBI0_DL_SOTE );
+			SetCommand( 0x04, DLParser_GBI0_Vtx_SOTE, "G_Vtx_SOTE" );
+			SetCommand( 0x06, DLParser_GBI0_DL_SOTE, "G_DL_SOTE" );
 			break;
 		case GBI_LL:
-			SetCommand( 0x80, DLParser_RSP_Last_Legion_0x80 );
-			SetCommand( 0x00, DLParser_RSP_Last_Legion_0x00 );
-			SetCommand( 0xe4, DLParser_TexRect_Last_Legion );
+			SetCommand( 0x80, DLParser_RSP_Last_Legion_0x80, "G_Last_Legion_0x80" );
+			SetCommand( 0x00, DLParser_RSP_Last_Legion_0x00, "G_Last_Legion_0x00" );
+			SetCommand( 0xe4, DLParser_TexRect_Last_Legion, "G_TexRect_Last_Legion" );
 			break;
 		case GBI_PD:
-			SetCommand( 0x04, RSP_Vtx_PD );
-			SetCommand( 0x07, RSP_Set_Vtx_CI_PD );
-			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye );
+			SetCommand( 0x04, RSP_Vtx_PD, "G_Vtx_PD" );
+			SetCommand( 0x07, RSP_Set_Vtx_CI_PD, "G_Set_Vtx_CI_PD" );
+			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye, "G_RDPHalf1_GoldenEye" );
 			break;
 		case GBI_DKR:
-			SetCommand( 0x01, DLParser_Mtx_DKR );
-			SetCommand( 0x04, DLParser_GBI0_Vtx_DKR );
-			SetCommand( 0x05, DLParser_DMA_Tri_DKR );
-			SetCommand( 0x07, DLParser_DLInMem );
-			SetCommand( 0xbc, DLParser_MoveWord_DKR );
-			SetCommand( 0xbf, DLParser_Set_Addr_DKR );
+			SetCommand( 0x01, DLParser_Mtx_DKR, "G_Mtx_DKR" );
+			SetCommand( 0x04, DLParser_GBI0_Vtx_DKR, "G_Vtx_DKR" );
+			SetCommand( 0x05, DLParser_DMA_Tri_DKR, "G_DMA_Tri_DKR" );
+			SetCommand( 0x07, DLParser_DLInMem, "G_DLInMem" );
+			SetCommand( 0xbc, DLParser_MoveWord_DKR, "G_MoveWord_DKR" );
+			SetCommand( 0xbf, DLParser_Set_Addr_DKR, "G_Set_Addr_DKR" );
 			break;
 		case GBI_CONKER:
-			SetCommand( 0x01, RSP_Vtx_Conker );
-			SetCommand( 0x10, DLParser_GBI2_Conker );
-			SetCommand( 0x11, DLParser_GBI2_Conker );
-			SetCommand( 0x12, DLParser_GBI2_Conker );
-			SetCommand( 0x13, DLParser_GBI2_Conker );
-			SetCommand( 0x14, DLParser_GBI2_Conker );
-			SetCommand( 0x15, DLParser_GBI2_Conker );
-			SetCommand( 0x16, DLParser_GBI2_Conker );
-			SetCommand( 0x17, DLParser_GBI2_Conker );
-			SetCommand( 0x18, DLParser_GBI2_Conker );
-			SetCommand( 0x19, DLParser_GBI2_Conker );
-			SetCommand( 0x1a, DLParser_GBI2_Conker );
-			SetCommand( 0x1b, DLParser_GBI2_Conker );
-			SetCommand( 0x1c, DLParser_GBI2_Conker );
-			SetCommand( 0x1d, DLParser_GBI2_Conker );
-			SetCommand( 0x1e, DLParser_GBI2_Conker );
-			SetCommand( 0x1f, DLParser_GBI2_Conker );
-			SetCommand( 0xdb, RSP_MoveWord_Conker );
-			SetCommand( 0xdc, RSP_MoveMem_Conker );
+			SetCommand( 0x01, RSP_Vtx_Conker, "G_Vtx_Conker" );
+			SetCommand( 0x10, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x11, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x12, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x13, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x14, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x15, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x16, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x17, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x18, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x19, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1a, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1b, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1c, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1d, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1e, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1f, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0xdb, RSP_MoveWord_Conker,  "G_MoveWord_Conker");
+			SetCommand( 0xdc, RSP_MoveMem_Conker,   "G_MoveMem_Conker" );
 			break;
 	}
 }
@@ -561,29 +587,6 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 
 	// Set up ucode table, patch custom ucodes, set up vtx multiplier etc
 	DLParser_SetUcode( ucode );
-
-	//if ucode version is other than 0,1 or 2 then default to 2 (with potentially non valid function names) 
-	//
-#if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-	switch (ucode)
-	{
-		case GBI_0:	//GBI0
-		case GBI_1:	//GBI1
-		case GBI_2:	//GBI2	
-			gucode_ver = ucode;
-			break;
-		case GBI_DKR:	//DKR	
-		case GBI_PD:	//PD	
-			gucode_ver = 0;
-			break;
-		case GBI_CONKER:	//Conker
-			gucode_ver = 3;
-			break;
-		default:	//Default to 2 otherwise
-			gucode_ver = 2;
-			break;
-	}
-#endif
 }
 
 //*****************************************************************************
@@ -596,7 +599,7 @@ SProfileItemHandle * gpProfileItemHandles[ 256 ];
 #define PROFILE_DL_CMD( cmd )								\
 	if(gpProfileItemHandles[ (cmd) ] == NULL)				\
 	{														\
-		gpProfileItemHandles[ (cmd) ] = new SProfileItemHandle( CProfiler::Get()->AddItem( gInstructionName[ gucode_ver ][ cmd ] );		\
+			gpProfileItemHandles[ (cmd) ] = new SProfileItemHandle( CProfiler::Get()->AddItem( gUcodeName[ cmd ] );		\
 	}														\
 	CAutoProfile		_auto_profile( *gpProfileItemHandles[ (cmd) ] )
 
@@ -636,7 +639,7 @@ static void	DLParser_ProcessDList()
 		//use the gInstructionName table for fecthing names.
 		//we use the table as is for GBI0, GBI1 and GBI2
 		//we fallback to GBI0 for custom ucodes (ucode_ver>2)
-		DL_PF("[%05d] 0x%08x: %08x %08x %-10s", gCurrentInstructionCount, pc, command.inst.cmd0, command.inst.cmd1, gInstructionName[ gucode_ver ][command.inst.cmd ]);
+		DL_PF("[%05d] 0x%08x: %08x %08x %-10s", gCurrentInstructionCount, pc, command.inst.cmd0, command.inst.cmd1, gUcodeName[command.inst.cmd ]);
 		gCurrentInstructionCount++;
 
 		if( gInstructionCountLimit != UNLIMITED_INSTRUCTION_COUNT )
