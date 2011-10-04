@@ -407,6 +407,10 @@ void DLParser_GBI2_DL_Count( MicroCodeCommand command )
 	gDlistStackPointer++;
 	gDlistStack[gDlistStackPointer].pc = address;
 	gDlistStack[gDlistStackPointer].countdown = ((command.inst.cmd0)&0xFFFF);
+
+	DL_PF("    Address=0x%08x %s", address, (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
+	DL_PF("\\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
+	DL_PF("############################################");
 }
 
 //***************************************************************************** 

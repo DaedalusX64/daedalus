@@ -358,7 +358,9 @@ void DLParser_GBI1_DL( MicroCodeCommand command )
 	DAEDALUS_ASSERT( RDPSegAddr(command.dlist.addr) < MAX_RAM_ADDRESS, 
 					"DL addr out of range (0x%08x)", RDPSegAddr(command.dlist.addr) );
 
-    DL_PF("    Address=0x%08x Push: 0x%02x", RDPSegAddr(command.dlist.addr), command.dlist.param);
+    DL_PF("    Address=0x%08x %s", RDPSegAddr(command.dlist.addr), (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
+	DL_PF("\\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
+	DL_PF("############################################");
 
 	if( command.dlist.param == G_DL_PUSH )
 		gDlistStackPointer++;

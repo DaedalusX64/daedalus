@@ -64,6 +64,10 @@ void DLParser_RSP_Last_Legion_0x00( MicroCodeCommand command )
 			gDlistStackPointer++;
 			gDlistStack[gDlistStackPointer].pc = pc1;
 			gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
+
+			DL_PF("    Address=0x%08x", pc1);
+			DL_PF("\\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
+			DL_PF("############################################");
 		}
 
 		if( pc2 && pc2 != 0xffffff && pc2 < MAX_RAM_ADDRESS )
@@ -72,6 +76,10 @@ void DLParser_RSP_Last_Legion_0x00( MicroCodeCommand command )
 			gDlistStackPointer++;
 			gDlistStack[gDlistStackPointer].pc = pc2;
 			gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
+
+			DL_PF("    Address=0x%08x", pc2);
+			DL_PF("\\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
+			DL_PF("############################################");
 		}
 	}
 	else if( (command.inst.cmd1) == 0 )

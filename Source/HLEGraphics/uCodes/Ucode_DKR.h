@@ -132,7 +132,9 @@ void DLParser_DLInMem( MicroCodeCommand command )
 	gDlistStack[gDlistStackPointer].pc = command.inst.cmd1;
 	gDlistStack[gDlistStackPointer].countdown = (command.inst.cmd0 >> 16) & 0xFF;
 
-	DL_PF("    DLInMem : Address=0x%08x", command.inst.cmd1);
+	DL_PF("    Address=0x%08x %s", command.inst.cmd1, (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
+	DL_PF("\\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
+	DL_PF("############################################");
 }
 
 //*****************************************************************************

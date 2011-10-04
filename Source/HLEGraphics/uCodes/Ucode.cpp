@@ -362,7 +362,7 @@ const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256] =
 };
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-char * gInstructionName[4][256] =
+const char * gInstructionName[4][256] =
 {
 	// uCode 0 - RSP SW 2.0X
 	// Games: Super Mario 64, Tetrisphere, Demos
@@ -677,6 +677,6 @@ char * gInstructionName[4][256] =
 		"G_LoadTile", "G_SetTile", "G_FillRect", "G_SetFillColor",
 		"G_SetFogColor", "G_SetBlendColor", "G_SetPrimColor", "G_SetEnvColor",
 		"G_SetCombine", "G_SetTImg", "G_SetZImg", "G_SetCImg"
-	},
+	}
 };
 #endif
