@@ -158,7 +158,8 @@ SImageDescriptor g_DI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 DListStack	gDlistStack[MAX_DL_STACK_SIZE];
 s32			gDlistStackPointer = -1;
 
-MicroCodeInstruction *gUcode = gInstructionLookup[0];
+const MicroCodeInstruction *gUcode = gInstructionLookup[0];
+MicroCodeInstruction gInstructionLookupCustom[256];
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
 u32 gucode_ver=0;	//Need this global ucode version to get correct ucode names
@@ -415,41 +416,6 @@ static void HandleDumpDisplayList( OSTask * pTask )
 //*****************************************************************************
 //
 //*****************************************************************************
-/*
-void DLParser_PushDisplayList( const DList & dl )
-{
-	gDisplayListStack.push_back( dl );
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	if ( gDisplayListStack.size() > 30 )
-	{
-		// Stack is too deep - probably an error
-		DAEDALUS_DL_ERROR( "Stack is over 30 - something is probably wrong\n" );
-	}
-#endif
-	DL_PF("    Pushing DisplayList 0x%08x", dl.addr);
-	DL_PF(" ");
-	DL_PF("\\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
-	DL_PF("############################################");
-}
-*/
-//*****************************************************************************
-//
-//*****************************************************************************
-/*
-void DLParser_CallDisplayList( const DList & dl )
-{
-	gDisplayListStack.back() = dl;
-
-	DL_PF("    Jumping to DisplayList 0x%08x", dl.addr);
-	DL_PF(" ");
-	DL_PF("\\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
-	DL_PF("############################################");
-}
-*/
-//*****************************************************************************
-//
-//*****************************************************************************
 static void DLParser_PopDL()
 {
 	DL_PF("Returning from DisplayList: level=%d", gDlistStackPointer+1);
@@ -460,12 +426,23 @@ static void DLParser_PopDL()
 	gDlistStackPointer--;
 }
 
-#define SetCommand( cmd, func )					\
-		gUcode[ cmd ] = func;
+//*****************************************************************************
+//
+//*****************************************************************************
+#define UCODE_SIZE 1024 
 
-#define SetMicrocode( ucode, stride )			\
-			gVertexStride = stride;				\
-			gUcode		  = gInstructionLookup[ ucode ];
+#define SetCommand( cmd, func )					\
+		gInstructionLookupCustom[ cmd ] = func;
+
+#define SetCustom( ucode, stride, size )			\
+			gVertexStride = stride;					\
+			gUcode = gInstructionLookupCustom;		\
+			memcpy( &gInstructionLookupCustom, 		\
+				    &gInstructionLookup[ ucode ], size );
+
+#define SetNormal( ucode, stride )			\
+			gVertexStride = stride;					\
+			gUcode = gInstructionLookup[ ucode ];
 
 //*************************************************************************************
 // 
@@ -489,10 +466,10 @@ void DLParser_SetUcode( u32 ucode )
 		10,		// Perfect Dark
 	};
 
-	// This a normal ucode, just retrive the correct uCode table and exit
+	// This a normal ucode, just retrive the correct uCode table/Vtx stride and exit
 	if( !current.custom )
 	{
-		SetMicrocode( ucode, stride[ ucode ] );
+		SetNormal( ucode, stride[ ucode ] );
 		return;
 	}
 
@@ -511,9 +488,8 @@ void DLParser_SetUcode( u32 ucode )
 		0,		// Modified uCode 0 - Unknown
 	};
 
-	// Retrive uCode table which we will modify
-	// ToDo : rebundant, remove me
-	SetMicrocode( info[ ucode-MAX_UCODE ], stride[ ucode ] );
+	// First build array based from a normal uCode table and get correct Vtx stride
+	SetCustom( info[ ucode-MAX_UCODE ], stride[ ucode ], UCODE_SIZE );
 
 	// Now let's patch it, to create our custom ucode table ;)
 	switch( ucode )
