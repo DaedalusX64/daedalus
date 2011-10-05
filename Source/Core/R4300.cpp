@@ -188,7 +188,9 @@ inline u64 LoadFPR_Long( u32 reg )
 	if (gCPUState.FPU[reg+0]._u32_0 == SIMULATESIG)
 	{
 		// convert f32->f64/d64
-		return gCPUState.FPU[reg+1]._u32_0;
+		REG64 res;
+		res._f64 = (f64)gCPUState.FPU[reg+1]._f32_0;
+		return res._u64;
 	}
 	else
 	{

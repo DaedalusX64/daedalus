@@ -158,7 +158,7 @@ SImageDescriptor g_DI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 DListStack	gDlistStack[MAX_DL_STACK_SIZE];
 s32			gDlistStackPointer = -1;
 
-const MicroCodeInstruction *gUcode = gInstructionLookup[0];
+const MicroCodeInstruction *gUcodeFunc = gInstructionLookup[0];
 MicroCodeInstruction gInstructionLookupCustom[256];
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
@@ -433,145 +433,111 @@ static void DLParser_PopDL()
 //*****************************************************************************
 //
 //*****************************************************************************
-#define UCODE_SIZE 1024 
-
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #define SetCommand( cmd, func, name )						\
 		gInstructionLookupCustom[ cmd ] = func;				\
-		gInstructionNameCustom[ cmd ] = name;
+		gInstructionNameCustom[ cmd ] = (char *)name;
 
-#define SetCustom( ucode, stride, size )					\
-			gVertexStride = stride;							\
-			gUcode = gInstructionLookupCustom;				\
+#define SetCustom( ucode )					\
+			gUcodeFunc = gInstructionLookupCustom;				\
 			gUcodeName = gInstructionNameCustom;			\
 			memcpy( &gInstructionLookupCustom, 				\
-				    &gInstructionLookup[ ucode ], size );	\
+				    &gInstructionLookup[ ucode ], 1024 );	\
 			memcpy( gInstructionNameCustom, 				\
-				    gInstructionName[ ucode ], size );
+				    gInstructionName[ ucode ], 1024 );
 
-#define SetNormal( ucode, stride )							\
-			gVertexStride = stride;							\
-			gUcode = gInstructionLookup[ ucode ];			\
-			gUcodeName = (char **)gInstructionName[ ucode ];	
+#define SetNormal( x )							\
+			gUcodeFunc = gInstructionLookup[ x ];			\
+			gUcodeName = (char **)gInstructionName[ x ];	
 #else
 
 #define SetCommand( cmd, func, name )						\
 		gInstructionLookupCustom[ cmd ] = func;
 
-#define SetCustom( ucode, stride, size )					\
-			gVertexStride = stride;							\
-			gUcode = gInstructionLookupCustom;				\
+#define SetCustom( ucode )					\
+			gUcodeFunc = gInstructionLookupCustom;				\
 			memcpy( &gInstructionLookupCustom, 				\
-				    &gInstructionLookup[ ucode ], size );
+				    &gInstructionLookup[ ucode ], 1024 );
 
-#define SetNormal( ucode, stride )							\
-			gVertexStride = stride;							\
-			gUcode = gInstructionLookup[ ucode ];
+#define SetNormal( x )							\
+			gUcodeFunc = gInstructionLookup[ x ];
 #endif	
 
-
+#define SetStride( x )	gVertexStride = ucode_stride[ x ];
 //*************************************************************************************
 // 
 //*************************************************************************************
-// ToDo : Find a clean way to undo patching after patching a normal ucode table
-void DLParser_SetUcode( u32 ucode )
-{	
-	// This is the multiplier applied to vertex indices
-	const u32 stride[] =
-	{
-		10,		// Super Mario 64, Tetrisphere, Demos
-		2,		// Mario Kart, Star Fox
-		2,		// Zelda, and newer games
-		2,		// Yoshi's Story, Pokemon Puzzle League
-		5,		// Wave Racer USA
-		10,		// Diddy Kong Racing, Gemini, and Mickey
-		2,		// Last Legion, Toukon, Toukon 2
-		5,		// Shadows of the Empire (SOTE)
-		10,		// Golden Eye
-		2,		// Conker BFD
-		10,		// Perfect Dark
-	};
+void DLParser_SetUcode( u32 ucode, bool custom )
+{
+	// First set vtx stride for vertex indices 
+	SetStride( ucode_stride[ ucode ] );
 
-	// This a normal ucode, just retrive the correct uCode table/Vtx stride and exit
-	if( !current.custom )
+	// This a normal ucode, just retrive the correct uCode table / name and exit
+	if( custom == false )
 	{
-		SetNormal( ucode, stride[ ucode ] );
+		SetNormal( ucode );
 		return;
 	}
 
-	//
-	// Reserved for custom ucodes
-	//
-
-	const u32 info[] =
-	{
-		0,		// Modified uCode 0 - RSP SW 2.0D EXT
-		0,		// Modified uCode 0 - RSP SW 2.0 Diddy
-		1,		// Modified uCode 1 - F3DEX Last Legion
-		0,		// Modified uCode 0 - RSP SW 2.0D EXT
-		0,		// Modified uCode 0 - RSP SW 2.0X
-		2,		// Modified uCode 2:  F3DEXBGxx Conker
-		0,		// Modified uCode 0 - Unknown
-	};
-
-	// First build array based from a normal uCode table and get correct Vtx stride
-	SetCustom( info[ ucode-MAX_UCODE ], stride[ ucode ], UCODE_SIZE );
+	// Now if this a custom ucode, let's build an array based from a normal uCode table
+	SetCustom( ucode_modify[ ucode-MAX_UCODE ] );
 
 	// Now let's patch it, to create our custom ucode table ;)
 	switch( ucode )
 	{
 		case GBI_GE:
-			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye, (char*)"G_RDPHalf1_GoldenEye" );
+			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye, "G_RDPHalf1_GoldenEye" );
 			break;
 		case GBI_WR:
-			SetCommand( 0x04, DLParser_GBI0_Vtx_WRUS, (char*)"G_Vtx_WRUS" );
-			SetCommand( 0xb1, DLParser_Nothing, (char*)"G_Nothing" ); // Just in case
+			SetCommand( 0x04, DLParser_GBI0_Vtx_WRUS, "G_Vtx_WRUS" );
+			SetCommand( 0xb1, DLParser_Nothing,		  "G_Nothing" ); // Just in case
 			break;
 		case GBI_SE:
-			SetCommand( 0x04, DLParser_GBI0_Vtx_SOTE, (char*)"G_Vtx_SOTE" );
-			SetCommand( 0x06, DLParser_GBI0_DL_SOTE, (char*)"G_DL_SOTE" );
+			SetCommand( 0x04, DLParser_GBI0_Vtx_SOTE, "G_Vtx_SOTE" );
+			SetCommand( 0x06, DLParser_GBI0_DL_SOTE,  "G_DL_SOTE" );
 			break;
 		case GBI_LL:
-			SetCommand( 0x80, DLParser_RSP_Last_Legion_0x80, (char*)"G_Last_Legion_0x80" );
-			SetCommand( 0x00, DLParser_RSP_Last_Legion_0x00, (char*)"G_Last_Legion_0x00" );
-			SetCommand( 0xe4, DLParser_TexRect_Last_Legion, (char*)"G_TexRect_Last_Legion" );
+			SetCommand( 0x80, DLParser_RSP_Last_Legion_0x80, "G_Last_Legion_0x80" );
+			SetCommand( 0x00, DLParser_RSP_Last_Legion_0x00, "G_Last_Legion_0x00" );
+			SetCommand( 0xe4, DLParser_TexRect_Last_Legion,  "G_TexRect_Last_Legion" );
 			break;
 		case GBI_PD:
-			SetCommand( 0x04, RSP_Vtx_PD, (char*)"G_Vtx_PD" );
-			SetCommand( 0x07, RSP_Set_Vtx_CI_PD, (char*)"G_Set_Vtx_CI_PD" );
-			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye, (char*)"G_RDPHalf1_GoldenEye" );
+			SetCommand( 0x04, RSP_Vtx_PD,					"G_Vtx_PD" );
+			SetCommand( 0x07, RSP_Set_Vtx_CI_PD,			"G_Set_Vtx_CI_PD" );
+			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye,  "G_RDPHalf1_GoldenEye" );
 			break;
 		case GBI_DKR:
-			SetCommand( 0x01, DLParser_Mtx_DKR, (char*)"G_Mtx_DKR" );
-			SetCommand( 0x04, DLParser_GBI0_Vtx_DKR, (char*)"G_Vtx_DKR" );
-			SetCommand( 0x05, DLParser_DMA_Tri_DKR, (char*)"G_DMA_Tri_DKR" );
-			SetCommand( 0x07, DLParser_DLInMem, (char*)"G_DLInMem" );
-			SetCommand( 0xbc, DLParser_MoveWord_DKR, (char*)"G_MoveWord_DKR" );
-			SetCommand( 0xbf, DLParser_Set_Addr_DKR, (char*)"G_Set_Addr_DKR" );
+			SetCommand( 0x01, DLParser_Mtx_DKR,		 "G_Mtx_DKR" );
+			SetCommand( 0x04, DLParser_GBI0_Vtx_DKR, "G_Vtx_DKR" );
+			SetCommand( 0x05, DLParser_DMA_Tri_DKR,  "G_DMA_Tri_DKR" );
+			SetCommand( 0x07, DLParser_DLInMem,		 "G_DLInMem" );
+			SetCommand( 0xbc, DLParser_MoveWord_DKR, "G_MoveWord_DKR" );
+			SetCommand( 0xbf, DLParser_Set_Addr_DKR, "G_Set_Addr_DKR" );
 			break;
 		case GBI_CONKER:
-			SetCommand( 0x01, RSP_Vtx_Conker, (char*)"G_Vtx_Conker" );
-			SetCommand( 0x10, DLParser_GBI2_Conker, (char*)"G_Tri4_Conker" );
-			SetCommand( 0x11, DLParser_GBI2_Conker, (char*)"G_Tri4_Conker" );
-			SetCommand( 0x12, DLParser_GBI2_Conker, (char*)"G_Tri4_Conker" );
-			SetCommand( 0x13, DLParser_GBI2_Conker, (char*)"G_Tri4_Conker" );
-			SetCommand( 0x14, DLParser_GBI2_Conker, (char*)"G_Tri4_Conker" );
-			SetCommand( 0x15, DLParser_GBI2_Conker, (char*)"G_Tri4_Conker" );
-			SetCommand( 0x16, DLParser_GBI2_Conker, (char*)"G_Tri4_Conker" );
-			SetCommand( 0x17, DLParser_GBI2_Conker, (char*)"G_Tri4_Conker" );
-			SetCommand( 0x18, DLParser_GBI2_Conker, (char*)"G_Tri4_Conker" );
-			SetCommand( 0x19, DLParser_GBI2_Conker, (char*)"G_Tri4_Conker" );
-			SetCommand( 0x1a, DLParser_GBI2_Conker, (char*)"G_Tri4_Conker" );
-			SetCommand( 0x1b, DLParser_GBI2_Conker, (char*)"G_Tri4_Conker" );
-			SetCommand( 0x1c, DLParser_GBI2_Conker, (char*)"G_Tri4_Conker" );
-			SetCommand( 0x1d, DLParser_GBI2_Conker, (char*)"G_Tri4_Conker" );
-			SetCommand( 0x1e, DLParser_GBI2_Conker, (char*)"G_Tri4_Conker" );
-			SetCommand( 0x1f, DLParser_GBI2_Conker, (char*)"G_Tri4_Conker" );
-			SetCommand( 0xdb, RSP_MoveWord_Conker,  (char*)"G_MoveWord_Conker");
-			SetCommand( 0xdc, RSP_MoveMem_Conker,   (char*)"G_MoveMem_Conker" );
+			SetCommand( 0x01, RSP_Vtx_Conker,		"G_Vtx_Conker" );
+			SetCommand( 0x10, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x11, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x12, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x13, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x14, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x15, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x16, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x17, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x18, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x19, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1a, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1b, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1c, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1d, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1e, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1f, DLParser_GBI2_Conker, "G_Tri4_Conker" );
+			SetCommand( 0xdb, RSP_MoveWord_Conker,  "G_MoveWord_Conker");
+			SetCommand( 0xdc, RSP_MoveMem_Conker,   "G_MoveMem_Conker" );
 			break;
 	}
 }
+
 //*****************************************************************************
 // 
 //*****************************************************************************
@@ -583,10 +549,9 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 	// Store useful information about this ucode for caching purpose
 	current.code_base = code_base;
 	current.ucode	  = ucode; 
-	current.custom	  = ( ucode > GBI_1_S2DEX );
 
 	// Set up ucode table, patch custom ucodes, set up vtx multiplier etc
-	DLParser_SetUcode( ucode );
+	DLParser_SetUcode( ucode, (ucode > GBI_1_S2DEX) );
 }
 
 //*****************************************************************************
@@ -654,7 +619,7 @@ static void	DLParser_ProcessDList()
 
 		PROFILE_DL_CMD( command.inst.cmd );
 
-		gUcode[ command.inst.cmd ]( command ); 
+		gUcodeFunc[ command.inst.cmd ]( command ); 
 
 		// Check limit
 		if ( --gDlistStack[gDlistStackPointer].countdown < 0 && gDlistStackPointer >= 0)

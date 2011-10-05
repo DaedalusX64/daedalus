@@ -20,6 +20,43 @@
 #include "Ucode.h"
 #include "stdafx.h"
 
+//*************************************************************************************
+// 
+//*************************************************************************************
+// This is the multiplier applied to vertex indices
+const u32 ucode_stride[] =
+{
+	10,		// Super Mario 64, Tetrisphere, Demos
+	2,		// Mario Kart, Star Fox
+	2,		// Zelda, and newer games
+	2,		// Yoshi's Story, Pokemon Puzzle League
+	5,		// Wave Racer USA
+	10,		// Diddy Kong Racing, Gemini, and Mickey
+	2,		// Last Legion, Toukon, Toukon 2
+	5,		// Shadows of the Empire (SOTE)
+	10,		// Golden Eye
+	2,		// Conker BFD
+	10,		// Perfect Dark
+};
+
+//*************************************************************************************
+// 
+//*************************************************************************************
+// This the ucode modifier indices
+const u32 ucode_modify[] =
+{
+	0,		// Modified uCode 0 - RSP SW 2.0D EXT
+	0,		// Modified uCode 0 - RSP SW 2.0 Diddy
+	1,		// Modified uCode 1 - F3DEX Last Legion
+	0,		// Modified uCode 0 - RSP SW 2.0D EXT
+	0,		// Modified uCode 0 - RSP SW 2.0X
+	2,		// Modified uCode 2:  F3DEXBGxx Conker
+	0,		// Modified uCode 0 - Unknown
+};
+
+//*************************************************************************************
+// 
+//*************************************************************************************
 const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256] =
 {
 	// uCode 0 - RSP SW 2.0X
@@ -82,7 +119,7 @@ const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256] =
 		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
 		//b0
 		DLParser_Nothing,DLParser_GBI0_Tri4, DLParser_GBI1_RDPHalf_Cont, DLParser_GBI1_RDPHalf_2,
-		DLParser_GBI1_RDPHalf_1, /*DLParser_GBI0_Quad*/DLParser_GBI1_Line3D, DLParser_GBI1_ClearGeometryMode, DLParser_GBI1_SetGeometryMode,
+		DLParser_GBI1_RDPHalf_1, DLParser_GBI1_Line3D, DLParser_GBI1_ClearGeometryMode, DLParser_GBI1_SetGeometryMode,
 		DLParser_GBI1_EndDL, DLParser_GBI1_SetOtherModeL, DLParser_GBI1_SetOtherModeH, DLParser_GBI1_Texture,
 		DLParser_GBI1_MoveWord, DLParser_GBI1_PopMtx, DLParser_GBI1_CullDL, DLParser_GBI1_Tri1,
 
@@ -361,8 +398,11 @@ const MicroCodeInstruction gInstructionLookup[MAX_UCODE][256] =
 	},
 };
 
+//*************************************************************************************
+// 
+//*************************************************************************************
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-const char * gInstructionName[4][256] =
+const char * gInstructionName[MAX_UCODE][256] =
 {
 	// uCode 0 - RSP SW 2.0X
 	// Games: Super Mario 64, Tetrisphere, Demos
