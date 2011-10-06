@@ -308,12 +308,11 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 			PSPRenderer::Get()->ModifyVertexInfo(offset, vtx, val);
 		}
  		break;
+
 	case G_MW_PERSPNORM:
-		DL_PF("    G_MW_PERSPNORM");
-		//RDP_NOIMPL_WARN("G_MW_PESPNORM Not Implemented");		// Used in Starfox - sets to 0xa
-	//	if ((short)command->cmd1 != 10)
-	//		DBGConsole_Msg(0, "PerspNorm: 0x%04x", (short)command->cmd1);	
+		DL_PF("    G_MW_PERSPNORM");	
 		break;
+
 	default:
 		DL_PF("    Type: Unknown");
 		RDP_NOIMPL_WARN("Unknown MoveWord");
@@ -500,7 +499,51 @@ void DLParser_GBI1_Texture( MicroCodeCommand command )
 	DL_PF("    ScaleS: %f, ScaleT: %f", scale_s*32.0f, scale_t*32.0f);
 	PSPRenderer::Get()->SetTextureScale( scale_s, scale_t );
 }
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_GBI1_Reserved( MicroCodeCommand command )
+{	
+	// Not implemented!
+	DL_UNIMPLEMENTED_ERROR( "RDP: Reserved" );
+}
 
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_GBI1_Noop( MicroCodeCommand command )
+{
+}
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_GBI1_SpNoop( MicroCodeCommand command )
+{
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_GBI1_RDPHalf_Cont( MicroCodeCommand command )
+{
+	//DBGConsole_Msg( 0, "Unexpected RDPHalf_Cont: %08x %08x", command.inst.cmd0, command.inst.cmd1 );
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_GBI1_RDPHalf_2( MicroCodeCommand command )
+{
+//	DBGConsole_Msg( 0, "Unexpected RDPHalf_2: %08x %08x", command.inst.cmd0, command.inst.cmd1 );
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_GBI1_RDPHalf_1( MicroCodeCommand command )
+{
+	gRDPHalf1 = command.inst.cmd1;
+}
 
 //*****************************************************************************
 //
@@ -619,6 +662,5 @@ void DLParser_GBI1_Tri1( MicroCodeCommand command )
 		PSPRenderer::Get()->FlushTris();
 	}
 }
-
 
 #endif // UCODE1_H__

@@ -169,16 +169,7 @@ void DLParser_S2DEX_SelectDl( MicroCodeCommand command )
 void DLParser_S2DEX_ObjSprite( MicroCodeCommand command )
 {	
 	// YoshiStory uses this - 0x06
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	static bool warned = false;
-
-	DL_PF( "~*Not Implemented" );
-	if (!warned)
-	{
-		RDP_NOIMPL("RDP: S2DEX_ObjSprite", command.inst.cmd0, command.inst.cmd1);
-		warned = true;
-	}
-#endif
+	DL_UNIMPLEMENTED_ERROR("S2DEX_ObjSprite");
 }
 
 //*****************************************************************************
@@ -187,16 +178,7 @@ void DLParser_S2DEX_ObjSprite( MicroCodeCommand command )
 void DLParser_S2DEX_ObjRectangle( MicroCodeCommand command )
 {	
 	// YoshiStory uses this - 0x01
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	static bool warned = false;
-
-	DL_PF( "~*Not Implemented" );
-	if (!warned)
-	{
-		RDP_NOIMPL("RDP: S2DEX_ObjRectangle", command.inst.cmd0, command.inst.cmd1);
-		warned = true;
-	}
-#endif
+	DL_UNIMPLEMENTED_ERROR("S2DEX_ObjRectangle");
 }
 
 //*****************************************************************************
@@ -213,16 +195,7 @@ void DLParser_S2DEX_ObjRendermode( MicroCodeCommand command )
 void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 {	
 	// Command and Conquer and YoshiStory uses this - 0x05
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	static bool warned = false;
-
-	DL_PF( "~*Not Implemented" );
-	if (!warned)
-	{
-		RDP_NOIMPL("RDP: S2DEX_ObjLoadTxtr)", command.inst.cmd0, command.inst.cmd1);
-		warned = true;
-	}
-#endif
+	DL_UNIMPLEMENTED_ERROR("S2DEX_ObjLoadTxtr");
 }
 
 //*****************************************************************************
@@ -231,16 +204,7 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 {	
 	// YoshiStory uses this - 0xc2
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	static bool warned = false;
-
-	DL_PF( "~*Not Implemented" );
-	if (!warned)
-	{
-		RDP_NOIMPL("RDP: S2DEX_ObjLdtxSprite", command.inst.cmd0, command.inst.cmd1);
-		warned = true;
-	}
-#endif
+	DL_UNIMPLEMENTED_ERROR("S2DEX_ObjLdtxSprite");
 }
 
 //*****************************************************************************
@@ -249,16 +213,7 @@ void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 void DLParser_S2DEX_ObjLdtxRect( MicroCodeCommand command )
 {	
 	// YoshiStory uses this - 0x07
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	static bool warned = false;
-
-	DL_PF( "~*Not Implemented" );
-	if (!warned)
-	{
-		RDP_NOIMPL("RDP: S2DEX_ObjLdtxRect", command.inst.cmd0, command.inst.cmd1);
-		warned = true;
-	}
-#endif
+	DL_UNIMPLEMENTED_ERROR("S2DEX_ObjLdtxRect");
 }
 
 //*****************************************************************************
@@ -267,16 +222,7 @@ void DLParser_S2DEX_ObjLdtxRect( MicroCodeCommand command )
 void DLParser_S2DEX_ObjLdtxRectR( MicroCodeCommand command )
 {	
 	// YoshiStory uses this - 0x08
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	static bool warned = false;
-
-	DL_PF( "~*Not Implemented" );
-	if (!warned)
-	{
-		RDP_NOIMPL("RDP: S2DEX_ObjLdtxRectR", command.inst.cmd0, command.inst.cmd1);
-		warned = true;
-	}
-#endif
+	DL_UNIMPLEMENTED_ERROR("S2DEX_ObjLdtxRectR");
 }
 
 //*****************************************************************************
@@ -316,16 +262,7 @@ void DLParser_S2DEX_RDPHalf_0( MicroCodeCommand command )
 void DLParser_S2DEX_ObjMoveMem( MicroCodeCommand command )
 {	
 	// Ogre Battle 64 and YoshiStory uses this - 0xdc
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	static bool warned = false;
-
-	DL_PF( "~*Not Implemented" );
-	if (!warned)
-	{
-		RDP_NOIMPL("RDP: S2DEX_ObjMoveMem", command.inst.cmd0, command.inst.cmd1);
-		warned = true;
-	}
-#endif
+	DL_UNIMPLEMENTED_ERROR("S2DEX_ObjMoveMem");
 }
 
 //*****************************************************************************
@@ -395,16 +332,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 void DLParser_S2DEX_ObjRectangleR( MicroCodeCommand command )
 {	
 	// Ogre Battle 64 and YoshiStory uses this - 0xda
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	static bool warned = false;
-
-	DL_PF( "~*Not Implemented" );
-	if (!warned)
-	{
-		RDP_NOIMPL("RDP: S2DEX_ObjRectangleR", command.inst.cmd0, command.inst.cmd1);
-		warned = true;
-	}
-#endif
+	DL_UNIMPLEMENTED_ERROR("S2DEX_ObjRectangleR");
 }
 
 //*****************************************************************************
@@ -428,7 +356,6 @@ void DLParser_S2DEX_Bg1cyc_2( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_S2DEX_ObjRendermode_2( MicroCodeCommand command )
 {
-
 	if( ((command.inst.cmd0)&0xFFFFFF) != 0 || ((command.inst.cmd1)&0xFFFFFF00) != 0 )
 	{
 		// This is a TRI2 cmd

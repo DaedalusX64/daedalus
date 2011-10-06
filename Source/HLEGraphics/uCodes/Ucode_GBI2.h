@@ -342,7 +342,7 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 			// 0 ObjMtx
 			// 2 SubMtx
 			// XXX DLParser_S2DEX_ObjMoveMem not implemented yet anyways..
-			RDP_NOIMPL_WARN("MoveMem(2) 0x02/0x00 : Not Implemented");
+			DL_UNIMPLEMENTED_ERROR("MoveMem(2) 0x02/0x00");
 		}
 		break;
 
@@ -540,6 +540,15 @@ void DLParser_GBI2_Texture( MicroCodeCommand command )
 
 	DL_PF("    ScaleS: %f, ScaleT: %f", scale_s*32.0f, scale_t*32.0f);
 	PSPRenderer::Get()->SetTextureScale( scale_s, scale_t );
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+
+void DLParser_GBI2_DMA_IO( MicroCodeCommand command )
+{
+	DL_UNIMPLEMENTED_ERROR( "G_DMA_IO" );
 }
 
 //*****************************************************************************

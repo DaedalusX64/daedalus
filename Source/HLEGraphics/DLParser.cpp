@@ -68,6 +68,37 @@ const char *	gDisplayListDumpPathFormat = "dl%04d.txt";
 //*****************************************************************************
 #define RDP_NOIMPL_WARN(op)				DAEDALUS_DL_ERROR( op )
 #define RDP_NOIMPL( op, cmd0, cmd1 )	DAEDALUS_DL_ERROR( "Not Implemented: %s 0x%08x 0x%08x", op, cmd0, cmd1 )
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+#define DL_UNIMPLEMENTED_ERROR( msg )			\
+{												\
+	static bool shown = false;					\
+	if (!shown )								\
+	{											\
+		DL_PF( "~*Not Implemented %s", msg );	\
+		DAEDALUS_DL_ERROR( "%s: %08x %08x", (msg), command.inst.cmd0, command.inst.cmd1 );				\
+		shown = true;							\
+	}											\
+}
+#else
+#define DL_UNIMPLEMENTED_ERROR( msg )
+#endif
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+#define SCISSOR_RECT( x0, y0, x1, y1 )			\
+	if( x0 >= scissors.right || y0 >= scissors.bottom ||  \
+		x1 < scissors.left || y1 < scissors.top )\
+	{											\
+		++gNunRectsClipped;						\
+		return;									\
+	}
+#else
+#define SCISSOR_RECT( x0, y0, x1, y1 )			\
+	if( x0 >= scissors.right || y0 >= scissors.bottom ||  \
+		x1 < scissors.left || y1 < scissors.top ) \
+	{											\
+		return;									\
+	}
+#endif
 
 #define N64COL_GETR( col )		(u8((col) >> 24))
 #define N64COL_GETG( col )		(u8((col) >> 16))
@@ -81,6 +112,9 @@ const char *	gDisplayListDumpPathFormat = "dl%04d.txt";
 
 // Mask down to 0x003FFFFF?
 #define RDPSegAddr(seg) ( (gSegments[((seg)>>24)&0x0F]&0x00ffffff) + ((seg)&0x00FFFFFF) )
+//*****************************************************************************
+//
+//*****************************************************************************
 
 static void RDP_Force_Matrix(u32 address);
 void RDP_MoveMemViewport(u32 address);
@@ -113,13 +147,7 @@ inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
 	gDlistStack[gDlistStackPointer].pc += 8;
 
 }
-//*************************************************************************************
-//
-//*************************************************************************************
-u32 gRDPHalf1 = 0;
-u32 gRDPFrame = 0;
-u32 gAuxAddr = (u32)g_pu8RamBase;
-u32 gGeometryMode = 0;
+
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 //                     GFX State                        //
@@ -158,11 +186,11 @@ SImageDescriptor g_DI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 DListStack	gDlistStack[MAX_DL_STACK_SIZE];
 s32			gDlistStackPointer = -1;
 
-const MicroCodeInstruction *gUcodeFunc = gInstructionLookup[0];
-MicroCodeInstruction gInstructionLookupCustom[256];
+const MicroCodeInstruction *gUcodeFunc = NULL;
+MicroCodeInstruction gCustomInstruction[256];
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-char ** gUcodeName = (char **)gInstructionName[0];
+char ** gUcodeName = NULL;
 char * gInstructionNameCustom[256];
 #endif
 
@@ -184,32 +212,22 @@ u32			gNunRectsClipped;
 static u32	gCurrentInstructionCount = 0;			// Used for debugging display lists
 u32			gTotalInstructionCount = 0;
 static u32	gInstructionCountLimit = UNLIMITED_INSTRUCTION_COUNT;
-
-#define SCISSOR_RECT( x0, y0, x1, y1 ) \
-	if( x0 >= scissors.right || y0 >= scissors.bottom ||  \
-		x1 < scissors.left || y1 < scissors.top ) \
-	{ \
-		++gNunRectsClipped; \
-		return; \
-	}
-#else
-#define SCISSOR_RECT( x0, y0, x1, y1 ) \
-	if( x0 >= scissors.right || y0 >= scissors.bottom ||  \
-		x1 < scissors.left || y1 < scissors.top ) \
-	{ \
-		return; \
-	}
 #endif
+//*************************************************************************************
+//
+//*************************************************************************************
 
 static bool gFirstCall = true;	// Used to keep track of when we're processing the first display list
 
 u32 gAmbientLightIdx = 0;
-u32 gTextureTile = 0;
-u32 gTextureLevel = 0;
-
-u32 gFillColor		= 0xFFFFFFFF;
-
-u32 gVertexStride;
+u32 gTextureTile	 = 0;
+u32 gTextureLevel	 = 0;
+u32 gVertexStride	 = 0;
+u32 gFillColor		 = 0xFFFFFFFF;
+u32 gRDPHalf1		 = 0;
+u32 gRDPFrame		 = 0;
+u32 gAuxAddr		 = (u32)g_pu8RamBase;
+u32 gGeometryMode	 = 0;
 
 //*****************************************************************************
 // Include ucode header files
@@ -420,67 +438,23 @@ static void HandleDumpDisplayList( OSTask * pTask )
 //*****************************************************************************
 //
 //*****************************************************************************
-static void DLParser_PopDL()
-{
-	DL_PF("Returning from DisplayList: level=%d", gDlistStackPointer+1);
-	DL_PF("############################################");
-	DL_PF("/\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\");
-	DL_PF(" ");
-
-	gDlistStackPointer--;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-#define SetCommand( cmd, func, name )						\
-		gInstructionLookupCustom[ cmd ] = func;				\
-		gInstructionNameCustom[ cmd ] = (char *)name;
-
-#define SetCustom( ucode )					\
-			gUcodeFunc = gInstructionLookupCustom;				\
-			gUcodeName = gInstructionNameCustom;			\
-			memcpy( &gInstructionLookupCustom, 				\
-				    &gInstructionLookup[ ucode ], 1024 );	\
-			memcpy( gInstructionNameCustom, 				\
-				    gInstructionName[ ucode ], 1024 );
-
-#define SetNormal( x )							\
-			gUcodeFunc = gInstructionLookup[ x ];			\
-			gUcodeName = (char **)gInstructionName[ x ];	
+#define SetCommand( cmd, func, name )	gCustomInstruction[ cmd ] = func;	gInstructionName[ cmd ] = (char *)name;
 #else
+#define SetCommand( cmd, func, name )	gCustomInstruction[ cmd ] = func;
+#endif
 
-#define SetCommand( cmd, func, name )						\
-		gInstructionLookupCustom[ cmd ] = func;
-
-#define SetCustom( ucode )					\
-			gUcodeFunc = gInstructionLookupCustom;				\
-			memcpy( &gInstructionLookupCustom, 				\
-				    &gInstructionLookup[ ucode ], 1024 );
-
-#define SetNormal( x )							\
-			gUcodeFunc = gInstructionLookup[ x ];
-#endif	
-
-#define SetStride( x )	gVertexStride = ucode_stride[ x ];
 //*************************************************************************************
 // 
 //*************************************************************************************
-void DLParser_SetUcode( u32 ucode, bool custom )
+void DLParser_SetCustom( u32 ucode )
 {
-	// First set vtx stride for vertex indices 
-	SetStride( ucode_stride[ ucode ] );
+	// Let's build an array based from a normal uCode table
+	memcpy( &gCustomInstruction, &gNormalInstruction[ ucode_modify[ ucode-MAX_UCODE ] ], 1024 );
 
-	// This a normal ucode, just retrive the correct uCode table / name and exit
-	if( custom == false )
-	{
-		SetNormal( ucode );
-		return;
-	}
-
-	// Now if this a custom ucode, let's build an array based from a normal uCode table
-	SetCustom( ucode_modify[ ucode-MAX_UCODE ] );
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	memcpy( gInstructionNameCustom, gInstructionName[ ucode_modify[ ucode-MAX_UCODE ] ], 1024 );
+#endif
 
 	// Now let's patch it, to create our custom ucode table ;)
 	switch( ucode )
@@ -499,6 +473,7 @@ void DLParser_SetUcode( u32 ucode, bool custom )
 		case GBI_LL:
 			SetCommand( 0x80, DLParser_RSP_Last_Legion_0x80, "G_Last_Legion_0x80" );
 			SetCommand( 0x00, DLParser_RSP_Last_Legion_0x00, "G_Last_Legion_0x00" );
+			SetCommand( 0xaf, DLParser_GBI1_SpNoop,			 "G_Nothing" );
 			SetCommand( 0xe4, DLParser_TexRect_Last_Legion,  "G_TexRect_Last_Legion" );
 			break;
 		case GBI_PD:
@@ -545,19 +520,36 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 {
 	// Start ucode detector
 	u32 ucode = GBIMicrocode_DetectVersion( code_base, code_size, data_base, data_size );
-	
+
+	// First set vtx stride for vertex indices 
+	gVertexStride = ucode_stride[ ucode ];
+
 	// Store useful information about this ucode for caching purpose
 	current.code_base = code_base;
 	current.ucode	  = ucode; 
 
-	// Set up ucode table, patch custom ucodes, set up vtx multiplier etc
-	DLParser_SetUcode( ucode, (ucode > GBI_1_S2DEX) );
+	// Used for fetching ucode names (Debug Only)
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	gUcodeName = (ucode <= GBI_1_S2DEX) ? (char **)gNormalInstructionName[ ucode ] : gCustomInstruction;
+#endif
+
+	if( ucode <= GBI_1_S2DEX  )
+	{
+		// If this a normal ucode, just fetch the correct uCode table and name
+		gUcodeFunc = gNormalInstruction[ ucode ];
+	}
+	else
+	{	
+		gUcodeFunc = gCustomInstruction;
+
+		// If this a custom ucode, let's create it
+		DLParser_SetCustom( ucode );
+	}
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-//if ucode verion is other than 0,1 or 2 then default to 0 (with non valid function names) //Corn 
 #ifdef DAEDALUS_ENABLE_PROFILING
 SProfileItemHandle * gpProfileItemHandles[ 256 ];
 
@@ -596,14 +588,10 @@ static void	DLParser_ProcessDList()
 	{
 		DLParser_FetchNextCommand( &command );
 
-		// Note: if instruction (gCurrentInstructionCount) is zero (aka dlist was culled) and we happen to launch the dlist debugger
-		// it won't work since that display list was culled and nothing will be shown
-		// I don't think there's a way to "fix" that without sacrficing performance or adding a hack for debug builds -Salvy
+		// Note: make sure have frame skip disabled for the dlist debugger to work
 		//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		//use the gInstructionName table for fecthing names.
-		//we use the table as is for GBI0, GBI1 and GBI2
-		//we fallback to GBI0 for custom ucodes (ucode_ver>2)
 		DL_PF("[%05d] 0x%08x: %08x %08x %-10s", gCurrentInstructionCount, pc, command.inst.cmd0, command.inst.cmd1, gUcodeName[command.inst.cmd ]);
 		gCurrentInstructionCount++;
 
@@ -844,8 +832,6 @@ void RDP_MoveMemViewport(u32 address)
 //*****************************************************************************
 //
 //*****************************************************************************
-
-
 //Nintro64 uses Sprite2d 
 void DLParser_Nothing( MicroCodeCommand command )
 {
@@ -860,61 +846,14 @@ void DLParser_Nothing( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_GBI1_SpNoop( MicroCodeCommand command )
+static void DLParser_PopDL()
 {
-}
+	DL_PF("Returning from DisplayList: level=%d", gDlistStackPointer+1);
+	DL_PF("############################################");
+	DL_PF("/\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\");
+	DL_PF(" ");
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-//*****************************************************************************
-//
-//*****************************************************************************
-#define DL_UNIMPLEMENTED_ERROR( msg )			\
-{												\
-	static bool shown = false;					\
-	if (!shown )								\
-	{											\
-		DAEDALUS_DL_ERROR( "%s: %08x %08x", (msg), command.inst.cmd0, command.inst.cmd1 );				\
-		shown = true;							\
-	}											\
-}
-#endif
-//*****************************************************************************
-//
-//*****************************************************************************
-
-void DLParser_GBI2_DMA_IO( MicroCodeCommand command )
-{
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DL_PF( "~*Not Implemented (G_DMA_IO in GBI 2)" );
-	DL_UNIMPLEMENTED_ERROR( "G_DMA_IO" );
-#endif
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_GBI1_Reserved( MicroCodeCommand command )
-{	
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DL_PF( "~*Not Implemented" );
-
-	// Spiderman
-	static bool warned = false;
-
-	if (!warned)
-	{
-		RDP_NOIMPL("RDP: Reserved (0x%08x 0x%08x)", command.inst.cmd0, command.inst.cmd1);
-		warned = true;
-	}
-#endif	
-	// Not implemented!
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_GBI1_Noop( MicroCodeCommand command )
-{
+	gDlistStackPointer--;
 }
 
 //*****************************************************************************
@@ -965,30 +904,6 @@ void DLParser_RDPSetOtherMode( MicroCodeCommand command )
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );
 #endif
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_GBI1_RDPHalf_Cont( MicroCodeCommand command )
-{
-	//DBGConsole_Msg( 0, "Unexpected RDPHalf_Cont: %08x %08x", command.inst.cmd0, command.inst.cmd1 );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_GBI1_RDPHalf_2( MicroCodeCommand command )
-{
-//	DBGConsole_Msg( 0, "Unexpected RDPHalf_2: %08x %08x", command.inst.cmd0, command.inst.cmd1 );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_GBI1_RDPHalf_1( MicroCodeCommand command )
-{
-	gRDPHalf1 = command.inst.cmd1;
 }
 
 //*****************************************************************************
