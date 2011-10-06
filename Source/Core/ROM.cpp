@@ -495,7 +495,9 @@ void SpecificGameHacks( const ROMHeader & id )
 		break;
 	case 0x4842:	//Body Harvest
 	case 0x434E:	// Nightmare Creatures
-		g_ROM.GameHacks = BODY_HARVEST;		
+		g_ROM.GameHacks = BODY_HARVEST;	
+	case 0x5359:	// Yoshi Story
+		g_ROM.GameHacks = YOSHI;		
 		break;
 	default:
 		break;

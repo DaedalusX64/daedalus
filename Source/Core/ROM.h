@@ -124,6 +124,7 @@ enum EGameHacks
 	ISS64,
 	DKR,
 	PERFECT_DARK,
+	YOSHI,
 	LAST_ENTRY
 };
 

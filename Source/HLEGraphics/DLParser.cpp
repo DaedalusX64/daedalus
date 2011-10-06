@@ -228,7 +228,7 @@ u32 gRDPHalf1		 = 0;
 u32 gRDPFrame		 = 0;
 u32 gAuxAddr		 = (u32)g_pu8RamBase;
 u32 gGeometryMode	 = 0;
-
+u32 gRDPddress[512];        // 512 addresses (used to determine address loaded from)
 //*****************************************************************************
 // Include ucode header files
 //*****************************************************************************
@@ -1011,6 +1011,9 @@ void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts)
 }
 #endif
 
+
+
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -1101,6 +1104,12 @@ void DLParser_LoadBlock( MicroCodeCommand command )
 	//u32 lrs			= command.loadtile.sh;		// Number of bytes-1
 	u32 dxt			= command.loadtile.th;		// 1.11 fixed point
 
+	if(g_ROM.GameHacks == YOSHI)
+	{
+		const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tile_idx ) );
+		gRDPddress[rdp_tile.tmem] = g_TI.Address;
+	}
+
 	bool	swapped = (dxt) ? false : true;
 
 	u32		src_offset = g_TI.Address + ult * (g_TI.Width << g_TI.Size >> 1) + (uls << g_TI.Size >> 1);
@@ -1119,7 +1128,13 @@ void DLParser_LoadTile( MicroCodeCommand command )
 	RDP_TileSize tile;
 	tile.cmd0 = command.inst.cmd0;
 	tile.cmd1 = command.inst.cmd1;
-	
+
+	if(g_ROM.GameHacks == YOSHI)
+	{
+		const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tile.tile_idx ) );
+		gRDPddress[rdp_tile.tmem] = g_TI.Address;
+	}
+
 	DL_PF("    Tile:%d (%d,%d) -> (%d,%d) [%d x %d]",	tile.tile_idx, tile.left/4, tile.top/4, tile.right/4 + 1, tile.bottom / 4 + 1, (tile.right - tile.left)/4+1, (tile.bottom - tile.top)/4+1);
 	DL_PF("    Offset: 0x%08x",							g_TI.GetOffset( tile.left, tile.top ) );
 
@@ -1212,6 +1227,44 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
+void Yoshi_MemRect(u32 cmd0, u32 cmd1, u32 cmd2 )
+{
+	u32 tile = ((cmd1 & 0x07000000) >> 24);
+
+	u32 lr_x = ((cmd0 & 0x00FFF000) >> 14);
+	u32 lr_y = ((cmd0 & 0x00000FFF) >> 2);
+	u32 ul_x = ((cmd1 & 0x00FFF000) >> 14);
+	u32 ul_y = ((cmd1 & 0x00000FFF) >> 2);
+
+	// Fixes freze, but cuases some akwardness in BG
+	if (lr_y > scissors.bottom)
+	{
+		//printf("check me\n");
+		lr_y = scissors.bottom;
+	}
+
+	u32 off_x = ((cmd2 & 0xFFFF0000) >> 16) >> 5;
+	u32 off_y = (cmd2 & 0x0000FFFF) >> 5;
+
+	//printf ("memrect (%d, %d, %d, %d), ci_width: %d\n", ul_x, ul_y, lr_x, lr_y, g_CI.Width);
+
+	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tile ) );
+
+	u32 y, width = lr_x - ul_x;
+	u32 tex_width = rdp_tile.line << 3;
+	u8 * texaddr = g_pu8RamBase + gRDPddress[rdp_tile.tmem] + tex_width*off_y + off_x;
+	u8 * fbaddr = g_pu8RamBase + g_CI.Address + ul_x;
+
+	for (y = ul_y; y < lr_y; y++)
+	{
+		u8 *src = texaddr + (y - ul_y) * tex_width;
+		u8 *dst = fbaddr + y * g_CI.Width;
+		memcpy (dst, src, width);
+	}
+}
+//*****************************************************************************
+//
+//*****************************************************************************
 void DLParser_TexRect( MicroCodeCommand command )
 {
 	MicroCodeCommand command2;
@@ -1229,7 +1282,11 @@ void DLParser_TexRect( MicroCodeCommand command )
 	tex_rect.cmd2 = command2.inst.cmd1;
 	tex_rect.cmd3 = command3.inst.cmd1;
 
-	
+	if (g_ROM.GameHacks == YOSHI && current.ucode == GBI_1_S2DEX)
+	{
+		Yoshi_MemRect(command.inst.cmd0, command.inst.cmd1, command2.inst.cmd1);
+		return;
+	}
 	/// Note this will break framebuffer effects.
 	//
 	if( bIsOffScreen )	return;
@@ -1455,7 +1512,7 @@ void DLParser_SetCImg( MicroCodeCommand command )
 	// Do not check texture size, it breaks Superman and Doom64..
 	//
 	bIsOffScreen = ( /*g_CI.Size != G_IM_SIZ_16b ||*/ g_CI.Format != G_IM_FMT_RGBA || g_CI.Width < 200 );
-	//bIsOffScreen = false;
+//	bIsOffScreen = false;
 }
 
 //*****************************************************************************
