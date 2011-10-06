@@ -1227,37 +1227,31 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void Yoshi_MemRect(u32 cmd0, u32 cmd1, u32 cmd2 )
+void Yoshi_MemRect(u32 tile, u32 t, u32 s, u32 x0, u32 y0, u32 x1, u32 y1 )
 {
-	u32 tile = ((cmd1 & 0x07000000) >> 24);
-
-	u32 lr_x = ((cmd0 & 0x00FFF000) >> 14);
-	u32 lr_y = ((cmd0 & 0x00000FFF) >> 2);
-	u32 ul_x = ((cmd1 & 0x00FFF000) >> 14);
-	u32 ul_y = ((cmd1 & 0x00000FFF) >> 2);
-
 	// Fixes freze, but cuases some akwardness in BG
-	if (lr_y > scissors.bottom)
+	if (y1 > scissors.bottom)
 	{
 		//printf("check me\n");
-		lr_y = scissors.bottom;
+		y1 = scissors.bottom;
 	}
 
-	u32 off_x = ((cmd2 & 0xFFFF0000) >> 16) >> 5;
-	u32 off_y = (cmd2 & 0x0000FFFF) >> 5;
+	u32 off_x = t/32;
+	u32 off_y = s/32;
 
-	//printf ("memrect (%d, %d, %d, %d), ci_width: %d\n", ul_x, ul_y, lr_x, lr_y, g_CI.Width);
+	//printf(" x %d: y :%d\n",off_x,off_y); 
+	//printf ("memrect (%d, %d, %d, %d), ci_width: %d\n", x0, y0, x1, y1, g_CI.Width);
 
 	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tile ) );
 
-	u32 y, width = lr_x - ul_x;
+	u32 y, width = x1 - x0;
 	u32 tex_width = rdp_tile.line << 3;
 	u8 * texaddr = g_pu8RamBase + gRDPddress[rdp_tile.tmem] + tex_width*off_y + off_x;
-	u8 * fbaddr = g_pu8RamBase + g_CI.Address + ul_x;
+	u8 * fbaddr = g_pu8RamBase + g_CI.Address + x0;
 
-	for (y = ul_y; y < lr_y; y++)
+	for (y = y0; y < y1; y++)
 	{
-		u8 *src = texaddr + (y - ul_y) * tex_width;
+		u8 *src = texaddr + (y - y0) * tex_width;
 		u8 *dst = fbaddr + y * g_CI.Width;
 		memcpy (dst, src, width);
 	}
@@ -1282,14 +1276,9 @@ void DLParser_TexRect( MicroCodeCommand command )
 	tex_rect.cmd2 = command2.inst.cmd1;
 	tex_rect.cmd3 = command3.inst.cmd1;
 
-	if (g_ROM.GameHacks == YOSHI && current.ucode == GBI_1_S2DEX)
-	{
-		Yoshi_MemRect(command.inst.cmd0, command.inst.cmd1, command2.inst.cmd1);
-		return;
-	}
 	/// Note this will break framebuffer effects.
 	//
-	if( bIsOffScreen )	return;
+	//if( bIsOffScreen )	return;
 
 	// Do compare with integers saves CPU //Corn
 	u32	x0 = tex_rect.x0 >> 2;
@@ -1297,6 +1286,11 @@ void DLParser_TexRect( MicroCodeCommand command )
 	u32	x1 = tex_rect.x1 >> 2;
 	u32	y1 = tex_rect.y1 >> 2;
 
+	if (g_ROM.GameHacks == YOSHI && current.ucode == GBI_1_S2DEX)
+	{
+		Yoshi_MemRect(tex_rect.tile_idx, tex_rect.t, tex_rect.s, x0, y0, x1, y1);
+		return;
+	}
 	// Removes offscreen texrect, also fixes several glitches like in John Romero's Daikatana
 	//
 	SCISSOR_RECT( x0, y0, x1, y1 );
