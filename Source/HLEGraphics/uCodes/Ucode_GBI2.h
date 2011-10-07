@@ -121,7 +121,7 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 			// 0x18 = 24 = 0 lights
 			// 0x30 = 48 = 2 lights
 
-			u32 num_lights = command.mw2.value/24;
+			u32 num_lights = command.mw2.value / 24;
 			DL_PF("     G_MW_NUMLIGHT: %d", num_lights);
 
 			gAmbientLightIdx = num_lights;
@@ -137,7 +137,7 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 */
 	case G_MW_SEGMENT:
 		{
-			u32 segment = command.mw2.offset / 4;
+			u32 segment = command.mw2.offset >> 2;
 			u32 address	= command.mw2.value;
 
 			DL_PF( "      G_MW_SEGMENT Segment[%d] = 0x%08x", segment, address );
@@ -424,70 +424,38 @@ void DLParser_GBI2_LoadUCode( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-//
-// Seems to be AND (command.inst.cmd0&0xFFFFFF) OR (command.inst.cmd1&0xFFFFFF)
-//
 void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 {
-    u32 and_bits = (command.inst.cmd0) & 0x00FFFFFF;
-    u32 or_bits  = (command.inst.cmd1) & 0x00FFFFFF;
+	const u32 and_bits = (command.inst.cmd0) & 0x00FFFFFF;
+	const u32 or_bits  = (command.inst.cmd1) & 0x00FFFFFF;
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-    if (gDisplayListFile != NULL)
-    {
-            DL_PF("    0x%08x 0x%08x =(x & 0x%08x) | 0x%08x", command.inst.cmd0, command.inst.cmd1, and_bits, or_bits);
+	gGeometryMode._u32 &= and_bits;
+	gGeometryMode._u32 |= or_bits;
 
-            if ((~and_bits) & G_ZELDA_ZBUFFER)						DL_PF("  Disabling ZBuffer");
-            if ((~and_bits) & G_ZELDA_SHADING_SMOOTH)				DL_PF("  Disabling Flat Shading");
-            if ((~and_bits) & G_ZELDA_CULL_FRONT)                   DL_PF("  Disabling Front Culling");
-            if ((~and_bits) & G_ZELDA_CULL_BACK)                    DL_PF("  Disabling Back Culling");
-            if ((~and_bits) & G_ZELDA_FOG)							DL_PF("  Disabling Fog");
-            if ((~and_bits) & G_ZELDA_LIGHTING)						DL_PF("  Disabling Lighting");
-            if ((~and_bits) & G_ZELDA_TEXTURE_GEN)                  DL_PF("  Disabling Texture Gen");
-			if ((~and_bits) & G_ZELDA_TEXTURE_GEN_LINEAR)			DL_PF("  Enabling Texture Gen Linear");
+	DL_PF("  0x%08x 0x%08x =(x & 0x%08x) | 0x%08x", command.inst.cmd0, command.inst.cmd1, and_bits, or_bits);
+	DL_PF("  ZBuffer %s", (gGeometryMode.GBI2_Zbuffer) ? "On" : "Off");
+	DL_PF("  Culling %s", (gGeometryMode.GBI2_CullBack) ? "Back face" : (gGeometryMode.GBI2_CullFront) ? "Front face" : "Off");
+	DL_PF("  Flat Shading %s", (gGeometryMode.GBI2_ShadingSmooth) ? "On" : "Off");
+	DL_PF("  Lighting %s", (gGeometryMode.GBI2_Lighting) ? "On" : "Off");
+	DL_PF("  Texture Gen %s", (gGeometryMode.GBI2_TextGen) ? "On" : "Off");
+	DL_PF("  Texture Gen Linear %s", (gGeometryMode.GBI2_TextGenLin) ? "On" : "Off");
+	DL_PF("  Fog %s", (gGeometryMode.GBI2_Fog) ? "On" : "Off");
 
-            if (or_bits & G_ZELDA_ZBUFFER)							DL_PF("  Enabling ZBuffer");
-            if (or_bits & G_ZELDA_SHADING_SMOOTH)					DL_PF("  Enabling Flat Shading");
-            if (or_bits & G_ZELDA_CULL_FRONT)						DL_PF("  Enabling Front Culling");
-            if (or_bits & G_ZELDA_CULL_BACK)						DL_PF("  Enabling Back Culling");
-            if (or_bits & G_ZELDA_FOG)								DL_PF("  Enabling Fog");
-            if (or_bits & G_ZELDA_LIGHTING)							DL_PF("  Enabling Lighting");
-            if (or_bits & G_ZELDA_TEXTURE_GEN)						DL_PF("  Enabling Texture Gen");
-			if (or_bits & G_ZELDA_TEXTURE_GEN_LINEAR)               DL_PF("  Enabling Texture Gen Linear");
-    }
-#endif
+	TnLPSP TnLparams;
 
-    gGeometryMode &= and_bits;
-    gGeometryMode |= or_bits;
+	TnLparams.Light = gGeometryMode.GBI2_Lighting;
+	TnLparams.Texture = 0;	//Force this to false
+	TnLparams.TextGen = gGeometryMode.GBI2_TextGen;
+	TnLparams.TextGenLin = gGeometryMode.GBI2_TextGenLin;
+	TnLparams.Fog = gGeometryMode.GBI2_Fog;
+	TnLparams.Shade = !(gGeometryMode.GBI2_TextGenLin & (g_ROM.GameHacks != TIGERS_HONEY_HUNT));
+	TnLparams.Zbuffer = gGeometryMode.GBI2_Zbuffer;
 
-    bool bCullFront         = (gGeometryMode & G_ZELDA_CULL_FRONT)			? true : false;
-    bool bCullBack          = (gGeometryMode & G_ZELDA_CULL_BACK)			? true : false;
-    PSPRenderer::Get()->SetCullMode(bCullFront, bCullBack);
+	PSPRenderer::Get()->SetTnL( TnLparams._u32 );
 
-//  bool bShade				= (gGeometryMode & G_SHADE)						? true : false;
-//  bool bFlatShade         = (gGeometryMode & G_ZELDA_SHADING_SMOOTH)		? true : false;
-
-	bool bFlatShade         = (gGeometryMode & G_ZELDA_TEXTURE_GEN_LINEAR & (g_ROM.GameHacks != TIGERS_HONEY_HUNT))	? true : false;
-
-    PSPRenderer::Get()->SetSmooth( !bFlatShade );
-
-    bool bFog				= (gGeometryMode & G_ZELDA_FOG)					? true : false;
-    PSPRenderer::Get()->SetFogEnable( bFog );
-
-	bool bTextureGen        = (gGeometryMode & G_ZELDA_TEXTURE_GEN)			? true : false;
-    PSPRenderer::Get()->SetTextureGen(bTextureGen);
-
-	bool bTextureGenLin        = (gGeometryMode & G_ZELDA_TEXTURE_GEN_LINEAR)			? true : false;
-	PSPRenderer::Get()->SetTextureGenLin( bTextureGenLin );
-
-    bool bLighting			= (gGeometryMode & G_ZELDA_LIGHTING)			? true : false;
-    PSPRenderer::Get()->SetLighting( bLighting );
-
-	bool bZBuffer           = (gGeometryMode & G_ZELDA_ZBUFFER)				? true : false;
-    PSPRenderer::Get()->ZBufferEnable( bZBuffer );
-
-    PSPRenderer::Get()->SetSmoothShade( true );             // Always do this - not sure which bit to use
+	PSPRenderer::Get()->SetCullMode( gGeometryMode.GBI2_CullFront, gGeometryMode.GBI2_CullBack );
 }
+
 
 //*****************************************************************************
 //
@@ -495,7 +463,7 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 void DLParser_GBI2_SetOtherModeH( MicroCodeCommand command )
 {
     // Mask is constructed slightly differently
-    u32 mask		= (u32)((s32)(0x80000000) >> command.othermode.len) >> command.othermode.sft;
+    const u32 mask = (u32)((s32)(0x80000000) >> command.othermode.len) >> command.othermode.sft;
 
     gRDPOtherMode.H = (gRDPOtherMode.H&(~mask)) | command.othermode.data;
 
@@ -510,7 +478,7 @@ void DLParser_GBI2_SetOtherModeH( MicroCodeCommand command )
 void DLParser_GBI2_SetOtherModeL( MicroCodeCommand command )
 {
 	// Mask is constructed slightly differently
-	u32 mask		= (u32)((s32)(0x80000000) >> command.othermode.len) >> command.othermode.sft;
+	const u32 mask = (u32)((s32)(0x80000000) >> command.othermode.len) >> command.othermode.sft;
 
 	gRDPOtherMode.L = (gRDPOtherMode.L&(~mask)) | command.othermode.data;
 

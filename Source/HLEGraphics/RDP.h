@@ -70,6 +70,81 @@ struct SImageDescriptor
 //*****************************************************************************
 #include "PushStructPack1.h"
 
+// Order here should be the same as in TnLPSP
+enum ETnLModeFlags
+{
+	TNL_LIGHT		= 1 << 0,
+	TNL_TEXTURE		= 1 << 1,
+	TNL_TEXGEN		= 1 << 2,
+	TNL_TEXGENLIN	= 1 << 3,
+	TNL_FOG			= 1 << 4,
+	TNL_SHADE		= 1 << 5,
+	TNL_ZBUFFER		= 1 << 6,
+};
+	
+typedef struct
+{
+	union
+	{
+		struct
+		{
+			u32 Light : 1;			// 0x1
+			u32 Texture : 1;		// 0x2
+			u32 TextGen : 1;		// 0x4
+			u32 TextGenLin : 1;		// 0x8
+			u32 Fog : 1;			// 0x10
+			u32 Shade : 1;			// 0x20
+			u32 Zbuffer : 1;		// 0x40
+			u32 pad0 : 25;			// 0x0
+		};
+		u32	_u32;
+	};
+} TnLPSP;
+
+typedef struct
+{
+	union
+	{
+		union
+		{
+			struct
+			{
+				u32 GBI1_Zbuffer : 1;		// 0x1
+				u32 GBI1_Texture : 1;		// 0x2
+				u32 GBI1_Shade : 1;			// 0x4
+				u32 GBI1_pad0 : 6;			// 0x0
+				u32 GBI1_ShadingSmooth : 1;	// 0x200
+				u32 GBI1_pad1 : 2;			// 0x0
+				u32 GBI1_CullFront : 1;		// 0x1000
+				u32 GBI1_CullBack : 1;		// 0x2000
+				u32 GBI1_pad2 : 2;			// 0x0
+				u32 GBI1_Fog : 1;			// 0x10000
+				u32 GBI1_Lighting : 1;		// 0x20000
+				u32 GBI1_TextGen : 1;		// 0x40000
+				u32 GBI1_TextGenLin : 1;	// 0x80000
+				u32 GBI1_Lod : 1;			// 0x100000
+				u32 GBI1_pad3 : 11;			// 0x0
+			};
+			struct
+			{
+				u32 GBI2_Zbuffer : 1;		// 0x1
+				u32 GBI2_pad0 : 8;			// 0x0
+				u32 GBI2_CullBack : 1;		// 0x200
+				u32 GBI2_CullFront : 1;		// 0x400
+				u32 GBI2_pad1 : 5;			// 0x0
+				u32 GBI2_Fog : 1;			// 0x10000
+				u32 GBI2_Lighting : 1;		// 0x20000
+				u32 GBI2_TextGen : 1;		// 0x40000
+				u32 GBI2_TextGenLin : 1;	// 0x80000
+				u32 GBI2_Lod : 1;			// 0x100000
+				u32 GBI2_ShadingSmooth : 1;	// 0x200000
+				u32 GBI2_pad2 : 10;			// 0x0
+			};
+		};
+		u32	_u32;
+	};
+} RDP_GeometryMode;
+
 typedef struct
 {
 	union

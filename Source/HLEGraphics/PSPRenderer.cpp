@@ -32,7 +32,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "PSPRenderer.h"
 #include "Texture.h"
 #include "TextureCache.h"
-#include "RDP.h"
 #include "RDPStateManager.h"
 #include "BlendModes.h"
 #include "DebugDisplayList.h"
@@ -247,18 +246,14 @@ PSPRenderer::PSPRenderer()
 :	mN64ToPSPScale( 2.0f, 2.0f )
 ,	mN64ToPSPTranslate( 0.0f, 0.0f )
 ,	mMux( 0 )
-,	mTnLModeFlags( 0 )
+//,	mTnLModeFlags( 0 )
 
 ,	mNumLights(0)
-,	mZBuffer(false)
 
 ,	mCull(false)
 ,	mCullMode(GU_CCW)
 
 ,	mAlphaThreshold(0)
-
-,	mSmooth( true )
-,	mSmoothShade( true )
 
 ,	mPrimDepth( 0.0f )
 
@@ -975,7 +970,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		}
 
 		// Enable or Disable ZBuffer test
-		if ( (mZBuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd )
+		if ( (mTnLModeFlags.Zbuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd )
 		{
 			sceGuEnable(GU_DEPTH_TEST);
 		}
@@ -988,7 +983,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		sceGuDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
 	}
 
-	sceGuShadeModel( mSmooth ? GU_SMOOTH : GU_FLAT );
+	sceGuShadeModel( mTnLModeFlags.Shade ? GU_SMOOTH : GU_FLAT );
 	//
 	// Initiate Filter
 	// G_TF_AVERAGE : 1, G_TF_BILERP : 2 (linear)
@@ -1426,7 +1421,7 @@ void PSPRenderer::FlushTris()
 	// necessary changes to the texture coords (this is required
 	// because some ucodes set the texture after setting the vertices)
 	//
-	if (mTnLModeFlags & TNL_TEXTURE)
+	if (mTnLModeFlags.Texture)
 	{
 		EnableTexturing( gTextureTile );
 
@@ -1446,7 +1441,7 @@ void PSPRenderer::FlushTris()
 	// necessary changes to the texture coords (this is required
 	// because some ucodes set the texture after setting the vertices)
 	//
-	bool	update_tex_coords( (mTnLModeFlags & TNL_TEXTURE) != 0 && (mTnLModeFlags & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) );
+	bool	update_tex_coords( (mTnLModeFlags.Texture) != 0 && (mTnLModeFlags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) );
 
 	v2		offset( 0.0f, 0.0f );
 	v2		scale( 1.0f, 1.0f );
@@ -1830,10 +1825,10 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnLParams.Ambient.x, mTnLParams.Ambient.y, mTnLParams.Ambient.z, mTnLParams.TextureScaleX, mTnLParams.TextureScaleY);
-	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnLModeFlags&TNL_LIGHT)? "On":"Off", (mTnLModeFlags&TNL_TEXTURE)? "On":"Off", (mTnLModeFlags&TNL_TEXGEN)? (mTnLModeFlags&TNL_TEXGENLIN)? "Linear":"Spherical":"Off", (mTnLModeFlags&TNL_FOG)? "On":"Off");
+	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnLModeFlags.Light)? "On":"Off", (mTnLModeFlags.Texture)? "On":"Off", (mTnLModeFlags.TextGen)? (mTnLModeFlags.TextGenLin)? "Linear":"Spherical":"Off", (mTnLModeFlags.Fog)? "On":"Off");
 
 #ifdef NO_VFPU_FOG
-	switch( mTnLModeFlags & (TNL_TEXTURE|TNL_TEXGEN|TNL_LIGHT) )
+	switch( mTnLModeFlags._u32 & (TNL_TEXTURE|TNL_TEXGEN|TNL_LIGHT) )
 	{
 		// TNL_TEXGEN is ignored when TNL_LIGHT is disabled
 	case                                   0: _TransformVerticesWithColour_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
@@ -1846,12 +1841,12 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	case TNL_LIGHT |             TNL_TEXTURE: _TransformVerticesWithLighting_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
 	case TNL_LIGHT |TNL_TEXGEN              : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
 	case TNL_LIGHT |TNL_TEXGEN | TNL_TEXTURE:
-		if( mTnLModeFlags & TNL_TEXGENLIN ) _TransformVerticesWithLighting_f0_t3( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights );
+		if( mTnLModeFlags.TextGenLin ) _TransformVerticesWithLighting_f0_t3( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights );
 		else _TransformVerticesWithLighting_f0_t2( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights );
 		break;
 
 #else
-	switch( mTnLModeFlags & (TNL_TEXTURE|TNL_TEXGEN|TNL_FOG|TNL_LIGHT) )
+	switch( mTnLModeFlags._u32 & (TNL_TEXTURE|TNL_TEXGEN|TNL_FOG|TNL_LIGHT) )
 	{
 		// TNL_TEXGEN is ignored when TNL_LIGHT is disabled
 	case                                   0: _TransformVerticesWithColour_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
@@ -1884,7 +1879,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 /*void PSPRenderer::TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world )
 {
-	bool	env_map( (mTnLModeFlags & (TNL_LIGHT|TNL_TEXGEN)) == (TNL_LIGHT|TNL_TEXGEN) );
+	bool	env_map( (mTnLModeFlags._u32 & (TNL_LIGHT|TNL_TEXGEN)) == (TNL_LIGHT|TNL_TEXGEN) );
 
 	u32 vend( v0 + num );
 	for (u32 i = v0; i < vend; i++)
@@ -1892,7 +1887,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		const FiddledVtx & vert = verts[i - v0];
 		const v4 &	projected( mVtxProjected[i].ProjectedPos );
 
-		if (mTnLModeFlags & TNL_FOG)
+		if (mTnLModeFlags.Fog)
 		{
 			float eyespace_z = projected.z / projected.w;
 			float fog_coeff = (eyespace_z * mTnLParams.FogMult) + mTnLParams.FogOffset;
@@ -1906,7 +1901,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 			}
 		}
 
-		if (mTnLModeFlags & TNL_TEXTURE)
+		if (mTnLModeFlags.Texture)
 		{
 			// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
 
@@ -1990,7 +1985,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnLParams.Ambient.x, mTnLParams.Ambient.y, mTnLParams.Ambient.z, mTnLParams.TextureScaleX, mTnLParams.TextureScaleY);
-	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnLModeFlags&TNL_LIGHT)? "On":"Off", (mTnLModeFlags&TNL_TEXTURE)? "On":"Off", (mTnLModeFlags&TNL_TEXGEN)? (mTnLModeFlags&TNL_TEXGENLIN)? "Linear":"Spherical":"Off", (mTnLModeFlags&TNL_FOG)? "On":"Off");
+	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnLModeFlags.Light)? "On":"Off", (mTnLModeFlags.Texture)? "On":"Off", (mTnLModeFlags.TextGen)? (mTnLModeFlags.TextGenLin)? "Linear":"Spherical":"Off", (mTnLModeFlags.Fog)? "On":"Off");
 
 	// Transform and Project + Lighting or Transform and Project with Colour
 	//
@@ -2021,7 +2016,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 
 		// LIGHTING OR COLOR
 		//
-		if ( mTnLModeFlags & TNL_LIGHT )
+		if ( mTnLModeFlags.Light)
 		{
 			v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
 
@@ -2034,7 +2029,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 
 			// ENV MAPPING
 			//
-			if ( (mTnLModeFlags & (TNL_TEXGEN | TNL_TEXTURE)) == (TNL_TEXGEN | TNL_TEXTURE) )
+			if ( (mTnLModeFlags._u32 & (TNL_TEXGEN | TNL_TEXTURE)) == (TNL_TEXGEN | TNL_TEXTURE) )
 			{
 				// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
 				// If the vert is already lit, then there is no normal (and hence we can't generate tex coord)
@@ -2045,7 +2040,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 
 				const v3 & norm = vecTransformedNormal;
 				
-				if( mTnLModeFlags & TNL_TEXGENLIN )
+				if( mTnLModeFlags.TextGenLin )
 				{
 					mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x );
 					mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y );
@@ -2059,7 +2054,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 					mVtxProjected[i].Texture.y =  0.5f - 0.25f * NormY - 0.25f * NormY * NormY * NormY;
 				}
 			}
-			else if( mTnLModeFlags & TNL_TEXTURE )
+			else if( mTnLModeFlags.Texture )
 			{
 				mVtxProjected[i].Texture.x = (float)vert.tu * mTnLParams.TextureScaleX;
 				mVtxProjected[i].Texture.y = (float)vert.tv * mTnLParams.TextureScaleY;
@@ -2069,7 +2064,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		{
 			mVtxProjected[i].Colour = v4( vert.rgba_r * (1.0f / 255.0f), vert.rgba_g * (1.0f / 255.0f), vert.rgba_b * (1.0f / 255.0f), vert.rgba_a * (1.0f / 255.0f) );
 
-			if( mTnLModeFlags & TNL_TEXTURE )
+			if( mTnLModeFlags.Texture )
 			{
 				mVtxProjected[i].Texture.x = (float)vert.tu * mTnLParams.TextureScaleX;
 				mVtxProjected[i].Texture.y = (float)vert.tv * mTnLParams.TextureScaleY;
@@ -2079,7 +2074,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		/*
 		// FOG
 		//
-		if ( mTnLModeFlags & TNL_FOG )
+		if ( mTnLModeFlags.Fog )
 		{
 			float	fog_coeff;
 			//if(fabsf(projected.w) > 0.0f)
@@ -2112,7 +2107,7 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnLParams.Ambient.x, mTnLParams.Ambient.y, mTnLParams.Ambient.z, mTnLParams.TextureScaleX, mTnLParams.TextureScaleY);
-	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnLModeFlags&TNL_LIGHT)? "On":"Off", (mTnLModeFlags&TNL_TEXTURE)? "On":"Off", (mTnLModeFlags&TNL_TEXGEN)? (mTnLModeFlags&TNL_TEXGENLIN)? "Linear":"Spherical":"Off", (mTnLModeFlags&TNL_FOG)? "On":"Off");
+	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnLModeFlags.Light)? "On":"Off", (mTnLModeFlags.Texture)? "On":"Off", (mTnLModeFlags.TextGen)? (mTnLModeFlags.TextGenLin)? "Linear":"Spherical":"Off", (mTnLModeFlags.Fog)? "On":"Off");
 
 	// Light is not handled for Conker
 	//
@@ -2121,7 +2116,7 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 	// Do Env Mapping using the CPU with an extra pass 
 	// TODO : Port this to VFPU ASM
 	//
-	if( (mTnLModeFlags & (TNL_LIGHT | TNL_TEXGEN | TNL_TEXTURE)) == (TNL_LIGHT | TNL_TEXGEN | TNL_TEXTURE) )
+	if( (mTnLModeFlags._u32 & (TNL_LIGHT | TNL_TEXGEN | TNL_TEXTURE)) == (TNL_LIGHT | TNL_TEXGEN | TNL_TEXTURE) )
 	{
 		//Model normal base vector
 		const s8 *mn = (s8*)(gAuxAddr);
@@ -2135,7 +2130,7 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 
 			const v3 & norm = vecTransformedNormal;
 
-			if( mTnLModeFlags & TNL_TEXGENLIN )
+			if( mTnLModeFlags.TextGenLin )
 			{	//Cheap way to do Acos(x)/Pi //Corn
 				mVtxProjected[i].Texture.x =  0.5f - 0.25f * norm.x - 0.25f * norm.x * norm.x * norm.x;
 				mVtxProjected[i].Texture.y =  0.5f - 0.25f * norm.y - 0.25f * norm.y * norm.y * norm.y;
@@ -2161,7 +2156,7 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnLParams.Ambient.x, mTnLParams.Ambient.y, mTnLParams.Ambient.z, mTnLParams.TextureScaleX, mTnLParams.TextureScaleY);
-	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnLModeFlags&TNL_LIGHT)? "On":"Off", (mTnLModeFlags&TNL_TEXTURE)? "On":"Off", (mTnLModeFlags&TNL_TEXGEN)? (mTnLModeFlags&TNL_TEXGENLIN)? "Linear":"Spherical":"Off", (mTnLModeFlags&TNL_FOG)? "On":"Off");
+	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnLModeFlags.Light)? "On":"Off", (mTnLModeFlags.Texture)? "On":"Off", (mTnLModeFlags.TextGen)? (mTnLModeFlags.TextGenLin)? "Linear":"Spherical":"Off", (mTnLModeFlags.Fog)? "On":"Off");
 
 	//Model normal base vector
 	const s8 *mn = (s8*)(gAuxAddr);
@@ -2195,7 +2190,7 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 
 		// LIGHTING OR COLOR
 		//
-		if ( mTnLModeFlags & TNL_LIGHT )
+		if ( mTnLModeFlags.Light )
 		{
 			v4	result( mTnLParams.Ambient );
 
@@ -2220,7 +2215,7 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 
 			// ENV MAPPING
 			//
-			if ( mTnLModeFlags & TNL_TEXGEN )
+			if ( mTnLModeFlags.TextGen )
 			{
 				v3 model_normal( mn[((i<<1)+0)^3] , mn[((i<<1)+1)^3], vert.normz );
 				v3 vecTransformedNormal = matWorld.TransformNormal( model_normal );
@@ -2228,7 +2223,7 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 
 				const v3 & norm = vecTransformedNormal;
 				
-				if( mTnLModeFlags & TNL_TEXGENLIN )
+				if( mTnLModeFlags.TextGenLin )
 				{
 					//Cheap way to do Acos(x)/Pi //Corn
 					mVtxProjected[i].Texture.x =  0.5f - 0.25f * norm.x - 0.25f * norm.x * norm.x * norm.x; 
@@ -2248,7 +2243,7 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 		}
 		else
 		{
-			if( mSmooth )
+			if( mTnLModeFlags.Shade )
 			{	//FLAT shade
 				mVtxProjected[i].Colour = v4( (f32)vert.rgba_r * (1.0f / 255.0f), (f32)vert.rgba_g * (1.0f / 255.0f), (f32)vert.rgba_b * (1.0f / 255.0f), (f32)vert.rgba_a * (1.0f / 255.0f) );
 			}
@@ -2280,7 +2275,7 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 	const Matrix4x4 & matWorldProject( gDKRMatrixes[gDKRCMatrixIndex] );
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnLParams.Ambient.x, mTnLParams.Ambient.y, mTnLParams.Ambient.z, mTnLParams.TextureScaleX, mTnLParams.TextureScaleY);
-	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnLModeFlags&TNL_LIGHT)? "On":"Off", (mTnLModeFlags&TNL_TEXTURE)? "On":"Off", (mTnLModeFlags&TNL_TEXGEN)? (mTnLModeFlags&TNL_TEXGENLIN)? "Linear":"Spherical":"Off", (mTnLModeFlags&TNL_FOG)? "On":"Off");
+	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnLModeFlags.Light)? "On":"Off", (mTnLModeFlags.Texture)? "On":"Off", (mTnLModeFlags.TextGen)? (mTnLModeFlags.TextGenLin)? "Linear":"Spherical":"Off", (mTnLModeFlags.Fog)? "On":"Off");
 	DL_PF( "    CMtx[%d] Add base[%s]", gDKRCMatrixIndex, gDKRBillBoard? "On":"Off");
 
 	if( gDKRBillBoard )
@@ -2389,7 +2384,7 @@ void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 	const Matrix4x4 & matWorldProject( GetWorldProject() );
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnLParams.Ambient.x, mTnLParams.Ambient.y, mTnLParams.Ambient.z, mTnLParams.TextureScaleX, mTnLParams.TextureScaleY);
-	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnLModeFlags&TNL_LIGHT)? "On":"Off", (mTnLModeFlags&TNL_TEXTURE)? "On":"Off", (mTnLModeFlags&TNL_TEXGEN)? (mTnLModeFlags&TNL_TEXGENLIN)? "Linear":"Spherical":"Off", (mTnLModeFlags&TNL_FOG)? "On":"Off");
+	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnLModeFlags.Light)? "On":"Off", (mTnLModeFlags.Texture)? "On":"Off", (mTnLModeFlags.TextGen)? (mTnLModeFlags.TextGenLin)? "Linear":"Spherical":"Off", (mTnLModeFlags.Fog)? "On":"Off");
 
 	//Model normal base vector
 	const s8 *mn  = (s8*)(gAuxAddr);
@@ -2418,7 +2413,7 @@ void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 		else if (projected.z > projected.w)	clip_flags |= Z_NEG;
 		mVtxProjected[i].ClipFlags = clip_flags;
 
-		if( mTnLModeFlags & TNL_LIGHT )
+		if( mTnLModeFlags.Light )
 		{
 			v3	model_normal((f32)mn[vert.cidx+3], (f32)mn[vert.cidx+2], (f32)mn[vert.cidx+1] );
 
@@ -2429,12 +2424,12 @@ void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 			mVtxProjected[i].Colour = LightVert(vecTransformedNormal);
 			mVtxProjected[i].Colour.w = (f32)col[vert.cidx+0] * (1.0f / 255.0f);
 
-			if ( mTnLModeFlags & TNL_TEXGEN )
+			if ( mTnLModeFlags.TextGen )
 			{
 				const v3 & norm = vecTransformedNormal;
 
 				//Env mapping
-				if( mTnLModeFlags & TNL_TEXGENLIN )
+				if( mTnLModeFlags.TextGenLin )
 				{	//Cheap way to do Acos(x)/Pi //Corn
 					mVtxProjected[i].Texture.x =  0.5f - 0.25f * norm.x - 0.25f * norm.x * norm.x * norm.x;
 					mVtxProjected[i].Texture.y =  0.5f - 0.25f * norm.y - 0.25f * norm.y * norm.y * norm.y;
@@ -2453,7 +2448,7 @@ void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 		}
 		else
 		{
-			if( mSmooth )
+			if( mTnLModeFlags.Shade )
 			{	//FLAT shade
 				mVtxProjected[i].Colour = v4( (f32)col[vert.cidx+3] * (1.0f / 255.0f), (f32)col[vert.cidx+2] * (1.0f / 255.0f), (f32)col[vert.cidx+1] * (1.0f / 255.0f), (f32)col[vert.cidx+0] * (1.0f / 255.0f) );
 			}

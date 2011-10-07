@@ -122,7 +122,6 @@ void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
 static void DLParser_PopDL();
 void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
 void RDP_MoveMemLight(u32 light_idx, u32 address);
-void DLParser_InitGeometryMode();
 
 //*************************************************************************************
 //
@@ -227,7 +226,7 @@ u32 gFillColor		 = 0xFFFFFFFF;
 u32 gRDPHalf1		 = 0;
 u32 gRDPFrame		 = 0;
 u32 gAuxAddr		 = (u32)g_pu8RamBase;
-u32 gGeometryMode	 = 0;
+RDP_GeometryMode gGeometryMode;
 u32 gRDPddress[512];        // 512 addresses (used to determine address loaded from)
 //*****************************************************************************
 // Include ucode header files
@@ -298,8 +297,49 @@ const char *sc_colcombtypes8[8] =
 	"1           ", "0           ",
 };
 }
-#endif
 
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts)
+{
+	if (gDisplayListFile != NULL)
+	{
+		s8 *pcSrc = (s8 *)(g_pu8RamBase + address);
+		s16 *psSrc = (s16 *)(g_pu8RamBase + address);
+
+		for ( u32 idx = v0_idx; idx < v0_idx + num_verts; idx++ )
+		{
+			f32 x = f32(psSrc[0^0x1]);
+			f32 y = f32(psSrc[1^0x1]);
+			f32 z = f32(psSrc[2^0x1]);
+
+			u16 wFlags = u16(PSPRenderer::Get()->GetVtxFlags( idx )); //(u16)psSrc[3^0x1];
+
+			u8 a = pcSrc[12^0x3];
+			u8 b = pcSrc[13^0x3];
+			u8 c = pcSrc[14^0x3];
+			u8 d = pcSrc[15^0x3];
+			
+			s16 nTU = psSrc[4^0x1];
+			s16 nTV = psSrc[5^0x1];
+
+			f32 tu = f32(nTU) * (1.0f / 32.0f);
+			f32 tv = f32(nTV) * (1.0f / 32.0f);
+
+			const v4 & t = PSPRenderer::Get()->GetTransformedVtxPos( idx );
+			const v4 & p = PSPRenderer::Get()->GetProjectedVtxPos( idx );
+
+			psSrc += 8;			// Increase by 16 bytes
+			pcSrc += 16;
+
+			DL_PF("   #%02d Flags: 0x%04x Pos:{% 6f,% 6f,% 6f} Tex:{%+7.2f,%+7.2f} Extra: %02x %02x %02x %02x Tran:{% 6f,% 6f,% 6f,% 6f} Proj:{% 6f,% 6f,% 6f,% 6f}",
+				idx, wFlags, x, y, z, tu, tv, a, b, c, d, t.x, t.y, t.z, t.w, p.x/p.w, p.y/p.w, p.z/p.w, p.w);
+		}
+	}
+}
+
+#endif
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -924,95 +964,6 @@ void DLParser_RDPFullSync( MicroCodeCommand command )
 
 	/*DL_PF("FullSync: (Generating Interrupt)");*/
 }
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_InitGeometryMode()
-{
-	// CULL_BACK has priority, Fixes Mortal Kombat 4
-	bool bCullFront         = (gGeometryMode & G_CULL_FRONT)		? true : false;
-	bool bCullBack          = (gGeometryMode & G_CULL_BACK)			? true : false;
-	PSPRenderer::Get()->SetCullMode(bCullFront, bCullBack);
-
-	bool bShade				= (gGeometryMode & G_SHADE)				? true : false;
-	PSPRenderer::Get()->SetSmooth( bShade );
-
-	bool bShadeSmooth       = (gGeometryMode & G_SHADING_SMOOTH)	? true : false;
-	PSPRenderer::Get()->SetSmoothShade( bShadeSmooth );
-
-	bool bFog				= (gGeometryMode & G_FOG)				? true : false;
-	PSPRenderer::Get()->SetFogEnable( bFog );
-
-	bool bTextureGen        = (gGeometryMode & G_TEXTURE_GEN)		? true : false;
-	PSPRenderer::Get()->SetTextureGen(bTextureGen);
-
-	bool bTextureGenLin        = (gGeometryMode & G_TEXTURE_GEN_LINEAR)			? true : false;
-	PSPRenderer::Get()->SetTextureGenLin( bTextureGenLin );
-
-	bool bLighting			= (gGeometryMode & G_LIGHTING)			? true : false;
-	PSPRenderer::Get()->SetLighting( bLighting );
-
-	bool bZBuffer           = (gGeometryMode & G_ZBUFFER)			? true : false;
-	PSPRenderer::Get()->ZBufferEnable( bZBuffer );
-
-	DL_PF("  ZBuffer %s", bZBuffer ? "On" : "Off");
-	DL_PF("  Culling %s", bCullBack ? "Back face" : bCullFront ? "Front face" : "Off");
-	DL_PF("  Shade %s", bShade ? "On" : "Off");
-	DL_PF("  Smooth Shading %s", bShadeSmooth ? "On" : "Off");
-	DL_PF("  Lighting %s", bLighting ? "On" : "Off");
-	DL_PF("  Texture %s", (gGeometryMode & G_TEXTURE_ENABLE) ? "On" : "Off");
-	DL_PF("  Texture Gen %s", bTextureGen ? "On" : "Off");
-	DL_PF("  Texture Gen Linear %s", bTextureGenLin ? "On" : "Off");
-	DL_PF("  Fog %s", bFog ? "On" : "Off");
-	DL_PF("  LOD %s", (gGeometryMode & G_LOD) ? "On" : "Off");
-}
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts)
-{
-	if (gDisplayListFile != NULL)
-	{
-		s8 *pcSrc = (s8 *)(g_pu8RamBase + address);
-		s16 *psSrc = (s16 *)(g_pu8RamBase + address);
-
-		for ( u32 idx = v0_idx; idx < v0_idx + num_verts; idx++ )
-		{
-			f32 x = f32(psSrc[0^0x1]);
-			f32 y = f32(psSrc[1^0x1]);
-			f32 z = f32(psSrc[2^0x1]);
-
-			u16 wFlags = u16(PSPRenderer::Get()->GetVtxFlags( idx )); //(u16)psSrc[3^0x1];
-
-			u8 a = pcSrc[12^0x3];
-			u8 b = pcSrc[13^0x3];
-			u8 c = pcSrc[14^0x3];
-			u8 d = pcSrc[15^0x3];
-			
-			s16 nTU = psSrc[4^0x1];
-			s16 nTV = psSrc[5^0x1];
-
-			f32 tu = f32(nTU) * (1.0f / 32.0f);
-			f32 tv = f32(nTV) * (1.0f / 32.0f);
-
-			const v4 & t = PSPRenderer::Get()->GetTransformedVtxPos( idx );
-			const v4 & p = PSPRenderer::Get()->GetProjectedVtxPos( idx );
-
-			psSrc += 8;			// Increase by 16 bytes
-			pcSrc += 16;
-
-			DL_PF("   #%02d Flags: 0x%04x Pos:{% 6f,% 6f,% 6f} Tex:{%+7.2f,%+7.2f} Extra: %02x %02x %02x %02x Tran:{% 6f,% 6f,% 6f,% 6f} Proj:{% 6f,% 6f,% 6f,% 6f}",
-				idx, wFlags, x, y, z, tu, tv, a, b, c, d, t.x, t.y, t.z, t.w, p.x/p.w, p.y/p.w, p.z/p.w, p.w);
-		}
-	}
-}
-#endif
-
-
-
 
 //*****************************************************************************
 //

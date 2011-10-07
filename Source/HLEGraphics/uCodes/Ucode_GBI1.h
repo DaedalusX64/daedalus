@@ -210,7 +210,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 	case G_MW_NUMLIGHT:
 		//#define NUML(n)		(((n)+1)*32 + 0x80000000)
 		{
-			u32 num_lights = ((command.mw1.value-0x80000000)/32) - 1;
+			u32 num_lights = ((command.mw1.value - 0x80000000) >> 5) - 1;
 
 			DL_PF("    G_MW_NUMLIGHT: Val:%d", num_lights);
 
@@ -265,7 +265,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 		break;
 	case G_MW_LIGHTCOL:
 		{
-			u32 light_idx = command.mw1.offset / 0x20;
+			u32 light_idx = command.mw1.offset >> 5;
 			u32 field_offset = (command.mw1.offset & 0x7);
 
 			DL_PF("    G_MW_LIGHTCOL/0x%08x: 0x%08x", command.mw1.offset, command.inst.cmd1);
@@ -299,8 +299,8 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 		break;
 	case G_MW_POINTS:	// Used in FIFA 98
 		{
-			u32 vtx = command.mw1.offset/40;
-			u32 offset = command.mw1.offset%40;
+			u32 vtx = command.mw1.offset / 40;
+			u32 offset = command.mw1.offset % 40;
 			u32 val = command.mw1.value;
 
 			DL_PF("    G_MW_POINTS");
@@ -419,14 +419,46 @@ void DLParser_GBI1_LoadUCode( MicroCodeCommand command )
 	DLParser_InitMicrocode( code_base, code_size, data_base, data_size ); 
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void DLParser_InitGeometryMode()
+{
+    DL_PF("  ZBuffer %s", (gGeometryMode.GBI1_Zbuffer) ? "On" : "Off");
+    DL_PF("  Culling %s", (gGeometryMode.GBI1_CullBack) ? "Back face" : (gGeometryMode.GBI1_CullFront) ? "Front face" : "Off");
+    DL_PF("  Shade %s", (gGeometryMode.GBI1_Shade) ? "On" : "Off");
+    DL_PF("  Smooth Shading %s", (gGeometryMode.GBI1_ShadingSmooth) ? "On" : "Off");
+    DL_PF("  Lighting %s", (gGeometryMode.GBI1_Lighting) ? "On" : "Off");
+    DL_PF("  Texture %s", (gGeometryMode.GBI1_Texture) ? "On" : "Off");
+    DL_PF("  Texture Gen %s", (gGeometryMode.GBI1_TextGen) ? "On" : "Off");
+    DL_PF("  Texture Gen Linear %s", (gGeometryMode.GBI1_TextGenLin) ? "On" : "Off");
+    DL_PF("  Fog %s", (gGeometryMode.GBI1_Fog) ? "On" : "Off");
+    DL_PF("  LOD %s", (gGeometryMode.GBI1_Lod) ? "On" : "Off");
+
+	TnLPSP TnLparams;
+
+	TnLparams.Light = gGeometryMode.GBI1_Lighting;
+	TnLparams.Texture = 0;	//Force this to false
+	TnLparams.TextGen = gGeometryMode.GBI1_TextGen;
+	TnLparams.TextGenLin = gGeometryMode.GBI1_TextGenLin;
+	TnLparams.Fog = gGeometryMode.GBI1_Fog;
+	TnLparams.Shade = gGeometryMode.GBI1_Shade;
+	TnLparams.Zbuffer = gGeometryMode.GBI1_Zbuffer;
+
+	PSPRenderer::Get()->SetTnL( TnLparams._u32 );
+
+	// CULL_BACK has priority, Fixes Mortal Kombat 4
+	PSPRenderer::Get()->SetCullMode( gGeometryMode.GBI1_CullFront, gGeometryMode.GBI1_CullBack );
+}
+
 //***************************************************************************** 
 // 
 //*****************************************************************************
 void DLParser_GBI1_ClearGeometryMode( MicroCodeCommand command )
 {
-    u32 mask = (command.inst.cmd1);
+    const u32 mask = (command.inst.cmd1);
     
-    gGeometryMode &= ~mask;
+    gGeometryMode._u32 &= ~mask;
 
     DL_PF("  Clearing mask -> 0x%08x", mask);
 
@@ -438,9 +470,9 @@ void DLParser_GBI1_ClearGeometryMode( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_SetGeometryMode(  MicroCodeCommand command  )
 {
-    u32 mask = command.inst.cmd1;
+    const u32 mask = command.inst.cmd1;
 
-    gGeometryMode |= mask;
+    gGeometryMode._u32 |= mask;
 
     DL_PF("  Setting mask -> 0x%08x", mask);
 
@@ -452,7 +484,7 @@ void DLParser_GBI1_SetGeometryMode(  MicroCodeCommand command  )
 //*****************************************************************************
 void DLParser_GBI1_SetOtherModeL( MicroCodeCommand command )
 {
-    u32 mask		= ((1 << command.othermode.len) - 1) << command.othermode.sft;
+    const u32 mask = ((1 << command.othermode.len) - 1) << command.othermode.sft;
 
     gRDPOtherMode.L = (gRDPOtherMode.L&(~mask)) | command.othermode.data;
 
@@ -466,7 +498,7 @@ void DLParser_GBI1_SetOtherModeL( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_SetOtherModeH( MicroCodeCommand command )
 {
-    u32 mask		= ((1 << command.othermode.len) - 1) << command.othermode.sft;
+    const u32 mask = ((1 << command.othermode.len) - 1) << command.othermode.sft;
 
     gRDPOtherMode.H = (gRDPOtherMode.H&(~mask)) | command.othermode.data;
 

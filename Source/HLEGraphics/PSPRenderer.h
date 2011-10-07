@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/ColourValue.h"
 #include "BlendModes.h"
 #include "Utility/Preferences.h"
+#include "RDP.h"
 
 #include <pspgu.h>
 #include <set>
@@ -142,7 +143,6 @@ DAEDALUS_STATIC_ASSERT( sizeof( TnLParams ) == 32 );
 // Bits for clipping
 // +-+-+-
 // xxyyzz
-
 // NB: These are ordered such that the VFPU can generate them easily - make sure you keep the VFPU code up to date if changing these.
 #define X_NEG  0x01	//left
 #define Y_NEG  0x02	//bottom
@@ -171,25 +171,19 @@ public:
 	void				Reset();
 
 	// Verious rendering states
-	enum ETnLModeFlags
-	{
-		TNL_LIGHT		= 1 << 0,
-		TNL_TEXTURE		= 1 << 1,
-		TNL_TEXGEN		= 1 << 2,
-		TNL_TEXGENLIN	= 1 << 3,
-		TNL_FOG			= 1 << 4,
-	};
+	inline void			SetTnL(u32 param)						{ mTnLModeFlags._u32 = (mTnLModeFlags._u32 & TNL_TEXTURE) | param; if(mTnLModeFlags.Fog & gFogEnabled) sceGuEnable(GU_FOG); else sceGuDisable(GU_FOG); }
+	inline void			SetTextureEnable(bool enable)			{ mTnLModeFlags.Texture = enable; }
 
-	inline void			SetTextureEnable(bool enable)			{ if( enable ) mTnLModeFlags |= TNL_TEXTURE; else mTnLModeFlags &= ~TNL_TEXTURE; }
-	inline void			SetLighting(bool enable)				{ if( enable ) mTnLModeFlags |= TNL_LIGHT;	 else mTnLModeFlags &= ~TNL_LIGHT; }
-	inline void			SetTextureGen(bool enable)				{ if( enable ) mTnLModeFlags |= TNL_TEXGEN;  else mTnLModeFlags &= ~TNL_TEXGEN; }
-	inline void			SetTextureGenLin(bool enable)			{ if( enable ) mTnLModeFlags |= TNL_TEXGENLIN;  else mTnLModeFlags &= ~TNL_TEXGENLIN; }
+	// Fog stuff
+	inline void			SetFogMinMax(float fMin, float fMax)	{ sceGuFog(fMin, fMax, mFogColour.GetColour()); }
+	inline void			SetFogColour( c32 colour )				{ mFogColour = colour; }
+	//inline void			SetFogMult( float fFogMult )			{ mTnLParams.FogMult = fFogMult; }
+	//inline void			SetFogOffset( float fFogOffset )		{ mTnLParams.FogOffset = fFogOffset; }
 
 	// PrimDepth will replace the z value if depth_source=1 (z range 32767-0 while PSP depthbuffer range 0-65535)//Corn
 	inline void			SetPrimitiveDepth( u32 z )				{ mPrimDepth = (f32)( ( ( 32767 - z ) << 1) + 1 ); }
 	inline void			SetPrimitiveColour( c32 colour )		{ mPrimitiveColour = colour; }
 	inline void			SetEnvColour( c32 colour )				{ mEnvColour = colour; }
-	inline void			ZBufferEnable(bool bZBuffer)			{ mZBuffer = bZBuffer; }
 
 	inline void			SetNumLights(u32 num)					{ mNumLights = num; }
 	void				SetLightCol(u32 light, u32 colour);
@@ -197,8 +191,6 @@ public:
 	inline void			SetAmbientLight( const v4 & colour )	{ mTnLParams.Ambient = colour; }
 
 	inline void			SetMux( u64 mux )						{ mMux = mux; }
-	inline void			SetSmooth( bool bSmooth )				{ mSmooth = bSmooth; }
-	inline void			SetSmoothShade( bool bSmoothShade )		{ mSmoothShade = bSmoothShade; }
 	inline void			SetAlphaRef(u32 alpha)					{ mAlphaThreshold = alpha; }
 	inline void			SetCullMode(bool bFront, bool bBack)	{ mCull = bFront | bBack; if( bBack ) mCullMode = GU_CCW; else mCullMode = GU_CW; }
 
@@ -209,15 +201,6 @@ public:
 	// Viewport stuff
 	void				SetN64Viewport( const v3 & scale, const v3 & trans );
 	void				SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 );
-
-	// Fog stuff
-	inline void			SetFogEnable(bool Enable)				{ if(Enable & gFogEnabled) sceGuEnable(GU_FOG); else sceGuDisable(GU_FOG); }
-	inline void			SetFogMinMax(float fMin, float fMax)	{ sceGuFog(fMin, fMax, mFogColour.GetColour()); }
-	inline void			SetFogColour( c32 colour )				{ mFogColour = colour; }
-	// Unused.. will remove soon
-	inline void			SetFogMult( float fFogMult )			{ mTnLParams.FogMult = fFogMult; }
-	inline void			SetFogOffset( float fFogOffset )		{ mTnLParams.FogOffset = fFogOffset; }
-
 
 	// Matrix stuff
 	enum EMatrixLoadStyle
@@ -357,19 +340,14 @@ private:
 
 	u64					mMux;
 
-	u32					mTnLModeFlags;
+	TnLPSP				mTnLModeFlags;
 
 	u32					mNumLights;
-
-	bool				mZBuffer;
 
 	bool				mCull;
 	int					mCullMode;
 	
 	u32					mAlphaThreshold;
-
-	bool				mSmooth;
-	bool				mSmoothShade;
 
 	f32					mPrimDepth;
 
