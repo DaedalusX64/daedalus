@@ -99,6 +99,7 @@ DAED_PSP_SRCS =		Source/SysPSP/Graphics/DrawText.cpp \
 			Source/SysPSP/UI/ColourPulser.cpp \
 			Source/SysPSP/UI/GlobalSettingsComponent.cpp \
 			Source/SysPSP/UI/RomPreferencesScreen.cpp \
+			Source/SysPSP/UI/RomSelectorComponent.cpp 
 			Source/SysPSP/UI/AdvancedOptionsScreen.cpp \
 			Source/SysPSP/UI/SavestateSelectorComponent.cpp \
 			Source/SysPSP/UI/PauseOptionsComponent.cpp \
@@ -164,12 +165,8 @@ DAED_AUDIO_SRCS =  	Source/HLEAudio/ABI1.cpp \
 DAED_OSHLE_SRCS = 	Source/OSHLE/OS.cpp \
 			Source/OSHLE/patch.cpp
 
-DAED_RELEASE_SRCS 	= 	Source/SysPSP/UI/RomSelectorComponent.cpp 
-
 DAED_GPROF_SRCS 	= 	Source/SysPSP/Debug/prof.c \
 			Source/SysPSP/Debug/mcount.S
-
-ADDITIONAL_DEBUG_SRCS = Source/SysPSP/UI/RomSelectorComponent.cpp
 
 ADDITIONAL_SYNC_SRCS  = Source/Utility/Synchroniser.cpp Source/Utility/ZLibWrapper.cpp
 
@@ -182,7 +179,7 @@ ifdef PSPGPROF
 	
 	CFLAGS			= -pg -g -O2 -G0 -D_DEBUG -Wall -MD -ffast-math -fsingle-precision-constant
 
-	SRCS			= $(CORE_SRCS) $(DAED_RELEASE_SRCS)	$(DAED_GPROF_SRCS) 
+	SRCS			= $(CORE_SRCS) $(DAED_GPROF_SRCS) 
 else 
 ifdef DEBUG
 	CONFIG=Dev #default config in Debug build is "Dev"
@@ -192,7 +189,7 @@ ifdef DEBUG
 				  -Wredundant-decls -Wshadow -Wwrite-strings
 				#-Winline -Wcast-align 
 
-	SRCS			= $(CORE_SRCS) $(ADDITIONAL_DEBUG_SRCS) $(ADDITIONAL_SYNC_SRCS)
+	SRCS			= $(CORE_SRCS) $(ADDITIONAL_SYNC_SRCS)
 else 
 	CFLAGS			= -O2 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant
 					#-Wextra
@@ -201,7 +198,7 @@ else
 					#-funroll-loops 
 	LDFLAGS 		= "-Wl,-O1"
 
-	SRCS			= $(CORE_SRCS) $(DAED_RELEASE_SRCS)
+	SRCS			= $(CORE_SRCS)
 endif
 endif
 

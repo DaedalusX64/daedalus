@@ -40,11 +40,8 @@ extern const char * gNormalInstructionName[MAX_UCODE][256];
 #endif
 
 UcodeFunc( DLParser_GBI1_CullDL );
-UcodeFunc( DLParser_GBI2_CullDL );
 UcodeFunc( DLParser_GBI1_DL );
-UcodeFunc( DLParser_GBI2_DL );
 UcodeFunc( DLParser_GBI1_EndDL );
-UcodeFunc( DLParser_GBI2_EndDL );
 UcodeFunc( DLParser_GBI1_BranchZ );
 UcodeFunc( DLParser_GBI1_LoadUCode );
 UcodeFunc( DLParser_GBI2_LoadUCode );
@@ -71,7 +68,6 @@ UcodeFunc( DLParser_GBI1_PopMtx );
 UcodeFunc( DLParser_GBI2_PopMtx );
 
 UcodeFunc( DLParser_GBI0_Tri4 );
-UcodeFunc( DLParser_GBI0_Quad );
 
 UcodeFunc( DLParser_GBI2_Quad );
 UcodeFunc( DLParser_GBI2_Line3D );
