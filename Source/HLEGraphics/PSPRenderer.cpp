@@ -1299,7 +1299,7 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	//
 	//Cull BACK or FRONT faceing tris early in the pipeline //Corn
 	//
-	if( mCull )
+	if( mTnLModeFlags.TriCull )
 	{
 		const v4 & t0( mVtxProjected[v0].ProjectedPos );
 		const v4 & t1( mVtxProjected[v1].ProjectedPos );
@@ -1315,7 +1315,7 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 
 		if( (((t1.x*t02 - t0x12)*(t2.y*t01 - t0y12) - (t2.x*t01 - t0x12)*(t1.y*t02 - t0y12)) * t01 * t2.w) <= 0.f )
 		{
-			if( mCullMode == GU_CCW )
+			if( mTnLModeFlags.CullBack )
 			{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 				DL_PF("   Tri: %d,%d,%d (Culled -> Back Face)", v0, v1, v2);
@@ -1324,7 +1324,7 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 				return false;
 			}
 		}
-		else if( mCullMode == GU_CW )
+		else if( !mTnLModeFlags.CullBack )
 		{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			DL_PF("   Tri: %d,%d,%d (Culled -> Front Face)", v0, v1, v2);
@@ -1457,9 +1457,9 @@ void PSPRenderer::FlushTris()
 	//
 	//	Do BACK/FRONT culling in sceGE
 	//	
-	//if( mCull )
+	//if( mTnLModeFlags.TriCull )
 	//{
-	//	sceGuFrontFace(mCullMode);
+	//	sceGuFrontFace(mTnLModeFlags.CullBack? GU_CCW : GU_CW);
 	//	sceGuEnable(GU_CULL_FACE);
 	//}
 	//else

@@ -80,6 +80,8 @@ enum ETnLModeFlags
 	TNL_FOG			= 1 << 4,
 	TNL_SHADE		= 1 << 5,
 	TNL_ZBUFFER		= 1 << 6,
+	TNL_TRICULL		= 1 << 7,
+	TNL_CULLBACK	= 1 << 8,
 };
 	
 typedef struct
@@ -95,6 +97,8 @@ typedef struct
 			u32 Fog : 1;			// 0x10
 			u32 Shade : 1;			// 0x20
 			u32 Zbuffer : 1;		// 0x40
+			u32 TriCull : 1;		// 0x80
+			u32 CullBack : 1;		// 0x100
 			u32 pad0 : 25;			// 0x0
 		};
 		u32	_u32;

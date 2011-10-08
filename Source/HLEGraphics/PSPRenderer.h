@@ -170,8 +170,8 @@ public:
 	void				SetVIScales();
 	void				Reset();
 
-	// Verious rendering states
-	inline void			SetTnL(u32 param)						{ mTnLModeFlags._u32 = (mTnLModeFlags._u32 & TNL_TEXTURE) | param; if(mTnLModeFlags.Fog & gFogEnabled) sceGuEnable(GU_FOG); else sceGuDisable(GU_FOG); }
+	// Various rendering states
+	inline void			SetTnL(u32 param)						{ mTnLModeFlags._u32 = (mTnLModeFlags._u32 & TNL_TEXTURE) | param; (mTnLModeFlags.Fog & gFogEnabled)? sceGuEnable(GU_FOG) : sceGuDisable(GU_FOG); }
 	inline void			SetTextureEnable(bool enable)			{ mTnLModeFlags.Texture = enable; }
 
 	// Fog stuff
@@ -192,7 +192,6 @@ public:
 
 	inline void			SetMux( u64 mux )						{ mMux = mux; }
 	inline void			SetAlphaRef(u32 alpha)					{ mAlphaThreshold = alpha; }
-	inline void			SetCullMode(bool bFront, bool bBack)	{ mCull = bFront | bBack; if( bBack ) mCullMode = GU_CCW; else mCullMode = GU_CW; }
 
 	// Texture stuff
 	inline void			SetTextureScale(float fScaleX, float fScaleY)	{ mTnLParams.TextureScaleX = fScaleX; mTnLParams.TextureScaleY = fScaleY; }

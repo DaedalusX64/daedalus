@@ -450,10 +450,10 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 	TnLparams.Fog = gGeometryMode.GBI2_Fog;
 	TnLparams.Shade = !(gGeometryMode.GBI2_TextGenLin & (g_ROM.GameHacks != TIGERS_HONEY_HUNT));
 	TnLparams.Zbuffer = gGeometryMode.GBI2_Zbuffer;
+	TnLparams.TriCull = gGeometryMode.GBI2_CullFront | gGeometryMode.GBI2_CullBack;
+	TnLparams.CullBack = gGeometryMode.GBI2_CullBack;
 
 	PSPRenderer::Get()->SetTnL( TnLparams._u32 );
-
-	PSPRenderer::Get()->SetCullMode( gGeometryMode.GBI2_CullFront, gGeometryMode.GBI2_CullBack );
 }
 
 

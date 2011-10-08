@@ -444,11 +444,11 @@ inline void DLParser_InitGeometryMode()
 	TnLparams.Fog = gGeometryMode.GBI1_Fog;
 	TnLparams.Shade = gGeometryMode.GBI1_Shade;
 	TnLparams.Zbuffer = gGeometryMode.GBI1_Zbuffer;
+	// CULL_BACK has priority, Fixes Mortal Kombat 4
+	TnLparams.TriCull = gGeometryMode.GBI2_CullFront | gGeometryMode.GBI2_CullBack;
+	TnLparams.CullBack = gGeometryMode.GBI2_CullBack;
 
 	PSPRenderer::Get()->SetTnL( TnLparams._u32 );
-
-	// CULL_BACK has priority, Fixes Mortal Kombat 4
-	PSPRenderer::Get()->SetCullMode( gGeometryMode.GBI1_CullFront, gGeometryMode.GBI1_CullBack );
 }
 
 //***************************************************************************** 
