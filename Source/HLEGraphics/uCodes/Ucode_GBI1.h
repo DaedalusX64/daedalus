@@ -435,20 +435,20 @@ inline void DLParser_InitGeometryMode()
     DL_PF("  Fog %s", (gGeometryMode.GBI1_Fog) ? "On" : "Off");
     DL_PF("  LOD %s", (gGeometryMode.GBI1_Lod) ? "On" : "Off");
 
-	TnLPSP TnLparams;
+	TnLPSP TnLMode;
 
-	TnLparams.Light = gGeometryMode.GBI1_Lighting;
-	TnLparams.Texture = 0;	//Force this to false
-	TnLparams.TextGen = gGeometryMode.GBI1_TextGen;
-	TnLparams.TextGenLin = gGeometryMode.GBI1_TextGenLin;
-	TnLparams.Fog = gGeometryMode.GBI1_Fog;
-	TnLparams.Shade = gGeometryMode.GBI1_Shade;
-	TnLparams.Zbuffer = gGeometryMode.GBI1_Zbuffer;
+	TnLMode.Light = gGeometryMode.GBI1_Lighting;
+	TnLMode.Texture = 0;	//Force this to false
+	TnLMode.TextGen = gGeometryMode.GBI1_TextGen;
+	TnLMode.TextGenLin = gGeometryMode.GBI1_TextGenLin;
+	TnLMode.Fog = gGeometryMode.GBI1_Fog;
+	TnLMode.Shade = gGeometryMode.GBI1_Shade;
+	TnLMode.Zbuffer = gGeometryMode.GBI1_Zbuffer;
 	// CULL_BACK has priority, Fixes Mortal Kombat 4
-	TnLparams.TriCull = gGeometryMode.GBI2_CullFront | gGeometryMode.GBI2_CullBack;
-	TnLparams.CullBack = gGeometryMode.GBI2_CullBack;
+	TnLMode.TriCull = gGeometryMode.GBI1_CullFront | gGeometryMode.GBI1_CullBack;
+	TnLMode.CullBack = gGeometryMode.GBI1_CullBack;
 
-	PSPRenderer::Get()->SetTnL( TnLparams._u32 );
+	PSPRenderer::Get()->SetTnLMode( TnLMode._u32 );
 }
 
 //***************************************************************************** 

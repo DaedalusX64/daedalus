@@ -360,6 +360,9 @@ void PSPRenderer::RestoreRenderStates()
 {
 	// Initialise the device to our default state
 
+	// No fog
+	sceGuDisable(GU_FOG);
+		
 	// We do our own culling
 	sceGuDisable(GU_CULL_FACE);
 

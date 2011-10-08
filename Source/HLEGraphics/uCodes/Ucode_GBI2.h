@@ -441,19 +441,19 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 	DL_PF("  Texture Gen Linear %s", (gGeometryMode.GBI2_TextGenLin) ? "On" : "Off");
 	DL_PF("  Fog %s", (gGeometryMode.GBI2_Fog) ? "On" : "Off");
 
-	TnLPSP TnLparams;
+	TnLPSP TnLMode;
 
-	TnLparams.Light = gGeometryMode.GBI2_Lighting;
-	TnLparams.Texture = 0;	//Force this to false
-	TnLparams.TextGen = gGeometryMode.GBI2_TextGen;
-	TnLparams.TextGenLin = gGeometryMode.GBI2_TextGenLin;
-	TnLparams.Fog = gGeometryMode.GBI2_Fog;
-	TnLparams.Shade = !(gGeometryMode.GBI2_TextGenLin & (g_ROM.GameHacks != TIGERS_HONEY_HUNT));
-	TnLparams.Zbuffer = gGeometryMode.GBI2_Zbuffer;
-	TnLparams.TriCull = gGeometryMode.GBI2_CullFront | gGeometryMode.GBI2_CullBack;
-	TnLparams.CullBack = gGeometryMode.GBI2_CullBack;
+	TnLMode.Light = gGeometryMode.GBI2_Lighting;
+	TnLMode.Texture = 0;	//Force this to false
+	TnLMode.TextGen = gGeometryMode.GBI2_TextGen;
+	TnLMode.TextGenLin = gGeometryMode.GBI2_TextGenLin;
+	TnLMode.Fog = gGeometryMode.GBI2_Fog;
+	TnLMode.Shade = !(gGeometryMode.GBI2_TextGenLin & (g_ROM.GameHacks != TIGERS_HONEY_HUNT));
+	TnLMode.Zbuffer = gGeometryMode.GBI2_Zbuffer;
+	TnLMode.TriCull = gGeometryMode.GBI2_CullFront | gGeometryMode.GBI2_CullBack;
+	TnLMode.CullBack = gGeometryMode.GBI2_CullBack;
 
-	PSPRenderer::Get()->SetTnL( TnLparams._u32 );
+	PSPRenderer::Get()->SetTnLMode( TnLMode._u32 );
 }
 
 
