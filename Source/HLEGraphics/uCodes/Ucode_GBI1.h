@@ -442,7 +442,7 @@ inline void DLParser_InitGeometryMode()
 	TnLMode.TextGen = gGeometryMode.GBI1_TextGen;
 	TnLMode.TextGenLin = gGeometryMode.GBI1_TextGenLin;
 	TnLMode.Fog = gGeometryMode.GBI1_Fog;
-	TnLMode.Shade = gGeometryMode.GBI1_Shade;
+	TnLMode.Shade = gGeometryMode.GBI1_Shade & gGeometryMode.GBI1_ShadingSmooth;
 	TnLMode.Zbuffer = gGeometryMode.GBI1_Zbuffer;
 	// CULL_BACK has priority, Fixes Mortal Kombat 4
 	TnLMode.TriCull = gGeometryMode.GBI1_CullFront | gGeometryMode.GBI1_CullBack;

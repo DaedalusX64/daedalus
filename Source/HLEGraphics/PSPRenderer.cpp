@@ -986,7 +986,6 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		sceGuDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
 	}
 
-	sceGuShadeModel( mTnLModeFlags.Shade ? GU_SMOOTH : GU_FLAT );
 	//
 	// Initiate Filter
 	// G_TF_AVERAGE : 1, G_TF_BILERP : 2 (linear)
@@ -2974,6 +2973,8 @@ void PSPRenderer::Draw2DTexture( float imageX, float imageY, float frameX, float
 	p_verts[1].t0    = v2(imageW, imageH);				   // Source dimentions
 
 	sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF|GU_VERTEX_32BITF|GU_TRANSFORM_2D, 2, 0, p_verts);
+
+	sceGuShadeModel( mTnLModeFlags.Shade ? GU_SMOOTH : GU_FLAT );	//reset to old shading model
 }
 
 //*****************************************************************************

@@ -171,7 +171,7 @@ public:
 	void				Reset();
 
 	// Various rendering states
-	inline void			SetTnLMode(u32 mode)					{ mTnLModeFlags._u32 = (mTnLModeFlags._u32 & TNL_TEXTURE) | mode; if(gFogEnabled) (mTnLModeFlags.Fog)? sceGuEnable(GU_FOG) : sceGuDisable(GU_FOG); }
+	inline void			SetTnLMode(u32 mode)					{ mTnLModeFlags._u32 = (mTnLModeFlags._u32 & TNL_TEXTURE) | mode; if(gFogEnabled) (mTnLModeFlags.Fog)? sceGuEnable(GU_FOG) : sceGuDisable(GU_FOG); sceGuShadeModel( mTnLModeFlags.Shade ? GU_SMOOTH : GU_FLAT ); }
 	inline void			SetTextureEnable(bool enable)			{ mTnLModeFlags.Texture = enable; }
 
 	// Fog stuff
