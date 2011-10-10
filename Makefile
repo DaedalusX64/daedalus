@@ -99,7 +99,7 @@ DAED_PSP_SRCS =		Source/SysPSP/Graphics/DrawText.cpp \
 			Source/SysPSP/UI/ColourPulser.cpp \
 			Source/SysPSP/UI/GlobalSettingsComponent.cpp \
 			Source/SysPSP/UI/RomPreferencesScreen.cpp \
-			Source/SysPSP/UI/RomSelectorComponent.cpp 
+			Source/SysPSP/UI/RomSelectorComponent.cpp \
 			Source/SysPSP/UI/AdvancedOptionsScreen.cpp \
 			Source/SysPSP/UI/SavestateSelectorComponent.cpp \
 			Source/SysPSP/UI/PauseOptionsComponent.cpp \
