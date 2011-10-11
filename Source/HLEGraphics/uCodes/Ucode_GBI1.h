@@ -391,13 +391,11 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 	//Seems to work differently for non Zelda games as if Z axis is inverted... //Corn
 
 	//printf("VtxDepth[%d] Zval[%d] Vtx[%d]\n", PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx), (s32)command.branchz.value, command.branchz.vtx);
-	DL_PF("BranchZ VtxDepth[%d] Zval[%d] Vtx[%d]", PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx), (s32)command.branchz.value, command.branchz.vtx);
+	//DL_PF("BranchZ VtxDepth[%d] Zval[%d] Vtx[%d]", PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx), (s32)command.branchz.value, command.branchz.vtx);
 
 	if( PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx) <= (s32)command.branchz.value )
 	{					
-		u32 pc = gDlistStack[gDlistStackPointer].pc;
-		u32 dl = *(u32 *)(g_pu8RamBase + pc-12);
-		u32 address = RDPSegAddr(dl);
+		u32 address = RDPSegAddr(gRDPHalf1);
 
 		DL_PF("   Jump -> DisplayList 0x%08x", address);
 
@@ -439,29 +437,33 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 
 	TnLPSP TnLMode;
 
-	TnLMode.Light = gGeometryMode.GBI1_Lighting;
-	TnLMode.Texture = 0;	//Force this to false
-	TnLMode.TextGen = gGeometryMode.GBI1_TextGen;
-	TnLMode.TextGenLin = gGeometryMode.GBI1_TextGenLin;
-	TnLMode.Fog = gGeometryMode.GBI1_Fog;
-	TnLMode.Shade = gGeometryMode.GBI1_Shade & gGeometryMode.GBI1_ShadingSmooth;
-	TnLMode.Zbuffer = gGeometryMode.GBI1_Zbuffer;
+	TnLMode.Light		= gGeometryMode.GBI1_Lighting;
+
+	//Force this to false
+	TnLMode.Texture		= 0;
+
+	TnLMode.TextGen		= gGeometryMode.GBI1_TextGen;
+	TnLMode.TextGenLin  = gGeometryMode.GBI1_TextGenLin;
+	TnLMode.Fog			= gGeometryMode.GBI1_Fog;
+	TnLMode.Shade		= gGeometryMode.GBI1_Shade & gGeometryMode.GBI1_ShadingSmooth;
+	TnLMode.Zbuffer		= gGeometryMode.GBI1_Zbuffer;
+
 	// CULL_BACK has priority, Fixes Mortal Kombat 4
-	TnLMode.TriCull = gGeometryMode.GBI1_CullFront | gGeometryMode.GBI1_CullBack;
-	TnLMode.CullBack = gGeometryMode.GBI1_CullBack;
+	TnLMode.TriCull		= gGeometryMode.GBI1_CullFront | gGeometryMode.GBI1_CullBack;
+	TnLMode.CullBack	= gGeometryMode.GBI1_CullBack;
 
 	PSPRenderer::Get()->SetTnLMode( TnLMode._u32 );
 
-	DL_PF("  ZBuffer %s", (gGeometryMode.GBI1_Zbuffer) ? "On" : "Off");
-	DL_PF("  Culling %s", (gGeometryMode.GBI1_CullBack) ? "Back face" : (gGeometryMode.GBI1_CullFront) ? "Front face" : "Off");
-	DL_PF("  Shade %s", (gGeometryMode.GBI1_Shade) ? "On" : "Off");
-	DL_PF("  Smooth Shading %s", (gGeometryMode.GBI1_ShadingSmooth) ? "On" : "Off");
-	DL_PF("  Lighting %s", (gGeometryMode.GBI1_Lighting) ? "On" : "Off");
-	DL_PF("  Texture %s", (gGeometryMode.GBI1_Texture) ? "On" : "Off");
-	DL_PF("  Texture Gen %s", (gGeometryMode.GBI1_TextGen) ? "On" : "Off");
-	DL_PF("  Texture Gen Linear %s", (gGeometryMode.GBI1_TextGenLin) ? "On" : "Off");
-	DL_PF("  Fog %s", (gGeometryMode.GBI1_Fog) ? "On" : "Off");
-	DL_PF("  LOD %s", (gGeometryMode.GBI1_Lod) ? "On" : "Off");
+	DL_PF("  ZBuffer %s",			 (gGeometryMode.GBI1_Zbuffer)		? "On" : "Off");
+	DL_PF("  Culling %s",			 (gGeometryMode.GBI1_CullBack)		? "Back face" : (gGeometryMode.GBI1_CullFront) ? "Front face" : "Off");
+	DL_PF("  Shade %s",				 (gGeometryMode.GBI1_Shade)			? "On" : "Off");
+	DL_PF("  Smooth Shading %s",	 (gGeometryMode.GBI1_ShadingSmooth) ? "On" : "Off");
+	DL_PF("  Lighting %s",			 (gGeometryMode.GBI1_Lighting)		? "On" : "Off");
+	DL_PF("  Texture %s",			 (gGeometryMode.GBI1_Texture)		? "On" : "Off");
+	DL_PF("  Texture Gen %s",		 (gGeometryMode.GBI1_TextGen)		? "On" : "Off");
+	DL_PF("  Texture Gen Linear %s", (gGeometryMode.GBI1_TextGenLin)	? "On" : "Off");
+	DL_PF("  Fog %s",				 (gGeometryMode.GBI1_Fog)			? "On" : "Off");
+	DL_PF("  LOD %s",				 (gGeometryMode.GBI1_Lod)			? "On" : "Off");
 }
 
 //*****************************************************************************
@@ -531,6 +533,7 @@ void DLParser_GBI1_Reserved( MicroCodeCommand command )
 void DLParser_GBI1_Noop( MicroCodeCommand command )
 {
 }
+
 //*****************************************************************************
 //
 //*****************************************************************************

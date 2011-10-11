@@ -30,7 +30,6 @@ struct UcodeInfo
 	u32	data_base;
 
 	bool used;
-	bool custom;
 };
 //*****************************************************************************
 // Enum

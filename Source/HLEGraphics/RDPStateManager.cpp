@@ -70,7 +70,7 @@ void	CRDPStateManager::SetTile( const RDP_Tile & tile )
 		mTileTextureInfoValid[ idx ] = false;
 	}
 }
-
+extern u32 gRDPddress[512];
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -122,6 +122,20 @@ void	CRDPStateManager::LoadTile( const RDP_TileSize & tile_size )
 	load_details.Swapped = false;
 
 	InvalidateAllTileTextureInfo();		// Can potentially invalidate all texture infos
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+// Retrive tile addr loading. used by Yoshi_MemRect
+u32	CRDPStateManager::GetTileAddress( u32 idx )
+{
+	const RDP_Tile &		rdp_tile( mTiles[ idx ] );
+
+	LoadDetailsMap::const_iterator it( mLoadMap.find( rdp_tile.tmem ) );
+	const SLoadDetails &	load_details( it->second );
+
+	return load_details.Address;
 }
 
 //*****************************************************************************

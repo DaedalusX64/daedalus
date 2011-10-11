@@ -1055,12 +1055,6 @@ void DLParser_LoadBlock( MicroCodeCommand command )
 	//u32 lrs			= command.loadtile.sh;		// Number of bytes-1
 	u32 dxt			= command.loadtile.th;		// 1.11 fixed point
 
-	if(g_ROM.GameHacks == YOSHI)
-	{
-		const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tile_idx ) );
-		gRDPddress[rdp_tile.tmem] = g_TI.Address;
-	}
-
 	bool	swapped = (dxt) ? false : true;
 
 	u32		src_offset = g_TI.Address + ult * (g_TI.Width << g_TI.Size >> 1) + (uls << g_TI.Size >> 1);
@@ -1079,12 +1073,6 @@ void DLParser_LoadTile( MicroCodeCommand command )
 	RDP_TileSize tile;
 	tile.cmd0 = command.inst.cmd0;
 	tile.cmd1 = command.inst.cmd1;
-
-	if(g_ROM.GameHacks == YOSHI)
-	{
-		const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tile.tile_idx ) );
-		gRDPddress[rdp_tile.tmem] = g_TI.Address;
-	}
 
 	DL_PF("    Tile:%d (%d,%d) -> (%d,%d) [%d x %d]",	tile.tile_idx, tile.left/4, tile.top/4, tile.right/4 + 1, tile.bottom / 4 + 1, (tile.right - tile.left)/4+1, (tile.bottom - tile.top)/4+1);
 	DL_PF("    Offset: 0x%08x",							g_TI.GetOffset( tile.left, tile.top ) );
@@ -1385,8 +1373,6 @@ void DLParser_SetZImg( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-//#define STORE_CI	{g_CI.Address = newaddr;g_CI.Format = format;g_CI.Size = size;g_CI.Width = width;g_CI.Bpl=Bpl;}
-
 void DLParser_SetCImg( MicroCodeCommand command )
 {
 	u32 format = command.img.fmt;
@@ -1398,23 +1384,13 @@ void DLParser_SetCImg( MicroCodeCommand command )
 	DL_PF("    Image: 0x%08x", RDPSegAddr(command.inst.cmd1));
 	DL_PF("    Fmt: %s Size: %s Width: %d", gFormatNames[ format ], gSizeNames[ size ], width);
 
-	// Not sure if this really necesary.
-	//
-	/*
-	if( g_CI.Address == newaddr && g_CI.Format == format && g_CI.Size == size && g_CI.Width == width )
-	{
-		DL_PF("    Set CIMG to the same address, no change, skipped");
-		//DBGConsole_Msg(0, "SetCImg: Addr=0x%08X, Fmt:%s-%sb, Width=%d\n", g_CI.Address, gFormatNames[ format ], gSizeNames[ size ], width);
-		return;
-	}*/
-
 	//g_CI.Bpl = bpl;
 	g_CI.Address = newaddr;
-	g_CI.Format = format;
-	g_CI.Size = size;
-	g_CI.Width = width;
+	g_CI.Format  = format;
+	g_CI.Size    = size;
+	g_CI.Width   = width;
 
-	// Used to remove offscreen, it removes the black box in the right side of the screen too :)
+	// Used to remove offscreen, it removes the black box in the right side of Conker :)
 	// This will break FB, maybe add an option for this when FB is implemented?
 	// Borrowed from Rice Video
 	// Do not check texture size, it breaks Superman and Doom64..
