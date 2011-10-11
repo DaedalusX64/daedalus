@@ -422,18 +422,20 @@ void DLParser_GBI1_LoadUCode( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void DLParser_InitGeometryMode()
+void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 {
-    DL_PF("  ZBuffer %s", (gGeometryMode.GBI1_Zbuffer) ? "On" : "Off");
-    DL_PF("  Culling %s", (gGeometryMode.GBI1_CullBack) ? "Back face" : (gGeometryMode.GBI1_CullFront) ? "Front face" : "Off");
-    DL_PF("  Shade %s", (gGeometryMode.GBI1_Shade) ? "On" : "Off");
-    DL_PF("  Smooth Shading %s", (gGeometryMode.GBI1_ShadingSmooth) ? "On" : "Off");
-    DL_PF("  Lighting %s", (gGeometryMode.GBI1_Lighting) ? "On" : "Off");
-    DL_PF("  Texture %s", (gGeometryMode.GBI1_Texture) ? "On" : "Off");
-    DL_PF("  Texture Gen %s", (gGeometryMode.GBI1_TextGen) ? "On" : "Off");
-    DL_PF("  Texture Gen Linear %s", (gGeometryMode.GBI1_TextGenLin) ? "On" : "Off");
-    DL_PF("  Fog %s", (gGeometryMode.GBI1_Fog) ? "On" : "Off");
-    DL_PF("  LOD %s", (gGeometryMode.GBI1_Lod) ? "On" : "Off");
+	const u32 mask = command.inst.cmd1;
+
+	if(command.inst.cmd & 1)
+	{
+		gGeometryMode._u32 |= mask;
+		DL_PF("  Setting mask -> 0x%08x", mask);
+	}
+	else
+	{
+		gGeometryMode._u32 &= ~mask;
+		DL_PF("  Clearing mask -> 0x%08x", mask);
+	}
 
 	TnLPSP TnLMode;
 
@@ -449,34 +451,17 @@ inline void DLParser_InitGeometryMode()
 	TnLMode.CullBack = gGeometryMode.GBI1_CullBack;
 
 	PSPRenderer::Get()->SetTnLMode( TnLMode._u32 );
-}
 
-//***************************************************************************** 
-// 
-//*****************************************************************************
-void DLParser_GBI1_ClearGeometryMode( MicroCodeCommand command )
-{
-    const u32 mask = (command.inst.cmd1);
-    
-    gGeometryMode._u32 &= ~mask;
-
-    DL_PF("  Clearing mask -> 0x%08x", mask);
-
-	DLParser_InitGeometryMode();
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_GBI1_SetGeometryMode(  MicroCodeCommand command  )
-{
-    const u32 mask = command.inst.cmd1;
-
-    gGeometryMode._u32 |= mask;
-
-    DL_PF("  Setting mask -> 0x%08x", mask);
-
-	DLParser_InitGeometryMode();
+	DL_PF("  ZBuffer %s", (gGeometryMode.GBI1_Zbuffer) ? "On" : "Off");
+	DL_PF("  Culling %s", (gGeometryMode.GBI1_CullBack) ? "Back face" : (gGeometryMode.GBI1_CullFront) ? "Front face" : "Off");
+	DL_PF("  Shade %s", (gGeometryMode.GBI1_Shade) ? "On" : "Off");
+	DL_PF("  Smooth Shading %s", (gGeometryMode.GBI1_ShadingSmooth) ? "On" : "Off");
+	DL_PF("  Lighting %s", (gGeometryMode.GBI1_Lighting) ? "On" : "Off");
+	DL_PF("  Texture %s", (gGeometryMode.GBI1_Texture) ? "On" : "Off");
+	DL_PF("  Texture Gen %s", (gGeometryMode.GBI1_TextGen) ? "On" : "Off");
+	DL_PF("  Texture Gen Linear %s", (gGeometryMode.GBI1_TextGenLin) ? "On" : "Off");
+	DL_PF("  Fog %s", (gGeometryMode.GBI1_Fog) ? "On" : "Off");
+	DL_PF("  LOD %s", (gGeometryMode.GBI1_Lod) ? "On" : "Off");
 }
 
 //*****************************************************************************

@@ -119,7 +119,7 @@ const MicroCodeInstruction gNormalInstruction[MAX_UCODE][256] =
 		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
 		//b0
 		DLParser_Nothing,DLParser_GBI0_Tri4, DLParser_GBI1_RDPHalf_Cont, DLParser_GBI1_RDPHalf_2,
-		DLParser_GBI1_RDPHalf_1, DLParser_GBI1_Line3D, DLParser_GBI1_ClearGeometryMode, DLParser_GBI1_SetGeometryMode,
+		DLParser_GBI1_RDPHalf_1, DLParser_GBI1_Line3D, DLParser_GBI1_GeometryMode, DLParser_GBI1_GeometryMode,
 		DLParser_GBI1_EndDL, DLParser_GBI1_SetOtherModeL, DLParser_GBI1_SetOtherModeH, DLParser_GBI1_Texture,
 		DLParser_GBI1_MoveWord, DLParser_GBI1_PopMtx, DLParser_GBI1_CullDL, DLParser_GBI1_Tri1,
 
@@ -204,7 +204,7 @@ const MicroCodeInstruction gNormalInstruction[MAX_UCODE][256] =
 		DLParser_Nothing,		DLParser_Nothing,			DLParser_Nothing,			DLParser_GBI1_LoadUCode, 
 		//b0
 		DLParser_GBI1_BranchZ,	DLParser_GBI1_Tri2,			DLParser_GBI1_ModifyVtx,		DLParser_GBI1_RDPHalf_2,
-		DLParser_GBI1_RDPHalf_1,DLParser_GBI1_Line3D,		DLParser_GBI1_ClearGeometryMode,DLParser_GBI1_SetGeometryMode,
+		DLParser_GBI1_RDPHalf_1,DLParser_GBI1_Line3D,		DLParser_GBI1_GeometryMode,DLParser_GBI1_GeometryMode,
 		DLParser_GBI1_EndDL,	DLParser_GBI1_SetOtherModeL,DLParser_GBI1_SetOtherModeH,	DLParser_GBI1_Texture,
 		DLParser_GBI1_MoveWord, DLParser_GBI1_PopMtx,		DLParser_GBI1_CullDL,			DLParser_GBI1_Tri1,
 		//c0
@@ -372,7 +372,7 @@ const MicroCodeInstruction gNormalInstruction[MAX_UCODE][256] =
 		DLParser_Nothing,			DLParser_Nothing,				DLParser_Nothing,		DLParser_GBI1_LoadUCode,
 		//b0
 		DLParser_S2DEX_SelectDl,	DLParser_S2DEX_ObjRendermode_2,	DLParser_S2DEX_ObjRectangleR,	DLParser_GBI1_RDPHalf_2,
-		DLParser_GBI1_RDPHalf_1,	DLParser_GBI1_Line3D,			DLParser_GBI1_ClearGeometryMode,DLParser_GBI1_SetGeometryMode,
+		DLParser_GBI1_RDPHalf_1,	DLParser_GBI1_Line3D,			DLParser_GBI1_GeometryMode,DLParser_GBI1_GeometryMode,
 		DLParser_GBI1_EndDL,		DLParser_GBI1_SetOtherModeL,	DLParser_GBI1_SetOtherModeH,	DLParser_GBI1_Texture,
 		DLParser_GBI1_MoveWord,		DLParser_GBI1_PopMtx,			DLParser_GBI1_CullDL,			DLParser_GBI1_Tri1,
 		//c0

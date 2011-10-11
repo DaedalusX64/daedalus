@@ -538,11 +538,10 @@ void PSPRenderer::EndScene()
 
 	//
 	//	Clear this, to ensure we're force to check for updates to it on the next frame
-	//	Not needed anymore??? //Corn
-	/*for( u32 i = 0; i < NUM_N64_TEXTURES; i++ )
+	for( u32 i = 0; i < NUM_N64_TEXTURES; i++ )
 	{
 		mpTexture[ i ] = NULL;
-	}*/
+	}
 }
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST	
 //*****************************************************************************
@@ -2974,7 +2973,7 @@ void PSPRenderer::Draw2DTexture( float imageX, float imageY, float frameX, float
 
 	sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF|GU_VERTEX_32BITF|GU_TRANSFORM_2D, 2, 0, p_verts);
 
-	sceGuShadeModel( mTnLModeFlags.Shade ? GU_SMOOTH : GU_FLAT );	//reset to old shading model
+	if( mTnLModeFlags.Shade ) sceGuShadeModel( GU_SMOOTH );	//reset to old shading model
 }
 
 //*****************************************************************************
