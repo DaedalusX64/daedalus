@@ -227,7 +227,6 @@ u32 gRDPHalf1		 = 0;
 u32 gRDPFrame		 = 0;
 u32 gAuxAddr		 = (u32)g_pu8RamBase;
 RDP_GeometryMode gGeometryMode;
-u32 gRDPddress[512];        // 512 addresses (used to determine address loaded from)
 //*****************************************************************************
 // Include ucode header files
 //*****************************************************************************

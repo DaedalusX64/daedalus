@@ -70,7 +70,7 @@ void	CRDPStateManager::SetTile( const RDP_Tile & tile )
 		mTileTextureInfoValid[ idx ] = false;
 	}
 }
-extern u32 gRDPddress[512];
+
 //*****************************************************************************
 //
 //*****************************************************************************
