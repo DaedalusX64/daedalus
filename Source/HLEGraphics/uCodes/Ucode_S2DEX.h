@@ -244,19 +244,20 @@ void Yoshi_MemRect( MicroCodeCommand command )
 	tex_rect.cmd2 = command2.inst.cmd1;
 	tex_rect.cmd3 = command3.inst.cmd1;
 
-	u32 tile_addr = gRDPStateManager.GetTileAddress( tex_rect.tile_idx );
+	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tex_rect.tile_idx ) );
 
 	u32	x0 = tex_rect.x0 >> 2;
 	u32	y0 = tex_rect.y0 >> 2;
 	u32	x1 = tex_rect.x1 >> 2;
 	u32	y1 = tex_rect.y1 >> 2;
 
+	// Get base address of texture
+	u32 tile_addr = gRDPStateManager.GetTileAddress( rdp_tile.tmem );
+
 	if (y1 > scissors.bottom)
 		y1 = scissors.bottom;
 
 	DL_PF ("MemRect : addr =0x%08x -(%d, %d, %d, %d), Width: %d\n", tile_addr, x0, y0, x1, y1, g_CI.Width);
-
-	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tex_rect.tile_idx ) );
 
 	u32 y, width = x1 - x0;
 	u32 tex_width = rdp_tile.line << 3;
