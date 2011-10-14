@@ -510,14 +510,14 @@ void DLParser_SetCustom( u32 ucode )
 			SetCommand( 0x06, DLParser_GBI0_DL_SOTE,  "G_DL_SOTE" );
 			break;
 		case GBI_LL:
-			SetCommand( 0x80, DLParser_RSP_Last_Legion_0x80, "G_Last_Legion_0x80" );
-			SetCommand( 0x00, DLParser_RSP_Last_Legion_0x00, "G_Last_Legion_0x00" );
+			SetCommand( 0x80, DLParser_Last_Legion_0x80, "G_Last_Legion_0x80" );
+			SetCommand( 0x00, DLParser_Last_Legion_0x00, "G_Last_Legion_0x00" );
 			SetCommand( 0xaf, DLParser_GBI1_SpNoop,			 "G_Nothing" );
 			SetCommand( 0xe4, DLParser_TexRect_Last_Legion,  "G_TexRect_Last_Legion" );
 			break;
 		case GBI_PD:
-			SetCommand( 0x04, RSP_Vtx_PD,					"G_Vtx_PD" );
-			SetCommand( 0x07, RSP_Set_Vtx_CI_PD,			"G_Set_Vtx_CI_PD" );
+			SetCommand( 0x04, DLParser_Vtx_PD,					"G_Vtx_PD" );
+			SetCommand( 0x07, DLParser_Set_Vtx_CI_PD,			"G_Set_Vtx_CI_PD" );
 			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye,  "G_RDPHalf1_GoldenEye" );
 			break;
 		case GBI_DKR:
@@ -529,25 +529,25 @@ void DLParser_SetCustom( u32 ucode )
 			SetCommand( 0xbf, DLParser_Set_Addr_DKR, "G_Set_Addr_DKR" );
 			break;
 		case GBI_CONKER:
-			SetCommand( 0x01, RSP_Vtx_Conker,		"G_Vtx_Conker" );
-			SetCommand( 0x10, DLParser_GBI2_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x11, DLParser_GBI2_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x12, DLParser_GBI2_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x13, DLParser_GBI2_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x14, DLParser_GBI2_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x15, DLParser_GBI2_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x16, DLParser_GBI2_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x17, DLParser_GBI2_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x18, DLParser_GBI2_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x19, DLParser_GBI2_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1a, DLParser_GBI2_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1b, DLParser_GBI2_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1c, DLParser_GBI2_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1d, DLParser_GBI2_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1e, DLParser_GBI2_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1f, DLParser_GBI2_Conker, "G_Tri4_Conker" );
-			SetCommand( 0xdb, RSP_MoveWord_Conker,  "G_MoveWord_Conker");
-			SetCommand( 0xdc, RSP_MoveMem_Conker,   "G_MoveMem_Conker" );
+			SetCommand( 0x01, DLParser_Vtx_Conker,		"G_Vtx_Conker" );
+			SetCommand( 0x10, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x11, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x12, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x13, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x14, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x15, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x16, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x17, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x18, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x19, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1a, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1b, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1c, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1d, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1e, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			SetCommand( 0x1f, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			SetCommand( 0xdb, DLParser_MoveWord_Conker,  "G_MoveWord_Conker");
+			SetCommand( 0xdc, DLParser_MoveMem_Conker,   "G_MoveMem_Conker" );
 			break;
 	}
 }

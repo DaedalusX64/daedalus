@@ -62,14 +62,8 @@ void DMA_SP_CopyFromRDRAM()
 	u32 rdlen_reg         = Memory_SP_GetRegister(SP_RD_LEN_REG);
 	u32 splen			 = (rdlen_reg & 0xFFF) + 1;	//[0-11] is length to transfer
 
-	// Need to debug first
-#ifndef DAEDALUS_PUBLIC_RELEASE
-	if(splen & 0x1)
-	{
-		DAEDALUS_ERROR("Warning, PI DMA DRAM from SP, odd length = %d", splen);
-		splen++;
-	}
-#endif
+	DAEDALUS_ASSERT( (splen & 0x1) == 0, "Warning, PI DMA DRAM from SP, odd length = %d", splen);
+
 	//if ((spmem_address_reg & 0x1000) > 0)
 	if(spmem_address_reg & 0x1000)
 	{
@@ -101,14 +95,8 @@ void DMA_SP_CopyToRDRAM()
 	u32 wrlen_reg         = Memory_SP_GetRegister(SP_WR_LEN_REG);
 	u32 splen			 = (wrlen_reg & 0xFFF) + 1;	//[0-11] is length to transfer
 
-	// Need to debug first
-#ifndef DAEDALUS_PUBLIC_RELEASE
-    if(splen & 0x1)
-	{
-		DAEDALUS_ERROR("Warning, PI DMA DRAM to SP, odd length = %d", splen);
-		splen++;
-	}
-#endif
+	DAEDALUS_ASSERT( (splen & 0x1) == 0, "Warning, PI DMA DRAM to SP, odd length = %d", splen)
+
 	//if ((spmem_address_reg & 0x1000) > 0)
 	if(spmem_address_reg & 0x1000)
 	{
@@ -129,6 +117,7 @@ void DMA_SP_CopyToRDRAM()
 	Memory_SP_ClrRegisterBits(SP_STATUS_REG, SP_STATUS_DMA_BUSY);
 
 }
+
 //*****************************************************************************
 // Copy 64bytes from DRAM to PIF_RAM
 //*****************************************************************************

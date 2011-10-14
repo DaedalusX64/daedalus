@@ -64,7 +64,6 @@ UcodeFunc( DLParser_GBI1_ModifyVtx );
 UcodeFunc( DLParser_GBI1_Mtx );
 UcodeFunc( DLParser_GBI2_Mtx );
 UcodeFunc( DLParser_GBI1_PopMtx );
-UcodeFunc( DLParser_GBI2_PopMtx );
 
 UcodeFunc( DLParser_GBI0_Tri4 );
 
@@ -178,8 +177,8 @@ UcodeFunc( DLParser_GBI0_DL_SOTE );
 UcodeFunc( DLParser_GBI0_Vtx_SOTE );
 //UcodeFunc( DLParser_GBI0_Line3D_SOTE );
 //UcodeFunc( DLParser_GBI0_Tri1_SOTE );
-UcodeFunc( DLParser_RSP_Last_Legion_0x80 );
-UcodeFunc( DLParser_RSP_Last_Legion_0x00 );
+UcodeFunc( DLParser_DLParser_Last_Legion_0x80 );
+UcodeFunc( DLParser_DLParser_Last_Legion_0x00 );
 UcodeFunc( DLParser_TexRect_Last_Legion );
 UcodeFunc( DLParser_RDPHalf1_GoldenEye );
 UcodeFunc( DLParser_DLInMem );
@@ -190,12 +189,12 @@ UcodeFunc( DLParser_GBI0_Vtx_DKR );
 UcodeFunc( DLParser_GBI0_Vtx_WRUS );
 UcodeFunc( DLParser_DMA_Tri_DKR );
 UcodeFunc( DLParser_GBI0_Vtx_Gemini );
-UcodeFunc( DLParser_GBI2_Conker );
-UcodeFunc( RSP_MoveMem_Conker );
-UcodeFunc( RSP_MoveWord_Conker );
-UcodeFunc( RSP_Vtx_Conker );
-UcodeFunc( RSP_Set_Vtx_CI_PD );
-UcodeFunc( RSP_Vtx_PD );
-//UcodeFunc( RSP_Tri4_PD );
+UcodeFunc( DLParser_Tri4_Conker );
+UcodeFunc( DLParser_MoveMem_Conker );
+UcodeFunc( DLParser_MoveWord_Conker );
+UcodeFunc( DLParser_Vtx_Conker );
+UcodeFunc( DLParser_Set_Vtx_CI_PD );
+UcodeFunc( DLParser_Vtx_PD );
+//UcodeFunc( DLParser_Tri4_PD );
 
 #endif // UCODE_H__

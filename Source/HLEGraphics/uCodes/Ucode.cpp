@@ -299,7 +299,7 @@ const MicroCodeInstruction gNormalInstruction[MAX_UCODE][256] =
 		//d0
 		DLParser_Nothing,		DLParser_Nothing,			DLParser_Nothing,			DLParser_Nothing,
 		DLParser_Nothing,		DLParser_GBI2_DL_Count,		DLParser_GBI2_DMA_IO,		DLParser_GBI2_Texture,
-		DLParser_GBI2_PopMtx,	DLParser_GBI2_GeometryMode, DLParser_GBI2_Mtx,			DLParser_GBI2_MoveWord,
+		DLParser_GBI1_PopMtx,	DLParser_GBI2_GeometryMode, DLParser_GBI2_Mtx,			DLParser_GBI2_MoveWord,
 		DLParser_GBI2_MoveMem,	DLParser_GBI2_LoadUCode,	DLParser_GBI1_DL,			DLParser_GBI1_EndDL,
 		//e0
 		DLParser_GBI1_SpNoop,	DLParser_GBI1_RDPHalf_1,	DLParser_GBI2_SetOtherModeL,DLParser_GBI2_SetOtherModeH,

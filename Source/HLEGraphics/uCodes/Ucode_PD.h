@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 //
 //*****************************************************************************
-void RSP_Vtx_PD( MicroCodeCommand command )
+void DLParser_Vtx_PD( MicroCodeCommand command )
 {
 	u32 address = RDPSegAddr(command.inst.cmd1);
 	u32 v0 =  ((command.inst.cmd0)>>16)&0x0F;
@@ -47,7 +47,7 @@ void RSP_Vtx_PD( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void RSP_Set_Vtx_CI_PD( MicroCodeCommand command )
+void DLParser_Set_Vtx_CI_PD( MicroCodeCommand command )
 {
 	// PD Color index buf address
 	gAuxAddr = (u32)g_pu8RamBase + RDPSegAddr(command.inst.cmd1);
@@ -57,7 +57,7 @@ void RSP_Set_Vtx_CI_PD( MicroCodeCommand command )
 //
 //*****************************************************************************
 /*
-void RSP_Tri4_PD( MicroCodeCommand command )
+void DLParser_Tri4_PD( MicroCodeCommand command )
 {
 	// While the next command pair is Tri2, add vertices
 	u32 pc = gDlistStack[gDlistStackPointer].pc;

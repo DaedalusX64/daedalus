@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Dark Rift runs properly without custom microcodes, and has the same symptoms...
 // We need Turbo3D ucode support, actually a modified version of it, thanks Gonetz for the info :D
 
-void DLParser_RSP_Last_Legion_0x80( MicroCodeCommand command )
+void DLParser_Last_Legion_0x80( MicroCodeCommand command )
 {     
       gDlistStack[gDlistStackPointer].pc += 16;
 	  DL_PF("DLParser_RSP_Last_Legion_0x80");
@@ -38,7 +38,7 @@ void DLParser_RSP_Last_Legion_0x80( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_RSP_Last_Legion_0x00( MicroCodeCommand command )
+void DLParser_Last_Legion_0x00( MicroCodeCommand command )
 {
 
 	gDlistStack[gDlistStackPointer].pc += 16;

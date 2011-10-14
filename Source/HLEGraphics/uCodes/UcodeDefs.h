@@ -68,7 +68,7 @@ struct GBI1_Matrix
 	u32	cmd:8;
 	u32 addr;
 };
-
+/*
 struct GBI1_PopMatrix
 {
 	u32	:24;
@@ -76,7 +76,7 @@ struct GBI1_PopMatrix
 	u32	projection:1;
 	u32	:31;
 };
-
+*/
 struct GBI2_Matrix
 {
 	union 
@@ -311,7 +311,7 @@ struct GBI0_Tri4
 	u32 v10:4;
 	u32 v11:4;
 };
-
+/*
 struct Conker_Tri4 
 {
 	// Tri 3
@@ -336,7 +336,7 @@ struct Conker_Tri4
 	u32 v5:5;
 	u32 v9lo:2;
 };
-
+*/
 
 struct GBI1_Dlist
 {
@@ -420,7 +420,7 @@ union MicroCodeCommand
 	GBI1_BranchZ	branchz;
 	GBI1_Matrix		mtx1;
 	GBI2_Matrix		mtx2;
-	GBI1_PopMatrix	popmtx;
+	//GBI1_PopMatrix	popmtx;
 	GBI1_Line3D		gbi1line3d;
 	GBI1_Tri1		gbi1tri1;
 	GBI1_Tri2		gbi1tri2;
@@ -428,7 +428,7 @@ union MicroCodeCommand
 	GBI2_Tri1		gbi2tri1;
 	GBI2_Tri2		gbi2tri2;
 	GBI0_Tri4		tri4;
-	Conker_Tri4		conkertri4;
+	//Conker_Tri4		conkertri4;
 	GBI1_MoveWord	mw1;
 	GBI2_MoveWord	mw2;
 	GBI_Texture		texture;

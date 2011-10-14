@@ -84,20 +84,6 @@ void DLParser_GBI2_Mtx( MicroCodeCommand command )
 		PSPRenderer::Get()->SetWorldView(mat, command.mtx2.nopush==0, command.mtx2.load);
 	}
 }
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_GBI2_PopMtx( MicroCodeCommand command )
-{
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	u8 mtx_command = (u8)(command.inst.cmd0 & 0xFF);
-#endif
-
-	DL_PF("        Command: 0x%02x (%s)", mtx_command, (mtx_command & G_GBI2_MTX_PROJECTION) ? "Projection" : "ModelView");
-
-
-	PSPRenderer::Get()->PopWorldView();
-}
 
 //*****************************************************************************
 //
