@@ -90,7 +90,13 @@ const void *	TextureInfo::GetPalettePtr() const
 	}
 	else
 	{
-		if(gTextureMemory[ TLutIndex << 2 ] == NULL) return (void *)((u32)gTextureMemory[ 0 ] + ( TLutIndex << 5 ));
+		if(gTextureMemory[ TLutIndex << 2 ] == NULL)
+		{	//If TMEM PAL address is NULL then Assume that the base address is stored in
+			//TMEM address 0x100 and calculate offset from there
+			//If this also returns NULL then return bogus non NULL address to avoid BSOD (Extreme-G) //Corn
+			if((void *)((u32)gTextureMemory[ 0 ] + ( TLutIndex << 5 )) == NULL) return (void *)g_pu8RamBase;
+			else return (void *)((u32)gTextureMemory[ 0 ] + ( TLutIndex << 5 ));
+		}
 		else return (void *)gTextureMemory[ TLutIndex << 2 ];
 	}
 #else
