@@ -162,7 +162,7 @@ void DLParser_GBI1_Sprite2DDraw( MicroCodeCommand command )
 	frameW              = g_Sprite2DInfo.spritePtr->SubImageWidth / g_Sprite2DInfo.scaleX;
 	frameH              = g_Sprite2DInfo.spritePtr->SubImageHeight / g_Sprite2DInfo.scaleY;
 
-	PSPRenderer::Get()->Draw2DTexture( (f32)imageX, (f32)imageY, (f32)frameX ,(f32)frameY, (f32)imageW, (f32)imageH, (f32)frameW, (f32)frameH);
+	PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );
 	//g_Sprite2DInfo.spritePtr = 0; // Why ?
 }
 

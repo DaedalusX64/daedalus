@@ -841,19 +841,19 @@ void RDP_MoveMemViewport(u32 address)
 		return;
 	}
 #endif
-	s16 scale[4];
-	s16 trans[4];
+	s16 scale[3];
+	s16 trans[3];
 
 	// address is offset into RD_RAM of 8 x 16bits of data...
 	scale[0] = *(s16 *)(g_pu8RamBase + ((address+(0*2))^0x2));
 	scale[1] = *(s16 *)(g_pu8RamBase + ((address+(1*2))^0x2));
 	scale[2] = *(s16 *)(g_pu8RamBase + ((address+(2*2))^0x2));
-	scale[3] = *(s16 *)(g_pu8RamBase + ((address+(3*2))^0x2));
+//	scale[3] = *(s16 *)(g_pu8RamBase + ((address+(3*2))^0x2));
 
 	trans[0] = *(s16 *)(g_pu8RamBase + ((address+(4*2))^0x2));
 	trans[1] = *(s16 *)(g_pu8RamBase + ((address+(5*2))^0x2));
 	trans[2] = *(s16 *)(g_pu8RamBase + ((address+(6*2))^0x2));
-	trans[3] = *(s16 *)(g_pu8RamBase + ((address+(7*2))^0x2));
+//	trans[3] = *(s16 *)(g_pu8RamBase + ((address+(7*2))^0x2));
 
 	// With D3D we had to ensure that the vp coords are positive, so
 	// we truncated them to 0. This happens a lot, as things
@@ -864,8 +864,8 @@ void RDP_MoveMemViewport(u32 address)
 
 	PSPRenderer::Get()->SetN64Viewport( vec_scale, vec_trans );
 
-	DL_PF("        Scale: %d %d %d %d", scale[0], scale[1], scale[2], scale[3]);
-	DL_PF("        Trans: %d %d %d %d", trans[0], trans[1], trans[2], trans[3]);
+	DL_PF("        Scale: %d %d %d", scale[0], scale[1], scale[2]);
+	DL_PF("        Trans: %d %d %d", trans[0], trans[1], trans[2]);
 }
 
 //*****************************************************************************

@@ -152,9 +152,8 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();
 
-	PSPRenderer::Get()->Draw2DTexture( (float)imageX, (float)imageY, (float)frameX ,(float)frameY, (float)imageW, (float)imageH, (float)frameW, (float)frameH);
+	PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );
 }
-
 //*****************************************************************************
 // YoshiStory - 0x04
 //*****************************************************************************
@@ -331,16 +330,27 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 
 	uObjScaleBg *objBg = (uObjScaleBg *)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	u16 imageX = objBg->imageX >> 5;
-	u16 imageY = objBg->imageY >> 5;
+	s16 frameX = objBg->frameX / 4;
+	s16 frameY = objBg->frameY / 4;
 
-	u16 imageW = objBg->imageW >> 2;
-	u16 imageH = objBg->imageH >> 2;
+	u16 frameW = objBg->frameW / 4;
+	u16 frameH = objBg->frameH / 4;
 
-	s16 frameX = objBg->frameX >> 2;
-	s16 frameY = objBg->frameY >> 2;
-	u16 frameW = objBg->frameW >> 2;
-	u16 frameH = objBg->frameH >> 2;
+	u16 imageX = objBg->imageX / 32;
+	u16 imageY = objBg->imageY / 32;
+
+	u16 scaleX = objBg->scaleW/1024;
+	u16 scaleY = objBg->scaleH/1024;
+
+	u16 imageW = objBg->imageW/4;
+	u16 imageH = objBg->imageH/4;
+
+	u32 x2 = frameX + (imageW-imageX)/scaleX;
+	u32 y2 = frameY + (imageH-imageY)/scaleY;
+
+	u32 u1 = (frameW-x2)*scaleX;
+	u32 v1 = (frameH-y2)*scaleY;
+
 
 	TextureInfo ti;
 
@@ -379,7 +389,17 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();
 
-	PSPRenderer::Get()->Draw2DTexture( (float)imageX, (float)imageY, (float)frameX ,(float)frameY, (float)imageW, (float)imageH, (float)frameW, (float)frameH);
+	if (g_ROM.GameHacks != YOSHI)
+	{
+		PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );
+	}
+	else
+	{
+		PSPRenderer::Get()->Draw2DTexture((float)frameX, (float)frameY, (float)x2, (float)y2, (float)imageX, (float)imageY, (float)imageW, (float)imageH);
+		PSPRenderer::Get()->Draw2DTexture((float)x2, (float)frameY, (float)frameW, (float)y2, 0, (float)imageY, (float)u1, (float)imageH);
+		PSPRenderer::Get()->Draw2DTexture((float)frameX, (float)y2, (float)x2, (float)frameH, (float)imageX, 0, (float)imageW, (float)v1);
+		PSPRenderer::Get()->Draw2DTexture((float)x2, (float)y2, (float)frameW, (float)frameH, 0, 0, (float)u1, (float)v1);
+	}
 }
 
 //*****************************************************************************

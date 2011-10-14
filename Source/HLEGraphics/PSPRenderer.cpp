@@ -1741,7 +1741,7 @@ void PSPRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num
 	//
 	//  ToDo: Test Allocating vertex buffers to VRAM
 	//	ToDo: Why Indexed below?
-	DAEDALUS_STATIC_ASSERT( MAX_CLIPPED_VERTS > ARRAYSIZE(m_swIndexBuffer) );
+	//DAEDALUS_STATIC_ASSERT( MAX_CLIPPED_VERTS > ARRAYSIZE(m_swIndexBuffer) );
 
 #ifdef DAEDALUS_PSP_USE_VFPU
 	_ConvertVerticesIndexed( p_vertices, mVtxProjected, num_vertices, m_swIndexBuffer );
@@ -2945,7 +2945,7 @@ void PSPRenderer::PrintActive()
 //
 //*****************************************************************************
 
-void PSPRenderer::Draw2DTexture( float imageX, float imageY, float frameX, float frameY, float imageW, float imageH, float frameW, float frameH)
+void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH, f32 imageX, f32 imageY, f32 imageW, f32 imageH)
 {
 	DAEDALUS_PROFILE( "PSPRenderer::Draw2DTexture" );
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(2*sizeof(TextureVtx));
