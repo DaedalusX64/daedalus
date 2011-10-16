@@ -126,7 +126,7 @@ u32	TextureInfo::GetWidthInBytes() const
 //*************************************************************************************
 //
 //*************************************************************************************
-#if 1 //1->new hash(fast), 0-> old hash(expensive)
+#if 0 //1->new hash(fast), 0-> old hash(expensive)
 u32 TextureInfo::GenerateHashValue() const
 {
 	//Rewritten to use less recources //Corn

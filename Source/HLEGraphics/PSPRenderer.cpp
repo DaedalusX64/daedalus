@@ -2966,8 +2966,12 @@ void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH,
 	p_verts[0].pos.z = 0;
 	p_verts[0].t0    = v2(imageX, imageY);				   // Source coordinates
 
-	p_verts[1].pos.x = p_verts[0].pos.x + (frameW * mN64ToPSPScale.x); // Translated X Offset + (Image Width  * X Scale Factor)
-	p_verts[1].pos.y = p_verts[0].pos.y + (frameH * mN64ToPSPScale.y); // Translated Y Offset + (Image Height * Y Scale Factor)
+	//p_verts[1].pos.x = p_verts[0].pos.x + (frameW * mN64ToPSPScale.x); // Translated X Offset + (Image Width  * X Scale Factor)
+	//p_verts[1].pos.y = p_verts[0].pos.y + (frameH * mN64ToPSPScale.y); // Translated Y Offset + (Image Height * Y Scale Factor)
+
+	p_verts[1].pos.x = (frameW * mN64ToPSPScale.x); // Translated X Offset + (Image Width  * X Scale Factor)
+	p_verts[1].pos.y = (frameH * mN64ToPSPScale.y); // Translated Y Offset + (Image Height * Y Scale Factor)
+
 	p_verts[1].pos.z = 0;
 	p_verts[1].t0    = v2(imageW, imageH);				   // Source dimentions
 
