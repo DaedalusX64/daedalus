@@ -58,6 +58,7 @@ using std::sort;
 //
 //*****************************************************************************
 extern float	TEST_VARX, TEST_VARY;
+extern bool		gSingleStepFrames;
 extern void		PrintMux( FILE * fh, u64 mux );
 //*****************************************************************************
 //
@@ -524,16 +525,6 @@ CTextureExplorerDebugMenuOption::CTextureExplorerDebugMenuOption()
 	CTextureCache::Get()->Snapshot( mSnapshot );
 
 	sort( mSnapshot.begin(), mSnapshot.end(), OrderTextures );
-
-	// Dump each in turn
-	for( u32 i = 0; i < mSnapshot.size(); ++i )
-	{
-		const CRefPtr<CTexture> &		n64_texture( mSnapshot[ i ].GetTexture() );
-		if( n64_texture != NULL )
-		{
-			n64_texture->DumpTexture();
-		}
-	}
 }
 
 struct TextureVtx
@@ -934,9 +925,6 @@ void IDisplayListDebugger::Run()
 
 	PSPRenderer::Get()->SetRecordCombinerStates( true );
 
-	// Dumpl the display list on the first time through the loop
-	DLParser_DumpNextDisplayList();
-
 	CTimer		timer;
 
 	typedef std::vector< CDebugMenuOption * > DebugMenuOptionVector;
@@ -954,6 +942,7 @@ void IDisplayListDebugger::Run()
 	// Remain paused until the Select button is pressed again
 	bool	need_update_display( true );
 	bool	dump_next_screen( false );
+	bool	dump_texture_dlist( false );
 	u32		total_instruction_count( DLParser_GetTotalInstructionCount() );
 	while(!menu_button_pressed)
 	{
@@ -961,8 +950,36 @@ void IDisplayListDebugger::Run()
 
 		if( dump_next_screen )
 		{
-			CGraphicsContext::Get()->DumpScreenShot();
 			dump_next_screen = false;
+			CGraphicsContext::Get()->DumpScreenShot();
+		}
+
+		if( dump_texture_dlist )
+		{
+			dump_texture_dlist = false;
+
+			printf( TERMINAL_TOP_LEFT );
+			printf( TERMINAL_CLEAR_LINE );
+			printf( "Dumping Display List and Textures...\n" );
+
+			// Dump the display list
+			DLParser_DumpNextDisplayList();
+
+			// Dump textures
+			std::vector<CTextureCache::STextureInfoSnapshot>	fSnapshot;
+			CTextureCache::Get()->Snapshot( fSnapshot );
+
+			sort( fSnapshot.begin(), fSnapshot.end(), OrderTextures );
+
+			// Dump each in turn
+			for( u32 i = 0; i < fSnapshot.size(); ++i )
+			{
+				const CRefPtr<CTexture> &		n64_texture( fSnapshot[ i ].GetTexture() );
+				if( n64_texture != NULL )
+				{
+					n64_texture->DumpTexture();
+				}
+			}
 		}
 
 		CGraphicsContext::Get()->BeginFrame();
@@ -1049,7 +1066,7 @@ void IDisplayListDebugger::Run()
 		{
 			printf( TERMINAL_CLEAR_SCREEN );
 			printf( TERMINAL_TOP_LEFT );
-			printf( "Dlist took %dms (%fhz) [%d/%d]\n", s32(elapsed_ms), framerate, DLParser_GetInstructionCountLimit(), total_instruction_count );
+			printf( "Dlist took %dms (%fHz) [%d/%d]\n", s32(elapsed_ms), framerate, DLParser_GetInstructionCountLimit(), total_instruction_count );
 			printf( "\n" );
 
 			if( p_current_option != NULL )
@@ -1058,8 +1075,11 @@ void IDisplayListDebugger::Run()
 			}
 			else
 			{
-				printf( "(SELECT) -> resume game\n" );
-				printf( "(START) -> take picture\n\n" );
+				printf( "(SELECT) -> Resume\n" );
+				printf( "(L-DPAD) -> Go to next frame\n" );
+				printf( "(START) -> Screen shot\n" );
+				printf( "(R-TRIG) -> Dump Dlist & Textures\n" );
+				printf( "(L-TRIG) -> Scale Screen\n\n" );
 				u32 idx = 0;
 				for( DebugMenuOptionVector::const_iterator it = menu_options.begin(); it != menu_options.end(); ++it, idx++ )
 				{
@@ -1079,7 +1099,7 @@ void IDisplayListDebugger::Run()
 			// Just update timing info
 			printf( TERMINAL_TOP_LEFT );
 			printf( TERMINAL_CLEAR_LINE );
-			printf( "Dlist took %dms (%fhz) [%d/%d]\n", s32(elapsed_ms), framerate, DLParser_GetInstructionCountLimit(), total_instruction_count );
+			printf( "Dlist took %dms (%fHz) [%d/%d]\n", s32(elapsed_ms), framerate, DLParser_GetInstructionCountLimit(), total_instruction_count );
 			printf( TERMINAL_RESTORE_POS );
 		}
 		fflush( stdout );
@@ -1141,6 +1161,15 @@ void IDisplayListDebugger::Run()
 			{
 				gGlobalPreferences.ViewportType = EViewportType( (gGlobalPreferences.ViewportType+1) % NUM_VIEWPORT_TYPES );	
 				CGraphicsContext::Get()->ClearAllSurfaces();
+			}
+			if(pad_state.NewButtons & PSP_CTRL_RTRIGGER)
+			{
+				dump_texture_dlist = true;
+			}
+			if(pad_state.NewButtons & PSP_CTRL_RIGHT)
+			{
+				gSingleStepFrames = true;
+				menu_button_pressed = true;
 			}
 		}
 

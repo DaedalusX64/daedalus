@@ -51,6 +51,7 @@ bool	gTakeScreenshot = false;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 bool	gDebugDisplayList = false;
+bool	gSingleStepFrames = false;
 #endif
 
 EFrameskipValue		gFrameskipValue = FV_DISABLED;
@@ -188,21 +189,21 @@ void CGraphicsPluginPsp::ViWidthChanged()
 void CGraphicsPluginPsp::ProcessDList()
 {
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	if(!gDebugDisplayList)
-#endif
-	{
-		DLParser_Process();
-	}
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	// DLParser_Process may set this flag, so check again after execution
 	if(gDebugDisplayList)
 	{
 		CDisplayListDebugger *	p_debugger( CDisplayListDebugger::Create() );
 		p_debugger->Run();
 		delete p_debugger;
-		gDebugDisplayList = false;
+		gDebugDisplayList = gSingleStepFrames? true : false;
+		gSingleStepFrames = false;
 	}
+	else
+	{
+		DLParser_Process();
+	}
+#else
+	DLParser_Process();
 #endif
 }
 

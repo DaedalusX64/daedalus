@@ -359,6 +359,11 @@ bool DLParser_Initialise()
 	scissors.right = 320;
 	scissors.bottom = 240;
 
+#ifndef DAEDALUS_TMEM
+	//Clear pointers in TMEM block //Corn
+	memset(&gTextureMemory[0] ,0 , 1024);
+#endif	
+
 	return true;
 }
 
