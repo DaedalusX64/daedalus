@@ -592,6 +592,12 @@ void DLParser_GBI2_Line3D( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_Tri1( MicroCodeCommand command )
 {
+	if ((command.inst.cmd0 & 0x00FFFFFF) == 0x17)
+	{
+		DLParser_S2DEX_ObjLoadTxtr( command );
+		return;
+	}
+
     // While the next command pair is Tri1, add vertices
 	u32 pc = gDlistStack[gDlistStackPointer].pc;
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
