@@ -94,7 +94,56 @@ struct	uObjScaleBg
 	u8	padding[4];
 };
 
+//*****************************************************************************
+//
+//*****************************************************************************
+typedef	struct {		//PSP Format
+  u32	type;	
+  u32	image;
+  
+  u16	tsize;	
+  u16	tmem;	
+  
+  u16	sid;	
+  u16	tline;	
 
+  u32	flag;	
+  u32	mask;	
+} uObjTxtrBlock;
+
+typedef	struct	{		//PSP Format
+  u32	type;	
+  u32	image;
+
+  u16	twidth;	
+  u16	tmem;	
+
+  u16	sid;	
+  u16	theight;
+
+  u32	flag;	
+  u32	mask;	
+} uObjTxtrTile;			// 24 bytes
+
+typedef	struct	{		// PSP Format
+  u32	type;	
+  u32	image;
+  
+  u16	pnum;	
+  u16	phead;	
+  
+  u16	sid;	
+  u16   zero;	
+  
+  u32	flag;	
+  u32	mask;	
+} uObjTxtrTLUT;		
+
+typedef union {
+  uObjTxtrBlock      block;
+  uObjTxtrTile       tile;
+  uObjTxtrTLUT       tlut;
+} uObjTxtr;
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -194,7 +243,29 @@ void DLParser_S2DEX_ObjRendermode( MicroCodeCommand command )
 void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 {	
 	// Command and Conquer and YoshiStory uses this - 0x05
+#ifndef DAEDALUS_TMEM
+	uObjTxtr* ObjTxtr = (uObjTxtr*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
+	if( ObjTxtr->block.type == S2DEX_OBJLT_TLUT )
+	{
+		uObjTxtrTLUT *ObjTlut = (uObjTxtrTLUT*)ObjTxtr;
+		u32 ObjTlutAddr = (u32)(g_pu8RamBase + RDPSegAddr(ObjTlut->image));
+
+		// Copy TLUT
+		//u32 size = ObjTlut->pnum + 1;
+		u32 offset = ObjTlut->phead - 0x100;
+
+		//if( offset + size > 0x100) size = 0x100 - offset;
+
+		gTextureMemory[ offset & 0xFF ] = (u32*)ObjTlutAddr;
+
+		//printf("%p %d\n",(u32*)ObjTlutAddr ,ObjTlut->phead);
+	}
+
+#else
+
 	DL_UNIMPLEMENTED_ERROR("S2DEX_ObjLoadTxtr");
+
+#endif
 }
 
 //*****************************************************************************
