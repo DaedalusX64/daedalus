@@ -161,8 +161,8 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 
 	s16 frameX = objBg->frameX >> 2;
 	s16 frameY = objBg->frameY >> 2;
-	u16 frameW = objBg->frameW >> 2;
-	u16 frameH = objBg->frameH >> 2;
+	u16 frameW = (objBg->frameW >> 2) + frameX;
+	u16 frameH = (objBg->frameH >> 2) + frameY;
 
 	TextureInfo ti;
 
@@ -179,24 +179,6 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 	ti.SetTLutIndex        (objBg->imagePal);
 	ti.SetTLutFormat       (2 << 14);  //RGBA16 
 
-	if(g_ROM.GameHacks == KIRBY64)
-	{
-		//Need to load PAL to TMEM //Corn
-#ifndef DAEDALUS_TMEM
-		//Calc offset to palette
-		u32 *p_source = (u32*)&g_pu8RamBase[ RDPSegAddr(objBg->imagePtr) + imageW * imageH];
-		//Load to TMEM area
-		gTextureMemory[ ( objBg->imagePal << 2 ) & 0xFF ] = p_source;
-		//Copy the palette to TMEM (Always RGBA16 eg. 512 bytes)
-#else
-        //Calc offset to palette
-        u8* p_source = (u8*)&g_pu8RamBase[ RDPSegAddr(objBg->imagePtr) + imageW * imageH];
-        //Load to TMEM area
-        u8* p_dest   = (u8*)&gTextureMemory[ ( 0x800 + ( objBg->imagePal << 5 ) ) & 0xFFF ];
-        //Copy the palette to TMEM (Always RGBA16 eg. 512 bytes)
-        memcpy_vfpu_BE(p_dest, p_source, 512);
-#endif
-	}
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();
@@ -404,8 +386,8 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 	s16 frameX = objBg->frameX / 4;
 	s16 frameY = objBg->frameY / 4;
 
-	u16 frameW = objBg->frameW / 4;
-	u16 frameH = objBg->frameH / 4;
+	u16 frameW = (objBg->frameW / 4) + frameX;
+	u16 frameH = (objBg->frameH / 4) + frameY;
 
 	u16 imageX = objBg->imageX / 32;
 	u16 imageY = objBg->imageY / 32;
@@ -438,24 +420,6 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 	ti.SetTLutIndex        (objBg->imagePal);
 	ti.SetTLutFormat       (2 << 14);  //RGBA16 >> (2 << G_MDSFT_TEXTLUT)
 
-	if(g_ROM.GameHacks == KIRBY64)
-	{
-		//Need to load PAL to TMEM //Corn
-#ifndef DAEDALUS_TMEM
-		//Calc offset to palette
-		u32 *p_source = (u32*)&g_pu8RamBase[ RDPSegAddr(objBg->imagePtr) + imageW * imageH];
-		//Load to TMEM area
-		gTextureMemory[ ( objBg->imagePal << 2 ) & 0xFF ] = p_source;
-		//Copy the palette to TMEM (Always RGBA16 eg. 512 bytes)
-#else
-        //Calc offset to palette
-        u8* p_source = (u8*)&g_pu8RamBase[ RDPSegAddr(objBg->imagePtr) + imageW * imageH];
-        //Load to TMEM area
-        u8* p_dest   = (u8*)&gTextureMemory[ ( 0x800 + ( objBg->imagePal << 5 ) ) & 0xFFF ];
-        //Copy the palette to TMEM (Always RGBA16 eg. 512 bytes)
-        memcpy_vfpu_BE(p_dest, p_source, 512);
-#endif
-	}
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();
