@@ -2704,10 +2704,9 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	// XXXX Double check this
 	mTileTopLeft[ index ] = v2( f32( tile_size.left) * (1.0f / 4.0f), f32(tile_size.top)* (1.0f / 4.0f) );
 
-	DL_PF( "     *Performing texture map load:" );
-	DL_PF( "     *Address: 0x%08x, Pitch: %d, Format: %s, Size: %dbpp, %dx%d",
-			ti.GetLoadAddress(), ti.GetPitch(),
-			ti.GetFormatName(), ti.GetSizeInBits(),
+	DL_PF( "     Load Texture -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] Format[%s] Size[%dbpp][%dx%d]",
+			ti.GetLoadAddress(), (u32)ti.GetPalettePtr(), ti.GetHashCode(),
+			ti.GetPitch(), ti.GetFormatName(), ti.GetSizeInBits(),
 			ti.GetWidth(), ti.GetHeight() );
 
 	if( (mpTexture[ index ] != NULL) && (mpTexture[ index ]->GetTextureInfo() == ti) ) return;

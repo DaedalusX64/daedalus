@@ -944,7 +944,8 @@ void IDisplayListDebugger::Run()
 	bool	dump_next_screen( false );
 	bool	dump_texture_dlist( false );
 	u32		total_instruction_count( DLParser_GetTotalInstructionCount() );
-	while(!menu_button_pressed)
+
+	while( (pad_state.NewButtons & PSP_CTRL_HOME) != 0 || !menu_button_pressed )
 	{
 		//guSwapBuffersBehaviour( PSP_DISPLAY_SETBUF_IMMEDIATE );
 
@@ -1075,8 +1076,8 @@ void IDisplayListDebugger::Run()
 			}
 			else
 			{
-				printf( "(SELECT) -> Resume\n" );
-				printf( "(L-DPAD) -> Go to next frame\n" );
+				printf( "(HOME) -> Resume\n" );
+				printf( "(SELECT) -> Go to next frame\n" );
 				printf( "(START) -> Screen shot\n" );
 				printf( "(R-TRIG) -> Dump Dlist & Textures\n" );
 				printf( "(L-TRIG) -> Scale Screen\n\n" );
@@ -1149,7 +1150,7 @@ void IDisplayListDebugger::Run()
 
 		if(pad_state.OldButtons != pad_state.NewButtons)
 		{
-			if(pad_state.NewButtons & PSP_CTRL_SELECT)
+			if(pad_state.NewButtons & PSP_CTRL_HOME)
 			{
 				menu_button_pressed = true;
 			}
@@ -1166,7 +1167,7 @@ void IDisplayListDebugger::Run()
 			{
 				dump_texture_dlist = true;
 			}
-			if(pad_state.NewButtons & PSP_CTRL_RIGHT)
+			if(pad_state.NewButtons & PSP_CTRL_SELECT)
 			{
 				gSingleStepFrames = true;
 				menu_button_pressed = true;

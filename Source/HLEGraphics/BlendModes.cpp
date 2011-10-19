@@ -628,6 +628,17 @@ void BlendMode_0x0030b2615566db6dLL( BLEND_MODE_ARGS )
  //#M
  */ 
 
+// Mario Kart 64
+//case 0x0060b2c15565feffLL:
+//aRGB0: (1            - Env         ) * Texel0       + Primitive
+//aA0  : (Primitive    - 0           ) * Texel0       + 0
+//aRGB1: (1            - Env         ) * Texel0       + Primitive
+//aA1  : (Primitive    - 0           ) * Texel0       + 0
+void BlendMode_0x0060b2c15565feffLL (BLEND_MODE_ARGS)
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+				
 // MRC - Car Windows
 // case 0x0030fe045ffef7f8LL:
 //aRGB0: (Primitive    - Env         ) * Texel0       + Env
@@ -1753,6 +1764,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 			BLEND_MODE(0x00121824ff33ffffLL); // Tarzan
 			BLEND_MODE(0x00457fff3ffcfe3fLL); // Pokemon Stadium 2 Arena Floor
 			BLEND_MODE(0x00522bfffffffe38LL); // Donald Duck rain (makes it transparent not really a fix)
+			BLEND_MODE(0x0060b2c15565feffLL); // Mario Kart 64		
 			//BLEND_MODE(0x00627fff3ffe7e3fLL); // Pokemon Stadium 2 N64 Logo //Dangerous!!
 			BLEND_MODE(0x0050fea144fe7339LL); // Duke Nukem Menu and HUD
 			BLEND_MODE(0x00ffffffff09f63fLL); // THPS Text
@@ -1776,7 +1788,6 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 #endif
 	switch(mux)
 	{
-			
 #define BLEND_MODE( x )		case (x):	return BlendMode_##x;
 			BLEND_MODE(0x001114a7f3fffef8LL); // Sin and Punishment - Sky <----- Needs work
 			BLEND_MODE(0x00117e80f5fff438LL); // Paper Mario block texture partial fix

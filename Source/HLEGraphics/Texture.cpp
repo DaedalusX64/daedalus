@@ -601,15 +601,14 @@ void	CTexture::UpdateIfNecessary()
 
 		if (mTextureContentsHash != hash_value)
 		{
-			mFrameLastUpToDate = 0;	//Tag for deletion and avoid hash-check again
-			//UpdateTexture( mTextureInfo, mpTexture, false, c32::White );
-			//mTextureContentsHash = hash_value;
+			UpdateTexture( mTextureInfo, mpTexture, false, c32::White );
+			mTextureContentsHash = hash_value;
 		}
-		else mFrameLastUpToDate = gRDPFrame;
 
 		//
 		//	One way or another, this is up to date now
 		//
+		mFrameLastUpToDate = gRDPFrame;
 	}
 
 	mFrameLastUsed = gRDPFrame;			
@@ -630,17 +629,8 @@ bool	CTexture::IsFresh() const
 //*************************************************************************************
 bool	CTexture::HasExpired() const
 {
-	//If 0 then texture has changed data and should be purged
-	if ( mFrameLastUpToDate == 0 ) return true;
-
-	//This will force a texture to be reloaded if hash has changed //Corn
-	if ( !IsFresh() )
-	{
-		//Hack to make WONDER PROJECT J2 work (need to reload some textures every frame!) //Corn
-		if( (g_ROM.GameHacks == WONDER_PROJECTJ2) && (mTextureInfo.GetTLutFormat() == G_TT_RGBA16) && (mTextureInfo.GetSize() == G_IM_SIZ_8b) ) return true;
-
-		if( mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
-	}
+	//Hack to make WONDER PROJECT J2 work (need to reload some textures every frame!) //Corn
+	if( (g_ROM.GameHacks == WONDER_PROJECTJ2) && (mTextureInfo.GetTLutFormat() == G_TT_RGBA16) && (mTextureInfo.GetSize() == G_IM_SIZ_8b) ) return true;
 
 	//Otherwise we wait 30+random(7) frames before trashing the texture if unused
 	//Spread trashing them over time so not all get killed at once (lower value uses less VRAM) //Corn
