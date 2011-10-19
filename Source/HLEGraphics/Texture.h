@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/NativeTexture.h"
 #include "TextureDescriptor.h"
 
+extern u32 gRDPFrame;
+
 class c32;
 struct TextureInfo;
 
@@ -44,12 +46,11 @@ class CTexture : public CRefCounted
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		u32								GetVideoMemoryUsage() const;
 		u32								GetSystemMemoryUsage() const;
-#endif
-		inline const TextureInfo &		GetTextureInfo() const				{ return mTextureInfo; }
-		void							UpdateIfNecessary();
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		void							DumpTexture() const;
 #endif
+		inline const TextureInfo &		GetTextureInfo() const				{ return mTextureInfo; }
+		inline	void					Touch() 							{ mFrameLastUsed = gRDPFrame; }
+		void							UpdateIfNecessary();
 		bool							HasExpired() const;
 
 	private:

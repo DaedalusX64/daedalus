@@ -157,6 +157,8 @@ void ITextureCache::PurgeOldTextures()
 		CRefPtr<CTexture> &	texture( mTextures[ i ] );
 		if ( texture->HasExpired() )
 		{
+			//printf("Texture load address -> %d\n",mTextures[ i ]->GetTextureInfo().GetLoadAddress());
+
 			u32	ixa( MakeHashIdxA( texture->GetTextureInfo() ) );
 			u32 ixb( MakeHashIdxB( texture->GetTextureInfo() ) );
 
@@ -204,7 +206,7 @@ static void TextureCacheStat( u32 l1_hit, u32 l2_hit, u32 size )
 
 	if( total_lookups == 1000 )
 	{
-		printf( "%d / %d / %d lookups were l1 hit/l2 hit/miss (%d entries currently)\n", total_l1_hits, total_l2_hits, total_lookups - (total_l1_hits+total_l2_hits), size );
+		printf( "L1 hits[%d] L2 hits[%d] Miss[%d] (%d entries)\n", total_l1_hits, total_l2_hits, total_lookups - (total_l1_hits+total_l2_hits), size );
 		total_lookups = total_l1_hits = total_l2_hits = 0;
 	}
 }

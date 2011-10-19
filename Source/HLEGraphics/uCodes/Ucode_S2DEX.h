@@ -182,6 +182,7 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();
+	texture->Touch();
 
 	PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );
 }
@@ -423,6 +424,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();
+	texture->Touch();
 
 	if (g_ROM.GameHacks != YOSHI)
 	{

@@ -44,8 +44,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <vector>
 
-extern u32 gRDPFrame;
-
 using namespace PixelFormats;
 
 //*****************************************************************************
@@ -73,7 +71,7 @@ namespace
 	bool	GenerateTexels( void ** p_texels, void ** p_palette, const TextureInfo & texture_info, ETextureFormat texture_format, u32 pitch, u32 buffer_size )
 	{
 		TextureDestInfo dst( texture_format );
-		if( gTexelBuffer.size() < buffer_size || gTexelBuffer.size() > (64 * 1024))//Cut off for downsizing may need to be adjusted to prevent some thrashing
+		if( gTexelBuffer.size() < buffer_size || gTexelBuffer.size() > (128 * 1024))//Cut off for downsizing may need to be adjusted to prevent some thrashing
 		{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 				printf( "Resizing texel buffer to %d bytes. Texture is %dx%d\n", buffer_size, texture_info.GetWidth(), texture_info.GetHeight() );
@@ -603,14 +601,15 @@ void	CTexture::UpdateIfNecessary()
 
 		if (mTextureContentsHash != hash_value)
 		{
-			UpdateTexture( mTextureInfo, mpTexture, false, c32::White );
-			mTextureContentsHash = hash_value;
+			mFrameLastUpToDate = 0;	//Tag for deletion and avoid hash-check again
+			//UpdateTexture( mTextureInfo, mpTexture, false, c32::White );
+			//mTextureContentsHash = hash_value;
 		}
+		else mFrameLastUpToDate = gRDPFrame;
 
 		//
 		//	One way or another, this is up to date now
 		//
-		mFrameLastUpToDate = gRDPFrame;
 	}
 
 	mFrameLastUsed = gRDPFrame;			
@@ -631,6 +630,9 @@ bool	CTexture::IsFresh() const
 //*************************************************************************************
 bool	CTexture::HasExpired() const
 {
+	//If 0 then texture has changed data and should be purged
+	if ( mFrameLastUpToDate == 0 ) return true;
+
 	//This will force a texture to be reloaded if hash has changed //Corn
 	if ( !IsFresh() )
 	{
