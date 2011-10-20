@@ -636,7 +636,9 @@ void BlendMode_0x0030b2615566db6dLL( BLEND_MODE_ARGS )
 //aA1  : (Primitive    - 0           ) * Texel0       + 0
 void BlendMode_0x0060b2c15565feffLL (BLEND_MODE_ARGS)
 {
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+	details.ColourAdjuster.SetRGB( details.PrimColour );
+	details.ColourAdjuster.ModulateA( details.PrimColour );
+	sceGuTexFunc(GU_TFX_ADD,GU_TCC_RGBA);
 }
 				
 // MRC - Car Windows
@@ -1751,6 +1753,7 @@ bool	IsInexactDefault( OverrideBlendModeFn Fn )
 
 //*****************************************************************************
 // This only for hacks etc these are non-inexact blendmodes
+// Be carefull when adding these since they can potentially break other games
 //*****************************************************************************
 OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 {
