@@ -61,9 +61,35 @@ struct uObjBg
     u16 tmemSizeW;
 };
 
-//*****************************************************************************
-//
-//*****************************************************************************
+struct uObjMtx
+{
+	s32	  A, B, C, D;	
+
+	short Y;			
+	short X;			
+
+	u16   BaseScaleY;	
+	u16   BaseScaleX;	
+};				
+
+
+struct uObjSubMtx
+{
+	short Y;			
+	short X;	
+
+	u16   BaseScaleY;	
+	u16   BaseScaleX;	
+};
+
+struct MAT2D
+{
+  float A, B, C, D;
+  float X, Y;
+  float BaseScaleX;
+  float BaseScaleY;
+} mat2D = {1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f };
+
 struct	uObjScaleBg
 {	
 	u16	imageW;		
@@ -94,10 +120,8 @@ struct	uObjScaleBg
 	u8	padding[4];
 };
 
-//*****************************************************************************
-//
-//*****************************************************************************
-typedef	struct {		//PSP Format
+struct	uObjTxtrBlock //PSP Format
+{		
   u32	type;	
   u32	image;
   
@@ -109,9 +133,10 @@ typedef	struct {		//PSP Format
 
   u32	flag;	
   u32	mask;	
-} uObjTxtrBlock;
+};
 
-typedef	struct	{		//PSP Format
+struct uObjTxtrTile //PSP Format
+{
   u32	type;	
   u32	image;
 
@@ -123,9 +148,10 @@ typedef	struct	{		//PSP Format
 
   u32	flag;	
   u32	mask;	
-} uObjTxtrTile;			// 24 bytes
+};			// 24 bytes
 
-typedef	struct	{		// PSP Format
+struct uObjTxtrTLUT // PSP Format
+{		
   u32	type;	
   u32	image;
   
@@ -137,13 +163,45 @@ typedef	struct	{		// PSP Format
   
   u32	flag;	
   u32	mask;	
-} uObjTxtrTLUT;		
+};		
 
-typedef union {
+union uObjTxtr
+{
   uObjTxtrBlock      block;
   uObjTxtrTile       tile;
   uObjTxtrTLUT       tlut;
-} uObjTxtr;
+};
+
+struct uObjSprite
+{		
+  u16  scaleW;		
+  short  objX;			
+  
+  u16  paddingX;		
+  u16  imageW;		
+  
+  u16  scaleH;		
+  short  objY;			
+  
+  u16  paddingY;		
+  u16  imageH;		
+  
+  u16  imageAdrs;	
+  u16  imageStride;	
+
+  u8   imageFlags;	
+  u8   imagePal;		
+  u8   imageSiz;		
+  u8   imageFmt;		
+};			
+
+
+struct	uObjTxSprite
+{
+  uObjTxtr		txtr;
+  uObjSprite	sprite;
+};		/* 48 bytes */
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -182,7 +240,7 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();
-	texture->Touch();
+	texture->UpdateIfNecessary();
 
 	PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );
 }
@@ -272,10 +330,83 @@ void DLParser_S2DEX_ObjLdtxRect( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
+// Text, smoke, and items in Yoshi
 void DLParser_S2DEX_ObjLdtxRectR( MicroCodeCommand command )
 {	
-	// YoshiStory uses this - 0x08
-	DL_UNIMPLEMENTED_ERROR("S2DEX_ObjLdtxRectR");
+	uObjTxSprite* sprite = (uObjTxSprite*)(g_pu8RamBase+(RDPSegAddr(command.inst.cmd1)));
+
+	f32 objX = sprite->sprite.objX/4.0f;
+	f32 objY = sprite->sprite.objY/4.0f;
+	f32 imageW = sprite->sprite.imageW / 32.0f;
+	f32 imageH = sprite->sprite.imageH / 32.0f;
+	f32 scaleW = sprite->sprite.scaleW/1024.0f;
+	f32 scaleH = sprite->sprite.scaleH/1024.0f;
+
+	f32 x0, y0, x1, y1;
+	//if( rotate )	// With Rotation
+	{
+		x0 = mat2D.X + objX/mat2D.BaseScaleX;
+		y0 = mat2D.Y + objY/mat2D.BaseScaleY;
+		x1 = mat2D.X + (objX + imageW / scaleW) / mat2D.BaseScaleX - 1;
+		y1 = mat2D.Y + (objY + imageH / scaleH) / mat2D.BaseScaleY - 1;
+	}
+	/*else
+	{
+		x0 = objX;
+		y0 = objY;
+		x1 = objX + width / scaleW - 1;
+		y1 = objY + high / scaleH - 1;
+
+		if( (sprite->sprite.imageFlags&1) ) // flipX
+		{
+			float temp = x0;
+			x0 = x1;
+			x1 = temp;
+		}
+
+		if( (sprite->sprite.imageFlags&0x10) ) // flipY
+		{
+			float temp = y0;
+			y0 = y1;
+			y1 = temp;
+		}
+	}*/
+
+	TextureInfo ti;
+
+	ti.SetFormat           (sprite->sprite.imageFmt);
+	ti.SetSize             (sprite->sprite.imageSiz);
+
+	ti.SetLoadAddress      (RDPSegAddr(sprite->txtr.block.image));
+
+	if( sprite->txtr.block.type == S2DEX_OBJLT_TXTRBLOCK )
+	{
+		ti.SetWidth            (sprite->sprite.imageW/32);
+		ti.SetHeight           (sprite->sprite.imageH/32);
+		ti.SetPitch			   ( (2047/(sprite->txtr.block.tline-1)) << 3 );
+	}
+	/*else if( sprite->txtr.block.type == S2DEX_OBJLT_TXTRTILE )
+	{
+		ti.SetWidth            (((sprite->txtr.tile.twidth+1)>>2)<<(4-ti.GetSize()));
+		ti.SetHeight           ((sprite->txtr.tile.theight+1)>>2);
+
+		if( ti.GetSize() == G_IM_SIZ_4b )
+		{
+			ti.SetPitch			   (ti.GetWidth() >> 1);
+		}
+		else
+			ti.SetPitch			   (ti.GetWidth() << (ti.GetSize()-1));
+	}*/
+
+	ti.SetSwapped          (0);
+	ti.SetTLutIndex        (sprite->sprite.imagePal);
+	ti.SetTLutFormat       (2 << 14);  //RGBA16 
+
+	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
+	texture->GetTexture()->InstallTexture();
+	texture->UpdateIfNecessary();
+
+	PSPRenderer::Get()->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
 }
 
 //*****************************************************************************
@@ -368,10 +499,32 @@ void DLParser_S2DEX_RDPHalf_0( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
+// Used for Sprite rotation
 void DLParser_S2DEX_ObjMoveMem( MicroCodeCommand command )
 {	
-	// Ogre Battle 64 and YoshiStory uses this - 0xdc
-	DL_UNIMPLEMENTED_ERROR("S2DEX_ObjMoveMem");
+	u32 addr = RDPSegAddr(command.inst.cmd1);
+	u32 index = command.inst.cmd0 & 0xFFFF;
+
+	if( index == 0 )	// Mtx
+	{
+		uObjMtx* mtx = (uObjMtx *)(addr+g_pu8RamBase);
+		mat2D.A = mtx->A/65536.0f;
+		mat2D.B = mtx->B/65536.0f;
+		mat2D.C = mtx->C/65536.0f;
+		mat2D.D = mtx->D/65536.0f;
+		mat2D.X = float(mtx->X>>2);
+		mat2D.Y = float(mtx->Y>>2);
+		mat2D.BaseScaleX = mtx->BaseScaleX/1024.0f;
+		mat2D.BaseScaleY = mtx->BaseScaleY/1024.0f;
+	}
+	else if( index == 2 )	// Sub Mtx
+	{
+		uObjSubMtx* sub = (uObjSubMtx*)(addr+g_pu8RamBase);
+		mat2D.X = float(sub->X>>2);
+		mat2D.Y = float(sub->Y>>2);
+		mat2D.BaseScaleX = sub->BaseScaleX/1024.0f;
+		mat2D.BaseScaleY = sub->BaseScaleY/1024.0f;
+	}
 }
 
 //*****************************************************************************
@@ -424,7 +577,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();
-	texture->Touch();
+	texture->UpdateIfNecessary();
 
 	if (g_ROM.GameHacks != YOSHI)
 	{
