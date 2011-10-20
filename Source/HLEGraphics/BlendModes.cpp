@@ -378,6 +378,30 @@ void BlendMode_0x00ffac80ff0d93ffLL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
 }
 
+//Diddy kong Racing plane streamers
+//case 0x001218acf00ffe3fLL:
+//aRGB0: (Texel0       - 0           ) * Shade        + 0
+//aA0  : (Texel0       - 0           ) * Shade        + 0
+//aRGB1: (Env          - Combined    ) * Env_Alpha    + Combined
+//aA1  : (Combined     - 0           ) * Primitive    + 0
+void BlendMode_0x001218acf00ffe3fLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.ModulateA( details.PrimColour );
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
+//Diddy kong Racing car slids
+//case 0x00567e034f0e79ffLL:
+//aRGB0: (Env          - Shade       ) * Env_Alpha    + Shade
+//aA0  : (0            - 0           ) * 0            + Shade
+//aRGB1: (Combined     - 0           ) * Primitive    + 0
+//aA1  : (Combined     - 0           ) * Primitive    + 0
+void BlendMode_0x00567e034f0e79ffLL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.ModulateA( details.PrimColour );
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+					
 // Diddy Kong Racing - Diddy Kong Intro / Taj / Clock Guy
 // case 0x001596a430fdfe38LL:
 //aRGB0: (Texel0       - Primitive   ) * Shade_Alpha  + Primitive
@@ -1797,6 +1821,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0011fe2344fe7339LL); // Mortal Kombat 4 - Text
 			BLEND_MODE(0x0011fe2355fefd7eLL); // Mortal Kombat 4 -Character Selection screen background / Tower
 			BLEND_MODE(0x00121603ff5bfff8LL); // Zelda Paths
+			BLEND_MODE(0x001218acf00ffe3fLL); // DKR plane streamers
 			BLEND_MODE(0x00127624ffef93c9LL); // Mario Party - River
 			BLEND_MODE(0x00127e2433fdf8fcLL); // Wetrix Background / Banjo Kazooie
 			BLEND_MODE(0x00127eacf0fff238LL); // SSB Link bomb
@@ -1879,6 +1904,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0055a68730fd923eLL); // F1 World GP Sky
 			BLEND_MODE(0x005616ac112cfe7fLL); // DKR Dialog Text
 			BLEND_MODE(0x00567e034f0e77ffLL); // DKR Turtle Shell
+			BLEND_MODE(0x00567e034f0e79ffLL); // DKR car slids
 			BLEND_MODE(0x0061a5ff1f10d23fLL); // Paper Mario - Intro Lighting
 			BLEND_MODE(0x00627fff1ffcfc38LL); // Pilot Wings 64 sky
 			BLEND_MODE(0x00629bff1ffcfe38LL); // Quest 64 - Bubbles

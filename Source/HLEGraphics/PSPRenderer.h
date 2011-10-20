@@ -173,6 +173,7 @@ public:
 	// Various rendering states
 	inline void			SetTnLMode(u32 mode)					{ mTnLModeFlags._u32 = (mTnLModeFlags._u32 & TNL_TEXTURE) | mode; if(gFogEnabled) (mTnLModeFlags.Fog)? sceGuEnable(GU_FOG) : sceGuDisable(GU_FOG); sceGuShadeModel( mTnLModeFlags.Shade ? GU_SMOOTH : GU_FLAT ); }
 	inline void			SetTextureEnable(bool enable)			{ mTnLModeFlags.Texture = enable; }
+	inline void			SetCullMode(bool enable, bool mode)		{ mTnLModeFlags.TriCull = enable; mTnLModeFlags.CullBack = mode; }
 
 	// Fog stuff
 	inline void			SetFogMinMax(float fMin, float fMax)	{ sceGuFog(fMin, fMax, mFogColour.GetColour()); }

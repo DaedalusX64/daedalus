@@ -264,6 +264,27 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 		u32 v1_idx = (info >>  8) & 0x1F;
 		u32 v2_idx = (info      ) & 0x1F;
 
+		PSPRenderer::Get()->SetCullMode( !(info & 0x40000000), !(info & 0x40000000) );
+
+		//if( info & 0x40000000 )
+		//{	// no cull
+		//	PSPRenderer::Get()->SetCullMode( false, false );
+		//}
+		//else
+		//{
+		//	// back culling
+		//	PSPRenderer::Get()->SetCullMode( true, true );
+
+		//	//if (RDP_View_Scales_X < 0)
+		//	//{   // back culling
+		//	//	PSPRenderer::Get()->SetCullMode( true, true );
+		//	//}
+		//	//else
+		//	//{   // front cull
+		//	//	PSPRenderer::Get()->SetCullMode( true, false );
+		//	//}
+		//}
+	
 		if( PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx) )
 		{
 			tris_added = true;
