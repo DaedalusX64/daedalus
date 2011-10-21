@@ -327,8 +327,7 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 			// Ucode for Evangelion.v64
 			// 0 ObjMtx
 			// 2 SubMtx
-			// XXX DLParser_S2DEX_ObjMoveMem not implemented yet anyways..
-			DL_UNIMPLEMENTED_ERROR("MoveMem(2) 0x02/0x00");
+			DLParser_S2DEX_ObjMoveMem( command );
 		}
 		break;
 
@@ -510,6 +509,12 @@ void DLParser_GBI2_DMA_IO( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_Quad( MicroCodeCommand command )
 {
+	if ((command.inst.cmd0 & 0x00FFFFFF) == 0x2F)
+	{
+		DLParser_S2DEX_ObjLdtxRect( command );
+		return;
+	}
+
     // While the next command pair is Tri2, add vertices
 	u32 pc = gDlistStack[gDlistStackPointer].pc;
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
@@ -553,6 +558,14 @@ void DLParser_GBI2_Quad( MicroCodeCommand command )
 // XXX SpiderMan uses this command.
 void DLParser_GBI2_Line3D( MicroCodeCommand command )
 {
+/*
+	if ((command.inst.cmd0 & 0x00FFFFFF) == 0x2F)
+	{
+		DLParser_S2DEX_ObjLdtxSprite( command );
+		return;
+
+	}
+*/
 	// While the next command pair is Tri2, add vertices
 	u32 pc = gDlistStack[gDlistStackPointer].pc;
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);

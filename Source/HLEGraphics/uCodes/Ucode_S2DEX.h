@@ -341,17 +341,12 @@ void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 		objH = temp; 
 	} 
 
-	f32 x0, y0, x1, y1;
-	//if( rotate )	// With Rotation
-	{
-		x0 = mat2D.A*objX + mat2D.B*objY + mat2D.X;
-		y0 = mat2D.C*objX + mat2D.D*objY + mat2D.Y;
-		//x1 = mat2D.X + (objX + imageW / scaleW) / mat2D.BaseScaleX - 1;
-		//y1 = mat2D.Y + (objY + imageH / scaleH) / mat2D.BaseScaleY - 1;
+	// ObjMtxTranslate
+	f32 x0 = mat2D.A*objX + mat2D.B*objY + mat2D.X;
+	f32 y0 = mat2D.C*objX + mat2D.D*objY + mat2D.Y;
 
-		x1 = mat2D.A*objW + mat2D.B*objH + mat2D.X;
-		y1 = mat2D.C*objW + mat2D.D*objH + mat2D.Y;
-	}
+	f32 x1 = mat2D.A*objW + mat2D.B*objH + mat2D.X;
+	f32 y1 = mat2D.C*objW + mat2D.D*objH + mat2D.Y;
 
 	TextureInfo ti;
 
@@ -393,16 +388,78 @@ void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
+// No Rotation. Intro logo, Awesome command screens and HUD in game :)
 void DLParser_S2DEX_ObjLdtxRect( MicroCodeCommand command )
 {	
-	// YoshiStory uses this - 0x07
-	printf("S2DEX_ObjLdtxRect\n");
+	uObjTxSprite* sprite = (uObjTxSprite*)(g_pu8RamBase+(RDPSegAddr(command.inst.cmd1)));
+
+	f32 objX = sprite->sprite.objX/4.0f;
+	f32 objY = sprite->sprite.objY/4.0f;
+	f32 imageW = sprite->sprite.imageW / 32.0f;
+	f32 imageH = sprite->sprite.imageH / 32.0f;
+	f32 scaleW = sprite->sprite.scaleW/1024.0f;
+	f32 scaleH = sprite->sprite.scaleH/1024.0f;
+       
+    f32 x0 = objX;
+    f32 y0 = objY;
+    f32 x1 = objX + imageW / scaleW - 1.0f;
+    f32 y1 = objY + imageH / scaleH - 1.0f;
+
+    if( (sprite->sprite.imageFlags&1) ) // flipX
+    {
+            f32 temp = x0;
+            x0 = x1;
+            x1 = temp;
+    }
+
+    if( (sprite->sprite.imageFlags&0x10) ) // flipY
+    {
+            f32 temp = y0;
+            y0 = y1;
+            y1 = temp;
+    }
+        
+	TextureInfo ti;
+
+	ti.SetFormat           (sprite->sprite.imageFmt);
+	ti.SetSize             (sprite->sprite.imageSiz);
+
+	ti.SetLoadAddress      (RDPSegAddr(sprite->txtr.block.image));
+
+	if( sprite->txtr.block.type == S2DEX_OBJLT_TXTRBLOCK )
+	{
+		ti.SetWidth            (sprite->sprite.imageW/32);
+		ti.SetHeight           (sprite->sprite.imageH/32);
+		ti.SetPitch			   ( (2047/(sprite->txtr.block.tline-1)) << 3 );
+	}
+	else if( sprite->txtr.block.type == S2DEX_OBJLT_TXTRTILE )
+	{
+		ti.SetWidth            (((sprite->txtr.tile.twidth+1)>>2)<<(4-ti.GetSize()));
+		ti.SetHeight           ((sprite->txtr.tile.theight+1)>>2);
+
+		if( ti.GetSize() == G_IM_SIZ_4b )
+		{
+			ti.SetPitch			   (ti.GetWidth() >> 1);
+		}
+		else
+			ti.SetPitch			   (ti.GetWidth() << (ti.GetSize()-1));
+	}
+
+	ti.SetSwapped          (0);
+	ti.SetTLutIndex        (sprite->sprite.imagePal);
+	ti.SetTLutFormat       (2 << 14);  //RGBA16 
+
+	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
+	texture->GetTexture()->InstallTexture();
+	texture->UpdateIfNecessary();
+
+	PSPRenderer::Get()->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-// Text, smoke, and items in Yoshi
+// With Rotation. Text, smoke, and items in Yoshi
 void DLParser_S2DEX_ObjLdtxRectR( MicroCodeCommand command )
 {	
 	uObjTxSprite* sprite = (uObjTxSprite*)(g_pu8RamBase+(RDPSegAddr(command.inst.cmd1)));
@@ -414,14 +471,10 @@ void DLParser_S2DEX_ObjLdtxRectR( MicroCodeCommand command )
 	f32 scaleW = sprite->sprite.scaleW/1024.0f;
 	f32 scaleH = sprite->sprite.scaleH/1024.0f;
 
-	f32 x0, y0, x1, y1;
-	//if( rotate )	// With Rotation
-	{
-		x0 = mat2D.X + objX/mat2D.BaseScaleX;
-		y0 = mat2D.Y + objY/mat2D.BaseScaleY;
-		x1 = mat2D.X + (objX + imageW / scaleW) / mat2D.BaseScaleX - 1;
-		y1 = mat2D.Y + (objY + imageH / scaleH) / mat2D.BaseScaleY - 1;
-	}
+	f32 x0 = mat2D.X + objX/mat2D.BaseScaleX;
+	f32 y0 = mat2D.Y + objY/mat2D.BaseScaleY;
+	f32 x1 = mat2D.X + (objX + imageW / scaleW) / mat2D.BaseScaleX - 1.0f;
+	f32 y1 = mat2D.Y + (objY + imageH / scaleH) / mat2D.BaseScaleY - 1.0f;
 
 	TextureInfo ti;
 
@@ -436,7 +489,7 @@ void DLParser_S2DEX_ObjLdtxRectR( MicroCodeCommand command )
 		ti.SetHeight           (sprite->sprite.imageH/32);
 		ti.SetPitch			   ( (2047/(sprite->txtr.block.tline-1)) << 3 );
 	}
-	/*else if( sprite->txtr.block.type == S2DEX_OBJLT_TXTRTILE )
+	else if( sprite->txtr.block.type == S2DEX_OBJLT_TXTRTILE )
 	{
 		ti.SetWidth            (((sprite->txtr.tile.twidth+1)>>2)<<(4-ti.GetSize()));
 		ti.SetHeight           ((sprite->txtr.tile.theight+1)>>2);
@@ -447,7 +500,7 @@ void DLParser_S2DEX_ObjLdtxRectR( MicroCodeCommand command )
 		}
 		else
 			ti.SetPitch			   (ti.GetWidth() << (ti.GetSize()-1));
-	}*/
+	}
 
 	ti.SetSwapped          (0);
 	ti.SetTLutIndex        (sprite->sprite.imagePal);
