@@ -312,10 +312,82 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
+// Nintendo logo, shade, items, enemies & foes, sun, and pretty much everything in Yoshi
 void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 {	
-	// YoshiStory uses this - 0xc2
-	DL_UNIMPLEMENTED_ERROR("S2DEX_ObjLdtxSprite");
+	uObjTxSprite* sprite = (uObjTxSprite*)(g_pu8RamBase+(RDPSegAddr(command.inst.cmd1)));
+
+	f32 imageW = sprite->sprite.imageW / 32.0f;
+	f32 imageH = sprite->sprite.imageH / 32.0f;
+	f32 scaleW = sprite->sprite.scaleW/1024.0f;
+	f32 scaleH = sprite->sprite.scaleH/1024.0f;
+
+	f32 objX = sprite->sprite.objX/4.0f;
+	f32 objY = sprite->sprite.objY/4.0f;
+	f32 objW = imageW / scaleW + objX;
+	f32 objH = imageH / scaleH + objY;
+
+	
+	if( sprite->sprite.imageFlags&1 ) // flip X 
+	{ 
+		f32 temp = objX;
+		objX = objW; 
+		objW = temp;	
+	} 
+	if( sprite->sprite.imageFlags&0x10 ) // flip Y
+	{ 
+		f32 temp = objY; 
+		objY = objH; 
+		objH = temp; 
+	} 
+
+	f32 x0, y0, x1, y1;
+	//if( rotate )	// With Rotation
+	{
+		x0 = mat2D.A*objX + mat2D.B*objY + mat2D.X;
+		y0 = mat2D.C*objX + mat2D.D*objY + mat2D.Y;
+		//x1 = mat2D.X + (objX + imageW / scaleW) / mat2D.BaseScaleX - 1;
+		//y1 = mat2D.Y + (objY + imageH / scaleH) / mat2D.BaseScaleY - 1;
+
+		x1 = mat2D.A*objW + mat2D.B*objH + mat2D.X;
+		y1 = mat2D.C*objW + mat2D.D*objH + mat2D.Y;
+	}
+
+	TextureInfo ti;
+
+	ti.SetFormat           (sprite->sprite.imageFmt);
+	ti.SetSize             (sprite->sprite.imageSiz);
+
+	ti.SetLoadAddress      (RDPSegAddr(sprite->txtr.block.image));
+
+	if( sprite->txtr.block.type == S2DEX_OBJLT_TXTRBLOCK )
+	{
+		ti.SetWidth            (sprite->sprite.imageW/32);
+		ti.SetHeight           (sprite->sprite.imageH/32);
+		ti.SetPitch			   ( (2047/(sprite->txtr.block.tline-1)) << 3 );
+	}
+	else if( sprite->txtr.block.type == S2DEX_OBJLT_TXTRTILE )
+	{
+		ti.SetWidth            (((sprite->txtr.tile.twidth+1)>>2)<<(4-ti.GetSize()));
+		ti.SetHeight           ((sprite->txtr.tile.theight+1)>>2);
+
+		if( ti.GetSize() == G_IM_SIZ_4b )
+		{
+			ti.SetPitch			   (ti.GetWidth() >> 1);
+		}
+		else
+			ti.SetPitch			   (ti.GetWidth() << (ti.GetSize()-1));
+	}
+
+	ti.SetSwapped          (0);
+	ti.SetTLutIndex        (sprite->sprite.imagePal);
+	ti.SetTLutFormat       (2 << 14);  //RGBA16 
+
+	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
+	texture->GetTexture()->InstallTexture();
+	texture->UpdateIfNecessary();
+
+	PSPRenderer::Get()->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
 }
 
 //*****************************************************************************
@@ -324,7 +396,7 @@ void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 void DLParser_S2DEX_ObjLdtxRect( MicroCodeCommand command )
 {	
 	// YoshiStory uses this - 0x07
-	DL_UNIMPLEMENTED_ERROR("S2DEX_ObjLdtxRect");
+	printf("S2DEX_ObjLdtxRect\n");
 }
 
 //*****************************************************************************
@@ -350,27 +422,6 @@ void DLParser_S2DEX_ObjLdtxRectR( MicroCodeCommand command )
 		x1 = mat2D.X + (objX + imageW / scaleW) / mat2D.BaseScaleX - 1;
 		y1 = mat2D.Y + (objY + imageH / scaleH) / mat2D.BaseScaleY - 1;
 	}
-	/*else
-	{
-		x0 = objX;
-		y0 = objY;
-		x1 = objX + width / scaleW - 1;
-		y1 = objY + high / scaleH - 1;
-
-		if( (sprite->sprite.imageFlags&1) ) // flipX
-		{
-			float temp = x0;
-			x0 = x1;
-			x1 = temp;
-		}
-
-		if( (sprite->sprite.imageFlags&0x10) ) // flipY
-		{
-			float temp = y0;
-			y0 = y1;
-			y1 = temp;
-		}
-	}*/
 
 	TextureInfo ti;
 
