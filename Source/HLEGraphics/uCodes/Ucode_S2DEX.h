@@ -588,26 +588,26 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 
 	uObjScaleBg *objBg = (uObjScaleBg *)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	s16 frameX = objBg->frameX / 4;
-	s16 frameY = objBg->frameY / 4;
+	f32 frameX = objBg->frameX / 4.0f;
+	f32 frameY = objBg->frameY / 4.0f;
 
-	u16 frameW = (objBg->frameW / 4) + frameX;
-	u16 frameH = (objBg->frameH / 4) + frameY;
+	f32 frameW = (objBg->frameW / 4.0f) + frameX;
+	f32 frameH = (objBg->frameH / 4.0f) + frameY;
 
-	u16 imageX = objBg->imageX / 32;
-	u16 imageY = objBg->imageY / 32;
+	f32 imageX = objBg->imageX / 32.0f;
+	f32 imageY = objBg->imageY / 32.0f;
 
-	u16 scaleX = objBg->scaleW/1024;
-	u16 scaleY = objBg->scaleH/1024;
+	f32 scaleX = objBg->scaleW/1024.0f;
+	f32 scaleY = objBg->scaleH/1024.0f;
 
-	u16 imageW = objBg->imageW/4;
-	u16 imageH = objBg->imageH/4;
+	f32 imageW = objBg->imageW/4.0f;
+	f32 imageH = objBg->imageH/4.0f;
 
-	u32 x2 = frameX + (imageW-imageX)/scaleX;
-	u32 y2 = frameY + (imageH-imageY)/scaleY;
+	f32 x2 = frameX + (imageW-imageX)/scaleX;
+	f32 y2 = frameY + (imageH-imageY)/scaleY;
 
-	u32 u1 = (frameW-x2)*scaleX;
-	u32 v1 = (frameH-y2)*scaleY;
+	f32 u1 = (frameW-x2)*scaleX;
+	f32 v1 = (frameH-y2)*scaleY;
 
 
 	TextureInfo ti;
@@ -616,9 +616,9 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 	ti.SetSize             (objBg->imageSiz);
 
 	ti.SetLoadAddress      (RDPSegAddr(objBg->imagePtr));
-	ti.SetWidth            (imageW);
-	ti.SetHeight           (imageH);
-	ti.SetPitch			   (((imageW << ti.GetSize() >> 1)>>3)<<3); //force 8-bit alignment, this what sets our correct viewport.
+	ti.SetWidth            (objBg->imageW/4);
+	ti.SetHeight           (objBg->imageH/4);
+	ti.SetPitch			   (((objBg->imageW/4 << ti.GetSize() >> 1)>>3)<<3); //force 8-bit alignment, this what sets our correct viewport.
 
 	ti.SetSwapped          (0);
 
@@ -632,14 +632,14 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 
 	if (g_ROM.GameHacks != YOSHI)
 	{
-		PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );
+		PSPRenderer::Get()->Draw2DTexture( frameX, frameY, frameW, frameH, imageX, imageY, imageW, imageH );
 	}
 	else
 	{
-		PSPRenderer::Get()->Draw2DTexture((float)frameX, (float)frameY, (float)x2, (float)y2, (float)imageX, (float)imageY, (float)imageW, (float)imageH);
-		PSPRenderer::Get()->Draw2DTexture((float)x2, (float)frameY, (float)frameW, (float)y2, 0, (float)imageY, (float)u1, (float)imageH);
-		PSPRenderer::Get()->Draw2DTexture((float)frameX, (float)y2, (float)x2, (float)frameH, (float)imageX, 0, (float)imageW, (float)v1);
-		PSPRenderer::Get()->Draw2DTexture((float)x2, (float)y2, (float)frameW, (float)frameH, 0, 0, (float)u1, (float)v1);
+		PSPRenderer::Get()->Draw2DTexture(frameX, frameY, x2, y2, imageX, imageY, imageW, imageH);
+		PSPRenderer::Get()->Draw2DTexture(x2, frameY, frameW, y2, 0, imageY, u1, imageH);
+		PSPRenderer::Get()->Draw2DTexture(frameX, y2, x2, frameH, imageX, 0, imageW, v1);
+		PSPRenderer::Get()->Draw2DTexture(x2, y2, frameW, frameH, 0, 0, u1, v1);
 	}
 }
 
