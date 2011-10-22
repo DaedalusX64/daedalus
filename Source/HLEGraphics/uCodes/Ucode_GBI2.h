@@ -555,17 +555,9 @@ void DLParser_GBI2_Quad( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-// XXX SpiderMan uses this command.
+// XXX SpiderMan uses this command.DLParser_GBI2_Tri2
 void DLParser_GBI2_Line3D( MicroCodeCommand command )
 {
-/*
-	if ((command.inst.cmd0 & 0x00FFFFFF) == 0x2F)
-	{
-		DLParser_S2DEX_ObjLdtxSprite( command );
-		return;
-
-	}
-*/
 	// While the next command pair is Tri2, add vertices
 	u32 pc = gDlistStack[gDlistStackPointer].pc;
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
@@ -644,6 +636,14 @@ void DLParser_GBI2_Tri1( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_Tri2( MicroCodeCommand command )
 {
+	
+	if ((command.inst.cmd0 & 0x00FFFFFF) == 0x2F)
+	{
+		DLParser_S2DEX_ObjLdtxSprite( command );
+		return;
+
+	}
+
 	u32 pc = gDlistStack[gDlistStackPointer].pc;
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
