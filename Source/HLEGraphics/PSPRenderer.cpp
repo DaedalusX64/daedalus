@@ -2727,9 +2727,9 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 			//
 			if( texture != mpTexture[ index ] )
 			{
-				mpTexture[ index ] = texture;
-
 				texture->UpdateIfNecessary();
+
+				mpTexture[ index ] = texture;
 
 				const CRefPtr<CNativeTexture> & native_texture( texture->GetTexture() );
 				if( native_texture != NULL )
@@ -2986,8 +2986,7 @@ void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH,
 //*****************************************************************************
 void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 {
-	f32 fraction;
-
+	//Make sure WP matrix is up to date before changing WP matrix
 	if( !mWorldProjectValid )
 	{
 		mWorldProject = mModelViewStack[mModelViewTop] * mProjectionStack[mProjectionTop];
@@ -3001,22 +3000,14 @@ void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 	if (w0 & 0x20)
 	{
 		//Change fraction part
-		fraction = (w1 >> 16) / 65536.0f;
-		mWorldProject.m[y][x] = (f32)(s32)mWorldProject.m[y][x];
-		mWorldProject.m[y][x] += fraction;
-
-		fraction = (w1 & 0xFFFF) / 65536.0f;
-		mWorldProject.m[y][x+1] = (f32)(s32)mWorldProject.m[y][x+1];
-		mWorldProject.m[y][x+1] += fraction;
+		mWorldProject.m[y][x]   = (f32)(s32)mWorldProject.m[y][x] + ((f32)(w1 >> 16) / 65536.0f);
+		mWorldProject.m[y][x+1] = (f32)(s32)mWorldProject.m[y][x+1] + ((f32)(w1 & 0xFFFF) / 65536.0f);
 	}
 	else
 	{
 		//Change integer part
-		//fraction = (f32)fabs(mWorldProject.m[y][x] - (s32)mWorldProject.m[y][x]);
-		mWorldProject.m[y][x]	= (f32)(s16)(w1 >> 16);// + fraction;	// Breaks the trees in Dream Land (SSB)
-
-		//fraction = (f32)fabs(mWorldProject.m[y][x+1] - (s32)mWorldProject.m[y][x+1]);
-		mWorldProject.m[y][x+1] = (f32)(s16)(w1 & 0xFFFF);// + fraction; // Breaks the trees in Dream Land (SSB)
+		mWorldProject.m[y][x]	= (f32)(s16)(w1 >> 16);
+		mWorldProject.m[y][x+1] = (f32)(s16)(w1 & 0xFFFF);
 	}
 
 	mWPmodified = true;	//Mark that Worldproject matrix is changed
