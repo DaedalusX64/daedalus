@@ -411,13 +411,10 @@ void DLParser_GBI2_LoadUCode( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 {
-	const u32 and_bits = (command.inst.cmd0) & 0x00FFFFFF;
-	const u32 or_bits  = (command.inst.cmd1) & 0x00FFFFFF;
+	gGeometryMode._u32 &= command.inst.arg0;
+	gGeometryMode._u32 |= command.inst.arg1;
 
-	gGeometryMode._u32 &= and_bits;
-	gGeometryMode._u32 |= or_bits;
-
-	DL_PF("  0x%08x 0x%08x =(x & 0x%08x) | 0x%08x", command.inst.cmd0, command.inst.cmd1, and_bits, or_bits);
+	DL_PF("  0x%08x 0x%08x =(x & 0x%08x) | 0x%08x", command.inst.cmd0, command.inst.cmd1, command.inst.arg0, command.inst.arg1);
 	DL_PF("  ZBuffer %s", (gGeometryMode.GBI2_Zbuffer) ? "On" : "Off");
 	DL_PF("  Culling %s", (gGeometryMode.GBI2_CullBack) ? "Back face" : (gGeometryMode.GBI2_CullFront) ? "Front face" : "Off");
 	DL_PF("  Flat Shading %s", (gGeometryMode.GBI2_ShadingSmooth) ? "On" : "Off");
@@ -509,7 +506,7 @@ void DLParser_GBI2_DMA_IO( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_Quad( MicroCodeCommand command )
 {
-	if ((command.inst.cmd0 & 0x00FFFFFF) == 0x2F)
+	if (command.inst.arg0 == 0x2F)
 	{
 		DLParser_S2DEX_ObjLdtxRect( command );
 		return;
@@ -597,7 +594,7 @@ void DLParser_GBI2_Line3D( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_Tri1( MicroCodeCommand command )
 {
-	if ((command.inst.cmd0 & 0x00FFFFFF) == 0x17)
+	if (command.inst.arg0 == 0x17)
 	{
 		DLParser_S2DEX_ObjLoadTxtr( command );
 		return;
@@ -637,11 +634,10 @@ void DLParser_GBI2_Tri1( MicroCodeCommand command )
 void DLParser_GBI2_Tri2( MicroCodeCommand command )
 {
 	
-	if ((command.inst.cmd0 & 0x00FFFFFF) == 0x2F)
+	if (command.inst.arg0 == 0x2F)
 	{
 		DLParser_S2DEX_ObjLdtxSprite( command );
 		return;
-
 	}
 
 	u32 pc = gDlistStack[gDlistStackPointer].pc;
@@ -684,7 +680,7 @@ void DLParser_GBI2_Tri2( MicroCodeCommand command )
 /*
 void DLParser_GBI2_0x8( MicroCodeCommand command )
 {
-	if( ((command.inst.cmd0)&0x00FFFFFF) == 0x2F && ((command.inst.cmd1)&0xFF000000) == 0x80000000 )
+	if( (command.inst.arg0 == 0x2F && ((command.inst.cmd1)&0xFF000000) == 0x80000000 )
 	{
 		// V-Rally 64
 		DLParser_S2DEX_ObjLdtxRectR(command);

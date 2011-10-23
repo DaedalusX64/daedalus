@@ -55,7 +55,15 @@ struct Instruction
 			u32 cmd:8;
 		};
 	};
-	u32 cmd1;
+	union 
+	{
+		u32 cmd1;
+		struct 
+		{
+			u32 arg1:24;
+			u32 pad:8;
+		};
+	};
 };
 
 struct GBI1_Matrix
