@@ -345,8 +345,14 @@ void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 	f32 x0 = mat2D.A*objX + mat2D.B*objY + mat2D.X;
 	f32 y0 = mat2D.C*objX + mat2D.D*objY + mat2D.Y;
 
-	f32 x1 = mat2D.A*objW + mat2D.B*objH + mat2D.X;
-	f32 y1 = mat2D.C*objW + mat2D.D*objH + mat2D.Y;
+	f32 x2 = mat2D.A*objW + mat2D.B*objH + mat2D.X;
+	f32 y2 = mat2D.C*objW + mat2D.D*objH + mat2D.Y;
+
+	f32 x1 = mat2D.A*objW + mat2D.B*objY + mat2D.X;
+	f32 y1 = mat2D.C*objW + mat2D.D*objY + mat2D.Y;
+
+	f32 x3 = mat2D.A*objX + mat2D.B*objH + mat2D.X;
+	f32 y3 = mat2D.C*objX + mat2D.D*objH + mat2D.Y;
 
 	TextureInfo ti;
 
@@ -382,7 +388,7 @@ void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 	texture->GetTexture()->InstallTexture();
 	texture->UpdateIfNecessary();
 
-	PSPRenderer::Get()->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
+	PSPRenderer::Get()->Draw2DTextureR( x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH);
 }
 
 //*****************************************************************************

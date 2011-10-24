@@ -2943,7 +2943,6 @@ void PSPRenderer::PrintActive()
 //*****************************************************************************
 //
 //*****************************************************************************
-
 void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH, f32 imageX, f32 imageY, f32 imageW, f32 imageH)
 {
 	DAEDALUS_PROFILE( "PSPRenderer::Draw2DTexture" );
@@ -2969,7 +2968,7 @@ void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH,
 	//p_verts[1].pos.x = p_verts[0].pos.x + (frameW * mN64ToPSPScale.x); // Translated X Offset + (Image Width  * X Scale Factor)
 	//p_verts[1].pos.y = p_verts[0].pos.y + (frameH * mN64ToPSPScale.y); // Translated Y Offset + (Image Height * Y Scale Factor)
 
-	// Add screen and translate offset... which should be able to do this more efficently. Fixes 4:3 mode
+	// Add screen and translate offset... which should be able to do this more efficently. Fixes 4:3 viewport
 	p_verts[1].pos.x = (mN64ToPSPScale.x + mN64ToPSPTranslate.x) + (frameW * mN64ToPSPScale.x); // Translated X Offset + (Image Width  * X Scale Factor)
 	p_verts[1].pos.y = (mN64ToPSPScale.y + mN64ToPSPTranslate.y) + (frameH * mN64ToPSPScale.y); // Translated Y Offset + (Image Height * Y Scale Factor)
 
@@ -2981,6 +2980,49 @@ void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH,
 	if( mTnLModeFlags.Shade ) sceGuShadeModel( GU_SMOOTH );	//reset to old shading model
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
+void PSPRenderer::Draw2DTextureR( f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3, f32 s, f32 t)	// With Rotation
+{
+	DAEDALUS_PROFILE( "PSPRenderer::Draw2DTextureR" );
+	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
+
+	sceGuDisable(GU_DEPTH_TEST);
+	sceGuDepthMask( GL_TRUE );
+	sceGuShadeModel( GU_FLAT );
+
+	sceGuTexFilter(GU_LINEAR,GU_LINEAR);
+	sceGuDisable(GU_ALPHA_TEST);
+	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
+
+	sceGuEnable(GU_BLEND);
+	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
+
+	p_verts[0].pos.x = x0*mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
+	p_verts[0].pos.y = y0*mN64ToPSPScale.y + mN64ToPSPTranslate.y; 
+	p_verts[0].pos.z = 0;
+	p_verts[0].t0    = v2(0, 0);				  
+
+	p_verts[1].pos.x = x1*mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
+	p_verts[1].pos.y = y1*mN64ToPSPScale.y + mN64ToPSPTranslate.y; 
+	p_verts[1].pos.z = 0;
+	p_verts[1].t0    = v2(s, 0);					
+
+	p_verts[2].pos.x = x2*mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
+	p_verts[2].pos.y = y2*mN64ToPSPScale.y + mN64ToPSPTranslate.y; 
+	p_verts[2].pos.z = 0;
+	p_verts[2].t0    = v2(s, t);
+
+	p_verts[3].pos.x = x3*mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
+	p_verts[3].pos.y = y3*mN64ToPSPScale.y + mN64ToPSPTranslate.y; 
+	p_verts[3].pos.z = 0;
+	p_verts[3].t0    = v2(0, t);
+
+	sceGuDrawArray( GU_TRIANGLE_STRIP, GU_TEXTURE_32BITF|GU_VERTEX_32BITF|GU_TRANSFORM_2D, 4, 0, p_verts);
+
+	if( mTnLModeFlags.Shade ) sceGuShadeModel( GU_SMOOTH );	//reset to old shading model
+}
 //*****************************************************************************
 //Modify the WorldProject matrix, used by Kirby & SSB //Corn
 //*****************************************************************************

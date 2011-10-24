@@ -1218,6 +1218,24 @@ void BlendMode_0x0022ffff1ffcfa38LL (BLEND_MODE_ARGS)
  //#X
  */
 
+/*
+ //#Y
+ */
+
+
+//Yoshi Story - Dust
+//case 0x00161a6025fd2578LL:
+//aRGB0: (Texel0       - Texel1      ) * Env_Alpha    + Texel1
+//aA0  : (Texel0       - Texel1      ) * Env          + Texel1
+//aRGB1: (Primitive    - Env         ) * Combined     + Env
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x00161a6025fd2578LL (BLEND_MODE_ARGS)
+{
+	// Nice blend of brown and white ;)
+	details.ColourAdjuster.SetRGB( details.EnvColour );
+	details.ColourAdjuster.SetA( details.PrimColour  );
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
+}
 
 /*
  //#Z
@@ -1834,6 +1852,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00149460f50fff7fLL); // Animal Crossing Gold
 			BLEND_MODE(0x001596a430fdfe38LL); // DKR Intro Plane
 			BLEND_MODE(0x0015fec4f0fff83cLL); // Pilot Wings 64 sky
+			BLEND_MODE(0x00161a6025fd2578LL); // Yoshi - Dust
 			BLEND_MODE(0x00167e6035fcff7eLL); // OOT, MM Intro (N64 Logo)
 			BLEND_MODE(0x0017166035fcff78LL); // OOT Deku tree Flash
 			BLEND_MODE(0x0017166045fe7f78LL); // Animal Crossing Leaves
