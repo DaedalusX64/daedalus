@@ -2943,7 +2943,7 @@ void PSPRenderer::PrintActive()
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH, f32 imageX, f32 imageY, f32 imageW, f32 imageH)
+void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH, f32 imageX, f32 imageY, f32 imageW, f32 imageH) 
 {
 	DAEDALUS_PROFILE( "PSPRenderer::Draw2DTexture" );
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(2*sizeof(TextureVtx));
@@ -2959,25 +2959,24 @@ void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH,
 	sceGuEnable(GU_BLEND);
 	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
 
-	p_verts[0].pos.x = frameX*mN64ToPSPScale.x + mN64ToPSPTranslate.x; // (Frame X Offset * X Scale Factor) + Screen X Offset
-	p_verts[0].pos.y = frameY*mN64ToPSPScale.y + mN64ToPSPTranslate.y; // (Frame Y Offset * Y Scale Factor) + Screen Y Offset
+	p_verts[0].pos.x = frameX * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Frame X Offset * X Scale Factor + Screen X Offset
+	p_verts[0].pos.y = frameY * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Frame Y Offset * Y Scale Factor + Screen Y Offset
 	p_verts[0].pos.z = 0;
-	p_verts[0].t0    = v2(imageX, imageY);				   // Source coordinates
 
-	// Breaks Yoshi BG
-	//p_verts[1].pos.x = p_verts[0].pos.x + (frameW * mN64ToPSPScale.x); // Translated X Offset + (Image Width  * X Scale Factor)
-	//p_verts[1].pos.y = p_verts[0].pos.y + (frameH * mN64ToPSPScale.y); // Translated Y Offset + (Image Height * Y Scale Factor)
+	p_verts[0].t0.x  = imageX;											 // X coordinates
+	p_verts[0].t0.y  = imageY;											 // Y coordinates
 
-	// Add screen and translate offset... which should be able to do this more efficently. Fixes 4:3 viewport
-	p_verts[1].pos.x = (mN64ToPSPScale.x + mN64ToPSPTranslate.x) + (frameW * mN64ToPSPScale.x); // Translated X Offset + (Image Width  * X Scale Factor)
-	p_verts[1].pos.y = (mN64ToPSPScale.y + mN64ToPSPTranslate.y) + (frameH * mN64ToPSPScale.y); // Translated Y Offset + (Image Height * Y Scale Factor)
+	p_verts[1].pos.x = frameW * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Translated X Offset + (Image Width  * X Scale Factor)
+	p_verts[1].pos.y = frameH * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Translated Y Offset + (Image Height * Y Scale Factor)
+	p_verts[1].pos.z = 0;	
 
-	p_verts[1].pos.z = 0;
-	p_verts[1].t0    = v2(imageW, imageH);				   // Source dimentions
+	p_verts[1].t0.x  = imageW;											 // X dimentions
+	p_verts[1].t0.y  = imageH;											 // Y dimentions
 
 	sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF|GU_VERTEX_32BITF|GU_TRANSFORM_2D, 2, 0, p_verts);
 
-	if( mTnLModeFlags.Shade ) sceGuShadeModel( GU_SMOOTH );	//reset to old shading model
+	// Why?
+	//if( mTnLModeFlags.Shade ) sceGuShadeModel( GU_SMOOTH );	//reset to old shading model
 }
 
 //*****************************************************************************
@@ -2999,29 +2998,48 @@ void PSPRenderer::Draw2DTextureR( f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2
 	sceGuEnable(GU_BLEND);
 	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
 
-	p_verts[0].pos.x = x0*mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
-	p_verts[0].pos.y = y0*mN64ToPSPScale.y + mN64ToPSPTranslate.y; 
-	p_verts[0].pos.z = 0;
-	p_verts[0].t0    = v2(0, 0);				  
+	// Compiler gives much better code when spliting v2, v3 etc 
+	// Ex v2 adds 10 ops in t0
+	/*p_verts[0].pos   = v3(x0*mN64ToPSPScale.x + mN64ToPSPTranslate.x, y0*mN64ToPSPScale.y + mN64ToPSPTranslate.y, 0);
+	p_verts[0].t0    = v2(0, 0);
 
-	p_verts[1].pos.x = x1*mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
-	p_verts[1].pos.y = y1*mN64ToPSPScale.y + mN64ToPSPTranslate.y; 
-	p_verts[1].pos.z = 0;
-	p_verts[1].t0    = v2(s, 0);					
+	p_verts[1].pos   = v3(x1*mN64ToPSPScale.x + mN64ToPSPTranslate.x, y1*mN64ToPSPScale.y + mN64ToPSPTranslate.y, 0);
+	p_verts[1].t0    = v2(s, 0);
 
-	p_verts[2].pos.x = x2*mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
-	p_verts[2].pos.y = y2*mN64ToPSPScale.y + mN64ToPSPTranslate.y; 
-	p_verts[2].pos.z = 0;
+	p_verts[2].pos   = v3(x2*mN64ToPSPScale.x + mN64ToPSPTranslate.x, y2*mN64ToPSPScale.y + mN64ToPSPTranslate.y, 0);
 	p_verts[2].t0    = v2(s, t);
+	
+	p_verts[3].pos   = v3(x3*mN64ToPSPScale.x + mN64ToPSPTranslate.x, y3*mN64ToPSPScale.y + mN64ToPSPTranslate.y, 0);
+	p_verts[3].t0    = v2(0, t);*/
 
-	p_verts[3].pos.x = x3*mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
-	p_verts[3].pos.y = y3*mN64ToPSPScale.y + mN64ToPSPTranslate.y; 
+	p_verts[0].pos.x = x0 * mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
+	p_verts[0].pos.y = y0 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
+	p_verts[0].pos.z = 0;
+	p_verts[0].t0.x  = 0;		
+	p_verts[0].t0.y  = 0;	
+
+	p_verts[1].pos.x = x1 * mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
+	p_verts[1].pos.y = y1 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
+	p_verts[1].pos.z = 0;
+	p_verts[1].t0.x  = s;		
+	p_verts[1].t0.y  = 0;						
+
+	p_verts[2].pos.x = x2 * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
+	p_verts[2].pos.y = y2 * mN64ToPSPScale.y + mN64ToPSPTranslate.y; 
+	p_verts[2].pos.z = 0;
+	p_verts[2].t0.x  = s;		
+	p_verts[2].t0.y  = t;	
+
+	p_verts[3].pos.x = x3 * mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
+	p_verts[3].pos.y = y3 * mN64ToPSPScale.y + mN64ToPSPTranslate.y; 
 	p_verts[3].pos.z = 0;
-	p_verts[3].t0    = v2(0, t);
+	p_verts[3].t0.x  = 0;		
+	p_verts[3].t0.y  = t;	
 
-	sceGuDrawArray( GU_TRIANGLE_STRIP, GU_TEXTURE_32BITF|GU_VERTEX_32BITF|GU_TRANSFORM_2D, 4, 0, p_verts);
+	sceGuDrawArray( GU_TRIANGLE_STRIP, GU_TEXTURE_32BITF|GU_VERTEX_32BITF|GU_TRANSFORM_2D, 4, 0, p_verts );
 
-	if( mTnLModeFlags.Shade ) sceGuShadeModel( GU_SMOOTH );	//reset to old shading model
+	// Why?
+	//if( mTnLModeFlags.Shade ) sceGuShadeModel( GU_SMOOTH );	//reset to old shading model
 }
 //*****************************************************************************
 //Modify the WorldProject matrix, used by Kirby & SSB //Corn
