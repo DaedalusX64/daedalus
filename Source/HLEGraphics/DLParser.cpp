@@ -1197,6 +1197,10 @@ void DLParser_TexRect( MicroCodeCommand command )
 	u32	x1 = tex_rect.x1 >> 2;
 	u32	y1 = tex_rect.y1 >> 2;
 
+	// X for upper left corner should be less than X for lower right corner else skip rendering it
+	// seems to happen in Rayman 2
+	//if(x0 >= x1) return;
+
 	// Removes offscreen texrect, also fixes several glitches like in John Romero's Daikatana
 	//
 	SCISSOR_RECT( x0, y0, x1, y1 );

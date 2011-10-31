@@ -2961,22 +2961,19 @@ void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH,
 
 	p_verts[0].pos.x = frameX * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Frame X Offset * X Scale Factor + Screen X Offset
 	p_verts[0].pos.y = frameY * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Frame Y Offset * Y Scale Factor + Screen Y Offset
-	p_verts[0].pos.z = 0;
+	p_verts[0].pos.z = 0.0f;
 
 	p_verts[0].t0.x  = imageX;											 // X coordinates
 	p_verts[0].t0.y  = imageY;											 // Y coordinates
 
 	p_verts[1].pos.x = frameW * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Translated X Offset + (Image Width  * X Scale Factor)
 	p_verts[1].pos.y = frameH * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Translated Y Offset + (Image Height * Y Scale Factor)
-	p_verts[1].pos.z = 0;	
+	p_verts[1].pos.z = 0.0f;	
 
 	p_verts[1].t0.x  = imageW;											 // X dimentions
 	p_verts[1].t0.y  = imageH;											 // Y dimentions
 
-	sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF|GU_VERTEX_32BITF|GU_TRANSFORM_2D, 2, 0, p_verts);
-
-	// Why?
-	//if( mTnLModeFlags.Shade ) sceGuShadeModel( GU_SMOOTH );	//reset to old shading model
+	sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 2, 0, p_verts);
 }
 
 //*****************************************************************************
@@ -3014,32 +3011,29 @@ void PSPRenderer::Draw2DTextureR( f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2
 
 	p_verts[0].pos.x = x0 * mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
 	p_verts[0].pos.y = y0 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
-	p_verts[0].pos.z = 0;
-	p_verts[0].t0.x  = 0;		
-	p_verts[0].t0.y  = 0;	
+	p_verts[0].pos.z = 0.0f;
+	p_verts[0].t0.x  = 0.0f;		
+	p_verts[0].t0.y  = 0.0f;	
 
 	p_verts[1].pos.x = x1 * mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
 	p_verts[1].pos.y = y1 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
-	p_verts[1].pos.z = 0;
+	p_verts[1].pos.z = 0.0f;
 	p_verts[1].t0.x  = s;		
-	p_verts[1].t0.y  = 0;						
+	p_verts[1].t0.y  = 0.0f;						
 
 	p_verts[2].pos.x = x2 * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
 	p_verts[2].pos.y = y2 * mN64ToPSPScale.y + mN64ToPSPTranslate.y; 
-	p_verts[2].pos.z = 0;
+	p_verts[2].pos.z = 0.0f;
 	p_verts[2].t0.x  = s;		
 	p_verts[2].t0.y  = t;	
 
 	p_verts[3].pos.x = x3 * mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
 	p_verts[3].pos.y = y3 * mN64ToPSPScale.y + mN64ToPSPTranslate.y; 
-	p_verts[3].pos.z = 0;
-	p_verts[3].t0.x  = 0;		
+	p_verts[3].pos.z = 0.0f;
+	p_verts[3].t0.x  = 0.0f;		
 	p_verts[3].t0.y  = t;	
 
-	sceGuDrawArray( GU_TRIANGLE_STRIP, GU_TEXTURE_32BITF|GU_VERTEX_32BITF|GU_TRANSFORM_2D, 4, 0, p_verts );
-
-	// Why?
-	//if( mTnLModeFlags.Shade ) sceGuShadeModel( GU_SMOOTH );	//reset to old shading model
+	sceGuDrawArray( GU_TRIANGLE_FAN, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, p_verts );
 }
 //*****************************************************************************
 //Modify the WorldProject matrix, used by Kirby & SSB //Corn
