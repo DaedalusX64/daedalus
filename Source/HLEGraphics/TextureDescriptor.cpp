@@ -142,7 +142,7 @@ u32 TextureInfo::GenerateHashValue() const
 	//More rows will use more CPU...
 	u32 CHK_ROW = 5;
 
-	if( g_ROM.GameHacks == YOSHI ) CHK_ROW = 29;
+	if( g_ROM.GameHacks == YOSHI ) CHK_ROW = 49;
 
 	u8 *ptr_u8 = g_pu8RamBase + GetLoadAddress();
 	u32 hash_value = 0;
@@ -160,7 +160,7 @@ u32 TextureInfo::GenerateHashValue() const
 	step = step >> 2;	//convert to 32bit access
 
 	//We want to sample the texture data as far apart as possible
-	if (step < (CHK_ROW * 4))	//if texture is small hash all of it
+	if (step < (CHK_ROW << 2))	//if texture is small hash all of it
 	{
 		for (u32 z = 0; z < step; z++) hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ ptr_u32[z];
 	}
@@ -169,7 +169,10 @@ u32 TextureInfo::GenerateHashValue() const
 		step = (step - 4) / CHK_ROW;
 		for (u32 y = 0; y < CHK_ROW; y++)
 		{
-			for (u32 z = 0; z < 4; z++)	hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ ptr_u32[z];
+			hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ ptr_u32[0];
+			hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ ptr_u32[1];
+			hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ ptr_u32[2];
+			hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ ptr_u32[3];
 			ptr_u32 += step;
 		}
 	}
