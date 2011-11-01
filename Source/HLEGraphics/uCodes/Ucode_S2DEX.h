@@ -255,10 +255,55 @@ void DLParser_S2DEX_SelectDl( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
+// Bomberman : Second Atatck uses this
 void DLParser_S2DEX_ObjSprite( MicroCodeCommand command )
 {	
-	// YoshiStory uses this - 0x06
-	DL_UNIMPLEMENTED_ERROR("S2DEX_ObjSprite");
+	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
+
+	f32 imageW = sprite->imageW / 32.0f;
+	f32 imageH = sprite->imageH / 32.0f;
+	f32 scaleW = sprite->scaleW/1024.0f;
+	f32 scaleH = sprite->scaleH/1024.0f;
+
+	f32 objX = sprite->objX/4.0f;
+	f32 objY = sprite->objY/4.0f;
+	f32 objW = imageW / scaleW + objX;
+	f32 objH = imageH / scaleH + objY;
+
+	
+	if( sprite->imageFlags&1 ) // flip X 
+	{ 
+		f32 temp = objX;
+		objX = objW; 
+		objW = temp;	
+	} 
+	if( sprite->imageFlags&0x10 ) // flip Y
+	{ 
+		f32 temp = objY; 
+		objY = objH; 
+		objH = temp; 
+	} 
+
+	// ObjMtxTranslate
+	f32 x0 = mat2D.A*objX + mat2D.B*objY + mat2D.X;
+	f32 y0 = mat2D.C*objX + mat2D.D*objY + mat2D.Y;
+
+	f32 x2 = mat2D.A*objW + mat2D.B*objH + mat2D.X;
+	f32 y2 = mat2D.C*objW + mat2D.D*objH + mat2D.Y;
+
+	f32 x1 = mat2D.A*objW + mat2D.B*objY + mat2D.X;
+	f32 y1 = mat2D.C*objW + mat2D.D*objY + mat2D.Y;
+
+	f32 x3 = mat2D.A*objX + mat2D.B*objH + mat2D.X;
+	f32 y3 = mat2D.C*objX + mat2D.D*objH + mat2D.Y;
+
+	const TextureInfo &		ti( gRDPStateManager.GetTextureDescriptor( gTextureTile ) );
+
+	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
+	texture->GetTexture()->InstallTexture();
+	texture->UpdateIfNecessary();
+
+	PSPRenderer::Get()->Draw2DTextureR( x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH);
 }
 
 //*****************************************************************************

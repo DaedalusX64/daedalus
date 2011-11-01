@@ -75,16 +75,21 @@ void DLParser_GBI1_ModifyVtx( MicroCodeCommand command )
 	u32 vert   = command.modifyvtx.vtx;
 	u32 value  = command.modifyvtx.value;
 
-	DAEDALUS_ASSERT( offset, " ModifyVtx : Can't handle" );
-
 	// Cures crash after swinging in Mario Golf
 	if( vert > 80 )
 	{
 		DAEDALUS_ERROR("ModifyVtx: Invalid vertex number: %d", vert);
 		return;
 	}
-	
-	PSPRenderer::Get()->ModifyVertexInfo( offset, vert, value );
+
+	if( offset == 0 )
+	{
+		DLParser_S2DEX_ObjSprite( command );
+	}
+	else
+	{
+		PSPRenderer::Get()->ModifyVertexInfo( offset, vert, value );
+	}
 }
 
 //*****************************************************************************
