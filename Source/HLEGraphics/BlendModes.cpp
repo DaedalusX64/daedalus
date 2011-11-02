@@ -452,6 +452,17 @@ void BlendMode_0x005616ac112cfe7fLL (BLEND_MODE_ARGS)
 /*
  //#E
  */ 
+//Extreme-G2
+//case 0x00127ffffffff438LL:
+//aRGB0: (Texel0       - 0           ) * Shade        + 0
+//aA0  : (0            - 0           ) * 0            + Texel1
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x00127ffffffff438LL( BLEND_MODE_ARGS )
+{
+	details.ColourAdjuster.SetA( details.PrimColour );
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
 
 /* 
  //#F
@@ -1808,6 +1819,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 #define BLEND_MODE( x )		case (x):	return BlendMode_##x;
 			//BLEND_MODE(0x00119623ff2fffffLL); // Pokemon Stadium 2 HUD //Ruins RR64
 			BLEND_MODE(0x00121824ff33ffffLL); // Tarzan
+			BLEND_MODE(0x00127ffffffff438LL); // Extreme-G2
 			BLEND_MODE(0x00457fff3ffcfe3fLL); // Pokemon Stadium 2 Arena Floor
 			BLEND_MODE(0x00522bfffffffe38LL); // Donald Duck rain (makes it transparent not really a fix)
 			BLEND_MODE(0x0060b2c15565feffLL); // Mario Kart 64		
