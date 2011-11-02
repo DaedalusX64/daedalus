@@ -381,11 +381,24 @@ void DLParser_S2DEX_ObjRectangle( MicroCodeCommand command )
 {	
 	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	// Load object sprite with object texture or LoadBlock/LoadTile!
+	// Load object sprite with ObjTxtr or LoadBlock/LoadTile!
 	Load_ObjSprite( sprite, gObjTxtr );
 
 	// Draw object sprite with no rotation
 	Draw_ObjSprite( sprite, NO_ROTATION );
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+// Untested.. I can't find any game that uses this.. but it should work fine
+void DLParser_S2DEX_ObjRectangleR( MicroCodeCommand command )
+{	
+	// Load object sprite with ObjTxtr or LoadBlock/LoadTile!
+	Load_ObjSprite( sprite, gObjTxtr );
+
+	// Draw object sprite with partial rotation
+	Draw_ObjSprite( sprite, PARTIAL_ROTATION );
 }
 
 //*****************************************************************************
@@ -396,7 +409,7 @@ void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 {	
 	uObjTxSprite *sprite = (uObjTxSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	// Load object sprite with object texture
+	// Load object sprite with ObjTxtr
 	Load_ObjSprite( &sprite->sprite, &sprite->txtr );
 
 	// Draw object sprite with full rotation
@@ -544,16 +557,6 @@ void DLParser_S2DEX_ObjRendermode( MicroCodeCommand command )
 void DLParser_S2DEX_SelectDl( MicroCodeCommand command )
 {	
 	DL_PF( "    S2DEX_SelectDl (Ignored)" );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-// Last remaining cmd to implement, need to find a game that uses this first...
-void DLParser_S2DEX_ObjRectangleR( MicroCodeCommand command )
-{	
-	// Ogre Battle 64 and YoshiStory uses this - 0xda
-	DL_UNIMPLEMENTED_ERROR("S2DEX_ObjRectangleR");
 }
 
 //*****************************************************************************
