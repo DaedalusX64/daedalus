@@ -316,7 +316,7 @@ const MicroCodeInstruction gNormalInstruction[MAX_UCODE][256] =
 	// Ucode: S2DEX 1.--
 	// Games: Yoshi's Story
 	{
-		DLParser_GBI1_SpNoop,		DLParser_S2DEX_Bg1cyc_2,		DLParser_S2DEX_BgCopy,	DLParser_S2DEX_ObjRectangle,
+		DLParser_GBI1_SpNoop,		DLParser_S2DEX_Bg1cyc,		DLParser_S2DEX_BgCopy,	DLParser_S2DEX_ObjRectangle,
 		DLParser_S2DEX_ObjSprite,	DLParser_S2DEX_ObjMoveMem,		DLParser_GBI1_DL,		DLParser_GBI1_Reserved,
 		DLParser_GBI1_Reserved,		DLParser_Nothing,				DLParser_Nothing,		DLParser_Nothing,
 		DLParser_Nothing,			DLParser_Nothing,				DLParser_Nothing,		DLParser_Nothing,
@@ -371,7 +371,7 @@ const MicroCodeInstruction gNormalInstruction[MAX_UCODE][256] =
 		DLParser_Nothing,			DLParser_Nothing,				DLParser_Nothing,		DLParser_Nothing,
 		DLParser_Nothing,			DLParser_Nothing,				DLParser_Nothing,		DLParser_GBI1_LoadUCode,
 		//b0
-		DLParser_S2DEX_SelectDl,	DLParser_S2DEX_ObjRendermode_2,	DLParser_S2DEX_ObjRectangleR,	DLParser_GBI1_RDPHalf_2,
+		DLParser_S2DEX_SelectDl,	DLParser_S2DEX_ObjRendermode,	DLParser_S2DEX_ObjRectangleR,	DLParser_GBI1_RDPHalf_2,
 		DLParser_GBI1_RDPHalf_1,	DLParser_GBI1_Line3D,			DLParser_GBI1_GeometryMode,DLParser_GBI1_GeometryMode,
 		DLParser_GBI1_EndDL,		DLParser_GBI1_SetOtherModeL,	DLParser_GBI1_SetOtherModeH,	DLParser_GBI1_Texture,
 		DLParser_GBI1_MoveWord,		DLParser_GBI1_PopMtx,			DLParser_GBI1_CullDL,			DLParser_GBI1_Tri1,

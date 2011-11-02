@@ -130,9 +130,7 @@ UcodeFunc( DLParser_S2DEX_RDPHalf_0 );
 UcodeFunc( DLParser_S2DEX_ObjMoveMem );
 UcodeFunc( DLParser_S2DEX_Bg1cyc );
 UcodeFunc( DLParser_S2DEX_ObjRectangleR );
-UcodeFunc( DLParser_S2DEX_ObjRendermode_2 );
-UcodeFunc( DLParser_S2DEX_Bg1cyc_2 );
-
+UcodeFunc( Yoshi_MemRect );
 //*****************************************************************************
 // RDP Commands
 //*****************************************************************************
