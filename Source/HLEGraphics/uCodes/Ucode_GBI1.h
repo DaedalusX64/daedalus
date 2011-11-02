@@ -327,12 +327,12 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 	u32 first = command.culldl.first;
 	u32 last = command.culldl.end;
 
-	DL_PF(" Culling using verts %d to %d\n", first, last);
+	DL_PF("    Culling using verts %d to %d\n", first, last);
 
 	if( last < first ) return;
 	if( PSPRenderer::Get()->TestVerts( first, last ) )
 	{
-		DL_PF(" Display list is visible, returning");
+		DL_PF("    Display list is visible, returning");
 		return;
 	}
 
@@ -340,7 +340,7 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 	++gNumDListsCulled;
 #endif
 
-	DL_PF(" No vertices were visible, culling rest of display list");
+	DL_PF("    No vertices were visible, culling rest of display list");
 
 	DLParser_PopDL();
 
@@ -357,8 +357,8 @@ void DLParser_GBI1_DL( MicroCodeCommand command )
 					"DL addr out of range (0x%08x)", RDPSegAddr(command.dlist.addr) );
 
     DL_PF("    Address=0x%08x %s", RDPSegAddr(command.dlist.addr), (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
-	DL_PF("\\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
-	DL_PF("############################################");
+	DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
+	DL_PF("    ############################################");
 
 	if( command.dlist.param == G_DL_PUSH )
 		gDlistStackPointer++;
@@ -396,7 +396,7 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 	{					
 		u32 address = RDPSegAddr(gRDPHalf1);
 
-		DL_PF("   Jump -> DisplayList 0x%08x", address);
+		DL_PF("    Jump -> DisplayList 0x%08x", address);
 
 		gDlistStack[gDlistStackPointer].pc = address;
 		gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
@@ -426,12 +426,12 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 	if(command.inst.cmd & 1)
 	{
 		gGeometryMode._u32 |= mask;
-		DL_PF("  Setting mask -> 0x%08x", mask);
+		DL_PF("    Setting mask -> 0x%08x", mask);
 	}
 	else
 	{
 		gGeometryMode._u32 &= ~mask;
-		DL_PF("  Clearing mask -> 0x%08x", mask);
+		DL_PF("    Clearing mask -> 0x%08x", mask);
 	}
 
 	TnLPSP TnLMode;
@@ -453,16 +453,16 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 
 	PSPRenderer::Get()->SetTnLMode( TnLMode._u32 );
 
-	DL_PF("  ZBuffer %s",			 (gGeometryMode.GBI1_Zbuffer)		? "On" : "Off");
-	DL_PF("  Culling %s",			 (gGeometryMode.GBI1_CullBack)		? "Back face" : (gGeometryMode.GBI1_CullFront) ? "Front face" : "Off");
-	DL_PF("  Shade %s",				 (gGeometryMode.GBI1_Shade)			? "On" : "Off");
-	DL_PF("  Smooth Shading %s",	 (gGeometryMode.GBI1_ShadingSmooth) ? "On" : "Off");
-	DL_PF("  Lighting %s",			 (gGeometryMode.GBI1_Lighting)		? "On" : "Off");
-	DL_PF("  Texture %s",			 (gGeometryMode.GBI1_Texture)		? "On" : "Off");
-	DL_PF("  Texture Gen %s",		 (gGeometryMode.GBI1_TextGen)		? "On" : "Off");
-	DL_PF("  Texture Gen Linear %s", (gGeometryMode.GBI1_TextGenLin)	? "On" : "Off");
-	DL_PF("  Fog %s",				 (gGeometryMode.GBI1_Fog)			? "On" : "Off");
-	DL_PF("  LOD %s",				 (gGeometryMode.GBI1_Lod)			? "On" : "Off");
+	DL_PF("    ZBuffer %s",			 (gGeometryMode.GBI1_Zbuffer)		? "On" : "Off");
+	DL_PF("    Culling %s",			 (gGeometryMode.GBI1_CullBack)		? "Back face" : (gGeometryMode.GBI1_CullFront) ? "Front face" : "Off");
+	DL_PF("    Shade %s",				 (gGeometryMode.GBI1_Shade)			? "On" : "Off");
+	DL_PF("    Smooth Shading %s",	 (gGeometryMode.GBI1_ShadingSmooth) ? "On" : "Off");
+	DL_PF("    Lighting %s",			 (gGeometryMode.GBI1_Lighting)		? "On" : "Off");
+	DL_PF("    Texture %s",			 (gGeometryMode.GBI1_Texture)		? "On" : "Off");
+	DL_PF("    Texture Gen %s",		 (gGeometryMode.GBI1_TextGen)		? "On" : "Off");
+	DL_PF("    Texture Gen Linear %s", (gGeometryMode.GBI1_TextGenLin)	? "On" : "Off");
+	DL_PF("    Fog %s",				 (gGeometryMode.GBI1_Fog)			? "On" : "Off");
+	DL_PF("    LOD %s",				 (gGeometryMode.GBI1_Lod)			? "On" : "Off");
 }
 
 //*****************************************************************************
@@ -576,7 +576,7 @@ void DLParser_GBI1_Tri2( MicroCodeCommand command )
     bool tris_added = false;
 
     do{
-        DL_PF("   0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_TRI2");
+        DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_TRI2");
 
 		// Vertex indices are multiplied by 10 for GBI0, by 2 for GBI1
 		u32 v0_idx = command.gbi1tri2.v0 >> 1;
@@ -624,7 +624,7 @@ void DLParser_GBI1_Line3D( MicroCodeCommand command )
     bool tris_added = false;
 
 	do{
-        DL_PF("   0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_LINE3D");
+        DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_LINE3D");
 
 		u32 v0_idx   = command.gbi1line3d.v0 / gVertexStride;
 		u32 v1_idx   = command.gbi1line3d.v1 / gVertexStride;
@@ -660,7 +660,7 @@ void DLParser_GBI1_Tri1( MicroCodeCommand command )
     bool tris_added = false;
 
     do{
-        DL_PF("   0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_TRI1");
+        DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_TRI1");
 
 		// Vertex indices are multiplied by 10 for Mario64, by 2 for MarioKart
         u32 v0_idx = command.gbi1tri1.v0 / gVertexStride;

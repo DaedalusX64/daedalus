@@ -70,7 +70,7 @@ void DLParser_GBI0_Tri4( MicroCodeCommand command )
     bool tris_added = false;
 
     do{
-		DL_PF("   0x%08x: %08x %08x Flag: 0x%02x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, (command.inst.cmd0 >> 16) & 0xFF, "G_GBI1_TRI4");
+		DL_PF("    0x%08x: %08x %08x Flag: 0x%02x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, (command.inst.cmd0 >> 16) & 0xFF, "G_GBI1_TRI4");
 
 		//Tri #1
 		u32 v0 = command.tri4.v0;

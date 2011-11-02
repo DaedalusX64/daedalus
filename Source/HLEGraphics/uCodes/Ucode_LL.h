@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 void DLParser_Last_Legion_0x80( MicroCodeCommand command )
 {     
       gDlistStack[gDlistStackPointer].pc += 16;
-	  DL_PF("DLParser_RSP_Last_Legion_0x80");
+	  DL_PF("    DLParser_RSP_Last_Legion_0x80");
 }
 
 //*****************************************************************************
@@ -42,7 +42,7 @@ void DLParser_Last_Legion_0x00( MicroCodeCommand command )
 {
 
 	gDlistStack[gDlistStackPointer].pc += 16;
-	DL_PF("DLParser_RSP_Last_Legion_0x00");
+	DL_PF("    DLParser_RSP_Last_Legion_0x00");
 
 	if( (command.inst.cmd0) == 0 && (command.inst.cmd1) )
 	{
@@ -66,8 +66,8 @@ void DLParser_Last_Legion_0x00( MicroCodeCommand command )
 			gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
 
 			DL_PF("    Address=0x%08x", pc1);
-			DL_PF("\\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
-			DL_PF("############################################");
+			DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
+			DL_PF("    ############################################");
 		}
 
 		if( pc2 && pc2 != 0xffffff && pc2 < MAX_RAM_ADDRESS )
@@ -78,8 +78,8 @@ void DLParser_Last_Legion_0x00( MicroCodeCommand command )
 			gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
 
 			DL_PF("    Address=0x%08x", pc2);
-			DL_PF("\\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
-			DL_PF("############################################");
+			DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
+			DL_PF("    ############################################");
 		}
 	}
 	else if( (command.inst.cmd1) == 0 )

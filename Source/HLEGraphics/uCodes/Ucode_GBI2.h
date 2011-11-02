@@ -108,7 +108,7 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 			// 0x30 = 48 = 2 lights
 
 			u32 num_lights = command.mw2.value / 24;
-			DL_PF("     G_MW_NUMLIGHT: %d", num_lights);
+			DL_PF("    G_MW_NUMLIGHT: %d", num_lights);
 
 			gAmbientLightIdx = num_lights;
 			PSPRenderer::Get()->SetNumLights(num_lights);
@@ -126,7 +126,7 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 			u32 segment = command.mw2.offset >> 2;
 			u32 address	= command.mw2.value;
 
-			DL_PF( "      G_MW_SEGMENT Segment[%d] = 0x%08x", segment, address );
+			DL_PF( "    G_MW_SEGMENT Segment[%d] = 0x%08x", segment, address );
 
 			gSegments[segment] = address;
 		}
@@ -155,7 +155,7 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 			u32 light_idx = command.mw2.offset / 0x18;
 			u32 field_offset = (command.mw2.offset & 0x7);
 
-			DL_PF("     G_MW_LIGHTCOL/0x%08x: 0x%08x", command.mw2.offset, command.mw2.value);
+			DL_PF("    G_MW_LIGHTCOL/0x%08x: 0x%08x", command.mw2.offset, command.mw2.value);
 
 			if (field_offset == 0)
 			{
@@ -189,7 +189,7 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 */
 	default:
 		{
-			DL_PF("      Ignored!!");
+			DL_PF("    Ignored!!");
 
 		}
 		break;
@@ -297,7 +297,7 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 
 	case G_GBI2_MV_MATRIX:
 		{
-			DL_PF("		Force Matrix(2): addr=%08X", address);
+			DL_PF("    Force Matrix(2): addr=%08X", address);
 			RDP_Force_Matrix(address);
 		}
 		break;
@@ -394,8 +394,8 @@ void DLParser_GBI2_DL_Count( MicroCodeCommand command )
 	gDlistStack[gDlistStackPointer].countdown = ((command.inst.cmd0)&0xFFFF);
 
 	DL_PF("    Address=0x%08x %s", address, (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
-	DL_PF("\\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
-	DL_PF("############################################");
+	DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
+	DL_PF("    ############################################");
 }
 
 //***************************************************************************** 
@@ -403,7 +403,7 @@ void DLParser_GBI2_DL_Count( MicroCodeCommand command )
 //***************************************************************************** 
 void DLParser_GBI2_LoadUCode( MicroCodeCommand command ) 
 {
-	DL_PF( "	GBI2_LoadUCode (Ignored)" );
+	DL_PF( "    GBI2_LoadUCode (Ignored)" );
 }
 
 //*****************************************************************************
@@ -414,14 +414,14 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 	gGeometryMode._u32 &= command.inst.arg0;
 	gGeometryMode._u32 |= command.inst.arg1;
 
-	DL_PF("  0x%08x 0x%08x =(x & 0x%08x) | 0x%08x", command.inst.cmd0, command.inst.cmd1, command.inst.arg0, command.inst.arg1);
-	DL_PF("  ZBuffer %s", (gGeometryMode.GBI2_Zbuffer) ? "On" : "Off");
-	DL_PF("  Culling %s", (gGeometryMode.GBI2_CullBack) ? "Back face" : (gGeometryMode.GBI2_CullFront) ? "Front face" : "Off");
-	DL_PF("  Flat Shading %s", (gGeometryMode.GBI2_ShadingSmooth) ? "On" : "Off");
-	DL_PF("  Lighting %s", (gGeometryMode.GBI2_Lighting) ? "On" : "Off");
-	DL_PF("  Texture Gen %s", (gGeometryMode.GBI2_TextGen) ? "On" : "Off");
-	DL_PF("  Texture Gen Linear %s", (gGeometryMode.GBI2_TextGenLin) ? "On" : "Off");
-	DL_PF("  Fog %s", (gGeometryMode.GBI2_Fog) ? "On" : "Off");
+	DL_PF("    0x%08x 0x%08x =(x & 0x%08x) | 0x%08x", command.inst.cmd0, command.inst.cmd1, command.inst.arg0, command.inst.arg1);
+	DL_PF("    ZBuffer %s", (gGeometryMode.GBI2_Zbuffer) ? "On" : "Off");
+	DL_PF("    Culling %s", (gGeometryMode.GBI2_CullBack) ? "Back face" : (gGeometryMode.GBI2_CullFront) ? "Front face" : "Off");
+	DL_PF("    Flat Shading %s", (gGeometryMode.GBI2_ShadingSmooth) ? "On" : "Off");
+	DL_PF("    Lighting %s", (gGeometryMode.GBI2_Lighting) ? "On" : "Off");
+	DL_PF("    Texture Gen %s", (gGeometryMode.GBI2_TextGen) ? "On" : "Off");
+	DL_PF("    Texture Gen Linear %s", (gGeometryMode.GBI2_TextGenLin) ? "On" : "Off");
+	DL_PF("    Fog %s", (gGeometryMode.GBI2_Fog) ? "On" : "Off");
 
 	TnLPSP TnLMode;
 
@@ -519,7 +519,7 @@ void DLParser_GBI2_Quad( MicroCodeCommand command )
 	bool tris_added = false;
 
     do{
-        DL_PF("   0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_QUAD");
+        DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_QUAD");
 
 		// Vertex indices are multiplied by 2
         u32 v0_idx = command.gbi2line3d.v0 >> 1;
@@ -562,7 +562,7 @@ void DLParser_GBI2_Line3D( MicroCodeCommand command )
     bool tris_added = false;
 
     do{
-        DL_PF("   0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_LINE3D");
+        DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_LINE3D");
 
 		u32 v0_idx = command.gbi2line3d.v0 >> 1;
         u32 v1_idx = command.gbi2line3d.v1 >> 1;
@@ -607,7 +607,7 @@ void DLParser_GBI2_Tri1( MicroCodeCommand command )
     bool tris_added = false;
 
     do{
-        DL_PF("   0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI1");
+        DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI1");
 
 		u32 v0_idx = command.gbi2tri1.v0 >> 1;
 		u32 v1_idx = command.gbi2tri1.v1 >> 1;
@@ -646,7 +646,7 @@ void DLParser_GBI2_Tri2( MicroCodeCommand command )
     bool tris_added = false;
 
     do{
-        DL_PF("   0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI2");
+        DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI2");
 
 		// Vertex indices already divided in ucodedef
         u32 v0_idx = command.gbi2tri2.v0;

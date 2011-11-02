@@ -332,7 +332,7 @@ void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts)
 			psSrc += 8;			// Increase by 16 bytes
 			pcSrc += 16;
 
-			DL_PF("   #%02d Flags: 0x%04x Pos:{% 6f,% 6f,% 6f} Tex:{%+7.2f,%+7.2f} Extra: %02x %02x %02x %02x Tran:{% 6f,% 6f,% 6f,% 6f} Proj:{% 6f,% 6f,% 6f,% 6f}",
+			DL_PF("    #%02d Flags: 0x%04x Pos:{% 6f,% 6f,% 6f} Tex:{%+7.2f,%+7.2f} Extra: %02x %02x %02x %02x Tran:{% 6f,% 6f,% 6f,% 6f} Proj:{% 6f,% 6f,% 6f,% 6f}",
 				idx, wFlags, x, y, z, tu, tv, a, b, c, d, t.x, t.y, t.z, t.w, p.x/p.w, p.y/p.w, p.z/p.w, p.w);
 		}
 	}
@@ -815,7 +815,7 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 		PSPRenderer::Get()->SetLightCol(light_idx, g_N64Lights[light_idx].Colour);
 		if (pdwBase[2] == 0)	// Direction is 0!
 		{
-			DL_PF("      Light is invalid");
+			DL_PF("      Light is invalid (direction is 0)");
 		}
 		else
 		{
@@ -869,8 +869,8 @@ void RDP_MoveMemViewport(u32 address)
 
 	PSPRenderer::Get()->SetN64Viewport( vec_scale, vec_trans );
 
-	DL_PF("        Scale: %d %d %d", scale[0], scale[1], scale[2]);
-	DL_PF("        Trans: %d %d %d", trans[0], trans[1], trans[2]);
+	DL_PF("    Scale: %d %d %d", scale[0], scale[1], scale[2]);
+	DL_PF("    Trans: %d %d %d", trans[0], trans[1], trans[2]);
 }
 
 //*****************************************************************************
@@ -892,9 +892,9 @@ void DLParser_Nothing( MicroCodeCommand command )
 //*****************************************************************************
 static void DLParser_PopDL()
 {
-	DL_PF("Returning from DisplayList: level=%d", gDlistStackPointer+1);
-	DL_PF("############################################");
-	DL_PF("/\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\");
+	DL_PF("    Returning from DisplayList: level=%d", gDlistStackPointer+1);
+	DL_PF("    ############################################");
+	DL_PF("    /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\");
 	DL_PF(" ");
 
 	gDlistStackPointer--;
@@ -905,7 +905,7 @@ static void DLParser_PopDL()
 //*****************************************************************************
 void DLParser_SetKeyGB( MicroCodeCommand command )
 {
-	DL_PF( "	SetKeyGB (Ignored)" );
+	DL_PF( "    SetKeyGB (Ignored)" );
 }
 
 //*****************************************************************************
@@ -913,7 +913,7 @@ void DLParser_SetKeyGB( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_SetKeyR( MicroCodeCommand command )
 {
-	DL_PF( "	SetKeyR (Ignored)" );
+	DL_PF( "    SetKeyR (Ignored)" );
 }
 
 //*****************************************************************************
@@ -921,7 +921,7 @@ void DLParser_SetKeyR( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_SetConvert( MicroCodeCommand command )
 {
-	DL_PF( "	SetConvert (Ignored)" );
+	DL_PF( "    SetConvert (Ignored)" );
 }
 
 //*****************************************************************************
@@ -929,7 +929,7 @@ void DLParser_SetConvert( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_SetPrimDepth( MicroCodeCommand command )
 {
-	DL_PF("SetPrimDepth: 0x%08x 0x%08x - z: 0x%04x dz: 0x%04x", 
+	DL_PF("    SetPrimDepth: 0x%08x 0x%08x - z: 0x%04x dz: 0x%04x", 
 		   command.inst.cmd0, command.inst.cmd1, command.primdepth.z, command.primdepth.dz);	
 	
 	PSPRenderer::Get()->SetPrimitiveDepth( command.primdepth.z );
@@ -940,7 +940,7 @@ void DLParser_SetPrimDepth( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_RDPSetOtherMode( MicroCodeCommand command )
 {
-	DL_PF( "      RDPSetOtherMode: 0x%08x 0x%08x", command.inst.cmd0, command.inst.cmd1 );
+	DL_PF( "    RDPSetOtherMode: 0x%08x 0x%08x", command.inst.cmd0, command.inst.cmd1 );
 
 	gRDPOtherMode.H = command.inst.cmd0;
 	gRDPOtherMode.L = command.inst.cmd1;
@@ -1116,12 +1116,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 
 	memcpy_vfpu_BE(p_dest, p_source, count << 1);
 
-	//for (u32 i=0; i<count; i++)
-	//{
-	//	p_dest[ i ] = p_source[ i ];
-	//	//if(count & 0x10) printf("%04X ",p_source[ i ]);
-	//}
-	//if(count & 0x10) printf("\n");
+	//for (u32 i=0; i<count; i++) p_dest[ i ] = p_source[ i ];
 #endif
 
 	// Format is always 16bpp - RGBA16 or IA16:
@@ -1138,11 +1133,10 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 		u32 i;
 
 
-		DL_PF("    LoadTLut Addr:0x%08x Offset:0x%05x TMEM:0x%04x Tile:%d, (%d,%d) -> (%d,%d), Count %d", g_TI.Address, offset, rdp_tile.tmem,
-			tile_idx, uls, ult, lrs, lrt, count);
-		// This is sometimes wrong (in 007) tlut fmt is set after 
-		// tlut load, but before tile load
-		DL_PF("    Fmt is %s", gTLUTTypeName[gRDPOtherMode.text_tlut]);
+		DL_PF("    TLut Addr[0x%08x] Offset[0x%05x] TMEM[0x%03x] Tile[%d] Count[%d] Fmt[%s] (%d,%d)->(%d,%d)", g_TI.Address, offset, rdp_tile.tmem,
+			tile_idx, count, gTLUTTypeName[gRDPOtherMode.text_tlut], uls, ult, lrs, lrt);
+
+		// Tlut fmt is sometimes wrong (in 007) and is set after tlut load, but before tile load
 
 		for (i = 0; i < count; i++)
 		{
@@ -1153,13 +1147,13 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 				DL_PF(str);
 
 				// Clear
-				sprintf(str, "%03d: ", i);
+				sprintf(str, "    %03d: ", i);
 			}
 
 			PixelFormats::N64::Pf5551	n64col( wEntry );
 			PixelFormats::Psp::Pf8888	pspcol( PixelFormats::Psp::Pf8888::Make( n64col ) );
 
-			sprintf(item, "0x%04x (0x%08x) ", n64col.Bits, pspcol.Bits );
+			sprintf(item, "[%04x->%08x] ", n64col.Bits, pspcol.Bits );
 			strcat(str, item);
 		}
 		DL_PF(str);
@@ -1534,7 +1528,7 @@ void DLParser_SetInstructionCountLimit( u32 limit )
 //RSP TRI commands..
 //In HLE emulation you NEVER see this commands !
 //*****************************************************************************
-void DLParser_TriRSP( MicroCodeCommand command ){ DL_PF("RSP Tri: (Ignored)"); }
+void DLParser_TriRSP( MicroCodeCommand command ){ DL_PF("    RSP Tri: (Ignored)"); }
 
 //*************************************************************************************
 // 

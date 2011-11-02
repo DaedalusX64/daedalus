@@ -1151,8 +1151,8 @@ void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	v2 tex_uv0( uv0 - mTileTopLeft[ 0 ] );
 	v2 tex_uv1( uv1 - mTileTopLeft[ 0 ] );
 
-	DL_PF( "      Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-	DL_PF( "      Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
+	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
+	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
 
 	DaedalusVtx trv[ 6 ];
 
@@ -1196,8 +1196,8 @@ void PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	v2 tex_uv0( uv0 - mTileTopLeft[ 0 ] );
 	v2 tex_uv1( uv1 - mTileTopLeft[ 0 ] );
 
-	DL_PF( "      Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-	DL_PF( "      Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
+	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
+	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
 
 	DaedalusVtx trv[ 6 ];
 
@@ -1246,7 +1246,7 @@ void PSPRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	v2 screen0( ConvertN64ToPsp( xy0 ) );
 	v2 screen1( ConvertN64ToPsp( xy1 ) );
 
-	DL_PF( "      Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
+	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 
 	DaedalusVtx trv[ 6 ];
 
@@ -1290,7 +1290,7 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	if ( f0 & f1 & f2 )
 	{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DL_PF("   Tri: %d,%d,%d (Culled -> NDC box)", v0, v1, v2);
+		DL_PF("    Tri: %d,%d,%d (Culled -> NDC box)", v0, v1, v2);
 		++m_dwNumTrisClipped;
 #endif
 		return false;
@@ -1319,7 +1319,7 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 			if( mTnLModeFlags.CullBack )
 			{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-				DL_PF("   Tri: %d,%d,%d (Culled -> Back Face)", v0, v1, v2);
+				DL_PF("    Tri: %d,%d,%d (Culled -> Back Face)", v0, v1, v2);
 				++m_dwNumTrisClipped;
 #endif
 				return false;
@@ -1328,7 +1328,7 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 		else if( !mTnLModeFlags.CullBack )
 		{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-			DL_PF("   Tri: %d,%d,%d (Culled -> Front Face)", v0, v1, v2);
+			DL_PF("    Tri: %d,%d,%d (Culled -> Front Face)", v0, v1, v2);
 			++m_dwNumTrisClipped;
 #endif
 			return false;
@@ -1338,14 +1338,14 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	if( bIsOffScreen )	
 	{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DL_PF("   Tri: %d,%d,%d (Culled -> Off-Screen)", v0, v1, v2);
+		DL_PF("    Tri: %d,%d,%d (Culled -> Off-Screen)", v0, v1, v2);
 		++m_dwNumTrisClipped;
 #endif
 		return false;
 	}
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DL_PF("   Tri: %d,%d,%d", v0, v1, v2);
+	DL_PF("    Tri: %d,%d,%d", v0, v1, v2);
 	++m_dwNumTrisRendered;
 #endif
 
@@ -1659,10 +1659,10 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 			u32 out = clip_tri_to_frustum( temp_a, temp_b );
 			//If we have less than 3 vertices left after the clipping
 			//we can't make a triangle so we bail and skip rendering it.
-			DL_PF("Clip & re-tesselate [%d,%d,%d] with %d vertices", i-3, i-2, i-1, out);
-			DL_PF("%#5.3f, %#5.3f, %#5.3f", mVtxProjected[ idx0 ].ProjectedPos.x/mVtxProjected[ idx0 ].ProjectedPos.w, mVtxProjected[ idx0 ].ProjectedPos.y/mVtxProjected[ idx0 ].ProjectedPos.w, mVtxProjected[ idx0 ].ProjectedPos.z/mVtxProjected[ idx0 ].ProjectedPos.w);
-			DL_PF("%#5.3f, %#5.3f, %#5.3f", mVtxProjected[ idx1 ].ProjectedPos.x/mVtxProjected[ idx1 ].ProjectedPos.w, mVtxProjected[ idx1 ].ProjectedPos.y/mVtxProjected[ idx1 ].ProjectedPos.w, mVtxProjected[ idx1 ].ProjectedPos.z/mVtxProjected[ idx1 ].ProjectedPos.w);
-			DL_PF("%#5.3f, %#5.3f, %#5.3f", mVtxProjected[ idx2 ].ProjectedPos.x/mVtxProjected[ idx2 ].ProjectedPos.w, mVtxProjected[ idx2 ].ProjectedPos.y/mVtxProjected[ idx2 ].ProjectedPos.w, mVtxProjected[ idx2 ].ProjectedPos.z/mVtxProjected[ idx2 ].ProjectedPos.w);
+			DL_PF("    Clip & re-tesselate [%d,%d,%d] with %d vertices", i-3, i-2, i-1, out);
+			DL_PF("    %#5.3f, %#5.3f, %#5.3f", mVtxProjected[ idx0 ].ProjectedPos.x/mVtxProjected[ idx0 ].ProjectedPos.w, mVtxProjected[ idx0 ].ProjectedPos.y/mVtxProjected[ idx0 ].ProjectedPos.w, mVtxProjected[ idx0 ].ProjectedPos.z/mVtxProjected[ idx0 ].ProjectedPos.w);
+			DL_PF("    %#5.3f, %#5.3f, %#5.3f", mVtxProjected[ idx1 ].ProjectedPos.x/mVtxProjected[ idx1 ].ProjectedPos.w, mVtxProjected[ idx1 ].ProjectedPos.y/mVtxProjected[ idx1 ].ProjectedPos.w, mVtxProjected[ idx1 ].ProjectedPos.z/mVtxProjected[ idx1 ].ProjectedPos.w);
+			DL_PF("    %#5.3f, %#5.3f, %#5.3f", mVtxProjected[ idx2 ].ProjectedPos.x/mVtxProjected[ idx2 ].ProjectedPos.w, mVtxProjected[ idx2 ].ProjectedPos.y/mVtxProjected[ idx2 ].ProjectedPos.w, mVtxProjected[ idx2 ].ProjectedPos.z/mVtxProjected[ idx2 ].ProjectedPos.w);
 
 			if( out < 3 )
 				continue;
@@ -2473,7 +2473,7 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 	{
 		case G_MWO_POINT_RGBA:
 			{
-				DL_PF("      Setting RGBA to 0x%08x", val);
+				DL_PF("    Setting RGBA to 0x%08x", val);
 				SetVtxColor( vert, c32( val ) );
 			}
 			break;
@@ -2482,7 +2482,7 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 			{
 				s16 tu = s16(val >> 16);
 				s16 tv = s16(val & 0xFFFF);
-				DL_PF( "      Setting tu/tv to %f, %f", tu/32.0f, tv/32.0f );
+				DL_PF( "    Setting tu/tv to %f, %f", tu/32.0f, tv/32.0f );
 				SetVtxTextureCoord( vert, tu, tv );
 			}
 			break;
@@ -2499,7 +2499,7 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 				x -= uViWidth / 2;
 				y = uViHeight / 2 - y;
 
-				DL_PF("		Modify vert %d: x=%d, y=%d", vert, x, y);
+				DL_PF("    Modify vert %d: x=%d, y=%d", vert, x, y);
 				
 #if 1
 				// Megaman and other games
@@ -2524,7 +2524,7 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 			{
 				//s32 z = val >> 16;
 				//DL_PF( "      Setting ZScreen to 0x%08x", z );
-				DL_PF( "      Setting ZScreen");
+				DL_PF( "    Setting ZScreen");
 				//Not sure about the scaling here //Corn
 				//SetVtxZ( vert, (( (f32)z / 0x03FF ) + 0.5f ) / 2.0f );
 				//SetVtxZ( vert, (( (f32)z ) + 0.5f ) / 2.0f );
@@ -2533,7 +2533,7 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 
 		default:
 			DBGConsole_Msg( 0, "ModifyVtx - Setting vert data 0x%02x, 0x%08x", whered, val );
-			DL_PF( "      Setting unknown value: 0x%02x, 0x%08x", whered, val );
+			DL_PF( "    Setting unknown value: 0x%02x, 0x%08x", whered, val );
 			break;
 	}
 }
@@ -2704,7 +2704,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	// XXXX Double check this
 	mTileTopLeft[ index ] = v2( f32( tile_size.left) * (1.0f / 4.0f), f32(tile_size.top)* (1.0f / 4.0f) );
 
-	DL_PF( "     Load Texture -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] Format[%s] Size[%dbpp][%dx%d]",
+	DL_PF( "    Load Texture -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] Format[%s] Size[%dbpp][%dx%d]",
 			ti.GetLoadAddress(), (u32)ti.GetPalettePtr(), ti.GetHashCode(),
 			ti.GetPitch(), ti.GetFormatName(), ti.GetSizeInBits(),
 			ti.GetWidth(), ti.GetHeight() );
@@ -2779,21 +2779,16 @@ void PSPRenderer::SetProjection(const Matrix4x4 & mat, bool bPush, bool bReplace
 	printf("\n\n");
 #endif
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	if (gDisplayListFile != NULL)
-	{
-		DL_PF("Level = %d\n"
-			" %#+12.7f %#+12.7f %#+12.7f %#+12.7f\n"
-			" %#+12.7f %#+12.7f %#+12.7f %#+12.7f\n"
-			" %#+12.7f %#+12.7f %#+12.7f %#+12.7f\n"
-			" %#+12.7f %#+12.7f %#+12.7f %#+12.7f\n",
-			mProjectionTop,
-			mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
-			mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
-			mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
-			mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
-	}
-#endif
+	DL_PF("    Level = %d\n"
+		"    %#+12.7f %#+12.7f %#+12.7f %#+12.7f\n"
+		"    %#+12.7f %#+12.7f %#+12.7f %#+12.7f\n"
+		"    %#+12.7f %#+12.7f %#+12.7f %#+12.7f\n"
+		"    %#+12.7f %#+12.7f %#+12.7f %#+12.7f\n",
+		mProjectionTop,
+		mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
+		mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
+		mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
+		mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
 
 	// Projection
 	if (bPush)
@@ -2850,21 +2845,16 @@ void PSPRenderer::SetWorldView(const Matrix4x4 & mat, bool bPush, bool bReplace)
 	printf("\n\n");
 #endif
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	if (gDisplayListFile != NULL)
-	{
-		DL_PF("Level = %d\n"
-			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
-			mModelViewTop,
-			mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
-			mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
-			mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
-			mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
-	}
-#endif
+	DL_PF("    Level = %d\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
+		mModelViewTop,
+		mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
+		mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
+		mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
+		mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
 
 	// ModelView
 	if (bPush)
@@ -2924,19 +2914,16 @@ inline Matrix4x4 & PSPRenderer::GetWorldProject() const
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 void PSPRenderer::PrintActive()
 {
-	if (gDisplayListFile != NULL)
-	{
-		const Matrix4x4 & mat( GetWorldProject() );
-		DL_PF(
-			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
-			mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
-			mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
-			mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
-			mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
-	}
+	const Matrix4x4 & mat( GetWorldProject() );
+	DL_PF(
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
+		mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
+		mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
+		mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
+		mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
 }
 #endif
 
@@ -3066,20 +3053,15 @@ void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 
 	mWPmodified = true;	//Mark that Worldproject matrix is changed
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	if (gDisplayListFile != NULL)
-	{
-		DL_PF(
-			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
-			mWorldProject.m[0][0], mWorldProject.m[0][1], mWorldProject.m[0][2], mWorldProject.m[0][3],
-			mWorldProject.m[1][0], mWorldProject.m[1][1], mWorldProject.m[1][2], mWorldProject.m[1][3],
-			mWorldProject.m[2][0], mWorldProject.m[2][1], mWorldProject.m[2][2], mWorldProject.m[2][3],
-			mWorldProject.m[3][0], mWorldProject.m[3][1], mWorldProject.m[3][2], mWorldProject.m[3][3]);
-	}
-#endif
+	DL_PF(
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
+		mWorldProject.m[0][0], mWorldProject.m[0][1], mWorldProject.m[0][2], mWorldProject.m[0][3],
+		mWorldProject.m[1][0], mWorldProject.m[1][1], mWorldProject.m[1][2], mWorldProject.m[1][3],
+		mWorldProject.m[2][0], mWorldProject.m[2][1], mWorldProject.m[2][2], mWorldProject.m[2][3],
+		mWorldProject.m[3][0], mWorldProject.m[3][1], mWorldProject.m[3][2], mWorldProject.m[3][3]);
 }
 
 //*****************************************************************************
@@ -3098,20 +3080,15 @@ void PSPRenderer::ForceMatrix(const Matrix4x4 & mat)
 	printf("\n\n");
 #endif
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	if (gDisplayListFile != NULL)
-	{
-		DL_PF(
-			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-			" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
-			mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
-			mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
-			mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
-			mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
-	}
-#endif
+	DL_PF(
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
+		mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
+		mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
+		mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
+		mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
 
 	//Some games have permanent project matrixes so we can save CPU by storing the inverse
 	//If that fails we invert the top project matrix to figure out the model matrix //Corn

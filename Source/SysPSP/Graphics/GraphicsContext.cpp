@@ -362,8 +362,11 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 		sceGuScissor(0,0,SCR_WIDTH,SCR_HEIGHT);	//Make sure we clear whole screen
 		sceGuClear(GU_COLOR_BUFFER_BIT | GU_FAST_CLEAR_BIT);	//Clear screen
 	}
-	//if( gCleanSceneEnabled )	CleanScene = true;
-
+	
+	// Hack to semi-fix XG2, it uses setprimdepth for background and also does not clear zbuffer //Corn
+	//
+	if( g_ROM.GameHacks == EXTREME_G2 ) sceGuClear(GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);	//Clear Zbuffer
+	
 	//printf("%d %d\n",listNum,gDoubleDisplayEnabled);
 	return true;
 }

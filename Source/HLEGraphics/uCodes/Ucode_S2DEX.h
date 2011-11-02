@@ -207,7 +207,7 @@ struct	uObjTxSprite
 //*****************************************************************************
 void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 {
-	DL_PF("DLParser_S2DEX_BgCopy");
+	DL_PF("    DLParser_S2DEX_BgCopy");
 
 	uObjBg *objBg = (uObjBg*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
@@ -249,7 +249,7 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_S2DEX_SelectDl( MicroCodeCommand command )
 {	
-	DL_PF( "	S2DEX_SelectDl (Ignored)" );
+	DL_PF( "    S2DEX_SelectDl (Ignored)" );
 }
 
 //*****************************************************************************
@@ -320,7 +320,7 @@ void DLParser_S2DEX_ObjRectangle( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_S2DEX_ObjRendermode( MicroCodeCommand command )
 {	
-	DL_PF( "	S2DEX_ObjRendermode (Ignored)" );
+	DL_PF( "    S2DEX_ObjRendermode (Ignored)" );
 }
 
 //*****************************************************************************
@@ -329,7 +329,20 @@ void DLParser_S2DEX_ObjRendermode( MicroCodeCommand command )
 void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 {	
 	// Command and Conquer and YoshiStory uses this - 0x05
+
 #ifndef DAEDALUS_TMEM
+	uObjTxtr* ObjTxtr = (uObjTxtr*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
+	if( ObjTxtr->block.type == S2DEX_OBJLT_TLUT )
+	{
+		uObjTxtrTLUT *ObjTlut = (uObjTxtrTLUT*)ObjTxtr;
+		u32 ObjTlutAddr = (u32)(g_pu8RamBase + RDPSegAddr(ObjTlut->image));
+		u32 offset = ObjTlut->phead - 0x100;
+
+		// Store TLUT pointer
+		gTextureMemory[ offset & 0xFF ] = (u32*)ObjTlutAddr;
+	}
+
+#else
 	uObjTxtr* ObjTxtr = (uObjTxtr*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 	if( ObjTxtr->block.type == S2DEX_OBJLT_TLUT )
 	{
@@ -337,20 +350,13 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 		u32 ObjTlutAddr = (u32)(g_pu8RamBase + RDPSegAddr(ObjTlut->image));
 
 		// Copy TLUT
-		//u32 size = ObjTlut->pnum + 1;
-		u32 offset = ObjTlut->phead - 0x100;
+		u32 size = (ObjTlut->pnum & 0xFF) + 1;
+		u32 offset = ObjTlut->phead;
 
-		//if( offset + size > 0x100) size = 0x100 - offset;
+		memcpy_vfpu_BE((void *)&gTextureMemory[ (offset << 1) & 0x3FF ], (void *)ObjTlutAddr, (size << 1));
 
-		gTextureMemory[ offset & 0xFF ] = (u32*)ObjTlutAddr;
-
-		//printf("%p %d\n",(u32*)ObjTlutAddr ,ObjTlut->phead);
+		//printf("Source[%p] TMEM[%d] Size[%d]\n",(u32*)ObjTlutAddr , (offset << 1) & 0x3FF, (size << 1));
 	}
-
-#else
-
-	DL_UNIMPLEMENTED_ERROR("S2DEX_ObjLoadTxtr");
-
 #endif
 }
 

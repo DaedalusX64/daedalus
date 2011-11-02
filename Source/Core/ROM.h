@@ -125,6 +125,7 @@ enum EGameHacks
 	DKR,
 	PERFECT_DARK,
 	YOSHI,
+	EXTREME_G2,
 	LAST_ENTRY
 };
 
