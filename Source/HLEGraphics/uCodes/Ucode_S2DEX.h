@@ -394,6 +394,8 @@ void DLParser_S2DEX_ObjRectangle( MicroCodeCommand command )
 // Untested.. I can't find any game that uses this.. but it should work fine
 void DLParser_S2DEX_ObjRectangleR( MicroCodeCommand command )
 {	
+	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
+
 	// Load object sprite with ObjTxtr or LoadBlock/LoadTile!
 	Load_ObjSprite( sprite, gObjTxtr );
 
