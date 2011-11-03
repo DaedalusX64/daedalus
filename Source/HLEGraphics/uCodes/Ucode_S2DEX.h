@@ -89,12 +89,12 @@ struct uObjSubMtx
 //*****************************************************************************
 //
 //*****************************************************************************
-struct MAT2D
+struct Matrix2D
 {
-	float A, B, C, D;
-	float X, Y;
-	float BaseScaleX;
-	float BaseScaleY;
+	f32 A, B, C, D;
+	f32 X, Y;
+	f32 BaseScaleX;
+	f32 BaseScaleY;
 } mat2D = {1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f };
 
 //*****************************************************************************
@@ -344,7 +344,6 @@ void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
 		break;
 
 	case NO_ROTATION:
-	default:
 		x0 = objX;
 		y0 = objY;
 		x1 = objW - 1.0f;
@@ -462,16 +461,16 @@ void DLParser_S2DEX_ObjMoveMem( MicroCodeCommand command )
 		mat2D.B = mtx->B/65536.0f;
 		mat2D.C = mtx->C/65536.0f;
 		mat2D.D = mtx->D/65536.0f;
-		mat2D.X = float(mtx->X>>2);
-		mat2D.Y = float(mtx->Y>>2);
+		mat2D.X = f32(mtx->X>>2);
+		mat2D.Y = f32(mtx->Y>>2);
 		mat2D.BaseScaleX = mtx->BaseScaleX/1024.0f;
 		mat2D.BaseScaleY = mtx->BaseScaleY/1024.0f;
 	}
 	else if( index == 2 )	// Sub Mtx
 	{
 		uObjSubMtx* sub = (uObjSubMtx*)(addr+g_pu8RamBase);
-		mat2D.X = float(sub->X>>2);
-		mat2D.Y = float(sub->Y>>2);
+		mat2D.X = f32(sub->X>>2);
+		mat2D.Y = f32(sub->Y>>2);
 		mat2D.BaseScaleX = sub->BaseScaleX/1024.0f;
 		mat2D.BaseScaleY = sub->BaseScaleY/1024.0f;
 	}
@@ -487,9 +486,8 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 	uObjTxtr* ObjTxtr = (uObjTxtr*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 	if( ObjTxtr->block.type == S2DEX_OBJLT_TLUT )
 	{
-		uObjTxtrTLUT *ObjTlut = (uObjTxtrTLUT*)ObjTxtr;
-		u32 ObjTlutAddr = (u32)(g_pu8RamBase + RDPSegAddr(ObjTlut->image));
-		u32 offset = ObjTlut->phead - 0x100;
+		u32 ObjTlutAddr = (u32)(g_pu8RamBase + RDPSegAddr(ObjTxtr->tlut.image));
+		u32 offset = ObjTxtr->tlut.phead - 0x100;
 
 		// Store TLUT pointer
 		gTextureMemory[ offset & 0xFF ] = (u32*)ObjTlutAddr;
