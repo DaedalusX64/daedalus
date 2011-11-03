@@ -330,6 +330,8 @@ void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
 		y1 = mat2D.C*objW + mat2D.D*objY + mat2D.Y;
 		x3 = mat2D.A*objX + mat2D.B*objH + mat2D.X;
 		y3 = mat2D.C*objX + mat2D.D*objH + mat2D.Y;
+
+		PSPRenderer::Get()->Draw2DTextureR( x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH);
 		break;
 
 	case PARTIAL_ROTATION:
@@ -337,23 +339,19 @@ void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
 		y0 = mat2D.Y + objY / mat2D.BaseScaleY;
 		x1 = mat2D.X + objW / mat2D.BaseScaleX - 1.0f;
 		y1 = mat2D.Y + objH / mat2D.BaseScaleY - 1.0f;
+
+		PSPRenderer::Get()->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
 		break;
 
 	case NO_ROTATION:
+	default:
 		x0 = objX;
 		y0 = objY;
 		x1 = objW - 1.0f;
 		y1 = objH - 1.0f;
-		break;
-	}
 
-	if( mode == FULL_ROTATION )
-	{
-		PSPRenderer::Get()->Draw2DTextureR( x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH);
-	}
-	else
-	{
 		PSPRenderer::Get()->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
+		break;
 	}
 }
 //*****************************************************************************
@@ -701,19 +699,43 @@ void Yoshi_MemRect( MicroCodeCommand command )
 	if (y1 > scissors.bottom)
 		y1 = scissors.bottom;
 
-	DL_PF ("MemRect : addr =0x%08x -(%d, %d, %d, %d), Width: %d\n", tile_addr, x0, y0, x1, y1, g_CI.Width);
+	DL_PF ("    MemRect->Addr[0x%08x] (%d, %d -> %d, %d) Width[%d]", tile_addr, x0, y0, x1, y1, g_CI.Width);
 
-	u32 y, width = x1 - x0;
 	u32 tex_width = rdp_tile.line << 3;
-	u8 * texaddr = g_pu8RamBase + tile_addr + tex_width*(tex_rect.s/32) + (tex_rect.t/32);
+	u8 * texaddr = g_pu8RamBase + tile_addr + tex_width * (tex_rect.s >> 5) + (tex_rect.t >> 5);
 	u8 * fbaddr = g_pu8RamBase + g_CI.Address + x0;
 
-	for (y = y0; y < y1; y++)
+#if 1	//1->Optimized, 0->Generic
+	// This assumes Yoshi always copy 16 bytes per line and dst is aligned!!! //Corn
+	for (u32 y = y0; y < y1; y++)
+	{
+		u32 *src = (u32*)(texaddr + (y - y0) * tex_width);
+		u32 *dst = (u32*)(fbaddr + y * g_CI.Width);
+
+		if( ((u32)src & 0x3) == 0 ) 
+		{	//aligned copy
+			dst[0] = src[0];
+			dst[1] = src[1];
+			dst[2] = src[2];
+			dst[3] = src[3];
+		}
+		else
+		{	//unaligned copy
+			//printf("%p->%p\n",src,dst);
+			u8 *src8 = (u8*)src;
+
+			for(u32 i = 0; i < 4; i++) dst[i] = (src8[i + 3] << 24) | (src8[i + 2] << 16) | (src8[i + 1] << 8) | src8[i + 0];
+		}
+	}
+#else
+	u32 width = x1 - x0;
+	for (u32 y = y0; y < y1; y++)
 	{
 		u8 *src = texaddr + (y - y0) * tex_width;
 		u8 *dst = fbaddr + y * g_CI.Width;
-		memcpy (dst, src, width);
+		memcpy(dst, src, width);
 	}
+#endif
 }
 
 #endif // UCODE_S2DEX_H__
