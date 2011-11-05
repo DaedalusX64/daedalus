@@ -531,13 +531,69 @@ void DLParser_S2DEX_RDPHalf_0( MicroCodeCommand command )
 	//0x001d3c90: b4000000 00000000 RSP_RDPHALF_1
 	//0x001d3c98: b3000000 04000400 RSP_RDPHALF_2
 
-	if (g_ROM.GameHacks == YOSHI)
-	{
-		Yoshi_MemRect( command );
-	}
-	else
+	if (g_ROM.GameHacks != YOSHI)
 	{
 		DLParser_TexRect( command );
+	}
+	else
+	{	//Do Yoshi MemRect
+		MicroCodeCommand command2;
+		MicroCodeCommand command3;
+		//
+		// Fetch the next two instructions
+		//
+		DLParser_FetchNextCommand( &command2 );
+		DLParser_FetchNextCommand( &command3 );
+
+		RDP_MemRect mem_rect;
+		mem_rect.cmd0 = command.inst.cmd0;
+		mem_rect.cmd1 = command.inst.cmd1;
+		mem_rect.cmd2 = command2.inst.cmd1;
+		mem_rect.cmd3 = command3.inst.cmd1;
+
+		const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( mem_rect.tile_idx ) );
+
+		u32	x0 = mem_rect.x0;
+		u32	y0 = mem_rect.y0;
+		u32	y1 = mem_rect.y1;
+
+		// Get base address of texture
+		u32 tile_addr = gRDPStateManager.GetTileAddress( rdp_tile.tmem );
+
+		if (y1 > scissors.bottom)
+			y1 = scissors.bottom;
+
+		//DL_PF ("    MemRect->Addr[0x%08x] (%d, %d -> %d, %d) Width[%d]", tile_addr, x0, y0, mem_rect.x1, y1, g_CI.Width);
+
+	#if 1	//1->Optimized, 0->Generic
+		// This assumes Yoshi always copy 16 bytes per line and dst is aligned and we force alignment on src!!! //Corn
+		u32 tex_width = rdp_tile.line << 3;
+		u32 texaddr = ((u32)g_pu8RamBase + tile_addr + tex_width * (mem_rect.s >> 5) + (mem_rect.t >> 5) + 3) & ~3;
+		u32 fbaddr = (u32)g_pu8RamBase + g_CI.Address + x0;
+
+		for (u32 y = y0; y < y1; y++)
+		{
+			u32 *src = (u32*)(texaddr + (y - y0) * tex_width);
+			u32 *dst = (u32*)(fbaddr + y * g_CI.Width);
+
+			dst[0] = src[0];
+			dst[1] = src[1];
+			dst[2] = src[2];
+			dst[3] = src[3];
+		}
+	#else
+		u32 width = x1 - x0;
+		u32 tex_width = rdp_tile.line << 3;
+		u8 * texaddr = g_pu8RamBase + tile_addr + tex_width * (mem_rect.s >> 5) + (mem_rect.t >> 5);
+		u8 * fbaddr = g_pu8RamBase + g_CI.Address + x0;
+
+		for (u32 y = y0; y < y1; y++)
+		{
+			u8 *src = texaddr + (y - y0) * tex_width;
+			u8 *dst = fbaddr + y * g_CI.Width;
+			memcpy(dst, src, width);
+		}
+	#endif
 	}
 }
 
@@ -663,77 +719,6 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 		PSPRenderer::Get()->Draw2DTexture(frameX, y2, x2, frameH, imageX, 0, imageW, v1);
 		PSPRenderer::Get()->Draw2DTexture(x2, y2, frameW, frameH, 0, 0, u1, v1);
 	}
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void Yoshi_MemRect( MicroCodeCommand command )
-{
-	MicroCodeCommand command2;
-	MicroCodeCommand command3;
-	//
-	// Fetch the next two instructions
-	//
-	DLParser_FetchNextCommand( &command2 );
-	DLParser_FetchNextCommand( &command3 );
-
-	RDP_TexRect tex_rect;
-	tex_rect.cmd0 = command.inst.cmd0;
-	tex_rect.cmd1 = command.inst.cmd1;
-	tex_rect.cmd2 = command2.inst.cmd1;
-	tex_rect.cmd3 = command3.inst.cmd1;
-
-	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tex_rect.tile_idx ) );
-
-	u32	x0 = tex_rect.x0 >> 2;
-	u32	y0 = tex_rect.y0 >> 2;
-	u32	x1 = tex_rect.x1 >> 2;
-	u32	y1 = tex_rect.y1 >> 2;
-
-	// Get base address of texture
-	u32 tile_addr = gRDPStateManager.GetTileAddress( rdp_tile.tmem );
-
-	if (y1 > scissors.bottom)
-		y1 = scissors.bottom;
-
-	DL_PF ("    MemRect->Addr[0x%08x] (%d, %d -> %d, %d) Width[%d]", tile_addr, x0, y0, x1, y1, g_CI.Width);
-
-	u32 tex_width = rdp_tile.line << 3;
-	u8 * texaddr = g_pu8RamBase + tile_addr + tex_width * (tex_rect.s >> 5) + (tex_rect.t >> 5);
-	u8 * fbaddr = g_pu8RamBase + g_CI.Address + x0;
-
-#if 1	//1->Optimized, 0->Generic
-	// This assumes Yoshi always copy 16 bytes per line and dst is aligned!!! //Corn
-	for (u32 y = y0; y < y1; y++)
-	{
-		u32 *src = (u32*)(texaddr + (y - y0) * tex_width);
-		u32 *dst = (u32*)(fbaddr + y * g_CI.Width);
-
-		if( ((u32)src & 0x3) == 0 ) 
-		{	//aligned copy
-			dst[0] = src[0];
-			dst[1] = src[1];
-			dst[2] = src[2];
-			dst[3] = src[3];
-		}
-		else
-		{	//unaligned copy
-			//printf("%p->%p\n",src,dst);
-			u8 *src8 = (u8*)src;
-
-			for(u32 i = 0; i < 4; i++) dst[i] = (src8[i + 3] << 24) | (src8[i + 2] << 16) | (src8[i + 1] << 8) | src8[i + 0];
-		}
-	}
-#else
-	u32 width = x1 - x0;
-	for (u32 y = y0; y < y1; y++)
-	{
-		u8 *src = texaddr + (y - y0) * tex_width;
-		u8 *dst = fbaddr + y * g_CI.Width;
-		memcpy(dst, src, width);
-	}
-#endif
 }
 
 #endif // UCODE_S2DEX_H__

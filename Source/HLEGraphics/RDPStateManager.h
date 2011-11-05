@@ -45,9 +45,9 @@ public:
 	void							LoadBlock( u32 idx, u32 address, bool swapped );
 	void							LoadTile( const RDP_TileSize & tile_size );
 
-	u32								GetTileAddress( u32 tmem );
+	u32								GetTileAddress( const u32 tmem );
 
-	const TextureInfo &				GetTextureDescriptor( u32 idx ) const;
+	const TextureInfo &				GetTextureDescriptor( const u32 idx ) const;
 
 private:
 	void							InvalidateAllTileTextureInfo();

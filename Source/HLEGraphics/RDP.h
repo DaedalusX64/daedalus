@@ -246,6 +246,47 @@ typedef struct
 	};
 } RDP_TexRect;
 
+typedef struct
+{
+	union
+	{
+		struct
+		{
+			u32 cmd3;
+			u32 cmd2;
+			u32 cmd1;
+			u32 cmd0;
+		};
+
+		struct
+		{
+			// cmd3
+			s32		dtdy : 16;
+			s32		dsdx : 16;
+
+			// cmd2
+			s32		t : 16;
+			s32		s : 16;
+
+			// cmd1
+			u32		pad3 : 2;
+			u32		y0 : 10;
+			u32		pad2 : 2;
+			u32		x0 : 10;
+			u32		tile_idx : 3;
+			s32		pad1 : 5;
+
+			// cmd0
+			u32		pad5 : 2;
+			u32		y1 : 10;
+			u32		pad4 : 2;
+			u32		x1 : 10;
+
+			u32		cmd : 8;
+		};
+
+	};
+} RDP_MemRect;
 
 struct RDP_Tile
 {

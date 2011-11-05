@@ -139,9 +139,7 @@ inline void 	FinishRDPJob()
 inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
 {
 	// Current PC is the last value on the stack
-	u32			pc( gDlistStack[gDlistStackPointer].pc );
-
-	*p_command = *(MicroCodeCommand*)&g_pu32RamBase[(pc>>2)];
+	*p_command = *(MicroCodeCommand*)&g_pu32RamBase[ (gDlistStack[gDlistStackPointer].pc >> 2) ];
 
 	gDlistStack[gDlistStackPointer].pc += 8;
 

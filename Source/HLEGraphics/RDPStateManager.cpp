@@ -128,7 +128,7 @@ void	CRDPStateManager::LoadTile( const RDP_TileSize & tile_size )
 //
 //*****************************************************************************
 // Retrive tile addr loading. used by Yoshi_MemRect
-u32	CRDPStateManager::GetTileAddress( u32 tmem )
+u32	CRDPStateManager::GetTileAddress( const u32 tmem )
 {
 	LoadDetailsMap::const_iterator it( mLoadMap.find( tmem ) );
 	const SLoadDetails &	load_details( it->second );
