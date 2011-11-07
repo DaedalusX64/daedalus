@@ -45,7 +45,8 @@ public:
 	void							LoadBlock( u32 idx, u32 address, bool swapped );
 	void							LoadTile( const RDP_TileSize & tile_size );
 
-	u32								GetTileAddress( const u32 tmem );
+// Retrive tile addr loading. used by Yoshi_MemRect
+	inline u32						GetTileAddress( const u32 tmem ) { LoadDetailsMap::const_iterator it( mLoadMap.find( tmem ) ); const SLoadDetails &	load_details( it->second ); return load_details.Address; }
 
 	const TextureInfo &				GetTextureDescriptor( const u32 idx ) const;
 

@@ -477,6 +477,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5944: g_ROM.GameHacks = DKR;					break;
 	case 0x4450: g_ROM.GameHacks = PERFECT_DARK;		break;
 	case 0x3247: g_ROM.GameHacks = EXTREME_G2;			break;
+	case 0x3259: g_ROM.GameHacks = RAYMAN2;				break;
 	case 0x3358:	//GEX3
 	case 0x3258:	//GEX64
 		g_ROM.GameHacks = GEX_GECKO;

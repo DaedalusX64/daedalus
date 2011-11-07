@@ -127,18 +127,6 @@ void	CRDPStateManager::LoadTile( const RDP_TileSize & tile_size )
 //*****************************************************************************
 //
 //*****************************************************************************
-// Retrive tile addr loading. used by Yoshi_MemRect
-u32	CRDPStateManager::GetTileAddress( const u32 tmem )
-{
-	LoadDetailsMap::const_iterator it( mLoadMap.find( tmem ) );
-	const SLoadDetails &	load_details( it->second );
-
-	return load_details.Address;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
 void	CRDPStateManager::InvalidateAllTileTextureInfo()
 {
 	for( u32 i = 0; i < 8; ++i )
@@ -198,19 +186,14 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 			DAEDALUS_DL_ERROR( "No texture has been loaded to this address" );
 		}
 
+		// If it was a block load - the pitch is determined by the tile size
+		// else if it was a tile - the pitch is set when the tile is loaded
 		if ( pitch == u32(~0) )
 		{
-			// It was a block load - the pitch is determined by the tile size
-			pitch = rdp_tile.line*8;
-			if( rdp_tile.size == G_IM_SIZ_32b )	pitch = pitch*2;
-
+			if( rdp_tile.size == G_IM_SIZ_32b )	pitch = rdp_tile.line << 4;
+			else pitch = rdp_tile.line << 3;
 		}
-		//else
-		//{
-			// It was a tile - the pitch is set when the tile is loaded
-		//}
 
-		//
 		//	Limit the tile's width/height to the number of bits specified by mask_s/t.
 		//	See the detailed notes in PSPRenderer::EnableTexturing for issues relating to this.
 		//
@@ -224,7 +207,7 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		DAEDALUS_DL_ASSERT( num_bytes <= 4096, "Suspiciously large texture load: %d bytes (%dx%d, %dbpp)", num_bytes, tile_width, tile_height, (1<<(rdp_tile.size+2)) );
 #endif
 		//Quick fix to correct texturing issues and missing logo in Harvest Moon 64
-		//8b =>0 <=7, force 0
+		//if pixel size is 8b force palette to index 0
 		if(rdp_tile.size != G_IM_SIZ_8b)
 		{
 			palette = rdp_tile.palette;
@@ -239,7 +222,7 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 
 		// May not work if Left is not even?
 #ifdef DAEDALUS_ENABLE_ASSERTS
-		u32	tile_left( rdp_tilesize.left / 4 );
+		u32	tile_left( rdp_tilesize.left >> 2 );
 		DAEDALUS_DL_ASSERT( (rdp_tile.size > 0) || (tile_left&1) == 0, "Expecting an even Left for 4bpp formats" );
 #endif
 		ti.SetWidth( tile_width );
@@ -257,20 +240,15 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 			if(gRDPOtherMode.L == 0x0c184241 && ti.GetFormat() == G_IM_FMT_I /*&& ti.GetWidth() == 64*/)	
 			{
 				//ti.SetHeight( tile_height );	// (fix me)
-				ti.SetWidth( tile_width/2 );	
-				ti.SetPitch( pitch/2 );	
+				ti.SetWidth( tile_width >> 1 );	
+				ti.SetPitch( pitch >> 1 );	
 			}
 		}
 		// Hack - Extreme-G specifies RGBA/8 textures, but they're really CI8
-		if (ti.GetFormat() == G_IM_FMT_RGBA &&
-			(ti.GetSize() == G_IM_SIZ_8b || ti.GetSize() == G_IM_SIZ_4b))
-		{
-			DAEDALUS_DL_ERROR( "XG hack" );
-			ti.SetFormat( G_IM_FMT_CI );
-		}
+		if( ti.GetFormat() == G_IM_FMT_RGBA && ti.GetSize() <= G_IM_SIZ_8b ) ti.SetFormat( G_IM_FMT_CI );
 
-		if (ti.GetFormat() == G_IM_FMT_CI && ti.GetTLutFormat() == G_TT_NONE )
-			ti.SetTLutFormat( G_TT_RGBA16 );		// Force RGBA
+		// Force RGBA
+		if( ti.GetFormat() == G_IM_FMT_CI && ti.GetTLutFormat() == G_TT_NONE ) ti.SetTLutFormat( G_TT_RGBA16 );
 
 		mTileTextureInfoValid[ idx ] = true;
 	}

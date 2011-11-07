@@ -126,6 +126,7 @@ enum EGameHacks
 	PERFECT_DARK,
 	YOSHI,
 	EXTREME_G2,
+	RAYMAN2,
 	LAST_ENTRY
 };
 
