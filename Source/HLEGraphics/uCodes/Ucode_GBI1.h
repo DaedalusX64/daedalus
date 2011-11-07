@@ -342,10 +342,8 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 
 	DL_PF("    No vertices were visible, culling rest of display list");
 
-	DLParser_PopDL();
-
+	DLParser_PopDL( command );
 }
-
 
 //*****************************************************************************
 // 
@@ -365,14 +363,6 @@ void DLParser_GBI1_DL( MicroCodeCommand command )
 
 	gDlistStack[gDlistStackPointer].pc = RDPSegAddr(command.dlist.addr);
 	gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_GBI1_EndDL( MicroCodeCommand command )
-{
-	DLParser_PopDL();
 }
 
 //*****************************************************************************

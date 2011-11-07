@@ -82,7 +82,7 @@ void	CRDPStateManager::SetTileSize( const RDP_TileSize & tile_size )
 	{
 		// XXXX might be able to remove this with recent tile loading fixes?
 		// Wetrix hack
-		if (tile_size.top > tile_size.bottom || tile_size.left > tile_size.right)
+		if( (tile_size.top > tile_size.bottom) | (tile_size.left > tile_size.right) )
 		{
 			DAEDALUS_DL_ERROR( "Specifying negative width/height for tile descriptor" );
 			return;

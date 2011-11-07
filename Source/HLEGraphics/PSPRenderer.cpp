@@ -25,7 +25,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //If defined fog will be done by sceGU
 //Otherwise it enables some non working legacy VFPU fog //Corn
-#define NO_VFPU_FOG
 
 #include "stdafx.h"
 
@@ -157,7 +156,7 @@ u32	gTXTFUNC=0;	//defaults to MODULATE_RGB
 
 u32	gNumCyc=3;	//defaults All cycles
 
-u32     gForceRGB=0;    //defaults to OFF
+u32 gForceRGB=0;    //defaults to OFF
 
 #define BLEND_MODE_MAKER \
 { \
@@ -176,49 +175,49 @@ u32     gForceRGB=0;    //defaults to OFF
 	}; \
 	if( num_cycles & gNumCyc ) \
 	{ \
-		if( gForceRGB ) \
+		switch( gForceRGB ) \
 		{ \
-			if( gForceRGB==1 ) details.ColourAdjuster.SetRGB( c32::White ); \
-			else if( gForceRGB==2 ) details.ColourAdjuster.SetRGB( c32::Black ); \
-			else if( gForceRGB==3 ) details.ColourAdjuster.SetRGB( c32::Red ); \
-			else if( gForceRGB==4 ) details.ColourAdjuster.SetRGB( c32::Green ); \
-			else if( gForceRGB==5 ) details.ColourAdjuster.SetRGB( c32::Blue ); \
-			else if( gForceRGB==6 ) details.ColourAdjuster.SetRGB( c32::Magenta ); \
-			else if( gForceRGB==7 ) details.ColourAdjuster.SetRGB( c32::Gold ); \
+			case 1: details.ColourAdjuster.SetRGB( c32::White ); break; \
+			case 2: details.ColourAdjuster.SetRGB( c32::Black ); break; \
+			case 3: details.ColourAdjuster.SetRGB( c32::Red ); break; \
+			case 4: details.ColourAdjuster.SetRGB( c32::Green ); break; \
+			case 5: details.ColourAdjuster.SetRGB( c32::Blue ); break; \
+			case 6: details.ColourAdjuster.SetRGB( c32::Magenta ); break; \
+			case 7: details.ColourAdjuster.SetRGB( c32::Gold ); break; \
 		} \
-		if( gSetRGB ) \
+		switch( gSetRGB ) \
 		{ \
-			if( gSetRGB==1 ) details.ColourAdjuster.SetRGB( details.PrimColour ); \
-			else if( gSetRGB==2 ) details.ColourAdjuster.SetRGB( details.PrimColour.ReplicateAlpha() ); \
-			else if( gSetRGB==3 ) details.ColourAdjuster.SetRGB( details.EnvColour ); \
-			else if( gSetRGB==4 ) details.ColourAdjuster.SetRGB( details.EnvColour.ReplicateAlpha() ); \
+			case 1: details.ColourAdjuster.SetRGB( details.PrimColour ); break; \
+			case 2: details.ColourAdjuster.SetRGB( details.PrimColour.ReplicateAlpha() ); break; \
+			case 3: details.ColourAdjuster.SetRGB( details.EnvColour ); break; \
+			case 4: details.ColourAdjuster.SetRGB( details.EnvColour.ReplicateAlpha() ); break; \
 		} \
-		if( gSetA ) \
+		switch( gSetA ) \
 		{ \
-			if( gSetA==1 ) details.ColourAdjuster.SetA( details.PrimColour ); \
-			else if( gSetA==2 ) details.ColourAdjuster.SetA( details.PrimColour.ReplicateAlpha() ); \
-			else if( gSetA==3 ) details.ColourAdjuster.SetA( details.EnvColour ); \
-			else if( gSetA==4 ) details.ColourAdjuster.SetA( details.EnvColour.ReplicateAlpha() ); \
+			case 1: details.ColourAdjuster.SetA( details.PrimColour ); break; \
+			case 2: details.ColourAdjuster.SetA( details.PrimColour.ReplicateAlpha() ); break; \
+			case 3: details.ColourAdjuster.SetA( details.EnvColour ); break; \
+			case 4: details.ColourAdjuster.SetA( details.EnvColour.ReplicateAlpha() ); break; \
 		} \
-		if( gSetRGBA ) \
+		switch( gSetRGBA ) \
 		{ \
-			if( gSetRGBA==1 ) details.ColourAdjuster.SetRGBA( details.PrimColour ); \
-			else if( gSetRGBA==2 ) details.ColourAdjuster.SetRGBA( details.PrimColour.ReplicateAlpha() ); \
-			else if( gSetRGBA==3 ) details.ColourAdjuster.SetRGBA( details.EnvColour ); \
-			else if( gSetRGBA==4 ) details.ColourAdjuster.SetRGBA( details.EnvColour.ReplicateAlpha() ); \
+			case 1: details.ColourAdjuster.SetRGBA( details.PrimColour ); break; \
+			case 2: details.ColourAdjuster.SetRGBA( details.PrimColour.ReplicateAlpha() ); break; \
+			case 3: details.ColourAdjuster.SetRGBA( details.EnvColour ); break; \
+			case 4: details.ColourAdjuster.SetRGBA( details.EnvColour.ReplicateAlpha() ); break; \
 		} \
-		if( gModA ) \
+		switch( gModA ) \
 		{ \
-			if( gModA==1 ) details.ColourAdjuster.ModulateA( details.PrimColour ); \
-			else if( gModA==2 ) details.ColourAdjuster.ModulateA( details.PrimColour.ReplicateAlpha() ); \
-			else if( gModA==3 ) details.ColourAdjuster.ModulateA( details.EnvColour ); \
-			else if( gModA==4 ) details.ColourAdjuster.ModulateA( details.EnvColour.ReplicateAlpha() ); \
+			case 1: details.ColourAdjuster.ModulateA( details.PrimColour ); break; \
+			case 2: details.ColourAdjuster.ModulateA( details.PrimColour.ReplicateAlpha() ); break; \
+			case 3: details.ColourAdjuster.ModulateA( details.EnvColour ); break; \
+			case 4: details.ColourAdjuster.ModulateA( details.EnvColour.ReplicateAlpha() ); break; \
 		} \
 		if( gAOpaque ) details.ColourAdjuster.SetAOpaque(); \
-		if( gsceENV ) \
+		switch( gsceENV ) \
 		{ \
-			if( gsceENV==1 ) sceGuTexEnvColor( details.EnvColour.GetColour() ); \
-			else if( gsceENV==2 ) sceGuTexEnvColor( details.PrimColour.GetColour() ); \
+			case 1: sceGuTexEnvColor( details.EnvColour.GetColour() ); break; \
+			case 2: sceGuTexEnvColor( details.PrimColour.GetColour() ); break; \
 		} \
 		details.InstallTexture = gTexInstall; \
 		sceGuTexFunc( PSPtxtFunc[ (gTXTFUNC >> 1) % 6 ], PSPtxtA[ gTXTFUNC & 1 ] ); \
@@ -276,7 +275,7 @@ PSPRenderer::PSPRenderer()
 ,	mRecordCombinerStates( false )
 #endif
 {
-	DAEDALUS_ASSERT( IsPointerAligned( &mTnLParams, 16 ), "Oops, params should be 16-byte aligned" );
+	DAEDALUS_ASSERT( IsPointerAligned( &mTnLParams, 16 ), "Oops, mTnLParams should be 16-byte aligned" );
 
 	for ( u32 t = 0; t < NUM_N64_TEXTURES; t++ )
 	{
@@ -769,7 +768,7 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 			{
 			case PBM_MODULATE:		tfx = GU_TFX_MODULATE; break;
 			case PBM_REPLACE:		tfx = GU_TFX_REPLACE; break;
-			case PBM_BLEND:			tfx = GU_TFX_BLEND; break;
+			case PBM_BLEND:			tfx = GU_TFX_BLEND; sceGuTexEnvColor( out.TextureFactor.GetColour() ); break;
 			}
 
 			u32 tcc( GU_TCC_RGBA );
@@ -780,13 +779,9 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 			}
 
 			sceGuTexFunc( tfx, tcc );
-			if( tfx == GU_TFX_BLEND )
-			{
-				sceGuTexEnvColor( out.TextureFactor.GetColour() );
-			}
 
 			// NB if install_texture0 and install_texture1 are both set, 0 wins out
-			u32		texture_idx( install_texture0 ? 0 : 1 );
+			u32 texture_idx( install_texture0 ? 0 : 1 );
 
 			if( mpTexture[texture_idx] != NULL )
 			{
@@ -809,11 +804,9 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 			}
 		}
 
+
 		// If no texture was specified, or if we couldn't load it, clear it out
-		if( !installed_texture )
-		{
-			sceGuDisable(GU_TEXTURE_2D);
-		}
+		if( !installed_texture ) sceGuDisable(GU_TEXTURE_2D);
 
 		sceGuDrawArray( DRAW_MODE, render_flags, num_vertices, NULL, p_vertices );
 	}
@@ -1064,17 +1057,17 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 #endif
 
 		// Local vars for now
-		SBlendModeDetails		details;
+		SBlendModeDetails details;
 
-		details.InstallTexture = true;
 		details.EnvColour = mEnvColour;
 		details.PrimColour = mPrimitiveColour;
-		details.ColourAdjuster.Reset();
+		details.InstallTexture = true;
 		details.RecolourTextureWhite = false;
+		details.ColourAdjuster.Reset();
 
 		blend_entry.OverrideFunction( gRDPOtherMode.cycle_type == CYCLE_2CYCLE ? 2 : 1, details );
 
-		bool	installed_texture( false );
+		bool installed_texture( false );
 
 		if( details.InstallTexture )
 		{
@@ -1828,50 +1821,22 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnLParams.Ambient.x, mTnLParams.Ambient.y, mTnLParams.Ambient.z, mTnLParams.TextureScaleX, mTnLParams.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnLModeFlags.Light)? "On":"Off", (mTnLModeFlags.Texture)? "On":"Off", (mTnLModeFlags.TextGen)? (mTnLModeFlags.TextGenLin)? "Linear":"Spherical":"Off", (mTnLModeFlags.Fog)? "On":"Off");
 
-#ifdef NO_VFPU_FOG
 	switch( mTnLModeFlags._u32 & (TNL_TEXTURE|TNL_TEXGEN|TNL_LIGHT) )
 	{
 		// TNL_TEXGEN is ignored when TNL_LIGHT is disabled
-	case                                   0: _TransformVerticesWithColour_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
-	case                         TNL_TEXTURE: _TransformVerticesWithColour_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
-	case            TNL_TEXGEN              : _TransformVerticesWithColour_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
-	case            TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithColour_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
+		case                                   0: _TransformVerticesWithColour_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
+		case                         TNL_TEXTURE: _TransformVerticesWithColour_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
+		case            TNL_TEXGEN              : _TransformVerticesWithColour_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
+		case            TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithColour_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
 
 		// TNL_TEXGEN is ignored when TNL_TEXTURE is disabled
-	case TNL_LIGHT                          : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
-	case TNL_LIGHT |             TNL_TEXTURE: _TransformVerticesWithLighting_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
-	case TNL_LIGHT |TNL_TEXGEN              : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
-	case TNL_LIGHT |TNL_TEXGEN | TNL_TEXTURE:
-		if( mTnLModeFlags.TextGenLin ) _TransformVerticesWithLighting_f0_t3( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights );
-		else _TransformVerticesWithLighting_f0_t2( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights );
-		break;
-
-#else
-	switch( mTnLModeFlags._u32 & (TNL_TEXTURE|TNL_TEXGEN|TNL_FOG|TNL_LIGHT) )
-	{
-		// TNL_TEXGEN is ignored when TNL_LIGHT is disabled
-	case                                   0: _TransformVerticesWithColour_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
-	case                         TNL_TEXTURE: _TransformVerticesWithColour_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
-	case            TNL_TEXGEN              : _TransformVerticesWithColour_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
-	case            TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithColour_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
-	case  TNL_FOG                           : _TransformVerticesWithColour_f1_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
-	case  TNL_FOG |              TNL_TEXTURE: _TransformVerticesWithColour_f1_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
-	case  TNL_FOG | TNL_TEXGEN              : _TransformVerticesWithColour_f1_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
-	case  TNL_FOG | TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithColour_f1_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams ); break;
-
-		// TNL_TEXGEN is ignored when TNL_TEXTURE is disabled
-	case TNL_LIGHT                                     : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
-	case TNL_LIGHT |                        TNL_TEXTURE: _TransformVerticesWithLighting_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
-	case TNL_LIGHT |           TNL_TEXGEN              : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
-	case TNL_LIGHT |           TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithLighting_f0_t2( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
-	case TNL_LIGHT | TNL_FOG                           : _TransformVerticesWithLighting_f1_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
-	case TNL_LIGHT | TNL_FOG |              TNL_TEXTURE: _TransformVerticesWithLighting_f1_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
-	case TNL_LIGHT | TNL_FOG | TNL_TEXGEN              : _TransformVerticesWithLighting_f1_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
-	case TNL_LIGHT | TNL_FOG | TNL_TEXGEN | TNL_TEXTURE: _TransformVerticesWithLighting_f1_t2( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
-#endif
-	default:
-		NODEFAULT;
-		break;
+		case TNL_LIGHT                          : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
+		case TNL_LIGHT |             TNL_TEXTURE: _TransformVerticesWithLighting_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
+		case TNL_LIGHT |TNL_TEXGEN              : _TransformVerticesWithLighting_f0_t0( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights ); break;
+		case TNL_LIGHT |TNL_TEXGEN | TNL_TEXTURE:
+			if( mTnLModeFlags.TextGenLin ) _TransformVerticesWithLighting_f0_t3( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights );
+			else _TransformVerticesWithLighting_f0_t2( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnLParams, mLights, mNumLights );
+			break;
 	}
 }
 
@@ -2638,16 +2603,16 @@ inline void	PSPRenderer::EnableTexturing( u32 tile_idx )
 	// XXXX Not required for texrect etc?
 #ifdef RDP_USE_TEXEL1
 
-	if ( gRDPOtherMode.text_lod )
-	{
-		// LOD is enabled - use the highest detail texture in texel1
-		EnableTexturing( 1, tile_idx );
-	}
-	else
+	if ( !gRDPOtherMode.text_lod )
 	{
 		// LOD is disabled - use two textures
-		EnableTexturing( 1, tile_idx+1 );
+		EnableTexturing( 1, tile_idx + 1 );
 	}
+	//else
+	//{
+	//	// LOD is enabled - use the highest detail texture in texel1
+	//	EnableTexturing( 1, tile_idx );
+	//}
 #endif
 }
 
@@ -2780,10 +2745,10 @@ void PSPRenderer::SetProjection(const Matrix4x4 & mat, bool bPush, bool bReplace
 #endif
 
 	DL_PF("    Level = %d\n"
-		"    %#+12.7f %#+12.7f %#+12.7f %#+12.7f\n"
-		"    %#+12.7f %#+12.7f %#+12.7f %#+12.7f\n"
-		"    %#+12.7f %#+12.7f %#+12.7f %#+12.7f\n"
-		"    %#+12.7f %#+12.7f %#+12.7f %#+12.7f\n",
+		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n",
 		mProjectionTop,
 		mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
 		mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],

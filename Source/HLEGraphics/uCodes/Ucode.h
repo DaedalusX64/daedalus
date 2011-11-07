@@ -41,7 +41,6 @@ extern const char * gNormalInstructionName[MAX_UCODE][256];
 
 UcodeFunc( DLParser_GBI1_CullDL );
 UcodeFunc( DLParser_GBI1_DL );
-UcodeFunc( DLParser_GBI1_EndDL );
 UcodeFunc( DLParser_GBI1_BranchZ );
 UcodeFunc( DLParser_GBI1_LoadUCode );
 UcodeFunc( DLParser_GBI2_LoadUCode );
@@ -161,6 +160,7 @@ UcodeFunc( DLParser_SetCombine );
 UcodeFunc( DLParser_SetTImg );
 UcodeFunc( DLParser_SetZImg );
 UcodeFunc( DLParser_SetCImg );
+UcodeFunc( DLParser_PopDL );
 
 //*****************************************************************************
 // RSP Tri Command

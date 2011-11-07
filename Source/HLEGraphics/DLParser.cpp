@@ -119,7 +119,7 @@ const char *	gDisplayListDumpPathFormat = "dl%04d.txt";
 static void RDP_Force_Matrix(u32 address);
 void RDP_MoveMemViewport(u32 address);
 void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
-static void DLParser_PopDL();
+void DLParser_PopDL( MicroCodeCommand command );
 void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
 void RDP_MoveMemLight(u32 light_idx, u32 address);
 
@@ -634,8 +634,12 @@ static void	DLParser_ProcessDList()
 		//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		//use the gInstructionName table for fecthing names.
-		DL_PF("[%05d] 0x%08x: %08x %08x %-10s", gCurrentInstructionCount, pc, command.inst.cmd0, command.inst.cmd1, gUcodeName[command.inst.cmd ]);
 		gCurrentInstructionCount++;
+		DL_PF("[%05d] 0x%08x: %08x %08x %-10s", gCurrentInstructionCount, pc, command.inst.cmd0, command.inst.cmd1, gUcodeName[command.inst.cmd ]);
+
+		PROFILE_DL_CMD( command.inst.cmd );
+
+		gUcodeFunc[ command.inst.cmd ]( command ); 
 
 		if( gInstructionCountLimit != UNLIMITED_INSTRUCTION_COUNT )
 		{
@@ -644,13 +648,12 @@ static void	DLParser_ProcessDList()
 				return;
 			}
 		}
-#endif
-		//if(!(gCurrentInstructionCount % 1024)) printf("%d\n",gCurrentInstructionCount);
+#else
 
 		PROFILE_DL_CMD( command.inst.cmd );
 
 		gUcodeFunc[ command.inst.cmd ]( command ); 
-
+#endif
 		// Check limit
 		if ( --gDlistStack[gDlistStackPointer].countdown < 0 && gDlistStackPointer >= 0)
 		{
@@ -881,14 +884,14 @@ void DLParser_Nothing( MicroCodeCommand command )
 
 	// Terminate!
 	//	DBGConsole_Msg(0, "Warning, DL cut short with unknown command: 0x%08x 0x%08x", command.inst.cmd0, command.inst.cmd1);
-	DLParser_PopDL();
+	DLParser_PopDL( command );
 
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-static void DLParser_PopDL()
+void DLParser_PopDL( MicroCodeCommand command )
 {
 	DL_PF("    Returning from DisplayList: level=%d", gDlistStackPointer+1);
 	DL_PF("    ############################################");

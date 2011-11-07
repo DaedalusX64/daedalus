@@ -825,23 +825,27 @@ void	AudioHLEState::Interleave( u16 laddr, u16 raddr )
 void	AudioHLEState::Mixer( u16 dmemout, u16 dmemin, s32 gain, u16 count )
 {
 #if 1	//1->fast, 0->safe/slow //Corn
-s16*  in( (s16 *)(Buffer + (dmemin  & (N64_AUDIO_BUFF - 2))) );
-s16* out( (s16 *)(Buffer + (dmemout & (N64_AUDIO_BUFF - 2))) );
+	// Check if outside of buffer (YOSHI)
+	if( ((u32)dmemin + (count >> 1)) & ~(N64_AUDIO_BUFF - 1) ) return;
 
-for( u32 x = count >> 1; x != 0; x-- )
-	{
-		*out = Saturate<s16>( FixedPointMul15( *in++, gain ) + s32( *out ) );
-		out++;
-	}
+	// Make sure we are on even address (YOSHI)
+	s16*  in( (s16 *)(Buffer + (dmemin  & (N64_AUDIO_BUFF - 2))) );
+	s16* out( (s16 *)(Buffer + (dmemout & (N64_AUDIO_BUFF - 2))) );
+
+	for( u32 x = count >> 1; x != 0; x-- )
+		{
+			*out = Saturate<s16>( FixedPointMul15( *in++, gain ) + s32( *out ) );
+			out++;
+		}
 
 #else
-for( u32 x=0; x < count; x+=2 )
-	{
-		s16 in( *(s16 *)(Buffer+((dmemin+x) & (N64_AUDIO_BUFF - 2))) );
-		s16 out( *(s16 *)(Buffer+((dmemout+x) & (N64_AUDIO_BUFF - 2))) );
-			
-		*(s16 *)(Buffer+((dmemout+x) & (N64_AUDIO_BUFF - 2)) ) = Saturate<s16>( FixedPointMul15( in, gain ) + s32( out ) );
-	}
+	for( u32 x=0; x < count; x+=2 )
+		{
+			s16 in( *(s16 *)(Buffer+((dmemin+x) & (N64_AUDIO_BUFF - 2))) );
+			s16 out( *(s16 *)(Buffer+((dmemout+x) & (N64_AUDIO_BUFF - 2))) );
+				
+			*(s16 *)(Buffer+((dmemout+x) & (N64_AUDIO_BUFF - 2)) ) = Saturate<s16>( FixedPointMul15( in, gain ) + s32( out ) );
+		}
 #endif
 }
 
