@@ -733,8 +733,8 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 	{
 		const CRenderSettings *		settings( states->GetColourSettings( i ) );
 
-		bool		install_texture0( settings->UsesTexture0() || alpha_settings->UsesTexture0() );
-		bool		install_texture1( settings->UsesTexture1() || alpha_settings->UsesTexture1() );
+		bool install_texture0( settings->UsesTexture0() || alpha_settings->UsesTexture0() );
+		bool install_texture1( settings->UsesTexture1() || alpha_settings->UsesTexture1() );
 
 		SRenderStateOut out;
 
@@ -780,8 +780,26 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 
 			sceGuTexFunc( tfx, tcc );
 
-			// NB if install_texture0 and install_texture1 are both set, 0 wins out
-			u32 texture_idx( install_texture0 ? 0 : 1 );
+			u32 texture_idx;
+
+			if( g_ROM.GameHacks == RAYMAN2 )
+			{
+				// NB if install_texture0 and install_texture1 are both set, 0 wins out
+				texture_idx = install_texture1 ? 1 : 0;
+
+				if( texture_idx & mTnLModeFlags.Texture && (mTnLModeFlags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
+				{
+					v2 offset = -mTileTopLeft[ 1 ];
+					v2 scale = mTileScale[ 1 ];
+					sceGuTexOffset( offset.x * scale.x, offset.y * scale.y );
+					sceGuTexScale( scale.x, scale.y );
+				}
+			}
+			else
+			{
+				// NB if install_texture0 and install_texture1 are both set, 0 wins out
+				texture_idx = install_texture0 ? 0 : 1;
+			}
 
 			if( mpTexture[texture_idx] != NULL )
 			{
@@ -1435,18 +1453,18 @@ void PSPRenderer::FlushTris()
 	// necessary changes to the texture coords (this is required
 	// because some ucodes set the texture after setting the vertices)
 	//
-	bool	update_tex_coords( (mTnLModeFlags.Texture) != 0 && (mTnLModeFlags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) );
-
-	v2		offset( 0.0f, 0.0f );
-	v2		scale( 1.0f, 1.0f );
-
-	if( update_tex_coords )
+	if( (mTnLModeFlags.Texture != 0) && (mTnLModeFlags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
 	{
-		offset = -mTileTopLeft[ 0 ];
-		scale = mTileScale[ 0 ];
+		v2 offset = -mTileTopLeft[ 0 ];
+		v2 scale = mTileScale[ 0 ];
+		sceGuTexOffset( offset.x * scale.x, offset.y * scale.y );
+		sceGuTexScale( scale.x, scale.y );
 	}
-	sceGuTexOffset( offset.x * scale.x, offset.y * scale.y );
-	sceGuTexScale( scale.x, scale.y );
+	else
+	{
+		sceGuTexOffset( 0.0f, 0.0f );
+		sceGuTexScale( 1.0f, 1.0f );
+	}
 
 	//
 	//	Do BACK/FRONT culling in sceGE
@@ -2601,9 +2619,9 @@ inline void	PSPRenderer::EnableTexturing( u32 tile_idx )
 	EnableTexturing( 0, tile_idx );
 
 	// XXXX Not required for texrect etc?
-#ifdef RDP_USE_TEXEL1
+//#ifdef RDP_USE_TEXEL1
 
-	if ( !gRDPOtherMode.text_lod )
+	if ( (g_ROM.GameHacks == RAYMAN2) & !gRDPOtherMode.text_lod )
 	{
 		// LOD is disabled - use two textures
 		EnableTexturing( 1, tile_idx + 1 );
@@ -2613,7 +2631,7 @@ inline void	PSPRenderer::EnableTexturing( u32 tile_idx )
 	//	// LOD is enabled - use the highest detail texture in texel1
 	//	EnableTexturing( 1, tile_idx );
 	//}
-#endif
+//#endif
 }
 
 //*****************************************************************************
