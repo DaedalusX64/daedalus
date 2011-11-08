@@ -49,7 +49,7 @@ void DLParser_Last_Legion_0x00( MicroCodeCommand command )
 		u32 newaddr = RDPSegAddr((command.inst.cmd1));
 		if( newaddr >= MAX_RAM_ADDRESS )
 		{
-			DLParser_PopDL( command );
+			DLParser_PopDL();
 			return;
 		}
 
@@ -84,12 +84,12 @@ void DLParser_Last_Legion_0x00( MicroCodeCommand command )
 	}
 	else if( (command.inst.cmd1) == 0 )
 	{
-		DLParser_PopDL( command );
+		DLParser_PopDL();
 	}
 	else
 	{
 		DLParser_Nothing( command );
-		DLParser_PopDL( command );
+		DLParser_PopDL();
 	}
 }
 

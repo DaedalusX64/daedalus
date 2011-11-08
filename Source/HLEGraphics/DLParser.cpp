@@ -119,7 +119,7 @@ const char *	gDisplayListDumpPathFormat = "dl%04d.txt";
 static void RDP_Force_Matrix(u32 address);
 void RDP_MoveMemViewport(u32 address);
 void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
-void DLParser_PopDL( MicroCodeCommand command );
+static void DLParser_PopDL();
 void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
 void RDP_MoveMemLight(u32 light_idx, u32 address);
 
@@ -884,14 +884,14 @@ void DLParser_Nothing( MicroCodeCommand command )
 
 	// Terminate!
 	//	DBGConsole_Msg(0, "Warning, DL cut short with unknown command: 0x%08x 0x%08x", command.inst.cmd0, command.inst.cmd1);
-	DLParser_PopDL( command );
+	DLParser_PopDL();
 
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_PopDL( MicroCodeCommand command )
+void DLParser_PopDL( void )
 {
 	DL_PF("    Returning from DisplayList: level=%d", gDlistStackPointer+1);
 	DL_PF("    ############################################");

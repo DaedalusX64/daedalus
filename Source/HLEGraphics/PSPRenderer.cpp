@@ -281,6 +281,8 @@ PSPRenderer::PSPRenderer()
 	{
 		mTileTopLeft[t] = v2( 0.0f, 0.0f );
 		mTileScale[t] = v2( 1.0f, 1.0f );
+		mTexWrap[t][0] = 0;
+		mTexWrap[t][1] = 0;
 	}
 
 	memset( mLights, 0, sizeof(mLights) );
@@ -759,7 +761,9 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 		}
 
 
-		bool	installed_texture( false );
+		bool installed_texture( false );
+
+		u32 texture_idx( 0 );
 
 		if(install_texture0 || install_texture1)
 		{
@@ -780,11 +784,9 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 
 			sceGuTexFunc( tfx, tcc );
 
-			u32 texture_idx;
-
 			if( g_ROM.GameHacks == RAYMAN2 )
 			{
-				// NB if install_texture0 and install_texture1 are both set, 0 wins out
+				// NB if install_texture0 and install_texture1 are both set, 1 wins out
 				texture_idx = install_texture1 ? 1 : 0;
 
 				if( texture_idx & mTnLModeFlags.Texture && (mTnLModeFlags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
@@ -822,9 +824,10 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 			}
 		}
 
-
 		// If no texture was specified, or if we couldn't load it, clear it out
 		if( !installed_texture ) sceGuDisable(GU_TEXTURE_2D);
+
+		sceGuTexWrap( mTexWrap[texture_idx][0], mTexWrap[texture_idx][1] );
 
 		sceGuDrawArray( DRAW_MODE, render_flags, num_vertices, NULL, p_vertices );
 	}
@@ -2682,15 +2685,18 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	}
 	if( tile_size.GetHeight() > ti.GetHeight() ) mode_v = GU_REPEAT;
 
+	mTexWrap[ index ][ 0 ] = mode_u;
+	mTexWrap[ index ][ 1 ] = mode_v;
+
 	sceGuTexWrap( mode_u, mode_v );
 
 	// XXXX Double check this
 	mTileTopLeft[ index ] = v2( f32( tile_size.left) * (1.0f / 4.0f), f32(tile_size.top)* (1.0f / 4.0f) );
 
-	DL_PF( "    Load Texture -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] Format[%s] Size[%dbpp][%dx%d] TopLeft[%0.3f|%0.3f] Scale[%0.3f|%0.3f]",
-			ti.GetLoadAddress(), (u32)ti.GetPalettePtr(), ti.GetHashCode(),
-			ti.GetPitch(), ti.GetFormatName(), ti.GetSizeInBits(),
-			ti.GetWidth(), ti.GetHeight(), mTileTopLeft[ index ].x, mTileTopLeft[ index ].y, mTileScale[ index ].x, mTileScale[ index ].y );
+	DL_PF( "    Load Texture%d [%dx%d] [%s] [%dbpp] -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] TopLeft[%0.3f|%0.3f] Scale[%0.3f|%0.3f]",
+			index, ti.GetWidth(), ti.GetHeight(), ti.GetFormatName(), ti.GetSizeInBits(),
+			ti.GetLoadAddress(), (u32)ti.GetPalettePtr(), ti.GetHashCode(), ti.GetPitch(),
+			mTileTopLeft[ index ].x, mTileTopLeft[ index ].y, mTileScale[ index ].x, mTileScale[ index ].y );
 
 	if( (mpTexture[ index ] != NULL) && (mpTexture[ index ]->GetTextureInfo() == ti) ) return;
 

@@ -120,7 +120,7 @@ const MicroCodeInstruction gNormalInstruction[MAX_UCODE][256] =
 		//b0
 		DLParser_Nothing,DLParser_GBI0_Tri4, DLParser_GBI1_RDPHalf_Cont, DLParser_GBI1_RDPHalf_2,
 		DLParser_GBI1_RDPHalf_1, DLParser_GBI1_Line3D, DLParser_GBI1_GeometryMode, DLParser_GBI1_GeometryMode,
-		DLParser_PopDL, DLParser_GBI1_SetOtherModeL, DLParser_GBI1_SetOtherModeH, DLParser_GBI1_Texture,
+		DLParser_GBI1_EndDL, DLParser_GBI1_SetOtherModeL, DLParser_GBI1_SetOtherModeH, DLParser_GBI1_Texture,
 		DLParser_GBI1_MoveWord, DLParser_GBI1_PopMtx, DLParser_GBI1_CullDL, DLParser_GBI1_Tri1,
 
 		//c0
@@ -205,7 +205,7 @@ const MicroCodeInstruction gNormalInstruction[MAX_UCODE][256] =
 		//b0
 		DLParser_GBI1_BranchZ,	DLParser_GBI1_Tri2,			DLParser_GBI1_ModifyVtx,		DLParser_GBI1_RDPHalf_2,
 		DLParser_GBI1_RDPHalf_1,DLParser_GBI1_Line3D,		DLParser_GBI1_GeometryMode,DLParser_GBI1_GeometryMode,
-		DLParser_PopDL,			DLParser_GBI1_SetOtherModeL,DLParser_GBI1_SetOtherModeH,	DLParser_GBI1_Texture,
+		DLParser_GBI1_EndDL,	DLParser_GBI1_SetOtherModeL,DLParser_GBI1_SetOtherModeH,	DLParser_GBI1_Texture,
 		DLParser_GBI1_MoveWord, DLParser_GBI1_PopMtx,		DLParser_GBI1_CullDL,			DLParser_GBI1_Tri1,
 		//c0
 		DLParser_GBI1_Noop,		DLParser_Nothing,			DLParser_Nothing,			DLParser_Nothing,    
@@ -300,7 +300,7 @@ const MicroCodeInstruction gNormalInstruction[MAX_UCODE][256] =
 		DLParser_Nothing,		DLParser_Nothing,			DLParser_Nothing,			DLParser_Nothing,
 		DLParser_Nothing,		DLParser_GBI2_DL_Count,		DLParser_GBI2_DMA_IO,		DLParser_GBI2_Texture,
 		DLParser_GBI1_PopMtx,	DLParser_GBI2_GeometryMode, DLParser_GBI2_Mtx,			DLParser_GBI2_MoveWord,
-		DLParser_GBI2_MoveMem,	DLParser_GBI2_LoadUCode,	DLParser_GBI1_DL,			DLParser_PopDL,
+		DLParser_GBI2_MoveMem,	DLParser_GBI2_LoadUCode,	DLParser_GBI1_DL,			DLParser_GBI1_EndDL,
 		//e0
 		DLParser_GBI1_SpNoop,	DLParser_GBI1_RDPHalf_1,	DLParser_GBI2_SetOtherModeL,DLParser_GBI2_SetOtherModeH,
 		DLParser_TexRect,		DLParser_TexRectFlip,		DLParser_RDPLoadSync,		DLParser_RDPPipeSync,
@@ -373,7 +373,7 @@ const MicroCodeInstruction gNormalInstruction[MAX_UCODE][256] =
 		//b0
 		DLParser_S2DEX_SelectDl,	DLParser_S2DEX_ObjRendermode,	DLParser_S2DEX_ObjRectangleR,	DLParser_GBI1_RDPHalf_2,
 		DLParser_GBI1_RDPHalf_1,	DLParser_GBI1_Line3D,			DLParser_GBI1_GeometryMode,DLParser_GBI1_GeometryMode,
-		DLParser_PopDL,				DLParser_GBI1_SetOtherModeL,	DLParser_GBI1_SetOtherModeH,	DLParser_GBI1_Texture,
+		DLParser_GBI1_EndDL,		DLParser_GBI1_SetOtherModeL,	DLParser_GBI1_SetOtherModeH,	DLParser_GBI1_Texture,
 		DLParser_GBI1_MoveWord,		DLParser_GBI1_PopMtx,			DLParser_GBI1_CullDL,			DLParser_GBI1_Tri1,
 		//c0
 		DLParser_GBI1_Noop,			DLParser_S2DEX_ObjLoadTxtr,		DLParser_S2DEX_ObjLdtxSprite,	DLParser_S2DEX_ObjLdtxRect,

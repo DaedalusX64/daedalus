@@ -365,6 +365,7 @@ private:
 	CRefPtr<CTexture>	mpTexture[ NUM_N64_TEXTURES ];
 	v2					mTileTopLeft[ NUM_N64_TEXTURES ];
 	v2					mTileScale[ NUM_N64_TEXTURES ];
+	u32					mTexWrap[ NUM_N64_TEXTURES ][ 2 ];
 	
 	//Max is 18 according to the manual //Corn
 	static const u32 MATRIX_STACK_SIZE = 18; 

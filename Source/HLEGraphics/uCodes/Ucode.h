@@ -86,6 +86,7 @@ UcodeFunc( DLParser_GBI2_DL_Count );
 //*****************************************************************************
 
 UcodeFunc( DLParser_Nothing);
+UcodeFunc( DLParser_GBI1_EndDL );
 UcodeFunc( DLParser_GBI1_SpNoop );
 UcodeFunc( DLParser_GBI1_MoveMem );
 UcodeFunc( DLParser_GBI1_Reserved );
@@ -160,7 +161,6 @@ UcodeFunc( DLParser_SetCombine );
 UcodeFunc( DLParser_SetTImg );
 UcodeFunc( DLParser_SetZImg );
 UcodeFunc( DLParser_SetCImg );
-UcodeFunc( DLParser_PopDL );
 
 //*****************************************************************************
 // RSP Tri Command
