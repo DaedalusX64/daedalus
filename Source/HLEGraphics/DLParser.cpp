@@ -187,7 +187,7 @@ const MicroCodeInstruction *gUcodeFunc = NULL;
 MicroCodeInstruction gCustomInstruction[256];
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-char ** gUcodeName = NULL;
+char ** gUcodeName = (char **)gNormalInstructionName[ 0 ];
 char * gCustomInstructionName[256];
 #endif
 
@@ -480,7 +480,7 @@ static void HandleDumpDisplayList( OSTask * pTask )
 //*****************************************************************************
 //
 //*****************************************************************************
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+#if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
 #define SetCommand( cmd, func, name )	gCustomInstruction[ cmd ] = func;	gCustomInstructionName[ cmd ] = (char *)name;
 #else
 #define SetCommand( cmd, func, name )	gCustomInstruction[ cmd ] = func;
@@ -494,7 +494,7 @@ void DLParser_SetCustom( u32 ucode )
 	// Let's build an array based from a normal uCode table
 	memcpy( &gCustomInstruction, &gNormalInstruction[ ucode_modify[ ucode-MAX_UCODE ] ], 1024 );
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+#if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
 	memcpy( gCustomInstructionName, gNormalInstructionName[ ucode_modify[ ucode-MAX_UCODE ] ], 1024 );
 #endif
 
@@ -571,7 +571,7 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 	current.ucode	  = ucode; 
 
 	// Used for fetching ucode names (Debug Only)
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+#if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
 	gUcodeName = (ucode <= GBI_1_S2DEX) ? (char **)gNormalInstructionName[ ucode ] : gCustomInstructionName;
 #endif
 
@@ -598,7 +598,7 @@ SProfileItemHandle * gpProfileItemHandles[ 256 ];
 #define PROFILE_DL_CMD( cmd )								\
 	if(gpProfileItemHandles[ (cmd) ] == NULL)				\
 	{														\
-			gpProfileItemHandles[ (cmd) ] = new SProfileItemHandle( CProfiler::Get()->AddItem( gUcodeName[ cmd ] );		\
+			gpProfileItemHandles[ (cmd) ] = new SProfileItemHandle( CProfiler::Get()->AddItem( gUcodeName[ cmd ] ));		\
 	}														\
 	CAutoProfile		_auto_profile( *gpProfileItemHandles[ (cmd) ] )
 

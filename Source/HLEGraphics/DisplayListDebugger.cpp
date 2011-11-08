@@ -1076,10 +1076,10 @@ void IDisplayListDebugger::Run()
 			}
 			else
 			{
-				printf( "(HOME) -> Resume\n" );
-				printf( "(SELECT) -> Go to next frame\n" );
+				printf( "(HOME) -> Resume game\n" );
 				printf( "(START) -> Screen shot\n" );
-				printf( "(R-TRIG) -> Dump Dlist & Textures\n" );
+				printf( "(SELECT) -> Go to next frame\n" );
+				printf( "(R-TRIG) -> Dump DList & Textures\n" );
 				printf( "(L-TRIG) -> Scale Screen\n\n" );
 				u32 idx = 0;
 				for( DebugMenuOptionVector::const_iterator it = menu_options.begin(); it != menu_options.end(); ++it, idx++ )
