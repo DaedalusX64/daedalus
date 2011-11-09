@@ -2693,8 +2693,9 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	// XXXX Double check this
 	mTileTopLeft[ index ] = v2( f32( tile_size.left) * (1.0f / 4.0f), f32(tile_size.top)* (1.0f / 4.0f) );
 
-	DL_PF( "    Load Texture%d [%dx%d] [%s] [%dbpp] -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] TopLeft[%0.3f|%0.3f] Scale[%0.3f|%0.3f]",
+	DL_PF( "    Load Texture%d [%dx%d] [%s] [%dbpp] [%s u , %s v] -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] TopLeft[%0.3f|%0.3f] Scale[%0.3f|%0.3f]",
 			index, ti.GetWidth(), ti.GetHeight(), ti.GetFormatName(), ti.GetSizeInBits(),
+			(mode_u==GU_CLAMP)? "Clamp" : "Repeat", (mode_v==GU_CLAMP)? "Clamp" : "Repeat",
 			ti.GetLoadAddress(), (u32)ti.GetPalettePtr(), ti.GetHashCode(), ti.GetPitch(),
 			mTileTopLeft[ index ].x, mTileTopLeft[ index ].y, mTileScale[ index ].x, mTileScale[ index ].y );
 

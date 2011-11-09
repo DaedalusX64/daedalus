@@ -241,7 +241,7 @@ void DLParser_Set_Addr_DKR( MicroCodeCommand command )
 void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 {
 	//If bit is set then do backface culling on tris
-	//PSPRenderer::Get()->SetCullMode(false, (command.inst.cmd0 & 0x00010000));
+	//PSPRenderer::Get()->SetCullMode((command.inst.cmd0 & 0x00010000), true);
 
 	u32 address = RDPSegAddr(command.inst.cmd1);
 	u32 count = (command.inst.cmd0 >> 4) & 0xFFF;
@@ -251,15 +251,13 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 
 	for (u32 i = 0; i < count; i++)
 	{
-		DL_PF("    0x%08x: %08x %08x %08x %08x", address + i*16, pData[0], pData[1], pData[2], pData[3]);
-
 		u32 info = pData[ 0 ];
 
 		u32 v0_idx = (info >> 16) & 0x1F;
 		u32 v1_idx = (info >>  8) & 0x1F;
 		u32 v2_idx = (info      ) & 0x1F;
 
-		PSPRenderer::Get()->SetCullMode( !(info & 0x40000000), !(info & 0x40000000) );
+		PSPRenderer::Get()->SetCullMode( !(info & 0x40000000), true );
 
 		//if( info & 0x40000000 )
 		//{	// no cull
@@ -280,28 +278,50 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 		//	//}
 		//}
 	
+		// Generate texture coordinates...
+		const s16 s0( s16(pData[1] >> 16) );
+		const s16 t0( s16(pData[1] & 0xFFFF) );
+
+		const s16 s1( s16(pData[2] >> 16) );
+		const s16 t1( s16(pData[2] & 0xFFFF) );
+
+		const s16 s2( s16(pData[3] >> 16) );
+		const s16 t2( s16(pData[3] & 0xFFFF) );
+
+		DL_PF("    0x%08x: Index[%d %d %d] Cull[%s] uv_TexCoord[%0.2f|%0.2f] [%0.2f|%0.2f] [%0.2f|%0.2f]",
+			address + i*16, v0_idx, v1_idx, v2_idx, !(info & 0x40000000)? "On":"Off",
+			(f32)s0/32.0f, (f32)t0/32.0f,
+			(f32)s1/32.0f, (f32)t1/32.0f,
+			(f32)s2/32.0f, (f32)t2/32.0f);
+
+#if 1	//1->Fixes texture scaling, 0->Render as is and get some texture scaling errors
+		//
+		// This will create problem since some verts will get re-used over writing new texture coords
+		// To fix it we copy all verts to a new location where we can have individual texture coordinates //Corn
+		PSPRenderer::Get()->CopyVtx( v0_idx, i*3+32);
+		PSPRenderer::Get()->CopyVtx( v1_idx, i*3+33);
+		PSPRenderer::Get()->CopyVtx( v2_idx, i*3+34);
+
+		if( PSPRenderer::Get()->AddTri(i*3+32, i*3+33, i*3+34) )
+		{
+			tris_added = true;
+			PSPRenderer::Get()->SetVtxTextureCoord( i*3+32, s0, t0 );
+			PSPRenderer::Get()->SetVtxTextureCoord( i*3+33, s1, t1 );
+			PSPRenderer::Get()->SetVtxTextureCoord( i*3+34, s2, t2 );
+		}
+#else
 		if( PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx) )
 		{
 			tris_added = true;
-
-			//// Generate texture coordinates
-			s16 s0( s16(pData[1] >> 16) );
-			s16 t0( s16(pData[1] & 0xFFFF) );
 			PSPRenderer::Get()->SetVtxTextureCoord( v0_idx, s0, t0 );
-
-			s16 s1( s16(pData[2] >> 16) );
-			s16 t1( s16(pData[2] & 0xFFFF) );
 			PSPRenderer::Get()->SetVtxTextureCoord( v1_idx, s1, t1 );
-
-			s16 s2( s16(pData[3] >> 16) );
-			s16 t2( s16(pData[3] & 0xFFFF) );
 			PSPRenderer::Get()->SetVtxTextureCoord( v2_idx, s2, t2 );
 		}
-
+#endif
 		pData += 4;
 	}
 
-	if (tris_added)	
+	if(tris_added)	
 	{
 		PSPRenderer::Get()->FlushTris();
 	}

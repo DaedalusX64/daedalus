@@ -230,9 +230,10 @@ public:
 	void				SetNewVertexInfoPD(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!	
 	void				ModifyVertexInfo(u32 whered, u32 vert, u32 val);
 	void				SetVtxColor( u32 vert, c32 color );
-	inline void			SetVtxTextureCoord( u32 vert, short tu, short tv ) {mVtxProjected[vert].Texture.x = (f32)tu * (1.0f / 32.0f); mVtxProjected[vert].Texture.y = (f32)tv * (1.0f / 32.0f);}
+	inline void			SetVtxTextureCoord( u32 vert, s16 tu, s16 tv ) { mVtxProjected[vert].Texture.x = (f32)tu * (1.0f / 32.0f); mVtxProjected[vert].Texture.y = (f32)tv * (1.0f / 32.0f); }
 	inline void			SetVtxXY( u32 vert, float x, float y );
 	void				SetVtxZ( u32 vert, float z );
+	inline void			CopyVtx( u32 vert_src, u32 vert_dst ) { mVtxProjected[vert_dst] = mVtxProjected[vert_src]; }
 
 	// TextRect stuff
 	void				TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 );
@@ -330,7 +331,7 @@ private:
 	void				DebugMux( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 render_flags, u64 mux);
 #endif
 private:
-	enum { MAX_VERTS = 80 };		// F3DLP.Rej supports up to 80 verts!
+	enum { MAX_VERTS = 128 };		// F3DLP.Rej supports up to 80 verts! DKR needs to copy 32*3 verts + th first 32
 
 	TnLParams			mTnLParams;
 
