@@ -54,7 +54,7 @@ void DLParser_DumpVtxInfoDKR(u32 address, u32 v0_idx, u32 num_verts)
 			const v4 & t = PSPRenderer::Get()->GetTransformedVtxPos( idx );
 			const v4 & p = PSPRenderer::Get()->GetProjectedVtxPos( idx );
 
-			DL_PF("    #%02d Pos:{% 3f,% 3f,% 3f}->{% 3f,% 3f,% 3f} Proj:{% 3f,% 3f,% 3f,% 3f} RGBA:{%02x%02x%02x%02x}",
+			DL_PF("    #%02d Pos:{% 0.1f,% 0.1f,% 0.1f}->{% 0.1f,% 0.1f,% 0.1f} Proj:{% 6f,% 6f,% 6f,% 6f} RGBA:{%02x%02x%02x%02x}",
 				idx, x, y, z, t.x, t.y, t.z, p.x/p.w, p.y/p.w, p.z/p.w, p.w, a, b, c, d );
 
 			psSrc+=10;

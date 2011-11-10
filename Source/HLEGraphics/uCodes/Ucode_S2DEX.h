@@ -484,7 +484,6 @@ void DLParser_S2DEX_ObjMoveMem( MicroCodeCommand command )
 	}
 }
 
-#ifndef DAEDALUS_TMEM
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -494,27 +493,10 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 	uObjTxtr* ObjTxtr = (uObjTxtr*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 	if( ObjTxtr->block.type == S2DEX_OBJLT_TLUT )
 	{
-		u32 ObjTlutAddr = (u32)(g_pu8RamBase + RDPSegAddr(ObjTxtr->tlut.image));
-		u32 offset = ObjTxtr->tlut.phead - 0x100;
-
+	#ifndef DAEDALUS_TMEM
 		// Store TLUT pointer
-		gTextureMemory[ offset & 0xFF ] = (u32*)ObjTlutAddr;
-		gObjTxtr = NULL;
-	}
-	else	// Need to load from ObjTxtr
-	{
-		gObjTxtr = (uObjTxtr*)ObjTxtr;
-	}
-}
-#else
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
-{	
-	uObjTxtr* ObjTxtr = (uObjTxtr*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
-	if( ObjTxtr->block.type == S2DEX_OBJLT_TLUT )
-	{
+		gTextureMemory[ ObjTxtr->tlut.phead & 0xFF ] = (u32*)(g_pu8RamBase + RDPSegAddr(ObjTxtr->tlut.image));
+	#else
 		uObjTxtrTLUT *ObjTlut = (uObjTxtrTLUT*)ObjTxtr;
 		u32 ObjTlutAddr = (u32)(g_pu8RamBase + RDPSegAddr(ObjTlut->image));
 
@@ -525,9 +507,14 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 		memcpy_vfpu_BE((void *)&gTextureMemory[ (offset << 1) & 0x3FF ], (void *)ObjTlutAddr, (size << 1));
 
 		//printf("Source[%p] TMEM[%d] Size[%d]\n",(u32*)ObjTlutAddr , (offset << 1) & 0x3FF, (size << 1));
+	#endif
+		gObjTxtr = NULL;
+	}
+	else	// Need to load from ObjTxtr
+	{
+		gObjTxtr = (uObjTxtr*)ObjTxtr;
 	}
 }
-#endif
 
 //*****************************************************************************
 //

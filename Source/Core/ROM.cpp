@@ -478,6 +478,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x4450: g_ROM.GameHacks = PERFECT_DARK;		break;
 	case 0x3247: g_ROM.GameHacks = EXTREME_G2;			break;
 	case 0x3259: g_ROM.GameHacks = RAYMAN2;				break;
+	case 0x5359: g_ROM.GameHacks = YOSHI;				break;
 	case 0x3358:	//GEX3
 	case 0x3258:	//GEX64
 		g_ROM.GameHacks = GEX_GECKO;
@@ -496,10 +497,8 @@ void SpecificGameHacks( const ROMHeader & id )
 		g_ROM.GameHacks = ANIMAL_CROSSING;
 		break;
 	case 0x4842:	//Body Harvest
-	case 0x434E:	// Nightmare Creatures
-		g_ROM.GameHacks = BODY_HARVEST;	
-	case 0x5359:	// Yoshi Story
-		g_ROM.GameHacks = YOSHI;		
+	case 0x434E:	//Nightmare Creatures
+		g_ROM.GameHacks = BODY_HARVEST;
 		break;
 	default:
 		break;
