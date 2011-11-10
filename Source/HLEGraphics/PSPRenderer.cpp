@@ -2576,47 +2576,6 @@ inline void PSPRenderer::SetVtxXY( u32 vert, float x, float y )
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::SetLightCol(u32 light, u32 colour)
-{
-	mLights[light].Colour.x = (f32)((colour >> 24)&0xFF) * (1.0f / 255.0f);
-	mLights[light].Colour.y = (f32)((colour >> 16)&0xFF) * (1.0f / 255.0f);
-	mLights[light].Colour.z = (f32)((colour >>  8)&0xFF) * (1.0f / 255.0f);
-	mLights[light].Colour.w = 1.0f;	// Ignore light alpha
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void PSPRenderer::SetLightDirection(u32 l, float x, float y, float z)
-{
-	v3		normal( x, y, z );
-	normal.Normalise();
-
-	mLights[l].Direction.x = normal.x;
-	mLights[l].Direction.y = normal.y;
-	mLights[l].Direction.z = normal.z;
-	mLights[l].Padding0 = 0.0f;
-}
-
-//*****************************************************************************
-// Init matrix stack to identity matrices
-//*****************************************************************************
-void PSPRenderer::ResetMatrices()
-{
-	Matrix4x4 mat;
-
-	mat.SetIdentity();
-
-	mProjectionTop = 0;
-	mModelViewTop = 0;
-	mProjectionStack[0] = mat;
-	mModelViewStack[0] = mat;
-	mWorldProjectValid = false;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
 inline void	PSPRenderer::EnableTexturing( u32 tile_idx )
 {
 	EnableTexturing( 0, tile_idx );
@@ -2693,7 +2652,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	// XXXX Double check this
 	mTileTopLeft[ index ] = v2( f32( tile_size.left) * (1.0f / 4.0f), f32(tile_size.top)* (1.0f / 4.0f) );
 
-	DL_PF( "    Load Texture%d [%dx%d] [%s] [%dbpp] [%s u , %s v] -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] TopLeft[%0.3f|%0.3f] Scale[%0.3f|%0.3f]",
+	DL_PF( "    Load Texture[%d] [%dx%d] [%s] [%dbpp] [%s u , %s v] -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] TopLeft[%0.3f|%0.3f] Scale[%0.3f|%0.3f]",
 			index, ti.GetWidth(), ti.GetHeight(), ti.GetFormatName(), ti.GetSizeInBits(),
 			(mode_u==GU_CLAMP)? "Clamp" : "Repeat", (mode_v==GU_CLAMP)? "Clamp" : "Repeat",
 			ti.GetLoadAddress(), (u32)ti.GetPalettePtr(), ti.GetHashCode(), ti.GetPitch(),

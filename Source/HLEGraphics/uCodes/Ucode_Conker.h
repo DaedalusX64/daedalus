@@ -31,7 +31,7 @@ void DLParser_Vtx_Conker( MicroCodeCommand command )
 	u32 n      = ((command.inst.cmd0 >> 12)& 0xFFF);
 	u32 v0		= len - n;
 
-	DL_PF("    Vtx: address 0x%08x, len: %d, v0: %d, n: %d", address, len, v0, n);
+	DL_PF("    Address[0x%08x] Len[%d] v0[%d] Num[%d]", address, len, v0, n);
 
 	PSPRenderer::Get()->SetNewVertexInfoConker( address, v0, n );
 
@@ -115,7 +115,7 @@ void DLParser_MoveMem_Conker( MicroCodeCommand command )
 			if( offset2 >= 0x30 )
 			{
 				u32 light = (offset2 - 0x30)/0x30;
-				DL_PF("    Light %d:", light);
+				//DL_PF("    Light %d:", light);
 				RDP_MoveMemLight(light, address);
 			}
 			else
@@ -145,7 +145,7 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 	case G_MW_NUMLIGHT:
 		{
 			u32 num_lights = command.inst.cmd1 / 48;
-			DL_PF("     G_MW_NUMLIGHT: %d", num_lights);
+			DL_PF("    G_MW_NUMLIGHT: %d", num_lights);
 
 			gAmbientLightIdx = num_lights;
 			PSPRenderer::Get()->SetNumLights(num_lights);
@@ -157,7 +157,7 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 			u32 segment = command.mw2.offset >> 2;
 			u32 address	= command.mw2.value;
 
-			DL_PF( "      G_MW_SEGMENT Segment[%d] = 0x%08x", segment, address );
+			DL_PF( "    G_MW_SEGMENT Segment[%d] = 0x%08x", segment, address );
 
 			gSegments[segment] = address;
 		}
@@ -231,7 +231,7 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 	else
 	{
 		u32 num_lights = command.inst.cmd1 / 48;
-		DL_PF("     G_MW_NUMLIGHT: %d", num_lights);
+		DL_PF("    G_MW_NUMLIGHT: %d", num_lights);
 
 		gAmbientLightIdx = num_lights + 1;
 		PSPRenderer::Get()->SetNumLights(num_lights);

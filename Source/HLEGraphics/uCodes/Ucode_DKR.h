@@ -104,7 +104,7 @@ void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 
 	u32 v0_idx = ((command.inst.cmd0 >> 9) & 0x1F) + gDKRVtxCount;
 
-	DL_PF("    Address 0x%08x, v0: %d, Num: %d", address, v0_idx, num_verts);
+	DL_PF("    Address[0x%08x] v0[%d] Num[%d]", address, v0_idx, num_verts);
 
 	DAEDALUS_ASSERT( v0_idx < 32, "DKR : v0 out of bound! %d" );
 
@@ -288,8 +288,8 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 		const s16 s2( s16(pData[3] >> 16) );
 		const s16 t2( s16(pData[3] & 0xFFFF) );
 
-		DL_PF("    0x%08x: Index[%d %d %d] Cull[%s] uv_TexCoord[%0.2f|%0.2f] [%0.2f|%0.2f] [%0.2f|%0.2f]",
-			address + i*16, v0_idx, v1_idx, v2_idx, !(info & 0x40000000)? "On":"Off",
+		DL_PF("    Index[%d %d %d] Cull[%s] uv_TexCoord[%0.2f|%0.2f] [%0.2f|%0.2f] [%0.2f|%0.2f]",
+			v0_idx, v1_idx, v2_idx, !(info & 0x40000000)? "On":"Off",
 			(f32)s0/32.0f, (f32)t0/32.0f,
 			(f32)s1/32.0f, (f32)t1/32.0f,
 			(f32)s2/32.0f, (f32)t2/32.0f);

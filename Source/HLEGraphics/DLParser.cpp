@@ -793,7 +793,10 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 	g_N64Lights[light_idx].y			= f32(pcBase[9 ^ 0x3]);
 	g_N64Lights[light_idx].z			= f32(pcBase[10 ^ 0x3]);
 					
-	DL_PF("       RGBA: 0x%08x, RGBACopy: 0x%08x, x: %f, y: %f, z: %f", 
+	DL_PF("    %s %s light[%d] RGBA[0x%08x] RGBACopy[0x%08x] x[%0.0f] y[%0.0f] z[%0.0f]", 
+		pdwBase[2]? "Valid" : "Invalid",
+		(light_idx == gAmbientLightIdx)? "Ambient" : "Normal",
+		light_idx,
 		g_N64Lights[light_idx].Colour,
 		g_N64Lights[light_idx].ColourCopy,
 		g_N64Lights[light_idx].x,
@@ -802,28 +805,18 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 
 	if (light_idx == gAmbientLightIdx)
 	{
-		DL_PF("      (Ambient Light)");
-
+		//Ambient Light
 		u32 n64col( g_N64Lights[light_idx].Colour );
-
 		PSPRenderer::Get()->SetAmbientLight( v4( N64COL_GETR_F(n64col), N64COL_GETG_F(n64col), N64COL_GETB_F(n64col), 1.0f ) );
 	}
 	else
 	{
-		
-		DL_PF("      (Normal Light)");
-
+		//Normal Light
 		PSPRenderer::Get()->SetLightCol(light_idx, g_N64Lights[light_idx].Colour);
-		if (pdwBase[2] == 0)	// Direction is 0!
+
+		if (pdwBase[2] != 0)	// if Direction is 0 its invalid!
 		{
-			DL_PF("      Light is invalid (direction is 0)");
-		}
-		else
-		{
-			PSPRenderer::Get()->SetLightDirection(light_idx, 
-										  g_N64Lights[light_idx].x,
-										  g_N64Lights[light_idx].y,
-										  g_N64Lights[light_idx].z);
+			PSPRenderer::Get()->SetLightDirection(light_idx, v3( g_N64Lights[light_idx].x, g_N64Lights[light_idx].y, g_N64Lights[light_idx].z) );
 		}
 	}
 }
@@ -891,7 +884,7 @@ void DLParser_Nothing( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_PopDL( void )
+static void DLParser_PopDL( void )
 {
 	DL_PF("    Returning from DisplayList: level=%d", gDlistStackPointer+1);
 	DL_PF("    ############################################");
@@ -930,8 +923,8 @@ void DLParser_SetConvert( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_SetPrimDepth( MicroCodeCommand command )
 {
-	DL_PF("    SetPrimDepth: 0x%08x 0x%08x - z: 0x%04x dz: 0x%04x", 
-		   command.inst.cmd0, command.inst.cmd1, command.primdepth.z, command.primdepth.dz);	
+	DL_PF("    SetPrimDepth z[0x%04x] dz[0x%04x]", 
+		   command.primdepth.z, command.primdepth.dz);	
 	
 	PSPRenderer::Get()->SetPrimitiveDepth( command.primdepth.z );
 }
@@ -954,9 +947,9 @@ void DLParser_RDPSetOtherMode( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_RDPLoadSync( MicroCodeCommand command )	{ /*DL_PF("LoadSync: (Ignored)");*/ }
-void DLParser_RDPPipeSync( MicroCodeCommand command )	{ /*DL_PF("PipeSync: (Ignored)");*/ }
-void DLParser_RDPTileSync( MicroCodeCommand command )	{ /*DL_PF("TileSync: (Ignored)");*/ }
+void DLParser_RDPLoadSync( MicroCodeCommand command )	{ /*DL_PF("    LoadSync: (Ignored)");*/ }
+void DLParser_RDPPipeSync( MicroCodeCommand command )	{ /*DL_PF("    PipeSync: (Ignored)");*/ }
+void DLParser_RDPTileSync( MicroCodeCommand command )	{ /*DL_PF("    TileSync: (Ignored)");*/ }
 
 //*****************************************************************************
 //
@@ -967,7 +960,7 @@ void DLParser_RDPFullSync( MicroCodeCommand command )
 	// This is done after DLIST processing anyway
 	//FinishRDPJob();
 
-	/*DL_PF("FullSync: (Generating Interrupt)");*/
+	/*DL_PF("    FullSync: (Generating Interrupt)");*/
 }
 
 //*****************************************************************************
@@ -1011,7 +1004,7 @@ void DLParser_SetTile( MicroCodeCommand command )
 	
 	gRDPStateManager.SetTile( tile );
 
-	DL_PF( "    Tile:%d  Fmt: %s/%s Line:%d TMem:0x%04x Palette:%d", tile.tile_idx, gFormatNames[tile.format], gSizeNames[tile.size], tile.line, tile.tmem, tile.palette);
+	DL_PF( "    Tile[%d]  Fmt:%s/%s Line:%d TMem:0x%04x Palette:%d", tile.tile_idx, gFormatNames[tile.format], gSizeNames[tile.size], tile.line, tile.tmem, tile.palette);
 	DL_PF( "         S: Clamp:%s Mirror:%s Mask:0x%x Shift:0x%x", gOnOffNames[tile.clamp_s],gOnOffNames[tile.mirror_s], tile.mask_s, tile.shift_s );
 	DL_PF( "         T: Clamp:%s Mirror:%s Mask:0x%x Shift:0x%x", gOnOffNames[tile.clamp_t],gOnOffNames[tile.mirror_t], tile.mask_t, tile.shift_t );
 }
@@ -1025,8 +1018,8 @@ void DLParser_SetTileSize( MicroCodeCommand command )
 	tile.cmd0 = command.inst.cmd0;
 	tile.cmd1 = command.inst.cmd1;
 
-	DL_PF("    Tile:%d (%d,%d) -> (%d,%d) [%d x %d]",
-		tile.tile_idx, tile.left/4, tile.top/4,
+	DL_PF("    Tile[%d] (%d,%d) -> (%d,%d) [%d x %d]",
+				tile.tile_idx, tile.left/4, tile.top/4,
 		        tile.right/4, tile.bottom/4,
 				((tile.right/4) - (tile.left/4)) + 1,
 				((tile.bottom/4) - (tile.top/4)) + 1);
@@ -1046,7 +1039,7 @@ void DLParser_SetTImg( MicroCodeCommand command )
 	g_TI.Address	= RDPSegAddr(command.img.addr);
 	//g_TI.bpl		= g_TI.Width << g_TI.Size >> 1; // Do we need to handle?
 
-	DL_PF("    Image: 0x%08x Fmt: %s/%s Width: %d (Pitch: %d) Bytes/line:%d", g_TI.Address, gFormatNames[g_TI.Format], gSizeNames[g_TI.Size], g_TI.Width, g_TI.GetPitch(), g_TI.Width << g_TI.Size >> 1 );
+	DL_PF("    TImg Adr[0x%08x] Fmt[%s/%s] Width[%d] Pitch[%d] Bytes/line[%d]", g_TI.Address, gFormatNames[g_TI.Format], gSizeNames[g_TI.Size], g_TI.Width, g_TI.GetPitch(), g_TI.Width << g_TI.Size >> 1 );
 }
 
 //*****************************************************************************
@@ -1064,8 +1057,14 @@ void DLParser_LoadBlock( MicroCodeCommand command )
 
 	u32		src_offset = g_TI.Address + ult * (g_TI.Width << g_TI.Size >> 1) + (uls << g_TI.Size >> 1);
 
-	DL_PF("    Tile:%d (%d,%d - %d) DXT:0x%04x = %d Bytes => %d pixels/line", tile_idx, uls, ult, command.loadtile.sh, dxt, (g_TI.Width << g_TI.Size >> 1), bytes2pixels( (g_TI.Width << g_TI.Size >> 1), g_TI.Size ));
-	DL_PF("    Offset: 0x%08x", src_offset);
+	DL_PF("    Tile[%d] (%d,%d - %d) DXT:0x%04x = %d Bytes => %d pixels/line Offset: 0x%08x",
+		tile_idx,
+		uls, ult,
+		command.loadtile.sh,
+		dxt,
+		(g_TI.Width << g_TI.Size >> 1),
+		bytes2pixels( (g_TI.Width << g_TI.Size >> 1), g_TI.Size ),
+		src_offset);
 
 	gRDPStateManager.LoadBlock( tile_idx, src_offset, swapped );
 }
@@ -1079,8 +1078,11 @@ void DLParser_LoadTile( MicroCodeCommand command )
 	tile.cmd0 = command.inst.cmd0;
 	tile.cmd1 = command.inst.cmd1;
 
-	DL_PF("    Tile:%d (%d,%d) -> (%d,%d) [%d x %d]",	tile.tile_idx, tile.left/4, tile.top/4, tile.right/4 + 1, tile.bottom / 4 + 1, (tile.right - tile.left)/4+1, (tile.bottom - tile.top)/4+1);
-	DL_PF("    Offset: 0x%08x",							g_TI.GetOffset( tile.left, tile.top ) );
+	DL_PF("    Tile[%d] (%d,%d) -> (%d,%d) [%d x %d] Offset: 0x%08x",
+		tile.tile_idx,
+		tile.left/4, tile.top/4, tile.right/4 + 1, tile.bottom / 4 + 1,
+		(tile.right - tile.left)/4+1, (tile.bottom - tile.top)/4+1,
+		g_TI.GetOffset( tile.left, tile.top ));
 
 	gRDPStateManager.LoadTile( tile );
 }
@@ -1227,7 +1229,7 @@ void DLParser_TexRect( MicroCodeCommand command )
 	uv1.x = uv0.x + d.x * ( xy1.x - xy0.x );
 	uv1.y = uv0.y + d.y * ( xy1.y - xy0.y );
 
-	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile:%d", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
+	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile[%d]", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
 	DL_PF("    Tex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", uv0.x, uv0.y, uv1.x, uv1.y, d.x, d.y);
 
 	PSPRenderer::Get()->TexRect( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );
@@ -1279,7 +1281,7 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	uv1.x = uv0.x + d.x * ( xy1.y - xy0.y );		// Flip - use y
 	uv1.y = uv0.y + d.y * ( xy1.x - xy0.x );		// Flip - use x
 
-	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile:%d ", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
+	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile[%d]", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
 	DL_PF("    FLIPTex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", uv0.x, uv0.y, uv1.x, uv1.y, d.x, d.y);
 	
 	PSPRenderer::Get()->TexRectFlip( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );
@@ -1291,7 +1293,6 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 void DLParser_FillRect( MicroCodeCommand command )
 { 
 	// Note, in some modes, the right/bottom lines aren't drawn
-	DL_PF("    (%d,%d) (%d,%d)", command.fillrect.x0, command.fillrect.y0, command.fillrect.x1, command.fillrect.y1);
 
 	//Always clear Zbuffer if Depthbuffer is selected //Corn
 	if (g_DI.Address == g_CI.Address)
@@ -1300,6 +1301,8 @@ void DLParser_FillRect( MicroCodeCommand command )
 		DL_PF("    Clearing ZBuffer");
 		return;
 	}
+
+	DL_PF("    Filling Rectangle (%d,%d)->(%d,%d)", command.fillrect.x0, command.fillrect.y0, command.fillrect.x1, command.fillrect.y1);
 
 	// Unless we support fb emulation, we can safetly ignore this fillrect
 	if( bIsOffScreen )	return;
@@ -1350,7 +1353,6 @@ void DLParser_FillRect( MicroCodeCommand command )
 		colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf5551 >( c );
 
 		//printf( "FillRect: %08x, %04x\n", colour.GetColour(), c.Bits );
-		DL_PF("    Filling Rectangle");
 		PSPRenderer::Get()->FillRect( xy0, xy1, colour.GetColour() );
 
 	}
@@ -1368,7 +1370,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_SetZImg( MicroCodeCommand command )
 {
-	DL_PF("    Image: 0x%08x", RDPSegAddr(command.inst.cmd1));
+	DL_PF("    ZImg Adr[0x%08x]", RDPSegAddr(command.inst.cmd1));
 
 	g_DI.Address = RDPSegAddr(command.inst.cmd1);
 }
@@ -1384,8 +1386,7 @@ void DLParser_SetCImg( MicroCodeCommand command )
 	u32 newaddr	= RDPSegAddr(command.img.addr);
 	//u32 bpl		= width << size >> 1;	// Do we need to handle?
 
-	DL_PF("    Image: 0x%08x", RDPSegAddr(command.inst.cmd1));
-	DL_PF("    Fmt: %s Size: %s Width: %d", gFormatNames[ format ], gSizeNames[ size ], width);
+	DL_PF("    CImg Adr[0x%08x] Fmt[%s] Size[%s] Width[%d]", RDPSegAddr(command.inst.cmd1), gFormatNames[ format ], gSizeNames[ size ], width);
 
 	//g_CI.Bpl = bpl;
 	g_CI.Address = newaddr;

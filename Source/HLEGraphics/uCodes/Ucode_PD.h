@@ -32,7 +32,7 @@ void DLParser_Vtx_PD( MicroCodeCommand command )
 
 	use(len);
 
-	DL_PF("    Vtx: address 0x%08x, len: %d, v0: %d, n: %d", address, len, v0, n);
+	DL_PF("    Address[0x%08x] Len[%d] v0[%d] Num[%d]", address, len, v0, n);
 
 	// Doesn't work anyways
 	// Todo : Implement proper vertex info for PD

@@ -32,7 +32,7 @@ void DLParser_GBI0_Vtx_SOTE( MicroCodeCommand command )
 
 	use(len);
 
-	DL_PF("    Address 0x%08x, v0: %d, Num: %d, Length: 0x%04x", address, v0, n, len);
+	DL_PF("    Address[0x%08x] v0[%d] Num[%d] Len[0x%04x]", address, v0, n, len);
 
 	if(v0 >= 32)
 	{

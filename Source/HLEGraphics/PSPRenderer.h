@@ -187,8 +187,8 @@ public:
 	inline void			SetEnvColour( c32 colour )				{ mEnvColour = colour; }
 
 	inline void			SetNumLights(u32 num)					{ mNumLights = num; }
-	void				SetLightCol(u32 light, u32 colour);
-	void				SetLightDirection(u32 l, float x, float y, float z);
+	inline void			SetLightCol(u32 light, u32 colour)		{ mLights[light].Colour = v4( (((colour >> 24)&0xFF)/255.0f), (((colour >> 16)&0xFF)/255.0f), (((colour >> 8)&0xFF)/255.0f), 1.0f); }
+	inline void			SetLightDirection(u32 l, v3 n)			{ n.Normalise(); mLights[l].Direction.x = n.x; mLights[l].Direction.y = n.y; mLights[l].Direction.z = n.z; mLights[l].Padding0 = 0.0f; }
 	inline void			SetAmbientLight( const v4 & colour )	{ mTnLParams.Ambient = colour; }
 
 	inline void			SetMux( u64 mux )						{ mMux = mux; }
@@ -214,7 +214,7 @@ public:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	void				PrintActive();
 #endif
-	void				ResetMatrices();
+	inline void			ResetMatrices() { mModelViewTop = mProjectionTop = 0; mModelViewStack[0] = mProjectionStack[0] = gMatrixIdentity; mWorldProjectValid = false; }
 	void				SetProjection(const Matrix4x4 & mat, bool bPush, bool bReplace);
 	void				SetWorldView(const Matrix4x4 & mat, bool bPush, bool bReplace);
 	inline void			PopProjection() {if (mProjectionTop > 0) --mProjectionTop;	mWorldProjectValid = false;}
