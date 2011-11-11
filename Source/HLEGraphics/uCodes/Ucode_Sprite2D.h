@@ -62,6 +62,7 @@ Sprite2DInfo g_Sprite2DInfo;
 //*****************************************************************************
 //
 //*****************************************************************************
+// Used by Flying Dragon
 void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 {
     u32 address = RDPSegAddr(command.dlist.addr) & (MAX_RAM_ADDRESS-1);
@@ -90,7 +91,7 @@ void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_GBI1_Sprite2DScaleFlip( MicroCodeCommand command )
+inline void DLParser_GBI1_Sprite2DScaleFlip( MicroCodeCommand command )
 {
 	g_Sprite2DInfo.scaleX = (((command.inst.cmd1)>>16)   &0xFFFF)/1024.0f;
 	g_Sprite2DInfo.scaleY = ( (command.inst.cmd1)        &0xFFFF)/1024.0f;
@@ -112,7 +113,7 @@ void DLParser_GBI1_Sprite2DScaleFlip( MicroCodeCommand command )
 //*****************************************************************************
 // ToDo : Optimize : We compare lotsa of ints with floats..
 //
-void DLParser_GBI1_Sprite2DDraw( MicroCodeCommand command )
+inline void DLParser_GBI1_Sprite2DDraw( MicroCodeCommand command )
 {
     //DL_PF("Not fully implemented");
     g_Sprite2DInfo.px = (u16)(((command.inst.cmd1)>>16)&0xFFFF)/4;

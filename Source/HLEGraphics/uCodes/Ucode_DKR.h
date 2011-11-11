@@ -247,6 +247,8 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 	u32 count = (command.inst.cmd0 >> 4) & 0xFFF;
 	u32 * pData = &g_pu32RamBase[address >> 2];
 
+	DAEDALUS_ASSERT( count < 16, "DKR to many triangles, indexing outside mVtxProjected array" );
+
 	bool tris_added = false;
 
 	for (u32 i = 0; i < count; i++)
@@ -296,7 +298,7 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 
 #if 1	//1->Fixes texture scaling, 0->Render as is and get some texture scaling errors
 		//
-		// This will create problem since some verts will get re-used over writing new texture coords
+		// This will create problem since some verts will get re-used and over-write new texture coords
 		// To fix it we copy all verts to a new location where we can have individual texture coordinates //Corn
 		PSPRenderer::Get()->CopyVtx( v0_idx, i*3+32);
 		PSPRenderer::Get()->CopyVtx( v1_idx, i*3+33);

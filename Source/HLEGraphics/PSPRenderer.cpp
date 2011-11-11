@@ -2003,7 +2003,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 
 		// LIGHTING OR COLOR
 		//
-		if ( mTnLModeFlags.Light)
+		if ( mTnLModeFlags.Light )
 		{
 			v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
 
@@ -2016,7 +2016,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 
 			// ENV MAPPING
 			//
-			if ( (mTnLModeFlags._u32 & (TNL_TEXGEN | TNL_TEXTURE)) == (TNL_TEXGEN | TNL_TEXTURE) )
+			if ( mTnLModeFlags.TextGen )
 			{
 				// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
 				// If the vert is already lit, then there is no normal (and hence we can't generate tex coord)
@@ -2041,21 +2041,27 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 					mVtxProjected[i].Texture.y =  0.5f - 0.25f * NormY - 0.25f * NormY * NormY * NormY;
 				}
 			}
-			else if( mTnLModeFlags.Texture )
+			else
 			{
+				//Set Texture coordinates
 				mVtxProjected[i].Texture.x = (float)vert.tu * mTnLParams.TextureScaleX;
 				mVtxProjected[i].Texture.y = (float)vert.tv * mTnLParams.TextureScaleY;
 			}
 		}
 		else
 		{
-			mVtxProjected[i].Colour = v4( vert.rgba_r * (1.0f / 255.0f), vert.rgba_g * (1.0f / 255.0f), vert.rgba_b * (1.0f / 255.0f), vert.rgba_a * (1.0f / 255.0f) );
-
-			if( mTnLModeFlags.Texture )
-			{
-				mVtxProjected[i].Texture.x = (float)vert.tu * mTnLParams.TextureScaleX;
-				mVtxProjected[i].Texture.y = (float)vert.tv * mTnLParams.TextureScaleY;
+			if( mTnLModeFlags.Shade )
+			{	//FLAT shade
+				mVtxProjected[i].Colour = v4( vert.rgba_r * (1.0f / 255.0f), vert.rgba_g * (1.0f / 255.0f), vert.rgba_b * (1.0f / 255.0f), vert.rgba_a * (1.0f / 255.0f) );
 			}
+			else
+			{	//Shade is disabled
+				mVtxProjected[i].Colour = mPrimitiveColour.GetColourV4();
+			}
+
+			//Set Texture coordinates
+			mVtxProjected[i].Texture.x = (float)vert.tu * mTnLParams.TextureScaleX;
+			mVtxProjected[i].Texture.y = (float)vert.tv * mTnLParams.TextureScaleY;
 		}
 
 		/*
@@ -2652,8 +2658,8 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	// XXXX Double check this
 	mTileTopLeft[ index ] = v2( f32( tile_size.left) * (1.0f / 4.0f), f32(tile_size.top)* (1.0f / 4.0f) );
 
-	DL_PF( "    Load Texture[%d] [%dx%d] [%s] [%dbpp] [%s u , %s v] -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] TopLeft[%0.3f|%0.3f] Scale[%0.3f|%0.3f]",
-			index, ti.GetWidth(), ti.GetHeight(), ti.GetFormatName(), ti.GetSizeInBits(),
+	DL_PF( "    Use Tile[%d] as Texture[%d] [%dx%d] [%s] [%dbpp] [%s u, %s v] -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] TopLeft[%0.3f|%0.3f] Scale[%0.3f|%0.3f]",
+			tile_idx, index, ti.GetWidth(), ti.GetHeight(), ti.GetFormatName(), ti.GetSizeInBits(),
 			(mode_u==GU_CLAMP)? "Clamp" : "Repeat", (mode_v==GU_CLAMP)? "Clamp" : "Repeat",
 			ti.GetLoadAddress(), (u32)ti.GetPalettePtr(), ti.GetHashCode(), ti.GetPitch(),
 			mTileTopLeft[ index ].x, mTileTopLeft[ index ].y, mTileScale[ index ].x, mTileScale[ index ].y );

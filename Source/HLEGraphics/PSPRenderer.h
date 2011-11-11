@@ -331,7 +331,7 @@ private:
 	void				DebugMux( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 render_flags, u64 mux);
 #endif
 private:
-	enum { MAX_VERTS = 128 };		// F3DLP.Rej supports up to 80 verts! DKR needs to copy 32*3 verts + th first 32
+	enum { MAX_VERTS = 80 };		// F3DLP.Rej supports up to 80 verts!
 
 	TnLParams			mTnLParams;
 
