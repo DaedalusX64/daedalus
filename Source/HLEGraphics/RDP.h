@@ -92,8 +92,8 @@ typedef struct
 		{
 			u32 Light : 1;			// 0x1
 			u32 Texture : 1;		// 0x2
-			u32 TextGen : 1;		// 0x4
-			u32 TextGenLin : 1;		// 0x8
+			u32 TexGen : 1;			// 0x4
+			u32 TexGenLin : 1;		// 0x8
 			u32 Fog : 1;			// 0x10
 			u32 Shade : 1;			// 0x20
 			u32 Zbuffer : 1;		// 0x40
@@ -124,8 +124,8 @@ typedef struct
 				u32 GBI1_pad2 : 2;			// 0x0
 				u32 GBI1_Fog : 1;			// 0x10000
 				u32 GBI1_Lighting : 1;		// 0x20000
-				u32 GBI1_TextGen : 1;		// 0x40000
-				u32 GBI1_TextGenLin : 1;	// 0x80000
+				u32 GBI1_TexGen : 1;		// 0x40000
+				u32 GBI1_TexGenLin : 1;		// 0x80000
 				u32 GBI1_Lod : 1;			// 0x100000
 				u32 GBI1_pad3 : 11;			// 0x0
 			};
@@ -138,8 +138,8 @@ typedef struct
 				u32 GBI2_pad1 : 5;			// 0x0
 				u32 GBI2_Fog : 1;			// 0x10000
 				u32 GBI2_Lighting : 1;		// 0x20000
-				u32 GBI2_TextGen : 1;		// 0x40000
-				u32 GBI2_TextGenLin : 1;	// 0x80000
+				u32 GBI2_TexGen : 1;		// 0x40000
+				u32 GBI2_TexGenLin : 1;		// 0x80000
 				u32 GBI2_Lod : 1;			// 0x100000
 				u32 GBI2_ShadingSmooth : 1;	// 0x200000
 				u32 GBI2_pad2 : 10;			// 0x0

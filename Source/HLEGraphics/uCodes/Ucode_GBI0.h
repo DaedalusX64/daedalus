@@ -33,7 +33,7 @@ void DLParser_GBI0_Vtx( MicroCodeCommand command )
     DL_PF("    Address[0x%08x] v0[%d] Num[%d] Len[0x%04x]", address, v0, n, command.vtx0.len);
 
 	// Never seen or should happen, but just in case..
-	DAEDALUS_ASSERT( v0 + n) < 80, "Warning, attempting to load into invalid vertex positions");
+	DAEDALUS_ASSERT( (v0 + n) < 80, "Warning, attempting to load into invalid vertex positions");
 	DAEDALUS_ASSERT( (address + (n*16)) < MAX_RAM_ADDRESS, "Address out of range (0x%08x)", address );
 
 	PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );

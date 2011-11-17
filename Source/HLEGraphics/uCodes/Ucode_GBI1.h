@@ -439,8 +439,8 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 	//Force this to false
 	TnLMode.Texture		= 0;
 
-	TnLMode.TextGen		= gGeometryMode.GBI1_TextGen;
-	TnLMode.TextGenLin  = gGeometryMode.GBI1_TextGenLin;
+	TnLMode.TexGen		= gGeometryMode.GBI1_TexGen;
+	TnLMode.TexGenLin   = gGeometryMode.GBI1_TexGenLin;
 	TnLMode.Fog			= gGeometryMode.GBI1_Fog;
 	TnLMode.Shade		= gGeometryMode.GBI1_Shade & gGeometryMode.GBI1_ShadingSmooth;
 	TnLMode.Zbuffer		= gGeometryMode.GBI1_Zbuffer;
@@ -453,12 +453,12 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 
 	DL_PF("    ZBuffer %s",			 (gGeometryMode.GBI1_Zbuffer)		? "On" : "Off");
 	DL_PF("    Culling %s",			 (gGeometryMode.GBI1_CullBack)		? "Back face" : (gGeometryMode.GBI1_CullFront) ? "Front face" : "Off");
-	DL_PF("    Shade %s",				 (gGeometryMode.GBI1_Shade)			? "On" : "Off");
+	DL_PF("    Shade %s",			 (gGeometryMode.GBI1_Shade)			? "On" : "Off");
 	DL_PF("    Smooth Shading %s",	 (gGeometryMode.GBI1_ShadingSmooth) ? "On" : "Off");
-	DL_PF("    Lighting %s",			 (gGeometryMode.GBI1_Lighting)		? "On" : "Off");
+	DL_PF("    Lighting %s",		 (gGeometryMode.GBI1_Lighting)		? "On" : "Off");
 	DL_PF("    Texture %s",			 (gGeometryMode.GBI1_Texture)		? "On" : "Off");
-	DL_PF("    Texture Gen %s",		 (gGeometryMode.GBI1_TextGen)		? "On" : "Off");
-	DL_PF("    Texture Gen Linear %s", (gGeometryMode.GBI1_TextGenLin)	? "On" : "Off");
+	DL_PF("    Texture Gen %s",		 (gGeometryMode.GBI1_TexGen)		? "On" : "Off");
+	DL_PF("    Texture Gen Linear %s", (gGeometryMode.GBI1_TexGenLin)	? "On" : "Off");
 	DL_PF("    Fog %s",				 (gGeometryMode.GBI1_Fog)			? "On" : "Off");
 	DL_PF("    LOD %s",				 (gGeometryMode.GBI1_Lod)			? "On" : "Off");
 }
