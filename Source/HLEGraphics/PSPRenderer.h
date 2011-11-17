@@ -203,18 +203,18 @@ public:
 	// Viewport stuff
 	void				SetN64Viewport( const v3 & scale, const v3 & trans );
 	void				SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 );
-
+/*
 	// Matrix stuff
 	enum EMatrixLoadStyle
 	{
 		MATRIX_LOAD,
 		MATRIX_MUL,
 	};
-
+*/
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	void				PrintActive();
 #endif
-	inline void			ResetMatrices() { mModelViewTop = mProjectionTop = 0; mModelViewStack[0] = mProjectionStack[0] = gMatrixIdentity; mWorldProjectValid = false; }
+	void				ResetMatrices();
 	void				SetProjection(const Matrix4x4 & mat, bool bPush, bool bReplace);
 	void				SetWorldView(const Matrix4x4 & mat, bool bPush, bool bReplace);
 	inline void			PopProjection() {if (mProjectionTop > 0) --mProjectionTop;	mWorldProjectValid = false;}
@@ -295,15 +295,15 @@ private:
 	void				UpdateViewport();
 
 	v2					ConvertN64ToPsp( const v2 & n64_coords ) const;
-
+/*
 	enum ERenderMode
 	{
 		RM_RENDER_2D,
 		RM_RENDER_3D,
 	};
-
+*/
 	void				RenderUsingRenderSettings( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 render_flags );
-	void				RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, ERenderMode mode, bool disable_zbuffer );
+	void				RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 render_mode, bool disable_zbuffer );
 // Old code, kept for reference
 #ifdef DAEDALUS_IS_LEGACY
 	void 				TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world );

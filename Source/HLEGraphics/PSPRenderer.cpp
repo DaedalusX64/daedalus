@@ -956,7 +956,7 @@ extern void InitBlenderMode( u32 blender );
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, ERenderMode mode, bool disable_zbuffer )
+void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 render_mode, bool disable_zbuffer )
 {
 
 	static bool	ZFightingEnabled( false );
@@ -1056,10 +1056,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		case CYCLE_2CYCLE:		blend_entry = LookupBlendState( mMux, true ); break;
 	}
 
-	u32 render_flags( GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF );
-
-	if( mode == RM_RENDER_2D ) render_flags |= GU_TRANSFORM_2D;
-	else render_flags |= GU_TRANSFORM_3D;
+	u32 render_flags( GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF | render_mode );
 
 	// Used for Blend Explorer, or Nasty texture
 	//
@@ -1145,7 +1142,7 @@ void PSPRenderer::RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts
 	memcpy( p_vertices, p_verts, num_verts*sizeof(DaedalusVtx));
 
 	//sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
-	RenderUsingCurrentBlendMode( p_vertices, num_verts, RM_RENDER_2D, disable_zbuffer );
+	RenderUsingCurrentBlendMode( p_vertices, num_verts, GU_TRANSFORM_2D, disable_zbuffer );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++m_dwNumRect;
@@ -1359,7 +1356,7 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	}
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DL_PF("    Tri: %d,%d,%d", v0, v1, v2);
+	DL_PF("    Tri: %d,%d,%d (Rendered)", v0, v1, v2);
 	++m_dwNumTrisRendered;
 #endif
 
@@ -1449,24 +1446,18 @@ void PSPRenderer::FlushTris()
 				p_vertices[v].Position.z += 3.14;
 			}
 		}*/
-	}
-
-	//
-	// Process the software vertex buffer to apply a couple of
-	// necessary changes to the texture coords (this is required
-	// because some ucodes set the texture after setting the vertices)
-	//
-	if( (mTnLModeFlags.Texture != 0) && (mTnLModeFlags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
-	{
-		v2 offset = -mTileTopLeft[ 0 ];
-		v2 scale = mTileScale[ 0 ];
-		sceGuTexOffset( offset.x * scale.x, offset.y * scale.y );
-		sceGuTexScale( scale.x, scale.y );
-	}
-	else
-	{
-		sceGuTexOffset( 0.0f, 0.0f );
-		sceGuTexScale( 1.0f, 1.0f );
+		if( (mTnLModeFlags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
+		{
+			v2 offset = -mTileTopLeft[ 0 ];
+			v2 scale = mTileScale[ 0 ];
+			sceGuTexOffset( offset.x * scale.x, offset.y * scale.y );
+			sceGuTexScale( scale.x, scale.y );
+		}
+		else
+		{
+			sceGuTexOffset( 0.0f, 0.0f );
+			sceGuTexScale( 1.0f, 1.0f );
+		}
 	}
 
 	//
@@ -1488,7 +1479,7 @@ void PSPRenderer::FlushTris()
 
 	//
 	//	Render out our vertices
-	RenderUsingCurrentBlendMode( p_vertices, num_vertices, RM_RENDER_3D, gRDPOtherMode.depth_source ? true : false );
+	RenderUsingCurrentBlendMode( p_vertices, num_vertices, GU_TRANSFORM_3D, gRDPOtherMode.depth_source ? true : false );
 
 	//sceGuDisable(GU_CULL_FACE);
 
@@ -2577,6 +2568,22 @@ inline void PSPRenderer::SetVtxXY( u32 vert, float x, float y )
 	mVtxProjected[vert].TransformedPos.y = y * mVtxProjected[vert].TransformedPos.w;
 	mVtxProjected[vert].TransformedPos.z = mVtxProjected[vert].ProjectedPos.z * mVtxProjected[vert].TransformedPos.w;
 #endif
+}
+
+//*****************************************************************************
+// Init matrix stack to identity matrices (called once per frame)
+//*****************************************************************************
+void PSPRenderer::ResetMatrices()
+{
+	Matrix4x4 mat;
+
+	mat.SetIdentity();
+
+	mProjectionTop = 0;
+	mModelViewTop = 0;
+	mProjectionStack[0] = mat;
+	mModelViewStack[0] = mat;
+	mWorldProjectValid = false;
 }
 
 //*****************************************************************************
