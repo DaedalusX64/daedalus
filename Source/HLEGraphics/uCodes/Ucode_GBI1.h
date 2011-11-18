@@ -31,38 +31,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 void DLParser_GBI1_Vtx( MicroCodeCommand command )
 {
-	u32 address = RDPSegAddr(command.vtx1.addr);
-
     //u32 length    = (command.inst.cmd0)&0xFFFF;
     //u32 num_verts = (length + 1) / 0x410;
     //u32 v0_idx    = ((command.inst.cmd0>>16)&0x3f)/2;
 
-    u32 len = command.vtx1.len;
-    u32 v0  = command.vtx1.v0;
-    u32 n   = command.vtx1.n;
+	u32 addr = RDPSegAddr(command.vtx1.addr);
+    u32 v0   = command.vtx1.v0;
+    u32 n    = command.vtx1.n;
 
-    use(len);
+	DL_PF("    Address 0x%08x, v0: %d, Num: %d, Length: 0x%04x", addr, v0, n, command.vtx1.len);
 
-    DL_PF("    Address 0x%08x, v0: %d, Num: %d, Length: 0x%04x", address, v0, n, len);
+	// Only game that sets this is Quake II, anyways this ends up crashing since it tries to clip too many vertices..
+	DAEDALUS_ASSERT( (v0 + n) < 64, "Warning, attempting to load into invalid vertex positions");
+	DAEDALUS_ASSERT( addr < MAX_RAM_ADDRESS, "Address out of range (0x%08x)", addr );
 
-    if ( address > MAX_RAM_ADDRESS )
-    {
-        DL_PF("     Address out of range - ignoring load");
-        return;
-    }
-
-    if ( (v0 + n) > 64 )
-    {
-        DL_PF("        Warning, attempting to load into invalid vertex positions");
-        DBGConsole_Msg( 0, "        DLParser_GBI1_Vtx: Warning, attempting to load into invalid vertex positions" );
-        return;
-    }
-
-    PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
+    PSPRenderer::Get()->SetNewVertexInfo( addr, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
     gNumVertices += n;
-    DLParser_DumpVtxInfo( address, v0, n );
+    DLParser_DumpVtxInfo( addr, v0, n );
 #endif
 }
 
@@ -139,25 +126,17 @@ void DLParser_GBI1_PopMtx( MicroCodeCommand command )
 void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 {
 	u32 type     = (command.inst.cmd0>>16)&0xFF;
-	u32 length   = (command.inst.cmd0)&0xFFFF;
 	u32 address  = RDPSegAddr(command.inst.cmd1);
 
-	use(length);
-
-	switch (type)
+	switch( type )
 	{
 		case G_MV_VIEWPORT:
 			{
-				DL_PF("    G_MV_VIEWPORT. Address: 0x%08x, Length: 0x%04x", address, length);
+				DL_PF("    G_MV_VIEWPORT. Address: 0x%08x", address);
 				RDP_MoveMemViewport( address );
 			}
 			break;
-		case G_MV_LOOKATY:
-			DL_PF("    G_MV_LOOKATY");
-			break;
-		case G_MV_LOOKATX:
-			DL_PF("    G_MV_LOOKATX");
-			break;
+
 		case G_MV_L0:
 		case G_MV_L1:
 		case G_MV_L2:
@@ -167,28 +146,42 @@ void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 		case G_MV_L6:
 		case G_MV_L7:
 			{
-				u32 light_idx = (type-G_MV_L0)/2;
-				//DL_PF("    G_MV_L%d", light_idx);
-				//DL_PF("    Light%d: Length:0x%04x, Address: 0x%08x", light_idx, length, address);
-
+				u32 light_idx = (type-G_MV_L0) >> 1;
 				RDP_MoveMemLight(light_idx, address);
 			}
+			break;
+
+		case G_MV_MATRIX_1:
+			{
+				DL_PF("		Force Matrix(1): addr=%08X", address);
+				RDP_Force_Matrix(address);
+
+				// Next 3 MATRIX cmds are part of ForceMtx, skip 'em
+				gDlistStack[gDlistStackPointer].pc += 24;
+			}
+			break;
+
+		//Next 3 MATRIX commands should not appear, since they were in the previous command.
+		//case G_MV_MATRIX_2:	/*IGNORED*/	DL_PF("     G_MV_MATRIX_2");											break;
+		//case G_MV_MATRIX_3:	/*IGNORED*/	DL_PF("     G_MV_MATRIX_3");											break;
+		//case G_MV_MATRIX_4:	/*IGNORED*/	DL_PF("     G_MV_MATRIX_4");											break;
+		/*
+
+		// Next 3 cmds are always ignored
+		case G_MV_LOOKATY:
+			DL_PF("    G_MV_LOOKATY");
+			break;
+		case G_MV_LOOKATX:
+			DL_PF("    G_MV_LOOKATX");
 			break;
 		case G_MV_TXTATT:
 			DL_PF("    G_MV_TXTATT");
 			break;
-		case G_MV_MATRIX_1:
-			DL_PF("		Force Matrix(1): addr=%08X", address);
-			RDP_Force_Matrix(address);
-			//gDlistStack[gDlistStackPointer].pc += 24;	// Next 3 cmds are part of ForceMtx, skip 'em
-			break;
-		//Next 3 MATRIX commands should not appear, since they were in the previous command.
-		case G_MV_MATRIX_2:	/*IGNORED*/	DL_PF("     G_MV_MATRIX_2");											break;
-		case G_MV_MATRIX_3:	/*IGNORED*/	DL_PF("     G_MV_MATRIX_3");											break;
-		case G_MV_MATRIX_4:	/*IGNORED*/	DL_PF("     G_MV_MATRIX_4");											break;
+*/
 		default:
-			DL_PF("    MoveMem Type: Unknown");
-			DBGConsole_Msg(0, "MoveMem: Unknown, cmd=%08X, %08X", command.inst.cmd0, command.inst.cmd1);
+			{
+				DL_PF("    GBI1 MoveMem Type: Ignored!!");
+			}
 			break;
 	}
 }
@@ -199,17 +192,21 @@ void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 {
 	// Type of movement is in low 8bits of cmd0.
+	u32 value  = command.mw1.value;
+	u32 offset = command.mw1.offset;
 
-	switch (command.mw1.type)
+	switch ( command.mw1.type )
 	{
 	case G_MW_MATRIX:
-		DL_PF("    G_MW_MATRIX(1)");
-		PSPRenderer::Get()->InsertMatrix(command.inst.cmd0, command.inst.cmd1);
-		break;
-	case G_MW_NUMLIGHT:
-		//#define NUML(n)		(((n)+1)*32 + 0x80000000)
 		{
-			u32 num_lights = ((command.mw1.value - 0x80000000) >> 5) - 1;
+			DL_PF("    G_MW_MATRIX(1)");
+			PSPRenderer::Get()->InsertMatrix(command.inst.cmd0, command.inst.cmd1);
+		}
+		break;
+
+	case G_MW_NUMLIGHT:
+		{
+			u32 num_lights = ((value - 0x80000000) >> 5) - 1;
 
 			DL_PF("    G_MW_NUMLIGHT: Val:%d", num_lights);
 
@@ -220,33 +217,22 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 		break;
 	case G_MW_CLIP:	// Seems to be unused?
 		{
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-			switch (command.mw1.offset)
-			{
-			case G_MWO_CLIP_RNX:
-			case G_MWO_CLIP_RNY:
-			case G_MWO_CLIP_RPX:
-			case G_MWO_CLIP_RPY:
-				break;
-			default:					
-				DL_PF("    G_MW_CLIP  ?   : 0x%08x", command.inst.cmd1);					
-				break;
-			}
-#endif
+			DL_PF("    G_MW_CLIP  ?   : 0x%08x", value);	
 		}
 		break;
+
 	case G_MW_SEGMENT:
 		{
-			u32 segment = (command.mw1.offset >> 2) & 0xF;
-			u32 base = command.mw1.value;
-			DL_PF("    G_MW_SEGMENT Seg[%d] = 0x%08x", segment, base);
-			gSegments[segment] = base;
+			u32 segment = (offset >> 2) & 0xF;
+			DL_PF("    G_MW_SEGMENT Seg[%d] = 0x%08x", segment, value);
+			gSegments[segment] = value;
 		}
 		break;
+
 	case G_MW_FOG: // WIP, only works for a few games
 		{
-			f32 a = command.mw1.value >> 16;
-			f32 b = command.mw1.value & 0xFFFF;
+			f32 a = value >> 16;
+			f32 b = value & 0xFFFF;
 
 			//f32 min = b - a;
 			//f32 max = b + a;
@@ -262,59 +248,45 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 			//printf("1Fog %.0f | %.0f || %.0f | %.0f\n", min, max, a, b);
 		}
 		break;
+
 	case G_MW_LIGHTCOL:
 		{
-			u32 light_idx = command.mw1.offset >> 5;
-			u32 field_offset = (command.mw1.offset & 0x7);
+			u32 field_offset = (offset & 0x7);
+			u32 light_idx = offset >> 5;
 
-			DL_PF("    G_MW_LIGHTCOL/0x%08x: 0x%08x", command.mw1.offset, command.inst.cmd1);
+			DL_PF("    G_MW_LIGHTCOL/0x%08x: 0x%08x", offset, value);
 
-			switch (field_offset)
+			if (field_offset == 0)
 			{
-			case 0:
-				//g_N64Lights[light_idx].Colour = command->cmd1;
 				// Light col, not the copy
 				if (light_idx == gAmbientLightIdx)
 				{
-					u32 n64col( command.mw1.value );
-
-					PSPRenderer::Get()->SetAmbientLight( v4( N64COL_GETR_F(n64col), N64COL_GETG_F(n64col), N64COL_GETB_F(n64col), 1.0f ) );
+					v4 col( N64COL_GETR_F(value), N64COL_GETG_F(value), N64COL_GETB_F(value), 1.0f );
+					PSPRenderer::Get()->SetAmbientLight( col );
 				}
 				else
 				{
-					PSPRenderer::Get()->SetLightCol(light_idx, command.mw1.value);
+					PSPRenderer::Get()->SetLightCol(light_idx, value);
 				}
-				break;
-
-			case 4:
-				break;
-
-			default:
-				//DBGConsole_Msg(0, "G_MW_LIGHTCOL with unknown offset 0x%08x", field_offset);
-				break;
 			}
 		}
-
 		break;
+
 	case G_MW_POINTS:	// Used in FIFA 98
 		{
-			u32 vtx = command.mw1.offset / 40;
-			u32 offset = command.mw1.offset % 40;
-			u32 val = command.mw1.value;
-
 			DL_PF("    G_MW_POINTS");
-
-			PSPRenderer::Get()->ModifyVertexInfo(offset, vtx, val);
+			PSPRenderer::Get()->ModifyVertexInfo( (offset / 40), (offset % 40), value);
 		}
  		break;
-
+/*
 	case G_MW_PERSPNORM:
 		DL_PF("    G_MW_PERSPNORM");	
 		break;
-
+*/
 	default:
-		DL_PF("    Type: Unknown");
-		RDP_NOIMPL_WARN("Unknown MoveWord");
+		{
+			DL_PF("    GBI1 MoveWord Type: Ignored!!");
+		}
 		break;
 	}
 }

@@ -25,22 +25,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 void DLParser_GBI0_Vtx( MicroCodeCommand command )
 {
-    u32 address = RDPSegAddr(command.vtx0.addr);
+    u32 addr = RDPSegAddr(command.vtx0.addr);
+    u32 v0   = command.vtx0.v0;
+    u32 n    = command.vtx0.n + 1;
 
-    u32 v0  = command.vtx0.v0;
-    u32 n   = command.vtx0.n + 1;
-
-    DL_PF("    Address[0x%08x] v0[%d] Num[%d] Len[0x%04x]", address, v0, n, command.vtx0.len);
+    DL_PF("    Address[0x%08x] v0[%d] Num[%d] Len[0x%04x]", addr, v0, n, command.vtx0.len);
 
 	// Never seen or should happen, but just in case..
 	DAEDALUS_ASSERT( (v0 + n) < 80, "Warning, attempting to load into invalid vertex positions");
-	DAEDALUS_ASSERT( (address + (n*16)) < MAX_RAM_ADDRESS, "Address out of range (0x%08x)", address );
+	DAEDALUS_ASSERT( (addr + (n*16)) < MAX_RAM_ADDRESS, "Address out of range (0x%08x)", addr );
 
-	PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
+	PSPRenderer::Get()->SetNewVertexInfo( addr, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	gNumVertices += n;
-	DLParser_DumpVtxInfo( address, v0, n );
+	DLParser_DumpVtxInfo( addr, v0, n );
 #endif
 
 }
