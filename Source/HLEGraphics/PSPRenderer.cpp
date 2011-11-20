@@ -999,8 +999,8 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		sceGuDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
 	}
 
+	// Initiate Texture Filter
 	//
-	// Initiate Filter
 	// G_TF_AVERAGE : 1, G_TF_BILERP : 2 (linear)
 	// G_TF_POINT   : 0 (nearest)
 	//
@@ -1012,20 +1012,16 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	{
 		sceGuTexFilter(GU_NEAREST,GU_NEAREST);
 	}
+
 	// Initiate Blender
 	//
 	if(gRDPOtherMode.cycle_type < CYCLE_COPY)
 	{
-		if( gRDPOtherMode.force_bl ) //gRDPOtherMode.L & 0x4000 -> gRDPOtherMode.force_bl
-		{
-			InitBlenderMode( gRDPOtherMode.blender );	//gRDPOtherMode.L >> 16
-		}
-		else if ( gRDPOtherMode.alpha_cvg_sel )	// gRDPOtherMode.L & 0x2000 -> gRDPOtherMode.alpha_cvg_sel This is a special case for Tarzan's characters
-		{
-			sceGuDisable( GU_BLEND );
-		}
+		gRDPOtherMode.force_bl ? InitBlenderMode( gRDPOtherMode.blender ) : sceGuDisable( GU_BLEND );
 	}
 
+	// Initiate Alpha test
+	//
 	if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
 	{
 		// G_AC_THRESHOLD || G_AC_DITHER

@@ -1821,7 +1821,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 			BLEND_MODE(0x00121824ff33ffffLL); // Tarzan
 			BLEND_MODE(0x00127ffffffff438LL); // Extreme-G2
 			BLEND_MODE(0x00457fff3ffcfe3fLL); // Pokemon Stadium 2 Arena Floor
-			BLEND_MODE(0x00522bfffffffe38LL); // Donald Duck rain (makes it transparent not really a fix)
+			//BLEND_MODE(0x00522bfffffffe38LL); // Donald Duck rain (makes it transparent not really a fix) breaks shadow in Rayman2
 			BLEND_MODE(0x0060b2c15565feffLL); // Mario Kart 64		
 			//BLEND_MODE(0x00627fff3ffe7e3fLL); // Pokemon Stadium 2 N64 Logo //Dangerous!!
 			BLEND_MODE(0x0050fea144fe7339LL); // Duke Nukem Menu and HUD
