@@ -469,17 +469,16 @@ void DLParser_GBI1_SetOtherModeH( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_Texture( MicroCodeCommand command )
 {
-    gTextureLevel = command.texture.level;
-    gTextureTile  = command.texture.tile;
+	u32 tile    = command.texture.tile;
 
 	// Seems to use 0x01
 	// Force enable texture in DKR Ucode, fixes static texture bug etc
     bool enable = command.texture.enable_gbi0 || (current.ucode == GBI_DKR);
 	
-	DL_PF("    Level[%d] Tile[%d] %s", gTextureLevel, gTextureTile, enable? "enable":"disable");
-	PSPRenderer::Get()->SetTextureEnable( enable );
+	DL_PF("    Level[%d] Tile[%d] %s", command.texture.level, tile, enable? "enable":"disable");
 
-	if( !enable )	return;
+	PSPRenderer::Get()->SetTextureTile( tile);
+	PSPRenderer::Get()->SetTextureEnable( enable);
 
 	f32 scale_s = f32(command.texture.scaleS)  / (65535.0f * 32.0f);
 	f32 scale_t = f32(command.texture.scaleT)  / (65535.0f * 32.0f);

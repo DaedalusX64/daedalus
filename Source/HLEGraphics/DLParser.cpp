@@ -100,6 +100,9 @@ const char *	gDisplayListDumpPathFormat = "dl%04d.txt";
 	}
 #endif
 
+#define MAX_DL_STACK_SIZE	32
+#define MAX_DL_COUNT		100000	// Maybe excesive large? 1000000
+
 #define N64COL_GETR( col )		(u8((col) >> 24))
 #define N64COL_GETG( col )		(u8((col) >> 16))
 #define N64COL_GETB( col )		(u8((col) >>  8))
@@ -116,34 +119,11 @@ const char *	gDisplayListDumpPathFormat = "dl%04d.txt";
 //
 //*****************************************************************************
 
-static void RDP_Force_Matrix(u32 address);
+void RDP_Force_Matrix(u32 address);
 void RDP_MoveMemViewport(u32 address);
 void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
-static void DLParser_PopDL();
 void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
 void RDP_MoveMemLight(u32 light_idx, u32 address);
-
-//*************************************************************************************
-//
-//*************************************************************************************
-
-inline void 	FinishRDPJob()
-{
-	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_DP);
-	gCPUState.AddJob(CPU_CHECK_INTERRUPTS);
-}
-
-//*****************************************************************************
-// Reads the next command from the display list, updates the PC.
-//*****************************************************************************
-inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
-{
-	// Current PC is the last value on the stack
-	*p_command = *(MicroCodeCommand*)&g_pu32RamBase[ (gDlistStack[gDlistStackPointer].pc >> 2) ];
-
-	gDlistStack[gDlistStackPointer].pc += 8;
-
-}
 
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
@@ -164,6 +144,14 @@ struct RDP_Scissor
 	u32 left, top, right, bottom;
 };
 
+// The display list PC stack. Before this was an array of 10
+// items, but this way we can nest as deeply as necessary. 
+struct DList
+{
+	u32 pc;
+	s32 countdown;
+};
+
 enum CycleType
 {
 	CYCLE_1CYCLE = 0,		// Please keep in this order - matches RDP
@@ -172,16 +160,23 @@ enum CycleType
 	CYCLE_FILL,
 };
 
-bool bIsOffScreen = false;
-u32	gSegments[16];
-static RDP_Scissor scissors;
-static N64Light  g_N64Lights[16];	//Conker uses more than 8
+// Used to keep track of when we're processing the first display list
+static bool gFirstCall = true;
+
+static u32				gSegments[16];
+static RDP_Scissor		scissors;
+static RDP_GeometryMode gGeometryMode;
+static N64Light			g_N64Lights[16];	//Conker uses more than 8
+static DList			gDlistStack[MAX_DL_STACK_SIZE];
+static s32				gDlistStackPointer = -1;
+static u32				gAmbientLightIdx = 0;
+static u32				gVertexStride	 = 0;
+static u32				gFillColor		 = 0xFFFFFFFF;
+static u32				gRDPHalf1		 = 0;
+
 SImageDescriptor g_TI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 SImageDescriptor g_CI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 SImageDescriptor g_DI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
-
-DListStack	gDlistStack[MAX_DL_STACK_SIZE];
-s32			gDlistStackPointer = -1;
 
 const MicroCodeInstruction *gUcodeFunc = NULL;
 MicroCodeInstruction gCustomInstruction[256];
@@ -190,6 +185,39 @@ MicroCodeInstruction gCustomInstruction[256];
 char ** gUcodeName = (char **)gNormalInstructionName[ 0 ];
 char * gCustomInstructionName[256];
 #endif
+
+//*************************************************************************************
+//
+//*************************************************************************************
+inline void FinishRDPJob()
+{
+	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_DP);
+	gCPUState.AddJob(CPU_CHECK_INTERRUPTS);
+}
+
+//*****************************************************************************
+// Reads the next command from the display list, updates the PC.
+//*****************************************************************************
+inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
+{
+	// Current PC is the last value on the stack
+	*p_command = *(MicroCodeCommand*)&g_pu32RamBase[ (gDlistStack[gDlistStackPointer].pc >> 2) ];
+
+	gDlistStack[gDlistStackPointer].pc += 8;
+
+}
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void DLParser_PopDL()
+{
+	DL_PF("    Returning from DisplayList: level=%d", gDlistStackPointer+1);
+	DL_PF("    ############################################");
+	DL_PF("    /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\");
+	DL_PF(" ");
+
+	gDlistStackPointer--;
+}
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 //////////////////////////////////////////////////////////
@@ -213,18 +241,11 @@ static u32	gInstructionCountLimit = UNLIMITED_INSTRUCTION_COUNT;
 //*************************************************************************************
 //
 //*************************************************************************************
-
-static bool gFirstCall = true;	// Used to keep track of when we're processing the first display list
-
-u32 gAmbientLightIdx = 0;
+bool bIsOffScreen = false;
 u32 gTextureTile	 = 0;
-u32 gTextureLevel	 = 0;
-u32 gVertexStride	 = 0;
-u32 gFillColor		 = 0xFFFFFFFF;
-u32 gRDPHalf1		 = 0;
 u32 gRDPFrame		 = 0;
 u32 gAuxAddr		 = (u32)g_pu8RamBase;
-RDP_GeometryMode gGeometryMode;
+
 //*****************************************************************************
 // Include ucode header files
 //*****************************************************************************
@@ -879,19 +900,6 @@ void DLParser_Nothing( MicroCodeCommand command )
 	//	DBGConsole_Msg(0, "Warning, DL cut short with unknown command: 0x%08x 0x%08x", command.inst.cmd0, command.inst.cmd1);
 	DLParser_PopDL();
 
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-static void DLParser_PopDL( void )
-{
-	DL_PF("    Returning from DisplayList: level=%d", gDlistStackPointer+1);
-	DL_PF("    ############################################");
-	DL_PF("    /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\ /\\");
-	DL_PF(" ");
-
-	gDlistStackPointer--;
 }
 
 //*****************************************************************************
@@ -1646,7 +1654,7 @@ void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 //*************************************************************************************
 // Rayman 2, Donald Duck, Tarzan, all wrestling games use this
 //
-static void RDP_Force_Matrix(u32 address)
+void RDP_Force_Matrix(u32 address)
 {
 
 	Matrix4x4 mat;

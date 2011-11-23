@@ -248,7 +248,7 @@ PSPRenderer::PSPRenderer()
 //,	mTnLModeFlags( 0 )
 
 ,	mNumLights(0)
-
+,	mTextureTile(0)
 ,	mCull(false)
 ,	mCullMode(GU_CCW)
 
@@ -1431,7 +1431,7 @@ void PSPRenderer::FlushTris()
 	//
 	if( mTnLModeFlags.Texture )
 	{
-		EnableTexturing( gTextureTile );
+		EnableTexturing( mTextureTile );
 
 		// Bias points in decal mode
 		// Is this for Z-fight? not working to well for that, at least not on PSP//Corn

@@ -29,23 +29,6 @@ bool DLParser_Initialise();
 void DLParser_Finalise();
 void DLParser_Process();
 
-//*************************************************************************************
-// 
-//*************************************************************************************
-#define MAX_DL_STACK_SIZE	32
-#define MAX_DL_COUNT		100000// Maybe excesive large? 1000000
-
-// The display list PC stack. Before this was an array of 10
-// items, but this way we can nest as deeply as necessary. 
-
-struct DListStack
-{
-	u32 pc;
-	s32 countdown;
-};
-
-extern DListStack	gDlistStack[MAX_DL_STACK_SIZE];
-extern s32			gDlistStackPointer;
 
 //*************************************************************************************
 // 
