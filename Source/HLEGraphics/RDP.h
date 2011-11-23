@@ -416,7 +416,6 @@ extern u32* gTextureMemory[ 4096 >> 4 ];
 extern u32 gTextureMemory[ 4096 >> 2 ];
 #endif
 
-extern	u32 gTextureTile;
 
 
 //*****************************************************************************
