@@ -265,9 +265,9 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 		case S2DEX_OBJLT_TXTRBLOCK:
 			ti.SetWidth            (sprite->imageW/32);
 			ti.SetHeight           (sprite->imageH/32);
-			ti.SetPitch			   ( (2047/(txtr->block.tline-1)) << 3 );
 			if( sprite->imageW >= 0x8000 ) ti.SetWidth        ( (0x10000-sprite->imageW)/32);
 			if( sprite->imageH >= 0x8000 ) ti.SetHeight       ( (0x10000-sprite->imageH)/32);
+			ti.SetPitch			   ( (2047/(txtr->block.tline-1)) << 3 );
 			break;
 		case S2DEX_OBJLT_TXTRTILE:
 			ti.SetWidth            (((txtr->tile.twidth+1)>>2)<<(4-ti.GetSize()));
