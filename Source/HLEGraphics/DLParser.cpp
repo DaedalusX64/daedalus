@@ -242,7 +242,6 @@ static u32	gInstructionCountLimit = UNLIMITED_INSTRUCTION_COUNT;
 //
 //*************************************************************************************
 bool bIsOffScreen = false;
-u32 gTextureTile	 = 0;
 u32 gRDPFrame		 = 0;
 u32 gAuxAddr		 = (u32)g_pu8RamBase;
 

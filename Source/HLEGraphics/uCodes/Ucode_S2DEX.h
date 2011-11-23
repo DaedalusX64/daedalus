@@ -250,7 +250,8 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 	
 	if( txtr == NULL )
 	{
-		ti = gRDPStateManager.GetTextureDescriptor( gTextureTile );
+		u32 idx = PSPRenderer::Get()->GetTextureTile();
+		ti = gRDPStateManager.GetTextureDescriptor( idx );
 	}
 	else
 	{
