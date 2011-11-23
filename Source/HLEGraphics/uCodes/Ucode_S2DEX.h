@@ -531,25 +531,7 @@ void DLParser_S2DEX_RDPHalf_0( MicroCodeCommand command )
 
 	if (g_ROM.GameHacks != YOSHI)
 	{
-		u32 pc = gDlistStack[gDlistStackPointer].pc;             // This points to the next instruction
-		u32 NextUcode = *(u32 *)(g_pu8RamBase + pc);
-
-		if( (NextUcode>>24) != G_GBI2_SELECT_DL )
-		{
-			// Pokemom Puzzle League
-			if( (NextUcode>>24) == 0xB4 )
-			{
-				DLParser_TexRect(command);
-			}
-			else
-			{
-				DAEDALUS_ERROR("RDP: S2DEX_RDPHALF_0 (0x%08x 0x%08x)\n", command.inst.cmd0, command.inst.cmd1);
-			}
-		}
-		else
-		{
-			DAEDALUS_ERROR("RDP: S2DEX_RDPHALF_0 (0x%08x 0x%08x)\n", command.inst.cmd0, command.inst.cmd1);
-		}
+		DLParser_TexRect( command );
 	}
 	else
 	{	//Do Yoshi MemRect
