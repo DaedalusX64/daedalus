@@ -263,18 +263,11 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 		switch( txtr->block.type )
 		{
 		case S2DEX_OBJLT_TXTRBLOCK:
-			u32 width  = sprite->imageW/32;
-			u32 height = sprite->imageH/32;
-
-			if( sprite->imageW >= 0x8000 )
-				width=-0x10000;
-
-			if( sprite->imageH >= 0x8000 )
-				height=-0x10000;
-
 			ti.SetWidth            (sprite->imageW/32);
 			ti.SetHeight           (sprite->imageH/32);
 			ti.SetPitch			   ( (2047/(txtr->block.tline-1)) << 3 );
+			if( sprite->imageW >= 0x8000 ) ti.SetWidth        ( (0x10000-sprite->imageW)/32);
+			if( sprite->imageH >= 0x8000 ) ti.SetHeight       ( (0x10000-sprite->imageH)/32);
 			break;
 		case S2DEX_OBJLT_TXTRTILE:
 			ti.SetWidth            (((txtr->tile.twidth+1)>>2)<<(4-ti.GetSize()));
@@ -538,7 +531,25 @@ void DLParser_S2DEX_RDPHalf_0( MicroCodeCommand command )
 
 	if (g_ROM.GameHacks != YOSHI)
 	{
-		DLParser_TexRect( command );
+		u32 pc = gDlistStack[gDlistStackPointer].pc;             // This points to the next instruction
+		u32 NextUcode = *(u32 *)(g_pu8RamBase + pc);
+
+		if( (NextUcode>>24) != G_GBI2_SELECT_DL )
+		{
+			// Pokemom Puzzle League
+			if( (NextUcode>>24) == 0xB4 )
+			{
+				DLParser_TexRect(command);
+			}
+			else
+			{
+				DAEDALUS_ERROR("RDP: S2DEX_RDPHALF_0 (0x%08x 0x%08x)\n", command.inst.cmd0, command.inst.cmd1);
+			}
+		}
+		else
+		{
+			DAEDALUS_ERROR("RDP: S2DEX_RDPHALF_0 (0x%08x 0x%08x)\n", command.inst.cmd0, command.inst.cmd1);
+		}
 	}
 	else
 	{	//Do Yoshi MemRect
