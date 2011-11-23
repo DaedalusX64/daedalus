@@ -263,6 +263,15 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 		switch( txtr->block.type )
 		{
 		case S2DEX_OBJLT_TXTRBLOCK:
+			u32 width  = sprite->imageW/32;
+			u32 height = sprite->imageH/32;
+
+			if( sprite->imageW >= 0x8000 )
+				width=-0x10000;
+
+			if( sprite->imageH >= 0x8000 )
+				height=-0x10000;
+
 			ti.SetWidth            (sprite->imageW/32);
 			ti.SetHeight           (sprite->imageH/32);
 			ti.SetPitch			   ( (2047/(txtr->block.tline-1)) << 3 );
