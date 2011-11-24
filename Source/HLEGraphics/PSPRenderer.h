@@ -318,8 +318,6 @@ private:
 
 	v4					LightVert( const v3 & norm ) const;
 
-	void				RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts, bool disable_zbuffer );
-
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST	
 	enum EPlaceholderTextureType
 	{

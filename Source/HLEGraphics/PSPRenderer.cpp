@@ -126,7 +126,6 @@ static f32 fViHeight = 240.0f;
 static u32 uViWidth = 320;
 static u32 uViHeight = 240;
 
-static const float gTexRectDepth( 0.0f );
 f32 gZoomX=1.0;	//Default is 1.0f
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST	
@@ -1127,15 +1126,67 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 }
 
 //*****************************************************************************
-// Used for TexRect, TexRectFlip, FillRect
+//
 //*****************************************************************************
-void PSPRenderer::RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts, bool disable_zbuffer )
+void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
-	DaedalusVtx*	p_vertices( (DaedalusVtx*)sceGuGetMemory(num_verts*sizeof(DaedalusVtx)) );
-	memcpy( p_vertices, p_verts, num_verts*sizeof(DaedalusVtx));
+	EnableTexturing( tile_idx );
 
-	//sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
-	RenderUsingCurrentBlendMode( p_vertices, num_verts, GU_TRANSFORM_2D, disable_zbuffer );
+	const v2 screen0( ConvertN64ToPsp( xy0 ) );
+	const v2 screen1( ConvertN64ToPsp( xy1 ) );
+	const v2 tex_uv0( uv0 - mTileTopLeft[ 0 ] );
+	const v2 tex_uv1( uv1 - mTileTopLeft[ 0 ] );
+
+	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
+	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
+
+	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
+
+	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(6 * sizeof(DaedalusVtx)) );
+
+	p_vertices[0].Position.x = screen1.x;
+	p_vertices[0].Position.y = screen0.y;
+	p_vertices[0].Position.z = depth;
+	p_vertices[0].Colour = c32(0xffffffff);
+	p_vertices[0].Texture.x = tex_uv1.x;
+	p_vertices[0].Texture.y = tex_uv0.y;
+
+	p_vertices[1].Position.x = screen0.x;
+	p_vertices[1].Position.y = screen0.y;
+	p_vertices[1].Position.z = depth;
+	p_vertices[1].Colour = c32(0xffffffff);
+	p_vertices[1].Texture.x = tex_uv0.x;
+	p_vertices[1].Texture.y = tex_uv0.y;
+
+	p_vertices[2].Position.x = screen1.x;
+	p_vertices[2].Position.y = screen1.y;
+	p_vertices[2].Position.z = depth;
+	p_vertices[2].Colour = c32(0xffffffff);
+	p_vertices[2].Texture.x = tex_uv1.x;
+	p_vertices[2].Texture.y = tex_uv1.y;
+
+	p_vertices[3].Position.x = screen1.x;
+	p_vertices[3].Position.y = screen1.y;
+	p_vertices[3].Position.z = depth;
+	p_vertices[3].Colour = c32(0xffffffff);
+	p_vertices[3].Texture.x = tex_uv1.x;
+	p_vertices[3].Texture.y = tex_uv1.y;
+
+	p_vertices[4].Position.x = screen0.x;
+	p_vertices[4].Position.y = screen0.y;
+	p_vertices[4].Position.z = depth;
+	p_vertices[4].Colour = c32(0xffffffff);
+	p_vertices[4].Texture.x = tex_uv0.x;
+	p_vertices[4].Texture.y = tex_uv0.y;
+
+	p_vertices[5].Position.x = screen0.x;
+	p_vertices[5].Position.y = screen1.y;
+	p_vertices[5].Position.z = depth;
+	p_vertices[5].Colour = c32(0xffffffff);
+	p_vertices[5].Texture.x = tex_uv0.x;
+	p_vertices[5].Texture.y = tex_uv1.y;
+
+	RenderUsingCurrentBlendMode( p_vertices, 6, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++m_dwNumRect;
@@ -1145,90 +1196,67 @@ void PSPRenderer::RenderTriangleList( const DaedalusVtx * p_verts, u32 num_verts
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
-{
-
-	EnableTexturing( tile_idx );
-
-	v2 screen0( ConvertN64ToPsp( xy0 ) );
-	v2 screen1( ConvertN64ToPsp( xy1 ) );
-	v2 tex_uv0( uv0 - mTileTopLeft[ 0 ] );
-	v2 tex_uv1( uv1 - mTileTopLeft[ 0 ] );
-
-	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
-
-	DaedalusVtx trv[ 6 ];
-
-	f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
-
-	v3	positions[ 4 ] =
-	{
-		v3( screen0.x, screen0.y, depth ),
-		v3( screen1.x, screen0.y, depth ),
-		v3( screen1.x, screen1.y, depth ),
-		v3( screen0.x, screen1.y, depth ),
-	};
-	v2	tex_coords[ 4 ] =
-	{
-		v2( tex_uv0.x, tex_uv0.y ),
-		v2( tex_uv1.x, tex_uv0.y ),
-		v2( tex_uv1.x, tex_uv1.y ),
-		v2( tex_uv0.x, tex_uv1.y ),
-	};
-
-	trv[0] = DaedalusVtx( positions[ 1 ], 0xffffffff, tex_coords[ 1 ] );
-	trv[1] = DaedalusVtx( positions[ 0 ], 0xffffffff, tex_coords[ 0 ] );
-	trv[2] = DaedalusVtx( positions[ 2 ], 0xffffffff, tex_coords[ 2 ] );
-
-	trv[3] = DaedalusVtx( positions[ 2 ], 0xffffffff, tex_coords[ 2 ] );
-	trv[4] = DaedalusVtx( positions[ 0 ], 0xffffffff, tex_coords[ 0 ] );
-	trv[5] = DaedalusVtx( positions[ 3 ], 0xffffffff, tex_coords[ 3 ] );
-
-	RenderTriangleList( trv, 6, gRDPOtherMode.depth_source ? false : true );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
 void PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
 	EnableTexturing( tile_idx );
 
-	v2 screen0( ConvertN64ToPsp( xy0 ) );
-	v2 screen1( ConvertN64ToPsp( xy1 ) );
-	v2 tex_uv0( uv0 - mTileTopLeft[ 0 ] );
-	v2 tex_uv1( uv1 - mTileTopLeft[ 0 ] );
+	const v2 screen0( ConvertN64ToPsp( xy0 ) );
+	const v2 screen1( ConvertN64ToPsp( xy1 ) );
+	const v2 tex_uv0( uv0 - mTileTopLeft[ 0 ] );
+	const v2 tex_uv1( uv1 - mTileTopLeft[ 0 ] );
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
 
-	DaedalusVtx trv[ 6 ];
+	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(6 * sizeof(DaedalusVtx)) );
 
-	v3	positions[ 4 ] =
-	{
-		v3( screen0.x, screen0.y, gTexRectDepth ),
-		v3( screen1.x, screen0.y, gTexRectDepth ),
-		v3( screen1.x, screen1.y, gTexRectDepth ),
-		v3( screen0.x, screen1.y, gTexRectDepth ),
-	};
-	v2	tex_coords[ 4 ] =
-	{
-		v2( tex_uv0.x, tex_uv0.y ),
-		v2( tex_uv0.x, tex_uv1.y ),		// In TexRect this is tex_uv1.x, tex_uv0.y
-		v2( tex_uv1.x, tex_uv1.y ),
-		v2( tex_uv1.x, tex_uv0.y ),		//tex_uv0.x	tex_uv1.y
-	};
+	p_vertices[0].Position.x = screen1.x;
+	p_vertices[0].Position.y = screen0.y;
+	p_vertices[0].Position.z = 0.0f;
+	p_vertices[0].Colour = c32(0xffffffff);
+	p_vertices[0].Texture.x = tex_uv0.x;
+	p_vertices[0].Texture.y = tex_uv1.y;
 
-	trv[0] = DaedalusVtx( positions[ 1 ], 0xffffffff, tex_coords[ 1 ] );
-	trv[1] = DaedalusVtx( positions[ 0 ], 0xffffffff, tex_coords[ 0 ] );
-	trv[2] = DaedalusVtx( positions[ 2 ], 0xffffffff, tex_coords[ 2 ] );
+	p_vertices[1].Position.x = screen0.x;
+	p_vertices[1].Position.y = screen0.y;
+	p_vertices[1].Position.z = 0.0f;
+	p_vertices[1].Colour = c32(0xffffffff);
+	p_vertices[1].Texture.x = tex_uv0.x;
+	p_vertices[1].Texture.y = tex_uv0.y;
 
-	trv[3] = DaedalusVtx( positions[ 2 ], 0xffffffff, tex_coords[ 2 ] );
-	trv[4] = DaedalusVtx( positions[ 0 ], 0xffffffff, tex_coords[ 0 ] );
-	trv[5] = DaedalusVtx( positions[ 3 ], 0xffffffff, tex_coords[ 3 ] );
+	p_vertices[2].Position.x = screen1.x;
+	p_vertices[2].Position.y = screen1.y;
+	p_vertices[2].Position.z = 0.0f;
+	p_vertices[2].Colour = c32(0xffffffff);
+	p_vertices[2].Texture.x = tex_uv1.x;
+	p_vertices[2].Texture.y = tex_uv1.y;
 
-	RenderTriangleList( trv, 6, true );
+	p_vertices[3].Position.x = screen1.x;
+	p_vertices[3].Position.y = screen1.y;
+	p_vertices[3].Position.z = 0.0f;
+	p_vertices[3].Colour = c32(0xffffffff);
+	p_vertices[3].Texture.x = tex_uv1.x;
+	p_vertices[3].Texture.y = tex_uv1.y;
+
+	p_vertices[4].Position.x = screen0.x;
+	p_vertices[4].Position.y = screen0.y;
+	p_vertices[4].Position.z = 0.0f;
+	p_vertices[4].Colour = c32(0xffffffff);
+	p_vertices[4].Texture.x = tex_uv0.x;
+	p_vertices[4].Texture.y = tex_uv0.y;
+
+	p_vertices[5].Position.x = screen0.x;
+	p_vertices[5].Position.y = screen1.y;
+	p_vertices[5].Position.z = 0.0f;
+	p_vertices[5].Colour = c32(0xffffffff);
+	p_vertices[5].Texture.x = tex_uv1.x;
+	p_vertices[5].Texture.y = tex_uv0.y;
+
+	RenderUsingCurrentBlendMode( p_vertices, 6, GU_TRANSFORM_2D, true );
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	++m_dwNumRect;
+#endif
 }
 
 //*****************************************************************************
@@ -1247,37 +1275,60 @@ void PSPRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	// This if for C&C - It might break other stuff (I'm not sure if we should allow alpha or not..)
 	//color |= 0xff000000;
 
-	v2 screen0( ConvertN64ToPsp( xy0 ) );
-	v2 screen1( ConvertN64ToPsp( xy1 ) );
+	const v2 screen0( ConvertN64ToPsp( xy0 ) );
+	const v2 screen1( ConvertN64ToPsp( xy1 ) );
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 
-	DaedalusVtx trv[ 6 ];
+	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(6 * sizeof(DaedalusVtx)) );
 
-	v3	positions[ 4 ] =
-	{
-		v3( screen0.x, screen0.y, gTexRectDepth ),
-		v3( screen1.x, screen0.y, gTexRectDepth ),
-		v3( screen1.x, screen1.y, gTexRectDepth ),
-		v3( screen0.x, screen1.y, gTexRectDepth ),
-	};
-	v2	tex_coords[ 4 ] =
-	{
-		v2( 0.f, 0.f ),
-		v2( 1.f, 0.f ),
-		v2( 1.f, 1.f ),
-		v2( 0.f, 1.f ),
-	};
+	p_vertices[0].Position.x = screen1.x;
+	p_vertices[0].Position.y = screen0.y;
+	p_vertices[0].Position.z = 0.0f;
+	p_vertices[0].Colour = c32(color);
+	p_vertices[0].Texture.x = 1.0f;
+	p_vertices[0].Texture.y = 0.0f;
 
-	trv[0] = DaedalusVtx( positions[ 1 ], color, tex_coords[ 1 ] );
-	trv[1] = DaedalusVtx( positions[ 0 ], color, tex_coords[ 0 ] );
-	trv[2] = DaedalusVtx( positions[ 2 ], color, tex_coords[ 2 ] );
+	p_vertices[1].Position.x = screen0.x;
+	p_vertices[1].Position.y = screen0.y;
+	p_vertices[1].Position.z = 0.0f;
+	p_vertices[1].Colour = c32(color);
+	p_vertices[1].Texture.x = 0.0f;
+	p_vertices[1].Texture.y = 0.0f;
 
-	trv[3] = DaedalusVtx( positions[ 2 ], color, tex_coords[ 2 ] );
-	trv[4] = DaedalusVtx( positions[ 0 ], color, tex_coords[ 0 ] );
-	trv[5] = DaedalusVtx( positions[ 3 ], color, tex_coords[ 3 ] );
+	p_vertices[2].Position.x = screen1.x;
+	p_vertices[2].Position.y = screen1.y;
+	p_vertices[2].Position.z = 0.0f;
+	p_vertices[2].Colour = c32(color);
+	p_vertices[2].Texture.x = 1.0f;
+	p_vertices[2].Texture.y = 1.0f;
 
-	RenderTriangleList( trv, 6, true );
+	p_vertices[3].Position.x = screen1.x;
+	p_vertices[3].Position.y = screen1.y;
+	p_vertices[3].Position.z = 0.0f;
+	p_vertices[3].Colour = c32(color);
+	p_vertices[3].Texture.x = 1.0f;
+	p_vertices[3].Texture.y = 1.0f;
+
+	p_vertices[4].Position.x = screen0.x;
+	p_vertices[4].Position.y = screen0.y;
+	p_vertices[4].Position.z = 0.0f;
+	p_vertices[4].Colour = c32(color);
+	p_vertices[4].Texture.x = 0.0f;
+	p_vertices[4].Texture.y = 0.0f;
+
+	p_vertices[5].Position.x = screen0.x;
+	p_vertices[5].Position.y = screen1.y;
+	p_vertices[5].Position.z = 0.0f;
+	p_vertices[5].Colour = c32(color);
+	p_vertices[5].Texture.x = 0.0f;
+	p_vertices[5].Texture.y = 1.0f;
+
+	RenderUsingCurrentBlendMode( p_vertices, 6, GU_TRANSFORM_2D, true );
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	++m_dwNumRect;
+#endif
 }
 
 //*****************************************************************************
@@ -1619,8 +1670,8 @@ namespace
 	DaedalusVtx4		temp_a[ 8 ];
 	DaedalusVtx4		temp_b[ 8 ];
 
-	const u32			MAX_CLIPPED_VERTS = 192;	// Probably excessively large...
-	DaedalusVtx4		clipped_vertices[MAX_CLIPPED_VERTS];
+	const u32			MAX_CLIPPED_VERTS = 192;
+	DaedalusVtx			clip_vtx[MAX_CLIPPED_VERTS];
 }
 
 //*****************************************************************************
@@ -1639,6 +1690,8 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 	//	matrix and use this to back-project the clip planes into world coordinates, but this
 	//	suffers from various precision issues. Carrying around both sets of coordinates gives
 	//	us the best of both worlds :)
+	//
+	//  Convert directly to PSP hardware format, that way we only copy 24 bytes instead of 64 bytes //Corn
 	//
 	u32 num_vertices = 0;
 
@@ -1676,9 +1729,23 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 			//Make new triangles from the vertices we got back from clipping the original triangle
 			for( u32 j = 0; j <= out - 3; ++j)
 			{
-				clipped_vertices[ num_vertices++ ] = temp_a[ 0 ];
-				clipped_vertices[ num_vertices++ ] = temp_a[ j + 1 ];
-				clipped_vertices[ num_vertices++ ] = temp_a[ j + 2 ];
+				clip_vtx[ num_vertices ].Texture = temp_a[ 0 ].Texture; 	 
+				clip_vtx[ num_vertices ].Colour = c32( temp_a[ 0 ].Colour ); 	 
+				clip_vtx[ num_vertices ].Position.x = temp_a[ 0 ].TransformedPos.x;
+				clip_vtx[ num_vertices ].Position.y = temp_a[ 0 ].TransformedPos.y;
+				clip_vtx[ num_vertices++ ].Position.z = temp_a[ 0 ].TransformedPos.z;
+
+				clip_vtx[ num_vertices ].Texture = temp_a[ j + 1 ].Texture; 	 
+				clip_vtx[ num_vertices ].Colour = c32( temp_a[ j + 1 ].Colour ); 	 
+				clip_vtx[ num_vertices ].Position.x = temp_a[ j + 1 ].TransformedPos.x;
+				clip_vtx[ num_vertices ].Position.y = temp_a[ j + 1 ].TransformedPos.y;
+				clip_vtx[ num_vertices++ ].Position.z = temp_a[ j + 1 ].TransformedPos.z;
+
+				clip_vtx[ num_vertices ].Texture = temp_a[ j + 2 ].Texture; 	 
+				clip_vtx[ num_vertices ].Colour = c32( temp_a[ j + 2 ].Colour ); 	 
+				clip_vtx[ num_vertices ].Position.x = temp_a[ j + 2 ].TransformedPos.x;
+				clip_vtx[ num_vertices ].Position.y = temp_a[ j + 2 ].TransformedPos.y;
+				clip_vtx[ num_vertices++ ].Position.z = temp_a[ j + 2 ].TransformedPos.z;
 			}
 		}
 		else	//Triangle is inside the clipbox so we just add it as it is.
@@ -1689,32 +1756,33 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 				break;
 			}
 
-			clipped_vertices[ num_vertices++ ] = mVtxProjected[ idx0 ];
-			clipped_vertices[ num_vertices++ ] = mVtxProjected[ idx1 ];
-			clipped_vertices[ num_vertices++ ] = mVtxProjected[ idx2 ];
+			clip_vtx[ num_vertices ].Texture = mVtxProjected[ idx0 ].Texture; 	 
+			clip_vtx[ num_vertices ].Colour = c32( mVtxProjected[ idx0 ].Colour ); 	 
+			clip_vtx[ num_vertices ].Position.x = mVtxProjected[ idx0 ].TransformedPos.x;
+			clip_vtx[ num_vertices ].Position.y = mVtxProjected[ idx0 ].TransformedPos.y;
+			clip_vtx[ num_vertices++ ].Position.z = mVtxProjected[ idx0 ].TransformedPos.z;
+
+			clip_vtx[ num_vertices ].Texture = mVtxProjected[ idx1 ].Texture; 	 
+			clip_vtx[ num_vertices ].Colour = c32( mVtxProjected[ idx1 ].Colour ); 	 
+			clip_vtx[ num_vertices ].Position.x = mVtxProjected[ idx1 ].TransformedPos.x;
+			clip_vtx[ num_vertices ].Position.y = mVtxProjected[ idx1 ].TransformedPos.y;
+			clip_vtx[ num_vertices++ ].Position.z = mVtxProjected[ idx1 ].TransformedPos.z;
+
+			clip_vtx[ num_vertices ].Texture = mVtxProjected[ idx2 ].Texture; 	 
+			clip_vtx[ num_vertices ].Colour = c32( mVtxProjected[ idx2 ].Colour ); 	 
+			clip_vtx[ num_vertices ].Position.x = mVtxProjected[ idx2 ].TransformedPos.x;
+			clip_vtx[ num_vertices ].Position.y = mVtxProjected[ idx2 ].TransformedPos.y;
+			clip_vtx[ num_vertices++ ].Position.z = mVtxProjected[ idx2 ].TransformedPos.z;
 		}
 	}
 
 	//
 	//	Now the vertices have been clipped we need to write them into
 	//	a buffer we obtain this from the display list.
-	//  ToDo: Test Allocating vertex buffers to VRAM
-	//	Maybe we should allocate all vertex buffers from VRAM?
-	//
-	DaedalusVtx *	p_vertices( (DaedalusVtx*)sceGuGetMemory(num_vertices*sizeof(DaedalusVtx)) );
 
-#ifdef DAEDALUS_PSP_USE_VFPU
-	_ConvertVertices( p_vertices, clipped_vertices, num_vertices );
-#else 	 
-     for( u32 i = 0; i < num_vertices; ++i ) 	 
-     { 	 
-             p_vertices[ i ].Texture = clipped_vertices[ i ].Texture; 	 
-             p_vertices[ i ].Colour = c32( clipped_vertices[ i ].Colour ); 	 
-             p_vertices[ i ].Position.x = clipped_vertices[ i ].TransformedPos.x; 	 
-             p_vertices[ i ].Position.y = clipped_vertices[ i ].TransformedPos.y; 	 
-             p_vertices[ i ].Position.z = clipped_vertices[ i ].TransformedPos.z; 	 
-     } 	 
-#endif
+	DaedalusVtx *p_vertices( (DaedalusVtx*)sceGuGetMemory(num_vertices*sizeof(DaedalusVtx)) );
+
+	memcpy( p_vertices, clip_vtx, num_vertices*sizeof(DaedalusVtx) );
 
 	*p_p_vertices = p_vertices;
 	*p_num_vertices = num_vertices;
@@ -1738,8 +1806,6 @@ void PSPRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num
 	//
 	//	http://forums.ps2dev.org/viewtopic.php?t=4703
 	//
-	//  ToDo: Test Allocating vertex buffers to VRAM
-	//	ToDo: Why Indexed below?
 	//DAEDALUS_STATIC_ASSERT( MAX_CLIPPED_VERTS > ARRAYSIZE(m_swIndexBuffer) );
 
 #ifdef DAEDALUS_PSP_USE_VFPU
