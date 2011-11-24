@@ -338,7 +338,7 @@ static bool	Initialize()
 
 // This Breaks gdb, better disable it in debug build
 //
-#ifdef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_DEBUG_CONSOLE
 	initExceptionHandler();
 #endif
 

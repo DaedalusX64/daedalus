@@ -245,12 +245,9 @@ PSPRenderer::PSPRenderer()
 :	mN64ToPSPScale( 2.0f, 2.0f )
 ,	mN64ToPSPTranslate( 0.0f, 0.0f )
 ,	mMux( 0 )
-//,	mTnLModeFlags( 0 )
 
 ,	mNumLights(0)
 ,	mTextureTile(0)
-,	mCull(false)
-,	mCullMode(GU_CCW)
 
 ,	mAlphaThreshold(0)
 

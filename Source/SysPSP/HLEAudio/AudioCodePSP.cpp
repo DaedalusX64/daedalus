@@ -49,12 +49,10 @@ static const u32	DESIRED_OUTPUT_FREQUENCY = 44100;
 static const u32	MAX_OUTPUT_FREQUENCY = DESIRED_OUTPUT_FREQUENCY * 4;
 
 //static const u32	ADAPTIVE_FREQUENCY_ADJUST = 2000;
-//[@Kreationz]Increased Audio Buffer to 32 Batches to Smooth Sound at slightly lower frame rates
-//32 creates huge delay on sound tho //Corn
-//static const u32	BUFFER_SIZE = 1024 * 8;		// Usually have to provide 1024 samples at a time, so this gives us 8 batches of them
-static const u32	BUFFER_SIZE = 1024 * 4;
+// Large BUFFER_SIZE creates huge delay on sound //Corn
+static const u32	BUFFER_SIZE = 1024 * 2;
 
-static const u32	PSP_NUM_SAMPLES = 2048;
+static const u32	PSP_NUM_SAMPLES = 512;
 
 // Global variables
 static SceUID bufferEmpty;

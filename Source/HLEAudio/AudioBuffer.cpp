@@ -94,7 +94,7 @@ void	CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 	const s32 r( (frequency << 12)  / output_freq );
 	s32		  s( 0 );
 	u32		  in_idx( 0 );
-	u32		  output_samples( ( (num_samples-1) * output_freq ) / frequency );
+	u32		  output_samples( (( num_samples * output_freq ) / frequency) - 1);
 
 	for( u32 i = output_samples; i != 0 ; i-- )
 	{
@@ -127,8 +127,6 @@ void	CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 		s += r;
 		in_idx += s >> 12;
 		s &= 4095;
-
-//		DAEDALUS_ASSERT( s >= 0 && s < 4096, "s out of range" );
 #endif
 
 		write_ptr++;
@@ -143,12 +141,7 @@ void	CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 			//    as the program winds up waiting for the buffer to empty.
 			// ToDo: Adjust Audio Frequency/ Look at Turok in this regard.
 			// We might want to put a Sleep in when executing on the SC?
-			//	printf( "Buffer full - waiting for it to empty\n" );
-			//	ThreadSleepMs(1);
-			// ToDo: Why PSP only? //Only needed for ME?
 			//Give time to other threads when using SYNC mode.
-			//Much more than 5ms results in EMU hangs when starting game with Async
-			//Much more than 10ms results in Async bug happening often in SM64 //Corn
 			if ( gAudioPluginEnabled == APM_ENABLED_SYNC )	ThreadYield();
 
 			read_ptr = mReadPtr;

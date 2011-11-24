@@ -67,7 +67,7 @@ class CDebugConsole : public CSingleton< CDebugConsole >
 };
 #endif	// DAEDALUS_DEBUG_CONSOLE
 
-#ifdef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_DEBUG_CONSOLE
 
 #define DBGConsole_Msg(...)					do {} while(0)
 
@@ -75,7 +75,7 @@ class CDebugConsole : public CSingleton< CDebugConsole >
 
 #define DBGConsole_Msg( type, ... )			CDebugConsole::Get()->Msg( type, __VA_ARGS__ )
 
-#endif // DAEDALUS_PUBLIC_RELEASE
+#endif // DAEDALUS_DEBUG_CONSOLE
 
 #endif // DBGCONSOLE_H_
 

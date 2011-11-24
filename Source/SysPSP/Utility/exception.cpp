@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "Debug/Dump.h"
 #include "ConfigOptions.h"
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
@@ -65,6 +66,13 @@ static void DumpInformation(PspDebugRegBlock * regs)
 			fprintf(fp, "\t%s:%08X %s:%08X %s:%08X %s:%08X\n", regName[i], (int)regs->r[i], regName[i+1], (int)regs->r[i+1], regName[i+2], (int)regs->r[i+2], regName[i+3], (int)regs->r[i+3]);
 	}
 
+#ifndef DAEDALUS_PUBLIC_RELEASE
+	fprintf(fp, "\nDisassembly:\n");
+	{
+		Dump_DisassembleMIPSRange(fp, regs->epc-32, (OpCode *)(regs->epc-32), (OpCode *)(regs->epc+16));
+	}
+#endif
+
 	fprintf(fp, "\nRom Infomation:\n");
 	{
 		fprintf(fp, "\tClockrate:       0x%08x\n", g_ROM.rh.ClockRate);
@@ -103,13 +111,21 @@ static void DumpInformation(PspDebugRegBlock * regs)
 			regName[i], gCPUState.CPU[i]._u32_0, regName[i+1], gCPUState.CPU[i+1]._u32_0, 
 			regName[i+2], gCPUState.CPU[i+2]._u32_0, regName[i+3], gCPUState.CPU[i+3]._u32_0);
 
-		fprintf(fp, "PC: %08x", gCPUState.CurrentPC);
+		fprintf(fp, "PC: %08x\n", gCPUState.CurrentPC);
 	}
 
-	fprintf(fp, "Disassembly:\n");
+#ifndef DAEDALUS_PUBLIC_RELEASE
+	fprintf(fp, "\nDisassembly:\n");
 	{
-
+		u8 * p_base;
+		Memory_GetInternalReadAddress(gCPUState.CurrentPC-32, (void**)&p_base);
+		const OpCode * op_start( reinterpret_cast< const OpCode * >( p_base ) );
+		const OpCode * op_end(   reinterpret_cast< const OpCode * >( p_base + (48) ) );
+	
+		Dump_DisassembleMIPSRange(fp, gCPUState.CurrentPC-32, op_start, op_end);
 	}
+#endif
+
 	fclose(fp);
 }	
 

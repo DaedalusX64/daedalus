@@ -350,9 +350,6 @@ private:
 	u32					mNumLights;
 	u32					mTextureTile;
 
-	bool				mCull;
-	int					mCullMode;
-	
 	u32					mAlphaThreshold;
 
 	f32					mPrimDepth;
