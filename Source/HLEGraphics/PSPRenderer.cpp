@@ -705,7 +705,7 @@ PSPRenderer::SBlendStateEntry	PSPRenderer::LookupBlendState( u64 mux, bool two_c
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 render_flags)
+void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags)
 {
 	DAEDALUS_PROFILE( "PSPRenderer::RenderUsingRenderSettings" );
 
@@ -825,7 +825,7 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 
 		sceGuTexWrap( mTexWrap[texture_idx][0], mTexWrap[texture_idx][1] );
 
-		sceGuDrawArray( DRAW_MODE, render_flags, num_vertices, NULL, p_vertices );
+		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
 	}
 }
 
@@ -833,7 +833,7 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 //*****************************************************************************
 // Used for Blend Explorer, or Nasty texture
 //*****************************************************************************
-bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u32 render_flags, u64 mux )
+bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux )
 {
 	if( mNastyTexture && IsCombinerStateDisabled( mux ) )
 	{
@@ -843,7 +843,7 @@ bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u3
 		SelectPlaceholderTexture( PTT_SELECTED );
 		sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
 		sceGuTexMode(GU_PSM_8888,0,0,GL_TRUE);		// maxmips/a2/swizzle = 0
-		sceGuDrawArray( DRAW_MODE, render_flags, num_vertices, NULL, p_vertices );
+		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
 
 		return true;
 
@@ -895,7 +895,7 @@ bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u3
 			sceGuDisable( GU_TEXTURE_2D );
 
 		details.ColourAdjuster.Process( p_vertices, num_vertices );
-		sceGuDrawArray( DRAW_MODE, render_flags, num_vertices, NULL, p_vertices );
+		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
 
 		return true;
 	}
@@ -906,7 +906,7 @@ bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u3
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 render_flags, u64 mux)
+void PSPRenderer::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux)
 {
 	bool	inexact( states->IsInexact() );
 
@@ -942,7 +942,7 @@ void PSPRenderer::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertice
 		// Use the nasty placeholder texture
 		SelectPlaceholderTexture( PTT_MISSING );
 		sceGuTexFunc( GU_TFX_REPLACE, GU_TCC_RGBA );
-		sceGuDrawArray( DRAW_MODE, render_flags, num_vertices, NULL, p_vertices );
+		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
 	}
 }
 
@@ -952,7 +952,7 @@ extern void InitBlenderMode( u32 blender );
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 render_mode, bool disable_zbuffer )
+void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer )
 {
 
 	static bool	ZFightingEnabled( false );
@@ -1053,7 +1053,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	// Used for Blend Explorer, or Nasty texture
 	//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST	
-	if( DebugBlendmode( p_vertices, num_vertices, render_flags, mMux ) )	return;
+	if( DebugBlendmode( p_vertices, num_vertices, triangle_mode, render_flags, mMux ) )	return;
 #endif
 
 	// This check is for inexact blends which were handled either by a custom blendmode or auto blendmode thing
@@ -1063,7 +1063,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		// Used for dumping mux and highlight inexact blend
 		//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DebugMux( blend_entry.States, p_vertices, num_vertices, render_flags, mMux );
+		DebugMux( blend_entry.States, p_vertices, num_vertices, triangle_mode, render_flags, mMux );
 #endif
 
 		// Local vars for now
@@ -1110,18 +1110,18 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 		details.ColourAdjuster.Process( p_vertices, num_vertices );
 
-		sceGuDrawArray( DRAW_MODE, render_flags, num_vertices, NULL, p_vertices );
+		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
 	}
 	else if( blend_entry.States != NULL )
 	{
-		RenderUsingRenderSettings( blend_entry.States, p_vertices, num_vertices, render_flags );
+		RenderUsingRenderSettings( blend_entry.States, p_vertices, num_vertices, triangle_mode, render_flags );
 	}
 	else
 	{
 		// Set default states
 		DAEDALUS_ERROR( "Unhandled blend mode" );
 		sceGuDisable( GU_TEXTURE_2D );
-		sceGuDrawArray( DRAW_MODE, render_flags, num_vertices, NULL, p_vertices );
+		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
 	}
 }
 
@@ -1142,51 +1142,54 @@ void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 
 	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
-	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(6 * sizeof(DaedalusVtx)) );
+	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(2 * sizeof(DaedalusVtx)) );
 
-	p_vertices[0].Position.x = screen1.x;
-	p_vertices[0].Position.y = screen0.y;
+	p_vertices[0].Position.x = screen0.x;
+    p_vertices[0].Position.y = screen0.y;
 	p_vertices[0].Position.z = depth;
 	p_vertices[0].Colour = c32(0xffffffff);
-	p_vertices[0].Texture.x = tex_uv1.x;
-	p_vertices[0].Texture.y = tex_uv0.y;
+    p_vertices[0].Texture.x = tex_uv0.x;
+    p_vertices[0].Texture.y = tex_uv0.y;
 
-	p_vertices[1].Position.x = screen0.x;
-	p_vertices[1].Position.y = screen0.y;
+    p_vertices[1].Position.x = screen1.x;
+    p_vertices[1].Position.y = screen1.y;
 	p_vertices[1].Position.z = depth;
 	p_vertices[1].Colour = c32(0xffffffff);
-	p_vertices[1].Texture.x = tex_uv0.x;
-	p_vertices[1].Texture.y = tex_uv0.y;
+	p_vertices[1].Texture.x = tex_uv1.x;
+    p_vertices[1].Texture.y = tex_uv1.y;
 
-	p_vertices[2].Position.x = screen1.x;
-	p_vertices[2].Position.y = screen1.y;
+//	To be used with TRIANGLE_STRIP, which requires 40% less verts than TRIANGLE
+//	For reference for future ports and if SPRITES( which uses %60 less verts than TRIANGLE) causes issues
+/*
+	p_vertices[0].Position.x = screen0.x;
+    p_vertices[0].Position.y = screen0.y;
+	p_vertices[0].Position.z = depth;
+	p_vertices[0].Colour = c32(0xffffffff);
+    p_vertices[0].Texture.x = tex_uv0.x;
+    p_vertices[0].Texture.y = tex_uv0.y;
+
+    p_vertices[1].Position.x = screen1.x;
+    p_vertices[1].Position.y = screen0.y;
+	p_vertices[1].Position.z = depth;
+	p_vertices[1].Colour = c32(0xffffffff);
+	p_vertices[1].Texture.x = tex_uv1.x;
+    p_vertices[1].Texture.y = tex_uv0.y;
+
+    p_vertices[2].Position.x = screen0.x;
+    p_vertices[2].Position.y = screen1.y;
 	p_vertices[2].Position.z = depth;
 	p_vertices[2].Colour = c32(0xffffffff);
-	p_vertices[2].Texture.x = tex_uv1.x;
-	p_vertices[2].Texture.y = tex_uv1.y;
+    p_vertices[2].Texture.x = tex_uv0.x;
+    p_vertices[2].Texture.y = tex_uv1.y;
 
-	p_vertices[3].Position.x = screen1.x;
-	p_vertices[3].Position.y = screen1.y;
+    p_vertices[3].Position.x = screen1.x;
+    p_vertices[3].Position.y = screen1.y;
 	p_vertices[3].Position.z = depth;
 	p_vertices[3].Colour = c32(0xffffffff);
-	p_vertices[3].Texture.x = tex_uv1.x;
-	p_vertices[3].Texture.y = tex_uv1.y;
-
-	p_vertices[4].Position.x = screen0.x;
-	p_vertices[4].Position.y = screen0.y;
-	p_vertices[4].Position.z = depth;
-	p_vertices[4].Colour = c32(0xffffffff);
-	p_vertices[4].Texture.x = tex_uv0.x;
-	p_vertices[4].Texture.y = tex_uv0.y;
-
-	p_vertices[5].Position.x = screen0.x;
-	p_vertices[5].Position.y = screen1.y;
-	p_vertices[5].Position.z = depth;
-	p_vertices[5].Colour = c32(0xffffffff);
-	p_vertices[5].Texture.x = tex_uv0.x;
-	p_vertices[5].Texture.y = tex_uv1.y;
-
-	RenderUsingCurrentBlendMode( p_vertices, 6, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
+    p_vertices[3].Texture.x = tex_uv1.x;
+    p_vertices[3].Texture.y = tex_uv1.y;
+*/
+	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++m_dwNumRect;
@@ -1208,51 +1211,23 @@ void PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
 
-	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(6 * sizeof(DaedalusVtx)) );
+	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(2 * sizeof(DaedalusVtx)) );
 
-	p_vertices[0].Position.x = screen1.x;
-	p_vertices[0].Position.y = screen0.y;
+	p_vertices[0].Position.x = screen0.x;
+    p_vertices[0].Position.y = screen0.y;
 	p_vertices[0].Position.z = 0.0f;
 	p_vertices[0].Colour = c32(0xffffffff);
-	p_vertices[0].Texture.x = tex_uv0.x;
-	p_vertices[0].Texture.y = tex_uv1.y;
+    p_vertices[0].Texture.x = tex_uv1.y;
+    p_vertices[0].Texture.y = tex_uv1.y;
 
-	p_vertices[1].Position.x = screen0.x;
-	p_vertices[1].Position.y = screen0.y;
+    p_vertices[1].Position.x = screen1.x;
+    p_vertices[1].Position.y = screen1.y;
 	p_vertices[1].Position.z = 0.0f;
 	p_vertices[1].Colour = c32(0xffffffff);
 	p_vertices[1].Texture.x = tex_uv0.x;
-	p_vertices[1].Texture.y = tex_uv0.y;
+    p_vertices[1].Texture.y = tex_uv0.y;
 
-	p_vertices[2].Position.x = screen1.x;
-	p_vertices[2].Position.y = screen1.y;
-	p_vertices[2].Position.z = 0.0f;
-	p_vertices[2].Colour = c32(0xffffffff);
-	p_vertices[2].Texture.x = tex_uv1.x;
-	p_vertices[2].Texture.y = tex_uv1.y;
-
-	p_vertices[3].Position.x = screen1.x;
-	p_vertices[3].Position.y = screen1.y;
-	p_vertices[3].Position.z = 0.0f;
-	p_vertices[3].Colour = c32(0xffffffff);
-	p_vertices[3].Texture.x = tex_uv1.x;
-	p_vertices[3].Texture.y = tex_uv1.y;
-
-	p_vertices[4].Position.x = screen0.x;
-	p_vertices[4].Position.y = screen0.y;
-	p_vertices[4].Position.z = 0.0f;
-	p_vertices[4].Colour = c32(0xffffffff);
-	p_vertices[4].Texture.x = tex_uv0.x;
-	p_vertices[4].Texture.y = tex_uv0.y;
-
-	p_vertices[5].Position.x = screen0.x;
-	p_vertices[5].Position.y = screen1.y;
-	p_vertices[5].Position.z = 0.0f;
-	p_vertices[5].Colour = c32(0xffffffff);
-	p_vertices[5].Texture.x = tex_uv1.x;
-	p_vertices[5].Texture.y = tex_uv0.y;
-
-	RenderUsingCurrentBlendMode( p_vertices, 6, GU_TRANSFORM_2D, true );
+	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, GU_TRANSFORM_2D, true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++m_dwNumRect;
@@ -1280,51 +1255,24 @@ void PSPRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 
-	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(6 * sizeof(DaedalusVtx)) );
+	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(2 * sizeof(DaedalusVtx)) );
 
-	p_vertices[0].Position.x = screen1.x;
+	// No need for Texture.x/y as we don't do any texturing for fillrect
+	p_vertices[0].Position.x = screen0.x;
 	p_vertices[0].Position.y = screen0.y;
 	p_vertices[0].Position.z = 0.0f;
 	p_vertices[0].Colour = c32(color);
-	p_vertices[0].Texture.x = 1.0f;
-	p_vertices[0].Texture.y = 0.0f;
+	//p_vertices[0].Texture.x = 0.0f;
+	//p_vertices[0].Texture.y = 0.0f;
 
-	p_vertices[1].Position.x = screen0.x;
-	p_vertices[1].Position.y = screen0.y;
+	p_vertices[1].Position.x = screen1.x;
+	p_vertices[1].Position.y = screen1.y;
 	p_vertices[1].Position.z = 0.0f;
 	p_vertices[1].Colour = c32(color);
-	p_vertices[1].Texture.x = 0.0f;
-	p_vertices[1].Texture.y = 0.0f;
+	//p_vertices[1].Texture.x = 1.0f;
+	//p_vertices[1].Texture.y = 0.0f;
 
-	p_vertices[2].Position.x = screen1.x;
-	p_vertices[2].Position.y = screen1.y;
-	p_vertices[2].Position.z = 0.0f;
-	p_vertices[2].Colour = c32(color);
-	p_vertices[2].Texture.x = 1.0f;
-	p_vertices[2].Texture.y = 1.0f;
-
-	p_vertices[3].Position.x = screen1.x;
-	p_vertices[3].Position.y = screen1.y;
-	p_vertices[3].Position.z = 0.0f;
-	p_vertices[3].Colour = c32(color);
-	p_vertices[3].Texture.x = 1.0f;
-	p_vertices[3].Texture.y = 1.0f;
-
-	p_vertices[4].Position.x = screen0.x;
-	p_vertices[4].Position.y = screen0.y;
-	p_vertices[4].Position.z = 0.0f;
-	p_vertices[4].Colour = c32(color);
-	p_vertices[4].Texture.x = 0.0f;
-	p_vertices[4].Texture.y = 0.0f;
-
-	p_vertices[5].Position.x = screen0.x;
-	p_vertices[5].Position.y = screen1.y;
-	p_vertices[5].Position.z = 0.0f;
-	p_vertices[5].Colour = c32(color);
-	p_vertices[5].Texture.x = 0.0f;
-	p_vertices[5].Texture.y = 1.0f;
-
-	RenderUsingCurrentBlendMode( p_vertices, 6, GU_TRANSFORM_2D, true );
+	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, GU_TRANSFORM_2D, true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++m_dwNumRect;
@@ -1524,7 +1472,7 @@ void PSPRenderer::FlushTris()
 
 	//
 	//	Render out our vertices
-	RenderUsingCurrentBlendMode( p_vertices, num_vertices, GU_TRANSFORM_3D, gRDPOtherMode.depth_source ? true : false );
+	RenderUsingCurrentBlendMode( p_vertices, num_vertices, GU_TRIANGLES, GU_TRANSFORM_3D, gRDPOtherMode.depth_source ? true : false );
 
 	//sceGuDisable(GU_CULL_FACE);
 

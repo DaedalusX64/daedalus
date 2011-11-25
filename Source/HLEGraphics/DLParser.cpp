@@ -1353,7 +1353,6 @@ void DLParser_FillRect( MicroCodeCommand command )
 	if ( g_CI.Size == G_IM_SIZ_16b )
 	//if ( gRDPOtherMode.cycle_type != CYCLE_FILL )
 	{
-		DAEDALUS_ASSERT( gRDPOtherMode.cycle_type != CYCLE_FILL, "Fillrect : Check Me");
 
 		PixelFormats::N64::Pf5551	c( (u16)gFillColor );
 
