@@ -1145,49 +1145,49 @@ void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(2 * sizeof(DaedalusVtx)) );
 
 	p_vertices[0].Position.x = screen0.x;
-    p_vertices[0].Position.y = screen0.y;
+	p_vertices[0].Position.y = screen0.y;
 	p_vertices[0].Position.z = depth;
 	p_vertices[0].Colour = c32(0xffffffff);
-    p_vertices[0].Texture.x = tex_uv0.x;
-    p_vertices[0].Texture.y = tex_uv0.y;
+	p_vertices[0].Texture.x = tex_uv0.x;
+	p_vertices[0].Texture.y = tex_uv0.y;
 
-    p_vertices[1].Position.x = screen1.x;
-    p_vertices[1].Position.y = screen1.y;
+	p_vertices[1].Position.x = screen1.x;
+	p_vertices[1].Position.y = screen1.y;
 	p_vertices[1].Position.z = depth;
 	p_vertices[1].Colour = c32(0xffffffff);
 	p_vertices[1].Texture.x = tex_uv1.x;
-    p_vertices[1].Texture.y = tex_uv1.y;
+	p_vertices[1].Texture.y = tex_uv1.y;
 
-//	To be used with TRIANGLE_STRIP, which requires 40% less verts than TRIANGLE
-//	For reference for future ports and if SPRITES( which uses %60 less verts than TRIANGLE) causes issues
+	//	To be used with TRIANGLE_STRIP, which requires 40% less verts than TRIANGLE
+	//	For reference for future ports and if SPRITES( which uses %60 less verts than TRIANGLE) causes issues
 /*
 	p_vertices[0].Position.x = screen0.x;
-    p_vertices[0].Position.y = screen0.y;
+	p_vertices[0].Position.y = screen0.y;
 	p_vertices[0].Position.z = depth;
 	p_vertices[0].Colour = c32(0xffffffff);
-    p_vertices[0].Texture.x = tex_uv0.x;
-    p_vertices[0].Texture.y = tex_uv0.y;
+	p_vertices[0].Texture.x = tex_uv0.x;
+	p_vertices[0].Texture.y = tex_uv0.y;
 
-    p_vertices[1].Position.x = screen1.x;
-    p_vertices[1].Position.y = screen0.y;
+	p_vertices[1].Position.x = screen1.x;
+	p_vertices[1].Position.y = screen0.y;
 	p_vertices[1].Position.z = depth;
 	p_vertices[1].Colour = c32(0xffffffff);
 	p_vertices[1].Texture.x = tex_uv1.x;
-    p_vertices[1].Texture.y = tex_uv0.y;
+	p_vertices[1].Texture.y = tex_uv0.y;
 
-    p_vertices[2].Position.x = screen0.x;
-    p_vertices[2].Position.y = screen1.y;
+	p_vertices[2].Position.x = screen0.x;
+	p_vertices[2].Position.y = screen1.y;
 	p_vertices[2].Position.z = depth;
 	p_vertices[2].Colour = c32(0xffffffff);
-    p_vertices[2].Texture.x = tex_uv0.x;
-    p_vertices[2].Texture.y = tex_uv1.y;
+	p_vertices[2].Texture.x = tex_uv0.x;
+	p_vertices[2].Texture.y = tex_uv1.y;
 
-    p_vertices[3].Position.x = screen1.x;
-    p_vertices[3].Position.y = screen1.y;
+	p_vertices[3].Position.x = screen1.x;
+	p_vertices[3].Position.y = screen1.y;
 	p_vertices[3].Position.z = depth;
 	p_vertices[3].Colour = c32(0xffffffff);
-    p_vertices[3].Texture.x = tex_uv1.x;
-    p_vertices[3].Texture.y = tex_uv1.y;
+	p_vertices[3].Texture.x = tex_uv1.x;
+	p_vertices[3].Texture.y = tex_uv1.y;
 */
 	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
 
@@ -1214,18 +1214,18 @@ void PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(2 * sizeof(DaedalusVtx)) );
 
 	p_vertices[0].Position.x = screen0.x;
-    p_vertices[0].Position.y = screen0.y;
+	p_vertices[0].Position.y = screen0.y;
 	p_vertices[0].Position.z = 0.0f;
 	p_vertices[0].Colour = c32(0xffffffff);
-    p_vertices[0].Texture.x = tex_uv1.y;
-    p_vertices[0].Texture.y = tex_uv1.y;
+	p_vertices[0].Texture.x = tex_uv1.y;
+	p_vertices[0].Texture.y = tex_uv1.y;
 
-    p_vertices[1].Position.x = screen1.x;
-    p_vertices[1].Position.y = screen1.y;
+	p_vertices[1].Position.x = screen1.x;
+	p_vertices[1].Position.y = screen1.y;
 	p_vertices[1].Position.z = 0.0f;
 	p_vertices[1].Colour = c32(0xffffffff);
 	p_vertices[1].Texture.x = tex_uv0.x;
-    p_vertices[1].Texture.y = tex_uv0.y;
+	p_vertices[1].Texture.y = tex_uv0.y;
 
 	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, GU_TRANSFORM_2D, true );
 
