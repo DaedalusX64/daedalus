@@ -92,7 +92,7 @@ void	_TransformVerticesWithColour_f0_t1( const Matrix4x4 * world_matrix, const M
 void	_TransformVerticesWithColour_f1_t0( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
 void	_TransformVerticesWithColour_f1_t1( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
 
-void	_ConvertVertices( DaedalusVtx * dest, const DaedalusVtx4 * source, u32 num_vertices );
+void	_ConvertVertice( DaedalusVtx * dest, const DaedalusVtx4 * source );
 void	_ConvertVerticesIndexed( DaedalusVtx * dest, const DaedalusVtx4 * source, u32 num_vertices, const u16 * indices );
 
 u32		_ClipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, const v4 * plane, u32 num_verts );
@@ -1142,6 +1142,7 @@ void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 
 	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
+#if 1	//1->SPRITE, 0->STRIP
 	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(2 * sizeof(DaedalusVtx)) );
 
 	p_vertices[0].Position.x = screen0.x;
@@ -1158,9 +1159,12 @@ void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	p_vertices[1].Texture.x = tex_uv1.x;
 	p_vertices[1].Texture.y = tex_uv1.y;
 
+	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
+#else
 	//	To be used with TRIANGLE_STRIP, which requires 40% less verts than TRIANGLE
 	//	For reference for future ports and if SPRITES( which uses %60 less verts than TRIANGLE) causes issues
-/*
+	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(4 * sizeof(DaedalusVtx)) );
+
 	p_vertices[0].Position.x = screen0.x;
 	p_vertices[0].Position.y = screen0.y;
 	p_vertices[0].Position.z = depth;
@@ -1188,8 +1192,9 @@ void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	p_vertices[3].Colour = c32(0xffffffff);
 	p_vertices[3].Texture.x = tex_uv1.x;
 	p_vertices[3].Texture.y = tex_uv1.y;
-*/
-	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
+
+	RenderUsingCurrentBlendMode( p_vertices, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
+#endif
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++m_dwNumRect;
@@ -1677,6 +1682,11 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 			//Make new triangles from the vertices we got back from clipping the original triangle
 			for( u32 j = 0; j <= out - 3; ++j)
 			{
+#ifdef DAEDALUS_PSP_USE_VFPU
+				_ConvertVertice( &clip_vtx[ num_vertices++ ], &temp_a[ 0 ]);
+				_ConvertVertice( &clip_vtx[ num_vertices++ ], &temp_a[ j + 1 ]);
+				_ConvertVertice( &clip_vtx[ num_vertices++ ], &temp_a[ j + 2 ]);
+#else
 				clip_vtx[ num_vertices ].Texture = temp_a[ 0 ].Texture; 	 
 				clip_vtx[ num_vertices ].Colour = c32( temp_a[ 0 ].Colour ); 	 
 				clip_vtx[ num_vertices ].Position.x = temp_a[ 0 ].TransformedPos.x;
@@ -1694,6 +1704,7 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 				clip_vtx[ num_vertices ].Position.x = temp_a[ j + 2 ].TransformedPos.x;
 				clip_vtx[ num_vertices ].Position.y = temp_a[ j + 2 ].TransformedPos.y;
 				clip_vtx[ num_vertices++ ].Position.z = temp_a[ j + 2 ].TransformedPos.z;
+#endif
 			}
 		}
 		else	//Triangle is inside the clipbox so we just add it as it is.
@@ -1704,6 +1715,11 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 				break;
 			}
 
+#ifdef DAEDALUS_PSP_USE_VFPU
+			_ConvertVertice( &clip_vtx[ num_vertices++ ], &mVtxProjected[ idx0 ]);
+			_ConvertVertice( &clip_vtx[ num_vertices++ ], &mVtxProjected[ idx1 ]);
+			_ConvertVertice( &clip_vtx[ num_vertices++ ], &mVtxProjected[ idx2 ]);
+#else
 			clip_vtx[ num_vertices ].Texture = mVtxProjected[ idx0 ].Texture; 	 
 			clip_vtx[ num_vertices ].Colour = c32( mVtxProjected[ idx0 ].Colour ); 	 
 			clip_vtx[ num_vertices ].Position.x = mVtxProjected[ idx0 ].TransformedPos.x;
@@ -1721,6 +1737,7 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 			clip_vtx[ num_vertices ].Position.x = mVtxProjected[ idx2 ].TransformedPos.x;
 			clip_vtx[ num_vertices ].Position.y = mVtxProjected[ idx2 ].TransformedPos.y;
 			clip_vtx[ num_vertices++ ].Position.z = mVtxProjected[ idx2 ].TransformedPos.z;
+#endif
 		}
 	}
 
@@ -1728,9 +1745,9 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 	//	Now the vertices have been clipped we need to write them into
 	//	a buffer we obtain this from the display list.
 
-	DaedalusVtx *p_vertices( (DaedalusVtx*)sceGuGetMemory(num_vertices*sizeof(DaedalusVtx)) );
+	DaedalusVtx *p_vertices( (DaedalusVtx*)sceGuGetMemory(num_vertices * sizeof(DaedalusVtx)) );
 
-	memcpy( p_vertices, clip_vtx, num_vertices*sizeof(DaedalusVtx) );
+	memcpy( p_vertices, clip_vtx, num_vertices * sizeof(DaedalusVtx) );
 
 	*p_p_vertices = p_vertices;
 	*p_num_vertices = num_vertices;

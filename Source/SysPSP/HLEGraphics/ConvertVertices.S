@@ -1,6 +1,7 @@
 #include "as_reg_compat.h"
 
-	.global		_ConvertVertices
+	.global		_ConvertVertice
+	//.global		_ConvertVertices
 	.global		_ConvertVerticesIndexed
 	
 .text
@@ -8,6 +9,40 @@
 	.set		noreorder
 	.set		noat
 
+############################
+#	a0 - Output vertices		- DaedalusVtx / stride 24
+#	a1 - Input vertices			- DaedalusVtx4 / must be aligned to 16 bytes, stride 64
+#
+#	The code handles the following:
+#
+#	p_vertices[ i ].Texture = clipped_vertices[ i ].Texture;
+#	p_vertices[ i ].Colour = c32( clipped_vertices[ i ].Colour );
+#	p_vertices[ i ].Position.x = clipped_vertices[ i ].TransformedPos.x;
+#	p_vertices[ i ].Position.y = clipped_vertices[ i ].TransformedPos.y;
+#	p_vertices[ i ].Position.z = clipped_vertices[ i ].TransformedPos.z;
+#
+_ConvertVertice:
+
+	lw			$t0, 0x00( $a1 )	// TransformedPos.x
+	lw			$t1, 0x04( $a1 )	// TransformedPos.y
+	lw			$t2, 0x08( $a1 )	// TransformedPos.z
+	lv.q		R000, 0x20( $a1 )	// Load Colour
+	lw			$t3, 0x30( $a1 )	// Texture.x
+	lw			$t4, 0x34( $a1 )	// Texture.y
+	
+	sw			$t0, 0x0c( $a0 )	// Position.x
+	sw			$t1, 0x10( $a0 )	// Position.y
+	sw			$t2, 0x14( $a0 )	// Position.z
+	vf2in.q		R000, R000, 31		// Scale 255 and round
+	sw			$t3, 0x00( $a0 )	// Texture.x
+	vi2uc.q		S000, R000			// Pack to 8bit RGBA format
+	sw			$t4, 0x04( $a0 )	// Texture.y
+	sv.s		S000, 0x08($a0)		// Colour
+
+	jr			$ra
+	nop
+	
+/*	
 ############################
 #	a0 - Output vertices		- DaedalusVtx / stride 24
 #	a1 - Input vertices			- DaedalusVtx4 / must be aligned to 16 bytes, stride 64
@@ -48,7 +83,7 @@ next_vertex_convert:
 	sw			$t2, 0x14( $a0 )	// Position.z
 	vf2iz.q		R000, R000, 23
 	sw			$t3, 0x00( $a0 )	// Texture.x
-	vi2uc.q		S000, R000
+	vi2uc.q		S000, R000			// Pack to 8bit RGBA format
 	sw			$t4, 0x04( $a0 )	// Texture.y
 	
 	sv.s		S000, 0x08($a0)		// Colour
@@ -62,6 +97,7 @@ next_vertex_convert:
 finished_convert:
 	jr			$ra
 	nop
+*/
 	
 ############################
 #	a0 - Output vertices		- DaedalusVtx / stride 24
@@ -79,7 +115,7 @@ _ConvertVerticesIndexed:
 	beq			$a3, $a2, finished_convert_idx
 	nop
 
-	viim.s		S001, 255
+	//viim.s		S001, 255
 
 next_vertex_convert_idx:
 	lhu			$at, 0x00( $a3 )	// Load index
@@ -94,13 +130,13 @@ next_vertex_convert_idx:
 	lw			$t4, 0x34( $at )	// Texture.y
 	
 	sw			$t0, 0x0c( $a0 )	// Position.x
-	vsat0.q		R000, R000
+	//vsat0.q		R000, R000		// Clamp value 0.0f - 1.0f
 	sw			$t1, 0x10( $a0 )	// Position.y
-	vscl.q		R000, R000, S001
+	//vscl.q		R000, R000, S001
 	sw			$t2, 0x14( $a0 )	// Position.z
-	vf2iz.q		R000, R000, 23
+	vf2in.q		R000, R000, 31		// Scale 255 and round
 	sw			$t3, 0x00( $a0 )	// Texture.x
-	vi2uc.q		S000, R000
+	vi2uc.q		S000, R000			// Pack to 8bit RGBA format
 	sw			$t4, 0x04( $a0 )	// Texture.y
 
 	sv.s		S000, 0x08($a0)		// Colour
