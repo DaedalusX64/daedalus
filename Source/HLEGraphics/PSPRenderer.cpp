@@ -785,7 +785,7 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 				// NB if install_texture0 and install_texture1 are both set, 1 wins out
 				texture_idx = install_texture1;
 
-				if( install_texture1 && (mTnLModeFlags._u32 & (TNL_TEXTURE | TNL_TEXGEN)) == TNL_TEXTURE )
+				if( install_texture1 & mTnLModeFlags.Texture && (mTnLModeFlags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
 				{
 					v2 offset = -mTileTopLeft[ 1 ];
 					v2 scale = mTileScale[ 1 ];
@@ -1436,15 +1436,9 @@ void PSPRenderer::FlushTris()
 
 		// Bias points in decal mode
 		// Is this for Z-fight? not working to well for that, at least not on PSP//Corn
-		/*if (IsZModeDecal())
-		{
-			for ( u32 v = 0; v < num_vertices; v++ )
-			{
-				p_vertices[v].Position.z += 3.14;
-			}
-		}*/
+		//if(IsZModeDecal()) for( u32 v = 0; v < num_vertices; v++ ) p_vertices[v].Position.z += 3.14;
 
-		if( !mTnLModeFlags.TexGen )
+		if( (mTnLModeFlags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
 		{
 			v2 offset = -mTileTopLeft[ 0 ];
 			v2 scale = mTileScale[ 0 ];
