@@ -160,8 +160,8 @@ inline void DLParser_GBI1_Sprite2DDraw( MicroCodeCommand command )
 
 	frameX              = g_Sprite2DInfo.px;
 	frameY              = g_Sprite2DInfo.py;
-	frameW              = g_Sprite2DInfo.spritePtr->SubImageWidth / g_Sprite2DInfo.scaleX;
-	frameH              = g_Sprite2DInfo.spritePtr->SubImageHeight / g_Sprite2DInfo.scaleY;
+	frameW              = (g_Sprite2DInfo.spritePtr->SubImageWidth / g_Sprite2DInfo.scaleX) + frameX;
+	frameH              = (g_Sprite2DInfo.spritePtr->SubImageHeight / g_Sprite2DInfo.scaleY) + frameY;
 
 	PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );
 	//g_Sprite2DInfo.spritePtr = 0; // Why ?

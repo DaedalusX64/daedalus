@@ -51,19 +51,18 @@ void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 	// Note : Color itself is handled elsewhere N.B Blendmode.cpp
 	//
 	// Coordinates, textures
-	s32 x0 = s32(a3>>16)>>24;	// Loads our texture coordinates
-	s32 y0 = s32(a1&0xFFFF)/4;	// Loads color coordinates etc
-	s32 x1 = 320*100;			// Loads Both screen coordinates and texture coordinates.
-	s32 y1 = s32(a1>>16)/4;		// Loads texture etc
+	s32 x0 = s32(a3>>16)>>24;
+	//s32 s0 = s32(a1&0xFFFF)/4;	
+	s32 y0 = 320*100;
+	s32 t0 = s32(a1>>16)/4;
 
 	// TIP : f32 x1 can be modified to render the sky differently.
 	// Need to check on real hardware to tweak our sky correctly if needed.
 
-	// Loads texrect
 	v2 xy0( x0, x0 );
-	v2 xy1( x1, x1 );
-	v2 uv0( y0 / 40.0f, y0 / 40.0f );
-	v2 uv1( y1 / 40.0f, y1 / 40.0f );
+	v2 xy1( y0, y0 );
+	v2 uv0( 0, 0 );
+	v2 uv1( t0 / 40.0f, t0 / 40.0f );
 
 	//DL_PF(" Word 1: %u, Word 2: %u, Word 3: %u, Word 4: %u, Word 5: %u, Word 6: %u, Word 7: %u, Word 8: %u, Word 9: %u", a1, a2, a3, a4, a5, a6, a7, a8, a9);
 	//DL_PF("    Tile:%d Screen(%f,%f) -> (%f,%f)",				   tile, xy0, xy1, uv0, uv1);
