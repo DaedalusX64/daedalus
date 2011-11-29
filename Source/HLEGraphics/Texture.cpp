@@ -636,6 +636,9 @@ bool	CTexture::HasExpired() const
 
 		//Hack for Zelda OOT & MM text
 		if( ((g_ROM.GameHacks == ZELDA_OOT) | (g_ROM.GameHacks == ZELDA_MM)) && (mTextureInfo.GetSize() == G_IM_SIZ_4b) && mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
+
+		if( mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
+
 	}
 
 	//Otherwise we wait 30+random(7) frames before trashing the texture if unused

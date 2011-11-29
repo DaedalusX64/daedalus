@@ -290,7 +290,7 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 	mpTexture			  = texture;
 
 	texture->GetTexture()->InstallTexture();
-	texture->UpdateIfNecessary();
+	//texture->UpdateIfNecessary();
 }
 
 //*****************************************************************************
@@ -649,7 +649,7 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();
-	texture->UpdateIfNecessary();
+	//texture->UpdateIfNecessary();
 
 	PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );
 }
@@ -697,7 +697,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();
-	texture->UpdateIfNecessary();
+	//texture->UpdateIfNecessary();
 
 	if (g_ROM.GameHacks != YOSHI)
 	{
