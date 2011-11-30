@@ -114,8 +114,8 @@ extern u32 gAuxAddr;
 
 static f32 fViWidth = 320.0f;
 static f32 fViHeight = 240.0f;
-static u32 uViWidth = 320;
-static u32 uViHeight = 240;
+u32 uViWidth = 320;
+u32 uViHeight = 240;
 
 f32 gZoomX=1.0;	//Default is 1.0f
 
@@ -1004,7 +1004,12 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	//
 	if(gRDPOtherMode.cycle_type < CYCLE_COPY)
 	{
-		gRDPOtherMode.force_bl ? InitBlenderMode( gRDPOtherMode.blender ) : sceGuDisable( GU_BLEND );
+		//if(gRDPOtherMode.blender == 0x5f50)	return;
+
+		if(gRDPOtherMode.force_bl && !gRDPOtherMode.alpha_cvg_sel)
+			InitBlenderMode( gRDPOtherMode.blender ) ;
+		else
+			sceGuDisable( GU_BLEND );
 	}
 
 	// Initiate Alpha test

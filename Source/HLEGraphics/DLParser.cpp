@@ -245,6 +245,8 @@ bool bIsOffScreen = false;
 u32 gRDPFrame		 = 0;
 u32 gAuxAddr		 = (u32)g_pu8RamBase;
 
+extern u32 uViWidth;
+extern u32 uViHeight;
 //*****************************************************************************
 // Include ucode header files
 //*****************************************************************************
@@ -1309,15 +1311,29 @@ void DLParser_FillRect( MicroCodeCommand command )
 		return;
 	}
 
-	DL_PF("    Filling Rectangle (%d,%d)->(%d,%d)", command.fillrect.x0, command.fillrect.y0, command.fillrect.x1, command.fillrect.y1);
+	// Clear color buffer
+	if ( gRDPOtherMode.cycle_type == CYCLE_FILL )
+	{
+		if ( command.fillrect.x0 == 0 && command.fillrect.y0 == 0 && command.fillrect.y1 == uViHeight && command.fillrect.x1 == uViWidth )
+		{
+			CGraphicsContext::Get()->ClearColBuffer( gFillColor );
+			DL_PF("    Clearing Colour Buffer");
+			return;
+		}
+	}
 
+	// Removes annoying rect that appears in Conker etc
 	// Unless we support fb emulation, we can safetly ignore this fillrect
-	if( bIsOffScreen )	return;
-
-	// Removes unnecesary fillrects in Golden Eye and other games.
-	//
+	if( bIsOffScreen || g_CI.Size != G_IM_SIZ_16b )	
+	{
+		DL_PF("    Ignoring Fillrect ");
+		return;
+	}
+/*
 	SCISSOR_RECT( command.fillrect.x0, command.fillrect.y0, 
 				  command.fillrect.x1, command.fillrect.y1 );
+*/
+	DL_PF("    Filling Rectangle (%d,%d)->(%d,%d)", command.fillrect.x0, command.fillrect.y0, command.fillrect.x1, command.fillrect.y1);
 
 	v2 xy0( command.fillrect.x0, command.fillrect.y0 );
 	v2 xy1;
@@ -1350,8 +1366,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 	// TODO - Check colour image format to work out how this should be decoded!
 	c32		colour;
 
-	if ( g_CI.Size == G_IM_SIZ_16b )
-	//if ( gRDPOtherMode.cycle_type != CYCLE_FILL )
+	if ( gRDPOtherMode.cycle_type == CYCLE_FILL)
 	{
 
 		PixelFormats::N64::Pf5551	c( (u16)gFillColor );
@@ -1362,11 +1377,9 @@ void DLParser_FillRect( MicroCodeCommand command )
 		PSPRenderer::Get()->FillRect( xy0, xy1, colour.GetColour() );
 
 	}
-	else
+	else // Filling primitives
 	{
-		// Used by Superman 64's sky.. 
-		// There seems to be a bug with gFillColor? since the sky color is incorrect and dims when pause menu is showed up
-		colour = c32( gFillColor );
+		colour = PSPRenderer::Get()->GetPrimitiveColour();
 		PSPRenderer::Get()->FillRect( xy0, xy1, colour.GetColour() );
 	}
 }

@@ -54,7 +54,13 @@ struct TextureVtx
 	v2  t0;
 	v3  pos;
 };
-
+/*
+struct LineVtx
+{
+	c32	colour;
+	v3  pos;
+};
+*/
 //Cant be used for DKR since pointer start as odd and even addresses //Corn
 struct FiddledVtxDKR
 {
@@ -175,6 +181,7 @@ public:
 	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags._u32 = (mTnL.Flags._u32 & TNL_TEXTURE) | mode; if(gFogEnabled) (mTnL.Flags.Fog)? sceGuEnable(GU_FOG) : sceGuDisable(GU_FOG); sceGuShadeModel( mTnL.Flags.Shade ? GU_SMOOTH : GU_FLAT ); }
 	inline void			SetTextureEnable(bool enable)			{ mTnL.Flags.Texture = enable; }
 	inline void			SetTextureTile(u32 tile)				{ mTextureTile = tile; }
+//	inline void			SetTopLeft( u32 idx, u32 top,  u32 left )	{ mTileTopLeft[ idx ] = v2( f32(top), f32(left) );};
 	inline u32			GetTextureTile() const						{ return mTextureTile; }
 	inline void			SetCullMode(bool enable, bool mode)		{ mTnL.Flags.TriCull = enable; mTnL.Flags.CullBack = mode; }
 
@@ -187,6 +194,7 @@ public:
 	// PrimDepth will replace the z value if depth_source=1 (z range 32767-0 while PSP depthbuffer range 0-65535)//Corn
 	inline void			SetPrimitiveDepth( u32 z )				{ mPrimDepth = (f32)( ( ( 32767 - z ) << 1) + 1 ); }
 	inline void			SetPrimitiveColour( c32 colour )		{ mPrimitiveColour = colour; }
+	inline c32			GetPrimitiveColour()					{ return mPrimitiveColour; }
 	inline void			SetEnvColour( c32 colour )				{ mEnvColour = colour; }
 
 	inline void			SetNumLights(u32 num)					{ mNumLights = num; }
@@ -248,6 +256,8 @@ public:
 
 	// Render our current triangle list to screen
 	void				FlushTris();
+
+	void				Line3D( u32 v0, u32 v1, u32 width );
 	
 	// Returns true if bounding volume is visible within NDC box, false if culled
 	inline bool			TestVerts( u32 v0, u32 vn ) const		{ u32 f=mVtxProjected[v0].ClipFlags; for( u32 i=v0+1; i<=vn; i++ ) f&=mVtxProjected[i].ClipFlags; return f==0; }
