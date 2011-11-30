@@ -37,10 +37,8 @@ _ConvertVertice:
 	sw			$t3, 0x00( $a0 )	// Texture.x
 	vi2uc.q		S000, R000			// Pack to 8bit RGBA format
 	sw			$t4, 0x04( $a0 )	// Texture.y
-	sv.s		S000, 0x08($a0)		// Colour
-
 	jr			$ra
-	nop
+	sv.s		S000, 0x08($a0)		// Colour
 	
 /*	
 ############################

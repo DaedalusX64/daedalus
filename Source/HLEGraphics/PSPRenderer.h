@@ -137,8 +137,9 @@ ALIGNED_TYPE(struct, TnLParams, 16)
 	float		FogOffset;
 	float		TextureScaleX;
 	float		TextureScaleY;
+	TnLPSP		Flags;
 };
-DAEDALUS_STATIC_ASSERT( sizeof( TnLParams ) == 32 );
+//DAEDALUS_STATIC_ASSERT( sizeof( TnLParams ) == 32 );
 
 // Bits for clipping
 // +-+-+-
@@ -171,11 +172,11 @@ public:
 	void				Reset();
 
 	// Various rendering states
-	inline void			SetTnLMode(u32 mode)					{ mTnLModeFlags._u32 = (mTnLModeFlags._u32 & TNL_TEXTURE) | mode; if(gFogEnabled) (mTnLModeFlags.Fog)? sceGuEnable(GU_FOG) : sceGuDisable(GU_FOG); sceGuShadeModel( mTnLModeFlags.Shade ? GU_SMOOTH : GU_FLAT ); }
-	inline void			SetTextureEnable(bool enable)			{ mTnLModeFlags.Texture = enable; }
+	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags._u32 = (mTnL.Flags._u32 & TNL_TEXTURE) | mode; if(gFogEnabled) (mTnL.Flags.Fog)? sceGuEnable(GU_FOG) : sceGuDisable(GU_FOG); sceGuShadeModel( mTnL.Flags.Shade ? GU_SMOOTH : GU_FLAT ); }
+	inline void			SetTextureEnable(bool enable)			{ mTnL.Flags.Texture = enable; }
 	inline void			SetTextureTile(u32 tile)				{ mTextureTile = tile; }
 	inline u32			GetTextureTile() const						{ return mTextureTile; }
-	inline void			SetCullMode(bool enable, bool mode)		{ mTnLModeFlags.TriCull = enable; mTnLModeFlags.CullBack = mode; }
+	inline void			SetCullMode(bool enable, bool mode)		{ mTnL.Flags.TriCull = enable; mTnL.Flags.CullBack = mode; }
 
 	// Fog stuff
 	inline void			SetFogMinMax(float fMin, float fMax)	{ sceGuFog(fMin, fMax, mFogColour.GetColour()); }
@@ -191,13 +192,13 @@ public:
 	inline void			SetNumLights(u32 num)					{ mNumLights = num; }
 	inline void			SetLightCol(u32 light, u32 colour)		{ mLights[light].Colour = v4( (((colour >> 24)&0xFF)/255.0f), (((colour >> 16)&0xFF)/255.0f), (((colour >> 8)&0xFF)/255.0f), 1.0f); }
 	inline void			SetLightDirection(u32 l, v3 n)			{ n.Normalise(); mLights[l].Direction.x = n.x; mLights[l].Direction.y = n.y; mLights[l].Direction.z = n.z; mLights[l].Padding0 = 0.0f; }
-	inline void			SetAmbientLight( const v4 & colour )	{ mTnLParams.Ambient = colour; }
+	inline void			SetAmbientLight( const v4 & colour )	{ mTnL.Ambient = colour; }
 
 	inline void			SetMux( u64 mux )						{ mMux = mux; }
 	inline void			SetAlphaRef(u32 alpha)					{ mAlphaThreshold = alpha; }
 
 	// Texture stuff
-	inline void			SetTextureScale(float fScaleX, float fScaleY)	{ mTnLParams.TextureScaleX = fScaleX; mTnLParams.TextureScaleY = fScaleY; }
+	inline void			SetTextureScale(float fScaleX, float fScaleY)	{ mTnL.TextureScaleX = fScaleX; mTnL.TextureScaleY = fScaleY; }
 	void                Draw2DTexture(float, float, float, float, float, float, float, float);
 	void				Draw2DTextureR( f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3, f32 s, f32 t);
 
@@ -333,7 +334,7 @@ private:
 private:
 	enum { MAX_VERTS = 80 };		// F3DLP.Rej supports up to 80 verts!
 
-	TnLParams			mTnLParams;
+	TnLParams			mTnL;
 
 	v2					mN64ToPSPScale;
 	v2					mN64ToPSPTranslate;
@@ -342,8 +343,6 @@ private:
 	v3					mVpTrans;
 
 	u64					mMux;
-
-	TnLPSP				mTnLModeFlags;
 
 	u32					mNumLights;
 	u32					mTextureTile;
