@@ -113,6 +113,7 @@ public:
 	void				Clear(bool clear_screen, bool clear_depth);
 	void				Clear(u32 frame_buffer_col, u32 depth);
 	void				ClearZBuffer(u32 depth);
+	void				ClearColBuffer(u32 col);
 
 	void				BeginFrame();
 	void				EndFrame();
@@ -262,6 +263,15 @@ void IGraphicsContext::ClearZBuffer(u32 depth)
 	sceGuClear( GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT );
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
+void IGraphicsContext::ClearColBuffer(u32 col)
+{
+	//Clear Colour buffer
+	sceGuClearColor(col);
+	sceGuClear( GU_COLOR_BUFFER_BIT | GU_FAST_CLEAR_BIT );
+}
 //*****************************************************************************
 //
 //*****************************************************************************

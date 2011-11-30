@@ -1004,12 +1004,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	//
 	if(gRDPOtherMode.cycle_type < CYCLE_COPY)
 	{
-		//if(gRDPOtherMode.blender == 0x5f50)	return;
-
-		if(gRDPOtherMode.force_bl && !gRDPOtherMode.alpha_cvg_sel)
-			InitBlenderMode( gRDPOtherMode.blender ) ;
-		else
-			sceGuDisable( GU_BLEND );
+		gRDPOtherMode.force_bl ? InitBlenderMode( gRDPOtherMode.blender ) : sceGuDisable( GU_BLEND );
 	}
 
 	// Initiate Alpha test

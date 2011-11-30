@@ -52,6 +52,7 @@ public:
 
 	virtual void ClearAllSurfaces() = 0;
 	virtual void ClearZBuffer(u32 depth) = 0;
+	virtual void ClearColBuffer(u32 col) = 0;
 	virtual void Clear(bool clear_screen, bool clear_depth) = 0;
 	virtual void Clear(u32 frame_buffer_col, u32 depth) = 0;
 	virtual	void BeginFrame() = 0;
