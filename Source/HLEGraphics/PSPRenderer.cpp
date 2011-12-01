@@ -81,7 +81,7 @@ extern "C"
 {
 void	_TransformVerticesWithColour_f0_t1( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
 
-void	_TnLVFPU( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const DaedalusLight * p_lights, u32 num_lights );
+void	_TnLVFPU( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
 
 void	_ConvertVertice( DaedalusVtx * dest, const DaedalusVtx4 * source );
 void	_ConvertVerticesIndexed( DaedalusVtx * dest, const DaedalusVtx4 * source, u32 num_vertices, const u16 * indices );
@@ -236,7 +236,6 @@ PSPRenderer::PSPRenderer()
 ,	mN64ToPSPTranslate( 0.0f, 0.0f )
 ,	mMux( 0 )
 
-,	mNumLights(0)
 ,	mTextureTile(0)
 
 ,	mAlphaThreshold(0)
@@ -266,20 +265,25 @@ PSPRenderer::PSPRenderer()
 
 	for ( u32 t = 0; t < NUM_N64_TEXTURES; t++ )
 	{
-		mTileTopLeft[t] = v2( 0.0f, 0.0f );
-		mTileScale[t] = v2( 1.0f, 1.0f );
+		mTileTopLeft[t].x = 0.0f;
+		mTileTopLeft[t].y = 0.0f;
+		mTileScale[t].x = 1.0f;
+		mTileScale[t].y = 1.0f;
 		mTexWrap[t][0] = 0;
 		mTexWrap[t][1] = 0;
 	}
 
-	memset( mLights, 0, sizeof(mLights) );
-
-	mTnL.Ambient = v4( 1.0f, 1.0f, 1.0f, 1.0f );
-	mTnL.FogMult = 0.0f;
-	mTnL.FogOffset = 0.0f;
+	mTnL.Ambient.x = 1.0f;
+	mTnL.Ambient.y = 1.0f;
+	mTnL.Ambient.z = 1.0f;
+	mTnL.Ambient.w = 1.0f;
+	mTnL.Flags._u32 = 0;
+	mTnL.NumLights = 0;
 	mTnL.TextureScaleX = 1.0f;
 	mTnL.TextureScaleY = 1.0f;
 	
+	memset( mTnL.Lights, 0, sizeof(mTnL.Lights) );
+
 	memset( &mView, 0, sizeof(mView) );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -1788,14 +1792,14 @@ inline v4 PSPRenderer::LightVert( const v3 & norm ) const
 	// Do ambient
 	v4	result( mTnL.Ambient );
 
-	for ( u32 i = 0; i < mNumLights; i++ )
+	for ( u32 i = 0; i < mTnL.NumLights; i++ )
 	{
-		f32 fCosT = norm.Dot( mLights[i].Direction );
+		f32 fCosT = norm.Dot( mTnL.Lights[i].Direction );
 		if (fCosT > 0.0f)
 		{
-			result.x += mLights[i].Colour.x * fCosT;
-			result.y += mLights[i].Colour.y * fCosT;
-			result.z += mLights[i].Colour.z * fCosT;
+			result.x += mTnL.Lights[i].Colour.x * fCosT;
+			result.y += mTnL.Lights[i].Colour.y * fCosT;
+			result.z += mTnL.Lights[i].Colour.z * fCosT;
 		}
 	}
 
@@ -1843,7 +1847,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Ambient.x, mTnL.Ambient.y, mTnL.Ambient.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
 
-	_TnLVFPU( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnL, mLights, mNumLights );
+	_TnLVFPU( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnL );
 }
 
 //*****************************************************************************
@@ -2172,11 +2176,11 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 		{
 			v4	result( mTnL.Ambient );
 
-			for ( u32 k = 1; k < mNumLights; k++ )
+			for ( u32 k = 1; k < mTnL.NumLights; k++ )
 			{
-				result.x += mLights[k].Colour.x;
-				result.y += mLights[k].Colour.y;
-				result.z += mLights[k].Colour.z;
+				result.x += mTnL.Lights[k].Colour.x;
+				result.y += mTnL.Lights[k].Colour.y;
+				result.z += mTnL.Lights[k].Colour.z;
 			}
 
 			//Clamp to 1.0
@@ -2223,7 +2227,10 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 		{
 			if( mTnL.Flags.Shade )
 			{	//FLAT shade
-				mVtxProjected[i].Colour = v4( (f32)vert.rgba_r * (1.0f / 255.0f), (f32)vert.rgba_g * (1.0f / 255.0f), (f32)vert.rgba_b * (1.0f / 255.0f), (f32)vert.rgba_a * (1.0f / 255.0f) );
+				mVtxProjected[i].Colour.x = (f32)vert.rgba_r * (1.0f / 255.0f);
+				mVtxProjected[i].Colour.y = (f32)vert.rgba_g * (1.0f / 255.0f);
+				mVtxProjected[i].Colour.z = (f32)vert.rgba_b * (1.0f / 255.0f);
+				mVtxProjected[i].Colour.w = (f32)vert.rgba_a * (1.0f / 255.0f);
 			}
 			else
 			{	//Shade is disabled
@@ -2276,7 +2283,11 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 
 		for (u32 i = v0; i < v0 + n; i++)
 		{
-			v3 w( *(s16*)((pVtxBase + 0) ^ 2), *(s16*)((pVtxBase + 2) ^ 2), *(s16*)((pVtxBase + 4) ^ 2));
+			v3 w;
+			w.x = *(s16*)((pVtxBase + 0) ^ 2);
+			w.y = *(s16*)((pVtxBase + 2) ^ 2);
+			w.z = *(s16*)((pVtxBase + 4) ^ 2);
+
 			w = mat.TransformNormal( w );
 
 			v4 & transformed( mVtxProjected[i].TransformedPos );
@@ -2289,15 +2300,10 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 			mVtxProjected[i].ClipFlags = 0;
 
 			// Assign true vert colour
-			f32 r = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 6) ^ 3);
-			f32 g = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 7) ^ 3);
-			f32 b = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 8) ^ 3);
-			f32 a = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 9) ^ 3);
-
-			mVtxProjected[i].Colour = v4( r, g, b, a );
-
-			// No texture scaling? (These dont seem to do any good anyway) //Corn
-			//mVtxProjected[i].Texture.x = mVtxProjected[i].Texture.y = 1.0f;
+			mVtxProjected[i].Colour.x = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 6) ^ 3);
+			mVtxProjected[i].Colour.y = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 7) ^ 3);
+			mVtxProjected[i].Colour.z = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 8) ^ 3);
+			mVtxProjected[i].Colour.w = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 9) ^ 3);
 
 			gDKRVtxCount++;
 			pVtxBase += 10;
@@ -2335,15 +2341,10 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 			mVtxProjected[i].ClipFlags = clip_flags;
 
 			// Assign true vert colour
-			f32 r = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 6) ^ 3);
-			f32 g = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 7) ^ 3);
-			f32 b = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 8) ^ 3);
-			f32 a = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 9) ^ 3);
-
-			mVtxProjected[i].Colour = v4( r, g, b, a );
-
-			// No texture scaling? (These dont seem to do any good anyway) //Corn
-			//mVtxProjected[i].Texture.x = mVtxProjected[i].Texture.y = 1.0f;
+			mVtxProjected[i].Colour.x = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 6) ^ 3);
+			mVtxProjected[i].Colour.y = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 7) ^ 3);
+			mVtxProjected[i].Colour.z = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 8) ^ 3);
+			mVtxProjected[i].Colour.w = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 9) ^ 3);
 
 			gDKRVtxCount++;
 			pVtxBase += 10;
@@ -2428,7 +2429,10 @@ void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 		{
 			if( mTnL.Flags.Shade )
 			{	//FLAT shade
-				mVtxProjected[i].Colour = v4( (f32)col[vert.cidx+3] * (1.0f / 255.0f), (f32)col[vert.cidx+2] * (1.0f / 255.0f), (f32)col[vert.cidx+1] * (1.0f / 255.0f), (f32)col[vert.cidx+0] * (1.0f / 255.0f) );
+				mVtxProjected[i].Colour.x = (f32)col[vert.cidx+3] * (1.0f / 255.0f);
+				mVtxProjected[i].Colour.y = (f32)col[vert.cidx+2] * (1.0f / 255.0f);
+				mVtxProjected[i].Colour.z = (f32)col[vert.cidx+1] * (1.0f / 255.0f);
+				mVtxProjected[i].Colour.w = (f32)col[vert.cidx+0] * (1.0f / 255.0f);
 			}
 			else
 			{	//Shade is disabled

@@ -829,7 +829,12 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 	{
 		//Ambient Light
 		u32 n64col( g_N64Lights[light_idx].Colour );
-		PSPRenderer::Get()->SetAmbientLight( v4( N64COL_GETR_F(n64col), N64COL_GETG_F(n64col), N64COL_GETB_F(n64col), 1.0f ) );
+		v4 pspcol;
+		pspcol.x = N64COL_GETR_F(n64col);
+		pspcol.y = N64COL_GETG_F(n64col);
+		pspcol.z = N64COL_GETB_F(n64col);
+		pspcol.w = 1.0f;
+		PSPRenderer::Get()->SetAmbientLight( pspcol );
 	}
 	else
 	{
@@ -838,7 +843,7 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 
 		if (pdwBase[2] != 0)	// if Direction is 0 its invalid!
 		{
-			PSPRenderer::Get()->SetLightDirection(light_idx, v3( g_N64Lights[light_idx].x, g_N64Lights[light_idx].y, g_N64Lights[light_idx].z) );
+			PSPRenderer::Get()->SetLightDirection(light_idx, g_N64Lights[light_idx].x, g_N64Lights[light_idx].y, g_N64Lights[light_idx].z );
 		}
 	}
 }

@@ -11,8 +11,8 @@
 .global _TnLVFPU
 
 #define PARAMS_AMBIENT		0x00
-#define PARAMS_FOG_TXSCAL	0x10
-#define PARAMS_FLAGS		0x20
+#define PARAMS_FLAGS_NLIGHT_TXSCAL	0x10
+#define PARAMS_LIGHTS		0x20
 
 #define	TNL_LIGHT			0x0001
 #define	TNL_TEXTURE			0x0002
@@ -31,8 +31,6 @@
 #	a3 - Output vertices			- must be aligned to 16 bytes, stride 64
 #	t0 - num vertices
 #	t1 - params
-#	t2 - lights
-#	t3 - num_lights
 
 # Lighting calculation
 # M000: World Matrix
@@ -48,7 +46,7 @@
 # R431: current vertex Alpha value
 # R600: Computed fog colour
 # R700: Ambient
-# t1 = last_light
+# R721: Texture X & Y scale
 # t4 = cur_light
 # t6 = first_light
 # t7 = last_light
@@ -66,12 +64,13 @@ _TnLVFPU:
 	lv.q		R103, 48($a1)
 	
 	lv.q		R700, PARAMS_AMBIENT($t1)		// Load ambient
-	lv.q		R701, PARAMS_FOG_TXSCAL($t1)	// Load params [fog_m, fog_o, tscale_x, tscale_y]
-	lw			$v0, PARAMS_FLAGS($t1)			// Load params Flags
+	lv.q		R701, PARAMS_FLAGS_NLIGHT_TXSCAL($t1)	// Load params [Flags, Num_lights, tscale_x, tscale_y]
+	mfv			$v0, S701						// TnL flags
+	mfv			$t7, S711						// Num_lights
+	addi		$t6, $t1, PARAMS_LIGHTS			// pointer to first_light = p_lights
 	
 # Calculate the last light index
-	or			$t6, $t2, $0		// first_light = p_lights
-	sll			$t7, $t3, 5			// num_lights*32
+	sll			$t7, $t7, 5			// num_lights*32
 	
 	sll			$t0, $t0, 4			// count = count * 16
 	addu		$t0, $a2, $t0		// end_ptr = start_ptr + count * 16

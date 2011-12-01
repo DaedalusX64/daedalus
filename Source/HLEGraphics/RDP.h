@@ -99,7 +99,7 @@ typedef struct
 			u32 Zbuffer : 1;		// 0x40
 			u32 TriCull : 1;		// 0x80
 			u32 CullBack : 1;		// 0x100
-			u32 pad0 : 25;			// 0x0
+			u32 pad0 : 23;			// 0x0
 		};
 		u32	_u32;
 	};
