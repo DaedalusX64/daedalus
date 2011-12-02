@@ -196,7 +196,7 @@ public:
 
 	inline void			SetNumLights(u32 num)					{ mTnL.NumLights = num; }
 	inline void			SetLightCol(u32 l, u32 col)				{ mTnL.Lights[l].Colour.x=((col>>24)&0xFF)/255.0f; mTnL.Lights[l].Colour.y=((col>>16)&0xFF)/255.0f; mTnL.Lights[l].Colour.z=((col>>8)&0xFF)/255.0f; mTnL.Lights[l].Colour.w=1.0f; }
-	inline void			SetLightDirection(u32 l, f32 x, f32 y, f32 z)			{ v3 n; n.x=x; n.y=y; n.x=z; n.Normalise(); mTnL.Lights[l].Direction.x=n.x; mTnL.Lights[l].Direction.y=n.y; mTnL.Lights[l].Direction.z=n.z; mTnL.Lights[l].Padding0=0.0f; }
+	inline void			SetLightDirection(u32 l, f32 x, f32 y, f32 z)			{ v3 n; n.x=x; n.y=y; n.z=z; n.Normalise(); mTnL.Lights[l].Direction.x=n.x; mTnL.Lights[l].Direction.y=n.y; mTnL.Lights[l].Direction.z=n.z; mTnL.Lights[l].Padding0=0.0f; }
 	inline void			SetAmbientLight( const v4 & colour )	{ mTnL.Ambient = colour; }
 
 	inline void			SetMux( u64 mux )						{ mMux = mux; }

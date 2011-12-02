@@ -82,6 +82,7 @@ extern "C"
 void	_TransformVerticesWithColour_f0_t1( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
 
 void	_TnLVFPU( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
+void	_TnLVFPUPD( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtxPD * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const u8 * model_norm );
 
 void	_ConvertVertice( DaedalusVtx * dest, const DaedalusVtx4 * source );
 void	_ConvertVerticesIndexed( DaedalusVtx * dest, const DaedalusVtx4 * source, u32 num_vertices, const u16 * indices );
@@ -2355,6 +2356,24 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 // Perfect Dark rendering pipeline
 //*****************************************************************************
+#ifdef DAEDALUS_PSP_USE_VFPU
+void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
+{
+	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + address);
+
+	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
+	const Matrix4x4 & matWorldProject( GetWorldProject() );
+
+	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Ambient.x, mTnL.Ambient.y, mTnL.Ambient.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
+	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
+
+	//Model & Color base vector
+	const u8 *mn = (u8*)gAuxAddr;
+
+	_TnLVFPUPD( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn );
+}
+
+#else
 void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + address);
@@ -2444,6 +2463,7 @@ void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 		}
 	}
 }
+#endif
 
 //*****************************************************************************
 //
