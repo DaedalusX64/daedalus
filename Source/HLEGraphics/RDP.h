@@ -207,6 +207,42 @@ typedef struct
 	};
 } RDP_OtherMode;
 
+typedef struct
+{
+	union
+	{
+		struct
+		{
+			// muxs1
+			u32	dA1		: 3;
+			u32	bA1		: 3;
+			u32	dRGB1	: 3;
+			u32	dA0		: 3;
+			u32	bA0		: 3;
+			u32	dRGB0	: 3;
+			u32	cA1		: 3;
+			u32	aA1		: 3;
+			u32	bRGB1	: 4;
+			u32	bRGB0	: 4;
+
+			// muxs0
+			u32	cRGB1	: 5;
+			u32	aRGB1	: 4;
+			u32	cA0		: 3;
+			u32	aA0		: 3;
+			u32	cRGB0	: 5;
+			u32	aRGB0	: 4;
+		};
+
+		//u64	mux;
+		struct
+		{
+			u32	mux1;
+			u32	mux0;
+		};
+	};
+}RDP_Combine;
+
 
 typedef struct
 {
@@ -386,7 +422,7 @@ struct RDP_TileSize
 		return cmd0 != rhs.cmd0 || cmd1 != rhs.cmd1;
 	}
 };
-
+/*
 typedef struct
 {
 	union
@@ -400,7 +436,7 @@ typedef struct
 		};
 	};
 } RDPCommand;
-
+*/
 
 
 #include "PopStructPack.h"

@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "CombinerExpression.h"
 #include "RenderSettings.h"
 #include "BlendConstant.h"
-
+#include "HLEGraphics/RDP.h"
 #include "Utility/Stream.h"
 
 //*****************************************************************************
@@ -183,28 +183,9 @@ CCombinerTree::CCombinerTree( u64 mux, bool two_cycles )
 ,	mCycle2( NULL )
 ,	mCycle2A( NULL )
 {
-	u32 mux0 = (u32)(mux>>32);
-	u32 mux1 = (u32)(mux);
-	
-	u32 aRGB0  = (mux0>>20)&0x0F;	// c1 c1		// a0
-	u32 bRGB0  = (mux1>>28)&0x0F;	// c1 c2		// b0
-	u32 cRGB0  = (mux0>>15)&0x1F;	// c1 c3		// c0
-	u32 dRGB0  = (mux1>>15)&0x07;	// c1 c4		// d0
-
-	u32 aA0    = (mux0>>12)&0x07;	// c1 a1		// Aa0
-	u32 bA0    = (mux1>>12)&0x07;	// c1 a2		// Ab0
-	u32 cA0    = (mux0>>9 )&0x07;	// c1 a3		// Ac0
-	u32 dA0    = (mux1>>9 )&0x07;	// c1 a4		// Ad0
-
-	u32 aRGB1  = (mux0>>5 )&0x0F;	// c2 c1		// a1
-	u32 bRGB1  = (mux1>>24)&0x0F;	// c2 c2		// b1
-	u32 cRGB1  = (mux0    )&0x1F;	// c2 c3		// c1
-	u32 dRGB1  = (mux1>>6 )&0x07;	// c2 c4		// d1
-	
-	u32 aA1    = (mux1>>21)&0x07;	// c2 a1		// Aa1
-	u32 bA1    = (mux1>>3 )&0x07;	// c2 a2		// Ab1
-	u32 cA1    = (mux1>>18)&0x07;	// c2 a3		// Ac1
-	u32 dA1    = (mux1    )&0x07;	// c2 a4		// Ad1
+	RDP_Combine m;
+	m.mux0 = (u32)(mux>>32);
+	m.mux1 = (u32)(mux);
 
 	//fprintf(fh, "\n\t\tcase 0x%08x%08xLL:\n", mux0, mux1);
 	//fprintf(fh, "\t\t//aRGB0: (%s - %s) * %s + %s\n", sc_colcombtypes16[aRGB0], sc_colcombtypes16[bRGB0], sc_colcombtypes32[cRGB0], sc_colcombtypes8[dRGB0]);		
@@ -212,13 +193,13 @@ CCombinerTree::CCombinerTree( u64 mux, bool two_cycles )
 	//fprintf(fh, "\t\t//aRGB1: (%s - %s) * %s + %s\n", sc_colcombtypes16[aRGB1], sc_colcombtypes16[bRGB1], sc_colcombtypes32[cRGB1], sc_colcombtypes8[dRGB1]);		
 	//fprintf(fh, "\t\t//aA1  : (%s - %s) * %s + %s\n", sc_colcombtypes8[aA1],  sc_colcombtypes8[bA1], sc_colcombtypes8[cA1],  sc_colcombtypes8[dA1]);
 
-	mCycle1 = BuildCycle1( CombinerInput16[aRGB0], CombinerInput16[bRGB0], CombinerInput32[cRGB0], CombinerInput8[dRGB0] );
-	mCycle1A = BuildCycle1( CombinerInputAlphaC1_8[aA0], CombinerInputAlphaC1_8[bA0], CombinerInputAlphaC1_8[cA0], CombinerInputAlphaC1_8[dA0] );
+	mCycle1 = BuildCycle1( CombinerInput16[m.aRGB0], CombinerInput16[m.bRGB0], CombinerInput32[m.cRGB0], CombinerInput8[m.dRGB0] );
+	mCycle1A = BuildCycle1( CombinerInputAlphaC1_8[m.aA0], CombinerInputAlphaC1_8[m.bA0], CombinerInputAlphaC1_8[m.cA0], CombinerInputAlphaC1_8[m.dA0] );
 
 	if( two_cycles )
 	{
-		mCycle2 = BuildCycle2( CombinerInput16[aRGB1], CombinerInput16[bRGB1], CombinerInput32[cRGB1], CombinerInput8[dRGB1], mCycle1 );
-		mCycle2A = BuildCycle2( CombinerInputAlphaC2_8[aA1], CombinerInputAlphaC2_8[bA1], CombinerInputAlphaC2_8[cA1], CombinerInputAlphaC2_8[dA1], mCycle1A );
+		mCycle2 = BuildCycle2( CombinerInput16[m.aRGB1], CombinerInput16[m.bRGB1], CombinerInput32[m.cRGB1], CombinerInput8[m.dRGB1], mCycle1 );
+		mCycle2A = BuildCycle2( CombinerInputAlphaC2_8[m.aA1], CombinerInputAlphaC2_8[m.bA1], CombinerInputAlphaC2_8[m.cA1], CombinerInputAlphaC2_8[m.dA1], mCycle1A );
 		mBlendStates = GenerateBlendStates( mCycle2, mCycle2A );
 	}
 	else
