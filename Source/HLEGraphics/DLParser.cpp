@@ -1373,18 +1373,16 @@ void DLParser_FillRect( MicroCodeCommand command )
 
 	if ( gRDPOtherMode.cycle_type == CYCLE_FILL)
 	{
-
 		PixelFormats::N64::Pf5551	c( (u16)gFillColor );
-
 		colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf5551 >( c );
 
 		//printf( "FillRect: %08x, %04x\n", colour.GetColour(), c.Bits );
 		PSPRenderer::Get()->FillRect( xy0, xy1, colour.GetColour() );
-
 	}
-	else // Filling primitives
+	else
 	{
-		colour = PSPRenderer::Get()->GetPrimitiveColour();
+		//colour = PSPRenderer::Get()->GetPrimitiveColour(); MK64 doesn't like it..
+		colour = c32::Black;
 		PSPRenderer::Get()->FillRect( xy0, xy1, colour.GetColour() );
 	}
 }
