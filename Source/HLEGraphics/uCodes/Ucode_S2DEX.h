@@ -290,7 +290,7 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 	mpTexture			  = texture;
 
 	texture->GetTexture()->InstallTexture();
-	//texture->UpdateIfNecessary();
+	texture->UpdateIfNecessary();
 }
 
 //*****************************************************************************
@@ -496,10 +496,10 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 	uObjTxtr* ObjTxtr = (uObjTxtr*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 	if( ObjTxtr->block.type == S2DEX_OBJLT_TLUT )
 	{
-	#ifndef DAEDALUS_TMEM
+#ifndef DAEDALUS_TMEM
 		// Store TLUT pointer
 		gTextureMemory[ ObjTxtr->tlut.phead & 0xFF ] = (u32*)(g_pu8RamBase + RDPSegAddr(ObjTxtr->tlut.image));
-	#else
+#else
 		uObjTxtrTLUT *ObjTlut = (uObjTxtrTLUT*)ObjTxtr;
 		u32 ObjTlutAddr = (u32)(g_pu8RamBase + RDPSegAddr(ObjTlut->image));
 
@@ -510,13 +510,78 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 		memcpy_vfpu_BE((void *)&gTextureMemory[ (offset << 1) & 0x3FF ], (void *)ObjTlutAddr, (size << 1));
 
 		//printf("Source[%p] TMEM[%d] Size[%d]\n",(u32*)ObjTlutAddr , (offset << 1) & 0x3FF, (size << 1));
-	#endif
+#endif
 		gObjTxtr = NULL;
 	}
 	else	// Need to load from ObjTxtr
 	{
 		gObjTxtr = (uObjTxtr*)ObjTxtr;
 	}
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void DLParser_Yoshi_MemRect( MicroCodeCommand command )
+{
+	MicroCodeCommand command2;
+	MicroCodeCommand command3;
+	//
+	// Fetch the next two instructions
+	//
+	DLParser_FetchNextCommand( &command2 );
+	DLParser_FetchNextCommand( &command3 );
+
+	RDP_MemRect mem_rect;
+	mem_rect.cmd0 = command.inst.cmd0;
+	mem_rect.cmd1 = command.inst.cmd1;
+	mem_rect.cmd2 = command2.inst.cmd1;
+	mem_rect.cmd3 = command3.inst.cmd1;
+
+	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( mem_rect.tile_idx ) );
+
+	u32	x0 = mem_rect.x0;
+	u32	y0 = mem_rect.y0;
+	u32	y1 = mem_rect.y1;
+
+	// Get base address of texture
+	u32 tile_addr = gRDPStateManager.GetTileAddress( rdp_tile.tmem );
+
+	if (y1 > scissors.bottom)
+		y1 = scissors.bottom;
+
+	DL_PF ("    MemRect->Addr[0x%08x] (%d, %d -> %d, %d) Width[%d]", tile_addr, x0, y0, mem_rect.x1, y1, g_CI.Width);
+
+#if 1	//1->Optimized, 0->Generic
+	// This assumes Yoshi always copy 16 bytes per line and dst is aligned and we force alignment on src!!! //Corn
+	u32 tex_width = rdp_tile.line << 3;
+	u32 texaddr = ((u32)g_pu8RamBase + tile_addr + tex_width * (mem_rect.s >> 5) + (mem_rect.t >> 5) + 3) & ~3;
+	u32 fbaddr = (u32)g_pu8RamBase + g_CI.Address + x0;
+
+	for (u32 y = y0; y < y1; y++)
+	{
+		u32 *src = (u32*)(texaddr + (y - y0) * tex_width);
+		u32 *dst = (u32*)(fbaddr + y * g_CI.Width);
+
+		dst[0] = src[0];
+		dst[1] = src[1];
+		dst[2] = src[2];
+		dst[3] = src[3];
+	}
+#else
+	u32 width = x1 - x0;
+	u32 tex_width = rdp_tile.line << 3;
+	u8 * texaddr = g_pu8RamBase + tile_addr + tex_width * (mem_rect.s >> 5) + (mem_rect.t >> 5);
+	u8 * fbaddr = g_pu8RamBase + g_CI.Address + x0;
+
+	for (u32 y = y0; y < y1; y++)
+	{
+		u8 *src = texaddr + (y - y0) * tex_width;
+		u8 *dst = fbaddr + y * g_CI.Width;
+		memcpy(dst, src, width);
+	}
+#endif
+
 }
 
 //*****************************************************************************
@@ -529,70 +594,10 @@ void DLParser_S2DEX_RDPHalf_0( MicroCodeCommand command )
 	//0x001d3c90: b4000000 00000000 RSP_RDPHALF_1
 	//0x001d3c98: b3000000 04000400 RSP_RDPHALF_2
 
-	if (g_ROM.GameHacks != YOSHI)
-	{
-		DLParser_TexRect( command );
-	}
+	if( g_ROM.GameHacks == YOSHI )
+		DLParser_Yoshi_MemRect( command );
 	else
-	{	//Do Yoshi MemRect
-		MicroCodeCommand command2;
-		MicroCodeCommand command3;
-		//
-		// Fetch the next two instructions
-		//
-		DLParser_FetchNextCommand( &command2 );
-		DLParser_FetchNextCommand( &command3 );
-
-		RDP_MemRect mem_rect;
-		mem_rect.cmd0 = command.inst.cmd0;
-		mem_rect.cmd1 = command.inst.cmd1;
-		mem_rect.cmd2 = command2.inst.cmd1;
-		mem_rect.cmd3 = command3.inst.cmd1;
-
-		const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( mem_rect.tile_idx ) );
-
-		u32	x0 = mem_rect.x0;
-		u32	y0 = mem_rect.y0;
-		u32	y1 = mem_rect.y1;
-
-		// Get base address of texture
-		u32 tile_addr = gRDPStateManager.GetTileAddress( rdp_tile.tmem );
-
-		if (y1 > scissors.bottom)
-			y1 = scissors.bottom;
-
-		//DL_PF ("    MemRect->Addr[0x%08x] (%d, %d -> %d, %d) Width[%d]", tile_addr, x0, y0, mem_rect.x1, y1, g_CI.Width);
-
-	#if 1	//1->Optimized, 0->Generic
-		// This assumes Yoshi always copy 16 bytes per line and dst is aligned and we force alignment on src!!! //Corn
-		u32 tex_width = rdp_tile.line << 3;
-		u32 texaddr = ((u32)g_pu8RamBase + tile_addr + tex_width * (mem_rect.s >> 5) + (mem_rect.t >> 5) + 3) & ~3;
-		u32 fbaddr = (u32)g_pu8RamBase + g_CI.Address + x0;
-
-		for (u32 y = y0; y < y1; y++)
-		{
-			u32 *src = (u32*)(texaddr + (y - y0) * tex_width);
-			u32 *dst = (u32*)(fbaddr + y * g_CI.Width);
-
-			dst[0] = src[0];
-			dst[1] = src[1];
-			dst[2] = src[2];
-			dst[3] = src[3];
-		}
-	#else
-		u32 width = x1 - x0;
-		u32 tex_width = rdp_tile.line << 3;
-		u8 * texaddr = g_pu8RamBase + tile_addr + tex_width * (mem_rect.s >> 5) + (mem_rect.t >> 5);
-		u8 * fbaddr = g_pu8RamBase + g_CI.Address + x0;
-
-		for (u32 y = y0; y < y1; y++)
-		{
-			u8 *src = texaddr + (y - y0) * tex_width;
-			u8 *dst = fbaddr + y * g_CI.Width;
-			memcpy(dst, src, width);
-		}
-	#endif
-	}
+		DLParser_TexRect( command );
 }
 
 //*****************************************************************************
@@ -649,7 +654,7 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();
-	//texture->UpdateIfNecessary();
+	texture->UpdateIfNecessary();
 
 	PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );
 }
@@ -697,7 +702,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();
-	//texture->UpdateIfNecessary();
+	texture->UpdateIfNecessary();
 
 	if (g_ROM.GameHacks != YOSHI)
 	{
