@@ -44,7 +44,6 @@
 # R302: Light colour
 # R303: Scratch
 # R431: current vertex Alpha value
-# R600: Computed fog colour
 # R700: Ambient
 # R721: Texture X & Y scale
 # t4 = cur_light
@@ -217,7 +216,6 @@ finished_:
 # R302: Light colour
 # R303: Scratch
 # R431: current vertex Alpha value
-# R600: Computed fog colour
 # R700: Ambient
 # R721: Texture X & Y scale
 # t4 = cur_light
@@ -366,4 +364,87 @@ finished_PD:
 	jr			$ra
 	nop
 	
+
+############################
+.global _TnLVFPUDKR
+############################
+#	a0 - num vertices
+#	a1 - world*projection matrix	- must be aligned to 16 bytes
+#	a2 - Fiddled vertices			- stride 16
+#	a3 - Output vertices			- must be aligned to 16 bytes, stride 64
+
+# Lighting calculation
+# M100: Projection Matrix
+
+_TnLVFPUDKR:
+	lv.q		R100, 0($a1)		// Load mat project
+	lv.q		R101, 16($a1)
+	lv.q		R102, 32($a1)
+	lv.q		R103, 48($a1)
+	
+	sll			$v0, $a0, 1			// count * 2
+	sll			$a0, $a0, 3			// count * 8
+	addu		$a0, $v0, $a0		// count = count * 10
+	addu		$a0, $a2, $a0		// end_ptr = start_ptr + count * 10
+	beq			$a2, $a0, finished_DKR
+	nop
+	
+next_vertex_DKR:
+# Load and transform this vertex position
+ 	xori		$v0, $a2, 0x2
+	lh			$t4, 0($v0)
+	mtv			$t4, S200
+	addiu		$a2, $a2, 0x2
+ 	xori		$v0, $a2, 0x2
+	lh			$t4, 0($v0)
+	mtv			$t4, S210
+	addiu		$a2, $a2, 0x2
+ 	xori		$v0, $a2, 0x2
+	lh			$t4, 0($v0)
+	mtv			$t4, S220
+	addiu		$a2, $a2, 0x2
+
+	vi2f.t		R200, R200, 0				// int -> float
+	vone.s		S230						// x,y,z,1
+	sv.q		R200, 0x00($a3)				// Store world transform
+	vtfm4.q		R202, M100, R200			// Projection transform
+	sv.q		R202, 0x10($a3)				// Store projection transform
+	
+# Compute the clip flags
+	vcmp.q		LT, R202, R202[-w,-w,-w,0]	// x < -w, y < -w, z < -w
+	vnop
+	mfvc		$t4, $131					// VFPU_CC. Corresponds to X_NEG/Y_NEG/Z_NEG (will become X_POS/Y_POS/Z_POS later)
+	andi		$t4, $t4, 0x7				// Mask out the condition codes we don't care about
+	sll			$t4, $t4, 3					// Shift up to create X_POS/Y_POS/Z_POS	
+	vcmp.q		GT, R202, R202[w,w,w,0]		// x > w, y > w, z > w
+	vnop
+	mfvc		$t5, $131					// VFPU_CC. Corresponds to X_NEG/Y_NEG/Z_NEG
+	andi		$t5, $t5, 0x7				// Mask out the condition codes we don't care about
+	or			$t4, $t4, $t5
+	sw			$t4, 0x38($a3)				// Store ClipFlags
+
+# Normalise the RGBA colour
+ 	xori		$v0, $a2, 0x2
+	lhu			$t4, 0($v0)
+	addiu		$a2, $a2, 0x2
+ 	xori		$v0, $a2, 0x2
+	lhu			$t5, 0($v0)
+	sll			$t4, $t4, 16
+ 	or		    $t5, $t5, $t4
+	addiu		$a2, $a2, 0x2
+	mtv			$t5, S200
+
+	.word		0xd0380000 | (8<<8) | (40)		// vuc2i.s	R200, S200					// R200 = [a,b,g,r]
+	vi2f.q		R200, R200[w,z,y,x], 31			// int -> float, R200 = [r * 1/256, g * 1/256, b * 1/256, a * 1/256]
+	sv.q		R200, 0x20($a3)					// Store colour
+
+# Continue with the next vertex
+	bne			$a2, $a0, next_vertex_DKR
+	addiu		$a3, $a3, 64				// Next output vertex
+
+finished_DKR:	
+	jr			$ra
+	nop
+
+
 .set pop

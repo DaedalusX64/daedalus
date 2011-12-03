@@ -82,6 +82,7 @@ extern "C"
 void	_TransformVerticesWithColour_f0_t1( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
 
 void	_TnLVFPU( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
+void	_TnLVFPUDKR( u32 num_vertices, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out );
 void	_TnLVFPUPD( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtxPD * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const u8 * model_norm );
 
 void	_ConvertVertice( DaedalusVtx * dest, const DaedalusVtx4 * source );
@@ -2301,12 +2302,14 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 			mVtxProjected[i].ClipFlags = 0;
 
 			// Assign true vert colour
-			mVtxProjected[i].Colour.x = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 6) ^ 3);
-			mVtxProjected[i].Colour.y = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 7) ^ 3);
-			mVtxProjected[i].Colour.z = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 8) ^ 3);
-			mVtxProjected[i].Colour.w = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 9) ^ 3);
+			const u32 WL = *(u16*)((pVtxBase + 6) ^ 2);
+			const u32 WH = *(u16*)((pVtxBase + 8) ^ 2);
 
-			gDKRVtxCount++;
+			mVtxProjected[i].Colour.x = (1.0f / 255.0f) * (WL >> 8);
+			mVtxProjected[i].Colour.y = (1.0f / 255.0f) * (WL & 0xFF);
+			mVtxProjected[i].Colour.z = (1.0f / 255.0f) * (WH >> 8);
+			mVtxProjected[i].Colour.w = (1.0f / 255.0f) * (WH & 0xFF);
+
 			pVtxBase += 10;
 		}
 	}
@@ -2317,7 +2320,9 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 			mWPmodified = false;
 			sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject) );
 		}
-
+#ifdef DAEDALUS_PSP_USE_VFPU
+		_TnLVFPUDKR( n, &matWorldProject, (const FiddledVtx*)pVtxBase, &mVtxProjected[v0] );
+#else
 		for (u32 i = v0; i < v0 + n; i++)
 		{
 			v4 & transformed( mVtxProjected[i].TransformedPos );
@@ -2342,14 +2347,18 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 			mVtxProjected[i].ClipFlags = clip_flags;
 
 			// Assign true vert colour
-			mVtxProjected[i].Colour.x = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 6) ^ 3);
-			mVtxProjected[i].Colour.y = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 7) ^ 3);
-			mVtxProjected[i].Colour.z = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 8) ^ 3);
-			mVtxProjected[i].Colour.w = (1.0f / 255.0f) * (f32)*(u8*)((pVtxBase + 9) ^ 3);
+			const u32 WL = *(u16*)((pVtxBase + 6) ^ 2);
+			const u32 WH = *(u16*)((pVtxBase + 8) ^ 2);
 
-			gDKRVtxCount++;
+			mVtxProjected[i].Colour.x = (1.0f / 255.0f) * (WL >> 8);
+			mVtxProjected[i].Colour.y = (1.0f / 255.0f) * (WL & 0xFF);
+			mVtxProjected[i].Colour.z = (1.0f / 255.0f) * (WH >> 8);
+			mVtxProjected[i].Colour.w = (1.0f / 255.0f) * (WH & 0xFF);
+
 			pVtxBase += 10;
 		}
+#endif
+	gDKRVtxCount += n;
 	}
 }
 
