@@ -83,6 +83,7 @@ void	_TransformVerticesWithColour_f0_t1( const Matrix4x4 * world_matrix, const M
 
 void	_TnLVFPU( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
 void	_TnLVFPUDKR( u32 num_vertices, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out );
+void	_TnLVFPUCBFD( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const s8 * model_norm , u32 v0 );
 void	_TnLVFPUPD( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtxPD * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const u8 * model_norm );
 
 void	_ConvertVertice( DaedalusVtx * dest, const DaedalusVtx4 * source );
@@ -2095,6 +2096,10 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 
 	// Light is not handled for Conker
 	//
+#if 1	
+	const s8 *mn = (s8*)(gAuxAddr);
+	_TnLVFPUCBFD( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn, v0<<1 );
+#else	
 	_TransformVerticesWithColour_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnL );
 	
 	// Do Env Mapping using the CPU with an extra pass 
@@ -2126,6 +2131,7 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 			}
 		}
 	}
+#endif
 }
 
 #else
@@ -2358,8 +2364,8 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 			pVtxBase += 10;
 		}
 #endif
-	gDKRVtxCount += n;
 	}
+	gDKRVtxCount += n;
 }
 
 //*****************************************************************************
