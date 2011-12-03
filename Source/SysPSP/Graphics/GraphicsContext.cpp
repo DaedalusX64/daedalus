@@ -370,7 +370,7 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 	if( gCleanSceneEnabled )
 	{
 		sceGuScissor(0,0,SCR_WIDTH,SCR_HEIGHT);	//Make sure we clear whole screen
-		sceGuClear(GU_COLOR_BUFFER_BIT | GU_FAST_CLEAR_BIT);	//Clear screen
+		ClearColBuffer(0xff000000); // ToDo : Use gFillColor instead?
 	}
 	
 	// Hack to semi-fix XG2, it uses setprimdepth for background and also does not clear zbuffer //Corn

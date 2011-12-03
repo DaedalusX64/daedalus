@@ -1316,28 +1316,45 @@ void DLParser_FillRect( MicroCodeCommand command )
 		return;
 	}
 
-	// Clear color buffer
+	// TODO - Check colour image format to work out how this should be decoded!
+	c32		colour;
+
+	// Clear the screen if large rectangle?
+	// This seems to mess up with the Zelda game select screen
+	// For some reason it draws a large rect over the entire
+	// display, right at the end of the dlist. It sets the primitive
+	// colour just before, so maybe I'm missing something??
+
 	if ( gRDPOtherMode.cycle_type == CYCLE_FILL )
 	{
-		if ( command.fillrect.x0 == 0 && command.fillrect.y0 == 0 && command.fillrect.y1 == uViHeight && command.fillrect.x1 == uViWidth )
+		PixelFormats::N64::Pf5551	c( (u16)gFillColor );
+		colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf5551 >( c );
+
+		// Clear color buffer (screen clear)
+		//if ( command.fillrect.x0 == 0 && command.fillrect.y0 == 0 && command.fillrect.y1 == uViHeight && command.fillrect.x1 == uViWidth )
+		if( (s32)uViWidth == (command.fillrect.x1 - command.fillrect.x0) && (s32)uViHeight == (command.fillrect.y1 - command.fillrect.y0) )
 		{
-			CGraphicsContext::Get()->ClearColBuffer( gFillColor );
+			CGraphicsContext::Get()->ClearColBuffer( colour.GetColour() );
 			DL_PF("    Clearing Colour Buffer");
 			return;
 		}
 	}
-
-	// Removes annoying rect that appears in Conker etc
-	// Unless we support fb emulation, we can safetly ignore this fillrect
-	if( bIsOffScreen || g_CI.Size != G_IM_SIZ_16b )	
+	else
+	{
+		//colour = PSPRenderer::Get()->GetPrimitiveColour(); MK64 doesn't like it..
+		colour = c32::Black;
+	}
+	//
+	// (1) Removes annoying rect that appears in Conker etc
+	// (2) Unless we support fb emulation, we can safetly ignore this fillrect
+	// (3) This blend mode is mem*0 + mem*1, so we don't need to render it... Very odd! (Wave Racer - Menu fix)
+	//
+	if( bIsOffScreen || (g_CI.Size != G_IM_SIZ_16b) || (gRDPOtherMode.blender == 0x5f50) )	
 	{
 		DL_PF("    Ignoring Fillrect ");
 		return;
 	}
-/*
-	SCISSOR_RECT( command.fillrect.x0, command.fillrect.y0, 
-				  command.fillrect.x1, command.fillrect.y1 );
-*/
+
 	DL_PF("    Filling Rectangle (%d,%d)->(%d,%d)", command.fillrect.x0, command.fillrect.y0, command.fillrect.x1, command.fillrect.y1);
 
 	v2 xy0( command.fillrect.x0, command.fillrect.y0 );
@@ -1362,29 +1379,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 	// TODO - In 1/2cycle mode, skip bottom/right edges!?
 	// This is done in PSPrenderer.
 
-	// Clear the screen if large rectangle?
-	// This seems to mess up with the Zelda game select screen
-	// For some reason it draws a large rect over the entire
-	// display, right at the end of the dlist. It sets the primitive
-	// colour just before, so maybe I'm missing something??
-
-	// TODO - Check colour image format to work out how this should be decoded!
-	c32		colour;
-
-	if ( gRDPOtherMode.cycle_type == CYCLE_FILL)
-	{
-		PixelFormats::N64::Pf5551	c( (u16)gFillColor );
-		colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf5551 >( c );
-
-		//printf( "FillRect: %08x, %04x\n", colour.GetColour(), c.Bits );
-		PSPRenderer::Get()->FillRect( xy0, xy1, colour.GetColour() );
-	}
-	else
-	{
-		//colour = PSPRenderer::Get()->GetPrimitiveColour(); MK64 doesn't like it..
-		colour = c32::Black;
-		PSPRenderer::Get()->FillRect( xy0, xy1, colour.GetColour() );
-	}
+	PSPRenderer::Get()->FillRect( xy0, xy1, colour.GetColour() );
 }
 
 //*****************************************************************************

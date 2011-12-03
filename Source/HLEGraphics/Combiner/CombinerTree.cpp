@@ -183,10 +183,7 @@ CCombinerTree::CCombinerTree( u64 mux, bool two_cycles )
 ,	mCycle2( NULL )
 ,	mCycle2A( NULL )
 {
-	RDP_Combine m;
-	m.mux0 = (u32)(mux>>32);
-	m.mux1 = (u32)(mux);
-
+	RDP_Combine m;	m.mux = mux;
 	//fprintf(fh, "\n\t\tcase 0x%08x%08xLL:\n", mux0, mux1);
 	//fprintf(fh, "\t\t//aRGB0: (%s - %s) * %s + %s\n", sc_colcombtypes16[aRGB0], sc_colcombtypes16[bRGB0], sc_colcombtypes32[cRGB0], sc_colcombtypes8[dRGB0]);		
 	//fprintf(fh, "\t\t//aA0  : (%s - %s) * %s + %s\n", sc_colcombtypes8[aA0], sc_colcombtypes8[bA0], sc_colcombtypes8[cA0], sc_colcombtypes8[dA0]);
