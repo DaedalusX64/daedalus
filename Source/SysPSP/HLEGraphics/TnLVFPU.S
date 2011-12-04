@@ -272,14 +272,14 @@ next_vertex_CBFD:
 	mtv			$v1, S223					// Store vertice normal Z 
 	
 # We use world matrix to calc normals
- 	xori		$t5, $t3, 0x3				// Use CPU to unfiddle vertice normals
-	addu		$t5, $t2, $t5
-	lb			$t4, 0($t5)
+ 	xori		$t5, $t3, 0x3				// = v0 ^ 3
+	addu		$t5, $t2, $t5				// += base address
+	lb			$t4, 0($t5)					// get normal x
 	mtv			$t4, S203					// Store vertice normal X 
-	addiu		$t5, $t3, 0x1
- 	xori		$t5, $t5, 0x3
-	addu		$t5, $t2, $t5
-	lb			$t4, 0($t5)
+	addiu		$t5, $t3, 0x1				// = v0 + 1
+ 	xori		$t5, $t5, 0x3				// ^= 3
+	addu		$t5, $t2, $t5				// += base address
+	lb			$t4, 0($t5)					// get normal y
 	mtv			$t4, S213					// Store vertice normal Y 
 	vi2f.t		R203, R203, 0				// int -> float
 	vtfm3.t		R202, M000, R203					// Transform with world matrix, (only need 3x3)
@@ -533,18 +533,18 @@ _TnLVFPUDKR:
 	
 next_vertex_DKR:
 # Load and transform this vertex position
- 	xori		$v0, $a2, 0x2				// Use CPU to unfiddle vertice coords
-	lh			$t4, 0($v0)
-	mtv			$t4, S200
-	addiu		$a2, $a2, 0x2
- 	xori		$v0, $a2, 0x2
-	lh			$t4, 0($v0)
-	mtv			$t4, S210
-	addiu		$a2, $a2, 0x2
- 	xori		$v0, $a2, 0x2
-	lh			$t4, 0($v0)
-	mtv			$t4, S220
-	addiu		$a2, $a2, 0x2
+ 	xori		$v0, $a2, 0x2		// = vtx_ptr ^ 2
+	lh			$t4, 0($v0)			// get vertex x coord	
+	mtv			$t4, S200			// store on VFPU
+	addiu		$a2, $a2, 0x2		// = vtx_ptr + 2
+ 	xori		$v0, $a2, 0x2		// = vtx_ptr ^ 2
+	lh			$t4, 0($v0)			// get vertex y coord
+	mtv			$t4, S210			// store on VFPU
+	addiu		$a2, $a2, 0x2		// = vtx_ptr + 2
+ 	xori		$v0, $a2, 0x2		// = vtx_ptr ^ 2
+	lh			$t4, 0($v0)			// get vertex z coord
+	mtv			$t4, S220			// store on VFPU
+	addiu		$a2, $a2, 0x2		// = vtx_ptr + 2
 
 	vi2f.t		R200, R200, 0				// int -> float
 	vone.s		S230						// x,y,z,1
@@ -566,15 +566,15 @@ next_vertex_DKR:
 	sw			$t4, 0x38($a3)				// Store ClipFlags
 
 # Normalise the RGBA colour
- 	xori		$v0, $a2, 0x2				// Use CPU to unfiddle vertice colors 
-	lhu			$t4, 0($v0)
-	addiu		$a2, $a2, 0x2
- 	xori		$v0, $a2, 0x2
-	lhu			$t5, 0($v0)
-	sll			$t4, $t4, 16
- 	or		    $t5, $t5, $t4
-	addiu		$a2, $a2, 0x2
-	mtv			$t5, S200
+ 	xori		$v0, $a2, 0x2		// = vtx_ptr ^ 2
+	lhu			$t4, 0($v0)			// get vertex color	(hi)
+	addiu		$a2, $a2, 0x2		// = vtx_ptr + 2
+ 	xori		$v0, $a2, 0x2		// = vtx_ptr ^ 2
+	lhu			$t5, 0($v0)			// get vertex color (lo)
+	sll			$t4, $t4, 16		// pack
+ 	or		    $t5, $t5, $t4		// to 32bit
+	addiu		$a2, $a2, 0x2		// = vtx_ptr + 2
+	mtv			$t5, S200			// store on VFPU
 
 	.word		0xd0380000 | (8<<8) | (40)		// vuc2i.s	R200, S200					// R200 = [a,b,g,r]
 	vi2f.q		R200, R200[w,z,y,x], 31			// int -> float, R200 = [r * 1/256, g * 1/256, b * 1/256, a * 1/256]
