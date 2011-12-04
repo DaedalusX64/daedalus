@@ -277,7 +277,8 @@ CNativeTexture::CNativeTexture( u32 w, u32 h, ETextureFormat texture_format )
 ,	mPaletteSet( false )
 #endif
 {
-	mScale = v2( 1.0f / mCorrectedWidth, 1.0f / mCorrectedHeight );
+	mScale.x = 1.0f / mCorrectedWidth;
+	mScale.y = 1.0f / mCorrectedHeight;
 
 	u32		bytes_required( GetBytesRequired() );
 

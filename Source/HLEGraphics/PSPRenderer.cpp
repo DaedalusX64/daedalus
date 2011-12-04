@@ -1438,10 +1438,8 @@ void PSPRenderer::FlushTris()
 
 		if( (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
 		{
-			v2 offset = -mTileTopLeft[ 0 ];
-			v2 scale = mTileScale[ 0 ];
-			sceGuTexOffset( offset.x * scale.x, offset.y * scale.y );
-			sceGuTexScale( scale.x, scale.y );
+			sceGuTexOffset( -mTileTopLeft[ 0 ].x * mTileScale[ 0 ].x, -mTileTopLeft[ 0 ].y * mTileScale[ 0 ].y );
+			sceGuTexScale( mTileScale[ 0 ].x, mTileScale[ 0 ].y );
 		}
 		else
 		{
@@ -2654,6 +2652,9 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 
 	const TextureInfo &		ti( gRDPStateManager.GetTextureDescriptor( tile_idx ) );
 
+	// Avoid texture update, if texture is the same as last time around.
+	if( (mpTexture[ index ] != NULL) && (mpTexture[ index ]->GetTextureInfo() == ti) ) return;
+
 	//
 	//	Initialise the wrapping/texture offset first, which can be set
 	//	independently of the actual texture.
@@ -2696,15 +2697,14 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	sceGuTexWrap( mode_u, mode_v );
 
 	// XXXX Double check this
-	mTileTopLeft[ index ] = v2( f32( tile_size.left) * (1.0f / 4.0f), f32(tile_size.top)* (1.0f / 4.0f) );
+	mTileTopLeft[ index ].x = f32(tile_size.left) /4.0f;
+	mTileTopLeft[ index ].y = f32(tile_size.top) /4.0f;
 
 	DL_PF( "    Use Tile[%d] as Texture[%d] [%dx%d] [%s] [%dbpp] [%s u, %s v] -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] TopLeft[%0.3f|%0.3f] Scale[%0.3f|%0.3f]",
 			tile_idx, index, ti.GetWidth(), ti.GetHeight(), ti.GetFormatName(), ti.GetSizeInBits(),
 			(mode_u==GU_CLAMP)? "Clamp" : "Repeat", (mode_v==GU_CLAMP)? "Clamp" : "Repeat",
 			ti.GetLoadAddress(), (u32)ti.GetPalettePtr(), ti.GetHashCode(), ti.GetPitch(),
 			mTileTopLeft[ index ].x, mTileTopLeft[ index ].y, mTileScale[ index ].x, mTileScale[ index ].y );
-
-	if( (mpTexture[ index ] != NULL) && (mpTexture[ index ]->GetTextureInfo() == ti) ) return;
 
 	// Check for 0 width/height textures
 	if( (ti.GetWidth() == 0) || (ti.GetHeight() == 0) )
