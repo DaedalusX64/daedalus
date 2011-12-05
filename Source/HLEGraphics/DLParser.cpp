@@ -1331,7 +1331,6 @@ void DLParser_FillRect( MicroCodeCommand command )
 		colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf5551 >( c );
 
 		// Clear color buffer (screen clear)
-		//if ( command.fillrect.x0 == 0 && command.fillrect.y0 == 0 && command.fillrect.y1 == uViHeight && command.fillrect.x1 == uViWidth )
 		if( (s32)uViWidth == (command.fillrect.x1 - command.fillrect.x0) && (s32)uViHeight == (command.fillrect.y1 - command.fillrect.y0) )
 		{
 			CGraphicsContext::Get()->ClearColBuffer( colour.GetColour() );
@@ -1358,22 +1357,15 @@ void DLParser_FillRect( MicroCodeCommand command )
 	DL_PF("    Filling Rectangle (%d,%d)->(%d,%d)", command.fillrect.x0, command.fillrect.y0, command.fillrect.x1, command.fillrect.y1);
 
 	v2 xy0( command.fillrect.x0, command.fillrect.y0 );
-	v2 xy1;
+	v2 xy1( command.fillrect.x1, command.fillrect.y1 );
 
 	//
 	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
 	//
-	switch ( gRDPOtherMode.cycle_type )
+	if ( gRDPOtherMode.cycle_type >= CYCLE_COPY )
 	{
-		case CYCLE_COPY:
-		case CYCLE_FILL:
-			xy1.x = command.fillrect.x1 + 1;
-			xy1.y = command.fillrect.y1 + 1;
-			break;
-		default:
-			xy1.x = command.fillrect.x1;
-			xy1.y = command.fillrect.y1;
-			break;
+		xy1.x++;
+		xy1.y++;
 	}
 
 	// TODO - In 1/2cycle mode, skip bottom/right edges!?
