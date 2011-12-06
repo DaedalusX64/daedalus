@@ -410,8 +410,8 @@ void PSPRenderer::SetVIScales()
 	u32 ScaleX = Memory_VI_GetRegister( VI_X_SCALE_REG ) & 0xFFF;
 	u32 ScaleY = Memory_VI_GetRegister( VI_Y_SCALE_REG ) & 0xFFF;
 
-	f32 fScaleX = (f32)ScaleX / (1<<10);
-	f32 fScaleY = (f32)ScaleY / (1<<10);
+	f32 fScaleX = (f32)ScaleX / 1024.0f;
+	f32 fScaleY = (f32)ScaleY / 2048.0f;
 
 	u32 HStartReg = Memory_VI_GetRegister( VI_H_START_REG );
 	u32 VStartReg = Memory_VI_GetRegister( VI_V_START_REG );
@@ -422,31 +422,22 @@ void PSPRenderer::SetVIScales()
 	u32	vstart = VStartReg >> 16;
 	u32	vend = VStartReg & 0xffff;
 
-	fViWidth  =  (hend-hstart)    * fScaleX;
-	fViHeight = ((vend-vstart)/2) * fScaleY;
+	// Sometimes HStartReg can be zero.. ex PD, Lode Runner, Cyber Tiger
+	if (hend == hstart)
+	{
+		hend = (u32)(width / fScaleX);
+	}
 
-	//If we are close to 240 in height then set to 240 //Corn
-	if( abs(240 - fViHeight) < 4 ) 
-		fViHeight = 240.0f;
-	
+	fViWidth  =  (hend-hstart)    * fScaleX;
+	fViHeight =  (vend-vstart)    * fScaleY * 1.0126582f;
+
 	// XXX Need to check PAL games.
 	//if(g_ROM.TvType != OS_TV_NTSC) sRatio = 9/11.0f;
 
-	//This sets the correct height in various games ex : Megaman 64
+	//This corrects height in various games ex : Megaman 64, CyberTiger
 	if( width > 0x300 )	
+	{
 		fViHeight *= 2.0f;
-
-	// Sometimes HStartReg and VStartReg are zero
-	// This fixes gaps is some games ex: CyberTiger
-	// Height has priority - Bug fix for Load Runner
-	//
-	if( fViHeight < 100) 
-	{
-		fViHeight = fViWidth * 0.75f; //sRatio
-	}
-	else if( fViWidth < 100) 
-	{
-		fViWidth = (f32)Memory_VI_GetRegister( VI_WIDTH_REG );
 	}
 
 	//Used to set a limit on Scissors //Corn
