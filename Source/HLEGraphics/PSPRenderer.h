@@ -215,6 +215,7 @@ public:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	void				PrintActive();
 #endif
+	inline Matrix4x4*	MtxPtr( u32 idx ) { return &mProjectionStack[idx]; }
 	void				ResetMatrices();
 	void				SetProjection(const Matrix4x4 & mat, bool bPush, bool bReplace);
 	void				SetWorldView(const Matrix4x4 & mat, bool bPush, bool bReplace);

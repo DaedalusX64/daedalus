@@ -2246,7 +2246,6 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 // Assumes address has already been checked!
 // DKR/Jet Force Gemini rendering pipeline
 //*****************************************************************************
-extern Matrix4x4 gDKRMatrixes[4];
 extern u32 gDKRCMatrixIndex;
 extern u32 gDKRVtxCount;
 extern bool gDKRBillBoard;
@@ -2254,7 +2253,7 @@ extern bool gDKRBillBoard;
 void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 {
 	u32 pVtxBase = u32(g_pu8RamBase + address);
-	const Matrix4x4 & matWorldProject( gDKRMatrixes[gDKRCMatrixIndex] );
+	const Matrix4x4 & matWorldProject( mProjectionStack[gDKRCMatrixIndex] );
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Ambient.x, mTnL.Ambient.y, mTnL.Ambient.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -2267,16 +2266,16 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 		v4 & BaseVec( mVtxProjected[0].TransformedPos );
 	
 		//Hack to worldproj matrix to scale and rotate billbords //Corn
-		Matrix4x4 mat( gDKRMatrixes[0]);
-		mat.mRaw[0] *= gDKRMatrixes[2].mRaw[0] * 0.33f;
-		mat.mRaw[4] *= gDKRMatrixes[2].mRaw[0] * 0.33f;
-		mat.mRaw[8] *= gDKRMatrixes[2].mRaw[0] * 0.33f;
-		mat.mRaw[1] *= gDKRMatrixes[2].mRaw[0] * 0.25f;
-		mat.mRaw[5] *= gDKRMatrixes[2].mRaw[0] * 0.25f;
-		mat.mRaw[9] *= gDKRMatrixes[2].mRaw[0] * 0.25f;
-		mat.mRaw[2] *= gDKRMatrixes[2].mRaw[10] * 0.33f;
-		mat.mRaw[6] *= gDKRMatrixes[2].mRaw[10] * 0.33f;
-		mat.mRaw[10] *= gDKRMatrixes[2].mRaw[10] * 0.33f;
+		Matrix4x4 mat( mProjectionStack[0]);
+		mat.mRaw[0] *= mProjectionStack[2].mRaw[0] * 0.33f;
+		mat.mRaw[4] *= mProjectionStack[2].mRaw[0] * 0.33f;
+		mat.mRaw[8] *= mProjectionStack[2].mRaw[0] * 0.33f;
+		mat.mRaw[1] *= mProjectionStack[2].mRaw[0] * 0.25f;
+		mat.mRaw[5] *= mProjectionStack[2].mRaw[0] * 0.25f;
+		mat.mRaw[9] *= mProjectionStack[2].mRaw[0] * 0.25f;
+		mat.mRaw[2] *= mProjectionStack[2].mRaw[10] * 0.33f;
+		mat.mRaw[6] *= mProjectionStack[2].mRaw[10] * 0.33f;
+		mat.mRaw[10] *= mProjectionStack[2].mRaw[10] * 0.33f;
 
 		for (u32 i = v0; i < v0 + n; i++)
 		{

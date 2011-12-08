@@ -1348,7 +1348,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 	// (2) Unless we support fb emulation, we can safetly ignore this fillrect
 	// (3) This blend mode is mem*0 + mem*1, so we don't need to render it... Very odd! (Wave Racer - Menu fix)
 	//
-	if( bIsOffScreen || (g_CI.Size != G_IM_SIZ_16b) || (gRDPOtherMode.blender == 0x5f50) )	
+	if( bIsOffScreen | (g_CI.Size != G_IM_SIZ_16b) | (gRDPOtherMode.blender == 0x5f50) )	
 	{
 		DL_PF("    Ignoring Fillrect ");
 		return;
