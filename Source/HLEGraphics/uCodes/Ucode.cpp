@@ -30,6 +30,7 @@ const u32 ucode_stride[] =
 	2,		// Mario Kart, Star Fox
 	2,		// Zelda, and newer games
 	2,		// Yoshi's Story, Pokemon Puzzle League
+	2,		// Neon Evangelion, Kirby
 	5,		// Wave Racer USA
 	10,		// Diddy Kong Racing, Gemini, and Mickey
 	2,		// Last Legion, Toukon, Toukon 2
@@ -300,7 +301,7 @@ const MicroCodeInstruction gNormalInstruction[MAX_UCODE][256] =
 		DLParser_Nothing,		DLParser_Nothing,			DLParser_Nothing,			DLParser_Nothing,
 		DLParser_Nothing,		DLParser_GBI2_DL_Count,		DLParser_GBI2_DMA_IO,		DLParser_GBI2_Texture,
 		DLParser_GBI1_PopMtx,	DLParser_GBI2_GeometryMode, DLParser_GBI2_Mtx,			DLParser_GBI2_MoveWord,
-		DLParser_GBI2_MoveMem,	DLParser_GBI2_LoadUCode,	DLParser_GBI1_DL,			DLParser_GBI1_EndDL,
+		DLParser_GBI2_MoveMem,	DLParser_GBI1_LoadUCode,	DLParser_GBI1_DL,			DLParser_GBI1_EndDL,
 		//e0
 		DLParser_GBI1_SpNoop,	DLParser_GBI1_RDPHalf_1,	DLParser_GBI2_SetOtherModeL,DLParser_GBI2_SetOtherModeH,
 		DLParser_TexRect,		DLParser_TexRectFlip,		DLParser_RDPLoadSync,		DLParser_RDPPipeSync,
@@ -395,6 +396,92 @@ const MicroCodeInstruction gNormalInstruction[MAX_UCODE][256] =
 		DLParser_LoadTile,			DLParser_SetTile,				DLParser_FillRect,		DLParser_SetFillColor,
 		DLParser_SetFogColor,		DLParser_SetBlendColor,			DLParser_SetPrimColor,	DLParser_SetEnvColor,
 		DLParser_SetCombine,		DLParser_SetTImg,				DLParser_SetZImg,		DLParser_SetCImg
+	},
+
+	// Ucode: S2DEX 2.--
+	// Games: Neon Evangelion, Kirby
+	{
+
+		DLParser_GBI1_Noop,			DLParser_S2DEX_ObjRectangle,	DLParser_S2DEX_ObjSprite,		DLParser_GBI1_CullDL,
+		DLParser_S2DEX_SelectDl,	DLParser_S2DEX_ObjLoadTxtr,		DLParser_S2DEX_ObjLdtxSprite,	DLParser_S2DEX_ObjLdtxRect,
+		DLParser_S2DEX_ObjLdtxRectR,DLParser_S2DEX_Bg1cyc,			DLParser_S2DEX_BgCopy,			DLParser_S2DEX_ObjRendermode,
+		DLParser_Nothing,			DLParser_Nothing,				DLParser_Nothing,				DLParser_Nothing,
+
+		//10
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		//20
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		//30
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		//40
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		//50
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		//60
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		//70
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		//80
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		//90
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		//a0
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		//b0
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
+		//c0
+		DLParser_GBI1_Noop,		DLParser_Nothing,			DLParser_Nothing,			DLParser_Nothing,    
+		DLParser_Nothing,		DLParser_Nothing,			DLParser_Nothing,			DLParser_Nothing,    
+		DLParser_TriRSP,		DLParser_TriRSP,			DLParser_TriRSP,			DLParser_TriRSP,
+		DLParser_TriRSP,		DLParser_TriRSP,			DLParser_TriRSP,			DLParser_TriRSP,
+		//d0
+		DLParser_Nothing,		DLParser_Nothing,			DLParser_Nothing,			DLParser_Nothing,
+		DLParser_Nothing,		DLParser_GBI2_DL_Count,		DLParser_GBI2_DMA_IO,		DLParser_GBI2_Texture,
+		DLParser_GBI1_PopMtx,	DLParser_GBI2_GeometryMode, DLParser_GBI2_Mtx,			DLParser_GBI2_MoveWord,
+		DLParser_GBI2_MoveMem,	DLParser_GBI1_LoadUCode,	DLParser_GBI1_DL,			DLParser_GBI1_EndDL,
+		//e0
+		DLParser_GBI1_SpNoop,	DLParser_GBI1_RDPHalf_1,	DLParser_GBI2_SetOtherModeL,DLParser_GBI2_SetOtherModeH,
+		DLParser_TexRect,		DLParser_TexRectFlip,		DLParser_RDPLoadSync,		DLParser_RDPPipeSync,
+		DLParser_RDPTileSync,	DLParser_RDPFullSync,		DLParser_SetKeyGB,			DLParser_SetKeyR,
+		DLParser_SetConvert,	DLParser_SetScissor,		DLParser_SetPrimDepth,		DLParser_RDPSetOtherMode,
+		//f0
+		DLParser_LoadTLut,		DLParser_GBI1_RDPHalf_2,	DLParser_SetTileSize,		DLParser_LoadBlock, 
+		DLParser_LoadTile,		DLParser_SetTile,			DLParser_FillRect,			DLParser_SetFillColor,
+		DLParser_SetFogColor,	DLParser_SetBlendColor,		DLParser_SetPrimColor,		DLParser_SetEnvColor,
+		DLParser_SetCombine,	DLParser_SetTImg,			DLParser_SetZImg,			DLParser_SetCImg
 	},
 };
 
@@ -621,6 +708,91 @@ const char * gNormalInstructionName[MAX_UCODE][256] =
 		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
 		"G_Nothing", "G_Nothing", "G_Nothing", "G_GBI1_LoadUCode",
 		//b0
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//c0
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_TriRSP", "G_TriRSP", "G_TriRSP", "G_TriRSP",
+		"G_TriRSP", "G_TriRSP", "G_TriRSP", "G_TriRSP",
+		//d0
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_GBI2_DL_Count", "G_GBI2_DMA_IO", "G_GBI2_Texture",
+		"G_GBI2_PopMtx", "G_GBI2_GeometryMode", "G_GBI2_Mtx", "G_GBI2_MoveWord",
+		"G_GBI2_MoveMem", "G_GBI1_LoadUCode", "G_GBI2_DL", "G_GBI2_EndDL",
+		//e0
+		"G_GBI1_SpNoop", "G_GBI1_RDPHalf_1", "G_GBI2_SetOtherModeL", "G_GBI2_SetOtherModeH",
+		"G_TexRect", "G_TexRectFlip", "G_RDPLoadSync", "G_RDPPipeSync",
+		"G_RDPTileSync", "G_RDPFullSync", "G_SetKeyGB", "G_SetKeyR",
+		"G_SetConvert", "G_SetScissor", "G_SetPrimDepth", "G_RDPSetOtherMode",
+		//f0
+		"G_LoadTLut", "G_Nothing", "G_SetTileSize", "G_LoadBlock", 
+		"G_LoadTile", "G_SetTile", "G_FillRect", "G_SetFillColor",
+		"G_SetFogColor", "G_SetBlendColor", "G_SetPrimColor", "G_SetEnvColor",
+		"G_SetCombine", "G_SetTImg", "G_SetZImg", "G_SetCImg"
+	},
+
+	// Ucode: S2DEX 1.--
+	// Games: Yoshi's Story
+	{
+		"G_GBI1_Noop", "G_GBI2_Vtx", "G_GBI1_ModifyVtx", "G_GBI2_CullDL",
+		"G_GBI1_BranchZ", "G_GBI2_Tri1", "G_GBI2_Tri2", "G_GBI2_Quad",
+		"G_GBI2_Line3D", "G_S2DEX_Bg1cyc", "G_S2DEX_BgCopy", "G_S2DEX_ObjRendermode",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//10
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//20
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//30
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//40
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//50
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//60
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//70
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+
+		//80
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//90
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//a0
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_GBI1_LoadUCode",
+		//b0
 		"G_GBI1_BranchZ", "G_GBI0_Tri4", "G_GBI1_ModifyVtx", "G_GBI1_RDPHalf_2",
 		"G_GBI1_RDPHalf_1", "G_GBI1_Line3D", "G_GBI1_ClearGeometryMode", "G_GBI1_SetGeometryMode",
 		"G_GBI1_EndDL", "G_GBI1_SetOtherModeL", "G_GBI1_SetOtherModeH", "G_GBI1_Texture",
@@ -647,72 +819,85 @@ const char * gNormalInstructionName[MAX_UCODE][256] =
 		"G_SetCombine", "G_SetTImg", "G_SetZImg", "G_SetCImg"
 	},
 
-	// Ucode: S2DEX 1.--
-	// Games: Yoshi's Story
+	// Ucode: S2DEX 2.--
+	// Games: Neon Evangelion, Kirby
 	{
-		"G_GBI1_SpNoop", "G__S2DEX_Bg1cyc_2", "G_S2DEX_BgCopy", "G_S2DEX_ObjRectangle",
-		"G_S2DEX_ObjSprite", "G_S2DEX_ObjMoveMem", "G_GBI1_DL", "G_GBI1_Reserved",
-		"G_GBI1_Reserved", "G_GBI1_Sprite2DBase", "G_Nothing", "G_Nothing",
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		//40"-"7f": "unused
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		//80"-"bf": "Immediate "commands
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_GBI1_LoadUCode", 
-		"G_S2DEX_SelectDl",	"G_S2DEX_ObjRendermode",	"G_S2DEX_ObjRectangleR",	"G_GBI1_RDPHalf_2",
-		"G_GBI1_RDPHalf_1", "G_GBI1_Line3D", "G_GBI1_ClearGeometryMode", "G_GBI1_SetGeometryMode",
-		"G_GBI1_EndDL", "G_GBI1_SetOtherModeL", "G_GBI1_SetOtherModeH", "G_GBI1_Texture",
-		"G_GBI1_MoveWord", "G_GBI1_PopMtx", "G_GBI1_CullDL", "G_GBI1_Tri1",
+		"G_GBI1_Noop", "G_S2DEX_ObjRectangle", "G_S2DEX_ObjSprite", "G_GBI2_CullDL",
+		"G_S2DEX_SelectDl", "G_S2DEX_ObjLoadTxtr", "G_S2DEX_ObjLdtxSprite", "G_S2DEX_ObjLdtxRect",
+		"G_S2DEX_ObjLdtxRectR", "G_S2DEX_Bg1cyc", "G_S2DEX_BgCopy", "G_S2DEX_ObjRendermode",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//10
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//20
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//30
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//40
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//50
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//60
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//70
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+
+		//80
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//90
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		//a0
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_GBI1_LoadUCode",
+		//b0
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
 		//c0
-		"G_GBI1_Noop",			"G_S2DEX_ObjLoadTxtr",		"G_S2DEX_ObjLdtxSprite",	"G_S2DEX_ObjLdtxRect",
-		"G_S2DEX_ObjLdtxRectR","G_Nothing",				"G_Nothing",		"G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
 		"G_TriRSP", "G_TriRSP", "G_TriRSP", "G_TriRSP",
 		"G_TriRSP", "G_TriRSP", "G_TriRSP", "G_TriRSP",
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
-		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing", 
+		//d0
+		"G_Nothing", "G_Nothing", "G_Nothing", "G_Nothing",
+		"G_Nothing", "G_GBI2_DL_Count", "G_GBI2_DMA_IO", "G_GBI2_Texture",
+		"G_GBI2_PopMtx", "G_GBI2_GeometryMode", "G_GBI2_Mtx", "G_GBI2_MoveWord",
+		"G_GBI2_MoveMem", "G_GBI1_LoadUCode", "G_GBI2_DL", "G_GBI2_EndDL",
+		//e0
+		"G_GBI1_SpNoop", "G_GBI1_RDPHalf_1", "G_GBI2_SetOtherModeL", "G_GBI2_SetOtherModeH",
 		"G_TexRect", "G_TexRectFlip", "G_RDPLoadSync", "G_RDPPipeSync",
 		"G_RDPTileSync", "G_RDPFullSync", "G_SetKeyGB", "G_SetKeyR",
 		"G_SetConvert", "G_SetScissor", "G_SetPrimDepth", "G_RDPSetOtherMode",
+		//f0
 		"G_LoadTLut", "G_Nothing", "G_SetTileSize", "G_LoadBlock", 
 		"G_LoadTile", "G_SetTile", "G_FillRect", "G_SetFillColor",
 		"G_SetFogColor", "G_SetBlendColor", "G_SetPrimColor", "G_SetEnvColor",

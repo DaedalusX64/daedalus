@@ -69,14 +69,7 @@ void DLParser_GBI1_ModifyVtx( MicroCodeCommand command )
 		return;
 	}
 
-	if( offset == 0 )
-	{
-		DLParser_S2DEX_ObjSprite( command );
-	}
-	else
-	{
-		PSPRenderer::Get()->ModifyVertexInfo( offset, vert, value );
-	}
+	PSPRenderer::Get()->ModifyVertexInfo( offset, vert, value );
 }
 
 //*****************************************************************************
@@ -215,12 +208,13 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 
 		}
 		break;
+/*
 	case G_MW_CLIP:	// Seems to be unused?
 		{
 			DL_PF("    G_MW_CLIP  ?   : 0x%08x", value);	
 		}
 		break;
-
+*/
 	case G_MW_SEGMENT:
 		{
 			u32 segment = (offset >> 2) & 0xF;
@@ -261,7 +255,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 				// Light col, not the copy
 				if (light_idx == gAmbientLightIdx)
 				{
-					v4 col( N64COL_GETR_F(value), N64COL_GETG_F(value), N64COL_GETB_F(value), 1.0f );
+					v3 col( N64COL_GETR_F(value), N64COL_GETG_F(value), N64COL_GETB_F(value) );
 					PSPRenderer::Get()->SetAmbientLight( col );
 				}
 				else
@@ -382,7 +376,7 @@ void DLParser_GBI1_LoadUCode( MicroCodeCommand command )
     u32 code_size = 0x1000; 
     u32 data_base = gRDPHalf1 & 0x1fffffff;         // Preceeding RDP_HALF1 sets this up
     u32 data_size = (command.inst.cmd0 & 0xFFFF) + 1;
-
+	
 	DLParser_InitMicrocode( code_base, code_size, data_base, data_size ); 
 }
 

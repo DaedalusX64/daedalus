@@ -90,6 +90,7 @@ static const MicrocodeData gMicrocodeData[] =
 	{ GBI_SE,		0xd010d659	},//"RSP SW Version: 2.0D, 04-01-96", "Star Wars - Shadows of the Empire (v1.0)"}, 
 	{ GBI_LL,		0xf9ec7828	},//"", "Toukon Road - Brave Spirits"},											
 	{ GBI_WR,		0xbb5a808d	},//"RSP SW Version: 2.0D, 04-01-96", "Wave Race 64"},
+	//{ GBI_SPRITE2D, 0x77c8d033  },//"RSP SW Version: 2.0H, 02-12-97", "Glover"}
 	//{ GBI_0_UNK, 0x10b092bf, "", "World Driver Championship"},		
 	//{ GBI_0_UNK, 0x5719c8de, "", "Star Wars - Rogue Squadron"}, 
 };
@@ -222,7 +223,10 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	{
 		if( strstr(match, "fifo") || strstr(match, "xbus") )
 		{
-			ucode_version = GBI_2;
+			if( !strncmp(match, "S2DEX", 5) )
+				ucode_version = GBI_2_S2DEX;
+			else
+				ucode_version = GBI_2;	
 		}
 		else
 		{
@@ -243,7 +247,6 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	GBIMicrocode_Cache( index, code_base, data_base, ucode_version);
 
 	DBGConsole_Msg(0,"Detected Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]",ucode_version, code_hash, str, g_ROM.settings.GameName.c_str() );
-
 // This is no longer needed as we now have an auto ucode detector, I'll leave it as reference ~Salvy
 //
 /*

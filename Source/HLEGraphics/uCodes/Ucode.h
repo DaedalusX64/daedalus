@@ -23,10 +23,10 @@
 #include "UcodeDefs.h"
 
 // Increase this everytime a new ucode table is added !
-// Do not add any custom ucode table here! instead just patch any of these 4 tables for all your custom ucode needs..
+// Do not add any custom ucode table here! instead just patch any of these 5 tables for all your custom ucode needs..
 // See DLParser_SetUcode for more info
 //
-#define MAX_UCODE		4	
+#define MAX_UCODE		5	
 
 typedef void(*MicroCodeInstruction)(MicroCodeCommand);
 #define UcodeFunc(name)	void name(MicroCodeCommand)

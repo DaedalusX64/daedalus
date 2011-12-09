@@ -379,10 +379,8 @@ bool DLParser_Initialise()
 	scissors.right = 320;
 	scissors.bottom = 240;
 
-#ifndef DAEDALUS_TMEM
 	//Clear pointers in TMEM block //Corn
-	memset(&gTextureMemory[0] ,0 , 1024);
-#endif	
+	memset(&gTextureMemory[0] ,0 , 1024);  
 
 	return true;
 }
@@ -594,10 +592,10 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 
 	// Used for fetching ucode names (Debug Only)
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-	gUcodeName = (ucode <= GBI_1_S2DEX) ? (char **)gNormalInstructionName[ ucode ] : gCustomInstructionName;
+	gUcodeName = (ucode <= GBI_2_S2DEX) ? (char **)gNormalInstructionName[ ucode ] : gCustomInstructionName;
 #endif
 
-	if( ucode <= GBI_1_S2DEX  )
+	if( ucode <= GBI_2_S2DEX  )
 	{
 		// If this a normal ucode, just fetch the correct uCode table and name
 		gUcodeFunc = gNormalInstruction[ ucode ];
@@ -807,16 +805,16 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 	}
 #endif
 	s8 * pcBase = g_ps8RamBase + address;
-	u32 * pdwBase = (u32 *)pcBase;
+	u32 * pBase = (u32 *)pcBase;
 
-	g_N64Lights[light_idx].Colour     = pdwBase[0];
-	g_N64Lights[light_idx].ColourCopy = pdwBase[1];
+	g_N64Lights[light_idx].Colour     = pBase[0];
+	g_N64Lights[light_idx].ColourCopy = pBase[1];
 	g_N64Lights[light_idx].x			= f32(pcBase[8 ^ 0x3]);
 	g_N64Lights[light_idx].y			= f32(pcBase[9 ^ 0x3]);
 	g_N64Lights[light_idx].z			= f32(pcBase[10 ^ 0x3]);
 					
 	DL_PF("    %s %s light[%d] RGBA[0x%08x] RGBACopy[0x%08x] x[%0.0f] y[%0.0f] z[%0.0f]", 
-		pdwBase[2]? "Valid" : "Invalid",
+		pBase[2]? "Valid" : "Invalid",
 		(light_idx == gAmbientLightIdx)? "Ambient" : "Normal",
 		light_idx,
 		g_N64Lights[light_idx].Colour,
@@ -829,19 +827,16 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 	{
 		//Ambient Light
 		u32 n64col( g_N64Lights[light_idx].Colour );
-		v4 pspcol;
-		pspcol.x = N64COL_GETR_F(n64col);
-		pspcol.y = N64COL_GETG_F(n64col);
-		pspcol.z = N64COL_GETB_F(n64col);
-		pspcol.w = 1.0f;
-		PSPRenderer::Get()->SetAmbientLight( pspcol );
+		v3 col( N64COL_GETR_F(n64col), N64COL_GETG_F(n64col), N64COL_GETB_F(n64col) );
+
+		PSPRenderer::Get()->SetAmbientLight( col );
 	}
 	else
 	{
 		//Normal Light
 		PSPRenderer::Get()->SetLightCol(light_idx, g_N64Lights[light_idx].Colour);
 
-		if (pdwBase[2] != 0)	// if Direction is 0 its invalid!
+		if (pBase[2] != 0)	// if Direction is 0 its invalid!
 		{
 			PSPRenderer::Get()->SetLightDirection(light_idx, g_N64Lights[light_idx].x, g_N64Lights[light_idx].y, g_N64Lights[light_idx].z );
 		}

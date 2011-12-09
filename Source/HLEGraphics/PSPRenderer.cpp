@@ -482,8 +482,8 @@ void PSPRenderer::BeginScene()
 	// Both happen really rare
 	//
 	if( !mView.Update				  &&		//  We need to update after pause menu?
-		mView.ViWidth  == fViWidth    &&		//  VI register changed width? (bug fix GE007) 
-		mView.ViHeight == fViHeight   &&		//  VI register changed height?
+		mView.ViWidth  == uViWidth    &&		//  VI register changed width? (bug fix GE007) 
+		mView.ViHeight == uViHeight   &&		//  VI register changed height?
 		mView.Rumble   == gRumblePakActive )	//  RumblePak active? Don't bother to update if no rumble feedback too
 	{
 		return;
@@ -511,8 +511,8 @@ void PSPRenderer::BeginScene()
 
 	mView.Rumble	= gRumblePakActive;
 	mView.Update	= false;
-	mView.ViWidth	= fViWidth;
-	mView.ViHeight	= fViHeight;
+	mView.ViWidth	= uViWidth;
+	mView.ViHeight	= uViHeight;
 }
 
 //*****************************************************************************

@@ -40,6 +40,7 @@ enum GBIVersion
 	GBI_1,
 	GBI_2,
 	GBI_1_S2DEX,
+	GBI_2_S2DEX,
 	GBI_WR,
 	GBI_DKR,
 	GBI_LL,
