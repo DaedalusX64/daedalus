@@ -74,6 +74,7 @@ enum MEMBANKTYPE
 
 static const u32 MEMORY_4_MEG( 4*1024*1024 );
 static const u32 MEMORY_8_MEG( 8*1024*1024 );
+#define MAX_RAM_ADDRESS MEMORY_8_MEG
 
 extern u32		gRamSize;
 #ifdef DAEDALUS_PROFILE_EXECUTION

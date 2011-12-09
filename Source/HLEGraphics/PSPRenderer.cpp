@@ -2985,85 +2985,55 @@ void PSPRenderer::Draw2DTextureR( f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2
 //*************************************************************************************
 void PSPRenderer::MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 {
-#if 1 //0->unrolled, 1->looped //Corn
-	const f32	fRecip = 1.0f / 65536.0f;
-	const u8 *	base( g_pu8RamBase );
-	s16 hi;
-	u16 lo;
-
-	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if (address + 64 > MAX_RAM_ADDRESS)
 	{
 		DBGConsole_Msg(0, "Mtx: Address invalid (0x%08x)", address);
 		return;
 	}
-	#endif
+#endif
+
+#if 1 //1->looped, 0->unrolled //Corn
+	const f32 fRecip = 1.0f / 65536.0f;
+	const u8 *ptr( g_pu8RamBase + address );
+	s16 hi;
+	u16 lo;
+
 
 	for (u32 i = 0; i < 4; i++)
 	{
-		hi = *(s16 *)(base + address+(i<<3)+(((0)     )^0x2));
-		lo = *(u16 *)(base + address+(i<<3)+(((0) + 32)^0x2));
+		hi = *(s16 *)(ptr + (i<<3) + ((0     )^0x2));
+		lo = *(u16 *)(ptr + (i<<3) + ((0 + 32)^0x2));
 		mat.m[i][0] = ((hi<<16) | (lo)) * fRecip;
 
-		hi = *(s16 *)(base + address+(i<<3)+(((2)     )^0x2));
-		lo = *(u16 *)(base + address+(i<<3)+(((2) + 32)^0x2));
+		hi = *(s16 *)(ptr + (i<<3) + ((2     )^0x2));
+		lo = *(u16 *)(ptr + (i<<3) + ((2 + 32)^0x2));
 		mat.m[i][1] = ((hi<<16) | (lo)) * fRecip;
 
-		hi = *(s16 *)(base + address+(i<<3)+(((4)     )^0x2));
-		lo = *(u16 *)(base + address+(i<<3)+(((4) + 32)^0x2));
+		hi = *(s16 *)(ptr + (i<<3) + ((4     )^0x2));
+		lo = *(u16 *)(ptr + (i<<3) + ((4 + 32)^0x2));
 		mat.m[i][2] = ((hi<<16) | (lo)) * fRecip;
 
-		hi = *(s16 *)(base + address+(i<<3)+(((6)     )^0x2));
-		lo = *(u16 *)(base + address+(i<<3)+(((6) + 32)^0x2));
+		hi = *(s16 *)(ptr + (i<<3) + ((6     )^0x2));
+		lo = *(u16 *)(ptr + (i<<3) + ((6 + 32)^0x2));
 		mat.m[i][3] = ((hi<<16) | (lo)) * fRecip;
 	}
 
 #else
 	struct N64Fmat
 	{
-		s16	mh01;
-		s16	mh00;
-		s16	mh03;
-		s16	mh02;
+		s16	mh01;	s16	mh00;	s16	mh03;	s16	mh02;
+		s16	mh11;	s16	mh10;	s16	mh13;	s16	mh12;
+		s16	mh21;	s16	mh20;	s16	mh23;	s16	mh22;
+		s16	mh31;	s16	mh30;	s16	mh33;	s16	mh32;
 
-		s16	mh11;
-		s16	mh10;
-		s16	mh13;
-		s16	mh12;
-
-		s16	mh21;
-		s16	mh20;
-		s16	mh23;
-		s16	mh22;
-
-		s16	mh31;
-		s16	mh30;
-		s16	mh33;
-		s16	mh32;
-
-		u16	ml01;
-		u16	ml00;
-		u16	ml03;
-		u16	ml02;
-
-		u16	ml11;
-		u16	ml10;
-		u16	ml13;
-		u16	ml12;
-
-		u16	ml21;
-		u16	ml20;
-		u16	ml23;
-		u16	ml22;
-
-		u16	ml31;
-		u16	ml30;
-		u16	ml33;
-		u16	ml32;
+		u16	ml01;	u16	ml00;	u16	ml03;	u16	ml02;
+		u16	ml11;	u16	ml10;	u16	ml13;	u16	ml12;
+		u16	ml21;	u16	ml20;	u16	ml23;	u16	ml22;
+		u16	ml31;	u16	ml30;	u16	ml33;	u16	ml32;
 	};
 
-	const u8 * base( g_pu8RamBase );
-	const N64Fmat * Imat = (N64Fmat *)(base + address);
+	const N64Fmat *Imat = (N64Fmat *)( g_pu8RamBase + address );
 	const f32 fRecip = 1.0f / 65536.0f;
 
 	mat.m[0][0] = (f32)((Imat->mh00 << 16) | (Imat->ml00)) * fRecip;

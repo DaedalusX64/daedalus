@@ -56,8 +56,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <vector>
 
-const u32	MAX_RAM_ADDRESS = (8*1024*1024);
-
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 const char *	gDisplayListRootPath = "DisplayLists";
 const char *	gDisplayListDumpPathFormat = "dl%04d.txt";
