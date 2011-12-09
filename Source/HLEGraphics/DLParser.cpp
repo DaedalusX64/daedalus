@@ -373,15 +373,15 @@ bool DLParser_Initialise()
 	gFirstCall = true;
 
 	// Reset scissor to default
-	//
 	scissors.top = 0;
 	scissors.left = 0;
 	scissors.right = 320;
 	scissors.bottom = 240;
 
+#ifndef DAEDALUS_TMEM
 	//Clear pointers in TMEM block //Corn
 	memset(&gTextureMemory[0] ,0 , 1024);  
-
+#endif
 	return true;
 }
 
@@ -1319,11 +1319,20 @@ void DLParser_FillRect( MicroCodeCommand command )
 	// For some reason it draws a large rect over the entire
 	// display, right at the end of the dlist. It sets the primitive
 	// colour just before, so maybe I'm missing something??
+	// Problem was that we can only clear screen in fill mode
 
 	if ( gRDPOtherMode.cycle_type == CYCLE_FILL )
 	{
-		PixelFormats::N64::Pf5551	c( (u16)gFillColor );
-		colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf5551 >( c );
+		if(g_CI.Size == G_IM_SIZ_16b)
+		{
+			PixelFormats::N64::Pf5551	c( (u16)gFillColor );
+			colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf5551 >( c );
+		}
+		else
+		{
+			// Errg G_IM_SIZ_32b, can't really handle since we don't support FB emulation, can't ignore neither.. see Super Man..
+			colour = c32(gFillColor);
+		}
 
 		// Clear color buffer (screen clear)
 		if( (s32)uViWidth == (command.fillrect.x1 - command.fillrect.x0) && (s32)uViHeight == (command.fillrect.y1 - command.fillrect.y0) )
@@ -1340,10 +1349,9 @@ void DLParser_FillRect( MicroCodeCommand command )
 	}
 	//
 	// (1) Removes annoying rect that appears in Conker etc
-	// (2) Unless we support fb emulation, we can safetly ignore this fillrect
-	// (3) This blend mode is mem*0 + mem*1, so we don't need to render it... Very odd! (Wave Racer - Menu fix)
+	// (2) This blend mode is mem*0 + mem*1, so we don't need to render it... Very odd! (Wave Racer - Menu fix)
 	//
-	if( bIsOffScreen | (g_CI.Size != G_IM_SIZ_16b) | (gRDPOtherMode.blender == 0x5f50) )	
+	if( bIsOffScreen | (gRDPOtherMode.blender == 0x5f50) )	
 	{
 		DL_PF("    Ignoring Fillrect ");
 		return;
