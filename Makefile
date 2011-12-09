@@ -145,8 +145,6 @@ DAED_HLEGFX_SRCS =	Source/SysPSP/Plugins/GraphicsPluginPSP.cpp \
 			Source/HLEGraphics/TextureDescriptor.cpp \
 			Source/HLEGraphics/Ucodes/Ucode.cpp \
 			Source/SysPSP/HLEGraphics/ConvertVertices.S \
-			Source/SysPSP/HLEGraphics/TransformWithColour.S\
-			Source/SysPSP/HLEGraphics/TransformWithLighting.S\
 			Source/SysPSP/HLEGraphics/TnLVFPU.S\
 			Source/SysPSP/HLEGraphics/VectorClipping.S \
 			Source/HLEGraphics/Combiner/CombinerExpression.cpp \

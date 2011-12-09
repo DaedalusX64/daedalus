@@ -79,8 +79,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern "C"
 {
-void	_TransformVerticesWithColour_f0_t1( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
-
 void	_TnLVFPU( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
 void	_TnLVFPUDKR( u32 num_vertices, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out );
 void	_TnLVFPUCBFD( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const s8 * model_norm , u32 v0 );
@@ -2085,42 +2083,8 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 
 	// Light is not handled for Conker
 	//
-#if 1	
 	const s8 *mn = (s8*)(gAuxAddr);
 	_TnLVFPUCBFD( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn, v0<<1 );
-#else	
-	_TransformVerticesWithColour_f0_t1( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnL );
-	
-	// Do Env Mapping using the CPU with an extra pass 
-	// TODO : Port this to VFPU ASM
-	//
-	if( (mTnL.Flags._u32 & (TNL_LIGHT | TNL_TEXGEN | TNL_TEXTURE)) == (TNL_LIGHT | TNL_TEXGEN | TNL_TEXTURE) )
-	{
-		//Model normal base vector
-		const s8 *mn = (s8*)(gAuxAddr);
-		for (u32 i = v0; i < (v0 + n); i++)
-		{
-			const FiddledVtx & vert = pVtxBase[i - v0];
-			v3 model_normal( mn[((i<<1)+0)^3] , mn[((i<<1)+1)^3], vert.normz );
-		
-			v3 vecTransformedNormal = matWorld.TransformNormal( model_normal );
-			vecTransformedNormal.Normalise();
-
-			const v3 & norm = vecTransformedNormal;
-
-			if( mTnL.Flags.TexGenLin )
-			{	//Cheap way to do Acos(x)/Pi //Corn
-				mVtxProjected[i].Texture.x =  0.5f - 0.25f * norm.x - 0.25f * norm.x * norm.x * norm.x;
-				mVtxProjected[i].Texture.y =  0.5f - 0.25f * norm.y - 0.25f * norm.y * norm.y * norm.y;
-			}
-			else
-			{
-				mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x );
-				mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y );
-			}
-		}
-	}
-#endif
 }
 
 #else

@@ -529,27 +529,26 @@ _TnLVFPUDKR:
 	addu		$a0, $v0, $a0		// count = count * 10
 	addu		$a0, $a2, $a0		// end_ptr = start_ptr + count * 10
 	beq			$a2, $a0, finished_DKR
-	nop
+	vone.s		S233				// w = 1.0f
 	
 next_vertex_DKR:
 # Load and transform this vertex position
  	xori		$v0, $a2, 0x2		// = vtx_ptr ^ 2
 	lh			$t4, 0($v0)			// get vertex x coord	
-	mtv			$t4, S200			// store on VFPU
+	mtv			$t4, S203			// store on VFPU
 	addiu		$a2, $a2, 0x2		// = vtx_ptr + 2
  	xori		$v0, $a2, 0x2		// = vtx_ptr ^ 2
 	lh			$t4, 0($v0)			// get vertex y coord
-	mtv			$t4, S210			// store on VFPU
+	mtv			$t4, S213			// store on VFPU
 	addiu		$a2, $a2, 0x2		// = vtx_ptr + 2
  	xori		$v0, $a2, 0x2		// = vtx_ptr ^ 2
 	lh			$t4, 0($v0)			// get vertex z coord
-	mtv			$t4, S220			// store on VFPU
+	mtv			$t4, S223			// store on VFPU
 	addiu		$a2, $a2, 0x2		// = vtx_ptr + 2
 
-	vi2f.t		R200, R200, 0				// int -> float
-	vone.s		S230						// x,y,z,1
-	sv.q		R200, 0x00($a3)				// Store world transform
-	vtfm4.q		R202, M100, R200			// Projection transform
+	vi2f.t		R203, R203, 0				// int -> float (x,y,z,1)
+	vtfm4.q		R202, M100, R203			// Projection transform
+	sv.q		R203, 0x00($a3)				// Store world transform
 	sv.q		R202, 0x10($a3)				// Store projection transform
 	
 # Compute the clip flags
