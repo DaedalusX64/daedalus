@@ -174,19 +174,20 @@ void DLParser_Mtx_DKR( MicroCodeCommand command )
 	if( mul )
 	{
 		Matrix4x4 mat;
-		MatrixFromN64FixedPoint( mat, address );
-		*PSPRenderer::Get()->MtxPtr( mtx_command ) = mat * *PSPRenderer::Get()->MtxPtr( 0 );
+		PSPRenderer::Get()->MatrixFromN64FixedPoint( mat, address );
+		*PSPRenderer::Get()->DKRMtxPtr( mtx_command ) = mat * *PSPRenderer::Get()->DKRMtxPtr( 0 );
 	}
 	else
 	{
-		MatrixFromN64FixedPoint( *PSPRenderer::Get()->MtxPtr( mtx_command ), address );
+		PSPRenderer::Get()->MatrixFromN64FixedPoint( *PSPRenderer::Get()->DKRMtxPtr( mtx_command ), address );
 	}
 
 	gDKRCMatrixIndex = mtx_command;
 
 	PSPRenderer::Get()->Mtxchanged();
 
-	const Matrix4x4 & mtx( *PSPRenderer::Get()->MtxPtr( mtx_command ) );
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	const Matrix4x4 & mtx( *PSPRenderer::Get()->DKRMtxPtr( mtx_command ) );
 	DL_PF("    Mtx_DKR: Index %d %s Address 0x%08x\n"
 			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
@@ -197,6 +198,7 @@ void DLParser_Mtx_DKR( MicroCodeCommand command )
 			mtx.m[1][0], mtx.m[1][1], mtx.m[1][2], mtx.m[1][3],
 			mtx.m[2][0], mtx.m[2][1], mtx.m[2][2], mtx.m[2][3],
 			mtx.m[3][0], mtx.m[3][1], mtx.m[3][2], mtx.m[3][3]);
+#endif
 }
 
 //*****************************************************************************

@@ -215,14 +215,15 @@ public:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	void				PrintActive();
 #endif
-	inline Matrix4x4*	MtxPtr( u32 idx ) { return &mProjectionStack[idx]; }
+	void				MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
+	inline Matrix4x4*	DKRMtxPtr( u32 idx ) { return &mProjectionStack[idx]; }
 	void				ResetMatrices();
-	void				SetProjection(const Matrix4x4 & mat, bool bPush, bool bReplace);
-	void				SetWorldView(const Matrix4x4 & mat, bool bPush, bool bReplace);
+	void				SetProjection(const u32 address, bool bPush, bool bReplace);
+	void				SetWorldView(const u32 address, bool bPush, bool bReplace);
 	inline void			PopProjection() {if (mProjectionTop > 0) --mProjectionTop;	mWorldProjectValid = false;}
 	inline void			PopWorldView()	{if (mModelViewTop > 0)	 --mModelViewTop;	mWorldProjectValid = false;}
 	void				InsertMatrix(u32 w0, u32 w1);
-	void				ForceMatrix(const Matrix4x4 & mat);
+	void				ForceMatrix(const u32 address);
 	inline void			Mtxchanged()	{mWPmodified = true;}
 
 	// Vertex stuff	

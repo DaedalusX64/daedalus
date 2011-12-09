@@ -72,16 +72,13 @@ void DLParser_GBI2_Mtx( MicroCodeCommand command )
 		command.mtx2.len, address);
 
 	// Load matrix from address
-	Matrix4x4 mat;
-	MatrixFromN64FixedPoint( mat, address );
-
 	if (command.mtx2.projection)
 	{
-		PSPRenderer::Get()->SetProjection(mat, command.mtx2.nopush==0, command.mtx2.load);
+		PSPRenderer::Get()->SetProjection(address, command.mtx2.nopush==0, command.mtx2.load);
 	}
 	else
 	{
-		PSPRenderer::Get()->SetWorldView(mat, command.mtx2.nopush==0, command.mtx2.load);
+		PSPRenderer::Get()->SetWorldView(address, command.mtx2.nopush==0, command.mtx2.load);
 	}
 }
 
@@ -296,7 +293,13 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 	case G_GBI2_MV_MATRIX:
 		{
 			DL_PF("    Force Matrix(2): addr=%08X", address);
-			RDP_Force_Matrix(address);
+			// Rayman 2, Donald Duck, Tarzan, all wrestling games use this
+			#if 1	//1->Proper, 0->Hacky way :)
+				PSPRenderer::Get()->ForceMatrix( address );
+			#else
+				//WWF games dont like proper way need to figure out why...
+				PSPRenderer::Get()->SetProjection( address, true, true);
+			#endif
 		}
 		break;
 /*
