@@ -2231,15 +2231,15 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 	
 		//Hack to worldproj matrix to scale and rotate billbords //Corn
 		Matrix4x4 mat( mProjectionStack[0]);
-		mat.mRaw[0] *= mProjectionStack[2].mRaw[0] * 0.33f;
-		mat.mRaw[4] *= mProjectionStack[2].mRaw[0] * 0.33f;
-		mat.mRaw[8] *= mProjectionStack[2].mRaw[0] * 0.33f;
-		mat.mRaw[1] *= mProjectionStack[2].mRaw[0] * 0.25f;
-		mat.mRaw[5] *= mProjectionStack[2].mRaw[0] * 0.25f;
-		mat.mRaw[9] *= mProjectionStack[2].mRaw[0] * 0.25f;
-		mat.mRaw[2] *= mProjectionStack[2].mRaw[10] * 0.33f;
-		mat.mRaw[6] *= mProjectionStack[2].mRaw[10] * 0.33f;
-		mat.mRaw[10] *= mProjectionStack[2].mRaw[10] * 0.33f;
+		mat.mRaw[0] *= mProjectionStack[2].mRaw[0] * 0.5f;
+		mat.mRaw[4] *= mProjectionStack[2].mRaw[0] * 0.5f;
+		mat.mRaw[8] *= mProjectionStack[2].mRaw[0] * 0.5f;
+		mat.mRaw[1] *= mProjectionStack[2].mRaw[0] * 0.375f;
+		mat.mRaw[5] *= mProjectionStack[2].mRaw[0] * 0.375f;
+		mat.mRaw[9] *= mProjectionStack[2].mRaw[0] * 0.375f;
+		mat.mRaw[2] *= mProjectionStack[2].mRaw[10] * 0.5f;
+		mat.mRaw[6] *= mProjectionStack[2].mRaw[10] * 0.5f;
+		mat.mRaw[10] *= mProjectionStack[2].mRaw[10] * 0.5f;
 
 		for (u32 i = v0; i < v0 + n; i++)
 		{
