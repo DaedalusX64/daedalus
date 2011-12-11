@@ -81,6 +81,7 @@ extern "C"
 {
 void	_TnLVFPU( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
 void	_TnLVFPUDKR( u32 num_vertices, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out );
+void	_TnLVFPUDKRB( u32 num_vertices, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out );
 void	_TnLVFPUCBFD( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const s8 * model_norm , u32 v0 );
 void	_TnLVFPUPD( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtxPD * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const u8 * model_norm );
 
@@ -2216,6 +2217,8 @@ extern bool gDKRBillBoard;
 
 void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 {
+	gDKRVtxCount += n;
+
 	u32 pVtxBase = u32(g_pu8RamBase + address);
 	const Matrix4x4 & matWorldProject( mProjectionStack[gDKRCMatrixIndex] );
 
@@ -2227,6 +2230,9 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 	{	//Copy vertices adding base vector and the color data
 		mWPmodified = false;
 
+#ifdef DAEDALUS_PSP_USE_VFPU
+		_TnLVFPUDKRB( n, &mProjectionStack[0], (const FiddledVtx*)pVtxBase, &mVtxProjected[v0] );
+#else
 		v4 & BaseVec( mVtxProjected[0].TransformedPos );
 	
 		//Hack to worldproj matrix to scale and rotate billbords //Corn
@@ -2270,6 +2276,7 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 
 			pVtxBase += 10;
 		}
+#endif
 	}
 	else
 	{	//Normal path for transform of triangles
@@ -2317,7 +2324,6 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 		}
 #endif
 	}
-	gDKRVtxCount += n;
 }
 
 //*****************************************************************************

@@ -515,11 +515,8 @@ finished_PD:
 #	a2 - Fiddled vertices			- stride 16
 #	a3 - Output vertices			- must be aligned to 16 bytes, stride 64
 
-# Lighting calculation
-# M100: Projection Matrix
-
 _TnLVFPUDKR:
-	lv.q		R100, 0($a1)		// Load mat project
+	lv.q		R100, 0($a1)		// Load mat worldproject
 	lv.q		R101, 16($a1)
 	lv.q		R102, 32($a1)
 	lv.q		R103, 48($a1)
@@ -587,5 +584,82 @@ finished_DKR:
 	jr			$ra
 	nop
 
+############################
+.global _TnLVFPUDKRB
+############################
+#	a0 - num vertices
+#	a1 - world*projection matrix	- must be aligned to 16 bytes
+#	a2 - Fiddled vertices			- stride 16
+#	a3 - Output vertices			- must be aligned to 16 bytes, stride 64
 
+_TnLVFPUDKRB:
+	lv.q		R100, 0($a1)		// Load mat worldproject (matrix[0] and only 3x3 is needed)
+	lv.q		R101, 16($a1)
+	lv.q		R102, 32($a1)
+
+	lv.s		S000, 128($a1)		// Load element 0 in matrix[2]
+	lv.s		S020, 168($a1)		// Load element 10 in matrix[2]
+	vmov.s		S010, S000			// Copy element 0 (instead of 5)
+	vfim.s		S011, 0.375			// Y scale factor
+	vmul.t		R000, R000, R001[1/2,y,1/2]	// Prepare X and Z scaling values  
+	vscl.t		C100, C100, S000	// Scale X matrix colum 
+	vscl.t		C110, C110, S010	// Scale Y matrix colum 
+	vscl.t		C120, C120, S020	// Scale Z matrix colum 
+	 
+	lv.q		R003, -64($a3)		// Get base vector to add to the billbord geometry (in position 0)
+
+	sll			$v0, $a0, 1			// count * 2
+	sll			$a0, $a0, 3			// count * 8
+	addu		$a0, $v0, $a0		// count = count * 10
+	addu		$a0, $a2, $a0		// end_ptr = start_ptr + count * 10
+	beq			$a2, $a0, finished_DKRB
+	vone.s		S233				// w = 1.0f
+	
+next_vertex_DKRB:
+# Load and transform this vertex position
+ 	xori		$v0, $a2, 0x2		// = vtx_ptr ^ 2
+	lh			$t4, 0($v0)			// get vertex x coord	
+	mtv			$t4, S203			// store on VFPU
+	addiu		$a2, $a2, 0x2		// = vtx_ptr + 2
+ 	xori		$v0, $a2, 0x2		// = vtx_ptr ^ 2
+	lh			$t4, 0($v0)			// get vertex y coord
+	mtv			$t4, S213			// store on VFPU
+	addiu		$a2, $a2, 0x2		// = vtx_ptr + 2
+ 	xori		$v0, $a2, 0x2		// = vtx_ptr ^ 2
+	lh			$t4, 0($v0)			// get vertex z coord
+	mtv			$t4, S223			// store on VFPU
+	addiu		$a2, $a2, 0x2		// = vtx_ptr + 2
+
+	vi2f.t		R203, R203, 0		// int -> float (x,y,z,1)
+	vtfm3.t		R202, M100, R203	// 3x3 transform
+	vadd.t		R203, R202, R003	// Add basevector
+	sv.q		R203, 0x00($a3)		// Store world transform (x,y,z,1)
+	
+# Clip flags
+	sw			$zero, 0x38($a3)	// Clear ClipFlags
+
+# Normalise the RGBA colour
+ 	xori		$v0, $a2, 0x2		// = vtx_ptr ^ 2
+	lhu			$t4, 0($v0)			// get vertex color	(hi)
+	addiu		$a2, $a2, 0x2		// = vtx_ptr + 2
+ 	xori		$v0, $a2, 0x2		// = vtx_ptr ^ 2
+	lhu			$t5, 0($v0)			// get vertex color (lo)
+	sll			$t4, $t4, 16		// pack
+ 	or		    $t5, $t5, $t4		// to 32bit
+	addiu		$a2, $a2, 0x2		// = vtx_ptr + 2
+	mtv			$t5, S200			// store on VFPU
+
+	.word		0xd0380000 | (8<<8) | (40)		// vuc2i.s	R200, S200					// R200 = [a,b,g,r]
+	vi2f.q		R200, R200[w,z,y,x], 31			// int -> float, R200 = [r * 1/256, g * 1/256, b * 1/256, a * 1/256]
+	sv.q		R200, 0x20($a3)					// Store colour
+
+# Continue with the next vertex
+	bne			$a2, $a0, next_vertex_DKRB
+	addiu		$a3, $a3, 64				// Next output vertex
+
+finished_DKRB:	
+	jr			$ra
+	nop
+	
+	
 .set pop

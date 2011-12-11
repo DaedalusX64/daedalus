@@ -209,18 +209,16 @@ void DLParser_MoveWord_DKR( MicroCodeCommand command )
 	switch( command.inst.cmd0 & 0xFF )
 	{
 	case G_MW_NUMLIGHT:
-		gDKRBillBoard = command.inst.cmd1 & 0x7;
+		gDKRBillBoard = command.inst.cmd1 & 0x1;
 		DL_PF("    DKR BillBoard: %d", gDKRBillBoard);
-
-		// Doesn't seem needed
-		//gAmbientLightIdx = num_lights;
-		//PSPRenderer::Get()->SetNumLights(num_lights);
 		break;
+
 	case G_MW_LIGHTCOL:
 		gDKRCMatrixIndex = (command.inst.cmd1 >> 6) & 0x7;
 		PSPRenderer::Get()->Mtxchanged();
 		DL_PF("    DKR MtxIndx: %d", gDKRCMatrixIndex);
 		break;
+
 	default:
 		DLParser_GBI1_MoveWord( command );
 		break;
