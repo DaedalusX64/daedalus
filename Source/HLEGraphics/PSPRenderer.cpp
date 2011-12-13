@@ -480,10 +480,10 @@ void PSPRenderer::BeginScene()
 	// Update viewport only if user changed it in settings or vi register changed it
 	// Both happen really rare
 	//
-	if( !mView.Update				  &&		//  We need to update after pause menu?
-		mView.ViWidth  == uViWidth    &&		//  VI register changed width? (bug fix GE007) 
-		mView.ViHeight == uViHeight   &&		//  VI register changed height?
-		mView.Rumble   == gRumblePakActive )	//  RumblePak active? Don't bother to update if no rumble feedback too
+	if( !mView.Update					&		//  We need to update after pause menu?
+		(mView.ViWidth  == uViWidth)    &		//  VI register changed width? (bug fix GE007) 
+		(mView.ViHeight == uViHeight)   &		//  VI register changed height?
+		(mView.Rumble   == gRumblePakActive) )	//  RumblePak active? Don't bother to update if no rumble feedback too
 	{
 		return;
 	}
@@ -502,8 +502,8 @@ void PSPRenderer::BeginScene()
 	v3 scale( 640.0f*0.25f, 480.0f*0.25f, 511.0f*0.25f );
 	v3 trans( 640.0f*0.25f, 480.0f*0.25f, 511.0f*0.25f );
 
-	s32		display_x( (frame_width - display_width)/2 );
-	s32		display_y( (frame_height - display_height)/2 );
+	s32 display_x( (frame_width - display_width) / 2 );
+	s32 display_y( (frame_height - display_height) / 2 );
 
 	SetPSPViewport( display_x, display_y, display_width, display_height );
 	SetN64Viewport( scale, trans );
@@ -2990,41 +2990,41 @@ void PSPRenderer::MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 	}
 
 #else
-	struct N64Fmat
+	struct N64Imat
 	{
-		s16	mh01;	s16	mh00;	s16	mh03;	s16	mh02;
-		s16	mh11;	s16	mh10;	s16	mh13;	s16	mh12;
-		s16	mh21;	s16	mh20;	s16	mh23;	s16	mh22;
-		s16	mh31;	s16	mh30;	s16	mh33;	s16	mh32;
+		s16	H01, H00, H03, H02;
+		s16	H11, H10, H13, H12;
+		s16	H21, H20, H23, H22;
+		s16	H31, H30, H33, H32;
 
-		u16	ml01;	u16	ml00;	u16	ml03;	u16	ml02;
-		u16	ml11;	u16	ml10;	u16	ml13;	u16	ml12;
-		u16	ml21;	u16	ml20;	u16	ml23;	u16	ml22;
-		u16	ml31;	u16	ml30;	u16	ml33;	u16	ml32;
+		u16	L01, L00, L03, L02;
+		u16	L11, L10, L13, L12;
+		u16	L21, L20, L23, L22;
+		u16	L31, L30, L33, L32;
 	};
 
-	const N64Fmat *Imat = (N64Fmat *)( g_pu8RamBase + address );
+	const N64Imat *Imat = (N64Imat *)( g_pu8RamBase + address );
 	const f32 fRecip = 1.0f / 65536.0f;
 
-	mat.m[0][0] = (f32)((Imat->mh00 << 16) | (Imat->ml00)) * fRecip;
-	mat.m[0][1] = (f32)((Imat->mh01 << 16) | (Imat->ml01)) * fRecip;
-	mat.m[0][2] = (f32)((Imat->mh02 << 16) | (Imat->ml02)) * fRecip;
-	mat.m[0][3] = (f32)((Imat->mh03 << 16) | (Imat->ml03)) * fRecip;
+	mat.m[0][0] = (f32)((Imat->H00 << 16) | (Imat->L00)) * fRecip;
+	mat.m[0][1] = (f32)((Imat->H01 << 16) | (Imat->L01)) * fRecip;
+	mat.m[0][2] = (f32)((Imat->H02 << 16) | (Imat->L02)) * fRecip;
+	mat.m[0][3] = (f32)((Imat->H03 << 16) | (Imat->L03)) * fRecip;
 
-	mat.m[1][0] = (f32)((Imat->mh10 << 16) | (Imat->ml10)) * fRecip;
-	mat.m[1][1] = (f32)((Imat->mh11 << 16) | (Imat->ml11)) * fRecip;
-	mat.m[1][2] = (f32)((Imat->mh12 << 16) | (Imat->ml12)) * fRecip;
-	mat.m[1][3] = (f32)((Imat->mh13 << 16) | (Imat->ml13)) * fRecip;
+	mat.m[1][0] = (f32)((Imat->H10 << 16) | (Imat->L10)) * fRecip;
+	mat.m[1][1] = (f32)((Imat->H11 << 16) | (Imat->L11)) * fRecip;
+	mat.m[1][2] = (f32)((Imat->H12 << 16) | (Imat->L12)) * fRecip;
+	mat.m[1][3] = (f32)((Imat->H13 << 16) | (Imat->L13)) * fRecip;
 
-	mat.m[2][0] = (f32)((Imat->mh20 << 16) | (Imat->ml20)) * fRecip;
-	mat.m[2][1] = (f32)((Imat->mh21 << 16) | (Imat->ml21)) * fRecip;
-	mat.m[2][2] = (f32)((Imat->mh22 << 16) | (Imat->ml22)) * fRecip;
-	mat.m[2][3] = (f32)((Imat->mh23 << 16) | (Imat->ml23)) * fRecip;
+	mat.m[2][0] = (f32)((Imat->H20 << 16) | (Imat->L20)) * fRecip;
+	mat.m[2][1] = (f32)((Imat->H21 << 16) | (Imat->L21)) * fRecip;
+	mat.m[2][2] = (f32)((Imat->H22 << 16) | (Imat->L22)) * fRecip;
+	mat.m[2][3] = (f32)((Imat->H23 << 16) | (Imat->L23)) * fRecip;
 
-	mat.m[3][0] = (f32)((Imat->mh30 << 16) | (Imat->ml30)) * fRecip;
-	mat.m[3][1] = (f32)((Imat->mh31 << 16) | (Imat->ml31)) * fRecip;
-	mat.m[3][2] = (f32)((Imat->mh32 << 16) | (Imat->ml32)) * fRecip;
-	mat.m[3][3] = (f32)((Imat->mh33 << 16) | (Imat->ml33)) * fRecip;
+	mat.m[3][0] = (f32)((Imat->H30 << 16) | (Imat->L30)) * fRecip;
+	mat.m[3][1] = (f32)((Imat->H31 << 16) | (Imat->L31)) * fRecip;
+	mat.m[3][2] = (f32)((Imat->H32 << 16) | (Imat->L32)) * fRecip;
+	mat.m[3][3] = (f32)((Imat->H33 << 16) | (Imat->L33)) * fRecip;
 #endif
 }
 //*****************************************************************************

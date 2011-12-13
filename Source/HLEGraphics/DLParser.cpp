@@ -1043,7 +1043,7 @@ void DLParser_SetTImg( MicroCodeCommand command )
 	g_TI.Size		= command.img.siz;
 	g_TI.Width		= command.img.width + 1;
 	g_TI.Address	= RDPSegAddr(command.img.addr);
-	//g_TI.bpl		= g_TI.Width << g_TI.Size >> 1; // Do we need to handle?
+	//g_TI.bpl		= g_TI.Width << g_TI.Size >> 1;
 
 	DL_PF("    TImg Adr[0x%08x] Fmt[%s/%s] Width[%d] Pitch[%d] Bytes/line[%d]", g_TI.Address, gFormatNames[g_TI.Format], gSizeNames[g_TI.Size], g_TI.Width, g_TI.GetPitch(), g_TI.Width << g_TI.Size >> 1 );
 }
@@ -1053,22 +1053,23 @@ void DLParser_SetTImg( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_LoadBlock( MicroCodeCommand command )
 {
-	u32 uls			= command.loadtile.sl;
-	u32 ult			= command.loadtile.tl;
+	u32 uls			= command.loadtile.sl;	//Left
+	u32 ult			= command.loadtile.tl;	//Top
+	u32 dxt			= command.loadtile.th;	// 1.11 fixed point
 	u32 tile_idx	= command.loadtile.tile;
-	u32 dxt			= command.loadtile.th;		// 1.11 fixed point
 	u32 address		= g_TI.GetAddress( uls, ult );
+	//u32 lrs			= command.loadtile.sh;		// Number of bytes-1
 
 	bool	swapped = (dxt) ? false : true;
 
-	/*DL_PF("    Tile[%d] (%d,%d - %d) DXT:0x%04x = %d Bytes => %d pixels/line Offset: 0x%08x",
+	DL_PF("    Tile[%d] (%d,%d - %d) DXT[0x%04x] = [%d]Bytes => [%d]pixels/line Address[0x%08x]",
 		tile_idx,
 		uls, ult,
 		command.loadtile.sh,
 		dxt,
 		(g_TI.Width << g_TI.Size >> 1),
 		bytes2pixels( (g_TI.Width << g_TI.Size >> 1), g_TI.Size ),
-		src_offset);*/
+		address);
 
 	gRDPStateManager.LoadBlock( tile_idx, address, swapped );
 }
@@ -1078,16 +1079,16 @@ void DLParser_LoadBlock( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_LoadTile( MicroCodeCommand command )
 {
-	u32 uls			= command.loadtile.sl;
-	u32 ult			= command.loadtile.tl;
+	u32 uls			= command.loadtile.sl;	//Left
+	u32 ult			= command.loadtile.tl;	//Top
 	u32 tile_idx	= command.loadtile.tile;
-	u32 address		= g_TI.GetAddress( uls/4, ult/4 );
+	u32 address		= g_TI.GetAddress( uls / 4, ult / 4 );
 
-	/*DL_PF("    Tile[%d] (%d,%d) -> (%d,%d) [%d x %d] Offset: 0x%08x",
-		tile.tile_idx,
-		tile.left/4, tile.top/4, tile.right/4 + 1, tile.bottom / 4 + 1,
-		(tile.right - tile.left)/4+1, (tile.bottom - tile.top)/4+1,
-		g_TI.GetOffset( tile.left, tile.top ));*/
+	DL_PF("    Tile[%d] (%d,%d)->(%d,%d) [%d x %d] Address[0x%08x]",
+		tile_idx,
+		command.loadtile.sl / 4, command.loadtile.tl / 4, command.loadtile.sh / 4 + 1, command.loadtile.th / 4 + 1,
+		(command.loadtile.sh - command.loadtile.sl) / 4 + 1, (command.loadtile.th - command.loadtile.tl) / 4 + 1,
+		address);
 
 	gRDPStateManager.LoadTile( tile_idx, address );
 }
@@ -1097,24 +1098,25 @@ void DLParser_LoadTile( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_LoadTLut( MicroCodeCommand command )
 {
-	u32 uls     = command.loadtile.sl >> 2;
-	u32 ult		= command.loadtile.tl >> 2;
-	u32 tile_idx= command.loadtile.tile;
-	u32 lrs     = command.loadtile.sh >> 2;
+	// Tlut fmt is sometimes wrong (in 007) and is set after tlut load, but before tile load
+	// Format is always 16bpp - RGBA16 or IA16:
 
-	//This corresponds to the number of palette entries (16 or 256)
+	u32 uls     = command.loadtile.sl >> 2;	//Left
+	u32 ult		= command.loadtile.tl >> 2;	//Top
+	u32 lrs     = command.loadtile.sh >> 2;	//Right
+	u32 tile_idx= command.loadtile.tile;
+	u32 address = (u32)g_pu8RamBase + g_TI.Address + ((uls + ult * g_TI.Width) << 1);
+
+	//This corresponds to the number of palette entries (16 or 256) 16bit
 	//Seems partial load of palette is allowed -> count != 16 or 256 (MM, SSB, Starfox64, MRC) //Corn
 	u32 count = (lrs - uls) + 1;
 	use(count);
-
-	// Format is always 16bpp - RGBA16 or IA16:
-	u32 offset = (uls + ult * g_TI.Width) << 1;
 
 	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tile_idx ) );
 
 #ifndef DAEDALUS_TMEM
 	//Store address of PAL (assuming PAL is only stored in upper half of TMEM) //Corn
-	gTextureMemory[ rdp_tile.tmem & 0xFF ] = (u32*)&g_pu8RamBase[ g_TI.Address + offset ];
+	gTextureMemory[ rdp_tile.tmem & 0xFF ] = (u32*)address;
 #else
 	//Copy PAL to the PAL memory
 	u16 * p_source = (u16*)&g_pu8RamBase[ g_TI.Address + offset ];
@@ -1122,50 +1124,40 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 
 	//printf("Addr %08X : TMEM %03X : Tile %d : PAL %d : Offset %d\n",g_TI.Address + offset, tmem, tile_idx, count, offset); 
 
-	memcpy_vfpu_BE(p_dest, p_source, count << 1);
-
-	//for (u32 i=0; i<count; i++) p_dest[ i ] = p_source[ i ];
+	memcpy_vfpu_BE(p_dest, p_source, count << 1);	//for (u32 i=0; i<count; i++) p_dest[ i ] = p_source[ i ];
 #endif
 
-	// Format is always 16bpp - RGBA16 or IA16:
-	// I've no idea why these two are added - seems to work for 007!
-
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	u32 lrt = command.loadtile.th >> 2;
+	u32 lrt = command.loadtile.th >> 2;	//Bottom
 
-	if (gDisplayListFile != NULL)
+	DL_PF("    TLut Addr[0x%08x] TMEM[0x%03x] Tile[%d] Count[%d] Fmt[%s] (%d,%d)->(%d,%d)",
+		address, rdp_tile.tmem, tile_idx, count, gTLUTTypeName[gRDPOtherMode.text_tlut], uls, ult, lrs, lrt);
+
+	// This code dumps the palette colors
+	//
+	/*char str[300] = "";
+	char item[300];
+	u16 *pBase = (u16*)address;
+
+	for (u32 i = 0; i < count; i++)
 	{
-		char str[300] = "";
-		char item[300];
-		u16 * pBase = (u16 *)(g_pu8RamBase + (g_TI.Address + offset));
-		u32 i;
+		u16 wEntry = pBase[i ^ 0x1];
 
-
-		DL_PF("    TLut Addr[0x%08x] Offset[0x%05x] TMEM[0x%03x] Tile[%d] Count[%d] Fmt[%s] (%d,%d)->(%d,%d)", g_TI.Address, offset, rdp_tile.tmem,
-			tile_idx, count, gTLUTTypeName[gRDPOtherMode.text_tlut], uls, ult, lrs, lrt);
-
-		// Tlut fmt is sometimes wrong (in 007) and is set after tlut load, but before tile load
-
-		for (i = 0; i < count; i++)
+		if (i % 8 == 0)
 		{
-			u16 wEntry = pBase[i ^ 0x1];
+			DL_PF(str);
 
-			if (i % 8 == 0)
-			{
-				DL_PF(str);
-
-				// Clear
-				sprintf(str, "    %03d: ", i);
-			}
-
-			PixelFormats::N64::Pf5551	n64col( wEntry );
-			PixelFormats::Psp::Pf8888	pspcol( PixelFormats::Psp::Pf8888::Make( n64col ) );
-
-			sprintf(item, "[%04x->%08x] ", n64col.Bits, pspcol.Bits );
-			strcat(str, item);
+			// Clear
+			sprintf(str, "    %03d: ", i);
 		}
-		DL_PF(str);
+
+		PixelFormats::N64::Pf5551	n64col( wEntry );
+		PixelFormats::Psp::Pf8888	pspcol( PixelFormats::Psp::Pf8888::Make( n64col ) );
+
+		sprintf(item, "[%04x->%08x] ", n64col.Bits, pspcol.Bits );
+		strcat(str, item);
 	}
+	DL_PF(str);*/
 #endif
 }
 

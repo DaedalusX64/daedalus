@@ -29,7 +29,7 @@
 
 inline u32 pixels2bytes( u32 pixels, u32 size )
 {
-	return ((pixels << size)+1) / 2;
+	return ((pixels << size) + 1 ) >> 1;
 }
 
 inline u32 bytes2pixels( u32 bytes, u32 size )
@@ -45,16 +45,15 @@ struct SImageDescriptor
 	u32 Address;
 	//u32 Bpl; // Width << Size >> 1
 
-	u32		GetPitch() const
+	inline u32 GetPitch() const
 	{
-		// Todo - check if this is odd, and round up?
-		return Width << (Size-1);
+		return (Width << Size >> 1);
 	}
 
 	//Get Bpl -> ( Width << Size >> 1 )
-	u32		GetAddress( u32 x, u32 y) const
+	inline u32 GetAddress( u32 x, u32 y) const
 	{
-		return Address + x * (Width << Size >> 1) + (y << Size >> 1);
+		return Address + y * (Width << Size >> 1) + (x << Size >> 1);
 	}
 };
 

@@ -191,12 +191,12 @@ struct SetTImg
 
 struct LoadTile
 {
-	u32	tl:12;
-	u32	sl:12;
+	u32	tl:12;	//Top
+	u32	sl:12;	//Left
 	u32	cmd:8;
 
-	u32	th:12;
-	u32	sh:12;
+	u32	th:12;	//Bottom
+	u32	sh:12;	//Right
 	u32	tile:3;
 	u32	pad:5;
 };
