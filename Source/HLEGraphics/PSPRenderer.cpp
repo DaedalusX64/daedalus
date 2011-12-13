@@ -495,7 +495,6 @@ void PSPRenderer::BeginScene()
 
 	DAEDALUS_ASSERT( display_width && display_height, "Unhandled viewport type" );
 
-
 	u32 frame_width(  gGlobalPreferences.TVEnable ? 720 : 480 );
 	u32	frame_height( gGlobalPreferences.TVEnable ? 480 : 272 );
 
@@ -2593,19 +2592,19 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	DAEDALUS_ASSERT( tile_idx < 8, "Invalid tile index %d", tile_idx );
 	DAEDALUS_ASSERT( index < NUM_N64_TEXTURES, "Invalid texture index %d", index );
 
-	const TextureInfo &		ti( gRDPStateManager.GetTextureDescriptor( tile_idx ) );
+	const TextureInfo & ti( gRDPStateManager.GetTextureDescriptor( tile_idx ) );
 
+#ifndef DAEDALUS_DEBUG_DISPLAYLIST
 	// Avoid texture update, if texture is the same as last time around.
 	if( (mpTexture[ index ] != NULL) && (mpTexture[ index ]->GetTextureInfo() == ti) ) return;
+#endif
 
-	//
 	//	Initialise the wrapping/texture offset first, which can be set
 	//	independently of the actual texture.
 	//
-	const RDP_Tile &		rdp_tile( gRDPStateManager.GetTile( tile_idx ) );
-	const RDP_TileSize &	tile_size( gRDPStateManager.GetTileSize( tile_idx ) );
+	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tile_idx ) );
+	const RDP_TileSize & tile_size( gRDPStateManager.GetTileSize( tile_idx ) );
 
-	//
 	// Initialise the clamping state. When the mask is 0, it forces clamp mode.
 	//
 	u32 mode_u = (rdp_tile.clamp_s | ( rdp_tile.mask_s == 0)) ? GU_CLAMP : GU_REPEAT;
@@ -2621,7 +2620,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	//	It sets up a texture with a mask_s/t of 6/6 (64x64), but sets the tile size to
 	//	256*128. clamp_s/t are set, meaning the texture wraps 4x and 2x.
 	//
-	if( tile_size.GetWidth()  > ti.GetWidth()  )
+	if( tile_size.GetWidth() > ti.GetWidth() )
 	{
 		// This breaks the Sun, and other textures in Zelda. Breaks Mario's hat in SSB, and other textures, and foes in Kirby 64's cutscenes
 		// ToDo : Find a proper workaround for this, if this disabled the castle in Link's stage in SSB is broken :/
@@ -2640,14 +2639,19 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	sceGuTexWrap( mode_u, mode_v );
 
 	// XXXX Double check this
-	mTileTopLeft[ index ].x = f32(tile_size.left) /4.0f;
-	mTileTopLeft[ index ].y = f32(tile_size.top) /4.0f;
+	mTileTopLeft[ index ].x = f32(tile_size.left) / 4.0f;
+	mTileTopLeft[ index ].y = f32(tile_size.top) / 4.0f;
 
-	DL_PF( "    Use Tile[%d] as Texture[%d] [%dx%d] [%s] [%dbpp] [%s u, %s v] -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] TopLeft[%0.3f|%0.3f] Scale[%0.3f|%0.3f]",
+	DL_PF( "    Use Tile[%d] as Texture[%d] [%dx%d] [%s/%dbpp] [%s u, %s v] -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] TopLeft[%0.3f|%0.3f] Scale[%0.3f|%0.3f]",
 			tile_idx, index, ti.GetWidth(), ti.GetHeight(), ti.GetFormatName(), ti.GetSizeInBits(),
 			(mode_u==GU_CLAMP)? "Clamp" : "Repeat", (mode_v==GU_CLAMP)? "Clamp" : "Repeat",
 			ti.GetLoadAddress(), (u32)ti.GetPalettePtr(), ti.GetHashCode(), ti.GetPitch(),
 			mTileTopLeft[ index ].x, mTileTopLeft[ index ].y, mTileScale[ index ].x, mTileScale[ index ].y );
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	// Avoid texture update, if texture is the same as last time around.
+	if( (mpTexture[ index ] != NULL) && (mpTexture[ index ]->GetTextureInfo() == ti) ) return;
+#endif
 
 	// Check for 0 width/height textures
 	if( (ti.GetWidth() == 0) || (ti.GetHeight() == 0) )
@@ -3090,7 +3094,7 @@ void PSPRenderer::ForceMatrix(const u32 address)
 
 		mModelViewStack[mModelViewTop] = mWorldProject * invTarzan;
 	}
-	else if( g_ROM.GameHacks == DONALD )
+	/*else if( g_ROM.GameHacks == DONALD )
 	{
 		
 		//The inverted projection matrix for Donald duck
@@ -3100,7 +3104,7 @@ void PSPRenderer::ForceMatrix(const u32 address)
 									0.0f, 0.0f, -0.9845562638123093f, 0.015443736187690802f );
 
 		mModelViewStack[mModelViewTop] = mWorldProject * invDonald;
-	}
+	}*/
 	else
 	{
 		//Check if current projection matrix has changed

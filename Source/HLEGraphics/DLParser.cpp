@@ -1010,9 +1010,9 @@ void DLParser_SetTile( MicroCodeCommand command )
 	
 	gRDPStateManager.SetTile( tile );
 
-	DL_PF( "    Tile[%d]  Fmt:%s/%s Line:%d TMem:0x%04x Palette:%d", tile.tile_idx, gFormatNames[tile.format], gSizeNames[tile.size], tile.line, tile.tmem, tile.palette);
-	DL_PF( "         S: Clamp:%s Mirror:%s Mask:0x%x Shift:0x%x", gOnOffNames[tile.clamp_s],gOnOffNames[tile.mirror_s], tile.mask_s, tile.shift_s );
-	DL_PF( "         T: Clamp:%s Mirror:%s Mask:0x%x Shift:0x%x", gOnOffNames[tile.clamp_t],gOnOffNames[tile.mirror_t], tile.mask_t, tile.shift_t );
+	DL_PF( "    Tile[%d] Format[%s/%s] Line[%d] TMEM[0x%03x] Palette[%d]", tile.tile_idx, gFormatNames[tile.format], gSizeNames[tile.size], tile.line, tile.tmem, tile.palette);
+	DL_PF( "      S: Clamp[%s] Mirror[%s] Mask[0x%x] Shift[0x%x]", gOnOffNames[tile.clamp_s],gOnOffNames[tile.mirror_s], tile.mask_s, tile.shift_s );
+	DL_PF( "      T: Clamp[%s] Mirror[%s] Mask[0x%x] Shift[0x%x]", gOnOffNames[tile.clamp_t],gOnOffNames[tile.mirror_t], tile.mask_t, tile.shift_t );
 }
 
 //*****************************************************************************
@@ -1045,7 +1045,8 @@ void DLParser_SetTImg( MicroCodeCommand command )
 	g_TI.Address	= RDPSegAddr(command.img.addr);
 	//g_TI.bpl		= g_TI.Width << g_TI.Size >> 1;
 
-	DL_PF("    TImg Adr[0x%08x] Fmt[%s/%s] Width[%d] Pitch[%d] Bytes/line[%d]", g_TI.Address, gFormatNames[g_TI.Format], gSizeNames[g_TI.Size], g_TI.Width, g_TI.GetPitch(), g_TI.Width << g_TI.Size >> 1 );
+	DL_PF("    TImg Adr[0x%08x] Format[%s/%s] Width[%d] Pitch[%d] Bytes/line[%d]",
+		g_TI.Address, gFormatNames[g_TI.Format], gSizeNames[g_TI.Size], g_TI.Width, g_TI.GetPitch(), g_TI.Width << g_TI.Size >> 1 );
 }
 
 //*****************************************************************************
@@ -1062,7 +1063,7 @@ void DLParser_LoadBlock( MicroCodeCommand command )
 
 	bool	swapped = (dxt) ? false : true;
 
-	DL_PF("    Tile[%d] (%d,%d - %d) DXT[0x%04x] = [%d]Bytes => [%d]pixels/line Address[0x%08x]",
+	DL_PF("    Tile[%d] (%d,%d - %d) DXT[0x%04x] = [%d]Bytes => [%d]Bytes/line Address[0x%08x]",
 		tile_idx,
 		uls, ult,
 		command.loadtile.sh,
@@ -1122,7 +1123,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	u16 * p_source = (u16*)&g_pu8RamBase[ g_TI.Address + offset ];
 	u16 * p_dest   = (u16*)&gTextureMemory[ rdp_tile.tmem << 1 ];
 
-	//printf("Addr %08X : TMEM %03X : Tile %d : PAL %d : Offset %d\n",g_TI.Address + offset, tmem, tile_idx, count, offset); 
+	//printf("Addr %08X : TMEM %03X : Tile %d : PAL %d : Offset %d\n",address, tmem, tile_idx, count, offset); 
 
 	memcpy_vfpu_BE(p_dest, p_source, count << 1);	//for (u32 i=0; i<count; i++) p_dest[ i ] = p_source[ i ];
 #endif
@@ -1130,34 +1131,39 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	u32 lrt = command.loadtile.th >> 2;	//Bottom
 
-	DL_PF("    TLut Addr[0x%08x] TMEM[0x%03x] Tile[%d] Count[%d] Fmt[%s] (%d,%d)->(%d,%d)",
+	DL_PF("    TLut Addr[0x%08x] TMEM[0x%03x] Tile[%d] Count[%d] Format[%s] (%d,%d)->(%d,%d)",
 		address, rdp_tile.tmem, tile_idx, count, gTLUTTypeName[gRDPOtherMode.text_tlut], uls, ult, lrs, lrt);
 
 	// This code dumps the palette colors
 	//
-	/*char str[300] = "";
-	char item[300];
-	u16 *pBase = (u16*)address;
-
-	for (u32 i = 0; i < count; i++)
+	/*
+	if (gDisplayListFile != NULL)
 	{
-		u16 wEntry = pBase[i ^ 0x1];
+		char str[300] = "";
+		char item[300];
+		u16 *pBase = (u16*)address;
 
-		if (i % 8 == 0)
+		for (u32 i = 0; i < count; i++)
 		{
-			DL_PF(str);
+			u16 wEntry = pBase[i ^ 0x1];
 
-			// Clear
-			sprintf(str, "    %03d: ", i);
+			if (i % 8 == 0)
+			{
+				DL_PF(str);
+
+				// Clear
+				sprintf(str, "    %03d: ", i);
+			}
+
+			PixelFormats::N64::Pf5551	n64col( wEntry );
+			PixelFormats::Psp::Pf8888	pspcol( PixelFormats::Psp::Pf8888::Make( n64col ) );
+
+			sprintf(item, "[%04x->%08x] ", n64col.Bits, pspcol.Bits );
+			strcat(str, item);
 		}
-
-		PixelFormats::N64::Pf5551	n64col( wEntry );
-		PixelFormats::Psp::Pf8888	pspcol( PixelFormats::Psp::Pf8888::Make( n64col ) );
-
-		sprintf(item, "[%04x->%08x] ", n64col.Bits, pspcol.Bits );
-		strcat(str, item);
+		DL_PF(str);
 	}
-	DL_PF(str);*/
+	*/
 #endif
 }
 
@@ -1380,19 +1386,13 @@ void DLParser_SetZImg( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_SetCImg( MicroCodeCommand command )
 {
-	u32 format = command.img.fmt;
-	u32 size   = command.img.siz;
-	u32 width  = command.img.width + 1;
-	u32 newaddr	= RDPSegAddr(command.img.addr);
-	//u32 bpl		= width << size >> 1;	// Do we need to handle?
+	g_CI.Format = command.img.fmt;
+	g_CI.Size   = command.img.siz;
+	g_CI.Width  = command.img.width + 1;
+	g_CI.Address = RDPSegAddr(command.img.addr);
+	//g_CI.Bpl		= width << size >> 1;
 
-	DL_PF("    CImg Adr[0x%08x] Fmt[%s] Size[%s] Width[%d]", RDPSegAddr(command.inst.cmd1), gFormatNames[ format ], gSizeNames[ size ], width);
-
-	//g_CI.Bpl = bpl;
-	g_CI.Address = newaddr;
-	g_CI.Format  = format;
-	g_CI.Size    = size;
-	g_CI.Width   = width;
+	DL_PF("    CImg Adr[0x%08x] Format[%s] Size[%s] Width[%d]", RDPSegAddr(command.inst.cmd1), gFormatNames[ g_CI.Format ], gSizeNames[ g_CI.Size ], g_CI.Width);
 
 	// Used to remove offscreen, it removes the black box in the right side of Conker :)
 	// This will break FB, maybe add an option for this when FB is implemented?
@@ -1400,7 +1400,6 @@ void DLParser_SetCImg( MicroCodeCommand command )
 	// Do not check texture size, it breaks Superman and Doom64..
 	//
 	bIsOffScreen = ( /*g_CI.Size != G_IM_SIZ_16b ||*/ g_CI.Format != G_IM_FMT_RGBA || g_CI.Width < 200 );
-//	bIsOffScreen = false;
 }
 
 //*****************************************************************************
