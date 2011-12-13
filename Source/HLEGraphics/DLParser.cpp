@@ -1056,23 +1056,21 @@ void DLParser_LoadBlock( MicroCodeCommand command )
 	u32 uls			= command.loadtile.sl;
 	u32 ult			= command.loadtile.tl;
 	u32 tile_idx	= command.loadtile.tile;
-	//u32 lrs			= command.loadtile.sh;		// Number of bytes-1
 	u32 dxt			= command.loadtile.th;		// 1.11 fixed point
+	u32 address		= g_TI.GetAddress( uls, ult );
 
 	bool	swapped = (dxt) ? false : true;
 
-	u32		src_offset = g_TI.Address + ult * (g_TI.Width << g_TI.Size >> 1) + (uls << g_TI.Size >> 1);
-
-	DL_PF("    Tile[%d] (%d,%d - %d) DXT:0x%04x = %d Bytes => %d pixels/line Offset: 0x%08x",
+	/*DL_PF("    Tile[%d] (%d,%d - %d) DXT:0x%04x = %d Bytes => %d pixels/line Offset: 0x%08x",
 		tile_idx,
 		uls, ult,
 		command.loadtile.sh,
 		dxt,
 		(g_TI.Width << g_TI.Size >> 1),
 		bytes2pixels( (g_TI.Width << g_TI.Size >> 1), g_TI.Size ),
-		src_offset);
+		src_offset);*/
 
-	gRDPStateManager.LoadBlock( tile_idx, src_offset, swapped );
+	gRDPStateManager.LoadBlock( tile_idx, address, swapped );
 }
 
 //*****************************************************************************
@@ -1080,17 +1078,18 @@ void DLParser_LoadBlock( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_LoadTile( MicroCodeCommand command )
 {
-	RDP_TileSize tile;
-	tile.cmd0 = command.inst.cmd0;
-	tile.cmd1 = command.inst.cmd1;
+	u32 uls			= command.loadtile.sl;
+	u32 ult			= command.loadtile.tl;
+	u32 tile_idx	= command.loadtile.tile;
+	u32 address		= g_TI.GetAddress( uls/4, ult/4 );
 
-	DL_PF("    Tile[%d] (%d,%d) -> (%d,%d) [%d x %d] Offset: 0x%08x",
+	/*DL_PF("    Tile[%d] (%d,%d) -> (%d,%d) [%d x %d] Offset: 0x%08x",
 		tile.tile_idx,
 		tile.left/4, tile.top/4, tile.right/4 + 1, tile.bottom / 4 + 1,
 		(tile.right - tile.left)/4+1, (tile.bottom - tile.top)/4+1,
-		g_TI.GetOffset( tile.left, tile.top ));
+		g_TI.GetOffset( tile.left, tile.top ));*/
 
-	gRDPStateManager.LoadTile( tile );
+	gRDPStateManager.LoadTile( tile_idx, address );
 }
 
 //*****************************************************************************

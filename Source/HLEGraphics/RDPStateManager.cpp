@@ -111,13 +111,12 @@ void	CRDPStateManager::LoadBlock( u32 idx, u32 address, bool swapped )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CRDPStateManager::LoadTile( const RDP_TileSize & tile_size )
+void	CRDPStateManager::LoadTile( u32 idx, u32 address )
 {
-	u32 idx( tile_size.tile_idx );
 	u32	tmem_address( mTiles[ idx ].tmem );
 	
 	SLoadDetails &	load_details( mLoadMap[ tmem_address ] );
-	load_details.Address = g_TI.GetAddress( tile_size.left/4, tile_size.top/4 );
+	load_details.Address = address;
 	load_details.Pitch = g_TI.GetPitch();
 	load_details.Swapped = false;
 
