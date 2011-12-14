@@ -245,7 +245,9 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 
 	u32 address = RDPSegAddr(command.inst.cmd1);
 	u32 count = (command.inst.cmd0 >> 4) & 0xFFF;
-	u32 * pData = &g_pu32RamBase[address >> 2];
+
+	// Unlike normal tris ucodes this has the tris info in rdram
+	TriDKR *tri = (TriDKR*)&g_pu32RamBase[ address >> 2 ];
 
 	DAEDALUS_ASSERT( count < 16, "DKR to many triangles, indexing outside mVtxProjected array" );
 
@@ -253,13 +255,11 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 
 	for (u32 i = 0; i < count; i++)
 	{
-		u32 info = pData[ 0 ];
+		u32 v0_idx = tri->v0;
+		u32 v1_idx = tri->v1;
+		u32 v2_idx = tri->v2;
 
-		u32 v0_idx = (info >> 16) & 0x1F;
-		u32 v1_idx = (info >>  8) & 0x1F;
-		u32 v2_idx = (info      ) & 0x1F;
-
-		PSPRenderer::Get()->SetCullMode( !(info & 0x40000000), true );
+		PSPRenderer::Get()->SetCullMode( !(tri->flag & 0x40), true );
 
 		//if( info & 0x40000000 )
 		//{	// no cull
@@ -281,17 +281,17 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 		//}
 	
 		// Generate texture coordinates...
-		const s16 s0( s16(pData[1] >> 16) );
-		const s16 t0( s16(pData[1] & 0xFFFF) );
+		const s16 s0 = tri->s0;
+		const s16 t0 = tri->t0;
 
-		const s16 s1( s16(pData[2] >> 16) );
-		const s16 t1( s16(pData[2] & 0xFFFF) );
+		const s16 s1 = tri->s1;
+		const s16 t1 = tri->t1;
 
-		const s16 s2( s16(pData[3] >> 16) );
-		const s16 t2( s16(pData[3] & 0xFFFF) );
+		const s16 s2 = tri->s2;
+		const s16 t2 = tri->t2;
 
 		DL_PF("    Index[%d %d %d] Cull[%s] uv_TexCoord[%0.2f|%0.2f] [%0.2f|%0.2f] [%0.2f|%0.2f]",
-			v0_idx, v1_idx, v2_idx, !(info & 0x40000000)? "On":"Off",
+			v0_idx, v1_idx, v2_idx, !(tri->flag & 0x40)? "On":"Off",
 			(f32)s0/32.0f, (f32)t0/32.0f,
 			(f32)s1/32.0f, (f32)t1/32.0f,
 			(f32)s2/32.0f, (f32)t2/32.0f);
@@ -320,7 +320,7 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 			PSPRenderer::Get()->SetVtxTextureCoord( v2_idx, s2, t2 );
 		}
 #endif
-		pData += 4;
+		tri++;
 	}
 
 	if(tris_added)	
