@@ -240,9 +240,6 @@ void DLParser_Set_Addr_DKR( MicroCodeCommand command )
 //DKR: 00229BA8: 05710080 001E4AF0 CMD G_DMATRI  Triangles 9 at 801E4AF0
 void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 {
-	//If bit is set then do backface culling on tris
-	//PSPRenderer::Get()->SetCullMode((command.inst.cmd0 & 0x00010000), true);
-
 	u32 address = RDPSegAddr(command.inst.cmd1);
 	u32 count = (command.inst.cmd0 >> 4) & 0xFFF;
 
@@ -280,21 +277,11 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 		//	//}
 		//}
 	
-		// Generate texture coordinates...
-		const s16 s0 = tri->s0;
-		const s16 t0 = tri->t0;
-
-		const s16 s1 = tri->s1;
-		const s16 t1 = tri->t1;
-
-		const s16 s2 = tri->s2;
-		const s16 t2 = tri->t2;
-
 		DL_PF("    Index[%d %d %d] Cull[%s] uv_TexCoord[%0.2f|%0.2f] [%0.2f|%0.2f] [%0.2f|%0.2f]",
 			v0_idx, v1_idx, v2_idx, !(tri->flag & 0x40)? "On":"Off",
-			(f32)s0/32.0f, (f32)t0/32.0f,
-			(f32)s1/32.0f, (f32)t1/32.0f,
-			(f32)s2/32.0f, (f32)t2/32.0f);
+			(f32)tri->s0/32.0f, (f32)tri->t0/32.0f,
+			(f32)tri->s1/32.0f, (f32)tri->t1/32.0f,
+			(f32)tri->s2/32.0f, (f32)tri->t2/32.0f);
 
 #if 1	//1->Fixes texture scaling, 0->Render as is and get some texture scaling errors
 		//
@@ -307,17 +294,19 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 		if( PSPRenderer::Get()->AddTri(i*3+32, i*3+33, i*3+34) )
 		{
 			tris_added = true;
-			PSPRenderer::Get()->SetVtxTextureCoord( i*3+32, s0, t0 );
-			PSPRenderer::Get()->SetVtxTextureCoord( i*3+33, s1, t1 );
-			PSPRenderer::Get()->SetVtxTextureCoord( i*3+34, s2, t2 );
+			// Generate texture coordinates...
+			PSPRenderer::Get()->SetVtxTextureCoord( i*3+32, tri->s0, tri->t0 );
+			PSPRenderer::Get()->SetVtxTextureCoord( i*3+33, tri->s1, tri->t1 );
+			PSPRenderer::Get()->SetVtxTextureCoord( i*3+34, tri->s2, tri->t2 );
 		}
 #else
 		if( PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx) )
 		{
 			tris_added = true;
-			PSPRenderer::Get()->SetVtxTextureCoord( v0_idx, s0, t0 );
-			PSPRenderer::Get()->SetVtxTextureCoord( v1_idx, s1, t1 );
-			PSPRenderer::Get()->SetVtxTextureCoord( v2_idx, s2, t2 );
+			// Generate texture coordinates...
+			PSPRenderer::Get()->SetVtxTextureCoord( v0_idx, tri->s0, tri->t0 );
+			PSPRenderer::Get()->SetVtxTextureCoord( v1_idx, tri->s1, tri->t1 );
+			PSPRenderer::Get()->SetVtxTextureCoord( v2_idx, tri->s2, tri->t2 );
 		}
 #endif
 		tri++;

@@ -38,6 +38,9 @@ static u32 s_TransMatrixF[16] =
 };
 */
 
+//Note. We use unaligned store from VFPU but this is known to corrupt floating point registers on the PHAT
+//and potentially cause odd behaviour or even crash the PSP (best is not to use HLE on PHAT)
+
 //Use VFPU to save a IDENTITY matrix //Corn
 inline void vfpu_matrix_IdentF(u8 *m) {
 	__asm__ volatile (

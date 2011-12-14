@@ -589,10 +589,10 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 
 	// Used for fetching ucode names (Debug Only)
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-	gUcodeName = (ucode <= GBI_2_S2DEX) ? (char **)gNormalInstructionName[ ucode ] : gCustomInstructionName;
+	gUcodeName = (ucode < MAX_UCODE) ? (char **)gNormalInstructionName[ ucode ] : gCustomInstructionName;
 #endif
 
-	if( ucode <= GBI_2_S2DEX  )
+	if( ucode < MAX_UCODE )
 	{
 		// If this a normal ucode, just fetch the correct uCode table and name
 		gUcodeFunc = gNormalInstruction[ ucode ];
@@ -778,8 +778,6 @@ void DLParser_Process()
 
 	gTotalInstructionCount = gCurrentInstructionCount;
 
-	//printf("%d\n", gTotalInstructionCount);
-	//if(gTotalInstructionCount == 6) ThreadSleepMs(500);
 #endif
 
 #ifdef DAEDALUS_BATCH_TEST_ENABLED
@@ -1059,11 +1057,11 @@ void DLParser_LoadBlock( MicroCodeCommand command )
 	u32 dxt			= command.loadtile.th;	// 1.11 fixed point
 	u32 tile_idx	= command.loadtile.tile;
 	u32 address		= g_TI.GetAddress( uls, ult );
-	//u32 lrs			= command.loadtile.sh;		// Number of bytes-1
+	//u32 ByteSize	= (command.loadtile.sh + 1) << (g_TI.Size == G_IM_SIZ_32b);
 
 	bool	swapped = (dxt) ? false : true;
 
-	DL_PF("    Tile[%d] (%d,%d - %d) DXT[0x%04x] = [%d]Bytes => [%d]Bytes/line Address[0x%08x]",
+	DL_PF("    Tile[%d] (%d,%d - %d) DXT[0x%04x] = [%d]Bytes/line => [%d]Pixels/line Address[0x%08x]",
 		tile_idx,
 		uls, ult,
 		command.loadtile.sh,
@@ -1120,10 +1118,10 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	gTextureMemory[ rdp_tile.tmem & 0xFF ] = (u32*)address;
 #else
 	//Copy PAL to the PAL memory
-	u16 * p_source = (u16*)&g_pu8RamBase[ g_TI.Address + offset ];
+	u16 * p_source = (u16*)address;
 	u16 * p_dest   = (u16*)&gTextureMemory[ rdp_tile.tmem << 1 ];
 
-	//printf("Addr %08X : TMEM %03X : Tile %d : PAL %d : Offset %d\n",address, tmem, tile_idx, count, offset); 
+	//printf("Addr %08X : TMEM %03X : Tile %d : PAL %d\n",address, tmem, tile_idx, count); 
 
 	memcpy_vfpu_BE(p_dest, p_source, count << 1);	//for (u32 i=0; i<count; i++) p_dest[ i ] = p_source[ i ];
 #endif
@@ -1361,8 +1359,8 @@ void DLParser_FillRect( MicroCodeCommand command )
 	//
 	if ( gRDPOtherMode.cycle_type >= CYCLE_COPY )
 	{
-		xy1.x++;
-		xy1.y++;
+		xy1.x += 1.0f;
+		xy1.y += 1.0f;
 	}
 
 	// TODO - In 1/2cycle mode, skip bottom/right edges!?
@@ -1390,7 +1388,7 @@ void DLParser_SetCImg( MicroCodeCommand command )
 	g_CI.Size   = command.img.siz;
 	g_CI.Width  = command.img.width + 1;
 	g_CI.Address = RDPSegAddr(command.img.addr);
-	//g_CI.Bpl		= width << size >> 1;
+	//g_CI.Bpl		= g_CI.Width << g_CI.Size >> 1;
 
 	DL_PF("    CImg Adr[0x%08x] Format[%s] Size[%s] Width[%d]", RDPSegAddr(command.inst.cmd1), gFormatNames[ g_CI.Format ], gSizeNames[ g_CI.Size ], g_CI.Width);
 
