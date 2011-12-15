@@ -370,7 +370,6 @@ private:
 	u32					mProjectionTop;
 	u32					mModelViewTop;
 	mutable bool		mWorldProjectValid;
-	bool				mInsertedmtx;
 	bool				mWPmodified;
 		
 	static const u32 	MAX_VERTICES = 500;	

@@ -249,7 +249,6 @@ PSPRenderer::PSPRenderer()
 ,	mProjectionTop(0)
 ,	mModelViewTop(0)
 ,	mWorldProjectValid(false)
-,	mInsertedmtx(false)
 ,	mWPmodified(false)
 
 ,	m_dwNumIndices(0)
@@ -2737,9 +2736,6 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 		}
 	}
 
-	mInsertedmtx = false;
-	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[mProjectionTop]) );
-	
 	mWorldProjectValid = false;
 
 	DL_PF("    Level = %d\n"
@@ -2800,12 +2796,6 @@ void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 
 	mWorldProjectValid = false;
 
-	if( mInsertedmtx ) // Only reload system proj mtx if there was a insertedmtx
-	{
-		mInsertedmtx = false;
-		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[mProjectionTop]) );
-	}
-
 	DL_PF("    Level = %d\n"
 		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
@@ -2826,6 +2816,7 @@ inline Matrix4x4 & PSPRenderer::GetWorldProject() const
 	if( !mWorldProjectValid )
 	{
 		mWorldProjectValid = true;
+		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[mProjectionTop]) );
 		mWorldProject = mModelViewStack[mModelViewTop] * mProjectionStack[mProjectionTop];
 	}
 
@@ -3028,6 +3019,8 @@ void PSPRenderer::MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 //*****************************************************************************
 void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 {
+	mWPmodified = true;	//Signal that Worldproject matrix is changed
+
 	//Make sure WP matrix is up to date before changing WP matrix
 	if( !mWorldProjectValid )
 	{
@@ -3052,9 +3045,6 @@ void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 		mWorldProject.m[y][x+1] = (f32)(s16)(w1 & 0xFFFF);
 	}
 
-	mInsertedmtx = true; //Signal insertedmtx
-	mWPmodified = true;	//Signal that Worldproject matrix is changed
-
 	DL_PF(
 		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
@@ -3072,7 +3062,6 @@ void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 void PSPRenderer::ForceMatrix(const u32 address)
 {
 	mWorldProjectValid = true;
-	mInsertedmtx = true; //Signal insertedmtx
 	mWPmodified = true;	//Signal that Worldproject matrix is changed
 
 	MatrixFromN64FixedPoint( mWorldProject, address );
