@@ -87,7 +87,7 @@ const void *	TextureInfo::GetPalettePtr() const
 	//for(u32 i=0;i<0x100;i++) printf("%p ", gTextureMemory[ i ]);
 	//printf("\n\n");
 
-	if ( gTLUTalt_mode )
+	if ( g_ROM.TLUT_HACK )
 	{
 		if(gTextureMemory[ TLutIndex << 4 ] == NULL)
 		{	//If TMEM PAL address is NULL then assume that the base address is stored in
@@ -111,7 +111,7 @@ const void *	TextureInfo::GetPalettePtr() const
 	}
 #else
 
-	return (void *)&gTextureMemory[ 0x200 + (TLutIndex << (gTLUTalt_mode? 5 : 3)) ];
+	return (void *)&gTextureMemory[ 0x200 + (TLutIndex << (g_ROM.TLUT_HACK ? 5 : 3)) ];
 #endif
 }
 

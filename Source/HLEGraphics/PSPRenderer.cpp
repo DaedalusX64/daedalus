@@ -766,7 +766,7 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 
 			sceGuTexFunc( tfx, tcc );
 
-			if( g_ROM.GameHacks == RAYMAN2 )
+			if( g_ROM.T1_HACK )
 			{
 				// NB if install_texture0 and install_texture1 are both set, 1 wins out
 				texture_idx = install_texture1;
@@ -2554,7 +2554,7 @@ inline void	PSPRenderer::EnableTexturing( u32 tile_idx )
 	// XXXX Not required for texrect etc?
 //#ifdef RDP_USE_TEXEL1
 
-	if ( (g_ROM.GameHacks == RAYMAN2) & !gRDPOtherMode.text_lod )
+	if ( g_ROM.T1_HACK & !gRDPOtherMode.text_lod )
 	{
 		// LOD is disabled - use two textures
 		EnableTexturing( 1, tile_idx + 1 );
@@ -2611,7 +2611,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 		// ToDo : Find a proper workaround for this, if this disabled the castle in Link's stage in SSB is broken :/
 		// Do a hack just for Zelda for now..
 		//
-		if((g_ROM.GameHacks == ZELDA_OOT) | (g_ROM.GameHacks == ZELDA_MM))
+		if( g_ROM.ZELDA_HACK )
 			 mode_u = GU_CLAMP;
 		else
 			mode_u = GU_REPEAT; 
@@ -2725,8 +2725,7 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 			//it renders at Z cordinate = 0.0f that gets clipped away.
 			//so we translate them a bit along Z to make them stick :) //Corn
 			//
-			if((g_ROM.GameHacks == ZELDA_OOT) | (g_ROM.GameHacks == ZELDA_MM))
-				mProjectionStack[mProjectionTop].mRaw[14] += 0.4f;
+			if( g_ROM.ZELDA_HACK ) mProjectionStack[mProjectionTop].mRaw[14] += 0.4f;
 		}
 		else
 		{
@@ -2769,7 +2768,7 @@ void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 			// Load ModelView matrix
 			MatrixFromN64FixedPoint( mModelViewStack[mModelViewTop], address);
 			//Hack to make GEX games work, need to multiply all elements with 2.0 //Corn
-			if( g_ROM.GameHacks == GEX_GECKO ) for(u32 i=0;i<16;i++) mModelViewStack[mModelViewTop].mRaw[i] *= 2.0f;
+			if( g_ROM.GameHacks == GEX_GECKO ) for(u32 i=0;i<16;i++) mModelViewStack[mModelViewTop].mRaw[i] += mModelViewStack[mModelViewTop].mRaw[i];
 		}
 		else			// Multiply ModelView matrix
 		{

@@ -234,7 +234,7 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 
 		// Hack to fix the sun in Zelda
 		//
-		if((g_ROM.GameHacks == ZELDA_OOT) | (g_ROM.GameHacks == ZELDA_MM))
+		if( g_ROM.ZELDA_HACK )
 		{
 			if(gRDPOtherMode.L == 0x0c184241 && ti.GetFormat() == G_IM_FMT_I /*&& ti.GetWidth() == 64*/)	
 			{

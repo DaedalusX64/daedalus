@@ -635,7 +635,7 @@ bool	CTexture::HasExpired() const
 		if( (g_ROM.GameHacks == WONDER_PROJECTJ2) && (mTextureInfo.GetTLutFormat() == G_TT_RGBA16) && (mTextureInfo.GetSize() == G_IM_SIZ_8b) ) return true;
 
 		//Hack for Zelda OOT & MM text (only needed if there is not a general hash check) //Corn
-		//if( ((g_ROM.GameHacks == ZELDA_OOT) | (g_ROM.GameHacks == ZELDA_MM)) && (mTextureInfo.GetSize() == G_IM_SIZ_4b) && mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
+		//if( g_ROM.ZELDA_HACK && (mTextureInfo.GetSize() == G_IM_SIZ_4b) && mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
 
 		if( mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
 	}
