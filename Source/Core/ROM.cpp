@@ -62,7 +62,6 @@ const char *gGameHackNames[ MAX_HACK_NAMES ] =
 	"Flat Shade Disabled Hack",
 	"S2DEX Palette Hack",
 	"Tarzan Misc Hacks",
-	"Force Mtx Donald Duck Hack",
 	"Disable LW MemAcces Optimisation",
 	"Gex Depth Hack",
 	"Disable osRestoreInt"
@@ -470,7 +469,6 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5941: g_ROM.GameHacks = AIDYN_CRONICLES;		break;
 	case 0x344b: g_ROM.GameHacks = KIRBY64;				break;
 	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
-	case 0x5144: g_ROM.GameHacks = DONALD;				break;
 	case 0x4643: g_ROM.GameHacks = CLAY_FIGHTER_63;		break;
 	case 0x5a52: g_ROM.GameHacks = RIDGE_RACER;			break;
 	case 0x504A: g_ROM.GameHacks = ISS64;				break;

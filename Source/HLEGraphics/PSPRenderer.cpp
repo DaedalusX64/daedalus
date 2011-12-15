@@ -249,7 +249,7 @@ PSPRenderer::PSPRenderer()
 ,	mProjectionTop(0)
 ,	mModelViewTop(0)
 ,	mWorldProjectValid(false)
-,	mProjisNew(true)
+,	mInsertedmtx(false)
 ,	mWPmodified(false)
 
 ,	m_dwNumIndices(0)
@@ -1816,20 +1816,13 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 
 	const Matrix4x4 & matWorldProject( GetWorldProject() );
 
-	//If WoldProjectmatrix has modified due to insert matrix
-	//we need to update our modelView (fixes NMEs in Kirby and SSB) //Corn
+	//If WoldProjectmatrix has modified due to insert or force matrix (Kirby, SSB / Tarzan, Rayman2, Donald duck, SW racer, Robot on wheels)
+	//we need to update sceGU projmtx //Corn
 	if( mWPmodified )
 	{
 		mWPmodified = false;
-		
-		//Only calculate inverse if there is a new Projectmatrix
-		if( mProjisNew )
-		{
-			mProjisNew = false;
-			mInvProjection = mProjectionStack[mProjectionTop].Inverse();
-		}
-		
-		mModelViewStack[mModelViewTop] = mWorldProject * mInvProjection;
+		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject ) );
+		mModelViewStack[mModelViewTop] = gMatrixIdentity;
 	}
 
 	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
@@ -1932,20 +1925,13 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 
 	const Matrix4x4 & matWorldProject( GetWorldProject() );
 
-	//If WoldProjectmatrix has modified due to insert matrix
-	//we need to update our modelView (fixes NMEs in Kirby and SSB) //Corn
+	//If WoldProjectmatrix has modified due to insert or force matrix (Kirby, SSB / Tarzan, Rayman2, Donald duck, SW racer, Robot on wheels)
+	//we need to update sceGU projmtx //Corn
 	if( mWPmodified )
 	{
 		mWPmodified = false;
-		
-		//Only calculate inverse if there is a new Projectmatrix
-		if( mProjisNew )
-		{
-			mProjisNew = false;
-			mInvProjection = mProjectionStack[mProjectionTop].Inverse();
-		}
-		
-		mModelViewStack[mModelViewTop] = mWorldProject * mInvProjection;
+		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject ) );
+		mModelViewStack[mModelViewTop] = gMatrixIdentity;
 	}
 
 	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
@@ -2751,9 +2737,9 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 		}
 	}
 
+	mInsertedmtx = false;
 	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[mProjectionTop]) );
 	
-	mProjisNew = true;	// Note when a new P-matrix has been loaded
 	mWorldProjectValid = false;
 
 	DL_PF("    Level = %d\n"
@@ -2814,6 +2800,12 @@ void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 
 	mWorldProjectValid = false;
 
+	if( mInsertedmtx ) // Only reload system proj mtx if there was a insertedmtx
+	{
+		mInsertedmtx = false;
+		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[mProjectionTop]) );
+	}
+
 	DL_PF("    Level = %d\n"
 		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
@@ -2833,8 +2825,8 @@ inline Matrix4x4 & PSPRenderer::GetWorldProject() const
 {
 	if( !mWorldProjectValid )
 	{
-		mWorldProject = mModelViewStack[mModelViewTop] * mProjectionStack[mProjectionTop];
 		mWorldProjectValid = true;
+		mWorldProject = mModelViewStack[mModelViewTop] * mProjectionStack[mProjectionTop];
 	}
 
 	return mWorldProject;
@@ -3060,7 +3052,8 @@ void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 		mWorldProject.m[y][x+1] = (f32)(s16)(w1 & 0xFFFF);
 	}
 
-	mWPmodified = true;	//Mark that Worldproject matrix is changed
+	mInsertedmtx = true; //Signal insertedmtx
+	mWPmodified = true;	//Signal that Worldproject matrix is changed
 
 	DL_PF(
 		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
@@ -3078,47 +3071,11 @@ void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 //*****************************************************************************
 void PSPRenderer::ForceMatrix(const u32 address)
 {
-	MatrixFromN64FixedPoint( mWorldProject, address );
-
-	//Some games have permanent project matrixes so we can save CPU by storing the inverse
-	//If that fails we invert the top project matrix to figure out the model matrix //Corn
-	//
-	if( g_ROM.GameHacks == TARZAN )
-	{
-		//We use it to get back the modelview matrix since we need it for proper rendering on PSP//Corn
-		//The inverted projection matrix for Tarzan
-		const Matrix4x4	invTarzan(	0.838109861116815f, 0.0f, 0.0f, 0.0f,
-									0.0f, -0.38386429506604247f, 0.0f, 0.0f,
-									0.0f, 0.0f, 0.0f, -0.009950865175186414f,
-									0.0f, 0.0f, 1.0f, 0.010049104096541923f );
-
-		mModelViewStack[mModelViewTop] = mWorldProject * invTarzan;
-	}
-	/*else if( g_ROM.GameHacks == DONALD )
-	{
-		
-		//The inverted projection matrix for Donald duck
-		const Matrix4x4	invDonald(	0.6841395918423196f, 0.0f, 0.0f, 0.0f,
-									0.0f, 0.5131073266595174f, 0.0f, 0.0f,
-									0.0f, 0.0f, -0.01532359917019646f, -0.01532359917019646f,
-									0.0f, 0.0f, -0.9845562638123093f, 0.015443736187690802f );
-
-		mModelViewStack[mModelViewTop] = mWorldProject * invDonald;
-	}*/
-	else
-	{
-		//Check if current projection matrix has changed
-		//To avoid calculating the inverse more than once per frame
-		if ( mProjisNew )
-		{
-			mProjisNew = false;
-			mInvProjection = mProjectionStack[mProjectionTop].Inverse();
-		}
-
-		mModelViewStack[mModelViewTop] = mWorldProject * mInvProjection;
-	}
-	
 	mWorldProjectValid = true;
+	mInsertedmtx = true; //Signal insertedmtx
+	mWPmodified = true;	//Signal that Worldproject matrix is changed
+
+	MatrixFromN64FixedPoint( mWorldProject, address );
 
 	DL_PF(
 		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
