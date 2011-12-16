@@ -288,7 +288,6 @@ void RSP_HLE_ProcessTask()
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	const char* task_name= "?";
-	u32		orig_status( Memory_SP_GetRegister( SP_STATUS_REG ) );
 #endif
 
 	EProcessResult	result( PR_NOT_STARTED );
@@ -319,37 +318,17 @@ void RSP_HLE_ProcessTask()
 
 		default:
 			// Can't handle
-#ifndef DAEDALUS_PUBLIC_RELEASE
 			DBGConsole_Msg(0, "Unknown task: %08x", pTask->t.type );
 			//	RSP_HLE_DumpTaskInfo( pTask );
 			//	RDP_DumpRSPCode("boot",    0xDEAFF00D, (u32*)(g_pu8RamBase + (((u32)pTask->t.ucode_boot)&0x00FFFFFF)), 0x04001000, pTask->t.ucode_boot_size);
 			//	RDP_DumpRSPCode("unkcode", 0xDEAFF00D, (u32*)(g_pu8RamBase + (((u32)pTask->t.ucode)&0x00FFFFFF)),      0x04001080, 0x1000 - 0x80);//pTask->t.ucode_size);
-#endif
 			break;
 	}
-#ifdef DAEDALUS_ENABLE_ASSERTS
-u32		status;
-#endif
-	switch( result )
-	{
-	case PR_STARTED:
-		// Started using HLE. No need to change cores
-#ifdef DAEDALUS_ENABLE_ASSERTS
-		status = Memory_SP_GetRegister( SP_STATUS_REG );
-		DAEDALUS_ASSERT( !gRSPHLEActive || (status & SP_STATUS_HALT) == 0, "HLE active (%d), but HALT set (%08x - was %08x on entry)", gRSPHLEActive, status, orig_status );
-#endif
-		break;
 
-	case PR_COMPLETED:
-		// Started and completed. No need to change cores.
+	// Started and completed. No need to change cores. [synchronously]
+	if( result == PR_COMPLETED ) 
 		RSP_HLE_Finished();
-		break;
-
-	case PR_NOT_STARTED:
-		break;
-
-	default:
-		DAEDALUS_ERROR( "Unhandled EProcessResult: %d", result );
-		break;
-	}
+	//else
+	// Not started (PR_NOT_STARTED)
+	// Or still active (PR_STARTED) [asynchronously]
 }

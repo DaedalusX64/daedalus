@@ -405,7 +405,7 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 	TnLMode.TexGen		= gGeometryMode.GBI1_TexGen;
 	TnLMode.TexGenLin   = gGeometryMode.GBI1_TexGenLin;
 	TnLMode.Fog			= gGeometryMode.GBI1_Fog;
-	TnLMode.Shade		= gGeometryMode.GBI1_Shade & gGeometryMode.GBI1_ShadingSmooth;
+	TnLMode.Shade		= gGeometryMode.GBI1_Shade/* & gGeometryMode.GBI1_ShadingSmooth*/;
 	TnLMode.Zbuffer		= gGeometryMode.GBI1_Zbuffer;
 
 	// CULL_BACK has priority, Fixes Mortal Kombat 4
