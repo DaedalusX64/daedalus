@@ -361,7 +361,7 @@ private:
 	//Max is 18 according to the manual //Corn
 	static const u32 MATRIX_STACK_SIZE = 18; 
 
-	inline Matrix4x4 &	GetWorldProject() const;
+	inline Matrix4x4 &	GetWorldProject();
 
 	mutable Matrix4x4	mWorldProject;
 	Matrix4x4			mProjectionStack[MATRIX_STACK_SIZE];
@@ -370,6 +370,7 @@ private:
 	u32					mProjectionTop;
 	u32					mModelViewTop;
 	mutable bool		mWorldProjectValid;
+	bool				mReloadProj;
 	bool				mWPmodified;
 		
 	static const u32 	MAX_VERTICES = 500;	

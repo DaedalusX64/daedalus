@@ -451,7 +451,7 @@ void ROM_Unload()
 //*****************************************************************************
 void SpecificGameHacks( const ROMHeader & id )
 {
-	printf("ROM ID:%04X\n", id.CartID);
+	printf("ROM ID[%04X]\n", id.CartID);
 
 	g_ROM.HACKS_u32 = 0;	//Default to no game hacks
 	

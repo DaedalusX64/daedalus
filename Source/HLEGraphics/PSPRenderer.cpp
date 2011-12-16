@@ -249,6 +249,7 @@ PSPRenderer::PSPRenderer()
 ,	mProjectionTop(0)
 ,	mModelViewTop(0)
 ,	mWorldProjectValid(false)
+,	mReloadProj(true)
 ,	mWPmodified(false)
 
 ,	m_dwNumIndices(0)
@@ -1812,14 +1813,14 @@ inline v4 PSPRenderer::LightVert( const v3 & norm ) const
 void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
-
 	const Matrix4x4 & matWorldProject( GetWorldProject() );
 
-	//If WoldProjectmatrix has modified due to insert or force matrix (Kirby, SSB / Tarzan, Rayman2, Donald duck, SW racer, Robot on wheels)
+	//If WoldProjectmatrix has been modified due to insert or force matrix (Kirby, SSB / Tarzan, Rayman2, Donald duck, SW racer, Robot on wheels)
 	//we need to update sceGU projmtx //Corn
 	if( mWPmodified )
 	{
 		mWPmodified = false;
+		mReloadProj = true;
 		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject ) );
 		mModelViewStack[mModelViewTop] = gMatrixIdentity;
 	}
@@ -1919,16 +1920,15 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 {
-	//DBGConsole_Msg(0, "In SetNewVertexInfo");
-	FiddledVtx * pVtxBase = (FiddledVtx*)(g_pu8RamBase + address);
-
+	const FiddledVtx * pVtxBase = (const FiddledVtx*)(g_pu8RamBase + address);
 	const Matrix4x4 & matWorldProject( GetWorldProject() );
 
-	//If WoldProjectmatrix has modified due to insert or force matrix (Kirby, SSB / Tarzan, Rayman2, Donald duck, SW racer, Robot on wheels)
+	//If WoldProjectmatrix has been modified due to insert or force matrix (Kirby, SSB / Tarzan, Rayman2, Donald duck, SW racer, Robot on wheels)
 	//we need to update sceGU projmtx //Corn
 	if( mWPmodified )
 	{
 		mWPmodified = false;
+		mReloadProj = true;
 		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject ) );
 		mModelViewStack[mModelViewTop] = gMatrixIdentity;
 	}
@@ -2533,14 +2533,8 @@ inline void PSPRenderer::SetVtxXY( u32 vert, float x, float y )
 //*****************************************************************************
 void PSPRenderer::ResetMatrices()
 {
-	Matrix4x4 mat;
-
-	mat.SetIdentity();
-
-	mProjectionTop = 0;
-	mModelViewTop = 0;
-	mProjectionStack[0] = mat;
-	mModelViewStack[0] = mat;
+	mProjectionTop = mModelViewTop = 0;
+	mProjectionStack[0] = mModelViewStack[0] = gMatrixIdentity;
 	mWorldProjectValid = false;
 }
 
@@ -2692,158 +2686,6 @@ void	PSPRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
-{
-	// Projection
-	if (bPush)
-	{
-		if (mProjectionTop >= (MATRIX_STACK_SIZE-1))
-			DBGConsole_Msg(0, "Pushing past proj stack limits! %d/%d", mProjectionTop, MATRIX_STACK_SIZE);
-		else
-			++mProjectionTop;
-
-		if (bReplace)
-		{
-			// Load projection matrix
-			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
-		}
-		else
-		{
-			Matrix4x4 mat;
-			MatrixFromN64FixedPoint( mat, address);
-			mProjectionStack[mProjectionTop] = mat * mProjectionStack[mProjectionTop-1];
-		}
-	}
-	else
-	{
-		if (bReplace)
-		{
-			// Load projection matrix
-			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
-
-			//Hack needed to show heart in OOT & MM
-			//it renders at Z cordinate = 0.0f that gets clipped away.
-			//so we translate them a bit along Z to make them stick :) //Corn
-			//
-			if( g_ROM.ZELDA_HACK ) mProjectionStack[mProjectionTop].mRaw[14] += 0.4f;
-		}
-		else
-		{
-			Matrix4x4 mat;
-			MatrixFromN64FixedPoint( mat, address);
-			mProjectionStack[mProjectionTop] = mat * mProjectionStack[mProjectionTop];
-		}
-	}
-
-	mWorldProjectValid = false;
-
-	DL_PF("    Level = %d\n"
-		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
-		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
-		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
-		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n",
-		mProjectionTop,
-		mProjectionStack[mProjectionTop].m[0][0], mProjectionStack[mProjectionTop].m[0][1], mProjectionStack[mProjectionTop].m[0][2], mProjectionStack[mProjectionTop].m[0][3],
-		mProjectionStack[mProjectionTop].m[1][0], mProjectionStack[mProjectionTop].m[1][1], mProjectionStack[mProjectionTop].m[1][2], mProjectionStack[mProjectionTop].m[1][3],
-		mProjectionStack[mProjectionTop].m[2][0], mProjectionStack[mProjectionTop].m[2][1], mProjectionStack[mProjectionTop].m[2][2], mProjectionStack[mProjectionTop].m[2][3],
-		mProjectionStack[mProjectionTop].m[3][0], mProjectionStack[mProjectionTop].m[3][1], mProjectionStack[mProjectionTop].m[3][2], mProjectionStack[mProjectionTop].m[3][3]);
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
-{
-	// ModelView
-	if (bPush)
-	{
-		if (mModelViewTop >= (MATRIX_STACK_SIZE-1))
-			DBGConsole_Msg(0, "Pushing past modelview stack limits! %d/%d", mModelViewTop, MATRIX_STACK_SIZE);
-		else
-			++mModelViewTop;
-
-		// We should store the current projection matrix...
-		if (bReplace)
-		{
-			// Load ModelView matrix
-			MatrixFromN64FixedPoint( mModelViewStack[mModelViewTop], address);
-			//Hack to make GEX games work, need to multiply all elements with 2.0 //Corn
-			if( g_ROM.GameHacks == GEX_GECKO ) for(u32 i=0;i<16;i++) mModelViewStack[mModelViewTop].mRaw[i] += mModelViewStack[mModelViewTop].mRaw[i];
-		}
-		else			// Multiply ModelView matrix
-		{
-			Matrix4x4 mat;
-			MatrixFromN64FixedPoint( mat, address);
-			mModelViewStack[mModelViewTop] = mat * mModelViewStack[mModelViewTop-1];
-		}
-	}
-	else	// NoPush
-	{
-		if (bReplace)
-		{
-			// Load ModelView matrix
-			MatrixFromN64FixedPoint( mModelViewStack[mModelViewTop], address);
-		}
-		else
-		{
-			// Multiply ModelView matrix
-			Matrix4x4 mat;
-			MatrixFromN64FixedPoint( mat, address);
-			mModelViewStack[mModelViewTop] = mat * mModelViewStack[mModelViewTop];
-		}
-	}
-
-	mWorldProjectValid = false;
-
-	DL_PF("    Level = %d\n"
-		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
-		mModelViewTop,
-		mModelViewStack[mModelViewTop].m[0][0], mModelViewStack[mModelViewTop].m[0][1], mModelViewStack[mModelViewTop].m[0][2], mModelViewStack[mModelViewTop].m[0][3],
-		mModelViewStack[mModelViewTop].m[1][0], mModelViewStack[mModelViewTop].m[1][1], mModelViewStack[mModelViewTop].m[1][2], mModelViewStack[mModelViewTop].m[1][3],
-		mModelViewStack[mModelViewTop].m[2][0], mModelViewStack[mModelViewTop].m[2][1], mModelViewStack[mModelViewTop].m[2][2], mModelViewStack[mModelViewTop].m[2][3],
-		mModelViewStack[mModelViewTop].m[3][0], mModelViewStack[mModelViewTop].m[3][1], mModelViewStack[mModelViewTop].m[3][2], mModelViewStack[mModelViewTop].m[3][3]);
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-inline Matrix4x4 & PSPRenderer::GetWorldProject() const
-{
-	if( !mWorldProjectValid )
-	{
-		mWorldProjectValid = true;
-		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[mProjectionTop]) );
-		mWorldProject = mModelViewStack[mModelViewTop] * mProjectionStack[mProjectionTop];
-	}
-
-	return mWorldProject;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-void PSPRenderer::PrintActive()
-{
-	const Matrix4x4 & mat( GetWorldProject() );
-	DL_PF(
-		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
-		mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
-		mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
-		mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
-		mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
-}
-#endif
-
-//*****************************************************************************
-//
-//*****************************************************************************
 void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH, f32 imageX, f32 imageY, f32 imageW, f32 imageH) 
 {
 	DAEDALUS_PROFILE( "PSPRenderer::Draw2DTexture" );
@@ -2936,6 +2778,164 @@ void PSPRenderer::Draw2DTextureR( f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2
 
 	sceGuDrawArray( GU_TRIANGLE_FAN, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, p_verts );
 }
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
+{
+	// Projection
+	if (bPush)
+	{
+		if (mProjectionTop >= (MATRIX_STACK_SIZE-1))
+			DBGConsole_Msg(0, "Pushing past proj stack limits! %d/%d", mProjectionTop, MATRIX_STACK_SIZE);
+		else
+			++mProjectionTop;
+
+		if (bReplace)
+		{
+			// Load projection matrix
+			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
+		}
+		else
+		{
+			Matrix4x4 mat;
+			MatrixFromN64FixedPoint( mat, address);
+			mProjectionStack[mProjectionTop] = mat * mProjectionStack[mProjectionTop-1];
+		}
+	}
+	else
+	{
+		if (bReplace)
+		{
+			// Load projection matrix
+			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
+
+			//Hack needed to show heart in OOT & MM
+			//it renders at Z cordinate = 0.0f that gets clipped away.
+			//so we translate them a bit along Z to make them stick :) //Corn
+			//
+			if( g_ROM.ZELDA_HACK ) mProjectionStack[mProjectionTop].mRaw[14] += 0.4f;
+		}
+		else
+		{
+			Matrix4x4 mat;
+			MatrixFromN64FixedPoint( mat, address);
+			mProjectionStack[mProjectionTop] = mat * mProjectionStack[mProjectionTop];
+		}
+	}
+
+	mWorldProjectValid = false;
+	mReloadProj = true;
+
+	DL_PF("    Level = %d\n"
+		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n",
+		mProjectionTop,
+		mProjectionStack[mProjectionTop].m[0][0], mProjectionStack[mProjectionTop].m[0][1], mProjectionStack[mProjectionTop].m[0][2], mProjectionStack[mProjectionTop].m[0][3],
+		mProjectionStack[mProjectionTop].m[1][0], mProjectionStack[mProjectionTop].m[1][1], mProjectionStack[mProjectionTop].m[1][2], mProjectionStack[mProjectionTop].m[1][3],
+		mProjectionStack[mProjectionTop].m[2][0], mProjectionStack[mProjectionTop].m[2][1], mProjectionStack[mProjectionTop].m[2][2], mProjectionStack[mProjectionTop].m[2][3],
+		mProjectionStack[mProjectionTop].m[3][0], mProjectionStack[mProjectionTop].m[3][1], mProjectionStack[mProjectionTop].m[3][2], mProjectionStack[mProjectionTop].m[3][3]);
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
+{
+	// ModelView
+	if (bPush)
+	{
+		if (mModelViewTop >= (MATRIX_STACK_SIZE-1))
+			DBGConsole_Msg(0, "Pushing past modelview stack limits! %d/%d", mModelViewTop, MATRIX_STACK_SIZE);
+		else
+			++mModelViewTop;
+
+		// We should store the current projection matrix...
+		if (bReplace)
+		{
+			// Load ModelView matrix
+			MatrixFromN64FixedPoint( mModelViewStack[mModelViewTop], address);
+			//Hack to make GEX games work, need to multiply all elements with 2.0 //Corn
+			if( g_ROM.GameHacks == GEX_GECKO ) for(u32 i=0;i<16;i++) mModelViewStack[mModelViewTop].mRaw[i] += mModelViewStack[mModelViewTop].mRaw[i];
+		}
+		else			// Multiply ModelView matrix
+		{
+			Matrix4x4 mat;
+			MatrixFromN64FixedPoint( mat, address);
+			mModelViewStack[mModelViewTop] = mat * mModelViewStack[mModelViewTop-1];
+		}
+	}
+	else	// NoPush
+	{
+		if (bReplace)
+		{
+			// Load ModelView matrix
+			MatrixFromN64FixedPoint( mModelViewStack[mModelViewTop], address);
+		}
+		else
+		{
+			// Multiply ModelView matrix
+			Matrix4x4 mat;
+			MatrixFromN64FixedPoint( mat, address);
+			mModelViewStack[mModelViewTop] = mat * mModelViewStack[mModelViewTop];
+		}
+	}
+
+	mWorldProjectValid = false;
+
+	DL_PF("    Level = %d\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
+		mModelViewTop,
+		mModelViewStack[mModelViewTop].m[0][0], mModelViewStack[mModelViewTop].m[0][1], mModelViewStack[mModelViewTop].m[0][2], mModelViewStack[mModelViewTop].m[0][3],
+		mModelViewStack[mModelViewTop].m[1][0], mModelViewStack[mModelViewTop].m[1][1], mModelViewStack[mModelViewTop].m[1][2], mModelViewStack[mModelViewTop].m[1][3],
+		mModelViewStack[mModelViewTop].m[2][0], mModelViewStack[mModelViewTop].m[2][1], mModelViewStack[mModelViewTop].m[2][2], mModelViewStack[mModelViewTop].m[2][3],
+		mModelViewStack[mModelViewTop].m[3][0], mModelViewStack[mModelViewTop].m[3][1], mModelViewStack[mModelViewTop].m[3][2], mModelViewStack[mModelViewTop].m[3][3]);
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline Matrix4x4 & PSPRenderer::GetWorldProject()
+{
+	if( !mWorldProjectValid )
+	{
+		mWorldProjectValid = true;
+		if( mReloadProj )
+		{
+			mReloadProj = false;
+			sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[mProjectionTop]) );
+		}
+		mWorldProject = mModelViewStack[mModelViewTop] * mProjectionStack[mProjectionTop];
+	}
+
+	return mWorldProject;
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+void PSPRenderer::PrintActive()
+{
+	const Matrix4x4 & mat( GetWorldProject() );
+	DL_PF(
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
+		mat.m[0][0], mat.m[0][1], mat.m[0][2], mat.m[0][3],
+		mat.m[1][0], mat.m[1][1], mat.m[1][2], mat.m[1][3],
+		mat.m[2][0], mat.m[2][1], mat.m[2][2], mat.m[2][3],
+		mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
+}
+#endif
+
 //*************************************************************************************
 // 
 //*************************************************************************************
