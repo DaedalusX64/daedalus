@@ -83,7 +83,7 @@ CFragment * CFragmentCache::LookupFragment( u32 address ) const
 		// check if in hash table
 		u32 ix = MakeHashIdx( address );
 
-		if ( address != mpCacheHashTable[ix][0] )
+		if ( address != mpCacheHashTable[ix].addr )
 		{
 			SFragmentEntry				entry( address, NULL );
 			FragmentVec::const_iterator	it( std::lower_bound( mFragments.begin(), mFragments.end(), entry ) );
@@ -97,12 +97,12 @@ CFragment * CFragmentCache::LookupFragment( u32 address ) const
 			}
 
 			// put in hash table
-			mpCacheHashTable[ix][0] = address;
-			mpCacheHashTable[ix][1] = reinterpret_cast< u32 >( mpCachedFragment );
+			mpCacheHashTable[ix].addr = address;
+			mpCacheHashTable[ix].ptr = reinterpret_cast< u32 >( mpCachedFragment );
 		}
 		else
 		{
-			mpCachedFragment = reinterpret_cast< CFragment * >( mpCacheHashTable[ix][1] );
+			mpCachedFragment = reinterpret_cast< CFragment * >( mpCacheHashTable[ix].ptr );
 		}
 	}
 
@@ -127,7 +127,7 @@ CFragment * CFragmentCache::LookupFragmentQ( u32 address ) const
 		// check if in hash table
 		u32 ix = MakeHashIdx( address );
 
-		if ( address != mpCacheHashTable[ix][0] )
+		if ( address != mpCacheHashTable[ix].addr )
 		{
 			SFragmentEntry				entry( address, NULL );
 			FragmentVec::const_iterator	it( std::lower_bound( mFragments.begin(), mFragments.end(), entry ) );
@@ -141,12 +141,12 @@ CFragment * CFragmentCache::LookupFragmentQ( u32 address ) const
 			}
 
 			// put in hash table
-			mpCacheHashTable[ix][0] = address;
-			mpCacheHashTable[ix][1] = reinterpret_cast< u32 >( mpCachedFragment );
+			mpCacheHashTable[ix].addr = address;
+			mpCacheHashTable[ix].ptr = reinterpret_cast< u32 >( mpCachedFragment );
 		}
 		else
 		{
-			mpCachedFragment = reinterpret_cast< CFragment * >( mpCacheHashTable[ix][1] );
+			mpCachedFragment = reinterpret_cast< CFragment * >( mpCacheHashTable[ix].ptr );
 		}
 	}
 
@@ -170,8 +170,8 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 
 	// Update the hash table (it stores failed lookups now, so we need to be sure to purge any stale entries in there
 	u32 ix = MakeHashIdx( fragment_address );
-	mpCacheHashTable[ix][0] = fragment_address;
-	mpCacheHashTable[ix][1] = reinterpret_cast< u32 >( p_fragment );
+	mpCacheHashTable[ix].addr = fragment_address;
+	mpCacheHashTable[ix].ptr = reinterpret_cast< u32 >( p_fragment );
 
 	// Process any jumps for this before inserting new ones
 	JumpMap::iterator	jump_it( mJumpMap.find( fragment_address ) );

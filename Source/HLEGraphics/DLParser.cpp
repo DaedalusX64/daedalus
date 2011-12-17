@@ -377,7 +377,7 @@ bool DLParser_Initialise()
 
 #ifndef DAEDALUS_TMEM
 	//Clear pointers in TMEM block //Corn
-	memset(&gTextureMemory[0] ,0 , 1024);  
+	memset(&gTextureMemory[0] ,0 , sizeof(gTextureMemory));  
 #endif
 	return true;
 }

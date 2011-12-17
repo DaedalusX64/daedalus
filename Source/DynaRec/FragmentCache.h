@@ -27,6 +27,12 @@ class	CCodeBufferManager;
 #include <map>
 #include <vector>
 
+struct FHashT
+{
+	u32	addr;
+	u32 ptr;
+};
+
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -120,7 +126,7 @@ private:
 	#define MakeHashIdx( addr ) ((addr >> 2) & (HASH_TABLE_SIZE-1))
 	//#define MakeHashIdx( addr ) (((addr >> 18) ^ (addr >> 10) ^ addr >> 2 ) & (HASH_TABLE_SIZE-1))
 
-	mutable u32				mpCacheHashTable[HASH_TABLE_SIZE][2];
+	mutable FHashT			mpCacheHashTable[HASH_TABLE_SIZE];
 
 	CCodeBufferManager *	mpCodeBufferManager;
 

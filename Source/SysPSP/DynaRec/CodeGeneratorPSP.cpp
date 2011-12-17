@@ -294,13 +294,13 @@ void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register
 		mAvailableRegisters.push( gRegistersToUseForCaching[ i ] );
 	}
 	// Optimization for self looping code
-	if( gDynarecLoopOptimisation & loops_to_self )
+	if( gDynarecLoopOptimisation && loops_to_self )
 	{
 		mUseFixedRegisterAllocation = true;
 		u32		cache_reg_idx( 0 );
 		u32		HiLo = 0;
-		//while ( HiLo<2 )		// If there are still unused registers, assign to high part of reg
-		//{
+		while ( HiLo<2 )		// If there are still unused registers, assign to high part of reg
+		{
 			RegisterSpanList::const_iterator span_it = mRegisterSpanList.begin();
 			while( span_it < mRegisterSpanList.end() )
 			{
@@ -313,30 +313,35 @@ void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register
 				}
 				++span_it;
 			}
-			//++HiLo;
-		//}
+			++HiLo;
+		}
 		//
 		//	Pull all the cached registers into memory
 		//
 		// Skip r0
-		s32 i = NUM_N64_REGS;
-		while( i > 0 )
+		u32 i = 1;
+		while( i < NUM_N64_REGS )
 		{
 			EN64Reg	n64_reg = EN64Reg( i );
-			if( mRegisterCache.IsCached( n64_reg, 0 ) )
+			u32 lo_hi_idx = 0;
+			while( lo_hi_idx < 2)
 			{
-				PrepareCachedRegister( n64_reg, 0 );
-
-				//
-				//	If the register is modified anywhere in the fragment, we need
-				//	to mark it as dirty so it's flushed correctly on exit.
-				//
-				if( register_usage.IsModified( n64_reg ) )
+				if( mRegisterCache.IsCached( n64_reg, lo_hi_idx ) )
 				{
-					mRegisterCache.MarkAsDirty( n64_reg, 0, true );
+					PrepareCachedRegister( n64_reg, lo_hi_idx );
+
+					//
+					//	If the register is modified anywhere in the fragment, we need
+					//	to mark it as dirty so it's flushed correctly on exit.
+					//
+					if( register_usage.IsModified( n64_reg ) )
+					{
+						mRegisterCache.MarkAsDirty( n64_reg, lo_hi_idx, true );
+					}
 				}
+				++lo_hi_idx;
 			}
-			--i; 
+			++i; 
 		}
 		mLoopTop = GetAssemblyBuffer()->GetLabel();
 	} //End of Loop optimization code
