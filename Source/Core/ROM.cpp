@@ -463,7 +463,6 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x514D: g_ROM.GameHacks = PMARIO;				break;
 	case 0x3954: g_ROM.GameHacks = TIGERS_HONEY_HUNT;	break;
 	case 0x5632: g_ROM.GameHacks = CHAMELEON_TWIST_2;	break;
-	case 0x5941: g_ROM.GameHacks = AIDYN_CRONICLES;		break;
 	case 0x344b: g_ROM.GameHacks = KIRBY64;				break;
 	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
 	case 0x4643: g_ROM.GameHacks = CLAY_FIGHTER_63;		break;
@@ -473,6 +472,10 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x4450: g_ROM.GameHacks = PERFECT_DARK;		break;
 	case 0x3247: g_ROM.GameHacks = EXTREME_G2;			break;
 	case 0x5359: g_ROM.GameHacks = YOSHI;				break;
+	case 0x5941:
+		g_ROM.ALPHA_HACK = true;
+		g_ROM.GameHacks = AIDYN_CRONICLES;
+		break;
 	case 0x5144:	//Donald Duck
 	case 0x3259:	//Rayman2
 		g_ROM.T1_HACK = true;

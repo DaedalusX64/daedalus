@@ -1008,7 +1008,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
 	{
 		// G_AC_THRESHOLD || G_AC_DITHER
-		sceGuAlphaFunc( GU_GEQUAL, mAlphaThreshold ? mAlphaThreshold : 1, 0xff);
+		sceGuAlphaFunc( (mAlphaThreshold | g_ROM.ALPHA_HACK) ? GU_GEQUAL : GU_GREATER, mAlphaThreshold, 0xff);
 		sceGuEnable(GU_ALPHA_TEST);
 	}
 	// I think this implies that alpha is coming from
@@ -1203,23 +1203,37 @@ void PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
 
-	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(2 * sizeof(DaedalusVtx)) );
+	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(4 * sizeof(DaedalusVtx)) );
 
 	p_vertices[0].Position.x = screen0.x;
 	p_vertices[0].Position.y = screen0.y;
 	p_vertices[0].Position.z = 0.0f;
 	p_vertices[0].Colour = c32(0xffffffff);
-	p_vertices[0].Texture.x = tex_uv1.y;
-	p_vertices[0].Texture.y = tex_uv1.y;
+	p_vertices[0].Texture.x = tex_uv0.x;
+	p_vertices[0].Texture.y = tex_uv0.y;
 
 	p_vertices[1].Position.x = screen1.x;
-	p_vertices[1].Position.y = screen1.y;
+	p_vertices[1].Position.y = screen0.y;
 	p_vertices[1].Position.z = 0.0f;
 	p_vertices[1].Colour = c32(0xffffffff);
 	p_vertices[1].Texture.x = tex_uv0.x;
-	p_vertices[1].Texture.y = tex_uv0.y;
+	p_vertices[1].Texture.y = tex_uv1.y;
 
-	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, GU_TRANSFORM_2D, true );
+	p_vertices[2].Position.x = screen0.x;
+	p_vertices[2].Position.y = screen1.y;
+	p_vertices[2].Position.z = 0.0f;
+	p_vertices[2].Colour = c32(0xffffffff);
+	p_vertices[2].Texture.x = tex_uv1.x;
+	p_vertices[2].Texture.y = tex_uv0.y;
+
+	p_vertices[3].Position.x = screen1.x;
+	p_vertices[3].Position.y = screen1.y;
+	p_vertices[3].Position.z = 0.0f;
+	p_vertices[3].Colour = c32(0xffffffff);
+	p_vertices[3].Texture.x = tex_uv1.x;
+	p_vertices[3].Texture.y = tex_uv1.y;
+
+	RenderUsingCurrentBlendMode( p_vertices, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++m_dwNumRect;

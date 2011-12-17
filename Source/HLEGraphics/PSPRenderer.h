@@ -196,7 +196,7 @@ public:
 
 	inline void			SetNumLights(u32 num)					{ mTnL.NumLights = num; }
 	inline void			SetLightCol(u32 l, u32 col)				{ mTnL.Lights[l].Colour.x=((col>>24)&0xFF)/255.0f; mTnL.Lights[l].Colour.y=((col>>16)&0xFF)/255.0f; mTnL.Lights[l].Colour.z=((col>>8)&0xFF)/255.0f; mTnL.Lights[l].Colour.w=1.0f; }
-	inline void			SetLightDirection(u32 l, f32 x, f32 y, f32 z)			{ v3 n; n.x=x; n.y=y; n.z=z; n.Normalise(); mTnL.Lights[l].Direction.x=n.x; mTnL.Lights[l].Direction.y=n.y; mTnL.Lights[l].Direction.z=n.z; mTnL.Lights[l].Padding0=0.0f; }
+	inline void			SetLightDirection(u32 l, f32 x, f32 y, f32 z)			{ v3 n(x, y, z); n.Normalise(); mTnL.Lights[l].Direction.x=n.x; mTnL.Lights[l].Direction.y=n.y; mTnL.Lights[l].Direction.z=n.z; mTnL.Lights[l].Padding0=0.0f; }
 	inline void			SetAmbientLight( const v3 & colour )	{ mTnL.Ambient.x = colour.x, mTnL.Ambient.y = colour.y, mTnL.Ambient.z = colour.z, mTnL.Ambient.w = 1.0f; }
 
 	inline void			SetMux( u64 mux )						{ mMux = mux; }
@@ -248,8 +248,7 @@ public:
 
 	// Render our current triangle list to screen
 	void				FlushTris();
-
-	void				Line3D( u32 v0, u32 v1, u32 width );
+	//void				Line3D( u32 v0, u32 v1, u32 width );
 	
 	// Returns true if bounding volume is visible within NDC box, false if culled
 	inline bool			TestVerts( u32 v0, u32 vn ) const		{ u32 f=mVtxProjected[v0].ClipFlags; for( u32 i=v0+1; i<=vn; i++ ) f&=mVtxProjected[i].ClipFlags; return f==0; }
