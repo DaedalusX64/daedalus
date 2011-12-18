@@ -1797,6 +1797,44 @@ void BlendMode_0x0030b2045ffefff8LL(BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_BLEND, GU_TCC_RGBA);
 }
 
+
+// WWF Wreslemania 2000 - Wrestlers
+// Command $ Conquer - Shades
+//case 0x0015fe2bfffff3f9LL:
+//aRGB0: (Texel0       - 0           ) * Shade_Alpha  + 0
+//aA0  : (0            - 0           ) * 0            + Texel0
+//aRGB1: (Texel0       - 0           ) * Shade_Alpha  + 0
+//aA1  : (0            - 0           ) * 0            + Texel0
+void BlendMode_0x0015fe2bfffff3f9LL( BLEND_MODE_ARGS )
+{
+	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
+}
+
+// WWF Wreslemania 2000 - Menu & Text
+//case 0x005196a3112cfe7fLL:
+//aRGB0: (Env          - Texel0      ) * Primitive    + Texel0
+//aA0  : (Texel0       - 0           ) * Primitive    + 0
+//aRGB1: (Env          - Texel0      ) * Primitive    + Texel0
+//aA1  : (Texel0       - 0           ) * Primitive    + 0
+void BlendMode_0x005196a3112cfe7fLL( BLEND_MODE_ARGS )
+{
+	// ADD fixes the text when the game starts, but breaks the main menu errrg, we prefer to render the menu right instead..
+	//sceGuTexFunc(GU_TFX_ADD,GU_TCC_RGBA);
+	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
+}
+
+// WWF Wreslemania 2000 - Wrestlers Main Menu 
+//case 0x0015fea3f00ff23fLL:
+//aRGB0: (Texel0       - 0           ) * Shade_Alpha  + 0
+//aA0  : (0            - 0           ) * 0            + Texel0
+//aRGB1: (Env          - Combined    ) * Primitive    + Combined
+//aA1  : (Combined     - 0           ) * Primitive    + 0
+void BlendMode_0x0015fea3f00ff23fLL( BLEND_MODE_ARGS )
+{
+	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
+}
+
+
 //*****************************************************************************
 // Check if Inexact blend is using default blend
 //*****************************************************************************
@@ -1863,6 +1901,8 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00147e2844fe793cLL); // FZero tracks / Mario 64 penguin's eyes
 			BLEND_MODE(0x00149460f50fff7fLL); // Animal Crossing Gold
 			BLEND_MODE(0x001596a430fdfe38LL); // DKR Intro Plane
+			BLEND_MODE(0x0015fe2bfffff3f9LL); // WWF Wreslemania 2000 - Wrestlers
+			BLEND_MODE(0x0015fea3f00ff23fLL); // WWF Wreslemania 2000 - Wrestlers Main Menu
 			BLEND_MODE(0x0015fec4f0fff83cLL); // Pilot Wings 64 sky
 			BLEND_MODE(0x00161a6025fd2578LL); // Yoshi - Dust
 			BLEND_MODE(0x00167e6035fcff7eLL); // OOT, MM Intro (N64 Logo)
@@ -1930,6 +1970,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0040fe8155fef97cLL); // GoldenEye Sky
 			//BLEND_MODE(0x0040fe8155fefd7eLL); // Kirby Far Terrain -> Breaks Rocket-robot on wheels
 			BLEND_MODE(0x0050d2a133a5b6dbLL); // Pokemon Stadium 2 Pokemon Select Box
+			BLEND_MODE(0x005196a3112cfe7fLL); // WWF Wreslemania 2000 - Menu
 			BLEND_MODE(0x00541aa83335feffLL); // Sin and Punishment Grass
 			BLEND_MODE(0x00547ea833fdf2f9LL); // Sin and Punishment - Ground
 			BLEND_MODE(0x00551aaa1134fe7fLL); // Sin and Punishment - Particles and Explosions
