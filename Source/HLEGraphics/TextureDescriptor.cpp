@@ -83,31 +83,33 @@ const void *	TextureInfo::GetPalettePtr() const
 	// Want to advance 16x16bpp palette entries in TMEM(i.e. 32 bytes into tmem for each palette), i.e. <<5.
 	// some games uses <<7 like in MM but breaks Aerogauge //Corn
 #ifndef DAEDALUS_TMEM
-	//printf("%d\n",TLutIndex);
-	//for(u32 i=0;i<0x100;i++) printf("%p ", gTextureMemory[ i ]);
+	//printf("0x%02x\n",TLutIndex << (g_ROM.TLUT_HACK? 4:2));
+	//for(u32 i=0;i<0x40;i+=8) printf("0x%02x -> %08x %08x %08x %08x %08x %08x %08x %08x\n", i<<2,
+	//	(u32)gTextureMemory[ i+0 ], (u32)gTextureMemory[ i+1 ], (u32)gTextureMemory[ i+2 ], (u32)gTextureMemory[ i+3 ],
+	//	(u32)gTextureMemory[ i+4 ], (u32)gTextureMemory[ i+5 ], (u32)gTextureMemory[ i+6 ], (u32)gTextureMemory[ i+7 ]);
 	//printf("\n\n");
 
 	if ( g_ROM.TLUT_HACK )
 	{
-		if(gTextureMemory[ TLutIndex << 4 ] == NULL)
-		{	//If TMEM PAL address is NULL then assume that the base address is stored in
-			//TMEM address 0x100 and calculate offset from there with TLutIndex
-			//If this also returns NULL then return bogus non NULL address to avoid BSOD (Flying Dragon) //Corn
-			if((void *)((u32)gTextureMemory[ 0 ] + ( TLutIndex << 7 )) == NULL) return (void *)g_pu8RamBase;
-			else return (void *)((u32)gTextureMemory[ 0 ] + ( TLutIndex << 7 ));
-		}
-		else return (void *)gTextureMemory[ TLutIndex << 4 ];
-	}
-	else
-	{
 		if(gTextureMemory[ TLutIndex << 2 ] == NULL)
 		{	//If TMEM PAL address is NULL then assume that the base address is stored in
 			//TMEM address 0x100 and calculate offset from there with TLutIndex
-			//If this also returns NULL then return bogus non NULL address to avoid BSOD (Extreme-G) //Corn
+			//If this also returns NULL, then return bogus non NULL address to avoid BSOD (Flying Dragon) //Corn
+			if((void *)((u32)gTextureMemory[ 0 ] + ( TLutIndex << 7 )) == NULL) return (void *)g_pu8RamBase;
+			else return (void *)((u32)gTextureMemory[ 0 ] + ( TLutIndex << 7 ));
+		}
+		else return (void *)gTextureMemory[ TLutIndex << 2 ];
+	}
+	else
+	{
+		if(gTextureMemory[ TLutIndex ] == NULL)
+		{	//If TMEM PAL address is NULL then assume that the base address is stored in
+			//TMEM address 0x100 and calculate offset from there with TLutIndex
+			//If this also returns NULL, then return bogus non NULL address to avoid BSOD (Extreme-G) //Corn
 			if((void *)((u32)gTextureMemory[ 0 ] + ( TLutIndex << 5 )) == NULL)	return (void *)g_pu8RamBase;
 			else return (void *)((u32)gTextureMemory[ 0 ] + ( TLutIndex << 5 ));
 		}
-		else return (void *)gTextureMemory[ TLutIndex << 2 ];
+		else return (void *)gTextureMemory[ TLutIndex ];
 	}
 #else
 

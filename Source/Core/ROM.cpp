@@ -493,6 +493,7 @@ void SpecificGameHacks( const ROMHeader & id )
 		g_ROM.ZELDA_HACK = true;
 		g_ROM.GameHacks = ZELDA_MM;
 		break;
+	case 0x4552:	//Resident Evil 2	
 	case 0x5547:	//Sin and punishment		
 	case 0x4446:	//Flying Dragon	
 	case 0x5653:	//SSV

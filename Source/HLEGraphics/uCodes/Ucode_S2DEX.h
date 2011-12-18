@@ -498,7 +498,7 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 	{
 #ifndef DAEDALUS_TMEM
 		// Store TLUT pointer
-		gTextureMemory[ ObjTxtr->tlut.phead & 0xFF ] = (u32*)(g_pu8RamBase + RDPSegAddr(ObjTxtr->tlut.image));
+		gTextureMemory[ (ObjTxtr->tlut.phead>>2) & 0x3F ] = (u32*)(g_pu8RamBase + RDPSegAddr(ObjTxtr->tlut.image));
 #else
 		uObjTxtrTLUT *ObjTlut = (uObjTxtrTLUT*)ObjTxtr;
 		u32 ObjTlutAddr = (u32)(g_pu8RamBase + RDPSegAddr(ObjTlut->image));

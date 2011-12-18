@@ -1115,7 +1115,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 
 #ifndef DAEDALUS_TMEM
 	//Store address of PAL (assuming PAL is only stored in upper half of TMEM) //Corn
-	gTextureMemory[ rdp_tile.tmem & 0xFF ] = (u32*)address;
+	gTextureMemory[ (rdp_tile.tmem>>2) & 0x3F ] = (u32*)address;
 #else
 	//Copy PAL to the PAL memory
 	u16 * p_source = (u16*)address;
