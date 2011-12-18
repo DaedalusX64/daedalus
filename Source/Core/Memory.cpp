@@ -1168,8 +1168,7 @@ void MemoryUpdateSPStatus( u32 flags )
 		DAEDALUS_ASSERT( !gRSPHLEActive, "Clearing halt with RSP HLE task running" );
 		start_rsp = true;
 	}
-
-	if (flags & SP_SET_HALT)
+	else if (flags & SP_SET_HALT)
 	{
 		set_bits |= SP_STATUS_HALT;
 		DAEDALUS_ASSERT( !gRSPHLEActive, "Setting halt with RSP HLE task running" );
@@ -1242,6 +1241,7 @@ void MemoryUpdateSPStatus( u32 flags )
 	{
 #ifdef DAEDAULUS_ENABLEASSERTS
 		DAEDALUS_ASSERT( !gRSPHLEActive, "RSP HLE already active. Status was %08x, now %08x", status, new_status );
+		DAEDALUS_ASSERT( (status & SP_STATUS_BROKE) == 0 ),"Unexpected RSP HLE status %08x", status );
 #endif
 
 		// Check for tasks whenever the RSP is started
