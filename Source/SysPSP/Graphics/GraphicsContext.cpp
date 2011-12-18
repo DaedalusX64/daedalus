@@ -59,7 +59,7 @@ static u32 SCR_MODE	  = GU_PSM_5650;
 #define LACED_HEIGHT 503
 #define LACED_SIZE (BUF_WIDTH * LACED_HEIGHT * PIXEL_SIZE)
 
-static u32 __attribute__((aligned(16))) list[2][262144];
+static u32 __attribute__((aligned(16))) list[2][262144*4];	//Some games uses huge amount here like Star Soldier - Vanishing Earth
 static u32 __attribute__((aligned(16))) callList[64];
 static u32 __attribute__((aligned(16))) ilist[256];
 

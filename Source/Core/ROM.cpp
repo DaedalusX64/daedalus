@@ -476,6 +476,7 @@ void SpecificGameHacks( const ROMHeader & id )
 		g_ROM.ALPHA_HACK = true;
 		g_ROM.GameHacks = AIDYN_CRONICLES;
 		break;
+	case 0x4A54:	//Tom and Jerry
 	case 0x5144:	//Donald Duck
 	case 0x3259:	//Rayman2
 		g_ROM.T1_HACK = true;
@@ -493,6 +494,8 @@ void SpecificGameHacks( const ROMHeader & id )
 		g_ROM.ZELDA_HACK = true;
 		g_ROM.GameHacks = ZELDA_MM;
 		break;
+	case 0x324C:	//Top Gear Rally 2
+	case 0x5247:	//Top Gear Rally
 	case 0x4552:	//Resident Evil 2	
 	case 0x5547:	//Sin and punishment		
 	case 0x4446:	//Flying Dragon	
