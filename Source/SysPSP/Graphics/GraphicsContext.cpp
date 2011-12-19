@@ -50,6 +50,8 @@ namespace
 	const char *	gScreenDumpDumpPathFormat = "sd%04d.png";
 }
 
+#define DLISTSIZE 1*1024*1024	//Size of PSP Dlist
+
 static u32 PIXEL_SIZE = 2; /* change this if you change to another screenmode */
 static u32 SCR_MODE	  = GU_PSM_5650;
 
@@ -188,15 +190,15 @@ IGraphicsContext::IGraphicsContext()
 	
 #if 1 //1->alloc in volatile memory, 0->alloc in VRAM //Corn
 	//Set up PSP Dlists in the extra 4MB space and make sure pointer are aligned to 16 bytes
-	list[0] = (u32*)(((u32)malloc_volatile(1*1024*1024) + 0xF) & ~0xF);
-	list[1] = (u32*)(((u32)malloc_volatile(1*1024*1024) + 0xF) & ~0xF);
+	list[0] = (u32*)(((u32)malloc_volatile(DLISTSIZE) + 0xF) & ~0xF);
+	list[1] = (u32*)(((u32)malloc_volatile(DLISTSIZE) + 0xF) & ~0xF);
 #else	
 	//Set up PSP Dlists in VRAM(if available)
 	void *ptr;
 	bool is_videmem;
-	CVideoMemoryManager::Get()->Alloc( 1*1024*1024, &ptr, &is_videmem );
+	CVideoMemoryManager::Get()->Alloc( DLISTSIZE, &ptr, &is_videmem );
 	list[0] = (u32*)ptr;
-	CVideoMemoryManager::Get()->Alloc( 1*1024*1024, &ptr, &is_videmem );
+	CVideoMemoryManager::Get()->Alloc( DLISTSIZE, &ptr, &is_videmem );
 	list[1] = (u32*)ptr;
 #endif
 }
@@ -296,7 +298,7 @@ void IGraphicsContext::ClearColBuffer(u32 col)
 void IGraphicsContext::BeginFrame()
 {
 	if(!gDoubleDisplayEnabled) 
-		sceGuStart(GU_DIRECT,list[0]);
+		sceGuStart(GU_DIRECT,list[listNum]);
 	/*else
 	{
 		sceGuOffset(2048 - (SCR_WIDTH/2),2048 - (SCR_HEIGHT/2));
@@ -332,7 +334,14 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 	void * p_back;
 
 	if(gDoubleDisplayEnabled) 
+	{
+	#ifdef DAEDALUS_ENABLE_ASSERTS
+		DAEDALUS_ASSERT( sceGuFinish() < DLISTSIZE , "PSP Dlist Overflow" );
+	#else
 		sceGuFinish();
+		//printf("Dlist size %d bytes\n", sceGuFinish());
+	#endif
+	}
 	
 	sceGuSync(0,0);
 
@@ -372,8 +381,6 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 
 	SetDebugScreenTarget( TS_BACKBUFFER );	//Used to print FPS and other stats
 
-	// Should we skip this when we are in the GUI? 
-	//
 	if(gDoubleDisplayEnabled) 
 	{
 		sceGuStart(GU_DIRECT,callList);
@@ -395,7 +402,6 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 	//
 	if( g_ROM.GameHacks == EXTREME_G2 ) sceGuClear(GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);	//Clear Zbuffer
 	
-	//printf("%d %d\n",listNum,gDoubleDisplayEnabled);
 	return true;
 }
 

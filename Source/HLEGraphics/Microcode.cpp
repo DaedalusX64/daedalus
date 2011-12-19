@@ -59,11 +59,6 @@ struct MicrocodeData
 	u32				code_hash;
 };
 
-
-#ifdef DAEDALUS_ENABLE_ASSERTS
-const u32	MAX_RAM_ADDRESS = (8*1024*1024);
-#endif
-
 //
 // Used to keep track of used ucode entries
 //
