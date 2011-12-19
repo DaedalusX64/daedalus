@@ -454,7 +454,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	printf("ROM ID[%04X]\n", id.CartID);
 
 	g_ROM.HACKS_u32 = 0;	//Default to no game hacks
-	
+
 	switch( id.CartID )
 	{
 	case 0x324a: g_ROM.GameHacks = WONDER_PROJECTJ2;	break;
@@ -494,6 +494,7 @@ void SpecificGameHacks( const ROMHeader & id )
 		g_ROM.ZELDA_HACK = true;
 		g_ROM.GameHacks = ZELDA_MM;
 		break;
+	case 0x3653:	//Star soldier - vanishing earth
 	case 0x324C:	//Top Gear Rally 2
 	case 0x5247:	//Top Gear Rally
 	case 0x4552:	//Resident Evil 2	

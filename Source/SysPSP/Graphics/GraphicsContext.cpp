@@ -59,7 +59,11 @@ static u32 SCR_MODE	  = GU_PSM_5650;
 #define LACED_HEIGHT 503
 #define LACED_SIZE (BUF_WIDTH * LACED_HEIGHT * PIXEL_SIZE)
 
-static u32 __attribute__((aligned(16))) list[2][262144*4];	//Some games uses huge amount here like Star Soldier - Vanishing Earth
+//Get Dlist memory from malloc
+extern void* malloc_volatile(size_t size);
+static u32* list[2];
+
+//static u32 __attribute__((aligned(16))) list[2][262144];	//Some games uses huge amount here like Star Soldier - Vanishing Earth
 static u32 __attribute__((aligned(16))) callList[64];
 static u32 __attribute__((aligned(16))) ilist[256];
 
@@ -181,6 +185,20 @@ IGraphicsContext::IGraphicsContext()
 {
 	mpBuffers[ 0 ] = NULL;
 	mpBuffers[ 1 ] = NULL;
+	
+#if 1 //1->alloc in volatile memory, 0->alloc in VRAM //Corn
+	//Set up PSP Dlists in the extra 4MB space and make sure pointer are aligned to 16 bytes
+	list[0] = (u32*)(((u32)malloc_volatile(1*1024*1024) + 0xF) & ~0xF);
+	list[1] = (u32*)(((u32)malloc_volatile(1*1024*1024) + 0xF) & ~0xF);
+#else	
+	//Set up PSP Dlists in VRAM(if available)
+	void *ptr;
+	bool is_videmem;
+	CVideoMemoryManager::Get()->Alloc( 1*1024*1024, &ptr, &is_videmem );
+	list[0] = (u32*)ptr;
+	CVideoMemoryManager::Get()->Alloc( 1*1024*1024, &ptr, &is_videmem );
+	list[1] = (u32*)ptr;
+#endif
 }
 
 //*****************************************************************************
