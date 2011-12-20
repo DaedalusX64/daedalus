@@ -479,12 +479,12 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x4A54:	//Tom and Jerry
 	case 0x5144:	//Donald Duck
 	case 0x3259:	//Rayman2
+	case 0x4d4a:	//Earthworm Jim
 		g_ROM.SPEED_HACK = true;
 		g_ROM.T1_HACK = true;
 		break;
-	case 0x4d4a:	//Earthworm Jim
-	//case 0x5150:	//PowerPuff Girls
-		g_ROM.T1_HACK = true;
+	case 0x5150:	//PowerPuff Girls
+		g_ROM.SPEED_HACK = true;
 		break;
 	case 0x3358:	//GEX3
 	case 0x3258:	//GEX64
