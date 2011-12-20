@@ -327,6 +327,7 @@ void IGraphicsContext::EndFrame()
 //*****************************************************************************
 //
 //*****************************************************************************
+//extern bool gDebugDisplayList;
 bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 {
 	DAEDALUS_PROFILE( "IGraphicsContext::UpdateFrame" );
@@ -339,7 +340,9 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 		DAEDALUS_ASSERT( sceGuFinish() < DLISTSIZE , "PSP Dlist Overflow" );
 	#else
 		sceGuFinish();
-		//printf("Dlist size %d bytes\n", sceGuFinish());
+		//u32 num = sceGuFinish();
+		//if( num > DLISTSIZE ) gDebugDisplayList = true;
+		//printf("Dlist size %d bytes\n", num);
 	#endif
 	}
 	

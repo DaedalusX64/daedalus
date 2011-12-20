@@ -46,6 +46,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern void battery_warning();
 extern void HandleEndOfFrame();
 
+u32		gVISyncRate = 1500;
 bool	gFrameskipActive = false;
 bool	gTakeScreenshot = false;
 
@@ -232,6 +233,10 @@ void CGraphicsPluginPsp::UpdateScreen()
 	
 		f32 Fsync = FramerateLimiter_GetSync();
 
+		gVISyncRate = 1500.0f / Fsync;
+		if( gVISyncRate > 4000 ) gVISyncRate = 4000;
+		else if ( gVISyncRate < 1500 ) gVISyncRate = 1500;
+ 
 		if(!gFrameskipActive)
 		{		
 			if( gGlobalPreferences.DisplayFramerate )

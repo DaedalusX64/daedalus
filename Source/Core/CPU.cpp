@@ -53,6 +53,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/ultra_R4300.h"	
 
 #include "ConfigOptions.h"
+#include "Core/ROM.h"
 
 #include <algorithm>
 #include <string>
@@ -675,6 +676,7 @@ void CPU_EnableBreakPoint( u32 address, bool enable )
 //*****************************************************************************
 //
 //*****************************************************************************
+extern u32 gVISyncRate;
 extern "C"
 {
 void CPU_HANDLE_COUNT_INTERRUPT()
@@ -693,7 +695,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			}
 			else
 			{
-				VI_INTR_CYCLES = (vertical_sync_reg+1) * 1500;
+				VI_INTR_CYCLES = (vertical_sync_reg+1) * ( g_ROM.SPEED_HACK? gVISyncRate : 1500 );
 			}
 
 			// Apply cheatcodes, if enabled

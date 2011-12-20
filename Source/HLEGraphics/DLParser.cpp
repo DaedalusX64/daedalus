@@ -1134,7 +1134,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 
 	// This code dumps the palette colors
 	//
-	/*
+	#if 0
 	if (gDisplayListFile != NULL)
 	{
 		char str[300] = "";
@@ -1161,7 +1161,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 		}
 		DL_PF(str);
 	}
-	*/
+	#endif
 #endif
 }
 

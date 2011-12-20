@@ -34,15 +34,10 @@ void DLParser_GBI0_Vtx_SOTE( MicroCodeCommand command )
 
 	DL_PF("    Address[0x%08x] v0[%d] Num[%d] Len[0x%04x]", address, v0, n, len);
 
-	if(v0 >= 32)
-	{
-		v0 = 31;
-	}
-
-	if ((v0 + n) > 32)
+	if (n > 32)
 	{
 		DBGConsole_Msg(0, "Warning, attempting to load into invalid vertex positions");
-		n = 32 - v0;
+		n = 32;
 	}
 
 	PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
