@@ -220,7 +220,7 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		}
 		if( section->FindProperty( "DynarecLoopOptimisation", &property ) )
 		{
-			preferences.DynarecLoopOptimisation = property->GetBooleanValue( true );
+			preferences.DynarecLoopOptimisation = property->GetBooleanValue( false );
 		}
 		if( section->FindProperty( "DoubleDisplayEnabled", &property ) )
 		{
@@ -440,7 +440,7 @@ void SGlobalPreferences::Apply() const
 SRomPreferences::SRomPreferences()
 	:	PatchesEnabled( true )
 	,	DynarecEnabled( true )
-	,	DynarecLoopOptimisation( true )
+	,	DynarecLoopOptimisation( false )
 	,	DoubleDisplayEnabled( true )
 	,	SimulateDoubleDisabled( false )
 	,	CleanSceneEnabled( false )
@@ -467,7 +467,7 @@ void SRomPreferences::Reset()
 	PatchesEnabled = true;
 	SpeedSyncEnabled = 0;
 	DynarecEnabled = true;
-	DynarecLoopOptimisation = true;
+	DynarecLoopOptimisation = false;
 	DoubleDisplayEnabled = true;
 	SimulateDoubleDisabled = false;
 	CleanSceneEnabled = false;

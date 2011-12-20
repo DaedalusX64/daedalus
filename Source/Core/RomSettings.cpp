@@ -282,7 +282,7 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 		}
 		if( p_section->FindProperty( "DynarecLoopOptimisation", &p_property ) )
 		{
-			settings.DynarecLoopOptimisation = p_property->GetBooleanValue( true );
+			settings.DynarecLoopOptimisation = p_property->GetBooleanValue( false );
 		}
 		if( p_section->FindProperty( "DoubleDisplayEnabled", &p_property ) )
 		{
@@ -425,7 +425,7 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	if( !settings.PatchesEnabled )				fprintf(fh, "PatchesEnabled=no\n");
 	if( !settings.SpeedSyncEnabled )			fprintf(fh, "SpeedSyncEnabled=%d\n", settings.SpeedSyncEnabled);
 	if( !settings.DynarecSupported )			fprintf(fh, "DynarecSupported=no\n");
-	if( !settings.DynarecLoopOptimisation )		fprintf(fh, "DynarecLoopOptimisation=no\n");
+	if( !settings.DynarecLoopOptimisation )		fprintf(fh, "DynarecLoopOptimisation=yes\n");
 	if( !settings.DoubleDisplayEnabled )		fprintf(fh, "DoubleDisplayEnabled=no\n");
 	if( settings.SimulateDoubleDisabled )		fprintf(fh, "SimulateDoubleDisabled=yes\n");
 	if( settings.CleanSceneEnabled )			fprintf(fh, "CleanSceneEnabled=yes\n");	
@@ -485,7 +485,7 @@ RomSettings::RomSettings()
 ,	PatchesEnabled( true )
 ,	SpeedSyncEnabled( 0 )
 ,	DynarecSupported( true )
-,	DynarecLoopOptimisation( true )
+,	DynarecLoopOptimisation( false )
 ,	DoubleDisplayEnabled( true )
 ,	SimulateDoubleDisabled( false )
 ,	CleanSceneEnabled( false )
@@ -517,7 +517,7 @@ void	RomSettings::Reset()
 	PatchesEnabled = true;
 	SpeedSyncEnabled = 0;
 	DynarecSupported = true;
-	DynarecLoopOptimisation = true;
+	DynarecLoopOptimisation = false;
 	DoubleDisplayEnabled = true;
 	SimulateDoubleDisabled = false;
 	CleanSceneEnabled = false;
