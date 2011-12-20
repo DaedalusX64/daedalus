@@ -285,6 +285,7 @@ struct SAddSamplesJob : public SJob
 //*****************************************************************************
 //
 //*****************************************************************************
+extern u32 gSoundSync;
 u32 AudioCode::AddBuffer( u8 *start, u32 length )
 {
 	if (length == 0)
@@ -300,13 +301,9 @@ u32 AudioCode::AddBuffer( u8 *start, u32 length )
 	//Adapt Audio to sync% //Corn
 	if(gAudioRateMatch)
 	{
-		u32 rate = FramerateLimiter_GetSyncI();	//Calc audio rate according to filtered sync value
-		if(rate > 88200) 
-			mOutputFrequency = 88200;	//limit upper rate
-		else if(rate < 44100)
-			mOutputFrequency = 44100;	//limit lower rate
-		else 
-			mOutputFrequency = rate;
+		if(gSoundSync > 88200) mOutputFrequency = 88200;	//limit upper rate
+		else if(gSoundSync < 44100) mOutputFrequency = 44100;	//limit lower rate
+		else mOutputFrequency = gSoundSync;
 	}
 	else 
 		mOutputFrequency = DESIRED_OUTPUT_FREQUENCY;

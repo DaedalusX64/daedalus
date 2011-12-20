@@ -46,6 +46,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern void battery_warning();
 extern void HandleEndOfFrame();
 
+u32		gSoundSync = 44100;
 u32		gVISyncRate = 1500;
 bool	gFrameskipActive = false;
 bool	gTakeScreenshot = false;
@@ -231,9 +232,12 @@ void CGraphicsPluginPsp::UpdateScreen()
 		if( gGlobalPreferences.DisplayFramerate )
 			UpdateFramerate();
 	
-		f32 Fsync = FramerateLimiter_GetSync();
+		const f32 Fsync = FramerateLimiter_GetSync();
 
-		gVISyncRate = 1500.0f / Fsync;
+		//Calc sync rates for audio and game speed //Corn
+		const f32 inv_Fsync = 1.0f / Fsync;
+		gSoundSync = 40000.0f * inv_Fsync; 
+		gVISyncRate = 1500.0f * inv_Fsync;
 		if( gVISyncRate > 4000 ) gVISyncRate = 4000;
 		else if ( gVISyncRate < 1500 ) gVISyncRate = 1500;
  

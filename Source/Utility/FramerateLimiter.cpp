@@ -84,11 +84,13 @@ void FramerateLimiter_Reset()
 #if 1	//1->fast, 0->old //Corn
 u32 FramerateLimiter_UpdateAverageTicksPerVbl( u32 elapsed_ticks )
 {
-	static f32 avg = 0.f;
+	static u32 s[8];
+	static u32 ptr = 0;
 
-	avg = 0.875f * avg + 0.125f * ((f32)elapsed_ticks);
-	
-	return (u32)avg;
+	s[ptr++] = elapsed_ticks;
+	ptr &= 0x7;
+
+	return (s[0] + s[1] + s[2] + s[3] + s[4] + s[5] + s[6] + s[7] + 4) >> 3;
 }
 #else
 const u32		NUM_SYNC_SAMPLES( 8 );				// These are all for keeping track of the current sync rate
@@ -166,24 +168,6 @@ f32	FramerateLimiter_GetSync()
 		return 0.0f;
 	}
 	return f32( gTicksBetweenVbls ) / f32( gCurrentAverageTicksPerVbl );
-}
-
-//*****************************************************************************
-//	Get the current sync rate to match audio sample rate //Corn 
-//*****************************************************************************
-u32	FramerateLimiter_GetSyncI()
-{
-	static f32 sum=0.0f;
-
-	if( gTicksBetweenVbls == 0 )
-	{
-		return 44100;
-	}
-
-	//Filter variations a bit
-	sum = sum * 0.90f + 0.095f * 44100.0f * (f32)gCurrentAverageTicksPerVbl  / (f32)gTicksBetweenVbls;
-	//printf("%d\n",u32(sum));
-	return u32(sum);
 }
 
 //*****************************************************************************
