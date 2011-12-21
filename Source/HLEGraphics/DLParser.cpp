@@ -1304,9 +1304,6 @@ void DLParser_FillRect( MicroCodeCommand command )
 		return;
 	}
 
-	//Hack for Shadow of the empire -> skip all other fillrects 
-	if( g_ROM.GameHacks == SOTE ) return;
-
 	// TODO - Check colour image format to work out how this should be decoded!
 	c32		colour;
 
@@ -1340,14 +1337,13 @@ void DLParser_FillRect( MicroCodeCommand command )
 	}
 	else
 	{
-		//colour = PSPRenderer::Get()->GetPrimitiveColour(); MK64 doesn't like it..
-		colour = c32::Black;
+		// Should we use Prim or Blend colour? Doesn't work well see Mk64 transition before a race
+		colour = c32(0); 
 	}
 	//
 	// (1) Removes annoying rect that appears in Conker etc
-	// (2) This blend mode is mem*0 + mem*1, so we don't need to render it... Very odd! (Wave Racer - Menu fix)
 	//
-	if( bIsOffScreen | (gRDPOtherMode.blender == 0x5f50) )	
+	if( bIsOffScreen )	
 	{
 		DL_PF("    Ignoring Fillrect ");
 		return;
