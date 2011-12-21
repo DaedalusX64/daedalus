@@ -74,8 +74,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "PopStructPack.h"
 
-//extern SImageDescriptor g_CI;		// XXXX SImageDescriptor g_CI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
-//extern SImageDescriptor g_DI;		// XXXX SImageDescriptor g_DI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
+extern SImageDescriptor g_CI;		// XXXX SImageDescriptor g_CI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
+extern SImageDescriptor g_DI;		// XXXX SImageDescriptor g_DI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 
 extern "C"
 {
@@ -1403,10 +1403,8 @@ void PSPRenderer::FlushTris()
 		return;
 	}
 
-	// This no longer needed since we handle this with a cheat.
-	// This hack is left for reference
 	// Hack for Pilotwings 64
-	/*static bool skipNext=false;
+	static bool skipNext=false;
 	if( g_ROM.GameHacks == PILOT_WINGS )
 	{
 		if ( (g_DI.Address == g_CI.Address) && gRDPOtherMode.z_cmp+gRDPOtherMode.z_upd > 0 )
@@ -1424,7 +1422,7 @@ void PSPRenderer::FlushTris()
 			mVtxClipFlagsUnion = 0;
 			return;
 		}	
-	}*/
+	}
 	
 	//
 	// Process the software vertex buffer to apply a couple of

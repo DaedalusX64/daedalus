@@ -471,6 +471,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5944: g_ROM.GameHacks = DKR;					break;
 	case 0x4450: g_ROM.GameHacks = PERFECT_DARK;		break;
 	case 0x3247: g_ROM.GameHacks = EXTREME_G2;			break;
+	case 0x5750: g_ROM.GameHacks = PILOT_WINGS;			break;
 	case 0x5359: g_ROM.GameHacks = YOSHI;				break;
 	case 0x5941:
 		g_ROM.ALPHA_HACK = true;
@@ -480,11 +481,8 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5144:	//Donald Duck
 	case 0x3259:	//Rayman2
 	case 0x4d4a:	//Earthworm Jim
-		g_ROM.SPEED_HACK = true;
+	//case 0x5150:	//PowerPuff Girls
 		g_ROM.T1_HACK = true;
-		break;
-	case 0x5150:	//PowerPuff Girls
-		g_ROM.SPEED_HACK = true;
 		break;
 	case 0x3358:	//GEX3
 	case 0x3258:	//GEX64

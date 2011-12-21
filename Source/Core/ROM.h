@@ -125,6 +125,7 @@ enum EGameHacks
 	PERFECT_DARK,
 	YOSHI,
 	EXTREME_G2,
+	PILOT_WINGS,
 	LAST_ENTRY	//DONT CHANGE THIS! AND SHOULD BE LAST ENTRY
 };
 
@@ -152,7 +153,7 @@ struct RomInfo
 			u32			ZELDA_HACK:1;	//for both MM and OOT
 			u32			TLUT_HACK:1;	//Texture look up table hack for palette
 			u32			ALPHA_HACK:1;	//HACK for AIDYN CHRONICLES
-			u32			SPEED_HACK:1;	//Increase VI Event
+			u32			Pad4:1;	//free
 			u32			Pad5:1;	//free
 			u32			Pad6:1;	//free
 			u32			Pad7:1;	//free
