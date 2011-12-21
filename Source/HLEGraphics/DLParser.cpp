@@ -528,6 +528,7 @@ void DLParser_SetCustom( u32 ucode )
 		case GBI_SE:
 			SetCommand( 0x04, DLParser_GBI0_Vtx_SOTE, "G_Vtx_SOTE" );
 			SetCommand( 0x06, DLParser_GBI0_DL_SOTE,  "G_DL_SOTE" );
+			SetCommand( 0xfd, DLParser_SetTImg_SOTE,  "G_SetTImg_SOTE" );
 			break;
 		case GBI_LL:
 			SetCommand( 0x80, DLParser_Last_Legion_0x80, "G_Last_Legion_0x80" );

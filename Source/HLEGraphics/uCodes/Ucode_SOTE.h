@@ -26,19 +26,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 void DLParser_GBI0_Vtx_SOTE( MicroCodeCommand command )
 {
 	u32 address = RDPSegAddr(command.inst.cmd1);
-	u32 len = (command.inst.cmd0)&0xffff;
-	u32 n= ((command.inst.cmd0 >> 4) & 0xfff) / 33 + 1;
-	u32 v0 = 0;
+	u32 n		= ((command.inst.cmd0 >> 4) & 0xfff) / 33 + 1;
+	u32 v0		= 0;
 
-	use(len);
+	DL_PF("    Address[0x%08x] v0[%d] Num[%d]", address, v0, n);
 
-	DL_PF("    Address[0x%08x] v0[%d] Num[%d] Len[0x%04x]", address, v0, n, len);
-
-	if (n > 32)
-	{
-		DBGConsole_Msg(0, "Warning, attempting to load into invalid vertex positions");
-		n = 32;
-	}
+	DAEDALUS_ASSERT( n < 32, "Warning, attempting to load into invalid vertex positions" );
 
 	PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
 
@@ -47,15 +40,15 @@ void DLParser_GBI0_Vtx_SOTE( MicroCodeCommand command )
 	DLParser_DumpVtxInfo( address, v0, n );
 #endif
 }
-
+//
+// SOTE gets out of range, make sure to keep it in range otherwise will crash/gfx will b incorrect
+//
 //*****************************************************************************
 //
 //*****************************************************************************
 void DLParser_GBI0_DL_SOTE( MicroCodeCommand command )
 {
-	// SOTE gets our of pc range, make sure to keep it in range otherwise will crash
-	//
-    u32 address = RDPSegAddr(command.dlist.addr) & (MAX_RAM_ADDRESS-1);
+    u32 address = RDPSegAddr(command.dlist.addr) & (MAX_RAM_ADDRESS-1); // Keep addr in range..
 
 	DAEDALUS_ASSERT( address < MAX_RAM_ADDRESS, "DL addr out of range (0x%08x)", address );
 
@@ -66,6 +59,18 @@ void DLParser_GBI0_DL_SOTE( MicroCodeCommand command )
 
 	gDlistStack[gDlistStackPointer].pc = address;
 	gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_SetTImg_SOTE( MicroCodeCommand command )
+{
+	g_TI.Format		= command.img.fmt;
+	g_TI.Size		= command.img.siz;
+	g_TI.Width		= command.img.width + 1;
+	g_TI.Address	= RDPSegAddr(command.img.addr) & (MAX_RAM_ADDRESS-1); // Keep addr in range..
+	//g_TI.bpl		= g_TI.Width << g_TI.Size >> 1;
 }
 
 //*****************************************************************************
