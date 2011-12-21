@@ -1304,6 +1304,9 @@ void DLParser_FillRect( MicroCodeCommand command )
 		return;
 	}
 
+	//Hack for Shadow of the empire -> skip all other fillrects 
+	if( g_ROM.GameHacks == SOTE ) return;
+
 	// TODO - Check colour image format to work out how this should be decoded!
 	c32		colour;
 
