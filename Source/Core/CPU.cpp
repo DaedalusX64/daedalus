@@ -695,7 +695,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			}
 			else
 			{
-				VI_INTR_CYCLES = (vertical_sync_reg+1) * ( g_ROM.SPEED_HACK? gVISyncRate : 1500 );
+				VI_INTR_CYCLES = (vertical_sync_reg+1) * ( gVideoRateMatch ? gVISyncRate : 1500 );
 			}
 
 			// Apply cheatcodes, if enabled

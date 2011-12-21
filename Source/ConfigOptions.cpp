@@ -39,6 +39,7 @@ bool	gDoubleDisplayEnabled		= true;		// Workaround for games that have shaking i
 bool	gSimulateDoubleDisabled		= false;	// Hack to disable SimulateDoubles, fixes Mario Party 
 bool	gCleanSceneEnabled			= false;	// Clean our Scenes, it gets rid of many glitches
 bool	gAudioRateMatch				= false;	// Matches audio rate with framerate, only works if 50-100% sync rate
+bool	gVideoRateMatch				= false;	// Matches VI rate with framerate
 bool	gFogEnabled					= false;	// Enable fog
 bool    gMemoryAccessOptimisation   = false;    // Enable the memory access optmisation
 bool	gCheatsEnabled				= false;	// Enable cheat codes

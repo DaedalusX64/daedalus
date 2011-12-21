@@ -149,6 +149,7 @@ struct SRomPreferences
 	bool						SimulateDoubleDisabled;
 	bool						CleanSceneEnabled;
 	bool						AudioRateMatch;
+	bool						VideoRateMatch;
 	bool						FogEnabled;
 	bool                        MemoryAccessOptimisation;
 	bool						CheatsEnabled;

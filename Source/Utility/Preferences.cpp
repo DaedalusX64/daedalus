@@ -238,6 +238,10 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		{ 	 
             preferences.AudioRateMatch = property->GetBooleanValue( false ); 	 
 		}
+		if( section->FindProperty( "VideoRateMatch", &property ) ) 	 
+		{ 	 
+            preferences.VideoRateMatch = property->GetBooleanValue( false ); 	 
+		}
 		if( section->FindProperty( "FogEnabled", &property ) ) 	 
 		{ 	 
             preferences.FogEnabled = property->GetBooleanValue( false ); 	 
@@ -310,6 +314,7 @@ void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences
 	fprintf(fh, "SimulateDoubleDisabled=%d\n",preferences.SimulateDoubleDisabled);
 	fprintf(fh, "CleanSceneEnabled=%d\n",preferences.CleanSceneEnabled);
 	fprintf(fh, "AudioRateMatch=%d\n",preferences.AudioRateMatch);
+	fprintf(fh, "VideoRateMatch=%d\n",preferences.VideoRateMatch);
 	fprintf(fh, "FogEnabled=%d\n",preferences.FogEnabled);
 	fprintf(fh, "CheckTextureHashFrequency=%d\n", ROM_GetTexureHashFrequencyAsFrames( preferences.CheckTextureHashFrequency ) );
 	fprintf(fh, "Frameskip=%d\n", ROM_GetFrameskipValueAsInt( preferences.Frameskip ) );
@@ -445,6 +450,7 @@ SRomPreferences::SRomPreferences()
 	,	SimulateDoubleDisabled( false )
 	,	CleanSceneEnabled( false )
 	,	AudioRateMatch( false )
+	,	VideoRateMatch( false )
 	,	FogEnabled( false )
 	,   MemoryAccessOptimisation( false )
 	,	CheatsEnabled( false )
@@ -472,6 +478,7 @@ void SRomPreferences::Reset()
 	SimulateDoubleDisabled = false;
 	CleanSceneEnabled = false;
 	AudioRateMatch = false;
+	VideoRateMatch = false;
 	FogEnabled = false;
 	MemoryAccessOptimisation = false;
 	CheckTextureHashFrequency = THF_DISABLED;
@@ -497,6 +504,7 @@ void	SRomPreferences::Apply() const
 	gSimulateDoubleDisabled = g_ROM.settings.SimulateDoubleDisabled || SimulateDoubleDisabled;
 	gCleanSceneEnabled = g_ROM.settings.CleanSceneEnabled || CleanSceneEnabled;
 	gAudioRateMatch = g_ROM.settings.AudioRateMatch || AudioRateMatch;
+	gVideoRateMatch = g_ROM.settings.VideoRateMatch || VideoRateMatch;
 	gFogEnabled = g_ROM.settings.FogEnabled || FogEnabled;
 	gCheckTextureHashFrequency = ROM_GetTexureHashFrequencyAsFrames( CheckTextureHashFrequency );
 	gMemoryAccessOptimisation = g_ROM.settings.MemoryAccessOptimisation || MemoryAccessOptimisation;
