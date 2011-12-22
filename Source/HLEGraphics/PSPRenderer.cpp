@@ -1404,7 +1404,7 @@ void PSPRenderer::FlushTris()
 	}
 
 	// Hack for Pilotwings 64
-	static bool skipNext=false;
+	/*static bool skipNext=false;
 	if( g_ROM.GameHacks == PILOT_WINGS )
 	{
 		if ( (g_DI.Address == g_CI.Address) && gRDPOtherMode.z_cmp+gRDPOtherMode.z_upd > 0 )
@@ -1422,7 +1422,7 @@ void PSPRenderer::FlushTris()
 			mVtxClipFlagsUnion = 0;
 			return;
 		}	
-	}
+	}*/
 	
 	//
 	// Process the software vertex buffer to apply a couple of

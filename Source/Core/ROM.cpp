@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 #include "ROM.h"
+#include "Cheats.h"
 #include "CPU.h"
 #include "RSP.h"
 #include "PIF.h"		// CController
@@ -60,7 +61,6 @@ const char *gGameHackNames[ MAX_HACK_NAMES ] =
 	"Zelda OOT Hacks", 
 	"Zelda MM Hacks",
 	"Flat Shade Disabled Hack",
-	"S2DEX Palette Hack",
 	"Tarzan Misc Hacks",
 	"Disable LW MemAcces Optimisation",
 	"Gex Depth Hack",
@@ -471,7 +471,6 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5944: g_ROM.GameHacks = DKR;					break;
 	case 0x4450: g_ROM.GameHacks = PERFECT_DARK;		break;
 	case 0x3247: g_ROM.GameHacks = EXTREME_G2;			break;
-	case 0x5750: g_ROM.GameHacks = PILOT_WINGS;			break;
 	case 0x5753: g_ROM.GameHacks = SOTE;				break;
 	case 0x5359: g_ROM.GameHacks = YOSHI;				break;
 	case 0x5941:
@@ -608,6 +607,15 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	// Read and apply preferences from preferences.ini
 	//
 	preferences.Apply();
+
+	// Parse cheat file this rom, if cheat feature is enabled
+	// This is also done when accessing the cheat menu
+	// But we do this when ROM is loaded too, to allow any forced enabled cheats to work.
+	//
+	if( gCheatsEnabled )
+	{
+		CheatCodes_Read( (char*)g_ROM.settings.GameName.c_str(), (char*)"Daedalus.cht", g_ROM.rh.CountryID );
+	}
 
 	DBGConsole_Msg(0, "[G%s]",  g_ROM.settings.GameName.c_str());
 	DBGConsole_Msg(0, "This game has been certified as [G%s] (%s)", g_ROM.settings.Comment.c_str(), g_ROM.settings.Info.c_str());
