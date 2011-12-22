@@ -22,7 +22,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define CHEATS_H_
 
 // Limit the number of cheatcodes on the PSP, for performance reasons
-#define MAX_CHEATCODE_PER_GROUP		16
+#define MAX_CHEATCODE_PER_LOAD		16
+
+// Max number of entries per cheat
+#define MAX_CHEATCODE_PER_ENTRY		100
 
 //Cannot exceed 254 groups, must be represented by using 1 byte
 #define MAX_CHEATCODE_GROUP_PER_ROM 254
@@ -50,7 +53,7 @@ struct CODEGROUP_STRUCT
 	bool			active;
 	char			name[80];
 	char			note[256];
-	CHEATCODENODE	codelist[MAX_CHEATCODE_PER_GROUP];
+	CHEATCODENODE	codelist[MAX_CHEATCODE_PER_ENTRY];
 };
 typedef struct		CODEGROUP_STRUCT CODEGROUP;
 

@@ -233,7 +233,7 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 	mElements.Add( new CCheatFrequency( &mRomPreferences.CheatFrequency, "Apply Cheat Codes Frequency", "The higher this value, the less cheats will hog the emulator at the expense that certain cheats won't work properly." ) );
 
 	
-	for(u32 i = 0; i < MAX_CHEATCODE_PER_GROUP; i++)
+	for(u32 i = 0; i < MAX_CHEATCODE_PER_LOAD; i++)
 	{
 		// Only display the cheat list when the cheatfile been loaded correctly and there were cheats found
 		// ToDo: add a check/msg if cheatcodes were truncated, aka MAX_CHEATCODE_PER_GROUP is passed

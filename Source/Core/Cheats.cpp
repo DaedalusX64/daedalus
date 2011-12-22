@@ -384,15 +384,15 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 				numberofgroups = atoi(line + 15);
 
 				// Remove any excess of cheats to avoid wasting memory
-				if( numberofgroups > MAX_CHEATCODE_PER_GROUP )
+				if( numberofgroups > MAX_CHEATCODE_PER_LOAD )
 				{
-					numberofgroups = MAX_CHEATCODE_PER_GROUP;
+					numberofgroups = MAX_CHEATCODE_PER_LOAD;
 				}
 			}
 			else
 			{
 				// If for some reason NumberOfGroups is incorrect or invalid, just set the max of cheatcodes we allow
-				numberofgroups = MAX_CHEATCODE_PER_GROUP;
+				numberofgroups = MAX_CHEATCODE_PER_LOAD;
 			}
 		}
 		else
@@ -453,7 +453,7 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 
 			for(c2 = 0; c2 < (strlen(line) - c1 - 1) / 14; c2++, codegrouplist[codegroupcount].codecount++)
 			{
-				if (c2 < MAX_CHEATCODE_PER_GROUP)
+				if (c2 < MAX_CHEATCODE_PER_ENTRY)
 				{
 					sscanf( line + c1 + 1 + c2 * 14,"%08x-%04x", &addr, &value );
 
@@ -463,11 +463,11 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 				}
 				else
 				{
-					codegrouplist[codegroupcount].codecount=MAX_CHEATCODE_PER_GROUP;
+					codegrouplist[codegroupcount].codecount=MAX_CHEATCODE_PER_ENTRY;
 					/*sprintf (errormessage,
 						     "Too many codes for cheat: %s (Max = %d)! Cheat will be truncated and won't work!",
 							 codegrouplist[codegroupcount].name,
-							 MAX_CHEATCODE_PER_GROUP);
+							 MAX_CHEATCODE_PER_ENTRY);
 					printf (errormessage);*/
 					break;
 				}
