@@ -173,9 +173,13 @@ void DLParser_Mtx_DKR( MicroCodeCommand command )
 
 	if( mul )
 	{
-		Matrix4x4 mat;
+		Matrix4x4 & mat( *PSPRenderer::Get()->DKRMtxPtr( 4 ) );	//Borrow unused matrix from stack which is aligned to 16bytes
 		PSPRenderer::Get()->MatrixFromN64FixedPoint( mat, address );
+	#ifdef DAEDALUS_PSP_USE_VFPU
+		matrixMultiplyAligned( PSPRenderer::Get()->DKRMtxPtr( mtx_command ), &mat, PSPRenderer::Get()->DKRMtxPtr( 0 ) );
+	#else
 		*PSPRenderer::Get()->DKRMtxPtr( mtx_command ) = mat * *PSPRenderer::Get()->DKRMtxPtr( 0 );
+	#endif
 	}
 	else
 	{

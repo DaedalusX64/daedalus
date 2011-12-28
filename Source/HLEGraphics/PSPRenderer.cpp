@@ -2804,7 +2804,7 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 	// Projection
 	if (bPush)
 	{
-		if (mProjectionTop >= (MATRIX_STACK_SIZE-1))
+		if (mProjectionTop >= MATRIX_STACK_SIZE)
 			DBGConsole_Msg(0, "Pushing past proj stack limits! %d/%d", mProjectionTop, MATRIX_STACK_SIZE);
 		else
 			++mProjectionTop;
@@ -2816,9 +2816,12 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 		}
 		else
 		{
-			Matrix4x4 mat;
-			MatrixFromN64FixedPoint( mat, address);
-			mProjectionStack[mProjectionTop] = mat * mProjectionStack[mProjectionTop-1];
+			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
+		#ifdef DAEDALUS_PSP_USE_VFPU
+			matrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop-1] );
+		#else	
+			mProjectionStack[mProjectionTop] = mProjectionStack[mProjectionTop] * mProjectionStack[mProjectionTop-1];
+		#endif
 		}
 	}
 	else
@@ -2836,9 +2839,12 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 		}
 		else
 		{
-			Matrix4x4 mat;
-			MatrixFromN64FixedPoint( mat, address);
-			mProjectionStack[mProjectionTop] = mat * mProjectionStack[mProjectionTop];
+			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop+1], address);
+		#ifdef DAEDALUS_PSP_USE_VFPU
+			matrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop+1], &mProjectionStack[mProjectionTop] );
+		#else	
+			mProjectionStack[mProjectionTop] = mProjectionStack[mProjectionTop+1] * mProjectionStack[mProjectionTop];
+		#endif
 		}
 	}
 
@@ -2865,7 +2871,7 @@ void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 	// ModelView
 	if (bPush)
 	{
-		if (mModelViewTop >= (MATRIX_STACK_SIZE-1))
+		if (mModelViewTop >= MATRIX_STACK_SIZE)
 			DBGConsole_Msg(0, "Pushing past modelview stack limits! %d/%d", mModelViewTop, MATRIX_STACK_SIZE);
 		else
 			++mModelViewTop;
@@ -2878,11 +2884,14 @@ void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 			//Hack to make GEX games work, need to multiply all elements with 2.0 //Corn
 			if( g_ROM.GameHacks == GEX_GECKO ) for(u32 i=0;i<16;i++) mModelViewStack[mModelViewTop].mRaw[i] += mModelViewStack[mModelViewTop].mRaw[i];
 		}
-		else			// Multiply ModelView matrix
+		else	// Multiply ModelView matrix
 		{
-			Matrix4x4 mat;
-			MatrixFromN64FixedPoint( mat, address);
-			mModelViewStack[mModelViewTop] = mat * mModelViewStack[mModelViewTop-1];
+			MatrixFromN64FixedPoint( mModelViewStack[mModelViewTop], address);
+		#ifdef DAEDALUS_PSP_USE_VFPU
+			matrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mModelViewStack[mModelViewTop], &mModelViewStack[mModelViewTop-1] );
+		#else	
+			mModelViewStack[mModelViewTop] = mModelViewStack[mModelViewTop] * mModelViewStack[mModelViewTop-1];
+		#endif
 		}
 	}
 	else	// NoPush
@@ -2895,9 +2904,12 @@ void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 		else
 		{
 			// Multiply ModelView matrix
-			Matrix4x4 mat;
-			MatrixFromN64FixedPoint( mat, address);
-			mModelViewStack[mModelViewTop] = mat * mModelViewStack[mModelViewTop];
+			MatrixFromN64FixedPoint( mModelViewStack[mModelViewTop+1], address);
+		#ifdef DAEDALUS_PSP_USE_VFPU
+			matrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mModelViewStack[mModelViewTop+1], &mModelViewStack[mModelViewTop] );
+		#else	
+			mModelViewStack[mModelViewTop] = mModelViewStack[mModelViewTop+1] * mModelViewStack[mModelViewTop];
+		#endif
 		}
 	}
 
