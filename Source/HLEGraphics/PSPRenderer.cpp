@@ -2818,11 +2818,7 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 		{
 			Matrix4x4 mat;
 			MatrixFromN64FixedPoint( mat, address);
-		#ifdef DAEDALUS_PSP_USE_VFPU
-			matrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mat, &mProjectionStack[mProjectionTop-1] );
-		#else	
 			mProjectionStack[mProjectionTop] = mat * mProjectionStack[mProjectionTop-1];
-		#endif
 		}
 	}
 	else
@@ -2842,11 +2838,7 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 		{
 			Matrix4x4 mat;
 			MatrixFromN64FixedPoint( mat, address);
-		#ifdef DAEDALUS_PSP_USE_VFPU
-			matrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mat, &mProjectionStack[mProjectionTop] );
-		#else	
 			mProjectionStack[mProjectionTop] = mat * mProjectionStack[mProjectionTop];
-		#endif
 		}
 	}
 
@@ -2890,11 +2882,7 @@ void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 		{
 			Matrix4x4 mat;
 			MatrixFromN64FixedPoint( mat, address);
-		#ifdef DAEDALUS_PSP_USE_VFPU
-			matrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mat, &mModelViewStack[mModelViewTop-1] );
-		#else	
 			mModelViewStack[mModelViewTop] = mat * mModelViewStack[mModelViewTop-1];
-		#endif
 		}
 	}
 	else	// NoPush
@@ -2909,11 +2897,7 @@ void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 			// Multiply ModelView matrix
 			Matrix4x4 mat;
 			MatrixFromN64FixedPoint( mat, address);
-		#ifdef DAEDALUS_PSP_USE_VFPU
-			matrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mat, &mModelViewStack[mModelViewTop] );
-		#else	
 			mModelViewStack[mModelViewTop] = mat * mModelViewStack[mModelViewTop];
-		#endif
 		}
 	}
 
