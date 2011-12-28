@@ -1833,7 +1833,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	{
 		mWPmodified = false;
 		mReloadProj = true;
-		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject ) );
+		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mWorldProject ) );
 		mModelViewStack[mModelViewTop] = gMatrixIdentity;
 	}
 
@@ -2072,7 +2072,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
-	const Matrix4x4 & matWorldProject( GetWorldProject() );
+	const Matrix4x4 & matProject( mProjectionStack[mProjectionTop] );
 	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Ambient.x, mTnL.Ambient.y, mTnL.Ambient.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
@@ -2081,7 +2081,7 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 	// Light is not handled for Conker
 	//
 	const s8 *mn = (s8*)(gAuxAddr);
-	_TnLVFPUCBFD( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn, v0<<1 );
+	_TnLVFPUCBFD( &matWorld, &matProject, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn, v0<<1 );
 }
 
 #else
@@ -2092,7 +2092,7 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
 	//DBGConsole_Msg(0, "In SetNewVertexInfo");
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
-	const Matrix4x4 & matWorldProject( GetWorldProject() );
+	const Matrix4x4 & matProject( mProjectionStack[mProjectionTop] );
 	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Ambient.x, mTnL.Ambient.y, mTnL.Ambient.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
@@ -2111,9 +2111,10 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 
 		// VTX Transform
 		//
+		v4 & transformed( mVtxProjected[i].TransformedPos );
+		transformed = matWorld.Transform( w );
 		v4 & projected( mVtxProjected[i].ProjectedPos );
-		projected = matWorldProject.Transform( w );
-		mVtxProjected[i].TransformedPos = matWorld.Transform( w );
+		projected = matProject.Transform( transformed );
 
 		//	Initialise the clipping flags
 		//
@@ -2331,7 +2332,7 @@ void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + address);
 
 	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
-	const Matrix4x4 & matWorldProject( GetWorldProject() );
+	const Matrix4x4 & matProject( mProjectionStack[mProjectionTop] );
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Ambient.x, mTnL.Ambient.y, mTnL.Ambient.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -2339,7 +2340,7 @@ void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 	//Model & Color base vector
 	const u8 *mn = (u8*)gAuxAddr;
 
-	_TnLVFPUPD( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn );
+	_TnLVFPUPD( &matWorld, &matProject, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn );
 }
 
 #else
@@ -2348,7 +2349,7 @@ void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + address);
 
 	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
-	const Matrix4x4 & matWorldProject( GetWorldProject() );
+	const Matrix4x4 & matProject( mProjectionStack[mProjectionTop] );
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Ambient.x, mTnL.Ambient.y, mTnL.Ambient.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -2364,9 +2365,13 @@ void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 
 		v4 w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
 
+		// VTX Transform
+		//
+		v4 & transformed( mVtxProjected[i].TransformedPos );
+		transformed = matWorld.Transform( w );
 		v4 & projected( mVtxProjected[i].ProjectedPos );
-		projected = matWorldProject.Transform( w );
-		mVtxProjected[i].TransformedPos = matWorld.Transform( w );
+		projected = matProject.Transform( transformed );
+
 
 		// Set Clipflags //Corn
 		u32 clip_flags = 0;
@@ -2813,7 +2818,11 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 		{
 			Matrix4x4 mat;
 			MatrixFromN64FixedPoint( mat, address);
+		#ifdef DAEDALUS_PSP_USE_VFPU
+			matrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mat, &mProjectionStack[mProjectionTop-1] );
+		#else	
 			mProjectionStack[mProjectionTop] = mat * mProjectionStack[mProjectionTop-1];
+		#endif
 		}
 	}
 	else
@@ -2833,12 +2842,16 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 		{
 			Matrix4x4 mat;
 			MatrixFromN64FixedPoint( mat, address);
+		#ifdef DAEDALUS_PSP_USE_VFPU
+			matrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mat, &mProjectionStack[mProjectionTop] );
+		#else	
 			mProjectionStack[mProjectionTop] = mat * mProjectionStack[mProjectionTop];
+		#endif
 		}
 	}
 
 	mWorldProjectValid = false;
-	mReloadProj = true;
+	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[mProjectionTop]) );
 
 	DL_PF("    Level = %d\n"
 		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
@@ -2877,7 +2890,11 @@ void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 		{
 			Matrix4x4 mat;
 			MatrixFromN64FixedPoint( mat, address);
+		#ifdef DAEDALUS_PSP_USE_VFPU
+			matrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mat, &mModelViewStack[mModelViewTop-1] );
+		#else	
 			mModelViewStack[mModelViewTop] = mat * mModelViewStack[mModelViewTop-1];
+		#endif
 		}
 	}
 	else	// NoPush
@@ -2892,7 +2909,11 @@ void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 			// Multiply ModelView matrix
 			Matrix4x4 mat;
 			MatrixFromN64FixedPoint( mat, address);
+		#ifdef DAEDALUS_PSP_USE_VFPU
+			matrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mat, &mModelViewStack[mModelViewTop] );
+		#else	
 			mModelViewStack[mModelViewTop] = mat * mModelViewStack[mModelViewTop];
+		#endif
 		}
 	}
 
@@ -2923,7 +2944,11 @@ inline Matrix4x4 & PSPRenderer::GetWorldProject()
 			mReloadProj = false;
 			sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[mProjectionTop]) );
 		}
+	#ifdef DAEDALUS_PSP_USE_VFPU
+		matrixMultiplyAligned( &mWorldProject, &mModelViewStack[mModelViewTop], &mProjectionStack[mProjectionTop] );
+	#else	
 		mWorldProject = mModelViewStack[mModelViewTop] * mProjectionStack[mProjectionTop];
+	#endif
 	}
 
 	return mWorldProject;

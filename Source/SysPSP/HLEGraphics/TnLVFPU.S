@@ -84,7 +84,7 @@ next_vertex_:
 	vi2f.q		R200, R200, 16				// int -> float
 	vmov.q		R200, R200[y,x,w,1]
 	vtfm4.q		R201, M000, R200			// World transform
-	vtfm4.q		R202, M100, R200			// Projection transform
+	vtfm4.q		R202, M100, R200			// World*Projection transform
 	sv.q		R201, 0x00($a3)				// Store world transform
 	sv.q		R202, 0x10($a3)				// Store projection transform
 	
@@ -241,12 +241,12 @@ next_vertex_CBFD:
 # Load and transform this vertex position
  	lv.s		S200, 0($a2)				// load word [y,x,?,z]
  	lv.s		S210, 4($a2)				// should align this to 16 bytes so we can do a single load?
- 	lb			$v1, 4($a2)					// Get vert_norm z
 	vs2i.p		R200, R200					// R200 = [?,z,y,x]
 	vi2f.q		R200, R200, 16				// int -> float
 	vmov.q		R200, R200[y,x,w,1]
 	vtfm4.q		R201, M000, R200			// World transform
-	vtfm4.q		R202, M100, R200			// Projection transform
+ 	lb			$v1, 4($a2)					// Get vert_norm z
+	vtfm4.q		R202, M100, R201			// Projection transform
 	sv.q		R201, 0x00($a3)				// Store world transform
 	sv.q		R202, 0x10($a3)				// Store projection transform
 	
@@ -398,12 +398,12 @@ next_vertex_PD:
  	lv.s		S200, 0($a2)				// load word [y,x,?,z]
  	lv.s		S210, 4($a2)				// should align this to 16 bytes so we can do a single load?
 	vs2i.p		R200, R200					// R200 = [?,z,y,x]
- 	lbu			$v1, 4($a2)					// Get Cindx
-	addu		$v1, $v1, $t2				// pointer = base vector + Cindx
 	vi2f.q		R200, R200, 16				// int -> float
 	vmov.q		R200, R200[y,x,w,1]
 	vtfm4.q		R201, M000, R200			// World transform
-	vtfm4.q		R202, M100, R200			// Projection transform
+ 	lbu			$v1, 4($a2)					// Get Cindx
+	addu		$v1, $v1, $t2				// pointer = base vector + Cindx
+	vtfm4.q		R202, M100, R201			// Projection transform
 	sv.q		R201, 0x00($a3)				// Store world transform
 	sv.q		R202, 0x10($a3)				// Store projection transform
 	
