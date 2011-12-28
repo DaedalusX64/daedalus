@@ -146,7 +146,7 @@ void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 				DL_PF("		Force Matrix(1): addr=%08X", address);
 				// Rayman 2, Donald Duck, Tarzan, all wrestling games use this
 				PSPRenderer::Get()->ForceMatrix( address );
-				// Next 3 MATRIX cmds are part of ForceMtx, skip 'em
+				// ForceMatrix takes four cmds
 				gDlistStack[gDlistStackPointer].pc += 24;
 			}
 			break;
