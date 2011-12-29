@@ -358,7 +358,7 @@ private:
 	u32					mTexWrap[ NUM_N64_TEXTURES ][ 2 ];
 	
 	//Max is 18 according to the manual //Corn
-	static const u32 MATRIX_STACK_SIZE = 18; 
+	static const u32 MATRIX_STACK_SIZE = 20; 
 
 	inline Matrix4x4 &	GetWorldProject();
 
@@ -372,7 +372,7 @@ private:
 	bool				mReloadProj;
 	bool				mWPmodified;
 		
-	static const u32 	MAX_VERTICES = 500;	
+	static const u32 	MAX_VERTICES = 128;	
 	u16					m_swIndexBuffer[MAX_VERTICES];
 	u32					m_dwNumIndices;
 

@@ -1364,6 +1364,8 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 
 	mVtxClipFlagsUnion |= f0 | f1 | f2;
 
+	DAEDALUS_ASSERT( m_dwNumIndices < MAX_VERTICES, " Array overflow, to many Indices" );
+
 	return true;
 }
 
@@ -2804,7 +2806,7 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 	// Projection
 	if (bPush)
 	{
-		if (mProjectionTop >= MATRIX_STACK_SIZE)
+		if (mProjectionTop >= (MATRIX_STACK_SIZE-2))
 			DBGConsole_Msg(0, "Pushing past proj stack limits! %d/%d", mProjectionTop, MATRIX_STACK_SIZE);
 		else
 			++mProjectionTop;
@@ -2871,7 +2873,7 @@ void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 	// ModelView
 	if (bPush)
 	{
-		if (mModelViewTop >= MATRIX_STACK_SIZE)
+		if (mModelViewTop >= (MATRIX_STACK_SIZE-2))
 			DBGConsole_Msg(0, "Pushing past modelview stack limits! %d/%d", mModelViewTop, MATRIX_STACK_SIZE);
 		else
 			++mModelViewTop;
