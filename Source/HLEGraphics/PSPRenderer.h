@@ -209,7 +209,7 @@ public:
 
 
 	// Viewport stuff
-	void				SetN64Viewport( const v3 & scale, const v3 & trans );
+	void				SetN64Viewport( const v2 & scale, const v2 & trans );
 	void				SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -334,8 +334,8 @@ private:
 	v2					mN64ToPSPScale;
 	v2					mN64ToPSPTranslate;
 
-	v3					mVpScale;
-	v3					mVpTrans;
+	v2					mVpScale;
+	v2					mVpTrans;
 
 	u64					mMux;
 

@@ -41,7 +41,7 @@ void DLParser_GBI1_Vtx( MicroCodeCommand command )
 
 	DL_PF("    Address 0x%08x, v0: %d, Num: %d, Length: 0x%04x", addr, v0, n, command.vtx1.len);
 
-	// Only game that sets this is Quake II, anyways this ends up crashing since it tries to clip too many vertices..
+	// Only games that set this are Flying Dragon and Quake II, anyways they end up crashing due overflowing vtx indices or cliping too many vertices..
 	DAEDALUS_ASSERT( (v0 + n) < 64, "Warning, attempting to load into invalid vertex positions");
 	DAEDALUS_ASSERT( addr < MAX_RAM_ADDRESS, "Address out of range (0x%08x)", addr );
 

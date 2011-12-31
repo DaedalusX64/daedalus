@@ -498,8 +498,8 @@ void PSPRenderer::BeginScene()
 	u32 frame_width(  gGlobalPreferences.TVEnable ? 720 : 480 );
 	u32	frame_height( gGlobalPreferences.TVEnable ? 480 : 272 );
 
-	v3 scale( 640.0f*0.25f, 480.0f*0.25f, 511.0f*0.25f );
-	v3 trans( 640.0f*0.25f, 480.0f*0.25f, 511.0f*0.25f );
+	v2 scale( 640.0f*0.25f, 480.0f*0.25f );
+	v2 trans( 640.0f*0.25f, 480.0f*0.25f );
 
 	s32 display_x( (frame_width - display_width) / 2 );
 	s32 display_y( (frame_height - display_height) / 2 );
@@ -567,7 +567,7 @@ void PSPRenderer::SetPSPViewport( s32 x, s32 y, u32 w, u32 h )
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::SetN64Viewport( const v3 & scale, const v3 & trans )
+void PSPRenderer::SetN64Viewport( const v2 & scale, const v2 & trans )
 {
 	// Only Update viewport when it actually changed, this happens rarely 
 	//
@@ -575,8 +575,11 @@ void PSPRenderer::SetN64Viewport( const v3 & scale, const v3 & trans )
 		mVpTrans.x == trans.x && mVpTrans.y == trans.y )	
 		return;
 
-	mVpScale = scale;
-	mVpTrans = trans;
+	mVpScale.x = scale.x;
+	mVpScale.y = scale.y;
+
+	mVpTrans.x = trans.x;
+	mVpTrans.y = trans.y;
 	
 	UpdateViewport();
 }

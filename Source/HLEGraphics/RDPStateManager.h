@@ -37,7 +37,7 @@ public:
 
 	void							Reset();
 
-	inline const u32				GetTmemAdr( u32 idx ) const				{ return mTiles[ idx ].tmem; }
+	//inline const u32				GetTmemAdr( u32 idx ) const				{ return mTiles[ idx ].tmem; }
 	inline const RDP_Tile &			GetTile( u32 idx ) const				{ return mTiles[ idx ]; }
 	inline const RDP_TileSize &		GetTileSize( u32 idx ) const			{ return mTileSizes[ idx ]; }
 

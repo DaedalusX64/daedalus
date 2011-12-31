@@ -793,13 +793,8 @@ void DLParser_Process()
 //*****************************************************************************
 void RDP_MoveMemLight(u32 light_idx, u32 address)
 {
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	if( light_idx >= 16 )
-	{
-		DBGConsole_Msg(0, "Warning: invalid light # = %d", light_idx);
-		return;
-	}
-#endif
+	DAEDALUS_ASSERT( light_idx < 16, "Warning: invalid light # = %d", light_idx );
+
 	s8 * pcBase = g_ps8RamBase + address;
 	u32 * pBase = (u32 *)pcBase;
 
@@ -851,33 +846,29 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 
 void RDP_MoveMemViewport(u32 address)
 {
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	if( address+16 >= MAX_RAM_ADDRESS )
-	{
-		DBGConsole_Msg(0, "MoveMem Viewport, invalid memory");
-		return;
-	}
-#endif
-	s16 scale[3];
-	s16 trans[3];
+
+	DAEDALUS_ASSERT( address+16 < MAX_RAM_ADDRESS, "MoveMem Viewport, invalid memory" );
+
+	s16 scale[2];
+	s16 trans[2];
 
 	// address is offset into RD_RAM of 8 x 16bits of data...
 	scale[0] = *(s16 *)(g_pu8RamBase + ((address+(0*2))^0x2));
 	scale[1] = *(s16 *)(g_pu8RamBase + ((address+(1*2))^0x2));
-	scale[2] = *(s16 *)(g_pu8RamBase + ((address+(2*2))^0x2));
+//	scale[2] = *(s16 *)(g_pu8RamBase + ((address+(2*2))^0x2));
 //	scale[3] = *(s16 *)(g_pu8RamBase + ((address+(3*2))^0x2));
 
 	trans[0] = *(s16 *)(g_pu8RamBase + ((address+(4*2))^0x2));
 	trans[1] = *(s16 *)(g_pu8RamBase + ((address+(5*2))^0x2));
-	trans[2] = *(s16 *)(g_pu8RamBase + ((address+(6*2))^0x2));
+//	trans[2] = *(s16 *)(g_pu8RamBase + ((address+(6*2))^0x2));
 //	trans[3] = *(s16 *)(g_pu8RamBase + ((address+(7*2))^0x2));
 
 	// With D3D we had to ensure that the vp coords are positive, so
 	// we truncated them to 0. This happens a lot, as things
 	// seem to specify the scale as the screen w/2 h/2
 
-	v3 vec_scale( scale[0] * 0.25f, scale[1] * 0.25f, scale[2] * 0.25f );
-	v3 vec_trans( trans[0] * 0.25f, trans[1] * 0.25f, trans[2] * 0.25f );
+	v2 vec_scale( scale[0] * 0.25f, scale[1] * 0.25f );
+	v2 vec_trans( trans[0] * 0.25f, trans[1] * 0.25f );
 
 	PSPRenderer::Get()->SetN64Viewport( vec_scale, vec_trans );
 
@@ -1288,7 +1279,7 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	
 	PSPRenderer::Get()->TexRectFlip( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );
 }
-
+                         
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -1328,7 +1319,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 		}
 
 		// Clear color buffer (screen clear)
-		if( (s32)uViWidth == (command.fillrect.x1 - command.fillrect.x0) && (s32)uViHeight == (command.fillrect.y1 - command.fillrect.y0) )
+		if( (s32)uViWidth == (command.fillrect.x1 - command.fillrect.x0) && (s32)uViHeight == (command.fillrect.y1 - command.fillrect.y0) )		
 		{
 			CGraphicsContext::Get()->ClearColBuffer( colour.GetColour() );
 			DL_PF("    Clearing Colour Buffer");
