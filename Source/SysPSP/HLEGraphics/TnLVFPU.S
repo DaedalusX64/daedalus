@@ -3,9 +3,8 @@
 
 #include "as_reg_compat.h"
 
-#define PARAMS_AMBIENT		0x00
-#define PARAMS_FLAGS_NLIGHT_TXSCAL	0x10
-#define PARAMS_LIGHTS		0x20
+#define PARAMS_FLAGS_NLIGHT_TXSCAL	0x00
+#define PARAMS_LIGHTS		0x10
 
 #define	TNL_LIGHT			0x0001
 #define	TNL_TEXTURE			0x0002
@@ -62,21 +61,21 @@ _TnLVFPU:
 	lv.q		R102, 32($a1)
 	lv.q		R103, 48($a1)
 	
-	lv.q		R700, PARAMS_AMBIENT($t1)		// Load ambient
 	lv.q		R701, PARAMS_FLAGS_NLIGHT_TXSCAL($t1)	// Load params [Flags, Num_lights, tscale_x, tscale_y]
 	vmov.p		R721, R721[y,x]					// Swizzle texture X&Y scale 
-	mfv			$v0, S701						// TnL flags
 	mfv			$t7, S711						// Num_lights
-	addiu		$t6, $t1, PARAMS_LIGHTS			// pointer to first_light = p_lights
 	
 # Calculate the last light index
+	addiu		$t6, $t1, PARAMS_LIGHTS			// pointer to first_light = p_lights
 	sll			$t7, $t7, 5			// num_lights*32
+	addu		$t7, $t6, $t7		// last_light = p_lights + num_lights*32
+	lv.q		R700, 16($t7)		// Load ambient color
 	
 	sll			$t0, $t0, 4			// count = count * 16
 	addu		$t0, $a2, $t0		// end_ptr = start_ptr + count * 16
 	beq			$a2, $t0, finished_
-	addu		$t7, $t6, $t7		// last_light = p_lights + num_lights*32
-
+	mfv			$v0, S701						// TnL flags
+	
 next_vertex_:
 # Load and transform this vertex position
  	lv.s		S200, 0($a2)				// load word [y,x,?,z]
@@ -377,22 +376,22 @@ _TnLVFPUPD:
 	lv.q		R102, 32($a1)
 	lv.q		R103, 48($a1)
 	
-	lv.q		R700, PARAMS_AMBIENT($t1)		// Load ambient
 	lv.q		R701, PARAMS_FLAGS_NLIGHT_TXSCAL($t1)	// Load params [Flags, Num_lights, tscale_x, tscale_y]
 	vmov.p		R721, R721[y,x]					// Swizzle texture X&Y scale 
-	mfv			$v0, S701						// TnL flags
 	mfv			$t7, S711						// Num_lights
-	addiu		$t6, $t1, PARAMS_LIGHTS			// pointer to first_light = p_lights
 	
 # Calculate the last light index
+	addiu		$t6, $t1, PARAMS_LIGHTS			// pointer to first_light = p_lights
 	sll			$t7, $t7, 5			// num_lights*32
+	addu		$t7, $t6, $t7		// last_light = p_lights + num_lights*32
+	lv.q		R700, 16($t7)		// Load ambient
 	
 	sll			$v1, $t0, 2			// count * 4
 	sll			$t0, $t0, 3			// count * 8
 	addu		$t0, $v1, $t0		// count = count * 12
 	addu		$t0, $a2, $t0		// end_ptr = start_ptr + count * 12
 	beq			$a2, $t0, finished_PD
-	addu		$t7, $t6, $t7		// last_light = p_lights + num_lights*32
+	mfv			$v0, S701						// TnL flags
 
 next_vertex_PD:
 # Load and transform this vertex position
