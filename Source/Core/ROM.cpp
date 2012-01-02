@@ -471,7 +471,6 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5944: g_ROM.GameHacks = DKR;					break;
 	case 0x4450: g_ROM.GameHacks = PERFECT_DARK;		break;
 	case 0x3247: g_ROM.GameHacks = EXTREME_G2;			break;
-	case 0x5753: g_ROM.GameHacks = SOTE;				break;
 	case 0x5359: g_ROM.GameHacks = YOSHI;				break;
 	case 0x5941:
 		g_ROM.ALPHA_HACK = true;
