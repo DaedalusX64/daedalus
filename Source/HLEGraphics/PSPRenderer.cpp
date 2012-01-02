@@ -1794,19 +1794,25 @@ void PSPRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num
 //*****************************************************************************
 //
 //*****************************************************************************
-inline v4 PSPRenderer::LightVert( const v3 & norm ) const
+v4 PSPRenderer::LightVert( const v3 & norm ) const
 {
-	// Do ambient
-	v4	result( mTnL.Ambient );
+	
+	u32 num = mTnL.NumLights;
 
-	for ( u32 i = 0; i < mTnL.NumLights; i++ )
+	v4 result( mTnL.Lights[num].Colour.x, 
+			   mTnL.Lights[num].Colour.y, 
+			   mTnL.Lights[num].Colour.z,
+			   mTnL.Lights[num].Colour.w ); // 1.0f
+
+
+	for ( u32 l = 0; l < num; l++ )
 	{
-		f32 fCosT = norm.Dot( mTnL.Lights[i].Direction );
+		f32 fCosT = norm.Dot( mTnL.Lights[l].Direction );
 		if (fCosT > 0.0f)
 		{
-			result.x += mTnL.Lights[i].Colour.x * fCosT;
-			result.y += mTnL.Lights[i].Colour.y * fCosT;
-			result.z += mTnL.Lights[i].Colour.z * fCosT;
+			result.x += mTnL.Lights[l].Colour.x * fCosT;
+			result.y += mTnL.Lights[l].Colour.y * fCosT;
+			result.z += mTnL.Lights[l].Colour.z * fCosT;
 		}
 	}
 
@@ -2001,10 +2007,10 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 			{
 				// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
 				// If the vert is already lit, then there is no normal (and hence we can't generate tex coord)
-				#if 1 // 1->Lets use matWorldProject instead of mat_world for nicer effect (see SSV space ship) //Corn
+#if 1			// 1->Lets use matWorldProject instead of mat_world for nicer effect (see SSV space ship) //Corn
 				vecTransformedNormal = matWorldProject.TransformNormal( model_normal );
 				vecTransformedNormal.Normalise();
-				#endif
+#endif
 
 				const v3 & norm = vecTransformedNormal;
 				
@@ -2031,14 +2037,14 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		}
 		else
 		{
-			if( mTnL.Flags.Shade )
-			{	//FLAT shade
+			//if( mTnL.Flags.Shade )	//FLAT shade
+			{	
 				mVtxProjected[i].Colour = v4( vert.rgba_r * (1.0f / 255.0f), vert.rgba_g * (1.0f / 255.0f), vert.rgba_b * (1.0f / 255.0f), vert.rgba_a * (1.0f / 255.0f) );
 			}
-			else
-			{	//Shade is disabled
+			/*else //Shade is disabled, doesn't work, is it even needed>?
+			{	
 				mVtxProjected[i].Colour = mPrimitiveColour.GetColourV4();
-			}
+			}*/
 
 			//Set Texture coordinates
 			mVtxProjected[i].Texture.x = (float)vert.tu * mTnL.TextureScaleX;

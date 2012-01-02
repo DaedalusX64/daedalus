@@ -199,8 +199,6 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 			u32 num_lights = ((value - 0x80000000) >> 5) - 1;
 
 			DL_PF("    G_MW_NUMLIGHT: Val:%d", num_lights);
-
-			gAmbientLightIdx = num_lights;
 			PSPRenderer::Get()->SetNumLights(num_lights);
 
 		}
@@ -249,16 +247,8 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 
 			if (field_offset == 0)
 			{
-				// Light col, not the copy
-				if (light_idx == gAmbientLightIdx)
-				{
-					v3 col( N64COL_GETR_F(value), N64COL_GETG_F(value), N64COL_GETB_F(value) );
-					PSPRenderer::Get()->SetAmbientLight( col );
-				}
-				else
-				{
-					PSPRenderer::Get()->SetLightCol(light_idx, value);
-				}
+				// Light col
+				PSPRenderer::Get()->SetLightCol(light_idx, value);
 			}
 		}
 		break;

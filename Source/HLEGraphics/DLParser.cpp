@@ -166,7 +166,6 @@ static RDP_GeometryMode gGeometryMode;
 static N64Light			g_N64Lights[16];	//Conker uses more than 8
 static DList			gDlistStack[MAX_DL_STACK_SIZE];
 static s32				gDlistStackPointer = -1;
-static u32				gAmbientLightIdx = 0;
 static u32				gVertexStride	 = 0;
 static u32				gFillColor		 = 0xFFFFFFFF;
 static u32				gRDPHalf1		 = 0;
@@ -804,9 +803,8 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 	g_N64Lights[light_idx].y			= f32(pcBase[9 ^ 0x3]);
 	g_N64Lights[light_idx].z			= f32(pcBase[10 ^ 0x3]);
 					
-	DL_PF("    %s %s light[%d] RGBA[0x%08x] RGBACopy[0x%08x] x[%0.0f] y[%0.0f] z[%0.0f]", 
+	DL_PF("    %s light[%d] RGBA[0x%08x] RGBACopy[0x%08x] x[%0.0f] y[%0.0f] z[%0.0f]", 
 		pBase[2]? "Valid" : "Invalid",
-		(light_idx == gAmbientLightIdx)? "Ambient" : "Normal",
 		light_idx,
 		g_N64Lights[light_idx].Colour,
 		g_N64Lights[light_idx].ColourCopy,
@@ -814,23 +812,12 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 		g_N64Lights[light_idx].y,
 		g_N64Lights[light_idx].z);
 
-	if (light_idx == gAmbientLightIdx)
-	{
-		//Ambient Light
-		u32 n64col( g_N64Lights[light_idx].Colour );
-		v3 col( N64COL_GETR_F(n64col), N64COL_GETG_F(n64col), N64COL_GETB_F(n64col) );
+	//Normal Light
+	PSPRenderer::Get()->SetLightCol(light_idx, g_N64Lights[light_idx].Colour);
 
-		PSPRenderer::Get()->SetAmbientLight( col );
-	}
-	else
+	if (pBase[2] != 0)	// if Direction is 0 its invalid!
 	{
-		//Normal Light
-		PSPRenderer::Get()->SetLightCol(light_idx, g_N64Lights[light_idx].Colour);
-
-		if (pBase[2] != 0)	// if Direction is 0 its invalid!
-		{
-			PSPRenderer::Get()->SetLightDirection(light_idx, g_N64Lights[light_idx].x, g_N64Lights[light_idx].y, g_N64Lights[light_idx].z );
-		}
+		PSPRenderer::Get()->SetLightDirection(light_idx, g_N64Lights[light_idx].x, g_N64Lights[light_idx].y, g_N64Lights[light_idx].z );
 	}
 }
 

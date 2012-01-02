@@ -147,7 +147,6 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 			u32 num_lights = command.inst.cmd1 / 48;
 			DL_PF("    G_MW_NUMLIGHT: %d", num_lights);
 
-			gAmbientLightIdx = num_lights;
 			PSPRenderer::Get()->SetNumLights(num_lights);
 		}
 		break;
@@ -219,6 +218,7 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 		*/
 	default:
 		DL_PF("     G_MoveWord_Conker: Unknown");
+		break;
   }
 
 #else
@@ -233,7 +233,6 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 		u32 num_lights = command.inst.cmd1 / 48;
 		DL_PF("    G_MW_NUMLIGHT: %d", num_lights);
 
-		gAmbientLightIdx = num_lights + 1;
 		PSPRenderer::Get()->SetNumLights(num_lights);
 	}
 #endif
