@@ -1118,10 +1118,17 @@ void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 {
 	EnableTexturing( tile_idx );
 
+	// ToDo : Split this evil vector
 	const v2 screen0( ConvertN64ToPsp( xy0 ) );
 	const v2 screen1( ConvertN64ToPsp( xy1 ) );
-	const v2 tex_uv0( uv0 - mTileTopLeft[ 0 ] );
-	const v2 tex_uv1( uv1 - mTileTopLeft[ 0 ] );
+
+	v2 tex_uv0;
+	tex_uv0.x = uv0.x - mTileTopLeft[ 0 ].x;
+	tex_uv0.y = uv0.y - mTileTopLeft[ 0 ].y;
+
+	v2 tex_uv1;
+	tex_uv1.x = uv1.x - mTileTopLeft[ 0 ].x;
+	tex_uv1.y = uv1.y - mTileTopLeft[ 0 ].y;
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
@@ -1194,10 +1201,17 @@ void PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 {
 	EnableTexturing( tile_idx );
 
+	// ToDo : Split this evil vector
 	const v2 screen0( ConvertN64ToPsp( xy0 ) );
 	const v2 screen1( ConvertN64ToPsp( xy1 ) );
-	const v2 tex_uv0( uv0 - mTileTopLeft[ 0 ] );
-	const v2 tex_uv1( uv1 - mTileTopLeft[ 0 ] );
+
+	v2 tex_uv0;
+	tex_uv0.x = uv0.x - mTileTopLeft[ 0 ].x;
+	tex_uv0.y = uv0.y - mTileTopLeft[ 0 ].y;
+
+	v2 tex_uv1;
+	tex_uv1.x = uv1.x - mTileTopLeft[ 0 ].x;
+	tex_uv1.y = uv1.y - mTileTopLeft[ 0 ].y;
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
