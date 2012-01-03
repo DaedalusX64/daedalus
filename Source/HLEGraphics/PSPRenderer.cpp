@@ -591,8 +591,10 @@ void	PSPRenderer::UpdateViewport()
 	v2		n64_min( mVpTrans.x - mVpScale.x, mVpTrans.y - mVpScale.y );
 	v2		n64_max( mVpTrans.x + mVpScale.x, mVpTrans.y + mVpScale.y );
 
-	v2		psp_min( ConvertN64ToPsp( n64_min ) );
-	v2		psp_max( ConvertN64ToPsp( n64_max ) );
+	v2		psp_min;
+	v2		psp_max;
+	ConvertN64ToPsp( n64_min, psp_min );
+	ConvertN64ToPsp( n64_max, psp_max );
 
 	s32		vp_x( s32( psp_min.x ) );
 	s32		vp_y( s32( psp_min.y ) );
@@ -612,18 +614,16 @@ void	PSPRenderer::UpdateViewport()
 // We round these value here, so that when we scale up the coords to our screen
 // coords we don't get any gaps.
 //
-#ifdef DAEDALUS_PSP_USE_VFPU
-inline v2 PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords ) const
+#if 0
+inline void PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
 {
-	v2 answ;
 	vfpu_N64_2_PSP( &answ.x, &n64_coords.x, &mN64ToPSPScale.x, &mN64ToPSPTranslate.x);
-	return answ;
 }
 #else
-inline v2 PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords ) const
+inline void PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
 {
-	return (v2 (pspFpuRound( pspFpuRound( n64_coords.x ) * mN64ToPSPScale.x + mN64ToPSPTranslate.x ), 
-				pspFpuRound( pspFpuRound( n64_coords.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y )));
+	answ.x = pspFpuRound( pspFpuRound( n64_coords.x ) * mN64ToPSPScale.x + mN64ToPSPTranslate.x ); 
+	answ.y = pspFpuRound( pspFpuRound( n64_coords.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y );
 }
 #endif
 //*****************************************************************************
@@ -1119,8 +1119,10 @@ void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	EnableTexturing( tile_idx );
 
 	// ToDo : Split this evil vector
-	const v2 screen0( ConvertN64ToPsp( xy0 ) );
-	const v2 screen1( ConvertN64ToPsp( xy1 ) );
+	v2 screen0;
+	v2 screen1;
+	ConvertN64ToPsp( xy0, screen0 );
+	ConvertN64ToPsp( xy1, screen1 );
 
 	v2 tex_uv0;
 	tex_uv0.x = uv0.x - mTileTopLeft[ 0 ].x;
@@ -1202,8 +1204,10 @@ void PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	EnableTexturing( tile_idx );
 
 	// ToDo : Split this evil vector
-	const v2 screen0( ConvertN64ToPsp( xy0 ) );
-	const v2 screen1( ConvertN64ToPsp( xy1 ) );
+	v2 screen0;
+	v2 screen1;
+	ConvertN64ToPsp( xy0, screen0 );
+	ConvertN64ToPsp( xy1, screen1 );
 
 	v2 tex_uv0;
 	tex_uv0.x = uv0.x - mTileTopLeft[ 0 ].x;
@@ -1269,8 +1273,10 @@ void PSPRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	// This if for C&C - It might break other stuff (I'm not sure if we should allow alpha or not..)
 	//color |= 0xff000000;
 
-	const v2 screen0( ConvertN64ToPsp( xy0 ) );
-	const v2 screen1( ConvertN64ToPsp( xy1 ) );
+	v2 screen0;
+	v2 screen1;
+	ConvertN64ToPsp( xy0, screen0 );
+	ConvertN64ToPsp( xy1, screen1 );
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 
@@ -2708,11 +2714,13 @@ void	PSPRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 	if( x1 > uViWidth )  x1 = uViWidth;
 	if( y1 > uViHeight ) y1 = uViHeight;
 
-	v2		n64_coords_tl( x0, y0 );
-	v2		n64_coords_br( x1, y1 );
+	v2 n64_coords_tl( x0, y0 );
+	v2 n64_coords_br( x1, y1 );
 
-	v2		psp_coords_tl( ConvertN64ToPsp( n64_coords_tl ) );
-	v2		psp_coords_br( ConvertN64ToPsp( n64_coords_br ) );
+	v2 psp_coords_tl;
+	v2 psp_coords_br;
+	ConvertN64ToPsp( n64_coords_tl, psp_coords_tl );
+	ConvertN64ToPsp( n64_coords_br, psp_coords_br );
 
 	// N.B. Think the arguments are x0,y0,x1,y1, and not x,y,w,h as the docs describe
 	//Clamp TOP and LEFT values to 0 if < 0 , needed for zooming //Corn

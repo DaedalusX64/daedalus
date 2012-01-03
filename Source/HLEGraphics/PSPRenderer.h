@@ -296,7 +296,7 @@ private:
 	void				SetPSPViewport( s32 x, s32 y, u32 w, u32 h );
 	void				UpdateViewport();
 
-	v2					ConvertN64ToPsp( const v2 & n64_coords ) const;
+	void				ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const;
 
 	void				RenderUsingRenderSettings( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags );
 	void				RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer );
