@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "OSHLE/ultra_R4300.h"
 #include "ConfigOptions.h"
-
+#include "Utility/IO.h"
 //
 // Cheatcode routines and format based from 1964
 //
@@ -274,24 +274,7 @@ void CheatCodes_Delete(u32 index)
 	codegroupcount--;
 }
 */
-//*****************************************************************************
-// (STRMNNRMN - Strip spaces from end of names)
-//*****************************************************************************
-static char * tidy(char * s)
-{
-	if (s == NULL || *s == '\0')
-		return s;
-	
-	char * p = s + strlen(s);
 
-	p--;
-	while (p >= s && (*p == ' ' || *p == '\r' || *p == '\n'))
-	{
-		*p = 0;
-		p--;
-	}
-	return s;
-}
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -355,7 +338,7 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 	{
 		// Remove any extra character that is added at the end of the string
 		//
-		tidy(line);
+		IO::Path::Tidy(line);
 
 		if(strcmp(line, romname) == 0)
 		{
@@ -378,7 +361,7 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 		//
 		if(fgets(line, 256, stream))
 		{
-			tidy(line);
+			IO::Path::Tidy(line);
 			if(strncmp(line, "NumberOfGroups=", 15) == 0)
 			{
 				numberofgroups = atoi(line + 15);

@@ -249,26 +249,6 @@ IIniFile::~IIniFile()
 }
 
 //*****************************************************************************
-// (STRMNNRMN - Strip spaces from end of names)
-//*****************************************************************************
-static char * tidy(char * s)
-{
-	if (s == NULL || *s == '\0')
-		return s;
-	
-	char * p = s + strlen(s);
-
-	p--;
-	while (p >= s && (*p == ' ' || *p == '\r' || *p == '\n'))
-	{
-		*p = 0;
-		p--;
-	}
-	return s;
-
-}
-
-//*****************************************************************************
 //	Remove the specified characters from p_string
 //*****************************************************************************
 static bool	trim( char * p_string, const char * p_trim_chars )
@@ -350,7 +330,7 @@ bool IIniFile::Open( const char * filename )
 	// XXXX Using fgets needs reworking...
 	while (fgets( readinfo, BUFFER_LEN, fh ) != NULL)
 	{
-		tidy(readinfo);			// Strip spaces from end of lines
+		IO::Path::Tidy(readinfo);			// Strip spaces from end of lines
 
 		// Handle comments
 		if (readinfo[0] == '/')
@@ -385,8 +365,8 @@ bool IIniFile::Open( const char * filename )
 					value = NULL;
 				}
 
-				tidy( key );
-				tidy( value );
+				IO::Path::Tidy( key );
+				IO::Path::Tidy( value );
 
 				DAEDALUS_ASSERT( p_current_section != NULL, "There is no current section" );
 

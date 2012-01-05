@@ -237,9 +237,26 @@ namespace IO
 
 			return 0;
 		}
+
+		//*****************************************************************************
+		// (STRMNNRMN - Strip spaces from end of names)
+		//*****************************************************************************
+		char * Tidy(char * s)
+		{
+			if (s == NULL || *s == '\0')
+				return s;
+			
+			char * p = s + strlen(s);
+
+			p--;
+			while (p >= s && (*p == ' ' || *p == '\r' || *p == '\n'))
+			{
+				*p = 0;
+				p--;
+			}
+			return s;
+		}
 	}
-
-
 
 	bool	FindFileOpen( const char * path, FindHandleT * handle, FindDataT & data )
 	{

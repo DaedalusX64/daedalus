@@ -52,6 +52,7 @@ namespace IO
 		void				RemoveExtension( char * p_path );
 		bool				AddExtension( char * p_path, const char * p_ext );
 		int					DeleteRecursive(const char* p_path, const char * p_extension);
+		char *				Tidy(char * s);
 	}
 
 	struct FindDataT
