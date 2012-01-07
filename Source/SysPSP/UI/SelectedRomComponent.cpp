@@ -34,6 +34,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Core/ROM.h"
 
+#include "Utility/Translate.h"
+
 #include "Input/InputManager.h"
 
 #include <pspctrl.h>
@@ -113,13 +115,13 @@ ISelectedRomComponent::ISelectedRomComponent( CUIContext * p_context, CFunctor *
 :	CSelectedRomComponent( p_context )
 ,	OnStartEmulation( on_start_emulation )
 {
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< ISelectedRomComponent >( this, &ISelectedRomComponent::EditPreferences ), "Edit Preferences", "Edit various preferences for this rom." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< ISelectedRomComponent >( this, &ISelectedRomComponent::AdvancedOptions ), "Advanced Options", "Edit advanced options for this rom." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< ISelectedRomComponent >( this, &ISelectedRomComponent::CheatOptions ), "Cheats", "Enable and select cheats for this rom." ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< ISelectedRomComponent >( this, &ISelectedRomComponent::EditPreferences ), Translate(24,"Edit Preferences"), Translate(28,"Edit various preferences for this rom.") ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< ISelectedRomComponent >( this, &ISelectedRomComponent::AdvancedOptions ), Translate(25,"Advanced Options"), Translate(29,"Edit advanced options for this rom.") ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< ISelectedRomComponent >( this, &ISelectedRomComponent::CheatOptions ), Translate(26,"Cheats"), Translate(30,"Enable and select cheats for this rom.") ) );
 
 	mElements.Add( new CUISpacer( 16 ) );
 
-	u32 i = mElements.Add( new CUICommandImpl( new CMemberFunctor< ISelectedRomComponent >( this, &ISelectedRomComponent::StartEmulation ), "Start Emulation", "Start emulating the selected rom." ) );
+	u32 i = mElements.Add( new CUICommandImpl( new CMemberFunctor< ISelectedRomComponent >( this, &ISelectedRomComponent::StartEmulation ), Translate(27,"Start Emulation"), Translate(31,"Start emulating the selected rom.") ) );
 
 	mElements.SetSelected( i );
 }

@@ -43,6 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Utility/Functor.h"
 #include "Utility/IO.h"
+#include "Utility/Translate.h"
 
 #include <pspctrl.h>
 #include <pspgu.h>
@@ -58,8 +59,8 @@ namespace
 	const s32		DESCRIPTION_AREA_LEFT = 16;
 	const s32		DESCRIPTION_AREA_RIGHT = 480-16;
 
-	const char * const		SAVING_TITLE_TEXT  = "Select a Slot to Save To";
-	const char * const		LOADING_TITLE_TEXT = "Select a Slot to Load From";
+	const char * const		SAVING_TITLE_TEXT  = Translate(43,"Select a Slot to Save To");
+	const char * const		LOADING_TITLE_TEXT = Translate(44,"Select a Slot to Load From");
 }
 
 extern bool gTakeScreenshot;
@@ -141,13 +142,13 @@ IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context, CFunctor
 ,	mOnResume( on_resume )
 ,	mOnReset( on_reset )
 {
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::EditPreferences ), "Edit Preferences", "Edit various preferences for this rom." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::AdvancedOptions ), "Advanced Options", "Edit advanced options for this rom." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::CheatOptions ), "Cheats", "Edit advanced options for this rom." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::SaveState ), "Save State", "Save the current state." ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::LoadState ), "Load/Delete State", "Restore or delete a previously saved state." ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::EditPreferences ), Translate(24,"Edit Preferences"), Translate(28,"Edit various preferences for this rom.") ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::AdvancedOptions ), Translate(25,"Advanced Options"), Translate(29,"Edit advanced options for this rom.") ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::CheatOptions ), Translate(26,"Cheats"), Translate(30,"Enable and select cheats for this rom.") ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::SaveState ), Translate(45,"Save State"), Translate(48,"Save the current state.") ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::LoadState ), Translate(46,"Load/Delete State"), Translate(49,"Restore or delete a previously saved state.") ) );
 
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::TakeScreenshot ), "Take Screenshot", "Take a screenshot on resume." ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::TakeScreenshot ), Translate(47,"Take Screenshot"), Translate(50,"Take a screenshot on resume.") ) );
 
 
 
@@ -174,12 +175,12 @@ IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context, CFunctor
 
 	mElements.Add( new CUISpacer( 16 ) );
 
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::OnResume ), "Resume Emulation", "Resume emulation." ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::OnResume ), Translate(51,"Resume Emulation"), Translate(51,"Resume emulation.") ) );
 
 #ifdef DAEDALUS_DIALOGS
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::ExitConfirmation ), "Return to Main Menu", "Return to the main menu." ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::ExitConfirmation ), Translate(52,"Return to Main Menu"), Translate(52,"Return to the main menu.") ) );
 #else
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::OnReset ), "Return to Main Menu", "Return to the main menu." ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::OnReset ), Translate(52,"Return to Main Menu"), Translate(52,"Return to the main menu.") ) );
 #endif
 }
 
@@ -253,7 +254,7 @@ void	IPauseOptionsComponent::Render()
 //*************************************************************************************
 void IPauseOptionsComponent::ExitConfirmation()
 {
-	if(gShowDialog.Render( mpContext,"Return to main menu?", false) )
+	if(gShowDialog.Render( mpContext,Translate(53,"Return to main menu?"), false) )
 	{
 		(*mOnReset)();
 	}

@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/FramerateLimiter.h"
 #include "Utility/Preferences.h"
 #include "Utility/IO.h"
+#include "Utility/Translate.h"
 
 #include "Input/InputManager.h"
 
@@ -100,9 +101,9 @@ namespace
 			{
 				switch( gGlobalPreferences.ViewportType )
 				{
-				case VT_UNSCALED_4_3:	return "4:3 unscaled (320x240)";
-				case VT_SCALED_4_3:		return "4:3 scaled (362x272)";
-				case VT_FULLSCREEN:		return "Fullscreen (480x272)";
+				case VT_UNSCALED_4_3:	return Translate(92,"4:3 unscaled (320x240)");
+				case VT_SCALED_4_3:		return Translate(93,"4:3 scaled (362x272)");
+				case VT_FULLSCREEN:		return Translate(94,"Fullscreen (480x272)");
 				}
 				DAEDALUS_ERROR( "Unhandled viewport type" );
 				return "?";
@@ -175,30 +176,30 @@ namespace
 		virtual	void			OnSelected()
 		{
 //#ifdef DAEDALUS_DIALOGS
-			if(gShowDialog.Render( mpContext,"Reset HLE cache?", false) )
+			if(gShowDialog.Render( mpContext,Translate(95,"Reset HLE cache?"), false) )
 			{
 				IO::Path::DeleteRecursive("SaveGames",".hle");
 				ThreadSleepMs(1000);	//safety wait for s
 
-				if(gShowDialog.Render( mpContext,"Reset settings?", false) )
+				if(gShowDialog.Render( mpContext,Translate(96,"Reset settings?"), false) )
 				{
 					remove(DAEDALUS_PSP_PATH("preferences.ini"));
 					remove(DAEDALUS_PSP_PATH("rom.db"));
 					ThreadSleepMs(1000);	//safety wait for s
 
-					gShowDialog.Render( mpContext,"Daedalus will exit now",true);
+					gShowDialog.Render( mpContext,Translate(97,"Daedalus will exit now"),true);
 
 					sceKernelExitGame();
 				}
 			}
-			if(gShowDialog.Render( mpContext,"Reset settings?", false) )
+			if(gShowDialog.Render( mpContext,Translate(95,"Reset settings?"), false) )
 			{
 
 				remove(DAEDALUS_PSP_PATH("preferences.ini"));
 				remove(DAEDALUS_PSP_PATH("rom.db"));
 				ThreadSleepMs(1000);	//safety wait for s
 
-				gShowDialog.Render( mpContext,"Daedalus will exit now",true);
+				gShowDialog.Render( mpContext,Translate(97,"Daedalus will exit now"),true);
 
 				sceKernelExitGame();
 			}
@@ -207,7 +208,7 @@ namespace
 
 		virtual const char *	GetSettingName() const
 		{
-			return "Press X to Start";
+			return Translate(97,"Press X to Start");
 		}
 
 	private:
@@ -230,7 +231,7 @@ namespace
 			switch ( gGlobalPreferences.GuiType )
 			{
 				case COVERFLOW:		return "Cover Flow";
-				case CLASSIC:		return "Classic";
+				case CLASSIC:		return Translate(98,"Classic");
 			}
 			DAEDALUS_ERROR( "Unknown Style" );
 			return "?";
@@ -254,15 +255,15 @@ namespace
 		{
 			switch ( gGlobalPreferences.GuiColor )
 			{
-				case BLACK:		return "Black";
-				case RED:		return "Red";
-				case GREEN:		return "Green";
-				case MAGENTA:	return "Magenta";
-				case BLUE:		return "Blue";
-				case TURQUOISE:	return "Turquoise";
-				case ORANGE:	return "Orange";
-				case PURPLE:	return "Purple";
-				case GREY:		return "Grey";
+				case BLACK:		return Translate(100,"Black");
+				case RED:		return Translate(101,"Red");
+				case GREEN:		return Translate(102,"Green");
+				case MAGENTA:	return Translate(103,"Magenta");
+				case BLUE:		return Translate(104,"Blue");
+				case TURQUOISE:	return Translate(105,"Turquoise");
+				case ORANGE:	return Translate(106,"Orange");
+				case PURPLE:	return Translate(107,"Purple");
+				case GREY:		return Translate(108,"Grey");
 			}
 			DAEDALUS_ERROR( "Unknown Color" );
 			return "?";
@@ -284,7 +285,7 @@ namespace
 		{
 			switch ( gGlobalPreferences.DisplayFramerate )
 			{
-				case 0:		return "None";
+				case 0:		return Translate(109,"None");
 				case 1:		return "FPS";
 				case 2:		return "FPS + VB + SYNC";
 				case 3:		return "Render stats";
@@ -342,8 +343,8 @@ CGlobalSettingsComponent *	CGlobalSettingsComponent::Create( CUIContext * p_cont
 IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 :	CGlobalSettingsComponent( p_context )
 {
-	mElements.Add( new CInfoSetting( "Display Info", "Whether to show additional info while the rom is running. Some modes are only available in DEBUG mode") );
-	mElements.Add( new CViewPortSetting( "Viewport Size", "The size of the viewport on the PSP." ) );
+	mElements.Add( new CInfoSetting( Translate(110,"Display Info"), Translate(120,"Whether to show additional info while the rom is running. Some modes are only available in DEBUG mode")) );
+	mElements.Add( new CViewPortSetting( Translate(111,"Viewport Size"), Translate(121,"The size of the viewport on the PSP.") ) );
 
 	if (HAVE_DVE && PSP_TV_CABLE > 0)
 	{
@@ -353,18 +354,18 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 	}
 	else
 		gGlobalPreferences.TVEnable = false;
-	mElements.Add( new CBoolSetting( &gGlobalPreferences.ForceLinearFilter,"Force Linear Filter", "Enable to force linear filter, this can improve the look of textures", "Yes", "No" ) );
-	mElements.Add( new CBoolSetting( &gGlobalPreferences.RumblePak,"Controller add-on", "Enable either MemPak or RumblePak.", "RumblePak", "MemPak" ) );
-	mElements.Add( new CAdjustDeadzoneSetting( mpContext, "Stick Deadzone", "Adjust the size of the deadzone applied to the PSP stick while playing. Press Start/X to edit." ) );
-	if (PSP_IS_SLIM) mElements.Add( new CBoolSetting( &gGlobalPreferences.LargeROMBuffer, "Use Large ROM Buffer", "Disable this for faster loading with a small slowdown during scene changes on large ROMs. Takes effect only when loading ROM.", "Yes", "No" ) );
+	mElements.Add( new CBoolSetting( &gGlobalPreferences.ForceLinearFilter,Translate(112,"Force Linear Filter"), Translate(122,"Enable to force linear filter, this can improve the look of textures"), Translate(64,"Yes"), Translate(63,"No") ) );
+	mElements.Add( new CBoolSetting( &gGlobalPreferences.RumblePak,Translate(113,"Controller add-on"), Translate(123,"Enable either MemPak or RumblePak."), "RumblePak", "MemPak" ) );
+	mElements.Add( new CAdjustDeadzoneSetting( mpContext, Translate(114,"Stick Deadzone"), Translate(124,"Adjust the size of the deadzone applied to the PSP stick while playing. Press Start/X to edit.") ) );
+	if (PSP_IS_SLIM) mElements.Add( new CBoolSetting( &gGlobalPreferences.LargeROMBuffer, Translate(115,"Use Large ROM Buffer"), Translate(125,"Disable this for faster loading with a small slowdown during scene changes on large ROMs. Takes effect only when loading ROM."), Translate(64,"Yes"), Translate(63,"No") ) );
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.HighlightInexactBlendModes, "Highlight Inexact Blend Modes",	"Replace inexact blend modes with a placeholder texture.", "Yes", "No" ) );
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.CustomBlendModes, "Use Custom Blend Modes",	"Debugging tool to disable custom blendmodes.", "Yes", "No" ) );
 #endif
-	mElements.Add( new CBoolSetting( &gGlobalPreferences.BatteryWarning, "Low Battery Warning",	"Whether to allow Daedalus to notify when the battery is low.", "Yes", "No" ) );
-	mElements.Add( new CGuiType( "Gui Style",	"Select Gui Type either CoverFlow Style or Classic Style" ) );
-	mElements.Add( new CColorSetting( "GUI Color", "Change GUI Color" ) );
-	mElements.Add( new CResetSetting( mpContext, "Reset Settings", "Will guide you to reset preferences to default, and hle cache files. Note : emulator will exit if resetting settings" ) );
+	mElements.Add( new CBoolSetting( &gGlobalPreferences.BatteryWarning, Translate(116,"Low Battery Warning"),	Translate(126,"Whether to allow Daedalus to notify when the battery is low."), Translate(64,"Yes"), Translate(63,"No") ) );
+	mElements.Add( new CGuiType( Translate(117,"Gui Style"),	Translate(127,"Select Gui Type either CoverFlow Style or Classic Style") ) );
+	mElements.Add( new CColorSetting( Translate(118,"GUI Color"), Translate(128,"Change GUI Color") ) );
+	mElements.Add( new CResetSetting( mpContext, Translate(119,"Reset Settings"), Translate(129,"Will guide you to reset preferences to default, and hle cache files. Note : emulator will exit if resetting settings") ) );
 
 }
 

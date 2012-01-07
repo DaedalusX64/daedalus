@@ -18,21 +18,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "Utility/IO.h"
+#include "Translate.h"
+#include "IO.h"
 //*****************************************************************************
 //
 //*****************************************************************************
-struct Translate
+struct pTranslate
 {
 	u32		id;				// ID that corresponds to string
 	char	*translated;	// Translated string
 };
 
-Translate text[20];
+pTranslate text[148];
 //*****************************************************************************
 //
 //*****************************************************************************
-char * Translate(u32 id, char *original)
+const char * Translate(u32 id, const char *original)
 {
 	for( u32 i=0; i < ARRAYSIZE(text); i++ )
 	{
@@ -40,6 +41,8 @@ char * Translate(u32 id, char *original)
 		{
 			if( text[i].translated )
 				return text[i].translated;
+			else 
+				return original;
 		}
 	}
 	return original;
@@ -74,12 +77,11 @@ bool Translate_Read(char *file)
 	{
 		while( fgets(line, 1023, stream) )
 		{
-			//
-			// Remove any extra character that is added at the end of the string
-			//
-			IO::Path::Tidy(line);
-			//
-			//
+			IO::Path::Tidy(line);			// Strip spaces from end of lines
+
+			// Handle comments
+			if (line[0] == '/')
+				continue;
 
 			id = atoi(line);
 			string = strchr(line,',');
@@ -100,11 +102,6 @@ bool Translate_Read(char *file)
 					strcpy(text[count].translated, string);
 					count++;
 				}
-			}
-			else
-			{
-				// ToDo : Remove me
-				//printf("Hack : Nullifing...\n");
 			}
 		}
 		fclose(stream);

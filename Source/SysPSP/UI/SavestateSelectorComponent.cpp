@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../../Core/SaveState.h"
 
 #include "../../Utility/Stream.h"
+#include "../../Utility/Translate.h"
 #include "../../Utility/IO.h"
 
 #include "../../Math/Vector2.h"
@@ -42,8 +43,8 @@ namespace
 {
 	//const char *			INSTRUCTIONS_TEXT = "Select a game from the list"; //ToDo - Not Currently Used
 
-	const char * const		SAVING_STATUS_TEXT  = "Saving...";
-	const char * const		LOADING_STATUS_TEXT = "Loading...";
+	const char * const		SAVING_STATUS_TEXT  = Translate(40,"Saving...");
+	const char * const		LOADING_STATUS_TEXT = Translate(41,"Loading...");
 
 	const u32				TEXT_AREA_TOP = 272 / 2;
 	const u32				TEXT_AREA_LEFT = 20;
@@ -171,11 +172,12 @@ ISavestateSelectorComponent::ISavestateSelectorComponent( CUIContext * p_context
 	}
 }
 
-void ISavestateSelectorComponent::LoadFolders(){
+void ISavestateSelectorComponent::LoadFolders()
+{
 	IO::FindHandleT		find_handle;
 	IO::FindDataT		find_data;
 	u32 i=0;
-	const char * description_text( mAccessType == AT_SAVING ? "Select the slot in which to save" : "Select the slot from which to load" );
+	const char * description_text( mAccessType == AT_SAVING ? Translate(32,"Select the slot in which to save") : Translate(33,"Select the slot from which to load") );
 	char full_path[MAX_PATH];
 	// We're using the same vector for directory names and slots, so we have to clear it
 	mElements.Clear();
@@ -224,14 +226,15 @@ void ISavestateSelectorComponent::LoadFolders(){
 	else
 	{
 		CUIElement *                    element;
-		element = new CUICommandDummy( "There are no Savestates to load", "There are no Savestates to load" );
+		element = new CUICommandDummy( Translate(34,"There are no Savestates to load"), Translate(34,"There are no Savestates to load") );
 		mElements.Add( element );
 	}
 
 }
 
-void ISavestateSelectorComponent::LoadSlots(){
-	const char * description_text( mAccessType == AT_SAVING ? "Select the slot in which to save [X:save O:back]" : "Select the slot from which to load [X:load O:back []:delete]" );
+void ISavestateSelectorComponent::LoadSlots()
+{
+	const char * description_text( mAccessType == AT_SAVING ? Translate(35,"Select the slot in which to save [X:save O:back]") : Translate(36,"Select the slot from which to load [X:load O:back []:delete]") );
 	SceIoStat file_stat;
 	char date_string[30];
 	// We're using the same vector for directory names and slots, so we have to clear it
@@ -240,7 +243,7 @@ void ISavestateSelectorComponent::LoadSlots(){
 	for( u32 i = 0; i < NUM_SAVESTATE_SLOTS; ++i )
 	{
 		COutputStringStream		str;
-		str << "Slot " << (i+1) << ": ";
+		str << Translate(38,"Slot ") << (i+1) << ": ";
 
 		char filename[ MAX_PATH ];
 		MakeSaveSlotPath( filename, i, current_slot_path);
@@ -258,7 +261,7 @@ void ISavestateSelectorComponent::LoadSlots(){
 		}
 		else
 		{
-			str << "<empty>";
+			str << Translate(39,"<empty>");
 			mSlotEmpty[ i ] = true;
 		}
 
@@ -441,7 +444,7 @@ void	ISavestateSelectorComponent::Render()
 	}
 	
 	if(deleteButtonTriggered)
-	  mpContext->DrawTextAlign(0,480,AT_CENTRE,135,"Press Triangle to delete this savestate",DrawTextUtilities::TextRed,DrawTextUtilities::TextWhite);
+	  mpContext->DrawTextAlign(0,480,AT_CENTRE,135,Translate(37,"Press Triangle to delete this savestate"),DrawTextUtilities::TextRed,DrawTextUtilities::TextWhite);
 }
 
 //*************************************************************************************
