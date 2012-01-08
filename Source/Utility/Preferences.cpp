@@ -158,6 +158,7 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		BOOL_SETTING( gGlobalPreferences, LargeROMBuffer, defaults );
 		FLOAT_SETTING( gGlobalPreferences, StickMinDeadzone, defaults );
 		FLOAT_SETTING( gGlobalPreferences, StickMaxDeadzone, defaults );
+		INT_SETTING( gGlobalPreferences, Language, defaults );
 		
 		if( section->FindProperty( "GuiType", &property ) )
 		{
@@ -354,6 +355,7 @@ void IPreferences::Commit()
 		OUTPUT_INT( gGlobalPreferences, GuiColor, defaults )
 		OUTPUT_FLOAT( gGlobalPreferences, StickMinDeadzone, defaults );
 		OUTPUT_FLOAT( gGlobalPreferences, StickMaxDeadzone, defaults );
+		OUTPUT_INT( gGlobalPreferences, Language, defaults );
 		OUTPUT_INT( gGlobalPreferences, ViewportType, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, TVEnable, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, TVLaced, defaults );
@@ -424,6 +426,7 @@ SGlobalPreferences::SGlobalPreferences()
 ,	GuiColor( BLACK )
 ,	StickMinDeadzone( 0.28f )
 ,	StickMaxDeadzone( 1.0f )
+,	Language( 0 )
 ,	ViewportType( VT_FULLSCREEN )
 ,	TVEnable( false )
 ,	TVLaced( false )

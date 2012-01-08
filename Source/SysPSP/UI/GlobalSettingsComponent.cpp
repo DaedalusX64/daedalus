@@ -46,7 +46,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern u32 HAVE_DVE;
 extern u32 PSP_TV_CABLE;
 extern bool PSP_IS_SLIM;
-
+extern u32 gNumLanguage;
 
 namespace
 {
@@ -131,6 +131,32 @@ namespace
 			}
 			DAEDALUS_ERROR( "Unhandled TV type" );
 			return "?";
+		}
+	};
+
+	class CLanguage : public CUISetting
+	{
+	public:
+		CLanguage(  const char * name, const char * description )
+			:	CUISetting( name, description )
+		{
+		}
+
+		virtual	void		OnNext()		{ (gGlobalPreferences.Language >= gNumLanguage) ? 0 : gGlobalPreferences.Language++; }
+		virtual	void		OnPrevious()	{ (gGlobalPreferences.Language <= 0) ? 0 : gGlobalPreferences.Language--; }
+
+		virtual	void			OnSelected()
+		{
+			char *dir( (char*)Translate_Directory(gGlobalPreferences.Language) );
+
+			Translate_Read(dir);
+		}
+			
+
+
+		virtual const char *	GetSettingName() const
+		{
+			return Translate_Language(gGlobalPreferences.Language);
 		}
 	};
 
@@ -365,6 +391,7 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.BatteryWarning, Translate(116,"Low Battery Warning"),	Translate(126,"Whether to allow Daedalus to notify when the battery is low."), Translate(64,"Yes"), Translate(63,"No") ) );
 	mElements.Add( new CGuiType( Translate(117,"Gui Style"),	Translate(127,"Select Gui Type either CoverFlow Style or Classic Style") ) );
 	mElements.Add( new CColorSetting( Translate(118,"GUI Color"), Translate(128,"Change GUI Color") ) );
+	mElements.Add( new CLanguage( "Language", "Select Language" ) );
 	mElements.Add( new CResetSetting( mpContext, Translate(119,"Reset Settings"), Translate(129,"Will guide you to reset preferences to default, and hle cache files. Note : emulator will exit if resetting settings") ) );
 
 }

@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Translate.h"
 #include "IO.h"
+
+#include <string>
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -29,7 +31,15 @@ struct pTranslate
 	char	*translated;	// Translated string
 };
 
+struct pLanguage
+{
+	std::string dir;
+	std::string name;
+};
+
 pTranslate text[148];
+pLanguage  language[ 6 ];
+u32		   gNumLanguage =0;
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -59,6 +69,59 @@ void Translate_Clear()
 //*****************************************************************************
 //
 //*****************************************************************************
+void	Translate_Load( const char * p_dir )
+{
+	gNumLanguage		= 0;
+	IO::FindHandleT		find_handle;
+	IO::FindDataT		find_data;
+
+	if(IO::FindFileOpen( p_dir, &find_handle, find_data ))
+	{
+		do
+		{	
+			char * filename( find_data.Name );
+			char * last_period( strrchr( filename, '.' ) );
+			if(last_period != NULL)
+			{
+				if( _strcmpi(last_period, ".lng") == 0 )
+				{
+					gNumLanguage++;
+					language[gNumLanguage].dir = filename;
+
+					IO::Path::RemoveExtension( filename );
+					language[gNumLanguage].name = filename;
+					
+				}
+			}
+		}
+		while(IO::FindFileNext( find_handle, find_data ));
+
+		IO::FindFileClose( find_handle );
+	}
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+const char * Translate_Language(u32 idx)
+{
+	if(idx != 0 )
+		return language[idx].name.c_str();
+	else
+		return "English";	
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+const char * Translate_Directory(u32 idx)
+{
+	return language[idx].dir.c_str();
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
 bool Translate_Read(char *file)
 {
 	char line[1024];
@@ -69,46 +132,44 @@ bool Translate_Read(char *file)
 	u32 count = 0;
 	u32 id	  = 0;
 
-	strcpy(path, gDaedalusExePath);
+	strcpy(path, "Translation/");
 	strcat(path, file);
 
 	stream = fopen(path,"r");
-	if( stream )
+	if( stream == NULL )
 	{
-		while( fgets(line, 1023, stream) )
-		{
-			IO::Path::Tidy(line);			// Strip spaces from end of lines
-
-			// Handle comments
-			if (line[0] == '/')
-				continue;
-
-			id = atoi(line);
-			string = strchr(line,',');
-			if( string != NULL )
-			{
-				string++;
-				if( count <= ARRAYSIZE(text) )
-				{
-					// Write translated id/strings to array
-					text[count].id = id;
-					text[count].translated = (char*)malloc(strlen(string));
-					if(text[count].translated == NULL)
-					{
-						//printf("Cannot allocate memory to load translated strings");
-						return false;
-					}
-		
-					strcpy(text[count].translated, string);
-					count++;
-				}
-			}
-		}
-		fclose(stream);
-		return true;
-	}
-	else
-	{
+		Translate_Clear();	// Reset back to default language
 		return false;
 	}
+
+	while( fgets(line, 1023, stream) )
+	{
+		IO::Path::Tidy(line);			// Strip spaces from end of lines
+
+		// Handle comments
+		if (line[0] == '/')
+			continue;
+
+		id = atoi(line);
+		string = strchr(line,',');
+		if( string != NULL )
+		{
+			string++;
+			if( count <= ARRAYSIZE(text) )
+			{
+				// Write translated id/strings to array
+				text[count].id = id;
+				text[count].translated = (char*)malloc(strlen(string)+2);
+				if(text[count].translated == NULL)
+				{
+					printf("Cannot allocate memory to load translated strings");
+					return false;
+				}
+				strcpy(text[count].translated, string);
+				count++;
+			}
+		}
+	}
+	fclose(stream);
+	return true;
 }
