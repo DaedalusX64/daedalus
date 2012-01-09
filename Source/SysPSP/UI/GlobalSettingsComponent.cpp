@@ -142,21 +142,24 @@ namespace
 		{
 		}
 
-		virtual	void		OnNext()		{ (gGlobalPreferences.Language >= gNumLanguage) ? 0 : gGlobalPreferences.Language++; }
+		virtual	void		OnNext()		{ (gGlobalPreferences.Language >= GetLanguageNum() ) ? 0 : gGlobalPreferences.Language++; }
 		virtual	void		OnPrevious()	{ (gGlobalPreferences.Language <= 0) ? 0 : gGlobalPreferences.Language--; }
 
 		virtual	void			OnSelected()
 		{
-			char *dir( (char*)Translate_Directory(gGlobalPreferences.Language) );
-
-			Translate_Read(dir);
+			u32 index = gGlobalPreferences.Language;
+			if( index )
+				Translate_Read( index, DAEDALUS_PSP_PATH("Translation/") );
+			else
+			{	// ToDo:
+				//Translate_Clear();
+			}
 		}
-			
-
 
 		virtual const char *	GetSettingName() const
 		{
-			return Translate_Language(gGlobalPreferences.Language);
+			u32 index = gGlobalPreferences.Language;
+			return index ? GetLanguageName( index ) : "English";
 		}
 	};
 

@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Translate.h"
 #include "IO.h"
 
+#include <vector>
 #include <string>
 //*****************************************************************************
 //
@@ -31,15 +32,8 @@ struct pTranslate
 	char	*translated;	// Translated string
 };
 
-struct pLanguage
-{
-	std::string dir;
-	std::string name;
-};
-
-pTranslate text[148];
-pLanguage  language[ 6 ];
-u32		   gNumLanguage =0;
+pTranslate				 text[148];
+std::vector<std::string> language;
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -63,7 +57,11 @@ const char * Translate(u32 id, const char *original)
 //*****************************************************************************
 void Translate_Clear()
 {
-	memset(text, 0, sizeof(text));
+	// Clear translations
+	memset(text, 0, sizeof(text));	
+
+	// Clear languages
+	language.clear();
 }
 
 //*****************************************************************************
@@ -71,7 +69,10 @@ void Translate_Clear()
 //*****************************************************************************
 void	Translate_Load( const char * p_dir )
 {
-	gNumLanguage		= 0;
+	// Reserve first entry, this will be replaced by our default language "English"
+	// We could append our default language here, but we clear all language/translation contents to avoid wasting memory
+	language.push_back( "" );
+
 	IO::FindHandleT		find_handle;
 	IO::FindDataT		find_data;
 
@@ -85,11 +86,8 @@ void	Translate_Load( const char * p_dir )
 			{
 				if( _strcmpi(last_period, ".lng") == 0 )
 				{
-					gNumLanguage++;
-					language[gNumLanguage].dir = filename;
-
 					IO::Path::RemoveExtension( filename );
-					language[gNumLanguage].name = filename;
+					language.push_back( filename );
 					
 				}
 			}
@@ -103,27 +101,26 @@ void	Translate_Load( const char * p_dir )
 //*****************************************************************************
 //
 //*****************************************************************************
-const char * Translate_Language(u32 idx)
-{
-	if(idx != 0 )
-		return language[idx].name.c_str();
-	else
-		return "English";	
+const char * GetLanguageName(u32 idx)		
+{	
+	return language[ idx ].c_str();	
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-const char * Translate_Directory(u32 idx)
-{
-	return language[idx].dir.c_str();
+u32 GetLanguageNum()			
+{	
+	return language.size()-1;			
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-bool Translate_Read(char *file)
+
+bool Translate_Read(u32 idx, const char * dir)
 {
+	const char * ext( ".lng" );
 	char line[1024];
 	char path[MAX_PATH];
 	char *string;
@@ -132,13 +129,14 @@ bool Translate_Read(char *file)
 	u32 count = 0;
 	u32 id	  = 0;
 
-	strcpy(path, "Translation/");
-	strcat(path, file);
+	// Build path where we'll load the translation file(s)
+	strcpy(path, dir);
+	strcat(path, language[ idx ].c_str());
+	strcat(path, ext);
 
 	stream = fopen(path,"r");
 	if( stream == NULL )
 	{
-		Translate_Clear();	// Reset back to default language
 		return false;
 	}
 
@@ -166,6 +164,7 @@ bool Translate_Read(char *file)
 					return false;
 				}
 				strcpy(text[count].translated, string);
+				//printf("%s | %d\n",text[count].translated,count );
 				count++;
 			}
 		}
