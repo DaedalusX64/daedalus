@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef TRANSLATE_H_
 #define TRANSLATE_H_
 
-const char * Translate(u32 id, const char *original);
+const char * Translate(const char *original);
 bool		 Translate_Read(u32 idx, const char * dir);
 void		 Translate_Clear();
 void		 Translate_Load( const char * p_dir );

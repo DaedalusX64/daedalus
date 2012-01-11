@@ -28,20 +28,34 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 struct pTranslate
 {
-	u32		id;				// ID that corresponds to string
+	u32		hash;			// hash that corresponds to string
 	char	*translated;	// Translated string
 };
 
 pTranslate				 text[148];
-std::vector<std::string> language;
+std::vector<std::string> gLanguage;
 //*****************************************************************************
 //
 //*****************************************************************************
-const char * Translate(u32 id, const char *original)
+u32 HashString(const char* s, u32 seed = 0)
 {
+    u32 hash = seed;
+    while (*s)
+    {
+        hash = hash * 101  +  *s++;
+    }
+    return hash;
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+const char * Translate(const char *original)
+{
+	u32 hash = HashString( original );
 	for( u32 i=0; i < ARRAYSIZE(text); i++ )
 	{
-		if( text[i].id == id )
+		if( text[i].hash == hash )
 		{
 			if( text[i].translated )
 				return text[i].translated;
@@ -61,7 +75,7 @@ void Translate_Clear()
 	memset(text, 0, sizeof(text));	
 
 	// Clear languages
-	language.clear();
+	gLanguage.clear();
 }
 
 //*****************************************************************************
@@ -71,7 +85,7 @@ void	Translate_Load( const char * p_dir )
 {
 	// Reserve first entry, this will be replaced by our default language "English"
 	// We could append our default language here, but we clear all language/translation contents to avoid wasting memory
-	language.push_back( "" );
+	gLanguage.push_back( "" );
 
 	IO::FindHandleT		find_handle;
 	IO::FindDataT		find_data;
@@ -87,7 +101,7 @@ void	Translate_Load( const char * p_dir )
 				if( _strcmpi(last_period, ".lng") == 0 )
 				{
 					IO::Path::RemoveExtension( filename );
-					language.push_back( filename );
+					gLanguage.push_back( filename );
 					
 				}
 			}
@@ -103,7 +117,7 @@ void	Translate_Load( const char * p_dir )
 //*****************************************************************************
 const char * GetLanguageName(u32 idx)		
 {	
-	return language[ idx ].c_str();	
+	return gLanguage[ idx ].c_str();	
 }
 
 //*****************************************************************************
@@ -111,7 +125,7 @@ const char * GetLanguageName(u32 idx)
 //*****************************************************************************
 u32 GetLanguageNum()			
 {	
-	return language.size()-1;			
+	return gLanguage.size()-1;			
 }
 
 //*****************************************************************************
@@ -127,11 +141,11 @@ bool Translate_Read(u32 idx, const char * dir)
 	FILE *stream;
 
 	u32 count = 0;
-	u32 id	  = 0;
+	u32 hash  = 0;
 
 	// Build path where we'll load the translation file(s)
 	strcpy(path, dir);
-	strcat(path, language[ idx ].c_str());
+	strcat(path, gLanguage[ idx ].c_str());
 	strcat(path, ext);
 
 	stream = fopen(path,"r");
@@ -148,15 +162,15 @@ bool Translate_Read(u32 idx, const char * dir)
 		if (line[0] == '/')
 			continue;
 
-		id = atoi(line);
 		string = strchr(line,',');
+		sscanf( line,"%08x", &hash );
 		if( string != NULL )
 		{
 			string++;
 			if( count <= ARRAYSIZE(text) )
 			{
-				// Write translated id/strings to array
-				text[count].id = id;
+				// Write translated id/hash to array
+				text[count].hash = hash;
 				text[count].translated = (char*)malloc(strlen(string)+2);
 				if(text[count].translated == NULL)
 				{
@@ -164,7 +178,13 @@ bool Translate_Read(u32 idx, const char * dir)
 					return false;
 				}
 				strcpy(text[count].translated, string);
-				//printf("%s | %d\n",text[count].translated,count );
+				/*FILE * fh = fopen( "hash.txt", "a" );
+				if ( fh )
+				{
+					fprintf( fh,  "%08x, \"%s\"\n", text[count].hash, text[count].translated );
+					fclose(fh);
+				}
+				*/
 				count++;
 			}
 		}
