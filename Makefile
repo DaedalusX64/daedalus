@@ -74,6 +74,7 @@ DAED_UTILITY_SRCS =	Source/Utility/CRC.cpp \
 			Source/Utility/ROMFileUncompressed.cpp \
 			Source/Utility/Stream.cpp \
 			Source/Utility/Timer.cpp \
+			Source/Utility/Translate.cpp \
 			Source/Utility/unzip.cpp \
 			Source/Utility/ZLibWrapper.cpp \
 			Source/Utility/PrintOpCode.cpp \
