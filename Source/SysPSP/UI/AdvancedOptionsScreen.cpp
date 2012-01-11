@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/RomSettings.h"
 
 #include "Utility/Preferences.h"
-#include "Utility/Translate.h"
 
 #include "Input/InputManager.h"
 
@@ -120,21 +119,21 @@ IAdvancedOptionsScreen::IAdvancedOptionsScreen( CUIContext * p_context, const Ro
  		mRomName = settings.GameName;
 	}
 
-	mElements.Add( new CBoolSetting( &mRomPreferences.MemoryAccessOptimisation, Translate(130,"Memory Access Optimisation"), Translate(137,"Enable for speed-up (WARNING, can cause instability and/or crash on certain ROMs)."), Translate(59,"Enabled"), Translate(58,"Disabled") ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.CleanSceneEnabled, Translate(131,"Clean Scene"), Translate(138,"Force clear of frame buffer before drawing any primitives"), Translate(59,"Enabled"), Translate(58,"Disabled") ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecLoopOptimisation, Translate(132,"Dynamic Loop Optimisation"), Translate(139,"Enable for speed-up (WARNING, can cause instability and/or crash on certain ROMs)."), Translate(59,"Enabled"), Translate(58,"Disabled") ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.DoubleDisplayEnabled, Translate(133,"Double Display Lists"), Translate(137,"Double Display Lists enabled for a speed-up (Works on most ROMs)"), Translate(59,"Enabled"), Translate(58,"Disabled") ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.VideoRateMatch, Translate(134,"Video Rate Match"), Translate(140,"Whether to match animation rate to the frame rate (makes some games less sluggish)"), Translate(64,"Yes"), Translate(63,"No") ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.AudioRateMatch, Translate(135,"Audio Rate Match"), Translate(141,"Whether to match audio rate to the frame rate (less pops and clicks)"), Translate(64,"Yes"), Translate(63,"No") ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.FogEnabled, Translate(136,"Fog Emulation"), Translate(142,"Whether to enable or disable fog emulation (Experimental, only works on a few games)"), Translate(59,"Enabled"), Translate(58,"Disabled") ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.MemoryAccessOptimisation, "Memory Access Optimisation", "Enable for speed-up (WARNING, can cause instability and/or crash on certain ROMs).", "Enabled", "Disabled" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.CleanSceneEnabled, "Clean Scene", "Force clear of frame buffer before drawing any primitives", "Enabled", "Disabled" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecLoopOptimisation, "Dynamic Loop Optimisation", "Enable for speed-up (WARNING, can cause instability and/or crash on certain ROMs).", "Enabled", "Disabled" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.DoubleDisplayEnabled, "Double Display Lists", "Double Display Lists enabled for a speed-up (Works on most ROMs)", "Enabled", "Disabled" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.VideoRateMatch, "Video Rate Match", "Whether to match animation rate to the frame rate (makes games less sluggish)", "Yes", "No" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.AudioRateMatch, "Audio Rate Match", "Whether to match audio rate to the frame rate (less pops and clicks)", "Yes", "No" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.FogEnabled, "Fog Emulation", "Whether to enable or disable fog emulation (Experimental, only works on a few titles)", "Enabled", "Disabled" ) );
 
 	//	mElements.Add( new CUISpacer( 16 ) );
 #ifndef DAEDALUS_PUBLIC_RELEASE	// Below option is irrelevant to end user or game especific, we force this option on roms.ini
 	mElements.Add( new CBoolSetting( &mRomPreferences.SimulateDoubleDisabled, "Disable Simulate Double", "Whether Simulate Double is Disabled", "Yes", "No" ) );
 #endif
 
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IAdvancedOptionsScreen >( this, &IAdvancedOptionsScreen::OnConfirm ),Translate(82,"Save & Return"), Translate(84,"Confirm changes to settings and return.") ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IAdvancedOptionsScreen >( this, &IAdvancedOptionsScreen::OnCancel ), Translate(83,"Cancel"), Translate(85,"Cancel changes to settings and return.") ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< IAdvancedOptionsScreen >( this, &IAdvancedOptionsScreen::OnConfirm ), "Save & Return", "Confirm changes to settings and return." ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< IAdvancedOptionsScreen >( this, &IAdvancedOptionsScreen::OnCancel ), "Cancel", "Cancel changes to settings and return." ) );
 
 }
 
@@ -191,7 +190,7 @@ void	IAdvancedOptionsScreen::Render()
 	u32		line_height( font_height + 2 );
 	s32		y;
 
-	const char * const title_text = Translate(136,"Advanced Options");
+	const char * const title_text = "Advanced Options";
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
 	u32		heading_height( mpContext->GetFontHeight() );
 	y = TITLE_AREA_TOP + heading_height;

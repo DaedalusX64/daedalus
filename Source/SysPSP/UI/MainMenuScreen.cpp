@@ -40,7 +40,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/RomSettings.h"
 
 #include "Utility/Preferences.h"
-#include "Utility/Translate.h"
 
 #include "Math/MathUtil.h"
 
@@ -69,11 +68,11 @@ namespace
 
 	const char * const	gMenuOptionNames[ NUM_MENU_OPTIONS ] =
 	{
-		Translate(14,"Global Settings"),
-		Translate(15,"Roms"),
-		Translate(16,"Selected Rom"),
-		Translate(17,"Savestates"),
-		Translate(18,"About"),
+		"Global Settings",
+		"Roms",
+		"Selected Rom",
+		"Savestates",
+		"About",
 	};
 }
 

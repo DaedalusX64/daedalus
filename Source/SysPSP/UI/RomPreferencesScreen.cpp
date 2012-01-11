@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/RomSettings.h"
 
 #include "Utility/Preferences.h"
-#include "Utility/Translate.h"
 
 #include "Input/InputManager.h"
 
@@ -110,11 +109,11 @@ namespace
 		{
 			switch ( *mSetting )
 			{
-				case APM_DISABLED:			return Translate(58,"Disabled");
-				case APM_ENABLED_ASYNC:		return Translate(59,"Asynchronous");
-				case APM_ENABLED_SYNC:		return Translate(60,"Synchronous");
+				case APM_DISABLED:			return "Disabled";
+				case APM_ENABLED_ASYNC:		return "Asynchronous";
+				case APM_ENABLED_SYNC:		return "Synchronous";
 			}
-			return Translate(61,"Unknown");
+			return "Unknown";
 		}
 
 	private:
@@ -155,7 +154,7 @@ namespace
 		virtual	void			OnNext()				{ if( !IsReadOnly() ) *mSetting = !*mSetting; }
 		virtual	void			OnPrevious()			{ if( !IsReadOnly() ) *mSetting = !*mSetting; }
 
-		virtual const char *	GetSettingName() const	{ return (*mSetting) ? Translate(59,"Enabled") : Translate(58,"Disabled"); }
+		virtual const char *	GetSettingName() const	{ return (*mSetting) ? "Enabled" : "Disabled"; }
 
 	private:
 		bool *					mSetting;
@@ -197,9 +196,9 @@ namespace
 		{
 			switch ( *mSetting )
 			{
-				case 0:		return Translate(63,"No");
-				case 1:		return Translate(65,"Full speed");
-				case 2:		return Translate(66,"Half speed");
+				case 0:		return "No";
+				case 1:		return "Full speed";
+				case 2:		return "Half speed";
 			}
 			return "?";
 		}
@@ -274,20 +273,20 @@ IRomPreferencesScreen::IRomPreferencesScreen( CUIContext * p_context, const RomI
  		mRomName = settings.GameName;
 	}
 
-	mElements.Add( new CTextureHashFrequency( &mRomPreferences.CheckTextureHashFrequency, Translate(67,"Texture Update Check"),	Translate(75,"Whether to check for texture updates between frames. Disable this to improve framerate at the expense of graphics quality in some ROMs.") ) );
-	mElements.Add( new CAdjustFrameskipSetting( &mRomPreferences.Frameskip, Translate(68,"Frameskip"), Translate(76,"This determines how many frames are skipped before rendering a new frame. Increasing this value should give a small speedup, at the expense of more jerky graphics.") ) );
-	mElements.Add( new CZoomSetting( &mRomPreferences.ZoomX, Translate(69,"Zoom"), Translate(77,"Increase screen size, the value will override the default screen size, 100% is default.") ) );
-	mElements.Add( new CFSkipSetting( &mRomPreferences.SpeedSyncEnabled, Translate(70,"Limit Framerate"), Translate(78,"Limit the refresh rate to 50/25Hz (PAL) or 60/30Hz (NTSC).") ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecEnabled, Translate(71,"Dynamic Recompilation"), Translate(79,"Dynamic recompilation gives a considerable speed-up for the ROM emulation."), Translate(59,"Enabled"), Translate(58,"Disabled") ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.PatchesEnabled, Translate(72,"High Level Emulation"), Translate(80,"Whether to use replicated OS function calls (faster) instead of emulating the real ones (slower) (WARNING, can cause instability and/or crash on certain ROMs)."), Translate(59,"Enabled"), Translate(58,"Disabled") ) );
-	mElements.Add( new CAudioSetting( &mRomPreferences.AudioEnabled, Translate(73,"Audio"), Translate(81,"Whether or not to enable audio emulation, and whether to process the audio asynchronously(fast/buggy) or synchronously(slow).") ) );
+	mElements.Add( new CTextureHashFrequency( &mRomPreferences.CheckTextureHashFrequency, "Texture Update Check",	"Whether to check for texture updates between frames. Disable this to improve framerate at the expense of graphics quality in some ROMs." ) );
+	mElements.Add( new CAdjustFrameskipSetting( &mRomPreferences.Frameskip, "Frameskip", "This determines how many frames are skipped before rendering a new frame. Increasing this value should give a small speedup, at the expense of more jerky graphics." ) );
+	mElements.Add( new CZoomSetting( &mRomPreferences.ZoomX, "Zoom", "Increase screen size, the value will override the default screen size, 100% is default." ) );
+	mElements.Add( new CFSkipSetting( &mRomPreferences.SpeedSyncEnabled, "Limit Framerate", "Limit the refresh rate to 50/25Hz (PAL) or 60/30Hz (NTSC)." ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecEnabled, "Dynamic Recompilation", "Dynamic recompilation gives a considerable speed-up for the ROM emulation.", "Enabled", "Disabled" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.PatchesEnabled, "High Level Emulation", "Whether to use replicated OS function calls (faster) instead of emulating the real ones (slower) (WARNING, can cause instability and/or crash on certain ROMs).", "Enabled", "Disabled" ) );
+	mElements.Add( new CAudioSetting( &mRomPreferences.AudioEnabled, "Audio", "Whether or not to enable audio emulation, and whether to process the audio asynchronously(fast/buggy) or synchronously(slow)." ) );
 //	mElements.Add( new CAdjustFrequencySetting( &mRomPreferences.AudioAdaptFrequency, &mRomPreferences.AudioEnabled, " Adjust Frequency", "When enabled, this mode tries to avoid gaps in the audio by adjusting the pitch of the audio stream." ) );  //Not Used May be restored separately later
-	mElements.Add( new CAdjustControllerSetting( &mRomPreferences.ControllerIndex, Translate(74,"Controller") ) );
+	mElements.Add( new CAdjustControllerSetting( &mRomPreferences.ControllerIndex, "Controller" ) );
 
 //	mElements.Add( new CUISpacer( 16 ) );
 
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IRomPreferencesScreen >( this, &IRomPreferencesScreen::OnConfirm ), Translate(82,"Save & Return"), Translate(84,"Confirm changes to settings and return.") ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< IRomPreferencesScreen >( this, &IRomPreferencesScreen::OnCancel ), Translate(83,"Cancel"), Translate(85,"Cancel changes to settings and return.") ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< IRomPreferencesScreen >( this, &IRomPreferencesScreen::OnConfirm ), "Save & Return", "Confirm changes to settings and return." ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< IRomPreferencesScreen >( this, &IRomPreferencesScreen::OnCancel ), "Cancel", "Cancel changes to settings and return." ) );
 
 }
 
@@ -344,7 +343,7 @@ void	IRomPreferencesScreen::Render()
 	u32		line_height( font_height + 2 );
 	s32		y;
 
-	const char * const title_text = Translate(86,"Rom Preferences");
+	const char * const title_text = "Rom Preferences";
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
 	u32		heading_height( mpContext->GetFontHeight() );
 	y = TITLE_AREA_TOP + heading_height;

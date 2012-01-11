@@ -33,11 +33,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Preferences.h"
 
 #include "Input/InputManager.h"
-
 #include "../../Utility/Stream.h"
 #include "../../Utility/IO.h"
-#include "../../Utility/Translate.h"
-
 #include "Graphics/ColourValue.h"
 #include "SysPSP/Graphics/DrawText.h"
 
@@ -143,7 +140,7 @@ public:
 	}
 	virtual const char *	GetSettingName() const
 	{
-		return codegrouplist[mIndex].active ? Translate(59,"Enabled") : Translate(58,"Disabled");
+		return codegrouplist[mIndex].active ? "Enabled" : "Disabled";
 	}
 
 private:
@@ -232,8 +229,8 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 	//
 	CheatCodes_Read( (char*)mRomName.c_str(), (char*)"Daedalus.cht", mRomID.CountryID );
 
-	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, Translate(87,"Enable Cheat Codes"), Translate(89,"Whether to use cheat codes for this ROM"), Translate(59,"Enabled"), Translate(58,"Disabled") ) );
-	mElements.Add( new CCheatFrequency( &mRomPreferences.CheatFrequency, Translate(88,"Apply Cheat Codes Frequency"), Translate(90,"The higher this value, the less cheats will hog the emulator at the expense that certain cheats won't work properly.") ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Whether to use cheat codes for this ROM", "Yes", "No" ) );
+	mElements.Add( new CCheatFrequency( &mRomPreferences.CheatFrequency, "Apply Cheat Codes Frequency", "The higher this value, the less cheats will hog the emulator at the expense that certain cheats won't work properly." ) );
 
 	
 	for(u32 i = 0; i < MAX_CHEATCODE_PER_LOAD; i++)
@@ -255,7 +252,7 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 			else
 			{
 				//mElements.Add( new CCheatNotFound("No cheat codes found for this entry", "Make sure codes are formatted correctly for this entry. Daedalus supports a max of eight cheats per game." ) );
-				mElements.Add( new CCheatNotFound(Translate(91,"No cheat codes found for this entry") ) );
+				mElements.Add( new CCheatNotFound("No cheat codes found for this entry" ) );
 			}
 		}
 		else
@@ -264,14 +261,14 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 			//
 			//codegrouplist[i].active = false; // Overkill IMO
 			//mElements.Add( new CCheatNotFound("No cheat codes found for this entry", "Make sure codes are formatted correctly for this entry. Daedalus supports a max of eight cheats per game." ) );
-			mElements.Add( new CCheatNotFound(Translate(91,"No cheat codes found for this entry") ) );
+			mElements.Add( new CCheatNotFound("No cheat codes found for this entry" ) );
 
 		}
 	}
 
 
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< ICheatOptionsScreen >( this, &ICheatOptionsScreen::OnConfirm ), Translate(82,"Save & Return"), Translate(84,"Confirm changes to settings and return.") ) );
-	mElements.Add( new CUICommandImpl( new CMemberFunctor< ICheatOptionsScreen >( this, &ICheatOptionsScreen::OnCancel ), Translate(83,"Cancel"), Translate(85,"Cancel changes to settings and return.") ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< ICheatOptionsScreen >( this, &ICheatOptionsScreen::OnConfirm ), "Save & Return", "Confirm changes to settings and return." ) );
+	mElements.Add( new CUICommandImpl( new CMemberFunctor< ICheatOptionsScreen >( this, &ICheatOptionsScreen::OnCancel ), "Cancel", "Cancel changes to settings and return." ) );
 
 }
 
@@ -328,7 +325,7 @@ void	ICheatOptionsScreen::Render()
 	//u32		line_height( font_height + 2 );
 	s32		y;
 
-	const char * const title_text = Translate(92,"Cheat Options");
+	const char * const title_text = "Cheat Options";
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
 	u32		heading_height( mpContext->GetFontHeight() );
 	y = TITLE_AREA_TOP + heading_height;

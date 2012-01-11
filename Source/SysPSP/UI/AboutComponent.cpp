@@ -31,8 +31,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "SysPSP/Utility/PathsPSP.h"
 
-#include "Utility/Translate.h"
-
 #include "svnversion.h"
 
 #include <kubridge.h>
@@ -60,11 +58,11 @@ namespace
 
 	const char * const		INFO_TEXT[] =
 	{
-		Translate(54,"Copyright (C) 2008-2012 DaedalusX64 Team"),
-		Translate(55,"Copyright (C) 2001-2009 StrmnNrmn"),
-		Translate(56,"Audio HLE code by Azimer"),
+		"Copyright (C) 2008-2011 DaedalusX64 Team",
+		"Copyright (C) 2001-2009 StrmnNrmn",
+		"Audio HLE code by Azimer",
 		"",
-		Translate(57,"For news and updates visit:"),
+		"For news and updates visit:",
 	};
 
 	const char * const		pspModel[ MAX_PSP_MODEL ] =

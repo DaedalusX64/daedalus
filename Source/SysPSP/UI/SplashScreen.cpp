@@ -32,7 +32,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/Math.h"	// VFPU Math
 
 #include "Utility/Preferences.h"
-#include "Utility/Translate.h"
 #include "SysPSP/Utility/PathsPSP.h"
 
 #include <pspctrl.h>
@@ -139,7 +138,7 @@ void	ISplashScreen::Render()
 	mpContext->RenderTexture( mpTexture, (480 - 328)/2, (272-90)/2, colour );
 
 	char msg[64];
-	sprintf (msg, Translate(42,"%s Color Selected"), g32bitColorMode? "32Bit" : "16Bit" );
+	sprintf (msg, "%s Color Selected", g32bitColorMode? "32Bit" : "16Bit" );
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
 	mpContext->DrawTextAlign(0,480,AT_CENTRE,272-50,msg,DrawTextUtilities::TextWhite);
 }

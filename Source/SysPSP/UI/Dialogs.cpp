@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/ColourValue.h"
 #include "SysPSP/Graphics/DrawText.h"
-#include "Utility/Translate.h"
+
 
 #include <pspctrl.h>
 #include <pspdisplay.h>
@@ -67,9 +67,9 @@ bool CDialog::Render( CUIContext * p_context, const char* message, bool only_dia
 
 		// Only show a dialog, do not give a choice
 		if(only_dialog)
-			p_context->DrawTextAlign(0,480,AT_CENTRE,158,Translate(12,"Press any button to continue"),DrawTextUtilities::TextWhite);
+			p_context->DrawTextAlign(0,480,AT_CENTRE,158,"Press any button to continue",DrawTextUtilities::TextWhite);
 		else
-			p_context->DrawTextAlign(0,480,AT_CENTRE,158,Translate(13,"(X) Confirm       (O) Cancel"),DrawTextUtilities::TextWhite);
+			p_context->DrawTextAlign(0,480,AT_CENTRE,158,"(X) Confirm       (O) Cancel",DrawTextUtilities::TextWhite);
 
 		p_context->EndRender();
 

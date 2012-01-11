@@ -36,7 +36,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/MathUtil.h"
 #include "Utility/Functor.h"
-#include "Utility/Translate.h"
 #include "SysPSP/Utility/Buttons.h"
 
 #include <pspctrl.h>
@@ -65,9 +64,9 @@ namespace
 
 	const char * const	gMenuOptionNames[ NUM_MENU_OPTIONS ] =
 	{
-		Translate(14,"Global Settings"),
-		Translate(43,"Paused"),
-		Translate(18,"About"),
+		"Global Settings",
+		"Paused",
+		"About",
 	};
 }
 

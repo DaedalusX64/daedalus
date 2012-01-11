@@ -42,7 +42,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Utility/IO.h"
 #include "Utility/ROMFile.h"
-#include "Utility/Translate.h"
 
 #include "SysPSP/Utility/Buttons.h"
 #include "SysPSP/Utility/PathsPSP.h"
@@ -130,13 +129,13 @@ namespace
 
 	const char * const		gNoRomsText[] =
 	{
-		Translate(19,"Daedalus could not find any roms to load."),
-		Translate(20,"You can add roms to the \\N64\\ directory on your memory stick,"),
+		"Daedalus could not find any roms to load.",
+		"You can add roms to the \\N64\\ directory on your memory stick,",
 		"(e.g. P:\\N64\\)",
-		Translate(21,"or the Roms directory within the Daedalus folder."),
+		"or the Roms directory within the Daedalus folder.",
 		"(e.g. P:\\PSP\\GAME\\Daedalus\\Roms\\)",
-		Translate(22,"Daedalus recognises a number of different filetypes,"),
-		Translate(23,"including .zip, .z64, .v64, .rom, .bin, .pal, .usa and .jap."),
+		"Daedalus recognises a number of different filetypes,",
+		"including .zip, .z64, .v64, .rom, .bin, .pal, .usa and .jap.",
 	};
 
 	const char * const		gPreviewDirectory = DAEDALUS_PSP_PATH( "Resources/Preview/" );
@@ -481,7 +480,7 @@ void IRomSelectorComponent::RenderPreview_old()
 		//mpContext->DrawRect( ICON_AREA_LEFT, ICON_AREA_TOP, ICON_AREA_WIDTH, ICON_AREA_HEIGHT, c32::Black );
 		mpContext->DrawRect( ICON_AREA_LEFT, ICON_AREA_TOP, ICON_AREA_WIDTH, ICON_AREA_HEIGHT, c32::White );
 		mpContext->DrawRect( ICON_AREA_LEFT+2, ICON_AREA_TOP+2, ICON_AREA_WIDTH-4, ICON_AREA_HEIGHT-4, c32::Black );
-		mpContext->DrawTextAlign( ICON_AREA_LEFT, ICON_AREA_LEFT + ICON_AREA_WIDTH, AT_CENTRE, ICON_AREA_TOP+ICON_AREA_HEIGHT/2, Translate(0,"No Preview Available"), c32::White );
+		mpContext->DrawTextAlign( ICON_AREA_LEFT, ICON_AREA_LEFT + ICON_AREA_WIDTH, AT_CENTRE, ICON_AREA_TOP+ICON_AREA_HEIGHT/2, "No Preview Available", c32::White );
 	}
 
 
@@ -501,11 +500,11 @@ void IRomSelectorComponent::RenderPreview_old()
 		char buffer[ 32 ];
 		sprintf( buffer, "%d MB", rom_size / (1024*1024) );
 
-		DrawInfoText_old( mpContext, y, Translate(1,"Boot:"), cic_name );	y += line_height;
-		DrawInfoText_old( mpContext, y, Translate(2,"Country:"), country );	y += line_height;
-		DrawInfoText_old( mpContext, y, Translate(3,"Size:"), buffer );	y += line_height;
+		DrawInfoText_old( mpContext, y, "Boot:", cic_name );	y += line_height;
+		DrawInfoText_old( mpContext, y, "Country:", country );	y += line_height;
+		DrawInfoText_old( mpContext, y, "Size:", buffer );	y += line_height;
 
-		DrawInfoText_old( mpContext, y, Translate(4,"Save:"), ROM_GetSaveTypeName( p_rominfo->mSettings.SaveType ) ); y += line_height;
+		DrawInfoText_old( mpContext, y, "Save:", ROM_GetSaveTypeName( p_rominfo->mSettings.SaveType ) ); y += line_height;
 		DrawInfoText_old( mpContext, y, "EPak:", ROM_GetExpansionPakUsageName( p_rominfo->mSettings.ExpansionPakUsage ) ); y += line_height;
 		//DrawInfoText_old( mpContext, y, "Dynarec:", p_rominfo->mSettings.DynarecSupported ? "Supported" : "Unsupported" ); y += line_height;
 	}
@@ -1855,12 +1854,11 @@ void IRomSelectorComponent::Render_old()
 	static u32 count=0;
 
 	const char * const		message[] =
-	{	Translate(5,"(X) -> Load"),
-		Translate(6,"([ ]) -> Settings"),
-		Translate(7,"(/\\) -> File Names"),
-		Translate(8,"(HOME) -> Quit"),
-		Translate(9,"(SELECT) -> Delete")
-	};
+	{	"(X) -> Load",
+		"([ ]) -> Settings",
+		"(/\\) -> File Names",
+		"(HOME) -> Quit",
+		"(SELECT) -> Delete"};
 
 	ICON_AREA_TOP = 32;
 	ICON_AREA_LEFT = 10;
@@ -1905,7 +1903,7 @@ void IRomSelectorComponent::Render_old()
 #ifdef DAEDALUS_DIALOGS
 	if(mQuitTriggered)
 	{
-		if(gShowDialog.Render( mpContext,Translate(10,"Do you want to exit?"), false) )
+		if(gShowDialog.Render( mpContext,"Do you want to exit?", false) )
 		{
 			sceKernelExitGame();
 		}
@@ -1915,7 +1913,7 @@ void IRomSelectorComponent::Render_old()
 
 	if(mRomDelete)
 	{
-		mpContext->DrawTextAlign(0,470,AT_RIGHT,CATEGORY_AREA_TOP + mpContext->GetFontHeight(),Translate(11,"(X) -> Confirm"), color);
+		mpContext->DrawTextAlign(0,470,AT_RIGHT,CATEGORY_AREA_TOP + mpContext->GetFontHeight(),"(X) -> Confirm", color);
 	}
 	else
 	{
