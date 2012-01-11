@@ -79,7 +79,7 @@ _TnLVFPU:
 next_vertex_:
 # Load and transform this vertex position
  	lv.s		S200, 0($a2)				// load word [y,x,?,z]
- 	lv.s		S210, 4($a2)				// should align this to 16 bytes so we can do a single load?
+ 	lv.s		S210, 4($a2)				// ulv.q is buggy on PHAT
 	vs2i.p		R200, R200					// R200 = [?,z,y,x]
 	vi2f.q		R200, R200, 16				// int -> float
 	vmov.q		R200, R200[y,x,w,1]
@@ -240,12 +240,13 @@ _TnLVFPUCBFD:
 next_vertex_CBFD:
 # Load and transform this vertex position
  	lv.s		S200, 0($a2)				// load word [y,x,?,z]
- 	lv.s		S210, 4($a2)				// should align this to 16 bytes so we can do a single load?
+ 	lv.s		S210, 4($a2)				// ulv.q is buggy on PHAT
 	vs2i.p		R200, R200					// R200 = [?,z,y,x]
 	vi2f.q		R200, R200, 16				// int -> float
 	vmov.q		R200, R200[y,x,w,1]
 	vtfm4.q		R201, M000, R200			// World transform
  	lb			$v1, 4($a2)					// Get vert_norm z
+	mtv			$v1, S223					// Store vertice normal Z 
 	vtfm4.q		R202, M100, R201			// Projection transform
 	sv.q		R201, 0x00($a3)				// Store world transform
 	sv.q		R202, 0x10($a3)				// Store projection transform
@@ -263,14 +264,10 @@ next_vertex_CBFD:
 	or			$t5, $t4, $t5
 
 #Load vertex Normal or Color
-	andi		$t4, $v0, TNL_LIGHT			// if( TNL_LIGHT )
+	andi		$t4, $v0, TNL_TEXGEN		// if( TNL_TEXGEN )
 	beqz		$t4, do_texture_CBFD
 	sw			$t5, 0x38($a3)				// Store ClipFlags
 
-	andi		$t4, $v0, TNL_TEXGEN		// if( TNL_TEXGEN )
-	beqz		$t4, do_texture_CBFD
-	mtv			$v1, S223					// Store vertice normal Z 
-	
 # We use world matrix to calc normals
  	xori		$t5, $t3, 0x3				// = v0 ^ 3
 	addu		$t5, $t2, $t5				// += base address
@@ -395,13 +392,14 @@ _TnLVFPUPD:
 
 next_vertex_PD:
 # Load and transform this vertex position
- 	lv.s		S200, 0($a2)				// load word [y,x,?,z]
- 	lv.s		S210, 4($a2)				// should align this to 16 bytes so we can do a single load?
-	vs2i.p		R200, R200					// R200 = [?,z,y,x]
+ 	lv.s		S203, 0($a2)				// load word [y,x,?,z]
+ 	lv.s		S213, 4($a2)				// ulv.q is buggy on PHAT
+	vs2i.p		R200, R203					// R200 = [?,z,y,x]
 	vi2f.q		R200, R200, 16				// int -> float
 	vmov.q		R200, R200[y,x,w,1]
 	vtfm4.q		R201, M000, R200			// World transform
- 	lbu			$v1, 4($a2)					// Get Cindx
+ 	mfv			$v1, S213					// Get Cindx
+ 	andi		$v1, 0xFF					// use only low Byte
 	addu		$v1, $v1, $t2				// pointer = base vector + Cindx
 	vtfm4.q		R202, M100, R201			// Projection transform
 	sv.q		R201, 0x00($a3)				// Store world transform
@@ -417,13 +415,13 @@ next_vertex_PD:
 	vnop
 	mfvc		$t5, $131					// VFPU_CC. Corresponds to X_NEG/Y_NEG/Z_NEG
 	andi		$t5, $t5, 0x7				// Mask out the condition codes we don't care about
-	or			$t4, $t4, $t5
-	sw			$t4, 0x38($a3)				// Store ClipFlags
+	or			$t5, $t4, $t5
 
 #Load vertex Normal or Color
+	lv.s		S200, 0($v1)				// load normal word [w,z,y,x]
 	andi		$t4, $v0, TNL_LIGHT			// if( TNL_LIGHT )
 	beqz		$t4, do_color_PD
-	lv.s		S200, 0($v1)				// load normal word [w,z,y,x]
+	sw			$t5, 0x38($a3)				// Store ClipFlags
 	
 #Do lighting Convert the alpha in R200 to float and pass it along to light color
 	.word		0xd0380000 | (8<<8) | (43)	// vuc2i.s	R203, S200					// R200 = [?,z,y,x]
