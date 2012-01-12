@@ -50,7 +50,7 @@ u32 HashString(const char* s, u32 seed = 0)
 //*****************************************************************************
 //
 //*****************************************************************************
-const char * Translate(const char *original)
+const char * Translate_String(const char *original)
 {
 	//if( gLanguage.empty() )	return original;
 

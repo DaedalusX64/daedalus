@@ -145,17 +145,6 @@ namespace
 		virtual	void		OnNext()		{ (gGlobalPreferences.Language >= GetLanguageNum() ) ? 0 : gGlobalPreferences.Language++; }
 		virtual	void		OnPrevious()	{ (gGlobalPreferences.Language <= 0) ? 0 : gGlobalPreferences.Language--; }
 
-		virtual	void			OnSelected()
-		{
-			u32 index = gGlobalPreferences.Language;
-			if( index )
-				Translate_Read( index, DAEDALUS_PSP_PATH("Translation/") );
-			else
-			{	// ToDo:
-				//Translate_Clear();
-			}
-		}
-
 		virtual const char *	GetSettingName() const
 		{
 			u32 index = gGlobalPreferences.Language;
@@ -394,7 +383,7 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.BatteryWarning, "Low Battery Warning",	"Whether to allow Daedalus to notify when the battery is low.", "Yes", "No" ) );
 	mElements.Add( new CGuiType( "Gui Style",	"Select Gui Type either CoverFlow Style or Classic Style" ) );
 	mElements.Add( new CColorSetting( "GUI Color", "Change GUI Color" ) );
-	mElements.Add( new CLanguage( "Language", "Select Language, Press X to load" ) );
+	mElements.Add( new CLanguage( "Language", "Change Language" ) );
 	mElements.Add( new CResetSetting( mpContext, "Reset Settings", "Will guide you to reset preferences to default, and hle cache files. Note : emulator will exit if resetting settings" ) );
 
 }

@@ -57,13 +57,9 @@ void	CDrawText::Initialise()
 	{
 		DAEDALUS_ASSERT( gFonts[ i ] != NULL, "Unable to load font (or forgot!)" );
 	}
-	u32 index = gGlobalPreferences.Language;
-	if( index )
-	{
-		// Init translations if available
-		Translate_Load( DAEDALUS_PSP_PATH("Languages/") );
-		Translate_Read( index, DAEDALUS_PSP_PATH("Languages/") );
-	}
+
+	// Init translations if available
+	Translate_Load( DAEDALUS_PSP_PATH("Languages/") );
 }
 
 //*************************************************************************************
@@ -79,6 +75,36 @@ void	CDrawText::Destroy()
 
 	// Unload translations if available
 	Translate_Unload();
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+const char * CDrawText::Translate( intraFont * font, const char * dest, u32 * length )
+{
+	static u32 temp = 0;
+	u32 index		= gGlobalPreferences.Language;
+
+	if( index == 0 )	return dest;
+
+	if( index != temp )
+	{
+		Translate_Read( index, DAEDALUS_PSP_PATH("Languages/") );
+		temp = index;
+	}
+
+	// Set text string encoding to UTF-8
+	intraFontSetEncoding( font, INTRAFONT_STRING_UTF8 );
+
+	// Check if string length was previously calc'd
+	bool t_len = ( strlen( dest ) == * length );
+
+	dest = Translate_String( dest );
+
+	// There has to be a better way than this?
+	if( t_len ) * length = strlen( dest );
+
+	return dest;
 }
 
 //*************************************************************************************
@@ -101,23 +127,8 @@ u32	CDrawText::Render( EFont font_type, s32 x, s32 y, float scale, const char * 
 	{
 		sceGuEnable(GU_BLEND);
 		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-		if( gGlobalPreferences.Language )
-		{
-			// Set text string encoding to UTF-8
-			intraFontSetEncoding(font, INTRAFONT_STRING_UTF8);
-
-			// If was previously calculated with strlen, need to recalculate to translated string length
-			bool t_len = ( strlen( p_str ) == length );
-
-			// Translate text ;)
-			p_str  = Translate( p_str );
-
-			// There has to be a better way than this? to avoid calculating strlen twice..
-			if( t_len )
-				length = strlen( p_str );
-		}
 		intraFontSetStyle( font, scale, colour.GetColour(), drop_colour.GetColour(), INTRAFONT_ALIGN_LEFT );
-		return s32( intraFontPrintEx( font,  x, y, p_str, length) ) - x;
+		return s32( intraFontPrintEx( font,  x, y, Translate(font, p_str, &length), length) ) - x;
 	}
 
 	return strlen( p_str ) * 16;		// Guess. Better off just returning 0?
@@ -158,22 +169,7 @@ s32		CDrawText::GetTextWidth( EFont font_type, const char * p_str, u32 length )
 	if( font )
 	{
 		intraFontSetStyle( font, 1.0f, 0xffffffff, 0xffffffff, INTRAFONT_ALIGN_LEFT );
-		if( gGlobalPreferences.Language )
-		{
-			// Set text string encoding to UTF-8 (used for accents and such)
-			intraFontSetEncoding(font, INTRAFONT_STRING_UTF8);
-
-			// If was previously calculated with strlen, need to recalculate to translated string length
-			bool t_len = ( strlen( p_str ) == length );
-
-			// Translate text ;)
-			p_str  = Translate( p_str );
-
-			// There has to be a better way than this? to avoid calculating strlen twice..
-			if( t_len )
-				length = strlen( p_str );
-		}
-		return s32( intraFontMeasureTextEx( font, p_str, length ) );
+		return s32( intraFontMeasureTextEx( font, Translate(font, p_str, &length), length ) );
 	}
 
 	return strlen( p_str ) * 16;		// Return a reasonable value. Better off just returning 0?
