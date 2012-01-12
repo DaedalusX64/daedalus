@@ -52,7 +52,9 @@ u32 HashString(const char* s, u32 seed = 0)
 //*****************************************************************************
 const char * Translate(const char *original)
 {
-	u32 hash = HashString( original );
+	//if( gLanguage.empty() )	return original;
+
+	u32 hash = HashString(original);
 	for( u32 i=0; i < ARRAYSIZE(text); i++ )
 	{
 		if( text[i].hash == hash )
@@ -69,13 +71,13 @@ const char * Translate(const char *original)
 //*****************************************************************************
 //
 //*****************************************************************************
-void Translate_Clear()
+void Translate_Unload()
 {
-	// Clear translations
-	memset(text, 0, sizeof(text));	
-
-	// Clear languages
-	gLanguage.clear();
+	for( u32 i = 0; i < ARRAYSIZE(text); ++i )
+	{
+		delete text[i].translated;
+		text[i].translated = NULL;
+	}
 }
 
 //*****************************************************************************
@@ -163,28 +165,16 @@ bool Translate_Read(u32 idx, const char * dir)
 			continue;
 
 		string = strchr(line,',');
-		sscanf( line,"%08x", &hash );
 		if( string != NULL )
 		{
 			string++;
-			if( count <= ARRAYSIZE(text) )
+			sscanf( line,"%08x", &hash );
+			if( count < ARRAYSIZE(text) )
 			{
 				// Write translated id/hash to array
 				text[count].hash = hash;
-				text[count].translated = (char*)malloc(strlen(string)+2);
-				if(text[count].translated == NULL)
-				{
-					printf("Cannot allocate memory to load translated strings");
-					return false;
-				}
+				text[count].translated = new char[strlen(string)+1];
 				strcpy(text[count].translated, string);
-				/*FILE * fh = fopen( "hash.txt", "a" );
-				if ( fh )
-				{
-					fprintf( fh,  "%08x, \"%s\"\n", text[count].hash, text[count].translated );
-					fclose(fh);
-				}
-				*/
 				count++;
 			}
 		}

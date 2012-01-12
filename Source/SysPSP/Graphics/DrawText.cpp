@@ -26,6 +26,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../../Math/Vector2.h"
 #include "../../Math/Vector3.h"
 
+#include "SysPSP/Utility/PathsPSP.h"
+
+#include "Utility/Preferences.h"
+#include "Utility/Translate.h"
+
 #include <stdarg.h>
 #include <pspgu.h>
 #include <pspdebug.h>
@@ -45,12 +50,19 @@ void	CDrawText::Initialise()
 {
     intraFontInit();
 
-	gFonts[ F_REGULAR ] = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ASCII );			// Regular/sans-serif
-	gFonts[ F_LARGE_BOLD ] = intraFontLoad( "flash0:/font/ltn4.pgf", INTRAFONT_CACHE_ASCII );		// Large/sans-serif/bold
+	gFonts[ F_REGULAR ] = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ASCII | INTRAFONT_STRING_UTF8 );			// Regular/sans-serif
+	gFonts[ F_LARGE_BOLD ] = intraFontLoad( "flash0:/font/ltn4.pgf", INTRAFONT_CACHE_ASCII | INTRAFONT_STRING_UTF8 );		// Large/sans-serif/bold
 
 	for( u32 i = 0; i < NUM_FONTS; ++i )
 	{
 		DAEDALUS_ASSERT( gFonts[ i ] != NULL, "Unable to load font (or forgot!)" );
+	}
+	u32 index = gGlobalPreferences.Language;
+	if( index )
+	{
+		// Init translations if available
+		Translate_Load( DAEDALUS_PSP_PATH("Languages/") );
+		Translate_Read( index, DAEDALUS_PSP_PATH("Languages/") );
 	}
 }
 
@@ -64,6 +76,9 @@ void	CDrawText::Destroy()
 		intraFontUnload( gFonts[ i ] );
 	}
 	intraFontShutdown();
+
+	// Unload translations if available
+	Translate_Unload();
 }
 
 //*************************************************************************************
@@ -73,8 +88,6 @@ u32	CDrawText::Render( EFont font, s32 x, s32 y, float scale, const char * p_str
 {
 	return Render( font, x, y, scale, p_str, length, colour, c32( 0,0,0,160 ) );
 }
-
-const u32 CHARACTER_HEIGHT_I= 16;
 
 //*************************************************************************************
 //
@@ -88,7 +101,21 @@ u32	CDrawText::Render( EFont font_type, s32 x, s32 y, float scale, const char * 
 	{
 		sceGuEnable(GU_BLEND);
 		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+		if( gGlobalPreferences.Language )
+		{
+			// Set text string encoding to UTF-8
+			intraFontSetEncoding(font, INTRAFONT_STRING_UTF8);
 
+			// If was previously calculated with strlen, need to recalculate to translated string length
+			bool t_len = ( strlen( p_str ) == length );
+
+			// Translate text ;)
+			p_str  = Translate( p_str );
+
+			// There has to be a better way than this? to avoid calculating strlen twice..
+			if( t_len )
+				length = strlen( p_str );
+		}
 		intraFontSetStyle( font, scale, colour.GetColour(), drop_colour.GetColour(), INTRAFONT_ALIGN_LEFT );
 		return s32( intraFontPrintEx( font,  x, y, p_str, length) ) - x;
 	}
@@ -131,6 +158,21 @@ s32		CDrawText::GetTextWidth( EFont font_type, const char * p_str, u32 length )
 	if( font )
 	{
 		intraFontSetStyle( font, 1.0f, 0xffffffff, 0xffffffff, INTRAFONT_ALIGN_LEFT );
+		if( gGlobalPreferences.Language )
+		{
+			// Set text string encoding to UTF-8 (used for accents and such)
+			intraFontSetEncoding(font, INTRAFONT_STRING_UTF8);
+
+			// If was previously calculated with strlen, need to recalculate to translated string length
+			bool t_len = ( strlen( p_str ) == length );
+
+			// Translate text ;)
+			p_str  = Translate( p_str );
+
+			// There has to be a better way than this? to avoid calculating strlen twice..
+			if( t_len )
+				length = strlen( p_str );
+		}
 		return s32( intraFontMeasureTextEx( font, p_str, length ) );
 	}
 

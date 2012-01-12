@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 const char * Translate(const char *original);
 bool		 Translate_Read(u32 idx, const char * dir);
-void		 Translate_Clear();
+void		 Translate_Unload();
 void		 Translate_Load( const char * p_dir );
 const char * GetLanguageName(u32 idx);
 u32			 GetLanguageNum();

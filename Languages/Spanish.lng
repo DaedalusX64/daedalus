@@ -1,0 +1,147 @@
+﻿00000000,MAGIC NUMBER
+9dc1820c,No hay vista previa disponible
+a03fa94a,Iniciar:
+19db9e32,País:
+09543b05,Tamaño:
+08d5d6b9,Guardar:
+ee537eb0,(X) -> Cargar
+ee5b9cf1,([ ]) -> Ajustes
+347e7e3b,(/\\) -> Nombre del Archivo
+7b3eaf50,(HOME) -> Salir
+59466b27,(SELECT) -> Borrar
+183f4586,¿Cerrar?
+859c733e,(X) -> Aceptar
+1e85c445,Pulsa cualquier botón para continuar
+13b51271,(X) Aceptar       (O) Cancelar
+b7ca4f3e,Configuración Global
+051a94d5,Juegos
+9b692907,Juego Seleccionado
+c1170d2b,Partidas Guardadas
+993f73ff,Acerca de
+a786de62,Daedalus no pudo encontrar roms para cargar.
+dcafd211,Puede agregar juegos a la carpeta \\N64\\ en la tarjeta de memoria,
+df73ecf1,o en el directorio Roms dentro de la carpeta Daedalus.
+d72277a0,Daedalus reconoce diferentes tipos de archivo,
+4f01e7b5,incluyendo .zip, .z64, .v64, .rom, .bin, .pal, .usa y .jap.
+bdd1275c,Editar Preferencias
+ba9c614e,Opciones Avanzadas
+7f8644c8,Trucos
+e8ad4e74,Empezar Emulación
+85b79ea0,Editar varias preferencias para esta juego.
+e6fa21a3,Editar opciones avanzadas para este juego.
+037a6ee9,Activar y seleccionar trucos para este juego.
+88f3a4c2,Empezar emulación del juego seleccionado.
+bfb757ff,Seleccione la ranura en la que desea guardar
+4bd9a865,Seleccione la ranura que cargar
+11183fe7,No hay partidas guardadas que cargar
+72b02b7e,Seleccione la ranura en la que desea guardar [X:guardar O:atras]
+7d24bdfa,Seleccione la ranura que desea cargar [X:cargar O:atras []:eliminar]
+26145f81,Presione Triangulo para eliminar la partida guardada
+0529d6b2,Ranura
+1670fc01,<vacio>
+6c81a8ee,Guardando...
+d44916e4,Cargando...
+b0f392c4,%s de color seleccionado
+24f6055a,En Pausa
+57d4e678,Seleccione una Ranura para Guardar
+da257eb4,Partida Guardada
+284f6577,Cargar/Eliminar Partida
+27df9ed3,Capturar pantalla
+bb5092ca,Guardar partida actual.
+24312e7d,Restaurar o Eliminar partida guardada previa.
+cdec8d9c,Tome una captura de pantalla al reanudar.
+4aaa99d7,Reanudar Emulación
+1e25cde5,Volver al Menú Principal
+79139258,¿Volver al menú principal?
+17beb20d,Copyright (C) 2008-2012 DaedalusX64 Team
+191b0de3,Copyright (C) 2001-2009 StrmnNrmn
+b27fe8d9,Audio código HLE por Azimer
+82a39ef2,Para noticias y actualizaciones visite:
+8eb50a08,Des habilitado
+34fcd0e7,Habilitado
+11240414,Asincrónico
+af304fb7,Sincrónico
+ec4156ec,Desconocido
+00001f35,No
+000e02bd,Si
+930db968,A toda velocidad
+e265bfa8,A media velocidad
+55eef632,Comprobación de actualización de textura
+ce12dd96,Omitir Marco
+05985a81,Ampliar
+492c372a,Limite de velocidad de Imágenes
+d62ec48b,Recopilación Dinámica
+477417d2,Emulación de Nivel Alto
+9a686c92,Audio
+28675d34,Controles
+e3a9b7b3,Si desea comprobar si hay actualizaciones de textura entre los fotogramas. Des habilite esta opción para mejorar la velocidad del juego a costa de la calidad de los gráficos en algunos Juegos.
+37ee9082,Esto determina cuántos fotogramas se omiten antes de procesar un nuevo fotograma.  Incrementar este valor debe dar un pequeño aumento de velocidad, a costa de gráficos más bruscos.
+74b87a6d,Aumentar el tamaño de la pantalla, el valor anulará el tamaño predeterminado de la pantalla, valor predeterminado 100%.
+b950b01f,Limitar la frecuencia de actualización a 50/25Hz (PAL) o 60/30Hz (NTSC).
+48917b8a,La recompilación dinámica da una considerable aceleración a la emulación del Juego.
+ad549ea7,Si va a utilizar las llamadas de función replicado OS (más rápido) en lugar de utilizar las reales (más lento) (ATENCIÓN, puede causar inestabilidad y/o congelamientos en ciertos Juegos).
+e0366a74,Desea o no habilitar la emulación de audio, si desea procesar el audio Asincrónico(rápido/ pero inestable) o Sincrónico(lento).
+487f2ed5,Guardar y Regresar
+54a93276,Cancelar
+beb13b0c,Confirmar cambios y Regresar.
+442b79c8,Cancelar cambios y Regresar.
+2462a960,Preferencias del Juego
+4c3230e6,Activar Trucos
+c6aa2aab,Aplicar Trucos (Frecuencia)
+04564e07,¿Desea utilizar Trucos para este Juego?
+b5ca15d7,Cuanto más alto sea el valor, menos trucos acaparan el emulador a costa de que ciertos trucos no funcionarán correctamente.
+276e1699,No se encontraron Trucos para este Juego
+48119424,Sin escala 4:3 (320x240)
+c9a48cf8,A escala 4:3 (362x272)
+c4d3e6cb,Pantalla Completa (480x272)
+74e0c4ec,Restablecer el Cache de el HLE
+8ade5a3b,¿Restablecer Configuración?
+7c43b365,Daedalus se cerrara ahora
+22bc6816,Presiona X para iniciar
+02123b1a,Clásico
+a00e4b11,Negro
+000cebbf,Rojo
+bf706ca5,Verde
+c6c78d35,Magenta
+041e9694,Azul
+b85ffe49,Turquesa
+1ab89f90,Anaranjado
+a0d31d90,Morado
+046e1a7f,Gris
+04dbb2b8,Ninguno
+4d60c1e6,Mostrar información
+d45b8b73,Tamaño de ventana
+49ff4d2c,Fuerza Lineal del Filtro
+f096e88f,Complemento de Controles
+2cd3ab78,Zona muerta del Stick
+23d8d78c,Utilizar Búfer grande de Juego
+d228ec17,Alerta de Batería Baja
+34e62182,Estilo de interfaz gráfica
+ca887fd8,Color de interfaz gráfica
+6a4df2ac,Restablecer Configuración
+a3bdb5f5,Ya sea para mostrar información adicional, mientras que el JUEGO se está ejecutando. Algunos modos solo están disponibles en el modo SIN ERRORES
+1bfe167d,Tamaño de la ventana de el PSP.
+7f9bdebd,Habilitar fuerza lineal del filtro, esto puede mejorar el aspecto de las texturas
+b4478cb3,Habilitar MemPak o RumblePak
+a342ced3,Ajustar el tamaño de la zona muerta sobre el stick de PSP mientras juegas. Pulse Start/X para editar.
+67c8709b,Desactivar para cargar más rápido pero con una pequeña des aceleración durante los cambios de escena en Juegos. Surtirá efecto sólo cuando carga el Juego.
+a53edd7e,Permitir que Daedalus notifique cuando la batería este baja.
+5aa7e128,Seleccione tipo de interfaz gráfica ya sea Estilo CoverFlow o Estilo Clasico
+928b8bd2,Cambiar color de interfaz gráfica
+48580c6c,Le ayudará a restablecer las preferencias por defecto, y archivos de caché HLE. Nota: el emulador se cerrará si se restablece la configuración
+e1134e27,Optimización de acceso de memoria
+f1da3d39,Limpiar Escena
+c75e1b17,Optimización Dinámica de Bucle
+679a7a90,Lista de Pantalla Doble
+5936df5c,Velocidad de Coincidencia de Vídeo
+931034db,Velocidad de Coincidencia de Audio
+73180dbe,Niebla de Emulación
+d64510cd,Habilitar para acelerar emulación (ATENCIÓN, puede causar inestabilidad y/o congelamientos en ciertos Juegos).
+6be51f9b,Forzar limpieza de memoria de vídeo antes de dibujar cualquier primitivo
+cae93146,Habilitar Lista de Doble Pantalla para una aceleración en la emulación (funciona en la mayoria de Juegos)
+ca1c18fa,Ya sea para que coincida con la velocidad de la animación a la velocidad de fotogramas (hace algunos juegos menos lentos)
+cba66bbc,Igualar la tasa de Audio a la velocidad de fotogramas
+1a61c1b8,Si desea activar o desactivar la emulación de la niebla (Experimental, sólo funciona en algunos juegos)
+ba9c614e,Opciones Avanzadas
+3580e011,Ajuste de las regiones de zona muerta mínima y máxima. Arriba/abajo: Aumentar o disminuir la zona muerta. Izquierda/Derecha: Seleccionar mínimo o máximo para el ajuste de zona muerta. Triángulo: Restablecer los valores predeterminados. Start/X: Confirmar. Select/Círculo: Cancelar"
+f3a27e37,Ajustar Zona Muerta del Stick
