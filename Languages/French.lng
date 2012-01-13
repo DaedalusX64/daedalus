@@ -1,0 +1,111 @@
+﻿//
+// Translation file for DaedalusX64
+// Language : French
+// Last Updated :
+// Version :
+// Translation by : 
+//
+//
+// To modify:
+// Please make sure this file is always encoded as UTF-8
+// To create a new translation please use the Default.lng inside Default.7z as base
+// Do not move/remove or translate the first line named as MAGIC NUMBER
+
+// The hash # for your language is : 14e8d7b6 (Which is used to display your language name in the GUI)
+// Please check hash.txt inside Default.7z for list of hash numbers for most languages
+// Please add it below MAGIC NUMBER and make sure to translate it
+//
+
+00000000,MAGIC NUMBER
+14e8d7b6,French
+9dc1820c,Aucune image disponible
+a03fa94a,Lancer:
+19db9e32,Région:
+09543b05,Taille:
+08d5d6b9,Sauvegarder:
+ee537eb0,(X) -> Charger
+ee5b9cf1,([ ]) -> Options
+347e7e3b,(/\\) -> Nom du fichier
+7b3eaf50,(HOME) -> Quitter
+59466b27,(SELECT) -> Supprimer
+183f4586,Voulez vous vraiment quitter ?
+859c733e,(X) -> Confirmer
+1e85c445,Appuyez sur n'importe quelle touche pour continuer
+13b51271,(X) Confirmer       (O) Annuler
+b7ca4f3e,Options Générales
+051a94d5,Roms
+9b692907,Sélectionner une Rom
+c1170d2b,Sauvegarder
+993f73ff,À propos
+a786de62,Daedalus ne trouve aucune ROM à lancer.
+dcafd211,Vous pouvez ajouter les roms dans un dossier nommé \\N64\\ à la racine de votre carte mémoire
+df73ecf1,ou directement dans le dossier approprié.
+d72277a0,Daedalus reconnait différent types d'extensions,
+4f01e7b5,incluant .zip, .z64, .v64, .rom, .bin, .pal, .usa et .jap.
+bdd1275c,Éditer les Préférences
+ba9c614e,Options avancées
+7f8644c8,Cheats
+e8ad4e74,Lancer l'émulation
+85b79ea0,Éditer les options pour cette rom.
+e6fa21a3,Éditer les options avancées pour cette rom.
+037a6ee9,Activer et sélectionner les Cheat pour cette rom.
+88f3a4c2,Lancer l'émulation de cette rom.
+bfb757ff,Choisir un emplacement pour le chargement.
+4bd9a865,Il n'y a pas de sauvegarde à charger.
+11183fe7,Choisir un emplacement pour la sauvegarde [X:sauvegarder O:retour]
+72b02b7e,Choisir un emplacement pour le chargement [X:charger O:retour []:effacer]
+7d24bdfa,Appuyez sur triangle pour effacer cette sauvegarde
+26145f81,fente
+0529d6b2,<vide>
+1670fc01,Sauvegarde...
+6c81a8ee,Chargement...
+d44916e4,%s Couleur choisie
+b0f392c4,Mettre en pause
+24f6055a,Choisissez un emplacement pour sauvegarder
+57d4e678,Sauvegarder
+da257eb4,charger/Effacer la sauvegarde
+284f6577,Capture d'écran
+27df9ed3,Sauvegarder l'état actuel
+bb5092ca,Restaurer ou effacer une sauvegarde.
+24312e7d,Prendre une capture d'écran au retour.
+cdec8d9c,Reprendre l'émulation
+4aaa99d7,Retourner au menu principal
+1e25cde5,Retourner au menu principal?
+79139258,Copyright (C) 2008-2012 DaedalusX64 Team
+17beb20d,Copyright (C) 2001-2009 StrmnNrmn
+191b0de3,Audio HLE codé par Azimer
+b27fe8d9,Pour les News et MAJ rendez vous sur:
+82a39ef2,Désactivé
+8eb50a08,Activé
+34fcd0e7,Asynchrone
+11240414,Synchrone
+af304fb7,Inconnu
+ec4156ec,Non
+00001f35,oui
+000e02bd,Vitesse d'émulation 100%
+930db968,Vitesse d'émulation 50%
+e265bfa8,Vérifications des textures
+55eef632,Nombre de Frame ignoré
+ce12dd96,Zoom
+05985a81,Limiter la vitesse d'émulation
+492c372a,Améliorer la recompilation des données
+d62ec48b,Niveau d’émulation supérieur (rapide)
+477417d2,Audio
+9a686c92,Controlleur
+28675d34,Vérification des textures entre chaque frames.Désactivé pour améliorer la vitesse d'émulation au dépend de la qualité de l'image (à noter quelques bug graphiques avec certaine ROMS.
+e3a9b7b3,Cela détermine le nombre de Frame a ignorer avant d'afficher une nouvelle frame. Augmenter cette valeur permet un léger gain de vitesse, mais peut provoquer des saccades pendant le jeux.
+37ee9082,Agrandir la taille de l’écran, la valeur par défaut est 100%.
+74b87a6d,Limite la fréquences de rafraîchissement a 50/25Hz (PAL) ou 60/30Hz (NTSC).
+b950b01f,Recompilation Dynamique donne une importante amélioration de la vitesse d'émulation.
+48917b8a,Utiliser fonction de traitement parallèle du système pour le traitement des données (rapide) au lieu de la simple (lent) (Attention, cela peut causer des crash/bug sur certaine ROMs).
+ad549ea7,Activer ou désactiver le son, soit asynchrone(rapide/saccadé) ou synchrone(lent).
+e0366a74,Sauvegarder & Quitter
+487f2ed5,Annuler
+54a93276,Confirmer les changement et quitter.
+beb13b0c,Annuler les changement et quitter.
+442b79c8,Préférences/option de la rom
+2462a960,Activer les Codes
+4c3230e6,Choisir la fréquence des codes
+c6aa2aab,Utiliser ou non les codes de cette ROM
+04564e07,Plus la valeur est grande, plus les code seront efficace mais cela demandera plus de ressource, et certain code risque de ne plus fonctionner
+b5ca15d7,Aucun cheat trouvé

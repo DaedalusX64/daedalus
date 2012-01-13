@@ -1,0 +1,166 @@
+﻿//
+// Translation file for DaedalusX64
+// Language : Brazilian Portuguese (Português Brasileiro)
+// Last Updated : 07/01/2012
+// Version : 1.0
+// Translation by : Scarecrow
+//
+//
+// To modify:
+// Please make sure this file is always encoded as UTF-8
+// To create a new translation please use the Default.lng inside Default.7z as base
+// Do not move/remove or translate the first line named as MAGIC NUMBER
+
+// The hash # for your language is : c30c6bc0 (Which is used to display your language name in the GUI)
+// Please check hash.txt inside Default.7z for list of hash numbers for most languages
+// Please add it below MAGIC NUMBER and make sure to translate it
+//
+
+00000000,MAGIC NUMBER
+c30c6bc0,Brasileiro
+9dc1820c,Sem Imagem Disponível
+a03fa94a,Início:
+19db9e32,País:
+09543b05,Tamanho:
+08d5d6b9,Gravação:
+ee537eb0,(X) -> Carregar
+ee5b9cf1,([ ]) -> Opções
+347e7e3b,(/\\) -> Nome dos arquivos
+7b3eaf50,(HOME) -> Sair
+59466b27,(SELECT) -> Excluir
+183f4586,Você quer mesmo sair?
+859c733e,(X) -> Confirmar
+1e85c445,Aperte qualquer botão para continuar
+13b51271,(X) Confirmar       (O) Cancelar
+b7ca4f3e,Opções Globais
+051a94d5,Roms
+9b692907,Rom Selecionada
+c1170d2b,Partidas salvas
+993f73ff,Sobre
+a786de62,Nenhuma rom encontrada.
+dcafd211,Você pode adicionar roms para o diretório \\N64\\ em seu cartão de memória,
+df73ecf1,ou no diretório Roms dentro da pasta do emulador.
+d72277a0,Daedalus reconhece vários tipos de arquivos,
+4f01e7b5,incluindo .zip, .z64, .v64, .rom, .bin, .pal, .usa e .jap.
+bdd1275c,Editar Preferências
+ba9c614e,Opções Avançadas
+7f8644c8,Truques
+e8ad4e74,Iniciar Emulação
+85b79ea0,Editar várias opções para essa rom.
+e6fa21a3,Editar opções avançadas para essa rom.
+037a6ee9,Habilitar e selecionar truques para essa rom.
+88f3a4c2,Iniciar emulação do jogo selecionado.
+bfb757ff,Selecione o espaço desejado para salvar o jogo
+4bd9a865,Selecione qual espaço deseja carregar
+11183fe7,Não há partidas salvas para carregar
+72b02b7e,Selecione o espaço desejado para salvar o jogo [X:salvar O:cancelar]
+7d24bdfa,Selecione qual espaço deseja carregar [X:carregar O:cancelar []:excluir]
+26145f81,Aperte triângulo para excluir essa partida
+0529d6b2,Espaço
+1670fc01,<vazio>
+6c81a8ee,Salvando...
+d44916e4,Carregando...
+b0f392c4,%s Cor Selecionada
+24f6055a,Parado
+57d4e678,Selecione um espaço para salvar
+da257eb4,Partida Salva
+284f6577,Carregar/Excluir Partida
+27df9ed3,Capturar tela
+bb5092ca,Salvar partida atual.
+24312e7d,Restaurar ou excluir uma partida anterior.
+cdec8d9c,Capturar tela ao retomar.
+4aaa99d7,Retomar Emulação
+1e25cde5,Retornar ao Menu Principal
+79139258,Retornar ao Menu Principal?
+17beb20d,Copyright (C) 2008-2012 DaedalusX64 Team
+191b0de3,Copyright (C) 2001-2009 StrmnNrmn
+b27fe8d9,Código de Áudio HLE por Azimer
+82a39ef2,Para notícias e atualizações visite:
+8eb50a08,Desabilitado
+34fcd0e7,Habilitado
+11240414,Assíncrono
+af304fb7,Síncrono
+ec4156ec,Desconhecido
+00001f35,Não
+000e02bd,Sim
+930db968,Velocidade máxima
+e265bfa8,Velocidade média
+55eef632,Comprovação de atualização de textura
+ce12dd96,Pulo de quadros
+05985a81,Ampliar
+492c372a,Limitar taxa de quadros
+d62ec48b,Recompilação Dinâmica
+477417d2,Emulação de Alto Nível
+9a686c92,Áudio
+28675d34,Controles
+e3a9b7b3,Ative para checar a atualização de textura entre os quadros. Desabilite para aumento na velocidade ao custo de qualidade gráfica em alguns jogos.
+37ee9082,Essa opção determina quantos quadros serão pulados antes de renderizar um novo quadro. Aumentando esse valor pode dar um pequeno aumento na velocidade, ao custo de gráficos mais feios.
+74b87a6d,Aumenta o tamanho da tela, esse valor irá sobrepor o valor padrão (100%).
+b950b01f,Limita a atualização de quadros para 50/25Hz (PAL) ou 60/30Hz (NTSC).
+48917b8a,Recompílação dinâmica dá um aumento considerável na velocidade da emulação.
+ad549ea7,Ative para usar funções replicadas do SO (mais rápido) ao invés de emular as verdadeiras (mais lento) (ATENÇÃO, pode causar instabilidade e travamentos em certos jogos).
+e0366a74,Ative ou não para habilitar a emulação do áudio, e escolha entre os processamentos de áudio Assíncrono (rápido\bugado) e síncrono(devagar).
+487f2ed5,Salvar & Retornar
+54a93276,Cancelar
+beb13b0c,Confirmar mudanças e retornar.
+442b79c8,Cancelar mudançar e retornar.
+2462a960,Preferências do Jogo
+4c3230e6,Habilitar truques
+c6aa2aab,Aplicar Frequência de Truque
+04564e07,Utilizar truques nesta ROM?
+b5ca15d7,Quanto maior este valor, menos truques irão sobrecarregar o emulador ao custo de certos truques não carregarem corretamente.
+276e1699,Não foram encontrados truques para esse jogo
+48119424,4:3 sem escala (320x240)
+c9a48cf8,4:3 com escala (362x272)
+c4d3e6cb,Tela cheia (480x272)
+74e0c4ec,Reiniciar cache HLE
+8ade5a3b,Reiniciar configurações?
+7c43b365,Daedalus será desligado agora
+22bc6816,Aperte X para iniciar
+02123b1a,Clássico
+a00e4b11,Negro
+000cebbf,Vermelho
+bf706ca5,Verde
+c6c78d35,Magenta
+041e9694,Azul
+b85ffe49,Turquesa
+1ab89f90,Laranja
+a0d31d90,Roxo
+046e1a7f,Cinza
+04dbb2b8,Nenhum
+4d60c1e6,Exibir informação
+d45b8b73,Tamanho da janela
+49ff4d2c,Forçar Filtro Linear
+f096e88f,Complemento do controle
+2cd3ab78,Zona morta do Analógico
+23d8d78c,Utilizar Buffer grande de ROMs
+d228ec17,Alerta de Bateria Baixa
+34e62182,Estilo da Interface
+ca887fd8,Cor da Interface
+6a4df2ac,Reiniciar Configurações
+a3bdb5f5,Use para mostrar informações adicionais sobre a ROM durante a execução. Alguns modos são apenas disponíveis em modo de testes.
+1bfe167d,O tamanho da janela no PSP.
+7f9bdebd,Habilite para forçar o filtro linear, podendo melhorar a qualidade das texturas
+b4478cb3,Habilite o MemPak ou o RumblePak
+a342ced3,Ajusta o tamanho da zona morta à alavanca analógica enquanto joga. Aperte Start/X para editar
+67c8709b,Desabilite para carregar o jogo mais rápido a custa de pequenos travamentos durante mudanças de cenas em jogos grandes. Só funciona durante o carregamento da ROM.
+a53edd7e,Ative para permitir que o Daedalus notifique o nível da bateria caso esteja baixo.
+5aa7e128,Selecione qual interface utilizar entre o Estilo CoverFlow e o Estilo Clássico
+928b8bd2,Modificar Cor da interface
+48580c6c,Irá te auxiliar a reiniciar as preferências para os valores padrõe e reiniciar arquivos de cache HLE. Nota : o emulador irá fechar caso reiniciar as preferências
+e1134e27,Otimização ao Acesso de Memória
+f1da3d39,Limpar Cena
+c75e1b17,Otimização Dinâmica de Ciclo
+679a7a90,Listas de Tela Dupla
+5936df5c,Taxa de correspondência de Vídeo
+931034db,Taxa de correspondência de Áudio
+73180dbe,Emulação de Névoa
+d64510cd,Habilite para aumento na velocidade (ATENÇÃO, pode causar instabilidade e travadas em certos jogos).
+6be51f9b,Forçar limpeza da memória de vídeo antes de desenhar primitivos
+cae93146,Habilitar Listas de Tela Dupla para um aumento na velocidade (Funciona na maioria dos jogos)
+ca1c18fa,Use para sincronizar a taxa de animação com a taxa de quadros (Faz alguns jogos parecerem menos lentos)
+cba66bbc,Use para sincronizar a taxa de áudio com a taxa de quadros
+1a61c1b8,Use para habilitar ou desabilitar a emulação de névoa (Experimental, funciona em poucos jogos)
+ba9c614e,Configurações Avançadas
+3580e011,Ajusta as regiões máximas e mínimas da zona morta. Cima/Baixo: Aumenta ou diminui a zona morta. Esquerda/Direita: Valor máximo e mínimo para ajustamento da zona morta. Triângulo: Valores Padrões. Start/X: Confirmar. Select/Círculo: Cancelar"
+f3a27e37,Ajusta zona morta do analógico

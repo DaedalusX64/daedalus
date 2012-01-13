@@ -1,4 +1,23 @@
-﻿00000000,MAGIC NUMBER
+﻿//
+// Translation file for DaedalusX64
+// Language : Spanish (Español)
+// Last Updated :
+// Version : 1.0
+// Translation by : Ricot
+//
+//
+// To modify:
+// Please make sure this file is always encoded as UTF-8
+// To create a new translation please use the Default.lng inside Default.7z as base
+// Do not move/remove or translate the first line named as MAGIC NUMBER
+
+// The hash # for your language is : 4410ba6a (Which is used to display your language name in the GUI)
+// Please check hash.txt inside Default.7z for list of hash numbers for most languages
+// Please add it below MAGIC NUMBER and make sure to translate it
+//
+
+00000000,MAGIC NUMBER
+4410ba6a,Español
 9dc1820c,No hay vista previa disponible
 a03fa94a,Iniciar:
 19db9e32,País:
