@@ -50,8 +50,8 @@ void	CDrawText::Initialise()
 {
     intraFontInit();
 
-	gFonts[ F_REGULAR ] = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ASCII | INTRAFONT_STRING_UTF8 );			// Regular/sans-serif
-	gFonts[ F_LARGE_BOLD ] = intraFontLoad( "flash0:/font/ltn4.pgf", INTRAFONT_CACHE_ASCII | INTRAFONT_STRING_UTF8 );		// Large/sans-serif/bold
+	gFonts[ F_REGULAR ] = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ALL | INTRAFONT_STRING_UTF8 );			// Regular/sans-serif
+	gFonts[ F_LARGE_BOLD ] = intraFontLoad( "flash0:/font/ltn4.pgf", INTRAFONT_CACHE_ALL | INTRAFONT_STRING_UTF8 );		// Large/sans-serif/bold
 
 	for( u32 i = 0; i < NUM_FONTS; ++i )
 	{
@@ -80,7 +80,7 @@ void	CDrawText::Destroy()
 //*************************************************************************************
 //
 //*************************************************************************************
-const char * CDrawText::Translate( intraFont * font, const char * dest, u32 * length )
+const char * CDrawText::Translate( const char * dest, u32 * length )
 {
 	static u32 temp = 0;
 	u32 index		= gGlobalPreferences.Language;
@@ -92,9 +92,6 @@ const char * CDrawText::Translate( intraFont * font, const char * dest, u32 * le
 		Translate_Read( index, DAEDALUS_PSP_PATH("Languages/") );
 		temp = index;
 	}
-
-	// Set text string encoding to UTF-8
-	intraFontSetEncoding( font, INTRAFONT_STRING_UTF8 );
 
 	// Check if string length was previously calc'd
 	bool t_len = ( strlen( dest ) == * length );
@@ -128,7 +125,7 @@ u32	CDrawText::Render( EFont font_type, s32 x, s32 y, float scale, const char * 
 		sceGuEnable(GU_BLEND);
 		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
 		intraFontSetStyle( font, scale, colour.GetColour(), drop_colour.GetColour(), INTRAFONT_ALIGN_LEFT );
-		return s32( intraFontPrintEx( font,  x, y, Translate(font, p_str, &length), length) ) - x;
+		return s32( intraFontPrintEx( font,  x, y, Translate( p_str, &length ), length) ) - x;
 	}
 
 	return strlen( p_str ) * 16;		// Guess. Better off just returning 0?
@@ -169,7 +166,7 @@ s32		CDrawText::GetTextWidth( EFont font_type, const char * p_str, u32 length )
 	if( font )
 	{
 		intraFontSetStyle( font, 1.0f, 0xffffffff, 0xffffffff, INTRAFONT_ALIGN_LEFT );
-		return s32( intraFontMeasureTextEx( font, Translate(font, p_str, &length), length ) );
+		return s32( intraFontMeasureTextEx( font, Translate( p_str, &length ), length ) );
 	}
 
 	return strlen( p_str ) * 16;		// Return a reasonable value. Better off just returning 0?

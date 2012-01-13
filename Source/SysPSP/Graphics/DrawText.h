@@ -23,7 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <vector>
 #include "Graphics/ColourValue.h"
 #include "SysPSP/UI/UIAlignment.h"
-#include "../Graphics/intraFont/intraFont.h"
 
 class CDrawText
 {
@@ -41,7 +40,7 @@ class CDrawText
 		static u32		Render( EFont font, s32 x, s32 y, float scale, const char * p_str, u32 length, c32 colour, c32 drop_colour );
 		static s32		GetTextWidth( EFont font, const char * p_str, u32 length );
 		static f32		IntrPrintf( f32 x, f32 y, f32 scale, c32 colour, const char * p_text, ... );
-		static const char *	Translate( intraFont * font, const char * dest, u32 * length );
+		static const char *	Translate( const char * dest, u32 * length );
 
 		// Versions of above functions which implicitly calc string length
 		static u32		Render( EFont font, s32 x, s32 y, float scale, const char * p_str, c32 colour )						{ return Render( font, x, y, scale, p_str, strlen( p_str ), colour ); }

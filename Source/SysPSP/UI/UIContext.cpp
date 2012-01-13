@@ -444,8 +444,10 @@ namespace
 s32		IUIContext::DrawTextArea( s32 left, s32 top, u32 width, u32 height, const char * text, c32 colour, EVerticalAlign vertical_align )
 {
 	const u32			font_height( CDrawText::GetFontHeight( mCurrentFont ) );
+	u32					length = strlen( text );
 	std::vector<u32>	lengths;
-	DrawTextUtilities::WrapText( mCurrentFont, width, text, strlen( text ), lengths );
+						text   = CDrawText::Translate( p_str, &length );
+	DrawTextUtilities::WrapText( mCurrentFont, width, text, length, lengths );
 
 	s32 x( left );
 	s32 y( VerticalAlign( vertical_align, top, height, lengths.size() * font_height ) );
