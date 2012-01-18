@@ -85,7 +85,7 @@ const char * CDrawText::Translate( const char * dest, u32 * length )
 	static u32 temp = 0;
 	u32 index		= gGlobalPreferences.Language;
 
-	if( index == 0 )	return dest;
+	if( index == 0 || length == NULL )	return dest;
 
 	if( index != temp )
 	{
@@ -144,6 +144,8 @@ f32	CDrawText::IntrPrintf( f32 x, f32 y, f32 scale, c32 colour, const char * p_t
 		// Was borrowed from intrafont.c to simulate our own intraFontPrintf..
 		char buffer[256];
 		va_list ap;
+
+		p_text = Translate( p_text, NULL );
 		
 		va_start(ap, p_text);
 		vsnprintf(buffer, 256, p_text, ap);

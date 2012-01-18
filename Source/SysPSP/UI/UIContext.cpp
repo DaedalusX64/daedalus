@@ -446,11 +446,14 @@ s32		IUIContext::DrawTextArea( s32 left, s32 top, u32 width, u32 height, const c
 	const u32			font_height( CDrawText::GetFontHeight( mCurrentFont ) );
 	u32					length = strlen( text );
 	std::vector<u32>	lengths;
-						text   = CDrawText::Translate( p_str, &length );
-	DrawTextUtilities::WrapText( mCurrentFont, width, text, length, lengths );
+	const char * temp   = text;
+	DrawTextUtilities::WrapText( mCurrentFont, width, CDrawText::Translate( text, &length ), length, lengths );
 
 	s32 x( left );
 	s32 y( VerticalAlign( vertical_align, top, height, lengths.size() * font_height ) );
+
+	// Our built-in auto-linebreaking can't handle unicodes. fall back to use intrafont's manual linebreaking feature
+	if(temp != text)	return CDrawText::Render( mCurrentFont, x, y, 0.8f, text, length, colour );
 
 	for( u32 i = 0; i < lengths.size(); ++i )
 	{

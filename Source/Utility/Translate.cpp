@@ -55,6 +55,7 @@ const char * Translate_String(const char *original)
 	//if( gLanguage.empty() )	return original;
 
 	u32 hash = HashString(original);
+
 	for( u32 i=0; i < ARRAYSIZE(text); i++ )
 	{
 		if( text[i].hash == hash )
@@ -65,6 +66,7 @@ const char * Translate_String(const char *original)
 				return original;
 		}
 	}
+	//printf("new string found : %08x,%s\n",hash,original);
 	return original;
 }
 
@@ -130,6 +132,50 @@ u32 GetLanguageNum()
 	return gLanguage.size()-1;			
 }
 
+
+//*****************************************************************************
+// Borrowed from 1964 to handle special chars as \n newline etc
+// We need to do this since we chop off all newlines when parsing the language file
+//*****************************************************************************
+char* ConvertSpecialChars(char *str, u32 len)
+{
+	char temp[1024];
+	u32 i,j;
+	temp[0]=0;
+
+	for(i=0,j=0; i<len; i++)
+	{
+		switch(str[i])
+		{
+		case '\\':
+			if( str[i+1] == 'n' )
+			{
+				temp[j++]='\n';
+				i++;
+			}
+			else if( str[i+1] == '\\' )
+			{
+				temp[j++]='\\';
+				i++;
+			}
+			else if( str[i+1] == 't')
+			{
+				temp[j++]='\t';
+				i++;
+			}
+			break;
+		default:
+			temp[j++]=str[i];
+			break;
+		}
+	}
+
+	temp[j]=0;
+
+	strcpy(str,temp);
+	return str;
+}
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -144,6 +190,7 @@ bool Translate_Read(u32 idx, const char * dir)
 
 	u32 count = 0;
 	u32 hash  = 0;
+	u32	len;
 
 	// Build path where we'll load the translation file(s)
 	strcpy(path, dir);
@@ -158,7 +205,8 @@ bool Translate_Read(u32 idx, const char * dir)
 
 	while( fgets(line, 1023, stream) )
 	{
-		IO::Path::Tidy(line);			// Strip spaces from end of lines
+		// Strip spaces from end of lines
+		IO::Path::Tidy(line);
 
 		// Handle comments
 		if (line[0] == '/')
@@ -168,12 +216,15 @@ bool Translate_Read(u32 idx, const char * dir)
 		if( string != NULL )
 		{
 			string++;
+			len = strlen( string );
+			ConvertSpecialChars( string, len );
+
 			sscanf( line,"%08x", &hash );
 			if( count < ARRAYSIZE(text) )
 			{
 				// Write translated id/hash to array
 				text[count].hash = hash;
-				text[count].translated = new char[strlen(string)+1];
+				text[count].translated = new char[len+1]; // Leave space for terminator
 				strcpy(text[count].translated, string);
 				count++;
 			}
