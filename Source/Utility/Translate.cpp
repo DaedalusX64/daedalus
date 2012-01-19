@@ -32,14 +32,14 @@ struct pTranslate
 	char	*translated;	// Translated string
 };
 
-pTranslate				 text[148];
+pTranslate				 text[180];
 std::vector<std::string> gLanguage;
 //*****************************************************************************
 //
 //*****************************************************************************
-u32 HashString(const char* s, u32 seed = 0)
+u32 HashString(const char* s)
 {
-    u32 hash = seed;
+    u32 hash = 0;
     while (*s)
     {
         hash = hash * 101  +  *s++;
@@ -55,6 +55,9 @@ const char * Translate_String(const char *original)
 	//if( gLanguage.empty() )	return original;
 
 	u32 hash = HashString(original);
+
+	if( hash == 0 )	/*{ printf("Unable to hash this string %s\n",original); } */
+		return original;
 
 	for( u32 i=0; i < ARRAYSIZE(text); i++ )
 	{
