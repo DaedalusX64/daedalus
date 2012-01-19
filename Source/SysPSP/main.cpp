@@ -50,7 +50,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Preferences.h"
 #include "Utility/Timer.h"
 #include "Utility/Thread.h"
-#include "Utility/Translate.h"
 #include "Utility/ModulePSP.h"
 
 #include "Graphics/GraphicsContext.h"
@@ -301,7 +300,6 @@ static int SetupPanic()
 
 extern void InitialiseJobManager();
 extern bool bNeedStartME;
-extern bool Translate_Read(char *file);
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -329,8 +327,7 @@ static bool	Initialize()
 	DaedalusFWCheck();
 
 	// Initiate MediaEngine
-	//InitialiseJobManager();
-	CModule::Load("mediaengine2.prx");
+	InitialiseJobManager();
 
 // Disable for profiling
 //	srand(time(0));
@@ -342,7 +339,7 @@ static bool	Initialize()
 // This Breaks gdb, better disable it in debug build
 //
 #ifndef DAEDALUS_DEBUG_CONSOLE
-	//initExceptionHandler();
+	initExceptionHandler();
 #endif
 
 	_DisableFPUExceptions();
@@ -354,7 +351,7 @@ static bool	Initialize()
 	VolatileMemInit();
 
 	// let callbacks go in the wild if imposectrl.prx failed
-	//if( !bKernelHomeButton )
+	if( !bKernelHomeButton )
 	{
 #ifdef DAEDALUS_CALLBACKS
 		//Set up callback for our thread
@@ -382,10 +379,6 @@ static bool	Initialize()
 
 	HAVE_DVE = (HAVE_DVE < 0) ? 0 : 1; // 0 == no dvemgr, 1 == dvemgr
 
-	
-	//Translate_Read("");
-	//printf("%d\n",Translate_Num());
-    //setup Pad
     sceCtrlSetSamplingCycle(0);
     sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
 
@@ -636,7 +629,7 @@ int main(int argc, char* argv[])
 		bool show_splash = true;
 		for(;;)
 		{
-			DisplayRomsAndChoose( false );
+			DisplayRomsAndChoose( show_splash );
 			show_splash = false;
 
 			//
