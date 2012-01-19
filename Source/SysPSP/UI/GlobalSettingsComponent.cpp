@@ -147,8 +147,7 @@ namespace
 
 		virtual const char *	GetSettingName() const
 		{
-			u32 index = gGlobalPreferences.Language;
-			return index ? GetLanguageName( index ) : "English";
+			return GetLanguageName( gGlobalPreferences.Language );
 		}
 	};
 

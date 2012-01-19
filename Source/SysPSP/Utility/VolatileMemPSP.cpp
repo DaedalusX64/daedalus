@@ -11,46 +11,13 @@ http://gitorious.org/~jjs/ags/ags-for-psp
 
 #include "Utility/ModulePSP.h"
 
-#include <pspctrl.h>
-#include <pspsdk.h>
 #include <pspkernel.h>
 #include <psppower.h>
 #include <pspsuspend.h>
-#include <pspsysevent.h>
 
 #include <malloc.h>
 
-//
-//	Refactor me
-//
-
-bool bVolatileMem = false;
-
-struct PspSysEventHandler malloc_p5_sysevent_handler_struct;
-//*************************************************************************************
-//
-//*************************************************************************************
-
-extern "C" 
-{ 
-	int kernel_sceKernelRegisterSysEventHandler(PspSysEventHandler *handler);
-	int kernel_sceKernelUnregisterSysEventHandler(PspSysEventHandler *handler);
-}
-
-//
-// From: http://forums.ps2dev.org/viewtopic.php?p=70854#70854
-//
-//*************************************************************************************
-//
-//*************************************************************************************
-int malloc_p5_sysevent_handler(int ev_id, char* ev_name, void* param, int* result)
-{
-  if (ev_id == 0x100) // PSP_SYSEVENT_SUSPEND_QUERY
-    return -1;
-  
-  return 0;
-} 
-
+bool bVolatileMem = false; 
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -63,21 +30,7 @@ void VolatileMemInit()
 
 	if (result == 0)
 	{
-
-		int sysevent = CModule::Load("sysevent.prx");
-		if (sysevent >= 0)
-		{
-			// Register sysevent handler to prevent suspend mode because p5 memory cannot be resumed
-			memset(&malloc_p5_sysevent_handler_struct, 0, sizeof(struct PspSysEventHandler));
-			malloc_p5_sysevent_handler_struct.size = sizeof(struct PspSysEventHandler);
-			malloc_p5_sysevent_handler_struct.name = (char*) "p5_suspend_handler";
-			malloc_p5_sysevent_handler_struct.handler = &malloc_p5_sysevent_handler;
-			malloc_p5_sysevent_handler_struct.type_mask = 0x0000FF00;
-			kernel_sceKernelRegisterSysEventHandler(&malloc_p5_sysevent_handler_struct);
-
-			CModule::Unload( sysevent );
-		}
-
+		scePowerLock(0);
 		printf("Successfully Unlocked Volatile Mem: %d KB\n",size / 1024);
 		bVolatileMem = true;
 	}
@@ -100,7 +53,7 @@ void* malloc_volatile(size_t size)
 
 	//void* result = (void*)malloc(size);
 
-	//struct mallinfo info = _mallinfo_r(NULL);
+//	struct mallinfo info = _mallinfo_r(NULL);
 //	printf("used memory %d of %d - %d\n", info.usmblks + info.uordblks, info.arena, malloc_p5_memory_used);
 
 	// Only try to allocate to volatile mem if we run out of mem.
@@ -123,7 +76,34 @@ void* malloc_volatile(size_t size)
 	else
 	{
 
-//		printf("*****failed to allocate %d byte from p5\n", size);
+//		printf("*****failed to allocate %d byte from p5\n", size / 1024);
 		return NULL;
+	}
+}
+
+//*************************************************************************************
+//
+//*************************************************************************************
+void free_volatile(void* ptr)
+{
+	if (!bVolatileMem)
+	{
+		_free_r(NULL, ptr);
+		return;
+	}
+
+	if (!ptr)
+		return;  
+
+	if (ptr >= (void*)0x08800000)
+	{
+		_free_r(NULL, ptr);
+	}
+	else
+	{
+//		printf("freeing p5 memory %d\n", (u32)*((SceUID*)ptr - 8));
+//		malloc_p5_memory_used -= *((SceUID*)ptr - 4);
+
+		sceKernelFreePartitionMemory(*((SceUID*)ptr - 8));
 	}
 }

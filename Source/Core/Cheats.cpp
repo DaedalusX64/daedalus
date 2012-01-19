@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/ultra_R4300.h"
 #include "ConfigOptions.h"
 #include "Utility/IO.h"
+
+#include "SysPSP/Utility/VolatileMemPSP.h"
 //
 // Cheatcode routines and format based from 1964
 //
@@ -36,8 +38,6 @@ CODEGROUP *codegrouplist;
 u32		codegroupcount		= 0;
 s32		currentgroupindex	= -1;
 char	current_rom_name[128];
-extern void* malloc_volatile(size_t size);
-extern bool bVolatileMem;
 //enum { CHEAT_ALL_COUNTRY, CHEAT_USA, CHEAT_JAPAN, CHEAT_USA_AND_JAPAN, CHEAT_EUR, CHEAT_AUS, CHEAT_FR, CHEAT_GER };
 //*****************************************************************************
 //
@@ -253,7 +253,8 @@ static void CheatCodes_Clear()
 
 	if(codegrouplist != NULL)
 	{
-		memset(codegrouplist, 0, sizeof(codegrouplist));
+		free_volatile(codegrouplist);
+		codegrouplist = NULL;
 	}
 }
 

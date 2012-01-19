@@ -42,7 +42,7 @@ intraFont *	gFonts[] =
 };
 DAEDALUS_STATIC_ASSERT( ARRAYSIZE( gFonts ) == CDrawText::NUM_FONTS );
 
-int gFontIdx = 8;
+static u32 temp = 0;
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -59,7 +59,7 @@ void	CDrawText::Initialise()
 	}
 
 	// Init translations if available
-	Translate_Load( DAEDALUS_PSP_PATH("Languages/") );
+	Translate_Load( DAEDALUS_PSP_PATH("Languages/") );	temp = 0;
 }
 
 //*************************************************************************************
@@ -82,9 +82,7 @@ void	CDrawText::Destroy()
 //*************************************************************************************
 const char * CDrawText::Translate( const char * dest, u32 * length )
 {
-	static u32 temp = 0;
 	u32 index		= gGlobalPreferences.Language;
-
 	if( index == 0 || length == NULL )	return dest;
 
 	if( index != temp )

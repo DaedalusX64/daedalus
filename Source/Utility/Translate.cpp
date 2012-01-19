@@ -66,7 +66,7 @@ const char * Translate_String(const char *original)
 				return original;
 		}
 	}
-	//printf("new string found : %08x,%s\n",hash,original);
+	//printf("%08x,%s\n",hash,original);
 	return original;
 }
 
@@ -75,6 +75,10 @@ const char * Translate_String(const char *original)
 //*****************************************************************************
 void Translate_Unload()
 {
+	// Clear Languages
+	gLanguage.clear();
+
+	// Clear translations
 	for( u32 i = 0; i < ARRAYSIZE(text); ++i )
 	{
 		delete text[i].translated;
@@ -87,9 +91,8 @@ void Translate_Unload()
 //*****************************************************************************
 void	Translate_Load( const char * p_dir )
 {
-	// Reserve first entry, this will be replaced by our default language "English"
-	// We could append our default language here, but we clear all language/translation contents to avoid wasting memory
-	gLanguage.push_back( "" );
+	// Set default language
+	gLanguage.push_back( "English" );
 
 	IO::FindHandleT		find_handle;
 	IO::FindDataT		find_data;
