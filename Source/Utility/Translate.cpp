@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Translate.h"
 #include "IO.h"
 
+#include "SysPSP/Utility/VolatileMemPSP.h"
+
 #include <vector>
 #include <string>
 //*****************************************************************************
@@ -78,13 +80,10 @@ const char * Translate_String(const char *original)
 //*****************************************************************************
 void Translate_Unload()
 {
-	// Clear Languages
-	gLanguage.clear();
-
 	// Clear translations
 	for( u32 i = 0; i < ARRAYSIZE(text); ++i )
 	{
-		delete text[i].translated;
+		free_volatile(text[i].translated);
 		text[i].translated = NULL;
 	}
 }
@@ -94,6 +93,9 @@ void Translate_Unload()
 //*****************************************************************************
 void	Translate_Load( const char * p_dir )
 {
+	// Always clear Language list
+	gLanguage.clear();
+
 	// Set default language
 	gLanguage.push_back( "English" );
 
@@ -188,6 +190,7 @@ char* ConvertSpecialChars(char *str, u32 len)
 
 bool Translate_Read(u32 idx, const char * dir)
 {
+	static char last_path[MAX_PATH+1];
 	const char * ext( ".lng" );
 	char line[1024];
 	char path[MAX_PATH];
@@ -202,6 +205,16 @@ bool Translate_Read(u32 idx, const char * dir)
 	strcpy(path, dir);
 	strcat(path, gLanguage[ idx ].c_str());
 	strcat(path, ext);
+
+	// Do not parse again, if we already parsed for this ROM
+	if(strcmp(path, last_path) == 0)
+	{
+		return true;
+	}
+	strcpy(last_path, path);
+
+	// Always unload previous language file
+	Translate_Unload();
 
 	stream = fopen(path,"r");
 	if( stream == NULL )
@@ -230,7 +243,7 @@ bool Translate_Read(u32 idx, const char * dir)
 			{
 				// Write translated id/hash to array
 				text[count].hash = hash;
-				text[count].translated = new char[len+1]; // Leave space for terminator
+				text[count].translated = (char*)malloc_volatile(len+1); // Leave space for terminator
 				strcpy(text[count].translated, string);
 				count++;
 			}

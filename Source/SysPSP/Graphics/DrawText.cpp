@@ -42,7 +42,6 @@ intraFont *	gFonts[] =
 };
 DAEDALUS_STATIC_ASSERT( ARRAYSIZE( gFonts ) == CDrawText::NUM_FONTS );
 
-static u32 temp = 0;
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -59,7 +58,7 @@ void	CDrawText::Initialise()
 	}
 
 	// Init translations if available
-	Translate_Load( DAEDALUS_PSP_PATH("Languages/") );	temp = 0;
+	Translate_Load( DAEDALUS_PSP_PATH("Languages/") );
 }
 
 //*************************************************************************************
@@ -72,9 +71,6 @@ void	CDrawText::Destroy()
 		intraFontUnload( gFonts[ i ] );
 	}
 	intraFontShutdown();
-
-	// Unload translations if available
-	Translate_Unload();
 }
 
 //*************************************************************************************
@@ -85,11 +81,8 @@ const char * CDrawText::Translate( const char * dest, u32 * length )
 	u32 index		= gGlobalPreferences.Language;
 	if( index == 0 || length == NULL )	return dest;
 
-	if( index != temp )
-	{
-		Translate_Read( index, DAEDALUS_PSP_PATH("Languages/") );
-		temp = index;
-	}
+	// Check translation file
+	Translate_Read( index, DAEDALUS_PSP_PATH("Languages/") );
 
 	// Check if string length was previously calc'd
 	bool t_len = ( strlen( dest ) == * length );
@@ -220,10 +213,32 @@ namespace DrawTextUtilities
 		return NULL;
 	}
 
-	void	WrapText( CDrawText::EFont font, s32 width, const char * p_str, u32 length, std::vector<u32> & lengths )
+	void	WrapText( CDrawText::EFont font, s32 width, const char * p_str, u32 length, std::vector<u32> & lengths, bool & match )
 	{
 		lengths.clear();
 
+		// Manual line breaking (Used for translations)
+		if(gGlobalPreferences.Language != 0)
+		{
+			u32 i, j;
+			for (i = 0, j = 0; i < length; i++) 
+			{
+				match = true;
+				if (p_str[i] == '\n')
+				{
+					j++;
+					lengths.push_back( match );
+				}
+			}
+			if( match )
+			{
+				lengths.push_back( match );
+			}
+
+			return;
+		}
+
+		// Auto-linebreaking 
 		const char *	p_line_str( p_str );
 		const char *	p_str_end( p_str + length );
 
