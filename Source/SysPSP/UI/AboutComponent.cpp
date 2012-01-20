@@ -30,14 +30,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/MathUtil.h"
 
 #include "SysPSP/Utility/PathsPSP.h"
+#include "Utility/Translate.h"
 
 #include "svnversion.h"
 
 #include <kubridge.h>
 #include <pspctrl.h>
 #include <pspgu.h>
-
-extern bool g32bitColorMode;
 
 namespace
 {
@@ -46,19 +45,14 @@ namespace
 	
 	#define MAX_PSP_MODEL 6
 
-	const char * const DAEDALUS_VERSION_TEXT[] = 
-	{
-		"DaedalusX64 16BIT Revision "SVNVERSION"",
-		"DaedalusX64 32BIT Revision "SVNVERSION""
-	};
-
+	const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Revision ";
 	//const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Beta 3 Update";
 	
-	const char * const		DATE_TEXT = "Built " __DATE__;
+	const char * const		DATE_TEXT = "Built ";
 
 	const char * const		INFO_TEXT[] =
 	{
-		"Copyright (C) 2008-2011 DaedalusX64 Team",
+		"Copyright (C) 2008-2012 DaedalusX64 Team",
 		"Copyright (C) 2001-2009 StrmnNrmn",
 		"Audio HLE code by Azimer",
 		"",
@@ -171,14 +165,14 @@ void	IAboutComponent::Render()
 
 	y = text_top;
 
-	CFixedString<128>	version( DAEDALUS_VERSION_TEXT[g32bitColorMode] );
-
+	CFixedString<128>	version( Translate_String(DAEDALUS_VERSION_TEXT) );
+	version += SVNVERSION;
 	version += " - ";
-	version += DAEDALUS_CONFIG_VERSION;
+	version += Translate_String(DAEDALUS_CONFIG_VERSION);
 	//version += ")";
 
-	CFixedString<128>	date( DATE_TEXT );
-
+	CFixedString<128>	date( Translate_String(DATE_TEXT) );
+	date += __DATE__;
 	date += " (";
 	date += IsPSPModelValid( kuKernelGetModel() ) ? pspModel[ kuKernelGetModel() ] : "UNKNOWN PSP";
 	date += ")";
