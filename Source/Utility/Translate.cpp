@@ -54,11 +54,9 @@ u32 HashString(const char* s)
 //*****************************************************************************
 const char * Translate_String(const char *original)
 {
-	//if( gLanguage.empty() )	return original;
 
 	u32 hash = HashString(original);
-
-	if( hash == 0 )	/*{ printf("Unable to hash this string %s\n",original); } */
+	if( hash == 0 )
 		return original;
 
 	for( u32 i=0; i < ARRAYSIZE(text); i++ )
@@ -93,11 +91,11 @@ void Translate_Unload()
 //*****************************************************************************
 void	Translate_Load( const char * p_dir )
 {
-	// Always clear Language list
-	gLanguage.clear();
+	if( !gLanguage.empty() )
+		return;
 
 	// Set default language
-	gLanguage.push_back( "English" );
+	gLanguage.push_back("English");
 
 	IO::FindHandleT		find_handle;
 	IO::FindDataT		find_data;
@@ -127,7 +125,7 @@ void	Translate_Load( const char * p_dir )
 //*****************************************************************************
 //
 //*****************************************************************************
-const char * GetLanguageName(u32 idx)		
+const char * Translate_Name(u32 idx)		
 {	
 	return gLanguage[ idx ].c_str();	
 }
@@ -135,11 +133,10 @@ const char * GetLanguageName(u32 idx)
 //*****************************************************************************
 //
 //*****************************************************************************
-u32 GetLanguageNum()			
+u32 Translate_Number()			
 {	
 	return gLanguage.size()-1;			
 }
-
 
 //*****************************************************************************
 // Borrowed from 1964 to handle special chars as \n newline etc
@@ -190,12 +187,15 @@ char* ConvertSpecialChars(char *str, u32 len)
 
 bool Translate_Read(u32 idx, const char * dir)
 {
-	static char last_path[MAX_PATH+1];
+	static u32 temp = 0;
 	const char * ext( ".lng" );
 	char line[1024];
 	char path[MAX_PATH];
 	char *string;
 	FILE *stream;
+
+	// Do not parse again if the same language
+	if( temp == idx )	return true;	temp = idx;
 
 	u32 count = 0;
 	u32 hash  = 0;
@@ -205,13 +205,6 @@ bool Translate_Read(u32 idx, const char * dir)
 	strcpy(path, dir);
 	strcat(path, gLanguage[ idx ].c_str());
 	strcat(path, ext);
-
-	// Do not parse again, if we already parsed for this ROM
-	if(strcmp(path, last_path) == 0)
-	{
-		return true;
-	}
-	strcpy(last_path, path);
 
 	// Always unload previous language file
 	Translate_Unload();

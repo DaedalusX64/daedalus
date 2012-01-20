@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../../Utility/Stream.h"
 #include "../../Utility/IO.h"
+#include "../../Utility/Translate.h"
 
 #include "../../Math/Vector2.h"
 
@@ -240,7 +241,7 @@ void ISavestateSelectorComponent::LoadSlots(){
 	for( u32 i = 0; i < NUM_SAVESTATE_SLOTS; ++i )
 	{
 		COutputStringStream		str;
-		str << "Slot " << (i+1) << ": ";
+		str << Translate_String("Slot ") << (i+1) << ": ";
 
 		char filename[ MAX_PATH ];
 		MakeSaveSlotPath( filename, i, current_slot_path);
@@ -258,7 +259,7 @@ void ISavestateSelectorComponent::LoadSlots(){
 		}
 		else
 		{
-			str << "<empty>";
+			str << Translate_String("<empty>");
 			mSlotEmpty[ i ] = true;
 		}
 

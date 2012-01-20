@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 
 #include "SysPSP/Graphics/DrawText.h"
+#include "../../Utility/Translate.h"
 
 #include <pspdebug.h>
 #include <psprtc.h>
@@ -29,23 +30,32 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 void battery_info()
 {	
-    pspTime time;
-    sceRtcGetCurrentClockLocalTime(&time);
+    pspTime s;
+    sceRtcGetCurrentClockLocalTime(&s);
 	s32 bat = scePowerGetBatteryLifePercent();
 
-	CDrawText::IntrPrintf( 22, 43, 0.9f, DrawTextUtilities::TextWhite,"Time:  %d:%02d%c%02d", time.hour, time.minutes, (time.seconds&1?':':' '), time.seconds );
+	// Meh should be big enough regarding if translated..
+	char					time[30], batt[30], remaining[30];
+
+	sprintf(time,"%s:  %d:%02d%c%02d",Translate_String("Time"), s.hour, s.minutes, (s.seconds&1?':':' '), s.seconds );
+
+	CDrawText::Render( CDrawText::F_REGULAR,22, 43, 0.9f, time, DrawTextUtilities::TextWhite );
 
 	if(!scePowerIsBatteryCharging())
 	{
 		s32 batteryLifeTime = scePowerGetBatteryLifeTime();
 
-		CDrawText::IntrPrintf( 140, 43, 0.9f, DrawTextUtilities::TextWhite,"Battery:  %d%% | %0.2fV | %dC", bat, (f32) scePowerGetBatteryVolt() / 1000.0f, scePowerGetBatteryTemp());
-		CDrawText::IntrPrintf( 335, 43, 0.9f, DrawTextUtilities::TextWhite,"Remaining: %2dh %2dm", batteryLifeTime / 60, batteryLifeTime - 60 * (batteryLifeTime / 60));
+		sprintf(batt,"%s:  %d%% | %0.2fV | %dC",Translate_String("Battery"), bat, (f32) scePowerGetBatteryVolt() / 1000.0f, scePowerGetBatteryTemp() );
+		sprintf(remaining,"%s: %2dh %2dm",Translate_String("Remaining"), batteryLifeTime / 60, batteryLifeTime - 60 * (batteryLifeTime / 60));
+
+
+		CDrawText::Render( CDrawText::F_REGULAR, 210, 43, 0.9f, "Charging...", DrawTextUtilities::TextWhite );
+		CDrawText::Render( CDrawText::F_REGULAR, 335, 43, 0.9f, "Remaining: --h--m", DrawTextUtilities::TextWhite );
 	}
 	else
 	{
-		CDrawText::IntrPrintf( 210, 43, 0.9f, DrawTextUtilities::TextWhite,"Charging...");
-		CDrawText::IntrPrintf( 335, 43, 0.9f, DrawTextUtilities::TextWhite,"Remaining: --h--m");
+		CDrawText::Render( CDrawText::F_REGULAR, 210, 43, 0.9f, "Charging...", DrawTextUtilities::TextWhite );
+		CDrawText::Render( CDrawText::F_REGULAR, 335, 43, 0.9f, "Remaining: --h--m", DrawTextUtilities::TextWhite );
 	}
 }
 

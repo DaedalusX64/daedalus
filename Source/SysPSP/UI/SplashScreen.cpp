@@ -126,7 +126,7 @@ void	ISplashScreen::Update( float elapsed_time, const v2 & stick, u32 old_button
 //*************************************************************************************
 void	ISplashScreen::Render()
 {
-	f32	alpha( 255.0f * vfpu_sinf( mElapsedTime * PI / MAX_TIME ) );
+	f32	alpha( 255.0f * sinf( mElapsedTime * PI / MAX_TIME ) );
 	u8		a;
 	if( alpha >= 255.0f ) a = 255;
 	else if (alpha < 0.f) a = 0;
@@ -137,10 +137,8 @@ void	ISplashScreen::Render()
 	mpContext->ClearBackground();
 	mpContext->RenderTexture( mpTexture, (480 - 328)/2, (272-90)/2, colour );
 
-	char msg[64];
-	sprintf (msg, "%s Color Selected", g32bitColorMode? "32Bit" : "16Bit" );
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
-	mpContext->DrawTextAlign(0,480,AT_CENTRE,272-50,msg,DrawTextUtilities::TextWhite);
+	mpContext->DrawTextAlign(0,480,AT_CENTRE,272-50,g32bitColorMode? "32Bit Color Selected" : "16Bit Color Selected",DrawTextUtilities::TextWhite);
 }
 
 //*************************************************************************************

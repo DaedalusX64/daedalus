@@ -54,7 +54,7 @@ bfb757ff,Seleccione la ranura en la que desea guardar
 4bd9a865,Seleccione la ranura que cargar
 11183fe7,No hay partidas guardadas que cargar
 72b02b7e,Seleccione la ranura en la que desea guardar [X:guardar O:atras]
-7d24bdfa,Seleccione la ranura que desea cargar.\n [X:cargar O:atras []:eliminar]
+7d24bdfa,Seleccione la ranura que desea cargar.\n[X:cargar O:atras []:eliminar]
 26145f81,Presione Triangulo para eliminar la partida guardada
 0529d6b2,Ranura
 1670fc01,<vacio>
@@ -93,13 +93,13 @@ d62ec48b,Recopilación Dinámica
 477417d2,Emulación de Nivel Alto
 9a686c92,Audio
 28675d34,Controles
-e3a9b7b3,Desactive esta opción para mejorar la velocidad del juego.\n A costa de la calidad de los gráficos en algunos Roms.
-37ee9082,Incrementar este valor debe dar un pequeño aumento \n de velocidad a costa de gráficos más bruscos.
+e3a9b7b3,Desactive esta opción para mejorar la velocidad del juego.\nA costa de la calidad de los gráficos en algunos Roms.
+37ee9082,Incrementar este valor debe dar un pequeño aumento \nde velocidad a costa de gráficos más bruscos.
 74b87a6d,Aumentar el tamaño de la pantalla, valor predeterminado 100%.
-b950b01f,Limitar la frecuencia de actualización a 50/25Hz (PAL) \n o 60/30Hz (NTSC).
-48917b8a,La recompilación dinámica da una considerable \n aceleración a la emulación del Rom.
-ad549ea7,Si va a utilizar replicar llamadas a funciones OS (más rápido) \n en lugar de utilizar las reales (más lento).\n (ATENCIÓN, puede causar inestabilidad y/o congelamientos en ciertos Juegos).
-e0366a74,Desea o no activar la emulación de audio.\n Audio Asincrónico(rápido/inestable) o Sincrónico(lento/estable).
+b950b01f,Limitar la frecuencia de actualización a 50/25Hz (PAL) \no 60/30Hz (NTSC).
+48917b8a,La recompilación dinámica da una considerable \naceleración a la emulación del Rom.
+ad549ea7,Si va a utilizar replicar llamadas a funciones OS (más rápido) \nen lugar de utilizar las reales (más lento).\n(ATENCIÓN, puede causar inestabilidad y/o congelamientos en ciertos Juegos).
+e0366a74,Desea o no activar la emulación de audio.\nAudio Asincrónico(rápido/inestable) o Sincrónico(lento/estable).
 487f2ed5,Guardar y Regresar
 54a93276,Cancelar
 beb13b0c,Confirmar cambios y Regresar.
@@ -108,7 +108,7 @@ beb13b0c,Confirmar cambios y Regresar.
 4c3230e6,Activar Trucos
 c6aa2aab,Aplicar Trucos (Frecuencia)
 04564e07,¿Desea utilizar Trucos para este Juego?
-b5ca15d7,Cuanto mayor sea el valor, menos trucos acaparan el emulador.\n A costa que algunos trucos no funcionarán correctamente.
+b5ca15d7,Cuanto mayor sea el valor, menos trucos acaparan el emulador.\nA costa que algunos trucos no funcionarán correctamente.
 276e1699,No se encontraron Trucos para este Rom
 48119424,Sin escala 4:3 (320x240)
 c9a48cf8,A escala 4:3 (362x272)
@@ -138,16 +138,16 @@ d228ec17,Alerta de Batería Baja
 34e62182,Estilo de interfaz gráfica
 ca887fd8,Color de interfaz gráfica
 6a4df2ac,Restablecer Configuración
-a3bdb5f5,Muestra información adicional, mientras que el ROM se ejecuta.\n Algunos modos solo están disponibles en el Debug Mode
+a3bdb5f5,Muestra información adicional, mientras que el ROM se ejecuta.\nAlgunos modos solo están disponibles en el Debug Mode
 1bfe167d,Tamaño de la ventana de el PSP.
-7f9bdebd,Activar fuerza lineal del filtro.\n Esto puede mejorar el aspecto de las texturas
+7f9bdebd,Activar fuerza lineal del filtro.\nEsto puede mejorar el aspecto de las texturas
 b4478cb3,Activar MemPak o RumblePak
-a342ced3,Ajustar el tamaño de la zona muerta sobre el stick de PSP.\n Pulse Start/X para editar.
-67c8709b,Desactive para cargar más rápido, a costa\n de pequeña disminución de vellocidad en cambios de escena en Roms.\n Surtirá efecto sólo cuando carga el Rom.
+a342ced3,Ajustar el tamaño de la zona muerta sobre el stick de PSP.\nPulse Start/X para editar.
+67c8709b,Desactive para cargar más rápido, a costa\nde pequeña disminución de vellocidad en cambios de escena en Roms.\nSurtirá efecto sólo cuando carga el Rom.
 a53edd7e,Permitir que Daedalus notifique cuando la batería este baja.
-5aa7e128,Seleccione tipo de interfaz gráfica ya sea Estilo CoverFlow o \n Estilo Clasico
+5aa7e128,Seleccione tipo de interfaz gráfica ya sea Estilo CoverFlow o \nEstilo Clasico
 928b8bd2,Cambiar color de interfaz gráfica
-48580c6c,Restablecer las preferencias por defecto, y caché HLE.\n Nota: el emulador se cerrará si se restablece la configuración
+48580c6c,Restablecer las preferencias por defecto, y caché HLE.\nNota: el emulador se cerrará si se restablece la configuración
 e1134e27,Optimización de acceso de memoria
 f1da3d39,Limpiar Escena
 c75e1b17,Optimización Dinámica de Bucle
@@ -156,10 +156,10 @@ c75e1b17,Optimización Dinámica de Bucle
 931034db,Velocidad de Coincidencia de Audio
 73180dbe,Emulación Niebla
 d64510cd,Activar para aumento de velocidad en la emulación.\n(ATENCIÓN, puede causar inestabilidad y/o congelamientos en ciertos Roms).
-6be51f9b,Forzar limpieza de memoria de vídeo antes de dibujar cualquier \n primitivo
+6be51f9b,Forzar limpieza de memoria de vídeo antes de dibujar cualquier \nprimitivo
 cae93146,Activar para aumento de velocidad en la emulación.\n(funciona en la mayoria de Roms)
-b0b8ff1a,Coincide la velocidad de la animación a la velocidad de fotogramas.\n(hace algunos juegos menos lentos)
-cba66bbc,Igualar la tasa de Audio a la velocidad de fotogramas
+b0b8ff1a,Igualar la tasa de Audio a la velocidad de fotogramas.\n(Less pops and clicks)
+cba66bbc,Coincide la velocidad de la animación a la velocidad de fotogramas
 1a61c1b8,Desea activar o desactivar la emulación niebla.\n(Experimental, sólo funciona en algunos juegos)
 ba9c614e,Opciones Avanzadas
 3580e011,Ajuste de las regiones de zona muerta mínima y máxima. Arriba/abajo: Aumentar o disminuir la zona muerta. Izquierda/Derecha: Seleccionar mínimo o máximo para el ajuste de zona muerta. Triángulo: Restablecer los valores predeterminados. Start/X: Confirmar. Select/Círculo: Cancelar"

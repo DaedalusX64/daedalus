@@ -24,6 +24,7 @@ const char * Translate_String(const char *original);
 bool		 Translate_Read(u32 idx, const char * dir);
 void		 Translate_Unload();
 void		 Translate_Load( const char * p_dir );
-const char * GetLanguageName(u32 idx);
-u32			 GetLanguageNum();
+const char * Translate_Name(u32 idx);
+u32			 Translate_Number();
+
 #endif // TRANSLATE_H_

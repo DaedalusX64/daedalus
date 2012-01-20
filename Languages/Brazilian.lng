@@ -1,7 +1,7 @@
 ﻿//
 // Translation file for DaedalusX64
 // Language : Brazilian Portuguese (Português Brasileiro)
-// Last Updated : 07/01/2012
+// Last Updated : 20/01/2012
 // Version : 1.0
 // Translation by : Scarecrow
 //
@@ -17,7 +17,7 @@
 //
 
 00000000,MAGIC NUMBER
-c30c6bc0,Brasileiro
+c30c6bc0,Português Brasileiro
 9dc1820c,Sem Imagem Disponível
 a03fa94a,Início:
 19db9e32,País:
@@ -38,7 +38,7 @@ b7ca4f3e,Opções Globais
 c1170d2b,Partidas salvas
 993f73ff,Sobre
 a786de62,Nenhuma rom encontrada.
-dcafd211,Você pode adicionar roms para o diretório \\N64\\ em seu cartão de memória,
+dcafd211,Você pode adicionar ROMs no diretório \\N64\\ em seu cartão de memória,
 df73ecf1,ou no diretório Roms dentro da pasta do emulador.
 d72277a0,Daedalus reconhece vários tipos de arquivos,
 4f01e7b5,incluindo .zip, .z64, .v64, .rom, .bin, .pal, .usa e .jap.
@@ -48,7 +48,7 @@ ba9c614e,Opções Avançadas
 e8ad4e74,Iniciar Emulação
 85b79ea0,Editar várias opções para essa rom.
 e6fa21a3,Editar opções avançadas para essa rom.
-037a6ee9,Habilitar e selecionar truques para essa rom.
+037a6ee9,Habilitar e selecionar truques para esse jogo.
 88f3a4c2,Iniciar emulação do jogo selecionado.
 bfb757ff,Selecione o espaço desejado para salvar o jogo
 4bd9a865,Selecione qual espaço deseja carregar
@@ -71,7 +71,7 @@ bb5092ca,Salvar partida atual.
 cdec8d9c,Capturar tela ao retomar.
 4aaa99d7,Retomar Emulação
 1e25cde5,Retornar ao Menu Principal
-79139258,Retornar ao Menu Principal?
+79139258,Voltar ao Menu Principal?
 17beb20d,Copyright (C) 2008-2012 DaedalusX64 Team
 191b0de3,Copyright (C) 2001-2009 StrmnNrmn
 b27fe8d9,Código de Áudio HLE por Azimer
@@ -93,32 +93,32 @@ d62ec48b,Recompilação Dinâmica
 477417d2,Emulação de Alto Nível
 9a686c92,Áudio
 28675d34,Controles
-e3a9b7b3,Ative para checar a atualização de textura entre os quadros. Desabilite para aumento na velocidade ao custo de qualidade gráfica em alguns jogos.
-37ee9082,Essa opção determina quantos quadros serão pulados antes de renderizar um novo quadro. Aumentando esse valor pode dar um pequeno aumento na velocidade, ao custo de gráficos mais feios.
+e3a9b7b3,Ative para checar a atualização de textura entre os quadros.\nDesabilite para aumento na velocidade ao custo de qualidade gráfica em alguns jogos.
+37ee9082,Essa opção determina quantos quadros serão pulados antes de renderizar um novo.\nAumentando esse valor pode dar um pequeno aumento na velocidade,\nao custo de qualidade gráfica.
 74b87a6d,Aumenta o tamanho da tela, esse valor irá sobrepor o valor padrão (100%).
 b950b01f,Limita a atualização de quadros para 50/25Hz (PAL) ou 60/30Hz (NTSC).
-48917b8a,Recompílação dinâmica dá um aumento considerável na velocidade da emulação.
-ad549ea7,Ative para usar funções replicadas do SO (mais rápido) ao invés de emular as verdadeiras (mais lento) (ATENÇÃO, pode causar instabilidade e travamentos em certos jogos).
-e0366a74,Ative ou não para habilitar a emulação do áudio, e escolha entre os processamentos de áudio Assíncrono (rápido\bugado) e síncrono(devagar).
+48917b8a,Recompilação dinâmica fornece um aumento considerável na velocidade da emulação.
+ad549ea7,Ative para usar funções replicadas do SO (mais rápido) ao invés de emular\nas verdadeiras (mais lento).\n\nATENÇÃO, pode causar instabilidade e travamentos em certos jogos.
+e0366a74,Ative ou não para habilitar a emulação de áudio.\nEscolha também entre os processamentos de áudio Assíncrono (rápido/bugado)\ne Síncrono (devagar).
 487f2ed5,Salvar & Retornar
 54a93276,Cancelar
 beb13b0c,Confirmar mudanças e retornar.
-442b79c8,Cancelar mudançar e retornar.
+442b79c8,Cancelar mudanças e retornar.
 2462a960,Preferências do Jogo
 4c3230e6,Habilitar truques
 c6aa2aab,Aplicar Frequência de Truque
-04564e07,Utilizar truques nesta ROM?
-b5ca15d7,Quanto maior este valor, menos truques irão sobrecarregar o emulador ao custo de certos truques não carregarem corretamente.
+04564e07,Utilizar truques neste jogo?
+b5ca15d7,Quanto maior este valor, menos truques irão sobrecarregar o emulador\nao custo de certos truques não carregarem corretamente.
 276e1699,Não foram encontrados truques para esse jogo
 48119424,4:3 sem escala (320x240)
 c9a48cf8,4:3 com escala (362x272)
 c4d3e6cb,Tela cheia (480x272)
-74e0c4ec,Reiniciar cache HLE
+1cadb15b,Reiniciar cache HLE
 8ade5a3b,Reiniciar configurações?
 7c43b365,Daedalus será desligado agora
 22bc6816,Aperte X para iniciar
 02123b1a,Clássico
-a00e4b11,Negro
+a00e4b11,Preto
 000cebbf,Vermelho
 bf706ca5,Verde
 c6c78d35,Magenta
@@ -138,16 +138,16 @@ d228ec17,Alerta de Bateria Baixa
 34e62182,Estilo da Interface
 ca887fd8,Cor da Interface
 6a4df2ac,Reiniciar Configurações
-a3bdb5f5,Use para mostrar informações adicionais sobre a ROM durante a execução. Alguns modos são apenas disponíveis em modo de testes.
-1bfe167d,O tamanho da janela no PSP.
-7f9bdebd,Habilite para forçar o filtro linear, podendo melhorar a qualidade das texturas
+a3bdb5f5,Use para exibir informações adicionais sobre a ROM durante a execução.\nAlguns modos são apenas disponíveis em modo de testes.
+1bfe167d,Ajusta o tamanho da janela no PSP.
+7f9bdebd,Habilite para forçar o filtro linear, podendo melhorar a qualidade das texturas.
 b4478cb3,Habilite o MemPak ou o RumblePak
-a342ced3,Ajusta o tamanho da zona morta à alavanca analógica enquanto joga. Aperte Start/X para editar
-67c8709b,Desabilite para carregar o jogo mais rápido a custa de pequenos travamentos durante mudanças de cenas em jogos grandes. Só funciona durante o carregamento da ROM.
-a53edd7e,Ative para permitir que o Daedalus notifique o nível da bateria caso esteja baixo.
-5aa7e128,Selecione qual interface utilizar entre o Estilo CoverFlow e o Estilo Clássico
+a342ced3,Ajusta a zona morta da alavanca analógica ao jogar.\nAperte Start/X para editar os valores.
+67c8709b,Desabilite para carregar o jogo mais rápido ao custo de pequenos travamentos durante mudanças de cenas em jogos grandes. Só afeta o carregamento da ROM.
+a53edd7e,Ative para permitir que o Daedalus avise quando o nível da bateria estiver baixo.
+5aa7e128,Selecione qual interface utilizar entre o Estilo CoverFlow e o Estilo Clássico.
 928b8bd2,Modificar Cor da interface
-48580c6c,Irá te auxiliar a reiniciar as preferências para os valores padrõe e reiniciar arquivos de cache HLE. Nota : o emulador irá fechar caso reiniciar as preferências
+48580c6c,Irá reiniciar as preferências para os valores padrões e reiniciar a cache HLE.\nNota : O emulador irá fechar e voltar para a XMB.
 e1134e27,Otimização ao Acesso de Memória
 f1da3d39,Limpar Cena
 c75e1b17,Otimização Dinâmica de Ciclo
@@ -155,12 +155,15 @@ c75e1b17,Otimização Dinâmica de Ciclo
 5936df5c,Taxa de correspondência de Vídeo
 931034db,Taxa de correspondência de Áudio
 73180dbe,Emulação de Névoa
-d64510cd,Habilite para aumento na velocidade (ATENÇÃO, pode causar instabilidade e travadas em certos jogos).
-6be51f9b,Forçar limpeza da memória de vídeo antes de desenhar primitivos
-cae93146,Habilitar Listas de Tela Dupla para um aumento na velocidade (Funciona na maioria dos jogos)
-ca1c18fa,Use para sincronizar a taxa de animação com a taxa de quadros (Faz alguns jogos parecerem menos lentos)
-cba66bbc,Use para sincronizar a taxa de áudio com a taxa de quadros
-1a61c1b8,Use para habilitar ou desabilitar a emulação de névoa (Experimental, funciona em poucos jogos)
+d64510cd,Habilite para aumento na velocidade.\n\nATENÇÃO, pode causar instabilidade e travadas em certos jogos.
+6be51f9b,Forçar limpeza da memória de vídeo antes de desenhar primitivos.
+cae93146,Habilitar Listas de Tela Dupla para um aumento na velocidade.\n\nNOTA: Funciona na maioria dos jogos.
+b0b8ff1a,Use para sincronizar a taxa de áudio com a taxa de quadros.\nProvoca menos "estouros" e ruídos.
+cba66bbc,Use para sincronizar a taxa de áudio com a taxa de quadros.
+ca1c18fa,Use para sincronizar a taxa de animação com a taxa de quadros.\n\nNOTA: Faz alguns jogos parecerem menos lentos.
+1a61c1b8,Use para habilitar ou desabilitar a emulação de névoa.\nExperimental, funciona em poucos jogos.
 ba9c614e,Configurações Avançadas
-3580e011,Ajusta as regiões máximas e mínimas da zona morta. Cima/Baixo: Aumenta ou diminui a zona morta. Esquerda/Direita: Valor máximo e mínimo para ajustamento da zona morta. Triângulo: Valores Padrões. Start/X: Confirmar. Select/Círculo: Cancelar"
+3580e011,Ajusta as regiões máximas e mínimas da zona morta. Cima//Baixo: Aumenta ou diminui a zona morta. Esquerda//Direita: Valor máximo e mínimo para ajustamento da zona morta. Triângulo: Valores Padrões. Start//X: Confirmar. Select//Círculo: Cancelar"
 f3a27e37,Ajusta zona morta do analógico
+f4d401e4,Selecione o idioma do emulador.
+0206e784,Idioma
