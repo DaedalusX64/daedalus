@@ -186,6 +186,8 @@ UcodeFunc( DLParser_GBI0_Vtx_DKR );
 UcodeFunc( DLParser_GBI0_Vtx_WRUS );
 UcodeFunc( DLParser_DMA_Tri_DKR );
 UcodeFunc( DLParser_GBI0_Vtx_Gemini );
+UcodeFunc( DLParser_Tri1_Conker );
+UcodeFunc( DLParser_Tri2_Conker );
 UcodeFunc( DLParser_Tri4_Conker );
 UcodeFunc( DLParser_MoveMem_Conker );
 UcodeFunc( DLParser_MoveWord_Conker );

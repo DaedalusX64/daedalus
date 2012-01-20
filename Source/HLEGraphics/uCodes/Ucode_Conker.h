@@ -33,6 +33,13 @@ void DLParser_Vtx_Conker( MicroCodeCommand command )
 
 	DL_PF("    Address[0x%08x] Len[%d] v0[%d] Num[%d]", address, len, v0, n);
 
+
+	if( bIsOffScreen )	
+	{
+		DL_PF("    Skipping TnL (Vtx -> Off-Screen)");
+		return;
+	}
+
 	PSPRenderer::Get()->SetNewVertexInfoConker( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -42,11 +49,133 @@ void DLParser_Vtx_Conker( MicroCodeCommand command )
 
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_Tri1_Conker( MicroCodeCommand command )
+{
+
+    // While the next command pair is Tri1, add vertices
+	u32 pc = gDlistStack[gDlistStackPointer].pc;
+    u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
+
+	// If Off screen rendering is true then just skip the whole list of tris //Corn
+	//
+	if( bIsOffScreen )	
+	{
+		do
+		{
+			DL_PF("    Tri1 (Culled -> Off-Screen)");
+			command.inst.cmd0 = *pCmdBase++;
+			command.inst.cmd1 = *pCmdBase++;
+			pc += 8;
+		}while( command.inst.cmd == G_GBI2_TRI1 );
+		gDlistStack[gDlistStackPointer].pc = pc-8;
+		return;
+	}
+	
+	bool tris_added = false;
+
+    do{
+        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI1");
+
+		u32 v0_idx = command.gbi2tri1.v0 >> 1;
+		u32 v1_idx = command.gbi2tri1.v1 >> 1;
+		u32 v2_idx = command.gbi2tri1.v2 >> 1;
+
+        tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
+
+        command.inst.cmd0 = *pCmdBase++;
+        command.inst.cmd1 = *pCmdBase++;
+        pc += 8;
+    }while( command.inst.cmd == G_GBI2_TRI1 );
+
+	gDlistStack[gDlistStackPointer].pc = pc-8;
+
+    if (tris_added)
+    {
+            PSPRenderer::Get()->FlushTris();
+    }
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_Tri2_Conker( MicroCodeCommand command )
+{
+
+	u32 pc = gDlistStack[gDlistStackPointer].pc;
+    u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
+
+	// If Off screen rendering is true then just skip the whole list of tris //Corn
+	//
+	if( bIsOffScreen )	
+	{
+		do
+		{
+			DL_PF("    Tri2 (Culled -> Off-Screen)");
+			command.inst.cmd0 = *pCmdBase++;
+			command.inst.cmd1 = *pCmdBase++;
+			pc += 8;
+		}while( command.inst.cmd == G_GBI2_TRI2 );
+		gDlistStack[gDlistStackPointer].pc = pc-8;
+		return;
+	}
+	
+	bool tris_added = false;
+
+    do{
+        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI2");
+
+		// Vertex indices already divided in ucodedef
+        u32 v0_idx = command.gbi2tri2.v0;
+        u32 v1_idx = command.gbi2tri2.v1;
+        u32 v2_idx = command.gbi2tri2.v2;
+
+        tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
+
+		u32 v3_idx = command.gbi2tri2.v3;
+        u32 v4_idx = command.gbi2tri2.v4;
+        u32 v5_idx = command.gbi2tri2.v5;
+
+        tris_added |= PSPRenderer::Get()->AddTri(v3_idx, v4_idx, v5_idx);
+
+        command.inst.cmd0 = *pCmdBase++;
+        command.inst.cmd1 = *pCmdBase++;
+        pc += 8;
+	}while( command.inst.cmd == G_GBI2_TRI2 );
+
+	gDlistStack[gDlistStackPointer].pc = pc-8;
+
+    if (tris_added)
+    {
+            PSPRenderer::Get()->FlushTris();
+    }
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
 void DLParser_Tri4_Conker( MicroCodeCommand command )
 {
 	u32 pc = gDlistStack[gDlistStackPointer].pc;		// This points to the next instruction
 
-    bool tris_added = false;
+	// If Off screen rendering is true then just skip the whole list of tris //Corn
+	//
+	if( bIsOffScreen )	
+	{
+		do
+		{
+			DL_PF("    Tri4 (Culled -> Off-Screen)");
+			command.inst.cmd0 = *(u32 *)(g_pu8RamBase + pc+0);
+			command.inst.cmd1 = *(u32 *)(g_pu8RamBase + pc+4);
+			pc += 8;
+		}while((command.inst.cmd0>>28) == 1);
+		gDlistStack[gDlistStackPointer].pc = pc-8;
+		return;
+	}
+
+	bool tris_added = false;
 
 	do
     {

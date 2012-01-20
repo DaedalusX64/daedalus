@@ -530,15 +530,15 @@ void DLParser_SetCustom( u32 ucode )
 			SetCommand( 0xfd, DLParser_SetTImg_SOTE,  "G_SetTImg_SOTE" );
 			break;
 		case GBI_LL:
-			SetCommand( 0x80, DLParser_Last_Legion_0x80, "G_Last_Legion_0x80" );
-			SetCommand( 0x00, DLParser_Last_Legion_0x00, "G_Last_Legion_0x00" );
-			SetCommand( 0xaf, DLParser_GBI1_SpNoop,			 "G_Nothing" );
-			SetCommand( 0xe4, DLParser_TexRect_Last_Legion,  "G_TexRect_Last_Legion" );
+			SetCommand( 0x80, DLParser_Last_Legion_0x80,	"G_Last_Legion_0x80" );
+			SetCommand( 0x00, DLParser_Last_Legion_0x00,	"G_Last_Legion_0x00" );
+			SetCommand( 0xaf, DLParser_GBI1_SpNoop,			"G_Nothing" );
+			SetCommand( 0xe4, DLParser_TexRect_Last_Legion,	"G_TexRect_Last_Legion" );
 			break;
 		case GBI_PD:
-			SetCommand( 0x04, DLParser_Vtx_PD,					"G_Vtx_PD" );
-			SetCommand( 0x07, DLParser_Set_Vtx_CI_PD,			"G_Set_Vtx_CI_PD" );
-			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye,  "G_RDPHalf1_GoldenEye" );
+			SetCommand( 0x04, DLParser_Vtx_PD,				"G_Vtx_PD" );
+			SetCommand( 0x07, DLParser_Set_Vtx_CI_PD,		"G_Set_Vtx_CI_PD" );
+			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye,	"G_RDPHalf1_GoldenEye" );
 			break;
 		case GBI_DKR:
 			SetCommand( 0x01, DLParser_Mtx_DKR,		 "G_Mtx_DKR" );
@@ -549,7 +549,9 @@ void DLParser_SetCustom( u32 ucode )
 			SetCommand( 0xbf, DLParser_Set_Addr_DKR, "G_Set_Addr_DKR" );
 			break;
 		case GBI_CONKER:
-			SetCommand( 0x01, DLParser_Vtx_Conker,		"G_Vtx_Conker" );
+			SetCommand( 0x01, DLParser_Vtx_Conker,	"G_Vtx_Conker" );
+			SetCommand( 0x05, DLParser_Tri1_Conker, "G_Tri1_Conker" );
+			SetCommand( 0x06, DLParser_Tri2_Conker, "G_Tri2_Conker" );
 			SetCommand( 0x10, DLParser_Tri4_Conker, "G_Tri4_Conker" );
 			SetCommand( 0x11, DLParser_Tri4_Conker, "G_Tri4_Conker" );
 			SetCommand( 0x12, DLParser_Tri4_Conker, "G_Tri4_Conker" );

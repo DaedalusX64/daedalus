@@ -105,8 +105,6 @@ enum CycleType
 	CYCLE_FILL,
 };
 
-extern bool bIsOffScreen;
-
 extern bool gRumblePakActive;
 
 extern u32 SCR_WIDTH;
@@ -1322,7 +1320,6 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 		++m_dwNumTrisClipped;
 #endif
 		return false;
-
 	}
 
 	//
@@ -1361,15 +1358,6 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 #endif
 			return false;
 		}
-	}
-
-	if( bIsOffScreen )	
-	{
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DL_PF("    Tri: %d,%d,%d (Culled -> Off-Screen)", v0, v1, v2);
-		++m_dwNumTrisClipped;
-#endif
-		return false;
 	}
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
