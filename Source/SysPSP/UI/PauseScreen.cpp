@@ -36,8 +36,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/MathUtil.h"
 #include "Utility/Functor.h"
+#include "Utility/Translate.h"
+
 #include "SysPSP/Utility/Buttons.h"
 
+#include <psprtc.h>
+#include <psppower.h>
 #include <pspctrl.h>
 #include <pspgu.h>
 
@@ -260,7 +264,31 @@ void	IPauseScreen::Render()
 	EMenuOption		current( GetCurrentOption() );
 	EMenuOption		next( GetNextOption() );
 
-	battery_info();
+	/* Time & Battery info*/
+	pspTime s;
+	sceRtcGetCurrentClockLocalTime(&s);
+	s32 bat = scePowerGetBatteryLifePercent();
+	s32 batteryLifeTime = scePowerGetBatteryLifeTime();
+
+	// Meh should be big enough regarding if translated..
+	char					info[120];
+
+	if(!scePowerIsBatteryCharging())
+	{
+		sprintf(info,"[%s %d:%02d%c%02d]  [%s %d%% %0.2fV %dC]  [%s %2dh %2dm]",
+			Translate_String("Time"), s.hour, s.minutes, (' '/*s.seconds&1?':':' '*/), s.seconds,
+			Translate_String("Battery"), bat, (f32) scePowerGetBatteryVolt() / 1000.0f, scePowerGetBatteryTemp(),
+			Translate_String("Remaining"), batteryLifeTime / 60, batteryLifeTime - 60 * (batteryLifeTime / 60));
+	}
+	else
+	{
+		sprintf(info, "[%s %d:%02d%c%02d]  [%s]  [%s]",
+			Translate_String("Time"), s.hour, s.minutes, (' '/*s.seconds&1?':':' '*/), s.seconds,
+			Translate_String("Charging..."),
+			Translate_String("Remaining: --h--m") );
+	}
+
+	mpContext->DrawTextAlign( 0, 480, AT_CENTRE, 43, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
 
 	p_option_text = gMenuOptionNames[ previous ];
 	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_LEFT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( previous ) ? valid_colour : invalid_colour );

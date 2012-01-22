@@ -19,46 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "SysPSP/Graphics/DrawText.h"
-#include "Utility/Translate.h"
-
 #include <pspdebug.h>
 #include <psprtc.h>
 #include <psppower.h>
-//*****************************************************************************
-//
-//*****************************************************************************
-void battery_info()
-{	
-    pspTime s;
-    sceRtcGetCurrentClockLocalTime(&s);
-	s32 bat = scePowerGetBatteryLifePercent();
-
-	// Meh should be big enough regarding if translated..
-	char					time[30], batt[30], remaining[30];
-
-	sprintf(time,"%s:  %d:%02d%c%02d",Translate_String("Time"), s.hour, s.minutes, (s.seconds&1?':':' '), s.seconds );
-
-	CDrawText::Render( CDrawText::F_REGULAR,22, 43, 0.9f, time, DrawTextUtilities::TextWhite );
-
-	if(!scePowerIsBatteryCharging())
-	{
-		s32 batteryLifeTime = scePowerGetBatteryLifeTime();
-
-		sprintf(batt,"%s:  %d%% | %0.2fV | %dC",Translate_String("Battery"), bat, (f32) scePowerGetBatteryVolt() / 1000.0f, scePowerGetBatteryTemp() );
-		sprintf(remaining,"%s: %2dh %2dm",Translate_String("Remaining"), batteryLifeTime / 60, batteryLifeTime - 60 * (batteryLifeTime / 60));
-
-
-		CDrawText::Render( CDrawText::F_REGULAR, 140, 43, 0.9f, batt, DrawTextUtilities::TextWhite );
-		CDrawText::Render( CDrawText::F_REGULAR, 335, 43, 0.9f, remaining, DrawTextUtilities::TextWhite );
-	}
-	else
-	{
-		CDrawText::Render( CDrawText::F_REGULAR, 210, 43, 0.9f, "Charging...", DrawTextUtilities::TextWhite );
-		CDrawText::Render( CDrawText::F_REGULAR, 335, 43, 0.9f, "Remaining: --h--m", DrawTextUtilities::TextWhite );
-	}
-}
-
 //*****************************************************************************
 //
 //*****************************************************************************
