@@ -220,14 +220,14 @@ void	IAdjustDeadzoneScreen::DrawCircle( s32 x, s32 y, s32 r, c32 colour )
 	const u32 NUM_POINTS = 32;
 
 	f32		radius( r );
-	s32		x0 = s32( vfpu_sinf( 0 ) * radius ) + x;
-	s32		y0 = s32( vfpu_cosf( 0 ) * radius ) + y;
+	s32		x0 = s32( sinf( 0 ) * radius ) + x;
+	s32		y0 = s32( cosf( 0 ) * radius ) + y;
 
 	for( u32 i = 0; i < NUM_POINTS; ++i )
 	{
 		f32		angle( 2 * PI * f32( i+1 ) / f32( NUM_POINTS ) );
-		s32		x1 = s32( vfpu_sinf( angle ) * radius ) + x;
-		s32		y1 = s32( vfpu_cosf( angle ) * radius ) + y;
+		s32		x1 = s32( sinf( angle ) * radius ) + x;
+		s32		y1 = s32( cosf( angle ) * radius ) + y;
 		
 		mpContext->DrawLine( x0, y0, x1, y1, colour );
 		x0 = x1;
@@ -292,7 +292,7 @@ void	IAdjustDeadzoneScreen::Render()
 
 	char str[ 128 ];
 	sprintf( str, "%s: %d, %s: %d", Translate_String("Min"), s32( 100.f * mStickMinDeadzone ), Translate_String("Max"), s32( 100.0f * mStickMaxDeadzone ) );
-	mpContext->DrawText( PSP_CIRCLE_X - DISPLAY_RADIUS, PSP_CIRCLE_Y + DISPLAY_RADIUS + 5, str, DrawTextUtilities::TextWhite );
+	mpContext->DrawText( PSP_CIRCLE_X - DISPLAY_RADIUS, PSP_CIRCLE_Y + DISPLAY_RADIUS + 10, str, DrawTextUtilities::TextWhite );
 
 	mpContext->DrawTextArea( TEXT_AREA_LEFT,
 							 TEXT_AREA_TOP,

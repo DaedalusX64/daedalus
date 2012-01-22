@@ -2,7 +2,7 @@
 // Translation file for DaedalusX64
 // Language : Spanish (Español)
 // Last Updated : 17/01/2012
-// Version : 1.2
+// Version : 1.5
 // Translation by : Ricot
 //
 //
@@ -145,7 +145,7 @@ b4478cb3,Activar MemPak o RumblePak
 a342ced3,Ajustar el tamaño de la zona muerta sobre el stick de PSP.\nPulse Start/X para editar.
 67c8709b,Desactive para cargar más rápido, a costa\nde pequeña disminución de vellocidad en cambios de escena en Roms.\nSurtirá efecto sólo cuando carga el Rom.
 a53edd7e,Permitir que Daedalus notifique cuando la batería este baja.
-5aa7e128,Seleccione tipo de interfaz gráfica ya sea Estilo CoverFlow o \nEstilo Clasico
+ea866d68,Seleccione tipo de interfaz gráfica ya sea Estilo CoverFlow o \nEstilo Clasico
 928b8bd2,Cambiar color de interfaz gráfica
 48580c6c,Restablecer las preferencias por defecto, y caché HLE.\nNota: el emulador se cerrará si se restablece la configuración
 e1134e27,Optimización de acceso de memoria
@@ -162,7 +162,17 @@ b0b8ff1a,Igualar la tasa de Audio a la velocidad de fotogramas.\n(Less pops and 
 cba66bbc,Coincide la velocidad de la animación a la velocidad de fotogramas
 1a61c1b8,Desea activar o desactivar la emulación niebla.\n(Experimental, sólo funciona en algunos juegos)
 ba9c614e,Opciones Avanzadas
-3580e011,Ajuste de las regiones de zona muerta mínima y máxima. Arriba/abajo: Aumentar o disminuir la zona muerta. Izquierda/Derecha: Seleccionar mínimo o máximo para el ajuste de zona muerta. Triángulo: Restablecer los valores predeterminados. Start/X: Confirmar. Select/Círculo: Cancelar"
+3580e011,Ajuste de las regiones de zona muerta mínima y máxima.\nArriba/abajo: Aumentar o disminuir la zona muerta.\nIzquierda/Derecha: Seleccionar mínimo o máximo para el ajuste de zona muerta.\nTriángulo: Restablecer los valores predeterminados.\nStart/X: Confirmar. Select/Círculo: Cancelar"
 f3a27e37,Ajustar Zona Muerta del Stick
 f4d401e4,Seleccionar Idioma
 0206e784,Idioma
+15865cd2,Seleccionado Color de 16 Bits
+3f7ccd28,Seleccionado Color de 32 Bits
+7c7ac31a,Restante
+657b212f,Bateria
+053916eb,Hora
+f5381b95,Restante: --h--m
+5e53f605,Cargando...
+636197c3,Ajuste de las regiones de zona muerta mínima y máxima.\nArriba/abajo: Aumentar o disminuir la zona muerta.\nIzquierda/Derecha: Seleccionar mínimo o máximo para el ajuste de zona muerta.\nTriángulo: Restablecer los valores predeterminados.\nStart/X: Confirmar. Select/Círculo: Cancelar
+000c2620,Mínimo
+000c2302,Máximo

@@ -49,8 +49,8 @@ void battery_info()
 		sprintf(remaining,"%s: %2dh %2dm",Translate_String("Remaining"), batteryLifeTime / 60, batteryLifeTime - 60 * (batteryLifeTime / 60));
 
 
-		CDrawText::Render( CDrawText::F_REGULAR, 210, 43, 0.9f, "Charging...", DrawTextUtilities::TextWhite );
-		CDrawText::Render( CDrawText::F_REGULAR, 335, 43, 0.9f, "Remaining: --h--m", DrawTextUtilities::TextWhite );
+		CDrawText::Render( CDrawText::F_REGULAR, 140, 43, 0.9f, batt, DrawTextUtilities::TextWhite );
+		CDrawText::Render( CDrawText::F_REGULAR, 335, 43, 0.9f, remaining, DrawTextUtilities::TextWhite );
 	}
 	else
 	{
