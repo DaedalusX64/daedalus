@@ -4253,7 +4253,7 @@ Open All Key Doors,="To be used with 175 Stars Cheat",0,8020305B-00FF,
 Have All 175,="You will see a new option in Save Slot D.",0,8020305B-FFFF,50000D02-0000,8120305C-FFFF,
 
 [Super Mario 64 (J)]
-NumberOfGroups=915
+NumberOfGroups=15
 Mario No Cap,="Only use One Cap Option At A Time",0,81339E06-0001,
 Invisible Mario No Cap,="Only use One Cap Option At A Time",0,81339E06-0002,
 Metal Mario No Cap,="Only use One Cap Option At A Time",0,81339E06-0004,
@@ -4269,6 +4269,10 @@ Infinite Lives,=0,80339EAD-0064,
 Level Select,=0,8032C64C-0001,
 Monsters Don't Hurt Mario,=0,A0339E27-0001,
 Debug Mode,=0,8032C658-0001,
+
+[Super Mario 64 - Star Road (U)]
+NumberOfGroups=1
+SR Camera Control,="Enable when inside the game or it will fail",8033C685-0005,8033C849-0002,D033AFA1-0010,8033C849-0000,D033AFA1-0008,8033C848-0030,
 
 [Super Robot Spirits (J)]
 NumberOfGroups=3
