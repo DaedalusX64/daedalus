@@ -69,7 +69,7 @@ const char * Translate_String(const char *original)
 				return original;
 		}
 	}
-	//printf("%08x,%s\n",hash,original);
+
 	return original;
 }
 
@@ -139,46 +139,28 @@ u32 Translate_Number()
 }
 
 //*****************************************************************************
-// Borrowed from 1964 to handle special chars as \n newline etc
-// We need to do this since we chop off all newlines when parsing the language file
+// Restores escape characters which were removed when parsing
+// Which are needed by line-breaking and back-slash
 //*****************************************************************************
-char* ConvertSpecialChars(char *str, u32 len)
+const char * Restore(char *s, u32 len)
 {
-	char temp[1024];
-	u32 i,j;
-	temp[0]=0;
-
-	for(i=0,j=0; i<len; i++)
+	for (u32 i = 0; i < len; i++) 
 	{
-		switch(str[i])
+		if (s[i] == '\\') 
 		{
-		case '\\':
-			if( str[i+1] == 'n' )
+			if( s[i+1] == 'n' )
 			{
-				temp[j++]='\n';
+				s[i+1] = '\b';	s[i] = '\n';
 				i++;
 			}
-			else if( str[i+1] == '\\' )
-			{
-				temp[j++]='\\';
+			else if( s[i+1] == '\\' )
+			{	
+				s[i+1] = '\b';	s[i] = '\\';
 				i++;
 			}
-			else if( str[i+1] == 't')
-			{
-				temp[j++]='\t';
-				i++;
-			}
-			break;
-		default:
-			temp[j++]=str[i];
-			break;
 		}
 	}
-
-	temp[j]=0;
-
-	strcpy(str,temp);
-	return str;
+	return s;
 }
 
 //*****************************************************************************
@@ -229,15 +211,13 @@ bool Translate_Read(u32 idx, const char * dir)
 		{
 			string++;
 			len = strlen( string );
-			ConvertSpecialChars( string, len );
-
 			sscanf( line,"%08x", &hash );
 			if( count < ARRAYSIZE(text) )
 			{
 				// Write translated id/hash to array
 				text[count].hash = hash;
 				text[count].translated = (char*)malloc_volatile(len+1); // Leave space for terminator
-				strcpy(text[count].translated, string);
+				strcpy( text[count].translated, Restore( string, len ) );
 				count++;
 			}
 		}

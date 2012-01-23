@@ -1,7 +1,7 @@
 ﻿//
 // Translation file for DaedalusX64
 // Language : Brazilian Portuguese (Português Brasileiro)
-// Last Updated : 20/01/2012
+// Last Updated : 22/01/2012
 // Version : 1.0
 // Translation by : Scarecrow
 //
@@ -56,11 +56,10 @@ bfb757ff,Selecione o espaço desejado para salvar o jogo
 72b02b7e,Selecione o espaço desejado para salvar o jogo [X:salvar O:cancelar]
 7d24bdfa,Selecione qual espaço deseja carregar [X:carregar O:cancelar []:excluir]
 26145f81,Aperte triângulo para excluir essa partida
-0529d6b2,Espaço
+0981b45a,Espaço
 1670fc01,<vazio>
 6c81a8ee,Salvando...
 d44916e4,Carregando...
-b0f392c4,%s Cor Selecionada
 24f6055a,Parado
 57d4e678,Selecione um espaço para salvar
 da257eb4,Partida Salva
@@ -135,7 +134,7 @@ f096e88f,Complemento do controle
 2cd3ab78,Zona morta do Analógico
 23d8d78c,Utilizar Buffer grande de ROMs
 d228ec17,Alerta de Bateria Baixa
-34e62182,Estilo da Interface
+2e167ec2,Estilo da Interface
 ca887fd8,Cor da Interface
 6a4df2ac,Reiniciar Configurações
 a3bdb5f5,Use para exibir informações adicionais sobre a ROM durante a execução.\nAlguns modos são apenas disponíveis em modo de testes.
@@ -145,7 +144,7 @@ b4478cb3,Habilite o MemPak ou o RumblePak
 a342ced3,Ajusta a zona morta da alavanca analógica ao jogar.\nAperte Start/X para editar os valores.
 67c8709b,Desabilite para carregar o jogo mais rápido ao custo de pequenos travamentos durante mudanças de cenas em jogos grandes. Só afeta o carregamento da ROM.
 a53edd7e,Ative para permitir que o Daedalus avise quando o nível da bateria estiver baixo.
-5aa7e128,Selecione qual interface utilizar entre o Estilo CoverFlow e o Estilo Clássico.
+ea866d68,Selecione qual interface utilizar entre o Estilo CoverFlow e o Estilo Clássico.
 928b8bd2,Modificar Cor da interface
 48580c6c,Irá reiniciar as preferências para os valores padrões e reiniciar a cache HLE.\nNota : O emulador irá fechar e voltar para a XMB.
 e1134e27,Otimização ao Acesso de Memória
@@ -159,11 +158,23 @@ d64510cd,Habilite para aumento na velocidade.\n\nATENÇÃO, pode causar instabil
 6be51f9b,Forçar limpeza da memória de vídeo antes de desenhar primitivos.
 cae93146,Habilitar Listas de Tela Dupla para um aumento na velocidade.\n\nNOTA: Funciona na maioria dos jogos.
 b0b8ff1a,Use para sincronizar a taxa de áudio com a taxa de quadros.\nProvoca menos "estouros" e ruídos.
-cba66bbc,Use para sincronizar a taxa de áudio com a taxa de quadros.
-ca1c18fa,Use para sincronizar a taxa de animação com a taxa de quadros.\n\nNOTA: Faz alguns jogos parecerem menos lentos.
+1213a2e9,Use para sincronizar a taxa de animação com a taxa de quadros.\n\nNOTA: Faz alguns jogos parecerem menos lentos.
 1a61c1b8,Use para habilitar ou desabilitar a emulação de névoa.\nExperimental, funciona em poucos jogos.
 ba9c614e,Configurações Avançadas
-3580e011,Ajusta as regiões máximas e mínimas da zona morta. Cima//Baixo: Aumenta ou diminui a zona morta. Esquerda//Direita: Valor máximo e mínimo para ajustamento da zona morta. Triângulo: Valores Padrões. Start//X: Confirmar. Select//Círculo: Cancelar"
+3580e011,Ajusta as regiões máximas e mínimas da zona morta. Cima/Baixo: Aumenta ou diminui a zona morta. Esquerda/Direita: Valor máximo e mínimo para ajustamento da zona morta. Triângulo: Valores Padrões. Start/X: Confirmar. Select/Círculo: Cancelar
 f3a27e37,Ajusta zona morta do analógico
 f4d401e4,Selecione o idioma do emulador.
 0206e784,Idioma
+15865cd2,Cores de 16Bit selecionado
+3f7ccd28,Cores de 32Bit selecionado
+7c7ac31a,Restante
+657b212f,Bateria
+053916eb,Time
+f5381b95,Restante: --h--m
+5e53f605,Carregando...
+5df55264,Versão 
+753ea645,Lançamento
+f2b17060,Revisão do DaedalusX64: 
+636197c3,Ajusta as regiões máximas e mínimas da zona morta.\nCima/Baixo: Aumenta ou diminui a zona morta.\nEsquerda/Direita: Valor máximo e mínimo para ajustamento da zona morta.\nTriângulo: Valores Padrões.\nStart/X: Confirmar. Select/Círculo: Cancelar
+000c2620,Min
+000c2302,Max
