@@ -159,15 +159,6 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		FLOAT_SETTING( gGlobalPreferences, StickMinDeadzone, defaults );
 		FLOAT_SETTING( gGlobalPreferences, StickMaxDeadzone, defaults );
 		INT_SETTING( gGlobalPreferences, Language, defaults );
-		
-		if( section->FindProperty( "GuiType", &property ) )
-		{
-			u32 value( property->GetIntValue(defaults.GuiType) );
-			if( value < NUM_GUI_TYPES ) //value >= 0 && not needed as it's always True
-			{
-				gGlobalPreferences.GuiType = EGuiType( value );
-			}
-		}
 
 		if( section->FindProperty( "GuiColor", &property ) )
 		{
@@ -351,7 +342,6 @@ void IPreferences::Commit()
 #endif
 		OUTPUT_BOOL( gGlobalPreferences, BatteryWarning, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, LargeROMBuffer, defaults );
-		OUTPUT_INT( gGlobalPreferences, GuiType, defaults );
 		OUTPUT_INT( gGlobalPreferences, GuiColor, defaults )
 		OUTPUT_FLOAT( gGlobalPreferences, StickMinDeadzone, defaults );
 		OUTPUT_FLOAT( gGlobalPreferences, StickMaxDeadzone, defaults );
@@ -422,7 +412,6 @@ SGlobalPreferences::SGlobalPreferences()
 ,	LargeROMBuffer( true )
 ,	ForceLinearFilter( false )
 ,	RumblePak ( false )
-,	GuiType( COVERFLOW )
 ,	GuiColor( BLACK )
 ,	StickMinDeadzone( 0.28f )
 ,	StickMaxDeadzone( 1.0f )

@@ -26,14 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ConfigOptions.h"
 
-enum EGuiType
-{
-	COVERFLOW=0,
-	CLASSIC,
-};
-
-const u32 NUM_GUI_TYPES = CLASSIC+1;
-
 enum ETextureHashFrequency
 {
 	THF_DISABLED = 0,
@@ -120,7 +112,6 @@ struct SGlobalPreferences
 	bool						ForceLinearFilter;
 	bool						RumblePak;
 
-	EGuiType					GuiType;
 	EGuiColor					GuiColor;
 
 	float						StickMinDeadzone;

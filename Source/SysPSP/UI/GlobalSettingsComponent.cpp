@@ -232,31 +232,6 @@ namespace
 		CUIContext *			mpContext;
 	};
 
-	class CGuiType : public CUISetting
-	{
-	public:
-		CGuiType(  const char * name, const char * description )
-			:	CUISetting( name, description )
-		{
-		}
-
-		virtual	void		OnNext()		{ gGlobalPreferences.GuiType = EGuiType( (gGlobalPreferences.GuiType+1) % NUM_GUI_TYPES ); }
-		virtual	void		OnPrevious()	{ gGlobalPreferences.GuiType = EGuiType( (gGlobalPreferences.GuiType + NUM_GUI_TYPES - 1) % NUM_GUI_TYPES ); }
-
-		virtual const char *	GetSettingName() const
-		{
-			switch ( gGlobalPreferences.GuiType )
-			{
-				case COVERFLOW:		return "Cover Flow";
-				case CLASSIC:		return "Classic";
-			}
-			DAEDALUS_ERROR( "Unknown Style" );
-			return "?";
-		}
-	};
-
-
-
 	class CColorSetting : public CUISetting
 	{
 	public:
@@ -380,7 +355,6 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.CustomBlendModes, "Use Custom Blend Modes",	"Debugging tool to disable custom blendmodes.", "Yes", "No" ) );
 #endif
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.BatteryWarning, "Low Battery Warning",	"Whether to allow Daedalus to notify when the battery is low.", "Yes", "No" ) );
-	mElements.Add( new CGuiType( "GUI Style",	"Select GUI Type either CoverFlow Style or Classic Style" ) );
 	mElements.Add( new CColorSetting( "GUI Color", "Change GUI Color" ) );
 	mElements.Add( new CLanguage( "Language", "Select Language" ) );
 	mElements.Add( new CResetSetting( mpContext, "Reset Settings", "Will guide you to reset preferences to default, and hle cache files. Note : emulator will exit if resetting settings" ) );
