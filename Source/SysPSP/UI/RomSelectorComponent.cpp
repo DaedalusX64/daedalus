@@ -102,12 +102,12 @@ namespace
 	}
 
 	const u32				ICON_AREA_TOP = 32;
-	u32						ICON_AREA_LEFT = 10;
-	const u32				ICON_AREA_WIDTH = 220;
-	const u32				ICON_AREA_HEIGHT = 152;
+	const u32				ICON_AREA_LEFT = 5;
+	const u32				ICON_AREA_WIDTH = 256;
+	const u32				ICON_AREA_HEIGHT = 177;
 
 	const u32				TEXT_AREA_TOP = 32;
-	u32						TEXT_AREA_LEFT = ICON_AREA_LEFT + ICON_AREA_WIDTH + 10;
+	const u32				TEXT_AREA_LEFT = ICON_AREA_LEFT + ICON_AREA_WIDTH + 5;
 	const u32				TEXT_AREA_WIDTH = 480 - TEXT_AREA_LEFT;
 	const u32				TEXT_AREA_HEIGHT = 216;
 
@@ -471,25 +471,28 @@ void IRomSelectorComponent::RenderPreview()
 		u32				rom_size( p_rominfo->mRomSize );
 
 		char buffer[ 32 ];
+
+		sprintf( buffer, "%s %s", country, cic_name);
+		DrawInfoText( mpContext, y, "Country:", buffer );
+		y += line_height;
 		sprintf( buffer, "%d MB", rom_size / (1024*1024) );
-
-		DrawInfoText( mpContext, y, "Boot:", cic_name );	y += line_height;
-		DrawInfoText( mpContext, y, "Country:", country );	y += line_height;
-		DrawInfoText( mpContext, y, "Size:", buffer );	y += line_height;
-
-		DrawInfoText( mpContext, y, "Save:", ROM_GetSaveTypeName( p_rominfo->mSettings.SaveType ) ); y += line_height;
-		DrawInfoText( mpContext, y, "EPak:", ROM_GetExpansionPakUsageName( p_rominfo->mSettings.ExpansionPakUsage ) ); y += line_height;
-		//DrawInfoText( mpContext, y, "Dynarec:", p_rominfo->mSettings.DynarecSupported ? "Supported" : "Unsupported" ); y += line_height;
+		DrawInfoText( mpContext, y, "Size:", buffer );
+		y += line_height;
+		DrawInfoText( mpContext, y, "Save:", ROM_GetSaveTypeName( p_rominfo->mSettings.SaveType ) );
+		
+		//y += line_height;
+		//DrawInfoTextL( mpContext, y, "EPak:", ROM_GetExpansionPakUsageName( p_rominfo->mSettings.ExpansionPakUsage ) );
 	}
 	else
 	{
-		DrawInfoText( mpContext, y, "Boot:", "" );		y += line_height;
-		DrawInfoText( mpContext, y, "Country:", "" );	y += line_height;
-		DrawInfoText( mpContext, y, "Size:", "" );		y += line_height;
+		DrawInfoText( mpContext, y, "Country:", "" );
+		y += line_height;
+		DrawInfoText( mpContext, y, "Size:", "" );
+		y += line_height;
+		DrawInfoText( mpContext, y, "Save:", "" );
 
-		DrawInfoText( mpContext, y, "Save:", "" );		y += line_height;
-		DrawInfoText( mpContext, y, "EPak:", "" );		y += line_height;
-		//DrawInfoText( mpContext, y, "Dynarec:", "" );	y += line_height;
+		//y += line_height;
+		//DrawInfoTextL( mpContext, y, "EPak:", "" );
 	}
 }
 //*************************************************************************************
@@ -497,17 +500,17 @@ void IRomSelectorComponent::RenderPreview()
 //*************************************************************************************
 void IRomSelectorComponent::RenderRomList()
 {
-	u32		font_height( mpContext->GetFontHeight() );
+	const f32	scale( 0.8333333f );
+	u32		font_height( scale * mpContext->GetFontHeight() );
 	u32		line_height( font_height + 2 );
 
-	s32		x,y;
-	x = TEXT_AREA_LEFT;
-	y = TEXT_AREA_TOP + mCurrentScrollOffset + font_height;
+	s32		x( TEXT_AREA_LEFT );
+	s32		y( TEXT_AREA_TOP + mCurrentScrollOffset * scale + font_height );
 
 	sceGuEnable(GU_SCISSOR_TEST);
 	sceGuScissor(TEXT_AREA_LEFT, TEXT_AREA_TOP, TEXT_AREA_LEFT+TEXT_AREA_WIDTH, TEXT_AREA_TOP+TEXT_AREA_HEIGHT);
 
-	const char * const	ptr_text( ">>" );
+	const char * const	ptr_text( ">" );
 	u32					ptr_text_width( mpContext->GetTextWidth( ptr_text ) );
 
 	for(u32 i = 0; i < mRomsList.size(); ++i)
@@ -532,13 +535,16 @@ void IRomSelectorComponent::RenderRomList()
 			if(i == mCurrentSelection)
 			{
 				colour = mpContext->GetSelectedTextColour();
-				mpContext->DrawText( x, y, ptr_text, colour );
+				mpContext->DrawTextScale( x, y, scale, ptr_text, colour );
 			}
 			else
 			{
-				colour = mpContext->GetDefaultTextColour();
+				//colour = mpContext->GetDefaultTextColour();
+				u32 mycol = 0xFF & (0xFF - 12 * abs(i-mCurrentSelection));
+				colour = (c32)((mycol<<24) | (mycol<<16) | (mycol<<8) | mycol);
 			}
-			mpContext->DrawText( x + ptr_text_width, y, p_gamename, colour );
+
+			mpContext->DrawTextScale( x + ptr_text_width, y, scale, p_gamename, colour );
 		}
 		y += line_height;
 	}
@@ -636,11 +642,11 @@ void IRomSelectorComponent::Render()
 
 	if(mRomDelete)
 	{
-		mpContext->DrawTextAlign(0,470,AT_RIGHT,CATEGORY_AREA_TOP + mpContext->GetFontHeight(),"(X) -> Confirm", color);
+		mpContext->DrawTextAlign(0,480 - ICON_AREA_LEFT, AT_RIGHT, CATEGORY_AREA_TOP + mpContext->GetFontHeight(), "(X) -> Confirm", color);
 	}
 	else
 	{
-		mpContext->DrawTextAlign(0,470,AT_RIGHT,CATEGORY_AREA_TOP + mpContext->GetFontHeight(),	message[(count >> 8) % ARRAYSIZE( message )], color);
+		mpContext->DrawTextAlign(0,480 - ICON_AREA_LEFT, AT_RIGHT, CATEGORY_AREA_TOP + mpContext->GetFontHeight(), message[(count >> 8) % ARRAYSIZE( message )], color);
 	}
 	
 	count++;
