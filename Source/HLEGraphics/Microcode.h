@@ -52,7 +52,9 @@ enum GBIVersion
 //*****************************************************************************
 // Function
 //*****************************************************************************
-u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
+u32	 GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
+void GBIMicrocode_Reset();
+
 //*****************************************************************************
 // Extern
 //*****************************************************************************

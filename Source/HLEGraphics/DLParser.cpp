@@ -81,22 +81,6 @@ const char *	gDisplayListDumpPathFormat = "dl%04d.txt";
 #define DL_UNIMPLEMENTED_ERROR( msg )
 #endif
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-#define SCISSOR_RECT( x0, y0, x1, y1 )			\
-	if( x0 >= scissors.right || y0 >= scissors.bottom ||  \
-		x1 < scissors.left || y1 < scissors.top )\
-	{											\
-		++gNunRectsClipped;						\
-		return;									\
-	}
-#else
-#define SCISSOR_RECT( x0, y0, x1, y1 )			\
-	if( x0 >= scissors.right || y0 >= scissors.bottom ||  \
-		x1 < scissors.left || y1 < scissors.top ) \
-	{											\
-		return;									\
-	}
-#endif
 
 #define MAX_DL_STACK_SIZE	32
 #define MAX_DL_COUNT		100000	// Maybe excesive large? 1000000
@@ -373,6 +357,8 @@ bool DLParser_Initialise()
 	scissors.left = 0;
 	scissors.right = 320;
 	scissors.bottom = 240;
+
+	GBIMicrocode_Reset();
 
 #ifndef DAEDALUS_TMEM
 	//Clear pointers in TMEM block //Corn
@@ -1166,10 +1152,6 @@ void DLParser_TexRect( MicroCodeCommand command )
 	tex_rect.cmd2 = command2.inst.cmd1;
 	tex_rect.cmd3 = command3.inst.cmd1;
 
-	/// Note this will break framebuffer effects.
-	//
-	if( bIsOffScreen )	return;
-
 	// Do compare with integers saves CPU //Corn
 	u32	x0 = tex_rect.x0 >> 2;
 	u32	y0 = tex_rect.y0 >> 2;
@@ -1181,8 +1163,15 @@ void DLParser_TexRect( MicroCodeCommand command )
 	//if(x0 >= x1) return;
 
 	// Removes offscreen texrect, also fixes several glitches like in John Romero's Daikatana
+	// Note bIsOffScreen will break framebuffer effects.
 	//
-	SCISSOR_RECT( x0, y0, x1, y1 );
+	if( x0 >= scissors.right || y0 >= scissors.bottom || x1 < scissors.left || y1 < scissors.top || bIsOffScreen )
+	{
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+		++gNunRectsClipped;		
+#endif
+		return;									
+	};
 
 	//Not using floats here breaks GE 007 intro
 	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );

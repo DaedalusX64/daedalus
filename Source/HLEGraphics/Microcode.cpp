@@ -26,13 +26,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/Math.h"	// pspFastRand()
 #include "Utility/Hash.h"
 
-// Limit cache ucode entries to 12
-// This is done for performance reasons
+// Limit cache ucode entries to 6
+// This is done for performance reasons and for since is known that no game can set more than this amount
 //
 // Increase this number to cache more ucode entries
 // At the expense of more time required each pass
 //
-#define MAX_UCODE_CACHE_ENTRIES 12
+#define MAX_UCODE_CACHE_ENTRIES 6
 
 
 //////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ UcodeInfo current;
 //*****************************************************************************
 //
 //*****************************************************************************
-static const MicrocodeData gMicrocodeData[] = 
+const MicrocodeData gMicrocodeData[] = 
 {
 	//
 	//	The only games that need defining are custom ucodes and incorrectly detected ones
@@ -124,7 +124,15 @@ static bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char
 	}
 	return false;
 }
-u32 mCurrentUcode = 0;
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void GBIMicrocode_Reset()
+{
+	memset(&used, 0, sizeof(used));
+}
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -155,7 +163,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 		if( used[ index ].used == false )	
 			break;
 			
-		// Check if the microcode is the same to the last used ucodes (We cache up to 12 entries)
+		// Check if the microcode is the same to the last used ucodes (We cache up to 6 entries)
 		//
 		if( used[ index ].code_base == code_base && used[ index ].data_base == data_base )
 		{
