@@ -107,7 +107,6 @@ extern void VolatileMemInit();
 
 bool g32bitColorMode = false;
 bool PSP_IS_SLIM = false;
-static bool bKernelHomeButton = false;
 //*************************************************************************************
 //Set up our initial eviroment settings for the PSP
 //*************************************************************************************
@@ -121,11 +120,11 @@ PSP_HEAP_SIZE_KB(-256);
 //*************************************************************************************
 // List all the errors we want to show here
 //
-static void DaedalusError(u32 version)
+static void DaedalusError(u32 version, u32 kernel_button)
 {
 	// ToDo : Add more errors for missing/damaged/old rom.db, preferences.ini ohle cache, and other prxs?
 	//
-	if( bKernelHomeButton )
+	if( kernel_button )
 	{
 		pspDebugScreenPrintf( "	Unsupported Firmware Detected : 0x%08X\n", version );
 		pspDebugScreenPrintf( "\n" );
@@ -143,7 +142,7 @@ static void DaedalusError(u32 version)
 //*************************************************************************************
 //Used to check for compatible FW, we don't allow anything lower than 4.01
 //*************************************************************************************
-static void DaedalusFWCheck()
+static void DaedalusFWCheck(u32 kernel_button)
 {
 // ##define PSP_FIRMWARE Borrowed from Davee
 #define PSP_FIRMWARE(f) ((((f >> 8) & 0xF) << 24) | (((f >> 4) & 0xF) << 16) | ((f & 0xF) << 8) | 0x10)
@@ -157,7 +156,7 @@ static void DaedalusFWCheck()
 		fclose(fh);
 	}
 */
-	if( (ver < PSP_FIRMWARE(0x401)) || (ver <= PSP_FIRMWARE(0x550) && !bKernelHomeButton) )
+	if( (ver < PSP_FIRMWARE(0x401)) || (ver <= PSP_FIRMWARE(0x550) && !kernel_button) )
 	{
 		pspDebugScreenInit();
 		pspDebugScreenSetTextColor(0xffffff);
@@ -185,7 +184,7 @@ static void DaedalusFWCheck()
 		pspDebugScreenPrintf( "\n" );
 		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
 		pspDebugScreenPrintf( "\n" );
-		DaedalusError( ver );
+		DaedalusError( ver, kernel_button );
 		pspDebugScreenPrintf( "\n" );
 		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
 		sceKernelDelayThread(1000000);
@@ -298,14 +297,12 @@ static int SetupPanic()
 	return 0;
 }
 
-extern void InitialiseJobManager();
-extern bool bNeedStartME;
+extern bool InitialiseJobManager();
 //*************************************************************************************
 //
 //*************************************************************************************
 static bool	Initialize()
 {
-	
 	printf( "Cpu was: %dMHz, Bus: %dMHz\n", scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency() );
 	if (scePowerSetClockFrequency(333, 333, 166) != 0)
 	{
@@ -313,8 +310,8 @@ static bool	Initialize()
 	}
 	printf( "Cpu now: %dMHz, Bus: %dMHz\n", scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency() );
 
-	// Set up our Kernel Home button or User Button
-	bKernelHomeButton = InitHomeButton();
+	// Set up our Kernel Home button
+	bool bKernelHomeButton = InitHomeButton();
 
 	// If (o) is pressed during boot the Emulator will use 32bit
 	// else use default 16bit color mode
@@ -324,10 +321,10 @@ static bool	Initialize()
 	else g32bitColorMode = false;
 
 	// Check for unsupported FW
-	DaedalusFWCheck();
+	DaedalusFWCheck( bKernelHomeButton );
 
 	// Initiate MediaEngine
-	InitialiseJobManager();
+	bool bMeStarted = InitialiseJobManager();
 
 // Disable for profiling
 //	srand(time(0));
@@ -365,7 +362,7 @@ static bool	Initialize()
 		// Check if mediaengine.prx could be initiated, we need it to unlock the extra memory
 		// This tells us if the user's psp have kmode access too
 		//
-		if( bNeedStartME )
+		if( bMeStarted )
 			PSP_IS_SLIM = true;
 		
 		HAVE_DVE = CModule::Load("dvemgr.prx");

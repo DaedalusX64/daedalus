@@ -21,8 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "JobManager.h"
 
-#include "Utility/ModulePSP.h"
 #include "Utility/CritSect.h"
+#include "Utility/ModulePSP.h"
 #include "Utility/Thread.h"
 
 #include "Debug/DBGConsole.h"
@@ -34,43 +34,35 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspkernel.h>
 
 #ifdef DAEDALUS_PSP_USE_ME
-static bool bMEStarted = false;
-bool bNeedStartME = true;
-static volatile me_struct *mei;
+bool gLoadedMediaEnginePRX = false;
+
+volatile me_struct *mei;
 #endif
 CJobManager gJobManager( 1024, TM_ASYNC_ME );
 //CJobManager gJobManager( 1024, TM_SYNC );
 
-#ifdef DAEDALUS_PSP_USE_ME
-static void StartJobManager()
+bool InitialiseJobManager()
 {
-	bNeedStartME = false;
+#ifdef DAEDALUS_PSP_USE_ME
+
+	if( CModule::Load("mediaengine.prx") < 0 )	return false;
 
 	mei = (volatile struct me_struct *)malloc_64(sizeof(struct me_struct));
 	mei = (volatile struct me_struct *)(MAKE_UNCACHED_PTR(mei));
 	sceKernelDcacheWritebackInvalidateAll();
 
-	if (InitME( mei ) == 0)
+	if (InitME(mei) == 0)
 	{
-		bMEStarted = true;
+		gLoadedMediaEnginePRX = true;
+		return true;
 	}
 	else
 	{
 		printf(" Couldn't initialize MediaEngine Instance\n");
+		return false;
 	}
-}
-#endif
-
-void InitialiseJobManager()
-{
-#ifdef DAEDALUS_PSP_USE_ME
-
-	if( CModule::Load("mediaengine.prx") < 0 )	
-	{
-		bNeedStartME = false;
-	}
-
-
+#else
+	return false;
 #endif
 }
 
@@ -121,10 +113,8 @@ void CJobManager::Start()
 	{
 		mWantQuit = false;
 		mThread = CreateThread( "JobManager", JobMain, this );
-		if( mThread == INVALID_THREAD_HANDLE )
-		{
-			DBGConsole_Msg( 0, "Unable to start JobManager thread!" );
-		}
+
+		DAEDALUS_ASSERT( mThread != INVALID_THREAD_HANDLE, "Unable to start JobManager thread!" );
 	}
 }
 
@@ -204,9 +194,7 @@ void CJobManager::Run()
 			SJob *	job( static_cast< SJob * >( mJobBuffer ) );
 
 #ifdef DAEDALUS_PSP_USE_ME
-			if (bNeedStartME && mTaskMode == TM_ASYNC_ME)
-				StartJobManager();
-			if( bMEStarted && mTaskMode == TM_ASYNC_ME )
+			if( gLoadedMediaEnginePRX && mTaskMode == TM_ASYNC_ME )
 			{
 				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
 
@@ -258,7 +246,7 @@ void CJobManager::Run()
 
 			// check if finished function and ME finished
 #ifdef DAEDALUS_PSP_USE_ME
-			if( bMEStarted && mTaskMode == TM_ASYNC_ME )
+			if( gLoadedMediaEnginePRX && mTaskMode == TM_ASYNC_ME )
 			{
 				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
 
