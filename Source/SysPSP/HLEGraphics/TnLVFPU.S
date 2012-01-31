@@ -98,13 +98,13 @@ next_vertex_:
 	vnop
 	mfvc		$t5, $131					// VFPU_CC. Corresponds to X_NEG/Y_NEG/Z_NEG
 	andi		$t5, $t5, 0x7				// Mask out the condition codes we don't care about
-	or			$t4, $t4, $t5
-	sw			$t4, 0x38($a3)				// Store ClipFlags
+	or			$t5, $t4, $t5
 
 #Load vertex Normal or Color
+	lv.s		S200, 12($a2)				// load normal word [w,z,y,x]
 	andi		$t4, $v0, TNL_LIGHT			// if( TNL_LIGHT )
 	beqz		$t4, do_color_
-	lv.s		S200, 12($a2)				// load normal word [w,z,y,x]
+	sw			$t5, 0x38($a3)				// Store ClipFlags
 	
 #Do lighting Convert the alpha in R200 to float and pass it along to light color
 	.word		0xd0380000 | (8<<8) | (43)	// vuc2i.s	R203, S200					// R200 = [?,z,y,x]
@@ -461,7 +461,7 @@ done_lighting_PD:
 	nop
 	
 # EnvMapped G_TEXTURE_GEN_LINEAR  Cheap way to do acos(x)/PI -> 0.5f - 0.25f * x - 0.25f * x * x * x //Corn
-	vmul.p		R222, R202[1/4,1/4], R202			// X * 0.25, Y * 0.25
+	vmul.p		R222, R202[1/4,1/4], R200			// X * 0.25, Y * 0.25
 	vsub.p		R203, R202[1/2,1/2], R222			// result = 0.5 - X * 0.25
 	vmul.p		R222, R200, R222					// X * X * 0.25, Y * Y * 0.25
 	vmul.p		R222, R200, R222					// X * X * X * 0.25, Y * Y * Y * 0.25
