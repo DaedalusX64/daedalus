@@ -28,7 +28,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // This is required so that the linker doesn't expect __fastcall unzXYZ functions.
 #define ZEXPORT DAEDALUS_ZLIB_CALL_TYPE
-ssss
 
 #include "Utility/Zip/unzip.h"
 
