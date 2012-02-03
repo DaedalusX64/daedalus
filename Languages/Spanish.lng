@@ -54,13 +54,12 @@ bfb757ff,Seleccione la ranura en la que desea guardar
 4bd9a865,Seleccione la ranura que cargar
 11183fe7,No hay partidas guardadas que cargar
 72b02b7e,Seleccione la ranura en la que desea guardar [X:guardar O:atras]
-7d24bdfa,Seleccione la ranura que desea cargar.\n[X:cargar O:atras []:eliminar]
+7d24bdfa,Seleccione la ranura que desea cargar [X:cargar O:atras []:eliminar]
 26145f81,Presione Triangulo para eliminar la partida guardada
-0529d6b2,Ranura
+0981b45a,Ranura
 1670fc01,<vacio>
 6c81a8ee,Guardando...
 d44916e4,Cargando...
-b0f392c4,% de color seleccionado
 24f6055a,En Pausa
 57d4e678,Seleccione una Ranura para Guardar
 da257eb4,Partida Guardada

@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <vector>
 #include <string>
+
+#define TRANSLATE_DUMP_VALUE 0xDAEDDAED
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -54,7 +56,6 @@ u32 HashString(const char* s)
 //*****************************************************************************
 const char * Translate_String(const char *original)
 {
-
 	u32 hash = HashString(original);
 	if( hash == 0 )
 		return original;
@@ -69,7 +70,6 @@ const char * Translate_String(const char *original)
 				return original;
 		}
 	}
-
 	return original;
 }
 
@@ -166,22 +166,39 @@ const char * Restore(char *s, u32 len)
 //*****************************************************************************
 //
 //*****************************************************************************
+void Translate_Dump(char *string, bool dump)
+{
+	if(dump)
+	{
+		FILE * fh = fopen( "hash.txt", "a" );
+		if(fh)
+		{
+			fprintf( fh,  "%08x,%s\n", HashString(string), string );
+			fclose(fh);
+		}
+	}
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
 
 bool Translate_Read(u32 idx, const char * dir)
 {
 	static u32 temp = 0;
+
+	// Do not parse again if the same language
+	if( temp == idx )	return true;	temp = idx;
+
 	const char * ext( ".lng" );
 	char line[1024];
 	char path[MAX_PATH];
 	char *string;
 	FILE *stream;
 
-	// Do not parse again if the same language
-	if( temp == idx )	return true;	temp = idx;
-
 	u32 count = 0;
 	u32 hash  = 0;
-	u32	len;
+	u32	len   = 0;
 
 	// Build path where we'll load the translation file(s)
 	strcpy(path, dir);
@@ -216,6 +233,8 @@ bool Translate_Read(u32 idx, const char * dir)
 			{
 				// Write translated id/hash to array
 				text[count].hash = hash;
+				Translate_Dump( string, hash == TRANSLATE_DUMP_VALUE );
+
 				text[count].translated = (char*)malloc_volatile(len+1); // Leave space for terminator
 				strcpy( text[count].translated, Restore( string, len ) );
 				count++;

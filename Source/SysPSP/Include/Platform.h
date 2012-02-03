@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DAEDALUS_PSP
 #endif
 
+#undef  DAEDALUS_ZLIB_SUPPORT
 #define DAEDALUS_ENABLE_DYNAREC
 #define DAEDALUS_PSP_USE_ME
 #define DAEDALUS_ENABLE_OS_HOOKS
