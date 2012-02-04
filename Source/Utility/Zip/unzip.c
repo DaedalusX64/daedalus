@@ -34,8 +34,6 @@ woven in by Terry Thorsen 1/2003.
   version without encryption capabilities).
  */
 
-#ifdef DAEDALUS_ZLIB_SUPPORT
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1701,5 +1699,3 @@ extern int ZEXPORT unzSetOffset (file, pos)
     s->current_file_ok = (err == UNZ_OK);
     return err;
 }
-
-#endif // DAEDALUS_ZLIB_SUPPORT

@@ -9,7 +9,6 @@
 #ifndef _ZLIBIOAPI_H
 #define _ZLIBIOAPI_H
 
-#ifdef DAEDALUS_ZLIB_SUPPORT
 
 #define ZLIB_FILEFUNC_SEEK_CUR (1)
 #define ZLIB_FILEFUNC_SEEK_END (2)
@@ -72,7 +71,6 @@ void fill_fopen_filefunc OF((zlib_filefunc_def* pzlib_filefunc_def));
 }
 #endif
 
-#endif // DAEDALUS_ZLIB_SUPPORT
 
 #endif
 

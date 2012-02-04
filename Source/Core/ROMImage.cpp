@@ -41,7 +41,7 @@ ECicType ROM_GenerateCICType( const u8 * p_rom_base )
 	case 0x371cc:	return CIC_6106;	// F-Zero
 	case 0x343c9:	return CIC_6106;	// ???
 	default:
-		DAEDALUS_ERROR("Unknown CIC Code");
+//		DAEDALUS_ERROR("Unknown CIC Code");
 		return CIC_UNKNOWN;
 	}
 }

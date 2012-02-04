@@ -54,7 +54,7 @@ ROMFile * ROMFile::Create( const char * filename )
 {
 	if (_strcmpi(IO::Path::FindExtension( filename ), ".zip") == 0)
 	{
-#ifdef DAEDALUS_ZLIB_SUPPORT
+#ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
 		return new ROMFileCompressed( filename );
 #else
 		return NULL;
@@ -130,6 +130,8 @@ bool	ROMFile::RequiresSwapping() const
 void	ROMFile::SetHeaderMagic( u32 magic )
 {
 	mHeaderMagic = magic;
+
+#ifndef DAEDALUS_PUBLIC_RELEASE
 	switch (mHeaderMagic)
 	{
 	case 0x80371240:
@@ -140,6 +142,7 @@ void	ROMFile::SetHeaderMagic( u32 magic )
 		DAEDALUS_ERROR( "Unhandled swapping mode" );
 		DBGConsole_Msg(0, "[CUnknown ROM format for %s: 0x%08x", mFilename.GetUnsafePtr(), magic);
 	}
+#endif
 }
 
 //*****************************************************************************
@@ -165,7 +168,6 @@ void	ROMFile::CorrectSwap( u8 * p_bytes, u32 length )
 }
 
 #include <algorithm>
-
 //*****************************************************************************
 // Swap bytes from 37 80 40 12
 // to              40 12 37 80

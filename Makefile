@@ -75,8 +75,6 @@ DAED_UTILITY_SRCS =	Source/Utility/CRC.cpp \
 			Source/Utility/Stream.cpp \
 			Source/Utility/Timer.cpp \
 			Source/Utility/Translate.cpp \
-			Source/Utility/Zip/ioapi.cpp \
-			Source/Utility/Zip/unzip.cpp \
 			Source/Utility/ZLibWrapper.cpp \
 			Source/Utility/PrintOpCode.cpp \
 			Source/Math/Matrix4x4.cpp

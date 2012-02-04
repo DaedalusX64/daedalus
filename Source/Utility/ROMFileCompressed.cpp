@@ -20,14 +20,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "ROMFileCompressed.h"
 
-#ifdef DAEDALUS_ZLIB_SUPPORT
+#ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
 
 #include "Math/MathUtil.h"
 
 #include "Debug/DBGConsole.h"
 
 #include "Utility/Stream.h"
-
+yay
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -282,4 +282,4 @@ bool	ROMFileCompressed::ReadChunk( u32 offset, u8 * p_dst, u32 length )
 	return true;
 }
 
-#endif // DAEDALUS_ZLIB_SUPPORT
+#endif // DAEDALUS_COMPRESSED_ROM_SUPPORT

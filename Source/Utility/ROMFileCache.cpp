@@ -69,13 +69,13 @@ ROMFileCache::ROMFileCache()
 	if (PSP_IS_SLIM) 	 
 	{ 	 
 		CHUNK_SIZE = 16 * 1024;	 
-		CACHE_SIZE = 1024;
 	}
 	else
 	{
-		CHUNK_SIZE = 16 * 1024;
-		CACHE_SIZE = 128;
+		CHUNK_SIZE = 2 * 1024;
 	}
+
+	CACHE_SIZE = 128;
 	STORAGE_BYTES = CACHE_SIZE * CHUNK_SIZE; 	 
 
 	mpStorage = new u8[ STORAGE_BYTES ];

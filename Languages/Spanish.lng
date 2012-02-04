@@ -1,8 +1,8 @@
 ﻿//
 // Translation file for DaedalusX64
-// Language : Spanish (Español)
-// Last Updated : 17/01/2012
-// Version : 1.5
+// Language : Spanish
+// Last Updated : 3/02/2012
+// Version : 1.6
 // Translation by : Ricot
 //
 //
@@ -25,7 +25,7 @@ a03fa94a,Iniciar:
 08d5d6b9,Guardar:
 ee537eb0,(X) -> Cargar
 ee5b9cf1,([ ]) -> Ajustes
-347e7e3b,(/\\) -> Nombre de Archivo
+29d22763,(/\\) -> Nombre de Archivo
 7b3eaf50,(HOME) -> Salir
 59466b27,(SELECT) -> Borrar
 183f4586,¿Cerrar?
@@ -37,11 +37,11 @@ b7ca4f3e,Configuración Global
 9b692907,Rom Seleccionado
 c1170d2b,Partidas Guardadas
 993f73ff,Acerca de
-a786de62,Daedalus no pudo encontrar roms para cargar.
-dcafd211,Puede agregar roms a la carpeta \\N64\\ en la tarjeta de memoria,
-df73ecf1,o en el directorio Roms dentro de la carpeta Daedalus.
-d72277a0,Daedalus reconoce diferentes tipos de archivo,
-4f01e7b5,incluyendo .zip, .z64, .v64, .rom, .bin, .pal, .usa y .jap.
+a786de62,Daedalus no pudo encontrar roms para\n cargar.
+dcafd211,Puede agregar roms a la carpeta\\N64\\ en\n la tarjeta de memoria,
+df73ecf1,o en el directorio Roms\ndentro de la carpeta Daedalus.
+d72277a0,Daedalus reconoce diferentes\ntipos de archivo,
+4f01e7b5,incluyendo .zip, .z64, .v64,\n.rom, .bin, .pal, .usa y .jap.
 bdd1275c,Editar Preferencias
 ba9c614e,Opciones Avanzadas
 7f8644c8,Trucos
@@ -134,7 +134,7 @@ f096e88f,Complemento de Controles
 2cd3ab78,Zona muerta del Stick
 23d8d78c,Utilizar Búfer grande de Juego
 d228ec17,Alerta de Batería Baja
-34e62182,Estilo de interfaz gráfica
+2e167ec2,Estilo de interfaz gráfica
 ca887fd8,Color de interfaz gráfica
 6a4df2ac,Restablecer Configuración
 a3bdb5f5,Muestra información adicional, mientras que el ROM se ejecuta.\nAlgunos modos solo están disponibles en el Debug Mode
@@ -158,7 +158,7 @@ d64510cd,Activar para aumento de velocidad en la emulación.\n(ATENCIÓN, puede 
 6be51f9b,Forzar limpieza de memoria de vídeo antes de dibujar cualquier \nprimitivo
 cae93146,Activar para aumento de velocidad en la emulación.\n(funciona en la mayoria de Roms)
 b0b8ff1a,Igualar la tasa de Audio a la velocidad de fotogramas.\n(Less pops and clicks)
-cba66bbc,Coincide la velocidad de la animación a la velocidad de fotogramas
+1213a2e9,Coincide la velocidad de la animación a la velocidad de fotogramas.\n(Hace a algunos juegos menos lentos)
 1a61c1b8,Desea activar o desactivar la emulación niebla.\n(Experimental, sólo funciona en algunos juegos)
 ba9c614e,Opciones Avanzadas
 3580e011,Ajuste de las regiones de zona muerta mínima y máxima.\nArriba/abajo: Aumentar o disminuir la zona muerta.\nIzquierda/Derecha: Seleccionar mínimo o máximo para el ajuste de zona muerta.\nTriángulo: Restablecer los valores predeterminados.\nStart/X: Confirmar. Select/Círculo: Cancelar"

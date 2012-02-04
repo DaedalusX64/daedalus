@@ -45,8 +45,6 @@
 #ifndef _unz_H
 #define _unz_H
 
-#ifdef DAEDALUS_ZLIB_SUPPORT
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -359,6 +357,5 @@ extern int ZEXPORT unzSetOffset (unzFile file, uLong pos);
 }
 #endif
 
-#endif // DAEDALUS_ZLIB_SUPPORT
 
 #endif /* _unz_H */

@@ -4,7 +4,7 @@
 //
 //	Platform options
 //
-#define DAEDALUS_ZLIB_SUPPORT					// Undefine this if you don't have a local install of zlib. If you undefine this, you will need to remove unzip.c from the project too.
+#undef  DAEDALUS_COMPRESSED_ROM_SUPPORT			// Define this to enable support for compressed Roms(zip'ed). If you define this, you will need to add unzip.c and ioapi.c to the project too. (Located at Source/Utility/Zip/)
 #undef  DAEDALUS_ENABLE_DYNAREC					// Define this is dynarec is supported on the platform
 #undef  DAEDALUS_ENABLE_OS_HOOKS				// Define this to enable OS HLE
 #undef  DAEDALUS_TRAP_PLUGIN_EXCEPTIONS			// Define this if exceptions are available and you want to trap exceptions from the plugin
