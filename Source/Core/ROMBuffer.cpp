@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Stream.h"
 #include "Utility/IO.h"
 
-//extern bool PSP_IS_SLIM;
+extern bool PSP_IS_SLIM;
 
 namespace
 {
@@ -52,12 +52,10 @@ namespace
 
 	bool		ShouldLoadAsFixed( u32 rom_size )
 	{
-		/*if (PSP_IS_SLIM && gGlobalPreferences.LargeROMBuffer)
-			return rom_size <= 2 * 1024 * 1024; //Can go up to 16 but that causes crashes under PSPLink when loading large multiple ROMs
-		else*/
-
-		//ToDo: Use 1MB for Phat and up the Secondary VRAM Buffer to 2MB
-		return rom_size <= 2 * 1024 * 1024;
+		if (PSP_IS_SLIM && !gGlobalPreferences.LargeROMBuffer)
+			return rom_size <= 32 * 1024 * 1024;
+		else
+			return rom_size <= 2 * 1024 * 1024;
 	}
 
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
@@ -153,7 +151,6 @@ namespace
 //*****************************************************************************
 bool RomBuffer::Create()
 {
-	spRomFileCache = new ROMFileCache();
 	return true;
 }
 
@@ -162,8 +159,7 @@ bool RomBuffer::Create()
 //*****************************************************************************
 void RomBuffer::Destroy()
 {
-	delete spRomFileCache;
-	spRomFileCache = NULL;
+
 }
 
 //*****************************************************************************
@@ -252,6 +248,7 @@ void RomBuffer::Open( )
 			}
 		}
 #endif
+		spRomFileCache = new ROMFileCache();
 		spRomFileCache->Open( p_rom_file );
 		sRomFixed = false;
 	}
@@ -259,16 +256,23 @@ void RomBuffer::Open( )
 	sRomLoaded = true;
 	return;
 }
-
+#include "SysPSP/Graphics/RomMemoryManger.h"
 //*****************************************************************************
 //
 //*****************************************************************************
 void	RomBuffer::Close()
 {
-	delete [] spRomData;
+	CRomMemoryManager::Get()->Free( spRomData );
 	spRomData = NULL;
 	sRomSize = 0;
-	spRomFileCache->Close();
+	
+	if (spRomFileCache != NULL)
+	{
+		 spRomFileCache->Close();
+		 delete spRomFileCache;
+		 spRomFileCache = NULL;
+	}
+	
 	sRomLoaded = false;
 }
 

@@ -29,6 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Interface/RomDB.h"
 
+#include "Graphics/RomMemoryManger.h"
+
 #include "Graphics/VideoMemoryManager.h"
 #include "Graphics/GraphicsContext.h"
 
@@ -134,8 +136,9 @@ SysEntityEntry SysInitTable[] =
 	{"Preference", CPreferences::Create, CPreferences::Destroy},
 	{"Memory", Memory_Init, Memory_Fini},
 	{"Controller", CController::Create, CController::Destroy},
-	{"RomBuffer", RomBuffer::Create, RomBuffer::Destroy},
 	{"VideoMemory", CVideoMemoryManager::Create, NULL},
+	{"RomMemory", CRomMemoryManager::Create, NULL},
+	{"RomBuffer", RomBuffer::Create, RomBuffer::Destroy},
 	{"GraphicsContext", CGraphicsContext::Create,   CGraphicsContext::Destroy},
 };
 

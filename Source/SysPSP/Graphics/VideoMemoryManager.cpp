@@ -57,10 +57,10 @@ IVideoMemoryManager::IVideoMemoryManager()
 	printf( "vram base: %p\n", sceGeEdramGetAddr() );
 	printf( "vram size: %d KB\n", sceGeEdramGetSize() / 1024 );
 	  	 
-	if (PSP_IS_SLIM) 	 
+	/*if (PSP_IS_SLIM) 	 
 		 mRamMemoryHeap = CMemoryHeap::Create( 4 * 1024 * 1024 ); 	 
 	else 	 
-		 mRamMemoryHeap = CMemoryHeap::Create( 1 * 1024 * 1024 );
+		 mRamMemoryHeap = CMemoryHeap::Create( 1 * 1024 * 1024 );*/
 }
 
 //*****************************************************************************

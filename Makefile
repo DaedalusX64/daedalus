@@ -83,6 +83,7 @@ DAED_PSP_SRCS =		Source/SysPSP/Graphics/DrawText.cpp \
 			Source/SysPSP/Graphics/GraphicsContext.cpp \
 			Source/SysPSP/Graphics/NativeTexturePSP.cpp \
 			Source/SysPSP/Graphics/VideoMemoryManager.cpp \
+			Source/SysPSP/Graphics/RomMemoryManger.cpp \
 			Source/SysPSP/Graphics/PngUtilPSP.cpp \
 			Source/SysPSP/Graphics/intraFont/intraFont.c \
 			Source/SysPSP/Graphics/intraFont/libccc.c \

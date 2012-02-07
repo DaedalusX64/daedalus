@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Debug/DBGConsole.h"
 
+#include "SysPSP/Graphics/RomMemoryManger.h"
+
 extern bool PSP_IS_SLIM;
 
 namespace
@@ -68,17 +70,25 @@ ROMFileCache::ROMFileCache()
 {
 	if (PSP_IS_SLIM) 	 
 	{ 	 
-		CHUNK_SIZE = 16 * 1024;	 
+		CHUNK_SIZE = 32 * 1024;	 
 	}
 	else
 	{
 		CHUNK_SIZE = 2 * 1024;
 	}
 
-	CACHE_SIZE = 128;
-	STORAGE_BYTES = CACHE_SIZE * CHUNK_SIZE; 	 
+	CACHE_SIZE = 1024;
+	STORAGE_BYTES = CACHE_SIZE * CHUNK_SIZE; 	
 
-	mpStorage = new u8[ STORAGE_BYTES ];
+	void *tmp;
+	
+	if( !CRomMemoryManager::Get()->Alloc( STORAGE_BYTES, &tmp  ))
+	{
+		printf("failed to alloc memory for ROM Cache\n");
+	}
+	//mpStorage = new u8[ STORAGE_BYTES ];
+	mpStorage = (u8*)tmp;
+	// ToDo: Allocate mpChunkInfo in 32mb block
 	mpChunkInfo = new SChunkInfo[ CACHE_SIZE ];
 }
 
@@ -88,7 +98,8 @@ ROMFileCache::ROMFileCache()
 ROMFileCache::~ROMFileCache()
 {
 	delete [] mpChunkInfo;
-	delete [] mpStorage;
+	CRomMemoryManager::Get()->Free( mpStorage );
+	//delete [] mpStorage;
 }
 
 //*****************************************************************************
@@ -102,6 +113,7 @@ bool	ROMFileCache::Open( ROMFile * p_rom_file )
 	u32		rom_chunks( AlignPow2( rom_size, CHUNK_SIZE ) / CHUNK_SIZE );
 
 	mChunkMapEntries = rom_chunks;
+	// ToDo: Allocate mpChunkMap in 32mb block
 	mpChunkMap = new CacheIdx[ rom_chunks ];
 
 	// Invalidate all entries
