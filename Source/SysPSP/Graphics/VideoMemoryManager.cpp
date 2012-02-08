@@ -8,7 +8,9 @@
 
 #include <pspge.h>
 
-extern bool PSP_IS_SLIM;
+//extern bool PSP_IS_SLIM;
+extern void* malloc_volatile(size_t size);
+const u32 ERAM(3 * 512 * 1024);	//Amount of extra (volatile)RAM to use for textures in addition to VRAM //Corn
 
 //*****************************************************************************
 //
@@ -53,6 +55,7 @@ template<> bool CSingleton< CVideoMemoryManager >::Create()
 //*****************************************************************************
 IVideoMemoryManager::IVideoMemoryManager()
 :	mVideoMemoryHeap( CMemoryHeap::Create( MAKE_UNCACHED_PTR( sceGeEdramGetAddr() ), sceGeEdramGetSize() ) )
+,	mRamMemoryHeap( CMemoryHeap::Create( MAKE_UNCACHED_PTR( (void*)(((u32)malloc_volatile(ERAM + 0xF) + 0xF) & ~0xF) ), ERAM ) )
 //,	mRamMemoryHeap( CMemoryHeap::Create( 1 * 1024 * 1024 ) )
 {
 	printf( "vram base: %p\n", sceGeEdramGetAddr() );
