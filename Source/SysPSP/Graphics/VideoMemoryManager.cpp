@@ -4,6 +4,7 @@
 #include "VideoMemoryManager.h"
 
 #include "Utility/MemoryHeap.h"
+#include "Math/MathUtil.h"
 
 #include <pspge.h>
 
@@ -56,11 +57,6 @@ IVideoMemoryManager::IVideoMemoryManager()
 {
 	printf( "vram base: %p\n", sceGeEdramGetAddr() );
 	printf( "vram size: %d KB\n", sceGeEdramGetSize() / 1024 );
-	  	 
-	/*if (PSP_IS_SLIM) 	 
-		 mRamMemoryHeap = CMemoryHeap::Create( 4 * 1024 * 1024 ); 	 
-	else 	 
-		 mRamMemoryHeap = CMemoryHeap::Create( 1 * 1024 * 1024 );*/
 }
 
 //*****************************************************************************
@@ -78,6 +74,9 @@ IVideoMemoryManager::~IVideoMemoryManager()
 bool IVideoMemoryManager::Alloc( u32 size, void ** data, bool * isvidmem )
 {
 	void * mem;
+
+	// Ensure that all memory is 16-byte aligned
+	size = AlignPow2( size, 16 );
 
 	// Try to alloc fast VRAM
 	mem = mVideoMemoryHeap->Alloc( size );

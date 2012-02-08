@@ -80,15 +80,10 @@ ROMFileCache::ROMFileCache()
 	CACHE_SIZE = 1024;
 	STORAGE_BYTES = CACHE_SIZE * CHUNK_SIZE; 	
 
-	void *tmp;
-	
-	if( !CRomMemoryManager::Get()->Alloc( STORAGE_BYTES, &tmp  ))
-	{
-		printf("failed to alloc memory for ROM Cache\n");
-	}
+	mpStorage = (u8*)CRomMemoryManager::Get()->Alloc( STORAGE_BYTES );
+	//mpChunkInfo = (SChunkInfo*)CRomMemoryManager::Get()->Alloc( CACHE_SIZE );
+
 	//mpStorage = new u8[ STORAGE_BYTES ];
-	mpStorage = (u8*)tmp;
-	// ToDo: Allocate mpChunkInfo in 32mb block
 	mpChunkInfo = new SChunkInfo[ CACHE_SIZE ];
 }
 
@@ -97,8 +92,9 @@ ROMFileCache::ROMFileCache()
 //*****************************************************************************
 ROMFileCache::~ROMFileCache()
 {
-	delete [] mpChunkInfo;
+	//CRomMemoryManager::Get()->Free( mpChunkInfo );
 	CRomMemoryManager::Get()->Free( mpStorage );
+	delete [] mpChunkInfo;
 	//delete [] mpStorage;
 }
 
@@ -113,7 +109,6 @@ bool	ROMFileCache::Open( ROMFile * p_rom_file )
 	u32		rom_chunks( AlignPow2( rom_size, CHUNK_SIZE ) / CHUNK_SIZE );
 
 	mChunkMapEntries = rom_chunks;
-	// ToDo: Allocate mpChunkMap in 32mb block
 	mpChunkMap = new CacheIdx[ rom_chunks ];
 
 	// Invalidate all entries

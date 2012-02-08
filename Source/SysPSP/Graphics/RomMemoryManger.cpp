@@ -4,9 +4,6 @@
 
 #include "Utility/MemoryHeap.h"
 
-
-extern bool PSP_IS_SLIM;
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -23,7 +20,7 @@ public:
 	IRomMemoryManager();
 	~IRomMemoryManager();
 
-	virtual bool	Alloc( u32 size, void ** data );
+	virtual void *	Alloc( u32 size );
 	virtual void	Free(void * ptr);
 
 private:
@@ -48,7 +45,6 @@ template<> bool CSingleton< CRomMemoryManager >::Create()
 IRomMemoryManager::IRomMemoryManager()
 :	mRomMemoryHeap( CMemoryHeap::Create( 32 * 1024 * 1024 ) )
 {
-	printf("ha\n");
 }
 
 //*****************************************************************************
@@ -62,19 +58,9 @@ IRomMemoryManager::~IRomMemoryManager()
 //*****************************************************************************
 //
 //*****************************************************************************
-bool IRomMemoryManager::Alloc( u32 size, void ** data )
+void * IRomMemoryManager::Alloc( u32 size )
 {
-	void * mem;
-
-	mem = mRomMemoryHeap->Alloc( size );
-	if( mem != NULL )
-	{
-		*data = mem;
-		return true;
-	}
-	// It failed, there is no MEMORY left
-	*data = NULL;
-	return false;
+	return mRomMemoryHeap->Alloc( size );
 }
 
 //*****************************************************************************
@@ -82,11 +68,9 @@ bool IRomMemoryManager::Alloc( u32 size, void ** data )
 //*****************************************************************************
 void  IRomMemoryManager::Free(void * ptr)
 {
-	if( ptr == NULL )
-	{
+	if( ptr == NULL )	return;
 
-	}
-	else if( mRomMemoryHeap->IsFromHeap( ptr ) )
+	if( mRomMemoryHeap->IsFromHeap( ptr ) )
 	{
 		mRomMemoryHeap->Free( ptr );
 	}

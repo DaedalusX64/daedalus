@@ -28,7 +28,7 @@ class CRomMemoryManager : public CSingleton< CRomMemoryManager >
 public:
 	virtual ~CRomMemoryManager();
 
-	virtual bool			Alloc( u32 size, void ** data ) = 0;
+	virtual void * 			Alloc( u32 size ) = 0;
 	virtual void			Free( void * ptr ) = 0;
 };
 

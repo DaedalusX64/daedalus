@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //Define line below to show amount of allocated VRAM //Corn
-#define SHOW_MEM
+//#define SHOW_MEM
 
 #include "stdafx.h"
 #include "MemoryHeap.h"
@@ -178,8 +178,7 @@ void * IMemoryHeap::InsertNew( u32 idx, u8 * adr, u32 size )
 //*****************************************************************************
 void* IMemoryHeap::Alloc( u32 size )
 {
-	// Ensure that all memory is 16-byte aligned
-	size = AlignPow2( size, 16 );
+
 
 	u8 * adr = mBasePtr;
 	u32 i;
