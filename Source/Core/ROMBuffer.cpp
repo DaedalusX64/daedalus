@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Stream.h"
 #include "Utility/IO.h"
 
-extern bool PSP_IS_SLIM;
+#include "SysPSP/Graphics/RomMemoryManger.h"
 
 namespace
 {
@@ -52,7 +52,7 @@ namespace
 
 	bool		ShouldLoadAsFixed( u32 rom_size )
 	{
-		if (PSP_IS_SLIM && !gGlobalPreferences.LargeROMBuffer)
+		if (CRomMemoryManager::Get()->IsAvailable() && !gGlobalPreferences.LargeROMBuffer)
 			return rom_size <= 32 * 1024 * 1024;
 		else
 			return rom_size <= 2 * 1024 * 1024;
@@ -151,6 +151,7 @@ namespace
 //*****************************************************************************
 bool RomBuffer::Create()
 {
+	CRomMemoryManager::Create();
 	return true;
 }
 
@@ -256,14 +257,18 @@ void RomBuffer::Open( )
 	sRomLoaded = true;
 	return;
 }
-#include "SysPSP/Graphics/RomMemoryManger.h"
+
 //*****************************************************************************
 //
 //*****************************************************************************
 void	RomBuffer::Close()
 {
-	CRomMemoryManager::Get()->Free( spRomData );
-	spRomData = NULL;
+	if( CRomMemoryManager::Get()->IsAvailable() )
+	{
+		CRomMemoryManager::Get()->Free( spRomData );
+		spRomData = NULL;
+	}
+
 	sRomSize = 0;
 	
 	if (spRomFileCache != NULL)

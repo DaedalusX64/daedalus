@@ -28,12 +28,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "SysPSP/Graphics/RomMemoryManger.h"
 
-extern bool PSP_IS_SLIM;
 
 namespace
 {
+	static  u32	CACHE_SIZE = 1024;
 	static  u32 CHUNK_SIZE;
-	static  u32	CACHE_SIZE;
 	static  u32	STORAGE_BYTES;
 
 	static const u32	INVALID_ADDRESS = u32( ~0 );
@@ -68,22 +67,28 @@ ROMFileCache::ROMFileCache()
 ,	mpChunkMap( NULL )
 ,	mMRUIdx( 0 )
 {
-	if (PSP_IS_SLIM) 	 
-	{ 	 
-		CHUNK_SIZE = 32 * 1024;	 
+
+	DAEDALUS_ASSERT( (1<<(sizeof(CacheIdx)*8)) > CACHE_SIZE, "Need to increase size of CacheIdx typedef to allow sufficient entries to be indexed" );
+	//
+	// Check if we really can allocate a large Rom Cache
+	// Erg: Is PSP SLIM+ and we were successfully to allocate all the memory needed in a pool of 32MBs
+	// Otherwise use default small cache size of 2Mbs
+	//
+	if( CRomMemoryManager::Get()->IsAvailable() )
+	{
+		CHUNK_SIZE = 32 * 1024;
+		STORAGE_BYTES = CACHE_SIZE * CHUNK_SIZE; 	
+
+		mpStorage   = (u8*)CRomMemoryManager::Get()->Alloc( STORAGE_BYTES );
 	}
 	else
 	{
 		CHUNK_SIZE = 2 * 1024;
+		STORAGE_BYTES = CACHE_SIZE * CHUNK_SIZE; 
+
+		mpStorage   = new u8[ STORAGE_BYTES ];
 	}
-
-	CACHE_SIZE = 1024;
-	STORAGE_BYTES = CACHE_SIZE * CHUNK_SIZE; 	
-
-	mpStorage = (u8*)CRomMemoryManager::Get()->Alloc( STORAGE_BYTES );
-	//mpChunkInfo = (SChunkInfo*)CRomMemoryManager::Get()->Alloc( CACHE_SIZE );
-
-	//mpStorage = new u8[ STORAGE_BYTES ];
+	printf("yay\n");
 	mpChunkInfo = new SChunkInfo[ CACHE_SIZE ];
 }
 
@@ -92,10 +97,16 @@ ROMFileCache::ROMFileCache()
 //*****************************************************************************
 ROMFileCache::~ROMFileCache()
 {
-	//CRomMemoryManager::Get()->Free( mpChunkInfo );
-	CRomMemoryManager::Get()->Free( mpStorage );
+	if( CRomMemoryManager::Get()->IsAvailable() )
+	{
+		CRomMemoryManager::Get()->Free( mpStorage );
+	}
+	else
+	{
+		delete [] mpStorage;
+	}
+
 	delete [] mpChunkInfo;
-	//delete [] mpStorage;
 }
 
 //*****************************************************************************
