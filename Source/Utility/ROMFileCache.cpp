@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 namespace
 {
-	static  u32	CACHE_SIZE = 1024;
+	static  u32	CACHE_SIZE;
 	static  u32 CHUNK_SIZE;
 	static  u32	STORAGE_BYTES;
 
@@ -75,20 +75,22 @@ ROMFileCache::ROMFileCache()
 	// Otherwise use default small cache size of 2Mbs
 	//
 	if( CRomMemoryManager::Get()->IsAvailable() )
-	{
-		CHUNK_SIZE = 32 * 1024;
+	{	//32MB cache(SLIM)
+		CHUNK_SIZE = 16 * 1024;
+		CACHE_SIZE = 2048;
 		STORAGE_BYTES = CACHE_SIZE * CHUNK_SIZE; 	
 
 		mpStorage   = (u8*)CRomMemoryManager::Get()->Alloc( STORAGE_BYTES );
 	}
 	else
-	{
-		CHUNK_SIZE = 2 * 1024;
+	{	//2MB cache(PHAT)
+		CHUNK_SIZE = 16 * 1024;
+		CACHE_SIZE = 128;
 		STORAGE_BYTES = CACHE_SIZE * CHUNK_SIZE; 
 
 		mpStorage   = new u8[ STORAGE_BYTES ];
 	}
-	printf("yay\n");
+
 	mpChunkInfo = new SChunkInfo[ CACHE_SIZE ];
 }
 
