@@ -18,20 +18,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef ROMOMEMORYMANAGER_H_
-#define ROMOMEMORYMANAGER_H_
+#ifndef ROMFILEMEMORY_H_
+#define ROMFILEMEMORY_H_
 
 #include "Utility/Singleton.h"
 
-class CRomMemoryManager : public CSingleton< CRomMemoryManager >
+class CROMFileMemory : public CSingleton< CROMFileMemory >
 {
 public:
-	virtual ~CRomMemoryManager();
+	virtual ~CROMFileMemory();
 
-	virtual	bool			IsAvailable() = 0;
+//	virtual	bool			IsAvailable() = 0;
 	virtual void * 			Alloc( u32 size ) = 0;
 	virtual void			Free( void * ptr ) = 0;
 };
 
 
-#endif // ROMOMEMORYMANAGER_H_
+#endif // ROMFILEMEMORY_H_

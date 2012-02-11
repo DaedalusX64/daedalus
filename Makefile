@@ -69,6 +69,7 @@ DAED_UTILITY_SRCS =	Source/Utility/CRC.cpp \
 			Source/Utility/Preferences.cpp \
 			Source/Utility/Profiler.cpp \
 			Source/Utility/ROMFile.cpp \
+			Source/Utility/ROMFileMemory.cpp \
 			Source/Utility/ROMFileCache.cpp \
 			Source/Utility/ROMFileCompressed.cpp \
 			Source/Utility/ROMFileUncompressed.cpp \
@@ -83,7 +84,6 @@ DAED_PSP_SRCS =		Source/SysPSP/Graphics/DrawText.cpp \
 			Source/SysPSP/Graphics/GraphicsContext.cpp \
 			Source/SysPSP/Graphics/NativeTexturePSP.cpp \
 			Source/SysPSP/Graphics/VideoMemoryManager.cpp \
-			Source/SysPSP/Graphics/RomMemoryManger.cpp \
 			Source/SysPSP/Graphics/PngUtilPSP.cpp \
 			Source/SysPSP/Graphics/intraFont/intraFont.c \
 			Source/SysPSP/Graphics/intraFont/libccc.c \

@@ -178,7 +178,7 @@ void * IMemoryHeap::InsertNew( u32 idx, u8 * adr, u32 size )
 //*****************************************************************************
 void* IMemoryHeap::Alloc( u32 size )
 {
-
+	DAEDALUS_ASSERT( mTotalSize < size, "Trying to allocate too much memory in this heap" );
 
 	u8 * adr = mBasePtr;
 	u32 i;
@@ -218,7 +218,7 @@ void* IMemoryHeap::Alloc( u32 size )
 //*****************************************************************************
 void  IMemoryHeap::Free( void * ptr )
 {
-	DAEDALUS_ASSERT( ptr == NULL || IsFromHeap( ptr ), "Memory is not from this heap" );
+	DAEDALUS_ASSERT( ptr != NULL || IsFromHeap( ptr ), "Memory is not from this heap" );
 
 	if( ptr == NULL )
 		return;

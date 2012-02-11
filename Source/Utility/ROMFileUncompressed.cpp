@@ -20,9 +20,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "ROMFileUncompressed.h"
 
-#include "Math/MathUtil.h"
+#include "ROMFileMemory.h"
 
-#include "SysPSP/Graphics/RomMemoryManger.h"
+#include "Math/MathUtil.h"
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -100,7 +100,7 @@ bool ROMFileUncompressed::Open( COutputStream & messages )
 	{
 		// Now, allocate memory for rom - round up to a 4 byte boundry
 		size_aligned  = AlignPow2( mRomSize, 4 );
-		p_bytes		  = (u8*)CRomMemoryManager::Get()->Alloc( size_aligned );
+		p_bytes		  = (u8*)CROMFileMemory::Get()->Alloc( size_aligned );
 	}
 	else
 	{
@@ -146,7 +146,7 @@ bool ROMFileUncompressed::LoadRawData( u32 bytes_to_read, u8 ** p_p_bytes, u32 *
 
 		// hack.. for some reason when we call this func (multiple times) to read the header info, causes to crash
 		// size_aligned is 64 when this happens..mmm not sure why..maybe cuz is called several times in a row?? so only alloc when reading the ROM entirely
-		u8 *	p_bytess( (u8*)CRomMemoryManager::Get()->Alloc( size_aligneds ) );
+		u8 *	p_bytess( (u8*)CROMFileMemory::Get()->Alloc( size_aligneds ) );
 
 		// Now, allocate memory for rom - round up to a 4 byte boundry
 		
@@ -162,7 +162,7 @@ bool ROMFileUncompressed::LoadRawData( u32 bytes_to_read, u8 ** p_p_bytes, u32 *
 		u32 bytes_read( fread( p_bytess, 1, bytes_to_read, mFH ) );
 		if (bytes_read != bytes_to_read)
 		{
-			CRomMemoryManager::Get()->Free( p_bytess );
+			CROMFileMemory::Get()->Free( p_bytess );
 			return false;
 		}
 

@@ -30,10 +30,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Preferences.h"
 #include "Utility/ROMFile.h"
 #include "Utility/ROMFileCache.h"
+#include "Utility/ROMFileMemory.h"
 #include "Utility/Stream.h"
 #include "Utility/IO.h"
 
-#include "SysPSP/Graphics/RomMemoryManger.h"
+extern bool PSP_IS_SLIM;
 
 namespace
 {
@@ -52,7 +53,7 @@ namespace
 
 	bool		ShouldLoadAsFixed( u32 rom_size )
 	{
-		if (CRomMemoryManager::Get()->IsAvailable() && !gGlobalPreferences.LargeROMBuffer)
+		if (PSP_IS_SLIM && !gGlobalPreferences.LargeROMBuffer)
 			return rom_size <= 32 * 1024 * 1024;
 		else
 			return rom_size <= 2 * 1024 * 1024;
@@ -151,7 +152,9 @@ namespace
 //*****************************************************************************
 bool RomBuffer::Create()
 {
-	CRomMemoryManager::Create();
+	// Create memory heap used for either ROM Cache or ROM buffer
+	// We do this to avoid memory fragmentation
+	CROMFileMemory::Create();
 	return true;
 }
 
@@ -263,22 +266,22 @@ void RomBuffer::Open( )
 //*****************************************************************************
 void	RomBuffer::Close()
 {
-	if( CRomMemoryManager::Get()->IsAvailable() )
+	if( IsRomAddressFixed() )
 	{
-		CRomMemoryManager::Get()->Free( spRomData );
+		CROMFileMemory::Get()->Free( spRomData );
 		spRomData = NULL;
 	}
-
-	sRomSize = 0;
-	
-	if (spRomFileCache != NULL)
+	else
 	{
-		 spRomFileCache->Close();
-		 delete spRomFileCache;
-		 spRomFileCache = NULL;
+		DAEDALUS_ASSERT( spRomFileCache != NULL, "How come we have no file cache?" );
+		spRomFileCache->Close();
+		delete spRomFileCache;
+		spRomFileCache = NULL;
 	}
-	
+
+	sRomSize   = 0;
 	sRomLoaded = false;
+	sRomFixed  = false;
 }
 
 //*****************************************************************************

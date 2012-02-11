@@ -21,13 +21,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ROMFileCache.h"
 
 #include "ROMFile.h"
+#include "ROMFileMemory.h"
 
 #include "Math/MathUtil.h"
 
 #include "Debug/DBGConsole.h"
 
-#include "SysPSP/Graphics/RomMemoryManger.h"
-
+extern bool PSP_IS_SLIM;
 
 namespace
 {
@@ -67,30 +67,24 @@ ROMFileCache::ROMFileCache()
 ,	mpChunkMap( NULL )
 ,	mMRUIdx( 0 )
 {
-
-	DAEDALUS_ASSERT( (1<<(sizeof(CacheIdx)*8)) > CACHE_SIZE, "Need to increase size of CacheIdx typedef to allow sufficient entries to be indexed" );
-	//
-	// Check if we really can allocate a large Rom Cache
-	// Erg: Is PSP SLIM+ and we were successfully to allocate all the memory needed in a pool of 32MBs
-	// Otherwise use default small cache size of 2Mbs
-	//
-	if( CRomMemoryManager::Get()->IsAvailable() )
-	{	//32MB cache(SLIM)
+	if( PSP_IS_SLIM )
+	{	
+		//32MB cache(SLIM)
 		CHUNK_SIZE = 16 * 1024;
-		CACHE_SIZE = 2048;
-		STORAGE_BYTES = CACHE_SIZE * CHUNK_SIZE; 	
-
-		mpStorage   = (u8*)CRomMemoryManager::Get()->Alloc( STORAGE_BYTES );
+		CACHE_SIZE = 2048;	
 	}
-	else
-	{	//2MB cache(PHAT)
+	else	
+	{	
+		//2MB cache(PHAT)
 		CHUNK_SIZE = 16 * 1024;
 		CACHE_SIZE = 128;
-		STORAGE_BYTES = CACHE_SIZE * CHUNK_SIZE; 
-
-		mpStorage   = new u8[ STORAGE_BYTES ];
 	}
 
+	STORAGE_BYTES = CACHE_SIZE * CHUNK_SIZE; 
+
+	DAEDALUS_ASSERT( (1<<(sizeof(CacheIdx)*8)) > CACHE_SIZE, "Need to increase size of CacheIdx typedef to allow sufficient entries to be indexed" );
+
+	mpStorage   = (u8*)CROMFileMemory::Get()->Alloc( STORAGE_BYTES );
 	mpChunkInfo = new SChunkInfo[ CACHE_SIZE ];
 }
 
@@ -99,14 +93,7 @@ ROMFileCache::ROMFileCache()
 //*****************************************************************************
 ROMFileCache::~ROMFileCache()
 {
-	if( CRomMemoryManager::Get()->IsAvailable() )
-	{
-		CRomMemoryManager::Get()->Free( mpStorage );
-	}
-	else
-	{
-		delete [] mpStorage;
-	}
+	CROMFileMemory::Get()->Free( mpStorage );
 
 	delete [] mpChunkInfo;
 }
