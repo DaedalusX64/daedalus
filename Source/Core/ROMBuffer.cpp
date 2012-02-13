@@ -23,6 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ROM.h"
 #include "DMA.h"
 
+#include "Graphics/GraphicsContext.h"
+#include "../Graphics/intraFont/intraFont.h"
+
 #include "Math/MathUtil.h"
 
 #include "Debug/DBGConsole.h"
@@ -201,27 +204,33 @@ void RomBuffer::Open( )
 			return;
 		}
 #else
-		u32				offset( 0 );
-		u32				total_length( sRomSize );
-		u32				length_remaining( total_length );
-		const u32		TEMP_BUFFER_SIZE = 32 * 1024;
+		u32 offset( 0 );
+		u32 length_remaining( sRomSize );
+		const u32 TEMP_BUFFER_SIZE = 128 * 1024;
 
-		while( length_remaining > 0 )
+		intraFont* ltn8  = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ASCII);
+		intraFontSetStyle( ltn8, 1.5f, 0xFF000000, 0xFFFFFFFF, INTRAFONT_ALIGN_CENTER );
+
+		while( offset < sRomSize )
 		{
-			if ((offset % 0x8000) == 0)
-			{
-				printf("Loading ROM to memory [%d Kbs of %d remaining]\n", offset /1024, total_length / 1024 );
-			}
-			u32			length_to_process( Min( length_remaining, TEMP_BUFFER_SIZE ) );
+			u32 length_to_process( Min( length_remaining, TEMP_BUFFER_SIZE ) );
 
-			if( !p_rom_file->ReadChunk( offset, p_bytes, length_to_process ) )
+			if( !p_rom_file->ReadChunk( offset, p_bytes + offset, length_to_process ) )
 			{
 				break;
 			}
 
 			offset += length_to_process;
 			length_remaining -= length_to_process;
+
+			CGraphicsContext::Get()->BeginFrame();
+			CGraphicsContext::Get()->Clear(true,true);
+			intraFontPrintf( ltn8, 480/2, (272>>1), "Loading %d%%...", offset * 100 / sRomSize );
+			CGraphicsContext::Get()->EndFrame();
+			CGraphicsContext::Get()->UpdateFrame( false );
 		}
+
+		intraFontUnload( ltn8 );
 #endif
 		spRomData = p_bytes;
 		sRomFixed = true;
