@@ -85,27 +85,9 @@ ROMFile::~ROMFile()
 //*****************************************************************************
 //
 //*****************************************************************************
-bool ROMFile::LoadDataChunk( u32 bytes_to_read, u8 ** p_p_bytes, u32 * p_buffer_size, COutputStream & messages )
+bool ROMFile::LoadData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages )
 {
-	u32	rom_size_dummy;
-
-	return LoadData( bytes_to_read, p_p_bytes, p_buffer_size, &rom_size_dummy, messages );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-bool ROMFile::LoadEntireRom( u8 ** p_p_bytes, u32 * p_buffer_size, u32 * p_rom_size, COutputStream & messages )
-{
-	return LoadData( 0, p_p_bytes, p_buffer_size, p_rom_size, messages );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-bool ROMFile::LoadData( u32 bytes_to_read, u8 ** p_p_bytes, u32 * p_buffer_size, u32 * p_rom_size, COutputStream & messages )
-{
-	if( !LoadRawData( bytes_to_read, p_p_bytes, p_buffer_size, p_rom_size, messages ) )
+	if( !LoadRawData( bytes_to_read, p_bytes, messages ) )
 	{	
 		messages << "Unable to get rom info from '" << mFilename << "'";
 		return false;

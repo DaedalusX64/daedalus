@@ -36,8 +36,7 @@ public:
 	ROMFile( const char * filename );
 	virtual ~ROMFile();
 
-			bool		LoadDataChunk( u32 bytes_to_read, u8 ** p_p_bytes, u32 * p_buffer_size, COutputStream & messages );
-			bool		LoadEntireRom( u8 ** p_p_bytes, u32 * p_buffer_size, u32 * p_rom_size, COutputStream & messages );
+			bool		LoadData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages );
 
 			//
 			//	Streaming functions
@@ -58,8 +57,7 @@ protected:
 			void		CorrectSwap( u8 * p_bytes, u32 length );
 
 private:
-			bool		LoadData( u32 bytes_to_read, u8 ** p_p_bytes, u32 * p_buffer_size, u32 * p_rom_size, COutputStream & messages );
-	virtual bool		LoadRawData( u32 bytes_to_read, u8 ** p_p_bytes, u32 * p_buffer_size, u32 * p_rom_size, COutputStream & messages ) = 0;
+	virtual bool		LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages ) = 0;
 
 protected:
 	CFixedString< MAX_PATH >	mFilename;

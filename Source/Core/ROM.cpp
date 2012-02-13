@@ -30,6 +30,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Interface/RomDB.h"
 
+
+#include "Math/MathUtil.h"
+
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
 #include "OSHLE/patch.h"			// Patch_ApplyPatches
@@ -653,11 +656,13 @@ bool ROM_GetRomName( const char * filename, std::string & game_name )
 
 	// Only read in the header
 	const u32	bytes_to_read( sizeof(ROMHeader) );
-	u8 *		p_bytes;
-	u32			buffer_size;
-	if(!p_rom_file->LoadDataChunk( bytes_to_read, &p_bytes, &buffer_size, messages ))
+	u32			size_aligned( AlignPow2( bytes_to_read, 4 ) );	// Needed?
+	u8 *		p_bytes( new u8[size_aligned] );
+
+	if(!p_rom_file->LoadData( bytes_to_read, p_bytes, messages ))
 	{
 		// Lots of files don't have any info - don't worry about it
+		delete [] p_bytes;
 		delete p_rom_file;
 		return false;
 	}
@@ -665,7 +670,7 @@ bool ROM_GetRomName( const char * filename, std::string & game_name )
 	//
 	//	Swap into native format
 	//
-	ROMFile::ByteSwap_3210( p_bytes, buffer_size );
+	ROMFile::ByteSwap_3210( p_bytes, bytes_to_read );
 
 	//
 	// Get the address of the rom header

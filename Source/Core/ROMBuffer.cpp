@@ -189,18 +189,16 @@ void RomBuffer::Open( )
 
 	if( ShouldLoadAsFixed( sRomSize ) )
 	{
-		// Set rom size to 0 to indicate all of file should be read
-		u8 *	p_bytes;
-		u32		buffer_size;
-		u32		rom_size;
-		if( !p_rom_file->LoadEntireRom( &p_bytes, &buffer_size, &rom_size, messages ) )
+		// Now, allocate memory for rom - round up to a 4 byte boundry
+		u32		size_aligned( AlignPow2( sRomSize, 4 ) );
+		u8 *	p_bytes( (u8*)CROMFileMemory::Get()->Alloc( size_aligned ) );
+
+		if( !p_rom_file->LoadData( sRomSize, p_bytes, messages ) )
 		{
+			CROMFileMemory::Get()->Free( p_bytes );
 			delete p_rom_file;
 			return;
 		}
-
-		DAEDALUS_ASSERT( rom_size == sRomSize, "Why is the returned size from the rom?" );
-		DAEDALUS_ASSERT( buffer_size == sRomSize, "Why is the buffer a different size from the rom?" );
 
 		spRomData = p_bytes;
 		sRomFixed = true;

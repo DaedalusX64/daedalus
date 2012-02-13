@@ -27,6 +27,8 @@
 
 #include "Debug/DBGConsole.h"
 
+#include "Math/MathUtil.h"
+
 #include "Utility/ROMFile.h"
 #include "Utility/Stream.h"
 #include "Utility/IO.h"
@@ -406,12 +408,14 @@ bool	GenerateRomDetails( const char * filename, RomID * id, u32 * rom_size, ECic
 	// They weren't there - so we need to find this info out for ourselves
 	// Only read in the header + bootcode
 	//
-	u32			bytes_to_read( RAMROM_GAME_OFFSET );
-	u32			buffer_size;
-	u8 *		bytes;
-	if(!rom_file->LoadDataChunk( bytes_to_read, &bytes, &buffer_size, messages ))
+	u32		bytes_to_read( RAMROM_GAME_OFFSET );
+	u32		size_aligned( AlignPow2( bytes_to_read, 4 ) );	// Needed?
+	u8 *	bytes( new u8[size_aligned] );
+
+	if( !rom_file->LoadData( bytes_to_read, bytes, messages ) )
 	{
 		// Lots of files don't have any info - don't worry about it
+		delete [] bytes;
 		delete rom_file;
 		return false;
 	}
@@ -433,7 +437,7 @@ bool	GenerateRomDetails( const char * filename, RomID * id, u32 * rom_size, ECic
 	//
 	//	Swap into native format
 	//
-	ROMFile::ByteSwap_3210( bytes, buffer_size );
+	ROMFile::ByteSwap_3210( bytes, bytes_to_read );
 
 	const ROMHeader * prh( reinterpret_cast<const ROMHeader *>( bytes ) );
 	*id = RomID( prh->CRC1, prh->CRC2, prh->CountryID );
