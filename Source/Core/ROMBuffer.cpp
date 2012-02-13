@@ -193,13 +193,36 @@ void RomBuffer::Open( )
 		u32		size_aligned( AlignPow2( sRomSize, 4 ) );
 		u8 *	p_bytes( (u8*)CROMFileMemory::Get()->Alloc( size_aligned ) );
 
+#if 0
 		if( !p_rom_file->LoadData( sRomSize, p_bytes, messages ) )
 		{
 			CROMFileMemory::Get()->Free( p_bytes );
 			delete p_rom_file;
 			return;
 		}
+#else
+		u32				offset( 0 );
+		u32				total_length( sRomSize );
+		u32				length_remaining( total_length );
+		const u32		TEMP_BUFFER_SIZE = 32 * 1024;
 
+		while( length_remaining > 0 )
+		{
+			if ((offset % 0x8000) == 0)
+			{
+				printf("Loading ROM to memory [%d Kbs of %d remaining]\n", offset /1024, total_length / 1024 );
+			}
+			u32			length_to_process( Min( length_remaining, TEMP_BUFFER_SIZE ) );
+
+			if( !p_rom_file->ReadChunk( offset, p_bytes, length_to_process ) )
+			{
+				break;
+			}
+
+			offset += length_to_process;
+			length_remaining -= length_to_process;
+		}
+#endif
 		spRomData = p_bytes;
 		sRomFixed = true;
 
