@@ -225,7 +225,7 @@ void RomBuffer::Open( )
 
 			CGraphicsContext::Get()->BeginFrame();
 			CGraphicsContext::Get()->Clear(true,true);
-			intraFontPrintf( ltn8, 480/2, (272>>1), "Loading %d%%...", offset * 100 / sRomSize );
+			intraFontPrintf( ltn8, 480/2, (272>>1), "Buffering ROM %d%%...", offset * 100 / sRomSize );
 			CGraphicsContext::Get()->EndFrame();
 			CGraphicsContext::Get()->UpdateFrame( false );
 		}

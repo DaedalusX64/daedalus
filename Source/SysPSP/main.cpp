@@ -347,14 +347,10 @@ static bool	Initialize()
 	// Init volatile memory
 	VolatileMemInit();
 
-	// let callbacks go in the wild if imposectrl.prx failed
-	if( !bKernelHomeButton )
-	{
 #ifdef DAEDALUS_CALLBACKS
-		//Set up callback for our thread
-		SetupCallbacks();
+	//Set up callback for our thread
+	SetupCallbacks();
 #endif
-	}
 
 	//Set up the DveMgr (TV Display) and Detect PSP Slim /3K/ Go
 	if ( kuKernelGetModel() != PSP_MODEL_STANDARD )
