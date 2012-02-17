@@ -75,7 +75,7 @@ IROMFileMemory::IROMFileMemory()
 	}
 	else
 	{
-		mRomMemoryHeap = CMemoryHeap::Create( 2 * 1024 * 1024 );
+		mRomMemoryHeap = CMemoryHeap::Create( 4 * 1024 * 1024 );
 	}
 }
 

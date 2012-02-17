@@ -77,7 +77,7 @@ ROMFileCache::ROMFileCache()
 	{	
 		//2MB cache(PHAT)
 		CHUNK_SIZE = 16 * 1024;
-		CACHE_SIZE = 128;
+		CACHE_SIZE = 256;
 	}
 
 	STORAGE_BYTES = CACHE_SIZE * CHUNK_SIZE; 

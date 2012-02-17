@@ -56,9 +56,6 @@ void	CDrawText::Initialise()
 	{
 		DAEDALUS_ASSERT( gFonts[ i ] != NULL, "Unable to load font (or forgot!)" );
 	}
-
-	// Init translations if available
-	Translate_Load( DAEDALUS_PSP_PATH("Languages/") );
 }
 
 //*************************************************************************************

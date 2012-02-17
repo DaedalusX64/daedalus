@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/ROMBuffer.h"
 #include "Core/RomSettings.h"
 #include "Utility/Preferences.h"
+#include "Utility/Translate.h"
 
 #include "Interface/RomDB.h"
 
@@ -59,9 +60,11 @@ typedef struct
 }RomEntityEntry;
 
 
-CGraphicsPlugin * gGraphicsPlugin = NULL;
-CAudioPlugin * g_pAiPlugin		= NULL;
-
+CGraphicsPlugin * gGraphicsPlugin   = NULL;
+CAudioPlugin	* g_pAiPlugin		= NULL;
+//*****************************************************************************
+//
+//*****************************************************************************
 static void InitAudioPlugin()
 {
 	DAEDALUS_ASSERT( g_pAiPlugin == NULL, "Why is there already an audio plugin?" );
@@ -78,6 +81,9 @@ static void InitAudioPlugin()
 	}
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void InitGraphicsPlugin()
 {
 	DAEDALUS_ASSERT( gGraphicsPlugin == NULL, "The graphics plugin should not be initialised at this point" );
@@ -93,6 +99,9 @@ static void InitGraphicsPlugin()
 	}
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void DisposeGraphicsPlugin()
 {
 	if ( gGraphicsPlugin != NULL )
@@ -103,6 +112,9 @@ static void DisposeGraphicsPlugin()
 	}
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void DisposeAudioPlugin()
 {
 	CAudioPlugin *audio_plugin(g_pAiPlugin);
@@ -117,6 +129,9 @@ static void DisposeAudioPlugin()
 	}
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 SysEntityEntry SysInitTable[] = 
 {
 #ifdef DAEDALUS_DEBUG_CONSOLE
@@ -131,6 +146,7 @@ SysEntityEntry SysInitTable[] =
 	{"ROM Database", CRomDB::Create, CRomDB::Destroy},
 	{"ROM Settings", CRomSettingsDB::Create, CRomSettingsDB::Destroy},
 	{"InputManager", CInputManager::Create, CInputManager::Destroy},
+	{"Language", 	 Translate_Init, NULL},
 	{"Preference", CPreferences::Create, CPreferences::Destroy},
 	{"Memory", Memory_Init, Memory_Fini},
 	{"Controller", CController::Create, CController::Destroy},
@@ -139,6 +155,9 @@ SysEntityEntry SysInitTable[] =
 	{"GraphicsContext", CGraphicsContext::Create,   CGraphicsContext::Destroy},
 };
 
+//*****************************************************************************
+//
+//*****************************************************************************
 RomEntityEntry RomInitTable[] = 
 {
 	{"RomBuffer", RomBuffer::Open, RomBuffer::Close},
@@ -159,11 +178,16 @@ RomEntityEntry RomInitTable[] =
 
 };
 
-
+//*****************************************************************************
+//
+//*****************************************************************************
 static const int nSysInitEntries = sizeof(SysInitTable) / sizeof(SysEntityEntry);
 static const int nRomInitEntries = sizeof(RomInitTable) / sizeof(RomEntityEntry);
 
 
+//*****************************************************************************
+//
+//*****************************************************************************
 bool System_Init()
 {
 	for(int i = 0; i < nSysInitEntries; i++)
@@ -185,6 +209,9 @@ bool System_Init()
 	return true;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 void System_Open(const char *romname)
 {
 	strcpy(g_ROM.szFileName, romname);
@@ -198,6 +225,9 @@ void System_Open(const char *romname)
 	}
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 void System_Close()
 {
 	for(int i = nRomInitEntries - 1 ; i >= 0; i--)
@@ -210,6 +240,9 @@ void System_Close()
 	}
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 void System_Finalize()
 {
 	for(int i = nSysInitEntries - 1; i >= 0; i--)

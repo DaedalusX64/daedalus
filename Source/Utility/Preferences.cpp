@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/RomDB.h"
 
 #include "Utility/IO.h"
+#include "Utility/Translate.h"
 
 #include "ConfigOptions.h"
 
@@ -158,8 +159,11 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		BOOL_SETTING( gGlobalPreferences, LargeROMBuffer, defaults );
 		FLOAT_SETTING( gGlobalPreferences, StickMinDeadzone, defaults );
 		FLOAT_SETTING( gGlobalPreferences, StickMaxDeadzone, defaults );
-		INT_SETTING( gGlobalPreferences, Language, defaults );
-
+//		INT_SETTING( gGlobalPreferences, Language, defaults );
+		if( section->FindProperty( "Language", &property ) )
+		{
+			gGlobalPreferences.Language = Translate_IndexFromName( property->GetValue() );
+		}
 		if( section->FindProperty( "GuiColor", &property ) )
 		{
 			u32 value( property->GetIntValue(defaults.GuiColor) );
@@ -332,6 +336,7 @@ void IPreferences::Commit()
 #define OUTPUT_BOOL( b, nm, def )		fprintf( fh, "%s=%s\n", #nm, b.nm ? "yes" : "no" );
 #define OUTPUT_FLOAT( b, nm, def )		fprintf( fh, "%s=%f\n", #nm, b.nm );
 #define OUTPUT_INT( b, nm, def )		fprintf( fh, "%s=%d\n", #nm, b.nm );
+#define OUTPUT_LANGUAGE( b, nm, def )	fprintf( fh, "%s=%s\n", #nm, Translate_NameFromIndex( b.nm ) );
 
 		OUTPUT_INT( gGlobalPreferences, DisplayFramerate, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, ForceLinearFilter, defaults );
@@ -345,12 +350,11 @@ void IPreferences::Commit()
 		OUTPUT_INT( gGlobalPreferences, GuiColor, defaults )
 		OUTPUT_FLOAT( gGlobalPreferences, StickMinDeadzone, defaults );
 		OUTPUT_FLOAT( gGlobalPreferences, StickMaxDeadzone, defaults );
-		OUTPUT_INT( gGlobalPreferences, Language, defaults );
+		OUTPUT_LANGUAGE( gGlobalPreferences, Language, defaults );
 		OUTPUT_INT( gGlobalPreferences, ViewportType, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, TVEnable, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, TVLaced, defaults );
 		OUTPUT_INT( gGlobalPreferences, TVType, defaults );
-
 		fprintf( fh, "\n\n" ); //Spacer to go before Rom Settings
 
 		for ( PreferencesMap::const_iterator it = mPreferences.begin(); it != mPreferences.end(); ++it )

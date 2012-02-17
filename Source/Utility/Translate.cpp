@@ -1,5 +1,6 @@
 /*
 Copyright (C) 2012 Salvy6735
+Copyright (C) 2012 StrmnNrmn
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -21,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Translate.h"
 #include "IO.h"
 
+#include "SysPSP/Utility/PathsPSP.h"
 #include "SysPSP/Utility/VolatileMemPSP.h"
 
 #include <vector>
@@ -85,15 +87,22 @@ void Translate_Unload()
 		text[i].translated = NULL;
 	}
 }
+//*****************************************************************************
+//
+//*****************************************************************************
+bool	Translate_Init()
+{
+	// Init translations if available
+	Translate_Load( DAEDALUS_PSP_PATH("Languages/") );	
+
+	return /*gLanguage.empty() == 0*/ true;
+}
 
 //*****************************************************************************
 //
 //*****************************************************************************
 void	Translate_Load( const char * p_dir )
 {
-	if( !gLanguage.empty() )
-		return;
-
 	// Set default language
 	gLanguage.push_back("English");
 
@@ -127,7 +136,12 @@ void	Translate_Load( const char * p_dir )
 //*****************************************************************************
 const char * Translate_Name(u32 idx)		
 {	
-	return gLanguage[ idx ].c_str();	
+	if( idx < gLanguage.size())
+	{
+		return gLanguage[ idx ].c_str();	
+	}
+
+	return "?";
 }
 
 //*****************************************************************************
@@ -136,6 +150,36 @@ const char * Translate_Name(u32 idx)
 u32 Translate_Number()			
 {	
 	return gLanguage.size()-1;			
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+u32	Translate_IndexFromName( const char * name )
+{
+	for( u32 i = 0; i < gLanguage.size(); ++i )
+	{
+		if( _strcmpi(  gLanguage[ i ].c_str(), name ) == 0 )
+		{
+			return i;
+		}
+	}
+
+	// Default language (English)
+	return 0;
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+const char * Translate_NameFromIndex( u32 idx )
+{
+	if( idx < gLanguage.size())
+	{
+		return gLanguage[ idx ].c_str();
+	}
+
+	return "?";
 }
 
 //*****************************************************************************
@@ -166,7 +210,7 @@ const char * Restore(char *s, u32 len)
 //*****************************************************************************
 //
 //*****************************************************************************
-void Translate_Dump(char *string, bool dump)
+void Translate_Dump(const char *string, bool dump)
 {
 	if(dump)
 	{
@@ -182,7 +226,6 @@ void Translate_Dump(char *string, bool dump)
 //*****************************************************************************
 //
 //*****************************************************************************
-
 bool Translate_Read(u32 idx, const char * dir)
 {
 	static u32 temp = 0;
