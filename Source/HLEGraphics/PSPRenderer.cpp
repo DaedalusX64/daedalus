@@ -1075,7 +1075,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 				}
 				else
 				{
-					texture = mpTexture[ 0 ]->GetTexture();
+					texture = mpTexture[ g_ROM.T1_HACK ]->GetTexture();
 				}
 
 				if(texture != NULL)
