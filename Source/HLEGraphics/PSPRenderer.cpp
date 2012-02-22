@@ -1065,13 +1065,13 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 		if( details.InstallTexture )
 		{
-			if( mpTexture[ 0 ] != NULL )
+			if( mpTexture[ g_ROM.T1_HACK ] != NULL )
 			{
 				CRefPtr<CNativeTexture> texture;
 
 				if(details.RecolourTextureWhite)
 				{
-					texture = mpTexture[ 0 ]->GetRecolouredTexture( c32::White );
+					texture = mpTexture[ g_ROM.T1_HACK ]->GetRecolouredTexture( c32::White );
 				}
 				else
 				{
@@ -1116,7 +1116,6 @@ void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 {
 	EnableTexturing( tile_idx );
 
-	// ToDo : Split this evil vector
 	v2 screen0;
 	v2 screen1;
 	ConvertN64ToPsp( xy0, screen0 );
@@ -1201,7 +1200,6 @@ void PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 {
 	EnableTexturing( tile_idx );
 
-	// ToDo : Split this evil vector
 	v2 screen0;
 	v2 screen1;
 	ConvertN64ToPsp( xy0, screen0 );
@@ -1327,19 +1325,19 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	//
 	if( mTnL.Flags.TriCull )
 	{
-		const v4 & t0( mVtxProjected[v0].ProjectedPos );
-		const v4 & t1( mVtxProjected[v1].ProjectedPos );
-		const v4 & t2( mVtxProjected[v2].ProjectedPos );
+		const v4 & A( mVtxProjected[v0].ProjectedPos );
+		const v4 & B( mVtxProjected[v1].ProjectedPos );
+		const v4 & C( mVtxProjected[v2].ProjectedPos );
 
 		//Avoid using 1/w, will use five more mults but save three divides //Corn
 		//Precalc reused w combos so compiler does a proper job
-		const f32 t01(t0.w*t1.w);
-		const f32 t02(t0.w*t2.w);
-		const f32 t12(t1.w*t2.w);
-		const f32 t0x12(t0.x*t12);
-		const f32 t0y12(t0.y*t12);
+		const f32 ABw(A.w*B.w);
+		const f32 ACw(A.w*C.w);
+		const f32 BCw(B.w*C.w);
+		const f32 AxBC(A.x*BCw);
+		const f32 AyBC(A.y*BCw);
 
-		if( (((t1.x*t02 - t0x12)*(t2.y*t01 - t0y12) - (t2.x*t01 - t0x12)*(t1.y*t02 - t0y12)) * t01 * t2.w) <= 0.f )
+		if( (((B.x*ACw - AxBC)*(C.y*ABw - AyBC) - (C.x*ABw - AxBC)*(B.y*ACw - AyBC)) * ABw * C.w) <= 0.f )
 		{
 			if( mTnL.Flags.CullBack )
 			{
@@ -2577,7 +2575,6 @@ inline void	PSPRenderer::EnableTexturing( u32 tile_idx )
 {
 	EnableTexturing( 0, tile_idx );
 
-	// XXXX Not required for texrect etc?
 //#ifdef RDP_USE_TEXEL1
 
 	if ( g_ROM.T1_HACK & !gRDPOtherMode.text_lod )

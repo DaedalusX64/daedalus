@@ -50,8 +50,7 @@ void DLParser_GBI0_Vtx( MicroCodeCommand command )
 // Maybe not the best idea to inline nor have an extra jump or and extra branch in Addtri..
 inline bool AddTri4( u32 v0, u32 v1, u32 v2 )
 {
-	//if( (v0 == 0) && (v1 == 0) && (v2 == 0) ) 
-	if( (v0 == v1) && (v1 == v2) )
+	if( v0 == v1 )
 	{
 		DL_PF("    Tri: %d,%d,%d (Culled -> Empty?)", v0, v1, v2);
 		return false;
@@ -80,7 +79,7 @@ void DLParser_GBI0_Tri4( MicroCodeCommand command )
 		u32 v1 = command.tri4.v1;
 		u32 v2 = command.tri4.v2;
 
-		tris_added |= AddTri4(v0, v1, v2);
+		tris_added |= PSPRenderer::Get()->AddTri(v0, v1, v2);
 
 		//Tri #2
 		u32 v3 = command.tri4.v3;
