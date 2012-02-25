@@ -20,25 +20,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef UCODE_CONKER_H__
 #define UCODE_CONKER_H__
 
-
+// Alot cheaper than check mux
+// Shadow only seems to be drawn by Tr1/2 ucodes
+#define CONKER_SHADOW 0x005049d8//0x00ffe9ffffd21f0fLL
 //*****************************************************************************
 //
 //*****************************************************************************
 void DLParser_Vtx_Conker( MicroCodeCommand command )
 {
+
+	if( bIsOffScreen || (gRDPOtherMode.L == CONKER_SHADOW) )	
+	{
+		DL_PF("    Skipping Conker TnL (Vtx -> Off-Screen/Shadow)");
+		return;
+	}
+
 	u32 address = RDPSegAddr(command.inst.cmd1);
 	u32 len    = ((command.inst.cmd0      )& 0xFFF) >> 1;
 	u32 n      = ((command.inst.cmd0 >> 12)& 0xFFF);
 	u32 v0		= len - n;
 
 	DL_PF("    Address[0x%08x] Len[%d] v0[%d] Num[%d]", address, len, v0, n);
-
-
-	if( bIsOffScreen )	
-	{
-		DL_PF("    Skipping TnL (Vtx -> Off-Screen)");
-		return;
-	}
 
 	PSPRenderer::Get()->SetNewVertexInfoConker( address, v0, n );
 
@@ -60,12 +62,12 @@ void DLParser_Tri1_Conker( MicroCodeCommand command )
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
 	// If Off screen rendering is true then just skip the whole list of tris //Corn
-	//
-	if( bIsOffScreen )	
+	// Skip shadow as well
+	if( bIsOffScreen || (gRDPOtherMode.L == CONKER_SHADOW) )	
 	{
 		do
 		{
-			DL_PF("    Tri1 (Culled -> Off-Screen)");
+			DL_PF("    Tri1 (Culled -> Off-Screen/Shadow)");
 			command.inst.cmd0 = *pCmdBase++;
 			command.inst.cmd1 = *pCmdBase++;
 			pc += 8;
@@ -108,12 +110,12 @@ void DLParser_Tri2_Conker( MicroCodeCommand command )
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
 	// If Off screen rendering is true then just skip the whole list of tris //Corn
-	//
-	if( bIsOffScreen )	
+	// Skip shadow as well
+	if( bIsOffScreen || (gRDPOtherMode.L == CONKER_SHADOW) )	
 	{
 		do
 		{
-			DL_PF("    Tri2 (Culled -> Off-Screen)");
+			DL_PF("    Tri2 (Culled -> Off-Screen/Shadow)");
 			command.inst.cmd0 = *pCmdBase++;
 			command.inst.cmd1 = *pCmdBase++;
 			pc += 8;
