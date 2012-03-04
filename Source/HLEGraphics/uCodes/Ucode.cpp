@@ -43,9 +43,14 @@ const u32 ucode_stride[] =
 //*************************************************************************************
 // 
 //*************************************************************************************
-// This the ucode modifier indices
-const u32 ucode_modify[] =
+// This the ucode indices
+const u32 ucode_index[] =
 {
+	0,
+	1,
+	2,
+	3,
+	4,
 	0,		// Modified uCode 0 - RSP SW 2.0D EXT
 	0,		// Modified uCode 0 - RSP SW 2.0 Diddy
 	1,		// Modified uCode 1 - F3DEX Last Legion
@@ -58,7 +63,7 @@ const u32 ucode_modify[] =
 //*************************************************************************************
 // 
 //*************************************************************************************
-const MicroCodeInstruction gNormalInstruction[MAX_UCODE][256] =
+MicroCodeInstruction gInstructionLookup[MAX_UCODE][256] =
 {
 	// uCode 0 - RSP SW 2.0X
 	// Games: Super Mario 64, Tetrisphere, Demos

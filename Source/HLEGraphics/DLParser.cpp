@@ -158,12 +158,10 @@ SImageDescriptor g_TI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 SImageDescriptor g_CI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 SImageDescriptor g_DI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 
-const MicroCodeInstruction *gUcodeFunc = NULL;
-MicroCodeInstruction gCustomInstruction[256];
+static MicroCodeInstruction *gUcodeFunc = NULL;
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-char ** gUcodeName = (char **)gNormalInstructionName[ 0 ];
-char * gCustomInstructionName[256];
+char ** gUcodeName = (char **)gInstructionName[ 0 ];
 #endif
 
 //*************************************************************************************
@@ -483,9 +481,9 @@ static void HandleDumpDisplayList( OSTask * pTask )
 //
 //*****************************************************************************
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-#define SetCommand( cmd, func, name )	gCustomInstruction[ cmd ] = func;	gCustomInstructionName[ cmd ] = (char *)name;
+#define SetCommand( cmd, func, name )	gUcodeFunc[ cmd ] = func;	gUcodeName[ cmd ] = (char *)name;
 #else
-#define SetCommand( cmd, func, name )	gCustomInstruction[ cmd ] = func;
+#define SetCommand( cmd, func, name )	gUcodeFunc[ cmd ] = func;
 #endif
 
 //*************************************************************************************
@@ -493,27 +491,19 @@ static void HandleDumpDisplayList( OSTask * pTask )
 //*************************************************************************************
 void DLParser_SetCustom( u32 ucode )
 {
-	// Let's build an array based from a normal uCode table
-	memcpy( &gCustomInstruction, &gNormalInstruction[ ucode_modify[ ucode-MAX_UCODE ] ], 1024 );
-
-#if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-	memcpy( gCustomInstructionName, gNormalInstructionName[ ucode_modify[ ucode-MAX_UCODE ] ], 1024 );
-#endif
-
-	// Now let's patch it, to create our custom ucode table ;)
 	switch( ucode )
 	{
 		case GBI_GE:
-			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye, "G_RDPHalf1_GoldenEye" );
+			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye,  "G_RDPHalf1_GoldenEye" );
 			break;
 		case GBI_WR:
-			SetCommand( 0x04, DLParser_GBI0_Vtx_WRUS, "G_Vtx_WRUS" );
-			SetCommand( 0xb1, DLParser_Nothing,		  "G_Nothing" ); // Just in case
+			SetCommand( 0x04, DLParser_GBI0_Vtx_WRUS,		"G_Vtx_WRUS" );
+			SetCommand( 0xb1, DLParser_Nothing,				"G_Nothing" ); // Just in case
 			break;
 		case GBI_SE:
-			SetCommand( 0x04, DLParser_GBI0_Vtx_SOTE, "G_Vtx_SOTE" );
-			SetCommand( 0x06, DLParser_GBI0_DL_SOTE,  "G_DL_SOTE" );
-			SetCommand( 0xfd, DLParser_SetTImg_SOTE,  "G_SetTImg_SOTE" );
+			SetCommand( 0x04, DLParser_GBI0_Vtx_SOTE,		"G_Vtx_SOTE" );
+			SetCommand( 0x06, DLParser_GBI0_DL_SOTE,		"G_DL_SOTE" );
+			SetCommand( 0xfd, DLParser_SetTImg_SOTE,		"G_SetTImg_SOTE" );
 			break;
 		case GBI_LL:
 			SetCommand( 0x80, DLParser_Last_Legion_0x80,	"G_Last_Legion_0x80" );
@@ -527,35 +517,35 @@ void DLParser_SetCustom( u32 ucode )
 			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye,	"G_RDPHalf1_GoldenEye" );
 			break;
 		case GBI_DKR:
-			SetCommand( 0x01, DLParser_Mtx_DKR,		 "G_Mtx_DKR" );
-			SetCommand( 0x04, DLParser_GBI0_Vtx_DKR, "G_Vtx_DKR" );
-			SetCommand( 0x05, DLParser_DMA_Tri_DKR,  "G_DMA_Tri_DKR" );
-			SetCommand( 0x07, DLParser_DLInMem,		 "G_DLInMem" );
-			SetCommand( 0xbc, DLParser_MoveWord_DKR, "G_MoveWord_DKR" );
-			SetCommand( 0xbf, DLParser_Set_Addr_DKR, "G_Set_Addr_DKR" );
+			SetCommand( 0x01, DLParser_Mtx_DKR,				"G_Mtx_DKR" );
+			SetCommand( 0x04, DLParser_GBI0_Vtx_DKR,		"G_Vtx_DKR" );
+			SetCommand( 0x05, DLParser_DMA_Tri_DKR,			"G_DMA_Tri_DKR" );
+			SetCommand( 0x07, DLParser_DLInMem,				"G_DLInMem" );
+			SetCommand( 0xbc, DLParser_MoveWord_DKR,		"G_MoveWord_DKR" );
+			SetCommand( 0xbf, DLParser_Set_Addr_DKR,		"G_Set_Addr_DKR" );
 			break;
 		case GBI_CONKER:
-			SetCommand( 0x01, DLParser_Vtx_Conker,	"G_Vtx_Conker" );
-			SetCommand( 0x05, DLParser_Tri1_Conker, "G_Tri1_Conker" );
-			SetCommand( 0x06, DLParser_Tri2_Conker, "G_Tri2_Conker" );
-			SetCommand( 0x10, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x11, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x12, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x13, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x14, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x15, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x16, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x17, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x18, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x19, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1a, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1b, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1c, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1d, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1e, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1f, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0xdb, DLParser_MoveWord_Conker,  "G_MoveWord_Conker");
-			SetCommand( 0xdc, DLParser_MoveMem_Conker,   "G_MoveMem_Conker" );
+			SetCommand( 0x01, DLParser_Vtx_Conker,			"G_Vtx_Conker" );
+			SetCommand( 0x05, DLParser_Tri1_Conker,			"G_Tri1_Conker" );
+			SetCommand( 0x06, DLParser_Tri2_Conker,			"G_Tri2_Conker" );
+			SetCommand( 0x10, DLParser_Tri4_Conker,			"G_Tri4_Conker" );
+			SetCommand( 0x11, DLParser_Tri4_Conker,			"G_Tri4_Conker" );
+			SetCommand( 0x12, DLParser_Tri4_Conker,			"G_Tri4_Conker" );
+			SetCommand( 0x13, DLParser_Tri4_Conker,			"G_Tri4_Conker" );
+			SetCommand( 0x14, DLParser_Tri4_Conker,			"G_Tri4_Conker" );
+			SetCommand( 0x15, DLParser_Tri4_Conker,			"G_Tri4_Conker" );
+			SetCommand( 0x16, DLParser_Tri4_Conker,			"G_Tri4_Conker" );
+			SetCommand( 0x17, DLParser_Tri4_Conker,			"G_Tri4_Conker" );
+			SetCommand( 0x18, DLParser_Tri4_Conker,			"G_Tri4_Conker" );
+			SetCommand( 0x19, DLParser_Tri4_Conker,			"G_Tri4_Conker" );
+			SetCommand( 0x1a, DLParser_Tri4_Conker,			"G_Tri4_Conker" );
+			SetCommand( 0x1b, DLParser_Tri4_Conker,			"G_Tri4_Conker" );
+			SetCommand( 0x1c, DLParser_Tri4_Conker,			"G_Tri4_Conker" );
+			SetCommand( 0x1d, DLParser_Tri4_Conker,			"G_Tri4_Conker" );
+			SetCommand( 0x1e, DLParser_Tri4_Conker,			"G_Tri4_Conker" );
+			SetCommand( 0x1f, DLParser_Tri4_Conker,			"G_Tri4_Conker" );
+			SetCommand( 0xdb, DLParser_MoveWord_Conker,		"G_MoveWord_Conker");
+			SetCommand( 0xdc, DLParser_MoveMem_Conker,		"G_MoveMem_Conker" );
 			break;
 	}
 }
@@ -568,30 +558,25 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 	// Start ucode detector
 	u32 ucode = GBIMicrocode_DetectVersion( code_base, code_size, data_base, data_size );
 
-	// First set vtx stride for vertex indices 
-	gVertexStride = ucode_stride[ ucode ];
-
 	// Store useful information about this ucode for caching purpose
 	current.code_base = code_base;
 	current.ucode	  = ucode; 
 
 	// Used for fetching ucode names (Debug Only)
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-	gUcodeName = (ucode < MAX_UCODE) ? (char **)gNormalInstructionName[ ucode ] : gCustomInstructionName;
-#endif
+	gUcodeName = gInstructionName[ ucode_index[ ucode ] ];
+#endif	
+	
+	gVertexStride = ucode_stride[ ucode ];							// Set vtx stride for vertex indices
+	gUcodeFunc    = gInstructionLookup[ ucode_index[ ucode ] ];		// Fetch Ucode table
 
-	if( ucode < MAX_UCODE )
-	{
-		// If this a normal ucode, just fetch the correct uCode table and name
-		gUcodeFunc = gNormalInstruction[ ucode ];
-	}
-	else
+	// If this a custom ucode, let's create it
+	if( ucode >= MAX_UCODE )
 	{	
-		gUcodeFunc = gCustomInstruction;
-
-		// If this a custom ucode, let's create it
 		DLParser_SetCustom( ucode );
 	}
+
+
 }
 
 //*****************************************************************************
