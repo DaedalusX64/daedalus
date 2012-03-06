@@ -1475,7 +1475,7 @@ void PSPRenderer::FlushTris()
 
 	//
 	//	Render out our vertices
-	RenderUsingCurrentBlendMode( p_vertices, num_vertices, GU_TRIANGLES, GU_TRANSFORM_3D, gRDPOtherMode.depth_source ? true : false );
+	RenderUsingCurrentBlendMode( p_vertices, num_vertices, DRAW_MODE, GU_TRANSFORM_3D, gRDPOtherMode.depth_source ? true : false );
 
 	//sceGuDisable(GU_CULL_FACE);
 
