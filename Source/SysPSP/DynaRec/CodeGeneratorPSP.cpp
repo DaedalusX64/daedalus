@@ -119,6 +119,9 @@ bool			gHaveSavedPatchedOps = false;
 PspOpCode		gOriginalOps[2];
 PspOpCode		gReplacementOps[2];
 
+#define URO_HI_SIGN_EXTEND 1	// Sign extend from src
+#define URO_HI_CLEAR	   0	// Clear hi bits
+
 void Dynarec_ClearedCPUStuffToDo()
 {
 	// Replace first two ops of _ReturnFromDynaRecIfStuffToDo with 'jr ra, nop'
@@ -227,8 +230,8 @@ const EPspReg	gRegistersToUseForCaching[] =
 };
 }
 
-u32		gTotalRegistersCached = 0;
-u32		gTotalRegistersUncached = 0;
+//u32		gTotalRegistersCached = 0;
+//u32		gTotalRegistersUncached = 0;
 
 
 //*****************************************************************************
@@ -481,11 +484,11 @@ CCodeLabel	CCodeGeneratorPSP::GetCurrentLocation() const
 //*****************************************************************************
 //
 //*****************************************************************************
-u32	CCodeGeneratorPSP::GetCompiledCodeSize() const
+/*u32	CCodeGeneratorPSP::GetCompiledCodeSize() const
 {
 	return GetAssemblyBuffer()->GetSize();
 }
-
+*/
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -527,7 +530,7 @@ EPspReg	CCodeGeneratorPSP::GetRegisterAndLoad( EN64Reg n64_reg, u32 lo_hi_idx, E
 
 	if( mRegisterCache.IsCached( n64_reg, lo_hi_idx ) )
 	{
-		gTotalRegistersCached++;
+//		gTotalRegistersCached++;
 		reg = mRegisterCache.GetCachedReg( n64_reg, lo_hi_idx );
 
 		// We're loading it below, so set the valid flag
@@ -543,7 +546,7 @@ EPspReg	CCodeGeneratorPSP::GetRegisterAndLoad( EN64Reg n64_reg, u32 lo_hi_idx, E
 	}
 	else
 	{
-		gTotalRegistersUncached++;
+//		gTotalRegistersUncached++;
 		reg = scratch_reg;
 		need_load = true;
 	}
@@ -565,7 +568,7 @@ void CCodeGeneratorPSP::LoadRegister( EPspReg psp_reg, EN64Reg n64_reg, u32 lo_h
 	{
 		EPspReg	cached_reg( mRegisterCache.GetCachedReg( n64_reg, lo_hi_idx ) );
 
-		gTotalRegistersCached++;
+//		gTotalRegistersCached++;
 
 		// Load the register if it's currently invalid
 		if( !mRegisterCache.IsValid( n64_reg,lo_hi_idx ) )
@@ -586,7 +589,7 @@ void CCodeGeneratorPSP::LoadRegister( EPspReg psp_reg, EN64Reg n64_reg, u32 lo_h
 	}
 	else
 	{
-		gTotalRegistersUncached++;
+//		gTotalRegistersUncached++;
 		GetRegisterValue( psp_reg, n64_reg, lo_hi_idx );
 	}
 }
@@ -622,7 +625,7 @@ void CCodeGeneratorPSP::StoreRegister( EN64Reg n64_reg, u32 lo_hi_idx, EPspReg p
 	{
 		EPspReg	cached_reg( mRegisterCache.GetCachedReg( n64_reg, lo_hi_idx ) );
 
-		gTotalRegistersCached++;
+//		gTotalRegistersCached++;
 
 		// Update our copy as necessary
 		if( psp_reg != cached_reg )
@@ -634,7 +637,7 @@ void CCodeGeneratorPSP::StoreRegister( EN64Reg n64_reg, u32 lo_hi_idx, EPspReg p
 	}
 	else
 	{
-		gTotalRegistersUncached++;
+//		gTotalRegistersUncached++;
 
 		SetVar( lo_hi_idx ? &gGPR[ n64_reg ]._u32_1 : &gGPR[ n64_reg ]._u32_0, psp_reg );
 
@@ -676,27 +679,22 @@ inline void CCodeGeneratorPSP::SetRegister( EN64Reg n64_reg, u32 lo_hi_idx, u32 
 //*****************************************************************************
 //
 //*****************************************************************************
-void CCodeGeneratorPSP::UpdateRegister( EN64Reg n64_reg, EPspReg psp_reg, EUpdateRegOptions options, EPspReg scratch_reg )
+void CCodeGeneratorPSP::UpdateRegister( EN64Reg n64_reg, EPspReg psp_reg, bool options, EPspReg scratch_reg )
 {
 	StoreRegisterLo( n64_reg, psp_reg );
 
-	switch( options )
+	if( options == URO_HI_SIGN_EXTEND )
 	{
-	case URO_HI_SIGN_EXTEND:
 		if( mRegisterCache.IsCached( n64_reg, 1 ) )
 		{
 			scratch_reg = mRegisterCache.GetCachedReg( n64_reg, 1 );
 		}
 		SRA( scratch_reg, psp_reg, 0x1f );		// Sign extend
 		StoreRegisterHi( n64_reg, scratch_reg );
-		break;
-	case URO_HI_CLEAR:
+	}
+	else	// == URO_HI_CLEAR
+	{
 		SetRegister( n64_reg, 1, 0 );
-		break;
-	default:
-		DAEDALUS_ERROR( "Unhandled option" );
-		NODEFAULT;
-		break;
 	}
 }
 
@@ -1849,7 +1847,7 @@ inline void CCodeGeneratorPSP::GenerateAddressCheckFixup( const SAddressCheckFix
 	//	If that fails, we try to emit a stub function which jumps to the handler. Hopefully that's a bit closer
 	//	If *that* fails, we have to revert to an unconditional jump to the handler routine. Expensive!!
 	//
-
+/*
 	if( PatchJumpLong( fixup.BranchToJump, fixup.HandlerAddress ) )
 	{
 		printf( "Wow, managed to jump directly to our handler\n" );
@@ -1869,6 +1867,18 @@ inline void CCodeGeneratorPSP::GenerateAddressCheckFixup( const SAddressCheckFix
 			ReplaceBranchWithJump( fixup.BranchToJump, fixup.HandlerAddress );
 		}
 	}
+*/
+	// Optimized version of above code - Salvy
+	// First condition which is the fastest, never happens
+	// Second condition which still fast, always happens (we have an assert if otherwise)
+	// Third condition (slowest) never happens and thus is ignored
+	// ToDO: Optimized futher eliminating return value from PatchJumpLong
+	//
+	PatchJumpLong( fixup.BranchToJump, GetAssemblyBuffer()->GetLabel() );
+	//
+	//	Emit a long jump to the handler function
+	//
+	J( fixup.HandlerAddress, true );
 }
 
 
@@ -3574,18 +3584,16 @@ inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u3
 
 	GetLoadConstantOps( PspReg_T1, FPCSR_C, &op1, &op2 );
 
-	CJumpLocation	test_condition;
-
 	// Insert a test to check the branch condition flag. Use the delay slot to load the constant
+	CJumpLocation	test_condition ( BC1F( no_target, false ) );
+
 	if( op2._u32 == 0 )
 	{
-		test_condition = BC1F( no_target, false );
 		AppendOp( op1 );
 	}
 	else
 	{
 		AppendOp( op1 );
-		test_condition = BC1F( no_target, false );
 		AppendOp( op2 );
 	}
 

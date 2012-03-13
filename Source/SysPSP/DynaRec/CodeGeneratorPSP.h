@@ -46,7 +46,7 @@ class CCodeGeneratorPSP : public CCodeGenerator, public CAssemblyWriterPSP
 
 		virtual CCodeLabel			GetEntryPoint() const;
 		virtual CCodeLabel			GetCurrentLocation() const;
-		virtual u32					GetCompiledCodeSize() const;
+		//virtual u32					GetCompiledCodeSize() const;
 
 		virtual	CJumpLocation		GenerateExitCode( u32 exit_address, u32 jump_address, u32 num_instructions, CCodeLabel next_fragment );
 		virtual void				GenerateEretExitCode( u32 num_instructions, CIndirectExitMap * p_map );
@@ -202,14 +202,14 @@ private:
 				void				SetRegister32s( EN64Reg n64_reg, s32 value );
 
 				void				SetRegister( EN64Reg n64_reg, u32 lo_hi_idx, u32 value );
-
+				/*
 				enum EUpdateRegOptions
 				{
 					URO_HI_SIGN_EXTEND,		// Sign extend from src
 					URO_HI_CLEAR,			// Clear hi bits
 				};
-
-				void				UpdateRegister( EN64Reg n64_reg, EPspReg psp_reg, EUpdateRegOptions options, EPspReg scratch_reg );
+				*/
+				void				UpdateRegister( EN64Reg n64_reg, EPspReg psp_reg, bool options, EPspReg scratch_reg );
 	
 
 				EPspFloatReg		GetFloatRegisterAndLoad( EN64FloatReg n64_reg );
