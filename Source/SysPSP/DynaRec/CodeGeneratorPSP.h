@@ -46,7 +46,7 @@ class CCodeGeneratorPSP : public CCodeGenerator, public CAssemblyWriterPSP
 
 		virtual CCodeLabel			GetEntryPoint() const;
 		virtual CCodeLabel			GetCurrentLocation() const;
-		//virtual u32					GetCompiledCodeSize() const;
+		virtual u32					GetCompiledCodeSize() const;
 
 		virtual	CJumpLocation		GenerateExitCode( u32 exit_address, u32 jump_address, u32 num_instructions, CCodeLabel next_fragment );
 		virtual void				GenerateEretExitCode( u32 num_instructions, CIndirectExitMap * p_map );

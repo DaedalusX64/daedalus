@@ -484,11 +484,11 @@ CCodeLabel	CCodeGeneratorPSP::GetCurrentLocation() const
 //*****************************************************************************
 //
 //*****************************************************************************
-/*u32	CCodeGeneratorPSP::GetCompiledCodeSize() const
+u32	CCodeGeneratorPSP::GetCompiledCodeSize() const
 {
 	return GetAssemblyBuffer()->GetSize();
 }
-*/
+
 //*****************************************************************************
 //
 //*****************************************************************************
