@@ -250,7 +250,7 @@ ETextureFormat	TextureInfo::SelectNativeFormat() const
 		switch (Size)
 		{
 		case G_IM_SIZ_16b:
-			return TexFmt_5551;
+			return g_ROM.T1_HACK? TexFmt_4444 : TexFmt_5551;
 		case G_IM_SIZ_32b:
 			return TexFmt_8888;
 		}

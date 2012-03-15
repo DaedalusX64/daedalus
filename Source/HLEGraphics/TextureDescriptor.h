@@ -35,7 +35,7 @@ private:
 
 	u32			TmemAddress;
 	u32			TLutIndex : 4;
-	u32			Format : 3;		// e.g. RGBA, IA
+	u32			Format : 3;		// e.g. RGBA, YUV, CI, IA, I...
 	u32			Size : 2;		// e.g. 16bpp
 	u32			TLutFmt : 2;
 	bool		Swapped : 1;	// Are odd lines word swapped?

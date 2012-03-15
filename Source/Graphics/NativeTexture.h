@@ -52,6 +52,7 @@ class CNativeTexture : public CRefCounted
 		u32								GetStride() const;
 		inline ETextureFormat			GetFormat() const				{ return mTextureFormat; }
 		inline const void *				GetPalette() const				{ return mpPalette; }
+		inline const void *				GetData() const					{ return mpData; }
 
 		inline bool						IsPalettised() const			{ return IsTextureFormatPalettised( mTextureFormat ); }
 

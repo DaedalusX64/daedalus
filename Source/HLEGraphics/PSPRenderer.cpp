@@ -2682,6 +2682,32 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 				mpTexture[ index ] = texture;
 
 				const CRefPtr<CNativeTexture> & native_texture( texture->GetTexture() );
+
+				//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
+				//If T1 Hack is not enabled index can never be other than 0
+				if (index==1) 
+				{
+					const TextureInfo ti0(mpTexture[ 0 ]->GetTextureInfo());
+					const u32 Xsize = ti0.GetWidth();
+					const u32 Ysize = ti0.GetHeight();
+
+					if(ti0.GetFormat()==0 && ti.GetFormat()==4 && ti.GetWidth()==Xsize && ti.GetHeight()==Ysize)
+					{
+						const CRefPtr<CNativeTexture> & native_texture0( mpTexture[ 0 ]->GetTexture() );
+						u16* dst=(u16*)(native_texture->GetData());
+						u16* src=(u16*)(native_texture0->GetData());
+						//printf("%p %p\n", src, dst);
+						for(u32 i=0; i < Xsize*Ysize; i++)
+						{
+							*dst = (*dst & 0xF000) | (*src & 0xFFF);
+							dst++;
+							src++;
+						}
+					}
+				}
+
+
+
 				if( native_texture != NULL )
 				{
 					mTileScale[ index ] = native_texture->GetScale();
