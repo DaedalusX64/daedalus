@@ -52,6 +52,19 @@
 #define MAKE_UNCACHED_PTR(x)	(x)
 #endif
 
+// Pure is a function attribute which says that a function does not modify any global memory.
+// Const is a function attribute which says that a function does not read/modify any global memory.
+
+// Given that information, the compiler can do some additional optimisations.
+
+#ifndef DAEDALUS_ATTRIBUTE_PURE
+#define DAEDALUS_ATTRIBUTE_PURE
+#endif
+
+#ifndef DAEDALUS_ATTRIBUTE_CONST
+#define DAEDALUS_ATTRIBUTE_CONST
+#endif
+
 //
 //	Configuration options. These are not really platform-specific, but control various features
 //

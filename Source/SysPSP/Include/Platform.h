@@ -47,4 +47,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define MAKE_UNCACHED_PTR(x)	(reinterpret_cast< void * >( reinterpret_cast<u32>( (x) ) | 0x40000000 ))
 
+#define DAEDALUS_ATTRIBUTE_PURE   __attribute__((pure))
+#define DAEDALUS_ATTRIBUTE_CONST   __attribute__((const))
+
 #endif // PLATFORM_H_

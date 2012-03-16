@@ -606,24 +606,27 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 	//
 	std::vector< CJumpLocation >		exception_handler_jumps;
 	std::vector< SBranchHandlerInfo >	branch_handler_info( branch_details.size() );
-	bool								checked_cop1_usable( false );
+//	bool								checked_cop1_usable( false );
 
 	for( u32 i = 0; i < trace.size(); ++i )
 	{
 		const STraceEntry & ti( trace[ i ] );
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		OpCode				op_code( ti.OpCode );
+#endif
 		u32					branch_idx( ti.BranchIdx );
 //		u32					address( ti.Address ); // Unused as far as I can tell - Kreationz
 
-	#ifdef FRAGMENT_RETAIN_ADDITIONAL_INFO
+#ifdef FRAGMENT_RETAIN_ADDITIONAL_INFO
 		mInstructionStartLocations.push_back( p_generator->GetCurrentLocation().GetTargetU8P() );
-	#endif
+#endif
 
 		p_generator->UpdateRegisterCaching( i );
 
 
 
 		// Check the cop1 usable flag. Do this only once (theoretically it could be toggled mid-fragment but this is unlikely)
+		/*
 		if( op_code.op == OP_COPRO1 && !checked_cop1_usable )
 		{
 			checked_cop1_usable = true;
@@ -632,7 +635,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 			//CJumpLocation	handler( p_generator->GenerateCheckCop1Usable( CheckCop1Usable(), ti.BranchDelaySlot ) );
 			//exception_handler_jumps.push_back( handler );
 		}
-
+		*/
 		const SBranchDetails * p_branch( NULL );
 		if( branch_idx != INVALID_IDX )
 		{
@@ -644,6 +647,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 				DBGConsole_Msg( 0, "Found skip to event speedhack at: %08x (0x%08x)", ti.Address, op_code._u32 );
 				p_generator->ExecuteNativeFunction( CCodeLabel( reinterpret_cast< const void * >( CPU_SkipToNextEvent ) ) );
 			}
+#ifdef DAEDALUS_DEBUG_CONSOLE
 			if (p_branch->SpeedHack == SHACK_COPYREG)
 			{
 				DBGConsole_Msg( 0, "Found a copyreg speedhack at: %08x (0x%08x)", ti.Address, op_code._u32 );
@@ -652,6 +656,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 			{
 				DBGConsole_Msg( 0, "Found a unknow speedhack at: %08x (0x%08x)", ti.Address, op_code._u32 );
 			}
+#endif
 		}
 
 		CJumpLocation	branch_jump( NULL );
@@ -671,9 +676,9 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 			branch_handler_info[ branch_idx ].RegisterSnapshot = p_generator->GetRegisterSnapshot();
 		}
 	}
-	#ifdef FRAGMENT_RETAIN_ADDITIONAL_INFO
+#ifdef FRAGMENT_RETAIN_ADDITIONAL_INFO
 		mInstructionStartLocations.push_back( p_generator->GetCurrentLocation().GetTargetU8P() );
-	#endif
+#endif
 
 	CCodeLabel		no_next_fragment( NULL );
 	CJumpLocation	exit_jump( p_generator->GenerateExitCode( exit_address, NO_JUMP_ADDRESS, trace.size(), no_next_fragment ) );
@@ -707,10 +712,13 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 		if( !details.Likely && details.DelaySlotTraceIndex != -1 )
 		{
 			const STraceEntry & ti( trace[ details.DelaySlotTraceIndex ] );
+#ifdef DAEDALUS_DEBUG_CONSOLE			
 			OpCode		delay_op_code( ti.OpCode );
+#endif
 #ifdef FRAGMENT_SIMULATE_EXECUTION
 			u32			delay_address( ti.Address );
 #endif
+			/*
 			if( delay_op_code.op == OP_COPRO1 && !checked_cop1_usable )
 			{
 				checked_cop1_usable = true;
@@ -718,7 +726,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 				//CJumpLocation	handler( p_generator->GenerateCheckCop1Usable( CheckCop1Usable(), true ) );
 				//exception_handler_jumps.push_back( handler );
 			}
-
+			*/
 
 			CJumpLocation	exception_handler_jump( p_generator->GenerateOpCode( ti, true, NULL, NULL) );
 

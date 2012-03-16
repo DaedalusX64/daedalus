@@ -73,6 +73,7 @@ bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
 		//
 		if( offset < SHRT_MIN || offset > SHRT_MAX )
 		{
+			DAEDALUS_ERROR(" PatchJump out of range!!!");
 			return false;
 		}
 		op_code.offset = s16(offset);	// Already divided by 4

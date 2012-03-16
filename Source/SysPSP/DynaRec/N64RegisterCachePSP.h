@@ -36,104 +36,117 @@ public:
 
 		void				Reset();
 
-//		void				SetCachedReg( EN64Reg n64_reg, u32 lo_hi_idx, EPspReg psp_reg );
-inline void	SetCachedReg( EN64Reg n64_reg, u32 lo_hi_idx, EPspReg psp_reg ) {	mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].PspRegister = psp_reg; }
+		inline void	SetCachedReg( EN64Reg n64_reg, u32 lo_hi_idx, EPspReg psp_reg ) 
+		{	
+			mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].PspRegister = psp_reg; 
+		}
 
-		void				ClearCachedReg( EN64Reg n64_reg, u32 lo_hi_idx );
+		inline bool	IsCached( EN64Reg reg, u32 lo_hi_idx ) const 
+		{	
+			return mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister != PspReg_R0; 
+		}
 
+		inline bool	IsValid( EN64Reg reg, u32 lo_hi_idx ) const
+		{
+			DAEDALUS_ASSERT( !mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid || IsCached( reg, lo_hi_idx ), "Checking register is valid but uncached?" );
 
-//		bool				IsCached( EN64Reg reg, u32 lo_hi_idx ) const;
-inline bool	IsCached( EN64Reg reg, u32 lo_hi_idx ) const {	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister != PspReg_R0; }
+			return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid;
+		}
 
-//		bool				IsValid( EN64Reg reg, u32 lo_hi_idx ) const;
-inline bool	IsValid( EN64Reg reg, u32 lo_hi_idx ) const
-{
-	DAEDALUS_ASSERT( !mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid || IsCached( reg, lo_hi_idx ), "Checking register is valid but uncached?" );
-
-	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid;
-}
-//		bool				IsDirty( EN64Reg reg, u32 lo_hi_idx ) const;
-inline bool	IsDirty( EN64Reg reg, u32 lo_hi_idx ) const
-{
+		inline bool	IsDirty( EN64Reg reg, u32 lo_hi_idx ) const
+		{
 #ifdef DAEDALUS_ENABLE_ASSERTS
-	bool	is_dirty( mRegisterCacheInfo[ reg ][ lo_hi_idx ].Dirty );
+			bool	is_dirty( mRegisterCacheInfo[ reg ][ lo_hi_idx ].Dirty );
 
-	if( is_dirty )
-	{
-		DAEDALUS_ASSERT( IsKnownValue( reg, lo_hi_idx ) || IsCached( reg, lo_hi_idx ), "Checking dirty flag on unknown/uncached register?" );
-	}
+			if( is_dirty )
+			{
+				DAEDALUS_ASSERT( IsKnownValue( reg, lo_hi_idx ) || IsCached( reg, lo_hi_idx ), "Checking dirty flag on unknown/uncached register?" );
+			}
 
-	return is_dirty;
+			return is_dirty;
 #else
-	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Dirty;
+			return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Dirty;
 #endif
-}
+		}
 
-//		bool				IsTemporary( EN64Reg reg, u32 lo_hi_idx ) const;
-inline bool	IsTemporary( EN64Reg reg, u32 lo_hi_idx ) const
-{
-	if( IsCached( reg, lo_hi_idx ) )
-	{
-		return PspReg_IsTemporary( mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister );
-	}
+		inline bool	IsTemporary( EN64Reg reg, u32 lo_hi_idx ) const
+		{
+			if( IsCached( reg, lo_hi_idx ) )
+			{
+				return PspReg_IsTemporary( mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister );
+			}
 
-	return false;
-}
+			return false;
+		}
 
-//		EPspReg				GetCachedReg( EN64Reg reg, u32 lo_hi_idx ) const;
-inline EPspReg	GetCachedReg( EN64Reg reg, u32 lo_hi_idx ) const
-{
-	DAEDALUS_ASSERT( IsCached( reg, lo_hi_idx ), "Trying to retreive an uncached register" );
+		inline EPspReg	GetCachedReg( EN64Reg reg, u32 lo_hi_idx ) const
+		{
+			DAEDALUS_ASSERT( IsCached( reg, lo_hi_idx ), "Trying to retreive an uncached register" );
 
-	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister;
-}
+			return mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister;
+		}
 
-//		void				MarkAsValid( EN64Reg reg, u32 lo_hi_idx, bool valid );
-inline void	MarkAsValid( EN64Reg reg, u32 lo_hi_idx, bool valid )
-{
-	DAEDALUS_ASSERT( IsCached( reg, lo_hi_idx ), "Changing valid flag on uncached register?" );
+		inline void	MarkAsValid( EN64Reg reg, u32 lo_hi_idx, bool valid )
+		{
+			DAEDALUS_ASSERT( IsCached( reg, lo_hi_idx ), "Changing valid flag on uncached register?" );
 
-	mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid = valid;
-}
+			mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid = valid;
+		}
 
-//		void				MarkAsDirty( EN64Reg reg, u32 lo_hi_idx, bool dirty );
-inline void	MarkAsDirty( EN64Reg reg, u32 lo_hi_idx, bool dirty )
-{
+		inline void	MarkAsDirty( EN64Reg reg, u32 lo_hi_idx, bool dirty )
+		{
 #ifdef DAEDALUS_ENABLE_ASSERTS
-	if( dirty )
-	{ 	 
-		 DAEDALUS_ASSERT( IsKnownValue( reg, lo_hi_idx ) || IsCached( reg, lo_hi_idx ), "Setting dirty flag on unknown/uncached register?" ); 	 
-	}
+			if( dirty )
+			{ 	 
+				 DAEDALUS_ASSERT( IsKnownValue( reg, lo_hi_idx ) || IsCached( reg, lo_hi_idx ), "Setting dirty flag on unknown/uncached register?" ); 	 
+			}
 #endif
-	mRegisterCacheInfo[ reg ][ lo_hi_idx ].Dirty = dirty;
-}
+			mRegisterCacheInfo[ reg ][ lo_hi_idx ].Dirty = dirty;
+		}
 
-//		bool				IsKnownValue( EN64Reg reg, u32 lo_hi_idx ) const;
-inline bool	IsKnownValue( EN64Reg reg, u32 lo_hi_idx ) const {	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Known; }
-//		void				SetKnownValue( EN64Reg reg, u32 lo_hi_idx, s32 value );
-inline void	SetKnownValue( EN64Reg reg, u32 lo_hi_idx, s32 value )
-{
-	mRegisterCacheInfo[ reg ][ lo_hi_idx ].Known = true;
-	mRegisterCacheInfo[ reg ][ lo_hi_idx ].KnownValue._u32 = value;
-}
 
-//		void				ClearKnownValue( EN64Reg reg, u32 lo_hi_idx );
-inline void	ClearKnownValue( EN64Reg reg, u32 lo_hi_idx ) {	mRegisterCacheInfo[ reg ][ lo_hi_idx ].Known = false; }
+		inline bool	IsKnownValue( EN64Reg reg, u32 lo_hi_idx ) const 
+		{	
+			return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Known; 
+		}
 
-//		REG32				GetKnownValue( EN64Reg reg, u32 lo_hi_idx ) const;
-inline REG32	GetKnownValue( EN64Reg reg, u32 lo_hi_idx ) const {	return mRegisterCacheInfo[ reg ][ lo_hi_idx ].KnownValue; }
+		inline void	SetKnownValue( EN64Reg reg, u32 lo_hi_idx, s32 value )
+		{
+			mRegisterCacheInfo[ reg ][ lo_hi_idx ].Known = true;
+			mRegisterCacheInfo[ reg ][ lo_hi_idx ].KnownValue._u32 = value;
+		}
 
-//		bool				IsFPValid( EN64FloatReg reg ) const;
-inline bool	IsFPValid( EN64FloatReg reg ) const {	return mFPRegisterCacheInfo[ reg ].Valid; }
+		inline void	ClearKnownValue( EN64Reg reg, u32 lo_hi_idx )
+		{	
+			mRegisterCacheInfo[ reg ][ lo_hi_idx ].Known = false;
+		}
 
-//		bool				IsFPDirty( EN64FloatReg reg ) const;
-inline bool	IsFPDirty( EN64FloatReg reg ) const {	return mFPRegisterCacheInfo[ reg ].Dirty; }
+		inline REG32	GetKnownValue( EN64Reg reg, u32 lo_hi_idx ) const 
+		{	
+			return mRegisterCacheInfo[ reg ][ lo_hi_idx ].KnownValue; 
+		}
 
-//		void				MarkFPAsValid( EN64FloatReg reg, bool valid );
-inline void	MarkFPAsValid( EN64FloatReg reg, bool valid ) {	mFPRegisterCacheInfo[ reg ].Valid = valid; }
+		inline bool	IsFPValid( EN64FloatReg reg ) const
+		{	
+			return mFPRegisterCacheInfo[ reg ].Valid; 
+		}
 
-//	void				MarkFPAsDirty( EN64FloatReg reg, bool dirty );
-inline void	MarkFPAsDirty( EN64FloatReg reg, bool dirty ) {	mFPRegisterCacheInfo[ reg ].Dirty = dirty; }
+		inline bool	IsFPDirty( EN64FloatReg reg ) const 
+		{	
+			return mFPRegisterCacheInfo[ reg ].Dirty; 
+		}
+
+		inline void	MarkFPAsValid( EN64FloatReg reg, bool valid ) 
+		{	
+			mFPRegisterCacheInfo[ reg ].Valid = valid; 
+		}
+
+		inline void	MarkFPAsDirty( EN64FloatReg reg, bool dirty ) 
+		{	
+			mFPRegisterCacheInfo[ reg ].Dirty = dirty; 
+		}
+
+		void		ClearCachedReg( EN64Reg n64_reg, u32 lo_hi_idx );
 
 private:
 

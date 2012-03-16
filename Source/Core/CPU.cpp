@@ -87,7 +87,7 @@ static bool		gCPURunning				= false;			// CPU is actively running
 namespace
 {
 
-bool		gCPUStopOnSimpleState	= false;			// When stopping, try to stop in a 'simple' state (i.e. no RSP running and not in a branch delay slot)
+static bool		gCPUStopOnSimpleState	= false;			// When stopping, try to stop in a 'simple' state (i.e. no RSP running and not in a branch delay slot)
 
 CCritSect	gSaveStateCritialSection;
 
@@ -117,8 +117,8 @@ ALIGNED_GLOBAL(SCPUState, gCPUState, CACHE_ALIGN);
 //*****************************************************************************
 static void HandleSaveStateOperation() DAEDALUS_ATTRIBUTE_NOINLINE;
 static void CPUMain();
+static bool	CPU_IsStateSimple()		   DAEDALUS_ATTRIBUTE_CONST;
 void (* g_pCPUCore)();
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -412,7 +412,7 @@ void CPU_Finalise()
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	CPU_IsStateSimple()
+static bool	CPU_IsStateSimple()
 {
 	bool	rsp_halted( !RSP_IsRunning() );
 
@@ -512,6 +512,7 @@ bool CPU_Run()
 //*****************************************************************************
 void CPU_SelectCore()
 {
+
 	if (gDynarecEnabled)
 		Dynamo_SelectCore();
 	else
