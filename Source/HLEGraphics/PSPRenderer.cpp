@@ -2685,7 +2685,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 
 				//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
 				//If T1 Hack is not enabled index can never be other than 0
-				if (index==1) 
+				if (index) 
 				{
 					const TextureInfo ti0(mpTexture[ 0 ]->GetTextureInfo());
 					const u32 Xsize = ti0.GetWidth();
@@ -2694,12 +2694,19 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 					if(ti0.GetFormat()==0 && ti.GetFormat()==4 && ti.GetWidth()==Xsize && ti.GetHeight()==Ysize)
 					{
 						const CRefPtr<CNativeTexture> & native_texture0( mpTexture[ 0 ]->GetTexture() );
-						u16* dst=(u16*)(native_texture->GetData());
-						u16* src=(u16*)(native_texture0->GetData());
+						u32* dst=(u32*)(native_texture->GetData());
+						u32* src=(u32*)(native_texture0->GetData());
 						//printf("%p %p\n", src, dst);
-						for(u32 i=0; i < Xsize*Ysize; i++)
+						u32 size = Xsize * Ysize >> 1;
+						if( g_ROM.GameHacks == RAYMAN2 )
 						{
-							*dst = (*dst & 0xF000) | (*src & 0xFFF);
+							if(mode_u == GU_REPEAT) size = size << 1; 
+							if(mode_v == GU_REPEAT) size = size << 1; 
+						}
+
+						for(u32 i=0; i < size ; i++)
+						{
+							*dst = (*dst & 0xF000F000) | (*src & 0x0FFF0FFF);
 							dst++;
 							src++;
 						}
