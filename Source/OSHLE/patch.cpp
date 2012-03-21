@@ -772,9 +772,9 @@ bool Patch_VerifyLocation_CheckSignature(PatchSymbol * ps,
 		pcr = &dummy_cr;
 
 
-
+#ifndef DAEDALUS_SILENT
 	u32 last = pcr->offset;
-
+#endif
 	crc = 0;
 	partial_crc = 0;
 	for (u32 m = 0; m < psig->nNumOps; m++)
@@ -870,9 +870,9 @@ bool Patch_VerifyLocation_CheckSignature(PatchSymbol * ps,
 			{
 				DBGConsole_Msg(0, "%s: CrossReference offsets out of order", ps->szName);
 			}
-#endif
-			last = pcr->offset;
 
+			last = pcr->offset;
+#endif
 		}
 		else
 		{

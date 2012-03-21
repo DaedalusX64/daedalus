@@ -428,8 +428,6 @@ void IRomSelectorComponent::DrawInfoText(  CUIContext * p_context, s32 y, const 
 //*************************************************************************************
 void IRomSelectorComponent::RenderPreview()
 {
-	c32	clrYELLOW = c32( 255, 255, 0, 0 );
-
 	//mpContext->DrawRect( ICON_AREA_LEFT-2, ICON_AREA_TOP-2, ICON_AREA_WIDTH+4, ICON_AREA_HEIGHT+4, c32::White );
 	//mpContext->DrawRect( ICON_AREA_LEFT-1, ICON_AREA_TOP-1, ICON_AREA_WIDTH+2, ICON_AREA_HEIGHT+2, mpContext->GetBackgroundColour() );
 

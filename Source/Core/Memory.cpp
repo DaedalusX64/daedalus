@@ -17,10 +17,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-//Define to use TRUE REALITYs memory model
-//Seems more compatible (Salvy/Corn)
-//#define REALITY_MEM // Breaks GE007 and Paper Mario, but Fixes Fzero U and Pokemon Stadium 1
-
 // Various stuff to map an address onto the correct memory region
 
 #include "stdafx.h"
@@ -66,11 +62,6 @@ static void MemoryUpdatePIF();
 //static void MemoryDoDP();
 
 static void Memory_InitTables();
-
-#ifdef REALITY_MEM
-static void init_fast_mem();
-#endif
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -284,7 +275,7 @@ bool Memory_Init()
 			}
 
 			// Necessary?
-			//memset(g_pMemoryBuffers[m], 0, region_size);
+			memset(g_pMemoryBuffers[m], 0, region_size);
 			/*if (region_size < 0x100) // dirty, check if this is a I/O range
 			{
 				g_pMemoryBuffers[m] = MAKE_UNCACHED_PTR(g_pMemoryBuffers[m]);
@@ -300,342 +291,6 @@ bool Memory_Init()
 
 	return true;
 }
-
-#ifdef REALITY_MEM
-/*****************************************************************************\
-*                                                                             *
-* The static fast memory access routines follow.                              *
-* Including the init routine and all function pointer routines.               *
-*                                                                             *
-* I know that this section is VERY huge!!! But there is no serious way        *
-* to do it not like this.                                                     *
-*                                                                             *
-\*****************************************************************************/
-
-/**
- *
- * initialisation of memory function pointers
- * - called by alloc_n64_mem()
- *
-**/
-
-void Write32Bits1( u32 address, u32 data )	{ MEMORY_CHECK_ALIGN( address, 4 ); WriteValueAddress(address, data); }
-
-static void init_fast_mem()
-{
-	int i;
-
-/**
-* 0x00000000 - 0x7fffffff: mapped memory
-* 0x80000000 - 0x9fffffff: physical memory (cachable)
-* 0xa0000000 - 0xbfffffff: physical memory (uncachable) (copy of the above!)
-* 0xc0000000 - 0xdfffffff: mapped memory
-* 0xe0000000 - 0xffffffff: mapped memory
-*
-* we don't care if the mem is cached or uncached :-)
-**/
-
-	//0x00000000 - 0x7fffffff: mapped memory 
-	for( i = (0x0000>>2); i <= (0x7fff>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = ReadMapped;
-		g_WriteAddressValueLookupTable[i] = WriteValueMapped;
-	}
-	//0x80000000 - 0x9fffffff: physical memory (cachable)
-	//rdram
-	for( i = (0x8000>>2); i <= (0x803f>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_RAM_4Mb_8000_803F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_RAM_4Mb_8000_803F;
-	}
-	 //not used 
-	for( i = (0x8040>>2); i <= (0x83ef>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_Noise;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	 //rdram reg 
-	for( i = (0x83f0>>2); i <= (0x83f3>>2); i++ ) {
-		g_ReadAddressLookupTable[i] = Read_83F0_83F0;
-		g_WriteAddressValueLookupTable[i] = WriteValue_83F0_83F0;
-	}
-	 //not used 
-	for( i = (0x83f4>>2); i <= (0x83ff>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_Noise;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	 //dmem/imem 
-	for( i = (0x8400>>2); i <= (0x8403>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8400_8400;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8400_8400;
-	}
-	 //sp reg 
-	for( i = (0x8404>>2); i <= (0x8407>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8404_8404;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8404_8404;
-	}
-	 //sp pc/ibist 
-	for( i = (0x8408>>2); i <= (0x840b>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8408_8408;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8408_8408;
-	}
-	 //not used 
-	for( i = (0x840c>>2); i <= (0x840f>>2); i++ )
-	{
-		g_ReadAddressLookupTable[i] = Read_Noise;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	 //dpc reg 
-	for( i = (0x8410>>2); i <= (0x841f>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8410_841F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8410_841F;
-	}
-	 //dps reg 
-	for( i = (0x8420>>2); i <= (0x842f>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8420_842F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8420_842F;
-	}
-	/* mi reg */
-	for( i = (0x8430>>2); i <= (0x843f>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8430_843F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8430_843F;
-	}
-	/* vi reg */
-	for( i = (0x8440>>2); i <= (0x844f>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8440_844F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8440_844F;
-	}
-	/* ai reg */
-	for( i = (0x8450>>2); i <= (0x845f>>2); i++ )
-	{
-		g_ReadAddressLookupTable[i] = Read_8450_845F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8450_845F;
-	}
-	/* pi reg */
-	for( i = (0x8460>>2); i <= (0x846f>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8460_846F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8460_846F;
-	}
-	/* ri reg */
-	for( i = (0x8470>>2); i <= (0x847f>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8470_847F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8470_847F;
-	}
-	/* si reg */
-	for( i = (0x8480>>2); i <= (0x848f>>2); i++ )
-	{
-		g_ReadAddressLookupTable[i] = Read_8480_848F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8480_848F;
-	}
-	/* not used */
-	for( i = (0x8490>>2); i <= (0x84ff>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_Noise;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	/* cartridge domain 2 addr 1 */
-	for( i = (0x8500>>2); i <= (0x85ff>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_Noise;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	/* cartridge domain 1 addr 1 */
-	for( i = (0x8600>>2); i <= (0x87ff>>2); i++ )
-	{
-		g_ReadAddressLookupTable[i] = ReadROM;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	/* cartridge domain 2 addr 2 */
-	for( i = (0x8800>>2); i <= (0x8fff>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = ReadROM;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	/* cartridge domain 1 addr 2 */
-	for( i = (0x9000>>2); i <= (0x9fbf>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = ReadROM;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	/* pif ram/rom */
-	for( i = (0x9fc0>>2); i <= (0x9fcf>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_9FC0_9FCF;
-		g_WriteAddressValueLookupTable[i] = WriteValue_9FC0_9FCF;
-	}
-	/* cartridge domain 1 addr 3 */
-	for( i = (0x9fd0>>2); i <= (0x9fff>>2); i++ )
-	{
-		g_ReadAddressLookupTable[i] = ReadROM;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	/* 0xa0000000 - 0xbfffffff: physical memory (uncachable) */
-	/* (copy of the above!) **/
-	/* rdram */
-	for( i = (0xa000>>2); i <= (0xa03f>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_RAM_4Mb_8000_803F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_RAM_4Mb_8000_803F;
-	}
-	/* not used */
-	for( i = (0xa040>>2); i <= (0xa3ef>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_Noise;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	/* rdram reg */
-	for( i = (0xa3f0>>2); i <= (0xa3f3>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_83F0_83F0;
-		g_WriteAddressValueLookupTable[i] = WriteValue_83F0_83F0;
-	}
-	/* not used */
-	for( i = (0xa3f4>>2); i <= (0xa3ff>>2); i++ )
-	{
-		g_ReadAddressLookupTable[i] = Read_Noise;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	/* dmem/imem */
-	for( i = (0xa400>>2); i <= (0xa403>>2); i++ )
-	{
-		g_ReadAddressLookupTable[i] = Read_8400_8400;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8400_8400;
-	}
-	/* sp reg */
-	for( i = (0xa404>>2); i <= (0xa407>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8404_8404;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8404_8404;
-	}
-	/* sp pc/ibist */
-	for( i = (0xa408>>2); i <= (0xa40b>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8408_8408;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8408_8408;
-	}
-	/* not used */
-	for( i = (0xa40c>>2); i <= (0xa40f>>2); i++ )
-	{
-		g_ReadAddressLookupTable[i] = Read_Noise;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	/* dpc reg */
-	for( i = (0xa410>>2); i <= (0xa41f>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8410_841F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8410_841F;
-	}
-	/* dps reg */
-	for( i = (0xa420>>2); i <= (0xa42f>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8420_842F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8420_842F;
-	}
-	/* mi reg */
-	for( i = (0xa430>>2); i <= (0xa43f>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8430_843F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8430_843F;
-	}
-	/* vi reg */
-	for( i = (0xa440>>2); i <= (0xa44f>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8440_844F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8440_844F;
-	}
-	/* ai reg */
-	for( i = (0xa450>>2); i <= (0xa45f>>2); i++ )
-	{
-		g_ReadAddressLookupTable[i] = Read_8450_845F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8450_845F;
-	}
-	/* pi reg */
-	for( i = (0xa460>>2); i <= (0xa46f>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8460_846F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8460_846F;
-	}
-	/* ri reg */
-	for( i = (0xa470>>2); i <= (0xa47f>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_8470_847F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8470_847F;
-	}
-	/* si reg */
-	for( i = (0xa480>>2); i <= (0xa48f>>2); i++ )
-	{
-		g_ReadAddressLookupTable[i] = Read_8480_848F;
-		g_WriteAddressValueLookupTable[i] = WriteValue_8480_848F;
-	}
-	/* not used */
-	for( i = (0xa490>>2); i <= (0xa4ff>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_Noise;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	/* cartridge domain 2 addr 1 */
-	for( i = (0xa500>>2); i <= (0xa5ff>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_Noise;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	/* cartridge domain 1 addr 1 */
-	for( i = (0xa600>>2); i <= (0xa7ff>>2); i++ )
-	{
-		g_ReadAddressLookupTable[i] = ReadROM;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	/* cartridge domain 2 addr 2 */
-	for( i = (0xa800>>2); i <= (0xafff>>2); i++ )
-	{
-		g_ReadAddressLookupTable[i] = ReadROM;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	/* cartridge domain 1 addr 2 */
-	for( i = (0xb000>>2); i <= (0xbfbf>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = ReadROM;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	/* pif ram/rom */
-	for( i = (0xbfc0>>2); i <= (0xbfcf>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = Read_9FC0_9FCF;
-		g_WriteAddressValueLookupTable[i] = WriteValue_9FC0_9FCF;
-	}
-	/* cartridge domain 1 addr 3 */
-	for( i = (0xbfd0>>2); i <= (0xbfff>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = ReadROM;
-		g_WriteAddressValueLookupTable[i] = WriteValueNoise;
-	}
-	/* 0xc0000000 - 0xdfffffff: mapped memory */
-	/* mapped */
-	for( i = (0xc000>>2); i <= (0xdfff>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = ReadMapped;
-		g_WriteAddressValueLookupTable[i] = WriteValueMapped;
-	}
-	/* 0xe0000000 - 0xffffffff: mapped memory */
-	/* mapped */
-	for( i = (0xe000>>2); i <= (0xffff>>2); i++ ) 
-	{
-		g_ReadAddressLookupTable[i] = ReadMapped;
-		g_WriteAddressValueLookupTable[i] = WriteValueMapped;
-	}
-
-} /* static void init_fast_mem() */
-#endif
 
 //*****************************************************************************
 //
@@ -674,7 +329,7 @@ void Memory_Reset()
 
 	DBGConsole_Msg(0, "Reseting Memory - %d MB", main_mem/(1024*1024));
 
-	s_nNumDmaTransfers = 0;
+	//s_nNumDmaTransfers = 0;
 	//s_nTotalDmaTransferSize = 0;
 	//s_nNumSPTransfers = 0;
 	//s_nTotalSPTransferSize = 0;
@@ -804,16 +459,6 @@ void Memory_InitTables()
 	memset(g_ReadAddressPointerLookupTable, 0, sizeof(void*) * 0x4000);
 	memset(g_WriteAddressPointerLookupTable, 0, sizeof(void*) * 0x4000);
 
-#ifdef REALITY_MEM
-	init_fast_mem();
-
-	// these values cause the result of the addition to be negative (>= 0x80000000)
-	for(i = 0; i < 0x4000; i++)
-	{
-		g_WriteAddressPointerLookupTable[i] = g_ReadAddressPointerLookupTable[i] = Memory_GetInvalidPointerTableEntry(i);
-	}
-
-#else
 	// these values cause the result of the addition to be negative (>= 0x80000000)
 	for(i = 0; i < 0x4000; i++)
 	{
@@ -847,7 +492,6 @@ void Memory_InitTables()
 
 		entry++;
 	}
-#endif	//REALITY_MEM
 
 	entry = 0;
 	while (InternalMemMapEntries[entry].mStartAddr != u32(~0))

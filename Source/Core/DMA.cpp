@@ -40,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/OSTask.h"
 #include "OSHLE/patch.h"
 
-u32 s_nNumDmaTransfers = 0;		// Incremented on every Cart->RDRAM Xfer
+//u32 s_nNumDmaTransfers = 0;		// Incremented on every Cart->RDRAM Xfer
 //u32 s_nTotalDmaTransferSize = 0;	// Total size of every Cart->RDRAM Xfer
 //u32 s_nNumSPTransfers = 0;			// Incremented on every RDRAM->SPMem Xfer
 //u32 s_nTotalSPTransferSize = 0;	// Total size of every RDRAM->SPMem Xfer
@@ -185,7 +185,7 @@ void DMA_SI_CopyToDRAM( )
 #define IsDom1Addr2( x )		( (x) >= PI_DOM1_ADDR2 && (x) < 0x1FBFFFFF )
 #define IsDom1Addr3( x )		( (x) >= PI_DOM1_ADDR3 && (x) < 0x7FFFFFFF )
 #define IsDom2Addr1( x )		( (x) >= PI_DOM2_ADDR1 && (x) < PI_DOM1_ADDR1 )
-#define IsDom2Addr2( x )		( (x) >= PI_DOM2_ADDR2 && (x) < PI_DOM1_ADDR2 )
+#define IsDom2Addr2( x )		( (x) >= 0x08000000 && (x) < 0x10000000 )
 
 //*****************************************************************************
 //
@@ -275,113 +275,69 @@ void DMA_PI_CopyToRDRAM()
 
 	DPF( DEBUG_MEMORY_PI, "PI: Copying %d bytes of data from 0x%08x to 0x%08x", pi_length_reg, cart_address, mem_address );
 
-	bool copy_succeeded;
+	if (cart_address < 0x10000000)
+    {
+		if (cart_address >= 0x08000000 && cart_address < 0x08010000)
+		{
+           	const u8 *	p_src( (const u8 *)g_pMemoryBuffers[MEM_SAVE] );
+			u32			src_size( ( MemoryRegionSizes[MEM_SAVE] ) );
+			cart_address -= PI_DOM2_ADDR2;
 
-	if(pi_length_reg & 0x1)
-	{
-		DBGConsole_Msg(0, "PI Copy CART to RDRAM %db from %08X to %08X", pi_length_reg, cart_address|0xA0000000, mem_address);
-		DBGConsole_Msg(0, "Warning, PI DMA, odd length");
-
-		//This makes Doraemon 3 work !
-		pi_length_reg++;
-	}
-
-	if ( IsDom2Addr1( cart_address ) )
-	{
-		//DBGConsole_Msg(0, "[YReading from Cart domain 2/addr1]");
-		const u8 *	p_src( (const u8 *)g_pMemoryBuffers[MEM_SAVE] );
-		u32			src_size( MemoryRegionSizes[MEM_SAVE] );
-		cart_address -= PI_DOM2_ADDR1;
-
-		copy_succeeded = DMA_HandleTransfer( g_pu8RamBase, mem_address, gRamSize, p_src, cart_address, src_size, pi_length_reg );
-	}
-	else if ( IsDom1Addr1( cart_address ) )
-	{
-		//DBGConsole_Msg(0, "[YReading from Cart domain 1/addr1]");
-		cart_address -= PI_DOM1_ADDR1;
-		CPU_InvalidateICacheRange( 0x80000000 | mem_address, pi_length_reg );
-		copy_succeeded = RomBuffer::CopyToRam( g_pu8RamBase, mem_address, gRamSize, cart_address, pi_length_reg );
-	}
-	else if ( IsDom2Addr2( cart_address ) )
-	{
-		//DBGConsole_Msg(0, "[YReading from Cart domain 2/addr2]");
-		//DBGConsole_Msg(0, "PI: Copying %d bytes of data from 0x%08x to 0x%08x",
-		//	pi_length_reg, cart_address, mem_address);
-
-		const u8 *	p_src( (const u8 *)g_pMemoryBuffers[MEM_SAVE] );
-		u32			src_size( ( MemoryRegionSizes[MEM_SAVE] ) );
-		cart_address -= PI_DOM2_ADDR2;
-
-		if (g_ROM.settings.SaveType != SAVE_TYPE_FLASH)
-			copy_succeeded = DMA_HandleTransfer( g_pu8RamBase, mem_address, gRamSize, p_src, cart_address, src_size, pi_length_reg );
+			if (g_ROM.settings.SaveType != SAVE_TYPE_FLASH)
+				DMA_HandleTransfer( g_pu8RamBase, mem_address, gRamSize, p_src, cart_address, src_size, pi_length_reg );
+			else
+				DMA_FLASH_CopyToDRAM(mem_address, cart_address, pi_length_reg);
+		}
+		/*else if (cart_address >= 0x06000000 && cart_address < 0x08000000)
+		{
+			DBGConsole_Msg(0, "[YReading from Cart domain 1/addr1] (Ignored)");
+		}
 		else
-			copy_succeeded = DMA_FLASH_CopyToDRAM(mem_address, cart_address, pi_length_reg);
+		{
+			DBGConsole_Msg(0, "[YUnknown PI Address 0x%08x]", cart_address);
+		}*/
 	}
-	else if ( IsDom1Addr2( cart_address ) )
+	else
 	{
+		// for paper mario
+		// Doesn't seem to be used
+		/*if (cart_address >= 0x1fc00000)
+		{
+			Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
+			Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_PI);
+			R4300_Interrupt_UpdateCause3();
+			return;
+		}*/
+
 		//DBGConsole_Msg(0, "[YReading from Cart domain 1/addr2]");
 		cart_address -= PI_DOM1_ADDR2;
 		CPU_InvalidateICacheRange( 0x80000000 | mem_address, pi_length_reg );
-		copy_succeeded = RomBuffer::CopyToRam( g_pu8RamBase, mem_address, gRamSize, cart_address, pi_length_reg );
-	}
-	else if ( IsDom1Addr3( cart_address ))
-	{
-		//DBGConsole_Msg(0, "[YReading from Cart domain 1/addr3]");
-		cart_address -= PI_DOM1_ADDR3;
-		CPU_InvalidateICacheRange( 0x80000000 | mem_address, pi_length_reg );
-		copy_succeeded = RomBuffer::CopyToRam( g_pu8RamBase, mem_address, gRamSize, cart_address, pi_length_reg );
-	}
-	else
-	{
-		DBGConsole_Msg(0, "[YUnknown PI Address 0x%08x]", cart_address);
+		RomBuffer::CopyToRam( g_pu8RamBase, mem_address, gRamSize, cart_address, pi_length_reg );
 
-		Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
-		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_PI);
-		R4300_Interrupt_UpdateCause3();
-		return;
-	}
-
-	if(copy_succeeded)
-	{
 		//s_nTotalDmaTransferSize += pi_length_reg;
 
-#ifdef DAEDALUS_ENABLE_OS_HOOKS
 		// Note if dwRescanCount is 0, the rom is only scanned when the
 		// ROM jumps to the game boot address
-		if (s_nNumDmaTransfers == 0 || s_nNumDmaTransfers == g_ROM.settings.RescanCount)
-		{
+		// RescanCount is always zero see ConfigOptions.cpp and thus condition only happens when DMA is first used, same as gDMAUsed == 0..
+		//if (s_nNumDmaTransfers == 0 || s_nNumDmaTransfers == g_ROM.settings.RescanCount)
+		if (gDMAUsed == 0)
+		{ 
+#ifdef DAEDALUS_ENABLE_OS_HOOKS
 			// Try to reapply patches - certain roms load in more of the OS after
 			// a number of transfers
 			Patch_ApplyPatches();
+#endif			
+			gDMAUsed = true;
+			
+			u32 addr = (g_ROM.cic_chip != CIC_6105) ? 0x80000318 : 0x800003F0;
+			Write32Bits(addr, gRamSize);
+
+			//s_nNumDmaTransfers++;
 		}
-		s_nNumDmaTransfers++;
-#endif
 
 		//CDebugConsole::Get()->Stats( STAT_PI, "PI: C->R %d %dMB", s_nNumDmaTransfers, s_nTotalDmaTransferSize/(1024*1024));
 	}
-// XXX irrelevant to end user
-#ifndef DAEDALUS_PUBLIC_RELEASE
-	else
-	{
-		// Road Rash triggers this !
-		DBGConsole_Msg(0, "PI: Copying 0x%08x bytes of data from 0x%08x to 0x%08x",
-			Memory_PI_GetRegister(PI_WR_LEN_REG),
-			Memory_PI_GetRegister(PI_CART_ADDR_REG),
-			Memory_PI_GetRegister(PI_DRAM_ADDR_REG));
-		DBGConsole_Msg(0, "PIXFer: Copy overlaps RAM/ROM boundary");
-		DBGConsole_Msg(0, "PIXFer: Not copying, but issuing interrupt");
-	}
-#endif
-	// Is this a hack?
-	if (!gDMAUsed)
-	{ 
-		gDMAUsed = true;
-		
-		if (g_ROM.cic_chip != CIC_6105)
-			Write32Bits(0x80000318, gRamSize);
-		else
-			Write32Bits(0x800003F0, gRamSize);
-	}
+
 
 	Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_PI);
