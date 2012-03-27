@@ -333,6 +333,7 @@ void SCPUState::Dump()
 }
 #endif
 
+extern void R4300_Init();
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -380,6 +381,9 @@ void CPU_Reset( )
 	Memory_MI_SetRegister(MI_VERSION_REG, 0x02020102);
 
 	((u32 *)g_pMemoryBuffers[MEM_RI_REG])[3] = 1;					// RI_CONFIG_REG Skips most of init
+
+	// Meh bad name, only used for Buck Bumble hack..
+	R4300_Init();
 
 	gCPUState.Delay = NO_DELAY;
 	gCPUState.ClearStuffToDo();

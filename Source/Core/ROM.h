@@ -125,6 +125,7 @@ enum EGameHacks
 	PERFECT_DARK,
 	YOSHI,
 	EXTREME_G2,
+	BUCK_BUMBLE,
 	LAST_ENTRY	//DONT CHANGE THIS! AND SHOULD BE LAST ENTRY
 };
 
@@ -181,8 +182,8 @@ bool ROM_GetRomDetailsByFilename( const char * filename, RomID * id, u32 * rom_s
 bool ROM_GetRomDetailsByID( const RomID & id, u32 * rom_size, ECicType * boot_type );
 bool ROM_GetRomName( const char * filename, std::string & game_name );
 
-const char *	ROM_GetCountryNameFromID( u8 country_id );
-u32				ROM_GetTvTypeFromID( u8 country_id );
+const char *	ROM_GetCountryNameFromID( u8 country_id )	DAEDALUS_ATTRIBUTE_PURE;
+u32				ROM_GetTvTypeFromID( u8 country_id )		DAEDALUS_ATTRIBUTE_PURE;
 const char *	ROM_GetCicTypeName( ECicType cic_type );
 
 //*****************************************************************************

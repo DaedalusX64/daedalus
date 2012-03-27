@@ -149,7 +149,7 @@ class	IController : public CController
 		void			CommandWriteRumblePack(u8 *cmd);
 		void			CommandReadRTC(u8 *cmd);
 
-		u8				CalculateDataCrc(u8 * pBuf);
+		u8				CalculateDataCrc(const u8 * pBuf) DAEDALUS_ATTRIBUTE_PURE;
 #ifdef DAEDALUS_ENABLE_ASSERTS
 		bool			IsEepromPresent() const						{ return mpEepromData != NULL; }
 #endif
@@ -595,7 +595,7 @@ void	IController::CommandWriteEeprom(char *src, long offset)
 //
 //*****************************************************************************
 #if 1	//1-> Unrolled fast 0-> old way //Corn
-u8 IController::CalculateDataCrc(u8 * pBuf)
+u8 IController::CalculateDataCrc(const u8 * pBuf)
 {
 	u32 c = 0;
 	for (u32 i = 0; i < 32; i++)

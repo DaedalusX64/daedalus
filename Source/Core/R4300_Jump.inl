@@ -251,7 +251,7 @@ CPU_Instruction R4300Cop1SInstruction[64] = {
 */
 
 // Double Jump Table
-CPU_Instruction R4300Cop1DInstruction_32[64] =
+CPU_Instruction R4300Cop1DInstruction[64] =
 {
     R4300_Cop1_D_ADD,     R4300_Cop1_D_SUB,     R4300_Cop1_D_MUL,    R4300_Cop1_D_DIV,     R4300_Cop1_D_SQRT,    R4300_Cop1_D_ABS,     R4300_Cop1_D_MOV,    R4300_Cop1_D_NEG,
     R4300_Cop1_D_ROUND_L, R4300_Cop1_D_TRUNC_L, R4300_Cop1_D_CEIL_L, R4300_Cop1_D_FLOOR_L, R4300_Cop1_D_ROUND_W, R4300_Cop1_D_TRUNC_W, R4300_Cop1_D_CEIL_W, R4300_Cop1_D_FLOOR_W,
@@ -280,7 +280,7 @@ void R4300_CALL_TYPE R4300_Cop1_DInstr( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	R4300Cop1DInstruction_32[ op_code.cop1_funct ]( R4300_CALL_ARGUMENTS );
+	R4300Cop1DInstruction[ op_code.cop1_funct ]( R4300_CALL_ARGUMENTS );
 }
 
 void R4300_CALL_TYPE R4300_Cop1_LInstr( R4300_CALL_SIGNATURE )
