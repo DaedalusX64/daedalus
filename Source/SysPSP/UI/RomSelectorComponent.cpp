@@ -539,7 +539,7 @@ void IRomSelectorComponent::RenderRomList()
 			{
 				//colour = mpContext->GetDefaultTextColour();
 				u32 mycol = 0xFF & (0xFF - 12 * abs(i-mCurrentSelection));
-				colour = (c32)((mycol<<24) | (mycol<<16) | (mycol<<8) | mycol);
+				colour = c32(mycol, mycol, mycol, mycol);
 			}
 
 			mpContext->DrawTextScale( x + ptr_text_width, y, scale, p_gamename, colour );
@@ -593,16 +593,6 @@ void IRomSelectorComponent::RenderCategoryList()
 //*************************************************************************************
 void IRomSelectorComponent::Render()
 {
-	static u32 count=0;
-
-	const char * const		message[] =
-	{	"(X) -> Load",
-		"([ ]) -> Settings",
-		"(/\\) -> File Names",
-		"(HOME) -> Quit",
-		"(SELECT) -> Delete"
-	};
-
 	RenderPreview();
 
 	if( mRomsList.empty() )
@@ -622,11 +612,6 @@ void IRomSelectorComponent::Render()
 	RenderCategoryList();
 
 
-	//Show tool tip
-	c32 color;
-	if(count & 0x80) color = c32( ~count<<1, 0, 0, 255);
-	else color = c32( count<<1, 0, 0, 255);
-
 #ifdef DAEDALUS_DIALOGS
 	if(mQuitTriggered)
 	{
@@ -637,6 +622,19 @@ void IRomSelectorComponent::Render()
 		mQuitTriggered=false;
 	}
 #endif
+
+	//Render tool tip
+	//
+	static u32 count = 0;
+
+	const char * const message[] =
+	{	"(X) -> Load",
+		"(/\\) -> File Names",
+		"(HOME) -> Quit",
+		"(SELECT) -> Delete"
+	};
+
+	const c32 color = c32( 255.0f * sinf( 2.0f * 3.1415927f * (count & 0xFF) / 512.0f), 0, 0, 255);
 
 	if(mRomDelete)
 	{

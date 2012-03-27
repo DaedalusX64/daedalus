@@ -2687,17 +2687,14 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 				//If T1 Hack is not enabled index can never be other than 0
 				if(index) 
 				{
-					const TextureInfo ti0(mpTexture[ 0 ]->GetTextureInfo());
-					const u32 Xsize = ti0.GetWidth();
-					const u32 Ysize = ti0.GetHeight();
+					const TextureInfo & ti0(mpTexture[ 0 ]->GetTextureInfo());
 
-					if(ti0.GetFormat()==0 && ti.GetFormat()==4 && ti.GetWidth()==Xsize && ti.GetHeight()==Ysize && Xsize < 64)
+					if((ti0.GetFormat() == 0) && (ti.GetFormat() == 4) && (ti.GetWidth() == ti0.GetWidth()) && (ti.GetHeight() == ti0.GetHeight()))
 					{
 						const CRefPtr<CNativeTexture> & native_texture0( mpTexture[ 0 ]->GetTexture() );
 						u32* dst=(u32*)(native_texture->GetData());
 						u32* src=(u32*)(native_texture0->GetData());
-						//printf("%p %p\n", src, dst);
-
+						
 						//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
 						u32 size = native_texture->GetWidth() * native_texture->GetHeight() >> 1;
 						for(u32 i=0; i < size ; i++)

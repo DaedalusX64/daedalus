@@ -83,9 +83,9 @@ struct SRegisterUsageInfo
 	{
 	}
 
-	inline bool IsRead( EN64Reg reg ) const			{ return (RegistersRead & (1<<reg)) != 0; }
-	inline bool IsModified( EN64Reg reg ) const		{ return (RegistersWritten & (1<<reg)) != 0; }
-	inline bool IsBase( EN64Reg reg ) const			{ return (RegistersAsBases & (1<<reg)) != 0; }
+	inline bool IsRead( EN64Reg reg ) const			{ return (RegistersRead >> reg) & 1; }
+	inline bool IsModified( EN64Reg reg ) const		{ return (RegistersWritten >> reg) & 1; }
+	inline bool IsBase( EN64Reg reg ) const			{ return (RegistersAsBases >> reg) & 1; }
 };
 
 

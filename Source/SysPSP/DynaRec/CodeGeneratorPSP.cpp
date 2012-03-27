@@ -292,7 +292,7 @@ void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register
 
 	// Push all the available registers in reverse order (i.e. use temporaries later)
 	DAEDALUS_ASSERT( mAvailableRegisters.empty(), "Why isn't the available register list empty?" );
-	for( s32 i = NUM_CACHE_REGS-1; i >= 0 ; --i )
+	for( u32 i = 0; i < NUM_CACHE_REGS; i++ )
 	{
 		mAvailableRegisters.push( gRegistersToUseForCaching[ i ] );
 	}
@@ -660,7 +660,8 @@ void CCodeGeneratorPSP::SetRegister64( EN64Reg n64_reg, s32 lo_value, s32 hi_val
 //*****************************************************************************
 inline void CCodeGeneratorPSP::SetRegister32s( EN64Reg n64_reg, s32 value )
 {
-	SetRegister64( n64_reg, value, value >= 0 ? 0 : 0xffffffff );
+	//SetRegister64( n64_reg, value, value >= 0 ? 0 : 0xffffffff );
+	SetRegister64( n64_reg, value, value >> 31 );
 }
 
 //*****************************************************************************
@@ -783,7 +784,7 @@ void CCodeGeneratorPSP::FlushRegister( CN64RegisterCachePSP & cache, EN64Reg n64
 void	CCodeGeneratorPSP::FlushAllRegisters( CN64RegisterCachePSP & cache, bool invalidate )
 {
 	// Skip r0
-	for( u32 i = NUM_N64_REGS-1; i > 0; --i )
+	for( u32 i = 1; i < NUM_N64_REGS; i++ )
 	{
 		EN64Reg	n64_reg = EN64Reg( i );
 
@@ -799,7 +800,7 @@ void	CCodeGeneratorPSP::FlushAllRegisters( CN64RegisterCachePSP & cache, bool in
 //*****************************************************************************
 void	CCodeGeneratorPSP::FlushAllFloatingPointRegisters( CN64RegisterCachePSP & cache, bool invalidate )
 {
-	for( u32 i = 0; i < NUM_N64_FP_REGS; ++i )
+	for( u32 i = 0; i < NUM_N64_FP_REGS; i++ )
 	{
 		EN64FloatReg	n64_reg = EN64FloatReg( i );
 		if( cache.IsFPDirty( n64_reg ) )
@@ -828,7 +829,7 @@ void	CCodeGeneratorPSP::FlushAllFloatingPointRegisters( CN64RegisterCachePSP & c
 void	CCodeGeneratorPSP::FlushAllTemporaryRegisters( CN64RegisterCachePSP & cache, bool invalidate )
 {
 	// Skip r0
-	for( u32 i = NUM_N64_REGS-1; i > 0; --i )
+	for( u32 i = 1; i < NUM_N64_REGS; i++ )
 	{
 		EN64Reg	n64_reg = EN64Reg( i );
 
@@ -853,7 +854,7 @@ void	CCodeGeneratorPSP::FlushAllTemporaryRegisters( CN64RegisterCachePSP & cache
 void	CCodeGeneratorPSP::RestoreAllRegisters( CN64RegisterCachePSP & current_cache, CN64RegisterCachePSP & new_cache )
 {
 	// Skip r0
-	for( u32 i = NUM_N64_REGS-1; i > 0; --i )
+	for( u32 i = 1; i < NUM_N64_REGS; i++ )
 	{
 		EN64Reg	n64_reg = EN64Reg( i );
 
@@ -902,9 +903,9 @@ CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_ad
 		//	Pull in any registers which may have been flushed for whatever reason.
 		//
 		// Skip r0
-		for( s32 i = NUM_N64_REGS-1; i >= 0; --i )
+		for( u32 i = 1; i < NUM_N64_REGS; i++ )
 		{
-			EN64Reg	n64_reg = EN64Reg( i+1 );
+			EN64Reg	n64_reg = EN64Reg( i );
 
 			if( mRegisterCache.IsDirty( n64_reg, 0 ) & mRegisterCache.IsKnownValue( n64_reg, 0 ) )
 			{

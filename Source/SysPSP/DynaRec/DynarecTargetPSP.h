@@ -45,7 +45,8 @@ enum EPspFloatReg
 };
 
 // Return true if this register is temporary (i.e. not saved across function calls)
-bool	PspReg_IsTemporary( EPspReg psp_reg );
+const u32 gIsTemporary = 0xBF00FFFF;
+inline bool	PspReg_IsTemporary( EPspReg psp_reg )	{ return (gIsTemporary >> psp_reg) & 1;}
 
 struct PspOpCode
 {
