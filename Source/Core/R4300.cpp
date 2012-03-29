@@ -2679,7 +2679,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_TRUNC_L( R4300_CALL_SIGNATURE )
 
 	f32 fX = LoadFPR_Single( op_code.fs );
 
-	StoreFPR_Long( op_code.fd, (s64)pspFpuTrunc( fX ) );
+	StoreFPR_Long( op_code.fd, f32_to_s64_trunc( fX ) );
 }
 
 
@@ -2698,7 +2698,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_ROUND_L( R4300_CALL_SIGNATURE )
 
 	f32 fX = LoadFPR_Single( op_code.fs );
 
-	StoreFPR_Long( op_code.fd, (s64)pspFpuRound( fX ) );
+	StoreFPR_Long( op_code.fd, f32_to_s64_round( fX ) );
 }
 
 
@@ -2717,7 +2717,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CEIL_L( R4300_CALL_SIGNATURE )
 
 	f32 fX = LoadFPR_Single( op_code.fs );
 
-	StoreFPR_Long( op_code.fd, (s64)pspFpuCeil( fX ) );
+	StoreFPR_Long( op_code.fd, f32_to_s64_ceil( fX ) );
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_FLOOR_W( R4300_CALL_SIGNATURE )
@@ -2735,7 +2735,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_FLOOR_L( R4300_CALL_SIGNATURE )
 
 	f32 fX = LoadFPR_Single( op_code.fs );
 
-	StoreFPR_Long( op_code.fd, (s64)pspFpuFloor( fX ) );
+	StoreFPR_Long( op_code.fd, f32_to_s64_floor( fX ) );
 }
 
 
@@ -3204,7 +3204,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_TRUNC_L( R4300_CALL_SIGNATURE )
 
 	d64 fX = LoadFPR_Double( op_code.fs );
 
-	StoreFPR_Long( op_code.fd, (s64)pspFpuTrunc( fX ) );
+	StoreFPR_Long( op_code.fd, d64_to_s64_trunc( fX ) );
 }
 
 
@@ -3223,7 +3223,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_ROUND_L( R4300_CALL_SIGNATURE )
 
 	d64 fX = LoadFPR_Double( op_code.fs );
 
-	StoreFPR_Long( op_code.fd, (s64)pspFpuRound( fX ) );
+	StoreFPR_Long( op_code.fd, d64_to_s64_round( fX ) );
 }
 
 
@@ -3242,7 +3242,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_CEIL_L( R4300_CALL_SIGNATURE )
 
 	d64 fX = LoadFPR_Double( op_code.fs );
 
-	StoreFPR_Long( op_code.fd, (s64)pspFpuCeil( fX ) );
+	StoreFPR_Long( op_code.fd, d64_to_s64_ceil( fX ) );
 }
 //*****************************************************************************
 //
@@ -3264,7 +3264,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_FLOOR_L( R4300_CALL_SIGNATURE )
 
 	d64 fX = LoadFPR_Double( op_code.fs );
 
-	StoreFPR_Long( op_code.fd, (s64)pspFpuFloor( fX ) );
+	StoreFPR_Long( op_code.fd, d64_to_s64_floor( fX ) );
 }
 //*****************************************************************************
 //
