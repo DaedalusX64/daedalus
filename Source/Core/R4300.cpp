@@ -172,7 +172,6 @@ inline void StoreFPR_Long( u32 reg, u64 value )
 	REG64	r;
 	r._u64 = value;
 		
-	// TODO - Don't think these need sign extending...
 	gCPUState.FPU[reg+0]._u32_0 = r._u32_0;
 	gCPUState.FPU[reg+1]._u32_0 = r._u32_1;
 }
@@ -292,7 +291,6 @@ inline void StoreFPR_Double_2( u32 reg, f64 value )
 	REG64	r;
 	r._f64 = f64( value );	// double.. float won't work for buck bumble
 
-	// TODO - Don't think these need sign extending...
 	gCPUState.FPU[reg+0]._u32_0 = r._u32_0;
 	gCPUState.FPU[reg+1]._u32_0 = r._u32_1;
 
@@ -382,6 +380,7 @@ inline void SET_ROUND_MODE( ERoundingMode mode )
 	// I don't think anything is required here
 }
 
+//These ASM routines converts float to int and puts the value in CPU rather than FPU which is important if one wants to sign extent it to 64bit later //Corn
 inline s32 f32_to_s32_cvt( f32 x )					{ s32 r; asm volatile ( "cvt.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
 inline s32 f32_to_s32_trunc( f32 x )				{ s32 r; asm volatile ( "trunc.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
 inline s32 f32_to_s32_round( f32 x )				{ s32 r; asm volatile ( "round.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
@@ -389,10 +388,10 @@ inline s32 f32_to_s32_ceil( f32 x )					{ s32 r; asm volatile ( "ceil.w.s  %1, %
 inline s32 f32_to_s32_floor( f32 x )				{ s32 r; asm volatile ( "floor.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
 inline s32 f32_to_s32( f32 x, ERoundingMode mode )	{ pspFpuSetRoundmode( gNativeRoundingModes[ mode ] ); return f32_to_s32_cvt( x ); }
 
-inline s64 f32_to_s64_trunc( f32 x )				{ return (s64)x; }
-inline s64 f32_to_s64_round( f32 x )				{ return (s64)( x + 0.5f ); }
-inline s64 f32_to_s64_ceil( f32 x )					{ return (s64)ceilf( x ); }
-inline s64 f32_to_s64_floor( f32 x )				{ return (s64)floorf( x ); }
+inline s64 f32_to_s64_trunc( f32 x )				{ return (s64)f32_to_s32_trunc( x ); }
+inline s64 f32_to_s64_round( f32 x )				{ return (s64)f32_to_s32_round( x ); }
+inline s64 f32_to_s64_ceil( f32 x )					{ return (s64)f32_to_s32_ceil( x ); }
+inline s64 f32_to_s64_floor( f32 x )				{ return (s64)f32_to_s32_floor( x ); }
 inline s64 f32_to_s64( f32 x, ERoundingMode mode )	{ pspFpuSetRoundmode( gNativeRoundingModes[ mode ] ); return (s64)x; }	// XXXX Need to do a cvt really
 
 inline s32 d64_to_s32_cvt( d64 x )					{ return f32_to_s32_cvt( (f32)x ); }
@@ -2670,7 +2669,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_TRUNC_W( R4300_CALL_SIGNATURE )
 
 	f32 fX = LoadFPR_Single( op_code.fs );
 
-	StoreFPR_Word( op_code.fd, (s32)pspFpuTrunc( fX ) );
+	StoreFPR_Word( op_code.fd, pspFpuTrunc( fX ) );
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_TRUNC_L( R4300_CALL_SIGNATURE )
@@ -2689,7 +2688,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_ROUND_W( R4300_CALL_SIGNATURE )
 
 	f32 fX = LoadFPR_Single( op_code.fs );
 
-	StoreFPR_Word( op_code.fd, (s32)pspFpuRound( fX ) );
+	StoreFPR_Word( op_code.fd, pspFpuRound( fX ) );
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_ROUND_L( R4300_CALL_SIGNATURE )
@@ -2708,7 +2707,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CEIL_W( R4300_CALL_SIGNATURE )
 
 	f32 fX = LoadFPR_Single( op_code.fs );
 
-	StoreFPR_Word( op_code.fd, (s32)pspFpuCeil( fX ) );
+	StoreFPR_Word( op_code.fd, pspFpuCeil( fX ) );
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_CEIL_L( R4300_CALL_SIGNATURE )
@@ -2726,7 +2725,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_FLOOR_W( R4300_CALL_SIGNATURE )
 
 	f32 fX = LoadFPR_Single( op_code.fs );
 
-	StoreFPR_Word( op_code.fd, (s32)pspFpuFloor( fX ) );
+	StoreFPR_Word( op_code.fd, pspFpuFloor( fX ) );
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_FLOOR_L( R4300_CALL_SIGNATURE )
@@ -3195,7 +3194,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_TRUNC_W( R4300_CALL_SIGNATURE )
 
 	d64 fX = LoadFPR_Double( op_code.fs );
 
-	StoreFPR_Word( op_code.fd, (s32)pspFpuTrunc( fX ) );
+	StoreFPR_Word( op_code.fd, pspFpuTrunc( fX ) );
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_D_TRUNC_L( R4300_CALL_SIGNATURE )
@@ -3214,7 +3213,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_ROUND_W( R4300_CALL_SIGNATURE )
 
 	d64 fX = LoadFPR_Double( op_code.fs );
 
-	StoreFPR_Word( op_code.fd, (s32)pspFpuRound( fX ) );
+	StoreFPR_Word( op_code.fd, pspFpuRound( fX ) );
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_D_ROUND_L( R4300_CALL_SIGNATURE )
@@ -3233,7 +3232,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_CEIL_W( R4300_CALL_SIGNATURE )
 
 	d64 fX = LoadFPR_Double( op_code.fs );
 
-	StoreFPR_Word( op_code.fd, (s32)pspFpuCeil( fX ) );
+	StoreFPR_Word( op_code.fd, pspFpuCeil( fX ) );
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_D_CEIL_L( R4300_CALL_SIGNATURE )
@@ -3253,7 +3252,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_FLOOR_W( R4300_CALL_SIGNATURE )
 
 	d64 fX = LoadFPR_Double( op_code.fs );
 
-	StoreFPR_Word( op_code.fd, (s32)pspFpuFloor( fX ) );
+	StoreFPR_Word( op_code.fd, pspFpuFloor( fX ) );
 }
 //*****************************************************************************
 //
