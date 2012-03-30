@@ -77,7 +77,7 @@ union REG64
 	s32		_s32[2];
 	u32		_u32[2];
 */
-	struct { u32 _f64_unused; f32 _f64_sim;};	
+//	struct { u32 _f64_unused; f32 _f64_sim;};	
 
 	struct { f32 _f32_0, _f32_1; };
 	struct { s32 _s32_0, _s32_1; };

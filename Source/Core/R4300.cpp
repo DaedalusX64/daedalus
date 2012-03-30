@@ -184,21 +184,19 @@ inline void StoreFPR_Long( u32 reg, u64 value )
 #if 1	//1->new way, 0->old way //Corn
 inline u64 LoadFPR_Long( u32 reg )
 {
+	REG64 res;
 	if (gCPUState.FPU[reg+0]._u32_0 == SIMULATESIG)
 	{
 		// convert f32->f64/d64
-		REG64 res;
 		res._f64 = (f64)gCPUState.FPU[reg+1]._f32_0;
-		return res._u64;
 	}
 	else
 	{
-		REG64 res;
 		res._u32_0 = gCPUState.FPU[reg+0]._u32_0;
 		res._u32_1 = gCPUState.FPU[reg+1]._u32_0;
-
-		return res._u64;
 	}
+
+	return res._u64;
 }
 
 #else
@@ -226,7 +224,7 @@ inline d64 LoadFPR_Double( u32 reg )
 {
 	if (gCPUState.FPU[reg+0]._u32_0 == SIMULATESIG)
 	{
-		// convert f32 -> d64
+		// converted f32 -> d64
 		return (d64)gCPUState.FPU[reg+1]._f32_0;
 	}
 	else
@@ -262,35 +260,23 @@ inline d64 LoadFPR_Double( u32 reg )
 //*****************************************************************************
 inline void StoreFPR_Double( u32 reg, d64 value )
 {
-	// This fixes Mario Party's draft mini game.
-	// And green / static textures bug in Conker.
-	if(gSimulateDoubleDisabled)
-	{
-		REG64 r; 
-		r._f64 = f32( value );	//r._f64 = f32( value );	
-		gCPUState.FPU[reg+0]._u32_0 = r._u32_0;
-		gCPUState.FPU[reg+1]._u32_0 = r._u32_1;
-	}
-	else
-	{
-		gCPUState.FPU[reg+0]._u32_0 = SIMULATESIG;
-		gCPUState.FPU[reg+1]._f32_0 = f32( value );
-	}
+	gCPUState.FPU[reg+0]._u32_0 = SIMULATESIG;
+	gCPUState.FPU[reg+1]._f32_0 = f32( value );
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-// This might seen rebundant, but we have to include it otherwise buck bumble will not work with simulate doubles
-// The reasons : won't work with float and needs double type for value << really important !
-// Check R4300_Cop1_D_ADD for reference.
-//
-// ToDO : Simplify this or find a workaround for this hack..
+// ToDO : Simplify this or find a workaround for this hack.. 
+// Actually this the proper way but we get a good speed up simulating doubles with the above function :p
 inline void StoreFPR_Double_2( u32 reg, f64 value )
 {
-	REG64	r;
-	r._f64 = f64( value );	// double.. float won't work for buck bumble
+	// This fixes Mario Party's draft mini game.
+	// Green / static textures bug in Conker.
+	// EWJ, PowerPuff Girls, and Tom and Jerry
 
+	REG64 r; 
+	r._f64 = f32( value );	//r._f64 = f32( value );	
 	gCPUState.FPU[reg+0]._u32_0 = r._u32_0;
 	gCPUState.FPU[reg+1]._u32_0 = r._u32_1;
 
@@ -2057,7 +2043,7 @@ static void R4300_CALL_TYPE R4300_TLB_Unk( R4300_CALL_SIGNATURE )  { WARN_NOEXIS
 
 static void R4300_CALL_TYPE R4300_Cop0_MFC0( R4300_CALL_SIGNATURE )
 {
-	R4300_CALL_MAKE_OP( op_code );
+	R4300_CALL_MAKE_OP( op_code );	CHECK_R0( op_code.rt );
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	if ( op_code.fs == C0_CAUSE )
@@ -2066,10 +2052,13 @@ static void R4300_CALL_TYPE R4300_Cop0_MFC0( R4300_CALL_SIGNATURE )
 		bool	cause_int_3_set( (gCPUState.CPUControl[C0_CAUSE]._u32_0 & CAUSE_IP3) != 0 );
 
 		DAEDALUS_ASSERT( mi_interrupt_set == cause_int_3_set, "CAUSE_IP3 inconsistant with MI_INTR_REG" );
+
+		DAEDALUS_ASSERT( op_code.fs != C0_RAND, "MFC0 random register unhandled" );
 	}
 #endif
 
-	if( op_code.fs == C0_RAND )	// Copy from FS to RT
+	// Never seen a game use C0_RAND - Salvy
+	/*if( op_code.fs == C0_RAND )	// Copy from FS to RT
 	{
 		u32 wired = gCPUState.CPUControl[C0_WIRED]._u32_0 & 0x1F;
 
@@ -2079,10 +2068,8 @@ static void R4300_CALL_TYPE R4300_Cop0_MFC0( R4300_CALL_SIGNATURE )
 
 		DBGConsole_Msg(0, "[MWarning reading MFC0 random register]");
 	}
-	else	// Should we handle C0_COUNT??
+	else*/
 	{
-		CHECK_R0( op_code.rt );
-
 		// No specific handling needs for reads to these registers.
 		gGPR[ op_code.rt ]._s64 = (s64)gCPUState.CPUControl[ op_code.fs ]._s32_0;
 	}
@@ -2102,12 +2089,12 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 			gCPUState.CPUControl[C0_INX]._u64 = new_value & 0x8000003F;
 			DBGConsole_Msg(0, "Setting Index register to 0x%08x", (u32)new_value);
 			break;*/
-
+		/*
 		case C0_CONTEXT:
 			DBGConsole_Msg(0, "Setting context register to 0x%08x", new_value);
 			gCPUState.CPUControl[ op_code.fs ]._u32_0 = new_value;
 			break;
-
+			*/
 		case C0_WIRED:
 			// Set to top limit on write to wired
 			gCPUState.CPUControl[C0_RAND]._u32_0 = 31;
@@ -2772,6 +2759,18 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D( R4300_CALL_SIGNATURE )
 	StoreFPR_Double( op_code.fd, f32_to_d64( fX ) );
 }
 
+// Used by Mario Party Draft mini game, Earth Worm Jim, Tom and Jerry, Power Puff Girls' disable esimulate double hack
+static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D_2( R4300_CALL_SIGNATURE )
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
+
+	f32 fX = LoadFPR_Single( op_code.fs );
+
+	StoreFPR_Double_2( op_code.fd, f32_to_d64( fX ) );
+}
+
 
 //*****************************************************************************
 //
@@ -3086,7 +3085,13 @@ static void R4300_CALL_TYPE R4300_Cop1_D_ADD_2( R4300_CALL_SIGNATURE )
 
 	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
-	StoreFPR_Double_2( op_code.fd, (f64)fX + (f64)fY );
+	REG64	r;
+
+	// double.. float won't work for buck bumble
+	r._f64 = f64( (f64)fX + (f64)fY );
+
+	gCPUState.FPU[op_code.fd+0]._u32_0 = r._u32_0;
+	gCPUState.FPU[op_code.fd+1]._u32_0 = r._u32_1;
 
 }
 
@@ -3187,6 +3192,22 @@ static void R4300_CALL_TYPE R4300_Cop1_D_MOV( R4300_CALL_SIGNATURE )
 
 	// TODO - Just copy bits - don't interpret!
 }
+
+// Used by Conker's disable esimulate double hack
+static void R4300_CALL_TYPE R4300_Cop1_D_MOV_2( R4300_CALL_SIGNATURE )
+{
+	R4300_CALL_MAKE_OP( op_code );
+
+	// fd = fs
+	d64 fX = LoadFPR_Double( op_code.fs );
+
+	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
+
+	StoreFPR_Double_2( op_code.fd, fX );
+
+	// TODO - Just copy bits - don't interpret!
+}
+
 
 static void R4300_CALL_TYPE R4300_Cop1_D_TRUNC_W( R4300_CALL_SIGNATURE )
 {
@@ -3600,13 +3621,25 @@ CPU_Instruction	R4300_GetInstructionHandler( OpCode op_code )
 //*****************************************************************************
 void R4300_Init()
 {
-	if(g_ROM.GameHacks == BUCK_BUMBLE)
+	// ToDo : Make these game specific? and get rid off gSimulateDoubleDisabled?
+	if(gSimulateDoubleDisabled)
 	{
-		R4300Cop1DInstruction[0] = R4300_Cop1_D_ADD_2;
+		R4300Cop1DInstruction[Cop1OpFunc_MOV]	= R4300_Cop1_D_MOV_2;   // Conker
+		R4300Cop1SInstruction[Cop1OpFunc_CVT_D] = R4300_Cop1_S_CVT_D_2; // Mario Party Draft mini game, Earth Worm Jim, Tom and Jerry, Power Puff Girls
 	}
 	else
 	{
-		R4300Cop1DInstruction[0] = R4300_Cop1_D_ADD;
+		R4300Cop1DInstruction[Cop1OpFunc_MOV]	= R4300_Cop1_D_MOV;
+		R4300Cop1SInstruction[Cop1OpFunc_CVT_D] = R4300_Cop1_S_CVT_D;
+	}
+
+	if(g_ROM.GameHacks == BUCK_BUMBLE)
+	{
+		R4300Cop1DInstruction[Cop1OpFunc_ADD]	= R4300_Cop1_D_ADD_2;
+	}
+	else
+	{
+		R4300Cop1DInstruction[Cop1OpFunc_ADD]	= R4300_Cop1_D_ADD;
 	}
 
 }
