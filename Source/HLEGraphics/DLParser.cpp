@@ -114,12 +114,10 @@ void RDP_MoveMemLight(u32 light_idx, u32 address);
 
 struct N64Light
 {
-	u32 Colour;
-	u32	ColourCopy;
-	f32 x,y,z;			// Direction
-	u32 pad;
+    u8 pad0, b, g, r;		// Colour
+    u8 pad1, b2, g2, r2;	// Unused..
+    s8 pad2, z, y, x;		// Direction
 };
-
 struct RDP_Scissor
 {
 	u32 left, top, right, bottom;
@@ -147,7 +145,6 @@ static bool gFirstCall = true;
 static u32				gSegments[16];
 static RDP_Scissor		scissors;
 static RDP_GeometryMode gGeometryMode;
-static N64Light			g_N64Lights[16];	//Conker uses more than 8
 static DList			gDlistStack[MAX_DL_STACK_SIZE];
 static s32				gDlistStackPointer = -1;
 static u32				gVertexStride	 = 0;
@@ -725,7 +722,7 @@ void DLParser_Process()
 	gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
 
 	gRDPStateManager.Reset();
-
+	
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	gTotalInstructionCount = 0;
 	gCurrentInstructionCount = 0;
@@ -782,31 +779,24 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 {
 	DAEDALUS_ASSERT( light_idx < 16, "Warning: invalid light # = %d", light_idx );
 
-	s8 * pcBase = g_ps8RamBase + address;
-	u32 * pBase = (u32 *)pcBase;
+	u8 *addr = &g_pu8RamBase[address];
 
-	g_N64Lights[light_idx].Colour     = pBase[0];
-	g_N64Lights[light_idx].ColourCopy = pBase[1];
-	g_N64Lights[light_idx].x			= f32(pcBase[8 ^ 0x3]);
-	g_N64Lights[light_idx].y			= f32(pcBase[9 ^ 0x3]);
-	g_N64Lights[light_idx].z			= f32(pcBase[10 ^ 0x3]);
-					
-	DL_PF("    %s light[%d] RGBA[0x%08x] RGBACopy[0x%08x] x[%0.0f] y[%0.0f] z[%0.0f]", 
-		pBase[2]? "Valid" : "Invalid",
+	N64Light *light = (N64Light*)addr;		
+	DL_PF("    light[%d] r[%0.0f] g[%0.0f] b[%0.0f] x[%0.0f] y[%0.0f] z[%0.0f]", 
 		light_idx,
-		g_N64Lights[light_idx].Colour,
-		g_N64Lights[light_idx].ColourCopy,
-		g_N64Lights[light_idx].x,
-		g_N64Lights[light_idx].y,
-		g_N64Lights[light_idx].z);
+		light->r,
+		light->g,
+		light->b,
+		light->.x,
+		light->.y,
+		light->.z
+		);
 
 	//Normal Light
-	PSPRenderer::Get()->SetLightCol(light_idx, g_N64Lights[light_idx].Colour);
+	PSPRenderer::Get()->SetLightCol( light_idx, light->r, light->g, light->b );
 
-	if (pBase[2] != 0)	// if Direction is 0 its invalid!
-	{
-		PSPRenderer::Get()->SetLightDirection(light_idx, g_N64Lights[light_idx].x, g_N64Lights[light_idx].y, g_N64Lights[light_idx].z );
-	}
+	// Direction
+	PSPRenderer::Get()->SetLightDirection( light_idx, light->x, light->y, light->z );
 }
 
 //*****************************************************************************
