@@ -780,21 +780,18 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 	DAEDALUS_ASSERT( light_idx < 16, "Warning: invalid light # = %d", light_idx );
 
 	N64Light *light = (N64Light*)(g_pu8RamBase + address);		
-	DL_PF("    light[%d] r[%0.0f] g[%0.0f] b[%0.0f] x[%0.0f] y[%0.0f] z[%0.0f]", 
+	DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d] %s direction", 
 		light_idx,
-		light->r,
-		light->g,
-		light->b,
-		light->.x,
-		light->.y,
-		light->.z
+		light->r, light->g, light->b,
+		light->x, light->y,	light->z,
+		(light->x | light->y | light->z)? "Valid" : "Invalid"
 		);
 
-	//Normal Light
+	//Light color
 	PSPRenderer::Get()->SetLightCol( light_idx, light->r, light->g, light->b );
 
-	// Direction
-	PSPRenderer::Get()->SetLightDirection( light_idx, light->x, light->y, light->z );
+	//Direction
+	if((light->x | light->y | light->z) != 0) PSPRenderer::Get()->SetLightDirection( light_idx, light->x, light->y, light->z );
 }
 
 //*****************************************************************************
