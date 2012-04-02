@@ -779,9 +779,7 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 {
 	DAEDALUS_ASSERT( light_idx < 16, "Warning: invalid light # = %d", light_idx );
 
-	u8 *addr = &g_pu8RamBase[address];
-
-	N64Light *light = (N64Light*)addr;		
+	N64Light *light = (N64Light*)(g_pu8RamBase + address);		
 	DL_PF("    light[%d] r[%0.0f] g[%0.0f] b[%0.0f] x[%0.0f] y[%0.0f] z[%0.0f]", 
 		light_idx,
 		light->r,
@@ -1273,7 +1271,9 @@ void DLParser_FillRect( MicroCodeCommand command )
 	// colour just before, so maybe I'm missing something??
 	// Problem was that we can only clear screen in fill mode
 
-	if ( gRDPOtherMode.cycle_type == CYCLE_FILL )
+	u32 cycle_mode = gRDPOtherMode.cycle_type;
+
+	if ( cycle_mode == CYCLE_FILL )
 	{
 		if(g_CI.Size == G_IM_SIZ_16b)
 		{
@@ -1286,8 +1286,11 @@ void DLParser_FillRect( MicroCodeCommand command )
 			colour = c32(gFillColor);
 		}
 
+		const u32 clear_screen_x = ( (command.fillrect.x1 - command.fillrect.x0) );
+		const u32 clear_screen_y = ( (command.fillrect.y1 - command.fillrect.y0) );
+
 		// Clear color buffer (screen clear)
-		if( (s32)uViWidth == (command.fillrect.x1 - command.fillrect.x0) && (s32)uViHeight == (command.fillrect.y1 - command.fillrect.y0) )		
+		if( uViWidth == clear_screen_x && uViHeight == clear_screen_y )		
 		{
 			CGraphicsContext::Get()->ClearColBuffer( colour.GetColour() );
 			DL_PF("    Clearing Colour Buffer");
@@ -1316,7 +1319,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 	//
 	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
 	//
-	if ( gRDPOtherMode.cycle_type >= CYCLE_COPY )
+	if ( cycle_mode >= CYCLE_COPY )
 	{
 		xy1.x += 1.0f;
 		xy1.y += 1.0f;

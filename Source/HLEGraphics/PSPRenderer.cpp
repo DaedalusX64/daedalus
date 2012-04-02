@@ -993,9 +993,11 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		sceGuTexFilter(GU_NEAREST,GU_NEAREST);
 	}
 
+	u32 cycle_mode = gRDPOtherMode.cycle_type;
+
 	// Initiate Blender
 	//
-	if(gRDPOtherMode.cycle_type < CYCLE_COPY)
+	if(cycle_mode < CYCLE_COPY)
 	{
 		gRDPOtherMode.force_bl ? InitBlenderMode( gRDPOtherMode.blender ) : sceGuDisable( GU_BLEND );
 	}
@@ -1024,7 +1026,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 	SBlendStateEntry		blend_entry;
 
-	switch ( gRDPOtherMode.cycle_type )
+	switch ( cycle_mode )
 	{
 		case CYCLE_COPY:		blend_entry.States = mCopyBlendStates; break;
 		case CYCLE_FILL:		blend_entry.States = mFillBlendStates; break;
@@ -1059,7 +1061,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		details.RecolourTextureWhite = false;
 		details.ColourAdjuster.Reset();
 
-		blend_entry.OverrideFunction( gRDPOtherMode.cycle_type == CYCLE_2CYCLE ? 2 : 1, details );
+		blend_entry.OverrideFunction( cycle_mode == CYCLE_2CYCLE ? 2 : 1, details );
 
 		bool installed_texture( false );
 
@@ -2668,7 +2670,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	}
 	else
 	{
-		CRefPtr<CTexture>	texture( CTextureCache::Get()->GetTexture( &ti ) );
+		const CRefPtr<CTexture>	texture( CTextureCache::Get()->GetTexture( &ti ) );
 
 		if( texture != NULL )
 		{
@@ -2706,11 +2708,10 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 					}
 				}
 
-
-
 				if( native_texture != NULL )
 				{
-					mTileScale[ index ] = native_texture->GetScale();
+					mTileScale[ index ].x = native_texture->GetScaleX();
+					mTileScale[ index ].y = native_texture->GetScaleY();
 				}
 			}
 		}

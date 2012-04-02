@@ -49,6 +49,8 @@ class CNativeTexture : public CRefCounted
 		inline u32						GetCorrectedWidth() const		{ return mCorrectedWidth; }
 		inline u32						GetCorrectedHeight() const		{ return mCorrectedHeight; }
 		inline const v2 &				GetScale() const				{ return mScale; }
+		inline const f32 &				GetScaleX() const				{ return mScale.x; }
+		inline const f32 &				GetScaleY() const				{ return mScale.y; }
 		u32								GetStride() const;
 		inline ETextureFormat			GetFormat() const				{ return mTextureFormat; }
 		inline const void *				GetPalette() const				{ return mpPalette; }
