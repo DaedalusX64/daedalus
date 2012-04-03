@@ -378,7 +378,7 @@ void CPU_UpdateTrace( u32 address, OpCode op_code, bool branch_delay_slot, bool 
 
 	DAEDALUS_ASSERT_Q( (gCPUState.Delay == EXEC_DELAY) == branch_delay_slot );
 
-#if DAEDALUS_DEBUG_DYNAREC
+#ifdef DAEDALUS_DEBUG_DYNAREC
 	CFragment * p_address_fragment( gFragmentCache.LookupFragment( address ) );
 #else
 	CFragment * p_address_fragment( gFragmentCache.LookupFragmentQ( address ) );
@@ -421,7 +421,7 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 		u32			entry_count( gCPUState.CPUControl[C0_COUNT]._u32_0 ); // Just used DYNAREC_PROFILE_ENTEREXIT
 #endif
 		u32			entry_address( gCPUState.CurrentPC );
-#if DAEDALUS_DEBUG_DYNAREC
+#ifdef DAEDALUS_DEBUG_DYNAREC
 		CFragment * p_fragment( gFragmentCache.LookupFragment( entry_address ) );
 #else
 		CFragment * p_fragment( gFragmentCache.LookupFragmentQ( entry_address ) );

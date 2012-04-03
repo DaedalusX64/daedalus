@@ -97,11 +97,10 @@ bool ROMFileUncompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputSt
 	// Try and read in data - reset to the start of the file
 	fseek( mFH, 0, SEEK_SET );
 
-	//ToDo: Add Status bar here for loading ROM to memory.
 	u32 bytes_read( fread( p_bytes, 1, bytes_to_read, mFH ) );
 	if (bytes_read != bytes_to_read)
 	{
-		DAEDALUS_ASSERT("Bytes to read don't match bytes read!");
+		DAEDALUS_ASSERT(false, "Bytes to read don't match bytes read!");
 		return false;
 	}
 

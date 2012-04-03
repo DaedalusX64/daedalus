@@ -71,7 +71,7 @@ CFragmentCache::~CFragmentCache()
 //*************************************************************************************
 //
 //*************************************************************************************
-#if DAEDALUS_DEBUG_DYNAREC
+#ifdef DAEDALUS_DEBUG_DYNAREC
 CFragment * CFragmentCache::LookupFragment( u32 address ) const
 {
 	DAEDALUS_PROFILE( "CFragmentCache::LookupFragment" );
@@ -197,7 +197,7 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 
 		DAEDALUS_ASSERT( jump.IsSet(), "No exit jump?" );
 
-#if DAEDALUS_DEBUG_DYNAREC
+#ifdef DAEDALUS_DEBUG_DYNAREC
 		CFragment * p_fragment( LookupFragment( target_address ) );
 #else
 		CFragment * p_fragment( LookupFragmentQ( target_address ) );
