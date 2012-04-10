@@ -47,7 +47,7 @@ extern DaedalusConfig	g_DaedalusConfig;
 // Per-ROM config
 extern bool gGraphicsEnabled;			// Show graphics
 extern bool gDynarecEnabled;			// Use dynamic recompilation
-extern bool gDynarecStackOptimisation;	// Enable the dynarec stack optmisation
+//extern bool gDynarecStackOptimisation;	// Enable the dynarec stack optmisation
 extern bool gDynarecLoopOptimisation;	// Enable the dynarec loop optmisation
 extern bool gOSHooksEnabled;			// Apply os-hooks
 extern u32	gSpeedSyncEnabled;

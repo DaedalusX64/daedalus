@@ -115,7 +115,9 @@ void * operator new[]( size_t count )
 //*****************************************************************************
 void operator delete[]( void * p_mem )
 {
+	#ifdef DAEDALUS_LOG_ALLOCATIONS
 	SAVE_RA( ra );
+	#endif
 
 	if( p_mem != NULL )
 	{
@@ -131,7 +133,9 @@ void operator delete[]( void * p_mem )
 //*****************************************************************************
 void operator delete( void * p_mem )
 {
+	#ifdef DAEDALUS_LOG_ALLOCATIONS
 	SAVE_RA( ra );
+	#endif
 
 	if( p_mem != NULL )
 	{

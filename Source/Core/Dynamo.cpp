@@ -59,15 +59,13 @@ static bool							gResetFragmentCache = false;
 
 #ifdef DAEDALUS_DEBUG_DYNAREC
 std::map< u32, u32 >				gAbortedTraceReasons;
+
+void								CPU_DumpFragmentCache();
 #endif
 
 static void							CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled );
 static void							CPU_UpdateTrace( u32 address, OpCode op_code, bool branch_delay_slot, bool branch_taken );
 static void							CPU_CreateAndAddFragment();
-
-#ifdef DAEDALUS_DEBUG_DYNAREC
-void								CPU_DumpFragmentCache();
-#endif
 
 #endif // DAEDALUS_ENABLE_DYNAREC
 
@@ -515,6 +513,7 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 						if(gAbortedTraceReasons.find( gCPUState.CurrentPC ) != gAbortedTraceReasons.end() )
 						{
 							u32 reason( gAbortedTraceReasons[ gCPUState.CurrentPC ] );
+							use( reason );
 							//DBGConsole_Msg( 0, "Hot trace at [R%08x] has count of %d! (reason is %x) size %d", gCPUState.CurrentPC, trace_count, reason, gHotTraceCountMap.size( ) );
 							DAED_LOG( DEBUG_DYNAREC_CACHE, "Hot trace at %08x has count of %d! (reason is %x) size %d", gCPUState.CurrentPC, trace_count, reason, gHotTraceCountMap.size( ) );
 						}

@@ -31,8 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 u32		gSpeedSyncEnabled			= 0;		// Enable to limit frame rate.
 bool	gGraphicsEnabled			= true;		// Show graphics
 bool	gDynarecEnabled				= true;		// Use dynamic recompilation
-bool	gDynarecStackOptimisation	= true;		// Enable the dynarec stack optmisation
-bool	gDynarecLoopOptimisation	= false;		// Enable the dynarec loop optmisation
+//bool	gDynarecStackOptimisation	= true;		// Enable the dynarec stack optmisation
+bool	gDynarecLoopOptimisation	= false;	// Enable the dynarec loop optmisation
 bool	gOSHooksEnabled				= true;		// Apply os-hooks
 u32		gCheckTextureHashFrequency	= 0;		// How often to check textures for updates (every N frames, 0 to disable)
 bool	gDoubleDisplayEnabled		= true;		// Workaround for games that have shaking issues

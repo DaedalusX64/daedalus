@@ -76,12 +76,8 @@ struct SCodeBuffer
 		// This is a bit of a hack. We assume that no single entry will generate more than
 		// 32k of storage. If there appear to be problems with this assumption, this
 		// value can be enlarged
-#ifndef DAEDALUS_SILENT
-		if (mBufferPtr + 32768 > mBufferSize)
-		{
-			DAEDALUS_ERROR( "Out of memory for dynamic recompiler" );
-		}
-#endif
+		DAEDALUS_ASSERT( mBufferPtr + 32768 <= mBufferSize, "Out of memory for dynamic recompiler" );
+
 		return mpBuffer + mBufferPtr;
 	}
 
@@ -144,9 +140,15 @@ CCodeBufferManager *	CCodeBufferManager::Create()
 //*****************************************************************************
 bool	CCodeBufferManagerPSP::Initialise()
 {
+#ifdef DAEDALUS_DEBUG_DYNAREC
+	//Use 2MB for each code buffer. When debugging dynarec, additional spare memory is needed for storing info from dynarec.
+	mPrimaryBuffer.Initialise( 2 * 1024 * 1024 );
+	mSecondaryBuffer.Initialise( 2 * 1024 * 1024 );
+#else
+	//Use 3MB for each code buffer
 	mPrimaryBuffer.Initialise( 3 * 1024 * 1024 );
 	mSecondaryBuffer.Initialise( 3 * 1024 * 1024 );
-
+#endif
 	return true;
 }
 

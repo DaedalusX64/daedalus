@@ -178,8 +178,6 @@ void * IMemoryHeap::InsertNew( u32 idx, u8 * adr, u32 size )
 //*****************************************************************************
 void* IMemoryHeap::Alloc( u32 size )
 {
-	DAEDALUS_ASSERT( mTotalSize < size, "Trying to allocate too much memory in this heap" );
-
 	u8 * adr = mBasePtr;
 	u32 i;
 
@@ -203,6 +201,7 @@ void* IMemoryHeap::Alloc( u32 size )
 
 	if( adr + size > mBasePtr + mTotalSize )
 	{
+		DAEDALUS_ASSERT( false, "Out of VRAM/RAM memory" );
 		return NULL;
 	}
 

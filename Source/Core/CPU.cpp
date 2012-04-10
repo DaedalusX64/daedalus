@@ -407,9 +407,10 @@ void CPU_Reset( )
 void CPU_Finalise()
 {
 #ifdef DAEDALUS_ENABLE_DYNAREC
-#ifdef DAEDALUS_DEBUG_DYNAREC
-	CPU_DumpFragmentCache();
-#endif
+	#ifdef DAEDALUS_DEBUG_DYNAREC
+		//This will dump the fragment cache on exit to ROMs menu
+		//CPU_DumpFragmentCache();
+	#endif
 #endif
 }
 

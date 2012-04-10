@@ -2575,13 +2575,8 @@ static void R4300_CALL_TYPE R4300_Cop1_S_DIV( R4300_CALL_SIGNATURE )
 
 	// Should we handle if /0? GoldenEye007 and Exitebike does this.
 	// Not sure if is worth to handle this, I have yet to see a game that fails due this..
-#ifndef DAEDALUS_SILENT
-	if ( fDivisor == 0 )
-	{
-		DAEDALUS_ERROR("Float divide by zero");
-		//fDivisor = 1;
-	}
-#endif
+	DAEDALUS_ASSERT(fDivisor != 0.0f, "Float divide by zero");
+
 	// Causes excitebike to freeze when entering the menu
 	/*if ( fDivisor == 0 )
 	{
@@ -3142,13 +3137,8 @@ static void R4300_CALL_TYPE R4300_Cop1_D_DIV( R4300_CALL_SIGNATURE )
 	d64 fDividend = LoadFPR_Double( op_code.fs );
 	d64 fDivisor = LoadFPR_Double( op_code.ft );
 
-#ifndef DAEDALUS_SILENT
-	if ( fDivisor == 0 )
-	{
-		DAEDALUS_ERROR("Double divide by zero");
-		//fDivisor = 1;
-	}
-#endif
+	DAEDALUS_ASSERT(fDivisor != 0, "Double divide by zero");
+
 	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Double( op_code.fd,  fDividend / fDivisor );

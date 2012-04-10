@@ -227,6 +227,9 @@ const EPspReg	gRegistersToUseForCaching[] =
 	PspReg_T9,
 	PspReg_A2,
 	PspReg_A3,
+	PspReg_K0,		//Used by Kernel but seems to work if we borrow it...(could come back and bite us if we use kernel stuff?) //Corn
+	PspReg_K1,		//Used by Kernel but seems to work if we borrow it...(could come back and bite us if we use kernel stuff?)
+//	PspReg_GP,		//Crashes when exiting to pause menu, needs saving to work?
 };
 }
 
@@ -297,7 +300,7 @@ void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register
 		mAvailableRegisters.push( gRegistersToUseForCaching[ i ] );
 	}
 	// Optimization for self looping code
-	if( gDynarecLoopOptimisation && loops_to_self )
+	if( gDynarecLoopOptimisation & loops_to_self )
 	{
 		mUseFixedRegisterAllocation = true;
 		u32		cache_reg_idx( 0 );
@@ -682,7 +685,12 @@ inline void CCodeGeneratorPSP::SetRegister( EN64Reg n64_reg, u32 lo_hi_idx, u32 
 //*****************************************************************************
 void CCodeGeneratorPSP::UpdateRegister( EN64Reg n64_reg, EPspReg psp_reg, bool options, EPspReg scratch_reg )
 {
+	//if(n64_reg == 0) return;	//Try to modify R0!!!
+
 	StoreRegisterLo( n64_reg, psp_reg );
+
+	//Skip storing sign extension on some regs //Corn
+	if( N64Reg_DontNeedSign( n64_reg ) ) return;
 
 	if( options == URO_HI_SIGN_EXTEND )
 	{
@@ -1260,7 +1268,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	DAEDALUS_PROFILE( "CCodeGeneratorPSP::GenerateOpCode" );
 
 	u32 address = ti.Address;
-	OpCode op_code = ti.OpCode; 
+	OpCode op_code = ti.OpCode;
 	bool	handled( false );
 	bool	is_nop( op_code._u32 == 0 );
 
@@ -1737,7 +1745,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 	EPspReg		reg_base( GetRegisterAndLoadLo( n64_base, PspReg_A0 ) );
 	EPspReg		reg_address( reg_base );
 
-	if( (n64_base == N64Reg_SP) || (gMemoryAccessOptimisation & mQuickLoad /*&& load_op != OP_LB*/))
+	if( (n64_base == N64Reg_SP) | (gMemoryAccessOptimisation & mQuickLoad) )
 	{
 		if( swizzle != 0 )
 		{
@@ -1750,11 +1758,17 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 
 			XORI( PspReg_A0, reg_address, swizzle );
 			reg_address = PspReg_A0;
-		}
 
-		ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
-		CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
-		return;
+			ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
+			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
+			return;
+		}
+		else
+		{
+			ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
+			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
+			return;
+		}
 	}
 
 	if( offset != 0 )
@@ -1982,7 +1996,7 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 	EPspReg		reg_base( GetRegisterAndLoadLo( n64_base, PspReg_A0 ) );
 	EPspReg		reg_address( reg_base );
 
-	if( (n64_base == N64Reg_SP) || (gMemoryAccessOptimisation & mQuickLoad) )
+	if( (n64_base == N64Reg_SP) | (gMemoryAccessOptimisation & mQuickLoad) )
 	{
 		if( swizzle != 0 )
 		{
@@ -2343,14 +2357,40 @@ inline void	CCodeGeneratorPSP::GenerateADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 		SetRegister32s(rd, mRegisterCache.GetKnownValue(rs, 0)._s32
 			+ mRegisterCache.GetKnownValue(rt, 0)._s32);
 		return;
+	}	
+	else if( rs == N64Reg_R0 )
+	{
+		// As RS is zero, the ADD is just a copy of RT to RD.
+		// Try to avoid loading into a temp register if the dest is cached
+		EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
+		LoadRegisterLo( reg_lo_d, rt );
+		StoreRegisterLo( rd, reg_lo_d );
+
+		EPspReg reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
+		LoadRegisterHi( reg_hi_d, rt );
+		StoreRegisterHi( rd, reg_hi_d );
 	}
-	
+	else if( rt == N64Reg_R0 )
+	{
+		// As RT is zero, the ADD is just a copy of RS to RD.
+		// Try to avoid loading into a temp register if the dest is cached
+		EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
+		LoadRegisterLo( reg_lo_d, rs );
+		StoreRegisterLo( rd, reg_lo_d );
+
+		EPspReg reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
+		LoadRegisterHi( reg_hi_d, rs );
+		StoreRegisterHi( rd, reg_hi_d );
+	}
+	else
+	{
 	//gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rs ]._s32_0 + gGPR[ op_code.rt ]._s32_0 );
 	EPspReg	reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
 	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
 	ADDU( reg_lo_d, reg_lo_a, reg_lo_b );
 	UpdateRegister( rd, reg_lo_d, URO_HI_SIGN_EXTEND, PspReg_T0 );
+	}
 }
 
 //*****************************************************************************
@@ -2651,6 +2691,12 @@ inline void	CCodeGeneratorPSP::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immedi
 	if( rs == N64Reg_R0 )
 	{
 		SetRegister32s( rt, immediate );
+	}
+	else if( rt == N64Reg_SP )	//SP is only unsigned 32bit //Corn
+	{
+		EPspReg dst_reg( GetRegisterAndLoadLo( rt, PspReg_T0 ) );
+		ADDIU( dst_reg, dst_reg, immediate );
+		StoreRegisterLo( rt, dst_reg );
 	}
 	else if(mRegisterCache.IsKnownValue( rs, 0 ))
 	{
@@ -3068,6 +3114,11 @@ inline void	CCodeGeneratorPSP::GenerateLWC1( u32 address, bool set_branch_delay,
 	//value = Read32Bits(address);
 	//gCPUState.FPU[op_code.ft]._s32_0 = value;
 
+#if 1	//Since LW and LWC1 have same format we do a small hack that let us load directly to
+		//the float reg without passing to the CPU first that saves us the MFC1 instruction //Corn
+	GenerateLoad( address, (EPspReg)psp_ft, base, offset, OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	UpdateFloatRegister( n64_ft );
+#else
 	// TODO: Actually perform LWC1 here
 	EPspReg	reg_dst( PspReg_V0 );				// GenerateLoad is slightly more efficient when using V0
 	GenerateLoad( address, reg_dst, base, offset, OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
@@ -3075,6 +3126,7 @@ inline void	CCodeGeneratorPSP::GenerateLWC1( u32 address, bool set_branch_delay,
 	//SetVar( &gCPUState.FPU[ ft ]._u32_0, reg_dst );
 	MTC1( psp_ft, reg_dst );
 	UpdateFloatRegister( n64_ft );
+#endif
 }
 
 //*****************************************************************************
@@ -3114,9 +3166,14 @@ inline void	CCodeGeneratorPSP::GenerateSWC1( u32 current_pc, bool set_branch_del
 {
 	EN64FloatReg	n64_ft = EN64FloatReg( ft );
 	EPspFloatReg	psp_ft( GetFloatRegisterAndLoad( n64_ft ) );
-	MFC1( PspReg_A1, psp_ft );
 
+#if 1	//Since SW and SWC1 have same format we do a small hack that let us save directly from
+		//the float reg without passing to the CPU first that saves us the MFC1 instruction //Corn
+	GenerateStore( current_pc, (EPspReg)psp_ft, base, offset, OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+#else
+	MFC1( PspReg_A1, psp_ft );
 	GenerateStore( current_pc, PspReg_A1, base, offset, OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+#endif
 }
 
 //*****************************************************************************
