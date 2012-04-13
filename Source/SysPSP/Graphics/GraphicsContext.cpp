@@ -44,7 +44,7 @@
 
 namespace
 {
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 	const char *	gScreenDumpRootPath = "ScreenShots";
 #endif
 	const char *	gScreenDumpDumpPathFormat = "sd%04d.png";
@@ -556,7 +556,7 @@ void IGraphicsContext::DumpScreenShot()
 	char szDumpDir[MAX_PATH+1];
 
 // Do not combine more than one dir for release, since pic will be saved in ms0:/PICTURE/
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 	IO::Path::Combine(szDumpDir, g_ROM.settings.GameName.c_str(), gScreenDumpRootPath);
 #else
 	strcpy(szDumpDir, g_ROM.settings.GameName.c_str());

@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __REGISTERS_H__
 #define __REGISTERS_H__
 
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 /*
     CPU: Instructions encoded by opcode field.
     31---------26---------------------------------------------------0
@@ -54,6 +54,6 @@ extern const char *RegNames[32];
 extern const char *Cop0RegNames[32];
 extern const char *ShortCop0RegNames[32];
 
-#endif // DAEDALUS_PUBLIC_RELEASE
+#endif // DAEDALUS_SILENT
 
 #endif

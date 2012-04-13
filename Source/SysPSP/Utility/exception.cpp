@@ -66,10 +66,12 @@ static void DumpInformation(PspDebugRegBlock * regs)
 			fprintf(fp, "\t%s:%08X %s:%08X %s:%08X %s:%08X\n", regName[i], (int)regs->r[i], regName[i+1], (int)regs->r[i+1], regName[i+2], (int)regs->r[i+2], regName[i+3], (int)regs->r[i+3]);
 	}
 
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 	fprintf(fp, "\nDisassembly:\n");
 	{
-		Dump_DisassembleMIPSRange(fp, regs->epc-32, (OpCode *)(regs->epc-32), (OpCode *)(regs->epc+16));
+		const u32 inst_before_ex = 24;
+		const u32 inst_after_ex = 8;
+		Dump_DisassembleMIPSRange(fp, regs->epc - (inst_before_ex * 4), (OpCode *)(regs->epc - (inst_before_ex * 4)), (OpCode *)(regs->epc + (inst_after_ex * 4)));
 	}
 #endif
 
@@ -114,7 +116,7 @@ static void DumpInformation(PspDebugRegBlock * regs)
 		fprintf(fp, "PC: %08x\n", gCPUState.CurrentPC);
 	}
 
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 	fprintf(fp, "\nDisassembly:\n");
 	{
 		u8 * p_base;

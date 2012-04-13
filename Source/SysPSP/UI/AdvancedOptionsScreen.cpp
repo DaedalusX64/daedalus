@@ -128,7 +128,7 @@ IAdvancedOptionsScreen::IAdvancedOptionsScreen( CUIContext * p_context, const Ro
 	mElements.Add( new CBoolSetting( &mRomPreferences.FogEnabled, "Fog Emulation", "Whether to enable or disable fog emulation (Experimental, only works on a few games)", "Enabled", "Disabled" ) );
 
 	//	mElements.Add( new CUISpacer( 16 ) );
-#ifndef DAEDALUS_PUBLIC_RELEASE	// Below option is irrelevant to end user or game especific, we force this option on roms.ini
+#ifndef DAEDALUS_SILENT	// Below option is irrelevant to end user or game especific, we force this option on roms.ini
 	mElements.Add( new CBoolSetting( &mRomPreferences.SimulateDoubleDisabled, "Disable Simulate Double", "Whether Simulate Double is Disabled", "Yes", "No" ) );
 #endif
 

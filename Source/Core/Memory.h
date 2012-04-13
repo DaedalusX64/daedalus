@@ -37,7 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Seems to work fine now 8/8/11- Salvy
 // For this work properly, make sure to set optimisation atleast -02, otherwise the compiler won't discard the unused code and will cause to overlap!
 
-#ifdef DAEDALUS_PUBLIC_RELEASE
+#ifdef DAEDALUS_SILENT
 #define MEMORY_BOUNDS_CHECKING(x) 1
 #else
 #define MEMORY_BOUNDS_CHECKING(x) x

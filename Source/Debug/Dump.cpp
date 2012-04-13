@@ -126,7 +126,7 @@ void Dump_GetSaveDirectory(char * p_file_path, const char * p_rom_name, const ch
 
 }
 
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -203,7 +203,7 @@ void Dump_Disassemble(u32 start, u32 end, const char * p_file_name)
 }
 #endif
 
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 //*****************************************************************************
 //
 //	N.B. This assumbes that b/e are 4 byte aligned (otherwise endianness is broken)
@@ -295,7 +295,7 @@ void Dump_RSPDisassemble(const char * p_file_name)
 }
 #endif
 
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 //*****************************************************************************
 //
 //*****************************************************************************

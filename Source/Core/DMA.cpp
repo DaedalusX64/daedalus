@@ -47,7 +47,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 bool gDMAUsed = false;
 
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 bool gLogSpDMA = false;
 #endif
 
@@ -131,7 +131,7 @@ void DMA_SI_CopyFromDRAM( )
 
 	memcpy_vfpu_BE(p_dst, p_src, 64);
 
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 	u8 control_byte = p_dst[ 63 ^ U8_TWIDDLE ];
 
 	if ( control_byte > 0x01 )

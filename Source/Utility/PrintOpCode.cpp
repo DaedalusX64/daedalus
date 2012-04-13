@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //	Exclude this from public release builds to save a little on the elf size
 //
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 
 #include "Core/R4300OpCode.h"
 #include "PrintOpCode.h"
@@ -1136,5 +1136,5 @@ void SprintRSPOpCodeInfo(char *str, u32 address, OpCode op)
 	SprintRSPOp_Instructions[ op.op ]( str, address, op );
 }
 
-#endif // DAEDALUS_PUBLIC_RELEASE
+#endif // DAEDALUS_SILENT
 

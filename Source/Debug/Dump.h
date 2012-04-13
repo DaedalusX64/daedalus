@@ -25,7 +25,7 @@ struct OpCode;
 void Dump_GetDumpDirectory(char * p_file_path, const char * p_sub_dir);
 void Dump_GetSaveDirectory(char * p_file_path, const char * p_rom_name, const char * p_ext);
 
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 
 void Dump_MemoryRange(FILE * fh, u32 address_offset, const u32 * b, const u32 * e);
 void Dump_DisassembleRSPRange(FILE * fh, u32 address_offset, const OpCode * b, const OpCode * e);

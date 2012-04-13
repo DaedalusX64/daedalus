@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef PATHSPSP_H_
 #define PATHSPSP_H_
 
-#ifdef DAEDALUS_PUBLIC_RELEASE
+#ifdef DAEDALUS_SILENT
 #define DAEDALUS_PSP_PATH(p)				p
 #else
 #ifdef DAEDALUS_PSP_ALT

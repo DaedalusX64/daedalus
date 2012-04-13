@@ -328,7 +328,7 @@ void	ApplyAlphaModulateTerm( CAlphaRenderSettings * settings, const CCombinerOpe
 			break;
 
 		default:
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 			printf( "Unhandled Alpha Input: %s\n", GetCombinerInputName( input->GetInput() ) );
 #endif
 			settings->SetInexact();
@@ -347,7 +347,7 @@ void	ApplyAlphaModulateTerm( CAlphaRenderSettings * settings, const CCombinerOpe
 		}
 		else
 		{
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 			COutputStringStream	str;
 			operand->Stream( str );
 			printf( "\n********************************\n" );
@@ -432,7 +432,7 @@ void	ApplyModulateTerm( CRenderSettingsModulate * settings, const CCombinerOpera
 			break;
 
 		default:
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 			printf( "Unhandled Input: %s\n", GetCombinerInputName( input->GetInput() ) );
 #endif
 			settings->SetInexact();
@@ -451,7 +451,7 @@ void	ApplyModulateTerm( CRenderSettingsModulate * settings, const CCombinerOpera
 		}
 		else
 		{
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 			COutputStringStream	str;
 			operand->Stream( str );
 			printf( "\n********************************\n" );
@@ -578,7 +578,7 @@ void	CCombinerTree::GenerateRenderSettings( CBlendStates * states, const CCombin
 
 		if( !handled )
 		{
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 			printf( "CANNOT BLEND!\n" );
 #endif
 			states->AddColourSettings( new CRenderSettingsInvalid( str.c_str() ) );
@@ -589,7 +589,7 @@ void	CCombinerTree::GenerateRenderSettings( CBlendStates * states, const CCombin
 	{
 		COutputStringStream	str;
 		operand->Stream( str );
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 		printf( "\n********************************\n" );
 		printf( "Unhandled - inner operand is not an input/product/sum: %s\n", str.c_str() );
 		printf( "********************************\n\n" );

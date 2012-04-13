@@ -690,7 +690,7 @@ const char *			ROM_GetFrameskipDescription( EFrameskipValue value )
 	case FV_7:				return "7";
 	case FV_8:				return "8";
 	case FV_9:				return "9";
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 	case FV_99:				return "99";
 #endif
 	case NUM_FRAMESKIP_VALUES:

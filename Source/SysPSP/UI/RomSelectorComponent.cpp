@@ -59,7 +59,7 @@ namespace
 	{
 		"ms0:/n64/",
 		DAEDALUS_PSP_PATH( "Roms/" ),
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 		// For ease of developing with multiple source trees, common folder for roms can be placed at host1: in usbhostfs
 		"host1:/",
 #endif

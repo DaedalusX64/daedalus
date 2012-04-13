@@ -65,7 +65,7 @@ enum EFrameskipValue
 	FV_7,
 	FV_8,
 	FV_9,
-#ifndef DAEDALUS_PUBLIC_RELEASE
+#ifndef DAEDALUS_SILENT
 	FV_99,
 #endif
 	NUM_FRAMESKIP_VALUES,

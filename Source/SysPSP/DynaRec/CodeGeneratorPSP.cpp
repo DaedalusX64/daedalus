@@ -3114,11 +3114,6 @@ inline void	CCodeGeneratorPSP::GenerateLWC1( u32 address, bool set_branch_delay,
 	//value = Read32Bits(address);
 	//gCPUState.FPU[op_code.ft]._s32_0 = value;
 
-#if 1	//Since LW and LWC1 have same format we do a small hack that let us load directly to
-		//the float reg without passing to the CPU first that saves us the MFC1 instruction //Corn
-	GenerateLoad( address, (EPspReg)psp_ft, base, offset, OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
-	UpdateFloatRegister( n64_ft );
-#else
 	// TODO: Actually perform LWC1 here
 	EPspReg	reg_dst( PspReg_V0 );				// GenerateLoad is slightly more efficient when using V0
 	GenerateLoad( address, reg_dst, base, offset, OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
@@ -3126,7 +3121,6 @@ inline void	CCodeGeneratorPSP::GenerateLWC1( u32 address, bool set_branch_delay,
 	//SetVar( &gCPUState.FPU[ ft ]._u32_0, reg_dst );
 	MTC1( psp_ft, reg_dst );
 	UpdateFloatRegister( n64_ft );
-#endif
 }
 
 //*****************************************************************************
@@ -3167,13 +3161,8 @@ inline void	CCodeGeneratorPSP::GenerateSWC1( u32 current_pc, bool set_branch_del
 	EN64FloatReg	n64_ft = EN64FloatReg( ft );
 	EPspFloatReg	psp_ft( GetFloatRegisterAndLoad( n64_ft ) );
 
-#if 1	//Since SW and SWC1 have same format we do a small hack that let us save directly from
-		//the float reg without passing to the CPU first that saves us the MFC1 instruction //Corn
-	GenerateStore( current_pc, (EPspReg)psp_ft, base, offset, OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
-#else
 	MFC1( PspReg_A1, psp_ft );
 	GenerateStore( current_pc, PspReg_A1, base, offset, OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
-#endif
 }
 
 //*****************************************************************************
