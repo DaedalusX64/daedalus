@@ -27,12 +27,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define DAED_OS_MESSAGE_QUEUES
 
+#ifdef DUMPOSFUNCTIONS
 #ifdef DAED_OS_MESSAGE_QUEUES
 typedef std::vector < u32 > QueueVector;
 extern QueueVector g_MessageQueues;
 #endif
+#endif
 
-bool OS_Reset();
+void OS_Reset();
 
 u32 OS_HLE___osProbeTLB(u32 vaddr);
 

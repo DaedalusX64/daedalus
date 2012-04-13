@@ -108,7 +108,7 @@ u32 gNumOfOSFunctions;
 #define PATCH_RET_ERET RET_JR_ERET()
 
 // Increase this number every time we changed the symbol table
-static const u32 MAGIC_HEADER = 0x80000128;
+static const u32 MAGIC_HEADER = 0x80000129;
 
 bool gPatchesInstalled = false;
 
@@ -170,6 +170,7 @@ void Patch_ApplyPatches()
 		// Tip : Disable this when working on oshle funcs, you save the time to delete hle cache everyttime you need to test :p
 		Patch_FlushCache();
 	}
+
 	// Do this every time or just when originally patched
 	/*result = */OS_Reset();
 

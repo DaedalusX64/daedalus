@@ -135,7 +135,7 @@ void	CPU_Halt( const char * reason );
 void	CPU_SelectCore();
 u32		CPU_GetVideoInterruptEventCount();
 void	CPU_SetVideoInterruptEventCount( u32 count );
-void	CPU_DynarecEnable();
+//void	CPU_DynarecEnable();
 void	R4300_CALL_TYPE CPU_InvalidateICacheRange( u32 address, u32 length );
 void	R4300_CALL_TYPE CPU_InvalidateICache();
 void	CPU_SetCompare(u32 value);

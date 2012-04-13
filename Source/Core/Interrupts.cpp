@@ -36,9 +36,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 u32 gNumExceptions = 0;
 u32 gNumInterrupts = 0;
 #endif
-u32		gExceptionPC( ~0 );
-bool	gExceptionWasDelay( false );		// Was exception operation in a branch-delay slot?
-u32		gExceptionVector( ~0 );
+
+static u32		gExceptionPC( ~0 );
+static bool		gExceptionWasDelay( false );		// Was exception operation in a branch-delay slot?
+static u32		gExceptionVector( ~0 );
 
 // CAUSE_IP8 <- This is the compare interrupt
 // CAUSE_IP7 <- This if for the RDB (debugger thinger?)
@@ -136,6 +137,7 @@ void R4300_Exception_CopUnusuable()
 //*****************************************************************************
 //
 //*****************************************************************************
+/*
 void R4300_Exception_FP()
 {
 	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
@@ -149,7 +151,7 @@ void R4300_Exception_FP()
 	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
 	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
 }
-
+*/
 //*****************************************************************************
 //
 //*****************************************************************************

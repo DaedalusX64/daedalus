@@ -25,21 +25,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSMesgQueue.h"
 #include "ultra_R4300.h"
 
+#ifdef DUMPOSFUNCTIONS
 #ifdef DAED_OS_MESSAGE_QUEUES
 // For keeping track of message queues we've created:
 QueueVector g_MessageQueues;
+#endif
 #endif
 
 //*****************************************************************************
 //
 //*****************************************************************************
-bool OS_Reset()
+void OS_Reset()
 {
+#ifdef DUMPOSFUNCTIONS
 #ifdef DAED_OS_MESSAGE_QUEUES
 	g_MessageQueues.clear();
 #endif
-
-	return true;
+#endif
 }
 
 #ifdef DAED_OS_MESSAGE_QUEUES
@@ -50,8 +52,10 @@ void OS_HLE_osCreateMesgQueue(u32 queue, u32 msgBuffer, u32 msgCount)
 {
 	COSMesgQueue q(queue);
 
-	q.SetEmptyQueue(VAR_ADDRESS(osNullMsgQueue));
-	q.SetFullQueue(VAR_ADDRESS(osNullMsgQueue));
+	const u32 addr = VAR_ADDRESS(osNullMsgQueue);
+
+	q.SetEmptyQueue(addr);
+	q.SetFullQueue(addr);
 	q.SetValidCount(0);
 	q.SetFirst(0);
 	q.SetMsgCount(msgCount);
@@ -59,7 +63,7 @@ void OS_HLE_osCreateMesgQueue(u32 queue, u32 msgBuffer, u32 msgCount)
 
 	//DBGConsole_Msg(0, "osCreateMsgQueue(0x%08x, 0x%08x, %d)",
 	//	queue, msgBuffer, msgCount);
-
+#ifdef DUMPOSFUNCTIONS
 	for ( u32 i = 0; i < g_MessageQueues.size(); i++)
 	{
 		if (g_MessageQueues[i] == queue)
@@ -67,6 +71,7 @@ void OS_HLE_osCreateMesgQueue(u32 queue, u32 msgBuffer, u32 msgCount)
 
 	}
 	g_MessageQueues.push_back(queue);
+#endif
 }
 #endif
 
@@ -87,14 +92,13 @@ u32 OS_HLE___osProbeTLB(u32 vaddr)
 
     for(u32 i = 0; i < 32; i++)
 	{
-		if( ((g_TLBs[i].hi & TLBHI_VPN2MASK) == vpn2) &&
-			(
-				(g_TLBs[i].g) ||
-				((g_TLBs[i].hi & TLBHI_PIDMASK) == pid)
-			) )
+		struct TLBEntry & tlb = g_TLBs[i];
+
+		if( ((tlb.hi & TLBHI_VPN2MASK) == vpn2) && ( (tlb.g) || ((tlb.hi & TLBHI_PIDMASK) == pid) ) )
 		{
+
 			// We've found the page, do TLBR
-			pageMask = g_TLBs[i].mask;
+			pageMask = tlb.mask;
 
 			pageMask += 0x2000;
 			pageMask >>= 1;
@@ -102,12 +106,12 @@ u32 OS_HLE___osProbeTLB(u32 vaddr)
 			if ((vaddr & pageMask) == 0)
 			{
 				// Even Page (EntryLo0)
-				entryLo = g_TLBs[i].pfne | g_TLBs[i].g;
+				entryLo = tlb.pfne | tlb.g;
 			}
 			else
 			{
 				// Odd Page (EntryLo1)
-				entryLo = g_TLBs[i].pfno | g_TLBs[i].g;
+				entryLo = tlb.pfno | tlb.g;
 			}
 
 			pageMask--;

@@ -80,7 +80,7 @@ std::vector< DBG_BreakPoint > g_BreakPoints;
 
 
 
-static bool		gCPURunning				= false;			// CPU is actively running
+static bool			gCPURunning				= false;			// CPU is actively running
 //static u32		gLastPC = 0xffffffff;
 //static u8 *		gLastAddress = NULL;
 
@@ -517,7 +517,6 @@ bool CPU_Run()
 //*****************************************************************************
 void CPU_SelectCore()
 {
-
 	if (gDynarecEnabled)
 		Dynamo_SelectCore();
 	else

@@ -22,68 +22,68 @@ class COSMesgQueue
 {
 public:
 
-	COSMesgQueue(u32 dwQueueAddress)
+	inline COSMesgQueue(u32 dwQueueAddress)
 	{
 		m_dwBaseAddress = dwQueueAddress;
 	}
 
 	// OSThread
-	u32 GetEmptyQueue()
+	inline u32 GetEmptyQueue()
 	{
 		return Read32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, mtqueue));
 	}
 
-	u32 GetFullQueue()
+	inline u32 GetFullQueue()
 	{
 		return Read32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, fullqueue));
 	}
 
-	s32 GetValidCount()
+	inline s32 GetValidCount()
 	{
 		return Read32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, validCount));
 	}
 
-	s32 GetFirst()
+	inline s32 GetFirst()
 	{
 		return Read32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, first));
 	}
 
-	s32 GetMsgCount()
+	inline s32 GetMsgCount()
 	{
 		return Read32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, msgCount));
 	}
 
-	u32 GetMesgArray()
+	inline u32 GetMesgArray()
 	{
 		return Read32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, msg));
 	}
 
-	void SetEmptyQueue(u32 queue)
+	inline void SetEmptyQueue(u32 queue)
 	{
 		Write32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, mtqueue), queue);
 	}
 
-	void SetFullQueue(u32 queue)
+	inline void SetFullQueue(u32 queue)
 	{
 		Write32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, fullqueue), queue);
 	}
 
-	void SetValidCount(s32 nCount)
+	inline void SetValidCount(s32 nCount)
 	{
 		Write32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, validCount), nCount);
 	}
 
-	void SetFirst(s32 nFirst)
+	inline void SetFirst(s32 nFirst)
 	{
 		Write32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, first), nFirst);
 	}
 
-	void SetMsgCount(s32 nMsgCount)
+	inline void SetMsgCount(s32 nMsgCount)
 	{
 		Write32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, msgCount), nMsgCount);
 	}
 	
-	void SetMesgArray(u32 dwMsgBuffer)
+	inline void SetMesgArray(u32 dwMsgBuffer)
 	{
 		Write32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, msg), dwMsgBuffer);
 	}	

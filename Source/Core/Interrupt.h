@@ -29,7 +29,7 @@ void R4300_Exception_TLB( u32 virtual_address, u32 exception_code, u32 exception
 //void R4300_JumpToInterruptVector(u32 exception_vector);
 void R4300_Exception_Break();
 void R4300_Exception_Syscall();
-void R4300_Exception_FP();
+//void R4300_Exception_FP();
 void R4300_Exception_CopUnusuable();
 //void R4300_Interrupt_CheckPostponed();
 
