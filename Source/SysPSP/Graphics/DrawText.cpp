@@ -75,11 +75,7 @@ void	CDrawText::Destroy()
 //*************************************************************************************
 const char * CDrawText::Translate( const char * dest, u32 * length )
 {
-	u32 index		= gGlobalPreferences.Language;
-	if( index == 0 || length == NULL )	return dest;
-
-	// Check translation file
-	Translate_Read( index, DAEDALUS_PSP_PATH("Languages/") );
+	if( length == NULL )	return dest;
 
 	// Check if string length was previously calc'd
 	bool t_len = ( strlen( dest ) == * length );

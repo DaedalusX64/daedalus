@@ -139,7 +139,6 @@ struct SRomPreferences
 	bool						DynarecEnabled;				// Requires DynarceSupported in RomSettings
 	bool						DynarecLoopOptimisation;
 	bool						DoubleDisplayEnabled;
-	bool						SimulateDoubleDisabled;
 	bool						CleanSceneEnabled;
 	bool						AudioRateMatch;
 	bool						VideoRateMatch;

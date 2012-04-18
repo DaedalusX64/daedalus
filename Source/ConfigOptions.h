@@ -52,7 +52,6 @@ extern bool gDynarecLoopOptimisation;	// Enable the dynarec loop optmisation
 extern bool gOSHooksEnabled;			// Apply os-hooks
 extern u32	gSpeedSyncEnabled;
 extern bool gDoubleDisplayEnabled;
-extern bool gSimulateDoubleDisabled;
 extern bool gAudioRateMatch;
 extern bool gVideoRateMatch;
 extern bool gFogEnabled;

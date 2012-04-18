@@ -222,10 +222,6 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		{
 			preferences.DoubleDisplayEnabled = property->GetBooleanValue( true );
 		}
-		if( section->FindProperty( "SimulateDoubleDisabled", &property ) )
-		{
-			preferences.SimulateDoubleDisabled = property->GetBooleanValue( false );
-		}
 		if( section->FindProperty( "CleanSceneEnabled", &property ) )
 		{
 			preferences.CleanSceneEnabled = property->GetBooleanValue( false );
@@ -307,7 +303,6 @@ void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences
 	fprintf(fh, "DynarecEnabled=%d\n",preferences.DynarecEnabled);
 	fprintf(fh, "DynarecLoopOptimisation=%d\n",preferences.DynarecLoopOptimisation);
 	fprintf(fh, "DoubleDisplayEnabled=%d\n",preferences.DoubleDisplayEnabled);
-	fprintf(fh, "SimulateDoubleDisabled=%d\n",preferences.SimulateDoubleDisabled);
 	fprintf(fh, "CleanSceneEnabled=%d\n",preferences.CleanSceneEnabled);
 	fprintf(fh, "AudioRateMatch=%d\n",preferences.AudioRateMatch);
 	fprintf(fh, "VideoRateMatch=%d\n",preferences.VideoRateMatch);
@@ -443,7 +438,6 @@ SRomPreferences::SRomPreferences()
 	,	DynarecEnabled( true )
 	,	DynarecLoopOptimisation( false )
 	,	DoubleDisplayEnabled( true )
-	,	SimulateDoubleDisabled( false )
 	,	CleanSceneEnabled( false )
 	,	AudioRateMatch( false )
 	,	VideoRateMatch( false )
@@ -471,7 +465,6 @@ void SRomPreferences::Reset()
 	DynarecEnabled = true;
 	DynarecLoopOptimisation = false;
 	DoubleDisplayEnabled = true;
-	SimulateDoubleDisabled = false;
 	CleanSceneEnabled = false;
 	AudioRateMatch = false;
 	VideoRateMatch = false;
@@ -497,7 +490,6 @@ void	SRomPreferences::Apply() const
 	gDynarecEnabled		= g_ROM.settings.DynarecSupported && DynarecEnabled;
 	gDynarecLoopOptimisation	= g_ROM.settings.DynarecLoopOptimisation && DynarecLoopOptimisation;
 	gDoubleDisplayEnabled = g_ROM.settings.DoubleDisplayEnabled && DoubleDisplayEnabled; // I don't know why DD won't disabled if we set ||
-	gSimulateDoubleDisabled = g_ROM.settings.SimulateDoubleDisabled || SimulateDoubleDisabled;
 	gCleanSceneEnabled = g_ROM.settings.CleanSceneEnabled || CleanSceneEnabled;
 	gAudioRateMatch = g_ROM.settings.AudioRateMatch || AudioRateMatch;
 	gVideoRateMatch = g_ROM.settings.VideoRateMatch || VideoRateMatch;

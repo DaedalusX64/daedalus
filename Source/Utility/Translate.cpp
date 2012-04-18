@@ -80,11 +80,14 @@ const char * Translate_String(const char *original)
 //*****************************************************************************
 void Translate_Unload()
 {
-	// Clear translations
-	for( u32 i = 0; i < ARRAYSIZE(text); ++i )
+	if( text[0].translated != NULL )
 	{
-		free_volatile(text[i].translated);
-		text[i].translated = NULL;
+		// Clear translations
+		for( u32 i = 0; i < ARRAYSIZE(text); ++i )
+		{
+			free_volatile(text[i].translated);
+			text[i].translated = NULL;
+		}
 	}
 }
 //*****************************************************************************
@@ -228,10 +231,11 @@ void Translate_Dump(const char *string, bool dump)
 //*****************************************************************************
 bool Translate_Read(u32 idx, const char * dir)
 {
-	static u32 temp = 0;
+	/// Always unload previous language file if available
+	Translate_Unload();
 
-	// Do not parse again if the same language
-	if( temp == idx )	return true;	temp = idx;
+	if( idx > gLanguage.size() )
+		return false;
 
 	const char * ext( ".lng" );
 	char line[1024];
@@ -247,9 +251,6 @@ bool Translate_Read(u32 idx, const char * dir)
 	strcpy(path, dir);
 	strcat(path, gLanguage[ idx ].c_str());
 	strcat(path, ext);
-
-	// Always unload previous language file
-	Translate_Unload();
 
 	stream = fopen(path,"r");
 	if( stream == NULL )

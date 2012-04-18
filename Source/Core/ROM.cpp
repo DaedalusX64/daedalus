@@ -480,11 +480,20 @@ void SpecificGameHacks( const ROMHeader & id )
 		g_ROM.ALPHA_HACK = true;
 		g_ROM.GameHacks = AIDYN_CRONICLES;
 		break;
+	case 0x424C:	//Mario Party 1
+		g_ROM.DISABLE_SIMDOUBLES = true;
+		break;
 	case 0x4A54:	//Tom and Jerry
+	case 0x4d4a:	//Earthworm Jim
+		g_ROM.DISABLE_SIMDOUBLES = true;
+		g_ROM.T1_HACK = true;
+		break;
+	case 0x5150:	//PowerPuff Girls
+		g_ROM.DISABLE_SIMDOUBLES = true;
+		//g_ROM.T1_HACK = true;
+		break;
 	case 0x5144:	//Donald Duck
 	case 0x3259:	//Rayman2
-	case 0x4d4a:	//Earthworm Jim
-	//case 0x5150:	//PowerPuff Girls
 		g_ROM.T1_HACK = true;
 		break;
 	case 0x3358:	//GEX3
@@ -517,6 +526,9 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x4842:	//Body Harvest
 	case 0x434E:	//Nightmare Creatures
 		g_ROM.GameHacks = BODY_HARVEST;
+		break;
+	case 0x5546:	// Conker BFD
+		g_ROM.GameHacks = CONKER;
 		break;
 	default:
 		break;
