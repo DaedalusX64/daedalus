@@ -43,6 +43,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 using namespace AssemblyUtils;
 
+//Enable to pass floats directly to FPU
+#define ENABLE_LWC1
+#define ENABLE_SWC1
+
 #define NOT_IMPLEMENTED( x )	DAEDALUS_ERROR( x )
 
 extern "C" { const void * g_ReadAddressLookupTableForDynarec = g_ReadAddressLookupTable; }
@@ -262,6 +266,9 @@ void	CCodeGeneratorPSP::Initialise( u32 entry_address, u32 exit_address, u32 * h
 	mpBasePointer = reinterpret_cast< const u8 * >( p_base );
 	SetRegisterSpanList( register_usage, entry_address == exit_address );
 
+	mKeepPreviousLoadBase = false;
+	mKeepPreviousStoreBase = false;
+	
 	if( hit_counter != NULL )
 	{
 		GetVar( PspReg_T0, hit_counter );
@@ -339,8 +346,9 @@ void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register
 					//
 					//	If the register is modified anywhere in the fragment, we need
 					//	to mark it as dirty so it's flushed correctly on exit.
+					//	Seems that also used Base regs needs to be marked Dirty //Corn
 					//
-					if( register_usage.IsModified( n64_reg ) )
+					if( register_usage.IsModified( n64_reg ) | register_usage.IsBase( n64_reg ) )
 					{
 						mRegisterCache.MarkAsDirty( n64_reg, lo_hi_idx, true );
 					}
@@ -1283,6 +1291,10 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		return CJumpLocation();
 	}
 
+	if( ((op_code.op != OP_LW) & (op_code.op != OP_LWC1)) || branch_delay_slot ) mKeepPreviousLoadBase = false;
+
+	if( ((op_code.op != OP_SW) & (op_code.op != OP_SWC1)) || branch_delay_slot ) mKeepPreviousStoreBase = false;
+
 	mQuickLoad = ti.Usage.mAccess_8000;
 
 	const EN64Reg	rs = EN64Reg( op_code.rs );
@@ -1486,6 +1498,8 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		break;
 	}
 
+	mPrevious_rt = rt;
+
 	if( !handled )
 	{
 		/*
@@ -1499,13 +1513,12 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		//
 		bool	need_pc( R4300_InstructionHandlerNeedsPC( op_code ) );
 
-#if 1	//1-> less messing about...//Corn
 		if( !need_pc )
 		{
 			address = 0;
 			GenerateGenericR4300( op_code, R4300_GetInstructionHandler( op_code ) );
 		}
-		else
+		else	//generate_exception_handler
 		{
 			SetVar( &gCPUState.CurrentPC, address );
 			if( branch_delay_slot )
@@ -1524,28 +1537,6 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			ORI( PspReg_A0, PspReg_R0, 0 );
 
 		}
-#else
-		if( !need_pc )
-		{
-			address = 0;
-		}
-
-		UpdateAddressAndDelay( address, branch_delay_slot & need_pc );
-
-		GenerateGenericR4300( op_code, R4300_GetInstructionHandler( op_code ) );
-
-		bool generate_exception_handler( need_pc );
-		if( generate_exception_handler )
-		{
-			// Make sure all dirty registers are flushed. NB - we don't invalidate them
-			// to avoid reloading the contents if no exception was thrown.
-
-			FlushAllRegisters( mRegisterCache, false );
-
-			JAL( CCodeLabel( reinterpret_cast< const void * >( _ReturnFromDynaRecIfStuffToDo ) ), false );
-			ORI( PspReg_A0, PspReg_R0, 0 );
-		}
-#endif
 	}
 
 	CCodeLabel		no_target( NULL );
@@ -1736,9 +1727,9 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 	//
 	//	Check if the base pointer is a known value, in which case we can load directly.
 	//
-
 	if(GenerateDirectLoad( psp_dst, n64_base, offset, load_op, swizzle ))
 	{
+		mKeepPreviousLoadBase = false;
 		return;
 	}
 
@@ -1761,15 +1752,53 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 
 			ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
 			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
+			mKeepPreviousLoadBase = false;
 			return;
 		}
+		//Re use old base register if consegutive accesses from same base register //Corn
+#if 1	//1->Normal, 0->Debug
+		if( mKeepPreviousLoadBase &&
+			n64_base == mPrevious_base &&
+			n64_base != mPrevious_rt )
+		{
+			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
+			return;
+		}
+#else
+		if( mKeepPreviousLoadBase &&
+			n64_base == mPrevious_base &&
+			n64_base != mPrevious_rt )
+		{
+			ADDU( PspReg_T1, reg_address, gMemoryBaseReg );
+			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_T1, offset );
+			CJumpLocation branch( BEQ( PspReg_T1, PspReg_A1, CCodeLabel( NULL ), true) );
+			SW(PspReg_R0, PspReg_R0, 0);
+			PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
+			return;
+		}
+#endif
 		else
 		{
 			ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
 			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
+			mKeepPreviousLoadBase = true;
+			mPrevious_base = n64_base;
 			return;
 		}
 	}
+
+	mKeepPreviousLoadBase = false;
+
+#ifdef ENABLE_LWC1
+	//Save actual float reg for later if we need it and use V0 for tmp reg when loading to FPU
+	const EPspFloatReg psp_ft( (EPspFloatReg)psp_dst );
+	OpCodeValue tmp_op( load_op );
+	if( load_op == OP_LWC1 ) 
+	{
+		load_op = OP_LW;
+		psp_dst = PspReg_V0;
+	}
+#endif
 
 	if( offset != 0 )
 	{
@@ -1836,6 +1865,14 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 
 		PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
 	}
+
+#ifdef ENABLE_LWC1
+	if( tmp_op == OP_LWC1 )
+	{
+		// Copy return value to the FPU destination register
+		MTC1( psp_ft, PspReg_V0 );
+	}
+#endif
 }
 
 //*****************************************************************************
@@ -1990,6 +2027,7 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 	//
 	if(GenerateDirectStore( psp_src, n64_base, offset, store_op, swizzle ))
 	{
+		mKeepPreviousStoreBase = false;
 		return;
 	}
 
@@ -2009,12 +2047,52 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 
 			XORI( PspReg_A0, reg_address, swizzle );
 			reg_address = PspReg_A0;
-		}
 
-		ADDU( PspReg_T1, reg_address, gMemoryBaseReg );
-		CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T1, offset );
-		return;
+			ADDU( PspReg_T1, reg_address, gMemoryBaseReg );
+			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T1, offset );
+			mKeepPreviousStoreBase = false;
+			return;
+		}
+		//Re use old base register if consegutive accesses from same base register //Corn
+#if 1	//1->Normal, 0->Debug
+		if( mKeepPreviousStoreBase &&
+			n64_base == mPrevious_base )
+		{
+			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T1, offset );
+			return;
+		}
+#else
+		if( mKeepPreviousStoreBase &&
+			n64_base == mPrevious_base )
+		{
+			ADDU( PspReg_T0, reg_address, gMemoryBaseReg );
+			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T0, offset );
+			CJumpLocation branch( BEQ( PspReg_T1, PspReg_T0, CCodeLabel( NULL ), true) );
+			SW(PspReg_R0, PspReg_R0, 0);
+			PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
+			return;
+		}
+#endif
+		else
+		{
+			ADDU( PspReg_T1, reg_address, gMemoryBaseReg );
+			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T1, offset );
+			mKeepPreviousStoreBase = true;
+			mPrevious_base = n64_base;
+			return;
+		}
 	}
+
+	mKeepPreviousStoreBase = false;
+
+#ifdef ENABLE_SWC1
+	if( store_op == OP_SWC1 )
+	{	//Move value from FPU to CPU
+		store_op = OP_SW;
+		MFC1( PspReg_A1, (EPspFloatReg)psp_src );
+		psp_src = PspReg_A1;
+	}
+#endif
 
 	if( offset != 0 )
 	{
@@ -3114,6 +3192,12 @@ inline void	CCodeGeneratorPSP::GenerateLWC1( u32 address, bool set_branch_delay,
 	//value = Read32Bits(address);
 	//gCPUState.FPU[op_code.ft]._s32_0 = value;
 
+#ifdef ENABLE_LWC1
+	//Since LW and LWC1 have same format we do a small hack that let us load directly to
+	//the float reg without passing to the CPU first that saves us the MFC1 instruction //Corn
+	GenerateLoad( address, (EPspReg)psp_ft, base, offset, OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	UpdateFloatRegister( n64_ft );
+#else
 	// TODO: Actually perform LWC1 here
 	EPspReg	reg_dst( PspReg_V0 );				// GenerateLoad is slightly more efficient when using V0
 	GenerateLoad( address, reg_dst, base, offset, OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
@@ -3121,6 +3205,7 @@ inline void	CCodeGeneratorPSP::GenerateLWC1( u32 address, bool set_branch_delay,
 	//SetVar( &gCPUState.FPU[ ft ]._u32_0, reg_dst );
 	MTC1( psp_ft, reg_dst );
 	UpdateFloatRegister( n64_ft );
+#endif
 }
 
 //*****************************************************************************
@@ -3161,8 +3246,14 @@ inline void	CCodeGeneratorPSP::GenerateSWC1( u32 current_pc, bool set_branch_del
 	EN64FloatReg	n64_ft = EN64FloatReg( ft );
 	EPspFloatReg	psp_ft( GetFloatRegisterAndLoad( n64_ft ) );
 
+#ifdef ENABLE_SWC1
+	//Since SW and SWC1 have same format we do a small hack that let us save directly from
+	//the float reg without passing to the CPU first that saves us the MFC1 instruction //Corn
+	GenerateStore( current_pc, (EPspReg)psp_ft, base, offset, OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+#else
 	MFC1( PspReg_A1, psp_ft );
 	GenerateStore( current_pc, PspReg_A1, base, offset, OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+#endif
 }
 
 //*****************************************************************************

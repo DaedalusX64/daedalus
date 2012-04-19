@@ -275,6 +275,11 @@ private:
 
 				bool							mBranchDelaySet;
 				bool							mQuickLoad;
+				
+				EN64Reg							mPrevious_base;
+				EN64Reg							mPrevious_rt;
+				bool							mKeepPreviousLoadBase;
+				bool							mKeepPreviousStoreBase;
 
 				std::vector< SAddressCheckFixup >	mAddressCheckFixups;
 };

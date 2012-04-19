@@ -182,49 +182,52 @@ void StaticAnalysis_BGTZL( OpCode op_code, RegisterUsage & recorder ) 		// Branc
 void StaticAnalysis_LB( OpCode op_code, RegisterUsage & recorder ) 			// Load Byte
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
+	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
 	//recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset ); // Don't do optimisation for LB, otherwise Mario 64 won't work :/
 }
 
 void StaticAnalysis_LBU( OpCode op_code, RegisterUsage & recorder ) 			// Load Byte Unsigned -- Zero extend byte...
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
-	if( g_ROM.GameHacks != PERFECT_DARK ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );	//PD dont like this
+	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
+	if( g_ROM.GameHacks != PERFECT_DARK ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );	//PD and Pilotwing64 dont like this
 }
 
 void StaticAnalysis_LH( OpCode op_code, RegisterUsage & recorder ) 		// Load Halfword
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_LHU( OpCode op_code, RegisterUsage & recorder )			// Load Halfword Unsigned -- Zero extend word
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_LWL( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Left
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_LDL( OpCode op_code, RegisterUsage & recorder )
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_LWR( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Right
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_LDR( OpCode op_code, RegisterUsage & recorder )
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_LW( OpCode op_code, RegisterUsage & recorder ) 			// Load Word
@@ -232,25 +235,27 @@ void StaticAnalysis_LW( OpCode op_code, RegisterUsage & recorder ) 			// Load Wo
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
 
 	// Causes P Mario to BSOD in intro
-	if( g_ROM.GameHacks != PMARIO ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );	// Breaks Paper Mario
+	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
+	if( g_ROM.GameHacks != PMARIO ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );	// Breaks Paper Mario
 }
 
 void StaticAnalysis_LWU( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Unsigned
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_LD( OpCode op_code, RegisterUsage & recorder ) 				// Load Doubleword
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_SW( OpCode op_code, RegisterUsage & recorder ) 			// Store Word
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_SH( OpCode op_code, RegisterUsage & recorder ) 			// Store Halfword
@@ -258,43 +263,43 @@ void StaticAnalysis_SH( OpCode op_code, RegisterUsage & recorder ) 			// Store H
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
 
 	// Causes Zelda MM to BSOD when you enter clock town
-	if( g_ROM.GameHacks != ZELDA_MM ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	if( g_ROM.GameHacks != ZELDA_MM ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_SB( OpCode op_code, RegisterUsage & recorder ) 			// Store Byte
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_SWL( OpCode op_code, RegisterUsage & recorder ) 			// Store Word Left
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_SWR( OpCode op_code, RegisterUsage & recorder ) 			// Store Word Right 
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_SD( OpCode op_code, RegisterUsage & recorder )			// Store Doubleword
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_SDL( OpCode op_code, RegisterUsage & recorder )
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_SDR( OpCode op_code, RegisterUsage & recorder )
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_CACHE( OpCode op_code, RegisterUsage & recorder )
@@ -306,28 +311,28 @@ void StaticAnalysis_LWC1( OpCode op_code, RegisterUsage & recorder ) 				// Load
 {
 	RegFPRWrite( op_code.ft );
 	recorder.Record( RegBaseUse( op_code.base ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_LDC1( OpCode op_code, RegisterUsage & recorder )				// Load Doubleword to Copro 1 (FPU)
 {
 	RegFPRWrite( op_code.ft );
 	recorder.Record( RegBaseUse( op_code.base ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_SWC1( OpCode op_code, RegisterUsage & recorder ) 			// Store Word From Copro 1
 {
 	RegFPRRead( op_code.ft );
 	recorder.Record( RegBaseUse( op_code.base ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_SDC1( OpCode op_code, RegisterUsage & recorder )		// Store Doubleword From Copro 1
 {
 	RegFPRRead( op_code.ft );
 	recorder.Record( RegBaseUse( op_code.base ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

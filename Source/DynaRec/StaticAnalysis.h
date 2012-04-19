@@ -59,12 +59,14 @@ namespace StaticAnalysis
 		u32			RegWrites;
 		u32			RegBase;
 		bool		mAccess_8000;
+//		bool		mAccess_A000;
 
 		RegisterUsage()
 			:	RegReads( 0 )
 			,	RegWrites( 0 )
 			,	RegBase( 0 )
 			,   mAccess_8000( false )
+//			,   mAccess_A000( false )
 		{
 		}
 
@@ -110,18 +112,18 @@ namespace StaticAnalysis
 		// Compiler was already inlining this, but just in case..
 		inline void		Access(u32 address)
 		{
-			// ToDO : Should we handle mem access @ A000?
-			// Mmm doesn't seem to work as I get BSODs in most games :/
-			//
-			mAccess_8000 = IS_SEG_8000(address)/* || IS_SEG_A000(address)*/;
-			/*if (address >= 0x80000000 && address < 0x80000000 + gRamSize)
+			mAccess_8000 = IS_SEG_8000(address);
+			
+			/*
+			if( IS_SEG_8000(address) )
 			{
-				  Memory = Segment_8000;
+				  mAccess_8000 = true;
 			}
 			else if (address >= 0xA0000000 && address < 0xA0000000 + gRamSize)
 			{
-				  Memory = Segment_A000;
-			}*/
+				  mAccess_A000 = true;
+			}
+			*/
 
 			//DAEDALUS_ASSERT(!(RegBase == 1 << 29 && Memory == Segment_Unknown), "Why Stack Point to static segment: 0x%08x", address);
 		}
