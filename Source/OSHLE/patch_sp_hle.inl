@@ -182,7 +182,7 @@ u32 Patch_osSpTaskLoad()
 {
 TEST_DISABLE_SP_FUNCS
 	u32 task = gGPR[REG_a0]._u32_0;
-	u32 status = SpGetStatus();
+	/*u32 status = SpGetStatus();
 
 	if ((status & SP_STATUS_HALT) == 0 ||
 		IsSpDeviceBusy())
@@ -190,7 +190,9 @@ TEST_DISABLE_SP_FUNCS
 		DBGConsole_Msg(0, "Sp Device is not HALTED, or is busy");
 		// We'd have to loop, and we can't do this...
 		return PATCH_RET_NOT_PROCESSED;
-	}
+	}*/
+	DAEDALUS_ASSERT( (SpGetStatus() & SP_STATUS_HALT), "Sp Device is not HALTED, Need to handle!");
+	DAEDALUS_ASSERT( !IsSpDeviceBusy(), "Sp Device is BUSY, Need to handle!");
 	
 	OSTask * pSrcTask = (OSTask *)ReadAddress(task);
 	OSTask * pDstTask = (OSTask *)ReadAddress(VAR_ADDRESS(osSpTaskLoadTempTask));
@@ -272,7 +274,8 @@ TEST_DISABLE_SP_FUNCS
 u32 Patch_osSpTaskStartGo()
 {
 TEST_DISABLE_SP_FUNCS
-	
+	DAEDALUS_ASSERT( !IsSpDeviceBusy(), "Sp Device is BUSY, Need to handle!");
+	/*
 	if (IsSpDeviceBusy())	// Device busy? 
 	{
 		// LOOP Until device not busy -
@@ -281,7 +284,7 @@ TEST_DISABLE_SP_FUNCS
 		DBGConsole_Msg(0, "Sp Device is BUSY, looping until not busy");
 		return PATCH_RET_NOT_PROCESSED;
 	}
-
+	*/
 	//DBGConsole_Msg(0, "__osSpTaskStartGo()");
 
 	//Memory_SP_SetRegister(SP_STATUS_REG, (SP_SET_INTR_BREAK|SP_CLR_SSTEP|SP_CLR_BROKE|SP_CLR_HALT));

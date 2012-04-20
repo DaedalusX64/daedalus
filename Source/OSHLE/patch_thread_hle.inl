@@ -196,7 +196,7 @@ TEST_DISABLE_THREAD_FUNCS
 	gCPUState.MultHi._u64 = QuickRead64Bits(pThreadBase, offsetof(OSThread, context.hi));
 
 	// Set the EPC
-	gCPUState.CPUControl[C0_EPC]._s64 = (s64)(s32)QuickRead32Bits(pThreadBase, offsetof(OSThread, context.pc));
+	gCPUState.CPUControl[C0_EPC]._u32_0 = QuickRead32Bits(pThreadBase, offsetof(OSThread, context.pc));
 
 	// Set the STATUS register. Normally this would trigger a
 	// Check for pending interrupts, but we're running in kernel mode
@@ -214,10 +214,11 @@ TEST_DISABLE_THREAD_FUNCS
 	if (RestoreFP != 0)
 	{
 		// Restore control reg
-		gCPUState.FPUControl[31]._u64 = QuickRead32Bits(pThreadBase, offsetof(OSThread, context.fpcsr));
+		gCPUState.FPUControl[31]._u32_0 = QuickRead32Bits(pThreadBase, offsetof(OSThread, context.fpcsr));
 
 		// Looks suspicious.. both seems to do ala doubles anyways.. We should optimize this when in 32bit mode
-		if (gCPUState.CPUControl[C0_SR]._u32_0 & SR_FR)
+		// Mmmm FullLength mode didn't do anything good in our interpreter..
+		/*if (gCPUState.CPUControl[C0_SR]._u32_0 & SR_FR)
 		{
 			// Doubles
 			for (u32 FPReg = 0; FPReg < 16; FPReg++)
@@ -225,21 +226,30 @@ TEST_DISABLE_THREAD_FUNCS
 				gCPUState.FPU[(FPReg*2) + 0]._u64 = QuickRead64Bits(pThreadBase, 0x0130 + (FPReg * 8));
 			}
 		}
-		else
+		else*/
 		{	
 			// Floats - can probably optimise this to eliminate 64 bits reads...
 			for (u32 FPReg = 0; FPReg < 16; FPReg++)
 			{
-				u64 data;
+				u64 data = QuickRead64Bits(pThreadBase, 0x0130 + (FPReg * 8));
 
-				data = QuickRead64Bits(pThreadBase, 0x0130 + (FPReg * 8));
+				gCPUState.FPU[(FPReg*2) + 0]._s32_0 = (s32)(data & 0xFFFFFFFF);
+				gCPUState.FPU[(FPReg*2) + 1]._s32_0 = (s32)(data>>32);
 
-				gCPUState.FPU[(FPReg*2) + 0]._s64 = (s64)(s32)(data & 0xFFFFFFFF);
-				gCPUState.FPU[(FPReg*2) + 1]._s64 = (s64)(s32)(data>>32);
+				// Mmm for some reason this adds two more ops.. than above
+				/*
+				REG64	r;
+				r._u64 = QuickRead64Bits(pThreadBase, 0x0130 + (FPReg * 8));
+		
+				gCPUState.FPU[(FPReg*2)+0]._u32_0 = r._u32_0;
+				gCPUState.FPU[(FPReg*2)+1]._u32_0 = r._u32_1;
+				*/
 			}
 		
 		}
 	}
+
+
 
 	// Set interrupt mask...does this do anything???
 	u32 rcp = QuickRead32Bits(pThreadBase, 0x0128);
@@ -346,7 +356,7 @@ TEST_DISABLE_THREAD_FUNCS
 	gCPUState.MultHi._u64 = QuickRead64Bits(pThreadBase, offsetof(OSThread, context.hi));
 
 	// Set the EPC
-	gCPUState.CPUControl[C0_EPC]._s64 = (s64)(s32)QuickRead32Bits(pThreadBase, offsetof(OSThread, context.pc));
+	gCPUState.CPUControl[C0_EPC]._u32_0 = QuickRead32Bits(pThreadBase, offsetof(OSThread, context.pc));
 
 
 	// Check if the FP unit was used
@@ -354,11 +364,13 @@ TEST_DISABLE_THREAD_FUNCS
 	if (RestoreFP != 0)
 	{
 		// Restore control reg
-		gCPUState.FPUControl[31]._u64 = QuickRead32Bits(pThreadBase, offsetof(OSThread, context.fpcsr));
+		gCPUState.FPUControl[31]._u32_0 = QuickRead32Bits(pThreadBase, offsetof(OSThread, context.fpcsr));
 
 		// Looks suspicious.. both seems to do ala doubles anyways.. We should optimize this when in 32bit mode
-		if (gCPUState.CPUControl[C0_SR]._u32_0 & SR_FR)
+		// Mmmm FullLength mode didn't do anything good in our interpreter..
+		/*if (gCPUState.CPUControl[C0_SR]._u32_0 & SR_FR)
 		{
+
 			// Doubles
 			for (u32 FPReg = 0; FPReg < 16; FPReg++)
 			{
@@ -366,17 +378,25 @@ TEST_DISABLE_THREAD_FUNCS
 			}
 		}
 		else
-
+		*/
 		{	
 			// Floats - can probably optimise this to eliminate 64 bits reads...
 			for (u32 FPReg = 0; FPReg < 16; FPReg++)
 			{
-				u64 data;
+				u64 data = QuickRead64Bits(pThreadBase, 0x0130 + (FPReg * 8));
 
-				data = QuickRead64Bits(pThreadBase, 0x0130 + (FPReg * 8));
+				gCPUState.FPU[(FPReg*2) + 0]._s32_0 = (s32)(data & 0xFFFFFFFF);
+				gCPUState.FPU[(FPReg*2) + 1]._s32_0 = (s32)(data>>32);
 
-				gCPUState.FPU[(FPReg*2) + 0]._s64 = (s64)(s32)(data & 0xFFFFFFFF);
-				gCPUState.FPU[(FPReg*2) + 1]._s64 = (s64)(s32)(data>>32);
+				
+				// Mmm for some reason this adds two more ops.. than above
+				/*
+				REG64	r;
+				r._u64 = QuickRead64Bits(pThreadBase, 0x0130 + (FPReg * 8));
+		
+				gCPUState.FPU[(FPReg*2)+0]._u32_0 = r._u32_0;
+				gCPUState.FPU[(FPReg*2)+1]._u32_0 = r._u32_1;
+				*/
 			}
 		
 		}
@@ -633,7 +653,8 @@ TEST_DISABLE_THREAD_FUNCS
 		// Save control reg
 		QuickWrite32Bits(pThreadBase, 0x012c, gCPUState.FPUControl[31]._u32_0);
 
-		if (gCPUState.CPUControl[C0_SR]._u32_0 & SR_FR)
+		// Mmmm FullLength mode didn't do anything good in our interpreter..
+		/*if (gCPUState.CPUControl[C0_SR]._u32_0 & SR_FR)
 		{
 			// Doubles
 			for (u32 FPReg = 0; FPReg < 16; FPReg++)
@@ -641,7 +662,7 @@ TEST_DISABLE_THREAD_FUNCS
 				QuickWrite64Bits(pThreadBase, 0x0130 + (FPReg * 8), gCPUState.FPU[(FPReg*2) + 0]._u64);
 			}
 		}
-		else
+		else*/
 		{	
 			// Floats - can probably optimise this to eliminate 64 bits writes...
 			for (u32 FPReg = 0; FPReg < 16; FPReg++)
@@ -653,6 +674,14 @@ TEST_DISABLE_THREAD_FUNCS
 					       (gCPUState.FPU[(FPReg*2)+0]._u64&0xFFFFFFFF) );
 
 				QuickWrite64Bits(pThreadBase, 0x0130 + (FPReg * 8), temp);
+
+				// Mmm for some reason this adds two more ops.. than above
+				/*REG64 res;
+				res._u32_0 = gCPUState.FPU[(FPReg*2)+0]._u32_0;
+				res._u32_1 = gCPUState.FPU[(FPReg*2)+1]._u32_0;
+
+				QuickWrite64Bits(pThreadBase, 0x0130 + (FPReg * 8), res._u64);
+				*/
 			}
 		}
 	}
