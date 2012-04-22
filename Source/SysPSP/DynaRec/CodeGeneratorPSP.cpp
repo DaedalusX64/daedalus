@@ -1498,20 +1498,18 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 
 	mPrevious_rt = rt;
 
+	//	Default handling - call interpreting function
+	//
 	if( !handled )
 	{
-		
-		bool mBranchDelaySet = false;
-		/*
+		#if 1 //1->Show not handled OP codes (Require that DAEDALUS_SILENT flag is undefined)		
 		char msg[100];
 		SprintOpCodeInfo( msg, address, op_code );
 		printf( "Unhandled: 0x%08x %s\n", address, msg );
-		*/
+		#endif
 
-		//
-		//	Default handling - call interpreting function
-		//
-		bool	need_pc( R4300_InstructionHandlerNeedsPC( op_code ) );
+		bool BranchDelaySet = false;
+		bool need_pc( R4300_InstructionHandlerNeedsPC( op_code ) );
 
 		if( !need_pc )
 		{
@@ -1524,7 +1522,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			if( branch_delay_slot )
 			{
 				SetVar( &gCPUState.Delay, EXEC_DELAY );
-				mBranchDelaySet = true;
+				BranchDelaySet = true;
 			}
 
 			GenerateGenericR4300( op_code, R4300_GetInstructionHandler( op_code ) );
@@ -1535,7 +1533,6 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 
 			JAL( CCodeLabel( reinterpret_cast< const void * >( _ReturnFromDynaRecIfStuffToDo ) ), false );
 			ORI( PspReg_A0, PspReg_R0, 0 );
-
 		}
 
 		// Check whether we want to invert the status of this branch
@@ -1570,10 +1567,9 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			}
 		}
 
-		if( mBranchDelaySet )
+		if( BranchDelaySet )
 		{
 			SetVar( &gCPUState.Delay, NO_DELAY );
-			mBranchDelaySet = false;
 		}
 	}
 
@@ -1796,14 +1792,15 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 	}
 #endif
 
-	if( offset != 0 )
-	{
-		ADDIU( PspReg_A0, reg_address, offset );
-		reg_address = PspReg_A0;
-	}
-
 	if( swizzle != 0 )
 	{
+		if( offset != 0 )
+		{
+			ADDIU( PspReg_A0, reg_address, offset );
+			reg_address = PspReg_A0;
+			offset = 0;
+		}
+
 		XORI( PspReg_A0, reg_address, swizzle );
 		reg_address = PspReg_A0;
 	}
@@ -1824,7 +1821,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 		SLT( PspReg_T0, reg_address, gMemUpperBoundReg );	// t1 = upper < address
 		CJumpLocation branch( BEQ( PspReg_T0, PspReg_R0, CCodeLabel( NULL ), false ) );		// branch to jump to handler
 		ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
-		CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, 0 );
+		CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
 
 		CCodeLabel		continue_location( GetAssemblyBuffer()->GetLabel() );
 
@@ -1834,6 +1831,11 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 		CAssemblyWriterPSP::SetBufferB();
 
 		CCodeLabel		handler_label( GetAssemblyBuffer()->GetLabel() );
+		if( offset != 0 )
+		{
+			ADDIU( PspReg_A0, reg_address, offset );
+			reg_address = PspReg_A0;
+		}
 		GenerateSlowLoad( current_pc, psp_dst, reg_address, p_read_memory );
 
 		CJumpLocation	ret_handler( J( continue_location, true ) );
@@ -1855,8 +1857,13 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 		SLT( PspReg_T0, reg_address, gMemUpperBoundReg );	// t1 = upper < address
 		ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
 		CJumpLocation branch( BNEL( PspReg_T0, PspReg_R0, CCodeLabel( NULL ), false ) );
-		CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, 0 );
+		CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
 
+		if( offset != 0 )
+		{
+			ADDIU( PspReg_A0, reg_address, offset );
+			reg_address = PspReg_A0;
+		}
 		GenerateSlowLoad( current_pc, psp_dst, reg_address, p_read_memory );
 
 		PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
@@ -2090,14 +2097,15 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 	}
 #endif
 
-	if( offset != 0 )
-	{
-		ADDIU( PspReg_A0, reg_address, offset );
-		reg_address = PspReg_A0;
-	}
-
 	if( swizzle != 0 )
 	{
+		if( offset != 0 )
+		{
+			ADDIU( PspReg_A0, reg_address, offset );
+			reg_address = PspReg_A0;
+			offset = 0;
+		}
+
 		XORI( PspReg_A0, reg_address, swizzle );
 		reg_address = PspReg_A0;
 	}
@@ -2107,7 +2115,7 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 		SLT( PspReg_T0, reg_address, gMemUpperBoundReg );	// t1 = upper < address
 		CJumpLocation branch( BEQ( PspReg_T0, PspReg_R0, CCodeLabel( NULL ), false ) );
 		ADDU( PspReg_T1, reg_address, gMemoryBaseReg );
-		CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T1, 0 );
+		CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T1, offset );
 
 		CCodeLabel		continue_location( GetAssemblyBuffer()->GetLabel() );
 
@@ -2117,6 +2125,11 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 		CAssemblyWriterPSP::SetBufferB();
 
 		CCodeLabel		handler_label( GetAssemblyBuffer()->GetLabel() );
+		if( offset != 0 )
+		{
+			ADDIU( PspReg_A0, reg_address, offset );
+			reg_address = PspReg_A0;
+		}
 		GenerateSlowStore( current_pc, psp_src, reg_address, p_write_memory );
 
 		CJumpLocation	ret_handler( J( continue_location, true ) );
@@ -2133,14 +2146,18 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 		SLT( PspReg_T0, reg_address, gMemUpperBoundReg );	// t1 = upper < address
 		ADDU( PspReg_T1, reg_address, gMemoryBaseReg );
 		CJumpLocation branch( BNEL( PspReg_T0, PspReg_R0, CCodeLabel( NULL ), false ) );
-		CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T1, 0 );
+		CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T1, offset );
 
+		if( offset != 0 )
+		{
+			ADDIU( PspReg_A0, reg_address, offset );
+			reg_address = PspReg_A0;
+		}
 		GenerateSlowStore( current_pc, psp_src, reg_address, p_write_memory );
 
 		PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
 	}
 }
-
 
 //*****************************************************************************
 //
