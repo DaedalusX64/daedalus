@@ -1502,11 +1502,12 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	//
 	if( !handled )
 	{
-		#if 1 //1->Show not handled OP codes (Require that DAEDALUS_SILENT flag is undefined)		
+#if 0 //1->Show not handled OP codes (Require that DAEDALUS_SILENT flag is undefined)	
+	  // Note: Cop1Op_DInstr is not handled, make sure to comment it out to see their OP codes here!
 		char msg[100];
 		SprintOpCodeInfo( msg, address, op_code );
 		printf( "Unhandled: 0x%08x %s\n", address, msg );
-		#endif
+#endif
 
 		bool BranchDelaySet = false;
 		bool need_pc( R4300_InstructionHandlerNeedsPC( op_code ) );
