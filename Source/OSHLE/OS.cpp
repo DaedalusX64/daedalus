@@ -92,7 +92,7 @@ u32 OS_HLE___osProbeTLB(u32 vaddr)
 
     for(u32 i = 0; i < 32; i++)
 	{
-		struct TLBEntry & tlb = g_TLBs[i];
+		const TLBEntry & tlb = g_TLBs[i];
 
 		if( ((tlb.hi & TLBHI_VPN2MASK) == vpn2) && ( (tlb.g) || ((tlb.hi & TLBHI_PIDMASK) == pid) ) )
 		{

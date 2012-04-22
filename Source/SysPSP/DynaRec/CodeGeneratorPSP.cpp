@@ -1280,8 +1280,6 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	bool	handled( false );
 	bool	is_nop( op_code._u32 == 0 );
 
-	mBranchDelaySet = false;
-
 	if( is_nop )
 	{
 		if( branch_delay_slot )
@@ -1433,7 +1431,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 
 		case Cop1Op_DInstr:
 			// Need branch delay?
-			GenerateGenericR4300( op_code, R4300_GetInstructionHandler( op_code ) );
+			GenerateGenericR4300( op_code, R4300_GetDInstructionHandler( op_code ) );
 			handled = true;
 			break;
 
@@ -1502,6 +1500,8 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 
 	if( !handled )
 	{
+		
+		bool mBranchDelaySet = false;
 		/*
 		char msg[100];
 		SprintOpCodeInfo( msg, address, op_code );
@@ -1537,15 +1537,11 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			ORI( PspReg_A0, PspReg_R0, 0 );
 
 		}
-	}
 
-	CCodeLabel		no_target( NULL );
-
-	// Check whether we want to invert the status of this branch
-	if( p_branch != NULL )
-	{
-		if(!handled)
+		// Check whether we want to invert the status of this branch
+		if( p_branch != NULL )
 		{
+			CCodeLabel		no_target( NULL );
 			//
 			// Check if the branch has been taken
 			//
@@ -1573,12 +1569,12 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 				}
 			}
 		}
-	}
 
-	if( mBranchDelaySet )
-	{
-		SetVar( &gCPUState.Delay, NO_DELAY );
-		mBranchDelaySet = false;
+		if( mBranchDelaySet )
+		{
+			SetVar( &gCPUState.Delay, NO_DELAY );
+			mBranchDelaySet = false;
+		}
 	}
 
 	return CJumpLocation();

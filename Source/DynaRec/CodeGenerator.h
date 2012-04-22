@@ -60,7 +60,7 @@ class CCodeGenerator
 
 		virtual CCodeLabel			GetEntryPoint() const = 0;
 		virtual CCodeLabel			GetCurrentLocation() const = 0;
-		virtual u32					GetCompiledCodeSize() const = 0;
+//		virtual u32					GetCompiledCodeSize() const = 0;
 
 		virtual	CJumpLocation		GenerateExitCode( u32 exit_address, u32 jump_address, u32 num_instructions, CCodeLabel next_fragment ) = 0;
 		virtual void				GenerateEretExitCode( u32 num_instructions, CIndirectExitMap * p_map ) = 0;

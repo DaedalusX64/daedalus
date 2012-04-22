@@ -30,6 +30,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 void R4300_SetSR( u32 new_value );
 
 extern CPU_Instruction R4300Instruction[64];
+extern CPU_Instruction R4300Cop1DInstruction[64];
+
+inline CPU_Instruction	R4300_GetDInstructionHandler( OpCode op_code )
+{
+	return R4300Cop1DInstruction[ op_code.cop1_funct ];
+}
 
 CPU_Instruction	R4300_GetInstructionHandler( OpCode op_code );
 bool			R4300_InstructionHandlerNeedsPC( OpCode op_code );
