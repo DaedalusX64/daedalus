@@ -257,6 +257,7 @@ ifeq ($(VERSION),)
 	#Windows
 	EXTRA_TARGETS := svn $(EXTRA_TARGETS)
 	#include $(PSPSDK)/lib/build.mak
+	# Fix for MinPSPW's D support which conflicts with -MD (dependency build) flag..
 	include SDK/lib/build.mak
 svn:
 	@echo svnversion not found, trying SubWCRev
@@ -266,8 +267,7 @@ else
 	CFLAGS += -DSVNVERSION=\"$(VERSION)\"
 	PSP_EBOOT_TITLE += $(VERSION)
 
-	#include $(PSPSDK)/lib/build.mak
-	include SDK/lib/build.mak
+	include $(PSPSDK)/lib/build.mak
 endif
 
 

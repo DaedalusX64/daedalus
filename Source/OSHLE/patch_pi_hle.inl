@@ -74,10 +74,10 @@ inline bool IsPiDeviceBusy()
 u32 Patch_osPiRawStartDma()
 {
 TEST_DISABLE_PI_FUNCS
-	u32 RWflag = gGPR[REG_a0]._u32_0;
-	u32 PiAddr = gGPR[REG_a1]._u32_0;
-	u32 VAddr  = gGPR[REG_a2]._u32_0;
-	u32 len    = gGPR[REG_a3]._u32_0;
+	const u32 RWflag = gGPR[REG_a0]._u32_0;
+	const u32 PiAddr = gGPR[REG_a1]._u32_0;
+	const u32 VAddr  = gGPR[REG_a2]._u32_0;
+	const u32 len    = gGPR[REG_a3]._u32_0;
 
 	u32 PAddr = ConvertToPhysics(VAddr);
 
@@ -86,19 +86,14 @@ TEST_DISABLE_PI_FUNCS
 	
 	if (IsPiDeviceBusy())
 	{
-		gGPR[REG_v0]._s64 = (s64)(s32)~0;
+		gGPR[REG_v0]._u32_0 = ~0;
 	}
 	else
 	{
-		if (RWflag == OS_READ)  
-		{
-			Write32Bits(PI_WR_LEN_REG | 0xA0000000, len - 1);
-		}
-		else
-		{
-			Write32Bits(PI_RD_LEN_REG | 0xA0000000, len - 1);
-		}
-		gGPR[REG_v0]._u64 = 0;
+		u32 flag = (RWflag == OS_READ) ? PI_WR_LEN_REG : PI_RD_LEN_REG;
+
+		Write32Bits(flag | 0xA0000000, len - 1);
+		gGPR[REG_v0]._u32_0 = 0;
 	}
 
 	return PATCH_RET_JR_RA;

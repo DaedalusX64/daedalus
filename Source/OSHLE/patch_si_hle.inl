@@ -152,21 +152,17 @@ u32 Patch___osSiRawStartDma_Mario()
 	u32 PAddr = ConvertToPhysics(SIAddr);
 	if (IsSiDeviceBusy())
 	{
-		gGPR[REG_v0]._s64 = (s64)(s32)~0;
+		gGPR[REG_v0]._u32_0 = ~0;
 	}
 	else
 	{
 		Memory_SI_SetRegister( SI_DRAM_ADDR_REG, PAddr);
-		if (RWflag == OS_READ)  
-		{
-			Write32Bits(SI_PIF_ADDR_RD64B_REG | 0xA0000000, 0);
-		}
-		else
-		{
-			Write32Bits(SI_PIF_ADDR_WR64B_REG | 0xA0000000, 0);
-		}
+	
+		u32 flag = (RWflag == OS_READ) ? SI_PIF_ADDR_RD64B_REG : SI_PIF_ADDR_WR64B_REG;
 
-		gGPR[REG_v0]._u64 = 0;
+		Write32Bits(flag | 0xA0000000, 0);
+
+		gGPR[REG_v0]._u32_0 = 0;
 	}
 
 	return PATCH_RET_JR_RA;

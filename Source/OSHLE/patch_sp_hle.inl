@@ -47,17 +47,16 @@ TEST_DISABLE_SP_FUNCS
 	}
 	else
 	{
-#ifndef DAEDALUS_SILENT
-		if (PAddr == 0)
-		{
-			//FIXME
-			DBGConsole_Msg(0, "Address Translation necessary!");
-		}
-#endif
+		//FIXME
+		DAEDALUS_ASSERT( PAddr,"Address Translation necessary!");
+
 		Memory_SP_SetRegister( SP_MEM_ADDR_REG, SPAddr);
 		Memory_SP_SetRegister( SP_DRAM_ADDR_REG, PAddr);
 		
-		Write32Bits( RWflag == OS_READ ? SP_WR_LEN_REG : SP_RD_LEN_REG | 0xA0000000, len - 1 );
+		// This is correct - SP_WR_LEN_REG is a read (from RDRAM to device!)
+		u32 flag = (RWflag == OS_READ) ? SP_WR_LEN_REG : SP_RD_LEN_REG;
+
+		Write32Bits( flag | 0xA0000000, len - 1 );
 
 		gGPR[REG_v0]._u32_0 = 0;
 	}
