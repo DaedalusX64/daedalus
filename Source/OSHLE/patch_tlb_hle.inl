@@ -14,6 +14,12 @@ TEST_DISABLE_TLB_FUNCS
 	u32 z = gGPR[REG_a3]._u32_0;
 	u32 a = Read32Bits(gGPR[REG_sp]._u32_0 + 0x10);
 	u32 b = Read32Bits(gGPR[REG_sp]._u32_0 + 0x14);
+	use(w);
+	use(x);
+	use(y);
+	use(z);
+	use(a);
+	use(b);
 
 	DBGConsole_Msg(0, "[WosMapTLB(0x%08x,0x%08x,0x%08x,0x%08x,0x%08x,0x%08x)]",
 		w,x,y,z,a,b);

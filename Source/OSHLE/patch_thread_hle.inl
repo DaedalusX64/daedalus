@@ -160,6 +160,18 @@ TEST_DISABLE_THREAD_FUNCS
 	// Set the current thread's status to OS_STATE_RUNNING:
 	Write16Bits(thread + offsetof(OSThread, state), OS_STATE_RUNNING);
 
+#if 1	//1->better cache efficiency //Corn
+	// CPU regs
+	for(u32 Reg = 1; Reg < 26; Reg++)	//AT -> T9
+	{
+		gGPR[Reg]._u64 = QuickRead64Bits(pThreadBase, 0x0018 + (Reg << 3));
+	}
+	gGPR[REG_gp]._u64 = QuickRead64Bits(pThreadBase, 0x00e8);
+	gGPR[REG_sp]._u64 = QuickRead64Bits(pThreadBase, 0x00f0);
+	gGPR[REG_s8]._u64 = QuickRead64Bits(pThreadBase, 0x00f8);
+	gGPR[REG_ra]._u64 = QuickRead64Bits(pThreadBase, 0x0100);
+
+#else
 	// Restore all registers:
 	// For speed, we cache the base pointer!!!
 	gGPR[REG_at]._u64 = QuickRead64Bits(pThreadBase, 0x0020);
@@ -191,6 +203,7 @@ TEST_DISABLE_THREAD_FUNCS
 	gGPR[REG_sp]._u64 = QuickRead64Bits(pThreadBase, 0x00f0);
 	gGPR[REG_s8]._u64 = QuickRead64Bits(pThreadBase, 0x00f8);
 	gGPR[REG_ra]._u64 = QuickRead64Bits(pThreadBase, 0x0100);
+#endif
 
 	gCPUState.MultLo._u64 = QuickRead64Bits(pThreadBase, offsetof(OSThread, context.lo));
 	gCPUState.MultHi._u64 = QuickRead64Bits(pThreadBase, offsetof(OSThread, context.hi));
@@ -231,21 +244,10 @@ TEST_DISABLE_THREAD_FUNCS
 			// Floats - can probably optimise this to eliminate 64 bits reads...
 			for (u32 FPReg = 0; FPReg < 16; FPReg++)
 			{
-				u64 data = QuickRead64Bits(pThreadBase, 0x0130 + (FPReg * 8));
-
-				gCPUState.FPU[(FPReg*2) + 0]._s32_0 = (s32)(data & 0xFFFFFFFF);
-				gCPUState.FPU[(FPReg*2) + 1]._s32_0 = (s32)(data>>32);
-
-				// Mmm for some reason this adds two more ops.. than above
-				/*
-				REG64	r;
-				r._u64 = QuickRead64Bits(pThreadBase, 0x0130 + (FPReg * 8));
-		
-				gCPUState.FPU[(FPReg*2)+0]._u32_0 = r._u32_0;
-				gCPUState.FPU[(FPReg*2)+1]._u32_0 = r._u32_1;
-				*/
+				gCPUState.FPU[(FPReg*2)+1]._u32_0 = QuickRead32Bits(pThreadBase, 0x0130 + (FPReg << 3));
+				gCPUState.FPU[(FPReg*2)+0]._u32_0 = QuickRead32Bits(pThreadBase, 0x0134 + (FPReg << 3));
 			}
-		
+
 		}
 	}
 
@@ -319,6 +321,18 @@ TEST_DISABLE_THREAD_FUNCS
 
 	R4300_SetSR(k1);
 
+#if 1	//1->better cache efficiency //Corn
+	// CPU regs
+	for(u32 Reg = 1; Reg < 26; Reg++)	//AT -> T9
+	{
+		gGPR[Reg]._u64 = QuickRead64Bits(pThreadBase, 0x0018 + (Reg << 3));
+	}
+	gGPR[REG_gp]._u64 = QuickRead64Bits(pThreadBase, 0x00e8);
+	gGPR[REG_sp]._u64 = QuickRead64Bits(pThreadBase, 0x00f0);
+	gGPR[REG_s8]._u64 = QuickRead64Bits(pThreadBase, 0x00f8);
+	gGPR[REG_ra]._u64 = QuickRead64Bits(pThreadBase, 0x0100);
+
+#else
 	// Restore all registers:
 	// For speed, we cache the base pointer!!!
 	gGPR[REG_at]._u64 = QuickRead64Bits(pThreadBase, 0x0020);
@@ -350,6 +364,7 @@ TEST_DISABLE_THREAD_FUNCS
 	gGPR[REG_sp]._u64 = QuickRead64Bits(pThreadBase, 0x00f0);
 	gGPR[REG_s8]._u64 = QuickRead64Bits(pThreadBase, 0x00f8);
 	gGPR[REG_ra]._u64 = QuickRead64Bits(pThreadBase, 0x0100);
+#endif
 
 
 	gCPUState.MultLo._u64 = QuickRead64Bits(pThreadBase, offsetof(OSThread, context.lo));
@@ -383,20 +398,8 @@ TEST_DISABLE_THREAD_FUNCS
 			// Floats - can probably optimise this to eliminate 64 bits reads...
 			for (u32 FPReg = 0; FPReg < 16; FPReg++)
 			{
-				u64 data = QuickRead64Bits(pThreadBase, 0x0130 + (FPReg * 8));
-
-				gCPUState.FPU[(FPReg*2) + 0]._s32_0 = (s32)(data & 0xFFFFFFFF);
-				gCPUState.FPU[(FPReg*2) + 1]._s32_0 = (s32)(data>>32);
-
-				
-				// Mmm for some reason this adds two more ops.. than above
-				/*
-				REG64	r;
-				r._u64 = QuickRead64Bits(pThreadBase, 0x0130 + (FPReg * 8));
-		
-				gCPUState.FPU[(FPReg*2)+0]._u32_0 = r._u32_0;
-				gCPUState.FPU[(FPReg*2)+1]._u32_0 = r._u32_1;
-				*/
+				gCPUState.FPU[(FPReg*2)+1]._u32_0 = QuickRead32Bits(pThreadBase, 0x0130 + (FPReg << 3));
+				gCPUState.FPU[(FPReg*2)+0]._u32_0 = QuickRead32Bits(pThreadBase, 0x0134 + (FPReg << 3));
 			}
 		
 		}
@@ -523,6 +526,7 @@ TEST_DISABLE_THREAD_FUNCS
 
 #ifndef DAEDALUS_SILENT
 	u32 thread = gGPR[REG_a0]._u32_0;
+	use(thread);
 	DBGConsole_Msg(0, "osDestroyThread(0x%08x)", thread);
 #endif
 

@@ -1186,6 +1186,9 @@ TEST_DISABLE_FUNCS
 	u32 mq       = gGPR[REG_a0]._u32_0;
 	u32 attached = gGPR[REG_a1]._u32_0;
 	u32 cs       = gGPR[REG_a2]._u32_0;
+	use(mq);
+	use(attached);
+	use(cs);
 
 	DBGConsole_Msg(0, "osContInit(0x%08x, 0x%08x, 0x%08x), ra = 0x%08x",
 		mq, attached, cs, gGPR[REG_ra]._u32_0);
@@ -1199,6 +1202,7 @@ u32 Patch___osContAddressCrc()
 TEST_DISABLE_FUNCS
 #ifndef DAEDALUS_SILENT
 	u32 address = gGPR[REG_a0]._u32_0;
+	use(address);
 	DBGConsole_Msg(0, "__osContAddressCrc(0x%08x)", address);
 #endif
 	return PATCH_RET_NOT_PROCESSED;
