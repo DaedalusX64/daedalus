@@ -62,8 +62,16 @@ struct MicrocodeData
 //
 // Used to keep track of used ucode entries
 //
+struct UcodeInfo
+{
+	u32	ucode;
+	u32	code_base;
+	u32	data_base;
+
+	bool used;
+};
+
 UcodeInfo used[ MAX_UCODE_CACHE_ENTRIES ];
-UcodeInfo current;
 //*****************************************************************************
 //
 //*****************************************************************************

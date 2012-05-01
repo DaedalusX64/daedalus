@@ -43,19 +43,16 @@ void DLParser_GBI2_Vtx( MicroCodeCommand command )
     }
 
     // Check that address is valid...
-    if ( (address + (n*16) ) > MAX_RAM_ADDRESS )
-    {
-        DBGConsole_Msg( 0, "SetNewVertexInfo: Address out of range (0x%08x)", address );
-    }
-    else
-    {
-        PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
+	// Only games I seen that set this are Mario Golf/Tennis, but it looks like is caused by a dynarec issue, anyways they crash eventually
+	DAEDALUS_ASSERT( (address + (n*16) ) < MAX_RAM_ADDRESS, "Address out of range (0x%08x)", addr );
+ 
+	PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-        gNumVertices += n;
-        DLParser_DumpVtxInfo( address, v0, n );
+	gNumVertices += n;
+	DLParser_DumpVtxInfo( address, v0, n );
 #endif
-    }
+
 }
 
 //*****************************************************************************
@@ -463,7 +460,6 @@ void DLParser_GBI2_SetOtherModeL( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_Texture( MicroCodeCommand command )
 {
-	 
 	u32 tile    = command.texture.tile;
     bool enable = command.texture.enable_gbi2;   // Seems to use 0x02                    
 

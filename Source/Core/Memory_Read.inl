@@ -576,51 +576,15 @@ static void * ReadROM( u32 address )
 //*****************************************************************************
 // 0x1FC0 0000 to 0x1FC0 07BF PIF Boot ROM
 // 0x1FC0 07C0 to 0x1FC0 07FF PIF RAM
-// I think this is backwards - Kreationz
 //*****************************************************************************
 static void * Read_9FC0_9FCF( u32 address )
 {
-	u32 offset;
-	//u32 dwCIC = 0x91;
-	
-	if ((address&0x1FFFFFFF) <= PIF_ROM_END)
-	{
-		DPF( DEBUG_MEMORY_PIF, "Reading from MEM_PIF_ROM: 0x%08x", address );
+	u32 offset = address & 0x0FFF;
+	//u32 cic = 0x91;
 
-		offset = address & 0x0FFF;
+	//if( MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) <= PIF_RAM_END) )
+	//if( MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) <= PIF_ROM_END) )
 
-		return (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset;
-	}
- 	
-	else if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) <= PIF_RAM_END))
-	{
-		DPF( DEBUG_MEMORY_PIF, "Reading from MEM_PIF_RAM: 0x%08x", address );
-
-		offset = address & 0x0FFF;
-
-#ifndef DAEDALUS_SILENT
-		//ToDo: Good Place to check PIF Stuff
-		u32 val = *(u32*)((u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset);
-		switch (offset)
-		{
-		case 0x7C0 + 0x24:
-			DBGConsole_Msg(0, "[YReading CIC Values]  : [[0x%08x[] -> 0x%08x", address, val); 
-			break;
-		case 0x7C0 + 0x3c:
-			DBGConsole_Msg(0, "[YReading Control Byte]: [[0x%08x[] -> 0x%08x", address, val);
-			break;
-		default:
-			DBGConsole_Msg(0, "[WReading directly from PI ram]: [[0x%08x[] -> 0x%08x", address, val);
-			
-		}
-#endif
-
-		return (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset;
-	}
-	else
-	{
-		return ReadInvalid(address);
-	} 
+	DPF( DEBUG_MEMORY_PIF, "Reading from MEM_PIF: 0x%08x", address );
+	return (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset;
 }
-
-

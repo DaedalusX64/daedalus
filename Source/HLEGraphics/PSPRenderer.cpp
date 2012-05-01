@@ -74,8 +74,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "PopStructPack.h"
 
-extern SImageDescriptor g_CI;		// XXXX SImageDescriptor g_CI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
-extern SImageDescriptor g_DI;		// XXXX SImageDescriptor g_DI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
+//extern SImageDescriptor g_CI;		// XXXX SImageDescriptor g_CI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
+//extern SImageDescriptor g_DI;		// XXXX SImageDescriptor g_DI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 
 extern "C"
 {
@@ -250,7 +250,7 @@ PSPRenderer::PSPRenderer()
 ,	mReloadProj(true)
 ,	mWPmodified(false)
 
-,	m_dwNumIndices(0)
+,	mNumIndices(0)
 ,	mVtxClipFlagsUnion( 0 )
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -447,7 +447,7 @@ void	PSPRenderer::Reset()
 {
 	ResetMatrices();
 
-	m_dwNumIndices = 0;
+	mNumIndices = 0;
 	mVtxClipFlagsUnion = 0;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -1365,13 +1365,13 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	++m_dwNumTrisRendered;
 #endif
 
-	m_swIndexBuffer[ m_dwNumIndices++ ] = (u16)v0;
-	m_swIndexBuffer[ m_dwNumIndices++ ] = (u16)v1;
-	m_swIndexBuffer[ m_dwNumIndices++ ] = (u16)v2;
+	m_swIndexBuffer[ mNumIndices++ ] = (u16)v0;
+	m_swIndexBuffer[ mNumIndices++ ] = (u16)v1;
+	m_swIndexBuffer[ mNumIndices++ ] = (u16)v2;
 
 	mVtxClipFlagsUnion |= f0 | f1 | f2;
 
-	DAEDALUS_ASSERT( m_dwNumIndices < MAX_VERTICES, " Array overflow, to many Indices" );
+	DAEDALUS_ASSERT( mNumIndices < MAX_VERTICES, " Array overflow, to many Indices" );
 
 	return true;
 }
@@ -1382,13 +1382,15 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 void PSPRenderer::FlushTris()
 {
 	DAEDALUS_PROFILE( "PSPRenderer::FlushTris" );
-
-	if ( m_dwNumIndices == 0 )
+	/*
+	if ( mNumIndices == 0 )
 	{
 		DAEDALUS_ERROR("Call to FlushTris() with nothing to render");
 		mVtxClipFlagsUnion = 0; // Reset software clipping detector
 		return;
 	}
+	*/
+	DAEDALUS_ASSERT( mNumIndices, "Call to FlushTris() with nothing to render" );
 
 	u32				num_vertices;
 	DaedalusVtx *	p_vertices;
@@ -1407,7 +1409,7 @@ void PSPRenderer::FlushTris()
 	if( num_vertices == 0 )
 	{
 		DAEDALUS_ERROR("No Vtx to render");
-		m_dwNumIndices = 0;
+		mNumIndices = 0;
 		mVtxClipFlagsUnion = 0;
 		return;
 	}
@@ -1419,7 +1421,7 @@ void PSPRenderer::FlushTris()
 		if ( (g_DI.Address == g_CI.Address) && gRDPOtherMode.z_cmp+gRDPOtherMode.z_upd > 0 )
 		{
 			DAEDALUS_ERROR("Warning: using Flushtris to write Zbuffer" );
-			m_dwNumIndices = 0;
+			mNumIndices = 0;
 			mVtxClipFlagsUnion = 0;
 			skipNext = true;
 			return;
@@ -1427,7 +1429,7 @@ void PSPRenderer::FlushTris()
 		else if( skipNext )
 		{
 			skipNext = false;
-			m_dwNumIndices = 0;
+			mNumIndices = 0;
 			mVtxClipFlagsUnion = 0;
 			return;
 		}	
@@ -1481,7 +1483,7 @@ void PSPRenderer::FlushTris()
 
 	//sceGuDisable(GU_CULL_FACE);
 
-	m_dwNumIndices = 0;
+	mNumIndices = 0;
 	mVtxClipFlagsUnion = 0;
 }
 
@@ -1648,7 +1650,7 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 	//
 	u32 num_vertices = 0;
 
-	for(u32 i = 0; i < (m_dwNumIndices - 2);)
+	for(u32 i = 0; i < (mNumIndices - 2);)
 	{
 		const u32 & idx0 = m_swIndexBuffer[ i++ ];
 		const u32 & idx1 = m_swIndexBuffer[ i++ ];
@@ -1759,9 +1761,9 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 void PSPRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num_vertices ) const
 {
 	DAEDALUS_PROFILE( "PSPRenderer::PrepareTrisUnclipped" );
-	DAEDALUS_ASSERT( m_dwNumIndices > 0, "The number of indices should have been checked" );
+	DAEDALUS_ASSERT( mNumIndices > 0, "The number of indices should have been checked" );
 
-	u32				num_vertices( m_dwNumIndices );
+	u32				num_vertices( mNumIndices );
 	DaedalusVtx *	p_vertices( (DaedalusVtx*)sceGuGetMemory(num_vertices*sizeof(DaedalusVtx)) );
 
 	//
@@ -1779,7 +1781,7 @@ void PSPRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num
 	 // 	 
 	 //      Now we just shuffle all the data across directly (potentially duplicating verts) 	 
 	 // 	 
-	 for( u32 i = 0; i < m_dwNumIndices; ++i ) 	 
+	 for( u32 i = 0; i < mNumIndices; ++i ) 	 
 	 { 	 
 			 u32                     index( m_swIndexBuffer[ i ] ); 	 
 

@@ -182,6 +182,7 @@ UcodeFunc( DLParser_DLInMem );
 UcodeFunc( DLParser_Mtx_DKR );
 UcodeFunc( DLParser_MoveWord_DKR );
 UcodeFunc( DLParser_Set_Addr_DKR );
+UcodeFunc( DLParser_GBI1_Texture_DKR );
 UcodeFunc( DLParser_GBI0_Vtx_DKR );
 UcodeFunc( DLParser_GBI0_Vtx_WRUS );
 UcodeFunc( DLParser_DMA_Tri_DKR );

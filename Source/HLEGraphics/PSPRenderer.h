@@ -372,7 +372,7 @@ private:
 		
 	static const u32 	MAX_VERTICES = 256;	//we need at least 80 verts * 3 = 240? //Corn	
 	u16					m_swIndexBuffer[MAX_VERTICES];
-	u32					m_dwNumIndices;
+	u32					mNumIndices;
 
 	// Processed vertices waiting for output...
 	DaedalusVtx4		mVtxProjected[MAX_VERTS];			// Transformed and projected vertices (suitable for clipping etc)

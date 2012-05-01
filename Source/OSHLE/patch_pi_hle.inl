@@ -74,10 +74,10 @@ inline bool IsPiDeviceBusy()
 u32 Patch_osPiRawStartDma()
 {
 TEST_DISABLE_PI_FUNCS
-	const u32 RWflag = gGPR[REG_a0]._u32_0;
-	const u32 PiAddr = gGPR[REG_a1]._u32_0;
-	const u32 VAddr  = gGPR[REG_a2]._u32_0;
-	const u32 len    = gGPR[REG_a3]._u32_0;
+	u32 RWflag = gGPR[REG_a0]._u32_0;
+	u32 PiAddr = gGPR[REG_a1]._u32_0;
+	u32 VAddr  = gGPR[REG_a2]._u32_0;
+	u32 len    = gGPR[REG_a3]._u32_0;
 
 	u32 PAddr = ConvertToPhysics(VAddr);
 

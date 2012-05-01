@@ -150,6 +150,7 @@ static s32				gDlistStackPointer = -1;
 static u32				gVertexStride	 = 0;
 static u32				gFillColor		 = 0xFFFFFFFF;
 static u32				gRDPHalf1		 = 0;
+static u32				gLastUcodeBase   = 0;
 
 SImageDescriptor g_TI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 SImageDescriptor g_CI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
@@ -530,6 +531,7 @@ void DLParser_SetCustom( u32 ucode )
 			SetCommand( 0x07, DLParser_DLInMem,		 "G_DLInMem" );
 			SetCommand( 0xbc, DLParser_MoveWord_DKR, "G_MoveWord_DKR" );
 			SetCommand( 0xbf, DLParser_Set_Addr_DKR, "G_Set_Addr_DKR" );
+			SetCommand( 0xbf, DLParser_GBI1_Texture_DKR,"G_Texture_DKR" );
 			break;
 		case GBI_CONKER:
 			SetCommand( 0x01, DLParser_Vtx_Conker,	"G_Vtx_Conker" );
@@ -569,8 +571,7 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 	gVertexStride = ucode_stride[ ucode ];
 
 	// Store useful information about this ucode for caching purpose
-	current.code_base = code_base;
-	current.ucode	  = ucode; 
+	gLastUcodeBase = code_base;
 
 	// Used for fetching ucode names (Debug Only)
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
@@ -581,14 +582,13 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 	{
 		// If this a normal ucode, just fetch the correct uCode table and name
 		gUcodeFunc = gNormalInstruction[ ucode ];
+		return;
 	}
-	else
-	{	
-		gUcodeFunc = gCustomInstruction;
+	
+	gUcodeFunc = gCustomInstruction;
 
-		// If this a custom ucode, let's create it
-		DLParser_SetCustom( ucode );
-	}
+	// If this a custom ucode, let's create it
+	DLParser_SetCustom( ucode );
 }
 
 //*****************************************************************************
@@ -701,7 +701,7 @@ void DLParser_Process()
 	u32 data_base = (u32)pTask->t.ucode_data & 0x1fffffff;
 	u32 data_size = pTask->t.ucode_data_size;
 	
-	if ( current.code_base != code_base )
+	if ( gLastUcodeBase != code_base )
 	{
 		DLParser_InitMicrocode( code_base, code_size, data_base, data_size );
 	}
