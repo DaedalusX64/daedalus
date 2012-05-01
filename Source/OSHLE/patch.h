@@ -179,9 +179,11 @@ extern u32 gNumOfOSFunctions;
 void Patch_Reset();
 void Patch_ApplyPatches();
 void Patch_PatchAll();
-//const char * Patch_GetJumpAddressName(u32 jump);
-//u32 Patch_GetSymbolAddress(const char * szName);
 
+#ifndef DAEDALUS_SILENT
+const char * Patch_GetJumpAddressName(u32 jump);
+u32 Patch_GetSymbolAddress(const char * szName);
+#endif
 #ifdef DUMPOSFUNCTIONS
 void Patch_DumpOsThreadInfo();
 void Patch_DumpOsQueueInfo();

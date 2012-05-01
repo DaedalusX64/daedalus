@@ -225,8 +225,8 @@ void Patch_ApplyPatch(u32 i)
 #endif
 }
 
+#ifndef DAEDALUS_SILENT
 // Return the location of a symbol
-/*
 u32 Patch_GetSymbolAddress(const char * szName)
 {
 	// Search new list
@@ -245,10 +245,10 @@ u32 Patch_GetSymbolAddress(const char * szName)
 	return u32(~0);
 
 }
-*/
+
 // Given a location, this function returns the name of the matching
 // symbol (if there is one)
-/*
+
 const char * Patch_GetJumpAddressName(u32 jump)
 {
 	u32 * pdwOpBase;
@@ -278,7 +278,8 @@ const char * Patch_GetJumpAddressName(u32 jump)
 	// The patch was not found
 	return "?";
 }
-*/
+#endif //DAEDALUS_SILENT
+
 #ifdef DUMPOSFUNCTIONS
 
 void Patch_DumpOsThreadInfo()
