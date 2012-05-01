@@ -1058,7 +1058,6 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		details.EnvColour = mEnvColour;
 		details.PrimColour = mPrimitiveColour;
 		details.InstallTexture = true;
-		details.RecolourTextureWhite = false;
 		details.ColourAdjuster.Reset();
 
 		blend_entry.OverrideFunction( cycle_mode == CYCLE_2CYCLE ? 2 : 1, details );
@@ -1069,16 +1068,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		{
 			if( mpTexture[ g_ROM.T1_HACK ] != NULL )
 			{
-				CRefPtr<CNativeTexture> texture;
-
-				if(details.RecolourTextureWhite)
-				{
-					texture = mpTexture[ g_ROM.T1_HACK ]->GetRecolouredTexture( c32::White );
-				}
-				else
-				{
-					texture = mpTexture[ g_ROM.T1_HACK ]->GetTexture();
-				}
+				const CRefPtr<CNativeTexture> texture = mpTexture[ g_ROM.T1_HACK ]->GetTexture();
 
 				if(texture != NULL)
 				{

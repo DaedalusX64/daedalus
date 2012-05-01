@@ -29,7 +29,6 @@ struct SBlendModeDetails
 	c32					PrimColour;
 
 	bool				InstallTexture;
-	bool				RecolourTextureWhite;
 	CColourAdjuster		ColourAdjuster;
 };
 

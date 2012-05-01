@@ -22,12 +22,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "DaedalusVtx.h"
-
+bool setms = false;
 //*****************************************************************************
 //
 //*****************************************************************************
 void	CColourAdjuster::Reset()
 {
+	setms = 0;
 	mModulateMask = 0;
 	mSetMask = 0;
 	mSubtractMask = 0;
@@ -39,10 +40,13 @@ void	CColourAdjuster::Reset()
 void CColourAdjuster::Process( DaedalusVtx * p_vertices, u32 num_verts ) const
 {
 	DAEDALUS_ASSERT( (mSetMask & mModulateMask & mSubtractMask) == 0, "Setting and modulating the same component" );
+	if( setms==0 )
+		printf("hhhh\n");
 
 	switch( mSetMask )
 	{
 		case 0:
+			printf("yay\n");
 		break;
 
 		case COL32_MASK_RGBA:
@@ -136,7 +140,7 @@ void	CColourAdjuster::Set( u32 mask, c32 colour )
 {
 	DAEDALUS_ASSERT( (GetMask() & mask) == 0, "These bits have already been set" );
 	mSetMask |= mask;
-
+	setms = 1;
 	u32		current( mSetColour.GetColour() );
 	u32		col( colour.GetColour() );
 

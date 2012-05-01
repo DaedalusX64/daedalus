@@ -531,7 +531,7 @@ void DLParser_SetCustom( u32 ucode )
 			SetCommand( 0x07, DLParser_DLInMem,		 "G_DLInMem" );
 			SetCommand( 0xbc, DLParser_MoveWord_DKR, "G_MoveWord_DKR" );
 			SetCommand( 0xbf, DLParser_Set_Addr_DKR, "G_Set_Addr_DKR" );
-			SetCommand( 0xbf, DLParser_GBI1_Texture_DKR,"G_Texture_DKR" );
+			SetCommand( 0xbb, DLParser_GBI1_Texture_DKR,"G_Texture_DKR" );
 			break;
 		case GBI_CONKER:
 			SetCommand( 0x01, DLParser_Vtx_Conker,	"G_Vtx_Conker" );
