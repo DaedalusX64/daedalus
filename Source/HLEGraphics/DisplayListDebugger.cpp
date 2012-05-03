@@ -74,8 +74,6 @@ extern u32	gsceENV;
 
 extern u32	gTXTFUNC;
 
-extern u32	gNumCyc;
-
 extern u32	gForceRGB;
 //*****************************************************************************
 //
@@ -379,9 +377,8 @@ void CBlendDebugMenuOption::Display() const
 	if( mSel == 4 && modify ) gAOpaque = mIdx & 1;
 	if( mSel == 5 && modify ) gsceENV = mIdx % 3;
 	if( mSel == 6 && modify ) gTXTFUNC = mIdx % 10;
-	if( mSel == 7 && modify ) gNumCyc = (mIdx % 3) + 1;
-	if( mSel == 8 && modify ) gTexInstall = mIdx & 1;
-	if( mSel == 9 && modify ) gForceRGB = mIdx % 8;
+	if( mSel == 7 && modify ) gTexInstall = mIdx & 1;
+	if( mSel == 8 && modify ) gForceRGB = mIdx % 8;
 	
 
 	printf( "Blend Explorer\n");
@@ -403,9 +400,8 @@ void CBlendDebugMenuOption::Display() const
 	printf( "   %s%csceGuTexFunc%s\n",				(mSel==6 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==6 ? '*' : ' ', gPSPtxtFunc[gTXTFUNC]);
 	printf( "%s\n", TERMINAL_WHITE );
 	printf( " Other Options\n" );
-	printf( "   %s%cCycle: %s\n",				(mSel==7 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==7 ? '*' : ' ', gNumCyc==3 ? "ALL" :((gNumCyc==1) ? "1" : "2"));
-	printf( "   %s%cTexture Enabled: %s\n",(mSel==8 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==8 ? '*' : ' ', gTexInstall ? "ON" : "OFF");
-	printf( "   %s%cdetails.ColourAdjuster.SetRGB%s\n",		(mSel==9 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==9 ? '*' : ' ', gForceColor[gForceRGB]);
+	printf( "   %s%cTexture Enabled: %s\n",(mSel==7 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==7 ? '*' : ' ', gTexInstall ? "ON" : "OFF");
+	printf( "   %s%cdetails.ColourAdjuster.SetRGB%s\n",		(mSel==8 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==8 ? '*' : ' ', gForceColor[gForceRGB]);
 	printf( "%s\n", TERMINAL_WHITE );
 }
 
@@ -422,18 +418,18 @@ void CBlendDebugMenuOption::Update( const SPspPadState & pad_state, float elapse
 
 		if(pad_state.NewButtons & PSP_CTRL_DOWN)
 		{
-			mSel = (mSel < 9) ? mSel + 1 : mSel;	//Number of menu rows
+			mSel = (mSel < 8) ? mSel + 1 : mSel;	//Number of menu rows
 			modify = 0;
 		}
 
 		if(pad_state.NewButtons & PSP_CTRL_LEFT)
 		{
-			mIdx = (mIdx > 0) ? mIdx - 1 : mIdx;
+			mIdx = (mIdx > 0) ? mIdx - 1 : mIdx;	//min select
 		}
 
 		if(pad_state.NewButtons & PSP_CTRL_RIGHT)
 		{
-			mIdx = (mIdx < 9) ? mIdx + 1 : mIdx;
+			mIdx = (mIdx < 9) ? mIdx + 1 : mIdx;	//max select
 		}
 
 		if(pad_state.NewButtons & PSP_CTRL_CROSS)

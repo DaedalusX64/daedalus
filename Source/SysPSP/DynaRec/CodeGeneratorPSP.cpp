@@ -2705,6 +2705,7 @@ inline void	CCodeGeneratorPSP::GenerateNOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateSLT( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
+#ifdef ENABLE_64BIT
 	// Because we have a branch here, we need to make sure that we have a consistent view
 	// of the registers regardless of whether we take it or not. We pull in the lo halves of
 	// the registers here so that they're Valid regardless of whether we take the branch or not
@@ -2721,23 +2722,28 @@ inline void	CCodeGeneratorPSP::GenerateSLT( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 		reg_lo_d = PspReg_T0;
 	}
 
-#ifdef ENABLE_64BIT
 	EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_T0 ) );
 	EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_T1 ) );
 
 	CJumpLocation	branch( BNE( reg_hi_a, reg_hi_b, CCodeLabel(NULL), false ) );
 	SLT( reg_lo_d, reg_hi_a, reg_hi_b );		// In branch delay slot
-	// If the branch was not taken, it means that the high part of the registers was equal, so compare bottom half
-#endif
 
+	// If the branch was not taken, it means that the high part of the registers was equal, so compare bottom half
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
 	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
 
 	SLT( reg_lo_d, reg_lo_a, reg_lo_b );
 
-#ifdef ENABLE_64BIT
 	// Patch up the branch
 	PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
+
+#else
+	EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
+	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
+	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
+
+	SLT( reg_lo_d, reg_lo_a, reg_lo_b );
+
 #endif
 
 	UpdateRegister( rd, reg_lo_d, URO_HI_CLEAR, PspReg_T0 );
@@ -2748,6 +2754,7 @@ inline void	CCodeGeneratorPSP::GenerateSLT( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateSLTU( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
+#ifdef ENABLE_64BIT
 	// Because we have a branch here, we need to make sure that we have a consistant view
 	// of the registers regardless of whether we take it or not. We pull in the lo halves of
 	// the registers here so that they're Valid regardless of whether we take the branch or not
@@ -2764,23 +2771,28 @@ inline void	CCodeGeneratorPSP::GenerateSLTU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 		reg_lo_d = PspReg_T0;
 	}
 
-#ifdef ENABLE_64BIT
 	EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_T0 ) );
 	EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_T1 ) );
 
 	CJumpLocation	branch( BNE( reg_hi_a, reg_hi_b, CCodeLabel(NULL), false ) );
 	SLTU( reg_lo_d, reg_hi_a, reg_hi_b );		// In branch delay slot
-	// If the branch was not taken, it means that the high part of the registers was equal, so compare bottom half
-#endif
 
+	// If the branch was not taken, it means that the high part of the registers was equal, so compare bottom half
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
 	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
 
 	SLTU( reg_lo_d, reg_lo_a, reg_lo_b );
 
-#ifdef ENABLE_64BIT
 	// Patch up the branch
 	PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
+
+#else
+	EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
+	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
+	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
+
+	SLTU( reg_lo_d, reg_lo_a, reg_lo_b );
+
 #endif
 
 	UpdateRegister( rd, reg_lo_d, URO_HI_CLEAR, PspReg_T0 );
@@ -2923,6 +2935,7 @@ inline void	CCodeGeneratorPSP::GenerateLUI( EN64Reg rt, s16 immediate )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateSLTI( EN64Reg rt, EN64Reg rs, s16 immediate )
 {
+#ifdef ENABLE_64BIT
 	// Because we have a branch here, we need to make sure that we have a consistant view
 	// of the register regardless of whether we take it or not. We pull in the lo halves of
 	// the register here so that it's Valid regardless of whether we take the branch or not
@@ -2938,7 +2951,6 @@ inline void	CCodeGeneratorPSP::GenerateSLTI( EN64Reg rt, EN64Reg rs, s16 immedia
 		reg_lo_d = PspReg_T0;
 	}
 
-#ifdef ENABLE_64BIT
 	CJumpLocation	branch;
 
 	EPspReg		reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_T0 ) );
@@ -2955,16 +2967,22 @@ inline void	CCodeGeneratorPSP::GenerateSLTI( EN64Reg rt, EN64Reg rs, s16 immedia
 		branch = BNE( reg_hi_a, PspReg_T1, CCodeLabel(NULL), false );
 		SLTI( reg_lo_d, reg_hi_a, 0xffff );		// In branch delay slot
 	}
-#endif
-
 	// If the branch was not taken, it means that the high part of the registers was equal, so compare bottom half
+	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
+
+	//Potential bug!!!
+	//If using 64bit mode this might need to be SLTIU since sign is already checked in hi word //Strmn
+	SLTI( reg_lo_d, reg_lo_a, immediate );
+
+	// Patch up the branch
+	PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
+
+#else
+	EPspReg reg_lo_d( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
 
 	SLTI( reg_lo_d, reg_lo_a, immediate );
 
-#ifdef ENABLE_64BIT
-	// Patch up the branch
-	PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
 #endif
 
 	UpdateRegister( rt, reg_lo_d, URO_HI_CLEAR, PspReg_T0 );
@@ -2975,6 +2993,7 @@ inline void	CCodeGeneratorPSP::GenerateSLTI( EN64Reg rt, EN64Reg rs, s16 immedia
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateSLTIU( EN64Reg rt, EN64Reg rs, s16 immediate )
 {
+#ifdef ENABLE_64BIT
 	// Because we have a branch here, we need to make sure that we have a consistent view
 	// of the register regardless of whether we take it or not. We pull in the lo halves of
 	// the register here so that it's Valid regardless of whether we take the branch or not
@@ -2990,7 +3009,6 @@ inline void	CCodeGeneratorPSP::GenerateSLTIU( EN64Reg rt, EN64Reg rs, s16 immedi
 		reg_lo_d = PspReg_T0;
 	}
 
-#ifdef ENABLE_64BIT
 	CJumpLocation	branch;
 
 	EPspReg		reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_T0 ) );
@@ -3007,16 +3025,20 @@ inline void	CCodeGeneratorPSP::GenerateSLTIU( EN64Reg rt, EN64Reg rs, s16 immedi
 		branch = BNE( reg_hi_a, PspReg_T1, CCodeLabel(NULL), false );
 		SLTIU( reg_lo_d, reg_hi_a, 0xffff );		// In branch delay slot
 	}
-#endif
-
 	// If the branch was not taken, it means that the high part of the registers was equal, so compare bottom half
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
 
 	SLTIU( reg_lo_d, reg_lo_a, immediate );
 
-#ifdef ENABLE_64BIT
 	// Patch up the branch
 	PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
+
+#else
+	EPspReg reg_lo_d( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
+	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
+
+	SLTIU( reg_lo_d, reg_lo_a, immediate );
+
 #endif
 
 	UpdateRegister( rt, reg_lo_d, URO_HI_CLEAR, PspReg_T0 );
