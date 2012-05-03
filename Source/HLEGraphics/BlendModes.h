@@ -32,7 +32,7 @@ struct SBlendModeDetails
 	CColourAdjuster		ColourAdjuster;
 };
 
-#define BLEND_MODE_ARGS		u32 num_cycles, SBlendModeDetails & details
+#define BLEND_MODE_ARGS		SBlendModeDetails & details
 
 typedef void (*OverrideBlendModeFn)( BLEND_MODE_ARGS );
 

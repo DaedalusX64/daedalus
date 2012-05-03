@@ -844,7 +844,6 @@ bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u3
 		details.EnvColour = mEnvColour;
 		details.PrimColour = mPrimitiveColour;
 		details.ColourAdjuster.Reset();
-		details.RecolourTextureWhite = false;
 
 		//Insert the Blend Explorer
 		BLEND_MODE_MAKER
@@ -855,16 +854,7 @@ bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u3
 		{
 			if( mpTexture[ 0 ] != NULL )
 			{
-				CRefPtr<CNativeTexture> texture;
-
-				if(details.RecolourTextureWhite)
-				{
-					texture = mpTexture[ 0 ]->GetRecolouredTexture( c32::White );
-				}
-				else
-				{
-					texture = mpTexture[ 0 ]->GetTexture();
-				}
+				const CRefPtr<CNativeTexture> texture( mpTexture[ 0 ]->GetTexture() );
 
 				if(texture != NULL)
 				{
@@ -1060,7 +1050,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		details.InstallTexture = true;
 		details.ColourAdjuster.Reset();
 
-		blend_entry.OverrideFunction( cycle_mode == CYCLE_2CYCLE ? 2 : 1, details );
+		blend_entry.OverrideFunction( details );
 
 		bool installed_texture( false );
 
@@ -1068,7 +1058,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		{
 			if( mpTexture[ g_ROM.T1_HACK ] != NULL )
 			{
-				const CRefPtr<CNativeTexture> texture = mpTexture[ g_ROM.T1_HACK ]->GetTexture();
+				const CRefPtr<CNativeTexture> texture( mpTexture[ g_ROM.T1_HACK ]->GetTexture() );
 
 				if(texture != NULL)
 				{

@@ -147,17 +147,10 @@ inline void BlendMode_Generic( BLEND_MODE_ARGS ){	sceGuTexFunc(GU_TFX_MODULATE,G
 
 void BlendMode_0x001298043f15ffffLL( BLEND_MODE_ARGS )
 {
-	
-	if( num_cycles == 1 )
-	{
-		details.ColourAdjuster.SetRGB( c32::White );		// Set RGB to 1.0, i.e. select Texture
-	}
-	else
-	{
-		// Leave RGB shade untouched
-		details.ColourAdjuster.ModulateA( details.EnvColour );
-		sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
-	}
+
+	// Leave RGB shade untouched
+	details.ColourAdjuster.ModulateA( details.EnvColour );
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 	
 }
 
@@ -169,8 +162,9 @@ void BlendMode_0x001298043f15ffffLL( BLEND_MODE_ARGS )
 //aA1  : (Combined     - 0           ) * Env          + 0           
 void BlendMode_0x0062fe043f15f9ffLL( BLEND_MODE_ARGS )
 {
+	// Won't work unless witout install texture..
 	details.InstallTexture = false; 
-	c32		blend( details.PrimColour.Interpolate( c32::White, details.EnvColour ) );
+	/*c32		blend( details.PrimColour.Interpolate( c32::White, details.EnvColour ) );
 	
 	if( num_cycles == 1 )
 	{
@@ -180,7 +174,7 @@ void BlendMode_0x0062fe043f15f9ffLL( BLEND_MODE_ARGS )
 	{
 		details.ColourAdjuster.ModulateRGB( blend );
 		details.ColourAdjuster.ModulateA( details.EnvColour );
-	}
+	}*/
 }
 
 // Banjo Kazooie - Paths
@@ -511,12 +505,9 @@ void BlendMode_0x00147e2844fe793cLL( BLEND_MODE_ARGS )
 //aA1  : (0            - 0           ) * 0            + Combined 
 void BlendMode_0x0030fe045ffefbf8LL (BLEND_MODE_ARGS)
 {
-	if( num_cycles == 2 )
-	{
-		details.ColourAdjuster.SetRGBA( details.EnvColour );
-		//sceGuTexEnvColor( details.EnvColour.GetColour() );
-		sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
-	}
+	details.ColourAdjuster.SetRGBA( details.EnvColour );
+	//sceGuTexEnvColor( details.EnvColour.GetColour() );
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
 }
 
 // F-Zero X - Texture for cars.
@@ -836,11 +827,8 @@ void BlendMode_0x0061a5ff1f10d23fLL (BLEND_MODE_ARGS)
 void BlendMode_0x00ffabffff0d92ffLL (BLEND_MODE_ARGS)
 {
 	//Copied from old blend file.	
-	if( num_cycles != 1 )
-	{
-		details.ColourAdjuster.SetA( details.EnvColour );
-	}
-	details.ColourAdjuster.SetRGB( details.PrimColour );
+	details.ColourAdjuster.SetA( details.EnvColour );
+	//details.ColourAdjuster.SetRGB( details.PrimColour );
 	sceGuTexFunc(GU_TFX_ADD,GU_TCC_RGBA);
 }
 
@@ -1272,8 +1260,7 @@ void BlendMode_0x00161a6025fd2578LL (BLEND_MODE_ARGS)
 //aA1  : (0            - 0           ) * 0            + 1           
 void BlendMode_0x00167e6035fcff7eLL( BLEND_MODE_ARGS )
 {
-	details.InstallTexture = false;
-	details.ColourAdjuster.SetRGB (details.EnvColour);
+	details.ColourAdjuster.SetRGB(details.PrimColour);
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
