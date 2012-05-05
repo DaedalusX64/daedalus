@@ -36,7 +36,7 @@ TEST_DISABLE_UTIL_FUNCS
 	if (len == 0)
 		return PATCH_RET_JR_RA;
 
-#if 1	//1->Fast, 0->Old way
+#if 0	//1->Fast, 0->Old way - Breaks Star Soldier
 	memcpy_vfpu_LE( (void *)ReadAddress(dst), (void *)ReadAddress(src), len);
 #else
 	//DBGConsole_Msg(0, "memcpy(0x%08x, 0x%08x, %d)", dst, src, len);
