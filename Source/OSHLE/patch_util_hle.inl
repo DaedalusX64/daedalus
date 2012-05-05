@@ -34,10 +34,13 @@ TEST_DISABLE_UTIL_FUNCS
 
 	//NOP! fixes SpiderMan
 	if (len == 0)
+	{
+		gGPR[REG_v0]._u32_0 = gGPR[REG_a0]._u32_0;	
 		return PATCH_RET_JR_RA;
+	}
 
-#if 0	//1->Fast, 0->Old way - Breaks Star Soldier
-	memcpy_vfpu_LE( (void *)ReadAddress(dst), (void *)ReadAddress(src), len);
+#if 1	//1->Fast, 0->Old way - VFPU memcpy Breaks Star Soldier
+	memcpy_cpu_LE( (void *)ReadAddress(dst), (void *)ReadAddress(src), len);
 #else
 	//DBGConsole_Msg(0, "memcpy(0x%08x, 0x%08x, %d)", dst, src, len);
 	u8 *pdst = (u8*)ReadAddress(dst);
