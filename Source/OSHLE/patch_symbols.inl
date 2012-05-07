@@ -1989,7 +1989,7 @@ PATCH_FUNCTION_ENTRY(__osSpDeviceBusy)
 PATCH_FUNCTION_ENTRY(osWritebackDCacheAll)
 PATCH_FUNCTION_ENTRY(osWritebackDCache)
 PATCH_FUNCTION_ENTRY(osInvalDCache)
-//PATCH_FUNCTION_ENTRY(osInvalICache)	//buggy, causing issues in FZero (4th race in demo loop) and StarFox
+PATCH_FUNCTION_ENTRY(osInvalICache)	//buggy, causing issues in FZero (4th race in demo loop) and StarFox
 #endif
 
 #ifndef DISABLE_TLB_FUNCTIONS

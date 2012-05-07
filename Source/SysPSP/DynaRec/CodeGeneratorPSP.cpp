@@ -2809,12 +2809,6 @@ inline void	CCodeGeneratorPSP::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immedi
 	{
 		SetRegister32s( rt, immediate );
 	}
-	else if( rt == N64Reg_SP )	//SP is only unsigned 32bit //Corn
-	{
-		EPspReg dst_reg( GetRegisterAndLoadLo( rt, PspReg_T0 ) );
-		ADDIU( dst_reg, dst_reg, immediate );
-		StoreRegisterLo( rt, dst_reg );
-	}
 	else if(mRegisterCache.IsKnownValue( rs, 0 ))
 	{
 		s32		known_value( mRegisterCache.GetKnownValue( rs, 0 )._s32 + (s32)immediate );
