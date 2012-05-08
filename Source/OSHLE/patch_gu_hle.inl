@@ -1,5 +1,6 @@
 #define TEST_DISABLE_GU_FUNCS DAEDALUS_PROFILE(__FUNCTION__);
-/*
+
+#ifndef DAEDALUS_PSP_USE_VFPU
 //Fixed point matrix
 static const u32 s_IdentMatrixL[16] = 
 {
@@ -36,8 +37,10 @@ static u32 s_TransMatrixF[16] =
 	0x00000000, 0x00000000, 0x3f800000,	0x00000000,
 	0x00000000, 0x00000000, 0x00000000,	0x3f800000
 };
-*/
+#endif
 
+
+#ifdef DAEDALUS_PSP_USE_VFPU
 //Note. We use unaligned store from VFPU but this is known to corrupt floating point registers on the PHAT
 //and potentially cause odd behaviour or even crash the PSP (best is not to use HLE on PHAT)
 
@@ -139,33 +142,20 @@ inline void vfpu_matrix_Ortho(u8 *m, float left, float right, float bottom, floa
 		"usv.q    C130, 48 + %0\n"
 	:"=m"(*m) : "r"(left), "r"(right), "r"(bottom), "r"(top), "r"(near), "r"(far), "r"(scale));
 }
+#endif
 
 u32 Patch_guMtxIdentF()
 {
 TEST_DISABLE_GU_FUNCS
-	u32 address = gGPR[REG_a0]._u32_0;
-
-//	DBGConsole_Msg(0, "guMtxIdentF(0x%08x)", address);
-
+	const u32 address = gGPR[REG_a0]._u32_0;
 	u8 * pMtxBase = (u8 *)ReadAddress(address);
 
-//Keep for reference
-//VFPU way (#1 Fastest)
+#ifdef DAEDALUS_PSP_USE_VFPU
 	vfpu_matrix_IdentF(pMtxBase);
-
-//Keep for reference
-//Fast CPU (#3)
-//	QuickWrite512Bits(pMtxBase, (u8 *)s_IdentMatrixF);
-
-//Keep for reference
-//Memcopy way (#3)
-//	memcpy(pMtxBase, s_IdentMatrixF, sizeof(s_IdentMatrixF));
-
-//Keep for reference
-//Old way (#2 Fastest)
+#else
 	// 0x00000000 is 0.0 in IEEE fp
 	// 0x3f800000 is 1.0 in IEEE fp
-/*	QuickWrite32Bits(pMtxBase, 0x00, 0x3f800000);
+	QuickWrite32Bits(pMtxBase, 0x00, 0x3f800000);
 	QuickWrite32Bits(pMtxBase, 0x04, 0);
 	QuickWrite32Bits(pMtxBase, 0x08, 0);
 	QuickWrite32Bits(pMtxBase, 0x0c, 0);
@@ -183,14 +173,8 @@ TEST_DISABLE_GU_FUNCS
 	QuickWrite32Bits(pMtxBase, 0x30, 0);
 	QuickWrite32Bits(pMtxBase, 0x34, 0);
 	QuickWrite32Bits(pMtxBase, 0x38, 0);
-	QuickWrite32Bits(pMtxBase, 0x3c, 0x3f800000);*/
-
-/*
-	g_dwNumMtxIdent++;
-	if ((g_dwNumMtxIdent % 10000) == 0)
-	{
-		DBGConsole_Msg(0, "%d guMtxIdentF calls intercepted", g_dwNumMtxIdent);
-	}*/
+	QuickWrite32Bits(pMtxBase, 0x3c, 0x3f800000);
+#endif
 
 	return PATCH_RET_JR_RA;
 }
@@ -200,18 +184,13 @@ TEST_DISABLE_GU_FUNCS
 u32 Patch_guMtxIdent()
 {
 TEST_DISABLE_GU_FUNCS
-	u32 address = gGPR[REG_a0]._u32_0;
-
-	//DBGConsole_Msg(0, "guMtxIdent(0x%08x)", address);
-
+	const u32 address = gGPR[REG_a0]._u32_0;
 	u8 * pMtxBase = (u8 *)ReadAddress(address);
 
 	// This is a lot faster than the real method, which calls
 	// glMtxIdentF followed by guMtxF2L
 
-//	QuickWrite512Bits(pMtxBase, (u8 *)s_IdentMatrixL);
-
-//	memcpy(pMtxBase, s_IdentMatrixL, sizeof(s_IdentMatrixL));
+	//memcpy(pMtxBase, s_IdentMatrixL, sizeof(s_IdentMatrixL));
 
 	QuickWrite32Bits(pMtxBase, 0x00, 0x00010000);
 	QuickWrite32Bits(pMtxBase, 0x04, 0x00000000);
@@ -233,60 +212,27 @@ TEST_DISABLE_GU_FUNCS
 	QuickWrite32Bits(pMtxBase, 0x38, 0x00000000);
 	QuickWrite32Bits(pMtxBase, 0x3c, 0x00000000);
 
-	/*	g_dwNumMtxIdent++;
-	if ((g_dwNumMtxIdent % 10000) == 0)
-	{
-		DBGConsole_Msg(0, "%d guMtxIdent calls intercepted", g_dwNumMtxIdent);
-	}*/
-
 	return PATCH_RET_JR_RA;
 }
 
 u32 Patch_guTranslateF()
 {
 TEST_DISABLE_GU_FUNCS
-	u32 address = gGPR[REG_a0]._u32_0;
+	const u32 address = gGPR[REG_a0]._u32_0;
 	u8 * pMtxBase = (u8 *)ReadAddress(address);
 
-#if 1 //1->VFPU, 0->FPU //Corn
-	union
-	{
-		u32 x;
-		f32 fX;
-	}uX;
+#ifdef DAEDALUS_PSP_USE_VFPU
+	const f32 fx = gGPR[REG_a1]._f32_0;
+	const f32 fy = gGPR[REG_a2]._f32_0;
+	const f32 fz = gGPR[REG_a3]._f32_0;
 
-	union
-	{
-		u32 y;
-		f32 fY;
-	}uY;
-
-	union
-	{
-		u32 z;
-		f32 fZ;
-	}uZ;
-
-	uX.x = gGPR[REG_a1]._u32_0;
-	uY.y = gGPR[REG_a2]._u32_0;
-	uZ.z = gGPR[REG_a3]._u32_0;
-
-	vfpu_matrix_TranslateF(pMtxBase, uX.fX, uY.fY, uZ.fZ);
-
+	vfpu_matrix_TranslateF(pMtxBase, fx, fy, fz);
 #else
 	s_TransMatrixF[12] = gGPR[REG_a1]._u32_0;
 	s_TransMatrixF[13] = gGPR[REG_a2]._u32_0;
 	s_TransMatrixF[14] = gGPR[REG_a3]._u32_0;
 
-	//DBGConsole_Msg(0, "guTranslateF(0x%08x, %f, %f, %f)", address, sX, sY, sZ);
-
 	QuickWrite512Bits(pMtxBase, (u8 *)s_TransMatrixF);
-
-/*	g_dwNumMtxTranslate++;
-	if ((g_dwNumMtxTranslate % 10000) == 0)
-	{
-		DBGConsole_Msg(0, "%d guMtxTranslate calls intercepted", g_dwNumMtxTranslate);
-	}*/
 #endif 
 
 	return PATCH_RET_JR_RA;
@@ -295,39 +241,18 @@ TEST_DISABLE_GU_FUNCS
 u32 Patch_guTranslate()
 {
 TEST_DISABLE_GU_FUNCS
-	union
-	{
-		u32 x;
-		f32 fX;
-	}uX;
-
-	union
-	{
-		u32 y;
-		f32 fY;
-	}uY;
-
-	union
-	{
-		u32 z;
-		f32 fZ;
-	}uZ;
-
 	const f32 fScale = 65536.0f;
 
-	u32 address = gGPR[REG_a0]._u32_0;
+	const u32 address = gGPR[REG_a0]._u32_0;
 	u8 * pMtxBase = (u8 *)ReadAddress(address);
 
-	uX.x = gGPR[REG_a1]._u32_0;
-	uY.y = gGPR[REG_a2]._u32_0;
-	uZ.z = gGPR[REG_a3]._u32_0;
+	const f32 fx = gGPR[REG_a1]._f32_0;
+	const f32 fy = gGPR[REG_a2]._f32_0;
+	const f32 fz = gGPR[REG_a3]._f32_0;
 
-	//DBGConsole_Msg(0, "guTranslate(0x%08x, %f, %f, %f)", address, uX.fX, uY.fY, uZ.fZ);
-//	printf("guTranslate(0x%08x, %f, %f, %f\n)", address, uX.fX, uY.fY, uZ.fZ);
-
-	u32 x = (u32)(uX.fX * fScale);
-	u32 y = (u32)(uY.fY * fScale);
-	u32 z = (u32)(uZ.fZ * fScale);
+	u32 x = (u32)(fx * fScale);
+	u32 y = (u32)(fy * fScale);
+	u32 z = (u32)(fz * fScale);
 
 	u32 one = (u32)(1.0f * fScale);
 
@@ -337,8 +262,6 @@ TEST_DISABLE_GU_FUNCS
 	u32 z1hibits = (z & 0xFFFF0000) | (one >> 16);
 	u32 z1lobits = (z << 16) | (one & 0x0000FFFF);
 
-	// 0x00000000 is 0.0 in IEEE fp
-	// 0x3f800000 is 1.0 in IEEE fp
 	QuickWrite32Bits(pMtxBase, 0x00, 0x00010000);
 	QuickWrite32Bits(pMtxBase, 0x04, 0x00000000);
 	QuickWrite32Bits(pMtxBase, 0x08, 0x00000001);
@@ -359,62 +282,29 @@ TEST_DISABLE_GU_FUNCS
 	QuickWrite32Bits(pMtxBase, 0x38, xylobits);	// xy
 	QuickWrite32Bits(pMtxBase, 0x3c, z1lobits);	// z1
 
-/*	g_dwNumMtxTranslate++;
-	if ((g_dwNumMtxTranslate % 10000) == 0)
-	{
-		DBGConsole_Msg(0, "%d guMtxTranslate calls intercepted", g_dwNumMtxTranslate);
-	}*/
-
 	return PATCH_RET_JR_RA;
 }
 
 u32 Patch_guScaleF()
 {
 TEST_DISABLE_GU_FUNCS
-	u32 address = gGPR[REG_a0]._u32_0;
+	const u32 address = gGPR[REG_a0]._u32_0;
 	u8 * pMtxBase = (u8 *)ReadAddress(address);
 
-#if 1 //1->VFPU, 0->FPU //Corn
-	union
-	{
-		u32 x;
-		f32 fX;
-	}uX;
+#ifdef DAEDALUS_PSP_USE_VFPU //Corn
+	const f32 fx = gGPR[REG_a1]._f32_0;
+	const f32 fy = gGPR[REG_a2]._f32_0;
+	const f32 fz = gGPR[REG_a3]._f32_0;
 
-	union
-	{
-		u32 y;
-		f32 fY;
-	}uY;
-
-	union
-	{
-		u32 z;
-		f32 fZ;
-	}uZ;
-
-	uX.x = gGPR[REG_a1]._u32_0;
-	uY.y = gGPR[REG_a2]._u32_0;
-	uZ.z = gGPR[REG_a3]._u32_0;
-
-	vfpu_matrix_ScaleF(pMtxBase, uX.fX, uY.fY, uZ.fZ);
+	vfpu_matrix_ScaleF(pMtxBase, fx, fy, fz);
 
 #else
 	s_ScaleMatrixF[ 0] = gGPR[REG_a1]._u32_0;
 	s_ScaleMatrixF[ 5] = gGPR[REG_a2]._u32_0;
 	s_ScaleMatrixF[10] = gGPR[REG_a3]._u32_0;
 
-	//DBGConsole_Msg(0, "guScaleF(0x%08x, %f, %f, %f\n)", address, sX, sY, sZ);
-
 	QuickWrite512Bits(pMtxBase, (u8 *)s_ScaleMatrixF);
-
 //	memcpy(pMtxBase, s_ScaleMatrixF, sizeof(s_ScaleMatrixF));
-
-/*	g_dwNumMtxScale++;
-	if ((g_dwNumMtxScale % 10000) == 0)
-	{
-		DBGConsole_Msg(0, "%d guMtxScale calls intercepted", g_dwNumMtxScale);
-	}*/
 #endif
 
 	return PATCH_RET_JR_RA;
@@ -423,39 +313,18 @@ TEST_DISABLE_GU_FUNCS
 u32 Patch_guScale()
 {
 TEST_DISABLE_GU_FUNCS
-	union
-	{
-		u32 x;
-		f32 fX;
-	}uX;
-
-	union
-	{
-		u32 y;
-		f32 fY;
-	}uY;
-
-	union
-	{
-		u32 z;
-		f32 fZ;
-	}uZ;
-
 	const f32 fScale = 65536.0f;
 
-	u32 address = gGPR[REG_a0]._u32_0;
+	const u32 address = gGPR[REG_a0]._u32_0;
 	u8 * pMtxBase = (u8 *)ReadAddress(address);
 
-	uX.x = gGPR[REG_a1]._u32_0;
-	uY.y = gGPR[REG_a2]._u32_0;
-	uZ.z = gGPR[REG_a3]._u32_0;
+	const f32 fx = gGPR[REG_a1]._f32_0;
+	const f32 fy = gGPR[REG_a2]._f32_0;
+	const f32 fz = gGPR[REG_a3]._f32_0;
 
-	//DBGConsole_Msg(0, "guScale(0x%08x, %f, %f, %f)", address, uX.fX, uY.fY, uZ.fZ);
-//	printf("guScale(0x%08x, %f, %f, %f)", address, uX.fX, uY.fY, uZ.fZ);
-
-	u32 x = (u32)(uX.fX * fScale);
-	u32 y = (u32)(uY.fY * fScale);
-	u32 z = (u32)(uZ.fZ * fScale);
+	u32 x = (u32)(fx * fScale);
+	u32 y = (u32)(fy * fScale);
+	u32 z = (u32)(fz * fScale);
 
 	u32 zer = (u32)(0.0f);
 
@@ -487,12 +356,6 @@ TEST_DISABLE_GU_FUNCS
 	QuickWrite32Bits(pMtxBase, 0x34, zzlobits);
 	QuickWrite32Bits(pMtxBase, 0x38, 0x00000000);	// xy
 	QuickWrite32Bits(pMtxBase, 0x3c, 0x00000000);	// z1
-
-/*	g_dwNumMtxScale++;
-	if ((g_dwNumMtxScale % 10000) == 0)
-	{
-		DBGConsole_Msg(0, "%d guMtxScale calls intercepted", g_dwNumMtxScale);
-	}*/
 
 	return PATCH_RET_JR_RA;
 }
@@ -556,12 +419,6 @@ TEST_DISABLE_GU_FUNCS
 		QuickWrite32Bits(pMtxLBaseLoBits, (row << 3) + 4, lobits);
 	}
 
-/*	g_dwNumMtxF2L++;
-	if ((g_dwNumMtxF2L % 10000) == 0)
-	{
-		DBGConsole_Msg(0, "%d guMtxF2L calls intercepted", g_dwNumMtxF2L);
-	}*/
-
 	return PATCH_RET_JR_RA;
 }
 
@@ -596,16 +453,15 @@ TEST_DISABLE_GU_FUNCS
 	uY.y = Read32Bits(sY);
 	uZ.z = Read32Bits(sZ);
 
-	//DBGConsole_Msg(0, "guNormalize(0x%08x %f, 0x%08x %f, 0x%08x %f)",
-	// sX, uX.fX, sY, uY.fY, sZ, uZ.fZ);
-
+#ifdef DAEDALUS_PSP_USE_VFPU //Corn
 	vfpu_norm_3Dvec(&uX.fX, &uY.fY, &uZ.fZ);
+#else
+	f32 fLenRecip = 1.0f / sqrtf((uX.x * uX.x) + (uY.y * uY.y) + (uZ.z * uZ.z));
 
-	/* g_dwNumNormalize++;
-	if ((g_dwNumNormalize % 1000) == 0)
-	{
-	DBGConsole_Msg(0, "%d guNormalize calls intercepted", g_dwNumNormalize);
-	}*/
+	uX.x *= fLenRecip;
+ 	uY.y *= fLenRecip;
+ 	uZ.z *= fLenRecip;
+#endif
 
 	Write32Bits(sX, uX.x);
 	Write32Bits(sY, uY.y);
@@ -647,16 +503,15 @@ TEST_DISABLE_GU_FUNCS
 	uY.y = Read32Bits(sY);
 	uZ.z = Read32Bits(sZ);
 
-	//DBGConsole_Msg(0, "guNormalize(0x%08x %f, 0x%08x %f, 0x%08x %f)",
-	// sX, fX, sY, fY, sZ, fZ);
-
+#ifdef DAEDALUS_PSP_USE_VFPU //Corn
 	vfpu_norm_3Dvec(&uX.fX, &uY.fY, &uZ.fZ);
+#else
+	f32 fLenRecip = 1.0f / sqrtf((uX.x * uX.x) + (uY.y * uY.y) + (uZ.z * uZ.z));
 
-	/* g_dwNumNormalize++;
-	if ((g_dwNumNormalize % 1000) == 0)
-	{
-	DBGConsole_Msg(0, "%d guNormalize calls intercepted", g_dwNumNormalize);
-	}*/
+	uX.x *= fLenRecip;
+ 	uY.y *= fLenRecip;
+ 	uZ.z *= fLenRecip;
+#endif
 
 	Write32Bits(sX, uX.x);
 	Write32Bits(sY, uY.y);
@@ -720,14 +575,7 @@ TEST_DISABLE_GU_FUNCS
 	uF.F = QuickRead32Bits(pStackBase, 0x18);	//Far
 	uS.S = QuickRead32Bits(pStackBase, 0x1c);	//Scale
 
-//	printf("%f %f %f %f\n",uR.fR, uL.fL, uT.fT, uB.fB);
-
-	//DBGConsole_Msg(0, "guOrthoF(0x%08x, %f, %f", pMtxBase, uL.fL, uR.fR);
-	//DBGConsole_Msg(0, "                     %f, %f", uB.fB, uT.fT);
-	//DBGConsole_Msg(0, "                     %f, %f", uN.fN, uF.fF);
-	//DBGConsole_Msg(0, "                     %f)", uS.fS);
-
-#if 1 //1->VFPU, 0->FPU //Corn
+#ifdef DAEDALUS_PSP_USE_VFPU //Corn
 	vfpu_matrix_OrthoF(pMtxBase, uL.fL, uR.fR, uB.fB, uT.fT, uN.fN, uF.fF, uS.fS);
 
 #else
@@ -783,6 +631,7 @@ u32 Patch_guOrtho()
 {
 TEST_DISABLE_GU_FUNCS
 
+#ifdef DAEDALUS_PSP_USE_VFPU
 	u32 s_TempMatrix[16];
 
 	union
@@ -837,13 +686,6 @@ TEST_DISABLE_GU_FUNCS
 	uF.F = QuickRead32Bits(pStackBase, 0x18);	//Far
 	uS.S = QuickRead32Bits(pStackBase,  0x1c);	//Scale
 
-//	printf("%f %f %f %f\n",uR.fR, uL.fL, uT.fT, uB.fB);
-
-	//DBGConsole_Msg(0, "guOrtho(0x%08x, %f, %f", pMtxBase, uL.fL, uR.fR);
-	//DBGConsole_Msg(0, "                     %f, %f", uB.fB, uT.fT);
-	//DBGConsole_Msg(0, "                     %f, %f", uN.fN, uF.fF);
-	//DBGConsole_Msg(0, "                     %f)", uS.fS);
-
 	vfpu_matrix_Ortho((u8 *)s_TempMatrix, uL.fL, uR.fR, uB.fB, uT.fT, uN.fN, uF.fF, uS.fS);
 
 //Convert to proper N64 fixed point matrix
@@ -877,6 +719,9 @@ TEST_DISABLE_GU_FUNCS
 	}
 
 	return PATCH_RET_JR_RA;
+#else
+	return PATCH_RET_NOT_PROCESSED;
+#endif
 }
 
 //RotateF //Corn
@@ -884,6 +729,7 @@ u32 Patch_guRotateF()
 {
 TEST_DISABLE_GU_FUNCS
 
+#ifdef DAEDALUS_PSP_USE_VFPU
 	f32 s,c;
 
 	union
@@ -921,8 +767,6 @@ TEST_DISABLE_GU_FUNCS
 	uX.x = gGPR[REG_a2]._u32_0;	//X
 	uY.y = gGPR[REG_a3]._u32_0;	//Y
 	uZ.z = Read32Bits(gGPR[REG_sp]._u32_0 + 0x10);	//Z
-
-//	printf("%f %f %f %f\n",uA.fA, uX.fX, uY.fY, uZ.fZ);
 
 	vfpu_sincos(uA.fA*(PI/180.0f), &s, &c);
 
@@ -967,18 +811,12 @@ TEST_DISABLE_GU_FUNCS
 
 //Row #4
 	QuickWrite32Bits(pMtxBase, 0x30, 0x00000000);
-
 	QuickWrite32Bits(pMtxBase, 0x34, 0x00000000);
-
 	QuickWrite32Bits(pMtxBase, 0x38, 0x00000000);
-
 	QuickWrite32Bits(pMtxBase, 0x3c, 0x3F800000);
 
-	/*g_dwNumMtxRotate++;
-	if ((g_dwNumMtxRotate % 10000) == 0)
-	{
-		DBGConsole_Msg(0, "%d guRotate calls intercepted", g_dwNumMtxRotate);
-	}*/
-
 	return PATCH_RET_JR_RA;
+#else
+	return PATCH_RET_NOT_PROCESSED;
+#endif
 }
