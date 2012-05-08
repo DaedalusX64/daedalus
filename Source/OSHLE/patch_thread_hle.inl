@@ -11,11 +11,13 @@ TEST_DISABLE_THREAD_FUNCS
 	u32 arg    = gGPR[REG_a3]._u32_0;
 
 	// Other variables are on the stack - dig them out!
+	u8 * pStackBase	  = (u8 *)ReadAddress(gGPR[REG_sp]._u32_0);
+
 	// Stack is arg 4
-	u32 stack = Read32Bits(gGPR[REG_sp]._u32_0 + 4*4);
+	u32 stack = QuickRead32Bits(pStackBase, 4*4);
 
 	// Pri is arg 5
-	u32 pri = Read32Bits(gGPR[REG_sp]._u32_0 + 4*5);
+	u32 pri = QuickRead32Bits(pStackBase, 4*5);
 
 	DBGConsole_Msg(0, "[WosCreateThread](0x%08x, %d, 0x%08x(), 0x%08x, 0x%08x, %d)",
 		thread, id, func, arg, stack, pri );

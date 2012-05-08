@@ -28,24 +28,16 @@ TEST_DISABLE_TIMER_FUNCS
 u32 Patch___osInsertTimer()
 {
 TEST_DISABLE_TIMER_FUNCS
-	u32 NewTimer = gGPR[REG_a0]._u32_0;
+	u32 NewTimer    = gGPR[REG_a0]._u32_0;
+	u32 TopTimer    = Read32Bits(VAR_ADDRESS(osTopTimer));
+	u32 InsertTimer = Read32Bits(TopTimer + 0x00);	// Read next
 
-	u64 NewValue = Read64Bits(NewTimer + 0x10);	// Check ordering is correct?!
+	u8 * pNewTimerBase	  = (u8 *)ReadAddress(NewTimer);	
+	u8 * pInsertTimerBase = (u8 *)ReadAddress(InsertTimer);
 
-	u32 TopTimer = Read32Bits(VAR_ADDRESS(osTopTimer));
-	u32 InsertTimer;
-	u64 InsertValue;
+	u64 NewValue    = QuickRead64Bits(pNewTimerBase, 0x10);	// Check ordering is correct?!
+	u64 InsertValue = QuickRead64Bits(pInsertTimerBase, 0x10);
 
-	/*
-	u64 qwNewInterval = Read64Bits(NewTimer + 0x08);
-	DBGConsole_Msg(0, "osInsertTimer(0x%08x)", NewTimer);
-	DBGConsole_Msg(0, "  Timer->value = 0x%08x%08x", (u32)(NewValue>>32), (u32)NewValue);
-	DBGConsole_Msg(0, "  Timer->interval = 0x%08x%08x", (u32)(qwNewInterval>>32), (u32)qwNewInterval);
-	*/
-	
-	InsertTimer = Read32Bits(TopTimer + 0x00);	// Read next
-	InsertValue = Read64Bits(InsertTimer + 0x10);
-	
 	if ( InsertTimer == 0 )
 	{
 		// What gives? 
@@ -60,15 +52,15 @@ TEST_DISABLE_TIMER_FUNCS
 		// Decrease by the pause for this timer
 		NewValue -= InsertValue;
 
-		InsertTimer = Read32Bits(InsertTimer + 0x0);	// Read next timer
-		InsertValue = Read64Bits(InsertTimer + 0x10);
+		InsertTimer = QuickRead32Bits(pInsertTimerBase, 0x0);	// Read next timer
+		InsertValue = QuickRead64Bits(pInsertTimerBase, 0x10);
 
 		if (InsertTimer == TopTimer)	// At the end of the list?
 			break;
 	}
 
 	/// Save the modified time value
-	Write64Bits(NewTimer + 0x10, NewValue);
+	QuickWrite64Bits(pNewTimerBase, 0x10, NewValue);
 
 	// Inserting before InsertTimer
 
@@ -77,21 +69,21 @@ TEST_DISABLE_TIMER_FUNCS
 	{
 		InsertValue -= NewValue;
 
-		Write64Bits(InsertTimer + 0x10, InsertValue);
+		QuickWrite64Bits(pInsertTimerBase, 0x10, InsertValue);
 	}
 
 	// pNewTimer->next = pInsertTimer
-	Write32Bits(NewTimer + 0x00, InsertTimer);
+	QuickWrite32Bits(pNewTimerBase, 0x00, InsertTimer);
 
 	// pNewTimer->prev = pInsertTimer->prev
-	u32 InsertTimerPrev = Read32Bits(InsertTimer + 0x04);
-	Write32Bits(NewTimer + 0x04, InsertTimerPrev);
+	u32 InsertTimerPrev = QuickRead32Bits(pInsertTimerBase, 0x04);
+	QuickWrite32Bits(pNewTimerBase, 0x04, InsertTimerPrev);
 
 	// pInsertTimer->prev->next = pNewTimer
 	Write32Bits(InsertTimerPrev + 0x00, NewTimer);
 
 	// pInsertTimer->prev = pNewTimer
-	Write32Bits(InsertTimer + 0x04, NewTimer);
+	QuickWrite32Bits(pInsertTimerBase, 0x04, NewTimer);
 
 	gGPR[REG_v0]._s64 = (s64)(s32)(NewValue >> 32);
 	gGPR[REG_v1]._s64 = (s64)(s32)((u32)NewValue);
@@ -111,14 +103,17 @@ TEST_DISABLE_TIMER_FUNCS
 	u32 SystemCount = VAR_ADDRESS(osSystemCount);
 	u32 FrameCount  = VAR_ADDRESS(osFrameCount);
 
+	//
 	// In some games we can't obtain TimeLo, which results in a bsod, ex Killer Instinct
-	// Try to calculate TimeLo and writeback the result obtained
+	// Calculate TimeLo and writeback the result obtained
 	//
 	if(TimeLo == 0)
 	{
-		DBGConsole_Msg( 0, "TimeLo NULL, trying to caluclate.." );
+		DBGConsole_Msg( 0, "TimeLo NULL, calculating.." );
 		TimeLo = SystemCount-(FrameCount-SystemCount);
 	}
+
+	DAEDALUS_ASSERT( TimeHi, "TimeHi NULL, need to calculate!");
 	
 	DBGConsole_Msg(0, "Initialising Timer Services");
 
@@ -131,13 +126,15 @@ TEST_DISABLE_TIMER_FUNCS
 	u32 timer = Read32Bits(VAR_ADDRESS(osTopTimer));
 
 	// Make list empty
-	Write32Bits(timer + offsetof(OSTimer, next), timer);
-	Write32Bits(timer + offsetof(OSTimer, prev), timer);
+	u8 * pTimerBase	 = (u8 *)ReadAddress(timer);	
 
-	Write64Bits(timer + offsetof(OSTimer, interval), 0);
-	Write64Bits(timer + offsetof(OSTimer, value), 0);
-	Write64Bits(timer + offsetof(OSTimer, mq), 0);
-	Write64Bits(timer + offsetof(OSTimer, msg), 0);
+	QuickWrite32Bits(pTimerBase, offsetof(OSTimer, next), timer);
+	QuickWrite32Bits(pTimerBase, offsetof(OSTimer, prev), timer);
+
+	QuickWrite64Bits(pTimerBase, offsetof(OSTimer, interval), 0);
+	QuickWrite64Bits(pTimerBase, offsetof(OSTimer, value), 0);
+	QuickWrite64Bits(pTimerBase, offsetof(OSTimer, mq), 0);
+	QuickWrite64Bits(pTimerBase, offsetof(OSTimer, msg), 0);
 
 	return PATCH_RET_JR_RA;
 }
