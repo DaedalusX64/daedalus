@@ -182,11 +182,12 @@ enum ECPUBranchType
 	CPU_BRANCH_INDIRECT,		// i.e. jump to the contents of a register
 };
 */
+#ifdef FRAGMENT_SIMULATE_EXECUTION
 //*****************************************************************************
 //
 //*****************************************************************************
 void	CPU_ExecuteOpRaw( u32 count, u32 address, OpCode op_code, CPU_Instruction p_instruction, bool * p_branch_taken );
-
+#endif
 // Needs to be callable from assembly
 extern "C"
 {

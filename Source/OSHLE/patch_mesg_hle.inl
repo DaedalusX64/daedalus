@@ -109,19 +109,14 @@ u32 Patch_osRecvMesg()
 {
 TEST_DISABLE_MESG_FUNCS
 
-	// osRecvMesg brakes OOT's in-game menu
-	// ToDo : Fix Me
-	/*if( g_ROM.GameHacks == ZELDA_OOT ) 
-	{
-		return PATCH_RET_NOT_PROCESSED0(osRecvMesg);
-	}*/
-
 	u32 queue     = gGPR[REG_a0]._u32_0;
 	u32 msg       = gGPR[REG_a1]._u32_0;
 	u32 BlockFlag = gGPR[REG_a2]._u32_0;
 
-	u32 ValidCount = Read32Bits(queue + 0x8);
-	u32 MsgCount = Read32Bits(queue + 0x10);
+	u8 * pBase	  = (u8 *)ReadAddress(queue);
+
+	u32 ValidCount= QuickRead32Bits(pBase, 0x8);
+	u32 MsgCount  = QuickRead32Bits(pBase, 0x10);
 
 	/*if (queue == 0x80007d40)
 	{
@@ -150,14 +145,14 @@ TEST_DISABLE_MESG_FUNCS
 
 	//DBGConsole_Msg(0, "  Processing Pending");
 
-	u32 first = Read32Bits(queue + 0x0c);
+	u32 first = QuickRead32Bits(pBase, 0x0c);
 	
 	//Store message in pointer
 	if (msg != 0)
 	{
 		//DBGConsole_Msg(0, "  Retrieving message");
 		
-		u32 MsgBase = Read32Bits(queue + 0x14);
+		u32 MsgBase = QuickRead32Bits(pBase, 0x14);
 
 		// Offset to first valid message
 		MsgBase += first * 4;
@@ -184,18 +179,17 @@ TEST_DISABLE_MESG_FUNCS
 	//{
 	//DBGConsole_Msg(0, "  Generating next valid message number");
 
-	Write32Bits(queue + 0x0c, first);
+	QuickWrite32Bits(pBase, 0x0c, first);
 	//}
 
 	// Decrease the number of valid messages
 	ValidCount--;
 
-	Write32Bits(queue + 0x8, ValidCount);
+	QuickWrite32Bits(pBase, 0x8, ValidCount);
 
 	// Start thread pending on the fullqueue
-	u32 FullQueueThread = Read32Bits(queue + 0x04);
+	u32 FullQueueThread = QuickRead32Bits(pBase, 0x04);
 	u32 NextThread = Read32Bits(FullQueueThread + 0x00);
-
 
 
 	// If the first thread is not the idle thread, start it
@@ -204,7 +198,7 @@ TEST_DISABLE_MESG_FUNCS
 		//DBGConsole_Msg(0, "  Activating sleeping thread");
 
 		// From Patch___osPopThread():
-		Write32Bits(queue + 0x04, NextThread);
+		QuickWrite32Bits(pBase, 0x04, NextThread);
 
 		gGPR[REG_a0]._u32_0 = FullQueueThread;
 
@@ -237,8 +231,10 @@ TEST_DISABLE_MESG_FUNCS
 	u32 msg       = gGPR[REG_a1]._u32_0;
 	u32 BlockFlag = gGPR[REG_a2]._u32_0;
 
-	u32 ValidCount = Read32Bits(queue + 0x8);
-	u32 MsgCount = Read32Bits(queue + 0x10);
+	u8 * pBase	  = (u8 *)ReadAddress(queue);
+
+	u32 ValidCount= QuickRead32Bits(pBase, 0x8);
+	u32 MsgCount  = QuickRead32Bits(pBase, 0x10);
 	
 	/*if (queue == 0x80007d40)
 	{
@@ -265,7 +261,7 @@ TEST_DISABLE_MESG_FUNCS
 		}
 	}
 
-	u32 first = Read32Bits(queue + 0x0c);
+	u32 first = QuickRead32Bits(pBase, 0x0c);
 
 	//DBGConsole_Msg(0, "  Processing Pending");
 	DAEDALUS_ASSERT( MsgCount != 0, "Invalid message count" );
@@ -286,7 +282,7 @@ TEST_DISABLE_MESG_FUNCS
 	//{
 	u32 slot = (first + ValidCount) % MsgCount;
 	
-	u32 MsgBase = Read32Bits(queue + 0x14);
+	u32 MsgBase = QuickRead32Bits(pBase, 0x14);
 
 	// Offset to first valid message
 	MsgBase += slot * 4;
@@ -298,10 +294,10 @@ TEST_DISABLE_MESG_FUNCS
 	// Increase the number of valid messages
 	ValidCount++;
 
-	Write32Bits(queue + 0x8, ValidCount);
+	QuickWrite32Bits(pBase, 0x8, ValidCount);
 
 	// Start thread pending on the fullqueue
-	u32 EmptyQueueThread = Read32Bits(queue + 0x00);
+	u32 EmptyQueueThread = QuickRead32Bits(pBase, 0x00);
 	u32 NextThread = Read32Bits(EmptyQueueThread + 0x00);
 
 
@@ -311,7 +307,7 @@ TEST_DISABLE_MESG_FUNCS
 		//DBGConsole_Msg(0, "  Activating sleeping thread");
 
 		// From Patch___osPopThread():
-		Write32Bits(queue + 0x00, NextThread);
+		QuickWrite32Bits(pBase, 0x00, NextThread);
 
 		gGPR[REG_a0]._s64 = (s64)(s32)EmptyQueueThread;
 

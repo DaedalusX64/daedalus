@@ -838,6 +838,8 @@ u32	CPU_ProduceRegisterHash()
 	return hash;
 }
 #endif
+
+#ifdef FRAGMENT_SIMULATE_EXECUTION
 //*****************************************************************************
 //	Execute the specified opcode
 //*****************************************************************************
@@ -854,7 +856,7 @@ void	CPU_ExecuteOpRaw( u32 count, u32 address, OpCode op_code, CPU_Instruction p
 
 	*p_branch_taken = gCPUState.Delay == DO_DELAY;
 }
-
+#endif
 
 //*****************************************************************************
 //
