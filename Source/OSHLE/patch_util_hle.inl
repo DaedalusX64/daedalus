@@ -32,12 +32,12 @@ TEST_DISABLE_UTIL_FUNCS
 	u32 src = gGPR[REG_a1]._u32_0;
 	u32 len = gGPR[REG_a2]._u32_0;
 
+	// Set return val here (return dest)
+	gGPR[REG_v0]._u32_0 = gGPR[REG_a0]._u32_0;
+
 	//NOP! fixes SpiderMan
 	if (len == 0)
-	{
-		gGPR[REG_v0]._u32_0 = gGPR[REG_a0]._u32_0;	
 		return PATCH_RET_JR_RA;
-	}
 
 #if 1	//1->Fast, 0->Old way - VFPU memcpy Breaks Star Soldier
 	memcpy_cpu_LE( (void *)ReadAddress(dst), (void *)ReadAddress(src), len);
@@ -49,10 +49,7 @@ TEST_DISABLE_UTIL_FUNCS
 	{
 		*(u8*)((u32)pdst++ ^ 3) = *(u8*)((u32)psrc++ ^ 3);
 	}
-#endif
-
-	// return value of dest
-	gGPR[REG_v0]._u32_0 = gGPR[REG_a0]._u32_0;	
+#endif	
 
 	return PATCH_RET_JR_RA;
 }
@@ -184,7 +181,8 @@ TEST_DISABLE_UTIL_FUNCS
 #endif
 	}
 
-	gGPR[REG_v0]._u32_0 = 0;
+	// Mmm already returned dest... -Salvy
+	//gGPR[REG_v0]._u32_0 = 0;
 
 	return PATCH_RET_JR_RA;
 }

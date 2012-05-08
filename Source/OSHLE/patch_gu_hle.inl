@@ -295,7 +295,7 @@ TEST_DISABLE_GU_FUNCS
 u32 Patch_guTranslate()
 {
 TEST_DISABLE_GU_FUNCS
-		union
+	union
 	{
 		u32 x;
 		f32 fX;
@@ -423,7 +423,7 @@ TEST_DISABLE_GU_FUNCS
 u32 Patch_guScale()
 {
 TEST_DISABLE_GU_FUNCS
-		union
+	union
 	{
 		u32 x;
 		f32 fX;
@@ -504,11 +504,11 @@ TEST_DISABLE_GU_FUNCS
 	const f32 fScale = 65536.0f;
 
 	u8 * pMtxFBase = (u8 *)ReadAddress(gGPR[REG_a0]._u32_0);
+	u8 * pMtxBase  = (u8 *)ReadAddress(gGPR[REG_a1]._u32_0);
 
-	u32 fixedMtx = gGPR[REG_a1]._u32_0;
-	u8 * pMtxLBaseHiBits = (u8 *)ReadAddress(fixedMtx + 0x00);
-	u8 * pMtxLBaseLoBits = (u8 *)ReadAddress(fixedMtx + 0x20);
-
+	u8 * pMtxLBaseHiBits = (u8 *)(pMtxBase + 0x00);
+	u8 * pMtxLBaseLoBits = (u8 *)(pMtxBase + 0x20);
+	
 	union
 	{
 		u32 iFA;
@@ -710,14 +710,15 @@ TEST_DISABLE_GU_FUNCS
 		f32 fS;
 	}uS;
 
-	u8 * pMtxBase = (u8 *)ReadAddress(gGPR[REG_a0]._u32_0);	//Base address
+	u8 * pMtxBase   = (u8 *)ReadAddress(gGPR[REG_a0]._u32_0);	// Base address
+	u8 * pStackBase = (u8 *)ReadAddress(gGPR[REG_sp]._u32_0);	// Base stack address
 	uL.L = gGPR[REG_a1]._u32_0;	//Left
 	uR.R = gGPR[REG_a2]._u32_0;	//Right
 	uB.B = gGPR[REG_a3]._u32_0;	//Bottom
-	uT.T = Read32Bits(gGPR[REG_sp]._u32_0 + 0x10);	//Top
-	uN.N = Read32Bits(gGPR[REG_sp]._u32_0 + 0x14);	//Near
-	uF.F = Read32Bits(gGPR[REG_sp]._u32_0 + 0x18);	//Far
-	uS.S = Read32Bits(gGPR[REG_sp]._u32_0 + 0x1c);	//Scale
+	uT.T = QuickRead32Bits(pStackBase, 0x10);	//Top
+	uN.N = QuickRead32Bits(pStackBase, 0x14);	//Near
+	uF.F = QuickRead32Bits(pStackBase, 0x18);	//Far
+	uS.S = QuickRead32Bits(pStackBase, 0x1c);	//Scale
 
 //	printf("%f %f %f %f\n",uR.fR, uL.fL, uT.fT, uB.fB);
 
@@ -782,13 +783,7 @@ u32 Patch_guOrtho()
 {
 TEST_DISABLE_GU_FUNCS
 
-u32 s_TempMatrix[16] = 
-{
-	0x00000000,	0x00000000, 0x00000000,	0x00000000,
-	0x00000000,	0x00000000, 0x00000000,	0x00000000,
-	0x00000000, 0x00000000, 0x00000000,	0x00000000,
-	0x00000000, 0x00000000, 0x00000000,	0x00000000
-};
+	u32 s_TempMatrix[16];
 
 	union
 	{
@@ -832,14 +827,15 @@ u32 s_TempMatrix[16] =
 		f32 fS;
 	}uS;
 
-	u8 * fixedMtx = (u8 *)ReadAddress(gGPR[REG_a0]._u32_0);	//Fixed point Base address
+	u8 * pMtxBase   = (u8 *)ReadAddress(gGPR[REG_a0]._u32_0);	// Fixed point Base address
+	u8 * pStackBase = (u8 *)ReadAddress(gGPR[REG_sp]._u32_0);	// Base stack address
 	uL.L = gGPR[REG_a1]._u32_0;	//Left
 	uR.R = gGPR[REG_a2]._u32_0;	//Right
-	uB.B = gGPR[REG_a3]._u32_0;	//Bottom
-	uT.T = Read32Bits(gGPR[REG_sp]._u32_0 + 0x10);	//Top
-	uN.N = Read32Bits(gGPR[REG_sp]._u32_0 + 0x14);	//Near
-	uF.F = Read32Bits(gGPR[REG_sp]._u32_0 + 0x18);	//Far
-	uS.S = Read32Bits(gGPR[REG_sp]._u32_0 + 0x1c);	//Scale
+	uB.B = gGPR[REG_a3]._u32_0;	//Bottom	
+	uT.T = QuickRead32Bits(pStackBase, 0x10);	//Top
+	uN.N = QuickRead32Bits(pStackBase, 0x14);	//Near
+	uF.F = QuickRead32Bits(pStackBase, 0x18);	//Far
+	uS.S = QuickRead32Bits(pStackBase,  0x1c);	//Scale
 
 //	printf("%f %f %f %f\n",uR.fR, uL.fL, uT.fT, uB.fB);
 
@@ -851,8 +847,8 @@ u32 s_TempMatrix[16] =
 	vfpu_matrix_Ortho((u8 *)s_TempMatrix, uL.fL, uR.fR, uB.fB, uT.fT, uN.fN, uF.fF, uS.fS);
 
 //Convert to proper N64 fixed point matrix
-	u8 * pMtxLBaseHiBits = (u8 *)(fixedMtx + 0x00);
-	u8 * pMtxLBaseLoBits = (u8 *)(fixedMtx + 0x20);
+	u8 * pMtxLBaseHiBits = (u8 *)(pMtxBase + 0x00);
+	u8 * pMtxLBaseLoBits = (u8 *)(pMtxBase + 0x20);
 
 	u32 a, b;
 	u32 hibits,lobits;
@@ -881,7 +877,6 @@ u32 s_TempMatrix[16] =
 	}
 
 	return PATCH_RET_JR_RA;
-//	return PATCH_RET_NOT_PROCESSED;
 }
 
 //RotateF //Corn
