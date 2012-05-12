@@ -213,12 +213,6 @@ const EPspReg	gMemoryBaseReg = PspReg_S7;
 
 const EPspReg	gRegistersToUseForCaching[] =
 {
-	PspReg_S0,
-	PspReg_S1,
-	PspReg_S2,
-	PspReg_S3,
-	PspReg_S4,
-	PspReg_S5,
 //	PspReg_S6,		// Memory upper bound
 //	PspReg_S7,		// Used for g_pu8RamBase - 0x80000000
 //	PspReg_S8,		// Used for base register (&gCPUState)
@@ -234,6 +228,12 @@ const EPspReg	gRegistersToUseForCaching[] =
 	PspReg_T9,
 	PspReg_A2,
 	PspReg_A3,
+	PspReg_S0,
+	PspReg_S1,
+	PspReg_S2,
+	PspReg_S3,
+	PspReg_S4,
+	PspReg_S5,
 	PspReg_K0,		//Used by Kernel but seems to work if we borrow it...(could come back and bite us if we use kernel stuff?) //Corn
 	PspReg_K1,		//Used by Kernel but seems to work if we borrow it...(could come back and bite us if we use kernel stuff?)
 //	PspReg_GP,		//Crashes when exiting to pause menu, needs saving to work?
@@ -304,6 +304,7 @@ void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register
 	const u32 NUM_CACHE_REGS( sizeof(gRegistersToUseForCaching) / sizeof(gRegistersToUseForCaching[0]) );
 
 	// Push all the available registers in reverse order (i.e. use temporaries later)
+	// Use temporaries first so we can avoid flushing them in case of a funcion call //Corn
 	DAEDALUS_ASSERT( mAvailableRegisters.empty(), "Why isn't the available register list empty?" );
 	for( u32 i = 0; i < NUM_CACHE_REGS; i++ )
 	{
@@ -1513,15 +1514,11 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 #endif
 
 		bool BranchDelaySet = false;
-		bool need_pc( R4300_InstructionHandlerNeedsPC( op_code ) );
 
-		if( !need_pc )
+		if( R4300_InstructionHandlerNeedsPC( op_code ) )
 		{
-			address = 0;
-			GenerateGenericR4300( op_code, R4300_GetInstructionHandler( op_code ) );
-		}
-		else	//generate_exception_handler
-		{
+			//Generate exception handler
+			//
 			SetVar( &gCPUState.CurrentPC, address );
 			if( branch_delay_slot )
 			{
@@ -1530,13 +1527,17 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			}
 
 			GenerateGenericR4300( op_code, R4300_GetInstructionHandler( op_code ) );
+
 			// Make sure all dirty registers are flushed. NB - we don't invalidate them
 			// to avoid reloading the contents if no exception was thrown.
-
 			FlushAllRegisters( mRegisterCache, false );
 
 			JAL( CCodeLabel( reinterpret_cast< const void * >( _ReturnFromDynaRecIfStuffToDo ) ), false );
 			ORI( PspReg_A0, PspReg_R0, 0 );
+		}
+		else
+		{
+			GenerateGenericR4300( op_code, R4300_GetInstructionHandler( op_code ) );
 		}
 
 		// Check whether we want to invert the status of this branch

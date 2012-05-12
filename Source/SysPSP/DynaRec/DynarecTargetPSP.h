@@ -28,11 +28,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 enum EPspReg
 {
-	PspReg_R0 = 0,
-	PspReg_AT, PspReg_V0, PspReg_V1, PspReg_A0, PspReg_A1, PspReg_A2, PspReg_A3,
-	PspReg_T0, PspReg_T1, PspReg_T2, PspReg_T3, PspReg_T4, PspReg_T5, PspReg_T6, PspReg_T7,
-	PspReg_S0, PspReg_S1, PspReg_S2, PspReg_S3, PspReg_S4, PspReg_S5, PspReg_S6, PspReg_S7,
-	PspReg_T8, PspReg_T9, PspReg_K0, PspReg_K1, PspReg_GP, PspReg_SP, PspReg_S8, PspReg_RA,	
+	PspReg_R0 = 0, PspReg_AT, PspReg_V0, PspReg_V1,
+	PspReg_A0, PspReg_A1, PspReg_A2, PspReg_A3,
+	PspReg_T0, PspReg_T1, PspReg_T2, PspReg_T3,
+	PspReg_T4, PspReg_T5, PspReg_T6, PspReg_T7,
+	PspReg_S0, PspReg_S1, PspReg_S2, PspReg_S3,
+	PspReg_S4, PspReg_S5, PspReg_S6, PspReg_S7,
+	PspReg_T8, PspReg_T9, PspReg_K0, PspReg_K1,
+	PspReg_GP, PspReg_SP, PspReg_S8, PspReg_RA,	
 };
 
 enum EPspFloatReg
@@ -45,7 +48,7 @@ enum EPspFloatReg
 };
 
 // Return true if this register is temporary (i.e. not saved across function calls)
-const u32 gIsTemporary = 0xBF00FFFF;
+const u32 gIsTemporary = 0xB300FFFF;
 inline bool	PspReg_IsTemporary( EPspReg psp_reg )	{ return (gIsTemporary >> psp_reg) & 1;}
 
 // Return true if this register dont need sign extension //Corn
