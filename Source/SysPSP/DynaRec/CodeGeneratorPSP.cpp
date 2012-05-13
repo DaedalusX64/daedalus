@@ -50,6 +50,9 @@ using namespace AssemblyUtils;
 //Define to handle full 64bit checks for SLT,SLTU,SLTI & SLTIU //Corn
 //#define ENABLE_64BIT
 
+//Define to check for DIV / 0 //Corn
+//#define DIVZEROCHK
+
 #define NOT_IMPLEMENTED( x )	DAEDALUS_ERROR( x )
 
 extern "C" { const void * g_ReadAddressLookupTableForDynarec = g_ReadAddressLookupTable; }
@@ -1769,7 +1772,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 			ADDU( PspReg_T1, reg_address, gMemoryBaseReg );
 			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_T1, offset );
 			CJumpLocation branch( BEQ( PspReg_T1, PspReg_A1, CCodeLabel( NULL ), true) );
-			SW(PspReg_R0, PspReg_R0, 0);
+			SW(PspReg_R0, PspReg_R0, 0);	//Create a BSOD on purpose
 			PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
 			return;
 		}
@@ -2080,7 +2083,7 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 			ADDU( PspReg_T0, reg_address, gMemoryBaseReg );
 			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T0, offset );
 			CJumpLocation branch( BEQ( PspReg_T1, PspReg_T0, CCodeLabel( NULL ), true) );
-			SW(PspReg_R0, PspReg_R0, 0);
+			SW(PspReg_R0, PspReg_R0, 0);	//Create a BSOD on purpose
 			PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
 			return;
 		}
@@ -2339,11 +2342,13 @@ inline void	CCodeGeneratorPSP::GenerateMULT( EN64Reg rs, EN64Reg rt )
 	SetVar( &gCPUState.MultLo._u32_0, PspReg_T0 );
 	SetVar( &gCPUState.MultHi._u32_0, PspReg_T1 );
 
+#ifdef ENABLE_64BIT
 	SRA( PspReg_T0, PspReg_T0, 0x1f );		// Sign extend
 	SRA( PspReg_T1, PspReg_T1, 0x1f );		// Sign extend
 
 	SetVar( &gCPUState.MultLo._u32_1, PspReg_T0 );
 	SetVar( &gCPUState.MultHi._u32_1, PspReg_T1 );
+#endif
 }
 
 //*****************************************************************************
@@ -2366,11 +2371,13 @@ inline void	CCodeGeneratorPSP::GenerateMULTU( EN64Reg rs, EN64Reg rt )
 	SetVar( &gCPUState.MultLo._u32_0, PspReg_T0 );
 	SetVar( &gCPUState.MultHi._u32_0, PspReg_T1 );
 
+#ifdef ENABLE_64BIT
 	SRA( PspReg_T0, PspReg_T0, 0x1f );		// Sign extend
 	SRA( PspReg_T1, PspReg_T1, 0x1f );		// Sign extend
 
 	SetVar( &gCPUState.MultLo._u32_1, PspReg_T0 );
 	SetVar( &gCPUState.MultHi._u32_1, PspReg_T1 );
+#endif
 }
 
 //*****************************************************************************
@@ -2387,6 +2394,7 @@ inline void	CCodeGeneratorPSP::GenerateDIV( EN64Reg rs, EN64Reg rt )
 	//	gCPUState.MultHi._u64 = (s64)(s32)(nDividend % nDivisor);
 	//}
 
+#ifdef DIVZEROCHK
 	EPspReg	reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
 	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
 
@@ -2408,6 +2416,28 @@ inline void	CCodeGeneratorPSP::GenerateDIV( EN64Reg rs, EN64Reg rt )
 
 	// Branch here - really should trigger exception!
 	PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
+
+#else
+	EPspReg	reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
+	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
+
+	DIV( reg_lo_rs, reg_lo_rt );
+
+	MFLO( PspReg_T0 );
+	MFHI( PspReg_T1 );
+
+	SetVar( &gCPUState.MultLo._u32_0, PspReg_T0 );
+	SetVar( &gCPUState.MultHi._u32_0, PspReg_T1 );
+
+#ifdef ENABLE_64BIT
+	SRA( PspReg_T0, PspReg_T0, 0x1f );		// Sign extend
+	SRA( PspReg_T1, PspReg_T1, 0x1f );		// Sign extend
+
+	SetVar( &gCPUState.MultLo._u32_1, PspReg_T0 );
+	SetVar( &gCPUState.MultHi._u32_1, PspReg_T1 );
+#endif
+
+#endif
 }
 
 //*****************************************************************************
@@ -2423,6 +2453,7 @@ inline void	CCodeGeneratorPSP::GenerateDIVU( EN64Reg rs, EN64Reg rt )
 	//	gCPUState.MultHi._u64 = (s64)(s32)(dwDividend % dwDivisor);
 	//}
 
+#ifdef DIVZEROCHK
 	EPspReg	reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
 	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
 
@@ -2444,6 +2475,28 @@ inline void	CCodeGeneratorPSP::GenerateDIVU( EN64Reg rs, EN64Reg rt )
 
 	// Branch here - really should trigger exception!
 	PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
+
+#else
+	EPspReg	reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
+	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
+
+	DIVU( reg_lo_rs, reg_lo_rt );
+
+	MFLO( PspReg_T0 );
+	MFHI( PspReg_T1 );
+
+	SetVar( &gCPUState.MultLo._u32_0, PspReg_T0 );
+	SetVar( &gCPUState.MultHi._u32_0, PspReg_T1 );
+
+#ifdef ENABLE_64BIT
+	SRA( PspReg_T0, PspReg_T0, 0x1f );		// Sign extend
+	SRA( PspReg_T1, PspReg_T1, 0x1f );		// Sign extend
+
+	SetVar( &gCPUState.MultLo._u32_1, PspReg_T0 );
+	SetVar( &gCPUState.MultHi._u32_1, PspReg_T1 );
+#endif
+
+#endif
 }
 
 //*****************************************************************************
@@ -3221,7 +3274,7 @@ inline void	CCodeGeneratorPSP::GenerateLW( u32 address, bool set_branch_delay, E
 	EPspReg	reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
 
 	// This is for San Francisco 2049, otherwise it crashes when the race is about to start.
-	if(rt == 0)
+	if(rt == N64Reg_R0)
 	{
 		DAEDALUS_ERROR("Attempted write to r0!");
 		return;
