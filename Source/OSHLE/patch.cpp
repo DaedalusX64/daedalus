@@ -107,7 +107,7 @@ u32 gNumOfOSFunctions;
 #define PATCH_RET_ERET RET_JR_ERET()
 
 // Increase this number every time we changed the symbol table
-static const u32 MAGIC_HEADER = 0x80000135;
+static const u32 MAGIC_HEADER = 0x80000136;
 
 bool gPatchesApplied = false;
 
@@ -459,16 +459,7 @@ bool Patch_Hacks( PatchSymbol * ps )
 	//
 	switch( g_ROM.GameHacks )
 	{
-	case ZELDA_OOT:
-	case ANIMAL_CROSSING:
-	case CLAY_FIGHTER_63:
-		if( strcmp("osSendMesg",ps->szName) == 0) 
-		{
-			bfound = true;
-			break;
-			
-		}
-		break;
+
 	//
 	// osRestoreInt causes Ridge Racer to BSOD when quick race is about to start
 	//
@@ -1117,13 +1108,9 @@ static u32 RET_JR_ERET()
 
 static u32 ConvertToPhysics(u32 addr)
 {
-	if (IS_KSEG0(addr))
+	if( IS_SEG_A000_8000(addr) )
 	{
-		return K0_TO_PHYS(addr);
-	}
-	else if (IS_KSEG1(addr))
-	{
-		return  K1_TO_PHYS(addr);
+		return SEG_TO_PHYS(addr);
 	}
 	else
 	{
@@ -1146,6 +1133,16 @@ inline u32 QuickRead32Bits( u8 *p_base, u32 offset )
 	return *(u32 *)(p_base + offset);
 }
 
+inline u32 QuickRead32Bits( u8 *p_base )
+{
+	return *(u32 *)(p_base);
+}
+
+inline u32 QuickRead16Bits( u8 *p_base, u16 offset )
+{
+	return *(u16 *)(p_base + offset);
+}
+
 inline void QuickWrite64Bits( u8 *p_base, u32 offset, u64 value )
 {
 	u64 data = (value>>32) + (value<<32);
@@ -1155,6 +1152,11 @@ inline void QuickWrite64Bits( u8 *p_base, u32 offset, u64 value )
 inline void QuickWrite32Bits( u8 *p_base, u32 offset, u32 value )
 {
 	*(u32 *)(p_base + offset) = value;
+}
+
+inline void QuickWrite16Bits( u8 *p_base, u32 offset, u16 value )
+{
+	*(u16 *)(p_base + offset) = value;
 }
 
 typedef struct { u32 value[8]; } u256;
