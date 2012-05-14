@@ -116,48 +116,6 @@ void Flash_DoCommand(u32);
 #include "Memory_Read.inl"
 #include "Memory_Write.inl"
 #include "Memory_WriteValue.inl"
-#include "Memory_ReadInternal.inl"
-
-//*****************************************************************************
-//
-//*****************************************************************************
-struct InternalMemMapEntry
-{
-	u32 mStartAddr, mEndAddr;
-	InternalMemFastFunction InternalReadFastFunction;
-};
-
-// Physical ram: 0x80000000 upwards is set up when tables are initialised
-InternalMemMapEntry InternalMemMapEntries[] =
-{
-	{ 0x0000, 0x7FFF, InternalReadMapped },			// Mapped Memory
-	{ 0x8000, 0x807F, InternalReadInvalid },		// RDRAM - Initialised later
-	{ 0x8080, 0x83FF, InternalReadInvalid },		// Cartridge Domain 2 Address 1
-	{ 0x8400, 0x8400, InternalRead_8400_8400 },		// Cartridge Domain 2 Address 1
-	{ 0x8404, 0x85FF, InternalReadInvalid },		// Cartridge Domain 2 Address 1
-	{ 0x8600, 0x87FF, InternalReadROM },			// Cartridge Domain 1 Address 1
-	{ 0x8800, 0x8FFF, InternalReadROM },			// Cartridge Domain 2 Address 2
-	{ 0x9000, 0x9FBF, InternalReadROM },			// Cartridge Domain 1 Address 2
-	{ 0x9FC0, 0x9FCF, InternalRead_9FC0_9FCF },		// pif RAM/ROM
-	{ 0x9FD0, 0x9FFF, InternalReadROM },			// Cartridge Domain 1 Address 3
-
-	{ 0xA000, 0xA07F, InternalReadInvalid },		// Physical RAM - Copy of above
-	{ 0xA080, 0xA3FF, InternalReadInvalid },		// Unused
-	{ 0xA400, 0xA400, InternalRead_8400_8400 },		// Unused
-	{ 0xA404, 0xA4FF, InternalReadInvalid },		// Unused
-	{ 0xA500, 0xA5FF, InternalReadROM },			// Cartridge Domain 2 Address 1
-	{ 0xA600, 0xA7FF, InternalReadROM },			// Cartridge Domain 1 Address 1
-	{ 0xA800, 0xAFFF, InternalReadROM },			// Cartridge Domain 2 Address 2
-	{ 0xB000, 0xBFBF, InternalReadROM },			// Cartridge Domain 1 Address 2
-	{ 0xBFC0, 0xBFCF, InternalRead_9FC0_9FCF },		// pif RAM/ROM
-	{ 0xBFD0, 0xBFFF, InternalReadROM },			// Cartridge Domain 1 Address 3
-
-	{ 0xC000, 0xDFFF, InternalReadMapped },			// Mapped Memory
-	{ 0xE000, 0xFFFF, InternalReadMapped },			// Mapped Memory
-
-	{ ~0,  ~0, NULL}
-};
-
 
 //*****************************************************************************
 //
@@ -238,7 +196,6 @@ MemMapEntry MemMapEntries[] =
 MemFastFunction g_ReadAddressLookupTable[0x4000];
 MemFastFunction g_WriteAddressLookupTable[0x4000];
 MemWriteValueFunction g_WriteAddressValueLookupTable[0x4000];
-InternalMemFastFunction InternalReadFastTable[0x4000];
 void* g_ReadAddressPointerLookupTable[0x4000];
 void* g_WriteAddressPointerLookupTable[0x4000];
 
@@ -455,7 +412,6 @@ void Memory_InitTables()
 	memset(g_ReadAddressLookupTable, 0, sizeof(MemFastFunction) * 0x4000);
 	memset(g_WriteAddressLookupTable, 0, sizeof(MemFastFunction) * 0x4000);
 	memset(g_WriteAddressValueLookupTable, 0, sizeof(MemWriteValueFunction) * 0x4000);
-	memset(InternalReadFastTable, 0, sizeof(InternalMemFastFunction) * 0x4000);
 	memset(g_ReadAddressPointerLookupTable, 0, sizeof(void*) * 0x4000);
 	memset(g_WriteAddressPointerLookupTable, 0, sizeof(void*) * 0x4000);
 
@@ -493,20 +449,6 @@ void Memory_InitTables()
 		entry++;
 	}
 
-	entry = 0;
-	while (InternalMemMapEntries[entry].mStartAddr != u32(~0))
-	{
-		start_addr = InternalMemMapEntries[entry].mStartAddr;
-		end_addr = InternalMemMapEntries[entry].mEndAddr;
-
-		for (i = (start_addr>>2); i <= (end_addr>>2); i++)
-		{
-			InternalReadFastTable[i]  = InternalMemMapEntries[entry].InternalReadFastFunction;
-		}
-
-		entry++;
-	}
-
 	// Check the tables
 	/*for (i = 0; i < 0x4000; i++)
 	{
@@ -528,8 +470,6 @@ void Memory_InitTables()
 	MemFastFunction pWriteRam;
 	MemWriteValueFunction pWriteValueRam;
 
-	InternalMemFastFunction pInternalReadRam;
-
 	void* pointerLookupTableEntry;
 
 	if (ram_size == MEMORY_4_MEG)
@@ -538,8 +478,6 @@ void Memory_InitTables()
 		pReadRam = Read_RAM_4Mb_8000_803F;
 		pWriteRam = Write_RAM_4Mb_8000_803F;
 		pWriteValueRam = WriteValue_RAM_4Mb_8000_803F;
-
-		pInternalReadRam = InternalRead_4Mb_8000_803F;
 	}
 	else
 	{
@@ -547,8 +485,6 @@ void Memory_InitTables()
 		pReadRam = Read_RAM_8Mb_8000_807F;
 		pWriteRam = Write_RAM_8Mb_8000_807F;
 		pWriteValueRam = WriteValue_RAM_8Mb_8000_807F;
-
-		pInternalReadRam = InternalRead_8Mb_8000_807F;
 	}
 
 	// "Real"
@@ -563,8 +499,6 @@ void Memory_InitTables()
 		g_WriteAddressLookupTable[i] = pWriteRam;
 		g_WriteAddressValueLookupTable[i] = pWriteValueRam;
 
-		InternalReadFastTable[i]  = pInternalReadRam;
-
 		g_ReadAddressPointerLookupTable[i] = pointerLookupTableEntry;
 		g_WriteAddressPointerLookupTable[i] = pointerLookupTableEntry;
 	}
@@ -576,16 +510,12 @@ void Memory_InitTables()
 		pReadRam = Read_RAM_4Mb_A000_A03F;
 		pWriteRam = Write_RAM_4Mb_A000_A03F;
 		pWriteValueRam = WriteValue_RAM_4Mb_A000_A03F;
-
-		pInternalReadRam = InternalRead_4Mb_8000_803F;
 	}
 	else
 	{
 		pReadRam = Read_RAM_8Mb_A000_A07F;
 		pWriteRam = Write_RAM_8Mb_A000_A07F;
 		pWriteValueRam = WriteValue_RAM_8Mb_A000_A07F;
-
-		pInternalReadRam = InternalRead_8Mb_8000_807F;
 	}
 
 
@@ -598,9 +528,7 @@ void Memory_InitTables()
 	{
 		g_ReadAddressLookupTable[i]  = pReadRam;
 		g_WriteAddressLookupTable[i] = pWriteRam;
-		g_WriteAddressValueLookupTable[i] = pWriteValueRam;
-
-		InternalReadFastTable[i]  = pInternalReadRam;
+		g_WriteAddressValueLookupTable[i] = pWriteValueRam;;
 
 		g_ReadAddressPointerLookupTable[i] = pointerLookupTableEntry;
 		g_WriteAddressPointerLookupTable[i] = pointerLookupTableEntry;
