@@ -23,6 +23,10 @@ struct OpCode;
 
 #define IS_SEG_8000(x)			((x & 0xE0000000) == 0x80000000)
 #define IS_SEG_A000(x)			((x & 0xE0000000) == 0xA0000000)
+#define IS_SEG_A000_8000(x)		(((x ^ 0x80000000) & 0xC0000000) == 0)
+
+// Exactly the same as K1_TO_PHYS and K0_TO_PHYS
+#define	SEG_TO_PHYS(x)			((u32)(x)&0x1FFFFFFF)
 
 namespace StaticAnalysis
 {
