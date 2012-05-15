@@ -73,19 +73,9 @@ void	CDrawText::Destroy()
 //*************************************************************************************
 //
 //*************************************************************************************
-const char * CDrawText::Translate( const char * dest, u32 * length )
+const char * CDrawText::Translate( const char * dest, u32 & length )
 {
-	if( length == NULL )	return dest;
-
-	// Check if string length was previously calc'd
-	bool t_len = ( strlen( dest ) == * length );
-
-	dest = Translate_String( dest );
-
-	// There has to be a better way than this?
-	if( t_len ) * length = strlen( dest );
-
-	return dest;
+	return Translate_Strings( dest, length );
 }
 
 //*************************************************************************************
@@ -109,7 +99,7 @@ u32	CDrawText::Render( EFont font_type, s32 x, s32 y, float scale, const char * 
 		sceGuEnable(GU_BLEND);
 		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
 		intraFontSetStyle( font, scale, colour.GetColour(), drop_colour.GetColour(), INTRAFONT_ALIGN_LEFT );
-		return s32( intraFontPrintEx( font,  x, y, Translate( p_str, &length ), length) ) - x;
+		return s32( intraFontPrintEx( font,  x, y, Translate( p_str, length ), length) ) - x;
 	}
 
 	return strlen( p_str ) * 16;		// Guess. Better off just returning 0?
@@ -125,7 +115,7 @@ s32		CDrawText::GetTextWidth( EFont font_type, const char * p_str, u32 length )
 	if( font )
 	{
 		intraFontSetStyle( font, 1.0f, 0xffffffff, 0xffffffff, INTRAFONT_ALIGN_LEFT );
-		return s32( intraFontMeasureTextEx( font, Translate( p_str, &length ), length ) );
+		return s32( intraFontMeasureTextEx( font, Translate( p_str, length ), length ) );
 	}
 
 	return strlen( p_str ) * 16;		// Return a reasonable value. Better off just returning 0?

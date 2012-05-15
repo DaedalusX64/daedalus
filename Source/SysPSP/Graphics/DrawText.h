@@ -39,7 +39,7 @@ class CDrawText
 		static u32		Render( EFont font, s32 x, s32 y, float scale, const char * p_str, u32 length, c32 colour );
 		static u32		Render( EFont font, s32 x, s32 y, float scale, const char * p_str, u32 length, c32 colour, c32 drop_colour );
 		static s32		GetTextWidth( EFont font, const char * p_str, u32 length );
-		static const char *	Translate( const char * dest, u32 * length );
+		static const char *	Translate( const char * dest, u32 & length );
 
 		// Versions of above functions which implicitly calc string length
 		static u32		Render( EFont font, s32 x, s32 y, float scale, const char * p_str, c32 colour )						{ return Render( font, x, y, scale, p_str, strlen( p_str ), colour ); }

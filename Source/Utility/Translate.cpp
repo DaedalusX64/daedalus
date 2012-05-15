@@ -35,13 +35,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 struct pTranslate
 {
 	u32		hash;			// hash that corresponds to string
+//	u32		len;			// lenght of the translated string
 	char	*translated;	// Translated string
 };
 
 pTranslate				 text[180];
 std::vector<std::string> gLanguage;
-//*****************************************************************************
 //
+// Hash was taken from http://stackoverflow.com/questions/98153/whats-the-best-hashing-algorithm-to-use-on-a-stl-string-when-using-hash-map
+//
+//*****************************************************************************
+// 
 //*****************************************************************************
 u32 HashString(const char* s)
 {
@@ -56,7 +60,7 @@ u32 HashString(const char* s)
 //*****************************************************************************
 //
 //*****************************************************************************
-const char * Translate_String(const char *original)
+const char * Translate_Strings(const char *original, u32 & len)
 {
 	u32 hash = HashString(original);
 	if( hash == 0 )
@@ -64,10 +68,16 @@ const char * Translate_String(const char *original)
 
 	for( u32 i=0; i < ARRAYSIZE(text); i++ )
 	{
+		// ToDo..
+		//DAEDALUS_ASSERT( text[i].translated != original, " String already translated" );
+
 		if( text[i].hash == hash )
 		{
 			if( text[i].translated )
+			{
+				len =  strlen( text[i].translated );
 				return text[i].translated;
+			}
 			else 
 				return original;
 		}
@@ -78,12 +88,21 @@ const char * Translate_String(const char *original)
 //*****************************************************************************
 //
 //*****************************************************************************
+const char * Translate_String(const char *original)
+{
+	u32 dummy;
+	return Translate_Strings( original, dummy );
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
 void Translate_Unload()
 {
-	if( text[0].translated != NULL )
+	// Clear translations
+	for( u32 i = 0; i < ARRAYSIZE(text); ++i )
 	{
-		// Clear translations
-		for( u32 i = 0; i < ARRAYSIZE(text); ++i )
+		if( text[i].translated != NULL )
 		{
 			free_volatile(text[i].translated);
 			text[i].translated = NULL;
@@ -275,7 +294,7 @@ bool Translate_Read(u32 idx, const char * dir)
 			sscanf( line,"%08x", &hash );
 			if( count < ARRAYSIZE(text) )
 			{
-				// Write translated id/hash to array
+				// Write translated string and hash to array
 				text[count].hash = hash;
 				Translate_Dump( string, hash == TRANSLATE_DUMP_VALUE );
 
