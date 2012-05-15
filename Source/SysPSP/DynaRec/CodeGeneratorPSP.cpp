@@ -2371,13 +2371,12 @@ inline void	CCodeGeneratorPSP::GenerateMULTU( EN64Reg rs, EN64Reg rt )
 	SetVar( &gCPUState.MultLo._u32_0, PspReg_T0 );
 	SetVar( &gCPUState.MultHi._u32_0, PspReg_T1 );
 
-#ifdef ENABLE_64BIT
+	//Yoshi must have sign extension or it will BSOD //Corn
 	SRA( PspReg_T0, PspReg_T0, 0x1f );		// Sign extend
 	SRA( PspReg_T1, PspReg_T1, 0x1f );		// Sign extend
 
 	SetVar( &gCPUState.MultLo._u32_1, PspReg_T0 );
 	SetVar( &gCPUState.MultHi._u32_1, PspReg_T1 );
-#endif
 }
 
 //*****************************************************************************
