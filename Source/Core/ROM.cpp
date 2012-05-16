@@ -52,31 +52,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ConfigOptions.h"
 
-#ifdef DAEDALUS_DEBUG_CONSOLE
-//*****************************************************************************
-//
-//*****************************************************************************
-const char *gGameHackNames[ MAX_HACK_NAMES ] = 
-{
-	"No Game Specific Hack",
-	"TLB Hack", 
-	"Viewport Hack", 
-	"Zelda OOT Hacks", 
-	"Zelda MM Hacks",
-	"Flat Shade Disabled Hack",
-	"Tarzan Misc Hacks",
-	"Disable LW MemAcces Optimisation",
-	"Gex Depth Hack",
-	"Disable osRestoreInt"
-	"Texture Update Hack",
-	"Disable osSendMesg",
-	"Screen Update Hack",
-	"Disable bcopy and osSendMes Hack",
-	"Ignore Alpha",
-	"ISS64 Shadow Hack"
-};
-#endif
-
 #ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
 //*****************************************************************************
 // This isn't really the most appropriate place. Need to check with
@@ -517,6 +492,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5547:	//Sin and punishment		
 	case 0x4446:	//Flying Dragon	
 	case 0x5653:	//SSV
+	case 0x534E:	// Beetle Racing
 		g_ROM.TLUT_HACK = true;
 		break;
 	case 0x4641:	//Animal crossing
@@ -640,7 +616,6 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	DBGConsole_Msg(0, "Check Texture Hash Freq: [G%d]", gCheckTextureHashFrequency);
 	DBGConsole_Msg(0, "SpeedSync: [G%d]", gSpeedSyncEnabled);
 	DBGConsole_Msg(0, "DynaRec: [G%s]", gDynarecEnabled ? "on" : "off");
-	DBGConsole_Msg(0, "Aplying: [G%s]", gGameHackNames[g_ROM.GameHacks]);
 	DBGConsole_Msg(0, "Cheats: [G%s]", gCheatsEnabled ? "on" : "off");
 
 	//Patch_ApplyPatches();

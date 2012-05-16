@@ -31,6 +31,7 @@ TEST_DISABLE_TIMER_FUNCS
 	u32 NewTimer    = gGPR[REG_a0]._u32_0;
 	u32 TopTimer    = Read32Bits(VAR_ADDRESS(osTopTimer));
 	u32 InsertTimer = Read32Bits(TopTimer + 0x00);	// Read next
+	u32 Temp		= InsertTimer;
 
 	u8 * pNewTimerBase	  = (u8 *)ReadAddress(NewTimer);	
 	u8 * pInsertTimerBase = (u8 *)ReadAddress(InsertTimer);
@@ -38,6 +39,8 @@ TEST_DISABLE_TIMER_FUNCS
 	u64 NewValue    = QuickRead64Bits(pNewTimerBase, 0x10);	// Check ordering is correct?!
 	u64 InsertValue = QuickRead64Bits(pInsertTimerBase, 0x10);
 
+	DAEDALUS_ASSERT( InsertTimer, "osInsertTimer with NULL insert timer" );
+	/*
 	if ( InsertTimer == 0 )
 	{
 		// What gives? 
@@ -46,7 +49,7 @@ TEST_DISABLE_TIMER_FUNCS
 		// We can quit, because we've not written anything
 		return PATCH_RET_NOT_PROCESSED0(__osInsertTimer);
 	}
-
+	*/
 	while (InsertValue < NewValue)
 	{
 		// Decrease by the pause for this timer
@@ -61,6 +64,14 @@ TEST_DISABLE_TIMER_FUNCS
 
 	/// Save the modified time value
 	QuickWrite64Bits(pNewTimerBase, 0x10, NewValue);
+
+	
+	// InsertValue was modified, need to update pInsertTimerBase.. There has to be a better way than this?
+	// Otherwise we can't use QuickRead/Write methods afterwards when pInsertTimerBase is used as base
+	if( Temp != InsertTimer )
+	{
+		pInsertTimerBase = (u8 *)ReadAddress(InsertTimer);
+	}
 
 	// Inserting before InsertTimer
 
