@@ -279,6 +279,7 @@ private:
 				EN64Reg							mPrevious_rt;
 				bool							mKeepPreviousLoadBase;
 				bool							mKeepPreviousStoreBase;
+				bool							mFloatCMPIsValid;
 
 				std::vector< SAddressCheckFixup >	mAddressCheckFixups;
 };
