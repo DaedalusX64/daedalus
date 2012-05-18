@@ -121,12 +121,19 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 			if (op_code._u32 == 0)
 			{
 				mBranchDetails[ mActiveBranchIdx ].SpeedHack = SHACK_SKIPTOEVENT;
-			}else if (op_code.op == OP_ADDIU || op_code.op == OP_DADDI
-				|| op_code.op == OP_ADDI || op_code.op == OP_DADDIU)
+
+			}
+			//
+			// We don't handle COPYREG SPEEDHACKS
+			//
+#ifdef DAEDALUS_DEBUG_CONSOLE
+			else if (op_code.op == OP_ADDIU || op_code.op == OP_DADDI || op_code.op == OP_ADDI || op_code.op == OP_DADDIU)
 			{
 				mBranchDetails[ mActiveBranchIdx ].SpeedHack = SHACK_COPYREG;
 			}
+#endif
 		}
+	
 		mActiveBranchIdx = INVALID_IDX;
 	}
 

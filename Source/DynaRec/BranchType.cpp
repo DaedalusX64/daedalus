@@ -117,6 +117,7 @@ ER4300BranchType GetBranchType( OpCode op_code )
 //*************************************************************************************
 //
 //*************************************************************************************
+/*
 OpCode	GetInverseBranch( OpCode op_code )
 {
 	switch( op_code.op )
@@ -184,10 +185,11 @@ OpCode	GetInverseBranch( OpCode op_code )
 
 	return op_code;
 }
-
+*/
 //*************************************************************************************
 //
 //*************************************************************************************
+/*
 namespace
 {
 	OpCode	UpdateBranchOffset( OpCode op_code, u32 branch_location, u32 target_location )
@@ -201,18 +203,18 @@ namespace
 		op_code.offset = u16( ( offset - 4 ) >> 2 );
 		return op_code;
 	}
-
+	
 	OpCode	UpdateJumpTarget( OpCode op_code, u32 jump_location, u32 target_location )
 	{
 		op_code.target = (target_location - jump_location) >> 2;
 		return op_code;
 	}
-
 }
-
+*/
 //*************************************************************************************
 //
 //*************************************************************************************
+/*
 OpCode	UpdateBranchTarget( OpCode op_code, u32 op_address, u32 target_address )
 {
 	switch( op_code.op )
@@ -292,11 +294,12 @@ OpCode	UpdateBranchTarget( OpCode op_code, u32 op_address, u32 target_address )
 
 	return op_code;
 }
-
+*/
 
 //*************************************************************************************
 //
 //*************************************************************************************
+/*
 ER4300BranchType	GetInverseBranch( ER4300BranchType type )
 {
 	ER4300BranchType	inverse( gInverseBranchTypes[ type ] );
@@ -305,7 +308,7 @@ ER4300BranchType	GetInverseBranch( ER4300BranchType type )
 
 	return inverse;
 }
-
+*/
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -320,7 +323,7 @@ u32 GetBranchTarget( u32 address, OpCode op_code, ER4300BranchType type )
 
 	// We pass the type in for efficiency - check that it's correct in debug though
 	DAEDALUS_ASSERT( GetBranchType( op_code ) == type, "Specified type is inconsistant with op code" );
-
+	
 	switch( type )
 	{
 	case BT_BNE:
@@ -350,6 +353,7 @@ u32 GetBranchTarget( u32 address, OpCode op_code, ER4300BranchType type )
 		address = JumpTarget( op_code, address );
 		break;
 
+
 	// These are all indirect
 	case BT_JR:
 	case BT_JALR:
@@ -362,10 +366,10 @@ u32 GetBranchTarget( u32 address, OpCode op_code, ER4300BranchType type )
 		address = 0;
 		break;
 	}
-
+	
 	return address;
 }
-
+// Bellow Functions are very simple 2-3 ops, shall we inline them?
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -373,23 +377,10 @@ bool IsConditionalBranch( ER4300BranchType type )
 {
 	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
 
-	bool	conditional;
-
-	switch( type )
-	{
-	case BT_J:
-	case BT_JAL:
-	case BT_JR:
-	case BT_JALR:
-	case BT_ERET:
-		conditional = false;
-		break;
-	default:
-		conditional = true;
-		break;
-	}
-
-	return conditional;
+	if( type >= BT_J )
+		return false;
+	else
+		return true;
 }
 
 //*************************************************************************************
@@ -399,20 +390,10 @@ bool IsBranchTypeDirect( ER4300BranchType type )
 {
 	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
 
-	bool	direct;
-	switch( type )
-	{
-	case BT_JR:
-	case BT_JALR:
-	case BT_ERET:
-		direct = false;
-		break;
-	default:
-		direct = true;
-		break;
-	}
-
-	return direct;
+	if( type >= BT_JR )
+		return false;
+	else
+		return true;
 }
 
 //*************************************************************************************
@@ -422,28 +403,10 @@ bool IsBranchTypeLikely( ER4300BranchType type )
 {
 	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
 
-	bool	likely;
+	if( type >= BT_BEQL && type < BT_J )
+		return true;
+	else
+		return false;
 
-	switch( type )
-	{
-	case BT_BNEL:
-	case BT_BEQL:
-	case BT_BGTZL:
-	case BT_BLEZL:
-	case BT_BGEZL:
-	case BT_BGEZALL:
-	case BT_BLTZL:
-	case BT_BLTZALL:
-	case BT_BC1TL:
-	case BT_BC1FL:
-		likely = true;
-		break;
-
-	default:
-		likely = false;
-		break;
-	}
-
-	return likely;
 }
 

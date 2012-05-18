@@ -25,29 +25,45 @@ struct OpCode;
 enum ER4300BranchType
 {
 	BT_NOT_BRANCH = 0,
-	BT_BEQ,		BT_BEQL,
-	BT_BNE,		BT_BNEL,
-	BT_BLEZ,	BT_BLEZL,
-	BT_BGTZ,	BT_BGTZL,
-	BT_BLTZ,	BT_BLTZL,	BT_BLTZAL,	BT_BLTZALL,
-	BT_BGEZ,	BT_BGEZL,	BT_BGEZAL,	BT_BGEZALL,
-	BT_BC1F,	BT_BC1FL,
-	BT_BC1T,	BT_BC1TL,
+	BT_BEQ,
+	BT_BNE,
+	BT_BLEZ,
+	BT_BGTZ,
+	BT_BLTZ,	
+	BT_BLTZAL,
+	BT_BGEZ,	
+	BT_BGEZAL,
+	BT_BC1F,
+	BT_BC1T,
+
+	BT_BEQL,
+	BT_BNEL,
+	BT_BLEZL,
+	BT_BGTZL,
+	BT_BLTZL,
+	BT_BGEZL,
+	BT_BLTZALL,
+	BT_BGEZALL,
+	BT_BC1FL,
+	BT_BC1TL,
+
 	BT_J,
 	BT_JAL,
 	BT_JR,
 	BT_JALR,
 	BT_ERET,
+
+//	BT_MAX,
 };
 
 ER4300BranchType		GetBranchType( OpCode op_code );
-ER4300BranchType		GetInverseBranch( ER4300BranchType type );
+//ER4300BranchType		GetInverseBranch( ER4300BranchType type );
 u32						GetBranchTarget( u32 address, OpCode op_code, ER4300BranchType type );
 bool					IsConditionalBranch( ER4300BranchType type );
 bool					IsBranchTypeDirect( ER4300BranchType type );
 bool					IsBranchTypeLikely( ER4300BranchType type );
 
-OpCode					GetInverseBranch( OpCode op_code );
-OpCode					UpdateBranchTarget( OpCode op_code, u32 op_address, u32 target_address );
+//OpCode					GetInverseBranch( OpCode op_code );
+//OpCode					UpdateBranchTarget( OpCode op_code, u32 op_address, u32 target_address );
 
 #endif // __DAEDALUS_BRANCHTYPE_H__
