@@ -22,9 +22,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Core/R4300OpCode.h"
 
+// 
+// I think we should check for branch type in static analyzer - Salvy
+//
+
 //*************************************************************************************
 //
 //*************************************************************************************
+/*
 static const ER4300BranchType gInverseBranchTypes[] =
 {
 	BT_NOT_BRANCH,
@@ -43,7 +48,7 @@ static const ER4300BranchType gInverseBranchTypes[] =
 	BT_ERET,
 };
 
-
+*/
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -323,53 +328,26 @@ u32 GetBranchTarget( u32 address, OpCode op_code, ER4300BranchType type )
 
 	// We pass the type in for efficiency - check that it's correct in debug though
 	DAEDALUS_ASSERT( GetBranchType( op_code ) == type, "Specified type is inconsistant with op code" );
-	
-	switch( type )
+
+	if( type < BT_J )
 	{
-	case BT_BNE:
-	case BT_BNEL:
-	case BT_BEQ:
-	case BT_BEQL:
-	case BT_BGTZ:
-	case BT_BGTZL:
-	case BT_BLEZ:
-	case BT_BLEZL:
-	case BT_BGEZ:
-	case BT_BGEZL:
-	case BT_BGEZAL:
-	case BT_BGEZALL:
-	case BT_BLTZ:
-	case BT_BLTZL:
-	case BT_BLTZAL:
-	case BT_BLTZALL:
-	case BT_BC1T:
-	case BT_BC1TL:
-	case BT_BC1F:
-	case BT_BC1FL:
-		address = BranchAddress( op_code, address );
-		break;
-	case BT_J:		// All the following are unconditional
-	case BT_JAL:
-		address = JumpTarget( op_code, address );
-		break;
+		return BranchAddress( op_code, address );
+	}
 
-
-	// These are all indirect
-	case BT_JR:
-	case BT_JALR:
-	case BT_ERET:
-		address = 0;
-		break;
-
-	default:
-		DAEDALUS_ERROR( "Unhandled branch type" );
-		address = 0;
-		break;
+	// All the following are unconditional
+	if( type < BT_JR )
+	{
+		return JumpTarget( op_code, address );
 	}
 	
-	return address;
+	// These are all indirect
+	return  0;
 }
-// Bellow Functions are very simple 2-3 ops, shall we inline them?
+
+//
+// Bellow Functions are very simple 2 ops (jr,slti) shall we inline them?
+// They assume we have already checked for BT_NOT_BRANCH which is of course already checked ;)
+//
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -403,7 +381,7 @@ bool IsBranchTypeLikely( ER4300BranchType type )
 {
 	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
 
-	if( type >= BT_BEQL && type < BT_J )
+	if( type < BT_BEQ )
 		return true;
 	else
 		return false;

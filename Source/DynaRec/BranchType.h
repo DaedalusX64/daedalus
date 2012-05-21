@@ -25,16 +25,6 @@ struct OpCode;
 enum ER4300BranchType
 {
 	BT_NOT_BRANCH = 0,
-	BT_BEQ,
-	BT_BNE,
-	BT_BLEZ,
-	BT_BGTZ,
-	BT_BLTZ,	
-	BT_BLTZAL,
-	BT_BGEZ,	
-	BT_BGEZAL,
-	BT_BC1F,
-	BT_BC1T,
 
 	BT_BEQL,
 	BT_BNEL,
@@ -46,6 +36,17 @@ enum ER4300BranchType
 	BT_BGEZALL,
 	BT_BC1FL,
 	BT_BC1TL,
+
+	BT_BEQ,
+	BT_BNE,
+	BT_BLEZ,
+	BT_BGTZ,
+	BT_BLTZ,	
+	BT_BLTZAL,
+	BT_BGEZ,	
+	BT_BGEZAL,
+	BT_BC1F,
+	BT_BC1T,
 
 	BT_J,
 	BT_JAL,
