@@ -53,6 +53,9 @@ using namespace AssemblyUtils;
 //Define to check for DIV / 0 //Corn
 //#define DIVZEROCHK
 
+//Define to enable exceptions for interpreter calls from DYNAREC
+//#define ALLOW_INTERPRETER_EXCEPTIONS
+
 #define NOT_IMPLEMENTED( x )	DAEDALUS_ERROR( x )
 
 extern "C" { const void * g_ReadAddressLookupTableForDynarec = g_ReadAddressLookupTable; }
@@ -807,6 +810,8 @@ void CCodeGeneratorPSP::FlushRegister( CN64RegisterCachePSP & cache, EN64Reg n64
 //*****************************************************************************
 void	CCodeGeneratorPSP::FlushAllRegisters( CN64RegisterCachePSP & cache, bool invalidate )
 {
+	mFloatCMPIsValid = false;	//invalidate float compare register
+
 	// Skip r0
 	for( u32 i = 1; i < NUM_N64_REGS; i++ )
 	{
@@ -1532,12 +1537,14 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 
 			GenerateGenericR4300( op_code, R4300_GetInstructionHandler( op_code ) );
 
+#ifdef ALLOW_INTERPRETER_EXCEPTIONS			
 			// Make sure all dirty registers are flushed. NB - we don't invalidate them
 			// to avoid reloading the contents if no exception was thrown.
-			//FlushAllRegisters( mRegisterCache, false );
+			FlushAllRegisters( mRegisterCache, false );
 
-			//JAL( CCodeLabel( reinterpret_cast< const void * >( _ReturnFromDynaRecIfStuffToDo ) ), false );
-			//ORI( PspReg_A0, PspReg_R0, 0 );
+			JAL( CCodeLabel( reinterpret_cast< const void * >( _ReturnFromDynaRecIfStuffToDo ) ), false );
+			ORI( PspReg_A0, PspReg_R0, 0 );
+#endif
 		}
 		else
 		{
@@ -3592,22 +3599,22 @@ inline void	CCodeGeneratorPSP::GenerateBC1F( const SBranchDetails * p_branch, CJ
 		{
 			*p_branch_jump = BC1F( CCodeLabel(NULL), true );
 		}
-	
-		return;
-	}
-
-	GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
-	LoadConstant( PspReg_T1, FPCSR_C );
-	AND( PspReg_T0, PspReg_T0, PspReg_T1 );
-
-	if( p_branch->ConditionalBranchTaken )
-	{
-		// Flip the sign of the test -
-		*p_branch_jump = BNE( PspReg_T0, PspReg_R0, CCodeLabel(NULL), true );
 	}
 	else
 	{
-		*p_branch_jump = BEQ( PspReg_T0, PspReg_R0, CCodeLabel(NULL), true );
+		GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
+		LoadConstant( PspReg_T1, FPCSR_C );
+		AND( PspReg_T0, PspReg_T0, PspReg_T1 );
+
+		if( p_branch->ConditionalBranchTaken )
+		{
+			// Flip the sign of the test -
+			*p_branch_jump = BNE( PspReg_T0, PspReg_R0, CCodeLabel(NULL), true );
+		}
+		else
+		{
+			*p_branch_jump = BEQ( PspReg_T0, PspReg_R0, CCodeLabel(NULL), true );
+		}
 	}
 }
 
@@ -3631,22 +3638,22 @@ inline void	CCodeGeneratorPSP::GenerateBC1T( const SBranchDetails * p_branch, CJ
 		{
 			*p_branch_jump = BC1T( CCodeLabel(NULL), true );
 		}
-	
-		return;
-	}
-
-	GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
-	LoadConstant( PspReg_T1, FPCSR_C );
-	AND( PspReg_T0, PspReg_T0, PspReg_T1 );
-
-	if( p_branch->ConditionalBranchTaken )
-	{
-		// Flip the sign of the test -
-		*p_branch_jump = BEQ( PspReg_T0, PspReg_R0, CCodeLabel(NULL), true );
 	}
 	else
 	{
-		*p_branch_jump = BNE( PspReg_T0, PspReg_R0, CCodeLabel(NULL), true );
+		GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
+		LoadConstant( PspReg_T1, FPCSR_C );
+		AND( PspReg_T0, PspReg_T0, PspReg_T1 );
+
+		if( p_branch->ConditionalBranchTaken )
+		{
+			// Flip the sign of the test -
+			*p_branch_jump = BEQ( PspReg_T0, PspReg_R0, CCodeLabel(NULL), true );
+		}
+		else
+		{
+			*p_branch_jump = BNE( PspReg_T0, PspReg_R0, CCodeLabel(NULL), true );
+		}
 	}
 }
 

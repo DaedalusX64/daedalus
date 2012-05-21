@@ -152,13 +152,12 @@ private:
 
 		struct RegisterCacheInfoPSP
 		{
+			REG32			KnownValue;			// The contents (if known)
 			EPspReg			PspRegister;		// If cached, this is the psp register we're using
 			bool			Valid;				// Is the contents of the register valid?
 			bool			Dirty;				// Are the contents of the register modified?
-
 			bool			Known;				// Are the contents known
 			//bool			SignExtended;		// Is this (high) register just sign extension of low reg?
-			REG32			KnownValue;			// The contents (if known)
 		};
 
 		// PSP fp registers are stored in a 1:1 mapping with the n64 counterparts
