@@ -2799,6 +2799,13 @@ inline void	CCodeGeneratorPSP::GenerateSLT( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
 
 #else
+	/*
+	if (mRegisterCache.IsKnownValue(rs, 0) & mRegisterCache.IsKnownValue(rt, 0))
+	{
+		SetRegister32s(rd, (mRegisterCache.GetKnownValue(rs, 0)._s32 < mRegisterCache.GetKnownValue(rt, 0)._s32) );
+		return;
+	}
+	*/
 	EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
 	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
@@ -2848,6 +2855,13 @@ inline void	CCodeGeneratorPSP::GenerateSLTU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
 
 #else
+	/*
+	if (mRegisterCache.IsKnownValue(rs, 0) & mRegisterCache.IsKnownValue(rt, 0))
+	{
+		SetRegister32s(rd, (mRegisterCache.GetKnownValue(rs, 0)._u32 < mRegisterCache.GetKnownValue(rt, 0)._u32) );
+		return;
+	}
+	*/
 	EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
 	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
@@ -3033,6 +3047,13 @@ inline void	CCodeGeneratorPSP::GenerateSLTI( EN64Reg rt, EN64Reg rs, s16 immedia
 	PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
 
 #else
+	/*
+	if (mRegisterCache.IsKnownValue(rs, 0))
+	{
+		SetRegister32s( rt, (mRegisterCache.GetKnownValue(rs, 0)._s32 < (s32)immediate) );
+		return;
+	}
+	*/
 	EPspReg reg_lo_d( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
 
@@ -3089,6 +3110,13 @@ inline void	CCodeGeneratorPSP::GenerateSLTIU( EN64Reg rt, EN64Reg rs, s16 immedi
 	PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
 
 #else
+	/*
+	if (mRegisterCache.IsKnownValue(rs, 0))
+	{
+		SetRegister32s( rt, (mRegisterCache.GetKnownValue(rs, 0)._u32 < (u32)immediate) );
+		return;
+	}
+	*/
 	EPspReg reg_lo_d( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
 

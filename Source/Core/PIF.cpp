@@ -332,27 +332,15 @@ void IController::Process()
 	DPF_PIF("**                                         **");
 #endif
 
-	u32 i = 0;
 	u32 count = 0;
 	u32 channel = 0;
-	u8  bufin[64];
 
 	// Read controller data here (here gets called fewer times than CONT_READ_CONTROLLER)
 	CInputManager::Get()->GetState( mContPads );
 
-	u32 *buf_ptr32 = (u32*)bufin;
-	u32 *mPIF_ptr32 = (u32*)mpPifRam;
-
-	// Fuse 4 reads and 4 writes to just one which is a lot faster - Corn
-	for(i = 0; i < 16; i++)
-	{
-		u32 tmp = *mPIF_ptr32++;
-		*buf_ptr32++ = (tmp >> 24) | ((tmp >> 8) & 0xFF00) | ((tmp & 0xFF00) << 8) | ((tmp & 0x00FF) << 24);
-	}
-
 	while(count < 64)
 	{
-		u8 *cmd = &bufin[count];
+		u8 *cmd = &mpPifRam[count];
 
 		// command is ready
 		if(cmd[0] == CONT_TX_SIZE_FORMAT_END)
@@ -412,17 +400,7 @@ void IController::Process()
 
 	}
 
-	bufin[63] = 0;	// Set the last bit is 0 as successfully return 
-
-	buf_ptr32 = (u32*)bufin;
-	mPIF_ptr32 = (u32*)mpPifRam;
-
-	// Fuse 4 reads and 4 writes to just one which is a lot faster - Corn
-	for(i = 0; i < 16; i++)
-	{
-		u32 tmp = *buf_ptr32++;
-		*mPIF_ptr32++ = (tmp >> 24) | ((tmp >> 8) & 0xFF00) | ((tmp & 0xFF00) << 8) | ((tmp & 0x00FF) << 24);
-	}
+	mpPifRam[63] = 0;	// Set the last bit is 0 as successfully return 
 
 #ifdef DAEDALUS_DEBUG_PIF
 	DPF_PIF("Before | After:");
