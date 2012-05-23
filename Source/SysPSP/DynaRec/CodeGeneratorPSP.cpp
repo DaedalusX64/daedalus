@@ -1341,12 +1341,16 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	case OP_LH:			GenerateLH( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_LHU:		GenerateLHU( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_LW:			GenerateLW( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_LD:			GenerateLD( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_LWC1:		GenerateLWC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
+	//case OP_LDC1:		GenerateLDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
 
 	case OP_SB:			GenerateSB( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_SH:			GenerateSH( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_SW:			GenerateSW( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_SD:			GenerateSD( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_SWC1:		GenerateSWC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
+	//case OP_SDC1:		GenerateSDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
 
 	case OP_BEQ:
 	case OP_BEQL:
@@ -2894,7 +2898,13 @@ inline void	CCodeGeneratorPSP::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immedi
 		EPspReg dst_reg( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_T1 ) );
 		ADDIU( dst_reg, src_reg, immediate );
+#if 1
+		//If rs=SP we can assume its address calc and we can skip sign extension //Corn
+		if(rs == N64Reg_SP) StoreRegisterLo( rt, dst_reg );
+		else UpdateRegister( rt, dst_reg, URO_HI_SIGN_EXTEND, PspReg_T0 );
+#else
 		UpdateRegister( rt, dst_reg, URO_HI_SIGN_EXTEND, PspReg_T0 );
+#endif
 	}
 }
 
@@ -3323,6 +3333,21 @@ inline void	CCodeGeneratorPSP::GenerateLW( u32 address, bool set_branch_delay, E
 //*****************************************************************************
 //
 //*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateLD( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset )
+{
+	EPspReg	reg_dst_hi( GetRegisterNoLoadHi( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
+	GenerateLoad( address, reg_dst_hi, base, offset, OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	StoreRegisterHi( rt, reg_dst_hi );
+
+	//Adding 4 to offset should be quite safe //Corn
+	EPspReg	reg_dst_lo( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
+	GenerateLoad( address, reg_dst_lo, base, offset + 4, OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	StoreRegisterLo( rt, reg_dst_lo );
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateLWC1( u32 address, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset )
 {
 	EN64FloatReg	n64_ft = EN64FloatReg( ft );
@@ -3346,6 +3371,22 @@ inline void	CCodeGeneratorPSP::GenerateLWC1( u32 address, bool set_branch_delay,
 	MTC1( psp_ft, reg_dst );
 	UpdateFloatRegister( n64_ft );
 #endif
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateLDC1( u32 address, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset )
+{
+	EN64FloatReg	n64_ft = EN64FloatReg( ft + 1 );
+	EPspFloatReg	psp_ft = EPspFloatReg( n64_ft );// 1:1 Mapping
+	GenerateLoad( address, (EPspReg)psp_ft, base, offset, OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	UpdateFloatRegister( n64_ft );
+
+	n64_ft = EN64FloatReg( ft );
+	psp_ft = EPspFloatReg( n64_ft );// 1:1 Mapping
+	GenerateLoad( address, (EPspReg)psp_ft, base, offset + 4, OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	UpdateFloatRegister( n64_ft );
 }
 
 //*****************************************************************************
@@ -3381,6 +3422,19 @@ inline void	CCodeGeneratorPSP::GenerateSW( u32 current_pc, bool set_branch_delay
 //*****************************************************************************
 //
 //*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateSD( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset )
+{
+	EPspReg		reg_value_hi( GetRegisterAndLoadHi( rt, PspReg_A1 ) );
+	GenerateStore( current_pc, reg_value_hi, base, offset, OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+
+	//Adding 4 to offset should be quite safe //Corn
+	EPspReg		reg_value_lo( GetRegisterAndLoadLo( rt, PspReg_A1 ) );
+	GenerateStore( current_pc, reg_value_lo, base, offset + 4, OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateSWC1( u32 current_pc, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset )
 {
 	EN64FloatReg	n64_ft = EN64FloatReg( ft );
@@ -3394,6 +3448,20 @@ inline void	CCodeGeneratorPSP::GenerateSWC1( u32 current_pc, bool set_branch_del
 	MFC1( PspReg_A1, psp_ft );
 	GenerateStore( current_pc, PspReg_A1, base, offset, OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
 #endif
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateSDC1( u32 current_pc, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset )
+{
+	EN64FloatReg	n64_ft = EN64FloatReg( ft + 1 );
+	EPspFloatReg	psp_ft( GetFloatRegisterAndLoad( n64_ft ) );
+	GenerateStore( current_pc, (EPspReg)psp_ft, base, offset, OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+
+	n64_ft = EN64FloatReg( ft );
+	psp_ft = GetFloatRegisterAndLoad( n64_ft );
+	GenerateStore( current_pc, (EPspReg)psp_ft, base, offset + 4, OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
 }
 
 //*****************************************************************************
@@ -3431,14 +3499,12 @@ inline void	CCodeGeneratorPSP::GenerateMTC1( u32 fs, EN64Reg rt )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateCFC1( EN64Reg rt, u32 fs )
 {
-	//Saves a compare //Corn
-	//if( !((fs + 1) & 0x1E) ) // Risky
 	if( (fs == 0) | (fs == 31) )
 	{
 		EPspReg			reg_dst( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 
 		GetVar( reg_dst, &gCPUState.FPUControl[ fs ]._u32_0 );
-		UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND, PspReg_T0 );
+		//UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND, PspReg_T0 );
 	}
 }
 
