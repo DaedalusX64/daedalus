@@ -172,7 +172,6 @@ inline void StoreFPR_Long( u32 reg, u64 value )
 //*****************************************************************************
 #define SIMULATESIG 0x1234	//Reduce signature to load value with one OP
 
-#if 1	//1->new way, 0->old way //Corn
 inline u64 LoadFPR_Long( u32 reg )
 {
 	REG64 res;
@@ -190,27 +189,9 @@ inline u64 LoadFPR_Long( u32 reg )
 	return res._u64;
 }
 
-#else
-inline u64 LoadFPR_Long( u32 reg )
-{
-	REG64 res;
-
-	res._u32_1 = gCPUState.FPU[reg+1]._u32_0;
-	res._u32_0 = gCPUState.FPU[reg+0]._u32_0;
-
-	if (res._f64_unused == SIMULATESIG)
-	{
-		res._f64 = (f64)res._f64_sim;
-	}
-
-	return res._u64;
-}
-#endif
-
 //*****************************************************************************
 //
 //*****************************************************************************
-#if 1	//1->new way, 0->old way //Corn
 inline d64 LoadFPR_Double( u32 reg )
 {
 	if (gCPUState.FPU[reg+0]._u32_0 == SIMULATESIG)
@@ -227,32 +208,13 @@ inline d64 LoadFPR_Double( u32 reg )
 	}
 }
 
-#else
-inline d64 LoadFPR_Double( u32 reg )
-{
-	REG64 res;
-
-	res._u32_1 = gCPUState.FPU[reg+1]._u32_0;
-	res._u32_0 = gCPUState.FPU[reg+0]._u32_0;
-
-	if (res._f64_unused == SIMULATESIG)
-	{
-		// converted
-		return (d64)res._f64_sim;
-	}
-	else
-	{
-		return (d64)res._f64;
-	}
-}
-#endif
 //*****************************************************************************
 //
 //*****************************************************************************
 inline void StoreFPR_Double( u32 reg, d64 value )
 {
 	gCPUState.FPU[reg+0]._u32_0 = SIMULATESIG;
-	gCPUState.FPU[reg+1]._f32_0 = f32( value );
+	gCPUState.FPU[reg+1]._f32_0 = f32( value );	//Covert d64 -> f32
 }
 
 //*****************************************************************************
@@ -267,7 +229,7 @@ inline void StoreFPR_Double_2( u32 reg, f64 value )
 	// EWJ, PowerPuff Girls, and Tom and Jerry
 
 	REG64 r; 
-	r._f64 = f32( value );	//r._f64 = f32( value );	
+	r._f64 = value;	
 	gCPUState.FPU[reg+0]._u32_0 = r._u32_0;
 	gCPUState.FPU[reg+1]._u32_0 = r._u32_1;
 
