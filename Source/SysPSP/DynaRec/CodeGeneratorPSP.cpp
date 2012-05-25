@@ -2898,13 +2898,7 @@ inline void	CCodeGeneratorPSP::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immedi
 		EPspReg dst_reg( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_T1 ) );
 		ADDIU( dst_reg, src_reg, immediate );
-#if 1
-		//If rs=SP we can assume its address calc and we can skip sign extension //Corn
-		if(rs == N64Reg_SP) StoreRegisterLo( rt, dst_reg );
-		else UpdateRegister( rt, dst_reg, URO_HI_SIGN_EXTEND, PspReg_T0 );
-#else
 		UpdateRegister( rt, dst_reg, URO_HI_SIGN_EXTEND, PspReg_T0 );
-#endif
 	}
 }
 
@@ -3504,7 +3498,11 @@ inline void	CCodeGeneratorPSP::GenerateCFC1( EN64Reg rt, u32 fs )
 		EPspReg			reg_dst( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 
 		GetVar( reg_dst, &gCPUState.FPUControl[ fs ]._u32_0 );
-		//UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND, PspReg_T0 );
+#ifdef ENABLE_64BIT
+		UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND, PspReg_T0 );
+#else
+		StoreRegisterLo( rt, reg_dst );
+#endif
 	}
 }
 
