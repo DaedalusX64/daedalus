@@ -290,10 +290,33 @@ bool SaveState_SaveToFile( const char * filename )
 		stream << (u32)g_TLBs[i].pfno;
 	}
 
-	stream.write_memory_buffer_offset(MEM_PIF_RAM, 0x7C0, 0x40);
+	stream.write_memory_buffer_offset(MEM_PIF_RAM, 0x7C0, 0x40); 
 	stream.write( g_pMemoryBuffers[MEM_RD_RAM], gRamSize);
 	stream.write_memory_buffer(MEM_SP_MEM);
 	return true;
+}
+//*************************************************************************************
+//
+//*************************************************************************************
+// In revision >=715 we were byte swapping PIF RAM in a temp buffer, this broke compatibility with PJ64 saves
+// Now that is fixed this been added for compatibility reasons for any ss created within those revs..
+void Swap_PIF()
+{
+	u8 * pPIFRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + 0x7C0;
+
+	if(pPIFRam[0] & 0xC0)
+	{	
+		printf("No need to swap\n");
+		return;
+	}
+
+	u8 temp[64];
+	memcpy( temp, pPIFRam, 64 );
+
+	for (u32 i = 0; i < 64; i++)
+	{
+		pPIFRam[i] = temp[ i ^ U8_TWIDDLE ];
+	}
 }
 
 //*************************************************************************************
@@ -421,7 +444,8 @@ bool SaveState_LoadFromFile( const char * filename )
 	//stream.skip(0x40);
 
 	stream.read_memory_buffer_offset(MEM_PIF_RAM, 0x7C0, 0x40);
-
+	Swap_PIF();
+	
 	stream.read(g_pMemoryBuffers[MEM_RD_RAM], gRamSize);
 	stream.read_memory_buffer(MEM_SP_MEM); //, 0x84000000);
 
