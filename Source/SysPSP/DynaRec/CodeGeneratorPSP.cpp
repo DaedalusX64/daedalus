@@ -1331,6 +1331,9 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	case OP_SLTI:		GenerateSLTI( rt, rs, s16( op_code.immediate ) );	handled = true; break;
 	case OP_SLTIU:		GenerateSLTIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
 
+	case OP_DADDI:		GenerateDADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
+	case OP_DADDIU:		GenerateDADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
+
 	case OP_ANDI:		GenerateANDI( rt, rs, op_code.immediate );			handled = true; break;
 	case OP_ORI:		GenerateORI( rt, rs, op_code.immediate );			handled = true; break;
 	case OP_XORI:		GenerateXORI( rt, rs, op_code.immediate );			handled = true; break;
@@ -1421,6 +1424,8 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		case SpecOp_DADD:	GenerateDADDU( rd, rs, rt );	handled = true; break;
 		case SpecOp_DADDU:	GenerateDADDU( rd, rs, rt );	handled = true; break;
 
+		case SpecOp_DSRA32:	GenerateDSRA32( rd, rt, sa );	handled = true; break;
+		case SpecOp_DSLL32:	GenerateDSLL32( rd, rt, sa );	handled = true; break;
 		default:
 			break;
 		}
@@ -2581,6 +2586,32 @@ inline void	CCodeGeneratorPSP::GenerateSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 //*****************************************************************************
 //
 //*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateDADDIU( EN64Reg rt, EN64Reg rs, s16 immediate )
+{
+	if( rs == N64Reg_R0 )
+	{
+		SetRegister32s( rt, immediate );
+	}
+	else
+	{
+		EPspReg	reg_lo_d( GetRegisterNoLoadLo( rt, PspReg_V0 ) );
+		EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
+
+		ADDIU( reg_lo_d, reg_lo_a, immediate );
+		SLTU( PspReg_V1, reg_lo_d, reg_lo_a );		// Overflowed?
+		StoreRegisterLo( rt, reg_lo_d );
+
+		EPspReg	reg_hi_d( GetRegisterNoLoadHi( rt, PspReg_V0 ) );
+		EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_T0 ) );
+
+		ADDU( reg_hi_d, PspReg_V1, reg_hi_a );		// Add on overflow
+		StoreRegisterHi( rt, reg_hi_d );
+	}
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateDADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
 	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 + gGPR[ op_code.rs ]._u64
@@ -3186,6 +3217,31 @@ inline void	CCodeGeneratorPSP::GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa )
 
 	SRA( reg_lo_rd, reg_lo_rt, sa );
 	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND, PspReg_T0 );
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateDSRA32( EN64Reg rd, EN64Reg rt, u32 sa )
+{
+	EPspReg reg_lo_rd( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
+	EPspReg	reg_hi_rt( GetRegisterAndLoadHi( rt, PspReg_T0 ) );
+
+	SRA( reg_lo_rd, reg_hi_rt, sa );
+	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND, PspReg_T0 );
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateDSLL32( EN64Reg rd, EN64Reg rt, u32 sa )
+{
+	EPspReg reg_hi_rd( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
+	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_T0 ) );
+
+	SLL( reg_hi_rd, reg_lo_rt, sa );
+	SetRegister( rd, 0, 0 );	//Zero lo part
+	StoreRegisterHi( rd, reg_hi_rd );	//Store result
 }
 
 //*****************************************************************************
