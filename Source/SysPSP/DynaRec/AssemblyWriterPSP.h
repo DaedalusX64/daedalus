@@ -102,6 +102,8 @@ class CAssemblyWriterPSP
 		CJumpLocation		BLTZL( EPspReg a, CCodeLabel target, bool insert_delay );
 		CJumpLocation		BGEZL( EPspReg a, CCodeLabel target, bool insert_delay );
 
+		void				EXT( EPspReg reg_dst, EPspReg reg_src, u32 pos, u32 size );
+		void				INS( EPspReg reg_dst, EPspReg reg_src, u32 pos, u32 size );
 		void				ADDI( EPspReg reg_dst, EPspReg reg_src, s16 value );
 		void				ADDIU( EPspReg reg_dst, EPspReg reg_src, s16 value );
 		void				SLTI( EPspReg reg_dst, EPspReg reg_src, s16 value );
@@ -139,6 +141,8 @@ class CAssemblyWriterPSP
 
 		void				Cop1Op( ECop1Op cop1_op, EPspFloatReg fd, EPspFloatReg fs, ECop1OpFunction cop1_funct, EPspFloatReg ft );
 		void				Cop1Op( ECop1Op cop1_op, EPspFloatReg fd, EPspFloatReg fs, ECop1OpFunction cop1_funct );
+
+		void				CFC1( EPspReg rt, EPspFloatReg fs );
 
 		void				MFC1( EPspReg rt, EPspFloatReg fs );
 		void				MTC1( EPspFloatReg fs, EPspReg rt );

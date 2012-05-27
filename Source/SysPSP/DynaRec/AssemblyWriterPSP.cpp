@@ -498,6 +498,38 @@ void	CAssemblyWriterPSP::SLTIU( EPspReg reg_dst, EPspReg reg_src, s16 value )
 }
 
 //*****************************************************************************
+//EXTract bit field. 0 >= pos/size <= 31  //Corn
+//*****************************************************************************
+void	CAssemblyWriterPSP::EXT( EPspReg reg_dst, EPspReg reg_src, u32 pos, u32 size )
+{
+	PspOpCode	op_code;
+	op_code._u32 = 0;
+	op_code.op = 0x1F;
+	op_code.rt = reg_dst;
+	op_code.rs = reg_src;
+	op_code.rd = size;
+	op_code.sa = pos;
+	op_code.spec_op = 0;
+	AppendOp( op_code );
+}
+
+//*****************************************************************************
+//INSert bit field. 0 >= pos/size <= 31 //Corn
+//*****************************************************************************
+void	CAssemblyWriterPSP::INS( EPspReg reg_dst, EPspReg reg_src, u32 pos, u32 size )
+{
+	PspOpCode	op_code;
+	op_code._u32 = 0;
+	op_code.op = 0x1F;
+	op_code.rt = reg_dst;
+	op_code.rs = reg_src;
+	op_code.rd = size;
+	op_code.sa = pos;
+	op_code.spec_op = 4;
+	AppendOp( op_code );
+}
+
+//*****************************************************************************
 //
 //*****************************************************************************
 void	CAssemblyWriterPSP::ANDI( EPspReg reg_dst, EPspReg reg_src, u16 immediate )
@@ -782,6 +814,19 @@ void	CAssemblyWriterPSP::Cop1Op( ECop1Op cop1_op, EPspFloatReg fd, EPspFloatReg 
 	AppendOp( op_code );
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
+void	CAssemblyWriterPSP::CFC1( EPspReg rt, EPspFloatReg fs )
+{
+	PspOpCode	op_code;
+	op_code._u32 = 0;
+	op_code.op = OP_COPRO1;
+	op_code.rt = rt;
+	op_code.fs = fs;
+	op_code.cop1_op = Cop1Op_CFC1;
+	AppendOp( op_code );
+}
 
 //*****************************************************************************
 //

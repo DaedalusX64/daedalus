@@ -3942,7 +3942,7 @@ inline void	CCodeGeneratorPSP::GenerateCVT_W_S( u32 fd, u32 fs )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u32 ft )
 {
-	//Improved version with only one branch //Corn
+	
 	mFloatCMPIsValid = true;
 
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -3953,6 +3953,14 @@ inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u3
 
 	CMP_S( psp_fs, cmp_op, psp_ft );
 
+#if 1 //Improved version no branch //Corn
+	GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
+	CFC1( PspReg_T1, (EPspFloatReg)31 );
+	EXT( PspReg_T1, PspReg_T1, 23, 0 );	//Extract condition bit (true/false)
+	INS( PspReg_T0, PspReg_T1, 23, 0 );	//Insert condition bit (true/false)
+	SetVar( &gCPUState.FPUControl[31]._u32_0, PspReg_T0 );
+
+#else //Improved version with only one branch //Corn
 	GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
 	LoadConstant( PspReg_T1, FPCSR_C );
 	CJumpLocation	test_condition( BC1T( CCodeLabel( NULL ), false ) );
@@ -3964,6 +3972,7 @@ inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u3
 	CCodeLabel		condition_true( GetAssemblyBuffer()->GetLabel() );
 	SetVar( &gCPUState.FPUControl[31]._u32_0, PspReg_T0 );
 	PatchJumpLong( test_condition, condition_true );
+#endif
 }
 
 //*****************************************************************************
