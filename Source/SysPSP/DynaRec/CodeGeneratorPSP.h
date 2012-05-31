@@ -67,7 +67,9 @@ private:
 				void				GetFloatVar( EPspFloatReg dst_reg, const f32 * p_var );
 				void				GetBaseRegisterAndOffset( const void * p_address, EPspReg * p_reg, s16 * p_offset );
 
-				void				UpdateAddressAndDelay( u32 address, bool set_branch_delay );
+				//void				UpdateAddressAndDelay( u32 address, bool set_branch_delay );
+
+				bool				IgnoreHighBitsLogic( int immediate, int logic );
 
 				void				GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op );
 

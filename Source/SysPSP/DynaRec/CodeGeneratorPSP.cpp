@@ -2192,7 +2192,40 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 		PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
 	}
 }
+//*****************************************************************************
+//
+//*****************************************************************************
+// opcode flow special cases
+// Borrowed from 1964
+#define LOGIC_32BIT                               0x80000000
+#define LOGIC_HI_IGNORE_IF_NONNEGATIVE            0x40000000
+#define LOGIC_HI_IGNORE_IF_NEGATIVE               0x20000000
+#define LOGIC_OP_IGNORE_IF_BOTH_OPERANDS_ARE_ZERO 0x10000000
+#define LOGIC_XOR_IF_BOTH_OPERANDS_ARE_EQUAL      0x08000000
 
+// special cases for individual opcodes
+#define LOGIC_OR  (LOGIC_32BIT | LOGIC_HI_IGNORE_IF_NONNEGATIVE)
+#define LOGIC_NOR (LOGIC_32BIT | LOGIC_HI_IGNORE_IF_NONNEGATIVE)
+#define LOGIC_XOR (LOGIC_32BIT | LOGIC_HI_IGNORE_IF_NONNEGATIVE)
+#define LOGIC_ADD (LOGIC_32BIT | LOGIC_HI_IGNORE_IF_NONNEGATIVE)
+#define LOGIC_AND (LOGIC_32BIT | LOGIC_HI_IGNORE_IF_NEGATIVE)
+
+// Returns true if hi part can be ignored
+bool CCodeGeneratorPSP::IgnoreHighBitsLogic( int immediate, int logic )
+{
+	if (immediate & 0x80000000) //negative
+	{
+		if (logic & LOGIC_HI_IGNORE_IF_NEGATIVE)
+			return true;
+	}
+	else //nonnegative
+	{
+		if (logic & LOGIC_HI_IGNORE_IF_NONNEGATIVE)
+			return true;
+	}
+
+	return false;
+}
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -2985,6 +3018,9 @@ inline void	CCodeGeneratorPSP::GenerateORI( EN64Reg rt, EN64Reg rs, u16 immediat
 		// If the source/dest regs are different we need to copy the high bits across
 		if(rt != rs)
 		{
+			if(IgnoreHighBitsLogic( immediate, LOGIC_OR ))
+				return;
+
 			EPspReg dst_reg_hi( GetRegisterNoLoadHi( rt, PspReg_T0 ) );
 			LoadRegisterHi( dst_reg_hi, rs );
 			StoreRegisterHi( rt, dst_reg_hi );
@@ -3017,6 +3053,9 @@ inline void	CCodeGeneratorPSP::GenerateXORI( EN64Reg rt, EN64Reg rs, u16 immedia
 		// (if they are the same, we're xoring 0 to the top half which is essentially a NOP)
 		if(rt != rs)
 		{
+			if(IgnoreHighBitsLogic( immediate, LOGIC_XOR ))
+				return;
+
 			EPspReg dst_reg_hi( GetRegisterNoLoadHi( rt, PspReg_T0 ) );
 			LoadRegisterHi( dst_reg_hi, rs );
 			StoreRegisterHi( rt, dst_reg_hi );
@@ -4009,7 +4048,7 @@ inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u3
 
 	CMP_S( psp_fs, cmp_op, psp_ft );
 
-#if 1 //Improved version no branch //Corn
+#if 0 //Improved version no branch //Corn - Breaks AeroGauge
 	GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
 	CFC1( PspReg_T1, (EPspFloatReg)31 );
 	EXT( PspReg_T1, PspReg_T1, 23, 0 );	//Extract condition bit (true/false)
