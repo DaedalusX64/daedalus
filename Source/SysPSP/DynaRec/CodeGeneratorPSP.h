@@ -132,6 +132,9 @@ private:
 				void				GenerateCFC1( EN64Reg rt, u32 fs );
 				void				GenerateCTC1( u32 fs, EN64Reg rt );
 
+				void				GenerateADD_Sim( u32 fd, u32 fs, u32 ft );
+				void				GenerateMUL_Sim( u32 fd, u32 fs, u32 ft );
+
 				void				GenerateADD_S( u32 fd, u32 fs, u32 ft );
 				void				GenerateSUB_S( u32 fd, u32 fs, u32 ft );
 				void				GenerateMUL_S( u32 fd, u32 fs, u32 ft );

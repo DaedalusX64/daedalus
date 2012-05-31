@@ -1452,9 +1452,20 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 
 
 		case Cop1Op_DInstr:
+			switch( op_code.cop1_funct )
+			{
+			//case Cop1OpFunc_ADD:	GenerateADD_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
+			//case Cop1OpFunc_SUB:	GenerateSUB_S( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
+			//case Cop1OpFunc_MUL:	GenerateMUL_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
+			//case Cop1OpFunc_DIV:	GenerateDIV_S( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
+			//case Cop1OpFunc_SQRT:	GenerateSQRT_S( op_code.fd, op_code.fs ); handled = true; break;
+			//case Cop1OpFunc_ABS:	GenerateABS_S( op_code.fd, op_code.fs ); handled = true; break;
+			//case Cop1OpFunc_MOV:	GenerateMOV_S( op_code.fd, op_code.fs ); handled = true; break;
+			//case Cop1OpFunc_NEG:	GenerateNEG_S( op_code.fd, op_code.fs ); handled = true; break;
+			default:
 			// Need branch delay?
-			GenerateGenericR4300( op_code, R4300_GetDInstructionHandler( op_code ) );
-			handled = true;
+			GenerateGenericR4300( op_code, R4300_GetDInstructionHandler( op_code ) ); handled = true; break;
+			}
 			break;
 
 		case Cop1Op_SInstr:
@@ -3790,9 +3801,12 @@ inline void	CCodeGeneratorPSP::GenerateBC1F( const SBranchDetails * p_branch, CJ
 	else
 	{
 		GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
+#if 1
+		EXT( PspReg_T0, PspReg_T0, 23, 0 );	//Extract condition bit (true/false)
+#else
 		LoadConstant( PspReg_T1, FPCSR_C );
 		AND( PspReg_T0, PspReg_T0, PspReg_T1 );
-
+#endif
 		if( p_branch->ConditionalBranchTaken )
 		{
 			// Flip the sign of the test -
@@ -3829,9 +3843,12 @@ inline void	CCodeGeneratorPSP::GenerateBC1T( const SBranchDetails * p_branch, CJ
 	else
 	{
 		GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
+#if 1
+		EXT( PspReg_T0, PspReg_T0, 23, 0 );	//Extract condition bit (true/false)
+#else
 		LoadConstant( PspReg_T1, FPCSR_C );
 		AND( PspReg_T0, PspReg_T0, PspReg_T1 );
-
+#endif
 		if( p_branch->ConditionalBranchTaken )
 		{
 			// Flip the sign of the test -
@@ -3842,6 +3859,42 @@ inline void	CCodeGeneratorPSP::GenerateBC1T( const SBranchDetails * p_branch, CJ
 			*p_branch_jump = BNE( PspReg_T0, PspReg_R0, CCodeLabel(NULL), true );
 		}
 	}
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateADD_Sim( u32 fd, u32 fs, u32 ft )
+{
+	EPspFloatReg	psp_fd = EPspFloatReg( fd + 1);//1:1 Mapping
+	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( EN64FloatReg( fs + 1 ) ) );
+	EPspFloatReg	psp_ft( GetFloatRegisterAndLoad( EN64FloatReg( ft + 1 ) ) );
+
+	ADD_S( psp_fd, psp_fs, psp_ft );
+	UpdateFloatRegister( (EN64FloatReg)psp_fd );
+
+	psp_fd = EPspFloatReg( fd );//1:1 Mapping
+	psp_fs = GetFloatRegisterAndLoad( EN64FloatReg( fs ) );
+	MOV_S( psp_fd, psp_fs);
+	UpdateFloatRegister( (EN64FloatReg)psp_fd );
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateMUL_Sim( u32 fd, u32 fs, u32 ft )
+{
+	EPspFloatReg	psp_fd = EPspFloatReg( fd + 1);//1:1 Mapping
+	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( EN64FloatReg( fs + 1 ) ) );
+	EPspFloatReg	psp_ft( GetFloatRegisterAndLoad( EN64FloatReg( ft + 1 ) ) );
+
+	MUL_S( psp_fd, psp_fs, psp_ft );
+	UpdateFloatRegister( (EN64FloatReg)psp_fd );
+
+	psp_fd = EPspFloatReg( fd );//1:1 Mapping
+	psp_fs = GetFloatRegisterAndLoad( EN64FloatReg( fs ) );
+	MOV_S( psp_fd, psp_fs);
+	UpdateFloatRegister( (EN64FloatReg)psp_fd );
 }
 
 //*****************************************************************************
@@ -4048,11 +4101,11 @@ inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u3
 
 	CMP_S( psp_fs, cmp_op, psp_ft );
 
-#if 0 //Improved version no branch //Corn - Breaks AeroGauge
+#if 1 //Improved version no branch //Corn
 	GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
 	CFC1( PspReg_T1, (EPspFloatReg)31 );
 	EXT( PspReg_T1, PspReg_T1, 23, 0 );	//Extract condition bit (true/false)
-	INS( PspReg_T0, PspReg_T1, 23, 0 );	//Insert condition bit (true/false)
+	INS( PspReg_T0, PspReg_T1, 23, 23 );	//Insert condition bit (true/false)
 	SetVar( &gCPUState.FPUControl[31]._u32_0, PspReg_T0 );
 
 #else //Improved version with only one branch //Corn
