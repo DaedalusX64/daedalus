@@ -1452,8 +1452,8 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 
 
 		case Cop1Op_DInstr:
-			switch( op_code.cop1_funct )
-			{
+			//switch( op_code.cop1_funct )
+			//{
 			//case Cop1OpFunc_ADD:	GenerateADD_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
 			//case Cop1OpFunc_SUB:	GenerateSUB_S( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
 			//case Cop1OpFunc_MUL:	GenerateMUL_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
@@ -1462,10 +1462,10 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			//case Cop1OpFunc_ABS:	GenerateABS_S( op_code.fd, op_code.fs ); handled = true; break;
 			//case Cop1OpFunc_MOV:	GenerateMOV_S( op_code.fd, op_code.fs ); handled = true; break;
 			//case Cop1OpFunc_NEG:	GenerateNEG_S( op_code.fd, op_code.fs ); handled = true; break;
-			default:
+			//default:
 			// Need branch delay?
 			GenerateGenericR4300( op_code, R4300_GetDInstructionHandler( op_code ) ); handled = true; break;
-			}
+			//}
 			break;
 
 		case Cop1Op_SInstr:
@@ -2237,6 +2237,8 @@ bool CCodeGeneratorPSP::IgnoreHighBitsLogic( int immediate, int logic )
 
 	return false;
 }
+
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -2973,6 +2975,13 @@ inline void	CCodeGeneratorPSP::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immedi
 		EPspReg dst_reg( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_T1 ) );
 		ADDIU( dst_reg, src_reg, immediate );
+
+		if(IgnoreHighBitsLogic( immediate, LOGIC_AND ))
+		{
+			StoreRegisterLo( rt, dst_reg );
+			return;
+		}
+
 		UpdateRegister( rt, dst_reg, URO_HI_SIGN_EXTEND, PspReg_T0 );
 	}
 }
@@ -2996,6 +3005,13 @@ inline void	CCodeGeneratorPSP::GenerateANDI( EN64Reg rt, EN64Reg rs, u16 immedia
 		EPspReg dst_reg( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_T1 ) );
 		ANDI( dst_reg, src_reg, immediate );
+
+		if(IgnoreHighBitsLogic( immediate, LOGIC_ADD ))
+		{
+			StoreRegisterLo( rt, dst_reg );
+			return;
+		}
+
 		UpdateRegister( rt, dst_reg, URO_HI_CLEAR, PspReg_T0 );
 	}
 }
