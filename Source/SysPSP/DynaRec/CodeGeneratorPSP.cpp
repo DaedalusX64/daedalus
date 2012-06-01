@@ -2976,7 +2976,7 @@ inline void	CCodeGeneratorPSP::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immedi
 		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_T1 ) );
 		ADDIU( dst_reg, src_reg, immediate );
 
-		if(IgnoreHighBitsLogic( immediate, LOGIC_AND ))
+		if(IgnoreHighBitsLogic( immediate, LOGIC_ADD ))
 		{
 			StoreRegisterLo( rt, dst_reg );
 			return;
