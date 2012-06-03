@@ -2983,7 +2983,8 @@ inline void	CCodeGeneratorPSP::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immedi
 		EPspReg dst_reg( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_T1 ) );
 		ADDIU( dst_reg, src_reg, immediate );
-
+		UpdateRegister( rt, dst_reg, URO_HI_SIGN_EXTEND, PspReg_T0 );
+		/*
 		if(NeedLoadHi( immediate, LOGIC_ADD ))
 		{
 			UpdateRegister( rt, dst_reg, URO_HI_SIGN_EXTEND, PspReg_T0 );
@@ -2992,7 +2993,7 @@ inline void	CCodeGeneratorPSP::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immedi
 		{
 			StoreRegisterLo( rt, dst_reg );
 		}
-
+		*/
 		
 	}
 }
