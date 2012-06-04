@@ -218,6 +218,10 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		{
 			preferences.DynarecLoopOptimisation = property->GetBooleanValue( false );
 		}
+		if( section->FindProperty( "DynarecDoublesOptimisation", &property ) )
+		{
+			preferences.DynarecDoublesOptimisation = property->GetBooleanValue( false );
+		}
 		if( section->FindProperty( "DoubleDisplayEnabled", &property ) )
 		{
 			preferences.DoubleDisplayEnabled = property->GetBooleanValue( true );
@@ -302,6 +306,7 @@ void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences
 	fprintf(fh, "SpeedSyncEnabled=%d\n",preferences.SpeedSyncEnabled);
 	fprintf(fh, "DynarecEnabled=%d\n",preferences.DynarecEnabled);
 	fprintf(fh, "DynarecLoopOptimisation=%d\n",preferences.DynarecLoopOptimisation);
+	fprintf(fh, "DynarecDoublesOptimisation=%d\n",preferences.DynarecDoublesOptimisation);
 	fprintf(fh, "DoubleDisplayEnabled=%d\n",preferences.DoubleDisplayEnabled);
 	fprintf(fh, "CleanSceneEnabled=%d\n",preferences.CleanSceneEnabled);
 	fprintf(fh, "AudioRateMatch=%d\n",preferences.AudioRateMatch);
@@ -437,6 +442,7 @@ SRomPreferences::SRomPreferences()
 	:	PatchesEnabled( true )
 	,	DynarecEnabled( true )
 	,	DynarecLoopOptimisation( false )
+	,	DynarecDoublesOptimisation( false )
 	,	DoubleDisplayEnabled( true )
 	,	CleanSceneEnabled( false )
 	,	AudioRateMatch( false )
@@ -464,6 +470,7 @@ void SRomPreferences::Reset()
 	SpeedSyncEnabled = 0;
 	DynarecEnabled = true;
 	DynarecLoopOptimisation = false;
+	DynarecDoublesOptimisation = false;
 	DoubleDisplayEnabled = true;
 	CleanSceneEnabled = false;
 	AudioRateMatch = false;
@@ -489,6 +496,7 @@ void	SRomPreferences::Apply() const
 	gSpeedSyncEnabled	= SpeedSyncEnabled;
 	gDynarecEnabled		= g_ROM.settings.DynarecSupported && DynarecEnabled;
 	gDynarecLoopOptimisation	= g_ROM.settings.DynarecLoopOptimisation && DynarecLoopOptimisation;
+	gDynarecDoublesOptimisation	= g_ROM.settings.DynarecDoublesOptimisation || DynarecDoublesOptimisation;
 	gDoubleDisplayEnabled = g_ROM.settings.DoubleDisplayEnabled && DoubleDisplayEnabled; // I don't know why DD won't disabled if we set ||
 	gCleanSceneEnabled = g_ROM.settings.CleanSceneEnabled || CleanSceneEnabled;
 	gAudioRateMatch = g_ROM.settings.AudioRateMatch || AudioRateMatch;

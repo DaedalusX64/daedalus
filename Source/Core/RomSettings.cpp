@@ -284,6 +284,10 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 		{
 			settings.DynarecLoopOptimisation = p_property->GetBooleanValue( false );
 		}
+		if( p_section->FindProperty( "DynarecDoublesOptimisation", &p_property ) )
+		{
+			settings.DynarecDoublesOptimisation = p_property->GetBooleanValue( false );
+		}
 		if( p_section->FindProperty( "DoubleDisplayEnabled", &p_property ) )
 		{
 			settings.DoubleDisplayEnabled = p_property->GetBooleanValue( true );
@@ -426,6 +430,7 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	if( !settings.SpeedSyncEnabled )			fprintf(fh, "SpeedSyncEnabled=%d\n", settings.SpeedSyncEnabled);
 	if( !settings.DynarecSupported )			fprintf(fh, "DynarecSupported=no\n");
 	if( !settings.DynarecLoopOptimisation )		fprintf(fh, "DynarecLoopOptimisation=yes\n");
+	if( !settings.DynarecDoublesOptimisation )	fprintf(fh, "DynarecDoublesOptimisation=yes\n");
 	if( !settings.DoubleDisplayEnabled )		fprintf(fh, "DoubleDisplayEnabled=no\n");
 	if( settings.CleanSceneEnabled )			fprintf(fh, "CleanSceneEnabled=yes\n");	
 	if( settings.AudioRateMatch )				fprintf(fh, "AudioRateMatch=yes\n"); 
@@ -486,6 +491,7 @@ RomSettings::RomSettings()
 ,	SpeedSyncEnabled( 0 )
 ,	DynarecSupported( true )
 ,	DynarecLoopOptimisation( false )
+,	DynarecDoublesOptimisation( false )
 ,	DoubleDisplayEnabled( true )
 ,	CleanSceneEnabled( false )
 ,	AudioRateMatch( false )
@@ -518,6 +524,7 @@ void	RomSettings::Reset()
 	SpeedSyncEnabled = 0;
 	DynarecSupported = true;
 	DynarecLoopOptimisation = false;
+	DynarecDoublesOptimisation = false;
 	DoubleDisplayEnabled = true;
 	CleanSceneEnabled = false;
 	AudioRateMatch = false;

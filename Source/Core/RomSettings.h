@@ -64,6 +64,7 @@ struct RomSettings
 	bool				SpeedSyncEnabled;
 	bool				DynarecSupported;
 	bool				DynarecLoopOptimisation;
+	bool				DynarecDoublesOptimisation;
 	bool				DoubleDisplayEnabled;
 	bool				CleanSceneEnabled;
 	bool				AudioRateMatch;

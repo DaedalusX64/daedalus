@@ -134,7 +134,18 @@ private:
 				void				GenerateCTC1( u32 fs, EN64Reg rt );
 
 				void				GenerateADD_Sim( u32 fd, u32 fs, u32 ft );
+				void				GenerateSUB_Sim( u32 fd, u32 fs, u32 ft );
 				void				GenerateMUL_Sim( u32 fd, u32 fs, u32 ft );
+				void				GenerateDIV_Sim( u32 fd, u32 fs, u32 ft );
+				void				GenerateSQRT_Sim( u32 fd, u32 fs );
+				void				GenerateABS_Sim( u32 fd, u32 fs );
+				void				GenerateMOV_Sim( u32 fd, u32 fs );
+				void				GenerateNEG_Sim( u32 fd, u32 fs );
+
+				void				GenerateTRUNC_W_Sim( u32 fd, u32 fs );
+				void				GenerateCVT_W_Sim( u32 fd, u32 fs );
+
+				void				GenerateCMP_Sim( u32 fs, ECop1OpFunction cmp_op, u32 ft );
 
 				void				GenerateADD_S( u32 fd, u32 fs, u32 ft );
 				void				GenerateSUB_S( u32 fd, u32 fs, u32 ft );

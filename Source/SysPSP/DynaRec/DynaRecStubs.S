@@ -38,6 +38,9 @@
 	.global _WriteBitsDirectBD_u32
 	.global _WriteBitsDirectBD_u16
 	.global _WriteBitsDirectBD_u8
+	
+	.global	_FloatToDouble
+	.global	_DoubleToFloat
 
     .data
 exit_dynarec_text:
@@ -456,5 +459,125 @@ _WriteBitsDirectBD_u8:
 	jr		$ra
 	nop			
 	
+#######################################################################################
+/**
+ * convert float to double
+ * double FloatToDouble(float a);
+ *
+ * input: a0	//fa0
+ * output: v0,v1
+ * clobber: a0,t1
+ */
+_FloatToDouble:
+	//mfc1	$a0, $fa0				/* a0 = fa0 */
+	ext	$t1, $a0, 23, 8			/* t1 = (a0 >> 23) & 0xFF */
+	beq	$t1, $zero, ftod_denormal		/* if (t1==0) goto ftod_denormal */
+	addiu	$v0, $t1, (-0x7F+0x3FF)		/* v0 = t1 - 0x7F + 0x3FF */
+	xori	$t1, $t1, 0xFF			/* t1 = t1 ^ 0xFF */
+	li	$v1, 0x7FF			/* v1 = 0x7FF */
+	movz	$v0, $v1, $t1			/* v0 = (t1==0) ? v1 : v0 */
+	ext	$v1, $a0,  3, 20			/* v1 = (a0 >> 3 ) & 0x00FFFFF */
+	ins	$v1, $v0, 20, 11			/* v1 = (v1 & 0x800FFFFF) | ((v0<<20) & 0x7FF00000) */
+	sll	$v0, $a0, 29			/* v0 = (a0 << 29) */
+	srl	$a0, $a0, 31			/* a0 = (a0 >> 31) & 1 */
+	jr	$ra				/* return */
+	ins	$v1, $a0, 31, 1			/* v1 = (v1 & 0x7FFFFFFF) | ((a0<<31) & 0x80000000) */
+
+ftod_denormal:
+	sll	$v0, $a0, 9			/* v0 = a0 << 9 */
+	beql	$v0, $zero, ftod_zero		/* if (v0==0) goto ftod_zero */
+	move	$v1, $zero			/* v1 = 0 */
+	li	$v1, 0x380			/* v1 = 0x380 */
+	clz	$t1, $v0				/* t1 = clz(v0) */
+	subu	$v0, $v1, $t1			/* v0 = v1 - v0 = 0x380 - clz(t1) */
+	sllv	$t1, $a0, $t1			/* t1 = a0 << t1 */
+	ext	$v1, $t1,  2, 20			/* v1 = (t1 >> 2 ) & 0x00FFFFF */
+	ins	$v1, $v0, 20, 11			/* v1 = (v1 & 0x800FFFFF) | ((v0<<20) & 0x7FF00000) */
+	sll	$v0, $t1, 30			/* v0 = (t1 << 30) */
+ftod_zero:
+	srl	$a0, $a0, 31			/* a0 = (a0 >> 31) & 1 */
+	jr	$ra				/* return */
+	ins	$v1, $a0, 31, 1			/* v1 = (v1 & 0x7FFFFFFF) | ((a0<<31) & 0x80000000) */
+
+#######################################################################################
+/**
+ * convert double to float
+ * float DoubleToFloat(double a);
+ * input: a0,a1
+ * output: v0
+ * clobber: t0,t1,v0,v1
+ */
+_DoubleToFloat:
+	ext	$t0, $a1, 20, 11		/* t0 = (a1>>20) & 0x000007FF */
+	beq	$t0, $zero, dtof_zero	/* if (t0==0) goto dtof_zero */
+	xori	$t1, $t0, 0x7FF		/* t1 = t0 ^ 0x7FF */
+	beq	$t1, $zero, dtof_naninf	/* if (t1==0) goto dtof_naninf */
+	addiu	$t1, $t0, (+0x7F-0x3FF)	/* t1 = t0 + 0x7F - 0x3FF */
+	blez	$t1, dtof_denormal	/* if (t1<=0) goto dtof_denormal */
+	addiu	$v1, $t1, -0xFE		/* v1 = t1 - 0xFE */
+	bgtz	$v1, dtof_inf		/* if (v1 > 0) goto dtof_inf */
+	move	$v0, $zero		/* v0 = 0 */
+
+	srl	$v0, $a0, 29			/* v0 = (a0>>29) & 0x00000007 */
+	ins	$v0, $a1, 3, 20			/* v0 = (v0 & 0xFF800007) | ((a1 & 0FFFFF)<<3) */
+	beq	$v1, $zero, dtof_inf_normal	/* if (v1==0) goto dtof_inf_normal */
+dtof_normal:
+	srl	$v1, $a1, 31		/* v1 = (a1>>31) & 1 */
+	ins	$v0, $v1, 31, 1		/* v0 = (v0 & 0x7FFFFFFF) | (v1 << 31) */
+	jr	$ra			/* return */
+	ins	$v0, $t1, 23, 8		/* v0 = (v0 & 0x8007FFFF) | (t1 << 23) */
+	//mtc1	$v0, $fv0			/* fv0 = v0 */
+dtof_denormal:
+	sll	$t0, $a1, 12		/* t0 = a1 << 12 */
+	srl	$v0, $t0, 10		/* v0 = t0 >> 10 */
+	srl	$t0, $a0, 30		/* t0 = t0 >> 30 */
+	or	$v0, $v0, t0		/* v0 = v0 | t0 */
+	li	$t0, 0x00400000		/* t0 = 0x00400000 */
+	or	$v0, $v0, $t0		/* v0 = v0 | t0 */
+	subu	$t0, $zero, $t1		/* t0 = zero - t1 */
+	sltiu	$t1, $t0, 22		/* t1 = (t0 < 22) */
+	beq	$t1, $zero, dtof_min	/* if (t1==0) goto dtof_min */
+	srlv	$v0, $v0, $t0		/* v0 = v0 >> t0 */
+	srl	$v1, $a1, 31		/* v1 = (a1>>31) & 1 */
+	jr	$ra			/* return */
+	ins	$v0, $v1, 31, 1		/* v0 = (v0 & 0x7FFFFFFF) | (v1 << 31) */
+	//mtc1	$v0, $fv0			/* fv0 = v0 */
+dtof_zero:
+	sll	$t0, $a1, 12		/* t0 = a1 << 12 */
+	or	$t0, $t0, $a0		/* t0 = t0 | a0 */
+dtof_min:
+	li	$v0, 0x00000001		/* v0 = 0x00000001 */
+	movz	$v0, $zero, $t0		/* v0 = (t0==0) ? zero : v0 */
+	srl	$t0, $a1, 31		/* t0 = (a1 >> 31) & 1 */
+	jr	$ra			/* return */
+	ins	$v0, $t0, 31, 1		/* v0 = (v0 & 0x7FFFFFFF) | ((t0<<31) & 0x80000000) */
+	//mtc1	$v0, $fv0			/* fv0 = v0 */
+dtof_inf_normal:
+	nor	$t0, $zero, $a1		/* t0 = ~a1 */
+	sll	$t0, $t0, 12		/* t0 = t0 << 12 */
+	bne	$t0, $zero, dtof_normal	/* if (t0!=0) goto dtof_normal */
+	srl	$t0, $a0, 28		/* t0 = a0 >> 28 */
+	sltiu	$t0, $t0, 0xF		/* t0 = (t0 < 0xF) */
+	bne	$t0, $zero, dtof_normal	/* if (t0!=0) goto dtof_normal */
+	nop				/* waste delay slot */
+	j	dtof_inf		/* goto dtof_inf */
+	move	$v0, $zero		/* v0 = 0 */
+dtof_naninf:
+	sll	$t0, $a1, 12		/* t0 = a1 << 12 */
+	or	$t1, $t0, $a0		/* t1 = t0 | a0 */
+	srl	$v0, $t0, 9		/* v0 = t0 >> 9 */
+	srl	$t0, $a0, 29		/* t0 = t0 >> 29 */
+	or	$v0, $v0, $t0		/* v0 = v0 | t0 */
+	sltiu	$t0, $v0, 1		/* t0 = (v0 < 1) */
+	or	$v0, $v0, $t0		/* v0 = v0 | t0 */
+	movz	$v0, $zero, $t1		/* v0 = (t1==0) ? zero : v0 */
+dtof_inf:
+	li	$t0, 0x7F800000		/* t0 = 0x7F800000 */
+	or	$v0, $v0, $t0		/* v0 = v0 | t0 */
+	srl	$t0, $a1, 31		/* t0 = (a1 >> 31) & 1 */
+	jr	$ra			/* return */
+	ins	$v0, $t0, 31, 1		/* v0 = (v0 & 0x7FFFFFFF) | ((t0<<31) & 0x80000000) */
+	//mtc1	$v0, $fv0			/* fv0 = v0 */
+
 #######################################################################################
 	.set pop

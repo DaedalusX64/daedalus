@@ -33,6 +33,7 @@ bool	gGraphicsEnabled			= true;		// Show graphics
 bool	gDynarecEnabled				= true;		// Use dynamic recompilation
 //bool	gDynarecStackOptimisation	= true;		// Enable the dynarec stack optmisation
 bool	gDynarecLoopOptimisation	= false;	// Enable the dynarec loop optmisation
+bool	gDynarecDoublesOptimisation	= false;	// Enable the dynarec Doubles optmisation
 bool	gOSHooksEnabled				= true;		// Apply os-hooks
 u32		gCheckTextureHashFrequency	= 0;		// How often to check textures for updates (every N frames, 0 to disable)
 bool	gDoubleDisplayEnabled		= true;		// Workaround for games that have shaking issues
