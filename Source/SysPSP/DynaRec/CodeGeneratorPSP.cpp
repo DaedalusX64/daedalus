@@ -756,6 +756,53 @@ inline void CCodeGeneratorPSP::UpdateFloatRegister( EN64FloatReg n64_reg )
 //*****************************************************************************
 //
 //*****************************************************************************
+#define SIMULATESIG 0x1234	//Reduce signature to load value with one OP
+EPspFloatReg	CCodeGeneratorPSP::GetSimFloatRegisterAndLoad( EN64FloatReg n64_reg )
+{
+	EPspFloatReg psp_reg_sig = EPspFloatReg( n64_reg );	// 1:1 mapping
+	EPspFloatReg psp_reg = EPspFloatReg(n64_reg + 1);
+
+	if( !mRegisterCache.IsFPValid( n64_reg ) )
+	{
+		GetFloatVar( psp_reg_sig, &gCPUState.FPU[n64_reg]._f32_0 );
+		GetFloatVar( psp_reg, &gCPUState.FPU[n64_reg+1]._f32_0 );
+		mRegisterCache.MarkFPAsValid( n64_reg, true );
+		mRegisterCache.MarkFPAsValid( EN64FloatReg(n64_reg+1), true );
+	}
+
+	if( !mRegisterCache.IsFPSim( n64_reg ) )
+	{
+		MFC1( PspReg_A0, psp_reg_sig );	//Get lo part of double 
+		LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
+		CJumpLocation test_reg( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
+		MTC1( psp_reg_sig , PspReg_A1 );	//Write back signature to float reg
+		JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
+		MFC1( PspReg_A1, psp_reg );	//Get hi part of double 
+
+		MTC1( psp_reg , PspReg_V0 ); //store converted float
+		PatchJumpLong( test_reg, GetAssemblyBuffer()->GetLabel() );
+
+		mRegisterCache.MarkFPAsSim( n64_reg, true );
+	}
+
+	return psp_reg;
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void CCodeGeneratorPSP::UpdateSimFloatRegister( EN64FloatReg n64_reg )
+{
+	mRegisterCache.MarkFPAsValid( n64_reg, true );
+	mRegisterCache.MarkFPAsDirty( n64_reg, true );
+	mRegisterCache.MarkFPAsSim( n64_reg, true );
+	mRegisterCache.MarkFPAsValid( EN64FloatReg(n64_reg + 1), true );
+	mRegisterCache.MarkFPAsDirty( EN64FloatReg(n64_reg + 1), true );
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
 const CN64RegisterCachePSP & CCodeGeneratorPSP::GetRegisterCacheFromHandle( RegisterSnapshotHandle snapshot ) const
 {
 	DAEDALUS_ASSERT( snapshot.Handle < mRegisterSnapshots.size(), "Invalid snapshot handle" );
@@ -850,6 +897,7 @@ void	CCodeGeneratorPSP::FlushAllFloatingPointRegisters( CN64RegisterCachePSP & c
 		{
 			// Invalidate the register, so we pick up any values the function might have changed
 			cache.MarkFPAsValid( n64_reg, false );
+			cache.MarkFPAsSim( n64_reg, false );
 		}
 	}
 }
@@ -3540,12 +3588,15 @@ inline void	CCodeGeneratorPSP::GenerateLDC1( u32 address, bool set_branch_delay,
 	EN64FloatReg	n64_ft = EN64FloatReg( ft + 1 );
 	EPspFloatReg	psp_ft = EPspFloatReg( n64_ft );// 1:1 Mapping
 	GenerateLoad( address, (EPspReg)psp_ft, base, offset, OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
-	UpdateFloatRegister( n64_ft );
+	SetFloatVar( &gCPUState.FPU[psp_ft]._f32_0, psp_ft );
+	mRegisterCache.MarkFPAsValid( n64_ft, true );
 
 	n64_ft = EN64FloatReg( ft );
 	psp_ft = EPspFloatReg( n64_ft );// 1:1 Mapping
 	GenerateLoad( address, (EPspReg)psp_ft, base, offset + 4, OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
-	UpdateFloatRegister( n64_ft );
+	SetFloatVar( &gCPUState.FPU[psp_ft]._f32_0, psp_ft );
+	mRegisterCache.MarkFPAsValid( n64_ft, true );
+	mRegisterCache.MarkFPAsSim( n64_ft, false );
 }
 
 //*****************************************************************************
@@ -3923,51 +3974,22 @@ inline void	CCodeGeneratorPSP::GenerateBC1T( const SBranchDetails * p_branch, CJ
 //*****************************************************************************
 //
 //*****************************************************************************
-#define SIMULATESIG 0x1234	//Reduce signature to load value with one OP
-
 inline void	CCodeGeneratorPSP::GenerateADD_Sim( u32 fd, u32 fs, u32 ft )
 {
-	EPspFloatReg	psp_fd_sig = EPspFloatReg( fd );//1:1 Mapping
-	EPspFloatReg	psp_fd = EPspFloatReg( fd + 1);//1:1 Mapping
-	EPspFloatReg	psp_fs_sig( GetFloatRegisterAndLoad( EN64FloatReg( fs ) ) );
-	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( EN64FloatReg( fs + 1 ) ) );
-	EPspFloatReg	psp_ft_sig( GetFloatRegisterAndLoad( EN64FloatReg( ft ) ) );
-	EPspFloatReg	psp_ft( GetFloatRegisterAndLoad( EN64FloatReg( ft + 1 ) ) );
+	EN64FloatReg	n64_fs = EN64FloatReg( fs );
+	EN64FloatReg	n64_ft = EN64FloatReg( ft );
+	EN64FloatReg	n64_fd = EN64FloatReg( fd );
 
-	//Check and convert fs
-	MFC1( PspReg_A0, psp_fs_sig );	//Get lo part of double 
-	LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
-	CJumpLocation test_fs( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-	MTC1( psp_fs_sig , PspReg_A1 );	//Write back signature to float reg
-	JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
-	MFC1( PspReg_A1, psp_fs );	//Get hi part of double 
-
-	MTC1( psp_fs , PspReg_V0 ); //store converted float
-	LoadConstant( PspReg_A1, SIMULATESIG );		//Get signature
-	PatchJumpLong( test_fs, GetAssemblyBuffer()->GetLabel() );
-
-	//Check and convert ft
-	MFC1( PspReg_A0, psp_ft_sig );	//Get lo part of double 
-	CJumpLocation test_ft( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-	MTC1( psp_ft_sig , PspReg_A1 );	//Write back signature to float reg
-	JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
-	MFC1( PspReg_A1, psp_ft );	//Get hi part of double 
-
-	MTC1( psp_ft , PspReg_V0 ); //store converted float
-	PatchJumpLong( test_ft, GetAssemblyBuffer()->GetLabel() );
+	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );//1:1 Mapping
+	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );//1:1 Mapping
+	EPspFloatReg	psp_fs( GetSimFloatRegisterAndLoad( n64_fs ) );
+	EPspFloatReg	psp_ft( GetSimFloatRegisterAndLoad( n64_ft ) );
 
 	//Use float now instead of double :)
 	ADD_S( psp_fd, psp_fs, psp_ft );
-	if( (psp_fd_sig != psp_fs_sig) & (psp_fd_sig != psp_ft_sig) ) MOV_S( psp_fd_sig, psp_fs_sig);	//Copy signature as well if needed
+	if( (fd != fs) & (fd != ft) ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
 
-	UpdateFloatRegister( (EN64FloatReg)psp_fd_sig );
-	UpdateFloatRegister( (EN64FloatReg)psp_fd );
-
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs_sig );
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs );
-
-	//UpdateFloatRegister( (EN64FloatReg)psp_ft_sig );
-	//UpdateFloatRegister( (EN64FloatReg)psp_ft );
+	UpdateSimFloatRegister( (EN64FloatReg)psp_fd_sig );
 }
 
 //*****************************************************************************
@@ -3975,47 +3997,20 @@ inline void	CCodeGeneratorPSP::GenerateADD_Sim( u32 fd, u32 fs, u32 ft )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateSUB_Sim( u32 fd, u32 fs, u32 ft )
 {
-	EPspFloatReg	psp_fd_sig = EPspFloatReg( fd );//1:1 Mapping
-	EPspFloatReg	psp_fd = EPspFloatReg( fd + 1);//1:1 Mapping
-	EPspFloatReg	psp_fs_sig( GetFloatRegisterAndLoad( EN64FloatReg( fs ) ) );
-	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( EN64FloatReg( fs + 1 ) ) );
-	EPspFloatReg	psp_ft_sig( GetFloatRegisterAndLoad( EN64FloatReg( ft ) ) );
-	EPspFloatReg	psp_ft( GetFloatRegisterAndLoad( EN64FloatReg( ft + 1 ) ) );
+	EN64FloatReg	n64_fs = EN64FloatReg( fs );
+	EN64FloatReg	n64_ft = EN64FloatReg( ft );
+	EN64FloatReg	n64_fd = EN64FloatReg( fd );
 
-	//Check and convert fs
-	MFC1( PspReg_A0, psp_fs_sig );	//Get lo part of double 
-	LoadConstant( PspReg_A1, SIMULATESIG );		//Get signature
-	CJumpLocation test_fs( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-	MTC1( psp_fs_sig , PspReg_A1 );	//Write back signature to float reg
-	JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
-	MFC1( PspReg_A1, psp_fs );	//Get hi part of double 
-
-	MTC1( psp_fs , PspReg_V0 ); //store converted float
-	LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
-	PatchJumpLong( test_fs, GetAssemblyBuffer()->GetLabel() );
-
-	//Check and convert ft
-	MFC1( PspReg_A0, psp_ft_sig );	//Get lo part of double 
-	CJumpLocation test_ft( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-	MTC1( psp_ft_sig , PspReg_A1 );	//Write back signature to float reg
-	JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
-	MFC1( PspReg_A1, psp_ft );	//Get hi part of double 
-
-	MTC1( psp_ft , PspReg_V0 ); //store converted float
-	PatchJumpLong( test_ft, GetAssemblyBuffer()->GetLabel() );
+	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );//1:1 Mapping
+	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );//1:1 Mapping
+	EPspFloatReg	psp_fs( GetSimFloatRegisterAndLoad( n64_fs ) );
+	EPspFloatReg	psp_ft( GetSimFloatRegisterAndLoad( n64_ft ) );
 
 	//Use float now instead of double :)
 	SUB_S( psp_fd, psp_fs, psp_ft );
-	if( (psp_fd_sig != psp_fs_sig) & (psp_fd_sig != psp_ft_sig) ) MOV_S( psp_fd_sig, psp_fs_sig);	//Copy signature as well if needed
+	if( (fd != fs) & (fd != ft) ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
 
-	UpdateFloatRegister( (EN64FloatReg)psp_fd_sig );
-	UpdateFloatRegister( (EN64FloatReg)psp_fd );
-
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs_sig );
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs );
-
-	//UpdateFloatRegister( (EN64FloatReg)psp_ft_sig );
-	//UpdateFloatRegister( (EN64FloatReg)psp_ft );
+	UpdateSimFloatRegister( (EN64FloatReg)psp_fd_sig );
 }
 
 //*****************************************************************************
@@ -4023,47 +4018,20 @@ inline void	CCodeGeneratorPSP::GenerateSUB_Sim( u32 fd, u32 fs, u32 ft )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateMUL_Sim( u32 fd, u32 fs, u32 ft )
 {
-	EPspFloatReg	psp_fd_sig = EPspFloatReg( fd );//1:1 Mapping
-	EPspFloatReg	psp_fd = EPspFloatReg( fd + 1);//1:1 Mapping
-	EPspFloatReg	psp_fs_sig( GetFloatRegisterAndLoad( EN64FloatReg( fs ) ) );
-	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( EN64FloatReg( fs + 1 ) ) );
-	EPspFloatReg	psp_ft_sig( GetFloatRegisterAndLoad( EN64FloatReg( ft ) ) );
-	EPspFloatReg	psp_ft( GetFloatRegisterAndLoad( EN64FloatReg( ft + 1 ) ) );
+	EN64FloatReg	n64_fs = EN64FloatReg( fs );
+	EN64FloatReg	n64_ft = EN64FloatReg( ft );
+	EN64FloatReg	n64_fd = EN64FloatReg( fd );
 
-	//Check and convert fs
-	MFC1( PspReg_A0, psp_fs_sig );	//Get lo part of double 
-	LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
-	CJumpLocation test_fs( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-	MTC1( psp_fs_sig , PspReg_A1 );	//Write back signature to float reg
-	JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
-	MFC1( PspReg_A1, psp_fs );	//Get hi part of double 
-
-	MTC1( psp_fs , PspReg_V0 ); //store converted float
-	LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
-	PatchJumpLong( test_fs, GetAssemblyBuffer()->GetLabel() );
-
-	//Check and convert ft
-	MFC1( PspReg_A0, psp_ft_sig );	//Get lo part of double 
-	CJumpLocation test_ft( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-	MTC1( psp_ft_sig , PspReg_A1 );	//Write back signature to float reg
-	JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
-	MFC1( PspReg_A1, psp_ft );	//Get hi part of double 
-
-	MTC1( psp_ft , PspReg_V0 ); //store converted float
-	PatchJumpLong( test_ft, GetAssemblyBuffer()->GetLabel() );
+	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );//1:1 Mapping
+	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );//1:1 Mapping
+	EPspFloatReg	psp_fs( GetSimFloatRegisterAndLoad( n64_fs ) );
+	EPspFloatReg	psp_ft( GetSimFloatRegisterAndLoad( n64_ft ) );
 
 	//Use float now instead of double :)
 	MUL_S( psp_fd, psp_fs, psp_ft );
-	if( (psp_fd_sig != psp_fs_sig) & (psp_fd_sig != psp_ft_sig) ) MOV_S( psp_fd_sig, psp_fs_sig);	//Copy signature as well if needed
+	if( (fd != fs) & (fd != ft) ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
 
-	UpdateFloatRegister( (EN64FloatReg)psp_fd_sig );
-	UpdateFloatRegister( (EN64FloatReg)psp_fd );
-
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs_sig );
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs );
-
-	//UpdateFloatRegister( (EN64FloatReg)psp_ft_sig );
-	//UpdateFloatRegister( (EN64FloatReg)psp_ft );
+	UpdateSimFloatRegister( (EN64FloatReg)psp_fd_sig );
 }
 
 //*****************************************************************************
@@ -4071,47 +4039,20 @@ inline void	CCodeGeneratorPSP::GenerateMUL_Sim( u32 fd, u32 fs, u32 ft )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateDIV_Sim( u32 fd, u32 fs, u32 ft )
 {
-	EPspFloatReg	psp_fd_sig = EPspFloatReg( fd );//1:1 Mapping
-	EPspFloatReg	psp_fd = EPspFloatReg( fd + 1);//1:1 Mapping
-	EPspFloatReg	psp_fs_sig( GetFloatRegisterAndLoad( EN64FloatReg( fs ) ) );
-	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( EN64FloatReg( fs + 1 ) ) );
-	EPspFloatReg	psp_ft_sig( GetFloatRegisterAndLoad( EN64FloatReg( ft ) ) );
-	EPspFloatReg	psp_ft( GetFloatRegisterAndLoad( EN64FloatReg( ft + 1 ) ) );
+	EN64FloatReg	n64_fs = EN64FloatReg( fs );
+	EN64FloatReg	n64_ft = EN64FloatReg( ft );
+	EN64FloatReg	n64_fd = EN64FloatReg( fd );
 
-	//Check and convert fs
-	MFC1( PspReg_A0, psp_fs_sig );	//Get lo part of double 
-	LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
-	CJumpLocation test_fs( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-	MTC1( psp_fs_sig , PspReg_A1 );	//Write back signature to float reg
-	JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
-	MFC1( PspReg_A1, psp_fs );	//Get hi part of double 
-
-	MTC1( psp_fs , PspReg_V0 ); //store converted float
-	LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
-	PatchJumpLong( test_fs, GetAssemblyBuffer()->GetLabel() );
-
-	//Check and convert ft
-	MFC1( PspReg_A0, psp_ft_sig );	//Get lo part of double 
-	CJumpLocation test_ft( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-	MTC1( psp_ft_sig , PspReg_A1 );	//Write back signature to float reg
-	JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
-	MFC1( PspReg_A1, psp_ft );	//Get hi part of double 
-
-	MTC1( psp_ft , PspReg_V0 ); //store converted float
-	PatchJumpLong( test_ft, GetAssemblyBuffer()->GetLabel() );
+	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );//1:1 Mapping
+	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );//1:1 Mapping
+	EPspFloatReg	psp_fs( GetSimFloatRegisterAndLoad( n64_fs ) );
+	EPspFloatReg	psp_ft( GetSimFloatRegisterAndLoad( n64_ft ) );
 
 	//Use float now instead of double :)
 	DIV_S( psp_fd, psp_fs, psp_ft );
-	if( (psp_fd_sig != psp_fs_sig) & (psp_fd_sig != psp_ft_sig) ) MOV_S( psp_fd_sig, psp_fs_sig);	//Copy signature as well if needed
+	if( (fd != fs) & (fd != ft) ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
 
-	UpdateFloatRegister( (EN64FloatReg)psp_fd_sig );
-	UpdateFloatRegister( (EN64FloatReg)psp_fd );
-
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs_sig );
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs );
-
-	//UpdateFloatRegister( (EN64FloatReg)psp_ft_sig );
-	//UpdateFloatRegister( (EN64FloatReg)psp_ft );
+	UpdateSimFloatRegister( (EN64FloatReg)psp_fd_sig );
 }
 
 //*****************************************************************************
@@ -4119,31 +4060,18 @@ inline void	CCodeGeneratorPSP::GenerateDIV_Sim( u32 fd, u32 fs, u32 ft )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateSQRT_Sim( u32 fd, u32 fs )
 {
-	EPspFloatReg	psp_fd_sig = EPspFloatReg( fd );//1:1 Mapping
-	EPspFloatReg	psp_fd = EPspFloatReg( fd + 1);//1:1 Mapping
-	EPspFloatReg	psp_fs_sig( GetFloatRegisterAndLoad( EN64FloatReg( fs ) ) );
-	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( EN64FloatReg( fs + 1 ) ) );
+	EN64FloatReg	n64_fs = EN64FloatReg( fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( fd );
 
-	//Check and convert fs
-	MFC1( PspReg_A0, psp_fs_sig );	//Get lo part of double 
-	LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
-	CJumpLocation test_fs( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-	MTC1( psp_fs_sig , PspReg_A1 );	//Write back signature to float reg
-	JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
-	MFC1( PspReg_A1, psp_fs );	//Get hi part of double 
-
-	MTC1( psp_fs , PspReg_V0 ); //store converted float
-	PatchJumpLong( test_fs, GetAssemblyBuffer()->GetLabel() );
+	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );//1:1 Mapping
+	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );//1:1 Mapping
+	EPspFloatReg	psp_fs( GetSimFloatRegisterAndLoad( n64_fs ) );
 
 	//Use float now instead of double :)
 	SQRT_S( psp_fd, psp_fs );
-	if( psp_fd_sig != psp_fs_sig ) MOV_S( psp_fd_sig, psp_fs_sig);	//Copy signature as well
+	if( fd != fs ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
 
-	UpdateFloatRegister( (EN64FloatReg)psp_fd_sig );
-	UpdateFloatRegister( (EN64FloatReg)psp_fd );
-
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs_sig );
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs );
+	UpdateSimFloatRegister( (EN64FloatReg)psp_fd_sig );
 }
 
 //*****************************************************************************
@@ -4151,31 +4079,18 @@ inline void	CCodeGeneratorPSP::GenerateSQRT_Sim( u32 fd, u32 fs )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateABS_Sim( u32 fd, u32 fs )
 {
-	EPspFloatReg	psp_fd_sig = EPspFloatReg( fd );//1:1 Mapping
-	EPspFloatReg	psp_fd = EPspFloatReg( fd + 1);//1:1 Mapping
-	EPspFloatReg	psp_fs_sig( GetFloatRegisterAndLoad( EN64FloatReg( fs ) ) );
-	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( EN64FloatReg( fs + 1 ) ) );
+	EN64FloatReg	n64_fs = EN64FloatReg( fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( fd );
 
-	//Check and convert fs
-	MFC1( PspReg_A0, psp_fs_sig );	//Get lo part of double 
-	LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
-	CJumpLocation test_fs( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-	MTC1( psp_fs_sig , PspReg_A1 );	//Write back signature to float reg
-	JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
-	MFC1( PspReg_A1, psp_fs );	//Get hi part of double 
-
-	MTC1( psp_fs , PspReg_V0 ); //store converted float
-	PatchJumpLong( test_fs, GetAssemblyBuffer()->GetLabel() );
+	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );//1:1 Mapping
+	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );//1:1 Mapping
+	EPspFloatReg	psp_fs( GetSimFloatRegisterAndLoad( n64_fs ) );
 
 	//Use float now instead of double :)
 	ABS_S( psp_fd, psp_fs );
-	if( psp_fd_sig != psp_fs_sig ) MOV_S( psp_fd_sig, psp_fs_sig);	//Copy signature as well
+	if( fd != fs ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
 
-	UpdateFloatRegister( (EN64FloatReg)psp_fd_sig );
-	UpdateFloatRegister( (EN64FloatReg)psp_fd );
-
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs_sig );
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs );
+	UpdateSimFloatRegister( (EN64FloatReg)psp_fd_sig );
 }
 
 //*****************************************************************************
@@ -4183,17 +4098,19 @@ inline void	CCodeGeneratorPSP::GenerateABS_Sim( u32 fd, u32 fs )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateMOV_Sim( u32 fd, u32 fs )
 {
-	EPspFloatReg	psp_fd_sig = EPspFloatReg( fd );//1:1 Mapping
-	EPspFloatReg	psp_fd = EPspFloatReg( fd + 1);//1:1 Mapping
-	EPspFloatReg	psp_fs_sig( GetFloatRegisterAndLoad( EN64FloatReg( fs ) ) );
-	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( EN64FloatReg( fs + 1 ) ) );
+	EN64FloatReg	n64_fs = EN64FloatReg( fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+
+	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );//1:1 Mapping
+	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );//1:1 Mapping
+	EPspFloatReg	psp_fs_sig = EPspFloatReg( n64_fs );//1:1 Mapping
+	EPspFloatReg	psp_fs( GetSimFloatRegisterAndLoad( n64_fs ) );
 
 	//Move double :)
 	MOV_S( psp_fd, psp_fs );
 	MOV_S( psp_fd_sig, psp_fs_sig);	//Copy signature as well
 
-	UpdateFloatRegister( (EN64FloatReg)psp_fd_sig );
-	UpdateFloatRegister( (EN64FloatReg)psp_fd );
+	UpdateSimFloatRegister( (EN64FloatReg)psp_fd_sig );
 }
 
 //*****************************************************************************
@@ -4201,31 +4118,18 @@ inline void	CCodeGeneratorPSP::GenerateMOV_Sim( u32 fd, u32 fs )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateNEG_Sim( u32 fd, u32 fs )
 {
-	EPspFloatReg	psp_fd_sig = EPspFloatReg( fd );//1:1 Mapping
-	EPspFloatReg	psp_fd = EPspFloatReg( fd + 1);//1:1 Mapping
-	EPspFloatReg	psp_fs_sig( GetFloatRegisterAndLoad( EN64FloatReg( fs ) ) );
-	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( EN64FloatReg( fs + 1 ) ) );
+	EN64FloatReg	n64_fs = EN64FloatReg( fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( fd );
 
-	//Check and convert fs
-	MFC1( PspReg_A0, psp_fs_sig );	//Get lo part of double 
-	LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
-	CJumpLocation test_fs( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-	MTC1( psp_fs_sig , PspReg_A1 );	//Write back signature to float reg
-	JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
-	MFC1( PspReg_A1, psp_fs );	//Get hi part of double 
-
-	MTC1( psp_fs , PspReg_V0 ); //store converted float
-	PatchJumpLong( test_fs, GetAssemblyBuffer()->GetLabel() );
+	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );//1:1 Mapping
+	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );//1:1 Mapping
+	EPspFloatReg	psp_fs( GetSimFloatRegisterAndLoad( n64_fs ) );
 
 	//Use float now instead of double :)
 	NEG_S( psp_fd, psp_fs );
-	if( psp_fd_sig != psp_fs_sig ) MOV_S( psp_fd_sig, psp_fs_sig);	//Copy signature as well
+	if( fd != fs ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
 
-	UpdateFloatRegister( (EN64FloatReg)psp_fd_sig );
-	UpdateFloatRegister( (EN64FloatReg)psp_fd );
-
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs_sig );
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs );
+	UpdateSimFloatRegister( (EN64FloatReg)psp_fd_sig );
 }
 
 //*****************************************************************************
@@ -4233,65 +4137,36 @@ inline void	CCodeGeneratorPSP::GenerateNEG_Sim( u32 fd, u32 fs )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateTRUNC_W_Sim( u32 fd, u32 fs )
 {
-	EPspFloatReg	psp_fd_sig = EPspFloatReg( fd );//1:1 Mapping
-	EPspFloatReg	psp_fd = EPspFloatReg( fd + 1);//1:1 Mapping
-	EPspFloatReg	psp_fs_sig( GetFloatRegisterAndLoad( EN64FloatReg( fs ) ) );
-	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( EN64FloatReg( fs + 1 ) ) );
+	EN64FloatReg	n64_fs = EN64FloatReg( fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( fd );
 
-	//Check and convert fs
-	MFC1( PspReg_A0, psp_fs_sig );	//Get lo part of double 
-	LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
-	CJumpLocation test_fs( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-	MTC1( psp_fs_sig , PspReg_A1 );	//Write back signature to float reg
-	JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
-	MFC1( PspReg_A1, psp_fs );	//Get hi part of double 
-
-	MTC1( psp_fs , PspReg_V0 ); //store converted float
-	PatchJumpLong( test_fs, GetAssemblyBuffer()->GetLabel() );
+	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );//1:1 Mapping
+	//EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );//1:1 Mapping
+	EPspFloatReg	psp_fs( GetSimFloatRegisterAndLoad( n64_fs ) );
 
 	//Use float now instead of double :)
 	TRUNC_W_S( psp_fd_sig, psp_fs );
-	//MFC1( PspReg_A0 , psp_fd ); //Zero hi (or should this be sign extended?)
-	//SRA( PspReg_A0, PspReg_A0, 0x1F);
-	//MTC1( psp_fd_sig , PspReg_A0 ); //Zero hi (or should this be sign extended?)
-	MTC1( psp_fd , PspReg_R0 ); //Zero hi (or should this be sign extended?)
+	//MTC1( psp_fd , PspReg_R0 ); //Zero hi (or should this be sign extended?)
 
-	UpdateFloatRegister( (EN64FloatReg)psp_fd_sig );
-	UpdateFloatRegister( (EN64FloatReg)psp_fd );
-
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs_sig );
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs );
+	UpdateSimFloatRegister( (EN64FloatReg)psp_fd_sig );
 }
 //*****************************************************************************
 //
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateCVT_W_Sim( u32 fd, u32 fs )
 {
-	EPspFloatReg	psp_fd_sig = EPspFloatReg( fd );//1:1 Mapping
-	EPspFloatReg	psp_fd = EPspFloatReg( fd + 1);//1:1 Mapping
-	EPspFloatReg	psp_fs_sig( GetFloatRegisterAndLoad( EN64FloatReg( fs ) ) );
-	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( EN64FloatReg( fs + 1 ) ) );
+	EN64FloatReg	n64_fs = EN64FloatReg( fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( fd );
 
-	//Check and convert fs
-	MFC1( PspReg_A0, psp_fs_sig );	//Get lo part of double 
-	LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
-	CJumpLocation test_fs( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-	MTC1( psp_fs_sig , PspReg_A1 );	//Write back signature to float reg
-	JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
-	MFC1( PspReg_A1, psp_fs );	//Get hi part of double 
-
-	MTC1( psp_fs , PspReg_V0 ); //store converted float
-	PatchJumpLong( test_fs, GetAssemblyBuffer()->GetLabel() );
+	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );//1:1 Mapping
+	//EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );//1:1 Mapping
+	EPspFloatReg	psp_fs( GetSimFloatRegisterAndLoad( n64_fs ) );
 
 	//Use float now instead of double :)
 	CVT_W_S( psp_fd_sig, psp_fs );
-	MTC1( psp_fd , PspReg_R0 ); //Zero hi (or should this be sign extended?)
+	//MTC1( psp_fd , PspReg_R0 ); //Zero hi (or should this be sign extended?)
 
-	UpdateFloatRegister( (EN64FloatReg)psp_fd_sig );
-	UpdateFloatRegister( (EN64FloatReg)psp_fd );
-
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs_sig );
-	//UpdateFloatRegister( (EN64FloatReg)psp_fs );
+	UpdateSimFloatRegister( (EN64FloatReg)psp_fd_sig );
 }
 
 //*****************************************************************************
@@ -4301,32 +4176,11 @@ inline void	CCodeGeneratorPSP::GenerateCMP_Sim( u32 fs, ECop1OpFunction cmp_op, 
 {
 	mFloatCMPIsValid = true;
 
-	EPspFloatReg	psp_fs_sig( GetFloatRegisterAndLoad( EN64FloatReg( fs ) ) );
-	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( EN64FloatReg( fs + 1 ) ) );
-	EPspFloatReg	psp_ft_sig( GetFloatRegisterAndLoad( EN64FloatReg( ft ) ) );
-	EPspFloatReg	psp_ft( GetFloatRegisterAndLoad( EN64FloatReg( ft + 1 ) ) );
+	EN64FloatReg	n64_fs = EN64FloatReg( fs );
+	EN64FloatReg	n64_ft = EN64FloatReg( ft );
 
-	//Check and convert fs
-	MFC1( PspReg_A0, psp_fs_sig );	//Get lo part of double 
-	LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
-	CJumpLocation test_fs( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-	MTC1( psp_fs_sig , PspReg_A1 );	//Write back signature to float reg
-	JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
-	MFC1( PspReg_A1, psp_fs );	//Get hi part of double 
-
-	MTC1( psp_fs , PspReg_V0 ); //store converted float
-	LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
-	PatchJumpLong( test_fs, GetAssemblyBuffer()->GetLabel() );
-
-	//Check and convert ft
-	MFC1( PspReg_A0, psp_ft_sig );	//Get lo part of double 
-	CJumpLocation test_ft( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-	MTC1( psp_ft_sig , PspReg_A1 );	//Write back signature to float reg
-	JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
-	MFC1( PspReg_A1, psp_ft );	//Get hi part of double 
-
-	MTC1( psp_ft , PspReg_V0 ); //store converted float
-	PatchJumpLong( test_ft, GetAssemblyBuffer()->GetLabel() );
+	EPspFloatReg	psp_fs( GetSimFloatRegisterAndLoad( n64_fs ) );
+	EPspFloatReg	psp_ft( GetSimFloatRegisterAndLoad( n64_ft ) );
 
 	//Use float now instead of double :)
 	CMP_S( psp_fs, cmp_op, psp_ft );

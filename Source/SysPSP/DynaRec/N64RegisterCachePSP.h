@@ -136,6 +136,11 @@ public:
 			return mFPRegisterCacheInfo[ reg ].Dirty; 
 		}
 
+		inline bool	IsFPSim( EN64FloatReg reg ) const 
+		{	
+			return mFPRegisterCacheInfo[ reg ].Sim; 
+		}
+
 		inline void	MarkFPAsValid( EN64FloatReg reg, bool valid ) 
 		{	
 			mFPRegisterCacheInfo[ reg ].Valid = valid; 
@@ -144,6 +149,11 @@ public:
 		inline void	MarkFPAsDirty( EN64FloatReg reg, bool dirty ) 
 		{	
 			mFPRegisterCacheInfo[ reg ].Dirty = dirty; 
+		}
+
+		inline void	MarkFPAsSim( EN64FloatReg reg, bool Sim ) 
+		{	
+			mFPRegisterCacheInfo[ reg ].Sim = Sim; 
 		}
 
 		void		ClearCachedReg( EN64Reg n64_reg, u32 lo_hi_idx );
@@ -165,6 +175,7 @@ private:
 		{
 			bool			Valid;
 			bool			Dirty;
+			bool			Sim;
 		};
 
 		RegisterCacheInfoPSP	mRegisterCacheInfo[ NUM_N64_REGS ][ 2 ];

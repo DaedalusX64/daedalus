@@ -48,6 +48,7 @@ void	CN64RegisterCachePSP::Reset()
 	{
 		mFPRegisterCacheInfo[ i ].Valid = false;
 		mFPRegisterCacheInfo[ i ].Dirty = false;
+		mFPRegisterCacheInfo[ i ].Sim = false;
 	}
 }
 

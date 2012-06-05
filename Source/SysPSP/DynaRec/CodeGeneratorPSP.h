@@ -239,6 +239,8 @@ private:
 				EPspFloatReg		GetFloatRegisterAndLoad( EN64FloatReg n64_reg );
 				void				UpdateFloatRegister( EN64FloatReg n64_reg );
 
+				EPspFloatReg		GetSimFloatRegisterAndLoad( EN64FloatReg n64_reg );
+				void				UpdateSimFloatRegister( EN64FloatReg n64_reg );
 
 				const CN64RegisterCachePSP & GetRegisterCacheFromHandle( RegisterSnapshotHandle snapshot ) const;
 
