@@ -44,6 +44,7 @@ class CNativeTexture : public CRefCounted
 
 		void							SetData( void * data, void * palette );
 
+		inline u32						GetBlockWidth() const			{ return mTextureBlockWidth; }
 		inline u32						GetWidth() const				{ return mWidth; }
 		inline u32						GetHeight() const				{ return mHeight; }
 		inline u32						GetCorrectedWidth() const		{ return mCorrectedWidth; }

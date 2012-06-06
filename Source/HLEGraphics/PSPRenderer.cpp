@@ -2773,20 +2773,6 @@ void PSPRenderer::Draw2DTextureR( f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2
 	sceGuEnable(GU_BLEND);
 	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
 
-	// Compiler gives much better code when spliting v2, v3 etc 
-	// Ex v2 adds 10 ops in t0
-	/*p_verts[0].pos   = v3(x0*mN64ToPSPScale.x + mN64ToPSPTranslate.x, y0*mN64ToPSPScale.y + mN64ToPSPTranslate.y, 0);
-	p_verts[0].t0    = v2(0, 0);
-
-	p_verts[1].pos   = v3(x1*mN64ToPSPScale.x + mN64ToPSPTranslate.x, y1*mN64ToPSPScale.y + mN64ToPSPTranslate.y, 0);
-	p_verts[1].t0    = v2(s, 0);
-
-	p_verts[2].pos   = v3(x2*mN64ToPSPScale.x + mN64ToPSPTranslate.x, y2*mN64ToPSPScale.y + mN64ToPSPTranslate.y, 0);
-	p_verts[2].t0    = v2(s, t);
-	
-	p_verts[3].pos   = v3(x3*mN64ToPSPScale.x + mN64ToPSPTranslate.x, y3*mN64ToPSPScale.y + mN64ToPSPTranslate.y, 0);
-	p_verts[3].t0    = v2(0, t);*/
-
 	p_verts[0].pos.x = x0 * mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
 	p_verts[0].pos.y = y0 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
 	p_verts[0].pos.z = 0.0f;
@@ -2812,6 +2798,161 @@ void PSPRenderer::Draw2DTextureR( f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2
 	p_verts[3].t0.y  = t;	
 
 	sceGuDrawArray( GU_TRIANGLE_FAN, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, p_verts );
+}
+
+//*****************************************************************************
+//
+//	The following blitting code was taken from The TriEngine.
+//	See http://www.assembla.com/code/openTRI for more information.
+//
+//*****************************************************************************
+void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0, f32 v0, f32 u1, f32 v1, CNativeTexture * texture) 
+{
+
+	sceGuDisable(GU_DEPTH_TEST);
+	sceGuDepthMask( GL_TRUE );
+	sceGuShadeModel( GU_FLAT );
+
+	sceGuTexFilter(GU_LINEAR,GU_LINEAR);
+	sceGuDisable(GU_ALPHA_TEST);
+	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
+
+	sceGuEnable(GU_BLEND);
+	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
+
+	x		*= mN64ToPSPScale.x + mN64ToPSPTranslate.x;
+	y		*= mN64ToPSPScale.y + mN64ToPSPTranslate.y;
+	width	*= mN64ToPSPScale.x + mN64ToPSPTranslate.x;
+	height	*= mN64ToPSPScale.y + mN64ToPSPTranslate.y;
+
+// 1 Simpler blit algorithm
+// 0 More complex algorithm. Used in newer versions of TriEngine, why?
+// Note : We ignore handling height > 512 textures for now
+#if 1
+	u8* pData = (u8*)( texture->GetData()) ;
+	if ( u1 > 512.f )
+	{
+		s32 off = (u1>u0) ? ((int)u0 & ~31) : ((int)u1 & ~31);
+
+		pData += off * GetBitsPerPixel( texture->GetFormat() );
+		u1 -= off;
+		u0 -= off;
+		sceGuTexImage( 0, Min<u32>(512,texture->GetCorrectedWidth()), Min<u32>(512,texture->GetCorrectedHeight()), texture->GetBlockWidth(), pData );
+	}
+
+	f32 start, end;
+	f32 cur_u = u0;
+	f32 cur_x = x;
+	f32 x_end = width;
+	f32 slice = 64.f;
+	f32 ustep = (u1-u0)/width * slice;
+
+	// blit maximizing the use of the texture-cache
+	for( start=0, end=width; start<end; start+=slice )
+	{
+		TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(2*sizeof(TextureVtx));
+
+		f32 poly_width = ((cur_x+slice) > x_end) ? (x_end-cur_x) : slice;
+		f32 source_width = ((cur_u+ustep) > u1) ? (u1-cur_u) : ustep;
+
+		p_verts[0].t0.x = cur_u;
+		p_verts[0].t0.y = v0;
+		p_verts[0].pos.x = cur_x; 
+		p_verts[0].pos.y = y; 
+		p_verts[0].pos.z = 0;
+
+		cur_u += source_width;
+		cur_x += poly_width;
+
+		p_verts[1].t0.x = cur_u;
+		p_verts[1].t0.y = v1;
+		p_verts[1].pos.x = cur_x;
+		p_verts[1].pos.y = height;
+		p_verts[1].pos.z = 0;
+
+		sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 2, 0, p_verts );
+	}
+#else
+	f32 cur_v = v0;
+	f32 cur_y = y;
+	f32 v_end = v1;
+	f32 y_end = height;
+	f32 vslice = 512.f;
+	f32 ystep = (height/(v1-v0) * vslice);
+	f32 vstep = ((v1-v0) > 0 ? vslice : -vslice);
+	
+	f32 x_end = width;
+	f32 uslice = 64.f;
+	//f32 ustep = (u1-u0)/width * xslice;
+	f32 xstep = (width/(u1-u0) * uslice);
+	f32 ustep = ((u1-u0) > 0 ? uslice : -uslice);
+
+	u8* data = (u8*)(texture->GetData());
+
+	for ( ; cur_y < y_end; cur_y+=ystep, cur_v+=vstep )
+	{
+		f32 cur_u = u0;
+		f32 cur_x = x;
+		f32 u_end = u1;
+
+		f32 poly_height = ((cur_y+ystep) > y_end) ? (y_end-cur_y) : ystep;
+		f32 source_height = vstep;
+
+		// support negative vsteps
+		if ((vstep > 0) && (cur_v+vstep > v_end))
+		{
+			source_height = (v_end-cur_v);
+		}
+		else if ((vstep < 0) && (cur_v+vstep < v_end))
+		{
+			source_height = (cur_v-v_end);
+		}
+		
+		u8* udata = data;
+		// blit maximizing the use of the texture-cache
+		for( ; cur_x < x_end; cur_x+=xstep, cur_u+=ustep )
+		{
+			// support large images (width > 512)
+			if (cur_u>512.f || cur_u+ustep>512.f)
+			{
+				int off = (ustep>0) ? ((int)cur_u & ~31) : ((int)(cur_u+ustep) & ~31);
+				u32 bits = GetBitsPerPixel( texture->GetFormat() );
+				udata += ((off*bits));
+				cur_u -= off;
+				u_end -= off;
+				sceGuTexImage(0, Min<u32>(512,texture->GetCorrectedWidth()), Min<u32>(512,texture->GetCorrectedHeight()), texture->GetBlockWidth(), udata);
+			}
+			TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(2*sizeof(TextureVtx));
+
+			f32 poly_width = ((cur_x+xstep) > x_end) ? (x_end-cur_x) : xstep;
+			f32 source_width = ustep;
+
+			// support negative usteps
+			if ((ustep > 0) && (cur_u+ustep > u_end))
+			{
+				source_width = (u_end-cur_u);
+			}
+			else if ((ustep < 0) && (cur_u+ustep < u_end))
+			{
+				source_width = (cur_u-u_end);
+			}
+
+			p_verts[0].t0.x = cur_u;
+			p_verts[0].t0.y = cur_v;
+			p_verts[0].pos.x = cur_x; 
+			p_verts[0].pos.y = cur_y; 
+			p_verts[0].pos.z = 0;
+
+			p_verts[1].t0.x = cur_u + source_width;
+			p_verts[1].t0.y = cur_v + source_height;
+			p_verts[1].pos.x = cur_x + poly_width;
+			p_verts[1].pos.y = cur_y + poly_height;
+			p_verts[1].pos.z = 0;
+
+			sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 2, 0, p_verts );
+		}
+	}
+#endif
 }
 
 //*****************************************************************************
