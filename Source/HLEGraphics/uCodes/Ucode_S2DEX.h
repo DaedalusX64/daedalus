@@ -656,7 +656,17 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 	texture->GetTexture()->InstallTexture();
 	texture->UpdateIfNecessary();
 
-	PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );
+	// Handle large images (width > 512) with blitting, since the PSP HW can't handle
+	// Handling height > 512 doesn't work good? Ignore for now
+	if( imageW >= 512 )
+	{
+		const CRefPtr<CNativeTexture> & native_texture( texture->GetTexture() );
+		PSPRenderer::Get()->Draw2DTextureBlit( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH, native_texture );
+	}
+	else
+	{
+		PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );
+	}
 }
 
 //*****************************************************************************
