@@ -133,19 +133,20 @@ private:
 				void				GenerateCFC1( EN64Reg rt, u32 fs );
 				void				GenerateCTC1( u32 fs, EN64Reg rt );
 
-				void				GenerateADD_Sim( u32 fd, u32 fs, u32 ft );
-				void				GenerateSUB_Sim( u32 fd, u32 fs, u32 ft );
-				void				GenerateMUL_Sim( u32 fd, u32 fs, u32 ft );
-				void				GenerateDIV_Sim( u32 fd, u32 fs, u32 ft );
-				void				GenerateSQRT_Sim( u32 fd, u32 fs );
-				void				GenerateABS_Sim( u32 fd, u32 fs );
-				void				GenerateMOV_Sim( u32 fd, u32 fs );
-				void				GenerateNEG_Sim( u32 fd, u32 fs );
+				void				GenerateADD_D_Sim( u32 fd, u32 fs, u32 ft );
+				void				GenerateSUB_D_Sim( u32 fd, u32 fs, u32 ft );
+				void				GenerateMUL_D_Sim( u32 fd, u32 fs, u32 ft );
+				void				GenerateDIV_D_Sim( u32 fd, u32 fs, u32 ft );
+				void				GenerateSQRT_D_Sim( u32 fd, u32 fs );
+				void				GenerateABS_D_Sim( u32 fd, u32 fs );
+				void				GenerateMOV_D_Sim( u32 fd, u32 fs );
+				void				GenerateNEG_D_Sim( u32 fd, u32 fs );
 
-				void				GenerateTRUNC_W_Sim( u32 fd, u32 fs );
-				void				GenerateCVT_W_Sim( u32 fd, u32 fs );
+				void				GenerateTRUNC_W_D_Sim( u32 fd, u32 fs );
+				void				GenerateCVT_W_D_Sim( u32 fd, u32 fs );
+				void				GenerateCVT_S_D_Sim( u32 fd, u32 fs );
 
-				void				GenerateCMP_Sim( u32 fs, ECop1OpFunction cmp_op, u32 ft );
+				void				GenerateCMP_D_Sim( u32 fs, ECop1OpFunction cmp_op, u32 ft );
 
 				void				GenerateADD_S( u32 fd, u32 fs, u32 ft );
 				void				GenerateSUB_S( u32 fd, u32 fs, u32 ft );
@@ -158,6 +159,9 @@ private:
 				void				GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u32 ft );
 
 				void				GenerateCVT_W_S( u32 fd, u32 fs );
+				void				GenerateCVT_D_S_Sim( u32 fd, u32 fs );
+				void				GenerateCVT_D_S( u32 fd, u32 fs );
+				void				GenerateCVT_D_W_Sim( u32 fd, u32 fs );
 
 				void				GenerateADD_D( u32 fd, u32 fs, u32 ft );
 				void				GenerateSUB_D( u32 fd, u32 fs, u32 ft );
@@ -240,7 +244,7 @@ private:
 				void				UpdateFloatRegister( EN64FloatReg n64_reg );
 
 				EPspFloatReg		GetSimFloatRegisterAndLoad( EN64FloatReg n64_reg );
-				void				UpdateSimFloatRegister( EN64FloatReg n64_reg );
+				void				UpdateSimDoubleRegister( EN64FloatReg n64_reg );
 
 				const CN64RegisterCachePSP & GetRegisterCacheFromHandle( RegisterSnapshotHandle snapshot ) const;
 
