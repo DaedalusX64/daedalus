@@ -785,7 +785,11 @@ EPspFloatReg	CCodeGeneratorPSP::GetSimFloatRegisterAndLoad( EN64FloatReg n64_reg
 		MTC1( psp_reg , PspReg_V0 ); //store converted float
 		PatchJumpLong( test_reg, GetAssemblyBuffer()->GetLabel() );
 
+		mRegisterCache.MarkFPAsValid( n64_reg, true );
+		mRegisterCache.MarkFPAsDirty( n64_reg, true );
 		mRegisterCache.MarkFPAsSim( n64_reg, true );
+		mRegisterCache.MarkFPAsValid( EN64FloatReg(n64_reg + 1), true );
+		mRegisterCache.MarkFPAsDirty( EN64FloatReg(n64_reg + 1), true );
 	}
 
 	return psp_reg;
