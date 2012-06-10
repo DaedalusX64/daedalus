@@ -2314,9 +2314,9 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 #define LOGIC_AND (LOGIC_32BIT | LOGIC_HI_IGNORE_IF_NEGATIVE)
 
 // Returns false if hi part can be ignored
-bool CCodeGeneratorPSP::NeedLoadHi( int value, int logic )
+inline bool CCodeGeneratorPSP::NeedLoadHi( int value, int logic )
 {
-	if (value & 0x80000000) //negative
+	if (value < 0) //negative
 	{
 		if (logic & LOGIC_HI_IGNORE_IF_NEGATIVE)
 			return false;
@@ -2821,7 +2821,7 @@ inline void	CCodeGeneratorPSP::GenerateAND( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void	CCodeGeneratorPSP::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
+void	CCodeGeneratorPSP::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
 	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 | gGPR[ op_code.rt ]._u64;
 	//if (mRegisterCache.IsKnownValue(rs, 0) && mRegisterCache.IsKnownValue(rs, 1) 
@@ -2831,17 +2831,29 @@ inline void	CCodeGeneratorPSP::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 		SetRegister64(rd, 
 			mRegisterCache.GetKnownValue(rs, 0)._u32 | mRegisterCache.GetKnownValue(rt, 0)._u32,
 			mRegisterCache.GetKnownValue(rs, 1)._u32 | mRegisterCache.GetKnownValue(rt, 1)._u32);
+		return;
 	}
-	else if( rs == N64Reg_R0 )
+
+	// Check if we really need the high bits
+	bool NeedRegisterHi = (NeedLoadHi(mRegisterCache.IsKnownValue(rt, 1), mRegisterCache.GetKnownValue(rt, 1)._u32, LOGIC_OR)) &&
+						  (NeedLoadHi(mRegisterCache.IsKnownValue(rs, 1), mRegisterCache.GetKnownValue(rs, 1)._u32, LOGIC_OR));
+
+	if( rs == N64Reg_R0 )
 	{
+		if(mRegisterCache.IsKnownValue(rt, 0))
+		{
+			SetRegister64(rd, 
+				mRegisterCache.GetKnownValue(rt, 0)._u32, mRegisterCache.GetKnownValue(rt, 1)._u32);
+			return;
+		}
+		
 		// This case rarely seems to happen...
 		// As RS is zero, the OR is just a copy of RT to RD.
 		// Try to avoid loading into a temp register if the dest is cached
 		EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
 		LoadRegisterLo( reg_lo_d, rt );
 		StoreRegisterLo( rd, reg_lo_d );
-		if( (NeedLoadHi(mRegisterCache.IsKnownValue(rt, 1), mRegisterCache.GetKnownValue(rt, 1)._u32, LOGIC_OR)) ||
-			(NeedLoadHi(mRegisterCache.IsKnownValue(rs, 1), mRegisterCache.GetKnownValue(rs, 1)._u32, LOGIC_OR)) )
+		if(NeedRegisterHi)
 		{
 			EPspReg reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
 			LoadRegisterHi( reg_hi_d, rt );
@@ -2850,13 +2862,19 @@ inline void	CCodeGeneratorPSP::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	}
 	else if( rt == N64Reg_R0 )
 	{
+		if(mRegisterCache.IsKnownValue(rs, 0))
+		{
+			SetRegister64(rd, mRegisterCache.GetKnownValue(rs, 0)._u32, 
+				mRegisterCache.GetKnownValue(rs, 1)._u32);
+			return;
+		}
+		
 		// As RT is zero, the OR is just a copy of RS to RD.
 		// Try to avoid loading into a temp register if the dest is cached
 		EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
 		LoadRegisterLo( reg_lo_d, rs );
 		StoreRegisterLo( rd, reg_lo_d );
-		if( (NeedLoadHi(mRegisterCache.IsKnownValue(rt, 1), mRegisterCache.GetKnownValue(rt, 1)._u32, LOGIC_OR)) ||
-			(NeedLoadHi(mRegisterCache.IsKnownValue(rs, 1), mRegisterCache.GetKnownValue(rs, 1)._u32, LOGIC_OR)) )
+		if(NeedRegisterHi)
 		{
 			EPspReg reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
 			LoadRegisterHi( reg_hi_d, rs );
@@ -2870,8 +2888,7 @@ inline void	CCodeGeneratorPSP::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 		EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
 		OR( reg_lo_d, reg_lo_a, reg_lo_b );
 		StoreRegisterLo( rd, reg_lo_d );
-		if( (NeedLoadHi(mRegisterCache.IsKnownValue(rt, 1), mRegisterCache.GetKnownValue(rt, 1)._u32, LOGIC_OR)) ||
-			(NeedLoadHi(mRegisterCache.IsKnownValue(rs, 1), mRegisterCache.GetKnownValue(rs, 1)._u32, LOGIC_OR)) )
+		if(NeedRegisterHi)
 		{
 			EPspReg	reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
 			EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_T0 ) );
