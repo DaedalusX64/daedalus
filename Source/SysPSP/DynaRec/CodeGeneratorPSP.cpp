@@ -2668,12 +2668,16 @@ inline void	CCodeGeneratorPSP::GenerateADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 			+ mRegisterCache.GetKnownValue(rt, 0)._s32);
 		return;
 	}	
-	else if( rs == N64Reg_R0 )
+
+	// Check if we really need the high bits
+	bool NeedRegisterHi = (NeedLoadHi(mRegisterCache.IsKnownValue(rt, 1), mRegisterCache.GetKnownValue(rt, 1)._u32, LOGIC_ADD)) &&
+						   (NeedLoadHi(mRegisterCache.IsKnownValue(rs, 1), mRegisterCache.GetKnownValue(rs, 1)._u32, LOGIC_ADD));
+	
+	if( rs == N64Reg_R0 )
 	{
 		if(mRegisterCache.IsKnownValue(rt, 0))
 		{
-			SetRegister64(rd, mRegisterCache.GetKnownValue(rt, 0)._s32,
-				mRegisterCache.GetKnownValue(rt, 1)._s32);
+			SetRegister32s(rd, mRegisterCache.GetKnownValue(rt, 0)._s32);
 			return;
 		}
 
@@ -2682,32 +2686,37 @@ inline void	CCodeGeneratorPSP::GenerateADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 		EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
 		LoadRegisterLo( reg_lo_d, rt );
 		StoreRegisterLo( rd, reg_lo_d );
-
-		EPspReg reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
-		LoadRegisterHi( reg_hi_d, rt );
-		StoreRegisterHi( rd, reg_hi_d );
+		if(NeedRegisterHi)
+		{
+			EPspReg reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
+			LoadRegisterHi( reg_hi_d, rt );
+			StoreRegisterHi( rd, reg_hi_d );
+		}
 	}
 	else if( rt == N64Reg_R0 )
 	{
 		if(mRegisterCache.IsKnownValue(rs, 0))
 		{
-			SetRegister64(rd, mRegisterCache.GetKnownValue(rs, 0)._s32, 
-				mRegisterCache.GetKnownValue(rs, 1)._s32);
+			SetRegister32s(rd, mRegisterCache.GetKnownValue(rs, 0)._s32);
 			return;
 		}
-
+		
 		// As RT is zero, the ADD is just a copy of RS to RD.
 		// Try to avoid loading into a temp register if the dest is cached
 		EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
 		LoadRegisterLo( reg_lo_d, rs );
 		StoreRegisterLo( rd, reg_lo_d );
-
-		EPspReg reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
-		LoadRegisterHi( reg_hi_d, rs );
-		StoreRegisterHi( rd, reg_hi_d );
+		if(NeedRegisterHi)
+		{
+			EPspReg reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
+			LoadRegisterHi( reg_hi_d, rs );
+			StoreRegisterHi( rd, reg_hi_d );
+		}
 	}
 	else
 	{
+	
+		// ToDO: NeedRegisterHi can be aplied here as well?
 		//gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rs ]._s32_0 + gGPR[ op_code.rt ]._s32_0 );
 		EPspReg	reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
 		EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
