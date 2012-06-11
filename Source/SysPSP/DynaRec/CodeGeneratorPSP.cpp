@@ -2670,6 +2670,13 @@ inline void	CCodeGeneratorPSP::GenerateADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	}	
 	else if( rs == N64Reg_R0 )
 	{
+		if(mRegisterCache.IsKnownValue(rt, 0))
+		{
+			SetRegister64(rd, mRegisterCache.GetKnownValue(rt, 0)._s32,
+				mRegisterCache.GetKnownValue(rt, 1)._s32);
+			return;
+		}
+
 		// As RS is zero, the ADD is just a copy of RT to RD.
 		// Try to avoid loading into a temp register if the dest is cached
 		EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
@@ -2682,6 +2689,13 @@ inline void	CCodeGeneratorPSP::GenerateADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	}
 	else if( rt == N64Reg_R0 )
 	{
+		if(mRegisterCache.IsKnownValue(rs, 0))
+		{
+			SetRegister64(rd, mRegisterCache.GetKnownValue(rs, 0)._s32, 
+				mRegisterCache.GetKnownValue(rs, 1)._s32);
+			return;
+		}
+
 		// As RT is zero, the ADD is just a copy of RS to RD.
 		// Try to avoid loading into a temp register if the dest is cached
 		EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
@@ -2694,12 +2708,12 @@ inline void	CCodeGeneratorPSP::GenerateADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	}
 	else
 	{
-	//gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rs ]._s32_0 + gGPR[ op_code.rt ]._s32_0 );
-	EPspReg	reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
-	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
-	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
-	ADDU( reg_lo_d, reg_lo_a, reg_lo_b );
-	UpdateRegister( rd, reg_lo_d, URO_HI_SIGN_EXTEND, PspReg_T0 );
+		//gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rs ]._s32_0 + gGPR[ op_code.rt ]._s32_0 );
+		EPspReg	reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
+		EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
+		EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
+		ADDU( reg_lo_d, reg_lo_a, reg_lo_b );
+		UpdateRegister( rd, reg_lo_d, URO_HI_SIGN_EXTEND, PspReg_T0 );
 	}
 }
 
@@ -2789,9 +2803,7 @@ inline void	CCodeGeneratorPSP::GenerateDADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt
 inline void	CCodeGeneratorPSP::GenerateAND( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
 	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 & gGPR[ op_code.rt ]._u64;
-	//Note for some reason Banjo Kazooie doesn't like this... @Kreationz
 
-	// Errrg Banjo seems fine, maybe something else caused the reported freezes? -Salvy
 	//if (mRegisterCache.IsKnownValue(rs, 0) && mRegisterCache.IsKnownValue(rs, 1)
 	//&&	mRegisterCache.IsKnownValue(rt, 0) && mRegisterCache.IsKnownValue(rt, 1))
 	if (mRegisterCache.IsKnownValue(rs, 0) & mRegisterCache.IsKnownValue(rt, 0))
@@ -2807,18 +2819,24 @@ inline void	CCodeGeneratorPSP::GenerateAND( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	}
 	else
 	{
+		// Check if we really need the high bits
+		bool NeedRegisterHi = (NeedLoadHi(mRegisterCache.IsKnownValue(rt, 1), mRegisterCache.GetKnownValue(rt, 1)._u32, LOGIC_AND)) &&
+							  (NeedLoadHi(mRegisterCache.IsKnownValue(rs, 1), mRegisterCache.GetKnownValue(rs, 1)._u32, LOGIC_AND));
+
 		// XXXX or into dest register
 		EPspReg	reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
 		EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
 		EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
 		AND( reg_lo_d, reg_lo_a, reg_lo_b );
 		StoreRegisterLo( rd, reg_lo_d );
-
-		EPspReg	reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
-		EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_T0 ) );
-		EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_T1 ) );
-		AND( reg_hi_d, reg_hi_a, reg_hi_b );
-		StoreRegisterHi( rd, reg_hi_d );
+		if(NeedRegisterHi)
+		{
+			EPspReg	reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
+			EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_T0 ) );
+			EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_T1 ) );
+			AND( reg_hi_d, reg_hi_a, reg_hi_b );
+			StoreRegisterHi( rd, reg_hi_d );
+		}
 	}
 }
 
@@ -3093,6 +3111,7 @@ inline void	CCodeGeneratorPSP::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immedi
 	}
 	else
 	{
+
 		EPspReg dst_reg( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_T1 ) );
 		ADDIU( dst_reg, src_reg, immediate );
