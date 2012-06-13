@@ -677,6 +677,8 @@ void CCodeGeneratorPSP::SetRegister64( EN64Reg n64_reg, s32 lo_value, s32 hi_val
 {
 	SetRegister( n64_reg, 0, lo_value );
 	SetRegister( n64_reg, 1, hi_value );
+
+	mRegisterCache.Set32bit( n64_reg, lo_value, hi_value );
 }
 
 //*****************************************************************************
@@ -2865,9 +2867,10 @@ void	CCodeGeneratorPSP::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 		return;
 	}
 
-	// Check if we really need the high bits
-	bool NeedRegisterHi = (NeedLoadHi(mRegisterCache.IsKnownValue(rt, 1), mRegisterCache.GetKnownValue(rt, 1)._u32, LOGIC_OR)) &&
-						  (NeedLoadHi(mRegisterCache.IsKnownValue(rs, 1), mRegisterCache.GetKnownValue(rs, 1)._u32, LOGIC_OR));
+	// Check if we really need the high bits, If this fails we then check if these registers are mapped as 32bit
+	// If rs or rt is r0 this is more efective as we only check one register
+	bool NeedRegisterHi = (NeedLoadHi(mRegisterCache.IsKnownValue(rt, 0), mRegisterCache.GetKnownValue(rt, 0)._u32, LOGIC_OR)) &&
+						  (NeedLoadHi(mRegisterCache.IsKnownValue(rs, 0), mRegisterCache.GetKnownValue(rs, 0)._u32, LOGIC_OR));
 
 	if( rs == N64Reg_R0 )
 	{
@@ -2877,14 +2880,14 @@ void	CCodeGeneratorPSP::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 				mRegisterCache.GetKnownValue(rt, 0)._u32, mRegisterCache.GetKnownValue(rt, 1)._u32);
 			return;
 		}
-		
+
 		// This case rarely seems to happen...
 		// As RS is zero, the OR is just a copy of RT to RD.
 		// Try to avoid loading into a temp register if the dest is cached
 		EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
 		LoadRegisterLo( reg_lo_d, rt );
 		StoreRegisterLo( rd, reg_lo_d );
-		if(NeedRegisterHi)
+		if(NeedRegisterHi && !mRegisterCache.Is32bit(rt))
 		{
 			EPspReg reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
 			LoadRegisterHi( reg_hi_d, rt );
@@ -2899,13 +2902,13 @@ void	CCodeGeneratorPSP::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 				mRegisterCache.GetKnownValue(rs, 1)._u32);
 			return;
 		}
-		
+
 		// As RT is zero, the OR is just a copy of RS to RD.
 		// Try to avoid loading into a temp register if the dest is cached
 		EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
 		LoadRegisterLo( reg_lo_d, rs );
 		StoreRegisterLo( rd, reg_lo_d );
-		if(NeedRegisterHi)
+		if(NeedRegisterHi && !mRegisterCache.Is32bit(rs))
 		{
 			EPspReg reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
 			LoadRegisterHi( reg_hi_d, rs );
@@ -2914,6 +2917,9 @@ void	CCodeGeneratorPSP::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	}
 	else
 	{
+		if(NeedRegisterHi && mRegisterCache.Is32bit(rs) && mRegisterCache.Is32bit(rt))
+			NeedRegisterHi = false;
+
 		EPspReg	reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
 		EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
 		EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_T1 ) );

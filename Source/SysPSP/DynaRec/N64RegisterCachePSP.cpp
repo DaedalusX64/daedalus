@@ -31,6 +31,25 @@ CN64RegisterCachePSP::CN64RegisterCachePSP()
 //*****************************************************************************
 //
 //*****************************************************************************
+// ToDo: This very primitive, implement a more effective assumption to detect if XX reg is mapped as 32bit
+bool CN64RegisterCachePSP::IsReg32bit( s32 lo, s32 hi )
+{
+	if (lo < 0 && hi == -1)
+	{ 
+		return true;
+	} 
+
+	if (lo >= 0 && hi == 0)
+	{ 
+		return true;
+	} 
+
+	return false;
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
 void	CN64RegisterCachePSP::Reset()
 {
 	for( u32 lo_hi_idx = 0; lo_hi_idx < 2; ++lo_hi_idx )
@@ -41,6 +60,7 @@ void	CN64RegisterCachePSP::Reset()
 			mRegisterCacheInfo[ i ][ lo_hi_idx ].Valid = false;
 			mRegisterCacheInfo[ i ][ lo_hi_idx ].Dirty = false;
 			mRegisterCacheInfo[ i ][ lo_hi_idx ].Known = false;
+			mRegisterCacheInfo[ i ][ lo_hi_idx ].Is32bit	 = false;
 		}
 	}
 
@@ -64,4 +84,5 @@ void	CN64RegisterCachePSP::ClearCachedReg( EN64Reg n64_reg, u32 lo_hi_idx )
 	mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].Valid = false;
 	mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].Dirty = false;
 	mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].Known = false;
+	mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].Is32bit	 = false;
 }

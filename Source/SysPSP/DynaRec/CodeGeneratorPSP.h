@@ -71,6 +71,8 @@ private:
 
 				bool				NeedLoadHi( int value, int logic );
 				bool				NeedLoadHi( bool known, int value, int logic )	{ if(!known) return true;	return NeedLoadHi( value, logic );	}
+				bool				NeedLoadHi( EN64Reg n64_reg, int logic );	
+
 
 				void				GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op );
 
