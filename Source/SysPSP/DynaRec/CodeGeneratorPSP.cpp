@@ -779,8 +779,9 @@ EPspFloatReg	CCodeGeneratorPSP::GetSimFloatRegisterAndLoad( EN64FloatReg n64_reg
 	{
 		MFC1( PspReg_A0, psp_reg_sig );	//Get lo part of double 
 		LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
-		CJumpLocation test_reg( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-		MTC1( psp_reg_sig , PspReg_A1 );	//Write back signature to float reg
+		CJumpLocation test_reg( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), false ) );	//compare float to signature
+		MTC1( psp_reg_sig , PspReg_A1 );	//Always write back signature to float reg
+
 		JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
 		MFC1( PspReg_A1, psp_reg );	//Get hi part of double 
 
