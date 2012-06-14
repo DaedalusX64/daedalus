@@ -515,7 +515,7 @@ u32	CCodeGeneratorPSP::GetCompiledCodeSize() const
 }
 
 //*****************************************************************************
-//
+//Get a (cached) N64 register mapped to a PSP register(usefull for dst register)
 //*****************************************************************************
 EPspReg	CCodeGeneratorPSP::GetRegisterNoLoad( EN64Reg n64_reg, u32 lo_hi_idx, EPspReg scratch_reg )
 {
@@ -530,7 +530,7 @@ EPspReg	CCodeGeneratorPSP::GetRegisterNoLoad( EN64Reg n64_reg, u32 lo_hi_idx, EP
 }
 
 //*****************************************************************************
-//
+//Copy the value from a (cached) N64 register a scratch PSP register
 //*****************************************************************************
 void	CCodeGeneratorPSP::GetRegisterValue( EPspReg psp_reg, EN64Reg n64_reg, u32 lo_hi_idx )
 {
@@ -546,7 +546,8 @@ void	CCodeGeneratorPSP::GetRegisterValue( EPspReg psp_reg, EN64Reg n64_reg, u32 
 }
 
 //*****************************************************************************
-//
+//Get (cached) N64 register value mapped to a PSP register (or scratch reg)
+//and also load the value if not loaded yet(usefull for src register)
 //*****************************************************************************
 EPspReg	CCodeGeneratorPSP::GetRegisterAndLoad( EN64Reg n64_reg, u32 lo_hi_idx, EPspReg scratch_reg )
 {
@@ -767,14 +768,21 @@ EPspFloatReg	CCodeGeneratorPSP::GetSimFloatRegisterAndLoad( EN64FloatReg n64_reg
 	EPspFloatReg psp_reg_sig = EPspFloatReg( n64_reg );	// 1:1 mapping
 	EPspFloatReg psp_reg = EPspFloatReg(n64_reg + 1);
 
+	//This is Double Lo or signature
 	if( !mRegisterCache.IsFPValid( n64_reg ) )
 	{
 		GetFloatVar( psp_reg_sig, &gCPUState.FPU[n64_reg]._f32_0 );
-		GetFloatVar( psp_reg, &gCPUState.FPU[n64_reg+1]._f32_0 );
 		mRegisterCache.MarkFPAsValid( n64_reg, true );
+	}
+
+	//This is Double Hi or f32
+	if( !mRegisterCache.IsFPValid( EN64FloatReg(n64_reg + 1) ) )
+	{
+		GetFloatVar( psp_reg, &gCPUState.FPU[n64_reg+1]._f32_0 );
 		mRegisterCache.MarkFPAsValid( EN64FloatReg(n64_reg+1), true );
 	}
 
+	//If register is not SimDouble yet or unknown add check and conversion routine 
 	if( !mRegisterCache.IsFPSim( n64_reg ) )
 	{
 		MFC1( PspReg_A0, psp_reg_sig );	//Get lo part of double 
@@ -788,10 +796,8 @@ EPspFloatReg	CCodeGeneratorPSP::GetSimFloatRegisterAndLoad( EN64FloatReg n64_reg
 		MTC1( psp_reg , PspReg_V0 ); //store converted float
 		PatchJumpLong( test_reg, GetAssemblyBuffer()->GetLabel() );
 
-		mRegisterCache.MarkFPAsValid( n64_reg, true );
 		mRegisterCache.MarkFPAsDirty( n64_reg, true );
 		mRegisterCache.MarkFPAsSim( n64_reg, true );
-		mRegisterCache.MarkFPAsValid( EN64FloatReg(n64_reg + 1), true );
 		mRegisterCache.MarkFPAsDirty( EN64FloatReg(n64_reg + 1), true );
 	}
 
@@ -4097,7 +4103,7 @@ inline void	CCodeGeneratorPSP::GenerateADD_D_Sim( u32 fd, u32 fs, u32 ft )
 
 	//Use float now instead of double :)
 	ADD_S( psp_fd, psp_fs, psp_ft );
-	if( (fd != fs) & (fd != ft) ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
+	if( !mRegisterCache.IsFPSim( n64_fd ) ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
 
 	UpdateSimDoubleRegister( n64_fd );
 }
@@ -4118,7 +4124,7 @@ inline void	CCodeGeneratorPSP::GenerateSUB_D_Sim( u32 fd, u32 fs, u32 ft )
 
 	//Use float now instead of double :)
 	SUB_S( psp_fd, psp_fs, psp_ft );
-	if( (fd != fs) & (fd != ft) ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
+	if( !mRegisterCache.IsFPSim( n64_fd ) ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
 
 	UpdateSimDoubleRegister( n64_fd );
 }
@@ -4139,7 +4145,7 @@ inline void	CCodeGeneratorPSP::GenerateMUL_D_Sim( u32 fd, u32 fs, u32 ft )
 
 	//Use float now instead of double :)
 	MUL_S( psp_fd, psp_fs, psp_ft );
-	if( (fd != fs) & (fd != ft) ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
+	if( !mRegisterCache.IsFPSim( n64_fd ) ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
 
 	UpdateSimDoubleRegister( n64_fd );
 }
@@ -4160,7 +4166,7 @@ inline void	CCodeGeneratorPSP::GenerateDIV_D_Sim( u32 fd, u32 fs, u32 ft )
 
 	//Use float now instead of double :)
 	DIV_S( psp_fd, psp_fs, psp_ft );
-	if( (fd != fs) & (fd != ft) ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
+	if( !mRegisterCache.IsFPSim( n64_fd ) ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
 
 	UpdateSimDoubleRegister( n64_fd );
 }
@@ -4179,7 +4185,7 @@ inline void	CCodeGeneratorPSP::GenerateSQRT_D_Sim( u32 fd, u32 fs )
 
 	//Use float now instead of double :)
 	SQRT_S( psp_fd, psp_fs );
-	if( fd != fs ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
+	if( !mRegisterCache.IsFPSim( n64_fd ) ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
 
 	UpdateSimDoubleRegister( n64_fd );
 }
@@ -4198,7 +4204,7 @@ inline void	CCodeGeneratorPSP::GenerateABS_D_Sim( u32 fd, u32 fs )
 
 	//Use float now instead of double :)
 	ABS_S( psp_fd, psp_fs );
-	if( fd != fs ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
+	if( !mRegisterCache.IsFPSim( n64_fd ) ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
 
 	UpdateSimDoubleRegister( n64_fd );
 }
@@ -4237,7 +4243,7 @@ inline void	CCodeGeneratorPSP::GenerateNEG_D_Sim( u32 fd, u32 fs )
 
 	//Use float now instead of double :)
 	NEG_S( psp_fd, psp_fs );
-	if( fd != fs ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
+	if( !mRegisterCache.IsFPSim( n64_fd ) ) MOV_S( psp_fd_sig, EPspFloatReg( fs ));	//Copy signature as well if needed
 
 	UpdateSimDoubleRegister( n64_fd );
 }
