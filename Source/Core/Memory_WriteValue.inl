@@ -384,9 +384,10 @@ static void WriteValue_8450_845F( u32 address, u32 value )
 		case AI_DACRATE_REG:
 			*(u32 *)((u8 *)g_pMemoryBuffers[MEM_AI_REG] + offset) = value;
 
-			// TODO: Fix type??
 			if (g_pAiPlugin != NULL)
-				g_pAiPlugin->DacrateChanged( CAudioPlugin::ST_NTSC );
+			{
+				g_pAiPlugin->DacrateChanged( g_ROM.TvType ? CAudioPlugin::ST_NTSC : CAudioPlugin::ST_PAL ); //Default to NTSC //Corn
+			}
 			break;
 		}
 	}
