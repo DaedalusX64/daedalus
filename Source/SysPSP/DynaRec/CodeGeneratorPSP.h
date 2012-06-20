@@ -69,9 +69,8 @@ private:
 
 				//void				UpdateAddressAndDelay( u32 address, bool set_branch_delay );
 
-				bool				NeedLoadHi( int value, int logic );
-				bool				NeedLoadHi( bool known, int value, int logic )	{ if(!known) return true;	return NeedLoadHi( value, logic );	}
-				bool				NeedLoadHi( EN64Reg n64_reg, int logic );	
+				bool				NeedLoadHi( s32 value );
+				bool				NeedLoadHi( bool known, s32 value )	{ if(!known) return true;	return NeedLoadHi( value );	}
 
 
 				void				GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op );

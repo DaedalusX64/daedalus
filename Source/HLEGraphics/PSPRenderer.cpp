@@ -1771,41 +1771,6 @@ void PSPRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num
 	*p_p_vertices = p_vertices;
 	*p_num_vertices = num_vertices;
 }
-
-//*****************************************************************************
-//
-//*****************************************************************************
-v4 PSPRenderer::LightVert( const v3 & norm ) const
-{
-	
-	u32 num = mTnL.NumLights;
-
-	v4 result( mTnL.Lights[num].Colour.x, 
-			   mTnL.Lights[num].Colour.y, 
-			   mTnL.Lights[num].Colour.z,
-			   mTnL.Lights[num].Colour.w ); // 1.0f
-
-
-	for ( u32 l = 0; l < num; l++ )
-	{
-		f32 fCosT = norm.Dot( mTnL.Lights[l].Direction );
-		if (fCosT > 0.0f)
-		{
-			result.x += mTnL.Lights[l].Colour.x * fCosT;
-			result.y += mTnL.Lights[l].Colour.y * fCosT;
-			result.z += mTnL.Lights[l].Colour.z * fCosT;
-		}
-	}
-
-	//Clamp to 1.0
-	if( result.x > 1.0f ) result.x = 1.0f;
-	if( result.y > 1.0f ) result.y = 1.0f;
-	if( result.z > 1.0f ) result.z = 1.0f;
-	//result.w = 1.0f;
-
-	return result;
-}
-
 //
 //Transform using VFPU(fast)
 //
@@ -1919,6 +1884,42 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 //
 
 #else
+
+//*****************************************************************************
+//
+//*****************************************************************************
+v4 PSPRenderer::LightVert( const v3 & norm ) const
+{
+	
+	u32 num = mTnL.NumLights;
+
+	v4 result( mTnL.Lights[num].Colour.x, 
+			   mTnL.Lights[num].Colour.y, 
+			   mTnL.Lights[num].Colour.z,
+			   mTnL.Lights[num].Colour.w ); // 1.0f
+
+
+	for ( u32 l = 0; l < num; l++ )
+	{
+		f32 fCosT = norm.Dot( mTnL.Lights[l].Direction );
+		if (fCosT > 0.0f)
+		{
+			result.x += mTnL.Lights[l].Colour.x * fCosT;
+			result.y += mTnL.Lights[l].Colour.y * fCosT;
+			result.z += mTnL.Lights[l].Colour.z * fCosT;
+		}
+	}
+
+	//Clamp to 1.0
+	if( result.x > 1.0f ) result.x = 1.0f;
+	if( result.y > 1.0f ) result.y = 1.0f;
+	if( result.z > 1.0f ) result.z = 1.0f;
+	//result.w = 1.0f;
+
+	return result;
+}
+
+
 //*****************************************************************************
 // Standard rendering pipeline using FPU/CPU
 //*****************************************************************************
