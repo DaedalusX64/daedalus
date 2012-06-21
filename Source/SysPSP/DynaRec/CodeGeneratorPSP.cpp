@@ -717,7 +717,7 @@ inline void CCodeGeneratorPSP::SetRegister( EN64Reg n64_reg, u32 lo_hi_idx, u32 
 //*****************************************************************************
 void CCodeGeneratorPSP::UpdateRegister( EN64Reg n64_reg, EPspReg psp_reg, bool options, EPspReg scratch_reg )
 {
-	//if(n64_reg == 0) return;	//Try to modify R0!!!
+	//if(n64_reg == N64Reg_R0) return;	//Try to modify R0!!!
 
 	StoreRegisterLo( n64_reg, psp_reg );
 
