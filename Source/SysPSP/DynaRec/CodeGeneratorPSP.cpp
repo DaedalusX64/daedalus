@@ -47,6 +47,9 @@ using namespace AssemblyUtils;
 #define ENABLE_LWC1
 #define ENABLE_SWC1
 
+// Enable to check if logic is 32bit
+#define ENABLE_LOGIC_32BIT
+
 //Define to handle full 64bit checks for SLT,SLTU,SLTI & SLTIU //Corn
 //#define ENABLE_64BIT
 
@@ -55,6 +58,8 @@ using namespace AssemblyUtils;
 
 //Define to enable exceptions for interpreter calls from DYNAREC
 //#define ALLOW_INTERPRETER_EXCEPTIONS
+
+
 
 #define NOT_IMPLEMENTED( x )	DAEDALUS_ERROR( x )
 
@@ -679,7 +684,9 @@ void CCodeGeneratorPSP::SetRegister64( EN64Reg n64_reg, s32 lo_value, s32 hi_val
 	SetRegister( n64_reg, 0, lo_value );
 	SetRegister( n64_reg, 1, hi_value );
 
+#ifdef ENABLE_LOGIC_32BIT
 	mRegisterCache.Set32bit( n64_reg, lo_value, hi_value );
+#endif
 }
 
 //*****************************************************************************
@@ -2334,11 +2341,17 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 // Returns false if hi part can be ignored
 inline bool CCodeGeneratorPSP::NeedLoadHi( s32 value )
 {
+#ifdef ENABLE_LOGIC_32BIT
 	if( value >= 0 )
 	{
 		if (LOGIC_GATE & LOGIC_HI_IGNORE_IF_NONNEGATIVE)
 			return false;
 	}
+
+	if(value == -1) 
+		return false;
+
+#endif
 	return true;
 }
 //*****************************************************************************
