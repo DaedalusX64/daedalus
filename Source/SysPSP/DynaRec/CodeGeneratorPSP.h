@@ -238,7 +238,7 @@ private:
 					URO_HI_CLEAR,			// Clear hi bits
 				};
 				*/
-				void				UpdateRegister( EN64Reg n64_reg, EPspReg psp_reg, bool options, EPspReg scratch_reg );
+				void				UpdateRegister( EN64Reg n64_reg, EPspReg psp_reg, bool options, bool Is32bit );
 	
 
 				EPspFloatReg		GetFloatRegisterAndLoad( EN64FloatReg n64_reg );
