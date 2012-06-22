@@ -2821,15 +2821,10 @@ void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0
 	sceGuEnable(GU_BLEND);
 	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
 
-	x		= x * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
-	y		= y * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
-	width	= width * mN64ToPSPScale.x;
-	height	= height * mN64ToPSPScale.y;
-
 // 0 Simpler blit algorithm, but doesn't handle big textures as good? (see StarSoldier)
 // 1 More complex algorithm. used in newer versions of TriEngine, fixes the main screen in StarSoldier
 // Note : We ignore handling height > 512 textures for now
-#if 0
+#if 1
 	u8* pData = (u8*)( texture->GetData()) ;
 	if ( u1 > 512.f )
 	{
@@ -2858,8 +2853,8 @@ void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0
 
 		p_verts[0].t0.x = cur_u;
 		p_verts[0].t0.y = v0;
-		p_verts[0].pos.x = cur_x; 
-		p_verts[0].pos.y = y; 
+		p_verts[0].pos.x = cur_x * mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
+		p_verts[0].pos.y = y	 * mN64ToPSPScale.y + mN64ToPSPTranslate.y; 
 		p_verts[0].pos.z = 0;
 
 		cur_u += source_width;
@@ -2867,8 +2862,8 @@ void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0
 
 		p_verts[1].t0.x = cur_u;
 		p_verts[1].t0.y = v1;
-		p_verts[1].pos.x = cur_x;
-		p_verts[1].pos.y = height;
+		p_verts[1].pos.x = cur_x * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
+		p_verts[1].pos.y = height* mN64ToPSPScale.y + mN64ToPSPTranslate.y;
 		p_verts[1].pos.z = 0;
 
 		sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 2, 0, p_verts );
