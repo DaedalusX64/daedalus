@@ -3613,7 +3613,7 @@ inline void	CCodeGeneratorPSP::GenerateLW( u32 address, bool set_branch_delay, E
 
 	GenerateLoad( address, reg_dst, base, offset, OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
 
-	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND, 0 );
+	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND, mRegisterCache.Is32bit(base) );
 }
 
 //*****************************************************************************
