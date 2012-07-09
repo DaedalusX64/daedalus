@@ -110,16 +110,6 @@ public:
 			return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Known; 
 		}
 
-		inline bool	Is32bit( EN64Reg reg ) const 
-		{	
-			return mRegisterCacheInfo[ reg ][ 0 ].Is32bit; 
-		}
-
-		inline void	Set32bit( EN64Reg reg, s32 lo, s32 hi ) 
-		{	
-			mRegisterCacheInfo[ reg ][ 0 ].Is32bit = IsReg32bit( lo, hi ); 
-		}
-
 		inline void	SetKnownValue( EN64Reg reg, u32 lo_hi_idx, s32 value )
 		{
 			mRegisterCacheInfo[ reg ][ lo_hi_idx ].Known = true;
@@ -167,7 +157,6 @@ public:
 		}
 
 		void		ClearCachedReg( EN64Reg n64_reg, u32 lo_hi_idx );
-		bool		IsReg32bit( s32 lo, s32 hi );
 
 private:
 
@@ -179,7 +168,6 @@ private:
 			bool			Dirty;				// Are the contents of the register modified?
 			bool			Known;				// Are the contents known
 			//bool			SignExtended;		// Is this (high) register just sign extension of low reg?
-			bool			Is32bit;
 		};
 
 		// PSP fp registers are stored in a 1:1 mapping with the n64 counterparts

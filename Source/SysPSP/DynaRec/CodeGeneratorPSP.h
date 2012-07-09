@@ -70,7 +70,7 @@ private:
 				//void				UpdateAddressAndDelay( u32 address, bool set_branch_delay );
 
 				bool				NeedLoadHi( s32 value );
-				bool				NeedLoadHi( bool known, s32 value )	{ if(!known) return true;	return NeedLoadHi( value );	}
+				bool				NeedLoadHi( EN64Reg reg );
 
 
 				void				GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op );
