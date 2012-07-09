@@ -715,14 +715,14 @@ inline void CCodeGeneratorPSP::SetRegister( EN64Reg n64_reg, u32 lo_hi_idx, u32 
 //*****************************************************************************
 //
 //*****************************************************************************
-void CCodeGeneratorPSP::UpdateRegister( EN64Reg n64_reg, EPspReg psp_reg, bool options, bool Is32bit )
+void CCodeGeneratorPSP::UpdateRegister( EN64Reg n64_reg, EPspReg psp_reg, bool options )
 {
 	//if(n64_reg == N64Reg_R0) return;	//Try to modify R0!!!
 
 	StoreRegisterLo( n64_reg, psp_reg );
 
 	//Skip storing sign extension on some regs //Corn
-	if( N64Reg_DontNeedSign( n64_reg ) || Is32bit ) return;
+	if( N64Reg_DontNeedSign( n64_reg ) ) return;
 
 	if( options == URO_HI_SIGN_EXTEND )
 	{
@@ -2742,7 +2742,7 @@ inline void	CCodeGeneratorPSP::GenerateADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 		EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
 		EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
 		ADDU( reg_lo_d, reg_lo_a, reg_lo_b );
-		UpdateRegister( rd, reg_lo_d, URO_HI_SIGN_EXTEND, mRegisterCache.Is32bit(rs) && mRegisterCache.Is32bit(rt) );
+		UpdateRegister( rd, reg_lo_d, URO_HI_SIGN_EXTEND );
 	}
 }
 
@@ -2764,7 +2764,7 @@ inline void	CCodeGeneratorPSP::GenerateSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
 	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
 	SUBU( reg_lo_d, reg_lo_a, reg_lo_b );
-	UpdateRegister( rd, reg_lo_d, URO_HI_SIGN_EXTEND, mRegisterCache.Is32bit(rs) && mRegisterCache.Is32bit(rt) );
+	UpdateRegister( rd, reg_lo_d, URO_HI_SIGN_EXTEND );
 }
 
 //*****************************************************************************
@@ -3076,7 +3076,7 @@ inline void	CCodeGeneratorPSP::GenerateSLT( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 
 #endif
 
-	UpdateRegister( rd, reg_lo_d, URO_HI_CLEAR, 0 );
+	UpdateRegister( rd, reg_lo_d, URO_HI_CLEAR );
 }
 
 //*****************************************************************************
@@ -3132,7 +3132,7 @@ inline void	CCodeGeneratorPSP::GenerateSLTU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 
 #endif
 
-	UpdateRegister( rd, reg_lo_d, URO_HI_CLEAR, 0 );
+	UpdateRegister( rd, reg_lo_d, URO_HI_CLEAR );
 }
 
 //*****************************************************************************
@@ -3157,7 +3157,7 @@ inline void	CCodeGeneratorPSP::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immedi
 		EPspReg dst_reg( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_T1 ) );
 		ADDIU( dst_reg, src_reg, immediate );
-		UpdateRegister( rt, dst_reg, URO_HI_SIGN_EXTEND, mRegisterCache.Is32bit(rs) );
+		UpdateRegister( rt, dst_reg, URO_HI_SIGN_EXTEND );
 		
 	}
 }
@@ -3182,7 +3182,7 @@ inline void	CCodeGeneratorPSP::GenerateANDI( EN64Reg rt, EN64Reg rs, u16 immedia
 		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_T1 ) );
 		ANDI( dst_reg, src_reg, immediate );
 		
-		UpdateRegister( rt, dst_reg, URO_HI_CLEAR, 0 );
+		UpdateRegister( rt, dst_reg, URO_HI_CLEAR );
 	}
 }
 
@@ -3332,7 +3332,7 @@ inline void	CCodeGeneratorPSP::GenerateSLTI( EN64Reg rt, EN64Reg rs, s16 immedia
 
 #endif
 
-	UpdateRegister( rt, reg_lo_d, URO_HI_CLEAR, 0 );
+	UpdateRegister( rt, reg_lo_d, URO_HI_CLEAR );
 }
 
 //*****************************************************************************
@@ -3395,7 +3395,7 @@ inline void	CCodeGeneratorPSP::GenerateSLTIU( EN64Reg rt, EN64Reg rs, s16 immedi
 
 #endif
 
-	UpdateRegister( rt, reg_lo_d, URO_HI_CLEAR, 0 );
+	UpdateRegister( rt, reg_lo_d, URO_HI_CLEAR );
 }
 
 //*****************************************************************************
@@ -3414,7 +3414,7 @@ inline void	CCodeGeneratorPSP::GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa )
 	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_T0 ) );
 
 	SLL( reg_lo_rd, reg_lo_rt, sa );
-	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND, mRegisterCache.Is32bit(rt) );
+	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
 }
 
 //*****************************************************************************
@@ -3433,7 +3433,7 @@ inline void	CCodeGeneratorPSP::GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa )
 	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_T0 ) );
 
 	SRL( reg_lo_rd, reg_lo_rt, sa );
-	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND, mRegisterCache.Is32bit(rt) );
+	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
 }
 
 //*****************************************************************************
@@ -3452,7 +3452,7 @@ inline void	CCodeGeneratorPSP::GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa )
 	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_T0 ) );
 
 	SRA( reg_lo_rd, reg_lo_rt, sa );
-	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND, mRegisterCache.Is32bit(rt) );
+	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
 }
 
 //*****************************************************************************
@@ -3464,7 +3464,7 @@ inline void	CCodeGeneratorPSP::GenerateDSRA32( EN64Reg rd, EN64Reg rt, u32 sa )
 	EPspReg	reg_hi_rt( GetRegisterAndLoadHi( rt, PspReg_T0 ) );
 
 	SRA( reg_lo_rd, reg_hi_rt, sa );
-	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND, 0 );
+	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
 }
 
 //*****************************************************************************
@@ -3500,7 +3500,7 @@ inline void	CCodeGeneratorPSP::GenerateSLLV( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_T0 ) );
 
 	SLLV( reg_lo_rd, reg_lo_rs, reg_lo_rt );
-	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND, mRegisterCache.Is32bit(rt) );
+	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
 }
 
 //*****************************************************************************
@@ -3523,7 +3523,7 @@ inline void	CCodeGeneratorPSP::GenerateSRLV( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_T0 ) );
 
 	SRLV( reg_lo_rd, reg_lo_rs, reg_lo_rt );
-	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND, mRegisterCache.Is32bit(rt) );
+	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
 }
 
 //*****************************************************************************
@@ -3546,7 +3546,7 @@ inline void	CCodeGeneratorPSP::GenerateSRAV( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_T0 ) );
 
 	SRAV( reg_lo_rd, reg_lo_rs, reg_lo_rt );
-	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND, mRegisterCache.Is32bit(rt) );
+	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
 }
 
 //*****************************************************************************
@@ -3558,7 +3558,7 @@ inline void	CCodeGeneratorPSP::GenerateLB( u32 address, bool set_branch_delay, E
 
 	GenerateLoad( address, reg_dst, base, offset, OP_LB, 3, set_branch_delay ? ReadBitsDirectBD_s8 : ReadBitsDirect_s8 );	// NB this fills the whole of reg_dst
 
-	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND, 0 );
+	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
 
 //*****************************************************************************
@@ -3570,7 +3570,7 @@ inline void	CCodeGeneratorPSP::GenerateLBU( u32 address, bool set_branch_delay, 
 
 	GenerateLoad( address, reg_dst, base, offset, OP_LBU, 3, set_branch_delay ? ReadBitsDirectBD_u8 : ReadBitsDirect_u8 );	// NB this fills the whole of reg_dst
 
-	UpdateRegister( rt, reg_dst, URO_HI_CLEAR, 0 );
+	UpdateRegister( rt, reg_dst, URO_HI_CLEAR );
 }
 
 //*****************************************************************************
@@ -3582,7 +3582,7 @@ inline void	CCodeGeneratorPSP::GenerateLH( u32 address, bool set_branch_delay, E
 
 	GenerateLoad( address, reg_dst, base, offset, OP_LH, 2, set_branch_delay ? ReadBitsDirect_s16 : ReadBitsDirect_s16 );	// NB this fills the whole of reg_dst
 
-	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND, 0 );
+	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
 
 //*****************************************************************************
@@ -3594,7 +3594,7 @@ inline void	CCodeGeneratorPSP::GenerateLHU( u32 address, bool set_branch_delay, 
 
 	GenerateLoad( address, reg_dst, base, offset, OP_LHU, 2, set_branch_delay ? ReadBitsDirectBD_u16 : ReadBitsDirect_u16 );	// NB this fills the whole of reg_dst
 
-	UpdateRegister( rt, reg_dst, URO_HI_CLEAR, 0 );
+	UpdateRegister( rt, reg_dst, URO_HI_CLEAR );
 }
 
 //*****************************************************************************
@@ -3613,7 +3613,7 @@ inline void	CCodeGeneratorPSP::GenerateLW( u32 address, bool set_branch_delay, E
 
 	GenerateLoad( address, reg_dst, base, offset, OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
 
-	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND, mRegisterCache.Is32bit(base) );
+	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
 
 //*****************************************************************************
@@ -3805,7 +3805,7 @@ inline void	CCodeGeneratorPSP::GenerateMFC1( EN64Reg rt, u32 fs )
 	MFC1( reg_dst, psp_fs );
 
 	//Needs to be sign extended(or breaks DKR)
-	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND, 0 );
+	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
 
 //*****************************************************************************
@@ -3834,7 +3834,7 @@ inline void	CCodeGeneratorPSP::GenerateCFC1( EN64Reg rt, u32 fs )
 
 		GetVar( reg_dst, &gCPUState.FPUControl[ fs ]._u32_0 );
 #ifdef ENABLE_64BIT
-		UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND, 0 );
+		UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 #else
 		StoreRegisterLo( rt, reg_dst );
 #endif
@@ -4721,5 +4721,5 @@ inline void	CCodeGeneratorPSP::GenerateMFC0( EN64Reg rt, u32 fs )
 	EPspReg			reg_dst( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 
 	GetVar( reg_dst, &gCPUState.CPUControl[ fs ]._u32_0 );
-	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND, 0 );
+	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
