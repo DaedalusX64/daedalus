@@ -81,12 +81,27 @@ TEST_DISABLE_UTIL_FUNCS
 	u32 string = gGPR[REG_a0]._u32_0;
 	u8 MatchChar = (u8)(gGPR[REG_a1]._u32_0 & 0xFF);
 	u32 MatchAddr = 0;
-	u8 SrcChar;
-	u32 i;
 
-	for (i = 0; ; i++)
+#if 1
+	u8 *start = (u8*)ReadAddress(string);
+	u8 *psrc = start;
+
+	for (;; psrc++)
 	{
-		SrcChar = Read8Bits(string + i);
+		const u8 SrcChar = *((u8*)((u32)psrc^3));
+
+		if( SrcChar == MatchChar )
+		{
+			MatchAddr = string + psrc - start;	//Return char address
+			break;
+		}
+		
+		if( SrcChar == 0 ) break;	//Return NULL address
+	}
+#else
+	for (u32 i = 0; ; i++)
+	{
+		u8 SrcChar = Read8Bits(string + i);
 
 		if (SrcChar == MatchChar)
 		{
@@ -100,7 +115,7 @@ TEST_DISABLE_UTIL_FUNCS
 			break;
 		}
 	}
-
+#endif
 	gGPR[REG_v0]._u32_0 = MatchAddr;
 
 	return PATCH_RET_JR_RA;

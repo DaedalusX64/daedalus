@@ -507,8 +507,8 @@ void	CAssemblyWriterPSP::EXT( EPspReg reg_dst, EPspReg reg_src, u32 pos, u32 siz
 	op_code.op = 0x1F;
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
-	op_code.rd = size;
-	op_code.sa = pos;
+	op_code.rd = size;	// = MSB - LSB
+	op_code.sa = pos;	// = LSB
 	op_code.spec_op = 0;
 	AppendOp( op_code );
 }
@@ -523,8 +523,8 @@ void	CAssemblyWriterPSP::INS( EPspReg reg_dst, EPspReg reg_src, u32 pos, u32 siz
 	op_code.op = 0x1F;
 	op_code.rt = reg_dst;
 	op_code.rs = reg_src;
-	op_code.rd = size;
-	op_code.sa = pos;
+	op_code.rd = size;	// = MSB
+	op_code.sa = pos;	// = LSB
 	op_code.spec_op = 4;
 	AppendOp( op_code );
 }
