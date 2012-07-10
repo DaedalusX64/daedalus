@@ -549,7 +549,21 @@ void SprintOp_CoPro1( char * str, u32 address, OpCode op )		{ SprintOp_Cop1Instr
 
 void SprintOp_UnOpt( char * str, u32 address, OpCode op )		{ sprintf(str, "SRHack UnOpt"); }
 void SprintOp_Opt( char * str, u32 address, OpCode op )			{ sprintf(str, "SRHack Opt"); }
-void SprintOp_NoOpt( char * str, u32 address, OpCode op )		{ sprintf(str, "SRHack NoOpt"); }
+
+void SprintOp_NoOpt( char * str, u32 address, OpCode op )		{   if( op.spec_op == 0 )
+																	{
+																		sprintf(str, "EXT       %s = %s [%d] [%d]", RegNames[op.rt], RegNames[op.rs], op.rd, op.sa);
+																	}
+																	else if( op.spec_op == 4 )
+																	{
+																		sprintf(str, "INS       %s = %s [%d] [%d]", RegNames[op.rt], RegNames[op.rs], op.rd, op.sa);
+																	}
+																	else
+																	{
+																		sprintf(str, "SRHack NoOpt");
+																	}
+																}
+
 void SprintOp_Patch( char * str, u32 address, OpCode op )		{ sprintf(str, "Patch");
 
 

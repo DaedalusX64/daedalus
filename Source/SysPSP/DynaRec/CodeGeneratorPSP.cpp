@@ -368,9 +368,8 @@ void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register
 					//
 					//	If the register is modified anywhere in the fragment, we need
 					//	to mark it as dirty so it's flushed correctly on exit.
-					//	Seems that also used Base regs needs to be marked Dirty //Corn
 					//
-					if( register_usage.IsModified( n64_reg ) | register_usage.IsBase( n64_reg ) )
+					if( register_usage.IsModified( n64_reg ) )
 					{
 						mRegisterCache.MarkAsDirty( n64_reg, lo_hi_idx, true );
 					}
@@ -1801,8 +1800,8 @@ inline bool	CCodeGeneratorPSP::GenerateDirectLoad( EPspReg psp_dst, EN64Reg base
 			{
 				load_op = OP_LW;
 				ADDIU( PspReg_A0, reg_base, base_offset );	// base + offset
-				EXT( PspReg_V1, PspReg_A0, 0, 1 );	//copy low 2 bits to V1
-				INS( PspReg_A0, PspReg_R0, 0, 1 );	//Zero low 2 bits
+				EXT( PspReg_V1, PspReg_A0, 1, 0 );	//copy low 2 bits to V1
+				INS( PspReg_A0, PspReg_R0, 1, 0 );	//Zero low 2 bits
 				reg_base = PspReg_A0;
 				base_offset = 0;
 			}
@@ -1896,8 +1895,8 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 	{
 		load_op = OP_LW;
 		ADDIU( PspReg_A0, reg_address, offset );	// base + offset
-		EXT( PspReg_V1, PspReg_A0, 0, 1 );	//copy low 2 bits to V1
-		INS( PspReg_A0, PspReg_R0, 0, 1 );	//Zero low 2 bits
+		EXT( PspReg_V1, PspReg_A0, 1, 0 );	//copy low 2 bits to V1
+		INS( PspReg_A0, PspReg_R0, 1, 0 );	//Zero low 2 bits
 		reg_address = PspReg_A0;
 		offset = 0;
 	}
@@ -4067,7 +4066,7 @@ inline void	CCodeGeneratorPSP::GenerateBC1F( const SBranchDetails * p_branch, CJ
 	{
 		GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
 #if 1
-		EXT( PspReg_T0, PspReg_T0, 23, 0 );	//Extract condition bit (true/false)
+		EXT( PspReg_T0, PspReg_T0, 0, 23 );	//Extract condition bit (true/false)
 #else
 		LoadConstant( PspReg_T1, FPCSR_C );
 		AND( PspReg_T0, PspReg_T0, PspReg_T1 );
@@ -4109,7 +4108,7 @@ inline void	CCodeGeneratorPSP::GenerateBC1T( const SBranchDetails * p_branch, CJ
 	{
 		GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
 #if 1
-		EXT( PspReg_T0, PspReg_T0, 23, 0 );	//Extract condition bit (true/false)
+		EXT( PspReg_T0, PspReg_T0, 0, 23 );	//Extract condition bit (true/false)
 #else
 		LoadConstant( PspReg_T1, FPCSR_C );
 		AND( PspReg_T0, PspReg_T0, PspReg_T1 );
@@ -4360,7 +4359,7 @@ inline void	CCodeGeneratorPSP::GenerateCMP_D_Sim( u32 fs, ECop1OpFunction cmp_op
 #if 1 //Improved version no branch //Corn
 	GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
 	CFC1( PspReg_T1, (EPspFloatReg)31 );
-	EXT( PspReg_T1, PspReg_T1, 23, 0 );	//Extract condition bit (true/false)
+	EXT( PspReg_T1, PspReg_T1, 0, 23 );	//Extract condition bit (true/false)
 	INS( PspReg_T0, PspReg_T1, 23, 23 );	//Insert condition bit (true/false)
 	SetVar( &gCPUState.FPUControl[31]._u32_0, PspReg_T0 );
 
@@ -4652,7 +4651,7 @@ inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u3
 #if 1 //Improved version no branch //Corn
 	GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
 	CFC1( PspReg_T1, (EPspFloatReg)31 );
-	EXT( PspReg_T1, PspReg_T1, 23, 0 );	//Extract condition bit (true/false)
+	EXT( PspReg_T1, PspReg_T1, 0, 23 );	//Extract condition bit (true/false)
 	INS( PspReg_T0, PspReg_T1, 23, 23 );	//Insert condition bit (true/false)
 	SetVar( &gCPUState.FPUControl[31]._u32_0, PspReg_T0 );
 

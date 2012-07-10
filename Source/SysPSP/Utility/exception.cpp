@@ -51,6 +51,9 @@ static void DumpInformation(PspDebugRegBlock * regs)
 	if (fp == NULL)
 		return;
 
+	const u32 RDRAM_base = (u32)g_pu8RamBase;
+	const u32 RDRAM_end = (u32)g_pu8RamBase + 8 * 1024 * 1024;
+
 	fprintf(fp, "Exception details:\n");
 	{
 		fprintf(fp, "\tException - %s\n", codeTxt[(regs->cause >> 2) & 31]);
@@ -58,19 +61,36 @@ static void DumpInformation(PspDebugRegBlock * regs)
 		fprintf(fp, "\tCause     - %08X\n", (int)regs->cause);
 		fprintf(fp, "\tStatus    - %08X\n", (int)regs->status);
 		fprintf(fp, "\tBadVAddr  - %08X\n", (int)regs->badvaddr);
+		fprintf(fp, "\tRDRAMbase - %08X\n", (int)RDRAM_base);
+		fprintf(fp, "\tRDRAMend  - %08X\n", (int)RDRAM_end);
 	}
 	// output Registers Info
-	fprintf(fp, "\nRegister File:\n");
+	fprintf(fp, "\nPSP registers: ('*' -> pointing inside RDRAM else ':')\n");
 	{
 		for(int i=0; i<32; i+=4)
-			fprintf(fp, "\t%s:%08X %s:%08X %s:%08X %s:%08X\n", regName[i], (int)regs->r[i], regName[i+1], (int)regs->r[i+1], regName[i+2], (int)regs->r[i+2], regName[i+3], (int)regs->r[i+3]);
+			fprintf(fp, "\t%s%s%08X %s%s%08X %s%s%08X %s%s%08X\n", regName[i],   ( ((u32)regs->r[i]   >= RDRAM_base) & ((u32)regs->r[i]   < RDRAM_end) ) ? "*" : ":", (int)regs->r[i],
+																   regName[i+1], ( ((u32)regs->r[i+1] >= RDRAM_base) & ((u32)regs->r[i+1] < RDRAM_end) ) ? "*" : ":", (int)regs->r[i+1],
+																   regName[i+2], ( ((u32)regs->r[i+2] >= RDRAM_base) & ((u32)regs->r[i+2] < RDRAM_end) ) ? "*" : ":", (int)regs->r[i+2],
+																   regName[i+3], ( ((u32)regs->r[i+3] >= RDRAM_base) & ((u32)regs->r[i+3] < RDRAM_end) ) ? "*" : ":", (int)regs->r[i+3]);
 	}
 
 #ifndef DAEDALUS_SILENT
 	fprintf(fp, "\nDisassembly:\n");
 	{
-		const u32 inst_before_ex = 24;
-		const u32 inst_after_ex = 8;
+		u32 inst_before_ex = 24;
+		u32 inst_after_ex = 0;
+		Dump_DisassembleMIPSRange(fp, regs->epc - (inst_before_ex * 4), (OpCode *)(regs->epc - (inst_before_ex * 4)), (OpCode *)(regs->epc + (inst_after_ex * 4)));
+
+		fprintf(fp, "\n");
+
+		inst_before_ex = 0;
+		inst_after_ex = 1;
+		Dump_DisassembleMIPSRange(fp, regs->epc - (inst_before_ex * 4), (OpCode *)(regs->epc - (inst_before_ex * 4)), (OpCode *)(regs->epc + (inst_after_ex * 4)));
+
+		fprintf(fp, "\n");
+
+		inst_before_ex = -1;
+		inst_after_ex = 24;
 		Dump_DisassembleMIPSRange(fp, regs->epc - (inst_before_ex * 4), (OpCode *)(regs->epc - (inst_before_ex * 4)), (OpCode *)(regs->epc + (inst_after_ex * 4)));
 	}
 #endif
@@ -78,7 +98,7 @@ static void DumpInformation(PspDebugRegBlock * regs)
 	fprintf(fp, "\nRom Infomation:\n");
 	{
 		fprintf(fp, "\tClockrate:       0x%08x\n", g_ROM.rh.ClockRate);
-		fprintf(fp, "\tBootAddr:		0x%08x\n", SwapEndian(g_ROM.rh.BootAddress));
+		fprintf(fp, "\tBootAddr:        0x%08x\n", SwapEndian(g_ROM.rh.BootAddress));
 		fprintf(fp, "\tRelease:         0x%08x\n", g_ROM.rh.Release);
 		fprintf(fp, "\tCRC1:            0x%08x\n", g_ROM.rh.CRC1);
 		fprintf(fp, "\tCRC2:            0x%08x\n", g_ROM.rh.CRC2);
@@ -90,20 +110,21 @@ static void DumpInformation(PspDebugRegBlock * regs)
 
 	fprintf(fp, "\nPSP Infomation:\n");
 	{
-		fprintf(fp, "\tFirmware:			0x%08x\n", sceKernelDevkitVersion());
-		fprintf(fp, "\tModel:				%s\n", pspModel[ kuKernelGetModel() ]);
-		fprintf(fp, "\t64MB Available:		%s\n", PSP_IS_SLIM ? "Yes" : "No");
-		fprintf(fp, "\tEmulator Version:	"SVNVERSION"\n");
+		fprintf(fp, "\tFirmware:         0x%08x\n", sceKernelDevkitVersion());
+		fprintf(fp, "\tModel:            %s\n", pspModel[ kuKernelGetModel() ]);
+		fprintf(fp, "\t64MB Available:   %s\n", PSP_IS_SLIM ? "Yes" : "No");
+		fprintf(fp, "\tEmulator Version: "SVNVERSION"\n");
 	}
 
 	fprintf(fp, "\nSettings:\n");
 	{
+		//fprintf(fp, "\tDynarecStackOptimisation:      %01d\n", gDynarecStackOptimisation);
+		fprintf(fp, "\tDynarecAccessOptimisation:     %01d\n", gMemoryAccessOptimisation);
+		fprintf(fp, "\tDynarecLoopOptimisation:       %01d\n", gDynarecLoopOptimisation);	
+		fprintf(fp, "\tDynarecDoublesOptimisation:    %01d\n", gDynarecDoublesOptimisation);	
 		fprintf(fp, "\tDoubleDisplayEnabled:          %01d\n", gDoubleDisplayEnabled);
 		fprintf(fp, "\tDynarecEnabled:                %01d\n", gDynarecEnabled);
-		//fprintf(fp, "\tDynarecStackOptimisation:      %01d\n", gDynarecStackOptimisation);
-		fprintf(fp, "\tDynarecLoopOptimisation:       %01d\n", gDynarecLoopOptimisation);	
 		fprintf(fp, "\tOSHooksEnabled:                %01d\n", gOSHooksEnabled);
-		fprintf(fp, "\tMemoryAccessOptimisation:      %01d\n", gMemoryAccessOptimisation);
 	}
 
 	fprintf(fp, "\nEmulation CPU State:\n");
