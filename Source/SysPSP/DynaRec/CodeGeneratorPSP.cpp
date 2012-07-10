@@ -995,7 +995,7 @@ CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_ad
 	{
 		DAEDALUS_ASSERT( mUseFixedRegisterAllocation, "Have mLoopTop but unfixed register allocation?" );
 
-		FlushAllFloatingPointRegisters( mRegisterCache, true );
+		FlushAllFloatingPointRegisters( mRegisterCache, false );
 
 		// Check if we're ok to continue, without flushing any registers
 		GetVar( PspReg_T0, &gCPUState.CPUControl[C0_COUNT]._u32_0 );
@@ -1009,14 +1009,14 @@ CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_ad
 		{
 			EN64Reg	n64_reg = EN64Reg( i );
 
-			if( mRegisterCache.IsDirty( n64_reg, 0 ) & mRegisterCache.IsKnownValue( n64_reg, 0 ) )
-			{
-				FlushRegister( mRegisterCache, n64_reg, 0, false );
-			}
-			if( mRegisterCache.IsDirty( n64_reg, 1 ) & mRegisterCache.IsKnownValue( n64_reg, 1 ) )
-			{
-				FlushRegister( mRegisterCache, n64_reg, 1, false );
-			}
+			//if( mRegisterCache.IsDirty( n64_reg, 0 ) & mRegisterCache.IsKnownValue( n64_reg, 0 ) )
+			//{
+			//	FlushRegister( mRegisterCache, n64_reg, 0, false );
+			//}
+			//if( mRegisterCache.IsDirty( n64_reg, 1 ) & mRegisterCache.IsKnownValue( n64_reg, 1 ) )
+			//{
+			//	FlushRegister( mRegisterCache, n64_reg, 1, false );
+			//}
 
 			PrepareCachedRegister( n64_reg, 0 );
 			PrepareCachedRegister( n64_reg, 1 );
@@ -1035,10 +1035,12 @@ CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_ad
 		BGTZ( PspReg_T1, mLoopTop, false );
 		SetVar( (u32*)&gCPUState.Events[0].mCount, PspReg_T1 );		// ASSUMES store is done in just a single op.
 
-		FlushAllRegisters( mRegisterCache, false );
+		FlushAllRegisters( mRegisterCache, true );
+
 		SetVar( &gCPUState.CurrentPC, exit_address );
+		JAL( CCodeLabel( reinterpret_cast< const void * >( CPU_HANDLE_COUNT_INTERRUPT ) ), false );
 		SetVar( &gCPUState.Delay, NO_DELAY );
-		JAL( CCodeLabel( reinterpret_cast< const void * >( CPU_HANDLE_COUNT_INTERRUPT ) ), true );
+
 		J( CCodeLabel( reinterpret_cast< const void * >( _ReturnFromDynaRec ) ), true );
 
 		//
