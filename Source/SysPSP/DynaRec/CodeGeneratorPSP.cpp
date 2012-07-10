@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/CPU.h"
 #include "Core/Memory.h"
 #include "Core/Registers.h"
+#include "Core/ROM.h"
 
 #include "OSHLE/ultra_R4300.h"
 
@@ -46,6 +47,8 @@ using namespace AssemblyUtils;
 //Enable to load/store floats directly to/from FPU //Corn
 #define ENABLE_LWC1
 #define ENABLE_SWC1
+//#define ENABLE_LDC1
+//#define ENABLE_SDC1
 
 // Enable to check if logic is 32bit
 #define ENABLE_LOGIC_32BIT
@@ -65,8 +68,8 @@ using namespace AssemblyUtils;
 
 extern "C" { const void * g_ReadAddressLookupTableForDynarec = g_ReadAddressLookupTable; }
 
-extern "C" { u64 _FloatToDouble( f32 conv_float); }
-extern "C" { f32 _DoubleToFloat( f64 conv_double); }
+extern "C" { u64 _FloatToDouble( u32 _float); }	//Uses CPU to pass f64/32 thats why its maskerading as u64/32 //Corn
+extern "C" { u32 _DoubleToFloat( u64 _double); }	//Uses CPU to pass f64/32 thats why its maskerading as u64/32 //Corn
 
 extern "C" { void _ReturnFromDynaRec(); }
 extern "C" { void _DirectExitCheckNoDelay( u32 instructions_executed, u32 exit_pc ); }
@@ -1417,14 +1420,20 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	case OP_LW:			GenerateLW( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_LD:			GenerateLD( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_LWC1:		GenerateLWC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
-	//case OP_LDC1:		GenerateLDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
+#ifdef ENABLE_LDC1
+	case OP_LDC1:		GenerateLDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
+#endif
+	case OP_LWL:		GenerateLWL( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_LWR:		GenerateLWR( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 
 	case OP_SB:			GenerateSB( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_SH:			GenerateSH( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_SW:			GenerateSW( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_SD:			GenerateSD( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_SWC1:		GenerateSWC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
-	//case OP_SDC1:		GenerateSDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
+#ifdef ENABLE_SDC1
+	case OP_SDC1:		GenerateSDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
+#endif
 
 	case OP_BEQ:
 	case OP_BEQL:
@@ -1583,7 +1592,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			case Cop1OpFunc_TRUNC_W:	GenerateTRUNC_W_S( op_code.fd, op_code.fs ); handled = true; break;
 
 			case Cop1OpFunc_CVT_W:		GenerateCVT_W_S( op_code.fd, op_code.fs ); handled = true; break;
-			case Cop1OpFunc_CVT_D:		if( gDynarecDoublesOptimisation ) GenerateCVT_D_S_Sim( op_code.fd, op_code.fs );
+			case Cop1OpFunc_CVT_D:		if( gDynarecDoublesOptimisation | !g_ROM.DISABLE_SIMDOUBLES ) GenerateCVT_D_S_Sim( op_code.fd, op_code.fs );
 										else GenerateCVT_D_S( op_code.fd, op_code.fs );
 										handled = true;
 										break;
@@ -1611,7 +1620,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			switch( op_code.cop1_funct )
 			{
 			case Cop1OpFunc_CVT_S:	GenerateCVT_S_W( op_code.fd, op_code.fs ); handled = true; break;
-			case Cop1OpFunc_CVT_D:	if( gDynarecDoublesOptimisation )
+			case Cop1OpFunc_CVT_D:	if( gDynarecDoublesOptimisation | !g_ROM.DISABLE_SIMDOUBLES )
 									{
 										GenerateCVT_D_W_Sim( op_code.fd, op_code.fs );
 										handled = true;
@@ -1645,7 +1654,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	if( !handled )
 	{
 #if 0 //1->Show not handled OP codes (Require that DAEDALUS_SILENT flag is undefined)	
-	  // Note: Cop1Op_DInstr is not handled, make sure to comment it out to see their OP codes here!
+	  // Note: Cop1Op_DInstr are handled elsewhere!
 		char msg[100];
 		SprintOpCodeInfo( msg, address, op_code );
 		printf( "Unhandled: 0x%08x %s\n", address, msg );
@@ -1788,6 +1797,16 @@ inline bool	CCodeGeneratorPSP::GenerateDirectLoad( EPspReg psp_dst, EN64Reg base
 			s16			base_offset;
 			GetBaseRegisterAndOffset( p_memory, &reg_base, &base_offset );
 
+			if( (load_op == OP_LWL) | (load_op == OP_LWR) )
+			{
+				load_op = OP_LW;
+				ADDIU( PspReg_A0, reg_base, base_offset );	// base + offset
+				EXT( PspReg_V1, PspReg_A0, 0, 1 );	//copy low 2 bits to V1
+				INS( PspReg_A0, PspReg_R0, 0, 1 );	//Zero low 2 bits
+				reg_base = PspReg_A0;
+				base_offset = 0;
+			}
+
 			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, reg_base, base_offset );
 
 			return true;
@@ -1873,6 +1892,16 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 	EPspReg		reg_base( GetRegisterAndLoadLo( n64_base, PspReg_A0 ) );
 	EPspReg		reg_address( reg_base );
 
+	if( (load_op == OP_LWL) | (load_op == OP_LWR) )
+	{
+		load_op = OP_LW;
+		ADDIU( PspReg_A0, reg_address, offset );	// base + offset
+		EXT( PspReg_V1, PspReg_A0, 0, 1 );	//copy low 2 bits to V1
+		INS( PspReg_A0, PspReg_R0, 0, 1 );	//Zero low 2 bits
+		reg_address = PspReg_A0;
+		offset = 0;
+	}
+
 	if( (n64_base == N64Reg_SP) | (gMemoryAccessOptimisation & mQuickLoad) )
 	{
 		if( swizzle != 0 )
@@ -1892,8 +1921,8 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 			mKeepPreviousLoadBase = false;
 			return;
 		}
+
 		//Re use old base register if consegutive accesses from same base register //Corn
-#if 1	//1->Normal, 0->Debug
 		if( mKeepPreviousLoadBase &&
 			n64_base == mPrevious_base &&
 			n64_base != mPrevious_rt )
@@ -1901,19 +1930,6 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
 			return;
 		}
-#else
-		if( mKeepPreviousLoadBase &&
-			n64_base == mPrevious_base &&
-			n64_base != mPrevious_rt )
-		{
-			ADDU( PspReg_T1, reg_address, gMemoryBaseReg );
-			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_T1, offset );
-			CJumpLocation branch( BEQ( PspReg_T1, PspReg_A1, CCodeLabel( NULL ), true) );
-			SW(PspReg_R0, PspReg_R0, 0);	//Create a BSOD on purpose
-			PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
-			return;
-		}
-#endif
 		else
 		{
 			ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
@@ -2205,26 +2221,14 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 			mKeepPreviousStoreBase = false;
 			return;
 		}
+
 		//Re use old base register if consegutive accesses from same base register //Corn
-#if 1	//1->Normal, 0->Debug
 		if( mKeepPreviousStoreBase &&
 			n64_base == mPrevious_base )
 		{
 			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T1, offset );
 			return;
 		}
-#else
-		if( mKeepPreviousStoreBase &&
-			n64_base == mPrevious_base )
-		{
-			ADDU( PspReg_T0, reg_address, gMemoryBaseReg );
-			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T0, offset );
-			CJumpLocation branch( BEQ( PspReg_T1, PspReg_T0, CCodeLabel( NULL ), true) );
-			SW(PspReg_R0, PspReg_R0, 0);	//Create a BSOD on purpose
-			PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
-			return;
-		}
-#endif
 		else
 		{
 			ADDU( PspReg_T1, reg_address, gMemoryBaseReg );
@@ -3648,6 +3652,7 @@ inline void	CCodeGeneratorPSP::GenerateLWC1( u32 address, bool set_branch_delay,
 //*****************************************************************************
 //
 //*****************************************************************************
+#ifdef ENABLE_LDC1
 inline void	CCodeGeneratorPSP::GenerateLDC1( u32 address, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset )
 {
 	EN64FloatReg	n64_ft = EN64FloatReg( ft + 1 );
@@ -3662,6 +3667,49 @@ inline void	CCodeGeneratorPSP::GenerateLDC1( u32 address, bool set_branch_delay,
 	SetFloatVar( &gCPUState.FPU[psp_ft]._f32_0, psp_ft );
 	mRegisterCache.MarkFPAsValid( n64_ft, true );
 	mRegisterCache.MarkFPAsSim( n64_ft, false );
+}
+#endif
+
+//*****************************************************************************
+//Unaligned load Left //Corn
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateLWL( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset )
+{
+	EPspReg	reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
+
+	//Will return the value in PspReg_V0 and the shift in PspReg_V1
+	GenerateLoad( address, PspReg_V0, base, offset, OP_LWL, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+
+	SLL( PspReg_V1, PspReg_V1, 0x3 );	// shift *= 8
+	SLLV( PspReg_V0, PspReg_V1, PspReg_V0 );	// memory <<= shift
+	NOR( PspReg_A0, PspReg_R0, PspReg_R0 );	// Load 0xFFFFFFFF
+	SLLV( PspReg_A0, PspReg_V1, PspReg_A0 );	// mask <<= shift
+	NOR( PspReg_A0, PspReg_A0, PspReg_R0 ); // mask != mask
+	AND( reg_dst, reg_dst, PspReg_A0 ); // reg_dst & mask
+	OR( reg_dst, reg_dst, PspReg_V0 );	// reg_dst | memory
+
+	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
+}
+
+//*****************************************************************************
+//Unaligned load Right //Corn
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateLWR( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset )
+{
+	EPspReg	reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
+
+	//Will return the value in PspReg_V0 and the shift in PspReg_V1
+	GenerateLoad( address, PspReg_V0, base, offset, OP_LWR, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+
+	SLL( PspReg_V1, PspReg_V1, 0x3 );	// shift *= 8
+	ADDIU( PspReg_A0, PspReg_R0, 0xFF00 );	// Load 0xFFFFFF00
+	SLLV( PspReg_A0, PspReg_V1, PspReg_A0 );	// mask <<= shift
+	AND( reg_dst, reg_dst, PspReg_A0 ); // reg_dst & mask
+	XORI( PspReg_V1, PspReg_V1, 0x18 ); // shift ^= shift (eg. invert shift)
+	SRLV( PspReg_V0, PspReg_V1, PspReg_V0 );	// memory >>= shift
+	OR( reg_dst, reg_dst, PspReg_V0 );	// reg_dst | memory
+
+	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
 
 //*****************************************************************************
@@ -3728,6 +3776,7 @@ inline void	CCodeGeneratorPSP::GenerateSWC1( u32 current_pc, bool set_branch_del
 //*****************************************************************************
 //
 //*****************************************************************************
+#ifdef ENABLE_SDC1
 inline void	CCodeGeneratorPSP::GenerateSDC1( u32 current_pc, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset )
 {
 #if 1
@@ -3776,6 +3825,7 @@ inline void	CCodeGeneratorPSP::GenerateSDC1( u32 current_pc, bool set_branch_del
 	GenerateStore( current_pc, (EPspReg)psp_ft_sig, base, offset + 4, OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
 #endif
 }
+#endif
 
 //*****************************************************************************
 //

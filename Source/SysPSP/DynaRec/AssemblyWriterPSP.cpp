@@ -632,7 +632,7 @@ void	CAssemblyWriterPSP::SpecOpLogical( EPspReg rd, EPspReg rs, ESpecOp op, EPsp
 }
 
 //*****************************************************************************
-//
+//RD = RT << RS
 //*****************************************************************************
 void	CAssemblyWriterPSP::SLLV( EPspReg rd, EPspReg rs, EPspReg rt )
 {
@@ -640,7 +640,7 @@ void	CAssemblyWriterPSP::SLLV( EPspReg rd, EPspReg rs, EPspReg rt )
 }
 
 //*****************************************************************************
-//
+//RD = RT >> RS
 //*****************************************************************************
 void	CAssemblyWriterPSP::SRLV( EPspReg rd, EPspReg rs, EPspReg rt )
 {
@@ -648,7 +648,7 @@ void	CAssemblyWriterPSP::SRLV( EPspReg rd, EPspReg rs, EPspReg rt )
 }
 
 //*****************************************************************************
-//
+//RD = RT >> RS
 //*****************************************************************************
 void	CAssemblyWriterPSP::SRAV( EPspReg rd, EPspReg rs, EPspReg rt )
 {

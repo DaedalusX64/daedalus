@@ -121,6 +121,8 @@ private:
 				void				GenerateLD ( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset );
 				void				GenerateLWC1( u32 current_pc, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset );
 				void				GenerateLDC1( u32 current_pc, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset );
+				void				GenerateLWL( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset );
+				void				GenerateLWR( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset );
 
 				void				GenerateSB( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset );
 				void				GenerateSH( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset );
