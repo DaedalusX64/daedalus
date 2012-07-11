@@ -386,7 +386,10 @@ static void WriteValue_8450_845F( u32 address, u32 value )
 
 			if (g_pAiPlugin != NULL)
 			{
-				g_pAiPlugin->DacrateChanged( g_ROM.TvType ? CAudioPlugin::ST_NTSC : CAudioPlugin::ST_PAL ); //Default to NTSC //Corn
+				//When we set PAL mode for PAL games it corrects the sound pitch to the same as
+				//NTSC games but it will also limit FPS 2% higher as well //Corn
+				//
+				g_pAiPlugin->DacrateChanged( g_ROM.TvType ? CAudioPlugin::ST_NTSC : CAudioPlugin::ST_PAL );
 			}
 			break;
 		}

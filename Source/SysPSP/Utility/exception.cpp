@@ -15,6 +15,8 @@
 #include "Core/RomSettings.h"
 #include "Core/CPU.h"
 
+#include "Utility/PrintOpCode.h"
+
 #include "svnversion.h"
 
 PspDebugRegBlock *exception_regs;
@@ -61,11 +63,10 @@ static void DumpInformation(PspDebugRegBlock * regs)
 		fprintf(fp, "\tCause     - %08X\n", (int)regs->cause);
 		fprintf(fp, "\tStatus    - %08X\n", (int)regs->status);
 		fprintf(fp, "\tBadVAddr  - %08X\n", (int)regs->badvaddr);
-		fprintf(fp, "\tRDRAMbase - %08X\n", (int)RDRAM_base);
-		fprintf(fp, "\tRDRAMend  - %08X\n", (int)RDRAM_end);
+		fprintf(fp, "\tRDRAM %08X - %08X\n", (int)RDRAM_base, (int)RDRAM_end - 1);
 	}
-	// output Registers Info
-	fprintf(fp, "\nPSP registers: ('*' -> pointing inside RDRAM else ':')\n");
+	// output CPU Regs
+	fprintf(fp, "\nPSP CPU registers: ('*' -> pointing inside RDRAM else ':')\n");
 	{
 		for(int i=0; i<32; i+=4)
 			fprintf(fp, "\t%s%s%08X %s%s%08X %s%s%08X %s%s%08X\n", regName[i],   ( ((u32)regs->r[i]   >= RDRAM_base) & ((u32)regs->r[i]   < RDRAM_end) ) ? "*" : ":", (int)regs->r[i],
@@ -76,24 +77,29 @@ static void DumpInformation(PspDebugRegBlock * regs)
 
 #ifndef DAEDALUS_SILENT
 	fprintf(fp, "\nDisassembly:\n");
+	u32 inst_before_ex = 24;
+	u32 inst_after_ex = 24;
+	const OpCode * p( (OpCode *)(regs->epc - (inst_before_ex * 4)) );
+
+	while( p < (OpCode *)(regs->epc + (inst_after_ex * 4)) )
 	{
-		u32 inst_before_ex = 24;
-		u32 inst_after_ex = 0;
-		Dump_DisassembleMIPSRange(fp, regs->epc - (inst_before_ex * 4), (OpCode *)(regs->epc - (inst_before_ex * 4)), (OpCode *)(regs->epc + (inst_after_ex * 4)));
+		char opinfo[128];
 
-		fprintf(fp, "\n");
+		OpCode op( *p );
 
-		inst_before_ex = 0;
-		inst_after_ex = 1;
-		Dump_DisassembleMIPSRange(fp, regs->epc - (inst_before_ex * 4), (OpCode *)(regs->epc - (inst_before_ex * 4)), (OpCode *)(regs->epc + (inst_after_ex * 4)));
+		SprintOpCodeInfo( opinfo, (u32)p, op );
+		fprintf(fp, "\t%s%p: <0x%08x> %s\n",(u32)regs->epc == (u32)p ? "*":" ", p, op._u32, opinfo);
 
-		fprintf(fp, "\n");
-
-		inst_before_ex = -1;
-		inst_after_ex = 24;
-		Dump_DisassembleMIPSRange(fp, regs->epc - (inst_before_ex * 4), (OpCode *)(regs->epc - (inst_before_ex * 4)), (OpCode *)(regs->epc + (inst_after_ex * 4)));
-	}
+		++p;
+	}	
 #endif
+
+	// output FPU Regs
+	fprintf(fp, "\nPSP FPU registers:\n");
+	{
+		for(int i=0; i<32; i+=4)
+			fprintf(fp, "\t%#+12.7f %#+12.7f %#+12.7f %#+12.7f\n", (f32)regs->fpr[i+0], (f32)regs->fpr[i+1], (f32)regs->fpr[i+2], (f32)regs->fpr[i+3]);
+	}
 
 	fprintf(fp, "\nRom Infomation:\n");
 	{
@@ -130,23 +136,36 @@ static void DumpInformation(PspDebugRegBlock * regs)
 	fprintf(fp, "\nEmulation CPU State:\n");
 	{
 		for(int i=0; i<32; i+=4)
-			fprintf(fp, "\t%s:%08X %s:%08X %s:%08X %s:%08X\n", 
-			regName[i], gCPUState.CPU[i]._u32_0, regName[i+1], gCPUState.CPU[i+1]._u32_0, 
-			regName[i+2], gCPUState.CPU[i+2]._u32_0, regName[i+3], gCPUState.CPU[i+3]._u32_0);
+			fprintf(fp, "\t%s:%08X-%08X %s:%08X-%08X %s:%08X-%08X %s:%08X-%08X\n", 
+			regName[i+0], gCPUState.CPU[i+0]._u32_1, gCPUState.CPU[i+0]._u32_0,
+			regName[i+1], gCPUState.CPU[i+1]._u32_1, gCPUState.CPU[i+1]._u32_0, 
+			regName[i+2], gCPUState.CPU[i+2]._u32_1, gCPUState.CPU[i+2]._u32_0,
+			regName[i+3], gCPUState.CPU[i+3]._u32_1, gCPUState.CPU[i+3]._u32_0);
 
 		fprintf(fp, "PC: %08x\n", gCPUState.CurrentPC);
 	}
 
 #ifndef DAEDALUS_SILENT
 	fprintf(fp, "\nDisassembly:\n");
+	inst_before_ex = 24;
+	inst_after_ex = 24;
+
+	u8 * p_base;
+	Memory_GetInternalReadAddress(gCPUState.CurrentPC-32, (void**)&p_base);
+	const OpCode * op_start( reinterpret_cast< const OpCode * >( p_base - inst_before_ex * 4) );
+	const OpCode * op_end(   reinterpret_cast< const OpCode * >( p_base + inst_after_ex * 4 ) );
+
+	while( op_start < op_end )
 	{
-		u8 * p_base;
-		Memory_GetInternalReadAddress(gCPUState.CurrentPC-32, (void**)&p_base);
-		const OpCode * op_start( reinterpret_cast< const OpCode * >( p_base ) );
-		const OpCode * op_end(   reinterpret_cast< const OpCode * >( p_base + (48) ) );
-	
-		Dump_DisassembleMIPSRange(fp, gCPUState.CurrentPC-32, op_start, op_end);
-	}
+		char opinfo[128];
+
+		OpCode op( *op_start );
+
+		SprintOpCodeInfo( opinfo, (u32)op_start, op );
+		fprintf(fp, "\t%s%p: <0x%08x> %s\n",(u32)p_base == (u32)op_start ? "*":" ", op_start, op._u32, opinfo);
+
+		++op_start;
+	}	
 #endif
 
 	fclose(fp);
@@ -154,33 +173,55 @@ static void DumpInformation(PspDebugRegBlock * regs)
 
 void ExceptionHandler(PspDebugRegBlock * regs)
 {
-    int i;
+	const u32 RDRAM_base = (u32)g_pu8RamBase;
+	const u32 RDRAM_end = (u32)g_pu8RamBase + 8 * 1024 * 1024;
     SceCtrlData pad;
 
 	pspDebugScreenInit();
     pspDebugScreenSetBackColor(0x00FF0000);
     pspDebugScreenSetTextColor(0xFFFFFFFF);
     pspDebugScreenClear();
-    pspDebugScreenPrintf("\nYour PSP has just crashed!\n\n");
-    pspDebugScreenPrintf("Exception details:\n\n");
-	pspDebugScreenPrintf("Game Name - %s\n",   g_ROM.settings.GameName.c_str());
-	pspDebugScreenPrintf("Firmware  - %08X\n", sceKernelDevkitVersion());
-	pspDebugScreenPrintf("Model	- %s\n", pspModel[ kuKernelGetModel() ]);
-	pspDebugScreenPrintf("64MB	 - %s\n", PSP_IS_SLIM ? "Yes" : "No");
-	pspDebugScreenPrintf("Revision  - "SVNVERSION"\n\n");
-    pspDebugScreenPrintf("Exception - %s\n",codeTxt[(regs->cause >> 2) & 31]);
-    pspDebugScreenPrintf("EPC       - %08X\n", (int)regs->epc);
-    pspDebugScreenPrintf("Cause     - %08X\n", (int)regs->cause);
-    pspDebugScreenPrintf("Status    - %08X\n", (int)regs->status);
-    pspDebugScreenPrintf("BadVAddr  - %08X\n", (int)regs->badvaddr);
-    for(i=0; i<32; i+=4) 
+    //pspDebugScreenPrintf("\nYour PSP has just crashed!\n\n");
+	pspDebugScreenPrintf("Exception->%s Rev"SVNVERSION" RAM %08X-%08X\n\n", codeTxt[(regs->cause >> 2) & 31], (int)RDRAM_base, (int)RDRAM_end - 1 );
+	//pspDebugScreenPrintf("Game Name - %s\n",   g_ROM.settings.GameName.c_str());
+	//pspDebugScreenPrintf("Firmware  - %08X\n", sceKernelDevkitVersion());
+	//pspDebugScreenPrintf("Model	- %s\n", pspModel[ kuKernelGetModel() ]);
+	//pspDebugScreenPrintf("64MB	 - %s\n", PSP_IS_SLIM ? "Yes" : "No");
+	//pspDebugScreenPrintf("Revision  - "SVNVERSION"\n\n");
+    //pspDebugScreenPrintf("Exception - %s\n",codeTxt[(regs->cause >> 2) & 31]);
+    pspDebugScreenPrintf(" EPC[%08X] ", (int)regs->epc);
+    pspDebugScreenPrintf("Cause[%08X] ", (int)regs->cause);
+    pspDebugScreenPrintf("Status[%08X] ", (int)regs->status);
+    pspDebugScreenPrintf("BadVAddr[%08X]\n\n", (int)regs->badvaddr);
+    for(u32 i = 0; i<32; i+=4) 
 	{
-		pspDebugScreenPrintf("%s:%08X %s:%08X %s:%08X %s:%08X\n", regName[i], (int)regs->r[i], regName[i+1], (int)regs->r[i+1], regName[i+2], (int)regs->r[i+2], regName[i+3], (int)regs->r[i+3]);
+		pspDebugScreenPrintf(" %s%s%08X %s%s%08X %s%s%08X %s%s%08X\n", regName[i],   ( ((u32)regs->r[i]   >= RDRAM_base) & ((u32)regs->r[i]   < RDRAM_end) ) ? "*" : ":", (int)regs->r[i],
+																   regName[i+1], ( ((u32)regs->r[i+1] >= RDRAM_base) & ((u32)regs->r[i+1] < RDRAM_end) ) ? "*" : ":", (int)regs->r[i+1],
+																   regName[i+2], ( ((u32)regs->r[i+2] >= RDRAM_base) & ((u32)regs->r[i+2] < RDRAM_end) ) ? "*" : ":", (int)regs->r[i+2],
+																   regName[i+3], ( ((u32)regs->r[i+3] >= RDRAM_base) & ((u32)regs->r[i+3] < RDRAM_end) ) ? "*" : ":", (int)regs->r[i+3]);
 	}
 
-    sceKernelDelayThread(1000000);
-    pspDebugScreenPrintf("\n\nPress X to dump information on file exception.log and quit");
-    pspDebugScreenPrintf("\nPress O to quit");
+#ifndef DAEDALUS_SILENT
+	u32 inst_before_ex = 15;
+	u32 inst_after_ex = 4;
+	const OpCode * p( (OpCode *)(regs->epc - (inst_before_ex * 4)) );
+
+	pspDebugScreenPrintf("\n");
+	while( p < (OpCode *)(regs->epc + (inst_after_ex * 4)) )
+	{
+		char opinfo[128];
+
+		OpCode op( *p );
+
+		SprintOpCodeInfo( opinfo, (u32)p, op );
+		pspDebugScreenPrintf("%s%p: <0x%08x> %s\n",(u32)regs->epc == (u32)p ? "*":" ", p, op._u32, opinfo);
+
+		++p;
+	}	
+#endif
+	
+	sceKernelDelayThread(1000000);
+    pspDebugScreenPrintf("\nPress (X) to dump info to exception.txt or (O) to quit");
 
     for (;;){
         sceCtrlReadBufferPositive(&pad, 1);

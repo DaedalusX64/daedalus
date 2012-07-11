@@ -540,7 +540,7 @@ SprintOpInstruction SprintOp_Cop1DInstruction[64] =
 #define BranchAddress(op, address) (    (address)+4 + (s16)(((op).immediate))*4)
 #define JumpTarget(op, address)    (   ((address) & 0xF0000000) | (((op).target)<<2)   )
 
-void SprintOp_Unk( char * str, u32 address, OpCode op ) { sprintf(str, "?"); }
+void SprintOp_Unk( char * str, u32 address, OpCode op ) { sprintf(str, "Op_Unk?"); }
 
 void SprintOp_Special( char * str, u32 address, OpCode op )		{ SprintOp_SpecialInstructions[op.spec_op]( str, address, op ); }
 void SprintOp_RegImm( char * str, u32 address, OpCode op )		{ SprintOp_RegImmInstructions[op.rt]( str, address, op ); }
@@ -639,7 +639,7 @@ void SprintOp_SDC2( char * str, u32 address, OpCode op )		{ sprintf(str, "SDC2  
 void SprintOp_SD( char * str, u32 address, OpCode op )			{ sprintf(str, "SD        %s -> 0x%04x(%s)", RegNames[op.rt], op.immediate, RegNames[op.rs]); }
 
 
-void SprintOp_Special_Unk( char * str, u32 address, OpCode op )		{ sprintf(str, "?"); }
+void SprintOp_Special_Unk( char * str, u32 address, OpCode op )		{ sprintf(str, "Special_Unk?"); }
 
 void SprintOp_Special_SLL( char * str, u32 address, OpCode op )			{
 								if (op._u32 == 0)						  sprintf(str, "NOP");
@@ -700,7 +700,7 @@ void SprintOp_Special_TLTU( char * str, u32 address, OpCode op )		{ sprintf(str,
 void SprintOp_Special_TEQ( char * str, u32 address, OpCode op )			{ sprintf(str, "TEQ       %s == %s", RegNames[op.rs], RegNames[op.rt]); }
 void SprintOp_Special_TNE( char * str, u32 address, OpCode op )			{ sprintf(str, "TNE       %s != %s", RegNames[op.rs], RegNames[op.rt]); }
 
-void SprintOp_RegImm_Unk( char * str, u32 address, OpCode op )			{ sprintf(str, "?"); }
+void SprintOp_RegImm_Unk( char * str, u32 address, OpCode op )			{ sprintf(str, "RegImm_Unk?"); }
 
 void SprintOp_RegImm_BLTZ( char * str, u32 address, OpCode op )			{ sprintf(str, "BLTZ      %s < 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
 void SprintOp_RegImm_BGEZ( char * str, u32 address, OpCode op )			{ sprintf(str, "BGEZ      %s >= 0 --> 0x%08x", RegNames[op.rs], BranchAddress(op, address)); }
@@ -719,20 +719,20 @@ void SprintOp_RegImm_TEQI( char * str, u32 address, OpCode op )			{ sprintf(str,
 void SprintOp_RegImm_TNEI( char * str, u32 address, OpCode op )			{ sprintf(str, "TNEI      %s != 0x%04x", RegNames[op.rs], op.immediate); }
 
 
-void SprintOp_Cop0_Unk( char * str, u32 address, OpCode op )			{ sprintf(str, "?"); }
+void SprintOp_Cop0_Unk( char * str, u32 address, OpCode op )			{ sprintf(str, "Cop0_Unk?"); }
 void SprintOp_Cop0_MFC0( char * str, u32 address, OpCode op )			{ sprintf(str, "MFC0      %s <- %s", RegNames[op.rt], Cop0RegNames[op.fs]); }
 void SprintOp_Cop0_MTC0( char * str, u32 address, OpCode op )			{ sprintf(str, "MTC0      %s -> %s", RegNames[op.rt], Cop0RegNames[op.fs]); }
 void SprintOp_Cop0_TLB( char * str, u32 address, OpCode op )			{ SprintOp_TLBInstructions[op.cop0tlb_funct](str, address, op); }
 
 
-void SprintOp_TLB_Unk( char * str, u32 address, OpCode op )				{ sprintf(str, "?"); }
+void SprintOp_TLB_Unk( char * str, u32 address, OpCode op )				{ sprintf(str, "TLB_Unk?"); }
 void SprintOp_TLB_TLBR( char * str, u32 address, OpCode op )			{ sprintf(str, "TLBR"); }
 void SprintOp_TLB_TLBWI( char * str, u32 address, OpCode op )			{ sprintf(str, "TLBWI"); }
 void SprintOp_TLB_TLBWR( char * str, u32 address, OpCode op )			{ sprintf(str, "TLBWR"); }
 void SprintOp_TLB_TLBP( char * str, u32 address, OpCode op )			{ sprintf(str, "TLBP"); }
 void SprintOp_TLB_ERET( char * str, u32 address, OpCode op )			{ sprintf(str, "ERET"); }
 
-void SprintOp_Cop1_Unk( char * str, u32 address, OpCode op )			{ sprintf(str, "?"); }
+void SprintOp_Cop1_Unk( char * str, u32 address, OpCode op )			{ sprintf(str, "Cop1_Unk?"); }
 void SprintOp_Cop1_MFC1( char * str, u32 address, OpCode op )			{ sprintf(str, "MFC1      %s <- FP%02d", RegNames[op.rt], op.fs); }
 void SprintOp_Cop1_DMFC1( char * str, u32 address, OpCode op )			{ sprintf(str, "DMFC1     %s <- FP%02d", RegNames[op.rt], op.fs); }
 void SprintOp_Cop1_CFC1( char * str, u32 address, OpCode op )			{ sprintf(str, "CFC1      %s <- CCR%02d", RegNames[op.rt], op.rd); }
@@ -744,7 +744,7 @@ void SprintOp_Cop1_BCInstr( char * str, u32 address, OpCode op )		{ sprintf(str,
 
 void SprintOp_Cop1_SInstr( char * str, u32 address, OpCode op ) { SprintOp_Cop1SInstruction[op.cop1_funct](str, address, op); }
 
-void SprintOp_Cop1_S_Unk( char * str, u32 address, OpCode op )			{ sprintf(str, "?"); }
+void SprintOp_Cop1_S_Unk( char * str, u32 address, OpCode op )			{ sprintf(str, "Cop1_S_Unk?"); }
 void SprintOp_Cop1_S_ADD( char * str, u32 address, OpCode op )			{ sprintf(str, "ADD.S     FP%02d = FP%02d + FP%02d", op.fd, op.fs, op.ft); }
 void SprintOp_Cop1_S_SUB( char * str, u32 address, OpCode op )			{ sprintf(str, "SUB.S     FP%02d = FP%02d - FP%02d", op.fd, op.fs, op.ft); }
 void SprintOp_Cop1_S_MUL( char * str, u32 address, OpCode op )			{ sprintf(str, "MUL.S     FP%02d = FP%02d * FP%02d", op.fd, op.fs, op.ft); }
@@ -784,7 +784,7 @@ void SprintOp_Cop1_S_NGT( char * str, u32 address, OpCode op ) 			{ sprintf(str,
 
 void SprintOp_Cop1_DInstr( char * str, u32 address, OpCode op )			{ SprintOp_Cop1DInstruction[op.cop1_funct](str, address, op); }
 
-void SprintOp_Cop1_D_Unk( char * str, u32 address, OpCode op )			{ sprintf(str, "?"); }
+void SprintOp_Cop1_D_Unk( char * str, u32 address, OpCode op )			{ sprintf(str, "Cop1_D_Unk?"); }
 void SprintOp_Cop1_D_ADD( char * str, u32 address, OpCode op )			{ sprintf(str, "ADD.D     FP%02d = FP%02d + FP%02d", op.fd, op.fs, op.ft); }
 void SprintOp_Cop1_D_SUB( char * str, u32 address, OpCode op )			{ sprintf(str, "SUB.D     FP%02d = FP%02d - FP%02d", op.fd, op.fs, op.ft); }
 void SprintOp_Cop1_D_MUL( char * str, u32 address, OpCode op )			{ sprintf(str, "MUL.D     FP%02d = FP%02d * FP%02d", op.fd, op.fs, op.ft); }
