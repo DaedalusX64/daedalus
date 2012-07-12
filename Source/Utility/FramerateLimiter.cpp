@@ -84,13 +84,14 @@ void FramerateLimiter_Reset()
 #if 1	//1->fast, 0->old //Corn
 u32 FramerateLimiter_UpdateAverageTicksPerVbl( u32 elapsed_ticks )
 {
-	static u32 s[8];
+	static u32 s[4];
 	static u32 ptr = 0;
 
 	s[ptr++] = elapsed_ticks;
-	ptr &= 0x7;
+	ptr &= 0x3;
 
-	return (s[0] + s[1] + s[2] + s[3] + s[4] + s[5] + s[6] + s[7] + 4) >> 3;
+	//Average 4 frames
+	return (s[0] + s[1] + s[2] + s[3] + 2) >> 2;
 }
 #else
 const u32		NUM_SYNC_SAMPLES( 8 );				// These are all for keeping track of the current sync rate
