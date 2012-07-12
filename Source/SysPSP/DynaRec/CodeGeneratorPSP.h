@@ -69,10 +69,6 @@ private:
 
 				//void				UpdateAddressAndDelay( u32 address, bool set_branch_delay );
 
-				bool				NeedLoadHi( s32 value );
-				bool				NeedLoadHi( EN64Reg reg );
-
-
 				void				GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op );
 
 				void				GenerateJAL( u32 address );
