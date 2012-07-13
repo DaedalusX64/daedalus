@@ -1422,7 +1422,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	case OP_LDC1:		GenerateLDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
 #endif
 	case OP_LWL:		GenerateLWL( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_LWR:		GenerateLWR( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_LWR:		if(g_ROM.GameHacks != CONKER) { GenerateLWR( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; } break;
 
 	case OP_SB:			GenerateSB( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_SH:			GenerateSH( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
@@ -2758,17 +2758,12 @@ inline void	CCodeGeneratorPSP::GenerateAND( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
 	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 & gGPR[ op_code.rt ]._u64;
 
-	bool HiIsDone = false;
-
-	if (mRegisterCache.IsKnownValue(rs, 1) & mRegisterCache.IsKnownValue(rt, 1))
-	{
-		SetRegister(rd, 1, mRegisterCache.GetKnownValue(rs, 1)._u32 & mRegisterCache.GetKnownValue(rt, 1)._u32 );
-		HiIsDone = true;
-	}
-	
 	if (mRegisterCache.IsKnownValue(rs, 0) & mRegisterCache.IsKnownValue(rt, 0))
 	{
-		SetRegister(rd, 0, mRegisterCache.GetKnownValue(rs, 0)._u32 & mRegisterCache.GetKnownValue(rt, 0)._u32 );
+		SetRegister64(rd, 
+			mRegisterCache.GetKnownValue(rs, 0)._u32 & mRegisterCache.GetKnownValue(rt, 0)._u32,
+			mRegisterCache.GetKnownValue(rs, 1)._u32 & mRegisterCache.GetKnownValue(rt, 1)._u32
+			);
 	}
 	else if ((rs == N64Reg_R0) | (rt == N64Reg_R0))
 	{
@@ -2783,14 +2778,12 @@ inline void	CCodeGeneratorPSP::GenerateAND( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 		AND( reg_lo_d, reg_lo_a, reg_lo_b );
 		StoreRegisterLo( rd, reg_lo_d );
 
-		if(!HiIsDone)
-		{
-			EPspReg	reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
-			EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_T0 ) );
-			EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_T1 ) );
-			AND( reg_hi_d, reg_hi_a, reg_hi_b );
-			StoreRegisterHi( rd, reg_hi_d );
-		}
+		EPspReg	reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
+		EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_T0 ) );
+		EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_T1 ) );
+		AND( reg_hi_d, reg_hi_a, reg_hi_b );
+		StoreRegisterHi( rd, reg_hi_d );
+
 	}
 }
 
