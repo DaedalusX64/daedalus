@@ -379,12 +379,20 @@ static void R4300_CALL_TYPE R4300_SDC1( R4300_CALL_SIGNATURE );
 //	We could possibly get around this by explicitly setting the ErrorPC
 //	AFTER the exception has been thrown. This might be a bit fiddly so
 //	this function provides a conservative result for now.
+
+// Removed entries which are handled in the dynarec - Salvy
 //*****************************************************************************
 bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 {
 	switch( op_code.op )
 	{
+	case OP_LDL:
+	case OP_LDR:
+	case OP_SDC1:
+	case OP_LDC1:
+		return false;
 
+/*
 	case OP_ADDI:
 	case OP_ADDIU:
 	case OP_SLTI:
@@ -397,12 +405,13 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 	case OP_DADDIU:
 	case OP_CACHE:
 		return false;
-
+*/
 	case OP_SPECOP:
 		//return R4300SpecialInstruction[ op_code.funct ];
 
 		switch( op_code.spec_op )
 		{
+		/*
 		case SpecOp_SLL:
 		case SpecOp_SRL:
 		case SpecOp_SRA:
@@ -413,18 +422,19 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 		case SpecOp_MTHI:
 		case SpecOp_MFLO:
 		case SpecOp_MTLO:
+		*/
 		case SpecOp_DSLLV:
 		case SpecOp_DSRLV:
 		case SpecOp_DSRAV:
-		case SpecOp_MULT:
-		case SpecOp_MULTU:
-		case SpecOp_DIV:		// Need to remove this if we can throw exception on divide by 0
+		//case SpecOp_MULT:
+		//case SpecOp_MULTU:
+		//case SpecOp_DIV:		// Need to remove this if we can throw exception on divide by 0
 		case SpecOp_DIVU:		// Ditto
-		case SpecOp_DMULT:
+		//case SpecOp_DMULT:
 		case SpecOp_DMULTU:
-		case SpecOp_DDIV:		// Ditto
+		//case SpecOp_DDIV:		// Ditto
 		case SpecOp_DDIVU:		// Ditto
-		case SpecOp_ADD:		// Potentially can throw
+		/*case SpecOp_ADD:		// Potentially can throw
 		case SpecOp_ADDU:
 		case SpecOp_SUB:		// Potentially can throw
 		case SpecOp_SUBU:
@@ -435,15 +445,15 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 		case SpecOp_SLT:
 		case SpecOp_SLTU:
 		case SpecOp_DADD:		// Potentially can throw
-		case SpecOp_DADDU:
+		case SpecOp_DADDU:*/
 		case SpecOp_DSUB:		// Potentially can throw
 		case SpecOp_DSUBU:
 		case SpecOp_DSLL:
 		case SpecOp_DSRL:
 		case SpecOp_DSRA:
-		case SpecOp_DSLL32:
+		//case SpecOp_DSLL32:
 		case SpecOp_DSRL32:
-		case SpecOp_DSRA32:
+		//case SpecOp_DSRA32:
 			return false;
 		default:
 			break;
@@ -456,7 +466,11 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 
 	case OP_COPRO0:
 		// Possibly could return false for some of these
-		return true;
+		// Only ERET needs PC
+		if(op_code.cop0tlb_funct == OP_ERET)
+			return true;
+		else
+			return false;
 
 	case OP_COPRO1:
 		// Potentially these can all throw, if cop1 is disabled
@@ -465,7 +479,6 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 		return false;
 
 	default:
-		//
 		return true;
 	}
 }
