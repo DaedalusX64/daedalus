@@ -176,63 +176,112 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 	const u32 RDRAM_base = (u32)g_pu8RamBase;
 	const u32 RDRAM_end = (u32)g_pu8RamBase + 8 * 1024 * 1024;
     SceCtrlData pad;
+	bool exit = false;
+	u32 scroll_epc	= (u32)regs->epc;
+	use(scroll_epc);
 
 	pspDebugScreenInit();
     pspDebugScreenSetBackColor(0x00FF0000);
     pspDebugScreenSetTextColor(0xFFFFFFFF);
-    pspDebugScreenClear();
-    //pspDebugScreenPrintf("\nYour PSP has just crashed!\n\n");
-	pspDebugScreenPrintf("Exception->%s Rev"SVNVERSION" RAM %08X-%08X\n\n", codeTxt[(regs->cause >> 2) & 31], (int)RDRAM_base, (int)RDRAM_end - 1 );
-	//pspDebugScreenPrintf("Game Name - %s\n",   g_ROM.settings.GameName.c_str());
-	//pspDebugScreenPrintf("Firmware  - %08X\n", sceKernelDevkitVersion());
-	//pspDebugScreenPrintf("Model	- %s\n", pspModel[ kuKernelGetModel() ]);
-	//pspDebugScreenPrintf("64MB	 - %s\n", PSP_IS_SLIM ? "Yes" : "No");
-	//pspDebugScreenPrintf("Revision  - "SVNVERSION"\n\n");
-    //pspDebugScreenPrintf("Exception - %s\n",codeTxt[(regs->cause >> 2) & 31]);
-    pspDebugScreenPrintf(" EPC[%08X] ", (int)regs->epc);
-    pspDebugScreenPrintf("Cause[%08X] ", (int)regs->cause);
-    pspDebugScreenPrintf("Status[%08X] ", (int)regs->status);
-    pspDebugScreenPrintf("BadVAddr[%08X]\n\n", (int)regs->badvaddr);
-    for(u32 i = 0; i<32; i+=4) 
+
+	pspDebugScreenClear();
+	pspDebugScreenPrintf("\n\n\nYour PSP has just crashed!\n\n");
+	sceKernelDelayThread(1000000);
+
+	while( !exit )
 	{
-		pspDebugScreenPrintf(" %s%s%08X %s%s%08X %s%s%08X %s%s%08X\n", regName[i],   ( ((u32)regs->r[i]   >= RDRAM_base) & ((u32)regs->r[i]   < RDRAM_end) ) ? "*" : ":", (int)regs->r[i],
-																   regName[i+1], ( ((u32)regs->r[i+1] >= RDRAM_base) & ((u32)regs->r[i+1] < RDRAM_end) ) ? "*" : ":", (int)regs->r[i+1],
-																   regName[i+2], ( ((u32)regs->r[i+2] >= RDRAM_base) & ((u32)regs->r[i+2] < RDRAM_end) ) ? "*" : ":", (int)regs->r[i+2],
-																   regName[i+3], ( ((u32)regs->r[i+3] >= RDRAM_base) & ((u32)regs->r[i+3] < RDRAM_end) ) ? "*" : ":", (int)regs->r[i+3]);
-	}
+		pspDebugScreenClear();
+		//pspDebugScreenPrintf("\nYour PSP has just crashed!\n\n");
+		pspDebugScreenPrintf("Exception->%s Rev"SVNVERSION" RAM %08X-%08X\n\n", codeTxt[(regs->cause >> 2) & 31], (int)RDRAM_base, (int)RDRAM_end - 1 );
+		//pspDebugScreenPrintf("Game Name - %s\n",   g_ROM.settings.GameName.c_str());
+		//pspDebugScreenPrintf("Firmware  - %08X\n", sceKernelDevkitVersion());
+		//pspDebugScreenPrintf("Model	- %s\n", pspModel[ kuKernelGetModel() ]);
+		//pspDebugScreenPrintf("64MB	 - %s\n", PSP_IS_SLIM ? "Yes" : "No");
+		//pspDebugScreenPrintf("Revision  - "SVNVERSION"\n\n");
+		//pspDebugScreenPrintf("Exception - %s\n",codeTxt[(regs->cause >> 2) & 31]);
+		pspDebugScreenPrintf(" EPC[%08X] ", (int)regs->epc);
+		pspDebugScreenPrintf("Cause[%08X] ", (int)regs->cause);
+		pspDebugScreenPrintf("Status[%08X] ", (int)regs->status);
+		pspDebugScreenPrintf("BadVAddr[%08X]\n\n", (int)regs->badvaddr);
+		for(u32 i = 0; i<32; i+=4) 
+		{
+			pspDebugScreenPrintf(" %s%s%08X %s%s%08X %s%s%08X %s%s%08X\n", regName[i],   ( ((u32)regs->r[i]   >= RDRAM_base) & ((u32)regs->r[i]   < RDRAM_end) ) ? "*" : ":", (int)regs->r[i],
+																	   regName[i+1], ( ((u32)regs->r[i+1] >= RDRAM_base) & ((u32)regs->r[i+1] < RDRAM_end) ) ? "*" : ":", (int)regs->r[i+1],
+																	   regName[i+2], ( ((u32)regs->r[i+2] >= RDRAM_base) & ((u32)regs->r[i+2] < RDRAM_end) ) ? "*" : ":", (int)regs->r[i+2],
+																	   regName[i+3], ( ((u32)regs->r[i+3] >= RDRAM_base) & ((u32)regs->r[i+3] < RDRAM_end) ) ? "*" : ":", (int)regs->r[i+3]);
+		}
 
 #ifndef DAEDALUS_SILENT
-	u32 inst_before_ex = 15;
-	u32 inst_after_ex = 4;
-	const OpCode * p( (OpCode *)(regs->epc - (inst_before_ex * 4)) );
+		u32 inst_before_ex = 15;
+		u32 inst_after_ex = 4;
+		const OpCode * p( (OpCode *)(scroll_epc - (inst_before_ex * 4)) );
 
-	pspDebugScreenPrintf("\n");
-	while( p < (OpCode *)(regs->epc + (inst_after_ex * 4)) )
-	{
-		char opinfo[128];
+		pspDebugScreenPrintf("\n");
+		while( p < (OpCode *)(scroll_epc + (inst_after_ex * 4)) )
+		{
+			char opinfo[128];
 
-		OpCode op( *p );
+			OpCode op( *p );
 
-		SprintOpCodeInfo( opinfo, (u32)p, op );
-		pspDebugScreenPrintf("%s%p: <0x%08x> %s\n",(u32)regs->epc == (u32)p ? "*":" ", p, op._u32, opinfo);
+			SprintOpCodeInfo( opinfo, (u32)p, op );
+			pspDebugScreenPrintf("%s%p: <0x%08x> %s\n",(u32)regs->epc == (u32)p ? "*":" ", p, op._u32, opinfo);
 
-		++p;
-	}	
+			++p;
+		}	
+
+		pspDebugScreenPrintf("\nPress (X)->exception.txt (O)->Quit Up/Down->Scroll ASM");
+
+		bool update = false;
+		while( !update )		
+		{
+			sceCtrlReadBufferPositive(&pad, 1);
+			if (pad.Buttons & PSP_CTRL_CROSS)
+			{
+				DumpInformation(regs);
+				exit = true;
+				update = true;
+			}
+			else if (pad.Buttons & PSP_CTRL_CIRCLE)
+			{
+				exit = true;
+				update = true;
+			}
+			else if (pad.Buttons & PSP_CTRL_UP)
+			{
+				scroll_epc -= 4;
+				update = true;
+			}
+			else if (pad.Buttons & PSP_CTRL_DOWN)
+			{
+				scroll_epc += 4;
+				update = true;
+			}
+		}
+#else
+		
+		pspDebugScreenPrintf("\nPress (X) to dump info to exception.txt or (O) to quit");
+
+		bool update = false;
+		while( !update )		
+		{
+			sceCtrlReadBufferPositive(&pad, 1);
+			if (pad.Buttons & PSP_CTRL_CROSS)
+			{
+				DumpInformation(regs);
+				exit = true;
+				update = true;
+			}
+			else if (pad.Buttons & PSP_CTRL_CIRCLE)
+			{
+				exit = true;
+				update = true;
+			}
+		}
 #endif
-	
-	sceKernelDelayThread(1000000);
-    pspDebugScreenPrintf("\nPress (X) to dump info to exception.txt or (O) to quit");
 
-    for (;;){
-        sceCtrlReadBufferPositive(&pad, 1);
-        if (pad.Buttons & PSP_CTRL_CROSS){
-			DumpInformation(regs);
-            break;
-        }else if (pad.Buttons & PSP_CTRL_CIRCLE){
-            break;
-        }
-    }    
-    sceKernelExitGame();
+	}
+
+	sceKernelExitGame();
 }
 
 void initExceptionHandler()
