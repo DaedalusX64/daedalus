@@ -2791,6 +2791,12 @@ inline void	CCodeGeneratorPSP::GenerateAND( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 
 		if(!HiIsDone)
 		{
+			// RS doesn't seem to happen at all
+			if( mRegisterCache.IsKnownValue(rt, 1) & (mRegisterCache.GetKnownValue(rt, 1)._s32 == -1) )
+			{
+				return;
+			}
+
 			EPspReg	reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
 			EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_T0 ) );
 			EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_T1 ) );
@@ -2824,12 +2830,12 @@ void	CCodeGeneratorPSP::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	if( rs == N64Reg_R0 )
 	{
 		// This doesn't seem to happen
-		if (mRegisterCache.IsKnownValue(rt, 1))
+		/*if (mRegisterCache.IsKnownValue(rt, 1))
 		{
 			SetRegister(rd, 1, mRegisterCache.GetKnownValue(rt, 1)._u32 );
 			HiIsDone = true;
 		}
-
+		*/
 		if(mRegisterCache.IsKnownValue(rt, 0))
 		{
 			SetRegister64(rd, 
@@ -2889,24 +2895,19 @@ void	CCodeGeneratorPSP::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 		{
 			if( mRegisterCache.IsKnownValue(rs, 1) & (mRegisterCache.GetKnownValue(rs, 1)._u32 == 0) )
 			{
-				EPspReg reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
-				LoadRegisterHi( reg_hi_d, rt );
-				StoreRegisterHi( rd, reg_hi_d );
+				return;
 			}
-			else if( mRegisterCache.IsKnownValue(rt, 1) & (mRegisterCache.GetKnownValue(rt, 1)._u32 == 0) )
+
+			if( mRegisterCache.IsKnownValue(rt, 1) & (mRegisterCache.GetKnownValue(rt, 1)._u32 == 0) )
 			{
-				EPspReg reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
-				LoadRegisterHi( reg_hi_d, rs );
-				StoreRegisterHi( rd, reg_hi_d );
+				return;
 			}
-			else
-			{
-				EPspReg	reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
-				EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_T0 ) );
-				EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_T1 ) );
-				OR( reg_hi_d, reg_hi_a, reg_hi_b );
-				StoreRegisterHi( rd, reg_hi_d );
-			}
+
+			EPspReg	reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
+			EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_T0 ) );
+			EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_T1 ) );
+			OR( reg_hi_d, reg_hi_a, reg_hi_b );
+			StoreRegisterHi( rd, reg_hi_d );
 		}
 	}
 }
@@ -2925,20 +2926,6 @@ inline void	CCodeGeneratorPSP::GenerateXOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 		SetRegister(rd, 1, mRegisterCache.GetKnownValue(rs, 1)._u32 ^ mRegisterCache.GetKnownValue(rt, 1)._u32 );
 		HiIsDone = true;
 	}
-	else if ((mRegisterCache.IsKnownValue(rs, 1) & (mRegisterCache.GetKnownValue(rs, 1)._u32 == 0)) )
-	{	
-		EPspReg reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
-		LoadRegisterHi( reg_hi_d, rt );
-		StoreRegisterHi( rd, reg_hi_d );
-		HiIsDone = true;
-	}
-	else if ((mRegisterCache.IsKnownValue(rt, 1) & (mRegisterCache.GetKnownValue(rt, 1)._u32 == 0)) )
-	{
-		EPspReg reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
-		LoadRegisterHi( reg_hi_d, rs );
-		StoreRegisterHi( rd, reg_hi_d );
-		HiIsDone = true;
-	}
 
 	if (mRegisterCache.IsKnownValue(rs, 0) & mRegisterCache.IsKnownValue(rt, 0))
 	{
@@ -2954,6 +2941,17 @@ inline void	CCodeGeneratorPSP::GenerateXOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 
 	if(!HiIsDone)
 	{
+		//These doesn't seem to happen
+		if( mRegisterCache.IsKnownValue(rs, 1) & (mRegisterCache.GetKnownValue(rs, 1)._u32 == 0) )
+		{
+			return;
+		}
+
+		if( mRegisterCache.IsKnownValue(rt, 1) & (mRegisterCache.GetKnownValue(rt, 1)._u32 == 0) )
+		{
+			return;
+		}
+
 		EPspReg	reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_T0 ) );
 		EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_T0 ) );
 		EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_T1 ) );
