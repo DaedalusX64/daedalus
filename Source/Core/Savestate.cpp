@@ -438,7 +438,7 @@ bool SaveState_LoadFromFile( const char * filename )
 		}
 		else
 		{
-			gCPUState.CPUControl[i]._u64 = g_dwNewCPR0[i];
+			gCPUState.CPUControl[i]._u32 = g_dwNewCPR0[i];
 		}
 	}
 	//stream.skip(0x40);

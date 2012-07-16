@@ -96,8 +96,12 @@ DAEDALUS_STATIC_ASSERT( sizeof( REG64 ) == sizeof( u64 ) );
 
 union REG32
 {
+	f32		_f32;
+	f32		_f32_0;
 	s32		_s32;
+	s32		_s32_0;
 	u32		_u32;
+	u32		_u32_0;
 	s16		_s16[2];
 	u16		_u16[2];
 	s8		_s8[4];

@@ -1,5 +1,17 @@
 #include "as_reg_compat.h"
 
+//The top two defines needs to be adjusted depending on how gCPUState struct is formated in CPU.h!! //Corn
+//
+#define _C0_Count	(0x100 + 9 * 4)	//CPU_Control_base + 9*8(64bit regs) or 9*4(32bit regs)
+#define _AuxBase	0x380	//Base pointer to Aux regs
+#define _CurrentPC	(_AuxBase + 0x00)
+#define _TargetPC	(_AuxBase + 0x04)
+#define _Delay		(_AuxBase + 0x08)
+#define _StuffToDo	(_AuxBase + 0x0c)
+#define _MultLo		(_AuxBase + 0x10)
+#define _MultHi		(_AuxBase + 0x18)
+#define _Events		(_AuxBase + 0x20)
+
 	.set noat
 
 	.extern HandleException_extern
@@ -117,7 +129,7 @@ _EnterDynaRec:
 _ReturnFromDynaRecIfStuffToDo:
 
 # Sanity checking logic
-#	lw		$t0, 0x40c($fp)		# StuffToDo
+#	lw		$t0, _StuffToDo($fp)		# StuffToDo
 #	bne		$t0, $0, exception_exit
 #	nop
 #	jr		$ra					# Just return back to caller
@@ -160,18 +172,18 @@ _ReturnFromDynaRec:
 _DirectExitCheckNoDelay:
 	
 	# The code below corresponds to CPU_UpdateCounter
-	lw		$t0, 0x148($fp)		# COUNT register
-	lw		$t1, 0x420($fp)		# Events[0].mCount
+	lw		$t0, _C0_Count($fp)		# COUNT register
+	lw		$t1, _Events($fp)		# Events[0].mCount
 
 	addu	$t0, $t0, $a0		# COUNT + ops_executed
-	sw		$t0, 0x148($fp)		# COUNT = COUNT + ops_executed
+	sw		$t0, _C0_Count($fp)		# COUNT = COUNT + ops_executed
 
-	sw		$a1, 0x400($fp) 	# CurrentPC
-	sw		 $0, 0x408($fp)		# Delay = NO_DELAY
+	sw		$a1, _CurrentPC($fp) 	# CurrentPC
+	sw		 $0, _Delay($fp)		# Delay = NO_DELAY
 	
 	subu	$t1, $t1, $a0		# Events[0].mCount - ops_executed
 	blez	$t1, _DirectExitCheckCheckCount
-	sw		$t1, 0x420($fp)		# Events[0].mCount = Events[0].mCount - ops_executed
+	sw		$t1, _Events($fp)		# Events[0].mCount = Events[0].mCount - ops_executed
 
 	jr		$ra					# Return back to caller
 	nop
@@ -186,20 +198,20 @@ _DirectExitCheckNoDelay:
 _DirectExitCheckDelay:
 
 	# The code below corresponds to CPU_UpdateCounter
-	lw		$t0, 0x148($fp)		# COUNT register
-	lw		$t1, 0x420($fp)		# Events[0].mCount
+	lw		$t0, _C0_Count($fp)		# COUNT register
+	lw		$t1, _Events($fp)		# Events[0].mCount
 
 	addu	$t0, $t0, $a0		# COUNT + ops_executed
-	sw		$t0, 0x148($fp)		# COUNT = COUNT + ops_executed
+	sw		$t0, _C0_Count($fp)		# COUNT = COUNT + ops_executed
 	
-	sw		$a1, 0x400($fp) 	# CurrentPC
-	sw		$a2, 0x404($fp) 	# TargetPC
+	sw		$a1, _CurrentPC($fp) 	# CurrentPC
+	sw		$a2, _TargetPC($fp) 	# TargetPC
 	li		$t0, 1				# EXEC_DELAY
-	sw		$t0, 0x408($fp)		# Delay
+	sw		$t0, _Delay($fp)		# Delay
 
 	subu	$t1, $t1, $a0		# Events[0].mCount - ops_executed
 	blez	$t1, _DirectExitCheckCheckCount
-	sw		$t1, 0x420($fp)		# Events[0].mCount = Events[0].mCount - ops_executed
+	sw		$t1, _Events($fp)		# Events[0].mCount = Events[0].mCount - ops_executed
 
 	jr		$ra
 	nop
@@ -212,7 +224,7 @@ _DirectExitCheckCheckCount:
 	jal		CPU_HANDLE_COUNT_INTERRUPT
 	nop
 
-	lw		$t0, 0x40c($fp)		# StuffToDo
+	lw		$t0, _StuffToDo($fp)		# StuffToDo
 	bne		$t0, $0, _ReturnFromDynaRec
 	nop
 	jr		$s0					# Return back to caller
@@ -229,13 +241,13 @@ _IndirectExitCheck:
 	or		$s1, $a2, $0		# and the exit pc
 
 	# Can avoid these until _ReturnFromDynaRec?	
-	sw		$a2, 0x400($fp) 	# CurrentPC
-	sw		$0,  0x408($fp)		# Delay (NO_DELAY)
+	sw		$a2, _CurrentPC($fp) 	# CurrentPC
+	sw		$0,  _Delay($fp)		# Delay (NO_DELAY)
 	
 	jal		CPU_UpdateCounter	# a0 holds instructions executed
 	nop
 
-	lw		$t0, 0x40c($fp)		# StuffToDo
+	lw		$t0, _StuffToDo($fp)		# StuffToDo
 	bne		$t0, $0, _ReturnFromDynaRec
 	nop
 	
@@ -265,7 +277,7 @@ _IndirectExitCheck:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
 
-	sw		$a1, 0x400($fp) 	# CurrentPC
+	sw		$a1, _CurrentPC($fp) 	# CurrentPC
 
 	srl		$v1, $a0, 0x12
 	sll		$v1, $v1, 0x2
@@ -294,9 +306,9 @@ _IndirectExitCheck:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
 
-	sw		$a1, 0x400($fp) 	# CurrentPC
+	sw		$a1, _CurrentPC($fp) 	# CurrentPC
 	li		$t0, 1				# EXEC_DELAY
-	sw		$t0, 0x408($fp)		# Delay
+	sw		$t0, _Delay($fp)		# Delay
 
 	srl		$v1, $a0, 0x12
 	sll		$v1, $v1, 0x2
@@ -311,7 +323,7 @@ _IndirectExitCheck:
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 
-	sw		$0, 0x408($fp)		# Delay <- NO_DELAY
+	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
 	
 	la		$t0, temp_storage_for_ra
 	lw		$ra, 0($t0)
@@ -348,7 +360,7 @@ _WriteBitsDirect_u32:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
 	
-	sw		$a2, 0x400($fp) 	# CurrentPC
+	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	
 	jal		Write32BitsForDynaRec
 	nop
@@ -365,9 +377,9 @@ _WriteBitsDirectBD_u32:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
 	
-	sw		$a2, 0x400($fp) 	# CurrentPC
+	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	li		$t0, 1				# EXEC_DELAY
-	sw		$t0, 0x408($fp)		# Delay
+	sw		$t0, _Delay($fp)		# Delay
 
 	jal		Write32BitsForDynaRec
 	nop
@@ -375,7 +387,7 @@ _WriteBitsDirectBD_u32:
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 	
-	sw		$0, 0x408($fp)		# Delay <- NO_DELAY
+	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
 	
 	la		$t0, temp_storage_for_ra
 	lw		$ra, 0($t0)
@@ -386,7 +398,7 @@ _WriteBitsDirect_u16:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
 	
-	sw		$a2, 0x400($fp) 	# CurrentPC
+	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	
 	jal		Write16BitsForDynaRec
 	nop
@@ -404,9 +416,9 @@ _WriteBitsDirectBD_u16:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
 	
-	sw		$a2, 0x400($fp) 	# CurrentPC
+	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	li		$t0, 1				# EXEC_DELAY
-	sw		$t0, 0x408($fp)		# Delay
+	sw		$t0, _Delay($fp)		# Delay
 	
 	jal		Write16BitsForDynaRec
 	nop
@@ -414,7 +426,7 @@ _WriteBitsDirectBD_u16:
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 	
-	sw		$0, 0x408($fp)		# Delay <- NO_DELAY
+	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
 	
 	la		$t0, temp_storage_for_ra
 	lw		$ra, 0($t0)
@@ -425,7 +437,7 @@ _WriteBitsDirect_u8:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
 	
-	sw		$a2, 0x400($fp) 	# CurrentPC
+	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	
 	jal		Write8BitsForDynaRec
 	nop
@@ -442,9 +454,9 @@ _WriteBitsDirectBD_u8:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
 	
-	sw		$a2, 0x400($fp) 	# CurrentPC
+	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	li		$t0, 1				# EXEC_DELAY
-	sw		$t0, 0x408($fp)		# Delay
+	sw		$t0, _Delay($fp)		# Delay
 	
 	jal		Write8BitsForDynaRec
 	nop
@@ -452,7 +464,7 @@ _WriteBitsDirectBD_u8:
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 	
-	sw		$0, 0x408($fp)		# Delay <- NO_DELAY
+	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
 	
 	la		$t0, temp_storage_for_ra
 	lw		$ra, 0($t0)

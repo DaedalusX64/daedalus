@@ -108,7 +108,7 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 {
 	// gCPUState.CPUControl[C0_SR]		= 0x34000000;	//*SR_FR |*/ SR_ERL | SR_CU2|SR_CU1|SR_CU0;
 	R4300_SetSR(0x34000000);
-	gCPUState.CPUControl[C0_CONFIG]._u64	= 0x0006E463;	// 0x00066463;
+	gCPUState.CPUControl[C0_CONFIG]._u32	= 0x0006E463;	// 0x00066463;
 
 	// Copy low 1000 bytes to MEM_SP_MEM
 	RomBuffer::GetRomBytesRaw( (u8*)g_pMemoryBuffers[MEM_SP_MEM] + RAMROM_BOOTSTRAP_OFFSET,
@@ -118,14 +118,14 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 	// Need to copy crap to SP_IMEM for CIC-6105 boot.
 	u8 * pIMemBase = (u8*)g_pMemoryBuffers[ MEM_SP_MEM ] + 0x1000;
 
-	gCPUState.CPUControl[C0_COUNT]._u64 = 0x5000;
-	gCPUState.CPUControl[C0_CAUSE]._u64 = 0x0000005C;
+	gCPUState.CPUControl[C0_COUNT]._u32 = 0x5000;
+	gCPUState.CPUControl[C0_CAUSE]._u32 = 0x0000005C;
 	//ENTRYHI_REGISTER	  = 0xFFFFE0FF;
-	gCPUState.CPUControl[C0_CONTEXT]._u64 = 0x007FFFF0;
-	gCPUState.CPUControl[C0_EPC]._u64 = 0xFFFFFFFF;
-	gCPUState.CPUControl[C0_BADVADDR]._u64 = 0xFFFFFFFF;
-	gCPUState.CPUControl[C0_ERROR_EPC]._u64= 0xFFFFFFFF;
-	gCPUState.CPUControl[C0_CONFIG]._u64= 0x0006E463;
+	gCPUState.CPUControl[C0_CONTEXT]._u32 = 0x007FFFF0;
+	gCPUState.CPUControl[C0_EPC]._u32 = 0xFFFFFFFF;
+	gCPUState.CPUControl[C0_BADVADDR]._u32 = 0xFFFFFFFF;
+	gCPUState.CPUControl[C0_ERROR_EPC]._u32= 0xFFFFFFFF;
+	gCPUState.CPUControl[C0_CONFIG]._u32= 0x0006E463;
 	
 	//REVISION_REGISTER   = 0x00000511;
 	//STATUS_REGISTER     = 0x34000000;
@@ -568,7 +568,7 @@ void ROM_UnloadFile()
 //*****************************************************************************
 bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRomPreferences & preferences )
 {
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	const char *filename(g_ROM.szFileName);
 	DBGConsole_Msg(0, "Reading rom image: [C%s]", filename);
 #endif

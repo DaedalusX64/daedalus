@@ -79,7 +79,8 @@ struct CPUEvent
 };
 DAEDALUS_STATIC_ASSERT( sizeof( CPUEvent ) == 8 );
 
-typedef REG64 register_set[32];
+typedef REG64 register_set64[32];
+typedef REG32 register_set32[32];
 
 //
 //	We declare various bits of the CPU state in a struct.
@@ -87,23 +88,25 @@ typedef REG64 register_set[32];
 //	structure cached in a spare register to avoid expensive
 //	address-calculations (primarily on the PSP)
 //
+//	Make sure to reflect changes here to DynaRecStubs.S as well //Corn
+//
 ALIGNED_TYPE(struct, SCPUState, CACHE_ALIGN)
 {
 	static const u32	MAX_CPU_EVENTS = 4;		// In practice there should only ever be 2
 
-	register_set	CPU;				// 0x000 .. 0x100
-	register_set	CPUControl;			// 0x100 .. 0x200
-	register_set	FPU;				// 0x200 .. 0x300
-	register_set	FPUControl;			// 0x300 .. 0x400
-	u32				CurrentPC;			// 0x400 ..			The current program counter
-	u32				TargetPC;			// 0x404 ..			The PC to branch to
-	u32				Delay;				// 0x408 ..			Delay state (NO_DELAY, EXEC_DELAY, DO_DELAY)
-	volatile u32	StuffToDo;			// 0x40c ..			CPU jobs (see above)
+	register_set64	CPU;				// 0x000 .. 0x100
+	register_set32	CPUControl;			// 0x100 .. 0x180
+	register_set64	FPU;				// 0x180 .. 0x280
+	register_set64	FPUControl;			// 0x280 .. 0x380
+	u32				CurrentPC;			// 0x380 ..			The current program counter
+	u32				TargetPC;			// 0x384 ..			The PC to branch to
+	u32				Delay;				// 0x388 ..			Delay state (NO_DELAY, EXEC_DELAY, DO_DELAY)
+	volatile u32	StuffToDo;			// 0x38c ..			CPU jobs (see above)
 
-	REG64			MultLo;				// 0x410 ..
-	REG64			MultHi;				// 0x418
+	REG64			MultLo;				// 0x390 ..
+	REG64			MultHi;				// 0x398
 
-	CPUEvent		Events[ MAX_CPU_EVENTS ];	// 0x420
+	CPUEvent		Events[ MAX_CPU_EVENTS ];	// 0x3A0
 	u32				NumEvents;
 
 	void			AddJob( u32 job );
