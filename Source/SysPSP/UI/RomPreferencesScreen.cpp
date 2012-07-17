@@ -25,7 +25,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UISetting.h"
 #include "UISpacer.h"
 #include "UICommand.h"
-#include "UIArea.h"
 
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
@@ -43,6 +42,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 namespace
 {
+	const u32		TITLE_AREA_TOP = 10;
+
+	const u32		TEXT_AREA_LEFT = 40;
+	const u32		TEXT_AREA_RIGHT = 440;
+
+	const s32		DESCRIPTION_AREA_TOP = 0;		// We render text aligned from the bottom, so this is largely irrelevant
+	const s32		DESCRIPTION_AREA_BOTTOM = 272-6;
+	const s32		DESCRIPTION_AREA_LEFT = 16;
+	const s32		DESCRIPTION_AREA_RIGHT = 480-16;
 
 
 	class CTextureHashFrequency : public CUISetting

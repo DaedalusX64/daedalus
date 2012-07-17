@@ -22,7 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "UIContext.h"
 #include "UIScreen.h"
-#include "UIArea.h"
 #include "AboutComponent.h"
 #include "GlobalSettingsComponent.h"
 #include "PauseOptionsComponent.h"
@@ -52,6 +51,9 @@ extern void battery_info();
 
 namespace
 {
+	const u32				TEXT_AREA_TOP = 10;
+	const u32				TEXT_AREA_LEFT = 20;
+	const u32				TEXT_AREA_RIGHT = 480-20;
 
 	enum EMenuOption
 	{

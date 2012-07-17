@@ -20,7 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "UIComponent.h"
 #include "UIContext.h"
-#include "UIArea.h"
 
 #include "SysPSP/Graphics/DrawText.h"
 
@@ -81,6 +80,7 @@ void	CUIComponentScreen::Render()
 {
 	mpContext->ClearBackground();
 
+	const u32				TITLE_AREA_TOP = 10;
 
 	s32 y( TITLE_AREA_TOP );
 	mpContext->DrawTextAlign( 0, mpContext->GetScreenWidth(), AT_CENTRE, y, mTitle.c_str(), mpContext->GetDefaultTextColour() );

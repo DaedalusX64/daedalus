@@ -24,7 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UIScreen.h"
 #include "UIElement.h"
 #include "UICommand.h"
-#include "UIArea.h"
 
 #include "../../Core/ROM.h"
 #include "../../Core/SaveState.h"
@@ -35,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../../Math/Vector2.h"
 
-#include "../Graphics/DrawText.h"w
+#include "../Graphics/DrawText.h"
 
 #include <pspctrl.h>
 #include <pspgu.h>
@@ -47,6 +46,14 @@ namespace
 	const char * const		SAVING_STATUS_TEXT  = "Saving...";
 	const char * const		LOADING_STATUS_TEXT = "Loading...";
 
+	const u32				TEXT_AREA_TOP = 272 / 2;
+	const u32				TEXT_AREA_LEFT = 20;
+	const u32				TEXT_AREA_RIGHT = 460;
+
+	const s32				DESCRIPTION_AREA_TOP = 272-20;		// We render text aligned from the bottom, so this is largely irrelevant
+	const s32				DESCRIPTION_AREA_BOTTOM = 272-10;
+	const s32				DESCRIPTION_AREA_LEFT = 16;
+	const s32				DESCRIPTION_AREA_RIGHT = 480-16;
 
 	const u32				NUM_SAVESTATE_SLOTS = 64;
 

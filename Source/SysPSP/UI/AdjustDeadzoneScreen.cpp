@@ -23,7 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "UIContext.h"
 #include "UIScreen.h"
-#include "UIArea.h"
 
 #include "Math/Math.h"	// VFPU Math
 #include "Math/MathUtil.h"
@@ -41,7 +40,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 namespace
 {
-
+	const s32				TEXT_AREA_LEFT = 40;
+	const s32				TEXT_AREA_TOP = 0;		// We render text aligned from the bottom, so this is largely irrelevant
+	const s32				TEXT_AREA_RIGHT = 480 - 40;
+	const s32				TEXT_AREA_BOTTOM = 272 - 10;
 
 	const char *			INSTRUCTIONS_TEXT = "Adjust the minimum and maximum deadzone regions. Up/Down: Increase or decrease the deadzone. Left/Right: Select minimum or maximum deadzone for adjusting. Triangle: Reset to defaults. Start/X: Confirm. Select/Circle: Cancel";
 

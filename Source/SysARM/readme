@@ -1,0 +1,9 @@
+This is a planned port of Daedalus to ARM processors.
+
+Will attempt in following order
+* Get compiling in ARM
+* Get GUI working
+* Get controls working
+* get Daedalus running in interpreter
+* port Graphic plugins to GLES
+* Get arm Dynarec working

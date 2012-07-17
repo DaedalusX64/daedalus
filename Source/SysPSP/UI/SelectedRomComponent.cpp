@@ -29,8 +29,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UISetting.h"
 #include "UICommand.h"
 #include "UISpacer.h"
-#include "UIArea.h"
-
 #include "SysPSP/Graphics/DrawText.h"
 #include "Graphics/ColourValue.h"
 
@@ -41,6 +39,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspctrl.h>
 #include <pspgu.h>
 
+namespace
+{
+	const u32		TEXT_AREA_TOP = 15+16+16;
+	const u32		TEXT_AREA_LEFT = 40;
+	const u32		TEXT_AREA_RIGHT = 440;
+
+	const s32		DESCRIPTION_AREA_TOP = 0;		// We render text aligned from the bottom, so this is largely irrelevant
+	const s32		DESCRIPTION_AREA_BOTTOM = 272-10;
+	const s32		DESCRIPTION_AREA_LEFT = 16;
+	const s32		DESCRIPTION_AREA_RIGHT = 480-16;
+
+
+}
 
 //*************************************************************************************
 //
