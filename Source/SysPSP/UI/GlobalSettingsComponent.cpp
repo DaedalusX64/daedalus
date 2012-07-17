@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UIScreen.h"
 #include "UISetting.h"
 #include "Dialogs.h"
+#include "UIArea.h"
 
 #include "AdjustDeadzoneScreen.h"
 #include "SysPSP/Graphics/DrawText.h"
@@ -50,14 +51,7 @@ extern bool PSP_IS_SLIM;
 
 namespace
 {
-	const u32		TEXT_AREA_TOP = 15+16+16;
-	const u32		TEXT_AREA_LEFT = 40;
-	const u32		TEXT_AREA_RIGHT = 440;
 
-	const s32		DESCRIPTION_AREA_TOP = 0;		// We render text aligned from the bottom, so this is largely irrelevant
-	const s32		DESCRIPTION_AREA_BOTTOM = 272-10;
-	const s32		DESCRIPTION_AREA_LEFT = 16;
-	const s32		DESCRIPTION_AREA_RIGHT = 480-16;
 
 	class CViewPortSetting : public CUISetting
 	{

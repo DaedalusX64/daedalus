@@ -37,11 +37,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <kubridge.h>
 #include <pspctrl.h>
 #include <pspgu.h>
-
+#include "UIArea.h"
 namespace
 {
-	const u32				TEXT_AREA_LEFT = 40;
-	const u32				TEXT_AREA_RIGHT = 480-40;
+
 	
 	#define MAX_PSP_MODEL 6
 

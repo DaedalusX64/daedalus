@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "UIContext.h"
 #include "UIScreen.h"
+#include "UIArea.h"
 #include "AboutComponent.h"
 #include "GlobalSettingsComponent.h"
 #include "RomSelectorComponent.h"
@@ -50,8 +51,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 namespace
 {
-	const u32				TEXT_AREA_TOP = 8;
-	const u32				SCREEN_WIDTH = 480;
 
 	enum EMenuOption
 	{
