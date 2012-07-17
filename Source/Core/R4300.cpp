@@ -163,8 +163,8 @@ inline void StoreFPR_Long( u32 reg, u64 value )
 	REG64	r;
 	r._u64 = value;
 		
-	gCPUState.FPU[reg+0]._u32_0 = r._u32_0;
-	gCPUState.FPU[reg+1]._u32_0 = r._u32_1;
+	gCPUState.FPU[reg+0]._u32 = r._u32_0;
+	gCPUState.FPU[reg+1]._u32 = r._u32_1;
 }
 
 //*****************************************************************************
@@ -175,15 +175,15 @@ inline void StoreFPR_Long( u32 reg, u64 value )
 inline u64 LoadFPR_Long( u32 reg )
 {
 	REG64 res;
-	if (gCPUState.FPU[reg+0]._u32_0 == SIMULATESIG)
+	if (gCPUState.FPU[reg+0]._u32 == SIMULATESIG)
 	{
 		//Convert f32->f64
-		res._f64 = (f64)gCPUState.FPU[reg+1]._f32_0;
+		res._f64 = (f64)gCPUState.FPU[reg+1]._f32;
 	}
 	else
 	{
-		res._u32_0 = gCPUState.FPU[reg+0]._u32_0;
-		res._u32_1 = gCPUState.FPU[reg+1]._u32_0;
+		res._u32_0 = gCPUState.FPU[reg+0]._u32;
+		res._u32_1 = gCPUState.FPU[reg+1]._u32;
 	}
 
 	return res._u64;
@@ -194,15 +194,15 @@ inline u64 LoadFPR_Long( u32 reg )
 //*****************************************************************************
 inline d64 LoadFPR_Double( u32 reg )
 {
-	if (gCPUState.FPU[reg+0]._u32_0 == SIMULATESIG)
+	if (gCPUState.FPU[reg+0]._u32 == SIMULATESIG)
 	{
-		return (d64)gCPUState.FPU[reg+1]._f32_0;
+		return (d64)gCPUState.FPU[reg+1]._f32;
 	}
 	else
 	{
 		REG64 res;
-		res._u32_0 = gCPUState.FPU[reg+0]._u32_0;
-		res._u32_1 = gCPUState.FPU[reg+1]._u32_0;
+		res._u32_0 = gCPUState.FPU[reg+0]._u32;
+		res._u32_1 = gCPUState.FPU[reg+1]._u32;
 		return (d64)res._f64;	//Converted f64 -> f32
 	}
 }
@@ -212,8 +212,8 @@ inline d64 LoadFPR_Double( u32 reg )
 //*****************************************************************************
 inline void StoreFPR_Double( u32 reg, d64 value )
 {
-	gCPUState.FPU[reg+0]._u32_0 = SIMULATESIG;
-	gCPUState.FPU[reg+1]._f32_0 = f32( value );	//No Coversion
+	gCPUState.FPU[reg+0]._u32 = SIMULATESIG;
+	gCPUState.FPU[reg+1]._f32 = f32( value );	//No Coversion
 }
 
 //*****************************************************************************
@@ -229,8 +229,8 @@ inline void StoreFPR_Double_2( u32 reg, f64 value )
 
 	REG64 r; 
 	r._f64 = value;	
-	gCPUState.FPU[reg+0]._u32_0 = r._u32_0;
-	gCPUState.FPU[reg+1]._u32_0 = r._u32_1;
+	gCPUState.FPU[reg+0]._u32 = r._u32_0;
+	gCPUState.FPU[reg+1]._u32 = r._u32_1;
 
 }
 
@@ -240,22 +240,22 @@ inline void StoreFPR_Double_2( u32 reg, f64 value )
 
 __forceinline s32 LoadFPR_Word( u32 reg )
 {
-	return gCPUState.FPU[reg]._s32_0;
+	return gCPUState.FPU[reg]._s32;
 }
 
 __forceinline void StoreFPR_Word( u32 reg, s32 value )
 {
-	gCPUState.FPU[reg]._s32_0 = value;
+	gCPUState.FPU[reg]._s32 = value;
 }
 
 __forceinline f32 LoadFPR_Single( u32 reg )
 {
-	return gCPUState.FPU[reg]._f32_0;
+	return gCPUState.FPU[reg]._f32;
 }
 
 __forceinline void StoreFPR_Single( u32 reg, f32 value )
 {
-	gCPUState.FPU[reg]._f32_0 = value;
+	gCPUState.FPU[reg]._f32 = value;
 }
 
 //*****************************************************************************
@@ -3057,8 +3057,8 @@ static void R4300_CALL_TYPE R4300_Cop1_D_ADD_2( R4300_CALL_SIGNATURE )
 	// double.. float won't work for buck bumble
 	r._f64 = f64( (f64)fX + (f64)fY );
 
-	gCPUState.FPU[op_code.fd+0]._u32_0 = r._u32_0;
-	gCPUState.FPU[op_code.fd+1]._u32_0 = r._u32_1;
+	gCPUState.FPU[op_code.fd+0]._u32 = r._u32_0;
+	gCPUState.FPU[op_code.fd+1]._u32 = r._u32_1;
 
 }
 

@@ -3,7 +3,7 @@
 //The top two defines needs to be adjusted depending on how gCPUState struct is formated in CPU.h!! //Corn
 //
 #define _C0_Count	(0x100 + 9 * 4)	//CPU_Control_base + 9*8(64bit regs) or 9*4(32bit regs)
-#define _AuxBase	0x300	//Base pointer to Aux regs
+#define _AuxBase	0x280	//Base pointer to Aux regs
 #define _CurrentPC	(_AuxBase + 0x00)
 #define _TargetPC	(_AuxBase + 0x04)
 #define _Delay		(_AuxBase + 0x08)

@@ -358,7 +358,7 @@ void CPU_Reset( )
 	{
 		gCPUState.CPU[i]._u64 = 0;
 		gCPUState.CPUControl[i]._u32 = 0;
-		gCPUState.FPU[i]._u64 = 0;
+		gCPUState.FPU[i]._u32 = 0;
 		gCPUState.FPUControl[i]._u32 = 0;
 	}
 

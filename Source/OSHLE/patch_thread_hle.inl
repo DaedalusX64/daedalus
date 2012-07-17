@@ -234,8 +234,8 @@ TEST_DISABLE_THREAD_FUNCS
 		// Floats - can probably optimise this to eliminate 64 bits reads...
 		for (u32 FPReg = 0; FPReg < 16; FPReg++)
 		{
-			gCPUState.FPU[(FPReg*2)+1]._u32_0 = QuickRead32Bits(pThreadBase, 0x0130 + (FPReg << 3));
-			gCPUState.FPU[(FPReg*2)+0]._u32_0 = QuickRead32Bits(pThreadBase, 0x0134 + (FPReg << 3));
+			gCPUState.FPU[(FPReg*2)+1]._u32 = QuickRead32Bits(pThreadBase, 0x0130 + (FPReg << 3));
+			gCPUState.FPU[(FPReg*2)+0]._u32 = QuickRead32Bits(pThreadBase, 0x0134 + (FPReg << 3));
 		}
 	}
 
@@ -372,8 +372,8 @@ TEST_DISABLE_THREAD_FUNCS
 		// Floats - can probably optimise this to eliminate 64 bits reads...
 		for (u32 FPReg = 0; FPReg < 16; FPReg++)
 		{
-			gCPUState.FPU[(FPReg*2)+1]._u32_0 = QuickRead32Bits(pThreadBase, 0x0130 + (FPReg << 3));
-			gCPUState.FPU[(FPReg*2)+0]._u32_0 = QuickRead32Bits(pThreadBase, 0x0134 + (FPReg << 3));
+			gCPUState.FPU[(FPReg*2)+1]._u32 = QuickRead32Bits(pThreadBase, 0x0130 + (FPReg << 3));
+			gCPUState.FPU[(FPReg*2)+0]._u32 = QuickRead32Bits(pThreadBase, 0x0134 + (FPReg << 3));
 		}
 	}
 /*
@@ -630,8 +630,8 @@ TEST_DISABLE_THREAD_FUNCS
 		// Floats - can probably optimise this to eliminate 64 bits writes...
 		for (u32 FPReg = 0; FPReg < 16; FPReg++)
 		{
-			QuickWrite32Bits(pThreadBase, 0x0130 + (FPReg * 8), gCPUState.FPU[(FPReg*2)+1]._u32_0);
-			QuickWrite32Bits(pThreadBase, 0x0134 + (FPReg * 8), gCPUState.FPU[(FPReg*2)+0]._u32_0);
+			QuickWrite32Bits(pThreadBase, 0x0130 + (FPReg * 8), gCPUState.FPU[(FPReg*2)+1]._u32);
+			QuickWrite32Bits(pThreadBase, 0x0134 + (FPReg * 8), gCPUState.FPU[(FPReg*2)+0]._u32);
 		}
 	}
 	

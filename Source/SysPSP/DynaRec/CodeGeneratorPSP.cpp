@@ -743,7 +743,7 @@ EPspFloatReg	CCodeGeneratorPSP::GetFloatRegisterAndLoad( EN64FloatReg n64_reg )
 	EPspFloatReg	psp_reg = EPspFloatReg( n64_reg );	// 1:1 mapping
 	if( !mRegisterCache.IsFPValid( n64_reg ) )
 	{
-		GetFloatVar( psp_reg, &gCPUState.FPU[n64_reg]._f32_0 );
+		GetFloatVar( psp_reg, &gCPUState.FPU[n64_reg]._f32 );
 		mRegisterCache.MarkFPAsValid( n64_reg, true );
 	}
 	
@@ -774,14 +774,14 @@ EPspFloatReg	CCodeGeneratorPSP::GetSimFloatRegisterAndLoad( EN64FloatReg n64_reg
 	//This is Double Lo or signature
 	if( !mRegisterCache.IsFPValid( n64_reg ) )
 	{
-		GetFloatVar( psp_reg_sig, &gCPUState.FPU[n64_reg]._f32_0 );
+		GetFloatVar( psp_reg_sig, &gCPUState.FPU[n64_reg]._f32 );
 		mRegisterCache.MarkFPAsValid( n64_reg, true );
 	}
 
 	//This is Double Hi or f32
 	if( !mRegisterCache.IsFPValid( EN64FloatReg(n64_reg + 1) ) )
 	{
-		GetFloatVar( psp_reg, &gCPUState.FPU[n64_reg+1]._f32_0 );
+		GetFloatVar( psp_reg, &gCPUState.FPU[n64_reg+1]._f32 );
 		mRegisterCache.MarkFPAsValid( EN64FloatReg(n64_reg+1), true );
 	}
 
@@ -907,7 +907,7 @@ void	CCodeGeneratorPSP::FlushAllFloatingPointRegisters( CN64RegisterCachePSP & c
 
 			EPspFloatReg	psp_reg = EPspFloatReg( n64_reg );
 
-			SetFloatVar( &gCPUState.FPU[n64_reg]._f32_0, psp_reg );
+			SetFloatVar( &gCPUState.FPU[n64_reg]._f32, psp_reg );
 
 			cache.MarkFPAsDirty( n64_reg, false );
 		}
@@ -975,7 +975,7 @@ void	CCodeGeneratorPSP::RestoreAllRegisters( CN64RegisterCachePSP & current_cach
 		{
 			EPspFloatReg	psp_reg = EPspFloatReg( n64_reg );
 
-			GetFloatVar( psp_reg, &gCPUState.FPU[n64_reg]._f32_0 );
+			GetFloatVar( psp_reg, &gCPUState.FPU[n64_reg]._f32 );
 		}
 	}
 }
@@ -3641,7 +3641,7 @@ inline void	CCodeGeneratorPSP::GenerateLWC1( u32 address, bool set_branch_delay,
 	EPspReg	reg_dst( PspReg_V0 );				// GenerateLoad is slightly more efficient when using V0
 	GenerateLoad( address, reg_dst, base, offset, OP_LW, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
 
-	//SetVar( &gCPUState.FPU[ ft ]._u32_0, reg_dst );
+	//SetVar( &gCPUState.FPU[ ft ]._u32, reg_dst );
 	MTC1( psp_ft, reg_dst );
 	UpdateFloatRegister( n64_ft );
 #endif
@@ -3656,13 +3656,13 @@ inline void	CCodeGeneratorPSP::GenerateLDC1( u32 address, bool set_branch_delay,
 	EN64FloatReg	n64_ft = EN64FloatReg( ft + 1 );
 	EPspFloatReg	psp_ft = EPspFloatReg( n64_ft );// 1:1 Mapping
 	GenerateLoad( address, (EPspReg)psp_ft, base, offset, OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
-	SetFloatVar( &gCPUState.FPU[psp_ft]._f32_0, psp_ft );
+	SetFloatVar( &gCPUState.FPU[psp_ft]._f32, psp_ft );
 	mRegisterCache.MarkFPAsValid( n64_ft, true );
 
 	n64_ft = EN64FloatReg( ft );
 	psp_ft = EPspFloatReg( n64_ft );// 1:1 Mapping
 	GenerateLoad( address, (EPspReg)psp_ft, base, offset + 4, OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
-	SetFloatVar( &gCPUState.FPU[psp_ft]._f32_0, psp_ft );
+	SetFloatVar( &gCPUState.FPU[psp_ft]._f32, psp_ft );
 	mRegisterCache.MarkFPAsValid( n64_ft, true );
 	mRegisterCache.MarkFPAsSim( n64_ft, false );
 }
@@ -4602,8 +4602,8 @@ inline void	CCodeGeneratorPSP::GenerateCVT_D_S_Sim( u32 fd, u32 fs )
 	LoadConstant( PspReg_A0, SIMULATESIG );	//Get signature
 	MTC1( psp_fd_sig , PspReg_A0 );	//Write signature to float reg
 
-	//SetFloatVar( &gCPUState.FPU[fd + 0]._f32_0, psp_fd_sig );
-	//SetFloatVar( &gCPUState.FPU[fd + 1]._f32_0, psp_fd );
+	//SetFloatVar( &gCPUState.FPU[fd + 0]._f32, psp_fd_sig );
+	//SetFloatVar( &gCPUState.FPU[fd + 1]._f32, psp_fd );
 
 	UpdateSimDoubleRegister( n64_fd );
 }
