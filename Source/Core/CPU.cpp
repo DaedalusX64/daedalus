@@ -127,7 +127,7 @@ void CPU_SkipToNextEvent()
 	LOCK_EVENT_QUEUE();
 
 	DAEDALUS_ASSERT( gCPUState.NumEvents > 0, "There are no events" );
-	gCPUState.CPUControl[C0_COUNT]._u32_0 += (gCPUState.Events[ 0 ].mCount - 1);
+	gCPUState.CPUControl[C0_COUNT]._u32 += (gCPUState.Events[ 0 ].mCount - 1);
 	gCPUState.Events[ 0 ].mCount = 1;
 }
 
@@ -359,7 +359,7 @@ void CPU_Reset( )
 		gCPUState.CPU[i]._u64 = 0;
 		gCPUState.CPUControl[i]._u32 = 0;
 		gCPUState.FPU[i]._u64 = 0;
-		gCPUState.FPUControl[i]._u64 = 0;
+		gCPUState.FPUControl[i]._u32 = 0;
 	}
 
 	// Init TLBs:
@@ -376,7 +376,7 @@ void CPU_Reset( )
 	gCPUState.CPUControl[C0_CONFIG]._u32	= 0x0006E463;	// 0x00066463;
 	gCPUState.CPUControl[C0_WIRED]._u32   = 0x0;
 
-	gCPUState.FPUControl[0]._u64 = 0x00000511;
+	gCPUState.FPUControl[0]._u32 = 0x00000511;
 
 	Memory_MI_SetRegister(MI_VERSION_REG, 0x02020102);
 
@@ -748,7 +748,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 		break;
 	case CPU_EVENT_COMPARE:
 		{
-			gCPUState.CPUControl[C0_CAUSE]._u32_0 |= CAUSE_IP8;
+			gCPUState.CPUControl[C0_CAUSE]._u32 |= CAUSE_IP8;
 			gCPUState.AddJob( CPU_CHECK_INTERRUPTS );
 		}
 		break;
@@ -776,13 +776,13 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 //*****************************************************************************
 void CPU_SetCompare(u32 value)
 {
-	gCPUState.CPUControl[C0_CAUSE]._u32_0 &= ~CAUSE_IP8;
+	gCPUState.CPUControl[C0_CAUSE]._u32 &= ~CAUSE_IP8;
 
 	DPF( DEBUG_REGS, "COMPARE set to 0x%08x.", value );
-	//DBGConsole_Msg(0, "COMPARE set to 0x%08x Count is 0x%08x.", value, gCPUState.CPUControl[C0_COUNT]_u32_0);
+	//DBGConsole_Msg(0, "COMPARE set to 0x%08x Count is 0x%08x.", value, gCPUState.CPUControl[C0_COUNT]_u32);
 
 	// Add an event for this compare:
-	if (value == gCPUState.CPUControl[C0_COMPARE]._u32_0)
+	if (value == gCPUState.CPUControl[C0_COMPARE]._u32)
 	{
 		//DBGConsole_Msg(0, "Clear");
 	}
@@ -790,21 +790,21 @@ void CPU_SetCompare(u32 value)
 	{
 		if(value != 0)
 		{
-			if (value > gCPUState.CPUControl[C0_COUNT]._u32_0)
+			if (value > gCPUState.CPUControl[C0_COUNT]._u32)
 			{
 				// XXXX Looks very suspicious to me...was this the Oot timer fix?
-				u32		diff_32( value - gCPUState.CPUControl[C0_COUNT]._u32_0 );
+				u32		diff_32( value - gCPUState.CPUControl[C0_COUNT]._u32 );
 
 				CPU_SetCompareEvent( diff_32 );
 			}
 			else
 			{
-				//0x100000000 + value - gCPUState.CPUControl[C0_COUNT]._u32_0
+				//0x100000000 + value - gCPUState.CPUControl[C0_COUNT]._u32
 				DAEDALUS_ERROR(" SetCompare Underflow : Need to handle");
 			}
 		}
 
-		gCPUState.CPUControl[C0_COMPARE]._u32_0 = value;
+		gCPUState.CPUControl[C0_COMPARE]._u32 = value;
 	}
 }
 
@@ -875,7 +875,7 @@ void CPU_UpdateCounter( u32 ops_executed )
 	const u32	cycles( ops_executed * COUNTER_INCREMENT_PER_OP );
 
 	// Increment count register
-	gCPUState.CPUControl[C0_COUNT]._u32_0 += cycles;
+	gCPUState.CPUControl[C0_COUNT]._u32 += cycles;
 
 	if( CPU_ProcessEventCycles( cycles ) )
 	{
@@ -900,7 +900,7 @@ void CPU_UpdateCounterNoInterrupt( u32 ops_executed )
 #endif
 
 		// Increment count register
-		gCPUState.CPUControl[C0_COUNT]._u32_0 += cycles;
+		gCPUState.CPUControl[C0_COUNT]._u32 += cycles;
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
 		bool	ready( CPU_ProcessEventCycles( cycles ) );

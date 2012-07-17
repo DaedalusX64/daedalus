@@ -83,7 +83,7 @@ template< bool TranslateOp > __forceinline void CPU_EXECUTE_OP()
 	SYNCH_POINT( DAED_SYNC_REG_PC, gCPUState.CurrentPC, "Program Counter doesn't match" );
 	SYNCH_POINT( DAED_SYNC_FRAGMENT_PC, gCPUState.CurrentPC + gCPUState.Delay, "Program Counter/Delay doesn't match while interpreting" );
 
-	SYNCH_POINT( DAED_SYNC_REG_PC, gCPUState.CPUControl[C0_COUNT]._u32_0, "Count doesn't match" );
+	SYNCH_POINT( DAED_SYNC_REG_PC, gCPUState.CPUControl[C0_COUNT]._u32, "Count doesn't match" );
 
 	R4300_ExecuteInstruction(op_code);
 
@@ -94,7 +94,7 @@ template< bool TranslateOp > __forceinline void CPU_EXECUTE_OP()
 	SYNCH_POINT( DAED_SYNC_REGS, CPU_ProduceRegisterHash(), "Registers don't match" );
 
 	// Increment count register
-	gCPUState.CPUControl[C0_COUNT]._u32_0 = gCPUState.CPUControl[C0_COUNT]._u32_0 + COUNTER_INCREMENT_PER_OP;
+	gCPUState.CPUControl[C0_COUNT]._u32 = gCPUState.CPUControl[C0_COUNT]._u32 + COUNTER_INCREMENT_PER_OP;
 
 	if (CPU_ProcessEventCycles( COUNTER_INCREMENT_PER_OP ) )
 	{

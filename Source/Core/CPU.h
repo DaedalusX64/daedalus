@@ -97,7 +97,7 @@ ALIGNED_TYPE(struct, SCPUState, CACHE_ALIGN)
 	register_set64	CPU;				// 0x000 .. 0x100
 	register_set32	CPUControl;			// 0x100 .. 0x180
 	register_set64	FPU;				// 0x180 .. 0x280
-	register_set64	FPUControl;			// 0x280 .. 0x380
+	register_set32	FPUControl;			// 0x280 .. 0x380
 	u32				CurrentPC;			// 0x380 ..			The current program counter
 	u32				TargetPC;			// 0x384 ..			The PC to branch to
 	u32				Delay;				// 0x388 ..			Delay state (NO_DELAY, EXEC_DELAY, DO_DELAY)

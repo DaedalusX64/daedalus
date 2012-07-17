@@ -995,7 +995,7 @@ CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_ad
 		FlushAllFloatingPointRegisters( mRegisterCache, false );
 
 		// Check if we're ok to continue, without flushing any registers
-		GetVar( PspReg_T0, &gCPUState.CPUControl[C0_COUNT]._u32_0 );
+		GetVar( PspReg_T0, &gCPUState.CPUControl[C0_COUNT]._u32 );
 		GetVar( PspReg_T1, (const u32*)&gCPUState.Events[0].mCount );
 
 		//
@@ -1022,7 +1022,7 @@ CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_ad
 		// Assuming we don't need to set CurrentPC/Delay flags before we branch to the top..
 
 		ADDIU( PspReg_T0, PspReg_T0, num_instructions );
-		SetVar( &gCPUState.CPUControl[C0_COUNT]._u32_0, PspReg_T0 );
+		SetVar( &gCPUState.CPUControl[C0_COUNT]._u32, PspReg_T0 );
 
 		ADDIU( PspReg_T1, PspReg_T1, -s16(num_instructions) );
 
@@ -2892,6 +2892,7 @@ void	CCodeGeneratorPSP::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	}
 	else
 	{
+
 		EPspReg	reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_T0 ) );
 		EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_T0 ) );
 		EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_T1 ) );
@@ -3867,7 +3868,7 @@ inline void	CCodeGeneratorPSP::GenerateCFC1( EN64Reg rt, u32 fs )
 	{
 		EPspReg			reg_dst( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 
-		GetVar( reg_dst, &gCPUState.FPUControl[ fs ]._u32_0 );
+		GetVar( reg_dst, &gCPUState.FPUControl[ fs ]._u32 );
 #ifdef ENABLE_64BIT
 		UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 #else
@@ -3887,7 +3888,7 @@ void	CCodeGeneratorPSP::GenerateCTC1( u32 fs, EN64Reg rt )
 	DAEDALUS_ASSERT( fs == 31, "CTC1 register is invalid");
 
 	EPspReg			psp_rt_lo( GetRegisterAndLoadLo( rt, PspReg_T0 ) );
-	SetVar( &gCPUState.FPUControl[ fs ]._u32_0, psp_rt_lo );
+	SetVar( &gCPUState.FPUControl[ fs ]._u32, psp_rt_lo );
 
 	// Only the lo part is ever set - Salvy
 	//EPspReg			psp_rt_hi( GetRegisterAndLoadHi( rt, PspReg_T0 ) );
@@ -4064,7 +4065,7 @@ inline void	CCodeGeneratorPSP::GenerateBC1F( const SBranchDetails * p_branch, CJ
 	}
 	else
 	{
-		GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
+		GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32 );
 #if 1
 		EXT( PspReg_T0, PspReg_T0, 0, 23 );	//Extract condition bit (true/false)
 #else
@@ -4106,7 +4107,7 @@ inline void	CCodeGeneratorPSP::GenerateBC1T( const SBranchDetails * p_branch, CJ
 	}
 	else
 	{
-		GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
+		GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32 );
 #if 1
 		EXT( PspReg_T0, PspReg_T0, 0, 23 );	//Extract condition bit (true/false)
 #else
@@ -4357,14 +4358,14 @@ inline void	CCodeGeneratorPSP::GenerateCMP_D_Sim( u32 fs, ECop1OpFunction cmp_op
 	CMP_S( psp_fs, cmp_op, psp_ft );
 
 #if 1 //Improved version no branch //Corn
-	GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
+	GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32 );
 	CFC1( PspReg_T1, (EPspFloatReg)31 );
 	EXT( PspReg_T1, PspReg_T1, 0, 23 );	//Extract condition bit (true/false)
 	INS( PspReg_T0, PspReg_T1, 23, 23 );	//Insert condition bit (true/false)
-	SetVar( &gCPUState.FPUControl[31]._u32_0, PspReg_T0 );
+	SetVar( &gCPUState.FPUControl[31]._u32, PspReg_T0 );
 
 #else //Improved version with only one branch //Corn
-	GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
+	GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32 );
 	LoadConstant( PspReg_T1, FPCSR_C );
 	CJumpLocation	test_condition( BC1T( CCodeLabel( NULL ), false ) );
 	OR( PspReg_T0, PspReg_T0, PspReg_T1 );		// flag |= c
@@ -4373,7 +4374,7 @@ inline void	CCodeGeneratorPSP::GenerateCMP_D_Sim( u32 fs, ECop1OpFunction cmp_op
 	AND( PspReg_T0, PspReg_T0, PspReg_T1 );		// flag &= !c
 
 	CCodeLabel		condition_true( GetAssemblyBuffer()->GetLabel() );
-	SetVar( &gCPUState.FPUControl[31]._u32_0, PspReg_T0 );
+	SetVar( &gCPUState.FPUControl[31]._u32, PspReg_T0 );
 	PatchJumpLong( test_condition, condition_true );
 #endif
 }
@@ -4649,14 +4650,14 @@ inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u3
 	CMP_S( psp_fs, cmp_op, psp_ft );
 
 #if 1 //Improved version no branch //Corn
-	GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
+	GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32 );
 	CFC1( PspReg_T1, (EPspFloatReg)31 );
 	EXT( PspReg_T1, PspReg_T1, 0, 23 );	//Extract condition bit (true/false)
 	INS( PspReg_T0, PspReg_T1, 23, 23 );	//Insert condition bit (true/false)
-	SetVar( &gCPUState.FPUControl[31]._u32_0, PspReg_T0 );
+	SetVar( &gCPUState.FPUControl[31]._u32, PspReg_T0 );
 
 #else //Improved version with only one branch //Corn
-	GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32_0 );
+	GetVar( PspReg_T0, &gCPUState.FPUControl[31]._u32 );
 	LoadConstant( PspReg_T1, FPCSR_C );
 	CJumpLocation	test_condition( BC1T( CCodeLabel( NULL ), false ) );
 	OR( PspReg_T0, PspReg_T0, PspReg_T1 );		// flag |= c
@@ -4665,7 +4666,7 @@ inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u3
 	AND( PspReg_T0, PspReg_T0, PspReg_T1 );		// flag &= !c
 
 	CCodeLabel		condition_true( GetAssemblyBuffer()->GetLabel() );
-	SetVar( &gCPUState.FPUControl[31]._u32_0, PspReg_T0 );
+	SetVar( &gCPUState.FPUControl[31]._u32, PspReg_T0 );
 	PatchJumpLong( test_condition, condition_true );
 #endif
 }
@@ -4755,6 +4756,6 @@ inline void	CCodeGeneratorPSP::GenerateMFC0( EN64Reg rt, u32 fs )
 
 	EPspReg			reg_dst( GetRegisterNoLoadLo( rt, PspReg_T0 ) );
 
-	GetVar( reg_dst, &gCPUState.CPUControl[ fs ]._u32_0 );
+	GetVar( reg_dst, &gCPUState.CPUControl[ fs ]._u32 );
 	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }

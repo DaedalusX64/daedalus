@@ -120,7 +120,7 @@ inline bool	TLBEntry::FindTLBEntry( u32 address, u32 * p_idx )
 			if (!tlb.g)
 			{
 				if ( (tlb.hi & TLBHI_PIDMASK) !=
-					 (gCPUState.CPUControl[C0_ENTRYHI]._u32_0 & TLBHI_PIDMASK) )
+					 (gCPUState.CPUControl[C0_ENTRYHI]._u32 & TLBHI_PIDMASK) )
 				{
 					// Entries ASID must match.
 					continue;

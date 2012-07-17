@@ -107,7 +107,7 @@ u32 gNumOfOSFunctions;
 #define PATCH_RET_ERET RET_JR_ERET()
 
 // Increase this number every time we changed the symbol table
-static const u32 MAGIC_HEADER = 0x80000136;
+static const u32 MAGIC_HEADER = 0x80000137;
 
 bool gPatchesApplied = false;
 
@@ -1095,17 +1095,17 @@ inline u32 RET_JR_RA()
 
 static u32 RET_JR_ERET()
 {
-	if( gCPUState.CPUControl[C0_SR]._u32_0 & SR_ERL )
+	if( gCPUState.CPUControl[C0_SR]._u32 & SR_ERL )
 	{
 		// Returning from an error trap
-		CPU_SetPC( gCPUState.CPUControl[C0_ERROR_EPC]._u32_0 );
-		gCPUState.CPUControl[C0_SR]._u32_0 &= ~SR_ERL;
+		CPU_SetPC( gCPUState.CPUControl[C0_ERROR_EPC]._u32 );
+		gCPUState.CPUControl[C0_SR]._u32 &= ~SR_ERL;
 	}
 	else
 	{
 		// Returning from an exception
-		CPU_SetPC( gCPUState.CPUControl[C0_EPC]._u32_0 );
-		gCPUState.CPUControl[C0_SR]._u32_0 &= ~SR_EXL;
+		CPU_SetPC( gCPUState.CPUControl[C0_EPC]._u32 );
+		gCPUState.CPUControl[C0_SR]._u32 &= ~SR_EXL;
 	}
 	// Point to previous instruction (as we increment the pointer immediately afterwards
 	DECREMENT_PC();
@@ -1142,6 +1142,10 @@ inline u32 QuickRead32Bits( u8 *p_base, u32 offset )
 {
 	return *(u32 *)(p_base + offset);
 }
+inline u32 QuickRead32Bits( u8 *p_base )
+{
+	return *(u32 *)(p_base);
+}
 
 inline void QuickWrite64Bits( u8 *p_base, u32 offset, u64 value )
 {
@@ -1152,6 +1156,11 @@ inline void QuickWrite64Bits( u8 *p_base, u32 offset, u64 value )
 inline void QuickWrite32Bits( u8 *p_base, u32 offset, u32 value )
 {
 	*(u32 *)(p_base + offset) = value;
+}
+
+inline void QuickWrite32Bits( u8 *p_base, u32 value )
+{
+	*(u32 *)(p_base) = value;
 }
 
 typedef struct { u32 value[8]; } u256;

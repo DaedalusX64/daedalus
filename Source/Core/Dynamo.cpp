@@ -132,7 +132,7 @@ template< bool TraceEnabled > __forceinline void CPU_EXECUTE_OP()
 	SYNCH_POINT( DAED_SYNC_REG_PC, gCPUState.CurrentPC, "Program Counter doesn't match" );
 	SYNCH_POINT( DAED_SYNC_FRAGMENT_PC, gCPUState.CurrentPC + gCPUState.Delay, "Program Counter/Delay doesn't match while interpreting" );
 
-	SYNCH_POINT( DAED_SYNC_REG_PC, gCPUState.CPUControl[C0_COUNT]._u32_0, "Count doesn't match" );
+	SYNCH_POINT( DAED_SYNC_REG_PC, gCPUState.CPUControl[C0_COUNT]._u32, "Count doesn't match" );
 
 #ifdef DAEDALUS_ENABLE_DYNAREC
 	if( TraceEnabled )
@@ -164,7 +164,7 @@ template< bool TraceEnabled > __forceinline void CPU_EXECUTE_OP()
 	SYNCH_POINT( DAED_SYNC_REGS, CPU_ProduceRegisterHash(), "Registers don't match" );
 
 	// Increment count register
-	gCPUState.CPUControl[C0_COUNT]._u32_0 = gCPUState.CPUControl[C0_COUNT]._u32_0 + COUNTER_INCREMENT_PER_OP;
+	gCPUState.CPUControl[C0_COUNT]._u32 = gCPUState.CPUControl[C0_COUNT]._u32 + COUNTER_INCREMENT_PER_OP;
 
 	if (CPU_ProcessEventCycles( COUNTER_INCREMENT_PER_OP ) )
 	{
@@ -417,7 +417,7 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 	{
 		DAEDALUS_ASSERT( gCPUState.Delay == NO_DELAY, "Why are we entering with a delay slot active?" );
 #ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
-		u32			entry_count( gCPUState.CPUControl[C0_COUNT]._u32_0 ); // Just used DYNAREC_PROFILE_ENTEREXIT
+		u32			entry_count( gCPUState.CPUControl[C0_COUNT]._u32 ); // Just used DYNAREC_PROFILE_ENTEREXIT
 #endif
 		u32			entry_address( gCPUState.CurrentPC );
 #ifdef DAEDALUS_DEBUG_DYNAREC
@@ -443,7 +443,7 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 
 			p_fragment->Execute();
 
-			DYNAREC_PROFILE_ENTEREXIT( entry_address, gCPUState.CurrentPC, gCPUState.CPUControl[C0_COUNT]._u32_0 - entry_count );
+			DYNAREC_PROFILE_ENTEREXIT( entry_address, gCPUState.CurrentPC, gCPUState.CPUControl[C0_COUNT]._u32 - entry_count );
 
 			start_of_trace = true;
 		}
