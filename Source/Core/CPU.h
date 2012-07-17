@@ -92,21 +92,19 @@ typedef REG32 register_set32[32];
 //
 ALIGNED_TYPE(struct, SCPUState, CACHE_ALIGN)
 {
-	static const u32	MAX_CPU_EVENTS = 4;		// In practice there should only ever be 2
-
 	register_set64	CPU;				// 0x000 .. 0x100
 	register_set32	CPUControl;			// 0x100 .. 0x180
-	register_set32	FPU;				// 0x180 .. 0x280
-	register_set32	FPUControl;			// 0x280 .. 0x380
-	u32				CurrentPC;			// 0x380 ..			The current program counter
-	u32				TargetPC;			// 0x384 ..			The PC to branch to
-	u32				Delay;				// 0x388 ..			Delay state (NO_DELAY, EXEC_DELAY, DO_DELAY)
-	volatile u32	StuffToDo;			// 0x38c ..			CPU jobs (see above)
+	register_set32	FPU;				// 0x180 .. 0x200
+	register_set32	FPUControl;			// 0x200 .. 0x280
+	u32				CurrentPC;			// 0x280 ..			The current program counter
+	u32				TargetPC;			// 0x284 ..			The PC to branch to
+	u32				Delay;				// 0x288 ..			Delay state (NO_DELAY, EXEC_DELAY, DO_DELAY)
+	volatile u32	StuffToDo;			// 0x28c ..			CPU jobs (see above)
 
-	REG64			MultLo;				// 0x390 ..
-	REG64			MultHi;				// 0x398
+	REG64			MultLo;				// 0x290 ..
+	REG64			MultHi;				// 0x298
 
-	CPUEvent		Events[ MAX_CPU_EVENTS ];	// 0x3A0
+	CPUEvent		Events[ 4 ];	// 0x2A0 //In practice there should only ever be 2 CPU_EVENTS
 	u32				NumEvents;
 
 	void			AddJob( u32 job );
