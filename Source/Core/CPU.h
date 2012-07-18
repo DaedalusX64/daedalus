@@ -72,6 +72,9 @@ enum	ECPUEventType
 	CPU_EVENT_SPINT,
 };
 
+// In practice there should only ever be 2
+#define MAX_CPU_EVENTS 4 
+
 struct CPUEvent
 {
 	s32						mCount;
@@ -104,7 +107,7 @@ ALIGNED_TYPE(struct, SCPUState, CACHE_ALIGN)
 	REG64			MultLo;				// 0x290 ..
 	REG64			MultHi;				// 0x298
 
-	CPUEvent		Events[ 4 ];	// 0x2A0 //In practice there should only ever be 2 CPU_EVENTS
+	CPUEvent		Events[ MAX_CPU_EVENTS ];	// 0x2A0 //In practice there should only ever be 2 CPU_EVENTS
 	u32				NumEvents;
 
 	void			AddJob( u32 job );

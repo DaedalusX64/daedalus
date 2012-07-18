@@ -44,7 +44,7 @@ void DLParser_GBI2_Vtx( MicroCodeCommand command )
 
     // Check that address is valid...
 	// Only games I seen that set this are Mario Golf/Tennis, but it looks like is caused by a dynarec issue, anyways they crash eventually
-	DAEDALUS_ASSERT( (address + (n*16) ) < MAX_RAM_ADDRESS, "Address out of range (0x%08x)", addr );
+	DAEDALUS_ASSERT( (address + (n*16) ) < MAX_RAM_ADDRESS, "Address out of range (0x%08x)", address );
  
 	PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
 

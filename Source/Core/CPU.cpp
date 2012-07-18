@@ -151,7 +151,7 @@ void CPU_AddEvent( s32 count, ECPUEventType event_type )
 	LOCK_EVENT_QUEUE();
 
 	DAEDALUS_ASSERT( count > 0, "Count is invalid" );
-	DAEDALUS_ASSERT( gCPUState.NumEvents < SCPUState::MAX_CPU_EVENTS, "Too many events" );
+	DAEDALUS_ASSERT( gCPUState.NumEvents < MAX_CPU_EVENTS, "Too many events" );
 
 	u32 event_idx;
 	for( event_idx = 0; event_idx < gCPUState.NumEvents; ++event_idx )
