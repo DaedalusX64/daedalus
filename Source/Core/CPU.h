@@ -93,7 +93,15 @@ typedef REG32 register_set32[32];
 //
 //	Make sure to reflect changes here to DynaRecStubs.S as well //Corn
 //
+//	Define to use scratch pad memory located at 0x10000
+//
+//#define	USE_SCRATCH_PAD
+
+#ifdef USE_SCRATCH_PAD
+struct SCPUState
+#else
 ALIGNED_TYPE(struct, SCPUState, CACHE_ALIGN)
+#endif
 {
 	register_set64	CPU;				// 0x000 .. 0x100
 	register_set32	CPUControl;			// 0x100 .. 0x180
@@ -120,7 +128,12 @@ ALIGNED_TYPE(struct, SCPUState, CACHE_ALIGN)
 #endif
 };
 
+#ifdef USE_SCRATCH_PAD
+extern SCPUState *gPtrCPUState;
+#define gCPUState (*gPtrCPUState)
+#else	//USE_SCRATCH_PAD
 ALIGNED_EXTERN(SCPUState, gCPUState, CACHE_ALIGN);
+#endif //USE_SCRATCH_PAD
 
 #define gGPR (gCPUState.CPU)
 //*****************************************************************************

@@ -3,7 +3,7 @@
 //
 //	Exclude this from public release builds to save a little on the elf size
 //
-#ifndef DAEDALUS_SILENT
+#if defined(DAEDALUS_DEBUG_CONSOLE) || !defined(DAEDALUS_SILENT)
 
 const char *Cop1WOpCodeNames[64] = {
 	"-C1W?", "-C1W?", "-C1W?", "-C1W?", "-C1W?", "-C1W?", "-C1W?", "-C1W?",

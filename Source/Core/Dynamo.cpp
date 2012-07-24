@@ -45,15 +45,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <algorithm>
 #ifdef DAEDALUS_ENABLE_DYNAREC
 
-static const	u32					gMaxFragmentCacheSize = 9000; //3K is way too low... many games hit it too often - Kreationz
-//static const	u32					gMaxHotTraceMapSize = 3000; //Need to find the best value for this to have few clears and fast code... //Is needed?
-static const	u32					gMaxHotTraceMapSize = 2500;
-static const u32					gHotTraceThreshold = 20;
+static const u32					gMaxFragmentCacheSize = 8192; //Maximum amount of fragments in the cache 
+static const u32					gMaxHotTraceMapSize = 2048;
+static const u32					gHotTraceThreshold = 16;	//How many times it has to loop a trace before it becomes hot and sent to dynarec
 
 //typedef CMemoryPoolAllocator< std::pair< const u32, u32 > > MyAllocator;
 //std::map< u32, u32, std::less<u32>, MyAllocator >				gHotTraceCountMap;
-std::map< u32, u32 >				gHotTraceCountMap;
 //std::map< u32, u32, std::less<u32>, boost::pool_allocator<std::pair< const u32, u32 > > >				gHotTraceCountMap;
+std::map< u32, u32 >				gHotTraceCountMap;
 CFragmentCache						gFragmentCache;
 static bool							gResetFragmentCache = false;
 

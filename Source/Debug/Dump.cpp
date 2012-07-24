@@ -256,6 +256,8 @@ void Dump_RSPDisassemble(const char * p_file_name)
 	u8 * base;
 	u32 start = 0xa4000000;
 	u32 end = 0xa4002000;
+	use(end);
+
 	if (!Memory_GetInternalReadAddress(start, (void**)&base))
 	{
 		DBGConsole_Msg(0, "[Yrdis: Invalid base 0x%08x]", start);

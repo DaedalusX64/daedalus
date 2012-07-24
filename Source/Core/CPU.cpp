@@ -111,7 +111,11 @@ const  u32			VI_INTR_CYCLES_INIT = 62500;
 static u32			gVerticalInterrupts( 0 );
 static u32			VI_INTR_CYCLES( VI_INTR_CYCLES_INIT );
 
+#ifdef USE_SCRATCH_PAD
+SCPUState *gPtrCPUState = (SCPUState*)0x10000;
+#else
 ALIGNED_GLOBAL(SCPUState, gCPUState, CACHE_ALIGN);
+#endif
 //*****************************************************************************
 //
 //*****************************************************************************
