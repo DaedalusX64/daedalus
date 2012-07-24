@@ -772,7 +772,7 @@ bool Patch_VerifyLocation_CheckSignature(PatchSymbol * ps,
 		pcr = &dummy_cr;
 
 
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	u32 last = pcr->offset;
 #endif
 	crc = 0;
@@ -865,7 +865,7 @@ bool Patch_VerifyLocation_CheckSignature(PatchSymbol * ps,
 
 			// If pcr->offset == ~0, then there are no more in the array
 			// This is okay, as the comparison with m above will never match
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 			if (pcr->offset < last)
 			{
 				DBGConsole_Msg(0, "%s: CrossReference offsets out of order", ps->szName);
@@ -1191,7 +1191,7 @@ u32 Patch_osContInit()
 {
 TEST_DISABLE_FUNCS
 	//s32		osContInit(OSMesgQueue * mq, u8 *, OSContStatus * cs);
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	u32 mq       = gGPR[REG_a0]._u32_0;
 	u32 attached = gGPR[REG_a1]._u32_0;
 	u32 cs       = gGPR[REG_a2]._u32_0;
@@ -1209,7 +1209,7 @@ TEST_DISABLE_FUNCS
 u32 Patch___osContAddressCrc()
 {
 TEST_DISABLE_FUNCS
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	u32 address = gGPR[REG_a0]._u32_0;
 	use(address);
 	DBGConsole_Msg(0, "__osContAddressCrc(0x%08x)", address);

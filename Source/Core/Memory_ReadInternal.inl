@@ -55,7 +55,7 @@ static bool InternalReadMapped( u32 address, void ** p_translated )
 		if (missing)
 		{
 			// No valid TLB entry - throw TLB Refill Exception
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 			if (g_DaedalusConfig.WarnMemoryErrors)
 			{
 				DBGConsole_Msg(0, "Internal TLB Refill", address);
@@ -66,7 +66,7 @@ static bool InternalReadMapped( u32 address, void ** p_translated )
 		else
 		{
 			// Throw TLB Invalid exception
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 			if (g_DaedalusConfig.WarnMemoryErrors)
 			{
 				DBGConsole_Msg(0, "Internal TLB Invalid");

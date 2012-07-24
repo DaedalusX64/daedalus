@@ -468,7 +468,7 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 							Patch_PatchAll();
 #endif
 						}
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 						else
 						{
 							DBGConsole_Msg(0, "Safely skipped one flush");

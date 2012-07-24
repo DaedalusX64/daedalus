@@ -113,7 +113,7 @@ void	ROMFile::SetHeaderMagic( u32 magic )
 {
 	mHeaderMagic = magic;
 
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	switch (mHeaderMagic)
 	{
 	case 0x80371240:

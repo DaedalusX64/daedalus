@@ -64,7 +64,7 @@ u32 g_dwNumFrames = 0;
 //*****************************************************************************
 RomInfo g_ROM;
 
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -356,7 +356,7 @@ void ROM_ReBoot()
 
 	g_ROM.cic_chip = ROM_GenerateCICType( rom_base );
 
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	if (g_ROM.cic_chip == CIC_UNKNOWN)
 	{
 		//DAEDALUS_ERROR( "Unknown CIC CRC: 0x%08x\nAssuming CIC-6102", crc );
@@ -591,7 +591,7 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	// Game specific hacks..
 	SpecificGameHacks( g_ROM.rh );
 
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DumpROMInfo( g_ROM.rh );
 #endif
 	//

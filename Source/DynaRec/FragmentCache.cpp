@@ -226,7 +226,7 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 	mInputLength += p_fragment->GetInputLength();
 	mOutputLength += p_fragment->GetOutputLength();
 
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	if((mFragments.size() % 100) == 0)
 	{
 		u32		expansion = 1;

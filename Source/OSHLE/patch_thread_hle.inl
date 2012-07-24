@@ -494,7 +494,7 @@ u32 Patch_osDestroyThread_Zelda()
 {
 TEST_DISABLE_THREAD_FUNCS
 
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	u32 thread = gGPR[REG_a0]._u32_0;
 	use(thread);
 	DBGConsole_Msg(0, "osDestroyThread(0x%08x)", thread);

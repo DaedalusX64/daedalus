@@ -7,7 +7,7 @@ u32 Patch_osMapTLB()
 {
 TEST_DISABLE_TLB_FUNCS
 	//osMapTLB(s32, OSPageMask, void *, u32, u32, s32)
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	u32 w = gGPR[REG_a0]._u32_0;
 	u32 x = gGPR[REG_a1]._u32_0;
 	u32 y = gGPR[REG_a2]._u32_0;

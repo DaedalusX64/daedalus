@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*************************************************************************************
 //
 //*************************************************************************************
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 #define CATCH_NAN_EXCEPTION(op, valX, valY) \
 	if(pspFpuIsNaN(valX + valY)) \
 	{ \
@@ -54,7 +54,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 	#define CATCH_NAN_EXCEPTION(op, valX, valY)
 #endif
 
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 inline void CHECK_R0( u32 op )
 {
 	if(gGPR[0]._u64 != 0) 
@@ -488,7 +488,7 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 //*****************************************************************************
 void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 {
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	if((gCPUState.CPUControl[C0_SR]._u32 & SR_FR) != (new_value & SR_FR))
 	{
 		DBGConsole_Msg(0, "[MChanging FP to %s, STATUS=%08X", (new_value & SR_FR) ? "64bit" : "32bit", (new_value & SR_FR));
@@ -2090,7 +2090,7 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 
 			DAEDALUS_ASSERT(new_value == 0, "CAUSE register invalid writing");
 
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 			if ( (new_value&~0x300) != (gCPUState.CPUControl[C0_CAUSE]._u32&~0x300)  )
 			{
 				DBGConsole_Msg( 0, "[MWas previously clobbering CAUSE REGISTER" );
@@ -2854,7 +2854,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_UEQ( R4300_CALL_SIGNATURE )
 //*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_NGLE( R4300_CALL_SIGNATURE )	
 {
-#ifndef DAEDALUS_SILENT	
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	R4300_CALL_MAKE_OP( op_code );
 
 	f32 fX = LoadFPR_Single( op_code.fs );
@@ -2967,7 +2967,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_ULT( R4300_CALL_SIGNATURE )
 //*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_S_SF( R4300_CALL_SIGNATURE )
 {
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	R4300_CALL_MAKE_OP( op_code );
 
 	f32 fX = LoadFPR_Single( op_code.fs );
@@ -3439,7 +3439,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_ULE( R4300_CALL_SIGNATURE )
 //*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_D_SF( R4300_CALL_SIGNATURE )
 {
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	R4300_CALL_MAKE_OP( op_code );
 
 	d64 fX = LoadFPR_Double( op_code.fs );
@@ -3455,7 +3455,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_SF( R4300_CALL_SIGNATURE )
 //*****************************************************************************
 static void R4300_CALL_TYPE R4300_Cop1_D_NGLE( R4300_CALL_SIGNATURE )
 {
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	R4300_CALL_MAKE_OP( op_code );
 
 	d64 fX = LoadFPR_Double( op_code.fs );

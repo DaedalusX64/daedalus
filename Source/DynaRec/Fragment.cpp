@@ -595,8 +595,9 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 			trace[1].OpCode._u32 == 0x5420FFFE &&
 			trace[2].OpCode._u32 == 0x8C4F0000)
 		{
-			DBGConsole_Msg( 0, "Found speedhack at: %08x", trace[0].Address );
-
+#ifndef DAEDALUS_SILENT
+			printf("Speedhack complex %08x\n", trace[0].Address );
+#endif
 			p_generator->ExecuteNativeFunction( CCodeLabel( reinterpret_cast< const void * >( CPU_SkipToNextEvent ) ) );
 		}
 	}
@@ -611,19 +612,13 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 	for( u32 i = 0; i < trace.size(); ++i )
 	{
 		const STraceEntry & ti( trace[ i ] );
-#ifdef DAEDALUS_DEBUG_CONSOLE
-		OpCode				op_code( ti.OpCode );
-#endif
-		u32					branch_idx( ti.BranchIdx );
-//		u32					address( ti.Address ); // Unused as far as I can tell - Kreationz
+		u32	branch_idx( ti.BranchIdx );
 
 #ifdef FRAGMENT_RETAIN_ADDITIONAL_INFO
 		mInstructionStartLocations.push_back( p_generator->GetCurrentLocation().GetTargetU8P() );
 #endif
 
 		p_generator->UpdateRegisterCaching( i );
-
-
 
 		// Check the cop1 usable flag. Do this only once (theoretically it could be toggled mid-fragment but this is unlikely)
 		/*
@@ -636,25 +631,66 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 			//exception_handler_jumps.push_back( handler );
 		}
 		*/
+
 		const SBranchDetails * p_branch( NULL );
 		if( branch_idx != INVALID_IDX )
 		{
 			DAEDALUS_ASSERT( branch_idx < branch_details.size(), "Branch index is out of bounds" );
 			p_branch = &branch_details[ branch_idx ];
 
-			if (p_branch->SpeedHack == SHACK_SKIPTOEVENT)
+#ifndef DAEDALUS_SILENT
+			switch(p_branch->SpeedHack)
 			{
-				DBGConsole_Msg( 0, "Found skip to event speedhack at: %08x (0x%08x)", ti.Address, op_code._u32 );
-				p_generator->ExecuteNativeFunction( CCodeLabel( reinterpret_cast< const void * >( CPU_SkipToNextEvent ) ) );
+				case SHACK_SKIPTOEVENT:
+					{
+					printf("Speedhack event (skip busy loop)\n");
+					char opinfo[128];
+					SprintOpCodeInfo( opinfo, trace[i].Address, trace[i].OpCode );
+					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i].Address, trace[i].OpCode._u32, opinfo);
+					
+					SprintOpCodeInfo( opinfo, trace[i+1].Address, trace[i+1].OpCode );
+					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i+1].Address, trace[i+1].OpCode._u32, opinfo);
+
+					p_generator->ExecuteNativeFunction( CCodeLabel( reinterpret_cast< const void * >( CPU_SkipToNextEvent ) ) );
+					}
+					break;
+
+				case SHACK_COPYREG:
+					{
+					printf("Speedhack copyreg (not handled)\n");
+					char opinfo[128];
+					SprintOpCodeInfo( opinfo, trace[i].Address, trace[i].OpCode );
+					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i].Address, trace[i].OpCode._u32, opinfo);
+					
+					SprintOpCodeInfo( opinfo, trace[i+1].Address, trace[i+1].OpCode );
+					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i+1].Address, trace[i+1].OpCode._u32, opinfo);
+					}
+					break;
+
+				case SHACK_POSSIBLE:
+					{
+					printf("Speedhack unknown (not handled)\n");
+					char opinfo[128];
+					SprintOpCodeInfo( opinfo, trace[i].Address, trace[i].OpCode );
+					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i].Address, trace[i].OpCode._u32, opinfo);
+					
+					SprintOpCodeInfo( opinfo, trace[i+1].Address, trace[i+1].OpCode );
+					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i+1].Address, trace[i+1].OpCode._u32, opinfo);
+					}
+					break;
+
+				default:
+					break;
 			}
-#ifdef DAEDALUS_DEBUG_CONSOLE
-			if (p_branch->SpeedHack == SHACK_COPYREG)
+#else
+			switch(p_branch->SpeedHack)
 			{
-				DBGConsole_Msg( 0, "Found a copyreg speedhack at: %08x (0x%08x)", ti.Address, op_code._u32 );
-			}
-			if (p_branch->SpeedHack == SHACK_POSSIBLE)
-			{
-				DBGConsole_Msg( 0, "Found a unknow speedhack at: %08x (0x%08x)", ti.Address, op_code._u32 );
+				case SHACK_SKIPTOEVENT:
+					p_generator->ExecuteNativeFunction( CCodeLabel( reinterpret_cast< const void * >( CPU_SkipToNextEvent ) ) );
+					break;
+
+				default:
+					break;
 			}
 #endif
 		}

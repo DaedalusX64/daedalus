@@ -674,7 +674,7 @@ bool IGraphicsContext::Initialise()
 	save_disp_rel = disp_buffer_rel;
 	save_depth_rel = depth_buffer_rel;
 
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	printf( "Alloc %d bytes for draw buffer A at %p\n", FRAME_SIZE, draw_buffer );
 	printf( "Alloc %d bytes for draw buffer B at %p\n", FRAME_SIZE, disp_buffer );
 	printf( "Alloc %d bytes for Z buffer at %p\n", DEPTH_SIZE, depth_buffer );

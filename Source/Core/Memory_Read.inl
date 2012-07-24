@@ -25,7 +25,7 @@ static void * ReadInvalid( u32 address )
 {
 	DPF( DEBUG_MEMORY, "Illegal Memory Access - Tried to Read From 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC );
 
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	if (g_DaedalusConfig.WarnMemoryErrors)
 	{
 		CPU_Halt("Illegal Memory Access");
@@ -43,7 +43,7 @@ static void * Read_Noise( u32 address )
 {
 	//CPUHalt();
 	//DBGConsole_Msg(0, "Reading noise (0x%08x)", address);
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	static bool bWarned = false;
 	if (!bWarned)
 	{
@@ -442,7 +442,7 @@ static void *Read_8480_848F( u32 address )
 {
 	if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) <= SI_LAST_REG))
 	{
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		u32 offset = address & 0xFF;
 
 		if (SI_BASE_REG + offset == SI_STATUS_REG)
@@ -549,7 +549,7 @@ static void * ReadROM( u32 address )
 		//DBGConsole_Msg(0, "[GRead from Cart (addr2)] 0x%08x", address);
 		offset = physical_addr - PI_DOM1_ADDR2;
 		p_mem = RomBuffer::GetAddressRaw( offset );
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		if( p_mem == NULL )
 		{
 			DBGConsole_Msg(0, "[GRead from Cart (addr2) out of range! (0x%08x)] 0x%08x",

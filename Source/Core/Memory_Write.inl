@@ -25,7 +25,7 @@ static void * WriteInvalid( u32 address )
 {
 	DPF( DEBUG_MEMORY, "Illegal Memory Access Tried to Write To 0x%08x PC: 0x%08x", address, gCPUState.CurrentPC );
 	
-#ifndef DAEDALUS_SILENT
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	if (g_DaedalusConfig.WarnMemoryErrors)
 	{
 		CPU_Halt("Illegal Memory Access");
