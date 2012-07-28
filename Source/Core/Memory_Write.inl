@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 static void * WriteInvalid( u32 address )
 {
-	DPF( DEBUG_MEMORY, "Illegal Memory Access Tried to Write To 0x%08x PC: 0x%08x", address, gCPUState.CurrentPC );
+	printf("Illegal Memory Access Tried to Write To 0x%08x PC: 0x%08x\n", address, gCPUState.CurrentPC );
 	
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	if (g_DaedalusConfig.WarnMemoryErrors)
@@ -32,20 +32,6 @@ static void * WriteInvalid( u32 address )
 		DBGConsole_Msg(0, "Illegal Memory Access: Tried to Write To 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC);
 	}
 #endif
-	return g_pMemoryBuffers[MEM_UNUSED];
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-static void *Write_Noise( u32 address )
-{
-	//static bool bWarned( false );
-	//if (!bWarned)
-	//{
-	//	DBGConsole_Msg(0, "Writing noise (0x%08x) - sizing memory?", address);
-	//	bWarned = true;
-	//}
 	return g_pMemoryBuffers[MEM_UNUSED];
 }
 
@@ -81,7 +67,7 @@ static void * WriteMapped( u32 address )
 	}	
 }
 
-
+/*
 
 static void *Write_RAM_4Mb_8000_803F( u32 address )
 {
@@ -101,6 +87,13 @@ static void *Write_RAM_4Mb_A000_A03F( u32 address )
 static void *Write_RAM_8Mb_A000_A07F( u32 address )
 {
 	return g_pu8RamBase_A000 + address;
+}
+
+*/
+static void *Write_8000_807F( u32 address )
+{
+	// Note: Mask is slighty different when EPAK isn't used 0x003FFFFF
+	return ((u8 *)g_pMemoryBuffers[MEM_RD_RAM] + (address & 0x007FFFFF));
 }
 
 //*****************************************************************************

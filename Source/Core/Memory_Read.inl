@@ -25,39 +25,18 @@ static void * ReadInvalid( u32 address )
 {
 	DPF( DEBUG_MEMORY, "Illegal Memory Access - Tried to Read From 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC );
 
-#ifdef DAEDALUS_DEBUG_CONSOLE
-	if (g_DaedalusConfig.WarnMemoryErrors)
+	if(address == 0xa5000508)
 	{
-		CPU_Halt("Illegal Memory Access");
+		DBGConsole_Msg(0, "Reading noise (0x%08x) - sizing memory?", address);	
+		*(u32*)((u8 *)g_pMemoryBuffers[MEM_UNUSED]) = ~0;
+	}
+	else
+	{
 		DBGConsole_Msg(0, "Illegal Memory Access - Tried to Read From 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC);
+		*(u32*)((u8 *)g_pMemoryBuffers[MEM_UNUSED]) = 0;
 	}
-#endif
-	return g_pMemoryBuffers[MEM_UNUSED];
-
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-static void * Read_Noise( u32 address )
-{
-	//CPUHalt();
-	//DBGConsole_Msg(0, "Reading noise (0x%08x)", address);
-#ifdef DAEDALUS_DEBUG_CONSOLE
-	static bool bWarned = false;
-	if (!bWarned)
-	{
-		DBGConsole_Msg(0, "Reading noise (0x%08x) - sizing memory?", address);
-		bWarned = true;
-	}
-#endif
-	*(u32*)((u8 *)g_pMemoryBuffers[MEM_UNUSED] + 0) = pspFastRand();
-	*(u32*)((u8 *)g_pMemoryBuffers[MEM_UNUSED] + 4) = pspFastRand();
 
 	return g_pMemoryBuffers[MEM_UNUSED];
-
-
-
 }
 
 //*****************************************************************************
@@ -139,13 +118,20 @@ static void *Read_RAM_8Mb_A000_A07F( u32 address )
 	return g_pu8RamBase_A000 + address;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
+static void *Read_8000_807F( u32 address )
+{
+	// Note: Mask is slighty different when EPAK isn't used 0x003FFFFF
+	return (u8 *)g_pMemoryBuffers[MEM_RD_RAM] + (address & 0x007FFFFF);
+}
 
 //*****************************************************************************
 //
 //*****************************************************************************
 static void *Read_83F0_83F0( u32 address )
 {
-
 	// 0x83F0 0000 to 0x83FF FFFF  RDRAM registers
 	if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) < 0x04000000))
 	{
@@ -358,7 +344,6 @@ static void *Read_8440_844F( u32 address )
 	}
 }
 
-#undef DISPLAY_AI_READS
 //*****************************************************************************
 // 0x0450 0000 to 0x045F FFFF Audio Interface (AI) Registers
 //*****************************************************************************
@@ -368,30 +353,6 @@ static void *Read_8450_845F( u32 address )
 	if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) <= AI_LAST_REG))
 	{
 		u32 offset = address & 0xFF;
-
-#ifdef DISPLAY_AI_READS
-		switch (AI_BASE_REG + offset)
-		{
-		case AI_DRAM_ADDR_REG:
-			break;
-
-		case AI_LEN_REG:
-			break;
-
-		case AI_CONTROL_REG:
-			break;
-
-		case AI_STATUS_REG:
-			//Memory_AI_SetRegister(AI_STATUS_REG, 0);	// Not needed, and could cause possible issues with some games.
-			break;
-
-		case AI_DACRATE_REG:
-			break;
-		case AI_BITRATE_REG:
-			break;
-
-		}
-#endif
 		DPF( DEBUG_MEMORY_AI, "Reading from AI Registers: 0x%08x", address );
 		return (u8 *)g_pMemoryBuffers[MEM_AI_REG] + offset;
 	}
@@ -400,7 +361,6 @@ static void *Read_8450_845F( u32 address )
 		return ReadInvalid(address);
 	}
 }
-
 
 //*****************************************************************************
 // 0x0460 0000 to 0x046F FFFF Peripheral Interface (PI) Registers
@@ -474,7 +434,6 @@ static void *Read_8480_848F( u32 address )
 //
 //*****************************************************************************
 /*
-
 #define	K0_TO_K1(x)	((u32)(x)|0xA0000000)	// kseg0 to kseg1 
 #define	K1_TO_K0(x)	((u32)(x)&0x9FFFFFFF)	// kseg1 to kseg0 
 #define	K0_TO_PHYS(x)	((u32)(x)&0x1FFFFFFF)	// kseg0 to physical 
@@ -496,11 +455,23 @@ static void *Read_8480_848F( u32 address )
 
 //0xa8010000 FlashROM
 */
+static void * ReadFlashRam( u32 address )
+{
+	u32 offset = address & 0xFF;
+	if( g_ROM.settings.SaveType == SAVE_TYPE_FLASH && offset == 0 )
+	{
+		return (u8 *)&FlashStatus[0];
+	}
 
+	DBGConsole_Msg(0, "[GRead from FlashRam (0x%08x) is unhandled", address);
+	return ReadInvalid(address);
+}
 
+//*****************************************************************************
+//
+//*****************************************************************************
 static void * ReadROM( u32 address )
 {
-	void * p_mem( NULL );
 	//0x10000000 | 0xA0000000 = 0xB0000000
 
 	// Few things read from (0xbff00000)
@@ -508,69 +479,8 @@ static void * ReadROM( u32 address )
 
 	// 0xb0ffb000
 
-	u32 physical_addr;
-	u32 offset;
-
-	physical_addr = K0_TO_PHYS(address);		// & 0x1FFFFFFF;
-
-	if (physical_addr >= PI_DOM2_ADDR1 && physical_addr < PI_DOM1_ADDR1)
-	{
-		//DBGConsole_Msg(0, "[GRead from SRAM (addr1)] 0x%08x", address);
-		offset = physical_addr - PI_DOM2_ADDR1;
-		if (offset < MemoryRegionSizes[MEM_SAVE])
-		{
-			p_mem = (u8 *)g_pMemoryBuffers[MEM_SAVE] + offset;
-		}
-	}
-	else if (physical_addr >= PI_DOM1_ADDR1 && physical_addr < PI_DOM2_ADDR2)
-	{
-		//DBGConsole_Msg(0, "[GRead from Cart (addr1)] 0x%08x", address);
-		offset = physical_addr - PI_DOM1_ADDR1;
-		p_mem = RomBuffer::GetAddressRaw( offset );
-	}
-	else if (physical_addr >= PI_DOM2_ADDR2 && physical_addr < PI_DOM1_ADDR2)
-	{
-		//DBGConsole_Msg(0, "[GRead from FLASHRAM (addr2)] 0x%08x", address);
-		offset = physical_addr - PI_DOM2_ADDR2;
-		if (g_ROM.settings.SaveType != SAVE_TYPE_FLASH)
-		{
-			if (offset < MemoryRegionSizes[MEM_SAVE])
-			{
-				p_mem = (u8 *)g_pMemoryBuffers[MEM_SAVE] + offset;
-			}
-		}
-		else
-		{
-			p_mem = (u8 *)&FlashStatus[0];
-		}
-	}
-	else if (physical_addr >= PI_DOM1_ADDR2 && physical_addr < 0x1FBFFFFF)
-	{
-		//DBGConsole_Msg(0, "[GRead from Cart (addr2)] 0x%08x", address);
-		offset = physical_addr - PI_DOM1_ADDR2;
-		p_mem = RomBuffer::GetAddressRaw( offset );
-#ifdef DAEDALUS_DEBUG_CONSOLE
-		if( p_mem == NULL )
-		{
-			DBGConsole_Msg(0, "[GRead from Cart (addr2) out of range! (0x%08x)] 0x%08x",
-			address, RomBuffer::GetRomSize());
-		}
-#endif
-	}
-	else if (physical_addr >= PI_DOM1_ADDR3 && physical_addr < 0x7FFFFFFF)
-	{
-		//DBGConsole_Msg(0, "[GRead from Cart (addr3)] 0x%08x", address);
-		offset = physical_addr - PI_DOM1_ADDR3;
-		p_mem = RomBuffer::GetAddressRaw( offset );
-	}
-
-	if( p_mem == NULL )
-	{
-		DBGConsole_Msg(0, "[WWarning, attempting to read from invalid Cart address (0x%08x)]", address);
-		p_mem = Read_Noise(address);
-	}
-
-	return p_mem;
+	u32 offset = address & 0x03FFFFFF;
+	return RomBuffer::GetAddressRaw( offset );
 }
 
 //*****************************************************************************
@@ -580,10 +490,6 @@ static void * ReadROM( u32 address )
 static void * Read_9FC0_9FCF( u32 address )
 {
 	u32 offset = address & 0x0FFF;
-	//u32 cic = 0x91;
-
-	//if( MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) <= PIF_RAM_END) )
-	//if( MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) <= PIF_ROM_END) )
 
 	DPF( DEBUG_MEMORY_PIF, "Reading from MEM_PIF: 0x%08x", address );
 	return (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset;

@@ -27,6 +27,55 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/ultra_rcp.h"
 #include "Utility/AtomicPrimitives.h"
 
+#define MEMORY_SIZE_RDRAM				0x400000
+#define MEMORY_SIZE_EXRDRAM				0x400000
+#define MEMORY_SIZE_RAMREGS0			0x30
+#define MEMORY_SIZE_RAMREGS4			0x30
+#define MEMORY_SIZE_RAMREGS8			0x30
+#define MEMORY_SIZE_SPMEM				0x2000
+#define MEMORY_SIZE_SPREG_1				0x24
+#define MEMORY_SIZE_SPREG_2				0x8
+#define MEMORY_SIZE_DPC					0x20
+#define MEMORY_SIZE_DPS					0x10
+#define MEMORY_SIZE_MI					0x10
+#define MEMORY_SIZE_VI					0x50
+#define MEMORY_SIZE_AI					0x18
+#define MEMORY_SIZE_PI					0x4C
+#define MEMORY_SIZE_RI					0x20
+#define MEMORY_SIZE_SI					0x1C
+#define MEMORY_SIZE_C2A1				0x8000
+#define MEMORY_SIZE_C1A1				0x8000
+#define MEMORY_SIZE_C2A2				0x20000
+#define MEMORY_SIZE_GIO_REG				0x804
+#define MEMORY_SIZE_C1A3				0x8000
+#define MEMORY_SIZE_PIF					0x800
+#define MEMORY_SIZE_DUMMY				0x10000
+
+#define MEMORY_START_RDRAM		0x00000000
+#define MEMORY_START_EXRDRAM	0x00400000
+#define MEMORY_START_RAMREGS0	0x03F00000
+#define MEMORY_START_RAMREGS4	0x03F04000
+#define MEMORY_START_RAMREGS8	0x03F80000
+#define MEMORY_START_SPMEM		0x04000000
+#define MEMORY_START_SPREG_1	0x04040000
+#define MEMORY_START_SPREG_2	0x04080000
+#define MEMORY_START_DPC		0x04100000
+#define MEMORY_START_DPS		0x04200000
+#define MEMORY_START_MI			0x04300000
+#define MEMORY_START_VI			0x04400000
+#define MEMORY_START_AI			0x04500000
+#define MEMORY_START_PI			0x04600000
+#define MEMORY_START_RI			0x04700000
+#define MEMORY_START_SI			0x04800000
+#define MEMORY_START_C2A1		0x05000000
+#define MEMORY_START_C1A1		0x06000000
+#define MEMORY_START_C2A2		0x08000000
+#define MEMORY_START_ROM_IMAGE	0x10000000
+#define MEMORY_START_GIO		0x18000000
+#define MEMORY_START_PIF		0x1FC00000
+#define MEMORY_START_C1A3		0x1FD00000
+#define MEMORY_START_DUMMY		0x1FFF0000
+
 // I've taken out the memory region checking (for now at least)
 // I was getting some very strange bugs with the Memory_AllocRegion
 // function (which I think was a compiler bug, but I wasn't sure).
@@ -237,10 +286,9 @@ pointer_null_x:
 #define WriteAddress FuncTableWriteAddress
 #define WriteValueAddress FuncTableWriteValueAddress
 #else
-
-inline void* ReadAddress( u32 address )
+inline void* DAEDALUS_ATTRIBUTE_CONST ReadAddress( u32 address )
 {
-	s32 tableEntry = reinterpret_cast< s32 >( g_ReadAddressPointerLookupTable[address >> 18] ) + address;
+	const s32 tableEntry = reinterpret_cast< s32 >( g_ReadAddressPointerLookupTable[address >> 18] ) + address;
 	if(DAEDALUS_EXPECT_LIKELY(tableEntry >= 0))
 	{
 		return (void*)(tableEntry);
@@ -253,21 +301,21 @@ inline void* ReadAddress( u32 address )
 
 inline void* WriteAddress( u32 address )
 {
-	s32 tableEntry = reinterpret_cast< s32 >( g_WriteAddressPointerLookupTable[address >> 18] ) + address;
+	const s32 tableEntry = reinterpret_cast< s32 >( g_WriteAddressPointerLookupTable[address >> 18] ) + address;
 	if(DAEDALUS_EXPECT_LIKELY(tableEntry >= 0))
 	{
 		return (void*)(tableEntry);
 	}
 	else
 	{
+
 		return FuncTableWriteAddress(address);
 	}
 }
 
 inline void WriteValueAddress( u32 address, u32 value )
 {
-	s32 tableEntry = reinterpret_cast< s32 >( g_WriteAddressPointerLookupTable[address >> 18] ) + address;
-
+	const s32 tableEntry = reinterpret_cast< s32 >( g_WriteAddressPointerLookupTable[address >> 18] ) + address;
 	if(DAEDALUS_EXPECT_LIKELY(tableEntry >= 0))
 	{
 		*(u32*)(tableEntry) = value;
@@ -278,6 +326,8 @@ inline void WriteValueAddress( u32 address, u32 value )
 	}
 }
 #endif /* 0 */
+
+
 
 #ifndef DAEDALUS_SILENT
 inline bool Memory_GetInternalReadAddress(u32 address, void ** p_translated)

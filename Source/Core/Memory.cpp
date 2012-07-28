@@ -118,119 +118,6 @@ void Flash_DoCommand(u32);
 #include "Memory_WriteValue.inl"
 #include "Memory_ReadInternal.inl"
 
-#ifndef DAEDALUS_SILENT
-//*****************************************************************************
-//
-//*****************************************************************************
-struct InternalMemMapEntry
-{
-	u32 mStartAddr, mEndAddr;
-	InternalMemFastFunction InternalReadFastFunction;
-};
-
-// Physical ram: 0x80000000 upwards is set up when tables are initialised
-InternalMemMapEntry InternalMemMapEntries[] =
-{
-	{ 0x0000, 0x7FFF, InternalReadMapped },			// Mapped Memory
-	{ 0x8000, 0x807F, InternalReadInvalid },		// RDRAM - Initialised later
-	{ 0x8080, 0x83FF, InternalReadInvalid },		// Cartridge Domain 2 Address 1
-	{ 0x8400, 0x8400, InternalRead_8400_8400 },		// Cartridge Domain 2 Address 1
-	{ 0x8404, 0x85FF, InternalReadInvalid },		// Cartridge Domain 2 Address 1
-	{ 0x8600, 0x87FF, InternalReadROM },			// Cartridge Domain 1 Address 1
-	{ 0x8800, 0x8FFF, InternalReadROM },			// Cartridge Domain 2 Address 2
-	{ 0x9000, 0x9FBF, InternalReadROM },			// Cartridge Domain 1 Address 2
-	{ 0x9FC0, 0x9FCF, InternalRead_9FC0_9FCF },		// pif RAM/ROM
-	{ 0x9FD0, 0x9FFF, InternalReadROM },			// Cartridge Domain 1 Address 3
-
-	{ 0xA000, 0xA07F, InternalReadInvalid },		// Physical RAM - Copy of above
-	{ 0xA080, 0xA3FF, InternalReadInvalid },		// Unused
-	{ 0xA400, 0xA400, InternalRead_8400_8400 },		// Unused
-	{ 0xA404, 0xA4FF, InternalReadInvalid },		// Unused
-	{ 0xA500, 0xA5FF, InternalReadROM },			// Cartridge Domain 2 Address 1
-	{ 0xA600, 0xA7FF, InternalReadROM },			// Cartridge Domain 1 Address 1
-	{ 0xA800, 0xAFFF, InternalReadROM },			// Cartridge Domain 2 Address 2
-	{ 0xB000, 0xBFBF, InternalReadROM },			// Cartridge Domain 1 Address 2
-	{ 0xBFC0, 0xBFCF, InternalRead_9FC0_9FCF },		// pif RAM/ROM
-	{ 0xBFD0, 0xBFFF, InternalReadROM },			// Cartridge Domain 1 Address 3
-
-	{ 0xC000, 0xDFFF, InternalReadMapped },			// Mapped Memory
-	{ 0xE000, 0xFFFF, InternalReadMapped },			// Mapped Memory
-
-	{ ~0,  ~0, NULL}
-};
-#endif
-
-//*****************************************************************************
-//
-//*****************************************************************************
-struct MemMapEntry
-{
-	u32 mStartAddr, mEndAddr;
-	MemFastFunction ReadFastFunction;
-	MemFastFunction WriteFastFunction;
-	MemWriteValueFunction WriteValueFunction;
-	u32 ReadRegion;
-	u32 WriteRegion;
-};
-
-MemMapEntry MemMapEntries[] =
-{
-	{ 0x0000, 0x7FFF, ReadMapped,		WriteMapped,	WriteValueMapped,		0,			0 },			// Mapped Memory
-	{ 0x8000, 0x807F, Read_Noise,		Write_Noise,	WriteValueNoise,		0,			0 },			// RDRAM - filled in with correct function later
-	{ 0x8080, 0x83EF, Read_Noise,		Write_Noise,	WriteValueNoise,		0,			0 },			// Unused - electrical noise
-	{ 0x83F0, 0x83F0, Read_83F0_83F0,	Write_83F0_83F0,WriteValue_83F0_83F0,	MEM_RD_REG0,	MEM_RD_REG0 },	// RDRAM reg
-	{ 0x83F4, 0x83FF, ReadInvalid,		WriteInvalid,	WriteValueInvalid,		0,			0},				// Unused
-	{ 0x8400, 0x8400, Read_8400_8400,	WriteInvalid,	WriteValue_8400_8400,	MEM_SP_MEM, MEM_SP_MEM },	// DMEM/IMEM
-	{ 0x8404, 0x8404, Read_8404_8404,	Write_8400_8400,WriteValue_8404_8404,	MEM_SP_REG, 0 },			// SP Reg
-	{ 0x8408, 0x8408, Read_8408_8408,	WriteInvalid,	WriteValue_8408_8408,	0,			0 },			// SP PC/IBIST
-	{ 0x840C, 0x840F, ReadInvalid,		WriteInvalid,	WriteValueInvalid,		0,			0 },			// Unused
-	{ 0x8410, 0x841F, Read_8410_841F,	WriteInvalid,	WriteValue_8410_841F,	0/*MEM_DPC_REG*/, 0 },		// DPC Reg
-	{ 0x8420, 0x842F, Read_8420_842F,	WriteInvalid,	WriteValue_8420_842F,	0,			0 },			// DPS Reg
-	{ 0x8430, 0x843F, Read_8430_843F,	WriteInvalid,	WriteValue_8430_843F,	MEM_MI_REG, 0 },			// MI Reg
-	{ 0x8440, 0x844F, Read_8440_844F,	WriteInvalid,	WriteValue_8440_844F,	0,			0 },			// VI Reg
-	{ 0x8450, 0x845F, Read_8450_845F,	WriteInvalid,	WriteValue_8450_845F,	0,			0 },			// AI Reg
-	{ 0x8460, 0x846F, Read_8460_846F,	WriteInvalid,	WriteValue_8460_846F,	MEM_PI_REG, 0 },			// PI Reg
-	{ 0x8470, 0x847F, Read_8470_847F,	WriteInvalid,	WriteValue_8470_847F,	MEM_RI_REG, MEM_RI_REG },	// RI Reg
-	{ 0x8480, 0x848F, Read_8480_848F,	WriteInvalid,	WriteValue_8480_848F,	0,			0 },			// SI Reg
-	{ 0x8490, 0x84FF, ReadInvalid,		WriteInvalid,	WriteValueInvalid,		0,			0 },			// Unused
-	{ 0x8500, 0x85FF, ReadInvalid/*ReadROM*/,	WriteInvalid, WriteValue_Cartridge, 0,		0 },			// Cartridge Domain 2 Address 1
-	{ 0x8600, 0x87FF, ReadROM,			WriteInvalid,	WriteValue_Cartridge,	0,			0 },			// Cartridge Domain 1 Address 1
-	{ 0x8800, 0x8FFF, ReadROM,			WriteInvalid,	WriteValue_Cartridge,	0,			0 },			// Cartridge Domain 2 Address 2
-	{ 0x9000, 0x9FBF, ReadROM,			WriteInvalid,	WriteValue_Cartridge,	0,			0 },			// Cartridge Domain 1 Address 2
-	{ 0x9FC0, 0x9FCF, Read_9FC0_9FCF,	WriteInvalid,	WriteValue_9FC0_9FCF,	0,			0 },			// pif RAM/ROM
-	{ 0x9FD0, 0x9FFF, ReadROM,			WriteInvalid,	WriteValue_Cartridge,	0,			0 },			// Cartridge Domain 1 Address 3
-
-	{ 0xA000, 0xA07F, Read_Noise,		Write_Noise,	WriteValueNoise,		0,			0 },			// Physical RAM - Copy of above
-	{ 0xA080, 0xA3EF, Read_Noise,		Write_Noise,	WriteValueNoise,		0,			0 },			// Unused
-	{ 0xA3F0, 0xA3FF, Read_83F0_83F0,	Write_83F0_83F0,WriteValue_83F0_83F0,	MEM_RD_REG0,	MEM_RD_REG0 },	// RDRAM Reg
-	//{ 0xA3F4, 0xA3FF, ReadInvalid,		WriteInvalid },		// Unused
-	{ 0xA400, 0xA400, Read_8400_8400,	Write_8400_8400,	WriteValue_8400_8400, MEM_SP_MEM, MEM_SP_MEM },	// DMEM/IMEM
-	{ 0xA404, 0xA404, Read_8404_8404,	WriteInvalid,	WriteValue_8404_8404,	MEM_SP_REG, 0 },			// SP Reg
-	{ 0xA408, 0xA408, Read_8408_8408,	WriteInvalid,	WriteValue_8408_8408,	0,			0 },			// SP PC/OBOST
-	{ 0xA40C, 0xA40F, ReadInvalid,		WriteInvalid,	WriteValueInvalid,		0,			0 },			// Unused
-	{ 0xA410, 0xA41F, Read_8410_841F,	WriteInvalid,	WriteValue_8410_841F,	0/*MEM_DPC_REG*/, 0 },		// DPC Reg
-	{ 0xA420, 0xA42F, Read_8420_842F,	WriteInvalid,	WriteValue_8420_842F,	0,			0 },			// DPS Reg
-
-	{ 0xA430, 0xA43F, Read_8430_843F,	WriteInvalid,	WriteValue_8430_843F,	MEM_MI_REG, 0 },			// MI Reg
-	{ 0xA440, 0xA44F, Read_8440_844F,	WriteInvalid,	WriteValue_8440_844F,	0,			0 },			// VI Reg
-	{ 0xA450, 0xA45F, Read_8450_845F,	WriteInvalid,	WriteValue_8450_845F,	0,			0 },			// AI Reg
-	{ 0xA460, 0xA46F, Read_8460_846F,	WriteInvalid,	WriteValue_8460_846F,	MEM_PI_REG, 0 },			// PI Reg
-	{ 0xA470, 0xA47F, Read_8470_847F,	WriteInvalid,	WriteValue_8470_847F,	MEM_RI_REG, MEM_RI_REG },	// RI Reg
-	{ 0xA480, 0xA48F, Read_8480_848F,	WriteInvalid,	WriteValue_8480_848F,	0,			0 },			// SI Reg
-	{ 0xA490, 0xA4FF, ReadInvalid,		WriteInvalid,	WriteValueInvalid,		0,			0 },			// Unused
-	//{ 0xA500, 0xA5FF, ReadROM,			WriteInvalid,	WriteValue_Cartridge,	0,			0 },			// Cartridge Domain 2 Address 1
-	{ 0xA500, 0xA5FF, Read_Noise,		WriteInvalid,	WriteValueNoise,		0,			0 },			// Cartridge Domain 2 Address 1 - set this area as invalid else Pokemon Stadium 1 won't boot ~ Salvy
-	{ 0xA600, 0xA7FF, ReadROM,			WriteInvalid,	WriteValue_Cartridge,	0,			0 },			// Cartridge Domain 1 Address 1
-	{ 0xA800, 0xAFFF, ReadROM,			WriteInvalid,	WriteValue_Cartridge,	0,			0 },			// Cartridge Domain 2 Address 2
-	{ 0xB000, 0xBFBF, ReadROM,			WriteInvalid,	WriteValue_Cartridge,	0,			0 },			// Cartridge Domain 1 Address 2
-	{ 0xBFC0, 0xBFCF, Read_9FC0_9FCF,	WriteInvalid,	WriteValue_9FC0_9FCF,	0,			0 },			// pif RAM/ROM
-	{ 0xBFD0, 0xBFFF, ReadROM,			WriteInvalid,	WriteValue_Cartridge,	0,			0 },			// Cartridge Domain 1 Address 3
-
-	{ 0xC000, 0xDFFF, ReadMapped,		WriteMapped,	WriteValueMapped,		0,			0 },			// Mapped Memory
-	{ 0xE000, 0xFFFF, ReadMapped,		WriteMapped,	WriteValueMapped,		0,			0 },			// Mapped Memory
-
-	{ ~0,  ~0, NULL, NULL, 0,  0, 0 }																		// ?? Can we safely remove this?
-};
 
 //*****************************************************************************
 //
@@ -446,21 +333,47 @@ static void * Memory_GetInvalidPointerTableEntry( int entry )
 //*****************************************************************************
 //
 //*****************************************************************************
+void Memory_InitFunc(u32 start, u32 size, u32 ReadRegion, u32 WriteRegion, MemFastFunction pRead, MemFastFunction pWrite, MemWriteValueFunction pWriteValue)
+{
+	u32	start_addr = (start >> 18);
+	u32	end_addr   = ((start + size - 1) >> 18);
+
+	while(start_addr <= end_addr)
+	{
+		g_ReadAddressLookupTable[ start_addr|(0x8000 >> 2) ]	  = pRead;
+		g_WriteAddressLookupTable[ start_addr|(0x8000 >> 2) ]		= pWrite;
+		g_WriteAddressValueLookupTable[ start_addr | (0x8000 >> 2) ] = pWriteValue;
+
+		g_ReadAddressLookupTable[ start_addr|(0xA000 >> 2) ]	  = pRead;
+		g_WriteAddressLookupTable[ start_addr|(0xA000 >> 2) ]		= pWrite;
+		g_WriteAddressValueLookupTable[ start_addr|(0xA000 >> 2) ]	  = pWriteValue;
+
+		if(ReadRegion)
+		{
+			g_ReadAddressPointerLookupTable[start_addr|(0x8000 >> 2)] = (void*)(reinterpret_cast< u32 >(g_pMemoryBuffers[ReadRegion]) - (((start>>16)|0x8000) << 16));
+			g_ReadAddressPointerLookupTable[start_addr|(0xA000 >> 2)] = (void*)(reinterpret_cast< u32 >(g_pMemoryBuffers[ReadRegion]) - (((start>>16)|0xA000) << 16));
+		}
+
+		if(WriteRegion)
+		{
+			g_WriteAddressPointerLookupTable[start_addr|(0x8000 >> 2)] = (void*)(reinterpret_cast< u32 >(g_pMemoryBuffers[WriteRegion]) - (((start>>16)|0x8000) << 16));
+			g_WriteAddressPointerLookupTable[start_addr|(0xA000 >> 2)] = (void*)(reinterpret_cast< u32 >(g_pMemoryBuffers[WriteRegion]) - (((start>>16)|0xA000) << 16));
+		}
+		
+		start_addr++;
+	}
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
 void Memory_InitTables()
 {
-	u32 start_addr;
-	u32 end_addr;
 	u32 i;
-
-	// 0x00000000 - 0x7FFFFFFF Mapped Memory
-	u32 entry = 0;
 
 	memset(g_ReadAddressLookupTable, 0, sizeof(MemFastFunction) * 0x4000);
 	memset(g_WriteAddressLookupTable, 0, sizeof(MemFastFunction) * 0x4000);
 	memset(g_WriteAddressValueLookupTable, 0, sizeof(MemWriteValueFunction) * 0x4000);
-#ifndef DAEDALUS_SILENT
-	memset(InternalReadFastTable, 0, sizeof(InternalMemFastFunction) * 0x4000);
-#endif
 	memset(g_ReadAddressPointerLookupTable, 0, sizeof(void*) * 0x4000);
 	memset(g_WriteAddressPointerLookupTable, 0, sizeof(void*) * 0x4000);
 
@@ -470,158 +383,285 @@ void Memory_InitTables()
 		g_WriteAddressPointerLookupTable[i] = g_ReadAddressPointerLookupTable[i] = Memory_GetInvalidPointerTableEntry(i);
 	}
 
-	while (MemMapEntries[entry].mStartAddr != u32(~0))
+	// 0x00000000 - 0x7FFFFFFF Mapped Memory
+	for(i = 0; i < (0x8000 >> 2); i++)
 	{
-		start_addr = MemMapEntries[entry].mStartAddr;
-		end_addr = MemMapEntries[entry].mEndAddr;
-
-#ifndef MEMORY_DO_BOUNDS_CHECKING // this kills bounds checking
-		void* readPointerLookupTableEntry = MemMapEntries[entry].ReadRegion ? (void*)(reinterpret_cast< u32 >(g_pMemoryBuffers[MemMapEntries[entry].ReadRegion]) - (start_addr << 16)) : 0;
-		void* writePointerLookupTableEntry = MemMapEntries[entry].WriteRegion ? (void*)(reinterpret_cast< u32 >(g_pMemoryBuffers[MemMapEntries[entry].WriteRegion]) - (start_addr << 16)) : 0;
-#endif
-
-		for (i = (start_addr>>2); i <= (end_addr>>2); i++)
-		{
-			g_ReadAddressLookupTable[i]  = MemMapEntries[entry].ReadFastFunction;
-			g_WriteAddressLookupTable[i] = MemMapEntries[entry].WriteFastFunction;
-			g_WriteAddressValueLookupTable[i] = MemMapEntries[entry].WriteValueFunction;
-
-#ifndef MEMORY_DO_BOUNDS_CHECKING // this kills bounds checking
-			if(MemMapEntries[entry].ReadRegion)
-				g_ReadAddressPointerLookupTable[i] = readPointerLookupTableEntry;
-
-			if(MemMapEntries[entry].WriteRegion)
-				g_WriteAddressPointerLookupTable[i] = writePointerLookupTableEntry;
-#endif
-		}
-
-		entry++;
+		g_ReadAddressLookupTable[i]			= ReadMapped;
+		g_WriteAddressLookupTable[i]		= WriteMapped;
+		g_WriteAddressValueLookupTable[i]	= WriteValueMapped;
 	}
 
-#ifndef DAEDALUS_SILENT
-	entry = 0;
-	while (InternalMemMapEntries[entry].mStartAddr != u32(~0))
+	// Invalidate all entries, mapped regions are untouched (0x00000000 - 0x7FFFFFFF, 0xC0000000 - 0x10000000 )
+	for(i = (0x8000 >> 2); i < (0xC000 >> 2); i++)
 	{
-		start_addr = InternalMemMapEntries[entry].mStartAddr;
-		end_addr = InternalMemMapEntries[entry].mEndAddr;
-
-		for (i = (start_addr>>2); i <= (end_addr>>2); i++)
-		{
-			InternalReadFastTable[i]  = InternalMemMapEntries[entry].InternalReadFastFunction;
-		}
-
-		entry++;
+		g_ReadAddressLookupTable[i]			= ReadInvalid;
+		g_WriteAddressLookupTable[i]		= WriteInvalid;
+		g_WriteAddressValueLookupTable[i]	= WriteValueInvalid;
 	}
-#endif
-	// Check the tables
-	/*for (i = 0; i < 0x4000; i++)
-	{
-		if (g_ReadAddressLookupTable[i] == NULL ||
-			g_WriteAddressLookupTable[i] == NULL ||
-			g_WriteAddressValueLookupTable[i] == NULL ||
-			InternalReadFastTable[i] == NULL)
-		{
-			char str[300];
-			wsprintf(str, "Warning: 0x%08x is null", i<<14);
-			MessageBox(NULL, str, g_szDaedalusName, MB_OK);
-		}
-	}*/
 
+	// 0xC0000000 - 0x10000000 Mapped Memory
+	for(i = (0xC000 >> 2); i < (0x10000 >> 2); i++)
+	{
+		g_ReadAddressLookupTable[i]			= ReadMapped;
+		g_WriteAddressLookupTable[i]		= WriteMapped;
+		g_WriteAddressValueLookupTable[i]	= WriteValueMapped;
+	}
+
+	u32	rom_size( RomBuffer::GetRomSize() );
+	u32 ram_size( gRamSize );
 
 	// Set up RDRAM areas:
-	u32 ram_size = gRamSize;
-	MemFastFunction pReadRam;
-	MemFastFunction pWriteRam;
-	MemWriteValueFunction pWriteValueRam;
-#ifndef DAEDALUS_SILENT
-	InternalMemFastFunction pInternalReadRam;
-#endif
-	void* pointerLookupTableEntry;
+	DBGConsole_Msg(0, "Initialising %s main memory", (ram_size == MEMORY_8_MEG) ? "8Mb" : "4Mb");
 
-	if (ram_size == MEMORY_4_MEG)
+	// Init RDRAM
+	Memory_InitFunc
+	( 
+		MEMORY_START_RDRAM, 
+		MEMORY_SIZE_RDRAM, 
+		MEM_RD_RAM,
+		MEM_RD_RAM,
+		Read_8000_807F, 
+		Write_8000_807F, 
+		WriteValue_8000_807F 
+	);
+
+	// Init EXRDRAM
+	if (ram_size == MEMORY_8_MEG)
 	{
-		DBGConsole_Msg(0, "Initialising 4Mb main memory");
-		pReadRam = Read_RAM_4Mb_8000_803F;
-		pWriteRam = Write_RAM_4Mb_8000_803F;
-		pWriteValueRam = WriteValue_RAM_4Mb_8000_803F;
-#ifndef DAEDALUS_SILENT
-		pInternalReadRam = InternalRead_4Mb_8000_803F;
-#endif
-	}
-	else
-	{
-		DBGConsole_Msg(0, "Initialising 8Mb main memory");
-		pReadRam = Read_RAM_8Mb_8000_807F;
-		pWriteRam = Write_RAM_8Mb_8000_807F;
-		pWriteValueRam = WriteValue_RAM_8Mb_8000_807F;
-#ifndef DAEDALUS_SILENT
-		pInternalReadRam = InternalRead_8Mb_8000_807F;
-#endif
-	}
-
-	// "Real"
-	start_addr = 0x8000;
-	end_addr = 0x8000 + ((ram_size>>16)-1);
-
-	pointerLookupTableEntry = (void*)(reinterpret_cast< u32 >( g_pMemoryBuffers[MEM_RD_RAM] ) - (start_addr << 16));
-
-	for (i = (start_addr>>2); i <= (end_addr>>2); i++)
-	{
-		g_ReadAddressLookupTable[i]  = pReadRam;
-		g_WriteAddressLookupTable[i] = pWriteRam;
-		g_WriteAddressValueLookupTable[i] = pWriteValueRam;
-#ifndef DAEDALUS_SILENT
-		InternalReadFastTable[i]  = pInternalReadRam;
-#endif
-		g_ReadAddressPointerLookupTable[i] = pointerLookupTableEntry;
-		g_WriteAddressPointerLookupTable[i] = pointerLookupTableEntry;
+		Memory_InitFunc
+		( 
+			MEMORY_START_EXRDRAM,
+			MEMORY_SIZE_EXRDRAM, 
+			MEM_RD_RAM,
+			MEM_RD_RAM,
+			Read_8000_807F, 
+			Write_8000_807F, 
+			WriteValue_8000_807F 
+		);
 	}
 
-
-	// Shadow
-	if (ram_size == MEMORY_4_MEG)
-	{
-		pReadRam = Read_RAM_4Mb_A000_A03F;
-		pWriteRam = Write_RAM_4Mb_A000_A03F;
-		pWriteValueRam = WriteValue_RAM_4Mb_A000_A03F;
-#ifndef DAEDALUS_SILENT
-		pInternalReadRam = InternalRead_4Mb_8000_803F;
-#endif
-	}
-	else
-	{
-		pReadRam = Read_RAM_8Mb_A000_A07F;
-		pWriteRam = Write_RAM_8Mb_A000_A07F;
-		pWriteValueRam = WriteValue_RAM_8Mb_A000_A07F;
-#ifndef DAEDALUS_SILENT
-		pInternalReadRam = InternalRead_8Mb_8000_807F;
-#endif
-	}
+	// RDRAM Reg
+	Memory_InitFunc
+	( 
+		MEMORY_START_RAMREGS0, 
+		MEMORY_SIZE_RAMREGS0, 
+		MEM_RD_REG0,	
+		MEM_RD_REG0,
+		Read_83F0_83F0, 
+		Write_83F0_83F0, 
+		WriteValue_83F0_83F0 
+	);
 
 
-	start_addr = 0xA000;
-	end_addr = 0xA000 + ((ram_size>>16)-1);
+	// DMEM/IMEM
+	Memory_InitFunc
+	( 
+		MEMORY_START_SPMEM, 
+		MEMORY_SIZE_SPMEM, 
+		MEM_SP_MEM, 
+		MEM_SP_MEM,
+		Read_8400_8400, 
+		WriteInvalid, 
+		WriteValue_8400_8400
+	);
 
-	pointerLookupTableEntry = (void*)(reinterpret_cast< u32 >( g_pMemoryBuffers[MEM_RD_RAM] ) - (start_addr << 16));
+	// SP Reg
+	Memory_InitFunc
+	( 
+		MEMORY_START_SPREG_1, 
+		MEMORY_SIZE_SPREG_1,
+		MEM_SP_REG, 
+		0,
+		Read_8404_8404,
+		Write_8400_8400, 
+		WriteValue_8404_8404 
+	);
 
-	for (i = (start_addr>>2); i <= (end_addr>>2); i++)
-	{
-		g_ReadAddressLookupTable[i]  = pReadRam;
-		g_WriteAddressLookupTable[i] = pWriteRam;
-		g_WriteAddressValueLookupTable[i] = pWriteValueRam;
-#ifndef DAEDALUS_SILENT
-		InternalReadFastTable[i]  = pInternalReadRam;
-#endif
-		g_ReadAddressPointerLookupTable[i] = pointerLookupTableEntry;
-		g_WriteAddressPointerLookupTable[i] = pointerLookupTableEntry;
-	}
+	// SP PC/OBOST
+	Memory_InitFunc
+	(
+		MEMORY_START_SPREG_2,
+		MEMORY_SIZE_SPREG_2, 
+		0,
+		0,
+		Read_8408_8408, 
+		WriteInvalid, 
+		WriteValue_8408_8408 
+	);
+	// DPC Reg
+	Memory_InitFunc
+	( 
+		MEMORY_START_DPC,
+		MEMORY_SIZE_DPC, 
+		0,
+		0,
+		Read_8410_841F, 
+		WriteInvalid, 
+		WriteValue_8410_841F
+	);	
+
+	// DPS Reg
+	Memory_InitFunc
+	( 
+		MEMORY_START_DPS, 
+		MEMORY_SIZE_DPS, 
+		0,
+		0,
+		Read_8420_842F,
+		WriteInvalid, 
+		WriteValue_8420_842F 
+	);	
+	
+	// MI reg
+	Memory_InitFunc
+	(
+		MEMORY_START_MI,
+		MEMORY_SIZE_MI, 
+		MEM_MI_REG, 
+		0,
+		Read_8430_843F, 
+		WriteInvalid, 
+		WriteValue_8430_843F
+	);	
+
+	// VI Reg
+	Memory_InitFunc
+	( 
+		MEMORY_START_VI, 
+		MEMORY_SIZE_VI, 
+		0,
+		0,
+		Read_8440_844F, 
+		WriteInvalid, 
+		WriteValue_8440_844F
+	);
+
+	// AI Reg
+	Memory_InitFunc
+	( 
+		MEMORY_START_AI, 
+		MEMORY_SIZE_AI, 
+		0,
+		0,
+		Read_8450_845F, 
+		WriteInvalid, 
+		WriteValue_8450_845F 
+	);
+
+	// PI Reg
+	Memory_InitFunc
+	( 
+		MEMORY_START_PI,
+		MEMORY_SIZE_PI,
+		MEM_PI_REG, 
+		0,
+		Read_8460_846F,
+		WriteInvalid,
+		WriteValue_8460_846F 
+	);
+
+	// RI Reg
+	Memory_InitFunc
+	(
+		MEMORY_START_RI, 
+		MEMORY_SIZE_RI,
+		MEM_RI_REG, 
+		MEM_RI_REG,
+		Read_8470_847F, 
+		WriteInvalid, 
+		WriteValue_8470_847F
+	);
+
+	// SI Reg
+	Memory_InitFunc
+	( 
+		MEMORY_START_SI, 
+		MEMORY_SIZE_SI, 
+		0,
+		0,
+		Read_8480_848F, 
+		WriteInvalid, 
+		WriteValue_8480_848F
+	);
+
+
+	// Cartridge Domain 2 Address 1 (SRAM)
+	Memory_InitFunc
+	( 
+		MEMORY_START_C2A1, 
+		MEMORY_SIZE_C2A1, 
+		0,
+		0,
+		ReadInvalid, 
+		WriteInvalid,  
+		WriteValueInvalid
+	);
+
+	// Cartridge Domain 1 Address 1 (SRAM)
+	Memory_InitFunc
+	( 
+		MEMORY_START_C1A1, 
+		MEMORY_SIZE_C1A1,
+		0,
+		0,
+		ReadInvalid, 
+		WriteInvalid,  
+		WriteValueInvalid
+	);
+
+	// GIO reg (basically in the same segment as C1A1..)
+	Memory_InitFunc
+	( 
+		MEMORY_START_GIO,
+		MEMORY_SIZE_GIO_REG,
+		0,
+		0,
+		ReadInvalid, 
+		WriteInvalid,  
+		WriteValueInvalid
+	);
+
+	// PIF Reg
+	Memory_InitFunc
+	(
+		MEMORY_START_PIF, 
+		MEMORY_SIZE_PIF, 
+		0,
+		0,
+		Read_9FC0_9FCF, 
+		WriteInvalid,
+		WriteValue_9FC0_9FCF
+	);
+
+	// Cartridge Domain 2 Address 2 (FlashRam) 
+	// ToDo : FlashRam Read is at 0x800, and Flash Ram Write at 0x801
+	Memory_InitFunc
+	( 
+		MEMORY_START_C2A2, 
+		MEMORY_SIZE_C2A2,
+		0,
+		0,
+		ReadFlashRam, 
+		WriteInvalid,  
+		WriteValue_FlashRam
+	);
+
+	// Cartridge Domain 1 Address 2 (Rom)
+	Memory_InitFunc
+	(
+		MEMORY_START_ROM_IMAGE, 
+		rom_size, 
+		0,
+		0,
+		ReadROM,	
+		WriteInvalid, 
+		WriteValue_ROM
+	);
 
 	// Map ROM regions here if the address is fixed
 	if(RomBuffer::IsRomLoaded() && RomBuffer::IsRomAddressFixed())
 	{
 		const void *	p_rom_address( RomBuffer::GetFixedRomBaseAddress() );
-		u32				rom_size( RomBuffer::GetRomSize() );
-
 		Memory_InitTables_ROM_PointerTable( p_rom_address, rom_size, PI_DOM1_ADDR1, PI_DOM2_ADDR2 );
 		Memory_InitTables_ROM_PointerTable( p_rom_address, rom_size, PI_DOM1_ADDR2, 0x1FC00000 );
 		Memory_InitTables_ROM_PointerTable( p_rom_address, rom_size, PI_DOM1_ADDR3, 0x20000000 );
@@ -632,6 +672,11 @@ void Memory_InitTables()
 	{
 		Memory_Tlb_Hack();
 	}
+
+	// Debug only
+#ifndef DAEDALUS_SILENT
+	Memory_InitInternalTables( ram_size );
+#endif
 }
 
 //#undef DISPLAY_RDP_COMMANDS

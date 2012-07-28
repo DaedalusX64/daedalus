@@ -37,29 +37,11 @@ static void WriteValueInvalid( u32 address, u32 value )
 //*****************************************************************************
 //
 //*****************************************************************************
-static void WriteValueNoise( u32 address, u32 value )
-{
-	//CPUHalt();
-#ifdef DAEDALUS_DEBUG_CONSOLE
-	static bool bWarned( false );
-	if (!bWarned)
-	{
-		DBGConsole_Msg(0, "Writing noise (0x%08x) - sizing memory?", address);
-		bWarned = true;
-	}
-#endif
-	//return g_pMemoryBuffers[MEM_UNUSED];
-	// Do nothing
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
 static void WriteValueMapped( u32 address, u32 value )
 {
 	*(u32*)WriteMapped( address ) = value;
 }
-
+/*
 static void WriteValue_RAM_4Mb_8000_803F( u32 address, u32 value )
 {
 	*(u32 *)(g_pu8RamBase_8000 + address) = value;
@@ -78,6 +60,12 @@ static void WriteValue_RAM_4Mb_A000_A03F( u32 address, u32 value )
 static void WriteValue_RAM_8Mb_A000_A07F( u32 address, u32 value )
 {
 	*(u32 *)(g_pu8RamBase_A000 + address) = value;
+}
+*/
+static void WriteValue_8000_807F( u32 address, u32 value )
+{
+	// Note: Mask is slighty different when EPAK isn't used 0x003FFFFF
+	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_RD_RAM] + (address & 0x007FFFFF)) = value;
 }
 
 //*****************************************************************************
@@ -584,111 +572,26 @@ static void WriteValue_9FC0_9FCF( u32 address, u32 value )
 0x0800_0000 .. 0x0fff_ffff	cartridge domain 2
 0x1000_0000 .. 0x1fbf_ffff	cartridge domain 1
 */
-#if 0
-static void WriteValue_Cartridge( u32 address, u32 value )
+static void WriteValue_FlashRam( u32 address, u32 value )
 {
-	//0x10000000 | 0xA0000000 = 0xB0000000
-
-	u32 physical_addr;
-	u32 offset;
-
-	physical_addr = K0_TO_PHYS(address);		// & 0x1FFFFFFF;
-
-	if (physical_addr >= PI_DOM2_ADDR1 && physical_addr < PI_DOM1_ADDR1)
+	u32 offset = address & 0xFF;
+	if( g_ROM.settings.SaveType == SAVE_TYPE_FLASH && offset == 0 )
 	{
-		DBGConsole_Msg(0, "[GWrite to  SRAM (addr1)] 0x%08x", address);
-		offset = physical_addr - PI_DOM2_ADDR1;
-		if (g_ROM.settings.SaveType == SAVE_TYPE_SRAM
-			&& offset < MemoryRegionSizes[MEM_SAVE])
-		{
-			*(u32*)((u8 *)g_pMemoryBuffers[MEM_SAVE] + offset) = value;	
-			Save::MarkSaveDirty();
-			return;
-		}
-	}
-	else if (physical_addr >= PI_DOM1_ADDR1 && physical_addr < PI_DOM2_ADDR2)
-	{
-//		DBGConsole_Msg(0, "[GWrite to  Cart (addr1)] 0x%08x", address);
-		offset = physical_addr - PI_DOM1_ADDR1;
-		//return RomBuffer::GetAddressRaw( offset );
-	}
-	else if (physical_addr >= PI_DOM2_ADDR2 && physical_addr < PI_DOM1_ADDR2)
-	{
-		offset = physical_addr - PI_DOM2_ADDR2;
-		if ( offset == 0x00010000 ||  offset == 0x00000000)
-		{
-		//	DBGConsole_Msg(0, "[GFLASHRAM command] 0x%08x", value);
-
-			//*(u32*)((u8 *)g_pMemoryBuffers[MEM_SAVE] + offset) = value;	
-			Flash_DoCommand(value);
-			return;
-		}
-		else if (offset < MemoryRegionSizes[MEM_SAVE])
-		{
-			DBGConsole_Msg(0, "[GWrite to  FLASHRAM (addr2)] 0x%08x 0x%08x", address, value);
-			//*(u32*)((u8 *)g_pMemoryBuffers[MEM_SAVE] + offset) = value;	
-			//Save_MarkSaveDirty();
-			return;
-		}
-	}
-	else if (physical_addr >= PI_DOM1_ADDR2 && physical_addr < 0x1FBFFFFF)
-	{
-//		DBGConsole_Msg(0, "[GWrite to  Cart (addr2)] 0x%08x", address);
-		offset = physical_addr - PI_DOM1_ADDR2;
-		//return RomBuffer::GetAddressRaw( offset );
+		Flash_DoCommand( value );
+		return;
 	}
 
-	else if (physical_addr >= PI_DOM1_ADDR3 && physical_addr < 0x7FFFFFFF)
-	{
-//		DBGConsole_Msg(0, "[GWrite to  Cart (addr3)] 0x%08x", address);
-		offset = physical_addr - PI_DOM1_ADDR3;
-		//return RomBuffer::GetAddressRaw( offset );
-	}
-
-	DBGConsole_Msg(0, "[WWarning, attempting to write to invalid Cart address (0x%08x)]", address);
+	DBGConsole_Msg(0, "[GWrite to FlashRam (0x%08x) is unhandled", address);
 	WriteValueInvalid(address, value);
 }
-
-#else
-
-static void WriteValue_Cartridge( u32 address, u32 value )
+//*****************************************************************************
+//
+//*****************************************************************************
+static void WriteValue_ROM( u32 address, u32 value )
 {
 	//0x10000000 | 0xA0000000 = 0xB0000000
 
 	// Mmm A Bug's Life and Toy Story write to ROM in PI_DOM1_ADDR2, not sure why since games only should write to ROM when writing
 	// SRAM or FlashRam, at PI_DOM2_ADDR1 and PI_DOM2_ADDR2.
 	// ToDo : Add a hack for these games..
-
-	u32 physical_addr = K0_TO_PHYS(address);		// & 0x1FFFFFFF;
-	u32 offset;
-
-	if (physical_addr >= PI_DOM2_ADDR1 && physical_addr < PI_DOM1_ADDR1)
-	{
-//		DBGConsole_Msg(0, "[GWrite to  SRAM (addr1)] 0x%08x", address);
-		offset = physical_addr - PI_DOM2_ADDR1;
-
-		if (g_ROM.settings.SaveType == SAVE_TYPE_SRAM && offset < MemoryRegionSizes[MEM_SAVE])
-		{
-			*(u32*)((u8 *)g_pMemoryBuffers[MEM_SAVE] + offset) = value;	
-			Save::MarkSaveDirty();
-			return;
-		}
-	}
-	else if (physical_addr >= PI_DOM2_ADDR2 && physical_addr < PI_DOM1_ADDR2)
-	{
-		offset = physical_addr - PI_DOM2_ADDR2;
-		if ( offset == 0x00010000 ||  offset == 0x00000000)
-		{
-//			DBGConsole_Msg(0, "[GFLASHRAM command] 0x%08x", value);
-			DAEDALUS_ASSERT( g_ROM.settings.SaveType == SAVE_TYPE_FLASH, "Invalid write to FlashRam!" );
-
-			Flash_DoCommand(value);
-			return;
-		}
-
-	}
-
-	DBGConsole_Msg(0, "[WWarning, attempting to write to invalid Cart address (0x%08x)]", address);
-	WriteValueInvalid(address, value);
 }
-#endif
