@@ -45,9 +45,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <algorithm>
 #ifdef DAEDALUS_ENABLE_DYNAREC
 
-static const u32					gMaxFragmentCacheSize = 8192; //Maximum amount of fragments in the cache 
-static const u32					gMaxHotTraceMapSize = 2048;
-static const u32					gHotTraceThreshold = 16;	//How many times it has to loop a trace before it becomes hot and sent to dynarec
+// These values are very sensitive to change in some games so be carefull!!! //Corn
+// War God is sensitive to gHotTraceThreshold
+// PD is sensitive to gMaxHotTraceMapSize
+//
+static const u32					gMaxFragmentCacheSize = (8192 + 1024); //Maximum amount of fragments in the cache 
+static const u32					gMaxHotTraceMapSize = (2048 + 512);	
+static const u32					gHotTraceThreshold = 20;	//How many times interpreter has to loop a trace before it becomes hot and sent to dynarec
 
 //typedef CMemoryPoolAllocator< std::pair< const u32, u32 > > MyAllocator;
 //std::map< u32, u32, std::less<u32>, MyAllocator >				gHotTraceCountMap;
@@ -94,7 +98,7 @@ void CPU_DynarecEnable()
 }
 */
 //*****************************************************************************
-//
+// If fragments overlap dynarec has to start all over which is very costly
 //*****************************************************************************
 void R4300_CALL_TYPE CPU_InvalidateICacheRange( u32 address, u32 length )
 {
