@@ -410,14 +410,14 @@ void Memory_InitTables()
 	u32	rom_size( RomBuffer::GetRomSize() );
 	u32 ram_size( gRamSize );
 
-	// Set up RDRAM areas:
 	DBGConsole_Msg(0, "Initialising %s main memory", (ram_size == MEMORY_8_MEG) ? "8Mb" : "4Mb");
-
+	
 	// Init RDRAM
+	// By default we init with EPAK (8Mb)
 	Memory_InitFunc
 	( 
 		MEMORY_START_RDRAM, 
-		MEMORY_SIZE_RDRAM, 
+		MEMORY_SIZE_RDRAM_DEFAULT,
 		MEM_RD_RAM,
 		MEM_RD_RAM,
 		Read_8000_807F, 
@@ -425,18 +425,18 @@ void Memory_InitTables()
 		WriteValue_8000_807F 
 	);
 
-	// Init EXRDRAM
-	if (ram_size == MEMORY_8_MEG)
+	// Need to turn off the EPAK
+	if (ram_size != MEMORY_8_MEG)
 	{
 		Memory_InitFunc
 		( 
 			MEMORY_START_EXRDRAM,
 			MEMORY_SIZE_EXRDRAM, 
-			MEM_RD_RAM,
-			MEM_RD_RAM,
-			Read_8000_807F, 
-			Write_8000_807F, 
-			WriteValue_8000_807F 
+			0,
+			0,
+			ReadInvalid, 
+			WriteInvalid, 
+			WriteValueInvalid 
 		);
 	}
 
