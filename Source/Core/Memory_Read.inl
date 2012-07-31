@@ -89,35 +89,26 @@ static void *Read_RAM_8Mb_8000_807F( u32 address )
 //*****************************************************************************
 //
 //*****************************************************************************
-static void *Read_RAM_4Mb_8000_803F( u32 address )
+/*static void *Read_RAM_4Mb_8000_803F( u32 address )
 {
 	return g_pu8RamBase_8000 + address;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 static void *Read_RAM_8Mb_8000_807F( u32 address )
 {
 	return g_pu8RamBase_8000 + address;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 static void *Read_RAM_4Mb_A000_A03F( u32 address )
 {
 	return g_pu8RamBase_A000 + address;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 static void *Read_RAM_8Mb_A000_A07F( u32 address )
 {
 	return g_pu8RamBase_A000 + address;
 }
-
+*/
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -133,17 +124,8 @@ static void *Read_8000_807F( u32 address )
 static void *Read_83F0_83F0( u32 address )
 {
 	// 0x83F0 0000 to 0x83FF FFFF  RDRAM registers
-	if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) < 0x04000000))
-	{
-		DPF( DEBUG_MEMORY_RDRAM_REG, "Reading from MEM_RD_REG: 0x%08x", address );
-
-		//DBGConsole_Msg(0, "Reading from MEM_RD_REG: 0x%08x", address);
-		return (u8 *)g_pMemoryBuffers[MEM_RD_REG0] + (address & 0xFF);
-	}
-	else
-	{
-		return ReadInvalid(address);
-	}
+	DPF( DEBUG_MEMORY_RDRAM_REG, "Reading from MEM_RD_REG: 0x%08x", address );
+	return (u8 *)g_pMemoryBuffers[MEM_RD_REG0] + (address & 0xFF);
 }
 
 //*****************************************************************************
@@ -152,15 +134,8 @@ static void *Read_83F0_83F0( u32 address )
 static void *Read_8400_8400( u32 address )
 {
 	// 0x0400 0000 to 0x0400 FFFF  SP registers
-	if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) < 0x4002000))
-	{
-		DPF( DEBUG_MEMORY_SP_IMEM, "Reading from SP_MEM: 0x%08x", address );
-		return (u8 *)g_pMemoryBuffers[MEM_SP_MEM] + (address & 0x1FFF);
-	}
-	else
-	{
-		return ReadInvalid(address);
-	}
+	DPF( DEBUG_MEMORY_SP_IMEM, "Reading from SP_MEM: 0x%08x", address );
+	return (u8 *)g_pMemoryBuffers[MEM_SP_MEM] + (address & 0x1FFF);
 }
 
 
@@ -169,14 +144,8 @@ static void *Read_8400_8400( u32 address )
 //*****************************************************************************
 static void *Read_8404_8404( u32 address )
 {
-	if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) < 0x04040020))
-	{
-		DPF( DEBUG_MEMORY_SP_REG, "Reading from SP_REG: 0x%08x", address );
-		return (u8 *)g_pMemoryBuffers[MEM_SP_REG] + (address & 0xFF);
-	} else {
-		return ReadInvalid(address);
-	}
-
+	DPF( DEBUG_MEMORY_SP_REG, "Reading from SP_REG: 0x%08x", address );
+	return (u8 *)g_pMemoryBuffers[MEM_SP_REG] + (address & 0xFF);
 }
 
 //*****************************************************************************
@@ -210,81 +179,14 @@ static void *Read_8408_8408( u32 address )
 	}*/
 }
 
-#undef DISPLAY_DPC_READS
 //*****************************************************************************
 //
 //*****************************************************************************
 static void *Read_8410_841F( u32 address )
 {
 	// 0x0410 0000 to 0x041F FFFF DP Command Registers
-	if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) < 0x04100020))
-	{
-		DPF( DEBUG_MEMORY_DP, "Reading from DP_COMMAND_REG: 0x%08x", address );
-		//DBGConsole_Msg(0, "Reading from DP_COMMAND_REG: 0x%08x", address);
-
-		u32 offset = address & 0xFF;
-
- #ifdef DISPLAY_DPC_READS
-		u32 value = *(u32*)((u8 *)g_pMemoryBuffers[MEM_DPC_REG] + offset);
-
-		switch (DPC_BASE_REG + offset)
-		{
-			case DPC_START_REG:
-				DBGConsole_Msg( 0, "Read from [WDPC_START_REG] 0x%08x", value );
-				break;
-			case DPC_END_REG:
-				DBGConsole_Msg( 0, "Read from [WDPC_END_REG] 0x%08x", value );
-				break;
-			case DPC_CURRENT_REG:
-			//	DBGConsole_Msg( 0, "Read from [WDPC_CURRENT_REG 0x%08x", value );
-				break;
-			case DPC_STATUS_REG:
-				{
-					//DPC_STATUS_XBUS_DMEM_DMA			0x0001
-					//DPC_STATUS_DMA_BUSY				0x0100
-				//	CPU_Halt("Status");
-				//	DBGConsole_Msg( 0, "Read from [WDPC_STATUS_REG] 0x%08x", value );
-
-					/*u32 flags = 0;
-
-					DBGConsole_Msg( 0, "start, end, current: %08x %08x %08x", 
-						Memory_DPC_GetRegister( DPC_START_REG ), Memory_DPC_GetRegister( DPC_END_REG ), Memory_DPC_GetRegister( DPC_CURRENT_REG ) );
-
-					if ( Memory_DPC_GetRegister( DPC_START_REG ) != 0 )
-						flags |= DPC_STATUS_START_VALID;
-
-					if ( Memory_DPC_GetRegister( DPC_START_REG ) < Memory_DPC_GetRegister( DPC_END_REG ) )
-						flags |= DPC_STATUS_END_VALID;
-
-					Memory_DPC_SetRegisterBits( DPC_STATUS_REG, flags );*/
-				}
-
-				break;
-			case DPC_CLOCK_REG:
-				DBGConsole_Msg( 0, "Read from [WDPC_CLOCK_REG] 0x%08x", value );
-				break;
-			case DPC_BUFBUSY_REG: 
-				DBGConsole_Msg( 0, "Read from [WDPC_BUFBUSY_REG:] 0x%08x", value );
-				break;
-			case DPC_PIPEBUSY_REG:
-				DBGConsole_Msg( 0, "Read from [WDPC_PIPEBUSY_REG] 0x%08x", value );
-				break;
-			case DPC_TMEM_REG:
-				DBGConsole_Msg( 0, "Read from [WDPC_TMEM_REG] 0x%08x", value );
-				break;
-			default:
-				DBGConsole_Msg( 0, "Read from [WUnknown DPC reg]!" );
-				break;
-		}
-#endif
-		return (u8 *)g_pMemoryBuffers[MEM_DPC_REG] + offset;
-	}
-	else
-	{
-		DBGConsole_Msg( 0, "Read from DP Command Registers is unhandled (0x%08x, PC: 0x%08x)", address, gCPUState.CurrentPC );
-		
-		return ReadInvalid(address);
-	}
+	DPF( DEBUG_MEMORY_DP, "Reading from DP_COMMAND_REG: 0x%08x", address );
+	return (u8 *)g_pMemoryBuffers[MEM_DPC_REG] + (address & 0xFF);
 }
 
 //*****************************************************************************
@@ -302,17 +204,8 @@ static void *Read_8420_842F( u32 address )
 //*****************************************************************************
 static void *Read_8430_843F( u32 address )
 {	
-	if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) <= MI_LAST_REG))
-	{
-		DPF( DEBUG_MEMORY_MI, "Reading from MI Registers: 0x%08x", address );
-		//if ((address & 0xFF) == 0x08)
-		//	DBGConsole_Msg(0, "Reading from MI REG: 0x%08x", address);
-		return (u8 *)g_pMemoryBuffers[MEM_MI_REG] + (address & 0xFF);
-	}
-	else
-	{
-		return ReadInvalid(address);
-	}
+	DPF( DEBUG_MEMORY_MI, "Reading from MI Registers: 0x%08x", address );
+	return (u8 *)g_pMemoryBuffers[MEM_MI_REG] + (address & 0xFF);
 }
 
 //*****************************************************************************
@@ -320,46 +213,31 @@ static void *Read_8430_843F( u32 address )
 //*****************************************************************************
 static void *Read_8440_844F( u32 address )
 {
-	if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) <= VI_LAST_REG))
+	DPF( DEBUG_MEMORY_VI, "Reading from MEM_VI_REG: 0x%08x", address );
+	if ((address & 0x1FFFFFFF) == VI_CURRENT_REG)
 	{
-		DPF( DEBUG_MEMORY_VI, "Reading from MEM_VI_REG: 0x%08x", address );
-		if ((address & 0x1FFFFFFF) == VI_CURRENT_REG)
-		{
-			//u64 count_to_vbl = (VID_CLOCK-1) - (g_qwNextVBL - gCPUState.CPUControl[C0_COUNT]);
-			//vi_pos = (u32)((count_to_vbl*512)/VID_CLOCK);
-			u32 vi_pos = Memory_VI_GetRegister(VI_CURRENT_REG);
+		//u64 count_to_vbl = (VID_CLOCK-1) - (g_qwNextVBL - gCPUState.CPUControl[C0_COUNT]);
+		//vi_pos = (u32)((count_to_vbl*512)/VID_CLOCK);
+		u32 vi_pos = Memory_VI_GetRegister(VI_CURRENT_REG);
 
-			vi_pos += 2;
-			if (vi_pos >= 512)
-				vi_pos = 0;
+		vi_pos += 2;
+		if (vi_pos >= 512)
+			vi_pos = 0;
 
-			//DBGConsole_Msg(0, "Reading vi pos: %d", vi_pos);
-			Memory_VI_SetRegister(VI_CURRENT_REG, vi_pos);
-		}
-		return VI_REG_ADDRESS(address & 0x1FFFFFFF);
+		//DBGConsole_Msg(0, "Reading vi pos: %d", vi_pos);
+		Memory_VI_SetRegister(VI_CURRENT_REG, vi_pos);
 	}
-	else
-	{
-		return ReadInvalid(address);
-	}
+	return VI_REG_ADDRESS(address & 0x1FFFFFFF);
 }
 
 //*****************************************************************************
 // 0x0450 0000 to 0x045F FFFF Audio Interface (AI) Registers
 //*****************************************************************************
-//static u32 g_dwAIBufferFullness = 0;
 static void *Read_8450_845F( u32 address )
 {
-	if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) <= AI_LAST_REG))
-	{
-		u32 offset = address & 0xFF;
-		DPF( DEBUG_MEMORY_AI, "Reading from AI Registers: 0x%08x", address );
-		return (u8 *)g_pMemoryBuffers[MEM_AI_REG] + offset;
-	}
-	else
-	{
-		return ReadInvalid(address);
-	}
+	u32 offset = address & 0xFF;
+	DPF( DEBUG_MEMORY_AI, "Reading from AI Registers: 0x%08x", address );
+	return (u8 *)g_pMemoryBuffers[MEM_AI_REG] + offset;
 }
 
 //*****************************************************************************
@@ -367,15 +245,8 @@ static void *Read_8450_845F( u32 address )
 //*****************************************************************************
 static void *Read_8460_846F( u32 address )
 {
-	if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) <= PI_LAST_REG))
-	{
-		DPF( DEBUG_MEMORY_PI, "Reading from MEM_PI_REG: 0x%08x", address );
-		return (u8 *)g_pMemoryBuffers[MEM_PI_REG] + (address & 0xFF);
-	}
-	else
-	{
-		return ReadInvalid(address);
-	} 
+	DPF( DEBUG_MEMORY_PI, "Reading from MEM_PI_REG: 0x%08x", address );
+	return (u8 *)g_pMemoryBuffers[MEM_PI_REG] + (address & 0xFF);
 }
 
 
@@ -384,15 +255,8 @@ static void *Read_8460_846F( u32 address )
 //*****************************************************************************
 static void *Read_8470_847F( u32 address )
 {
-	if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) <= RI_LAST_REG))
-	{
-		DPF( DEBUG_MEMORY_RI, "Reading from MEM_RI_REG: 0x%08x", address );
-		return (u8 *)g_pMemoryBuffers[MEM_RI_REG] + (address & 0xFF);
-	}
-	else
-	{
-		return ReadInvalid(address);
-	} 
+	DPF( DEBUG_MEMORY_RI, "Reading from MEM_RI_REG: 0x%08x", address );
+	return (u8 *)g_pMemoryBuffers[MEM_RI_REG] + (address & 0xFF);
 }
 
 //*****************************************************************************
@@ -400,61 +264,13 @@ static void *Read_8470_847F( u32 address )
 //*****************************************************************************
 static void *Read_8480_848F( u32 address )
 {
-	if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) <= SI_LAST_REG))
-	{
-#ifdef DAEDALUS_DEBUG_CONSOLE
-		u32 offset = address & 0xFF;
-
-		if (SI_BASE_REG + offset == SI_STATUS_REG)
-		{
-			// Init SI_STATUS_INTERRUPT bit!
-			bool mi_si_int_set = (Memory_MI_GetRegister(MI_INTR_REG) & MI_INTR_SI) ? true : false;
-			bool si_status_int_set = (Memory_SI_GetRegister(SI_STATUS_REG) & SI_STATUS_INTERRUPT) ? true : false;
-
-			if ( mi_si_int_set != si_status_int_set )
-			{
-				DBGConsole_Msg(0, "SI_STATUS in inconsistant state! %08x" );
-			}
-		}
-#endif
-		DPF( DEBUG_MEMORY_SI, "Reading from MEM_SI_REG: 0x%08x", address );
-		return (u8 *)g_pMemoryBuffers[MEM_SI_REG] + (address & 0xFF);
-	}
-	else
-	{
-
-		DBGConsole_Msg(0, "Read from SI Registers is unhandled (0x%08x, PC: 0x%08x)",
-			address, gCPUState.CurrentPC);
-
-		return ReadInvalid(address);
-	} 
+	DPF( DEBUG_MEMORY_SI, "Reading from MEM_SI_REG: 0x%08x", address );
+	return (u8 *)g_pMemoryBuffers[MEM_SI_REG] + (address & 0xFF);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-/*
-#define	K0_TO_K1(x)	((u32)(x)|0xA0000000)	// kseg0 to kseg1 
-#define	K1_TO_K0(x)	((u32)(x)&0x9FFFFFFF)	// kseg1 to kseg0 
-#define	K0_TO_PHYS(x)	((u32)(x)&0x1FFFFFFF)	// kseg0 to physical 
-#define	K1_TO_PHYS(x)	((u32)(x)&0x1FFFFFFF)	// kseg1 to physical 
-#define	KDM_TO_PHYS(x)	((u32)(x)&0x1FFFFFFF)	// direct mapped to physical 
-#define	PHYS_TO_K0(x)	((u32)(x)|0x80000000)	// physical to kseg0 
-#define	PHYS_TO_K1(x)	((u32)(x)|0xA0000000)	// physical to kseg1 
-
-#define PI_DOM2_ADDR1		0x05000000	// to 0x05FFFFFF 
-#define PI_DOM1_ADDR1		0x06000000	// to 0x07FFFFFF 
-#define PI_DOM2_ADDR2		0x08000000	// to 0x0FFFFFFF 
-#define PI_DOM1_ADDR2		0x10000000	// to 0x1FBFFFFF 
-#define PI_DOM1_ADDR3		0x1FD00000	// to 0x7FFFFFFF
-
-0x0500_0000 .. 0x05ff_ffff	cartridge domain 2
-0x0600_0000 .. 0x07ff_ffff	cartridge domain 1
-0x0800_0000 .. 0x0fff_ffff	cartridge domain 2
-0x1000_0000 .. 0x1fbf_ffff	cartridge domain 1
-
-//0xa8010000 FlashROM
-*/
 static void * ReadFlashRam( u32 address )
 {
 	u32 offset = address & 0xFF;
@@ -472,15 +288,12 @@ static void * ReadFlashRam( u32 address )
 //*****************************************************************************
 static void * ReadROM( u32 address )
 {
-	//0x10000000 | 0xA0000000 = 0xB0000000
-
-	// Few things read from (0xbff00000)
-	// Brunswick bowling
-
-	// 0xb0ffb000
-
-	u32 offset = address & 0x03FFFFFF;
-	return RomBuffer::GetAddressRaw( offset );
+	if (g_RomWritten)
+    {
+        g_RomWritten = false;
+		return (u8 *)&g_pWriteRom[0];
+    }
+	return RomBuffer::GetAddressRaw( (address & 0x03FFFFFF) );
 }
 
 //*****************************************************************************
@@ -489,8 +302,6 @@ static void * ReadROM( u32 address )
 //*****************************************************************************
 static void * Read_9FC0_9FCF( u32 address )
 {
-	u32 offset = address & 0x0FFF;
-
 	DPF( DEBUG_MEMORY_PIF, "Reading from MEM_PIF: 0x%08x", address );
-	return (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset;
+	return (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + (address & 0x0FFF);
 }

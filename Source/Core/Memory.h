@@ -77,22 +77,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define MEMORY_START_C1A3		0x1FD00000
 #define MEMORY_START_DUMMY		0x1FFF0000
 
-// I've taken out the memory region checking (for now at least)
-// I was getting some very strange bugs with the Memory_AllocRegion
-// function (which I think was a compiler bug, but I wasn't sure).
-// In any case, reads and writes to the hardware registers is 
-// relatively rare, and so the actual speedup is likely to be very
-// slight
-
-// Seems to work fine now 8/8/11- Salvy
-// For this work properly, make sure to set optimisation atleast -02, otherwise the compiler won't discard the unused code and will cause to overlap!
-
-#ifdef DAEDALUS_SILENT
-#define MEMORY_BOUNDS_CHECKING(x) 1
-#else
-#define MEMORY_BOUNDS_CHECKING(x) x
-#endif
-
 enum MEMBANKTYPE
 {
 	MEM_UNUSED = 0,			// Simplifies code so that we don't have to check for illegal memory accesses

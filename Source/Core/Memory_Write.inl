@@ -23,15 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 static void * WriteInvalid( u32 address )
 {
-	printf("Illegal Memory Access Tried to Write To 0x%08x PC: 0x%08x\n", address, gCPUState.CurrentPC );
-	
-#ifdef DAEDALUS_DEBUG_CONSOLE
-	if (g_DaedalusConfig.WarnMemoryErrors)
-	{
-		CPU_Halt("Illegal Memory Access");
-		DBGConsole_Msg(0, "Illegal Memory Access: Tried to Write To 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC);
-	}
-#endif
+	DBGConsole_Msg(0, "Illegal Memory Access: Tried to Write To 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC);
 	return g_pMemoryBuffers[MEM_UNUSED];
 }
 
@@ -101,18 +93,8 @@ static void *Write_8000_807F( u32 address )
 //*****************************************************************************
 static void *Write_83F0_83F0( u32 address )
 {
-	
-	if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) < 0x04000000))
-	{
-		DPF( DEBUG_MEMORY_RDRAM_REG, "Writing to MEM_RD_REG: 0x%08x", address );
-	//	DBGConsole_Msg(0, "Writing to MEM_RD_REG: 0x%08x", address);
-
-		return ((u8 *)g_pMemoryBuffers[MEM_RD_REG0] + (address & 0xFF));
-	}
-	else
-	{
-		return WriteInvalid( address );
-	} 
+	DPF( DEBUG_MEMORY_RDRAM_REG, "Writing to MEM_RD_REG: 0x%08x", address );
+	return ((u8 *)g_pMemoryBuffers[MEM_RD_REG0] + (address & 0xFF));
 }
 
 //*****************************************************************************
@@ -120,15 +102,6 @@ static void *Write_83F0_83F0( u32 address )
 //*****************************************************************************
 static void * Write_8400_8400( u32 address )
 {
-	if (MEMORY_BOUNDS_CHECKING((address&0x1FFFFFFF) <= SP_IMEM_END))
-	{
-		DPF( DEBUG_MEMORY_SP_IMEM, "Writing to SP_MEM: 0x%08x", address );
-
-		return ((u8 *)g_pMemoryBuffers[MEM_SP_MEM] + (address & 0x1FFF));
-	}
-	else
-	{	
-		return WriteInvalid( address );
-	}
+	return ((u8 *)g_pMemoryBuffers[MEM_SP_MEM] + (address & 0x1FFF));
 }
 

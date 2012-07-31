@@ -102,9 +102,12 @@ u32			gTLBReadHit( 0 );
 u32			gTLBWriteHit( 0 );
 #endif
 
+// ROM write support
+u32	  g_pWriteRom[2];
+bool  g_RomWritten;
 // Ram base, offset by 0x80000000 and 0xa0000000
-u8 * g_pu8RamBase_8000 = NULL;
-u8 * g_pu8RamBase_A000 = NULL;
+//u8 * g_pu8RamBase_8000 = NULL;
+//u8 * g_pu8RamBase_A000 = NULL;
 
 // Flash RAM Support
 extern u32 FlashStatus[2];
@@ -173,9 +176,11 @@ bool Memory_Init()
 		}
 	}
 
-	g_pu8RamBase_8000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0x80000000;
+	g_RomWritten= false;
+	//g_pu8RamBase_8000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0x80000000;
 	//g_pu8RamBase_A000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0xa0000000;
-	g_pu8RamBase_A000 = ((u8*)MAKE_UNCACHED_PTR(g_pMemoryBuffers[MEM_RD_RAM])) - 0xa0000000;
+	//g_pu8RamBase_A000 = ((u8*)MAKE_UNCACHED_PTR(g_pMemoryBuffers[MEM_RD_RAM])) - 0xa0000000;
+
 
 	Memory_InitTables();
 
@@ -198,8 +203,8 @@ void Memory_Fini(void)
 		}
 	}
 
-	g_pu8RamBase_8000 = NULL;
-	g_pu8RamBase_A000 = NULL;
+//	g_pu8RamBase_8000 = NULL;
+//	g_pu8RamBase_A000 = NULL;
 
 	memset( g_pMemoryBuffers, 0, sizeof( g_pMemoryBuffers ) );
 }
@@ -493,7 +498,7 @@ void Memory_InitTables()
 	( 
 		MEMORY_START_DPC,
 		MEMORY_SIZE_DPC, 
-		0,
+		MEM_DPC_REG,
 		0,
 		Read_8410_841F, 
 		WriteInvalid, 
@@ -541,7 +546,7 @@ void Memory_InitTables()
 	( 
 		MEMORY_START_AI, 
 		MEMORY_SIZE_AI, 
-		0,
+		MEM_AI_REG,
 		0,
 		Read_8450_845F, 
 		WriteInvalid, 
@@ -577,7 +582,7 @@ void Memory_InitTables()
 	( 
 		MEMORY_START_SI, 
 		MEMORY_SIZE_SI, 
-		0,
+		MEM_SI_REG,
 		0,
 		Read_8480_848F, 
 		WriteInvalid, 
