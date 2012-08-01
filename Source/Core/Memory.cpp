@@ -267,26 +267,25 @@ void Memory_Cleanup()
  //*****************************************************************************
  //
  //*****************************************************************************
-static void Memory_Tlb_Hack()
+static void Memory_Tlb_Hack(const void *p_rom_address)
 {
-	if(RomBuffer::IsRomLoaded() && RomBuffer::IsRomAddressFixed())
+	if(p_rom_address != NULL)
 	{
-	   u32 tlbOffset = 0;
+	   u32 offset = 0;
 	   switch(g_ROM.rh.CountryID)
 	   {
-	   case 0x45: tlbOffset = 0x34b30; break;
-	   case 0x4A: tlbOffset = 0x34b70; break;
-	   case 0x50: tlbOffset = 0x329f0; break;
+	   case 0x45: offset = 0x34b30; break;
+	   case 0x4A: offset = 0x34b70; break;
+	   case 0x50: offset = 0x329f0; break;
 	   default:
-		   DAEDALUS_ERROR(" GE TLB out of bound !");	// we can not handle
+		   offset = 0x34b30;	// we can not handle
 		   return;
 	   }
 
 	   u32 start_addr = 0x7F000000 >> 18;
 	   u32 end_addr   = 0x7FFFFFFF >> 18;
-	   const void *    p_rom_address( RomBuffer::GetFixedRomBaseAddress() );
 
-	   void *pointerLookupTableEntry = (void*)(reinterpret_cast< u32 >( p_rom_address) + tlbOffset - (start_addr << 18));
+	   void *pointerLookupTableEntry = (void*)(reinterpret_cast< u32 >( p_rom_address) + offset - (start_addr << 18));
 
 	   for (u32 i = start_addr; i <= end_addr; i++)
 	   {
@@ -641,7 +640,7 @@ void Memory_InitTables()
 	// Hack the TLB Map per game
 	if (g_ROM.GameHacks == GOLDEN_EYE) 
 	{
-		Memory_Tlb_Hack();
+		Memory_Tlb_Hack( rom_address );
 	}
 
 	// Debug only
@@ -1122,7 +1121,6 @@ void MemoryUpdatePIF()
 	u8 * pPIFRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + 0x7C0;
 
 	u8 command = pPIFRam[ 0x3F^U8_TWIDDLE ];
-	printf( "control value: 0x%02x", command );
 	switch ( command )
 	{
 	case 0x01:		// Standard block

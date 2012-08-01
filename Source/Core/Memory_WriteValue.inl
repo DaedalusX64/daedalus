@@ -411,40 +411,17 @@ static void WriteValue_8480_848F( u32 address, u32 value )
 //*****************************************************************************
 // 0x1FC0 0000 to 0x1FC0 07BF PIF Boot ROM
 // 0x1FC0 07C0 to 0x1FC0 07FF PIF RAM
+// Do we need to handle PIF ROM?
 //*****************************************************************************
 static void WriteValue_9FC0_9FCF( u32 address, u32 value )
 {
+	DPF( DEBUG_MEMORY_PIF, "Writing to MEM_PIF_RAM: 0x%08x", address );
+
 	u32 offset = address & 0x0FFF;
-	
-	if ((address&0x1FFFFFFF) <= PIF_ROM_END)
-	{
-		DPF( DEBUG_MEMORY_PIF, "Writing to MEM_PIF_ROM: 0x%08x", address );
-		DBGConsole_Msg(0, "[WWarning]: trying to write to PIF ROM");
+	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset) = value;
 
-		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset) = value;
-
-	}
-	else
-	{
-		DPF( DEBUG_MEMORY_PIF, "Writing to MEM_PIF_RAM: 0x%08x", address );
-
-		switch (offset)
-		{
-		case 0x7C0 + 0x24:
-			DBGConsole_Msg(0, "[YWriting CIC Values]  : [[0x%08x[] <- 0x%08x", address, value); 
-			break;			
-		case 0x7C0 + 0x3c:
-			DBGConsole_Msg(0, "[YWriting Control Byte]: [[0x%08x[] <- 0x%08x", address, value);
-			*(u32 *)((u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset) = value;
-			MemoryUpdatePIF();
-			return;
-		default:
-			DBGConsole_Msg(0, "[WWriting directly to PI ram]: [[0x%08x[] <- 0x%08x", address, value);
-		}
-
-		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset) = value;
-	}
-
+	if(offset == (0x7C0 + 0x24))
+		MemoryUpdatePIF();
 }
 
 //*****************************************************************************

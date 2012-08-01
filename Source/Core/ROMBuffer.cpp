@@ -501,5 +501,9 @@ const void * RomBuffer::GetFixedRomBaseAddress()
 {
 	DAEDALUS_ASSERT( IsRomLoaded(), "The rom isn't loaded" );
 	DAEDALUS_ASSERT( IsRomAddressFixed(), "Trying to access the rom base address when it's not fixed" );
-	return spRomData;
+	
+	if(IsRomLoaded() && IsRomAddressFixed())
+		return spRomData;
+	else
+		return NULL;
 }
