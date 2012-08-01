@@ -409,19 +409,22 @@ static void WriteValue_8480_848F( u32 address, u32 value )
 }
 
 //*****************************************************************************
-// 0x1FC0 0000 to 0x1FC0 07BF PIF Boot ROM
+// 0x1FC0 0000 to 0x1FC0 07BF PIF Boot ROM (Ignored)
 // 0x1FC0 07C0 to 0x1FC0 07FF PIF RAM
-// Do we need to handle PIF ROM?
 //*****************************************************************************
 static void WriteValue_9FC0_9FCF( u32 address, u32 value )
 {
-	DPF( DEBUG_MEMORY_PIF, "Writing to MEM_PIF_RAM: 0x%08x", address );
+	u32 offset = address & 0x3F;
 
-	u32 offset = address & 0x0FFF;
+	DAEDALUS_ASSERT(!(address - 0x7C0 & ~0x3F), "Read to PIF RAM (0x%08x) is invalid", address);
+	DPF( DEBUG_MEMORY_PIF, "Writing to MEM_PIF_RAM: 0x%08x", address );
+	
 	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset) = value;
 
-	if(offset == (0x7C0 + 0x24))
+	if (offset == 0x3C)
+	{
 		MemoryUpdatePIF();
+	}
 }
 
 //*****************************************************************************

@@ -271,7 +271,7 @@ IController::~IController()
 bool IController::OnRomOpen()
 {
 	ESaveType save_type  = g_ROM.settings.SaveType;
-	mpPifRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + 0x7C0;
+	mpPifRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
 
 	gRumblePakActive = false;
 	

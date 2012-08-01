@@ -126,12 +126,10 @@ void DMA_SP_CopyToRDRAM()
 void DMA_SI_CopyFromDRAM( )
 {
 	u32 mem = Memory_SI_GetRegister(SI_DRAM_ADDR_REG) & 0x1fffffff;
-	u8 * p_dst = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + 0x7C0;
+	u8 * p_dst = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
 	u8 * p_src = g_pu8RamBase + mem;
 
 	DPF( DEBUG_MEMORY_PIF, "DRAM (0x%08x) -> PIF Transfer ", mem );
-	// OSHLE bug!
-	//DAEDALUS_ASSERT( Memory_SI_GetRegister(SI_PIF_ADDR_WR64B_REG) == 0x1FC007C0, "Invalid SI Write")
 	
 	u32* p_dst32=(u32*)p_dst;
 	u32* p_scr32=(u32*)p_src;
@@ -139,8 +137,7 @@ void DMA_SI_CopyFromDRAM( )
 	// Fuse 4 reads and 4 writes to just one which is a lot faster - Corn
 	for(u32 i = 0; i < 16; i++)
 	{
- 		const u32 tmp = *p_scr32++;
- 		*p_dst32++ = SWAP_PIF(tmp);
+		p_dst32[i] = SWAP_PIF( p_scr32[i] );
 	}
 
 	Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
@@ -157,12 +154,10 @@ void DMA_SI_CopyToDRAM( )
 	CController::Get()->Process();
 
 	u32 mem = Memory_SI_GetRegister(SI_DRAM_ADDR_REG) & 0x1fffffff;
-	u8 * p_src = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + 0x7C0;
+	u8 * p_src = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
 	u8 * p_dst = g_pu8RamBase + mem;
 
 	DPF( DEBUG_MEMORY_PIF, "PIF -> DRAM (0x%08x) Transfer ", mem );
-	// OSHLE bug!
-	//DAEDALUS_ASSERT( Memory_SI_GetRegister(SI_PIF_ADDR_RD64B_REG) == 0x1FC007C0, "Invalid SI Read")
 
 	u32* p_dst32=(u32*)p_dst;
 	u32* p_scr32=(u32*)p_src;
@@ -170,16 +165,14 @@ void DMA_SI_CopyToDRAM( )
 	// Fuse 4 reads and 4 writes to just one which is a lot faster - Corn
 	for(u32 i = 0; i < 16; i++)
 	{
- 		const u32 tmp = *p_scr32++;
- 		*p_dst32++ = SWAP_PIF(tmp);
+		p_dst32[i] = SWAP_PIF( p_scr32[i] );
 	}
-
 
 	Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SI);
 
-	//Skipping this IRQ fixes allows Body Harvest and Nightmare Creatures to boot but make Animal crossing fail
-	//ToDo: Found the cause and fix it of course ;)
+	//Skipping this IRQ fixes allows Body Harvest, Nightmare Creatures and Cruisn' USA to boot but make Animal crossing fail
+	//ToDo: Delay SI
 	//
 	if (g_ROM.GameHacks != BODY_HARVEST) 
 		R4300_Interrupt_UpdateCause3();

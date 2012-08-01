@@ -89,18 +89,7 @@ void DumpROMInfo( const ROMHeader & header )
 	DBGConsole_Msg(0, "Unknown5:        0x%02x", header.Unknown5);
 }
 #endif
-//*****************************************************************************
-//
-//*****************************************************************************
-/*
-static void ROM_RunPIFBoot( ECicType cic_chip )
-{
-	CPU_SetPC(0xBFC00000);
 
-	// Set up CIC value in 0xbfc007e4
-	*(u32*)((u8*)g_pMemoryBuffers[MEM_PIF_RAM] + 0x7C0 + 0x24) = ROM_GetCicValue( cic_chip );
-}
-*/
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -283,67 +272,6 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 }
 
 //*****************************************************************************
-// Get the name of the correct pit for the region
-//*****************************************************************************
-/*
-static const char * ROM_GetPIFName( u32 tv_type )
-{
-	switch ( tv_type )
-	{
-		case OS_TV_PAL:		return "pal.pif";
-		case OS_TV_NTSC:	return "ntsc.pif";
-		case OS_TV_MPAL:	return "mpal.pif";
-	}
-	DAEDALUS_ERROR( "Unknown TV type" );
-	return NULL;
-}
-*/
-
-//*****************************************************************************
-// Load pif bootcode if it is available
-//*****************************************************************************
-/*
-static bool ROM_LoadPIF( u32 tv_type )
-{
-	const char * pif_name;
-	char filename[ MAX_PATH ];
-	FILE * fp;
-	u32 op;
-
-	pif_name = ROM_GetPIFName( tv_type );
-	if ( !pif_name )
-	{
-		return false;
-	}
-
-	IO::Path::Combine( filename, gDaedalusExePath, "Boot\\" );
-	IO::Path::Append( filename, pif_name );
-
-	fp = fopen( filename, "rb" );
-	if ( fp )
-	{
-		u32 * pPifRom = (u32*)g_pMemoryBuffers[MEM_PIF_RAM];
-		u32 i = 0;
-		while (fread(&op, 4, 1, fp) == 1 && i < MemoryRegionSizes[MEM_PIF_RAM])
-		{
-			*pPifRom = SwapEndian( op );
-			pPifRom++;
-			i+=4;
-		}
-
-		fclose(fp);
-
-		return true;
-	}
-	else
-	{
-		DBGConsole_Msg( 0, "Couldn't find '[W%s]', simulating boot", filename );
-		return false;
-	}
-}
-*/
-
-//*****************************************************************************
 //
 //*****************************************************************************
 void ROM_ReBoot()
@@ -501,6 +429,7 @@ void SpecificGameHacks( const ROMHeader & id )
 		break;
 	case 0x4842:	//Body Harvest
 	case 0x434E:	//Nightmare Creatures
+	case 0x5543:	//Cruisn' USA
 		g_ROM.GameHacks = BODY_HARVEST;
 		break;
 	case 0x5546:	// Conker BFD

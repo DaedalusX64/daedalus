@@ -297,11 +297,13 @@ static void * ReadROM( u32 address )
 }
 
 //*****************************************************************************
-// 0x1FC0 0000 to 0x1FC0 07BF PIF Boot ROM
+// 0x1FC0 0000 to 0x1FC0 07BF PIF Boot ROM (Ignored)
 // 0x1FC0 07C0 to 0x1FC0 07FF PIF RAM
 //*****************************************************************************
 static void * Read_9FC0_9FCF( u32 address )
 {
+	DAEDALUS_ASSERT(!(address - 0x7C0 & ~0x3F), "Read to PIF RAM (0x%08x) is invalid", address);
+
 	DPF( DEBUG_MEMORY_PIF, "Reading from MEM_PIF: 0x%08x", address );
-	return (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + (address & 0x0FFF);
+	return (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + (address & 0x3F);
 }

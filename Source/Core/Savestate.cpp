@@ -290,7 +290,7 @@ bool SaveState_SaveToFile( const char * filename )
 		stream << (u32)g_TLBs[i].pfno;
 	}
 
-	stream.write_memory_buffer_offset(MEM_PIF_RAM, 0x7C0, 0x40); 
+	stream.write( g_pMemoryBuffers[MEM_PIF_RAM], 0x40);
 	stream.write( g_pMemoryBuffers[MEM_RD_RAM], gRamSize);
 	stream.write_memory_buffer(MEM_SP_MEM);
 	return true;
@@ -302,7 +302,7 @@ bool SaveState_SaveToFile( const char * filename )
 // Now that is fixed this been added for compatibility reasons for any ss created within those revs..
 void Swap_PIF()
 {
-	u8 * pPIFRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + 0x7C0;
+	u8 * pPIFRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
 
 	if(pPIFRam[0] & 0xC0)
 	{	
@@ -443,7 +443,7 @@ bool SaveState_LoadFromFile( const char * filename )
 	}
 	//stream.skip(0x40);
 
-	stream.read_memory_buffer_offset(MEM_PIF_RAM, 0x7C0, 0x40);
+	stream.read(g_pMemoryBuffers[MEM_PIF_RAM], 0x40);
 	Swap_PIF();
 	
 	stream.read(g_pMemoryBuffers[MEM_RD_RAM], gRamSize);
