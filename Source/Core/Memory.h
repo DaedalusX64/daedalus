@@ -27,72 +27,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/ultra_rcp.h"
 #include "Utility/AtomicPrimitives.h"
 
-#define MEMORY_SIZE_RDRAM				0x400000
-#define MEMORY_SIZE_EXRDRAM				0x400000
-#define MEMORY_SIZE_RDRAM_DEFAULT		MEMORY_SIZE_RDRAM + MEMORY_SIZE_EXRDRAM
-#define MEMORY_SIZE_RAMREGS0			0x30
-#define MEMORY_SIZE_RAMREGS4			0x30
-#define MEMORY_SIZE_RAMREGS8			0x30
-#define MEMORY_SIZE_SPMEM				0x2000
-#define MEMORY_SIZE_SPREG_1				0x24
-#define MEMORY_SIZE_SPREG_2				0x8
-#define MEMORY_SIZE_DPC					0x20
-#define MEMORY_SIZE_DPS					0x10
-#define MEMORY_SIZE_MI					0x10
-#define MEMORY_SIZE_VI					0x50
-#define MEMORY_SIZE_AI					0x18
-#define MEMORY_SIZE_PI					0x4C
-#define MEMORY_SIZE_RI					0x20
-#define MEMORY_SIZE_SI					0x1C
-#define MEMORY_SIZE_C2A1				0x8000
-#define MEMORY_SIZE_C1A1				0x8000
-#define MEMORY_SIZE_C2A2				0x20000
-#define MEMORY_SIZE_GIO_REG				0x804
-#define MEMORY_SIZE_C1A3				0x8000
-#define MEMORY_SIZE_PIF					0x800
-#define MEMORY_SIZE_DUMMY				0x10000
-
-#define MEMORY_START_RDRAM		0x00000000
-#define MEMORY_START_EXRDRAM	0x00400000
-#define MEMORY_START_RAMREGS0	0x03F00000
-#define MEMORY_START_RAMREGS4	0x03F04000
-#define MEMORY_START_RAMREGS8	0x03F80000
-#define MEMORY_START_SPMEM		0x04000000
-#define MEMORY_START_SPREG_1	0x04040000
-#define MEMORY_START_SPREG_2	0x04080000
-#define MEMORY_START_DPC		0x04100000
-#define MEMORY_START_DPS		0x04200000
-#define MEMORY_START_MI			0x04300000
-#define MEMORY_START_VI			0x04400000
-#define MEMORY_START_AI			0x04500000
-#define MEMORY_START_PI			0x04600000
-#define MEMORY_START_RI			0x04700000
-#define MEMORY_START_SI			0x04800000
-#define MEMORY_START_C2A1		0x05000000
-#define MEMORY_START_C1A1		0x06000000
-#define MEMORY_START_C2A2		0x08000000
-#define MEMORY_START_ROM_IMAGE	0x10000000
-#define MEMORY_START_GIO		0x18000000
-#define MEMORY_START_PIF		0x1FC00000
-#define MEMORY_START_C1A3		0x1FD00000
-#define MEMORY_START_DUMMY		0x1FFF0000
-
 enum MEMBANKTYPE
 {
 	MEM_UNUSED = 0,			// Simplifies code so that we don't have to check for illegal memory accesses
 
 	MEM_RD_RAM,				// 8 or 4 Mb (4/8*1024*1024)
 	
-	MEM_SP_MEM,			// 0x2000
+	MEM_SP_MEM,				// 0x2000
 
 	MEM_PIF_RAM,			// 0x7C0 + 0x40
 
 	MEM_RD_REG0,			// 0x30		// This has changed - used to be 1Mb
-	MEM_RD_REG4,			// 0x30
-	MEM_RD_REG8,			// 0x30
+	//MEM_RD_REG4,			// 0x30
+	//MEM_RD_REG8,			// 0x30
 	MEM_SP_REG,				// 0x20
 	MEM_DPC_REG,			// 0x20
-	MEM_DPS_REG,			// 0x10
+	//MEM_DPS_REG,			// 0x10
 	MEM_MI_REG,				// 0x10
 	MEM_VI_REG,				// 0x38
 	MEM_AI_REG,				// 0x18
@@ -338,8 +288,72 @@ inline bool Memory_GetInternalReadAddress(u32 address, void ** p_translated)
 #define g_pu8SpDmemBase	((u8*)g_pMemoryBuffers[MEM_SP_MEM] + SP_DMA_DMEM)
 #define g_pu8SpImemBase	((u8*)g_pMemoryBuffers[MEM_SP_MEM] + SP_DMA_IMEM)
 
-extern u8 * g_pu8RamBase_8000;
-extern u8 * g_pu8RamBase_A000;
+#define MEMORY_SIZE_RDRAM				0x400000
+#define MEMORY_SIZE_EXRDRAM				0x400000
+#define MEMORY_SIZE_RDRAM_DEFAULT		MEMORY_SIZE_RDRAM + MEMORY_SIZE_EXRDRAM
+#define MEMORY_SIZE_RAMREGS0			0x30
+#define MEMORY_SIZE_RAMREGS4			0x30
+#define MEMORY_SIZE_RAMREGS8			0x30
+#define MEMORY_SIZE_SPMEM				0x2000
+#define MEMORY_SIZE_SPREG_1				0x24
+#define MEMORY_SIZE_SPREG_2				0x8
+#define MEMORY_SIZE_DPC					0x20
+#define MEMORY_SIZE_DPS					0x10
+#define MEMORY_SIZE_MI					0x10
+#define MEMORY_SIZE_VI					0x50
+#define MEMORY_SIZE_AI					0x18
+#define MEMORY_SIZE_PI					0x4C
+#define MEMORY_SIZE_RI					0x20
+#define MEMORY_SIZE_SI					0x1C
+#define MEMORY_SIZE_C2A1				0x8000
+#define MEMORY_SIZE_C1A1				0x8000
+#define MEMORY_SIZE_C2A2				0x20000
+#define MEMORY_SIZE_GIO_REG				0x804
+#define MEMORY_SIZE_C1A3				0x8000
+#define MEMORY_SIZE_PIF					0x800
+#define MEMORY_SIZE_DUMMY				0x10000
+
+#define MEMORY_START_RDRAM		0x00000000
+#define MEMORY_START_EXRDRAM	0x00400000
+#define MEMORY_START_RAMREGS0	0x03F00000
+#define MEMORY_START_RAMREGS4	0x03F04000
+#define MEMORY_START_RAMREGS8	0x03F80000
+#define MEMORY_START_SPMEM		0x04000000
+#define MEMORY_START_SPREG_1	0x04040000
+#define MEMORY_START_SPREG_2	0x04080000
+#define MEMORY_START_DPC		0x04100000
+#define MEMORY_START_DPS		0x04200000
+#define MEMORY_START_MI			0x04300000
+#define MEMORY_START_VI			0x04400000
+#define MEMORY_START_AI			0x04500000
+#define MEMORY_START_PI			0x04600000
+#define MEMORY_START_RI			0x04700000
+#define MEMORY_START_SI			0x04800000
+#define MEMORY_START_C2A1		0x05000000
+#define MEMORY_START_C1A1		0x06000000
+#define MEMORY_START_C2A2		0x08000000
+#define MEMORY_START_ROM_IMAGE	0x10000000
+#define MEMORY_START_GIO		0x18000000
+#define MEMORY_START_PIF		0x1FC00000
+#define MEMORY_START_C1A3		0x1FD00000
+#define MEMORY_START_DUMMY		0x1FFF0000
+
+#define MEMORY_RDRAM			g_pMemoryBuffers[MEM_RD_RAM]
+#define MEMORY_RAMREGS0			g_pMemoryBuffers[MEM_RD_REG0]
+#define MEMORY_SPMEM			g_pMemoryBuffers[MEM_SP_MEM]
+#define MEMORY_SPREG_1			g_pMemoryBuffers[MEM_SP_REG]
+#define MEMORY_DPC				g_pMemoryBuffers[MEM_DPC_REG]
+
+#define MEMORY_MI				g_pMemoryBuffers[MEM_MI_REG]
+#define MEMORY_SI				g_pMemoryBuffers[MEM_SI_REG]
+#define MEMORY_PI				g_pMemoryBuffers[MEM_PI_REG]
+#define MEMORY_AI				g_pMemoryBuffers[MEM_AI_REG]
+#define MEMORY_RI				g_pMemoryBuffers[MEM_RI_REG]
+#define MEMORY_PIF				g_pMemoryBuffers[MEM_PIF_RAM]
+
+
+//extern u8 * g_pu8RamBase_8000;
+//extern u8 * g_pu8RamBase_A000;
 
 #if 1	//inline vs macro
 inline u64 Read64Bits( u32 address )				{ MEMORY_CHECK_ALIGN( address, 8 ); u64 data = *(u64 *)ReadAddress( address ); data = (data>>32) + (data<<32); return data; }

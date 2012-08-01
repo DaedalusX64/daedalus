@@ -73,14 +73,14 @@ u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 
 	0x800,				// PI_ROM/RAM
 
-	//1*1024*1024,		// RD_REG Don't need this much really?
+	//1*1024*1024,		// RD_REG	(Don't need this much really)?
 	0x30,				// RD_REG0
-	0x30,				// RD_REG1
-	0x30,				// RD_REG2
+	//0x30,				// RD_REG1	(Unused)
+	//0x30,				// RD_REG2	(Unused)
 
 	0x20,				// SP_REG
 	0x20,				// DPC_REG
-	0x10,				// DPS_REG
+	//0x10,				// DPS_REG	(Unhandled)
 	0x10,				// MI_REG
 	0x38,				// VI_REG
 	0x18,				// AI_REG
@@ -152,13 +152,14 @@ void * g_pMemoryBuffers[NUM_MEM_BUFFERS];
 bool Memory_Init()
 {
 	gRamSize = MAXIMUM_MEM_SIZE;
-
+	//u32 count = 0;
 	for(u32 m = 0; m < NUM_MEM_BUFFERS; m++)
 	{
 		u32		region_size( MemoryRegionSizes[m] );
 		// Skip zero sized areas. An example of this is the cart rom
 		if(region_size > 0)
 		{
+			//count+=region_size;
 			g_pMemoryBuffers[m] = new u8[region_size];
 			//g_pMemoryBuffers[m] = Memory_AllocRegion(region_size);
 
@@ -175,7 +176,7 @@ bool Memory_Init()
 			}*/
 		}
 	}
-
+//	printf("%d bytes used of memory\n",count);
 	g_RomWritten= false;
 	//g_pu8RamBase_8000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0x80000000;
 	//g_pu8RamBase_A000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0xa0000000;
@@ -299,37 +300,6 @@ static void Memory_Tlb_Hack()
 //*****************************************************************************
 //
 //*****************************************************************************
-static void Memory_InitTables_ROM_PointerTable( const void * p_rom_address, u32 rom_size, u32 startPhys, u32 endPhys )
-{
-	u32 start_addr = startPhys >> 16;
-	u32 end_addr = (Min(endPhys, startPhys + rom_size) >> 16) - 1;
-	u32 i;
-	void* pointerLookupTableEntry;
-
-	start_addr += 0x8000;
-	end_addr += 0x8000;
-
-	pointerLookupTableEntry = (void*)(reinterpret_cast< u32 >( p_rom_address ) - (start_addr << 16));
-
-	for (i = (start_addr>>2); i <= (end_addr>>2); i++)
-	{
-		g_ReadAddressPointerLookupTable[i] = pointerLookupTableEntry;
-	}
-
-	start_addr += 0x2000;
-	end_addr += 0x2000;
-
-	pointerLookupTableEntry = (void*)(reinterpret_cast< u32 >( p_rom_address ) - (start_addr << 16));
-
-	for (i = (start_addr>>2); i <= (end_addr>>2); i++)
-	{
-		g_ReadAddressPointerLookupTable[i] = pointerLookupTableEntry;
-	}
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
 static void * Memory_GetInvalidPointerTableEntry( int entry )
 {
 	return (void*)(0xf0000000 - (entry << 18));
@@ -338,13 +308,14 @@ static void * Memory_GetInvalidPointerTableEntry( int entry )
 //*****************************************************************************
 //
 //*****************************************************************************
-void Memory_InitFunc(u32 start, u32 size, u32 ReadRegion, u32 WriteRegion, MemFastFunction pRead, MemFastFunction pWrite, MemWriteValueFunction pWriteValue)
+void Memory_InitFunc(u32 start, u32 size, const void * ReadRegion, const void * WriteRegion, MemFastFunction pRead, MemFastFunction pWrite, MemWriteValueFunction pWriteValue)
 {
 	u32	start_addr = (start >> 18);
 	u32	end_addr   = ((start + size - 1) >> 18);
 
 	while(start_addr <= end_addr)
 	{
+		//printf("0x%08x\n",start_addr|(0x8000 >> 2));
 		g_ReadAddressLookupTable[ start_addr|(0x8000 >> 2) ]	  = pRead;
 		g_WriteAddressLookupTable[ start_addr|(0x8000 >> 2) ]		= pWrite;
 		g_WriteAddressValueLookupTable[ start_addr | (0x8000 >> 2) ] = pWriteValue;
@@ -355,14 +326,14 @@ void Memory_InitFunc(u32 start, u32 size, u32 ReadRegion, u32 WriteRegion, MemFa
 
 		if(ReadRegion)
 		{
-			g_ReadAddressPointerLookupTable[start_addr|(0x8000 >> 2)] = (void*)(reinterpret_cast< u32 >(g_pMemoryBuffers[ReadRegion]) - (((start>>16)|0x8000) << 16));
-			g_ReadAddressPointerLookupTable[start_addr|(0xA000 >> 2)] = (void*)(reinterpret_cast< u32 >(g_pMemoryBuffers[ReadRegion]) - (((start>>16)|0xA000) << 16));
+			g_ReadAddressPointerLookupTable[start_addr|(0x8000 >> 2)] = (void*)(reinterpret_cast< u32 >(ReadRegion) - (((start>>16)|0x8000) << 16));
+			g_ReadAddressPointerLookupTable[start_addr|(0xA000 >> 2)] = (void*)(reinterpret_cast< u32 >(ReadRegion) - (((start>>16)|0xA000) << 16));
 		}
 
 		if(WriteRegion)
 		{
-			g_WriteAddressPointerLookupTable[start_addr|(0x8000 >> 2)] = (void*)(reinterpret_cast< u32 >(g_pMemoryBuffers[WriteRegion]) - (((start>>16)|0x8000) << 16));
-			g_WriteAddressPointerLookupTable[start_addr|(0xA000 >> 2)] = (void*)(reinterpret_cast< u32 >(g_pMemoryBuffers[WriteRegion]) - (((start>>16)|0xA000) << 16));
+			g_WriteAddressPointerLookupTable[start_addr|(0x8000 >> 2)] = (void*)(reinterpret_cast< u32 >(WriteRegion) - (((start>>16)|0x8000) << 16));
+			g_WriteAddressPointerLookupTable[start_addr|(0xA000 >> 2)] = (void*)(reinterpret_cast< u32 >(WriteRegion) - (((start>>16)|0xA000) << 16));
 		}
 		
 		start_addr++;
@@ -383,7 +354,7 @@ void Memory_InitTables()
 	memset(g_WriteAddressPointerLookupTable, 0, sizeof(void*) * 0x4000);
 
 	// these values cause the result of the addition to be negative (>= 0x80000000)
-	for(i = 0; i < 0x4000; i++)
+	for(i = 0; i < (0x10000 >> 2); i++)
 	{
 		g_WriteAddressPointerLookupTable[i] = g_ReadAddressPointerLookupTable[i] = Memory_GetInvalidPointerTableEntry(i);
 	}
@@ -412,19 +383,22 @@ void Memory_InitTables()
 		g_WriteAddressValueLookupTable[i]	= WriteValueMapped;
 	}
 
+	// This returns NULL if Rom isn't loaded or Rom base isn't fixed
+	const void *	rom_address( RomBuffer::GetFixedRomBaseAddress() );
+
 	u32	rom_size( RomBuffer::GetRomSize() );
 	u32 ram_size( gRamSize );
 
 	DBGConsole_Msg(0, "Initialising %s main memory", (ram_size == MEMORY_8_MEG) ? "8Mb" : "4Mb");
-	
+
 	// Init RDRAM
 	// By default we init with EPAK (8Mb)
 	Memory_InitFunc
 	( 
 		MEMORY_START_RDRAM, 
 		MEMORY_SIZE_RDRAM_DEFAULT,
-		MEM_RD_RAM,
-		MEM_RD_RAM,
+		MEMORY_RDRAM,
+		MEMORY_RDRAM,
 		Read_8000_807F, 
 		Write_8000_807F, 
 		WriteValue_8000_807F 
@@ -437,8 +411,8 @@ void Memory_InitTables()
 		( 
 			MEMORY_START_EXRDRAM,
 			MEMORY_SIZE_EXRDRAM, 
-			0,
-			0,
+			NULL,
+			NULL,
 			ReadInvalid, 
 			WriteInvalid, 
 			WriteValueInvalid 
@@ -450,8 +424,8 @@ void Memory_InitTables()
 	( 
 		MEMORY_START_RAMREGS0, 
 		MEMORY_SIZE_RAMREGS0, 
-		MEM_RD_REG0,	
-		MEM_RD_REG0,
+		MEMORY_RAMREGS0,	
+		MEMORY_RAMREGS0,
 		Read_83F0_83F0, 
 		Write_83F0_83F0, 
 		WriteValue_83F0_83F0 
@@ -463,8 +437,8 @@ void Memory_InitTables()
 	( 
 		MEMORY_START_SPMEM, 
 		MEMORY_SIZE_SPMEM, 
-		MEM_SP_MEM, 
-		MEM_SP_MEM,
+		MEMORY_SPMEM, 
+		MEMORY_SPMEM,
 		Read_8400_8400, 
 		WriteInvalid, 
 		WriteValue_8400_8400
@@ -475,8 +449,8 @@ void Memory_InitTables()
 	( 
 		MEMORY_START_SPREG_1, 
 		MEMORY_SIZE_SPREG_1,
-		MEM_SP_REG, 
-		0,
+		MEMORY_SPREG_1, 
+		NULL,
 		Read_8404_8404,
 		Write_8400_8400, 
 		WriteValue_8404_8404 
@@ -487,8 +461,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_SPREG_2,
 		MEMORY_SIZE_SPREG_2, 
-		0,
-		0,
+		NULL,
+		NULL,
 		Read_8408_8408, 
 		WriteInvalid, 
 		WriteValue_8408_8408 
@@ -498,8 +472,8 @@ void Memory_InitTables()
 	( 
 		MEMORY_START_DPC,
 		MEMORY_SIZE_DPC, 
-		MEM_DPC_REG,
-		0,
+		MEMORY_DPC,
+		NULL,
 		Read_8410_841F, 
 		WriteInvalid, 
 		WriteValue_8410_841F
@@ -510,8 +484,8 @@ void Memory_InitTables()
 	( 
 		MEMORY_START_DPS, 
 		MEMORY_SIZE_DPS, 
-		0,
-		0,
+		NULL,
+		NULL,
 		Read_8420_842F,
 		WriteInvalid, 
 		WriteValue_8420_842F 
@@ -522,8 +496,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_MI,
 		MEMORY_SIZE_MI, 
-		MEM_MI_REG, 
-		0,
+		MEMORY_MI, 
+		NULL,
 		Read_8430_843F, 
 		WriteInvalid, 
 		WriteValue_8430_843F
@@ -534,8 +508,8 @@ void Memory_InitTables()
 	( 
 		MEMORY_START_VI, 
 		MEMORY_SIZE_VI, 
-		0,
-		0,
+		NULL,
+		NULL,
 		Read_8440_844F, 
 		WriteInvalid, 
 		WriteValue_8440_844F
@@ -546,8 +520,8 @@ void Memory_InitTables()
 	( 
 		MEMORY_START_AI, 
 		MEMORY_SIZE_AI, 
-		MEM_AI_REG,
-		0,
+		MEMORY_AI,
+		NULL,
 		Read_8450_845F, 
 		WriteInvalid, 
 		WriteValue_8450_845F 
@@ -558,8 +532,8 @@ void Memory_InitTables()
 	( 
 		MEMORY_START_PI,
 		MEMORY_SIZE_PI,
-		MEM_PI_REG, 
-		0,
+		MEMORY_PI, 
+		NULL,
 		Read_8460_846F,
 		WriteInvalid,
 		WriteValue_8460_846F 
@@ -570,8 +544,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_RI, 
 		MEMORY_SIZE_RI,
-		MEM_RI_REG, 
-		MEM_RI_REG,
+		MEMORY_RI, 
+		MEMORY_RI,
 		Read_8470_847F, 
 		WriteInvalid, 
 		WriteValue_8470_847F
@@ -582,8 +556,8 @@ void Memory_InitTables()
 	( 
 		MEMORY_START_SI, 
 		MEMORY_SIZE_SI, 
-		MEM_SI_REG,
-		0,
+		MEMORY_SI,
+		NULL,
 		Read_8480_848F, 
 		WriteInvalid, 
 		WriteValue_8480_848F
@@ -595,8 +569,8 @@ void Memory_InitTables()
 	( 
 		MEMORY_START_C2A1, 
 		MEMORY_SIZE_C2A1, 
-		0,
-		0,
+		NULL,
+		NULL,
 		ReadInvalid, 
 		WriteInvalid,  
 		WriteValueInvalid
@@ -607,8 +581,8 @@ void Memory_InitTables()
 	( 
 		MEMORY_START_C1A1, 
 		MEMORY_SIZE_C1A1,
-		0,
-		0,
+		NULL,
+		NULL,
 		ReadInvalid, 
 		WriteInvalid,  
 		WriteValueInvalid
@@ -619,8 +593,8 @@ void Memory_InitTables()
 	( 
 		MEMORY_START_GIO,
 		MEMORY_SIZE_GIO_REG,
-		0,
-		0,
+		NULL,
+		NULL,
 		ReadInvalid, 
 		WriteInvalid,  
 		WriteValueInvalid
@@ -631,8 +605,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_PIF, 
 		MEMORY_SIZE_PIF, 
-		0,
-		0,
+		NULL,
+		NULL,
 		Read_9FC0_9FCF, 
 		WriteInvalid,
 		WriteValue_9FC0_9FCF
@@ -644,33 +618,25 @@ void Memory_InitTables()
 	( 
 		MEMORY_START_C2A2, 
 		MEMORY_SIZE_C2A2,
-		0,
-		0,
+		NULL,
+		NULL,
 		ReadFlashRam, 
 		WriteInvalid,  
 		WriteValue_FlashRam
 	);
 
 	// Cartridge Domain 1 Address 2 (Rom)
+	// Map ROM region if the address is fixed (Note Reads to Rom are very rare, actual speedup is unlikely)
 	Memory_InitFunc
 	(
 		MEMORY_START_ROM_IMAGE, 
 		rom_size, 
-		0,
-		0,
+		rom_address,
+		NULL,
 		ReadROM,	
 		WriteInvalid, 
 		WriteValue_ROM
 	);
-
-	// Map ROM regions here if the address is fixed
-	if(RomBuffer::IsRomLoaded() && RomBuffer::IsRomAddressFixed())
-	{
-		const void *	p_rom_address( RomBuffer::GetFixedRomBaseAddress() );
-		Memory_InitTables_ROM_PointerTable( p_rom_address, rom_size, PI_DOM1_ADDR1, PI_DOM2_ADDR2 );
-		Memory_InitTables_ROM_PointerTable( p_rom_address, rom_size, PI_DOM1_ADDR2, 0x1FC00000 );
-		Memory_InitTables_ROM_PointerTable( p_rom_address, rom_size, PI_DOM1_ADDR3, 0x20000000 );
-	}
 
 	// Hack the TLB Map per game
 	if (g_ROM.GameHacks == GOLDEN_EYE) 
@@ -1156,7 +1122,7 @@ void MemoryUpdatePIF()
 	u8 * pPIFRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + 0x7C0;
 
 	u8 command = pPIFRam[ 0x3F^U8_TWIDDLE ];
-
+	printf( "control value: 0x%02x", command );
 	switch ( command )
 	{
 	case 0x01:		// Standard block
