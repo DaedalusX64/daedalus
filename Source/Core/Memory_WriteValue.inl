@@ -365,7 +365,6 @@ static void WriteValue_8460_846F( u32 address, u32 value )
 //*****************************************************************************
 static void WriteValue_8470_847F( u32 address, u32 value )
 {
-
 	DPF( DEBUG_MEMORY_RI, "Writing to MEM_RI_REG: 0x%08x", address );
 	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_RI_REG] + (address & 0xFF)) = value;
 }
@@ -415,12 +414,10 @@ static void WriteValue_8480_848F( u32 address, u32 value )
 static void WriteValue_9FC0_9FCF( u32 address, u32 value )
 {
 	u32 offset = address & 0x3F;
-
 	DAEDALUS_ASSERT(!(address - 0x7C0 & ~0x3F), "Read to PIF RAM (0x%08x) is invalid", address);
 	DPF( DEBUG_MEMORY_PIF, "Writing to MEM_PIF_RAM: 0x%08x", address );
 	
-	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset) = value;
-
+	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset) = SWAP_PIF( value );
 	if (offset == 0x3C)
 	{
 		MemoryUpdatePIF();

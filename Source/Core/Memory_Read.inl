@@ -305,5 +305,6 @@ static void * Read_9FC0_9FCF( u32 address )
 	DAEDALUS_ASSERT(!(address - 0x7C0 & ~0x3F), "Read to PIF RAM (0x%08x) is invalid", address);
 
 	DPF( DEBUG_MEMORY_PIF, "Reading from MEM_PIF: 0x%08x", address );
+	// ToDO: SWAP_PIF
 	return (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + (address & 0x3F);
 }

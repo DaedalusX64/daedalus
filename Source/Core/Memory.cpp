@@ -71,7 +71,7 @@ u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 	MAXIMUM_MEM_SIZE,	// RD_RAM
 	0x2000,				// SP_MEM
 
-	0x40,				// PI_RAM
+	0x10,				// PI_RAM
 
 	//1*1024*1024,		// RD_REG	(Don't need this much really)?
 	0x30,				// RD_REG0
@@ -1118,36 +1118,19 @@ void MemoryUpdatePI( u32 value )
 void MemoryUpdatePIF()
 {
 	u8 * pPIFRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
-
-	u8 command = pPIFRam[ 0x3F^U8_TWIDDLE ];
-	switch ( command )
+	u8 command = pPIFRam[ 0x3F];
+	if( command == 0x08 )
 	{
-	case 0x01:		// Standard block
-		DBGConsole_Msg( 0, "[GStandard execute block control value: 0x%02x", command );
-		break;
-	case 0x08:
-		pPIFRam[ 0x3F^U8_TWIDDLE ] = 0x00; 
+		pPIFRam[ 0x3F ] = 0x00; 
 
 		Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
 		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SI);
 		R4300_Interrupt_UpdateCause3();
 		DBGConsole_Msg( 0, "[GSI Interrupt control value: 0x%02x", command );
-		break;
-	/*case 0x10:
-		memset( pPIFRom, 0, 0x7C0 );
-		DBGConsole_Msg( 0, "[GClear ROM control value: 0x%02x", command );
-		break;*/
-	case 0x30:
-		pPIFRam[ 0x3F^U8_TWIDDLE ] = 0x80;		
-		DBGConsole_Msg( 0, "[GSet 0x80 control value: 0x%02x", command );
-		break;
-	case 0xC0:
-		memset( pPIFRam, 0, 0x40);
-		DBGConsole_Msg( 0, "[GClear PIF Ram control value: 0x%02x", command );
-		break;
-	default:
+	}
+	else
+	{
 		DBGConsole_Msg( 0, "[GUnknown control value: 0x%02x", command );
-		break;
 	}
 
 }

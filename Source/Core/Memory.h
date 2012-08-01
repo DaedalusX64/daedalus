@@ -35,14 +35,11 @@ enum MEMBANKTYPE
 	
 	MEM_SP_MEM,				// 0x2000
 
-	MEM_PIF_RAM,			// 0x7C0 + 0x40
+	MEM_PIF_RAM,			// 0x10
 
 	MEM_RD_REG0,			// 0x30		// This has changed - used to be 1Mb
-	//MEM_RD_REG4,			// 0x30
-	//MEM_RD_REG8,			// 0x30
 	MEM_SP_REG,				// 0x20
 	MEM_DPC_REG,			// 0x20
-	//MEM_DPS_REG,			// 0x10
 	MEM_MI_REG,				// 0x10
 	MEM_VI_REG,				// 0x38
 	MEM_AI_REG,				// 0x18
@@ -351,6 +348,8 @@ inline bool Memory_GetInternalReadAddress(u32 address, void ** p_translated)
 #define MEMORY_RI				g_pMemoryBuffers[MEM_RI_REG]
 #define MEMORY_PIF				g_pMemoryBuffers[MEM_PIF_RAM]
 
+// Little Endian
+#define SWAP_PIF(x) (x >> 24) | ((x >> 8) & 0xFF00) | ((x & 0xFF00) << 8) | (x << 24)
 
 //extern u8 * g_pu8RamBase_8000;
 //extern u8 * g_pu8RamBase_A000;
