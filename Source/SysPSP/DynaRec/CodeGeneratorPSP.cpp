@@ -63,7 +63,7 @@ using namespace AssemblyUtils;
 
 #define NOT_IMPLEMENTED( x )	DAEDALUS_ERROR( x )
 
-extern "C" { const void * g_ReadAddressLookupTableForDynarec = NULL; }	// FIX ME
+extern "C" { const void * g_ReadAddressLookupTableForDynarec = g_MemoryLookupTableRead; }	//Important pointer for Dynarec see DynaRecStubs.s
 
 extern "C" { u64 _FloatToDouble( u32 _float); }	//Uses CPU to pass f64/32 thats why its maskerading as u64/32 //Corn
 extern "C" { u32 _DoubleToFloat( u64 _double); }	//Uses CPU to pass f64/32 thats why its maskerading as u64/32 //Corn
@@ -1020,15 +1020,14 @@ CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_ad
 		}
 
 		// Assuming we don't need to set CurrentPC/Delay flags before we branch to the top..
-
+		//
 		ADDIU( PspReg_T0, PspReg_T0, num_instructions );
 		SetVar( &gCPUState.CPUControl[C0_COUNT]._u32, PspReg_T0 );
-
-		ADDIU( PspReg_T1, PspReg_T1, -s16(num_instructions) );
 
 		//
 		//	If the event counter is still positive, just jump directly to the top of our loop
 		//
+		ADDIU( PspReg_T1, PspReg_T1, -s16(num_instructions) );
 		BGTZ( PspReg_T1, mLoopTop, false );
 		SetVar( (u32*)&gCPUState.Events[0].mCount, PspReg_T1 );	// ASSUMES store is done in just a single op.
 

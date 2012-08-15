@@ -280,11 +280,11 @@ _IndirectExitCheck:
 	sw		$a1, _CurrentPC($fp) 	# CurrentPC
 
 	srl		$v1, $a0, 0x12
-	sll		$v1, $v1, 0x2
+	sll		$v1, $v1, 0x3	# * 8 to index the two pointer struct
 	la		$v0, g_ReadAddressLookupTableForDynarec
 	lw		$v0, 0($v0)			# The above is a pointer to our table
 	addu	$v1, $v1, $v0
-	lw		$v0, 0($v1)
+	lw		$v0, 4($v1)	#offset 4 to get the second pointer
 	
 	
 	jalr	$v0
@@ -311,11 +311,11 @@ _IndirectExitCheck:
 	sw		$t0, _Delay($fp)		# Delay
 
 	srl		$v1, $a0, 0x12
-	sll		$v1, $v1, 0x2
+	sll		$v1, $v1, 0x3	# * 8 to index the two pointer struct
 	la		$v0, g_ReadAddressLookupTableForDynarec
 	lw		$v0, 0($v0)			# The above is a pointer to our table
 	addu	$v1, $v1, $v0
-	lw		$v0, 0($v1)
+	lw		$v0, 4($v1)	#offset 4 to get the second pointer
 	
 	
 	jalr	$v0
