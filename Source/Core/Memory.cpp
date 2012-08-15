@@ -117,7 +117,6 @@ void Flash_DoCommand(u32);
 //
 //*****************************************************************************
 #include "Memory_Read.inl"
-#include "Memory_Write.inl"
 #include "Memory_WriteValue.inl"
 #include "Memory_ReadInternal.inl"
 
@@ -1078,15 +1077,15 @@ void MemoryUpdatePI( u32 value )
 void MemoryUpdatePIF()
 {
 	u8 * pPIFRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
-	u8 command = pPIFRam[ 0x3F];
+	u8 command = pPIFRam[ 0x3F ^ U8_TWIDDLE];
 	if( command == 0x08 )
 	{
-		pPIFRam[ 0x3F ] = 0x00; 
+		pPIFRam[ 0x3F ^ U8_TWIDDLE ] = 0x00; 
 
+		DBGConsole_Msg( 0, "[GSI Interrupt control value: 0x%02x", command );
 		Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
 		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SI);
 		R4300_Interrupt_UpdateCause3();
-		DBGConsole_Msg( 0, "[GSI Interrupt control value: 0x%02x", command );
 	}
 	else
 	{

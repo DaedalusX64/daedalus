@@ -127,8 +127,8 @@ extern InternalMemFastFunction		InternalReadFastTable[0x4000];
 #include "PushStructPack1.h"
 ALIGNED_TYPE(struct, memory_tables_struct_t, PAGE_ALIGN)
 {
-	MemFastFunction					_g_ReadAddressLookupTable[0x4000];
-	MemFastFunction					_g_WriteAddressLookupTable[0x4000];
+	MemFuncRead						_g_MemoryLookupTableRead[0x4000];
+	MemFuncWrite					_g_MemoryLookupTableWrite[0x4000];
 #ifndef DAEDALUS_SILENT
 	InternalMemFastFunction			_InternalReadFastTable[0x4000];
 #endif
@@ -137,13 +137,12 @@ ALIGNED_EXTERN(memory_tables_struct_t, memory_tables_struct, PAGE_ALIGN);
 #include "PopStructPack.h"
 
 
-#define g_ReadAddressLookupTable (memory_tables_struct._g_ReadAddressLookupTable)
-#define g_WriteAddressLookupTable (memory_tables_struct._g_WriteAddressLookupTable)
-#define g_WriteAddressValueLookupTable (memory_tables_struct._g_WriteAddressValueLookupTable)
-#define InternalReadFastTable (memory_tables_struct._InternalReadFastTable)
-#define g_ReadAddressPointerLookupTable (memory_tables_struct._g_ReadAddressPointerLookupTable)
-#define g_WriteAddressPointerLookupTable (memory_tables_struct._g_WriteAddressPointerLookupTable)
+#define g_MemoryLookupTableRead (memory_tables_struct._g_MemoryLookupTableRead)
+#define g_MemoryLookupTableWrite (memory_tables_struct._g_MemoryLookupTableWrite)
 
+#ifndef DAEDALUS_SILENT
+#define InternalReadFastTable (memory_tables_struct._InternalReadFastTable)
+#endif
 #endif // DAEDALUS_ALIGN_REGISTERS
 
 
