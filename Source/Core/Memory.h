@@ -35,7 +35,7 @@ enum MEMBANKTYPE
 	
 	MEM_SP_MEM,				// 0x2000
 
-	MEM_PIF_RAM,			// 0x10
+	MEM_PIF_RAM,			// 0x40
 
 	MEM_RD_REG0,			// 0x30		// This has changed - used to be 1Mb
 	MEM_SP_REG,				// 0x20

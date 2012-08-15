@@ -75,19 +75,17 @@ _DaedalusICacheInvalidate:
 	# Store base+size in a1
 	addu		$a1, $a1, $a0
 
-	# Round 'start' pointer down to nearest 64 bytes
+	# Truncate 'start' pointer down to nearest 64 bytes boundary
 	and			$a0, $a0, $t0
 
-	# Round 'end' pointer up to next 64 bytes boundary
-	addiu		$a1, $a1, 63
+	# Truncate 'end' pointer down to nearest 64 bytes boundary
 	and			$a1, $a1, $t0
 
 	# Do while current < end
 invalidate_next:
 	cache		8, 0($a0)						# 8 is for icache invalidate
-	addiu		$a0, $a0, 64
 	bne			$a0, $a1, invalidate_next		# Keep looping until 
-	nop
+	addiu		$a0, $a0, 64
 
 	jr			$ra
 	nop
@@ -242,10 +240,8 @@ _IndirectExitCheck:
 
 	# Can avoid these until _ReturnFromDynaRec?	
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
-	sw		$0,  _Delay($fp)		# Delay (NO_DELAY)
-	
 	jal		CPU_UpdateCounter	# a0 holds instructions executed
-	nop
+	sw		$0,  _Delay($fp)		# Delay (NO_DELAY)
 
 	lw		$t0, _StuffToDo($fp)		# StuffToDo
 	bne		$t0, $0, _ReturnFromDynaRec
@@ -277,8 +273,6 @@ _IndirectExitCheck:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
 
-	sw		$a1, _CurrentPC($fp) 	# CurrentPC
-
 	srl		$v1, $a0, 0x12
 	sll		$v1, $v1, 0x3	# * 8 to index the two pointer struct
 	la		$v0, g_ReadAddressLookupTableForDynarec
@@ -286,9 +280,9 @@ _IndirectExitCheck:
 	addu	$v1, $v1, $v0
 	lw		$v0, 4($v1)	#offset 4 to get the second pointer
 	
-	
 	jalr	$v0
-	nop
+	sw		$a1, _CurrentPC($fp) 	# CurrentPC
+
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 
@@ -308,7 +302,6 @@ _IndirectExitCheck:
 
 	sw		$a1, _CurrentPC($fp) 	# CurrentPC
 	li		$t0, 1				# EXEC_DELAY
-	sw		$t0, _Delay($fp)		# Delay
 
 	srl		$v1, $a0, 0x12
 	sll		$v1, $v1, 0x3	# * 8 to index the two pointer struct
@@ -317,9 +310,9 @@ _IndirectExitCheck:
 	addu	$v1, $v1, $v0
 	lw		$v0, 4($v1)	#offset 4 to get the second pointer
 	
-	
 	jalr	$v0
-	nop
+	sw		$t0, _Delay($fp)		# Delay
+
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 
@@ -360,10 +353,8 @@ _WriteBitsDirect_u32:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
 	
-	sw		$a2, _CurrentPC($fp) 	# CurrentPC
-	
 	jal		Write32BitsForDynaRec
-	nop
+	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
@@ -379,29 +370,24 @@ _WriteBitsDirectBD_u32:
 	
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	li		$t0, 1				# EXEC_DELAY
-	sw		$t0, _Delay($fp)		# Delay
 
 	jal		Write32BitsForDynaRec
-	nop
+	sw		$t0, _Delay($fp)		# Delay
 	
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 	
-	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
-	
 	la		$t0, temp_storage_for_ra
 	lw		$ra, 0($t0)
 	jr		$ra
-	nop
+	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
 	
 _WriteBitsDirect_u16:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
 	
-	sw		$a2, _CurrentPC($fp) 	# CurrentPC
-	
 	jal		Write16BitsForDynaRec
-	nop
+	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
@@ -418,29 +404,24 @@ _WriteBitsDirectBD_u16:
 	
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	li		$t0, 1				# EXEC_DELAY
-	sw		$t0, _Delay($fp)		# Delay
 	
 	jal		Write16BitsForDynaRec
-	nop
+	sw		$t0, _Delay($fp)		# Delay
 	
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 	
-	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
-	
 	la		$t0, temp_storage_for_ra
 	lw		$ra, 0($t0)
 	jr		$ra
-	nop
+	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
 	
 _WriteBitsDirect_u8:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
 	
-	sw		$a2, _CurrentPC($fp) 	# CurrentPC
-	
 	jal		Write8BitsForDynaRec
-	nop
+	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
@@ -456,20 +437,17 @@ _WriteBitsDirectBD_u8:
 	
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	li		$t0, 1				# EXEC_DELAY
-	sw		$t0, _Delay($fp)		# Delay
 	
 	jal		Write8BitsForDynaRec
-	nop
+	sw		$t0, _Delay($fp)		# Delay
 	
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 	
-	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
-	
 	la		$t0, temp_storage_for_ra
 	lw		$ra, 0($t0)
 	jr		$ra
-	nop			
+	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
 	
 #######################################################################################
 /**
