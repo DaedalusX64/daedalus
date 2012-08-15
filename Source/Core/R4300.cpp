@@ -133,27 +133,6 @@ inline void SpeedHack( u32 pc, OpCode op )
 //		MTC1/MFC1/DMTC1/DMFC1	are unformatted, so no exceptions raised
 //		Word accessed must be 4 byte aligned, DWord accesses must be 8 byte aligned
 //
-//*****************************************************************************
-//
-//*****************************************************************************
-inline void QuickWrite_Long( u32 addr, u32 val0, u32 val1 )
-{
-	u32	*psrc = (u32 *)WriteAddress( addr );
-
-	psrc[0] = val1;	
-	psrc[1] = val0;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-inline void QuickRead_Long( u32 addr, u32 val0, u32 val1 )
-{
-	u32	*pdst = (u32 *)ReadAddress( addr );
-
-	val1 = pdst[0];
-	val0 = pdst[1];
-}
 
 //*****************************************************************************
 //

@@ -63,7 +63,7 @@ using namespace AssemblyUtils;
 
 #define NOT_IMPLEMENTED( x )	DAEDALUS_ERROR( x )
 
-extern "C" { const void * g_ReadAddressLookupTableForDynarec = g_ReadAddressLookupTable; }
+extern "C" { const void * g_ReadAddressLookupTableForDynarec = NULL; }	// FIX ME
 
 extern "C" { u64 _FloatToDouble( u32 _float); }	//Uses CPU to pass f64/32 thats why its maskerading as u64/32 //Corn
 extern "C" { u32 _DoubleToFloat( u64 _double); }	//Uses CPU to pass f64/32 thats why its maskerading as u64/32 //Corn
@@ -1786,10 +1786,10 @@ inline bool	CCodeGeneratorPSP::GenerateDirectLoad( EPspReg psp_dst, EN64Reg base
 		u32		base_address( mRegisterCache.GetKnownValue( base, 0 )._u32 );
 		u32		address( (base_address + s32( offset )) ^ swizzle );
 
-		s32		tableEntry = reinterpret_cast< s32 >( g_ReadAddressPointerLookupTable[address >> 18] ) + address;
-		if(tableEntry >= 0)
+		const MemFuncRead & m( g_MemoryLookupTableRead[ address >> 18 ] );
+		if( m.pRead )	
 		{
-			void * p_memory( reinterpret_cast< void * >( tableEntry ) );
+			void * p_memory( (void*)( m.pRead + address ) );
 
 			//printf( "Loading from %s %08x + %04x (%08x) op %d\n", RegNames[ base ], base_address, u16(offset), address, load_op );
 
@@ -2092,10 +2092,10 @@ inline bool	CCodeGeneratorPSP::GenerateDirectStore( EPspReg psp_src, EN64Reg bas
 		u32		base_address( mRegisterCache.GetKnownValue( base, 0 )._u32 );
 		u32		address( (base_address + s32( offset )) ^ swizzle );
 
-		s32 tableEntry = reinterpret_cast< s32 >( g_WriteAddressPointerLookupTable[address >> 18] ) + address;
-		if(tableEntry >= 0)
+		const MemFuncWrite & m( g_MemoryLookupTableWrite[ address >> 18 ] );
+		if( m.pWrite )
 		{
-			void * p_memory( reinterpret_cast< void * >( tableEntry ) );
+			void * p_memory( (void*)( m.pWrite + address ) );
 
 			//printf( "Storing to %s %08x + %04x (%08x) op %d\n", RegNames[ base ], base_address, u16(offset), address, store_op );
 

@@ -588,7 +588,7 @@ TEST_DISABLE_THREAD_FUNCS
 	u32 queue = gGPR[REG_a0]._u32_0;
 	// Get the active thread
 	u32 thread = Read32Bits(VAR_ADDRESS(osActiveThread));
-	u8 * pThreadBase = (u8 *)WriteAddress(thread);
+	u8 * pThreadBase = (u8 *)ReadAddress(thread);
 
 	//DBGConsole_Msg(0, "EnqueueAndYield()");
 

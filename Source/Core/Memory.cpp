@@ -71,7 +71,7 @@ u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 	MAXIMUM_MEM_SIZE,	// RD_RAM
 	0x2000,				// SP_MEM
 
-	0x10,				// PI_RAM
+	0x40,				// PIF_RAM
 
 	//1*1024*1024,		// RD_REG	(Don't need this much really)?
 	0x30,				// RD_REG0
@@ -126,15 +126,11 @@ void Flash_DoCommand(u32);
 //
 //*****************************************************************************
 #ifndef DAEDALUS_ALIGN_REGISTERS
-MemFastFunction g_ReadAddressLookupTable[0x4000];
-MemFastFunction g_WriteAddressLookupTable[0x4000];
-MemWriteValueFunction g_WriteAddressValueLookupTable[0x4000];
+MemFuncRead  g_MemoryLookupTableRead[0x4000];
+MemFuncWrite g_MemoryLookupTableWrite[0x4000];
 #ifndef DAEDALUS_SILENT
 InternalMemFastFunction InternalReadFastTable[0x4000];
 #endif
-void* g_ReadAddressPointerLookupTable[0x4000];
-void* g_WriteAddressPointerLookupTable[0x4000];
-
 #else // DAEDALUS_ALIGN_REGISTERS
 
 ALIGNED_GLOBAL(memory_tables_struct_t, memory_tables_struct, PAGE_ALIGN);
@@ -285,29 +281,21 @@ static void Memory_Tlb_Hack(const void *p_rom_address)
 	   u32 start_addr = 0x7F000000 >> 18;
 	   u32 end_addr   = 0x7FFFFFFF >> 18;
 
-	   void *pointerLookupTableEntry = (void*)(reinterpret_cast< u32 >( p_rom_address) + offset - (start_addr << 18));
+	   u8 *pRead = (u8*)(reinterpret_cast< u32 >( p_rom_address) + offset - (start_addr << 18));
 
 	   for (u32 i = start_addr; i <= end_addr; i++)
 	   {
-			g_ReadAddressPointerLookupTable[i] = pointerLookupTableEntry;
+			g_MemoryLookupTableRead[i].pRead = pRead;
 	   }
 	}
 
-	g_ReadAddressPointerLookupTable[0x70000000 >> 18] = (void*)(reinterpret_cast< u32 >( g_pMemoryBuffers[MEM_RD_RAM]) - 0x70000000);
+	g_MemoryLookupTableRead[0x70000000 >> 18].pRead = (u8*)(reinterpret_cast< u32 >( g_pMemoryBuffers[MEM_RD_RAM]) - 0x70000000);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-static void * Memory_GetInvalidPointerTableEntry( int entry )
-{
-	return (void*)(0xf0000000 - (entry << 18));
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void Memory_InitFunc(u32 start, u32 size, const void * ReadRegion, const void * WriteRegion, MemFastFunction pRead, MemFastFunction pWrite, MemWriteValueFunction pWriteValue)
+void Memory_InitFunc(u32 start, u32 size, const void * ReadRegion, const void * WriteRegion, mReadFunction ReadFunc, mWriteFunction WriteFunc)
 {
 	u32	start_addr = (start >> 18);
 	u32	end_addr   = ((start + size - 1) >> 18);
@@ -315,24 +303,22 @@ void Memory_InitFunc(u32 start, u32 size, const void * ReadRegion, const void * 
 	while(start_addr <= end_addr)
 	{
 		//printf("0x%08x\n",start_addr|(0x8000 >> 2));
-		g_ReadAddressLookupTable[ start_addr|(0x8000 >> 2) ]	  = pRead;
-		g_WriteAddressLookupTable[ start_addr|(0x8000 >> 2) ]		= pWrite;
-		g_WriteAddressValueLookupTable[ start_addr | (0x8000 >> 2) ] = pWriteValue;
+		g_MemoryLookupTableRead[start_addr|(0x8000>>2)].ReadFunc= ReadFunc;
+		g_MemoryLookupTableWrite[start_addr|(0x8000>>2)].WriteFunc = WriteFunc;
 
-		g_ReadAddressLookupTable[ start_addr|(0xA000 >> 2) ]	  = pRead;
-		g_WriteAddressLookupTable[ start_addr|(0xA000 >> 2) ]		= pWrite;
-		g_WriteAddressValueLookupTable[ start_addr|(0xA000 >> 2) ]	  = pWriteValue;
+		g_MemoryLookupTableRead[start_addr|(0xA000>>2)].ReadFunc= ReadFunc;
+		g_MemoryLookupTableWrite[start_addr|(0xA000>>2)].WriteFunc = WriteFunc;
 
 		if(ReadRegion)
 		{
-			g_ReadAddressPointerLookupTable[start_addr|(0x8000 >> 2)] = (void*)(reinterpret_cast< u32 >(ReadRegion) - (((start>>16)|0x8000) << 16));
-			g_ReadAddressPointerLookupTable[start_addr|(0xA000 >> 2)] = (void*)(reinterpret_cast< u32 >(ReadRegion) - (((start>>16)|0xA000) << 16));
+			g_MemoryLookupTableRead[start_addr|(0x8000>>2)].pRead = (u8*)(reinterpret_cast< u32 >(ReadRegion) - (((start>>16)|0x8000) << 16));
+			g_MemoryLookupTableRead[start_addr|(0xA000>>2)].pRead = (u8*)(reinterpret_cast< u32 >(ReadRegion) - (((start>>16)|0xA000) << 16));
 		}
 
 		if(WriteRegion)
 		{
-			g_WriteAddressPointerLookupTable[start_addr|(0x8000 >> 2)] = (void*)(reinterpret_cast< u32 >(WriteRegion) - (((start>>16)|0x8000) << 16));
-			g_WriteAddressPointerLookupTable[start_addr|(0xA000 >> 2)] = (void*)(reinterpret_cast< u32 >(WriteRegion) - (((start>>16)|0xA000) << 16));
+			g_MemoryLookupTableWrite[start_addr|(0x8000>>2)].pWrite = (u8*)(reinterpret_cast< u32 >(WriteRegion) - (((start>>16)|0x8000) << 16));
+			g_MemoryLookupTableWrite[start_addr|(0xA000>>2)].pWrite = (u8*)(reinterpret_cast< u32 >(WriteRegion) - (((start>>16)|0xA000) << 16));
 		}
 		
 		start_addr++;
@@ -346,40 +332,34 @@ void Memory_InitTables()
 {
 	u32 i;
 
-	memset(g_ReadAddressLookupTable, 0, sizeof(MemFastFunction) * 0x4000);
-	memset(g_WriteAddressLookupTable, 0, sizeof(MemFastFunction) * 0x4000);
-	memset(g_WriteAddressValueLookupTable, 0, sizeof(MemWriteValueFunction) * 0x4000);
-	memset(g_ReadAddressPointerLookupTable, 0, sizeof(void*) * 0x4000);
-	memset(g_WriteAddressPointerLookupTable, 0, sizeof(void*) * 0x4000);
+	memset(g_MemoryLookupTableRead, 0, sizeof(MemFuncRead) * 0x4000);
+	memset(g_MemoryLookupTableWrite, 0, sizeof(MemFuncWrite) * 0x4000);
 
-	// these values cause the result of the addition to be negative (>= 0x80000000)
 	for(i = 0; i < (0x10000 >> 2); i++)
 	{
-		g_WriteAddressPointerLookupTable[i] = g_ReadAddressPointerLookupTable[i] = Memory_GetInvalidPointerTableEntry(i);
+		g_MemoryLookupTableRead[i].pRead = NULL;
+		g_MemoryLookupTableWrite[i].pWrite = NULL;
 	}
 
 	// 0x00000000 - 0x7FFFFFFF Mapped Memory
 	for(i = 0; i < (0x8000 >> 2); i++)
 	{
-		g_ReadAddressLookupTable[i]			= ReadMapped;
-		g_WriteAddressLookupTable[i]		= WriteMapped;
-		g_WriteAddressValueLookupTable[i]	= WriteValueMapped;
+		g_MemoryLookupTableRead[i].ReadFunc		= ReadMapped;
+		g_MemoryLookupTableWrite[i].WriteFunc	= WriteValueMapped;
 	}
 
 	// Invalidate all entries, mapped regions are untouched (0x00000000 - 0x7FFFFFFF, 0xC0000000 - 0x10000000 )
 	for(i = (0x8000 >> 2); i < (0xC000 >> 2); i++)
 	{
-		g_ReadAddressLookupTable[i]			= ReadInvalid;
-		g_WriteAddressLookupTable[i]		= WriteInvalid;
-		g_WriteAddressValueLookupTable[i]	= WriteValueInvalid;
+		g_MemoryLookupTableRead[i].ReadFunc		= ReadInvalid;
+		g_MemoryLookupTableWrite[i].WriteFunc	= WriteValueInvalid;
 	}
 
 	// 0xC0000000 - 0x10000000 Mapped Memory
 	for(i = (0xC000 >> 2); i < (0x10000 >> 2); i++)
 	{
-		g_ReadAddressLookupTable[i]			= ReadMapped;
-		g_WriteAddressLookupTable[i]		= WriteMapped;
-		g_WriteAddressValueLookupTable[i]	= WriteValueMapped;
+		g_MemoryLookupTableRead[i].ReadFunc		= ReadMapped;
+		g_MemoryLookupTableWrite[i].WriteFunc	= WriteValueMapped;
 	}
 
 	// This returns NULL if Rom isn't loaded or Rom base isn't fixed
@@ -399,7 +379,6 @@ void Memory_InitTables()
 		MEMORY_RDRAM,
 		MEMORY_RDRAM,
 		Read_8000_807F, 
-		Write_8000_807F, 
 		WriteValue_8000_807F 
 	);
 
@@ -413,7 +392,6 @@ void Memory_InitTables()
 			NULL,
 			NULL,
 			ReadInvalid, 
-			WriteInvalid, 
 			WriteValueInvalid 
 		);
 	}
@@ -426,7 +404,6 @@ void Memory_InitTables()
 		MEMORY_RAMREGS0,	
 		MEMORY_RAMREGS0,
 		Read_83F0_83F0, 
-		Write_83F0_83F0, 
 		WriteValue_83F0_83F0 
 	);
 
@@ -439,7 +416,6 @@ void Memory_InitTables()
 		MEMORY_SPMEM, 
 		MEMORY_SPMEM,
 		Read_8400_8400, 
-		WriteInvalid, 
 		WriteValue_8400_8400
 	);
 
@@ -451,7 +427,6 @@ void Memory_InitTables()
 		MEMORY_SPREG_1, 
 		NULL,
 		Read_8404_8404,
-		Write_8400_8400, 
 		WriteValue_8404_8404 
 	);
 
@@ -462,8 +437,7 @@ void Memory_InitTables()
 		MEMORY_SIZE_SPREG_2, 
 		NULL,
 		NULL,
-		Read_8408_8408, 
-		WriteInvalid, 
+		Read_8408_8408,
 		WriteValue_8408_8408 
 	);
 	// DPC Reg
@@ -474,7 +448,6 @@ void Memory_InitTables()
 		MEMORY_DPC,
 		NULL,
 		Read_8410_841F, 
-		WriteInvalid, 
 		WriteValue_8410_841F
 	);	
 
@@ -486,7 +459,6 @@ void Memory_InitTables()
 		NULL,
 		NULL,
 		Read_8420_842F,
-		WriteInvalid, 
 		WriteValue_8420_842F 
 	);	
 	
@@ -498,7 +470,6 @@ void Memory_InitTables()
 		MEMORY_MI, 
 		NULL,
 		Read_8430_843F, 
-		WriteInvalid, 
 		WriteValue_8430_843F
 	);	
 
@@ -510,7 +481,6 @@ void Memory_InitTables()
 		NULL,
 		NULL,
 		Read_8440_844F, 
-		WriteInvalid, 
 		WriteValue_8440_844F
 	);
 
@@ -522,7 +492,6 @@ void Memory_InitTables()
 		MEMORY_AI,
 		NULL,
 		Read_8450_845F, 
-		WriteInvalid, 
 		WriteValue_8450_845F 
 	);
 
@@ -534,7 +503,6 @@ void Memory_InitTables()
 		MEMORY_PI, 
 		NULL,
 		Read_8460_846F,
-		WriteInvalid,
 		WriteValue_8460_846F 
 	);
 
@@ -546,7 +514,6 @@ void Memory_InitTables()
 		MEMORY_RI, 
 		MEMORY_RI,
 		Read_8470_847F, 
-		WriteInvalid, 
 		WriteValue_8470_847F
 	);
 
@@ -558,7 +525,6 @@ void Memory_InitTables()
 		MEMORY_SI,
 		NULL,
 		Read_8480_848F, 
-		WriteInvalid, 
 		WriteValue_8480_848F
 	);
 
@@ -571,7 +537,6 @@ void Memory_InitTables()
 		NULL,
 		NULL,
 		ReadInvalid, 
-		WriteInvalid,  
 		WriteValueInvalid
 	);
 
@@ -583,7 +548,6 @@ void Memory_InitTables()
 		NULL,
 		NULL,
 		ReadInvalid, 
-		WriteInvalid,  
 		WriteValueInvalid
 	);
 
@@ -595,7 +559,6 @@ void Memory_InitTables()
 		NULL,
 		NULL,
 		ReadInvalid, 
-		WriteInvalid,  
 		WriteValueInvalid
 	);
 
@@ -607,7 +570,6 @@ void Memory_InitTables()
 		NULL,
 		NULL,
 		Read_9FC0_9FCF, 
-		WriteInvalid,
 		WriteValue_9FC0_9FCF
 	);
 
@@ -619,8 +581,7 @@ void Memory_InitTables()
 		MEMORY_SIZE_C2A2,
 		NULL,
 		NULL,
-		ReadFlashRam, 
-		WriteInvalid,  
+		ReadFlashRam,   
 		WriteValue_FlashRam
 	);
 
@@ -632,8 +593,7 @@ void Memory_InitTables()
 		rom_size, 
 		rom_address,
 		NULL,
-		ReadROM,	
-		WriteInvalid, 
+		ReadROM,	 
 		WriteValue_ROM
 	);
 

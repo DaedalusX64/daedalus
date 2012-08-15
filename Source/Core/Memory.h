@@ -53,9 +53,25 @@ enum MEMBANKTYPE
 	NUM_MEM_BUFFERS
 };
 
+
 static const u32 MEMORY_4_MEG( 4*1024*1024 );
 static const u32 MEMORY_8_MEG( 8*1024*1024 );
 #define MAX_RAM_ADDRESS MEMORY_8_MEG
+
+typedef void * (*mReadFunction )( u32 address );
+typedef void (*mWriteFunction )( u32 address, u32 value );
+
+struct MemFuncWrite
+{
+	u8			  *pWrite;
+	mWriteFunction WriteFunc;
+};
+
+struct MemFuncRead
+{
+	u8			 *pRead;
+	mReadFunction ReadFunc;
+};
 
 extern u32		gRamSize;
 #ifdef DAEDALUS_PROFILE_EXECUTION
@@ -100,14 +116,11 @@ typedef bool (*InternalMemFastFunction)( u32 address, void ** p_translated );
 
 // For debugging, it's more important to be able to use the debugger
 #ifndef DAEDALUS_ALIGN_REGISTERS
-extern MemFastFunction				g_ReadAddressLookupTable[0x4000];
-extern MemFastFunction				g_WriteAddressLookupTable[0x4000];
-extern MemWriteValueFunction		g_WriteAddressValueLookupTable[0x4000];
+extern MemFuncRead  g_MemoryLookupTableRead[0x4000];
+extern MemFuncWrite g_MemoryLookupTableWrite[0x4000];
 #ifndef DAEDALUS_SILENT
 extern InternalMemFastFunction		InternalReadFastTable[0x4000];
 #endif
-extern void*						g_ReadAddressPointerLookupTable[0x4000];
-extern void*						g_WriteAddressPointerLookupTable[0x4000];
 
 #else // DAEDALUS_ALIGN_REGISTERS
 
@@ -116,12 +129,9 @@ ALIGNED_TYPE(struct, memory_tables_struct_t, PAGE_ALIGN)
 {
 	MemFastFunction					_g_ReadAddressLookupTable[0x4000];
 	MemFastFunction					_g_WriteAddressLookupTable[0x4000];
-	MemWriteValueFunction			_g_WriteAddressValueLookupTable[0x4000];
 #ifndef DAEDALUS_SILENT
 	InternalMemFastFunction			_InternalReadFastTable[0x4000];
 #endif
-	void*							_g_ReadAddressPointerLookupTable[0x4000];
-	void*							_g_WriteAddressPointerLookupTable[0x4000];
 };
 ALIGNED_EXTERN(memory_tables_struct_t, memory_tables_struct, PAGE_ALIGN);
 #include "PopStructPack.h"
@@ -209,56 +219,39 @@ pointer_null_x:
    TODO: instead of looking up TLB entries each time TLB-mapped memory is used, it is probably much faster to change the pointer table every time the TLB is modified
 */
 
-#define FuncTableReadAddress(address)  (void *)(g_ReadAddressLookupTable)[(address)>>18](address)
-#define FuncTableWriteAddress(address)  (void *)(g_WriteAddressLookupTable)[(address)>>18](address)
-#define FuncTableWriteValueAddress(address, value)  (g_WriteAddressValueLookupTable)[(address)>>18](address, value)
+#define FuncTableReadAddress(address)  (void *)(g_MemoryLookupTableRead)[(address)>>18](address)
+#define FuncTableWriteAddress(address)  (void *)(g_MemoryLookupTableWrite)[(address)>>18](address)
 
 #if 0
 #define ReadAddress FuncTableReadAddress
 #define WriteAddress FuncTableWriteAddress
-#define WriteValueAddress FuncTableWriteValueAddress
 #else
 inline void* DAEDALUS_ATTRIBUTE_CONST ReadAddress( u32 address )
 {
-	const s32 tableEntry = reinterpret_cast< s32 >( g_ReadAddressPointerLookupTable[address >> 18] ) + address;
-	if(DAEDALUS_EXPECT_LIKELY(tableEntry >= 0))
-	{
-		return (void*)(tableEntry);
-	}
-	else
-	{
-		return FuncTableReadAddress( address );
-	}
+	const MemFuncRead & m( g_MemoryLookupTableRead[ address >> 18 ] );
+
+	// Access through pointer with no function calls at all (Fast)
+	if( m.pRead )	
+		return (void*)( m.pRead + address );
+
+	// Need to go through the HW access handlers or TLB (Slow)
+	return m.ReadFunc( address );	
 }
 
-inline void* WriteAddress( u32 address )
+inline void WriteAddress( u32 address, u32 value )
 {
-	const s32 tableEntry = reinterpret_cast< s32 >( g_WriteAddressPointerLookupTable[address >> 18] ) + address;
-	if(DAEDALUS_EXPECT_LIKELY(tableEntry >= 0))
-	{
-		return (void*)(tableEntry);
-	}
-	else
-	{
+	const MemFuncWrite & m( g_MemoryLookupTableWrite[ address >> 18 ] );
 
-		return FuncTableWriteAddress(address);
-	}
-}
-
-inline void WriteValueAddress( u32 address, u32 value )
-{
-	const s32 tableEntry = reinterpret_cast< s32 >( g_WriteAddressPointerLookupTable[address >> 18] ) + address;
-	if(DAEDALUS_EXPECT_LIKELY(tableEntry >= 0))
+	// Access through pointer with no function calls at all (Fast)
+	if( m.pWrite )	
 	{
-		*(u32*)(tableEntry) = value;
+		*(u32*)( m.pWrite + address ) = value;
+		return;
 	}
-	else
-	{
-		FuncTableWriteValueAddress( address, value );
-	}
+	// Need to go through the HW access handlers or TLB (Slow)
+	m.WriteFunc( address, value );	
 }
 #endif /* 0 */
-
 
 
 #ifndef DAEDALUS_SILENT
@@ -375,15 +368,15 @@ inline u64 Read64Bits( u32 address )
 #define Read8Bits( addr )							( *(u8  *)ReadAddress( (addr) ^ U8_TWIDDLE ))
 #endif
 
-inline void Write64Bits( u32 address, u64 data )	{ MEMORY_CHECK_ALIGN( address, 8 ); *(u64 *)WriteAddress( address ) = (data>>32) + (data<<32); }
-inline void Write32Bits( u32 address, u32 data )	{ MEMORY_CHECK_ALIGN( address, 4 ); WriteValueAddress(address, data); }
-inline void Write16Bits( u32 address, u16 data )	{ MEMORY_CHECK_ALIGN( address, 2 ); *(u16 *)WriteAddress(address ^ U16_TWIDDLE) = data; }
-inline void Write8Bits( u32 address, u8 data )		{                                   *(u8 *)WriteAddress(address ^ U8_TWIDDLE) = data;}
+inline void Write64Bits( u32 address, u64 data )	{ MEMORY_CHECK_ALIGN( address, 8 ); *(u64 *)ReadAddress( address ) = (data>>32) + (data<<32); }
+inline void Write32Bits( u32 address, u32 data )	{ MEMORY_CHECK_ALIGN( address, 4 ); WriteAddress(address, data); }
+inline void Write16Bits( u32 address, u16 data )	{ MEMORY_CHECK_ALIGN( address, 2 ); *(u16 *)ReadAddress(address ^ U16_TWIDDLE) = data; }
+inline void Write8Bits( u32 address, u8 data )		{                                   *(u8 *)ReadAddress(address ^ U8_TWIDDLE) = data;}
 
 //inline void Write64Bits_NoSwizzle( u32 address, u64 data ){ MEMORY_CHECK_ALIGN( address, 8 ); *(u64 *)WriteAddress( address ) = (data>>32) + (data<<32); }
-inline void Write32Bits_NoSwizzle( u32 address, u32 data )	{ MEMORY_CHECK_ALIGN( address, 4 ); WriteValueAddress(address, data); }
-inline void Write16Bits_NoSwizzle( u32 address, u16 data )	{ MEMORY_CHECK_ALIGN( address, 2 ); *(u16 *)WriteAddress(address) = data; }
-inline void Write8Bits_NoSwizzle( u32 address, u8 data )	{                                   *(u8 *)WriteAddress(address) = data;}
+inline void Write32Bits_NoSwizzle( u32 address, u32 data )	{ MEMORY_CHECK_ALIGN( address, 4 ); WriteAddress(address, data); }
+inline void Write16Bits_NoSwizzle( u32 address, u16 data )	{ MEMORY_CHECK_ALIGN( address, 2 ); *(u16 *)ReadAddress(address) = data; }
+inline void Write8Bits_NoSwizzle( u32 address, u8 data )	{                                   *(u8 *)ReadAddress(address) = data;}
 
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
