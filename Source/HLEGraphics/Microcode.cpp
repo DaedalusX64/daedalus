@@ -24,7 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Debug/DBGConsole.h"
 #include "Math/Math.h"	// pspFastRand()
-#include "Utility/Hash.h"
 
 // Limit cache ucode entries to 6
 // This is done for performance reasons and for since is known that no game can set more than this amount
@@ -82,20 +81,17 @@ const MicrocodeData gMicrocodeData[] =
 	//	If you believe a title should be here post the line for it from ucodes.txt @ http://www.daedalusx64.com
 	//	Note - Games are in alphabetical order by game title
 	//
-	{ GBI_CONKER,	0x10372b79	},// "RSP Gfx ucode F3DEXBG.NoN fifo 2.08  Yoshitaka Yasumoto 1999 Nintendo.", "Conker's Bad Fur Day"}, 
-	{ GBI_LL,		0x9a824412	},//"", "Dark Rift"},
-	{ GBI_DKR,		0xa3f481d8	},//"", "Diddy Kong Racing (v1.0)"}, 
-	{ GBI_DKR,		0xd5d68f00	},//"", "Diddy Kong Racing (v1.1)"}, 
-	{ GBI_GE,		0x96c35300	},//"RSP SW Version: 2.0G, 09-30-96", "GoldenEye 007"}, 
-	{ GBI_DKR,		0x58823aab	},//"", "Jet Force Gemini"},														
-	{ GBI_LL,		0x85185534	},//"", "Last Legion UX"},							
-	{ GBI_PD,		0x84c127f1	},//"", "Perfect Dark (v1.1)"}, 
-	{ GBI_SE,		0xd010d659	},//"RSP SW Version: 2.0D, 04-01-96", "Star Wars - Shadows of the Empire (v1.0)"}, 
-	{ GBI_LL,		0xf9ec7828	},//"", "Toukon Road - Brave Spirits"},											
-	{ GBI_WR,		0xbb5a808d	},//"RSP SW Version: 2.0D, 04-01-96", "Wave Race 64"},
-	//{ GBI_SPRITE2D, 0x77c8d033  },//"RSP SW Version: 2.0H, 02-12-97", "Glover"}
-	//{ GBI_0_UNK, 0x10b092bf, "", "World Driver Championship"},		
-	//{ GBI_0_UNK, 0x5719c8de, "", "Star Wars - Rogue Squadron"}, 
+	{ GBI_CONKER,	0x60256efc	},// "RSP Gfx ucode F3DEXBG.NoN fifo 2.08  Yoshitaka Yasumoto 1999 Nintendo.", "Conker's Bad Fur Day"}, 
+	{ GBI_LL,		0x6d8bec3e	},//"", "Dark Rift"},
+	{ GBI_DKR,		0x0c10181a	},//"", "Diddy Kong Racing (v1.0)"}, 
+	{ GBI_DKR,		0x713311dc	},//"", "Diddy Kong Racing (v1.1)"}, 
+	{ GBI_GE,		0x23f92542	},//"RSP SW Version: 2.0G, 09-30-96", "GoldenEye 007"}, 
+	{ GBI_DKR,		0x169dcc9d	},//"", "Jet Force Gemini"},														
+	{ GBI_LL,		0x26da8a4c	},//"", "Last Legion UX"},							
+	{ GBI_PD,		0xcac47dc4	},//"", "Perfect Dark (v1.1)"}, 
+	{ GBI_SE,		0x6cbb521d	},//"RSP SW Version: 2.0D, 04-01-96", "Star Wars - Shadows of the Empire (v1.0)"}, 
+	{ GBI_LL,		0xdd560323	},//"", "Toukon Road - Brave Spirits"},											
+	{ GBI_WR,		0x64cc729d	},//"RSP SW Version: 2.0D, 04-01-96", "Wave Race 64"},
 };
 
 //*****************************************************************************
@@ -119,7 +115,7 @@ static bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char
 			// Loop while we haven't filled our buffer, and there's space for our terminator
 			while (p+1 < e)
 			{
-				char c( ram[ (data_base + i) ^ 3 ] );
+				char c( ram[ (data_base + i)  ^ U8_TWIDDLE ] );
 				if( c < ' ')
 					break;
 
@@ -131,6 +127,21 @@ static bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char
 		}
 	}
 	return false;
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+static u32 GBIMicrocode_MicrocodeHash(u32 code_base, u32 code_size)
+{
+	const u8 * ram( g_pu8RamBase );
+
+	u32 c = 0;
+	for (u32 i = 0; i < code_size; ++i)
+	{
+		c = ((c*17) + ram[ (code_base+i) ^ U8_TWIDDLE ])>>0;   // Best hash ever!
+	}
+	return c;
 }
 
 //*****************************************************************************
@@ -159,6 +170,8 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 {
 
 	u32 index;
+
+	// Needed for Conker's Bad Fur Day
 	if( code_size == 0 ) code_size = 0x1000;
 
 	DAEDALUS_ASSERT( code_base, "Warning : Last Ucode might be ignored!" );
@@ -201,7 +214,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	// Don't bother checking for matches when ucode was found in array
 	// This only used for custom ucodes
 	//
-	u32 code_hash( murmur2_neutral_hash( &g_pu8RamBase[ code_base ], code_size, 0 ) );
+	u32 code_hash( GBIMicrocode_MicrocodeHash( code_base, code_size ) );
 
 	for ( u32 i = 0; i < ARRAYSIZE(gMicrocodeData); i++ )
 	{
