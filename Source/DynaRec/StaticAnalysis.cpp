@@ -190,7 +190,7 @@ void StaticAnalysis_LBU( OpCode op_code, RegisterUsage & recorder ) 			// Load B
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
-	if( g_ROM.GameHacks != PERFECT_DARK ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );	//PD and Pilotwing64 dont like this
+	if( !g_ROM.DISABLE_LBU_OPT ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );	//PD and Banjo dont like this
 }
 
 void StaticAnalysis_LH( OpCode op_code, RegisterUsage & recorder ) 		// Load Halfword

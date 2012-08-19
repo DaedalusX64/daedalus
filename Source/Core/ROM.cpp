@@ -375,10 +375,14 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5a52: g_ROM.GameHacks = RIDGE_RACER;			break;
 	case 0x504A: g_ROM.GameHacks = ISS64;				break;
 	case 0x5944: g_ROM.GameHacks = DKR;					break;
-	case 0x4450: g_ROM.GameHacks = PERFECT_DARK;		break;
 	case 0x3247: g_ROM.GameHacks = EXTREME_G2;			break;
 	case 0x5359: g_ROM.GameHacks = YOSHI;				break;
 	case 0x4C42: g_ROM.GameHacks = BUCK_BUMBLE;			break;
+	//case 0x5750:	//PilotWings64
+	case 0x4B42:	//Banjo-Kazooie
+	case 0x4450:	//Perfect Dark
+		g_ROM.DISABLE_LBU_OPT = true;
+		break;
 	case 0x5941:
 		g_ROM.ALPHA_HACK = true;
 		g_ROM.GameHacks = AIDYN_CRONICLES;

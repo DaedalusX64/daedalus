@@ -29,10 +29,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 inline u32 SwapEndian( u32 x )
 {
-	return ((x >> 24)&0x000000FF) |
-		   ((x >> 8 )&0x0000FF00) |
-		   ((x << 8 )&0x00FF0000) |
-		   ((x << 24)&0xFF000000);
+	return ((x >> 24) |
+		   ((x >> 8 )& 0xFF00) |
+		   ((x & 0xFF00) << 8 ) |
+		   ((x << 24)));
 }
 
 class RomID
@@ -122,15 +122,12 @@ enum EGameHacks
 	AIDYN_CRONICLES,
 	ISS64,
 	DKR,
-	PERFECT_DARK,
 	YOSHI,
 	EXTREME_G2,
 	BUCK_BUMBLE,
 	CONKER,
-	LAST_ENTRY	//DONT CHANGE THIS! AND SHOULD BE LAST ENTRY
+	MAX_HACK_NAMES	//DONT CHANGE THIS! AND SHOULD BE LAST ENTRY
 };
-
-#define MAX_HACK_NAMES LAST_ENTRY
 
 //*****************************************************************************
 //
@@ -155,7 +152,7 @@ struct RomInfo
 			u32			TLUT_HACK:1;	//Texture look up table hack for palette
 			u32			ALPHA_HACK:1;	//HACK for AIDYN CHRONICLES
 			u32			DISABLE_SIMDOUBLES:1;	//Hack to disable simulate doubles
-			u32			Pad5:1;	//free
+			u32			DISABLE_LBU_OPT:1;	//Disable memory optimation for 
 			u32			Pad6:1;	//free
 			u32			Pad7:1;	//free
 			u32			Pad8:1;	//free
