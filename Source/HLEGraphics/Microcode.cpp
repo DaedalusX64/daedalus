@@ -136,12 +136,12 @@ static u32 GBIMicrocode_MicrocodeHash(u32 code_base, u32 code_size)
 {
 	const u8 * ram( g_pu8RamBase );
 
-	u32 c = 0;
+	u32 hash = 0;
 	for (u32 i = 0; i < code_size; ++i)
 	{
-		c = ((c*17) + ram[ (code_base+i) ^ U8_TWIDDLE ])>>0;   // Best hash ever!
+		hash = (hash << 4) + hash + ram[ (code_base+i) ^ U8_TWIDDLE ];   // Best hash ever!
 	}
-	return c;
+	return hash;
 }
 
 //*****************************************************************************

@@ -49,7 +49,7 @@ public:
 	TextureInfo & operator=( const TextureInfo & rhs )		{ memcpy( this, &rhs, sizeof( TextureInfo ) ); return *this; }
 
 	//inline u32				GetHashCode() const				{ return murmur2_neutral_hash( reinterpret_cast< const u8 * >( this ), sizeof( TextureInfo ), 0 ); }
-	inline u32				GetHashCode() const				{ u8 *ptr( (u8*) this ); u8 *end_ptr( ptr + sizeof( TextureInfo ) ); u32 hash(0); while( ptr < end_ptr ){ hash = hash * 17 + *ptr++; } return hash; }
+	inline u32				GetHashCode() const				{ u8 *ptr( (u8*)this ); u8 *end_ptr( ptr + sizeof( TextureInfo ) ); u32 hash(0); while( ptr < end_ptr ) hash = (hash << 4) + hash + *ptr++; return hash; }
 
 	// Compute a hash of the contents of the texture data. Not to be confused with GetHashCode()!
 	u32						GenerateHashValue() const;
