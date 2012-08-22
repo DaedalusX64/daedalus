@@ -40,21 +40,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/OSTask.h"
 #include "OSHLE/patch.h"
 
-//u32 s_nNumDmaTransfers = 0;		// Incremented on every Cart->RDRAM Xfer
-//u32 s_nTotalDmaTransferSize = 0;	// Total size of every Cart->RDRAM Xfer
-//u32 s_nNumSPTransfers = 0;			// Incremented on every RDRAM->SPMem Xfer
-//u32 s_nTotalSPTransferSize = 0;	// Total size of every RDRAM->SPMem Xfer
-
 bool gDMAUsed = false;
-
-#ifndef DAEDALUS_SILENT
-bool gLogSpDMA = false;
-#endif
-
 //*****************************************************************************
 // 
 //*****************************************************************************
-//123 to 57
 void DMA_SP_CopyFromRDRAM()
 {
 	u32 spmem_address_reg = Memory_SP_GetRegister(SP_MEM_ADDR_REG);
@@ -64,19 +53,11 @@ void DMA_SP_CopyFromRDRAM()
 
 	DAEDALUS_ASSERT( (splen & 0x1) == 0, "Warning, PI DMA DRAM from SP, odd length = %d", splen);
 
-	//if ((spmem_address_reg & 0x1000) > 0)
-	if(spmem_address_reg & 0x1000)
-	{
-		// Ignore IMEM for speed (we don't use low-level RSP anyways on the PSP)
-		// 
-		/*memcpy_vfpu_BE(&g_pu8SpImemBase[spmem_address_reg],
-					   &g_pu8RamBase[rdram_address_reg], rdlen_reg );*/
-	}
-	else
+	// Ignore IMEM for speed (we don't use low-level RSP anyways on the PSP)
+	if((spmem_address_reg & 0x1000) == 0)
 	{
 		memcpy_vfpu_BE(&g_pu8SpMemBase[(spmem_address_reg & 0xFFF)],
 					   &g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)], splen); 
-
 	}
 
 	//Clear the DMA Busy
@@ -97,16 +78,8 @@ void DMA_SP_CopyToRDRAM()
 
 	DAEDALUS_ASSERT( (splen & 0x1) == 0, "Warning, PI DMA DRAM to SP, odd length = %d", splen)
 
-	//if ((spmem_address_reg & 0x1000) > 0)
-	if(spmem_address_reg & 0x1000)
-	{
-		// Ignore IMEM for speed (we don't use low-level RSP anyways on the PSP)
-		// 
-		/*memcpy_vfpu_BE(&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
-					   &g_pu8SpImemBase[(spmem_address_reg & 0xFFF)],
-					  (wrlen_reg & 0xFFF)+1 ); */
-	}
-	else
+	// Ignore IMEM for speed (we don't use low-level RSP anyways on the PSP)
+	if((spmem_address_reg & 0x1000) == 0)
 	{
 		memcpy_vfpu_BE(&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
 					   &g_pu8SpMemBase[(spmem_address_reg & 0xFFF)], splen);
@@ -303,7 +276,7 @@ void DMA_PI_CopyToRDRAM()
 	else
 	{
 		// for paper mario
-		// Doesn't seem to be used
+		// Doesn't seem to be needed?
 		/*if (cart_address >= 0x1fc00000)
 		{
 			Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
@@ -317,17 +290,11 @@ void DMA_PI_CopyToRDRAM()
 		CPU_InvalidateICacheRange( 0x80000000 | mem_address, pi_length_reg );
 		RomBuffer::CopyToRam( g_pu8RamBase, mem_address, gRamSize, cart_address, pi_length_reg );
 
-		//s_nTotalDmaTransferSize += pi_length_reg;
-
-		// Note if dwRescanCount is 0, the rom is only scanned when the
-		// ROM jumps to the game boot address
-		// RescanCount is always zero see ConfigOptions.cpp and thus condition only happens when DMA is first used, same as gDMAUsed == 0..
-		//if (s_nNumDmaTransfers == 0 || s_nNumDmaTransfers == g_ROM.settings.RescanCount)
-		if (gDMAUsed == 0)
+		if (!gDMAUsed)
 		{ 
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
-			// Try to reapply patches - certain roms load in more of the OS after
-			// a number of transfers
+			// Note the rom is only scanned when the ROM jumps to the game boot address
+			// ToDO: try to reapply patches - certain roms load in more of the OS after a number of transfers ?
 			Patch_ApplyPatches();
 #endif			
 			gDMAUsed = true;
@@ -335,12 +302,13 @@ void DMA_PI_CopyToRDRAM()
 			u32 addr = (g_ROM.cic_chip != CIC_6105) ? 0x80000318 : 0x800003F0;
 			Write32Bits(addr, gRamSize);
 
+			// For reference DK64 hack : This allows DK64 to work
+			// Note1: IMEM transfers are required! (We ignore IMEM transfers for speed, see DMA_SP_*)
+			// Note2: Make sure to change EEPROM to 4k too! Otherwise DK64 hangs after the intro. 
+			//Write32Bits(0x802FE1C0, 0xAD170014);
 			//s_nNumDmaTransfers++;
 		}
-
-		//CDebugConsole::Get()->Stats( STAT_PI, "PI: C->R %d %dMB", s_nNumDmaTransfers, s_nTotalDmaTransferSize/(1024*1024));
 	}
-
 
 	Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_PI);

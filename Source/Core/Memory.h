@@ -218,13 +218,15 @@ pointer_null_x:
    TODO: instead of looking up TLB entries each time TLB-mapped memory is used, it is probably much faster to change the pointer table every time the TLB is modified
 */
 
-#define FuncTableReadAddress(address)  (void *)(g_MemoryLookupTableRead)[(address)>>18](address)
-#define FuncTableWriteAddress(address)  (void *)(g_MemoryLookupTableWrite)[(address)>>18](address)
-
 #if 0
+//Slow memory access
+#define FuncTableReadAddress(address)  (void *)(g_MemoryLookupTableRead[(address)>>18].ReadFunc(address))
+#define FuncTableWriteAddress(address, value)  (g_MemoryLookupTableWrite[(address)>>18].WriteFunc(address, value))
+
 #define ReadAddress FuncTableReadAddress
 #define WriteAddress FuncTableWriteAddress
 #else
+// Fast memory access
 inline void* DAEDALUS_ATTRIBUTE_CONST ReadAddress( u32 address )
 {
 	const MemFuncRead & m( g_MemoryLookupTableRead[ address >> 18 ] );
