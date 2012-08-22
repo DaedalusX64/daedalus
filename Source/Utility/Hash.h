@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifndef HASH_H_
 #define HASH_H_
-#if 0
+#ifndef DAEDALUS_SILENT
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000

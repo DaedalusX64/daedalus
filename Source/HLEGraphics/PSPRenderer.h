@@ -371,7 +371,8 @@ private:
 	bool				mReloadProj;
 	bool				mWPmodified;
 		
-	static const u32 	MAX_VERTICES = 256;	//we need at least 80 verts * 3 = 240? //Corn	
+	// Flying Dragon uses more than 256
+	static const u32 	MAX_VERTICES = 320;	//we need at least 80 verts * 3 = 240? //Corn	
 	u16					m_swIndexBuffer[MAX_VERTICES];
 	u32					mNumIndices;
 

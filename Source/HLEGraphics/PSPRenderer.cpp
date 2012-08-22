@@ -1383,7 +1383,6 @@ void PSPRenderer::FlushTris()
 	// No vertices to render? //Corn
 	if( num_vertices == 0 )
 	{
-		DAEDALUS_ERROR("No Vtx to render");
 		mNumIndices = 0;
 		mVtxClipFlagsUnion = 0;
 		return;
@@ -1599,8 +1598,8 @@ namespace
 {
 	DaedalusVtx4		temp_a[ 8 ];
 	DaedalusVtx4		temp_b[ 8 ];
-
-	const u32			MAX_CLIPPED_VERTS = 256;	// MK4 clips more than 192 verts
+	// Flying Dragon clips more than 256
+	const u32			MAX_CLIPPED_VERTS = 320;	
 	DaedalusVtx			clip_vtx[MAX_CLIPPED_VERTS];
 }
 

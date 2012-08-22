@@ -362,7 +362,11 @@ void Memory_InitTables()
 	}
 
 	// This returns NULL if Rom isn't loaded or Rom base isn't fixed
-	const void *	rom_address( RomBuffer::GetFixedRomBaseAddress() );
+	const void *	rom_address;
+	if(RomBuffer::IsRomLoaded() && RomBuffer::IsRomAddressFixed())
+		rom_address = RomBuffer::GetFixedRomBaseAddress();
+	else
+		rom_address = NULL;
 
 	u32	rom_size( RomBuffer::GetRomSize() );
 	u32 ram_size( gRamSize );
