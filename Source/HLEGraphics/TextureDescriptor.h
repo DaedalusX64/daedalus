@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define TEXTUREDESCRIPTOR_H_
 
 #include "Graphics/TextureFormat.h"
-#include "Utility/Hash.h"
 
 struct TextureInfo
 {

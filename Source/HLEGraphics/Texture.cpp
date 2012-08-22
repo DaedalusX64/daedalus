@@ -72,9 +72,6 @@ namespace
 	{
 		TextureDestInfo dst( texture_format );
 
-		//Return false if palette address is NULL in a palette texture //Corn
-		if( IsTextureFormatPalettised( dst.Format ) && texture_info.GetPalettePtr() == NULL) return false;
-
 		if( gTexelBuffer.size() < buffer_size ) //|| gTexelBuffer.size() > (128 * 1024))//Cut off for downsizing may need to be adjusted to prevent some thrashing
 		{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST

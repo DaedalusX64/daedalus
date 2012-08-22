@@ -306,7 +306,6 @@ void DMA_PI_CopyToRDRAM()
 			// Note1: IMEM transfers are required! (We ignore IMEM transfers for speed, see DMA_SP_*)
 			// Note2: Make sure to change EEPROM to 4k too! Otherwise DK64 hangs after the intro. 
 			//Write32Bits(0x802FE1C0, 0xAD170014);
-			//s_nNumDmaTransfers++;
 		}
 	}
 

@@ -44,28 +44,6 @@ const u8 OneToEight[2] =
 	0xff		// 1 -> 11 11 11 11
 };
 
-const u8 OneToFour[2] =
-{
-	0x00,		// 0 -> 00 00 
-	0x0f		// 1 -> 11 11 
-};
-
-const u8 TwoToEight[4] =
-{
-	0x00,		// 00 -> 00 00 00 00
-	0x55,		// 01 -> 01 01 01 01
-	0xaa,		// 10 -> 10 10 10 10
-	0xff		// 11 -> 11 11 11 11
-};
-
-const u8 TwoToFour[4] =
-{
-	0x0,		// 00 -> 00 00 
-	0x5,		// 01 -> 01 01 
-	0xa,		// 10 -> 10 10 
-	0xf			// 11 -> 11 11
-};
-
 const u8 ThreeToEight[8] =
 {
 	0x00,		// 000 -> 00 00 00 00
@@ -78,17 +56,6 @@ const u8 ThreeToEight[8] =
 	0xff		// 111 -> 11 11 11 11
 };
 
-const u8 ThreeToFour[8] =
-{
-	0x0,		// 000 -> 00 00 00 00
-	0x2,		// 001 -> 00 10 01 00
-	0x4,		// 010 -> 01 00 10 01
-	0x6,       // 011 -> 01 10 11 01
-	0x9,       // 100 -> 10 01 00 10
-	0xb,		// 101 -> 10 11 01 10
-	0xd,		// 110 -> 11 01 10 11
-	0xf		// 111 -> 11 11 11 11
-};
 
 const u8 FourToEight[16] = 
 {
@@ -96,51 +63,6 @@ const u8 FourToEight[16] =
 	0x44, 0x55, 0x66, 0x77,
 	0x88, 0x99, 0xaa, 0xbb,
 	0xcc, 0xdd, 0xee, 0xff
-};
-
-const u16 FourToSixteen[16] = 
-{
-	0x0000, 0x1111, 0x2222, 0x3333,
-	0x4444, 0x5555, 0x6666, 0x7777,
-	0x8888, 0x9999, 0xaaaa, 0xbbbb,
-	0xcccc, 0xdddd, 0xeeee, 0xffff
-};
-
-const u8 FiveToEight[32] =
-{
-	0x00, // 00000 -> 00000000
-	0x08, // 00001 -> 00001000
-	0x10, // 00010 -> 00010000
-	0x18, // 00011 -> 00011000
-	0x21, // 00100 -> 00100001
-	0x29, // 00101 -> 00101001
-	0x31, // 00110 -> 00110001
-	0x39, // 00111 -> 00111001
-	0x42, // 01000 -> 01000010
-	0x4a, // 01001 -> 01001010
-	0x52, // 01010 -> 01010010
-	0x5a, // 01011 -> 01011010
-	0x63, // 01100 -> 01100011
-	0x6b, // 01101 -> 01101011
-	0x73, // 01110 -> 01110011
-	0x7b, // 01111 -> 01111011
-	
-	0x84, // 10000 -> 10000100
-	0x8c, // 10001 -> 10001100
-	0x94, // 10010 -> 10010100
-	0x9c, // 10011 -> 10011100
-	0xa5, // 10100 -> 10100101
-	0xad, // 10101 -> 10101101
-	0xb5, // 10110 -> 10110101
-	0xbd, // 10111 -> 10111101
-	0xc6, // 11000 -> 11000110
-	0xce, // 11001 -> 11001110
-	0xd6, // 11010 -> 11010110
-	0xde, // 11011 -> 11011110
-	0xe7, // 11100 -> 11100111
-	0xef, // 11101 -> 11101111
-	0xf7, // 11110 -> 11110111
-	0xff  // 11111 -> 11111111
 };
 
 
@@ -825,38 +747,41 @@ bool	ConvertTexture( const TextureDestInfo & dst, const TextureInfo & ti )
 		break;
 
 	case G_IM_FMT_CI:
-		switch (ti.GetSize())
+		// DO nothing if palette address is NULL in a palette texture //Corn
+		if( ti.GetPalettePtr() ) 
 		{
-		case G_IM_SIZ_4b: // 4bpp
-			switch (ti.GetTLutFormat())
+			switch (ti.GetSize())
 			{
-				//case G_TT_NONE:
-			case G_TT_RGBA16:
-				ConvertCI4_RGBA16( dst, ti );
-				handled = true;
+			case G_IM_SIZ_4b: // 4bpp
+				switch (ti.GetTLutFormat())
+				{
+					//case G_TT_NONE:
+				case G_TT_RGBA16:
+					ConvertCI4_RGBA16( dst, ti );
+					handled = true;
+					break;
+				case G_TT_IA16:
+					ConvertCI4_IA16( dst, ti );
+					handled = true;
+					break;
+				}
 				break;
-			case G_TT_IA16:
-				ConvertCI4_IA16( dst, ti );
-				handled = true;
-				break;
-			}
-			break;
 
-		case G_IM_SIZ_8b: // 8bpp
-			switch(ti.GetTLutFormat())
-			{
-			case G_TT_RGBA16:
-				ConvertCI8_RGBA16( dst, ti );
-				handled = true;
-				break;
-			case G_TT_IA16:
-				ConvertCI8_IA16( dst, ti );
-				handled = true;
+			case G_IM_SIZ_8b: // 8bpp
+				switch(ti.GetTLutFormat())
+				{
+				case G_TT_RGBA16:
+					ConvertCI8_RGBA16( dst, ti );
+					handled = true;
+					break;
+				case G_TT_IA16:
+					ConvertCI8_IA16( dst, ti );
+					handled = true;
+					break;
+				}
 				break;
 			}
-			break;
 		}
-
 		break;
 
 	case G_IM_FMT_IA:
