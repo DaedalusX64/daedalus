@@ -45,7 +45,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <vector>
 
 using namespace PixelFormats;
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -92,8 +91,15 @@ namespace
 		dst.Pitch = pitch;
 		dst.Palette = palette;
 
-		if( ConvertTexture( dst, texture_info ) )
+		// DO nothing if palette address is NULL in a palette texture //Corn
+		if( palette && texture_info.GetPalettePtr() == NULL ) 
+			return false;
+
+		const ConvertFunction fn( gConvertFunctions[ (texture_info.GetFormat() << 2) | texture_info.GetSize() ] );
+		if( fn )
 		{
+			fn( dst, texture_info );
+
 			*p_texels = texels;
 			*p_palette = palette;
 			return true;

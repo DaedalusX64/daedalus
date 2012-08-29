@@ -718,109 +718,52 @@ void ConvertCI8_IA16(const TextureDestInfo & dst, const TextureInfo & ti)
 	}
 }
 
+//*****************************************************************************
+// Convert CI8 images. We need to switch on the palette type
+//*****************************************************************************
+void	ConvertCI8(const TextureDestInfo & dst, const TextureInfo & ti)
+{
+	u32 tlut_format = ti.GetTLutFormat();
+	if( tlut_format == G_TT_RGBA16 )
+	{
+		ConvertCI8_RGBA16( dst, ti );	
+	}
+	else if( tlut_format == G_TT_IA16 )
+	{
+		ConvertCI8_IA16( dst, ti );					
+	}
+}
+
+//*****************************************************************************
+// Convert CI4 images. We need to switch on the palette type
+//*****************************************************************************
+void	ConvertCI4(const TextureDestInfo & dst, const TextureInfo & ti)
+{
+	u32 tlut_format = ti.GetTLutFormat();
+	if( tlut_format == G_TT_RGBA16 )
+	{
+		ConvertCI4_RGBA16( dst, ti );	
+	}
+	else if( tlut_format == G_TT_IA16 )
+	{
+		ConvertCI4_IA16( dst, ti );					
+	}
+}
+
 } // anonymous namespace
 
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	ConvertTexture( const TextureDestInfo & dst, const TextureInfo & ti )
+const ConvertFunction	gConvertFunctions[ 32 ] = 
 {
-	bool	handled( false );
-
-	switch (ti.GetFormat())
-	{
-	case G_IM_FMT_RGBA:
-		switch (ti.GetSize())
-		{
-		case G_IM_SIZ_16b:
-			ConvertRGBA16( dst, ti );
-			handled = true;
-			break;
-		case G_IM_SIZ_32b:
-			ConvertRGBA32( dst, ti );
-			handled = true;
-			break;
-		}
-		break;
-
-	case G_IM_FMT_YUV:
-		break;
-
-	case G_IM_FMT_CI:
-		// DO nothing if palette address is NULL in a palette texture //Corn
-		if( ti.GetPalettePtr() ) 
-		{
-			switch (ti.GetSize())
-			{
-			case G_IM_SIZ_4b: // 4bpp
-				switch (ti.GetTLutFormat())
-				{
-					//case G_TT_NONE:
-				case G_TT_RGBA16:
-					ConvertCI4_RGBA16( dst, ti );
-					handled = true;
-					break;
-				case G_TT_IA16:
-					ConvertCI4_IA16( dst, ti );
-					handled = true;
-					break;
-				}
-				break;
-
-			case G_IM_SIZ_8b: // 8bpp
-				switch(ti.GetTLutFormat())
-				{
-				case G_TT_RGBA16:
-					ConvertCI8_RGBA16( dst, ti );
-					handled = true;
-					break;
-				case G_TT_IA16:
-					ConvertCI8_IA16( dst, ti );
-					handled = true;
-					break;
-				}
-				break;
-			}
-		}
-		break;
-
-	case G_IM_FMT_IA:
-		switch (ti.GetSize())
-		{
-		case G_IM_SIZ_4b:
-			ConvertIA4( dst, ti );
-			handled = true;
-			break;
-		case G_IM_SIZ_8b:
-			ConvertIA8( dst, ti );
-			handled = true;
-			break;
-		case G_IM_SIZ_16b:
-			ConvertIA16( dst, ti );
-			handled = true;
-			break;
-		case G_IM_SIZ_32b:
-			break;
-		}
-		break;
-
-	case G_IM_FMT_I:
-		switch (ti.GetSize())
-		{
-		case G_IM_SIZ_4b:
-			ConvertI4( dst, ti );
-			handled = true;
-			break;
-		case G_IM_SIZ_8b:
-			ConvertI8( dst, ti );
-			handled = true;
-			break;
-		}
-		break;
-	default:
-		break;
-	}
-
-	DAEDALUS_ASSERT( handled, "Unhandled texture format" );
-	return handled;
-}
+	// 4bpp				8bpp			16bpp				32bpp
+	ConvertCI4,		ConvertCI8,		ConvertRGBA16,		ConvertRGBA32,			// RGBA
+	NULL,			NULL,			NULL,				NULL,					// YUV 
+	ConvertCI4,		ConvertCI8,		NULL,				NULL,					// CI
+	ConvertIA4,		ConvertIA8,		ConvertIA16,		NULL,					// IA
+	ConvertI4,		ConvertI8,		ConvertIA16,		NULL,					// I
+	NULL,			NULL,			NULL,				NULL,					// ?
+	NULL,			NULL,			NULL,				NULL,					// ?
+	NULL,			NULL,			NULL,				NULL					// ?			
+};

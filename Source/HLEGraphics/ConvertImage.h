@@ -56,6 +56,7 @@ struct TextureDestInfo
 };
 
 
-bool	ConvertTexture( const TextureDestInfo & dst, const TextureInfo & ti );
+typedef void ( *ConvertFunction )( const TextureDestInfo & dst, const TextureInfo & ti);
+extern const ConvertFunction gConvertFunctions[ 32 ];
 
 #endif
