@@ -242,72 +242,20 @@ u32 TextureInfo::GenerateHashValue() const
 //*************************************************************************************
 ETextureFormat	TextureInfo::SelectNativeFormat() const
 {
-	switch (Format)
-	{
-	case G_IM_FMT_RGBA:
-		switch (Size)
-		{
-		case G_IM_SIZ_16b:
-			return g_ROM.T1_HACK? TexFmt_4444 : TexFmt_5551;
-		case G_IM_SIZ_32b:
-			return TexFmt_8888;
-		}
-		break;
-		
-	case G_IM_FMT_YUV:
-		break;
+#define DEFTEX	TexFmt_8888
 
-	case G_IM_FMT_CI:
-		switch (Size)
-		{
-		case G_IM_SIZ_4b: // 4bpp
-			switch (GetTLutFormat())
-			{
-			case G_TT_RGBA16:
-				return TexFmt_CI4_8888;
-			case G_TT_IA16:
-				return TexFmt_CI4_8888;
-			}
-			break;
-			
-		case G_IM_SIZ_8b: // 8bpp
-			switch(GetTLutFormat())
-			{
-			case G_TT_RGBA16:
-				return TexFmt_CI8_8888;
-			case G_TT_IA16:
-				return TexFmt_CI8_8888;
-			}
-			break;
-		}
-		
-		break;
+const ETextureFormat TFmt[ 32 ] = 
+{
+//	4bpp				8bpp				16bpp				32bpp
+	DEFTEX,				DEFTEX,				TexFmt_5551,		TexFmt_8888,		// RGBA
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// YUV 
+	TexFmt_CI4_8888,	TexFmt_CI8_8888,	DEFTEX,				DEFTEX,				// CI
+	TexFmt_4444,		TexFmt_4444,		TexFmt_8888,		DEFTEX,				// IA
+	TexFmt_4444,		TexFmt_8888,		DEFTEX,				DEFTEX,				// I
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX				// ?			
+};
 
-	case G_IM_FMT_IA:
-		switch (Size)
-		{
-		case G_IM_SIZ_4b:
-			return TexFmt_4444;
-		case G_IM_SIZ_8b:
-			return TexFmt_4444;
-		case G_IM_SIZ_16b:
-			return TexFmt_8888;
-		}
-		break;
-
-	case G_IM_FMT_I:
-		switch (Size)
-		{
-		case G_IM_SIZ_4b:
-			return TexFmt_4444;
-		case G_IM_SIZ_8b:
-			return TexFmt_8888;
-		}
-		break;
-	}
-
-	// Unhandled!
-	DAEDALUS_ERROR( "Unhandled texture format" );
-	return TexFmt_8888;
-
+return (g_ROM.T1_HACK && ((Format << 2) | Size) == 2) ? TexFmt_4444 : TFmt[(Format << 2) | Size];
 }
