@@ -130,7 +130,6 @@ static void *Read_8400_8400( u32 address )
 	return (u8 *)g_pMemoryBuffers[MEM_SP_MEM] + (address & 0x1FFF);
 }
 
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -206,20 +205,20 @@ static void *Read_8430_843F( u32 address )
 static void *Read_8440_844F( u32 address )
 {
 	DPF( DEBUG_MEMORY_VI, "Reading from MEM_VI_REG: 0x%08x", address );
-	if ((address & 0x1FFFFFFF) == VI_CURRENT_REG)
+	u32 offset = address & 0xFF;
+	u8* temp = (u8 *)g_pMemoryBuffers[MEM_VI_REG] + offset;
+
+	if (offset == 0x10)	// VI_CURRENT_REG
 	{
 		//u64 count_to_vbl = (VID_CLOCK-1) - (g_qwNextVBL - gCPUState.CPUControl[C0_COUNT]);
 		//vi_pos = (u32)((count_to_vbl*512)/VID_CLOCK);
 		u32 vi_pos = Memory_VI_GetRegister(VI_CURRENT_REG);
-
-		vi_pos += 2;
-		if (vi_pos >= 512)
-			vi_pos = 0;
+		vi_pos = (vi_pos + 2) % 512;
 
 		//DBGConsole_Msg(0, "Reading vi pos: %d", vi_pos);
-		Memory_VI_SetRegister(VI_CURRENT_REG, vi_pos);
+		*(u32*)temp = vi_pos;
 	}
-	return VI_REG_ADDRESS(address & 0x1FFFFFFF);
+	return temp;
 }
 
 //*****************************************************************************
@@ -227,9 +226,8 @@ static void *Read_8440_844F( u32 address )
 //*****************************************************************************
 static void *Read_8450_845F( u32 address )
 {
-	u32 offset = address & 0xFF;
 	DPF( DEBUG_MEMORY_AI, "Reading from AI Registers: 0x%08x", address );
-	return (u8 *)g_pMemoryBuffers[MEM_AI_REG] + offset;
+	return (u8 *)g_pMemoryBuffers[MEM_AI_REG] + (address & 0xFF);
 }
 
 //*****************************************************************************
@@ -297,6 +295,5 @@ static void * Read_9FC0_9FCF( u32 address )
 	DAEDALUS_ASSERT(!(address - 0x7C0 & ~0x3F), "Read to PIF RAM (0x%08x) is invalid", address);
 
 	DPF( DEBUG_MEMORY_PIF, "Reading from MEM_PIF: 0x%08x", address );
-	// ToDO: SWAP_PIF
 	return (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + (address & 0x3F);
 }
