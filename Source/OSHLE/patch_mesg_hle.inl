@@ -9,7 +9,6 @@ TEST_DISABLE_MESG_FUNCS
 	u32 vent = gGPR[REG_a0]._u32_0;
 	u32 queue = gGPR[REG_a1]._u32_0;
 	u32 msg   = gGPR[REG_a2]._u32_0;
-
 	/*if (vent < 23)
 	{
 		DBGConsole_Msg(0, "osSetEventMesg(%s, 0x%08x, 0x%08x)", 
@@ -20,12 +19,11 @@ TEST_DISABLE_MESG_FUNCS
 		DBGConsole_Msg(0, "osSetEventMesg(%d, 0x%08x, 0x%08x)", 
 			vent, queue, msg);
 	}*/
-		
+	const u32 p = VAR_ADDRESS(osEventMesgArray) + (vent * 8);
+	u8 * pEventBase	  = (u8 *)ReadAddress(p);
 
-	u32 p = VAR_ADDRESS(osEventMesgArray) + (vent * 8);
-
-	Write32Bits(p + 0x0, queue);
-	Write32Bits(p + 0x4, msg);
+	QuickWrite32Bits(pEventBase, 0x0, queue);
+	QuickWrite32Bits(pEventBase, 0x4, msg);
 
 	return PATCH_RET_JR_RA;
 }
@@ -40,7 +38,6 @@ TEST_DISABLE_MESG_FUNCS
 	u32 vent = gGPR[REG_a0]._u32_0;
 	u32 queue = gGPR[REG_a1]._u32_0;
 	u32 msg   = gGPR[REG_a2]._u32_0;
-
 	/*if (vent < 23)
 	{
 		DBGConsole_Msg(0, "osSetEventMesg(%s, 0x%08x, 0x%08x)", 
@@ -51,12 +48,11 @@ TEST_DISABLE_MESG_FUNCS
 		DBGConsole_Msg(0, "osSetEventMesg(%d, 0x%08x, 0x%08x)", 
 			vent, queue, msg);
 	}*/
-		
+	const u32 p = VAR_ADDRESS(osEventMesgArray) + (vent * 8);
+	u8 * pEventBase	  = (u8 *)ReadAddress(p);
 
-	u32 p = VAR_ADDRESS(osEventMesgArray) + (vent * 8);
-
-	Write32Bits(p + 0x0, queue);
-	Write32Bits(p + 0x4, msg);
+	QuickWrite32Bits(pEventBase, 0x0, queue);
+	QuickWrite32Bits(pEventBase, 0x4, msg);
 
 	return PATCH_RET_JR_RA;
 }
@@ -309,7 +305,7 @@ TEST_DISABLE_MESG_FUNCS
 		// From Patch___osPopThread():
 		QuickWrite32Bits(pBase, 0x00, NextThread);
 
-		gGPR[REG_a0]._s64 = (s64)(s32)EmptyQueueThread;
+		gGPR[REG_a0]._u32_0 = EmptyQueueThread;
 
 		// FIXME - How to we set the status flag here?
 		return Patch_osStartThread();

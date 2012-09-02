@@ -6,21 +6,8 @@
 u32 Patch_osAiGetLength()
 {
 TEST_DISABLE_AI_FUNCS
-	// Getting length from osAiSetNextBuffer is faster than reading it from memory
-	// Also if osAiSetNextBuffer is patched, AI_LEN_REG is no longer valid
-	//
-	u32 len = gCurrentLength;
-
-	// Aerogauge doesn't use osAiSetNextBuffer.. so fall back to reading from memory
-	//
-	if( len == 0)
-	{
-		len = Memory_AI_GetRegister(AI_LEN_REG);
-	}
-
 	// Hardcoding 2880 here causes Aerogauge to get 40%+ speed up, yammy!
-	//
-	gGPR[REG_v0]._u32_0 = len; 
+	gGPR[REG_v0]._u32_0 = Memory_AI_GetRegister(AI_LEN_REG); 
 	//gGPR[REG_v0]._s64 = (s64)(s32)len;
 
 	return PATCH_RET_JR_RA;
@@ -44,39 +31,24 @@ inline bool IsAiDeviceBusy()
 u32 Patch_osAiSetNextBuffer()
 {
 TEST_DISABLE_AI_FUNCS
-	// The addr argument points to the buffer in DRAM
-	// Must be aligned too
-	//
-	u32 addr = gGPR[REG_a0]._u32_0 & 0xFFFFFF;
+	u32 addr = gGPR[REG_a0]._u32_0;
 	u32 len  = gGPR[REG_a1]._u32_0;
 
-	DAEDALUS_ASSERT( len < 32768, "Reached max DMA length (%d)",len );
-	DAEDALUS_ASSERT( IsAiDeviceBusy()==0, "AI Interace is busy, need to handle!!" );
-	DAEDALUS_ASSERT( (addr + len) != 0x00002000, "osAiSetNextBuffer bug ?" ); 
+	// If Ai interface is busy, stop the dma operation, can this happen??
+	DAEDALUS_ASSERT( IsAiDeviceBusy()==0, "Warning: AI Interace is busy, can't DMA'd" );
 
 	//DBGConsole_Msg(0, "osAiNextBuffer() %08X len %d bytes",addr,len);
-	gCurrentLength = len;
-	
-	if( gAudioPluginEnabled )
-	{
-		// If Ai interface is busy, stop the dma operation
-		// Can this happen??
-		/*
-		if (IsAiDeviceBusy() != 0)
-			gGPR[REG_v0]._u32_0 = ~0;
-		else
-		*/
-		g_pAiPlugin->AddBufferHLE( g_pu8RamBase + addr, len );
-		gGPR[REG_v0]._u32_0 = 0;
-	}
-	else
-	{
-		// Stops the DMA operation when audio is disabled
-		//
-		gGPR[REG_v0]._u32_0 = ~0;
-	}
-	// I think is v0..	
-	//gGPR[REG_v1]._u64 = inter;
+
+	Memory_AI_SetRegister( AI_LEN_REG, len );
+	Memory_AI_SetRegister( AI_DRAM_ADDR_REG, addr );
+
+	DAEDALUS_ASSERT( g_pAiPlugin, "Unable to initialize Audio plugin");
+	g_pAiPlugin->LenChanged();
+
+	// Return 0 if succesfully DMA'd audio
+	// Return -1 when audio is disabled (Stops the DMA operation), doesn't seem to work..
+	gGPR[REG_v0]._u32_0 = gAudioPluginEnabled ? 0 : ~0;
+	//gGPR[REG_v1]._u64 = gAudioPluginEnabled ? 0 : ~0;
 
 	return PATCH_RET_JR_RA;
 }

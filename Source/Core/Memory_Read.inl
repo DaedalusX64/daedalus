@@ -144,30 +144,8 @@ static void *Read_8404_8404( u32 address )
 //*****************************************************************************
 static void *Read_8408_8408( u32 address )
 {
-	// We don't support LLE RSP emulation in the PSP, so is ok to skip this reg -Salvy
-	//
-	return ReadInvalid(address);
-
-	/*u32 offset = (address&0x1FFFFFFF) - 0x04080000;
-
-	// 0x04080000 to 0x04080003  SP_PC_REG
-	if (offset < 0x04)
-	{
-		DPF( DEBUG_MEMORY_SP_REG, "Reading from SP_PC_REG: 0x%08x", address );
-		return (u8 *)&gRSPState.CurrentPC + offset;
-
-	}
-	// 0x04080004 to 0x04080007  SP_IBIST_REG
-	else if (MEMORY_BOUNDS_CHECKING(offset < 0x08))
-	{
-		DPF( DEBUG_MEMORY_SP_REG, "Reading from SP_IBIST_REG: 0x%08x", address );
-		DBGConsole_Msg( 0, "Reading from SP_IBIST_REG: 0x%08x", address );
-		return ReadInvalid(address);
-	}
-	else
-	{
-		return ReadInvalid(address);
-	}*/
+	DPF( DEBUG_MEMORY_SP_REG, "Reading from SP_PC_REG: 0x%08x", address );
+	return (u8 *)g_pMemoryBuffers[MEM_SP_PC_REG] + (address & 0xFF);
 }
 
 //*****************************************************************************

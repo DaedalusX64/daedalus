@@ -159,9 +159,7 @@ TEST_DISABLE_SP_FUNCS
 	if (status & SP_STATUS_HALT)
 	{
 		// Halted, we can safely set the pc:
-		//Write32Bits(PHYS_TO_K1(SP_PC_REG), 0x04001000);
-		//gRSPState.CurrentPC = pc;
-		gCPUState.CurrentPC = pc;
+		Memory_PC_SetRegister(SP_PC_REG, pc);
 
 		gGPR[REG_v0]._u32_0 = 0;
 	}
@@ -235,9 +233,7 @@ TEST_DISABLE_SP_FUNCS
 	Memory_SP_SetRegister(SP_STATUS_REG, SP_CLR_SIG2|SP_CLR_SIG1|SP_CLR_SIG0|SP_SET_INTR_BREAK);
 
 	// Set the PC
-	//Write32Bits(PHYS_TO_K1(SP_PC_REG), 0x04001000);
-	//gRSPState.CurrentPC = 0x04001000;
-	gCPUState.CurrentPC = 0x04001000;
+	Memory_PC_SetRegister(SP_PC_REG, 0x04001000);
 
 	// Copy the task info to dmem
 	Memory_SP_SetRegister(SP_MEM_ADDR_REG, 0x04000fc0);

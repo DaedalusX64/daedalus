@@ -79,6 +79,7 @@ u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 	//0x30,				// RD_REG2	(Unused)
 
 	0x20,				// SP_REG
+	0x8,				// SP_PC_REG
 	0x20,				// DPC_REG
 	//0x10,				// DPS_REG	(Unhandled)
 	0x10,				// MI_REG
@@ -171,7 +172,7 @@ bool Memory_Init()
 			}*/
 		}
 	}
-//	printf("%d bytes used of memory\n",count);
+	//printf("%d bytes used of memory\n",count);
 	g_RomWritten= false;
 	//g_pu8RamBase_8000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0x80000000;
 	//g_pu8RamBase_A000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0xa0000000;
@@ -438,8 +439,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_SPREG_2,
 		MEMORY_SIZE_SPREG_2, 
-		NULL,
-		NULL,
+		MEMORY_SPREG_2,
+		MEMORY_SPREG_2,
 		Read_8408_8408,
 		WriteValue_8408_8408 
 	);

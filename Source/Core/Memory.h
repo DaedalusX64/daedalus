@@ -39,6 +39,7 @@ enum MEMBANKTYPE
 
 	MEM_RD_REG0,			// 0x30		// This has changed - used to be 1Mb
 	MEM_SP_REG,				// 0x20
+	MEM_SP_PC_REG,			// 0x04		// SP_PC_REG + SP_IBITS_REG
 	MEM_DPC_REG,			// 0x20
 	MEM_MI_REG,				// 0x10
 	MEM_VI_REG,				// 0x38
@@ -333,6 +334,7 @@ inline bool Memory_GetInternalReadAddress(u32 address, void ** p_translated)
 #define MEMORY_RAMREGS0			g_pMemoryBuffers[MEM_RD_REG0]
 #define MEMORY_SPMEM			g_pMemoryBuffers[MEM_SP_MEM]
 #define MEMORY_SPREG_1			g_pMemoryBuffers[MEM_SP_REG]
+#define MEMORY_SPREG_2			g_pMemoryBuffers[MEM_SP_PC_REG]
 #define MEMORY_DPC				g_pMemoryBuffers[MEM_DPC_REG]
 
 #define MEMORY_MI				g_pMemoryBuffers[MEM_MI_REG]
@@ -421,6 +423,7 @@ inline void Write8Bits_NoSwizzle( u32 address, u8 data )	{                      
 
 REGISTER_FUNCTIONS( MI, MI_BASE_REG, MEM_MI_REG )
 REGISTER_FUNCTIONS( SP, SP_BASE_REG, MEM_SP_REG )
+REGISTER_FUNCTIONS( PC, SP_PC_REG, MEM_SP_PC_REG )
 REGISTER_FUNCTIONS( AI, AI_BASE_REG, MEM_AI_REG )
 REGISTER_FUNCTIONS( VI, VI_BASE_REG, MEM_VI_REG )
 REGISTER_FUNCTIONS( SI, SI_BASE_REG, MEM_SI_REG )
