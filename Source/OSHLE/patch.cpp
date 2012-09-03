@@ -107,7 +107,7 @@ u32 gNumOfOSFunctions;
 #define PATCH_RET_ERET RET_JR_ERET()
 
 // Increase this number every time we changed the symbol table
-static const u32 MAGIC_HEADER = 0x80000138;
+static const u32 MAGIC_HEADER = 0x80000139;
 
 bool gPatchesApplied = false;
 
@@ -1126,48 +1126,6 @@ static u32 ConvertToPhysics(u32 addr)
 	{
 		return OS_HLE___osProbeTLB(addr);
 	}
-}
-
-//////////////////////////////////////////////////////////////
-// Quick Read/Write methods that require a base returned by
-// ReadAddress or Memory_GetInternalReadAddress etc
-
-inline u64 QuickRead64Bits( u8 *p_base, u32 offset )
-{
-	u64 data = *(u64 *)(p_base + offset);
-	return (data>>32) + (data<<32);
-}
-
-inline u32 QuickRead32Bits( u8 *p_base, u32 offset )
-{
-	return *(u32 *)(p_base + offset);
-}
-inline u32 QuickRead32Bits( u8 *p_base )
-{
-	return *(u32 *)(p_base);
-}
-
-inline void QuickWrite64Bits( u8 *p_base, u32 offset, u64 value )
-{
-	u64 data = (value>>32) + (value<<32);
-	*(u64 *)(p_base + offset) = data;
-}
-
-inline void QuickWrite32Bits( u8 *p_base, u32 offset, u32 value )
-{
-	*(u32 *)(p_base + offset) = value;
-}
-
-inline void QuickWrite32Bits( u8 *p_base, u32 value )
-{
-	*(u32 *)(p_base) = value;
-}
-
-typedef struct { u32 value[8]; } u256;
-inline void QuickWrite512Bits( u8 *p_base, u8 *p_source )
-{
-	*(u256 *)(p_base     ) = *(u256 *)(p_source     );
-	*(u256 *)(p_base + 32) = *(u256 *)(p_source + 32);
 }
 
 #include "patch_thread_hle.inl"

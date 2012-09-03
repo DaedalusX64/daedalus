@@ -67,7 +67,8 @@ static void Memory_InitTables();
 //*****************************************************************************
 u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 {
-	8*1024,				// Allocate 8k bytes - a bit excessive but some of the internal functions assume it's there!
+//	8*1024,				// Allocate 8k bytes - a bit excessive but some of the internal functions assume it's there! (Don't need this much really)?
+	0x02,
 	MAXIMUM_MEM_SIZE,	// RD_RAM
 	0x2000,				// SP_MEM
 
@@ -79,7 +80,7 @@ u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 	//0x30,				// RD_REG2	(Unused)
 
 	0x20,				// SP_REG
-	0x8,				// SP_PC_REG
+	0x08,				// SP_PC_REG
 	0x20,				// DPC_REG
 	//0x10,				// DPS_REG	(Unhandled)
 	0x10,				// MI_REG

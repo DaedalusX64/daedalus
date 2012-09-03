@@ -39,7 +39,7 @@ enum MEMBANKTYPE
 
 	MEM_RD_REG0,			// 0x30		// This has changed - used to be 1Mb
 	MEM_SP_REG,				// 0x20
-	MEM_SP_PC_REG,			// 0x04		// SP_PC_REG + SP_IBITS_REG
+	MEM_SP_PC_REG,			// 0x10		// SP_PC_REG + SP_IBITS_REG
 	MEM_DPC_REG,			// 0x20
 	MEM_MI_REG,				// 0x10
 	MEM_VI_REG,				// 0x38
@@ -253,6 +253,63 @@ inline void WriteAddress( u32 address, u32 value )
 	// Need to go through the HW access handlers or TLB (Slow)
 	m.WriteFunc( address, value );	
 }
+
+//////////////////////////////////////////////////////////////
+// Quick Read/Write methods that require a base returned by
+// ReadAddress or Memory_GetInternalReadAddress etc
+
+inline u64 QuickRead64Bits( u8 *p_base, u32 offset )
+{
+	u64 data = *(u64 *)(p_base + offset);
+	return (data>>32) + (data<<32);
+}
+
+inline u32 QuickRead32Bits( u8 *p_base, u32 offset )
+{
+	return *(u32 *)(p_base + offset);
+}
+inline u32 QuickRead32Bits( u8 *p_base )
+{
+	return *(u32 *)(p_base);
+}
+
+inline void QuickWrite64Bits( u8 *p_base, u32 offset, u64 value )
+{
+	u64 data = (value>>32) + (value<<32);
+	*(u64 *)(p_base + offset) = data;
+}
+
+inline void QuickWrite32Bits( u8 *p_base, u32 offset, u32 value )
+{
+	*(u32 *)(p_base + offset) = value;
+}
+
+inline void QuickWrite32Bits( u8 *p_base, u32 value )
+{
+	*(u32 *)(p_base) = value;
+}
+
+typedef struct { u32 value[8]; } u256;
+inline void QuickWrite512Bits( u8 *p_base, u8 *p_source )
+{
+	*(u256 *)(p_base     ) = *(u256 *)(p_source     );
+	*(u256 *)(p_base + 32) = *(u256 *)(p_source + 32);
+}
+
+// Fast as hell ReadAddress, using only pointer table (dangerous if it doesn't meet below criteria)
+// 1 - For mapped memory, address must be already translated to physical
+// 2 - Can't access HW memory
+/*inline void* DAEDALUS_ATTRIBUTE_CONST QuickReadAddress( u32 address )
+{
+	DAEDALUS_ASSERT( IS_SEG_A000_8000(address), "Address translation needed!");
+
+	const MemFuncRead & m( g_MemoryLookupTableRead[ address >> 18 ] );
+	DAEDALUS_ASSERT( m.pRead, "Pointer table is NULL, Trying to access TLB-mapped or HW memory?");
+	return (void*)( m.pRead + address );
+}
+*/
+
+
 #endif /* 0 */
 
 

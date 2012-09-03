@@ -22,75 +22,75 @@ class COSMesgQueue
 {
 public:
 
-	inline COSMesgQueue(u32 dwQueueAddress)
+	inline COSMesgQueue(u32 addr)
 	{
-		m_dwBaseAddress = dwQueueAddress;
+		p_base = (u8 *)ReadAddress(addr);
 	}
 
 	// OSThread
 	inline u32 GetEmptyQueue()
 	{
-		return Read32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, mtqueue));
+		return QuickRead32Bits(p_base, offsetof(OSMesgQueue, mtqueue));
 	}
 
 	inline u32 GetFullQueue()
 	{
-		return Read32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, fullqueue));
+		return QuickRead32Bits(p_base, offsetof(OSMesgQueue, fullqueue));
 	}
 
 	inline s32 GetValidCount()
 	{
-		return Read32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, validCount));
+		return QuickRead32Bits(p_base, offsetof(OSMesgQueue, validCount));
 	}
 
 	inline s32 GetFirst()
 	{
-		return Read32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, first));
+		return QuickRead32Bits(p_base, offsetof(OSMesgQueue, first));
 	}
 
 	inline s32 GetMsgCount()
 	{
-		return Read32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, msgCount));
+		return QuickRead32Bits(p_base, offsetof(OSMesgQueue, msgCount));
 	}
 
 	inline u32 GetMesgArray()
 	{
-		return Read32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, msg));
+		return QuickRead32Bits(p_base, offsetof(OSMesgQueue, msg));
 	}
 
 	inline void SetEmptyQueue(u32 queue)
 	{
-		Write32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, mtqueue), queue);
+		QuickWrite32Bits(p_base, offsetof(OSMesgQueue, mtqueue), queue);
 	}
 
 	inline void SetFullQueue(u32 queue)
 	{
-		Write32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, fullqueue), queue);
+		QuickWrite32Bits(p_base, offsetof(OSMesgQueue, fullqueue), queue);
 	}
 
 	inline void SetValidCount(s32 nCount)
 	{
-		Write32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, validCount), nCount);
+		QuickWrite32Bits(p_base, offsetof(OSMesgQueue, validCount), nCount);
 	}
 
 	inline void SetFirst(s32 nFirst)
 	{
-		Write32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, first), nFirst);
+		QuickWrite32Bits(p_base, offsetof(OSMesgQueue, first), nFirst);
 	}
 
 	inline void SetMsgCount(s32 nMsgCount)
 	{
-		Write32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, msgCount), nMsgCount);
+		QuickWrite32Bits(p_base, offsetof(OSMesgQueue, msgCount), nMsgCount);
 	}
 	
 	inline void SetMesgArray(u32 dwMsgBuffer)
 	{
-		Write32Bits(m_dwBaseAddress + offsetof(OSMesgQueue, msg), dwMsgBuffer);
+		QuickWrite32Bits(p_base, offsetof(OSMesgQueue, msg), dwMsgBuffer);
 	}	
 
 
 protected:
-	u32 m_dwBaseAddress;
+	u8* p_base;
 
 };
 
