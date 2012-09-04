@@ -190,12 +190,13 @@ TEST_DISABLE_SP_FUNCS
 	}*/
 	DAEDALUS_ASSERT( (SpGetStatus() & SP_STATUS_HALT), "Sp Device is not HALTED, Need to handle!");
 	DAEDALUS_ASSERT( !IsSpDeviceBusy(), "Sp Device is BUSY, Need to handle!");
-	
+
+	u32 temp = VAR_ADDRESS(osSpTaskLoadTempTask);
 	OSTask * pSrcTask = (OSTask *)ReadAddress(task);
-	OSTask * pDstTask = (OSTask *)ReadAddress(VAR_ADDRESS(osSpTaskLoadTempTask));
+	OSTask * pDstTask = (OSTask *)ReadAddress(temp);
 
 	// Translate virtual addresses to physical...
-	memcpy(pDstTask, pSrcTask, sizeof(OSTask));
+	memcpy_vfpu_BE(pDstTask, pSrcTask, sizeof(OSTask));
 	
 	if (pDstTask->t.ucode != 0)
 		pDstTask->t.ucode = (u64 *)ConvertToPhysics((u32)pDstTask->t.ucode);
@@ -235,7 +236,7 @@ TEST_DISABLE_SP_FUNCS
 
 	// Copy the task info to dmem
 	Memory_SP_SetRegister(SP_MEM_ADDR_REG, 0x04000fc0);
-	Memory_SP_SetRegister(SP_DRAM_ADDR_REG, VAR_ADDRESS(osSpTaskLoadTempTask));
+	Memory_SP_SetRegister(SP_DRAM_ADDR_REG, temp);
 	Memory_SP_SetRegister(SP_RD_LEN_REG, 64 - 1);
 	DMA_SP_CopyFromRDRAM();
 
