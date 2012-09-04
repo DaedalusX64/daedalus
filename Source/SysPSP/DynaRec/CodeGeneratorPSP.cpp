@@ -44,6 +44,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 using namespace AssemblyUtils;
 
+//Enable unaligned load/store(used in OOT and PD) //Corn
+//#define ENABLE_LWR_LWL
+//#define ENABLE_SWR_SWL
+
 //Enable to load/store floats directly to/from FPU //Corn
 #define ENABLE_LWC1
 #define ENABLE_SWC1
@@ -1420,8 +1424,11 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 #ifdef ENABLE_LDC1
 	case OP_LDC1:		GenerateLDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
 #endif
+
+#ifdef ENABLE_LWR_LWL
 	case OP_LWL:		GenerateLWL( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_LWR:		if(g_ROM.GameHacks != CONKER) { GenerateLWR( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; } break;
+#endif
 
 	case OP_SB:			GenerateSB( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_SH:			GenerateSH( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
@@ -1431,8 +1438,11 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 #ifdef ENABLE_SDC1
 	case OP_SDC1:		GenerateSDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
 #endif
+
+#ifdef ENABLE_SWR_SWL
 	case OP_SWL:		GenerateSWL( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_SWR:		GenerateSWR( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+#endif
 
 	case OP_BEQ:
 	case OP_BEQL:
@@ -3667,6 +3677,7 @@ inline void	CCodeGeneratorPSP::GenerateLDC1( u32 address, bool set_branch_delay,
 }
 #endif
 
+#ifdef ENABLE_LWR_LWL
 //*****************************************************************************
 //Unaligned load Left //Corn
 //*****************************************************************************
@@ -3690,6 +3701,7 @@ inline void	CCodeGeneratorPSP::GenerateLWR( u32 address, bool set_branch_delay, 
 
 	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
+#endif
 
 //*****************************************************************************
 //
@@ -3809,6 +3821,7 @@ inline void	CCodeGeneratorPSP::GenerateSDC1( u32 current_pc, bool set_branch_del
 //*****************************************************************************
 //
 //*****************************************************************************
+#ifdef ENABLE_SWR_SWL
 inline void	CCodeGeneratorPSP::GenerateSWL( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset )
 {
 	EPspReg		reg_value( GetRegisterAndLoadLo( rt, PspReg_A1 ) );
@@ -3825,6 +3838,7 @@ inline void	CCodeGeneratorPSP::GenerateSWR( u32 current_pc, bool set_branch_dela
 
 	GenerateStore( current_pc, reg_value, base, offset, OP_SWR, 3, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
 }
+#endif
 
 //*****************************************************************************
 //
