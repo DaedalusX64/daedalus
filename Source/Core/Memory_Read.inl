@@ -28,12 +28,12 @@ static void * ReadInvalid( u32 address )
 	if(address == 0xa5000508)
 	{
 		DBGConsole_Msg(0, "Reading noise (0x%08x) - sizing memory?", address);	
-		*(u32*)((u8 *)g_pMemoryBuffers[MEM_UNUSED]) = ~0;
+		*(u32*)(g_pMemoryBuffers[MEM_UNUSED]) = ~0;
 	}
 	else
 	{
 		DBGConsole_Msg(0, "Illegal Memory Access - Tried to Read From 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC);
-		*(u32*)((u8 *)g_pMemoryBuffers[MEM_UNUSED]) = 0;
+		*(u32*)(g_pMemoryBuffers[MEM_UNUSED]) = 0;
 	}
 
 	return g_pMemoryBuffers[MEM_UNUSED];

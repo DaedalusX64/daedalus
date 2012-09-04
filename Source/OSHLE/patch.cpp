@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/RSP.h"
 #include "Core/Registers.h"
 #include "Core/ROM.h"
+#include "Core/DMA.h"
 
 #include "Utility/Profiler.h"
 #include "Utility/CRC.h"
@@ -107,7 +108,7 @@ u32 gNumOfOSFunctions;
 #define PATCH_RET_ERET RET_JR_ERET()
 
 // Increase this number every time we changed the symbol table
-static const u32 MAGIC_HEADER = 0x80000139;
+static const u32 MAGIC_HEADER = 0x80000140;
 
 bool gPatchesApplied = false;
 
