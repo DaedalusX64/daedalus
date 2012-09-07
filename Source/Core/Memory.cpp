@@ -25,19 +25,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "CPU.h"
 #include "DMA.h"
 #include "RSP.h"
-#include "RSP_HLE.h"
 #include "Interrupt.h"
 #include "ROM.h"
 #include "ROMBuffer.h"
-#include "Save.h"
-
-#include "Math/MathUtil.h"
 
 #include "Debug/Dump.h"		// Dump_GetSaveDirectory()
 #include "Debug/DebugLog.h"
 #include "Debug/DBGConsole.h"
 
-#include "OSHLE/ultra_gbi.h"
 #include "OSHLE/ultra_R4300.h"
 
 #include "Plugins/AudioPlugin.h"
@@ -53,13 +48,12 @@ static const u32	MAXIMUM_MEM_SIZE( MEMORY_8_MEG );
 static void DisplayVIControlInfo( u32 control_reg );
 #endif
 
-static void MemoryUpdateSPStatus( u32 flags );
+void MemoryUpdateSPStatus( u32 flags );
 static void MemoryUpdateDP( u32 value );
 static void MemoryModeRegMI( u32 value );
 static void MemoryUpdateMI( u32 value );
 static void MemoryUpdatePI( u32 value );
 static void MemoryUpdatePIF();
-//static void MemoryDoDP();
 
 static void Memory_InitTables();
 //*****************************************************************************
@@ -68,7 +62,7 @@ static void Memory_InitTables();
 u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 {
 //	8*1024,				// Allocate 8k bytes - a bit excessive but some of the internal functions assume it's there! (Don't need this much really)?
-	0x04,
+	0x04,				// This seems enough (Salvy)
 	MAXIMUM_MEM_SIZE,	// RD_RAM
 	0x2000,				// SP_MEM
 
@@ -592,6 +586,7 @@ void Memory_InitTables()
 
 	// Cartridge Domain 1 Address 2 (Rom)
 	// Map ROM region if the address is fixed (Note Reads to Rom are very rare, actual speedup is unlikely)
+	// Nb: We can do a hack if ROM address isn't fixed by allocating the first 8K bytes of the ROM, but yea I don't think is worth..
 	Memory_InitFunc
 	(
 		MEMORY_START_ROM_IMAGE, 
@@ -613,140 +608,6 @@ void Memory_InitTables()
 	Memory_InitInternalTables( ram_size );
 #endif
 }
-
-//#undef DISPLAY_RDP_COMMANDS
-//*****************************************************************************
-//
-//*****************************************************************************
-/*
-void MemoryDoDP()
-{
-	u32 dpc_start	= Memory_DPC_GetRegister( DPC_START_REG );
-	u32 dpc_current = Memory_DPC_GetRegister( DPC_CURRENT_REG );
-	u32 dpc_end		= Memory_DPC_GetRegister( DPC_END_REG );
-
-#ifdef DISPLAY_RDP_COMMANDS
-	u32 dpc_status	= Memory_DPC_GetRegister( DPC_STATUS_REG );
-	u32 dpc_clock	= Memory_DPC_GetRegister( DPC_CLOCK_REG );
-	u32 dpc_bufbusy	= Memory_DPC_GetRegister( DPC_BUFBUSY_REG );
-	u32 dpc_pipebusy= Memory_DPC_GetRegister( DPC_PIPEBUSY_REG );
-	u32 dpc_tmem	= Memory_DPC_GetRegister( DPC_TMEM_REG );
-#endif
-
-	REG64 command;
-
-	while ( dpc_current >= dpc_start && dpc_current < dpc_end )
-	{
-		command._u64 = Read64Bits( PHYS_TO_K0( dpc_current ) );
-
-#ifdef DISPLAY_RDP_COMMANDS
-		const char * desc = "Unknow";
-		switch ( command._u8[7] )
-		{
-			case	0x00:							desc = "G_RDP_SPNOOP"; break;
-			case	G_RDP_NOOP:						desc = "G_RDP_NOOP"; break;
-			case	G_RDP_SETCIMG:					desc = "G_RDP_SETCIMG"; break;
-			case	G_RDP_SETZIMG:					desc = "G_RDP_SETZIMG"; break;
-			case	G_RDP_SETTIMG:					desc = "G_RDP_SETTIMG"; break;
-			case	G_RDP_SETCOMBINE:				desc = "G_RDP_SETCOMBINE"; break;
-			case	G_RDP_SETENVCOLOR:				desc = "G_RDP_SETENVCOLOR"; break;
-			case	G_RDP_SETPRIMCOLOR:				desc = "G_RDP_SETPRIMCOLOR"; break;
-			case	G_RDP_SETBLENDCOLOR:			desc = "G_RDP_SETBLENDCOLOR"; break;
-			case	G_RDP_SETFOGCOLOR:				desc = "G_RDP_SETFOGCOLOR"; break;
-			case	G_RDP_SETFILLCOLOR:				desc = "G_RDP_SETFILLCOLOR"; break;
-			case	G_RDP_FILLRECT:					desc = "G_RDP_FILLRECT"; break;
-			case	G_RDP_SETTILE:					desc = "G_RDP_SETTILE"; break;
-			case	G_RDP_LOADTILE:					desc = "G_RDP_LOADTILE"; break;
-			case	G_RDP_LOADBLOCK:				desc = "G_RDP_LOADBLOCK"; break;
-			case	G_RDP_SETTILESIZE:				desc = "G_RDP_SETTILESIZE"; break;
-			case	G_RDP_LOADTLUT:					desc = "G_RDP_LOADTLUT"; break;
-			case	G_RDP_RDPSETOTHERMODE:			desc = "G_RDP_RDPSETOTHERMODE"; break;
-			case	G_RDP_SETPRIMDEPTH:				desc = "G_RDP_SETPRIMDEPTH"; break;
-			case	G_RDP_SETSCISSOR:				desc = "G_RDP_SETSCISSOR"; break;
-			case	G_RDP_SETCONVERT:				desc = "G_RDP_SETCONVERT"; break;
-			case	G_RDP_SETKEYR:					desc = "G_RDP_SETKEYR"; break;
-			case	G_RDP_SETKEYGB:					desc = "G_RDP_SETKEYGB"; break;
-			case	G_RDP_RDPFULLSYNC:				desc = "G_RDP_RDPFULLSYNC"; break;
-			case	G_RDP_RDPTILESYNC:				desc = "G_RDP_RDPTILESYNC"; break;
-			case	G_RDP_RDPPIPESYNC:				desc = "G_RDP_RDPPIPESYNC"; break;
-			case	G_RDP_RDPLOADSYNC:				desc = "G_RDP_RDPLOADSYNC"; break;
-			case	G_RDP_TEXRECTFLIP:				desc = "G_RDP_TEXRECTFLIP"; break;
-			case	G_RDP_TEXRECT:					desc = "G_RDP_TEXRECT"; break;
-			case	G_RDP_TRI_FILL:					desc = "G_RDP_TRI_FILL"; break;
-			case	G_RDP_TRI_SHADE:				desc = "G_RDP_TRI_SHADE"; break;
-			case	G_RDP_TRI_TXTR:					desc = "G_RDP_TRI_TXTR"; break;
-			case	G_RDP_TRI_SHADE_TXTR:			desc = "G_RDP_TRI_SHADE_TXTR"; break;
-			case	G_RDP_TRI_FILL_ZBUFF:			desc = "G_RDP_TRI_FILL_ZBUFF"; break;
-			case	G_RDP_TRI_SHADE_ZBUFF:			desc = "G_RDP_TRI_SHADE_ZBUFF"; break;
-			case	G_RDP_TRI_TXTR_ZBUFF:			desc = "G_RDP_TRI_TXTR_ZBUFF"; break;
-			case	G_RDP_TRI_SHADE_TXTR_ZBUFF:		desc = "G_TRI_SHADE_TXTR_ZBUFF"; break;
-			default:							
-				;
-		}
-
-		DBGConsole_Msg(0, "DP: S: %08x C: %08x E: %08x Cmd:%08x%08x %s", dpc_start, dpc_current, dpc_end, command._u32_1, command._u32_0, desc );
-#endif
-
-		if ( command._u8[7] == G_RDP_RDPFULLSYNC )
-		{
-			DBGConsole_Msg( 0, "FullSync: Executing DP interrupt" );
-
-			Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_DP);
-			R4300_Interrupt_UpdateCause3();
-		}
-
-		dpc_current += 8;
-	}
-
-
-//	DBGConsole_Msg(0, "DP: S: %08x C: %08x E: %08x", dpc_start, dpc_current, dpc_end );
-//	DBGConsole_Msg(0, "    Status: %08x Clock: %08x", dpc_status, dpc_clock );
-//	DBGConsole_Msg(0, "    BufBusy: %08x PipeBusy: %08x Tmem: %08x", dpc_bufbusy, dpc_pipebusy, dpc_tmem );
-
-
-	Memory_DPC_SetRegister( DPC_CURRENT_REG, dpc_current );
-
-//	Memory_DPC_ClrRegisterBits(DPC_STATUS_REG, DPC_STATUS_DMA_BUSY);
-//	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_DP);
-//	R4300_Interrupt_UpdateCause3();
-
-}
-*/
-//*****************************************************************************
-//
-//*****************************************************************************
-/*void MemoryDoAI()
-{
-#ifdef DAEDALUS_LOG
-	u32 ai_src_reg  = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xfffff8;
-	u32 ai_len_reg  = Memory_AI_GetRegister(AI_LEN_REG) & 0x3fff8;
-	u32 ai_dacrate = Memory_AI_GetRegister(AI_DACRATE_REG) + 1;
-	u32 ai_bitrate = Memory_AI_GetRegister(AI_BITRATE_REG) + 1;
-	u32 ai_dma_enabled = Memory_AI_GetRegister(AI_CONTROL_REG);
-
-	u32 frequency = (VI_NTSC_CLOCK/ai_dacrate);	// Might be divided by bytes/sample
-
-	if (ai_dma_enabled == false)
-	{
-		return;
-	}
-
-	u16 *p_src = (u16 *)(g_pu8RamBase + ai_src_reg);
-
-	DPF( DEBUG_MEMORY_AI, "AI: Playing %d bytes of data from 0x%08x", ai_len_reg, ai_src_reg );
-	DPF( DEBUG_MEMORY_AI, "    Bitrate: %d. DACRate: 0x%08x, Freq: %d", ai_bitrate, ai_dacrate, frequency );
-	DPF( DEBUG_MEMORY_AI, "    DMA: 0x%08x", ai_dma_enabled );
-
-	//TODO - Ensure ranges are OK.
-
-	// Set length to 0
-	//Memory_AI_SetRegister(AI_LEN_REG, 0);
-	//g_dwNextAIInterrupt = (u32)gCPUState.CPUControl[C0_COUNT] + ((VID_CLOCK*30)*ai_len_reg)/(22050*4);
-
-	//Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_AI);
-	//R4300_Interrupt_UpdateCause3();
-#endif
-}*/
 
 //*****************************************************************************
 //
@@ -809,12 +670,19 @@ void MemoryUpdateSPStatus( u32 flags )
 		stop_rsp = true;
 	}
 
-#if 1 //1->Pipelined, 0->Branch
-	if (flags & SP_SET_INTR)				{ Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SP); R4300_Interrupt_UpdateCause3(); }		// Shouldn't ever set this?
-	else if (flags & SP_CLR_INTR)			{ Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_SP); R4300_Interrupt_UpdateCause3(); }
+	if (flags & SP_SET_INTR)	// Shouldn't ever set this?		
+	{ 
+		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SP); 
+		R4300_Interrupt_UpdateCause3();
+	}		
+	else if (flags & SP_CLR_INTR)			
+	{ 
+		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_SP);
+		R4300_Interrupt_UpdateCause3();
+	}
 
 	clr_bits |= (flags & SP_CLR_BROKE) >> 1;
-	clr_bits |= (flags & SP_CLR_SSTEP);
+	clr_bits |= ( flags & SP_CLR_SSTEP);
 	clr_bits |= (flags & SP_CLR_INTR_BREAK) >> 1;
 	clr_bits |= (flags & SP_CLR_SIG0) >> 2;
 	clr_bits |= (flags & SP_CLR_SIG1) >> 3;
@@ -836,33 +704,6 @@ void MemoryUpdateSPStatus( u32 flags )
 	set_bits |= (flags & SP_SET_SIG6) >> 9;
 	set_bits |= (flags & SP_SET_SIG7) >> 10;
 
-#else
-	if (flags & SP_CLR_BROKE)				clr_bits |= SP_STATUS_BROKE;
-	// No SP_SET_BROKE
-	if (flags & SP_CLR_INTR)				{ Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_SP); R4300_Interrupt_UpdateCause3(); }
-	if (flags & SP_SET_INTR)				{ Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SP); R4300_Interrupt_UpdateCause3(); }		// Shouldn't ever set this?
-	if (flags & SP_CLR_SSTEP)				clr_bits |= SP_STATUS_SSTEP;
-	if (flags & SP_SET_SSTEP)				set_bits |= SP_STATUS_SSTEP;
-	if (flags & SP_CLR_INTR_BREAK)			clr_bits |= SP_STATUS_INTR_BREAK;
-	if (flags & SP_SET_INTR_BREAK)			set_bits |= SP_STATUS_INTR_BREAK;
-	if (flags & SP_CLR_SIG0)				clr_bits |= SP_STATUS_SIG0;
-	if (flags & SP_SET_SIG0)				set_bits |= SP_STATUS_SIG0;
-	if (flags & SP_CLR_SIG1)				clr_bits |= SP_STATUS_SIG1;
-	if (flags & SP_SET_SIG1)				set_bits |= SP_STATUS_SIG1;
-	if (flags & SP_CLR_SIG2)				clr_bits |= SP_STATUS_SIG2;
-	if (flags & SP_SET_SIG2)				set_bits |= SP_STATUS_SIG2;
-	if (flags & SP_CLR_SIG3)				clr_bits |= SP_STATUS_SIG3;
-	if (flags & SP_SET_SIG3)				set_bits |= SP_STATUS_SIG3;
-	if (flags & SP_CLR_SIG4)				clr_bits |= SP_STATUS_SIG4;
-	if (flags & SP_SET_SIG4)				set_bits |= SP_STATUS_SIG4;
-	if (flags & SP_CLR_SIG5)				clr_bits |= SP_STATUS_SIG5;
-	if (flags & SP_SET_SIG5)				set_bits |= SP_STATUS_SIG5;
-	if (flags & SP_CLR_SIG6)				clr_bits |= SP_STATUS_SIG6;
-	if (flags & SP_SET_SIG6)				set_bits |= SP_STATUS_SIG6;
-	if (flags & SP_CLR_SIG7)				clr_bits |= SP_STATUS_SIG7;
-	if (flags & SP_SET_SIG7)				set_bits |= SP_STATUS_SIG7;
-#endif
-
 #ifdef DAEDAULUS_ENABLEASSERTS
 	u32 new_status = Memory_SP_SetRegisterBits( SP_STATUS_REG, ~clr_bits, set_bits );
 #else
@@ -883,6 +724,7 @@ void MemoryUpdateSPStatus( u32 flags )
 	}
 	else if ( stop_rsp )
 	{
+		// As we handle all RSP via HLE, nothing to do here.
 		DAEDALUS_ASSERT( !RSP_IsRunningHLE(), "Stopping RSP while HLE task still running. Not good!" );
 	}
 }
@@ -898,6 +740,7 @@ void MemoryUpdateDP( u32 flags )
 
 	u32 dpc_status  =  Memory_DPC_GetRegister(DPC_STATUS_REG);
 
+	// ToDO : Avoid branching
 	if (flags & DPC_CLR_XBUS_DMEM_DMA)			dpc_status &= ~DPC_STATUS_XBUS_DMEM_DMA;
 	if (flags & DPC_SET_XBUS_DMEM_DMA)			dpc_status |= DPC_STATUS_XBUS_DMEM_DMA;
 	if (flags & DPC_CLR_FREEZE)					dpc_status &= ~DPC_STATUS_FREEZE;
@@ -905,11 +748,12 @@ void MemoryUpdateDP( u32 flags )
 	if (flags & DPC_CLR_FLUSH)					dpc_status &= ~DPC_STATUS_FLUSH;
 	if (flags & DPC_SET_FLUSH)					dpc_status |= DPC_STATUS_FLUSH;
 
-	// These should be ignored ! - Salvy
-	/*if (flags & DPC_CLR_TMEM_CTR)				Memory_DPC_SetRegister(DPC_TMEM_REG, 0);
+	/*
+	if (flags & DPC_CLR_TMEM_CTR)				Memory_DPC_SetRegister(DPC_TMEM_REG, 0);
 	if (flags & DPC_CLR_PIPE_CTR)				Memory_DPC_SetRegister(DPC_PIPEBUSY_REG, 0);
 	if (flags & DPC_CLR_CMD_CTR)				Memory_DPC_SetRegister(DPC_BUFBUSY_REG, 0);
-	if (flags & DPC_CLR_CLOCK_CTR)				Memory_DPC_SetRegister(DPC_CLOCK_REG, 0);*/
+	if (flags & DPC_CLR_CLOCK_CTR)				Memory_DPC_SetRegister(DPC_CLOCK_REG, 0);
+	*/
 
 #ifdef DISPLAY_DPC_WRITES
 	if ( flags & DPC_CLR_XBUS_DMEM_DMA )		DBGConsole_Msg( 0, "DPC_CLR_XBUS_DMEM_DMA" );
@@ -939,70 +783,34 @@ void MemoryUpdateMI( u32 value )
 	u32 mi_intr_mask_reg = Memory_MI_GetRegister(MI_INTR_MASK_REG);
 	u32 mi_intr_reg		 = Memory_MI_GetRegister(MI_INTR_REG);
 
-	//bool interrupts_live_before((mi_intr_mask_reg & mi_intr_reg) != 0);
+	u32 clr;
+	u32 set;
 
-#if 1 //1->pipelined, 0->branch version //Corn
-	u32 SET_MASK;
-	u32 CLR_MASK;
+	// From Corn - nicer way to avoid branching
+	clr  = (value & MI_INTR_MASK_CLR_SP) >> 0;
+	set  = (value & MI_INTR_MASK_SET_SP) >> 1;
+	clr |= (value & MI_INTR_MASK_CLR_SI) >> 1;
+	set |= (value & MI_INTR_MASK_SET_SI) >> 2;
+	clr |= (value & MI_INTR_MASK_CLR_AI) >> 2;
+	set |= (value & MI_INTR_MASK_SET_AI) >> 3;
+	clr |= (value & MI_INTR_MASK_CLR_VI) >> 3;
+	set |= (value & MI_INTR_MASK_SET_VI) >> 4;
+	clr |= (value & MI_INTR_MASK_CLR_PI) >> 4;
+	set |= (value & MI_INTR_MASK_SET_PI) >> 5;
+	clr |= (value & MI_INTR_MASK_CLR_DP) >> 5;
+	set |= (value & MI_INTR_MASK_SET_DP) >> 6;
 
-	CLR_MASK  = (value & MI_INTR_MASK_CLR_SP) >> 0;
-	SET_MASK  = (value & MI_INTR_MASK_SET_SP) >> 1;
-	CLR_MASK |= (value & MI_INTR_MASK_CLR_SI) >> 1;
-	SET_MASK |= (value & MI_INTR_MASK_SET_SI) >> 2;
-	CLR_MASK |= (value & MI_INTR_MASK_CLR_AI) >> 2;
-	SET_MASK |= (value & MI_INTR_MASK_SET_AI) >> 3;
-	CLR_MASK |= (value & MI_INTR_MASK_CLR_VI) >> 3;
-	SET_MASK |= (value & MI_INTR_MASK_SET_VI) >> 4;
-	CLR_MASK |= (value & MI_INTR_MASK_CLR_PI) >> 4;
-	SET_MASK |= (value & MI_INTR_MASK_SET_PI) >> 5;
-	CLR_MASK |= (value & MI_INTR_MASK_CLR_DP) >> 5;
-	SET_MASK |= (value & MI_INTR_MASK_SET_DP) >> 6;
+	mi_intr_mask_reg &= ~clr;
+	mi_intr_mask_reg |= set;
 
-	mi_intr_mask_reg &= ~CLR_MASK;
-	mi_intr_mask_reg |= SET_MASK;
-
-#else
-	if((value & MI_INTR_MASK_SET_SP)) mi_intr_mask_reg |= MI_INTR_MASK_SP;
-	else if((value & MI_INTR_MASK_CLR_SP)) mi_intr_mask_reg &= ~MI_INTR_MASK_SP;
-
-	if((value & MI_INTR_MASK_SET_SI)) mi_intr_mask_reg |= MI_INTR_MASK_SI;
-	else if((value & MI_INTR_MASK_CLR_SI)) mi_intr_mask_reg &= ~MI_INTR_MASK_SI;
- 
-	if((value & MI_INTR_MASK_SET_AI)) mi_intr_mask_reg |= MI_INTR_MASK_AI;
-    else if((value & MI_INTR_MASK_CLR_AI)) mi_intr_mask_reg &= ~MI_INTR_MASK_AI;
-
-	if((value & MI_INTR_MASK_SET_VI)) mi_intr_mask_reg |= MI_INTR_MASK_VI;
-    else if((value & MI_INTR_MASK_CLR_VI)) mi_intr_mask_reg &= ~MI_INTR_MASK_VI;
-
-	if((value & MI_INTR_MASK_SET_PI)) mi_intr_mask_reg |= MI_INTR_MASK_PI;
-    else if((value & MI_INTR_MASK_CLR_PI)) mi_intr_mask_reg &= ~MI_INTR_MASK_PI;
-
-	if((value & MI_INTR_MASK_SET_DP)) mi_intr_mask_reg |= MI_INTR_MASK_DP;
-    else if((value & MI_INTR_MASK_CLR_DP)) mi_intr_mask_reg &= ~MI_INTR_MASK_DP;
-#endif
-
-#if 1 //1 -> Slower but proper //0 -> Faster but risky (Crashes Animal crossing but make Rocket-robot on wheels work)
-
-	// Write back
 	Memory_MI_SetRegister( MI_INTR_MASK_REG, mi_intr_mask_reg );
 
+	// Check if any interrupts are enabled now, and immediately trigger an interrupt
 	//if(mi_intr_mask_reg & 0x0000003F & mi_intr_reg)
 	if(mi_intr_mask_reg & mi_intr_reg)
 	{
-		// Trigger an interrupt here, to avoid setting up unnecesary IQRs
-		//
 		R4300_Interrupt_UpdateCause3();
 	}
-#else
-	if(mi_intr_mask_reg & mi_intr_reg)
-	{
-		// Write back
-		Memory_MI_SetRegister( MI_INTR_MASK_REG, mi_intr_mask_reg );
-		// Trigger an interrupt here, to avoid setting up unnecesary IQRs
-		//
-		R4300_Interrupt_UpdateCause3();
-	}
-#endif
 }
 
 //*****************************************************************************
@@ -1012,22 +820,26 @@ void MemoryModeRegMI( u32 value )
 {
 	u32 mi_mode_reg = Memory_MI_GetRegister(MI_MODE_REG);
 
-	if(value & MI_SET_RDRAM) mi_mode_reg |= MI_MODE_RDRAM;
-	else if(value & MI_CLR_RDRAM) mi_mode_reg &= ~MI_MODE_RDRAM;
+	// ToDO : Avoid branching
+	if(value & MI_SET_RDRAM) 
+		mi_mode_reg |= MI_MODE_RDRAM;
+	else if(value & MI_CLR_RDRAM) 
+		mi_mode_reg &= ~MI_MODE_RDRAM;
 
-	if(value & MI_SET_INIT) mi_mode_reg |= MI_MODE_INIT;
-    else if(value & MI_CLR_INIT) mi_mode_reg &= ~MI_MODE_INIT;
+	if(value & MI_SET_INIT)
+		mi_mode_reg |= MI_MODE_INIT;
+    else if(value & MI_CLR_INIT)
+		mi_mode_reg &= ~MI_MODE_INIT;
 
-	if(value & MI_SET_EBUS) mi_mode_reg |= MI_MODE_EBUS;
-    else if(value & MI_CLR_EBUS) mi_mode_reg &= ~MI_MODE_EBUS;
+	if(value & MI_SET_EBUS) 
+		mi_mode_reg |= MI_MODE_EBUS;
+    else if(value & MI_CLR_EBUS) 
+		mi_mode_reg &= ~MI_MODE_EBUS;
 
-	// Write back
 	Memory_MI_SetRegister( MI_MODE_REG, mi_mode_reg );
 
 	if (value & MI_CLR_DP_INTR)
 	{ 
-		//Only MI_CLR_DP_INTR needs to clear our interrupts
-		//
 		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_DP); 
 		R4300_Interrupt_UpdateCause3(); 
 	}

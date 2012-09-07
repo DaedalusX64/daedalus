@@ -31,35 +31,46 @@ TEST_DISABLE_SP_FUNCS
 	u32 VAddr  = gGPR[REG_a2]._u32_0;
 	u32 len    = gGPR[REG_a3]._u32_0;
 
-	u32 PAddr = ConvertToPhysics(VAddr);
-
 	/*
 	DBGConsole_Msg(0, "osSpRawStartDma(%d, 0x%08x, 0x%08x (0x%08x), %d)", 
 		RWflag,
 		SPAddr,
 		VAddr, PAddr,
 		len);
-		*/
+	*/
 
+	DAEDALUS_ASSERT( !IsSpDeviceBusy(), "Sp Device is BUSY, Need to handle!");
+	/*
 	if (IsSpDeviceBusy())
 	{
 		gGPR[REG_v0]._u32_0 = ~0;
+		return PATCH_RET_JR_RA;
+	}
+	*/
+	u32 PAddr = ConvertToPhysics(VAddr);
+
+	//FIXME
+	DAEDALUS_ASSERT( PAddr,"Address Translation necessary!");
+
+	Memory_SP_SetRegister( SP_MEM_ADDR_REG, SPAddr);
+	Memory_SP_SetRegister( SP_DRAM_ADDR_REG, PAddr);
+
+	// Decrement.. since when DMA'ing to/from SP we increase SP len by 1
+	len--;
+		
+	// This is correct - SP_WR_LEN_REG is a read (from RDRAM to device!)
+	if (RWflag == OS_READ)  
+	{
+		Memory_SP_SetRegister( SP_WR_LEN_REG, len );
+		DMA_SP_CopyToRDRAM();
 	}
 	else
 	{
-		//FIXME
-		DAEDALUS_ASSERT( PAddr,"Address Translation necessary!");
-
-		Memory_SP_SetRegister( SP_MEM_ADDR_REG, SPAddr);
-		Memory_SP_SetRegister( SP_DRAM_ADDR_REG, PAddr);
-		
-		// This is correct - SP_WR_LEN_REG is a read (from RDRAM to device!)
-		u32 flag = (RWflag == OS_READ) ? SP_WR_LEN_REG : SP_RD_LEN_REG;
-
-		Write32Bits( flag | 0xA0000000, len - 1 );
-
-		gGPR[REG_v0]._u32_0 = 0;
+		Memory_SP_SetRegister( SP_RD_LEN_REG, len );
+		DMA_SP_CopyFromRDRAM();
 	}
+
+	gGPR[REG_v0]._u32_0 = 0;
 
 	return PATCH_RET_JR_RA;
 }
@@ -116,6 +127,7 @@ TEST_DISABLE_SP_FUNCS
 	return PATCH_RET_JR_RA;
 }
 
+extern void MemoryUpdateSPStatus( u32 flags );
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -124,9 +136,7 @@ u32 Patch___osSpSetStatus_Mario()
 TEST_DISABLE_SP_FUNCS
 	u32 status = gGPR[REG_a0]._u32_0;
 
-	//Memory_SP_SetRegisterBits( SP_STATUS_REG, status ); 
-	Write32Bits(PHYS_TO_K1( SP_STATUS_REG ), status );
-
+	MemoryUpdateSPStatus( status );
 	return PATCH_RET_JR_RA;
 }
 
@@ -138,9 +148,7 @@ u32 Patch___osSpSetStatus_Rugrats()
 TEST_DISABLE_SP_FUNCS
 	u32 status = gGPR[REG_a0]._u32_0;
 
-	//Memory_SP_SetRegisterBits( SP_STATUS_REG, status ); // Breaks Gex 64 and several games
-	Write32Bits(PHYS_TO_K1( SP_STATUS_REG ), status );
-
+	MemoryUpdateSPStatus( status );
 	return PATCH_RET_JR_RA;
 }
 
