@@ -195,6 +195,7 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 					*(u32  *)&pIMemBase[0x04] = 0x8DA807FC;
 					gGPR[5]._u64=0x000000005493FB9ALL;
 					gGPR[14]._u64=0xFFFFFFFFC2C20384LL;
+					break;
 				case CIC_6106:
 					gGPR[5]._u64=0xFFFFFFFFE067221FLL;
 					gGPR[14]._u64=0x000000005CD2B70FLL;
