@@ -79,22 +79,35 @@ TEST_DISABLE_PI_FUNCS
 	u32 VAddr  = gGPR[REG_a2]._u32_0;
 	u32 len    = gGPR[REG_a3]._u32_0;
 
+	DAEDALUS_ASSERT( !IsPiDeviceBusy(), "Pi Device is BUSY, Need to handle!");
+	
+	/*
+	if (IsPiDeviceBusy())
+	{
+		gGPR[REG_v0]._u32_0 = ~0;
+		return PATCH_RET_JR_RA;
+	}
+	*/
+
 	u32 PAddr = ConvertToPhysics(VAddr);
 
 	Memory_PI_SetRegister(PI_CART_ADDR_REG, (PiAddr & 0x0fffffff) | 0x10000000);
 	Memory_PI_SetRegister(PI_DRAM_ADDR_REG, PAddr);
-	
-	if (IsPiDeviceBusy())
+
+	len--;
+
+	if(RWflag == OS_READ)
 	{
-		gGPR[REG_v0]._u32_0 = ~0;
+		Memory_PI_SetRegister(PI_WR_LEN_REG, len);
+		DMA_PI_CopyToRDRAM();
 	}
 	else
 	{
-		u32 flag = (RWflag == OS_READ) ? PI_WR_LEN_REG : PI_RD_LEN_REG;
-
-		Write32Bits(flag | 0xA0000000, len - 1);
-		gGPR[REG_v0]._u32_0 = 0;
+		Memory_PI_SetRegister(PI_RD_LEN_REG, len);
+		DMA_PI_CopyFromRDRAM();
 	}
+
+	gGPR[REG_v0]._u32_0 = 0;
 
 	return PATCH_RET_JR_RA;
 }

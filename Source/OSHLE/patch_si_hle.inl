@@ -157,10 +157,16 @@ u32 Patch___osSiRawStartDma_Mario()
 	else
 	{
 		Memory_SI_SetRegister( SI_DRAM_ADDR_REG, PAddr);
-	
-		u32 flag = (RWflag == OS_READ) ? SI_PIF_ADDR_RD64B_REG : SI_PIF_ADDR_WR64B_REG;
-
-		Write32Bits(flag | 0xA0000000, 0);
+		if(RWflag == OS_READ)
+		{
+			//Memory_SI_SetRegister( SI_PIF_ADDR_RD64B_REG, 0x1FC007C0);
+			DMA_SI_CopyToDRAM();
+		}
+		else
+		{
+			//Memory_SI_SetRegister( SI_PIF_ADDR_WR64B_REG, 0x1FC007C0);
+			DMA_SI_CopyFromDRAM();
+		}
 
 		gGPR[REG_v0]._u32_0 = 0;
 	}
@@ -170,5 +176,35 @@ u32 Patch___osSiRawStartDma_Mario()
 
 u32 Patch___osSiRawStartDma_Rugrats()
 {
-	return Patch___osSiRawStartDma_Mario();
+	u32 RWflag = gGPR[REG_a0]._u32_0;
+	u32 SIAddr = gGPR[REG_a1]._u32_0;
+
+	DAEDALUS_ASSERT( !IsSiDeviceBusy(), "Si Device is BUSY, Need to handle!");
+
+	/*
+	if (IsSiDeviceBusy())
+	{
+		gGPR[REG_v0]._u32_0 = ~0;
+		return PATCH_RET_JR_RA;
+	}
+	*/
+
+	u32 PAddr = ConvertToPhysics(SIAddr);
+
+	Memory_SI_SetRegister( SI_DRAM_ADDR_REG, PAddr);
+	if(RWflag == OS_READ)
+	{
+		//Memory_SI_SetRegister( SI_PIF_ADDR_RD64B_REG, 0x1FC007C0);
+		DMA_SI_CopyToDRAM();
+	}
+	else
+	{
+		//Memory_SI_SetRegister( SI_PIF_ADDR_WR64B_REG, 0x1FC007C0);
+		DMA_SI_CopyFromDRAM();
+	}
+
+	gGPR[REG_v0]._u32_0 = 0;
+
+
+	return PATCH_RET_JR_RA;
 }
