@@ -118,7 +118,6 @@ DAED_PSP_SRCS =		Source/SysPSP/Graphics/DrawText.cpp \
 			Source/SysPSP/Utility/ThreadPSP.cpp \
 			Source/SysPSP/Utility/TimingPSP.cpp \
 			Source/SysPSP/Utility/FastMemcpy.cpp \
-			Source/SysPSP/MediaEnginePRX/MediaEngine2.S \
 			Source/SysPSP/MediaEnginePRX/MediaEngine.S \
 			Source/SysPSP/MediaEnginePRX/me.c \
 			Source/SysPSP/DveMgr/pspDveManager.S \
@@ -191,7 +190,7 @@ ifdef DEBUG
 
 	SRCS			= $(CORE_SRCS) $(ADDITIONAL_SYNC_SRCS)
 else 
-	CFLAGS			= -O2 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant -fpredictive-commoning -pipe -mno-check-zero-division
+	CFLAGS			= -O2 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant -fpredictive-commoning -mno-check-zero-division
 					#-pipe
 					#-Wextra
 					#-fno-builtin
@@ -316,7 +315,7 @@ Source/SysPSP/DveMgr/pspDveManager.S:
 dvemgr.prx:
 	$(MAKE) -C Source/SysPSP/DveMgr all
 
-mediaengine2.prx:
+mediaengine.prx:
 	$(MAKE) -C Source/SysPSP/MediaEnginePRX all
 
 exception.prx:
