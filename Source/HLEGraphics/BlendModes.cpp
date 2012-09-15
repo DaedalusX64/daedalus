@@ -1043,6 +1043,18 @@ void BlendMode_0x00129bfffffdf638LL (BLEND_MODE_ARGS)
  //#S
  */
 
+//Star Wars Racer Ep1 shadows
+//case 0x00fff3fffffdb638LL:
+//aRGB0: (0            - 0           ) * 0            + Primitive
+//aA0  : (0            - Primitive   ) * Texel0       + Primitive
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x00fff3fffffdb638LL( BLEND_MODE_ARGS )
+{
+	details.ColourAdjuster.SetA( details.PrimColour );	
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
+}
+
 //SSB Bomb Partial-Flashing Animation
 //case 0x00127eacf0fff238LL:
 //aRGB0: (Texel0       - 0           ) * Shade        + 0   
@@ -1873,6 +1885,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 	{
 #define BLEND_MODE( x )		case (x):	return BlendMode_##x;
 			BLEND_MODE(0x001114a7f3fffef8LL); // Sin and Punishment - Sky <----- Needs work
+			BLEND_MODE(0x001147fffffffe38LL); // Command & Conquer - Water
 			BLEND_MODE(0x00117e80f5fff438LL); // Paper Mario block texture partial fix
 			BLEND_MODE(0x0011fe2344fe7339LL); // Mortal Kombat 4 - Text
 			BLEND_MODE(0x0011fe2355fefd7eLL); // Mortal Kombat 4 -Character Selection screen background / Tower
@@ -1888,6 +1901,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00147e2844fe793cLL); // FZero tracks / Mario 64 penguin's eyes
 			BLEND_MODE(0x00149460f50fff7fLL); // Animal Crossing Gold
 			BLEND_MODE(0x001596a430fdfe38LL); // DKR Intro Plane
+			BLEND_MODE(0x0015982bff327f3fLL); // Command $ Conquer - Everything
 			BLEND_MODE(0x0015fe2bfffff3f9LL); // WWF Wreslemania 2000 - Wrestlers
 			BLEND_MODE(0x0015fea3f00ff23fLL); // WWF Wreslemania 2000 - Wrestlers Main Menu
 			BLEND_MODE(0x0015fec4f0fff83cLL); // Pilot Wings 64 sky
@@ -1955,6 +1969,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x003432685566ff7fLL); // Ogre Battle - Intro Dust / Conker - Chainsaw Smoke
 			BLEND_MODE(0x00373c6e117b9fcfLL); // OOT - Lens of Truth
 			BLEND_MODE(0x0040fe8155fef97cLL); // GoldenEye Sky
+			BLEND_MODE(0x0041c2835587dfefLL); // Command $ Conquer - Smoke
 			//BLEND_MODE(0x0040fe8155fefd7eLL); // Kirby Far Terrain -> Breaks Rocket-robot on wheels
 			BLEND_MODE(0x0050d2a133a5b6dbLL); // Pokemon Stadium 2 Pokemon Select Box
 			BLEND_MODE(0x005196a3112cfe7fLL); // WWF Wreslemania 2000 - Menu
@@ -1979,10 +1994,8 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00ffabffff0d92ffLL); // Paper Mario - Walking Dust
 			BLEND_MODE(0x00ffac80ff0d93ffLL); // Animal Crossing - Running Smoke
 			BLEND_MODE(0x00ffb3ffff00fe3fLL); // Mega Man 64 Explosion
+			BLEND_MODE(0x00fff3fffffdb638LL); // SW racer EP1 shadows
 			BLEND_MODE(0x00fffe8ff517f8ffLL); // Conker Mouth/Tail
-			BLEND_MODE(0x0015982bff327f3fLL);
-			BLEND_MODE(0x0041c2835587dfefLL);
-			BLEND_MODE(0x001147fffffffe38LL);
 			default:
 				return BlendMode_Generic;	  // Basic generic blenmode
 			
