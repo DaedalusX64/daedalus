@@ -1789,6 +1789,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	{
 		mWPmodified = false;
 		mReloadProj = true;
+		if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) mWorldProject.mRaw[5] *= 1.333333f;	//proper 16:9 scale
 		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mWorldProject ) );
 		mModelViewStack[mModelViewTop] = gMatrixIdentity;
 	}
@@ -1933,6 +1934,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	{
 		mWPmodified = false;
 		mReloadProj = true;
+		if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) mWorldProject.mRaw[5] *= 1.333333f;	//proper 16:9 scale
 		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject ) );
 		mModelViewStack[mModelViewTop] = gMatrixIdentity;
 	}
@@ -2968,6 +2970,7 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 		{
 			// Load projection matrix
 			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
+			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) mProjectionStack[mProjectionTop].mRaw[5] *= 1.333333f;	//proper 16:9 scale 
 		}
 		else
 		{
@@ -2991,6 +2994,7 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 			//so we translate them a bit along Z to make them stick :) //Corn
 			//
 			if( g_ROM.ZELDA_HACK ) mProjectionStack[mProjectionTop].mRaw[14] += 0.4f;
+			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) mProjectionStack[mProjectionTop].mRaw[5] *= 1.333333f;	//proper 16:9 scale 
 		}
 		else
 		{

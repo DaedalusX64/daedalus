@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="DaedalusPSP"
 	ProjectGUID="{52A6C596-EDA5-4822-A48B-890BD9AF9147}"
 	RootNamespace="DaedalusPSP"
@@ -91,18 +91,18 @@
 				Name="Configs"
 				>
 				<Filter
-					Name="Dev"
-					>
-					<File
-						RelativePath=".\Source\Config\Dev\BuildConfig.h"
-						>
-					</File>
-				</Filter>
-				<Filter
 					Name="Release"
 					>
 					<File
 						RelativePath=".\Source\Config\Release\BuildConfig.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Dev"
+					>
+					<File
+						RelativePath=".\Source\Config\Dev\BuildConfig.h"
 						>
 					</File>
 				</Filter>
@@ -134,6 +134,14 @@
 			<Filter
 				Name="Core"
 				>
+				<File
+					RelativePath=".\Source\Core\Cheats.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Core\Cheats.h"
+					>
+				</File>
 				<File
 					RelativePath=".\Source\Core\Compatibility.h"
 					>
@@ -646,6 +654,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\Source\OSHLE\ultra_gbi.h"
+						>
+					</File>
+					<File
 						RelativePath=".\Source\OSHLE\ultra_mbi.h"
 						>
 					</File>
@@ -906,6 +918,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\Source\SysPSP\Utility\exception.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\Source\SysPSP\Utility\IOPSP.cpp"
 						>
 					</File>
@@ -955,6 +971,10 @@
 				Name="HLEGraphics"
 				>
 				<File
+					RelativePath=".\Source\HLEGraphics\Blender.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\HLEGraphics\BlendModes.h"
 					>
 				</File>
@@ -992,42 +1012,6 @@
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\DLParser.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspCommon.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspCustom.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspCustom.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspMacros.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspMacros.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspS2DEX.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspS2DEX.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspSprite2D.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspSprite2D.h"
 					>
 				</File>
 				<File
@@ -1142,6 +1126,10 @@
 						>
 					</File>
 					<File
+						RelativePath=".\Source\SysPSP\HLEGraphics\TnLVFPU.S"
+						>
+					</File>
+					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\TransformWithColour.S"
 						>
 					</File>
@@ -1151,6 +1139,70 @@
 					</File>
 					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\VectorClipping.S"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Ucodes"
+					>
+					<File
+						RelativePath=".\Source\HLEGraphics\uCodes\Ucode.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\HLEGraphics\uCodes\Ucode.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\HLEGraphics\uCodes\Ucode_Conker.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\HLEGraphics\uCodes\Ucode_DKR.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\HLEGraphics\uCodes\Ucode_GBI0.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\HLEGraphics\uCodes\Ucode_GBI1.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\HLEGraphics\uCodes\Ucode_GBI2.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\HLEGraphics\uCodes\Ucode_GE.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\HLEGraphics\uCodes\Ucode_LL.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\HLEGraphics\uCodes\Ucode_PD.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\HLEGraphics\uCodes\Ucode_S2DEX.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\HLEGraphics\uCodes\Ucode_SOTE.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\HLEGraphics\uCodes\Ucode_Sprite2D.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\HLEGraphics\uCodes\Ucode_WRUS.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\HLEGraphics\uCodes\UcodeDefs.h"
 						>
 					</File>
 				</Filter>
@@ -1192,10 +1244,6 @@
 				</File>
 				<File
 					RelativePath=".\Source\SysPSP\HLEAudio\AudioPluginPSP.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\SysW32\HLEAudio\AudioPluginW32.cpp"
 					>
 				</File>
 				<File

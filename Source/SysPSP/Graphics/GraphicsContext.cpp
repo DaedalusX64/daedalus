@@ -477,6 +477,10 @@ void IGraphicsContext::ViewportType( u32 * d_width, u32 * d_height )
 			*d_width = 720;
 			*d_height = 460; // 460 seems to be the limit due to renderer conversions
 			break;
+		case VT_FULLSCREEN_HD:		// Fullscreen
+			*d_width = 720;
+			*d_height = 460; // 460 seems to be the limit due to renderer conversions
+			break;
  		}
 	}
 	else
@@ -492,6 +496,10 @@ void IGraphicsContext::ViewportType( u32 * d_width, u32 * d_height )
 			*d_height = 272;
 			break;
 		case VT_FULLSCREEN:		// Fullscreen
+			*d_width = 480;
+			*d_height = 272;
+			break;
+		case VT_FULLSCREEN_HD:		// Fullscreen
 			*d_width = 480;
 			*d_height = 272;
 			break;
