@@ -91,6 +91,8 @@ void	_ConvertVerticesIndexed( DaedalusVtx * dest, const DaedalusVtx4 * source, u
 u32		_ClipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, const v4 * plane, u32 num_verts );
 }
 
+#define HD_SCALE                          0.754166f
+
 #define GL_TRUE                           1
 #define GL_FALSE                          0
 
@@ -833,7 +835,7 @@ bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u3
 		//Allow Blend Explorer
 		//
 		SBlendModeDetails		details;
-		u32	num_cycles = gRDPOtherMode.cycle_type == CYCLE_2CYCLE ? 2 : 1;
+		//u32	num_cycles = gRDPOtherMode.cycle_type == CYCLE_2CYCLE ? 2 : 1;
 
 		details.InstallTexture = true;
 		details.EnvColour = mEnvColour;
@@ -1095,8 +1097,19 @@ void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 
 	v2 screen0;
 	v2 screen1;
-	ConvertN64ToPsp( xy0, screen0 );
-	ConvertN64ToPsp( xy1, screen1 );
+	if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
+	{
+		screen0.x = pspFpuRound( pspFpuRound( HD_SCALE * xy0.x ) * mN64ToPSPScale.x + 59 );	//59 in translate is an ugly hack that only work on 480x272 display//Corn 
+		screen0.y = pspFpuRound( pspFpuRound( xy0.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y );
+
+		screen1.x = pspFpuRound( pspFpuRound( HD_SCALE * xy1.x ) * mN64ToPSPScale.x + 59 ); //59 in translate is an ugly hack that only work on 480x272 display//Corn
+		screen1.y = pspFpuRound( pspFpuRound( xy1.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y );
+	}
+	else
+	{
+		ConvertN64ToPsp( xy0, screen0 );
+		ConvertN64ToPsp( xy1, screen1 );
+	}
 
 	v2 tex_uv0;
 	tex_uv0.x = uv0.x - mTileTopLeft[ 0 ].x;
@@ -1789,7 +1802,13 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	{
 		mWPmodified = false;
 		mReloadProj = true;
-		if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) mWorldProject.mRaw[0] *= 0.75f;	//proper 16:9 scale
+		if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
+		{	//proper 16:9 scale
+			mWorldProject.mRaw[0] *= HD_SCALE;
+			mWorldProject.mRaw[4] *= HD_SCALE;
+			mWorldProject.mRaw[8] *= HD_SCALE;
+			mWorldProject.mRaw[12] *= HD_SCALE;
+		}
 		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mWorldProject ) );
 		mModelViewStack[mModelViewTop] = gMatrixIdentity;
 	}
@@ -1934,7 +1953,13 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	{
 		mWPmodified = false;
 		mReloadProj = true;
-		if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) mWorldProject.mRaw[0] *= 0.75f;	//proper 16:9 scale
+		if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
+		{	//proper 16:9 scale
+			mWorldProject.mRaw[0] *= HD_SCALE;
+			mWorldProject.mRaw[4] *= HD_SCALE;
+			mWorldProject.mRaw[8] *= HD_SCALE;
+			mWorldProject.mRaw[12] *= HD_SCALE;
+		}
 		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject ) );
 		mModelViewStack[mModelViewTop] = gMatrixIdentity;
 	}
@@ -2970,7 +2995,7 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 		{
 			// Load projection matrix
 			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
-			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) mProjectionStack[mProjectionTop].mRaw[0] *= 0.75f;	//proper 16:9 scale 
+			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) mProjectionStack[mProjectionTop].mRaw[0] *= HD_SCALE;	//proper 16:9 scale 
 		}
 		else
 		{
@@ -2994,7 +3019,7 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 			//so we translate them a bit along Z to make them stick :) //Corn
 			//
 			if( g_ROM.ZELDA_HACK ) mProjectionStack[mProjectionTop].mRaw[14] += 0.4f;
-			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) mProjectionStack[mProjectionTop].mRaw[0] *= 0.75f;	//proper 16:9 scale 
+			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) mProjectionStack[mProjectionTop].mRaw[0] *= HD_SCALE;	//proper 16:9 scale 
 		}
 		else
 		{

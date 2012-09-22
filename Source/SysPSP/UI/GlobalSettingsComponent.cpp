@@ -80,8 +80,8 @@ namespace
 					{
 					case VT_UNSCALED_4_3:	return "4:3 no overscan (640x448)";
 					case VT_SCALED_4_3:		return "4:3 overscan (658x460)";
-					case VT_FULLSCREEN:		return "Fullscreen (720x460)";
-					case VT_FULLSCREEN_HD:	return "Fullscreen HD (720x460)";
+					case VT_FULLSCREEN:		return "16:9 stretch (720x460)";
+					case VT_FULLSCREEN_HD:	return "16:9 (720x460)";
 					}
 					DAEDALUS_ERROR( "Unhandled viewport type" );
 					return "?";
@@ -92,8 +92,8 @@ namespace
 					{
 					case VT_UNSCALED_4_3:	return "4:3 no overscan (528x448)";
 					case VT_SCALED_4_3:		return "4:3 overscan (542x460)";
-					case VT_FULLSCREEN:		return "Fullscreen (720x460)";
-					case VT_FULLSCREEN_HD:	return "Fullscreen HD (720x460)";
+					case VT_FULLSCREEN:		return "16:9 stretch (720x460)";
+					case VT_FULLSCREEN_HD:	return "16:9 (720x460)";
 					}
 					DAEDALUS_ERROR( "Unhandled viewport type" );
 					return "?";
@@ -105,8 +105,8 @@ namespace
 				{
 				case VT_UNSCALED_4_3:	return "4:3 unscaled (320x240)";
 				case VT_SCALED_4_3:		return "4:3 scaled (362x272)";
-				case VT_FULLSCREEN:		return "Fullscreen (480x272)";
-				case VT_FULLSCREEN_HD:	return "Fullscreen HD (480x272)";
+				case VT_FULLSCREEN:		return "16:9 stretch (480x272)";
+				case VT_FULLSCREEN_HD:	return "16:9 (480x272)";
 				}
 				DAEDALUS_ERROR( "Unhandled viewport type" );
 				return "?";
