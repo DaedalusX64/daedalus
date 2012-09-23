@@ -105,25 +105,25 @@ static void WriteValue_8404_8404( u32 address, u32 value )
 	DPF( DEBUG_MEMORY_SP_REG, "Writing to SP_REG: 0x%08x/0x%08x", address, value );
 	u32 offset = address & 0xFF;
 
-	switch (SP_BASE_REG + offset)
+	switch (offset)
 	{
-	case SP_MEM_ADDR_REG:
-	case SP_DRAM_ADDR_REG:
-	case SP_SEMAPHORE_REG: //TODO - Make this do something?
+	case 0x0:	// SP_MEM_ADDR_REG
+	case 0x4:	// SP_DRAM_ADDR_REG
+	case 0x1c:	// SP_SEMAPHORE_REG TODO - Make this do something?
 		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_SP_REG] + offset) = value;
 		break;
 
-	case SP_RD_LEN_REG:
+	case 0x8:	//SP_RD_LEN_REG
 		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_SP_REG] + offset) = value;
 		DMA_SP_CopyFromRDRAM();
 		break;
 
-	case SP_WR_LEN_REG:
+	case 0xc:	//SP_WR_LEN_REG
 		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_SP_REG] + offset) = value;
 		DMA_SP_CopyToRDRAM();
 		break;
 
-	case SP_STATUS_REG:
+	case 0x10:	//SP_STATUS_REG
 		MemoryUpdateSPStatus( value );
 		break;
 /*
@@ -153,16 +153,16 @@ static void WriteValue_8410_841F( u32 address, u32 value )
 	DPF( DEBUG_MEMORY_DP, "Writing to DP_COMMAND_REG: 0x%08x", address );
 	u32 offset = address & 0xFF;
 
-	switch (DPC_BASE_REG + offset)
+	switch (offset)
 	{
-	case DPC_START_REG:
+	case 0x0:	// DPC_START_REG
 		// Write value to current reg too
 		Memory_DPC_SetRegister( DPC_START_REG, value );
 		Memory_DPC_SetRegister( DPC_CURRENT_REG, value );
 		//DBGConsole_Msg( 0, "Wrote to [WDPC_START_REG] 0x%08x", value );
 		break;
 
-	case DPC_END_REG:
+	case 0x4:	//DPC_END_REG
 		Memory_DPC_SetRegister( DPC_END_REG, value );
 		//
 		// ToDo : Implement ProcessRDPList (LLE DList)
@@ -172,7 +172,7 @@ static void WriteValue_8410_841F( u32 address, u32 value )
 		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_DP);	
 		break;
 
-	case DPC_STATUS_REG:
+	case 0xc:	//DPC_STATUS_REG
 		// Set flags etc
 		MemoryUpdateDP( value );
 		break;
@@ -229,11 +229,10 @@ static void WriteValue_8430_843F( u32 address, u32 value )
 //*****************************************************************************
 // 0x0440 0000 to 0x044F FFFF Video Interface (VI) Registers
 //*****************************************************************************
+#if 1	// This is out of spec but only writes to VI_CURRENT_REG do something.. /Salvy
 static void WriteValue_8440_844F( u32 address, u32 value )
 {
 	u32 offset = address & 0xFF;
-
-	// This is out of spec but only writes to VI_CURRENT_REG do something.. /Salvy
 	if( offset == 0x10 )
 	{
 		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_VI);
@@ -241,7 +240,14 @@ static void WriteValue_8440_844F( u32 address, u32 value )
 		return;
 	}
 
-	/*switch (offset)
+	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_VI_REG] + offset) = value;
+}
+#else
+static void WriteValue_8440_844F( u32 address, u32 value )
+{
+	u32 offset = address & 0xFF;
+
+	switch (offset)
 	{
 	case 0x0:	// VI_CONTROL_REG
 		DPF( DEBUG_VI, "VI_CONTROL_REG set to 0x%08x", value );
@@ -272,9 +278,10 @@ static void WriteValue_8440_844F( u32 address, u32 value )
 		R4300_Interrupt_UpdateCause3();
 		return;
 	}
-	*/
+
 	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_VI_REG] + offset) = value;
 }
+#endif
 
 //*****************************************************************************
 // 0x0450 0000 to 0x045F FFFF Audio Interface (AI) Registers
@@ -334,25 +341,26 @@ static void WriteValue_8450_845F( u32 address, u32 value )
 static void WriteValue_8460_846F( u32 address, u32 value )
 {
 	u32 offset = address & 0xFF;
-	switch (PI_BASE_REG + offset)
+	switch (offset)
 	{
-	case PI_DRAM_ADDR_REG:
-	case PI_CART_ADDR_REG:
+/*
+	case 0x0: // PI_DRAM_ADDR_REG
+	case 0x4: // PI_CART_ADDR_REG
 		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_PI_REG] + offset) = value;
 		break;
-
-	case PI_RD_LEN_REG:
+*/
+	case 0x8:	// PI_RD_LEN_REG
 		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_PI_REG] + offset) = value;
 		DMA_PI_CopyFromRDRAM();
 		break;
 
-	case PI_WR_LEN_REG:
+	case 0xc:	// PI_WR_LEN_REG
 		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_PI_REG] + offset) = value;
 		// Do memory transfer
 		DMA_PI_CopyToRDRAM();
 		break;
 
-	case PI_STATUS_REG:
+	case 0x10:	// PI_STATUS_REG
 		MemoryUpdatePI( value );
 		break;
 
@@ -381,27 +389,26 @@ static void WriteValue_8480_848F( u32 address, u32 value )
 	DPF( DEBUG_MEMORY_SI, "Writing to MEM_SI_REG: 0x%08x", address );
 
 	u32 offset = address & 0xFF;
-
-	switch (SI_BASE_REG + offset)
+	switch (offset)
 	{
-	case SI_DRAM_ADDR_REG:
+	case 0x0:	//SI_DRAM_ADDR_REG
 		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_SI_REG] + offset) = value;
 		break;
 			
-	case SI_PIF_ADDR_RD64B_REG:
+	case 0x4:	// SI_PIF_ADDR_RD64B_REG
 		// Trigger DRAM -> PIF DMA
 		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_SI_REG] + offset) = value;
 		DMA_SI_CopyToDRAM();
 		break;
 
 		// Reserved Registers here!
-	case SI_PIF_ADDR_WR64B_REG:
+	case 0x10:	//SI_PIF_ADDR_WR64B_REG
 		// Trigger DRAM -> PIF DMA
 		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_SI_REG] + offset) = value;
 		DMA_SI_CopyFromDRAM();
 		break;
 
-	case SI_STATUS_REG:	
+	case 0x18:	//SI_STATUS_REG
 		// Any write to this reg clears interrupts
 		Memory_SI_ClrRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
 		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_SI);

@@ -62,8 +62,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stddef.h>		// offsetof
 
-//#define DUMPOSFUNCTIONS
-
 #ifdef DUMPOSFUNCTIONS
 #include "Debug/dump.h"
 #include "Utility/IO.h"
@@ -96,7 +94,6 @@ static const char * g_szEventStrings[23] =
 };
 #endif	// DUMPOSFUNCTIONS
 
-u32 gCurrentLength;
 u32 gNumOfOSFunctions;
 
 #define TEST_DISABLE_FUNCS //return PATCH_RET_NOT_PROCESSED;
@@ -108,7 +105,7 @@ u32 gNumOfOSFunctions;
 #define PATCH_RET_ERET RET_JR_ERET()
 
 // Increase this number every time we changed the symbol table
-static const u32 MAGIC_HEADER = 0x80000140;
+static const u32 MAGIC_HEADER = 0x80000141;
 
 bool gPatchesApplied = false;
 
@@ -131,7 +128,6 @@ static u32  nPatchVariables;
 void Patch_Reset()
 {
 	gPatchesApplied = false;
-	gCurrentLength = 0;
 	gNumOfOSFunctions = 0;
 	Patch_ResetSymbolTable();
 }
@@ -1146,24 +1142,6 @@ static u32 ConvertToPhysics(u32 addr)
 #include "patch_vi_hle.inl"
 
 /////////////////////////////////////////////////////
-u32 Patch_osContInit()
-{
-TEST_DISABLE_FUNCS
-	//s32		osContInit(OSMesgQueue * mq, u8 *, OSContStatus * cs);
-#ifdef DAEDALUS_DEBUG_CONSOLE
-	u32 mq       = gGPR[REG_a0]._u32_0;
-	u32 attached = gGPR[REG_a1]._u32_0;
-	u32 cs       = gGPR[REG_a2]._u32_0;
-	use(mq);
-	use(attached);
-	use(cs);
-
-	DBGConsole_Msg(0, "osContInit(0x%08x, 0x%08x, 0x%08x), ra = 0x%08x",
-		mq, attached, cs, gGPR[REG_ra]._u32_0);
-#endif
-
-	return PATCH_RET_NOT_PROCESSED;
-}
 
 u32 Patch___osContAddressCrc()
 {
@@ -1183,7 +1161,13 @@ u32 Patch___osPackRequestData()
 
 u32 Patch_osSetIntMask()
 {
-	return PATCH_RET_NOT_PROCESSED;
+	u32 flag   = gGPR[REG_a0]._u32_0;
+	u32 thread = Read32Bits(VAR_ADDRESS(osActiveThread));
+	printf("%08x\n", flag );
+
+
+	Write32Bits(thread + offsetof(OSThread, context.rcp), flag);
+	return PATCH_RET_JR_RA;
 }
 u32 Patch___osEepromRead_Prepare()
 {

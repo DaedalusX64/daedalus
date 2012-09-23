@@ -135,7 +135,7 @@ u32 Patch___osSpSetStatus_Mario()
 {
 TEST_DISABLE_SP_FUNCS
 	u32 status = gGPR[REG_a0]._u32_0;
-
+	
 	MemoryUpdateSPStatus( status );
 	return PATCH_RET_JR_RA;
 }
@@ -203,6 +203,8 @@ TEST_DISABLE_SP_FUNCS
 	OSTask * pSrcTask = (OSTask *)ReadAddress(task);
 	OSTask * pDstTask = (OSTask *)ReadAddress(temp);
 
+
+
 	// Translate virtual addresses to physical...
 	memcpy_vfpu_BE(pDstTask, pSrcTask, sizeof(OSTask));
 	
@@ -226,7 +228,7 @@ TEST_DISABLE_SP_FUNCS
 	
 	if (pDstTask->t.yield_data_ptr != 0)
 		pDstTask->t.yield_data_ptr = (u64 *)ConvertToPhysics((u32)pDstTask->t.yield_data_ptr);
-	
+
 	// If yielded, use the yield data info
 	if (pSrcTask->t.flags & OS_TASK_YIELDED)
 	{
@@ -320,6 +322,7 @@ TEST_DISABLE_SP_FUNCS
 u32 Patch_osSpTaskYield_Mario()
 {
 TEST_DISABLE_SP_FUNCS
+
 	gGPR[REG_v0]._u32_0 = 0;
 	return PATCH_RET_JR_RA;
 }
@@ -330,6 +333,7 @@ TEST_DISABLE_SP_FUNCS
 u32 Patch_osSpTaskYield_Rugrats()
 {
 TEST_DISABLE_SP_FUNCS
+
 	gGPR[REG_v0]._u32_0 = 0;
 	return PATCH_RET_JR_RA;
 }
@@ -337,11 +341,13 @@ TEST_DISABLE_SP_FUNCS
 //*****************************************************************************
 //
 //*****************************************************************************
+// Yoshi uses this
 u32 Patch_osSpTaskYielded()
 {
 TEST_DISABLE_SP_FUNCS
-	// Hack, always assume that it successfully yielded
-	gGPR[REG_v0]._u32_0 = OS_TASK_YIELDED;
+
+	OSTask * pSrcTask = (OSTask *)ReadAddress(gGPR[REG_a0]._u32_0);
+
+	gGPR[REG_v0]._u32_0 = (pSrcTask->t.flags & OS_TASK_YIELDED);
 	return PATCH_RET_JR_RA;
 }
-

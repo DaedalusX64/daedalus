@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/CPU.h"		// Breakpoint stuff
 #include "ultra_R4300.h"
 
+//#define DUMPOSFUNCTIONS
+
 // Returns return type to determine what kind of post-processing should occur
 typedef u32 (*PatchFunction)();
 
