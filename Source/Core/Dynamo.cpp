@@ -398,7 +398,7 @@ void CPU_UpdateTrace( u32 address, OpCode op_code, bool branch_delay_slot, bool 
 		DAEDALUS_ASSERT( gTraceRecorder.IsTraceActive(), "The trace should still be enabled" );
 	}
 }
-extern u32 gNunRectsClipped;
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -504,7 +504,6 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 					} 
 					else if( trace_count == gHotTraceThreshold )
 					{	
-						++gNunRectsClipped;
 						//DBGConsole_Msg( 0, "Identified hot trace at [R%08x]! (size is %d)", gCPUState.CurrentPC, gHotTraceCountMap.size() );
 						gTraceRecorder.StartTrace( gCPUState.CurrentPC );
 
