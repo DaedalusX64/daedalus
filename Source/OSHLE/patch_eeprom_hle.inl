@@ -40,6 +40,36 @@ TEST_DISABLE_EEPROM_FUNCS
 	return PATCH_RET_JR_RA;
 }
 
+u32 Patch_osContInit()
+{
+TEST_DISABLE_FUNCS
+	//s32		osContInit(OSMesgQueue * mq, u8 *, OSContStatus * cs);
+
+	// a0 is the message queue to block on, and is ignored
+/*
+	u32 mq       = gGPR[REG_a0]._u32_0;
+	u32 attached = gGPR[REG_a1]._u32_0;
+	u32 cs       = gGPR[REG_a2]._u32_0;
+
+	for(u32 i=0;i<6;i++)
+    {
+        Write32Bits(cs+i*4,0);
+    }
+	
+	Write32Bits(cs+0,CONT_ABSOLUTE);
+    if(attached) 
+		Write8Bits(attached,1);
+
+	printf("osContInit(0x%08x, 0x%08x, 0x%08x), ra = 0x%08x\n",
+		mq, attached, cs, gGPR[REG_ra]._u32_0);
+
+
+	gGPR[REG_v0]._u64 = 0;
+*/
+	return PATCH_RET_JR_RA;
+}
+
+
 //*****************************************************************************
 //
 //*****************************************************************************
