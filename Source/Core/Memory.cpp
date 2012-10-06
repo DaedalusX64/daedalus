@@ -357,15 +357,14 @@ void Memory_InitTables()
 		g_MemoryLookupTableWrite[i].WriteFunc	= WriteValueMapped;
 	}
 
-	// This returns NULL if Rom isn't loaded or Rom base isn't fixed
-	const void *	rom_address;
-	if(RomBuffer::IsRomLoaded() && RomBuffer::IsRomAddressFixed())
-		rom_address = RomBuffer::GetFixedRomBaseAddress();
-	else
-		rom_address = NULL;
+	
+	bool RomBaseKnown = RomBuffer::IsRomLoaded() && RomBuffer::IsRomAddressFixed();
 
-	u32	rom_size( RomBuffer::GetRomSize() );
-	u32 ram_size( gRamSize );
+	// This returns NULL if Rom isn't loaded or Rom base isn't fixed
+	const void *	rom_address( RomBaseKnown ? RomBuffer::GetFixedRomBaseAddress() : NULL );
+
+	u32				rom_size( RomBuffer::GetRomSize() );
+	u32				ram_size( gRamSize );
 
 	DBGConsole_Msg(0, "Initialising %s main memory", (ram_size == MEMORY_8_MEG) ? "8Mb" : "4Mb");
 
@@ -527,9 +526,11 @@ void Memory_InitTables()
 		WriteValue_8480_848F
 	);
 
+	// Ignore C1A1 and C2A1
+	// As a matter of fact handling C2A1 breaks Pokemon Stadium 1 and F-Zero U
 
 	// Cartridge Domain 2 Address 1 (SRAM)
-	Memory_InitFunc
+	/*Memory_InitFunc
 	( 
 		MEMORY_START_C2A1, 
 		MEMORY_SIZE_C2A1, 
@@ -537,10 +538,10 @@ void Memory_InitTables()
 		NULL,
 		ReadInvalid, 
 		WriteValueInvalid
-	);
-
+	);*/
+	
 	// Cartridge Domain 1 Address 1 (SRAM)
-	Memory_InitFunc
+	/*Memory_InitFunc
 	( 
 		MEMORY_START_C1A1, 
 		MEMORY_SIZE_C1A1,
@@ -548,10 +549,10 @@ void Memory_InitTables()
 		NULL,
 		ReadInvalid, 
 		WriteValueInvalid
-	);
+	);*/
 
 	// GIO reg (basically in the same segment as C1A1..)
-	Memory_InitFunc
+	/*Memory_InitFunc
 	( 
 		MEMORY_START_GIO,
 		MEMORY_SIZE_GIO_REG,
@@ -560,6 +561,7 @@ void Memory_InitTables()
 		ReadInvalid, 
 		WriteValueInvalid
 	);
+	*/
 
 	// PIF Reg
 	Memory_InitFunc

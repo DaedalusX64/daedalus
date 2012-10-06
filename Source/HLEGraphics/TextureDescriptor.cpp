@@ -121,7 +121,7 @@ const void *	TextureInfo::GetPalettePtr() const
 //*************************************************************************************
 //
 //*************************************************************************************
-u32	TextureInfo::GetWidthInBytes() const
+inline u32	TextureInfo::GetWidthInBytes() const
 {
 	return pixels2bytes( Width, Size );
 }
@@ -165,17 +165,20 @@ u32 TextureInfo::GenerateHashValue() const
 	//We want to sample the texture data as far apart as possible
 	if (step < (CHK_ROW << 2))	//if texture is small hash all of it
 	{
-		for (u32 z = 0; z < step; z++) hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ ptr_u32[z];
+		for (u32 z = 0; z < step; z++) 
+		{
+			hash_value = (hash_value << 4) + hash_value + ptr_u32[z];
+		}
 	}
 	else	//if texture is big, hash only some parts inside it
 	{
 		step = (step - 4) / CHK_ROW;
 		for (u32 y = 0; y < CHK_ROW; y++)
 		{
-			hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ ptr_u32[0];
-			hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ ptr_u32[1];
-			hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ ptr_u32[2];
-			hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ ptr_u32[3];
+			hash_value = (hash_value << 4) + hash_value + ptr_u32[0];
+			hash_value = (hash_value << 4) + hash_value + ptr_u32[1];
+			hash_value = (hash_value << 4) + hash_value + ptr_u32[2];
+			hash_value = (hash_value << 4) + hash_value + ptr_u32[3];
 			ptr_u32 += step;
 		}
 	}
@@ -237,11 +240,10 @@ u32 TextureInfo::GenerateHashValue() const
 	return hash_value;
 }
 #endif
+
 //*************************************************************************************
 //
 //*************************************************************************************
-ETextureFormat	TextureInfo::SelectNativeFormat() const
-{
 #define DEFTEX	TexFmt_8888
 
 const ETextureFormat TFmt[ 32 ] = 
@@ -257,5 +259,10 @@ const ETextureFormat TFmt[ 32 ] =
 	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX				// ?			
 };
 
-return (g_ROM.T1_HACK && ((Format << 2) | Size) == 2) ? TexFmt_4444 : TFmt[(Format << 2) | Size];
+//*************************************************************************************
+//
+//*************************************************************************************
+ETextureFormat	TextureInfo::SelectNativeFormat() const
+{
+	return (g_ROM.T1_HACK && ((Format << 2) | Size) == 2) ? TexFmt_4444 : TFmt[(Format << 2) | Size];
 }

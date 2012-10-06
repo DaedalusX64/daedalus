@@ -753,11 +753,8 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 			}
 
 			u32 tcc( GU_TCC_RGBA );
-			switch( out.BlendAlphaMode )
-			{
-			case PBAM_RGBA:			tcc = GU_TCC_RGBA; break;
-			case PBAM_RGB:			tcc = GU_TCC_RGB; break;
-			}
+			if( out.BlendAlphaMode == PBAM_RGB )	
+				tcc = GU_TCC_RGB;
 
 			sceGuTexFunc( tfx, tcc );
 
@@ -768,10 +765,8 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 
 				if( install_texture1 & mTnL.Flags.Texture && (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
 				{
-					v2 offset = -mTileTopLeft[ 1 ];
-					v2 scale = mTileScale[ 1 ];
-					sceGuTexOffset( offset.x * scale.x, offset.y * scale.y );
-					sceGuTexScale( scale.x, scale.y );
+					sceGuTexOffset( -mTileTopLeft[ 1 ].x * mTileScale[ 1 ].x, -mTileTopLeft[ 1 ].y * mTileScale[ 1 ].y );
+					sceGuTexScale( mTileScale[ 1 ].x, mTileScale[ 1 ].y );
 				}
 			}
 			else
@@ -782,16 +777,16 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 
 			if( mpTexture[texture_idx] != NULL )
 			{
-				CRefPtr<CNativeTexture> texture;
+				const CRefPtr<CNativeTexture> texture( mpTexture[ texture_idx ]->GetTexture() );
 
-				if(out.MakeTextureWhite)
+				/*if(out.MakeTextureWhite)
 				{
 					texture = mpTexture[ texture_idx ]->GetRecolouredTexture( c32::White );
 				}
 				else
 				{
 					texture = mpTexture[ texture_idx ]->GetTexture();
-				}
+				}*/
 
 				if(texture != NULL)
 				{

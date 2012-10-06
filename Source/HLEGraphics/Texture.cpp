@@ -649,7 +649,7 @@ bool	CTexture::HasExpired() const
 
 	//Otherwise we wait 10+random(0-3) frames before trashing the texture if unused
 	//Spread trashing them over time so not all get killed at once (lower value uses less VRAM) //Corn
-	return gRDPFrame - mFrameLastUsed > (10 + (pspFastRand() & 0x3)); 
+	return gRDPFrame - mFrameLastUsed > (20 + (pspFastRand() & 0x3)); 
 }
 
 //*****************************************************************************
