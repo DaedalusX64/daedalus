@@ -126,10 +126,11 @@ inline void DLParser_GBI1_Sprite2DDraw( MicroCodeCommand command )
 	if(g_Sprite2DInfo.spritePtr->SubImageWidth == 0)
 	{
 		DAEDALUS_ERROR("Hack: Width is 0. Skipping Sprite2DDraw");
-		g_Sprite2DInfo.spritePtr = 0;
+		//g_Sprite2DInfo.spritePtr = 0;
 		return;
 	}
 
+	// ToDO : Cache ti state as Sprite2D is mostly used for static BGs
 	TextureInfo ti;
 
 	ti.SetFormat            (g_Sprite2DInfo.spritePtr->SourceImageType);
@@ -141,9 +142,15 @@ inline void DLParser_GBI1_Sprite2DDraw( MicroCodeCommand command )
 	ti.SetHeight            (g_Sprite2DInfo.spritePtr->SubImageHeight);
 	ti.SetPitch             (g_Sprite2DInfo.spritePtr->Stride << ti.GetSize() >> 1);
 
-	ti.SetSwapped           (0);
-
+	ti.SetSwapped           (false);
+#ifndef DAEDALUS_TMEM
+	// This is completely wrong. Index should be 0, and not tlut pointer addr!
 	ti.SetTLutIndex        ((u32)(g_pu8RamBase+RDPSegAddr(g_Sprite2DInfo.spritePtr->TlutPointer)));
+#else
+	// Proper way, sets tlut index and pointer addr correctly which fixes palette issues in Wipeout
+	ti.SetTLutIndex        (0);
+	ti.SetTlutAddress      ((u32)(g_pu8RamBase+RDPSegAddr(g_Sprite2DInfo.spritePtr->TlutPointer)));
+#endif
 	ti.SetTLutFormat       (2 << 14);  //RGBA16 
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );

@@ -217,10 +217,15 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 #endif
 
 		ti.SetTmemAddress( rdp_tile.tmem );
-
-		// Fix for Harvest Moon 64, if pixel size is 8b force palette to index 0 (Hopefully won't mess up anything)
+#ifndef DAEDALUS_TMEM
+		// Hack for Harvest Moon 64, if pixel size is 8b force palette to index 0 (Hopefully won't mess up anything)
 		ti.SetTLutIndex( rdp_tile.size == G_IM_SIZ_8b ? 0 : rdp_tile.palette); 
-
+#else
+		// Proper way, doesn't need Harvest Moon hack, Nb. 4b check is for Majora's Mask
+		u32 tlut( (u32)(&gTextureMemory[0]) );
+		ti.SetTLutIndex( rdp_tile.palette ); 
+		ti.SetTlutAddress( rdp_tile.size == G_IM_SIZ_4b ? tlut + 16  * 2 * rdp_tile.palette : tlut );
+#endif
 		ti.SetLoadAddress( address );
 		ti.SetFormat( rdp_tile.format );
 		ti.SetSize( rdp_tile.size );

@@ -1058,24 +1058,29 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	u32 tile_idx= command.loadtile.tile;
 	u32 address = (u32)g_pu8RamBase + g_TI.Address + ((uls + ult * g_TI.Width) << 1);
 
-	//This corresponds to the number of palette entries (16 or 256) 16bit
-	//Seems partial load of palette is allowed -> count != 16 or 256 (MM, SSB, Starfox64, MRC) //Corn
-	u32 count = (lrs - uls) + 1;
-	use(count);
-
 	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tile_idx ) );
 
 #ifndef DAEDALUS_TMEM
 	//Store address of PAL (assuming PAL is only stored in upper half of TMEM) //Corn
 	gTextureMemory[ (rdp_tile.tmem>>2) & 0x3F ] = (u32*)address;
 #else
+	//This corresponds to the number of palette entries (16 or 256) 16bit
+	//Seems partial load of palette is allowed -> count != 16 or 256 (MM, SSB, Starfox64, MRC) //Corn
+	u32 count = (lrs - uls) + 1;
+	u32 offset = rdp_tile.tmem - 256;				// starting location in the palettes
+	DAEDALUS_ASSERT( count > 0x100, "Check me: TMEM" ); 
+
 	//Copy PAL to the PAL memory
 	u16 * p_source = (u16*)address;
-	u16 * p_dest   = (u16*)&gTextureMemory[ rdp_tile.tmem << 1 ];
+
+	for (u32 i=0; i<count; i++)
+	{
+		gTextureMemory[(i+offset)^1] = p_source[i^1];
+	}
 
 	//printf("Addr %08X : TMEM %03X : Tile %d : PAL %d\n",address, tmem, tile_idx, count); 
 
-	memcpy_vfpu_BE(p_dest, p_source, count << 1);	//for (u32 i=0; i<count; i++) p_dest[ i ] = p_source[ i ];
+	//memcpy_vfpu_BE(p_dest, p_source, count << 1);	//for (u32 i=0; i<count; i++) p_dest[ i ] = p_source[ i ];
 #endif
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -1086,7 +1091,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 
 	// This code dumps the palette colors
 	//
-	#if 0
+#if 0
 	if (gDisplayListFile != NULL)
 	{
 		char str[300] = "";
@@ -1113,9 +1118,10 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 		}
 		DL_PF(str);
 	}
-	#endif
+#endif
 #endif
 }
+
 
 //*****************************************************************************
 //

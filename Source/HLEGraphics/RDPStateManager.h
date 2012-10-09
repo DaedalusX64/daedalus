@@ -51,14 +51,7 @@ public:
 
 	const TextureInfo &				GetTextureDescriptor( const u32 idx ) const;
 
-private:
-	void							InvalidateAllTileTextureInfo();
-
-private:
-	RDP_Tile				mTiles[ 8 ];
-	RDP_TileSize			mTileSizes[ 8 ];
-
-	struct SLoadDetails
+		struct SLoadDetails
 	{
 		SImageDescriptor	Image;
 		RDP_TileSize		TileSize;
@@ -72,11 +65,16 @@ private:
 	typedef	std::map< u32, SLoadDetails > LoadDetailsMap;
 	LoadDetailsMap			mLoadMap;
 
+private:
+	void							InvalidateAllTileTextureInfo();
+
+private:
+	RDP_Tile				mTiles[ 8 ];
+	RDP_TileSize			mTileSizes[ 8 ];
+
+
 	mutable TextureInfo		mTileTextureInfo[ 8 ];
 	mutable bool			mTileTextureInfoValid[ 8 ];		// Set to false if this needs rebuilding
-
-	mutable u32				mNumReused;
-	mutable u32				mNumLoaded;
 };
 
 extern CRDPStateManager		gRDPStateManager;

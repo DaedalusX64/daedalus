@@ -440,7 +440,7 @@ extern RDP_OtherMode		gRDPOtherMode;
 #ifndef DAEDALUS_TMEM
 extern u32* gTextureMemory[ 4096 >> 6 ];
 #else
-extern u32 gTextureMemory[ 4096 >> 2 ];
+extern u16 gTextureMemory[];
 #endif
 
 

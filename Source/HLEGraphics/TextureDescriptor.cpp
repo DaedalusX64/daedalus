@@ -113,8 +113,8 @@ const void *	TextureInfo::GetPalettePtr() const
 		else return (void *)gTextureMemory[ TLutIndex ];
 	}
 #else
-
-	return (void *)&gTextureMemory[ 0x200 + (TLutIndex << (g_ROM.TLUT_HACK ? 5 : 3)) ];
+	// Proper way, doesn't need TLUT hack, Can't return NULL, and can be modified by Sprite2D and S2DEX
+	return (void *)TlutAddress;
 #endif
 }
 

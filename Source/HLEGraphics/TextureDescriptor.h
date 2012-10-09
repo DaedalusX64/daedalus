@@ -33,6 +33,7 @@ private:
 	u32			Pitch;
 
 	u32			TmemAddress;
+	u32			TlutAddress;	// ATM only used when DAEDALUS_TMEM is defined
 	u32			TLutIndex : 4;
 	u32			Format : 3;		// e.g. RGBA, YUV, CI, IA, I...
 	u32			Size : 2;		// e.g. 16bpp
@@ -62,6 +63,7 @@ public:
 
 	const void *			GetPalettePtr() const;
 	inline u32				GetLoadAddress() const			{ return LoadAddress; }
+	inline u32				GetTlutddress() const			{ return TlutAddress; }
 	inline u32				GetTmemAddress() const			{ return TmemAddress; }
 	inline u32				GetFormat() const				{ return Format; }
 	inline u32				GetSize() const					{ return Size; }
@@ -70,11 +72,13 @@ public:
 	inline u32				GetPitch() const				{ return Pitch; }
 	u32						GetTLutFormat() const;
 	inline u32				GetTLutIndex() const			{ return TLutIndex; }
+	inline u32				GetTLut() const			{ return TLutFmt; }
 	inline bool				IsSwapped() const				{ return Swapped; }
 	inline bool				GetMirrorS() const				{ return MirrorS; }
 	inline bool				GetMirrorT() const				{ return MirrorT; }
 
 	inline void				SetLoadAddress( u32 address )	{ LoadAddress = address; }
+	inline void				SetTlutAddress( u32 address )	{ TlutAddress = address; }
 	inline void				SetTmemAddress( u32 address )	{ TmemAddress = address; }
 	inline void				SetFormat( u32 format )			{ Format = format; }
 	inline void				SetSize( u32 size )				{ Size = size; }
