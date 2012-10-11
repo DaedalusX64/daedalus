@@ -50,7 +50,6 @@ struct Sprite2DInfo
     u8  flipY;
 };
 
-CRefPtr<CTexture>	mpTextures;
 Sprite2DInfo g_Sprite2DInfo;
 //*****************************************************************************
 //
@@ -80,8 +79,7 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, u32 address )
 	// TODO : Find a workaround to remove this hack..
 	if(sprite->width == 0)
 	{
-		DAEDALUS_ERROR("Hack: Width is 0. Skipping Sprite2DDraw\n");
-		//g_Sprite2DInfo.spritePtr = 0;
+		DAEDALUS_ERROR("Hack: Width is 0. Skipping Sprite2DDraw");
 		return;
 	}
 
@@ -131,24 +129,16 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, u32 address )
 	// Wipeout sets this, doesn't seem to do anything?
 	/*if( g_Sprite2DInfo.flipX )
 	{
-		frameX = px + int(sprite->width*g_Sprite2DInfo.scaleX);
-		frameW = px;
-	}
-	else
-	{
-		frameX = px;
-		frameW = px + int(sprite->width*g_Sprite2DInfo.scaleX);
+		int temp = frameX;
+		frameX = frameW;
+		frameW = temp;
 	}
 
 	if( g_Sprite2DInfo.flipY )
 	{
-		frameY = py + int(sprite->height*g_Sprite2DInfo.scaleY);
-		frameH = py;
-	}
-	else
-	{
-		frameY = py;
-		frameH = py + int(sprite->height*g_Sprite2DInfo.scaleY);
+		int temp = frameY;
+		frameY = frameH;
+		frameH = temp;
 	}*/
 
 	PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );

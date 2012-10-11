@@ -240,14 +240,14 @@ enum ESpriteMode
 };
 
 uObjTxtr *gObjTxtr = NULL;
-CRefPtr<CTexture>	mpTexture;
 //*****************************************************************************
 //
 //*****************************************************************************
 void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 {
 	TextureInfo ti;
-	
+	static CRefPtr<CTexture> mpTexture;
+
 	if( txtr == NULL )
 	{
 		ti = gRDPStateManager.GetTextureDescriptor( PSPRenderer::Get()->GetTextureTile() );
@@ -278,11 +278,12 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 		ti.SetTLutIndex        (sprite->imagePal);
 		ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
 		ti.SetTLutFormat       (2 << 14);  //RGBA16 
+	}
 
-		if( (mpTexture != NULL) && (mpTexture->GetTextureInfo() == ti) )	
-		{
-			return;
-		}
+	
+	if( (mpTexture != NULL) && (mpTexture->GetTextureInfo() == ti) )	
+	{
+		return;
 	}
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
