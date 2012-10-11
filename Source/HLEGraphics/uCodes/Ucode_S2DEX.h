@@ -250,15 +250,13 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 	
 	if( txtr == NULL )
 	{
-		u32 idx = PSPRenderer::Get()->GetTextureTile();
-		ti = gRDPStateManager.GetTextureDescriptor( idx );
+		ti = gRDPStateManager.GetTextureDescriptor( PSPRenderer::Get()->GetTextureTile() );
 	}
 	else
 	{
 		ti.SetFormat           (sprite->imageFmt);
 		ti.SetSize             (sprite->imageSiz);
-
-		ti.SetLoadAddress      ( RDPSegAddr(txtr->block.image) + (sprite->imageAdrs<<3) );
+		ti.SetLoadAddress      (RDPSegAddr(txtr->block.image) + (sprite->imageAdrs<<3) ;
 
 		switch( txtr->block.type )
 		{
@@ -270,25 +268,26 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 			ti.SetPitch			   ( (2047/(txtr->block.tline-1)) << 3 );
 			break;
 		case S2DEX_OBJLT_TXTRTILE:
-			ti.SetWidth            (((txtr->tile.twidth+1)>>2)<<(4-ti.GetSize()));
+			ti.SetWidth            (((txtr->tile.twidth+1)>>2)<<(4-sprite->imageSiz));
 			ti.SetHeight           ((txtr->tile.theight+1)>>2);
-			ti.SetPitch			   ( (ti.GetSize() == G_IM_SIZ_4b) ? (ti.GetWidth() >> 1) : (ti.GetWidth() << (ti.GetSize()-1)) );
+			ti.SetPitch			   ( (sprite->imageSiz == G_IM_SIZ_4b) ? (ti.GetWidth() >> 1) : (ti.GetWidth() << (sprite->imageSiz-1)) );
 			break;
 		}
 
 		ti.SetSwapped          (0);
 		ti.SetTLutIndex        (sprite->imagePal);
+		ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
 		ti.SetTLutFormat       (2 << 14);  //RGBA16 
-	}
 
-	if( (mpTexture != NULL) && (mpTexture->GetTextureInfo() == ti) )	
-	{
-		return;
+		if( (mpTexture != NULL) && (mpTexture->GetTextureInfo() == ti) )	
+		{
+			return;
+		}
 	}
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
-	mpTexture			  = texture;
-
+	mpTexture = texture;
+	
 	texture->GetTexture()->InstallTexture();
 	texture->UpdateIfNecessary();
 }
@@ -310,24 +309,6 @@ void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
 	f32 objW = imageW / scaleW + objX;
 	f32 objH = imageH / scaleH + objY;
 
-	// Not needed for Partial Rotation, Need to find a game that uses this..
-/*
-	// flip X 
-	if( sprite->imageFlags&1 )
-	{ 
-		f32 temp = objX;
-		objX = objW; 
-		objW = temp;	
-	} 
-
-	// flip Y
-	if( sprite->imageFlags&0x10 )
-	{ 
-		f32 temp = objY; 
-		objY = objH; 
-		objH = temp; 
-	} 
-*/
 	f32  x0, y0, x1, y1, x2, y2, x3, y3;
 
 	switch( mode )
@@ -360,6 +341,22 @@ void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
 		x1 = objW - 1.0f;
 		y1 = objH - 1.0f;
 
+		// Worms sets this, but for some reason it doesn't fix the sprite being flippped :/
+		/*if( sprite->imageFlags&1 )
+		{
+			float temp = x0;
+			x0 = x1;
+			x1 = temp;
+		}
+
+		if( sprite->imageFlags&0x10 )
+		{
+			float temp = y0;
+			y0 = y1;
+			y1 = temp;
+		}*/
+
+
 		PSPRenderer::Get()->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
 		break;
 	}
@@ -372,10 +369,7 @@ void DLParser_S2DEX_ObjSprite( MicroCodeCommand command )
 {	
 	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	// Load object sprite with LoadBlock/LoadTile
 	Load_ObjSprite( sprite, NULL );
-
-	// Draw object sprite with full rotation
 	Draw_ObjSprite( sprite, FULL_ROTATION );
 
 }
@@ -389,10 +383,7 @@ void DLParser_S2DEX_ObjRectangle( MicroCodeCommand command )
 {	
 	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	// Load object sprite with ObjTxtr or LoadBlock/LoadTile!
 	Load_ObjSprite( sprite, gObjTxtr );
-
-	// Draw object sprite with no rotation
 	Draw_ObjSprite( sprite, NO_ROTATION );
 }
 
@@ -404,10 +395,7 @@ void DLParser_S2DEX_ObjRectangleR( MicroCodeCommand command )
 {	
 	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	// Load object sprite with ObjTxtr or LoadBlock/LoadTile!
 	Load_ObjSprite( sprite, gObjTxtr );
-
-	// Draw object sprite with partial rotation
 	Draw_ObjSprite( sprite, PARTIAL_ROTATION );
 }
 
@@ -419,10 +407,7 @@ void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 {	
 	uObjTxSprite *sprite = (uObjTxSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	// Load object sprite with ObjTxtr
 	Load_ObjSprite( &sprite->sprite, &sprite->txtr );
-
-	// Draw object sprite with full rotation
 	Draw_ObjSprite( &sprite->sprite, FULL_ROTATION );
 }
 
@@ -434,10 +419,7 @@ void DLParser_S2DEX_ObjLdtxRect( MicroCodeCommand command )
 {	
 	uObjTxSprite *sprite = (uObjTxSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	// Load object sprite with object texture
 	Load_ObjSprite( &sprite->sprite, &sprite->txtr );
-
-	// Draw object sprite with no rotation
 	Draw_ObjSprite( &sprite->sprite, NO_ROTATION );
 }
 
@@ -449,10 +431,7 @@ void DLParser_S2DEX_ObjLdtxRectR( MicroCodeCommand command )
 {	
 	uObjTxSprite *sprite = (uObjTxSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	// Load object sprite with object texture
 	Load_ObjSprite( &sprite->sprite, &sprite->txtr );
-
-	// Draw object sprite with partial rotation
 	Draw_ObjSprite( &sprite->sprite, PARTIAL_ROTATION );
 }
 
@@ -486,7 +465,7 @@ void DLParser_S2DEX_ObjMoveMem( MicroCodeCommand command )
 		mat2D.BaseScaleY = sub->BaseScaleY/1024.0f;
 	}
 }
-
+\
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -501,13 +480,25 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 		gTextureMemory[ (ObjTxtr->tlut.phead>>2) & 0x3F ] = (u32*)(g_pu8RamBase + RDPSegAddr(ObjTxtr->tlut.image));
 #else
 		uObjTxtrTLUT *ObjTlut = (uObjTxtrTLUT*)ObjTxtr;
-		u32 ObjTlutAddr = (u32)(g_pu8RamBase + RDPSegAddr(ObjTlut->image));
+		u32 ObjTlutAddr = (u32)(RDPSegAddr(ObjTlut->image));
 
 		// Copy TLUT
-		u32 size = (ObjTlut->pnum & 0xFF) + 1;
-		u32 offset = ObjTlut->phead;
+		//u32 size = (ObjTlut->pnum & 0xFF) + 1;
+		//u32 offset = ObjTlut->phead;
 
-		memcpy_vfpu_BE((void *)&gTextureMemory[ (offset << 1) & 0x3FF ], (void *)ObjTlutAddr, (size << 1));
+		u32 addr	= ObjTlutAddr;
+		u32 size	= ObjTlut->pnum+1;
+		u32 offset  = ObjTlut->phead-0x100;
+
+		DAEDALUS_ASSERT( offset+size > 0x100, "Check me: TMEM" ); 
+
+		for( u32 i=offset; i<offset+size; i++ )
+		{
+			gTextureMemory[i^1] = (*(u16 *)(((addr)^2)+g_pu8RamBase));
+			addr += 2;
+		}
+
+		//memcpy_vfpu_BE((void *)&gTextureMemory[ (offset << 1) & 0x3FF ], (void *)ObjTlutAddr, (size << 1));
 
 		//printf("Source[%p] TMEM[%d] Size[%d]\n",(u32*)ObjTlutAddr , (offset << 1) & 0x3FF, (size << 1));
 #endif
@@ -644,11 +635,12 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 	ti.SetLoadAddress      (RDPSegAddr(objBg->imagePtr));
 	ti.SetWidth            (imageW);
 	ti.SetHeight           (imageH);
-	ti.SetPitch			   (((imageW << ti.GetSize() >> 1)>>3)<<3); //force 8-bit alignment, this what sets our correct viewport.
+	ti.SetPitch			   (((imageW << objBg->imageSiz >> 1)>>3)<<3); //force 8-bit alignment
 
 	ti.SetSwapped          (0);
 
 	ti.SetTLutIndex        (objBg->imagePal);
+	ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
 	ti.SetTLutFormat       (2 << 14);  //RGBA16 
 
 
@@ -707,6 +699,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 	ti.SetSwapped          (0);
 
 	ti.SetTLutIndex        (objBg->imagePal);
+	ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
 	ti.SetTLutFormat       (2 << 14);  //RGBA16 >> (2 << G_MDSFT_TEXTLUT)
 
 

@@ -23,87 +23,43 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 // Needed by Sprite2D
 //*****************************************************************************
-
-struct SpriteStruct
+struct Sprite2DStruct
 {
-  u32 SourceImagePointer;
-  u32 TlutPointer;
+	u32 address;
+	u32 tlut;
 
-  u16 SubImageWidth;
-  u16 Stride;
+	u16 width;
+	u16 stride;
 
-  u8  SourceImageBitSize;
-  u8  SourceImageType;
-  u16 SubImageHeight;
+	u8  size;
+	u8  format;
+	u16 height;
 
-  u16 SourceImageOffsetT;
-  u16 SourceImageOffsetS;
+	u16 imageY;
+	u16 imageX;
 
-  char  dummy[4];
+	char dummy[4];
 };
-
-//*****************************************************************************
-// 
-//*****************************************************************************
 
 struct Sprite2DInfo
 {
-    u16 px;
-    u16 py;
     f32 scaleX;
     f32 scaleY;
+
     u8  flipX;
     u8  flipY;
-    SpriteStruct *spritePtr;
 };
 
-
+CRefPtr<CTexture>	mpTextures;
 Sprite2DInfo g_Sprite2DInfo;
 //*****************************************************************************
 //
 //*****************************************************************************
-// Used by Flying Dragon
-void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
-{
-    u32 address = RDPSegAddr(command.dlist.addr) & (MAX_RAM_ADDRESS-1);
-    g_Sprite2DInfo.spritePtr = (SpriteStruct *)(g_ps8RamBase + address);
-
-	//
-	// Fetch the next instruction (Scaleflip)
-	//
-	DLParser_FetchNextCommand(&command);
-
-	if( command.inst.cmd == G_GBI1_SPRITE2D_SCALEFLIP )
-	{
-		DLParser_GBI1_Sprite2DScaleFlip( command );
-	}
-	//
-	// Fetch the next instruction (Draw)
-	//
-	DLParser_FetchNextCommand(&command);
-
-	if( command.inst.cmd == G_GBI1_SPRITE2D_DRAW )
-	{
-		DLParser_GBI1_Sprite2DDraw( command );
-	}
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-inline void DLParser_GBI1_Sprite2DScaleFlip( MicroCodeCommand command )
+inline void DLParser_Sprite2DScaleFlip( MicroCodeCommand command )
 {
 	g_Sprite2DInfo.scaleX = (((command.inst.cmd1)>>16)   &0xFFFF)/1024.0f;
 	g_Sprite2DInfo.scaleY = ( (command.inst.cmd1)        &0xFFFF)/1024.0f;
 
-	// The code below causes wrong background height in super robot spirit, so it is disabled.
-	// Need to find, for which game this hack was made.
-	/*
-	if( ((command.inst.cmd1)&0xFFFF) < 0x100 )
-	{
-		g_Sprite2DInfo.scaleY = g_Sprite2DInfo.scaleX;
-	}
-	*/
 	g_Sprite2DInfo.flipX = (u8)(((command.inst.cmd0)>>8)     &0xFF);
 	g_Sprite2DInfo.flipY = (u8)( (command.inst.cmd0)         &0xFF);
 }
@@ -111,21 +67,20 @@ inline void DLParser_GBI1_Sprite2DScaleFlip( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-// ToDo : Optimize : We compare lotsa of ints with floats..
-//
-inline void DLParser_GBI1_Sprite2DDraw( MicroCodeCommand command )
+inline void DLParser_Sprite2DDraw( MicroCodeCommand command, u32 address )
 {
-    //DL_PF("Not fully implemented");
-    g_Sprite2DInfo.px = (u16)(((command.inst.cmd1)>>16)&0xFFFF)/4;
-    g_Sprite2DInfo.py = (u16)( (command.inst.cmd1)     &0xFFFF)/4;
+	Sprite2DStruct *sprite = (Sprite2DStruct *)(g_ps8RamBase + address);
 
-	DAEDALUS_ASSERT( g_Sprite2DInfo.spritePtr, "g_Sprite2DInfo Null" );
+    u16 px = (u16)(((command.inst.cmd1)>>16)&0xFFFF)/4;
+    u16 py = (u16)( (command.inst.cmd1)     &0xFFFF)/4;
+
+	DAEDALUS_ASSERT( sprite, "Sprite2DStruct is NULL" );
 
 	// This a hack for Wipeout.
 	// TODO : Find a workaround to remove this hack..
-	if(g_Sprite2DInfo.spritePtr->SubImageWidth == 0)
+	if(sprite->width == 0)
 	{
-		DAEDALUS_ERROR("Hack: Width is 0. Skipping Sprite2DDraw");
+		DAEDALUS_ERROR("Hack: Width is 0. Skipping Sprite2DDraw\n");
 		//g_Sprite2DInfo.spritePtr = 0;
 		return;
 	}
@@ -133,45 +88,98 @@ inline void DLParser_GBI1_Sprite2DDraw( MicroCodeCommand command )
 	// ToDO : Cache ti state as Sprite2D is mostly used for static BGs
 	TextureInfo ti;
 
-	ti.SetFormat            (g_Sprite2DInfo.spritePtr->SourceImageType);
-	ti.SetSize              (g_Sprite2DInfo.spritePtr->SourceImageBitSize);
+	ti.SetFormat            (sprite->format);
+	ti.SetSize              (sprite->size);
 
-	ti.SetLoadAddress       (RDPSegAddr(g_Sprite2DInfo.spritePtr->SourceImagePointer));
+	ti.SetLoadAddress       (RDPSegAddr(sprite->address));
 
-	ti.SetWidth             (g_Sprite2DInfo.spritePtr->SubImageWidth);
-	ti.SetHeight            (g_Sprite2DInfo.spritePtr->SubImageHeight);
-	ti.SetPitch             (g_Sprite2DInfo.spritePtr->Stride << ti.GetSize() >> 1);
+	ti.SetWidth             (sprite->width);
+	ti.SetHeight            (sprite->height);
+	ti.SetPitch             (sprite->stride << sprite->size >> 1);
 
 	ti.SetSwapped           (false);
 #ifndef DAEDALUS_TMEM
 	// This is completely wrong. Index should be 0, and not tlut pointer addr!
-	ti.SetTLutIndex        ((u32)(g_pu8RamBase+RDPSegAddr(g_Sprite2DInfo.spritePtr->TlutPointer)));
+	ti.SetTLutIndex        ((u32)(g_pu8RamBase + RDPSegAddr(sprite->tlut)));
 #else
 	// Proper way, sets tlut index and pointer addr correctly which fixes palette issues in Wipeout
 	ti.SetTLutIndex        (0);
-	ti.SetTlutAddress      ((u32)(g_pu8RamBase+RDPSegAddr(g_Sprite2DInfo.spritePtr->TlutPointer)));
+	ti.SetTlutAddress      ((u32)(g_pu8RamBase + RDPSegAddr(sprite->tlut)));
 #endif
 	ti.SetTLutFormat       (2 << 14);  //RGBA16 
-
+	
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
+	DAEDALUS_ASSERT( texture, "Sprite2D texture is NULL" );
+
 	texture->GetTexture()->InstallTexture();
+	texture->UpdateIfNecessary();
 
 	int imageX, imageY, imageW, imageH;
 
-	imageX              = g_Sprite2DInfo.spritePtr->SourceImageOffsetS;
-	imageY              = g_Sprite2DInfo.spritePtr->SourceImageOffsetT;
-	imageW              = ti.GetWidth();
-	imageH              = ti.GetHeight();
+	imageX              = sprite->imageX;
+	imageY              = sprite->imageY;
+	imageW              = sprite->width;
+	imageH              = sprite->height;
 
 	int frameX, frameY, frameW, frameH;
 
-	frameX              = g_Sprite2DInfo.px;
-	frameY              = g_Sprite2DInfo.py;
-	frameW              = (g_Sprite2DInfo.spritePtr->SubImageWidth / g_Sprite2DInfo.scaleX) + frameX;
-	frameH              = (g_Sprite2DInfo.spritePtr->SubImageHeight / g_Sprite2DInfo.scaleY) + frameY;
+	frameX              = px;
+	frameY              = py;
+	frameW              = (sprite->width / g_Sprite2DInfo.scaleX) + px;
+	frameH              = (sprite->height / g_Sprite2DInfo.scaleY) + py;
+
+	// Wipeout sets this, doesn't seem to do anything?
+	/*if( g_Sprite2DInfo.flipX )
+	{
+		frameX = px + int(sprite->width*g_Sprite2DInfo.scaleX);
+		frameW = px;
+	}
+	else
+	{
+		frameX = px;
+		frameW = px + int(sprite->width*g_Sprite2DInfo.scaleX);
+	}
+
+	if( g_Sprite2DInfo.flipY )
+	{
+		frameY = py + int(sprite->height*g_Sprite2DInfo.scaleY);
+		frameH = py;
+	}
+	else
+	{
+		frameY = py;
+		frameH = py + int(sprite->height*g_Sprite2DInfo.scaleY);
+	}*/
 
 	PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );
-	//g_Sprite2DInfo.spritePtr = 0; // Why ?
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+// Used by Flying Dragon
+void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
+{
+    u32 address = RDPSegAddr(command.inst.cmd1) & (MAX_RAM_ADDRESS-1);
+
+	MicroCodeCommand command2;
+	MicroCodeCommand command3;
+
+	//
+	// Fetch the next two instructions (Scaleflip and Draw)
+	//
+	DLParser_FetchNextCommand( &command2 );
+	DLParser_FetchNextCommand( &command3 );
+
+	if( command2.inst.cmd == G_GBI1_SPRITE2D_SCALEFLIP )
+	{
+		DLParser_Sprite2DScaleFlip( command2 );
+	}
+
+	if( command3.inst.cmd == G_GBI1_SPRITE2D_DRAW )
+	{
+		DLParser_Sprite2DDraw( command3, address );
+	}
 }
 
 #endif // UCODE_SPRITE2D_H__

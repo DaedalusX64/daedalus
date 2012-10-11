@@ -110,8 +110,6 @@ UcodeFunc( DLParser_GBI2_MoveMem );
 //*****************************************************************************
 
 UcodeFunc( DLParser_GBI1_Sprite2DBase );
-UcodeFunc( DLParser_GBI1_Sprite2DScaleFlip );
-UcodeFunc( DLParser_GBI1_Sprite2DDraw );
 
 //*****************************************************************************
 // S2DEX
