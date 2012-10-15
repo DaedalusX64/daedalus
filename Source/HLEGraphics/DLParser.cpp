@@ -92,7 +92,6 @@ const char *	gDisplayListDumpPathFormat = "dl%04d.txt";
 
 
 #define MAX_DL_STACK_SIZE	32
-#define MAX_DL_COUNT		100000	// Maybe excesive large? 1000000
 
 #define N64COL_GETR( col )		(u8((col) >> 24))
 #define N64COL_GETG( col )		(u8((col) >> 16))
@@ -109,6 +108,13 @@ const char *	gDisplayListDumpPathFormat = "dl%04d.txt";
 //*****************************************************************************
 //
 //*****************************************************************************
+enum CycleType
+{
+	CYCLE_1CYCLE = 0,		// Please keep in this order - matches RDP
+	CYCLE_2CYCLE,
+	CYCLE_COPY,
+	CYCLE_FILL,
+};
 
 void RDP_MoveMemViewport(u32 address);
 void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
@@ -181,7 +187,6 @@ inline void FinishRDPJob()
 inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
 {
 	// Current PC is the last value on the stack
-
 	*p_command = *(MicroCodeCommand*)&g_pu32RamBase[ (gDlistStack.address[gDlistStackPointer] >> 2) ];
 
 	gDlistStack.address[gDlistStackPointer]+= 8;

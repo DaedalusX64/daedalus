@@ -63,7 +63,6 @@ void DLParser_Last_Legion_0x00( MicroCodeCommand command )
 			// Need to call both DL
 			gDlistStackPointer++;
 			gDlistStack.address[gDlistStackPointer] = pc1;
-			gDlistStack.limit = -1;
 
 			DL_PF("    Address=0x%08x", pc1);
 			DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
@@ -75,7 +74,6 @@ void DLParser_Last_Legion_0x00( MicroCodeCommand command )
 			// Need to call both DL
 			gDlistStackPointer++;
 			gDlistStack.address[gDlistStackPointer] = pc2;
-			gDlistStack.limit = -1;
 
 			DL_PF("    Address=0x%08x", pc2);
 			DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
