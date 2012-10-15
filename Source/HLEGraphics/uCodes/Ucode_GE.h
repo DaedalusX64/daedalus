@@ -30,7 +30,7 @@ void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 	if ( (command.inst.cmd1)>>24 != 0xce )	
 		return;
 
-	u32 pc = gDlistStack[gDlistStackPointer].pc;		// This points to the next instruction
+	u32 pc = gDlistStack.address[gDlistStackPointer];		// This points to the next instruction
 	u32 * Cmd = (u32 *)(g_pu8RamBase + pc);
 
 	// Indices
@@ -68,7 +68,7 @@ void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 	//DL_PF("    Tile:%d Screen(%f,%f) -> (%f,%f)",				   tile, xy0, xy1, uv0, uv1);
 	PSPRenderer::Get()->TexRect( 0, xy0, xy1, uv0, uv1 );
 
-	gDlistStack[gDlistStackPointer].pc += 312;
+	gDlistStack.address[gDlistStackPointer] += 312;
 }
 
 

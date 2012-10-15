@@ -35,7 +35,7 @@ enum	ETextureFormat
 
 inline bool IsTextureFormatPalettised( ETextureFormat texture_format )
 {
-	return texture_format == TexFmt_CI4_8888 || texture_format == TexFmt_CI8_8888;
+	return texture_format >= TexFmt_CI4_8888;
 }
 
 

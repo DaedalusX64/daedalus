@@ -67,7 +67,7 @@ inline bool AddTri4( u32 v0, u32 v1, u32 v2 )
 void DLParser_GBI0_Tri4( MicroCodeCommand command )
 {
     // While the next command pair is Tri2, add vertices
-	u32 pc = gDlistStack[gDlistStackPointer].pc;
+	u32 pc = gDlistStack.address[gDlistStackPointer];
 
     bool tris_added = false;
 
@@ -107,7 +107,7 @@ void DLParser_GBI0_Tri4( MicroCodeCommand command )
 		pc += 8;
     }while( command.inst.cmd == G_GBI1_TRI2 );
 
-	gDlistStack[gDlistStackPointer].pc = pc-8;
+	gDlistStack.address[gDlistStackPointer] = pc-8;
 
     if (tris_added)
     {

@@ -147,7 +147,7 @@ void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 				// Rayman 2, Donald Duck, Tarzan, all wrestling games use this
 				PSPRenderer::Get()->ForceMatrix( address );
 				// ForceMatrix takes four cmds
-				gDlistStack[gDlistStackPointer].pc += 24;
+				gDlistStack.address[gDlistStackPointer] += 24;
 			}
 			break;
 
@@ -303,9 +303,9 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_DL( MicroCodeCommand command )
 {
-
-	DAEDALUS_ASSERT( RDPSegAddr(command.dlist.addr) < MAX_RAM_ADDRESS, 
-					"DL addr out of range (0x%08x)", RDPSegAddr(command.dlist.addr) );
+	DAEDALUS_ASSERT( RDPSegAddr(command.dlist.addr) < MAX_RAM_ADDRESS, "Dlist address out of range" );
+	DAEDALUS_ASSERT( command.dlist.param < 1, "Unknown Dlist operation"  );
+	DAEDALUS_ASSERT( gDlistStackPointer < 30, "Dlist array is too deep"  );
 
     DL_PF("    Address=0x%08x %s", RDPSegAddr(command.dlist.addr), (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
 	DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
@@ -314,8 +314,7 @@ void DLParser_GBI1_DL( MicroCodeCommand command )
 	if( command.dlist.param == G_DL_PUSH )
 		gDlistStackPointer++;
 
-	gDlistStack[gDlistStackPointer].pc = RDPSegAddr(command.dlist.addr);
-	gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
+	gDlistStack.address[gDlistStackPointer] = RDPSegAddr(command.dlist.addr);
 }
 
 //*****************************************************************************
@@ -349,8 +348,7 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 
 		DL_PF("    Jump -> DisplayList 0x%08x", address);
 
-		gDlistStack[gDlistStackPointer].pc = address;
-		gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
+		gDlistStack.address[gDlistStackPointer] = address;
 	}
 }
 
@@ -520,7 +518,7 @@ void DLParser_GBI1_RDPHalf_1( MicroCodeCommand command )
 void DLParser_GBI1_Tri2( MicroCodeCommand command )
 {
     // While the next command pair is Tri2, add vertices
-	u32 pc = gDlistStack[gDlistStackPointer].pc;
+	u32 pc = gDlistStack.address[gDlistStackPointer];
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
     bool tris_added = false;
@@ -546,7 +544,7 @@ void DLParser_GBI1_Tri2( MicroCodeCommand command )
 		pc += 8;
     }while( command.inst.cmd == G_GBI1_TRI2 );
 
-	gDlistStack[gDlistStackPointer].pc = pc-8;
+	gDlistStack.address[gDlistStackPointer] = pc-8;
 
     if (tris_added)
     {
@@ -568,7 +566,7 @@ void DLParser_GBI1_Line3D( MicroCodeCommand command )
 	}
 
     // While the next command pair is Tri1, add vertices
-	u32 pc = gDlistStack[gDlistStackPointer].pc;
+	u32 pc = gDlistStack.address[gDlistStackPointer];
     u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
 
     bool tris_added = false;
@@ -589,7 +587,7 @@ void DLParser_GBI1_Line3D( MicroCodeCommand command )
 		pc += 8;
 	}while( command.inst.cmd == G_GBI1_LINE3D );
 
-	gDlistStack[gDlistStackPointer].pc = pc-8;
+	gDlistStack.address[gDlistStackPointer] = pc-8;
 
 	if (tris_added)
 	{
@@ -604,7 +602,7 @@ void DLParser_GBI1_Tri1( MicroCodeCommand command )
 {
     //DAEDALUS_PROFILE( "DLParser_GBI1_Tri1_T" );
     // While the next command pair is Tri1, add vertices
-	u32 pc = gDlistStack[gDlistStackPointer].pc;
+	u32 pc = gDlistStack.address[gDlistStackPointer];
     u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
 
     bool tris_added = false;
@@ -624,7 +622,7 @@ void DLParser_GBI1_Tri1( MicroCodeCommand command )
         pc += 8;
     }while( command.inst.cmd == G_GBI1_TRI1 );
 
-	gDlistStack[gDlistStackPointer].pc = pc-8;
+	gDlistStack.address[gDlistStackPointer] = pc-8;
 
     if (tris_added)
     {

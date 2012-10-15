@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 void DLParser_Last_Legion_0x80( MicroCodeCommand command )
 {     
-      gDlistStack[gDlistStackPointer].pc += 16;
+     gDlistStack.address[gDlistStackPointer] += 16;
 	  DL_PF("    DLParser_RSP_Last_Legion_0x80");
 }
 
@@ -41,7 +41,7 @@ void DLParser_Last_Legion_0x80( MicroCodeCommand command )
 void DLParser_Last_Legion_0x00( MicroCodeCommand command )
 {
 
-	gDlistStack[gDlistStackPointer].pc += 16;
+	gDlistStack.address[gDlistStackPointer] += 16;
 	DL_PF("    DLParser_RSP_Last_Legion_0x00");
 
 	if( (command.inst.cmd0) == 0 && (command.inst.cmd1) )
@@ -62,8 +62,8 @@ void DLParser_Last_Legion_0x00( MicroCodeCommand command )
 		{
 			// Need to call both DL
 			gDlistStackPointer++;
-			gDlistStack[gDlistStackPointer].pc = pc1;
-			gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
+			gDlistStack.address[gDlistStackPointer] = pc1;
+			gDlistStack.limit = -1;
 
 			DL_PF("    Address=0x%08x", pc1);
 			DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
@@ -74,8 +74,8 @@ void DLParser_Last_Legion_0x00( MicroCodeCommand command )
 		{
 			// Need to call both DL
 			gDlistStackPointer++;
-			gDlistStack[gDlistStackPointer].pc = pc2;
-			gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
+			gDlistStack.address[gDlistStackPointer] = pc2;
+			gDlistStack.limit = -1;
 
 			DL_PF("    Address=0x%08x", pc2);
 			DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");

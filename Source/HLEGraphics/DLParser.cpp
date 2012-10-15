@@ -81,6 +81,15 @@ const char *	gDisplayListDumpPathFormat = "dl%04d.txt";
 #define DL_UNIMPLEMENTED_ERROR( msg )
 #endif
 
+//*****************************************************************************
+//
+//*****************************************************************************
+#if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
+#define SetCommand( cmd, func, name )	gCustomInstruction[ cmd ] = func;	gCustomInstructionName[ cmd ] = (char *)name;
+#else
+#define SetCommand( cmd, func, name )	gCustomInstruction[ cmd ] = func;
+#endif
+
 
 #define MAX_DL_STACK_SIZE	32
 #define MAX_DL_COUNT		100000	// Maybe excesive large? 1000000
@@ -127,17 +136,10 @@ struct RDP_Scissor
 // items, but this way we can nest as deeply as necessary. 
 struct DList
 {
-	u32 pc;
-	s32 countdown;
+	u32 address[MAX_DL_STACK_SIZE];
+	s32 limit;
 };
 
-enum CycleType
-{
-	CYCLE_1CYCLE = 0,		// Please keep in this order - matches RDP
-	CYCLE_2CYCLE,
-	CYCLE_COPY,
-	CYCLE_FILL,
-};
 
 // Used to keep track of when we're processing the first display list
 static bool gFirstCall = true;
@@ -145,7 +147,7 @@ static bool gFirstCall = true;
 static u32				gSegments[16];
 static RDP_Scissor		scissors;
 static RDP_GeometryMode gGeometryMode;
-static DList			gDlistStack[MAX_DL_STACK_SIZE];
+static DList			gDlistStack;
 static s32				gDlistStackPointer = -1;
 static u32				gVertexStride	 = 0;
 static u32				gFillColor		 = 0xFFFFFFFF;
@@ -179,9 +181,10 @@ inline void FinishRDPJob()
 inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
 {
 	// Current PC is the last value on the stack
-	*p_command = *(MicroCodeCommand*)&g_pu32RamBase[ (gDlistStack[gDlistStackPointer].pc >> 2) ];
 
-	gDlistStack[gDlistStackPointer].pc += 8;
+	*p_command = *(MicroCodeCommand*)&g_pu32RamBase[ (gDlistStack.address[gDlistStackPointer] >> 2) ];
+
+	gDlistStack.address[gDlistStackPointer]+= 8;
 
 }
 //*****************************************************************************
@@ -216,6 +219,7 @@ static u32	gCurrentInstructionCount = 0;			// Used for debugging display lists
 u32			gTotalInstructionCount = 0;
 static u32	gInstructionCountLimit = UNLIMITED_INSTRUCTION_COUNT;
 #endif
+
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -477,14 +481,6 @@ static void HandleDumpDisplayList( OSTask * pTask )
 }
 #endif
 
-//*****************************************************************************
-//
-//*****************************************************************************
-#if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-#define SetCommand( cmd, func, name )	gCustomInstruction[ cmd ] = func;	gCustomInstructionName[ cmd ] = (char *)name;
-#else
-#define SetCommand( cmd, func, name )	gCustomInstruction[ cmd ] = func;
-#endif
 
 //*************************************************************************************
 // 
@@ -610,16 +606,17 @@ SProfileItemHandle * gpProfileItemHandles[ 256 ];
 
 #endif
 
+
 //*****************************************************************************
 //	Process the entire display list in one go
 //*****************************************************************************
-static void	DLParser_ProcessDList()
+void	DLParser_ProcessDList()
 {
 	MicroCodeCommand command;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	//Check if address is outside legal RDRAM
-	u32			pc( gDlistStack[gDlistStackPointer].pc );
+	u32			pc( gDlistStack.address[gDlistStackPointer] );
 
 	if ( pc > MAX_RAM_ADDRESS )
 	{
@@ -657,10 +654,14 @@ static void	DLParser_ProcessDList()
 		gUcodeFunc[ command.inst.cmd ]( command ); 
 #endif
 		// Check limit
-		if ( --gDlistStack[gDlistStackPointer].countdown < 0 && gDlistStackPointer >= 0)
+		if (gDlistStack.limit >= 0)
 		{
-			DL_PF("**EndDLInMem");
-			gDlistStackPointer--;
+			// limit is reset to default -1 as well
+			if (--gDlistStack.limit < 0)
+			{
+				DL_PF("**EndDLInMem");
+				gDlistStackPointer--;
+			}
 		}
 
 	}
@@ -718,11 +719,11 @@ void DLParser_Process()
 
 	// Initialise stack
 	gDlistStackPointer=0;
-	gDlistStack[gDlistStackPointer].pc = (u32)pTask->t.data_ptr;
-	gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
+	gDlistStack.address[gDlistStackPointer] = (u32)pTask->t.data_ptr;
+	gDlistStack.limit = -1;
 
 	gRDPStateManager.Reset();
-	
+
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	gTotalInstructionCount = 0;
 	gCurrentInstructionCount = 0;
@@ -1121,7 +1122,6 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 #endif
 #endif
 }
-
 
 //*****************************************************************************
 //

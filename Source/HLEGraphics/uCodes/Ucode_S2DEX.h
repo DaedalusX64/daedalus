@@ -256,7 +256,7 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 	{
 		ti.SetFormat           (sprite->imageFmt);
 		ti.SetSize             (sprite->imageSiz);
-		ti.SetLoadAddress      (RDPSegAddr(txtr->block.image) + (sprite->imageAdrs<<3) ;
+		ti.SetLoadAddress      (RDPSegAddr(txtr->block.image) + (sprite->imageAdrs<<3) );
 
 		switch( txtr->block.type )
 		{

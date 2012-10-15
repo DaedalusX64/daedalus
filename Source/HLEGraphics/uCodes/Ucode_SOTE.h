@@ -57,8 +57,7 @@ void DLParser_GBI0_DL_SOTE( MicroCodeCommand command )
 	if( command.dlist.param == G_DL_PUSH )
 		gDlistStackPointer++;
 
-	gDlistStack[gDlistStackPointer].pc = address;
-	gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
+	gDlistStack.address[gDlistStackPointer] = address;
 }
 
 //*****************************************************************************

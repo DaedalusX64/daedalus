@@ -58,7 +58,7 @@ void DLParser_Tri1_Conker( MicroCodeCommand command )
 {
 
     // While the next command pair is Tri1, add vertices
-	u32 pc = gDlistStack[gDlistStackPointer].pc;
+	u32 pc = gDlistStack.address[gDlistStackPointer];
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
 	// If Off screen rendering is true then just skip the whole list of tris //Corn
@@ -72,7 +72,7 @@ void DLParser_Tri1_Conker( MicroCodeCommand command )
 			command.inst.cmd1 = *pCmdBase++;
 			pc += 8;
 		}while( command.inst.cmd == G_GBI2_TRI1 );
-		gDlistStack[gDlistStackPointer].pc = pc-8;
+		gDlistStack.address[gDlistStackPointer] = pc-8;
 		return;
 	}
 	
@@ -92,7 +92,7 @@ void DLParser_Tri1_Conker( MicroCodeCommand command )
         pc += 8;
     }while( command.inst.cmd == G_GBI2_TRI1 );
 
-	gDlistStack[gDlistStackPointer].pc = pc-8;
+	gDlistStack.address[gDlistStackPointer] = pc-8;
 
     if (tris_added)
     {
@@ -106,7 +106,7 @@ void DLParser_Tri1_Conker( MicroCodeCommand command )
 void DLParser_Tri2_Conker( MicroCodeCommand command )
 {
 
-	u32 pc = gDlistStack[gDlistStackPointer].pc;
+	u32 pc = gDlistStack.address[gDlistStackPointer];
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
 	// If Off screen rendering is true then just skip the whole list of tris //Corn
@@ -120,7 +120,7 @@ void DLParser_Tri2_Conker( MicroCodeCommand command )
 			command.inst.cmd1 = *pCmdBase++;
 			pc += 8;
 		}while( command.inst.cmd == G_GBI2_TRI2 );
-		gDlistStack[gDlistStackPointer].pc = pc-8;
+		gDlistStack.address[gDlistStackPointer] = pc-8;
 		return;
 	}
 	
@@ -147,7 +147,7 @@ void DLParser_Tri2_Conker( MicroCodeCommand command )
         pc += 8;
 	}while( command.inst.cmd == G_GBI2_TRI2 );
 
-	gDlistStack[gDlistStackPointer].pc = pc-8;
+	gDlistStack.address[gDlistStackPointer] = pc-8;
 
     if (tris_added)
     {
@@ -160,7 +160,7 @@ void DLParser_Tri2_Conker( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_Tri4_Conker( MicroCodeCommand command )
 {
-	u32 pc = gDlistStack[gDlistStackPointer].pc;		// This points to the next instruction
+	u32 pc = gDlistStack.address[gDlistStackPointer];		// This points to the next instruction
 
 	// If Off screen rendering is true then just skip the whole list of tris //Corn
 	//
@@ -173,7 +173,7 @@ void DLParser_Tri4_Conker( MicroCodeCommand command )
 			command.inst.cmd1 = *(u32 *)(g_pu8RamBase + pc+4);
 			pc += 8;
 		}while((command.inst.cmd0>>28) == 1);
-		gDlistStack[gDlistStackPointer].pc = pc-8;
+		gDlistStack.address[gDlistStackPointer] = pc-8;
 		return;
 	}
 
@@ -216,7 +216,7 @@ void DLParser_Tri4_Conker( MicroCodeCommand command )
 		pc += 8;
     }while((command.inst.cmd0>>28) == 1);
 
-	gDlistStack[gDlistStackPointer].pc = pc-8;
+	gDlistStack.address[gDlistStackPointer] = pc-8;
 
     if (tris_added)
     {

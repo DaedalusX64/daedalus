@@ -283,7 +283,7 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 			// Rayman 2, Donald Duck, Tarzan, all wrestling games use this
 			PSPRenderer::Get()->ForceMatrix( address );
 			// ForceMatrix takes two cmds
-			gDlistStack[gDlistStackPointer].pc += 8;
+			gDlistStack.address[gDlistStackPointer] += 8;
 		}
 		break;
 /*
@@ -324,42 +324,6 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 }
 
 //*****************************************************************************
-// 
-//*****************************************************************************
-/*
-void DLParser_GBI2_DL( MicroCodeCommand command )
-{
-    u32 address = RDPSegAddr(command.dlist.addr);
-
-	DAEDALUS_ASSERT( address < MAX_RAM_ADDRESS, "DL addr out of range (0x%08x)", address );
-
-    DL_PF("    Address=0x%08x Push: 0x%02x", address, command.dlist.param);
-
-	switch (command.dlist.param)
-	{
-	case G_DL_PUSH:
-		DL_PF("    Pushing ZeldaDisplayList 0x%08x", address);
-		gDlistStackPointer++;
-		gDlistStack[gDlistStackPointer].pc = address;
-		gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
-
-		break;
-	case G_DL_NOPUSH:
-		DL_PF("    Jumping to ZeldaDisplayList 0x%08x", address);
-		if( gDlistStack[gDlistStackPointer].pc == address+8 )	//Is this a loop
-		{
-			//Hack for Gauntlet Legends
-			printf("gggg\n");
-			gDlistStack[gDlistStackPointer].pc = address+8;
-		}
-		else
-			gDlistStack[gDlistStackPointer].pc = address;
-		gDlistStack[gDlistStackPointer].countdown = MAX_DL_COUNT;
-		break;
-	}
-}
-*/
-//*****************************************************************************
 // Kirby 64, SSB and Cruisn' Exotica use this
 //*****************************************************************************
 void DLParser_GBI2_DL_Count( MicroCodeCommand command )
@@ -375,20 +339,12 @@ void DLParser_GBI2_DL_Count( MicroCodeCommand command )
 	}
 
 	gDlistStackPointer++;
-	gDlistStack[gDlistStackPointer].pc = address;
-	gDlistStack[gDlistStackPointer].countdown = ((command.inst.cmd0)&0xFFFF);
+	gDlistStack.address[gDlistStackPointer] = address;
+	gDlistStack.limit = (command.inst.cmd0) & 0xFFFF;
 
 	DL_PF("    Address=0x%08x %s", address, (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
 	DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
 	DL_PF("    ############################################");
-}
-
-//***************************************************************************** 
-// 
-//***************************************************************************** 
-void DLParser_GBI2_LoadUCode( MicroCodeCommand command ) 
-{
-	DL_PF( "    GBI2_LoadUCode (Ignored)" );
 }
 
 //*****************************************************************************
@@ -489,9 +445,8 @@ void DLParser_GBI2_DMA_IO( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_Quad( MicroCodeCommand command )
 {
-
     // While the next command pair is Tri2, add vertices
-	u32 pc = gDlistStack[gDlistStackPointer].pc;
+	u32 pc = gDlistStack.address[gDlistStackPointer];
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
 	bool tris_added = false;
@@ -519,7 +474,7 @@ void DLParser_GBI2_Quad( MicroCodeCommand command )
         pc += 8;
     }while( command.inst.cmd == G_GBI2_QUAD );
 
-	gDlistStack[gDlistStackPointer].pc = pc-8;
+	gDlistStack.address[gDlistStackPointer] = pc-8;
 
     if (tris_added)
     {
@@ -534,7 +489,7 @@ void DLParser_GBI2_Quad( MicroCodeCommand command )
 void DLParser_GBI2_Line3D( MicroCodeCommand command )
 {
 	// While the next command pair is Tri2, add vertices
-	u32 pc = gDlistStack[gDlistStackPointer].pc;
+	u32 pc = gDlistStack.address[gDlistStackPointer];
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
     bool tris_added = false;
@@ -559,7 +514,7 @@ void DLParser_GBI2_Line3D( MicroCodeCommand command )
         pc += 8;
     }while( command.inst.cmd == G_GBI2_LINE3D );
 	
-	gDlistStack[gDlistStackPointer].pc = pc-8;
+	gDlistStack.address[gDlistStackPointer] = pc-8;
 
     if (tris_added)
     {
@@ -574,7 +529,7 @@ void DLParser_GBI2_Tri1( MicroCodeCommand command )
 {
 
     // While the next command pair is Tri1, add vertices
-	u32 pc = gDlistStack[gDlistStackPointer].pc;
+	u32 pc = gDlistStack.address[gDlistStackPointer];
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
     bool tris_added = false;
@@ -593,7 +548,7 @@ void DLParser_GBI2_Tri1( MicroCodeCommand command )
         pc += 8;
     }while( command.inst.cmd == G_GBI2_TRI1 );
 
-	gDlistStack[gDlistStackPointer].pc = pc-8;
+	gDlistStack.address[gDlistStackPointer] = pc-8;
 
     if (tris_added)
     {
@@ -607,7 +562,7 @@ void DLParser_GBI2_Tri1( MicroCodeCommand command )
 void DLParser_GBI2_Tri2( MicroCodeCommand command )
 {
 
-	u32 pc = gDlistStack[gDlistStackPointer].pc;
+	u32 pc = gDlistStack.address[gDlistStackPointer];
     u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
     bool tris_added = false;
@@ -633,7 +588,7 @@ void DLParser_GBI2_Tri2( MicroCodeCommand command )
         pc += 8;
 	}while( command.inst.cmd == G_GBI2_TRI2 );
 
-	gDlistStack[gDlistStackPointer].pc = pc-8;
+	gDlistStack.address[gDlistStackPointer] = pc-8;
 
     if (tris_added)
     {
