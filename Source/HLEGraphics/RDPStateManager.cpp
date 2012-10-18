@@ -216,14 +216,47 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 #endif
 
 #ifndef DAEDALUS_TMEM
-		// Hack for Harvest Moon 64, if pixel size is 8b force palette to index 0 (Hopefully won't mess up anything)
-		ti.SetTLutIndex( rdp_tile.size == G_IM_SIZ_8b ? 0 : rdp_tile.palette); 
+		//If indexed TMEM PAL address is NULL then assume that the base address is stored in
+		//TMEM address 0x100 (gTextureMemory[ 0 ]) and calculate offset from there with TLutIndex(palette index)
+		//This trick saves us from the need to copy the real palette to TMEM and we just pass the pointer //Corn
+		//
+		if(rdp_tile.size == G_IM_SIZ_4b)
+		{
+			if ( g_ROM.TLUT_HACK )
+			{
+				if(gTextureMemory[ rdp_tile.palette << 2 ] == NULL)
+				{
+					ti.SetTlutAddress( (u32)gTextureMemory[ 0 ] + (rdp_tile.palette << 7) );
+				}
+				else
+				{
+					ti.SetTlutAddress( (u32)gTextureMemory[ rdp_tile.palette << 2] );
+				}
+			}
+			else
+			{
+				if(gTextureMemory[ rdp_tile.palette << 0 ] == NULL)
+				{
+					ti.SetTlutAddress( (u32)gTextureMemory[ 0 ] + (rdp_tile.palette << 5) );
+				}
+				else
+				{
+					ti.SetTlutAddress( (u32)gTextureMemory[ rdp_tile.palette << 0] );
+				}
+			}
+		}
+		else
+		{	//Force index 0 for all but 4b palettes
+			ti.SetTlutAddress( (u32)gTextureMemory[ 0 ] );
+		}
+
 #else
 		// Proper way, doesn't need Harvest Moon hack, Nb. 4b check is for Majora's Mask
 		u32 tlut( (u32)(&gTextureMemory[0]) );
 		ti.SetTLutIndex( rdp_tile.palette ); 
 		ti.SetTlutAddress( rdp_tile.size == G_IM_SIZ_4b ? tlut + (rdp_tile.palette << 5) : tlut );
 #endif
+
 		ti.SetTmemAddress( rdp_tile.tmem );
 		ti.SetLoadAddress( address );
 		ti.SetFormat( rdp_tile.format );

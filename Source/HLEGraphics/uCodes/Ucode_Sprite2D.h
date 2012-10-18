@@ -96,14 +96,11 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, u32 address )
 	ti.SetPitch             (sprite->stride << sprite->size >> 1);
 
 	ti.SetSwapped           (false);
-#ifndef DAEDALUS_TMEM
-	// This is completely wrong. Index should be 0, and not tlut pointer addr!
-	ti.SetTLutIndex        ((u32)(g_pu8RamBase + RDPSegAddr(sprite->tlut)));
-#else
-	// Proper way, sets tlut index and pointer addr correctly which fixes palette issues in Wipeout
+
+	// Proper way, sets tlut index and pointer addr correctly which fixes palette issues in Wipeout/Flying dragon...
 	ti.SetTLutIndex        (0);
 	ti.SetTlutAddress      ((u32)(g_pu8RamBase + RDPSegAddr(sprite->tlut)));
-#endif
+
 	ti.SetTLutFormat       (2 << 14);  //RGBA16 
 	
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );

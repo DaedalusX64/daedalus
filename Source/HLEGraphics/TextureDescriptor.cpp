@@ -80,9 +80,6 @@ u32	TextureInfo::GetTLutFormat() const
 //*************************************************************************************
 const void *	TextureInfo::GetPalettePtr() const
 {
-	// Want to advance 16x16bpp palette entries in TMEM(i.e. 32 bytes into tmem for each palette), i.e. <<5.
-	// some games uses <<7 like in MM but breaks Aerogauge //Corn
-#ifndef DAEDALUS_TMEM
 	//Debug Palette pointers
 	#if 0 
 		printf("0x%02x\n",TLutIndex << (g_ROM.TLUT_HACK? 4:2));
@@ -92,30 +89,7 @@ const void *	TextureInfo::GetPalettePtr() const
 		printf("\n\n");
 	#endif
 
-	if ( g_ROM.TLUT_HACK )
-	{
-		if(gTextureMemory[ TLutIndex << 2 ] == NULL)
-		{	//If TMEM PAL address is NULL then assume that the base address is stored in
-			//TMEM address 0x100 and calculate offset from there with TLutIndex
-			//Flying Dragon returns NULL here //Corn
-			return (void *)((u32)gTextureMemory[ 0 ] + ( TLutIndex << 7 ));
-		}
-		else return (void *)gTextureMemory[ TLutIndex << 2 ];
-	}
-	else
-	{
-		if(gTextureMemory[ TLutIndex ] == NULL)
-		{	//If TMEM PAL address is NULL then assume that the base address is stored in
-			//TMEM address 0x100 and calculate offset from there with TLutIndex
-			//Extreme-G returns NULL here //Corn
-			return (void *)((u32)gTextureMemory[ 0 ] + ( TLutIndex << 5 ));
-		}
-		else return (void *)gTextureMemory[ TLutIndex ];
-	}
-#else
-	// Proper way, doesn't need TLUT hack, Can't return NULL, and can be modified by Sprite2D and S2DEX
 	return (void *)TlutAddress;
-#endif
 }
 
 //*************************************************************************************

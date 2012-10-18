@@ -276,7 +276,11 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 
 		ti.SetSwapped          (0);
 		ti.SetTLutIndex        (sprite->imagePal);
-		ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
+#ifndef DAEDALUS_TMEM
+	ti.SetTlutAddress	   ((u32)(gTextureMemory[0]));
+#else
+	ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
+#endif
 		ti.SetTLutFormat       (2 << 14);  //RGBA16 
 	}
 
@@ -476,17 +480,14 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 	uObjTxtr* ObjTxtr = (uObjTxtr*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 	if( ObjTxtr->block.type == S2DEX_OBJLT_TLUT )
 	{
+		uObjTxtrTLUT *ObjTlut = (uObjTxtrTLUT*)ObjTxtr;
 #ifndef DAEDALUS_TMEM
 		// Store TLUT pointer
-		gTextureMemory[ (ObjTxtr->tlut.phead>>2) & 0x3F ] = (u32*)(g_pu8RamBase + RDPSegAddr(ObjTxtr->tlut.image));
+		gTextureMemory[ (ObjTxtr->tlut.phead>>2) & 0x3F ] = (u32*)(g_pu8RamBase + RDPSegAddr(ObjTlut->image));
 #else
-		uObjTxtrTLUT *ObjTlut = (uObjTxtrTLUT*)ObjTxtr;
 		u32 ObjTlutAddr = (u32)(RDPSegAddr(ObjTlut->image));
 
 		// Copy TLUT
-		//u32 size = (ObjTlut->pnum & 0xFF) + 1;
-		//u32 offset = ObjTlut->phead;
-
 		u16* src	= (u16*)(ObjTlutAddr + g_pu8RamBase);
 		u32 size	= ObjTlut->pnum+1;
 		u32 offset  = ObjTlut->phead-0x100;
@@ -640,7 +641,11 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 	ti.SetSwapped          (0);
 
 	ti.SetTLutIndex        (objBg->imagePal);
+#ifndef DAEDALUS_TMEM
+	ti.SetTlutAddress	   ((u32)(gTextureMemory[0]));
+#else
 	ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
+#endif
 	ti.SetTLutFormat       (2 << 14);  //RGBA16 
 
 
@@ -699,7 +704,11 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 	ti.SetSwapped          (0);
 
 	ti.SetTLutIndex        (objBg->imagePal);
+#ifndef DAEDALUS_TMEM
+	ti.SetTlutAddress	   ((u32)(gTextureMemory[0]));
+#else
 	ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
+#endif
 	ti.SetTLutFormat       (2 << 14);  //RGBA16 >> (2 << G_MDSFT_TEXTLUT)
 
 
