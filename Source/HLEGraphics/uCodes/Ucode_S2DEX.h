@@ -487,7 +487,7 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 		//u32 size = (ObjTlut->pnum & 0xFF) + 1;
 		//u32 offset = ObjTlut->phead;
 
-		u32 addr	= ObjTlutAddr;
+		u16* src	= (u16*)(ObjTlutAddr + g_pu8RamBase);
 		u32 size	= ObjTlut->pnum+1;
 		u32 offset  = ObjTlut->phead-0x100;
 
@@ -495,8 +495,7 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 
 		for( u32 i=offset; i<offset+size; i++ )
 		{
-			gTextureMemory[i^1] = (*(u16 *)(((addr)^2)+g_pu8RamBase));
-			addr += 2;
+			gTextureMemory[ i ] = *src++;
 		}
 
 		//memcpy_vfpu_BE((void *)&gTextureMemory[ (offset << 1) & 0x3FF ], (void *)ObjTlutAddr, (size << 1));

@@ -1067,6 +1067,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tile_idx ) );
 
 #ifndef DAEDALUS_TMEM
+	use(lrs);
 	//Store address of PAL (assuming PAL is only stored in upper half of TMEM) //Corn
 	gTextureMemory[ (rdp_tile.tmem>>2) & 0x3F ] = (u32*)address;
 #else
@@ -1081,7 +1082,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 
 	for (u32 i=0; i<count; i++)
 	{
-		gTextureMemory[(i+offset)^1] = p_source[i^1];
+		gTextureMemory[ i+offset ] = p_source[ i ];
 	}
 
 	//printf("Addr %08X : TMEM %03X : Tile %d : PAL %d\n",address, tmem, tile_idx, count); 

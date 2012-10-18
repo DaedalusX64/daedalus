@@ -167,7 +167,7 @@ u32 TextureInfo::GenerateHashValue() const
 	{
 		for (u32 z = 0; z < step; z++) 
 		{
-			hash_value = (hash_value << 4) + hash_value + ptr_u32[z];
+			hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) + ptr_u32[z];
 		}
 	}
 	else	//if texture is big, hash only some parts inside it
@@ -175,10 +175,10 @@ u32 TextureInfo::GenerateHashValue() const
 		step = (step - 4) / CHK_ROW;
 		for (u32 y = 0; y < CHK_ROW; y++)
 		{
-			hash_value = (hash_value << 4) + hash_value + ptr_u32[0];
-			hash_value = (hash_value << 4) + hash_value + ptr_u32[1];
-			hash_value = (hash_value << 4) + hash_value + ptr_u32[2];
-			hash_value = (hash_value << 4) + hash_value + ptr_u32[3];
+			hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ ptr_u32[0];
+			hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ ptr_u32[1];
+			hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ ptr_u32[2];
+			hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ ptr_u32[3];
 			ptr_u32 += step;
 		}
 	}

@@ -209,14 +209,12 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		u16		tile_width( GetTextureDimension( rdp_tilesize.GetWidth(), rdp_tile.mask_s ) );
 		u16		tile_height( GetTextureDimension( rdp_tilesize.GetHeight(), rdp_tile.mask_t ) );
 
-
 #ifdef DAEDALUS_ENABLE_ASSERTS
 		u32		num_pixels( tile_width * tile_height );
 		u32		num_bytes( pixels2bytes( num_pixels, rdp_tile.size ) );
 		DAEDALUS_DL_ASSERT( num_bytes <= 4096, "Suspiciously large texture load: %d bytes (%dx%d, %dbpp)", num_bytes, tile_width, tile_height, (1<<(rdp_tile.size+2)) );
 #endif
 
-		ti.SetTmemAddress( rdp_tile.tmem );
 #ifndef DAEDALUS_TMEM
 		// Hack for Harvest Moon 64, if pixel size is 8b force palette to index 0 (Hopefully won't mess up anything)
 		ti.SetTLutIndex( rdp_tile.size == G_IM_SIZ_8b ? 0 : rdp_tile.palette); 
@@ -224,8 +222,9 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		// Proper way, doesn't need Harvest Moon hack, Nb. 4b check is for Majora's Mask
 		u32 tlut( (u32)(&gTextureMemory[0]) );
 		ti.SetTLutIndex( rdp_tile.palette ); 
-		ti.SetTlutAddress( rdp_tile.size == G_IM_SIZ_4b ? tlut + 16  * 2 * rdp_tile.palette : tlut );
+		ti.SetTlutAddress( rdp_tile.size == G_IM_SIZ_4b ? tlut + (rdp_tile.palette << 5) : tlut );
 #endif
+		ti.SetTmemAddress( rdp_tile.tmem );
 		ti.SetLoadAddress( address );
 		ti.SetFormat( rdp_tile.format );
 		ti.SetSize( rdp_tile.size );
