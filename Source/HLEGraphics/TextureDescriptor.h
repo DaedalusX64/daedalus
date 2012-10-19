@@ -33,8 +33,8 @@ private:
 	u32			Pitch;
 
 	u32			TmemAddress;
-	u32			TlutAddress;	// ATM only used when DAEDALUS_TMEM is defined
-	u32			TLutIndex : 4;
+	u32			TlutAddress;	// Address to Palette
+	u32			TLutIndex : 4;	// Palette index
 	u32			Format : 3;		// e.g. RGBA, YUV, CI, IA, I...
 	u32			Size : 2;		// e.g. 16bpp
 	u32			TLutFmt : 2;
@@ -49,7 +49,7 @@ public:
 	TextureInfo & operator=( const TextureInfo & rhs )		{ memcpy( this, &rhs, sizeof( TextureInfo ) ); return *this; }
 
 	//inline u32				GetHashCode() const				{ return murmur2_neutral_hash( reinterpret_cast< const u8 * >( this ), sizeof( TextureInfo ), 0 ); }
-	inline u32				GetHashCode() const				{ u8 *ptr( (u8*)this ); u8 *end_ptr( ptr + sizeof( TextureInfo ) ); u32 hash(0); while( ptr < end_ptr ) hash = (hash << 4) + hash + *ptr++; return hash; }
+	inline u32				GetHashCode() const				{ u32 *ptr( (u32*)this ); u32 *end_ptr( ptr + sizeof( TextureInfo ) ); u32 hash(0); while( ptr < end_ptr ) hash = ((hash << 1) | (hash >> 0x1F)) ^ *ptr++; return hash; }
 
 	// Compute a hash of the contents of the texture data. Not to be confused with GetHashCode()!
 	u32						GenerateHashValue() const;
