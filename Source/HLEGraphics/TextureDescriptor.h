@@ -48,10 +48,10 @@ public:
 	TextureInfo( const TextureInfo & rhs )					{ memcpy( this, &rhs, sizeof( TextureInfo ) ); }
 	TextureInfo & operator=( const TextureInfo & rhs )		{ memcpy( this, &rhs, sizeof( TextureInfo ) ); return *this; }
 
+	inline u32				GetHashCode() const				{ u8 *ptr( (u8*)this ); u8 *end_ptr( ptr + sizeof( TextureInfo ) ); u32 hash(0); while( ptr < end_ptr ) hash = ((hash << 9) | (hash >> 0x17)) ^ *ptr++; return hash; }
 	//inline u32				GetHashCode() const				{ return murmur2_neutral_hash( reinterpret_cast< const u8 * >( this ), sizeof( TextureInfo ), 0 ); }
-	inline u32				GetHashCode() const				{ u32 *ptr( (u32*)this ); u32 *end_ptr( ptr + sizeof( TextureInfo ) ); u32 hash(0); while( ptr < end_ptr ) hash = ((hash << 1) | (hash >> 0x1F)) ^ *ptr++; return hash; }
 
-	// Compute a hash of the contents of the texture data. Not to be confused with GetHashCode()!
+	// Compute a hash of the contents of the texture data. Not to be confused with GetHashCode() that hashes the Textureinfo!
 	u32						GenerateHashValue() const;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST

@@ -644,7 +644,7 @@ bool	CTexture::HasExpired() const
 		//Hack for Zelda OOT & MM text (only needed if there is not a general hash check) //Corn
 		//if( g_ROM.ZELDA_HACK && (mTextureInfo.GetSize() == G_IM_SIZ_4b) && mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
 
-		if( mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
+		//if( mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
 	}
 
 	//Otherwise we wait 10+random(0-3) frames before trashing the texture if unused

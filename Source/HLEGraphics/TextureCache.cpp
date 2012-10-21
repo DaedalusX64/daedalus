@@ -95,10 +95,10 @@ protected:
 
 	inline static u32 MakeHashIdxA( const TextureInfo & ti )
 	{
-		u32 address( ti.GetLoadAddress() >> 4 );	// Low 4 bits are almost always 0, remove this redundancy
+		u32 address( ti.GetLoadAddress() );
 		u32 hash( (address >> (HASH_TABLE_BITS*2)) ^ (address >> HASH_TABLE_BITS) ^ address );
 		
-		hash ^= ti.GetTLutIndex();			// Useful for palettised fonts, e.g in Starfox
+		hash ^= ti.GetTLutIndex() >> 2;			// Useful for palettised fonts, e.g in Starfox
 
 		return hash & (HASH_TABLE_SIZE-1);
 	}

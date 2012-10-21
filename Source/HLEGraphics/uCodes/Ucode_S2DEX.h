@@ -346,23 +346,20 @@ void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
 		x1 = objW - 1.0f;
 		y1 = objH - 1.0f;
 
-		// Worms sets this, but for some reason it doesn't fix the sprite being flippped :/
-		/*if( sprite->imageFlags&1 )
+		// Used by Worms
+		if( sprite->imageFlags & 0x01 )	//Flip X
 		{
-			float temp = x0;
-			x0 = x1;
-			x1 = temp;
+			PSPRenderer::Get()->Draw2DTextureR(x1, y0, x0, y0, x0, y1, x1, y1, imageW, imageH);
+		}
+		else if( sprite->imageFlags & 0x10 )	//Flip Y(?)
+		{
+			PSPRenderer::Get()->Draw2DTexture(x1, y1, x0, y0, 0, 0, imageW, imageH);
+		}
+		else	//No Flip
+		{
+			PSPRenderer::Get()->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
 		}
 
-		if( sprite->imageFlags&0x10 )
-		{
-			float temp = y0;
-			y0 = y1;
-			y1 = temp;
-		}*/
-
-
-		PSPRenderer::Get()->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
 		break;
 	}
 }

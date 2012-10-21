@@ -1066,14 +1066,15 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 
 	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tile_idx ) );
 
+	u32 count = (lrs - uls) + 1;
+	use(count);
+
 #ifndef DAEDALUS_TMEM
-	use(lrs);
 	//Store address of PAL (assuming PAL is only stored in upper half of TMEM) //Corn
 	gTextureMemory[ (rdp_tile.tmem>>2) & 0x3F ] = (u32*)address;
 #else
 	//This corresponds to the number of palette entries (16 or 256) 16bit
 	//Seems partial load of palette is allowed -> count != 16 or 256 (MM, SSB, Starfox64, MRC) //Corn
-	u32 count = (lrs - uls) + 1;
 	u32 offset = rdp_tile.tmem - 256;				// starting location in the palettes
 	DAEDALUS_ASSERT( count > 0x100, "Check me: TMEM" ); 
 
