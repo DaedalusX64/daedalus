@@ -120,6 +120,7 @@ u32 TextureInfo::GenerateHashValue() const
 	u32 CHK_ROW = 5;
 
 	if( g_ROM.GameHacks == YOSHI ) CHK_ROW = 49;
+	else if( g_ROM.GameHacks == WORMS_ARMAGEDDON ) CHK_ROW = 1000;
 
 	u8 *ptr_u8 = g_pu8RamBase + GetLoadAddress();
 	u32 hash_value = 0;

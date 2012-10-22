@@ -640,10 +640,14 @@ bool	CTexture::HasExpired() const
 	{
 		//Hack to make WONDER PROJECT J2 work (need to reload some textures every frame!) //Corn
 		if( (g_ROM.GameHacks == WONDER_PROJECTJ2) && (mTextureInfo.GetTLutFormat() == G_TT_RGBA16) && (mTextureInfo.GetSize() == G_IM_SIZ_8b) ) return true;
+		
+		//Hack for Worms Armageddon
+		if( (g_ROM.GameHacks == WORMS_ARMAGEDDON) && (mTextureInfo.GetSize() == G_IM_SIZ_8b) && (mTextureContentsHash != mTextureInfo.GenerateHashValue()) ) return true;
 
 		//Hack for Zelda OOT & MM text (only needed if there is not a general hash check) //Corn
 		//if( g_ROM.ZELDA_HACK && (mTextureInfo.GetSize() == G_IM_SIZ_4b) && mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
 
+		//Check if texture has changed
 		//if( mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
 	}
 
