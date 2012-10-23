@@ -132,7 +132,7 @@ u32 TextureInfo::GenerateHashValue() const
 	}
 	else if( g_ROM.GameHacks == WORMS_ARMAGEDDON )
 	{
-		CHK_ROW = 128;
+		CHK_ROW = 1000;
 		if (GetFormat() == G_IM_FMT_CI)  
 		{
 			//Check palette changes too but only first 16 palette values//Corn
