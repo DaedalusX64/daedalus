@@ -148,13 +148,13 @@ struct RomInfo
 		struct
 		{
 			EGameHacks	GameHacks:16;	// Hacks for specific games
+			u32			LOAD_T1_HACK:1;	//LOAD T1 texture hack
 			u32			T1_HACK:1;	//T1 texture hack
 			u32			ZELDA_HACK:1;	//for both MM and OOT
 			u32			TLUT_HACK:1;	//Texture look up table hack for palette
 			u32			ALPHA_HACK:1;	//HACK for AIDYN CHRONICLES
 			u32			DISABLE_SIMDOUBLES:1;	//Hack to disable simulate doubles
 			u32			DISABLE_LBU_OPT:1;	//Disable memory optimation for 
-			u32			Pad6:1;	//free
 			u32			Pad7:1;	//free
 			u32			Pad8:1;	//free
 			u32			Pad9:1;	//free

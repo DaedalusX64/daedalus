@@ -395,14 +395,17 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x4A54:	//Tom and Jerry
 	case 0x4d4a:	//Earthworm Jim
 		g_ROM.DISABLE_SIMDOUBLES = true;
+		g_ROM.LOAD_T1_HACK = true;
 		g_ROM.T1_HACK = true;
 		break;
 	case 0x5150:	//PowerPuff Girls
 		g_ROM.DISABLE_SIMDOUBLES = true;
+		//g_ROM.LOAD_T1_HACK = true;
 		//g_ROM.T1_HACK = true;
 		break;
 	case 0x5144:	//Donald Duck
 	case 0x3259:	//Rayman2
+		g_ROM.LOAD_T1_HACK = true;
 		g_ROM.T1_HACK = true;
 		break;
 	case 0x3358:	//GEX3
@@ -418,6 +421,11 @@ void SpecificGameHacks( const ROMHeader & id )
 		g_ROM.ZELDA_HACK = true;
 		g_ROM.GameHacks = ZELDA_MM;
 		break;
+	case 0x5653:	//SSV
+		g_ROM.LOAD_T1_HACK = true;
+		g_ROM.TLUT_HACK = true;
+		break;
+
 	case 0x5544:	//Duck Dodgers
 	case 0x3653:	//Star soldier - vanishing earth
 	case 0x324C:	//Top Gear Rally 2
@@ -425,7 +433,6 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x4552:	//Resident Evil 2	
 	case 0x5547:	//Sin and punishment		
 	case 0x4446:	//Flying Dragon	
-	case 0x5653:	//SSV
 	case 0x534E:	// Beetle Racing
 		g_ROM.TLUT_HACK = true;
 		break;

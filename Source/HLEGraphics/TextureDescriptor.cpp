@@ -193,6 +193,8 @@ u32 TextureInfo::GenerateHashValue() const
 //*************************************************************************************
 #define DEFTEX	TexFmt_8888
 
+//Translation of format I-8bpp to TexFmt_4444 is more convinient on PSP but TexFmt_8888 would give more quality. //Corn
+//
 const ETextureFormat TFmt[ 32 ] = 
 {
 //	4bpp				8bpp				16bpp				32bpp
@@ -200,7 +202,7 @@ const ETextureFormat TFmt[ 32 ] =
 	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// YUV 
 	TexFmt_CI4_8888,	TexFmt_CI8_8888,	DEFTEX,				DEFTEX,				// CI
 	TexFmt_4444,		TexFmt_4444,		TexFmt_8888,		DEFTEX,				// IA
-	TexFmt_4444,		TexFmt_8888,		DEFTEX,				DEFTEX,				// I
+	TexFmt_4444,		TexFmt_4444,		DEFTEX,				DEFTEX,				// I
 	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
 	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
 	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX				// ?			
@@ -211,5 +213,5 @@ const ETextureFormat TFmt[ 32 ] =
 //*************************************************************************************
 ETextureFormat	TextureInfo::SelectNativeFormat() const
 {
-	return (g_ROM.T1_HACK && ((Format << 2) | Size) == 2) ? TexFmt_4444 : TFmt[(Format << 2) | Size];
+	return (g_ROM.LOAD_T1_HACK && ((Format << 2) | Size) == 2) ? TexFmt_4444 : TFmt[(Format << 2) | Size];
 }

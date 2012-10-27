@@ -25,19 +25,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 struct TextureInfo
 {
 private:
-	u32			LoadAddress;				// Corresponds to Address in Tile
+	u32			LoadAddress;	// Corresponds to Address in Tile
 	//s16		Left;
 	//s16		Top;
 	u32			Width;
 	u32			Height;
-	u32			Pitch;
+	u32			Pitch;			// Number of bytes in a texture row
 
-	u32			TmemAddress;
+	u32			TmemAddress;	// 0x000 - 0x1FF
 	u32			TlutAddress;	// Address to Palette
-	u32			TLutIndex : 4;	// Palette index
+	u32			TLutIndex : 4;	// Palette index (0-15)
 	u32			Format : 3;		// e.g. RGBA, YUV, CI, IA, I...
-	u32			Size : 2;		// e.g. 16bpp
-	u32			TLutFmt : 2;
+	u32			Size : 2;		// e.g. 4bpp, 8bpp, 16bpp, 32bpp
+	u32			TLutFmt : 2;	// e.g. NA, NA, RGBA16, IA16
 	bool		Swapped : 1;	// Are odd lines word swapped?
 	bool		MirrorS : 1;
 	bool		MirrorT : 1;

@@ -2578,7 +2578,7 @@ inline void	PSPRenderer::EnableTexturing( u32 tile_idx )
 
 //#ifdef RDP_USE_TEXEL1
 
-	if ( g_ROM.T1_HACK & !gRDPOtherMode.text_lod )
+	if ( g_ROM.LOAD_T1_HACK & !gRDPOtherMode.text_lod )
 	{
 		// LOD is disabled - use two textures
 		EnableTexturing( 1, tile_idx + 1 );
@@ -2692,18 +2692,36 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 
 					if((ti0.GetFormat() == 0) && (ti.GetFormat() == 4) && (ti.GetWidth() == ti0.GetWidth()) && (ti.GetHeight() == ti0.GetHeight()))
 					{
-						const CRefPtr<CNativeTexture> & native_texture0( mpTexture[ 0 ]->GetTexture() );
-						u32* dst=(u32*)(native_texture->GetData());
-						u32* src=(u32*)(native_texture0->GetData());
-						
-						//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
-						u32 size = native_texture->GetWidth() * native_texture->GetHeight() >> 1;
-						for(u32 i=0; i < size ; i++)
-						{
-							*dst = (*dst & 0xF000F000) | (*src & 0x0FFF0FFF);
-							dst++;
-							src++;
-						}
+						if( g_ROM.T1_HACK )
+							{
+								const CRefPtr<CNativeTexture> & native_texture0( mpTexture[ 0 ]->GetTexture() );
+								u32* dst=(u32*)(native_texture->GetData());
+								u32* src=(u32*)(native_texture0->GetData());
+								
+								//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
+								u32 size = native_texture->GetWidth() * native_texture->GetHeight() >> 1;
+								for(u32 i=0; i < size ; i++)
+								{
+									*dst = (*dst & 0xF000F000) | (*src & 0x0FFF0FFF);
+									dst++;
+									src++;
+								}
+							}
+						else
+							{
+								const CRefPtr<CNativeTexture> & native_texture0( mpTexture[ 0 ]->GetTexture() );
+								u32* src=(u32*)(native_texture->GetData());
+								u32* dst=(u32*)(native_texture0->GetData());
+								
+								//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
+								u32 size = native_texture->GetWidth() * native_texture->GetHeight() >> 1;
+								for(u32 i=0; i < size ; i++)
+								{
+									*dst = (*dst & 0x0FFF0FFF) | (*src & 0xF000F000);
+									dst++;
+									src++;
+								}
+							}
 					}
 				}
 
