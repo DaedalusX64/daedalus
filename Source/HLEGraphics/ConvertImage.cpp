@@ -758,11 +758,11 @@ void	ConvertCI4(const TextureDestInfo & dst, const TextureInfo & ti)
 const ConvertFunction	gConvertFunctions[ 32 ] = 
 {
 	// 4bpp				8bpp			16bpp				32bpp
-	ConvertCI4,		ConvertCI8,		ConvertRGBA16,		ConvertRGBA32,			// RGBA
+	NULL,			NULL,			ConvertRGBA16,		ConvertRGBA32,			// RGBA
 	NULL,			NULL,			NULL,				NULL,					// YUV 
 	ConvertCI4,		ConvertCI8,		NULL,				NULL,					// CI
 	ConvertIA4,		ConvertIA8,		ConvertIA16,		NULL,					// IA
-	ConvertI4,		ConvertI8,		ConvertIA16,		NULL,					// I
+	ConvertI4,		ConvertI8,		NULL,				NULL,					// I
 	NULL,			NULL,			NULL,				NULL,					// ?
 	NULL,			NULL,			NULL,				NULL,					// ?
 	NULL,			NULL,			NULL,				NULL					// ?			

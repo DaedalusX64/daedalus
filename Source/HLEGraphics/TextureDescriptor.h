@@ -37,7 +37,7 @@ private:
 	u32			TLutIndex : 4;	// Palette index (0-15)
 	u32			Format : 3;		// e.g. RGBA, YUV, CI, IA, I...
 	u32			Size : 2;		// e.g. 4bpp, 8bpp, 16bpp, 32bpp
-	u32			TLutFmt : 2;	// e.g. NA, NA, RGBA16, IA16
+	u32			TLutFmt : 2;	// e.g. ?, ?, RGBA16, IA16
 	bool		Swapped : 1;	// Are odd lines word swapped?
 	bool		MirrorS : 1;
 	bool		MirrorT : 1;

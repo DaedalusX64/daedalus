@@ -184,7 +184,7 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 
 		if( it != mLoadMap.end() )
 		{
-			const SLoadDetails &	load_details( it->second );
+			const SLoadDetails & load_details( it->second );
 
 			address = load_details.Address;
 			pitch = load_details.Pitch;
@@ -193,6 +193,17 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		else
 		{
 			DAEDALUS_DL_ERROR( "No texture has been loaded to this address" );
+
+			if( g_ROM.GameHacks == SPACESTATION_SV )
+			{
+				//If we cant find the load details on the tiles TMEM address then we assume load was done on TMEM address 0 //Corn
+				//
+				LoadDetailsMap::const_iterator two( mLoadMap.find( 0 ) );	//Assume load was @ TMEM address 0
+				const SLoadDetails & load_details( two->second );
+				address = load_details.Address + (tmem_address << 3);	//Add offset in TMEM to base address
+				pitch = load_details.Pitch;
+				swapped = load_details.Swapped;
+			}
 		}
 
 		// If it was a block load - the pitch is determined by the tile size

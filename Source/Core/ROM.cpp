@@ -422,6 +422,7 @@ void SpecificGameHacks( const ROMHeader & id )
 		g_ROM.GameHacks = ZELDA_MM;
 		break;
 	case 0x5653:	//SSV
+		g_ROM.GameHacks = SPACESTATION_SV;
 		g_ROM.LOAD_T1_HACK = true;
 		g_ROM.TLUT_HACK = true;
 		break;
