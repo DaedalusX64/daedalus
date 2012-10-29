@@ -2690,7 +2690,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 				{
 					const TextureInfo & ti0(mpTexture[ 0 ]->GetTextureInfo());
 
-					if((ti0.GetFormat() == 0) && (ti.GetFormat() == 4) && (ti.GetWidth() == ti0.GetWidth()) && (ti.GetHeight() == ti0.GetHeight()))
+					if((ti0.GetFormat() == G_IM_FMT_RGBA) && (ti.GetFormat() == G_IM_FMT_I) && (ti.GetWidth() == ti0.GetWidth()) && (ti.GetHeight() == ti0.GetHeight()))
 					{
 						if( g_ROM.T1_HACK )
 							{
@@ -2698,6 +2698,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 								u32* dst=(u32*)(native_texture->GetData());
 								u32* src=(u32*)(native_texture0->GetData());
 								
+								//Merge RGB + I -> RGBA in texture 1
 								//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
 								u32 size = native_texture->GetWidth() * native_texture->GetHeight() >> 1;
 								for(u32 i=0; i < size ; i++)
@@ -2713,6 +2714,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 								u32* src=(u32*)(native_texture->GetData());
 								u32* dst=(u32*)(native_texture0->GetData());
 								
+								//Merge RGB + I -> RGBA in texture 0
 								//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
 								u32 size = native_texture->GetWidth() * native_texture->GetHeight() >> 1;
 								for(u32 i=0; i < size ; i++)

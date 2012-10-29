@@ -197,7 +197,7 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 			if( g_ROM.GameHacks == SPACESTATION_SV )
 			{
 				//If we cant find the load details on the tiles TMEM address then we assume load was done on TMEM address 0 //Corn
-				//
+				//Ridge Racer 64 crashes here
 				LoadDetailsMap::const_iterator two( mLoadMap.find( 0 ) );	//Assume load was @ TMEM address 0
 				const SLoadDetails & load_details( two->second );
 				address = load_details.Address + (tmem_address << 3);	//Add offset in TMEM to base address

@@ -784,15 +784,14 @@ void BlendMode_0x0015fec4f0fff83cLL (BLEND_MODE_ARGS)
 //aA0  : (0            - 0           ) * 0            + Texel1      
 //aRGB1: (Shade        - Env         ) * Combined     + Combined    
 //aA1  : (0            - 0           ) * 0            + Combined    
-void BlendMode_0x00117e80f5fff438LL (BLEND_MODE_ARGS)
+/*void BlendMode_0x00117e80f5fff438LL (BLEND_MODE_ARGS)
 {
-	//Needs T1 for full fix!!!!!!! 
 	//Makes Mario & his partner appear as black boxes.( This game has this same problem everywhere.)
 	//Seems like a core issue to me -Salvy
 
 	details.ColourAdjuster.SetRGBA( details.EnvColour );
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
-}
+}*/
 
 // Paper Mario - Intro Water
 // case 0x0020a203ff13ff7fLL:
@@ -1855,7 +1854,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 	{	
 #define BLEND_MODE( x )		case (x):	return BlendMode_##x;
 			//BLEND_MODE(0x00119623ff2fffffLL); // Pokemon Stadium 2 HUD //Ruins RR64
-			BLEND_MODE(0x00121824ff33ffffLL); // Tarzan
+			BLEND_MODE(0x00121824ff33ffffLL); // Tarzan (also used by Paper Mario)
 			BLEND_MODE(0x00127ffffffff438LL); // Extreme-G2
 			BLEND_MODE(0x00457fff3ffcfe3fLL); // Pokemon Stadium 2 Arena Floor
 			//BLEND_MODE(0x00522bfffffffe38LL); // Donald Duck rain (makes it transparent not really a fix) breaks shadow in Rayman2
@@ -1886,7 +1885,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 #define BLEND_MODE( x )		case (x):	return BlendMode_##x;
 			BLEND_MODE(0x001114a7f3fffef8LL); // Sin and Punishment - Sky <----- Needs work
 			BLEND_MODE(0x001147fffffffe38LL); // Command & Conquer - Water
-			BLEND_MODE(0x00117e80f5fff438LL); // Paper Mario block texture partial fix
+			//BLEND_MODE(0x00117e80f5fff438LL); // Paper Mario block texture partial fix
 			BLEND_MODE(0x0011fe2344fe7339LL); // Mortal Kombat 4 - Text
 			BLEND_MODE(0x0011fe2355fefd7eLL); // Mortal Kombat 4 -Character Selection screen background / Tower
 			BLEND_MODE(0x00121603ff5bfff8LL); // Zelda Paths
