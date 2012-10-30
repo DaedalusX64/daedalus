@@ -1334,7 +1334,7 @@ void	CCodeGeneratorPSP::GetBaseRegisterAndOffset( const void * p_address, EPspRe
 }
 
 typedef void (CCodeGeneratorPSP::*CodeGeneratorFunction)( GENERATE_PARAM );
-#define CALL_GENERATOR_FUNC(ptr)  ((this)->*(ptr))
+#define CALL_GENERATOR_FUNC(ptr)  ((this)->*(ptr))(GENERATE_ARGS)
 
 void CCodeGeneratorPSP::GenerateSpecial( GENERATE_PARAM ) 
 {
@@ -1349,7 +1349,7 @@ void CCodeGeneratorPSP::GenerateSpecial( GENERATE_PARAM )
 		&CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk,
 		&CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateDSLL32, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateDSRA32
 	};
-	CALL_GENERATOR_FUNC( gCodeGeneratorSpecialInstruction[ ti.OpCode.spec_op ] ) ( GENERATE_ARGS );
+	CALL_GENERATOR_FUNC( gCodeGeneratorSpecialInstruction[ ti.OpCode.spec_op ] );
 }
 
 void CCodeGeneratorPSP::GenerateRegImm( GENERATE_PARAM )
@@ -1361,36 +1361,16 @@ void CCodeGeneratorPSP::GenerateRegImm( GENERATE_PARAM )
 		&CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateUnk,  &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk,  &CCodeGeneratorPSP::GenerateUnk,
 		&CCodeGeneratorPSP::GenerateUnk,    &CCodeGeneratorPSP::GenerateUnk,    &CCodeGeneratorPSP::GenerateUnk,     &CCodeGeneratorPSP::GenerateUnk,     &CCodeGeneratorPSP::GenerateUnk,  &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk,  &CCodeGeneratorPSP::GenerateUnk
 	};
-	CALL_GENERATOR_FUNC( gCodeGeneratorRegImmInstruction[ ti.OpCode.regimm_op ] ) ( GENERATE_ARGS );
+	CALL_GENERATOR_FUNC( gCodeGeneratorRegImmInstruction[ ti.OpCode.regimm_op ] );
 }
 
 
 void CCodeGeneratorPSP::GenerateCoPro0( GENERATE_PARAM )  
 {
-	static const CodeGeneratorFunction gCodeGeneratorCop0Instruction[32] =
-	{
-		&CCodeGeneratorPSP::GenerateMFC0, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk,
-		&CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk,
-		&CCodeGeneratorPSP::GenerateTLB, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk,
-		&CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk,
-	};
-	CALL_GENERATOR_FUNC( gCodeGeneratorCop0Instruction[ ti.OpCode.cop0_op ] ) ( GENERATE_ARGS );
-}
-
-void CCodeGeneratorPSP::GenerateTLB( GENERATE_PARAM )
-{
-	static const CodeGeneratorFunction gCodeGeneratorTLBInstruction[64] =
-	{
-		&CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateUnk,
-		&CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk,
-		&CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk,
-		&CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk,
-		&CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk,
-		&CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk,
-		&CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk,
-		&CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk,
-	};
-	CALL_GENERATOR_FUNC( gCodeGeneratorTLBInstruction[ ti.OpCode.cop0tlb_funct ] ) ( GENERATE_ARGS );
+	if( ti.OpCode.op == Cop0Op_MFC0 )
+		GenerateMFC0( GENERATE_ARGS );
+	else
+		GenerateGeneric( GENERATE_ARGS );
 }
 
 /*
@@ -1426,7 +1406,7 @@ void CCodeGeneratorPSP::GenerateBCInstr( GENERATE_PARAM )
 	{
 		&CCodeGeneratorPSP::GenerateBC1F, &CCodeGeneratorPSP::GenerateBC1T, &CCodeGeneratorPSP::GenerateBC1F, &CCodeGeneratorPSP::GenerateBC1T
 	};
-	CALL_GENERATOR_FUNC( gCodeGeneratorCop1BC1Instruction[ ti.OpCode.cop1_bc ] ) ( GENERATE_ARGS );
+	CALL_GENERATOR_FUNC( gCodeGeneratorCop1BC1Instruction[ ti.OpCode.cop1_bc ] );
 }
 
 void CCodeGeneratorPSP::GenerateSInstr( GENERATE_PARAM )
@@ -1442,7 +1422,7 @@ void CCodeGeneratorPSP::GenerateSInstr( GENERATE_PARAM )
 		&CCodeGeneratorPSP::GenerateCMP_S,  &CCodeGeneratorPSP::GenerateCMP_S, &CCodeGeneratorPSP::GenerateCMP_S, &CCodeGeneratorPSP::GenerateCMP_S, &CCodeGeneratorPSP::GenerateCMP_S,     &CCodeGeneratorPSP::GenerateCMP_S,     &CCodeGeneratorPSP::GenerateCMP_S,    &CCodeGeneratorPSP::GenerateCMP_S,
 		&CCodeGeneratorPSP::GenerateCMP_S,  &CCodeGeneratorPSP::GenerateCMP_S, &CCodeGeneratorPSP::GenerateCMP_S, &CCodeGeneratorPSP::GenerateCMP_S, &CCodeGeneratorPSP::GenerateCMP_S,      &CCodeGeneratorPSP::GenerateCMP_S,     &CCodeGeneratorPSP::GenerateCMP_S,     &CCodeGeneratorPSP::GenerateCMP_S,
 	};
-	CALL_GENERATOR_FUNC( gCodeGeneratorCop1SInstruction[ ti.OpCode.cop1_funct ] ) ( GENERATE_ARGS );
+	CALL_GENERATOR_FUNC( gCodeGeneratorCop1SInstruction[ ti.OpCode.cop1_funct ] );
 }
 
 
@@ -1462,7 +1442,7 @@ void CCodeGeneratorPSP::GenerateDInstr( GENERATE_PARAM )
 	
 	if(gDynarecDoublesOptimisation)
 	{
-		CALL_GENERATOR_FUNC( gCodeGeneratorCop1DInstruction[ ti.OpCode.cop1_funct ] ) ( GENERATE_ARGS );
+		CALL_GENERATOR_FUNC( gCodeGeneratorCop1DInstruction[ ti.OpCode.cop1_funct ] );
 	}
 	else
 		GenerateGenericR4300( ti.OpCode, R4300_GetDInstructionHandler( ti.OpCode ) );
@@ -1477,7 +1457,7 @@ void CCodeGeneratorPSP::GenerateCoPro1( GENERATE_PARAM )
 		&CCodeGeneratorPSP::GenerateSInstr,  &CCodeGeneratorPSP::GenerateDInstr, &CCodeGeneratorPSP::GenerateUnk,  &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateGenericD, &CCodeGeneratorPSP::GenerateGenericD, &CCodeGeneratorPSP::GenerateUnk,  &CCodeGeneratorPSP::GenerateUnk,
 		&CCodeGeneratorPSP::GenerateUnk,     &CCodeGeneratorPSP::GenerateUnk,    &CCodeGeneratorPSP::GenerateUnk,  &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk,    &CCodeGeneratorPSP::GenerateUnk,    &CCodeGeneratorPSP::GenerateUnk,  &CCodeGeneratorPSP::GenerateUnk
 	};
-	CALL_GENERATOR_FUNC( gCodeGeneratorCop1Instruction[ ti.OpCode.cop1_op ] ) ( GENERATE_ARGS );
+	CALL_GENERATOR_FUNC( gCodeGeneratorCop1Instruction[ ti.OpCode.cop1_op ] );
 }
 
 ///*****************************************************************************
@@ -1590,7 +1570,7 @@ void	CCodeGeneratorPSP::GenerateGeneric( GENERATE_PARAM )
 CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool branch_delay_slot, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	DAEDALUS_PROFILE( "CCodeGeneratorPSP::GenerateOpCode" );
-	OpCode op_code = ti.OpCode;
+	const OpCode &op_code( ti.OpCode );
 
 	 /* NOP */
 	if( op_code._u32 == 0  )
@@ -1619,7 +1599,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		&CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateLWC1, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateLD,
 		&CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateSWC1, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateUnk, &CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateGeneric, &CCodeGeneratorPSP::GenerateSD
 	};
-	CALL_GENERATOR_FUNC( gCodeGeneratorInstruction[ op_code.op ] ) ( GENERATE_ARGS );
+	CALL_GENERATOR_FUNC( gCodeGeneratorInstruction[ op_code.op ] );
 
 	return CJumpLocation();
 }
@@ -4461,11 +4441,8 @@ void	CCodeGeneratorPSP::GenerateNEG_D_Sim( GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateTRUNC_W_D_Sim( GENERATE_PARAM )
 {
-	u32 fd = ti.OpCode.fd;
-	u32 fs = ti.OpCode.fs;
-
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( ti.OpCode.fd );
 
 	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );//1:1 Mapping
 	//EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );//1:1 Mapping
@@ -4482,11 +4459,8 @@ void	CCodeGeneratorPSP::GenerateTRUNC_W_D_Sim( GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateCVT_W_D_Sim( GENERATE_PARAM )
 {
-	u32 fd = ti.OpCode.fd;
-	u32 fs = ti.OpCode.fs;
-
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( ti.OpCode.fd );
 
 	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );//1:1 Mapping
 	//EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );//1:1 Mapping
@@ -4503,11 +4477,8 @@ void	CCodeGeneratorPSP::GenerateCVT_W_D_Sim( GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateCVT_S_D_Sim( GENERATE_PARAM )
 {
-	u32 fd = ti.OpCode.fd;
-	u32 fs = ti.OpCode.fs;
-
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( ti.OpCode.fd );
 
 	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );//1:1 Mapping
 	//EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );//1:1 Mapping
@@ -4524,42 +4495,16 @@ void	CCodeGeneratorPSP::GenerateCVT_S_D_Sim( GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateCMP_D_Sim( GENERATE_PARAM )
 {
-	u32 fs = ti.OpCode.fs;
-	u32 ft = ti.OpCode.ft;
-
 	mFloatCMPIsValid = true;
 
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_ft = EN64FloatReg( ft );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_ft = EN64FloatReg( ti.OpCode.ft );
 
 	EPspFloatReg	psp_fs( GetSimFloatRegisterAndLoad( n64_fs ) );
 	EPspFloatReg	psp_ft( GetSimFloatRegisterAndLoad( n64_ft ) );
 
-		// ToDo: Replace me with an array
-	ECop1OpFunction cmp_op;
-	switch( ti.OpCode.cop1_funct )
-	{
-		
-			case Cop1OpFunc_CMP_F:		cmp_op = Cop1OpFunc_CMP_F; break;
-			case Cop1OpFunc_CMP_UN:		cmp_op = Cop1OpFunc_CMP_UN;break;
-			case Cop1OpFunc_CMP_EQ:		cmp_op = Cop1OpFunc_CMP_EQ;break;
-			case Cop1OpFunc_CMP_UEQ:	cmp_op = Cop1OpFunc_CMP_UEQ;break;
-			case Cop1OpFunc_CMP_OLT:	cmp_op = Cop1OpFunc_CMP_OLT; break;
-			case Cop1OpFunc_CMP_ULT:	cmp_op = Cop1OpFunc_CMP_ULT;break;
-			case Cop1OpFunc_CMP_OLE:	cmp_op = Cop1OpFunc_CMP_OLE; break;
-			case Cop1OpFunc_CMP_ULE:	cmp_op = Cop1OpFunc_CMP_ULE; break;
-
-			case Cop1OpFunc_CMP_SF:		cmp_op = Cop1OpFunc_CMP_SF;break;
-			case Cop1OpFunc_CMP_NGLE:	cmp_op = Cop1OpFunc_CMP_NGLE; break;
-			case Cop1OpFunc_CMP_SEQ:	cmp_op = Cop1OpFunc_CMP_SEQ; break;
-			case Cop1OpFunc_CMP_NGL:	cmp_op = Cop1OpFunc_CMP_NGL; break;
-			case Cop1OpFunc_CMP_LT:		cmp_op = Cop1OpFunc_CMP_LT; break;
-			case Cop1OpFunc_CMP_NGE:	cmp_op = Cop1OpFunc_CMP_NGE; break;
-			case Cop1OpFunc_CMP_LE:		cmp_op = Cop1OpFunc_CMP_LE;break;
-			case Cop1OpFunc_CMP_NGT:	cmp_op = Cop1OpFunc_CMP_NGT;break;
-	}
-
 	//Use float now instead of double :)
+	ECop1OpFunction	cmp_op = ECop1OpFunction( ti.OpCode.cop1_funct );
 	CMP_S( psp_fs, cmp_op, psp_ft );
 
 #if 1 //Improved version no branch //Corn
@@ -4609,13 +4554,10 @@ void	CCodeGeneratorPSP::GenerateADD_S( GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateSUB_S( GENERATE_PARAM )
 {
-	u32 fd = ti.OpCode.fd;
-	u32 fs = ti.OpCode.fs;
-	u32 ft = ti.OpCode.ft;
 
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_ft = EN64FloatReg( ft );
-	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_ft = EN64FloatReg( ti.OpCode.ft );
+	EN64FloatReg	n64_fd = EN64FloatReg( ti.OpCode.fd );
 
 	EPspFloatReg	psp_fd = EPspFloatReg(n64_fd ); //1:1 Mapping
 	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( n64_fs ) );
@@ -4633,13 +4575,10 @@ void	CCodeGeneratorPSP::GenerateSUB_S( GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateMUL_S( GENERATE_PARAM )
 {
-	u32 fd = ti.OpCode.fd;
-	u32 fs = ti.OpCode.fs;
-	u32 ft = ti.OpCode.ft;
 
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_ft = EN64FloatReg( ft );
-	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_ft = EN64FloatReg( ti.OpCode.ft );
+	EN64FloatReg	n64_fd = EN64FloatReg( ti.OpCode.fd );
 
 	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd );
 	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( n64_fs ) );
@@ -4657,13 +4596,9 @@ void	CCodeGeneratorPSP::GenerateMUL_S( GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateDIV_S( GENERATE_PARAM )
 {
-	u32 fd = ti.OpCode.fd;
-	u32 fs = ti.OpCode.fs;
-	u32 ft = ti.OpCode.ft;
-
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_ft = EN64FloatReg( ft );
-	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_ft = EN64FloatReg( ti.OpCode.ft );
+	EN64FloatReg	n64_fd = EN64FloatReg( ti.OpCode.fd );
 
 	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd );
 	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( n64_fs ) );
@@ -4681,11 +4616,8 @@ void	CCodeGeneratorPSP::GenerateDIV_S( GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateSQRT_S( GENERATE_PARAM )
 {
-	u32 fd = ti.OpCode.fd;
-	u32 fs = ti.OpCode.fs;
-
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( ti.OpCode.fd );
 
 	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd );
 	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( n64_fs ) );
@@ -4702,11 +4634,8 @@ void	CCodeGeneratorPSP::GenerateSQRT_S( GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateABS_S( GENERATE_PARAM )
 {
-	u32 fd = ti.OpCode.fd;
-	u32 fs = ti.OpCode.fs;
-
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( ti.OpCode.fd );
 
 	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd );
 	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( n64_fs ) );
@@ -4723,11 +4652,8 @@ void	CCodeGeneratorPSP::GenerateABS_S( GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateMOV_S(  GENERATE_PARAM )
 {
-	u32 fd = ti.OpCode.fd;
-	u32 fs = ti.OpCode.fs;
-
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( ti.OpCode.fd );
 
 	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd );
 	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( n64_fs ) );
@@ -4744,11 +4670,8 @@ void	CCodeGeneratorPSP::GenerateMOV_S(  GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateNEG_S(  GENERATE_PARAM )
 {
-	u32 fd = ti.OpCode.fd;
-	u32 fs = ti.OpCode.fs;
-
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( ti.OpCode.fd );
 
 	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd );
 	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( n64_fs ) );
@@ -4765,11 +4688,8 @@ void	CCodeGeneratorPSP::GenerateNEG_S(  GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateTRUNC_W_S(  GENERATE_PARAM )
 {
-	u32 fd = ti.OpCode.fd;
-	u32 fs = ti.OpCode.fs;
-
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( ti.OpCode.fd );
 
 	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd );
 	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( n64_fs ) );
@@ -4786,11 +4706,8 @@ void	CCodeGeneratorPSP::GenerateTRUNC_W_S(  GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateCVT_W_S(  GENERATE_PARAM )
 {
-	u32 fd = ti.OpCode.fd;
-	u32 fs = ti.OpCode.fs;
-
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( ti.OpCode.fd );
 
 	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd );
 	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( n64_fs ) );
@@ -4807,11 +4724,8 @@ void	CCodeGeneratorPSP::GenerateCVT_W_S(  GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateCVT_D_W_Sim( GENERATE_PARAM )
 {
-	u32 fs = ti.OpCode.fs;
-	u32 fd = ti.OpCode.fd;
-
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( ti.OpCode.fd );
 
 	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );
 	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );
@@ -4829,11 +4743,8 @@ void	CCodeGeneratorPSP::GenerateCVT_D_W_Sim( GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateCVT_D_S_Sim( GENERATE_PARAM )
 {
-	u32 fs = ti.OpCode.fs;
-	u32 fd = ti.OpCode.fd;
-
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( ti.OpCode.fd );
 
 	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );
 	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );
@@ -4860,11 +4771,8 @@ void	CCodeGeneratorPSP::GenerateCVT_D_S( GENERATE_PARAM )
 		return;
 	}
 
-	u32 fs = ti.OpCode.fs;
-	u32 fd = ti.OpCode.fd;
-
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( ti.OpCode.fd );
 
 	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );//1:1 Mapping
 	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );//1:1 Mapping
@@ -4888,41 +4796,15 @@ void	CCodeGeneratorPSP::GenerateCVT_D_S( GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateCMP_S( GENERATE_PARAM )
 {
-	u32 fs = ti.OpCode.fs;
-	u32 ft = ti.OpCode.ft;
-
 	mFloatCMPIsValid = true;
 
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_ft = EN64FloatReg( ft );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_ft = EN64FloatReg( ti.OpCode.ft );
 
 	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( n64_fs ) );
 	EPspFloatReg	psp_ft( GetFloatRegisterAndLoad( n64_ft ) );
 
-	// ToDo: Replace me with an array
-	ECop1OpFunction cmp_op;
-	switch( ti.OpCode.cop1_funct )
-	{
-		
-			case Cop1OpFunc_CMP_F:		cmp_op = Cop1OpFunc_CMP_F; break;
-			case Cop1OpFunc_CMP_UN:		cmp_op = Cop1OpFunc_CMP_UN;break;
-			case Cop1OpFunc_CMP_EQ:		cmp_op = Cop1OpFunc_CMP_EQ;break;
-			case Cop1OpFunc_CMP_UEQ:	cmp_op = Cop1OpFunc_CMP_UEQ;break;
-			case Cop1OpFunc_CMP_OLT:	cmp_op = Cop1OpFunc_CMP_OLT; break;
-			case Cop1OpFunc_CMP_ULT:	cmp_op = Cop1OpFunc_CMP_ULT;break;
-			case Cop1OpFunc_CMP_OLE:	cmp_op = Cop1OpFunc_CMP_OLE; break;
-			case Cop1OpFunc_CMP_ULE:	cmp_op = Cop1OpFunc_CMP_ULE; break;
-
-			case Cop1OpFunc_CMP_SF:		cmp_op = Cop1OpFunc_CMP_SF;break;
-			case Cop1OpFunc_CMP_NGLE:	cmp_op = Cop1OpFunc_CMP_NGLE; break;
-			case Cop1OpFunc_CMP_SEQ:	cmp_op = Cop1OpFunc_CMP_SEQ; break;
-			case Cop1OpFunc_CMP_NGL:	cmp_op = Cop1OpFunc_CMP_NGL; break;
-			case Cop1OpFunc_CMP_LT:		cmp_op = Cop1OpFunc_CMP_LT; break;
-			case Cop1OpFunc_CMP_NGE:	cmp_op = Cop1OpFunc_CMP_NGE; break;
-			case Cop1OpFunc_CMP_LE:		cmp_op = Cop1OpFunc_CMP_LE;break;
-			case Cop1OpFunc_CMP_NGT:	cmp_op = Cop1OpFunc_CMP_NGT;break;
-	}
-
+	ECop1OpFunction	cmp_op = ECop1OpFunction( ti.OpCode.cop1_funct );
 	CMP_S( psp_fs, cmp_op, psp_ft );
 
 #if 1 //Improved version no branch //Corn
@@ -4952,11 +4834,8 @@ void	CCodeGeneratorPSP::GenerateCMP_S( GENERATE_PARAM )
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateCVT_S_W( GENERATE_PARAM )
 {
-	u32 fd = ti.OpCode.fd;
-	u32 fs = ti.OpCode.fs; 
-
-	EN64FloatReg	n64_fs = EN64FloatReg( fs );
-	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+	EN64FloatReg	n64_fs = EN64FloatReg( ti.OpCode.fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( ti.OpCode.fd );
 
 	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd );
 	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( n64_fs ) );
