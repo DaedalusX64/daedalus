@@ -57,16 +57,20 @@ public:
 		u32					Address;		// Base address of texture (same address as from Timg ucode)
 		u32					Pitch;			// May be different from that derived from Image.Pitch
 		bool				Swapped;
-		bool				Valid;
 	};
 
 private:
 	void					InvalidateAllTileTextureInfo();
+	inline u32				EntryIsValid( const u32 tmem )		{ return (Valid_Entry >> tmem) & 1; }
+	inline void				SetValid( const u32 tmem )			{ Valid_Entry |= (1 << tmem); }
+	inline void				ClearValid( const u32 tmem )		{ Valid_Entry &= ((u32)~0 >> (31-tmem)); }
+	inline void				ClearAllValid()						{ Valid_Entry = 0; }
 
 private:
 	RDP_Tile				mTiles[ 8 ];
 	RDP_TileSize			mTileSizes[ 8 ];
 	SLoadDetails			mTMEM_Load[ 32 ];	//Subdivide TMEM area into 32 slots and keep track of texture loads (LoadBlock/LoadTile/LoadTlut) //Corn
+	u32						Valid_Entry;		//Use bits to signal valid entries in TMEM
 
 	mutable TextureInfo		mTileTextureInfo[ 8 ];
 	mutable bool			mTileTextureInfoValid[ 8 ];		// Set to false if this needs rebuilding

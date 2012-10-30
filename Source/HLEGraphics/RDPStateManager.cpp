@@ -36,7 +36,7 @@ extern SImageDescriptor g_TI;		//Texture data from Timg ucode
 //*****************************************************************************
 CRDPStateManager::CRDPStateManager()
 {
-	memset( mTMEM_Load, 0, sizeof(mTMEM_Load) );
+	ClearAllValid();
 	InvalidateAllTileTextureInfo();
 }
 
@@ -52,7 +52,7 @@ CRDPStateManager::~CRDPStateManager()
 //*****************************************************************************
 void CRDPStateManager::Reset()
 {
-	memset( mTMEM_Load, 0, sizeof(mTMEM_Load) );
+	ClearAllValid();
 	InvalidateAllTileTextureInfo();
 }
 
@@ -102,15 +102,13 @@ void	CRDPStateManager::LoadBlock( u32 idx, u32 address, bool swapped )
 	u32	tmem_lookup( mTiles[ idx ].tmem >> 4 );
 
 	//Invalidate load info from current TMEM address to the end of TMEM (fixes Fzero and SSV) //Corn
-	for( u32 i = tmem_lookup; i < 32; ++i )
-	{
-		mTMEM_Load[ i ].Valid = false;
-	}
+	ClearValid( tmem_lookup );
+
+	SetValid( tmem_lookup );
 		
 	mTMEM_Load[ tmem_lookup ].Address = address;
 	mTMEM_Load[ tmem_lookup ].Pitch = ~0;
 	mTMEM_Load[ tmem_lookup ].Swapped = swapped;
-	mTMEM_Load[ tmem_lookup ].Valid = true;
 }
 
 //*****************************************************************************
@@ -122,10 +120,11 @@ void	CRDPStateManager::LoadTile( u32 idx, u32 address )
 
 	u32	tmem_lookup( mTiles[ idx ].tmem >> 4 );
 
+	SetValid( tmem_lookup );
+
 	mTMEM_Load[ tmem_lookup ].Address = address;
 	mTMEM_Load[ tmem_lookup ].Pitch = g_TI.GetPitch();
 	mTMEM_Load[ tmem_lookup ].Swapped = false;
-	mTMEM_Load[ tmem_lookup ].Valid = true;
 }
 //*****************************************************************************
 //
@@ -136,10 +135,11 @@ void	CRDPStateManager::LoadTile( u32 idx, u32 address )
 
 	u32	tmem_lookup( mTiles[ idx ].tmem >> 4 );
 	
+	SetValid( tmem_lookup );
+
 	mTMEM_Load[ tmem_lookup ].Address = address;
 	mTMEM_Load[ tmem_lookup ].Pitch = g_TI.GetPitch();
 	mTMEM_Load[ tmem_lookup ].Swapped = false;
-	mTMEM_Load[ tmem_lookup ].Valid = true;
 }*/
 //*****************************************************************************
 //
@@ -183,11 +183,13 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		const RDP_TileSize &	rdp_tilesize( mTileSizes[ idx ] );
 		u32						tmem_lookup( rdp_tile.tmem >> 4 );
 
+		DAEDALUS_DL_ASSERT( !(rdp_tile.tmem & 0xF), "TMEM address is unaligned");
+		
 		u32		address( mTMEM_Load[ tmem_lookup ].Address );
 		u32		pitch( mTMEM_Load[ tmem_lookup ].Pitch );
 		bool	swapped( mTMEM_Load[ tmem_lookup ].Swapped );
 
-		if(	!mTMEM_Load[ tmem_lookup ].Valid )
+		if(	gRDPStateManager.EntryIsValid( tmem_lookup ) == 0 )
 		{
 			//If we can't find the load details on current tile TMEM address we assume load was done on TMEM address 0 //Corn
 			//
