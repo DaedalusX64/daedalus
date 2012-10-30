@@ -45,33 +45,28 @@ public:
 	void							SetTileSize( const RDP_TileSize & tile_size );
 	void							LoadBlock( u32 idx, u32 address, bool swapped );
 	void							LoadTile( u32 idx, u32 address );
+	//void							LoadTlut( u32 idx, u32 address )
 
-// Retrive tile addr loading. used by Yoshi_MemRect
-	inline u32						GetTileAddress( const u32 tmem ) { LoadDetailsMap::const_iterator it( mLoadMap.find( tmem ) ); const SLoadDetails &	load_details( it->second ); return load_details.Address; }
+	// Retrive tile addr loading. used by Yoshi_MemRect
+	inline u32						GetTileAddress( const u32 tmem ) { return mTMEM_Load[ tmem >> 4 ].Address; }
 
 	const TextureInfo &				GetTextureDescriptor( const u32 idx ) const;
 
-		struct SLoadDetails
+	struct SLoadDetails
 	{
-		SImageDescriptor	Image;
-		RDP_TileSize		TileSize;
-
-		u32					Address;		// Base address of texture
+		u32					Address;		// Base address of texture (same address as from Timg ucode)
 		u32					Pitch;			// May be different from that derived from Image.Pitch
 		bool				Swapped;
+		bool				Valid;
 	};
 
-
-	typedef	std::map< u32, SLoadDetails > LoadDetailsMap;
-	LoadDetailsMap			mLoadMap;
-
 private:
-	void							InvalidateAllTileTextureInfo();
+	void					InvalidateAllTileTextureInfo();
 
 private:
 	RDP_Tile				mTiles[ 8 ];
 	RDP_TileSize			mTileSizes[ 8 ];
-
+	SLoadDetails			mTMEM_Load[ 32 ];	//Subdivide TMEM area into 32 slots and keep track of texture loads (LoadBlock/LoadTile/LoadTlut) //Corn
 
 	mutable TextureInfo		mTileTextureInfo[ 8 ];
 	mutable bool			mTileTextureInfoValid[ 8 ];		// Set to false if this needs rebuilding

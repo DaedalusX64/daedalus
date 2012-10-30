@@ -29,13 +29,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/ultra_gbi.h"
 
 
-extern SImageDescriptor g_TI;		// XXXX
+extern SImageDescriptor g_TI;		//Texture data from Timg ucode
 
 //*****************************************************************************
 //
 //*****************************************************************************
 CRDPStateManager::CRDPStateManager()
 {
+	memset( mTMEM_Load, 0, sizeof(mTMEM_Load) );
 	InvalidateAllTileTextureInfo();
 }
 
@@ -51,7 +52,7 @@ CRDPStateManager::~CRDPStateManager()
 //*****************************************************************************
 void CRDPStateManager::Reset()
 {
-	mLoadMap.clear();
+	memset( mTMEM_Load, 0, sizeof(mTMEM_Load) );
 	InvalidateAllTileTextureInfo();
 }
 
@@ -96,14 +97,20 @@ void	CRDPStateManager::SetTileSize( const RDP_TileSize & tile_size )
 //*****************************************************************************
 void	CRDPStateManager::LoadBlock( u32 idx, u32 address, bool swapped )
 {
-	u32	tmem_address( mTiles[ idx ].tmem );
-
-	SLoadDetails &	load_details( mLoadMap[ tmem_address ] );
-	load_details.Address = address;
-	load_details.Pitch = ~0;
-	load_details.Swapped = swapped;
-
 	InvalidateAllTileTextureInfo();		// Can potentially invalidate all texture infos
+
+	u32	tmem_lookup( mTiles[ idx ].tmem >> 4 );
+
+	//Invalidate load info from current TMEM address to the end of TMEM (fixes Fzero and SSV) //Corn
+	for( u32 i = tmem_lookup; i < 32; ++i )
+	{
+		mTMEM_Load[ i ].Valid = false;
+	}
+		
+	mTMEM_Load[ tmem_lookup ].Address = address;
+	mTMEM_Load[ tmem_lookup ].Pitch = ~0;
+	mTMEM_Load[ tmem_lookup ].Swapped = swapped;
+	mTMEM_Load[ tmem_lookup ].Valid = true;
 }
 
 //*****************************************************************************
@@ -111,28 +118,28 @@ void	CRDPStateManager::LoadBlock( u32 idx, u32 address, bool swapped )
 //*****************************************************************************
 void	CRDPStateManager::LoadTile( u32 idx, u32 address )
 {
-	u32	tmem_address( mTiles[ idx ].tmem );
-	
-	SLoadDetails &	load_details( mLoadMap[ tmem_address ] );
-	load_details.Address = address;
-	load_details.Pitch = g_TI.GetPitch();
-	load_details.Swapped = false;
-
 	InvalidateAllTileTextureInfo();		// Can potentially invalidate all texture infos
+
+	u32	tmem_lookup( mTiles[ idx ].tmem >> 4 );
+
+	mTMEM_Load[ tmem_lookup ].Address = address;
+	mTMEM_Load[ tmem_lookup ].Pitch = g_TI.GetPitch();
+	mTMEM_Load[ tmem_lookup ].Swapped = false;
+	mTMEM_Load[ tmem_lookup ].Valid = true;
 }
 //*****************************************************************************
 //
 //*****************************************************************************
 /*void	CRDPStateManager::LoadTlut( u32 idx, u32 address )
 {
-	u32	tmem_address( (mTiles[ idx ].tmem>>2) & 0x3F );
-	
-	SLoadDetails &	load_details( mLoadMap[ tmem_address ] );
-	load_details.Address = address;
-	load_details.Pitch = g_TI.GetPitch();
-	load_details.Swapped = false;
-
 	InvalidateAllTileTextureInfo();		// Can potentially invalidate all texture infos
+
+	u32	tmem_lookup( mTiles[ idx ].tmem >> 4 );
+	
+	mTMEM_Load[ tmem_lookup ].Address = address;
+	mTMEM_Load[ tmem_lookup ].Pitch = g_TI.GetPitch();
+	mTMEM_Load[ tmem_lookup ].Swapped = false;
+	mTMEM_Load[ tmem_lookup ].Valid = true;
 }*/
 //*****************************************************************************
 //
@@ -174,36 +181,19 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 
 		const RDP_Tile &		rdp_tile( mTiles[ idx ] );
 		const RDP_TileSize &	rdp_tilesize( mTileSizes[ idx ] );
-		u32						tmem_address( rdp_tile.tmem );
+		u32						tmem_lookup( rdp_tile.tmem >> 4 );
 
-		LoadDetailsMap::const_iterator it( mLoadMap.find( tmem_address ) );
+		u32		address( mTMEM_Load[ tmem_lookup ].Address );
+		u32		pitch( mTMEM_Load[ tmem_lookup ].Pitch );
+		bool	swapped( mTMEM_Load[ tmem_lookup ].Swapped );
 
-		u32		address( 0 );
-		u32		pitch( 0 );
-		bool	swapped( false );
-
-		if( it != mLoadMap.end() )
+		if(	!mTMEM_Load[ tmem_lookup ].Valid )
 		{
-			const SLoadDetails & load_details( it->second );
-
-			address = load_details.Address;
-			pitch = load_details.Pitch;
-			swapped = load_details.Swapped;
-		}
-		else
-		{
-			DAEDALUS_DL_ERROR( "No texture has been loaded to this address" );
-
-			if( g_ROM.GameHacks == SPACESTATION_SV )
-			{
-				//If we cant find the load details on the tiles TMEM address then we assume load was done on TMEM address 0 //Corn
-				//Ridge Racer 64 crashes here
-				LoadDetailsMap::const_iterator two( mLoadMap.find( 0 ) );	//Assume load was @ TMEM address 0
-				const SLoadDetails & load_details( two->second );
-				address = load_details.Address + (tmem_address << 3);	//Add offset in TMEM to base address
-				pitch = load_details.Pitch;
-				swapped = load_details.Swapped;
-			}
+			//If we can't find the load details on current tile TMEM address we assume load was done on TMEM address 0 //Corn
+			//
+			address = mTMEM_Load[ 0 ].Address + (rdp_tile.tmem << 3);	//Calculate offset in bytes and add to base address
+			pitch = mTMEM_Load[ 0 ].Pitch;
+			swapped = mTMEM_Load[ 0 ].Swapped;
 		}
 
 		// If it was a block load - the pitch is determined by the tile size
@@ -282,6 +272,7 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		ti.SetHeight( tile_height );
 		ti.SetPitch( pitch );
 		ti.SetTLutFormat( gRDPOtherMode.text_tlut << G_MDSFT_TEXTLUT );
+		ti.SetTile( idx );
 		ti.SetSwapped( swapped );
 		ti.SetMirrorS( rdp_tile.mirror_s );
 		ti.SetMirrorT( rdp_tile.mirror_t );

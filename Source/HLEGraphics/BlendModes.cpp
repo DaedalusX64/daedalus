@@ -1148,6 +1148,18 @@ void BlendMode_0x0017e2052ffd75f8LL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
+//Space Station Silicon Valley - smoke and pickups
+//case 0x00272c6015fc9378LL:
+//aRGB0: (Texel1       - Texel0      ) * PrimLODFrac  + Texel0
+//aA0  : (Texel1       - Texel0      ) * 1            + Texel0
+//aRGB1: (Primitive    - Env         ) * Combined     + Env
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x00272c6015fc9378LL( BLEND_MODE_ARGS )
+{
+	details.ColourAdjuster.SetRGB( details.PrimColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
 //Space Station Silicon Valley - Fences and windshield
 //case 0x0026a0041ffc93e0LL:
 //aRGB0: (Texel1       - Texel0      ) * LOD_Frac     + Texel0
@@ -1939,6 +1951,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x00272c60150c937dLL); // Pokemon Thunder
 			BLEND_MODE(0x00272c60340c933fLL); // Zelda Castle Light
 			BLEND_MODE(0x00272c60150c937fLL); // Zelda Heart Container
+			BLEND_MODE(0x00272c6015fc9378LL); // SSV smoke/pickups
 			BLEND_MODE(0x00272c60350c937fLL); // OOT Spiritual Stones / Pokeball
 			BLEND_MODE(0x00272c60350ce37fLL); // OOT Logo / Flames
 			BLEND_MODE(0x00272c603510e37fLL); // Pokemon Stadium 2 - Pokeball Swirls
