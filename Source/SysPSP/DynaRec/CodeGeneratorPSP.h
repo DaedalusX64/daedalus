@@ -31,6 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 class CAssemblyBuffer;
 
+#define GENERATE_PARAM	const STraceEntry& ti, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump
+#define GENERATE_ARGS	ti, p_branch, p_branch_jump
 
 class CCodeGeneratorPSP : public CCodeGenerator, public CAssemblyWriterPSP
 {
@@ -68,114 +70,117 @@ private:
 				void				GetBaseRegisterAndOffset( const void * p_address, EPspReg * p_reg, s16 * p_offset );
 
 				//void				UpdateAddressAndDelay( u32 address, bool set_branch_delay );
+				void				GenerateWInstr( GENERATE_PARAM );
+				void				GenerateLInstr( GENERATE_PARAM );
+				void				GenerateSpecial( GENERATE_PARAM );
+				void				GenerateRegImm( GENERATE_PARAM );
+				void				GenerateCoPro0( GENERATE_PARAM );
+				void 				GenerateTLB( GENERATE_PARAM );
+				void 				GenerateCoPro1( GENERATE_PARAM );
+				void 				GenerateBCInstr( GENERATE_PARAM );
+				void 				GenerateSInstr( GENERATE_PARAM );
+				void				GenerateDInstr( GENERATE_PARAM );
 
-				void				GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op );
+				void				GenerateUnk( GENERATE_PARAM );
+				void				GenerateGenericD( GENERATE_PARAM );
+				void				GenerateGeneric( GENERATE_PARAM );
 
-				void				GenerateJAL( u32 address );
-				void				GenerateJR( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump );
-				void				GenerateJALR( EN64Reg rs, EN64Reg rd, u32 address, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump );
+				void				GenerateCACHE( GENERATE_PARAM );
 
-				void				GenerateMFLO( EN64Reg rd );
-				void				GenerateMFHI( EN64Reg rd );
-				void				GenerateMTLO( EN64Reg rs );
-				void				GenerateMTHI( EN64Reg rs );
-				void				GenerateMULT( EN64Reg rs, EN64Reg rt );
-				void				GenerateMULTU( EN64Reg rs, EN64Reg rt );
-				void				GenerateDIV( EN64Reg rs, EN64Reg rt );
-				void				GenerateDIVU( EN64Reg rs, EN64Reg rt );
+				void				GenerateJAL( GENERATE_PARAM );
+				void				GenerateJR( GENERATE_PARAM );
+				void				GenerateJALR( GENERATE_PARAM );
 
-				void				GenerateADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt );
-				void				GenerateSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt );
-				void				GenerateAND( EN64Reg rd, EN64Reg rs, EN64Reg rt );
-				void				GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt );
-				void				GenerateXOR( EN64Reg rd, EN64Reg rs, EN64Reg rt );
-				void				GenerateNOR( EN64Reg rd, EN64Reg rs, EN64Reg rt );
-				void				GenerateSLT( EN64Reg rd, EN64Reg rs, EN64Reg rt );
-				void				GenerateSLTU( EN64Reg rd, EN64Reg rs, EN64Reg rt );
+				void				GenerateMFLO( GENERATE_PARAM );
+				void				GenerateMFHI( GENERATE_PARAM );
+				void				GenerateMTLO( GENERATE_PARAM );
+				void				GenerateMTHI( GENERATE_PARAM );
+				void				GenerateMULT( GENERATE_PARAM );
+				void				GenerateMULTU( GENERATE_PARAM );
+				void				GenerateDIV( GENERATE_PARAM );
+				void				GenerateDIVU( GENERATE_PARAM );
 
-				void				GenerateDADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt );
-				void				GenerateDADDIU( EN64Reg rt, EN64Reg rs, s16 immediate );
-				void				GenerateDSRA32( EN64Reg rd, EN64Reg rt, u32 sa );
-				void				GenerateDSLL32( EN64Reg rd, EN64Reg rt, u32 sa );
+				void				GenerateADDU( GENERATE_PARAM );
+				void				GenerateSUBU( GENERATE_PARAM );
+				void				GenerateAND( GENERATE_PARAM );
+				void				GenerateOR( GENERATE_PARAM );
+				void				GenerateXOR( GENERATE_PARAM );
+				void				GenerateNOR( GENERATE_PARAM );
+				void				GenerateSLT( GENERATE_PARAM );
+				void				GenerateSLTU( GENERATE_PARAM );
 
-				void				GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate );
-				void				GenerateANDI( EN64Reg rt, EN64Reg rs, u16 immediate );
-				void				GenerateORI( EN64Reg rt, EN64Reg rs, u16 immediate );
-				void				GenerateXORI( EN64Reg rt, EN64Reg rs, u16 immediate );
-				void				GenerateLUI( EN64Reg rt, s16 immediate );
-				void				GenerateSLTI( EN64Reg rt, EN64Reg rs, s16 immediate );
-				void				GenerateSLTIU( EN64Reg rt, EN64Reg rs, s16 immediate );
-				void				GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa );
-				void				GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa );
-				void				GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa );
+				void				GenerateDADDU( GENERATE_PARAM );
+				void				GenerateDADDIU( GENERATE_PARAM );
+				void				GenerateDSRA32( GENERATE_PARAM );
+				void				GenerateDSLL32( GENERATE_PARAM );
 
-				void				GenerateLB ( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset );
-				void				GenerateLBU( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset );
-				void				GenerateLH ( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset );
-				void				GenerateLHU( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset );
-				void				GenerateLW ( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset );
-				void				GenerateLD ( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset );
-				void				GenerateLWC1( u32 current_pc, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset );
-				void				GenerateLDC1( u32 current_pc, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset );
-				void				GenerateLWL( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset );
-				void				GenerateLWR( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset );
+				void				GenerateADDIU( GENERATE_PARAM );
+				void				GenerateANDI( GENERATE_PARAM );
+				void				GenerateORI( GENERATE_PARAM );
+				void				GenerateXORI( GENERATE_PARAM );
+				void				GenerateLUI( GENERATE_PARAM );
+				void				GenerateSLTI( GENERATE_PARAM );
+				void				GenerateSLTIU( GENERATE_PARAM );
+				void				GenerateSLL( GENERATE_PARAM );
+				void				GenerateSRL( GENERATE_PARAM );
+				void				GenerateSRA( GENERATE_PARAM );
 
-				void				GenerateSB( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset );
-				void				GenerateSH( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset );
-				void				GenerateSW( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset );
-				void				GenerateSD( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset );
-				void				GenerateSWC1( u32 current_pc, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset );
-				void				GenerateSDC1( u32 current_pc, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset );
-				void				GenerateSWL( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset );
-				void				GenerateSWR( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset );
+				void				GenerateLB ( GENERATE_PARAM  );
+				void				GenerateLBU( GENERATE_PARAM  );
+				void				GenerateLH ( GENERATE_PARAM  );
+				void				GenerateLHU( GENERATE_PARAM  );
+				void				GenerateLW ( GENERATE_PARAM  );
+				void				GenerateLD( GENERATE_PARAM );
+				void				GenerateLWC1( GENERATE_PARAM  );
+				void				GenerateLDWC1( GENERATE_PARAM  );
 
-				void				GenerateMFC1( EN64Reg rt, u32 fs );
-				void				GenerateMTC1( u32 fs, EN64Reg rt );
-				void				GenerateCFC1( EN64Reg rt, u32 fs );
-				void				GenerateCTC1( u32 fs, EN64Reg rt );
+				void				GenerateSB( GENERATE_PARAM  );
+				void				GenerateSH( GENERATE_PARAM  );
+				void				GenerateSW( GENERATE_PARAM  );
+				void				GenerateSD( GENERATE_PARAM );
+				void				GenerateSWC1( GENERATE_PARAM  );
+				void				GenerateSDWC1( GENERATE_PARAM  );
 
-				void				GenerateADD_D_Sim( u32 fd, u32 fs, u32 ft );
-				void				GenerateSUB_D_Sim( u32 fd, u32 fs, u32 ft );
-				void				GenerateMUL_D_Sim( u32 fd, u32 fs, u32 ft );
-				void				GenerateDIV_D_Sim( u32 fd, u32 fs, u32 ft );
-				void				GenerateSQRT_D_Sim( u32 fd, u32 fs );
-				void				GenerateABS_D_Sim( u32 fd, u32 fs );
-				void				GenerateMOV_D_Sim( u32 fd, u32 fs );
-				void				GenerateNEG_D_Sim( u32 fd, u32 fs );
+				void				GenerateMFC1( GENERATE_PARAM  );
+				void				GenerateMTC1( GENERATE_PARAM  );
+				void				GenerateCFC1( GENERATE_PARAM  );
+				void				GenerateCTC1( GENERATE_PARAM  );
 
-				void				GenerateTRUNC_W_D_Sim( u32 fd, u32 fs );
-				void				GenerateCVT_W_D_Sim( u32 fd, u32 fs );
-				void				GenerateCVT_S_D_Sim( u32 fd, u32 fs );
+				void				GenerateADD_S( GENERATE_PARAM  );
+				void				GenerateSUB_S( GENERATE_PARAM  );
+				void				GenerateMUL_S( GENERATE_PARAM  );
+				void				GenerateDIV_S( GENERATE_PARAM  );
+				void				GenerateSQRT_S( GENERATE_PARAM  );
+				void				GenerateABS_S( GENERATE_PARAM  );
+				void				GenerateMOV_S( GENERATE_PARAM  );
+				void				GenerateNEG_S( GENERATE_PARAM  );
+				void				GenerateCMP_S( GENERATE_PARAM  );
 
-				void				GenerateCMP_D_Sim( u32 fs, ECop1OpFunction cmp_op, u32 ft );
+				void				GenerateCVT_W_S( GENERATE_PARAM  );
 
-				void				GenerateADD_S( u32 fd, u32 fs, u32 ft );
-				void				GenerateSUB_S( u32 fd, u32 fs, u32 ft );
-				void				GenerateMUL_S( u32 fd, u32 fs, u32 ft );
-				void				GenerateDIV_S( u32 fd, u32 fs, u32 ft );
-				void				GenerateSQRT_S( u32 fd, u32 fs );
-				void				GenerateABS_S( u32 fd, u32 fs );
-				void				GenerateMOV_S( u32 fd, u32 fs );
-				void				GenerateNEG_S( u32 fd, u32 fs );
-				void				GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u32 ft );
+				void				GenerateADD_D_Sim( GENERATE_PARAM  );
+				void				GenerateSUB_D_Sim( GENERATE_PARAM  );
+				void				GenerateMUL_D_Sim( GENERATE_PARAM );
+				void				GenerateDIV_D_Sim( GENERATE_PARAM  );
+				void				GenerateSQRT_D_Sim( GENERATE_PARAM  );
+				void				GenerateABS_D_Sim( GENERATE_PARAM );
+				void				GenerateMOV_D_Sim( GENERATE_PARAM  );
+				void				GenerateNEG_D_Sim( GENERATE_PARAM );
 
-				void				GenerateCVT_W_S( u32 fd, u32 fs );
-				void				GenerateCVT_D_S_Sim( u32 fd, u32 fs );
-				void				GenerateCVT_D_S( u32 fd, u32 fs );
-				void				GenerateCVT_D_W_Sim( u32 fd, u32 fs );
+				void				GenerateCVT_W_D_Sim( GENERATE_PARAM );
+				void				GenerateTRUNC_W_D_Sim( GENERATE_PARAM );
+				void				GenerateCVT_S_D_Sim( GENERATE_PARAM );
+				void				GenerateCVT_D_W_Sim( GENERATE_PARAM );
+				void				GenerateCVT_D_S_Sim( GENERATE_PARAM );
+				void				GenerateCVT_D_S( GENERATE_PARAM );
 
-				void				GenerateADD_D( u32 fd, u32 fs, u32 ft );
-				void				GenerateSUB_D( u32 fd, u32 fs, u32 ft );
-				void				GenerateMUL_D( u32 fd, u32 fs, u32 ft );
-				void				GenerateDIV_D( u32 fd, u32 fs, u32 ft );
-				void				GenerateSQRT_D( u32 fd, u32 fs );
-				void				GenerateMOV_D( u32 fd, u32 fs );
-				void				GenerateNEG_D( u32 fd, u32 fs );
+				void				GenerateCMP_D_Sim( GENERATE_PARAM );
 
-				void				GenerateCVT_S_W( u32 fd, u32 fs );
-				void				GenerateTRUNC_W_S( u32 fd, u32 fs );
+				void				GenerateCVT_S_W( GENERATE_PARAM );
+				void				GenerateTRUNC_W_S( GENERATE_PARAM );
+				
 
-				void				GenerateMFC0( EN64Reg rt, u32 fs );
+				void				GenerateMFC0( GENERATE_PARAM );
 
 				CJumpLocation		GenerateBranchAlways( CCodeLabel target );
 				CJumpLocation		GenerateBranchIfSet( const u32 * p_var, CCodeLabel target );
@@ -184,19 +189,19 @@ private:
 				CJumpLocation		GenerateBranchIfNotEqual( const u32 * p_var, u32 value, CCodeLabel target );
 				CJumpLocation		GenerateBranchIfNotEqual( EPspReg reg_a, u32 value, CCodeLabel target );
 
-				void				GenerateBEQ( EN64Reg rs, EN64Reg rt, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump );
-				void				GenerateBNE( EN64Reg rs, EN64Reg rt, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump );
-				void				GenerateBLEZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump );
-				void				GenerateBGTZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump );
-				void				GenerateBLTZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump );
-				void				GenerateBGEZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump );
+				void				GenerateBEQ( GENERATE_PARAM );
+				void				GenerateBNE( GENERATE_PARAM );
+				void				GenerateBLEZ( GENERATE_PARAM );
+				void				GenerateBGTZ( GENERATE_PARAM );
+				void				GenerateBLTZ( GENERATE_PARAM );
+				void				GenerateBGEZ( GENERATE_PARAM );
 
-				void				GenerateBC1F( const SBranchDetails * p_branch, CJumpLocation * p_branch_jump );
-				void				GenerateBC1T( const SBranchDetails * p_branch, CJumpLocation * p_branch_jump );
+				void				GenerateBC1F( GENERATE_PARAM );
+				void				GenerateBC1T( GENERATE_PARAM );
 
-				void				GenerateSLLV( EN64Reg rd, EN64Reg rs, EN64Reg rt );
-				void				GenerateSRLV( EN64Reg rd, EN64Reg rs, EN64Reg rt );
-				void				GenerateSRAV( EN64Reg rd, EN64Reg rs, EN64Reg rt );
+				void				GenerateSLLV( GENERATE_PARAM );
+				void				GenerateSRLV( GENERATE_PARAM );
+				void				GenerateSRAV( GENERATE_PARAM );
 
 private:
 				void				SetRegisterSpanList( const SRegisterUsageInfo & register_usage, bool loops_to_self );
