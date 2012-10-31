@@ -36,7 +36,7 @@ extern SImageDescriptor g_TI;		//Texture data from Timg ucode
 //*****************************************************************************
 CRDPStateManager::CRDPStateManager()
 {
-	ClearAllValid();
+	ClearAllEntries();
 	InvalidateAllTileTextureInfo();
 }
 
@@ -52,7 +52,7 @@ CRDPStateManager::~CRDPStateManager()
 //*****************************************************************************
 void CRDPStateManager::Reset()
 {
-	ClearAllValid();
+	ClearAllEntries();
 	InvalidateAllTileTextureInfo();
 }
 
@@ -101,10 +101,10 @@ void	CRDPStateManager::LoadBlock( u32 idx, u32 address, bool swapped )
 
 	u32	tmem_lookup( mTiles[ idx ].tmem >> 4 );
 
-	//Invalidate load info from current TMEM address to the end of TMEM (fixes Fzero and SSV) //Corn
-	ClearValid( tmem_lookup );
+	//Invalidate load info after current TMEM address to the end of TMEM (fixes Fzero and SSV) //Corn
+	ClearEntries( tmem_lookup );
 
-	SetValid( tmem_lookup );
+	SetValidEntry( tmem_lookup );
 		
 	mTMEM_Load[ tmem_lookup ].Address = address;
 	mTMEM_Load[ tmem_lookup ].Pitch = ~0;
@@ -120,7 +120,7 @@ void	CRDPStateManager::LoadTile( u32 idx, u32 address )
 
 	u32	tmem_lookup( mTiles[ idx ].tmem >> 4 );
 
-	SetValid( tmem_lookup );
+	SetValidEntry( tmem_lookup );
 
 	mTMEM_Load[ tmem_lookup ].Address = address;
 	mTMEM_Load[ tmem_lookup ].Pitch = g_TI.GetPitch();
@@ -135,7 +135,7 @@ void	CRDPStateManager::LoadTile( u32 idx, u32 address )
 
 	u32	tmem_lookup( mTiles[ idx ].tmem >> 4 );
 	
-	SetValid( tmem_lookup );
+	SetValidEntry( tmem_lookup );
 
 	mTMEM_Load[ tmem_lookup ].Address = address;
 	mTMEM_Load[ tmem_lookup ].Pitch = g_TI.GetPitch();
@@ -144,14 +144,6 @@ void	CRDPStateManager::LoadTile( u32 idx, u32 address )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CRDPStateManager::InvalidateAllTileTextureInfo()
-{
-	for( u32 i = 0; i < 8; ++i )
-	{
-		mTileTextureInfoValid[ i ] = false;
-	}
-}
-
 namespace
 {
 	//
@@ -189,7 +181,7 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		u32		pitch( mTMEM_Load[ tmem_lookup ].Pitch );
 		bool	swapped( mTMEM_Load[ tmem_lookup ].Swapped );
 
-		if(	gRDPStateManager.EntryIsValid( tmem_lookup ) == 0 )
+		if(	EntryIsValid( tmem_lookup ) == 0 )
 		{
 			//If we can't find the load details on current tile TMEM address we assume load was done on TMEM address 0 //Corn
 			//
@@ -256,12 +248,12 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 #else
 		// Proper way, doesn't need Harvest Moon hack, Nb. 4b check is for Majora's Mask
 		u32 tlut( (u32)(&gTextureMemory[0]) );
-		ti.SetTLutIndex( rdp_tile.palette ); 
 		ti.SetTlutAddress( rdp_tile.size == G_IM_SIZ_4b ? tlut + (rdp_tile.palette << 5) : tlut );
 #endif
 
 		ti.SetTmemAddress( rdp_tile.tmem );
 		ti.SetLoadAddress( address );
+		ti.SetTLutIndex( rdp_tile.palette ); 
 		ti.SetFormat( rdp_tile.format );
 		ti.SetSize( rdp_tile.size );
 

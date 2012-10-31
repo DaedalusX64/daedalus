@@ -31,7 +31,6 @@ class CTexture;
 class CRDPStateManager
 {
 public:
-
 	CRDPStateManager();
 	~CRDPStateManager();
 
@@ -52,24 +51,24 @@ public:
 
 	const TextureInfo &				GetTextureDescriptor( const u32 idx ) const;
 
-	struct SLoadDetails
+private:
+	void					InvalidateAllTileTextureInfo()		{ for( u32 i = 0; i < 8; ++i ) mTileTextureInfoValid[ i ] = false; }
+	inline u32				EntryIsValid( const u32 tmem )const	{ return (Valid_Entry >> tmem) & 1; }	//Return 1 if entry is valid else 0
+	inline void				SetValidEntry( const u32 tmem )		{ Valid_Entry |= (1 << tmem); }	//Set TMEM address entry as valid
+	inline void				ClearEntries( const u32 tmem )		{ Valid_Entry &= ((u32)~0 >> (31-tmem)); }	//Clear all entries after the specified TMEM address
+	inline void				ClearAllEntries()					{ Valid_Entry = 0; }	//Clear all entries
+
+private:
+	struct TimgLoadDetails
 	{
 		u32					Address;		// Base address of texture (same address as from Timg ucode)
 		u32					Pitch;			// May be different from that derived from Image.Pitch
 		bool				Swapped;
 	};
 
-private:
-	void					InvalidateAllTileTextureInfo();
-	inline u32				EntryIsValid( const u32 tmem )		{ return (Valid_Entry >> tmem) & 1; }
-	inline void				SetValid( const u32 tmem )			{ Valid_Entry |= (1 << tmem); }
-	inline void				ClearValid( const u32 tmem )		{ Valid_Entry &= ((u32)~0 >> (31-tmem)); }
-	inline void				ClearAllValid()						{ Valid_Entry = 0; }
-
-private:
 	RDP_Tile				mTiles[ 8 ];
 	RDP_TileSize			mTileSizes[ 8 ];
-	SLoadDetails			mTMEM_Load[ 32 ];	//Subdivide TMEM area into 32 slots and keep track of texture loads (LoadBlock/LoadTile/LoadTlut) //Corn
+	TimgLoadDetails			mTMEM_Load[ 32 ];	//Subdivide TMEM area into 32 slots and keep track of texture loads (LoadBlock/LoadTile/LoadTlut) //Corn
 	u32						Valid_Entry;		//Use bits to signal valid entries in TMEM
 
 	mutable TextureInfo		mTileTextureInfo[ 8 ];
