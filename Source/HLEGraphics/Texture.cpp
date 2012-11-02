@@ -91,9 +91,10 @@ namespace
 		dst.Pitch = pitch;
 		dst.Palette = palette;
 
-		// DO nothing if palette address is NULL in a palette texture //Corn
-		if( palette && texture_info.GetPalettePtr() == NULL ) 
-			return false;
+		//Do nothing if palette address is NULL or close to NULL in a palette texture //Corn
+		//Loading a SaveState (OOT -> SSV) dont bring back our TMEM data which causes issues for the first rendered frame.
+		//Checking if the palette pointer is less than 0x1000 (rather than just NULL) fixes it.
+		if( palette && (texture_info.GetPalettePtr() < (void *)0x1000) ) return false;
 
 		const ConvertFunction fn( gConvertFunctions[ (texture_info.GetFormat() << 2) | texture_info.GetSize() ] );
 		if( fn )

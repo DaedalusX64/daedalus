@@ -175,7 +175,7 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		const RDP_TileSize &	rdp_tilesize( mTileSizes[ idx ] );
 		u32						tmem_lookup( rdp_tile.tmem >> 4 );
 
-		DAEDALUS_DL_ASSERT( !(rdp_tile.tmem & 0xF), "TMEM address is unaligned");
+		DAEDALUS_ASSERT( !(rdp_tile.tmem & 0xF), "TMEM address is unaligned"); //If this happens the TMEM implementation uses to few slots //Corn
 		
 		u32		address( mTMEM_Load[ tmem_lookup ].Address );
 		u32		pitch( mTMEM_Load[ tmem_lookup ].Pitch );
