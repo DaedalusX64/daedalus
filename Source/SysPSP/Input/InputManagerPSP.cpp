@@ -23,6 +23,13 @@
 #include <string>
 #include <vector>
 
+//Added definitions for mapping joystick as digital input //Corn
+#define	PSP_JOY_UP		0x10000000
+#define	PSP_JOY_RIGHT	0x20000000
+#define	PSP_JOY_DOWN	0x40000000
+#define	PSP_JOY_LEFT	0x80000000
+#define	PSP_JOY_CLEAR   0x0FFFFFFF
+
 namespace
 {
 	static const f32					DEFAULT_MIN_DEADZONE = 0.28f;
@@ -342,24 +349,32 @@ bool IInputManager::GetState( OSContPad pPad[4] )
 	//
 	//	'Normalise' from 0..255 -> -128..+127
 	//
-	s32			normalised_x( pad.Lx - PSP_ANALOGUE_STICK_RANGE );
-	s32			normalised_y( pad.Ly - PSP_ANALOGUE_STICK_RANGE );
+	s32 normalised_x( pad.Lx - PSP_ANALOGUE_STICK_RANGE );
+	s32 normalised_y( pad.Ly - PSP_ANALOGUE_STICK_RANGE );
 
 	//
 	//	Now scale from -128..+127 -> -80..+80 (y is inverted from PSP coords)
 	//
-	v2			stick( f32( normalised_x ) / PSP_ANALOGUE_STICK_RANGE, f32( normalised_y ) / PSP_ANALOGUE_STICK_RANGE );
+	v2 stick( f32( normalised_x ) / PSP_ANALOGUE_STICK_RANGE, f32( normalised_y ) / PSP_ANALOGUE_STICK_RANGE );
 
 	stick = ApplyDeadzone( stick, gGlobalPreferences.StickMinDeadzone, gGlobalPreferences.StickMaxDeadzone );
 
 	pPad[0].stick_x =  s8(stick.x * N64_ANALOGUE_STICK_RANGE);
 	pPad[0].stick_y = -s8(stick.y * N64_ANALOGUE_STICK_RANGE);
 
+	// Make a digital version of the Analogue stick that can be mapped to N64 buttons //Corn
+	//
+	pad.Buttons &= PSP_JOY_CLEAR;
+	
+	if(pPad[0].stick_x > 40) pad.Buttons |= PSP_JOY_RIGHT;
+	else if(pPad[0].stick_x < -40) pad.Buttons |= PSP_JOY_LEFT;
+
+	if(pPad[0].stick_y > 40) pad.Buttons |= PSP_JOY_UP;
+	else if(pPad[0].stick_y < -40) pad.Buttons |= PSP_JOY_DOWN;
+
 	DAEDALUS_ASSERT( mpControllerConfig != NULL, "We should always have a valid controller" );
 
 	pPad[ 0 ].button = mpControllerConfig->GetN64ButtonsState( pad.Buttons );
-
-	// Stick
 
 	// Synchronise the input - this will overwrite the real pad data when playing back input
 	for(u32 cont = 0; cont < 4; cont++)
@@ -401,7 +416,6 @@ struct SButtonNameMapping
 	u32			 ButtonMask;
 };
 
-
 const SButtonNameMapping	gButtonNameMappings[] =
 {
 	{ "PSP.Start",		PSP_CTRL_START },
@@ -415,6 +429,10 @@ const SButtonNameMapping	gButtonNameMappings[] =
 	{ "PSP.Down",		PSP_CTRL_DOWN },
 	{ "PSP.Left",		PSP_CTRL_LEFT },
 	{ "PSP.Right",		PSP_CTRL_RIGHT },
+	{ "PSP.JoyUp",		PSP_JOY_UP },	//These are not real PSP button bits but used to patch analog stick to a digital one //Corn
+	{ "PSP.JoyDown",	PSP_JOY_DOWN },
+	{ "PSP.JoyLeft",	PSP_JOY_LEFT },
+	{ "PSP.JoyRight",	PSP_JOY_RIGHT }
 };
 
 u32 GetOperatorPrecedence( char op )
