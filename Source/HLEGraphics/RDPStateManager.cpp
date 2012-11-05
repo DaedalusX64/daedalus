@@ -173,25 +173,23 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 
 		const RDP_Tile &		rdp_tile( mTiles[ idx ] );
 		const RDP_TileSize &	rdp_tilesize( mTileSizes[ idx ] );
-		u32						tmem_lookup( rdp_tile.tmem >> 4 );
+		const u32				tmem_lookup( rdp_tile.tmem >> 4 );
 
-		DAEDALUS_ASSERT( !(rdp_tile.tmem & 0xF), "TMEM address is unaligned"); //If this happens the TMEM implementation uses to few slots //Corn
-		
 		u32		address( mTMEM_Load[ tmem_lookup ].Address );
 		u32		pitch( mTMEM_Load[ tmem_lookup ].Pitch );
 		bool	swapped( mTMEM_Load[ tmem_lookup ].Swapped );
 
+		//Check if tmem_lookup has a valid entry, if not we assume load was done on TMEM[0] and we add the offset //Corn
+		//Games that uses this is Fzero/Space station Silicon Valley/Animal crossing.
 		if(	EntryIsValid( tmem_lookup ) == 0 )
 		{
-			//If we can't find the load details on current tile TMEM address we assume load was done on TMEM address 0 //Corn
-			//
 			address = mTMEM_Load[ 0 ].Address + (rdp_tile.tmem << 3);	//Calculate offset in bytes and add to base address
 			pitch = mTMEM_Load[ 0 ].Pitch;
 			swapped = mTMEM_Load[ 0 ].Swapped;
 		}
 
-		// If it was a block load - the pitch is determined by the tile size
-		// else if it was a tile - the pitch is set when the tile is loaded
+		// If it was a Block Load - the pitch is determined by the tile size.
+		// Else if it was a Tile Load - the pitch is set when the tile is loaded.
 		if ( pitch == u32(~0) )
 		{
 			if( rdp_tile.size == G_IM_SIZ_32b )	pitch = rdp_tile.line << 4;
@@ -272,16 +270,13 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		ti.SetMirrorT( rdp_tile.mirror_t );
 
 		// Hack to fix the sun in Zelda
-		//
-		if( g_ROM.ZELDA_HACK )
-		{
-			if(gRDPOtherMode.L == 0x0c184241 && ti.GetFormat() == G_IM_FMT_I /*&& ti.GetWidth() == 64*/)	
+		if( g_ROM.ZELDA_HACK && (gRDPOtherMode.L == 0x0c184241) && (ti.GetFormat() == G_IM_FMT_I) )	 //&& (ti.GetWidth() == 64)	
 			{
 				//ti.SetHeight( tile_height );	// (fix me)
 				ti.SetWidth( tile_width >> 1 );	
 				ti.SetPitch( pitch >> 1 );	
 			}
-		}
+
 		// Hack - Extreme-G specifies RGBA/8 textures, but they're really CI8
 		if( ti.GetFormat() == G_IM_FMT_RGBA && ti.GetSize() <= G_IM_SIZ_8b ) ti.SetFormat( G_IM_FMT_CI );
 

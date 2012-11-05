@@ -194,11 +194,11 @@ class CControllerConfig
 	public:
 		void				SetName( const char * name )		{ mName = name; }
 		void				SetDescription( const char * desc )	{ mDescription = desc; }
-		void				SetSwap( const char * swap )		{ mSwap = swap; }
+		void				SetJoySwap( const char * swap )		{ mJoySwap = swap[0]; }	//Save only first char which should be A|B|C for the joystick swapping
 
 		const char *		GetName() const						{ return mName.c_str(); }
 		const char *		GetDescription() const				{ return mDescription.c_str(); }
-		const char *		GetSwap() const						{ return mSwap.c_str(); }
+		char				GetJoySwap() const					{ return mJoySwap; }
 
 		void				SetButtonMapping( EN64Button button, CButtonMapping * p_mapping );
 		u32					GetN64ButtonsState( u32 psp_button_mask ) const;
@@ -206,7 +206,7 @@ class CControllerConfig
 	private:
 		std::string			mName;
 		std::string			mDescription;
-		std::string			mSwap;
+		char				mJoySwap;
 
 		CButtonMapping *	mButtonMappings[ NUM_N64_BUTTONS ];
 };
@@ -276,9 +276,9 @@ class IInputManager : public CInputManager
 		virtual u32							GetConfigurationFromName( const char * name ) const;
 
 	private:
-				void						LoadControllerConfigs( const char * p_dir );
-				CControllerConfig *			BuildDefaultConfig();
-				CControllerConfig *			BuildControllerConfig( const char * filename );
+		void								LoadControllerConfigs( const char * p_dir );
+		CControllerConfig *					BuildDefaultConfig();
+		CControllerConfig *					BuildControllerConfig( const char * filename );
 
 	private:
 		CControllerConfig *					mpControllerConfig;
@@ -327,22 +327,16 @@ bool	IInputManager::Initialise()
 //*****************************************************************************
 bool IInputManager::GetState( OSContPad pPad[4] )
 {
-	// Clear the initial state
-	for(u32 cont = 0; cont < 4; cont++)
-	{
-		pPad[cont].button = 0;
-		pPad[cont].stick_x = 0;
-		pPad[cont].stick_y = 0;
-	}
+	// Clear the initial state of the four controllers
+	memset(pPad, 0, sizeof(pPad));
 
 	SceCtrlData pad;
 
-	sceCtrlPeekBufferPositive(&pad, 1);
+	sceCtrlPeekBufferPositive(&pad, 1);	//Get PSP button inputs
 
 	static const s32	N64_ANALOGUE_STICK_RANGE( 80 );
 	static const s32	PSP_ANALOGUE_STICK_RANGE( 128 );
 
-	//
 	//	'Normalise' from 0..255 -> -128..+127
 	//
 	s32 normalised_x( pad.Lx - PSP_ANALOGUE_STICK_RANGE );
@@ -360,7 +354,7 @@ bool IInputManager::GetState( OSContPad pPad[4] )
 
 	DAEDALUS_ASSERT( mpControllerConfig != NULL, "We should always have a valid controller" );
 
-	switch( mpControllerConfig->GetSwap()[0] )
+	switch( mpControllerConfig->GetJoySwap() )
 	{
 		case 'B':	//Swap Joystick with PSP Dpad
 			{
@@ -780,7 +774,7 @@ CControllerConfig *	IInputManager::BuildDefaultConfig()
 
 	p_config->SetName( "Default" );
 	p_config->SetDescription( "The default Daedalus controller configuration. The Circle button toggles the PSP DPad between the N64 DPad and CButtons." );
-	p_config->SetSwap( "A" );
+	p_config->SetJoySwap( "A" );
 
 	CButtonMappingExpressionEvaluator	eval;
 
@@ -832,13 +826,13 @@ CControllerConfig *	IInputManager::BuildControllerConfig( const char * filename 
 	{
 		p_config->SetDescription( p_property->GetValue() );
 	}
-	if( p_default_section->FindProperty( "Swap", &p_property ) )
+	if( p_default_section->FindProperty( "JoystickSwap", &p_property ) )
 	{
-		p_config->SetSwap( p_property->GetValue() );
+		p_config->SetJoySwap( p_property->GetValue() );
 	}
 	else
 	{
-		p_config->SetSwap( "A" );
+		p_config->SetJoySwap( "A" );
 	}
 
 	//
