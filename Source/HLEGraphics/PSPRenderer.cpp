@@ -1475,16 +1475,17 @@ void PSPRenderer::FlushTris()
 //	See http://irrlicht.sourceforge.net/ for more information.
 //	Copyright (C) 2002-2006 Nikolaus Gebhardt/Alten Thomas
 //
-//Croping triangles just outside the NDC box and let PSP HW do the final crop improves quality //Corn
+//Croping triangles just outside the NDC box and let PSP HW do the final crop
+//improves quality but fails in some games (Rocket Robot/Lego racers)//Corn
 //*****************************************************************************
 const v4 __attribute__((aligned(16))) NDCPlane[6] =
 {
-	v4(  0.f,  0.f, -1.f, -2.f ),	// near
+	v4(  0.f,  0.f, -1.f, -1.f ),	// near
 	v4(  0.f,  0.f,  1.f, -1.f ),	// far
-	v4(  1.f,  0.f,  0.f, -2.f ),	// left
-	v4( -1.f,  0.f,  0.f, -2.f ),	// right
-	v4(  0.f,  1.f,  0.f, -2.f ),	// bottom
-	v4(  0.f, -1.f,  0.f, -2.f )	// top
+	v4(  1.f,  0.f,  0.f, -1.f ),	// left
+	v4( -1.f,  0.f,  0.f, -1.f ),	// right
+	v4(  0.f,  1.f,  0.f, -1.f ),	// bottom
+	v4(  0.f, -1.f,  0.f, -1.f )	// top
 };
 
 //
