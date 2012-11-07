@@ -47,7 +47,7 @@ public:
 	//void							LoadTlut( u32 idx, u32 address )
 
 	// Retrive tile addr loading. used by Yoshi_MemRect
-	inline u32						GetTileAddress( const u32 tmem ) { return mTMEM_Load[ tmem >> 4 ].Address; }
+	inline u32						GetTileAddress( const u32 tmem ) const { return mTmemLoadInfo[ tmem >> 4 ].Address; }
 
 	const TextureInfo &				GetTextureDescriptor( const u32 idx ) const;
 
@@ -68,7 +68,7 @@ private:
 
 	RDP_Tile				mTiles[ 8 ];
 	RDP_TileSize			mTileSizes[ 8 ];
-	TimgLoadDetails			mTMEM_Load[ 32 ];	//Subdivide TMEM area into 32 slots and keep track of texture loads (LoadBlock/LoadTile/LoadTlut) //Corn
+	TimgLoadDetails			mTmemLoadInfo[ 32 ];	//Subdivide TMEM area into 32 slots and keep track of texture loads (LoadBlock/LoadTile/LoadTlut) //Corn
 	u32						Valid_Entry;		//Use bits to signal valid entries in TMEM
 
 	mutable TextureInfo		mTileTextureInfo[ 8 ];

@@ -38,7 +38,7 @@ private:
 	u32			Format : 3;			// e.g. RGBA, YUV, CI, IA, I...
 	u32			Size : 2;			// e.g. 4bpp, 8bpp, 16bpp, 32bpp
 	u32			TLutFmt : 2;		// e.g. ?, ?, RGBA16, IA16
-	u32			Tile : 3;			// e.g. Tile number (0-7)
+//	u32			Tile : 3;			// e.g. Tile number (0-7)
 	bool		Swapped : 1;		// Are odd lines word swapped?
 	bool		MirrorS : 1;
 	bool		MirrorT : 1;
@@ -62,7 +62,6 @@ public:
 
 	u32						GetWidthInBytes() const;
 
-	const void *			GetPalettePtr() const;
 	inline u32				GetLoadAddress() const			{ return LoadAddress; }
 	inline u32				GetTlutddress() const			{ return TlutAddress; }
 	inline u32				GetTmemAddress() const			{ return TmemAddress; }
@@ -71,9 +70,8 @@ public:
 	inline u32				GetWidth() const				{ return Width; }
 	inline u32				GetHeight() const				{ return Height; }
 	inline u32				GetPitch() const				{ return Pitch; }
-	u32						GetTLutFormat() const;
+	inline u32				GetTLutFormat() const			{ return TLutFmt; }
 	inline u32				GetTLutIndex() const			{ return TLutIndex; }
-	inline u32				GetTile() const					{ return Tile; }
 	inline u32				GetTLut() const					{ return TLutFmt; }
 	inline bool				IsSwapped() const				{ return Swapped; }
 	inline bool				GetMirrorS() const				{ return MirrorS; }
@@ -87,9 +85,8 @@ public:
 	inline void				SetWidth( u32 width )			{ Width = width; }
 	inline void				SetHeight( u32 height )			{ Height = height; }
 	inline void				SetPitch( u32 pitch )			{ Pitch = pitch; }
-	void					SetTLutFormat( u32 format );
+	void					SetTLutFormat( u32 format )		{ TLutFmt = format; }
 	inline void				SetTLutIndex( u32 index )		{ TLutIndex = index; }
-	inline void				SetTile( u32 tile )				{ Tile = tile; }
 	inline void				SetSwapped( bool swapped )		{ Swapped = swapped; }
 	inline void				SetMirrorS( bool mirror_s )		{ MirrorS = mirror_s; }
 	inline void				SetMirrorT( bool mirror_t )		{ MirrorT = mirror_t; }

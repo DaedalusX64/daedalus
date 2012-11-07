@@ -160,7 +160,7 @@ void ConvertGenericPalettised( const TextureDestInfo & dst, const TextureInfo & 
 	u32					base_offset( ti.GetLoadAddress() );
 	u32					src_pitch( ti.GetPitch() );
 
-	const u16 *			p_palette( reinterpret_cast< const u16 * >( ti.GetPalettePtr() ) );
+	const u16 *			p_palette( reinterpret_cast< const u16 * >( ti.GetTlutddress() ) );
 
 	if (ti.IsSwapped())
 	{
@@ -233,7 +233,7 @@ void ConvertGenericPalettisedCI4( const TextureDestInfo & dst, const TextureInfo
 
 
 	Psp::Pf8888 *		p_dst_palette( reinterpret_cast< Psp::Pf8888 * >( dst.Palette ) );
-	const u8 *			p_palette( reinterpret_cast< const u8 * >( ti.GetPalettePtr() ) );
+	const u8 *			p_palette( reinterpret_cast< const u8 * >( ti.GetTlutddress() ) );
 
 	palette_fn( p_dst_palette, p_palette, 16 );
 }
@@ -278,7 +278,7 @@ void ConvertGenericPalettisedCI8( const TextureDestInfo & dst, const TextureInfo
 
 
 	Psp::Pf8888 *		p_dst_palette( reinterpret_cast< Psp::Pf8888 * >( dst.Palette ) );
-	const u8 *			p_palette( reinterpret_cast< const u8 * >( ti.GetPalettePtr() ) );
+	const u8 *			p_palette( reinterpret_cast< const u8 * >( ti.GetTlutddress() ) );
 
 	palette_fn( p_dst_palette, p_palette, 256 );
 }

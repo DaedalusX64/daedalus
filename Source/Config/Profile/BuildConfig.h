@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #undef	DAEDALUS_DEBUG_PIF					// Enable to enable various debugging options for PIF (Peripheral interface)
 #undef	DAEDALUS_DEBUG_CONSOLE				// Enable debug console
 #define DAEDALUS_ALIGN_REGISTERS
+#define	DAEDALUS_FAST_TMEM					// Disable for full TMEM emulation for palettes (slower and uses more memory)
 #undef  DAEDALUS_DEBUG_DYNAREC				// Enable to enable various debugging options for the dynarec
 #undef  DAEDALUS_ENABLE_SYNCHRONISATION		// Enable for sync testing
 #undef  DAEDALUS_LOG						// Enable various logging
@@ -48,12 +49,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DAEDALUS_SILENT						// Undef to enable debug messages 
 #undef  DAEDALUS_IS_LEGACY					// Old code, unused etc.. Kept for reference, undef to save space on the elf. Will remove soon.
 #undef	DAEDALUS_DIALOGS					// Enable this to show dialogs in the gui
-
-// Define this to turn off various debugging features for public release.
-#define DAEDALUS_PUBLIC_RELEASE
-
-// Define this to use 16bit instead of 32bit screen graphics
-#define DAEDALUS_SCRN_16BIT
 
 // This must be Enable, otherwise no gprof output.
 #define DAEDALUS_PSP_GPROF

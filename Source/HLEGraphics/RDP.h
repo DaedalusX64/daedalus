@@ -47,6 +47,7 @@ struct SImageDescriptor
 
 	inline u32 GetPitch() const
 	{
+		DAEDALUS_ASSERT( Size, " No need to compute Pitch" );
 		return (Width << Size >> 1);
 	}
 
@@ -437,7 +438,7 @@ typedef struct
 //*****************************************************************************
 extern RDP_OtherMode		gRDPOtherMode;
 
-#ifndef DAEDALUS_TMEM
+#ifdef DAEDALUS_FAST_TMEM
 extern u32* gTextureMemory[ 4096 >> 6 ];
 #else
 extern u16 gTextureMemory[];

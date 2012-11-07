@@ -103,12 +103,12 @@ void	CRDPStateManager::LoadBlock( u32 idx, u32 address, bool swapped )
 
 	//Invalidate load info after current TMEM address to the end of TMEM (fixes Fzero and SSV) //Corn
 	ClearEntries( tmem_lookup );
-
 	SetValidEntry( tmem_lookup );
-		
-	mTMEM_Load[ tmem_lookup ].Address = address;
-	mTMEM_Load[ tmem_lookup ].Pitch = ~0;
-	mTMEM_Load[ tmem_lookup ].Swapped = swapped;
+	
+	TimgLoadDetails& info( mTmemLoadInfo[ tmem_lookup ] );
+	info.Address = address;
+	info.Pitch	 = ~0;
+	info.Swapped = swapped;
 }
 
 //*****************************************************************************
@@ -120,11 +120,13 @@ void	CRDPStateManager::LoadTile( u32 idx, u32 address )
 
 	u32	tmem_lookup( mTiles[ idx ].tmem >> 4 );
 
+	// Only needed for full tmem emulation?
 	SetValidEntry( tmem_lookup );
 
-	mTMEM_Load[ tmem_lookup ].Address = address;
-	mTMEM_Load[ tmem_lookup ].Pitch = g_TI.GetPitch();
-	mTMEM_Load[ tmem_lookup ].Swapped = false;
+	TimgLoadDetails& info( mTmemLoadInfo[ tmem_lookup ] );
+	info.Address = address;
+	info.Pitch = g_TI.GetPitch();
+	info.Swapped = false;
 }
 //*****************************************************************************
 //
@@ -174,18 +176,23 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		const RDP_Tile &		rdp_tile( mTiles[ idx ] );
 		const RDP_TileSize &	rdp_tilesize( mTileSizes[ idx ] );
 		const u32				tmem_lookup( rdp_tile.tmem >> 4 );
+		const TimgLoadDetails&	info( mTmemLoadInfo[ tmem_lookup ] );
 
-		u32		address( mTMEM_Load[ tmem_lookup ].Address );
-		u32		pitch( mTMEM_Load[ tmem_lookup ].Pitch );
-		bool	swapped( mTMEM_Load[ tmem_lookup ].Swapped );
+		u32		address( info.Address );
+		u32		pitch( info.Pitch );
+		bool	swapped( info.Swapped );
 
 		//Check if tmem_lookup has a valid entry, if not we assume load was done on TMEM[0] and we add the offset //Corn
 		//Games that uses this is Fzero/Space station Silicon Valley/Animal crossing.
 		if(	EntryIsValid( tmem_lookup ) == 0 )
 		{
-			address = mTMEM_Load[ 0 ].Address + (rdp_tile.tmem << 3);	//Calculate offset in bytes and add to base address
-			pitch = mTMEM_Load[ 0 ].Pitch;
-			swapped = mTMEM_Load[ 0 ].Swapped;
+			const TimgLoadDetails&	info_base ( mTmemLoadInfo[ 0 ] );
+
+			//Calculate offset in bytes and add to base address
+			address = info_base.Address + (rdp_tile.tmem << 3);
+			pitch	= info_base.Pitch;
+			swapped = info_base.Swapped;
+	
 		}
 
 		// If it was a Block Load - the pitch is determined by the tile size.
@@ -208,43 +215,29 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		DAEDALUS_DL_ASSERT( num_bytes <= 4096, "Suspiciously large texture load: %d bytes (%dx%d, %dbpp)", num_bytes, tile_width, tile_height, (1<<(rdp_tile.size+2)) );
 #endif
 
-#ifndef DAEDALUS_TMEM
+#ifdef DAEDALUS_FAST_TMEM
 		//If indexed TMEM PAL address is NULL then assume that the base address is stored in
 		//TMEM address 0x100 (gTextureMemory[ 0 ]) and calculate offset from there with TLutIndex(palette index)
 		//This trick saves us from the need to copy the real palette to TMEM and we just pass the pointer //Corn
 		//
+		u32 tlut( (u32)gTextureMemory[0] );
 		if(rdp_tile.size == G_IM_SIZ_4b)
 		{
-			if ( g_ROM.TLUT_HACK )
+			u32 tlut_idx0( g_ROM.TLUT_HACK << 1 );
+			u32 tlut_idx1( (u32)gTextureMemory[ rdp_tile.palette << tlut_idx0 ] );
+
+			//Check for NULL pointer(=invalid entry)
+			if(tlut_idx1 == 0)
 			{
-				if(gTextureMemory[ rdp_tile.palette << 2 ] == NULL)
-				{
-					ti.SetTlutAddress( (u32)gTextureMemory[ 0 ] + (rdp_tile.palette << 7) );
-				}
-				else
-				{
-					ti.SetTlutAddress( (u32)gTextureMemory[ rdp_tile.palette << 2] );
-				}
+				tlut += (rdp_tile.palette << (5 + tlut_idx0) );
 			}
 			else
 			{
-				if(gTextureMemory[ rdp_tile.palette << 0 ] == NULL)
-				{
-					ti.SetTlutAddress( (u32)gTextureMemory[ 0 ] + (rdp_tile.palette << 5) );
-				}
-				else
-				{
-					ti.SetTlutAddress( (u32)gTextureMemory[ rdp_tile.palette << 0] );
-				}
+				tlut = tlut_idx1;
 			}
 		}
-		else
-		{	//Force index 0 for all but 4b palettes
-			ti.SetTlutAddress( (u32)gTextureMemory[ 0 ] );
-		}
-
+		ti.SetTlutAddress( tlut );
 #else
-		// Proper way, doesn't need Harvest Moon hack, Nb. 4b check is for Majora's Mask
 		u32 tlut( (u32)(&gTextureMemory[0]) );
 		ti.SetTlutAddress( rdp_tile.size == G_IM_SIZ_4b ? tlut + (rdp_tile.palette << 5) : tlut );
 #endif
@@ -259,23 +252,23 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 #ifdef DAEDALUS_ENABLE_ASSERTS
 		u32	tile_left( rdp_tilesize.left >> 2 );
 		DAEDALUS_DL_ASSERT( (rdp_tile.size > 0) || (tile_left&1) == 0, "Expecting an even Left for 4bpp formats" );
-#endif
+#endif		
+		// Hack to fix the sun in Zelda OOT/MM
+		if( g_ROM.ZELDA_HACK && (gRDPOtherMode.L == 0x0c184241) && (rdp_tile.format == G_IM_FMT_I) )	 //&& (ti.GetWidth() == 64)	
+		{
+			tile_width >>= 1;	
+			pitch >>= 1;	
+		}
+
 		ti.SetWidth( tile_width );
 		ti.SetHeight( tile_height );
 		ti.SetPitch( pitch );
-		ti.SetTLutFormat( gRDPOtherMode.text_tlut << G_MDSFT_TEXTLUT );
-		ti.SetTile( idx );
+		ti.SetTLutFormat( gRDPOtherMode.text_tlut );
 		ti.SetSwapped( swapped );
 		ti.SetMirrorS( rdp_tile.mirror_s );
 		ti.SetMirrorT( rdp_tile.mirror_t );
 
-		// Hack to fix the sun in Zelda
-		if( g_ROM.ZELDA_HACK && (gRDPOtherMode.L == 0x0c184241) && (ti.GetFormat() == G_IM_FMT_I) )	 //&& (ti.GetWidth() == 64)	
-			{
-				//ti.SetHeight( tile_height );	// (fix me)
-				ti.SetWidth( tile_width >> 1 );	
-				ti.SetPitch( pitch >> 1 );	
-			}
+
 
 		// Hack - Extreme-G specifies RGBA/8 textures, but they're really CI8
 		if( ti.GetFormat() == G_IM_FMT_RGBA && ti.GetSize() <= G_IM_SIZ_8b ) ti.SetFormat( G_IM_FMT_CI );

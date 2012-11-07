@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //#define	DAEDALUS_BATCH_TEST_ENABLED			// Enable the batch test
 //#define	ALLOW_TRACES_WHICH_EXCEPT
 //#define	DAEDALUS_ALIGN_REGISTERS			// On occasions it seems to slow things down if defined //Corn
-//#define	DAEDALUS_TMEM						// Use full TMEM emulation for palettes
+#define	DAEDALUS_FAST_TMEM						// Disable for full TMEM emulation for palettes (slower and uses more memory)
 //#define	DAEDALUS_LOG						// Enable various logging
 #define	DAEDALUS_DIALOGS					// Enable this to ask confimation dialogs in the GUI
 #define	DAEDALUS_SILENT						// Undef to enable debug messages. Define this to turn off various debugging features for public release.

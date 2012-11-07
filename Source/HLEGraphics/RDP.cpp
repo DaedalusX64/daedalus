@@ -36,7 +36,7 @@
 //*****************************************************************************
 RDP_OtherMode		gRDPOtherMode;
 
-#ifndef DAEDALUS_TMEM
+#ifdef DAEDALUS_FAST_TMEM
 //Granularity down to 24bytes is good enuff also only need to address the upper half of TMEM for palettes//Corn
 u32* gTextureMemory[ 4096 >> 6 ];
 #else

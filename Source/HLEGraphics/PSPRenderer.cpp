@@ -777,16 +777,12 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 
 			if( mpTexture[texture_idx] != NULL )
 			{
-				const CRefPtr<CNativeTexture> texture( mpTexture[ texture_idx ]->GetTexture() );
+				CRefPtr<CNativeTexture> texture( mpTexture[ texture_idx ]->GetTexture() );
 
-				/*if(out.MakeTextureWhite)
+				if(out.MakeTextureWhite)
 				{
 					texture = mpTexture[ texture_idx ]->GetRecolouredTexture( c32::White );
 				}
-				else
-				{
-					texture = mpTexture[ texture_idx ]->GetTexture();
-				}*/
 
 				if(texture != NULL)
 				{
@@ -2656,7 +2652,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	DL_PF( "    Use Tile[%d] as Texture[%d] [%dx%d] [%s/%dbpp] [%s u, %s v] -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] TopLeft[%0.3f|%0.3f] Scale[%0.3f|%0.3f]",
 			tile_idx, index, ti.GetWidth(), ti.GetHeight(), ti.GetFormatName(), ti.GetSizeInBits(),
 			(mode_u==GU_CLAMP)? "Clamp" : "Repeat", (mode_v==GU_CLAMP)? "Clamp" : "Repeat",
-			ti.GetLoadAddress(), (u32)ti.GetPalettePtr(), ti.GetHashCode(), ti.GetPitch(),
+			ti.GetLoadAddress(), ti.GetTlutddress(), ti.GetHashCode(), ti.GetPitch(),
 			mTileTopLeft[ index ].x, mTileTopLeft[ index ].y, mTileScale[ index ].x, mTileScale[ index ].y );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST

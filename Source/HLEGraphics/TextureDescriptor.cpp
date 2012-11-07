@@ -59,26 +59,11 @@ u32 TextureInfo::GetSizeInBits() const
 	return pnImgSize[ Size ];
 }
 #endif
-//*************************************************************************************
-//
-//*************************************************************************************
-void TextureInfo::SetTLutFormat( u32 format )
-{
-	TLutFmt = format >> G_MDSFT_TEXTLUT;
-}
 
 //*************************************************************************************
 //
 //*************************************************************************************
-u32	TextureInfo::GetTLutFormat() const
-{
-	return TLutFmt << G_MDSFT_TEXTLUT;
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
-const void *	TextureInfo::GetPalettePtr() const
+/*const void *	TextureInfo::GetPalettePtr() const
 {
 	//Debug Palette pointers
 	#if 0 
@@ -91,7 +76,7 @@ const void *	TextureInfo::GetPalettePtr() const
 
 	return (void *)TlutAddress;
 }
-
+*/
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -126,7 +111,7 @@ u32 TextureInfo::GenerateHashValue() const
 		if (GetFormat() == G_IM_FMT_CI)  
 		{
 			//Check palette changes too but only first 16 palette values//Corn
-			const u32* ptr_u32 = (u32*)GetPalettePtr();
+			const u32* ptr_u32 = (u32*)GetTlutddress();
 			for (u32 z = 0; z < 8; z++) hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ *ptr_u32++;
 		}
 	}
@@ -136,7 +121,7 @@ u32 TextureInfo::GenerateHashValue() const
 		if (GetFormat() == G_IM_FMT_CI)  
 		{
 			//Check palette changes too but only first 16 palette values//Corn
-			const u32* ptr_u32 = (u32*)GetPalettePtr();
+			const u32* ptr_u32 = (u32*)GetTlutddress();
 			for (u32 z = 0; z < 8; z++) hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ *ptr_u32++;
 		}
 	}

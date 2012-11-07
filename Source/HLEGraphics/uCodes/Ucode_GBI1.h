@@ -566,7 +566,8 @@ void DLParser_GBI1_Line3D( MicroCodeCommand command )
 	}
 
     // While the next command pair is Tri1, add vertices
-	u32 pc = gDlistStack.address[gDlistStackPointer];
+	u32 pc	= gDlistStack.address[gDlistStackPointer];
+	u32 stride = gVertexStride;
     u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
 
     bool tris_added = false;
@@ -574,10 +575,10 @@ void DLParser_GBI1_Line3D( MicroCodeCommand command )
 	do{
         //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_LINE3D");
 
-		u32 v0_idx   = command.gbi1line3d.v0 / gVertexStride;
-		u32 v1_idx   = command.gbi1line3d.v1 / gVertexStride;
-		u32 v2_idx   = command.gbi1line3d.v2 / gVertexStride;
-		u32 v3_idx   = command.gbi1line3d.v3 / gVertexStride;
+		u32 v0_idx   = command.gbi1line3d.v0 / stride;
+		u32 v1_idx   = command.gbi1line3d.v1 / stride;
+		u32 v2_idx   = command.gbi1line3d.v2 / stride;
+		u32 v3_idx   = command.gbi1line3d.v3 / stride;
 
 		tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
 		tris_added |= PSPRenderer::Get()->AddTri(v2_idx, v3_idx, v0_idx);
@@ -602,7 +603,8 @@ void DLParser_GBI1_Tri1( MicroCodeCommand command )
 {
     //DAEDALUS_PROFILE( "DLParser_GBI1_Tri1_T" );
     // While the next command pair is Tri1, add vertices
-	u32 pc = gDlistStack.address[gDlistStackPointer];
+	u32 pc	= gDlistStack.address[gDlistStackPointer];
+	u32 stride = gVertexStride;
     u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
 
     bool tris_added = false;
@@ -611,9 +613,9 @@ void DLParser_GBI1_Tri1( MicroCodeCommand command )
         //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_TRI1");
 
 		// Vertex indices are multiplied by 10 for Mario64, by 2 for MarioKart
-        u32 v0_idx = command.gbi1tri1.v0 / gVertexStride;
-        u32 v1_idx = command.gbi1tri1.v1 / gVertexStride;
-        u32 v2_idx = command.gbi1tri1.v2 / gVertexStride;
+        u32 v0_idx = command.gbi1tri1.v0 / stride;
+        u32 v1_idx = command.gbi1tri1.v1 / stride;
+        u32 v2_idx = command.gbi1tri1.v2 / stride;
 
         tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
 

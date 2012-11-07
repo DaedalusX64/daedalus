@@ -189,10 +189,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define G_TL_LOD			(1 << G_MDSFT_TEXTLOD)
 
 // G_SETOTHERMODE_H gSetTextureLUT 
-#define G_TT_NONE			(0 << G_MDSFT_TEXTLUT)
-#define G_IT_UNKNOWN		(1 << G_MDSFT_TEXTLUT)
-#define G_TT_RGBA16			(2 << G_MDSFT_TEXTLUT)
-#define G_TT_IA16			(3 << G_MDSFT_TEXTLUT)
+#define G_TT_NONE			(0)
+#define G_IT_UNKNOWN		(1)
+#define G_TT_RGBA16			(2)
+#define G_TT_IA16			(3)
 
 // G_SETOTHERMODE_H gSetTextureFilter 
 #define G_TF_POINT			(0 << G_MDSFT_TEXTFILT)

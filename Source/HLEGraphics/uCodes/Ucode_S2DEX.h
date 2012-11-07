@@ -276,12 +276,12 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 
 		ti.SetSwapped          (0);
 		ti.SetTLutIndex        (sprite->imagePal);
-#ifndef DAEDALUS_TMEM
+#ifdef DAEDALUS_FAST_TMEM
 	ti.SetTlutAddress	   ((u32)(gTextureMemory[0]));
 #else
 	ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
 #endif
-		ti.SetTLutFormat       (2 << 14);  //RGBA16 
+		ti.SetTLutFormat       (G_TT_RGBA16);
 	}
 
 	
@@ -478,7 +478,7 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 	if( ObjTxtr->block.type == S2DEX_OBJLT_TLUT )
 	{
 		uObjTxtrTLUT *ObjTlut = (uObjTxtrTLUT*)ObjTxtr;
-#ifndef DAEDALUS_TMEM
+#ifdef DAEDALUS_FAST_TMEM
 		// Store TLUT pointer
 		gTextureMemory[ (ObjTxtr->tlut.phead>>2) & 0x3F ] = (u32*)(g_pu8RamBase + RDPSegAddr(ObjTlut->image));
 #else
@@ -638,12 +638,12 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 	ti.SetSwapped          (0);
 
 	ti.SetTLutIndex        (objBg->imagePal);
-#ifndef DAEDALUS_TMEM
+#ifdef DAEDALUS_FAST_TMEM
 	ti.SetTlutAddress	   ((u32)(gTextureMemory[0]));
 #else
 	ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
 #endif
-	ti.SetTLutFormat       (2 << 14);  //RGBA16 
+	ti.SetTLutFormat       (G_TT_RGBA16);
 
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
@@ -701,12 +701,12 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 	ti.SetSwapped          (0);
 
 	ti.SetTLutIndex        (objBg->imagePal);
-#ifndef DAEDALUS_TMEM
+#ifdef DAEDALUS_FAST_TMEM
 	ti.SetTlutAddress	   ((u32)(gTextureMemory[0]));
 #else
 	ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
 #endif
-	ti.SetTLutFormat       (2 << 14);  //RGBA16 >> (2 << G_MDSFT_TEXTLUT)
+	ti.SetTLutFormat       (G_TT_RGBA16); 
 
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );

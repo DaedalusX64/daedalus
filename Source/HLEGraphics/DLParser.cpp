@@ -192,6 +192,7 @@ inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
 	gDlistStack.address[gDlistStackPointer]+= 8;
 
 }
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -367,9 +368,9 @@ bool DLParser_Initialise()
 
 	GBIMicrocode_Reset();
 
-#ifndef DAEDALUS_TMEM
+#ifdef DAEDALUS_FAST_TMEM
 	//Clear pointers in TMEM block //Corn
-	memset(&gTextureMemory[0] ,0 , sizeof(gTextureMemory));  
+	memset(gTextureMemory, 0, sizeof(gTextureMemory));
 #endif
 	return true;
 }
@@ -941,10 +942,8 @@ void DLParser_SetScissor( MicroCodeCommand command )
 	// Hack to correct Super Bowling's right screen, left screen needs fb emulation
 	if ( g_ROM.GameHacks == SUPER_BOWLING && g_CI.Address%0x100 != 0 )
 	{
-		u32 addr = RDPSegAddr(command.inst.cmd1);
-
 		// right half screen
-		RDP_MoveMemViewport( addr );
+		RDP_MoveMemViewport( RDPSegAddr(command.inst.cmd1) );
 	}
 
 	DL_PF("    x0=%d y0=%d x1=%d y1=%d mode=%d", scissors.left, scissors.top, scissors.right, scissors.bottom, command.scissor.mode);
@@ -1069,7 +1068,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	u32 count = (lrs - uls) + 1;
 	use(count);
 
-#ifndef DAEDALUS_TMEM
+#ifdef DAEDALUS_FAST_TMEM
 	//Store address of PAL (assuming PAL is only stored in upper half of TMEM) //Corn
 	gTextureMemory[ (rdp_tile.tmem>>2) & 0x3F ] = (u32*)address;
 #else
