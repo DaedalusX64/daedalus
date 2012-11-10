@@ -49,14 +49,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //F3FLP.Rej: Like F3DLX.Rej. Vertex cache is 80
 //L3DEX: Line processing, Vertex cache is 32.
 
-//
-// Used for custom ucodes' array
-//
-struct MicrocodeData
-{
-	u32				ucode;
-	u32				code_hash;
-};
 
 //
 // Used to keep track of used ucode entries
@@ -71,29 +63,6 @@ struct UcodeInfo
 };
 
 UcodeInfo used[ MAX_UCODE_CACHE_ENTRIES ];
-//*****************************************************************************
-//
-//*****************************************************************************
-const MicrocodeData gMicrocodeData[] = 
-{
-	//
-	//	The only games that need defining are custom ucodes and incorrectly detected ones
-	//	If you believe a title should be here post the line for it from ucodes.txt @ http://www.daedalusx64.com
-	//	Note - Games are in alphabetical order by game title
-	//
-	{ GBI_CONKER,	0x60256efc	},// "RSP Gfx ucode F3DEXBG.NoN fifo 2.08  Yoshitaka Yasumoto 1999 Nintendo.", "Conker's Bad Fur Day"}, 
-	{ GBI_LL,		0x6d8bec3e	},//"", "Dark Rift"},
-	{ GBI_DKR,		0x0c10181a	},//"", "Diddy Kong Racing (v1.0)"}, 
-	{ GBI_DKR,		0x713311dc	},//"", "Diddy Kong Racing (v1.1)"}, 
-	{ GBI_GE,		0x23f92542	},//"RSP SW Version: 2.0G, 09-30-96", "GoldenEye 007"}, 
-	{ GBI_DKR,		0x169dcc9d	},//"", "Jet Force Gemini"},														
-	{ GBI_LL,		0x26da8a4c	},//"", "Last Legion UX"},							
-	{ GBI_PD,		0xcac47dc4	},//"", "Perfect Dark (v1.1)"}, 
-	{ GBI_SE,		0x6cbb521d	},//"RSP SW Version: 2.0D, 04-01-96", "Star Wars - Shadows of the Empire (v1.0)"}, 
-	{ GBI_LL,		0xdd560323	},//"", "Toukon Road - Brave Spirits"},											
-	{ GBI_WR,		0x64cc729d	},//"RSP SW Version: 2.0D, 04-01-96", "Wave Race 64"},
-};
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -168,11 +137,7 @@ static void GBIMicrocode_Cache( u32 index, u32 code_base, u32 data_base, u32 uco
 //*****************************************************************************
 u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size)
 {
-
 	u32 index;
-
-	// Needed for Conker's Bad Fur Day
-	if( code_size == 0 ) code_size = 0x1000;
 
 	DAEDALUS_ASSERT( code_base, "Warning : Last Ucode might be ignored!" );
 
@@ -192,6 +157,13 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 		}
 	}
 
+	// Needed for Conker's Bad Fur Day
+	if( code_size == 0 ) 
+		code_size = 0x1000;
+
+	bool bfound = true;
+	u32  ucode_version = GBI_0; // default ucode (Fast3D)
+	
 	//
 	// If the max of ucode entries is reached, spread it randomly
 	// Otherwise we'll keep overriding the last entry
@@ -216,26 +188,64 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	//
 	u32 code_hash( GBIMicrocode_MicrocodeHash( code_base, code_size ) );
 
-	for ( u32 i = 0; i < ARRAYSIZE(gMicrocodeData); i++ )
-	{
-		if ( code_hash == gMicrocodeData[i].code_hash )
-		{
-			//
-			// Retain used ucode info which will be cached
-			//
-			GBIMicrocode_Cache( index, code_base, data_base, gMicrocodeData[ i ].ucode);
-
-			DBGConsole_Msg(0, "Ucode has been Detected in Array :[M\"%s\", Ucode %d]", str, gMicrocodeData[ i ].ucode);
-			return gMicrocodeData[ i ].ucode;
-		}
-	}
 	//
-	// If it wasn't found in the array
-	// See if we can identify it by string, if no match was found. Set default ucode (Fast3D)
+	//	The only games that need defining are custom ucodes
+	//	If you believe a title should be here post the line for it from ucodes.txt @ http://www.daedalusx64.com
+	//	Note - Games are in alphabetical order by game title
+	//
+	
+	switch( code_hash )
+	{
+	case 0x60256efc:		// "RSP Gfx ucode F3DEXBG.NoN fifo 2.08  Yoshitaka Yasumoto 1999 Nintendo.", "Conker's Bad Fur Day"
+		ucode_version = GBI_CONKER;
+		break;
+
+	case 0x6d8bec3e:		//"", "Dark Rift"
+	case 0x26da8a4c:		//"", "Last Legion UX"
+	case 0xdd560323:		//"", "Toukon Road - Brave Spirits"
+		ucode_version = GBI_LL;
+		break;
+
+	case 0x0c10181a:		//"", "Diddy Kong Racing (v1.0)"
+	case 0x713311dc:		//"", "Diddy Kong Racing (v1.1)"
+	case 0x169dcc9d:		//"", "Jet Force Gemini"
+		ucode_version = GBI_DKR;
+		break;
+
+	case 0x23f92542:		//"RSP SW Version: 2.0G, 09-30-96", "GoldenEye 007"
+		ucode_version = GBI_GE;
+		break;
+
+	case 0xcac47dc4:		//"", "Perfect Dark (v1.1)"
+		ucode_version = GBI_PD;
+		break;
+
+	case 0x6cbb521d:		//"RSP SW Version: 2.0D, 04-01-96", "Star Wars - Shadows of the Empire (v1.0)
+		ucode_version = GBI_SE;
+		break;
+
+	case 0x64cc729d:		//"RSP SW Version: 2.0D, 04-01-96", "Wave Race 64"
+		ucode_version = GBI_WR;
+		break;
+
+	default:
+		bfound = false;
+		break;
+	}
+
+	if( bfound )
+	{
+		DBGConsole_Msg(0, "Ucode has been Detected in Array :[M\"%s\", Ucode %d]", str, ucode_version);
+		GBIMicrocode_Cache( index, code_base, data_base, ucode_version);	// cache ucode info
+		return ucode_version;
+	}
+
+	//
+	// If it wasn't found above
+	// See if we can identify it by string, if no match was found
 	//
 	const char  *ucodes[] = { "F3", "L3", "S2DEX" };
 	char 		*match = 0;
-	u32 		ucode_version = 0;
 
 	for(u32 j = 0; j<3;j++)
 	{
@@ -259,10 +269,6 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 			else
 				ucode_version = GBI_1;	
 		}
-	}
-	else
-	{
-		ucode_version = GBI_0;
 	}
 
 	//
