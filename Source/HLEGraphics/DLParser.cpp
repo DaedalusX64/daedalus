@@ -1376,21 +1376,17 @@ void DLParser_SetCImg( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_SetCombine( MicroCodeCommand command )
 {
-	union
-	{
-		u64		mux;
-		u32		mpart[2];
-	}un;
+	//Swap the endian
+	REG64 Mux;
+	Mux._u32_0 = command.inst.cmd1;
+	Mux._u32_1 = command.inst.arg0;
 
-	un.mpart[0] = command.inst.cmd1;
-	un.mpart[1] = command.inst.cmd0 & 0x00FFFFFF;
-
-	PSPRenderer::Get()->SetMux( un.mux );
+	PSPRenderer::Get()->SetMux( Mux._u64 );
 	
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if (gDisplayListFile != NULL)
 	{
-		DLParser_DumpMux( un.mux );
+		DLParser_DumpMux( Mux._u64 );
 	}
 #endif
 }

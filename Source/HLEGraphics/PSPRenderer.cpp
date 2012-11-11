@@ -631,35 +631,25 @@ PSPRenderer::SBlendStateEntry	PSPRenderer::LookupBlendState( u64 mux, bool two_c
 	mRecordedCombinerStates.insert( mux );
 #endif
 
-	union
-	{
-		u64		key;
-		struct
-		{
-			u32	L;
-			u32	H;
-		};
-	}un;
-
-	un.key = mux;
+	REG64 key;
+	key._u64 = mux;
 
 	// Top 8 bits are never set - use the very top one to differentiate between 1/2 cycles
-	un.H |= (two_cycles << 31);
+	key._u32_1 |= (two_cycles << 31);
 
-	BlendStatesMap::const_iterator	it( mBlendStatesMap.find( un.key ) );
+	BlendStatesMap::const_iterator	it( mBlendStatesMap.find( key._u64 ) );
 	if( it != mBlendStatesMap.end() )
 	{
 		return it->second;
 	}
 
-	SBlendStateEntry			entry;
-	CCombinerTree				tree( mux, two_cycles );
+	// Blendmodes with Inexact blends either get an Override blend or a Default blend (GU_TFX_MODULATE)
+	// If its not an Inexact blend then we check if we need to Force a blend mode none the less// Salvy
+	//
+	SBlendStateEntry entry;
+	CCombinerTree tree( mux, two_cycles );
 	entry.States = tree.GetBlendStates();
 
-
-	// Only check for blendmodes when inexact blends are found, this is done to allow setting a default case to handle most (inexact) blends with GU_TFX_MODULATE
-	// A nice side effect is that it gives a slight speed up when changing scenes since we would only check for innexact blends and not every mux that gets passed here :) // Salvy
-	//
 	if( entry.States->IsInexact() )
 	{
 		entry.OverrideFunction = LookupOverrideBlendModeInexact( mux );
@@ -673,13 +663,13 @@ PSPRenderer::SBlendStateEntry	PSPRenderer::LookupBlendState( u64 mux, bool two_c
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST	
 	if( entry.OverrideFunction == NULL )
 	{
-		//CCombinerTree				tree( mux, two_cycles );
-		//entry.States = tree.GetBlendStates();
-		printf( "Adding %08x%08x - %d cycles%s", u32(mux>>32), u32(mux), two_cycles ? 2 : 1, entry.States->IsInexact() ?  " - Inexact - bodging\n" : "\n");
-
+		printf( "Adding %08x%08x - %d cycles%s", u32(mux>>32), u32(mux), two_cycles ? 2 : 1, entry.States->IsInexact() ?  " - Inexact(Override|Default)\n" : " - Forced\n");
 	}
 #endif
-	mBlendStatesMap[ un.key ] = entry;
+
+	//Add blend mode to the Blend States Map
+	mBlendStatesMap[ key._u64 ] = entry;
+
 	return entry;
 }
 

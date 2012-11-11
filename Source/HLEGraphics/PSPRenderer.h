@@ -256,15 +256,13 @@ public:
 	inline v4			GetProjectedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].ProjectedPos; }
 	inline u32			GetVtxFlags( u32 i ) const				{ return mVtxProjected[ i ].ClipFlags; }
 
-	// Rendering stats
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	// Rendering stats
 	inline u32			GetNumTrisRendered() const				{ return m_dwNumTrisRendered; }
 	inline u32			GetNumTrisClipped() const				{ return m_dwNumTrisClipped; }
 	inline u32			GetNumRect() const						{ return m_dwNumRect; }
-#endif
 
 	// Debugging
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	void					SetRecordCombinerStates( bool enable )	{ mRecordCombinerStates = enable; }					// Sets whether combiner states will be recorded for the subsequent frames
 	const std::set<u64> &	GetRecordedCombinerStates() const		{ return mRecordedCombinerStates; }
 
@@ -301,7 +299,8 @@ private:
 
 	void				RenderUsingRenderSettings( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags );
 	void				RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer );
-// Old code, kept for reference
+
+	// Old code, kept for reference
 #ifdef DAEDALUS_IS_LEGACY
 	void 				TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world );
 	template< bool FogEnable, int TextureMode >
@@ -371,8 +370,7 @@ private:
 	bool				mReloadProj;
 	bool				mWPmodified;
 		
-	// Flying Dragon uses more than 256
-	static const u32 	MAX_VERTICES = 320;	//we need at least 80 verts * 3 = 240? //Corn	
+	static const u32 	MAX_VERTICES = 320;	//we need at least 80 verts * 3 = 240? But Flying Dragon uses more than 256 //Corn	
 	u16					m_swIndexBuffer[MAX_VERTICES];
 	u32					mNumIndices;
 
@@ -380,7 +378,6 @@ private:
 	DaedalusVtx4		mVtxProjected[MAX_VERTS];			// Transformed and projected vertices (suitable for clipping etc)
 	u32					mVtxClipFlagsUnion;					// Bitwise OR of all the vertex flags added to the current batch. If this is 0, we can trivially accept everything without clipping
 
-	//
 	//	BlendMode support
 	//
 	CBlendStates *		mCopyBlendStates;

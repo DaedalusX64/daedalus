@@ -405,6 +405,7 @@ struct SetOthermode
 {
 	u32	len:8;
 	u32	sft:8;
+	u32	pad:8;
 	u32	cmd:8;
 	u32	data;
 };

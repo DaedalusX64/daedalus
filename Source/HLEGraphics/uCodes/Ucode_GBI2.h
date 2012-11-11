@@ -379,7 +379,6 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 	PSPRenderer::Get()->SetTnLMode( TnLMode._u32 );
 }
 
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -409,7 +408,6 @@ void DLParser_GBI2_SetOtherModeL( MicroCodeCommand command )
 	RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );
 #endif
 }
-
 
 //*****************************************************************************
 //

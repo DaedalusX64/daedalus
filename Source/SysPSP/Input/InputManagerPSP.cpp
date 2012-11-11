@@ -328,7 +328,6 @@ bool	IInputManager::Initialise()
 bool IInputManager::GetState( OSContPad pPad[4] )
 {
 	// Clear the initial state of the four controllers
-   // Clear the initial state
     for(u32 cont = 0; cont < 4; cont++)
     {
         pPad[cont].button = 0;

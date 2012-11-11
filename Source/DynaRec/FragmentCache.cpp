@@ -31,8 +31,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "AssemblyUtils.h"
 
-
 #include <algorithm>
+
+//Define to show hash table statistics cache hit/miss
+//#define HASH_TABLE_STATS
 
 using namespace AssemblyUtils;
 
@@ -119,7 +121,9 @@ CFragment * CFragmentCache::LookupFragment( u32 address ) const
 CFragment * CFragmentCache::LookupFragmentQ( u32 address ) const
 {
 	DAEDALUS_PROFILE( "CFragmentCache::LookupFragmentQ" );
-
+#ifdef HASH_TABLE_STATS
+	static u32 hit=0, miss=0;
+#endif
 	if( address != mCachedFragmentAddress )
 	{
 		mCachedFragmentAddress = address;
@@ -129,6 +133,9 @@ CFragment * CFragmentCache::LookupFragmentQ( u32 address ) const
 
 		if ( address != mpCacheHashTable[ix].addr )
 		{
+#ifdef HASH_TABLE_STATS
+			miss++;
+#endif
 			SFragmentEntry				entry( address, NULL );
 			FragmentVec::const_iterator	it( std::lower_bound( mFragments.begin(), mFragments.end(), entry ) );
 			if( it != mFragments.end() && it->Address == address )
@@ -146,8 +153,19 @@ CFragment * CFragmentCache::LookupFragmentQ( u32 address ) const
 		}
 		else
 		{
+#ifdef HASH_TABLE_STATS
+			hit++;
+#endif
 			mpCachedFragment = reinterpret_cast< CFragment * >( mpCacheHashTable[ix].ptr );
 		}
+
+#ifdef HASH_TABLE_STATS
+		if(miss+hit==10000)
+		{
+			printf("Hit[%d]  Miss[%d]\n", hit, miss);
+			miss=hit=0;
+		}
+#endif
 	}
 
 	return mpCachedFragment;
