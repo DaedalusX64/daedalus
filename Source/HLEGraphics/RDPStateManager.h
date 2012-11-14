@@ -52,7 +52,7 @@ public:
 	const TextureInfo &				GetTextureDescriptor( const u32 idx ) const;
 
 private:
-	void					InvalidateAllTileTextureInfo()		{ for( u32 i = 0; i < 8; ++i ) mTileTextureInfoValid[ i ] = false; }
+	inline void				InvalidateAllTileTextureInfo()		{ memset( mTileTextureInfoValid, 0, sizeof(mTileTextureInfoValid) ); }
 	inline u32				EntryIsValid( const u32 tmem )const	{ return (Valid_Entry >> tmem) & 1; }	//Return 1 if entry is valid else 0
 	inline void				SetValidEntry( const u32 tmem )		{ Valid_Entry |= (1 << tmem); }	//Set TMEM address entry as valid
 	inline void				ClearEntries( const u32 tmem )		{ Valid_Entry &= ((u32)~0 >> (31-tmem)); }	//Clear all entries after the specified TMEM address

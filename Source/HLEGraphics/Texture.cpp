@@ -94,7 +94,7 @@ namespace
 		//Do nothing if palette address is NULL or close to NULL in a palette texture //Corn
 		//Loading a SaveState (OOT -> SSV) dont bring back our TMEM data which causes issues for the first rendered frame.
 		//Checking if the palette pointer is less than 0x1000 (rather than just NULL) fixes it.
-		if( palette && (texture_info.GetTlutddress() < 0x1000) ) return false;
+		if( palette && (texture_info.GetTlutAddress() < 0x1000) ) return false;
 
 		const ConvertFunction fn( gConvertFunctions[ (texture_info.GetFormat() << 2) | texture_info.GetSize() ] );
 		if( fn )
@@ -646,13 +646,13 @@ bool	CTexture::HasExpired() const
 		if( (g_ROM.GameHacks == WORMS_ARMAGEDDON) && (mTextureInfo.GetSize() == G_IM_SIZ_8b) && (mTextureContentsHash != mTextureInfo.GenerateHashValue()) ) return true;
 
 		//Hack for Zelda OOT & MM text (only needed if there is not a general hash check) //Corn
-		//if( g_ROM.ZELDA_HACK && (mTextureInfo.GetSize() == G_IM_SIZ_4b) && mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
+		if( g_ROM.ZELDA_HACK && (mTextureInfo.GetSize() == G_IM_SIZ_4b) && mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
 
 		//Check if texture has changed
 		//if( mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
 	}
 
-	//Otherwise we wait 10+random(0-3) frames before trashing the texture if unused
+	//Otherwise we wait 20+random(0-3) frames before trashing the texture if unused
 	//Spread trashing them over time so not all get killed at once (lower value uses less VRAM) //Corn
 	return gRDPFrame - mFrameLastUsed > (20 + (pspFastRand() & 0x3)); 
 }

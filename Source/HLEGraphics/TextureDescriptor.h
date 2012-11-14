@@ -49,7 +49,8 @@ public:
 	TextureInfo( const TextureInfo & rhs )					{ memcpy( this, &rhs, sizeof( TextureInfo ) ); }
 	TextureInfo & operator=( const TextureInfo & rhs )		{ memcpy( this, &rhs, sizeof( TextureInfo ) ); return *this;}
 
-	inline u32				GetHashCode() const				{ u8 *ptr( (u8*)this ); u8 *end_ptr( ptr + sizeof( TextureInfo ) ); u32 hash(0); while( ptr < end_ptr ) hash = ((hash << 9) | (hash >> 0x17)) ^ *ptr++; return hash; }
+	//the hash output should match the number of bits used in the texture cache array 
+	inline u32				GetHashCode() const				{ u8 *ptr( (u8*)this ); u8 *end_ptr( ptr + sizeof( TextureInfo ) ); u32 hash(0); while( ptr < end_ptr ) hash = ((hash << 1) | (hash >> 0x9)) ^ *ptr++; return hash; }
 	//inline u32				GetHashCode() const				{ return murmur2_neutral_hash( reinterpret_cast< const u8 * >( this ), sizeof( TextureInfo ), 0 ); }
 
 	// Compute a hash of the contents of the texture data. Not to be confused with GetHashCode() that hashes the Textureinfo!
@@ -63,7 +64,7 @@ public:
 	u32						GetWidthInBytes() const;
 
 	inline u32				GetLoadAddress() const			{ return LoadAddress; }
-	inline u32				GetTlutddress() const			{ return TlutAddress; }
+	inline u32				GetTlutAddress() const			{ return TlutAddress; }
 	inline u32				GetTmemAddress() const			{ return TmemAddress; }
 	inline u32				GetFormat() const				{ return Format; }
 	inline u32				GetSize() const					{ return Size; }
@@ -72,7 +73,6 @@ public:
 	inline u32				GetPitch() const				{ return Pitch; }
 	inline u32				GetTLutFormat() const			{ return TLutFmt; }
 	inline u32				GetTLutIndex() const			{ return TLutIndex; }
-	inline u32				GetTLut() const					{ return TLutFmt; }
 	inline bool				IsSwapped() const				{ return Swapped; }
 	inline bool				GetMirrorS() const				{ return MirrorS; }
 	inline bool				GetMirrorT() const				{ return MirrorT; }

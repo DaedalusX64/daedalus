@@ -120,7 +120,6 @@ void	CRDPStateManager::LoadTile( u32 idx, u32 address )
 
 	u32	tmem_lookup( mTiles[ idx ].tmem >> 4 );
 
-	// Only needed for full tmem emulation?
 	SetValidEntry( tmem_lookup );
 
 	TimgLoadDetails& info( mTmemLoadInfo[ tmem_lookup ] );
@@ -192,7 +191,6 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 			address = info_base.Address + (rdp_tile.tmem << 3);
 			pitch	= info_base.Pitch;
 			swapped = info_base.Swapped;
-	
 		}
 
 		// If it was a Block Load - the pitch is determined by the tile size.
@@ -226,7 +224,7 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 			u32 tlut_idx0( g_ROM.TLUT_HACK << 1 );
 			u32 tlut_idx1( (u32)gTextureMemory[ rdp_tile.palette << tlut_idx0 ] );
 
-			//Check for NULL pointer(=invalid entry)
+			//If pointer == NULL(=invalid entry) add offset to base address (TMEM[0] + offset)
 			if(tlut_idx1 == 0)
 			{
 				tlut += (rdp_tile.palette << (5 + tlut_idx0) );

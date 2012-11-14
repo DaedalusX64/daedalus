@@ -111,7 +111,7 @@ u32 TextureInfo::GenerateHashValue() const
 		if (GetFormat() == G_IM_FMT_CI)  
 		{
 			//Check palette changes too but only first 16 palette values//Corn
-			const u32* ptr_u32 = (u32*)GetTlutddress();
+			const u32* ptr_u32 = (u32*)GetTlutAddress();
 			for (u32 z = 0; z < 8; z++) hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ *ptr_u32++;
 		}
 	}
@@ -121,7 +121,7 @@ u32 TextureInfo::GenerateHashValue() const
 		if (GetFormat() == G_IM_FMT_CI)  
 		{
 			//Check palette changes too but only first 16 palette values//Corn
-			const u32* ptr_u32 = (u32*)GetTlutddress();
+			const u32* ptr_u32 = (u32*)GetTlutAddress();
 			for (u32 z = 0; z < 8; z++) hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ *ptr_u32++;
 		}
 	}
@@ -165,7 +165,7 @@ u32 TextureInfo::GenerateHashValue() const
 	//Used in OOT for the sky, really minor so is not worth the CPU time to always check for it
 	/*if (GetFormat() == G_IM_FMT_CI)  
 	{
-		const u32* ptr_u32 = (u32*)GetPalettePtr();
+		const u32* ptr_u32 = (u32*)GetTlutAddress();
 		for (u32 z = 0; z < ((GetSize() == G_IM_SIZ_4b)? 8 : 128); z++) hash_value ^= *ptr_u32++;
 	}*/
 
