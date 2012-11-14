@@ -290,7 +290,7 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 		return;
 	}
 
-	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
+	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( ti.GetHashCode(), &ti ) );
 	mpTexture = texture;
 	
 	texture->GetTexture()->InstallTexture();
@@ -646,7 +646,7 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 	ti.SetTLutFormat       (G_TT_RGBA16);
 
 
-	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
+	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( ti.GetHashCode(), &ti ) );
 	texture->GetTexture()->InstallTexture();
 	texture->UpdateIfNecessary();
 
@@ -709,7 +709,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 	ti.SetTLutFormat       (G_TT_RGBA16); 
 
 
-	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
+	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( ti.GetHashCode(), &ti ) );
 	texture->GetTexture()->InstallTexture();
 	texture->UpdateIfNecessary();
 

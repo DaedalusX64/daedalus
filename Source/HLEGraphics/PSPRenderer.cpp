@@ -2590,10 +2590,14 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	DAEDALUS_ASSERT( index < NUM_N64_TEXTURES, "Invalid texture index %d", index );
 
 	const TextureInfo & ti( gRDPStateManager.GetTextureDescriptor( tile_idx ) );
+	u32 hash( ti.GetHashCode() );
 
 #ifndef DAEDALUS_DEBUG_DISPLAYLIST
-	// Avoid texture update, if texture is the same as last time around.
-	if( (mpTexture[ index ] != NULL) && (mpTexture[ index ]->GetTextureInfo() == ti) ) return;
+	//
+	//	Avoid update check and divides if the texture is the same
+	//
+	if( mTiHash == hash ) 
+		return;
 #endif
 
 	//	Initialise the wrapping/texture offset first, which can be set
@@ -2646,8 +2650,11 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 			mTileTopLeft[ index ].x, mTileTopLeft[ index ].y, mTileScale[ index ].x, mTileScale[ index ].y );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	// Avoid texture update, if texture is the same as last time around.
-	if( (mpTexture[ index ] != NULL) && (mpTexture[ index ]->GetTextureInfo() == ti) ) return;
+	//
+	//	Avoid update check and divides if the texture is the same
+	//
+	if( mTiHash == hash ) 
+		return;
 #endif
 
 	// Check for 0 width/height textures
@@ -2657,69 +2664,62 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	}
 	else
 	{
-		const CRefPtr<CTexture>	texture( CTextureCache::Get()->GetTexture( &ti ) );
-
+		const CRefPtr<CTexture>	texture( CTextureCache::Get()->GetTexture( hash, &ti ) );
 		if( texture != NULL )
 		{
-			//
-			//	Avoid update check and divides if the texture is already installed
-			//
-			if( texture != mpTexture[ index ] )
+			mTiHash = hash;
+			texture->UpdateIfNecessary();
+
+			const CRefPtr<CNativeTexture> & native_texture( texture->GetTexture() );
+
+			//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
+			//If T1 Hack is not enabled index can never be other than 0
+			if(index) 
 			{
-				texture->UpdateIfNecessary();
+				const TextureInfo & ti0(mpTexture[ 0 ]->GetTextureInfo());
 
-				mpTexture[ index ] = texture;
-
-				const CRefPtr<CNativeTexture> & native_texture( texture->GetTexture() );
-
-				//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
-				//If T1 Hack is not enabled index can never be other than 0
-				if(index) 
+				if((ti0.GetFormat() == G_IM_FMT_RGBA) && (ti.GetFormat() == G_IM_FMT_I) && (ti.GetWidth() == ti0.GetWidth()) && (ti.GetHeight() == ti0.GetHeight()))
 				{
-					const TextureInfo & ti0(mpTexture[ 0 ]->GetTextureInfo());
-
-					if((ti0.GetFormat() == G_IM_FMT_RGBA) && (ti.GetFormat() == G_IM_FMT_I) && (ti.GetWidth() == ti0.GetWidth()) && (ti.GetHeight() == ti0.GetHeight()))
+					// FIX ME
+					/*if( g_ROM.T1_HACK )
 					{
-						if( g_ROM.T1_HACK )
-							{
-								const CRefPtr<CNativeTexture> & native_texture0( mpTexture[ 0 ]->GetTexture() );
-								u32* dst=(u32*)(native_texture->GetData());
-								u32* src=(u32*)(native_texture0->GetData());
+						const CRefPtr<CNativeTexture> & native_texture0( mpTexture[ 0 ]->GetTexture() );
+						u32* dst=(u32*)(native_texture->GetData());
+						u32* src=(u32*)(native_texture0->GetData());
 								
-								//Merge RGB + I -> RGBA in texture 1
-								//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
-								u32 size = native_texture->GetWidth() * native_texture->GetHeight() >> 1;
-								for(u32 i=0; i < size ; i++)
-								{
-									*dst = (*dst & 0xF000F000) | (*src & 0x0FFF0FFF);
-									dst++;
-									src++;
-								}
-							}
-						else
-							{
-								const CRefPtr<CNativeTexture> & native_texture0( mpTexture[ 0 ]->GetTexture() );
-								u32* src=(u32*)(native_texture->GetData());
-								u32* dst=(u32*)(native_texture0->GetData());
-								
-								//Merge RGB + I -> RGBA in texture 0
-								//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
-								u32 size = native_texture->GetWidth() * native_texture->GetHeight() >> 1;
-								for(u32 i=0; i < size ; i++)
-								{
-									*dst = (*dst & 0x0FFF0FFF) | (*src & 0xF000F000);
-									dst++;
-									src++;
-								}
-							}
+						//Merge RGB + I -> RGBA in texture 1
+						//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
+						u32 size = native_texture->GetWidth() * native_texture->GetHeight() >> 1;
+						for(u32 i=0; i < size ; i++)
+						{
+							*dst = (*dst & 0xF000F000) | (*src & 0x0FFF0FFF);
+							dst++;
+							src++;
+						}
 					}
+					else
+					{
+						const CRefPtr<CNativeTexture> & native_texture0( mpTexture[ 0 ]->GetTexture() );
+						u32* src=(u32*)(native_texture->GetData());
+						u32* dst=(u32*)(native_texture0->GetData());
+								
+						//Merge RGB + I -> RGBA in texture 0
+						//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
+						u32 size = native_texture->GetWidth() * native_texture->GetHeight() >> 1;
+						for(u32 i=0; i < size ; i++)
+						{
+							*dst = (*dst & 0x0FFF0FFF) | (*src & 0xF000F000);
+							dst++;
+							src++;
+						}
+					}*/
 				}
+			}
 
-				if( native_texture != NULL )
-				{
-					mTileScale[ index ].x = native_texture->GetScaleX();
-					mTileScale[ index ].y = native_texture->GetScaleY();
-				}
+			if( native_texture != NULL )
+			{
+				mTileScale[ index ].x = native_texture->GetScaleX();
+				mTileScale[ index ].y = native_texture->GetScaleY();
 			}
 		}
 	}

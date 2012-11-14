@@ -350,6 +350,7 @@ private:
 	// Texturing
 	static const u32 NUM_N64_TEXTURES = 2;
 
+	u32					mTiHash;
 	CRefPtr<CTexture>	mpTexture[ NUM_N64_TEXTURES ];
 	v2					mTileTopLeft[ NUM_N64_TEXTURES ];
 	v2					mTileScale[ NUM_N64_TEXTURES ];

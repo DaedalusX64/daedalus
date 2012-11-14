@@ -50,7 +50,7 @@ public:
 			void			SetDumpTextures( bool dump_textures )	{ mDumpTextures = dump_textures; }
 			bool			GetDumpTextures( ) const				{ return mDumpTextures; }
 #endif	
-			CRefPtr<CTexture>GetTexture(const TextureInfo * pti);
+			CRefPtr<CTexture>GetTexture(u32 hash, const TextureInfo * pti);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	virtual	void			DisplayStats();
@@ -102,9 +102,9 @@ protected:
 
 		return hash & (HASH_TABLE_SIZE-1);
 	}
-	inline static u32 MakeHashIdxB( const TextureInfo & ti )
+	inline static u32 MakeHashIdxB( u32 hash )
 	{
-		return ti.GetHashCode() & (HASH_TABLE_SIZE-1);
+		return hash & (HASH_TABLE_SIZE-1);
 	}
 
 	mutable CRefPtr<CTexture>	mpCacheHashTable[HASH_TABLE_SIZE];
@@ -160,7 +160,7 @@ void ITextureCache::PurgeOldTextures()
 			//printf("Texture load address -> %d\n",mTextures[ i ]->GetTextureInfo().GetLoadAddress());
 
 			u32	ixa( MakeHashIdxA( texture->GetTextureInfo() ) );
-			u32 ixb( MakeHashIdxB( texture->GetTextureInfo() ) );
+			u32 ixb( MakeHashIdxB( texture->GetTextureInfo().GetHashCode() ) );
 
 			if( mpCacheHashTable[ixa] == texture )
 			{
@@ -220,7 +220,7 @@ static void TextureCacheStat( u32 l1_hit, u32 l2_hit, u32 size )
 // If already in table, return cached copy
 // Otherwise, create surfaces, and load texture into memory
 //*************************************************************************************
-CRefPtr<CTexture> ITextureCache::GetTexture(const TextureInfo * pti)
+CRefPtr<CTexture> ITextureCache::GetTexture(u32 hash, const TextureInfo * pti)
 {
 	DAEDALUS_PROFILE( "ITextureCache::GetTexture" );
 
@@ -234,7 +234,7 @@ CRefPtr<CTexture> ITextureCache::GetTexture(const TextureInfo * pti)
 		return mpCacheHashTable[ixa];
 	}
 
-	u32 ixb( MakeHashIdxB( *pti ) );
+	u32 ixb( MakeHashIdxB( hash ) );
 	if( mpCacheHashTable[ixb] && mpCacheHashTable[ixb]->GetTextureInfo() == *pti )
 	{
 		RECORD_CACHE_HIT( 1, 0 );
