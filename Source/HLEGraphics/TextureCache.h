@@ -63,7 +63,7 @@ class CTextureCache : public CSingleton< CTextureCache >
 		virtual void		Snapshot( std::vector< STextureInfoSnapshot > & snapshot ) const = 0;
 #endif
 
-		virtual CRefPtr<CTexture>	GetTexture( u32 hash, const TextureInfo * pti ) = 0;
+		virtual CRefPtr<CTexture>	GetTexture( const TextureInfo * pti ) = 0;
 };
 
 #endif	// __TEXTURECACHE_H__
