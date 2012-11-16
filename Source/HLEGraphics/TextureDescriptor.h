@@ -25,15 +25,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 struct TextureInfo
 {
 private:
-	u32			LoadAddress;		// Corresponds to Address in Tile
-	u32			TlutAddress;		// Address to Palette
-	//s16		Left;
-	//s16		Top;
-	u32			Width;
-	u32			Height;
-	u32			Pitch;				// Number of bytes in a texture row
+	u32			LoadAddress;		// Address to texture surface
+	u32			TlutAddress;		// Address to palette
+	u16			Width;				// X dimensions
+	u16			Height;				// Y dimensions
+	u16			Pitch;				// Number of bytes in a texture row
 
-	u32			TmemAddress : 9;	// Tile TMEM address (0x000 - 0x1FF)
+	u32			TmemAddress : 9;	// TMEM address (0x000 - 0x1FF)
 	u32			TLutIndex : 4;		// Palette index (0-15)
 	u32			Format : 3;			// e.g. RGBA, YUV, CI, IA, I...
 	u32			Size : 2;			// e.g. 4bpp, 8bpp, 16bpp, 32bpp

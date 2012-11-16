@@ -1156,8 +1156,9 @@ void BlendMode_0x0017e2052ffd75f8LL (BLEND_MODE_ARGS)
 //aA1  : (0            - 0           ) * 0            + Combined
 void BlendMode_0x00272c6015fc9378LL( BLEND_MODE_ARGS )
 {
-	details.ColourAdjuster.SetRGB( details.PrimColour);
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+	details.ColourAdjuster.SetRGB( details.EnvColour);
+	sceGuTexEnvColor( details.PrimColour.GetColour() );
+	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);
 }
 
 //Space Station Silicon Valley - Fences and windshield

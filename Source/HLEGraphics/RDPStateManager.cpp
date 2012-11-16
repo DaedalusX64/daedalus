@@ -211,6 +211,9 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		u32		num_pixels( tile_width * tile_height );
 		u32		num_bytes( pixels2bytes( num_pixels, rdp_tile.size ) );
 		DAEDALUS_DL_ASSERT( num_bytes <= 4096, "Suspiciously large texture load: %d bytes (%dx%d, %dbpp)", num_bytes, tile_width, tile_height, (1<<(rdp_tile.size+2)) );
+
+		// May not work if Left (10.2 format) is not even?
+		DAEDALUS_DL_ASSERT( (rdp_tile.size > 0) || (rdp_tilesize.left & 4) == 0, "Expecting an even Left for 4bpp formats" );
 #endif
 
 #ifdef DAEDALUS_FAST_TMEM
@@ -246,11 +249,6 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		ti.SetFormat( rdp_tile.format );
 		ti.SetSize( rdp_tile.size );
 
-		// May not work if Left is not even?
-#ifdef DAEDALUS_ENABLE_ASSERTS
-		u32	tile_left( rdp_tilesize.left >> 2 );
-		DAEDALUS_DL_ASSERT( (rdp_tile.size > 0) || (tile_left&1) == 0, "Expecting an even Left for 4bpp formats" );
-#endif		
 		// Hack to fix the sun in Zelda OOT/MM
 		if( g_ROM.ZELDA_HACK && (gRDPOtherMode.L == 0x0c184241) && (rdp_tile.format == G_IM_FMT_I) )	 //&& (ti.GetWidth() == 64)	
 		{
@@ -265,8 +263,6 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		ti.SetSwapped( swapped );
 		ti.SetMirrorS( rdp_tile.mirror_s );
 		ti.SetMirrorT( rdp_tile.mirror_t );
-
-
 
 		// Hack - Extreme-G specifies RGBA/8 textures, but they're really CI8
 		if( ti.GetFormat() == G_IM_FMT_RGBA && ti.GetSize() <= G_IM_SIZ_8b ) ti.SetFormat( G_IM_FMT_CI );
