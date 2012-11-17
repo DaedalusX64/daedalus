@@ -1123,6 +1123,17 @@ void BlendMode_0x00547ea833fdf2f9LL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
+//Sin and Punishment - blinds the screen
+//case 0x00327e64fffff9fcLL:
+//aRGB0: (Primitive    - 0           ) * Shade        + 0
+//aA0  : (0            - 0           ) * 0            + Shade
+//aRGB1: (Primitive    - 0           ) * Shade        + 0
+//aA1  : (0            - 0           ) * 0            + Shade
+void BlendMode_0x00327e64fffff9fcLL( BLEND_MODE_ARGS )
+{
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
 //Sin and Punishment - Particles and Explosions
 //case 0x00551aaa1134fe7fLL:
 //aRGB0: (Env          - Texel0      ) * Prim_Alpha   + Texel0
@@ -1145,6 +1156,29 @@ void BlendMode_0x00551aaa1134fe7fLL (BLEND_MODE_ARGS)
 void BlendMode_0x0017e2052ffd75f8LL (BLEND_MODE_ARGS)
 {
 	details.ColourAdjuster.SetRGBA( details.EnvColour);
+	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
+}
+
+//Space Station Silicon Valley - Electric fence
+//case 0x0030986155feff79LL:
+//aRGB0: (Primitive    - Env         ) * Texel0       + Env
+//aA0  : (Texel0       - 0           ) * Shade        + 0
+//aRGB1: (Primitive    - Env         ) * Texel0       + Env
+//aA1  : (0            - 0           ) * 0            + Texel0
+void BlendMode_0x0030986155feff79LL( BLEND_MODE_ARGS )
+{
+	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
+}
+
+//Space Station Silicon Valley - teleporter
+//case 0x0021246015fc9378LL:
+//aRGB0: (Texel1       - Texel0      ) * Texel1       + Texel0
+//aA0  : (Texel1       - Texel0      ) * Texel1       + Texel0
+//aRGB1: (Primitive    - Env         ) * Combined     + Env
+//aA1  : (0            - 0           ) * 0            + Combined
+void BlendMode_0x0021246015fc9378LL( BLEND_MODE_ARGS )
+{
+	details.ColourAdjuster.SetRGB( details.PrimColour);
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
@@ -1869,6 +1903,8 @@ OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 			//BLEND_MODE(0x00119623ff2fffffLL); // Pokemon Stadium 2 HUD //Ruins RR64
 			BLEND_MODE(0x00121824ff33ffffLL); // Tarzan (also used by Paper Mario)
 			BLEND_MODE(0x00127ffffffff438LL); // Extreme-G2
+			BLEND_MODE(0x0030986155feff79LL); // SSV electric fence
+			BLEND_MODE(0x00327e64fffff9fcLL); // Sin and Punishment - blinds the screen
 			BLEND_MODE(0x00457fff3ffcfe3fLL); // Pokemon Stadium 2 Arena Floor
 			//BLEND_MODE(0x00522bfffffffe38LL); // Donald Duck rain (makes it transparent not really a fix) breaks shadow in Rayman2
 			BLEND_MODE(0x0060b2c15565feffLL); // Mario Kart 64		
@@ -1930,6 +1966,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x0020ac04ff0f93ffLL); // Zelda MM : Mountain outside Clock Town
 			BLEND_MODE(0x0020ac60350c937fLL); // Zelda Chest Opening Light
 			BLEND_MODE(0x0020a203ff13ff7fLL); // Paper Mario -Intro Water
+			BLEND_MODE(0x0021246015fc9378LL); // SSV teleporter
 			BLEND_MODE(0x002266ac1010923fLL); // DKR River
 			BLEND_MODE(0x0022ffff1ffcfa38LL); // Wave racer - sky
 			BLEND_MODE(0x0025266015fc9378LL); // MM Sky

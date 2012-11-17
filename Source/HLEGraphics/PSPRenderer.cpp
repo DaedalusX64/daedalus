@@ -621,6 +621,7 @@ inline void PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) con
 	answ.y = pspFpuRound( pspFpuRound( n64_coords.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y );
 }
 #endif
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -661,10 +662,7 @@ PSPRenderer::SBlendStateEntry	PSPRenderer::LookupBlendState( u64 mux, bool two_c
 	}
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST	
-	if( entry.OverrideFunction == NULL )
-	{
-		printf( "Adding %08x%08x - %d cycles%s", u32(mux>>32), u32(mux), two_cycles ? 2 : 1, entry.States->IsInexact() ?  " - Inexact(Override|Default)\n" : " - Forced\n");
-	}
+	printf( "Adding %08x%08x - %d cycles%s", u32(mux>>32), u32(mux), two_cycles ? 2 : 1, entry.States->IsInexact() ?  " - Inexact(Override|Default)\n" : " - Auto|Forced\n");
 #endif
 
 	//Add blend mode to the Blend States Map
@@ -797,57 +795,54 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 //*****************************************************************************
 bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux )
 {
-	if( mNastyTexture && IsCombinerStateDisabled( mux ) )
+	if( IsCombinerStateDisabled( mux ) )
 	{
-		// Use the nasty placeholder texture
-		//
-		sceGuEnable(GU_TEXTURE_2D);
-		SelectPlaceholderTexture( PTT_SELECTED );
-		sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
-		sceGuTexMode(GU_PSM_8888,0,0,GL_TRUE);		// maxmips/a2/swizzle = 0
-		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
-
-		return true;
-
-	}
-
-	if(IsCombinerStateDisabled( mux ))
-	{
-		//Allow Blend Explorer
-		//
-		SBlendModeDetails		details;
-		//u32	num_cycles = gRDPOtherMode.cycle_type == CYCLE_2CYCLE ? 2 : 1;
-
-		details.InstallTexture = true;
-		details.EnvColour = mEnvColour;
-		details.PrimColour = mPrimitiveColour;
-		details.ColourAdjuster.Reset();
-
-		//Insert the Blend Explorer
-		BLEND_MODE_MAKER
-
-		bool	installed_texture( false );
-
-		if( details.InstallTexture )
+		if( mNastyTexture )
 		{
-			if( mpTexture[ 0 ] != NULL )
-			{
-				const CRefPtr<CNativeTexture> texture( mpTexture[ 0 ]->GetTexture() );
+			// Use the nasty placeholder texture
+			//
+			sceGuEnable(GU_TEXTURE_2D);
+			SelectPlaceholderTexture( PTT_SELECTED );
+			sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
+			sceGuTexMode(GU_PSM_8888,0,0,GL_TRUE);		// maxmips/a2/swizzle = 0
+			sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
+		}
+		else
+		{
+			//Allow Blend Explorer
+			//
+			SBlendModeDetails		details;
 
-				if(texture != NULL)
+			details.InstallTexture = true;
+			details.EnvColour = mEnvColour;
+			details.PrimColour = mPrimitiveColour;
+			details.ColourAdjuster.Reset();
+
+			//Insert the Blend Explorer
+			BLEND_MODE_MAKER
+
+			bool	installed_texture( false );
+
+			if( details.InstallTexture )
+			{
+				if( mpTexture[ 0 ] != NULL )
 				{
-					texture->InstallTexture();
-					installed_texture = true;
+					const CRefPtr<CNativeTexture> texture( mpTexture[ 0 ]->GetTexture() );
+
+					if(texture != NULL)
+					{
+						texture->InstallTexture();
+						installed_texture = true;
+					}
 				}
 			}
+
+			// If no texture was specified, or if we couldn't load it, clear it out
+			if( !installed_texture ) sceGuDisable( GU_TEXTURE_2D );
+
+			details.ColourAdjuster.Process( p_vertices, num_vertices );
+			sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
 		}
-
-		// If no texture was specified, or if we couldn't load it, clear it out
-		if( !installed_texture ) 
-			sceGuDisable( GU_TEXTURE_2D );
-
-		details.ColourAdjuster.Process( p_vertices, num_vertices );
-		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
 
 		return true;
 	}
@@ -884,10 +879,7 @@ void PSPRenderer::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertice
 
 			mUnhandledCombinerStates.insert( mux );
 		}
-	}
 
-	if(inexact && gGlobalPreferences.HighlightInexactBlendModes)
-	{
 		sceGuEnable( GU_TEXTURE_2D );
 		sceGuTexMode( GU_PSM_8888, 0, 0, GL_TRUE );		// maxmips/a2/swizzle = 0
 
