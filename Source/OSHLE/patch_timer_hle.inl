@@ -57,7 +57,7 @@ TEST_DISABLE_TIMER_FUNCS
 
 		InsertTimer = QuickRead32Bits(pInsertTimerBase, 0x0);	// Read next timer
 		InsertValue = QuickRead64Bits(pInsertTimerBase, 0x10);
-
+		
 		if (InsertTimer == TopTimer)	// At the end of the list?
 			break;
 	}
@@ -108,37 +108,24 @@ TEST_DISABLE_TIMER_FUNCS
 u32 Patch___osTimerServicesInit_Mario()
 {
 TEST_DISABLE_TIMER_FUNCS
+	u32 hi    = VAR_ADDRESS(osSystemTimeHi);
+	DAEDALUS_ASSERT( hi, "TimeHi NULL, check me!");	
 
-	u32 TimeHi		= VAR_ADDRESS(osSystemTimeHi);
-	u32 TimeLo		= VAR_ADDRESS(osSystemTimeLo);
-	u32 SystemCount = VAR_ADDRESS(osSystemCount);
-	u32 FrameCount  = VAR_ADDRESS(osFrameCount);
-
-	//
-	// In some games we can't obtain TimeLo, which results in a bsod, ex Killer Instinct
-	// Calculate TimeLo and writeback the result obtained
-	//
-	if(TimeLo == 0)
-	{
-		DBGConsole_Msg( 0, "TimeLo NULL, calculating.." );
-		TimeLo = SystemCount-(FrameCount-SystemCount);
-	}
-
-	DAEDALUS_ASSERT( TimeHi, "TimeHi NULL, need to calculate!");
+	// Get base address from TimeHi, and add offset of 4 bytes representing two uint64s
+	u8 * pTimeBase	 = (u8 *)ReadAddress(hi);	
 	
 	DBGConsole_Msg(0, "Initialising Timer Services");
-
-	Write32Bits(TimeHi, 0);
-	Write32Bits(TimeLo, 0);
-
-	Write32Bits(SystemCount, 0);
-	Write32Bits(FrameCount, 0);
+	QuickWrite32Bits(pTimeBase, 0x0, 0);	// TimeHi
+	QuickWrite32Bits(pTimeBase, 0x4, 0);	// TimeLo
+	QuickWrite32Bits(pTimeBase, 0x8, 0);	// SystemCount
+	QuickWrite32Bits(pTimeBase, 0xc, 0);	// FrameCount
 
 	u32 timer = Read32Bits(VAR_ADDRESS(osTopTimer));
 
-	// Make list empty
-	u8 * pTimerBase	 = (u8 *)ReadAddress(timer);	
+	// Get base from OSTimer struct
+	u8 * pTimerBase	 = (u8 *)ReadAddress(timer);
 
+	// Make list empty
 	QuickWrite32Bits(pTimerBase, offsetof(OSTimer, next), timer);
 	QuickWrite32Bits(pTimerBase, offsetof(OSTimer, prev), timer);
 
@@ -169,8 +156,10 @@ TEST_DISABLE_TIMER_FUNCS
 
 	//DBGConsole_Msg(0, "osSetTime(0x%08x%08x)", TimeHi, TimeLo);
 
-	Write32Bits(VAR_ADDRESS(osSystemTimeLo), gGPR[REG_a1]._u32_0);
-	Write32Bits(VAR_ADDRESS(osSystemTimeHi), gGPR[REG_a0]._u32_0);
+	u8 * pTimeBase	 = (u8 *)ReadAddress(VAR_ADDRESS(osSystemTimeHi));	
+
+	QuickWrite32Bits(pTimeBase, 0x0, gGPR[REG_a1]._u32_0);	// TimeHi
+	QuickWrite32Bits(pTimeBase, 0x4, gGPR[REG_a0]._u32_0);	// TimeLo
 
 	return PATCH_RET_JR_RA;
 }
@@ -181,16 +170,13 @@ TEST_DISABLE_TIMER_FUNCS
 u32 Patch_osGetTime()
 {
 TEST_DISABLE_TIMER_FUNCS
-	u32 count;
-	u32 LastCount;
-	u32 TimeLo;
-	u32 TimeHi;
+	u8 * pTimeBase = (u8 *)ReadAddress(VAR_ADDRESS(osSystemTimeHi));
 
-	count = gCPUState.CPUControl[C0_COUNT]._u32;
-	LastCount = Read32Bits(VAR_ADDRESS(osSystemCount));
-	
-	TimeHi = Read32Bits(VAR_ADDRESS(osSystemTimeHi));
-	TimeLo = Read32Bits(VAR_ADDRESS(osSystemTimeLo));
+	u32 LastCount  = QuickRead32Bits(pTimeBase, 0x8);	// SystemCount
+	u32 TimeLo	   = QuickRead32Bits(pTimeBase, 0x4);
+	u32 TimeHi	   = QuickRead32Bits(pTimeBase, 0x0);
+
+	u32 count	   = gCPUState.CPUControl[C0_COUNT]._u32;
 	
 	TimeLo += count - LastCount;		// Increase by elapsed time
 	
