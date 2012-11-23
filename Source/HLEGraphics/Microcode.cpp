@@ -118,10 +118,11 @@ void GBIMicrocode_Reset()
 	memset(&gUcodeInfo, 0, sizeof(gUcodeInfo));
 }
 
+extern void DLParser_SetCustom( u32 ucode, u32 offset );
 //*****************************************************************************
 //
 //*****************************************************************************
-static bool GBIMicrocode_Custom( u32 code_hash, u32 &ucode_version)
+static void GBIMicrocode_Custom( u32 code_hash, u32 &ucode_version, u32 &ucode_offset)
 {
 
 	//
@@ -134,38 +135,45 @@ static bool GBIMicrocode_Custom( u32 code_hash, u32 &ucode_version)
 	{
 	case 0x60256efc:		// "RSP Gfx ucode F3DEXBG.NoN fifo 2.08  Yoshitaka Yasumoto 1999 Nintendo.", "Conker's Bad Fur Day"
 		ucode_version = GBI_CONKER;
-		return true;
+		ucode_offset  = GBI_2;
+		break;
 
 	case 0x6d8bec3e:		//"", "Dark Rift"
 	case 0x26da8a4c:		//"", "Last Legion UX"
 	case 0xdd560323:		//"", "Toukon Road - Brave Spirits"
 		ucode_version = GBI_LL;
-		return true;
+		ucode_offset  = GBI_1;
+		break;
 
 	case 0x0c10181a:		//"", "Diddy Kong Racing (v1.0)"
 	case 0x713311dc:		//"", "Diddy Kong Racing (v1.1)"
 	case 0x169dcc9d:		//"", "Jet Force Gemini"
 		ucode_version = GBI_DKR;
-		return true;
+		ucode_offset  = GBI_0;
+		break;
 
 	case 0x23f92542:		//"RSP SW Version: 2.0G, 09-30-96", "GoldenEye 007"
 		ucode_version = GBI_GE;
-		return true;
+		ucode_offset  = GBI_0;
+		break;
 
 	case 0xcac47dc4:		//"", "Perfect Dark (v1.1)"
 		ucode_version = GBI_PD;
-		return true;
+		ucode_offset  = GBI_0;
+		break;
 
 	case 0x6cbb521d:		//"RSP SW Version: 2.0D, 04-01-96", "Star Wars - Shadows of the Empire (v1.0)
 		ucode_version = GBI_SE;
-		return true;
+		ucode_offset  = GBI_0;
+		break;
 
 	case 0x64cc729d:		//"RSP SW Version: 2.0D, 04-01-96", "Wave Race 64"
 		ucode_version = GBI_WR;
-		return true;
+		ucode_offset  = GBI_0;
+		break;
 
 	default:
-		return false;
+		break;
 	}
 
 }
@@ -176,7 +184,8 @@ static bool GBIMicrocode_Custom( u32 code_hash, u32 &ucode_version)
 u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size)
 {
 	u32 i;
-	u32 idx( code_base + data_base ); // I think only checking code_base should be enough..
+	// I think only checking code_base should be enough..
+	u32 idx( code_base + data_base ); 
 	//
 
 	// Cheap way to cache ucodes, don't check for strings (too slow!) but check last used ucode entries which is alot faster than string comparison.
@@ -203,10 +212,11 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	// It wasn't the same as the last time around, we'll hash it and check if is a custom ucode. 
 	//
 	u32 code_hash( GBIMicrocode_MicrocodeHash( code_base, code_size ) );
-	u32 ucode_version( GBI_0 ); // default ucode (Fast3D)
+	u32 ucode_version = GBI_0; // default ucode (Fast3D)
+	u32 ucode_offset  = ~0;
 
-	bool custom_ucode( GBIMicrocode_Custom( code_hash, ucode_version ) );
-	if( custom_ucode == false )
+	GBIMicrocode_Custom( code_hash, ucode_version, ucode_offset );
+	if( ucode_offset == u32(~0) )
 	{
 		//
 		// If it wasn't a custom ucode
@@ -238,6 +248,11 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 					ucode_version = GBI_1;	
 			}
 		}
+	}
+	else
+	{
+		// If this a custom ucode, let's build an array based from ucode_offset
+		DLParser_SetCustom( ucode_version, ucode_offset );
 	}
 
 	//

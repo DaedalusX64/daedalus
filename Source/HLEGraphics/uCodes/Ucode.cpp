@@ -43,21 +43,6 @@ const u32 ucode_stride[] =
 //*************************************************************************************
 // 
 //*************************************************************************************
-// This the ucode modifier indices
-const u32 ucode_modify[] =
-{
-	0,		// Modified uCode 0 - RSP SW 2.0D EXT
-	0,		// Modified uCode 0 - RSP SW 2.0 Diddy
-	1,		// Modified uCode 1 - F3DEX Last Legion
-	0,		// Modified uCode 0 - RSP SW 2.0D EXT
-	0,		// Modified uCode 0 - RSP SW 2.0X
-	2,		// Modified uCode 2:  F3DEXBGxx Conker
-	0,		// Modified uCode 0 - Unknown
-};
-
-//*************************************************************************************
-// 
-//*************************************************************************************
 const MicroCodeInstruction gNormalInstruction[MAX_UCODE][256] =
 {
 	// uCode 0 - RSP SW 2.0X

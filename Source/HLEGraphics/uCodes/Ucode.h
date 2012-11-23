@@ -32,7 +32,6 @@ typedef void(*MicroCodeInstruction)(MicroCodeCommand);
 #define UcodeFunc(name)	void name(MicroCodeCommand)
 
 extern const u32 ucode_stride[];
-extern const u32 ucode_modify[];
 extern const MicroCodeInstruction gNormalInstruction[MAX_UCODE][256];
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
@@ -43,7 +42,6 @@ UcodeFunc( DLParser_GBI1_CullDL );
 UcodeFunc( DLParser_GBI1_DL );
 UcodeFunc( DLParser_GBI1_BranchZ );
 UcodeFunc( DLParser_GBI1_LoadUCode );
-UcodeFunc( DLParser_GBI2_LoadUCode );
 
 UcodeFunc( DLParser_GBI1_GeometryMode );
 UcodeFunc( DLParser_GBI2_GeometryMode );

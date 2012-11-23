@@ -489,18 +489,20 @@ static void HandleDumpDisplayList( OSTask * pTask )
 
 
 //*************************************************************************************
-// 
+// This is called from Microcode.cpp after a custom ucode has been detected and cached
+// This function is only called once per custom ucode set
+//	ucode:			custom ucode (ucode>= MAX_UCODE)
+//	offset:			offset to normal ucode this custom ucode is based of ex GBI0			
 //*************************************************************************************
-void DLParser_SetCustom( u32 ucode )
+void DLParser_SetCustom( u32 ucode, u32 offset )
 {
-	// Let's build an array based from a normal uCode table
-	memcpy( &gCustomInstruction, &gNormalInstruction[ ucode_modify[ ucode-MAX_UCODE ] ], 1024 );
+	memcpy( &gCustomInstruction, &gNormalInstruction[offset], 1024 ); // sizeof(gNormalInstruction)/MAX_UCODE
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-	memcpy( gCustomInstructionName, gNormalInstructionName[ ucode_modify[ ucode-MAX_UCODE ] ], 1024 );
+	memcpy( gCustomInstructionName, gNormalInstructionName[ offset ], 1024 );
 #endif
 
-	// Now let's patch it, to create our custom ucode table ;)
+	// Start patching to create our custom ucode table ;)
 	switch( ucode )
 	{
 		case GBI_GE:
@@ -566,31 +568,18 @@ void DLParser_SetCustom( u32 ucode )
 //*****************************************************************************
 void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size )
 {
-	// Start ucode detector
 	u32 ucode = GBIMicrocode_DetectVersion( code_base, code_size, data_base, data_size );
 
-	// First set vtx stride for vertex indices 
-	gVertexStride = ucode_stride[ ucode ];
+	const MicroCodeInstruction *p_table( (ucode<MAX_UCODE) ? gNormalInstruction[ucode] : gCustomInstruction );
 
-	// Store useful information about this ucode for caching purpose
+	gVertexStride  = ucode_stride[ucode];
 	gLastUcodeBase = code_base;
+	gUcodeFunc	   = p_table;
 
 	// Used for fetching ucode names (Debug Only)
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
 	gUcodeName = (ucode < MAX_UCODE) ? (char **)gNormalInstructionName[ ucode ] : gCustomInstructionName;
 #endif
-
-	if( ucode < MAX_UCODE )
-	{
-		// If this a normal ucode, just fetch the correct uCode table and name
-		gUcodeFunc = gNormalInstruction[ ucode ];
-		return;
-	}
-	
-	gUcodeFunc = gCustomInstruction;
-
-	// If this a custom ucode, let's create it
-	DLParser_SetCustom( ucode );
 }
 
 //*****************************************************************************
