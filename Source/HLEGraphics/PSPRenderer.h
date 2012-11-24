@@ -40,6 +40,24 @@ class CTexture;
 class CNativeTexture;
 class CBlendStates;
 
+struct DebugBlendSettings
+{
+	u32 TexInstall;	//defaults to texture installed
+	u32	SetRGB;		//defaults to OFF
+	u32	SetA;		//defaults to OFF
+	u32	SetRGBA;	//defaults to OFF
+	u32	ModRGB;		//defaults to OFF
+	u32	ModA;		//defaults to OFF
+	u32	ModRGBA;	//defaults to OFF
+	u32	SubRGB;		//defaults to OFF
+	u32	SubA;		//defaults to OFF
+	u32	SubRGBA;	//defaults to OFF
+	u32	AOpaque;	//defaults to OFF
+	u32	sceENV;		//defaults to OFF
+	u32	TXTFUNC;	//defaults to MODULATE_RGB
+	u32 ForceRGB;	//defaults to OFF
+};
+
 struct ViewportInfo
 {
 	u32  ViWidth;

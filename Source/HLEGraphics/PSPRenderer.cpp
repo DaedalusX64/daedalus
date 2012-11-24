@@ -133,20 +133,9 @@ ALIGNED_GLOBAL(u32,gSelectedTexture[gPlaceholderTextureWidth * gPlaceholderTextu
 extern void		PrintMux( FILE * fh, u64 mux );
 
 //***************************************************************************
-//*General blender used for testing //Corn
+//*General blender used for blend testing //Corn
 //***************************************************************************
-u32 gTexInstall=1;	//defaults to texture on
-u32	gSetRGB=0;
-u32	gSetA=0;
-u32	gSetRGBA=0;
-u32	gModA=0;
-u32	gAOpaque=0;
-
-u32	gsceENV=0;
-
-u32	gTXTFUNC=0;	//defaults to MODULATE_RGB
-
-u32 gForceRGB=0;    //defaults to OFF
+DebugBlendSettings gDBlend;
 
 #define BLEND_MODE_MAKER \
 { \
@@ -163,7 +152,7 @@ u32 gForceRGB=0;    //defaults to OFF
 		GU_TCC_RGB, \
 		GU_TCC_RGBA \
 	}; \
-	switch( gForceRGB ) \
+	switch( gDBlend.ForceRGB ) \
 	{ \
 		case 1: details.ColourAdjuster.SetRGB( c32::White ); break; \
 		case 2: details.ColourAdjuster.SetRGB( c32::Black ); break; \
@@ -173,42 +162,77 @@ u32 gForceRGB=0;    //defaults to OFF
 		case 6: details.ColourAdjuster.SetRGB( c32::Magenta ); break; \
 		case 7: details.ColourAdjuster.SetRGB( c32::Gold ); break; \
 	} \
-	switch( gSetRGB ) \
+	switch( gDBlend.SetRGB ) \
 	{ \
 		case 1: details.ColourAdjuster.SetRGB( details.PrimColour ); break; \
 		case 2: details.ColourAdjuster.SetRGB( details.PrimColour.ReplicateAlpha() ); break; \
 		case 3: details.ColourAdjuster.SetRGB( details.EnvColour ); break; \
 		case 4: details.ColourAdjuster.SetRGB( details.EnvColour.ReplicateAlpha() ); break; \
 	} \
-	switch( gSetA ) \
+	switch( gDBlend.SetA ) \
 	{ \
 		case 1: details.ColourAdjuster.SetA( details.PrimColour ); break; \
 		case 2: details.ColourAdjuster.SetA( details.PrimColour.ReplicateAlpha() ); break; \
 		case 3: details.ColourAdjuster.SetA( details.EnvColour ); break; \
 		case 4: details.ColourAdjuster.SetA( details.EnvColour.ReplicateAlpha() ); break; \
 	} \
-	switch( gSetRGBA ) \
+	switch( gDBlend.SetRGBA ) \
 	{ \
 		case 1: details.ColourAdjuster.SetRGBA( details.PrimColour ); break; \
 		case 2: details.ColourAdjuster.SetRGBA( details.PrimColour.ReplicateAlpha() ); break; \
 		case 3: details.ColourAdjuster.SetRGBA( details.EnvColour ); break; \
 		case 4: details.ColourAdjuster.SetRGBA( details.EnvColour.ReplicateAlpha() ); break; \
 	} \
-	switch( gModA ) \
+	switch( gDBlend.ModRGB ) \
+	{ \
+		case 1: details.ColourAdjuster.ModulateRGB( details.PrimColour ); break; \
+		case 2: details.ColourAdjuster.ModulateRGB( details.PrimColour.ReplicateAlpha() ); break; \
+		case 3: details.ColourAdjuster.ModulateRGB( details.EnvColour ); break; \
+		case 4: details.ColourAdjuster.ModulateRGB( details.EnvColour.ReplicateAlpha() ); break; \
+	} \
+	switch( gDBlend.ModA ) \
 	{ \
 		case 1: details.ColourAdjuster.ModulateA( details.PrimColour ); break; \
 		case 2: details.ColourAdjuster.ModulateA( details.PrimColour.ReplicateAlpha() ); break; \
 		case 3: details.ColourAdjuster.ModulateA( details.EnvColour ); break; \
 		case 4: details.ColourAdjuster.ModulateA( details.EnvColour.ReplicateAlpha() ); break; \
 	} \
-	if( gAOpaque ) details.ColourAdjuster.SetAOpaque(); \
-	switch( gsceENV ) \
+	switch( gDBlend.ModRGBA ) \
+	{ \
+		case 1: details.ColourAdjuster.ModulateRGBA( details.PrimColour ); break; \
+		case 2: details.ColourAdjuster.ModulateRGBA( details.PrimColour.ReplicateAlpha() ); break; \
+		case 3: details.ColourAdjuster.ModulateRGBA( details.EnvColour ); break; \
+		case 4: details.ColourAdjuster.ModulateRGBA( details.EnvColour.ReplicateAlpha() ); break; \
+	} \
+	switch( gDBlend.SubRGB ) \
+	{ \
+		case 1: details.ColourAdjuster.SubtractRGB( details.PrimColour ); break; \
+		case 2: details.ColourAdjuster.SubtractRGB( details.PrimColour.ReplicateAlpha() ); break; \
+		case 3: details.ColourAdjuster.SubtractRGB( details.EnvColour ); break; \
+		case 4: details.ColourAdjuster.SubtractRGB( details.EnvColour.ReplicateAlpha() ); break; \
+	} \
+	switch( gDBlend.SubA ) \
+	{ \
+		case 1: details.ColourAdjuster.SubtractA( details.PrimColour ); break; \
+		case 2: details.ColourAdjuster.SubtractA( details.PrimColour.ReplicateAlpha() ); break; \
+		case 3: details.ColourAdjuster.SubtractA( details.EnvColour ); break; \
+		case 4: details.ColourAdjuster.SubtractA( details.EnvColour.ReplicateAlpha() ); break; \
+	} \
+	switch( gDBlend.SubRGBA ) \
+	{ \
+		case 1: details.ColourAdjuster.SubtractRGBA( details.PrimColour ); break; \
+		case 2: details.ColourAdjuster.SubtractRGBA( details.PrimColour.ReplicateAlpha() ); break; \
+		case 3: details.ColourAdjuster.SubtractRGBA( details.EnvColour ); break; \
+		case 4: details.ColourAdjuster.SubtractRGBA( details.EnvColour.ReplicateAlpha() ); break; \
+	} \
+	if( gDBlend.AOpaque ) details.ColourAdjuster.SetAOpaque(); \
+	switch( gDBlend.sceENV ) \
 	{ \
 		case 1: sceGuTexEnvColor( details.EnvColour.GetColour() ); break; \
 		case 2: sceGuTexEnvColor( details.PrimColour.GetColour() ); break; \
 	} \
-	details.InstallTexture = gTexInstall; \
-	sceGuTexFunc( PSPtxtFunc[ (gTXTFUNC >> 1) % 6 ], PSPtxtA[ gTXTFUNC & 1 ] ); \
+	details.InstallTexture = gDBlend.TexInstall; \
+	sceGuTexFunc( PSPtxtFunc[ (gDBlend.TXTFUNC >> 1) % 6 ], PSPtxtA[ gDBlend.TXTFUNC & 1 ] ); \
 } \
 
 #endif
@@ -281,6 +305,9 @@ PSPRenderer::PSPRenderer()
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	memset( gWhiteTexture, 0xff, sizeof(gWhiteTexture) );
+
+	memset( &gDBlend.TexInstall, 0, sizeof(gDBlend) );
+	gDBlend.TexInstall = 1;
 
 	u32	texel_idx( 0 );
 	const u32	COL_MAGENTA( c32::Magenta.GetColour() );

@@ -63,18 +63,8 @@ extern void		PrintMux( FILE * fh, u64 mux );
 //*****************************************************************************
 //
 //*****************************************************************************
-extern u32  gTexInstall;
-extern u32	gSetRGB;
-extern u32	gSetA;
-extern u32	gSetRGBA;
-extern u32	gModA;
-extern u32	gAOpaque;
+extern DebugBlendSettings gDBlend;
 
-extern u32	gsceENV;
-
-extern u32	gTXTFUNC;
-
-extern u32	gForceRGB;
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -104,41 +94,6 @@ namespace
 //	"Dump Textures",		// DDLO_DUMP_TEXTURES
 //	"Dump Dlist",			// DDLO_DUMP_DLIST
 //};
-
-const char * const gForceColor[8] =
-{
-	"( OFF )",
-	"( c32::White )",
-	"( c32::Black )",
-	"( c32::Red )",
-	"( c32::Green )",
-	"( c32::Blue )",
-	"( c32::Magenta )",
-	"( c32::Gold )"
-};
-
-const char * const gPSPtxtFunc[10] =
-{
-	"( GU_TFX_MODULATE, GU_TCC_RGB )",
-	"( GU_TFX_MODULATE, GU_TCC_RGBA )",
-	"( GU_TFX_BLEND, GU_TCC_RGB )",
-	"( GU_TFX_BLEND, GU_TCC_RGBA )",
-	"( GU_TFX_ADD, GU_TCC_RGB )",
-	"( GU_TFX_ADD, GU_TCC_RGBA )",
-	"( GU_TFX_REPLACE, GU_TCC_RGB )",
-	"( GU_TFX_REPLACE, GU_TCC_RGBA )",
-	"( GU_TFX_DECAL, GU_TCC_RGB )",
-	"( GU_TFX_DECAL, GU_TCC_RGBA )"
-};
-
-const char * const gCAdj[5] =
-{
-	"( OFF )",
-	"( details.PrimColour )",
-	"( details.PrimColour.ReplicateAlpha() )",
-	"( details.EnvColour )",
-	"( details.EnvColour.ReplicateAlpha() )",
-};
 
 struct SPspPadState
 {
@@ -370,16 +325,61 @@ CBlendDebugMenuOption::CBlendDebugMenuOption()
 
 void CBlendDebugMenuOption::Display() const
 {
-	if( mSel == 0 && modify ) gSetRGB = mIdx % 5;
-	if( mSel == 1 && modify ) gSetA = mIdx % 5;
-	if( mSel == 2 && modify ) gSetRGBA = mIdx % 5;
-	if( mSel == 3 && modify ) gModA = mIdx % 5;
-	if( mSel == 4 && modify ) gAOpaque = mIdx & 1;
-	if( mSel == 5 && modify ) gsceENV = mIdx % 3;
-	if( mSel == 6 && modify ) gTXTFUNC = mIdx % 10;
-	if( mSel == 7 && modify ) gTexInstall = mIdx & 1;
-	if( mSel == 8 && modify ) gForceRGB = mIdx % 8;
-	
+	const char * const ForceColor[8] =
+	{
+		"( OFF )",
+		"( c32::White )",
+		"( c32::Black )",
+		"( c32::Red )",
+		"( c32::Green )",
+		"( c32::Blue )",
+		"( c32::Magenta )",
+		"( c32::Gold )"
+	};
+
+	const char * const PSPtxtFunc[10] =
+	{
+		"( GU_TFX_MODULATE, GU_TCC_RGB )",
+		"( GU_TFX_MODULATE, GU_TCC_RGBA )",
+		"( GU_TFX_BLEND, GU_TCC_RGB )",
+		"( GU_TFX_BLEND, GU_TCC_RGBA )",
+		"( GU_TFX_ADD, GU_TCC_RGB )",
+		"( GU_TFX_ADD, GU_TCC_RGBA )",
+		"( GU_TFX_REPLACE, GU_TCC_RGB )",
+		"( GU_TFX_REPLACE, GU_TCC_RGBA )",
+		"( GU_TFX_DECAL, GU_TCC_RGB )",
+		"( GU_TFX_DECAL, GU_TCC_RGBA )"
+	};
+
+	const char * const CAdj[5] =
+	{
+		"( OFF )",
+		"( details.PrimColour )",
+		"( details.PrimColour.ReplicateAlpha() )",
+		"( details.EnvColour )",
+		"( details.EnvColour.ReplicateAlpha() )",
+	};
+
+	if( modify )
+	{
+		switch( mSel )
+		{
+			case 0: gDBlend.SetRGB = mIdx % 5; break;
+			case 1: gDBlend.SetA = mIdx % 5; break;
+			case 2: gDBlend.SetRGBA = mIdx % 5; break;
+			case 3: gDBlend.ModRGB = mIdx % 5; break;
+			case 4: gDBlend.ModA = mIdx % 5; break;
+			case 5: gDBlend.ModRGBA = mIdx % 5; break;
+			case 6: gDBlend.SubRGB = mIdx % 5; break;
+			case 7: gDBlend.SubA = mIdx % 5; break;
+			case 8: gDBlend.SubRGBA = mIdx % 5; break;
+			case 9: gDBlend.AOpaque = mIdx & 1; break;
+			case 10: gDBlend.sceENV = mIdx % 3; break;
+			case 11: gDBlend.TXTFUNC = mIdx % 10; break;
+			case 12: gDBlend.TexInstall = mIdx & 1; break;
+			case 13: gDBlend.ForceRGB = mIdx % 8; break;
+		}
+	}
 
 	printf( "Blend Explorer\n");
 	printf( "   Use [] to return\n" );
@@ -387,21 +387,26 @@ void CBlendDebugMenuOption::Display() const
 	printf( "   Use up/down to choose & left/right to adjust\n\n\n" );
 
 	printf( " Blending Options\n" );
-	printf( "   %s%cdetails.ColourAdjuster.SetRGB%s\n",		  (mSel==0 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==0 ? '*' : ' ', gCAdj[gSetRGB]);
-	printf( "   %s%cdetails.ColourAdjuster.SetA%s\n",		  (mSel==1 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==1 ? '*' : ' ', gCAdj[gSetA]);
-	printf( "   %s%cdetails.ColourAdjuster.SetRGBA%s\n",		  (mSel==2 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==2 ? '*' : ' ', gCAdj[gSetRGBA]);
-	printf( "   %s%cdetails.ColourAdjuster.ModulateA%s\n",		(mSel==3 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==3 ? '*' : ' ', gCAdj[gModA]);
-	printf( "   %s%cdetails.ColourAdjuster.SetAOpaque()%s\n",	  (mSel==4 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==4 ? '*' : ' ', gAOpaque ? " ON" : " OFF");
+	printf( "   %s%cdetails.ColourAdjuster.SetRGB%s\n",		  (mSel==0 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==0 ? '*' : ' ', CAdj[gDBlend.SetRGB]);
+	printf( "   %s%cdetails.ColourAdjuster.SetA%s\n",		  (mSel==1 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==1 ? '*' : ' ', CAdj[gDBlend.SetA]);
+	printf( "   %s%cdetails.ColourAdjuster.SetRGBA%s\n",		  (mSel==2 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==2 ? '*' : ' ', CAdj[gDBlend.SetRGBA]);
+	printf( "   %s%cdetails.ColourAdjuster.ModulateRGB%s\n",		(mSel==3 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==3 ? '*' : ' ', CAdj[gDBlend.ModRGB]);
+	printf( "   %s%cdetails.ColourAdjuster.ModulateA%s\n",		(mSel==4 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==4 ? '*' : ' ', CAdj[gDBlend.ModA]);
+	printf( "   %s%cdetails.ColourAdjuster.ModulateRGBA%s\n",		(mSel==5 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==5 ? '*' : ' ', CAdj[gDBlend.ModRGBA]);
+	printf( "   %s%cdetails.ColourAdjuster.SubtractRGB%s\n",		(mSel==6 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==6 ? '*' : ' ', CAdj[gDBlend.SubRGB]);
+	printf( "   %s%cdetails.ColourAdjuster.SubtractA%s\n",		(mSel==7 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==7 ? '*' : ' ', CAdj[gDBlend.SubA]);
+	printf( "   %s%cdetails.ColourAdjuster.SubtractRGBA%s\n",		(mSel==8 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==8 ? '*' : ' ', CAdj[gDBlend.SubRGBA]);
+	printf( "   %s%cdetails.ColourAdjuster.SetAOpaque()%s\n",	  (mSel==9 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==9 ? '*' : ' ', gDBlend.AOpaque ? " ON" : " OFF");
 	printf( "%s\n", TERMINAL_WHITE );
-	printf( " Environment Color in PSP SDK\n" );
-	printf( "   %s%csceGuTexEnvColor%s\n",   (mSel==5 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==5 ? '*' : ' ', gsceENV ? ((gsceENV==1) ? "( details.EnvColour.GetColour() )" : "( details.PrimColour.GetColour() )") : "( OFF )");
+	printf( " Environment Color (only works with GU_TFX_BLEND option)\n" );
+	printf( "   %s%csceGuTexEnvColor%s\n",   (mSel==10 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==10 ? '*' : ' ', gDBlend.sceENV ? ((gDBlend.sceENV==1) ? "( details.EnvColour.GetColour() )" : "( details.PrimColour.GetColour() )") : "( OFF )");
 	printf( "%s\n", TERMINAL_WHITE );
 	printf( " PSP Texture Blending Function\n" );
-	printf( "   %s%csceGuTexFunc%s\n",				(mSel==6 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==6 ? '*' : ' ', gPSPtxtFunc[gTXTFUNC]);
+	printf( "   %s%csceGuTexFunc%s\n",				(mSel==11 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==11 ? '*' : ' ', PSPtxtFunc[gDBlend.TXTFUNC]);
 	printf( "%s\n", TERMINAL_WHITE );
 	printf( " Other Options\n" );
-	printf( "   %s%cTexture Enabled: %s\n",(mSel==7 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==7 ? '*' : ' ', gTexInstall ? "ON" : "OFF");
-	printf( "   %s%cdetails.ColourAdjuster.SetRGB%s\n",		(mSel==8 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==8 ? '*' : ' ', gForceColor[gForceRGB]);
+	printf( "   %s%cTexture Enabled: %s\n",(mSel==12 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==12 ? '*' : ' ', gDBlend.TexInstall ? "ON" : "OFF");
+	printf( "   %s%cdetails.ColourAdjuster.SetRGB%s\n",		(mSel==13 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==13 ? '*' : ' ', ForceColor[gDBlend.ForceRGB]);
 	printf( "%s\n", TERMINAL_WHITE );
 }
 
@@ -418,7 +423,7 @@ void CBlendDebugMenuOption::Update( const SPspPadState & pad_state, float elapse
 
 		if(pad_state.NewButtons & PSP_CTRL_DOWN)
 		{
-			mSel = (mSel < 8) ? mSel + 1 : mSel;	//Number of menu rows
+			mSel = (mSel < 13) ? mSel + 1 : mSel;	//Number of menu rows
 			modify = 0;
 		}
 
