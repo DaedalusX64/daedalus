@@ -688,8 +688,8 @@ PSPRenderer::SBlendStateEntry	PSPRenderer::LookupBlendState( u64 mux, bool two_c
 		entry.OverrideFunction = LookupOverrideBlendModeForced( mux );
 	}
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST	
-	printf( "Adding %08x%08x - %d cycles%s", u32(mux>>32), u32(mux), two_cycles ? 2 : 1, entry.States->IsInexact() ?  " - Inexact(Override|Default)\n" : " - Auto|Forced\n");
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	printf( "Adding %08x%08x - %d cycles - %s\n", u32(mux>>32), u32(mux), two_cycles ? 2 : 1, entry.States->IsInexact() ?  IsCombinerStateDefault(mux) ? "Inexact(Default)" : "Inexact(Override)" : entry.OverrideFunction==NULL ? "Auto" : "Forced");
 #endif
 
 	//Add blend mode to the Blend States Map
@@ -882,12 +882,10 @@ bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u3
 //*****************************************************************************
 void PSPRenderer::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux)
 {
-	bool	inexact( states->IsInexact() );
-
 	// Only dump missing_mux when we awant to search for inexact blends aka HighlightInexactBlendModes is enabled.
 	// Otherwise will dump lotsa of missing_mux even though is not needed since was handled correctly by auto blendmode thing - Salvy
 	//
-	if( inexact && gGlobalPreferences.HighlightInexactBlendModes)
+	if( gGlobalPreferences.HighlightInexactBlendModes && states->IsInexact() )
 	{
 		if(mUnhandledCombinerStates.find( mux ) == mUnhandledCombinerStates.end())
 		{
@@ -1023,9 +1021,9 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 	u32 render_flags( GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF | render_mode );
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST	
 	// Used for Blend Explorer, or Nasty texture
 	//
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST	
 	if( DebugBlendmode( p_vertices, num_vertices, triangle_mode, render_flags, mMux ) )	return;
 #endif
 
@@ -1033,9 +1031,9 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	// 
 	if( blend_entry.OverrideFunction != NULL )
 	{
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		// Used for dumping mux and highlight inexact blend
 		//
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		DebugMux( blend_entry.States, p_vertices, num_vertices, triangle_mode, render_flags, mMux );
 #endif
 
@@ -2610,11 +2608,6 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 
 	const TextureInfo & ti( gRDPStateManager.GetTextureDescriptor( tile_idx ) );
 
-#ifndef DAEDALUS_DEBUG_DISPLAYLIST
-	// Avoid texture update, if texture is the same as last time around.
-	if( (mpTexture[ index ] != NULL) && (mpTexture[ index ]->GetTextureInfo() == ti) ) return;
-#endif
-
 	//	Initialise the wrapping/texture offset first, which can be set
 	//	independently of the actual texture.
 	//
@@ -2664,10 +2657,8 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 			ti.GetLoadAddress(), ti.GetTlutAddress(), ti.GetHashCode(), ti.GetPitch(),
 			mTileTopLeft[ index ].x, mTileTopLeft[ index ].y, mTileScale[ index ].x, mTileScale[ index ].y );
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	// Avoid texture update, if texture is the same as last time around.
 	if( (mpTexture[ index ] != NULL) && (mpTexture[ index ]->GetTextureInfo() == ti) ) return;
-#endif
 
 	// Check for 0 width/height textures
 	if( (ti.GetWidth() == 0) || (ti.GetHeight() == 0) )

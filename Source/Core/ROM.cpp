@@ -426,12 +426,16 @@ void SpecificGameHacks( const ROMHeader & id )
 		g_ROM.TLUT_HACK = true;
 		break;
 
+	case 0x5547:	//Sin and punishment		
+		g_ROM.TLUT_HACK = true;
+		g_ROM.GameHacks = SIN_PUNISHMENT;
+		break;
+
 	case 0x5544:	//Duck Dodgers
 	case 0x3653:	//Star soldier - vanishing earth
 	case 0x324C:	//Top Gear Rally 2
 	case 0x5247:	//Top Gear Rally
 	case 0x4552:	//Resident Evil 2	
-	case 0x5547:	//Sin and punishment		
 	case 0x4446:	//Flying Dragon	
 	case 0x534E:	//Beetle Racing
 		g_ROM.TLUT_HACK = true;

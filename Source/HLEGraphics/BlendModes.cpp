@@ -1904,7 +1904,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 			BLEND_MODE(0x00121824ff33ffffLL); // Tarzan (also used by Paper Mario)
 			BLEND_MODE(0x00127ffffffff438LL); // Extreme-G2
 			BLEND_MODE(0x0030986155feff79LL); // SSV electric fence
-			BLEND_MODE(0x00327e64fffff9fcLL); // Sin and Punishment - blinds the screen (breaks splash screen race flag in MK64) 
+			case(0x00327e64fffff9fcLL): return g_ROM.GameHacks==SIN_PUNISHMENT ? BlendMode_0x00327e64fffff9fcLL : NULL; // Sin and Punishment - blinds the screen (breaks splash screen race flag in MK64) 
 			BLEND_MODE(0x00457fff3ffcfe3fLL); // Pokemon Stadium 2 Arena Floor
 			BLEND_MODE(0x0050fea144fe7339LL); // Duke Nukem Menu and HUD
 			//BLEND_MODE(0x00522bfffffffe38LL); // Donald Duck rain (makes it transparent not really a fix) breaks shadow in Rayman2
@@ -1913,8 +1913,6 @@ OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 			BLEND_MODE(0x00ffffffff09f63fLL); // THPS Text
 			BLEND_MODE(0x00129bfffffffe38LL); // Hexen - Arms
 			BLEND_MODE(0x00fffe6af5fcf438LL); // Killer Instinct Characters and HUD
-			
-
 #undef BLEND_MODE 
 	}
 

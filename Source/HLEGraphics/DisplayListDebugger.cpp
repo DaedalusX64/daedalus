@@ -357,7 +357,14 @@ void CBlendDebugMenuOption::Display() const
 		"( details.PrimColour )",
 		"( details.PrimColour.ReplicateAlpha() )",
 		"( details.EnvColour )",
-		"( details.EnvColour.ReplicateAlpha() )",
+		"( details.EnvColour.ReplicateAlpha() )"
+	};
+
+	const char * const ENVAdj[3] =
+	{
+		"( OFF )",
+		"( details.EnvColour.GetColour() )",
+		"( details.PrimColour.GetColour() )"
 	};
 
 	if( modify )
@@ -381,33 +388,37 @@ void CBlendDebugMenuOption::Display() const
 		}
 	}
 
+#define BLEND_SELECTION(x) (mSel==x && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==x ? '*' : ' '
+
 	printf( "Blend Explorer\n");
 	printf( "   Use [] to return\n" );
 	printf( "   Use X to modify\n" );
 	printf( "   Use up/down to choose & left/right to adjust\n\n\n" );
 
 	printf( " Blending Options\n" );
-	printf( "   %s%cdetails.ColourAdjuster.SetRGB%s\n",		  (mSel==0 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==0 ? '*' : ' ', CAdj[gDBlend.SetRGB]);
-	printf( "   %s%cdetails.ColourAdjuster.SetA%s\n",		  (mSel==1 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==1 ? '*' : ' ', CAdj[gDBlend.SetA]);
-	printf( "   %s%cdetails.ColourAdjuster.SetRGBA%s\n",		  (mSel==2 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==2 ? '*' : ' ', CAdj[gDBlend.SetRGBA]);
-	printf( "   %s%cdetails.ColourAdjuster.ModulateRGB%s\n",		(mSel==3 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==3 ? '*' : ' ', CAdj[gDBlend.ModRGB]);
-	printf( "   %s%cdetails.ColourAdjuster.ModulateA%s\n",		(mSel==4 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==4 ? '*' : ' ', CAdj[gDBlend.ModA]);
-	printf( "   %s%cdetails.ColourAdjuster.ModulateRGBA%s\n",		(mSel==5 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==5 ? '*' : ' ', CAdj[gDBlend.ModRGBA]);
-	printf( "   %s%cdetails.ColourAdjuster.SubtractRGB%s\n",		(mSel==6 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==6 ? '*' : ' ', CAdj[gDBlend.SubRGB]);
-	printf( "   %s%cdetails.ColourAdjuster.SubtractA%s\n",		(mSel==7 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==7 ? '*' : ' ', CAdj[gDBlend.SubA]);
-	printf( "   %s%cdetails.ColourAdjuster.SubtractRGBA%s\n",		(mSel==8 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==8 ? '*' : ' ', CAdj[gDBlend.SubRGBA]);
-	printf( "   %s%cdetails.ColourAdjuster.SetAOpaque()%s\n",	  (mSel==9 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==9 ? '*' : ' ', gDBlend.AOpaque ? " ON" : " OFF");
+	printf( "   %s%cdetails.ColourAdjuster.SetRGB%s\n", BLEND_SELECTION(0), CAdj[gDBlend.SetRGB]);
+	printf( "   %s%cdetails.ColourAdjuster.SetA%s\n", BLEND_SELECTION(1), CAdj[gDBlend.SetA]);
+	printf( "   %s%cdetails.ColourAdjuster.SetRGBA%s\n", BLEND_SELECTION(2), CAdj[gDBlend.SetRGBA]);
+	printf( "   %s%cdetails.ColourAdjuster.ModulateRGB%s\n", BLEND_SELECTION(3), CAdj[gDBlend.ModRGB]);
+	printf( "   %s%cdetails.ColourAdjuster.ModulateA%s\n", BLEND_SELECTION(4), CAdj[gDBlend.ModA]);
+	printf( "   %s%cdetails.ColourAdjuster.ModulateRGBA%s\n", BLEND_SELECTION(5), CAdj[gDBlend.ModRGBA]);
+	printf( "   %s%cdetails.ColourAdjuster.SubtractRGB%s\n", BLEND_SELECTION(6), CAdj[gDBlend.SubRGB]);
+	printf( "   %s%cdetails.ColourAdjuster.SubtractA%s\n", BLEND_SELECTION(7), CAdj[gDBlend.SubA]);
+	printf( "   %s%cdetails.ColourAdjuster.SubtractRGBA%s\n", BLEND_SELECTION(8), CAdj[gDBlend.SubRGBA]);
+	printf( "   %s%cdetails.ColourAdjuster.SetAOpaque() %s\n", BLEND_SELECTION(9), gDBlend.AOpaque ? "ON" : "OFF");
 	printf( "%s\n", TERMINAL_WHITE );
 	printf( " Environment Color (only works with GU_TFX_BLEND option)\n" );
-	printf( "   %s%csceGuTexEnvColor%s\n",   (mSel==10 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==10 ? '*' : ' ', gDBlend.sceENV ? ((gDBlend.sceENV==1) ? "( details.EnvColour.GetColour() )" : "( details.PrimColour.GetColour() )") : "( OFF )");
+	printf( "   %s%csceGuTexEnvColor%s\n", BLEND_SELECTION(10), ENVAdj[gDBlend.sceENV]);
 	printf( "%s\n", TERMINAL_WHITE );
-	printf( " PSP Texture Blending Function\n" );
-	printf( "   %s%csceGuTexFunc%s\n",				(mSel==11 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==11 ? '*' : ' ', PSPtxtFunc[gDBlend.TXTFUNC]);
+	printf( " Texture Blending Function\n" );
+	printf( "   %s%csceGuTexFunc%s\n", BLEND_SELECTION(11), PSPtxtFunc[gDBlend.TXTFUNC]);
 	printf( "%s\n", TERMINAL_WHITE );
 	printf( " Other Options\n" );
-	printf( "   %s%cTexture Enabled: %s\n",(mSel==12 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==12 ? '*' : ' ', gDBlend.TexInstall ? "ON" : "OFF");
-	printf( "   %s%cdetails.ColourAdjuster.SetRGB%s\n",		(mSel==13 && modify) ? TERMINAL_GREEN : TERMINAL_WHITE, mSel==13 ? '*' : ' ', ForceColor[gDBlend.ForceRGB]);
+	printf( "   %s%cTexture Enabled: %s\n", BLEND_SELECTION(12), gDBlend.TexInstall ? "ON" : "OFF");
+	printf( "   %s%cdetails.ColourAdjuster.SetRGB%s\n", BLEND_SELECTION(13), ForceColor[gDBlend.ForceRGB]);
 	printf( "%s\n", TERMINAL_WHITE );
+
+#undef BLEND_SELECTION
 }
 
 void CBlendDebugMenuOption::Update( const SPspPadState & pad_state, float elapsed_time )
