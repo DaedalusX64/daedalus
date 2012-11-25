@@ -1,7 +1,8 @@
 #define TEST_DISABLE_PI_FUNCS //return PATCH_RET_NOT_PROCESSED;
 
-
-
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch___osPiCreateAccessQueue()
 {
 TEST_DISABLE_PI_FUNCS
@@ -17,10 +18,9 @@ TEST_DISABLE_PI_FUNCS
 	//u32 dwMsg       = gGPR[REG_a1]._u32_0;
 	//u32 dwBlockFlag = gGPR[REG_a2]._u32_0;
 
-	gGPR[REG_a0]._s64 = (s64)(s32)VAR_ADDRESS(osPiAccessQueue);
-	gGPR[REG_a1]._s64 = 0;		// Msg value is unimportant
-	gGPR[REG_a2]._s64 = (s64)(s32)OS_MESG_NOBLOCK;
-	
+	gGPR[REG_a0]._u32_0 = VAR_ADDRESS(osPiAccessQueue);
+	gGPR[REG_a1]._u32_0 = 0;		// Msg value is unimportant
+	gGPR[REG_a2]._u32_0 = OS_MESG_NOBLOCK;
 
 	return Patch_osSendMesg();
 
@@ -31,8 +31,9 @@ TEST_DISABLE_PI_FUNCS
 #endif
 }
 
-
-
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch___osPiGetAccess()
 {
 TEST_DISABLE_PI_FUNCS
@@ -43,24 +44,29 @@ TEST_DISABLE_PI_FUNCS
 		Patch___osPiCreateAccessQueue();	// Ignore return
 	}
 	
-	gGPR[REG_a0]._s64 = (s64)(s32)VAR_ADDRESS(osPiAccessQueue);
-	gGPR[REG_a1]._s64 = gGPR[REG_sp]._s64 - 4;		// Place on stack and ignore
-	gGPR[REG_a2]._s64 = (s64)(s32)OS_MESG_BLOCK;
-	
+	gGPR[REG_a0]._u32_0 = VAR_ADDRESS(osPiAccessQueue);
+	gGPR[REG_a1]._u32_0 = gGPR[REG_sp]._u32_0 - 4;		// Place on stack and ignore
+	gGPR[REG_a2]._u32_0 = OS_MESG_BLOCK;
 
 	return Patch_osRecvMesg();
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch___osPiRelAccess()
 {
 TEST_DISABLE_PI_FUNCS
-	gGPR[REG_a0]._s64 = (s64)(s32)VAR_ADDRESS(osPiAccessQueue);
-	gGPR[REG_a1]._s64 = (s64)0;		// Place on stack and ignore
-	gGPR[REG_a2]._s64 = (s64)(s32)OS_MESG_NOBLOCK;
+	gGPR[REG_a0]._u32_0 = VAR_ADDRESS(osPiAccessQueue);
+	gGPR[REG_a1]._u32_0 = 0;		// Place on stack and ignore
+	gGPR[REG_a2]._u32_0 = OS_MESG_NOBLOCK;
 	
 	return Patch_osSendMesg();
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 inline bool IsPiDeviceBusy()
 {
 	u32 status = Memory_PI_GetRegister( PI_STATUS_REG );
@@ -71,6 +77,9 @@ inline bool IsPiDeviceBusy()
 		return false;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 u32 Patch_osPiRawStartDma()
 {
 TEST_DISABLE_PI_FUNCS

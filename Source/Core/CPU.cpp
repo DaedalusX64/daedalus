@@ -886,7 +886,7 @@ void CPU_UpdateCounter( u32 ops_executed )
 		CPU_HANDLE_COUNT_INTERRUPT();
 	}
 }
-
+#ifdef UPDATE_COUNTER_ON_EXCEPTION
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -913,6 +913,7 @@ void CPU_UpdateCounterNoInterrupt( u32 ops_executed )
 #endif
 	}
 }
+#endif
 }
 
 //*****************************************************************************

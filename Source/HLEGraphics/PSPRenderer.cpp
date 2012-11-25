@@ -3179,69 +3179,43 @@ void PSPRenderer::MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 	}
 #endif
 
-#if 1 //1->looped, 0->unrolled //Corn
 	const f32 fRecip = 1.0f / 65536.0f;
-	const u8 *ptr( g_pu8RamBase + address );
-	s16 hi;
-	u16 lo;
 
-
-	for (u32 i = 0; i < 4; i++)
-	{
-		hi = *(s16 *)(ptr + (i<<3) + ((0     )^0x2));
-		lo = *(u16 *)(ptr + (i<<3) + ((0 + 32)^0x2));
-		mat.m[i][0] = ((hi<<16) | (lo)) * fRecip;
-
-		hi = *(s16 *)(ptr + (i<<3) + ((2     )^0x2));
-		lo = *(u16 *)(ptr + (i<<3) + ((2 + 32)^0x2));
-		mat.m[i][1] = ((hi<<16) | (lo)) * fRecip;
-
-		hi = *(s16 *)(ptr + (i<<3) + ((4     )^0x2));
-		lo = *(u16 *)(ptr + (i<<3) + ((4 + 32)^0x2));
-		mat.m[i][2] = ((hi<<16) | (lo)) * fRecip;
-
-		hi = *(s16 *)(ptr + (i<<3) + ((6     )^0x2));
-		lo = *(u16 *)(ptr + (i<<3) + ((6 + 32)^0x2));
-		mat.m[i][3] = ((hi<<16) | (lo)) * fRecip;
-	}
-
-#else
 	struct N64Imat
 	{
-		s16	H01, H00, H03, H02;
-		s16	H11, H10, H13, H12;
-		s16	H21, H20, H23, H22;
-		s16	H31, H30, H33, H32;
-
-		u16	L01, L00, L03, L02;
-		u16	L11, L10, L13, L12;
-		u16	L21, L20, L23, L22;
-		u16	L31, L30, L33, L32;
+		s16 h[4][4];
+		u16 l[4][4];
 	};
-
 	const N64Imat *Imat = (N64Imat *)( g_pu8RamBase + address );
-	const f32 fRecip = 1.0f / 65536.0f;
 
-	mat.m[0][0] = (f32)((Imat->H00 << 16) | (Imat->L00)) * fRecip;
-	mat.m[0][1] = (f32)((Imat->H01 << 16) | (Imat->L01)) * fRecip;
-	mat.m[0][2] = (f32)((Imat->H02 << 16) | (Imat->L02)) * fRecip;
-	mat.m[0][3] = (f32)((Imat->H03 << 16) | (Imat->L03)) * fRecip;
+	union Imat32s
+	{
+		s32		lo_hi;
+		struct { s16 lo, hi; };
+	};
+	Imat32s imat;
+	
+	for (u32 i = 0; i < 4; i++)
+	{
+		imat.hi = Imat->h[i][0^1];
+		imat.lo = Imat->l[i][0^1];
+		mat.m[i][0] = imat.lo_hi * fRecip;
 
-	mat.m[1][0] = (f32)((Imat->H10 << 16) | (Imat->L10)) * fRecip;
-	mat.m[1][1] = (f32)((Imat->H11 << 16) | (Imat->L11)) * fRecip;
-	mat.m[1][2] = (f32)((Imat->H12 << 16) | (Imat->L12)) * fRecip;
-	mat.m[1][3] = (f32)((Imat->H13 << 16) | (Imat->L13)) * fRecip;
+		imat.hi = Imat->h[i][1^1];
+		imat.lo = Imat->l[i][1^1];
 
-	mat.m[2][0] = (f32)((Imat->H20 << 16) | (Imat->L20)) * fRecip;
-	mat.m[2][1] = (f32)((Imat->H21 << 16) | (Imat->L21)) * fRecip;
-	mat.m[2][2] = (f32)((Imat->H22 << 16) | (Imat->L22)) * fRecip;
-	mat.m[2][3] = (f32)((Imat->H23 << 16) | (Imat->L23)) * fRecip;
+		mat.m[i][1] = imat.lo_hi * fRecip;
 
-	mat.m[3][0] = (f32)((Imat->H30 << 16) | (Imat->L30)) * fRecip;
-	mat.m[3][1] = (f32)((Imat->H31 << 16) | (Imat->L31)) * fRecip;
-	mat.m[3][2] = (f32)((Imat->H32 << 16) | (Imat->L32)) * fRecip;
-	mat.m[3][3] = (f32)((Imat->H33 << 16) | (Imat->L33)) * fRecip;
-#endif
+		imat.hi = Imat->h[i][2^1];
+		imat.lo = Imat->l[i][2^1];
+
+		mat.m[i][2] = imat.lo_hi * fRecip;
+
+		imat.hi = Imat->h[i][3^1];
+		imat.lo = Imat->l[i][3^1];
+
+		mat.m[i][3] = imat.lo_hi * fRecip;
+	}
 }
 //*****************************************************************************
 //Modify the WorldProject matrix, used by Kirby & SSB //Corn

@@ -209,7 +209,9 @@ void	CPU_ExecuteOpRaw( u32 count, u32 address, OpCode op_code, CPU_Instruction p
 extern "C"
 {
 	void	CPU_UpdateCounter( u32 ops_executed );
+#ifdef FRAGMENT_SIMULATE_EXECUTION
 	void	CPU_UpdateCounterNoInterrupt( u32 ops_exexuted );
+#endif
 	void	CPU_HANDLE_COUNT_INTERRUPT();
 }
 
