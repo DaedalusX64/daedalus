@@ -3190,27 +3190,51 @@ void PSPRenderer::MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 
 	s16 hi;
 	u16 lo;
-	
+	s32 tmp;
+
 	for (u32 i = 0; i < 4; i++)
 	{
-		hi = Imat->h[i][0^1];
-		lo = Imat->l[i][0^1];
+#if 1	// Crappy compiler.. reordring is to optimize the ASM // Corn
+		hi = Imat->h[i][0 ^ U16H_TWIDDLE];
+		lo = Imat->l[i][0 ^ U16H_TWIDDLE];
+		tmp = ((hi << 16) | lo);
+		hi = Imat->h[i][1 ^ U16H_TWIDDLE];
+		mat.m[i][0] =  tmp * fRecip;
+
+		lo = Imat->l[i][1 ^ U16H_TWIDDLE];
+		tmp = ((hi << 16) | lo);
+		hi = Imat->h[i][2 ^ U16H_TWIDDLE];
+		mat.m[i][1] = tmp * fRecip;
+
+		lo = Imat->l[i][2 ^ U16H_TWIDDLE];
+		tmp = ((hi << 16) | lo);
+		hi = Imat->h[i][3 ^ U16H_TWIDDLE];
+		mat.m[i][2] = tmp * fRecip;
+
+		lo = Imat->l[i][3 ^ U16H_TWIDDLE];
+		tmp = ((hi << 16) | lo);
+		mat.m[i][3] = tmp * fRecip;
+#else
+
+		hi = Imat->h[i][0 ^ U16H_TWIDDLE];
+		lo = Imat->l[i][0 ^ U16H_TWIDDLE];
 		mat.m[i][0] =  ((hi << 16) | lo) * fRecip;
 
-		hi = Imat->h[i][1^1];
-		lo = Imat->l[i][1^1];
+		hi = Imat->h[i][1 ^ U16H_TWIDDLE];
+		lo = Imat->l[i][1 ^ U16H_TWIDDLE];
 
 		mat.m[i][1] = ((hi << 16) | lo) * fRecip;
 
-		hi = Imat->h[i][2^1];
-		lo = Imat->l[i][2^1];
+		hi = Imat->h[i][2 ^ U16H_TWIDDLE];
+		lo = Imat->l[i][2 ^ U16H_TWIDDLE];
 
 		mat.m[i][2] = ((hi << 16) | lo) * fRecip;
 
-		hi = Imat->h[i][3^1];
-		lo = Imat->l[i][3^1];
+		hi = Imat->h[i][3 ^ U16H_TWIDDLE];
+		lo = Imat->l[i][3 ^ U16H_TWIDDLE];
 
 		mat.m[i][3] = ((hi << 16) | lo) * fRecip;
+#endif
 	}
 }
 //*****************************************************************************

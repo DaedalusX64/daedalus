@@ -24,7 +24,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef ENDIAN_H_
 #define ENDIAN_H_
 
+#if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
+#define U8_SWAP(x) x
+#define  U8_TWIDDLE 0x0
+#define  U16_TWIDDLE 0x0
+#elif (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_LITTLE)
+#define U8_SWAP(x) (x >> 24) | ((x >> 8) & 0xFF00) | ((x & 0xFF00) << 8) | (x << 24)
 #define U8_TWIDDLE 0x3
 #define U16_TWIDDLE 0x2
+#define U16H_TWIDDLE 0x1
+#else
+#error No DAEDALUS_ENDIAN_MODE specified
+#endif
 
 #endif // ENDIAN_H_
