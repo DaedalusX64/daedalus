@@ -3188,33 +3188,29 @@ void PSPRenderer::MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 	};
 	const N64Imat *Imat = (N64Imat *)( g_pu8RamBase + address );
 
-	union Imat32s
-	{
-		s32		lo_hi;
-		struct { s16 lo, hi; };
-	};
-	Imat32s imat;
+	s16 hi;
+	u16 lo;
 	
 	for (u32 i = 0; i < 4; i++)
 	{
-		imat.hi = Imat->h[i][0^1];
-		imat.lo = Imat->l[i][0^1];
-		mat.m[i][0] = imat.lo_hi * fRecip;
+		hi = Imat->h[i][0^1];
+		lo = Imat->l[i][0^1];
+		mat.m[i][0] =  ((hi << 16) | lo) * fRecip;
 
-		imat.hi = Imat->h[i][1^1];
-		imat.lo = Imat->l[i][1^1];
+		hi = Imat->h[i][1^1];
+		lo = Imat->l[i][1^1];
 
-		mat.m[i][1] = imat.lo_hi * fRecip;
+		mat.m[i][1] = ((hi << 16) | lo) * fRecip;
 
-		imat.hi = Imat->h[i][2^1];
-		imat.lo = Imat->l[i][2^1];
+		hi = Imat->h[i][2^1];
+		lo = Imat->l[i][2^1];
 
-		mat.m[i][2] = imat.lo_hi * fRecip;
+		mat.m[i][2] = ((hi << 16) | lo) * fRecip;
 
-		imat.hi = Imat->h[i][3^1];
-		imat.lo = Imat->l[i][3^1];
+		hi = Imat->h[i][3^1];
+		lo = Imat->l[i][3^1];
 
-		mat.m[i][3] = imat.lo_hi * fRecip;
+		mat.m[i][3] = ((hi << 16) | lo) * fRecip;
 	}
 }
 //*****************************************************************************
