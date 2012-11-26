@@ -149,54 +149,55 @@ typedef struct
 		struct
 		{
 			// Low bits
-			unsigned int		alpha_compare : 2;			// 0..1
-			unsigned int		depth_source : 1;			// 2..2
+			u32		alpha_compare : 2;			// 0..1
+			u32		depth_source : 1;			// 2..2
 
-		//	unsigned int		render_mode : 13;			// 3..15
-			unsigned int		aa_en : 1;					// 3
-			unsigned int		z_cmp : 1;					// 4
-			unsigned int		z_upd : 1;					// 5
-			unsigned int		im_rd : 1;					// 6
-			unsigned int		clr_on_cvg : 1;				// 7
+		//	u32		render_mode : 13;			// 3..15
+			u32		aa_en : 1;					// 3
+			u32		z_cmp : 1;					// 4
+			u32		z_upd : 1;					// 5
+			u32		im_rd : 1;					// 6
+			u32		clr_on_cvg : 1;				// 7
 
-			unsigned int		cvg_dst : 2;				// 8..9
-			unsigned int		zmode : 2;					// 10..11
+			u32		cvg_dst : 2;				// 8..9
+			u32		zmode : 2;					// 10..11
 
-			unsigned int		cvg_x_alpha : 1;			// 12
-			unsigned int		alpha_cvg_sel : 1;			// 13
-			unsigned int		force_bl : 1;				// 14
-			unsigned int		tex_edge : 1;				// 15 - Not used
+			u32		cvg_x_alpha : 1;			// 12
+			u32		alpha_cvg_sel : 1;			// 13
+			u32		force_bl : 1;				// 14
+			u32		tex_edge : 1;				// 15 - Not used
 
-			unsigned int		blender : 16;				// 16..31
+			u32		blender : 16;				// 16..31
 
 
 			// High bits
-			unsigned int		blend_mask : 4;				// 0..3 - not supported
-			unsigned int		alpha_dither : 2;			// 4..5
-			unsigned int		rgb_dither : 2;				// 6..7
+			u32		blend_mask : 4;				// 0..3 - not supported
+			u32		alpha_dither : 2;			// 4..5
+			u32		rgb_dither : 2;				// 6..7
 			
-			unsigned int		comb_key : 1;				// 8..8
-			unsigned int		text_conv : 3;				// 9..11
-			unsigned int		text_filt : 2;				// 12..13
-			unsigned int		text_tlut : 2;				// 14..15
+			u32		comb_key : 1;				// 8..8
+			u32		text_conv : 3;				// 9..11
+			u32		text_filt : 2;				// 12..13
+			u32		text_tlut : 2;				// 14..15
 
-			unsigned int		text_lod : 1;				// 16..16
-			unsigned int		text_detail : 2;			// 17..18
-			unsigned int		text_persp : 1;				// 19..19
-			unsigned int		cycle_type : 2;				// 20..21
-			unsigned int		color_dither : 1;			// 22..22 - not supported
-			unsigned int		pipeline : 1;				// 23..23
+			u32		text_lod : 1;				// 16..16
+			u32		text_detail : 2;			// 17..18
+			u32		text_persp : 1;				// 19..19
+			u32		cycle_type : 2;				// 20..21
+			u32		color_dither : 1;			// 22..22 - not supported
+			u32		pipeline : 1;				// 23..23
 
-			unsigned int		pad : 8;					// 24..31 - padding
+			u32		pad : 8;					// 24..31 - padding
 
 		};
-		//u64			_u64;
+
+		u64			_u64;
+
 		struct
 		{
 			u32	L;
 			u32	H;
 		};
-
 	};
 } RDP_OtherMode;
 
@@ -225,14 +226,16 @@ typedef struct
 			u32	aA0		: 3;
 			u32	cRGB0	: 5;
 			u32	aRGB0	: 4;
+			u32 pad		: 8;
 		};
 
 		u64	mux;
-		/*struct
+
+		struct
 		{
-			u32	mux1;
-			u32	mux0;
-		};*/
+			u32	L;
+			u32	H;
+		};
 	};
 }RDP_Combine;
 
@@ -329,29 +332,28 @@ struct RDP_Tile
 		struct
 		{
 			// cmd1
-			unsigned int		shift_s : 4;
-			unsigned int		mask_s : 4;
-			unsigned int		mirror_s : 1;
-			unsigned int		clamp_s : 1;
+			u32		shift_s : 4;
+			u32		mask_s : 4;
+			u32		mirror_s : 1;
+			u32		clamp_s : 1;
 
-			unsigned int		shift_t : 4;
-			unsigned int		mask_t : 4;
-			unsigned int		mirror_t : 1;
-			unsigned int		clamp_t : 1;
+			u32		shift_t : 4;
+			u32		mask_t : 4;
+			u32		mirror_t : 1;
+			u32		clamp_t : 1;
 
-			unsigned int		palette : 4;
-			unsigned int		tile_idx : 3;
+			u32		palette : 4;
+			u32		tile_idx : 3;
 
-			unsigned int		pad1 : 5;
+			u32		pad1 : 5;
 
 			// cmd0
-			unsigned int		tmem : 9;
-			unsigned int		line : 9;
-			unsigned int		pad0 : 1;
-			unsigned int		size : 2;
-			unsigned int		format : 3;
-
-			int					cmd : 8;
+			u32		tmem : 9;
+			u32		line : 9;
+			u32		pad0 : 1;
+			u32		size : 2;
+			u32		format : 3;
+			u32		cmd : 8;
 		};
 
 	};
@@ -380,17 +382,17 @@ struct RDP_TileSize
 		struct
 		{
 			// cmd1
-			unsigned int		bottom : 12;
-			unsigned int		right : 12;
+			u32		bottom : 12;
+			u32		right : 12;
 
-			unsigned int		tile_idx : 3;
-			int					pad1 : 5;
+			u32		tile_idx : 3;
+			u32		pad1 : 5;
 
 			// cmd0
-			unsigned int		top : 12;
-			unsigned int		left : 12;
+			u32		top : 12;
+			u32		left : 12;
 
-			int					cmd : 8;
+			u32		cmd : 8;
 		};
 	};
 

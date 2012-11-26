@@ -58,7 +58,7 @@ void memcpy_vfpu_LE( void* dst, void* src, u32 size )
 	// Align dst on 4 bytes or just resume if already done
 	while (((((u32)dst8) & 0x3)!=0) && size)
 	{
-		*(u8*)((u32)dst8++ ^ 3) = *(u8*)((u32)src8++ ^ 3);
+		*(u8*)((u32)dst8++ ^ U8_TWIDDLE) = *(u8*)((u32)src8++ ^ U8_TWIDDLE);
 		size--;
 	}
 
@@ -91,10 +91,10 @@ void memcpy_vfpu_LE( void* dst, void* src, u32 size )
 			register u32 tmp;
 			while (size>=4)
 			{
-				tmp = *(u8*)((u32)src8++ ^ 3);
-				tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
-				tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
-				*dst32++ = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
+				tmp = *(u8*)((u32)src8++ ^ U8_TWIDDLE);
+				tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ U8_TWIDDLE);
+				tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ U8_TWIDDLE);
+				*dst32++ = (tmp << 8) | *(u8*)((u32)src8++ ^ U8_TWIDDLE);
 				size -= 4;
 			}
 			if (size==0) return;		// fast out
@@ -375,7 +375,7 @@ bytecopy:
 	// Copy the remains byte per byte...
 	while (size--)
 	{
-		*(u8*)((u32)dst8++ ^ 3) = *(u8*)((u32)src8++ ^ 3);
+		*(u8*)((u32)dst8++ ^ U8_TWIDDLE) = *(u8*)((u32)src8++ ^ U8_TWIDDLE);
 	}
 }
 
@@ -734,7 +734,7 @@ void memcpy_cpu_LE( void* dst, void* src, u32 size )
 	// Align dst on 4 bytes or just resume if already done
 	while (((((u32)dst8) & 0x3)!=0) && size)
 	{
-		*(u8*)((u32)dst8++ ^ 3) = *(u8*)((u32)src8++ ^ 3);
+		*(u8*)((u32)dst8++ ^ U8_TWIDDLE) = *(u8*)((u32)src8++ ^ U8_TWIDDLE);
 		size--;
 	}
 
@@ -766,10 +766,10 @@ void memcpy_cpu_LE( void* dst, void* src, u32 size )
 			register u32 tmp;
 			while (size>=4)
 			{
-				tmp = *(u8*)((u32)src8++ ^ 3);
-				tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
-				tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
-				*dst32++ = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
+				tmp = *(u8*)((u32)src8++ ^ U8_TWIDDLE);
+				tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ U8_TWIDDLE);
+				tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ U8_TWIDDLE);
+				*dst32++ = (tmp << 8) | *(u8*)((u32)src8++ ^ U8_TWIDDLE);
 				size -= 4;
 			}
 			if (size==0) return;		// fast out
@@ -781,6 +781,6 @@ bytecopy:
 	// Copy the remains byte per byte...
 	while (size--)
 	{
-		*(u8*)((u32)dst8++ ^ 3) = *(u8*)((u32)src8++ ^ 3);
+		*(u8*)((u32)dst8++ ^ U8_TWIDDLE) = *(u8*)((u32)src8++ ^ U8_TWIDDLE);
 	}
 }

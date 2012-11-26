@@ -366,12 +366,17 @@ private:
 	c32					mEnvColour;
 
 	// Texturing
+	struct TextureWrap
+	{
+		u32	u;
+		u32 v;
+	};
 	static const u32 NUM_N64_TEXTURES = 2;
 
 	CRefPtr<CTexture>	mpTexture[ NUM_N64_TEXTURES ];
 	v2					mTileTopLeft[ NUM_N64_TEXTURES ];
 	v2					mTileScale[ NUM_N64_TEXTURES ];
-	u32					mTexWrap[ NUM_N64_TEXTURES ][ 2 ];
+	TextureWrap			mTexWrap[ NUM_N64_TEXTURES ];
 	
 	//Max is 18 according to the manual //Corn
 	static const u32 MATRIX_STACK_SIZE = 20; 

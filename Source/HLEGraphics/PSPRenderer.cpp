@@ -290,8 +290,8 @@ PSPRenderer::PSPRenderer()
 		mTileTopLeft[t].y = 0.0f;
 		mTileScale[t].x = 1.0f;
 		mTileScale[t].y = 1.0f;
-		mTexWrap[t][0] = 0;
-		mTexWrap[t][1] = 0;
+		mTexWrap[t].u = 0;
+		mTexWrap[t].v = 0;
 	}
 
 	mTnL.Flags._u32 = 0;
@@ -810,7 +810,7 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 		// If no texture was specified, or if we couldn't load it, clear it out
 		if( !installed_texture ) sceGuDisable(GU_TEXTURE_2D);
 
-		sceGuTexWrap( mTexWrap[texture_idx][0], mTexWrap[texture_idx][1] );
+		sceGuTexWrap( mTexWrap[texture_idx].u, mTexWrap[texture_idx].v );
 
 		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
 	}
@@ -2642,10 +2642,10 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	}
 	if( tile_size.GetHeight() > ti.GetHeight() ) mode_v = GU_REPEAT;
 
-	mTexWrap[ index ][ 0 ] = mode_u;
-	mTexWrap[ index ][ 1 ] = mode_v;
-
 	sceGuTexWrap( mode_u, mode_v );
+
+	mTexWrap[ index ].u = mode_u;
+	mTexWrap[ index ].v = mode_v;
 
 	// XXXX Double check this
 	mTileTopLeft[ index ].x = f32(tile_size.left) / 4.0f;
