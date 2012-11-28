@@ -13,30 +13,6 @@ static const u32 s_IdentMatrixL[16] =
 	0x00000000, 0x00000000,
 	0x00000000,	0x00000000
 };
-
-static const u32 s_IdentMatrixF[16] = 
-{
-	0x3f800000,	0x00000000, 0x00000000,	0x00000000,
-	0x00000000,	0x3f800000, 0x00000000,	0x00000000,
-	0x00000000, 0x00000000, 0x3f800000,	0x00000000,
-	0x00000000, 0x00000000, 0x00000000,	0x3f800000
-};
-
-static u32 s_ScaleMatrixF[16] = 
-{
-	0x3f800000,	0x00000000, 0x00000000,	0x00000000,
-	0x00000000,	0x3f800000, 0x00000000,	0x00000000,
-	0x00000000, 0x00000000, 0x3f800000,	0x00000000,
-	0x00000000, 0x00000000, 0x00000000,	0x3f800000
-};
-
-static u32 s_TransMatrixF[16] = 
-{
-	0x3f800000,	0x00000000, 0x00000000,	0x00000000,
-	0x00000000,	0x3f800000, 0x00000000,	0x00000000,
-	0x00000000, 0x00000000, 0x3f800000,	0x00000000,
-	0x00000000, 0x00000000, 0x00000000,	0x3f800000
-};
 #endif
 
 
@@ -228,11 +204,27 @@ TEST_DISABLE_GU_FUNCS
 
 	vfpu_matrix_TranslateF(pMtxBase, fx, fy, fz);
 #else
-	s_TransMatrixF[12] = gGPR[REG_a1]._u32_0;
-	s_TransMatrixF[13] = gGPR[REG_a2]._u32_0;
-	s_TransMatrixF[14] = gGPR[REG_a3]._u32_0;
+	// 0x00000000 is 0.0 in IEEE fp
+	// 0x3f800000 is 1.0 in IEEE fp
+	QuickWrite32Bits(pMtxBase, 0x00, 0x3f800000);
+	QuickWrite32Bits(pMtxBase, 0x04, 0);
+	QuickWrite32Bits(pMtxBase, 0x08, 0);
+	QuickWrite32Bits(pMtxBase, 0x0c, 0);
 
-	QuickWrite512Bits(pMtxBase, (u8 *)s_TransMatrixF);
+	QuickWrite32Bits(pMtxBase, 0x10, 0);
+	QuickWrite32Bits(pMtxBase, 0x14, 0x3f800000);
+	QuickWrite32Bits(pMtxBase, 0x18, 0);
+	QuickWrite32Bits(pMtxBase, 0x1c, 0);
+
+	QuickWrite32Bits(pMtxBase, 0x20, 0);
+	QuickWrite32Bits(pMtxBase, 0x24, 0);
+	QuickWrite32Bits(pMtxBase, 0x28, 0x3f800000);
+	QuickWrite32Bits(pMtxBase, 0x2c, 0);
+
+	QuickWrite32Bits(pMtxBase, 0x30, gGPR[REG_a1]._u32_0);
+	QuickWrite32Bits(pMtxBase, 0x34, gGPR[REG_a2]._u32_0);
+	QuickWrite32Bits(pMtxBase, 0x38, gGPR[REG_a3]._u32_0);
+	QuickWrite32Bits(pMtxBase, 0x3c, 0x3f800000);
 #endif 
 
 	return PATCH_RET_JR_RA;
@@ -299,12 +291,25 @@ TEST_DISABLE_GU_FUNCS
 	vfpu_matrix_ScaleF(pMtxBase, fx, fy, fz);
 
 #else
-	s_ScaleMatrixF[ 0] = gGPR[REG_a1]._u32_0;
-	s_ScaleMatrixF[ 5] = gGPR[REG_a2]._u32_0;
-	s_ScaleMatrixF[10] = gGPR[REG_a3]._u32_0;
+	QuickWrite32Bits(pMtxBase, 0x00, gGPR[REG_a1]._u32_0);
+	QuickWrite32Bits(pMtxBase, 0x04, 0);
+	QuickWrite32Bits(pMtxBase, 0x08, 0);
+	QuickWrite32Bits(pMtxBase, 0x0c, 0);
 
-	QuickWrite512Bits(pMtxBase, (u8 *)s_ScaleMatrixF);
-//	memcpy(pMtxBase, s_ScaleMatrixF, sizeof(s_ScaleMatrixF));
+	QuickWrite32Bits(pMtxBase, 0x10, 0);
+	QuickWrite32Bits(pMtxBase, 0x14, gGPR[REG_a2]._u32_0);
+	QuickWrite32Bits(pMtxBase, 0x18, 0);
+	QuickWrite32Bits(pMtxBase, 0x1c, 0);
+
+	QuickWrite32Bits(pMtxBase, 0x20, 0);
+	QuickWrite32Bits(pMtxBase, 0x24, 0);
+	QuickWrite32Bits(pMtxBase, 0x28, gGPR[REG_a3]._u32_0);
+	QuickWrite32Bits(pMtxBase, 0x2c, 0);
+
+	QuickWrite32Bits(pMtxBase, 0x30, 0);
+	QuickWrite32Bits(pMtxBase, 0x34, 0);
+	QuickWrite32Bits(pMtxBase, 0x38, 0);
+	QuickWrite32Bits(pMtxBase, 0x3c, 0x3f800000);
 #endif
 
 	return PATCH_RET_JR_RA;

@@ -273,6 +273,15 @@ inline u32 QuickRead32Bits( u8 *p_base )
 	return *(u32 *)(p_base);
 }
 
+/*typedef struct { u32 value[4]; } u128;
+inline void QuickWrite512Bits( u8 *p_base, u8 *p_source )
+{
+	*(u128 *)(p_base     ) = *(u128 *)(p_source     );
+	*(u128 *)(p_base + 16) = *(u128 *)(p_source + 16);
+	*(u128 *)(p_base + 32) = *(u128 *)(p_source + 32);
+	*(u128 *)(p_base + 48) = *(u128 *)(p_source + 48);
+}*/
+
 inline void QuickWrite64Bits( u8 *p_base, u32 offset, u64 value )
 {
 	u64 data = (value>>32) + (value<<32);
@@ -287,13 +296,6 @@ inline void QuickWrite32Bits( u8 *p_base, u32 offset, u32 value )
 inline void QuickWrite32Bits( u8 *p_base, u32 value )
 {
 	*(u32 *)(p_base) = value;
-}
-
-typedef struct { u32 value[8]; } u256;
-inline void QuickWrite512Bits( u8 *p_base, u8 *p_source )
-{
-	*(u256 *)(p_base     ) = *(u256 *)(p_source     );
-	*(u256 *)(p_base + 32) = *(u256 *)(p_source + 32);
 }
 
 // Fast as hell ReadAddress, using only pointer table (dangerous if it doesn't meet below criteria)
