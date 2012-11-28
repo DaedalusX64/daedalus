@@ -172,30 +172,30 @@ ADDITIONAL_SYNC_SRCS  = Source/Utility/Synchroniser.cpp Source/Utility/ZLibWrapp
 CORE_SRCS = $(DAED_MAIN_SRCS) $(DAED_DEBUG_SRCS) $(DAED_CORE_SRCS) $(DAED_INTERFACE_SRCS) \
 	    $(DAED_INPUT_SRCS) $(DAED_DYNREC_SRCS) $(DAED_UTILITY_SRCS) $(DAED_PSP_SRCS) \
 	    $(DAED_HLEGFX_SRCS) $(DAED_AUDIO_SRCS) $(DAED_OSHLE_SRCS)
-		
-ifdef PSPGPROF	
+
+ifdef PSPGPROF
 	CONFIG=Profile
-	
+
 	CFLAGS			= -pg -g -O2 -G0 -D_DEBUG -Wall -MD -ffast-math -fsingle-precision-constant
 
-	SRCS			= $(CORE_SRCS) $(DAED_GPROF_SRCS) 
-else 
+	SRCS			= $(CORE_SRCS) $(DAED_GPROF_SRCS)
+else
 ifdef DEBUG
 	CONFIG=Dev #default config in Debug build is "Dev"
 
 	CFLAGS			= -g -O1 -fno-omit-frame-pointer -G0 -D_DEBUG -MD \
 				  -W -Wcast-qual -Wchar-subscripts -Wno-unused -Wpointer-arith\
 				  -Wredundant-decls -Wshadow -Wwrite-strings
-				#-Winline -Wcast-align 
+				#-Winline -Wcast-align
 
 	SRCS			= $(CORE_SRCS) $(ADDITIONAL_SYNC_SRCS)
-else 
+else
 	CFLAGS			= -O2 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant -fpredictive-commoning -mno-check-zero-division
 					#-pipe
 					#-Wextra
 					#-fno-builtin
 					#-fgcse-after-reload
-					#-funroll-loops 
+					#-funroll-loops
 	LDFLAGS 		= "-Wl,-O1"
 
 	SRCS			= $(CORE_SRCS)
