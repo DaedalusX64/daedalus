@@ -1,0 +1,28 @@
+{
+	"folders":
+	[
+		{
+			"path": ".",
+			"folder_exclude_patterns": [
+			   "out"
+			],
+			"file_exclude_patterns": [
+			   "*.d", "*.prx", "*.elf"
+			]
+		}
+	],
+	"build_systems":
+	[
+		{
+			"cmd":
+			[
+				"make",
+				"-j4"
+			],
+			"name": "make",
+			"path": "/usr/bin:/usr/local/pspdev/bin",
+			"selector": "source.c, source.c++, source.h",
+			"working_dir": "${project_path}/"
+		}
+	]
+}

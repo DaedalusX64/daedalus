@@ -1,0 +1,12 @@
+*.d
+*.o
+*.prx
+*.elf
+*.sublime-workspace
+EBOOT.PBP
+PARAM.SFO
+Makefile.cache
+Source/SysPSP/DveMgr/pspDveManager.S
+Source/SysPSP/DveMgr/pspDveManager_driver.S
+Source/SysPSP/KernelButtonsPrx/imposectrl.S
+Source/SysPSP/MediaEnginePRX/MediaEngine.S
