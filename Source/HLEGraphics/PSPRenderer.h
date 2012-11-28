@@ -93,7 +93,7 @@ struct FiddledVtxDKR
 	u8 r;
 };
 
-struct FiddledVtxPD 
+struct FiddledVtxPD
 {
 	s16 y;
 	s16	x;

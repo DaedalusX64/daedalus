@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/MathUtil.h"
 
-// Taken from MediaEnginePRX, assume they're orignally from 
+// Taken from MediaEnginePRX, assume they're orignally from
 // http://forums.ps2dev.org/viewtopic.php?p=58333#58333
 // Primarily for use in code which will be run on the ME, were we can't access kernel functions
 

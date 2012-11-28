@@ -27,7 +27,7 @@ void memcpy_vfpu( void* dst, void* src, u32 size );
 //
 //*****************************************************************************
 //
-// Little endian 
+// Little endian
 //
 void memcpy_vfpu_LE( void* dst, void* src, u32 size );
 //
@@ -35,7 +35,7 @@ void memcpy_vfpu_LE( void* dst, void* src, u32 size );
 //
 //*****************************************************************************
 //
-// Big endian 
+// Big endian
 //
 void memcpy_vfpu_BE( void* dst, void* src, u32 size );
 //
@@ -44,7 +44,7 @@ void memcpy_vfpu_BE( void* dst, void* src, u32 size );
 //
 //*****************************************************************************
 //
-// CPU only 
+// CPU only
 //
 void memcpy_cpu_LE( void* dst, void* src, u32 size );
 //

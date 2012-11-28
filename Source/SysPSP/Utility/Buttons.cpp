@@ -28,8 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 /****** Wrapper for Home Button functions ******/
 //
-extern "C" 
-{ 
+extern "C"
+{
 	/* Impose Home button */
 	void SetImposeHomeButton();
 }
@@ -45,14 +45,14 @@ bool InitHomeButton()
 	int impose = CModule::Load("imposectrl.prx");
 
 	//
-	// if imposectrl.prx loaded correctly, let's do some magic to take (forcely) control of HOME button 
+	// if imposectrl.prx loaded correctly, let's do some magic to take (forcely) control of HOME button
 	//
 	if(impose >= 0)
 	{
 		//
 		// Unset home button and imposed to allow use it as normal button
 		//
-		SetImposeHomeButton(); 
+		SetImposeHomeButton();
 
 		//
 		// Stop and unload imposectrl.prx since we only needed it once to impose HOME button
@@ -74,9 +74,9 @@ bool InitHomeButton()
 // // Function to avoid reading buttons in tight loops
 //*****************************************************************************
 /*
-void DaedalusReadButtons(u32 buttons)	
-{ 
-	gButtons.type = buttons; 
+void DaedalusReadButtons(u32 buttons)
+{
+	gButtons.type = buttons;
 }
 */
 

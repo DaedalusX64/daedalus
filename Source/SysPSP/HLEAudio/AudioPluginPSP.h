@@ -30,7 +30,7 @@ private:
 	CAudioPluginPsp();
 public:
 	static CAudioPluginPsp *		Create();
-	
+
 
 	virtual ~CAudioPluginPsp();
 	virtual bool			StartEmulation();

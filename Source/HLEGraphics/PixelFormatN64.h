@@ -51,11 +51,11 @@ struct Pf5551
 		return ((r >> (8-BitsR)) << ShiftR) |
 			   ((g >> (8-BitsG)) << ShiftG) |
 			   ((b >> (8-BitsB)) << ShiftB) |
-			   ((a >> (8-BitsA)) << ShiftA);		// Or could do 'a ? MaskA : 0' 
+			   ((a >> (8-BitsA)) << ShiftA);		// Or could do 'a ? MaskA : 0'
 	}
 
 
-	Pf5551() 
+	Pf5551()
 	{
 	}
 
@@ -120,7 +120,7 @@ struct Pf8888
 		return Pf8888( c.GetR(), c.GetG(), c.GetB(), c.GetA() );
 	}
 
-	Pf8888() 
+	Pf8888()
 	{
 	}
 
@@ -163,7 +163,7 @@ struct PfIA8
 		u8					Bits;
 	};
 
-	PfIA8() 
+	PfIA8()
 	{
 	}
 
@@ -197,7 +197,7 @@ struct PfIA16
 		u16					Bits;
 	};
 
-	PfIA16() 
+	PfIA16()
 	{
 	}
 
@@ -228,7 +228,7 @@ struct PfI8
 		u8					Bits;
 	};
 
-	PfI8() 
+	PfI8()
 	{
 	}
 

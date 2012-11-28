@@ -281,13 +281,13 @@ static void LOADBUFF2( AudioHLECommand command )
 {
 	// Needs accuracy verification...
 	u32 src( command.Abi2LoadBuffer.SrcAddr );// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
-	u16 dst( command.Abi2LoadBuffer.DstAddr ); 
+	u16 dst( command.Abi2LoadBuffer.DstAddr );
 	u16 count( command.Abi2LoadBuffer.Count );
 
 	gAudioHLEState.LoadBuffer( dst, src, count );
 }
 
-static void SAVEBUFF2( AudioHLECommand command ) 
+static void SAVEBUFF2( AudioHLECommand command )
 {
 	// Needs accuracy verification...
 	u32 dst( command.Abi2SaveBuffer.DstAddr );// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
@@ -297,7 +297,7 @@ static void SAVEBUFF2( AudioHLECommand command )
 	gAudioHLEState.SaveBuffer( dst, src, count );
 }
 
-static void MIXER2( AudioHLECommand command ) 
+static void MIXER2( AudioHLECommand command )
 {
 	// Needs accuracy verification...
 	u16 dmemin( command.Abi2Mixer.DmemIn );
@@ -319,7 +319,7 @@ static void RESAMPLE2( AudioHLECommand command )
 	gAudioHLEState.Resample( flags, pitch, address );
 }
 
-static void DMEMMOVE2( AudioHLECommand command ) 
+static void DMEMMOVE2( AudioHLECommand command )
 {
 	// Needs accuracy verification...
 	u16 src( command.Abi2DmemMove.Src );
@@ -462,7 +462,7 @@ static void DUPLICATE2( AudioHLECommand command )
 	u32 Out = command.cmd1>>16;
 
 	u16 buff[64];
-	
+
 	memcpy(buff,gAudioHLEState.Buffer+In,128);
 
 	while(Count)
@@ -489,7 +489,7 @@ static void INTERLEAVE2( AudioHLECommand command )  // Needs accuracy verificati
 	u16 out( command.Abi2Interleave.OutAddr );
 	u16 count( command.Abi2Interleave.Count );
 
-	if (count != 0) 
+	if (count != 0)
 	{
 		gAudioHLEState.Interleave( out, inL, inR, count );
 	}
@@ -509,7 +509,7 @@ static void ADDMIXER( AudioHLECommand command )
 
 	s16 *inp  = (s16 *)(gAudioHLEState.Buffer + InBuffer);
 	s16 *outp = (s16 *)(gAudioHLEState.Buffer + OutBuffer);
-	for (u32 cntr = 0; cntr < Count; cntr+=2) 
+	for (u32 cntr = 0; cntr < Count; cntr+=2)
 	{
 		//s32 temp = Saturate<s16>( *outp + *inp );
 		//*outp = temp;		// Added this - correct??
@@ -522,7 +522,7 @@ static void HILOGAIN( AudioHLECommand command )
 	u32 count = command.cmd0 & 0xffff;
 	s32 hi  = (s16)((command.cmd0 >> 4) & 0xf000);
 	u32 lo  = (command.cmd0 >> 20) & 0xf;
-	
+
 	u32 out = (command.cmd1 >> 16) & 0xffff;
 	s16 *src = (s16 *)(gAudioHLEState.Buffer+out);
 
@@ -564,7 +564,7 @@ static void FILTER2( AudioHLECommand command )
 		a = (lutt5[x] + lutt6[x]) >> 1;
 		lutt5[x] = lutt6[x] = (short)a;
 	}
-	short *inp1, *inp2; 
+	short *inp1, *inp2;
 	s32 out1[8];
 	s16 outbuff[0x3c0], *outp;
 	u32 inPtr = (u32)(command.cmd0&0xffff);

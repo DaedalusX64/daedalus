@@ -125,7 +125,7 @@ static void SETVOL( AudioHLECommand command )
 			gAudioHLEState.VolRight = vol;
 		}
 	}
-	else 
+	else
 	{
 		// Set the Ramping values Target, Ramp
 		if(flags & A_LEFT)
@@ -172,7 +172,7 @@ static void LOADBUFF( AudioHLECommand command )
 
 // memcpy causes static... endianess issue :(
 static void SAVEBUFF( AudioHLECommand command )
-{ 
+{
 	u32 addr(command.Abi1SaveBuffer.Address );// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
 	gAudioHLEState.SaveBuffer( addr );
@@ -201,7 +201,7 @@ static void SETBUFF( AudioHLECommand command )
 
 // Doesn't sound just right?... will fix when HLE is ready - 03-11-01
 static void DMEMMOVE( AudioHLECommand command )
-{ 
+{
 	u16 src( command.Abi1DmemMove.Src );
 	u16 dst( command.Abi1DmemMove.Dst );
 	u16 count( command.Abi1DmemMove.Count );
@@ -220,7 +220,7 @@ static void LOADADPCM( AudioHLECommand command )
 
 // Works... - 3-11-01
 static void INTERLEAVE( AudioHLECommand command )
-{ 
+{
 	u16 inL( command.Abi1Interleave.LAddr );
 	u16 inR( command.Abi1Interleave.RAddr );
 
@@ -251,7 +251,7 @@ static void MIXER( AudioHLECommand command )
 
 // TOP Performace Hogs: MIXER, RESAMPLE, ENVMIXER
 AudioHLEInstruction ABI1[0x20] =
-{ 
+{
     SPNOOP , ADPCM , CLEARBUFF,	ENVMIXER  , LOADBUFF, RESAMPLE  , SAVEBUFF, UNKNOWN,
 	SETBUFF, SETVOL, DMEMMOVE , LOADADPCM , MIXER   , INTERLEAVE, UNKNOWN , SETLOOP,
     SPNOOP , SPNOOP, SPNOOP   , SPNOOP    , SPNOOP  , SPNOOP    , SPNOOP  , SPNOOP,

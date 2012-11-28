@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 void DLParser_Vtx_Conker( MicroCodeCommand command )
 {
 
-	if( bIsOffScreen || (gRDPOtherMode.L == CONKER_SHADOW) )	
+	if( bIsOffScreen || (gRDPOtherMode.L == CONKER_SHADOW) )
 	{
 		DL_PF("    Skipping Conker TnL (Vtx -> Off-Screen/Shadow)");
 		return;
@@ -63,7 +63,7 @@ void DLParser_Tri1_Conker( MicroCodeCommand command )
 
 	// If Off screen rendering is true then just skip the whole list of tris //Corn
 	// Skip shadow as well
-	if( bIsOffScreen || (gRDPOtherMode.L == CONKER_SHADOW) )	
+	if( bIsOffScreen || (gRDPOtherMode.L == CONKER_SHADOW) )
 	{
 		do
 		{
@@ -111,7 +111,7 @@ void DLParser_Tri2_Conker( MicroCodeCommand command )
 
 	// If Off screen rendering is true then just skip the whole list of tris //Corn
 	// Skip shadow as well
-	if( bIsOffScreen || (gRDPOtherMode.L == CONKER_SHADOW) )	
+	if( bIsOffScreen || (gRDPOtherMode.L == CONKER_SHADOW) )
 	{
 		do
 		{
@@ -164,7 +164,7 @@ void DLParser_Tri4_Conker( MicroCodeCommand command )
 
 	// If Off screen rendering is true then just skip the whole list of tris //Corn
 	//
-	if( bIsOffScreen )	
+	if( bIsOffScreen )
 	{
 		do
 		{
@@ -281,7 +281,7 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 			PSPRenderer::Get()->SetNumLights(num_lights);
 		}
 		break;
-		
+
 	case G_MW_SEGMENT:
 		{
 			u32 segment = command.mw2.offset >> 2;
@@ -292,7 +292,7 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 			gSegments[segment] = address;
 		}
 		break;
-		
+
 	/*
 	case G_MW_CLIP:
 		//if (offset == 0x04)
@@ -302,21 +302,21 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 		//}
 		DL_PF("     G_MoveWord_Conker: CLIP");
 		break;
-		
+
 	case G_MW_FOG:
 		//rdp.fog_multiplier = (short)(rdp.cmd1 >> 16);
 		//rdp.fog_offset = (short)(rdp.cmd1 & 0x0000FFFF);
 		DL_PF("     G_MoveWord_Conker: Fog");
 		break;
-		
+
 	case G_MW_POINTS:
 		DL_PF("     G_MoveWord_Conker: forcemtx");
 		break;
-		
+
 	case G_MW_PERSPNORM:
 		DL_PF("     G_MoveWord_Conker: perspnorm");
 		break;
-		
+
 	case 0x10:  // moveword coord mod
 		{
 			DL_PF("     G_MoveWord_Conker: coord mod");
@@ -337,7 +337,7 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 				gCoord_Mod[5+idx] = (command.inst.cmd1 & 0xFFFF) / 65536.0f;
 				gCoord_Mod[12+idx] = gCoord_Mod[0+idx] + gCoord_Mod[4+idx];
 				gCoord_Mod[13+idx] = gCoord_Mod[1+idx] + gCoord_Mod[5+idx];
-				
+
 			}
 			else if (pos == 0x20)
 			{

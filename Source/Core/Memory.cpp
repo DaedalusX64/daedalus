@@ -315,7 +315,7 @@ void Memory_InitFunc(u32 start, u32 size, const void * ReadRegion, const void * 
 			g_MemoryLookupTableWrite[start_addr|(0x8000>>2)].pWrite = (u8*)(reinterpret_cast< u32 >(WriteRegion) - (((start>>16)|0x8000) << 16));
 			g_MemoryLookupTableWrite[start_addr|(0xA000>>2)].pWrite = (u8*)(reinterpret_cast< u32 >(WriteRegion) - (((start>>16)|0xA000) << 16));
 		}
-		
+
 		start_addr++;
 	}
 }
@@ -672,13 +672,13 @@ void MemoryUpdateSPStatus( u32 flags )
 		stop_rsp = true;
 	}
 
-	if (flags & SP_SET_INTR)	// Shouldn't ever set this?		
-	{ 
-		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SP); 
+	if (flags & SP_SET_INTR)	// Shouldn't ever set this?
+	{
+		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SP);
 		R4300_Interrupt_UpdateCause3();
-	}		
-	else if (flags & SP_CLR_INTR)			
-	{ 
+	}
+	else if (flags & SP_CLR_INTR)
+	{
 		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_SP);
 		R4300_Interrupt_UpdateCause3();
 	}
@@ -823,9 +823,9 @@ void MemoryModeRegMI( u32 value )
 	u32 mi_mode_reg = Memory_MI_GetRegister(MI_MODE_REG);
 
 	// ToDO : Avoid branching
-	if(value & MI_SET_RDRAM) 
+	if(value & MI_SET_RDRAM)
 		mi_mode_reg |= MI_MODE_RDRAM;
-	else if(value & MI_CLR_RDRAM) 
+	else if(value & MI_CLR_RDRAM)
 		mi_mode_reg &= ~MI_MODE_RDRAM;
 
 	if(value & MI_SET_INIT)
@@ -833,17 +833,17 @@ void MemoryModeRegMI( u32 value )
     else if(value & MI_CLR_INIT)
 		mi_mode_reg &= ~MI_MODE_INIT;
 
-	if(value & MI_SET_EBUS) 
+	if(value & MI_SET_EBUS)
 		mi_mode_reg |= MI_MODE_EBUS;
-    else if(value & MI_CLR_EBUS) 
+    else if(value & MI_CLR_EBUS)
 		mi_mode_reg &= ~MI_MODE_EBUS;
 
 	Memory_MI_SetRegister( MI_MODE_REG, mi_mode_reg );
 
 	if (value & MI_CLR_DP_INTR)
-	{ 
-		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_DP); 
-		R4300_Interrupt_UpdateCause3(); 
+	{
+		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_DP);
+		R4300_Interrupt_UpdateCause3();
 	}
 }
 

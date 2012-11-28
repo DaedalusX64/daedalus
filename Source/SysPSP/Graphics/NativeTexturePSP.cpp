@@ -120,7 +120,7 @@ inline void swizzle_fast(u8* out, const u8* in, u32 width, u32 height)
 	for (u32 j = 0; j < height; j++,block_address+=16)
 	{
 		u32 *block = (u32*)&out[block_address];
-		
+
 		for (u32 i = 0; i < rowblocks; i++)
 		{
 			*block++ = *src++;

@@ -120,7 +120,7 @@ void	CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 		// Resample in integer mode (faster & less ASM code) //Corn
 		//*****************************************************************************
 		Sample	out;
-		
+
 		out.L = samples[ in_idx ].L + ((( samples[ in_idx + 1 ].L - samples[ in_idx ].L ) * s ) >> 12 );
 		out.R = samples[ in_idx ].R + ((( samples[ in_idx + 1 ].R - samples[ in_idx ].R ) * s ) >> 12 );
 

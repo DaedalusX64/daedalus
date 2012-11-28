@@ -54,7 +54,7 @@ void MakeRomList( const char * romdir, std::vector< std::string > & roms )
 			if( IsRomfilename( filename ) )
 			{
 				char rompath[MAX_PATH+1];
-				
+
 				IO::Path::Combine( rompath, romdir, filename );
 
 				roms.push_back( rompath );
@@ -96,7 +96,7 @@ CBatchTestEventHandler * BatchTest_GetHandler()
 static void MakeNewLogFilename( char (&filepath)[MAX_PATH+1], const char * rundir )
 {
 	u32 count = 0;
-	do 
+	do
 	{
 		char filename[MAX_PATH+1];
 

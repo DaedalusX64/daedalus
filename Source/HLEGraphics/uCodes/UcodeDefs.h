@@ -46,19 +46,19 @@ struct MicroCodeCommand
 
 struct Instruction
 {
-	union 
+	union
 	{
 		u32 cmd0;
-		struct 
+		struct
 		{
 			u32 arg0:24;
 			u32 cmd:8;
 		};
 	};
-	union 
+	union
 	{
 		u32 cmd1;
-		struct 
+		struct
 		{
 			u32 arg1:24;
 			u32 pad:8;
@@ -87,15 +87,15 @@ struct GBI1_PopMatrix
 */
 struct GBI2_Matrix
 {
-	union 
+	union
 	{
-		struct 
+		struct
 		{
 			u32	param:8;
 			u32	len:16;
 			u32	cmd:8;
 		};
-		struct 
+		struct
 		{
 			u32	nopush:1;
 			u32	load:1;
@@ -139,19 +139,19 @@ struct GBI2_Vtx
 
 struct GBI1_BranchZ
 {
-    u32 pad0:1;      
-    u32 vtx:11;     
-    u32 pad1:12;       
-    u32 cmd:8;         
-    u32 value:32;     
-}; 
+    u32 pad0:1;
+    u32 vtx:11;
+    u32 pad1:12;
+    u32 cmd:8;
+    u32 value:32;
+};
 
 struct GBI1_ModifyVtx
 {
-	u32 pad0:1;          
-	u32 vtx:15;  
-	u32 offset:8;    
-	u32 cmd:8;           
+	u32 pad0:1;
+	u32 vtx:15;
+	u32 offset:8;
+	u32 cmd:8;
 	u32 value;
 };
 
@@ -170,13 +170,13 @@ struct GBI_Texture
 
 struct SetCullDL
 {
-    u32 pad0:1;             
-    u32 first:15;   
-    u32 pad2:8;            
-    u32 cmd:8;             
-    u32 pad3:1;            
-    u32 end:15;    
-    u32 pad4:8;             
+    u32 pad0:1;
+    u32 first:15;
+    u32 pad2:8;
+    u32 cmd:8;
+    u32 pad3:1;
+    u32 end:15;
+    u32 pad4:8;
 };
 
 struct SetTImg
@@ -201,7 +201,7 @@ struct LoadTile
 	u32	pad:5;
 };
 
-struct SetColor 
+struct SetColor
 {
 	u32	prim_level:8;
 	u32	prim_min_level:8;
@@ -320,10 +320,10 @@ struct GBI0_Tri4
 	u32 v11:4;
 };
 /*
-struct Conker_Tri4 
+struct Conker_Tri4
 {
 	// Tri 3
-	u32 v6:5; 
+	u32 v6:5;
 	u32 v7:5;
 	u32 v8:5;
 
@@ -356,13 +356,13 @@ struct GBI1_Dlist
 
 struct SetScissor
 {
-	u32	y0:12;	    
-	u32	x0:12;	   
-	u32	cmd:8;	    
-	u32	y1:12;	    
-	u32	x1:12;	  
+	u32	y0:12;
+	u32	x0:12;
+	u32	cmd:8;
+	u32	y1:12;
+	u32	x1:12;
 	u32	mode:2;
-	u32	pad:6;	
+	u32	pad:6;
 };
 
 struct SetLoadTile
@@ -395,9 +395,9 @@ struct SetFillRect
 struct SetPrimDepth
 {
 	u32 pad0:24;
-	u32 cmd:8; 
-    u32 dz:16;   
-    u32 z:15;   
+	u32 cmd:8;
+    u32 dz:16;
+    u32 z:15;
 	u32 pad:1;
 };
 
@@ -421,7 +421,7 @@ struct TriDKR
 /*
 struct GBI1_LoadUcode
 {
-    u32 size:16;     
+    u32 size:16;
     u32 pad:8;
     u32 cmd:8;
     u32 base:24;
@@ -451,7 +451,7 @@ union MicroCodeCommand
 	GBI_Texture		texture;
 	GBI1_Dlist		dlist;
 	//GBI1_LoadUcode	loaducode;
-	SetCullDL		culldl;		
+	SetCullDL		culldl;
 	SetColor		color;
 	SetTImg			img;
 	SetScissor		scissor;

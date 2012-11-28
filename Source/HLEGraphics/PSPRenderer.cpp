@@ -452,7 +452,7 @@ void PSPRenderer::SetVIScales()
 	//if(g_ROM.TvType != OS_TV_NTSC) sRatio = 9/11.0f;
 
 	//This corrects height in various games ex : Megaman 64, CyberTiger
-	if( width > 0x300 )	
+	if( width > 0x300 )
 	{
 		fViHeight *= 2.0f;
 	}
@@ -940,13 +940,13 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		{
 			if( !ZFightingEnabled )
 			{
-				ZFightingEnabled = true;						
+				ZFightingEnabled = true;
 				sceGuDepthRange(65535,80);
 			}
 		}
 		else if( ZFightingEnabled )
 		{
-			ZFightingEnabled = false;						
+			ZFightingEnabled = false;
 			sceGuDepthRange(65535,0);
 		}
 
@@ -1544,7 +1544,7 @@ static u32 clipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, u
 	{
 		//a = &source[i%inCount];
 		const s32 condition = i - inCount;
-		const s32 index = (( ( condition >> 31 ) & ( i ^ condition ) ) ^ condition ); 
+		const s32 index = (( ( condition >> 31 ) & ( i ^ condition ) ) ^ condition );
 		a = &source[index];
 
 		f32 aDotPlane = a->ProjectedPos.Dot( plane );
@@ -1676,20 +1676,20 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 				_ConvertVertice( &clip_vtx[ num_vertices++ ], &temp_a[ j + 1 ]);
 				_ConvertVertice( &clip_vtx[ num_vertices++ ], &temp_a[ j + 2 ]);
 #else
-				clip_vtx[ num_vertices ].Texture = temp_a[ 0 ].Texture; 	 
-				clip_vtx[ num_vertices ].Colour = c32( temp_a[ 0 ].Colour ); 	 
+				clip_vtx[ num_vertices ].Texture = temp_a[ 0 ].Texture;
+				clip_vtx[ num_vertices ].Colour = c32( temp_a[ 0 ].Colour );
 				clip_vtx[ num_vertices ].Position.x = temp_a[ 0 ].TransformedPos.x;
 				clip_vtx[ num_vertices ].Position.y = temp_a[ 0 ].TransformedPos.y;
 				clip_vtx[ num_vertices++ ].Position.z = temp_a[ 0 ].TransformedPos.z;
 
-				clip_vtx[ num_vertices ].Texture = temp_a[ j + 1 ].Texture; 	 
-				clip_vtx[ num_vertices ].Colour = c32( temp_a[ j + 1 ].Colour ); 	 
+				clip_vtx[ num_vertices ].Texture = temp_a[ j + 1 ].Texture;
+				clip_vtx[ num_vertices ].Colour = c32( temp_a[ j + 1 ].Colour );
 				clip_vtx[ num_vertices ].Position.x = temp_a[ j + 1 ].TransformedPos.x;
 				clip_vtx[ num_vertices ].Position.y = temp_a[ j + 1 ].TransformedPos.y;
 				clip_vtx[ num_vertices++ ].Position.z = temp_a[ j + 1 ].TransformedPos.z;
 
-				clip_vtx[ num_vertices ].Texture = temp_a[ j + 2 ].Texture; 	 
-				clip_vtx[ num_vertices ].Colour = c32( temp_a[ j + 2 ].Colour ); 	 
+				clip_vtx[ num_vertices ].Texture = temp_a[ j + 2 ].Texture;
+				clip_vtx[ num_vertices ].Colour = c32( temp_a[ j + 2 ].Colour );
 				clip_vtx[ num_vertices ].Position.x = temp_a[ j + 2 ].TransformedPos.x;
 				clip_vtx[ num_vertices ].Position.y = temp_a[ j + 2 ].TransformedPos.y;
 				clip_vtx[ num_vertices++ ].Position.z = temp_a[ j + 2 ].TransformedPos.z;
@@ -1709,20 +1709,20 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 			_ConvertVertice( &clip_vtx[ num_vertices++ ], &mVtxProjected[ idx1 ]);
 			_ConvertVertice( &clip_vtx[ num_vertices++ ], &mVtxProjected[ idx2 ]);
 #else
-			clip_vtx[ num_vertices ].Texture = mVtxProjected[ idx0 ].Texture; 	 
-			clip_vtx[ num_vertices ].Colour = c32( mVtxProjected[ idx0 ].Colour ); 	 
+			clip_vtx[ num_vertices ].Texture = mVtxProjected[ idx0 ].Texture;
+			clip_vtx[ num_vertices ].Colour = c32( mVtxProjected[ idx0 ].Colour );
 			clip_vtx[ num_vertices ].Position.x = mVtxProjected[ idx0 ].TransformedPos.x;
 			clip_vtx[ num_vertices ].Position.y = mVtxProjected[ idx0 ].TransformedPos.y;
 			clip_vtx[ num_vertices++ ].Position.z = mVtxProjected[ idx0 ].TransformedPos.z;
 
-			clip_vtx[ num_vertices ].Texture = mVtxProjected[ idx1 ].Texture; 	 
-			clip_vtx[ num_vertices ].Colour = c32( mVtxProjected[ idx1 ].Colour ); 	 
+			clip_vtx[ num_vertices ].Texture = mVtxProjected[ idx1 ].Texture;
+			clip_vtx[ num_vertices ].Colour = c32( mVtxProjected[ idx1 ].Colour );
 			clip_vtx[ num_vertices ].Position.x = mVtxProjected[ idx1 ].TransformedPos.x;
 			clip_vtx[ num_vertices ].Position.y = mVtxProjected[ idx1 ].TransformedPos.y;
 			clip_vtx[ num_vertices++ ].Position.z = mVtxProjected[ idx1 ].TransformedPos.z;
 
-			clip_vtx[ num_vertices ].Texture = mVtxProjected[ idx2 ].Texture; 	 
-			clip_vtx[ num_vertices ].Colour = c32( mVtxProjected[ idx2 ].Colour ); 	 
+			clip_vtx[ num_vertices ].Texture = mVtxProjected[ idx2 ].Texture;
+			clip_vtx[ num_vertices ].Colour = c32( mVtxProjected[ idx2 ].Colour );
 			clip_vtx[ num_vertices ].Position.x = mVtxProjected[ idx2 ].TransformedPos.x;
 			clip_vtx[ num_vertices ].Position.y = mVtxProjected[ idx2 ].TransformedPos.y;
 			clip_vtx[ num_vertices++ ].Position.z = mVtxProjected[ idx2 ].TransformedPos.z;
@@ -1764,20 +1764,20 @@ void PSPRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num
 
 #ifdef DAEDALUS_PSP_USE_VFPU
 	_ConvertVerticesIndexed( p_vertices, mVtxProjected, num_vertices, m_swIndexBuffer );
-#else 	  
-	 // 	 
-	 //      Now we just shuffle all the data across directly (potentially duplicating verts) 	 
-	 // 	 
-	 for( u32 i = 0; i < mNumIndices; ++i ) 	 
-	 { 	 
-			 u32                     index( m_swIndexBuffer[ i ] ); 	 
+#else
+	 //
+	 //      Now we just shuffle all the data across directly (potentially duplicating verts)
+	 //
+	 for( u32 i = 0; i < mNumIndices; ++i )
+	 {
+			 u32                     index( m_swIndexBuffer[ i ] );
 
-			 p_vertices[ i ].Texture = mVtxProjected[ index ].Texture; 	 
-			 p_vertices[ i ].Colour = c32( mVtxProjected[ index ].Colour ); 	 
-			 p_vertices[ i ].Position.x = mVtxProjected[ index ].TransformedPos.x; 	 
-			 p_vertices[ i ].Position.y = mVtxProjected[ index ].TransformedPos.y; 	 
-			 p_vertices[ i ].Position.z = mVtxProjected[ index ].TransformedPos.z; 	 
-	 } 	 
+			 p_vertices[ i ].Texture = mVtxProjected[ index ].Texture;
+			 p_vertices[ i ].Colour = c32( mVtxProjected[ index ].Colour );
+			 p_vertices[ i ].Position.x = mVtxProjected[ index ].TransformedPos.x;
+			 p_vertices[ i ].Position.y = mVtxProjected[ index ].TransformedPos.y;
+			 p_vertices[ i ].Position.z = mVtxProjected[ index ].TransformedPos.z;
+	 }
  #endif
 
 	*p_p_vertices = p_vertices;
@@ -2046,11 +2046,11 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		else
 		{
 			//if( mTnL.Flags.Shade )	//FLAT shade
-			{	
+			{
 				mVtxProjected[i].Colour = v4( vert.rgba_r * (1.0f / 255.0f), vert.rgba_g * (1.0f / 255.0f), vert.rgba_b * (1.0f / 255.0f), vert.rgba_a * (1.0f / 255.0f) );
 			}
 			/*else //Shade is disabled, doesn't work, is it even needed>?
-			{	
+			{
 				mVtxProjected[i].Colour = mPrimitiveColour.GetColourV4();
 			}*/
 
@@ -2494,7 +2494,7 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 				y = uViHeight / 2 - y;
 
 				DL_PF("    Modify vert %d: x=%d, y=%d", vert, x, y);
-				
+
 #if 1
 				// Megaman and other games
 				SetVtxXY( vert, f32(x<<1) / fViWidth , f32(y<<1) / fViHeight );
@@ -2892,8 +2892,8 @@ void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0
 
 		p_verts[0].t0.x = cur_u;
 		p_verts[0].t0.y = v0;
-		p_verts[0].pos.x = cur_x * mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
-		p_verts[0].pos.y = y	 * mN64ToPSPScale.y + mN64ToPSPTranslate.y; 
+		p_verts[0].pos.x = cur_x * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
+		p_verts[0].pos.y = y	 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
 		p_verts[0].pos.z = 0;
 
 		cur_u += source_width;
@@ -2915,7 +2915,7 @@ void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0
 	f32 vslice = 512.f;
 	f32 ystep = (height/(v1-v0) * vslice);
 	f32 vstep = ((v1-v0) > 0 ? vslice : -vslice);
-	
+
 	f32 x_end = width;
 	f32 uslice = 64.f;
 	//f32 ustep = (u1-u0)/width * xslice;
@@ -2942,7 +2942,7 @@ void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0
 		{
 			source_height = (cur_v-v_end);
 		}
-		
+
 		u8* udata = data;
 		// blit maximizing the use of the texture-cache
 		for( ; cur_x < x_end; cur_x+=xstep, cur_u+=ustep )
@@ -2951,7 +2951,7 @@ void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0
 			if (cur_u>512.f || cur_u+ustep>512.f)
 			{
 				s32 off = (ustep>0) ? ((int)cur_u & ~31) : ((int)(cur_u+ustep) & ~31);
-	
+
 				udata += off * GetBitsPerPixel( texture->GetFormat() );
 				cur_u -= off;
 				u_end -= off;
@@ -2975,8 +2975,8 @@ void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0
 
 			p_verts[0].t0.x = cur_u;
 			p_verts[0].t0.y = cur_v;
-			p_verts[0].pos.x = cur_x; 
-			p_verts[0].pos.y = cur_y; 
+			p_verts[0].pos.x = cur_x;
+			p_verts[0].pos.y = cur_y;
 			p_verts[0].pos.z = 0;
 
 			p_verts[1].t0.x = cur_u + source_width;

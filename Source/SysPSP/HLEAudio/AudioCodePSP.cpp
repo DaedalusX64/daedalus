@@ -297,7 +297,7 @@ u32 AudioCode::AddBuffer( u8 *start, u32 length )
 	u32		num_samples( length / sizeof( Sample ) );
 
 	mBufferLength = num_samples;
-	
+
 	//Adapt Audio to sync% //Corn
 	if(gAudioRateMatch)
 	{
@@ -305,7 +305,7 @@ u32 AudioCode::AddBuffer( u8 *start, u32 length )
 		else if(gSoundSync < 44100) mOutputFrequency = 44100;	//limit lower rate
 		else mOutputFrequency = gSoundSync;
 	}
-	else 
+	else
 		mOutputFrequency = DESIRED_OUTPUT_FREQUENCY;
 
 	switch( gAudioPluginEnabled )

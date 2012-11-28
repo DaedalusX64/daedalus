@@ -2,7 +2,7 @@
 
 #ifndef DAEDALUS_PSP_USE_VFPU
 //Fixed point matrix
-static const u32 s_IdentMatrixL[16] = 
+static const u32 s_IdentMatrixL[16] =
 {
 	0x00010000,	0x00000000,
 	0x00000001,	0x00000000,
@@ -35,9 +35,9 @@ inline void vfpu_matrix_IdentF(u8 *m) {
 inline void vfpu_matrix_TranslateF(u8 *m, float X, float Y, float Z) {
 	__asm__ volatile (
 		"vmidt.q M000\n"						// set M100 to identity
-		"mtv     %1, S030\n"					
-		"mtv     %2, S031\n"					
-		"mtv     %3, S032\n"					
+		"mtv     %1, S030\n"
+		"mtv     %2, S031\n"
+		"mtv     %3, S032\n"
 		"usv.q    C000, 0  + %0\n"
 		"usv.q    C010, 16 + %0\n"
 		"usv.q    C020, 32 + %0\n"
@@ -49,9 +49,9 @@ inline void vfpu_matrix_TranslateF(u8 *m, float X, float Y, float Z) {
 inline void vfpu_matrix_ScaleF(u8 *m, float X, float Y, float Z) {
 	__asm__ volatile (
 		"vmidt.q M000\n"						// set M100 to identity
-		"mtv     %1, S000\n"					
-		"mtv     %2, S011\n"					
-		"mtv     %3, S022\n"					
+		"mtv     %1, S000\n"
+		"mtv     %2, S011\n"
+		"mtv     %3, S022\n"
 		"usv.q    C000, 0  + %0\n"
 		"usv.q    C010, 16 + %0\n"
 		"usv.q    C020, 32 + %0\n"
@@ -225,7 +225,7 @@ TEST_DISABLE_GU_FUNCS
 	QuickWrite32Bits(pMtxBase, 0x34, gGPR[REG_a2]._u32_0);
 	QuickWrite32Bits(pMtxBase, 0x38, gGPR[REG_a3]._u32_0);
 	QuickWrite32Bits(pMtxBase, 0x3c, 0x3f800000);
-#endif 
+#endif
 
 	return PATCH_RET_JR_RA;
 }
@@ -376,7 +376,7 @@ TEST_DISABLE_GU_FUNCS
 
 	u8 * pMtxLBaseHiBits = (u8 *)(pMtxBase + 0x00);
 	u8 * pMtxLBaseLoBits = (u8 *)(pMtxBase + 0x20);
-	
+
 	union
 	{
 		u32 iFA;
@@ -398,7 +398,7 @@ TEST_DISABLE_GU_FUNCS
 	{
 		uA.iFA = QuickRead32Bits(pMtxFBase, (row << 4) + 0x0);
 		uB.iFB = QuickRead32Bits(pMtxFBase, (row << 4) + 0x4);
-		
+
 		// Should be TRUNC
 		a = (u32)(uA.fFA * fScale);
 		b = (u32)(uB.fFB * fScale);
@@ -408,7 +408,7 @@ TEST_DISABLE_GU_FUNCS
 
 		lobits = (a << 16) | (b & 0x0000FFFF);
 		QuickWrite32Bits(pMtxLBaseLoBits, (row << 3) , lobits);
-		
+
 		/////
 		uA.iFA = QuickRead32Bits(pMtxFBase, (row << 4) + 0x8);
 		uB.iFB = QuickRead32Bits(pMtxFBase, (row << 4) + 0xc);
@@ -609,7 +609,7 @@ TEST_DISABLE_GU_FUNCS
 	QuickWrite32Bits(pMtxBase, 0x34, uN.N);
 	QuickWrite32Bits(pMtxBase, 0x38, uF.F);
 	QuickWrite32Bits(pMtxBase, 0x3c, uS.S);
-#endif 
+#endif
 
 	return PATCH_RET_JR_RA;
 }
@@ -668,7 +668,7 @@ TEST_DISABLE_GU_FUNCS
 	u8 * pStackBase = (u8 *)ReadAddress(gGPR[REG_sp]._u32_0);	// Base stack address
 	uL.L = gGPR[REG_a1]._u32_0;	//Left
 	uR.R = gGPR[REG_a2]._u32_0;	//Right
-	uB.B = gGPR[REG_a3]._u32_0;	//Bottom	
+	uB.B = gGPR[REG_a3]._u32_0;	//Bottom
 	uT.T = QuickRead32Bits(pStackBase, 0x10);	//Top
 	uN.N = QuickRead32Bits(pStackBase, 0x14);	//Near
 	uF.F = QuickRead32Bits(pStackBase, 0x18);	//Far
@@ -694,7 +694,7 @@ TEST_DISABLE_GU_FUNCS
 
 		lobits = (a << 16) | (b & 0x0000FFFF);
 		QuickWrite32Bits(pMtxLBaseLoBits, (row << 3) , lobits);
-		
+
 		/////
 		a = s_TempMatrix[indx++];
 		b = s_TempMatrix[indx++];

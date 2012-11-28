@@ -117,7 +117,7 @@ namespace StaticAnalysis
 		inline void		Access(u32 address)
 		{
 			mAccess_8000 = IS_SEG_8000(address);
-			
+
 			/*
 			if( IS_SEG_8000(address) )
 			{

@@ -86,7 +86,7 @@ class CNativeTexture : public CRefCounted
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 const u32 gPlaceholderTextureWidth( 16 );
-const u32 gPlaceholderTextureHeight( 16 );	
+const u32 gPlaceholderTextureHeight( 16 );
 
 ALIGNED_EXTERN(u32,gWhiteTexture[gPlaceholderTextureWidth * gPlaceholderTextureHeight ], DATA_ALIGN);
 ALIGNED_EXTERN(u32,gPlaceholderTexture[gPlaceholderTextureWidth * gPlaceholderTextureHeight ], DATA_ALIGN);

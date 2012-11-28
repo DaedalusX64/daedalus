@@ -119,7 +119,7 @@ void StaticAnalysis_DADDIU( OpCode op_code, RegisterUsage & recorder ) 			// Dou
 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
 }
 
-void StaticAnalysis_ADDI( OpCode op_code, RegisterUsage & recorder ) 
+void StaticAnalysis_ADDI( OpCode op_code, RegisterUsage & recorder )
 {
 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
 }
@@ -134,7 +134,7 @@ void StaticAnalysis_SLTI( OpCode op_code, RegisterUsage & recorder ) 			// Set o
 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
 }
 
-void StaticAnalysis_SLTIU( OpCode op_code, RegisterUsage & recorder ) 		// Set on Less Than Immediate Unsigned 	
+void StaticAnalysis_SLTIU( OpCode op_code, RegisterUsage & recorder ) 		// Set on Less Than Immediate Unsigned
 {
 	recorder.Record( RegDstUse( op_code.rt ), RegSrcUse( op_code.rs ) );
 }
@@ -278,7 +278,7 @@ void StaticAnalysis_SWL( OpCode op_code, RegisterUsage & recorder ) 			// Store 
 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
-void StaticAnalysis_SWR( OpCode op_code, RegisterUsage & recorder ) 			// Store Word Right 
+void StaticAnalysis_SWR( OpCode op_code, RegisterUsage & recorder ) 			// Store Word Right
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegSrcUse( op_code.rt ) );
 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
@@ -423,7 +423,7 @@ void StaticAnalysis_Special_MTLO( OpCode op_code, RegisterUsage & recorder ) 			
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
-void StaticAnalysis_Special_DSLLV( OpCode op_code, RegisterUsage & recorder ) 
+void StaticAnalysis_Special_DSLLV( OpCode op_code, RegisterUsage & recorder )
 {
 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
 }
@@ -528,7 +528,7 @@ void StaticAnalysis_Special_SLTU( OpCode op_code, RegisterUsage & recorder ) 			
 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
 }
 
-void StaticAnalysis_Special_DADD( OpCode op_code, RegisterUsage & recorder )//CYRUS64 
+void StaticAnalysis_Special_DADD( OpCode op_code, RegisterUsage & recorder )//CYRUS64
 {
 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
 }
@@ -548,12 +548,12 @@ void StaticAnalysis_Special_DSUBU( OpCode op_code, RegisterUsage & recorder )
 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
 }
 
-void StaticAnalysis_Special_DSLL( OpCode op_code, RegisterUsage & recorder ) 
+void StaticAnalysis_Special_DSLL( OpCode op_code, RegisterUsage & recorder )
 {
 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
 }
 
-void StaticAnalysis_Special_DSRL( OpCode op_code, RegisterUsage & recorder ) 
+void StaticAnalysis_Special_DSRL( OpCode op_code, RegisterUsage & recorder )
 {
 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
 }
@@ -727,7 +727,7 @@ void StaticAnalysis_BC1_BC1TL( OpCode op_code, RegisterUsage & recorder )		// Br
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 void StaticAnalysis_Cop1_W_CVT_S( OpCode op_code, RegisterUsage & recorder )
-{	
+{
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
@@ -761,7 +761,7 @@ void StaticAnalysis_Cop1_WInstr( OpCode op_code, RegisterUsage & recorder )
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 void StaticAnalysis_Cop1_L_CVT_S( OpCode op_code, RegisterUsage & recorder )
-{	
+{
 	RegFPRWrite( op_code.fd );
 	RegFPRRead( op_code.fs );
 }
@@ -1101,7 +1101,7 @@ StaticAnalysisFunction gStaticAnalysisSpecialInstruction[64] =
 	StaticAnalysis_Special_DSLL, StaticAnalysis_Special_Unk, StaticAnalysis_Special_DSRL, StaticAnalysis_Special_DSRA, StaticAnalysis_Special_DSLL32, StaticAnalysis_Special_Unk, StaticAnalysis_Special_DSRL32, StaticAnalysis_Special_DSRA32
 };
 
-void StaticAnalysis_Special( OpCode op_code, RegisterUsage & recorder ) 
+void StaticAnalysis_Special( OpCode op_code, RegisterUsage & recorder )
 {
 	gStaticAnalysisSpecialInstruction[ op_code.spec_op ]( op_code, recorder );
 }
@@ -1134,7 +1134,7 @@ StaticAnalysisFunction gStaticAnalysisCop0Instruction[32] =
 	StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
 };
 
-void StaticAnalysis_CoPro0( OpCode op_code, RegisterUsage & recorder )  
+void StaticAnalysis_CoPro0( OpCode op_code, RegisterUsage & recorder )
 {
 	gStaticAnalysisCop0Instruction[ op_code.cop0_op ]( op_code, recorder );
 }
@@ -1196,10 +1196,10 @@ StaticAnalysisFunction gStaticAnalysisCop1SInstruction[64] =
 {
 	StaticAnalysis_Cop1_S_ADD,     StaticAnalysis_Cop1_S_SUB,     StaticAnalysis_Cop1_S_MUL,    StaticAnalysis_Cop1_S_DIV,     StaticAnalysis_Cop1_S_SQRT,    StaticAnalysis_Cop1_S_ABS,     StaticAnalysis_Cop1_S_MOV,    StaticAnalysis_Cop1_S_NEG,
 	StaticAnalysis_Cop1_S_ROUND_L, StaticAnalysis_Cop1_S_TRUNC_L,	StaticAnalysis_Cop1_S_CEIL_L, StaticAnalysis_Cop1_S_FLOOR_L, StaticAnalysis_Cop1_S_ROUND_W, StaticAnalysis_Cop1_S_TRUNC_W, StaticAnalysis_Cop1_S_CEIL_W, StaticAnalysis_Cop1_S_FLOOR_W,
-	StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk, 
-	StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk, 
+	StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk,
+	StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk,
 	StaticAnalysis_Unk,     StaticAnalysis_Cop1_S_CVT_D,   StaticAnalysis_Unk,    StaticAnalysis_Unk,     StaticAnalysis_Cop1_S_CVT_W,   StaticAnalysis_Cop1_S_CVT_L,   StaticAnalysis_Unk,    StaticAnalysis_Unk,
-	StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk, 
+	StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk,
 	StaticAnalysis_Cop1_Compare_S,  StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S,     StaticAnalysis_Cop1_Compare_S,     StaticAnalysis_Cop1_Compare_S,    StaticAnalysis_Cop1_Compare_S,
 	StaticAnalysis_Cop1_Compare_S,  StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S,      StaticAnalysis_Cop1_Compare_S,     StaticAnalysis_Cop1_Compare_S,     StaticAnalysis_Cop1_Compare_S,
 };
@@ -1216,10 +1216,10 @@ StaticAnalysisFunction gStaticAnalysisCop1DInstruction[64] =
 {
 	StaticAnalysis_Cop1_D_ADD,     StaticAnalysis_Cop1_D_SUB,     StaticAnalysis_Cop1_D_MUL, StaticAnalysis_Cop1_D_DIV, StaticAnalysis_Cop1_D_SQRT, StaticAnalysis_Cop1_D_ABS, StaticAnalysis_Cop1_D_MOV, StaticAnalysis_Cop1_D_NEG,
 	StaticAnalysis_Cop1_D_ROUND_L, StaticAnalysis_Cop1_D_TRUNC_L, StaticAnalysis_Cop1_D_CEIL_L, StaticAnalysis_Cop1_D_FLOOR_L, StaticAnalysis_Cop1_D_ROUND_W, StaticAnalysis_Cop1_D_TRUNC_W, StaticAnalysis_Cop1_D_CEIL_W, StaticAnalysis_Cop1_D_FLOOR_W,
-	StaticAnalysis_Unk,		StaticAnalysis_Unk,     StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, 
-	StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, 
+	StaticAnalysis_Unk,		StaticAnalysis_Unk,     StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
+	StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
 	StaticAnalysis_Cop1_D_CVT_S,   StaticAnalysis_Unk,     StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Cop1_D_CVT_W, StaticAnalysis_Cop1_D_CVT_L, StaticAnalysis_Unk, StaticAnalysis_Unk,
-	StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, 
+	StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
 	StaticAnalysis_Cop1_Compare_D,  StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D,     StaticAnalysis_Cop1_Compare_D,     StaticAnalysis_Cop1_Compare_D,    StaticAnalysis_Cop1_Compare_D,
 	StaticAnalysis_Cop1_Compare_D,  StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D,      StaticAnalysis_Cop1_Compare_D,     StaticAnalysis_Cop1_Compare_D,     StaticAnalysis_Cop1_Compare_D,
 };

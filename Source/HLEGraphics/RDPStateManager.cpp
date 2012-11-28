@@ -104,7 +104,7 @@ void	CRDPStateManager::LoadBlock( u32 idx, u32 address, bool swapped )
 	//Invalidate load info after current TMEM address to the end of TMEM (fixes Fzero and SSV) //Corn
 	ClearEntries( tmem_lookup );
 	SetValidEntry( tmem_lookup );
-	
+
 	TimgLoadDetails& info( mTmemLoadInfo[ tmem_lookup ] );
 	info.Address = address;
 	info.Pitch	 = ~0;
@@ -135,7 +135,7 @@ void	CRDPStateManager::LoadTile( u32 idx, u32 address )
 	InvalidateAllTileTextureInfo();		// Can potentially invalidate all texture infos
 
 	u32	tmem_lookup( mTiles[ idx ].tmem >> 4 );
-	
+
 	SetValidEntry( tmem_lookup );
 
 	mTMEM_Load[ tmem_lookup ].Address = address;
@@ -245,7 +245,7 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 
 		ti.SetTmemAddress( rdp_tile.tmem );
 		ti.SetLoadAddress( address );
-		ti.SetTLutIndex( rdp_tile.palette ); 
+		ti.SetTLutIndex( rdp_tile.palette );
 		ti.SetFormat( rdp_tile.format );
 		ti.SetSize( rdp_tile.size );
 
@@ -253,7 +253,7 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		if( g_ROM.ZELDA_HACK && (gRDPOtherMode.L == 0x0c184241) && (rdp_tile.format == G_IM_FMT_I) )	 //&& (ti.GetWidth() == 64)
 		{
 			tile_width >>= 1;
-			pitch >>= 1;	
+			pitch >>= 1;
 		}
 
 		ti.SetWidth( tile_width );

@@ -22,10 +22,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern "C"
 {
-	u32 _AtomicIncrement( volatile u32 * ptr ); 
+	u32 _AtomicIncrement( volatile u32 * ptr );
 	u32 _AtomicDecrement( volatile u32 * ptr );
 	u32 _AtomicBitSet( volatile u32 * ptr, u32 and_bits, u32 or_bits );
-} 
+}
 
 inline u32 AtomicIncrement( volatile u32 * ptr )
 {

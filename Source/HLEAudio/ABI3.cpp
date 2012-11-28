@@ -45,21 +45,21 @@ static void SPNOOP( AudioHLECommand command )
 static void SETVOL3( AudioHLECommand command )
 {
 	u8 Flags = (u8)(command.cmd0 >> 0x10);
-	if (Flags & 0x4) 
+	if (Flags & 0x4)
 	{ // 288
-		if (Flags & 0x2) 
+		if (Flags & 0x2)
 		{ // 290
 			gAudioHLEState.VolLeft  = (s16)command.cmd0; // 0x50
 			gAudioHLEState.EnvDry	= (s16)(command.cmd1 >> 16); // 0x4E
 			gAudioHLEState.EnvWet	= (s16)command.cmd1; // 0x4C
-		} 
-		else 
+		}
+		else
 		{
 			gAudioHLEState.VolTrgRight  = (s16)command.cmd0; // 0x46
 			//gAudioHLEState.VolRampRight = (u16)(command.cmd1 >> 16) | (s32)(s16)(command.cmd1 << 0x10);
 			gAudioHLEState.VolRampRight = command.cmd1; // 0x48/0x4A
 		}
-	} 
+	}
 	else
 	{
 		gAudioHLEState.VolTrgLeft  = (s16)command.cmd0; // 0x40
@@ -197,7 +197,7 @@ static void ENVMIXER3( AudioHLECommand command )
 
 			a2+=((i1*AuxL)+0x4000)>>15;
 			a3+=((i1*AuxR)+0x4000)>>15;
-			
+
 			a2 = Saturate<s16>( a2 );
 			a3 = Saturate<s16>( a3 );
 
@@ -249,7 +249,7 @@ static void LOADBUFF3( AudioHLECommand command )
 	memcpy (gAudioHLEState.Buffer+src, rdram+v0, cnt);
 }
 
-static void SAVEBUFF3( AudioHLECommand command ) 
+static void SAVEBUFF3( AudioHLECommand command )
 {
 	u32 v0;
 	u32 cnt = (((command.cmd0 >> 0xC)+3)&0xFFC);
@@ -263,7 +263,7 @@ static void LOADADPCM3( AudioHLECommand command )
 	// Loads an ADPCM table - Works 100% Now 03-13-01
 	u32 v0;
 	v0 = (command.cmd1 & 0xffffff);
-	//memcpy (dmem+0x3f0, rdram+v0, command.cmd0&0xffff); 
+	//memcpy (dmem+0x3f0, rdram+v0, command.cmd0&0xffff);
 	//assert ((command.cmd0&0xffff) <= 0x80);
 	u16 *table = (u16 *)(rdram+v0);
 	for (u32 x = 0; x < ((command.cmd0&0xffff)>>0x4); x++)
@@ -306,7 +306,7 @@ static void SETLOOP3( AudioHLECommand command )
 
 // Verified to be 100% Accurate...
 static void ADPCM3( AudioHLECommand command )
-{ 
+{
 	u8 Flags=(u8)(command.cmd1>>0x1c)&0xff;
 	//u16 Gain=(u16)(command.cmd0&0xffff);
 	u32 Address=(command.cmd0 & 0xffffff);// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
@@ -367,7 +367,7 @@ static void ADPCM3( AudioHLECommand command )
 													// so this appears to be a fractional scale based
 													// on the 12 based inverse of the scale value.  note
 													// that this could be negative, in which case we do
-													// not use the calculated vscale value... see the 
+													// not use the calculated vscale value... see the
 													// if(code>12) check below
 
 		inPtr++;									// coded adpcm data lies next
@@ -553,7 +553,7 @@ static void ADPCM3( AudioHLECommand command )
 	memcpy(&rdram[Address],out,32);
 }
 
-#if 1 //1->fast, 0->original Azimer //Corn 
+#if 1 //1->fast, 0->original Azimer //Corn
 static void RESAMPLE3( AudioHLECommand command )
 {
 	u8 Flags=(u8)((command.cmd1>>0x1e));
@@ -575,7 +575,7 @@ static void RESAMPLE3( AudioHLECommand command )
 		dstPtr = 0x4f0/2;
 	}
 
-	if ((Flags & 0x1) == 0) {	
+	if ((Flags & 0x1) == 0) {
 		src[srcPtr^1] = ((u16 *)rdram)[((addy/2))^1];
 		Accum = *(u16 *)(rdram+addy+10);
 	} else {
@@ -624,7 +624,7 @@ static void RESAMPLE3( AudioHLECommand command )
 		dstPtr = 0x4f0/2;
 	}
 
-	if ((Flags & 0x1) == 0) {	
+	if ((Flags & 0x1) == 0) {
 		for (s32 x=0; x < 4; x++) //memcpy (src+srcPtr, rdram+addy, 0x8);
 			src[(srcPtr+x)^1] = ((u16 *)rdram)[((addy/2)+x)^1];
 		Accum = *(u16 *)(rdram+addy+10);
@@ -649,7 +649,7 @@ static void RESAMPLE3( AudioHLECommand command )
 
 		temp = ((s32)*(s16*)(src+((srcPtr+2)^1))*((s32)((s16)lut[2])));
 		accum += (s32)(temp >> 15);
-		
+
 		temp = ((s32)*(s16*)(src+((srcPtr+3)^1))*((s32)((s16)lut[3])));
 		accum += (s32)(temp >> 15);
 /*		temp =  ((s64)*(s16*)(src+((srcPtr+0)^1))*((s64)((s16)lut[0]<<1)));
@@ -739,23 +739,23 @@ void MP3( AudioHLECommand command );
 
 FFT = Fast Fourier Transform
 DCT = Discrete Cosine Transform
-MPEG-1 Layer 3 retains Layer 2’s 1152-sample window, as well as the FFT polyphase filter for 
-backward compatibility, but adds a modified DCT filter. DCT’s advantages over DFTs (discrete 
-Fourier transforms) include half as many multiply-accumulate operations and half the 
-generated coefficients because the sinusoidal portion of the calculation is absent, and DCT 
-generally involves simpler math. The finite lengths of a conventional DCTs’ bandpass impulse 
-responses, however, may result in block-boundary effects. MDCTs overlap the analysis blocks 
-and lowpass-filter the decoded audio to remove aliases, eliminating these effects. MDCTs also 
-have a higher transform coding gain than the standard DCT, and their basic functions 
-correspond to better bandpass response. 
+MPEG-1 Layer 3 retains Layer 2’s 1152-sample window, as well as the FFT polyphase filter for
+backward compatibility, but adds a modified DCT filter. DCT’s advantages over DFTs (discrete
+Fourier transforms) include half as many multiply-accumulate operations and half the
+generated coefficients because the sinusoidal portion of the calculation is absent, and DCT
+generally involves simpler math. The finite lengths of a conventional DCTs’ bandpass impulse
+responses, however, may result in block-boundary effects. MDCTs overlap the analysis blocks
+and lowpass-filter the decoded audio to remove aliases, eliminating these effects. MDCTs also
+have a higher transform coding gain than the standard DCT, and their basic functions
+correspond to better bandpass response.
 
-MPEG-1 Layer 3’s DCT sub-bands are unequally sized, and correspond to the human auditory 
-system’s critical bands. In Layer 3 decoders must support both constant- and variable-bit-rate 
-bit streams. (However, many Layer 1 and 2 decoders also handle variable bit rates). Finally, 
-Layer 3 encoders Huffman-code the quantized coefficients before archiving or transmission for 
-additional lossless compression. Bit streams range from 32 to 320 kbps, and 128-kbps rates 
-achieve near-CD quality, an important specification to enable dual-channel ISDN 
-(integrated-services-digital-network) to be the future high-bandwidth pipe to the home. 
+MPEG-1 Layer 3’s DCT sub-bands are unequally sized, and correspond to the human auditory
+system’s critical bands. In Layer 3 decoders must support both constant- and variable-bit-rate
+bit streams. (However, many Layer 1 and 2 decoders also handle variable bit rates). Finally,
+Layer 3 encoders Huffman-code the quantized coefficients before archiving or transmission for
+additional lossless compression. Bit streams range from 32 to 320 kbps, and 128-kbps rates
+achieve near-CD quality, an important specification to enable dual-channel ISDN
+(integrated-services-digital-network) to be the future high-bandwidth pipe to the home.
 
 */
 static void DISABLE( AudioHLECommand command )

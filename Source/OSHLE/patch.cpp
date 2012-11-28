@@ -448,7 +448,7 @@ bool Patch_Hacks( PatchSymbol * ps )
 
 	// Hacks to disable certain os funcs in games that causes issues
 	// This alot cheaper than adding a check on the func itself, this is only checked once -Salvy
-	// Eventually we should fix them though 
+	// Eventually we should fix them though
 	//
 	// osSendMesg - Breaks the in game menu in Zelda OOT
 	// osSendMesg - Causes Animal Corssing to freeze after the N64 logo
@@ -460,7 +460,7 @@ bool Patch_Hacks( PatchSymbol * ps )
 	case ANIMAL_CROSSING:
 	case CLAY_FIGHTER_63:
 
-		if( strcmp("osSendMesg",ps->szName) == 0) 
+		if( strcmp("osSendMesg",ps->szName) == 0)
 		{
 			bfound = true;
 			break;
@@ -475,7 +475,7 @@ bool Patch_Hacks( PatchSymbol * ps )
 		{
 			bfound = true;
 			break;
-			
+
 		}
 		break;
 	//
@@ -486,19 +486,19 @@ bool Patch_Hacks( PatchSymbol * ps )
 		{
 			bfound = true;
 			break;
-			
+
 		}
 		if( strcmp("__osEnqueueAndYield",ps->szName) == 0)
 		{
 			bfound = true;
 			break;
-			
+
 		}
 		break;
 	default:
 		break;
 	}
-	
+
 	return bfound;
 }
 
@@ -675,7 +675,7 @@ void Patch_RecurseAndFind()
 	}
 
 #ifndef DAEDALUS_DEBUG_CONSOLE
-	// Unload font after we done patching progress 
+	// Unload font after we done patching progress
 	intraFontUnload( ltn8 );
 #endif
 
@@ -986,9 +986,9 @@ static void Patch_FlushCache()
 				fwrite(&data, 1, sizeof(data), fp);
 			}
 
-			
+
 		}
-		
+
 		for (u32 i = 0; i < nPatchVariables; i++)
 		{
 			if (g_PatchVariables[i]->bFound )
@@ -1004,7 +1004,7 @@ static void Patch_FlushCache()
 		}
 
 		fclose(fp);
-	}	
+	}
 }
 
 
@@ -1109,7 +1109,7 @@ static u32 RET_JR_ERET()
 
 	// Ensure we don't execute this in the delay slot
 	gCPUState.Delay = NO_DELAY;
-	
+
 	return 0;
 }
 

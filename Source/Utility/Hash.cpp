@@ -52,17 +52,17 @@ unsigned int murmur2_hash ( const void * key, int len, unsigned int seed )
 	{
 		unsigned int k = *(unsigned int *)data;
 
-		k *= m; 
-		k ^= k >> r; 
-		k *= m; 
-		
-		h *= m; 
+		k *= m;
+		k ^= k >> r;
+		k *= m;
+
+		h *= m;
 		h ^= k;
 
 		data += 4;
 		len -= 4;
 	}
-	
+
 	// Handle the last few bytes of the input array
 
 	switch(len)
@@ -106,8 +106,8 @@ unsigned int murmur2_neutral_hash ( const void * key, int len, unsigned int seed
 		k |= data[2] << 16;
 		k |= data[3] << 24;
 
-		k *= m; 
-		k ^= k >> r; 
+		k *= m;
+		k ^= k >> r;
 		k *= m;
 
 		h *= m;
@@ -116,7 +116,7 @@ unsigned int murmur2_neutral_hash ( const void * key, int len, unsigned int seed
 		data += 4;
 		len -= 4;
 	}
-	
+
 	switch(len)
 	{
 	case 3: h ^= data[2] << 16;
@@ -130,5 +130,5 @@ unsigned int murmur2_neutral_hash ( const void * key, int len, unsigned int seed
 	h ^= h >> 15;
 
 	return h;
-} 
+}
 #endif

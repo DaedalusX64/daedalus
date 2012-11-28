@@ -46,7 +46,7 @@ public:
 
 private:
 	CBlendStates *				GenerateBlendStates( const CCombinerOperand * colour_operand, const CCombinerOperand * alpha_operand ) const;
-	
+
 	CAlphaRenderSettings *		GenerateAlphaRenderSettings(  const CCombinerOperand * operand ) const;
 	void						GenerateRenderSettings( CBlendStates * states, const CCombinerOperand * operand ) const;
 

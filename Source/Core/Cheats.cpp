@@ -42,7 +42,7 @@ char	current_rom_name[128];
 //*****************************************************************************
 //
 //*****************************************************************************
-// This is similar to ROM_GetCountryNameFromID but we don't get the whole name as Europe or USA to avoid slowing down parsing by adding inecesary strings 
+// This is similar to ROM_GetCountryNameFromID but we don't get the whole name as Europe or USA to avoid slowing down parsing by adding inecesary strings
 // We can get just the country ID name from it but they are really confusing.. ex E for USA..
 // Since this such a small function is alright even though it seems rebundant
 //
@@ -70,30 +70,30 @@ const char * GetCountryName( u8 country )
 
 // Apply game shark code
 
-//Supports N64 game shark code types: 
+//Supports N64 game shark code types:
 //
-//Code Type Format Code Type Description 
-//80-XXXXXX 00YY	8-Bit Constant Write 
-//81-XXXXXX YYYY 16-Bit Constant Write 
-//50-00AABB CCCC Serial Repeater 
-//88-XXXXXX 00YY 8-Bit GS Button Write 
-//89-XXXXXX YYYY 16-Bit GS Button Write 
-//A0-XXXXXX 00YY 8-Bit Constant Write (Uncached) 
-//A1-XXXXXX YYYY 16-Bit Constant Write (Uncached) 
-//D0-XXXXXX 00YY 8-Bit If Equal To 
-//D1-XXXXXX YYYY 16-Bit If Equal To 
-//D2-XXXXXX 00YY 8-Bit If Not Equal To 
-//D3-XXXXXX YYYY 16-Bit If Not Equal To 
+//Code Type Format Code Type Description
+//80-XXXXXX 00YY	8-Bit Constant Write
+//81-XXXXXX YYYY 16-Bit Constant Write
+//50-00AABB CCCC Serial Repeater
+//88-XXXXXX 00YY 8-Bit GS Button Write
+//89-XXXXXX YYYY 16-Bit GS Button Write
+//A0-XXXXXX 00YY 8-Bit Constant Write (Uncached)
+//A1-XXXXXX YYYY 16-Bit Constant Write (Uncached)
+//D0-XXXXXX 00YY 8-Bit If Equal To
+//D1-XXXXXX YYYY 16-Bit If Equal To
+//D2-XXXXXX 00YY 8-Bit If Not Equal To
+//D3-XXXXXX YYYY 16-Bit If Not Equal To
 //04-XXXXXX ---- Write directly to Audio Interface (Daedalus only)
 
 //*****************************************************************************
 //
 //*****************************************************************************
-static void CheatCodes_Apply(u32 index, u32 mode) 
+static void CheatCodes_Apply(u32 index, u32 mode)
 {
 	bool	executenext = true;
 
-	for (u32 i = 0; i < codegrouplist[index].codecount; i ++) 
+	for (u32 i = 0; i < codegrouplist[index].codecount; i ++)
 	{
 		// Used by activator codes, skip until the specified button is pressed
 		//
@@ -111,14 +111,14 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 		{
 			switch(type)
 			{
-			case 0x88:			
+			case 0x88:
 				Write8Bits(address,(u8)value);
 				break;
 			case 0x89:
 				Write16Bits(address, value);
 				break;
 			}
-			break;	
+			break;
 		}
 		else
 		{
@@ -130,7 +130,7 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 				//
 				if(codegrouplist[index].codelist[i].orig && (codegrouplist[index].codelist[i].orig == CHEAT_CODE_MAGIC_VALUE))
 					codegrouplist[index].codelist[i].orig = Read8Bits(address);
-			
+
 				// Cheat code is no longer active, restore to original value
 				//
 				if(codegrouplist[index].enable==false)
@@ -149,7 +149,7 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 				//
 				if(codegrouplist[index].enable==false)
 					value = codegrouplist[index].codelist[i].orig;
-		
+
 				Write16Bits(address, value);
 				break;
 			//case 0xD8:
@@ -173,7 +173,7 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 							Memory_AI_SetRegister(codegrouplist[index].codelist[i].addr & 0x0FFFFFFF, value);
 							break;
 				}
-			case 0x50:	
+			case 0x50:
 				{
 					s32	repeatcount = (address & 0x0000FF00) >> 8;
 					u32	addroffset	= (address & 0x000000FF);
@@ -212,8 +212,8 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 				executenext = false;
 				break;
 			}
-		} 
-	}	
+		}
+	}
 }
 
 //*****************************************************************************
@@ -227,7 +227,7 @@ void CheatCodes_Activate( CHEAT_MODE mode )
 		//
 		if(codegrouplist[i].active)
 		{
-			// Keep track of active cheatcodes, when they are disable, 
+			// Keep track of active cheatcodes, when they are disable,
 			// this flag will signal that we need to restore the hacked value to normal
 			//
 			codegrouplist[i].enable = true;
@@ -394,10 +394,10 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 			//printf("Cannot allocate memory to load cheat codes");
 			return false;
 		}
-	
+
 		codegroupcount = 0;
 		while(codegroupcount < numberofgroups && fgets(line, 32767, stream) && strlen(line) > 8)	// 32767 makes sure the entire line is read
-		{																							
+		{
 			// Codes for the group are in the string line[]
 			for(c1 = 0; line[c1] != '=' && line[c1] != '\0'; c1++) codegrouplist[codegroupcount].name[c1] = line[c1];
 

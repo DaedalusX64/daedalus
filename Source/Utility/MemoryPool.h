@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //	XXXX Work in progress - don't use!
 //
-template< typename T >	
+template< typename T >
 class CMemoryPool
 {
 	enum { MaxItems = 2500 };
@@ -127,7 +127,7 @@ public:
 	typedef const void *	const_pointer;
 	typedef void			value_type;
 	template < class U > 	struct rebind { typedef CMemoryPoolAllocator<U> other; };
-}; 
+};
 
 template< typename T >
 class CMemoryPoolAllocator

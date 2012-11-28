@@ -57,7 +57,7 @@ const u8 ThreeToEight[8] =
 };
 
 
-const u8 FourToEight[16] = 
+const u8 FourToEight[16] =
 {
 	0x00, 0x11, 0x22, 0x33,
 	0x44, 0x55, 0x66, 0x77,
@@ -726,11 +726,11 @@ void	ConvertCI8(const TextureDestInfo & dst, const TextureInfo & ti)
 	u32 tlut_format = ti.GetTLutFormat();
 	if( tlut_format == G_TT_RGBA16 )
 	{
-		ConvertCI8_RGBA16( dst, ti );	
+		ConvertCI8_RGBA16( dst, ti );
 	}
 	else if( tlut_format == G_TT_IA16 )
 	{
-		ConvertCI8_IA16( dst, ti );					
+		ConvertCI8_IA16( dst, ti );
 	}
 }
 
@@ -742,11 +742,11 @@ void	ConvertCI4(const TextureDestInfo & dst, const TextureInfo & ti)
 	u32 tlut_format = ti.GetTLutFormat();
 	if( tlut_format == G_TT_RGBA16 )
 	{
-		ConvertCI4_RGBA16( dst, ti );	
+		ConvertCI4_RGBA16( dst, ti );
 	}
 	else if( tlut_format == G_TT_IA16 )
 	{
-		ConvertCI4_IA16( dst, ti );					
+		ConvertCI4_IA16( dst, ti );
 	}
 }
 
@@ -755,15 +755,15 @@ void	ConvertCI4(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 //
 //*****************************************************************************
-const ConvertFunction	gConvertFunctions[ 32 ] = 
+const ConvertFunction	gConvertFunctions[ 32 ] =
 {
 	// 4bpp				8bpp			16bpp				32bpp
 	NULL,			NULL,			ConvertRGBA16,		ConvertRGBA32,			// RGBA
-	NULL,			NULL,			NULL,				NULL,					// YUV 
+	NULL,			NULL,			NULL,				NULL,					// YUV
 	ConvertCI4,		ConvertCI8,		NULL,				NULL,					// CI
 	ConvertIA4,		ConvertIA8,		ConvertIA16,		NULL,					// IA
 	ConvertI4,		ConvertI8,		NULL,				NULL,					// I
 	NULL,			NULL,			NULL,				NULL,					// ?
 	NULL,			NULL,			NULL,				NULL,					// ?
-	NULL,			NULL,			NULL,				NULL					// ?			
+	NULL,			NULL,			NULL,				NULL					// ?
 };

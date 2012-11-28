@@ -155,7 +155,7 @@ bool CGraphicsPluginPsp::Initialise()
 		return false;
 	}
 
-	if (!DLParser_Initialise()) 
+	if (!DLParser_Initialise())
 	{
 		return false;
 	}
@@ -231,18 +231,18 @@ void CGraphicsPluginPsp::UpdateScreen()
 		//printf( "Flip (%08x, %08x)\n", current_origin, last_origin );
 		if( gGlobalPreferences.DisplayFramerate )
 			UpdateFramerate();
-	
+
 		const f32 Fsync = FramerateLimiter_GetSync();
 
 		//Calc sync rates for audio and game speed //Corn
 		const f32 inv_Fsync = 1.0f / Fsync;
-		gSoundSync = 40000.0f * inv_Fsync; 
+		gSoundSync = 40000.0f * inv_Fsync;
 		gVISyncRate = 1500.0f * inv_Fsync;
 		if( gVISyncRate > 4000 ) gVISyncRate = 4000;
 		else if ( gVISyncRate < 1500 ) gVISyncRate = 1500;
- 
+
 		if(!gFrameskipActive)
-		{		
+		{
 			if( gGlobalPreferences.DisplayFramerate )
 			{
 				pspDebugScreenSetTextColor( 0xffffffff );
@@ -283,7 +283,7 @@ void CGraphicsPluginPsp::UpdateScreen()
 		static u32 current_frame = 0;
 		current_frame++;
 
-		
+
 		Older_FrameskipActive = Old_FrameskipActive;
 		Old_FrameskipActive = gFrameskipActive;
 

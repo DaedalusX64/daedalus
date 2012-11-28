@@ -14,7 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-	  
+
 */
 
 
@@ -54,7 +54,7 @@ const char * TextureInfo::GetFormatName() const
 //*************************************************************************************
 //
 //*************************************************************************************
-u32 TextureInfo::GetSizeInBits() const	
+u32 TextureInfo::GetSizeInBits() const
 {
 	return pnImgSize[ Size ];
 }
@@ -66,7 +66,7 @@ u32 TextureInfo::GetSizeInBits() const
 /*const void *	TextureInfo::GetPalettePtr() const
 {
 	//Debug Palette pointers
-	#if 0 
+	#if 0
 		printf("0x%02x\n",TLutIndex << (g_ROM.TLUT_HACK? 4:2));
 		for(u32 i=0;i<0x40;i+=8) printf("0x%02x -> %08x %08x %08x %08x %08x %08x %08x %08x\n", i<<2,
 			(u32)gTextureMemory[ i+0 ], (u32)gTextureMemory[ i+1 ], (u32)gTextureMemory[ i+2 ], (u32)gTextureMemory[ i+3 ],
@@ -93,7 +93,7 @@ u32 TextureInfo::GenerateHashValue() const
 	//Rewritten to use less recources //Corn
 
 	DAEDALUS_PROFILE( "TextureInfo::GenerateHashValue" );
-	
+
 	// If CRC checking is disabled, always return 0
 	if ( gCheckTextureHashFrequency == 0 ) return 0;
 
@@ -108,7 +108,7 @@ u32 TextureInfo::GenerateHashValue() const
 	if( g_ROM.GameHacks == YOSHI )
 	{
 		CHK_ROW = 49;
-		if (GetFormat() == G_IM_FMT_CI)  
+		if (GetFormat() == G_IM_FMT_CI)
 		{
 			//Check palette changes too but only first 16 palette values//Corn
 			const u32* ptr_u32 = (u32*)GetTlutAddress();
@@ -118,7 +118,7 @@ u32 TextureInfo::GenerateHashValue() const
 	else if( g_ROM.GameHacks == WORMS_ARMAGEDDON )
 	{
 		CHK_ROW = 1000;
-		if (GetFormat() == G_IM_FMT_CI)  
+		if (GetFormat() == G_IM_FMT_CI)
 		{
 			//Check palette changes too but only first 16 palette values//Corn
 			const u32* ptr_u32 = (u32*)GetTlutAddress();
@@ -140,7 +140,7 @@ u32 TextureInfo::GenerateHashValue() const
 	//We want to sample the texture data as far apart as possible
 	if (step < (CHK_ROW << 2))	//if texture is small hash all of it
 	{
-		for (u32 z = 0; z < step; z++) 
+		for (u32 z = 0; z < step; z++)
 		{
 			hash_value = ((hash_value << 1) | (hash_value >> 0x1F)) ^ ptr_u32[z];
 		}
@@ -157,13 +157,13 @@ u32 TextureInfo::GenerateHashValue() const
 			ptr_u32 += step;
 		}
 	}
-	
+
 	//If texture has a palette then make hash of that too
 	//Might not be needed but it would catch if only the colors are changed in a palette texture
 	//It is a bit expensive CPU wise so better leave out unless really needed
 	//It assumes 4 byte alignment so we use u32 (faster than u8)
 	//Used in OOT for the sky, really minor so is not worth the CPU time to always check for it
-	/*if (GetFormat() == G_IM_FMT_CI)  
+	/*if (GetFormat() == G_IM_FMT_CI)
 	{
 		const u32* ptr_u32 = (u32*)GetTlutAddress();
 		for (u32 z = 0; z < ((GetSize() == G_IM_SIZ_4b)? 8 : 128); z++) hash_value ^= *ptr_u32++;
@@ -178,30 +178,30 @@ u32 TextureInfo::GenerateHashValue() const
 //*************************************************************************************
 #define DEFTEX	TexFmt_8888
 
-const ETextureFormat TFmt[ 32 ] = 
+const ETextureFormat TFmt[ 32 ] =
 {
 //	4bpp				8bpp				16bpp				32bpp
 	DEFTEX,				DEFTEX,				TexFmt_5551,		TexFmt_8888,		// RGBA
-	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// YUV 
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// YUV
 	TexFmt_CI4_8888,	TexFmt_CI8_8888,	DEFTEX,				DEFTEX,				// CI
 	TexFmt_4444,		TexFmt_4444,		TexFmt_8888,		DEFTEX,				// IA
 	TexFmt_4444,		TexFmt_8888,		DEFTEX,				DEFTEX,				// I
 	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
 	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
-	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX				// ?			
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX				// ?
 };
 
-const ETextureFormat TFmt_hack[ 32 ] = 
+const ETextureFormat TFmt_hack[ 32 ] =
 {
 //	4bpp				8bpp				16bpp				32bpp
 	DEFTEX,				DEFTEX,				TexFmt_4444,		TexFmt_8888,		// RGBA
-	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// YUV 
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// YUV
 	TexFmt_CI4_8888,	TexFmt_CI8_8888,	DEFTEX,				DEFTEX,				// CI
 	TexFmt_4444,		TexFmt_4444,		TexFmt_8888,		DEFTEX,				// IA
 	TexFmt_4444,		TexFmt_4444,		DEFTEX,				DEFTEX,				// I
 	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
 	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
-	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX				// ?			
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX				// ?
 };
 
 //*************************************************************************************

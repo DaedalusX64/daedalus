@@ -296,17 +296,17 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 		{
 			settings.CleanSceneEnabled = p_property->GetBooleanValue( false );
 		}
-		if( p_section->FindProperty( "AudioRateMatch", &p_property ) ) 	 
-		{ 	 
-			settings.AudioRateMatch = p_property->GetBooleanValue( false ); 	 
+		if( p_section->FindProperty( "AudioRateMatch", &p_property ) )
+		{
+			settings.AudioRateMatch = p_property->GetBooleanValue( false );
 		}
-		if( p_section->FindProperty( "VideoRateMatch", &p_property ) ) 	 
-		{ 	 
-			settings.VideoRateMatch = p_property->GetBooleanValue( false ); 	 
+		if( p_section->FindProperty( "VideoRateMatch", &p_property ) )
+		{
+			settings.VideoRateMatch = p_property->GetBooleanValue( false );
 		}
-		if( p_section->FindProperty( "FogEnabled", &p_property ) ) 	 
-		{ 	 
-			settings.FogEnabled = p_property->GetBooleanValue( false ); 	 
+		if( p_section->FindProperty( "FogEnabled", &p_property ) )
+		{
+			settings.FogEnabled = p_property->GetBooleanValue( false );
 		}
 		if( p_section->FindProperty( "MemoryAccessOptimisation", &p_property ) )
 		{

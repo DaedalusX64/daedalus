@@ -97,8 +97,8 @@ public:
 		{
 #ifdef DAEDALUS_ENABLE_ASSERTS
 			if( dirty )
-			{ 	 
-				 DAEDALUS_ASSERT( IsKnownValue( reg, lo_hi_idx ) || IsCached( reg, lo_hi_idx ), "Setting dirty flag on unknown/uncached register?" ); 	 
+			{
+				 DAEDALUS_ASSERT( IsKnownValue( reg, lo_hi_idx ) || IsCached( reg, lo_hi_idx ), "Setting dirty flag on unknown/uncached register?" );
 			}
 #endif
 			mRegisterCacheInfo[ reg ][ lo_hi_idx ].Dirty = dirty;

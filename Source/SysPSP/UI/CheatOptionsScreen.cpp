@@ -103,8 +103,8 @@ public:
 	{
 	}
 	// Make read only the cheat list if enable cheat code option is disable
-	virtual bool			IsReadOnly() const		
-	{ 
+	virtual bool			IsReadOnly() const
+	{
 		// Check for any active cheat codes
 		if(!(*mCheatEnabled) && codegrouplist[mIndex].enable)
 		{
@@ -114,7 +114,7 @@ public:
 			CheatCodes_Activate(IN_GAME);
 		}
 
-		return !(*mCheatEnabled); 
+		return !(*mCheatEnabled);
 	}
 
 	virtual bool			IsSelectable()	const	{ return !IsReadOnly(); }
@@ -232,7 +232,7 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Whether to use cheat codes for this ROM", "Yes", "No" ) );
 	mElements.Add( new CCheatFrequency( &mRomPreferences.CheatFrequency, "Apply Cheat Codes Frequency", "The higher this value, the less cheats will hog the emulator at the expense that certain cheats won't work properly." ) );
 
-	
+
 	for(u32 i = 0; i < MAX_CHEATCODE_PER_LOAD; i++)
 	{
 		// Only display the cheat list when the cheatfile been loaded correctly and there were cheats found
@@ -256,7 +256,7 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 			}
 		}
 		else
-		{	
+		{
 			// Display Msg to user if he opens the cheat list without loading the cheatfile or no cheats found
 			//
 			//codegrouplist[i].active = false; // Overkill IMO

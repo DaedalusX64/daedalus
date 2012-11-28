@@ -19,58 +19,58 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // Check patents: U.S. Pat. No. 6,394,905
 //                U.S. Pat. No. 4,799,635
-//                U.S. Pat. No. 5,426,762 
+//                U.S. Pat. No. 5,426,762
 
 
 /*
 In the exemplary embodiment, if processor 100 writes "0x00", "0xFD", "0xFE" or "0xFF" as TxData Size,
 the data is not recognized as TxData size but has a special function as indicated below. They become
-effective when processor 100 sets format bit (0x1FC007FC b0) by using Wr64B or Wr4B. 
+effective when processor 100 sets format bit (0x1FC007FC b0) by using Wr64B or Wr4B.
 
-"0x00"=Channel Skip 
+"0x00"=Channel Skip
 
-If 0x00 is written as TxData Size, respective JoyChannel transaction is not executed. 
+If 0x00 is written as TxData Size, respective JoyChannel transaction is not executed.
 
-"0xFD"=Channel Reset 
+"0xFD"=Channel Reset
 
-If 0xFD is written as TxData Size, PIF outputs reset signal to respective JoyChannel. 
+If 0xFD is written as TxData Size, PIF outputs reset signal to respective JoyChannel.
 
-"0xFE"=Format End 
+"0xFE"=Format End
 
 If 0xFE is written as TxData Size, TxData/RxData assignment is end at this ")xFE". In other words,
-the TxData Size or RxData Size after "0xFE" is ignored. 
+the TxData Size or RxData Size after "0xFE" is ignored.
 
-"0xFF"=Dummy Data 
+"0xFF"=Dummy Data
 
-TxData Size's 0xFF is used as the dummy data for word aligning the data area. 
+TxData Size's 0xFF is used as the dummy data for word aligning the data area.
 
 Each Channel has four flags. Two of them have information from processor 100 to JoyChannel and
-others from JoyChannel to processor 100. 
+others from JoyChannel to processor 100.
 
-Skip=Channel Skip 
+Skip=Channel Skip
 
 If processor 100 sets this flag to "1", respective JoyChannel transaction is not executed. This
-flag becomes effective without formal flag. 
+flag becomes effective without formal flag.
 
-Res=Channel Reset 
+Res=Channel Reset
 
 If 64 bit CPU set this flag to "1", PIF outputs reset signal to respective JoyChannel. This flag
-becomes effective without format flag. 
+becomes effective without format flag.
 
-NR=No Response to JoyChannel 
+NR=No Response to JoyChannel
 
 When each JoyChannel's peripheral device does not respond, the respective NR bit is set to "1".
-This is the way to detect the number of currently connected peripheral devices. 
+This is the way to detect the number of currently connected peripheral devices.
 
-Err=JoyChannel Error 
+Err=JoyChannel Error
 
-When communication error has occurred between PIF and peripheral device, Err flag is set to "1". 
+When communication error has occurred between PIF and peripheral device, Err flag is set to "1".
 
 If the 64 bit CPU 100 wants to change JoyChannel's Tx/RxData assignment, a 32 bit format flag is
 used, where a certain bit(s) specify the desired format. For example, when Wr64B or Wr4B is
 issued when this flag is "1", PIF executes each JoyChannel's Tx/RxData assignment based on each
 channel's Tx/Rx Size. In other words, unless this flag is set to "1" with Wr64B or Wr4B, Tx/RxData
-area assignment does not change. After Tx/RxData assignment, this flag is reset to "0" automatically. 
+area assignment does not change. After Tx/RxData assignment, this flag is reset to "0" automatically.
 */
 
 // Typical command for a channel:
@@ -78,9 +78,9 @@ area assignment does not change. After Tx/RxData assignment, this flag is reset 
 // TxDataSize: 0x01
 // RxDataSize: 0x03
 // TxData:     0x00 : Command: GetStatus
-// RxData0:        
-// RxData1:    
-// RxData2:    
+// RxData0:
+// RxData1:
+// RxData2:
 
 
 // Stuff to handle controllers
@@ -105,7 +105,7 @@ area assignment does not change. After Tx/RxData assignment, this flag is reset 
 #include <time.h>
 
 #ifdef _MSC_VER
-#pragma warning(default : 4002) 
+#pragma warning(default : 4002)
 #endif
 
 #ifdef DAEDALUS_DEBUG_PIF
@@ -132,7 +132,7 @@ class	IController : public CController
 		void			OnRomClose();
 
 		void			Process();
-		
+
 	private:
 		//
 		//
@@ -163,7 +163,7 @@ class	IController : public CController
 #endif
 
 	private:
-		
+
 		enum
 		{
 			CONT_GET_STATUS      = 0x00,
@@ -228,7 +228,7 @@ class	IController : public CController
 template<> bool	CSingleton< CController >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-	
+
 	mpInstance = new IController();
 
 	return true;
@@ -274,7 +274,7 @@ bool IController::OnRomOpen()
 	mpPifRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
 
 	gRumblePakActive = false;
-	
+
 	if ( mpEepromData )
 	{
 		mpEepromData = NULL;
@@ -282,14 +282,14 @@ bool IController::OnRomOpen()
 
 	if ( save_type == SAVE_TYPE_EEP4K )
 	{
-						
+
 		mpEepromData = (u8*)g_pMemoryBuffers[MEM_SAVE];
-		mEepromContType = 0x80;	
+		mEepromContType = 0x80;
 		DBGConsole_Msg( 0, "Initialising EEPROM to [M%d] bytes", 4096/8 );	// 4k bits
 	}
 	else if ( save_type == SAVE_TYPE_EEP16K )
 	{
-		
+
 		mpEepromData = (u8*)g_pMemoryBuffers[MEM_SAVE];
 		mEepromContType = 0xC0;
 		DBGConsole_Msg( 0, "Initialising EEPROM to [M%d] bytes", 16384/8 );	// 16 kbits
@@ -358,7 +358,7 @@ void IController::Process()
 
 		DAEDALUS_ASSERT( (cmd[0] !=  0xB4) || (cmd[0] != 0x56) || (cmd[0] != 0xB8), "PIF : NOP command? %02x", cmd[0] );
 		/*if((cmd[0] ==  0xB4) || (cmd[0] == 0x56) || (cmd[0] == 0xB8))
-		{ 
+		{
 			count++;
 			continue;
 		}*/
@@ -370,7 +370,7 @@ void IController::Process()
 			channel++;
 			continue;
 		}
-	
+
 		// 0-3 = controller channel
 		if( channel < PC_EEPROM )
 		{
@@ -395,12 +395,12 @@ void IController::Process()
 			return;
 		}
 
-		channel++;	
+		channel++;
 		count += cmd[0] + (cmd[1] & 0x3f) + 2;
 
 	}
 
-	mpPifRam[63] = 0;	// Set the last bit is 0 as successfully return 
+	mpPifRam[63] = 0;	// Set the last bit is 0 as successfully return
 
 #ifdef DAEDALUS_DEBUG_PIF
 	DPF_PIF("Before | After:");
@@ -461,8 +461,8 @@ bool	IController::ProcessController(u8 *cmd, u32 channel)
 	case CONT_RESET:
 	case CONT_GET_STATUS:
 		DPF_PIF("Controller: Command is RESET/STATUS");
-		cmd[3] = 0x05;	
-		cmd[4] = 0x00;	
+		cmd[3] = 0x05;
+		cmd[4] = 0x00;
 		cmd[5] = mContMemPackPresent[channel] ? 0x01 : 0x00;
 		break;
 
@@ -523,7 +523,7 @@ bool	IController::ProcessEeprom(u8 *cmd)
 		CommandReadEeprom(&cmd[4], cmd[3] * 8);
 		break;
 
-	case CONT_WRITE_EEPROM:	
+	case CONT_WRITE_EEPROM:
 		CommandWriteEeprom((char*)&cmd[4], cmd[3] * 8);
 		break;
 
@@ -591,7 +591,7 @@ u8 IController::CalculateDataCrc(const u8 * pBuf)
 	}
 
 	for (u32 i = 8; i != 0; i--)
-	{		
+	{
 		c = (c << 1) ^ ((c & 0x80) ? 0x85 : 0);
 	}
 
@@ -612,7 +612,7 @@ u8 IController::CalculateDataCrc(u8 * pBuf)
 		s = pBuf[i];
 
 		for (z = 7; z >= 0; z--)
-		{		
+		{
 			x = (c & 0x80) ? 0x85 : 0;
 
 			c <<= 1;
@@ -647,16 +647,16 @@ void	IController::CommandReadMemPack(u32 channel, u8 *cmd)
 
 	addr &= 0xFFE0;
 
-	if (addr <= 0x7FE0) 
+	if (addr <= 0x7FE0)
 	{
 		memcpy(&cmd[5], &mMemPack[channel][addr], 32);
-	} 
-	else 
+	}
+	else
 	{
-		// RumblePak 
+		// RumblePak
 		memset( &cmd[5], 0x00, 32 );
 	}
-	
+
 	cmd[37] = CalculateDataCrc(&cmd[5]);
 }
 
@@ -676,10 +676,10 @@ void	IController::CommandWriteMemPack(u32 channel, u8 *cmd)
 
 	addr &= 0xFFE0;
 
-	if (addr <= 0x7FE0) 
+	if (addr <= 0x7FE0)
 	{
 		memcpy(&mMemPack[channel][addr], &cmd[5], 32);
-	} 
+	}
 	else
 	{
 		// Do nothing, eventually enable rumblepak
@@ -689,7 +689,7 @@ void	IController::CommandWriteMemPack(u32 channel, u8 *cmd)
 }
 
 //*****************************************************************************
-// 
+//
 //
 //*****************************************************************************
 void	IController::CommandReadRumblePack(u8 *cmd)
@@ -698,15 +698,15 @@ void	IController::CommandReadRumblePack(u8 *cmd)
 
 	if ( addr == 0x8000 )
 	{
-		// rumblepak 
+		// rumblepak
 		memset( &cmd[5], 0x80, 32 );
 	}
-	else 
+	else
 	{
-		// Not connected? 
+		// Not connected?
 		memset( &cmd[5], 0x00, 32 );
 	}
-	
+
 	cmd[37] = CalculateDataCrc(&cmd[5]);
 }
 
@@ -727,13 +727,13 @@ void	IController::CommandWriteRumblePack(u8 *cmd)
 }
 
 //*****************************************************************************
-// 
+//
 //
 //*****************************************************************************
 void	IController::CommandReadRTC(u8 *cmd)
 {
 	switch (cmd[3]) // block number
-	{ 
+	{
 	case 0:
 		cmd[4]	= 0x00;
 		cmd[5]	= 0x02;

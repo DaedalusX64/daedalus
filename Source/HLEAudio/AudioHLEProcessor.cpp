@@ -57,7 +57,7 @@ void	AudioHLEState::ClearBuffer( u16 addr, u16 count )
 
 void	AudioHLEState::EnvMixer( u8 flags, u32 address )
 {
-	//static 
+	//static
 	// ********* Make sure these conditions are met... ***********
 	/*if ((InBuffer | OutBuffer | AuxA | AuxC | AuxE | Count) & 0x3) {
 	MessageBox (NULL, "Unaligned EnvMixer... please report this to Azimer with the following information: RomTitle, Place in the rom it occurred, and any save state just before the error", "AudioHLE Error", MB_OK);
@@ -90,7 +90,7 @@ void	AudioHLEState::EnvMixer( u8 flags, u32 address )
 	//fprintf (dfile, "\n----------------------------------------------------\n");
 	if (flags & A_INIT)
 	{
-		LVol = ((VolLeft  * VolRampLeft)); 
+		LVol = ((VolLeft  * VolRampLeft));
 		RVol = ((VolRight * VolRampRight));
 		Wet = EnvWet;
 		Dry = EnvDry; // Save Wet/Dry values
@@ -447,7 +447,7 @@ inline void AudioHLEState::ExtractSamplesScale( s32 * output, u32 inPtr, s32 vsc
 {
 	u8 icode;
 
-	// loop of 8, for 8 coded nibbles from 4 bytes which yields 8 s16 pcm values	
+	// loop of 8, for 8 coded nibbles from 4 bytes which yields 8 s16 pcm values
 	icode = Buffer[(InBuffer+inPtr++)^3];
 	*output++ = FixedPointMul16( (s16)((icode&0xf0)<< 8), vscale );
 	*output++ = FixedPointMul16( (s16)((icode&0x0f)<<12), vscale );
@@ -466,7 +466,7 @@ inline void AudioHLEState::ExtractSamples( s32 * output, u32 inPtr ) const
 {
 	u8 icode;
 
-	// loop of 8, for 8 coded nibbles from 4 bytes which yields 8 s16 pcm values	
+	// loop of 8, for 8 coded nibbles from 4 bytes which yields 8 s16 pcm values
 	icode = Buffer[(InBuffer+inPtr++)^3];
 	*output++ = (s16)((icode&0xf0)<< 8);
 	*output++ = (s16)((icode&0x0f)<<12);
@@ -684,7 +684,7 @@ void AudioHLEState::ADPCMDecode( u8 flags, u32 address )
 														// so this appears to be a fractional scale based
 														// on the 12 based inverse of the scale value.  note
 														// that this could be negative, in which case we do
-														// not use the calculated vscale value... see the 
+														// not use the calculated vscale value... see the
 														// if(code>12) check below
 			ExtractSamplesScale( inp1, inPtr + 0, vscale );
 			ExtractSamplesScale( inp2, inPtr + 4, vscale );
@@ -843,7 +843,7 @@ void	AudioHLEState::Mixer( u16 dmemout, u16 dmemin, s32 gain, u16 count )
 		{
 			s16 in( *(s16 *)(Buffer+((dmemin+x) & (N64_AUDIO_BUFF - 2))) );
 			s16 out( *(s16 *)(Buffer+((dmemout+x) & (N64_AUDIO_BUFF - 2))) );
-				
+
 			*(s16 *)(Buffer+((dmemout+x) & (N64_AUDIO_BUFF - 2)) ) = Saturate<s16>( FixedPointMul15( in, gain ) + s32( out ) );
 		}
 #endif

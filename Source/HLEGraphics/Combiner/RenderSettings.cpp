@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
   *   - GU_TFX_MODULATE - The texture is multiplied with the current diffuse fragment
   *   - GU_TFX_REPLACE - The texture replaces the fragment
   *   - GU_TFX_ADD - The texture is added on-top of the diffuse fragment
-  *   
+  *
   * Available component-modes are: (TCC)
   *   - GU_TCC_RGB - The texture alpha does not have any effect
   *   - GU_TCC_RGBA - The texture alpha is taken into account
@@ -355,7 +355,7 @@ void		CRenderSettingsBlend::Apply( bool texture_installed, const SRenderState & 
 	DAEDALUS_ASSERT( texture_installed, "No texture for blend?" );
 
 	//
-	//	Apply expression A as a function of shade. 
+	//	Apply expression A as a function of shade.
 	//	Evaluate expression A as a constant
 	//
 	out.VertexExpressionRGB = mConstantExpressionA;
@@ -455,7 +455,7 @@ void	CBlendStates::Print() const
 		{
 			printf( "Stage %d: %s\n", i, settings->GetDescription() );
 		}
-		
+
 		settings->Print( install_texture0 || install_texture1 );
 		mAlphaSettings->Print( install_texture0 || install_texture1 );
 	}

@@ -334,7 +334,7 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 
 	void * p_back;
 
-	if(gDoubleDisplayEnabled) 
+	if(gDoubleDisplayEnabled)
 	{
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( sceGuFinish() < DLISTSIZE , "PSP Dlist Overflow" );
@@ -345,7 +345,7 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 		//printf("Dlist size %d bytes\n", num);
 	#endif
 	}
-	
+
 	sceGuSync(0,0);
 
 	//Used for GUI menu to slow things down, in game we skip this
@@ -384,7 +384,7 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 
 	SetDebugScreenTarget( TS_BACKBUFFER );	//Used to print FPS and other stats
 
-	if(gDoubleDisplayEnabled) 
+	if(gDoubleDisplayEnabled)
 	{
 		sceGuStart(GU_DIRECT,callList);
 		sceGuCallList(list[listNum]);
@@ -392,7 +392,7 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 		listNum ^= 1;	//Toggle lists 0 & 1
 		sceGuStart(GU_CALL,list[listNum]); //Begin other Display List
 	}
-	else 
+	else
 		listNum ^= 1;	//Toggle lists 0 & 1
 
 	if( gCleanSceneEnabled )
@@ -400,11 +400,11 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 		sceGuScissor(0,0,SCR_WIDTH,SCR_HEIGHT);	//Make sure we clear whole screen
 		ClearColBuffer(0xff000000); // ToDo : Use gFillColor instead?
 	}
-	
+
 	// Hack to semi-fix XG2, it uses setprimdepth for background and also does not clear zbuffer //Corn
 	//
 	if( g_ROM.GameHacks == EXTREME_G2 ) sceGuClear(GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);	//Clear Zbuffer
-	
+
 	return true;
 }
 

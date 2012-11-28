@@ -34,7 +34,7 @@ CDialog	gShowDialog;
 //*************************************************************************************
 //
 //*************************************************************************************
-CDialog::~CDialog() 
+CDialog::~CDialog()
 {
 }
 //*************************************************************************************
@@ -52,7 +52,7 @@ bool CDialog::Render( CUIContext * p_context, const char* message, bool only_dia
 		sceCtrlPeekBufferPositive(&pad, 1);
 	}
 
-	for(;;) 
+	for(;;)
 	{
 		p_context->BeginRender();
 

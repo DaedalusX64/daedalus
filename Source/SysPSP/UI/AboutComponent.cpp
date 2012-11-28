@@ -42,12 +42,12 @@ namespace
 {
 	const u32				TEXT_AREA_LEFT = 40;
 	const u32				TEXT_AREA_RIGHT = 480-40;
-	
+
 	#define MAX_PSP_MODEL 6
 
 	const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Revision ";
 	//const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Beta 3 Update";
-	
+
 	const char * const		DATE_TEXT = "Built ";
 
 	const char * const		INFO_TEXT[] =

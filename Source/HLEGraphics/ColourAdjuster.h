@@ -31,7 +31,7 @@ public:
 	void		SetRGBA( c32 colour )			{ Set( COL32_MASK_RGBA, colour ); }
 	void		SetRGB( c32 colour )			{ Set( COL32_MASK_RGB, colour ); }
 	void		SetA( c32 colour )				{ Set( COL32_MASK_A, colour ); }
-	
+
 	void		SetAOpaque()					{ Set( COL32_MASK_A, c32( 0,0,0, 255 ) ); }
 
 	void		ModulateRGBA( c32 colour )		{ Modulate( COL32_MASK_RGBA, colour ); }

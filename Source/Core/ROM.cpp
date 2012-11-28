@@ -115,7 +115,7 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 	gCPUState.CPUControl[C0_BADVADDR]._u32 = 0xFFFFFFFF;
 	gCPUState.CPUControl[C0_ERROR_EPC]._u32= 0xFFFFFFFF;
 	gCPUState.CPUControl[C0_CONFIG]._u32= 0x0006E463;
-	
+
 	//REVISION_REGISTER   = 0x00000511;
 	//STATUS_REGISTER     = 0x34000000;
 
@@ -131,7 +131,7 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 	gGPR[17]._u64=0x0000000000000000LL;
 	gGPR[18]._u64=0x0000000000000000LL;
 	gGPR[19]._u64=0x0000000000000000LL;
-	gGPR[21]._u64=0x0000000000000000LL; 
+	gGPR[21]._u64=0x0000000000000000LL;
 	gGPR[26]._u64=0x0000000000000000LL;
 	gGPR[27]._u64=0x0000000000000000LL;
 	gGPR[28]._u64=0x0000000000000000LL;
@@ -210,10 +210,10 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 	}
 
 	switch (cic_chip) {
-		case CIC_6101: 
-			gGPR[22]._u64=0x000000000000003FLL; 
+		case CIC_6101:
+			gGPR[22]._u64=0x000000000000003FLL;
 			break;
-		case CIC_6102: 
+		case CIC_6102:
 			gGPR[1]._u64=0x0000000000000001LL;
 			gGPR[2]._u64=0x000000000EBDA536LL;
 			gGPR[3]._u64=0x000000000EBDA536LL;
@@ -221,10 +221,10 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 			gGPR[12]._u64=0xFFFFFFFFED10D0B3LL;
 			gGPR[13]._u64=0x000000001402A4CCLL;
 			gGPR[15]._u64=0x000000003103E121LL;
-			gGPR[22]._u64=0x000000000000003FLL; 
+			gGPR[22]._u64=0x000000000000003FLL;
 			gGPR[25]._u64=0xFFFFFFFF9DEBB54FLL;
 			break;
-		case CIC_6103: 
+		case CIC_6103:
 			gGPR[1]._u64=0x0000000000000001LL;
 			gGPR[2]._u64=0x0000000049A5EE96LL;
 			gGPR[3]._u64=0x0000000049A5EE96LL;
@@ -232,10 +232,10 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 			gGPR[12]._u64=0xFFFFFFFFCE9DFBF7LL;
 			gGPR[13]._u64=0xFFFFFFFFCE9DFBF7LL;
 			gGPR[15]._u64=0x0000000018B63D28LL;
-			gGPR[22]._u64=0x0000000000000078LL; 
+			gGPR[22]._u64=0x0000000000000078LL;
 			gGPR[25]._u64=0xFFFFFFFF825B21C9LL;
 			break;
-		case CIC_6105: 
+		case CIC_6105:
 			*(u32  *)&pIMemBase[0x00] = 0x3C0DBFC0;
 			*(u32  *)&pIMemBase[0x08] = 0x25AD07C0;
 			*(u32  *)&pIMemBase[0x0C] = 0x31080080;
@@ -250,10 +250,10 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 			gGPR[12]._u64=0xFFFFFFFF9651F81ELL;
 			gGPR[13]._u64=0x000000002D42AAC5LL;
 			gGPR[15]._u64=0x0000000056584D60LL;
-			gGPR[22]._u64=0x0000000000000091LL; 
+			gGPR[22]._u64=0x0000000000000091LL;
 			gGPR[25]._u64=0xFFFFFFFFCDCE565FLL;
 			break;
-		case CIC_6106: 
+		case CIC_6106:
 			gGPR[1]._u64=0x0000000000000000LL;
 			gGPR[2]._u64=0xFFFFFFFFA95930A4LL;
 			gGPR[3]._u64=0xFFFFFFFFA95930A4LL;
@@ -261,7 +261,7 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 			gGPR[12]._u64=0xFFFFFFFFBCB59510LL;
 			gGPR[13]._u64=0xFFFFFFFFBCB59510LL;
 			gGPR[15]._u64=0x000000007A3C07F4LL;
-			gGPR[22]._u64=0x0000000000000085LL; 
+			gGPR[22]._u64=0x0000000000000085LL;
 			gGPR[25]._u64=0x00000000465E3F72LL;
 			break;
 		default:
@@ -426,7 +426,7 @@ void SpecificGameHacks( const ROMHeader & id )
 		g_ROM.TLUT_HACK = true;
 		break;
 
-	case 0x5547:	//Sin and punishment		
+	case 0x5547:	//Sin and punishment
 		g_ROM.TLUT_HACK = true;
 		g_ROM.GameHacks = SIN_PUNISHMENT;
 		break;
@@ -435,8 +435,8 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x3653:	//Star soldier - vanishing earth
 	case 0x324C:	//Top Gear Rally 2
 	case 0x5247:	//Top Gear Rally
-	case 0x4552:	//Resident Evil 2	
-	case 0x4446:	//Flying Dragon	
+	case 0x4552:	//Resident Evil 2
+	case 0x4446:	//Flying Dragon
 	case 0x534E:	//Beetle Racing
 		g_ROM.TLUT_HACK = true;
 		break;
@@ -521,7 +521,7 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 
 	// Get information about the rom header
 	RomBuffer::GetRomBytesRaw( &g_ROM.rh, 0, sizeof(ROMHeader) );
-	
+
 	//
 	//	Swap into native format
 	//

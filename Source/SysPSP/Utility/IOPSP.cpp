@@ -195,8 +195,8 @@ namespace IO
 			return true;
 		}
 
-		
-		int DeleteRecursive(const char * p_path, const char * p_extension) 
+
+		int DeleteRecursive(const char * p_path, const char * p_extension)
 		{
 			SceUID fh;
 
@@ -213,15 +213,15 @@ namespace IO
 					sceIoGetstat( file, &stat );
 					if( (stat.st_mode & 0x1000) == 0x1000 )
 					{
-						if(strcmp(gDirEntry.Dirent.d_name, ".") && strcmp(gDirEntry.Dirent.d_name, "..")) 
+						if(strcmp(gDirEntry.Dirent.d_name, ".") && strcmp(gDirEntry.Dirent.d_name, ".."))
 						{
 							//printf("Found directory\n");
 						}
-					} 
-					else 
+					}
+					else
 					{
 						if (_strcmpi(FindExtension( file ), p_extension) == 0)
-						{ 
+						{
 							//DBGConsole_Msg(0, "Deleting [C%s]",file);
 							sceIoRemove( file );
 						}

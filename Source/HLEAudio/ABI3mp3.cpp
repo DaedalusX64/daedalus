@@ -187,7 +187,7 @@ u16 DeWindowLUT [0x420] =
 void CMP3Decode::MP3AB0()
 {
 	// Part 2 - 100% Accurate
-	const u16 LUT2[8] = { 0xFEC4, 0xF4FA, 0xC5E4, 0xE1C4, 
+	const u16 LUT2[8] = { 0xFEC4, 0xF4FA, 0xC5E4, 0xE1C4,
 						  0x1916, 0x4A50, 0xA268, 0x78AE };
 	const u16 LUT3[4] = { 0xFB14, 0xD4DC, 0x31F2, 0x8E3A };
 	int i;
@@ -208,7 +208,7 @@ void CMP3Decode::MP3AB0()
 		v[8+i]  = v[24+i] + v[28+i];
 		v[12+i] = ((v[24+i] - v[28+i]) * LUT3[i]) >> 0x10;
 	}
-				
+
 	// Part 4: 2-wide butterflies - 100% Accurate
 
 	for (i = 0; i < 16; i+=4)

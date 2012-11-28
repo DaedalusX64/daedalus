@@ -65,7 +65,7 @@ public:
 	u8	__attribute__((aligned(16))) Buffer[N64_AUDIO_BUFF];
 	s16		MixerWorkArea[256];
 	u16		ADPCMTable[0x88];
-	
+
 	//u32		Segments[16];		// 0x0320
 	// T8 = 0x360
 	u16		InBuffer;			// 0x0000(T8)

@@ -41,4 +41,4 @@ class CIndirectExitMap
 //
 extern "C" { const void *	IndirectExitMap_Lookup( CIndirectExitMap * p_map, u32 exit_address ); }
 
-#endif 
+#endif

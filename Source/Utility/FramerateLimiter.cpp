@@ -44,7 +44,7 @@ u32				gVblsSinceFlip( 0 );				// The number of vertical blanks that have occurr
 
 u32				gCurrentAverageTicksPerVbl( 0 );
 
-const u32		gTvFrequencies[] = 
+const u32		gTvFrequencies[] =
 {
 	50,		//OS_TV_PAL,
 	60,		//OS_TV_NTSC,
@@ -126,7 +126,7 @@ void FramerateLimiter_Limit()
 
 	// Only do framerate limiting on frames that correspond to a flip
 	u32 current_origin = Memory_VI_GetRegister(VI_ORIGIN_REG);
-	
+
 	if( current_origin == gLastOrigin ) return;
 
 	gLastOrigin = current_origin;
@@ -142,9 +142,9 @@ void FramerateLimiter_Limit()
 	if( gSpeedSyncEnabled )
 	{
 		u32	required_ticks( gTicksBetweenVbls * gVblsSinceFlip );
-		
+
 		if( gSpeedSyncEnabled == 2 ) required_ticks = required_ticks << 1;	// Slow down to 1/2 speed //Corn
-		
+
 		s32	delay_ticks( required_ticks - elapsed_ticks - 50);	//Remove ~50 ticks for additional processing
 
 		if( delay_ticks > 0 )

@@ -40,7 +40,7 @@ u64 GetCurrent()
 //
 
 //*****************************************************************************
-//Taken from psp-programming forum (Raphael) 
+//Taken from psp-programming forum (Raphael)
 //Little endian tweaked by Corn for N64
 //*****************************************************************************
 void memcpy_vfpu_LE( void* dst, void* src, u32 size )
@@ -283,7 +283,7 @@ vfpucopy:
 					"mtv	 $9, s011\n"
 					"mtv	$10, s012\n"
 					"mtv	$11, s013\n"
-					
+
 					"lwr	 $8, 32(%1)\n"
 					"lwl	 $8, 35(%1)\n"
 					"lwr	 $9, 36(%1)\n"
@@ -292,7 +292,7 @@ vfpucopy:
 					"lwl	$10, 43(%1)\n"
 					"lwr	$11, 44(%1)\n"
 					"lwl	$11, 47(%1)\n"
-					"mtv	 $8, s020\n"	
+					"mtv	 $8, s020\n"
 					"mtv	 $9, s021\n"
 					"mtv	$10, s022\n"
 					"mtv	$11, s023\n"
@@ -309,7 +309,7 @@ vfpucopy:
 					"mtv	 $9, s031\n"
 					"mtv	$10, s032\n"
 					"mtv	$11, s033\n"
-					
+
 					"sync\n"
 					"sv.q 	c000,  0(%0), wb\n"
 					"sv.q 	c010, 16(%0), wb\n"
@@ -370,7 +370,7 @@ vfpucopy:
 			dst8 = (u8*)((u32)udst8 & ~0x40000000);
 			break;
 	}
-	
+
 bytecopy:
 	// Copy the remains byte per byte...
 	while (size--)
@@ -380,10 +380,10 @@ bytecopy:
 }
 
 //*****************************************************************************
-//Original PSP version should work like standard memcpy() 
+//Original PSP version should work like standard memcpy()
 //Big Endian
 //*****************************************************************************
-//   
+//
 void memcpy_vfpu_BE( void* dst, void* src, u32 size )
 {
 	u8* src8 = (u8*)src;
@@ -621,7 +621,7 @@ void memcpy_vfpu_BE( void* dst, void* src, u32 size )
 					"mtv	 $9, s011\n"
 					"mtv	$10, s012\n"
 					"mtv	$11, s013\n"
-					
+
 					"lwr	 $8, 32(%1)\n"
 					"lwl	 $8, 35(%1)\n"
 					"lwr	 $9, 36(%1)\n"
@@ -630,7 +630,7 @@ void memcpy_vfpu_BE( void* dst, void* src, u32 size )
 					"lwl	$10, 43(%1)\n"
 					"lwr	$11, 44(%1)\n"
 					"lwl	$11, 47(%1)\n"
-					"mtv	 $8, s020\n"	
+					"mtv	 $8, s020\n"
 					"mtv	 $9, s021\n"
 					"mtv	$10, s022\n"
 					"mtv	$11, s023\n"
@@ -647,7 +647,7 @@ void memcpy_vfpu_BE( void* dst, void* src, u32 size )
 					"mtv	 $9, s031\n"
 					"mtv	$10, s032\n"
 					"mtv	$11, s033\n"
-					
+
 					"sync\n"
 					"sv.q 	c000,  0(%0), wb\n"
 					"sv.q 	c010, 16(%0), wb\n"
@@ -708,7 +708,7 @@ void memcpy_vfpu_BE( void* dst, void* src, u32 size )
 			dst8 = (u8*)((u32)udst8 & ~0x40000000);
 			break;
 	}
-	
+
 bytecopy:
 	// Copy the remains byte per byte...
 	while (size--)
@@ -776,7 +776,7 @@ void memcpy_cpu_LE( void* dst, void* src, u32 size )
 			dst8 = (u8*)dst32;
 			break;
 	}
-		
+
 bytecopy:
 	// Copy the remains byte per byte...
 	while (size--)

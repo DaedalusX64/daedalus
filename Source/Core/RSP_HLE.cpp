@@ -220,14 +220,14 @@ static EProcessResult RSP_HLE_Graphics()
 #else
 		gGraphicsPlugin->ProcessDList();
 #endif
-#ifdef DAEDALUS_BATCH_TEST_ENABLED 	 
-         CBatchTestEventHandler * handler( BatchTest_GetHandler() ); 	 
-         if( handler ) 	 
+#ifdef DAEDALUS_BATCH_TEST_ENABLED
+         CBatchTestEventHandler * handler( BatchTest_GetHandler() );
+         if( handler )
                  handler->OnDisplayListComplete();
 #endif
 		return PR_COMPLETED;
-	}	  	 
-		return PR_NOT_STARTED; 	 
+	}
+		return PR_NOT_STARTED;
 }
 
 //*****************************************************************************

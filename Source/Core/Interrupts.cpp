@@ -123,7 +123,7 @@ void R4300_Exception_CopUnusuable()
 
 	// Clear CAUSE_EXCMASK
 	// XXXX check we're not inside exception handler before snuffing CAUSE reg?
-	SET_EXCEPTION( (CAUSE_EXCMASK|CAUSE_CEMASK), (EXC_CPU|SR_CU0) ) 
+	SET_EXCEPTION( (CAUSE_EXCMASK|CAUSE_CEMASK), (EXC_CPU|SR_CU0) )
 
     //gCPUState.CPUControl[C0_CAUSE]._u32 &= 0xCFFFFFFF;
 	//gCPUState.CPUControl[C0_CAUSE]._u32 |= SR_CU0;
@@ -165,7 +165,7 @@ void R4300_Exception_TLB( u32 virtual_address, u32 exception_code, u32 exception
 	gCPUState.CPUControl[C0_CONTEXT]._u32 &= 0xFF800000;	// Mask off bottom 23 bits
 	gCPUState.CPUControl[C0_CONTEXT]._u32 |= ((virtual_address >> 13) << 4);
 
-	gCPUState.CPUControl[C0_ENTRYHI]._u32 &= 0x00001FFF;	// Mask off the top bit 13-31 
+	gCPUState.CPUControl[C0_ENTRYHI]._u32 &= 0x00001FFF;	// Mask off the top bit 13-31
 	gCPUState.CPUControl[C0_ENTRYHI]._u32 |= (virtual_address & 0xFFFFE000);
 
 	SET_EXCEPTION( CAUSE_EXCMASK, exception_code )

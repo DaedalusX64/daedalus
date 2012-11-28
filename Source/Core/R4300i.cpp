@@ -1170,7 +1170,7 @@ static void R4300_CALL_TYPE R4300_Special_DDIV( R4300_CALL_SIGNATURE ) 				// Do
 	s64 nDivisor = (s64) irt;
 
 	// Reserved Instruction exception
-	if(nDivisor != 0)	
+	if(nDivisor != 0)
 	{
 		ilo = nDividend / nDivisor;
 		ihi = nDividend % nDivisor;
@@ -1188,7 +1188,7 @@ static void R4300_CALL_TYPE R4300_Special_DDIVU( R4300_CALL_SIGNATURE ) 			// Do
 	u64 nDivisor = (u64) irt;
 
 	// Reserved Instruction exception
-	if(nDivisor != 0)	
+	if(nDivisor != 0)
 	{
 		ilo = nDividend / nDivisor;
 		ihi = nDividend % nDivisor;
@@ -1412,7 +1412,7 @@ static void R4300_CALL_TYPE R4300_Special_DSRA32( R4300_CALL_SIGNATURE ) 			// D
 #if 0
 	int rd = op_code.rd;
     int rt = op_code.rt;
-   
+
     * (u32 *) &gGPR[rd]._s64      = *((u32 *) &gGPR[rt]._s64 + 1);
     *((u32 *) &gGPR[rd]._s64 + 1) = *((u32 *) &gGPR[rt]._s64 + 1);
 
@@ -1946,8 +1946,8 @@ void R4300_New( OpCode op_code, u32 op_code_bits )
 		}
 		break;
 */
-	default:			
-		R4300_ExecuteInstruction_Generic( op_code );	
+	default:
+		R4300_ExecuteInstruction_Generic( op_code );
 		break;
 	}
 

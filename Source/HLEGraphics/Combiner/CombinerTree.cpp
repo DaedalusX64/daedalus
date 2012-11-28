@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 namespace
 {
 
-const ECombinerInput	CombinerInput32[ 32 ] = 
+const ECombinerInput	CombinerInput32[ 32 ] =
 {
 	CI_COMBINED,		CI_TEXEL0,			CI_TEXEL1,			CI_PRIMITIVE,	CI_SHADE,			CI_ENV,				CI_1,					CI_COMBINED_ALPHA,
 	CI_TEXEL0_ALPHA,	CI_TEXEL1_ALPHA,	CI_PRIMITIVE_ALPHA,	CI_SHADE_ALPHA,	CI_ENV_ALPHA,		CI_LOD_FRACTION,	CI_PRIM_LOD_FRACTION,	CI_K5,
@@ -41,23 +41,23 @@ const ECombinerInput	CombinerInput32[ 32 ] =
 	CI_UNKNOWN,			CI_UNKNOWN,			CI_UNKNOWN,			CI_UNKNOWN,		CI_UNKNOWN,			CI_UNKNOWN,			CI_UNKNOWN,				CI_0,
 };
 
-const ECombinerInput	CombinerInput16[ 16 ] = 
+const ECombinerInput	CombinerInput16[ 16 ] =
 {
 	CI_COMBINED,		CI_TEXEL0,			CI_TEXEL1,			CI_PRIMITIVE,	CI_SHADE,			CI_ENV,				CI_1,					CI_COMBINED_ALPHA,
 	CI_TEXEL0_ALPHA,	CI_TEXEL1_ALPHA,	CI_PRIMITIVE_ALPHA,	CI_SHADE_ALPHA,	CI_ENV_ALPHA,		CI_LOD_FRACTION,	CI_PRIM_LOD_FRACTION,	CI_0,
 };
 
-const ECombinerInput	CombinerInput8[ 8 ] = 
+const ECombinerInput	CombinerInput8[ 8 ] =
 {
 	CI_COMBINED,		CI_TEXEL0,			CI_TEXEL1,			CI_PRIMITIVE,	CI_SHADE,			CI_ENV,				CI_1,					CI_0,
 };
 
-const ECombinerInput	CombinerInputAlphaC1_8[ 8 ] = 
+const ECombinerInput	CombinerInputAlphaC1_8[ 8 ] =
 {
 	CI_LOD_FRACTION,		CI_TEXEL0,			CI_TEXEL1,			CI_PRIMITIVE,	CI_SHADE,			CI_ENV,				CI_1,					CI_0,
 };
 
-const ECombinerInput	CombinerInputAlphaC2_8[ 8 ] = 
+const ECombinerInput	CombinerInputAlphaC2_8[ 8 ] =
 {
 	CI_COMBINED,		CI_TEXEL0,			CI_TEXEL1,			CI_PRIMITIVE,	CI_SHADE,			CI_ENV,				CI_1,					CI_0,
 };
@@ -83,7 +83,7 @@ const CBlendConstantExpression *	BuildConstantExpression( const CCombinerOperand
 		case CI_ENV_ALPHA:			return new CBlendConstantExpressionValue( BC_ENVIRONMENT_ALPHA );
 		case CI_1:					return new CBlendConstantExpressionValue( BC_1 );
 		case CI_0:					return new CBlendConstantExpressionValue( BC_0 );
-		case CI_SHADE:		
+		case CI_SHADE:
 			if( options == BCE_ALLOW_SHADE )
 				return new CBlendConstantExpressionValue( BC_SHADE );
 			else
@@ -117,7 +117,7 @@ const CBlendConstantExpression *	BuildConstantExpression( const CCombinerOperand
 					lhs = new CBlendConstantExpressionValue( BC_0 );
 				}
 
-				sum_expr = new CBlendConstantExpressionSub( lhs, rhs );		
+				sum_expr = new CBlendConstantExpressionSub( lhs, rhs );
 			}
 			else
 			{
@@ -128,7 +128,7 @@ const CBlendConstantExpression *	BuildConstantExpression( const CCombinerOperand
 				else
 				{
 					sum_expr = new CBlendConstantExpressionAdd( lhs, rhs );
-				}		
+				}
 			}
 		}
 
@@ -185,9 +185,9 @@ CCombinerTree::CCombinerTree( u64 mux, bool two_cycles )
 {
 	RDP_Combine m;	m.mux = mux;
 	//fprintf(fh, "\n\t\tcase 0x%08x%08xLL:\n", mux0, mux1);
-	//fprintf(fh, "\t\t//aRGB0: (%s - %s) * %s + %s\n", sc_colcombtypes16[aRGB0], sc_colcombtypes16[bRGB0], sc_colcombtypes32[cRGB0], sc_colcombtypes8[dRGB0]);		
+	//fprintf(fh, "\t\t//aRGB0: (%s - %s) * %s + %s\n", sc_colcombtypes16[aRGB0], sc_colcombtypes16[bRGB0], sc_colcombtypes32[cRGB0], sc_colcombtypes8[dRGB0]);
 	//fprintf(fh, "\t\t//aA0  : (%s - %s) * %s + %s\n", sc_colcombtypes8[aA0], sc_colcombtypes8[bA0], sc_colcombtypes8[cA0], sc_colcombtypes8[dA0]);
-	//fprintf(fh, "\t\t//aRGB1: (%s - %s) * %s + %s\n", sc_colcombtypes16[aRGB1], sc_colcombtypes16[bRGB1], sc_colcombtypes32[cRGB1], sc_colcombtypes8[dRGB1]);		
+	//fprintf(fh, "\t\t//aRGB1: (%s - %s) * %s + %s\n", sc_colcombtypes16[aRGB1], sc_colcombtypes16[bRGB1], sc_colcombtypes32[cRGB1], sc_colcombtypes8[dRGB1]);
 	//fprintf(fh, "\t\t//aA1  : (%s - %s) * %s + %s\n", sc_colcombtypes8[aA1],  sc_colcombtypes8[bA1], sc_colcombtypes8[cA1],  sc_colcombtypes8[dA1]);
 
 	mCycle1 = BuildCycle1( CombinerInput16[m.aRGB0], CombinerInput16[m.bRGB0], CombinerInput32[m.cRGB0], CombinerInput8[m.dRGB0] );
@@ -380,7 +380,7 @@ CAlphaRenderSettings * CCombinerTree::GenerateAlphaRenderSettings( const CCombin
 			ApplyAlphaModulateTerm( settings, product->GetOperand( i ) );
 		}
 	}
-	else 
+	else
 	{
 		ApplyAlphaModulateTerm( settings, operand );
 	}

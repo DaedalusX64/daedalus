@@ -307,7 +307,7 @@ private:
 				std::stack<EPspReg>	mAvailableRegisters;
 
 				bool							mQuickLoad;
-				
+
 				EN64Reg							mPrevious_base;
 				EN64Reg							mPrevious_rt;
 				bool							mKeepPreviousLoadBase;

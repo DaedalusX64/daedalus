@@ -230,17 +230,17 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		{
 			preferences.CleanSceneEnabled = property->GetBooleanValue( false );
 		}
-		if( section->FindProperty( "AudioRateMatch", &property ) ) 	 
-		{ 	 
-            preferences.AudioRateMatch = property->GetBooleanValue( false ); 	 
+		if( section->FindProperty( "AudioRateMatch", &property ) )
+		{
+            preferences.AudioRateMatch = property->GetBooleanValue( false );
 		}
-		if( section->FindProperty( "VideoRateMatch", &property ) ) 	 
-		{ 	 
-            preferences.VideoRateMatch = property->GetBooleanValue( false ); 	 
+		if( section->FindProperty( "VideoRateMatch", &property ) )
+		{
+            preferences.VideoRateMatch = property->GetBooleanValue( false );
 		}
-		if( section->FindProperty( "FogEnabled", &property ) ) 	 
-		{ 	 
-            preferences.FogEnabled = property->GetBooleanValue( false ); 	 
+		if( section->FindProperty( "FogEnabled", &property ) )
+		{
+            preferences.FogEnabled = property->GetBooleanValue( false );
 		}
 		if( section->FindProperty( "CheckTextureHashFrequency", &property ) )
 		{
@@ -511,7 +511,7 @@ void	SRomPreferences::Apply() const
 	gAudioPluginEnabled = AudioEnabled;
 //	gAdaptFrequency = AudioAdaptFrequency;
 
-	gControllerIndex = ControllerIndex;							//Used during ROM initialization 
+	gControllerIndex = ControllerIndex;							//Used during ROM initialization
 	CInputManager::Get()->SetConfiguration( ControllerIndex );  //Used after initialization
 }
 
@@ -588,22 +588,22 @@ const char * ROM_GetTextureHashFrequencyDescription( ETextureHashFrequency thf )
 //*****************************************************************************
 static const u32 gCheatFreqeuncies[] =
 {
-	0,	
-	3,	
-	7,	
-	15,	
-	31,	
-	63,	
+	0,
+	3,
+	7,
+	15,
+	31,
+	63,
 };
 
 static const char * const gCheatFreqeuncyDescriptions[] =
 {
-	"Every VBLS",	
-	"Every 4 VBLS",	
-	"Every 8 VBLS",	
-	"Every 16 VBLS",	
-	"Every 32 VBLS",	
-	"Every 64 VBLS",	
+	"Every VBLS",
+	"Every 4 VBLS",
+	"Every 8 VBLS",
+	"Every 16 VBLS",
+	"Every 32 VBLS",
+	"Every 64 VBLS",
 };
 
 //*****************************************************************************

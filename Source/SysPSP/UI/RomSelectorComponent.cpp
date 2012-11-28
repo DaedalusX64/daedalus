@@ -55,7 +55,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 namespace
 {
-	const char * const		gRomsDirectories[] = 
+	const char * const		gRomsDirectories[] =
 	{
 		"ms0:/n64/",
 		DAEDALUS_PSP_PATH( "Roms/" ),
@@ -233,7 +233,7 @@ class IRomSelectorComponent : public CRomSelectorComponent
 				void				DrawInfoText( CUIContext * p_context, s32 y, const char * field_txt, const char * value_txt );
 
 	private:
-		CFunctor1< const char * > *	OnRomSelected; 
+		CFunctor1< const char * > *	OnRomSelected;
 		RomInfoList					mRomsList;
 		AlphaMap					mRomCategoryMap;
 		s32							mCurrentScrollOffset;
@@ -246,7 +246,7 @@ class IRomSelectorComponent : public CRomSelectorComponent
 		CRefPtr<CNativeTexture>		mpPreviewTexture;
 		u32							mPreviewIdx;
 		float						mPreviewLoadedTime;		// How long the preview has been loaded (so we can fade in)
-		float						mTimeSinceScroll;		// 
+		float						mTimeSinceScroll;		//
 
 		bool						mRomDelete;
 #ifdef DAEDALUS_DIALOGS
@@ -477,7 +477,7 @@ void IRomSelectorComponent::RenderPreview()
 		DrawInfoText( mpContext, y, "Size:", buffer );
 		y += line_height;
 		DrawInfoText( mpContext, y, "Save:", ROM_GetSaveTypeName( p_rominfo->mSettings.SaveType ) );
-		
+
 		//y += line_height;
 		//DrawInfoTextL( mpContext, y, "EPak:", ROM_GetExpansionPakUsageName( p_rominfo->mSettings.ExpansionPakUsage ) );
 	}
@@ -644,7 +644,7 @@ void IRomSelectorComponent::Render()
 	{
 		mpContext->DrawTextAlign(0,480 - ICON_AREA_LEFT, AT_RIGHT, CATEGORY_AREA_TOP + mpContext->GetFontHeight(), message[(count >> 8) % ARRAYSIZE( message )], color);
 	}
-	
+
 	count++;
 }
 //*************************************************************************************
@@ -653,12 +653,12 @@ void IRomSelectorComponent::Render()
 void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	static const float	SCROLL_RATE_PER_SECOND = 25.0f;		// 25 roms/second
-	
+
 	/*Apply stick deadzone preference in the RomSelector menu*/
 	v2 stick_dead(ApplyDeadzone( stick, gGlobalPreferences.StickMinDeadzone, gGlobalPreferences.StickMaxDeadzone ));
-	
-	mSelectionAccumulator += stick_dead.y * SCROLL_RATE_PER_SECOND * elapsed_time; 
-	
+
+	mSelectionAccumulator += stick_dead.y * SCROLL_RATE_PER_SECOND * elapsed_time;
+
 	/*Tricky thing to get the stick to work in every cases
 	  for the 100/100 case for example
 	  without it, the accumulator gets weirdly set to a NaN value and
@@ -672,7 +672,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 	u32				initial_selection( mCurrentSelection );
 
 	mDisplayFilenames = (new_buttons & PSP_CTRL_TRIANGLE) != 0;
-	
+
 //	mDisplayInfo = (new_buttons & PSP_CTRL_SQUARE) != 0;
 
 	if(old_buttons != new_buttons)
@@ -736,7 +736,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 			remove( mSelectedRom.c_str() );
 			mRomDelete = false;
 			UpdateROMList();
-		} 
+		}
 		else if((new_buttons & PSP_CTRL_START) ||
 			(new_buttons & PSP_CTRL_CROSS))
 		{
@@ -826,7 +826,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 
 	//
 	//	If the current selection is different from the preview, invalidate the picture.
-	//	
+	//
 	//
 	if( mCurrentSelection < mRomsList.size() && mPreviewIdx != mCurrentSelection )
 	{
@@ -835,7 +835,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		mPreviewLoadedTime -= elapsed_time;
 		if(mPreviewLoadedTime < 0.0f)
 			mPreviewLoadedTime = 0.0f;
-	
+
 		//
 		//	If we've waited long enough since starting to scroll, try and load the preview image
 		//	Note that it may fail, so we sort out the other flags regardless.
@@ -850,7 +850,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 			{
 				char		preview_filename[ MAX_PATH + 1 ];
 				IO::Path::Combine( preview_filename, gPreviewDirectory, mRomsList[ mCurrentSelection ]->mSettings.Preview.c_str() );
-				
+
 				mpPreviewTexture = CNativeTexture::CreateFromPng( preview_filename, TexFmt_8888 );
 			}
 		}

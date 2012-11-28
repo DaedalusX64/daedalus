@@ -177,7 +177,7 @@ namespace DrawTextUtilities
 		if(gGlobalPreferences.Language != 0)
 		{
 			u32 i, j;
-			for (i = 0, j = 0; i < length; i++) 
+			for (i = 0, j = 0; i < length; i++)
 			{
 				match = true;
 				if (p_str[i] == '\n')

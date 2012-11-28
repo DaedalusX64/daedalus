@@ -23,7 +23,7 @@
 //
 #include "Platform.h"
 
-// Calling convention for the R4300 instruction handlers. 
+// Calling convention for the R4300 instruction handlers.
 // This is only defined for W32, so provide a default if it's not set up
 #ifndef R4300_CALL_TYPE
 #define R4300_CALL_TYPE
@@ -46,7 +46,7 @@
 //	Branch prediction
 #ifndef DAEDALUS_EXPECT_LIKELY
 #define DAEDALUS_EXPECT_LIKELY(c) (c)
-#endif 
+#endif
 #ifndef DAEDALUS_EXPECT_UNLIKELY
 #define DAEDALUS_EXPECT_UNLIKELY(c) (c)
 #endif

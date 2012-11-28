@@ -43,7 +43,7 @@ TFlashRam_Modes FlashFlag = FLASHRAM_MODE_NOPES;
 #define SetFlashStatus(x) FlashStatus[0] = (u32)((x)>> 32), FlashStatus[1] = (u32)(x)
 
 
-bool DMA_FLASH_CopyToDRAM(u32 dest, u32 StartOffset, u32 len) 
+bool DMA_FLASH_CopyToDRAM(u32 dest, u32 StartOffset, u32 len)
 {
 	switch(FlashFlag)
 	{
@@ -63,7 +63,7 @@ bool DMA_FLASH_CopyToDRAM(u32 dest, u32 StartOffset, u32 len)
 	}
 }
 
-bool DMA_FLASH_CopyFromDRAM(u32 dest, u32 len) 
+bool DMA_FLASH_CopyFromDRAM(u32 dest, u32 len)
 {
 	if(FlashFlag == FLASHRAM_MODE_WRITE )
 	{
@@ -76,14 +76,14 @@ bool DMA_FLASH_CopyFromDRAM(u32 dest, u32 len)
 void Flash_DoCommand(u32 FlashRAM_Command)
 {
 	switch (FlashRAM_Command & 0xFF000000) {
-	case 0xD2000000: 
+	case 0xD2000000:
 		switch (FlashFlag) {
 			DBGConsole_Msg(0, "Writing %X to flash ram command register\nFlashFlag: %d",FlashRAM_Command,FlashFlag);
-			case FLASHRAM_MODE_NOPES: 
+			case FLASHRAM_MODE_NOPES:
 				break;
-			case FLASHRAM_MODE_READ: 
+			case FLASHRAM_MODE_READ:
 				break;
-			case FLASHRAM_MODE_STATUS: 
+			case FLASHRAM_MODE_STATUS:
 				break;
 			case FLASHRAM_MODE_ERASE:
 				memset((u8*)g_pMemoryBuffers[MEM_SAVE] + FlashRAM_Offset, 0xFF, 128);
@@ -98,11 +98,11 @@ void Flash_DoCommand(u32 FlashRAM_Command)
 		}
 		FlashFlag = FLASHRAM_MODE_NOPES;
 		break;
-	case 0xE1000000: 
+	case 0xE1000000:
 		FlashFlag = FLASHRAM_MODE_STATUS;
 		SetFlashStatus(0x1111800100C20000LL);
 		break;
-	case 0xF0000000: 
+	case 0xF0000000:
 		FlashFlag = FLASHRAM_MODE_READ;
 		SetFlashStatus(0x11118004F0000000LL);
 		break;
@@ -114,7 +114,7 @@ void Flash_DoCommand(u32 FlashRAM_Command)
 		FlashFlag = FLASHRAM_MODE_ERASE;
 		SetFlashStatus(0x1111800800C20000LL);
 		break;
-	case 0xB4000000: 
+	case 0xB4000000:
 		FlashFlag = FLASHRAM_MODE_WRITE; //????
 		break;
 	case 0xA5000000:

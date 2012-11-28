@@ -31,7 +31,7 @@ namespace CModule
 
 		ret = sceKernelUnloadModule(id);
 
-		if(ret < 0)	
+		if(ret < 0)
 		{
 			printf("Couldn't unload module! : 0x%08X\n",ret);
 		}
@@ -41,7 +41,7 @@ namespace CModule
 	{
 		int ret = pspSdkLoadStartModule(path, PSP_MEMORY_PARTITION_KERNEL);
 
-		if( ret < 0 )	
+		if( ret < 0 )
 		{
 			printf( "Failed to load %s: %d\n",path, ret );
 			return ret; //-1

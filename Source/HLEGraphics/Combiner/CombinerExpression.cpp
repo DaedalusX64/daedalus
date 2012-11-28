@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 //
 //*****************************************************************************
-static const char * const gCombinerInputNames[] = 
+static const char * const gCombinerInputNames[] =
 {
 	"Combined",		// CI_COMBINED,
 	"Texel0",		// CI_TEXEL0,
@@ -296,7 +296,7 @@ CCombinerOperand *	CCombinerSum::ReduceToBlend() const
 							diff_sum->mOperands[ 1 ].Negate && diff_sum->mOperands[ 1 ].Operand->IsEqual( *input_a ) )		// Make sure this term is the same as the first A we saw
 						{
 							const CCombinerOperand *	input_b( diff_sum->mOperands[ 0 ].Operand );
-					
+
 							return new CCombinerBlend( input_a->SimplifyAndReduce(), input_b->SimplifyAndReduce(), factor->SimplifyAndReduce() );
 
 						}

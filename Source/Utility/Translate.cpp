@@ -45,7 +45,7 @@ std::vector<std::string> gLanguage;
 // Hash was taken from http://stackoverflow.com/questions/98153/whats-the-best-hashing-algorithm-to-use-on-a-stl-string-when-using-hash-map
 //
 //*****************************************************************************
-// 
+//
 //*****************************************************************************
 u32 HashString(const char* s)
 {
@@ -78,7 +78,7 @@ const char * Translate_Strings(const char *original, u32 & len)
 				len =  strlen( text[i].translated );
 				return text[i].translated;
 			}
-			else 
+			else
 				return original;
 		}
 	}
@@ -115,7 +115,7 @@ void Translate_Unload()
 bool	Translate_Init()
 {
 	// Init translations if available
-	Translate_Load( DAEDALUS_PSP_PATH("Languages/") );	
+	Translate_Load( DAEDALUS_PSP_PATH("Languages/") );
 
 	return /*gLanguage.empty() == 0*/ true;
 }
@@ -156,11 +156,11 @@ void	Translate_Load( const char * p_dir )
 //*****************************************************************************
 //
 //*****************************************************************************
-const char * Translate_Name(u32 idx)		
-{	
+const char * Translate_Name(u32 idx)
+{
 	if( idx < gLanguage.size())
 	{
-		return gLanguage[ idx ].c_str();	
+		return gLanguage[ idx ].c_str();
 	}
 
 	return "?";
@@ -169,9 +169,9 @@ const char * Translate_Name(u32 idx)
 //*****************************************************************************
 //
 //*****************************************************************************
-u32 Translate_Number()			
-{	
-	return gLanguage.size()-1;			
+u32 Translate_Number()
+{
+	return gLanguage.size()-1;
 }
 
 //*****************************************************************************
@@ -210,9 +210,9 @@ const char * Translate_NameFromIndex( u32 idx )
 //*****************************************************************************
 const char * Restore(char *s, u32 len)
 {
-	for (u32 i = 0; i < len; i++) 
+	for (u32 i = 0; i < len; i++)
 	{
-		if (s[i] == '\\') 
+		if (s[i] == '\\')
 		{
 			if( s[i+1] == 'n' )
 			{
@@ -220,7 +220,7 @@ const char * Restore(char *s, u32 len)
 				i++;
 			}
 			else if( s[i+1] == '\\' )
-			{	
+			{
 				s[i+1] = '\b';	s[i] = '\\';
 				i++;
 			}

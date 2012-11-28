@@ -59,7 +59,7 @@ TEST_DISABLE_SP_FUNCS
 	len--;
 
 	// This is correct - SP_WR_LEN_REG is a read (from RDRAM to device!)
-	if (RWflag == OS_READ)  
+	if (RWflag == OS_READ)
 	{
 		Memory_SP_SetRegister( SP_WR_LEN_REG, len );
 		DMA_SP_CopyToRDRAM();
@@ -305,7 +305,7 @@ TEST_DISABLE_SP_FUNCS
 u32 Patch___osSpTaskLoadInitTask()
 {
 TEST_DISABLE_SP_FUNCS
-	
+
 	return PATCH_RET_NOT_PROCESSED;
 }
 

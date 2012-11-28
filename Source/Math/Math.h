@@ -14,22 +14,22 @@
 
 - sinf(v) = 0.389418, cycles: 856
 - vfpu_sinf(v) = 0.389418, cycles: 160
- 
+
 - cosf(v) = 0.921061, cycles: 990
 - vfpu_cosf(v) = 0.921061, cycles: 154
- 
+
 - acosf(v) = 1.159279, cycles: 1433
 - vfpu_acosf(v) = 1.159280, cycles: 107
- 
+
 - coshf(v) = 1.081072, cycles: 1885
 - vfpu_coshf(v) = 1.081072, cycles: 246
- 
+
 - powf(v, v) = 0.693145, cycles: 3488
 - vfpu_powf(v, v) = 0.693145, cycles: 412
 
 - fabsf(v) = 0.400000, cycles: 7
 - vfpu_fabsf(v) = 0.400000, cycles: 93	<== Slower on VFPU !
- 
+
 - sqrtf(v) = 0.632456, cycles: 40
 - vfpu_sqrtf(v) = 0.632455, cycles: 240	<== Slower on VFPU !
 
@@ -198,7 +198,7 @@ inline float vfpu_round(float x)
 		"vi2f.s	S000, S000, 0\n"
 		"mfv      %0, S000\n"
 	: "=r"(result) : "r"(x));
-	
+
 	return result;
 }
 
@@ -383,8 +383,8 @@ inline int pspFpuIsNaN(float f)
 {
 	int v;
 	asm (
-		".set push\n"		
-		".set noreorder\n"	
+		".set push\n"
+		".set noreorder\n"
 		"lui %0, 0x807F\n"		//
 		"mfc1 $8, %1\n"			// t0 = f
 		"ori %0, %0, 0xFFFF\n"		// v  = 0x807FFFFF
@@ -395,7 +395,7 @@ inline int pspFpuIsNaN(float f)
 		"sltiu $9, $9, 0x00FF\n"	// t1 = (t1<0xFF)
 		"movz %0, $0, $8\n"		// v  = (t0==0) ? 0 : v		if (frac==0) is not NaN
 		"movn %0, $0, $9\n"		// v  = (t1!=0) ? 0 : v		if (exp!=0xFF) is not NAN
-		".set pop\n"		
+		".set pop\n"
 		: "=r"(v)
 		: "f"(f)
 		: "$8", "$9"

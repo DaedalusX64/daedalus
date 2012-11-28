@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DAEDALUS_PSP_USE_ME
 #define DAEDALUS_ENABLE_OS_HOOKS
 
- // We have a VFPU :) 	 
+ // We have a VFPU :)
 #define DAEDALUS_PSP_USE_VFPU
 
 #define DAEDALUS_EXPECT_LIKELY(c) __builtin_expect((c),1)

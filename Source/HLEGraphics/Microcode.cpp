@@ -130,7 +130,7 @@ static void GBIMicrocode_Custom( u32 code_hash, u32 &ucode_version, u32 &ucode_o
 	//	If you believe a title should be here post the line for it from ucodes.txt @ http://www.daedalusx64.com
 	//	Note - Games are in alphabetical order by game title
 	//
-	
+
 	switch( code_hash )
 	{
 	case 0x60256efc:		// "RSP Gfx ucode F3DEXBG.NoN fifo 2.08  Yoshitaka Yasumoto 1999 Nintendo.", "Conker's Bad Fur Day"
@@ -185,7 +185,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 {
 	u32 i;
 	// I think only checking code_base should be enough..
-	u32 idx( code_base + data_base ); 
+	u32 idx( code_base + data_base );
 	//
 
 	// Cheap way to cache ucodes, don't check for strings (too slow!) but check last used ucode entries which is alot faster than string comparison.
@@ -196,9 +196,9 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 		const UcodeInfo &used( gUcodeInfo[ i ] );
 
 		// If this returns false, it means this entry is free to use
-		if( used.set == false )	
+		if( used.set == false )
 			break;
-			
+
 		if( used.index == idx )
 			return used.ucode;
 	}
@@ -209,7 +209,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	char str[256] = "";
 	GBIMicrocode_DetectVersionString( data_base, data_size, str, 256 );
 
-	// It wasn't the same as the last time around, we'll hash it and check if is a custom ucode. 
+	// It wasn't the same as the last time around, we'll hash it and check if is a custom ucode.
 	//
 	u32 code_hash( GBIMicrocode_MicrocodeHash( code_base, code_size ) );
 	u32 ucode_version = GBI_0; // default ucode (Fast3D)
@@ -238,14 +238,14 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 				if( !strncmp(match, "S2DEX", 5) )
 					ucode_version = GBI_2_S2DEX;
 				else
-					ucode_version = GBI_2;	
+					ucode_version = GBI_2;
 			}
 			else
 			{
 				if( !strncmp(match, "S2DEX", 5) )
 					ucode_version = GBI_1_S2DEX;
 				else
-					ucode_version = GBI_1;	
+					ucode_version = GBI_1;
 			}
 		}
 	}

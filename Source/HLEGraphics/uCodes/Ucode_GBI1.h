@@ -355,13 +355,13 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 //*****************************************************************************
 // AST, Yoshi's World, Scooby Doo use this
 //*****************************************************************************
-void DLParser_GBI1_LoadUCode( MicroCodeCommand command ) 
-{ 
+void DLParser_GBI1_LoadUCode( MicroCodeCommand command )
+{
 	u32 code_base = (command.inst.cmd1 & 0x1fffffff);
-    u32 code_size = 0x1000; 
+    u32 code_size = 0x1000;
     u32 data_base = gRDPHalf1 & 0x1fffffff;         // Preceeding RDP_HALF1 sets this up
     u32 data_size = (command.inst.cmd0 & 0xFFFF) + 1;
-	
+
 	DLParser_InitMicrocode( code_base, code_size, data_base, data_size );
 }
 

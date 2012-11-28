@@ -45,14 +45,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Plugins/GraphicsPlugin.h"
 #include "Plugins/AudioPlugin.h"
 
-typedef struct 
+typedef struct
 {
 	const char *name;
 	bool (*init)();
 	void (*final)();
 }SysEntityEntry;
 
-typedef struct 
+typedef struct
 {
 	const char *name;
 	void (*open)();
@@ -132,7 +132,7 @@ static void DisposeAudioPlugin()
 //*****************************************************************************
 //
 //*****************************************************************************
-SysEntityEntry SysInitTable[] = 
+SysEntityEntry SysInitTable[] =
 {
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	{"DebugConsole", CDebugConsole::Create, CDebugConsole::Destroy},
@@ -158,7 +158,7 @@ SysEntityEntry SysInitTable[] =
 //*****************************************************************************
 //
 //*****************************************************************************
-RomEntityEntry RomInitTable[] = 
+RomEntityEntry RomInitTable[] =
 {
 	{"RomBuffer", RomBuffer::Open, RomBuffer::Close},
 	{"Settings", ROM_LoadFile, ROM_UnloadFile},
@@ -194,7 +194,7 @@ bool System_Init()
 	{
 		if (SysInitTable[i].init == NULL)
 			continue;
-		
+
 		if (SysInitTable[i].init())
 		{
 			DBGConsole_Msg(0, "==>Initialized %s", SysInitTable[i].name);
@@ -219,7 +219,7 @@ void System_Open(const char *romname)
 	{
 		if (RomInitTable[i].open == NULL)
 			continue;
-		
+
 		DBGConsole_Msg(0, "==>Open %s", RomInitTable[i].name);
 		RomInitTable[i].open();
 	}
@@ -234,7 +234,7 @@ void System_Close()
 	{
 		if (RomInitTable[i].close == NULL)
 			continue;
-		
+
 		DBGConsole_Msg(0, "==>Close %s", RomInitTable[i].name);
 		RomInitTable[i].close();
 	}
@@ -249,7 +249,7 @@ void System_Finalize()
 	{
 		if (SysInitTable[i].final == NULL)
 			continue;
-		
+
 		DBGConsole_Msg(0, "==>Finalize %s", SysInitTable[i].name);
 		SysInitTable[i].final();
 	}

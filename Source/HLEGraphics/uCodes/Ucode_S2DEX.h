@@ -65,25 +65,25 @@ struct uObjBg
 //*****************************************************************************
 struct uObjMtx
 {
-	s32	  A, B, C, D;	
+	s32	  A, B, C, D;
 
-	short Y;			
-	short X;			
+	short Y;
+	short X;
 
-	u16   BaseScaleY;	
-	u16   BaseScaleX;	
-};				
+	u16   BaseScaleY;
+	u16   BaseScaleX;
+};
 
 //*****************************************************************************
 //
 //*****************************************************************************
 struct uObjSubMtx
 {
-	short Y;			
-	short X;	
+	short Y;
+	short X;
 
-	u16   BaseScaleY;	
-	u16   BaseScaleX;	
+	u16   BaseScaleY;
+	u16   BaseScaleX;
 };
 
 //*****************************************************************************
@@ -101,32 +101,32 @@ struct Matrix2D
 //
 //*****************************************************************************
 struct	uObjScaleBg
-{	
-	u16	imageW;		
-	u16	imageX;		
+{
+	u16	imageW;
+	u16	imageX;
 
-	u16	frameW;		
-	s16	frameX;		
+	u16	frameW;
+	s16	frameX;
 
-	u16	imageH;		
-	u16	imageY; 	
+	u16	imageH;
+	u16	imageY;
 
-	u16	frameH;		
-	s16	frameY;		
+	u16	frameH;
+	s16	frameY;
 
-	u32	imagePtr;	
+	u32	imagePtr;
 
-	u8	imageSiz;	
-	u8	imageFmt;	
-	u16	imageLoad;	
+	u8	imageSiz;
+	u8	imageFmt;
+	u16	imageLoad;
 
-	u16	imageFlip;	
-	u16	imagePal; 	
+	u16	imageFlip;
+	u16	imagePal;
 
-	u16	scaleH;		
-	u16	scaleW;		
+	u16	scaleH;
+	u16	scaleW;
 
-	s32	imageYorig;	
+	s32	imageYorig;
 	u8	padding[4];
 };
 
@@ -134,18 +134,18 @@ struct	uObjScaleBg
 //
 //*****************************************************************************
 struct	uObjTxtrBlock //PSP Format
-{		
-	  u32	type;	
+{
+	  u32	type;
 	  u32	image;
-	  
-	  u16	tsize;	
-	  u16	tmem;	
-	  
-	  u16	sid;	
-	  u16	tline;	
 
-	  u32	flag;	
-	  u32	mask;	
+	  u16	tsize;
+	  u16	tmem;
+
+	  u16	sid;
+	  u16	tline;
+
+	  u32	flag;
+	  u32	mask;
 };
 
 //*****************************************************************************
@@ -153,36 +153,36 @@ struct	uObjTxtrBlock //PSP Format
 //*****************************************************************************
 struct uObjTxtrTile //PSP Format
 {
-	  u32	type;	
+	  u32	type;
 	  u32	image;
 
-	  u16	twidth;	
-	  u16	tmem;	
+	  u16	twidth;
+	  u16	tmem;
 
-	  u16	sid;	
+	  u16	sid;
 	  u16	theight;
 
-	  u32	flag;	
-	  u32	mask;	
-};	
+	  u32	flag;
+	  u32	mask;
+};
 
 //*****************************************************************************
 //
 //*****************************************************************************
 struct uObjTxtrTLUT // PSP Format
-{		
-	u32	type;	
+{
+	u32	type;
 	u32	image;
 
-	u16	pnum;	
-	u16	phead;	
+	u16	pnum;
+	u16	phead;
 
-	u16	sid;	
-	u16   zero;	
+	u16	sid;
+	u16   zero;
 
-	u32	flag;	
-	u32	mask;	
-};		
+	u32	flag;
+	u32	mask;
+};
 
 //*****************************************************************************
 //
@@ -198,27 +198,27 @@ union uObjTxtr
 //
 //*****************************************************************************
 struct uObjSprite
-{		
-	u16  scaleW;		
-	short  objX;			
+{
+	u16  scaleW;
+	short  objX;
 
-	u16  paddingX;		
-	u16  imageW;		
+	u16  paddingX;
+	u16  imageW;
 
-	u16  scaleH;		
-	short  objY;			
+	u16  scaleH;
+	short  objY;
 
-	u16  paddingY;		
-	u16  imageH;		
+	u16  paddingY;
+	u16  imageH;
 
-	u16  imageAdrs;	
-	u16  imageStride;	
+	u16  imageAdrs;
+	u16  imageStride;
 
-	u8   imageFlags;	
-	u8   imagePal;		
-	u8   imageSiz;		
-	u8   imageFmt;		
-};	
+	u8   imageFlags;
+	u8   imagePal;
+	u8   imageSiz;
+	u8   imageFmt;
+};
 
 //*****************************************************************************
 //
@@ -442,7 +442,7 @@ void DLParser_S2DEX_ObjLdtxRectR( MicroCodeCommand command )
 //*****************************************************************************
 // Used for Sprite rotation
 void DLParser_S2DEX_ObjMoveMem( MicroCodeCommand command )
-{	
+{
 	u32 addr = RDPSegAddr(command.inst.cmd1);
 	u32 index = command.inst.cmd0 & 0xFFFF;
 
@@ -489,7 +489,7 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 		u32 size	= ObjTlut->pnum+1;
 		u32 offset  = ObjTlut->phead-0x100;
 
-		DAEDALUS_ASSERT( offset+size > 0x100, "Check me: TMEM" ); 
+		DAEDALUS_ASSERT( offset+size > 0x100, "Check me: TMEM" );
 
 		for( u32 i=offset; i<offset+size; i++ )
 		{

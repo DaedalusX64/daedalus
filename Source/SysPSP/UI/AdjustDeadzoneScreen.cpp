@@ -228,7 +228,7 @@ void	IAdjustDeadzoneScreen::DrawCircle( s32 x, s32 y, s32 r, c32 colour )
 		f32		angle( 2 * PI * f32( i+1 ) / f32( NUM_POINTS ) );
 		s32		x1 = s32( sinf( angle ) * radius ) + x;
 		s32		y1 = s32( cosf( angle ) * radius ) + y;
-		
+
 		mpContext->DrawLine( x0, y0, x1, y1, colour );
 		x0 = x1;
 		y0 = y1;

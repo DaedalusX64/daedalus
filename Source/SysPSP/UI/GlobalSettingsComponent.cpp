@@ -276,7 +276,7 @@ namespace
 			:	CUISetting( name, description )
 		{
 		}
- 
+
 		virtual	void		OnNext()		{ (gGlobalPreferences.DisplayFramerate >= 3) ? 0 : gGlobalPreferences.DisplayFramerate++; }
 		virtual	void		OnPrevious()	{ (gGlobalPreferences.DisplayFramerate <= 0) ? 0 : gGlobalPreferences.DisplayFramerate--; }
 
@@ -393,7 +393,7 @@ void	IGlobalSettingsComponent::Update( float elapsed_time, const v2 & stick, u32
 		{
 			mElements.SelectNext();
 		}
-		
+
 
 		CUIElement *	element( mElements.GetSelectedElement() );
 		if( element != NULL )

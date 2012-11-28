@@ -159,7 +159,7 @@ void CPU_Go()
 
 void Inter_SelectCore()
 {
-   g_pCPUCore = CPU_Go;	
+   g_pCPUCore = CPU_Go;
 }
 
 //*****************************************************************************

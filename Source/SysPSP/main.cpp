@@ -73,17 +73,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Only needed for gprof
 //
 #ifdef DAEDALUS_PSP_GPROF
-#define DAEDALUS_CALLBACKS 
+#define DAEDALUS_CALLBACKS
 #else
 #undef DAEDALUS_CALLBACKS
 #endif
 
 char gDaedalusExePath[MAX_PATH+1] = DAEDALUS_PSP_PATH( "" );
 
-extern "C" 
-{ 
+extern "C"
+{
 	/* Disable FPU exceptions */
-	void _DisableFPUExceptions(); 
+	void _DisableFPUExceptions();
 
 	/* Video Manager functions */
 	int pspDveMgrCheckVideoOut();
@@ -164,19 +164,19 @@ static void DaedalusFWCheck(u32 kernel_button)
 		pspDebugScreenSetXY(0, 0);
 		pspDebugScreenClear();
 		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf("XXXXXXX       XXXXXXX        66666666         444444444\n" );  
-		pspDebugScreenPrintf("X:::::X       X:::::X       6::::::6         4::::::::4\n" );  
-		pspDebugScreenPrintf("X:::::X       X:::::X      6::::::6         4:::::::::4\n" );  
-		pspDebugScreenPrintf("X::::::X     X::::::X     6::::::6         4::::44::::4\n" );  
-		pspDebugScreenPrintf("XXX:::::X   X:::::XXX    6::::::6         4::::4 4::::4\n" );  
-		pspDebugScreenPrintf("   X:::::X X:::::X      6::::::6         4::::4  4::::4\n" );  
-		pspDebugScreenPrintf("    X:::::X:::::X      6::::::6         4::::4   4::::4\n" );  
+		pspDebugScreenPrintf("XXXXXXX       XXXXXXX        66666666         444444444\n" );
+		pspDebugScreenPrintf("X:::::X       X:::::X       6::::::6         4::::::::4\n" );
+		pspDebugScreenPrintf("X:::::X       X:::::X      6::::::6         4:::::::::4\n" );
+		pspDebugScreenPrintf("X::::::X     X::::::X     6::::::6         4::::44::::4\n" );
+		pspDebugScreenPrintf("XXX:::::X   X:::::XXX    6::::::6         4::::4 4::::4\n" );
+		pspDebugScreenPrintf("   X:::::X X:::::X      6::::::6         4::::4  4::::4\n" );
+		pspDebugScreenPrintf("    X:::::X:::::X      6::::::6         4::::4   4::::4\n" );
 		pspDebugScreenPrintf("     X:::::::::X      6::::::::66666   4::::444444::::444\n" );
 		pspDebugScreenPrintf("     X:::::::::X     6::::::::::::::66 4::::::::::::::::4\n" );
 		pspDebugScreenPrintf( "   X:::::X:::::X    6::::::66666:::::64444444444:::::444\n" );
-		pspDebugScreenPrintf("   X:::::X X:::::X   6:::::6     6:::::6         4::::4\n" );  
-		pspDebugScreenPrintf("XXX:::::X   X:::::XXX6:::::6     6:::::6         4::::4\n" );  
-		pspDebugScreenPrintf("X::::::X     X::::::X6::::::66666::::::6         4::::4\n" );  
+		pspDebugScreenPrintf("   X:::::X X:::::X   6:::::6     6:::::6         4::::4\n" );
+		pspDebugScreenPrintf("XXX:::::X   X:::::XXX6:::::6     6:::::6         4::::4\n" );
+		pspDebugScreenPrintf("X::::::X     X::::::X6::::::66666::::::6         4::::4\n" );
 		pspDebugScreenPrintf("X:::::X       X:::::X 66:::::::::::::66        44::::::44\n" );
 		pspDebugScreenPrintf("X:::::X       X:::::X   66:::::::::66          4::::::::4\n" );
 		pspDebugScreenPrintf("XXXXXXX       XXXXXXX     666666666            4444444444\n" );
@@ -200,7 +200,7 @@ static void DaedalusFWCheck(u32 kernel_button)
 				break;
 			if (pad.Buttons & PSP_CTRL_SQUARE)
 				return;
-		}    
+		}
 		sceKernelExitGame();
 	}
 
@@ -262,7 +262,7 @@ static int PanicThread( SceSize args, void * argp )
 	while(1)
 	{
 		SceCtrlData pad;
-		sceCtrlPeekBufferPositive(&pad, 1); 
+		sceCtrlPeekBufferPositive(&pad, 1);
 
 		if( (pad.Buttons & MASK) == MASK )
 		{
@@ -316,7 +316,7 @@ static bool	Initialize()
 	// If (o) is pressed during boot the Emulator will use 32bit
 	// else use default 16bit color mode
 	SceCtrlData pad;
-	sceCtrlPeekBufferPositive(&pad, 1); 
+	sceCtrlPeekBufferPositive(&pad, 1);
 	if( pad.Buttons & PSP_CTRL_CIRCLE ) g32bitColorMode = true;
 	else g32bitColorMode = false;
 
@@ -360,7 +360,7 @@ static bool	Initialize()
 		//
 		if( bMeStarted )
 			PSP_IS_SLIM = true;
-		
+
 		HAVE_DVE = CModule::Load("dvemgr.prx");
 		if (HAVE_DVE >= 0)
 			PSP_TV_CABLE = pspDveMgrCheckVideoOut();
@@ -451,7 +451,7 @@ extern bool gDebugDisplayList;
 //*************************************************************************************
 //
 //*************************************************************************************
-#ifdef DAEDALUS_PROFILE_EXECUTION	
+#ifdef DAEDALUS_PROFILE_EXECUTION
 static CTimer		gTimer;
 #endif
 
@@ -468,7 +468,7 @@ void HandleEndOfFrame()
 	//
 	//	Figure out how long the last frame took
 	//
-#ifdef DAEDALUS_PROFILE_EXECUTION	
+#ifdef DAEDALUS_PROFILE_EXECUTION
 	DumpDynarecStats( elapsed_time );
 #endif
 	//
@@ -477,7 +477,7 @@ void HandleEndOfFrame()
 	static u32 oldButtons = 0;
 	SceCtrlData pad;
 
-	sceCtrlPeekBufferPositive(&pad, 1); 
+	sceCtrlPeekBufferPositive(&pad, 1);
 
 	// If kernelbuttons.prx couldn't be loaded, allow select button to be used instead
 	//
@@ -525,7 +525,7 @@ void HandleEndOfFrame()
 
 		if(p_context != NULL)
 		{
-			// Already set in ClearBackground() @ UIContext.h 
+			// Already set in ClearBackground() @ UIContext.h
 			//p_context->SetBackgroundColour( c32( 94, 188, 94 ) );		// Nice green :)
 
 			CPauseScreen *	pause( CPauseScreen::Create( p_context ) );
@@ -544,7 +544,7 @@ void HandleEndOfFrame()
 	//
 	//	Reset the elapsed time to avoid glitches when we restart
 	//
-#ifdef DAEDALUS_PROFILE_EXECUTION	
+#ifdef DAEDALUS_PROFILE_EXECUTION
 	gTimer.Reset();
 #endif
 
@@ -564,7 +564,7 @@ static void DisplayRomsAndChoose(bool show_splash)
 
 	if(p_context != NULL)
 	{
-		// Already set in ClearBackground() @ UIContext.h 
+		// Already set in ClearBackground() @ UIContext.h
 		//const c32		BACKGROUND_COLOUR = c32( 107, 188, 255 );		// blue
 		//const c32		BACKGROUND_COLOUR = c32( 92, 162, 219 );		// blue
 		//const c32		BACKGROUND_COLOUR = c32( 1, 1, 127 );			// dark blue

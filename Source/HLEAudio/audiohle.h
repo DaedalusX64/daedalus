@@ -297,7 +297,7 @@ struct SAbi2Interleave
 {
 	unsigned		RAddr	: 16;
 	unsigned		LAddr	: 16;
-	unsigned		OutAddr : 12;	// XXXX Not sure if this is correct. 
+	unsigned		OutAddr : 12;	// XXXX Not sure if this is correct.
 	unsigned		Count   : 12;	// Might be :16 :8 (with count implicitly *16)?
 	unsigned		: 8;			// Command
 };

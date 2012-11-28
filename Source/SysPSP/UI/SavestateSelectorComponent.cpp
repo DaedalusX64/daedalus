@@ -182,7 +182,7 @@ void ISavestateSelectorComponent::LoadFolders(){
 	mElements.Clear();
 	if (IO::FindFileOpen( "ms0:/n64/SaveStates" , &find_handle, find_data))
 	{
-		do 
+		do
 		{
 			IO::Path::Combine( full_path, "ms0:/n64/SaveStates", find_data.Name);
 			if(IO::Directory::IsDirectory(full_path) && strlen( find_data.Name ) > 2 )
@@ -203,7 +203,7 @@ void ISavestateSelectorComponent::LoadFolders(){
 	}
 	else if(IO::FindFileOpen( "SaveStates" , &find_handle, find_data))
 	{
-		do 
+		do
 		{
 			IO::Path::Combine( full_path, "SaveStates", find_data.Name);
 			if(IO::Directory::IsDirectory(full_path) && strlen( find_data.Name ) > 2 )
@@ -263,7 +263,7 @@ void ISavestateSelectorComponent::LoadSlots(){
 			mSlotEmpty[ i ] = true;
 		}
 
-		// 
+		//
 		//	Don't allow empty slots to be loaded
 		//
 		if( mAccessType == AT_LOADING && mSlotEmpty[ i ] )
@@ -280,7 +280,7 @@ void ISavestateSelectorComponent::LoadSlots(){
 
 		mElements.Add( element );
 	}
-		
+
 
 }
 
@@ -320,7 +320,7 @@ void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, 
 				deleteSlot(mElements.GetSelectedIndex());
 			}
 		}
-		
+
 		if( new_buttons & PSP_CTRL_UP )
 		{
 			mElements.SelectPrevious();
@@ -354,11 +354,11 @@ void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, 
 			{
 				//delete savestate
 				if(mAccessType == AT_LOADING && isDeletionAllowed)
-				{  
+				{
 				  if ((mElements.GetSelectedElement())->IsSelectable())
 				    deleteButtonTriggered=true;
 				}
-				
+
 			}
 			if( new_buttons & (PSP_CTRL_CIRCLE|PSP_CTRL_SELECT) )
 			{
@@ -423,7 +423,7 @@ void	ISavestateSelectorComponent::Render()
 		if( element != NULL )
 		{
 			const char *		p_description( element->GetDescription() );
-			
+
 			mpContext->DrawTextArea( DESCRIPTION_AREA_LEFT,
 									 DESCRIPTION_AREA_TOP,
 									 DESCRIPTION_AREA_RIGHT - DESCRIPTION_AREA_LEFT,
@@ -440,7 +440,7 @@ void	ISavestateSelectorComponent::Render()
 		s32 y( ( mpContext->GetScreenHeight() - font_height ) / 2 + font_height );
 		mpContext->DrawTextAlign( 0, mpContext->GetScreenWidth(), AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() );
 	}
-	
+
 	if(deleteButtonTriggered)
 	  mpContext->DrawTextAlign(0,480,AT_CENTRE,135,"Press Triangle to delete this savestate",DrawTextUtilities::TextRed,DrawTextUtilities::TextWhite);
 }

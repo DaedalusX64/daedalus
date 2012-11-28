@@ -57,7 +57,7 @@ u32 Vector2ColourClampedVFPU(const v4 * col_in)
 		: "=m" (out_ints) : "m" (*col_in), "m" (SCALE) : "memory" );
 
 	return c32::Make( out_ints[0], out_ints[1], out_ints[2], out_ints[3] );
-} 
+}
 
 //*****************************************************************************
 // Around 320,000 ticks/million
@@ -79,7 +79,7 @@ u32 Vector2ColourUnclampedVFPU(const v4 * col_in)
 		: "=m" (out_ints) : "m" (*col_in), "m" (SCALE) : "memory" );
 
 	return c32::Make( out_ints[0], out_ints[1], out_ints[2], out_ints[3] );
-} 
+}
 #else
 //*****************************************************************************
 // Around 463,000 ticks/million
@@ -115,8 +115,8 @@ inline u32	Vector2ColourClamped( const v4 & colour )
 	//This is faster than the CPU Version
 #ifdef DAEDALUS_PSP_USE_VFPU
 	return Vector2ColourClampedVFPU( &colour );
-#else 	 
-	return Vector2ColourClampedCPU( &colour ); 	 
+#else
+	return Vector2ColourClampedCPU( &colour );
 #endif
 }
 

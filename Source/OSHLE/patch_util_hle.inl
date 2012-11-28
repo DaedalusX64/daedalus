@@ -95,7 +95,7 @@ TEST_DISABLE_UTIL_FUNCS
 			MatchAddr = string + psrc - start;	//Return char address
 			break;
 		}
-		
+
 		if( SrcChar == 0 ) break;	//Return NULL address
 	}
 #else
@@ -223,7 +223,7 @@ u32 Patch_bzero()
 	memset( (void *)ReadAddress(dst), 0, len);
 #else
 	u8 *pdst = (u8*)ReadAddress(dst);
-	
+
 	//Write(0) to the unaligned start(if any), byte by byte...
 	while(((u32)pdst & 0x3) && len)
 	{

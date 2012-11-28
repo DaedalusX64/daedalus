@@ -50,7 +50,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DebugLog.h"
 #include "Debug/DBGConsole.h"
 
-#include "OSHLE/ultra_R4300.h"	
+#include "OSHLE/ultra_R4300.h"
 
 #include "ConfigOptions.h"
 #include "Core/ROM.h"
@@ -326,8 +326,8 @@ void SCPUState::Dump()
 	DBGConsole_Msg(0, "Emulation CPU State:");
 	{
 		for(int i=0; i<32; i+=4)
-			DBGConsole_Msg(0, "%s:%08X %s:%08X %s:%08X %s:%08X", 
-			regName[i], gCPUState.CPU[i]._u32_0, regName[i+1], gCPUState.CPU[i+1]._u32_0, 
+			DBGConsole_Msg(0, "%s:%08X %s:%08X %s:%08X %s:%08X",
+			regName[i], gCPUState.CPU[i]._u32_0, regName[i+1], gCPUState.CPU[i+1]._u32_0,
 			regName[i+2], gCPUState.CPU[i+2]._u32_0, regName[i+3], gCPUState.CPU[i+3]._u32_0);
 
 		DBGConsole_Msg(0, "TargetPC: %08x", gCPUState.TargetPC);

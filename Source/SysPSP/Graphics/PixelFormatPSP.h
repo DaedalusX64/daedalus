@@ -50,7 +50,7 @@ struct Pf5650
 	}
 
 
-	Pf5650() 
+	Pf5650()
 	{
 	}
 
@@ -100,11 +100,11 @@ struct Pf5551
 		return ((r >> (8-BitsR)) << ShiftR) |
 			   ((g >> (8-BitsG)) << ShiftG) |
 			   ((b >> (8-BitsB)) << ShiftB) |
-			   ((a >> (8-BitsA)) << ShiftA);		// Or could do 'a ? MaskA : 0' 
+			   ((a >> (8-BitsA)) << ShiftA);		// Or could do 'a ? MaskA : 0'
 	}
 
 
-	Pf5551() 
+	Pf5551()
 	{
 	}
 
@@ -157,7 +157,7 @@ struct Pf4444
 			   ((a >> (8-BitsA)) << ShiftA);
 	}
 
-	Pf4444() 
+	Pf4444()
 	{
 	}
 
@@ -216,12 +216,12 @@ struct Pf8888
 		return Pf8888( c.GetR(), c.GetG(), c.GetB(), c.GetA() );
 	}
 
-	Pf8888() 
+	Pf8888()
 	{
 	}
 
 	// Would like to remove this
-	explicit Pf8888( u32 bits ) 
+	explicit Pf8888( u32 bits )
 		:	Bits( bits )
 	{
 	}
@@ -260,11 +260,11 @@ struct PfCI44		// This represents 2 pixels
 		u8					Bits;
 	};
 
-	PfCI44() 
+	PfCI44()
 	{
 	}
 
-	explicit PfCI44( u8 bits ) 
+	explicit PfCI44( u8 bits )
 		:	Bits( bits )
 	{
 	}
@@ -288,11 +288,11 @@ struct PfCI8
 		u8					Bits;
 	};
 
-	PfCI8() 
+	PfCI8()
 	{
 	}
 
-	explicit PfCI8( u8 bits ) 
+	explicit PfCI8( u8 bits )
 		:	Bits( bits )
 	{
 	}

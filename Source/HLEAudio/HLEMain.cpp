@@ -52,8 +52,8 @@ AudioHLEInstruction ABIUnknown [0x20] = { // Unknown ABI
 extern AudioHLEInstruction ABI1[0x20];
 //---------------------------------------------------------------------------------------------
 //
-//     ABI 2 : WaveRace JAP, MarioKart 64, Mario64 JAP RumbleEdition, 
-//				 Yoshi Story, Pokemon Games, Zelda64, Zelda MoM (miyamoto) 
+//     ABI 2 : WaveRace JAP, MarioKart 64, Mario64 JAP RumbleEdition,
+//				 Yoshi Story, Pokemon Games, Zelda64, Zelda MoM (miyamoto)
 //				 Most NCL or NOA games (Most commands)
 extern AudioHLEInstruction ABI2[0x20];
 //---------------------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ void Audio_Ucode()
 		bAudioChanged = true;
 		Audio_Ucode_Detect( pTask );
 	}
-	
+
 	gAudioHLEState.LoopVal = 0;
 	//memset( gAudioHLEState.Segments, 0, sizeof( gAudioHLEState.Segments ) );
 
@@ -133,7 +133,7 @@ void Audio_Ucode()
 	u32 ucode_size = (pTask->t.data_size >> 3);
 
 	AudioHLECommand command;
-	
+
     do{
         command.cmd0 = *p_alist++;
         command.cmd1 = *p_alist++;

@@ -152,7 +152,7 @@ public:
 		case BC_ENVIRONMENT_ALPHA:	return "EnvironmentAlpha";
 		case BC_1:					return "1";
 		case BC_0:					return "0";
-		}	
+		}
 
 		DAEDALUS_ERROR( "Unhandled constant" );
 		return "?";

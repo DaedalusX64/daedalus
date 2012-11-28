@@ -55,9 +55,9 @@ TEST_DISABLE_FUNCS
     {
         Write32Bits(cs+i*4,0);
     }
-	
+
 	Write32Bits(cs+0,CONT_ABSOLUTE);
-    if(attached) 
+    if(attached)
 		Write8Bits(attached,1);
 
 	printf("osContInit(0x%08x, 0x%08x, 0x%08x), ra = 0x%08x\n",
