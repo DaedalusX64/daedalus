@@ -112,7 +112,7 @@ void	CSynchroniser::HandleOutOfStorage()
 void	CSynchroniser::HandleOutOfInput()
 {
 	const char *	message( "Out of input for synchroniser" );
-	DBGConsole_Msg( 0, message );	
+	DBGConsole_Msg( 0, message );
 	Destroy();
 }
 

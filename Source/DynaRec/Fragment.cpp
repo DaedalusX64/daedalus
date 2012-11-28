@@ -106,7 +106,7 @@ CFragment::CFragment( CCodeBufferManager * p_manager,
 //*************************************************************************************
 // Create a Fragement for Patch Function
 //*************************************************************************************
-CFragment::CFragment(CCodeBufferManager * p_manager, u32 entry_address, 
+CFragment::CFragment(CCodeBufferManager * p_manager, u32 entry_address,
 						u32 function_length, void* function_Ptr)
 	:	mEntryAddress( entry_address )
 	,	mInputLength(function_length  * sizeof( OpCode ) )
@@ -647,7 +647,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 					char opinfo[128];
 					SprintOpCodeInfo( opinfo, trace[i].Address, trace[i].OpCode );
 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i].Address, trace[i].OpCode._u32, opinfo);
-					
+
 					SprintOpCodeInfo( opinfo, trace[i+1].Address, trace[i+1].OpCode );
 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i+1].Address, trace[i+1].OpCode._u32, opinfo);
 
@@ -661,7 +661,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 					char opinfo[128];
 					SprintOpCodeInfo( opinfo, trace[i].Address, trace[i].OpCode );
 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i].Address, trace[i].OpCode._u32, opinfo);
-					
+
 					SprintOpCodeInfo( opinfo, trace[i+1].Address, trace[i+1].OpCode );
 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i+1].Address, trace[i+1].OpCode._u32, opinfo);
 					}
@@ -673,7 +673,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 					char opinfo[128];
 					SprintOpCodeInfo( opinfo, trace[i].Address, trace[i].OpCode );
 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i].Address, trace[i].OpCode._u32, opinfo);
-					
+
 					SprintOpCodeInfo( opinfo, trace[i+1].Address, trace[i+1].OpCode );
 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i+1].Address, trace[i+1].OpCode._u32, opinfo);
 					}
@@ -745,7 +745,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 		if( !details.Likely && details.DelaySlotTraceIndex != -1 )
 		{
 			const STraceEntry & ti( trace[ details.DelaySlotTraceIndex ] );
-#ifdef DAEDALUS_DEBUG_CONSOLE			
+#ifdef DAEDALUS_DEBUG_CONSOLE
 			OpCode		delay_op_code( ti.OpCode );
 #endif
 #ifdef FRAGMENT_SIMULATE_EXECUTION
@@ -837,7 +837,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager, CCodeLabel function_pt
 	CCodeGenerator *p_generator = p_manager->StartNewBlock();
 	mEntryPoint = p_generator->GetEntryPoint();
 
-	
+
 #ifdef FRAGMENT_RETAIN_ADDITIONAL_INFO
 		p_generator->Initialise( mEntryAddress, 0, &mHitCount, &gCPUState,  register_usage);
 #else
@@ -855,7 +855,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager, CCodeLabel function_pt
 	p_generator->Finalise();
 	mFragmentFunctionLength = p_manager->FinaliseCurrentBlock();
 	mOutputLength = mFragmentFunctionLength - ADDITIONAL_OUTPUT_BYTES;
-	
+
 	delete p_generator;
 }
 #endif

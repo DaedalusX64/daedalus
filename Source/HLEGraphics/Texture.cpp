@@ -81,7 +81,7 @@ namespace
 
 		void *		texels( &gTexelBuffer[0] );
 		Pf8888 *	palette( IsTextureFormatPalettised( dst.Format ) ? gPaletteBuffer : NULL );
-		
+
 		//memset( texels, 0, buffer_size );
 
 		// Return a temporary buffer to use
@@ -110,7 +110,7 @@ namespace
 	}
 
 	// This is intended for use with swizzled and unswizzled textures, the
-	// assumption being that 2 and 4 byte pixels are swizzled around in 
+	// assumption being that 2 and 4 byte pixels are swizzled around in
 	// such a way that their bytes remain in the same order in memory.
 	template< typename T >
 	void RecolourTexture( void * p_data, u32 width, u32 height, u32 stride, c32 c )
@@ -251,7 +251,7 @@ namespace
 		{
 			data = AddByteOffset( data, n64_height * native_stride );
 		}
-		
+
 		//
 		//	At this point all the rows up to the n64 height have been padded out.
 		//	We need to duplicate the last row for every additional native row.
@@ -373,7 +373,7 @@ namespace
 			for( u32 y = 0; y < height; ++y )
 			{
 				p_src = AddByteOffset( p_src, -s32(src_stride) );
-			
+
 				// Copy regular pixels
 				CopyRow< T >( p_dst, p_src, width );
 
@@ -494,14 +494,14 @@ bool CTexture::Initialise()
 }
 
 //*************************************************************************************
-// 
+//
 //*************************************************************************************
 void CTexture::UpdateTexture( const TextureInfo & texture_info, CNativeTexture * texture, bool recolour, c32 colour )
 {
 	DAEDALUS_PROFILE( "Texture Conversion" );
 
 	DAEDALUS_ASSERT( texture != NULL, "No texture" );
-		
+
 	if ( texture != NULL && texture->HasData() )
 	{
 		void *	texels;
@@ -553,7 +553,7 @@ void CTexture::UpdateTexture( const TextureInfo & texture_info, CNativeTexture *
 }
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 //*************************************************************************************
-// 
+//
 //*************************************************************************************
 void	CTexture::DumpTexture() const
 {
@@ -564,14 +564,14 @@ void	CTexture::DumpTexture() const
 		char dumpdir[MAX_PATH+1];
 
 		IO::Path::Combine( dumpdir, g_ROM.settings.GameName.c_str(), "Textures" );
-		
+
 		Dump_GetDumpDirectory( filepath, dumpdir );
-		
+
 		sprintf( filename, "%08x-%s_%dbpp-%dx%d-%dx%d.png",
 							mTextureInfo.GetLoadAddress(), mTextureInfo.GetFormatName(), mTextureInfo.GetSizeInBits(),
 							0, 0,		// Left/Top
 							mTextureInfo.GetWidth(), mTextureInfo.GetHeight() );
-		
+
 		IO::Path::Append( filepath, filename );
 
 		void *	texels;
@@ -596,7 +596,7 @@ void	CTexture::DumpTexture() const
 }
 #endif
 //*************************************************************************************
-// 
+//
 //*************************************************************************************
 void	CTexture::UpdateIfNecessary()
 {
@@ -619,11 +619,11 @@ void	CTexture::UpdateIfNecessary()
 		mFrameLastUpToDate = gRDPFrame;
 	}
 
-	mFrameLastUsed = gRDPFrame;			
+	mFrameLastUsed = gRDPFrame;
 }
 
 //*************************************************************************************
-// 
+//
 //*************************************************************************************
 bool	CTexture::IsFresh() const
 {
@@ -633,7 +633,7 @@ bool	CTexture::IsFresh() const
 }
 
 //*************************************************************************************
-// 
+//
 //*************************************************************************************
 bool	CTexture::HasExpired() const
 {
@@ -641,7 +641,7 @@ bool	CTexture::HasExpired() const
 	{
 		//Hack to make WONDER PROJECT J2 work (need to reload some textures every frame!) //Corn
 		if( (g_ROM.GameHacks == WONDER_PROJECTJ2) && (mTextureInfo.GetTLutFormat() == G_TT_RGBA16) && (mTextureInfo.GetSize() == G_IM_SIZ_8b) ) return true;
-		
+
 		//Hack for Worms Armageddon
 		if( (g_ROM.GameHacks == WORMS_ARMAGEDDON) && (mTextureInfo.GetSize() == G_IM_SIZ_8b) && (mTextureContentsHash != mTextureInfo.GenerateHashValue()) ) return true;
 
@@ -654,7 +654,7 @@ bool	CTexture::HasExpired() const
 
 	//Otherwise we wait 20+random(0-3) frames before trashing the texture if unused
 	//Spread trashing them over time so not all get killed at once (lower value uses less VRAM) //Corn
-	return gRDPFrame - mFrameLastUsed > (20 + (pspFastRand() & 0x3)); 
+	return gRDPFrame - mFrameLastUsed > (20 + (pspFastRand() & 0x3));
 }
 
 //*****************************************************************************

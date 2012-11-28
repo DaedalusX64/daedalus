@@ -47,7 +47,7 @@ void Save::Reset()
 	u8			buffer[2048];
 
 	IO::Directory::EnsureExists(g_DaedalusConfig.szSaveDir);
-	
+
 	switch(g_ROM.settings.SaveType)
 	{
 	case SAVE_TYPE_EEP4K:
@@ -96,7 +96,7 @@ void Save::Reset()
 		}
 		else
 		{
-			DBGConsole_Msg(0, "Save File [C%s] cannot be found.", szSaveFileName);	
+			DBGConsole_Msg(0, "Save File [C%s] cannot be found.", szSaveFileName);
 		}
 	}
 	// init mempack
@@ -111,7 +111,7 @@ void Save::Reset()
 	}
 	else
 	{
-		DBGConsole_Msg(0, "MemPack File [C%s] cannot be found.", szMempackFileName);		
+		DBGConsole_Msg(0, "MemPack File [C%s] cannot be found.", szMempackFileName);
 		InitMempackContent();
 		mempackDirty = true;
 	}
@@ -162,7 +162,7 @@ void Save::Flush(bool force)
 // Initialisation values taken from PJ64
 //
 static u8 MempackInitilize[] =
-{ 
+{
 	0x81,0x01,0x02,0x03, 0x04,0x05,0x06,0x07, 0x08,0x09,0x0a,0x0b, 0x0C,0x0D,0x0E,0x0F,
 	0x10,0x11,0x12,0x13, 0x14,0x15,0x16,0x17, 0x18,0x19,0x1A,0x1B, 0x1C,0x1D,0x1E,0x1F,
 	0xFF,0xFF,0xFF,0xFF, 0x05,0x1A,0x5F,0x13, 0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,

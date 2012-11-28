@@ -45,7 +45,7 @@ void DLParser_GBI2_Vtx( MicroCodeCommand command )
     // Check that address is valid...
 	// Only games I seen that set this are Mario Golf/Tennis, but it looks like is caused by a dynarec issue, anyways they crash eventually
 	DAEDALUS_ASSERT( (address + (n*16) ) < MAX_RAM_ADDRESS, "Address out of range (0x%08x)", address );
- 
+
 	PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -185,10 +185,10 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 
 001889F8: DC08060A 80188708 CMD Zelda_MOVEMEM  Movemem[0806] <- 80188708
 !light 0 color 0.12 0.16 0.35 dir 0.01 0.00 0.00 0.00 (2 lights) [ 1E285A00 1E285A00 01000000 00000000 ]
-data(00188708): 1E285A00 1E285A00 01000000 00000000 
+data(00188708): 1E285A00 1E285A00 01000000 00000000
 00188A00: DC08090A 80188718 CMD Zelda_MOVEMEM  Movemem[0809] <- 80188718
 !light 1 color 0.23 0.25 0.30 dir 0.01 0.00 0.00 0.00 (2 lights) [ 3C404E00 3C404E00 01000000 00000000 ]
-data(00188718): 3C404E00 3C404E00 01000000 00000000 
+data(00188718): 3C404E00 3C404E00 01000000 00000000
 00188A08: DC080C0A 80188700 CMD Zelda_MOVEMEM  Movemem[080C] <- 80188700
 !light 2 color 0.17 0.16 0.26 dir 0.23 0.31 0.70 0.00 (2 lights) [ 2C294300 2C294300 1E285A00 1E285A00 ]
 */
@@ -415,13 +415,13 @@ void DLParser_GBI2_SetOtherModeL( MicroCodeCommand command )
 void DLParser_GBI2_Texture( MicroCodeCommand command )
 {
 	u32 tile    = command.texture.tile;
-    bool enable = command.texture.enable_gbi2;   // Seems to use 0x02                    
+    bool enable = command.texture.enable_gbi2;   // Seems to use 0x02
 
 	DL_PF("    Level[%d] Tile[%d] %s", command.texture.level, tile, enable ? "enable":"disable");
 
 	PSPRenderer::Get()->SetTextureTile( tile );
     PSPRenderer::Get()->SetTextureEnable( enable );
-	
+
 	f32 scale_s = f32(command.texture.scaleS) / (65535.0f * 32.0f);
 	f32 scale_t = f32(command.texture.scaleT)  / (65535.0f * 32.0f);
 
@@ -511,7 +511,7 @@ void DLParser_GBI2_Line3D( MicroCodeCommand command )
         command.inst.cmd1 = *pCmdBase++;
         pc += 8;
     }while( command.inst.cmd == G_GBI2_LINE3D );
-	
+
 	gDlistStack.address[gDlistStackPointer] = pc-8;
 
     if (tris_added)

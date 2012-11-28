@@ -286,7 +286,7 @@ bool	IRomDB::OpenDB( const char * filename )
 	}
 
 	mRomDetails.resize( num_details );
-	if( fread( &mRomDetails[0], sizeof(RomDetails), num_details, fh ) != num_details ) 
+	if( fread( &mRomDetails[0], sizeof(RomDetails), num_details, fh ) != num_details )
 	{
 		goto fail;
 	}

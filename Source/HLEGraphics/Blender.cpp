@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspgu.h>
 
 
-/* 
+/*
 
 To Devs:
 
@@ -52,14 +52,14 @@ To Devs:
  case MAKE_BLEND_MODE( BLEND_FOG_ASHADE1, BLEND_NOOP1 ):
 
  Next step is figuring out how to handled the created blender.
- I'll leave this step to common sense since you only have three choices :) 
+ I'll leave this step to common sense since you only have three choices :)
 
  The format that our blenders should be for example :
 
 	// Blender:
 	// Used on the F-Zero - Tracks Correction
 case MAKE_BLEND_MODE( BLEND_FOG_ASHADE1, BLEND_PASS3 ):
-	// c800 - First:  Fog * AShade + In * 1-A 
+	// c800 - First:  Fog * AShade + In * 1-A
 	// 3200 - Second:  Fog * AShade + In * 1-A
 
 
@@ -112,7 +112,7 @@ Possible Blending Inputs:
 Possible Blending Factors:
     A-IN    -   Alpha from color combiner
     A-MEM   -   Alpha from current frame buffer
-    (1-A)   -   
+    (1-A)   -
     A-FOG   -   Alpha of fog color
     A-SHADE -   Alpha of shade
     1   -   1
@@ -128,7 +128,7 @@ const char * sc_szBlClr[4] = { "In",  "Mem",  "Bl",     "Fog" };
 const char * sc_szBlA1[4]  = { "AIn", "AFog", "AShade", "0" };
 const char * sc_szBlA2[4]  = { "1-A", "AMem", "1",      "?" };
 
-inline void DebugBlender( u32 blender )	
+inline void DebugBlender( u32 blender )
 {
 	static u32 mBlender = 0;
 
@@ -151,7 +151,7 @@ inline void DebugBlender( u32 blender )
 void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 {
 	switch ( blendmode )
-	{	
+	{
 	//case 0x0044:					// ?
 	//case 0x0055:					// ?
 	case 0x0c08:					// In * 0 + In * 1 || :In * AIn + In * 1-A				Tarzan - Medalion in bottom part of the screen
@@ -159,19 +159,19 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	case 0x0f0a:					// In * 0 + In * 1 || :In * 0 + In * 1					SSV - ??? and MM - Walls, Wipeout - Mountains
 	case 0x0fa5:					// In * 0 + Bl * AMem || :In * 0 + Bl * AMem			OOT Menu
 	//case 0x5f50:					// ?
-	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A		Paper Mario Menu	
+	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A		Paper Mario Menu
 	case 0xc302:					// Fog * AIn + In * 1-A || :In * 0 + In * 1				ISS64 - Ground
 	case 0xc702:					// Fog * AFog + In * 1-A || :In * 0 + In * 1			Donald Duck - Sky
 	//case 0xc811:					// ?
 	case 0xfa00:					// Fog * AShade + In * 1-A || :Fog * AShade + In * 1-A	F-Zero - Power Roads
 	//case 0x07c2:					// In * AFog + Fog * 1-A || In * 0 + In * 1				Conker - ??
-		sceGuDisable( GU_BLEND );	
+		sceGuDisable( GU_BLEND );
 		break;
 
 	//
 	// Add here blenders which work fine with default case but causes too much spam, this disabled in release mode
 	//
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	//case 0x55f0:					// Mem * AFog + Fog * 1-A || :Mem * AFog + Fog * 1-A	Bust a Move 3 - ???
 	case 0x0150:					// In * AIn + Mem * 1-A || :In * AFog + Mem * 1-A		Spiderman - Waterfall Intro
 	case 0x0f5a:					// In * 0 + Mem * 1 || :In * 0 + Mem * 1				Starwars Racer
@@ -216,7 +216,7 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 		}
 		break;
 	}
-}	
+}
 
 //*****************************************************************************
 //

@@ -11,12 +11,12 @@ TEST_DISABLE_MESG_FUNCS
 	u32 msg   = gGPR[REG_a2]._u32_0;
 	/*if (vent < 23)
 	{
-		DBGConsole_Msg(0, "osSetEventMesg(%s, 0x%08x, 0x%08x)", 
+		DBGConsole_Msg(0, "osSetEventMesg(%s, 0x%08x, 0x%08x)",
 			g_szEventStrings[vent], queue, msg);
 	}
 	else
 	{
-		DBGConsole_Msg(0, "osSetEventMesg(%d, 0x%08x, 0x%08x)", 
+		DBGConsole_Msg(0, "osSetEventMesg(%d, 0x%08x, 0x%08x)",
 			vent, queue, msg);
 	}*/
 	const u32 p = VAR_ADDRESS(osEventMesgArray) + (vent * 8);
@@ -40,12 +40,12 @@ TEST_DISABLE_MESG_FUNCS
 	u32 msg   = gGPR[REG_a2]._u32_0;
 	/*if (vent < 23)
 	{
-		DBGConsole_Msg(0, "osSetEventMesg(%s, 0x%08x, 0x%08x)", 
+		DBGConsole_Msg(0, "osSetEventMesg(%s, 0x%08x, 0x%08x)",
 			g_szEventStrings[vent], queue, msg);
 	}
 	else
 	{
-		DBGConsole_Msg(0, "osSetEventMesg(%d, 0x%08x, 0x%08x)", 
+		DBGConsole_Msg(0, "osSetEventMesg(%d, 0x%08x, 0x%08x)",
 			vent, queue, msg);
 	}*/
 	const u32 p = VAR_ADDRESS(osEventMesgArray) + (vent * 8);
@@ -117,12 +117,12 @@ TEST_DISABLE_MESG_FUNCS
 	/*if (queue == 0x80007d40)
 	{
 	DBGConsole_Msg(0, "Thread: 0x%08x", Read32Bits(VAR_ADDRESS(osActiveThread)));
-	DBGConsole_Msg(0, "osRecvMsg(0x%08x, 0x%08x, %s) (%d/%d pending)", 
+	DBGConsole_Msg(0, "osRecvMsg(0x%08x, 0x%08x, %s) (%d/%d pending)",
 		queue, msg, BlockFlag == OS_MESG_BLOCK ? "Block" : "Don't Block",
 		ValidCount, MsgCount);
 	}*/
 
-	// If there are no valid messages, then we either block until 
+	// If there are no valid messages, then we either block until
 	// one becomes available, or return immediately
 	if (ValidCount == 0)
 	{
@@ -142,12 +142,12 @@ TEST_DISABLE_MESG_FUNCS
 	//DBGConsole_Msg(0, "  Processing Pending");
 
 	u32 first = QuickRead32Bits(pBase, 0x0c);
-	
+
 	//Store message in pointer
 	if (msg != 0)
 	{
 		//DBGConsole_Msg(0, "  Retrieving message");
-		
+
 		u32 MsgBase = QuickRead32Bits(pBase, 0x14);
 
 		// Offset to first valid message
@@ -231,16 +231,16 @@ TEST_DISABLE_MESG_FUNCS
 
 	u32 ValidCount= QuickRead32Bits(pBase, 0x8);
 	u32 MsgCount  = QuickRead32Bits(pBase, 0x10);
-	
+
 	/*if (queue == 0x80007d40)
 	{
 		DBGConsole_Msg(0, "Thread: 0x%08x", Read32Bits(VAR_ADDRESS(osActiveThread)));
-	DBGConsole_Msg(0, "osSendMsg(0x%08x, 0x%08x, %s) (%d/%d pending)", 
+	DBGConsole_Msg(0, "osSendMsg(0x%08x, 0x%08x, %s) (%d/%d pending)",
 		queue, msg, BlockFlag == OS_MESG_BLOCK ? "Block" : "Don't Block",
 		ValidCount, MsgCount);
 	}*/
 
-	// If the message queue is full, then we either block until 
+	// If the message queue is full, then we either block until
 	// space becomes available, or return immediately
 	if (ValidCount >= MsgCount)
 	{
@@ -262,7 +262,7 @@ TEST_DISABLE_MESG_FUNCS
 	//DBGConsole_Msg(0, "  Processing Pending");
 	DAEDALUS_ASSERT( MsgCount != 0, "Invalid message count" );
 	DAEDALUS_ASSERT( MsgCount != u32(~0) && first+ValidCount != 0x80000000, "Invalid message count" );
-	
+
 	// Point first to the next valid message
 	/*if (MsgCount == 0)
 	{
@@ -277,7 +277,7 @@ TEST_DISABLE_MESG_FUNCS
 	else*/
 	//{
 	u32 slot = (first + ValidCount) % MsgCount;
-	
+
 	u32 MsgBase = QuickRead32Bits(pBase, 0x14);
 
 	// Offset to first valid message
@@ -286,7 +286,7 @@ TEST_DISABLE_MESG_FUNCS
 	Write32Bits(MsgBase, msg);
 
 	//}
-	
+
 	// Increase the number of valid messages
 	ValidCount++;
 

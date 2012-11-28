@@ -61,22 +61,22 @@ inline void R4300_JumpToInterruptVector(u32 exception_vector)
 	DAEDALUS_ASSERT( mi_interrupt_set == cause_int_3_set, "CAUSE_IP3 inconsistant with MI_INTR_REG" );
 #endif
 
-	gCPUState.CPUControl[C0_SR]._u32 |= SR_EXL;							
-	gCPUState.CPUControl[C0_EPC]._u32  = gCPUState.CurrentPC;          
+	gCPUState.CPUControl[C0_SR]._u32 |= SR_EXL;
+	gCPUState.CPUControl[C0_EPC]._u32  = gCPUState.CurrentPC;
 
 
 	if(gCPUState.Delay == EXEC_DELAY)
 	{
-		gCPUState.CPUControl[C0_CAUSE]._u32 |= CAUSE_BD;				
-		gCPUState.CPUControl[C0_EPC]._u32   -= 4;						
+		gCPUState.CPUControl[C0_CAUSE]._u32 |= CAUSE_BD;
+		gCPUState.CPUControl[C0_EPC]._u32   -= 4;
 	}
 	else
 	{
-		gCPUState.CPUControl[C0_CAUSE]._u32 &= ~CAUSE_BD;				
+		gCPUState.CPUControl[C0_CAUSE]._u32 &= ~CAUSE_BD;
 	}
 
-	CPU_SetPC( exception_vector );							
-	gCPUState.Delay = NO_DELAY;											
+	CPU_SetPC( exception_vector );
+	gCPUState.Delay = NO_DELAY;
 }
 
 //*****************************************************************************
@@ -88,7 +88,7 @@ void R4300_Exception_Break()
 	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
 
 	// Clear CAUSE_EXCMASK
-	SET_EXCEPTION( CAUSE_EXCMASK, EXC_BREAK ) 
+	SET_EXCEPTION( CAUSE_EXCMASK, EXC_BREAK )
 
 	gExceptionVector = E_VEC;
 	gExceptionPC = gCPUState.CurrentPC;
@@ -105,7 +105,7 @@ void R4300_Exception_Syscall()
 	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
 
 	// Clear CAUSE_EXCMASK
-	SET_EXCEPTION( CAUSE_EXCMASK, EXC_SYSCALL ) 
+	SET_EXCEPTION( CAUSE_EXCMASK, EXC_SYSCALL )
 
 	gExceptionVector = E_VEC;
 	gExceptionPC = gCPUState.CurrentPC;
@@ -144,7 +144,7 @@ void R4300_Exception_FP()
 	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
 
 	// Clear CAUSE_EXCMASK
-	SET_EXCEPTION( CAUSE_EXCMASK, EXC_FPE ) 
+	SET_EXCEPTION( CAUSE_EXCMASK, EXC_FPE )
 
 	gExceptionVector = E_VEC;
 	gExceptionPC = gCPUState.CurrentPC;
@@ -168,7 +168,7 @@ void R4300_Exception_TLB( u32 virtual_address, u32 exception_code, u32 exception
 	gCPUState.CPUControl[C0_ENTRYHI]._u32 &= 0x00001FFF;	// Mask off the top bit 13-31 
 	gCPUState.CPUControl[C0_ENTRYHI]._u32 |= (virtual_address & 0xFFFFE000);
 
-	SET_EXCEPTION( CAUSE_EXCMASK, exception_code ) 
+	SET_EXCEPTION( CAUSE_EXCMASK, exception_code )
 
 	gExceptionVector = exception_vector;
 	gExceptionPC = gCPUState.CurrentPC;
@@ -221,5 +221,5 @@ void R4300_Handle_Interrupt()
 			SET_EXCEPTION( CAUSE_EXCMASK, EXC_INT )
 			R4300_JumpToInterruptVector( E_VEC );
 		}
-	} 
+	}
 }

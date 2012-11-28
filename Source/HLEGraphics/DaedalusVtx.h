@@ -32,7 +32,7 @@ ALIGNED_TYPE(struct, DaedalusVtx4, 16)
     v4	ProjectedPos;
     v4	Colour;
     v2	Texture;
-	
+
 	u32	ClipFlags;
 	u32 Pad;
 

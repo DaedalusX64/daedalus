@@ -95,7 +95,7 @@ void TLBEntry::UpdateValue(u32 _pagemask, u32 _hi, u32 _pfno, u32 _pfne)
 
 void TLBEntry::Reset()
 {
-	UpdateValue(0x00000000, 0x80000000, 0, 0);		
+	UpdateValue(0x00000000, 0x80000000, 0, 0);
 }
 
 //*****************************************************************************

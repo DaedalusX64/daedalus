@@ -114,7 +114,7 @@ TEST_DISABLE_EEPROM_FUNCS
 
 	//DBGConsole_Msg(0, "osEepromRead(0x%08x, 0x%08x, 0x%08x), ra = 0x%08x",
 	//	dwMQ, dwPage, dwBuf, (u32)g_qwGPR[REG_ra]);
-	
+
 	return PATCH_RET_NOT_PROCESSED;
 }
 
@@ -132,7 +132,7 @@ TEST_DISABLE_EEPROM_FUNCS
 
 	//DBGConsole_Msg(0, "[WosEepromLongRead(0x%08x, %d, 0x%08x, 0x%08x), ra = 0x%08x]",
 	//	dwMQ, dwPage, dwBuf, dwLen, (u32)g_qwGPR[REG_ra]);
-	
+
 	return PATCH_RET_NOT_PROCESSED;
 
 }
@@ -154,7 +154,7 @@ TEST_DISABLE_EEPROM_FUNCS
 
 	//DBGConsole_Msg(0, "osEepromWrite(0x%08x, %d, [0x%08x] = 0x%08x%08x), ra = 0x%08x",
 	//	dwMQ, dwPage, dwBuf, dwA, dwB, (u32)g_qwGPR[REG_ra]);
-	
+
 	return PATCH_RET_NOT_PROCESSED;
 }
 

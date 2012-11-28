@@ -11,15 +11,15 @@ TEST_DISABLE_TIMER_FUNCS
 	s64 TimeLo = (s64)gGPR[REG_a1]._s32_0;
 	//s64 qwTimeHi = (s64)(s32)gGPR[REG_a0];
 
-	count = (s64)gCPUState.CPUControl[C0_COUNT]._s32;	
+	count = (s64)gCPUState.CPUControl[C0_COUNT]._s32;
 
-	Write32Bits(VAR_ADDRESS(osSystemLastCount), (u32)count);	
+	Write32Bits(VAR_ADDRESS(osSystemLastCount), (u32)count);
 
 	sum = (s64)(s32)((s32)count + (s32)TimeLo);
 
 	CPU_SetCompare(sum);
 
-	return PATCH_RET_JR_RA;	
+	return PATCH_RET_JR_RA;
 }
 
 //*****************************************************************************
@@ -33,7 +33,7 @@ TEST_DISABLE_TIMER_FUNCS
 	u32 InsertTimer = Read32Bits(TopTimer + 0x00);	// Read next
 	u32 Temp		= InsertTimer;
 
-	u8 * pNewTimerBase	  = (u8 *)ReadAddress(NewTimer);	
+	u8 * pNewTimerBase	  = (u8 *)ReadAddress(NewTimer);
 	u8 * pInsertTimerBase = (u8 *)ReadAddress(InsertTimer);
 
 	u64 NewValue    = QuickRead64Bits(pNewTimerBase, 0x10);	// Check ordering is correct?!
@@ -43,7 +43,7 @@ TEST_DISABLE_TIMER_FUNCS
 	/*
 	if ( InsertTimer == 0 )
 	{
-		// What gives? 
+		// What gives?
 		DBGConsole_Msg( 0, "[W__osInsertTimer with NULL insert timer" );
 
 		// We can quit, because we've not written anything
@@ -57,7 +57,7 @@ TEST_DISABLE_TIMER_FUNCS
 
 		InsertTimer = QuickRead32Bits(pInsertTimerBase, 0x0);	// Read next timer
 		InsertValue = QuickRead64Bits(pInsertTimerBase, 0x10);
-		
+
 		if (InsertTimer == TopTimer)	// At the end of the list?
 			break;
 	}
@@ -65,7 +65,7 @@ TEST_DISABLE_TIMER_FUNCS
 	/// Save the modified time value
 	QuickWrite64Bits(pNewTimerBase, 0x10, NewValue);
 
-	
+
 	// InsertValue was modified, need to update pInsertTimerBase.. There has to be a better way than this?
 	// Otherwise we can't use QuickRead/Write methods afterwards when pInsertTimerBase is used as base
 	if( Temp != InsertTimer )
@@ -98,7 +98,7 @@ TEST_DISABLE_TIMER_FUNCS
 
 	gGPR[REG_v0]._s64 = (s64)(s32)(NewValue >> 32);
 	gGPR[REG_v1]._s64 = (s64)(s32)((u32)NewValue);
-	
+
 	return PATCH_RET_JR_RA;
 }
 
@@ -109,11 +109,11 @@ u32 Patch___osTimerServicesInit_Mario()
 {
 TEST_DISABLE_TIMER_FUNCS
 	u32 hi    = VAR_ADDRESS(osSystemTimeHi);
-	DAEDALUS_ASSERT( hi, "TimeHi NULL, check me!");	
+	DAEDALUS_ASSERT( hi, "TimeHi NULL, check me!");
 
 	// Get base address from TimeHi, and add offset of 4 bytes representing two uint64s
-	u8 * pTimeBase	 = (u8 *)ReadAddress(hi);	
-	
+	u8 * pTimeBase	 = (u8 *)ReadAddress(hi);
+
 	DBGConsole_Msg(0, "Initialising Timer Services");
 	QuickWrite32Bits(pTimeBase, 0x0, 0);	// TimeHi
 	QuickWrite32Bits(pTimeBase, 0x4, 0);	// TimeLo
@@ -156,7 +156,7 @@ TEST_DISABLE_TIMER_FUNCS
 
 	//DBGConsole_Msg(0, "osSetTime(0x%08x%08x)", TimeHi, TimeLo);
 
-	u8 * pTimeBase	 = (u8 *)ReadAddress(VAR_ADDRESS(osSystemTimeHi));	
+	u8 * pTimeBase	 = (u8 *)ReadAddress(VAR_ADDRESS(osSystemTimeHi));
 
 	QuickWrite32Bits(pTimeBase, 0x0, gGPR[REG_a1]._u32_0);	// TimeHi
 	QuickWrite32Bits(pTimeBase, 0x4, gGPR[REG_a0]._u32_0);	// TimeLo
@@ -177,9 +177,9 @@ TEST_DISABLE_TIMER_FUNCS
 	u32 TimeHi	   = QuickRead32Bits(pTimeBase, 0x0);
 
 	u32 count	   = gCPUState.CPUControl[C0_COUNT]._u32;
-	
+
 	TimeLo += count - LastCount;		// Increase by elapsed time
-	
+
 	if (LastCount > count)				// If an overflow has occurred, increase top timer
 		TimeHi++;
 

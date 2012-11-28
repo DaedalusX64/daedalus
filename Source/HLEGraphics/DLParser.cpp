@@ -139,7 +139,7 @@ struct RDP_Scissor
 };
 
 // The display list PC stack. Before this was an array of 10
-// items, but this way we can nest as deeply as necessary. 
+// items, but this way we can nest as deeply as necessary.
 struct DList
 {
 	u32 address[MAX_DL_STACK_SIZE];
@@ -269,7 +269,7 @@ const char *gTLUTTypeName[4] = {"None", "?", "RGBA16", "IA16"};
 const char * sc_colcombtypes32[32] =
 {
 	"Combined    ", "Texel0      ",
-	"Texel1      ", "Primitive   ", 
+	"Texel1      ", "Primitive   ",
 	"Shade       ", "Env         ",
 	"1           ", "CombAlp     ",
 	"Texel0_Alp  ", "Texel1_Alp  ",
@@ -288,7 +288,7 @@ const char * sc_colcombtypes32[32] =
 const char *sc_colcombtypes16[16] =
 {
 	"Combined    ", "Texel0      ",
-	"Texel1      ", "Primitive   ", 
+	"Texel1      ", "Primitive   ",
 	"Shade       ", "Env         ",
 	"1           ", "CombAlp     ",
 	"Texel0_Alp  ", "Texel1_Alp  ",
@@ -299,7 +299,7 @@ const char *sc_colcombtypes16[16] =
 const char *sc_colcombtypes8[8] =
 {
 	"Combined    ", "Texel0      ",
-	"Texel1      ", "Primitive   ", 
+	"Texel1      ", "Primitive   ",
 	"Shade       ", "Env         ",
 	"1           ", "0           ",
 };
@@ -327,7 +327,7 @@ void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts)
 			u8 b = pcSrc[13^0x3];
 			u8 c = pcSrc[14^0x3];
 			u8 d = pcSrc[15^0x3];
-			
+
 			s16 nTU = psSrc[4^0x1];
 			s16 nTV = psSrc[5^0x1];
 
@@ -396,7 +396,7 @@ static void DLParser_DumpMux( u64 mux )
 {
 	u32 mux0 = (u32)(mux>>32);
 	u32 mux1 = (u32)(mux);
-	
+
 	u32 aRGB0  = (mux0>>20)&0x0F;	// c1 c1		// a0
 	u32 bRGB0  = (mux1>>28)&0x0F;	// c1 c2		// b0
 	u32 cRGB0  = (mux0>>15)&0x1F;	// c1 c3		// c0
@@ -411,7 +411,7 @@ static void DLParser_DumpMux( u64 mux )
 	u32 bRGB1  = (mux1>>24)&0x0F;	// c2 c2		// b1
 	u32 cRGB1  = (mux0    )&0x1F;	// c2 c3		// c1
 	u32 dRGB1  = (mux1>>6 )&0x07;	// c2 c4		// d1
-	
+
 	u32 aA1    = (mux1>>21)&0x07;	// c2 a1		// Aa1
 	u32 bA1    = (mux1>>3 )&0x07;	// c2 a2		// Ab1
 	u32 cA1    = (mux1>>18)&0x07;	// c2 a3		// Ac1
@@ -419,9 +419,9 @@ static void DLParser_DumpMux( u64 mux )
 
 	DL_PF("    Mux: 0x%08x%08x", mux0, mux1);
 
-	DL_PF("    RGB0: (%s - %s) * %s + %s", sc_colcombtypes16[aRGB0], sc_colcombtypes16[bRGB0], sc_colcombtypes32[cRGB0], sc_colcombtypes8[dRGB0]);		
+	DL_PF("    RGB0: (%s - %s) * %s + %s", sc_colcombtypes16[aRGB0], sc_colcombtypes16[bRGB0], sc_colcombtypes32[cRGB0], sc_colcombtypes8[dRGB0]);
 	DL_PF("    A0  : (%s - %s) * %s + %s", sc_colcombtypes8[aA0], sc_colcombtypes8[bA0], sc_colcombtypes8[cA0], sc_colcombtypes8[dA0]);
-	DL_PF("    RGB1: (%s - %s) * %s + %s", sc_colcombtypes16[aRGB1], sc_colcombtypes16[bRGB1], sc_colcombtypes32[cRGB1], sc_colcombtypes8[dRGB1]);		
+	DL_PF("    RGB1: (%s - %s) * %s + %s", sc_colcombtypes16[aRGB1], sc_colcombtypes16[bRGB1], sc_colcombtypes32[cRGB1], sc_colcombtypes8[dRGB1]);
 	DL_PF("    A1  : (%s - %s) * %s + %s", sc_colcombtypes8[aA1],  sc_colcombtypes8[bA1], sc_colcombtypes8[cA1],  sc_colcombtypes8[dA1]);
 }
 
@@ -452,7 +452,7 @@ static void	DLParser_DumpTaskInfo( const OSTask * pTask )
 }
 
 //*************************************************************************************
-// 
+//
 //*************************************************************************************
 static void HandleDumpDisplayList( OSTask * pTask )
 {
@@ -466,7 +466,7 @@ static void HandleDumpDisplayList( OSTask * pTask )
 		char szDumpDir[MAX_PATH+1];
 
 		IO::Path::Combine(szDumpDir, g_ROM.settings.GameName.c_str(), gDisplayListRootPath);
-	
+
 		Dump_GetDumpDirectory(szFilePath, szDumpDir);
 
 		sprintf(szFileName, "dl%04d.txt", count++);
@@ -492,7 +492,7 @@ static void HandleDumpDisplayList( OSTask * pTask )
 // This is called from Microcode.cpp after a custom ucode has been detected and cached
 // This function is only called once per custom ucode set
 //	ucode:			custom ucode (ucode>= MAX_UCODE)
-//	offset:			offset to normal ucode this custom ucode is based of ex GBI0			
+//	offset:			offset to normal ucode this custom ucode is based of ex GBI0
 //*************************************************************************************
 void DLParser_SetCustom( u32 ucode, u32 offset )
 {
@@ -564,7 +564,7 @@ void DLParser_SetCustom( u32 ucode, u32 offset )
 }
 
 //*****************************************************************************
-// 
+//
 //*****************************************************************************
 void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size )
 {
@@ -595,7 +595,7 @@ SProfileItemHandle * gpProfileItemHandles[ 256 ];
 	}														\
 	CAutoProfile		_auto_profile( *gpProfileItemHandles[ (cmd) ] )
 
-#else 
+#else
 
 #define PROFILE_DL_CMD( cmd )		do { } while(0)
 
@@ -633,7 +633,7 @@ void	DLParser_ProcessDList()
 
 		PROFILE_DL_CMD( command.inst.cmd );
 
-		gUcodeFunc[ command.inst.cmd ]( command ); 
+		gUcodeFunc[ command.inst.cmd ]( command );
 
 		if( gInstructionCountLimit != UNLIMITED_INSTRUCTION_COUNT )
 		{
@@ -646,7 +646,7 @@ void	DLParser_ProcessDList()
 
 		PROFILE_DL_CMD( command.inst.cmd );
 
-		gUcodeFunc[ command.inst.cmd ]( command ); 
+		gUcodeFunc[ command.inst.cmd ]( command );
 #endif
 		// Check limit
 		if (gDlistStack.limit >= 0)
@@ -690,13 +690,13 @@ void DLParser_Process()
 	// Update Screen earlier, otherwise several games like ex Mario won't work.
 	//
 	if( g_ROM.GameHacks != CHAMELEON_TWIST_2 ) gGraphicsPlugin->UpdateScreen();
-	
+
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 	u32 code_base = (u32)pTask->t.ucode & 0x1fffffff;
 	u32 code_size = pTask->t.ucode_size;
 	u32 data_base = (u32)pTask->t.ucode_data & 0x1fffffff;
 	u32 data_size = pTask->t.ucode_data_size;
-	
+
 	if ( gLastUcodeBase != code_base )
 	{
 		DLParser_InitMicrocode( code_base, code_size, data_base, data_size );
@@ -775,8 +775,8 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 {
 	DAEDALUS_ASSERT( light_idx < 16, "Warning: invalid light # = %d", light_idx );
 
-	N64Light *light = (N64Light*)(g_pu8RamBase + address);		
-	DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d] %s direction", 
+	N64Light *light = (N64Light*)(g_pu8RamBase + address);
+	DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d] %s direction",
 		light_idx,
 		light->r, light->g, light->b,
 		light->x, light->y,	light->z,
@@ -797,7 +797,7 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 //    Type: 08 Len: 08 Off: 0000
 //        Scale: 640 480 511 0 = 160,120
 //        Trans: 640 480 511 0 = 160,120
-//vscale is the scale applied to the normalized homogeneous coordinates after 4x4 projection transformation 
+//vscale is the scale applied to the normalized homogeneous coordinates after 4x4 projection transformation
 //vtrans is the offset added to the scaled number
 
 void RDP_MoveMemViewport(u32 address)
@@ -835,7 +835,7 @@ void RDP_MoveMemViewport(u32 address)
 //*****************************************************************************
 //
 //*****************************************************************************
-//Nintro64 uses Sprite2d 
+//Nintro64 uses Sprite2d
 void DLParser_Nothing( MicroCodeCommand command )
 {
 	DAEDALUS_DL_ERROR( "RDP Command %08x Does not exist...", command.inst.cmd0 );
@@ -875,9 +875,9 @@ void DLParser_SetConvert( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_SetPrimDepth( MicroCodeCommand command )
 {
-	DL_PF("    SetPrimDepth z[0x%04x] dz[0x%04x]", 
-		   command.primdepth.z, command.primdepth.dz);	
-	
+	DL_PF("    SetPrimDepth z[0x%04x] dz[0x%04x]",
+		   command.primdepth.z, command.primdepth.dz);
+
 	PSPRenderer::Get()->SetPrimitiveDepth( command.primdepth.z );
 }
 
@@ -907,7 +907,7 @@ void DLParser_RDPTileSync( MicroCodeCommand command )	{ /*DL_PF("    TileSync: (
 //
 //*****************************************************************************
 void DLParser_RDPFullSync( MicroCodeCommand command )
-{ 
+{
 	// We now do this regardless
 	// This is done after DLIST processing anyway
 	//FinishRDPJob();
@@ -951,7 +951,7 @@ void DLParser_SetTile( MicroCodeCommand command )
 	RDP_Tile tile;
 	tile.cmd0 = command.inst.cmd0;
 	tile.cmd1 = command.inst.cmd1;
-	
+
 	gRDPStateManager.SetTile( tile );
 
 	DL_PF( "    Tile[%d] Format[%s/%s] Line[%d] TMEM[0x%03x] Palette[%d]", tile.tile_idx, gFormatNames[tile.format], gSizeNames[tile.size], tile.line, tile.tmem, tile.palette);
@@ -1064,7 +1064,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	//This corresponds to the number of palette entries (16 or 256) 16bit
 	//Seems partial load of palette is allowed -> count != 16 or 256 (MM, SSB, Starfox64, MRC) //Corn
 	u32 offset = rdp_tile.tmem - 256;				// starting location in the palettes
-	DAEDALUS_ASSERT( count > 0x100, "Check me: TMEM" ); 
+	DAEDALUS_ASSERT( count > 0x100, "Check me: TMEM" );
 
 	//Copy PAL to the PAL memory
 	u16 * p_source = (u16*)address;
@@ -1074,7 +1074,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 		gTextureMemory[ i+offset ] = p_source[ i ];
 	}
 
-	//printf("Addr %08X : TMEM %03X : Tile %d : PAL %d\n",address, tmem, tile_idx, count); 
+	//printf("Addr %08X : TMEM %03X : Tile %d : PAL %d\n",address, tmem, tile_idx, count);
 
 	//memcpy_vfpu_BE(p_dest, p_source, count << 1);	//for (u32 i=0; i<count; i++) p_dest[ i ] = p_source[ i ];
 #endif
@@ -1154,9 +1154,9 @@ void DLParser_TexRect( MicroCodeCommand command )
 	if( x0 >= scissors.right || y0 >= scissors.bottom || x1 < scissors.left || y1 < scissors.top || bIsOffScreen )
 	{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		++gNunRectsClipped;		
+		++gNunRectsClipped;
 #endif
-		return;									
+		return;
 	};
 
 	//Not using floats here breaks GE 007 intro
@@ -1196,7 +1196,7 @@ void DLParser_TexRect( MicroCodeCommand command )
 //
 //*****************************************************************************
 void DLParser_TexRectFlip( MicroCodeCommand command )
-{ 
+{
 	MicroCodeCommand command2;
 	MicroCodeCommand command3;
 
@@ -1240,15 +1240,15 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 
 	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile[%d]", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
 	DL_PF("    FLIPTex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", uv0.x, uv0.y, uv1.x, uv1.y, d.x, d.y);
-	
+
 	PSPRenderer::Get()->TexRectFlip( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );
 }
-                         
+
 //*****************************************************************************
 //
 //*****************************************************************************
 void DLParser_FillRect( MicroCodeCommand command )
-{ 
+{
 	// Note, in some modes, the right/bottom lines aren't drawn
 
 	//Always clear Zbuffer if Depthbuffer is selected //Corn
@@ -1288,7 +1288,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 		const u32 clear_screen_y = ( (command.fillrect.y1 - command.fillrect.y0) );
 
 		// Clear color buffer (screen clear)
-		if( uViWidth == clear_screen_x && uViHeight == clear_screen_y )		
+		if( uViWidth == clear_screen_x && uViHeight == clear_screen_y )
 		{
 			CGraphicsContext::Get()->ClearColBuffer( colour.GetColour() );
 			DL_PF("    Clearing Colour Buffer");
@@ -1298,12 +1298,12 @@ void DLParser_FillRect( MicroCodeCommand command )
 	else
 	{
 		// Should we use Prim or Blend colour? Doesn't work well see Mk64 transition before a race
-		colour = c32(0); 
+		colour = c32(0);
 	}
 	//
 	// (1) Removes annoying rect that appears in Conker etc
 	//
-	if( bIsOffScreen )	
+	if( bIsOffScreen )
 	{
 		DL_PF("    Ignoring Fillrect ");
 		return;
@@ -1371,7 +1371,7 @@ void DLParser_SetCombine( MicroCodeCommand command )
 	Mux._u32_1 = command.inst.arg0;
 
 	PSPRenderer::Get()->SetMux( Mux._u64 );
-	
+
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if (gDisplayListFile != NULL)
 	{

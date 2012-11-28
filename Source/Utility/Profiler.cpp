@@ -88,7 +88,7 @@ public:
 			}
 		}
 
-		// 
+		//
 		//	If both stacks are equal to this point and there are no more entries,
 		//	they must be identical.
 		//
@@ -247,7 +247,7 @@ void	CProfilerImpl::Update()
 	}
 
 	u64			total_root_time( 0 );
-	if( mActiveCallstacks.size() > 0 ) 
+	if( mActiveCallstacks.size() > 0 )
 	{
 		total_root_time = mActiveCallstacks[ 0 ]->GetTotalTime();
 	}
@@ -393,7 +393,7 @@ void	CProfilerImpl::Exit( SProfileItemHandle handle )
 			CProfileCallstack *		callstack( mActiveCallstacks.back() );
 			mActiveItems.pop_back();
 			mActiveCallstacks.pop_back();
-			
+
 			callstack->StopTiming( now );
 		}
 		else
@@ -466,7 +466,7 @@ CProfiler::~CProfiler()
 template<> bool CSingleton< CProfiler >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-	
+
 	mpInstance = new CProfiler();
 
 	return true;

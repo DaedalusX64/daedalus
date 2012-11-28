@@ -76,7 +76,7 @@ enum ETnLModeFlags
 	TNL_TRICULL		= 1 << 7,
 	TNL_CULLBACK	= 1 << 8,
 };
-	
+
 typedef struct
 {
 	union
@@ -174,7 +174,7 @@ typedef struct
 			u32		blend_mask : 4;				// 0..3 - not supported
 			u32		alpha_dither : 2;			// 4..5
 			u32		rgb_dither : 2;				// 6..7
-			
+
 			u32		comb_key : 1;				// 8..8
 			u32		text_conv : 3;				// 9..11
 			u32		text_filt : 2;				// 12..13

@@ -35,7 +35,7 @@ enum EPspReg
 	PspReg_S0, PspReg_S1, PspReg_S2, PspReg_S3,
 	PspReg_S4, PspReg_S5, PspReg_S6, PspReg_S7,
 	PspReg_T8, PspReg_T9, PspReg_K0, PspReg_K1,
-	PspReg_GP, PspReg_SP, PspReg_S8, PspReg_RA,	
+	PspReg_GP, PspReg_SP, PspReg_S8, PspReg_RA,
 };
 
 enum EPspFloatReg
@@ -60,7 +60,7 @@ struct PspOpCode
 	union
 	{
 		u32 _u32;
-		
+
 		struct
 		{
 			unsigned offset : 16;
@@ -76,13 +76,13 @@ struct PspOpCode
 			unsigned base : 5;
 			unsigned : 6;
 		};
-		
+
 		struct
 		{
 			unsigned target : 26;
 			unsigned : 6;
 		};
-		
+
 		// SPECIAL
 		struct
 		{

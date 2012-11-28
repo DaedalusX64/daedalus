@@ -39,7 +39,7 @@
 //
 //
 
-template < class T > class CSingleton  
+template < class T > class CSingleton
 {
 	public:
 		//CSingleton();
@@ -48,7 +48,7 @@ template < class T > class CSingleton
 		inline static T * Get()
 		{
 			DAEDALUS_ASSERT(mpInstance != NULL, __FUNCTION__ );
-			
+
 			return mpInstance;
 		}
 
@@ -59,7 +59,7 @@ template < class T > class CSingleton
 		static void Destroy()
 		{
 			DAEDALUS_ASSERT_Q(mpInstance != NULL);
-			
+
 			delete mpInstance;
 			mpInstance = NULL;
 		}
@@ -68,11 +68,11 @@ template < class T > class CSingleton
 		{
 			return (mpInstance != NULL);
 		}
-		
+
 		static void Attach( T * p )
 		{
 			DAEDALUS_ASSERT_Q(mpInstance == NULL);
-			
+
 			mpInstance = p;
 		}
 

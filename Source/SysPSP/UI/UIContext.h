@@ -58,7 +58,7 @@ class CUIContext
 
 		// ToDo : Move this out of here..
 		void ClearBackground()
-		{ 
+		{
 			c32		BACKGROUND_COLOUR = c32::Black;	// default color
 
 			switch( gGlobalPreferences.GuiColor )
@@ -73,7 +73,7 @@ class CUIContext
 			case PURPLE:	BACKGROUND_COLOUR = c32::Purple;	break;
 			case GREY:		BACKGROUND_COLOUR = c32::Grey;		break;
 			}
-			ClearBackground( BACKGROUND_COLOUR ); 
+			ClearBackground( BACKGROUND_COLOUR );
 		}
 
 

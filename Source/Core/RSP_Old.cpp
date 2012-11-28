@@ -1961,7 +1961,7 @@ void RSP_Cop2V_VMUDH( OpCode op )
 		el = Indx[op.rs]._s8[v];
 		del = EleSpec[op.rs]._s8[el];
 
-		gAccuRSP[el]._s32_1 = (s32)gVectRSP[op.rd]._s16[el] * (s32)gVectRSP[op.rt]._s16[del]; 
+		gAccuRSP[el]._s32_1 = (s32)gVectRSP[op.rd]._s16[el] * (s32)gVectRSP[op.rt]._s16[del];
 		gAccuRSP[el]._s16[1] = 0;
 		if (gAccuRSP[el]._s16[3] < 0)
 		{
@@ -2093,7 +2093,7 @@ void RSP_Cop2V_VMADH( OpCode op )
 		el = Indx[op.rs]._s8[v];
 		del = EleSpec[op.rs]._s8[el];
 
-		gAccuRSP[el]._s32_1 += (s32)gVectRSP[op.rd]._s16[el] * (s32)gVectRSP[op.rt]._s16[del]; 
+		gAccuRSP[el]._s32_1 += (s32)gVectRSP[op.rd]._s16[el] * (s32)gVectRSP[op.rt]._s16[del];
 		if (gAccuRSP[el]._s16[3] < 0)
 		{
 			if (gAccuRSP[el]._u16[3] != 0xFFFF)

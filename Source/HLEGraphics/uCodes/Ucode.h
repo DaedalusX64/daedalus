@@ -26,7 +26,7 @@
 // Do not add any custom ucode table here! instead just patch any of these 5 tables for all your custom ucode needs..
 // See DLParser_SetUcode for more info
 //
-#define MAX_UCODE		5	
+#define MAX_UCODE		5
 
 typedef void(*MicroCodeInstruction)(MicroCodeCommand);
 #define UcodeFunc(name)	void name(MicroCodeCommand)

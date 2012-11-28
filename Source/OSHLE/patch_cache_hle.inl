@@ -21,7 +21,7 @@ TEST_DISABLE_CACHE_FUNCS
 u32 Patch_osInvalICache_Rugrats()
 {
 	return Patch_osInvalICache_Mario();
-}	
+}
 
 
 u32 Patch_osInvalDCache_Mario()
@@ -43,7 +43,7 @@ TEST_DISABLE_CACHE_FUNCS
 	//DBGConsole_Msg(0, "osInvalDCache(0x%08x, %d)", p, len);
 
 	return PATCH_RET_JR_RA;
-}	
+}
 
 
 u32 Patch_osWritebackDCache_Mario()
@@ -65,7 +65,7 @@ TEST_DISABLE_CACHE_FUNCS
 	//DBGConsole_Msg(0, "osWritebackDCache(0x%08x, %d)", p, len);
 
 	return PATCH_RET_JR_RA;
-}	
+}
 
 
 u32 Patch_osWritebackDCacheAll()

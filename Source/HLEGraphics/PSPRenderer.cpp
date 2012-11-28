@@ -121,10 +121,10 @@ u32 uViHeight = 240;
 
 f32 gZoomX=1.0;	//Default is 1.0f
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST	
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 // General purpose variable used for debugging
 f32 TEST_VARX = 0.0f;
-f32 TEST_VARY = 0.0f;		
+f32 TEST_VARY = 0.0f;
 
 ALIGNED_GLOBAL(u32,gWhiteTexture[gPlaceholderTextureWidth * gPlaceholderTextureHeight ], DATA_ALIGN);
 ALIGNED_GLOBAL(u32,gPlaceholderTexture[gPlaceholderTextureWidth * gPlaceholderTextureHeight ], DATA_ALIGN);
@@ -298,7 +298,7 @@ PSPRenderer::PSPRenderer()
 	mTnL.NumLights = 0;
 	mTnL.TextureScaleX = 1.0f;
 	mTnL.TextureScaleY = 1.0f;
-	
+
 	memset( mTnL.Lights, 0, sizeof(mTnL.Lights) );
 
 	memset( &mView, 0, sizeof(mView) );
@@ -374,7 +374,7 @@ void PSPRenderer::RestoreRenderStates()
 
 	// No fog
 	sceGuDisable(GU_FOG);
-		
+
 	// We do our own culling
 	sceGuDisable(GU_CULL_FACE);
 
@@ -410,7 +410,7 @@ void PSPRenderer::RestoreRenderStates()
 	// Texturing stuff
 	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGB);
 	//sceGuTexFilter(GU_LINEAR,GU_LINEAR);
-	sceGuTexWrap(GU_REPEAT,GU_REPEAT); 
+	sceGuTexWrap(GU_REPEAT,GU_REPEAT);
 
 	//sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
 	sceGuSetMatrix( GU_VIEW, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
@@ -499,7 +499,7 @@ void PSPRenderer::BeginScene()
 	// Both happen really rare
 	//
 	if( !mView.Update					&		//  We need to update after pause menu?
-		(mView.ViWidth  == uViWidth)    &		//  VI register changed width? (bug fix GE007) 
+		(mView.ViWidth  == uViWidth)    &		//  VI register changed width? (bug fix GE007)
 		(mView.ViHeight == uViHeight)   &		//  VI register changed height?
 		(mView.Rumble   == gRumblePakActive) )	//  RumblePak active? Don't bother to update if no rumble feedback too
 	{
@@ -545,7 +545,7 @@ void PSPRenderer::EndScene()
 		mpTexture[ i ] = NULL;
 	}
 }
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST	
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -572,7 +572,7 @@ void PSPRenderer::SetPSPViewport( s32 x, s32 y, u32 w, u32 h )
 
 	mN64ToPSPTranslate.x  = f32( x - pspFpuRound(0.55f * (gZoomX - 1.0f) * fViWidth));
 	mN64ToPSPTranslate.y  = f32( y - pspFpuRound(0.55f * (gZoomX - 1.0f) * fViHeight));
-	
+
 	if( gRumblePakActive )
 	{
 	    mN64ToPSPTranslate.x += (pspFastRand() & 3);
@@ -587,10 +587,10 @@ void PSPRenderer::SetPSPViewport( s32 x, s32 y, u32 w, u32 h )
 //*****************************************************************************
 void PSPRenderer::SetN64Viewport( const v2 & scale, const v2 & trans )
 {
-	// Only Update viewport when it actually changed, this happens rarely 
+	// Only Update viewport when it actually changed, this happens rarely
 	//
-	if( mVpScale.x == scale.x && mVpScale.y == scale.y && 
-		mVpTrans.x == trans.x && mVpTrans.y == trans.y )	
+	if( mVpScale.x == scale.x && mVpScale.y == scale.y &&
+		mVpTrans.x == trans.x && mVpTrans.y == trans.y )
 		return;
 
 	mVpScale.x = scale.x;
@@ -598,7 +598,7 @@ void PSPRenderer::SetN64Viewport( const v2 & scale, const v2 & trans )
 
 	mVpTrans.x = trans.x;
 	mVpTrans.y = trans.y;
-	
+
 	UpdateViewport();
 }
 
@@ -644,7 +644,7 @@ inline void PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) con
 #else
 inline void PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
 {
-	answ.x = pspFpuRound( pspFpuRound( n64_coords.x ) * mN64ToPSPScale.x + mN64ToPSPTranslate.x ); 
+	answ.x = pspFpuRound( pspFpuRound( n64_coords.x ) * mN64ToPSPScale.x + mN64ToPSPTranslate.x );
 	answ.y = pspFpuRound( pspFpuRound( n64_coords.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y );
 }
 #endif
@@ -768,7 +768,7 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 			}
 
 			u32 tcc( GU_TCC_RGBA );
-			if( out.BlendAlphaMode == PBAM_RGB )	
+			if( out.BlendAlphaMode == PBAM_RGB )
 				tcc = GU_TCC_RGB;
 
 			sceGuTexFunc( tfx, tcc );
@@ -1000,13 +1000,13 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	{
 		// Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
 		// ALso going over 0x30 breaks the birds in Tarzan :(. Need to find a better way to leverage this.
-		sceGuAlphaFunc(GU_GREATER, 0x70, 0xff); 
+		sceGuAlphaFunc(GU_GREATER, 0x70, 0xff);
 		sceGuEnable(GU_ALPHA_TEST);
 	}
 	else
 	{
 		// Use CVG for pixel alpha
-        sceGuDisable(GU_ALPHA_TEST);	
+        sceGuDisable(GU_ALPHA_TEST);
 	}
 
 	SBlendStateEntry		blend_entry;
@@ -1021,14 +1021,14 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 	u32 render_flags( GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF | render_mode );
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST	
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	// Used for Blend Explorer, or Nasty texture
 	//
 	if( DebugBlendmode( p_vertices, num_vertices, triangle_mode, render_flags, mMux ) )	return;
 #endif
 
 	// This check is for inexact blends which were handled either by a custom blendmode or auto blendmode thing
-	// 
+	//
 	if( blend_entry.OverrideFunction != NULL )
 	{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -1097,7 +1097,7 @@ void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	v2 screen1;
 	if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
 	{
-		screen0.x = pspFpuRound( pspFpuRound( HD_SCALE * xy0.x ) * mN64ToPSPScale.x + 59 );	//59 in translate is an ugly hack that only work on 480x272 display//Corn 
+		screen0.x = pspFpuRound( pspFpuRound( HD_SCALE * xy0.x ) * mN64ToPSPScale.x + 59 );	//59 in translate is an ugly hack that only work on 480x272 display//Corn
 		screen0.y = pspFpuRound( pspFpuRound( xy0.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y );
 
 		screen1.x = pspFpuRound( pspFpuRound( HD_SCALE * xy1.x ) * mN64ToPSPScale.x + 59 ); //59 in translate is an ugly hack that only work on 480x272 display//Corn
@@ -1417,9 +1417,9 @@ void PSPRenderer::FlushTris()
 			mNumIndices = 0;
 			mVtxClipFlagsUnion = 0;
 			return;
-		}	
+		}
 	}*/
-	
+
 	//
 	// Process the software vertex buffer to apply a couple of
 	// necessary changes to the texture coords (this is required
@@ -1447,7 +1447,7 @@ void PSPRenderer::FlushTris()
 
 	//
 	//	Do BACK/FRONT culling in sceGE
-	//	
+	//
 	//if( mTnL.Flags.TriCull )
 	//{
 	//	sceGuFrontFace(mTnL.Flags.CullBack? GU_CCW : GU_CW);
@@ -1513,7 +1513,7 @@ u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
 	return vOut;
 }
 
-#else	// FPU/CPU(slower) 
+#else	// FPU/CPU(slower)
 
 //*****************************************************************************
 //CPU interpolate line parameters
@@ -1607,12 +1607,12 @@ u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1)
 //*****************************************************************************
 //
 //*****************************************************************************
-namespace 
+namespace
 {
 	DaedalusVtx4		temp_a[ 8 ];
 	DaedalusVtx4		temp_b[ 8 ];
 	// Flying Dragon clips more than 256
-	const u32			MAX_CLIPPED_VERTS = 320;	
+	const u32			MAX_CLIPPED_VERTS = 320;
 	DaedalusVtx			clip_vtx[MAX_CLIPPED_VERTS];
 }
 
@@ -1899,7 +1899,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 }*/
 
 //
-//Transform using VFPU(fast) or FPU/CPU(slow)  
+//Transform using VFPU(fast) or FPU/CPU(slow)
 //
 
 #else
@@ -1909,11 +1909,11 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 v4 PSPRenderer::LightVert( const v3 & norm ) const
 {
-	
+
 	u32 num = mTnL.NumLights;
 
-	v4 result( mTnL.Lights[num].Colour.x, 
-			   mTnL.Lights[num].Colour.y, 
+	v4 result( mTnL.Lights[num].Colour.x,
+			   mTnL.Lights[num].Colour.y,
 			   mTnL.Lights[num].Colour.z,
 			   mTnL.Lights[num].Colour.w ); // 1.0f
 
@@ -2021,7 +2021,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 #endif
 
 				const v3 & norm = vecTransformedNormal;
-				
+
 				if( mTnL.Flags.TexGenLin )
 				{
 					mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x );
@@ -2032,7 +2032,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 					//Cheap way to do Acos(x)/Pi (abs() fixes star in SM64, sort of) //Corn
 					f32 NormX = pspFpuAbs( norm.x );
 					f32 NormY = pspFpuAbs( norm.y );
-					mVtxProjected[i].Texture.x =  0.5f - 0.25f * NormX - 0.25f * NormX * NormX * NormX; 
+					mVtxProjected[i].Texture.x =  0.5f - 0.25f * NormX - 0.25f * NormX * NormX * NormX;
 					mVtxProjected[i].Texture.y =  0.5f - 0.25f * NormY - 0.25f * NormY * NormY * NormY;
 				}
 			}
@@ -2182,11 +2182,11 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 				vecTransformedNormal.Normalise();
 
 				const v3 & norm = vecTransformedNormal;
-				
+
 				if( mTnL.Flags.TexGenLin )
 				{
 					//Cheap way to do Acos(x)/Pi //Corn
-					mVtxProjected[i].Texture.x =  0.5f - 0.25f * norm.x - 0.25f * norm.x * norm.x * norm.x; 
+					mVtxProjected[i].Texture.x =  0.5f - 0.25f * norm.x - 0.25f * norm.x * norm.x * norm.x;
 					mVtxProjected[i].Texture.y =  0.5f - 0.25f * norm.y - 0.25f * norm.y * norm.y * norm.y;
 				}
 				else
@@ -2250,7 +2250,7 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 		_TnLVFPUDKRB( n, &mProjectionStack[0], (const FiddledVtx*)pVtxBase, &mVtxProjected[v0] );
 #else
 		v4 & BaseVec( mVtxProjected[0].TransformedPos );
-	
+
 		//Hack to worldproj matrix to scale and rotate billbords //Corn
 		Matrix4x4 mat( mProjectionStack[0]);
 		mat.mRaw[0] *= mProjectionStack[2].mRaw[0] * 0.5f;
@@ -2506,7 +2506,7 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 					SetVtxXY( vert, f32(x) / fViWidth , f32(y) / fViHeight );
 				}
 				else
-				{	
+				{
 					// Megaman and other games
 					SetVtxXY( vert, f32(x<<1) / fViWidth , f32(y<<1) / fViHeight );
 				}
@@ -2638,7 +2638,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 		if( g_ROM.ZELDA_HACK )
 			 mode_u = GU_CLAMP;
 		else
-			mode_u = GU_REPEAT; 
+			mode_u = GU_REPEAT;
 	}
 	if( tile_size.GetHeight() > ti.GetHeight() ) mode_v = GU_REPEAT;
 
@@ -2684,7 +2684,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 
 				//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
 				//If T1 Hack is not enabled index can never be other than 0
-				if(index) 
+				if(index)
 				{
 					const TextureInfo & ti0(mpTexture[ 0 ]->GetTextureInfo());
 
@@ -2695,7 +2695,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 								const CRefPtr<CNativeTexture> & native_texture0( mpTexture[ 0 ]->GetTexture() );
 								u32* dst=(u32*)(native_texture->GetData());
 								u32* src=(u32*)(native_texture0->GetData());
-								
+
 								//Merge RGB + I -> RGBA in texture 1
 								//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
 								u32 size = native_texture->GetWidth() * native_texture->GetHeight() >> 1;
@@ -2711,7 +2711,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 								const CRefPtr<CNativeTexture> & native_texture0( mpTexture[ 0 ]->GetTexture() );
 								u32* src=(u32*)(native_texture->GetData());
 								u32* dst=(u32*)(native_texture0->GetData());
-								
+
 								//Merge RGB + I -> RGBA in texture 0
 								//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
 								u32 size = native_texture->GetWidth() * native_texture->GetHeight() >> 1;
@@ -2761,7 +2761,7 @@ void	PSPRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH, f32 imageX, f32 imageY, f32 imageW, f32 imageH) 
+void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH, f32 imageX, f32 imageY, f32 imageW, f32 imageH)
 {
 	DAEDALUS_PROFILE( "PSPRenderer::Draw2DTexture" );
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(2*sizeof(TextureVtx));
@@ -2786,7 +2786,7 @@ void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH,
 
 	p_verts[1].pos.x = frameW * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Translated X Offset + (Image Width  * X Scale Factor)
 	p_verts[1].pos.y = frameH * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Translated Y Offset + (Image Height * Y Scale Factor)
-	p_verts[1].pos.z = 0.0f;	
+	p_verts[1].pos.z = 0.0f;
 
 	p_verts[1].t0.x  = imageW;											 // X dimentions
 	p_verts[1].t0.y  = imageH;											 // Y dimentions
@@ -2813,29 +2813,29 @@ void PSPRenderer::Draw2DTextureR( f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2
 	sceGuEnable(GU_BLEND);
 	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
 
-	p_verts[0].pos.x = x0 * mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
+	p_verts[0].pos.x = x0 * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
 	p_verts[0].pos.y = y0 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
 	p_verts[0].pos.z = 0.0f;
-	p_verts[0].t0.x  = 0.0f;		
-	p_verts[0].t0.y  = 0.0f;	
+	p_verts[0].t0.x  = 0.0f;
+	p_verts[0].t0.y  = 0.0f;
 
-	p_verts[1].pos.x = x1 * mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
+	p_verts[1].pos.x = x1 * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
 	p_verts[1].pos.y = y1 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
 	p_verts[1].pos.z = 0.0f;
-	p_verts[1].t0.x  = s;		
-	p_verts[1].t0.y  = 0.0f;						
+	p_verts[1].t0.x  = s;
+	p_verts[1].t0.y  = 0.0f;
 
 	p_verts[2].pos.x = x2 * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
-	p_verts[2].pos.y = y2 * mN64ToPSPScale.y + mN64ToPSPTranslate.y; 
+	p_verts[2].pos.y = y2 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
 	p_verts[2].pos.z = 0.0f;
-	p_verts[2].t0.x  = s;		
-	p_verts[2].t0.y  = t;	
+	p_verts[2].t0.x  = s;
+	p_verts[2].t0.y  = t;
 
-	p_verts[3].pos.x = x3 * mN64ToPSPScale.x + mN64ToPSPTranslate.x; 
-	p_verts[3].pos.y = y3 * mN64ToPSPScale.y + mN64ToPSPTranslate.y; 
+	p_verts[3].pos.x = x3 * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
+	p_verts[3].pos.y = y3 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
 	p_verts[3].pos.z = 0.0f;
-	p_verts[3].t0.x  = 0.0f;		
-	p_verts[3].t0.y  = t;	
+	p_verts[3].t0.x  = 0.0f;
+	p_verts[3].t0.y  = t;
 
 	sceGuDrawArray( GU_TRIANGLE_FAN, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, p_verts );
 }
@@ -2847,7 +2847,7 @@ void PSPRenderer::Draw2DTextureR( f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2
 //	See http://www.assembla.com/code/openTRI for more information.
 //
 //*****************************************************************************
-void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0, f32 v0, f32 u1, f32 v1, CNativeTexture * texture) 
+void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0, f32 v0, f32 u1, f32 v1, CNativeTexture * texture)
 {
 	sceGuDisable(GU_DEPTH_TEST);
 	sceGuDepthMask( GL_TRUE );
@@ -3008,14 +3008,14 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 		{
 			// Load projection matrix
 			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
-			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) mProjectionStack[mProjectionTop].mRaw[0] *= HD_SCALE;	//proper 16:9 scale 
+			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) mProjectionStack[mProjectionTop].mRaw[0] *= HD_SCALE;	//proper 16:9 scale
 		}
 		else
 		{
 			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
 		#ifdef DAEDALUS_PSP_USE_VFPU
 			matrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop-1] );
-		#else	
+		#else
 			mProjectionStack[mProjectionTop] = mProjectionStack[mProjectionTop] * mProjectionStack[mProjectionTop-1];
 		#endif
 		}
@@ -3032,14 +3032,14 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 			//so we translate them a bit along Z to make them stick :) //Corn
 			//
 			if( g_ROM.ZELDA_HACK ) mProjectionStack[mProjectionTop].mRaw[14] += 0.4f;
-			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) mProjectionStack[mProjectionTop].mRaw[0] *= HD_SCALE;	//proper 16:9 scale 
+			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) mProjectionStack[mProjectionTop].mRaw[0] *= HD_SCALE;	//proper 16:9 scale
 		}
 		else
 		{
 			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop+1], address);
 		#ifdef DAEDALUS_PSP_USE_VFPU
 			matrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop+1], &mProjectionStack[mProjectionTop] );
-		#else	
+		#else
 			mProjectionStack[mProjectionTop] = mProjectionStack[mProjectionTop+1] * mProjectionStack[mProjectionTop];
 		#endif
 		}
@@ -3086,7 +3086,7 @@ void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 			MatrixFromN64FixedPoint( mModelViewStack[mModelViewTop], address);
 		#ifdef DAEDALUS_PSP_USE_VFPU
 			matrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mModelViewStack[mModelViewTop], &mModelViewStack[mModelViewTop-1] );
-		#else	
+		#else
 			mModelViewStack[mModelViewTop] = mModelViewStack[mModelViewTop] * mModelViewStack[mModelViewTop-1];
 		#endif
 		}
@@ -3104,7 +3104,7 @@ void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 			MatrixFromN64FixedPoint( mModelViewStack[mModelViewTop+1], address);
 		#ifdef DAEDALUS_PSP_USE_VFPU
 			matrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mModelViewStack[mModelViewTop+1], &mModelViewStack[mModelViewTop] );
-		#else	
+		#else
 			mModelViewStack[mModelViewTop] = mModelViewStack[mModelViewTop+1] * mModelViewStack[mModelViewTop];
 		#endif
 		}
@@ -3139,7 +3139,7 @@ inline Matrix4x4 & PSPRenderer::GetWorldProject()
 		}
 	#ifdef DAEDALUS_PSP_USE_VFPU
 		matrixMultiplyAligned( &mWorldProject, &mModelViewStack[mModelViewTop], &mProjectionStack[mProjectionTop] );
-	#else	
+	#else
 		mWorldProject = mModelViewStack[mModelViewTop] * mProjectionStack[mProjectionTop];
 	#endif
 	}
@@ -3167,7 +3167,7 @@ void PSPRenderer::PrintActive()
 #endif
 
 //*************************************************************************************
-// 
+//
 //*************************************************************************************
 void PSPRenderer::MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 {

@@ -206,7 +206,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 /*
 	case G_MW_CLIP:	// Seems to be unused?
 		{
-			DL_PF("    G_MW_CLIP  ?   : 0x%08x", value);	
+			DL_PF("    G_MW_CLIP  ?   : 0x%08x", value);
 		}
 		break;
 */
@@ -261,7 +261,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
  		break;
 /*
 	case G_MW_PERSPNORM:
-		DL_PF("    G_MW_PERSPNORM");	
+		DL_PF("    G_MW_PERSPNORM");
 		break;
 */
 	default:
@@ -299,7 +299,7 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 }
 
 //*****************************************************************************
-// 
+//
 //*****************************************************************************
 void DLParser_GBI1_DL( MicroCodeCommand command )
 {
@@ -332,18 +332,18 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 {
 	//Always branching will usually just waste a bit of fillrate (PSP got plenty)
 	//Games seem not to bother if we branch less than Z all the time
-	
+
 	//Penny racers (cars)
 	//Aerogauge (skips rendering ship shadows and exaust plumes from afar)
 	//OOT : Death Mountain and MM : Clock Town
-	
+
 	//Seems to work differently for non Zelda games as if Z axis is inverted... //Corn
 
 	//printf("VtxDepth[%d] Zval[%d] Vtx[%d]\n", PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx), (s32)command.branchz.value, command.branchz.vtx);
 	//DL_PF("BranchZ VtxDepth[%d] Zval[%d] Vtx[%d]", PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx), (s32)command.branchz.value, command.branchz.vtx);
 
 	if( PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx) <= (s32)command.branchz.value )
-	{					
+	{
 		u32 address = RDPSegAddr(gRDPHalf1);
 
 		DL_PF("    Jump -> DisplayList 0x%08x", address);
@@ -352,9 +352,9 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 	}
 }
 
-//***************************************************************************** 
+//*****************************************************************************
 // AST, Yoshi's World, Scooby Doo use this
-//***************************************************************************** 
+//*****************************************************************************
 void DLParser_GBI1_LoadUCode( MicroCodeCommand command ) 
 { 
 	u32 code_base = (command.inst.cmd1 & 0x1fffffff);
@@ -362,7 +362,7 @@ void DLParser_GBI1_LoadUCode( MicroCodeCommand command )
     u32 data_base = gRDPHalf1 & 0x1fffffff;         // Preceeding RDP_HALF1 sets this up
     u32 data_size = (command.inst.cmd0 & 0xFFFF) + 1;
 	
-	DLParser_InitMicrocode( code_base, code_size, data_base, data_size ); 
+	DLParser_InitMicrocode( code_base, code_size, data_base, data_size );
 }
 
 //*****************************************************************************
@@ -452,7 +452,7 @@ void DLParser_GBI1_Texture( MicroCodeCommand command )
 
 	// Seems to use 0x01
     bool enable = command.texture.enable_gbi0;
-	
+
 	DL_PF("    Level[%d] Tile[%d] %s", command.texture.level, tile, enable? "enable":"disable");
 
 	PSPRenderer::Get()->SetTextureTile( tile);
@@ -469,7 +469,7 @@ void DLParser_GBI1_Texture( MicroCodeCommand command )
 //
 //*****************************************************************************
 void DLParser_GBI1_Reserved( MicroCodeCommand command )
-{	
+{
 	// Not implemented!
 	DL_UNIMPLEMENTED_ERROR( "RDP: Reserved" );
 }

@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // We need Turbo3D ucode support, actually a modified version of it, thanks Gonetz for the info :D
 
 void DLParser_Last_Legion_0x80( MicroCodeCommand command )
-{     
+{
      gDlistStack.address[gDlistStackPointer] += 16;
 	  DL_PF("    DLParser_RSP_Last_Legion_0x80");
 }

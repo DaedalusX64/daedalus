@@ -52,7 +52,7 @@ void matrixMultiplyUnaligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Ma
 		"usv.q   R203, 48 + %0\n"
 
 		: "=m" (*m_out) : "m" (*mat_a) ,"m" (*mat_b) : "memory" );
-} 
+}
 
 //*****************************************************************************
 //
@@ -79,7 +79,7 @@ void matrixMultiplyAligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matr
 		"sv.q   R203, 48 + %0\n"
 
 		: "=m" (*m_out) : "m" (*mat_a) ,"m" (*mat_b) : "memory" );
-} 
+}
 
 //*****************************************************************************
 //
@@ -137,7 +137,7 @@ Matrix4x4 & Matrix4x4::SetScaling( float scale )
 	{
 		for ( u32 c = 0; c < 4; ++c )
 		{
-			m[ r ][ c ] = ( r == c ) ? scale : 0; 
+			m[ r ][ c ] = ( r == c ) ? scale : 0;
 		}
 	}
 	return *this;
@@ -202,7 +202,7 @@ Matrix4x4 & Matrix4x4::SetRotateZ( float angle )
 //*****************************************************************************
 v3 Matrix4x4::TransformCoord( const v3 & vec ) const
 {
-	return v3( vec.x * m11 + vec.y * m21 + vec.z * m31 + m41, 
+	return v3( vec.x * m11 + vec.y * m21 + vec.z * m31 + m41,
 			   vec.x * m12 + vec.y * m22 + vec.z * m32 + m42,
 			   vec.x * m13 + vec.y * m23 + vec.z * m33 + m43 );
 }
@@ -212,7 +212,7 @@ v3 Matrix4x4::TransformCoord( const v3 & vec ) const
 //*****************************************************************************
 v3 Matrix4x4::TransformNormal( const v3 & vec ) const
 {
-	return v3( vec.x * m11 + vec.y * m21 + vec.z * m31, 
+	return v3( vec.x * m11 + vec.y * m21 + vec.z * m31,
 			   vec.x * m12 + vec.y * m22 + vec.z * m32,
 			   vec.x * m13 + vec.y * m23 + vec.z * m33 );
 }
@@ -222,7 +222,7 @@ v3 Matrix4x4::TransformNormal( const v3 & vec ) const
 //*****************************************************************************
 v4 Matrix4x4::Transform( const v4 & vec ) const
 {
-	return v4( vec.x * m11 + vec.y * m21 + vec.z * m31 + vec.w * m41, 
+	return v4( vec.x * m11 + vec.y * m21 + vec.z * m31 + vec.w * m41,
 			   vec.x * m12 + vec.y * m22 + vec.z * m32 + vec.w * m42,
 			   vec.x * m13 + vec.y * m23 + vec.z * m33 + vec.w * m43,
 			   vec.x * m14 + vec.y * m24 + vec.z * m34 + vec.w * m44 );
@@ -233,7 +233,7 @@ v4 Matrix4x4::Transform( const v4 & vec ) const
 //*****************************************************************************
 v3 Matrix4x4::Transform( const v3 & vec ) const
 {
-	v4	trans( vec.x * m11 + vec.y * m21 + vec.z * m31 + m41, 
+	v4	trans( vec.x * m11 + vec.y * m21 + vec.z * m31 + m41,
 			   vec.x * m12 + vec.y * m22 + vec.z * m32 + m42,
 			   vec.x * m13 + vec.y * m23 + vec.z * m33 + m43,
 			   vec.x * m14 + vec.y * m24 + vec.z * m34 + m44 );
@@ -448,7 +448,7 @@ const Matrix4x4	gMatrixIdentity( 1.0f, 0.0f, 0.0f, 0.0f,
 /*
 void	Matrix4x4::print() const
 {
-	printf( 
+	printf(
 	" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 	" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 	" %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"

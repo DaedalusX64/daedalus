@@ -27,7 +27,7 @@ static void * ReadInvalid( u32 address )
 
 	if(address == 0xa5000508)
 	{
-		DBGConsole_Msg(0, "Reading noise (0x%08x) - sizing memory?", address);	
+		DBGConsole_Msg(0, "Reading noise (0x%08x) - sizing memory?", address);
 		*(u32*)(g_pMemoryBuffers[MEM_UNUSED]) = ~0;
 	}
 	else
@@ -60,7 +60,7 @@ static void * ReadMapped( u32 address )
 		// should be invalid
 		R4300_Exception_TLB(address, EXC_RMISS, missing ? UT_VEC : E_VEC);
 		return g_pMemoryBuffers[MEM_UNUSED];
-	}	
+	}
 }
 
 //*****************************************************************************
@@ -172,7 +172,7 @@ static void *Read_8420_842F( u32 address )
 // 0x0430 0000 to 0x043F FFFF MIPS Interface (MI) Registers
 //*****************************************************************************
 static void *Read_8430_843F( u32 address )
-{	
+{
 	DPF( DEBUG_MEMORY_MI, "Reading from MI Registers: 0x%08x", address );
 	return (u8 *)g_pMemoryBuffers[MEM_MI_REG] + (address & 0xFF);
 }

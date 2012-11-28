@@ -85,9 +85,9 @@ typedef struct _PatchVariable
 	u32 location;				// What is the address of the symbol?
 	const char * szName;				// Symbol name
 
-	// For now have these as separate fields. We probably want to 
+	// For now have these as separate fields. We probably want to
 	// put them into a union
-	bool bFoundHi; bool bFoundLo; 
+	bool bFoundHi; bool bFoundLo;
 	u16 wHiPart; u16 wLoPart;
 
 } PatchVariable;

@@ -73,7 +73,7 @@ enum	ECPUEventType
 };
 
 // In practice there should only ever be 2
-#define MAX_CPU_EVENTS 4 
+#define MAX_CPU_EVENTS 4
 
 struct CPUEvent
 {
@@ -271,6 +271,6 @@ extern u32									g_HardwareInterrupt;
 
 #ifdef DAEDALUS_ENABLE_SYNCHRONISATION
 extern u32 CPU_ProduceRegisterHash();
-#endif 
+#endif
 
 #endif // CPU_H_

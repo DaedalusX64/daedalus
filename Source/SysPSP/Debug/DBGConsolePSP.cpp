@@ -128,9 +128,9 @@ char	IDebugConsole::mFormattingBuffer[ 2048 ];
 template<> bool	CSingleton< CDebugConsole >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-	
+
 	mpInstance = new IDebugConsole();
-	
+
 	return true;
 }
 
@@ -264,7 +264,7 @@ void IDebugConsole::ParseAndDisplayString( const char * p_string, ETerminalColou
 //*****************************************************************************
 //
 //*****************************************************************************
-IDebugConsole::IDebugConsole() 
+IDebugConsole::IDebugConsole()
 :	mDebugScreenEnabled( true )
 ,	mCurrentY( 0 )
 {

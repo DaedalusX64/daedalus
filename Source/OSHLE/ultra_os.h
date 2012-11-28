@@ -57,15 +57,15 @@ typedef struct {
 
 typedef struct OSThread_s
 {
-	struct		OSThread_s	*next;		// run/mesg queue link 
-	OSPri		priority;				// run/mesg queue priority 
-	struct		OSThread_s	**queue;	// queue thread is on 
-	struct		OSThread_s	*tlnext;	// all threads queue link 
-	u16			state;					// OS_STATE_* 
-	u16			flags;					// flags for rmon 
-	OSId		id;						// id for debugging 
-	int			fp;						// thread has used fp unit 
-	__OSThreadContext	context;		// register/interrupt mask 
+	struct		OSThread_s	*next;		// run/mesg queue link
+	OSPri		priority;				// run/mesg queue priority
+	struct		OSThread_s	**queue;	// queue thread is on
+	struct		OSThread_s	*tlnext;	// all threads queue link
+	u16			state;					// OS_STATE_*
+	u16			flags;					// flags for rmon
+	OSId		id;						// id for debugging
+	int			fp;						// thread has used fp unit
+	__OSThreadContext	context;		// register/interrupt mask
 } OSThread;
 
 typedef u32 OSEvent;
@@ -85,13 +85,13 @@ typedef void *	OSMesg;
 typedef struct OSMesgQueue_s
 {
 	OSThread	*mtqueue;		// Queue to store threads blocked
-								//   on empty mailboxes (receive) 
+								//   on empty mailboxes (receive)
 	OSThread	*fullqueue;		// Queue to store threads blocked
-								//   on full mailboxes (send) 
-	s32			validCount;		// Contains number of valid message 
-	s32			first;			// Points to first valid message 
-	s32			msgCount;		// Contains total # of messages 
-	OSMesg		*msg;			// Points to message buffer array 
+								//   on full mailboxes (send)
+	s32			validCount;		// Contains number of valid message
+	s32			first;			// Points to first valid message
+	s32			msgCount;		// Contains total # of messages
+	OSMesg		*msg;			// Points to message buffer array
 } OSMesgQueue;
 
 
@@ -131,7 +131,7 @@ typedef struct {
 typedef struct {
     u32	origin;
     u32	yScale;
-    u32	vStart;	
+    u32	vStart;
     u32	vBurst;
     u32	vIntr;
 } OSViFieldRegs;
@@ -141,9 +141,9 @@ typedef struct {
 // Structure for VI mode
 //
 typedef struct {
-    u8			type;			// Mode type 
-    OSViCommonRegs	comRegs;	// Common registers for both fields 
-    OSViFieldRegs	fldRegs[2];	// Registers for Field 1  & 2 
+    u8			type;			// Mode type
+    OSViCommonRegs	comRegs;	// Common registers for both fields
+    OSViFieldRegs	fldRegs[2];	// Registers for Field 1  & 2
 } OSViMode;
 
 
@@ -155,7 +155,7 @@ typedef struct {
 /////////////////////////////////////////////////////
 
 //
-// Structure for time value 
+// Structure for time value
 //
 typedef u64	OSTime;
 
@@ -163,12 +163,12 @@ typedef u64	OSTime;
 // Structure for interval timer
 //
 typedef struct OSTimer_s {
-	struct OSTimer_s *	next;		// point to next timer in list 
-	struct OSTimer_s *	prev;		// point to previous timer in list 
-	OSTime				interval;	// duration set by user 
-	OSTime				value;		// time remaining before timer fires           
-	OSMesgQueue *		mq;			// Message Queue 
-	OSMesg				msg;		// Message to send 
+	struct OSTimer_s *	next;		// point to next timer in list
+	struct OSTimer_s *	prev;		// point to previous timer in list
+	OSTime				interval;	// duration set by user
+	OSTime				value;		// time remaining before timer fires
+	OSMesgQueue *		mq;			// Message Queue
+	OSMesg				msg;		// Message to send
 } OSTimer;
 
 
@@ -179,7 +179,7 @@ typedef struct OSTimer_s {
 /////////////////////////////////////////////////////
 
 //
-// Thread states 
+// Thread states
 //
 #define OS_STATE_STOPPED	1
 #define OS_STATE_RUNNABLE	2
@@ -191,26 +191,26 @@ typedef struct OSTimer_s {
 //
 #define OS_NUM_EVENTS           23
 
-#define OS_EVENT_SW1              0     // CPU SW1 interrupt 
-#define OS_EVENT_SW2              1     // CPU SW2 interrupt 
-#define OS_EVENT_CART             2     // Cartridge interrupt: used by rmon 
-#define OS_EVENT_COUNTER          3     // Counter int: used by VI/Timer Mgr 
-#define OS_EVENT_SP               4     // SP task done interrupt 
-#define OS_EVENT_SI               5     // SI (controller) interrupt 
-#define OS_EVENT_AI               6     // AI interrupt 
-#define OS_EVENT_VI               7     // VI interrupt: used by VI/Timer Mgr 
-#define OS_EVENT_PI               8     // PI interrupt: used by PI Manager 
-#define OS_EVENT_DP               9     // DP full sync interrupt 
-#define OS_EVENT_CPU_BREAK        10    // CPU breakpoint: used by rmon 
-#define OS_EVENT_SP_BREAK         11    // SP breakpoint:  used by rmon 
-#define OS_EVENT_FAULT            12    // CPU fault event: used by rmon 
-#define OS_EVENT_THREADSTATUS     13    // CPU thread status: used by rmon 
-#define OS_EVENT_PRENMI           14    // Pre NMI interrupt 
-#define OS_EVENT_RDB_READ_DONE    15    // RDB read ok event: used by rmon 
-#define OS_EVENT_RDB_LOG_DONE     16    // read of log data complete 
-#define OS_EVENT_RDB_DATA_DONE    17    // read of hostio data complete 
-#define OS_EVENT_RDB_REQ_RAMROM   18    // host needs ramrom access 
-#define OS_EVENT_RDB_FREE_RAMROM  19    // host is done with ramrom access 
+#define OS_EVENT_SW1              0     // CPU SW1 interrupt
+#define OS_EVENT_SW2              1     // CPU SW2 interrupt
+#define OS_EVENT_CART             2     // Cartridge interrupt: used by rmon
+#define OS_EVENT_COUNTER          3     // Counter int: used by VI/Timer Mgr
+#define OS_EVENT_SP               4     // SP task done interrupt
+#define OS_EVENT_SI               5     // SI (controller) interrupt
+#define OS_EVENT_AI               6     // AI interrupt
+#define OS_EVENT_VI               7     // VI interrupt: used by VI/Timer Mgr
+#define OS_EVENT_PI               8     // PI interrupt: used by PI Manager
+#define OS_EVENT_DP               9     // DP full sync interrupt
+#define OS_EVENT_CPU_BREAK        10    // CPU breakpoint: used by rmon
+#define OS_EVENT_SP_BREAK         11    // SP breakpoint:  used by rmon
+#define OS_EVENT_FAULT            12    // CPU fault event: used by rmon
+#define OS_EVENT_THREADSTATUS     13    // CPU thread status: used by rmon
+#define OS_EVENT_PRENMI           14    // Pre NMI interrupt
+#define OS_EVENT_RDB_READ_DONE    15    // RDB read ok event: used by rmon
+#define OS_EVENT_RDB_LOG_DONE     16    // read of log data complete
+#define OS_EVENT_RDB_DATA_DONE    17    // read of hostio data complete
+#define OS_EVENT_RDB_REQ_RAMROM   18    // host needs ramrom access
+#define OS_EVENT_RDB_FREE_RAMROM  19    // host is done with ramrom access
 #define OS_EVENT_RDB_DBG_DONE     20
 #define OS_EVENT_RDB_FLUSH_PROF   21
 #define OS_EVENT_RDB_ACK_PROF     22

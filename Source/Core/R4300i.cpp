@@ -96,7 +96,7 @@ inline void write_64bit_fpu_reg(u32 reg, u32 *val)
 #ifndef DAEDALUS_SILENT
 inline void CHECK_R0( u32 op )
 {
-	if(gGPR[0]._u64 != 0) 
+	if(gGPR[0]._u64 != 0)
 	{
 		DBGConsole_Msg(0, "Warning: Attempted write to r0!"); \
 		gGPR[0]._u64 = 0; // Ensure r0 is always zero (easier than trapping writes?)
@@ -442,7 +442,7 @@ static void R4300_CALL_TYPE R4300_BLEZL( R4300_CALL_SIGNATURE ) 		// Branch on L
 	//branch if irs <= 0
 	if (irs <= 0)
 	{
-		/*if( iimmediate == -1 )	
+		/*if( iimmediate == -1 )
 		{
 			SpeedHack( ipc, op_code );
 		}
@@ -589,7 +589,7 @@ static void R4300_CALL_TYPE R4300_LW( R4300_CALL_SIGNATURE ) 			// Load Word
 
 
 	// This is for San Francisco 2049. An R0 errg.. otherwise it crashes when the race is about to start.
-	if (op_code.rt == 0) 
+	if (op_code.rt == 0)
 	{
 		DAEDALUS_ERROR("Attempted write to r0!");
 		return;	// I think is better to trap it than override it
@@ -753,7 +753,7 @@ static void R4300_CALL_TYPE R4300_LDC1( R4300_CALL_SIGNATURE )				// Load Double
 	// even though is setting the status reg to 64bit
 	// Conker sets the status reg and FullLength is noted and thus this bug occurs in the old interpreter as well
 	// I believe theres a deeper issue, NOTE I believe this is set in R4300_TLB_ERET and not R4300_SetSR since the status reg returns 0 there (32bit).
-	// 
+	//
 	//*(u64*)&cFT = *(u64*)&Read64Bits(iaddress);
 }
 
@@ -1084,7 +1084,7 @@ static void R4300_CALL_TYPE R4300_Special_DMULT( R4300_CALL_SIGNATURE ) 		// Dou
 		op2 = -irs;
 		sign = 1 - sign;
 	}
-	else 
+	else
 	{
 		op2 = irs;
 	}
@@ -1119,9 +1119,9 @@ static void R4300_CALL_TYPE R4300_Special_DMULT( R4300_CALL_SIGNATURE ) 		// Dou
 	if (sign)
 	{
 		ihi = ~ihi;
-		if (!ilo) 
+		if (!ilo)
 			ihi++;
-		else 
+		else
 			ilo = ~ilo + 1;
 	}
 

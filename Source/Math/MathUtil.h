@@ -26,14 +26,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 template< typename T > const T & Max( const T & a, const T & b )
 {
-	if(a > b) 
+	if(a > b)
 		return a;
 	return b;
 }
 
 template< typename T > const T & Min( const T & a, const T & b )
 {
-	if(a < b) 
+	if(a < b)
 		return a;
 	return b;
 }

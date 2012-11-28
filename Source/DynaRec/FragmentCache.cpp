@@ -357,7 +357,7 @@ void CFragmentCache::DumpStats( const char * outputdir ) const
 		for(FragmentList::const_iterator it = all_fragments.begin(); it != all_fragments.end(); ++it)
 		{
 			const CFragment * fragment( *it );
-			
+
 			if (fragment->GetCyclesExecuted() == 0)
 				continue;
 

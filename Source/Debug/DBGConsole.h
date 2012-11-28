@@ -54,7 +54,7 @@ class CDebugConsole : public CSingleton< CDebugConsole >
 			STAT_PI,
 			STAT_SP,
 
-			NUM_STAT_ITEMS 
+			NUM_STAT_ITEMS
 		};
 
 		virtual void DAEDALUS_VARARG_CALL_TYPE	Msg( u32 type, const char * format, ... ) = 0;

@@ -452,9 +452,9 @@ s32		IUIContext::DrawTextArea( s32 left, s32 top, u32 width, u32 height, const c
 	s32 x( left );
 	s32 y( VerticalAlign( vertical_align, top, height, lengths.size() * font_height ) );
 
-	// Our built-in auto-linebreaking can't handle unicodes. 
+	// Our built-in auto-linebreaking can't handle unicodes.
 	// Fall back to use intrafont's manual linebreaking feature
-	if( match )	
+	if( match )
 	{
 		y += font_height;
 		DrawTextScale( x, y, 0.8f, text, length, colour );

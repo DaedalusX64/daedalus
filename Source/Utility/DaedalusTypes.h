@@ -30,7 +30,7 @@ typedef unsigned short				u16;
 typedef uint32_t					u32;
 typedef unsigned long long			u64;
 
-typedef signed char					s8;	
+typedef signed char					s8;
 typedef short						s16;
 typedef int32_t						s32;
 typedef long long					s64;
@@ -75,7 +75,7 @@ union REG64
 	struct { s32 _s32_0, _s32_1; };
 	struct { u32 _u32_0, _u32_1; };
 
-/*	struct { u32 _f64_unused; f32 _f64_sim;};	
+/*	struct { u32 _f64_unused; f32 _f64_sim;};
 	struct { s16 _s16_3, _s16_2, _s16_1, _s16_0; };
 	struct { u16 _u16_3, _u16_2, _u16_1, _u16_0; };
 

@@ -7,7 +7,7 @@ u32 Patch_osAiGetLength()
 {
 TEST_DISABLE_AI_FUNCS
 	// Hardcoding 2880 here causes Aerogauge to get 40%+ speed up, yammy!
-	gGPR[REG_v0]._u32_0 = Memory_AI_GetRegister(AI_LEN_REG); 
+	gGPR[REG_v0]._u32_0 = Memory_AI_GetRegister(AI_LEN_REG);
 	//gGPR[REG_v0]._s64 = (s64)(s32)len;
 
 	return PATCH_RET_JR_RA;
@@ -63,7 +63,7 @@ TEST_DISABLE_AI_FUNCS
 	return PATCH_RET_NOT_PROCESSED;
 
 	//u32 freg = gGPR[REG_a0]._u32_0;
-	
+
 	//DBGConsole_Msg(0, "osAiSetFrequency(%d)", freg);
 	//gGPR[REG_v1]._u64 = freg;
 
@@ -77,7 +77,7 @@ u32 Patch___osAiDeviceBusy()
 {
 TEST_DISABLE_AI_FUNCS
 	gGPR[REG_v0]._u32_0 = IsAiDeviceBusy();
-	
+
 	return PATCH_RET_JR_RA;
 }
 

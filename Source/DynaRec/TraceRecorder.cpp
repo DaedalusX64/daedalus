@@ -75,7 +75,7 @@ void	CTraceRecorder::StartTrace( u32 address )
 }
 
 //*************************************************************************************
-//	
+//
 //*************************************************************************************
 CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 																 bool branch_delay_slot,
@@ -86,7 +86,7 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 	DAEDALUS_ASSERT( mTracing, "We're not tracing" );
 
 	bool				want_to_stop( p_fragment != NULL );
-	
+
 	if( mTraceBuffer.size() > MAX_TRACE_LENGTH )
 	{
 		DBGConsole_Msg(0, "Hit max trace size!");
@@ -130,7 +130,7 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 			}
 #endif
 		}
-	
+
 		mActiveBranchIdx = INVALID_IDX;
 	}
 
@@ -241,7 +241,7 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 		{
 			mNeedIndirectExitMap = true;
 		}
-			
+
 		mActiveBranchIdx = mBranchDetails.size();
 		branch_idx = mBranchDetails.size();
 		mBranchDetails.push_back( details );
@@ -291,7 +291,7 @@ CFragment *		CTraceRecorder::CreateFragment( CCodeBufferManager * p_manager )
 	SRegisterUsageInfo	register_usage;
 	Analyse( register_usage );
 
-	CFragment *	p_frament( new CFragment( p_manager, mStartTraceAddress, mExpectedExitTraceAddress, 
+	CFragment *	p_frament( new CFragment( p_manager, mStartTraceAddress, mExpectedExitTraceAddress,
 		mTraceBuffer, register_usage, mBranchDetails, mNeedIndirectExitMap ) );
 
 	//DBGConsole_Msg( 0, "Inserting hot trace for [R%08x]!", mStartTraceAddress );

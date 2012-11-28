@@ -9,12 +9,12 @@
 
 /*
 typedef struct OSMesgQueue_s {
-	OSThread	*mtqueue;	// Queue to store threads blocked on empty mailboxes (receive) 
-	OSThread	*fullqueue;	// Queue to store threads blocked on full mailboxes (send) 
+	OSThread	*mtqueue;	// Queue to store threads blocked on empty mailboxes (receive)
+	OSThread	*fullqueue;	// Queue to store threads blocked on full mailboxes (send)
 	s32			validCount;	// Contains number of valid message
 	s32			first;		// Points to first valid message
-	s32			msgCount;	// Contains total # of messages 
-	OSMesg		*msg;		// Points to message buffer array 
+	s32			msgCount;	// Contains total # of messages
+	OSMesg		*msg;		// Points to message buffer array
 } OSMesgQueue;
 */
 
@@ -82,11 +82,11 @@ public:
 	{
 		QuickWrite32Bits(p_base, offsetof(OSMesgQueue, msgCount), nMsgCount);
 	}
-	
+
 	inline void SetMesgArray(u32 dwMsgBuffer)
 	{
 		QuickWrite32Bits(p_base, offsetof(OSMesgQueue, msg), dwMsgBuffer);
-	}	
+	}
 
 
 protected:

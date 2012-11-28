@@ -250,9 +250,9 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		ti.SetSize( rdp_tile.size );
 
 		// Hack to fix the sun in Zelda OOT/MM
-		if( g_ROM.ZELDA_HACK && (gRDPOtherMode.L == 0x0c184241) && (rdp_tile.format == G_IM_FMT_I) )	 //&& (ti.GetWidth() == 64)	
+		if( g_ROM.ZELDA_HACK && (gRDPOtherMode.L == 0x0c184241) && (rdp_tile.format == G_IM_FMT_I) )	 //&& (ti.GetWidth() == 64)
 		{
-			tile_width >>= 1;	
+			tile_width >>= 1;
 			pitch >>= 1;	
 		}
 

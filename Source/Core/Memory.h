@@ -32,7 +32,7 @@ enum MEMBANKTYPE
 	MEM_UNUSED = 0,			// Simplifies code so that we don't have to check for illegal memory accesses
 
 	MEM_RD_RAM,				// 8 or 4 Mb (4/8*1024*1024)
-	
+
 	MEM_SP_MEM,				// 0x2000
 
 	MEM_PIF_RAM,			// 0x40
@@ -50,7 +50,7 @@ enum MEMBANKTYPE
 
 	MEM_SAVE,				// 0x20000 128KBytes EEPROM (512 bytes), 4X EEPROM (2Kbytes), SRAM (32Kbytes), FlashRAM (128Kbytes)
 	MEM_MEMPACK,			// 0x20000 MEMPack 32Kbytes * 4 = 128KBytes
-	
+
 	NUM_MEM_BUFFERS
 };
 
@@ -155,7 +155,7 @@ ALIGNED_EXTERN(memory_tables_struct_t, memory_tables_struct, PAGE_ALIGN);
    These tables are used to implement a faster memory system similar to the one used in gnuboy (http://gnuboy.unix-fu.org/ - read docs/HACKING).
    However instead of testing for zero the entry like gnuboy, Daedalus checks the sign of the addition results.
    When the pointer table entry is valid, this should be faster since instead of MOV/TEST/ADD (1+1+1 uops) it uses just ADD mem (2 uops)
-   But when the pointer table entry is invalid, it may be slower because it computes the address twice 
+   But when the pointer table entry is invalid, it may be slower because it computes the address twice
 
    # Old system:
    .intel_syntax
@@ -169,7 +169,7 @@ ALIGNED_EXTERN(memory_tables_struct_t, memory_tables_struct, PAGE_ALIGN);
    RET
 
    # gnuboy system:
-   .intel_syntax   
+   .intel_syntax
    MOV EAX, address
    MOV EDX, EAX
    SHR EDX, 18
@@ -192,7 +192,7 @@ pointer_null_x:
    JMP pointer_null_return
 
    # New system:
-   .intel_syntax   
+   .intel_syntax
    MOV EAX, address
    MOV EDX, EAX
    SHR EDX, 18
@@ -211,7 +211,7 @@ pointer_null_x:
 #  RET
 #  <--
    JMP pointer_null_return
-   
+
    Note however that the compiler may generate worse code.
 
    The old system is still usable (and it is required even if the new one is used since it will fallback to the old for access to memory-mapped hw registers and similar areas)
@@ -233,11 +233,11 @@ inline void* DAEDALUS_ATTRIBUTE_CONST ReadAddress( u32 address )
 	const MemFuncRead & m( g_MemoryLookupTableRead[ address >> 18 ] );
 
 	// Access through pointer with no function calls at all (Fast)
-	if( m.pRead )	
+	if( m.pRead )
 		return (void*)( m.pRead + address );
 
 	// Need to go through the HW access handlers or TLB (Slow)
-	return m.ReadFunc( address );	
+	return m.ReadFunc( address );
 }
 
 inline void WriteAddress( u32 address, u32 value )
@@ -245,13 +245,13 @@ inline void WriteAddress( u32 address, u32 value )
 	const MemFuncWrite & m( g_MemoryLookupTableWrite[ address >> 18 ] );
 
 	// Access through pointer with no function calls at all (Fast)
-	if( m.pWrite )	
+	if( m.pWrite )
 	{
 		*(u32*)( m.pWrite + address ) = value;
 		return;
 	}
 	// Need to go through the HW access handlers or TLB (Slow)
-	m.WriteFunc( address, value );	
+	m.WriteFunc( address, value );
 }
 
 //////////////////////////////////////////////////////////////
@@ -323,7 +323,7 @@ inline bool Memory_GetInternalReadAddress(u32 address, void ** p_translated)
 #endif
 
 //#define MEMORY_CHECK_ALIGN( address, align )	DAEDALUS_ASSERT( (address & ~(align-1)) == 0, "Unaligned memory access" )
-#define MEMORY_CHECK_ALIGN( address, align )	
+#define MEMORY_CHECK_ALIGN( address, align )
 
 // Useful defines for making code look nicer:
 #define g_pu8RamBase ((u8*)g_pMemoryBuffers[MEM_RD_RAM])

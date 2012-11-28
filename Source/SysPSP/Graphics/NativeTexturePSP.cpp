@@ -74,7 +74,7 @@ EPspTextureFormat	GetPspTextureFormat( ETextureFormat texture_format )
 	case TexFmt_CI4_8888:	return PspTexFmt_T4;
 	case TexFmt_CI8_8888:	return PspTexFmt_T8;
 	}
-	
+
 	DAEDALUS_ERROR( "Unhandled texture format" );
 	return PspTexFmt_8888;
 }

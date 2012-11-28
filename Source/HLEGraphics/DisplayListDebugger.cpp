@@ -85,7 +85,7 @@ namespace
 		const char * const TERMINAL_CYAN				= "\033[1;36m";
 		const char * const TERMINAL_WHITE				= "\033[1;37m";
 
-//const char * const gDDLOText[] = 
+//const char * const gDDLOText[] =
 //{
 //	"Combiner Explorer",	// DDLO_COMBINER_EXPLORER
 //	"Display List Length",	// DDLO_DLIST_LENGTH
@@ -105,7 +105,7 @@ struct SPspPadState
 //*****************************************************************************
 //
 //*****************************************************************************
-class CDebugMenuOption 
+class CDebugMenuOption
 {
 	public:
 				CDebugMenuOption();
@@ -114,7 +114,7 @@ class CDebugMenuOption
 		virtual void			Enter()											{}
 		virtual void			Exit()											{}
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time ) = 0;
-		
+
 		virtual bool			OverrideDisplay() const							{ return false; }
 
 				bool			NeedsUpdateDisplay() const						{ return mRefreshDisplay; }
@@ -146,7 +146,7 @@ void	CDebugMenuOption::UpdateDisplay()
 //*****************************************************************************
 class CCombinerExplorerDebugMenuOption : public CDebugMenuOption
 {
-	public:	
+	public:
 		CCombinerExplorerDebugMenuOption();
 
 		virtual void			Display() const;
@@ -292,7 +292,7 @@ void CCombinerExplorerDebugMenuOption::Update( const SPspPadState & pad_state, f
 			if(selected_state != 0)
 			{
 				PSPRenderer::Get()->ToggleDisableCombinerState( selected_state );
-				InvalidateDisplay(); 
+				InvalidateDisplay();
 			}
 		}
 	}
@@ -303,7 +303,7 @@ void CCombinerExplorerDebugMenuOption::Update( const SPspPadState & pad_state, f
 //*****************************************************************************
 class CBlendDebugMenuOption : public CDebugMenuOption
 {
-	public:	
+	public:
 		CBlendDebugMenuOption();
 		virtual void			Display() const;
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
@@ -452,7 +452,7 @@ void CBlendDebugMenuOption::Update( const SPspPadState & pad_state, float elapse
 		{
 			modify ^= true;
 		}
-	
+
 		InvalidateDisplay();
 
 	}
@@ -463,7 +463,7 @@ void CBlendDebugMenuOption::Update( const SPspPadState & pad_state, float elapse
 //*****************************************************************************
 class CTextureExplorerDebugMenuOption : public CDebugMenuOption
 {
-	public:	
+	public:
 		CTextureExplorerDebugMenuOption();
 
 		virtual void			Display() const;
@@ -497,16 +497,16 @@ namespace
 
 const u32 gCheckTextureWidth( 16 );
 const u32 gCheckTextureHeight( 16 );
-u16	gCheckTexture[gCheckTextureWidth * gCheckTextureHeight ] = 
+u16	gCheckTexture[gCheckTextureWidth * gCheckTextureHeight ] =
 {
-	0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 
-	0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 
-	0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 
-	0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 
-	0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 
-	0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 
-	0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 
-	0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 
+	0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
+	0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
+	0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
+	0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
+	0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
+	0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
+	0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
+	0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
 	0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb,
 	0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb,
 	0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb, 0xfbbb,
@@ -767,14 +767,14 @@ void CTextureExplorerDebugMenuOption::Update( const SPspPadState & pad_state, fl
 //*****************************************************************************
 class CDisplayListLengthDebugMenuOption : public CDebugMenuOption
 {
-	public:	
+	public:
 		CDisplayListLengthDebugMenuOption();
 
 		virtual void			Display() const;
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
 		virtual const char *	GetDescription() const									{ return "Display List Length"; }
 
-		
+
 	private:
 				u32				mTotalInstructionCount;
 				u32				mInstructionCountLimit;
@@ -850,7 +850,7 @@ void CDisplayListLengthDebugMenuOption::Update( const SPspPadState & pad_state, 
 //*****************************************************************************
 class CDecalOffsetDebugMenuOption : public CDebugMenuOption
 {
-	public:	
+	public:
 		virtual void			Display() const;
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
 		virtual const char *	GetDescription() const									{ return "Test variables"; }
@@ -1059,7 +1059,7 @@ void IDisplayListDebugger::Run()
 		pad_state.Stick.y = float(stick_y) / 128.0f;
 
 		float actual_elapsed_time( timer.GetElapsedSeconds() );
-		
+
 		//
 		//	Update input
 		//
@@ -1172,7 +1172,7 @@ void IDisplayListDebugger::Run()
 			}
 			if(pad_state.NewButtons & PSP_CTRL_LTRIGGER)
 			{
-				gGlobalPreferences.ViewportType = EViewportType( (gGlobalPreferences.ViewportType+1) % NUM_VIEWPORT_TYPES );	
+				gGlobalPreferences.ViewportType = EViewportType( (gGlobalPreferences.ViewportType+1) % NUM_VIEWPORT_TYPES );
 				CGraphicsContext::Get()->ClearAllSurfaces();
 			}
 			if(pad_state.NewButtons & PSP_CTRL_RTRIGGER)

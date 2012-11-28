@@ -241,7 +241,7 @@ private:
 				};
 				*/
 				void				UpdateRegister( EN64Reg n64_reg, EPspReg psp_reg, bool options );
-	
+
 
 				EPspFloatReg		GetFloatRegisterAndLoad( EN64FloatReg n64_reg );
 				void				UpdateFloatRegister( EN64FloatReg n64_reg );

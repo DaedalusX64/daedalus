@@ -318,7 +318,7 @@ bool	IInputManager::Initialise()
 	LoadControllerConfigs( DAEDALUS_PSP_PATH( "ControllerConfigs/" ) );
 
 	mpControllerConfig = mControllerConfigs[gControllerIndex];
-	
+
 	return true;
 }
 

@@ -15,7 +15,7 @@
 
 struct SProfileItemHandle;
 
-class CProfiler : public CSingleton< CProfiler >  
+class CProfiler : public CSingleton< CProfiler >
 {
 	protected:
 		friend class CSingleton< CProfiler >;

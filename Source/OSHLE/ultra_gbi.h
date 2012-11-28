@@ -141,7 +141,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //
 // G_SETOTHERMODE_L sft: shift count
- 
+
 #define	G_MDSFT_ALPHACOMPARE		0
 #define	G_MDSFT_ZSRCSEL				2
 #define	G_MDSFT_RENDERMODE			3
@@ -149,8 +149,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //
 // G_SETOTHERMODE_H sft: shift count
- 
-#define	G_MDSFT_BLENDMASK		0	// unsupported 
+
+#define	G_MDSFT_BLENDMASK		0	// unsupported
 #define	G_MDSFT_ALPHADITHER		4
 #define	G_MDSFT_RGBDITHER		6
 
@@ -162,81 +162,81 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	G_MDSFT_TEXTDETAIL		17
 #define	G_MDSFT_TEXTPERSP		19
 #define	G_MDSFT_CYCLETYPE		20
-#define	G_MDSFT_COLORDITHER		22	// unsupported in HW 2.0 
+#define	G_MDSFT_COLORDITHER		22	// unsupported in HW 2.0
 #define	G_MDSFT_PIPELINE		23
 
-// G_SETOTHERMODE_H gPipelineMode 
+// G_SETOTHERMODE_H gPipelineMode
 #define	G_PM_1PRIMITIVE		(1 << G_MDSFT_PIPELINE)
 #define	G_PM_NPRIMITIVE		(0 << G_MDSFT_PIPELINE)
 
-// G_SETOTHERMODE_H gSetCycleType 
+// G_SETOTHERMODE_H gSetCycleType
 #define	G_CYC_1CYCLE		(0 << G_MDSFT_CYCLETYPE)
 #define	G_CYC_2CYCLE		(1 << G_MDSFT_CYCLETYPE)
 #define	G_CYC_COPY			(2 << G_MDSFT_CYCLETYPE)
 #define	G_CYC_FILL			(3 << G_MDSFT_CYCLETYPE)
 
-// G_SETOTHERMODE_H gSetTexturePersp 
+// G_SETOTHERMODE_H gSetTexturePersp
 #define G_TP_NONE			(0 << G_MDSFT_TEXTPERSP)
 #define G_TP_PERSP			(1 << G_MDSFT_TEXTPERSP)
 
-// G_SETOTHERMODE_H gSetTextureDetail 
+// G_SETOTHERMODE_H gSetTextureDetail
 #define G_TD_CLAMP			(0 << G_MDSFT_TEXTDETAIL)
 #define G_TD_SHARPEN		(1 << G_MDSFT_TEXTDETAIL)
 #define G_TD_DETAIL			(2 << G_MDSFT_TEXTDETAIL)
 
-// G_SETOTHERMODE_H gSetTextureLOD 
+// G_SETOTHERMODE_H gSetTextureLOD
 #define G_TL_TILE			(0 << G_MDSFT_TEXTLOD)
 #define G_TL_LOD			(1 << G_MDSFT_TEXTLOD)
 
-// G_SETOTHERMODE_H gSetTextureLUT 
+// G_SETOTHERMODE_H gSetTextureLUT
 #define G_TT_NONE			(0)
 #define G_IT_UNKNOWN		(1)
 #define G_TT_RGBA16			(2)
 #define G_TT_IA16			(3)
 
-// G_SETOTHERMODE_H gSetTextureFilter 
+// G_SETOTHERMODE_H gSetTextureFilter
 #define G_TF_POINT			(0 << G_MDSFT_TEXTFILT)
 #define G_TF_AVERAGE		(3 << G_MDSFT_TEXTFILT)
 #define G_TF_BILERP			(2 << G_MDSFT_TEXTFILT)
 
-// G_SETOTHERMODE_H gSetTextureConvert 
+// G_SETOTHERMODE_H gSetTextureConvert
 #define G_TC_CONV			(0 << G_MDSFT_TEXTCONV)
 #define G_TC_FILTCONV		(5 << G_MDSFT_TEXTCONV)
 #define G_TC_FILT			(6 << G_MDSFT_TEXTCONV)
 
-// G_SETOTHERMODE_H gSetCombineKey 
+// G_SETOTHERMODE_H gSetCombineKey
 #define G_CK_NONE			(0 << G_MDSFT_COMBKEY)
 #define G_CK_KEY			(1 << G_MDSFT_COMBKEY)
 
-// G_SETOTHERMODE_H gSetColorDither 
+// G_SETOTHERMODE_H gSetColorDither
 #define	G_CD_MAGICSQ		(0 << G_MDSFT_RGBDITHER)
 #define	G_CD_BAYER			(1 << G_MDSFT_RGBDITHER)
 #define	G_CD_NOISE			(2 << G_MDSFT_RGBDITHER)
 
 #ifndef _HW_VERSION_1
 #define	G_CD_DISABLE		(3 << G_MDSFT_RGBDITHER)
-#define	G_CD_ENABLE		G_CD_NOISE	// HW 1.0 compatibility mode 
+#define	G_CD_ENABLE		G_CD_NOISE	// HW 1.0 compatibility mode
 #else
 #define G_CD_ENABLE			(1 << G_MDSFT_COLORDITHER)
 #define G_CD_DISABLE		(0 << G_MDSFT_COLORDITHER)
 #endif
 
-// G_SETOTHERMODE_H gSetAlphaDither 
+// G_SETOTHERMODE_H gSetAlphaDither
 #define	G_AD_PATTERN		(0 << G_MDSFT_ALPHADITHER)
 #define	G_AD_NOTPATTERN		(1 << G_MDSFT_ALPHADITHER)
 #define	G_AD_NOISE			(2 << G_MDSFT_ALPHADITHER)
 #define	G_AD_DISABLE		(3 << G_MDSFT_ALPHADITHER)
 
-// G_SETOTHERMODE_L gSetAlphaCompare 
+// G_SETOTHERMODE_L gSetAlphaCompare
 #define	G_AC_NONE			(0 << G_MDSFT_ALPHACOMPARE)
 #define	G_AC_THRESHOLD		(1 << G_MDSFT_ALPHACOMPARE)
 #define	G_AC_DITHER			(3 << G_MDSFT_ALPHACOMPARE)
 
-// G_SETOTHERMODE_L gSetDepthSource 
+// G_SETOTHERMODE_L gSetDepthSource
 #define	G_ZS_PIXEL			(0 << G_MDSFT_ZSRCSEL)
 #define	G_ZS_PRIM			(1 << G_MDSFT_ZSRCSEL)
 
-// G_SETOTHERMODE_L gSetRenderMode 
+// G_SETOTHERMODE_L gSetRenderMode
 #define	AA_EN			0x0008
 #define	Z_CMP			0x0010
 #define	Z_UPD			0x0020
@@ -256,7 +256,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	CVG_X_ALPHA		0x1000
 #define	ALPHA_CVG_SEL	0x2000
 #define	FORCE_BL		0x4000
-#define	TEX_EDGE		0x0000 // used to be 0x8000 
+#define	TEX_EDGE		0x0000 // used to be 0x8000
 
 #define	G_BL_CLR_IN		0
 #define	G_BL_CLR_MEM	1
@@ -274,17 +274,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // flags for G_SETGEOMETRYMODE
 // GBI1
 #define G_ZBUFFER				0x00000001
-#define G_TEXTURE_ENABLE		0x00000002	// Microcode use only 
-#define G_SHADE					0x00000004	// enable Gouraud interp 
-#define G_SHADING_SMOOTH		0x00000200	// flat or smooth shaded 
+#define G_TEXTURE_ENABLE		0x00000002	// Microcode use only
+#define G_SHADE					0x00000004	// enable Gouraud interp
+#define G_SHADING_SMOOTH		0x00000200	// flat or smooth shaded
 #define G_CULL_FRONT			0x00001000
 #define G_CULL_BACK				0x00002000
-#define G_CULL_BOTH				0x00003000	// To make code cleaner 
+#define G_CULL_BOTH				0x00003000	// To make code cleaner
 #define G_FOG					0x00010000
 #define G_LIGHTING				0x00020000
 #define G_TEXTURE_GEN			0x00040000
 #define G_TEXTURE_GEN_LINEAR	0x00080000
-#define G_LOD					0x00100000	// NOT IMPLEMENTED 
+#define G_LOD					0x00100000	// NOT IMPLEMENTED
 
 //
 // flags for G_SETGEOMETRYMODE
@@ -383,7 +383,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define G_MV_L6			0x92
 #define G_MV_L7			0x94
 #define G_MV_TXTATT		0x96
-#define G_MV_MATRIX_1	0x9e	// NOTE: this is in moveword table 
+#define G_MV_MATRIX_1	0x9e	// NOTE: this is in moveword table
 #define G_MV_MATRIX_2	0x98
 #define G_MV_MATRIX_3	0x9a
 #define G_MV_MATRIX_4	0x9c
@@ -412,7 +412,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // an immediate word will be stored.
 //
 //
-#define G_MW_MATRIX		0x00	// NOTE: also used by movemem 
+#define G_MW_MATRIX		0x00	// NOTE: also used by movemem
 #define G_MW_NUMLIGHT	0x02
 #define G_MW_CLIP		0x04
 #define G_MW_SEGMENT	0x06
@@ -423,7 +423,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //
 // These are offsets from the address in the dmem table
-// 
+//
 #define G_MWO_NUMLIGHT			0x00
 #define G_MWO_CLIP_RNX			0x04
 #define G_MWO_CLIP_RNY			0x0c
@@ -445,7 +445,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define G_MWO_SEGMENT_D			0x0d
 #define G_MWO_SEGMENT_E			0x0e
 #define G_MWO_SEGMENT_F			0x0f
-#define G_MWO_FOG				0x00	
+#define G_MWO_FOG				0x00
 #define G_MWO_aLIGHT_1			0x00
 #define G_MWO_bLIGHT_1			0x04
 #define G_MWO_aLIGHT_2			0x20

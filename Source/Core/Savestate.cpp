@@ -305,7 +305,7 @@ void Swap_PIF()
 	u8 * pPIFRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
 
 	if(pPIFRam[0] & 0xC0)
-	{	
+	{
 		printf("No need to swap\n");
 		return;
 	}
@@ -355,12 +355,12 @@ bool SaveState_LoadFromFile( const char * filename )
 
 	if(g_ROM.mRomID != new_rom_id)
 	{
-		//ToDo: Give Option to switch Roms to one listed in SaveState if available.	
+		//ToDo: Give Option to switch Roms to one listed in SaveState if available.
 		printf( "ROM name in savestate is different from the name of the currently loaded ROM: %x-%x-%02x, %x-%x-%02x\n",
 			g_ROM.mRomID.CRC[0], g_ROM.mRomID.CRC[1], g_ROM.mRomID.CountryID,
 			new_rom_id.CRC[0], new_rom_id.CRC[1], new_rom_id.CountryID);
 		return false;
-	}	
+	}
 
 	u32 count = 0;
 	stream >> count;
@@ -445,7 +445,7 @@ bool SaveState_LoadFromFile( const char * filename )
 
 	stream.read(g_pMemoryBuffers[MEM_PIF_RAM], 0x40);
 	Swap_PIF();
-	
+
 	stream.read(g_pMemoryBuffers[MEM_RD_RAM], gRamSize);
 	stream.read_memory_buffer(MEM_SP_MEM); //, 0x84000000);
 

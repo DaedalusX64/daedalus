@@ -57,7 +57,7 @@ void DMA_SP_CopyFromRDRAM()
 	if((spmem_address_reg & 0x1000) == 0)
 	{
 		memcpy_vfpu_BE(&g_pu8SpMemBase[(spmem_address_reg & 0xFFF)],
-					   &g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)], splen); 
+					   &g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)], splen);
 	}
 
 	//Clear the DMA Busy

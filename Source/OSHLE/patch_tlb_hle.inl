@@ -32,8 +32,8 @@ TEST_DISABLE_TLB_FUNCS
 //*****************************************************************************
 // ENTRYHI left untouched after call
 u32 Patch___osProbeTLB()
-{   
-TEST_DISABLE_TLB_FUNCS	
+{
+TEST_DISABLE_TLB_FUNCS
 	u32 addr = gGPR[REG_a0]._u32_0;
 	//DBGConsole_Msg(0, "Probe: 0x%08x -> 0x%08x", VAddr, dwPAddr);
 

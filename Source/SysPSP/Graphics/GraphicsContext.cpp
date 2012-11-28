@@ -187,12 +187,12 @@ IGraphicsContext::IGraphicsContext()
 {
 	mpBuffers[ 0 ] = NULL;
 	mpBuffers[ 1 ] = NULL;
-	
+
 #if 1 //1->alloc in volatile memory, 0->alloc in VRAM //Corn
 	//Set up PSP Dlists in the extra 4MB space and make sure pointer are aligned to 16 bytes
 	list[0] = (u32*)(((u32)malloc_volatile(DLISTSIZE) + 0xF) & ~0xF);
 	list[1] = (u32*)(((u32)malloc_volatile(DLISTSIZE) + 0xF) & ~0xF);
-#else	
+#else
 	//Set up PSP Dlists in VRAM(if available)
 	void *ptr;
 	bool is_videmem;
@@ -221,7 +221,7 @@ void IGraphicsContext::ClearAllSurfaces()
 	sceGuStart(GU_CALL,list[1]);
 	sceGuFinish();*/
 
-	if(gDoubleDisplayEnabled) 
+	if(gDoubleDisplayEnabled)
 		sceGuStart(GU_CALL,list[listNum]); //Begin other Display List	return;
 
 	for( u32 i = 0; i < 2; ++i )
@@ -297,7 +297,7 @@ void IGraphicsContext::ClearColBuffer(u32 col)
 //*****************************************************************************
 void IGraphicsContext::BeginFrame()
 {
-	if(!gDoubleDisplayEnabled) 
+	if(!gDoubleDisplayEnabled)
 		sceGuStart(GU_DIRECT,list[listNum]);
 	/*else
 	{
@@ -441,7 +441,7 @@ void IGraphicsContext::SetDebugScreenTarget( ETargetSurface buffer )
 
 //*****************************************************************************
 // Change current viewport, either for tv out or PSP itself
-// 
+//
 //*****************************************************************************
 void IGraphicsContext::ViewportType( u32 * d_width, u32 * d_height )
 {
@@ -586,10 +586,10 @@ void IGraphicsContext::DumpScreenShot()
 
 	u32		display_width = 0;
 	u32		display_height= 0;
-	
+
 	u32		frame_width = 480;
 	u32		frame_height= 272;
-		
+
 	if ( PSP_TV_CABLE > 0 )	// Tv Out
 	{
 		frame_width = 720;

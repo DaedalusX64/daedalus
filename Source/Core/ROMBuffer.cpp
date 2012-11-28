@@ -130,7 +130,7 @@ namespace
 				//
 				p_new_file = ROMFile::Create( temp_filename );
 				if( p_new_file == NULL )
-				{					
+				{
 					messages << "Failed to open temporary rom '" << temp_filename << "' we just created\n";
 				}
 				else

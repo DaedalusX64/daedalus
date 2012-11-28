@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <pspthreadman.h>
 
-static const int	gThreadPriorities[ TP_NUM_PRIORITIES ] = 
+static const int	gThreadPriorities[ TP_NUM_PRIORITIES ] =
 {
 	0x19,		// TP_LOW
 	0x18,		// TP_NORMAL
@@ -54,7 +54,7 @@ static int StartThreadFunc( SceSize args, void *argp )
 	if(args == sizeof(SDaedThreadDetails))
 	{
 		SDaedThreadDetails * thread_details( static_cast< SDaedThreadDetails * >( argp ) );
-	 
+
 		result = thread_details->ThreadFunction( thread_details->Argument );
 	}
 

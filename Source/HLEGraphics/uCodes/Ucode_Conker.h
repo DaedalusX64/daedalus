@@ -75,7 +75,7 @@ void DLParser_Tri1_Conker( MicroCodeCommand command )
 		gDlistStack.address[gDlistStackPointer] = pc-8;
 		return;
 	}
-	
+
 	bool tris_added = false;
 
     do{
@@ -123,7 +123,7 @@ void DLParser_Tri2_Conker( MicroCodeCommand command )
 		gDlistStack.address[gDlistStackPointer] = pc-8;
 		return;
 	}
-	
+
 	bool tris_added = false;
 
     do{
@@ -236,7 +236,7 @@ void DLParser_MoveMem_Conker( MicroCodeCommand command )
 	{
 	case G_GBI2_MV_MATRIX:	//Get address to Light Normals
 		{
-			gAuxAddr = (u32)g_pu8RamBase + address;		//Conker VtxZ address	
+			gAuxAddr = (u32)g_pu8RamBase + address;		//Conker VtxZ address
 		}
 		break;
 	case G_GBI2_MV_LIGHT:

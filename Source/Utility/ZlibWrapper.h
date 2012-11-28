@@ -38,7 +38,7 @@ namespace Zlib
 		public:
 			COutStream( const char * filename );
 			~COutStream();
-			
+
 			bool					IsOpen() const;
 			bool					Flush();
 			bool					WriteData( const void * data, u32 length );

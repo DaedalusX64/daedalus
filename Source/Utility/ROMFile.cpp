@@ -88,7 +88,7 @@ ROMFile::~ROMFile()
 bool ROMFile::LoadData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages )
 {
 	if( !LoadRawData( bytes_to_read, p_bytes, messages ) )
-	{	
+	{
 		messages << "Unable to get rom info from '" << mFilename << "'";
 		return false;
 	}

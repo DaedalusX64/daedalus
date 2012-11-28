@@ -37,7 +37,7 @@ inline u32 SwapEndian( u32 x )
 
 class RomID
 {
-	public: 
+	public:
 		RomID()
 		{
 			CRC[0] = 0;
@@ -86,7 +86,7 @@ class RomID
 
 			return 0;
 		}
-		
+
 		u32		CRC[2];
 		u8		CountryID;
 };
@@ -155,7 +155,7 @@ struct RomInfo
 			u32			TLUT_HACK:1;	//Texture look up table hack for palette
 			u32			ALPHA_HACK:1;	//HACK for AIDYN CHRONICLES
 			u32			DISABLE_SIMDOUBLES:1;	//Hack to disable simulate doubles
-			u32			DISABLE_LBU_OPT:1;	//Disable memory optimation for 
+			u32			DISABLE_LBU_OPT:1;	//Disable memory optimation for
 			u32			Pad7:1;	//free
 			u32			Pad8:1;	//free
 			u32			Pad9:1;	//free

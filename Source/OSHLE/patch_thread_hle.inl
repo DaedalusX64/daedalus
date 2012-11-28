@@ -26,20 +26,20 @@ TEST_DISABLE_THREAD_FUNCS
 	// when the thread first accesses the FP unit
 	Write32Bits(thread + offsetof(OSThread, fp), 0);						// pThread->fp
 
-	
+
 	Write16Bits(thread + offsetof(OSThread, state), OS_STATE_STOPPED);	// pThread->state
 	Write16Bits(thread + offsetof(OSThread, flags), 0);					// pThread->flags
 
 	Write32Bits(thread + offsetof(OSThread, id), id);
 	Write32Bits(thread + offsetof(OSThread, priority), pri);
-	
+
 
 	Write32Bits(thread + offsetof(OSThread, next), 0);					// pThread->next
 	Write32Bits(thread + offsetof(OSThread, queue), 0);					// Queue
 	Write32Bits(thread + offsetof(OSThread, context.pc), func);		// state.pc
 
 	s64 sArg = (s64)(s32)arg;
-	Write64Bits(thread + offsetof(OSThread, context.a0), sArg);			// a0	
+	Write64Bits(thread + offsetof(OSThread, context.a0), sArg);			// a0
 
 	s64 sStack = (s64)(s32)stack;
 	Write64Bits(thread + offsetof(OSThread, context.sp), sStack - 16);	// sp (sub 16 for a0 arg etc)
@@ -84,7 +84,7 @@ TEST_DISABLE_THREAD_FUNCS
 	{
 		thread = ActiveThread;
 	}
-	
+
 	//DBGConsole_Msg(0, "[WosSetThreadPri](0x%08x, %d) 0x%08x", thread, pri, ActiveThread);
 
 	return PATCH_RET_NOT_PROCESSED;
@@ -448,7 +448,7 @@ TEST_DISABLE_THREAD_FUNCS
 
 		g___osDequeueThread_s.pFunction();
 	}
-	
+
 	CurrThread = Read32Bits(VAR_ADDRESS(osGlobalThreadList));
 	NextThread = Read32Bits(CurrThread + offsetof(OSThread, tlnext));
 
@@ -601,9 +601,9 @@ TEST_DISABLE_THREAD_FUNCS
 	u32 status = gCPUState.CPUControl[C0_SR]._u32;
 
 	status |= SR_EXL;
-	
+
 	QuickWrite32Bits(pThreadBase, 0x118, status);
-	
+
 	QuickWrite64Bits(pThreadBase, 0x0098, gGPR[REG_s0]._u64);
 	QuickWrite64Bits(pThreadBase, 0x00a0, gGPR[REG_s1]._u64);
 	QuickWrite64Bits(pThreadBase, 0x00a8, gGPR[REG_s2]._u64);
@@ -634,7 +634,7 @@ TEST_DISABLE_THREAD_FUNCS
 			QuickWrite32Bits(pThreadBase, 0x0134 + (FPReg * 8), gCPUState.FPU[(FPReg*2)+0]._u32);
 		}
 	}
-	
+
 	// Set interrupt mask...does this do anything???
 	u32 rcp = Memory_MI_GetRegister( MI_INTR_MASK_REG );
 	QuickWrite32Bits(pThreadBase, 0x128,  rcp);
@@ -687,7 +687,7 @@ TEST_DISABLE_THREAD_FUNCS
 	else if (ThreadState == OS_STATE_STOPPED)
 	{
 		//DBGConsole_Msg(0, "  Thread is STOPPED");
-		
+
 		u32 queue = Read32Bits(thread + 0x08);
 
 		if (queue == 0 || queue == VAR_ADDRESS(osThreadQueue))
@@ -696,9 +696,9 @@ TEST_DISABLE_THREAD_FUNCS
 				//DBGConsole_Msg(0, "  Thread has NULL queue");
 			//else
 				//DBGConsole_Msg(0, "  Thread's queue is VAR_ADDRESS(osThreadQueue)");
-			
+
 			Write16Bits(thread + 0x10, OS_STATE_RUNNABLE);
-			
+
 			gGPR[REG_a0]._s64 = (s64)(s32)VAR_ADDRESS(osThreadQueue);
 			gGPR[REG_a1]._s64 = (s64)(s32)thread;
 
@@ -709,7 +709,7 @@ TEST_DISABLE_THREAD_FUNCS
 			//DBGConsole_Msg(0, "  Thread has it's own queue");
 
 			Write16Bits(thread + 0x10, OS_STATE_WAITING);
-			
+
 			gGPR[REG_a0]._s64 = (s64)(s32)queue;
 			gGPR[REG_a1]._s64 = (s64)(s32)thread;
 
@@ -725,7 +725,7 @@ TEST_DISABLE_THREAD_FUNCS
 
 			g___osEnqueueThread_s.pFunction();
 		}
-	} 
+	}
 	else
 	{
 		DBGConsole_Msg(0, "  Thread is neither WAITING nor STOPPED");
@@ -756,8 +756,8 @@ TEST_DISABLE_THREAD_FUNCS
 
 		if (ActiveThreadPri < QueueThreadPri)
 		{
-			//DBGConsole_Msg(0, "  New thread has higher priority, enqueue/yield");			
-			
+			//DBGConsole_Msg(0, "  New thread has higher priority, enqueue/yield");
+
 			// Set the active thread's state to RUNNABLE
 			Write16Bits(ActiveThread + 0x10, OS_STATE_RUNNABLE);
 
@@ -776,7 +776,7 @@ TEST_DISABLE_THREAD_FUNCS
 	}
 	// Restore interrupts?
 
-	return PATCH_RET_JR_RA;	
+	return PATCH_RET_JR_RA;
 }
 
 //*****************************************************************************

@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 {
 	// Check for invalid address
-	if ( (command.inst.cmd1)>>24 != 0xce )	
+	if ( (command.inst.cmd1)>>24 != 0xce )
 		return;
 
 	u32 pc = gDlistStack.address[gDlistStackPointer];		// This points to the next instruction
@@ -52,7 +52,7 @@ void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 	//
 	// Coordinates, textures
 	s32 x0 = s32(a3>>16)>>24;
-	//s32 s0 = s32(a1&0xFFFF)/4;	
+	//s32 s0 = s32(a1&0xFFFF)/4;
 	s32 y0 = 320*100;
 	s32 t0 = s32(a1>>16)/4;
 

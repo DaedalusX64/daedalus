@@ -148,7 +148,7 @@ void PngSaveImage( const char* filename, const void * data, const void * palette
 		p = p + pitch;
 		png_write_row(png_ptr, line);
 	}
-	
+
 	free(line);
 	png_write_end(png_ptr, info_ptr);
 	png_destroy_write_struct(&png_ptr, (png_infopp)NULL);

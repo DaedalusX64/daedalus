@@ -194,7 +194,7 @@ namespace DrawTextUtilities
 			return;
 		}
 
-		// Auto-linebreaking 
+		// Auto-linebreaking
 		const char *	p_line_str( p_str );
 		const char *	p_str_end( p_str + length );
 

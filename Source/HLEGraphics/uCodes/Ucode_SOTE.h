@@ -106,7 +106,7 @@ void DLParser_GBI0_Line3D_SOTE( MicroCodeCommand command )
         {
                 DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
         }
-#endif			
+#endif
     }
     gDisplayListStack.back().addr = pc-8;
 

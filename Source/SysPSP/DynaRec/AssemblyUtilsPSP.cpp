@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/MathUtil.h"
 
-extern "C" { void _DaedalusICacheInvalidate( const void * address, u32 length ); } 
+extern "C" { void _DaedalusICacheInvalidate( const void * address, u32 length ); }
 
 namespace AssemblyUtils
 {
@@ -51,7 +51,7 @@ bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
 	else
 	{
 #ifdef DAEDALUS_ENABLE_ASSERTS
-		bool	is_standard_branch( op_code.op == OP_BNE || op_code.op == OP_BEQ || 
+		bool	is_standard_branch( op_code.op == OP_BNE || op_code.op == OP_BEQ ||
 									op_code.op == OP_BEQL || op_code.op == OP_BNEL ||
 									op_code.op == OP_BLEZ || op_code.op == OP_BGTZ );
 		bool	is_regimm_branch(  (op_code.op == OP_REGIMM && (op_code.regimm_op == RegImmOp_BGEZ ||

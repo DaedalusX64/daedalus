@@ -252,7 +252,7 @@ void Memory_Reset()
 //*****************************************************************************
 void Memory_Cleanup()
 {
-	
+
 }
 
  //*****************************************************************************
@@ -357,7 +357,7 @@ void Memory_InitTables()
 		g_MemoryLookupTableWrite[i].WriteFunc	= WriteValueMapped;
 	}
 
-	
+
 	bool RomBaseKnown = RomBuffer::IsRomLoaded() && RomBuffer::IsRomAddressFixed();
 
 	// This returns NULL if Rom isn't loaded or Rom base isn't fixed
@@ -371,158 +371,158 @@ void Memory_InitTables()
 	// Init RDRAM
 	// By default we init with EPAK (8Mb)
 	Memory_InitFunc
-	( 
-		MEMORY_START_RDRAM, 
+	(
+		MEMORY_START_RDRAM,
 		MEMORY_SIZE_RDRAM_DEFAULT,
 		MEMORY_RDRAM,
 		MEMORY_RDRAM,
-		Read_8000_807F, 
-		WriteValue_8000_807F 
+		Read_8000_807F,
+		WriteValue_8000_807F
 	);
 
 	// Need to turn off the EPAK
 	if (ram_size != MEMORY_8_MEG)
 	{
 		Memory_InitFunc
-		( 
+		(
 			MEMORY_START_EXRDRAM,
-			MEMORY_SIZE_EXRDRAM, 
+			MEMORY_SIZE_EXRDRAM,
 			NULL,
 			NULL,
-			ReadInvalid, 
-			WriteValueInvalid 
+			ReadInvalid,
+			WriteValueInvalid
 		);
 	}
 
 	// RDRAM Reg
 	Memory_InitFunc
-	( 
-		MEMORY_START_RAMREGS0, 
-		MEMORY_SIZE_RAMREGS0, 
-		MEMORY_RAMREGS0,	
+	(
+		MEMORY_START_RAMREGS0,
+		MEMORY_SIZE_RAMREGS0,
 		MEMORY_RAMREGS0,
-		Read_83F0_83F0, 
-		WriteValue_83F0_83F0 
+		MEMORY_RAMREGS0,
+		Read_83F0_83F0,
+		WriteValue_83F0_83F0
 	);
 
 
 	// DMEM/IMEM
 	Memory_InitFunc
-	( 
-		MEMORY_START_SPMEM, 
-		MEMORY_SIZE_SPMEM, 
-		MEMORY_SPMEM, 
+	(
+		MEMORY_START_SPMEM,
+		MEMORY_SIZE_SPMEM,
 		MEMORY_SPMEM,
-		Read_8400_8400, 
+		MEMORY_SPMEM,
+		Read_8400_8400,
 		WriteValue_8400_8400
 	);
 
 	// SP Reg
 	Memory_InitFunc
-	( 
-		MEMORY_START_SPREG_1, 
+	(
+		MEMORY_START_SPREG_1,
 		MEMORY_SIZE_SPREG_1,
-		MEMORY_SPREG_1, 
+		MEMORY_SPREG_1,
 		NULL,
 		Read_8404_8404,
-		WriteValue_8404_8404 
+		WriteValue_8404_8404
 	);
 
 	// SP PC/OBOST
 	Memory_InitFunc
 	(
 		MEMORY_START_SPREG_2,
-		MEMORY_SIZE_SPREG_2, 
+		MEMORY_SIZE_SPREG_2,
 		MEMORY_SPREG_2,
 		MEMORY_SPREG_2,
 		Read_8408_8408,
-		WriteValue_8408_8408 
+		WriteValue_8408_8408
 	);
 	// DPC Reg
 	Memory_InitFunc
-	( 
+	(
 		MEMORY_START_DPC,
-		MEMORY_SIZE_DPC, 
+		MEMORY_SIZE_DPC,
 		MEMORY_DPC,
 		NULL,
-		Read_8410_841F, 
+		Read_8410_841F,
 		WriteValue_8410_841F
-	);	
+	);
 
 	// DPS Reg
 	Memory_InitFunc
-	( 
-		MEMORY_START_DPS, 
-		MEMORY_SIZE_DPS, 
+	(
+		MEMORY_START_DPS,
+		MEMORY_SIZE_DPS,
 		NULL,
 		NULL,
 		Read_8420_842F,
-		WriteValue_8420_842F 
-	);	
-	
+		WriteValue_8420_842F
+	);
+
 	// MI reg
 	Memory_InitFunc
 	(
 		MEMORY_START_MI,
-		MEMORY_SIZE_MI, 
-		MEMORY_MI, 
+		MEMORY_SIZE_MI,
+		MEMORY_MI,
 		NULL,
-		Read_8430_843F, 
+		Read_8430_843F,
 		WriteValue_8430_843F
-	);	
+	);
 
 	// VI Reg
 	Memory_InitFunc
-	( 
-		MEMORY_START_VI, 
-		MEMORY_SIZE_VI, 
+	(
+		MEMORY_START_VI,
+		MEMORY_SIZE_VI,
 		NULL,
 		NULL,
-		Read_8440_844F, 
+		Read_8440_844F,
 		WriteValue_8440_844F
 	);
 
 	// AI Reg
 	Memory_InitFunc
-	( 
-		MEMORY_START_AI, 
-		MEMORY_SIZE_AI, 
+	(
+		MEMORY_START_AI,
+		MEMORY_SIZE_AI,
 		MEMORY_AI,
 		NULL,
-		Read_8450_845F, 
-		WriteValue_8450_845F 
+		Read_8450_845F,
+		WriteValue_8450_845F
 	);
 
 	// PI Reg
 	Memory_InitFunc
-	( 
+	(
 		MEMORY_START_PI,
 		MEMORY_SIZE_PI,
-		MEMORY_PI, 
+		MEMORY_PI,
 		NULL,
 		Read_8460_846F,
-		WriteValue_8460_846F 
+		WriteValue_8460_846F
 	);
 
 	// RI Reg
 	Memory_InitFunc
 	(
-		MEMORY_START_RI, 
+		MEMORY_START_RI,
 		MEMORY_SIZE_RI,
-		MEMORY_RI, 
 		MEMORY_RI,
-		Read_8470_847F, 
+		MEMORY_RI,
+		Read_8470_847F,
 		WriteValue_8470_847F
 	);
 
 	// SI Reg
 	Memory_InitFunc
-	( 
-		MEMORY_START_SI, 
-		MEMORY_SIZE_SI, 
+	(
+		MEMORY_START_SI,
+		MEMORY_SIZE_SI,
 		MEMORY_SI,
 		NULL,
-		Read_8480_848F, 
+		Read_8480_848F,
 		WriteValue_8480_848F
 	);
 
@@ -531,34 +531,34 @@ void Memory_InitTables()
 
 	// Cartridge Domain 2 Address 1 (SRAM)
 	/*Memory_InitFunc
-	( 
-		MEMORY_START_C2A1, 
-		MEMORY_SIZE_C2A1, 
+	(
+		MEMORY_START_C2A1,
+		MEMORY_SIZE_C2A1,
 		NULL,
 		NULL,
-		ReadInvalid, 
+		ReadInvalid,
 		WriteValueInvalid
 	);*/
-	
+
 	// Cartridge Domain 1 Address 1 (SRAM)
 	/*Memory_InitFunc
-	( 
-		MEMORY_START_C1A1, 
+	(
+		MEMORY_START_C1A1,
 		MEMORY_SIZE_C1A1,
 		NULL,
 		NULL,
-		ReadInvalid, 
+		ReadInvalid,
 		WriteValueInvalid
 	);*/
 
 	// GIO reg (basically in the same segment as C1A1..)
 	/*Memory_InitFunc
-	( 
+	(
 		MEMORY_START_GIO,
 		MEMORY_SIZE_GIO_REG,
 		NULL,
 		NULL,
-		ReadInvalid, 
+		ReadInvalid,
 		WriteValueInvalid
 	);
 	*/
@@ -566,23 +566,23 @@ void Memory_InitTables()
 	// PIF Reg
 	Memory_InitFunc
 	(
-		MEMORY_START_PIF, 
-		MEMORY_SIZE_PIF, 
+		MEMORY_START_PIF,
+		MEMORY_SIZE_PIF,
 		NULL,
 		NULL,
-		Read_9FC0_9FCF, 
+		Read_9FC0_9FCF,
 		WriteValue_9FC0_9FCF
 	);
 
-	// Cartridge Domain 2 Address 2 (FlashRam) 
+	// Cartridge Domain 2 Address 2 (FlashRam)
 	// ToDo : FlashRam Read is at 0x800, and Flash Ram Write at 0x801
 	Memory_InitFunc
-	( 
-		MEMORY_START_C2A2, 
+	(
+		MEMORY_START_C2A2,
 		MEMORY_SIZE_C2A2,
 		NULL,
 		NULL,
-		ReadFlashRam,   
+		ReadFlashRam,
 		WriteValue_FlashRam
 	);
 
@@ -591,16 +591,16 @@ void Memory_InitTables()
 	// Nb: We can do a hack if ROM address isn't fixed by allocating the first 8K bytes of the ROM, but yea I don't think is worth..
 	Memory_InitFunc
 	(
-		MEMORY_START_ROM_IMAGE, 
-		rom_size, 
+		MEMORY_START_ROM_IMAGE,
+		rom_size,
 		rom_address,
 		NULL,
-		ReadROM,	 
+		ReadROM,
 		WriteValue_ROM
 	);
 
 	// Hack the TLB Map per game
-	if (g_ROM.GameHacks == GOLDEN_EYE) 
+	if (g_ROM.GameHacks == GOLDEN_EYE)
 	{
 		Memory_Tlb_Hack( rom_address );
 	}
@@ -771,7 +771,7 @@ void MemoryUpdateDP( u32 flags )
 
 	DBGConsole_Msg( 0, "Modified DPC_STATUS_REG - now %08x", dpc_status );
 #endif
-	
+
 	// Write back the value
 	Memory_DPC_SetRegister(DPC_STATUS_REG, dpc_status);
 
@@ -900,7 +900,7 @@ void MemoryUpdatePIF()
 	u8 command = pPIFRam[ 0x3F ^ U8_TWIDDLE];
 	if( command == 0x08 )
 	{
-		pPIFRam[ 0x3F ^ U8_TWIDDLE ] = 0x00; 
+		pPIFRam[ 0x3F ^ U8_TWIDDLE ] = 0x00;
 
 		DBGConsole_Msg( 0, "[GSI Interrupt control value: 0x%02x", command );
 		Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);

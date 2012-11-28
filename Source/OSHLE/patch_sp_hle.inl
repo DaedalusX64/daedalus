@@ -32,7 +32,7 @@ TEST_DISABLE_SP_FUNCS
 	u32 len    = gGPR[REG_a3]._u32_0;
 
 	/*
-	DBGConsole_Msg(0, "osSpRawStartDma(%d, 0x%08x, 0x%08x (0x%08x), %d)", 
+	DBGConsole_Msg(0, "osSpRawStartDma(%d, 0x%08x, 0x%08x (0x%08x), %d)",
 		RWflag,
 		SPAddr,
 		VAddr, PAddr,
@@ -57,7 +57,7 @@ TEST_DISABLE_SP_FUNCS
 
 	// Decrement.. since when DMA'ing to/from SP we increase SP len by 1
 	len--;
-		
+
 	// This is correct - SP_WR_LEN_REG is a read (from RDRAM to device!)
 	if (RWflag == OS_READ)  
 	{
@@ -81,7 +81,7 @@ TEST_DISABLE_SP_FUNCS
 u32 Patch___osSpDeviceBusy_Mario()
 {
 TEST_DISABLE_SP_FUNCS
-	
+
 	gGPR[REG_v0]._u32_0 = IsSpDeviceBusy();
 
 	return PATCH_RET_JR_RA;
@@ -103,7 +103,7 @@ TEST_DISABLE_SP_FUNCS
 //*****************************************************************************
 //
 //*****************************************************************************
-// Very similar to osSpDeviceBusy, 
+// Very similar to osSpDeviceBusy,
 // Used in Pokemon Stadium 1
 u32 Patch___osSpGetStatus_Mario()
 {
@@ -121,7 +121,7 @@ TEST_DISABLE_SP_FUNCS
 u32 Patch___osSpGetStatus_Rugrats()
 {
 TEST_DISABLE_SP_FUNCS
-	
+
 	gGPR[REG_v0]._u32_0 = SpGetStatus();
 
 	return PATCH_RET_JR_RA;
@@ -135,7 +135,7 @@ u32 Patch___osSpSetStatus_Mario()
 {
 TEST_DISABLE_SP_FUNCS
 	u32 status = gGPR[REG_a0]._u32_0;
-	
+
 	MemoryUpdateSPStatus( status );
 	return PATCH_RET_JR_RA;
 }
@@ -161,7 +161,7 @@ TEST_DISABLE_SP_FUNCS
 	u32 pc = gGPR[REG_a0]._u32_0;
 
 	//DBGConsole_Msg(0, "__osSpSetPc(0x%08x)", pc);
-	
+
 	u32 status = SpGetStatus();
 
 	if (status & SP_STATUS_HALT)
@@ -207,7 +207,7 @@ TEST_DISABLE_SP_FUNCS
 
 	// Translate virtual addresses to physical...
 	memcpy_vfpu_BE(pDstTask, pSrcTask, sizeof(OSTask));
-	
+
 	if (pDstTask->t.ucode != 0)
 		pDstTask->t.ucode = (u64 *)ConvertToPhysics((u32)pDstTask->t.ucode);
 
@@ -216,16 +216,16 @@ TEST_DISABLE_SP_FUNCS
 
 	if (pDstTask->t.dram_stack != 0)
 		pDstTask->t.dram_stack = (u64 *)ConvertToPhysics((u32)pDstTask->t.dram_stack);
-	
+
 	if (pDstTask->t.output_buff != 0)
 		pDstTask->t.output_buff = (u64 *)ConvertToPhysics((u32)pDstTask->t.output_buff);
-	
+
 	if (pDstTask->t.output_buff_size != 0)
 		pDstTask->t.output_buff_size = (u64 *)ConvertToPhysics((u32)pDstTask->t.output_buff_size);
-	
+
 	if (pDstTask->t.data_ptr != 0)
 		pDstTask->t.data_ptr = (u64 *)ConvertToPhysics((u32)pDstTask->t.data_ptr);
-	
+
 	if (pDstTask->t.yield_data_ptr != 0)
 		pDstTask->t.yield_data_ptr = (u64 *)ConvertToPhysics((u32)pDstTask->t.yield_data_ptr);
 
@@ -267,9 +267,9 @@ TEST_DISABLE_SP_FUNCS
 	Memory_SP_SetRegister(SP_DRAM_ADDR_REG, (u32)pDstTask->t.ucode_boot);//	-> Translate boot ucode to physical address!
 	Memory_SP_SetRegister(SP_RD_LEN_REG, pDstTask->t.ucode_boot_size - 1);
 	DMA_SP_CopyFromRDRAM();
-	
+
 	return PATCH_RET_JR_RA;
-	
+
 }
 
 //*****************************************************************************
@@ -280,7 +280,7 @@ u32 Patch_osSpTaskStartGo()
 TEST_DISABLE_SP_FUNCS
 	DAEDALUS_ASSERT( !IsSpDeviceBusy(), "Sp Device is BUSY, Need to handle!");
 	/*
-	if (IsSpDeviceBusy())	// Device busy? 
+	if (IsSpDeviceBusy())	// Device busy?
 	{
 		// LOOP Until device not busy -
 		// we can't do this, so we just exit. What we could to is

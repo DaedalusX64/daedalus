@@ -14,7 +14,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-	  
+
 */
 
 // Manages textures for RDP code
@@ -43,13 +43,13 @@ class ITextureCache : public CTextureCache
 public:
 	ITextureCache();
 	~ITextureCache();
-	
+
 			void			PurgeOldTextures();
 			void			DropTextures();
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			void			SetDumpTextures( bool dump_textures )	{ mDumpTextures = dump_textures; }
 			bool			GetDumpTextures( ) const				{ return mDumpTextures; }
-#endif	
+#endif
 			CRefPtr<CTexture>GetTexture(const TextureInfo * pti);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -97,7 +97,7 @@ protected:
 	{
 		u32 address( ti.GetLoadAddress() );
 		u32 hash( (address >> (HASH_TABLE_BITS*2)) ^ (address >> HASH_TABLE_BITS) ^ address );
-		
+
 		hash ^= ti.GetTLutIndex() >> 2;			// Useful for palettised fonts, e.g in Starfox
 
 		return hash & (HASH_TABLE_SIZE-1);
@@ -121,7 +121,7 @@ protected:
 template<> bool CSingleton< CTextureCache >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-	
+
 	mpInstance = new ITextureCache();
 	return mpInstance != NULL;
 }

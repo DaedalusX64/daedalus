@@ -65,7 +65,7 @@ void* malloc_volatile(size_t size)
 	if (uid >= 0)
 	{
 
-//		printf("getting memory from p5 %d KBS\n", size / 1024);  
+//		printf("getting memory from p5 %d KBS\n", size / 1024);
 //		malloc_p5_memory_used += size;
 
 		u32* pointer = (u32*)sceKernelGetBlockHeadAddr(uid);
@@ -93,7 +93,7 @@ void free_volatile(void* ptr)
 	}
 
 	if (!ptr)
-		return;  
+		return;
 
 	if (ptr >= (void*)0x08800000)
 	{

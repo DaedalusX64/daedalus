@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Core/R4300OpCode.h"
 
-// 
+//
 // I think we should check for branch type in static analyzer - Salvy
 //
 
@@ -104,7 +104,7 @@ ER4300BranchType GetBranchType( OpCode op_code )
 		break;
 	case OP_COPRO1:
 		if( op_code.cop1_op == Cop1Op_BCInstr )
-		{	
+		{
 			switch( op_code.cop1_bc )
 			{
 			case Cop1BCOp_BC1F:		return BT_BC1F;
@@ -176,7 +176,7 @@ OpCode	GetInverseBranch( OpCode op_code )
 		break;
 	case OP_COPRO1:
 		if( op_code.cop1_op == Cop1Op_BCInstr )
-		{	
+		{
 			switch( op_code.cop1_bc )
 			{
 			case Cop1BCOp_BC1F:		op_code.cop1_bc = Cop1BCOp_BC1T;	break;
@@ -208,7 +208,7 @@ namespace
 		op_code.offset = u16( ( offset - 4 ) >> 2 );
 		return op_code;
 	}
-	
+
 	OpCode	UpdateJumpTarget( OpCode op_code, u32 jump_location, u32 target_location )
 	{
 		op_code.target = (target_location - jump_location) >> 2;
@@ -250,7 +250,7 @@ OpCode	UpdateBranchTarget( OpCode op_code, u32 op_address, u32 target_address )
 		case RegImmOp_BGEZAL:
 		case RegImmOp_BLTZALL:
 		case RegImmOp_BGEZALL:
-			op_code = UpdateBranchOffset( op_code, op_address, target_address );	
+			op_code = UpdateBranchOffset( op_code, op_address, target_address );
 			break;
 		default:
 			NODEFAULT;
@@ -283,7 +283,7 @@ OpCode	UpdateBranchTarget( OpCode op_code, u32 op_address, u32 target_address )
 		break;
 	case OP_COPRO1:
 		if( op_code.cop1_op == Cop1Op_BCInstr )
-		{	
+		{
 			switch( op_code.cop1_bc )
 			{
 			case Cop1BCOp_BC1F:
@@ -339,7 +339,7 @@ u32 GetBranchTarget( u32 address, OpCode op_code, ER4300BranchType type )
 	{
 		return JumpTarget( op_code, address );
 	}
-	
+
 	// These are all indirect
 	return  0;
 }

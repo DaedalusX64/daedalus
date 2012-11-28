@@ -33,7 +33,7 @@ class	CIndirectExitMap;
 #include "RegisterSpan.h"
 #include "DynaRec/TraceRecorder.h"
 
-// 
+//
 //	Allow an architecure-independent way of passing around register sets
 //
 struct RegisterSnapshotHandle
@@ -72,9 +72,9 @@ class CCodeGenerator
 		virtual CJumpLocation		ExecuteNativeFunction( CCodeLabel speed_hack, bool check_return = false ) = 0;
 };
 
-extern "C" 
-{ 
-	void R4300_CALL_TYPE _EnterDynaRec( const void * p_function, const void * p_base_pointer, const void * p_rebased_mem, u32 mem_limit ); 
+extern "C"
+{
+	void R4300_CALL_TYPE _EnterDynaRec( const void * p_function, const void * p_base_pointer, const void * p_rebased_mem, u32 mem_limit );
 }
 
 #endif // CODEGENERATOR_H_

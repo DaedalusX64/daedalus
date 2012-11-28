@@ -77,7 +77,7 @@ namespace IO
 			if ( IsDirectory(p_path) )
 				return true;
 
-			// Make sure parent exists, 
+			// Make sure parent exists,
 			char	p_path_parent[ IO::Path::MAX_PATH_LEN+1 ];
 			strncpy( p_path_parent, p_path, IO::Path::MAX_PATH_LEN );
 			p_path_parent[IO::Path::MAX_PATH_LEN-1] = '\0';
@@ -245,7 +245,7 @@ namespace IO
 		{
 			if (s == NULL || *s == '\0')
 				return s;
-			
+
 			char * p = s + strlen(s);
 
 			p--;
@@ -261,7 +261,7 @@ namespace IO
 	bool	FindFileOpen( const char * path, FindHandleT * handle, FindDataT & data )
 	{
 		*handle = sceIoDopen( path );
-		if( *handle >= 0 ) 
+		if( *handle >= 0 )
 		{
 			// To support findfirstfile() API we must return the first result immediately
 			if( FindFileNext( *handle, data ) )

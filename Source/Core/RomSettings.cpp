@@ -50,7 +50,7 @@ EExpansionPakUsage	ExpansionPakUsageFromString( const char * str )
 
 	return PAK_STATUS_UNKNOWN;
 }
-	
+
 ESaveType	SaveTypeFromString( const char * str )
 {
 	for( u32 i = 0; i < NUM_SAVE_TYPES; ++i )
@@ -127,7 +127,7 @@ class IRomSettingsDB : public CRomSettingsDB
 
 	private:
 		typedef std::map<RomID, RomSettings>		SettingsMap;
-		
+
 		SettingsMap				mSettings;
 
 		bool					mDirty;				// (STRMNNRMN - Changed since read from disk?)
@@ -142,7 +142,7 @@ class IRomSettingsDB : public CRomSettingsDB
 template<> bool	CSingleton< CRomSettingsDB >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-	
+
 	mpInstance = new IRomSettingsDB();
 
 	char		ini_filename[MAX_PATH+1];
@@ -295,7 +295,7 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 		if( p_section->FindProperty( "CleanSceneEnabled", &p_property ) )
 		{
 			settings.CleanSceneEnabled = p_property->GetBooleanValue( false );
-		}              
+		}
 		if( p_section->FindProperty( "AudioRateMatch", &p_property ) ) 	 
 		{ 	 
 			settings.AudioRateMatch = p_property->GetBooleanValue( false ); 	 
@@ -320,7 +320,7 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 	}
 
 	mDirty = false;
-	
+
 	delete p_ini_file;
 	return true;
 }
@@ -420,7 +420,7 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 {
 	// Generate the CRC-ID for this rom:
 	fprintf(fh, "{%08x%08x-%02x}\n", id.CRC[0], id.CRC[1], id.CountryID );
-	
+
 	fprintf(fh, "Name=%s\n", settings.GameName.c_str());
 
 	if( !settings.Comment.empty() )				fprintf(fh, "Comment=%s\n", settings.Comment.c_str());
@@ -432,10 +432,10 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	if( !settings.DynarecLoopOptimisation )		fprintf(fh, "DynarecLoopOptimisation=yes\n");
 	if( !settings.DynarecDoublesOptimisation )	fprintf(fh, "DynarecDoublesOptimisation=yes\n");
 	if( !settings.DoubleDisplayEnabled )		fprintf(fh, "DoubleDisplayEnabled=no\n");
-	if( settings.CleanSceneEnabled )			fprintf(fh, "CleanSceneEnabled=yes\n");	
-	if( settings.AudioRateMatch )				fprintf(fh, "AudioRateMatch=yes\n"); 
+	if( settings.CleanSceneEnabled )			fprintf(fh, "CleanSceneEnabled=yes\n");
+	if( settings.AudioRateMatch )				fprintf(fh, "AudioRateMatch=yes\n");
 	if( settings.VideoRateMatch )				fprintf(fh, "VideoRateMatch=yes\n");
-	if( settings.FogEnabled )					fprintf(fh, "FogEnabled=yes\n"); 
+	if( settings.FogEnabled )					fprintf(fh, "FogEnabled=yes\n");
 	if( settings.MemoryAccessOptimisation )		fprintf(fh, "MemoryAccessOptimisation=yes\n");
 	if( settings.CheatsEnabled )				fprintf(fh, "CheatsEnabled=yes\n");
 
@@ -446,7 +446,7 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 }
 
 //*****************************************************************************
-// Retreive the settings for the specified rom. Returns false if the rom is 
+// Retreive the settings for the specified rom. Returns false if the rom is
 // not in the database
 //*****************************************************************************
 bool	IRomSettingsDB::GetSettings( const RomID & id, RomSettings * p_settings ) const
@@ -477,7 +477,7 @@ void	IRomSettingsDB::SetSettings( const RomID & id, const RomSettings & settings
 	{
 		mSettings[ id ] = settings;
 	}
-	
+
 	mDirty = true;
 }
 

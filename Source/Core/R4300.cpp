@@ -57,7 +57,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef DAEDALUS_DEBUG_CONSOLE
 inline void CHECK_R0( u32 op )
 {
-	if(gGPR[0]._u64 != 0) 
+	if(gGPR[0]._u64 != 0)
 	{
 		DBGConsole_Msg(0, "Warning: Attempted write to r0!"); \
 		gGPR[0]._u64 = 0; // Ensure r0 is always zero (easier than trapping writes?)
@@ -141,7 +141,7 @@ inline void StoreFPR_Long( u32 reg, u64 value )
 {
 	REG64	r;
 	r._u64 = value;
-		
+
 	gCPUState.FPU[reg+0]._u32 = r._u32_0;
 	gCPUState.FPU[reg+1]._u32 = r._u32_1;
 }
@@ -198,7 +198,7 @@ inline void StoreFPR_Double( u32 reg, d64 value )
 //*****************************************************************************
 //
 //*****************************************************************************
-// ToDO : Simplify this or find a workaround for this hack.. 
+// ToDO : Simplify this or find a workaround for this hack..
 // Actually this the proper way but we get a good speed up simulating doubles with the above function :p
 inline void StoreFPR_Double_2( u32 reg, f64 value )
 {
@@ -206,8 +206,8 @@ inline void StoreFPR_Double_2( u32 reg, f64 value )
 	// Green / static textures bug in Conker.
 	// EWJ, PowerPuff Girls, and Tom and Jerry
 
-	REG64 r; 
-	r._f64 = value;	
+	REG64 r;
+	r._f64 = value;
 	gCPUState.FPU[reg+0]._u32 = r._u32_0;
 	gCPUState.FPU[reg+1]._u32 = r._u32_1;
 
@@ -980,7 +980,7 @@ static void R4300_CALL_TYPE R4300_LWL( R4300_CALL_SIGNATURE ) 			// Load Word Le
 
 	u32 nReg = gGPR[op_code.rt]._u32_0;
 
-#if 1 //1-> tighter code, 0->old way //Corn	
+#if 1 //1-> tighter code, 0->old way //Corn
 	nReg = (nReg & ~(~0 << ((address & 0x3) << 3))) | (nMemory << ((address & 0x3) << 3));
 #else
 	switch (address % 4)
@@ -1007,7 +1007,7 @@ static void R4300_CALL_TYPE R4300_LDL( R4300_CALL_SIGNATURE )
 
 	u64 nReg = gGPR[op_code.rt]._u64;
 
-#if 1 //1-> tighter code, 0->old way //Corn	
+#if 1 //1-> tighter code, 0->old way //Corn
 	nReg = (nReg & ~(~0LL << ((address & 0x7) << 3))) | (nMemory << ((address & 0x7) << 3));
 #else
 	switch (address % 8)
@@ -1038,7 +1038,7 @@ static void R4300_CALL_TYPE R4300_LWR( R4300_CALL_SIGNATURE ) 			// Load Word Ri
 
 	u32 nReg = gGPR[op_code.rt]._u32_0;
 
-#if 1 //1-> tighter code, 0->old way //Corn	
+#if 1 //1-> tighter code, 0->old way //Corn
 	nReg = (nReg & (~0 << ( ((address & 0x3) + 1) << 3))) | (nMemory >> ((~address & 0x3) << 3));
 #else
 	switch (address % 4)
@@ -1065,7 +1065,7 @@ static void R4300_CALL_TYPE R4300_LDR( R4300_CALL_SIGNATURE )
 
 	u64 nReg = gGPR[op_code.rt]._u64;
 
-#if 1 //1-> tighter code, 0->old way //Corn	
+#if 1 //1-> tighter code, 0->old way //Corn
 	nReg = (nReg & (~0LL << ( ((address & 0x7) + 1) << 3))) | (nMemory >> ((~address & 0x7) << 3));
 #else
 	switch (address % 8)
@@ -1092,7 +1092,7 @@ static void R4300_CALL_TYPE R4300_LW( R4300_CALL_SIGNATURE ) 			// Load Word
 	CHECK_R0( op_code.rt );
 
 	// This is for San Francisco 2049. An R0 errg.. otherwise it crashes when the race is about to start.
-	if (op_code.rt == 0) 
+	if (op_code.rt == 0)
 	{
 		DAEDALUS_ERROR("Attempted write to r0!");
 		return;	// I think is better to trap it than override it
@@ -1146,7 +1146,7 @@ static void R4300_CALL_TYPE R4300_SWL( R4300_CALL_SIGNATURE ) 			// Store Word L
 	u32 dwMemory = Read32Bits(address & ~0x3);
 	u32 dwReg = gGPR[op_code.rt]._u32_0;
 
-#if 1 //1-> tighter code, 0->old way //Corn	
+#if 1 //1-> tighter code, 0->old way //Corn
 	u32 dwNew = (dwMemory & ((~0 << (((~address & 0x3) + 1 ) << 3)))) | (dwReg >> ((address & 0x3) << 3));
 #else
 	u32 dwNew;
@@ -1171,7 +1171,7 @@ static void R4300_CALL_TYPE R4300_SWR( R4300_CALL_SIGNATURE ) 			// Store Word R
 	u32 dwMemory = Read32Bits(address & ~0x3);
 	u32 dwReg = gGPR[op_code.rt]._u32_0;
 
-#if 1 //1-> tighter code, 0->old way //Corn	
+#if 1 //1-> tighter code, 0->old way //Corn
 	u32 dwNew = (dwMemory & ~(~0 << ((~address & 0x3) << 3))) | (dwReg << ((~address & 0x3) << 3));
 #else
 	u32 dwNew;
@@ -1197,7 +1197,7 @@ static void R4300_CALL_TYPE R4300_SDL( R4300_CALL_SIGNATURE )//CYRUS64
 	u64 nMemory = Read64Bits(address & ~0x7);
 	u64 nReg = gGPR[op_code.rt]._u64;
 
-#if 1 //1-> tighter code, 0->old way //Corn	
+#if 1 //1-> tighter code, 0->old way //Corn
 	u64 nNew = (nMemory & ((~0LL << (((~address & 0x7) + 1 ) << 3)))) | (nReg >> ( (address & 0x7) << 3));
 #else
 	u64 nNew;
@@ -1226,7 +1226,7 @@ static void R4300_CALL_TYPE R4300_SDR( R4300_CALL_SIGNATURE )//CYRUS64
 
 	u64 nMemory = Read64Bits(address & ~0x7);
 	u64 nReg = gGPR[op_code.rt]._u64;
-#if 1 //1-> tighter code, 0->old way //Corn	
+#if 1 //1-> tighter code, 0->old way //Corn
 	u64 nNew = (nMemory & ~(~0LL << ((~address & 0x7) << 3))) | (nReg << ((~address & 0x7) << 3));
 #else
 	u64 nNew;
@@ -1774,7 +1774,7 @@ static void R4300_CALL_TYPE R4300_Special_DADDU( R4300_CALL_SIGNATURE )//CYRUS64
 	//BUG FIX for Excite Bike - Salvy
 	// I don't know why Excite bike only works if the operand is 32bit.. this for sure is wrong as docs say.
 	// Also this causes Conker to fail to display a cutscene in the final boss!
-	//gGPR[ op_code.rd ]._s64 = (s64)( gGPR[ op_code.rt ]._s32_0 + gGPR[ op_code.rs ]._s32_0 ); 
+	//gGPR[ op_code.rd ]._s64 = (s64)( gGPR[ op_code.rt ]._s32_0 + gGPR[ op_code.rs ]._s32_0 );
 
 }
 
@@ -1916,7 +1916,7 @@ static void R4300_CALL_TYPE R4300_RegImm_BLTZAL( R4300_CALL_SIGNATURE ) 		// Bra
 	// Store the return address even if branch not taken
 
 	// Store return address
-	gGPR[REG_ra]._s64 = (s64)(s32)(gCPUState.CurrentPC + 8);		// Store return address	
+	gGPR[REG_ra]._s64 = (s64)(s32)(gCPUState.CurrentPC + 8);		// Store return address
 
 	if ( gGPR[ op_code.rs ]._s64 < 0 )
 	{
@@ -1968,7 +1968,7 @@ static void R4300_CALL_TYPE R4300_RegImm_BGEZAL( R4300_CALL_SIGNATURE ) 		// Bra
 	//branch if rs >= 0
 	// This always happens, even if branch not taken
 
-	gGPR[REG_ra]._s64 = (s64)(s32)(gCPUState.CurrentPC + 8);		// Store return address	
+	gGPR[REG_ra]._s64 = (s64)(s32)(gCPUState.CurrentPC + 8);		// Store return address
 
 	if ( gGPR[ op_code.rs ]._s64 >= 0 )
 	{
@@ -2053,7 +2053,7 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 			gCPUState.CPUControl[C0_WIRED]._u32 = new_value;
 			break;
 
-		case C0_RAND:	
+		case C0_RAND:
 		case C0_BADVADDR:
 		case C0_PRID:
 		case C0_CACHE_ERR:			// Furthermore, this reg must return 0 on reads.
@@ -2168,11 +2168,11 @@ static void R4300_CALL_TYPE R4300_TLB_TLBWR( R4300_CALL_SIGNATURE )
 	u32 wired = gCPUState.CPUControl[C0_WIRED]._u32 & 0x1F;
 
 	// Select a value for index between wired and 31
-	
+
 	// errrg the vfpu here for rand causes alot of overhead :/
 	// was cuz we were comparing ints with floats
 	//i = vfpu_randf(wired, 32);
-	
+
 	i = (pspFastRand()%(32-wired)) + wired;
 
 	DPF( DEBUG_TLB, "TLBWR: INDEX: 0x%04x. ", i );
@@ -2194,8 +2194,8 @@ static void R4300_CALL_TYPE R4300_TLB_TLBP( R4300_CALL_SIGNATURE ) 				// TLB Pr
 
     for( u32 i = 0; i < 32; i++ )
 	{
-		if( ((g_TLBs[i].hi & TLBHI_VPN2MASK) == (entryH & TLBHI_VPN2MASK)) && ( (g_TLBs[i].g) 
-			|| ((g_TLBs[i].hi & TLBHI_PIDMASK) ==  (entryH    & TLBHI_PIDMASK))) ) 
+		if( ((g_TLBs[i].hi & TLBHI_VPN2MASK) == (entryH & TLBHI_VPN2MASK)) && ( (g_TLBs[i].g)
+			|| ((g_TLBs[i].hi & TLBHI_PIDMASK) ==  (entryH    & TLBHI_PIDMASK))) )
 		{
 			DPF( DEBUG_TLB, "   Found matching TLB Entry - 0x%04x", i );
 			gCPUState.CPUControl[C0_INX]._u32 = i;
@@ -2831,7 +2831,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_UEQ( R4300_CALL_SIGNATURE )
 //*****************************************************************************
 //
 //*****************************************************************************
-static void R4300_CALL_TYPE R4300_Cop1_S_NGLE( R4300_CALL_SIGNATURE )	
+static void R4300_CALL_TYPE R4300_Cop1_S_NGLE( R4300_CALL_SIGNATURE )
 {
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	R4300_CALL_MAKE_OP( op_code );
@@ -2848,7 +2848,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_NGLE( R4300_CALL_SIGNATURE )
 //*****************************************************************************
 //
 //*****************************************************************************
-static void R4300_CALL_TYPE R4300_Cop1_S_OLE( R4300_CALL_SIGNATURE )	
+static void R4300_CALL_TYPE R4300_Cop1_S_OLE( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
@@ -2867,7 +2867,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_OLE( R4300_CALL_SIGNATURE )
 //*****************************************************************************
 //
 //*****************************************************************************
-static void R4300_CALL_TYPE R4300_Cop1_S_ULE( R4300_CALL_SIGNATURE )	
+static void R4300_CALL_TYPE R4300_Cop1_S_ULE( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
@@ -2883,7 +2883,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_ULE( R4300_CALL_SIGNATURE )
 //*****************************************************************************
 //
 //*****************************************************************************
-static void R4300_CALL_TYPE R4300_Cop1_S_UN( R4300_CALL_SIGNATURE )	
+static void R4300_CALL_TYPE R4300_Cop1_S_UN( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
@@ -2910,7 +2910,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_F( R4300_CALL_SIGNATURE )
 //
 //*****************************************************************************
 // Blast Corps fails here.
-static void R4300_CALL_TYPE R4300_Cop1_S_NGT( R4300_CALL_SIGNATURE ) 
+static void R4300_CALL_TYPE R4300_Cop1_S_NGT( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
@@ -3564,7 +3564,7 @@ void R4300_Init()
 {
 	if(g_ROM.GameHacks == CONKER)
 	{
-		R4300Cop1DInstruction[Cop1OpFunc_MOV]	= R4300_Cop1_D_MOV_2; 
+		R4300Cop1DInstruction[Cop1OpFunc_MOV]	= R4300_Cop1_D_MOV_2;
 	}
 	else
 	{

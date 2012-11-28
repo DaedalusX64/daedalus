@@ -49,7 +49,7 @@ static void WriteValueMapped( u32 address, u32 value )
 		R4300_Exception_TLB(address, EXC_WMISS, missing ? UT_VEC : E_VEC);
 
 		*(u32*)g_pMemoryBuffers[MEM_UNUSED] = value;
-	}	
+	}
 }
 
 /*
@@ -83,7 +83,7 @@ static void WriteValue_8000_807F( u32 address, u32 value )
 // 0x03F0 0000 to 0x03FF FFFF  RDRAM registers
 //*****************************************************************************
 static void WriteValue_83F0_83F0( u32 address, u32 value )
-{	
+{
 	DPF( DEBUG_MEMORY_RDRAM_REG, "Writing to MEM_RD_REG: 0x%08x", address );
 	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_RD_REG0] + (address & 0xFF)) = value;
 }
@@ -169,7 +169,7 @@ static void WriteValue_8410_841F( u32 address, u32 value )
 		//
 		DBGConsole_Msg( 0, "Wrote to [WDPC_END_REG] 0x%08x", value );
 		// ToDo : Should trigger for an interrupt?
-		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_DP);	
+		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_DP);
 		break;
 
 	case 0xc:	//DPC_STATUS_REG
@@ -193,7 +193,7 @@ static void WriteValue_8410_841F( u32 address, u32 value )
 //*****************************************************************************
 static void WriteValue_8420_842F( u32 address, u32 value )
 {
-	
+
 	DBGConsole_Msg(0, "Write to DP Span Registers is unhandled (0x%08x, PC: 0x%08x)",
 		address, gCPUState.CurrentPC);
 
@@ -394,7 +394,7 @@ static void WriteValue_8480_848F( u32 address, u32 value )
 	case 0x0:	//SI_DRAM_ADDR_REG
 		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_SI_REG] + offset) = value;
 		break;
-			
+
 	case 0x4:	// SI_PIF_ADDR_RD64B_REG
 		// Trigger DRAM -> PIF DMA
 		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_SI_REG] + offset) = value;
@@ -414,7 +414,7 @@ static void WriteValue_8480_848F( u32 address, u32 value )
 		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_SI);
 		R4300_Interrupt_UpdateCause3();
 		break;
-	}		
+	}
 }
 
 //*****************************************************************************
@@ -426,7 +426,7 @@ static void WriteValue_9FC0_9FCF( u32 address, u32 value )
 	u32 offset = address & 0x3F;
 	DAEDALUS_ASSERT(!(address - 0x7C0 & ~0x3F), "Read to PIF RAM (0x%08x) is invalid", address);
 	DPF( DEBUG_MEMORY_PIF, "Writing to MEM_PIF_RAM: 0x%08x", address );
-	
+
 	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset) = value;
 	if (offset == 0x3C)
 	{
@@ -456,6 +456,6 @@ static void WriteValue_FlashRam( u32 address, u32 value )
 static void WriteValue_ROM( u32 address, u32 value )
 {
 	// Write to ROM support
-	// A Bug's Life and Toy Story 2 write to ROM, add support by storing written value which is used when reading from Rom.  
+	// A Bug's Life and Toy Story 2 write to ROM, add support by storing written value which is used when reading from Rom.
 	g_pWriteRom[0] = value;	g_RomWritten = true;
 }

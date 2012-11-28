@@ -65,7 +65,7 @@ template<> bool CSingleton< CROMFileMemory >::Create()
 IROMFileMemory::IROMFileMemory()
 {
 
-	//	
+	//
 	// Allocate large memory heap for SLIM+ (32Mb) Used for ROM Buffer and ROM Cache
 	// Otherwise allocate small memory heap for PHAT (2Mb) Used for ROM cache only
 	//

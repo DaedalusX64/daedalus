@@ -43,7 +43,7 @@ TEST_DISABLE_PI_FUNCS
 	{
 		Patch___osPiCreateAccessQueue();	// Ignore return
 	}
-	
+
 	gGPR[REG_a0]._u32_0 = VAR_ADDRESS(osPiAccessQueue);
 	gGPR[REG_a1]._u32_0 = gGPR[REG_sp]._u32_0 - 4;		// Place on stack and ignore
 	gGPR[REG_a2]._u32_0 = OS_MESG_BLOCK;
@@ -60,7 +60,7 @@ TEST_DISABLE_PI_FUNCS
 	gGPR[REG_a0]._u32_0 = VAR_ADDRESS(osPiAccessQueue);
 	gGPR[REG_a1]._u32_0 = 0;		// Place on stack and ignore
 	gGPR[REG_a2]._u32_0 = OS_MESG_NOBLOCK;
-	
+
 	return Patch_osSendMesg();
 }
 
@@ -89,7 +89,7 @@ TEST_DISABLE_PI_FUNCS
 	u32 len    = gGPR[REG_a3]._u32_0;
 
 	DAEDALUS_ASSERT( !IsPiDeviceBusy(), "Pi Device is BUSY, Need to handle!");
-	
+
 	/*
 	if (IsPiDeviceBusy())
 	{

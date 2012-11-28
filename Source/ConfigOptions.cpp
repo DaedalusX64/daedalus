@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // This file contains many variables that can be used to
 // change the overall operation of the emu. They are here for
 // convienience, so that they can quickly be changed when
-// developing. Generally they will be changed by the ini file 
+// developing. Generally they will be changed by the ini file
 // settings.
 
 #include "stdafx.h"
@@ -52,12 +52,12 @@ DaedalusConfig g_DaedalusConfig =
 	false,			// WarnMemoryErrors;	// Warn on all memory access errors?
 											// If false, the exception handler is
 											// taken without any warnings on the debug console
-											
+
 	true,			// RunAutomatically;	// Run roms automatically after loading
 
 	true,			// TrapExceptions;		// If set, this causes exceptions in the audio
 											// plugin, cpu thread and graphics processing to
-											// be handled nicely. I turn this off for 
+											// be handled nicely. I turn this off for
 											// development to see when things mess up
 	0,				// nNumRomsDirs
 	// szRomsDir

@@ -119,7 +119,7 @@ void DLParser_GBI0_Tri4( MicroCodeCommand command )
 // Actually line3d, not supported I think.
 //*****************************************************************************
 /*
-void DLParser_GBI0_Quad( MicroCodeCommand command ) 
+void DLParser_GBI0_Quad( MicroCodeCommand command )
 {
 	DAEDALUS_ERROR("GBI0_Quad : Not supported in ucode0 ? ( Ignored )");
 }

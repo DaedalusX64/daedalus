@@ -70,7 +70,7 @@ void DLParser_DumpVtxInfoDKR(u32 address, u32 v0_idx, u32 num_verts)
 				pwSrc[(i + 2) ^ 1],
 				pwSrc[(i + 3) ^ 1],
 				pwSrc[(i + 4) ^ 1]);
-			
+
 			i += 5;
 		}
 		*/
@@ -140,18 +140,18 @@ void DLParser_DLInMem( MicroCodeCommand command )
 //
 //*****************************************************************************
 /*
-00229C28: 01400040 002327C0 CMD G_MTX  {Matrix} at 802327C0 ind 1  Load:Mod 
-00229BB8: 01400040 00232740 CMD G_MTX  {Matrix} at 80232740 ind 1  Load:Mod 
-00229BF0: 01400040 00232780 CMD G_MTX  {Matrix} at 80232780 ind 1  Load:Mod 
-00229B28: 01000040 002326C0 CMD G_MTX  {Matrix} at 802326C0  Mul:Mod 
-00229B78: 01400040 00232700 CMD G_MTX  {Matrix} at 80232700  Mul:Mod 
+00229C28: 01400040 002327C0 CMD G_MTX  {Matrix} at 802327C0 ind 1  Load:Mod
+00229BB8: 01400040 00232740 CMD G_MTX  {Matrix} at 80232740 ind 1  Load:Mod
+00229BF0: 01400040 00232780 CMD G_MTX  {Matrix} at 80232780 ind 1  Load:Mod
+00229B28: 01000040 002326C0 CMD G_MTX  {Matrix} at 802326C0  Mul:Mod
+00229B78: 01400040 00232700 CMD G_MTX  {Matrix} at 80232700  Mul:Mod
 */
 
 // 0x80 seems to be mul
 // 0x40 load
 
 void DLParser_Mtx_DKR( MicroCodeCommand command )
-{	
+{
 	u32 address		= command.inst.cmd1 + RDPSegAddr(gDKRMatrixAddr);
 	u32 mtx_command = (command.inst.cmd0 >> 16) & 0xF;
 	//u32 length      = (command.inst.cmd0      )& 0xFFFF;
@@ -280,7 +280,7 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 		//	//	PSPRenderer::Get()->SetCullMode( true, false );
 		//	//}
 		//}
-	
+
 		DL_PF("    Index[%d %d %d] Cull[%s] uv_TexCoord[%0.2f|%0.2f] [%0.2f|%0.2f] [%0.2f|%0.2f]",
 			v0_idx, v1_idx, v2_idx, !(tri->flag & 0x40)? "On":"Off",
 			(f32)tri->s0/32.0f, (f32)tri->t0/32.0f,
@@ -316,7 +316,7 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 		tri++;
 	}
 
-	if(tris_added)	
+	if(tris_added)
 	{
 		PSPRenderer::Get()->FlushTris();
 	}
@@ -334,7 +334,7 @@ void DLParser_GBI1_Texture_DKR( MicroCodeCommand command )
 	// Seems to use 0x01
 	// Force enable texture in DKR Ucode, fixes static texture bug etc
     bool enable = true;
-	
+
 	DL_PF("    Level[%d] Tile[%d] %s", command.texture.level, tile, enable? "enable":"disable");
 
 	PSPRenderer::Get()->SetTextureTile( tile);

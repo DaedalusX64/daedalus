@@ -18,7 +18,7 @@ TEST_DISABLE_UTIL_FUNCS
 	{
 		gGPR[REG_v0]._u32_0 = 0;
 	}
-	
+
 	return PATCH_RET_JR_RA;
 }
 
@@ -49,7 +49,7 @@ TEST_DISABLE_UTIL_FUNCS
 	{
 		*(u8*)((u32)pdst++ ^ 3) = *(u8*)((u32)psrc++ ^ 3);
 	}
-#endif	
+#endif
 
 	return PATCH_RET_JR_RA;
 }
@@ -140,7 +140,7 @@ u32 Patch_strcmp()
 		if ( A != B)
 			break;
 	}
-	
+
 	if (i == len || (A == 0 && Read8Bits(sB + i) == 0))
 		i = 0;
 
@@ -206,13 +206,13 @@ TEST_DISABLE_UTIL_FUNCS
 //
 //*****************************************************************************
 // By Jun Su
-u32 Patch_bzero() 
-{ 
-	u32 dst = gGPR[REG_a0]._u32_0; 
-	u32 len = gGPR[REG_a1]._u32_0; 
+u32 Patch_bzero()
+{
+	u32 dst = gGPR[REG_a0]._u32_0;
+	u32 len = gGPR[REG_a1]._u32_0;
 
 
-	
+
 	// We need to profile below code, bzero is one of the most used oshle funcs -Salvy
 	//
 
@@ -230,7 +230,7 @@ u32 Patch_bzero()
 		*(u8*)((u32)pdst++ ^ 3) = 0;
 		len--;
 	}
-	
+
 	//Write(0) to the 32bit aligned part
 	memset( (void *)pdst, 0, len & ~0x3);
 
@@ -243,10 +243,10 @@ u32 Patch_bzero()
 		*(u8*)((u32)pdst++ ^ 3) = 0;
 	}
 
-#endif	
+#endif
 
-	// return value of dest 
-	gGPR[REG_v0]._u32_0 = gGPR[REG_a0]._u32_0; 
-	
-	return PATCH_RET_JR_RA; 
-} 
+	// return value of dest
+	gGPR[REG_v0]._u32_0 = gGPR[REG_a0]._u32_0;
+
+	return PATCH_RET_JR_RA;
+}

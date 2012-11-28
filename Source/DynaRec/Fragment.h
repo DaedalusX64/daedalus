@@ -64,7 +64,7 @@ class CFragment
 	typedef std::vector<STraceEntry>		TraceBuffer;
 	typedef std::vector<SBranchDetails>		BranchBuffer;
 public:
-		CFragment( CCodeBufferManager * p_manager, u32 entry_address, u32 exit_address, 
+		CFragment( CCodeBufferManager * p_manager, u32 entry_address, u32 exit_address,
 			const TraceBuffer & trace, SRegisterUsageInfo &	register_usage, const BranchBuffer & branch_details, bool need_indirect_exit_map );
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
 		CFragment(CCodeBufferManager * p_manager, u32 entry_address, u32 input_length, void* function_Ptr);

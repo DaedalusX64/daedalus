@@ -21,7 +21,7 @@ TEST_DISABLE_SI_FUNCS
 	gGPR[REG_a0]._u32_0 = VAR_ADDRESS(osSiAccessQueue);
 	gGPR[REG_a1]._u32_0 = 0;		// Msg value is unimportant
 	gGPR[REG_a2]._u32_0 = OS_MESG_NOBLOCK;
-	
+
 	return Patch_osSendMesg();
 
 	//return PATCH_RET_JR_RA;
@@ -45,7 +45,7 @@ TEST_DISABLE_SI_FUNCS
 	{
 		Patch___osSiCreateAccessQueue();	// Ignore return
 	}
-	
+
 	gGPR[REG_a0]._u32_0 = VAR_ADDRESS(osSiAccessQueue);
 	gGPR[REG_a1]._u32_0 = gGPR[REG_sp]._u32_0 - 4;		// Place on stack and ignore
 	gGPR[REG_a2]._u32_0 = OS_MESG_BLOCK;
@@ -62,7 +62,7 @@ TEST_DISABLE_SI_FUNCS
 	gGPR[REG_a0]._u32_0 = VAR_ADDRESS(osSiAccessQueue);
 	gGPR[REG_a1]._u32_0 = 0;		// Place on stack and ignore
 	gGPR[REG_a2]._u32_0 = OS_MESG_NOBLOCK;
-	
+
 	return Patch_osSendMesg();
 }
 
@@ -85,7 +85,7 @@ inline bool IsSiDeviceBusy()
 u32 Patch___osSiDeviceBusy()
 {
 	gGPR[REG_v0]._u32_0 = IsSiDeviceBusy();
-	
+
 	return PATCH_RET_JR_RA;
 }
 

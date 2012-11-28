@@ -74,7 +74,7 @@ struct RomSettings
 	bool				CheatsEnabled;
 
 	u32					RescanCount;
-	
+
 	RomSettings();
 
 	~RomSettings();

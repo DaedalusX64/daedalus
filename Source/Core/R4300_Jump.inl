@@ -224,10 +224,10 @@ CPU_Instruction R4300Cop1BC1Instruction[4] = {
 CPU_Instruction R4300Cop1SInstruction[64] = {
 	R4300_Cop1_S_ADD,     R4300_Cop1_S_SUB,     R4300_Cop1_S_MUL,    R4300_Cop1_S_DIV,     R4300_Cop1_S_SQRT,    R4300_Cop1_S_ABS,     R4300_Cop1_S_MOV,    R4300_Cop1_S_NEG,
 	R4300_Cop1_S_ROUND_L, R4300_Cop1_S_TRUNC_L,	R4300_Cop1_S_CEIL_L, R4300_Cop1_S_FLOOR_L, R4300_Cop1_S_ROUND_W, R4300_Cop1_S_TRUNC_W, R4300_Cop1_S_CEIL_W, R4300_Cop1_S_FLOOR_W,
-	R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,    R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,    R4300_Cop1_S_Unk, 
-	R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,    R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,    R4300_Cop1_S_Unk, 
+	R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,    R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,    R4300_Cop1_S_Unk,
+	R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,    R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,    R4300_Cop1_S_Unk,
 	R4300_Cop1_S_Unk,     R4300_Cop1_S_CVT_D,   R4300_Cop1_S_Unk,    R4300_Cop1_S_Unk,     R4300_Cop1_S_CVT_W,   R4300_Cop1_S_CVT_L,   R4300_Cop1_S_Unk,    R4300_Cop1_S_Unk,
-	R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,    R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,    R4300_Cop1_S_Unk, 
+	R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,    R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,     R4300_Cop1_S_Unk,    R4300_Cop1_S_Unk,
 	R4300_Cop1_S_F,       R4300_Cop1_S_UN,      R4300_Cop1_S_EQ,     R4300_Cop1_S_UEQ,     R4300_Cop1_S_OLT,     R4300_Cop1_S_ULT,     R4300_Cop1_S_OLE,    R4300_Cop1_S_ULE,
 	R4300_Cop1_S_SF,      R4300_Cop1_S_NGLE,    R4300_Cop1_S_SEQ,    R4300_Cop1_S_NGL,     R4300_Cop1_S_LT,      R4300_Cop1_S_NGE,     R4300_Cop1_S_LE,     R4300_Cop1_S_NGT
 };
@@ -255,10 +255,10 @@ CPU_Instruction R4300Cop1DInstruction[64] =
 {
     R4300_Cop1_D_ADD,     R4300_Cop1_D_SUB,     R4300_Cop1_D_MUL,    R4300_Cop1_D_DIV,     R4300_Cop1_D_SQRT,    R4300_Cop1_D_ABS,     R4300_Cop1_D_MOV,    R4300_Cop1_D_NEG,
     R4300_Cop1_D_ROUND_L, R4300_Cop1_D_TRUNC_L, R4300_Cop1_D_CEIL_L, R4300_Cop1_D_FLOOR_L, R4300_Cop1_D_ROUND_W, R4300_Cop1_D_TRUNC_W, R4300_Cop1_D_CEIL_W, R4300_Cop1_D_FLOOR_W,
-    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk, 
-    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk, 
+    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk,
+    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk,
     R4300_Cop1_D_CVT_S,   R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk,     R4300_Cop1_D_CVT_W,   R4300_Cop1_D_CVT_L,   R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk,
-    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk, 
+    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,     R4300_Cop1_D_Unk,    R4300_Cop1_D_Unk,
     R4300_Cop1_D_F,       R4300_Cop1_D_UN,      R4300_Cop1_D_EQ,     R4300_Cop1_D_UEQ,     R4300_Cop1_D_OLT,     R4300_Cop1_D_ULT,     R4300_Cop1_D_OLE,    R4300_Cop1_D_ULE,
     R4300_Cop1_D_SF,      R4300_Cop1_D_NGLE,    R4300_Cop1_D_SEQ,    R4300_Cop1_D_NGL,     R4300_Cop1_D_LT,      R4300_Cop1_D_NGE,     R4300_Cop1_D_LE,     R4300_Cop1_D_NGT,
 };
@@ -267,11 +267,11 @@ CPU_Instruction R4300Cop1DInstruction[64] =
 void R4300_CALL_TYPE R4300_Special( R4300_CALL_SIGNATURE ) { R4300_CALL_MAKE_OP( op_code ); R4300SpecialInstruction[ op_code.spec_op ]( R4300_CALL_ARGUMENTS ); }
 void R4300_CALL_TYPE R4300_RegImm( R4300_CALL_SIGNATURE )  { R4300_CALL_MAKE_OP( op_code ); R4300RegImmInstruction[ op_code.regimm_op ]( R4300_CALL_ARGUMENTS );     }
 void R4300_CALL_TYPE R4300_CoPro0( R4300_CALL_SIGNATURE )  { R4300_CALL_MAKE_OP( op_code ); R4300Cop0Instruction[ op_code.cop0_op ]( R4300_CALL_ARGUMENTS );  }
-void R4300_CALL_TYPE R4300_CoPro1( R4300_CALL_SIGNATURE )  
-{ 
+void R4300_CALL_TYPE R4300_CoPro1( R4300_CALL_SIGNATURE )
+{
 	R4300_CALL_MAKE_OP( op_code );
 
-	R4300Cop1Instruction[ op_code.cop1_op ]( R4300_CALL_ARGUMENTS );  
+	R4300Cop1Instruction[ op_code.cop1_op ]( R4300_CALL_ARGUMENTS );
 }
 void R4300_CALL_TYPE R4300_Cop0_TLB( R4300_CALL_SIGNATURE ) { R4300_CALL_MAKE_OP( op_code ); R4300TLBInstruction[ op_code.cop0tlb_funct ]( R4300_CALL_ARGUMENTS ); }
 void R4300_CALL_TYPE R4300_Cop1_BCInstr( R4300_CALL_SIGNATURE ) { R4300_CALL_MAKE_OP( op_code ); R4300Cop1BC1Instruction[ op_code.cop1_bc ]( R4300_CALL_ARGUMENTS ); }

@@ -95,7 +95,7 @@ bool ROMFileCompressed::Open( COutputStream & messages )
 				err = unzOpenCurrentFile(mZipFile);
 				if (err == UNZ_OK)
 				{
-					u32			magic;			
+					u32			magic;
 					const u32	u32size( sizeof( u32 ) );
 
 					u32 bytes_read( unzReadCurrentFile( mZipFile, &magic, u32size ) );
@@ -181,12 +181,12 @@ bool ROMFileCompressed::LoadRawData( u32 bytes_to_read, u8 ** p_p_bytes, u32 * p
 			// Not enough bytes read
 			messages << "Unable to read sufficent bytes from zip.\nRead " << bytes_read << ", wanted " << bytes_to_read;
 		}
-		
+
 		delete [] p_bytes;
 		unzCloseCurrentFile(mZipFile);
 		return false;
 	}
-  
+
 	//
 	//	Close the file here to determine crc errors. No need to reopen presently
 	//

@@ -134,7 +134,7 @@ void	Translate_Load( const char * p_dir )
 	if(IO::FindFileOpen( p_dir, &find_handle, find_data ))
 	{
 		do
-		{	
+		{
 			char * filename( find_data.Name );
 			char * last_period( strrchr( filename, '.' ) );
 			if(last_period != NULL)
@@ -143,7 +143,7 @@ void	Translate_Load( const char * p_dir )
 				{
 					IO::Path::RemoveExtension( filename );
 					gLanguage.push_back( filename );
-					
+
 				}
 			}
 		}

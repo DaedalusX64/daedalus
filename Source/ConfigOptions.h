@@ -31,7 +31,7 @@ struct DaedalusConfig
 	bool		RecurseRomDirectory;
 	bool		WarnMemoryErrors;
 	bool		RunAutomatically;
-	bool		TrapExceptions;		
+	bool		TrapExceptions;
 
 	// Urgh - will make this a vector at some point!!
 	enum { MAX_ROMS_DIRS = 100 };
@@ -63,7 +63,7 @@ extern u32	gCheatFrequency;
 extern bool	gCleanSceneEnabled;
 extern u32	gCheckTextureHashFrequency;
 //ToDo: Needs moving to Input plugin config
-extern u32	gControllerIndex;	
+extern u32	gControllerIndex;
 
 //ToDo: Need moving to Audio plugin config
 enum EAudioPluginMode

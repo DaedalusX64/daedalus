@@ -101,8 +101,8 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, u32 address )
 	ti.SetTLutIndex        (0);
 	ti.SetTlutAddress      ((u32)(g_pu8RamBase + RDPSegAddr(sprite->tlut)));
 
-	ti.SetTLutFormat       (G_TT_RGBA16); 
-	
+	ti.SetTLutFormat       (G_TT_RGBA16);
+
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
 	DAEDALUS_ASSERT( texture, "Sprite2D texture is NULL" );
 

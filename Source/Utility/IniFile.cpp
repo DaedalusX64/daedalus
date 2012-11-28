@@ -349,7 +349,7 @@ bool IIniFile::Open( const char * filename )
 				mSections.push_back( p_current_section );
 			}
 			else
-			{		
+			{
 				char *key, *value;
 
 				char *	equals_idx = strchr(readinfo, '=');

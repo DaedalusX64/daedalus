@@ -243,11 +243,11 @@ public:
 	void				ForceMatrix(const u32 address);
 	inline void			Mtxchanged()	{mWPmodified = true;}
 
-	// Vertex stuff	
-	void				SetNewVertexInfo(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!	
-	void				SetNewVertexInfoConker(u32 address, u32 v0, u32 n);	// For conker..	
-	void				SetNewVertexInfoDKR(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!	
-	void				SetNewVertexInfoPD(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!	
+	// Vertex stuff
+	void				SetNewVertexInfo(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!
+	void				SetNewVertexInfoConker(u32 address, u32 v0, u32 n);	// For conker..
+	void				SetNewVertexInfoDKR(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!
+	void				SetNewVertexInfoPD(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!
 	void				ModifyVertexInfo(u32 whered, u32 vert, u32 val);
 	void				SetVtxColor( u32 vert, c32 color );
 	inline void			SetVtxTextureCoord( u32 vert, s16 tu, s16 tv ) { mVtxProjected[vert].Texture.x = (f32)tu * (1.0f / 32.0f); mVtxProjected[vert].Texture.y = (f32)tv * (1.0f / 32.0f); }
@@ -259,14 +259,14 @@ public:
 	void				TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 );
 	void				TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 );
 	void				FillRect( const v2 & xy0, const v2 & xy1, u32 color );
-		
+
 	// Returns true if triangle visible, false otherwise
 	bool				AddTri(u32 v0, u32 v1, u32 v2);
 
 	// Render our current triangle list to screen
 	void				FlushTris();
 	//void				Line3D( u32 v0, u32 v1, u32 width );
-	
+
 	// Returns true if bounding volume is visible within NDC box, false if culled
 	inline bool			TestVerts( u32 v0, u32 vn ) const		{ u32 f=mVtxProjected[v0].ClipFlags; for( u32 i=v0+1; i<=vn; i++ ) f&=mVtxProjected[i].ClipFlags; return f==0; }
 	inline s32			GetVtxDepth( u32 i ) const				{ return (s32)mVtxProjected[ i ].ProjectedPos.z; }
@@ -309,7 +309,7 @@ private:
 	void				EnableTexturing( u32 index, u32 tile_idx );
 
 	void				RestoreRenderStates();
-	
+
 	void				SetPSPViewport( s32 x, s32 y, u32 w, u32 h );
 	void				UpdateViewport();
 
@@ -330,7 +330,7 @@ private:
 
 	v4					LightVert( const v3 & norm ) const;
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST	
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	enum EPlaceholderTextureType
 	{
 		PTT_WHITE = 0,
@@ -377,9 +377,9 @@ private:
 	v2					mTileTopLeft[ NUM_N64_TEXTURES ];
 	v2					mTileScale[ NUM_N64_TEXTURES ];
 	TextureWrap			mTexWrap[ NUM_N64_TEXTURES ];
-	
+
 	//Max is 18 according to the manual //Corn
-	static const u32 MATRIX_STACK_SIZE = 20; 
+	static const u32 MATRIX_STACK_SIZE = 20;
 
 	inline Matrix4x4 &	GetWorldProject();
 
@@ -392,8 +392,8 @@ private:
 	mutable bool		mWorldProjectValid;
 	bool				mReloadProj;
 	bool				mWPmodified;
-		
-	static const u32 	MAX_VERTICES = 320;	//we need at least 80 verts * 3 = 240? But Flying Dragon uses more than 256 //Corn	
+
+	static const u32 	MAX_VERTICES = 320;	//we need at least 80 verts * 3 = 240? But Flying Dragon uses more than 256 //Corn
 	u16					m_swIndexBuffer[MAX_VERTICES];
 	u32					mNumIndices;
 

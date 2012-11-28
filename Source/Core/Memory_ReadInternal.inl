@@ -75,7 +75,7 @@ static bool InternalReadMapped( u32 address, void ** p_translated )
 #endif
 			return InternalReadInvalid( address, p_translated );
 		}
-	}	
+	}
 }
 
 
@@ -111,10 +111,10 @@ static bool InternalReadROM( u32 address, void ** p_translated )
 		//DPF(DEBUG_MEMORY, "Reading from ROM: 0x%08x", address);
 		return true;
 	}
-	else 
+	else
 	{
 		return InternalReadInvalid( address, p_translated );
-	} 
+	}
 }
 
 //*****************************************************************************
@@ -146,7 +146,7 @@ static bool InternalRead_8400_8400( u32 address, void ** p_translated )
 static bool InternalRead_9FC0_9FCF( u32 address, void ** p_translated )
 {
 	u32 offset;
-	
+
 	if ((address&0x1FFFFFFF) <= PIF_ROM_END)
 	{
 		DPF( DEBUG_MEMORY_PIF, "Reading from MEM_PIF_ROM: 0x%08x", address );
@@ -156,7 +156,7 @@ static bool InternalRead_9FC0_9FCF( u32 address, void ** p_translated )
 		*p_translated = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset;
 		return true;
 	}
- 	
+
 	else if ((address&0x1FFFFFFF) <= PIF_RAM_END)
 	{
 		DPF( DEBUG_MEMORY_PIF, "Reading from MEM_PIF_RAM: 0x%08x", address );
@@ -170,7 +170,7 @@ static bool InternalRead_9FC0_9FCF( u32 address, void ** p_translated )
 	else
 	{
 		return InternalReadInvalid( address, p_translated );
-	} 
+	}
 }
 //*****************************************************************************
 //

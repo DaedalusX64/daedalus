@@ -371,7 +371,7 @@ void	IMainMenuScreen::OnSavestateSelected( const char * savestate_filename )
 		System_Open(romName);
 		mIsFinished = true;
 	}
-		
+
 	if( CPU_LoadState( savestate_filename ) )
 	{
 		mIsFinished = true;

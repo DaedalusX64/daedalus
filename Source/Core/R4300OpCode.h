@@ -284,13 +284,13 @@ struct OpCode
 			unsigned base : 5;			// EN64Reg
 			unsigned : 6;
 		};
-		
+
 		struct
 		{
 			unsigned target : 26;
 			unsigned : 6;
 		};
-		
+
 		// SPECIAL
 		struct
 		{
