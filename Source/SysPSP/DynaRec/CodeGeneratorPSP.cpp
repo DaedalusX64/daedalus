@@ -231,9 +231,6 @@ const EPspReg	gMemoryBaseReg = PspReg_S7;
 
 const EPspReg	gRegistersToUseForCaching[] =
 {
-//	PspReg_S6,		// Memory upper bound
-//	PspReg_S7,		// Used for g_pu8RamBase - 0x80000000
-//	PspReg_S8,		// Used for base register (&gCPUState)
 //	PspReg_T0,		// Used as calculation temp
 //	PspReg_T1,		// Used as calculation temp
 	PspReg_T2,
@@ -244,6 +241,11 @@ const EPspReg	gRegistersToUseForCaching[] =
 	PspReg_T7,
 	PspReg_T8,
 	PspReg_T9,
+//	PspReg_AT,		// Used as calculation temp
+//	PspReg_V0,		// Used as calculation temp
+//	PspReg_V1,		// Used as calculation temp
+//	PspReg_A0,		// Used as calculation temp
+//	PspReg_A1,		// Used as calculation temp
 	PspReg_A2,
 	PspReg_A3,
 	PspReg_S0,
@@ -252,8 +254,11 @@ const EPspReg	gRegistersToUseForCaching[] =
 	PspReg_S3,
 	PspReg_S4,
 	PspReg_S5,
-	PspReg_K0,		//Used by Kernel but seems to work if we borrow it...(could come back and bite us if we use kernel stuff?) //Corn
-	PspReg_K1,		//Used by Kernel but seems to work if we borrow it...(could come back and bite us if we use kernel stuff?)
+//	PspReg_S6,		// Memory upper bound
+//	PspReg_S7,		// Used for g_pu8RamBase - 0x80000000
+//	PspReg_S8,		// Used for base register (&gCPUState)
+//	PspReg_K0,		//Used by Kernel but seems to work if we borrow it...(could come back and bite us if we use kernel stuff?) //Corn
+//	PspReg_K1,		//Used by Kernel but seems to work if we borrow it...(could come back and bite us if we use kernel stuff?)
 //	PspReg_GP,		//Crashes when exiting to pause menu, needs saving to work?
 };
 }
