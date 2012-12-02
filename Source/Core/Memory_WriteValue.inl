@@ -52,27 +52,6 @@ static void WriteValueMapped( u32 address, u32 value )
 	}
 }
 
-/*
-static void WriteValue_RAM_4Mb_8000_803F( u32 address, u32 value )
-{
-	*(u32 *)(g_pu8RamBase_8000 + address) = value;
-}
-
-static void WriteValue_RAM_8Mb_8000_807F( u32 address, u32 value )
-{
-	*(u32 *)(g_pu8RamBase_8000 + address) = value;
-}
-
-static void WriteValue_RAM_4Mb_A000_A03F( u32 address, u32 value )
-{
-	*(u32 *)(g_pu8RamBase_A000 + address) = value;
-}
-
-static void WriteValue_RAM_8Mb_A000_A07F( u32 address, u32 value )
-{
-	*(u32 *)(g_pu8RamBase_A000 + address) = value;
-}
-*/
 static void WriteValue_8000_807F( u32 address, u32 value )
 {
 	// Note: Mask is slighty different when EPAK isn't used 0x003FFFFF

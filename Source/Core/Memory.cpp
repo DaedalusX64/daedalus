@@ -61,7 +61,6 @@ static void Memory_InitTables();
 //*****************************************************************************
 u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 {
-//	8*1024,				// Allocate 8k bytes - a bit excessive but some of the internal functions assume it's there! (Don't need this much really)?
 	0x04,				// This seems enough (Salvy)
 	MAXIMUM_MEM_SIZE,	// RD_RAM
 	0x2000,				// SP_MEM
@@ -70,13 +69,10 @@ u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 
 	//1*1024*1024,		// RD_REG	(Don't need this much really)?
 	0x30,				// RD_REG0
-	//0x30,				// RD_REG1	(Unused)
-	//0x30,				// RD_REG2	(Unused)
 
 	0x20,				// SP_REG
 	0x08,				// SP_PC_REG
 	0x20,				// DPC_REG
-	//0x10,				// DPS_REG	(Unhandled)
 	0x10,				// MI_REG
 	0x38,				// VI_REG
 	0x18,				// AI_REG
@@ -276,7 +272,7 @@ static void Memory_Tlb_Hack(const void *p_rom_address)
 	   u32 start_addr = 0x7F000000 >> 18;
 	   u32 end_addr   = 0x7FFFFFFF >> 18;
 
-	   u8 *pRead = (u8*)(reinterpret_cast< u32 >( p_rom_address) + offset - (start_addr << 18));
+	   u8 *pRead = (u8*)(reinterpret_cast< u32 >(p_rom_address) + offset - (start_addr << 18));
 
 	   for (u32 i = start_addr; i <= end_addr; i++)
 	   {
@@ -290,7 +286,7 @@ static void Memory_Tlb_Hack(const void *p_rom_address)
 //*****************************************************************************
 //
 //*****************************************************************************
-void Memory_InitFunc(u32 start, u32 size, const void * ReadRegion, const void * WriteRegion, mReadFunction ReadFunc, mWriteFunction WriteFunc)
+static void Memory_InitFunc(u32 start, u32 size, const void * ReadRegion, const void * WriteRegion, mReadFunction ReadFunc, mWriteFunction WriteFunc)
 {
 	u32	start_addr = (start >> 18);
 	u32	end_addr   = ((start + size - 1) >> 18);
@@ -684,7 +680,7 @@ void MemoryUpdateSPStatus( u32 flags )
 	}
 
 	clr_bits |= (flags & SP_CLR_BROKE) >> 1;
-	clr_bits |= ( flags & SP_CLR_SSTEP);
+	clr_bits |= (flags & SP_CLR_SSTEP);
 	clr_bits |= (flags & SP_CLR_INTR_BREAK) >> 1;
 	clr_bits |= (flags & SP_CLR_SIG0) >> 2;
 	clr_bits |= (flags & SP_CLR_SIG1) >> 3;

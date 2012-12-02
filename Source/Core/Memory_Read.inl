@@ -66,44 +66,6 @@ static void * ReadMapped( u32 address )
 //*****************************************************************************
 //
 //*****************************************************************************
-
-// Main memory
-/*static void *Read_RAM_4Mb_8000_803F( u32 address )
-{
-	return g_pu8RamBase + (address & 0x003FFFFF);
-}
-
-static void *Read_RAM_8Mb_8000_807F( u32 address )
-{
-	return g_pu8RamBase + (address & 0x007FFFFF);
-}*/
-
-//*****************************************************************************
-//
-//*****************************************************************************
-/*static void *Read_RAM_4Mb_8000_803F( u32 address )
-{
-	return g_pu8RamBase_8000 + address;
-}
-
-static void *Read_RAM_8Mb_8000_807F( u32 address )
-{
-	return g_pu8RamBase_8000 + address;
-}
-
-static void *Read_RAM_4Mb_A000_A03F( u32 address )
-{
-	return g_pu8RamBase_A000 + address;
-}
-
-static void *Read_RAM_8Mb_A000_A07F( u32 address )
-{
-	return g_pu8RamBase_A000 + address;
-}
-*/
-//*****************************************************************************
-//
-//*****************************************************************************
 static void *Read_8000_807F( u32 address )
 {
 	// Note: Mask is slighty different when EPAK isn't used 0x003FFFFF
@@ -257,10 +219,10 @@ static void * ReadFlashRam( u32 address )
 static void * ReadROM( u32 address )
 {
 	if (g_RomWritten)
-    {
-        g_RomWritten = false;
+	{
+		g_RomWritten = false;
 		return (u8 *)&g_pWriteRom[0];
-    }
+	}
 	return RomBuffer::GetAddressRaw( (address & 0x03FFFFFF) );
 }
 

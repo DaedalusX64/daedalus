@@ -99,14 +99,14 @@ typedef bool (*InternalMemFastFunction)( u32 address, void ** p_translated );
    These tables were declared as pointers and dynamically allocated.
    However, by declaring them as pointers to access the tables the interpreter must use code like this:
 
-   MOV EAX, DWORD PTR [address_of_the_variable_g_ReadAddressLookupTable]
+   MOV EAX, DWORD PTR [address_of_the_variable_g_MemoryLookupTableRead]
    MOV EAX, DWORD PTR [EAX + desired_offset]
 
    Instead, by declaring them as integers the address of table is "known" at compile time
    (at load-time it may be relocated but the code referencing it will be patched)
    and the interpreter can use code like this:
 
-   MOV EAX, DWORD PTR [address_of_the_array_g_ReadAddressLookupTable + desired_offset]
+   MOV EAX, DWORD PTR [address_of_the_array_g_MemoryLookupTableRead + desired_offset]
 
    Note that dynarec-generated code is not affected by this
 
@@ -162,7 +162,7 @@ ALIGNED_EXTERN(memory_tables_struct_t, memory_tables_struct, PAGE_ALIGN);
    MOV EAX, address
    MOV ECX, EAX
    SHR EAX, 18
-   CALL DWORD PTR [g_ReadAddressLookupTable + EAX*4]
+   CALL DWORD PTR [g_MemoryLookupTableRead + EAX*4]
    # --> (for RAM)
    ADD ECX, [rambase_variable]
    MOV EAX, ECX
@@ -183,7 +183,7 @@ pointer_null_return_x:
 
 pointer_null_x:
    MOV ECX, EAX
-   CALL DWORD PTR [g_ReadAddressLookupTable + EDX*4]
+   CALL DWORD PTR [g_MemoryLookupTableRead + EDX*4]
 #  --> (for RAM)
 #  ADD ECX, [rambase_variable]
 #  MOV EAX, ECX
@@ -204,7 +204,7 @@ pointer_null_return_x:
 
 pointer_null_x:
    MOV ECX, address
-   CALL DWORD PTR [g_ReadAddressLookupTable + EDX*4]
+   CALL DWORD PTR [g_MemoryLookupTableRead + EDX*4]
 #  --> (for RAM)
 #  ADD ECX, [rambase_variable]
 #  MOV EAX, ECX
@@ -409,6 +409,20 @@ inline bool Memory_GetInternalReadAddress(u32 address, void ** p_translated)
 //extern u8 * g_pu8RamBase_8000;
 //extern u8 * g_pu8RamBase_A000;
 
+#if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
+
+inline u64 Read64Bits( u32 address )				{ MEMORY_CHECK_ALIGN( address, 8 ); return *(u64 *)ReadAddress( address ); }
+inline u32 Read32Bits( u32 address )				{ MEMORY_CHECK_ALIGN( address, 4 ); return *(u32 *)ReadAddress( address ); }
+inline u16 Read16Bits( u32 address )				{ MEMORY_CHECK_ALIGN( address, 2 ); return *(u16 *)ReadAddress( address ); }
+inline u8 Read8Bits( u32 address )					{                                   return *(u8  *)ReadAddress( address ); }
+
+inline void Write64Bits( u32 address, u64 data )	{ MEMORY_CHECK_ALIGN( address, 8 ); *(u64 *)ReadAddress( address ) = data; }
+inline void Write32Bits( u32 address, u32 data )	{ MEMORY_CHECK_ALIGN( address, 4 ); WriteAddress(address, data); }
+inline void Write16Bits( u32 address, u16 data )	{ MEMORY_CHECK_ALIGN( address, 2 ); *(u16 *)ReadAddress(address) = data; }
+inline void Write8Bits( u32 address, u8 data )		{                                   *(u8 *)ReadAddress(address) = data;}
+
+#elif (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_LITTLE)
+
 #if 1	//inline vs macro
 inline u64 Read64Bits( u32 address )				{ MEMORY_CHECK_ALIGN( address, 8 ); u64 data = *(u64 *)ReadAddress( address ); data = (data>>32) + (data<<32); return data; }
 inline u32 Read32Bits( u32 address )				{ MEMORY_CHECK_ALIGN( address, 4 ); return *(u32 *)ReadAddress( address ); }
@@ -434,6 +448,10 @@ inline void Write64Bits( u32 address, u64 data )	{ MEMORY_CHECK_ALIGN( address, 
 inline void Write32Bits( u32 address, u32 data )	{ MEMORY_CHECK_ALIGN( address, 4 ); WriteAddress(address, data); }
 inline void Write16Bits( u32 address, u16 data )	{ MEMORY_CHECK_ALIGN( address, 2 ); *(u16 *)ReadAddress(address ^ U16_TWIDDLE) = data; }
 inline void Write8Bits( u32 address, u8 data )		{                                   *(u8 *)ReadAddress(address ^ U8_TWIDDLE) = data;}
+
+#else
+#error No DAEDALUS_ENDIAN_MODE specified
+#endif //DAEDALUS_ENDIAN_MODE
 
 //inline void Write64Bits_NoSwizzle( u32 address, u64 data ){ MEMORY_CHECK_ALIGN( address, 8 ); *(u64 *)WriteAddress( address ) = (data>>32) + (data<<32); }
 inline void Write32Bits_NoSwizzle( u32 address, u32 data )	{ MEMORY_CHECK_ALIGN( address, 4 ); WriteAddress(address, data); }
