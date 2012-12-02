@@ -16,12 +16,16 @@
 #define DAEDALUS_ENDIAN_LITTLE 1
 #define DAEDALUS_ENDIAN_BIG 2
 
-#define DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_LITTLE
 //
 //	Set up your preprocessor flags to search Source/SysXYZ/Include first, where XYZ is your target platform
 //	If certain options are not defined, defaults are provided below
 //
 #include "Platform.h"
+
+// The endianness should really be defined
+#ifndef DAEDALUS_ENDIAN_MODE
+#error DAEDALUS_ENDIAN_MODE was not specified in Platform.h
+#endif
 
 // Calling convention for the R4300 instruction handlers.
 // This is only defined for W32, so provide a default if it's not set up
