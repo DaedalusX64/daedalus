@@ -57,7 +57,6 @@ static void * ReadMapped( u32 address )
 	}
 	else
 	{
-		// should be invalid
 		R4300_Exception_TLB(address, EXC_RMISS, missing ? UT_VEC : E_VEC);
 		return g_pMemoryBuffers[MEM_UNUSED];
 	}

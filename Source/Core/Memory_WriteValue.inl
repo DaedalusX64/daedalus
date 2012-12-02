@@ -45,10 +45,7 @@ static void WriteValueMapped( u32 address, u32 value )
 	}
 	else
 	{
-		// should be invalid
 		R4300_Exception_TLB(address, EXC_WMISS, missing ? UT_VEC : E_VEC);
-
-		*(u32*)g_pMemoryBuffers[MEM_UNUSED] = value;
 	}
 }
 
