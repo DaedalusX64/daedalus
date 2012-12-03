@@ -30,7 +30,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Debug/DBGConsole.h"
 
-#define SET_EXCEPTION(mask, exception)	{ gCPUState.CPUControl[C0_CAUSE]._u32 &= ~mask; gCPUState.CPUControl[C0_CAUSE]._u32 |= exception; }
+inline void SET_EXCEPTION(u32 mask, u32 exception)
+{
+	gCPUState.CPUControl[C0_CAUSE]._u32 &= ~mask;
+	gCPUState.CPUControl[C0_CAUSE]._u32 |= exception;
+}
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
 u32 gNumExceptions = 0;
@@ -87,8 +91,7 @@ void R4300_Exception_Break()
 	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
 	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
 
-	// Clear CAUSE_EXCMASK
-	SET_EXCEPTION( CAUSE_EXCMASK, EXC_BREAK )
+	SET_EXCEPTION( CAUSE_EXCMASK, EXC_BREAK );
 
 	gExceptionVector = E_VEC;
 	gExceptionPC = gCPUState.CurrentPC;
@@ -104,8 +107,7 @@ void R4300_Exception_Syscall()
 	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
 	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
 
-	// Clear CAUSE_EXCMASK
-	SET_EXCEPTION( CAUSE_EXCMASK, EXC_SYSCALL )
+	SET_EXCEPTION( CAUSE_EXCMASK, EXC_SYSCALL );
 
 	gExceptionVector = E_VEC;
 	gExceptionPC = gCPUState.CurrentPC;
@@ -121,9 +123,8 @@ void R4300_Exception_CopUnusuable()
 	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
 	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
 
-	// Clear CAUSE_EXCMASK
 	// XXXX check we're not inside exception handler before snuffing CAUSE reg?
-	SET_EXCEPTION( (CAUSE_EXCMASK|CAUSE_CEMASK), (EXC_CPU|SR_CU0) )
+	SET_EXCEPTION( (CAUSE_EXCMASK|CAUSE_CEMASK), (EXC_CPU|SR_CU0) );
 
     //gCPUState.CPUControl[C0_CAUSE]._u32 &= 0xCFFFFFFF;
 	//gCPUState.CPUControl[C0_CAUSE]._u32 |= SR_CU0;
@@ -134,24 +135,6 @@ void R4300_Exception_CopUnusuable()
 	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-/*
-void R4300_Exception_FP()
-{
-	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
-	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
-
-	// Clear CAUSE_EXCMASK
-	SET_EXCEPTION( CAUSE_EXCMASK, EXC_FPE )
-
-	gExceptionVector = E_VEC;
-	gExceptionPC = gCPUState.CurrentPC;
-	gExceptionWasDelay = gCPUState.Delay == EXEC_DELAY;
-	gCPUState.AddJob( CPU_CHECK_EXCEPTIONS );
-}
-*/
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -168,7 +151,7 @@ void R4300_Exception_TLB( u32 virtual_address, u32 exception_code, u32 exception
 	gCPUState.CPUControl[C0_ENTRYHI]._u32 &= 0x00001FFF;	// Mask off the top bit 13-31
 	gCPUState.CPUControl[C0_ENTRYHI]._u32 |= (virtual_address & 0xFFFFE000);
 
-	SET_EXCEPTION( CAUSE_EXCMASK, exception_code )
+	SET_EXCEPTION( CAUSE_EXCMASK, exception_code );
 
 	gExceptionVector = exception_vector;
 	gExceptionPC = gCPUState.CurrentPC;
@@ -217,8 +200,7 @@ void R4300_Handle_Interrupt()
 #ifdef DAEDALUS_PROFILE_EXECUTION
 			gNumInterrupts++;
 #endif
-			// Clear CAUSE_EXCMASK
-			SET_EXCEPTION( CAUSE_EXCMASK, EXC_INT )
+			SET_EXCEPTION( CAUSE_EXCMASK, EXC_INT );
 			R4300_JumpToInterruptVector( E_VEC );
 		}
 	}
