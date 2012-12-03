@@ -280,7 +280,7 @@ bool Translate_Read(u32 idx, const char * dir)
 	while( fgets(line, 1023, stream) )
 	{
 		// Strip spaces from end of lines
-		IO::Path::Tidy(line);
+		Tidy(line);
 
 		// Handle comments
 		if (line[0] == '/')

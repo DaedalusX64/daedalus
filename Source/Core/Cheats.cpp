@@ -339,7 +339,7 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 	{
 		// Remove any extra character that is added at the end of the string
 		//
-		IO::Path::Tidy(line);
+		Tidy(line);
 
 		if(strcmp(line, romname) == 0)
 		{
@@ -362,7 +362,7 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 		//
 		if(fgets(line, 256, stream))
 		{
-			IO::Path::Tidy(line);
+			Tidy(line);
 			if(strncmp(line, "NumberOfGroups=", 15) == 0)
 			{
 				numberofgroups = atoi(line + 15);

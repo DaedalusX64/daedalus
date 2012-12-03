@@ -330,7 +330,7 @@ bool IIniFile::Open( const char * filename )
 	// XXXX Using fgets needs reworking...
 	while (fgets( readinfo, BUFFER_LEN, fh ) != NULL)
 	{
-		IO::Path::Tidy(readinfo);			// Strip spaces from end of lines
+		Tidy(readinfo);			// Strip spaces from end of lines
 
 		// Handle comments
 		if (readinfo[0] == '/')
@@ -365,8 +365,8 @@ bool IIniFile::Open( const char * filename )
 					value = NULL;
 				}
 
-				IO::Path::Tidy( key );
-				IO::Path::Tidy( value );
+				Tidy( key );
+				Tidy( value );
 
 				DAEDALUS_ASSERT( p_current_section != NULL, "There is no current section" );
 
