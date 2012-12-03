@@ -48,4 +48,4 @@ const char *ShortCop0RegNames[32] = {
 	"*", "*", "PErr", "CErr", "TLo", "THi", "EEPC", "*"
 };
 
-#endif // DAEDALUS_SILENT
+#endif

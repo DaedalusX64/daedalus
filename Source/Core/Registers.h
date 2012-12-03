@@ -54,6 +54,6 @@ extern const char *RegNames[32];
 extern const char *Cop0RegNames[32];
 extern const char *ShortCop0RegNames[32];
 
-#endif // DAEDALUS_SILENT
+#endif
 
 #endif
