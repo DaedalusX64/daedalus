@@ -403,9 +403,6 @@ inline bool Memory_GetInternalReadAddress(u32 address, void ** p_translated)
 #define MEMORY_RI				g_pMemoryBuffers[MEM_RI_REG]
 #define MEMORY_PIF				g_pMemoryBuffers[MEM_PIF_RAM]
 
-// Little Endian
-#define SWAP_PIF(x) (x >> 24) | ((x >> 8) & 0xFF00) | ((x & 0xFF00) << 8) | (x << 24)
-
 //extern u8 * g_pu8RamBase_8000;
 //extern u8 * g_pu8RamBase_A000;
 
