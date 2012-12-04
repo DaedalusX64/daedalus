@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 
 #include "Utility/Stream.h"
-yay
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -141,24 +141,13 @@ bool ROMFileCompressed::Open( COutputStream & messages )
 //*****************************************************************************
 //
 //*****************************************************************************
-bool ROMFileCompressed::LoadRawData( u32 bytes_to_read, u8 ** p_p_bytes, u32 * p_buffer_size, u32 * p_rom_size, COutputStream & messages )
+bool ROMFileCompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages )
 {
 	DAEDALUS_ASSERT( mZipFile != NULL, "No open zipfile?" );
 	DAEDALUS_ASSERT( mFoundRom, "Why are we loading data when no rom was found?" );
 
-	// If a size of 0 was specified, this indicates we should read entire file
-	// XXXX Should set bytes_to_read to max( bytes_to_read, filesize )?
-	if (bytes_to_read == 0)
-	{
-		bytes_to_read = mRomSize;
-	}
-
-	// Round buffer up to 4byte boundary
-	u32		size_aligned( AlignPow2( bytes_to_read, 4 ) );
- 	u8 *	p_bytes( new u8[size_aligned] );
-    if (p_bytes == NULL)
+	if (p_bytes == NULL)
     {
-		messages << "Error allocating memory";
         return false;
     }
 
@@ -182,7 +171,6 @@ bool ROMFileCompressed::LoadRawData( u32 bytes_to_read, u8 ** p_p_bytes, u32 * p
 			messages << "Unable to read sufficent bytes from zip.\nRead " << bytes_read << ", wanted " << bytes_to_read;
 		}
 
-		delete [] p_bytes;
 		unzCloseCurrentFile(mZipFile);
 		return false;
 	}
@@ -195,17 +183,12 @@ bool ROMFileCompressed::LoadRawData( u32 bytes_to_read, u8 ** p_p_bytes, u32 * p
 	if( err == UNZ_CRCERROR )
 	{
 		messages << "CRC Error in ZipFile";
-		delete [] p_bytes;
 		unzCloseCurrentFile(mZipFile);
 		return false;
 	}
 
 	// Apply the bytesswapping before returning the buffer
 	CorrectSwap( p_bytes, bytes_to_read );
-
-	*p_p_bytes = p_bytes;
-	*p_buffer_size = bytes_to_read;
-	*p_rom_size = mRomSize;
 
     return true;
 }

@@ -555,7 +555,7 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 		CheatCodes_Read( (char*)g_ROM.settings.GameName.c_str(), (char*)"Daedalus.cht", g_ROM.rh.CountryID );
 	}
 
-	DBGConsole_Msg(0, "[G%s]",  g_ROM.settings.GameName.c_str());
+	DBGConsole_Msg(0, "[G%s]", g_ROM.settings.GameName.c_str());
 	DBGConsole_Msg(0, "This game has been certified as [G%s] (%s)", g_ROM.settings.Comment.c_str(), g_ROM.settings.Info.c_str());
 	DBGConsole_Msg(0, "SaveType: [G%s]", ROM_GetSaveTypeName( g_ROM.settings.SaveType ) );
 	DBGConsole_Msg(0, "ApplyPatches: [G%s]", gOSHooksEnabled ? "on" : "off");

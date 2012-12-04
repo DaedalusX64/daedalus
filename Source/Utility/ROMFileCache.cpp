@@ -141,7 +141,7 @@ void	ROMFileCache::Close()
 //*****************************************************************************
 //
 //*****************************************************************************
-inline u32		ROMFileCache::AddressToChunkMapIndex( u32 address )
+inline u32 AddressToChunkMapIndex( u32 address )
 {
 	return address / CHUNK_SIZE;
 }
@@ -149,7 +149,7 @@ inline u32		ROMFileCache::AddressToChunkMapIndex( u32 address )
 //*****************************************************************************
 //
 //*****************************************************************************
-inline u32		ROMFileCache::GetChunkStartAddress( u32 address )
+inline u32 GetChunkStartAddress( u32 address )
 {
 	return ( address / CHUNK_SIZE ) * CHUNK_SIZE;
 }
