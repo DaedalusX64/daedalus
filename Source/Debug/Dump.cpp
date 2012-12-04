@@ -256,7 +256,6 @@ void Dump_RSPDisassemble(const char * p_file_name)
 	u8 * base;
 	u32 start = 0xa4000000;
 	u32 end = 0xa4002000;
-	use(end);
 
 	if (!Memory_GetInternalReadAddress(start, (void**)&base))
 	{
@@ -277,7 +276,7 @@ void Dump_RSPDisassemble(const char * p_file_name)
 		file_path[MAX_PATH-1] = '\0';
 	}
 
-	DBGConsole_Msg(0, "Disassembling from 0x%08x to 0x%08x ([C%s])", start, end, file_path);
+	DBGConsole_Msg(0, "Disassembling from 0x%08x to 0x%08x ([C%s])", start, end, file_path); use(end);
 
 	FILE * fp( fopen(file_path, "w") );
 	if (fp == NULL)

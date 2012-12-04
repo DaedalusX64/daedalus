@@ -182,7 +182,8 @@ template<> bool	CSingleton< CRomDB >::Create()
 
 	char romdb_filename[ MAX_PATH + 1 ];
 	IO::Path::Combine( romdb_filename, gDaedalusExePath, "rom.db" );
-	mpInstance->OpenDB( romdb_filename );
+	/*ret = */mpInstance->OpenDB( romdb_filename );
+	// Ignore failure - this file might not exist on first run.
 	return true;
 }
 
@@ -227,7 +228,10 @@ bool	IRomDB::OpenDB( const char * filename )
 
 	FILE * fh = fopen( filename, "rb" );
 	if ( !fh )
+	{
+		DBGConsole_Msg( 0, "Failed to open RomDB from %s\n", mRomDBFileName );
 		return false;
+	}
 
 	//
 	// Check the magic number

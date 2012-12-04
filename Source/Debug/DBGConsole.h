@@ -54,7 +54,7 @@ class CDebugConsole : public CSingleton< CDebugConsole >
 			STAT_PI,
 			STAT_SP,
 
-			NUM_STAT_ITEMS
+			NUM_STAT_ITEMS,
 		};
 
 		virtual void DAEDALUS_VARARG_CALL_TYPE	Msg( u32 type, const char * format, ... ) = 0;
@@ -65,15 +65,12 @@ class CDebugConsole : public CSingleton< CDebugConsole >
 
 		virtual void DAEDALUS_VARARG_CALL_TYPE	Stats( StatType stat, const char * format, ... ) = 0;
 };
-#endif	// DAEDALUS_DEBUG_CONSOLE
 
-#ifndef DAEDALUS_DEBUG_CONSOLE
-
-#define DBGConsole_Msg(...)					do {} while(0)
+#define DBGConsole_Msg( type, ... )			CDebugConsole::Get()->Msg( type, __VA_ARGS__ )
 
 #else
 
-#define DBGConsole_Msg( type, ... )			CDebugConsole::Get()->Msg( type, __VA_ARGS__ )
+#define DBGConsole_Msg(...)					do {} while(0)
 
 #endif // DAEDALUS_DEBUG_CONSOLE
 
