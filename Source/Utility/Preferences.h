@@ -151,7 +151,6 @@ struct SRomPreferences
 	ETextureHashFrequency		CheckTextureHashFrequency;
 	EFrameskipValue				Frameskip;
 	EAudioPluginMode			AudioEnabled;
-	ECheatFrequency				CheatFrequency;
 	f32							ZoomX;
 	u32							SpeedSyncEnabled;
 	u32							ControllerIndex;
@@ -188,10 +187,6 @@ class CPreferences : public CSingleton< CPreferences >
 u32						ROM_GetTexureHashFrequencyAsFrames( ETextureHashFrequency thf );
 ETextureHashFrequency	ROM_GetTextureHashFrequencyFromFrames( u32 frames );
 const char *			ROM_GetTextureHashFrequencyDescription( ETextureHashFrequency thf );
-
-u32						ROM_GetCheatFrequencyAsFrames( ECheatFrequency cf );
-ECheatFrequency			ROM_GetCheatFrequencyFromFrames( u32 frames );
-const char *			ROM_GetCheatFrequencyDescription( ECheatFrequency cf );
 
 u32						ROM_GetFrameskipValueAsInt( EFrameskipValue value );
 EFrameskipValue			ROM_GetFrameskipValueFromInt( u32 value );

@@ -160,27 +160,6 @@ class CCheatNotFound : public CUISetting
 //*************************************************************************************
 //
 //*************************************************************************************
-	class CCheatFrequency : public CUISetting
-	{
-	public:
-		CCheatFrequency( ECheatFrequency * setting, const char * name, const char * description )
-			:	CUISetting( name, description )
-			,	mSetting( setting )
-		{
-		}
-
-		virtual	void			OnNext()				{ *mSetting = ECheatFrequency( ( *mSetting + 1 ) % NUM_CF ); }
-		virtual	void			OnPrevious()			{ *mSetting = ECheatFrequency( ( *mSetting + NUM_CF - 1 ) % NUM_CF ); }
-
-		virtual const char *	GetSettingName() const	{ return ROM_GetCheatFrequencyDescription( *mSetting ); }
-
-	private:
-		ECheatFrequency *	mSetting;
-	};
-
-//*************************************************************************************
-//
-//*************************************************************************************
 CCheatOptionsScreen::~CCheatOptionsScreen()
 {
 }
@@ -217,8 +196,7 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 	CheatCodes_Read( mRomName.c_str(), "Daedalus.cht", mRomID.CountryID );
 
 	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Whether to use cheat codes for this ROM", "Yes", "No" ) );
-	mElements.Add( new CCheatFrequency( &mRomPreferences.CheatFrequency, "Apply Cheat Codes Frequency", "The higher this value, the less cheats will hog the emulator at the expense that certain cheats won't work properly." ) );
-
+	
 	// ToDo: add a dialog if cheatcodes were truncated, aka MAX_CHEATCODE_PER_GROUP is reached
 	for(u32 i = 0; i < MAX_CHEATCODE_PER_LOAD; i++)
 	{
