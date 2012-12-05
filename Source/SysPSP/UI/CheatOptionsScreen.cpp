@@ -105,15 +105,8 @@ public:
 	// Make read only the cheat list if enable cheat code option is disable
 	virtual bool			IsReadOnly() const
 	{
-		// Check for any active cheat codes
-		if(!(*mCheatEnabled) && codegrouplist[mIndex].enable)
-		{
-			// Disable 'em
-			codegrouplist[mIndex].active = false;
-			// Do one pass to restore their value too
-			CheatCodes_Activate(IN_GAME);
-		}
-
+		// Disable any active cheat codes
+		CheatCodes_Disable( mIndex, *mCheatEnabled);
 		return !(*mCheatEnabled);
 	}
 
@@ -126,16 +119,9 @@ public:
 	{
 
 		if(!codegrouplist[mIndex].active)
-		{
-			//printf("Enable %d\n",index);
 			codegrouplist[mIndex].active = true;
-		}
 		else
-		{
-			//printf("Disable %d\n",index);
 			codegrouplist[mIndex].active = false;
-
-		}
 
 	}
 	virtual const char *	GetSettingName() const
@@ -147,6 +133,7 @@ private:
 	u32						mIndex;
 	bool *					mCheatEnabled;
 };
+
 
 //*************************************************************************************
 //
@@ -167,7 +154,7 @@ class CCheatNotFound : public CUISetting
 
 		//virtual	void			OnSelected(){}
 
-		virtual const char *	GetSettingName() const	{ return "N/A";	}
+		virtual const char *	GetSettingName() const	{ return "Disabled";	}
 	};
 
 //*************************************************************************************
@@ -227,42 +214,24 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 	// We always parse the cheat file when the cheat menu is accessed, to always have cheats ready to be used by the user without hassle
 	// Also we do this to make sure we clear any non-associated cheats, we only parse once per ROM access too :)
 	//
-	CheatCodes_Read( (char*)mRomName.c_str(), (char*)"Daedalus.cht", mRomID.CountryID );
+	CheatCodes_Read( mRomName.c_str(), "Daedalus.cht", mRomID.CountryID );
 
 	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Whether to use cheat codes for this ROM", "Yes", "No" ) );
 	mElements.Add( new CCheatFrequency( &mRomPreferences.CheatFrequency, "Apply Cheat Codes Frequency", "The higher this value, the less cheats will hog the emulator at the expense that certain cheats won't work properly." ) );
 
-
+	// ToDo: add a dialog if cheatcodes were truncated, aka MAX_CHEATCODE_PER_GROUP is reached
 	for(u32 i = 0; i < MAX_CHEATCODE_PER_LOAD; i++)
 	{
 		// Only display the cheat list when the cheatfile been loaded correctly and there were cheats found
-		// ToDo: add a check/msg if cheatcodes were truncated, aka MAX_CHEATCODE_PER_GROUP is passed
-		//
-		if(codegroupcount > 0)
+		if(codegroupcount > 0 && codegroupcount > i)
 		{
-			// Check for only available entries, if any entry isn't available, compesate it with a note to the user
-			//
-			if(codegroupcount > i)
-			{
-				// Generate list of available cheatcodes
-				//
-				mElements.Add( new CCheatType( i, codegrouplist[i].name, &mRomPreferences.CheatsEnabled, codegrouplist[i].note ) );
-
-			}
-			else
-			{
-				//mElements.Add( new CCheatNotFound("No cheat codes found for this entry", "Make sure codes are formatted correctly for this entry. Daedalus supports a max of eight cheats per game." ) );
-				mElements.Add( new CCheatNotFound("No cheat codes found for this entry" ) );
-			}
+			// Generate list of available cheatcodes
+			mElements.Add( new CCheatType( i, codegrouplist[i].name, &mRomPreferences.CheatsEnabled, codegrouplist[i].note ) );
 		}
 		else
 		{
-			// Display Msg to user if he opens the cheat list without loading the cheatfile or no cheats found
-			//
-			//codegrouplist[i].active = false; // Overkill IMO
 			//mElements.Add( new CCheatNotFound("No cheat codes found for this entry", "Make sure codes are formatted correctly for this entry. Daedalus supports a max of eight cheats per game." ) );
 			mElements.Add( new CCheatNotFound("No cheat codes found for this entry" ) );
-
 		}
 	}
 

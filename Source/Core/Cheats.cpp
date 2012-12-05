@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Cheats.h"
 #include "Memory.h"
+#include "ROM.h"
 
 #include "OSHLE/ultra_R4300.h"
 #include "ConfigOptions.h"
@@ -32,38 +33,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Cheatcode routines and format based from 1964
 //
 
+
 #define CHEAT_CODE_MAGIC_VALUE 0xDEAD
 
 CODEGROUP *codegrouplist;
 u32		codegroupcount		= 0;
-s32		currentgroupindex	= -1;
-char	current_rom_name[128];
-//enum { CHEAT_ALL_COUNTRY, CHEAT_USA, CHEAT_JAPAN, CHEAT_USA_AND_JAPAN, CHEAT_EUR, CHEAT_AUS, CHEAT_FR, CHEAT_GER };
-//*****************************************************************************
-//
-//*****************************************************************************
-// This is similar to ROM_GetCountryNameFromID but we don't get the whole name as Europe or USA to avoid slowing down parsing by adding inecesary strings
-// We can get just the country ID name from it but they are really confusing.. ex E for USA..
-// Since this such a small function is alright even though it seems rebundant
-//
-const char * GetCountryName( u8 country )
-{
-	switch(country)
-	{
-	case 0x45:	return " (U)";		//USA
-	case 0x50:	return " (E)";		//Europe
-	case 0x4A:	return " (J)";		//Japan
-	case 0x46:	return " (F)";		//French
-	case 0x44:	return " (G)";		//Germany
-	case 0x53:	return " (S)";		//Spanish
-	case 0x55:	return " (A)";		//Australia
-	case 0x49:	return " (I)";		//Italian
-	case 0x37:	return " (B)";		//Beta (7)
-	case 0x59:	return " (P)";		//PAL
-	default:	return " (?)";		//0x41/0x58
-	}
-}
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -91,127 +65,129 @@ const char * GetCountryName( u8 country )
 //*****************************************************************************
 static void CheatCodes_Apply(u32 index, u32 mode)
 {
-	bool	executenext = true;
+	u8* p_mem = NULL;
+	bool skip = false;
 
 	for (u32 i = 0; i < codegrouplist[index].codecount; i ++)
 	{
-		// Used by activator codes, skip until the specified button is pressed
-		//
-		if(executenext == false)
+		// Used by activator codes
+		if(skip == true)
 		{
-			executenext = true;
+			skip = false;
 			continue;
 		}
 
-		u32 address = PHYS_TO_K0(codegrouplist[index].codelist[i].addr & 0xFFFFFF);
-		u16 value	= codegrouplist[index].codelist[i].val;
-		u32 type	= (codegrouplist[index].codelist[i].addr >> 24) & 0xFF;
-
-		if( mode == GS_BUTTON )
+		CODENODE_STRUCT &code( codegrouplist[index].codelist[i] );
+		u32 address = (code.addr & 0xFFFFFF);
+		u16 value	= code.val;
+		u32 type	= (code.addr >> 24) & 0xFF;
+		
+		switch(type)
 		{
-			switch(type)
+		case 0x80:
+		case 0xA0:
+			p_mem = g_pu8RamBase + (address ^ U8_TWIDDLE);
+
+			// Check if orig value is initialized and valid to store current value
+			if((code.orig == CHEAT_CODE_MAGIC_VALUE) && code.orig )
+				code.orig = *(u8 *)(p_mem);
+
+			// Cheat code is no longer active, restore to saved value
+			// Set CHEAT_CODE_MAGIC_VALUE as well to make sure we can save the most recent value later on 
+			if(!codegrouplist[index].enable)
 			{
-			case 0x88:
-				Write8Bits(address,(u8)value);
-				break;
-			case 0x89:
-				Write16Bits(address, value);
-				break;
+				value = (u8)code.orig;
+				code.orig = CHEAT_CODE_MAGIC_VALUE;
 			}
+		
+			*(u8 *)(p_mem) = (u8)value;
 			break;
-		}
-		else
-		{
-			switch(type)
+		case 0x81:
+		case 0xA1:
+			p_mem = g_pu8RamBase + (address ^ U16_TWIDDLE);
+
+			// Check if orig value is initialized and valid to store current value
+			if((code.orig == CHEAT_CODE_MAGIC_VALUE) && code.orig )
+				code.orig = *(u16 *)(p_mem);
+
+			// Cheat code is no longer active, restore to saved value
+			// Set CHEAT_CODE_MAGIC_VALUE as well to make sure we can save the most recent value later on 
+			if(!codegrouplist[index].enable)
 			{
-			case 0x80:
-			case 0xA0:
-				// Check if orig value is unitialized and valid to store current value
-				//
-				if(codegrouplist[index].codelist[i].orig && (codegrouplist[index].codelist[i].orig == CHEAT_CODE_MAGIC_VALUE))
-					codegrouplist[index].codelist[i].orig = Read8Bits(address);
-
-				// Cheat code is no longer active, restore to original value
-				//
-				if(codegrouplist[index].enable==false)
-					value = codegrouplist[index].codelist[i].orig;
-
-				Write8Bits(address,(u8)value);
-				break;
-			case 0x81:
-			case 0xA1:
-				// Check if orig value is unitialized and valid to store current value
-				//
-				if(codegrouplist[index].codelist[i].orig && (codegrouplist[index].codelist[i].orig == CHEAT_CODE_MAGIC_VALUE))
-					codegrouplist[index].codelist[i].orig = Read16Bits(address);
-
-				// Cheat code is no longer active, restore to original value
-				//
-				if(codegrouplist[index].enable==false)
-					value = codegrouplist[index].codelist[i].orig;
-
-				Write16Bits(address, value);
-				break;
-			//case 0xD8:
-			case 0xD0:
-				if(Read8Bits(address) != value) executenext = false;
-				break;
-			//case 0xD9:
-			case 0xD1:
-				if(Read16Bits(address) != value) executenext = false;
-				break;
-			case 0xD2:
-				if(Read8Bits(address) == value) executenext = false;
-				break;
-			case 0xD3:
-				if(Read16Bits(address) == value) executenext = false;
-				break;
-			case 0x04:
-				switch((codegrouplist[index].codelist[i].addr >> 20) & 0xF)
+				value = code.orig;
+				code.orig = CHEAT_CODE_MAGIC_VALUE;
+			}
+		
+			*(u16 *)(p_mem) = value;
+			break;
+		case 0xD0:
+			p_mem = g_pu8RamBase + (address ^ U8_TWIDDLE);
+			skip = ( *(u8 *)(p_mem) != value );
+			break;
+		case 0xD1:
+			p_mem = g_pu8RamBase + (address ^ U16_TWIDDLE);
+			skip = ( *(u16 *)(p_mem) != value );
+			break;
+		case 0xD2:
+			p_mem = g_pu8RamBase + (address ^ U8_TWIDDLE);
+			skip = ( *(u8 *)(p_mem) == value );
+			break;
+		case 0xD3:
+			p_mem = g_pu8RamBase + (address ^ U16_TWIDDLE);
+			skip = ( *(u16 *)(p_mem) == value );
+			break;
+		case 0x88:
+			p_mem = g_pu8RamBase + (address ^ U8_TWIDDLE);
+			if( mode == GS_BUTTON )*(u8 *)(p_mem) = (u8)value;
+			break;
+		case 0x89:
+			p_mem = g_pu8RamBase + (address ^ U16_TWIDDLE);
+			if( mode == GS_BUTTON )	*(u16 *)(p_mem) = value;
+			break;
+		case 0x04:
+			if( ((code.addr >> 20) & 0xF) == 0x5 )
+				Memory_AI_SetRegister(code.addr & 0x0FFFFFFF, value);
+			break;
+		case 0x50:	
+			{
+				s32	count	= (address & 0x0000FF00) >> 8;	// repeat count
+				u32	offset	= (address & 0x000000FF);
+				u16	valinc	= value;
+				if(i + 1 < codegrouplist[index].codecount)
 				{
-					case 0x5:
-							Memory_AI_SetRegister(codegrouplist[index].codelist[i].addr & 0x0FFFFFFF, value);
-							break;
-				}
-			case 0x50:
-				{
-					s32	repeatcount = (address & 0x0000FF00) >> 8;
-					u32	addroffset	= (address & 0x000000FF);
-					u16	valinc		= value;
+					type		= codegrouplist[index].codelist[i + 1].addr >> 24;
+					address		= (codegrouplist[index].codelist[i + 1].addr & 0x00FFFFFF);
+					value		= codegrouplist[index].codelist[i + 1].val;
+					u8 valbyte = (u8)value;
 
-					if(i + 1 < codegrouplist[index].codecount)
+					p_mem = g_pu8RamBase + (address);
+					switch(type)
 					{
-						type	= codegrouplist[index].codelist[i + 1].addr >> 24;
-						address		= PHYS_TO_K0(codegrouplist[index].codelist[i + 1].addr & 0x00FFFFFF);
-						value		= codegrouplist[index].codelist[i + 1].val;
-						u8 valbyte = (u8)value;
-
-						switch(type)
+					case 0x80:
+						do
 						{
-							case 0x80:
-								do
-								{
-									Write8Bits(address,valbyte);
-									address += addroffset;
-									valbyte += (u8)valinc;
-									repeatcount--;
-								} while(repeatcount > 0);
-								break;
-							case 0x81:
-								do
-								{
-									Write16Bits(address, value);
-									address += addroffset;
-									value += valinc;
-									repeatcount--;
-								} while(repeatcount > 0);
-								break;
-						}
+							*(u8 *)((u32)p_mem ^ U8_TWIDDLE) = valbyte;
+							p_mem += offset;
+							valbyte += (u8)valinc;
+							count--;
+						} while(count > 0);
+						break;
+					case 0x81:
+						do
+						{
+							*(u16 *)((u32)p_mem ^ U16_TWIDDLE) = value;
+							p_mem += offset;
+							value += valinc;
+							count--;
+						} while(count > 0);
+						break;
+					default:
+						break;
 					}
 				}
-				executenext = false;
-				break;
 			}
+			skip = true;
+			break;
 		}
 	}
 }
@@ -224,23 +200,30 @@ void CheatCodes_Activate( CHEAT_MODE mode )
 	for(u32 i = 0; i < codegroupcount; i++)
 	{
 		// Apply only activated cheats
-		//
 		if(codegrouplist[i].active)
-		{
+		{		
 			// Keep track of active cheatcodes, when they are disable,
 			// this flag will signal that we need to restore the hacked value to normal
-			//
 			codegrouplist[i].enable = true;
+			CheatCodes_Apply( i, mode);
+		}
+	}
+}
 
-			CheatCodes_Apply( i, mode);
-		}
-		// If cheat code is no longer active, but was enabled, do one pass to restore original value
-		//
-		else if(codegrouplist[i].enable)
-		{
-			codegrouplist[i].enable = false;
-			CheatCodes_Apply( i, mode);
-		}
+//*****************************************************************************
+//
+//*****************************************************************************
+void CheatCodes_Disable( u32 index, bool enable )
+{
+	// If cheat feature is disabled, and there's currently any cheat enabled
+	// Disable 'em
+	if(!enable && codegrouplist[index].enable)
+	{
+		codegrouplist[index].active = false;
+		codegrouplist[index].enable = false;
+
+		// restore their original value too
+		CheatCodes_Apply(index, IN_GAME);
 	}
 }
 
@@ -279,19 +262,20 @@ void CheatCodes_Delete(u32 index)
 //*****************************************************************************
 //
 //*****************************************************************************
-bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
+bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 {
+	char			current_rom_name[128];
 	static char		last_rom_name[128];
+
 	char			path[MAX_PATH];
 	char			line[2048], romname[256]/*, errormessage[400]*/;	//changed line length to 2048 previous was 256
 	bool			bfound;
 	u32				c1, c2;
 	FILE			*stream;
 
-	strcpy(current_rom_name, rom_name);
-
 	// Add country ID to this ROM name, to avoid mixing cheat codes of different region in the same entry
-	strcat(current_rom_name, GetCountryName(countryID));
+	// Only the country id is important (first char)
+	sprintf( current_rom_name, "%s (%c)", rom_name, ROM_GetCountryNameFromID(countryID)[0]);
 
 	// Do not parse again, if we already parsed for this ROM
 	if(strcmp(current_rom_name, last_rom_name) == 0)

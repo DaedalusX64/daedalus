@@ -31,9 +31,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define MAX_CHEATCODE_GROUP_PER_ROM 254
 
 enum CHEAT_MODE
-{
-	IN_GAME,
-	GS_BUTTON
+{ 
+	IN_GAME, 
+	GS_BUTTON 
 };
 
 struct CODENODE_STRUCT
@@ -61,7 +61,8 @@ extern u32			codegroupcount;
 extern CODEGROUP	*codegrouplist;
 
 void				CheatCodes_Activate( CHEAT_MODE mode );
-bool				CheatCodes_Read(char *rom_name, char *file, u8 countryID);
+bool				CheatCodes_Read(const char *rom_name, const char *file, u8 countryID);
+void				CheatCodes_Disable( u32 index, bool enable );
 
 
 #endif // CHEATS_H_

@@ -552,7 +552,7 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	//
 	if( gCheatsEnabled )
 	{
-		CheatCodes_Read( (char*)g_ROM.settings.GameName.c_str(), (char*)"Daedalus.cht", g_ROM.rh.CountryID );
+		CheatCodes_Read( g_ROM.settings.GameName.c_str(), "Daedalus.cht", g_ROM.rh.CountryID );
 	}
 
 	DBGConsole_Msg(0, "[G%s]", g_ROM.settings.GameName.c_str());
