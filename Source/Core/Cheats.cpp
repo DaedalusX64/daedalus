@@ -327,7 +327,7 @@ bool CheatCodes_Read(char *rom_name, char *file, u8 countryID)
 
 	// g_ROM.rh.Name adds extra spaces, remove 'em
 	// No longer needed as we now fetch ROM name from Rom.ini
-	//tidy( current_rom_name );
+	//Tidy( current_rom_name );
 
 	// Locate the entry for current rom by searching for g_ROM.rh.Name
 	//

@@ -33,6 +33,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Dynamo.h"
 #include "Interpret.h"
 #include "Save.h"
+#include "ROM.h"
+#include "ConfigOptions.h"
 #include "Cheats.h"
 
 #include "Utility/PrintOpCode.h"
@@ -52,8 +54,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "OSHLE/ultra_R4300.h"
 
-#include "ConfigOptions.h"
-#include "Core/ROM.h"
 
 #include <algorithm>
 #include <string>
@@ -81,8 +81,8 @@ std::vector< DBG_BreakPoint > g_BreakPoints;
 
 
 static bool			gCPURunning				= false;			// CPU is actively running
-//static u32		gLastPC = 0xffffffff;
-//static u8 *		gLastAddress = NULL;
+u32					gLastPC = 0xffffffff;
+u8 *				gLastAddress = NULL;
 
 namespace
 {

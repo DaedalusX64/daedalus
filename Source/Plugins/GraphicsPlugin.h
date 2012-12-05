@@ -39,6 +39,17 @@ class CGraphicsPlugin
 		virtual void		UpdateScreen() = 0;
 
 		virtual void		RomClosed() = 0;
+
+#ifdef DAEDALUS_W32
+		virtual HRESULT		ExecuteCommand( const char * pszCommand, void * pVoid ) = 0;
+		virtual void		MoveScreen(int xpos, int ypos) = 0;
+		virtual void		ChangeWindow() = 0;
+
+		virtual void		DllAbout( HWND hWndParent ) = 0;
+		virtual void		DllConfig( HWND hWndParent ) = 0;
+		virtual void		DllTest( HWND hWndParent ) = 0;
+#endif
+
 };
 
 //

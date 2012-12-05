@@ -28,7 +28,7 @@ namespace
 //
 //ToDo: Needs work profiling testing and find faster VFPU/CPU implemtations
 //
-#ifdef DAEDALUS_PSP_USE_VFPU
+#ifdef DAEDALUS_PSP
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -80,7 +80,9 @@ u32 Vector2ColourUnclampedVFPU(const v4 * col_in)
 
 	return c32::Make( out_ints[0], out_ints[1], out_ints[2], out_ints[3] );
 }
-#else
+
+#endif // DAEDALUS_PSP
+
 //*****************************************************************************
 // Around 463,000 ticks/million
 //*****************************************************************************
@@ -93,7 +95,7 @@ inline u32	Vector2ColourClampedCPU( const v4 * col_in )
 
 	return c32::Make( r, g, b, a );
 }
-#endif
+
 //*****************************************************************************
 // Around 15,000 ticks/million (! - much faster than VFPU version
 //*****************************************************************************
@@ -113,7 +115,7 @@ inline u32	Vector2ColourUnclampedCPU( const v4 * col_in )
 inline u32	Vector2ColourClamped( const v4 & colour )
 {
 	//This is faster than the CPU Version
-#ifdef DAEDALUS_PSP_USE_VFPU
+#ifdef DAEDALUS_PSP
 	return Vector2ColourClampedVFPU( &colour );
 #else
 	return Vector2ColourClampedCPU( &colour );

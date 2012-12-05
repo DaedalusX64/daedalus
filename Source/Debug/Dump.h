@@ -37,4 +37,4 @@ void Dump_Strings(const char * p_file_name);
 
 #endif
 
-#endif
+#endif //__DUMP_H__

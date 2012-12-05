@@ -3,5 +3,5 @@
 //For linux users, SVNVERSION is passed as a D variable in the makefile through svnversion
 
 #ifndef SVNVERSION
-#define SVNVERSION ""
+#define SVNVERSION "839"
 #endif

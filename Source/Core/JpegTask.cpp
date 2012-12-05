@@ -35,7 +35,14 @@
 #include "Memory.h"
 #include "OSHLE/ultra_sptask.h"
 
+#if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
+#define TWIDDLE 0
+#elif (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_LITTLE)
 #define TWIDDLE 1
+#else
+#error No DAEDALUS_ENDIAN_MODE specified
+#endif
+
 
 static struct
 {

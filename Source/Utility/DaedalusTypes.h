@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Alignment.h"
 #include "Debug/DaedalusAssert.h"
 
+#ifdef DAEDALUS_PSP
+
 #include <stdint.h>
 
 typedef unsigned char				u8;
@@ -37,6 +39,24 @@ typedef long long					s64;
 
 typedef float						f32;
 typedef double						f64;
+
+#else
+
+typedef unsigned char				u8;
+typedef unsigned short				u16;
+typedef unsigned long				u32;
+typedef unsigned long long			u64;
+
+typedef signed char					s8;
+typedef short						s16;
+typedef long						s32;
+typedef long long					s64;
+
+typedef float						f32;
+typedef double						f64;
+
+
+#endif
 
 DAEDALUS_STATIC_ASSERT( sizeof( u8 ) == 1 );
 DAEDALUS_STATIC_ASSERT( sizeof( s8 ) == 1 );

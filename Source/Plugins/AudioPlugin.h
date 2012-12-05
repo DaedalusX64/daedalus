@@ -33,6 +33,7 @@ public:
 
 	virtual bool		StartEmulation() = 0;
 	virtual void		StopEmulation() = 0;
+//ToDo: Port to PC side of things...
 	virtual void		AddBufferHLE(u8 *addr, u32 len) =0;
 
 	enum ESystemType

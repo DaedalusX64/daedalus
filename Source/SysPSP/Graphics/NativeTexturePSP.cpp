@@ -462,7 +462,7 @@ namespace
 			return NULL;
 		}
 
-		if ( setjmp( p_png_struct->jmpbuf ) != 0 )
+		if ( setjmp( png_jmpbuf(p_png_struct) ) != 0 )
 		{
 			png_destroy_read_struct( &p_png_struct, NULL, NULL );
 			return NULL;

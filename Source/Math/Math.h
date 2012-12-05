@@ -3,6 +3,8 @@
 
 #include <math.h>
 
+#ifdef DAEDALUS_PSP
+
 // VFPU Math :D
 //
 // Todo : Move to SysPSP ?
@@ -362,7 +364,7 @@ inline int pspFpuRound(float fs)
 	return (__builtin_allegrex_round_w_s(fs));
 }
 
-// I'm not sure if the vfpu_fmaxf and vfpu_fminf it's slwoer or faster than fpu version
+// I'm not sure if the vfpu_fmaxf and vfpu_fminf it's slower or faster than fpu version
 // Let's do regardless to avoid overhead.
 /*
 inline float pspFpuMax(float fs1, float fs2)
@@ -466,5 +468,23 @@ inline bool IsNaN_Float(float x)
 }
 
 #endif // DOUBLE_CONVERSION
+
+
+#define Sqrt(x)  pspFpuSqrt((x))
+
+#else
+
+inline float Sqrt(float x)
+{
+	return sqrtf( x );
+}
+
+inline float InvSqrt(float x)
+{
+	return 1.0f / Sqrt( x );
+}
+
+#endif // DAEDALUS_PSP
+
 #endif // DAEDMATHS_H__
 

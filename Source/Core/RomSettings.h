@@ -61,7 +61,7 @@ struct RomSettings
 	ESaveType			SaveType;
 
 	bool				PatchesEnabled;
-	bool				SpeedSyncEnabled;
+	u32					SpeedSyncEnabled;
 	bool				DynarecSupported;
 	bool				DynarecLoopOptimisation;
 	bool				DynarecDoublesOptimisation;

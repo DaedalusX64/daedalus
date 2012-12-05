@@ -14,7 +14,11 @@ public:
 		float	len_sq( LengthSq() );
 		if(len_sq > 0.0001f)
 		{
+#ifdef DAEDALUS_PSP
 			float r( vfpu_invSqrt( len_sq ) );
+#else
+			float r( InvSqrt( len_sq ) );
+#endif
 			x *= r;
 			y *= r;
 			z *= r;
@@ -39,7 +43,7 @@ public:
 
 	float Length() const
 	{
-		return pspFpuSqrt( (x*x)+(y*y)+(z*z)+(w*w) );
+		return Sqrt( (x*x)+(y*y)+(z*z)+(w*w) );
 	}
 
 	float LengthSq() const
@@ -47,15 +51,15 @@ public:
 		return (x*x)+(y*y)+(z*z)+(w*w);
 	}
 
-#if 0	//0=fast, 1=original //Corn
+#ifdef DAEDALUS_PSP
 	float Dot( const v4 & rhs ) const
 	{
-		return (x*rhs.x) + (y*rhs.y) + (z*rhs.z) + (w*rhs.w);
+		return vfpu_dot_4Dvec(x,y,z,w,rhs.x,rhs.y,rhs.z,rhs.w);
 	}
 #else
 	float Dot( const v4 & rhs ) const
 	{
-		return vfpu_dot_4Dvec(x,y,z,w,rhs.x,rhs.y,rhs.z,rhs.w);
+		return (x*rhs.x) + (y*rhs.y) + (z*rhs.z) + (w*rhs.w);
 	}
 #endif
 

@@ -30,6 +30,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "HLEGraphics/DLParser.h"
 
+#include "ConfigOptions.h"
+
 #include "Utility/IO.h"
 #include "Utility/Timer.h"
 #include "Utility/Timing.h"
@@ -133,7 +135,11 @@ static bool MakeRunDirectory( char (&rundir)[MAX_PATH+1], const char * batchdir 
 void BatchTestMain( int argc, char* argv[] )
 {
 	//ToDo: Allow other directories and configuration
-	const char * romdir( "host1:/" );
+#ifdef DAEDALUS_PSP
+	const char * const romdir = "host1:/";
+#else
+	const char * const romdir = g_DaedalusConfig.szRomsDirs[0];
+#endif
 
 	bool	random_order( false );		// Whether to randomise the order of processing, to help avoid hangs
 	bool	update_results( false );	// Whether to update existing results

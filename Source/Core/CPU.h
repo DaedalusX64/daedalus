@@ -175,11 +175,9 @@ inline void CPU_TakeBranch( u32 new_pc ){	gCPUState.TargetPC = new_pc;	gCPUState
 
 
 #define COUNTER_INCREMENT_PER_OP			1
-//*****************************************************************************
-//
-//*****************************************************************************
-static u32		gLastPC = 0xffffffff;
-static u8 *		gLastAddress = NULL;
+
+extern u32		gLastPC;
+extern u8 *		gLastAddress;
 
 // Take advantage of the cooperative multitasking
 // of the PSP to make locking/unlocking as fast as possible.
@@ -189,9 +187,6 @@ static volatile u32 eventQueueLocked;
 #define LOCK_EVENT_QUEUE() CSpinLock _lock( &eventQueueLocked )
 #define RESET_EVENT_QUEUE_LOCK() eventQueueLocked = 0;
 
-//*****************************************************************************
-//
-//*****************************************************************************
 /*
 enum ECPUBranchType
 {
@@ -200,9 +195,6 @@ enum ECPUBranchType
 };
 */
 #ifdef FRAGMENT_SIMULATE_EXECUTION
-//*****************************************************************************
-//
-//*****************************************************************************
 void	CPU_ExecuteOpRaw( u32 count, u32 address, OpCode op_code, CPU_Instruction p_instruction, bool * p_branch_taken );
 #endif
 // Needs to be callable from assembly
@@ -216,6 +208,7 @@ extern "C"
 }
 
 extern	void (* g_pCPUCore)();
+
 //***********************************************
 //These two functions gets called *alot* //Corn
 //CPU_FetchInstruction
@@ -229,9 +222,6 @@ inline bool CPU_FetchInstruction_Refill( u32 pc, OpCode * opcode )
 	return gCPUState.GetStuffToDo() == 0;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 inline bool CPU_FetchInstruction( u32 pc, OpCode * opcode )
 {
 	const u32 PAGE_MASK_BITS = 12;		// 1<<12 == 4096

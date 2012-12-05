@@ -2,21 +2,21 @@
 #include "Math/Vector3.h"
 #include "Math/Vector4.h"
 #include "Math/Matrix4x4.h"
-#include "Math/Math.h"	// VFPU Math
+#include "Math/Math.h"
 #include "Math/MathUtil.h" // Swap
 
 #include <malloc.h>
+
+#ifdef DAEDALUS_PSP
 #include <pspvfpu.h>
+#endif
 
 // http://forums.ps2dev.org/viewtopic.php?t=5557
 // http://bradburn.net/mr.mr/vfpu.html
 
 // Many of these mtx funcs should be inline since they are simple enough and called frequently - Salvy
 
-#ifdef DAEDALUS_PSP_USE_VFPU
-//*****************************************************************************
-//
-//*****************************************************************************
+#ifdef DAEDALUS_PSP
 /*
 inline void vsincosf(float angle, v4* result)
 {
@@ -27,9 +27,6 @@ inline void vsincosf(float angle, v4* result)
 	: "+m"(*result) : "r"(angle));
 }
 */
-//*****************************************************************************
-//
-//*****************************************************************************
 void matrixMultiplyUnaligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b)
 {
 	__asm__ volatile (
@@ -54,9 +51,6 @@ void matrixMultiplyUnaligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Ma
 		: "=m" (*m_out) : "m" (*mat_a) ,"m" (*mat_b) : "memory" );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void matrixMultiplyAligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b)
 {
 	__asm__ volatile (
@@ -81,9 +75,6 @@ void matrixMultiplyAligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matr
 		: "=m" (*m_out) : "m" (*mat_a) ,"m" (*mat_b) : "memory" );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 /*
 void myCopyMatrix(Matrix4x4 *m_out, const Matrix4x4 *m_in)
 {
@@ -100,9 +91,7 @@ void myCopyMatrix(Matrix4x4 *m_out, const Matrix4x4 *m_in)
 	: : "r" (m_out) , "r" (m_in) );
 }
 */
-//*****************************************************************************
-//
-//*****************************************************************************
+
 /*
 void myApplyMatrix(v4 *v_out, const Matrix4x4 *mat, const v4 *v_in)
 {
@@ -118,19 +107,13 @@ void myApplyMatrix(v4 *v_out, const Matrix4x4 *mat, const v4 *v_in)
 		"sv.q   R200, 0x0(%0)\n"
 	: : "r" (v_out) , "r" (mat) ,"r" (v_in) );
 }*/
-#endif // DAEDALUS_PSP_USE_VFPU
-//*****************************************************************************
-//
-//*****************************************************************************
+#endif // DAEDALUS_PSP
 Matrix4x4 & Matrix4x4::SetIdentity()
 {
 	*this = gMatrixIdentity;
 	return *this;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 Matrix4x4 & Matrix4x4::SetScaling( float scale )
 {
 	for ( u32 r = 0; r < 4; ++r )
@@ -143,17 +126,18 @@ Matrix4x4 & Matrix4x4::SetScaling( float scale )
 	return *this;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 Matrix4x4 & Matrix4x4::SetRotateX( float angle )
 {
+#ifdef DAEDALUS_PSP
 //	float	s( vfpu_sinf( angle ) );
 //	float	c( vfpu_cosf( angle ) );
 	float	s;
 	float	c;
 	vfpu_sincos(angle, &s, &c);
-
+#else
+	float	s( sinf( angle ) );
+	float	c( cosf( angle ) );
+#endif
 	m11 = 1;	m12 = 0;	m13 = 0;	m14 = 0;
 	m21 = 0;	m22 = c;	m23 = -s;	m24 = 0;
 	m31 = 0;	m32 = s;	m33 = c;	m34 = 0;
@@ -161,16 +145,18 @@ Matrix4x4 & Matrix4x4::SetRotateX( float angle )
 	return *this;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 Matrix4x4 & Matrix4x4::SetRotateY( float angle )
 {
+#ifdef DAEDALUS_PSP
 //	float	s( vfpu_sinf( angle ) );
 //	float	c( vfpu_cosf( angle ) );
 	float	s;
 	float	c;
 	vfpu_sincos(angle, &s, &c);
+#else
+	float	s( sinf( angle ) );
+	float	c( cosf( angle ) );
+#endif
 
 	m11 = c;	m12 = 0;	m13 = s;	m14 = 0;
 	m21 = 0;	m22 = 1;	m23 = 0;	m24 = 0;
@@ -179,16 +165,18 @@ Matrix4x4 & Matrix4x4::SetRotateY( float angle )
 	return *this;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 Matrix4x4 & Matrix4x4::SetRotateZ( float angle )
 {
+#ifdef DAEDALUS_PSP
 //	float	s( vfpu_sinf( angle ) );
 //	float	c( vfpu_cosf( angle ) );
 	float	s;
 	float	c;
 	vfpu_sincos(angle, &s, &c);
+#else
+	float	s( sinf( angle ) );
+	float	c( cosf( angle ) );
+#endif
 
 	m11 = c;	m12 = -s;	m13 = 0;	m14 = 0;
 	m21 = s;	m22 = c;	m23 = 0;	m24 = 0;
@@ -197,9 +185,6 @@ Matrix4x4 & Matrix4x4::SetRotateZ( float angle )
 	return *this;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 v3 Matrix4x4::TransformCoord( const v3 & vec ) const
 {
 	return v3( vec.x * m11 + vec.y * m21 + vec.z * m31 + m41,
@@ -207,9 +192,6 @@ v3 Matrix4x4::TransformCoord( const v3 & vec ) const
 			   vec.x * m13 + vec.y * m23 + vec.z * m33 + m43 );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 v3 Matrix4x4::TransformNormal( const v3 & vec ) const
 {
 	return v3( vec.x * m11 + vec.y * m21 + vec.z * m31,
@@ -217,9 +199,6 @@ v3 Matrix4x4::TransformNormal( const v3 & vec ) const
 			   vec.x * m13 + vec.y * m23 + vec.z * m33 );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 v4 Matrix4x4::Transform( const v4 & vec ) const
 {
 	return v4( vec.x * m11 + vec.y * m21 + vec.z * m31 + vec.w * m41,
@@ -228,9 +207,6 @@ v4 Matrix4x4::Transform( const v4 & vec ) const
 			   vec.x * m14 + vec.y * m24 + vec.z * m34 + vec.w * m44 );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 v3 Matrix4x4::Transform( const v3 & vec ) const
 {
 	v4	trans( vec.x * m11 + vec.y * m21 + vec.z * m31 + m41,
@@ -238,7 +214,11 @@ v3 Matrix4x4::Transform( const v3 & vec ) const
 			   vec.x * m13 + vec.y * m23 + vec.z * m33 + m43,
 			   vec.x * m14 + vec.y * m24 + vec.z * m34 + m44 );
 
+#ifdef DAEDALUS_PSP
 	if(pspFpuAbs(trans.w) > 0.0f)
+#else
+	if(fabsf(trans.w) > 0.0f)
+#endif
 	{
 		return v3( trans.x / trans.w, trans.y / trans.w, trans.z / trans.w );
 	}
@@ -246,9 +226,6 @@ v3 Matrix4x4::Transform( const v3 & vec ) const
 	return v3(trans.x, trans.y, trans.z);
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 Matrix4x4		Matrix4x4::Transpose() const
 {
 	return Matrix4x4( m11, m21, m31, m41,
@@ -257,9 +234,6 @@ Matrix4x4		Matrix4x4::Transpose() const
 					  m14, m24, m34, m44 );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 Matrix4x4	Matrix4x4::Inverse() const
 {
 	/*Matrix4x4 temp;
@@ -341,9 +315,6 @@ Matrix4x4	Matrix4x4::Inverse() const
 					  augmented[ 2 ][ 4 ], augmented[ 2 ][ 5 ], augmented[ 2 ][ 6 ], augmented[ 2 ][ 7 ],
 					  augmented[ 3 ][ 4 ], augmented[ 3 ][ 5 ], augmented[ 3 ][ 6 ], augmented[ 3 ][ 7 ] );
 }
-//*****************************************************************************
-//
-//*****************************************************************************
 /*
 void myMulMatrixCPU(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b)
 {
@@ -362,15 +333,13 @@ void myMulMatrixCPU(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *
 */
 
 //#include "Utility/Timing.h"
-//*****************************************************************************
-//
-//*****************************************************************************
+
 Matrix4x4 Matrix4x4::operator*( const Matrix4x4 & rhs ) const
 {
 	Matrix4x4 r;
 
 //VFPU
-#ifdef DAEDALUS_PSP_USE_VFPU
+#ifdef DAEDALUS_PSP
 	matrixMultiplyUnaligned( &r, this, &rhs );
 //CPU
 #else
@@ -385,12 +354,10 @@ Matrix4x4 Matrix4x4::operator*( const Matrix4x4 & rhs ) const
 		}
 	}
 #endif
+
 	return r;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 const Matrix4x4	gMatrixIdentity( 1.0f, 0.0f, 0.0f, 0.0f,
 								 0.0f, 1.0f, 0.0f, 0.0f,
 								 0.0f, 0.0f, 1.0f, 0.0f,

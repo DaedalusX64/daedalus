@@ -25,6 +25,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/IO.h"
 
 #include "Core/ROM.h"
+
+#include "Debug/DBGConsole.h"
+
 #include "Interface/RomDB.h"
 
 #include <set>
@@ -233,6 +236,7 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 	CIniFile * p_ini_file( CIniFile::Create( filename ) );
 	if( p_ini_file == NULL )
 	{
+		DBGConsole_Msg( 0, "Failed to open RomDB from %s\n", filename );
 		return false;
 	}
 

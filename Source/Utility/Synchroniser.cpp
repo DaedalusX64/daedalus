@@ -269,12 +269,12 @@ void CSynchroniser::InitialiseSynchroniser()
 	if ( !IO::File::Exists(filename) )
 	{
 		p_synch = CSynchroniser::CreateProducer( filename );
-		DBGConsole_Msg(0, "Start Synchroniser in [wproducer mode to create %s", filename);
+		DBGConsole_Msg(0, "Start Synchroniser in [Gproducer] mode to create [C%s]", filename);
 	}
 	else
 	{
 		p_synch = CSynchroniser::CreateConsumer( filename );
-		DBGConsole_Msg(0, "Start Synchroniser in [wconsumer mode to read %s", filename);
+		DBGConsole_Msg(0, "Start Synchroniser in [Gconsumer] mode to read [C%s]", filename);
 	}
 
 	//return p_synch != NULL && p_synch->IsOpen();

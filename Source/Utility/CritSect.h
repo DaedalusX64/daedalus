@@ -24,7 +24,46 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #pragma once
 #endif // _MSC_VER > 1000
 
+#ifdef DAEDALUS_PSP
 #include <pspthreadman.h>
+#endif
+
+#if defined(DAEDALUS_W32)
+
+class CCritSect
+{
+	public:
+
+		CCritSect()
+		{
+			InitializeCriticalSection(&cs);
+		}
+
+		explicit CCritSect( const char * name )
+		{
+			use( name );		// Can't name?
+			InitializeCriticalSection(&cs);
+		};
+
+		~CCritSect()
+		{
+			DeleteCriticalSection(&cs);
+		}
+
+		void Lock()
+		{
+			EnterCriticalSection(&cs);
+		}
+
+		void Unlock()
+		{
+			LeaveCriticalSection(&cs);
+		}
+
+	protected:
+		CRITICAL_SECTION cs;
+};
+#elif defined(DAEDALUS_PSP)
 
 class CCritSect
 {
@@ -60,6 +99,37 @@ class CCritSect
 	private:
 		s32	mSemaphore;
 };
+
+#else
+
+	// XXXX XXXX XXXX
+class CCritSect
+{
+	public:
+
+		CCritSect()
+		{
+		}
+
+		explicit CCritSect( const char * name )
+		{
+		}
+
+		~CCritSect()
+		{
+		}
+
+		void Lock()
+		{
+		}
+
+		void Unlock()
+		{
+		}
+};
+
+#endif
+
 
 class CAutoCritSect
 {

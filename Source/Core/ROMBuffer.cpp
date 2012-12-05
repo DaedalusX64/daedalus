@@ -56,10 +56,14 @@ namespace
 
 	bool		ShouldLoadAsFixed( u32 rom_size )
 	{
+#ifdef DAEDALUS_PSP
 		if (PSP_IS_SLIM && !gGlobalPreferences.LargeROMBuffer)
 			return rom_size <= 32 * 1024 * 1024;
 		else
 			return rom_size <= 2 * 1024 * 1024;
+#else
+		return true;
+#endif
 	}
 
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT

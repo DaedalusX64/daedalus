@@ -61,7 +61,7 @@ public:
 
 	float Length() const
 	{
-		return pspFpuSqrt( (x*x)+(y*y) );
+		return Sqrt( (x*x)+(y*y) );
 	}
 
 	float LengthSq() const

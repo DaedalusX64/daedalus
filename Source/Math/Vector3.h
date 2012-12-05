@@ -62,28 +62,28 @@ public:
 		return *this;
 	}
 
-#if 0	//0=fast, 1=original //Corn
+#ifdef DAEDALUS_PSP//Corn
+	void Normalise()
+	{
+		vfpu_norm_3Dvec(&x, &y, &z);
+	}
+#else
 	void Normalise()
 	{
 		float	len_sq( LengthSq() );
 		if(len_sq > 0.0f)
 		{
-			float r( vfpu_invSqrt( len_sq ) );
+			float r( InvSqrt( len_sq ) );
 			x *= r;
 			y *= r;
 			z *= r;
 		}
 	}
-#else
-	void Normalise()
-	{
-		vfpu_norm_3Dvec(&x, &y, &z);
-	}
 #endif
 
 	float Length() const
 	{
-		return pspFpuSqrt( (x*x)+(y*y)+(z*z) );
+		return Sqrt( (x*x)+(y*y)+(z*z) );
 	}
 
 	float LengthSq() const
@@ -107,15 +107,15 @@ public:
 		}
 	}
 
-#if 0	//0=fast, 1=original //Corn
+#ifdef DAEDALUS_PSP	//PSP=fast, Other=original //Corn
 	float Dot( const v3 & rhs ) const
 	{
-		return (x*rhs.x) + (y*rhs.y) + (z*rhs.z);
+		return vfpu_dot_3Dvec(x,y,z,rhs.x,rhs.y,rhs.z);
 	}
 #else
 	float Dot( const v3 & rhs ) const
 	{
-		return vfpu_dot_3Dvec(x,y,z,rhs.x,rhs.y,rhs.z);
+		return (x*rhs.x) + (y*rhs.y) + (z*rhs.z);
 	}
 #endif
 

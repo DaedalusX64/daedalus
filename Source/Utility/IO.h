@@ -20,7 +20,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef DAEDALUS_IO_H_
 #define DAEDALUS_IO_H_
 
+#ifdef DAEDALUS_PSP
 #include <pspiofilemgr.h>
+#endif
 
 namespace IO
 {
@@ -29,7 +31,9 @@ namespace IO
 		bool		Move( const char * p_existing, const char * p_new );
 		bool		Delete( const char * p_file );
 		bool		Exists( const char * p_path );
-		int		Stat( const char *p_file, SceIoStat *stat );
+#ifdef DAEDALUS_PSP
+		int			Stat( const char *p_file, SceIoStat *stat );
+#endif
 
 	}
 	namespace Directory
@@ -51,8 +55,9 @@ namespace IO
 		bool				RemoveFileSpec( char * p_path );
 		void				RemoveExtension( char * p_path );
 		bool				AddExtension( char * p_path, const char * p_ext );
+#ifdef DAEDALUS_PSP
 		int					DeleteRecursive(const char* p_path, const char * p_extension);
-		char *				Tidy(char * s);
+#endif
 	}
 
 	struct FindDataT
@@ -60,7 +65,15 @@ namespace IO
 		char	Name[Path::MAX_PATH_LEN+1];
 	};
 
+#if defined( DAEDALUS_PSP )
 	typedef SceUID FindHandleT;
+#elif defined( DAEDALUS_W32 )
+	typedef intptr_t FindHandleT;
+#elif defined( DAEDALUS_OSX )
+	typedef void * FindHandleT;
+#else
+#error Need to define FindHandleT for this platform
+#endif
 
 	bool	FindFileOpen( const char * path, FindHandleT * handle, FindDataT & data );
 	bool	FindFileNext( FindHandleT handle, FindDataT & data );

@@ -47,8 +47,10 @@ public:
 
 	virtual bool IsInitialised() const = 0;
 
+#ifdef DAEDALUS_PSP
 	virtual void SwitchToChosenDisplay() = 0;
 	virtual void SwitchToLcdDisplay() = 0;
+#endif
 
 	virtual void ClearAllSurfaces() = 0;
 	virtual void ClearZBuffer(u32 depth) = 0;
@@ -62,8 +64,9 @@ public:
 	virtual bool GetBufferSize(u32 * p_width, u32 * p_height) = 0;
 	virtual void SetDebugScreenTarget( ETargetSurface buffer ) = 0;
 
+#ifdef DAEDALUS_PSP
 	virtual void ViewportType( u32 * d_width, u32 * d_height ) =0;
-
+#endif
 	virtual void DumpNextScreen() = 0;
 	virtual void DumpScreenShot() = 0;
 
