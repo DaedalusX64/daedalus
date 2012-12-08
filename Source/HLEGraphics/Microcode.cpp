@@ -28,6 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // In theory we should never reach this max
 #define MAX_UCODE_CACHE_ENTRIES 6
 
+extern void DLParser_SetCustom( u32 ucode, u32 offset );
+
 
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
@@ -57,9 +59,7 @@ struct UcodeInfo
 };
 
 static UcodeInfo gUcodeInfo[ MAX_UCODE_CACHE_ENTRIES ];
-//*****************************************************************************
-//
-//*****************************************************************************
+
 static bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char * str, u32 str_len )
 {
 	DAEDALUS_ASSERT( data_base < MAX_RAM_ADDRESS + 0x1000 ,"GBIMicrocode out of bound %08X", data_base );
@@ -92,9 +92,6 @@ static bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char
 	return false;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 static u32 GBIMicrocode_MicrocodeHash(u32 code_base, u32 code_size)
 {
 	// Needed for Conker's Bad Fur Day
@@ -110,19 +107,15 @@ static u32 GBIMicrocode_MicrocodeHash(u32 code_base, u32 code_size)
 	return hash;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void GBIMicrocode_Reset()
 {
 	memset(&gUcodeInfo, 0, sizeof(gUcodeInfo));
 }
 
-extern void DLParser_SetCustom( u32 ucode, u32 offset );
 //*****************************************************************************
 //
 //*****************************************************************************
-static void GBIMicrocode_Custom( u32 code_hash, u32 &ucode_version, u32 &ucode_offset)
+static void GBIMicrocode_Custom( u32 code_hash, u32 &ucode_version, u32 &ucode_offset )
 {
 
 	//
@@ -178,10 +171,7 @@ static void GBIMicrocode_Custom( u32 code_hash, u32 &ucode_version, u32 &ucode_o
 
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size)
+u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size )
 {
 	u32 i;
 	// I think only checking code_base should be enough..
@@ -262,7 +252,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	gUcodeInfo[ i ].ucode = ucode_version;
 	gUcodeInfo[ i ].set = true;
 
-	DBGConsole_Msg(0,"Detected %s Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]",custom_ucode ? "Custom" :"", ucode_version, code_hash, str, g_ROM.settings.GameName.c_str() );
+	DBGConsole_Msg(0,"Detected %s Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]",ucode_offset == u32(~0) ? "Custom" :"", ucode_version, code_hash, str, g_ROM.settings.GameName.c_str() );
 // This is no longer needed as we now have an auto ucode detector, I'll leave it as reference ~Salvy
 //
 /*
