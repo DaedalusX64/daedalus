@@ -2,18 +2,18 @@
 #define __SCTRLLIBRARY_SE_H__
 
 /**
- * These functions are only available in SE-C and later, 
- * and they are not in HEN 
+ * These functions are only available in SE-C and later,
+ * and they are not in HEN
 */
 
-enum 
+enum
 {
 	FAKE_REGION_DISABLED = 0,
 	FAKE_REGION_JAPAN = 1,
 	FAKE_REGION_AMERICA = 2,
 	FAKE_REGION_EUROPE = 3,
 	FAKE_REGION_KOREA = 4, /* do not use, may cause brick on restore default settings */
-	FAKE_REGION_UNK = 5, 
+	FAKE_REGION_UNK = 5,
 	FAKE_REGION_UNK2 = 6,
 	FAKE_REGION_AUSTRALIA = 7,
 	FAKE_REGION_HONGKONG = 8, /* do not use, may cause brick on restore default settings */
@@ -42,13 +42,13 @@ typedef struct
 	int startupprog;
 	int umdmode;
 	int useisofsonumdinserted;
-	int	vshcpuspeed; 
-	int	vshbusspeed; 
-	int	umdisocpuspeed; 
-	int	umdisobusspeed; 
+	int	vshcpuspeed;
+	int	vshbusspeed;
+	int	umdisocpuspeed;
+	int	umdisobusspeed;
 	int fakeregion;
 	int freeumdregion;
-	int	hardresetHB; 
+	int	hardresetHB;
 	int usbdevice;
 	int novshmenu;
 	int usbcharge;
@@ -107,10 +107,10 @@ int sctrlSESetConfigEx(SEConfig *config, int size);
 /**
  * Initiates the emulation of a disc from an ISO9660/CSO file.
  *
- * @param file - The path of the 
+ * @param file - The path of the
  * @param noumd - Wether use noumd or not
  * @param isofs - Wether use the custom SE isofs driver or not
- * 
+ *
  * @returns 0 on success
  *
  * @Note - When setting noumd to 1, isofs should also be set to 1,
@@ -176,7 +176,7 @@ char *sctrlSEGetUmdFile();
 */
 void sctrlSESetUmdFile(char *file);
 
-/** 
+/**
  * Sets the boot config file for next reboot (kernel only)
  *
  * @param index - The index identifying the file (0 -> normal bootconf, 1 -> march33 driver bootconf, 2 -> np9660 bootcnf)

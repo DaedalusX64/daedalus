@@ -100,4 +100,4 @@ int kuKernelGetModel(void);
 }
 #endif
 
-#endif 
+#endif
