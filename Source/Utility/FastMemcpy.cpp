@@ -14,6 +14,7 @@ homepage: http://wordpress.fx-world.org
 //Copy native N64 memory with CPU only //Corn
 //Little Endian
 //*****************************************************************************
+#ifndef DAEDALUS_PSP
 void memcpy_cpu_LE( void* dst, const void* src, size_t size )
 {
 	u8* src8 = (u8*)src;
@@ -77,3 +78,4 @@ bytecopy:
 		*(u8*)((uintptr_t)dst8++ ^ U8_TWIDDLE) = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
 	}
 }
+#endif

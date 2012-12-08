@@ -184,7 +184,7 @@ bool DMA_HandleTransfer( u8 * p_dst, u32 dst_offset, u32 dst_size, const u8 * p_
 	// c) the length is not a multiple of 4 (although we can copy most directly)
 	// If the source/dest are word aligned, we can simply copy most of the
 	// words using memcpy. Any remaining bytes are then copied individually
-	if( !(dst_offset & 0x3) & !(src_offset & 0x3) )
+	/*if( !(dst_offset & 0x3) & !(src_offset & 0x3) )
 	{
 		// Optimise for u32 alignment - do multiple of four using memcpy
 		u32 block_length(length & ~0x3);
@@ -199,7 +199,7 @@ bool DMA_HandleTransfer( u8 * p_dst, u32 dst_offset, u32 dst_size, const u8 * p_
 			p_dst[(i + dst_offset)^U8_TWIDDLE] = p_src[(i + src_offset)^U8_TWIDDLE];
 		}
 	}
-	else
+	else*/
 	{
 		memcpy_cpu_LE(&p_dst[dst_offset],  (void*)&p_src[src_offset], length);
 	}
