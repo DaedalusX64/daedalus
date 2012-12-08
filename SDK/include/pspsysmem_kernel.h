@@ -107,7 +107,7 @@ int sceKernelSetDdrMemoryProtection(void *addr, int size, int prot);
  * @param unk - Unknown, probably some flag or type, pass 1.
  * @param name - Name assigned to the new heap.
  *
- * @returns The UID of the new heap, or if less than 0 an error. 
+ * @returns The UID of the new heap, or if less than 0 an error.
 */
 SceUID sceKernelCreateHeap(SceUID partitionid, SceSize size, int unk, const char *name);
 

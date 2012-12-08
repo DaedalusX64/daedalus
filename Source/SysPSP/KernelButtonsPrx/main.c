@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspsdk.h>
 #include <pspkernel.h>
 #include <pspctrl_kernel.h>
- 
+
 PSP_MODULE_INFO("impose ctrl", 0x1000, 1, 1);
 PSP_MAIN_THREAD_ATTR(0);
 //PSP_HEAP_SIZE_KB(32);
