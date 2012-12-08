@@ -22,11 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "R4300OpCode.h"
 #include "R4300Instruction.h"
-/*
-#define ToInt(x)	*((int *)&x)
-#define ToQuad(x)	*((u64 *)&x)
-#define ToFloat(x)	*((float *)&x)
-*/
+
 void R4300_SetSR( u32 new_value );
 
 extern CPU_Instruction R4300Instruction[64];

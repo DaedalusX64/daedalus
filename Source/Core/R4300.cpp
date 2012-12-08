@@ -42,6 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #if defined(DAEDALUS_OSX)
 #include <fenv.h>
+#define _isnan isnan
 #endif
 
 // ToDo Move these macros to a new header.
