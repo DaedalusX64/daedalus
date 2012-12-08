@@ -833,19 +833,19 @@ void	AudioHLEState::Mixer( u16 dmemout, u16 dmemin, s32 gain, u16 count )
 	s16* out( (s16 *)(Buffer + (dmemout & (N64_AUDIO_BUFF - 2))) );
 
 	for( u32 x = count >> 1; x != 0; x-- )
-		{
-			*out = Saturate<s16>( FixedPointMul15( *in++, gain ) + s32( *out ) );
-			out++;
-		}
+	{
+		*out = Saturate<s16>( FixedPointMul15( *in++, gain ) + s32( *out ) );
+		out++;
+	}
 
 #else
 	for( u32 x=0; x < count; x+=2 )
-		{
-			s16 in( *(s16 *)(Buffer+((dmemin+x) & (N64_AUDIO_BUFF - 2))) );
-			s16 out( *(s16 *)(Buffer+((dmemout+x) & (N64_AUDIO_BUFF - 2))) );
+	{
+		s16 in( *(s16 *)(Buffer+((dmemin+x) & (N64_AUDIO_BUFF - 2))) );
+		s16 out( *(s16 *)(Buffer+((dmemout+x) & (N64_AUDIO_BUFF - 2))) );
 
-			*(s16 *)(Buffer+((dmemout+x) & (N64_AUDIO_BUFF - 2)) ) = Saturate<s16>( FixedPointMul15( in, gain ) + s32( out ) );
-		}
+		*(s16 *)(Buffer+((dmemout+x) & (N64_AUDIO_BUFF - 2)) ) = Saturate<s16>( FixedPointMul15( in, gain ) + s32( out ) );
+	}
 #endif
 }
 
