@@ -62,6 +62,7 @@ DAED_DYNREC_SRCS =  	Source/SysPSP/DynaRec/AssemblyUtilsPSP.cpp \
 			Source/DynaRec/TraceRecorder.cpp
 
 DAED_UTILITY_SRCS =	Source/Utility/CRC.cpp \
+			Source/Utility/FastMemcpy.cpp \
 			Source/Utility/FramerateLimiter.cpp \
 			Source/Utility/IniFile.cpp \
 			Source/Utility/Hash.cpp \
