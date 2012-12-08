@@ -67,7 +67,7 @@ using namespace AssemblyUtils;
 
 #define NOT_IMPLEMENTED( x )	DAEDALUS_ERROR( x )
 
-extern "C" { const void * g_ReadAddressLookupTableForDynarec = g_MemoryLookupTableRead; }	//Important pointer for Dynarec see DynaRecStubs.s
+extern "C" { const void * g_MemoryLookupTableReadForDynarec = g_MemoryLookupTableRead; }	//Important pointer for Dynarec see DynaRecStubs.s
 
 extern "C" { u64 _FloatToDouble( u32 _float); }	//Uses CPU to pass f64/32 thats why its maskerading as u64/32 //Corn
 extern "C" { u32 _DoubleToFloat( u64 _double); }	//Uses CPU to pass f64/32 thats why its maskerading as u64/32 //Corn

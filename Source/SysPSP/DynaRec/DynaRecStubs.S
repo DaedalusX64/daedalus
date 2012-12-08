@@ -17,12 +17,12 @@
 	.extern HandleException_extern
 	.extern CPU_UpdateCounter
 	.extern IndirectExitMap_Lookup
-	.extern g_ReadAddressLookupTableForDynarec
+	.extern g_MemoryLookupTableReadForDynarec
 	.extern Write32BitsForDynaRec
 	.extern Write16BitsForDynaRec
 	.extern Write8BitsForDynaRec
 	.extern CPU_HANDLE_COUNT_INTERRUPT
-	
+
 
 	.global _EnterDynaRec
 	.global _ReturnFromDynaRec
@@ -43,14 +43,14 @@
 	.global _ReadBitsDirectBD_u16
 	.global _ReadBitsDirectBD_s16
 	.global _ReadBitsDirectBD_u32
-	
+
 	.global _WriteBitsDirect_u32
 	.global _WriteBitsDirect_u16
 	.global _WriteBitsDirect_u8
 	.global _WriteBitsDirectBD_u32
 	.global _WriteBitsDirectBD_u16
 	.global _WriteBitsDirectBD_u8
-	
+
 	.global	_FloatToDouble
 	.global	_DoubleToFloat
 
@@ -60,10 +60,10 @@ exit_dynarec_text:
 	.text
 temp_storage_for_ra:
 	nop
-    
-    .set push 
-    .set noreorder 
-    
+
+    .set push
+    .set noreorder
+
 #######################################################################################
 #    Invalidate a1 bytes of icache from a0
 #	a0 - the base address of the memory to invalidate in the icache
@@ -71,7 +71,7 @@ temp_storage_for_ra:
 _DaedalusICacheInvalidate:
 
 	addiu		$t0, $0, 0xffc0			# t0 = ~63
-	
+
 	# Store base+size in a1
 	addu		$a1, $a1, $a0
 
@@ -84,14 +84,14 @@ _DaedalusICacheInvalidate:
 	# Do while current < end
 invalidate_next:
 	cache		8, 0($a0)						# 8 is for icache invalidate
-	bne			$a0, $a1, invalidate_next		# Keep looping until 
+	bne			$a0, $a1, invalidate_next		# Keep looping until
 	addiu		$a0, $a0, 64
 
 	jr			$ra
 	nop
-    
+
 #######################################################################################
-#    
+#
 #	a0 - fragment function to enter
 #	a1 - gCPUState base pointer
 #	a2 - Memory base offset (i.e. g_pu8RamBase - 0x80000000 )
@@ -102,7 +102,7 @@ _EnterDynaRec:
 	addiu	$sp, $sp, -40	# Push return address on the stack
 	sw		$fp, 4($sp)		# Store s8 - we use this as our base pointer
 	sw		$ra, 0($sp)
-	
+
 	sw		$s0, 8($sp)
 	sw		$s1, 12($sp)
 	sw		$s2, 16($sp)
@@ -111,13 +111,13 @@ _EnterDynaRec:
 	sw		$s5, 28($sp)
 	sw		$s6, 32($sp)
 	sw		$s7, 36($sp)
-	
+
 	or		$s7, $a2, $0	# Read address table
 	or		$s6, $a3, $0	# Upper bound
-	
+
 	jr		$a0				# Jump to our target function
 	or		$fp, $a1, $0
-	
+
 #######################################################################################
 #	Check gCPUState.StuffToDo. If non-zero, performs any required handling then exits
 #	the dynarec system. If the flag is zero this just returns immediately.
@@ -168,7 +168,7 @@ _ReturnFromDynaRec:
 #	a0	- instructions executed
 #	a1	- exit pc
 _DirectExitCheckNoDelay:
-	
+
 	# The code below corresponds to CPU_UpdateCounter
 	lw		$t0, _C0_Count($fp)		# COUNT register
 	lw		$t1, _Events($fp)		# Events[0].mCount
@@ -178,14 +178,14 @@ _DirectExitCheckNoDelay:
 
 	sw		$a1, _CurrentPC($fp) 	# CurrentPC
 	sw		 $0, _Delay($fp)		# Delay = NO_DELAY
-	
+
 	subu	$t1, $t1, $a0		# Events[0].mCount - ops_executed
 	blez	$t1, _DirectExitCheckCheckCount
 	sw		$t1, _Events($fp)		# Events[0].mCount = Events[0].mCount - ops_executed
 
 	jr		$ra					# Return back to caller
 	nop
-	
+
 #######################################################################################
 #	Check if we need to exit the dynarec system and jump out as necessary.
 #	If we are ok to continue, this returns control to the calling code.
@@ -201,7 +201,7 @@ _DirectExitCheckDelay:
 
 	addu	$t0, $t0, $a0		# COUNT + ops_executed
 	sw		$t0, _C0_Count($fp)		# COUNT = COUNT + ops_executed
-	
+
 	sw		$a1, _CurrentPC($fp) 	# CurrentPC
 	sw		$a2, _TargetPC($fp) 	# TargetPC
 	li		$t0, 1				# EXEC_DELAY
@@ -215,7 +215,7 @@ _DirectExitCheckDelay:
 	nop
 
 #######################################################################################
-#	Utility routine for _DirectExitCheckXX. 
+#	Utility routine for _DirectExitCheckXX.
 #
 _DirectExitCheckCheckCount:
 	or		$s0, $ra, $0		# Keep track of return addresss
@@ -230,7 +230,7 @@ _DirectExitCheckCheckCount:
 
 
 #######################################################################################
-#	Update counter. If StuffToDo flags is clear on return, 
+#	Update counter. If StuffToDo flags is clear on return,
 #	a0 - instructions executed
 #	a1 - CIndirectExitMap pointer
 #	a2 - exit pc (exit delay is always NO_DELAY)
@@ -238,7 +238,7 @@ _IndirectExitCheck:
 	or		$s0, $a1, $0		# Keep track of map pointer
 	or		$s1, $a2, $0		# and the exit pc
 
-	# Can avoid these until _ReturnFromDynaRec?	
+	# Can avoid these until _ReturnFromDynaRec?
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	jal		CPU_UpdateCounter	# a0 holds instructions executed
 	sw		$0,  _Delay($fp)		# Delay (NO_DELAY)
@@ -246,7 +246,7 @@ _IndirectExitCheck:
 	lw		$t0, _StuffToDo($fp)		# StuffToDo
 	bne		$t0, $0, _ReturnFromDynaRec
 	nop
-	
+
 	or		$a0, $s0, $0		# p_map
 	jal		IndirectExitMap_Lookup
 	or		$a1, $s1, $0		# exit_pc
@@ -254,7 +254,7 @@ _IndirectExitCheck:
 	# $v0 holds pointer to indirect target. If it's 0, it means it's not compiled yet
 	beq		$v0, $0,  _ReturnFromDynaRec
 	nop
-	
+
 	jr		$v0
 	nop
 
@@ -275,11 +275,11 @@ _IndirectExitCheck:
 
 	srl		$v1, $a0, 0x12
 	sll		$v1, $v1, 0x3	# * 8 to index the two pointer struct
-	la		$v0, g_ReadAddressLookupTableForDynarec
+	la		$v0, g_MemoryLookupTableReadForDynarec
 	lw		$v0, 0($v0)			# The above is a pointer to our table
 	addu	$v1, $v1, $v0
 	lw		$v0, 4($v1)	#offset 4 to get the second pointer
-	
+
 	jalr	$v0
 	sw		$a1, _CurrentPC($fp) 	# CurrentPC
 
@@ -288,10 +288,10 @@ _IndirectExitCheck:
 
 	la		$t0, temp_storage_for_ra
 	lw		$ra, 0($t0)
-	
+
 	jr		$ra
 	\load_instruction	$v0, 0($v0)		# e.g. lbu, lhu, lw etc
-	
+
 .endm
 
 .macro READ_BITS_BD	function, load_instruction
@@ -305,11 +305,11 @@ _IndirectExitCheck:
 
 	srl		$v1, $a0, 0x12
 	sll		$v1, $v1, 0x3	# * 8 to index the two pointer struct
-	la		$v0, g_ReadAddressLookupTableForDynarec
+	la		$v0, g_MemoryLookupTableReadForDynarec
 	lw		$v0, 0($v0)			# The above is a pointer to our table
 	addu	$v1, $v1, $v0
 	lw		$v0, 4($v1)	#offset 4 to get the second pointer
-	
+
 	jalr	$v0
 	sw		$t0, _Delay($fp)		# Delay
 
@@ -317,13 +317,13 @@ _IndirectExitCheck:
 	move	$a0,$0
 
 	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
-	
+
 	la		$t0, temp_storage_for_ra
 	lw		$ra, 0($t0)
-	
+
 	jr		$ra
 	\load_instruction	$v0, 0($v0)		# e.g. lbu, lhu, lw etc
-	
+
 .endm
 
 	READ_BITS _ReadBitsDirect_u8, lbu
@@ -337,7 +337,7 @@ _IndirectExitCheck:
 	READ_BITS_BD _ReadBitsDirectBD_u16, lhu
 	READ_BITS_BD _ReadBitsDirectBD_s16, lh
 	READ_BITS_BD _ReadBitsDirectBD_u32, lw
-		
+
 #######################################################################################
 #	These functions handle writing a value out to memory.
 #	They set up the PC (and optionally the branch delay flag for the BD versions)
@@ -352,13 +352,13 @@ _IndirectExitCheck:
 _WriteBitsDirect_u32:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
-	
+
 	jal		Write32BitsForDynaRec
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
-	
+
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
-	
+
 	la		$t0, temp_storage_for_ra
 	lw		$ra, 0($t0)
 	jr		$ra
@@ -367,88 +367,88 @@ _WriteBitsDirect_u32:
 _WriteBitsDirectBD_u32:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
-	
+
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	li		$t0, 1				# EXEC_DELAY
 
 	jal		Write32BitsForDynaRec
 	sw		$t0, _Delay($fp)		# Delay
-	
+
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
-	
+
 	la		$t0, temp_storage_for_ra
 	lw		$ra, 0($t0)
 	jr		$ra
 	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
-	
+
 _WriteBitsDirect_u16:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
-	
+
 	jal		Write16BitsForDynaRec
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
-	
+
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
-	
+
 	la		$t0, temp_storage_for_ra
 	lw		$ra, 0($t0)
 	jr		$ra
 	nop
-	
-	
+
+
 _WriteBitsDirectBD_u16:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
-	
+
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	li		$t0, 1				# EXEC_DELAY
-	
+
 	jal		Write16BitsForDynaRec
 	sw		$t0, _Delay($fp)		# Delay
-	
+
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
-	
+
 	la		$t0, temp_storage_for_ra
 	lw		$ra, 0($t0)
 	jr		$ra
 	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
-	
+
 _WriteBitsDirect_u8:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
-	
+
 	jal		Write8BitsForDynaRec
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
-	
+
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
-	
+
 	la		$t0, temp_storage_for_ra
 	lw		$ra, 0($t0)
 	jr		$ra
-	nop		
-	
+	nop
+
 _WriteBitsDirectBD_u8:
 	la		$t0, temp_storage_for_ra
 	sw		$ra, 0($t0)
-	
+
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
 	li		$t0, 1				# EXEC_DELAY
-	
+
 	jal		Write8BitsForDynaRec
 	sw		$t0, _Delay($fp)		# Delay
-	
+
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
-	
+
 	la		$t0, temp_storage_for_ra
 	lw		$ra, 0($t0)
 	jr		$ra
 	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
-	
+
 #######################################################################################
 /**
  * convert float to double
