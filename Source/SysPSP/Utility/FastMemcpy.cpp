@@ -8,32 +8,11 @@ homepage: http://wordpress.fx-world.org
 */
 
 #include "stdafx.h"
-#include "FastMemcpy.h"
-#include "Utility/Timing.h"
+#include "Utility/FastMemcpy.h"
 
 #include <psprtc.h>
+#include <psppower.h>
 
-
-//*****************************************************************************
-//
-//*****************************************************************************
-// Used to profile memcpys
-// Not the best place to be but meh..
-//
-/*
-u64	GetCurrent()
-{
-	u64 current;
-	NTiming::GetPreciseTime( &current );
-	return current;
-}
-*/
-u64 GetCurrent()
-{
-    u64 tick;
-    sceRtcGetCurrentTick(&tick);
-    return (s64)tick;
-}
 // Note, Do not use memcpy_vfpu for our graphics plugin
 // There's issues with cache consistance
 // Also avoid using in our audio plugin, otherwise the ME will choke with the vfpu :S
@@ -43,7 +22,7 @@ u64 GetCurrent()
 //Taken from psp-programming forum (Raphael)
 //Little endian tweaked by Corn for N64
 //*****************************************************************************
-void memcpy_vfpu_LE( void* dst, void* src, u32 size )
+void memcpy_vfpu_LE( void* dst, const void* src, size_t size )
 {
 	u8* src8 = (u8*)src;
 	u8* dst8 = (u8*)dst;
@@ -384,7 +363,7 @@ bytecopy:
 //Big Endian
 //*****************************************************************************
 //
-void memcpy_vfpu_BE( void* dst, void* src, u32 size )
+void memcpy_vfpu_BE( void* dst, const void* src, size_t size )
 {
 	u8* src8 = (u8*)src;
 	u8* dst8 = (u8*)dst;
@@ -721,7 +700,7 @@ bytecopy:
 //Copy native N64 memory with CPU only //Corn
 //Little Endian
 //*****************************************************************************
-void memcpy_cpu_LE( void* dst, void* src, u32 size )
+void memcpy_cpu_LE( void* dst, const void* src, size_t size )
 {
 	u8* src8 = (u8*)src;
 	u8* dst8 = (u8*)dst;
@@ -783,4 +762,50 @@ bytecopy:
 	{
 		*(u8*)((u32)dst8++ ^ U8_TWIDDLE) = *(u8*)((u32)src8++ ^ U8_TWIDDLE);
 	}
+}
+
+static inline u64 GetCurrent()
+{
+    u64 tick;
+    sceRtcGetCurrentTick(&tick);
+    return (s64)tick;
+}
+
+#define MEMCPY_TEST(d, s, n) {													\
+	int gcc_elapsed = 0;														\
+	{																			\
+		u64 time = GetCurrent();												\
+		for (int j=0; j<100; ++j)												\
+			memcpy(d, s, n);													\
+		gcc_elapsed = (int)(GetCurrent()-time);									\
+	}																			\
+	int vfpu_le_elapsed = 0;													\
+	{																			\
+		u64 time = GetCurrent();												\
+		for (int j=0; j<100; ++j)												\
+			memcpy_vfpu_LE(d, s, n);											\
+		vfpu_le_elapsed = (int)(GetCurrent()-time);								\
+	}																			\
+	int cpu_elapsed = 0;														\
+	{																			\
+		u64 time = GetCurrent();												\
+		for (int j=0; j<100; ++j)												\
+			memcpy_cpu_LE(d, s, n);												\
+		cpu_elapsed = (int)(GetCurrent()-time);									\
+	}																			\
+	int vfpu_be_elapsed = 0;													\
+	{																			\
+		u64 time = GetCurrent();												\
+		for (int j=0; j<100; ++j)												\
+			memcpy_vfpu_BE(d, s, n);											\
+		vfpu_be_elapsed = (int)(GetCurrent()-time);								\
+	}																			\
+	scePowerTick(0);															\
+	printf("%6d bytes | GCC%5d | VFPULE%5d | VFPUBE%5d | CPU%5d\n", (int)n, gcc_elapsed, vfpu_le_elapsed, vfpu_be_elapsed, cpu_elapsed); \
+	}
+
+
+void memcpy_test( void * dst, const void * src, size_t size )
+{
+	MEMCPY_TEST(dst, src, size);
 }
