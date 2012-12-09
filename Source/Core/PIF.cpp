@@ -654,7 +654,7 @@ void	IController::CommandReadMemPack(u32 channel, u8 *cmd)
 		else
 		{
 			// RumblePak
-			memset(data, 0, 32 );
+			memset( data, 0, 32 );
 		}
 	}
 
@@ -706,14 +706,13 @@ void	IController::CommandReadRumblePack(u8 *cmd)
 void	IController::CommandWriteRumblePack(u8 *cmd)
 {
 	u32 addr = ((cmd[3] << 8) | cmd[4]) & 0xFFE0;
-	u8* data = &cmd[5];
 
 	if ( addr == 0xC000 )
 	{
-		gRumblePakActive = data;
+		gRumblePakActive = cmd[5];
 	}
 
-	cmd[37] = CalculateDataCrc(data);
+	cmd[37] = CalculateDataCrc(&cmd[5]);
 }
 
 //*****************************************************************************
