@@ -630,6 +630,7 @@ u8 IController::CalculateDataCrc(u8 * pBuf)
 	return c;
 }
 #endif
+
 //*****************************************************************************
 // Returns new position to continue reading
 // i is the address of the first write info (after command itself)
@@ -637,27 +638,27 @@ u8 IController::CalculateDataCrc(u8 * pBuf)
 void	IController::CommandReadMemPack(u32 channel, u8 *cmd)
 {
 	u32 addr = ((cmd[3] << 8) | cmd[4]);
+	u8* data = &cmd[5];
 
 	if (addr == 0x8001)
 	{
-		memset(&cmd[5], 0, 32);
-		cmd[37] = CalculateDataCrc(&cmd[5]);
-		return;
-	}
-
-	addr &= 0xFFE0;
-
-	if (addr <= 0x7FE0)
-	{
-		memcpy(&cmd[5], &mMemPack[channel][addr], 32);
+		memset(data, 0, 32);
 	}
 	else
 	{
-		// RumblePak
-		memset( &cmd[5], 0x00, 32 );
+		addr &= 0xFFE0;
+		if (addr <= 0x7FE0)
+		{
+			memcpy(data, &mMemPack[channel][addr], 32);
+		}
+		else
+		{
+			// RumblePak
+			memset(data, 0, 32 );
+		}
 	}
 
-	cmd[37] = CalculateDataCrc(&cmd[5]);
+	cmd[37] = CalculateDataCrc(data);
 }
 
 //*****************************************************************************
@@ -667,25 +668,23 @@ void	IController::CommandReadMemPack(u32 channel, u8 *cmd)
 void	IController::CommandWriteMemPack(u32 channel, u8 *cmd)
 {
 	u32 addr = ((cmd[3] << 8) | cmd[4]);
+	u8* data = &cmd[5];
 
-	if (addr == 0x8001)
+	if (addr != 0x8001)
 	{
-		cmd[37] = CalculateDataCrc(&cmd[5]);
-		return;
+		addr &= 0xFFE0;
+
+		if (addr <= 0x7FE0)
+		{
+			memcpy(&mMemPack[channel][addr], data, 32);
+		}
+		else
+		{
+			// Do nothing, eventually enable rumblepak
+		}
 	}
 
-	addr &= 0xFFE0;
-
-	if (addr <= 0x7FE0)
-	{
-		memcpy(&mMemPack[channel][addr], &cmd[5], 32);
-	}
-	else
-	{
-		// Do nothing, eventually enable rumblepak
-	}
-
-	cmd[37] = CalculateDataCrc(&cmd[5]);
+	cmd[37] = CalculateDataCrc(data);
 }
 
 //*****************************************************************************
@@ -696,17 +695,7 @@ void	IController::CommandReadRumblePack(u8 *cmd)
 {
 	u32 addr = ((cmd[3] << 8) | cmd[4]) & 0xFFE0;
 
-	if ( addr == 0x8000 )
-	{
-		// rumblepak
-		memset( &cmd[5], 0x80, 32 );
-	}
-	else
-	{
-		// Not connected?
-		memset( &cmd[5], 0x00, 32 );
-	}
-
+	memset( &cmd[5], (addr == 0x8000) ? 0x80 : 0x00, 32 );
 	cmd[37] = CalculateDataCrc(&cmd[5]);
 }
 
@@ -717,13 +706,14 @@ void	IController::CommandReadRumblePack(u8 *cmd)
 void	IController::CommandWriteRumblePack(u8 *cmd)
 {
 	u32 addr = ((cmd[3] << 8) | cmd[4]) & 0xFFE0;
+	u8* data = &cmd[5];
 
 	if ( addr == 0xC000 )
 	{
-		gRumblePakActive = cmd[5];
+		gRumblePakActive = data;
 	}
 
-	cmd[37] = CalculateDataCrc(&cmd[5]);
+	cmd[37] = CalculateDataCrc(data);
 }
 
 //*****************************************************************************
