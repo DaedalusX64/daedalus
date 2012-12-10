@@ -1737,7 +1737,7 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 
 	DaedalusVtx *p_vertices( (DaedalusVtx*)sceGuGetMemory(num_vertices * sizeof(DaedalusVtx)) );
 
-	memcpy_vfpu_BE( p_vertices, clip_vtx, num_vertices * sizeof(DaedalusVtx) );
+	memcpy( p_vertices, clip_vtx, num_vertices * sizeof(DaedalusVtx) );	//std memcpy() is as fast as VFPU here!
 
 	*p_p_vertices = p_vertices;
 	*p_num_vertices = num_vertices;

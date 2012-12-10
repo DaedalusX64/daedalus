@@ -515,8 +515,8 @@ void memcpy_cpu_LE( void* dst, const void* src, size_t size )
 		size--;
 	}
 
-	// < 12 isn't worth trying any VFPU optimisations...
-	if( (size<12) | ((((u32)src8&0x3) != ((u32)dst8&0x3))) ) goto normalcopy;
+	// < 16 OR src not at least 32bit aligned at this point -> not worth trying any VFPU optimisations...
+	if( (size<16) | (((u32)src8&0x3) != 0) ) goto normalcopy;
 
 	src32 = (u32*)src8;
 	dst32 = (u32*)dst8;
@@ -616,21 +616,21 @@ void memcpy_cpu_LE( void* dst, const void* src, size_t size )
 
 normalcopy:
 	//Use CPU
-	src32 = (u32*)src8;
-	dst32 = (u32*)dst8;
 	if( ((u32)src8&0x3)==0 )	//Src is 4byte aligned 
 	{
-			while(size>3)
-			{
-				*dst32++ = *src32++;
-				size -= 4;
-			}
-			if (size==0) return;		// fast out
-			src8 = (u8*)src32;
-			dst8 = (u8*)dst32;
+		src32 = (u32*)src8;
+		dst32 = (u32*)dst8;
+		while(size>3)
+		{
+			*dst32++ = *src32++;
+			size -= 4;
+		}
+		src8 = (u8*)src32;
+		dst8 = (u8*)dst32;
 	}
 	else	//At least dst is aligned
 	{
+		dst32 = (u32*)dst8;
 		while(size>3)
 		{
 			register u32 tmp;
@@ -640,7 +640,6 @@ normalcopy:
 			*dst32++ = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
 			size -= 4;
 		}
-		if (size==0) return;		// fast out
 		dst8 = (u8*)dst32;
 	}
 

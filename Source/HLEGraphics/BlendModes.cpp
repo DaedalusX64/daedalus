@@ -301,18 +301,6 @@ void BlendMode_0x0050fea144fe7339LL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 }
 
-//Donald duck rain
-//case 0x00522bfffffffe38LL:
-//aRGB0: (Env          - 0           ) * Shade        + 0
-//aA0  : (Texel1       - 0           ) * Env          + 0
-//aRGB1: (0            - 0           ) * 0            + Combined
-//aA1  : (0            - 0           ) * 0            + Combined
-void BlendMode_0x00522bfffffffe38LL( BLEND_MODE_ARGS )
-{
-	details.ColourAdjuster.ModulateA( details.PrimColour );
-	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
-}
-
 // Doubutsu no Mori - Player Shadow
 // case 0x00ff95ffff0dfe3fLL:
 //aRGB0: (0            - 0           ) * 0            + Primitive
@@ -1051,6 +1039,7 @@ void BlendMode_0x00129bfffffdf638LL (BLEND_MODE_ARGS)
 void BlendMode_0x00fff3fffffdb638LL( BLEND_MODE_ARGS )
 {
 	details.ColourAdjuster.SetA( details.PrimColour );
+	details.ColourAdjuster.SubtractRGB( details.PrimColour.ReplicateAlpha() );
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
 }
 
@@ -1907,7 +1896,6 @@ OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux )
 			case(0x00327e64fffff9fcLL): return g_ROM.GameHacks==SIN_PUNISHMENT ? BlendMode_0x00327e64fffff9fcLL : NULL; // Sin and Punishment - blinds the screen (breaks splash screen race flag in MK64)
 			BLEND_MODE(0x00457fff3ffcfe3fLL); // Pokemon Stadium 2 Arena Floor
 			BLEND_MODE(0x0050fea144fe7339LL); // Duke Nukem Menu and HUD
-			//BLEND_MODE(0x00522bfffffffe38LL); // Donald Duck rain (makes it transparent not really a fix) breaks shadow in Rayman2
 			BLEND_MODE(0x0060b2c15565feffLL); // Mario Kart 64
 			//BLEND_MODE(0x00627fff3ffe7e3fLL); // Pokemon Stadium 2 N64 Logo //Dangerous!!
 			BLEND_MODE(0x00ffffffff09f63fLL); // THPS Text
