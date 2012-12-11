@@ -23,7 +23,7 @@ homepage: http://wordpress.fx-world.org
 void memcpy_vfpu_BE( void* dst, const void* src, size_t size )
 {
     //less than 16bytes or there is no 32bit alignment -> not worth optimizing
-	if( (size<16) | (((u32)src&0x3) != ((u32)dst&0x3)) )
+	if( (((u32)src&0x3) != (size<16)) )
     {
         memcpy( dst, src, size );
         return;
@@ -48,8 +48,6 @@ void memcpy_vfpu_BE( void* dst, const void* src, size_t size )
 		*dst32++ = *src32++;
 		size -= 4;
 	}
-
-	if (size==0) return;		// fast out
 
 	dst8=(u8*)dst32;
 	src8=(u8*)src32;
@@ -94,7 +92,7 @@ void memcpy_vfpu_BE( void* dst, const void* src, size_t size )
 				);
 		}
 	}
-	else if( ((u32)src8&0x3)==0 )	//src is 4byte and dst is 16byte aligned
+	else 	//At least src is 4byte and dst is 16byte aligned
     {
 		while (size>63)
 			{
@@ -516,7 +514,7 @@ void memcpy_cpu_LE( void* dst, const void* src, size_t size )
 	}
 
 	// < 16 OR src not at least 32bit aligned at this point -> not worth trying any VFPU optimisations...
-	if( (size<16) | (((u32)src8&0x3) != 0) ) goto normalcopy;
+	if( (((u32)src8&0x3) != (size<16)) ) goto normalcopy;
 
 	src32 = (u32*)src8;
 	dst32 = (u32*)dst8;
@@ -527,8 +525,6 @@ void memcpy_cpu_LE( void* dst, const void* src, size_t size )
 		*dst32++ = *src32++;
 		size -= 4;
 	}
-
-	if (size==0) return;	// fast out
 
 	src8 = (u8*)src32;
 	dst8 = (u8*)dst32;
@@ -573,7 +569,7 @@ void memcpy_cpu_LE( void* dst, const void* src, size_t size )
 				);
 		}
 	}
-	else if( ((u32)src8&0x3)==0 )	//src is 4byte and dst is 16byte aligned
+	else 	//At least src is 4byte and dst is 16byte aligned
     {
 		while (size>63)
 			{
@@ -616,32 +612,18 @@ void memcpy_cpu_LE( void* dst, const void* src, size_t size )
 
 normalcopy:
 	//Use CPU
-	if( ((u32)src8&0x3)==0 )	//Src is 4byte aligned 
+	//At least dst is aligned
+	dst32 = (u32*)dst8;
+	while(size>3)
 	{
-		src32 = (u32*)src8;
-		dst32 = (u32*)dst8;
-		while(size>3)
-		{
-			*dst32++ = *src32++;
-			size -= 4;
-		}
-		src8 = (u8*)src32;
-		dst8 = (u8*)dst32;
+		register u32 tmp;
+		tmp = *(u8*)((u32)src8++ ^ 3);
+		tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
+		tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
+		*dst32++ = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
+		size -= 4;
 	}
-	else	//At least dst is aligned
-	{
-		dst32 = (u32*)dst8;
-		while(size>3)
-		{
-			register u32 tmp;
-			tmp = *(u8*)((u32)src8++ ^ 3);
-			tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
-			tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
-			*dst32++ = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
-			size -= 4;
-		}
-		dst8 = (u8*)dst32;
-	}
+	dst8 = (u8*)dst32;
 
 bytecopy:
 	// Copy the remaning bytes if any...
