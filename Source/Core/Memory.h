@@ -284,6 +284,16 @@ inline u32 QuickRead32Bits( u8 *p_base )
 	return *(u32 *)(p_base);
 }
 
+inline u16 QuickRead16Bits( u8 *p_base, u32 offset )
+{
+	return *(u16 *)((uintptr_t)(p_base + offset) ^ U16_TWIDDLE);
+}
+
+inline void QuickWrite16Bits( u8 *p_base, u32 offset, u16 value)
+{
+	*(u16 *)((uintptr_t)(p_base + offset) ^ U16_TWIDDLE) = value;
+}
+
 /*typedef struct { u32 value[4]; } u128;
 inline void QuickWrite512Bits( u8 *p_base, u8 *p_source )
 {

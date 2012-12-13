@@ -49,13 +49,10 @@ TEST_DISABLE_VI_FUNCS
 	//DBGConsole_Msg(0, "osViSwapBuffer(0x%08x)", (u32)gGPR[REG_a0]);
 
 	u32 pointer = Read32Bits(VAR_ADDRESS(osViSetModeGubbins));
-	u16 control;
 
-	Write32Bits(pointer + 0x4, gGPR[REG_a0]._u32_0);
-
-	control = Read16Bits(pointer + 0x0);
-	control |= 0x0010;
-	Write16Bits(pointer + 0x0, control);
+	u8 * p_base = (u8 *)ReadAddress(pointer);
+	QuickWrite32Bits(p_base, 0x4, gGPR[REG_a0]._u32_0);
+	QuickWrite16Bits(p_base, 0x0, QuickRead16Bits(p_base, 0x0) | 0x0010 );
 
 	return PATCH_RET_JR_RA;
 }
