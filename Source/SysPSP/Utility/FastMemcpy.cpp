@@ -634,24 +634,23 @@ void memcpy_vfpu_swizzle( void* dst, const void* src, size_t size )
 
 		src8 = (u8*)src32;
 		dst8 = (u8*)dst32;
-
-		// Still remainings? Copy byte per byte...
-		goto bytecopy;
 	}
-
-	//We are src unligned.. At least dst is aligned
-	dst32 = (u32*)dst8;
-	while(size>3)
+	else
 	{
-		register u32 tmp;
-		tmp = *(u8*)((u32)src8++ ^ 3);
-		tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
-		tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
+		//We are src unligned.. At least dst is aligned
+		dst32 = (u32*)dst8;
+		while(size>3)
+		{
+			register u32 tmp;
+			tmp = *(u8*)((u32)src8++ ^ 3);
+			tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
+			tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
 
-		*dst32++ = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
-		size -= 4;
+			*dst32++ = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
+			size -= 4;
+		}
+		dst8 = (u8*)dst32;
 	}
-	dst8 = (u8*)dst32;
 
 bytecopy:
 	// Copy the remaning bytes if any...
@@ -684,22 +683,22 @@ static inline u64 GetCurrent()
 			memcpy(d, s, n);													\
 		gcc_elapsed = (int)(GetCurrent()-time);									\
 	}																			\
-	int cpu_elapsed = 0;														\
+	int vfpu_elapsed_swizzle = 0;												\
 	{																			\
 		u64 time = GetCurrent();												\
 		for (int j=0; j<100; ++j)												\
-			memcpy_cpu_LE(d, s, n);												\
-		cpu_elapsed = (int)(GetCurrent()-time);									\
+			memcpy_vfpu_swizzle(d, s, n);										\
+		vfpu_elapsed_swizzle = (int)(GetCurrent()-time);						\
 	}																			\
-	int vfpu_be_elapsed = 0;													\
+	int vfpu_elapsed = 0;														\
 	{																			\
 		u64 time = GetCurrent();												\
 		for (int j=0; j<100; ++j)												\
-			memcpy_vfpu_BE(d, s, n);											\
-		vfpu_be_elapsed = (int)(GetCurrent()-time);								\
+			memcpy_vfpu(d, s, n);												\
+		vfpu_elapsed = (int)(GetCurrent()-time);								\
 	}																			\
 	scePowerTick(0);															\
-	printf("%6d bytes | GCC%5d | VFPUBE%5d | CPU%5d\n", (int)n, gcc_elapsed, vfpu_be_elapsed, cpu_elapsed); \
+	printf("%6d bytes | GCC%5d | VFPU%5d | VFPUSWIZZLE%5d\n", (int)n, gcc_elapsed, vfpu_elapsed, vfpu_elapsed_swizzle); \
 	}
 
 void memcpy_test( void * dst, const void * src, size_t size )

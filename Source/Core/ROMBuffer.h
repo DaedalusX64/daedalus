@@ -66,8 +66,8 @@ class RomBuffer
 
 		static void * GetAddressRaw( u32 rom_start );
 
-		static bool CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_offset, u32 length );
-		static bool CopyFromRam( u32 dst_offset, const u8 * p_src, u32 src_offset, u32 src_size, u32 length );
+		static void CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_offset, u32 length );
+		//static void CopyFromRam( u32 dst_offset, const u8 * p_src, u32 src_offset, u32 src_size, u32 length );
 
 		static bool IsRomAddressFixed();
 		static const void * GetFixedRomBaseAddress();

@@ -303,7 +303,7 @@ void RomBuffer::Open( )
 //*****************************************************************************
 void	RomBuffer::Close()
 {
-	if( IsRomAddressFixed() )
+	if( sRomFixed )
 	{
 		CROMFileMemory::Get()->Free( spRomData );
 		spRomData = NULL;
@@ -339,7 +339,7 @@ u32		RomBuffer::GetRomSize()
 
 namespace
 {
-	bool	CopyBytesRaw( ROMFileCache * p_cache, u8 * p_dst, u32 rom_offset, u32 length )
+	void	CopyBytesRaw( ROMFileCache * p_cache, u8 * p_dst, u32 rom_offset, u32 length )
 	{
 		// Read the cached bytes into our scratch buffer, and return that
 		u32		dst_offset( 0 );
@@ -373,8 +373,6 @@ namespace
 			src_offset += bytes_this_pass;
 			length -= bytes_this_pass;
 		}
-
-		return length == 0;
 	}
 }
 
@@ -383,7 +381,7 @@ namespace
 //*****************************************************************************
 void	RomBuffer::GetRomBytesRaw( void * p_dst, u32 rom_start, u32 length )
 {
-	if( IsRomAddressFixed() )
+	if( sRomFixed )
 	{
 		memcpy(p_dst, (const u8*)spRomData + rom_start, length );
 	}
@@ -411,9 +409,9 @@ void	RomBuffer::PutRomBytesRaw( u32 rom_start, const void * p_src, u32 length )
 //*****************************************************************************
 void * RomBuffer::GetAddressRaw( u32 rom_start )
 {
-	if( rom_start < RomBuffer::GetRomSize() )
+	if( rom_start < sRomSize )
 	{
-		if( IsRomAddressFixed() )
+		if( sRomFixed )
 		{
 			return (u8 *)spRomData + rom_start;
 		}
@@ -434,14 +432,14 @@ void * RomBuffer::GetAddressRaw( u32 rom_start )
 //*****************************************************************************
 //
 //*****************************************************************************
-bool RomBuffer::CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_offset, u32 length )
+void RomBuffer::CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_offset, u32 length )
 {
-	if( IsRomAddressFixed() )
+	if( sRomFixed )
 	{
 		const u8 *	p_src( (const u8 *)spRomData );
-		u32			src_size( GetRomSize() );
+		u32			src_size( sRomSize );
 
-		return DMA_HandleTransfer( p_dst, dst_offset, dst_size, p_src, src_offset, src_size, length );
+		DMA_HandleTransfer( p_dst, dst_offset, dst_size, p_src, src_offset, src_size, length );
 	}
 	else
 	{
@@ -475,24 +473,22 @@ bool RomBuffer::CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_off
 			src_offset += bytes_this_pass;
 			length -= bytes_this_pass;
 		}
-
-		return length == 0;
 	}
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-bool RomBuffer::CopyFromRam( u32 dst_offset, const u8 * p_src, u32 src_offset, u32 src_size, u32 length )
+/*void RomBuffer::CopyFromRam( u32 dst_offset, const u8 * p_src, u32 src_offset, u32 src_size, u32 length )
 {
 	DAEDALUS_ASSERT( IsRomAddressFixed(), "Cannot put rom bytes when the data isn't fixed" );
 
 	u8 *		p_dst( (u8 *)spRomData );
 	u32			dst_size( GetRomSize() );
 
-	return DMA_HandleTransfer( p_dst, dst_offset, dst_size, p_src, src_offset, src_size, length );
+	DMA_HandleTransfer( p_dst, dst_offset, dst_size, p_src, src_offset, src_size, length );
 }
-
+*/
 //*****************************************************************************
 //
 //*****************************************************************************
