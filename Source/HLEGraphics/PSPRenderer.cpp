@@ -720,7 +720,7 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 	if( states->GetNumStates() > 1 )
 	{
 		saved_verts.resize( num_vertices );
-		memcpy_vfpu_BE( &saved_verts[0], p_vertices, num_vertices * sizeof( DaedalusVtx ) );
+		memcpy( &saved_verts[0], p_vertices, num_vertices * sizeof( DaedalusVtx ) );
 	}
 
 
@@ -741,7 +741,7 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 		// TODO: this nobbles the existing diffuse colour on each pass. Need to use a second buffer...
 		if( i > 0 )
 		{
-			memcpy_vfpu_BE( p_vertices, &saved_verts[0], num_vertices * sizeof( DaedalusVtx ) );
+			memcpy( p_vertices, &saved_verts[0], num_vertices * sizeof( DaedalusVtx ) );
 		}
 
 		if(out.VertexExpressionRGB != NULL)
@@ -768,11 +768,7 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 			case PBM_BLEND:			tfx = GU_TFX_BLEND; sceGuTexEnvColor( out.TextureFactor.GetColour() ); break;
 			}
 
-			u32 tcc( GU_TCC_RGBA );
-			if( out.BlendAlphaMode == PBAM_RGB )
-				tcc = GU_TCC_RGB;
-
-			sceGuTexFunc( tfx, tcc );
+			sceGuTexFunc( tfx, out.BlendAlphaMode == PBAM_RGB ? GU_TCC_RGB :  GU_TCC_RGBA );
 
 			if( g_ROM.T1_HACK )
 			{

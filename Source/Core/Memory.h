@@ -80,7 +80,7 @@ extern u32		gTLBReadHit;
 extern u32		gTLBWriteHit;
 #endif
 extern void *	g_pMemoryBuffers[NUM_MEM_BUFFERS];
-extern u32		MemoryRegionSizes[NUM_MEM_BUFFERS];
+extern const u32 MemoryRegionSizes[NUM_MEM_BUFFERS];
 
 bool			Memory_Init();
 void			Memory_Fini();
@@ -254,6 +254,17 @@ inline void WriteAddress( u32 address, u32 value )
 	m.WriteFunc( address, value );
 }
 
+#endif /* 0 */
+
+
+#ifndef DAEDALUS_SILENT
+inline bool Memory_GetInternalReadAddress(u32 address, void ** p_translated)
+{
+	return (InternalReadFastTable)[(address)>>18](address, p_translated);
+}
+#endif
+
+
 //////////////////////////////////////////////////////////////
 // Quick Read/Write methods that require a base returned by
 // ReadAddress or Memory_GetInternalReadAddress etc
@@ -298,29 +309,6 @@ inline void QuickWrite32Bits( u8 *p_base, u32 value )
 	*(u32 *)(p_base) = value;
 }
 
-// Fast as hell ReadAddress, using only pointer table (dangerous if it doesn't meet below criteria)
-// 1 - For mapped memory, address must be already translated to physical
-// 2 - Can't access HW memory
-/*inline void* DAEDALUS_ATTRIBUTE_CONST QuickReadAddress( u32 address )
-{
-	DAEDALUS_ASSERT( IS_SEG_A000_8000(address), "Address translation needed!");
-
-	const MemFuncRead & m( g_MemoryLookupTableRead[ address >> 18 ] );
-	DAEDALUS_ASSERT( m.pRead, "Pointer table is NULL, Trying to access TLB-mapped or HW memory?");
-	return (void*)( m.pRead + address );
-}
-*/
-
-
-#endif /* 0 */
-
-
-#ifndef DAEDALUS_SILENT
-inline bool Memory_GetInternalReadAddress(u32 address, void ** p_translated)
-{
-	return (InternalReadFastTable)[(address)>>18](address, p_translated);
-}
-#endif
 
 //#define MEMORY_CHECK_ALIGN( address, align )	DAEDALUS_ASSERT( (address & ~(align-1)) == 0, "Unaligned memory access" )
 #define MEMORY_CHECK_ALIGN( address, align )
@@ -403,8 +391,6 @@ inline bool Memory_GetInternalReadAddress(u32 address, void ** p_translated)
 #define MEMORY_RI				g_pMemoryBuffers[MEM_RI_REG]
 #define MEMORY_PIF				g_pMemoryBuffers[MEM_PIF_RAM]
 
-//extern u8 * g_pu8RamBase_8000;
-//extern u8 * g_pu8RamBase_A000;
 
 #if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
 
@@ -420,26 +406,10 @@ inline void Write8Bits( u32 address, u8 data )		{                               
 
 #elif (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_LITTLE)
 
-#if 1	//inline vs macro
 inline u64 Read64Bits( u32 address )				{ MEMORY_CHECK_ALIGN( address, 8 ); u64 data = *(u64 *)ReadAddress( address ); data = (data>>32) + (data<<32); return data; }
 inline u32 Read32Bits( u32 address )				{ MEMORY_CHECK_ALIGN( address, 4 ); return *(u32 *)ReadAddress( address ); }
 inline u16 Read16Bits( u32 address )				{ MEMORY_CHECK_ALIGN( address, 2 ); return *(u16 *)ReadAddress( address ^ U16_TWIDDLE ); }
 inline u8 Read8Bits( u32 address )					{                                   return *(u8  *)ReadAddress( address ^ U8_TWIDDLE ); }
-#else
-inline u64 Read64Bits( u32 address )
-{
-	MEMORY_CHECK_ALIGN( address, 8 );
-	union
-	{
-		u64 data;
-		u32 dpart[2];
-	}uni = {*(u64 *)ReadAddress( address )};
-	return ((u64)uni.dpart[0] << 32) | uni.dpart[1];
-}
-#define Read32Bits( addr )							( *(u32 *)ReadAddress( (addr) ))
-#define Read16Bits( addr )							( *(u16 *)ReadAddress( (addr) ^ U16_TWIDDLE ))
-#define Read8Bits( addr )							( *(u8  *)ReadAddress( (addr) ^ U8_TWIDDLE ))
-#endif
 
 inline void Write64Bits( u32 address, u64 data )	{ MEMORY_CHECK_ALIGN( address, 8 ); *(u64 *)ReadAddress( address ) = (data>>32) + (data<<32); }
 inline void Write32Bits( u32 address, u32 data )	{ MEMORY_CHECK_ALIGN( address, 4 ); WriteAddress(address, data); }

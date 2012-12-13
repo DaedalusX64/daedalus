@@ -59,7 +59,7 @@ static void Memory_InitTables();
 //*****************************************************************************
 //
 //*****************************************************************************
-u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
+const u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 {
 	0x04,				// This seems enough (Salvy)
 	MAXIMUM_MEM_SIZE,	// RD_RAM
@@ -165,10 +165,6 @@ bool Memory_Init()
 	}
 	//printf("%d bytes used of memory\n",count);
 	g_RomWritten= false;
-	//g_pu8RamBase_8000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0x80000000;
-	//g_pu8RamBase_A000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0xa0000000;
-	//g_pu8RamBase_A000 = ((u8*)MAKE_UNCACHED_PTR(g_pMemoryBuffers[MEM_RD_RAM])) - 0xa0000000;
-
 
 	Memory_InitTables();
 
@@ -191,9 +187,6 @@ void Memory_Fini(void)
 		}
 	}
 
-//	g_pu8RamBase_8000 = NULL;
-//	g_pu8RamBase_A000 = NULL;
-
 	memset( g_pMemoryBuffers, 0, sizeof( g_pMemoryBuffers ) );
 }
 
@@ -211,11 +204,6 @@ void Memory_Reset()
 		main_mem = MEMORY_4_MEG;
 
 	DBGConsole_Msg(0, "Reseting Memory - %d MB", main_mem/(1024*1024));
-
-	//s_nNumDmaTransfers = 0;
-	//s_nTotalDmaTransferSize = 0;
-	//s_nNumSPTransfers = 0;
-	//s_nTotalSPTransferSize = 0;
 
 	if(main_mem > MAXIMUM_MEM_SIZE)
 	{
@@ -293,7 +281,6 @@ static void Memory_InitFunc(u32 start, u32 size, const void * ReadRegion, const 
 
 	while(start_addr <= end_addr)
 	{
-		//printf("0x%08x\n",start_addr|(0x8000 >> 2));
 		g_MemoryLookupTableRead[start_addr|(0x8000>>2)].ReadFunc= ReadFunc;
 		g_MemoryLookupTableWrite[start_addr|(0x8000>>2)].WriteFunc = WriteFunc;
 
@@ -720,11 +707,13 @@ void MemoryUpdateSPStatus( u32 flags )
 		// Check for tasks whenever the RSP is started
 		RSP_HLE_ProcessTask();
 	}
+#ifdef DAEDAULUS_ENABLEASSERTS
 	else if ( stop_rsp )
 	{
 		// As we handle all RSP via HLE, nothing to do here.
 		DAEDALUS_ASSERT( !RSP_IsRunningHLE(), "Stopping RSP while HLE task still running. Not good!" );
 	}
+#endif
 }
 
 #undef DISPLAY_DPC_WRITES
