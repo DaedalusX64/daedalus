@@ -770,8 +770,7 @@ void	AudioHLEState::SetBuffer( u8 flags, u16 in, u16 out, u16 count )
 
 void	AudioHLEState::DmemMove( u16 dst, u16 src, u16 count )
 {
-	memcpy_cpu_LE(Buffer + dst, Buffer + src, (count + 3) & (N64_AUDIO_BUFF - 4));
-
+	memcpy_swizzle(Buffer + dst, Buffer + src, (count + 3) & (N64_AUDIO_BUFF - 4));
 	/*count = (count + 3) & (N64_AUDIO_BUFF - 4);
 	for (u32 i = 0; i < count; i++)
 	{

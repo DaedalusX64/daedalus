@@ -39,8 +39,8 @@ TEST_DISABLE_UTIL_FUNCS
 	if (len == 0)
 		return PATCH_RET_JR_RA;
 
-#if 1	//1->Fast, 0->Old way - VFPU memcpy Breaks Star Soldier
-	memcpy_cpu_LE( (void *)ReadAddress(dst), (void *)ReadAddress(src), len);
+#if 1	//1->Fast, 0->Old way
+	fast_memcpy_swizzle( (void *)ReadAddress(dst), (void *)ReadAddress(src), len);
 #else
 	//DBGConsole_Msg(0, "memcpy(0x%08x, 0x%08x, %d)", dst, src, len);
 	u8 *pdst = (u8*)ReadAddress(dst);
@@ -184,8 +184,8 @@ TEST_DISABLE_UTIL_FUNCS
 	}
 	else
 	{
-#if 1	// 1->Fast way, 0->Old way, Using VFPU breaks Clay Fighter 63 1-3 for some reason???
-		memcpy_cpu_LE( (void *)ReadAddress(dst), (void *)ReadAddress(src), len);
+#if 1	// 1->Fast way, 0->Old way
+		fast_memcpy_swizzle( (void *)ReadAddress(dst), (void *)ReadAddress(src), len);
 #else
 		u8 *pdst = (u8*)ReadAddress(dst);
 		u8 *psrc = (u8*)ReadAddress(src);

@@ -53,11 +53,11 @@ void DMA_SP_CopyFromRDRAM()
 
 	DAEDALUS_ASSERT( (splen & 0x1) == 0, "Warning, PI DMA DRAM from SP, odd length = %d", splen);
 
-	// Ignore IMEM for speed (we don't use low-level RSP anyways on the PSP)
+	// Ignore IMEM for speed (we don't do low-level RSP anyways on the PSP)
 	if((spmem_address_reg & 0x1000) == 0)
 	{
-		memcpy_vfpu_BE(&g_pu8SpMemBase[(spmem_address_reg & 0xFFF)],
-					   &g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)], splen);
+		fast_memcpy(&g_pu8SpMemBase[(spmem_address_reg & 0xFFF)],
+					&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)], splen);
 	}
 
 	//Clear the DMA Busy
@@ -78,11 +78,11 @@ void DMA_SP_CopyToRDRAM()
 
 	DAEDALUS_ASSERT( (splen & 0x1) == 0, "Warning, PI DMA DRAM to SP, odd length = %d", splen)
 
-	// Ignore IMEM for speed (we don't use low-level RSP anyways on the PSP)
+	// Ignore IMEM for speed (we don't do low-level RSP anyways on the PSP)
 	if((spmem_address_reg & 0x1000) == 0)
 	{
-		memcpy_vfpu_BE(&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
-					   &g_pu8SpMemBase[(spmem_address_reg & 0xFFF)], splen);
+		fast_memcpy(&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
+					&g_pu8SpMemBase[(spmem_address_reg & 0xFFF)], splen);
 	}
 
 	//Clear the DMA Busy
@@ -162,7 +162,6 @@ void DMA_SI_CopyToDRAM( )
 #define IsDom1Addr3( x )		( (x) >= PI_DOM1_ADDR3 && (x) < 0x7FFFFFFF )
 #define IsDom2Addr1( x )		( (x) >= PI_DOM2_ADDR1 && (x) < PI_DOM1_ADDR1 )
 #define IsDom2Addr2( x )		( (x) >= 0x08000000 && (x) < 0x10000000 )
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -175,68 +174,7 @@ bool DMA_HandleTransfer( u8 * p_dst, u32 dst_offset, u32 dst_size, const u8 * p_
 		return false;
 	}
 
-#if 1 //1->new, 0->old
-	//Doesn't like that we use VFPU here //Corn
-	//Little Endian
-	// We only have to fiddle the bytes when
-	// a) the src is not word aligned
-	// b) the dst is not word aligned
-	// c) the length is not a multiple of 4 (although we can copy most directly)
-	// If the source/dest are word aligned, we can simply copy most of the
-	// words using memcpy. Any remaining bytes are then copied individually
-	/*if( !(dst_offset & 0x3) & !(src_offset & 0x3) )
-	{
-		// Optimise for u32 alignment - do multiple of four using memcpy
-		u32 block_length(length & ~0x3);
-
-		// Might be 0 if xref is less than 4 bytes in total
-		// memcpy_vfpu seems to fail here, maybe still needs some tweak for border copy cases to work properly //Corn
-		if( block_length ) memcpy(&p_dst[dst_offset],  (void*)&p_src[src_offset], block_length);
-
-		// Do remainder - this is only 0->3 bytes
-		for(u32 i = block_length; i < length; ++i)
-		{
-			p_dst[(i + dst_offset)^U8_TWIDDLE] = p_src[(i + src_offset)^U8_TWIDDLE];
-		}
-	}
-	else*/
-	{
-		memcpy_cpu_LE(&p_dst[dst_offset],  (void*)&p_src[src_offset], length);
-	}
-
-#else
-	//Todo:Try to optimize futher Little Endian code
-	//Little Endian
-	// We only have to fiddle the bytes when
-	// a) the src is not word aligned
-	// b) the dst is not word aligned
-	// c) the length is not a multiple of 4 (although we can copy most directly)
-	// If the source/dest are word aligned, we can simply copy most of the
-	// words using memcpy. Any remaining bytes are then copied individually
-	if((dst_offset & 0x3) == 0 && (src_offset & 0x3) == 0)
-	{
-		// Optimise for u32 alignment - do multiple of four using memcpy
-		u32 block_length(length & ~0x3);
-
-		// Might be 0 if xref is less than 4 bytes in total
-		// memcpy_vfpu seems to fail here, maybe still needs some tweak for border copy cases to work properly //Corn
-		//if(block_length)
-			memcpy(&p_dst[dst_offset],  (void*)&p_src[src_offset], block_length);
-
-		// Do remainder - this is only 0->3 bytes
-		for(u32 i = block_length; i < length; ++i)
-		{
-			p_dst[(i + dst_offset)^U8_TWIDDLE] = p_src[(i + src_offset)^U8_TWIDDLE];
-		}
-	}
-	else
-	{
-		for(u32 i = 0; i < length; ++i)
-		{
-			p_dst[(i + dst_offset)^U8_TWIDDLE] = p_src[(i + src_offset)^U8_TWIDDLE];
-		}
-	}
-#endif
+	fast_memcpy_swizzle(&p_dst[dst_offset], (void*)&p_src[src_offset], length);
 	return true;
 }
 
