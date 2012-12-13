@@ -361,7 +361,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	printf("ROM ID[%04X]\n", id.CartID);
 
 	g_ROM.HACKS_u32 = 0;	//Default to no game hacks
-
+	
 	switch( id.CartID )
 	{
 	case 0x324a: g_ROM.GameHacks = WONDER_PROJECTJ2;	break;
@@ -373,7 +373,6 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x344b: g_ROM.GameHacks = KIRBY64;				break;
 	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
 	case 0x4643: g_ROM.GameHacks = CLAY_FIGHTER_63;		break;
-	case 0x5a52: g_ROM.GameHacks = RIDGE_RACER;			break;
 	case 0x504A: g_ROM.GameHacks = ISS64;				break;
 	case 0x5944: g_ROM.GameHacks = DKR;					break;
 	case 0x3247: g_ROM.GameHacks = EXTREME_G2;			break;

@@ -468,19 +468,8 @@ bool Patch_Hacks( PatchSymbol * ps )
 		break;
 
 	//
-	// osRestoreInt causes Ridge Racer to BSOD when quick race is about to start
-	//
-	case RIDGE_RACER:
-		if( strcmp("__osRestoreInt",ps->szName) == 0)
-		{
-			bfound = true;
-			break;
-
-		}
-		break;
-	//
 	// __osDispatchThread and __osEnqueueAndYield causes Body Harvest to not boot
-	//
+	// This game is very sensitive with IRQs, see DMA.cpp (DMA_SI_CopyToDRAM)
 	case BODY_HARVEST:
 		if( strcmp("__osDispatchThread",ps->szName) == 0)
 		{
