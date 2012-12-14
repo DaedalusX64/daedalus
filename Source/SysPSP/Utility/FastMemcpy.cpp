@@ -520,22 +520,23 @@ void memcpy_vfpu_swizzle( void* dst, const void* src, size_t size )
 	// src has to be at least 32bit aligned to try any optimisations...
 	if( (((u32)src8&0x3) == 0) )
 	{
-		src32 = (u32*)src8;
-		dst32 = (u32*)dst8;
-
-		// Align dst to 16 bytes or just resume if already done
-		while( ((u32)dst32&0xF)!=0 )
-		{
-			*dst32++ = *src32++;
-			size -= 4;
-		}
-
-		src8 = (u8*)src32;
-		dst8 = (u8*)dst32;
-
 		// Not atleast 16 bytes at this point? -> not worth trying any VFPU optimisations...
 		if (size>15)
 		{
+			src32 = (u32*)src8;
+			dst32 = (u32*)dst8;
+
+			// Align dst to 16 bytes to gain from vfpu aligned stores or just resume if already done
+			while( ((u32)dst32&0xF)!=0 )
+			{
+				*dst32++ = *src32++;
+				size -= 4;
+			}
+
+			src8 = (u8*)src32;
+			dst8 = (u8*)dst32;
+
+
 			if( ((u32)src8&0xF)==0 )	//Both src and dst are 16byte aligned
 			{
 				while (size>63)

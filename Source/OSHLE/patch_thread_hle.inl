@@ -666,21 +666,21 @@ u32 Patch_osStartThread()
 {
 TEST_DISABLE_THREAD_FUNCS
 	u32 thread = gGPR[REG_a0]._u32_0;
-
+	u8 * pThreadBase = (u8 *)ReadAddress(thread);
 	// Disable interrupts
 
 	//DBGConsole_Msg(0, "osStartThread(0x%08x)", thread)
-
-	u32 ThreadState = Read16Bits(thread + 0x10);
+	u32 ThreadQueue = VAR_ADDRESS(osThreadQueue);
+	u32 ThreadState = QuickRead16Bits(pThreadBase, 0x10);
 
 	if (ThreadState == OS_STATE_WAITING)
 	{
 		//DBGConsole_Msg(0, "  Thread is WAITING");
 
-		Write16Bits(thread + 0x10, OS_STATE_RUNNABLE);
+		QuickWrite16Bits(pThreadBase, 0x10, OS_STATE_RUNNABLE);
 
-		gGPR[REG_a0]._s64 = (s64)(s32)VAR_ADDRESS(osThreadQueue);
-		gGPR[REG_a1]._s64 = (s64)(s32)thread;
+		gGPR[REG_a0]._u32_0 = ThreadQueue;
+		gGPR[REG_a1]._u32_0 = thread;
 
 		g___osEnqueueThread_s.pFunction();
 	}
@@ -688,30 +688,29 @@ TEST_DISABLE_THREAD_FUNCS
 	{
 		//DBGConsole_Msg(0, "  Thread is STOPPED");
 
-		u32 queue = Read32Bits(thread + 0x08);
+		u32 queue = QuickRead32Bits(pThreadBase, 0x08);
 
-		if (queue == 0 || queue == VAR_ADDRESS(osThreadQueue))
+		if (queue == 0 || queue == ThreadQueue)
 		{
 			//if (queue == NULL)
 				//DBGConsole_Msg(0, "  Thread has NULL queue");
 			//else
 				//DBGConsole_Msg(0, "  Thread's queue is VAR_ADDRESS(osThreadQueue)");
 
-			Write16Bits(thread + 0x10, OS_STATE_RUNNABLE);
+			QuickWrite16Bits(pThreadBase, 0x10, OS_STATE_RUNNABLE);
 
-			gGPR[REG_a0]._s64 = (s64)(s32)VAR_ADDRESS(osThreadQueue);
-			gGPR[REG_a1]._s64 = (s64)(s32)thread;
+			gGPR[REG_a0]._u32_0 = ThreadQueue;
+			gGPR[REG_a1]._u32_0 = thread;
 
 			g___osEnqueueThread_s.pFunction();
 		}
 		else
 		{
 			//DBGConsole_Msg(0, "  Thread has it's own queue");
+			QuickWrite16Bits(pThreadBase, 0x10, OS_STATE_WAITING);
 
-			Write16Bits(thread + 0x10, OS_STATE_WAITING);
-
-			gGPR[REG_a0]._s64 = (s64)(s32)queue;
-			gGPR[REG_a1]._s64 = (s64)(s32)thread;
+			gGPR[REG_a0]._u32_0 = queue;
+			gGPR[REG_a1]._u32_0 = thread;
 
 			g___osEnqueueThread_s.pFunction();
 
@@ -720,8 +719,8 @@ TEST_DISABLE_THREAD_FUNCS
 			Write32Bits(queue, Read32Bits(NewThread + 0x0));
 
 			// Enqueue the next thread to run
-			gGPR[REG_a0]._s64 = (s64)(s32)VAR_ADDRESS(osThreadQueue);
-			gGPR[REG_a1]._s64 = (s64)(s32)NewThread;
+			gGPR[REG_a0]._u32_0 = ThreadQueue;
+			gGPR[REG_a1]._u32_0 = NewThread;
 
 			g___osEnqueueThread_s.pFunction();
 		}
@@ -749,7 +748,7 @@ TEST_DISABLE_THREAD_FUNCS
 	else
 	{
 		// A thread is currently active
-		u32 QueueThread = Read32Bits(VAR_ADDRESS(osThreadQueue));
+		u32 QueueThread = Read32Bits(ThreadQueue);
 
 		u32 QueueThreadPri = Read32Bits(QueueThread + 0x4);
 		u32 ActiveThreadPri = Read32Bits(ActiveThread + 0x4);
@@ -761,7 +760,7 @@ TEST_DISABLE_THREAD_FUNCS
 			// Set the active thread's state to RUNNABLE
 			Write16Bits(ActiveThread + 0x10, OS_STATE_RUNNABLE);
 
-			gGPR[REG_a0]._s64 = (s64)(s32)VAR_ADDRESS(osThreadQueue);
+			gGPR[REG_a0]._u32_0 = ThreadQueue;
 
 			// Doing this is ok, because when the active thread is resumed, it will resume
 			// after the call to osStartThread(). We don't do any processing after this
