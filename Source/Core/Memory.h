@@ -401,6 +401,8 @@ inline void QuickWrite32Bits( u8 *p_base, u32 value )
 #define MEMORY_RI				g_pMemoryBuffers[MEM_RI_REG]
 #define MEMORY_PIF				g_pMemoryBuffers[MEM_PIF_RAM]
 
+#define FLASHRAM_READ_ADDR		0x08000000
+#define FLASHRAM_WRITE_ADDR		0x08010000
 
 #if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
 

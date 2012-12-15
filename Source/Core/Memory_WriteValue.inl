@@ -418,11 +418,14 @@ static void WriteValue_FlashRam( u32 address, u32 value )
 	u32 offset = address & 0xFF;
 	if( g_ROM.settings.SaveType == SAVE_TYPE_FLASH && offset == 0 )
 	{
-		Flash_DoCommand( value );
-		return;
+		if( (address&0x1FFFFFFF) == FLASHRAM_WRITE_ADDR )
+		{
+			Flash_DoCommand( value );
+			return;
+		}
 	}
 
-	DBGConsole_Msg(0, "[GWrite to FlashRam (0x%08x) is unhandled", address);
+	DBGConsole_Msg(0, "[GWrite to FlashRam (0x%08x) is invalid", address);
 	WriteValueInvalid(address, value);
 }
 

@@ -25,6 +25,7 @@ static void * ReadInvalid( u32 address )
 {
 	DPF( DEBUG_MEMORY, "Illegal Memory Access - Tried to Read From 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC );
 
+	// 64DD region.. this fixes F-Zero U
 	if(address == 0xa5000508)
 	{
 		DBGConsole_Msg(0, "Reading noise (0x%08x) - sizing memory?", address);
@@ -205,10 +206,11 @@ static void * ReadFlashRam( u32 address )
 	u32 offset = address & 0xFF;
 	if( g_ROM.settings.SaveType == SAVE_TYPE_FLASH && offset == 0 )
 	{
-		return (u8 *)&FlashStatus[0];
+		if( (address&0x1FFFFFFF) == FLASHRAM_READ_ADDR )
+			return (u8 *)&FlashStatus[0];
 	}
 
-	DBGConsole_Msg(0, "[GRead from FlashRam (0x%08x) is unhandled", address);
+	DBGConsole_Msg(0, "[GRead from FlashRam (0x%08x) is invalid", address);
 	return ReadInvalid(address);
 }
 
