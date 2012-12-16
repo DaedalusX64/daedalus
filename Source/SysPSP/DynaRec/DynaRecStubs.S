@@ -10,7 +10,9 @@
 #define _StuffToDo	(_AuxBase + 0x0c)
 #define _MultLo		(_AuxBase + 0x10)
 #define _MultHi		(_AuxBase + 0x18)
-#define _Events		(_AuxBase + 0x20)
+#define _Temp1		(_AuxBase + 0x20)
+#define _Temp2		(_AuxBase + 0x24)
+#define _Events		(_AuxBase + 0x28)
 
 	.set noat
 
@@ -58,9 +60,6 @@
 exit_dynarec_text:
 	.asciiz		"Exiting dynarec (PC is %08x StuffToDo is 0x%x)\n"
 	.text
-temp_storage_for_ra:
-	nop
-
     .set push
     .set noreorder
 
@@ -70,16 +69,17 @@ temp_storage_for_ra:
 #	a1 - the number of bytes to invalidate
 _DaedalusICacheInvalidate:
 
-	addiu		$t0, $0, 0xffc0			# t0 = ~63
+	addiu		$v0, $0, 0xffc0			# v0 = ~63
 
-	# Store base+size in a1
+	# Store base+size(-1) in a1
 	addu		$a1, $a1, $a0
+	addiu		$a1, $a1, -1
 
 	# Truncate 'start' pointer down to nearest 64 bytes boundary
-	and			$a0, $a0, $t0
+	and			$a0, $a0, $v0
 
 	# Truncate 'end' pointer down to nearest 64 bytes boundary
-	and			$a1, $a1, $t0
+	and			$a1, $a1, $v0
 
 	# Do while current < end
 invalidate_next:
@@ -127,8 +127,8 @@ _EnterDynaRec:
 _ReturnFromDynaRecIfStuffToDo:
 
 # Sanity checking logic
-#	lw		$t0, _StuffToDo($fp)		# StuffToDo
-#	bne		$t0, $0, exception_exit
+#	lw		$v0, _StuffToDo($fp)		# StuffToDo
+#	bne		$v0, $0, exception_exit
 #	nop
 #	jr		$ra					# Just return back to caller
 #	nop
@@ -159,8 +159,6 @@ _ReturnFromDynaRec:
 	jr		$ra
 	addiu	$sp, $sp, +40
 
-
-
 #######################################################################################
 #	Check if we need to exit the dynarec system and jump out as necessary.
 #	If we are ok to continue, this returns control to the calling code.
@@ -170,18 +168,18 @@ _ReturnFromDynaRec:
 _DirectExitCheckNoDelay:
 
 	# The code below corresponds to CPU_UpdateCounter
-	lw		$t0, _C0_Count($fp)		# COUNT register
-	lw		$t1, _Events($fp)		# Events[0].mCount
+	lw		$v0, _C0_Count($fp)		# COUNT register
+	lw		$v1, _Events($fp)		# Events[0].mCount
 
-	addu	$t0, $t0, $a0		# COUNT + ops_executed
-	sw		$t0, _C0_Count($fp)		# COUNT = COUNT + ops_executed
+	addu	$v0, $v0, $a0		# COUNT + ops_executed
+	sw		$v0, _C0_Count($fp)		# COUNT = COUNT + ops_executed
 
 	sw		$a1, _CurrentPC($fp) 	# CurrentPC
 	sw		 $0, _Delay($fp)		# Delay = NO_DELAY
 
-	subu	$t1, $t1, $a0		# Events[0].mCount - ops_executed
-	blez	$t1, _DirectExitCheckCheckCount
-	sw		$t1, _Events($fp)		# Events[0].mCount = Events[0].mCount - ops_executed
+	subu	$v1, $v1, $a0		# Events[0].mCount - ops_executed
+	blez	$v1, _DirectExitCheckCheckCount
+	sw		$v1, _Events($fp)		# Events[0].mCount = Events[0].mCount - ops_executed
 
 	jr		$ra					# Return back to caller
 	nop
@@ -196,20 +194,20 @@ _DirectExitCheckNoDelay:
 _DirectExitCheckDelay:
 
 	# The code below corresponds to CPU_UpdateCounter
-	lw		$t0, _C0_Count($fp)		# COUNT register
-	lw		$t1, _Events($fp)		# Events[0].mCount
+	lw		$v0, _C0_Count($fp)		# COUNT register
+	lw		$v1, _Events($fp)		# Events[0].mCount
 
-	addu	$t0, $t0, $a0		# COUNT + ops_executed
-	sw		$t0, _C0_Count($fp)		# COUNT = COUNT + ops_executed
+	addu	$v0, $v0, $a0		# COUNT + ops_executed
+	sw		$v0, _C0_Count($fp)		# COUNT = COUNT + ops_executed
 
 	sw		$a1, _CurrentPC($fp) 	# CurrentPC
 	sw		$a2, _TargetPC($fp) 	# TargetPC
-	li		$t0, 1				# EXEC_DELAY
-	sw		$t0, _Delay($fp)		# Delay
+	li		$v0, 1				# EXEC_DELAY
+	sw		$v0, _Delay($fp)		# Delay
 
-	subu	$t1, $t1, $a0		# Events[0].mCount - ops_executed
-	blez	$t1, _DirectExitCheckCheckCount
-	sw		$t1, _Events($fp)		# Events[0].mCount = Events[0].mCount - ops_executed
+	subu	$v1, $v1, $a0		# Events[0].mCount - ops_executed
+	blez	$v1, _DirectExitCheckCheckCount
+	sw		$v1, _Events($fp)		# Events[0].mCount = Events[0].mCount - ops_executed
 
 	jr		$ra
 	nop
@@ -222,8 +220,8 @@ _DirectExitCheckCheckCount:
 	jal		CPU_HANDLE_COUNT_INTERRUPT
 	nop
 
-	lw		$t0, _StuffToDo($fp)		# StuffToDo
-	bne		$t0, $0, _ReturnFromDynaRec
+	lw		$v0, _StuffToDo($fp)		# StuffToDo
+	bne		$v0, $0, _ReturnFromDynaRec
 	nop
 	jr		$s0					# Return back to caller
 	nop
@@ -243,8 +241,8 @@ _IndirectExitCheck:
 	jal		CPU_UpdateCounter	# a0 holds instructions executed
 	sw		$0,  _Delay($fp)		# Delay (NO_DELAY)
 
-	lw		$t0, _StuffToDo($fp)		# StuffToDo
-	bne		$t0, $0, _ReturnFromDynaRec
+	lw		$v0, _StuffToDo($fp)		# StuffToDo
+	bne		$v0, $0, _ReturnFromDynaRec
 	nop
 
 	or		$a0, $s0, $0		# p_map
@@ -270,8 +268,7 @@ _IndirectExitCheck:
 .macro READ_BITS	function, load_instruction
 \function:
 
-	la		$t0, temp_storage_for_ra
-	sw		$ra, 0($t0)
+	sw		$ra, _Temp1($fp) 	# Temp storage
 
 	srl		$v1, $a0, 0x12
 	sll		$v1, $v1, 0x3	# * 8 to index the two pointer struct
@@ -286,8 +283,7 @@ _IndirectExitCheck:
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 
-	la		$t0, temp_storage_for_ra
-	lw		$ra, 0($t0)
+	lw		$ra, _Temp1($fp) 	# Temp storage
 
 	jr		$ra
 	\load_instruction	$v0, 0($v0)		# e.g. lbu, lhu, lw etc
@@ -297,11 +293,8 @@ _IndirectExitCheck:
 .macro READ_BITS_BD	function, load_instruction
 \function:
 
-	la		$t0, temp_storage_for_ra
-	sw		$ra, 0($t0)
-
+	sw		$ra, _Temp1($fp) 	# Temp storage
 	sw		$a1, _CurrentPC($fp) 	# CurrentPC
-	li		$t0, 1				# EXEC_DELAY
 
 	srl		$v1, $a0, 0x12
 	sll		$v1, $v1, 0x3	# * 8 to index the two pointer struct
@@ -310,16 +303,16 @@ _IndirectExitCheck:
 	addu	$v1, $v1, $v0
 	lw		$v0, 4($v1)	#offset 4 to get the second pointer
 
+	li		$v1, 1				# EXEC_DELAY
 	jalr	$v0
-	sw		$t0, _Delay($fp)		# Delay
+	sw		$v1, _Delay($fp)		# Delay
 
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 
 	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
 
-	la		$t0, temp_storage_for_ra
-	lw		$ra, 0($t0)
+	lw		$ra, _Temp1($fp) 	# Temp storage
 
 	jr		$ra
 	\load_instruction	$v0, 0($v0)		# e.g. lbu, lhu, lw etc
@@ -350,8 +343,7 @@ _IndirectExitCheck:
 # a2 current_pc
 #
 _WriteBitsDirect_u32:
-	la		$t0, temp_storage_for_ra
-	sw		$ra, 0($t0)
+	sw		$ra, _Temp1($fp) 	# Temp storage
 
 	jal		Write32BitsForDynaRec
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
@@ -359,32 +351,28 @@ _WriteBitsDirect_u32:
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 
-	la		$t0, temp_storage_for_ra
-	lw		$ra, 0($t0)
+	lw		$ra, _Temp1($fp) 	# Temp storage
 	jr		$ra
 	nop
 
 _WriteBitsDirectBD_u32:
-	la		$t0, temp_storage_for_ra
-	sw		$ra, 0($t0)
+	sw		$ra, _Temp1($fp) 	# Temp storage
 
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
-	li		$t0, 1				# EXEC_DELAY
+	li		$v1, 1				# EXEC_DELAY
 
 	jal		Write32BitsForDynaRec
-	sw		$t0, _Delay($fp)		# Delay
+	sw		$v1, _Delay($fp)		# Delay
 
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 
-	la		$t0, temp_storage_for_ra
-	lw		$ra, 0($t0)
+	lw		$ra, _Temp1($fp) 	# Temp storage
 	jr		$ra
 	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
 
 _WriteBitsDirect_u16:
-	la		$t0, temp_storage_for_ra
-	sw		$ra, 0($t0)
+	sw		$ra, _Temp1($fp) 	# Temp storage
 
 	jal		Write16BitsForDynaRec
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
@@ -392,33 +380,29 @@ _WriteBitsDirect_u16:
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 
-	la		$t0, temp_storage_for_ra
-	lw		$ra, 0($t0)
+	lw		$ra, _Temp1($fp) 	# Temp storage
 	jr		$ra
 	nop
 
 
 _WriteBitsDirectBD_u16:
-	la		$t0, temp_storage_for_ra
-	sw		$ra, 0($t0)
+	sw		$ra, _Temp1($fp) 	# Temp storage
 
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
-	li		$t0, 1				# EXEC_DELAY
+	li		$v1, 1				# EXEC_DELAY
 
 	jal		Write16BitsForDynaRec
-	sw		$t0, _Delay($fp)		# Delay
+	sw		$v1, _Delay($fp)		# Delay
 
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 
-	la		$t0, temp_storage_for_ra
-	lw		$ra, 0($t0)
+	lw		$ra, _Temp1($fp) 	# Temp storage
 	jr		$ra
 	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
 
 _WriteBitsDirect_u8:
-	la		$t0, temp_storage_for_ra
-	sw		$ra, 0($t0)
+	sw		$ra, _Temp1($fp) 	# Temp storage
 
 	jal		Write8BitsForDynaRec
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
@@ -426,26 +410,22 @@ _WriteBitsDirect_u8:
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 
-	la		$t0, temp_storage_for_ra
-	lw		$ra, 0($t0)
+	lw		$ra, _Temp1($fp) 	# Temp storage
 	jr		$ra
 	nop
 
 _WriteBitsDirectBD_u8:
-	la		$t0, temp_storage_for_ra
-	sw		$ra, 0($t0)
-
+	sw		$ra, _Temp1($fp) 	# Temp storage
 	sw		$a2, _CurrentPC($fp) 	# CurrentPC
-	li		$t0, 1				# EXEC_DELAY
+	li		$v1, 1				# EXEC_DELAY
 
 	jal		Write8BitsForDynaRec
-	sw		$t0, _Delay($fp)		# Delay
+	sw		$v1, _Delay($fp)		# Delay
 
 	jal		_ReturnFromDynaRecIfStuffToDo
 	move	$a0,$0
 
-	la		$t0, temp_storage_for_ra
-	lw		$ra, 0($t0)
+	lw		$ra, _Temp1($fp) 	# Temp storage
 	jr		$ra
 	sw		$0, _Delay($fp)		# Delay <- NO_DELAY
 
@@ -454,18 +434,17 @@ _WriteBitsDirectBD_u8:
  * convert float to double
  * double FloatToDouble(float a);
  *
- * input: a0	//fa0
+ * input: a0
  * output: v0,v1
- * clobber: a0,t1
+ * clobber: a0,a1
  */
 _FloatToDouble:
-	//mfc1	$a0, $fa0				/* a0 = fa0 */
-	ext	$t1, $a0, 23, 8			/* t1 = (a0 >> 23) & 0xFF */
-	beq	$t1, $zero, ftod_denormal		/* if (t1==0) goto ftod_denormal */
-	addiu	$v0, $t1, (-0x7F+0x3FF)		/* v0 = t1 - 0x7F + 0x3FF */
-	xori	$t1, $t1, 0xFF			/* t1 = t1 ^ 0xFF */
+	ext	$a1, $a0, 23, 8			/* a1 = (a0 >> 23) & 0xFF */
+	beq	$a1, $zero, ftod_denormal		/* if (a1==0) goto ftod_denormal */
+	addiu	$v0, $a1, (-0x7F+0x3FF)		/* v0 = a1 - 0x7F + 0x3FF */
+	xori	$a1, $a1, 0xFF			/* a1 = a1 ^ 0xFF */
 	li	$v1, 0x7FF			/* v1 = 0x7FF */
-	movz	$v0, $v1, $t1			/* v0 = (t1==0) ? v1 : v0 */
+	movz	$v0, $v1, $a1			/* v0 = (a1==0) ? v1 : v0 */
 	ext	$v1, $a0,  3, 20			/* v1 = (a0 >> 3 ) & 0x00FFFFF */
 	ins	$v1, $v0, 20, 11			/* v1 = (v1 & 0x800FFFFF) | ((v0<<20) & 0x7FF00000) */
 	sll	$v0, $a0, 29			/* v0 = (a0 << 29) */
@@ -478,12 +457,12 @@ ftod_denormal:
 	beql	$v0, $zero, ftod_zero		/* if (v0==0) goto ftod_zero */
 	move	$v1, $zero			/* v1 = 0 */
 	li	$v1, 0x380			/* v1 = 0x380 */
-	clz	$t1, $v0				/* t1 = clz(v0) */
-	subu	$v0, $v1, $t1			/* v0 = v1 - v0 = 0x380 - clz(t1) */
-	sllv	$t1, $a0, $t1			/* t1 = a0 << t1 */
-	ext	$v1, $t1,  2, 20			/* v1 = (t1 >> 2 ) & 0x00FFFFF */
+	clz	$a1, $v0				/* a1 = clz(v0) */
+	subu	$v0, $v1, $a1			/* v0 = v1 - v0 = 0x380 - clz(a1) */
+	sllv	$a1, $a0, $a1			/* a1 = a0 << a1 */
+	ext	$v1, $a1,  2, 20			/* v1 = (a1 >> 2 ) & 0x00FFFFF */
 	ins	$v1, $v0, 20, 11			/* v1 = (v1 & 0x800FFFFF) | ((v0<<20) & 0x7FF00000) */
-	sll	$v0, $t1, 30			/* v0 = (t1 << 30) */
+	sll	$v0, $a1, 30			/* v0 = (a1 << 30) */
 ftod_zero:
 	srl	$a0, $a0, 31			/* a0 = (a0 >> 31) & 1 */
 	jr	$ra				/* return */
@@ -495,16 +474,19 @@ ftod_zero:
  * float DoubleToFloat(double a);
  * input: a0,a1
  * output: v0
- * clobber: t0,t1,v0,v1
+ * clobber: v0,v1
+ * uses: a2,a3
  */
 _DoubleToFloat:
-	ext	$t0, $a1, 20, 11		/* t0 = (a1>>20) & 0x000007FF */
-	beq	$t0, $zero, dtof_zero	/* if (t0==0) goto dtof_zero */
-	xori	$t1, $t0, 0x7FF		/* t1 = t0 ^ 0x7FF */
-	beq	$t1, $zero, dtof_naninf	/* if (t1==0) goto dtof_naninf */
-	addiu	$t1, $t0, (+0x7F-0x3FF)	/* t1 = t0 + 0x7F - 0x3FF */
-	blez	$t1, dtof_denormal	/* if (t1<=0) goto dtof_denormal */
-	addiu	$v1, $t1, -0xFE		/* v1 = t1 - 0xFE */
+	sw		$a2, _Temp1($fp) 	# Temp storage
+	sw		$a3, _Temp2($fp) 	# Temp storage
+	ext	$a2, $a1, 20, 11		/* a2 = (a1>>20) & 0x000007FF */
+	beq	$a2, $zero, dtof_zero	/* if (a2==0) goto dtof_zero */
+	xori	$a3, $a2, 0x7FF		/* a3 = a2 ^ 0x7FF */
+	beq	$a3, $zero, dtof_naninf	/* if (a3==0) goto dtof_naninf */
+	addiu	$a3, $a2, (+0x7F-0x3FF)	/* a3 = a2 + 0x7F - 0x3FF */
+	blez	$a3, dtof_denormal	/* if (a3<=0) goto dtof_denormal */
+	addiu	$v1, $a3, -0xFE		/* v1 = a3 - 0xFE */
 	bgtz	$v1, dtof_inf		/* if (v1 > 0) goto dtof_inf */
 	move	$v0, $zero		/* v0 = 0 */
 
@@ -514,60 +496,68 @@ _DoubleToFloat:
 dtof_normal:
 	srl	$v1, $a1, 31		/* v1 = (a1>>31) & 1 */
 	ins	$v0, $v1, 31, 1		/* v0 = (v0 & 0x7FFFFFFF) | (v1 << 31) */
+	ins	$v0, $a3, 23, 8		/* v0 = (v0 & 0x8007FFFF) | (a3 << 23) */
+	lw		$a2, _Temp1($fp) 	# Temp storage
 	jr	$ra			/* return */
-	ins	$v0, $t1, 23, 8		/* v0 = (v0 & 0x8007FFFF) | (t1 << 23) */
-	//mtc1	$v0, $fv0			/* fv0 = v0 */
+	lw		$a3, _Temp2($fp) 	# Temp storage
+
 dtof_denormal:
-	sll	$t0, $a1, 12		/* t0 = a1 << 12 */
-	srl	$v0, $t0, 10		/* v0 = t0 >> 10 */
-	srl	$t0, $a0, 30		/* t0 = t0 >> 30 */
-	or	$v0, $v0, t0		/* v0 = v0 | t0 */
-	li	$t0, 0x00400000		/* t0 = 0x00400000 */
-	or	$v0, $v0, $t0		/* v0 = v0 | t0 */
-	subu	$t0, $zero, $t1		/* t0 = zero - t1 */
-	sltiu	$t1, $t0, 22		/* t1 = (t0 < 22) */
-	beq	$t1, $zero, dtof_min	/* if (t1==0) goto dtof_min */
-	srlv	$v0, $v0, $t0		/* v0 = v0 >> t0 */
+	sll	$a2, $a1, 12		/* a2 = a1 << 12 */
+	srl	$v0, $a2, 10		/* v0 = a2 >> 10 */
+	srl	$a2, $a0, 30		/* a2 = a2 >> 30 */
+	or	$v0, $v0, a2		/* v0 = v0 | a2 */
+	li	$a2, 0x00400000		/* a2 = 0x00400000 */
+	or	$v0, $v0, $a2		/* v0 = v0 | a2 */
+	subu	$a2, $zero, $a3		/* a2 = zero - a3 */
+	sltiu	$a3, $a2, 22		/* a3 = (a2 < 22) */
+	beq	$a3, $zero, dtof_min	/* if (a3==0) goto dtof_min */
+	srlv	$v0, $v0, $a2		/* v0 = v0 >> a2 */
 	srl	$v1, $a1, 31		/* v1 = (a1>>31) & 1 */
-	jr	$ra			/* return */
 	ins	$v0, $v1, 31, 1		/* v0 = (v0 & 0x7FFFFFFF) | (v1 << 31) */
-	//mtc1	$v0, $fv0			/* fv0 = v0 */
+	lw		$a2, _Temp1($fp) 	# Temp storage
+	jr	$ra			/* return */
+	lw		$a3, _Temp2($fp) 	# Temp storage
+
 dtof_zero:
-	sll	$t0, $a1, 12		/* t0 = a1 << 12 */
-	or	$t0, $t0, $a0		/* t0 = t0 | a0 */
+	sll	$a2, $a1, 12		/* a2 = a1 << 12 */
+	or	$a2, $a2, $a0		/* a2 = a2 | a0 */
 dtof_min:
 	li	$v0, 0x00000001		/* v0 = 0x00000001 */
-	movz	$v0, $zero, $t0		/* v0 = (t0==0) ? zero : v0 */
-	srl	$t0, $a1, 31		/* t0 = (a1 >> 31) & 1 */
+	movz	$v0, $zero, $a2		/* v0 = (a2==0) ? zero : v0 */
+	srl	$a2, $a1, 31		/* a2 = (a1 >> 31) & 1 */
+	ins	$v0, $a2, 31, 1		/* v0 = (v0 & 0x7FFFFFFF) | ((a2<<31) & 0x80000000) */
+	lw		$a2, _Temp1($fp) 	# Temp storage
 	jr	$ra			/* return */
-	ins	$v0, $t0, 31, 1		/* v0 = (v0 & 0x7FFFFFFF) | ((t0<<31) & 0x80000000) */
-	//mtc1	$v0, $fv0			/* fv0 = v0 */
+	lw		$a3, _Temp2($fp) 	# Temp storage
+
 dtof_inf_normal:
-	nor	$t0, $zero, $a1		/* t0 = ~a1 */
-	sll	$t0, $t0, 12		/* t0 = t0 << 12 */
-	bne	$t0, $zero, dtof_normal	/* if (t0!=0) goto dtof_normal */
-	srl	$t0, $a0, 28		/* t0 = a0 >> 28 */
-	sltiu	$t0, $t0, 0xF		/* t0 = (t0 < 0xF) */
-	bne	$t0, $zero, dtof_normal	/* if (t0!=0) goto dtof_normal */
+	nor	$a2, $zero, $a1		/* a2 = ~a1 */
+	sll	$a2, $a2, 12		/* a2 = a2 << 12 */
+	bne	$a2, $zero, dtof_normal	/* if (a2!=0) goto dtof_normal */
+	srl	$a2, $a0, 28		/* a2 = a0 >> 28 */
+	sltiu	$a2, $a2, 0xF		/* a2 = (a2 < 0xF) */
+	bne	$a2, $zero, dtof_normal	/* if (a2!=0) goto dtof_normal */
 	nop				/* waste delay slot */
 	j	dtof_inf		/* goto dtof_inf */
 	move	$v0, $zero		/* v0 = 0 */
+
 dtof_naninf:
-	sll	$t0, $a1, 12		/* t0 = a1 << 12 */
-	or	$t1, $t0, $a0		/* t1 = t0 | a0 */
-	srl	$v0, $t0, 9		/* v0 = t0 >> 9 */
-	srl	$t0, $a0, 29		/* t0 = t0 >> 29 */
-	or	$v0, $v0, $t0		/* v0 = v0 | t0 */
-	sltiu	$t0, $v0, 1		/* t0 = (v0 < 1) */
-	or	$v0, $v0, $t0		/* v0 = v0 | t0 */
-	movz	$v0, $zero, $t1		/* v0 = (t1==0) ? zero : v0 */
+	sll	$a2, $a1, 12		/* a2 = a1 << 12 */
+	or	$a3, $a2, $a0		/* a3 = a2 | a0 */
+	srl	$v0, $a2, 9		/* v0 = a2 >> 9 */
+	srl	$a2, $a0, 29		/* a2 = a2 >> 29 */
+	or	$v0, $v0, $a2		/* v0 = v0 | a2 */
+	sltiu	$a2, $v0, 1		/* a2 = (v0 < 1) */
+	or	$v0, $v0, $a2		/* v0 = v0 | a2 */
+	movz	$v0, $zero, $a3		/* v0 = (a3==0) ? zero : v0 */
 dtof_inf:
-	li	$t0, 0x7F800000		/* t0 = 0x7F800000 */
-	or	$v0, $v0, $t0		/* v0 = v0 | t0 */
-	srl	$t0, $a1, 31		/* t0 = (a1 >> 31) & 1 */
+	li	$a2, 0x7F800000		/* a2 = 0x7F800000 */
+	or	$v0, $v0, $a2		/* v0 = v0 | a2 */
+	srl	$a2, $a1, 31		/* a2 = (a1 >> 31) & 1 */
+	ins	$v0, $a2, 31, 1		/* v0 = (v0 & 0x7FFFFFFF) | ((a2<<31) & 0x80000000) */
+	lw		$a2, _Temp1($fp) 	# Temp storage
 	jr	$ra			/* return */
-	ins	$v0, $t0, 31, 1		/* v0 = (v0 & 0x7FFFFFFF) | ((t0<<31) & 0x80000000) */
-	//mtc1	$v0, $fv0			/* fv0 = v0 */
+	lw		$a3, _Temp2($fp) 	# Temp storage
 
 #######################################################################################
 	.set pop

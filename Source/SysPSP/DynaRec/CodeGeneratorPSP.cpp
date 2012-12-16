@@ -231,8 +231,15 @@ const EPspReg	gMemoryBaseReg = PspReg_S7;
 
 const EPspReg	gRegistersToUseForCaching[] =
 {
-//	PspReg_T0,		// Used as calculation temp
-//	PspReg_T1,		// Used as calculation temp
+//	PspReg_V0,		// Used as calculation temp
+//	PspReg_V1,		// Used as calculation temp
+//	PspReg_A0,		// Used as calculation temp
+//	PspReg_A1,		// Used as calculation temp
+//	PspReg_A2,		// not used but still gives some odd behaviour in OOT(loopopt enabled) if freed
+//	PspReg_A3,		// not used but still gives some odd behaviour in OOT(loopopt enabled) if freed
+	PspReg_AT,
+	PspReg_T0,
+	PspReg_T1,
 	PspReg_T2,
 	PspReg_T3,
 	PspReg_T4,
@@ -241,13 +248,6 @@ const EPspReg	gRegistersToUseForCaching[] =
 	PspReg_T7,
 	PspReg_T8,
 	PspReg_T9,
-	PspReg_AT,
-//	PspReg_V0,		// Used as calculation temp
-//	PspReg_V1,		// Used as calculation temp
-//	PspReg_A0,		// Used as calculation temp
-//	PspReg_A1,		// Used as calculation temp
-	PspReg_A2,
-	PspReg_A3,
 	PspReg_S0,
 	PspReg_S1,
 	PspReg_S2,
@@ -2210,8 +2210,8 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 			XORI( PspReg_A0, reg_address, swizzle );
 			reg_address = PspReg_A0;
 
-			ADDU( PspReg_T1, reg_address, gMemoryBaseReg );
-			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T1, offset );
+			ADDU( PspReg_V1, reg_address, gMemoryBaseReg );
+			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_V1, offset );
 			mKeepPreviousStoreBase = false;
 			return;
 		}
@@ -2220,13 +2220,13 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 		if( mKeepPreviousStoreBase &&
 			n64_base == mPrevious_base )
 		{
-			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T1, offset );
+			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_V1, offset );
 			return;
 		}
 		else
 		{
-			ADDU( PspReg_T1, reg_address, gMemoryBaseReg );
-			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T1, offset );
+			ADDU( PspReg_V1, reg_address, gMemoryBaseReg );
+			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_V1, offset );
 			mKeepPreviousStoreBase = true;
 			mPrevious_base = n64_base;
 			return;
@@ -2250,10 +2250,10 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 
 	if( CAssemblyWriterPSP::IsBufferA() )
 	{
-		SLT( PspReg_T0, reg_address, gMemUpperBoundReg );	// t1 = upper < address
-		CJumpLocation branch( BEQ( PspReg_T0, PspReg_R0, CCodeLabel( NULL ), false ) );
-		ADDU( PspReg_T1, reg_address, gMemoryBaseReg );
-		CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T1, offset );
+		SLT( PspReg_V1, reg_address, gMemUpperBoundReg );	// V1 = upper < address
+		CJumpLocation branch( BEQ( PspReg_V1, PspReg_R0, CCodeLabel( NULL ), false ) );
+		ADDU( PspReg_V0, reg_address, gMemoryBaseReg );
+		CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_V0, offset );
 
 		CCodeLabel		continue_location( GetAssemblyBuffer()->GetLabel() );
 
@@ -2288,10 +2288,10 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 	}
 	else
 	{
-		SLT( PspReg_T0, reg_address, gMemUpperBoundReg );	// t1 = upper < address
-		ADDU( PspReg_T1, reg_address, gMemoryBaseReg );
-		CJumpLocation branch( BNEL( PspReg_T0, PspReg_R0, CCodeLabel( NULL ), false ) );
-		CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_T1, offset );
+		SLT( PspReg_V1, reg_address, gMemUpperBoundReg );	// V1 = upper < address
+		ADDU( PspReg_V0, reg_address, gMemoryBaseReg );
+		CJumpLocation branch( BNEL( PspReg_V1, PspReg_R0, CCodeLabel( NULL ), false ) );
+		CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_V0, offset );
 
 		if( offset != 0 )
 		{

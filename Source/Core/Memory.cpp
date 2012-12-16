@@ -107,8 +107,10 @@ void Flash_DoCommand(u32);
 //*****************************************************************************
 #include "Memory_Read.inl"
 #include "Memory_WriteValue.inl"
-#include "Memory_ReadInternal.inl"
 
+#ifndef DAEDALUS_SILENT
+#include "Memory_ReadInternal.inl"
+#endif
 
 //*****************************************************************************
 //

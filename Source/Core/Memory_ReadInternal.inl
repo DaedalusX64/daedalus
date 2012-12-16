@@ -21,8 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // InternalRead is only used for debug puposes
 //
 
-#ifndef DAEDALUS_SILENT
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -255,6 +253,3 @@ void Memory_InitInternalTables(u32 ram_size)
 
 	}
 }
-
-
-#endif
