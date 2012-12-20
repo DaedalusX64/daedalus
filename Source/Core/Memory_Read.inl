@@ -222,7 +222,7 @@ static void * ReadROM( u32 address )
 	if (g_RomWritten)
 	{
 		g_RomWritten = false;
-		return (u8 *)&g_pWriteRom[0];
+		return (u8 *)&g_pWriteRom;
 	}
 	return RomBuffer::GetAddressRaw( (address & 0x03FFFFFF) );
 }
@@ -233,8 +233,17 @@ static void * ReadROM( u32 address )
 //*****************************************************************************
 static void * Read_9FC0_9FCF( u32 address )
 {
-	DAEDALUS_ASSERT(!(address - 0x7C0 & ~0x3F), "Read to PIF RAM (0x%08x) is invalid", address);
+	u32 offset = address & 0x0FFF;
+
+	// Reading PIF ROM or outside PIF RAM
+	if( (offset < 0x7C0) || (offset > 0x7FF) ) 
+	{
+		DBGConsole_Msg(0, "[GRead from PIF (0x%08x) is invalid", address);
+		return g_pMemoryBuffers[MEM_UNUSED];
+	}
+
+	u32 pif_ram_offset = address & 0x3F;
 
 	DPF( DEBUG_MEMORY_PIF, "Reading from MEM_PIF: 0x%08x", address );
-	return (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + (address & 0x3F);
+	return (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + pif_ram_offset;
 }

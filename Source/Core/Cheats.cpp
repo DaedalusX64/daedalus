@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ConfigOptions.h"
 #include "Utility/IO.h"
 
-#include "SysPSP/Utility/VolatileMemPSP.h"
+#include "Utility/VolatileMem.h"
 //
 // Cheatcode routines and format based from 1964
 //

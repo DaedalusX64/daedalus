@@ -304,7 +304,6 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 void DLParser_GBI1_DL( MicroCodeCommand command )
 {
 	DAEDALUS_ASSERT( RDPSegAddr(command.dlist.addr) < MAX_RAM_ADDRESS, "Dlist address out of range" );
-	DAEDALUS_ASSERT( command.dlist.param < 1, "Unknown Dlist operation"  );
 	DAEDALUS_ASSERT( gDlistStackPointer < 30, "Dlist array is too deep"  );
 
     DL_PF("    Address=0x%08x %s", RDPSegAddr(command.dlist.addr), (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");

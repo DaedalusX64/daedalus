@@ -95,7 +95,7 @@ u32			gTLBWriteHit( 0 );
 #endif
 
 // ROM write support
-u32	  g_pWriteRom[2];
+u32	  g_pWriteRom;
 bool  g_RomWritten;
 
 // Flash RAM Support

@@ -73,8 +73,6 @@ struct RomSettings
 	bool                MemoryAccessOptimisation;
 	bool				CheatsEnabled;
 
-	u32					RescanCount;
-
 	RomSettings();
 
 	~RomSettings();

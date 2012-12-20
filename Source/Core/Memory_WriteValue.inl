@@ -399,12 +399,20 @@ static void WriteValue_8480_848F( u32 address, u32 value )
 //*****************************************************************************
 static void WriteValue_9FC0_9FCF( u32 address, u32 value )
 {
-	u32 offset = address & 0x3F;
-	DAEDALUS_ASSERT(!(address - 0x7C0 & ~0x3F), "Read to PIF RAM (0x%08x) is invalid", address);
-	DPF( DEBUG_MEMORY_PIF, "Writing to MEM_PIF_RAM: 0x%08x", address );
+	u32 offset = address & 0x0FFF;
 
-	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset) = value;
-	if (offset == 0x3C)
+	// Writing PIF ROM or outside PIF RAM
+	if( (offset < 0x7C0) || (offset > 0x7FF) ) 
+	{
+		DBGConsole_Msg(0, "[GWrite to PIF (0x%08x) is invalid", address);
+		return;
+	}
+
+	u32 pif_ram_offset = address & 0x3F;
+
+	DPF( DEBUG_MEMORY_PIF, "Writing to MEM_PIF_RAM: 0x%08x", address );
+	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + pif_ram_offset) = value;
+	if (pif_ram_offset == 0x3C)
 	{
 		MemoryUpdatePIF();
 	}
@@ -436,5 +444,8 @@ static void WriteValue_ROM( u32 address, u32 value )
 {
 	// Write to ROM support
 	// A Bug's Life and Toy Story 2 write to ROM, add support by storing written value which is used when reading from Rom.
-	g_pWriteRom[0] = value;	g_RomWritten = true;
+	g_pWriteRom = value;
+
+	DBGConsole_Msg(0, "[YWarning : Wrote to ROM -> [0x%08x]", value);
+	g_RomWritten = true;
 }

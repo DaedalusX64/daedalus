@@ -30,6 +30,7 @@
 #include "Debug/DBGConsole.h"
 #include "Debug/Dump.h"
 
+#include "Utility/VolatileMem.h"
 #include "Utility/Profiler.h"
 #include "Utility/Preferences.h"
 #include "Utility/IO.h"
@@ -62,7 +63,6 @@ static u32 SCR_MODE	  = GU_PSM_5650;
 #define LACED_SIZE (BUF_WIDTH * LACED_HEIGHT * PIXEL_SIZE)
 
 //Get Dlist memory from malloc
-extern void* malloc_volatile(size_t size);
 static u32* list[2];
 
 //static u32 __attribute__((aligned(16))) list[2][262144];	//Some games uses huge amount here like Star Soldier - Vanishing Earth

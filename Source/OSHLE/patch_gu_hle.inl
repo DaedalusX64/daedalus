@@ -717,7 +717,6 @@ u32 Patch_guRotateF()
 {
 TEST_DISABLE_GU_FUNCS
 
-#ifdef DAEDALUS_PSP_USE_VFPU
 	f32 s,c;
 
 	union
@@ -756,8 +755,13 @@ TEST_DISABLE_GU_FUNCS
 	uY.y = gGPR[REG_a3]._u32_0;	//Y
 	uZ.z = Read32Bits(gGPR[REG_sp]._u32_0 + 0x10);	//Z
 
+#ifdef DAEDALUS_PSP
 	vfpu_sincos(uA.fA*(PI/180.0f), &s, &c);
-
+#else
+	f32 angle = uA.fA*(PI/180.0f);
+	s= sinf( angle );
+	c= cosf( angle );
+#endif
 //According to the manual the vector should be normalized in this function (Seems to work fine without it but risky)
 //	vfpu_norm_3Dvec(&uX.fX, &uY.fY, &uZ.fZ);
 
@@ -804,7 +808,4 @@ TEST_DISABLE_GU_FUNCS
 	QuickWrite32Bits(pMtxBase, 0x3c, 0x3F800000);
 
 	return PATCH_RET_JR_RA;
-#else
-	return PATCH_RET_NOT_PROCESSED;
-#endif
 }

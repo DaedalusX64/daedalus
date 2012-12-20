@@ -15,7 +15,7 @@ http://gitorious.org/~jjs/ags/ags-for-psp
 #include <psppower.h>
 #include <pspsuspend.h>
 
-#include <malloc.h>
+#include <malloc.h> 
 
 bool bVolatileMem = false;
 //*************************************************************************************
@@ -30,7 +30,7 @@ void VolatileMemInit()
 
 	if (result == 0)
 	{
-		scePowerLock(0);
+		scePowerLock(0);	// This used to avoid suspending while we are using the volatile memory
 		printf("Successfully Unlocked Volatile Mem: %d KB\n",size / 1024);
 		bVolatileMem = true;
 	}
@@ -45,21 +45,15 @@ void VolatileMemInit()
 //*************************************************************************************
 //
 //*************************************************************************************
-void* malloc_volatile(size_t size)
+void* malloc_volatile_PSP(size_t size)
 {
 	//If volatile mem couldn't be unlocked, use normal memory
-	//
+	// Dangerous! There's not enough memory for this!
 	if (!bVolatileMem)	 return malloc(size);
-
-	//void* result = (void*)malloc(size);
 
 //	struct mallinfo info = _mallinfo_r(NULL);
 //	printf("used memory %d of %d - %d\n", info.usmblks + info.uordblks, info.arena, malloc_p5_memory_used);
 
-	// Only try to allocate to volatile mem if we run out of mem.
-	//
-	/*if (result)
-		return result;*/
 
 	SceUID uid = sceKernelAllocPartitionMemory(5, "", PSP_SMEM_Low, size + 8, NULL);
 	if (uid >= 0)
@@ -77,6 +71,7 @@ void* malloc_volatile(size_t size)
 	{
 
 //		printf("*****failed to allocate %d byte from p5\n", size / 1024);
+		DAEDALUS_ERROR("Failed to allocate %d bytes in volatile memory");
 		return NULL;
 	}
 }
@@ -84,7 +79,7 @@ void* malloc_volatile(size_t size)
 //*************************************************************************************
 //
 //*************************************************************************************
-void free_volatile(void* ptr)
+void free_volatile_PSP(void* ptr)
 {
 	if (!bVolatileMem)
 	{

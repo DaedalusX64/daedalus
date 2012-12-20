@@ -34,7 +34,6 @@ private:
 
 	u32		addrcheck;			// vpn2 & vpnmask
 
-	static u32 LastMatched;
 	static bool FindTLBEntry( u32 address, u32 * p_idx );
 
 public:

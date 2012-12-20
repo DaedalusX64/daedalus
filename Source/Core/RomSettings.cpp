@@ -503,7 +503,6 @@ RomSettings::RomSettings()
 ,	FogEnabled( false )
 ,   MemoryAccessOptimisation( false )
 ,   CheatsEnabled( false )
-,	RescanCount(0)
 {
 }
 
@@ -536,5 +535,4 @@ void	RomSettings::Reset()
 	FogEnabled = false;
 	CheatsEnabled = false;
 	MemoryAccessOptimisation = false;
-	RescanCount = 0;
 }
