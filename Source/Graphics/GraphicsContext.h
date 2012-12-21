@@ -31,6 +31,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // other threads from changing/releasing any of the pointers while it is
 // running.
 
+struct PspSSData
+{
+	u32		texture_format;
+	u32		pitch;
+	u32		display_width;
+	u32		display_height;
+	char	buffer[128*1024];
+};
+
 class CGraphicsContext : public CSingleton< CGraphicsContext >
 {
 public:
@@ -50,6 +59,8 @@ public:
 #ifdef DAEDALUS_PSP
 	virtual void SwitchToChosenDisplay() = 0;
 	virtual void SwitchToLcdDisplay() = 0;
+	virtual void StoreSaveScreenData() = 0;
+	virtual void SaveSSPNG(const char * filename) = 0;
 #endif
 
 	virtual void ClearAllSurfaces() = 0;

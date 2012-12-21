@@ -336,6 +336,10 @@ void	IPauseOptionsComponent::OnSaveStateSlotSelected( const char * filename )
 {
 	IO::File::Delete( filename ); // Ensure that we're re-creating the file
 	CPU_SaveState( filename );
+	
+	char pngfile[ MAX_PATH ];
+	sprintf( pngfile,"%s.png", filename );	//Add .png to filename
+	CGraphicsContext::Get()->SaveSSPNG( pngfile );
 }
 
 

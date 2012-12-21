@@ -36,6 +36,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../Graphics/DrawText.h"
 
+#include "Graphics/NativeTexture.h"
+
 #include <pspctrl.h>
 #include <pspgu.h>
 
@@ -54,6 +56,11 @@ namespace
 	const s32				DESCRIPTION_AREA_BOTTOM = 272-10;
 	const s32				DESCRIPTION_AREA_LEFT = 16;
 	const s32				DESCRIPTION_AREA_RIGHT = 480-16;
+
+	const u32				ICON_AREA_TOP = 40;
+	const u32				ICON_AREA_LEFT = 480/2;
+	const u32				ICON_AREA_WIDTH = 220;
+	const u32				ICON_AREA_HEIGHT = 136;
 
 	const u32				NUM_SAVESTATE_SLOTS = 64;
 
@@ -97,6 +104,10 @@ class ISavestateSelectorComponent : public CSavestateSelectorComponent
 		CUIElementBag				mElements;
 		std::vector<std::string> 		mElementTitle;
 		bool					mSlotEmpty[ NUM_SAVESTATE_SLOTS ];
+		char					mPVFilename[ NUM_SAVESTATE_SLOTS ][ MAX_PATH ];
+		s8						mPVExists[ NUM_SAVESTATE_SLOTS ];	//0=skip, 1=file exists, -1=show no preview
+		CRefPtr<CNativeTexture>	mPreviewTexture;
+		u32						mLastPreviewLoad;
 };
 
 //*************************************************************************************
@@ -127,23 +138,28 @@ CSavestateSelectorComponent *	CSavestateSelectorComponent::Create( CUIContext * 
 //*************************************************************************************
 namespace
 {
-	void MakeSaveSlotPath(char * path, u32 slot_idx, char *slot_path )
+	void MakeSaveSlotPath(char * ss_path, char * png_path, u32 slot_idx, char *slot_path )
 	{
-		char	filename[ MAX_PATH ];
+		char	filename_png[ MAX_PATH ];
+		char	filename_ss[ MAX_PATH ];
 		char    sub_path[ MAX_PATH ];
-		sprintf( filename, "saveslot%u.ss", slot_idx );
+		sprintf( filename_png, "saveslot%u.ss.png", slot_idx );
+		sprintf( filename_ss, "saveslot%u.ss", slot_idx );
 		sprintf( sub_path, "SaveStates/%s", slot_path);
 		if(!IO::Directory::IsDirectory( "ms0:/n64/SaveStates/" ))
 		{
-			IO::Path::Combine( path, gDaedalusExePath, sub_path );
-			IO::Directory::EnsureExists( path );		// Ensure this dir exists
+			IO::Path::Combine( ss_path, gDaedalusExePath, sub_path );
+			IO::Path::Combine( png_path, gDaedalusExePath, sub_path );
+			IO::Directory::EnsureExists( ss_path );		// Ensure this dir exists
 		}
 		else
 		{
-			IO::Path::Combine( path, "ms0:/n64/", sub_path );
-			IO::Directory::EnsureExists( path );		// Ensure this dir exists
+			IO::Path::Combine( ss_path, "ms0:/n64/", sub_path );
+			IO::Path::Combine( png_path, "ms0:/n64/", sub_path );
+			IO::Directory::EnsureExists( ss_path );		// Ensure this dir exists
 		}
-		IO::Path::Append( path, filename );
+		IO::Path::Append( ss_path, filename_ss );
+		IO::Path::Append( png_path, filename_png );
 	}
 }
 
@@ -180,6 +196,9 @@ void ISavestateSelectorComponent::LoadFolders(){
 	char full_path[MAX_PATH];
 	// We're using the same vector for directory names and slots, so we have to clear it
 	mElements.Clear();
+	for( u32 i = 0; i < NUM_SAVESTATE_SLOTS; ++i ) mPVExists[ i ] = 0;
+	mLastPreviewLoad = ~0;
+
 	if (IO::FindFileOpen( "ms0:/n64/SaveStates" , &find_handle, find_data))
 	{
 		do
@@ -237,22 +256,25 @@ void ISavestateSelectorComponent::LoadSlots(){
 	char date_string[30];
 	// We're using the same vector for directory names and slots, so we have to clear it
 	mElements.Clear();
+	mLastPreviewLoad = ~0;
 
 	for( u32 i = 0; i < NUM_SAVESTATE_SLOTS; ++i )
 	{
 		COutputStringStream		str;
 		str << Translate_String("Slot ") << (i+1) << ": ";
 
-		char filename[ MAX_PATH ];
-		MakeSaveSlotPath( filename, i, current_slot_path);
+		char filename_ss[ MAX_PATH ];
+		MakeSaveSlotPath( filename_ss, mPVFilename[ i ], i, current_slot_path);
 
-		RomID			rom_id( SaveState_GetRomID( filename ) );
+		mPVExists[ i ] = IO::File::Exists( mPVFilename[ i ] ) ? 1 : -1;
+
+		RomID			rom_id( SaveState_GetRomID( filename_ss ) );
 		RomSettings		settings;
 
 		CUIElement *	element;
 		if( !rom_id.Empty() && CRomSettingsDB::Get()->GetSettings( rom_id, &settings ) )
 		{
-			IO::File::Stat(filename, &file_stat);
+			IO::File::Stat(filename_ss, &file_stat);
 			sprintf(date_string, "%02d/%02d/%d %02d:%02d:%02d", file_stat.st_ctime.month,  file_stat.st_ctime.day, file_stat.st_ctime.year, file_stat.st_ctime.hour, file_stat.st_ctime.minute, file_stat.st_ctime.second); // settings.GameName.c_str();
 			str << date_string;
 			mSlotEmpty[ i ] = false;
@@ -305,10 +327,11 @@ void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, 
 	{
 		mIsFinished = true;
 
-		char filename[ MAX_PATH ];
-		MakeSaveSlotPath( filename, mSelectedSlot, current_slot_path );
+		char filename_ss[ MAX_PATH ];
+		char filename_png[ MAX_PATH ];
+		MakeSaveSlotPath( filename_ss, filename_png, mSelectedSlot, current_slot_path );
 
-		(*mOnSlotSelected)( filename );
+		(*mOnSlotSelected)( filename_ss );
 	}
 
 	if(old_buttons != new_buttons)
@@ -324,7 +347,7 @@ void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, 
 		if( new_buttons & PSP_CTRL_UP )
 		{
 			mElements.SelectPrevious();
-			if(mAccessType ==AT_LOADING)
+			if(mAccessType == AT_LOADING)
 			    deleteButtonTriggered=false;
 		}
 		if( new_buttons & PSP_CTRL_DOWN )
@@ -380,23 +403,36 @@ void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, 
 void	ISavestateSelectorComponent::deleteSlot(u32 id_ss)
 {
     char	ss_path[ MAX_PATH ];
-    char	filename[ MAX_PATH ];
+    char	png_path[ MAX_PATH ];
+    char	filename_ss[ MAX_PATH ];
+    char	filename_png[ MAX_PATH ];
     char	sub_path[ MAX_PATH ];
-    sprintf( filename, "saveslot%u.ss", id_ss );
+    sprintf( filename_ss, "saveslot%u.ss", id_ss );
+    sprintf( filename_png, "saveslot%u.png", id_ss );
     sprintf( sub_path, "SaveStates/%s", current_slot_path);
 	if(!IO::Directory::IsDirectory( "ms0:/n64/SaveStates/" ))
 	{
 		IO::Path::Combine( ss_path, gDaedalusExePath, sub_path );
+		IO::Path::Combine( png_path, gDaedalusExePath, sub_path );
 	}
 	else
 	{
 		IO::Path::Combine( ss_path, "ms0:/n64/", sub_path );
+		IO::Path::Combine( png_path, "ms0:/n64/", sub_path );
 	}
-	IO::Path::Append( ss_path, filename );
+	IO::Path::Append( ss_path, filename_ss );
+	IO::Path::Append( png_path, filename_png );
 
 	if (IO::File::Exists(ss_path))
     {
       remove(ss_path);
+      deleteButtonTriggered=false;
+      LoadSlots();
+    }
+
+	if (IO::File::Exists(png_path))
+    {
+      remove(png_path);
       deleteButtonTriggered=false;
       LoadSlots();
     }
@@ -422,8 +458,28 @@ void	ISavestateSelectorComponent::Render()
 		CUIElement *	element( mElements.GetSelectedElement() );
 		if( element != NULL )
 		{
-			const char *		p_description( element->GetDescription() );
+				
+			if( mPVExists[ mElements.GetSelectedIndex() ] == 1 )	
+			{
+				v2	tl( ICON_AREA_LEFT, ICON_AREA_TOP );
+				v2	wh( ICON_AREA_WIDTH, ICON_AREA_HEIGHT );
+				
+				if( mPreviewTexture == NULL || mElements.GetSelectedIndex() != mLastPreviewLoad )
+				{
+					mPreviewTexture = CNativeTexture::CreateFromPng( mPVFilename[ mElements.GetSelectedIndex() ], TexFmt_8888 );
+					mLastPreviewLoad = mElements.GetSelectedIndex();
+				}
+				mpContext->DrawRect( ICON_AREA_LEFT, ICON_AREA_TOP, ICON_AREA_WIDTH, ICON_AREA_HEIGHT, c32::Black );
+				mpContext->RenderTexture( mPreviewTexture, tl, wh, c32::White );
+			}
+			else if( mPVExists[ mElements.GetSelectedIndex() ] == -1 )
+			{
+				mpContext->DrawRect( ICON_AREA_LEFT, ICON_AREA_TOP, ICON_AREA_WIDTH, ICON_AREA_HEIGHT, c32::White );
+				mpContext->DrawRect( ICON_AREA_LEFT+2, ICON_AREA_TOP+2, ICON_AREA_WIDTH-4, ICON_AREA_HEIGHT-4, c32::Black );
+				mpContext->DrawTextAlign( ICON_AREA_LEFT, ICON_AREA_LEFT + ICON_AREA_WIDTH, AT_CENTRE, ICON_AREA_TOP+ICON_AREA_HEIGHT/2, "No Preview Available", c32::White );
+			}
 
+			const char *p_description( element->GetDescription() );
 			mpContext->DrawTextArea( DESCRIPTION_AREA_LEFT,
 									 DESCRIPTION_AREA_TOP,
 									 DESCRIPTION_AREA_RIGHT - DESCRIPTION_AREA_LEFT,

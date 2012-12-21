@@ -271,6 +271,7 @@ static int PanicThread( SceSize args, void * argp )
 				count = 0;
 				CGraphicsContext::Get()->ClearAllSurfaces();
 				CPU_Halt("Panic");
+				ThreadSleepMs(2000);
 			}
 		}
 		else count = 0;
@@ -512,6 +513,9 @@ void HandleEndOfFrame()
 
 		// No longer needed since we save normally now, and not jsut when entering the pause menu ;)
 		//Save::Flush(true);
+
+		// Save Screen data to temp buffer so we can use it later if saving a SS //Corn
+		CGraphicsContext::Get()->StoreSaveScreenData();
 
 		// switch back to the LCD display
 		CGraphicsContext::Get()->SwitchToLcdDisplay();

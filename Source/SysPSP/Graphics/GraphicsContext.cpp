@@ -43,6 +43,8 @@
 #include <pspdisplay.h>
 #include <pspdebug.h>
 
+PspSSData gPSPSsData;
+
 namespace
 {
 #ifndef DAEDALUS_SILENT
@@ -113,6 +115,8 @@ public:
 
 	void				SwitchToChosenDisplay();
 	void				SwitchToLcdDisplay();
+	void				StoreSaveScreenData();
+	void				SaveSSPNG(const char * filename);
 
 	void				ClearAllSurfaces();
 
@@ -604,6 +608,117 @@ void IGraphicsContext::DumpScreenShot()
 	s32		display_y( (frame_height - display_height)/2 );
 
 	SaveScreenshot( unique_filename, display_x, display_y, display_width, display_height );
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void IGraphicsContext::StoreSaveScreenData()
+{
+	void * buffer;
+	s32 bufferwidth;
+	s32 pixelformat;
+	s32 unknown = 0;
+
+	u32		display_width = 0;
+	u32		display_height= 0;
+
+	u32		frame_width = 480;
+	u32		frame_height= 272;
+
+	if ( PSP_TV_CABLE > 0 )	// Tv Out
+	{
+		gPSPSsData.pitch = 0;
+		return;	//skip if using TV
+		frame_width = 720;
+		frame_height=  480;
+	}
+
+	ViewportType( &display_width, &display_height );
+
+	DAEDALUS_ASSERT( display_width != 0 && display_height != 0, "Unhandled viewport type" );
+
+	s32	x( (frame_width - display_width)/2 );
+	s32	y( (frame_height - display_height)/2 );
+
+	sceDisplayGetFrameBuf( &buffer, &bufferwidth, &pixelformat, unknown );
+
+	ETextureFormat		texture_format;
+	u32	bpp;
+	u32 pitch;
+
+	switch( pixelformat )
+	{
+	case PSP_DISPLAY_PIXEL_FORMAT_565:
+		{
+			gPSPSsData.texture_format = (u32)TexFmt_5650;
+			bpp = 2;
+			pitch = bufferwidth * bpp;
+			buffer = reinterpret_cast< u8 * >( buffer ) + (y * pitch) + (x * bpp);
+
+			//copy and reduce data to 1/4
+			for(u32 ys=0; ys<display_height; ys +=2)
+			{
+				for(u32 xs=0; xs<display_width; xs +=2)
+				{
+					u32 pix = *(u16*)((u32)buffer + ys * pitch + xs * bpp);
+					*(u16*)((u32)gPSPSsData.buffer + (ys>>1) * (display_width>>1) * bpp + (xs>>1) * bpp) = pix;
+				}
+			}
+			gPSPSsData.display_width = display_width >> 1;
+			gPSPSsData.display_height = display_height >> 1;
+			gPSPSsData.pitch = (display_width >> 1) * bpp;
+		}
+		break;
+	case PSP_DISPLAY_PIXEL_FORMAT_5551:
+		texture_format = TexFmt_5551;
+		bpp = 2;
+		pitch = bufferwidth * bpp;
+		buffer = reinterpret_cast< u8 * >( buffer ) + (y * pitch) + (x * bpp);
+		break;
+	case PSP_DISPLAY_PIXEL_FORMAT_4444:
+		texture_format = TexFmt_4444;
+		bpp = 2;
+		pitch = bufferwidth * bpp;
+		buffer = reinterpret_cast< u8 * >( buffer ) + (y * pitch) + (x * bpp);
+		break;
+	case PSP_DISPLAY_PIXEL_FORMAT_8888:
+		{
+			gPSPSsData.texture_format = (u32)TexFmt_8888;
+			bpp = 4;
+			pitch = bufferwidth * bpp;
+			buffer = reinterpret_cast< u8 * >( buffer ) + (y * pitch) + (x * bpp);
+
+			//copy and reduce data to 1/4
+			for(u32 ys=0; ys<display_height; ys +=2)
+			{
+				for(u32 xs=0; xs<display_width; xs +=2)
+				{
+					u32 pix = *(u32*)((u32)buffer + ys * pitch + xs * bpp);
+					*(u32*)((u32)gPSPSsData.buffer + (ys>>1) * (display_width>>1) * bpp + (xs>>1) * bpp) = pix;
+				}
+			}
+			gPSPSsData.display_width = display_width >> 1;
+			gPSPSsData.display_height = display_height >> 1;
+			gPSPSsData.pitch = (display_width >> 1) * bpp;
+		}
+		break;
+	default:
+		texture_format = TexFmt_8888;
+		bpp = 4;
+		pitch = bufferwidth * bpp;
+		buffer = reinterpret_cast< u8 * >( buffer ) + (y * pitch) + (x * bpp);
+		break;
+	}
+
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void IGraphicsContext::SaveSSPNG( const char * filename )
+{
+	if( gPSPSsData.pitch != 0 ) PngSaveImage( filename, (void*)gPSPSsData.buffer, NULL, (ETextureFormat)gPSPSsData.texture_format, gPSPSsData.pitch, gPSPSsData.display_width, gPSPSsData.display_height, false );
 }
 
 //*****************************************************************************
