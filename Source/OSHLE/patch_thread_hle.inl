@@ -11,7 +11,11 @@ TEST_DISABLE_THREAD_FUNCS
 	u32 arg    = gGPR[REG_a3]._u32_0;
 
 	// Other variables are on the stack - dig them out!
-	u8 * pStackBase	  = (u8 *)ReadAddress(gGPR[REG_sp]._u32_0);
+	u8 * pStackBase	 = (u8 *)ReadAddress(gGPR[REG_sp]._u32_0);
+
+	u8 * pThreadListBase = (u8 *)ReadAddress(VAR_ADDRESS(osGlobalThreadList));
+	u8 * pThreadBase  = (u8 *)ReadAddress(thread);
+	
 
 	// Stack is arg 4
 	u32 stack = QuickRead32Bits(pStackBase, 4*4);
@@ -24,37 +28,37 @@ TEST_DISABLE_THREAD_FUNCS
 
 	// fp used - we now HLE the Cop1 Unusable exception and set this
 	// when the thread first accesses the FP unit
-	Write32Bits(thread + offsetof(OSThread, fp), 0);						// pThread->fp
+	QuickWrite32Bits(pThreadBase, offsetof(OSThread, fp), 0);						// pThread->fp
 
 
-	Write16Bits(thread + offsetof(OSThread, state), OS_STATE_STOPPED);	// pThread->state
-	Write16Bits(thread + offsetof(OSThread, flags), 0);					// pThread->flags
+	QuickWrite16Bits(pThreadBase, offsetof(OSThread, state), OS_STATE_STOPPED);	// pThread->state
+	QuickWrite16Bits(pThreadBase, offsetof(OSThread, flags), 0);					// pThread->flags
 
-	Write32Bits(thread + offsetof(OSThread, id), id);
-	Write32Bits(thread + offsetof(OSThread, priority), pri);
+	QuickWrite32Bits(pThreadBase, offsetof(OSThread, id), id);
+	QuickWrite32Bits(pThreadBase, offsetof(OSThread, priority), pri);
 
 
-	Write32Bits(thread + offsetof(OSThread, next), 0);					// pThread->next
-	Write32Bits(thread + offsetof(OSThread, queue), 0);					// Queue
-	Write32Bits(thread + offsetof(OSThread, context.pc), func);		// state.pc
+	QuickWrite32Bits(pThreadBase, offsetof(OSThread, next), 0);					// pThread->next
+	QuickWrite32Bits(pThreadBase, offsetof(OSThread, queue), 0);					// Queue
+	QuickWrite32Bits(pThreadBase, offsetof(OSThread, context.pc), func);		// state.pc
 
 	s64 sArg = (s64)(s32)arg;
-	Write64Bits(thread + offsetof(OSThread, context.a0), sArg);			// a0
+	QuickWrite64Bits(pThreadBase, offsetof(OSThread, context.a0), sArg);			// a0
 
 	s64 sStack = (s64)(s32)stack;
-	Write64Bits(thread + offsetof(OSThread, context.sp), sStack - 16);	// sp (sub 16 for a0 arg etc)
+	QuickWrite64Bits(pThreadBase, offsetof(OSThread, context.sp), sStack - 16);	// sp (sub 16 for a0 arg etc)
 
 	s64 ra = (s64)(s32)VAR_ADDRESS(osThreadDieRA);
-	Write64Bits(thread + offsetof(OSThread, context.ra), ra);			// ra
+	QuickWrite64Bits(pThreadBase, offsetof(OSThread, context.ra), ra);			// ra
 
-	Write32Bits(thread + offsetof(OSThread, context.sr), (SR_IMASK|SR_EXL|SR_IE));					// state.sr
-	Write32Bits(thread + offsetof(OSThread, context.rcp), (OS_IM_ALL & RCP_IMASK)>>RCP_IMASKSHIFT);	// state.rcp
-	Write32Bits(thread + offsetof(OSThread, context.fpcsr), (FPCSR_FS|FPCSR_EV));	// state.fpcsr
+	QuickWrite32Bits(pThreadBase, offsetof(OSThread, context.sr), (SR_IMASK|SR_EXL|SR_IE));					// state.sr
+	QuickWrite32Bits(pThreadBase, offsetof(OSThread, context.rcp), (OS_IM_ALL & RCP_IMASK)>>RCP_IMASKSHIFT);	// state.rcp
+	QuickWrite32Bits(pThreadBase, offsetof(OSThread, context.fpcsr), (FPCSR_FS|FPCSR_EV));	// state.fpcsr
 
 	// Set us as head of global list
-	u32 NextThread = Read32Bits(VAR_ADDRESS(osGlobalThreadList));
-	Write32Bits(thread + offsetof(OSThread, tlnext), NextThread);				// pThread->next
-	Write32Bits(VAR_ADDRESS(osGlobalThreadList), thread);
+	u32 NextThread = QuickRead32Bits(pThreadListBase, 0x0);
+	QuickWrite32Bits(pThreadBase,  offsetof(OSThread, tlnext), NextThread);				// pThread->next
+	QuickWrite32Bits(pThreadListBase, 0x0, thread);
 
 	return PATCH_RET_JR_RA;
 }

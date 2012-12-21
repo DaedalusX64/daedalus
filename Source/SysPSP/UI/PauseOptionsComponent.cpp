@@ -63,6 +63,7 @@ namespace
 }
 
 extern bool gTakeScreenshot;
+extern bool gTakeScreenshotSS;
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 extern bool gDebugDisplayList;
 #endif
@@ -336,10 +337,9 @@ void	IPauseOptionsComponent::OnSaveStateSlotSelected( const char * filename )
 {
 	IO::File::Delete( filename ); // Ensure that we're re-creating the file
 	CPU_SaveState( filename );
-	
-	char pngfile[ MAX_PATH ];
-	sprintf( pngfile,"%s.png", filename );	//Add .png to filename
-	CGraphicsContext::Get()->SaveSSPNG( pngfile );
+
+	gTakeScreenshot = true;
+	gTakeScreenshotSS = true;
 }
 
 

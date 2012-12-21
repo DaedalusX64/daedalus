@@ -514,9 +514,6 @@ void HandleEndOfFrame()
 		// No longer needed since we save normally now, and not jsut when entering the pause menu ;)
 		//Save::Flush(true);
 
-		// Save Screen data to temp buffer so we can use it later if saving a SS //Corn
-		CGraphicsContext::Get()->StoreSaveScreenData();
-
 		// switch back to the LCD display
 		CGraphicsContext::Get()->SwitchToLcdDisplay();
 
@@ -592,7 +589,7 @@ static void DisplayRomsAndChoose(bool show_splash)
 
 	CDrawText::Destroy();
 }
-
+#include "Utility/Translate.h"
 //*************************************************************************************
 // This is our main loop
 //*************************************************************************************
@@ -622,7 +619,8 @@ int main(int argc, char* argv[])
 			return 0;
 		}
 #endif
-
+		printf("woot\n");
+		//Translate_Init();
 		bool show_splash = true;
 		for(;;)
 		{

@@ -43,8 +43,6 @@
 #include <pspdisplay.h>
 #include <pspdebug.h>
 
-PspSSData gPSPSsData;
-
 namespace
 {
 #ifndef DAEDALUS_SILENT
@@ -74,6 +72,7 @@ static u32 __attribute__((aligned(16))) ilist[256];
 u32 listNum = 0;
 extern ViewportInfo	mView;
 extern bool g32bitColorMode;
+extern bool gTakeScreenshotSS;
 //////////////////////////////////////////////
 //bool CGraphicsContext::CleanScene = false;
 //////////////////////////////////////////////
@@ -116,7 +115,6 @@ public:
 	void				SwitchToChosenDisplay();
 	void				SwitchToLcdDisplay();
 	void				StoreSaveScreenData();
-	void				SaveSSPNG(const char * filename);
 
 	void				ClearAllSurfaces();
 
@@ -381,7 +379,18 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 	{
 		mDumpNextScreen--;
 		if (!mDumpNextScreen)
-			DumpScreenShot();
+		{			
+			if(gTakeScreenshotSS)	// We are taking a screenshot for savestate
+			{
+				gTakeScreenshotSS = false;
+				StoreSaveScreenData();
+				
+			}
+			else
+			{
+				DumpScreenShot();
+			}
+		}
 	}
 
 	mpCurrentBackBuffer = p_back;
@@ -615,23 +624,30 @@ void IGraphicsContext::DumpScreenShot()
 //*****************************************************************************
 void IGraphicsContext::StoreSaveScreenData()
 {
-	void * buffer;
 	s32 bufferwidth;
 	s32 pixelformat;
 	s32 unknown = 0;
+	
+	void * buffer;
+	char pngbuffer[128*1024];
+	char pngfile[ MAX_PATH ];
+	extern std::string	gSaveStateFilename;
 
+	sprintf( pngfile,"%s.png", gSaveStateFilename.c_str() );	//Add .png to filename
+	
 	u32		display_width = 0;
 	u32		display_height= 0;
 
 	u32		frame_width = 480;
 	u32		frame_height= 272;
 
-	if ( PSP_TV_CABLE > 0 )	// Tv Out
+	// Not supported yet for tv out
+	if ( PSP_TV_CABLE > 0 )	
 	{
-		gPSPSsData.pitch = 0;
-		return;	//skip if using TV
-		frame_width = 720;
-		frame_height=  480;
+		//TODO
+		//frame_width = 720;
+		//frame_height=  480;
+		return;
 	}
 
 	ViewportType( &display_width, &display_height );
@@ -651,7 +667,7 @@ void IGraphicsContext::StoreSaveScreenData()
 	{
 	case PSP_DISPLAY_PIXEL_FORMAT_565:
 		{
-			gPSPSsData.texture_format = (u32)TexFmt_5650;
+			texture_format = TexFmt_5650;
 			bpp = 2;
 			pitch = bufferwidth * bpp;
 			buffer = reinterpret_cast< u8 * >( buffer ) + (y * pitch) + (x * bpp);
@@ -662,12 +678,12 @@ void IGraphicsContext::StoreSaveScreenData()
 				for(u32 xs=0; xs<display_width; xs +=2)
 				{
 					u32 pix = *(u16*)((u32)buffer + ys * pitch + xs * bpp);
-					*(u16*)((u32)gPSPSsData.buffer + (ys>>1) * (display_width>>1) * bpp + (xs>>1) * bpp) = pix;
+					*(u16*)((u32)pngbuffer + (ys>>1) * (display_width>>1) * bpp + (xs>>1) * bpp) = pix;
 				}
 			}
-			gPSPSsData.display_width = display_width >> 1;
-			gPSPSsData.display_height = display_height >> 1;
-			gPSPSsData.pitch = (display_width >> 1) * bpp;
+			display_width = display_width >> 1;
+			display_height = display_height >> 1;
+			pitch = display_width * bpp;
 		}
 		break;
 	case PSP_DISPLAY_PIXEL_FORMAT_5551:
@@ -684,7 +700,7 @@ void IGraphicsContext::StoreSaveScreenData()
 		break;
 	case PSP_DISPLAY_PIXEL_FORMAT_8888:
 		{
-			gPSPSsData.texture_format = (u32)TexFmt_8888;
+			texture_format = TexFmt_8888;
 			bpp = 4;
 			pitch = bufferwidth * bpp;
 			buffer = reinterpret_cast< u8 * >( buffer ) + (y * pitch) + (x * bpp);
@@ -695,12 +711,12 @@ void IGraphicsContext::StoreSaveScreenData()
 				for(u32 xs=0; xs<display_width; xs +=2)
 				{
 					u32 pix = *(u32*)((u32)buffer + ys * pitch + xs * bpp);
-					*(u32*)((u32)gPSPSsData.buffer + (ys>>1) * (display_width>>1) * bpp + (xs>>1) * bpp) = pix;
+					*(u32*)((u32)pngbuffer + (ys>>1) * (display_width>>1) * bpp + (xs>>1) * bpp) = pix;
 				}
 			}
-			gPSPSsData.display_width = display_width >> 1;
-			gPSPSsData.display_height = display_height >> 1;
-			gPSPSsData.pitch = (display_width >> 1) * bpp;
+			display_width = display_width >> 1;
+			display_height = display_height >> 1;
+			pitch = (display_width) * bpp;
 		}
 		break;
 	default:
@@ -711,14 +727,7 @@ void IGraphicsContext::StoreSaveScreenData()
 		break;
 	}
 
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void IGraphicsContext::SaveSSPNG( const char * filename )
-{
-	if( gPSPSsData.pitch != 0 ) PngSaveImage( filename, (void*)gPSPSsData.buffer, NULL, (ETextureFormat)gPSPSsData.texture_format, gPSPSsData.pitch, gPSPSsData.display_width, gPSPSsData.display_height, false );
+	PngSaveImage( pngfile, (void*)pngbuffer, NULL, texture_format, pitch, display_width, display_height, false );
 }
 
 //*****************************************************************************

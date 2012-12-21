@@ -461,15 +461,16 @@ void	ISavestateSelectorComponent::Render()
 				
 			if( mPVExists[ mElements.GetSelectedIndex() ] == 1 )	
 			{
-				v2	tl( ICON_AREA_LEFT, ICON_AREA_TOP );
-				v2	wh( ICON_AREA_WIDTH, ICON_AREA_HEIGHT );
+				v2	tl( ICON_AREA_LEFT+2, ICON_AREA_TOP+2 );
+				v2	wh( ICON_AREA_WIDTH-4, ICON_AREA_HEIGHT-4 );
 				
 				if( mPreviewTexture == NULL || mElements.GetSelectedIndex() != mLastPreviewLoad )
 				{
 					mPreviewTexture = CNativeTexture::CreateFromPng( mPVFilename[ mElements.GetSelectedIndex() ], TexFmt_8888 );
 					mLastPreviewLoad = mElements.GetSelectedIndex();
 				}
-				mpContext->DrawRect( ICON_AREA_LEFT, ICON_AREA_TOP, ICON_AREA_WIDTH, ICON_AREA_HEIGHT, c32::Black );
+				
+				mpContext->DrawRect( ICON_AREA_LEFT, ICON_AREA_TOP, ICON_AREA_WIDTH, ICON_AREA_HEIGHT, c32::White );
 				mpContext->RenderTexture( mPreviewTexture, tl, wh, c32::White );
 			}
 			else if( mPVExists[ mElements.GetSelectedIndex() ] == -1 )

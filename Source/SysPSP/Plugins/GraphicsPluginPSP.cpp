@@ -50,6 +50,7 @@ u32		gSoundSync = 44100;
 u32		gVISyncRate = 1500;
 bool	gFrameskipActive = false;
 bool	gTakeScreenshot = false;
+bool	gTakeScreenshotSS = false;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 bool	gDebugDisplayList = false;

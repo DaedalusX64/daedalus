@@ -83,6 +83,7 @@ std::vector< DBG_BreakPoint > g_BreakPoints;
 static bool			gCPURunning				= false;			// CPU is actively running
 u32					gLastPC = 0xffffffff;
 u8 *				gLastAddress = NULL;
+std::string			gSaveStateFilename	= "";
 
 namespace
 {
@@ -99,7 +100,7 @@ enum ESaveStateOperation
 };
 
 ESaveStateOperation		gSaveStateOperation = SSO_NONE;
-std::string				gSaveStateFilename	= "";
+
 
 }
 
@@ -427,7 +428,11 @@ static bool	CPU_IsStateSimple()
 
 	return rsp_halted && (gCPUState.Delay == NO_DELAY);
 }
-
+/*
+char* CPU_GetSaveStateName()
+{
+	return 
+*/
 //*****************************************************************************
 //
 //*****************************************************************************
