@@ -415,6 +415,9 @@ void SpecificGameHacks( const ROMHeader & id )
 		g_ROM.ZELDA_HACK = true;
 		g_ROM.GameHacks = ZELDA_OOT;
 		break;
+	case 0x4F44:	//DK64
+		g_ROM.GameHacks = DK64;
+		break;
 	case 0x535a:	//ZELDA_MM
 		g_ROM.TLUT_HACK = true;
 		g_ROM.ZELDA_HACK = true;

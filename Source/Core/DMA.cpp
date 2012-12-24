@@ -230,13 +230,13 @@ void DMA_PI_CopyToRDRAM()
 #endif
 			gDMAUsed = true;
 
-			u32 addr = (g_ROM.cic_chip != CIC_6105) ? 0x80000318 : 0x800003F0;
-			Write32Bits(addr, gRamSize);
+			// Set RDRAM size
+			u32 addr = (g_ROM.cic_chip != CIC_6105) ? 0x318 : 0x3F0;
+			*(u32 *)(g_pu8RamBase + addr) = gRamSize;
 
-			// For reference DK64 hack : This allows DK64 to work
-			// Note1: IMEM transfers are required! (We ignore IMEM transfers for speed, see DMA_SP_*)
-			// Note2: Make sure to change EEPROM to 4k too! Otherwise DK64 hangs after the intro.
-			//Write32Bits(0x802FE1C0, 0xAD170014);
+			// Azimer's DK64 hack, it makes DK64 boot!
+			if(g_ROM.GameHacks == DK64)
+				*(u32 *)(g_pu8RamBase + 0x2FE1C0) = 0xAD170014;
 		}
 	}
 
