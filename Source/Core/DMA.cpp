@@ -105,7 +105,7 @@ void DMA_SI_CopyFromDRAM( )
 	// Fuse 4 reads and 4 writes to just one which is a lot faster - Corn
 	for(u32 i = 0; i < 16; i++)
 	{
-		p_dst[i] = U8_SWAP(p_src[i]);
+		p_dst[i] = BSWAP32(p_src[i]);
 	}
 
 	Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
@@ -130,7 +130,7 @@ void DMA_SI_CopyToDRAM( )
 	// Fuse 4 reads and 4 writes to just one which is a lot faster - Corn
 	for(u32 i = 0; i < 16; i++)
 	{
-		p_dst[i] = U8_SWAP(p_src[i]);
+		p_dst[i] = BSWAP32(p_src[i]);
 	}
 
 	Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
