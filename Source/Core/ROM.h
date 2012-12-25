@@ -29,10 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 inline u32 SwapEndian( u32 x )
 {
-	return ((x >> 24) |
-		   ((x >> 8 )& 0xFF00) |
-		   ((x & 0xFF00) << 8 ) |
-		   ((x << 24)));
+	return BSWAP32(x);
 }
 
 class RomID

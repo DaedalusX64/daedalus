@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define U16_TWIDDLE 0x0
 #elif (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_LITTLE)
 #ifdef DAEDALUS_PSP
-#define BSWAP32(x) __builtin_allegrex_wsbw(x)
+#define BSWAP32(x) __builtin_bswap32(x)
 #define BSWAP16(x) __builtin_allegrex_wsbh(x)
 #define WSWAP32(x) __builtin_allegrex_rotr(x, 16)
 #else
