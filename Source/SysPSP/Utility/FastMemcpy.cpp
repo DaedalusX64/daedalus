@@ -504,6 +504,7 @@ void memcpy_vfpu_swizzle( void* dst, const void* src, size_t size )
 {
     u8* src8 = (u8*)src;
     u8* dst8 = (u8*)dst;
+
 	u32 *dst32;
 	u32 *src32;
 
@@ -638,17 +639,36 @@ void memcpy_vfpu_swizzle( void* dst, const void* src, size_t size )
 	}
 	else
 	{
-		//We are src unligned.. At least dst is aligned
+		//At least dst is aligned at this point
 		dst32 = (u32*)dst8;
-		while(size>3)
-		{
-			register u32 tmp;
-			tmp = *(u8*)((u32)src8++ ^ 3);
-			tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
-			tmp = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
 
-			*dst32++ = (tmp << 8) | *(u8*)((u32)src8++ ^ 3);
-			size -= 4;
+		//src is word aligned
+		if( (((u32)src8&0x1) == 0) )
+		{
+			u16 *src16 = (u16 *)src8;
+			while (size>=4)
+			{
+				u32 a = *(u16*)((u32)src16++ ^ 2);
+				u32 b = *(u16*)((u32)src16++ ^ 2);
+
+				*dst32++ = ((a << 16) | b);
+				size -= 4;
+			}
+			src8 = (u8*)src16;
+		}
+		else
+		{
+			//We are src unligned..
+			while (size>=4)
+			{
+				u32 a = *(u8*)((u32)src8++ ^ 3);
+				u32 b = *(u8*)((u32)src8++ ^ 3);
+				u32 c = *(u8*)((u32)src8++ ^ 3);
+				u32 d = *(u8*)((u32)src8++ ^ 3);
+
+				*dst32++ = (a << 24) | (b << 16) | (c << 8) | d;
+				size -= 4;
+			}
 		}
 		dst8 = (u8*)dst32;
 	}

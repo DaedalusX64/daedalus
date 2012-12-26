@@ -58,15 +58,36 @@ void memcpy_swizzle( void* dst, const void* src, size_t size )
 	}
 	else
 	{
-		//At least dst is aligned
-		register u32 tmp;
-		while (size>=4)
+		//At least dst is aligned at this point
+		dst32 = (u32*)dst8;
+
+		//src is word aligned
+		if( (((uintptr_t)src8&0x1) == 0) )
 		{
-			tmp = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
-			tmp = (tmp << 8) | *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
-			tmp = (tmp << 8) | *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
-			*dst32++ = (tmp << 8) | *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
-			size -= 4;
+			u16 *src16 = (u16 *)src8;
+			while (size>=4)
+			{
+				u32 a = *(u16*)((uintptr_t)src16++ ^ U16_TWIDDLE);
+				u32 b = *(u16*)((uintptr_t)src16++ ^ U16_TWIDDLE);
+
+				*dst32++ = ((a << 16) | b);
+				size -= 4;
+			}
+			src8 = (u8*)src16;
+		}
+		else
+		{
+			//We are src unligned..
+			while (size>=4)
+			{
+				u32 a = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
+				u32 b = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
+				u32 c = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
+				u32 d = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
+
+				*dst32++ = (a << 24) | (b << 16) | (c << 8) | d;
+				size -= 4;
+			}
 		}
 		dst8 = (u8*)dst32;
 	}
