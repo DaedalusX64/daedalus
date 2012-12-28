@@ -34,63 +34,90 @@ void memcpy_swizzle( void* dst, const void* src, size_t size )
 	// We are dst aligned now and >= 4 bytes to copy
 	src32 = (u32*)src8;
 	dst32 = (u32*)dst8;
-	if( (((uintptr_t)src8)&0x3) == 0 ) 
+	u32 srcTmp;
+	u32 dstTmp;
+
+	switch( (uintptr_t)src8&0x3 )
 	{
-		//Both src and dst are aligned to 4 bytes at this point
-
-		while (size&0xC)
-		{
-			*dst32++ = *src32++;
-			size -= 4;
-		}
-
-		while (size>=16)
-		{
-			*dst32++ = *src32++;
-			*dst32++ = *src32++;
-			*dst32++ = *src32++;
-			*dst32++ = *src32++;
-			size -= 16;
-		}
-
-		src8 = (u8*)src32;
-		dst8 = (u8*)dst32;
-	}
-	else
-	{
-		//At least dst is aligned at this point
-		dst32 = (u32*)dst8;
-
-		//src is word aligned
-		if( (((uintptr_t)src8&0x1) == 0) )
-		{
-			u16 *src16 = (u16 *)src8;
-			while (size>=4)
+		case 0:	//Both src and dst are aligned to 4 bytes at this point
 			{
-				u32 a = *(u16*)((uintptr_t)src16++ ^ U16_TWIDDLE);
-				u32 b = *(u16*)((uintptr_t)src16++ ^ U16_TWIDDLE);
+				while (size&0xC)
+				{
+					*dst32++ = *src32++;
+					size -= 4;
+				}
 
-				*dst32++ = ((a << 16) | b);
-				size -= 4;
+				while (size>=16)
+				{
+					*dst32++ = *src32++;
+					*dst32++ = *src32++;
+					*dst32++ = *src32++;
+					*dst32++ = *src32++;
+					size -= 16;
+				}
+
+				src8 = (u8*)src32;
 			}
-			src8 = (u8*)src16;
-		}
-		else
-		{
-			//We are src unligned..
-			while (size>=4)
+			break;
+
+		case 1:
 			{
-				u32 a = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
-				u32 b = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
-				u32 c = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
-				u32 d = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
-
-				*dst32++ = (a << 24) | (b << 16) | (c << 8) | d;
-				size -= 4;
+				if(size>=4)
+				{
+					src32 = (u32*)((u32)src8 & ~0x3);
+					srcTmp = *src32++;
+					while(size>=4)
+					{
+						dstTmp = srcTmp << 8;
+						srcTmp = *src32++;
+						dstTmp |= srcTmp >> 24;
+						*dst32++ = dstTmp;
+						size -= 4;
+					}
+					src8 = (u8*)src32 - 3;
+				}
 			}
-		}
-		dst8 = (u8*)dst32;
+			break;
+
+		case 2:
+			{
+				if(size>=4)
+				{
+					src32 = (u32*)((u32)src8 & ~0x3);
+					srcTmp = *src32++;
+					while(size>=4)
+					{
+						dstTmp = srcTmp << 16;
+						srcTmp = *src32++;
+						dstTmp |= srcTmp >> 16;
+						*dst32++ = dstTmp;
+						size -= 4;
+					}
+					src8 = (u8*)src32 - 2;
+				}
+			}
+			break;
+
+		case 3:
+			{
+				if(size>=4)
+				{
+					src32 = (u32*)((u32)src8 & ~0x3);
+					srcTmp = *src32++;
+					while(size>=4)
+					{
+						dstTmp = srcTmp << 24;
+						srcTmp = *src32++;
+						dstTmp |= srcTmp >> 8;
+						*dst32++ = dstTmp;
+						size -= 4;
+					}
+					src8 = (u8*)src32 - 1;
+				}
+			}
+			break;
 	}
+	dst8 = (u8*)dst32;
 
 bytecopy:
 	// Copy the remains byte per byte...
