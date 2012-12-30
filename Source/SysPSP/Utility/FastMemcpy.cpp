@@ -641,33 +641,34 @@ void memcpy_vfpu_swizzle( void* dst, const void* src, size_t size )
 			}
 			else
 			{
-				//At least dst is aligned at this point and we have at least 4 bytes to copy
+				//We are now dst aligned and src unligned and >= 4 bytes to copy
 				dst32 = (u32*)dst8;
-				u32 srcTmp;
-				u32 dstTmp;
+				src32 = (u32*)((u32)src8 & ~0x3);
+
+				u32 srcTmp = *src32++;
+				u32 dstTmp = 0;
+				u32 size32 = size >> 2; // Size in dwords (to avoid a sltiu in loop)
+				
+				size &= 0x3; // Update remaining bytes if any..
 
 				switch( (u32)src8&0x3 )
 				{
 					/*case 0:	//src is aligned too
 						src32 = (u32*)src8;
-						while (size>=4)
+						while(size32--)
 						{
 							*dst32++ = *src32++;
-							size -= 4;
 						}
 						break;*/
 
 					case 1:
 						{
-							src32 = (u32*)((u32)src8 & ~0x3);
-							srcTmp = *src32++;
-							while(size>=4)
+							while(size32--)
 							{
 								dstTmp = srcTmp << 8;
 								srcTmp = *src32++;
 								dstTmp |= srcTmp >> 24;
 								*dst32++ = dstTmp;
-								size -= 4;
 							}
 							src8 = (u8*)src32 - 3;
 						}
@@ -675,15 +676,12 @@ void memcpy_vfpu_swizzle( void* dst, const void* src, size_t size )
 
 					case 2:
 						{
-							src32 = (u32*)((u32)src8 & ~0x3);
-							srcTmp = *src32++;
-							while(size>=4)
+							while(size32--)
 							{
 								dstTmp = srcTmp << 16;
 								srcTmp = *src32++;
 								dstTmp |= srcTmp >> 16;
 								*dst32++ = dstTmp;
-								size -= 4;
 							}
 							src8 = (u8*)src32 - 2;
 						}
@@ -691,15 +689,12 @@ void memcpy_vfpu_swizzle( void* dst, const void* src, size_t size )
 
 					case 3:
 						{
-							src32 = (u32*)((u32)src8 & ~0x3);
-							srcTmp = *src32++;
-							while(size>=4)
+							while(size32--)
 							{
 								dstTmp = srcTmp << 24;
 								srcTmp = *src32++;
 								dstTmp |= srcTmp >> 8;
 								*dst32++ = dstTmp;
-								size -= 4;
 							}
 							src8 = (u8*)src32 - 1;
 						}
