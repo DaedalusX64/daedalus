@@ -509,213 +509,207 @@ void memcpy_vfpu_swizzle( void* dst, const void* src, size_t size )
 	u32 *src32;
 
 	// < 4 isn't worth trying any optimisations...
-	if( size<4 ) goto bytecopy;
-
-	// Align dst on 4 bytes or just resume if already done
-	while( ((u32)dst8&0x3)!=0 )
+	if( size>=4 )
 	{
-		*(u8*)((u32)dst8++ ^ 3) = *(u8*)((u32)src8++ ^ 3);
-		size--;
-	}
-	
-	// src has to be at least 32bit aligned to try any optimisations...
-	if( (((u32)src8&0x3) == 0) )
-	{
-		// Not atleast 16 bytes at this point? -> not worth trying any VFPU optimisations...
-		if (size>15)
+		// Align dst on 4 bytes or just resume if already done
+		while( ((u32)dst8&0x3)!=0 )
 		{
-			src32 = (u32*)src8;
-			dst32 = (u32*)dst8;
-
-			// Align dst to 16 bytes to gain from vfpu aligned stores or just resume if already done
-			while( ((u32)dst32&0xF)!=0 )
-			{
-				*dst32++ = *src32++;
-				size -= 4;
-			}
-
-			src8 = (u8*)src32;
-			dst8 = (u8*)dst32;
-
-
-			if( ((u32)src8&0xF)==0 )	//Both src and dst are 16byte aligned
-			{
-				while (size>63)
-				{
-					asm(".set	push\n"					// save assembler option
-						".set	noreorder\n"			// suppress reordering
-						"lv.q c000, 0(%1)\n"
-						"lv.q c010, 16(%1)\n"
-						"lv.q c020, 32(%1)\n"
-						"lv.q c030, 48(%1)\n"
-						"sv.q c000, 0(%0)\n"
-						"sv.q c010, 16(%0)\n"
-						"sv.q c020, 32(%0)\n"
-						"sv.q c030, 48(%0)\n"
-						"addiu  %2, %2, -64\n"			//size -= 64;
-						"addiu	%1, %1, 64\n"			//dst8 += 64;
-						"addiu	%0, %0, 64\n"			//src8 += 64;
-						".set	pop\n"					// restore assembler option
-						:"+r"(dst8),"+r"(src8),"+r"(size)
-						:
-						:"memory"
-						);
-				}
-
-				while (size>15)
-				{
-					asm(".set	push\n"					// save assembler option
-						".set	noreorder\n"			// suppress reordering
-						"lv.q c000, 0(%1)\n"
-						"sv.q c000, 0(%0)\n"
-						"addiu  %2, %2, -16\n"			//size -= 16;
-						"addiu	%1, %1, 16\n"			//dst8 += 16;
-						"addiu	%0, %0, 16\n"			//src8 += 16;
-						".set	pop\n"					// restore assembler option
-						:"+r"(dst8),"+r"(src8),"+r"(size)
-						:
-						:"memory"
-						);
-				}
-
-			}
-			else 	//At least src is 4byte and dst is 16byte aligned
-			{
-				while (size>63)
-				{
-					asm(".set	push\n"					// save assembler option
-						".set	noreorder\n"			// suppress reordering
-						"ulv.q c000, 0(%1)\n"
-						"ulv.q c010, 16(%1)\n"
-						"ulv.q c020, 32(%1)\n"
-						"ulv.q c030, 48(%1)\n"
-						"sv.q c000, 0(%0)\n"
-						"sv.q c010, 16(%0)\n"
-						"sv.q c020, 32(%0)\n"
-						"sv.q c030, 48(%0)\n"
-						"addiu  %2, %2, -64\n"			//size -= 64;
-						"addiu	%1, %1, 64\n"			//dst8 += 64;
-						"addiu	%0, %0, 64\n"			//src8 += 64;
-						".set	pop\n"					// restore assembler option
-						:"+r"(dst8),"+r"(src8),"+r"(size)
-						:
-						:"memory"
-						);
-				}
-
-				while (size>15)
-				{
-					asm(".set	push\n"					// save assembler option
-						".set	noreorder\n"			// suppress reordering
-						"ulv.q c000, 0(%1)\n"
-						"sv.q c000, 0(%0)\n"
-						"addiu  %2, %2, -16\n"			//size -= 16;
-						"addiu	%1, %1, 16\n"			//dst8 += 16;
-						"addiu	%0, %0, 16\n"			//src8 += 16;
-						".set	pop\n"					// restore assembler option
-						:"+r"(dst8),"+r"(src8),"+r"(size)
-						:
-						:"memory"
-						);
-				}
-			}
-
-			// Most copies are completed with the VFPU, so fast out
-			if (size == 0) 
-				return;
+			*(u8*)((u32)dst8++ ^ 3) = *(u8*)((u32)src8++ ^ 3);
+			size--;
 		}
-
-		// Copy the remaning 32bit...
-		src32 = (u32*)src8;
-		dst32 = (u32*)dst8;
-		while(size>3)
+		
+		// if < 4 its not possible to optimize...
+		if( size>=4 )
 		{
-			*dst32++ = *src32++;
-			size -= 4;
-		}
+			// src has to be at least 32bit aligned to try any optimisations...
+			if( (((u32)src8&0x3) == 0) )
+			{
+				// Not atleast 16 bytes at this point? -> not worth trying any VFPU optimisations...
+				if (size>15)
+				{
+					src32 = (u32*)src8;
+					dst32 = (u32*)dst8;
 
-		src8 = (u8*)src32;
-		dst8 = (u8*)dst32;
-	}
-	else
-	{
-		//At least dst is aligned at this point
-		dst32 = (u32*)dst8;
-		u32 srcTmp;
-		u32 dstTmp;
+					// Align dst to 16 bytes to gain from vfpu aligned stores or just resume if already done
+					while( ((u32)dst32&0xF)!=0 )
+					{
+						*dst32++ = *src32++;
+						size -= 4;
+					}
 
-		switch( (u32)src8&0x3 )
-		{
-			/*case 0:	//src is aligned too
+					src8 = (u8*)src32;
+					dst8 = (u8*)dst32;
+
+					if( ((u32)src8&0xF)==0 )	//Both src and dst are 16byte aligned
+					{
+						while (size>63)
+						{
+							asm(".set	push\n"					// save assembler option
+								".set	noreorder\n"			// suppress reordering
+								"lv.q c000, 0(%1)\n"
+								"lv.q c010, 16(%1)\n"
+								"lv.q c020, 32(%1)\n"
+								"lv.q c030, 48(%1)\n"
+								"sv.q c000, 0(%0)\n"
+								"sv.q c010, 16(%0)\n"
+								"sv.q c020, 32(%0)\n"
+								"sv.q c030, 48(%0)\n"
+								"addiu  %2, %2, -64\n"			//size -= 64;
+								"addiu	%1, %1, 64\n"			//dst8 += 64;
+								"addiu	%0, %0, 64\n"			//src8 += 64;
+								".set	pop\n"					// restore assembler option
+								:"+r"(dst8),"+r"(src8),"+r"(size)
+								:
+								:"memory"
+								);
+						}
+
+						while (size>15)
+						{
+							asm(".set	push\n"					// save assembler option
+								".set	noreorder\n"			// suppress reordering
+								"lv.q c000, 0(%1)\n"
+								"sv.q c000, 0(%0)\n"
+								"addiu  %2, %2, -16\n"			//size -= 16;
+								"addiu	%1, %1, 16\n"			//dst8 += 16;
+								"addiu	%0, %0, 16\n"			//src8 += 16;
+								".set	pop\n"					// restore assembler option
+								:"+r"(dst8),"+r"(src8),"+r"(size)
+								:
+								:"memory"
+								);
+						}
+
+					}
+					else 	//At least src is 4byte and dst is 16byte aligned
+					{
+						while (size>63)
+						{
+							asm(".set	push\n"					// save assembler option
+								".set	noreorder\n"			// suppress reordering
+								"ulv.q c000, 0(%1)\n"
+								"ulv.q c010, 16(%1)\n"
+								"ulv.q c020, 32(%1)\n"
+								"ulv.q c030, 48(%1)\n"
+								"sv.q c000, 0(%0)\n"
+								"sv.q c010, 16(%0)\n"
+								"sv.q c020, 32(%0)\n"
+								"sv.q c030, 48(%0)\n"
+								"addiu  %2, %2, -64\n"			//size -= 64;
+								"addiu	%1, %1, 64\n"			//dst8 += 64;
+								"addiu	%0, %0, 64\n"			//src8 += 64;
+								".set	pop\n"					// restore assembler option
+								:"+r"(dst8),"+r"(src8),"+r"(size)
+								:
+								:"memory"
+								);
+						}
+
+						while (size>15)
+						{
+							asm(".set	push\n"					// save assembler option
+								".set	noreorder\n"			// suppress reordering
+								"ulv.q c000, 0(%1)\n"
+								"sv.q c000, 0(%0)\n"
+								"addiu  %2, %2, -16\n"			//size -= 16;
+								"addiu	%1, %1, 16\n"			//dst8 += 16;
+								"addiu	%0, %0, 16\n"			//src8 += 16;
+								".set	pop\n"					// restore assembler option
+								:"+r"(dst8),"+r"(src8),"+r"(size)
+								:
+								:"memory"
+								);
+						}
+					}
+
+					// Most copies are completed with the VFPU, so fast out
+					if (size == 0) 
+						return;
+				}
+
+				// Copy the remaning 32bit...
 				src32 = (u32*)src8;
-				while (size>=4)
+				dst32 = (u32*)dst8;
+				while(size>3)
 				{
 					*dst32++ = *src32++;
 					size -= 4;
 				}
-				break;*/
 
-			case 1:
+				src8 = (u8*)src32;
+				dst8 = (u8*)dst32;
+			}
+			else
+			{
+				//At least dst is aligned at this point and we have at least 4 bytes to copy
+				dst32 = (u32*)dst8;
+				u32 srcTmp;
+				u32 dstTmp;
+
+				switch( (u32)src8&0x3 )
 				{
-					if(size>=4)
-					{
-						src32 = (u32*)((u32)src8 & ~0x3);
-						srcTmp = *src32++;
-						while(size>=4)
+					/*case 0:	//src is aligned too
+						src32 = (u32*)src8;
+						while (size>=4)
 						{
-							dstTmp = srcTmp << 8;
-							srcTmp = *src32++;
-							dstTmp |= srcTmp >> 24;
-							*dst32++ = dstTmp;
+							*dst32++ = *src32++;
 							size -= 4;
 						}
-						src8 = (u8*)src32 - 3;
-					}
-				}
-				break;
+						break;*/
 
-			case 2:
-				{
-					if(size>=4)
-					{
-						src32 = (u32*)((u32)src8 & ~0x3);
-						srcTmp = *src32++;
-						while(size>=4)
+					case 1:
 						{
-							dstTmp = srcTmp << 16;
+							src32 = (u32*)((u32)src8 & ~0x3);
 							srcTmp = *src32++;
-							dstTmp |= srcTmp >> 16;
-							*dst32++ = dstTmp;
-							size -= 4;
+							while(size>=4)
+							{
+								dstTmp = srcTmp << 8;
+								srcTmp = *src32++;
+								dstTmp |= srcTmp >> 24;
+								*dst32++ = dstTmp;
+								size -= 4;
+							}
+							src8 = (u8*)src32 - 3;
 						}
-						src8 = (u8*)src32 - 2;
-					}
-				}
-				break;
+						break;
 
-			case 3:
-				{
-					if(size>=4)
-					{
-						src32 = (u32*)((u32)src8 & ~0x3);
-						srcTmp = *src32++;
-						while(size>=4)
+					case 2:
 						{
-							dstTmp = srcTmp << 24;
+							src32 = (u32*)((u32)src8 & ~0x3);
 							srcTmp = *src32++;
-							dstTmp |= srcTmp >> 8;
-							*dst32++ = dstTmp;
-							size -= 4;
+							while(size>=4)
+							{
+								dstTmp = srcTmp << 16;
+								srcTmp = *src32++;
+								dstTmp |= srcTmp >> 16;
+								*dst32++ = dstTmp;
+								size -= 4;
+							}
+							src8 = (u8*)src32 - 2;
 						}
-						src8 = (u8*)src32 - 1;
-					}
+						break;
+
+					case 3:
+						{
+							src32 = (u32*)((u32)src8 & ~0x3);
+							srcTmp = *src32++;
+							while(size>=4)
+							{
+								dstTmp = srcTmp << 24;
+								srcTmp = *src32++;
+								dstTmp |= srcTmp >> 8;
+								*dst32++ = dstTmp;
+								size -= 4;
+							}
+							src8 = (u8*)src32 - 1;
+						}
+						break;
 				}
-				break;
+				dst8 = (u8*)dst32;
+			}
 		}
-		dst8 = (u8*)dst32;
 	}
 
-bytecopy:
 	// Copy the remaning bytes if any...
 	while (size--)
 	{
