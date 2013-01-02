@@ -38,18 +38,22 @@ void memcpy_swizzle( void* dst, const void* src, size_t size )
 			dst32 = (u32*)dst8;
 			u32 srcTmp;
 			u32 dstTmp;
+			u32 size32 = size >> 2;
+			size &= 0x3;
 
 			switch( (uintptr_t)src8&0x3 )
 			{
 				case 0:	//Both src and dst are aligned to 4 bytes at this point
 					{
-						while (size&0xC)
+						while (size32&0x3)
 						{
 							*dst32++ = *src32++;
-							size -= 4;
+							size32--;
 						}
 
-						while (size>=16)
+						u32 size128 = size32 >> 2;
+
+						while (size128--)
 						{
 #ifdef DAEDALUS_PSP
 							asm(".set	push\n"				// save assembler option
@@ -69,13 +73,11 @@ void memcpy_swizzle( void* dst, const void* src, size_t size )
 								);
 							dst32 += 4;
 							src32 += 4;
-							size -= 16;
 #else
 							*dst32++ = *src32++;
 							*dst32++ = *src32++;
 							*dst32++ = *src32++;
 							*dst32++ = *src32++;
-							size -= 16;
 #endif
 						}
 
@@ -87,13 +89,12 @@ void memcpy_swizzle( void* dst, const void* src, size_t size )
 					{
 						src32 = (u32*)((u32)src8 & ~0x3);
 						srcTmp = *src32++;
-						while(size>=4)
+						while(size32--)
 						{
 							dstTmp = srcTmp << 8;
 							srcTmp = *src32++;
 							dstTmp |= srcTmp >> 24;
 							*dst32++ = dstTmp;
-							size -= 4;
 						}
 						src8 = (u8*)src32 - 3;
 					}
@@ -103,13 +104,12 @@ void memcpy_swizzle( void* dst, const void* src, size_t size )
 					{
 						src32 = (u32*)((u32)src8 & ~0x3);
 						srcTmp = *src32++;
-						while(size>=4)
+						while(size32--)
 						{
 							dstTmp = srcTmp << 16;
 							srcTmp = *src32++;
 							dstTmp |= srcTmp >> 16;
 							*dst32++ = dstTmp;
-							size -= 4;
 						}
 						src8 = (u8*)src32 - 2;
 					}
@@ -119,13 +119,12 @@ void memcpy_swizzle( void* dst, const void* src, size_t size )
 					{
 						src32 = (u32*)((u32)src8 & ~0x3);
 						srcTmp = *src32++;
-						while(size>=4)
+						while(size32--)
 						{
 							dstTmp = srcTmp << 24;
 							srcTmp = *src32++;
 							dstTmp |= srcTmp >> 8;
 							*dst32++ = dstTmp;
-							size -= 4;
 						}
 						src8 = (u8*)src32 - 1;
 					}

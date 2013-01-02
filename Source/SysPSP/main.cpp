@@ -619,7 +619,6 @@ int main(int argc, char* argv[])
 			return 0;
 		}
 #endif
-		printf("woot\n");
 		//Translate_Init();
 		bool show_splash = true;
 		for(;;)

@@ -23,9 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //Also enable clean scene in advanced menu //Corn
 //#define DRAW_MODE GU_LINE_STRIP
 
-//If defined fog will be done by sceGU
-//Otherwise it enables some non working legacy VFPU fog //Corn
-
 #include "stdafx.h"
 
 #include "PSPRenderer.h"
@@ -109,10 +106,8 @@ enum CycleType
 };
 
 extern bool gRumblePakActive;
-
 extern u32 SCR_WIDTH;
 extern u32 SCR_HEIGHT;
-
 extern u32 gAuxAddr;
 
 static f32 fViWidth = 320.0f;
@@ -134,7 +129,7 @@ ALIGNED_GLOBAL(u32,gSelectedTexture[gPlaceholderTextureWidth * gPlaceholderTextu
 extern void		PrintMux( FILE * fh, u64 mux );
 
 //***************************************************************************
-//*General blender used for blend testing //Corn
+//*General blender used for Blend Explorer when debuging Dlists //Corn
 //***************************************************************************
 DebugBlendSettings gDBlend;
 
@@ -464,10 +459,8 @@ void PSPRenderer::SetVIScales()
 }
 
 //*****************************************************************************
-//
-//*****************************************************************************
 // Reset for a new frame
-
+//*****************************************************************************
 void	PSPRenderer::Reset()
 {
 	ResetMatrices();
@@ -546,10 +539,11 @@ void PSPRenderer::EndScene()
 		mpTexture[ i ] = NULL;
 	}
 }
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+
 //*****************************************************************************
 //
 //*****************************************************************************
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 void	PSPRenderer::SelectPlaceholderTexture( EPlaceholderTextureType type )
 {
 	switch( type )
@@ -631,12 +625,10 @@ void	PSPRenderer::UpdateViewport()
 }
 
 //*****************************************************************************
-//
-//*****************************************************************************
 // GE 007 and Megaman can act up on this
 // We round these value here, so that when we scale up the coords to our screen
 // coords we don't get any gaps.
-//
+//*****************************************************************************
 #if 0
 inline void PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
 {
@@ -813,10 +805,10 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 	}
 }
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 //*****************************************************************************
 // Used for Blend Explorer, or Nasty texture
 //*****************************************************************************
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux )
 {
 	if( IsCombinerStateDisabled( mux ) )
@@ -914,10 +906,10 @@ void PSPRenderer::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertice
 
 #endif	// DAEDALUS_DEBUG_DISPLAYLIST
 
-extern void InitBlenderMode( u32 blender );
 //*****************************************************************************
 //
 //*****************************************************************************
+extern void InitBlenderMode( u32 blender );
 void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer )
 {
 
@@ -1488,14 +1480,10 @@ const v4 __attribute__((aligned(16))) NDCPlane[6] =
 	v4(  0.f, -1.f,  0.f, -1.f )	// top
 };
 
-//
-//Triangle clip using VFPU(fast)
-//
-
+//*****************************************************************************
+//VFPU tris clip(fast)
+//*****************************************************************************
 #ifdef DAEDALUS_PSP_USE_VFPU
-//*****************************************************************************
-//VFPU tris clip
-//*****************************************************************************
 u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
 {
 	u32 vOut( 3 );
@@ -1780,14 +1768,11 @@ void PSPRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num
 	*p_p_vertices = p_vertices;
 	*p_num_vertices = num_vertices;
 }
-//
-//Transform using VFPU(fast)
-//
 
+//*****************************************************************************
+// Standard rendering pipeline using VFPU(fast)
+//*****************************************************************************
 #ifdef DAEDALUS_PSP_USE_VFPU
-//*****************************************************************************
-// Standard rendering pipeline using VFPU
-//*****************************************************************************
 void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
@@ -1895,12 +1880,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	}
 }*/
 
-//
-//Transform using VFPU(fast) or FPU/CPU(slow)
-//
-
-#else
-
+#else	//Transform using VFPU(fast) or FPU/CPU(slow)
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -2081,10 +2061,10 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 
 #endif	//Transform VFPU/FPU
 
-#ifdef DAEDALUS_PSP_USE_VFPU
 //*****************************************************************************
 // Conker Bad Fur Day rendering pipeline
 //*****************************************************************************
+#ifdef DAEDALUS_PSP_USE_VFPU
 void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
@@ -3234,6 +3214,7 @@ void PSPRenderer::MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 #endif
 	}
 }
+
 //*****************************************************************************
 //Modify the WorldProject matrix, used by Kirby & SSB //Corn
 //*****************************************************************************
