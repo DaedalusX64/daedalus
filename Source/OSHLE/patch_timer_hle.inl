@@ -108,17 +108,17 @@ TEST_DISABLE_TIMER_FUNCS
 u32 Patch___osTimerServicesInit_Mario()
 {
 TEST_DISABLE_TIMER_FUNCS
-	u32 hi    = VAR_ADDRESS(osSystemTimeHi);
-	DAEDALUS_ASSERT( hi, "TimeHi NULL, check me!");
 
-	// Get base address from TimeHi, and add offset of 4 bytes representing two uint64s
-	u8 * pTimeBase	 = (u8 *)ReadAddress(hi);
+	// TimeHi/Lo share the same base addr by an offset of 4 bytes, perphaps they are the same u64 type?
+	// This avoids using VAR_ADDRESS(osSystemTimeLo) which is NULL for Killer Instinct..
+	u8 * pTimeBase	 = (u8 *)ReadAddress(VAR_ADDRESS(osSystemTimeHi));
 
 	DBGConsole_Msg(0, "Initialising Timer Services");
 	QuickWrite32Bits(pTimeBase, 0x0, 0);	// TimeHi
 	QuickWrite32Bits(pTimeBase, 0x4, 0);	// TimeLo
-	QuickWrite32Bits(pTimeBase, 0x8, 0);	// SystemCount
-	QuickWrite32Bits(pTimeBase, 0xc, 0);	// FrameCount
+
+	Write32Bits(VAR_ADDRESS(osSystemCount), 0);
+	Write32Bits(VAR_ADDRESS(osFrameCount), 0);
 
 	u32 timer = Read32Bits(VAR_ADDRESS(osTopTimer));
 
@@ -172,7 +172,7 @@ u32 Patch_osGetTime()
 TEST_DISABLE_TIMER_FUNCS
 	u8 * pTimeBase = (u8 *)ReadAddress(VAR_ADDRESS(osSystemTimeHi));
 
-	u32 LastCount  = QuickRead32Bits(pTimeBase, 0x8);	// SystemCount
+	u32 LastCount  = Read32Bits(VAR_ADDRESS(osSystemCount));
 	u32 TimeLo	   = QuickRead32Bits(pTimeBase, 0x4);
 	u32 TimeHi	   = QuickRead32Bits(pTimeBase, 0x0);
 

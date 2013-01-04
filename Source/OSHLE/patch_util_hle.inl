@@ -60,13 +60,22 @@ TEST_DISABLE_UTIL_FUNCS
 u32 Patch_strlen()
 {
 TEST_DISABLE_UTIL_FUNCS
-	u32 i;
+	u32 i = 0;
 	u32 string = gGPR[REG_a0]._u32_0;
+	u8 *start = (u8*)ReadAddress(string);
+	u8 *psrc = start;
 
-	for (i = 0; Read8Bits(string+i) != 0; i++)
-	{}
+	for (;;)
+	{
+		if(*((u8*)((u32)psrc^3)) == 0)
+		{
+			i = psrc - start;
+			break;
+		}
+		psrc++;
+	}
 
-	gGPR[REG_v0]._s64 = (s64)(s32)i;
+	gGPR[REG_v0]._u32_0 = i;
 
 	return PATCH_RET_JR_RA;
 
@@ -82,7 +91,6 @@ TEST_DISABLE_UTIL_FUNCS
 	u8 MatchChar = (u8)(gGPR[REG_a1]._u32_0 & 0xFF);
 	u32 MatchAddr = 0;
 
-#if 1
 	u8 *start = (u8*)ReadAddress(string);
 	u8 *psrc = start;
 
@@ -98,24 +106,7 @@ TEST_DISABLE_UTIL_FUNCS
 
 		if( SrcChar == 0 ) break;	//Return NULL address
 	}
-#else
-	for (u32 i = 0; ; i++)
-	{
-		u8 SrcChar = Read8Bits(string + i);
 
-		if (SrcChar == MatchChar)
-		{
-			MatchAddr = string + i;
-			break;
-		}
-
-		if (SrcChar == 0)
-		{
-			MatchAddr = 0;
-			break;
-		}
-	}
-#endif
 	gGPR[REG_v0]._u32_0 = MatchAddr;
 
 	return PATCH_RET_JR_RA;
@@ -124,6 +115,7 @@ TEST_DISABLE_UTIL_FUNCS
 //*****************************************************************************
 //
 //*****************************************************************************
+// Have yet to see a game that uses this
 u32 Patch_strcmp()
 {
 	u32 i;
@@ -172,11 +164,13 @@ TEST_DISABLE_UTIL_FUNCS
 
 
 	//DBGConsole_Msg(0, "bcopy(0x%08x,0x%08x,%d)", src, dst, len);
+	u8 *pdst = (u8*)ReadAddress(dst);
+	u8 *psrc = (u8*)ReadAddress(src);
 
 	if (dst > src && dst < src + len)
 	{
-		u8 *pdst = (u8*)ReadAddress(dst + len);
-		u8 *psrc = (u8*)ReadAddress(src + len);
+		pdst += len;
+		psrc += len;
 		while(len--)
 		{
 			*(u8*)((u32)pdst-- ^ 3) = *(u8*)((u32)psrc-- ^ 3);
@@ -185,10 +179,8 @@ TEST_DISABLE_UTIL_FUNCS
 	else
 	{
 #if 1	// 1->Fast way, 0->Old way
-		fast_memcpy_swizzle( (void *)ReadAddress(dst), (void *)ReadAddress(src), len);
+		fast_memcpy_swizzle( (void *)dst, (const void *)src, len);
 #else
-		u8 *pdst = (u8*)ReadAddress(dst);
-		u8 *psrc = (u8*)ReadAddress(src);
 		while(len--)
 		{
 			*(u8*)((u32)pdst++ ^ 3) = *(u8*)((u32)psrc++ ^ 3);
@@ -203,6 +195,48 @@ TEST_DISABLE_UTIL_FUNCS
 }
 
 //*****************************************************************************
+// This is based from memcpy_swizzle @ Utility/FastMemcpy.cpp
+//*****************************************************************************
+inline void memset_swizzle( void* dst, size_t len )
+{
+	u8* dst8 = (u8*)dst;
+
+	// Align dst on 4 bytes or just resume if already done
+	while(((u32)dst8 & 0x3) && len)
+	{
+		*(u8*)((u32)dst8++ ^ 3) = 0;
+		len--;
+	}
+
+	u32 *dst32=(u32*)dst8;
+	u32 len32 = len >> 2;
+	len &= 0x3;
+
+	while (len32&0x3)
+	{
+		*dst32++ = 0;
+		len32--;
+	}
+
+	u32 len128 = len32 >> 2;
+	while (len128--)
+	{
+		*dst32++ = 0;
+		*dst32++ = 0;
+		*dst32++ = 0;
+		*dst32++ = 0;
+	}
+
+	dst8=(u8*)dst32;
+
+	//Write(0) to the unaligned remains(if any), byte by byte...
+	while(len--)
+	{
+		*(u8*)((u32)dst8++ ^ 3) = 0;
+	}
+}
+
+//*****************************************************************************
 //
 //*****************************************************************************
 // By Jun Su
@@ -211,38 +245,10 @@ u32 Patch_bzero()
 	u32 dst = gGPR[REG_a0]._u32_0;
 	u32 len = gGPR[REG_a1]._u32_0;
 
-
-
-	// We need to profile below code, bzero is one of the most used oshle funcs -Salvy
-	//
-
-#if 0 //1->Normal, 0->Optimized //Corn
-	// Assume we will only access RAM range
-	//Todo optimize unaligned/odd destinations and lengths //Corn
-	//Faster but breaks Chameleon Twist 2
-	memset( (void *)ReadAddress(dst), 0, len);
+#if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
+	memset( (void *)ReadAddress(dst), len);
 #else
-	u8 *pdst = (u8*)ReadAddress(dst);
-
-	//Write(0) to the unaligned start(if any), byte by byte...
-	while(((u32)pdst & 0x3) && len)
-	{
-		*(u8*)((u32)pdst++ ^ 3) = 0;
-		len--;
-	}
-
-	//Write(0) to the 32bit aligned part
-	memset( (void *)pdst, 0, len & ~0x3);
-
-	pdst = (u8*)((u32)pdst + (len & ~0x3));
-	len &= 0x3;
-
-	//Write(0) to the unaligned remains(if any), byte by byte...
-	while(len--)
-	{
-		*(u8*)((u32)pdst++ ^ 3) = 0;
-	}
-
+	memset_swizzle( (void *)ReadAddress(dst), len);
 #endif
 
 	// return value of dest
