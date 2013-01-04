@@ -246,7 +246,7 @@ u32 Patch_bzero()
 	u32 len = gGPR[REG_a1]._u32_0;
 
 #if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
-	memset( (void *)ReadAddress(dst), len);
+	memset( (void *)ReadAddress(dst), 0, len);
 #else
 	memset_swizzle( (void *)ReadAddress(dst), len);
 #endif

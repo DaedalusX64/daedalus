@@ -105,7 +105,7 @@ u32 gNumOfOSFunctions;
 #define PATCH_RET_ERET RET_JR_ERET()
 
 // Increase this number every time we changed the symbol table
-static const u32 MAGIC_HEADER = 0x80000142;
+static const u32 MAGIC_HEADER = 0x80000143;
 
 bool gPatchesApplied = false;
 
@@ -1113,6 +1113,9 @@ static u32 ConvertToPhysics(u32 addr)
 		return OS_HLE___osProbeTLB(addr);
 	}
 }
+
+extern void MemoryUpdateMI( u32 value );
+extern void MemoryUpdateSPStatus( u32 flags );
 
 #include "patch_thread_hle.inl"
 #include "patch_cache_hle.inl"

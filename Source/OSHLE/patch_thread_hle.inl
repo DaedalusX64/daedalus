@@ -164,7 +164,7 @@ TEST_DISABLE_THREAD_FUNCS
 	Write32Bits(VAR_ADDRESS(osActiveThread), thread);
 
 	// Set the current thread's status to OS_STATE_RUNNING:
-	Write16Bits(thread + offsetof(OSThread, state), OS_STATE_RUNNING);
+	QuickWrite16Bits(pThreadBase, offsetof(OSThread, state), OS_STATE_RUNNING);
 
 #if 1	//1->better cache efficiency //Corn
 	// CPU regs
@@ -249,7 +249,7 @@ TEST_DISABLE_THREAD_FUNCS
 	u32 rcp = QuickRead32Bits(pThreadBase, 0x0128);
 
 	u16 TempVal = Read16Bits(VAR_ADDRESS(osDispatchThreadRCPThingamy) + (rcp*2));
-	Write32Bits(PHYS_TO_K1(MI_INTR_MASK_REG), (u32)TempVal);		// MI_INTR_MASK_REG
+	MemoryUpdateMI( (u32)TempVal ); // MI_INTR_MASK_REG
 
 	// Done - when we exit we should ERET
 	return PATCH_RET_ERET;
@@ -283,7 +283,7 @@ TEST_DISABLE_THREAD_FUNCS
 	Write32Bits(VAR_ADDRESS(osActiveThread), thread);
 
 	// Set the current thread's status to OS_STATE_RUNNING:
-	Write16Bits(thread + offsetof(OSThread, state), OS_STATE_RUNNING);
+	QuickWrite16Bits(pThreadBase, offsetof(OSThread, state), OS_STATE_RUNNING);
 /*
 0x80051ad0: <0x0040d021> ADDU      k0 = v0 + r0
 0x80051ad4: <0x8f5b0118> LW        k1 <- 0x0118(k0)*/
@@ -414,7 +414,7 @@ TEST_DISABLE_THREAD_FUNCS
 0x80051c28: <0x00000000> NOP
 0x80051c2c: <0x42000018> ERET*/
 
-	Write32Bits(PHYS_TO_K1(MI_INTR_MASK_REG), (u32)TempVal);		// MI_INTR_MASK_REG
+	MemoryUpdateMI( (u32)TempVal ); // MI_INTR_MASK_REG
 
 	// Done - when we exit we should ERET
 	return PATCH_RET_ERET;

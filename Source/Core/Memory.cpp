@@ -51,7 +51,7 @@ static void DisplayVIControlInfo( u32 control_reg );
 void MemoryUpdateSPStatus( u32 flags );
 static void MemoryUpdateDP( u32 value );
 static void MemoryModeRegMI( u32 value );
-static void MemoryUpdateMI( u32 value );
+void MemoryUpdateMI( u32 value );
 static void MemoryUpdatePI( u32 value );
 static void MemoryUpdatePIF();
 
