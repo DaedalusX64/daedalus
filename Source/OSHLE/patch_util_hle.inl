@@ -6,19 +6,18 @@ u32 Patch___osAtomicDec()
 TEST_DISABLE_UTIL_FUNCS
 	DBGConsole_Msg(0, "osAtomicDec");
 
-	u32 p = gGPR[REG_a0]._u32_0;
-	u32 value = Read32Bits(p);
+	u8 *p = (u8*)ReadAddress(gGPR[REG_a0]._u32_0);
+	u32 value = QuickRead32Bits(p, 0x0);
+	u32 result= 0;
 
-	if (value != 0)
+	if (value)
 	{
-		Write32Bits(p, value - 1);
-		gGPR[REG_v0]._u32_0 = 1;
-	}
-	else
-	{
-		gGPR[REG_v0]._u32_0 = 0;
+		value-=1;
+		result=1;
+		QuickWrite32Bits(p, 0x0, value);
 	}
 
+	gGPR[REG_v0]._u32_0 = result;
 	return PATCH_RET_JR_RA;
 }
 
@@ -47,7 +46,7 @@ TEST_DISABLE_UTIL_FUNCS
 	u8 *psrc = (u8*)ReadAddress(src);
 	while(len--)
 	{
-		*(u8*)((u32)pdst++ ^ 3) = *(u8*)((u32)psrc++ ^ 3);
+		*(u8*)((u32)pdst++ ^ U8_TWIDDLE) = *(u8*)((u32)psrc++ ^ U8_TWIDDLE);
 	}
 #endif
 
@@ -57,25 +56,17 @@ TEST_DISABLE_UTIL_FUNCS
 //*****************************************************************************
 //
 //*****************************************************************************
+// Used by Killer Instinct
 u32 Patch_strlen()
 {
 TEST_DISABLE_UTIL_FUNCS
-	u32 i = 0;
 	u32 string = gGPR[REG_a0]._u32_0;
-	u8 *start = (u8*)ReadAddress(string);
-	u8 *psrc = start;
+	const u8 *psrc = (const u8*)ReadAddress(string);
+	const u8 *start = psrc;
 
-	for (;;)
-	{
-		if(*((u8*)((u32)psrc^3)) == 0)
-		{
-			i = psrc - start;
-			break;
-		}
-		psrc++;
-	}
+	while (*((u8*)((u32)psrc++^U8_TWIDDLE)) );
 
-	gGPR[REG_v0]._u32_0 = i;
+	gGPR[REG_v0]._u32_0 = psrc - start - 1;
 
 	return PATCH_RET_JR_RA;
 
@@ -96,7 +87,7 @@ TEST_DISABLE_UTIL_FUNCS
 
 	for (;; psrc++)
 	{
-		const u8 SrcChar = *((u8*)((u32)psrc^3));
+		const u8 SrcChar = *((u8*)((u32)psrc^U8_TWIDDLE));
 
 		if( SrcChar == MatchChar )
 		{
@@ -173,17 +164,17 @@ TEST_DISABLE_UTIL_FUNCS
 		psrc += len;
 		while(len--)
 		{
-			*(u8*)((u32)pdst-- ^ 3) = *(u8*)((u32)psrc-- ^ 3);
+			*(u8*)((u32)pdst-- ^ U8_TWIDDLE) = *(u8*)((u32)psrc-- ^ U8_TWIDDLE);
 		}
 	}
 	else
 	{
 #if 1	// 1->Fast way, 0->Old way
-		fast_memcpy_swizzle( (void *)dst, (const void *)src, len);
+		fast_memcpy_swizzle( (void *)pdst, (const void *)psrc, len);
 #else
 		while(len--)
 		{
-			*(u8*)((u32)pdst++ ^ 3) = *(u8*)((u32)psrc++ ^ 3);
+			*(u8*)((u32)pdst++ ^ U8_TWIDDLE) = *(u8*)((u32)psrc++ ^ U8_TWIDDLE);
 		}
 #endif
 	}
@@ -195,21 +186,29 @@ TEST_DISABLE_UTIL_FUNCS
 }
 
 //*****************************************************************************
-// This is based from memcpy_swizzle @ Utility/FastMemcpy.cpp
+//
 //*****************************************************************************
-inline void memset_swizzle( void* dst, size_t len )
+// By Jun Su
+u32 Patch_bzero()
 {
-	u8* dst8 = (u8*)dst;
+	u32 dst = gGPR[REG_a0]._u32_0;
+	u32 len = gGPR[REG_a1]._u32_0;
 
+	u8* dst8 = (u8*)ReadAddress(dst);
+
+#if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
+	memset( (void *)dst8, 0, len);
+#else
 	// Align dst on 4 bytes or just resume if already done
 	while(((u32)dst8 & 0x3) && len)
 	{
-		*(u8*)((u32)dst8++ ^ 3) = 0;
+		*(u8*)((u32)dst8++ ^ U8_TWIDDLE) = 0;
 		len--;
 	}
 
 	u32 *dst32=(u32*)dst8;
 	u32 len32 = len >> 2;
+	u32 len128= 0;
 	len &= 0x3;
 
 	while (len32&0x3)
@@ -218,7 +217,7 @@ inline void memset_swizzle( void* dst, size_t len )
 		len32--;
 	}
 
-	u32 len128 = len32 >> 2;
+	len128 = len32 >> 2;
 	while (len128--)
 	{
 		*dst32++ = 0;
@@ -232,23 +231,8 @@ inline void memset_swizzle( void* dst, size_t len )
 	//Write(0) to the unaligned remains(if any), byte by byte...
 	while(len--)
 	{
-		*(u8*)((u32)dst8++ ^ 3) = 0;
+		*(u8*)((u32)dst8++ ^ U8_TWIDDLE) = 0;
 	}
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-// By Jun Su
-u32 Patch_bzero()
-{
-	u32 dst = gGPR[REG_a0]._u32_0;
-	u32 len = gGPR[REG_a1]._u32_0;
-
-#if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
-	memset( (void *)ReadAddress(dst), 0, len);
-#else
-	memset_swizzle( (void *)ReadAddress(dst), len);
 #endif
 
 	// return value of dest
