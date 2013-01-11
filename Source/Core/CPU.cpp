@@ -387,7 +387,6 @@ void CPU_Reset( )
 
 	((u32 *)g_pMemoryBuffers[MEM_RI_REG])[3] = 1;					// RI_CONFIG_REG Skips most of init
 
-	// Meh bad name, only used for Buck Bumble hack..
 	R4300_Init();
 
 	gCPUState.Delay = NO_DELAY;

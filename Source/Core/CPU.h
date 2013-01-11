@@ -82,8 +82,9 @@ struct CPUEvent
 };
 DAEDALUS_STATIC_ASSERT( sizeof( CPUEvent ) == 8 );
 
-typedef REG64 register_set64[32];
-typedef REG32 register_set32[32];
+typedef REG64 register_32x64[32];
+typedef REG64 register_16x64[16];
+typedef REG32 register_32x32[32];
 
 //
 //	We declare various bits of the CPU state in a struct.
@@ -103,10 +104,14 @@ struct SCPUState
 ALIGNED_TYPE(struct, SCPUState, CACHE_ALIGN)
 #endif
 {
-	register_set64	CPU;				// 0x000 .. 0x100
-	register_set32	CPUControl;			// 0x100 .. 0x180
-	register_set32	FPU;				// 0x180 .. 0x200
-	register_set32	FPUControl;			// 0x200 .. 0x280
+	register_32x64	CPU;				// 0x000 .. 0x100
+	register_32x32	CPUControl;			// 0x100 .. 0x180
+	union
+	{
+		register_32x32	FPU;			// 0x180 .. 0x200	Access FPU as 32 x floats
+		register_16x64	FPUD;			// 0x180 .. 0x200	Access FPU as 16 x doubles
+	};
+	register_32x32	FPUControl;			// 0x200 .. 0x280
 	u32				CurrentPC;			// 0x280 ..			The current program counter
 	u32				TargetPC;			// 0x284 ..			The PC to branch to
 	u32				Delay;				// 0x288 ..			Delay state (NO_DELAY, EXEC_DELAY, DO_DELAY)

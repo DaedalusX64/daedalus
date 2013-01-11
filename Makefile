@@ -191,7 +191,7 @@ ifdef DEBUG
 
 	SRCS			= $(CORE_SRCS) $(ADDITIONAL_SYNC_SRCS)
 else
-	CFLAGS			= -O2 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant -fpredictive-commoning -mno-check-zero-division
+	CFLAGS			= -O2 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition
 					#-pipe
 					#-Wextra
 					#-fno-builtin

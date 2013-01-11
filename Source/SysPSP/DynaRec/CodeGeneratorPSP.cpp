@@ -1566,7 +1566,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 
 					case Cop1OpFunc_CMP_F:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_F, op_code.ft ); handled = true; break;
 					case Cop1OpFunc_CMP_UN:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_UN, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_CMP_EQ:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_EQ, op_code.ft ); handled = true; break;
+					case Cop1OpFunc_CMP_EQ:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_EQ, op_code.ft ); handled = true; break;	//Conker has issues with this
 					case Cop1OpFunc_CMP_UEQ:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_UEQ, op_code.ft ); handled = true; break;
 					case Cop1OpFunc_CMP_OLT:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_OLT, op_code.ft ); handled = true; break;
 					case Cop1OpFunc_CMP_ULT:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_ULT, op_code.ft ); handled = true; break;
@@ -1606,7 +1606,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			case Cop1OpFunc_TRUNC_W:	GenerateTRUNC_W_S( op_code.fd, op_code.fs ); handled = true; break;
 
 			case Cop1OpFunc_CVT_W:		GenerateCVT_W_S( op_code.fd, op_code.fs ); handled = true; break;
-			case Cop1OpFunc_CVT_D:		if( gDynarecDoublesOptimisation | !g_ROM.DISABLE_SIMDOUBLES ) GenerateCVT_D_S_Sim( op_code.fd, op_code.fs );
+			case Cop1OpFunc_CVT_D:		if( gDynarecDoublesOptimisation ) GenerateCVT_D_S_Sim( op_code.fd, op_code.fs );
 										else GenerateCVT_D_S( op_code.fd, op_code.fs );
 										handled = true;
 										break;
@@ -1634,7 +1634,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			switch( op_code.cop1_funct )
 			{
 			case Cop1OpFunc_CVT_S:	GenerateCVT_S_W( op_code.fd, op_code.fs ); handled = true; break;
-			case Cop1OpFunc_CVT_D:	if( gDynarecDoublesOptimisation | !g_ROM.DISABLE_SIMDOUBLES )
+			case Cop1OpFunc_CVT_D:	if( gDynarecDoublesOptimisation )
 									{
 										GenerateCVT_D_W_Sim( op_code.fd, op_code.fs );
 										handled = true;
@@ -4277,13 +4277,31 @@ inline void	CCodeGeneratorPSP::GenerateMOV_D_Sim( u32 fd, u32 fs )
 	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );//1:1 Mapping
 	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );//1:1 Mapping
 	EPspFloatReg	psp_fs_sig = EPspFloatReg( n64_fs );//1:1 Mapping
-	EPspFloatReg	psp_fs( GetSimFloatRegisterAndLoad( n64_fs ) );
+	
+	if( mRegisterCache.IsFPSim( n64_fs ) )
+	{
+		//Copy Sim double
+		EPspFloatReg	psp_fs( GetSimFloatRegisterAndLoad( n64_fs ) );
 
-	//Move double :)
-	MOV_S( psp_fd, psp_fs );
-	MOV_S( psp_fd_sig, psp_fs_sig);	//Copy signature as well
+		//Move Sim double :)
+		MOV_S( psp_fd, psp_fs );
+		MOV_S( psp_fd_sig, psp_fs_sig);	//Copy signature as well
 
-	UpdateSimDoubleRegister( n64_fd );
+		UpdateSimDoubleRegister( n64_fd );
+	}
+	else
+	{
+		//Copy true double!
+		GetFloatRegisterAndLoad( n64_fs );
+		EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( EN64FloatReg(n64_fs + 1) ) );
+
+		//Move double :)
+		MOV_S( psp_fd_sig, psp_fs_sig);	//Lo part
+		MOV_S( psp_fd, psp_fs );	//Hi part
+
+		UpdateFloatRegister( n64_fd );
+		UpdateFloatRegister( EN64FloatReg(n64_fd + 1) );
+	}
 }
 
 //*****************************************************************************

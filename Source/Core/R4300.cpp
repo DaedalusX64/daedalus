@@ -181,8 +181,7 @@ inline u64 LoadFPR_Long( u32 reg )
 	REG64 res;
 	if (gCPUState.FPU[reg+0]._u32 == SIMULATESIG)
 	{
-		//Convert f32->f64
-		res._f64 = (f64)gCPUState.FPU[reg+1]._f32;
+		res._f64 = (f64)gCPUState.FPU[reg+1]._f32;	//Convert f32 -> f64
 	}
 	else
 	{
@@ -208,26 +207,23 @@ inline d64 LoadFPR_Double( u32 reg )
 	}
 }
 
+#if 1	//1->store using sim-double, 0->use proper way
 inline void StoreFPR_Double( u32 reg, d64 value )
 {
 	gCPUState.FPU[reg+0]._u32 = SIMULATESIG;
 	gCPUState.FPU[reg+1]._f32 = f32( value );	//No Coversion
 }
-
-// ToDO : Simplify this or find a workaround for this hack..
-// Actually this the proper way but we get a good speed up simulating doubles with the above function :p
-inline void StoreFPR_Double_2( u32 reg, f64 value )
+#else
+// This the proper way but we get a good speed up simulating doubles
+inline void StoreFPR_Double( u32 reg, f64 value )
 {
-	// This fixes Mario Party's draft mini game.
-	// Green / static textures bug in Conker.
-	// EWJ, PowerPuff Girls, and Tom and Jerry
-
 	REG64 r;
 	r._f64 = value;
 	gCPUState.FPU[reg+0]._u32 = r._u32_0;
 	gCPUState.FPU[reg+1]._u32 = r._u32_1;
 
 }
+#endif
 
 //*****************************************************************************
 //
@@ -2826,19 +2822,6 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D( R4300_CALL_SIGNATURE )
 	StoreFPR_Double( op_code.fd, f32_to_d64( fX ) );
 }
 
-// Used by Mario Party Draft mini game, Earth Worm Jim, Tom and Jerry, Power Puff Girls' disable esimulate double hack
-static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D_2( R4300_CALL_SIGNATURE )
-{
-	R4300_CALL_MAKE_OP( op_code );
-
-	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
-
-	f32 fX = LoadFPR_Single( op_code.fs );
-
-	StoreFPR_Double_2( op_code.fd, f32_to_d64( fX ) );
-}
-
-
 static void R4300_CALL_TYPE R4300_Cop1_S_EQ( R4300_CALL_SIGNATURE ) 				// Compare for Equality
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3100,7 +3083,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_ADD_2( R4300_CALL_SIGNATURE )
 
 	REG64	r;
 
-	// double.. float won't work for buck bumble
+	// Use double, float won't work for buck bumble
 	r._f64 = f64( (f64)fX + (f64)fY );
 
 	gCPUState.FPU[op_code.fd+0]._u32 = r._u32_0;
@@ -3192,31 +3175,19 @@ static void R4300_CALL_TYPE R4300_Cop1_D_MOV( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
+#if 1
+	//Fast way, just copy registers //Corn
+	gCPUState.FPU[op_code.fd+0]._u32 = gCPUState.FPU[op_code.fs+0]._u32;
+	gCPUState.FPU[op_code.fd+1]._u32 = gCPUState.FPU[op_code.fs+1]._u32;
+#else
 	// fd = fs
 	d64 fX = LoadFPR_Double( op_code.fs );
 
 	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Double( op_code.fd, fX );
-
-	// TODO - Just copy bits - don't interpret!
+#endif
 }
-
-// Used by Conker's disable esimulate double hack
-static void R4300_CALL_TYPE R4300_Cop1_D_MOV_2( R4300_CALL_SIGNATURE )
-{
-	R4300_CALL_MAKE_OP( op_code );
-
-	// fd = fs
-	d64 fX = LoadFPR_Double( op_code.fs );
-
-	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
-
-	StoreFPR_Double_2( op_code.fd, fX );
-
-	// TODO - Just copy bits - don't interpret!
-}
-
 
 static void R4300_CALL_TYPE R4300_Cop1_D_TRUNC_W( R4300_CALL_SIGNATURE )
 {
@@ -3583,17 +3554,9 @@ CPU_Instruction	R4300_GetInstructionHandler( OpCode op_code )
 	}
 }
 
+//Used to swap functions(apply hacks) in interpreter mode 
 void R4300_Init()
 {
-	if(g_ROM.GameHacks == CONKER)
-	{
-		R4300Cop1DInstruction[Cop1OpFunc_MOV]	= R4300_Cop1_D_MOV_2;
-	}
-	else
-	{
-		R4300Cop1DInstruction[Cop1OpFunc_MOV]	= R4300_Cop1_D_MOV;
-	}
-
 	if(g_ROM.GameHacks == BUCK_BUMBLE)
 	{
 		R4300Cop1DInstruction[Cop1OpFunc_ADD]	= R4300_Cop1_D_ADD_2;
@@ -3602,15 +3565,4 @@ void R4300_Init()
 	{
 		R4300Cop1DInstruction[Cop1OpFunc_ADD]	= R4300_Cop1_D_ADD;
 	}
-
-	// Mario Party Draft mini game, Earth Worm Jim, Tom and Jerry, Power Puff Girls
-	if(g_ROM.DISABLE_SIMDOUBLES == true)
-	{
-		R4300Cop1SInstruction[Cop1OpFunc_CVT_D] = R4300_Cop1_S_CVT_D_2;
-	}
-	else
-	{
-		R4300Cop1SInstruction[Cop1OpFunc_CVT_D] = R4300_Cop1_S_CVT_D;
-	}
-
 }
