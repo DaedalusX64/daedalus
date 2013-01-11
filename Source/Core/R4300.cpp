@@ -493,6 +493,10 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 {
 	switch( op_code.op )
 	{
+	case OP_LWL:
+	case OP_SWL:
+	case OP_LWR:
+	case OP_SWR:
 	case OP_LDL:
 	case OP_LDR:
 	case OP_SDC1:
