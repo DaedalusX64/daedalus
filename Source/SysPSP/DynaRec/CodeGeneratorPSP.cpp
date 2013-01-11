@@ -903,7 +903,10 @@ void	CCodeGeneratorPSP::FlushAllRegisters( CN64RegisterCachePSP & cache, bool in
 }
 
 //*****************************************************************************
-//
+// Floating-point arguments are placed in $f12-$f15.
+// Floating-point return values go into $f0-$f1.
+// $f0-$f19 are caller-saved.
+// $f20-$f31 are callee-saved.
 //*****************************************************************************
 void	CCodeGeneratorPSP::FlushAllFloatingPointRegisters( CN64RegisterCachePSP & cache, bool invalidate )
 {
@@ -1606,7 +1609,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			case Cop1OpFunc_TRUNC_W:	GenerateTRUNC_W_S( op_code.fd, op_code.fs ); handled = true; break;
 
 			case Cop1OpFunc_CVT_W:		GenerateCVT_W_S( op_code.fd, op_code.fs ); handled = true; break;
-			case Cop1OpFunc_CVT_D:		if( gDynarecDoublesOptimisation ) GenerateCVT_D_S_Sim( op_code.fd, op_code.fs );
+			case Cop1OpFunc_CVT_D:		if( gDynarecDoublesOptimisation & !g_ROM.DISABLE_SIM_CVT_D_S ) GenerateCVT_D_S_Sim( op_code.fd, op_code.fs );	//Sim has issues with EWJ/Tom&Jerry/PowerPuffGirls
 										else GenerateCVT_D_S( op_code.fd, op_code.fs );
 										handled = true;
 										break;

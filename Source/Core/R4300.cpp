@@ -221,7 +221,6 @@ inline void StoreFPR_Double( u32 reg, f64 value )
 	r._f64 = value;
 	gCPUState.FPU[reg+0]._u32 = r._u32_0;
 	gCPUState.FPU[reg+1]._u32 = r._u32_1;
-
 }
 #endif
 
@@ -2788,7 +2787,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_FLOOR_L( R4300_CALL_SIGNATURE )
 }
 
 
-// Convert single to long - this is used by WarGods
+// Convert float to long - this is used by WarGods
 static void R4300_CALL_TYPE R4300_Cop1_S_CVT_L( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2798,7 +2797,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CVT_L( R4300_CALL_SIGNATURE )
 	StoreFPR_Long( op_code.fd, f32_to_s64( fX, gRoundingMode ) );
 }
 
-// Convert single to word...
+// Convert float to word...
 static void R4300_CALL_TYPE R4300_Cop1_S_CVT_W( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2810,7 +2809,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CVT_W( R4300_CALL_SIGNATURE )
 	StoreFPR_Word( op_code.fd, sX );
 }
 
-// Convert single to f64...
+// Convert float to Sim-double...
 static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2820,6 +2819,24 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D( R4300_CALL_SIGNATURE )
 	f32 fX = LoadFPR_Single( op_code.fs );
 
 	StoreFPR_Double( op_code.fd, f32_to_d64( fX ) );
+}
+
+// Used by Mario Party Draft mini game, Earth Worm Jim, Tom and Jerry, Power Puff Girls' disable esimulate double hack
+// Convert float to double...
+static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D_2( R4300_CALL_SIGNATURE )
+{
+    R4300_CALL_MAKE_OP( op_code );
+
+    //SET_ROUND_MODE( gRoundingMode );        //XXXX Is this needed?
+
+    f32 fX = LoadFPR_Single( op_code.fs );
+
+	REG64 r;
+	
+	r._f64 = (f64)fX;
+
+	gCPUState.FPU[op_code.fd+0]._u32 = r._u32_0;
+	gCPUState.FPU[op_code.fd+1]._u32 = r._u32_1;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_EQ( R4300_CALL_SIGNATURE ) 				// Compare for Equality
@@ -3565,4 +3582,14 @@ void R4300_Init()
 	{
 		R4300Cop1DInstruction[Cop1OpFunc_ADD]	= R4300_Cop1_D_ADD;
 	}
+
+	// Mario Party Draft mini game, Earth Worm Jim, Tom and Jerry, Power Puff Girls
+    if( g_ROM.DISABLE_SIM_CVT_D_S )
+    {
+        R4300Cop1SInstruction[Cop1OpFunc_CVT_D] = R4300_Cop1_S_CVT_D_2;
+    }
+    else
+    {
+        R4300Cop1SInstruction[Cop1OpFunc_CVT_D] = R4300_Cop1_S_CVT_D;
+    }
 }
