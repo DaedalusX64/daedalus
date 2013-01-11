@@ -1607,6 +1607,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			case Cop1OpFunc_NEG:	GenerateNEG_S( op_code.fd, op_code.fs ); handled = true; break;
 
 			case Cop1OpFunc_TRUNC_W:	GenerateTRUNC_W_S( op_code.fd, op_code.fs ); handled = true; break;
+			case Cop1OpFunc_FLOOR_W:	GenerateFLOOR_W_S( op_code.fd, op_code.fs ); handled = true; break;
 
 			case Cop1OpFunc_CVT_W:		GenerateCVT_W_S( op_code.fd, op_code.fs ); handled = true; break;
 			case Cop1OpFunc_CVT_D:		if( gDynarecDoublesOptimisation & !g_ROM.DISABLE_SIM_CVT_D_S ) GenerateCVT_D_S_Sim( op_code.fd, op_code.fs );	//Sim has issues with EWJ/Tom&Jerry/PowerPuffGirls
@@ -4588,6 +4589,23 @@ inline void	CCodeGeneratorPSP::GenerateTRUNC_W_S( u32 fd, u32 fs )
 	UpdateFloatRegister( n64_fd );
 }
 
+//*****************************************************************************
+//Convert Float to s32
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateFLOOR_W_S( u32 fd, u32 fs )
+{
+	EN64FloatReg	n64_fs = EN64FloatReg( fs );
+	EN64FloatReg	n64_fd = EN64FloatReg( fd );
+
+	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd );
+	EPspFloatReg	psp_fs( GetFloatRegisterAndLoad( n64_fs ) );
+
+	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
+
+	FLOOR_W_S( psp_fd, psp_fs );
+
+	UpdateFloatRegister( n64_fd );
+}
 //*****************************************************************************
 //Convert Float to s32
 //*****************************************************************************

@@ -158,6 +158,7 @@ class CAssemblyWriterPSP
 		void				NEG_S( EPspFloatReg fd, EPspFloatReg fs );
 
 		void				TRUNC_W_S( EPspFloatReg fd, EPspFloatReg fs );
+		void				FLOOR_W_S( EPspFloatReg fd, EPspFloatReg fs );
 		void				CVT_W_S( EPspFloatReg fd, EPspFloatReg fs );
 
 		void				CMP_S( EPspFloatReg fs, ECop1OpFunction	cmp_op, EPspFloatReg ft );

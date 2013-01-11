@@ -931,6 +931,13 @@ void	CAssemblyWriterPSP::TRUNC_W_S( EPspFloatReg fd, EPspFloatReg fs )
 //*****************************************************************************
 //
 //*****************************************************************************
+void	CAssemblyWriterPSP::FLOOR_W_S( EPspFloatReg fd, EPspFloatReg fs )
+{
+	Cop1Op( Cop1Op_SInstr, fd, fs, Cop1OpFunc_FLOOR_W );
+}
+//*****************************************************************************
+//
+//*****************************************************************************
 void	CAssemblyWriterPSP::CVT_W_S( EPspFloatReg fd, EPspFloatReg fs )
 {
 	Cop1Op( Cop1Op_SInstr, fd, fs, Cop1OpFunc_CVT_W );
