@@ -2847,10 +2847,11 @@ static void R4300_CALL_TYPE R4300_Cop1_S_EQ( R4300_CALL_SIGNATURE ) 				// Compa
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
-	if ( fX == fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( fX == fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_LT( R4300_CALL_SIGNATURE ) 				// Compare for Equality
@@ -2861,10 +2862,11 @@ static void R4300_CALL_TYPE R4300_Cop1_S_LT( R4300_CALL_SIGNATURE ) 				// Compa
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
-	if ( fX < fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( fX < fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_NGE( R4300_CALL_SIGNATURE )
@@ -2876,11 +2878,11 @@ static void R4300_CALL_TYPE R4300_Cop1_S_NGE( R4300_CALL_SIGNATURE )
 
 	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_NGE", fX, fY );
 
-	if(fX < fY)
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
 
+	if( fX < fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_LE( R4300_CALL_SIGNATURE ) 				// Compare for Equality
@@ -2893,11 +2895,11 @@ static void R4300_CALL_TYPE R4300_Cop1_S_LE( R4300_CALL_SIGNATURE ) 				// Compa
 
 	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_LE", fX, fY );
 
-	if ( fX <= fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
 
+	if( fX <= fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_SEQ( R4300_CALL_SIGNATURE )
@@ -2909,10 +2911,11 @@ static void R4300_CALL_TYPE R4300_Cop1_S_SEQ( R4300_CALL_SIGNATURE )
 
 	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_SEQ", fX, fY );
 
-	if(fX == fY)
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( fX == fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_UEQ( R4300_CALL_SIGNATURE )
@@ -2923,10 +2926,12 @@ static void R4300_CALL_TYPE R4300_Cop1_S_UEQ( R4300_CALL_SIGNATURE )
 	f32 fY = LoadFPR_Single( op_code.ft );
 
 	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_UEQ", fX, fY );
-	if( R4300_IsNaN(fX + fY) || fX == fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( R4300_IsNaN(fX + fY) || fX == fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_NGLE( R4300_CALL_SIGNATURE )
@@ -2951,10 +2956,12 @@ static void R4300_CALL_TYPE R4300_Cop1_S_OLE( R4300_CALL_SIGNATURE )
 	f32 fY = LoadFPR_Single( op_code.ft );
 
 	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_OLE", fX, fY );
-	if (!R4300_IsNaN(fX + fY) && fX <= fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( !R4300_IsNaN(fX + fY) && fX <= fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_ULE( R4300_CALL_SIGNATURE )
@@ -2964,10 +2971,11 @@ static void R4300_CALL_TYPE R4300_Cop1_S_ULE( R4300_CALL_SIGNATURE )
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
-	if(R4300_IsNaN(fX + fY) || fX <= fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( R4300_IsNaN(fX + fY) || fX <= fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_UN( R4300_CALL_SIGNATURE )
@@ -2977,10 +2985,11 @@ static void R4300_CALL_TYPE R4300_Cop1_S_UN( R4300_CALL_SIGNATURE )
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
-	if( R4300_IsNaN(fX + fY) )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( R4300_IsNaN(fX + fY) ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_F( R4300_CALL_SIGNATURE )
@@ -3000,10 +3009,11 @@ static void R4300_CALL_TYPE R4300_Cop1_S_NGT( R4300_CALL_SIGNATURE )
 
 	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_NGT", fX, fY );
 
-	if ( fX <= fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( fX <= fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_ULT( R4300_CALL_SIGNATURE )
@@ -3013,10 +3023,11 @@ static void R4300_CALL_TYPE R4300_Cop1_S_ULT( R4300_CALL_SIGNATURE )
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
-	if( R4300_IsNaN(fX + fY) || fX < fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( R4300_IsNaN(fX + fY) || fX < fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_SF( R4300_CALL_SIGNATURE )
@@ -3042,10 +3053,11 @@ static void R4300_CALL_TYPE R4300_Cop1_S_NGL( R4300_CALL_SIGNATURE )
 
 	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_NGL", fX, fY );
 
-	if ( fX == fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( fX == fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_OLT( R4300_CALL_SIGNATURE )
@@ -3056,10 +3068,12 @@ static void R4300_CALL_TYPE R4300_Cop1_S_OLT( R4300_CALL_SIGNATURE )
 	f32 fY = LoadFPR_Single( op_code.ft );
 
 	CATCH_NAN_EXCEPTION( "R4300_Cop1_S_OLT", fX, fY );
-	if (!R4300_IsNaN(fX + fY) && fX < fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( !R4300_IsNaN(fX + fY) && fX < fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 
@@ -3318,10 +3332,11 @@ static void R4300_CALL_TYPE R4300_Cop1_D_EQ( R4300_CALL_SIGNATURE )				// Compar
 	d64 fX = LoadFPR_Double( op_code.fs );
 	d64 fY = LoadFPR_Double( op_code.ft );
 
-	if( fX == fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( fX == fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_D_LE( R4300_CALL_SIGNATURE )				// Compare for Less Than or Equal
@@ -3332,11 +3347,11 @@ static void R4300_CALL_TYPE R4300_Cop1_D_LE( R4300_CALL_SIGNATURE )				// Compar
 	d64 fX = LoadFPR_Double( op_code.fs );
 	d64 fY = LoadFPR_Double( op_code.ft );
 
-	if( fX <= fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
 
+	if( fX <= fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 
@@ -3348,11 +3363,11 @@ static void R4300_CALL_TYPE R4300_Cop1_D_LT( R4300_CALL_SIGNATURE )
 	d64 fX = LoadFPR_Double( op_code.fs );
 	d64 fY = LoadFPR_Double( op_code.ft );
 
-	if( fX < fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
 
+	if( fX < fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_D_F( R4300_CALL_SIGNATURE )
@@ -3369,10 +3384,11 @@ static void R4300_CALL_TYPE R4300_Cop1_D_UN( R4300_CALL_SIGNATURE )
 	d64 fX = LoadFPR_Double( op_code.fs );
 	d64 fY = LoadFPR_Double( op_code.ft );
 
-	if( R4300_IsNaN(fX + fY) )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( R4300_IsNaN(fX + fY) ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_D_UEQ( R4300_CALL_SIGNATURE )
@@ -3382,10 +3398,11 @@ static void R4300_CALL_TYPE R4300_Cop1_D_UEQ( R4300_CALL_SIGNATURE )
 	d64 fX = LoadFPR_Double( op_code.fs );
 	d64 fY = LoadFPR_Double( op_code.ft );
 
-	if( R4300_IsNaN(fX + fY) || fX == fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( R4300_IsNaN(fX + fY) || fX == fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_D_OLT( R4300_CALL_SIGNATURE )
@@ -3395,10 +3412,11 @@ static void R4300_CALL_TYPE R4300_Cop1_D_OLT( R4300_CALL_SIGNATURE )
 	d64 fX = LoadFPR_Double( op_code.fs );
 	d64 fY = LoadFPR_Double( op_code.ft );
 
-	if( !R4300_IsNaN(fX + fY) && fX < fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( !R4300_IsNaN(fX + fY) && fX < fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_D_ULT( R4300_CALL_SIGNATURE )
@@ -3408,10 +3426,11 @@ static void R4300_CALL_TYPE R4300_Cop1_D_ULT( R4300_CALL_SIGNATURE )
 	d64 fX = LoadFPR_Double( op_code.fs );
 	d64 fY = LoadFPR_Double( op_code.ft );
 
-	if( R4300_IsNaN(fX + fY) || fX < fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( R4300_IsNaN(fX + fY) || fX < fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_D_OLE( R4300_CALL_SIGNATURE )
@@ -3421,10 +3440,11 @@ static void R4300_CALL_TYPE R4300_Cop1_D_OLE( R4300_CALL_SIGNATURE )
 	d64 fX = LoadFPR_Double( op_code.fs );
 	d64 fY = LoadFPR_Double( op_code.ft );
 
-	if( !R4300_IsNaN(fX + fY) && fX <= fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( !R4300_IsNaN(fX + fY) && fX <= fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_D_ULE( R4300_CALL_SIGNATURE )
@@ -3434,10 +3454,11 @@ static void R4300_CALL_TYPE R4300_Cop1_D_ULE( R4300_CALL_SIGNATURE )
 	d64 fX = LoadFPR_Double( op_code.fs );
 	d64 fY = LoadFPR_Double( op_code.ft );
 
-	if( R4300_IsNaN(fX + fY) || fX <= fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( R4300_IsNaN(fX + fY) || fX <= fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_D_SF( R4300_CALL_SIGNATURE )
@@ -3478,10 +3499,11 @@ static void R4300_CALL_TYPE R4300_Cop1_D_SEQ( R4300_CALL_SIGNATURE )
 
 	CATCH_NAN_EXCEPTION( "R4300_Cop1_D_SEQ", fX, fY );
 
-	if( fX == fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( fX == fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 // Same as above..
@@ -3494,10 +3516,11 @@ static void R4300_CALL_TYPE R4300_Cop1_D_NGL( R4300_CALL_SIGNATURE )
 
 	CATCH_NAN_EXCEPTION( "R4300_Cop1_D_NGL", fX, fY );
 
-	if( fX == fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( fX == fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_D_NGE( R4300_CALL_SIGNATURE )
@@ -3509,10 +3532,11 @@ static void R4300_CALL_TYPE R4300_Cop1_D_NGE( R4300_CALL_SIGNATURE )
 
 	CATCH_NAN_EXCEPTION( "R4300_Cop1_D_NGE", fX, fY );
 
-	if( fX < fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( fX < fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_D_NGT( R4300_CALL_SIGNATURE )
@@ -3524,10 +3548,11 @@ static void R4300_CALL_TYPE R4300_Cop1_D_NGT( R4300_CALL_SIGNATURE )
 
 	CATCH_NAN_EXCEPTION( "R4300_Cop1_D_NGT", fX, fY );
 
-	if( fX <= fY )
-		gCPUState.FPUControl[31]._u32 |= FPCSR_C;
-	else
-		gCPUState.FPUControl[31]._u32 &= ~FPCSR_C;
+	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
+
+	if( fX <= fY ) FPUCTRL |= FPCSR_C;
+
+	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
 
 #include "R4300_Jump.inl"		// Jump table

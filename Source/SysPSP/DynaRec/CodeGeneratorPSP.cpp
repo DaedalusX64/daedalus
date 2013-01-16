@@ -144,8 +144,8 @@ bool			gHaveSavedPatchedOps = false;
 PspOpCode		gOriginalOps[2];
 PspOpCode		gReplacementOps[2];
 
-#define URO_HI_SIGN_EXTEND 1	// Sign extend from src
-#define URO_HI_CLEAR	   0	// Clear hi bits
+#define URO_HI_SIGN_EXTEND 0	// Sign extend from src
+#define URO_HI_CLEAR	   1	// Clear hi bits
 
 void Dynarec_ClearedCPUStuffToDo()
 {

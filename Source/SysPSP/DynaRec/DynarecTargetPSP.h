@@ -48,12 +48,10 @@ enum EPspFloatReg
 };
 
 // Return true if this register is temporary (i.e. not saved across function calls)
-const u32 gIsTemporary = 0xB300FFFF;
-inline bool	PspReg_IsTemporary( EPspReg psp_reg )	{ return (gIsTemporary >> psp_reg) & 1;}
+inline bool	PspReg_IsTemporary( EPspReg psp_reg )	{ return (0xB300FFFF >> psp_reg) & 1;}
 
 // Return true if this register dont need sign extension //Corn
-const u32 gDontNeedSign = 0x30000001;
-inline bool	N64Reg_DontNeedSign( EN64Reg n64_reg )	{ return (gDontNeedSign >> n64_reg) & 1;}
+inline bool	N64Reg_DontNeedSign( EN64Reg n64_reg )	{ return (0x30000001 >> n64_reg) & 1;}
 
 struct PspOpCode
 {
