@@ -112,10 +112,9 @@ static ERoundingMode	gRoundingMode( RM_ROUND );
 typedef f32 d64;
 
 
-inline void SpeedHack( u32 pc, OpCode op )
+inline void SpeedHack()
 {
-	OpCode	next_op;
-
+	// When tracing (dynarec is enabled), SpeedHack is ignored, read below why
 #ifdef DAEDALUS_ENABLE_DYNAREC
 	if (gTraceRecorder.IsTraceActive())
 		return;
@@ -123,10 +122,10 @@ inline void SpeedHack( u32 pc, OpCode op )
 
 	// TODO: Should maybe use some internal function, so we can account
 	// for things like Branch/DelaySlot pair straddling a page boundary.
-	next_op._u32 = Read32Bits( pc + 4 );
+	u32 next_op = *(u32 *)(gLastAddress + 4);
 
 	// If nop, then this is a busy-wait for an interrupt
-	if (next_op._u32 == 0)
+	if (next_op == 0)
 	{
 		// XXXX if we leave the counter at 1, then we always terminate traces with a delay slot active.
 		// Need a more permenant fix to for this - i.e. making tracing more robust.
@@ -136,10 +135,10 @@ inline void SpeedHack( u32 pc, OpCode op )
 	// This is:
 	// 0x7f0d01e8: BNEL      v0 != v1 --> 0x7f0d01e8
 	// 0x7f0d01ec: ADDIU     v0 = v0 + 0x0004
-	else if (op._u32 == 0x5443ffff && next_op._u32 == 0x24420004)
+	/*else if (op._u32 == 0x5443ffff && next_op == 0x24420004)
 	{
 		gGPR[REG_v0]._u64 = gGPR[REG_v1]._u64 - 4;
-	}
+	}*/
 	/*else
 	{
 		static bool warned = false;
@@ -735,7 +734,7 @@ static void R4300_CALL_TYPE R4300_J( R4300_CALL_SIGNATURE ) 				// Jump
 	// Doesn't do anything.. should be gCPUState.CurrentPC == gCPUState.TargetPC, but breaks PMario for some reasons
 	/*if( new_pc == gCPUState.CurrentPC )
 	{
-		SpeedHack( gCPUState.CurrentPC, op_code );
+		SpeedHack();
 	}*/
 	CPU_TakeBranch( new_pc );
 }
@@ -764,7 +763,7 @@ static void R4300_CALL_TYPE R4300_BEQ( R4300_CALL_SIGNATURE ) 		// Branch on Equ
 
 		if( offset == -1 )
 		{
-			SpeedHack( gCPUState.CurrentPC, op_code );
+			SpeedHack();
 		}
 
 		u32 new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
@@ -785,7 +784,7 @@ static void R4300_CALL_TYPE R4300_BNE( R4300_CALL_SIGNATURE )             // Bra
 
 		if( offset == -1 )
 		{
-			SpeedHack( gCPUState.CurrentPC, op_code );
+			SpeedHack();
 		}
 
 		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
@@ -807,7 +806,7 @@ static void R4300_CALL_TYPE R4300_BLEZ( R4300_CALL_SIGNATURE ) 			// Branch on L
 
 		if( offset == -1 )
 		{
-			SpeedHack( gCPUState.CurrentPC, op_code );
+			SpeedHack();
 		}
 
 		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
@@ -829,7 +828,7 @@ static void R4300_CALL_TYPE R4300_BGTZ( R4300_CALL_SIGNATURE ) 			// Branch on G
 
 		if( offset == -1 )
 		{
-			SpeedHack( gCPUState.CurrentPC, op_code );
+			SpeedHack();
 		}
 
 		u32 new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
@@ -975,7 +974,7 @@ static void R4300_CALL_TYPE R4300_BEQL( R4300_CALL_SIGNATURE ) 			// Branch on E
 
 		if( offset == -1 )
 		{
-			SpeedHack( gCPUState.CurrentPC, op_code );
+			SpeedHack();
 		}
 
 		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
@@ -999,7 +998,7 @@ static void R4300_CALL_TYPE R4300_BNEL( R4300_CALL_SIGNATURE ) 			// Branch on N
 
 		if( offset == -1 )
 		{
-			SpeedHack( gCPUState.CurrentPC, op_code );
+			SpeedHack();
 		}
 
 		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
@@ -1021,7 +1020,7 @@ static void R4300_CALL_TYPE R4300_BLEZL( R4300_CALL_SIGNATURE ) 		// Branch on L
 	{
 		if (op_code.rs == N64Reg_R0)
 		{
-			SpeedHack( gCPUState.CurrentPC, op_code );
+			SpeedHack();
 		}
 		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
 		CPU_TakeBranch( new_pc );
@@ -2008,7 +2007,7 @@ static void R4300_CALL_TYPE R4300_RegImm_BLTZ( R4300_CALL_SIGNATURE ) 			// Bran
 
 		if( offset == -1 )
 		{
-			SpeedHack( gCPUState.CurrentPC, op_code );
+			SpeedHack();
 		}
 
 		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
@@ -2061,7 +2060,7 @@ static void R4300_CALL_TYPE R4300_RegImm_BGEZ( R4300_CALL_SIGNATURE ) 			// Bran
 
 		if( offset == -1 )
 		{
-			SpeedHack( gCPUState.CurrentPC, op_code );
+			SpeedHack();
 		}
 
 		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
