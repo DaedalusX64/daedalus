@@ -45,10 +45,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define _isnan isnan
 #endif
 
-// ToDo Move these macros to a new header.
-//
-#define	R4300_CALL_MAKE_OP( var )	OpCode	var;	var._u32 = op_code_bits
+#ifdef DAEDALUS_PSP
+#define SIM_DOUBLES
+#else
+#undef SIM_DOUBLES
+#endif
 
+#define SPEEDHACK_INTERPRETER
+
+#define	R4300_CALL_MAKE_OP( var )	OpCode	var;	var._u32 = op_code_bits
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -109,46 +114,54 @@ enum ERoundingMode
 static ERoundingMode	gRoundingMode( RM_ROUND );
 
 // If the hardware doesn't support doubles in hardware - use 32 bits floats and accept the loss in precision
+#ifdef SIM_DOUBLES
 typedef f32 d64;
-
-
-inline void SpeedHack()
-{
-	// When tracing (dynarec is enabled), SpeedHack is ignored, read below why
-#ifdef DAEDALUS_ENABLE_DYNAREC
-	if (gTraceRecorder.IsTraceActive())
-		return;
+#else
+typedef f64 d64;
 #endif
 
-	// TODO: Should maybe use some internal function, so we can account
-	// for things like Branch/DelaySlot pair straddling a page boundary.
-	u32 next_op = *(u32 *)(gLastAddress + 4);
 
-	// If nop, then this is a busy-wait for an interrupt
-	if (next_op == 0)
+inline void SpeedHack(u32 pc, u32 new_pc)
+{
+#ifdef SPEEDHACK_INTERPRETER
+	// If jumping to the same address, this might be a busy-wait
+	if( pc == new_pc)
 	{
-		// XXXX if we leave the counter at 1, then we always terminate traces with a delay slot active.
-		// Need a more permenant fix to for this - i.e. making tracing more robust.
-		CPU_SkipToNextEvent();
-	}
-	// XXXX check this....need to update count....
-	// This is:
-	// 0x7f0d01e8: BNEL      v0 != v1 --> 0x7f0d01e8
-	// 0x7f0d01ec: ADDIU     v0 = v0 + 0x0004
-	/*else if (op._u32 == 0x5443ffff && next_op == 0x24420004)
-	{
-		gGPR[REG_v0]._u64 = gGPR[REG_v1]._u64 - 4;
-	}*/
-	/*else
-	{
-		static bool warned = false;
+#ifdef DAEDALUS_ENABLE_DYNAREC
+		if (gTraceRecorder.IsTraceActive())
+			return;
+#endif
+		// TODO: Should maybe use some internal function, so we can account
+		// for things like Branch/DelaySlot pair straddling a page boundary.
+		u32 next_op = *(u32 *)(gLastAddress + 4);
 
-		if (!warned)
+		// If nop, then this is a busy-wait for an interrupt
+		if (next_op == 0)
 		{
-			DBGConsole_Msg(0, "Missed Speedhack 0x%08x", gCPUState.CurrentPC);
-			warned = true;
+			// XXXX if we leave the counter at 1, then we always terminate traces with a delay slot active.
+			// Need a more permenant fix to for this - i.e. making tracing more robust.
+			CPU_SkipToNextEvent();
 		}
-	}*/
+		// XXXX check this....need to update count....
+		// This is:
+		// 0x7f0d01e8: BNEL      v0 != v1 --> 0x7f0d01e8
+		// 0x7f0d01ec: ADDIU     v0 = v0 + 0x0004
+		/*else if (op._u32 == 0x5443ffff && next_op == 0x24420004)
+		{
+			gGPR[REG_v0]._u64 = gGPR[REG_v1]._u64 - 4;
+		}*/
+		/*else
+		{
+			static bool warned = false;
+
+			if (!warned)
+			{
+				DBGConsole_Msg(0, "Missed Speedhack 0x%08x", gCPUState.CurrentPC);
+				warned = true;
+			}
+		}*/
+	}
+#endif
 }
 
 //
@@ -178,11 +191,13 @@ inline void StoreFPR_Long( u32 reg, u64 value )
 inline u64 LoadFPR_Long( u32 reg )
 {
 	REG64 res;
+#ifdef SIM_DOUBLES
 	if (gCPUState.FPU[reg+0]._u32 == SIMULATESIG)
 	{
 		res._f64 = (f64)gCPUState.FPU[reg+1]._f32;	//Convert f32 -> f64
 	}
 	else
+#endif
 	{
 		res._u32_0 = gCPUState.FPU[reg+0]._u32;
 		res._u32_1 = gCPUState.FPU[reg+1]._u32;
@@ -193,11 +208,13 @@ inline u64 LoadFPR_Long( u32 reg )
 
 inline d64 LoadFPR_Double( u32 reg )
 {
+#ifdef SIM_DOUBLES
 	if (gCPUState.FPU[reg+0]._u32 == SIMULATESIG)
 	{
 		return (d64)gCPUState.FPU[reg+1]._f32;
 	}
 	else
+#endif
 	{
 		REG64 res;
 		res._u32_0 = gCPUState.FPU[reg+0]._u32;
@@ -206,14 +223,13 @@ inline d64 LoadFPR_Double( u32 reg )
 	}
 }
 
-#if 1	//1->store using sim-double, 0->use proper way
+#ifdef SIM_DOUBLES
 inline void StoreFPR_Double( u32 reg, d64 value )
 {
 	gCPUState.FPU[reg+0]._u32 = SIMULATESIG;
 	gCPUState.FPU[reg+1]._f32 = f32( value );	//No Coversion
 }
 #else
-// This the proper way but we get a good speed up simulating doubles
 inline void StoreFPR_Double( u32 reg, f64 value )
 {
 	REG64 r;
@@ -729,13 +745,10 @@ static void R4300_CALL_TYPE R4300_J( R4300_CALL_SIGNATURE ) 				// Jump
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	u32 new_pc( (gCPUState.CurrentPC & 0xF0000000) | (op_code.target<<2) );
+	u32 pc( gCPUState.CurrentPC );
+	u32 new_pc( (pc & 0xF0000000) | (op_code.target<<2) );
 
-	// Doesn't do anything.. should be gCPUState.CurrentPC == gCPUState.TargetPC, but breaks PMario for some reasons
-	/*if( new_pc == gCPUState.CurrentPC )
-	{
-		SpeedHack();
-	}*/
+	//SpeedHack(pc, new_pc);	// PMario and Tarzan use this, is it worth?
 	CPU_TakeBranch( new_pc );
 }
 
@@ -743,10 +756,10 @@ static void R4300_CALL_TYPE R4300_JAL( R4300_CALL_SIGNATURE ) 				// Jump And Li
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	// Store return address
-	gGPR[REG_ra]._s64 = (s64)(s32)(gCPUState.CurrentPC + 8);		// Store return address
-	u32	new_pc( (gCPUState.CurrentPC & 0xF0000000) | (op_code.target<<2) );
-
+	u32 pc( gCPUState.CurrentPC );
+	gGPR[REG_ra]._s64 = (s64)(s32)(pc + 8);		// Store return address
+	u32	new_pc( (pc & 0xF0000000) | (op_code.target<<2) );
+	//ToDo: SpeedHack?
 	CPU_TakeBranch( new_pc );
 }
 
@@ -759,14 +772,11 @@ static void R4300_CALL_TYPE R4300_BEQ( R4300_CALL_SIGNATURE ) 		// Branch on Equ
 	//branch if rs == rt
 	if ( gGPR[op_code.rs]._u32_0 == gGPR[op_code.rt]._u32_0 )
 	{
-		s16 offset = (s16)op_code.immediate;
+		s16 offset( (s16)op_code.immediate );
+		u32 pc( gCPUState.CurrentPC );
+		u32 new_pc( pc + ((s32)offset<<2) + 4 );
 
-		if( offset == -1 )
-		{
-			SpeedHack();
-		}
-
-		u32 new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
+		SpeedHack(pc, new_pc);
 		CPU_TakeBranch( new_pc );
 	}
 }
@@ -780,14 +790,11 @@ static void R4300_CALL_TYPE R4300_BNE( R4300_CALL_SIGNATURE )             // Bra
 	//branch if rs <> rt
 	if ( gGPR[op_code.rs]._u32_0 != gGPR[op_code.rt]._u32_0 )
 	{
-		s16 offset = (s16)op_code.immediate;
+		s16 offset( (s16)op_code.immediate );
+		u32 pc( gCPUState.CurrentPC );
+		u32 new_pc( pc + ((s32)offset<<2) + 4 );
 
-		if( offset == -1 )
-		{
-			SpeedHack();
-		}
-
-		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
+		SpeedHack(pc, new_pc);
 		CPU_TakeBranch( new_pc );
 	}
 }
@@ -802,14 +809,11 @@ static void R4300_CALL_TYPE R4300_BLEZ( R4300_CALL_SIGNATURE ) 			// Branch on L
 	//if ((s64)gGPR[op_code.rs] <= 0)
 	if (gGPR[op_code.rs]._s32_0 <= 0)
 	{
-		s16 offset = (s16)op_code.immediate;
+		s16 offset( (s16)op_code.immediate );
+		u32 pc( gCPUState.CurrentPC );
+		u32 new_pc( pc + ((s32)offset<<2) + 4 );
 
-		if( offset == -1 )
-		{
-			SpeedHack();
-		}
-
-		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
+		SpeedHack(pc, new_pc);
 		CPU_TakeBranch( new_pc );
 	}
 }
@@ -824,14 +828,11 @@ static void R4300_CALL_TYPE R4300_BGTZ( R4300_CALL_SIGNATURE ) 			// Branch on G
 	//if ((s64)gGPR[op_code.rs] > 0)
 	if (gGPR[op_code.rs]._s32_0 > 0)
 	{
-		s16 offset = (s16)op_code.immediate;
+		s16 offset( (s16)op_code.immediate );
+		u32 pc( gCPUState.CurrentPC );
+		u32 new_pc( pc + ((s32)offset<<2) + 4 );
 
-		if( offset == -1 )
-		{
-			SpeedHack();
-		}
-
-		u32 new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
+		SpeedHack(pc, new_pc);
 		CPU_TakeBranch( new_pc );
 	}
 }
@@ -970,14 +971,11 @@ static void R4300_CALL_TYPE R4300_BEQL( R4300_CALL_SIGNATURE ) 			// Branch on E
 	//branch if rs == rt
 	if ( gGPR[op_code.rs]._u64 == gGPR[op_code.rt]._u64 )
 	{
-		s16 offset = (s16)op_code.immediate;
+		s16 offset( (s16)op_code.immediate );
+		u32 pc( gCPUState.CurrentPC );
+		u32 new_pc( pc + ((s32)offset<<2) + 4 );
 
-		if( offset == -1 )
-		{
-			SpeedHack();
-		}
-
-		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
+		SpeedHack(pc, new_pc);
 		CPU_TakeBranch( new_pc );
 	}
 	else
@@ -994,14 +992,11 @@ static void R4300_CALL_TYPE R4300_BNEL( R4300_CALL_SIGNATURE ) 			// Branch on N
 	//branch if rs <> rt
 	if ( gGPR[op_code.rs]._u64 != gGPR[op_code.rt]._u64 )
 	{
-		s16 offset = (s16)op_code.immediate;
+		s16 offset( (s16)op_code.immediate );
+		u32 pc( gCPUState.CurrentPC );
+		u32 new_pc( pc + ((s32)offset<<2) + 4 );
 
-		if( offset == -1 )
-		{
-			SpeedHack();
-		}
-
-		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
+		SpeedHack(pc, new_pc);
 		CPU_TakeBranch( new_pc );
 	}
 	else
@@ -1018,11 +1013,11 @@ static void R4300_CALL_TYPE R4300_BLEZL( R4300_CALL_SIGNATURE ) 		// Branch on L
 	//branch if rs <= 0
 	if ( gGPR[op_code.rs]._s64 <= 0 )
 	{
-		if (op_code.rs == N64Reg_R0)
-		{
-			SpeedHack();
-		}
-		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
+		s16 offset( (s16)op_code.immediate );
+		u32 pc( gCPUState.CurrentPC );
+		u32 new_pc( pc + ((s32)offset<<2) + 4 );
+
+		SpeedHack(pc, new_pc);
 		CPU_TakeBranch( new_pc );
 	}
 	else
@@ -1039,6 +1034,7 @@ static void R4300_CALL_TYPE R4300_BGTZL( R4300_CALL_SIGNATURE ) 		// Branch on G
 	//branch if rs > 0
 	if ( gGPR[op_code.rs]._s64 > 0 )
 	{
+		//ToDo : SpeedHack?
 		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
 		CPU_TakeBranch( new_pc );
 	}
@@ -2003,14 +1999,11 @@ static void R4300_CALL_TYPE R4300_RegImm_BLTZ( R4300_CALL_SIGNATURE ) 			// Bran
 	//branch if rs < 0
 	if ( gGPR[ op_code.rs ]._s64 < 0 )
 	{
-		s16 offset = (s16)op_code.immediate;
+		s16 offset( (s16)op_code.immediate );
+		u32 pc( gCPUState.CurrentPC );
+		u32 new_pc( pc + ((s32)offset<<2) + 4 );
 
-		if( offset == -1 )
-		{
-			SpeedHack();
-		}
-
-		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
+		SpeedHack(pc, new_pc);
 		CPU_TakeBranch( new_pc );
 	}
 }
@@ -2022,6 +2015,7 @@ static void R4300_CALL_TYPE R4300_RegImm_BLTZL( R4300_CALL_SIGNATURE ) 			// Bra
 	//branch if rs < 0
 	if ( gGPR[ op_code.rs ]._s64 < 0 )
 	{
+		//ToDo: SpeedHack?
 		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
 		CPU_TakeBranch( new_pc );
 	}
@@ -2044,6 +2038,7 @@ static void R4300_CALL_TYPE R4300_RegImm_BLTZAL( R4300_CALL_SIGNATURE ) 		// Bra
 
 	if ( gGPR[ op_code.rs ]._s64 < 0 )
 	{
+		//ToDo: SpeedHack?
 		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
 		CPU_TakeBranch( new_pc );
 	}
@@ -2056,14 +2051,11 @@ static void R4300_CALL_TYPE R4300_RegImm_BGEZ( R4300_CALL_SIGNATURE ) 			// Bran
 	//branch if rs >= 0
 	if ( gGPR[ op_code.rs ]._s64 >= 0 )
 	{
-		s16 offset = (s16)op_code.immediate;
+		s16 offset( (s16)op_code.immediate );
+		u32 pc( gCPUState.CurrentPC );
+		u32 new_pc( pc + ((s32)offset<<2) + 4 );
 
-		if( offset == -1 )
-		{
-			SpeedHack();
-		}
-
-		u32	new_pc( gCPUState.CurrentPC + ((s32)offset<<2) + 4 );
+		SpeedHack(pc, new_pc);
 		CPU_TakeBranch( new_pc );
 	}
 }
@@ -2075,6 +2067,7 @@ static void R4300_CALL_TYPE R4300_RegImm_BGEZL( R4300_CALL_SIGNATURE ) 			// Bra
 	//branch if rs >= 0
 	if ( gGPR[ op_code.rs ]._s64 >= 0 )
 	{
+		//ToDO: SpeedHack?
 		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
 		CPU_TakeBranch( new_pc );
 	}
@@ -2096,6 +2089,7 @@ static void R4300_CALL_TYPE R4300_RegImm_BGEZAL( R4300_CALL_SIGNATURE ) 		// Bra
 
 	if ( gGPR[ op_code.rs ]._s64 >= 0 )
 	{
+		//ToDo: SpeedHack?
 		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
 		CPU_TakeBranch( new_pc );
 	}
