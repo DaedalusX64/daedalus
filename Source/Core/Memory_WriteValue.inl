@@ -267,45 +267,33 @@ static void WriteValue_8450_845F( u32 address, u32 value )
 	DPF( DEBUG_MEMORY_AI, "Writing to AI Registers: 0x%08x", address );
 	u32 offset = address & 0xFF;
 
-	switch (AI_BASE_REG + offset)
+	switch (offset)
 	{
-	case AI_DRAM_ADDR_REG: // 64bit aligned
-	case AI_CONTROL_REG:
-	case AI_BITRATE_REG:
-		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_AI_REG] + offset) = value;
-		break;
-
-	case AI_LEN_REG:
+	case 0x4:	//AI_LEN_REG
 		// LS 3 bits ignored
 		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_AI_REG] + offset) = value;
 
 		if (g_pAiPlugin != NULL)
 			g_pAiPlugin->LenChanged();
-		//MemoryDoAI();
 		break;
-	/*
-	case AI_CONTROL_REG:
-		// DMA enable/Disable
-		//if (g_dwAIBufferFullness == 2)
-		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_AI_REG] + offset) = value;
-		//MemoryDoAI();
-		break;*/
 
-	case AI_STATUS_REG:
+	case 0x0c:	//AI_STATUS_REG
 		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_AI);
 		R4300_Interrupt_UpdateCause3();
 		break;
 
-	case AI_DACRATE_REG:
+	case 0x10:	//AI_DACRATE_REG
 		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_AI_REG] + offset) = value;
 
 		if (g_pAiPlugin != NULL)
 		{
 			//When we set PAL mode for PAL games it corrects the sound pitch to the same as
 			//NTSC games but it will also limit FPS 2% higher as well //Corn
-			//
 			g_pAiPlugin->DacrateChanged( g_ROM.TvType ? CAudioPlugin::ST_NTSC : CAudioPlugin::ST_PAL );
 		}
+		break;
+	default:
+		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_AI_REG] + offset) = value;
 		break;
 	}
 }

@@ -41,14 +41,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ConfigOptions.h"
 
 
-/* This sets default frequency what is used if rom doesn't want to change it.
-   Probably only game that needs this is Zelda: Ocarina Of Time Master Quest
-   ToDo: We should try to find out why Demos' frequencies are always wrong
-   They tend to rely on a default frequency, apparently, never the same one.*/
-
-#define DEFAULT_FREQUENCY 33600	// Taken from Mupen64 : )
-
-
 class CAudioPluginOSX : public CAudioPlugin
 {
 private:
@@ -59,10 +51,8 @@ public:
 	virtual ~CAudioPluginOSX();
 	virtual bool			StartEmulation();
 	virtual void			StopEmulation();
-//ToDo: Bring this properly to PC platform...
-	virtual void			AddBufferHLE(u8 *addr, u32 len);
 
-	virtual void			DacrateChanged( ESystemType system_type );
+	virtual void			DacrateChanged( int SystemType );
 	virtual void			LenChanged();
 	virtual u32				ReadLength();
 	virtual EProcessResult	ProcessAList();
@@ -113,32 +103,13 @@ void CAudioPluginOSX::StopEmulation()
 	mAudioCode->StopAudio();
 }
 
-//ToDo: Port to PC side of things...
-void CAudioPluginOSX::AddBufferHLE(u8 *addr, u32 len)
+void CAudioPluginOSX::DacrateChanged( int SystemType )
 {
-	mAudioCode->AddBuffer(addr,len);
-}
+//	printf( "DacrateChanged( %s )\n", (SystemType == ST_NTSC) ? "NTSC" : "PAL" );
+	u32 dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
+	u32	frequency = (SystemType == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK / (dacrate + 1);
 
-void CAudioPluginOSX::DacrateChanged( ESystemType system_type )
-{
-		// XXX only checked once mostly when scene changes
-#ifndef DAEDALUS_SILENT
-		printf( "DacrateChanged( %d )\n", system_type );
-#endif
-		u32 dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
-
-		u32		frequency;
-		switch (system_type)
-		{
-			case ST_NTSC: frequency = VI_NTSC_CLOCK / (dacrate + 1); break;
-			case ST_PAL:  frequency = VI_PAL_CLOCK  / (dacrate + 1); break;
-			case ST_MPAL: frequency = VI_MPAL_CLOCK / (dacrate + 1); break;
-			default: frequency = DEFAULT_FREQUENCY;	break;	// This shouldn't happen
-		}
-
-		DAEDALUS_ASSERT( system_type != DEFAULT_FREQUENCY || frequency != 0, "Setting unknown frequency (%d)", frequency );
-
-		mAudioCode->SetFrequency( frequency );
+	mAudioCode->SetFrequency( frequency );
 }
 
 void CAudioPluginOSX::LenChanged()

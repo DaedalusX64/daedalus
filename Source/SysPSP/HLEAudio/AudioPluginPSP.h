@@ -35,9 +35,8 @@ public:
 	virtual ~CAudioPluginPsp();
 	virtual bool			StartEmulation();
 	virtual void			StopEmulation();
-	virtual void			AddBufferHLE(u8 *addr, u32 len);
 
-	virtual void			DacrateChanged( ESystemType system_type );
+	virtual void			DacrateChanged( int SystemType );
 	virtual void			LenChanged();
 	virtual u32				ReadLength();
 	virtual EProcessResult	ProcessAList();

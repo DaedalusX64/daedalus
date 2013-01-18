@@ -80,9 +80,8 @@ public:
 	virtual ~CAudioPluginW32();
 	virtual bool			StartEmulation();
 	virtual void			StopEmulation();
-	virtual void			AddBufferHLE(u8 *addr, u32 len);
 
-	virtual void			DacrateChanged( ESystemType system_type );
+	virtual void			DacrateChanged( int SystemType );
 	virtual void			LenChanged();
 	virtual u32				ReadLength();
 	virtual void			Update( bool wait );
@@ -186,15 +185,12 @@ void	CAudioPluginW32::StopEmulation()
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAudioPluginW32::DacrateChanged( ESystemType system_type )
+void	CAudioPluginW32::DacrateChanged( int SystemType )
 {
-	if (Dacrate != Memory_AI_GetRegister(AI_DACRATE_REG)) {
+	if (Dacrate != Memory_AI_GetRegister(AI_DACRATE_REG)) 
+	{
 		Dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
-		switch (system_type) {
-			case ST_NTSC: Frequency = VI_NTSC_CLOCK / (Dacrate + 1); break;
-			case ST_PAL:  Frequency = VI_PAL_CLOCK / (Dacrate + 1); break;
-			case ST_MPAL: Frequency = VI_MPAL_CLOCK / (Dacrate + 1); break;
-		}
+		Frequency = (SystemType == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK / (Dacrate + 1);
 		SetupDSoundBuffers();
 	}
 }
@@ -345,14 +341,6 @@ EProcessResult	CAudioPluginW32::ProcessAList()
 //*****************************************************************************
 void	CAudioPluginW32::RomClosed()
 {
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void CAudioPluginW32::AddBufferHLE(u8 *addr, u32 len)
-{
-//	mAudioCode->AddBuffer(addr,len);
 }
 
 //*****************************************************************************
