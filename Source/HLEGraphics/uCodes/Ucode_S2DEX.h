@@ -513,19 +513,18 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 //*****************************************************************************
 inline void DLParser_Yoshi_MemRect( MicroCodeCommand command )
 {
-	MicroCodeCommand command2;
-	MicroCodeCommand command3;
 	//
 	// Fetch the next two instructions
 	//
-	DLParser_FetchNextCommand( &command2 );
-	DLParser_FetchNextCommand( &command3 );
+	u32 pc = gDlistStack.address[gDlistStackPointer];
+	u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
+	gDlistStack.address[gDlistStackPointer]+= 16;
 
 	RDP_MemRect mem_rect;
 	mem_rect.cmd0 = command.inst.cmd0;
 	mem_rect.cmd1 = command.inst.cmd1;
-	mem_rect.cmd2 = command2.inst.cmd1;
-	mem_rect.cmd3 = command3.inst.cmd1;
+	mem_rect.cmd2 = *(u32 *)(pCmdBase+1);
+	mem_rect.cmd3 = *(u32 *)(pCmdBase+3);
 
 	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( mem_rect.tile_idx ) );
 
