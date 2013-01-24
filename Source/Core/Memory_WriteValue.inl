@@ -144,8 +144,8 @@ static void WriteValue_8410_841F( u32 address, u32 value )
 		// ToDo : Implement ProcessRDPList (LLE DList)
 		//
 		DBGConsole_Msg( 0, "Wrote to [WDPC_END_REG] 0x%08x", value );
-		// ToDo : Should trigger for an interrupt?
 		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_DP);
+		R4300_Interrupt_UpdateCause3();	
 		break;
 
 	case 0xc:	//DPC_STATUS_REG
@@ -169,11 +169,8 @@ static void WriteValue_8410_841F( u32 address, u32 value )
 //*****************************************************************************
 static void WriteValue_8420_842F( u32 address, u32 value )
 {
-
 	DBGConsole_Msg(0, "Write to DP Span Registers is unhandled (0x%08x, PC: 0x%08x)",
 		address, gCPUState.CurrentPC);
-
-	WriteValueInvalid(address, value);
 }
 
 
@@ -388,6 +385,7 @@ static void WriteValue_8480_848F( u32 address, u32 value )
 static void WriteValue_9FC0_9FCF( u32 address, u32 value )
 {
 	u32 offset = address & 0x0FFF;
+	u32 pif_ram_offset = address & 0x3F;
 
 	// Writing PIF ROM or outside PIF RAM
 	if( (offset < 0x7C0) || (offset > 0x7FF) ) 
@@ -395,8 +393,6 @@ static void WriteValue_9FC0_9FCF( u32 address, u32 value )
 		DBGConsole_Msg(0, "[GWrite to PIF (0x%08x) is invalid", address);
 		return;
 	}
-
-	u32 pif_ram_offset = address & 0x3F;
 
 	DPF( DEBUG_MEMORY_PIF, "Writing to MEM_PIF_RAM: 0x%08x", address );
 	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + pif_ram_offset) = value;
@@ -420,9 +416,7 @@ static void WriteValue_FlashRam( u32 address, u32 value )
 			return;
 		}
 	}
-
 	DBGConsole_Msg(0, "[GWrite to FlashRam (0x%08x) is invalid", address);
-	WriteValueInvalid(address, value);
 }
 
 //*****************************************************************************

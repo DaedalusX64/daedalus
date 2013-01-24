@@ -1263,8 +1263,9 @@ static void R4300_CALL_TYPE R4300_SWL( R4300_CALL_SIGNATURE ) 			// Store Word L
 	R4300_CALL_MAKE_OP( op_code );
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
+	u8* base = (u8*)ReadAddress(address & ~0x3);
 
-	u32 dwMemory = Read32Bits(address & ~0x3);
+	u32 dwMemory = QuickRead32Bits(base, 0x0);
 	u32 dwReg = gGPR[op_code.rt]._u32_0;
 
 #if 1 //1-> tighter code, 0->old way //Corn
@@ -1280,7 +1281,7 @@ static void R4300_CALL_TYPE R4300_SWL( R4300_CALL_SIGNATURE ) 			// Store Word L
 	}
 #endif
 
-	Write32Bits(address & ~0x3, dwNew);
+	QuickWrite32Bits(base, 0x0, dwNew);
 }
 
 static void R4300_CALL_TYPE R4300_SWR( R4300_CALL_SIGNATURE ) 			// Store Word Right
@@ -1288,8 +1289,9 @@ static void R4300_CALL_TYPE R4300_SWR( R4300_CALL_SIGNATURE ) 			// Store Word R
 	R4300_CALL_MAKE_OP( op_code );
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
+	u8* base = (u8*)ReadAddress(address & ~0x3);
 
-	u32 dwMemory = Read32Bits(address & ~0x3);
+	u32 dwMemory = QuickRead32Bits(base, 0x0);
 	u32 dwReg = gGPR[op_code.rt]._u32_0;
 
 #if 1 //1-> tighter code, 0->old way //Corn
@@ -1305,7 +1307,7 @@ static void R4300_CALL_TYPE R4300_SWR( R4300_CALL_SIGNATURE ) 			// Store Word R
 	}
 #endif
 
-	Write32Bits(address & ~0x3, dwNew);
+	QuickWrite32Bits(base, 0x0, dwNew);
 
 }
 
@@ -1314,8 +1316,9 @@ static void R4300_CALL_TYPE R4300_SDL( R4300_CALL_SIGNATURE )//CYRUS64
 	R4300_CALL_MAKE_OP( op_code );
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate);
+	u8* base = (u8*)ReadAddress(address & ~0x7);
 
-	u64 nMemory = Read64Bits(address & ~0x7);
+	u64 nMemory = QuickRead64Bits(base, 0x0);
 	u64 nReg = gGPR[op_code.rt]._u64;
 
 #if 1 //1-> tighter code, 0->old way //Corn
@@ -1335,7 +1338,7 @@ static void R4300_CALL_TYPE R4300_SDL( R4300_CALL_SIGNATURE )//CYRUS64
 	}
 #endif
 
-	Write64Bits(address & ~0x7, nNew);
+	QuickWrite64Bits(base, 0x0, nNew);
 }
 
 static void R4300_CALL_TYPE R4300_SDR( R4300_CALL_SIGNATURE )//CYRUS64
@@ -1343,10 +1346,11 @@ static void R4300_CALL_TYPE R4300_SDR( R4300_CALL_SIGNATURE )//CYRUS64
 	R4300_CALL_MAKE_OP( op_code );
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate);
-	//DBGConsole_Msg(0,"Address:		0x%08x", dwAddress );
+	u8* base = (u8*)ReadAddress(address & ~0x7);
 
-	u64 nMemory = Read64Bits(address & ~0x7);
+	u64 nMemory = QuickRead64Bits(base, 0x0);
 	u64 nReg = gGPR[op_code.rt]._u64;
+
 #if 1 //1-> tighter code, 0->old way //Corn
 	u64 nNew = (nMemory & ~(~0LL << ((~address & 0x7) << 3))) | (nReg << ((~address & 0x7) << 3));
 #else
@@ -1364,7 +1368,7 @@ static void R4300_CALL_TYPE R4300_SDR( R4300_CALL_SIGNATURE )//CYRUS64
 	}
 #endif
 
-	Write64Bits(address & ~0x7, nNew);
+	QuickWrite64Bits(base, 0x0, nNew);
 }
 
 /*
