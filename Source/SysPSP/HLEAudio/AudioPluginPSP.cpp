@@ -42,6 +42,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <pspkernel.h>
 
+
+/* This sets default frequency what is used if rom doesn't want to change it.
+   Probably only game that needs this is Zelda: Ocarina Of Time Master Quest
+   *NOTICE* We should try to find out why Demos' frequencies are always wrong
+   They tend to rely on a default frequency, apparently, never the same one ;)*/
+
+#define DEFAULT_FREQUENCY 33600	// Taken from Mupen64 : )
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -100,17 +108,16 @@ void	CAudioPluginPsp::StopEmulation()
 	mAudioCode->StopAudio();
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void	CAudioPluginPsp::DacrateChanged( int SystemType )
 {
 //	printf( "DacrateChanged( %s )\n", (SystemType == ST_NTSC) ? "NTSC" : "PAL" );
+	u32 type = (SystemType == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK;
 	u32 dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
-	u32	frequency = (SystemType == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK / (dacrate + 1);
+	u32	frequency = type / (dacrate + 1);
 
 	mAudioCode->SetFrequency( frequency );
 }
+
 
 //*****************************************************************************
 //

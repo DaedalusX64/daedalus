@@ -42,6 +42,12 @@ TFlashRam_Modes FlashFlag = FLASHRAM_MODE_NOPES;
 
 #define SetFlashStatus(x) FlashStatus[0] = (u32)((x)>> 32), FlashStatus[1] = (u32)(x)
 
+void Flash_Init()
+{
+	FlashFlag = FLASHRAM_MODE_NOPES;
+	FlashStatus[0] = 0;
+	FlashStatus[1] = 0;
+}
 
 bool DMA_FLASH_CopyToDRAM(u32 dest, u32 StartOffset, u32 len)
 {

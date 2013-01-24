@@ -101,7 +101,7 @@ bool  g_RomWritten;
 // Flash RAM Support
 extern u32 FlashStatus[2];
 void Flash_DoCommand(u32);
-
+void Flash_Init();
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -575,6 +575,9 @@ void Memory_InitTables()
 	{
 		Memory_Tlb_Hack( rom_address );
 	}
+
+	// Init/Reset flash Ram
+	Flash_Init();
 
 	// Debug only
 #ifndef DAEDALUS_SILENT

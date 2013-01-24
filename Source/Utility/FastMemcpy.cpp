@@ -43,7 +43,7 @@ void memcpy_swizzle( void* dst, const void* src, size_t size )
 
 			switch( (uintptr_t)src8&0x3 )
 			{
-				case 0:	//Both src and dst are aligned to 4 bytes at this point
+				case 0:	//Both src and dst are aligned to 4 bytes
 					{
 						while (size32&0x3)
 						{
@@ -52,33 +52,12 @@ void memcpy_swizzle( void* dst, const void* src, size_t size )
 						}
 
 						u32 size128 = size32 >> 2;
-
 						while (size128--)
 						{
-#ifdef DAEDALUS_PSP
-							asm(".set	push\n"				// save assembler option
-								".set	noreorder\n"		// suppress reordering
-								"lw	 $8,  0(%1)\n"			//
-								"lw	 $9,  4(%1)\n"			//
-								"lw	 $2,  8(%1)\n"			//
-								"lw	 $3, 12(%1)\n"			//
-								"sw	 $8,  0(%0)\n"			//
-								"sw	 $9,  4(%0)\n"			//
-								"sw	 $2,  8(%0)\n"			//
-								"sw	 $3, 12(%0)\n"			//
-								".set	pop\n"				// restore assembler option
-								:"+r"(dst32),"+r"(src32)
-								:
-								:"$8","$9","$2","$3","memory"
-								);
-							dst32 += 4;
-							src32 += 4;
-#else
 							*dst32++ = *src32++;
 							*dst32++ = *src32++;
 							*dst32++ = *src32++;
 							*dst32++ = *src32++;
-#endif
 						}
 
 						src8 = (u8*)src32;

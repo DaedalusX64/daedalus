@@ -24,20 +24,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 static void * ReadInvalid( u32 address )
 {
 	DPF( DEBUG_MEMORY, "Illegal Memory Access - Tried to Read From 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC );
+	DBGConsole_Msg(0, "Illegal Memory Access - Tried to Read From 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC);
 
-	// 64DD region.. this fixes F-Zero U
-	if(address == 0xa5000508)
-	{
-		DBGConsole_Msg(0, "Reading noise (0x%08x) - sizing memory?", address);
-		*(u32*)(g_pMemoryBuffers[MEM_UNUSED]) = ~0;
-	}
-	else
-	{
-		DBGConsole_Msg(0, "Illegal Memory Access - Tried to Read From 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC);
-		*(u32*)(g_pMemoryBuffers[MEM_UNUSED]) = 0;
-	}
+	u8* temp = (u8 *)g_pMemoryBuffers[MEM_UNUSED];
 
-	return g_pMemoryBuffers[MEM_UNUSED];
+	// 0xa5000508 is 64DD region.. set -1 fixes F-Zero U
+	*(u32*)(temp) = (address == 0xa5000508) ? ~0 : 0;
+	return temp;
 }
 
 //*****************************************************************************
@@ -234,6 +227,7 @@ static void * ReadROM( u32 address )
 static void * Read_9FC0_9FCF( u32 address )
 {
 	u32 offset = address & 0x0FFF;
+	u32 pif_ram_offset = address & 0x3F;
 
 	// Reading PIF ROM or outside PIF RAM
 	if( (offset < 0x7C0) || (offset > 0x7FF) ) 
@@ -241,8 +235,6 @@ static void * Read_9FC0_9FCF( u32 address )
 		DBGConsole_Msg(0, "[GRead from PIF (0x%08x) is invalid", address);
 		return g_pMemoryBuffers[MEM_UNUSED];
 	}
-
-	u32 pif_ram_offset = address & 0x3F;
 
 	DPF( DEBUG_MEMORY_PIF, "Reading from MEM_PIF: 0x%08x", address );
 	return (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + pif_ram_offset;

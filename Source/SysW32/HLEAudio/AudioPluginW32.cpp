@@ -189,8 +189,9 @@ void	CAudioPluginW32::DacrateChanged( int SystemType )
 {
 	if (Dacrate != Memory_AI_GetRegister(AI_DACRATE_REG)) 
 	{
+		u32 type = (SystemType == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK;
 		Dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
-		Frequency = (SystemType == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK / (Dacrate + 1);
+		Frequency = type / (Dacrate + 1);
 		SetupDSoundBuffers();
 	}
 }
