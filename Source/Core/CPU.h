@@ -218,35 +218,25 @@ extern "C"
 extern	void (* g_pCPUCore)();
 
 //***********************************************
-//These two functions gets called *alot* //Corn
-//CPU_FetchInstruction
-//CPU_FetchInstruction_Refill
+// This function gets called *alot* //Corn
 //***********************************************
-inline bool CPU_FetchInstruction_Refill( u32 pc, OpCode * opcode )
-{
-	gLastAddress = (u8 *)ReadAddress( pc );
-	gLastPC = pc;
-	*opcode = *(OpCode *)gLastAddress;
-	return gCPUState.GetStuffToDo() == 0;
-}
-
-inline bool CPU_FetchInstruction( u32 pc, OpCode * opcode )
-{
-	const u32 PAGE_MASK_BITS = 12;		// 1<<12 == 4096
-
-	if( (pc>>PAGE_MASK_BITS) == (gLastPC>>PAGE_MASK_BITS) )
-	{
-		s32		offset( pc - gLastPC );
-
-		gLastAddress += offset;
-		DAEDALUS_ASSERT( gLastAddress == ReadAddress(pc), "Cached Instruction Pointer base is out of sync" );
-		gLastPC = pc;
-		*opcode = *(OpCode *)gLastAddress;
-		return true;
+//
+// From ReadAddress
+// 
+#define CPU_FETCH_INSTRUCTION(ptr, pc)								\
+	const MemFuncRead & m( g_MemoryLookupTableRead[ pc >> 18 ] );	\
+	if( DAEDALUS_EXPECT_LIKELY(m.pRead != NULL) )					\
+	{																\
+/* Access through pointer with no function calls at all (Fast) */	\
+		ptr = ( m.pRead + pc );										\
+	}																\
+	else															\
+	{																\
+/* ROM or TLB and possible trigger for an exception (Slow)*/		\
+		ptr = (u8*)m.ReadFunc( pc );								\
+		if( gCPUState.GetStuffToDo() )								\
+			return;													\
 	}
-
-	return CPU_FetchInstruction_Refill( pc, opcode );
-}
 
 //***********************************************
 //This function gets called *alot* //Corn

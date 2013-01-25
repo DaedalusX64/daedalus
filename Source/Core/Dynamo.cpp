@@ -122,15 +122,17 @@ void R4300_CALL_TYPE CPU_InvalidateICacheRange( u32 address, u32 length )
 //*****************************************************************************
 template< bool TraceEnabled > __forceinline void CPU_EXECUTE_OP()
 {
-	OpCode op_code;
 
-	if( !CPU_FetchInstruction( gCPUState.CurrentPC, &op_code ) )
-	{
-		//printf( "Exception on instruction fetch @%08x\n", gCPUState.CurrentPC );
-		return;
-	}
+	u8 * p_Instruction;
+	CPU_FETCH_INSTRUCTION( p_Instruction, gCPUState.CurrentPC );
+	OpCode op_code = *(OpCode*)p_Instruction;
 
+	// Cache instruction base pointer (used for SpeedHack() @ R4300.0)
+	gLastAddress = p_Instruction;
+
+#ifdef DAEDALUS_BREAKPOINTS_ENABLED
 	op_code = GetCorrectOp( op_code );
+#endif
 
 	SYNCH_POINT( DAED_SYNC_REG_PC, gCPUState.CurrentPC, "Program Counter doesn't match" );
 	SYNCH_POINT( DAED_SYNC_FRAGMENT_PC, gCPUState.CurrentPC + gCPUState.Delay, "Program Counter/Delay doesn't match while interpreting" );
