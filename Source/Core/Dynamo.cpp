@@ -224,7 +224,7 @@ template < bool DynaRec, bool TraceEnabled > void CPU_Go()
 {
 	DAEDALUS_PROFILE( __FUNCTION__ );
 
-	while (CPU_IsRunning())
+	while (1)
 	{
 		//
 		// Keep executing ops as long as there's nothing to do

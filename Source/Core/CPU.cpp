@@ -937,15 +937,15 @@ bool	CPU_CheckStuffToDo()
 			R4300_Handle_Exception();
 			gCPUState.ClearJob( CPU_CHECK_EXCEPTIONS );
 		}
+		else if( stuff_to_do & CPU_CHANGE_CORE )
+		{
+			gCPUState.ClearJob( CPU_CHANGE_CORE );
+			return true;
+		}
 		else if( stuff_to_do & CPU_STOP_RUNNING )
 		{
 			gCPUState.ClearJob( CPU_STOP_RUNNING );
 			gCPURunning = false;
-			return true;
-		}
-		else if( stuff_to_do & CPU_CHANGE_CORE )
-		{
-			gCPUState.ClearJob( CPU_CHANGE_CORE );
 			return true;
 		}
 		// Clear stuff_to_do?
