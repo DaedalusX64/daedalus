@@ -137,6 +137,15 @@ extern "C"
 
 
 
+//Used to print value from ASM just add these two OPs (all caller saved regs will to be saved including RA and A0) //Corn
+//	jal		_printf_asm
+//	lw		$a0, _Delay($fp)	#ex: prints Delay value
+// OR ADD
+//	JAL( CCodeLabel( (void*)_printf_asm ), false );
+//	OR( PspReg_A0, dst_reg, PspReg_R0 );
+extern "C" { void _printf_asm( u32 val ); }
+extern "C" { void output_extern( u32 val ) { printf("%d\n", val); } }
+
 extern "C" { void _ReturnFromDynaRecIfStuffToDo( u32 register_mask ); }
 extern "C" { void _DaedalusICacheInvalidate( const void * address, u32 length ); }
 
@@ -207,21 +216,18 @@ void HandleException_extern()
 	switch (gCPUState.Delay)
 	{
 		case DO_DELAY:
+			gCPUState.Delay = EXEC_DELAY;	//fall through to PC +=4
+		case NO_DELAY:
 			gCPUState.CurrentPC += 4;
-			gCPUState.Delay = EXEC_DELAY;
 			break;
 		case EXEC_DELAY:
 			gCPUState.CurrentPC = gCPUState.TargetPC;
 			gCPUState.Delay = NO_DELAY;
 			break;
-		case NO_DELAY:
-			gCPUState.CurrentPC += 4;
-			break;
 		default:	// MSVC extension - the default will never be reached
 			NODEFAULT;
 	}
 }
-
 }
 
 namespace
@@ -3165,8 +3171,8 @@ inline void	CCodeGeneratorPSP::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immedi
 		EPspReg dst_reg( GetRegisterNoLoadLo( rt, PspReg_V0 ) );
 		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_V1 ) );
 		ADDIU( dst_reg, src_reg, immediate );
-		UpdateRegister( rt, dst_reg, URO_HI_SIGN_EXTEND );
 
+		UpdateRegister( rt, dst_reg, URO_HI_SIGN_EXTEND );
 	}
 }
 
