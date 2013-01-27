@@ -15,7 +15,7 @@ http://gitorious.org/~jjs/ags/ags-for-psp
 #include <psppower.h>
 #include <pspsuspend.h>
 
-#include <malloc.h> 
+#include <malloc.h>
 
 bool bVolatileMem = false;
 //*************************************************************************************

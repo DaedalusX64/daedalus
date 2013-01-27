@@ -81,7 +81,7 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 		u32 address = (code.addr & 0xFFFFFF);
 		u16 value	= code.val;
 		u32 type	= (code.addr >> 24) & 0xFF;
-		
+
 		switch(type)
 		{
 		case 0x80:
@@ -93,13 +93,13 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 				code.orig = *(u8 *)(p_mem);
 
 			// Cheat code is no longer active, restore to saved value
-			// Set CHEAT_CODE_MAGIC_VALUE as well to make sure we can save the most recent value later on 
+			// Set CHEAT_CODE_MAGIC_VALUE as well to make sure we can save the most recent value later on
 			if(!codegrouplist[index].enable)
 			{
 				value = (u8)code.orig;
 				code.orig = CHEAT_CODE_MAGIC_VALUE;
 			}
-		
+
 			*(u8 *)(p_mem) = (u8)value;
 			break;
 		case 0x81:
@@ -111,13 +111,13 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 				code.orig = *(u16 *)(p_mem);
 
 			// Cheat code is no longer active, restore to saved value
-			// Set CHEAT_CODE_MAGIC_VALUE as well to make sure we can save the most recent value later on 
+			// Set CHEAT_CODE_MAGIC_VALUE as well to make sure we can save the most recent value later on
 			if(!codegrouplist[index].enable)
 			{
 				value = code.orig;
 				code.orig = CHEAT_CODE_MAGIC_VALUE;
 			}
-		
+
 			*(u16 *)(p_mem) = value;
 			break;
 		case 0xD0:
@@ -148,7 +148,7 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 			if( ((code.addr >> 20) & 0xF) == 0x5 )
 				Memory_AI_SetRegister(code.addr & 0x0FFFFFFF, value);
 			break;
-		case 0x50:	
+		case 0x50:
 			{
 				s32	count	= (address & 0x0000FF00) >> 8;	// repeat count
 				u32	offset	= (address & 0x000000FF);
@@ -201,7 +201,7 @@ void CheatCodes_Activate( CHEAT_MODE mode )
 	{
 		// Apply only activated cheats
 		if(codegrouplist[i].active)
-		{		
+		{
 			// Keep track of active cheatcodes, when they are disable,
 			// this flag will signal that we need to restore the hacked value to normal
 			codegrouplist[i].enable = true;
