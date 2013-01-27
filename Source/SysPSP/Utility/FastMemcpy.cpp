@@ -51,7 +51,7 @@ void memcpy_vfpu( void* dst, const void* src, size_t size )
 
 	dst8=(u8*)dst32;
 	src8=(u8*)src32;
-	
+
 	if( ((u32)src8&0xF)==0 )	//Both src and dst are 16byte aligned
 	{
 		while (size>63)
@@ -134,7 +134,7 @@ void memcpy_vfpu( void* dst, const void* src, size_t size )
     }
 
 	// Most copies are completed with the VFPU, so fast out
-	if (size == 0) 
+	if (size == 0)
 		return;
 
 	dst32=(u32*)dst8;
@@ -500,7 +500,7 @@ bytecopy:
 //Swizzled memcopy uses VFPU if possible else normal memcpy() //Corn
 //*****************************************************************************
 #ifdef DAEDALUS_PSP
-void memcpy_vfpu_swizzle( void* dst, const void* src, size_t size )
+void memcpy_vfpu_byteswap( void* dst, const void* src, size_t size )
 {
     u8* src8 = (u8*)src;
     u8* dst8 = (u8*)dst;
@@ -517,7 +517,7 @@ void memcpy_vfpu_swizzle( void* dst, const void* src, size_t size )
 			*(u8*)((u32)dst8++ ^ 3) = *(u8*)((u32)src8++ ^ 3);
 			size--;
 		}
-		
+
 		// if < 4 its not possible to optimize...
 		if( size>=4 )
 		{
@@ -623,7 +623,7 @@ void memcpy_vfpu_swizzle( void* dst, const void* src, size_t size )
 					}
 
 					// Most copies are completed with the VFPU, so fast out
-					if (size == 0) 
+					if (size == 0)
 						return;
 				}
 
@@ -648,7 +648,7 @@ void memcpy_vfpu_swizzle( void* dst, const void* src, size_t size )
 				u32 srcTmp = *src32++;
 				u32 dstTmp = 0;
 				u32 size32 = size >> 2; // Size in dwords (to avoid a sltiu in loop)
-				
+
 				size &= 0x3; // Update remaining bytes if any..
 
 				switch( (u32)src8&0x3 )
@@ -739,7 +739,7 @@ static inline u64 GetCurrent()
 	{																			\
 		u64 time = GetCurrent();												\
 		for (int j=0; j<100; ++j)												\
-			memcpy_vfpu_swizzle(d, s, n);										\
+			memcpy_vfpu_byteswap(d, s, n);										\
 		vfpu_elapsed_swizzle = (int)(GetCurrent()-time);						\
 	}																			\
 	int vfpu_elapsed = 0;														\

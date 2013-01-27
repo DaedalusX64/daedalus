@@ -14,7 +14,7 @@ homepage: http://wordpress.fx-world.org
 //Copy native N64 memory with CPU only //Corn
 //Little Endian
 //*****************************************************************************
-void memcpy_swizzle( void* dst, const void* src, size_t size )
+void memcpy_byteswap( void* dst, const void* src, size_t size )
 {
 	u8* src8 = (u8*)src;
 	u8* dst8 = (u8*)dst;

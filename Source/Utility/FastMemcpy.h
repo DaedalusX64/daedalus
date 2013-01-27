@@ -9,32 +9,36 @@
 void memcpy_test( void * dst, const void * src, size_t size );
 #endif
 
-void memcpy_vfpu( void* dst, const void* src, size_t size );	
-void memcpy_vfpu_swizzle( void* dst, const void* src, size_t size );
-void memcpy_swizzle( void* dst, const void* src, size_t size );	// Little endian, platform independent
+void memcpy_byteswap( void* dst, const void* src, size_t size );	// Little endian, platform independent, ALWAYS swaps.
 
-inline void fast_memcpy( void* dst, const void* src, size_t size )
-{
-#ifdef DAEDALUS_PSP
-	 memcpy_vfpu( dst, src, size );
-#else
-	 memcpy( dst, src, size );
-#endif
-}
 
-inline void fast_memcpy_swizzle( void* dst, const void* src, size_t size )
-{
 #ifdef DAEDALUS_PSP
-	 memcpy_vfpu_swizzle( dst, src, size );
-#else
+
+void memcpy_vfpu( void* dst, const void* src, size_t size );
+void memcpy_vfpu_byteswap( void* dst, const void* src, size_t size );
+
+#define memcpy_swizzle 		memcpy_byteswap
+
+#define fast_memcpy 		memcpy_vfpu
+#define fast_memcpy_swizzle memcpy_vfpu_byteswap
+
+#else // DAEDALUS_PSP
+
+// memcpy_swizzle is just a regular memcpy on big-endian targets.
 #if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
-	memcpy( dst, src, size );
+#define memcpy_swizzle 		memcpy
+#elif (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_LITTLE)
+#define memcpy_swizzle 		memcpy_byteswap
 #else
-	memcpy_swizzle( dst, src, size );
+#error No DAEDALUS_ENDIAN_MODE specified
 #endif
 
-#endif //DAEDALUS_PSP
-}
+// Just use regular memcpy/memcpy_swizzle.
+#define fast_memcpy 		memcpy
+#define fast_memcpy_swizzle memcpy_swizzle
+
+#endif // DAEDALUS_PSP
+
 
 
 #endif // FASTMEMCPY_H_
