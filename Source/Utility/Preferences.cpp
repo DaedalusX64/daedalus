@@ -267,10 +267,12 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		{
 			preferences.ZoomX = (f32)atof( property->GetValue() );
 		}
+#ifdef DAEDALUS_PSP
 		if( section->FindProperty( "Controller", &property ) )
 		{
 			preferences.ControllerIndex = CInputManager::Get()->GetConfigurationFromName( property->GetValue() );
 		}
+#endif
 		if( section->FindProperty( "MemoryAccessOptimisation", &property ) )
 		{
 			preferences.MemoryAccessOptimisation = property->GetBooleanValue( false );
@@ -314,7 +316,9 @@ void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences
 	fprintf(fh, "ZoomX=%f\n", preferences.ZoomX );
 	fprintf(fh, "MemoryAccessOptimisation=%d\n",preferences.MemoryAccessOptimisation);
 	fprintf(fh, "CheatsEnabled=%d\n",preferences.CheatsEnabled);
+#ifdef DAEDALUS_PSP
 	fprintf(fh, "Controller=%s\n", CInputManager::Get()->GetConfigurationName( preferences.ControllerIndex ));
+#endif
 	fprintf(fh, "\n");			// Spacer
 }
 
@@ -504,7 +508,9 @@ void	SRomPreferences::Apply() const
 //	gAdaptFrequency = AudioAdaptFrequency;
 
 	gControllerIndex = ControllerIndex;							//Used during ROM initialization
+#ifdef DAEDALUS_PSP
 	CInputManager::Get()->SetConfiguration( ControllerIndex );  //Used after initialization
+#endif
 }
 
 
