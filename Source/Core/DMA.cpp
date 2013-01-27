@@ -167,7 +167,7 @@ bool DMA_HandleTransfer( u8 * p_dst, u32 dst_offset, u32 dst_size, const u8 * p_
 		return false;
 	}
 
-	fast_memcpy_swizzle(&p_dst[dst_offset], (const void*)&p_src[src_offset], length);
+	fast_memcpy_swizzle(&p_dst[dst_offset], &p_src[src_offset], length);
 	return true;
 }
 
