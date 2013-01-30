@@ -101,9 +101,8 @@ invalidate_next:
 #
 _EnterDynaRec:
 	addiu	$sp, $sp, -40	# Push return address on the stack
-	sw		$fp, 4($sp)		# Store s8 - we use this as our base pointer
 	sw		$ra, 0($sp)
-
+	sw		$fp, 4($sp)		# Store s8 - we use this as our base pointer
 	sw		$s0, 8($sp)
 	sw		$s1, 12($sp)
 	sw		$s2, 16($sp)
@@ -117,7 +116,7 @@ _EnterDynaRec:
 	or		$s6, $a3, $0	# Upper bound
 
 	jr		$a0				# Jump to our target function
-	or		$fp, $a1, $0
+	or		$fp, $a1, $0	# set frame pointer to Emulated CPU registers
 
 #######################################################################################
 #	Check gCPUState.StuffToDo. If non-zero, performs any required handling then exits
@@ -145,7 +144,8 @@ _ReturnFromDynaRecIfStuffToDo:
 #######################################################################################
 #
 _ReturnFromDynaRec:
-
+	lw		$ra, 0($sp)		# Restore our return address
+	lw		$fp, 4($sp)		# And s8
 	lw		$s0, 8($sp)
 	lw		$s1, 12($sp)
 	lw		$s2, 16($sp)
@@ -154,9 +154,6 @@ _ReturnFromDynaRec:
 	lw		$s5, 28($sp)
 	lw		$s6, 32($sp)
 	lw		$s7, 36($sp)
-
-	lw		$ra, 0($sp)		# Restore our return address
-	lw		$fp, 4($sp)		# And s8
 	jr		$ra
 	addiu	$sp, $sp, +40
 
@@ -440,34 +437,34 @@ _WriteBitsDirectBD_u8:
  * clobber: a0,a1
  */
 _FloatToDouble:
-	ext	$a1, $a0, 23, 8			/* a1 = (a0 >> 23) & 0xFF */
-	beq	$a1, $zero, ftod_denormal		/* if (a1==0) goto ftod_denormal */
-	addiu	$v0, $a1, (-0x7F+0x3FF)		/* v0 = a1 - 0x7F + 0x3FF */
+	ext		$a1, $a0, 23, 8			/* a1 = (a0 >> 23) & 0xFF */
+	beqz	$a1, ftod_denormal		/* if (a1==0) goto ftod_denormal */
+	addiu	$v0, $a1, (-0x7F+0x3FF)	/* v0 = a1 - 0x7F + 0x3FF */
 	xori	$a1, $a1, 0xFF			/* a1 = a1 ^ 0xFF */
-	li	$v1, 0x7FF			/* v1 = 0x7FF */
+	li		$v1, 0x7FF				/* v1 = 0x7FF */
 	movz	$v0, $v1, $a1			/* v0 = (a1==0) ? v1 : v0 */
-	ext	$v1, $a0,  3, 20			/* v1 = (a0 >> 3 ) & 0x00FFFFF */
-	ins	$v1, $v0, 20, 11			/* v1 = (v1 & 0x800FFFFF) | ((v0<<20) & 0x7FF00000) */
-	sll	$v0, $a0, 29			/* v0 = (a0 << 29) */
-	srl	$a0, $a0, 31			/* a0 = (a0 >> 31) & 1 */
-	jr	$ra				/* return */
-	ins	$v1, $a0, 31, 1			/* v1 = (v1 & 0x7FFFFFFF) | ((a0<<31) & 0x80000000) */
+	ext		$v1, $a0,  3, 20		/* v1 = (a0 >> 3 ) & 0x00FFFFF */
+	ins		$v1, $v0, 20, 11		/* v1 = (v1 & 0x800FFFFF) | ((v0<<20) & 0x7FF00000) */
+	sll		$v0, $a0, 29			/* v0 = (a0 << 29) */
+	srl		$a0, $a0, 31			/* a0 = (a0 >> 31) & 1 */
+	jr		$ra						/* return */
+	ins		$v1, $a0, 31, 1			/* v1 = (v1 & 0x7FFFFFFF) | ((a0<<31) & 0x80000000) */
 
 ftod_denormal:
-	sll	$v0, $a0, 9			/* v0 = a0 << 9 */
-	beql	$v0, $zero, ftod_zero		/* if (v0==0) goto ftod_zero */
-	move	$v1, $zero			/* v1 = 0 */
-	li	$v1, 0x380			/* v1 = 0x380 */
-	clz	$a1, $v0				/* a1 = clz(v0) */
+	sll		$v0, $a0, 9				/* v0 = a0 << 9 */
+	beqzl	$v0, ftod_zero			/* if (v0==0) goto ftod_zero */
+	move	$v1, $zero				/* v1 = 0 */
+	li		$v1, 0x380				/* v1 = 0x380 */
+	clz		$a1, $v0				/* a1 = clz(v0) */
 	subu	$v0, $v1, $a1			/* v0 = v1 - v0 = 0x380 - clz(a1) */
 	sllv	$a1, $a0, $a1			/* a1 = a0 << a1 */
-	ext	$v1, $a1,  2, 20			/* v1 = (a1 >> 2 ) & 0x00FFFFF */
-	ins	$v1, $v0, 20, 11			/* v1 = (v1 & 0x800FFFFF) | ((v0<<20) & 0x7FF00000) */
-	sll	$v0, $a1, 30			/* v0 = (a1 << 30) */
+	ext		$v1, $a1,  2, 20		/* v1 = (a1 >> 2 ) & 0x00FFFFF */
+	ins		$v1, $v0, 20, 11		/* v1 = (v1 & 0x800FFFFF) | ((v0<<20) & 0x7FF00000) */
+	sll		$v0, $a1, 30			/* v0 = (a1 << 30) */
 ftod_zero:
-	srl	$a0, $a0, 31			/* a0 = (a0 >> 31) & 1 */
-	jr	$ra				/* return */
-	ins	$v1, $a0, 31, 1			/* v1 = (v1 & 0x7FFFFFFF) | ((a0<<31) & 0x80000000) */
+	srl		$a0, $a0, 31			/* a0 = (a0 >> 31) & 1 */
+	jr		$ra						/* return */
+	ins		$v1, $a0, 31, 1			/* v1 = (v1 & 0x7FFFFFFF) | ((a0<<31) & 0x80000000) */
 
 #######################################################################################
 /**
@@ -479,87 +476,88 @@ ftod_zero:
  * uses: a2,a3
  */
 _DoubleToFloat:
-	sw		$a2, _Temp1($fp) 	# Temp storage
-	sw		$a3, _Temp2($fp) 	# Temp storage
-	ext	$a2, $a1, 20, 11		/* a2 = (a1>>20) & 0x000007FF */
-	beq	$a2, $zero, dtof_zero	/* if (a2==0) goto dtof_zero */
-	xori	$a3, $a2, 0x7FF		/* a3 = a2 ^ 0x7FF */
-	beq	$a3, $zero, dtof_naninf	/* if (a3==0) goto dtof_naninf */
+	sw		$a2, _Temp1($fp) 		# Temp storage
+	sw		$a3, _Temp2($fp) 		# Temp storage
+	ext		$a2, $a1, 20, 11		/* a2 = (a1>>20) & 0x000007FF */
+	beqz	$a2, dtof_zero			/* if (a2==0) goto dtof_zero */
+	xori	$a3, $a2, 0x7FF			/* a3 = a2 ^ 0x7FF */
+	beqz	$a3, dtof_naninf		/* if (a3==0) goto dtof_naninf */
 	addiu	$a3, $a2, (+0x7F-0x3FF)	/* a3 = a2 + 0x7F - 0x3FF */
-	blez	$a3, dtof_denormal	/* if (a3<=0) goto dtof_denormal */
-	addiu	$v1, $a3, -0xFE		/* v1 = a3 - 0xFE */
-	bgtz	$v1, dtof_inf		/* if (v1 > 0) goto dtof_inf */
-	move	$v0, $zero		/* v0 = 0 */
+	blez	$a3, dtof_denormal		/* if (a3<=0) goto dtof_denormal */
+	addiu	$v1, $a3, -0xFE			/* v1 = a3 - 0xFE */
+	bgtz	$v1, dtof_inf			/* if (v1 > 0) goto dtof_inf */
+	move	$v0, $zero				/* v0 = 0 */
 
-	srl	$v0, $a0, 29			/* v0 = (a0>>29) & 0x00000007 */
-	ins	$v0, $a1, 3, 20			/* v0 = (v0 & 0xFF800007) | ((a1 & 0FFFFF)<<3) */
-	beq	$v1, $zero, dtof_inf_normal	/* if (v1==0) goto dtof_inf_normal */
+	srl		$v0, $a0, 29			/* v0 = (a0>>29) & 0x00000007 */
+	ins		$v0, $a1, 3, 20			/* v0 = (v0 & 0xFF800007) | ((a1 & 0FFFFF)<<3) */
+	beqz	$v1, dtof_inf_normal	/* if (v1==0) goto dtof_inf_normal */
 dtof_normal:
-	srl	$v1, $a1, 31		/* v1 = (a1>>31) & 1 */
-	ins	$v0, $v1, 31, 1		/* v0 = (v0 & 0x7FFFFFFF) | (v1 << 31) */
-	ins	$v0, $a3, 23, 8		/* v0 = (v0 & 0x8007FFFF) | (a3 << 23) */
-	lw		$a2, _Temp1($fp) 	# Temp storage
-	jr	$ra			/* return */
-	lw		$a3, _Temp2($fp) 	# Temp storage
+	srl		$v1, $a1, 31			/* v1 = (a1>>31) & 1 */
+dtof_normal2:
+	ins		$v0, $v1, 31, 1			/* v0 = (v0 & 0x7FFFFFFF) | (v1 << 31) */
+	ins		$v0, $a3, 23, 8			/* v0 = (v0 & 0x8007FFFF) | (a3 << 23) */
+	lw		$a2, _Temp1($fp) 		# Temp storage
+	jr		$ra						/* return */
+	lw		$a3, _Temp2($fp) 		# Temp storage
 
 dtof_denormal:
-	sll	$a2, $a1, 12		/* a2 = a1 << 12 */
-	srl	$v0, $a2, 10		/* v0 = a2 >> 10 */
-	srl	$a2, $a0, 30		/* a2 = a2 >> 30 */
-	or	$v0, $v0, a2		/* v0 = v0 | a2 */
-	li	$a2, 0x00400000		/* a2 = 0x00400000 */
-	or	$v0, $v0, $a2		/* v0 = v0 | a2 */
-	subu	$a2, $zero, $a3		/* a2 = zero - a3 */
-	sltiu	$a3, $a2, 22		/* a3 = (a2 < 22) */
-	beq	$a3, $zero, dtof_min	/* if (a3==0) goto dtof_min */
-	srlv	$v0, $v0, $a2		/* v0 = v0 >> a2 */
-	srl	$v1, $a1, 31		/* v1 = (a1>>31) & 1 */
-	ins	$v0, $v1, 31, 1		/* v0 = (v0 & 0x7FFFFFFF) | (v1 << 31) */
-	lw		$a2, _Temp1($fp) 	# Temp storage
-	jr	$ra			/* return */
-	lw		$a3, _Temp2($fp) 	# Temp storage
+	sll		$a2, $a1, 12			/* a2 = a1 << 12 */
+	srl		$v0, $a2, 10			/* v0 = a2 >> 10 */
+	srl		$a2, $a0, 30			/* a2 = a0 >> 30 */
+	or		$v0, $v0, a2			/* v0 = v0 | a2 */
+	li		$a2, 0x00400000			/* a2 = 0x00400000 */
+	or		$v0, $v0, $a2			/* v0 = v0 | a2 */
+	subu	$a2, $zero, $a3			/* a2 = zero - a3 */
+	sltiu	$a3, $a2, 22			/* a3 = (a2 < 22) */
+	beqz	$a3, dtof_min			/* if (a3==0) goto dtof_min */
+	srlv	$v0, $v0, $a2			/* v0 = v0 >> a2 */
+	srl		$v1, $a1, 31			/* v1 = (a1>>31) & 1 */
+	ins		$v0, $v1, 31, 1			/* v0 = (v0 & 0x7FFFFFFF) | (v1 << 31) */
+	lw		$a2, _Temp1($fp) 		# Temp storage
+	jr		$ra						/* return */
+	lw		$a3, _Temp2($fp) 		# Temp storage
 
 dtof_zero:
-	sll	$a2, $a1, 12		/* a2 = a1 << 12 */
-	or	$a2, $a2, $a0		/* a2 = a2 | a0 */
+	sll		$a2, $a1, 12			/* a2 = a1 << 12 */
+	or		$a2, $a2, $a0			/* a2 = a2 | a0 */
 dtof_min:
-	li	$v0, 0x00000001		/* v0 = 0x00000001 */
-	movz	$v0, $zero, $a2		/* v0 = (a2==0) ? zero : v0 */
-	srl	$a2, $a1, 31		/* a2 = (a1 >> 31) & 1 */
-	ins	$v0, $a2, 31, 1		/* v0 = (v0 & 0x7FFFFFFF) | ((a2<<31) & 0x80000000) */
-	lw		$a2, _Temp1($fp) 	# Temp storage
-	jr	$ra			/* return */
-	lw		$a3, _Temp2($fp) 	# Temp storage
+	li		$v0, 0x00000001			/* v0 = 0x00000001 */
+	movz	$v0, $zero, $a2			/* v0 = (a2==0) ? zero : v0 */
+	srl		$a2, $a1, 31			/* a2 = (a1 >> 31) & 1 */
+	ins		$v0, $a2, 31, 1			/* v0 = (v0 & 0x7FFFFFFF) | ((a2<<31) & 0x80000000) */
+	lw		$a2, _Temp1($fp) 		# Temp storage
+	jr		$ra						/* return */
+	lw		$a3, _Temp2($fp) 		# Temp storage
 
 dtof_inf_normal:
-	nor	$a2, $zero, $a1		/* a2 = ~a1 */
-	sll	$a2, $a2, 12		/* a2 = a2 << 12 */
-	bne	$a2, $zero, dtof_normal	/* if (a2!=0) goto dtof_normal */
-	srl	$a2, $a0, 28		/* a2 = a0 >> 28 */
-	sltiu	$a2, $a2, 0xF		/* a2 = (a2 < 0xF) */
-	bne	$a2, $zero, dtof_normal	/* if (a2!=0) goto dtof_normal */
-	nop				/* waste delay slot */
-	j	dtof_inf		/* goto dtof_inf */
-	move	$v0, $zero		/* v0 = 0 */
+	nor		$a2, $zero, $a1			/* a2 = ~a1 */
+	sll		$a2, $a2, 12			/* a2 = a2 << 12 */
+	bnez	$a2, dtof_normal		/* if (a2!=0) goto dtof_normal */
+	srl		$a2, $a0, 28			/* a2 = a0 >> 28 */
+	sltiu	$a2, $a2, 0xF			/* a2 = (a2 < 0xF) */
+	bnez	$a2, dtof_normal2		/* if (a2!=0) goto dtof_normal */
+	srl		$v1, $a1, 31			/* v1 = (a1>>31) & 1 */
+	j		dtof_inf				/* goto dtof_inf */
+	move	$v0, $zero				/* v0 = 0 */
 
 dtof_naninf:
-	sll	$a2, $a1, 12		/* a2 = a1 << 12 */
-	or	$a3, $a2, $a0		/* a3 = a2 | a0 */
-	srl	$v0, $a2, 9		/* v0 = a2 >> 9 */
-	srl	$a2, $a0, 29		/* a2 = a2 >> 29 */
-	or	$v0, $v0, $a2		/* v0 = v0 | a2 */
-	sltiu	$a2, $v0, 1		/* a2 = (v0 < 1) */
-	or	$v0, $v0, $a2		/* v0 = v0 | a2 */
-	movz	$v0, $zero, $a3		/* v0 = (a3==0) ? zero : v0 */
+	sll		$a2, $a1, 12			/* a2 = a1 << 12 */
+	or		$a3, $a2, $a0			/* a3 = a2 | a0 */
+	srl		$v0, $a2, 9				/* v0 = a2 >> 9 */
+	srl		$a2, $a0, 29			/* a2 = a2 >> 29 */
+	or		$v0, $v0, $a2			/* v0 = v0 | a2 */
+	sltiu	$a2, $v0, 1				/* a2 = (v0 < 1) */
+	or		$v0, $v0, $a2			/* v0 = v0 | a2 */
+	movz	$v0, $zero, $a3			/* v0 = (a3==0) ? zero : v0 */
 dtof_inf:
-	li	$a2, 0x7F800000		/* a2 = 0x7F800000 */
-	or	$v0, $v0, $a2		/* v0 = v0 | a2 */
-	srl	$a2, $a1, 31		/* a2 = (a1 >> 31) & 1 */
-	ins	$v0, $a2, 31, 1		/* v0 = (v0 & 0x7FFFFFFF) | ((a2<<31) & 0x80000000) */
-	lw		$a2, _Temp1($fp) 	# Temp storage
-	jr	$ra			/* return */
-	lw		$a3, _Temp2($fp) 	# Temp storage
-
+	li		$v1, 0x7F800000			/* v1 = 0x7F800000 */
+	or		$v0, $v0, $v1			/* v0 = v0 | v1 */
+	srl		$v1, $a1, 31			/* v1 = (a1 >> 31) & 1 */
+	ins		$v0, $v1, 31, 1			/* v0 = (v0 & 0x7FFFFFFF) | ((v1<<31) & 0x80000000) */
+	lw		$a2, _Temp1($fp) 		# Temp storage
+	jr		$ra						/* return */
+	lw		$a3, _Temp2($fp) 		# Temp storage
+	
 #######################################################################################
 /**
  * context save and print value 
