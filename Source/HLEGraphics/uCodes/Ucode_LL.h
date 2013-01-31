@@ -96,22 +96,22 @@ void DLParser_Last_Legion_0x00( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_TexRect_Last_Legion( MicroCodeCommand command )
 {
+	MicroCodeCommand command2;
+	MicroCodeCommand command3;
 
 	//
 	// Fetch the next two instructions
 	//
-	u32 pc = gDlistStack.address[gDlistStackPointer];
-	u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
-	gDlistStack.address[gDlistStackPointer]+= 16;
+	DLParser_FetchNextCommand( &command2 );
+	DLParser_FetchNextCommand( &command3 );
 
 	RDP_TexRect tex_rect;
 	tex_rect.cmd0 = command.inst.cmd0;
 	tex_rect.cmd1 = command.inst.cmd1;
 
 	// Note : these are in a different order than normal texrect!
-	// 3&1 and not 1&3
-	tex_rect.cmd2 = *(u32 *)(pCmdBase+3);
-	tex_rect.cmd3 = *(u32 *)(pCmdBase+1);
+	tex_rect.cmd2 = command3.inst.cmd1;
+	tex_rect.cmd3 = command2.inst.cmd1;
 
 	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
 	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );

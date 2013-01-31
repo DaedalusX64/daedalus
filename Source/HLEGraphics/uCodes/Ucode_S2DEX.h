@@ -523,8 +523,7 @@ inline void DLParser_Yoshi_MemRect( MicroCodeCommand command )
 	RDP_MemRect mem_rect;
 	mem_rect.cmd0 = command.inst.cmd0;
 	mem_rect.cmd1 = command.inst.cmd1;
-	mem_rect.cmd2 = *(u32 *)(pCmdBase+1);
-	mem_rect.cmd3 = *(u32 *)(pCmdBase+3);
+	mem_rect.cmd2 = pCmdBase[1];
 
 	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( mem_rect.tile_idx ) );
 

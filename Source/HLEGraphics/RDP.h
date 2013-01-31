@@ -283,7 +283,6 @@ typedef struct
 	{
 		struct
 		{
-			u32 cmd3;
 			u32 cmd2;
 			u32 cmd1;
 			u32 cmd0;
@@ -291,9 +290,6 @@ typedef struct
 
 		struct
 		{
-			// cmd3
-			s32		dtdy : 16;
-			s32		dsdx : 16;
 
 			// cmd2
 			s32		t : 16;

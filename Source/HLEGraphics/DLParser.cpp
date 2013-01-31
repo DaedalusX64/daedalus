@@ -187,7 +187,10 @@ inline void FinishRDPJob()
 inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
 {
 	// Current PC is the last value on the stack
-	*p_command = *(MicroCodeCommand*)&g_pu32RamBase[ (gDlistStack.address[gDlistStackPointer] >> 2) ];
+	u32 pc = gDlistStack.address[gDlistStackPointer];
+	u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
+
+	*p_command = *(MicroCodeCommand*)&pCmdBase[0];
 
 	gDlistStack.address[gDlistStackPointer]+= 8;
 
@@ -1123,18 +1126,20 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_TexRect( MicroCodeCommand command )
 {
+	MicroCodeCommand command2;
+	MicroCodeCommand command3;
+
 	//
 	// Fetch the next two instructions
 	//
-	u32 pc = gDlistStack.address[gDlistStackPointer];
-	u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
-	gDlistStack.address[gDlistStackPointer]+= 16;
+	DLParser_FetchNextCommand( &command2 );
+	DLParser_FetchNextCommand( &command3 );
 
 	RDP_TexRect tex_rect;
 	tex_rect.cmd0 = command.inst.cmd0;
 	tex_rect.cmd1 = command.inst.cmd1;
-	tex_rect.cmd2 = *(u32 *)(pCmdBase+1);
-	tex_rect.cmd3 = *(u32 *)(pCmdBase+3);
+	tex_rect.cmd2 = command2.inst.cmd1;
+	tex_rect.cmd3 = command3.inst.cmd1;
 
 	// Do compare with integers saves CPU //Corn
 	u32	x0 = tex_rect.x0 >> 2;
@@ -1195,18 +1200,20 @@ void DLParser_TexRect( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_TexRectFlip( MicroCodeCommand command )
 {
+	MicroCodeCommand command2;
+	MicroCodeCommand command3;
+
 	//
 	// Fetch the next two instructions
 	//
-	u32 pc = gDlistStack.address[gDlistStackPointer];
-	u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
-	gDlistStack.address[gDlistStackPointer]+= 16;
+	DLParser_FetchNextCommand( &command2 );
+	DLParser_FetchNextCommand( &command3 );
 
 	RDP_TexRect tex_rect;
 	tex_rect.cmd0 = command.inst.cmd0;
 	tex_rect.cmd1 = command.inst.cmd1;
-	tex_rect.cmd2 = *(u32 *)(pCmdBase+1);
-	tex_rect.cmd3 = *(u32 *)(pCmdBase+3);
+	tex_rect.cmd2 = command2.inst.cmd1;
+	tex_rect.cmd3 = command3.inst.cmd1;
 
 	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
 	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
@@ -1477,6 +1484,57 @@ void DLParser_SetInstructionCountLimit( u32 limit )
 
 //*****************************************************************************
 //RSP TRI commands..
-//In HLE emulation you NEVER see this commands !
+//In HLE emulation you NEVER see these commands !
 //*****************************************************************************
 void DLParser_TriRSP( MicroCodeCommand command ){ DL_PF("    RSP Tri: (Ignored)"); }
+
+//*****************************************************************************
+// ProcessRDPList  - Low level GFX list (WIP)
+// Used by Killer Instinct
+//*****************************************************************************
+/*
+void DLParser_RDP_Process()
+{
+	DAEDALUS_PROFILE( "DLParser_Process" );
+
+	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
+	u32 code_base = (u32)pTask->t.ucode & 0x1fffffff;
+	u32 code_size = pTask->t.ucode_size;
+	u32 data_base = (u32)pTask->t.ucode_data & 0x1fffffff;
+	u32 data_size = pTask->t.ucode_data_size;
+
+	if ( gLastUcodeBase != code_base )
+	{
+		DLParser_InitMicrocode( code_base, code_size, data_base, data_size );
+	}
+
+	MicroCodeCommand command;
+
+	u32 start = Memory_DPC_GetRegister( DPC_START_REG );
+	u32 end = Memory_DPC_GetRegister( DPC_END_REG );
+
+	gRDPFrame++;
+
+	CTextureCache::Get()->PurgeOldTextures();
+
+	// Initialise stack
+	gDlistStackPointer=0;
+	gDlistStack.address[gDlistStackPointer] = start;
+	gDlistStack.limit = -1;
+
+	gRDPStateManager.Reset();
+
+	PSPRenderer::Get()->SetVIScales();
+	PSPRenderer::Get()->Reset();
+	PSPRenderer::Get()->BeginScene();
+
+	while( gDlistStack.address[gDlistStackPointer] < end )
+	{
+		DLParser_FetchNextCommand( &command );
+		//printf("%08x\n",command.inst.cmd);
+		gUcodeFunc[ command.inst.cmd ]( command );
+	}
+
+	PSPRenderer::Get()->EndScene();
+}
+*/
