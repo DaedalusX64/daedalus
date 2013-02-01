@@ -123,6 +123,11 @@ struct Pf8888
 	Pf8888()
 	{
 	}
+	
+	explicit Pf8888( u32 bits )
+		:	Bits( bits )
+	{
+	}
 
 	Pf8888( u8 r, u8 g, u8 b, u8 a )
 		:	Bits( Make( r,g,b,a ) )

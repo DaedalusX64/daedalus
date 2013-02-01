@@ -1283,8 +1283,8 @@ void DLParser_FillRect( MicroCodeCommand command )
 		}
 		else
 		{
-			// Errg G_IM_SIZ_32b, can't really handle since we don't support FB emulation, can't ignore neither.. see Super Man..
-			colour = c32(gFillColor);
+			PixelFormats::N64::Pf8888	c( (u32)gFillColor );
+			colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf8888 >( c );
 		}
 
 		const u32 clear_screen_x = ( (command.fillrect.x1 - command.fillrect.x0) );
