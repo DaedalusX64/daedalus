@@ -23,7 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "Utility/Thread.h"
 
+#ifdef DAEDALUS_PSP
 #include "SysPSP/Utility/CacheUtil.h"
+#endif
 
 #include "ConfigOptions.h"
 
@@ -52,7 +54,9 @@ CAudioBuffer::~CAudioBuffer()
 u32		CAudioBuffer::GetSize() const
 {
 	 //Todo: Check Cache Routines
+#ifdef DAEDALUS_PSP
 	dcache_wbinv_all();
+#endif
 
 	// Safe? What if we read mWrite, and then mRead moves to start of buffer?
 	s32		diff( mWritePtr - mReadPtr );
