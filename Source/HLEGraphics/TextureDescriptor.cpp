@@ -131,7 +131,7 @@ u32 TextureInfo::GenerateHashValue() const
 	if((u32)ptr_u8 & 0x3)	//Check if aligned to 4 bytes if not then align
 	{
 		ptr_u8 += 4 - ((u32)ptr_u8 & 0x3);
-		step  -= 4 - ((u32)ptr_u8 & 0x3);
+		step   -= 4 - ((u32)ptr_u8 & 0x3);
 	}
 
 	u32 *ptr_u32 = (u32*)ptr_u8;	//use 32bit access
