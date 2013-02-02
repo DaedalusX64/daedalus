@@ -485,7 +485,11 @@ bool CTexture::Initialise()
 
 		if(gCheckTextureHashFrequency > 0)
 		{
+#ifdef DAEDALUS_PSP
 			mFrameLastUpToDate += pspFastRand() & (gCheckTextureHashFrequency - 1);
+#else
+			mFrameLastUpToDate += rand() & (gCheckTextureHashFrequency - 1);
+#endif
 		}
 		UpdateTexture( mTextureInfo, mpTexture, false, c32::White );
 	}
@@ -654,7 +658,11 @@ bool	CTexture::HasExpired() const
 
 	//Otherwise we wait 20+random(0-3) frames before trashing the texture if unused
 	//Spread trashing them over time so not all get killed at once (lower value uses less VRAM) //Corn
+#ifdef DAEDALUS_PSP
 	return gRDPFrame - mFrameLastUsed > (20 + (pspFastRand() & 0x3));
+#else
+	return gRDPFrame - mFrameLastUsed > (20 + (rand() & 0x3));
+#endif
 }
 
 //*****************************************************************************
