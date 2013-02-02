@@ -52,7 +52,7 @@ struct SImageDescriptor
 	}
 
 	//Get Bpl -> ( Width << Size >> 1 )
-	inline u32 GetAddress( u32 x, u32 y) const
+	inline u32 GetAddress( u32 x, u32 y ) const
 	{
 		return Address + y * (Width << Size >> 1) + (x << Size >> 1);
 	}
@@ -237,7 +237,7 @@ typedef struct
 			u32	H;
 		};
 	};
-}RDP_Combine;
+} RDP_Combine;
 
 
 typedef struct
@@ -412,21 +412,7 @@ struct RDP_TileSize
 		return cmd0 != rhs.cmd0 || cmd1 != rhs.cmd1;
 	}
 };
-/*
-typedef struct
-{
-	union
-	{
-		u64		_u64;
 
-		struct
-		{
-			u32		cmd1;
-			u32		cmd0;
-		};
-	};
-} RDPCommand;
-*/
 
 
 #include "PopStructPack.h"
