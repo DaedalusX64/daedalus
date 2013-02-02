@@ -145,7 +145,7 @@ static void WriteValue_8410_841F( u32 address, u32 value )
 		//
 		DBGConsole_Msg( 0, "Wrote to [WDPC_END_REG] 0x%08x", value );
 		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_DP);
-		R4300_Interrupt_UpdateCause3();	
+		R4300_Interrupt_UpdateCause3();
 		break;
 
 	case 0xc:	//DPC_STATUS_REG
@@ -388,7 +388,7 @@ static void WriteValue_9FC0_9FCF( u32 address, u32 value )
 	u32 pif_ram_offset = address & 0x3F;
 
 	// Writing PIF ROM or outside PIF RAM
-	if( (offset < 0x7C0) || (offset > 0x7FF) ) 
+	if( (offset < 0x7C0) || (offset > 0x7FF) )
 	{
 		DBGConsole_Msg(0, "[GWrite to PIF (0x%08x) is invalid", address);
 		return;

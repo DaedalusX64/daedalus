@@ -187,7 +187,7 @@ void	CAudioPluginW32::StopEmulation()
 //*****************************************************************************
 void	CAudioPluginW32::DacrateChanged( int SystemType )
 {
-	if (Dacrate != Memory_AI_GetRegister(AI_DACRATE_REG)) 
+	if (Dacrate != Memory_AI_GetRegister(AI_DACRATE_REG))
 	{
 		u32 type = (SystemType == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK;
 		Dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
