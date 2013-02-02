@@ -379,12 +379,12 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 	{
 		mDumpNextScreen--;
 		if (!mDumpNextScreen)
-		{			
+		{
 			if(gTakeScreenshotSS)	// We are taking a screenshot for savestate
 			{
 				gTakeScreenshotSS = false;
 				StoreSaveScreenData();
-				
+
 			}
 			else
 			{
@@ -627,14 +627,14 @@ void IGraphicsContext::StoreSaveScreenData()
 	s32 bufferwidth;
 	s32 pixelformat;
 	s32 unknown = 0;
-	
+
 	void * buffer;
 	char pngbuffer[128*1024];
 	char pngfile[ MAX_PATH ];
 	extern std::string	gSaveStateFilename;
 
 	sprintf( pngfile,"%s.png", gSaveStateFilename.c_str() );	//Add .png to filename
-	
+
 	u32		display_width = 0;
 	u32		display_height= 0;
 
@@ -642,7 +642,7 @@ void IGraphicsContext::StoreSaveScreenData()
 	u32		frame_height= 272;
 
 	// Not supported yet for tv out
-	if ( PSP_TV_CABLE > 0 )	
+	if ( PSP_TV_CABLE > 0 )
 	{
 		//TODO
 		//frame_width = 720;
