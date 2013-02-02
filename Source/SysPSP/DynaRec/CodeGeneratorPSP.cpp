@@ -4287,7 +4287,7 @@ inline void	CCodeGeneratorPSP::GenerateMOV_D_Sim( u32 fd, u32 fs )
 	EPspFloatReg	psp_fd_sig = EPspFloatReg( n64_fd );//1:1 Mapping
 	EPspFloatReg	psp_fd = EPspFloatReg( n64_fd + 1 );//1:1 Mapping
 	EPspFloatReg	psp_fs_sig = EPspFloatReg( n64_fs );//1:1 Mapping
-	
+
 	if( mRegisterCache.IsFPSim( n64_fs ) )
 	{
 		//Copy Sim double

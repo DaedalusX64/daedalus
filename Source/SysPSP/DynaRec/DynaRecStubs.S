@@ -557,10 +557,10 @@ dtof_inf:
 	lw		$a2, _Temp1($fp) 		# Temp storage
 	jr		$ra						/* return */
 	lw		$a3, _Temp2($fp) 		# Temp storage
-	
+
 #######################################################################################
 /**
- * context save and print value 
+ * context save and print value
  * void printf_asm(u32 val);
  * input: a0
  * output: -
@@ -570,7 +570,7 @@ dtof_inf:
  _printf_asm:
 	addiu	$sp, $sp, -72	# Push on the stack
 	sw		$ra, 0($sp)
-	sw		$at, 4($sp)		
+	sw		$at, 4($sp)
 	sw		$v0, 8($sp)
 	sw		$v1, 12($sp)
 	sw		$a0, 16($sp)
@@ -589,7 +589,7 @@ dtof_inf:
 	jal		output_extern
 	sw		$t9, 68($sp)
 	lw		$ra, 0($sp)
-	lw		$at, 4($sp)		
+	lw		$at, 4($sp)
 	lw		$v0, 8($sp)
 	lw		$v1, 12($sp)
 	lw		$a0, 16($sp)
@@ -608,7 +608,7 @@ dtof_inf:
 	lw		$t9, 68($sp)
 	jr		$ra			/* return */
 	addiu	$sp, $sp, 72	# restore the stack
-	
+
 #######################################################################################
 
 	.set pop
