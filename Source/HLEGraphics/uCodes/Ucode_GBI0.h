@@ -125,4 +125,4 @@ void DLParser_GBI0_Quad( MicroCodeCommand command )
 }
 */
 
-#endif // UCODE1_H__
+#endif // UCODE0_H__

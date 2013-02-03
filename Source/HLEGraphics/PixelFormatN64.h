@@ -123,7 +123,7 @@ struct Pf8888
 	Pf8888()
 	{
 	}
-	
+
 	explicit Pf8888( u32 bits )
 		:	Bits( bits )
 	{
