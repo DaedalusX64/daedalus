@@ -40,6 +40,7 @@ TEST_DISABLE_EEPROM_FUNCS
 	return PATCH_RET_JR_RA;
 }
 
+// Is this intended? Seems odd to have the whole body commented out. Strmnnrnm.
 u32 Patch_osContInit()
 {
 TEST_DISABLE_FUNCS
