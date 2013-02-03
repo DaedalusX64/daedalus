@@ -107,7 +107,7 @@ u32 gNumOfOSFunctions;
 // Increase this number every time we changed the symbol table
 static const u32 MAGIC_HEADER = 0x80000143;
 
-bool gPatchesApplied = false;
+static bool gPatchesApplied = false;
 
 //u32 g_dwOSStart = 0x00240000;
 //u32 g_dwOSEnd   = 0x00380000;
