@@ -35,7 +35,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 namespace Zlib
 {
-typedef void *	gzFile;
+
+// NB: Latest zlib uses a new type for the file handle - it's no longer void *.
+#ifdef DAEDALUS_PSP
+#define toGzipFile(fh) ((void*)fh)
+#else
+#define toGzipFile(fh) ((gzFile_s*)fh)
+#endif
 
 //*****************************************************************************
 //
@@ -50,7 +56,7 @@ gzFile	DAEDALUS_ZLIB_CALL_TYPE gzopen( const char * filename, const char * mode 
 //*****************************************************************************
 void	DAEDALUS_ZLIB_CALL_TYPE gzclose( gzFile fh )
 {
-	::gzclose( fh );
+	::gzclose( toGzipFile(fh) );
 }
 
 //*****************************************************************************
@@ -58,7 +64,7 @@ void	DAEDALUS_ZLIB_CALL_TYPE gzclose( gzFile fh )
 //*****************************************************************************
 u32		DAEDALUS_ZLIB_CALL_TYPE gzwrite( gzFile fh, const void * buffer, u32 length )
 {
-	return ::gzwrite( fh, buffer, length );
+	return ::gzwrite( toGzipFile(fh), buffer, length );
 }
 
 //*****************************************************************************
@@ -66,7 +72,7 @@ u32		DAEDALUS_ZLIB_CALL_TYPE gzwrite( gzFile fh, const void * buffer, u32 length
 //*****************************************************************************
 u32		DAEDALUS_ZLIB_CALL_TYPE gzread( gzFile fh, void * buffer, u32 length )
 {
-	return ::gzread( fh, buffer, length );
+	return ::gzread( toGzipFile(fh), buffer, length );
 }
 
 //*****************************************************************************
@@ -74,7 +80,7 @@ u32		DAEDALUS_ZLIB_CALL_TYPE gzread( gzFile fh, void * buffer, u32 length )
 //*****************************************************************************
 u32		DAEDALUS_ZLIB_CALL_TYPE gzseek( gzFile fh, u32 offset, int whence)
 {
-	return ::gzseek( fh, offset, whence );
+	return ::gzseek( toGzipFile(fh), offset, whence );
 }
 
 //*****************************************************************************
