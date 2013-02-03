@@ -436,8 +436,6 @@ extern u16 gTextureMemory[];
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 void	RDP_SetOtherMode( u32 cmd_hi, u32 cmd_lo );
 #endif
-void	RDP_SetTile( RDP_Tile tile );
-void	RDP_SetTileSize( RDP_TileSize tile_tile );
 
 //*****************************************************************************
 //
