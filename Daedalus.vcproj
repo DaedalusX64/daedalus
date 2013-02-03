@@ -1838,42 +1838,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspCommon.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspCustom.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspCustom.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspMacros.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspMacros.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspS2DEX.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspS2DEX.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspSprite2D.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\gsp\gspSprite2D.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Source\HLEGraphics\Microcode.cpp"
 					>
 				</File>
