@@ -69,21 +69,6 @@ DAEDALUS_STATIC_ASSERT( sizeof( s64 ) == 8 );
 DAEDALUS_STATIC_ASSERT( sizeof( f32 ) == 4 );
 DAEDALUS_STATIC_ASSERT( sizeof( f64 ) == 8 );
 
-/*
-union VECTOR
-{
-	s64		_s64[2];
-	u64		_u64[2];
-	s32		_s32[4];
-	u32		_u32[4];
-	s16		_s16[8];
-	u16		_u16[8];
-	s8		_s8[16];
-	u8		_u8[16];
-};
-
-DAEDALUS_STATIC_ASSERT( sizeof( VECTOR ) == 16 );
-*/
 
 union REG64
 {
@@ -91,9 +76,17 @@ union REG64
 	s64		_s64;
 	u64		_u64;
 
+#if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
+	struct { f32 _f32_1, _f32_0; };
+	struct { s32 _s32_1, _s32_0; };
+	struct { u32 _u32_1, _u32_0; };
+#elif (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_LITTLE)
 	struct { f32 _f32_0, _f32_1; };
 	struct { s32 _s32_0, _s32_1; };
 	struct { u32 _u32_0, _u32_1; };
+#else
+#error No DAEDALUS_ENDIAN_MODE specified
+#endif
 
 /*	struct { u32 _f64_unused; f32 _f64_sim;};
 	struct { s16 _s16_3, _s16_2, _s16_1, _s16_0; };
