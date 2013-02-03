@@ -1574,9 +1574,9 @@ static u32 clipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, u
 //*****************************************************************************
 //CPU tris clip to frustum
 //*****************************************************************************
-u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1)
+u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
 {
-	u32 vOut(3);
+	u32 vOut = 3;
 
 	vOut = clipToHyperPlane( v1, v0, vOut, NDCPlane[0] ); if ( vOut < 3 ) return vOut;		// near
 	vOut = clipToHyperPlane( v0, v1, vOut, NDCPlane[1] ); if ( vOut < 3 ) return vOut;		// far
@@ -2554,7 +2554,7 @@ void PSPRenderer::ResetMatrices()
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void	PSPRenderer::EnableTexturing( u32 tile_idx )
+inline void PSPRenderer::EnableTexturing( u32 tile_idx )
 {
 	EnableTexturing( 0, tile_idx );
 

@@ -170,9 +170,9 @@ char ** gUcodeName = (char **)gNormalInstructionName[ 0 ];
 char * gCustomInstructionName[256];
 #endif
 
-//*************************************************************************************
+//*****************************************************************************
 //
-//*************************************************************************************
+//*****************************************************************************
 inline void FinishRDPJob()
 {
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_DP);
@@ -227,12 +227,12 @@ u32			gTotalInstructionCount = 0;
 static u32	gInstructionCountLimit = UNLIMITED_INSTRUCTION_COUNT;
 #endif
 
-//*************************************************************************************
+//*****************************************************************************
 //
-//*************************************************************************************
+//*****************************************************************************
 bool bIsOffScreen = false;
-u32 gRDPFrame		 = 0;
-u32 gAuxAddr		 = (u32)g_pu8RamBase;
+u32 gRDPFrame		= 0;
+u32 gAuxAddr		= (u32)g_pu8RamBase;
 
 extern u32 uViWidth;
 extern u32 uViHeight;
@@ -788,7 +788,8 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 	PSPRenderer::Get()->SetLightCol( light_idx, light->r, light->g, light->b );
 
 	//Direction
-	if((light->x | light->y | light->z) != 0) PSPRenderer::Get()->SetLightDirection( light_idx, light->x, light->y, light->z );
+	if((light->x | light->y | light->z) != 0)
+		PSPRenderer::Get()->SetLightDirection( light_idx, light->x, light->y, light->z );
 }
 
 //*****************************************************************************
