@@ -64,8 +64,6 @@ const char *	gDisplayListDumpPathFormat = "dl%04d.txt";
 //*****************************************************************************
 //
 //*****************************************************************************
-#define RDP_NOIMPL_WARN(op)				DAEDALUS_DL_ERROR( op )
-#define RDP_NOIMPL( op, cmd0, cmd1 )	DAEDALUS_DL_ERROR( "Not Implemented: %s 0x%08x 0x%08x", op, cmd0, cmd1 )
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #define DL_UNIMPLEMENTED_ERROR( msg )			\
 {												\
@@ -594,7 +592,7 @@ SProfileItemHandle * gpProfileItemHandles[ 256 ];
 #define PROFILE_DL_CMD( cmd )								\
 	if(gpProfileItemHandles[ (cmd) ] == NULL)				\
 	{														\
-			gpProfileItemHandles[ (cmd) ] = new SProfileItemHandle( CProfiler::Get()->AddItem( gUcodeName[ cmd ] ));		\
+		gpProfileItemHandles[ (cmd) ] = new SProfileItemHandle( CProfiler::Get()->AddItem( gUcodeName[ cmd ] ));		\
 	}														\
 	CAutoProfile		_auto_profile( *gpProfileItemHandles[ (cmd) ] )
 
@@ -879,7 +877,7 @@ void DLParser_SetConvert( MicroCodeCommand command )
 void DLParser_SetPrimDepth( MicroCodeCommand command )
 {
 	DL_PF("    SetPrimDepth z[0x%04x] dz[0x%04x]",
-		   command.primdepth.z, command.primdepth.dz);
+		command.primdepth.z, command.primdepth.dz);
 
 	PSPRenderer::Get()->SetPrimitiveDepth( command.primdepth.z );
 }
@@ -926,10 +924,10 @@ void DLParser_SetScissor( MicroCodeCommand command )
 	// The coords are all in 8:2 fixed point
 	// Set up scissoring zone, we'll use it to scissor other stuff ex Texrect
 	//
-	scissors.left    = command.scissor.x0>> 2;
-	scissors.top	 = command.scissor.y0>> 2;
-	scissors.right   = command.scissor.x1>> 2;
-	scissors.bottom  = command.scissor.y1>> 2;
+	scissors.left    = command.scissor.x0 >> 2;
+	scissors.top     = command.scissor.y0 >> 2;
+	scissors.right   = command.scissor.x1 >> 2;
+	scissors.bottom  = command.scissor.y1 >> 2;
 
 	// Hack to correct Super Bowling's right screen, left screen needs fb emulation
 	if ( g_ROM.GameHacks == SUPER_BOWLING && g_CI.Address%0x100 != 0 )
