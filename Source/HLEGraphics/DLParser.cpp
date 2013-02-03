@@ -221,7 +221,7 @@ void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts);
 
 u32			gNumDListsCulled;
 u32			gNumVertices;
-u32			gNunRectsClipped;
+u32			gNumRectsClipped;
 static u32	gCurrentInstructionCount = 0;			// Used for debugging display lists
 u32			gTotalInstructionCount = 0;
 static u32	gInstructionCountLimit = UNLIMITED_INSTRUCTION_COUNT;
@@ -725,7 +725,7 @@ void DLParser_Process()
 	gCurrentInstructionCount = 0;
 	gNumDListsCulled = 0;
 	gNumVertices = 0;
-	gNunRectsClipped =0;
+	gNumRectsClipped =0;
 	//
 	// Prepare to dump this displaylist, if necessary
 	//
@@ -1156,7 +1156,7 @@ void DLParser_TexRect( MicroCodeCommand command )
 	if( x0 >= scissors.right || y0 >= scissors.bottom || x1 < scissors.left || y1 < scissors.top || bIsOffScreen )
 	{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		++gNunRectsClipped;
+		++gNumRectsClipped;
 #endif
 		return;
 	};
