@@ -427,11 +427,7 @@ static bool	CPU_IsStateSimple()
 
 	return rsp_halted && (gCPUState.Delay == NO_DELAY);
 }
-/*
-char* CPU_GetSaveStateName()
-{
-	return 
-*/
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -525,9 +521,11 @@ bool CPU_Run()
 //*****************************************************************************
 void CPU_SelectCore()
 {
+#ifdef DAEDALUS_ENABLE_DYNAREC
 	if (gDynarecEnabled)
 		Dynamo_SelectCore();
 	else
+#endif
 		Inter_SelectCore();
 
 	if( gCPUStopOnSimpleState && CPU_IsStateSimple() )

@@ -563,7 +563,6 @@ void Dynamo_SelectCore()
 
 void CPU_ResetFragmentCache() {}
 void Dynamo_Reset() {}
-void Dynamo_SelectCore() {}
 void R4300_CALL_TYPE CPU_InvalidateICacheRange( u32 address, u32 length ) {}
 
 #endif //DAEDALUS_ENABLE_DYNAREC
