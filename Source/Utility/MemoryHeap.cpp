@@ -217,6 +217,7 @@ void* IMemoryHeap::Alloc( u32 size )
 //*****************************************************************************
 void  IMemoryHeap::Free( void * ptr )
 {
+	// FIXME: this assert looks wrong to me - I'd expect most pointers to pass 'ptr != NULL'.
 	DAEDALUS_ASSERT( ptr != NULL || IsFromHeap( ptr ), "Memory is not from this heap" );
 
 	if( ptr == NULL )
