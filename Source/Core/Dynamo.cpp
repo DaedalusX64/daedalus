@@ -70,7 +70,6 @@ static void							CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_
 static void							CPU_UpdateTrace( u32 address, OpCode op_code, bool branch_delay_slot, bool branch_taken );
 static void							CPU_CreateAndAddFragment();
 
-#endif // DAEDALUS_ENABLE_DYNAREC
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
 u32 gFragmentLookupFailure;
@@ -139,7 +138,6 @@ template< bool TraceEnabled > __forceinline void CPU_EXECUTE_OP()
 
 	SYNCH_POINT( DAED_SYNC_REG_PC, gCPUState.CPUControl[C0_COUNT]._u32, "Count doesn't match" );
 
-#ifdef DAEDALUS_ENABLE_DYNAREC
 	if( TraceEnabled )
 	{
 		DAEDALUS_ASSERT( gTraceRecorder.IsTraceActive(), "If TraceEnabled is set, trace should be active" );
@@ -153,11 +151,8 @@ template< bool TraceEnabled > __forceinline void CPU_EXECUTE_OP()
 		CPU_UpdateTrace( pc, op_code, branch_delay_slot, branch_taken );
 	}
 	else
-#endif
 	{
-#ifdef DAEDALUS_ENABLE_DYNAREC
 		DAEDALUS_ASSERT( !gTraceRecorder.IsTraceActive(), "If TraceEnabled is not set, trace should be inactive" );
-#endif
 
 		R4300_ExecuteInstruction(op_code);
 
@@ -192,9 +187,8 @@ template< bool TraceEnabled > __forceinline void CPU_EXECUTE_OP()
 			// We've just executed the delayed instr. Now carry out jump as stored in gCPUState.TargetPC;
 			CPU_SetPC(gCPUState.TargetPC);
 			gCPUState.Delay = NO_DELAY;
-#ifdef DAEDALUS_ENABLE_DYNAREC
+
 			CPU_HandleDynaRecOnBranch( backwards, TraceEnabled );
-#endif
 		}
 		break;
 	case NO_DELAY:
@@ -237,7 +231,6 @@ template < bool DynaRec, bool TraceEnabled > void CPU_Go()
 			stuff_to_do = gCPUState.GetStuffToDo();
 		}
 
-#ifdef DAEDALUS_ENABLE_DYNAREC
 		if( TraceEnabled && (stuff_to_do != CPU_CHANGE_CORE) )
 		{
 			if(gTraceRecorder.IsTraceActive())
@@ -262,14 +255,12 @@ template < bool DynaRec, bool TraceEnabled > void CPU_Go()
 			}
 			CPU_SelectCore();
 		}
-#endif
 
 		if (CPU_CheckStuffToDo())
 			break;
 	}
 }
 
-#ifdef DAEDALUS_ENABLE_DYNAREC
 #ifdef DAEDALUS_DEBUG_DYNAREC
 
 struct SAddressHitCount
@@ -352,9 +343,7 @@ void	CPU_DumpFragmentCache()
 	gFragmentCache.DumpStats( "DynarecDump/" );
 }
 #endif
-#endif
 
-#ifdef DAEDALUS_ENABLE_DYNAREC
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -370,9 +359,7 @@ void CPU_CreateAndAddFragment()
 		//DBGConsole_Msg( 0, "Inserted hot trace at [R%08x]! (size is %d. %dKB)", p_fragment->GetEntryAddress(), gFragmentCache.GetCacheSize(), gFragmentCache.GetMemoryUsage() / 1024 );
 	}
 }
-#endif
 
-#ifdef DAEDALUS_ENABLE_DYNAREC
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -546,18 +533,15 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 		CPU_SelectCore();
 	}
 }
-#endif
 
 void Dynamo_Reset()
 {
-#ifdef DAEDALUS_ENABLE_DYNAREC
 	gHotTraceCountMap.clear();
 	gFragmentCache.Clear();
 	gResetFragmentCache = false;
 	gTraceRecorder.AbortTrace();
 #ifdef DAEDALUS_DEBUG_DYNAREC
 	gAbortedTraceReasons.clear();
-#endif
 #endif
 }
 
@@ -574,3 +558,13 @@ void Dynamo_SelectCore()
 		g_pCPUCore = CPU_Go< true, false >;
 	}
 }
+
+#else
+
+void CPU_ResetFragmentCache() {}
+void Dynamo_Reset() {}
+void Dynamo_SelectCore() {}
+void R4300_CALL_TYPE CPU_InvalidateICacheRange( u32 address, u32 length ) {}
+
+#endif //DAEDALUS_ENABLE_DYNAREC
+
