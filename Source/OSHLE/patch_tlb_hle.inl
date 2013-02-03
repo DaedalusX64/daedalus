@@ -54,12 +54,12 @@ TEST_DISABLE_TLB_FUNCS
 	gGPR[REG_v0]._u32_0 = ConvertToPhysics( addr );
 
 	return PATCH_RET_JR_RA;
-
 }
+
 //*****************************************************************************
 //
 //*****************************************************************************
-// IDentical - just optimised
+// Identical - just optimised
 u32 Patch_osVirtualToPhysical_Rugrats()
 {
 TEST_DISABLE_TLB_FUNCS

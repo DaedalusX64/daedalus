@@ -6,16 +6,14 @@
 u32 Patch___osSetTimerIntr()
 {
 TEST_DISABLE_TIMER_FUNCS
-	s64 sum;
-	s64 count;
 	s64 TimeLo = (s64)gGPR[REG_a1]._s32_0;
 	//s64 qwTimeHi = (s64)(s32)gGPR[REG_a0];
 
-	count = (s64)gCPUState.CPUControl[C0_COUNT]._s32;
+	s64 count = (s64)gCPUState.CPUControl[C0_COUNT]._s32;
 
 	Write32Bits(VAR_ADDRESS(osSystemLastCount), (u32)count);
 
-	sum = (s64)(s32)((s32)count + (s32)TimeLo);
+	s64 sum = (s64)(s32)((s32)count + (s32)TimeLo);
 
 	CPU_SetCompare(sum);
 
