@@ -1063,7 +1063,7 @@ CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_ad
 		return CJumpLocation( NULL );
 	}
 
-	FlushAllRegisters( mRegisterCache, false );
+	FlushAllRegisters( mRegisterCache, true );
 
 	CCodeLabel	exit_routine;
 

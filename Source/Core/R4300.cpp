@@ -29,6 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/Math.h"	// VFPU Math
 
+#include "Utility/AuxFunc.h"
+
 #include "ROM.h"
 #include "Core/Registers.h"			// For REG_?? defines
 #include "Debug/DBGConsole.h"
@@ -58,9 +60,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //*************************************************************************************
 
+#define R4300_Rand()		FastRand()
+
 #ifdef DAEDALUS_PSP
 #define R4300_IsNaN(x) 		pspFpuIsNaN((x))
-#define R4300_Rand()		pspFastRand()
 #define R4300_Sqrt(x)		pspFpuSqrt((x))
 #define R4300_AbsS(x) 		pspFpuAbs((x))
 #define R4300_AbsD(x) 		pspFpuAbs((x))

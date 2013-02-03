@@ -58,6 +58,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Preferences.h"
 #include "Utility/IO.h"
 #include "Utility/FastMemcpy.h"
+#include "Utility/AuxFunc.h"
 
 #include <pspgu.h>
 #include <pspgum.h>
@@ -570,8 +571,8 @@ void PSPRenderer::SetPSPViewport( s32 x, s32 y, u32 w, u32 h )
 
 	if( gRumblePakActive )
 	{
-	    mN64ToPSPTranslate.x += (pspFastRand() & 3);
-		mN64ToPSPTranslate.y += (pspFastRand() & 3);
+	    mN64ToPSPTranslate.x += (FastRand() & 3);
+		mN64ToPSPTranslate.y += (FastRand() & 3);
 	}
 
 	UpdateViewport();

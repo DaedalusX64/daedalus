@@ -39,6 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/MathUtil.h"
 #include "Math/Math.h"
 #include "Utility/IO.h"
+#include "Utility/AuxFunc.h"
 
 #include "ConfigOptions.h"
 
@@ -485,11 +486,7 @@ bool CTexture::Initialise()
 
 		if(gCheckTextureHashFrequency > 0)
 		{
-#ifdef DAEDALUS_PSP
-			mFrameLastUpToDate += pspFastRand() & (gCheckTextureHashFrequency - 1);
-#else
-			mFrameLastUpToDate += rand() & (gCheckTextureHashFrequency - 1);
-#endif
+			mFrameLastUpToDate += FastRand() & (gCheckTextureHashFrequency - 1);
 		}
 		UpdateTexture( mTextureInfo, mpTexture, false, c32::White );
 	}
@@ -658,11 +655,7 @@ bool	CTexture::HasExpired() const
 
 	//Otherwise we wait 20+random(0-3) frames before trashing the texture if unused
 	//Spread trashing them over time so not all get killed at once (lower value uses less VRAM) //Corn
-#ifdef DAEDALUS_PSP
-	return gRDPFrame - mFrameLastUsed > (20 + (pspFastRand() & 0x3));
-#else
-	return gRDPFrame - mFrameLastUsed > (20 + (rand() & 0x3));
-#endif
+	return gRDPFrame - mFrameLastUsed > (20 + (FastRand() & 0x3));
 }
 
 //*****************************************************************************

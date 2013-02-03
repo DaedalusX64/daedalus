@@ -405,15 +405,6 @@ inline int pspFpuIsNaN(float f)
 	return (v);
 }
 
-//Speedy random number 1 - (2^32)-1 //Corn
-inline u32 pspFastRand()
-{
-	static u32 IO_RAND=0x12345678;
-	IO_RAND = (IO_RAND << 1) | (((IO_RAND >> 31) ^ (IO_RAND >> 28)) & 1);
-	return IO_RAND;
-}
-
-
 #ifdef DOUBLE_CONVERSION
 
 //Yoyo games glog (Mike Dailly), modified Corn
