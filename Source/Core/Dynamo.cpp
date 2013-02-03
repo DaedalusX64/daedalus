@@ -517,7 +517,7 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 							DAED_LOG( DEBUG_DYNAREC_CACHE, "Hot trace at %08x has count of %d! (reason is UNKNOWN!)", gCPUState.CurrentPC, trace_count );
 						}
 					}
-#endif
+#endif //DAEDALUS_DEBUG_DYNAREC
 				}
 			}
 			else
