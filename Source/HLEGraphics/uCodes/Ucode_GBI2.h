@@ -445,32 +445,31 @@ void DLParser_GBI2_Quad( MicroCodeCommand command )
 {
     // While the next command pair is Tri2, add vertices
 	u32 pc = gDlistStack.address[gDlistStackPointer];
-    u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
+	const MicroCodeCommand *tri = (MicroCodeCommand*)&command;
 	bool tris_added = false;
 
     do{
-        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_QUAD");
+        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, tri->inst.cmd0, tri->inst.cmd1, "G_GBI2_QUAD");
 
 		// Vertex indices are multiplied by 2
-        u32 v0_idx = command.gbi2line3d.v0 >> 1;
-        u32 v1_idx = command.gbi2line3d.v1 >> 1;
-        u32 v2_idx = command.gbi2line3d.v2 >> 1;
+        u32 v0_idx = tri->gbi2line3d.v0 >> 1;
+        u32 v1_idx = tri->gbi2line3d.v1 >> 1;
+        u32 v2_idx = tri->gbi2line3d.v2 >> 1;
 
         tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
 
-        u32 v3_idx = command.gbi2line3d.v3 >> 1;
-        u32 v4_idx = command.gbi2line3d.v4 >> 1;
-		u32 v5_idx = command.gbi2line3d.v5 >> 1;
+        u32 v3_idx = tri->gbi2line3d.v3 >> 1;
+        u32 v4_idx = tri->gbi2line3d.v4 >> 1;
+		u32 v5_idx = tri->gbi2line3d.v5 >> 1;
 
         tris_added |= PSPRenderer::Get()->AddTri(v3_idx, v4_idx, v5_idx);
 
-		//printf("Q 0x%08x: %08x %08x %d\n", pc-8, command.inst.cmd0, command.inst.cmd1, tris_added);
-
-		command.inst.cmd0 = *pCmdBase++;
-        command.inst.cmd1 = *pCmdBase++;
+		//printf("Q 0x%08x: %08x %08x %d\n", pc-8, tri->inst.cmd0, tri->inst.cmd1, tris_added);
+		
+		tri++;
         pc += 8;
-    }while( command.inst.cmd == G_GBI2_QUAD );
+    }while( tri->inst.cmd == G_GBI2_QUAD );
 
 	gDlistStack.address[gDlistStackPointer] = pc-8;
 
@@ -483,34 +482,33 @@ void DLParser_GBI2_Quad( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-// XXX SpiderMan uses this command.DLParser_GBI2_Tri2
+// XXX Identical to GBI2_Tri2.. SpiderMan uses this for HUD
 void DLParser_GBI2_Line3D( MicroCodeCommand command )
 {
 	// While the next command pair is Tri2, add vertices
 	u32 pc = gDlistStack.address[gDlistStackPointer];
-    u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
+	const MicroCodeCommand *tri = (MicroCodeCommand*)&command;
     bool tris_added = false;
 
     do{
-        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_LINE3D");
+        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, tri->inst.cmd0, tri->inst.cmd1, "G_GBI2_LINE3D");
 
-		u32 v0_idx = command.gbi2line3d.v0 >> 1;
-        u32 v1_idx = command.gbi2line3d.v1 >> 1;
-        u32 v2_idx = command.gbi2line3d.v2 >> 1;
+		u32 v0_idx = tri->gbi2line3d.v0 >> 1;
+        u32 v1_idx = tri->gbi2line3d.v1 >> 1;
+        u32 v2_idx = tri->gbi2line3d.v2 >> 1;
 
         tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
 
-        u32 v3_idx = command.gbi2line3d.v3 >> 1;
-        u32 v4_idx = command.gbi2line3d.v4 >> 1;
-		u32 v5_idx = command.gbi2line3d.v5 >> 1;
+        u32 v3_idx = tri->gbi2line3d.v3 >> 1;
+        u32 v4_idx = tri->gbi2line3d.v4 >> 1;
+		u32 v5_idx = tri->gbi2line3d.v5 >> 1;
 
         tris_added |= PSPRenderer::Get()->AddTri(v3_idx, v4_idx, v5_idx);
 
-        command.inst.cmd0 = *pCmdBase++;
-        command.inst.cmd1 = *pCmdBase++;
+        tri++;
         pc += 8;
-    }while( command.inst.cmd == G_GBI2_LINE3D );
+    }while( tri->inst.cmd == G_GBI2_LINE3D );
 
 	gDlistStack.address[gDlistStackPointer] = pc-8;
 
@@ -528,23 +526,22 @@ void DLParser_GBI2_Tri1( MicroCodeCommand command )
 
     // While the next command pair is Tri1, add vertices
 	u32 pc = gDlistStack.address[gDlistStackPointer];
-    u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
+	const MicroCodeCommand *tri = (MicroCodeCommand*)&command;
     bool tris_added = false;
 
     do{
-        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI1");
+        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, tri->inst.cmd0, tri->inst.cmd1, "G_GBI2_TRI1");
 
-		u32 v0_idx = command.gbi2tri1.v0 >> 1;
-		u32 v1_idx = command.gbi2tri1.v1 >> 1;
-		u32 v2_idx = command.gbi2tri1.v2 >> 1;
+		u32 v0_idx = tri->gbi2tri1.v0 >> 1;
+		u32 v1_idx = tri->gbi2tri1.v1 >> 1;
+		u32 v2_idx = tri->gbi2tri1.v2 >> 1;
 
         tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
 
-        command.inst.cmd0 = *pCmdBase++;
-        command.inst.cmd1 = *pCmdBase++;
+		tri++;
         pc += 8;
-    }while( command.inst.cmd == G_GBI2_TRI1 );
+    }while( tri->inst.cmd == G_GBI2_TRI1 );
 
 	gDlistStack.address[gDlistStackPointer] = pc-8;
 
@@ -561,30 +558,29 @@ void DLParser_GBI2_Tri2( MicroCodeCommand command )
 {
 
 	u32 pc = gDlistStack.address[gDlistStackPointer];
-    u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
+	const MicroCodeCommand *tri = (MicroCodeCommand*)&command;
     bool tris_added = false;
 
     do{
-        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI2");
+        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, tri->inst.cmd0, tri->inst.cmd1, "G_GBI2_TRI2");
 
 		// Vertex indices already divided in ucodedef
-        u32 v0_idx = command.gbi2tri2.v0;
-        u32 v1_idx = command.gbi2tri2.v1;
-        u32 v2_idx = command.gbi2tri2.v2;
+        u32 v0_idx = tri->gbi2tri2.v0;
+        u32 v1_idx = tri->gbi2tri2.v1;
+        u32 v2_idx = tri->gbi2tri2.v2;
 
         tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
 
-		u32 v3_idx = command.gbi2tri2.v3;
-        u32 v4_idx = command.gbi2tri2.v4;
-        u32 v5_idx = command.gbi2tri2.v5;
+		u32 v3_idx = tri->gbi2tri2.v3;
+        u32 v4_idx = tri->gbi2tri2.v4;
+        u32 v5_idx = tri->gbi2tri2.v5;
 
         tris_added |= PSPRenderer::Get()->AddTri(v3_idx, v4_idx, v5_idx);
 
-        command.inst.cmd0 = *pCmdBase++;
-        command.inst.cmd1 = *pCmdBase++;
+		tri++;
         pc += 8;
-	}while( command.inst.cmd == G_GBI2_TRI2 );
+	}while( tri->inst.cmd == G_GBI2_TRI2 );
 
 	gDlistStack.address[gDlistStackPointer] = pc-8;
 

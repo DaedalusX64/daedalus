@@ -53,39 +53,4 @@ void DLParser_Set_Vtx_CI_PD( MicroCodeCommand command )
 	gAuxAddr = (u32)g_pu8RamBase + RDPSegAddr(command.inst.cmd1);
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-/*
-void DLParser_Tri4_PD( MicroCodeCommand command )
-{
-	// While the next command pair is Tri2, add vertices
-	u32 pc = gDlistStack[gDlistStackPointer].pc;
-
-	bool tris_added = false;
-
-	do {
-		for( u32 i=0; i<4; i++)
-		{
-			u32 v0_idx = (command.inst.cmd1>>(4+(i<<3))) & 0xF;
-			u32 v1_idx = (command.inst.cmd1>>(  (i<<3))) & 0xF;
-			u32 v2_idx = (command.inst.cmd0>>(  (i<<2))) & 0xF;
-			tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
-		}
-
-		command.inst.cmd0 = *(u32 *)(g_pu8RamBase + pc + 0);
-		command.inst.cmd1 = *(u32 *)(g_pu8RamBase + pc + 4);
-		pc += 8;
-
-	} while (command.inst.cmd == G_GBI2_TRI2);
-
-	gDlistStack[gDlistStackPointer].pc = pc-8;
-
-    if (tris_added)
-    {
-            PSPRenderer::Get()->FlushTris();
-    }
-}
-*/
-
 #endif // UCODE_PD_H__

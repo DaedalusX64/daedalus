@@ -69,43 +69,43 @@ void DLParser_GBI0_Tri4( MicroCodeCommand command )
     // While the next command pair is Tri2, add vertices
 	u32 pc = gDlistStack.address[gDlistStackPointer];
 
+	const MicroCodeCommand *tri = (MicroCodeCommand*)&command;
     bool tris_added = false;
 
     do{
-		//DL_PF("    0x%08x: %08x %08x Flag: 0x%02x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, (command.inst.cmd0 >> 16) & 0xFF, "G_GBI1_TRI4");
+		//DL_PF("    0x%08x: %08x %08x Flag: 0x%02x %-10s", pc-8, tri->inst.cmd0, tri->inst.cmd1, (tri->inst.cmd0 >> 16) & 0xFF, "G_GBI1_TRI4");
 
 		//Tri #1
-		u32 v0 = command.tri4.v0;
-		u32 v1 = command.tri4.v1;
-		u32 v2 = command.tri4.v2;
+		u32 v0 = tri->tri4.v0;
+		u32 v1 = tri->tri4.v1;
+		u32 v2 = tri->tri4.v2;
 
 		tris_added |= PSPRenderer::Get()->AddTri(v0, v1, v2);
 
 		//Tri #2
-		u32 v3 = command.tri4.v3;
-		u32 v4 = command.tri4.v4;
-		u32 v5 = command.tri4.v5;
+		u32 v3 = tri->tri4.v3;
+		u32 v4 = tri->tri4.v4;
+		u32 v5 = tri->tri4.v5;
 
 		tris_added |= AddTri4(v3, v4, v5);
 
 		//Tri #3
-		u32 v6 = command.tri4.v6;
-		u32 v7 = command.tri4.v7;
-		u32 v8 = command.tri4.v8;
+		u32 v6 = tri->tri4.v6;
+		u32 v7 = tri->tri4.v7;
+		u32 v8 = tri->tri4.v8;
 
 		tris_added |= AddTri4(v6, v7, v8);
 
 		//Tri #4
-		u32 v9  = command.tri4.v9;
-		u32 v10 = command.tri4.v10;
-		u32 v11 = command.tri4.v11;
+		u32 v9  = tri->tri4.v9;
+		u32 v10 = tri->tri4.v10;
+		u32 v11 = tri->tri4.v11;
 
 		tris_added |= AddTri4(v9, v10, v11);
 
-		command.inst.cmd0 = *(u32 *)(g_pu8RamBase + pc+0);
-		command.inst.cmd1 = *(u32 *)(g_pu8RamBase + pc+4);
+		tri++;
 		pc += 8;
-    }while( command.inst.cmd == G_GBI1_TRI2 );
+    }while( tri->inst.cmd == G_GBI1_TRI2 );
 
 	gDlistStack.address[gDlistStackPointer] = pc-8;
 
