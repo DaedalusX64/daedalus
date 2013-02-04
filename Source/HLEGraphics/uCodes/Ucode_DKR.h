@@ -248,8 +248,7 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 	u32 count = (command.inst.cmd0 >> 4) & 0xFFF;
 
 	// Unlike normal tris ucodes this has the tris info in rdram
-	u32 * pCmdBase = (u32 *)(g_pu8RamBase + address);
-	TriDKR *tri = (TriDKR*)&pCmdBase[0];
+	TriDKR *tri = (TriDKR*)(g_pu8RamBase + address);
 
 	DAEDALUS_ASSERT( count < 16, "DKR to many triangles, indexing outside mVtxProjected array" );
 

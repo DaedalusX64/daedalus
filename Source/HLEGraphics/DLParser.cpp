@@ -186,9 +186,7 @@ inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
 {
 	// Current PC is the last value on the stack
 	u32 pc = gDlistStack.address[gDlistStackPointer];
-	u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
-
-	*p_command = *(MicroCodeCommand*)&pCmdBase[0];
+	*p_command = *(MicroCodeCommand*)(g_pu8RamBase + pc);
 
 	gDlistStack.address[gDlistStackPointer]+= 8;
 
