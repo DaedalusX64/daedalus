@@ -272,7 +272,6 @@ const EPspReg	gRegistersToUseForCaching[] =
 //u32		gTotalRegistersCached = 0;
 //u32		gTotalRegistersUncached = 0;
 
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -287,7 +286,6 @@ CCodeGeneratorPSP::CCodeGeneratorPSP( CAssemblyBuffer * p_buffer_a, CAssemblyBuf
 {
 }
 
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -298,8 +296,8 @@ void	CCodeGeneratorPSP::Initialise( u32 entry_address, u32 exit_address, u32 * h
 	mpBasePointer = reinterpret_cast< const u8 * >( p_base );
 	SetRegisterSpanList( register_usage, entry_address == exit_address );
 
-	mKeepPreviousLoadBase = false;
-	mKeepPreviousStoreBase = false;
+	mPreviousLoadBase = N64Reg_R0;	//Invalidate
+	mPreviousStoreBase = N64Reg_R0;	//Invalidate
 	mFloatCMPIsValid = false;
 
 	if( hit_counter != NULL )
@@ -308,7 +306,6 @@ void	CCodeGeneratorPSP::Initialise( u32 entry_address, u32 exit_address, u32 * h
 		ADDIU( PspReg_V0, PspReg_V0, 1 );
 		SetVar( hit_counter, PspReg_V0 );
 	}
-
 }
 
 //*****************************************************************************
@@ -340,6 +337,7 @@ void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register
 	{
 		mAvailableRegisters.push( gRegistersToUseForCaching[ i ] );
 	}
+	
 	// Optimization for self looping code
 	if( gDynarecLoopOptimisation & loops_to_self )
 	{
@@ -803,6 +801,9 @@ EPspFloatReg	CCodeGeneratorPSP::GetSimFloatRegisterAndLoad( EN64FloatReg n64_reg
 	//If register is not SimDouble yet or unknown add check and conversion routine
 	if( !mRegisterCache.IsFPSim( n64_reg ) )
 	{
+		mPreviousLoadBase = N64Reg_R0;	//Invalidate
+		mPreviousStoreBase = N64Reg_R0;	//Invalidate	
+
 		MFC1( PspReg_A0, psp_reg_sig );	//Get lo part of double
 		LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
 		CJumpLocation test_reg( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), false ) );	//compare float to signature
@@ -1391,9 +1392,9 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		return CJumpLocation();
 	}
 
-	if( ((op_code.op != OP_LW) & (op_code.op != OP_LWC1)) || branch_delay_slot ) mKeepPreviousLoadBase = false;
+	if( ((op_code.op != OP_LW) & (op_code.op != OP_LWC1) & ((op_code.op != OP_COPRO1) | !gDynarecDoublesOptimisation)) || branch_delay_slot ) mPreviousLoadBase = N64Reg_R0;	//Invalidate
 
-	if( ((op_code.op != OP_SW) & (op_code.op != OP_SWC1)) || branch_delay_slot ) mKeepPreviousStoreBase = false;
+	if( ((op_code.op != OP_SW) & (op_code.op != OP_SWC1) & ((op_code.op != OP_COPRO1) | !gDynarecDoublesOptimisation)) || branch_delay_slot ) mPreviousStoreBase = N64Reg_R0;	//Invalidate
 
 	mQuickLoad = ti.Usage.mAccess_8000;
 
@@ -1671,7 +1672,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		break;
 	}
 
-	mPrevious_rt = rt;
+	if( (op_code.op != OP_COPRO1) && mPreviousLoadBase == rt ) mPreviousLoadBase = N64Reg_R0;	//Invalidate
 
 	//	Default handling - call interpreting function
 	//
@@ -1899,7 +1900,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 	//
 	if(GenerateDirectLoad( psp_dst, n64_base, offset, load_op, swizzle ))
 	{
-		mKeepPreviousLoadBase = false;
+		mPreviousLoadBase = N64Reg_R0;	//Invalidate
 		return;
 	}
 
@@ -1922,14 +1923,12 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 
 			ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
 			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
-			mKeepPreviousLoadBase = false;
+			mPreviousLoadBase = N64Reg_R0;	//Invalidate
 			return;
 		}
 
 		//Re use old base register if consegutive accesses from same base register //Corn
-		if( mKeepPreviousLoadBase &&
-			n64_base == mPrevious_base &&
-			n64_base != mPrevious_rt )
+		if( n64_base == mPreviousLoadBase )
 		{
 			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
 			return;
@@ -1938,13 +1937,13 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 		{
 			ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
 			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
-			mKeepPreviousLoadBase = true;
-			mPrevious_base = n64_base;
+			mPreviousLoadBase = n64_base;
 			return;
 		}
 	}
 
-	mKeepPreviousLoadBase = false;
+	mPreviousLoadBase = N64Reg_R0;	//Invalidate
+	mPreviousStoreBase = N64Reg_R0;	//Invalidate
 
 	if( swizzle != 0 )
 	{
@@ -2199,7 +2198,7 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 	//
 	if(GenerateDirectStore( psp_src, n64_base, offset, store_op, swizzle ))
 	{
-		mKeepPreviousStoreBase = false;
+		mPreviousStoreBase = N64Reg_R0;	//Invalidate
 		return;
 	}
 
@@ -2222,13 +2221,12 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 
 			ADDU( PspReg_V1, reg_address, gMemoryBaseReg );
 			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_V1, offset );
-			mKeepPreviousStoreBase = false;
+			mPreviousStoreBase = N64Reg_R0;	//Invalidate
 			return;
 		}
 
 		//Re use old base register if consegutive accesses from same base register //Corn
-		if( mKeepPreviousStoreBase &&
-			n64_base == mPrevious_base )
+		if( n64_base == mPreviousStoreBase )
 		{
 			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_V1, offset );
 			return;
@@ -2237,13 +2235,13 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 		{
 			ADDU( PspReg_V1, reg_address, gMemoryBaseReg );
 			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_V1, offset );
-			mKeepPreviousStoreBase = true;
-			mPrevious_base = n64_base;
+			mPreviousStoreBase = n64_base;
 			return;
 		}
 	}
 
-	mKeepPreviousStoreBase = false;
+	mPreviousLoadBase = N64Reg_R0;	//Invalidate
+	mPreviousStoreBase = N64Reg_R0;	//Invalidate
 
 	if( swizzle != 0 )
 	{
@@ -4405,19 +4403,19 @@ inline void	CCodeGeneratorPSP::GenerateCMP_D_Sim( u32 fs, ECop1OpFunction cmp_op
 
 #if 1 //Improved version no branch //Corn
 	GetVar( PspReg_V0, &gCPUState.FPUControl[31]._u32 );
-	CFC1( PspReg_V1, (EPspFloatReg)31 );
-	EXT( PspReg_V1, PspReg_V1, 0, 23 );	//Extract condition bit (true/false)
-	INS( PspReg_V0, PspReg_V1, 23, 23 );	//Insert condition bit (true/false)
+	CFC1( PspReg_A0, (EPspFloatReg)31 );
+	EXT( PspReg_A0, PspReg_A0, 0, 23 );	//Extract condition bit (true/false)
+	INS( PspReg_V0, PspReg_A0, 23, 23 );	//Insert condition bit (true/false)
 	SetVar( &gCPUState.FPUControl[31]._u32, PspReg_V0 );
 
 #else //Improved version with only one branch //Corn
 	GetVar( PspReg_V0, &gCPUState.FPUControl[31]._u32 );
-	LoadConstant( PspReg_V1, FPCSR_C );
+	LoadConstant( PspReg_A0, FPCSR_C );
 	CJumpLocation	test_condition( BC1T( CCodeLabel( NULL ), false ) );
-	OR( PspReg_V0, PspReg_V0, PspReg_V1 );		// flag |= c
+	OR( PspReg_V0, PspReg_V0, PspReg_A0 );		// flag |= c
 
-	NOR( PspReg_V1, PspReg_V1, PspReg_V0 );		// c = !c
-	AND( PspReg_V0, PspReg_V0, PspReg_V1 );		// flag &= !c
+	NOR( PspReg_A0, PspReg_A0, PspReg_V0 );		// c = !c
+	AND( PspReg_V0, PspReg_V0, PspReg_A0 );		// flag &= !c
 
 	CCodeLabel		condition_true( GetAssemblyBuffer()->GetLabel() );
 	SetVar( &gCPUState.FPUControl[31]._u32, PspReg_V0 );
@@ -4714,19 +4712,19 @@ inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u3
 
 #if 1 //Improved version no branch //Corn
 	GetVar( PspReg_V0, &gCPUState.FPUControl[31]._u32 );
-	CFC1( PspReg_V1, (EPspFloatReg)31 );
-	EXT( PspReg_V1, PspReg_V1, 0, 23 );	//Extract condition bit (true/false)
-	INS( PspReg_V0, PspReg_V1, 23, 23 );	//Insert condition bit (true/false)
+	CFC1( PspReg_A0, (EPspFloatReg)31 );
+	EXT( PspReg_A0, PspReg_A0, 0, 23 );	//Extract condition bit (true/false)
+	INS( PspReg_V0, PspReg_A0, 23, 23 );	//Insert condition bit (true/false)
 	SetVar( &gCPUState.FPUControl[31]._u32, PspReg_V0 );
 
 #else //Improved version with only one branch //Corn
 	GetVar( PspReg_V0, &gCPUState.FPUControl[31]._u32 );
-	LoadConstant( PspReg_V1, FPCSR_C );
+	LoadConstant( PspReg_A0, FPCSR_C );
 	CJumpLocation	test_condition( BC1T( CCodeLabel( NULL ), false ) );
-	OR( PspReg_V0, PspReg_V0, PspReg_V1 );		// flag |= c
+	OR( PspReg_V0, PspReg_V0, PspReg_A0 );		// flag |= c
 
-	NOR( PspReg_V1, PspReg_V1, PspReg_R0 );		// c = !c
-	AND( PspReg_V0, PspReg_V0, PspReg_V1 );		// flag &= !c
+	NOR( PspReg_A0, PspReg_A0, PspReg_R0 );		// c = !c
+	AND( PspReg_V0, PspReg_V0, PspReg_A0 );		// flag &= !c
 
 	CCodeLabel		condition_true( GetAssemblyBuffer()->GetLabel() );
 	SetVar( &gCPUState.FPUControl[31]._u32, PspReg_V0 );

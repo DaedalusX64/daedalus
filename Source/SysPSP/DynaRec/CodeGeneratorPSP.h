@@ -309,10 +309,9 @@ private:
 
 				bool							mQuickLoad;
 
-				EN64Reg							mPrevious_base;
 				EN64Reg							mPrevious_rt;
-				bool							mKeepPreviousLoadBase;
-				bool							mKeepPreviousStoreBase;
+				EN64Reg							mPreviousLoadBase;
+				EN64Reg							mPreviousStoreBase;
 				bool							mFloatCMPIsValid;
 
 				std::vector< SAddressCheckFixup >	mAddressCheckFixups;
