@@ -1392,7 +1392,8 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		return CJumpLocation();
 	}
 
-	if( ((op_code.op != OP_LW) & (op_code.op != OP_LWC1) & (op_code.op != OP_SW) & (op_code.op != OP_SWC1) & (op_code.op != OP_COPRO1)) || branch_delay_slot ) mPreviousLoadBase = mPreviousStoreBase = N64Reg_R0;	//Invalidate
+	if( ((op_code.op != OP_LW) & (op_code.op != OP_LWC1) & (op_code.op != OP_COPRO1)) || branch_delay_slot ) mPreviousLoadBase = N64Reg_R0;	//Invalidate
+	if( ((op_code.op != OP_SW) & (op_code.op != OP_SWC1) & (op_code.op != OP_COPRO1)) || branch_delay_slot ) mPreviousStoreBase = N64Reg_R0;	//Invalidate
 
 	mQuickLoad = ti.Usage.mAccess_8000;
 
