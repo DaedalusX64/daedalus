@@ -1392,9 +1392,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		return CJumpLocation();
 	}
 
-	if( ((op_code.op != OP_LW) & (op_code.op != OP_LWC1) & ((op_code.op != OP_COPRO1) | !gDynarecDoublesOptimisation)) || branch_delay_slot ) mPreviousLoadBase = N64Reg_R0;	//Invalidate
-
-	if( ((op_code.op != OP_SW) & (op_code.op != OP_SWC1) & ((op_code.op != OP_COPRO1) | !gDynarecDoublesOptimisation)) || branch_delay_slot ) mPreviousStoreBase = N64Reg_R0;	//Invalidate
+	if( ((op_code.op != OP_LW) & (op_code.op != OP_LWC1) & (op_code.op != OP_SW) & (op_code.op != OP_SWC1) & (op_code.op != OP_COPRO1)) || branch_delay_slot ) mPreviousLoadBase = mPreviousStoreBase = N64Reg_R0;	//Invalidate
 
 	mQuickLoad = ti.Usage.mAccess_8000;
 
@@ -1407,12 +1405,13 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	//const u32		branch_target( address + ( ((s32)(s16)op_code.immediate)<<2 ) + 4);
 	const u32		ft = op_code.ft;
 
+	mCurrentRT = rt;
+
 	//
 	//	Look for opcodes we can handle manually
 	//
 	switch( op_code.op )
 	{
-
 	case OP_J:			/* nothing to do */		handled = true; break;
 	case OP_JAL:		GenerateJAL( address );	handled = true; break;
 
@@ -1763,6 +1762,9 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 //*****************************************************************************
 void	CCodeGeneratorPSP::GenerateGenericR4300( OpCode op_code, CPU_Instruction p_instruction )
 {
+	mPreviousLoadBase = N64Reg_R0;	//Invalidate
+	mPreviousStoreBase = N64Reg_R0;	//Invalidate
+
 	// Flush out the dirty registers, and mark them all as invalid
 	// Theoretically we could just flush the registers referenced in the call
 	FlushAllRegisters( mRegisterCache, true );
@@ -1895,12 +1897,13 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 										 u32 swizzle,
 										 ReadMemoryFunction p_read_memory )
 {
+	if( mPreviousStoreBase == mCurrentRT ) mPreviousStoreBase = N64Reg_R0;	//Invalidate
+
 	//
 	//	Check if the base pointer is a known value, in which case we can load directly.
 	//
 	if(GenerateDirectLoad( psp_dst, n64_base, offset, load_op, swizzle ))
 	{
-		mPreviousLoadBase = N64Reg_R0;	//Invalidate
 		return;
 	}
 
@@ -1919,11 +1922,8 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 			}
 
 			XORI( PspReg_A0, reg_address, swizzle );
-			reg_address = PspReg_A0;
-
-			ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
-			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
-			mPreviousLoadBase = N64Reg_R0;	//Invalidate
+			ADDU( PspReg_A0, PspReg_A0, gMemoryBaseReg );
+			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A0, offset );
 			return;
 		}
 
@@ -2198,7 +2198,6 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 	//
 	if(GenerateDirectStore( psp_src, n64_base, offset, store_op, swizzle ))
 	{
-		mPreviousStoreBase = N64Reg_R0;	//Invalidate
 		return;
 	}
 
@@ -2217,11 +2216,8 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 			}
 
 			XORI( PspReg_A0, reg_address, swizzle );
-			reg_address = PspReg_A0;
-
-			ADDU( PspReg_V1, reg_address, gMemoryBaseReg );
-			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_V1, offset );
-			mPreviousStoreBase = N64Reg_R0;	//Invalidate
+			ADDU( PspReg_A0, PspReg_A0, gMemoryBaseReg );
+			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_A0, offset );
 			return;
 		}
 
