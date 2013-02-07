@@ -243,7 +243,8 @@ IController::IController() :
 #ifdef DAEDALUS_DEBUG_PIF
 	mDebugFile = fopen( "controller.txt", "w" );
 #endif
-	for ( u32 i = 0; i < NUM_CONTROLLERS; i++ )
+	u32 i;
+	for ( i = 0; i < NUM_CONTROLLERS; i++ )
 	{
 		mContPresent[ i ] = true;
 		mContMemPackPresent[ i ] = false;
@@ -253,7 +254,7 @@ IController::IController() :
 
 	// Only one controller is "connected" for the PSP
 #ifdef DAEDALUS_PSP	
-	for ( u32 i = PC_CONTROLLER_1; i < NUM_CONTROLLERS; i++ )
+	for ( i = PC_CONTROLLER_1; i < NUM_CONTROLLERS; i++ )
 	{
 		mContPresent[ i ] = false;
 	}
@@ -409,10 +410,10 @@ void IController::Process()
 	for ( u32 x = 0; x < 64; x+=8 )
 	{
 		DPF_PIF( "0x%02x%02x%02x%02x : 0x%02x%02x%02x%02x  |  0x%02x%02x%02x%02x : 0x%02x%02x%02x%02x",
-			mpInput[(x + 0) ^ U8_TWIDDLE],  mpInput[(x + 1) ^ U8_TWIDDLE],  mpInput[(x + 2) ^ U8_TWIDDLE],  mpInput[(x + 3) ^ U8_TWIDDLE],
-			mpInput[(x + 4) ^ U8_TWIDDLE],  mpInput[(x + 5) ^ U8_TWIDDLE],  mpInput[(x + 6) ^ U8_TWIDDLE],  mpInput[(x + 7) ^ U8_TWIDDLE],
-			mpPifRam[(x + 0) ^ U8_TWIDDLE], mpPifRam[(x + 1) ^ U8_TWIDDLE], mpPifRam[(x + 2) ^ U8_TWIDDLE], mpPifRam[(x + 3) ^ U8_TWIDDLE],
-			mpPifRam[(x + 4) ^ U8_TWIDDLE], mpPifRam[(x + 5) ^ U8_TWIDDLE], mpPifRam[(x + 6) ^ U8_TWIDDLE], mpPifRam[(x + 7) ^ U8_TWIDDLE] );
+			mpInput[(x + 0)],  mpInput[(x + 1)],  mpInput[(x + 2)],  mpInput[(x + 3)],
+			mpInput[(x + 4)],  mpInput[(x + 5)],  mpInput[(x + 6)],  mpInput[(x + 7)],
+			mpPifRam[(x + 0)], mpPifRam[(x + 1)], mpPifRam[(x + 2)], mpPifRam[(x + 3)],
+			mpPifRam[(x + 4)], mpPifRam[(x + 5)], mpPifRam[(x + 6)], mpPifRam[(x + 7)] );
 	}
 	DPF_PIF("");
 	DPF_PIF("");
@@ -431,8 +432,8 @@ void IController::DumpInput() const
 	for ( u32 x = 0; x < 64; x+=8 )
 	{
 		DBGConsole_Msg( 0, "0x%02x%02x%02x%02x : 0x%02x%02x%02x%02x",
-			mpInput[(x + 0) ^ U8_TWIDDLE],  mpInput[(x + 1) ^ U8_TWIDDLE],  mpInput[(x + 2) ^ U8_TWIDDLE],  mpInput[(x + 3) ^ U8_TWIDDLE],
-			mpInput[(x + 4) ^ U8_TWIDDLE],  mpInput[(x + 5) ^ U8_TWIDDLE],  mpInput[(x + 6) ^ U8_TWIDDLE],  mpInput[(x + 7) ^ U8_TWIDDLE] );
+			mpInput[(x + 0)],  mpInput[(x + 1)],  mpInput[(x + 2)],  mpInput[(x + 3)],
+			mpInput[(x + 4)],  mpInput[(x + 5)],  mpInput[(x + 6)],  mpInput[(x + 7)] );
 	}
 }
 #endif
