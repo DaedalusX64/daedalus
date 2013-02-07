@@ -1400,11 +1400,11 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	const EN64Reg	rs = EN64Reg( op_code.rs );
 	const EN64Reg	rt = EN64Reg( op_code.rt );
 	const EN64Reg	rd = EN64Reg( op_code.rd );
-	const u32		sa = op_code.sa;
 	const EN64Reg	base = EN64Reg( op_code.base );
+	const u32		ft = op_code.ft;
+	const u32		sa = op_code.sa;
 	//const u32		jump_target( (address&0xF0000000) | (op_code.target<<2) );
 	//const u32		branch_target( address + ( ((s32)(s16)op_code.immediate)<<2 ) + 4);
-	const u32		ft = op_code.ft;
 
 	mCurrentRT = rt;
 
@@ -1437,7 +1437,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	case OP_LD:			GenerateLD( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_LWC1:		GenerateLWC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
 #ifdef ENABLE_LDC1
-	case OP_LDC1:		GenerateLDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_LDC1:		if( !branch_delay_slot & gMemoryAccessOptimisation & mQuickLoad ) { GenerateLDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; } break;
 #endif
 
 #ifdef ENABLE_LWR_LWL
@@ -1451,7 +1451,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	case OP_SD:			GenerateSD( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 	case OP_SWC1:		GenerateSWC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
 #ifdef ENABLE_SDC1
-	case OP_SDC1:		GenerateSDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_SDC1:		if( !branch_delay_slot & gMemoryAccessOptimisation & mQuickLoad ) { GenerateSDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; } break;
 #endif
 
 #ifdef ENABLE_SWR_SWL
@@ -1471,7 +1471,6 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	case OP_BGTZ:
 	case OP_BGTZL:
 		GenerateBGTZ( rs, p_branch, p_branch_jump ); handled = true; break;
-
 
 	case OP_CACHE:		GenerateCACHE( base, op_code.immediate, rt ); handled = true; break;
 
@@ -1560,39 +1559,39 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			{
 				switch( op_code.cop1_funct )
 				{
-					case Cop1OpFunc_ADD:	GenerateADD_D_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_SUB:	GenerateSUB_D_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_MUL:	GenerateMUL_D_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_DIV:	GenerateDIV_D_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_SQRT:	GenerateSQRT_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
-					case Cop1OpFunc_ABS:	GenerateABS_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
-					case Cop1OpFunc_MOV:	GenerateMOV_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
-					case Cop1OpFunc_NEG:	GenerateNEG_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
+				case Cop1OpFunc_ADD:	GenerateADD_D_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_SUB:	GenerateSUB_D_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_MUL:	GenerateMUL_D_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_DIV:	GenerateDIV_D_Sim( op_code.fd, op_code.fs, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_SQRT:	GenerateSQRT_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
+				case Cop1OpFunc_ABS:	GenerateABS_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
+				case Cop1OpFunc_MOV:	GenerateMOV_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
+				case Cop1OpFunc_NEG:	GenerateNEG_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
 
-					case Cop1OpFunc_TRUNC_W:	GenerateTRUNC_W_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
+				case Cop1OpFunc_TRUNC_W:	GenerateTRUNC_W_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
 
-					case Cop1OpFunc_CVT_W:		GenerateCVT_W_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
-					case Cop1OpFunc_CVT_S:		GenerateCVT_S_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
+				case Cop1OpFunc_CVT_W:		GenerateCVT_W_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
+				case Cop1OpFunc_CVT_S:		GenerateCVT_S_D_Sim( op_code.fd, op_code.fs ); handled = true; break;
 
-					case Cop1OpFunc_CMP_F:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_F, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_CMP_UN:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_UN, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_CMP_EQ:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_EQ, op_code.ft ); handled = true; break;	//Conker has issues with this
-					case Cop1OpFunc_CMP_UEQ:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_UEQ, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_CMP_OLT:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_OLT, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_CMP_ULT:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_ULT, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_CMP_OLE:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_OLE, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_CMP_ULE:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_ULE, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_CMP_F:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_F, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_CMP_UN:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_UN, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_CMP_EQ:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_EQ, op_code.ft ); handled = true; break;	//Conker has issues with this
+				case Cop1OpFunc_CMP_UEQ:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_UEQ, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_CMP_OLT:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_OLT, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_CMP_ULT:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_ULT, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_CMP_OLE:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_OLE, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_CMP_ULE:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_ULE, op_code.ft ); handled = true; break;
 
-					case Cop1OpFunc_CMP_SF:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_SF, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_CMP_NGLE:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_NGLE, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_CMP_SEQ:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_SEQ, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_CMP_NGL:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_NGL, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_CMP_LT:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_LT, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_CMP_NGE:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_NGE, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_CMP_LE:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_LE, op_code.ft ); handled = true; break;
-					case Cop1OpFunc_CMP_NGT:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_NGT, op_code.ft ); handled = true; break;
-					default:
-					GenerateGenericR4300( op_code, R4300_GetDInstructionHandler( op_code ) ); handled = true; break;	// Need branch delay?
+				case Cop1OpFunc_CMP_SF:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_SF, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_CMP_NGLE:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_NGLE, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_CMP_SEQ:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_SEQ, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_CMP_NGL:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_NGL, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_CMP_LT:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_LT, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_CMP_NGE:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_NGE, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_CMP_LE:		GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_LE, op_code.ft ); handled = true; break;
+				case Cop1OpFunc_CMP_NGT:	GenerateCMP_D_Sim( op_code.fs, Cop1OpFunc_CMP_NGT, op_code.ft ); handled = true; break;
+				default:
+					break;	//call Generic4300
 				}
 			}
 			else
@@ -1641,16 +1640,12 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			case Cop1OpFunc_CMP_NGT:	GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_NGT, op_code.ft ); handled = true; break;
 			}
 			break;
+
 		case Cop1Op_WInstr:
 			switch( op_code.cop1_funct )
 			{
 			case Cop1OpFunc_CVT_S:	GenerateCVT_S_W( op_code.fd, op_code.fs ); handled = true; break;
-			case Cop1OpFunc_CVT_D:	if( gDynarecDoublesOptimisation )
-									{
-										GenerateCVT_D_W_Sim( op_code.fd, op_code.fs );
-										handled = true;
-										break;
-									}
+			case Cop1OpFunc_CVT_D:	if( gDynarecDoublesOptimisation ) { GenerateCVT_D_W_Sim( op_code.fd, op_code.fs ); handled = true; } break;
 			}
 			break;
 
@@ -1666,6 +1661,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 				GenerateBC1T( p_branch, p_branch_jump ); handled = true; break;
 			}
 			break;
+
 		default:
 			break;
 		}
@@ -3672,17 +3668,22 @@ inline void	CCodeGeneratorPSP::GenerateLWC1( u32 address, bool set_branch_delay,
 #ifdef ENABLE_LDC1
 inline void	CCodeGeneratorPSP::GenerateLDC1( u32 address, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset )
 {
+	EPspReg		reg_base( GetRegisterAndLoadLo( base, PspReg_A0 ) );
+	ADDU( PspReg_A0, reg_base, gMemoryBaseReg );
+
 	EN64FloatReg	n64_ft = EN64FloatReg( ft + 1 );
 	EPspFloatReg	psp_ft = EPspFloatReg( n64_ft );// 1:1 Mapping
-	GenerateLoad( address, (EPspReg)psp_ft, base, offset, OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
-	SetFloatVar( &gCPUState.FPU[psp_ft]._f32, psp_ft );
+	//GenerateLoad( address, (EPspReg)psp_ft, base, offset, OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	LWC1( psp_ft, PspReg_A0, offset);
 	mRegisterCache.MarkFPAsValid( n64_ft, true );
+	mRegisterCache.MarkFPAsDirty( n64_ft, true );
 
 	n64_ft = EN64FloatReg( ft );
 	psp_ft = EPspFloatReg( n64_ft );// 1:1 Mapping
-	GenerateLoad( address, (EPspReg)psp_ft, base, offset + 4, OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
-	SetFloatVar( &gCPUState.FPU[psp_ft]._f32, psp_ft );
+	//GenerateLoad( address, (EPspReg)psp_ft, base, offset + 4, OP_LWC1, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	LWC1( psp_ft, PspReg_A0, offset+4);
 	mRegisterCache.MarkFPAsValid( n64_ft, true );
+	mRegisterCache.MarkFPAsDirty( n64_ft, true );
 	mRegisterCache.MarkFPAsSim( n64_ft, false );
 }
 #endif
@@ -3780,51 +3781,17 @@ inline void	CCodeGeneratorPSP::GenerateSWC1( u32 current_pc, bool set_branch_del
 #ifdef ENABLE_SDC1
 inline void	CCodeGeneratorPSP::GenerateSDC1( u32 current_pc, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset )
 {
-#if 1
 	EN64FloatReg	n64_ft_sig = EN64FloatReg( ft );
 	EPspFloatReg	psp_ft_sig = GetFloatRegisterAndLoad( n64_ft_sig );
 	EN64FloatReg	n64_ft = EN64FloatReg( ft + 1 );
 	EPspFloatReg	psp_ft( GetFloatRegisterAndLoad( EN64FloatReg(n64_ft + 1) ) );
 
-	if( !mRegisterCache.IsFPSim( n64_ft_sig ) )
-	{	//Add signature test
-		MFC1( PspReg_A0, psp_ft_sig );
-		LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
-		CJumpLocation test_reg( BNE( PspReg_A0, PspReg_A1, CCodeLabel(NULL), true ) );	//compare float to signature
-
-		JAL( CCodeLabel( reinterpret_cast< const void * >( _FloatToDouble ) ), false );	//Convert Float to Double
-		MFC1( PspReg_A0, psp_ft );	//Get float to convert
-
-		//Store from CPU after conversion
-		GenerateStore( current_pc, PspReg_V1, base, offset, OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
-		GenerateStore( current_pc, PspReg_V0, base, offset + 4, OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
-		CJumpLocation branch( BEQ( PspReg_R0, PspReg_R0, CCodeLabel(NULL), true ) );	//always branch
-
-		//Store directly from float regs
-		PatchJumpLong( test_reg, GetAssemblyBuffer()->GetLabel() );
-		GenerateStore( current_pc, (EPspReg)psp_ft, base, offset, OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
-		GenerateStore( current_pc, (EPspReg)psp_ft_sig, base, offset + 4, OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
-
-		PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
-	}
-	else
-	{	//If we know its a sim double we can convert it directly
-		JAL( CCodeLabel( reinterpret_cast< const void * >( _FloatToDouble ) ), false );	//Convert Float to Double
-		MFC1( PspReg_A0, psp_ft );	//Get float to convert
-
-		GenerateStore( current_pc, PspReg_V1, base, offset, OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
-		GenerateStore( current_pc, PspReg_V0, base, offset + 4, OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
-	}
-
-#else
-	EN64FloatReg	n64_ft_sig = EN64FloatReg( ft );
-	EPspFloatReg	psp_ft_sig = GetFloatRegisterAndLoad( n64_ft_sig );
-	EN64FloatReg	n64_ft = EN64FloatReg( ft + 1 );
-	EPspFloatReg	psp_ft( GetFloatRegisterAndLoad( EN64FloatReg(n64_ft + 1) ) );
-
-	GenerateStore( current_pc, (EPspReg)psp_ft, base, offset, OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
-	GenerateStore( current_pc, (EPspReg)psp_ft_sig, base, offset + 4, OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
-#endif
+	//GenerateStore( current_pc, (EPspReg)psp_ft, base, offset, OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+	//GenerateStore( current_pc, (EPspReg)psp_ft_sig, base, offset + 4, OP_SWC1, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
+	EPspReg		reg_base( GetRegisterAndLoadLo( base, PspReg_A0 ) );
+	ADDU( PspReg_A0, reg_base, gMemoryBaseReg );
+	SWC1( psp_ft, PspReg_A0, offset);
+	SWC1( psp_ft_sig, PspReg_A0, offset+4);
 }
 #endif
 
@@ -4671,6 +4638,9 @@ inline void	CCodeGeneratorPSP::GenerateCVT_D_S_Sim( u32 fd, u32 fs )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateCVT_D_S( u32 fd, u32 fs )
 {
+	mPreviousLoadBase = N64Reg_R0;	//Invalidate
+	mPreviousStoreBase = N64Reg_R0;	//Invalidate	
+
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
 	EN64FloatReg	n64_fd = EN64FloatReg( fd );
 
