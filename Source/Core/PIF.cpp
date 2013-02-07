@@ -248,7 +248,16 @@ IController::IController() :
 		mContPresent[ i ] = true;
 		mContMemPackPresent[ i ] = false;
 	}
+
 	mContMemPackPresent[ 0 ] = true;
+
+	// Only one controller is "connected" for the PSP
+#ifdef DAEDALUS_PSP	
+	for ( u32 i = PC_CONTROLLER_1; i < NUM_CONTROLLERS; i++ )
+	{
+		mContPresent[ i ] = false;
+	}
+#endif
 }
 
 //*****************************************************************************
@@ -436,7 +445,7 @@ bool	IController::ProcessController(u8 *cmd, u32 channel)
 
 	if( !mContPresent[channel] )
 	{
-		DAEDALUS_ERROR("MemPak/Controller : Not connected!");
+		DPF_PIF("Controller %d is not connected",channel);
         cmd[1] |= 0x80;
         cmd[3] = 0xFF;
         cmd[4] = 0xFF;
@@ -668,9 +677,7 @@ void	IController::CommandWriteMemPack(u32 channel, u8 *cmd)
 
 		if (addr <= 0x7FE0)
 		{
-			// For speed, we only write the mempak file when exiting the game
-			// Only drawback is that progress can be lost if the game crashes suddenly 
-			//Save::MarkMempackDirty();
+			Save::MarkMempackDirty();
 			memcpy(&mMemPack[channel][addr], data, 32);
 		}
 		else
