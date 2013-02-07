@@ -141,8 +141,8 @@ class	IController : public CController
 		bool			ProcessController(u8 *cmd, u32 device);
 		bool			ProcessEeprom(u8 *cmd);
 
-		void			CommandReadEeprom(unsigned char *dest, long offset);
-		void			CommandWriteEeprom(char *src, long offset);
+		void			CommandReadEeprom(u8 *cmd);
+		void			CommandWriteEeprom(u8* cmd);
 		void			CommandReadMemPack(u32 channel, u8 *cmd);
 		void			CommandWriteMemPack(u32 channel, u8 *cmd);
 		void			CommandReadRumblePack(u8 *cmd);
@@ -153,9 +153,8 @@ class	IController : public CController
 #ifdef DAEDALUS_ENABLE_ASSERTS
 		bool			IsEepromPresent() const						{ return mpEepromData != NULL; }
 #endif
-		u8				GetEepromContType() const					{ return mEepromContType; }
 
-		u8				Byte2Bcd(int n)								{ n %= 100; return ((n / 10) << 4) | (n % 10); }
+		u8				Byte2Bcd(s32 n)								{ n %= 100; return ((n / 10) << 4) | (n % 10); }
 
 
 #ifdef DAEDALUS_DEBUG_PIF
@@ -345,7 +344,6 @@ void IController::Process()
 		// command is ready
 		if(cmd[0] == CONT_TX_SIZE_FORMAT_END)
 		{
-			count = 64;
 			break;
 		}
 
@@ -363,7 +361,7 @@ void IController::Process()
 			continue;
 		}*/
 
-		// next channel please
+		// next channel 
 		if(cmd[0] == CONT_TX_SIZE_CHANSKIP)
 		{
 			count++;
@@ -374,25 +372,19 @@ void IController::Process()
 		// 0-3 = controller channel
 		if( channel < PC_EEPROM )
 		{
-			if ( !ProcessController( cmd, channel ) )
-			{
-				count = 64;
+			if ( !ProcessController(cmd, channel) )
 				break;
-			}
 		}
 		// 4 = eeprom channel
 		else if( channel == PC_EEPROM)
 		{
-			if ( !ProcessEeprom( cmd ) )
-			{
-				count = 64;
+			if ( !ProcessEeprom(cmd) )
 				break;
-			}
 		}
 		else
 		{
 			DAEDALUS_ERROR( "Trying to read from invalid controller channel! %d", channel );
-			return;
+			break;
 		}
 
 		channel++;
@@ -515,16 +507,16 @@ bool	IController::ProcessEeprom(u8 *cmd)
 	case CONT_RESET:
 	case CONT_GET_STATUS:
 		cmd[3] = 0x00;
-		cmd[4] = GetEepromContType();
+		cmd[4] = mEepromContType;
 		cmd[5] = 0x00;
 		break;
 
 	case CONT_READ_EEPROM:
-		CommandReadEeprom(&cmd[4], cmd[3] * 8);
+		CommandReadEeprom( cmd );
 		break;
 
 	case CONT_WRITE_EEPROM:
-		CommandWriteEeprom((char*)&cmd[4], cmd[3] * 8);
+		CommandWriteEeprom( cmd );
 		break;
 
 	// RTC credit: Mupen64 source
@@ -555,18 +547,18 @@ bool	IController::ProcessEeprom(u8 *cmd)
 //*****************************************************************************
 //
 //*****************************************************************************
-void	IController::CommandReadEeprom(unsigned char *dest, long offset)
+void	IController::CommandReadEeprom(u8* cmd)
 {
-	memcpy(dest, &mpEepromData[offset], 8);
+	memcpy(&cmd[4], mpEepromData + cmd[3] * 8, 8);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void	IController::CommandWriteEeprom(char *src, long offset)
+void	IController::CommandWriteEeprom(u8* cmd)
 {
 	Save::MarkSaveDirty();
-	memcpy(&mpEepromData[offset], src, 8);
+	memcpy(mpEepromData + cmd[3] * 8, &cmd[4], 8);
 }
 
 //*****************************************************************************
@@ -676,6 +668,9 @@ void	IController::CommandWriteMemPack(u32 channel, u8 *cmd)
 
 		if (addr <= 0x7FE0)
 		{
+			// For speed, we only write the mempak file when exiting the game
+			// Only drawback is that progress can be lost if the game crashes suddenly 
+			//Save::MarkMempackDirty();
 			memcpy(&mMemPack[channel][addr], data, 32);
 		}
 		else
