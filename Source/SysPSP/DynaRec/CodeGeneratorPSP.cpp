@@ -1015,7 +1015,7 @@ CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_ad
 
 		// Check if we're ok to continue, without flushing any registers
 		GetVar( PspReg_V0, &gCPUState.CPUControl[C0_COUNT]._u32 );
-		GetVar( PspReg_V1, (const u32*)&gCPUState.Events[0].mCount );
+		GetVar( PspReg_A0, (const u32*)&gCPUState.Events[0].mCount );
 
 		//
 		//	Pull in any registers which may have been flushed for whatever reason.
@@ -1046,9 +1046,9 @@ CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_ad
 		//
 		//	If the event counter is still positive, just jump directly to the top of our loop
 		//
-		ADDIU( PspReg_V1, PspReg_V1, -s16(num_instructions) );
-		BGTZ( PspReg_V1, mLoopTop, false );
-		SetVar( (u32*)&gCPUState.Events[0].mCount, PspReg_V1 );	// ASSUMES store is done in just a single op.
+		ADDIU( PspReg_A0, PspReg_A0, -s16(num_instructions) );
+		BGTZ( PspReg_A0, mLoopTop, false );
+		SetVar( (u32*)&gCPUState.Events[0].mCount, PspReg_A0 );	// ASSUMES store is done in just a single op.
 
 		FlushAllRegisters( mRegisterCache, true );
 
@@ -1208,8 +1208,8 @@ CJumpLocation	CCodeGeneratorPSP::GenerateBranchIfNotSet( const u32 * p_var, CCod
 CJumpLocation	CCodeGeneratorPSP::GenerateBranchIfEqual( const u32 * p_var, u32 value, CCodeLabel target )
 {
 	GetVar( PspReg_V0, p_var );
-	LoadConstant( PspReg_V1, value );
-	return BEQ( PspReg_V0, PspReg_V1, target, true );
+	LoadConstant( PspReg_A0, value );
+	return BEQ( PspReg_V0, PspReg_A0, target, true );
 }
 
 //*****************************************************************************
@@ -1218,8 +1218,8 @@ CJumpLocation	CCodeGeneratorPSP::GenerateBranchIfEqual( const u32 * p_var, u32 v
 CJumpLocation	CCodeGeneratorPSP::GenerateBranchIfNotEqual( const u32 * p_var, u32 value, CCodeLabel target )
 {
 	GetVar( PspReg_V0, p_var );
-	LoadConstant( PspReg_V1, value );
-	return BNE( PspReg_V0, PspReg_V1, target, true );
+	LoadConstant( PspReg_A0, value );
+	return BNE( PspReg_V0, PspReg_A0, target, true );
 }
 
 //*****************************************************************************
@@ -1227,7 +1227,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateBranchIfNotEqual( const u32 * p_var, u3
 //*****************************************************************************
 CJumpLocation	CCodeGeneratorPSP::GenerateBranchIfNotEqual( EPspReg reg_a, u32 value, CCodeLabel target )
 {
-	EPspReg	reg_b( reg_a == PspReg_V0 ? PspReg_V1 : PspReg_V0 );		// Make sure we don't use the same reg
+	EPspReg	reg_b( reg_a == PspReg_V0 ? PspReg_A0 : PspReg_V0 );		// Make sure we don't use the same reg
 
 	LoadConstant( reg_b, value );
 	return BNE( reg_a, reg_b, target, true );
@@ -2317,6 +2317,9 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op )
 {
+	mPreviousLoadBase = N64Reg_R0;	//Invalidate
+	mPreviousStoreBase = N64Reg_R0;	//Invalidate
+
 	//u32 cache_op  = op_code.rt;
 	//u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 
@@ -2468,22 +2471,22 @@ inline void	CCodeGeneratorPSP::GenerateMULT( EN64Reg rs, EN64Reg rt )
 	//gCPUState.MultHi = (s64)(s32)(dwResult >> 32);
 
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
 	MULT( reg_lo_a, reg_lo_b );
 
 	MFLO( PspReg_V0 );
-	MFHI( PspReg_V1 );
+	MFHI( PspReg_A0 );
 
 	SetVar( &gCPUState.MultLo._u32_0, PspReg_V0 );
-	SetVar( &gCPUState.MultHi._u32_0, PspReg_V1 );
+	SetVar( &gCPUState.MultHi._u32_0, PspReg_A0 );
 
 #ifdef ENABLE_64BIT
 	SRA( PspReg_V0, PspReg_V0, 0x1f );		// Sign extend
-	SRA( PspReg_V1, PspReg_V1, 0x1f );		// Sign extend
+	SRA( PspReg_A0, PspReg_A0, 0x1f );		// Sign extend
 
 	SetVar( &gCPUState.MultLo._u32_1, PspReg_V0 );
-	SetVar( &gCPUState.MultHi._u32_1, PspReg_V1 );
+	SetVar( &gCPUState.MultHi._u32_1, PspReg_A0 );
 #endif
 }
 
@@ -2497,22 +2500,22 @@ inline void	CCodeGeneratorPSP::GenerateMULTU( EN64Reg rs, EN64Reg rt )
 	//gCPUState.MultHi = (s64)(s32)(dwResult >> 32);
 
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
 	MULTU( reg_lo_a, reg_lo_b );
 
 	MFLO( PspReg_V0 );
-	MFHI( PspReg_V1 );
+	MFHI( PspReg_A0 );
 
 	SetVar( &gCPUState.MultLo._u32_0, PspReg_V0 );
-	SetVar( &gCPUState.MultHi._u32_0, PspReg_V1 );
+	SetVar( &gCPUState.MultHi._u32_0, PspReg_A0 );
 
 	//Yoshi must have sign extension or it will BSOD //Corn
 	SRA( PspReg_V0, PspReg_V0, 0x1f );		// Sign extend
-	SRA( PspReg_V1, PspReg_V1, 0x1f );		// Sign extend
+	SRA( PspReg_A0, PspReg_A0, 0x1f );		// Sign extend
 
 	SetVar( &gCPUState.MultLo._u32_1, PspReg_V0 );
-	SetVar( &gCPUState.MultHi._u32_1, PspReg_V1 );
+	SetVar( &gCPUState.MultHi._u32_1, PspReg_A0 );
 }
 
 //*****************************************************************************
@@ -2531,45 +2534,45 @@ inline void	CCodeGeneratorPSP::GenerateDIV( EN64Reg rs, EN64Reg rt )
 
 #ifdef DIVZEROCHK
 	EPspReg	reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
 	CJumpLocation	branch( BEQ( reg_lo_rt, PspReg_R0, CCodeLabel(NULL), true ) );		// Can use branch delay for something?
 
 	DIV( reg_lo_rs, reg_lo_rt );
 
 	MFLO( PspReg_V0 );
-	MFHI( PspReg_V1 );
+	MFHI( PspReg_A0 );
 
 	SetVar( &gCPUState.MultLo._u32_0, PspReg_V0 );
-	SetVar( &gCPUState.MultHi._u32_0, PspReg_V1 );
+	SetVar( &gCPUState.MultHi._u32_0, PspReg_A0 );
 
 	SRA( PspReg_V0, PspReg_V0, 0x1f );		// Sign extend
-	SRA( PspReg_V1, PspReg_V1, 0x1f );		// Sign extend
+	SRA( PspReg_A0, PspReg_A0, 0x1f );		// Sign extend
 
 	SetVar( &gCPUState.MultLo._u32_1, PspReg_V0 );
-	SetVar( &gCPUState.MultHi._u32_1, PspReg_V1 );
+	SetVar( &gCPUState.MultHi._u32_1, PspReg_A0 );
 
 	// Branch here - really should trigger exception!
 	PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
 
 #else
 	EPspReg	reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
 	DIV( reg_lo_rs, reg_lo_rt );
 
 	MFLO( PspReg_V0 );
-	MFHI( PspReg_V1 );
+	MFHI( PspReg_A0 );
 
 	SetVar( &gCPUState.MultLo._u32_0, PspReg_V0 );
-	SetVar( &gCPUState.MultHi._u32_0, PspReg_V1 );
+	SetVar( &gCPUState.MultHi._u32_0, PspReg_A0 );
 
 #ifdef ENABLE_64BIT
 	SRA( PspReg_V0, PspReg_V0, 0x1f );		// Sign extend
-	SRA( PspReg_V1, PspReg_V1, 0x1f );		// Sign extend
+	SRA( PspReg_A0, PspReg_A0, 0x1f );		// Sign extend
 
 	SetVar( &gCPUState.MultLo._u32_1, PspReg_V0 );
-	SetVar( &gCPUState.MultHi._u32_1, PspReg_V1 );
+	SetVar( &gCPUState.MultHi._u32_1, PspReg_A0 );
 #endif
 
 #endif
@@ -2590,45 +2593,45 @@ inline void	CCodeGeneratorPSP::GenerateDIVU( EN64Reg rs, EN64Reg rt )
 
 #ifdef DIVZEROCHK
 	EPspReg	reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
 	CJumpLocation	branch( BEQ( reg_lo_rt, PspReg_R0, CCodeLabel(NULL), true ) );		// Can use branch delay for something?
 
 	DIVU( reg_lo_rs, reg_lo_rt );
 
 	MFLO( PspReg_V0 );
-	MFHI( PspReg_V1 );
+	MFHI( PspReg_A0 );
 
 	SetVar( &gCPUState.MultLo._u32_0, PspReg_V0 );
-	SetVar( &gCPUState.MultHi._u32_0, PspReg_V1 );
+	SetVar( &gCPUState.MultHi._u32_0, PspReg_A0 );
 
 	SRA( PspReg_V0, PspReg_V0, 0x1f );		// Sign extend
-	SRA( PspReg_V1, PspReg_V1, 0x1f );		// Sign extend
+	SRA( PspReg_A0, PspReg_A0, 0x1f );		// Sign extend
 
 	SetVar( &gCPUState.MultLo._u32_1, PspReg_V0 );
-	SetVar( &gCPUState.MultHi._u32_1, PspReg_V1 );
+	SetVar( &gCPUState.MultHi._u32_1, PspReg_A0 );
 
 	// Branch here - really should trigger exception!
 	PatchJumpLong( branch, GetAssemblyBuffer()->GetLabel() );
 
 #else
 	EPspReg	reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
 	DIVU( reg_lo_rs, reg_lo_rt );
 
 	MFLO( PspReg_V0 );
-	MFHI( PspReg_V1 );
+	MFHI( PspReg_A0 );
 
 	SetVar( &gCPUState.MultLo._u32_0, PspReg_V0 );
-	SetVar( &gCPUState.MultHi._u32_0, PspReg_V1 );
+	SetVar( &gCPUState.MultHi._u32_0, PspReg_A0 );
 
 #ifdef ENABLE_64BIT
 	SRA( PspReg_V0, PspReg_V0, 0x1f );		// Sign extend
-	SRA( PspReg_V1, PspReg_V1, 0x1f );		// Sign extend
+	SRA( PspReg_A0, PspReg_A0, 0x1f );		// Sign extend
 
 	SetVar( &gCPUState.MultLo._u32_1, PspReg_V0 );
-	SetVar( &gCPUState.MultHi._u32_1, PspReg_V1 );
+	SetVar( &gCPUState.MultHi._u32_1, PspReg_A0 );
 #endif
 
 #endif
@@ -2680,7 +2683,7 @@ inline void	CCodeGeneratorPSP::GenerateADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 		//gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rs ]._s32_0 + gGPR[ op_code.rt ]._s32_0 );
 		EPspReg	reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
 		EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-		EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+		EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 		ADDU( reg_lo_d, reg_lo_a, reg_lo_b );
 		UpdateRegister( rd, reg_lo_d, URO_HI_SIGN_EXTEND );
 	}
@@ -2702,7 +2705,7 @@ inline void	CCodeGeneratorPSP::GenerateSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	//gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rs ]._s32_0 - gGPR[ op_code.rt ]._s32_0 );
 	EPspReg	reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 	SUBU( reg_lo_d, reg_lo_a, reg_lo_b );
 	UpdateRegister( rd, reg_lo_d, URO_HI_SIGN_EXTEND );
 }
@@ -2718,15 +2721,18 @@ inline void	CCodeGeneratorPSP::GenerateDADDIU( EN64Reg rt, EN64Reg rs, s16 immed
 	}
 	else
 	{
+		mPreviousLoadBase = N64Reg_R0;	//Invalidate
+		mPreviousStoreBase = N64Reg_R0;	//Invalidate
+
 		EPspReg	reg_lo_d( GetRegisterNoLoadLo( rt, PspReg_V0 ) );
-		EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_V1 ) );
+		EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
 
 		ADDIU( reg_lo_d, reg_lo_a, immediate );
 		SLTU( PspReg_A1, reg_lo_d, reg_lo_a );		// Overflowed?
 		StoreRegisterLo( rt, reg_lo_d );
 
 		EPspReg	reg_hi_d( GetRegisterNoLoadHi( rt, PspReg_V0 ) );
-		EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_V1 ) );
+		EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_A0 ) );
 
 		ADDU( reg_hi_d, PspReg_A1, reg_hi_a );		// Add on overflow
 		StoreRegisterHi( rt, reg_hi_d );
@@ -2748,6 +2754,9 @@ inline void	CCodeGeneratorPSP::GenerateDADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt
 	//890c25c:	01031821 	addu	d_hi,t0,d_hi
 	//890c268:	ad230004 	sw		d_hi,4(t1)
 
+
+	mPreviousLoadBase = N64Reg_R0;	//Invalidate
+	mPreviousStoreBase = N64Reg_R0;	//Invalidate
 
 	EPspReg	reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
@@ -2807,7 +2816,7 @@ inline void	CCodeGeneratorPSP::GenerateAND( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 		// XXXX or into dest register
 		EPspReg	reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
 		EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-		EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+		EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 		AND( reg_lo_d, reg_lo_a, reg_lo_b );
 		StoreRegisterLo( rd, reg_lo_d );
 
@@ -2815,7 +2824,7 @@ inline void	CCodeGeneratorPSP::GenerateAND( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 		{
 			EPspReg	reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_V0 ) );
 			EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_V0 ) );
-			EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_V1 ) );
+			EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_A0 ) );
 			AND( reg_hi_d, reg_hi_a, reg_hi_b );
 			StoreRegisterHi( rd, reg_hi_d );
 		}
@@ -2910,7 +2919,7 @@ void	CCodeGeneratorPSP::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 
 		EPspReg	reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
 		EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-		EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+		EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 		OR( reg_lo_d, reg_lo_a, reg_lo_b );
 		StoreRegisterLo( rd, reg_lo_d );
 
@@ -2932,7 +2941,7 @@ void	CCodeGeneratorPSP::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 			{
 				EPspReg	reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_V0 ) );
 				EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_V0 ) );
-				EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_V1 ) );
+				EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_A0 ) );
 				OR( reg_hi_d, reg_hi_a, reg_hi_b );
 				StoreRegisterHi( rd, reg_hi_d );
 			}
@@ -2977,7 +2986,7 @@ inline void	CCodeGeneratorPSP::GenerateXOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 
 	EPspReg	reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 	XOR( reg_lo_d, reg_lo_a, reg_lo_b );
 	StoreRegisterLo( rd, reg_lo_d );
 
@@ -2985,7 +2994,7 @@ inline void	CCodeGeneratorPSP::GenerateXOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	{
 		EPspReg	reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_V0 ) );
 		EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_V0 ) );
-		EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_V1 ) );
+		EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_A0 ) );
 		XOR( reg_hi_d, reg_hi_a, reg_hi_b );
 		StoreRegisterHi( rd, reg_hi_d );
 	}
@@ -3014,7 +3023,7 @@ inline void	CCodeGeneratorPSP::GenerateNOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 
 	EPspReg	reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 	NOR( reg_lo_d, reg_lo_a, reg_lo_b );
 	StoreRegisterLo( rd, reg_lo_d );
 
@@ -3022,7 +3031,7 @@ inline void	CCodeGeneratorPSP::GenerateNOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	{
 		EPspReg	reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_V0 ) );
 		EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_V0 ) );
-		EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_V1 ) );
+		EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_A0 ) );
 		NOR( reg_hi_d, reg_hi_a, reg_hi_b );
 		StoreRegisterHi( rd, reg_hi_d );
 	}
@@ -3051,14 +3060,14 @@ inline void	CCodeGeneratorPSP::GenerateSLT( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	}
 
 	EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_V0 ) );
-	EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_V1 ) );
+	EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_A0 ) );
 
 	CJumpLocation	branch( BNE( reg_hi_a, reg_hi_b, CCodeLabel(NULL), false ) );
 	SLT( reg_lo_d, reg_hi_a, reg_hi_b );		// In branch delay slot
 
 	// If the branch was not taken, it means that the high part of the registers was equal, so compare bottom half
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
 	SLT( reg_lo_d, reg_lo_a, reg_lo_b );
 
@@ -3075,7 +3084,7 @@ inline void	CCodeGeneratorPSP::GenerateSLT( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	*/
 	EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
 	SLT( reg_lo_d, reg_lo_a, reg_lo_b );
 
@@ -3107,14 +3116,14 @@ inline void	CCodeGeneratorPSP::GenerateSLTU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	}
 
 	EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_V0 ) );
-	EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_V1 ) );
+	EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_A0 ) );
 
 	CJumpLocation	branch( BNE( reg_hi_a, reg_hi_b, CCodeLabel(NULL), false ) );
 	SLTU( reg_lo_d, reg_hi_a, reg_hi_b );		// In branch delay slot
 
 	// If the branch was not taken, it means that the high part of the registers was equal, so compare bottom half
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
 	SLTU( reg_lo_d, reg_lo_a, reg_lo_b );
 
@@ -3131,7 +3140,7 @@ inline void	CCodeGeneratorPSP::GenerateSLTU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	*/
 	EPspReg reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
 	SLTU( reg_lo_d, reg_lo_a, reg_lo_b );
 
@@ -3160,7 +3169,7 @@ inline void	CCodeGeneratorPSP::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immedi
 	{
 
 		EPspReg dst_reg( GetRegisterNoLoadLo( rt, PspReg_V0 ) );
-		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_V1 ) );
+		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
 		ADDIU( dst_reg, src_reg, immediate );
 
 		UpdateRegister( rt, dst_reg, URO_HI_SIGN_EXTEND );
@@ -3184,7 +3193,7 @@ inline void	CCodeGeneratorPSP::GenerateANDI( EN64Reg rt, EN64Reg rs, u16 immedia
 	else
 	{
 		EPspReg dst_reg( GetRegisterNoLoadLo( rt, PspReg_V0 ) );
-		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_V1 ) );
+		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
 		ANDI( dst_reg, src_reg, immediate );
 
 		UpdateRegister( rt, dst_reg, URO_HI_CLEAR );
@@ -3213,7 +3222,7 @@ inline void	CCodeGeneratorPSP::GenerateORI( EN64Reg rt, EN64Reg rs, u16 immediat
 	else
 	{
 		EPspReg dst_reg( GetRegisterNoLoadLo( rt, PspReg_V0 ) );
-		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_V1 ) );
+		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
 		ORI( dst_reg, src_reg, immediate );
 		StoreRegisterLo( rt, dst_reg );
 
@@ -3246,7 +3255,7 @@ inline void	CCodeGeneratorPSP::GenerateXORI( EN64Reg rt, EN64Reg rs, u16 immedia
 	else
 	{
 		EPspReg dst_reg( GetRegisterNoLoadLo( rt, PspReg_V0 ) );
-		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_V1 ) );
+		EPspReg	src_reg( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
 		XORI( dst_reg, src_reg, immediate );
 		StoreRegisterLo( rt, dst_reg );
 
@@ -3306,8 +3315,8 @@ inline void	CCodeGeneratorPSP::GenerateSLTI( EN64Reg rt, EN64Reg rs, s16 immedia
 	else
 	{
 		// Negative data
-		LoadConstant( PspReg_V1, -1 );
-		branch = BNE( reg_hi_a, PspReg_V1, CCodeLabel(NULL), false );
+		LoadConstant( PspReg_A0, -1 );
+		branch = BNE( reg_hi_a, PspReg_A0, CCodeLabel(NULL), false );
 		SLTI( reg_lo_d, reg_hi_a, 0xffff );		// In branch delay slot
 	}
 	// If the branch was not taken, it means that the high part of the registers was equal, so compare bottom half
@@ -3371,8 +3380,8 @@ inline void	CCodeGeneratorPSP::GenerateSLTIU( EN64Reg rt, EN64Reg rs, s16 immedi
 	else
 	{
 		// Negative data
-		LoadConstant( PspReg_V1, -1 );
-		branch = BNE( reg_hi_a, PspReg_V1, CCodeLabel(NULL), false );
+		LoadConstant( PspReg_A0, -1 );
+		branch = BNE( reg_hi_a, PspReg_A0, CCodeLabel(NULL), false );
 		SLTIU( reg_lo_d, reg_hi_a, 0xffff );		// In branch delay slot
 	}
 	// If the branch was not taken, it means that the high part of the registers was equal, so compare bottom half
@@ -3499,7 +3508,7 @@ inline void	CCodeGeneratorPSP::GenerateSLLV( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 
 	// PSP sllv does exactly the same op as n64- no need for masking
 	EPspReg reg_lo_rd( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
-	EPspReg reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_V1 ) );
+	EPspReg reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
 	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_V0 ) );
 
 	SLLV( reg_lo_rd, reg_lo_rs, reg_lo_rt );
@@ -3522,7 +3531,7 @@ inline void	CCodeGeneratorPSP::GenerateSRLV( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 
 	// PSP srlv does exactly the same op as n64- no need for masking
 	EPspReg reg_lo_rd( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
-	EPspReg reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_V1 ) );
+	EPspReg reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
 	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_V0 ) );
 
 	SRLV( reg_lo_rd, reg_lo_rs, reg_lo_rt );
@@ -3545,7 +3554,7 @@ inline void	CCodeGeneratorPSP::GenerateSRAV( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 
 	// PSP srlv does exactly the same op as n64- no need for masking
 	EPspReg reg_lo_rd( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
-	EPspReg reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_V1 ) );
+	EPspReg reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
 	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_V0 ) );
 
 	SRAV( reg_lo_rd, reg_lo_rs, reg_lo_rt );
@@ -3899,7 +3908,7 @@ inline void	CCodeGeneratorPSP::GenerateBEQ( EN64Reg rs, EN64Reg rt, const SBranc
 	// One or other of these may be r0 - we don't really care for optimisation purposes though
 	// as ultimately the register load regs factored out
 	EPspReg		reg_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-	EPspReg		reg_b( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+	EPspReg		reg_b( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
 	// XXXX This may actually need to be a 64 bit compare, but this is what R4300.cpp does
 
@@ -3925,7 +3934,7 @@ inline void	CCodeGeneratorPSP::GenerateBNE( EN64Reg rs, EN64Reg rt, const SBranc
 	// One or other of these may be r0 - we don't really care for optimisation purposes though
 	// as ultimately the register load regs factored out
 	EPspReg		reg_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
-	EPspReg		reg_b( GetRegisterAndLoadLo( rt, PspReg_V1 ) );
+	EPspReg		reg_b( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
 	// XXXX This may actually need to be a 64 bit compare, but this is what R4300.cpp does
 
@@ -4059,8 +4068,8 @@ inline void	CCodeGeneratorPSP::GenerateBC1F( const SBranchDetails * p_branch, CJ
 #if 1
 		EXT( PspReg_V0, PspReg_V0, 0, 23 );	//Extract condition bit (true/false)
 #else
-		LoadConstant( PspReg_V1, FPCSR_C );
-		AND( PspReg_V0, PspReg_V0, PspReg_V1 );
+		LoadConstant( PspReg_A0, FPCSR_C );
+		AND( PspReg_V0, PspReg_V0, PspReg_A0 );
 #endif
 		if( p_branch->ConditionalBranchTaken )
 		{
@@ -4101,8 +4110,8 @@ inline void	CCodeGeneratorPSP::GenerateBC1T( const SBranchDetails * p_branch, CJ
 #if 1
 		EXT( PspReg_V0, PspReg_V0, 0, 23 );	//Extract condition bit (true/false)
 #else
-		LoadConstant( PspReg_V1, FPCSR_C );
-		AND( PspReg_V0, PspReg_V0, PspReg_V1 );
+		LoadConstant( PspReg_A0, FPCSR_C );
+		AND( PspReg_V0, PspReg_V0, PspReg_A0 );
 #endif
 		if( p_branch->ConditionalBranchTaken )
 		{
