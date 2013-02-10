@@ -313,6 +313,7 @@ private:
 				EN64Reg							mPreviousLoadBase;
 				EN64Reg							mPreviousStoreBase;
 				bool							mFloatCMPIsValid;
+				bool							mMultIsValid;
 
 				std::vector< SAddressCheckFixup >	mAddressCheckFixups;
 };

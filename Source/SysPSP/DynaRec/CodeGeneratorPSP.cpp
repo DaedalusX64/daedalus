@@ -299,6 +299,7 @@ void	CCodeGeneratorPSP::Initialise( u32 entry_address, u32 exit_address, u32 * h
 	mPreviousLoadBase = N64Reg_R0;	//Invalidate
 	mPreviousStoreBase = N64Reg_R0;	//Invalidate
 	mFloatCMPIsValid = false;
+	mMultIsValid = false;
 
 	if( hit_counter != NULL )
 	{
@@ -896,6 +897,7 @@ void CCodeGeneratorPSP::FlushRegister( CN64RegisterCachePSP & cache, EN64Reg n64
 void	CCodeGeneratorPSP::FlushAllRegisters( CN64RegisterCachePSP & cache, bool invalidate )
 {
 	mFloatCMPIsValid = false;	//invalidate float compare register
+	mMultIsValid = false;	//Mult hi/lo are invalid
 
 	// Skip r0
 	for( u32 i = 1; i < NUM_N64_REGS; i++ )
@@ -2408,13 +2410,22 @@ inline void	CCodeGeneratorPSP::GenerateMFLO( EN64Reg rd )
 {
 	//gGPR[ op_code.rd ]._u64 = gCPUState.MultLo._u64;
 
-	EPspReg	reg_lo( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
-	GetVar( reg_lo, &gCPUState.MultLo._u32_0 );
-	StoreRegisterLo( rd, reg_lo );
+	if( mMultIsValid )
+	{
+		EPspReg	reg_lo( GetRegisterNoLoadLo( rd, PspReg_A0 ) );
+		MFLO( reg_lo );
+		UpdateRegister( rd, reg_lo, URO_HI_SIGN_EXTEND );
+	}
+	else
+	{
+		EPspReg	reg_lo( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
+		GetVar( reg_lo, &gCPUState.MultLo._u32_0 );
+		StoreRegisterLo( rd, reg_lo );
 
-	EPspReg	reg_hi( GetRegisterNoLoadHi( rd, PspReg_V0 ) );
-	GetVar( reg_hi, &gCPUState.MultLo._u32_1 );
-	StoreRegisterHi( rd, reg_hi );
+		EPspReg	reg_hi( GetRegisterNoLoadHi( rd, PspReg_V0 ) );
+		GetVar( reg_hi, &gCPUState.MultLo._u32_1 );
+		StoreRegisterHi( rd, reg_hi );
+	}
 }
 
 //*****************************************************************************
@@ -2424,13 +2435,22 @@ inline void	CCodeGeneratorPSP::GenerateMFHI( EN64Reg rd )
 {
 	//gGPR[ op_code.rd ]._u64 = gCPUState.MultHi._u64;
 
-	EPspReg	reg_lo( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
-	GetVar( reg_lo, &gCPUState.MultHi._u32_0 );
-	StoreRegisterLo( rd, reg_lo );
+	if( mMultIsValid )
+	{
+		EPspReg	reg_lo( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
+		MFHI( reg_lo );
+		UpdateRegister( rd, reg_lo, URO_HI_SIGN_EXTEND );
+	}
+	else
+	{
+		EPspReg	reg_lo( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
+		GetVar( reg_lo, &gCPUState.MultHi._u32_0 );
+		StoreRegisterLo( rd, reg_lo );
 
-	EPspReg	reg_hi( GetRegisterNoLoadHi( rd, PspReg_V0 ) );
-	GetVar( reg_hi, &gCPUState.MultHi._u32_1 );
-	StoreRegisterHi( rd, reg_hi );
+		EPspReg	reg_hi( GetRegisterNoLoadHi( rd, PspReg_V0 ) );
+		GetVar( reg_hi, &gCPUState.MultHi._u32_1 );
+		StoreRegisterHi( rd, reg_hi );
+	}
 }
 
 //*****************************************************************************
@@ -2466,6 +2486,8 @@ inline void	CCodeGeneratorPSP::GenerateMTHI( EN64Reg rs )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateMULT( EN64Reg rs, EN64Reg rt )
 {
+	mMultIsValid = true;
+
 	//s64 dwResult = (s64)gGPR[ op_code.rs ]._s32_0 * (s64)gGPR[ op_code.rt ]._s32_0;
 	//gCPUState.MultLo = (s64)(s32)(dwResult);
 	//gCPUState.MultHi = (s64)(s32)(dwResult >> 32);
@@ -2495,6 +2517,8 @@ inline void	CCodeGeneratorPSP::GenerateMULT( EN64Reg rs, EN64Reg rt )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateMULTU( EN64Reg rs, EN64Reg rt )
 {
+	mMultIsValid = true;
+
 	//u64 dwResult = (u64)gGPR[ op_code.rs ]._u32_0 * (u64)gGPR[ op_code.rt ]._u32_0;
 	//gCPUState.MultLo = (s64)(s32)(dwResult);
 	//gCPUState.MultHi = (s64)(s32)(dwResult >> 32);
@@ -2510,12 +2534,14 @@ inline void	CCodeGeneratorPSP::GenerateMULTU( EN64Reg rs, EN64Reg rt )
 	SetVar( &gCPUState.MultLo._u32_0, PspReg_V0 );
 	SetVar( &gCPUState.MultHi._u32_0, PspReg_A0 );
 
+#ifdef ENABLE_64BIT
 	//Yoshi must have sign extension or it will BSOD //Corn
 	SRA( PspReg_V0, PspReg_V0, 0x1f );		// Sign extend
 	SRA( PspReg_A0, PspReg_A0, 0x1f );		// Sign extend
 
 	SetVar( &gCPUState.MultLo._u32_1, PspReg_V0 );
 	SetVar( &gCPUState.MultHi._u32_1, PspReg_A0 );
+#endif
 }
 
 //*****************************************************************************
@@ -2523,6 +2549,8 @@ inline void	CCodeGeneratorPSP::GenerateMULTU( EN64Reg rs, EN64Reg rt )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateDIV( EN64Reg rs, EN64Reg rt )
 {
+	mMultIsValid = true;
+
 	//s32 nDividend = gGPR[ op_code.rs ]._s32_0;
 	//s32 nDivisor  = gGPR[ op_code.rt ]._s32_0;
 
@@ -2583,6 +2611,8 @@ inline void	CCodeGeneratorPSP::GenerateDIV( EN64Reg rs, EN64Reg rt )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateDIVU( EN64Reg rs, EN64Reg rt )
 {
+	mMultIsValid = true;
+
 	//u32 dwDividend = gGPR[ op_code.rs ]._u32_0;
 	//u32 dwDivisor  = gGPR[ op_code.rt ]._u32_0;
 
@@ -4675,7 +4705,6 @@ inline void	CCodeGeneratorPSP::GenerateCVT_D_S( u32 fd, u32 fs )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u32 ft )
 {
-
 	mFloatCMPIsValid = true;
 
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
