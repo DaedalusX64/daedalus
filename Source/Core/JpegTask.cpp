@@ -156,21 +156,24 @@ void jpeg_decode_PS(OSTask *task)
     rdram_read_many_u16((u16*)qtables[1], qtableU_ptr, SUBBLOCK_SIZE);
     rdram_read_many_u16((u16*)qtables[2], qtableV_ptr, SUBBLOCK_SIZE);
 
+	void (*EmitTilesMode)(const tile_line_emitter_t, const s16 *, u32);
+
+	if (mode == 0)
+	{
+		EmitTilesMode =  EmitTilesMode0;
+	}
+	else
+	{
+		EmitTilesMode =  EmitTilesMode2;
+	}
+
     for (mb = 0; mb < macroblock_count; ++mb)
     {
         s16 macroblock[macroblock_size];
 
         rdram_read_many_u16((u16*)macroblock, address, macroblock_size >> 1);
         DecodeMacroblock2(macroblock, subblock_count, (const s16 (*)[SUBBLOCK_SIZE])qtables);
-
-        if (mode == 0)
-        {
-            EmitTilesMode0(EmitRGBATileLine, macroblock, address);
-        }
-        else
-        {
-            EmitTilesMode2(EmitRGBATileLine, macroblock, address);
-        }
+		EmitTilesMode(EmitRGBATileLine, macroblock, address);
 
         address += macroblock_size;
     }
@@ -618,26 +621,28 @@ static void RescaleUVSubBlock(s16 *dst, const s16 *src)
 /* FIXME: assume presence of expansion pack */
 #define MEMMASK 0x7fffff
 
+//ToDo: fast_memcpy_swizzle?
 static void rdram_read_many_u16(u16 *dst, u32 address, u32 count)
 {
+	const u8 *src = g_pu8RamBase + (address& MEMMASK);
+
     while (count != 0)
     {
-        u16 s = g_pu8RamBase[((address++)^U8_TWIDDLE) & MEMMASK];
-        s <<= 8;
-        s |= g_pu8RamBase[((address++)^U8_TWIDDLE) & MEMMASK];
+		u32 a = *(u8*)((uintptr_t)src++ ^ U8_TWIDDLE);
+		u32 b = *(u8*)((uintptr_t)src++ ^ U8_TWIDDLE);
 
-        *(dst++) = s;
-
-        --count;
+		*(dst++) = ((a << 8) | b);
+		--count;
     }
 }
 
 static void rdram_write_many_u16(const u16 *src, u32 address, u32 count)
 {
+	u8 *dst = g_pu8RamBase + (address& MEMMASK);
     while (count != 0)
     {
-        g_pu8RamBase[((address++)^U8_TWIDDLE) & MEMMASK] = (u8)(*src >> 8);
-        g_pu8RamBase[((address++)^U8_TWIDDLE) & MEMMASK] = (u8)(*(src++) & 0xff);
+       *(u8*)((uintptr_t)dst++ ^ U8_TWIDDLE) = (u8)(*src >> 8);
+       *(u8*)((uintptr_t)dst++ ^ U8_TWIDDLE)= (u8)(*(src++) & 0xff);
 
         --count;
     }
@@ -645,22 +650,25 @@ static void rdram_write_many_u16(const u16 *src, u32 address, u32 count)
 
 static u32 rdram_read_u32(u32 address)
 {
-    u32 r = g_pu8RamBase[((address++) ^ U8_TWIDDLE) & MEMMASK]; r <<= 8;
-    r |= g_pu8RamBase[((address++) ^ U8_TWIDDLE) & MEMMASK]; r <<= 8;
-    r |= g_pu8RamBase[((address++) ^ U8_TWIDDLE) & MEMMASK]; r <<= 8;
-    r |= g_pu8RamBase[((address++) ^ U8_TWIDDLE) & MEMMASK];
+	const u8 *src = g_pu8RamBase + (address& MEMMASK);
 
-    return r;
+	u32 a = *(u8*)((uintptr_t)src++ ^ U8_TWIDDLE);
+	u32 b = *(u8*)((uintptr_t)src++ ^ U8_TWIDDLE);
+	u32 c = *(u8*)((uintptr_t)src++ ^ U8_TWIDDLE);
+	u32 d = *(u8*)((uintptr_t)src++ ^ U8_TWIDDLE);
+
+    return (a << 24) | (b << 16) | (c << 8) | d;
 }
 
 static void rdram_write_many_u32(const u32 *src, u32 address, u32 count)
 {
+	u8 *dst = g_pu8RamBase + (address& MEMMASK);
     while (count != 0)
     {
-        g_pu8RamBase[((address++)^U8_TWIDDLE) & MEMMASK] = (u8)(*src >> 24);
-        g_pu8RamBase[((address++)^U8_TWIDDLE) & MEMMASK] = (u8)(*src >> 16);
-        g_pu8RamBase[((address++)^U8_TWIDDLE) & MEMMASK] = (u8)(*src >> 8);
-        g_pu8RamBase[((address++)^U8_TWIDDLE) & MEMMASK] = (u8)(*(src++) & 0xff);
+       *(u8*)((uintptr_t)dst++ ^ U8_TWIDDLE) = (u8)(*src >> 24);
+       *(u8*)((uintptr_t)dst++ ^ U8_TWIDDLE) = (u8)(*src >> 16);
+       *(u8*)((uintptr_t)dst++ ^ U8_TWIDDLE) = (u8)(*src >> 8);
+       *(u8*)((uintptr_t)dst++ ^ U8_TWIDDLE) = (u8)(*(src++) & 0xff);
 
         --count;
     }
