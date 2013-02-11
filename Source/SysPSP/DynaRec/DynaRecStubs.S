@@ -474,12 +474,9 @@ ftod_zero:
  * float DoubleToFloat(double a);
  * input: a0,a1
  * output: v0
- * clobber: v0,v1
- * uses: a2,a3
+ * clobber: v0,v1,a2,a3
  */
 _DoubleToFloat:
-	sw		$a2, _Temp1($fp) 		# Temp storage
-	sw		$a3, _Temp2($fp) 		# Temp storage
 	ext		$a2, $a1, 20, 11		/* a2 = (a1>>20) & 0x000007FF */
 	beqz	$a2, dtof_zero			/* if (a2==0) goto dtof_zero */
 	xori	$a3, $a2, 0x7FF			/* a3 = a2 ^ 0x7FF */
@@ -497,10 +494,8 @@ dtof_normal:
 	srl		$v1, $a1, 31			/* v1 = (a1>>31) & 1 */
 dtof_normal2:
 	ins		$v0, $v1, 31, 1			/* v0 = (v0 & 0x7FFFFFFF) | (v1 << 31) */
-	ins		$v0, $a3, 23, 8			/* v0 = (v0 & 0x8007FFFF) | (a3 << 23) */
-	lw		$a2, _Temp1($fp) 		# Temp storage
 	jr		$ra						/* return */
-	lw		$a3, _Temp2($fp) 		# Temp storage
+	ins		$v0, $a3, 23, 8			/* v0 = (v0 & 0x8007FFFF) | (a3 << 23) */
 
 dtof_denormal:
 	sll		$a2, $a1, 12			/* a2 = a1 << 12 */
@@ -514,10 +509,8 @@ dtof_denormal:
 	beqz	$a3, dtof_min			/* if (a3==0) goto dtof_min */
 	srlv	$v0, $v0, $a2			/* v0 = v0 >> a2 */
 	srl		$v1, $a1, 31			/* v1 = (a1>>31) & 1 */
-	ins		$v0, $v1, 31, 1			/* v0 = (v0 & 0x7FFFFFFF) | (v1 << 31) */
-	lw		$a2, _Temp1($fp) 		# Temp storage
 	jr		$ra						/* return */
-	lw		$a3, _Temp2($fp) 		# Temp storage
+	ins		$v0, $v1, 31, 1			/* v0 = (v0 & 0x7FFFFFFF) | (v1 << 31) */
 
 dtof_zero:
 	sll		$a2, $a1, 12			/* a2 = a1 << 12 */
@@ -526,10 +519,8 @@ dtof_min:
 	li		$v0, 0x00000001			/* v0 = 0x00000001 */
 	movz	$v0, $zero, $a2			/* v0 = (a2==0) ? zero : v0 */
 	srl		$a2, $a1, 31			/* a2 = (a1 >> 31) & 1 */
-	ins		$v0, $a2, 31, 1			/* v0 = (v0 & 0x7FFFFFFF) | ((a2<<31) & 0x80000000) */
-	lw		$a2, _Temp1($fp) 		# Temp storage
 	jr		$ra						/* return */
-	lw		$a3, _Temp2($fp) 		# Temp storage
+	ins		$v0, $a2, 31, 1			/* v0 = (v0 & 0x7FFFFFFF) | ((a2<<31) & 0x80000000) */
 
 dtof_inf_normal:
 	nor		$a2, $zero, $a1			/* a2 = ~a1 */
@@ -555,10 +546,8 @@ dtof_inf:
 	li		$v1, 0x7F800000			/* v1 = 0x7F800000 */
 	or		$v0, $v0, $v1			/* v0 = v0 | v1 */
 	srl		$v1, $a1, 31			/* v1 = (a1 >> 31) & 1 */
-	ins		$v0, $v1, 31, 1			/* v0 = (v0 & 0x7FFFFFFF) | ((v1<<31) & 0x80000000) */
-	lw		$a2, _Temp1($fp) 		# Temp storage
 	jr		$ra						/* return */
-	lw		$a3, _Temp2($fp) 		# Temp storage
+	ins		$v0, $v1, 31, 1			/* v0 = (v0 & 0x7FFFFFFF) | ((v1<<31) & 0x80000000) */
 
 #######################################################################################
 /**
@@ -644,8 +633,8 @@ _DMULTU:
 	addu	$v1,$a1,$v1
 	sw		$v1,_MultHi+0($fp)
 	sltu	$v0,$a1,$v0
-	mfhi	$v0
-	addu	$v0,$v0,$v0
+	mfhi	$a0
+	addu	$v0,$v0,$a0
 	sltu	$a1,$v1,$a1
 	addu	$a1,$a1,$v0
 	jr		$ra
