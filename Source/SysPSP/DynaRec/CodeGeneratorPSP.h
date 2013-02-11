@@ -95,6 +95,8 @@ private:
 				void				GenerateSLT( EN64Reg rd, EN64Reg rs, EN64Reg rt );
 				void				GenerateSLTU( EN64Reg rd, EN64Reg rs, EN64Reg rt );
 
+				void				GenerateDMULTU( EN64Reg rs, EN64Reg rt );
+				void				GenerateDMULT( EN64Reg rs, EN64Reg rt );
 				void				GenerateDADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt );
 				void				GenerateDADDIU( EN64Reg rt, EN64Reg rs, s16 immediate );
 				void				GenerateDSRA32( EN64Reg rd, EN64Reg rt, u32 sa );

@@ -56,6 +56,8 @@
 	.global	_FloatToDouble
 	.global	_DoubleToFloat
 	.global	_printf_asm
+	.global	_DMULTU
+	.global	_DMULT
 
     .data
 exit_dynarec_text:
@@ -608,6 +610,71 @@ dtof_inf:
 	lw		$t9, 68($sp)
 	jr		$ra			/* return */
 	addiu	$sp, $sp, 72	# restore the stack
+
+#######################################################################################
+/**
+ * Unsigned 64bit multiply (A * B) -> 128bit result
+ * void _DMULTU(u32 A_LSB, u32 A_MSB, u32 B_LSB, u32 B_MSB);
+ * input: a0, a1, a2, a3
+ * output: -
+ * clobber: a0, a1, a2, a3, v0, v1
+ * uses: -
+ */
+_DMULTU:
+	multu	$a2,$a0
+	mfhi	$v0
+	mflo	$v1
+	sw		$v1,_MultLo+0($fp)
+	multu	$a2,$a1
+	mflo	$a2
+	addu	$v1,$v0,$a2
+	sltu	$a2,$v1,$v0
+	mfhi	$v0
+	multu	$a3,$a0
+	mflo	$a0
+	addu	$a0,$v1,$a0
+	sltu	$v1,$a0,$v1
+	sw		$a0,_MultLo+4($fp)
+	mfhi	$a0
+	addu	$a2,$a2,$a0
+	addu	$v1,$v1,$a2
+	multu	$a3,$a1
+	mflo	$a1
+	addu	$a1,$v0,$a1
+	addu	$v1,$a1,$v1
+	sw		$v1,_MultHi+0($fp)
+	sltu	$v0,$a1,$v0
+	mfhi	$v0
+	addu	$v0,$v0,$v0
+	sltu	$a1,$v1,$a1
+	addu	$a1,$a1,$v0
+	jr		$ra
+	sw		$a1,_MultHi+4($fp) 
+
+#######################################################################################
+/**
+ * Signed 64bit multiply (A * B) -> 64bit result (should be 128bit!)
+ * void _DMULT(u32 A_LSB, u32 A_MSB, u32 B_LSB, u32 B_MSB);
+ * input: a0, a1, a2, a3
+ * output: -
+ * clobber: a0, a1, a2, a3, v0
+ * uses: -
+ */
+_DMULT:
+	multu	$a2,$a0
+	mflo	$v0
+	sw		$v0,_MultLo+0($fp)
+	mfhi	$v0
+	mult	$a3,$a0
+	mflo	$a0
+	mult	$a1,$a2
+	mflo	$a2
+	addu	$a0,$a0,$a2
+	addu	$v0,$a0,$v0
+	sw		$v0,_MultLo+4($fp)
+	sw		$zero,_MultHi+0($fp)
+	jr		$ra
+	sw		$zero,_MultHi+4($fp)
 
 #######################################################################################
 

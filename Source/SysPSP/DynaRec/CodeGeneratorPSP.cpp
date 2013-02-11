@@ -69,6 +69,9 @@ using namespace AssemblyUtils;
 
 extern "C" { const void * g_MemoryLookupTableReadForDynarec = g_MemoryLookupTableRead; }	//Important pointer for Dynarec see DynaRecStubs.s
 
+extern "C" { void _DMULTU( u32 A_LSB, u32 A_MSB, u32 B_LSB, u32 B_MSB ); }	//unsigned 64bit multiply  //Corn
+extern "C" { void _DMULT( u32 A_LSB, u32 A_MSB, u32 B_LSB, u32 B_MSB ); }	//signed 64bit multiply (result is 64bit not 128bit!)  //Corn
+
 extern "C" { u64 _FloatToDouble( u32 _float); }	//Uses CPU to pass f64/32 thats why its maskerading as u64/32 //Corn
 extern "C" { u32 _DoubleToFloat( u64 _double); }	//Uses CPU to pass f64/32 thats why its maskerading as u64/32 //Corn
 
@@ -241,8 +244,8 @@ const EPspReg	gRegistersToUseForCaching[] =
 //	PspReg_V1,		// Used as calculation temp
 //	PspReg_A0,		// Used as calculation temp
 //	PspReg_A1,		// Used as calculation temp
-//	PspReg_A2,		// not used but still gives some odd behaviour in OOT(loopopt enabled) if freed
-//	PspReg_A3,		// not used but still gives some odd behaviour in OOT(loopopt enabled) if freed
+//	PspReg_A2,		// Used as calculation temp
+//	PspReg_A3,		// Used as calculation temp
 	PspReg_AT,
 	PspReg_T0,
 	PspReg_T1,
@@ -1513,6 +1516,9 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		case SpecOp_DIV:	GenerateDIV( rs, rt );		handled = true; break;
 		case SpecOp_DIVU:	GenerateDIVU( rs, rt );		handled = true; break;
 
+		case SpecOp_DMULTU:	GenerateDMULTU( rs, rt );	handled = true; break;
+		case SpecOp_DMULT:	GenerateDMULT( rs, rt );	handled = true; break;
+
 		case SpecOp_ADD:	GenerateADDU( rd, rs, rt );	handled = true; break;
 		case SpecOp_ADDU:	GenerateADDU( rd, rs, rt );	handled = true; break;
 		case SpecOp_SUB:	GenerateSUBU( rd, rs, rt );	handled = true; break;
@@ -2458,6 +2464,8 @@ inline void	CCodeGeneratorPSP::GenerateMFHI( EN64Reg rd )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateMTLO( EN64Reg rs )
 {
+	mMultIsValid = false;
+
 	//gCPUState.MultLo._u64 = gGPR[ op_code.rs ]._u64;
 
 	EPspReg	reg_lo( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
@@ -2472,6 +2480,8 @@ inline void	CCodeGeneratorPSP::GenerateMTLO( EN64Reg rs )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateMTHI( EN64Reg rs )
 {
+	mMultIsValid = false;
+
 	//gCPUState.MultHi._u64 = gGPR[ op_code.rs ]._u64;
 
 	EPspReg	reg_lo( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
@@ -2534,14 +2544,12 @@ inline void	CCodeGeneratorPSP::GenerateMULTU( EN64Reg rs, EN64Reg rt )
 	SetVar( &gCPUState.MultLo._u32_0, PspReg_V0 );
 	SetVar( &gCPUState.MultHi._u32_0, PspReg_A0 );
 
-#ifdef ENABLE_64BIT
-	//Yoshi must have sign extension or it will BSOD //Corn
+	//Yoshi and DOOM64 must have sign extension //Corn
 	SRA( PspReg_V0, PspReg_V0, 0x1f );		// Sign extend
 	SRA( PspReg_A0, PspReg_A0, 0x1f );		// Sign extend
 
 	SetVar( &gCPUState.MultLo._u32_1, PspReg_V0 );
 	SetVar( &gCPUState.MultHi._u32_1, PspReg_A0 );
-#endif
 }
 
 //*****************************************************************************
@@ -2738,6 +2746,54 @@ inline void	CCodeGeneratorPSP::GenerateSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 	SUBU( reg_lo_d, reg_lo_a, reg_lo_b );
 	UpdateRegister( rd, reg_lo_d, URO_HI_SIGN_EXTEND );
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateDMULTU( EN64Reg rs, EN64Reg rt )
+{
+	mMultIsValid = false;
+	mPreviousLoadBase = N64Reg_R0;	//Invalidate
+	mPreviousStoreBase = N64Reg_R0;	//Invalidate
+
+	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
+	EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_A1 ) );
+	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A2 ) );
+	EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_A3 ) );
+
+	if( reg_lo_a != PspReg_A0 ) OR( PspReg_A0, PspReg_R0, reg_lo_a);
+	if( reg_hi_a != PspReg_A1 ) OR( PspReg_A1, PspReg_R0, reg_hi_a);
+	if( reg_lo_b != PspReg_A2 ) OR( PspReg_A2, PspReg_R0, reg_lo_b);
+	if( reg_hi_b != PspReg_A3 ) OR( PspReg_A3, PspReg_R0, reg_hi_b);
+
+	JAL( CCodeLabel( (void*)_DMULTU ), true );	//Unsigned MULTIPLY 64bit
+	//SW(PspReg_R0, PspReg_R0, 0);
+//printf("ops\n");
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateDMULT( EN64Reg rs, EN64Reg rt )
+{
+	mMultIsValid = false;
+	mPreviousLoadBase = N64Reg_R0;	//Invalidate
+	mPreviousStoreBase = N64Reg_R0;	//Invalidate
+
+	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
+	EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_A1 ) );
+	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A2 ) );
+	EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_A3 ) );
+
+	if( reg_lo_a != PspReg_A0 ) OR( PspReg_A0, PspReg_R0, reg_lo_a);
+	if( reg_hi_a != PspReg_A1 ) OR( PspReg_A1, PspReg_R0, reg_hi_a);
+	if( reg_lo_b != PspReg_A2 ) OR( PspReg_A2, PspReg_R0, reg_lo_b);
+	if( reg_hi_b != PspReg_A3 ) OR( PspReg_A3, PspReg_R0, reg_hi_b);
+
+	JAL( CCodeLabel( (void*)_DMULT ), true );	//Unsigned MULTIPLY 64bit
+	//SW(PspReg_R0, PspReg_R0, 0);
+//printf("ops\n");
 }
 
 //*****************************************************************************
