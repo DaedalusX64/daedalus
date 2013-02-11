@@ -1,6 +1,8 @@
 /**
 * Mupen64 hle rsp - jpeg.c
-* Copyright (C) 2002 Hacktarux
+* Copyright (C) 2012 Bobby Smiles                                       *
+* Copyright (C) 2009 Richard Goedeken                                   *
+* Copyright (C) 2002 Hacktarux  
 *
 * Mupen64 homepage: http://mupen64.emulation64.com
 * email address: hacktarux@yahoo.fr
@@ -29,445 +31,637 @@
 
 #include "stdafx.h"
 
-#include <stdlib.h>
-
 #include "Debug/DBGConsole.h"
 #include "Memory.h"
 #include "OSHLE/ultra_sptask.h"
 
-#if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
-#define TWIDDLE 0
-#elif (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_LITTLE)
-#define TWIDDLE 1
+#define SUBBLOCK_SIZE 64
+
+typedef void (*tile_line_emitter_t)(const s16 *y, const s16 *u, u32 address);
+
+/* rdram operations */
+// FIXME: these functions deserve their own module
+static void rdram_read_many_u16(u16 *dst, u32 address, u32 count);
+static void rdram_write_many_u16(const u16 *src, u32 address, u32 count);
+static u32 rdram_read_u32(u32 address);
+static void rdram_write_many_u32(const u32 *src, u32 address, u32 count);
+
+/* helper functions */
+static u8 clamp_u8(s16 x);
+//static s16 clamp_s12(s16 x);
+static s16 clamp_s16(s32 x);
+static u16 clamp_RGBA_component(s16 x);
+
+/* pixel conversion & foratting */
+static u32 GetUYVY(s16 y1, s16 y2, s16 u, s16 v);
+static u16 GetRGBA(s16 y, s16 u, s16 v);
+
+/* tile line emitters */
+static void EmitYUVTileLine(const s16 *y, const s16 *u, u32 address);
+//static void EmitYUVTileLine_SwapY1Y2(const s16 *y, const s16 *u, u32 address);
+static void EmitRGBATileLine(const s16 *y, const s16 *u, u32 address);
+
+/* macroblocks operations */
+static void DecodeMacroblock1(s16 *macroblock, s32 *y_dc, s32 *u_dc, s32 *v_dc, const s16 *qtable);
+static void DecodeMacroblock2(s16 *macroblock, u32 subblock_count, const s16 qtables[3][SUBBLOCK_SIZE]);
+//static void DecodeMacroblock3(s16 *macroblock, u32 subblock_count, const s16 qtables[3][SUBBLOCK_SIZE]);
+static void EmitTilesMode0(const tile_line_emitter_t emit_line, const s16 *macroblock, u32 address);
+static void EmitTilesMode2(const tile_line_emitter_t emit_line, const s16 *macroblock, u32 address);
+
+/* subblocks operations */
+static void TransposeSubBlock(s16 *dst, const s16 *src);
+static void ZigZagSubBlock(s16 *dst, const s16 *src);
+static void ReorderSubBlock(s16 *dst, const s16 *src, const u32 *table);
+static void MultSubBlocks(s16 *dst, const s16 *src1, const s16 *src2, u32 shift);
+static void ScaleSubBlock(s16 *dst, const s16 *src, s16 scale);
+static void RShiftSubBlock(s16 *dst, const s16 *src, u32 shift);
+static void InverseDCT1D(const float * const x, float *dst, u32 stride);
+static void InverseDCTSubBlock(s16 *dst, const s16 *src);
+//static void RescaleYSubBlock(s16 *dst, const s16 *src);
+//static void RescaleUVSubBlock(s16 *dst, const s16 *src);
+
+/* transposed dequantization table */
+const s16 DEFAULT_QTABLE[SUBBLOCK_SIZE] =
+{
+    16, 12, 14, 14,  18,  24,  49,  72,
+    11, 12, 13, 17,  22,  35,  64,  92,
+    10, 14, 16, 22,  37,  55,  78,  95,
+    16, 19, 24, 29,  56,  64,  87,  98,
+    24, 26, 40, 51,  68,  81, 103, 112,
+    40, 58, 57, 87, 109, 104, 121, 100,
+    51, 60, 69, 80, 103, 113, 120, 103,
+    61, 55, 56, 62,  77,  92, 101,  99
+};
+
+/* zig-zag indices */
+const u32 ZIGZAG_TABLE[SUBBLOCK_SIZE] =
+{
+     0,  1,  5,  6, 14, 15, 27, 28,
+     2,  4,  7, 13, 16, 26, 29, 42,
+     3,  8, 12, 17, 25, 30, 41, 43,
+     9, 11, 18, 24, 31, 40, 44, 53,
+    10, 19, 23, 32, 39, 45, 52, 54,
+    20, 22, 33, 38, 46, 51, 55, 60,
+    21, 34, 37, 47, 50, 56, 59, 61,
+    35, 36, 48, 49, 57, 58, 62, 63
+};
+
+/* transposition indices */
+const u32 TRANSPOSE_TABLE[SUBBLOCK_SIZE] =
+{
+    0,  8, 16, 24, 32, 40, 48, 56,
+    1,  9, 17, 25, 33, 41, 49, 57,
+    2, 10, 18, 26, 34, 42, 50, 58,
+    3, 11, 19, 27, 35, 43, 51, 59,
+    4, 12, 20, 28, 36, 44, 52, 60,
+    5, 13, 21, 29, 37, 45, 53, 61,
+    6, 14, 22, 30, 38, 46, 54, 62,
+    7, 15, 23, 31, 39, 47, 55, 63
+};
+
+
+
+/***************************************************************************
+ * JPEG decoding ucode found in Ocarina of Time, Pokemon Stadium 1 and
+ * Pokemon Stadium 2.
+ **************************************************************************/
+void jpeg_decode_PS(OSTask *task)
+{
+    s16 qtables[3][SUBBLOCK_SIZE];
+    u32 mb;
+
+    if (task->t.flags & 0x1)
+    {
+        DBGConsole_Msg(0, "jpeg_decode_PS: task yielding not implemented");
+        return;
+    }
+
+    u32       address          = rdram_read_u32((u32)task->t.data_ptr);
+    const u32 macroblock_count = rdram_read_u32((u32)task->t.data_ptr + 4);
+    const u32 mode             = rdram_read_u32((u32)task->t.data_ptr + 8);
+    const u32 qtableY_ptr      = rdram_read_u32((u32)task->t.data_ptr + 12);
+    const u32 qtableU_ptr      = rdram_read_u32((u32)task->t.data_ptr + 16);
+    const u32 qtableV_ptr      = rdram_read_u32((u32)task->t.data_ptr + 20);
+
+    if (mode != 0 && mode != 2)
+    {
+        DBGConsole_Msg(0, "jpeg_decode_PS: invalid mode %d", mode);
+        return;
+    }
+    
+    const u32 subblock_count = mode + 4;
+    const u32 macroblock_size = 2*subblock_count*SUBBLOCK_SIZE;
+
+    rdram_read_many_u16((u16*)qtables[0], qtableY_ptr, SUBBLOCK_SIZE);
+    rdram_read_many_u16((u16*)qtables[1], qtableU_ptr, SUBBLOCK_SIZE);
+    rdram_read_many_u16((u16*)qtables[2], qtableV_ptr, SUBBLOCK_SIZE);
+
+    for (mb = 0; mb < macroblock_count; ++mb)
+    {
+        s16 macroblock[macroblock_size];
+
+        rdram_read_many_u16((u16*)macroblock, address, macroblock_size >> 1);
+        DecodeMacroblock2(macroblock, subblock_count, (const s16 (*)[SUBBLOCK_SIZE])qtables);
+
+        if (mode == 0)
+        {
+            EmitTilesMode0(EmitRGBATileLine, macroblock, address);
+        }
+        else
+        {
+            EmitTilesMode2(EmitRGBATileLine, macroblock, address);
+        }
+
+        address += macroblock_size;
+    }
+}
+
+/***************************************************************************
+ * JPEG decoding ucode found in Ogre Battle and Bottom of the 9th.
+ **************************************************************************/
+void jpeg_decode_OB(OSTask *task)
+{
+    s16 qtable[SUBBLOCK_SIZE];
+    u32 mb;
+
+    s32 y_dc = 0;
+    s32 u_dc = 0;
+    s32 v_dc = 0;
+
+	u32  address  = (u32)task->t.data_ptr;
+	const u32 macroblock_count = task->t.data_size;
+	const int  qscale   = task->t.yield_data_size;
+
+    if (qscale != 0)
+    {
+        if (qscale > 0)
+        {
+            ScaleSubBlock(qtable, DEFAULT_QTABLE, qscale);
+        }
+        else
+        {
+            RShiftSubBlock(qtable, DEFAULT_QTABLE, -qscale);
+        }
+    }
+
+    for (mb = 0; mb < macroblock_count; ++mb)
+    {
+        s16 macroblock[6*SUBBLOCK_SIZE];
+
+        rdram_read_many_u16((uint16_t*)macroblock, address, 6*SUBBLOCK_SIZE);
+        DecodeMacroblock1(macroblock, &y_dc, &u_dc, &v_dc, (qscale != 0) ? qtable : NULL);
+        EmitTilesMode2(EmitYUVTileLine, macroblock, address);
+
+        address += (2*6*SUBBLOCK_SIZE);
+    }
+}
+
+static u8 clamp_u8(s16 x)
+{
+    return (x & (0xff00)) ? ((-x) >> 15) & 0xff : x;
+}
+
+//static s16 clamp_s12(s16 x)
+//{
+//    if (x < -0x800) { x = -0x800; } else if (x > 0x7f0) { x = 0x7f0; }
+//    return x;
+//}
+
+static s16 clamp_s16(s32 x)
+{
+    if (x > 32767) { x = 32767; } else if (x < -32768) { x = -32768; }
+    return x;
+}
+
+static u16 clamp_RGBA_component(s16 x)
+{
+    if (x > 0xff0) { x = 0xff0; } else if (x < 0) { x = 0; }
+    return (x & 0xf80);
+}
+
+static u32 GetUYVY(s16 y1, s16 y2, s16 u, s16 v)
+{
+    return (u32)clamp_u8(u)  << 24
+        |  (u32)clamp_u8(y1) << 16
+        |  (u32)clamp_u8(v)  << 8
+        |  (u32)clamp_u8(y2);
+}
+
+static u16 GetRGBA(s16 y, s16 u, s16 v)
+{
+    const float fY = (float)y + 2048.0f;
+    const float fU = (float)u;
+    const float fV = (float)v;
+
+    const u16 r = clamp_RGBA_component((s16)(fY             + 1.4025*fV));
+    const u16 g = clamp_RGBA_component((s16)(fY - 0.3443*fU - 0.7144*fV));
+    const u16 b = clamp_RGBA_component((s16)(fY + 1.7729*fU            ));
+
+    return (r << 4) | (g >> 1) | (b >> 6) | 1;
+}
+
+static void EmitYUVTileLine(const s16 *y, const s16 *u, u32 address)
+{
+    u32 uyvy[8];
+
+    const s16 * const v  = u + SUBBLOCK_SIZE;
+    const s16 * const y2 = y + SUBBLOCK_SIZE;
+
+    uyvy[0] = GetUYVY(y[0],  y[1],  u[0], v[0]);
+    uyvy[1] = GetUYVY(y[2],  y[3],  u[1], v[1]);
+    uyvy[2] = GetUYVY(y[4],  y[5],  u[2], v[2]);
+    uyvy[3] = GetUYVY(y[6],  y[7],  u[3], v[3]);
+    uyvy[4] = GetUYVY(y2[0], y2[1], u[4], v[4]);
+    uyvy[5] = GetUYVY(y2[2], y2[3], u[5], v[5]);
+    uyvy[6] = GetUYVY(y2[4], y2[5], u[6], v[6]);
+    uyvy[7] = GetUYVY(y2[6], y2[7], u[7], v[7]);
+
+    rdram_write_many_u32(uyvy, address, 8);
+}
+/*
+static void EmitYUVTileLine_SwapY1Y2(const s16 *y, const s16 *u, u32 address)
+{
+    u32 uyvy[8];
+
+    const s16 * const v  = u + SUBBLOCK_SIZE;
+    const s16 * const y2 = y + SUBBLOCK_SIZE;
+
+    uyvy[0] = GetUYVY(y[1],  y[0],  u[0], v[0]);
+    uyvy[1] = GetUYVY(y[3],  y[2],  u[1], v[1]);
+    uyvy[2] = GetUYVY(y[5],  y[4],  u[2], v[2]);
+    uyvy[3] = GetUYVY(y[7],  y[6],  u[3], v[3]);
+    uyvy[4] = GetUYVY(y2[1], y2[0], u[4], v[4]);
+    uyvy[5] = GetUYVY(y2[3], y2[2], u[5], v[5]);
+    uyvy[6] = GetUYVY(y2[5], y2[4], u[6], v[6]);
+    uyvy[7] = GetUYVY(y2[7], y2[6], u[7], v[7]);
+
+    rdram_write_many_u32(uyvy, address, 8);
+}
+*/
+static void EmitRGBATileLine(const s16 *y, const s16 *u, u32 address)
+{
+    u16 rgba[16];
+
+    const s16 * const v  = u + SUBBLOCK_SIZE;
+    const s16 * const y2 = y + SUBBLOCK_SIZE;
+
+    rgba[0]  = GetRGBA(y[0],  u[0], v[0]);
+    rgba[1]  = GetRGBA(y[1],  u[0], v[0]);
+    rgba[2]  = GetRGBA(y[2],  u[1], v[1]);
+    rgba[3]  = GetRGBA(y[3],  u[1], v[1]);
+    rgba[4]  = GetRGBA(y[4],  u[2], v[2]);
+    rgba[5]  = GetRGBA(y[5],  u[2], v[2]);
+    rgba[6]  = GetRGBA(y[6],  u[3], v[3]);
+    rgba[7]  = GetRGBA(y[7],  u[3], v[3]);
+    rgba[8]  = GetRGBA(y2[0], u[4], v[4]);
+    rgba[9]  = GetRGBA(y2[1], u[4], v[4]);
+    rgba[10] = GetRGBA(y2[2], u[5], v[5]);
+    rgba[11] = GetRGBA(y2[3], u[5], v[5]);
+    rgba[12] = GetRGBA(y2[4], u[6], v[6]);
+    rgba[13] = GetRGBA(y2[5], u[6], v[6]);
+    rgba[14] = GetRGBA(y2[6], u[7], v[7]);
+    rgba[15] = GetRGBA(y2[7], u[7], v[7]);
+
+    rdram_write_many_u16(rgba, address, 16);
+}
+
+static void EmitTilesMode0(const tile_line_emitter_t emit_line, const s16 *macroblock, u32 address)
+{
+    u32 i;
+
+    u32 y_offset = 0;
+    u32 u_offset = 2*SUBBLOCK_SIZE;
+
+    for (i = 0; i < 8; ++i)
+    {
+        emit_line(&macroblock[y_offset], &macroblock[u_offset], address);
+
+        y_offset += 8;
+        u_offset += 8;
+        address += 32;
+    }
+}
+
+static void EmitTilesMode2(const tile_line_emitter_t emit_line, const s16 *macroblock, u32 address)
+{
+    u32 i;
+
+    u32 y_offset = 0;
+    u32 u_offset = 4*SUBBLOCK_SIZE;
+
+    for (i = 0; i < 8; ++i)
+    {
+        emit_line(&macroblock[y_offset],     &macroblock[u_offset], address);
+        emit_line(&macroblock[y_offset + 8], &macroblock[u_offset], address + 32);
+
+        y_offset += (i == 3) ? SUBBLOCK_SIZE+16 : 16;
+        u_offset += 8;
+        address += 64;
+    }
+}
+
+static void DecodeMacroblock1(s16 *macroblock, s32 *y_dc, s32 *u_dc, s32 *v_dc, const s16 *qtable)
+{
+    int sb;
+
+    for (sb = 0; sb < 6; ++sb)
+    {
+        s16 tmp_sb[SUBBLOCK_SIZE];
+
+        /* update DC */
+        s32 dc = (s32)macroblock[0];
+        switch(sb)
+        {
+        case 0: case 1: case 2: case 3:
+                *y_dc += dc; macroblock[0] = *y_dc & 0xffff; break;
+        case 4: *u_dc += dc; macroblock[0] = *u_dc & 0xffff; break;
+        case 5: *v_dc += dc; macroblock[0] = *v_dc & 0xffff; break;
+        }
+
+        ZigZagSubBlock(tmp_sb, macroblock);
+        if (qtable != NULL) { MultSubBlocks(tmp_sb, tmp_sb, qtable, 0); }
+        TransposeSubBlock(macroblock, tmp_sb);
+        InverseDCTSubBlock(macroblock, macroblock);
+        
+        macroblock += SUBBLOCK_SIZE;
+    }
+}
+
+static void DecodeMacroblock2(s16 *macroblock, u32 subblock_count, const s16 qtables[3][SUBBLOCK_SIZE])
+{
+    u32 sb;
+    u32 q = 0;
+
+    for (sb = 0; sb < subblock_count; ++sb)
+    {
+        s16 tmp_sb[SUBBLOCK_SIZE];
+        const int isChromaSubBlock = (subblock_count - sb <= 2);
+
+        if (isChromaSubBlock) { ++q; }
+
+        MultSubBlocks(macroblock, macroblock, qtables[q], 4);
+        ZigZagSubBlock(tmp_sb, macroblock);
+        InverseDCTSubBlock(macroblock, tmp_sb);
+
+        macroblock += SUBBLOCK_SIZE;
+    }
+
+}
+/*
+static void DecodeMacroblock3(s16 *macroblock, u32 subblock_count, const s16 qtables[3][SUBBLOCK_SIZE])
+{
+    u32 sb;
+    u32 q = 0;
+
+    for (sb = 0; sb < subblock_count; ++sb)
+    {
+        s16 tmp_sb[SUBBLOCK_SIZE];
+        const int isChromaSubBlock = (subblock_count - sb <= 2);
+
+        if (isChromaSubBlock) { ++q; }
+
+        MultSubBlocks(macroblock, macroblock, qtables[q], 4);
+        ZigZagSubBlock(tmp_sb, macroblock);
+        InverseDCTSubBlock(macroblock, tmp_sb);
+
+        if (isChromaSubBlock)
+        {
+            RescaleUVSubBlock(macroblock, macroblock);
+        }
+        else
+        {
+            RescaleYSubBlock(macroblock, macroblock);
+        }
+
+        macroblock += SUBBLOCK_SIZE;
+    }
+}
+*/
+
+static void TransposeSubBlock(s16 *dst, const s16 *src)
+{
+    ReorderSubBlock(dst, src, TRANSPOSE_TABLE);
+}
+
+static void ZigZagSubBlock(s16 *dst, const s16 *src)
+{
+    ReorderSubBlock(dst, src, ZIGZAG_TABLE);
+}
+
+static void ReorderSubBlock(s16 *dst, const s16 *src, const u32 *table)
+{
+    u32 i;
+
+    /* source and destination sublocks cannot overlap */
+    //assert(abs(dst - src) > SUBBLOCK_SIZE);
+
+    for (i = 0; i < SUBBLOCK_SIZE; ++i)
+    {
+        dst[i] = src[table[i]];
+    }
+}
+
+static void MultSubBlocks(s16 *dst, const s16 *src1, const s16 *src2, u32 shift)
+{
+    u32 i;
+
+    for (i = 0; i < SUBBLOCK_SIZE; ++i)
+    {
+        s32 v = src1[i] * src2[i];
+        dst[i] = clamp_s16(v) << shift;
+    }
+}
+
+static void ScaleSubBlock(s16 *dst, const s16 *src, s16 scale)
+{
+    u32 i;
+
+    for (i = 0; i < SUBBLOCK_SIZE; ++i)
+    {
+        s32 v = src[i] * scale;
+        dst[i] = clamp_s16(v);
+    }
+}
+
+static void RShiftSubBlock(s16 *dst, const s16 *src, u32 shift)
+{
+    u32 i;
+
+    for (i = 0; i < SUBBLOCK_SIZE; ++i)
+    {
+        dst[i] = src[i] >> shift;
+    }
+}
+
+/***************************************************************************
+ * Fast 2D IDCT using separable formulation and normalization
+ * Computations use single precision floats
+ * Implementation based on Wikipedia :
+ * http://fr.wikipedia.org/wiki/Transform%C3%A9e_en_cosinus_discr%C3%A8te
+ **************************************************************************/
+
+/* Normalized such as C4 = 1 */
+#define C3   1.175875602f
+#define C6   0.541196100f       
+#define K1   0.765366865f   //  C2-C6
+#define K2  -1.847759065f   // -C2-C6
+#define K3  -0.390180644f   //  C5-C3
+#define K4  -1.961570561f   // -C5-C3
+#define K5   1.501321110f   //  C1+C3-C5-C7
+#define K6   2.053119869f   //  C1+C3-C5+C7
+#define K7   3.072711027f   //  C1+C3+C5-C7
+#define K8   0.298631336f   // -C1+C3+C5-C7
+#define K9  -0.899976223f   //  C7-C3
+#define K10 -2.562915448f   // -C1-C3
+static void InverseDCT1D(const float * const x, float *dst, u32 stride)
+{
+    float e[4];
+    float f[4];
+    float x26, x1357, x15, x37, x17, x35;
+
+    x15   =  K3 * (x[1] + x[5]);
+    x37   =  K4 * (x[3] + x[7]);
+    x17   =  K9 * (x[1] + x[7]);
+    x35   = K10 * (x[3] + x[5]);
+    x1357 =  C3 * (x[1] + x[3] + x[5] + x[7]);
+    x26   =  C6 * (x[2] + x[6]);
+
+    f[0] = x[0] + x[4];
+    f[1] = x[0] - x[4];
+    f[2] = x26 + K1*x[2];
+    f[3] = x26 + K2*x[6];
+
+    e[0] = x1357 + x15 + K5*x[1] + x17;
+    e[1] = x1357 + x37 + K7*x[3] + x35;
+    e[2] = x1357 + x15 + K6*x[5] + x35;
+    e[3] = x1357 + x37 + K8*x[7] + x17;
+
+    *dst = f[0] + f[2] + e[0]; dst += stride;
+    *dst = f[1] + f[3] + e[1]; dst += stride;
+    *dst = f[1] - f[3] + e[2]; dst += stride;
+    *dst = f[0] - f[2] + e[3]; dst += stride;
+    *dst = f[0] - f[2] - e[3]; dst += stride;
+    *dst = f[1] - f[3] - e[2]; dst += stride;
+    *dst = f[1] + f[3] - e[1]; dst += stride;
+    *dst = f[0] + f[2] - e[0]; dst += stride;
+}
+#undef C3  
+#undef C6  
+#undef K1  
+#undef K2  
+#undef K3  
+#undef K4  
+#undef K5  
+#undef K6  
+#undef K7  
+#undef K8  
+#undef K9  
+#undef K10 
+
+static void InverseDCTSubBlock(s16 *dst, const s16 *src)
+{
+    float x[8];
+    float block[SUBBLOCK_SIZE];
+    u32 i, j;
+
+    /* idct 1d on rows (+transposition) */
+    for (i = 0; i < 8; ++i)
+    {
+        for (j = 0; j < 8; ++j)
+        {
+            x[j] = (float)src[i*8+j];
+        }
+
+        InverseDCT1D(x, &block[i], 8);
+    }
+
+    /* idct 1d on columns (thanks to previous transposition) */
+    for (i = 0; i < 8; ++i)
+    {
+        InverseDCT1D(&block[i*8], x, 1);
+
+        /* C4 = 1 normalization implies a division by 8 */
+        for (j = 0; j < 8; ++j)
+        {
+            dst[i+j*8] = (s16)x[j] >> 3;
+        }
+    }
+}
+/*
+static void RescaleYSubBlock(s16 *dst, const s16 *src)
+{
+    u32 i;
+
+    for (i = 0; i < SUBBLOCK_SIZE; ++i)
+    {
+#if 0
+        dst[i] = (((u32)(clamp_s12(src[i]) + 0x800) * 0xdb0) >> 16) + 0x10;
 #else
-#error No DAEDALUS_ENDIAN_MODE specified
+        // FIXME: ! DIRTY HACK ! (compensate for too dark pictures)
+        dst[i] = (((u32)(clamp_s12(src[i]) + 0x800) * 0xdb0) >> 16) + 0x50;
 #endif
+    }
+}
 
-
-static struct
+static void RescaleUVSubBlock(s16 *dst, const s16 *src)
 {
-	u32 pic;
-	s32 w;
-	s32 h;
-	u32 m1;
-	u32 m2;
-	u32 m3;
+    u32 i;
 
-	u32 unknown1;
-	u32 unknow2;
-} jpg_data;
+    for (i = 0; i < SUBBLOCK_SIZE; ++i)
+    {
+        dst[i] = (((int)clamp_s12(src[i]) * 0xe00) >> 16) + 0x80;
+    }
+}
+*/
 
-static short* q[3];
 
-static short *pic;
+/* FIXME: assume presence of expansion pack */
+#define MEMMASK 0x7fffff
 
-static unsigned long len1, len2;
-
-void jpg_uncompress(OSTask *task)
+static void rdram_read_many_u16(u16 *dst, u32 address, u32 count)
 {
-	int i, w;
-	short *temp1,*temp2;
-	short* data = (short*)(g_pu8RamBase + (u32)task->t.ucode_data);
-	short m[8*32];
+    while (count != 0)
+    {
+        u16 s = g_pu8RamBase[((address++)^U8_TWIDDLE) & MEMMASK];
+        s <<= 8;
+        s |= g_pu8RamBase[((address++)^U8_TWIDDLE) & MEMMASK];
 
-	if (!task->t.flags & 1)
-	{
-		DAEDALUS_ASSERT(sizeof(jpg_data) == task->t.data_size, "Size of data is not correct");
-		memcpy(&jpg_data, g_pu8RamBase+(u32)task->t.data_ptr, task->t.data_size);
-		q[0] = (short*)(g_pu8RamBase + jpg_data.m1);
-		q[1] = (short*)(g_pu8RamBase + jpg_data.m2);
-		q[2] = (short*)(g_pu8RamBase + jpg_data.m3);
+        *(dst++) = s;
 
-		if (jpg_data.h == 0)
-		{
-			len1 = 512;
-			len2 = 255;
-		}
-		else
-		{
-			len1 = 768;
-			len2 = 511;
-		}
-	}
-	else
-	{
-		DBGConsole_Msg(0, "!flags\n");
-	}
+        --count;
+    }
+}
 
-	pic = (short*)(g_pu8RamBase + jpg_data.pic);
+static void rdram_write_many_u16(const u16 *src, u32 address, u32 count)
+{
+    while (count != 0)
+    {
+        g_pu8RamBase[((address++)^U8_TWIDDLE) & MEMMASK] = (u8)(*src >> 8);
+        g_pu8RamBase[((address++)^U8_TWIDDLE) & MEMMASK] = (u8)(*(src++) & 0xff);
 
-	temp1 = (short*)malloc((jpg_data.h+4)*64*2);
-	temp2 = (short*)malloc((jpg_data.h+4)*64*2);
-	w = jpg_data.w;
+        --count;
+    }
+}
 
-	do
-	{
-		// quantification
-		for (i=0; i<(jpg_data.h+2)*64; i++)
-			temp1[i] = (short)((unsigned short)(pic[i^TWIDDLE]*q[0][(i&0x3F)^TWIDDLE])*(long)data[0^TWIDDLE]);
-		for (;i<(jpg_data.h+3)*64; i++)
-			temp1[i] = (short)((unsigned short)(pic[i^TWIDDLE]*q[1][(i&0x3F)^TWIDDLE])*(long)data[0^TWIDDLE]);
-		for (;i<(jpg_data.h+4)*64; i++)
-			temp1[i] = (short)((unsigned short)(pic[i^TWIDDLE]*q[2][(i&0x3F)^TWIDDLE])*(long)data[0^TWIDDLE]);
+static u32 rdram_read_u32(u32 address)
+{
+    u32 r = g_pu8RamBase[((address++) ^ U8_TWIDDLE) & MEMMASK]; r <<= 8;
+    r |= g_pu8RamBase[((address++) ^ U8_TWIDDLE) & MEMMASK]; r <<= 8;
+    r |= g_pu8RamBase[((address++) ^ U8_TWIDDLE) & MEMMASK]; r <<= 8;
+    r |= g_pu8RamBase[((address++) ^ U8_TWIDDLE) & MEMMASK];
 
-		// zigzag
-		for (i=0; i<(jpg_data.h+4); i++)
-		{
-			temp2[i*64+0 ] = temp1[i*64+0 ];
-			temp2[i*64+8 ] = temp1[i*64+1 ];
-			temp2[i*64+1 ] = temp1[i*64+2 ];
-			temp2[i*64+2 ] = temp1[i*64+3 ];
-			temp2[i*64+9 ] = temp1[i*64+4 ];
-			temp2[i*64+16] = temp1[i*64+5 ];
-			temp2[i*64+24] = temp1[i*64+6 ];
-			temp2[i*64+17] = temp1[i*64+7 ];
-			temp2[i*64+10] = temp1[i*64+8 ];
-			temp2[i*64+3 ] = temp1[i*64+9 ];
-			temp2[i*64+4 ] = temp1[i*64+10];
-			temp2[i*64+11] = temp1[i*64+11];
-			temp2[i*64+18] = temp1[i*64+12];
-			temp2[i*64+25] = temp1[i*64+13];
-			temp2[i*64+32] = temp1[i*64+14];
-			temp2[i*64+40] = temp1[i*64+15];
-			temp2[i*64+33] = temp1[i*64+16];
-			temp2[i*64+26] = temp1[i*64+17];
-			temp2[i*64+19] = temp1[i*64+18];
-			temp2[i*64+12] = temp1[i*64+19];
-			temp2[i*64+5 ] = temp1[i*64+20];
-			temp2[i*64+6 ] = temp1[i*64+21];
-			temp2[i*64+13] = temp1[i*64+22];
-			temp2[i*64+20] = temp1[i*64+23];
-			temp2[i*64+27] = temp1[i*64+24];
-			temp2[i*64+34] = temp1[i*64+25];
-			temp2[i*64+41] = temp1[i*64+26];
-			temp2[i*64+48] = temp1[i*64+27];
-			temp2[i*64+56] = temp1[i*64+28];
-			temp2[i*64+49] = temp1[i*64+29];
-			temp2[i*64+42] = temp1[i*64+30];
-			temp2[i*64+35] = temp1[i*64+31];
-			temp2[i*64+28] = temp1[i*64+32];
-			temp2[i*64+21] = temp1[i*64+33];
-			temp2[i*64+14] = temp1[i*64+34];
-			temp2[i*64+7 ] = temp1[i*64+35];
-			temp2[i*64+15] = temp1[i*64+36];
-			temp2[i*64+22] = temp1[i*64+37];
-			temp2[i*64+29] = temp1[i*64+38];
-			temp2[i*64+36] = temp1[i*64+39];
-			temp2[i*64+43] = temp1[i*64+40];
-			temp2[i*64+50] = temp1[i*64+41];
-			temp2[i*64+57] = temp1[i*64+42];
-			temp2[i*64+58] = temp1[i*64+43];
-			temp2[i*64+51] = temp1[i*64+44];
-			temp2[i*64+44] = temp1[i*64+45];
-			temp2[i*64+37] = temp1[i*64+46];
-			temp2[i*64+30] = temp1[i*64+47];
-			temp2[i*64+23] = temp1[i*64+48];
-			temp2[i*64+31] = temp1[i*64+49];
-			temp2[i*64+38] = temp1[i*64+50];
-			temp2[i*64+45] = temp1[i*64+51];
-			temp2[i*64+52] = temp1[i*64+52];
-			temp2[i*64+59] = temp1[i*64+53];
-			temp2[i*64+60] = temp1[i*64+54];
-			temp2[i*64+53] = temp1[i*64+55];
-			temp2[i*64+46] = temp1[i*64+56];
-			temp2[i*64+39] = temp1[i*64+57];
-			temp2[i*64+47] = temp1[i*64+58];
-			temp2[i*64+54] = temp1[i*64+59];
-			temp2[i*64+61] = temp1[i*64+60];
-			temp2[i*64+62] = temp1[i*64+61];
-			temp2[i*64+55] = temp1[i*64+62];
-			temp2[i*64+63] = temp1[i*64+63];
-		}
+    return r;
+}
 
-		// idct
-		for (i=0; i<(jpg_data.h+4); i++)
-		{
-			int j,k;
-			long accum;
+static void rdram_write_many_u32(const u32 *src, u32 address, u32 count)
+{
+    while (count != 0)
+    {
+        g_pu8RamBase[((address++)^U8_TWIDDLE) & MEMMASK] = (u8)(*src >> 24);
+        g_pu8RamBase[((address++)^U8_TWIDDLE) & MEMMASK] = (u8)(*src >> 16);
+        g_pu8RamBase[((address++)^U8_TWIDDLE) & MEMMASK] = (u8)(*src >> 8);
+        g_pu8RamBase[((address++)^U8_TWIDDLE) & MEMMASK] = (u8)(*(src++) & 0xff);
 
-			for (j=0; j<8; j++)
-			{
-				m[8 *8+j] = (((long)temp2[i*64+1*8+j] * (long)data[(2*8+0)^TWIDDLE]*2)+0x8000
-					+((long)temp2[i*64+7*8+j] * (long)data[(2*8+1)^TWIDDLE]*2))>>16;
-				m[9 *8+j] = (((long)temp2[i*64+5*8+j] * (long)data[(2*8+2)^TWIDDLE]*2)+0x8000
-					+((long)temp2[i*64+3*8+j] * (long)data[(2*8+3)^TWIDDLE]*2))>>16;
-				m[10*8+j] = (((long)temp2[i*64+3*8+j] * (long)data[(2*8+2)^TWIDDLE]*2)+0x8000
-					+((long)temp2[i*64+5*8+j] * (long)data[(2*8+4)^TWIDDLE]*2))>>16;
-				m[11*8+j] = (((long)temp2[i*64+7*8+j] * (long)data[(2*8+0)^TWIDDLE]*2)+0x8000
-					+((long)temp2[i*64+1*8+j] * (long)data[(2*8+5)^TWIDDLE]*2))>>16;
-
-				m[6 *8+j] = (((long)temp2[i*64+0*8+j] * (long)data[(3*8+0)^TWIDDLE]*2)+0x8000
-					+  ((long)temp2[i*64+4*8+j] * (long)data[(3*8+1)^TWIDDLE]*2))>>16;
-
-				m[5 *8+j] = m[11*8+j]-m[10*8+j];
-				m[4 *8+j] = m[8 *8+j]-m[9 *8+j];
-				m[12*8+j] = m[8 *8+j]+m[9 *8+j];
-				m[15*8+j] = m[11*8+j]+m[10*8+j];
-
-				m[13*8+j] = (((long)m[5*8+j] * (long)data[(3*8+0)^TWIDDLE]*2)+0x8000
-					+((long)m[4*8+j] * (long)data[(3*8+1)^TWIDDLE]*2))>>16;
-				m[14*8+j] = (((long)m[5*8+j] * (long)data[(3*8+0)^TWIDDLE]*2)+0x8000
-					+((long)m[4*8+j] * (long)data[(3*8+0)^TWIDDLE]*2))>>16;
-
-				m[4 *8+j] = (((long)temp2[i*64+0*8+j] * (long)data[(3*8+0)^TWIDDLE]*2)+0x8000
-					+((long)temp2[i*64+4*8+j] * (long)data[(3*8+0)^TWIDDLE]*2))>>16;
-				m[5 *8+j] = (((long)temp2[i*64+6*8+j] * (long)data[(3*8+2)^TWIDDLE]*2)+0x8000
-					+((long)temp2[i*64+2*8+j] * (long)data[(3*8+4)^TWIDDLE]*2))>>16;
-				m[7 *8+j] = (((long)temp2[i*64+2*8+j] * (long)data[(3*8+2)^TWIDDLE]*2)+0x8000
-					+((long)temp2[i*64+6*8+j] * (long)data[(3*8+3)^TWIDDLE]*2))>>16;
-
-				m[8 *8+j] = m[4 *8+j]+m[5 *8+j];
-				m[9 *8+j] = m[6 *8+j]+m[7 *8+j];
-				m[10*8+j] = m[6 *8+j]-m[7 *8+j];
-				m[11*8+j] = m[4 *8+j]-m[5 *8+j];
-
-				m[16*8+j] = m[8 *8+j]+m[15*8+j];
-				m[17*8+j] = m[9 *8+j]+m[14*8+j];
-				m[18*8+j] = m[10*8+j]+m[13*8+j];
-				m[19*8+j] = m[11*8+j]+m[12*8+j];
-				m[20*8+j] = m[11*8+j]-m[12*8+j];
-				m[21*8+j] = m[10*8+j]-m[13*8+j];
-				m[22*8+j] = m[9 *8+j]-m[14*8+j];
-				m[23*8+j] = m[8 *8+j]-m[15*8+j];
-			}
-			// transpose
-			for (j=0; j<8; j++)
-				for (k=j; k<8; k++)
-				{
-					m[24*8+j*8+k] = m[16*8+k*8+j];
-					m[24*8+k*8+j] = m[16*8+j*8+k];
-				}
-
-				for (j=0; j<8; j++)
-				{
-					m[8 *8+j] = (((long)m[25*8+j] * (long)data[(2*8+0)^TWIDDLE]*2)+0x8000
-						+((long)m[31*8+j] * (long)data[(2*8+1)^TWIDDLE]*2))>>16;
-					m[9 *8+j] = (((long)m[29*8+j] * (long)data[(2*8+2)^TWIDDLE]*2)+0x8000
-						+((long)m[27*8+j] * (long)data[(2*8+3)^TWIDDLE]*2))>>16;
-					m[10*8+j] = (((long)m[27*8+j] * (long)data[(2*8+2)^TWIDDLE]*2)+0x8000
-						+((long)m[29*8+j] * (long)data[(2*8+4)^TWIDDLE]*2))>>16;
-					m[11*8+j] = (((long)m[31*8+j] * (long)data[(2*8+0)^TWIDDLE]*2)+0x8000
-						+((long)m[25*8+j] * (long)data[(2*8+5)^TWIDDLE]*2))>>16;
-
-					m[6 *8+j] = (((long)m[24*8+j] * (long)data[(3*8+0)^TWIDDLE]*2)+0x8000
-						+((long)m[28*8+j] * (long)data[(3*8+1)^TWIDDLE]*2))>>16;
-
-					m[5 *8+j] = m[11*8+j]-m[10*8+j];
-					m[4 *8+j] = m[8 *8+j]-m[9 *8+j];
-					m[12*8+j] = m[8 *8+j]+m[9 *8+j];
-					m[15*8+j] = m[11*8+j]+m[10*8+j];
-
-					m[13*8+j] = (((long)m[5*8+j] * (long)data[(3*8+0)^TWIDDLE]*2)+0x8000
-						+((long)m[4*8+j] * (long)data[(3*8+1)^TWIDDLE]*2))>>16;
-					m[14*8+j] = (((long)m[5*8+j] * (long)data[(3*8+0)^TWIDDLE]*2)+0x8000
-						+((long)m[4*8+j] * (long)data[(3*8+0)^TWIDDLE]*2))>>16;
-
-					m[4 *8+j] = (((long)m[24*8+j] * (long)data[(3*8+0)^TWIDDLE]*2)+0x8000
-						+((long)m[28*8+j] * (long)data[(3*8+0)^TWIDDLE]*2))>>16;
-					m[5 *8+j] = (((long)m[30*8+j] * (long)data[(3*8+2)^TWIDDLE]*2)+0x8000
-						+((long)m[26*8+j] * (long)data[(3*8+4)^TWIDDLE]*2))>>16;
-					m[7 *8+j] = (((long)m[26*8+j] * (long)data[(3*8+2)^TWIDDLE]*2)+0x8000
-						+((long)m[30*8+j] * (long)data[(3*8+3)^TWIDDLE]*2))>>16;
-
-					m[8 *8+j] = m[4 *8+j]+m[5 *8+j];
-					m[9 *8+j] = m[6 *8+j]+m[7 *8+j];
-					m[10*8+j] = m[6 *8+j]-m[7 *8+j];
-					m[11*8+j] = m[4 *8+j]-m[5 *8+j];
-
-					accum = ((long)m[8 *8+j] * (long)data[1^TWIDDLE]*2)+0x8000
-						+ ((long)m[15*8+j] * (long)data[1^TWIDDLE]*2);
-					temp1[i*64+0*8+j] = (short)(accum>>16);
-					temp1[i*64+7*8+j] = (accum+((long)m[15*8+j]*(long)data[2^TWIDDLE]*2))>>16;
-					accum = ((long)m[9 *8+j] * (long)data[1^TWIDDLE]*2)+0x8000
-						+ ((long)m[14*8+j] * (long)data[1^TWIDDLE]*2);
-					temp1[i*64+1*8+j] = (short)(accum>>16);
-					temp1[i*64+6*8+j] = (accum+((long)m[14*8+j]*(long)data[2^TWIDDLE]*2))>>16;
-					accum = ((long)m[10*8+j] * (long)data[1^TWIDDLE]*2)+0x8000
-						+ ((long)m[13*8+j] * (long)data[1^TWIDDLE]*2);
-					temp1[i*64+2*8+j] = (short)(accum>>16);
-					temp1[i*64+5*8+j] = (accum+((long)m[13*8+j]*(long)data[2^TWIDDLE]*2))>>16;
-					accum = ((long)m[11*8+j] * (long)data[1^TWIDDLE]*2)+0x8000
-						+ ((long)m[12*8+j] * (long)data[1^TWIDDLE]*2);
-					temp1[i*64+3*8+j] = (short)(accum>>16);
-					temp1[i*64+4*8+j] = (accum+((long)m[12*8+j]*(long)data[2^TWIDDLE]*2))>>16;
-				}
-		}
-
-		if (jpg_data.h == 0)
-		{
-			DBGConsole_Msg(0, "h==0\n");
-		}
-		else
-		{
-			for (i=0; i<8; i++)
-				m[9 *8+i] = m[10*8+i] = m[11*8+i] = m[12*8+i] = 0;
-			m[9 *8+0] = m[10*8+2] = m[11*8+4] = m[12*8+6] = data[6^TWIDDLE];
-			m[9 *8+1] = m[10*8+3] = m[11*8+5] = m[12*8+7] = data[7^TWIDDLE];
-			for (i=0; i<8; i++)
-			{
-				m[1 *8+i] = data[(0*8+i)^TWIDDLE];
-				m[4 *8+i] = data[(1*8+i)^TWIDDLE];
-			}
-			for (i=0; i<2; i++)
-			{
-				int j;
-				for (j=0; j<4; j++)
-				{
-					int k;
-					for (k=0; k<8; k++)
-					{
-						m[16*8+k]=(short)((long)m[9 *8+k]*(long)temp1[256+i*32+j*8+64+0]
-						+(long)m[10*8+k]*(long)temp1[256+i*32+j*8+64+1]
-						+(long)m[11*8+k]*(long)temp1[256+i*32+j*8+64+2]
-						+(long)m[12*8+k]*(long)temp1[256+i*32+j*8+64+3]);
-
-						m[15*8+k] =(short)((long)m[9 *8+k]*(long)temp1[256+i*32+j*8+64+4]
-						+(long)m[10*8+k]*(long)temp1[256+i*32+j*8+64+5]
-						+(long)m[11*8+k]*(long)temp1[256+i*32+j*8+64+6]
-						+(long)m[12*8+k]*(long)temp1[256+i*32+j*8+64+7]);
-
-						m[18*8+k] = temp1[i*128+j*16+k]+m[4*8+7];
-						m[17*8+k] = temp1[i*128+j*16+64+k]+m[4*8+7];
-
-						m[14*8+k] =(short)((long)m[9 *8+k]*(long)temp1[256+i*32+j*8+0]
-						+(long)m[10*8+k]*(long)temp1[256+i*32+j*8+1]
-						+(long)m[11*8+k]*(long)temp1[256+i*32+j*8+2]
-						+(long)m[12*8+k]*(long)temp1[256+i*32+j*8+3]);
-
-						m[13*8+k] =(short)((long)m[9 *8+k]*(long)temp1[256+i*32+j*8+4]
-						+(long)m[10*8+k]*(long)temp1[256+i*32+j*8+5]
-						+(long)m[11*8+k]*(long)temp1[256+i*32+j*8+6]
-						+(long)m[12*8+k]*(long)temp1[256+i*32+j*8+7]);
-
-						m[24*8+k] = (short)(((long)m[16*8+k]*(unsigned short)m[4*8+0])>>16);
-						m[23*8+k] = (short)(((long)m[15*8+k]*(unsigned short)m[4*8+0])>>16);
-						m[26*8+k] = (short)(((long)m[14*8+k]*(unsigned short)m[4*8+1])>>16);
-						m[25*8+k] = (short)(((long)m[13*8+k]*(unsigned short)m[4*8+1])>>16);
-						m[21*8+k] = (short)(((long)m[16*8+k]*(unsigned short)m[4*8+2])>>16);
-						m[22*8+k] = (short)(((long)m[15*8+k]*(unsigned short)m[4*8+2])>>16);
-						m[28*8+k] = (short)(((long)m[14*8+k]*(unsigned short)m[4*8+3])>>16);
-						m[27*8+k] = (short)(((long)m[13*8+k]*(unsigned short)m[4*8+3])>>16);
-
-						m[24*8+k] += m[16*8+k];
-						m[23*8+k] += m[15*8+k];
-						m[26*8+k] += m[21*8+k];
-						m[25*8+k] += m[22*8+k];
-						m[28*8+k] += m[14*8+k];
-						m[27*8+k] += m[13*8+k];
-						m[24*8+k] += m[18*8+k];
-						m[23*8+k] += m[17*8+k];
-						m[26*8+k] = m[18*8+k] - m[26*8+k];
-						m[25*8+k] = m[17*8+k] - m[25*8+k];
-						m[28*8+k] += m[18*8+k];
-						m[27*8+k] += m[17*8+k];
-
-						m[23*8+k] = m[23*8+k] >= 0 ? m[23*8+k] : 0;
-						m[24*8+k] = m[24*8+k] >= 0 ? m[24*8+k] : 0;
-						m[25*8+k] = m[25*8+k] >= 0 ? m[25*8+k] : 0;
-						m[26*8+k] = m[26*8+k] >= 0 ? m[26*8+k] : 0;
-						m[27*8+k] = m[27*8+k] >= 0 ? m[27*8+k] : 0;
-						m[28*8+k] = m[28*8+k] >= 0 ? m[28*8+k] : 0;
-
-						m[23*8+k] = m[23*8+k] < m[4*8+4] ? m[23*8+k] : m[4*8+4];
-						m[24*8+k] = m[24*8+k] < m[4*8+4] ? m[24*8+k] : m[4*8+4];
-						m[25*8+k] = m[25*8+k] < m[4*8+4] ? m[25*8+k] : m[4*8+4];
-						m[26*8+k] = m[26*8+k] < m[4*8+4] ? m[26*8+k] : m[4*8+4];
-						m[27*8+k] = m[27*8+k] < m[4*8+4] ? m[27*8+k] : m[4*8+4];
-						m[28*8+k] = m[28*8+k] < m[4*8+4] ? m[28*8+k] : m[4*8+4];
-
-						m[23*8+k] = (short)(((long)m[23*8+k] * (unsigned short)m[4*8+6])>>16);
-						m[24*8+k] = (short)(((long)m[24*8+k] * (unsigned short)m[4*8+6])>>16);
-						m[25*8+k] = (short)(((long)m[25*8+k] * (unsigned short)m[4*8+6])>>16);
-						m[26*8+k] = (short)(((long)m[26*8+k] * (unsigned short)m[4*8+6])>>16);
-						m[27*8+k] = (short)(((long)m[27*8+k] * (unsigned short)m[4*8+6])>>16);
-						m[28*8+k] = (short)(((long)m[28*8+k] * (unsigned short)m[4*8+6])>>16);
-
-						m[23*8+k] = (short)((unsigned short)m[23*8+k] * (long)m[1*8+3]);
-						m[24*8+k] = (short)((unsigned short)m[24*8+k] * (long)m[1*8+3]);
-						m[25*8+k] = (short)((long)m[25*8+k] * (long)m[1*8+4]);
-						m[26*8+k] = (short)((long)m[26*8+k] * (long)m[1*8+4]);
-						m[27*8+k] = (short)((long)m[27*8+k] * (long)m[1*8+5]);
-						m[28*8+k] = (short)((long)m[28*8+k] * (long)m[1*8+5]);
-
-						m[18*8+k] = temp1[i*128+j*16+8+k] + m[4*8+7];
-						m[17*8+k] = temp1[i*128+j*16+8+64+k] + m[4*8+7];
-
-						m[24*8+k] |= m[26*8+k];
-						m[23*8+k] |= m[25*8+k];
-
-						m[20*8+k] = (short)(((long)m[16*8+k] * (unsigned short)m[4*8+0])>>16);
-						m[19*8+k] = (short)(((long)m[15*8+k] * (unsigned short)m[4*8+0])>>16);
-
-						m[30*8+k] = m[24*8+k] | m[28*8+k];
-						m[29*8+k] = m[23*8+k] | m[27*8+k];
-
-						m[26*8+k] = (short)(((long)m[14*8+k] * (unsigned short)m[4*8+1])>>16);
-						m[25*8+k] = (short)(((long)m[13*8+k] * (unsigned short)m[4*8+1])>>16);
-						m[21*8+k] = (short)(((long)m[16*8+k] * (unsigned short)m[4*8+2])>>16);
-						m[22*8+k] = (short)(((long)m[15*8+k] * (unsigned short)m[4*8+2])>>16);
-						m[28*8+k] = (short)(((long)m[14*8+k] * (unsigned short)m[4*8+3])>>16);
-						m[27*8+k] = (short)(((long)m[13*8+k] * (unsigned short)m[4*8+3])>>16);
-
-						m[30*8+k] |= m[1*8+6];
-						m[29*8+k] |= m[1*8+6];
-
-						pic[(i*128+j*32+0+k)^1] = m[30*8+k];
-						pic[(i*128+j*32+8+k)^1] = m[29*8+k];
-
-						m[24*8+k] = m[20*8+k] + m[16*8+k];
-						m[23*8+k] = m[19*8+k] + m[15*8+k];
-
-						m[26*8+k] += m[21*8+k];
-						m[25*8+k] += m[22*8+k];
-						m[28*8+k] += m[14*8+k];
-						m[27*8+k] += m[13*8+k];
-						m[24*8+k] += m[18*8+k];
-						m[23*8+k] += m[17*8+k];
-
-						m[26*8+k] = m[18*8+k] - m[26*8+k];
-						m[25*8+k] = m[17*8+k] - m[25*8+k];
-
-						m[28*8+k] += m[18*8+k];
-						m[27*8+k] += m[17*8+k];
-
-						m[23*8+k] = m[23*8+k] >= 0 ? m[23*8+k] : 0;
-						m[24*8+k] = m[24*8+k] >= 0 ? m[24*8+k] : 0;
-						m[25*8+k] = m[25*8+k] >= 0 ? m[25*8+k] : 0;
-						m[26*8+k] = m[26*8+k] >= 0 ? m[26*8+k] : 0;
-						m[27*8+k] = m[27*8+k] >= 0 ? m[27*8+k] : 0;
-						m[28*8+k] = m[28*8+k] >= 0 ? m[28*8+k] : 0;
-
-						m[23*8+k] = m[23*8+k] < m[4*8+4] ? m[23*8+k] : m[4*8+4];
-						m[24*8+k] = m[24*8+k] < m[4*8+4] ? m[24*8+k] : m[4*8+4];
-						m[25*8+k] = m[25*8+k] < m[4*8+4] ? m[25*8+k] : m[4*8+4];
-						m[26*8+k] = m[26*8+k] < m[4*8+4] ? m[26*8+k] : m[4*8+4];
-						m[27*8+k] = m[27*8+k] < m[4*8+4] ? m[27*8+k] : m[4*8+4];
-						m[28*8+k] = m[28*8+k] < m[4*8+4] ? m[28*8+k] : m[4*8+4];
-
-						m[23*8+k] = (short)(((long)m[23*8+k] * (unsigned short)m[4*8+6])>>16);
-						m[24*8+k] = (short)(((long)m[24*8+k] * (unsigned short)m[4*8+6])>>16);
-						m[25*8+k] = (short)(((long)m[25*8+k] * (unsigned short)m[4*8+6])>>16);
-						m[26*8+k] = (short)(((long)m[26*8+k] * (unsigned short)m[4*8+6])>>16);
-						m[27*8+k] = (short)(((long)m[27*8+k] * (unsigned short)m[4*8+6])>>16);
-						m[28*8+k] = (short)(((long)m[28*8+k] * (unsigned short)m[4*8+6])>>16);
-
-						m[23*8+k] = (short)((unsigned short)m[23*8+k] * (long)m[1*8+3]);
-						m[24*8+k] = (short)((unsigned short)m[24*8+k] * (long)m[1*8+3]);
-						m[25*8+k] = (short)((long)m[25*8+k] * (long)m[1*8+4]);
-						m[26*8+k] = (short)((long)m[26*8+k] * (long)m[1*8+4]);
-						m[27*8+k] = (short)((long)m[27*8+k] * (long)m[1*8+5]);
-						m[28*8+k] = (short)((long)m[28*8+k] * (long)m[1*8+5]);
-
-						pic[(i*128+j*32+16+k)^TWIDDLE] = m[24*8+k] | m[26*8+k] | m[28*8+k] | m[1*8+6];
-						pic[(i*128+j*32+24+k)^TWIDDLE] = m[23*8+k] | m[25*8+k] | m[27*8+k] | m[1*8+6];
-					}
-				}
-			}
-		}
-		pic += len1/2;
-	} while (w-- != 1 && !(Memory_SP_GetRegister(SP_STATUS_REG) & SP_STATUS_SIG0));
-
-	//pic -= len1 * jpg_data.w / 2;
-	free(temp2);
-	free(temp1);
+        --count;
+    }
 }

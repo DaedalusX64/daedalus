@@ -251,8 +251,8 @@ static EProcessResult RSP_HLE_Audio()
 	return PR_NOT_STARTED;
 }
 
-void jpg_uncompress(OSTask *);
-
+void jpeg_decode_PS(OSTask *task);
+void jpeg_decode_OB(OSTask *task);
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -260,19 +260,26 @@ static EProcessResult RSP_HLE_Jpeg(OSTask * task)
 {
 	u32 sum = 0;
 
-	if (task->t.ucode_size <= 0x1000)
-	{
-		for (u32 i=0; i<(task->t.ucode_size/2); i++)
-			sum += *(g_pu8RamBase + (u32)task->t.ucode + i);
-	}
+	// most ucode_boot procedure copy 0xf80 bytes of ucode whatever the ucode_size is.
+	// For practical purpose we use a ucode_size = min(0xf80, task->ucode_size)
+	u32 ucode_size = (task->t.ucode_size > 0xf80) ? 0xf80 : task->t.ucode_size;
+
+	for (u32 i=0; i<(ucode_size/2); i++)
+		sum += *(g_pu8RamBase + (u32)task->t.ucode + i);
 
 	//DBGConsole_Msg(0, "JPEG Task: Sum=0x%08x", sum);
 	switch(sum)
 	{
-	case 0x2e4fc:
-		jpg_uncompress(task);
-	case 0x278:
+	case 0x2caa6: // Zelda OOT, Pokemon Stadium {1,2} jpg decompression
+		jpeg_decode_PS(task);
+		break;
+    case 0x130de: // Ogre Battle background decompression
+        jpeg_decode_OB(task);
+		break;
+	// RSP_HLE_Finished sets this flag after finishing the task anyways
+	/*case 0x278:	// Zelda OOT during boot
 		Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_SIG2);
+		break;*/
 	}
 
 	return PR_COMPLETED;
