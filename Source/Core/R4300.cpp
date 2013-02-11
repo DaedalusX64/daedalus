@@ -1692,19 +1692,102 @@ static void R4300_CALL_TYPE R4300_Special_DIVU( R4300_CALL_SIGNATURE ) 			// DIV
 static void R4300_CALL_TYPE R4300_Special_DMULT( R4300_CALL_SIGNATURE ) 		// Double Multiply
 {
 	R4300_CALL_MAKE_OP( op_code );
-
+#if 1
 	// Reserved Instruction exception
 	gCPUState.MultLo._u64 = gGPR[ op_code.rs ]._s64 * gGPR[ op_code.rt ]._s64;
 	gCPUState.MultHi._u64 = 0;
+#else
+	s64 rrs = gGPR[ op_code.rs ]._s64;
+	s64 rrt = gGPR[ op_code.rt ]._s64;
+	s64 lo, hi;
+
+	u64 op1, op2, op3, op4;
+	u64 result1, result2, result3, result4;
+	u64 temp1, temp2, temp3, temp4;
+	s32 sign = 0;
+   
+	if (rrs < 0)
+	{
+		op2 = -rrs;
+		sign = 1 - sign;
+	}
+	else 
+		op2 = rrs;
+
+	if (rrt < 0)
+	{
+		op4 = -rrt;
+		sign = 1 - sign;
+	}
+	else 
+		op4 = rrt;
+   
+	op1 = op2 & 0xFFFFFFFF;
+	op2 = (op2 >> 32) & 0xFFFFFFFF;
+	op3 = op4 & 0xFFFFFFFF;
+	op4 = (op4 >> 32) & 0xFFFFFFFF;
+   
+	temp1 = op1 * op3;
+	temp2 = (temp1 >> 32) + op1 * op4;
+	temp3 = op2 * op3;
+	temp4 = (temp3 >> 32) + op2 * op4;
+   
+	result1 = temp1 & 0xFFFFFFFF;
+	result2 = temp2 + (temp3 & 0xFFFFFFFF);
+	result3 = (result2 >> 32) + temp4;
+	result4 = (result3 >> 32);
+   
+	lo = result1 | (result2 << 32);
+	hi = (result3 & 0xFFFFFFFF) | (result4 << 32);
+	if (sign)
+	{
+		hi = ~hi;
+		if (!lo) 
+			hi++;
+		else
+			lo = ~lo + 1;
+	}
+
+	gCPUState.MultLo._s64 = lo;
+	gCPUState.MultHi._s64 = hi;
+#endif
 }
 
 static void R4300_CALL_TYPE R4300_Special_DMULTU( R4300_CALL_SIGNATURE ) 			// Double Multiply Unsigned
 {
 	R4300_CALL_MAKE_OP( op_code );
 
+#if 1
 	// Reserved Instruction exception
 	gCPUState.MultLo._u64 = gGPR[ op_code.rs ]._u64 * gGPR[ op_code.rt ]._u64;
 	gCPUState.MultHi._u64 = 0;
+#else
+	s64 rrs = gGPR[ op_code.rs ]._s64;
+	s64 rrt = gGPR[ op_code.rt ]._s64;
+
+	u64 op1, op2, op3, op4;
+	u64 result1, result2, result3, result4;
+	u64 temp1, temp2, temp3, temp4;
+   
+	op1 = rrs & 0xFFFFFFFF;
+	op2 = (rrs >> 32) & 0xFFFFFFFF;
+	op3 = rrt & 0xFFFFFFFF;
+	op4 = (rrt >> 32) & 0xFFFFFFFF;
+   
+	temp1 = op1 * op3;
+	temp2 = (temp1 >> 32) + op1 * op4;
+	temp3 = op2 * op3;
+	temp4 = (temp3 >> 32) + op2 * op4;
+   
+	result1 = temp1 & 0xFFFFFFFF;
+	result2 = temp2 + (temp3 & 0xFFFFFFFF);
+	result3 = (result2 >> 32) + temp4;
+	result4 = (result3 >> 32);
+   
+	gCPUState.MultLo._s64 = result1 | (result2 << 32);
+	gCPUState.MultHi._s64 = (result3 & 0xFFFFFFFF) | (result4 << 32);
+
+#endif
 }
 
 static void R4300_CALL_TYPE R4300_Special_DDIV( R4300_CALL_SIGNATURE ) 				// Double Divide
