@@ -100,7 +100,9 @@ private:
 				void				GenerateDADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt );
 				void				GenerateDADDIU( EN64Reg rt, EN64Reg rs, s16 immediate );
 				void				GenerateDSRA32( EN64Reg rd, EN64Reg rt, u32 sa );
+				void				GenerateDSRA( EN64Reg rd, EN64Reg rt, u32 sa );
 				void				GenerateDSLL32( EN64Reg rd, EN64Reg rt, u32 sa );
+				void				GenerateDSLL( EN64Reg rd, EN64Reg rt, u32 sa );
 
 				void				GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate );
 				void				GenerateANDI( EN64Reg rt, EN64Reg rs, u16 immediate );
@@ -181,6 +183,7 @@ private:
 				void				GenerateFLOOR_W_S( u32 fd, u32 fs );
 
 				void				GenerateMFC0( EN64Reg rt, u32 fs );
+				void				GenerateMTC0( EN64Reg rt, u32 fs );
 
 				CJumpLocation		GenerateBranchAlways( CCodeLabel target );
 				CJumpLocation		GenerateBranchIfSet( const u32 * p_var, CCodeLabel target );

@@ -1536,7 +1536,9 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		case SpecOp_DADDU:	GenerateDADDU( rd, rs, rt );	handled = true; break;
 
 		case SpecOp_DSRA32:	GenerateDSRA32( rd, rt, sa );	handled = true; break;
+		case SpecOp_DSRA:	GenerateDSRA( rd, rt, sa );	handled = true; break;
 		case SpecOp_DSLL32:	GenerateDSLL32( rd, rt, sa );	handled = true; break;
+		case SpecOp_DSLL:	GenerateDSLL( rd, rt, sa );	handled = true; break;
 		default:
 			break;
 		}
@@ -1546,7 +1548,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		switch( op_code.cop0_op )
 		{
 		case Cop0Op_MFC0:	GenerateMFC0( rt, op_code.fs ); handled = true; break;
-		//case Cop0Op_MTC0:	GenerateMTC0( rt, op_code.fs ); handled = true; break;	//ToDo
+		//case Cop0Op_MTC0:	GenerateMTC0( rt, op_code.fs ); handled = true; break;	//1080 deg has issues with this
 		default:
 			break;
 		}
@@ -1684,7 +1686,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	{
 #if 0 //1->Show not handled OP codes (Require that DAEDALUS_SILENT flag is undefined)
 	  // Note: Cop1Op_DInstr are handled elsewhere!
-		char msg[100];
+		char msg[128];
 		SprintOpCodeInfo( msg, address, op_code );
 		printf( "Unhandled: 0x%08x %s\n", address, msg );
 #endif
@@ -3516,6 +3518,47 @@ inline void	CCodeGeneratorPSP::GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa )
 }
 
 //*****************************************************************************
+//Double Shift Left Logical (Doom64)
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateDSLL( EN64Reg rd, EN64Reg rt, u32 sa )
+{
+	//gGPR[ op_code.rd ]._s64 = (s64)(s32)( (gGPR[ op_code.rt ]._u32_0 << op_code.sa) & 0xFFFFFFFF );
+	//if (mRegisterCache.IsKnownValue(rt, 0))
+	//{
+	//	SetRegister32s(rd, (s32)(mRegisterCache.GetKnownValue(rt, 0)._u32 << sa));
+	//	return;
+	//}
+
+	EPspReg reg_lo_rd( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
+	EPspReg reg_hi_rd( GetRegisterNoLoadHi( rd, PspReg_A0 ) );
+	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_V0 ) );
+	EPspReg	reg_hi_rt( GetRegisterAndLoadHi( rt, PspReg_A0 ) );
+
+	SLL( reg_hi_rd, reg_hi_rt, sa );
+	if( sa != 0 )
+	{
+		SRL( PspReg_A2, reg_lo_rt, 32-sa);
+		OR( reg_hi_rd, reg_hi_rd, PspReg_A2);
+	}
+	SLL( reg_lo_rd, reg_lo_rt, sa );
+	StoreRegisterLo( rd, reg_lo_rd);
+	StoreRegisterHi( rd, reg_hi_rd);
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateDSLL32( EN64Reg rd, EN64Reg rt, u32 sa )
+{
+	EPspReg reg_hi_rd( GetRegisterNoLoadHi( rd, PspReg_V0 ) );
+	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_V0 ) );
+
+	SLL( reg_hi_rd, reg_lo_rt, sa );
+	SetRegister( rd, 0, 0 );	//Zero lo part
+	StoreRegisterHi( rd, reg_hi_rd );	//Store result
+}
+
+//*****************************************************************************
 //
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa )
@@ -3531,6 +3574,46 @@ inline void	CCodeGeneratorPSP::GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa )
 	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_V0 ) );
 
 	SRL( reg_lo_rd, reg_lo_rt, sa );
+	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
+}
+
+//*****************************************************************************
+//Double Shift Right Arithmetic (Doom64)
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateDSRA( EN64Reg rd, EN64Reg rt, u32 sa )
+{
+	//gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rt ]._s32_0 >> op_code.sa );
+	//if (mRegisterCache.IsKnownValue(rt, 0))
+	//{
+	//	SetRegister32s(rd, mRegisterCache.GetKnownValue(rt, 0)._s32 >> sa);
+	//	return;
+	//}
+
+	EPspReg reg_lo_rd( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
+	EPspReg reg_hi_rd( GetRegisterNoLoadHi( rd, PspReg_A0 ) );
+	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_V0 ) );
+	EPspReg	reg_hi_rt( GetRegisterAndLoadHi( rt, PspReg_A0 ) );
+
+	SRL( reg_lo_rd, reg_lo_rt, sa );
+	if( sa != 0 )
+	{
+		SLL( PspReg_A2, reg_hi_rt, 32-sa );
+		OR( reg_lo_rd, reg_lo_rd, PspReg_A2);
+	}
+	SRA( reg_hi_rd, reg_hi_rt, sa );
+	StoreRegisterLo( rd, reg_lo_rd);
+	StoreRegisterHi( rd, reg_hi_rd);
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateDSRA32( EN64Reg rd, EN64Reg rt, u32 sa )
+{
+	EPspReg reg_lo_rd( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
+	EPspReg	reg_hi_rt( GetRegisterAndLoadHi( rt, PspReg_V0 ) );
+
+	SRA( reg_lo_rd, reg_hi_rt, sa );
 	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
 }
 
@@ -3551,31 +3634,6 @@ inline void	CCodeGeneratorPSP::GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa )
 
 	SRA( reg_lo_rd, reg_lo_rt, sa );
 	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-inline void	CCodeGeneratorPSP::GenerateDSRA32( EN64Reg rd, EN64Reg rt, u32 sa )
-{
-	EPspReg reg_lo_rd( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
-	EPspReg	reg_hi_rt( GetRegisterAndLoadHi( rt, PspReg_V0 ) );
-
-	SRA( reg_lo_rd, reg_hi_rt, sa );
-	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-inline void	CCodeGeneratorPSP::GenerateDSLL32( EN64Reg rd, EN64Reg rt, u32 sa )
-{
-	EPspReg reg_hi_rd( GetRegisterNoLoadHi( rd, PspReg_V0 ) );
-	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_V0 ) );
-
-	SLL( reg_hi_rd, reg_lo_rt, sa );
-	SetRegister( rd, 0, 0 );	//Zero lo part
-	StoreRegisterHi( rd, reg_hi_rd );	//Store result
 }
 
 //*****************************************************************************
@@ -4876,8 +4934,18 @@ inline void	CCodeGeneratorPSP::GenerateMFC0( EN64Reg rt, u32 fs )
 	// Never seen this to happen, no reason to bother to handle it
 	DAEDALUS_ASSERT( fs != C0_RAND, "Reading MFC0 random register is unhandled");
 
-	EPspReg			reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );
+	EPspReg reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );
 
 	GetVar( reg_dst, &gCPUState.CPUControl[ fs ]._u32 );
 	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateMTC0( EN64Reg rt, u32 fs )
+{
+	EPspReg reg_src( GetRegisterAndLoadLo( rt, PspReg_V0 ) );
+
+	SetVar( &gCPUState.CPUControl[ fs ]._u32, reg_src );
 }
