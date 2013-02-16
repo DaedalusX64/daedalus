@@ -232,9 +232,8 @@ public:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	void				PrintActive();
 #endif
-	void				MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
-	inline Matrix4x4*	DKRMtxPtr( u32 idx ) { return &mProjectionStack[idx]; }
 	void				ResetMatrices();
+	void				SetProjectionDKR(const u32 address, bool mul, u32 idx);
 	void				SetProjection(const u32 address, bool bPush, bool bReplace);
 	void				SetWorldView(const u32 address, bool bPush, bool bReplace);
 	inline void			PopProjection() {if (mProjectionTop > 0) --mProjectionTop;	mWorldProjectValid = false;}

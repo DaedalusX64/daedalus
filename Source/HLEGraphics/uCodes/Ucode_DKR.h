@@ -86,7 +86,7 @@ void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 {
 	u32 address		= command.inst.cmd1 + gDKRAddr;
 	u32 num_verts   = ((command.inst.cmd0 >> 19) & 0x1F);
-
+	u32 v0_idx		= 0;
 	// Increase by one num verts for DKR
 	if( g_ROM.GameHacks == DKR )
 		num_verts++;
@@ -101,8 +101,7 @@ void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 		gDKRVtxCount = 0;
 	}
 
-	u32 v0_idx = ((command.inst.cmd0 >> 9) & 0x1F) + gDKRVtxCount;
-
+	v0_idx = ((command.inst.cmd0 >> 9) & 0x1F) + gDKRVtxCount;
 	DL_PF("    Address[0x%08x] v0[%d] Num[%d]", address, v0_idx, num_verts);
 
 	DAEDALUS_ASSERT( v0_idx < 32, "DKR : v0 out of bound! %d" );
@@ -170,39 +169,9 @@ void DLParser_Mtx_DKR( MicroCodeCommand command )
 	}
 
 	// Load matrix from address
-
-	if( mul )
-	{
-		Matrix4x4 & mat( *PSPRenderer::Get()->DKRMtxPtr( 4 ) );	//Borrow unused matrix from stack which is aligned to 16bytes
-		PSPRenderer::Get()->MatrixFromN64FixedPoint( mat, address );
-	#ifdef DAEDALUS_PSP_USE_VFPU
-		matrixMultiplyAligned( PSPRenderer::Get()->DKRMtxPtr( mtx_command ), &mat, PSPRenderer::Get()->DKRMtxPtr( 0 ) );
-	#else
-		*PSPRenderer::Get()->DKRMtxPtr( mtx_command ) = mat * *PSPRenderer::Get()->DKRMtxPtr( 0 );
-	#endif
-	}
-	else
-	{
-		PSPRenderer::Get()->MatrixFromN64FixedPoint( *PSPRenderer::Get()->DKRMtxPtr( mtx_command ), address );
-	}
+	PSPRenderer::Get()->SetProjectionDKR(address, mul, mtx_command);
 
 	gDKRCMatrixIndex = mtx_command;
-
-	PSPRenderer::Get()->Mtxchanged();
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	const Matrix4x4 & mtx( *PSPRenderer::Get()->DKRMtxPtr( mtx_command ) );
-	DL_PF("    Mtx_DKR: Index %d %s Address 0x%08x\n"
-			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
-			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
-			mtx_command, mul ? "Mul" : "Load", address,
-			mtx.m[0][0], mtx.m[0][1], mtx.m[0][2], mtx.m[0][3],
-			mtx.m[1][0], mtx.m[1][1], mtx.m[1][2], mtx.m[1][3],
-			mtx.m[2][0], mtx.m[2][1], mtx.m[2][2], mtx.m[2][3],
-			mtx.m[3][0], mtx.m[3][1], mtx.m[3][2], mtx.m[3][3]);
-#endif
 }
 
 //*****************************************************************************
@@ -218,7 +187,7 @@ void DLParser_MoveWord_DKR( MicroCodeCommand command )
 		break;
 
 	case G_MW_LIGHTCOL:
-		gDKRCMatrixIndex = (command.inst.cmd1 >> 6) & 0x7;
+		gDKRCMatrixIndex = (command.inst.cmd1 >> 6) & 0x3;
 		PSPRenderer::Get()->Mtxchanged();
 		DL_PF("    DKR MtxIndx: %d", gDKRCMatrixIndex);
 		break;

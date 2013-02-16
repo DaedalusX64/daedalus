@@ -2969,6 +2969,7 @@ void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0
 #endif
 }
 
+extern void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -2986,16 +2987,20 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 		{
 			// Load projection matrix
 			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
-			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) mProjectionStack[mProjectionTop].mRaw[0] *= HD_SCALE;	//proper 16:9 scale
+
+			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) 
+				mProjectionStack[mProjectionTop].mRaw[0] *= HD_SCALE;	//proper 16:9 scale
 		}
 		else
 		{
+			// Load projection matrix
 			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
-		#ifdef DAEDALUS_PSP_USE_VFPU
+
+#ifdef DAEDALUS_PSP_USE_VFPU
 			matrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop-1] );
-		#else
+#else
 			mProjectionStack[mProjectionTop] = mProjectionStack[mProjectionTop] * mProjectionStack[mProjectionTop-1];
-		#endif
+#endif
 		}
 	}
 	else
@@ -3009,17 +3014,19 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 			//it renders at Z cordinate = 0.0f that gets clipped away.
 			//so we translate them a bit along Z to make them stick :) //Corn
 			//
-			if( g_ROM.ZELDA_HACK ) mProjectionStack[mProjectionTop].mRaw[14] += 0.4f;
-			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) mProjectionStack[mProjectionTop].mRaw[0] *= HD_SCALE;	//proper 16:9 scale
+			if( g_ROM.ZELDA_HACK ) 
+				mProjectionStack[mProjectionTop].mRaw[14] += 0.4f;
+			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) 
+				mProjectionStack[mProjectionTop].mRaw[0] *= HD_SCALE;	//proper 16:9 scale
 		}
 		else
 		{
 			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop+1], address);
-		#ifdef DAEDALUS_PSP_USE_VFPU
+#ifdef DAEDALUS_PSP_USE_VFPU
 			matrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop+1], &mProjectionStack[mProjectionTop] );
-		#else
+#else
 			mProjectionStack[mProjectionTop] = mProjectionStack[mProjectionTop+1] * mProjectionStack[mProjectionTop];
-		#endif
+	#endif
 		}
 	}
 
@@ -3038,6 +3045,43 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 		mProjectionStack[mProjectionTop].m[3][0], mProjectionStack[mProjectionTop].m[3][1], mProjectionStack[mProjectionTop].m[3][2], mProjectionStack[mProjectionTop].m[3][3]);
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
+void PSPRenderer::SetProjectionDKR(const u32 address, bool mul, u32 idx)
+{
+	if( mul )
+	{
+		ALIGNED_TYPE(Matrix4x4, mat, 16);
+		MatrixFromN64FixedPoint( mat, address );
+
+#ifdef DAEDALUS_PSP_USE_VFPU
+		matrixMultiplyAligned( &mProjectionStack[idx], &mat, &mProjectionStack[0] );
+#else
+		mProjectionStack[idx] = mat * mProjectionStack[0];
+#endif
+	}
+	else
+	{
+		MatrixFromN64FixedPoint( mProjectionStack[idx], address );
+	}
+
+	mWPmodified = true;
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	const Matrix4x4 & mtx( mProjectionStack[idx] );
+	DL_PF("    Mtx_DKR: Index %d %s Address 0x%08x\n"
+			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
+			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n",
+			idx, mul ? "Mul" : "Load", address,
+			mtx.m[0][0], mtx.m[0][1], mtx.m[0][2], mtx.m[0][3],
+			mtx.m[1][0], mtx.m[1][1], mtx.m[1][2], mtx.m[1][3],
+			mtx.m[2][0], mtx.m[2][1], mtx.m[2][2], mtx.m[2][3],
+			mtx.m[3][0], mtx.m[3][1], mtx.m[3][2], mtx.m[3][3]);
+#endif
+}
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -3143,78 +3187,6 @@ void PSPRenderer::PrintActive()
 		mat.m[3][0], mat.m[3][1], mat.m[3][2], mat.m[3][3]);
 }
 #endif
-
-//*************************************************************************************
-//
-//*************************************************************************************
-void PSPRenderer::MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
-{
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	if (address + 64 > MAX_RAM_ADDRESS)
-	{
-		DBGConsole_Msg(0, "Mtx: Address invalid (0x%08x)", address);
-		return;
-	}
-#endif
-
-	const f32 fRecip = 1.0f / 65536.0f;
-
-	struct N64Imat
-	{
-		s16 h[4][4];
-		u16 l[4][4];
-	};
-	const N64Imat *Imat = (N64Imat *)( g_pu8RamBase + address );
-
-	s16 hi;
-	u16 lo;
-	s32 tmp;
-
-	for (u32 i = 0; i < 4; i++)
-	{
-#if 1	// Crappy compiler.. reordring is to optimize the ASM // Corn
-		hi = Imat->h[i][0 ^ U16H_TWIDDLE];
-		lo = Imat->l[i][0 ^ U16H_TWIDDLE];
-		tmp = ((hi << 16) | lo);
-		hi = Imat->h[i][1 ^ U16H_TWIDDLE];
-		mat.m[i][0] =  tmp * fRecip;
-
-		lo = Imat->l[i][1 ^ U16H_TWIDDLE];
-		tmp = ((hi << 16) | lo);
-		hi = Imat->h[i][2 ^ U16H_TWIDDLE];
-		mat.m[i][1] = tmp * fRecip;
-
-		lo = Imat->l[i][2 ^ U16H_TWIDDLE];
-		tmp = ((hi << 16) | lo);
-		hi = Imat->h[i][3 ^ U16H_TWIDDLE];
-		mat.m[i][2] = tmp * fRecip;
-
-		lo = Imat->l[i][3 ^ U16H_TWIDDLE];
-		tmp = ((hi << 16) | lo);
-		mat.m[i][3] = tmp * fRecip;
-#else
-
-		hi = Imat->h[i][0 ^ U16H_TWIDDLE];
-		lo = Imat->l[i][0 ^ U16H_TWIDDLE];
-		mat.m[i][0] =  ((hi << 16) | lo) * fRecip;
-
-		hi = Imat->h[i][1 ^ U16H_TWIDDLE];
-		lo = Imat->l[i][1 ^ U16H_TWIDDLE];
-
-		mat.m[i][1] = ((hi << 16) | lo) * fRecip;
-
-		hi = Imat->h[i][2 ^ U16H_TWIDDLE];
-		lo = Imat->l[i][2 ^ U16H_TWIDDLE];
-
-		mat.m[i][2] = ((hi << 16) | lo) * fRecip;
-
-		hi = Imat->h[i][3 ^ U16H_TWIDDLE];
-		lo = Imat->l[i][3 ^ U16H_TWIDDLE];
-
-		mat.m[i][3] = ((hi << 16) | lo) * fRecip;
-#endif
-	}
-}
 
 //*****************************************************************************
 //Modify the WorldProject matrix, used by Kirby & SSB //Corn
