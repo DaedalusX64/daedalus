@@ -2205,7 +2205,6 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 // Assumes address has already been checked!
 // DKR/Jet Force Gemini rendering pipeline
 //*****************************************************************************
-extern u32 gDKRCMatrixIndex;
 extern u32 gDKRVtxCount;
 extern bool gDKRBillBoard;
 
@@ -2214,11 +2213,11 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 	gDKRVtxCount += n;
 
 	u32 pVtxBase = u32(g_pu8RamBase + address);
-	const Matrix4x4 & matWorldProject( mProjectionStack[gDKRCMatrixIndex] );
+	const Matrix4x4 & matWorldProject( mProjectionStack[mDKRMatIdx] );
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
-	DL_PF( "    CMtx[%d] Add base[%s]", gDKRCMatrixIndex, gDKRBillBoard? "On":"Off");
+	DL_PF( "    CMtx[%d] Add base[%s]", mDKRMatIdx, gDKRBillBoard? "On":"Off");
 
 	if( gDKRBillBoard )
 	{	//Copy vertices adding base vector and the color data
@@ -3050,23 +3049,23 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 //*****************************************************************************
 void PSPRenderer::SetProjectionDKR(const u32 address, bool mul, u32 idx)
 {
+	mDKRMatIdx = idx;
+	mWPmodified = true;
+
 	if( mul )
 	{
-		ALIGNED_TYPE(Matrix4x4, mat, 16);
-		MatrixFromN64FixedPoint( mat, address );
+		MatrixFromN64FixedPoint( mProjectionStack[4], address );	//Only index 0-3 are used by DKR, index 4 and up is free //Corn
 
 #ifdef DAEDALUS_PSP_USE_VFPU
-		matrixMultiplyAligned( &mProjectionStack[idx], &mat, &mProjectionStack[0] );
+		matrixMultiplyAligned( &mProjectionStack[idx], &mProjectionStack[4], &mProjectionStack[0] );
 #else
-		mProjectionStack[idx] = mat * mProjectionStack[0];
+		mProjectionStack[idx] = mProjectionStack[4] * mProjectionStack[0];
 #endif
 	}
 	else
 	{
 		MatrixFromN64FixedPoint( mProjectionStack[idx], address );
 	}
-
-	mWPmodified = true;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	const Matrix4x4 & mtx( mProjectionStack[idx] );

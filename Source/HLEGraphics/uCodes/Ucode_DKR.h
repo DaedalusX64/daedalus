@@ -20,7 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef UCODE_DKR_H__
 #define UCODE_DKR_H__
 
-u32 gDKRCMatrixIndex = 0;
 u32 gDKRMatrixAddr = 0;
 u32 gDKRAddr = 0;
 u32 gDKRVtxCount = 0;
@@ -170,8 +169,6 @@ void DLParser_Mtx_DKR( MicroCodeCommand command )
 
 	// Load matrix from address
 	PSPRenderer::Get()->SetProjectionDKR(address, mul, mtx_command);
-
-	gDKRCMatrixIndex = mtx_command;
 }
 
 //*****************************************************************************
@@ -187,9 +184,11 @@ void DLParser_MoveWord_DKR( MicroCodeCommand command )
 		break;
 
 	case G_MW_LIGHTCOL:
-		gDKRCMatrixIndex = (command.inst.cmd1 >> 6) & 0x3;
-		PSPRenderer::Get()->Mtxchanged();
-		DL_PF("    DKR MtxIndx: %d", gDKRCMatrixIndex);
+		{
+		u32 idx = (command.inst.cmd1 >> 6) & 0x3;
+		PSPRenderer::Get()->DKRMtxChanged( idx );
+		DL_PF("    DKR MtxIdx: %d", idx);
+		}
 		break;
 
 	default:

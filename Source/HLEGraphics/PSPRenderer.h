@@ -240,7 +240,7 @@ public:
 	inline void			PopWorldView()	{if (mModelViewTop > 0)	 --mModelViewTop;	mWorldProjectValid = false;}
 	void				InsertMatrix(u32 w0, u32 w1);
 	void				ForceMatrix(const u32 address);
-	inline void			Mtxchanged()	{mWPmodified = true;}
+	inline void			DKRMtxChanged( u32 idx )	{mWPmodified = true; mDKRMatIdx = idx;}
 
 	// Vertex stuff
 	void				SetNewVertexInfo(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!
@@ -391,6 +391,7 @@ private:
 	mutable bool		mWorldProjectValid;
 	bool				mReloadProj;
 	bool				mWPmodified;
+	u32					mDKRMatIdx;
 
 	static const u32 	MAX_VERTICES = 320;	//we need at least 80 verts * 3 = 240? But Flying Dragon uses more than 256 //Corn
 	u16					m_swIndexBuffer[MAX_VERTICES];
