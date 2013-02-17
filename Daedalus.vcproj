@@ -108,6 +108,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				FavorSizeOrSpeed="1"
 				AdditionalIncludeDirectories="./Source/SysW32/Include;./Source/Config/Dev;./Source/"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="true"
@@ -171,6 +172,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Source\stdafx.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\VersionNo.h"
 				>
 			</File>
@@ -198,14 +203,6 @@
 				Name="Platform"
 				>
 				<Filter
-					Name="PSP"
-					>
-					<File
-						RelativePath=".\Source\SysPSP\Include\Platform.h"
-						>
-					</File>
-				</Filter>
-				<Filter
 					Name="OSX"
 					>
 					<File
@@ -214,10 +211,10 @@
 					</File>
 				</Filter>
 				<Filter
-					Name="Xbox"
+					Name="PSP"
 					>
 					<File
-						RelativePath=".\Source\SysXbox\Include\Platform.h"
+						RelativePath=".\Source\SysPSP\Include\Platform.h"
 						>
 					</File>
 				</Filter>
@@ -246,13 +243,37 @@
 				RelativePath=".\Source\ConfigOptions.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Source\StdAfx.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\Source\System.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Source\System.h"
+				>
+			</File>
 			<Filter
 				Name="Core"
 				>
-				<File
-					RelativePath=".\Source\Core\Compatibility.h"
-					>
-				</File>
 				<File
 					RelativePath=".\Source\Core\CPU.cpp"
 					>
@@ -961,7 +982,7 @@
 					Name="W32"
 					>
 					<File
-						RelativePath=".\Source\Interface\CheckBox.h"
+						RelativePath=".\Source\SysW32\Interface\CheckBox.h"
 						>
 					</File>
 					<File
@@ -1418,10 +1439,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\ResourceString.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Source\Utility\ROMFile.cpp"
 					>
 				</File>
@@ -1490,7 +1507,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\unzip.c"
+					RelativePath=".\Source\Utility\Zip\unzip.c"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1512,7 +1529,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\unzip.h"
+					RelativePath=".\Source\Utility\Zip\unzip.h"
 					>
 				</File>
 				<File
@@ -1558,6 +1575,10 @@
 					</File>
 					<File
 						RelativePath=".\Source\SysW32\Utility\IOW32.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\SysW32\Utility\ResourceString.h"
 						>
 					</File>
 					<File
@@ -1804,6 +1825,14 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\ColourAdjuster.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\ColourAdjuster.h"
@@ -1812,6 +1841,14 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\ConvertImage.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\ConvertImage.h"
@@ -1832,6 +1869,22 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\DLParser.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\DLParser.h"
@@ -1840,6 +1893,14 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\Microcode.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\Microcode.h"
@@ -1856,6 +1917,14 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\RDP.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\RDP.h"
@@ -1864,6 +1933,14 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\RDPStateManager.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\RDPStateManager.h"
@@ -1872,6 +1949,14 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\Texture.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\Texture.h"
@@ -1880,6 +1965,14 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\TextureCache.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\TextureCache.h"
@@ -1888,6 +1981,14 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\TextureDescriptor.cpp"
 					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\TextureDescriptor.h"
@@ -1903,6 +2004,14 @@
 					<File
 						RelativePath=".\Source\HLEGraphics\Combiner\CombinerExpression.cpp"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\Source\HLEGraphics\Combiner\CombinerExpression.h"
@@ -1915,6 +2024,14 @@
 					<File
 						RelativePath=".\Source\HLEGraphics\Combiner\CombinerTree.cpp"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\Source\HLEGraphics\Combiner\CombinerTree.h"
@@ -1923,6 +2040,14 @@
 					<File
 						RelativePath=".\Source\HLEGraphics\Combiner\RenderSettings.cpp"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\Source\HLEGraphics\Combiner\RenderSettings.h"
@@ -2170,10 +2295,6 @@
 					</File>
 					<File
 						RelativePath=".\Source\HLEAudio\ABI3mp3.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\HLEAudio\SafeABI.cpp"
 						>
 					</File>
 				</Filter>
