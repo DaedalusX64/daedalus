@@ -178,6 +178,11 @@ void * IMemoryHeap::InsertNew( u32 idx, u8 * adr, u32 size )
 //*****************************************************************************
 void* IMemoryHeap::Alloc( u32 size )
 {
+	// FIXME(strmnnrmn): This code was removed at some point - does something else help guarantee alignment?
+	// Might be that we just want to lower it to 4 or 8.
+	// Ensure that all memory is 16-byte aligned
+	//size = AlignPow2( size, 16 );
+
 	u8 * adr = mBasePtr;
 	u32 i;
 
