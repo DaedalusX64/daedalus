@@ -174,6 +174,13 @@ void	CPU_SkipToNextEvent();
 bool	CPU_CheckStuffToDo();
 //void	CPU_WaitFinish();
 
+// For PSP, we just keep running forever. For other platforms we need to bail when the user quits.
+#ifdef DAEDALUS_PSP
+#define CPU_KeepRunning() (1)
+#else
+#define CPU_KeepRunning() (CPU_IsRunning())
+#endif
+
 inline void CPU_SetPC( u32 pc )		{ gCPUState.CurrentPC = pc; }
 inline void INCREMENT_PC()			{ gCPUState.CurrentPC += 4; }
 inline void DECREMENT_PC()			{ gCPUState.CurrentPC -= 4; }
