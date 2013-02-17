@@ -23,7 +23,7 @@
 #define __DEBUGPAGEDIALOG_H__
 
 #include "Debug/DBGConsole.h"
-#include "Interface/CheckBox.h"
+#include "SysW32/Interface/CheckBox.h"
 
 class CDebugPage : public CPageDialog, public CDialogImpl< CDebugPage >
 {

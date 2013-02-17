@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Synchroniser.h"
 #include "Utility/IO.h"
 #include "Resources/resource.h"
-#include "Interface/CheckBox.h"
+#include "SysW32/Interface/CheckBox.h"
 #include "Interface/MainWindow.h"
 
 #define DIRECTINPUT_VERSION         DIRECTINPUT_HEADER_VERSION

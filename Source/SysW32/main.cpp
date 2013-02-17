@@ -36,8 +36,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/ConfigHandler.h"	//
 #include "Utility/Preferences.h"
 #include "Utility/Profiler.h"		// CProfiler::Create/Destroy
-#include "Utility/ResourceString.h"
 #include "Utility/IO.h"
+#include "SysW32/Utility/ResourceString.h"
 
 #include "Localisation/localization.h"
 

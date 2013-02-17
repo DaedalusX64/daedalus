@@ -24,7 +24,7 @@
 
 #include <shlobj.h>
 #include "Debug/Dump.h"
-#include "Utility/ResourceString.h"
+#include "SysW32/Utility/ResourceString.h"
 
 class CDirectoriesPage : public CPageDialog, public CDialogImpl< CDirectoriesPage >
 {

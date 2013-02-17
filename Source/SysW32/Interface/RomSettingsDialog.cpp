@@ -21,11 +21,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "RomSettingsDialog.h"
 #include "Interface/RomDB.h"
-#include "Interface/CheckBox.h"
+#include "SysW32/Interface/CheckBox.h"
+#include "SysW32/Utility/ResourceString.h"
 
 #include "Core/RomSettings.h"
-
-#include "Utility/ResourceString.h"
 
 //*****************************************************************************
 //

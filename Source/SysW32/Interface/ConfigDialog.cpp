@@ -28,7 +28,7 @@
 #include "Debug/DBGConsole.h"
 #include "Debug/Dump.h"
 #include "Plugins/GraphicsPlugin.h"
-#include "Utility/ResourceString.h"
+#include "SysW32/Utility/ResourceString.h"
 
 #include "SettingsPage.h"
 #include "DirectoriesPage.h"

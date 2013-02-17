@@ -44,9 +44,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/ultra_os.h"			// Controller buttons defs
 
 #include "Utility/Timing.h"
-#include "Utility/ResourceString.h"		// Useful everywhere
 #include "Utility/FramerateLimiter.h"
 #include "Utility/IO.h"
+#include "SysW32/Utility/ResourceString.h"
 
 #include "Resources/resource.h"
 

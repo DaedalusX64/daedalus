@@ -22,7 +22,7 @@
 #ifndef __SETTINGSPAGEDIALOG_H__
 #define __SETTINGSPAGEDIALOG_H__
 
-#include "Interface/CheckBox.h"
+#include "SysW32/Interface/CheckBox.h"
 #include "ConfigOptions.h"
 
 class CSettingsPage : public CPageDialog, public CDialogImpl< CSettingsPage >

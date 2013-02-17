@@ -22,14 +22,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "PageDialog.h"
 #include "PluginsPage.h"
-#include "Interface/CheckBox.h"
+#include "SysW32/Interface/CheckBox.h"
 
 #include "Core/CPU.h"
 
 #include "SysW32/Plugins/GraphicsPluginW32.h"
 
 #include "Utility/IO.h"
-#include "Utility/ResourceString.h"
+#include "SysW32/Utility/ResourceString.h"
 #include "SysW32/Utility/ConfigHandler.h"
 
 #include "ConfigOptions.h"
