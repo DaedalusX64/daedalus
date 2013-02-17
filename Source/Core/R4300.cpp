@@ -2277,15 +2277,16 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 
 			DAEDALUS_ASSERT(new_value == 0, "CAUSE register invalid writing");
 
+			const u32 kCauseSW = CAUSE_SW1|CAUSE_SW2;
 #ifdef DAEDALUS_DEBUG_CONSOLE
-			if ( (new_value&~0x300) != (gCPUState.CPUControl[C0_CAUSE]._u32&~0x300)  )
+			if ( (new_value&~kCauseSW) != (gCPUState.CPUControl[C0_CAUSE]._u32&~kCauseSW)  )
 			{
 				DBGConsole_Msg( 0, "[MWas previously clobbering CAUSE REGISTER" );
 			}
 #endif
 			DPF( DEBUG_REGS, "CAUSE set to 0x%08x (was: 0x%08x)", new_value, gGPR[ op_code.rt ]._u32_0 );
-			gCPUState.CPUControl[C0_CAUSE]._u32 &= ~0x300;
-			gCPUState.CPUControl[C0_CAUSE]._u32 |= new_value & 0x300;
+			gCPUState.CPUControl[C0_CAUSE]._u32 &=             ~kCauseSW;
+			gCPUState.CPUControl[C0_CAUSE]._u32 |= (new_value & kCauseSW);
 			break;
 		case C0_SR:
 			// Software can enable/disable interrupts here. We check if Interrupt Enable is

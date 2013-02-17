@@ -858,7 +858,7 @@ void CPU_SetCompare(u32 value)
 	gCPUState.CPUControl[C0_CAUSE]._u32 &= ~CAUSE_IP8;
 
 	DPF( DEBUG_REGS, "COMPARE set to 0x%08x.", value );
-	//DBGConsole_Msg(0, "COMPARE set to 0x%08x Count is 0x%08x.", value, gCPUState.CPUControl[C0_COUNT]_u32);
+	//DBGConsole_Msg(0, "COMPARE set to 0x%08x Count is 0x%08x.", value, gCPUState.CPUControl[C0_COUNT]._u32);
 
 	// Add an event for this compare:
 	if (value == gCPUState.CPUControl[C0_COMPARE]._u32)
@@ -867,7 +867,7 @@ void CPU_SetCompare(u32 value)
 	}
 	else
 	{
-		if(value != 0)
+		if (value != 0)
 		{
 			if (value > gCPUState.CPUControl[C0_COUNT]._u32)
 			{
