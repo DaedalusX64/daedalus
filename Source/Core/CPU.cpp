@@ -49,6 +49,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Test/BatchTest.h"
 
+#ifdef DAEDALUS_W32
+#include "SysW32/Utility/ResourceString.h"
+#include "Resources/resource.h"
+#include "Interface/MainWindow.h"		// For MWM_STARTEMU etc
+#endif
+
 #include "Debug/DebugLog.h"
 #include "Debug/DBGConsole.h"
 
@@ -110,6 +116,9 @@ ESaveStateOperation		gSaveStateOperation = SSO_NONE;
 const  u32			VI_INTR_CYCLES_INIT = 62500;
 static u32			gVerticalInterrupts( 0 );
 static u32			VI_INTR_CYCLES( VI_INTR_CYCLES_INIT );
+
+static s32				gCPUThreadHandle = INVALID_THREAD_HANDLE;
+static volatile bool 	gCPUThreadActive = false;
 
 #ifdef USE_SCRATCH_PAD
 SCPUState *gPtrCPUState = (SCPUState*)0x10000;
@@ -349,6 +358,7 @@ void CPU_Reset( )
 	gLastAddress = NULL;
 
 	gCPURunning = false;
+	gCPUThreadActive = false;
 	gCPUStopOnSimpleState = false;
 	RESET_EVENT_QUEUE_LOCK();
 
@@ -650,6 +660,7 @@ static void HandleSaveStateOperation()
 void CPUMain()
 {
 	gCPURunning = true;
+	gCPUThreadActive = true;
 	gCPUStopOnSimpleState = false;
 
 	RESET_EVENT_QUEUE_LOCK();
@@ -672,10 +683,17 @@ void CPUMain()
 		{
 			throw;
 		}
+
+		#ifdef DAEDALUS_W32
+			CMainWindow::Get()->MessageBox(CResourceString(IDS_CPUTHREAD_EXCEPTION),
+										   g_szDaedalusName,
+										   MB_ICONEXCLAMATION|MB_OK);
+		#endif
 	}
 #endif
 
 	gCPURunning = false;
+	gCPUThreadActive = false;
 
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	// Update the screen. It's probably better handled elsewhere...
