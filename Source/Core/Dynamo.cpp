@@ -89,13 +89,12 @@ void R4300_CALL_TYPE CPU_InvalidateICache()
 //*****************************************************************************
 //
 //*****************************************************************************
-/*
 void CPU_DynarecEnable()
 {
 	gDynarecEnabled = true;
 	gCPUState.AddJob(CPU_CHANGE_CORE);
 }
-*/
+
 //*****************************************************************************
 // If fragments overlap dynarec has to start all over which is very costly
 //*****************************************************************************
