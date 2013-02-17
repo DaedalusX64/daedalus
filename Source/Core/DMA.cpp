@@ -194,6 +194,8 @@ void DMA_SI_CopyToDRAM( )
 #define IsDom2Addr1( x )		( (x) >= PI_DOM2_ADDR1 && (x) < PI_DOM1_ADDR1 )
 #define IsDom2Addr2( x )		( (x) >= PI_DOM2_ADDR2 && (x) < PI_DOM1_ADDR2 )
 
+#define IsFlashDomAddr( x )		( (x) >= PI_DOM2_ADDR2 && (x) < 0x08010000 )
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -248,7 +250,7 @@ void DMA_PI_CopyToRDRAM()
 
 	if (cart_address < 0x10000000)
     {
-		if (cart_address >= 0x08000000 && cart_address < 0x08010000)
+		if (IsFlashDomAddr(cart_address))
 		{
            	const u8 *	p_src( (const u8 *)g_pMemoryBuffers[MEM_SAVE] );
 			u32			src_size( ( MemoryRegionSizes[MEM_SAVE] ) );
@@ -259,7 +261,7 @@ void DMA_PI_CopyToRDRAM()
 			else
 				DMA_FLASH_CopyToDRAM(mem_address, cart_address, pi_length_reg);
 		}
-		/*else if (cart_address >= 0x06000000 && cart_address < 0x08000000)
+		/*else if (IsDom1Addr1(cart_address))
 		{
 			DBGConsole_Msg(0, "[YReading from Cart domain 1/addr1] (Ignored)");
 		}
@@ -319,9 +321,7 @@ void DMA_PI_CopyFromRDRAM()
 	*/
 
 	// Only care for DOM2/ADDR2
-	// PI_DOM2_ADDR2 (FlashRAM) && < 0x08010000 (SRAM)
-	//
-	if(cart_address >= PI_DOM2_ADDR2 && cart_address < 0x08010000)
+	if(IsFlashDomAddr(cart_address))
 	{
 		u8 *	p_dst( (u8 *)g_pMemoryBuffers[MEM_SAVE] );
 		u32		dst_size( MemoryRegionSizes[MEM_SAVE] );
