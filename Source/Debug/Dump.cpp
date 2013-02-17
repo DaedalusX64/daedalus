@@ -32,7 +32,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/IO.h"
 #include "OSHLE/patch.h"		// For GetCorrectOp
 #include "OSHLE/ultra_R4300.h"
-
+#ifdef DAEDALUS_W32
+#include "Interface/MainWindow.h"	// Main_SelectSaveDir()
+#endif
 #include "ConfigOptions.h"
 
 #include <ctype.h>
@@ -91,6 +93,10 @@ void Dump_GetSaveDirectory(char * p_file_path, const char * p_rom_name, const ch
 	// If the Save path has not yet been set up, prompt user
 	if (strlen(g_DaedalusConfig.szSaveDir) == 0)
 	{
+	#ifdef DAEDALUS_W32
+		CMainWindow::Get()->SelectSaveDir( CMainWindow::Get()->GetWindow() );
+	#endif
+
 		// User may have cancelled
 		if (strlen(g_DaedalusConfig.szSaveDir) == 0)
 		{
@@ -98,6 +104,11 @@ void Dump_GetSaveDirectory(char * p_file_path, const char * p_rom_name, const ch
 			strncpy(g_DaedalusConfig.szSaveDir, p_rom_name, MAX_PATH);
 			g_DaedalusConfig.szSaveDir[MAX_PATH-1] = '\0';
 			IO::Path::RemoveFileSpec(g_DaedalusConfig.szSaveDir);
+#ifndef DAEDALUS_PSP
+			// FIXME(strmnnrmn): for OSX I generate savegames in a subdir Save, to make it easier to clean up.
+			IO::Path::Append(g_DaedalusConfig.szSaveDir, "Save");
+			IO::Directory::EnsureExists(g_DaedalusConfig.szSaveDir);
+#endif
 
 #ifdef DAEDALUS_DEBUG_CONSOLE
 			if(CDebugConsole::IsAvailable())

@@ -32,6 +32,13 @@ struct DaedalusConfig
 	bool		WarnMemoryErrors;
 	bool		RunAutomatically;
 	bool		TrapExceptions;
+#ifdef DAEDALUS_W32
+#ifndef DAEDALUS_PUBLIC_RELEASE
+	bool		ShowDebug;
+#endif
+	RECT		rcMainWindow;			// Could probably be removed?
+	char		szGfxPluginFileName[MAX_PATH];
+#endif
 
 	// Urgh - will make this a vector at some point!!
 	enum { MAX_ROMS_DIRS = 100 };

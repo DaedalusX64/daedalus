@@ -58,6 +58,14 @@ DaedalusConfig g_DaedalusConfig =
 											// plugin, cpu thread and graphics processing to
 											// be handled nicely. I turn this off for
 											// development to see when things mess up
+#ifdef DAEDALUS_W32
+#ifndef DAEDALUS_PUBLIC_RELEASE
+	true,			// ShowDebug;			// Show the debug console?
+#endif //DAEDALUS_PUBLIC_RELEASE
+	{CW_USEDEFAULT,CW_USEDEFAULT,640,480},	// rcMainWindow;		// Could probably be removed?
+	"",				// szGfxPluginFileName	//
+#endif //DAEDALUS_W32
+
 	0,				// nNumRomsDirs
 	// szRomsDir
 	// szSaveDir

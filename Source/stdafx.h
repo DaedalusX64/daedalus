@@ -36,7 +36,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 #ifndef _MSC_VER
 #define MAX_PATH 260
-//#define __fastcall     //No meaning on the PSP __attribute__((fastcall))
 #define __forceinline	inline
 #endif
 
@@ -79,10 +78,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef ARRAYSIZE
 #define ARRAYSIZE(arr)   (sizeof(arr) / sizeof(arr[0]))
 #endif
-/*
+#ifndef DAEDALUS_PSP
 #define DAEDALUS_VERSION		"0.08b"
 #define DAEDALUS_SITE			"http://strmnnrmn.blogspot.com/"
-*/
+#endif
 
 //*****************************************************************************
 //
