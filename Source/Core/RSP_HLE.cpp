@@ -189,45 +189,28 @@ void RSP_HLE_Finished()
 //*****************************************************************************
 static EProcessResult RSP_HLE_Graphics()
 {
-	// Skip the entire dlist if graphics are disabled
-	if( !gGraphicsEnabled )
+	DAEDALUS_PROFILE( "HLE: Graphics" );
+
+	if (gGraphicsEnabled && gGraphicsPlugin != NULL)
 	{
+		gGraphicsPlugin->ProcessDList();
+	}
+	else
+	{
+		// Skip the entire dlist if graphics are disabled
 		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_DP);
 		R4300_Interrupt_UpdateCause3();
-#ifdef DAEDALUS_BATCH_TEST_ENABLED
-			CBatchTestEventHandler * handler( BatchTest_GetHandler() );
-			if( handler )
-				handler->OnDisplayListComplete();
-#endif
-		return PR_COMPLETED;
 	}
-	else if ( gGraphicsPlugin != NULL )
-	{
-		DAEDALUS_PROFILE( "HLE: Graphics" );
 
-#ifdef DAEDALUS_TRAP_PLUGIN_EXCEPTIONS
-		try
-		{
-			gGraphicsPlugin->ProcessDList();
-		}
-		catch (...)
-		{
-			// ToDo: Use an assert maybe? Give us the option of continuing
-			DBGConsole_Msg(0, "Exception in GFX processing");
-			Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_DP);
-			R4300_Interrupt_UpdateCause3();
-		}
-#else
-		gGraphicsPlugin->ProcessDList();
-#endif
+
 #ifdef DAEDALUS_BATCH_TEST_ENABLED
-         CBatchTestEventHandler * handler( BatchTest_GetHandler() );
-         if( handler )
-                 handler->OnDisplayListComplete();
-#endif
-		return PR_COMPLETED;
+	if (CBatchTestEventHandler * handler = BatchTest_GetHandler())
+	{
+		handler->OnDisplayListComplete();
 	}
-		return PR_NOT_STARTED;
+#endif
+
+	return PR_COMPLETED;
 }
 
 //*****************************************************************************
@@ -235,20 +218,13 @@ static EProcessResult RSP_HLE_Graphics()
 //*****************************************************************************
 static EProcessResult RSP_HLE_Audio()
 {
-	if( gHLEAudioEnabled)
-	{
-		if (g_pAiPlugin != NULL )
-		{
-			//RDP_AUD_ExecuteTask(pTask);
-			DAEDALUS_PROFILE( "HLE: Audio" );
-			//Audio_Ucode(task);
-			return g_pAiPlugin->ProcessAList();
-		}
-		else
-			return PR_COMPLETED;
-	}
+	DAEDALUS_PROFILE( "HLE: Audio" );
 
-	return PR_NOT_STARTED;
+	if (gHLEAudioEnabled && g_pAiPlugin != NULL)
+	{
+		g_pAiPlugin->ProcessAList();
+	}
+	return PR_COMPLETED;
 }
 
 void jpeg_decode_PS(OSTask *task);
