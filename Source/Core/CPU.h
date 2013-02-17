@@ -152,8 +152,8 @@ void	CPU_Finalise();
 void	CPU_Step();
 void	CPU_Skip();
 bool	CPU_Run();
-//bool	CPU_StartThread( char * p_failure_reason, u32 length );
-//void	CPU_StopThread();
+bool	CPU_StartThread( char * p_failure_reason, u32 length );
+void	CPU_StopThread();
 bool	CPU_SaveState( const char * filename );
 bool	CPU_LoadState( const char * filename );
 void	CPU_Halt( const char * reason );
@@ -169,7 +169,6 @@ void	CPU_AddBreakPoint( u32 address );						// Add a break point at address dwAd
 void	CPU_EnableBreakPoint( u32 address, bool enable );		// Enable/Disable the breakpoint as the specified address
 #endif
 bool	CPU_IsRunning();
-//u32		CPU_GetVerticalInterruptCount();
 void	CPU_AddEvent( s32 count, ECPUEventType event_type );
 void	CPU_SkipToNextEvent();
 bool	CPU_CheckStuffToDo();
