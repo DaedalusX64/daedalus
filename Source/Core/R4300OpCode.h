@@ -84,8 +84,8 @@ enum OpCodeValue {
 	OP_LD			= 55,
 	OP_SC 			= 56,
 	OP_SWC1 		= 57,
-/*	OP_DBG_BKPT		= 58,
-	OP_UNK10		= 59,*/
+	OP_DBG_BKPT		= 58,
+	OP_UNK10		= 59,
 	OP_SCD 			= 60,
 	OP_SDC1 		= 61,
 //	OP_SDC2 		= 62,/
