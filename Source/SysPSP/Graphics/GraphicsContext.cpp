@@ -329,7 +329,6 @@ void IGraphicsContext::EndFrame()
 //*****************************************************************************
 //
 //*****************************************************************************
-//extern bool gDebugDisplayList;
 bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 {
 	DAEDALUS_PROFILE( "IGraphicsContext::UpdateFrame" );

@@ -52,6 +52,7 @@
           'Source/HLEAudio/AudioBuffer.cpp',
           'Source/HLEAudio/AudioHLEProcessor.cpp',
           'Source/HLEAudio/HLEMain.cpp',
+          'Source/HLEGraphics/DLDebug.cpp',
           'Source/Interface/RomDB.cpp',
           'Source/Test/BatchTest.cpp',
           'Source/Utility/CRC.cpp',

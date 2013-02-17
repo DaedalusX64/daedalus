@@ -24,6 +24,7 @@
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 
 #include "PSPRenderer.h"
+#include "DLDebug.h"
 #include "DLParser.h"
 #include "TextureCache.h"
 #include "TextureDescriptor.h"
@@ -976,7 +977,7 @@ void IDisplayListDebugger::Run()
 			printf( "Dumping Display List and Textures...\n" );
 
 			// Dump the display list
-			DLParser_DumpNextDisplayList();
+			DLDebug_DumpNextDisplayList();
 
 			// Dump textures
 			std::vector<CTextureCache::STextureInfoSnapshot>	fSnapshot;

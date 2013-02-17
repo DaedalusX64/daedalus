@@ -1859,11 +1859,19 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\DebugDisplayList.h"
+					RelativePath=".\Source\HLEGraphics\DisplayListDebugger.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\DisplayListDebugger.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\HLEGraphics\DLDebug.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\HLEGraphics\DLDebug.h"
 					>
 				</File>
 				<File

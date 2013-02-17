@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef DAEDALUS_DEBUGDISPLAYLIST_H_
 #define DAEDALUS_DEBUGDISPLAYLIST_H_
 
+#include "OSHLE/ultra_sptask.h" // Ugh, could just fwd-decl OSTask, if it wasn't a crazy typedef union.
+
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -99,5 +101,9 @@ extern bool gDebugDisplayList;
 #define DAEDALUS_DL_ERROR( ... )			DAEDALUS_ERROR( __VA_ARGS__ )
 
 #endif
+
+void		DLDebug_HandleDumpDisplayList(OSTask * pTask);
+void		DLDebug_DumpMux(u64 mux);
+void		DLDebug_DumpNextDisplayList();
 
 #endif // DAEDALUS_DEBUGDISPLAYLIST_H_

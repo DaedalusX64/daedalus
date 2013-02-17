@@ -38,7 +38,6 @@ void DLParser_Process();
 
 const u32	UNLIMITED_INSTRUCTION_COUNT( u32( ~0 ) );
 
-void		DLParser_DumpNextDisplayList();
 u32			DLParser_GetTotalInstructionCount();
 u32			DLParser_GetInstructionCountLimit();
 void		DLParser_SetInstructionCountLimit( u32 limit );

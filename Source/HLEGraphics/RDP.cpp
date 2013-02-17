@@ -22,8 +22,7 @@
 #include "RDP.h"
 
 #include "DLParser.h"
-
-#include "DebugDisplayList.h"
+#include "DLDebug.h"
 #include "Debug/DBGConsole.h"
 
 #include "OSHLE/ultra_gbi.h"

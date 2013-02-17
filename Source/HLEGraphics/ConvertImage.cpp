@@ -21,7 +21,7 @@ Copyright (C) 2001 StrmnNrmn
 #include "ConvertImage.h"
 #include "TextureDescriptor.h"
 
-#include "DebugDisplayList.h"
+#include "DLDebug.h"
 #include "Core/Memory.h"
 
 #include "PixelFormatN64.h"

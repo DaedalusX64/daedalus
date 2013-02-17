@@ -136,6 +136,7 @@ DAED_HLEGFX_SRCS =	Source/SysPSP/Plugins/GraphicsPluginPSP.cpp \
 			Source/HLEGraphics/ColourAdjuster.cpp \
 			Source/HLEGraphics/ConvertImage.cpp \
 			Source/HLEGraphics/DisplayListDebugger.cpp \
+			Source/HLEGraphics/DLDebug.cpp \
 			Source/HLEGraphics/DLParser.cpp \
 			Source/HLEGraphics/Microcode.cpp \
 			Source/HLEGraphics/RDP.cpp \

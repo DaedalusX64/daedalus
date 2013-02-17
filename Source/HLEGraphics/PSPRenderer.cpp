@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TextureCache.h"
 #include "RDPStateManager.h"
 #include "BlendModes.h"
-#include "DebugDisplayList.h"
+#include "DLDebug.h"
 
 #include "Combiner/RenderSettings.h"
 #include "Combiner/BlendConstant.h"
@@ -2987,7 +2987,7 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 			// Load projection matrix
 			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
 
-			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) 
+			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
 				mProjectionStack[mProjectionTop].mRaw[0] *= HD_SCALE;	//proper 16:9 scale
 		}
 		else
@@ -3013,9 +3013,9 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 			//it renders at Z cordinate = 0.0f that gets clipped away.
 			//so we translate them a bit along Z to make them stick :) //Corn
 			//
-			if( g_ROM.ZELDA_HACK ) 
+			if( g_ROM.ZELDA_HACK )
 				mProjectionStack[mProjectionTop].mRaw[14] += 0.4f;
-			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD ) 
+			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
 				mProjectionStack[mProjectionTop].mRaw[0] *= HD_SCALE;	//proper 16:9 scale
 		}
 		else
