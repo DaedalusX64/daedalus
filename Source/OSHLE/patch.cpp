@@ -20,8 +20,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "patch.h"
 
+#ifdef DAEDALUS_PSP
 #include "Graphics/GraphicsContext.h"
 #include "../Graphics/intraFont/intraFont.h"
+#endif
 
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
 
@@ -52,6 +54,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "DynaRec/Fragment.h"
 #include "DynaRec/FragmentCache.h"
+
+#ifdef DAEDALUS_W32
+#include "Interface/MainWindow.h"	// For Main_SetStatus
+#endif
 
 #include "ultra_os.h"
 #include "ultra_rcp.h"
@@ -516,12 +522,19 @@ void Patch_RecurseAndFind()
 	for (u32 i = 0; i < nPatchSymbols && !gCPUState.IsJobSet( CPU_STOP_RUNNING ); i++)
 	{
 
+#ifdef DAEDALUS_W32
+		CMainWindow::Get()->SetStatus(0,
+									  "OS HLE: %d / %d Looking for %s",
+									  i,
+									  nPatchSymbols,
+									  g_PatchSymbols[i]->szName);
+#endif //DAEDALUS_W32
 #ifdef DAEDALUS_DEBUG_CONSOLE
 		CDebugConsole::Get()->MsgOverwrite(0, "OS HLE: %d / %d Looking for [G%s]",
 			i, nPatchSymbols, g_PatchSymbols[i]->szName);
 		fflush(stdout);
 #else
-
+#ifdef DAEDALUS_PSP
 		//Update patching progress on PSPscreen
 		CGraphicsContext::Get()->BeginFrame();
 		CGraphicsContext::Get()->Clear(true,true);
@@ -531,6 +544,7 @@ void Patch_RecurseAndFind()
 		CGraphicsContext::Get()->EndFrame();
 		CGraphicsContext::Get()->UpdateFrame( true );
 #endif
+#endif //DAEDALUS_DEBUG_CONSOLE
 		// Skip symbol if already found, or if it is a variable
 		if (g_PatchSymbols[i]->bFound)
 			continue;
@@ -547,6 +561,9 @@ void Patch_RecurseAndFind()
 		CDebugConsole::Get()->MsgOverwrite( 0, "OS HLE: Aborted" );
 		CDebugConsole::Get()->MsgOverwriteEnd();
 #endif
+#ifdef DAEDALUS_W32
+		CMainWindow::Get()->SetStatus( 0, "OS HLE: Aborted" );
+#endif
 		return;
 	}
 #ifdef DAEDALUS_DEBUG_CONSOLE
@@ -555,6 +572,14 @@ void Patch_RecurseAndFind()
 
 	CDebugConsole::Get()->MsgOverwriteEnd();
 #endif
+
+#ifdef DAEDALUS_W32
+	CMainWindow::Get()->SetStatus(0,
+								  "OS HLE: %d / %d All done",
+								  nPatchSymbols,
+								  nPatchSymbols);
+#endif
+
 	first = u32(~0);
 	last = 0;
 
