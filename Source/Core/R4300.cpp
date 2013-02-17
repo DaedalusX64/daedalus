@@ -69,7 +69,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define R4300_AbsD(x) 		pspFpuAbs((x))
 #else
 #define R4300_IsNaN(x)		_isnan((x))
-#define R4300_Rand()		rand()
 #define R4300_Sqrt(x)		Sqrt((x))
 #define R4300_AbsS(x) 		fabsf((x))
 #define R4300_AbsD(x) 		fabs((x))
