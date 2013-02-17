@@ -274,13 +274,10 @@ void DMA_PI_CopyToRDRAM()
 	{
 		// for paper mario
 		// Doesn't seem to be needed?
-		/*if (cart_address >= 0x1fc00000)
+		/*if (cart_address < 0x1fc00000)
 		{
-			Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
-			Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_PI);
-			R4300_Interrupt_UpdateCause3();
-			return;
-		}*/
+			... code below ...
+		*/
 
 		//DBGConsole_Msg(0, "[YReading from Cart domain 1/addr2]");
 
