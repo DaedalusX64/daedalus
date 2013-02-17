@@ -404,6 +404,11 @@ inline void QuickWrite32Bits( u8 *p_base, u32 value )
 #define FLASHRAM_READ_ADDR		0x08000000
 #define FLASHRAM_WRITE_ADDR		0x08010000
 
+#ifdef DAEDALUS_W32
+extern u8 * g_pu8RamBase_8000;
+extern u8 * g_pu8RamBase_A000;
+#endif
+
 #if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
 
 inline u64 Read64Bits( u32 address )				{ MEMORY_CHECK_ALIGN( address, 8 ); return *(u64 *)ReadAddress( address ); }
