@@ -2235,6 +2235,8 @@ static void R4300_CALL_TYPE R4300_Cop0_MFC0( R4300_CALL_SIGNATURE )
 }
 
 // Move Word To CopReg
+static const u32 kCauseSW = CAUSE_SW1|CAUSE_SW2;
+
 static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2277,7 +2279,6 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 
 			DAEDALUS_ASSERT(new_value == 0, "CAUSE register invalid writing");
 
-			const u32 kCauseSW = CAUSE_SW1|CAUSE_SW2;
 #ifdef DAEDALUS_DEBUG_CONSOLE
 			if ( (new_value&~kCauseSW) != (gCPUState.CPUControl[C0_CAUSE]._u32&~kCauseSW)  )
 			{
