@@ -1,0 +1,474 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.K.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_APP_MENU MENU 
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "Open ROM\tCtrl+O",            IDM_OPEN
+        MENUITEM "Load...\tCtrl+L",             IDM_LOAD
+        MENUITEM "Save...\tCtrl+S",             IDM_SAVE
+        MENUITEM SEPARATOR
+        MENUITEM "Exit",                        IDM_EXIT
+    END
+    POPUP "CPU"
+    BEGIN
+        MENUITEM "Start (resume)",              IDM_CPUSTART
+        MENUITEM "Stop (pause)\tEsc",           IDM_CPUSTOP
+    END
+    POPUP "View"
+    BEGIN
+        MENUITEM "Refresh\tF5",                 IDM_REFRESH
+        MENUITEM "Directory....",               IDM_SELECTDIR
+        MENUITEM SEPARATOR
+        MENUITEM "Screenshot\tF12",             IDM_SCREENSHOT
+        MENUITEM "Toggle Fullscreen\tAlt+Enter", IDM_TOGGLEFULLSCREEN
+    END
+    POPUP "Config"
+    BEGIN
+        MENUITEM "Graphics Plugin Config...",   IDM_GRAPHICS_CONFIG
+        MENUITEM "Audio Plugin Config...",      IDM_AUDIO_CONFIG
+        MENUITEM "Input Configuration...",      IDM_INPUTCONFIG
+        MENUITEM "Configuration...",            IDM_CONFIGURATION
+    END
+    POPUP "Help"
+    BEGIN
+        MENUITEM "About",                       IDM_ABOUT
+        MENUITEM "Daedalus Home Page...",       IDM_DAEDALUS_HOME
+    END
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#include ""Script1.rc2""\r\n"
+    "// non-Microsoft Visual C++ edited resources wibble\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_APP_ACCELERATOR ACCELERATORS 
+BEGIN
+    "L",            IDM_LOAD,               VIRTKEY, CONTROL, NOINVERT
+    "O",            IDM_OPEN,               VIRTKEY, CONTROL, NOINVERT
+    "S",            IDM_SAVE,               VIRTKEY, CONTROL, NOINVERT
+    VK_ESCAPE,      IDM_CPUSTOP,            VIRTKEY, NOINVERT
+    VK_F11,         IDM_SCREENSHOT,         VIRTKEY, NOINVERT
+    VK_F5,          IDM_REFRESH,            VIRTKEY, NOINVERT
+    VK_RETURN,      IDM_TOGGLEFULLSCREEN,   VIRTKEY, ALT, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUT DIALOG  0, 0, 199, 217
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "d a e d a l u s     v 0 . 0 8 b"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,73,196,50,14
+    LTEXT           "N64 Emulator by StrmnNrmn",IDC_STATIC,54,65,90,8
+    LTEXT           "Copyright (C) 2001 StrmnNrmn",IDC_STATIC,49,114,100,8
+    LTEXT           "http://daedalus.boob.co.uk/",IDC_STATIC,53,99,92,8
+    CTEXT           "Big thanks to Azimer, _Demo_, F|RES, Icepir8, Jabo, LaC, Lemmy, Niki Waibel, Zilmar and all the other N64 emu developers who have put up with my awkward questions!",IDC_STATIC,15,153,168,33
+    LTEXT           "Additional work by CyRUS64, Lkb, Jun Su and Orkin",IDC_STATIC,17,78,166,8
+    GROUPBOX        "d a e d a l u s",IDC_STATIC,7,53,185,141,BS_CENTER
+    CTEXT           "Thanks to all the translators and contributors - please read credits.txt",IDC_STATIC,35,129,128,18
+    CONTROL         112,IDC_DAEDALUS_LOGO,"Static",SS_BITMAP,7,7,185,44
+    LTEXT           "Logo by kojote, Icon by Genueix",IDC_STATIC,48,87,103,8
+END
+
+IDD_INPUT DIALOG  0, 0, 305, 289
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Input Configuration"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,193,268,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,248,268,50,14
+    COMBOBOX        IDC_CONTROLLER_COMBO,45,31,126,99,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Controller",IDC_STATIC,10,34,30,8
+    LISTBOX         IDC_BUTTON_LIST,13,77,279,141,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_FIRST_MAP_COMBO,47,224,245,128,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "First",IDC_FIRST_MAP_STATIC,27,227,14,8
+    GROUPBOX        "Button Assignments",IDC_STATIC,7,64,291,200
+    COMBOBOX        IDC_SECOND_MAP_COMBO,47,243,245,113,CBS_DROPDOWNLIST | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Second",IDC_SECOND_MAP_STATIC,16,243,26,8,WS_DISABLED
+    CONTROL         "Has Mempack",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,15,49,62,10
+    PUSHBUTTON      "Reset",IDC_RESET_BUTTON,7,268,50,14
+    LTEXT           "Name",IDC_STATIC,20,15,20,8
+    EDITTEXT        IDC_NAME_EDIT,45,13,125,14,ES_AUTOHSCROLL
+    CONTROL         "Controller 1",IDC_C1_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,221,14,51,10
+    CONTROL         "Controller 2",IDC_C2_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,221,25,51,10
+    CONTROL         "Controller 3",IDC_C3_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,221,36,51,10
+    CONTROL         "Controller 4",IDC_C4_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,221,47,51,10
+END
+
+IDD_ROMSETTINGS DIALOGEX 0, 0, 233, 212
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Rom Settings"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    GROUPBOX        "Rom Info",IDC_STATIC,7,7,219,181
+    LTEXT           "Name",IDC_STATIC,32,22,20,8
+    EDITTEXT        IDC_NAME_EDIT,61,20,156,14,ES_AUTOHSCROLL
+    LTEXT           "Comment",IDC_STATIC,22,40,30,8
+    COMBOBOX        IDC_COMMENT_COMBO,61,39,157,66,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Info",IDC_STATIC,39,59,13,8
+    EDITTEXT        IDC_COMMENT2_EDIT,61,56,156,14,ES_AUTOHSCROLL
+    GROUPBOX        "Compatibility Options",IDC_STATIC,15,80,93,34
+    CONTROL         "Dynarec Supported",IDC_DYNAREC_SUPPORTED_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,95,77,10
+    GROUPBOX        "Expansion Pak",IDC_STATIC,17,116,89,66
+    CONTROL         "Unknown",IDC_EPAK_UNKNOWN_RADIO,"Button",BS_AUTORADIOBUTTON | WS_GROUP,25,130,47,10
+    CONTROL         "Unused",IDC_EPAK_UNUSED_RADIO,"Button",BS_AUTORADIOBUTTON,25,143,41,10
+    CONTROL         "Used",IDC_EPAK_USED_RADIO,"Button",BS_AUTORADIOBUTTON,25,156,33,10
+    CONTROL         "Required",IDC_EPAK_REQUIRED_RADIO,"Button",BS_AUTORADIOBUTTON,25,169,45,10
+    GROUPBOX        "Primary Save Type",IDC_STATIC,111,80,107,102
+    CONTROL         "None",IDC_SAVETYPE_UNK_RADIO,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,125,94,33,10
+    CONTROL         "Eeprom 4k",IDC_SAVETYPE_EEP4K_RADIO,"Button",BS_AUTORADIOBUTTON,125,106,50,10
+    CONTROL         "Eeprom 16k",IDC_SAVETYPE_EEP16K_RADIO,"Button",BS_AUTORADIOBUTTON,125,118,54,10
+    CONTROL         "SRAM",IDC_SAVETYPE_SRAM_RADIO,"Button",BS_AUTORADIOBUTTON,125,130,37,10
+    CONTROL         "FlashRam",IDC_SAVETYPE_FLASH_RADIO,"Button",BS_AUTORADIOBUTTON,125,142,47,10
+    CTEXT           "(Current FlashRam saves are not very well supported)",IDC_STATIC,118,157,91,19,WS_DISABLED
+    DEFPUSHBUTTON   "OK",IDOK,120,191,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,176,191,50,14
+END
+
+IDD_INPUTSELECT DIALOG  0, 0, 287, 71
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Input Select"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Select",IDOK,176,50,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,230,50,50,14
+    COMBOBOX        IDC_CONFIG_COMBO,67,11,151,53,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Configuration",IDC_STATIC,19,14,42,8
+    PUSHBUTTON      "New...",IDC_NEW_BUTTON,7,50,50,14
+    PUSHBUTTON      "Edit...",IDC_EDIT_BUTTON,221,10,50,14
+END
+
+IDD_DISCLAIMER DIALOG  0, 0, 199, 149
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Disclaimer"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CTEXT           "Daedalus does not have any association with Nintendo, or any of its affiliates. This program was developed for non-commercial use and is not intended to compete with the Nintendo 64.",IDC_STATIC,16,58,167,34
+    DEFPUSHBUTTON   "OK",IDOK,75,127,50,14
+    CTEXT           "The name Nintendo and various other names and service marks are owned by either Nintendo or their respective owners.",IDC_STATIC,19,97,160,27
+    CONTROL         112,IDC_DAEDALUS_LOGO,"Static",SS_BITMAP,7,7,185,44
+END
+
+IDD_SELECTDEVICE DIALOG  0, 0, 263, 153
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Select Device"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,206,10,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,206,27,50,14
+    COMBOBOX        IDC_ADAPTER_COMBO,88,16,100,123,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Adapter:",IDC_STATIC,20,18,28,8
+    LTEXT           "Device:",IDC_STATIC,19,34,26,8
+    COMBOBOX        IDC_DEVICE_COMBO,88,34,100,103,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Rendering Device",IDC_STATIC,7,5,190,50
+    GROUPBOX        "Rendering Mode",IDC_STATIC,7,55,190,49
+    CONTROL         "Use desktop window",IDC_WINDOW,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,15,69,82,10
+    CONTROL         "Fullscreen mode:",IDC_FULLSCREEN,"Button",BS_AUTORADIOBUTTON,15,85,69,10
+    COMBOBOX        IDC_FULLSCREENMODES_COMBO,88,83,100,132,CBS_DROPDOWNLIST | WS_VSCROLL | WS_GROUP | WS_TABSTOP
+    GROUPBOX        "Multisample",IDC_STATIC,7,105,190,40
+    LTEXT           "Multisample type:",IDC_STATIC,17,122,55,8
+    COMBOBOX        IDC_MULTISAMPLE_COMBO,88,120,100,133,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_CONFIG DIALOG  0, 0, 316, 191
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Daedalus Configuration"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "Close",IDOK,7,170,78,14
+    LISTBOX         IDC_PAGE_LIST,7,7,78,160,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_PAGE_DIRECTORIES DIALOG  0, 0, 220, 190
+STYLE DS_SETFONT | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Directories",IDC_STATIC,7,7,206,176
+    LTEXT           "Roms",IDC_STATIC,20,22,19,8
+    LTEXT           "Saves",IDC_STATIC,18,127,21,8
+    LISTBOX         IDC_ROM_DIRECTORY_LIST,46,22,159,78,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Add",IDC_ADD_ROMSDIR_BUTTON,46,105,50,14
+    PUSHBUTTON      "Remove",IDC_REMOVE_ROMSDIR_BUTTON,105,105,50,14
+    EDITTEXT        IDC_SAVE_DIR_EDIT,46,124,147,14,ES_AUTOHSCROLL
+    LTEXT           "Plugins",IDC_STATIC,15,145,24,8,WS_DISABLED
+    EDITTEXT        IDC_PLUGIN_DIR_EDIT,46,142,147,14,ES_AUTOHSCROLL | WS_DISABLED
+    LTEXT           "Dumps",IDC_STATIC,16,164,23,8,WS_DISABLED
+    EDITTEXT        IDC_DUMPS_DIR_EDIT,46,162,147,14,ES_AUTOHSCROLL | WS_DISABLED
+    PUSHBUTTON      "..",IDC_SELECT_SAVE_BUTTON,197,124,10,14
+    PUSHBUTTON      "..",IDC_BUTTON4,197,142,10,14,WS_DISABLED
+    PUSHBUTTON      "..",IDC_BUTTON5,197,162,10,14,WS_DISABLED
+END
+
+IDD_PAGE_DEBUG DIALOG  0, 0, 220, 190
+STYLE DS_SETFONT | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Debug",IDC_STATIC,7,7,206,176
+    CONTROL         "Show the Debug Console",IDC_DEBUG_CONSOLE_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,35,97,10
+    CONTROL         "Trap Windows Exceptions (crash protection!)",IDC_TRAP_EXCEPTIONS_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,48,157,10
+    CONTROL         "Enable Debugging Options (advanced users!)",IDC_CHECK3,
+                    "Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,15,23,159,10
+    CONTROL         "Warn on all memory errors",IDC_WARN_MEM_ERRORS_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,60,97,10
+END
+
+IDD_PAGE_SETTINGS DIALOG  0, 0, 220, 190
+STYLE DS_SETFONT | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Daedalus Settings",IDC_STATIC,7,7,206,176
+    CONTROL         "Run roms automatically",IDC_RUN_ROMS_AUTO_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,23,89,10
+    LTEXT           "Locale",IDC_STATIC,23,160,22,8
+    COMBOBOX        IDC_LOCAL_COMBO,52,158,139,120,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Recursively scan rom directories",IDC_RECURSIVE_SCAN_CHECK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,34,117,10
+END
+
+IDD_PAGE_PLUGINS DIALOG  0, 0, 220, 190
+STYLE DS_SETFONT | WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Plugins",IDC_STATIC,7,7,206,176
+    COMBOBOX        IDC_GRAPHICS_PLUGIN_COMBO,33,31,160,53,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_AUDIO_PLUGIN_COMBO,28,87,160,53,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Graphics",IDC_STATIC,17,18,188,49
+    GROUPBOX        "",IDC_STATIC,15,73,187,49
+    GROUPBOX        "Input",IDC_STATIC,16,127,188,49,WS_DISABLED
+    COMBOBOX        IDC_INPUT_PLUGIN_COMBO,32,141,160,53,CBS_DROPDOWNLIST | CBS_SORT | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "About",IDC_ABOUT_GRAPHICS_BUTTON,143,47,50,14
+    PUSHBUTTON      "About",IDC_ABOUT_AUDIO_BUTTON,143,102,50,14
+    PUSHBUTTON      "About",IDC_ABOUT_INPUT_BUTTON,143,156,50,14,WS_DISABLED
+    CONTROL         "Audio",IDC_ENABLE_AUDIO_CHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,73,34,10
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_ABOUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 192
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 210
+    END
+
+    IDD_INPUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 298
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 282
+    END
+
+    IDD_ROMSETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 226
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 205
+    END
+
+    IDD_INPUTSELECT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 280
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 64
+    END
+
+    IDD_DISCLAIMER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 192
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 142
+    END
+
+    IDD_SELECTDEVICE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 256
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 146
+    END
+
+    IDD_CONFIG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 309
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 184
+    END
+
+    IDD_PAGE_DIRECTORIES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 213
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 183
+    END
+
+    IDD_PAGE_DEBUG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 213
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 183
+    END
+
+    IDD_PAGE_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 213
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 183
+    END
+
+    IDD_PAGE_PLUGINS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 213
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 183
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_DAEDALUS            BITMAP                  "daedalus.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_DAEDALUS_ICON       ICON                    "d_logo.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_DAEDALUS_STRING     "Daedalus"
+    IDS_COLUMN_NAME         "Name"
+    IDS_COLUMN_COUNTRY      "Country"
+    IDS_COLUMN_SIZE         "Size"
+    IDS_COLUMN_COMMENT      "Comments"
+    IDS_COLUMN_BOOT         "BootCode"
+    IDS_COLUMN_INFO         "Info"
+    IDS_CPUTHREAD_EXCEPTION "An exception occured in the CPU Thread!\nIt is recommended that you restart Daedalus"
+    IDS_UNABLETOSTARTCPUTHREAD "Unable to start CPU thread."
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_NOROMLOADED         "No ROM Loaded!"
+    IDS_UNABLETOINITINPUT   "Unable to initialise input."
+    IDS_UNSUPPORTEDTEXFMT   "Unsupported Texture Format\n%d"
+    IDS_NODX8               "Daedalus is unable to start because DirectX 8 is not installed on your system\n\nPlease visit http://www.microsoft.com/directx/ to download the latest version of DirectX8"
+    IDS_EXCEPTION           "Exception in Daedalus\nDaedalus will now exit, but changes to settings will be saved"
+    IDS_SELECTFOLDER        "Please select the folder where your ROM images are located."
+    IDS_SELECTSAVEFOLDER    "Please select a folder to create save game data."
+    IDS_PLAYABLE            "Playable"
+    IDS_ALMOSTPLAYABLE      "Almost Playable"
+    IDS_NOTPLAYABLE         "Not Playable"
+    IDS_DOESNTWORK          "Doesn't Work"
+    IDS_STOPSTARTCPU        "You will need to stop/start the CPU for the changes to take effect."
+    IDS_CONFIGGFX           "You can only configure the graphics plugin while it is running."
+    IDS_AUDIOTHREAD_EXCEPTION 
+                            "An exception occured in the Audio Thread!\nSound will not be disabled until the next time you restart the CPU."
+    IDS_COLUMN_SAVE         "Primary Save"
+END
+
+#endif    // English (U.K.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "Script1.rc2"
+// non-Microsoft Visual C++ edited resources wibble
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
