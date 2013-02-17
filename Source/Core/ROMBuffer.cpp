@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 #include "ROMBuffer.h"
-#include "ConfigOptions.h"
+
 #include "ROM.h"
 #include "DMA.h"
 
@@ -480,19 +480,6 @@ void RomBuffer::CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_off
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-/*void RomBuffer::CopyFromRam( u32 dst_offset, const u8 * p_src, u32 src_offset, u32 src_size, u32 length )
-{
-	DAEDALUS_ASSERT( IsRomAddressFixed(), "Cannot put rom bytes when the data isn't fixed" );
-
-	u8 *		p_dst( (u8 *)spRomData );
-	u32			dst_size( GetRomSize() );
-
-	DMA_HandleTransfer( p_dst, dst_offset, dst_size, p_src, src_offset, src_size, length );
-}
-*/
 //*****************************************************************************
 //
 //*****************************************************************************
