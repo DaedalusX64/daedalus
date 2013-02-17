@@ -23,8 +23,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ROM.h"
 #include "DMA.h"
 
+#ifdef DAEDALUS_PSP
 #include "Graphics/GraphicsContext.h"
 #include "../Graphics/intraFont/intraFont.h"
+#endif
 
 #include "Math/MathUtil.h"
 
@@ -37,7 +39,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Stream.h"
 #include "Utility/IO.h"
 
+#ifdef DAEDALUS_PSP
 extern bool PSP_IS_SLIM;
+#endif
 
 namespace
 {
@@ -202,7 +206,7 @@ void RomBuffer::Open( )
 		u32		size_aligned( AlignPow2( sRomSize, 4 ) );
 		u8 *	p_bytes( (u8*)CROMFileMemory::Get()->Alloc( size_aligned ) );
 
-#if 0
+#ifndef DAEDALUS_PSP
 		if( !p_rom_file->LoadData( sRomSize, p_bytes, messages ) )
 		{
 			DBGConsole_Msg(0, "Failed to load [C%s]\n", filename);
