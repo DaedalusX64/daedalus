@@ -589,12 +589,8 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 		return true;
 
 	case OP_COPRO0:
-		// Possibly could return false for some of these
 		// Only ERET needs PC
-		if(op_code.cop0tlb_funct == OP_ERET)
-			return true;
-		else
-			return false;
+		return op_code.cop0tlb_funct == OP_ERET;
 
 	case OP_COPRO1:
 		// Potentially these can all throw, if cop1 is disabled
