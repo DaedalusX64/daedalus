@@ -269,6 +269,124 @@ struct OpCode
 	{
 		u32 _u32;
 
+#if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
+		struct
+		{
+			unsigned op : 6;
+			unsigned rs : 5;			// EN64Reg
+			unsigned rt : 5;			// EN64Reg
+			unsigned offset : 16;
+		};
+
+		struct
+		{
+			unsigned : 6;
+			unsigned base : 5;			// EN64Reg
+			unsigned : 5;
+			unsigned immediate : 16;
+		};
+
+		struct
+		{
+			unsigned : 6;
+			unsigned target : 26;
+		};
+
+		// SPECIAL
+		struct
+		{
+			unsigned : 6;
+			unsigned : 5;
+			unsigned : 5;
+			unsigned rd : 5;			// EN64Reg
+			unsigned sa : 5;
+			unsigned spec_op : 6;		// ESpecOp
+		};
+
+		// REGIMM
+		struct
+		{
+			unsigned : 11;
+			unsigned regimm_op : 5;		// ERegImmOp
+			unsigned : 16;
+		};
+
+		// COP0 op
+		struct
+		{
+			unsigned : 6;
+			unsigned cop0_op : 5;		// ECop0Op
+			unsigned : 21;
+		};
+
+		// COP1 op
+		struct
+		{
+			unsigned : 6;
+			unsigned cop1_op : 5;
+			unsigned ft : 5;		// rt
+			unsigned fs : 5;		// rd
+			unsigned fd : 5;		// sa
+			unsigned cop1_funct : 6;
+		};
+
+
+		struct
+		{
+			unsigned : 14;
+			unsigned cop1_bc : 2;		// ECop1BCOp
+			unsigned : 16;
+		};
+
+		struct
+		{
+			unsigned : 6;
+			unsigned : 5;
+			unsigned dest   : 5;
+			unsigned : 5;
+			unsigned del    : 4;
+			signed   voffset : 7;
+		};
+
+		// COP0 TLB op
+		struct
+		{
+			unsigned : 26;
+			unsigned cop0tlb_funct : 6;
+		};
+
+		// COP2 vector op
+		struct
+		{
+			unsigned : 26;
+			unsigned cop2_funct : 6;
+		};
+
+		struct
+		{
+			unsigned : 6;
+			unsigned bp_index : 26;
+		};
+
+		struct
+		{
+			unsigned : 6;
+			unsigned dynarec_index : 26;
+		};
+
+		struct
+		{
+			unsigned : 6;
+			unsigned trace_branch_index : 26;
+		};
+
+		struct
+		{
+			unsigned : 6;
+			unsigned : 2;
+			unsigned patch_index : 24;
+		};
+#elif (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_LITTLE)
 		struct
 		{
 			unsigned offset : 16;
@@ -385,6 +503,10 @@ struct OpCode
 			unsigned : 2;
 			unsigned : 6;
 		};
+#else
+#error No DAEDALUS_ENDIAN_MODE specified
+#endif
+
 	};
 };
 
