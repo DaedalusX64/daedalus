@@ -141,6 +141,12 @@ void ThreadSleepMs( u32 ms )
 	::Sleep( ms );
 }
 
+void ThreadSleepTicks( u32 ticks )
+{
+	// FIXME: not sure what units this is in.
+	::Sleep( ticks );
+}
+
 //*****************************************************************************
 //
 //*****************************************************************************

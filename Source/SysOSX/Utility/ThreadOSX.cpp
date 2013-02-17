@@ -119,7 +119,13 @@ bool	WaitForThreadTermination( s32 handle, s32 timeout )
 
 void ThreadSleepMs( u32 ms )
 {
-	usleep( ms * 1000	 );
+	usleep( ms * 1000 );
+}
+
+void ThreadSleepTicks( u32 ticks )
+{
+	// FIXME: not sure what units this is in.
+	usleep( ticks );
 }
 
 void ThreadYield()
