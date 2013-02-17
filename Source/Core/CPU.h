@@ -179,7 +179,7 @@ inline void CPU_SetPC( u32 pc )		{ gCPUState.CurrentPC = pc; }
 inline void INCREMENT_PC()			{ gCPUState.CurrentPC += 4; }
 inline void DECREMENT_PC()			{ gCPUState.CurrentPC -= 4; }
 
-inline void CPU_TakeBranch( u32 new_pc ){	gCPUState.TargetPC = new_pc;	gCPUState.Delay = DO_DELAY;	}
+inline void CPU_TakeBranch( u32 new_pc ) { gCPUState.TargetPC = new_pc; gCPUState.Delay = DO_DELAY; }
 
 
 #define COUNTER_INCREMENT_PER_OP			1
@@ -195,13 +195,6 @@ static volatile u32 eventQueueLocked;
 #define LOCK_EVENT_QUEUE() CSpinLock _lock( &eventQueueLocked )
 #define RESET_EVENT_QUEUE_LOCK() eventQueueLocked = 0;
 
-/*
-enum ECPUBranchType
-{
-	CPU_BRANCH_DIRECT = 0,		// i.e. jump to a fixed address
-	CPU_BRANCH_INDIRECT,		// i.e. jump to the contents of a register
-};
-*/
 #ifdef FRAGMENT_SIMULATE_EXECUTION
 void	CPU_ExecuteOpRaw( u32 count, u32 address, OpCode op_code, CPU_Instruction p_instruction, bool * p_branch_taken );
 #endif
@@ -222,7 +215,7 @@ extern	void (* g_pCPUCore)();
 //***********************************************
 //
 // From ReadAddress
-// 
+//
 #define CPU_FETCH_INSTRUCTION(ptr, pc)								\
 	const MemFuncRead & m( g_MemoryLookupTableRead[ pc >> 18 ] );	\
 	if( DAEDALUS_EXPECT_LIKELY(m.pRead != NULL) )					\
