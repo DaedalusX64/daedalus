@@ -2,7 +2,7 @@
 * Mupen64 hle rsp - jpeg.c
 * Copyright (C) 2012 Bobby Smiles                                       *
 * Copyright (C) 2009 Richard Goedeken                                   *
-* Copyright (C) 2002 Hacktarux  
+* Copyright (C) 2002 Hacktarux
 *
 * Mupen64 homepage: http://mupen64.emulation64.com
 * email address: hacktarux@yahoo.fr
@@ -148,7 +148,7 @@ void jpeg_decode_PS(OSTask *task)
         DBGConsole_Msg(0, "jpeg_decode_PS: invalid mode %d", mode);
         return;
     }
-    
+
     const u32 subblock_count = mode + 4;
     const u32 macroblock_size = 2*subblock_count*SUBBLOCK_SIZE;
 
@@ -385,7 +385,7 @@ static void DecodeMacroblock1(s16 *macroblock, s32 *y_dc, s32 *u_dc, s32 *v_dc, 
         if (qtable != NULL) { MultSubBlocks(tmp_sb, tmp_sb, qtable, 0); }
         TransposeSubBlock(macroblock, tmp_sb);
         InverseDCTSubBlock(macroblock, macroblock);
-        
+
         macroblock += SUBBLOCK_SIZE;
     }
 }
@@ -505,7 +505,7 @@ static void RShiftSubBlock(s16 *dst, const s16 *src, u32 shift)
 
 /* Normalized such as C4 = 1 */
 #define C3   1.175875602f
-#define C6   0.541196100f       
+#define C6   0.541196100f
 #define K1   0.765366865f   //  C2-C6
 #define K2  -1.847759065f   // -C2-C6
 #define K3  -0.390180644f   //  C5-C3
@@ -548,18 +548,18 @@ static void InverseDCT1D(const float * const x, float *dst, u32 stride)
     *dst = f[1] + f[3] - e[1]; dst += stride;
     *dst = f[0] + f[2] - e[0]; dst += stride;
 }
-#undef C3  
-#undef C6  
-#undef K1  
-#undef K2  
-#undef K3  
-#undef K4  
-#undef K5  
-#undef K6  
-#undef K7  
-#undef K8  
-#undef K9  
-#undef K10 
+#undef C3
+#undef C6
+#undef K1
+#undef K2
+#undef K3
+#undef K4
+#undef K5
+#undef K6
+#undef K7
+#undef K8
+#undef K9
+#undef K10
 
 static void InverseDCTSubBlock(s16 *dst, const s16 *src)
 {
