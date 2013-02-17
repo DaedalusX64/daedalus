@@ -194,7 +194,7 @@ namespace IO
 		if( d != NULL )
 		{
 			// To support findfirstfile() API we must return the first result immediately
-			if( FindFileNext( *handle, data ) )
+			if( FindFileNext( d, data ) )
 			{
 				*handle = d;
 				return true;
