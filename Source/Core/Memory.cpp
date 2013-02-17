@@ -48,6 +48,13 @@ static const u32	MAXIMUM_MEM_SIZE( MEMORY_8_MEG );
 static void DisplayVIControlInfo( u32 control_reg );
 #endif
 
+//
+//	VirtualAlloc is only supported on Win32 architectures
+//
+#ifdef DAEDALUS_W32
+#define DAED_USE_VIRTUAL_ALLOC
+#endif
+
 void MemoryUpdateSPStatus( u32 flags );
 static void MemoryUpdateDP( u32 value );
 static void MemoryModeRegMI( u32 value );
@@ -87,16 +94,26 @@ const u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 //*****************************************************************************
 //
 //*****************************************************************************
-u32			gRamSize( MAXIMUM_MEM_SIZE );	// Size of emulated RAM
+u32			gRamSize =  MAXIMUM_MEM_SIZE;	// Size of emulated RAM
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
-u32			gTLBReadHit( 0 );
-u32			gTLBWriteHit( 0 );
+u32			gTLBReadHit  = 0;
+u32			gTLBWriteHit = 0;
+#endif
+
+#ifdef DAED_USE_VIRTUAL_ALLOC
+static void *	gMemBase = NULL;				// Virtual memory base
 #endif
 
 // ROM write support
 u32	  g_pWriteRom;
 bool  g_RomWritten;
+
+#ifdef DAEDALUS_W32
+// Ram base, offset by 0x80000000 and 0xa0000000
+u8 * g_pu8RamBase_8000 = NULL;
+u8 * g_pu8RamBase_A000 = NULL;
+#endif
 
 // Flash RAM Support
 extern u32 FlashStatus[2];
@@ -138,6 +155,37 @@ void * g_pMemoryBuffers[NUM_MEM_BUFFERS];
 bool Memory_Init()
 {
 	gRamSize = MAXIMUM_MEM_SIZE;
+
+#ifdef DAED_USE_VIRTUAL_ALLOC
+	gMemBase = VirtualAlloc(0, 512*1024*1024, MEM_RESERVE, PAGE_READWRITE);
+	if (gMemBase == NULL)
+	{
+		return false;
+	}
+
+	uintptr_t base = reinterpret_cast<uintptr_t>(gMemBase);
+
+	g_pMemoryBuffers[ MEM_RD_RAM    ] = (u8*)VirtualAlloc( (void*)(base+0x00000000),	8*1024*1024,MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEM_SP_MEM    ] = (u8*)VirtualAlloc( (void*)(base+0x04000000),	0x2000,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEM_RD_REG0   ] = (u8*)VirtualAlloc( (void*)(base+0x03F00000),	0x30,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEM_SP_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04040000),	0x20,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEM_DPC_REG   ] = (u8*)VirtualAlloc( (void*)(base+0x04100000),	0x20,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEM_MI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04300000),	0x10,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEM_VI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04400000),	0x38,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEM_AI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04500000),	0x18,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEM_PI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04600000),	0x34,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEM_RI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04700000),	0x20,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEM_SI_REG    ] = (u8*)VirtualAlloc( (void*)(base+0x04800000),	0x1C,		MEM_COMMIT, PAGE_READWRITE );
+	//cartDom2                        = (u8*)VirtualAlloc( (void*)(base+0x05000000),	0x10000,	MEM_COMMIT, PAGE_READWRITE );
+	//cartDom1                        = (u8*)VirtualAlloc( (void*)(base+0x06000000),	0x10000,	MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEM_SAVE      ] = (u8*)VirtualAlloc( (void*)(base+0x08000000),	0x20000,	MEM_COMMIT, PAGE_READWRITE );
+	//g_pMemoryBuffers[MEM_CARTROM  ] = (u8*)VirtualAlloc( (void*)(base+0x10000000),	cart_size,	MEM_COMMIT, PAGE_READWRITE);
+	g_pMemoryBuffers[ MEM_PIF_RAM   ] = (u8*)VirtualAlloc( (void*)(base+0x1FC00000),	0x800,		MEM_COMMIT, PAGE_READWRITE );
+	//cartDom4                        = (u8*)VirtualAlloc( (void*)(base+0x1FD00000),	0x10000,	MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEM_MEMPACK   ] = (u8*)VirtualAlloc( NULL,						0x20000,	MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEM_UNUSED    ] = new u8[ MemoryRegionSizes[MEM_UNUSED] ];
+
+#else
 	//u32 count = 0;
 	for(u32 m = 0; m < NUM_MEM_BUFFERS; m++)
 	{
@@ -163,7 +211,16 @@ bool Memory_Init()
 		}
 	}
 	//printf("%d bytes used of memory\n",count);
-	g_RomWritten= false;
+#endif
+
+#ifdef DAEDALUS_W32
+	g_pu8RamBase_8000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0x80000000;
+	//g_pu8RamBase_A000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0xa0000000;
+	g_pu8RamBase_A000 = ((u8*)MAKE_UNCACHED_PTR(g_pMemoryBuffers[MEM_RD_RAM])) - 0xa0000000;
+#endif
+
+	g_RomWritten = false;
+
 
 	Memory_InitTables();
 
@@ -177,6 +234,21 @@ void Memory_Fini(void)
 {
 	DPF(DEBUG_MEMORY, "Freeing Memory");
 
+#ifdef DAED_USE_VIRTUAL_ALLOC
+
+	//
+	//	We have to free this buffer separately
+	//
+	if(g_pMemoryBuffers[MEM_UNUSED])
+	{
+		delete [] reinterpret_cast< u8 * >( g_pMemoryBuffers[MEM_UNUSED] );
+		g_pMemoryBuffers[MEM_UNUSED] = NULL;
+	}
+
+	VirtualFree( gMemBase, 0, MEM_RELEASE );
+	gMemBase = NULL;
+
+#else
 	for(u32 m = 0; m < NUM_MEM_BUFFERS; m++)
 	{
 		if(g_pMemoryBuffers[m] != NULL)
@@ -185,6 +257,12 @@ void Memory_Fini(void)
 			g_pMemoryBuffers[m] = NULL;
 		}
 	}
+#endif
+
+#ifdef DAEDALUS_W32
+	g_pu8RamBase_8000 = NULL;
+	g_pu8RamBase_A000 = NULL;
+#endif
 
 	memset( g_pMemoryBuffers, 0, sizeof( g_pMemoryBuffers ) );
 }
