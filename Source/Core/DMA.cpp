@@ -192,7 +192,8 @@ void DMA_SI_CopyToDRAM( )
 #define IsDom1Addr2( x )		( (x) >= PI_DOM1_ADDR2 && (x) < 0x1FBFFFFF )
 #define IsDom1Addr3( x )		( (x) >= PI_DOM1_ADDR3 && (x) < 0x7FFFFFFF )
 #define IsDom2Addr1( x )		( (x) >= PI_DOM2_ADDR1 && (x) < PI_DOM1_ADDR1 )
-#define IsDom2Addr2( x )		( (x) >= 0x08000000 && (x) < 0x10000000 )
+#define IsDom2Addr2( x )		( (x) >= PI_DOM2_ADDR2 && (x) < PI_DOM1_ADDR2 )
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -212,6 +213,28 @@ bool DMA_HandleTransfer( u8 * p_dst, u32 dst_offset, u32 dst_size, const u8 * p_
 //*****************************************************************************
 //
 //*****************************************************************************
+static void OnCopiedRom()
+{
+	if (!gDMAUsed)
+	{
+		gDMAUsed = true;
+
+#ifdef DAEDALUS_ENABLE_OS_HOOKS
+		// Note the rom is only scanned when the ROM jumps to the game boot address
+		// ToDO: try to reapply patches - certain roms load in more of the OS after a number of transfers ?
+		Patch_ApplyPatches();
+#endif
+
+		// Set RDRAM size
+		u32 addr = (g_ROM.cic_chip != CIC_6105) ? 0x318 : 0x3F0;
+		*(u32 *)(g_pu8RamBase + addr) = gRamSize;
+
+		// Azimer's DK64 hack, it makes DK64 boot!
+		if(g_ROM.GameHacks == DK64)
+			*(u32 *)(g_pu8RamBase + 0x2FE1C0) = 0xAD170014;
+	}
+}
+
 void DMA_PI_CopyToRDRAM()
 {
 	u32 mem_address  = Memory_PI_GetRegister(PI_DRAM_ADDR_REG) & 0x00FFFFFF;
@@ -219,6 +242,9 @@ void DMA_PI_CopyToRDRAM()
 	u32 pi_length_reg = (Memory_PI_GetRegister(PI_WR_LEN_REG) & 0xFFFFFFFF) + 1;
 
 	DPF( DEBUG_MEMORY_PI, "PI: Copying %d bytes of data from 0x%08x to 0x%08x", pi_length_reg, cart_address, mem_address );
+
+	DAEDALUS_ASSERT(!IsDom1Addr1(cart_address), "The code below doesn't handle dom1/addr1 correctly");
+	DAEDALUS_ASSERT(!IsDom1Addr3(cart_address), "The code below doesn't handle dom1/addr3 correctly");
 
 	if (cart_address < 0x10000000)
     {
@@ -255,27 +281,13 @@ void DMA_PI_CopyToRDRAM()
 		}*/
 
 		//DBGConsole_Msg(0, "[YReading from Cart domain 1/addr2]");
+
+		// FIXME(strmnnrmn): this should be DOM1_ADDR3 if cart_address is > 0x1FD00000?
 		cart_address -= PI_DOM1_ADDR2;
 		CPU_InvalidateICacheRange( 0x80000000 | mem_address, pi_length_reg );
 		RomBuffer::CopyToRam( g_pu8RamBase, mem_address, gRamSize, cart_address, pi_length_reg );
 
-		if (!gDMAUsed)
-		{
-#ifdef DAEDALUS_ENABLE_OS_HOOKS
-			// Note the rom is only scanned when the ROM jumps to the game boot address
-			// ToDO: try to reapply patches - certain roms load in more of the OS after a number of transfers ?
-			Patch_ApplyPatches();
-#endif
-			gDMAUsed = true;
-
-			// Set RDRAM size
-			u32 addr = (g_ROM.cic_chip != CIC_6105) ? 0x318 : 0x3F0;
-			*(u32 *)(g_pu8RamBase + addr) = gRamSize;
-
-			// Azimer's DK64 hack, it makes DK64 boot!
-			if(g_ROM.GameHacks == DK64)
-				*(u32 *)(g_pu8RamBase + 0x2FE1C0) = 0xAD170014;
-		}
+		OnCopiedRom();
 	}
 
 	Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
