@@ -127,7 +127,7 @@ inline void SpeedHack(u32 pc, u32 new_pc)
 {
 #ifdef SPEEDHACK_INTERPRETER
 	// If jumping to the same address, this might be a busy-wait
-	if( pc == new_pc)
+	if (pc == new_pc)
 	{
 #ifdef DAEDALUS_ENABLE_DYNAREC
 		if (gTraceRecorder.IsTraceActive())
@@ -500,6 +500,7 @@ static void R4300_CALL_TYPE R4300_SDC1( R4300_CALL_SIGNATURE );
 //	this function provides a conservative result for now.
 
 // Removed entries which are handled in the dynarec - Salvy
+// FIXME(strmnnrmn): this doesn't apply to the x86 dynarec? Do we need two versions?
 //*****************************************************************************
 bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 {
