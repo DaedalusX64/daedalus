@@ -190,7 +190,7 @@ extern u8 *		gLastAddress;
 // Take advantage of the cooperative multitasking
 // of the PSP to make locking/unlocking as fast as possible.
 //
-static volatile u32 eventQueueLocked;
+extern volatile u32 eventQueueLocked;
 
 #define LOCK_EVENT_QUEUE() CSpinLock _lock( &eventQueueLocked )
 #define RESET_EVENT_QUEUE_LOCK() eventQueueLocked = 0;

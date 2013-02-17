@@ -58,8 +58,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <algorithm>
 #include <string>
 
-//#include "Utility/SpinLock.h"
-
 
 //
 //	New dynarec engine
@@ -78,6 +76,7 @@ u64									gTotalInstructionsEmulated = 0;
 std::vector< DBG_BreakPoint > g_BreakPoints;
 #endif
 
+volatile u32 eventQueueLocked = 0;
 
 
 static bool			gCPURunning				= false;			// CPU is actively running
