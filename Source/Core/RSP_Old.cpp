@@ -40,6 +40,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/ultra_rcp.h"
 #include "OSHLE/ultra_R4300.h"
 
+#ifdef DAEDALUS_W32
+#include "Interface/MainWindow.h"
+#endif
+
 #define RSP_ASSERT_Q( e )			DAEDALUS_ASSERT_Q( e )
 
 volatile bool gRSPHLEActive = false;
@@ -689,7 +693,13 @@ void RSP_DumpVectors(u32 reg1, u32 reg2, u32 reg3)
 //*****************************************************************************
 //
 //*****************************************************************************
+#if defined(DAEDALUS_W32)
+#define WARN_NOEXIST(inf) { CMainWindow::Get()->MessageBox("Instruction Unknown", inf); CPU_Halt("Instruction Unknown"); }
+//#define WARN_NOIMPL(op) { CMainWindow::Get()->MessageBox("Instruction Not Implemented", op); CPU_Halt("Instruction Not Implemented"); }
+#else
 #define WARN_NOEXIST(inf)	DAEDALUS_ERROR( "Instruction Unkown: " inf )
+#endif
+
 #define WARN_NOIMPL(op)		DAEDALUS_ERROR( "Instruction Not Implemented: " op )
 
 //*****************************************************************************
