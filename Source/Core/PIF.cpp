@@ -212,7 +212,7 @@ class	IController : public CController
 		u8 *			mpEepromData;
 		u8				mEepromContType;					// 0, CONT_EEPROM or CONT_EEP16K
 
-		u8				*mMemPack[ NUM_CONTROLLERS ];
+		u8 *			mMemPack[ NUM_CONTROLLERS ];
 
 #ifdef DAEDALUS_DEBUG_PIF
 		FILE *			mDebugFile;
@@ -243,8 +243,7 @@ IController::IController() :
 #ifdef DAEDALUS_DEBUG_PIF
 	mDebugFile = fopen( "controller.txt", "w" );
 #endif
-	u32 i;
-	for ( i = 0; i < NUM_CONTROLLERS; i++ )
+	for ( u32 i = 0; i < NUM_CONTROLLERS; i++ )
 	{
 		mContPresent[ i ] = true;
 		mContMemPackPresent[ i ] = false;
@@ -253,8 +252,8 @@ IController::IController() :
 	mContMemPackPresent[ 0 ] = true;
 
 	// Only one controller is "connected" for the PSP
-#ifdef DAEDALUS_PSP	
-	for ( i = PC_CONTROLLER_1; i < NUM_CONTROLLERS; i++ )
+#ifdef DAEDALUS_PSP
+	for ( u32 i = PC_CONTROLLER_1; i < NUM_CONTROLLERS; i++ )
 	{
 		mContPresent[ i ] = false;
 	}
@@ -291,7 +290,6 @@ bool IController::OnRomOpen()
 
 	if ( save_type == SAVE_TYPE_EEP4K )
 	{
-
 		mpEepromData = (u8*)g_pMemoryBuffers[MEM_SAVE];
 		mEepromContType = 0x80;
 		DBGConsole_Msg( 0, "Initialising EEPROM to [M%d] bytes", 4096/8 );	// 4k bits
@@ -371,7 +369,7 @@ void IController::Process()
 			continue;
 		}*/
 
-		// next channel 
+		// next channel
 		if(cmd[0] == CONT_TX_SIZE_CHANSKIP)
 		{
 			count++;
@@ -757,7 +755,3 @@ void	IController::CommandReadRTC(u8 *cmd)
 	}
 
 }
-
-
-
-
