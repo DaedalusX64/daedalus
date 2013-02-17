@@ -723,12 +723,12 @@ void ConvertCI8_IA16(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 void	ConvertCI8(const TextureDestInfo & dst, const TextureInfo & ti)
 {
-	u32 tlut_format = ti.GetTLutFormat();
-	if( tlut_format == G_TT_RGBA16 )
+	ETLutFmt tlut_format = ti.GetTLutFormat();
+	if( tlut_format == kTT_RGBA16 )
 	{
 		ConvertCI8_RGBA16( dst, ti );
 	}
-	else if( tlut_format == G_TT_IA16 )
+	else if( tlut_format == kTT_IA16 )
 	{
 		ConvertCI8_IA16( dst, ti );
 	}
@@ -739,12 +739,12 @@ void	ConvertCI8(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 void	ConvertCI4(const TextureDestInfo & dst, const TextureInfo & ti)
 {
-	u32 tlut_format = ti.GetTLutFormat();
-	if( tlut_format == G_TT_RGBA16 )
+	ETLutFmt tlut_format = ti.GetTLutFormat();
+	if( tlut_format == kTT_RGBA16 )
 	{
 		ConvertCI4_RGBA16( dst, ti );
 	}
-	else if( tlut_format == G_TT_IA16 )
+	else if( tlut_format == kTT_IA16 )
 	{
 		ConvertCI4_IA16( dst, ti );
 	}

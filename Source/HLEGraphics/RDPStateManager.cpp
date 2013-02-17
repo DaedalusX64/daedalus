@@ -259,7 +259,7 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		ti.SetWidth( tile_width );
 		ti.SetHeight( tile_height );
 		ti.SetPitch( pitch );
-		ti.SetTLutFormat( gRDPOtherMode.text_tlut );
+		ti.SetTLutFormat( (ETLutFmt)gRDPOtherMode.text_tlut );
 		ti.SetSwapped( swapped );
 		ti.SetMirrorS( rdp_tile.mirror_s );
 		ti.SetMirrorT( rdp_tile.mirror_t );
@@ -268,7 +268,7 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		if( ti.GetFormat() == G_IM_FMT_RGBA && ti.GetSize() <= G_IM_SIZ_8b ) ti.SetFormat( G_IM_FMT_CI );
 
 		// Force RGBA
-		if( ti.GetFormat() == G_IM_FMT_CI && ti.GetTLutFormat() == G_TT_NONE ) ti.SetTLutFormat( G_TT_RGBA16 );
+		if( ti.GetFormat() == G_IM_FMT_CI && ti.GetTLutFormat() == kTT_NONE ) ti.SetTLutFormat( kTT_RGBA16 );
 
 		mTileTextureInfoValid[ idx ] = true;
 	}

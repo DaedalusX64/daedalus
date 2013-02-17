@@ -22,6 +22,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/TextureFormat.h"
 
+enum ETLutFmt
+{
+	kTT_NONE = 0,	// G_TT_NONE
+	kTT_UNKNOWN,	// G_TT_UNKNOWN
+	kTT_RGBA16,		// G_TT_RGBA16
+	kTT_IA16,		// G_TT_IA16
+};
+
 struct TextureInfo
 {
 private:
@@ -69,7 +77,7 @@ public:
 	inline u32				GetWidth() const				{ return Width; }
 	inline u32				GetHeight() const				{ return Height; }
 	inline u32				GetPitch() const				{ return Pitch; }
-	inline u32				GetTLutFormat() const			{ return TLutFmt; }
+	inline ETLutFmt			GetTLutFormat() const			{ return (ETLutFmt)TLutFmt; }
 	inline u32				GetTLutIndex() const			{ return TLutIndex; }
 	inline bool				IsSwapped() const				{ return Swapped; }
 	inline bool				GetMirrorS() const				{ return MirrorS; }
@@ -83,7 +91,7 @@ public:
 	inline void				SetWidth( u32 width )			{ Width = width; }
 	inline void				SetHeight( u32 height )			{ Height = height; }
 	inline void				SetPitch( u32 pitch )			{ Pitch = pitch; }
-	inline void				SetTLutFormat( u32 format )		{ TLutFmt = format; }
+	inline void				SetTLutFormat( ETLutFmt format ){ TLutFmt = format; }
 	inline void				SetTLutIndex( u32 index )		{ TLutIndex = index; }
 	inline void				SetSwapped( bool swapped )		{ Swapped = swapped; }
 	inline void				SetMirrorS( bool mirror_s )		{ MirrorS = mirror_s; }

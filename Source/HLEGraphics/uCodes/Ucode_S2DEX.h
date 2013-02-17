@@ -281,7 +281,7 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 #else
 	ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
 #endif
-		ti.SetTLutFormat       (G_TT_RGBA16);
+		ti.SetTLutFormat       (kTT_RGBA16);
 	}
 
 
@@ -641,7 +641,7 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 #else
 	ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
 #endif
-	ti.SetTLutFormat       (G_TT_RGBA16);
+	ti.SetTLutFormat       (kTT_RGBA16);
 
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
@@ -704,7 +704,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 #else
 	ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
 #endif
-	ti.SetTLutFormat       (G_TT_RGBA16);
+	ti.SetTLutFormat       (kTT_RGBA16);
 
 
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );

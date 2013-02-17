@@ -641,7 +641,7 @@ bool	CTexture::HasExpired() const
 	if(!IsFresh())
 	{
 		//Hack to make WONDER PROJECT J2 work (need to reload some textures every frame!) //Corn
-		if( (g_ROM.GameHacks == WONDER_PROJECTJ2) && (mTextureInfo.GetTLutFormat() == G_TT_RGBA16) && (mTextureInfo.GetSize() == G_IM_SIZ_8b) ) return true;
+		if( (g_ROM.GameHacks == WONDER_PROJECTJ2) && (mTextureInfo.GetTLutFormat() == kTT_RGBA16) && (mTextureInfo.GetSize() == G_IM_SIZ_8b) ) return true;
 
 		//Hack for Worms Armageddon
 		if( (g_ROM.GameHacks == WORMS_ARMAGEDDON) && (mTextureInfo.GetSize() == G_IM_SIZ_8b) && (mTextureContentsHash != mTextureInfo.GenerateHashValue()) ) return true;
