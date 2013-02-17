@@ -537,6 +537,85 @@ void CPU_SelectCore()
 	}
 }
 
+#ifdef DAEDALUS_W32
+//*****************************************************************************
+// Thread stuff
+//*****************************************************************************
+static u32 DAEDALUS_THREAD_CALL_TYPE CPUThreadFunc( void * /*arg*/ )
+{
+	CPUMain();
+
+	return 0;
+}
+
+bool CPU_StartThread( char * p_failure_reason, u32 length )
+{
+	if (!RomBuffer::IsRomLoaded())
+	{
+		strncpy( p_failure_reason, CResourceString(IDS_NOROMLOADED), length );
+		p_failure_reason[ length - 1 ] = '\0';
+		return false;
+	}
+
+	// If the thread is already running, just return
+	if (gCPUThreadHandle != INVALID_THREAD_HANDLE)
+		return true;
+
+	// Attempt to create the thread
+	gCPUThreadHandle = CreateThread( "CPU", CPUThreadFunc, NULL );
+	if (gCPUThreadHandle == INVALID_THREAD_HANDLE)
+	{
+		strncpy( p_failure_reason, CResourceString(IDS_UNABLETOSTARTCPUTHREAD), length );
+		p_failure_reason[ length - 1 ] = '\0';
+		DBGConsole_Msg(0, "Create CPU Thread failed: %s.", p_failure_reason);
+		return false;
+	}
+
+	return true;
+}
+
+void CPU_WaitFinish()
+{
+	if(gCPUThreadHandle != INVALID_THREAD_HANDLE)
+	{
+		WaitForThreadTermination(gCPUThreadHandle, -1);
+	}
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void CPU_StopThread()
+{
+	// If it's not running, just return silently
+	if (gCPUThreadHandle == INVALID_THREAD_HANDLE)
+		return;
+
+	// If it is running, we need to signal for it to stop
+	CPU_Halt( "StopThread" );
+	Memory_SP_SetRegister(SP_STATUS_REG, SP_STATUS_HALT);
+	CPU_SelectCore();
+
+	if(gCPUThreadHandle != INVALID_THREAD_HANDLE)
+	{
+		// Wait forever for it to finish. It will clear/close gCPUThreadHandle when it exits
+		while(gCPUThreadActive && !WaitForThreadTermination(gCPUThreadHandle, 1000))
+		{
+			DBGConsole_Msg(0, "Waiting for CPU thread (0x%08x) to finish", gCPUThreadHandle);
+		}
+
+		DAEDALUS_ASSERT( !gCPUThreadActive, "How come the thread is still marked as active?" );
+
+		ReleaseThreadHandle( gCPUThreadHandle );
+		gCPUThreadHandle = INVALID_THREAD_HANDLE;
+
+		DBGConsole_Msg(0, "CPU Thread finished");
+		System_Close();
+	}
+
+}
+#endif
+
 //*****************************************************************************
 //
 //*****************************************************************************
