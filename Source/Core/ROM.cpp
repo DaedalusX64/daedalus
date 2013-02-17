@@ -361,7 +361,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	printf("ROM ID[%04X]\n", id.CartID);
 
 	g_ROM.HACKS_u32 = 0;	//Default to no game hacks
-	
+
 	switch( id.CartID )
 	{
 	case 0x324a: g_ROM.GameHacks = WONDER_PROJECTJ2;	break;

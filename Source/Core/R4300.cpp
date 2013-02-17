@@ -2908,14 +2908,14 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D( R4300_CALL_SIGNATURE )
 // Convert float to double...
 static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D_2( R4300_CALL_SIGNATURE )
 {
-    R4300_CALL_MAKE_OP( op_code );
+	R4300_CALL_MAKE_OP( op_code );
 
-    //SET_ROUND_MODE( gRoundingMode );        //XXXX Is this needed?
+	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
-    f32 fX = LoadFPR_Single( op_code.fs );
+	f32 fX = LoadFPR_Single( op_code.fs );
 
 	REG64 r;
-	
+
 	r._f64 = (f64)fX;
 
 	gCPUState.FPU[op_code.fd+0]._u32 = r._u32_0;
@@ -3679,7 +3679,7 @@ CPU_Instruction	R4300_GetInstructionHandler( OpCode op_code )
 	}
 }
 
-//Used to swap functions(apply hacks) in interpreter mode 
+//Used to swap functions(apply hacks) in interpreter mode
 void R4300_Init()
 {
 	if(g_ROM.GameHacks == BUCK_BUMBLE)
@@ -3693,11 +3693,11 @@ void R4300_Init()
 
 	// Mario Party Draft mini game, Earth Worm Jim, Tom and Jerry, Power Puff Girls
     if( g_ROM.DISABLE_SIM_CVT_D_S )
-    {
-        R4300Cop1SInstruction[Cop1OpFunc_CVT_D] = R4300_Cop1_S_CVT_D_2;
-    }
-    else
-    {
-        R4300Cop1SInstruction[Cop1OpFunc_CVT_D] = R4300_Cop1_S_CVT_D;
-    }
+	{
+		R4300Cop1SInstruction[Cop1OpFunc_CVT_D] = R4300_Cop1_S_CVT_D_2;
+	}
+	else
+	{
+		R4300Cop1SInstruction[Cop1OpFunc_CVT_D] = R4300_Cop1_S_CVT_D;
+	}
 }
