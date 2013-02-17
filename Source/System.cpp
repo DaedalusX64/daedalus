@@ -27,9 +27,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/RomSettings.h"
 
 #include "Interface/RomDB.h"
-
+#ifdef DAEDALUS_PSP
 #include "Graphics/VideoMemoryManager.h"
 #include "Graphics/GraphicsContext.h"
+#endif
 
 #ifdef DAEDALUS_W32
 #include "Interface/MainWindow.h"
@@ -158,9 +159,13 @@ SysEntityEntry SysInitTable[] =
 	{"Enable Debug Console", EnableConsole, DisableConsole},
 #endif
 	{"Controller", CController::Create, CController::Destroy},
+#ifdef DAEDALUS_PSP
 	{"VideoMemory", CVideoMemoryManager::Create, NULL},
+#endif
 	{"RomBuffer", RomBuffer::Create, RomBuffer::Destroy},
-	{"GraphicsContext", CGraphicsContext::Create,   CGraphicsContext::Destroy},
+#ifdef DAEDALUS_PSP
+	{"GraphicsContext", CGraphicsContext::Create, CGraphicsContext::Destroy},
+#endif
 };
 
 RomEntityEntry RomInitTable[] =

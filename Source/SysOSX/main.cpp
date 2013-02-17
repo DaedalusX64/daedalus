@@ -29,10 +29,9 @@ char		gDaedalusExePath[MAX_PATH+1];
 
 // FIXME
 #include "Utility/Preferences.h"
+u32					gVISyncRate 	= 1500;
 f32 				gZoomX			= 1.0;
 EFrameskipValue		gFrameskipValue = FV_DISABLED;
-u32			 Translate_IndexFromName( const char * name ) { return 0; }
-const char * Translate_NameFromIndex( u32 idx ) { return "?"; }
 
 
 int main(int argc, char **argv)
