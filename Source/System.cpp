@@ -25,17 +25,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/PIF.h"
 #include "Core/ROMBuffer.h"
 #include "Core/RomSettings.h"
-#include "Utility/Preferences.h"
-#include "Utility/Translate.h"
 
 #include "Interface/RomDB.h"
 
 #include "Graphics/VideoMemoryManager.h"
 #include "Graphics/GraphicsContext.h"
 
+#ifdef DAEDALUS_W32
+#include "Interface/MainWindow.h"
+#endif
+
 #include "Utility/FramerateLimiter.h"
 #include "Utility/Synchroniser.h"
 #include "Utility/Profiler.h"
+#include "Utility/Preferences.h"
+#include "Utility/Translate.h"
 
 #include "Input/InputManager.h"		// CInputManager::Create/Destroy
 
@@ -118,6 +122,20 @@ static void DisposeAudioPlugin()
 	}
 }
 
+#ifdef DAEDALUS_W32
+static bool EnableConsole()
+{
+	CDebugConsole::Get()->EnableConsole( true );
+
+	return true;
+}
+
+static void DisableConsole()
+{
+	CDebugConsole::Get()->EnableConsole( false );
+}
+#endif
+
 SysEntityEntry SysInitTable[] =
 {
 #ifdef DAEDALUS_DEBUG_CONSOLE
@@ -135,6 +153,10 @@ SysEntityEntry SysInitTable[] =
 	{"Language", 	 Translate_Init, NULL},
 	{"Preference", CPreferences::Create, CPreferences::Destroy},
 	{"Memory", Memory_Init, Memory_Fini},
+#ifdef DAEDALUS_W32
+	{"Main Window", CMainWindow::Create, CMainWindow::Destroy},
+	{"Enable Debug Console", EnableConsole, DisableConsole},
+#endif
 	{"Controller", CController::Create, CController::Destroy},
 	{"VideoMemory", CVideoMemoryManager::Create, NULL},
 	{"RomBuffer", RomBuffer::Create, RomBuffer::Destroy},
@@ -147,6 +169,9 @@ RomEntityEntry RomInitTable[] =
 	{"Settings", ROM_LoadFile, ROM_UnloadFile},
 	{"InputManager", CInputManager::Init, CInputManager::Fini},
 	{"Memory", Memory_Reset, Memory_Cleanup},
+#ifdef DAEDALUS_W32
+	{"Main Window", CMainWindow::StartEmu, CMainWindow::StopEmu},
+#endif
 	{"Audio", InitAudioPlugin, DisposeAudioPlugin },
 	{"Graphics", InitGraphicsPlugin, DisposeGraphicsPlugin},
 	{"FramerateLimiter", FramerateLimiter_Reset, NULL},
