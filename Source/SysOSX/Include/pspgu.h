@@ -91,12 +91,14 @@ void * sceGuGetMemory(size_t len);
 enum EGuBlendOp
 {
 	GU_ADD,
+	GU_REVERSE_SUBTRACT,
 };
 
 enum
 {
 	GU_SRC_ALPHA,
 	GU_ONE_MINUS_SRC_ALPHA,
+	GU_FIX,
 };
 
 void sceGuBlendFunc(EGuBlendOp op, int sf, int df, int a, int b);
