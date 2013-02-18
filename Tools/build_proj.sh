@@ -5,4 +5,4 @@ export PATH=$PATH:~/clang3.1/bin
 export CC=~/clang3.1/bin/clang
 export CXX=~/clang3.1/bin/clang++
 
-./build/gyp/gyp --depth=0 --toplevel-dir . ./daedalus.gyp
+./Tools/build/gyp/gyp --depth=0 --toplevel-dir . ./daedalus.gyp
