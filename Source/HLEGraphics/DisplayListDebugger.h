@@ -23,19 +23,12 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+#endif
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-
-class CDisplayListDebugger
-{
-	public:
-		virtual ~CDisplayListDebugger();
-
-		static CDisplayListDebugger *	Create();
-
-		virtual void					Run() = 0;
-};
-#endif	// DAEDALUS_DEBUG_DISPLAYLIST
+bool DLDebugger_IsDebugging();
+void DLDebugger_RequestDebug();
+bool DLDebugger_Process();
+#endif
 
 #endif // __DAEDALUS_DISPLAYLISTDEBUGGER_H__

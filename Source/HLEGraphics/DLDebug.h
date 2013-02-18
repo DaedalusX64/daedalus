@@ -51,7 +51,7 @@ extern FILE * gDisplayListFile;
 //*************************************************************************************
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) && defined( DAEDALUS_ENABLE_ASSERTS )
 
-extern bool gDebugDisplayList;
+extern void DLDebugger_RequestDebug();
 
 //
 //	Assert a condition is valid
@@ -65,7 +65,7 @@ extern bool gDebugDisplayList;
 		EAssertResult i = DaedalusAssert( #e,  __FILE__, __LINE__, __VA_ARGS__  );	\
 		if ( i == AR_BREAK )												\
 		{																	\
-			gDebugDisplayList = true;										\
+			DLDebugger_RequestDebug();										\
 		}																	\
 		else if ( i == AR_IGNORE )											\
 		{																	\
@@ -86,7 +86,7 @@ extern bool gDebugDisplayList;
 		EAssertResult i = DaedalusAssert( "", __FILE__, __LINE__, __VA_ARGS__ );		\
 		if ( i == AR_BREAK )												\
 		{																	\
-			gDebugDisplayList = true;										\
+			DLDebugger_RequestDebug();										\
 		}																	\
 		else if ( i == AR_IGNORE )											\
 		{																	\

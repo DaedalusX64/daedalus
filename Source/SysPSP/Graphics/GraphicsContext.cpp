@@ -342,7 +342,7 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 	#else
 		sceGuFinish();
 		//u32 num = sceGuFinish();
-		//if( num > DLISTSIZE ) gDebugDisplayList = true;
+		//if( num > DLISTSIZE ) DLDebugger_RequestDebug();
 		//printf("Dlist size %d bytes\n", num);
 	#endif
 	}

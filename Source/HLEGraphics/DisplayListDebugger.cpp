@@ -59,12 +59,51 @@ using std::sort;
 //
 //*****************************************************************************
 extern float	TEST_VARX, TEST_VARY;
-extern bool		gSingleStepFrames;
 extern void		PrintMux( FILE * fh, u64 mux );
+extern DebugBlendSettings gDBlend;
+
 //*****************************************************************************
 //
 //*****************************************************************************
-extern DebugBlendSettings gDBlend;
+static bool	gDebugDisplayList = false;
+static bool	gSingleStepFrames = false;
+
+
+class CDisplayListDebugger
+{
+	public:
+		virtual ~CDisplayListDebugger();
+
+		static CDisplayListDebugger *	Create();
+
+		virtual void					Run() = 0;
+};
+
+bool DLDebugger_IsDebugging()
+{
+	return gDebugDisplayList;
+}
+
+void DLDebugger_RequestDebug()
+{
+	gDebugDisplayList = true;
+}
+
+bool DLDebugger_Process()
+{
+	// DLParser_Process may set this flag, so check again after execution
+	if(gDebugDisplayList)
+	{
+		CDisplayListDebugger *	debugger = CDisplayListDebugger::Create();
+		debugger->Run();
+		delete debugger;
+		gDebugDisplayList = gSingleStepFrames;
+		gSingleStepFrames = false;
+		return true;
+	}
+
+	return false;
+}
 
 //*****************************************************************************
 //

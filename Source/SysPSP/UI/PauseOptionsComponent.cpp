@@ -64,9 +64,7 @@ namespace
 
 extern bool gTakeScreenshot;
 extern bool gTakeScreenshotSS;
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-extern bool gDebugDisplayList;
-#endif
+
 
 //*************************************************************************************
 //
@@ -366,7 +364,7 @@ void IPauseOptionsComponent::TakeScreenshot()
 //*************************************************************************************
 void IPauseOptionsComponent::DebugDisplayList()
 {
-	gDebugDisplayList = true;
+	DLDebugger_RequestDebug();
 	(*mOnResume)();
 }
 #endif

@@ -446,7 +446,6 @@ static void	DumpDynarecStats( float elapsed_time )
 #endif
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-extern bool gDebugDisplayList;
 #include "HLEGraphics/DLParser.h"
 #endif
 //*************************************************************************************
@@ -459,7 +458,7 @@ static CTimer		gTimer;
 void HandleEndOfFrame()
 {
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	if(gDebugDisplayList)
+	if(DLDebugger_IsDebugging())
 		return;
 #endif
 
