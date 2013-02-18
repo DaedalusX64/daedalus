@@ -1,0 +1,219 @@
+DaedalusX64 Beta 2 - 1 March 2009
+----------------------
+[+] Added exception handler to emulation (Chilly Willy)
+[+] Made UI selection wrap at top and bottom (Chilly Willy)
+[+] Cleaned up the ROM preferences (Chilly Willy)
+[+] ME Audio uses CPU event (CPU event system made thread-safe) (Chilly Willy)
+[+] ME Audio made conditional (Async = ME, Sync = Old Audio) (Chilly Willy)
+[+] Several Custom Blends Added (Kreationz, ShinyDude100, Wally)
+[+] Rewrote microcode detection to fix a couple of bugs (StrmnNrmn)
+[+] Added support for LOAD_UCODE, fixes a number of rendering glitches (StrmnNrmn)
+[+] Speed hack detection (howard0su)
+[+] Added JPEG support (howard0su)
+[!] Fixed Texture Update Bug causing ghosting in MarioKart (Kreationz)
+[!] Fixed an assert causing some homebrew not to run (StrmnNrmn)
+[!] Added support for FlashRam and Eeprom16k save type (howard0su)
+[!] Reworked saving/loading system (howard0su)
+[^] OSEHLE Enabled with several OSHLE commands (Small speed up)(howard0su)
+[^] Improved Audio ME code (Faster with Audio on) (Chilly Willy)
+[^] Use VFPU to handle more transform and lighting (StrmnNrmn)
+[^] Various rendering optimisations (StrmnNrmn)
+[^] Various ucodes, many games show up correctly now (Wally)
+[^] Corrected many savetypes in rom.ini (Wally)
+[~] Various code cleanup (howard0su)
+
+
+DaedalusX64 Beta 1 - 08 November 2008 (Changes from R14 Beta)
+----------------------
+[+] TV Out Support (Chilly Willy)
+[+] ME Audio Supported (Small speed-up with sound on.) (Chilly Willy)
+[+] Increased audio buffers for better sound quality (Kreationz)
+[+] Changed logo and graphics to represent new name (graphic by SynGamer)
+[!] Fixed screen shots (Chilly Willy)
+[!] Fixed an OoT custom clend Mode (Wally)
+[!] Fixed Shaking using double display lists (GoldenEye 007, others...) (idea Wally, code Kreationz)
+[!] Pause Menu Reset not working properly (Kreationz)
+[!] Fixed FPS Display and Framerate limiter (Kreationz)
+[!] Optimized code generation for fragments which branch to themselves is now optional
+	Fixes games that broke from R12-13 (Kreationz)
+[^] Improved thread communications in job manager (Hlide)
+
+R13 - 04 November 2007
+----------------------
+
+[+] Savestate support.
+[^] Improved dynarec load/store code generation to remove a branch and a couple of instructions.
+[^] Dynarec now generates much better code for fragments which branch to themselves.
+[^] Dynarec load/stores through the stack pointer are now much more efficient.
+[^] Avoid invalidating the instruction cache where possible.
+[^] Simplified CPU event handling, making it slightly more efficient.
+
+R12 - 26 June 2007
+------------------
+
+[!] Fixed issue preventing Goldeneye from being loaded.
+[!] Fixed dynarec for Goldeneye.
+[!] Fixed dynarec for Super Smash Bros.
+[!] Fix various texturing issues with 4bpp and small or non power-of-2 textures.
+[!] Fix TexRect instructions with negative s/t components.
+[!] Fixed the HUD in Mario 64 (broken in R11.)
+[!] Fixed lights in F3DEX2 microcodes.
+[+] Correctly implement instruction fetch exceptions, improving compatibility.
+[+] Improved floating point compatibility.
+[+] Correctly handle mask_s/mask_t tile values.
+[+] Implemented a few custom blend modes.
+[+] Screenshots just cover visible viewport.
+
+R11 - 06 May 2007
+-----------------
+
+[*] Large overhaul of rom settings and preferences. All settings should now be persistant.
+[+] Native support for palettised textures for faster rendering and less memory usage.
+[+] Provided a fixed size pool for all texture memory, to limit memory usage.
+[+] Expansion Pak enabled by default.
+[!] Updated rom info database to include save mechanism for many roms.
+[!] Fix memory leak in texture cache.
+[!] Fixed conversion of RGBA/32bpp textures with odd alignments.
+[!] Fix crash which occurred when recolouring textures in low memory situations.
+[^] Large rewrite of texture cache to reduce memory usage and improve performance.
+[^] Various optimisations to the way textures are looked up in the cache and installed.
+[^] Optimise offsetting/scaling of texture coordinates.
+[^] Improve performance of dynarec fragment cache and reduce memory fragmentation.
+
+R10 - 02 April 2007
+-------------------
+
+[+] Added frameskip option.
+[+] Added framerate limiting option.
+[+] Added adjustable stick deadzone.
+[+] Allow pause menu to be activated even when rom emulation has hung.
+[!] Fix crash when no roms found, added explanatory message.
+[!] Fix flickering when small number of roms found.
+[^] Fix texture hash frequency check.
+[^] Finally got code compiling with -O3 optimisation flag in GCC.
+[^] Use VFPU for InvSqrt (thanks hlide!)
+[^] Improved VFPU code for clipping and tnl (thanks Raphael!)
+[^] Improved inlining of AddTri.
+[^] Reduced time spent searching for overridden blend modes.
+[~] Remove debug console in public release builds (smaller footprint and slight speedup.)
+
+R9 - 22 February 2007
+---------------------
+
+[+] Added support for RGBA 4444 and 5551 textures
+[!] Tidied up all the texture conversion code, fixing a few bugs in the process
+[!] Fixed the width/height of FillRect calls in 1 and 2 cycle mode
+[!] Fixed a blending bug
+[^] Use 16-bit textures on the PSP to represent 16-bit N64 textures.
+[+] Added mirrored texture support
+[!] Fixed a LoadTile bug, allowing a couple of hacks to be removed
+[+] Added some new blend modes for various roms
+[!] Fixed the Tri2 command for F3DLX microcodes
+[!] Fixed a bug in busy-wait detection
+[!] Fixed a few dynarec stability issues (relating to exceptions occuring mid-trace)
+[+] Added audio support
+[+] Added the ability to dump textures (developer builds only at the moment)
+[!] Fixed screenshots. Again.
+[+] Implemented cmp.s, cvt.s, cvt.w, mtc1, mfc1, bc1f, bc1t, j, cfc1, ctc1,
+    daddu, trunc.w.s, bc1t, bc1f, bc1tl, bcifl, bnel, beql, blezl, bgtzl,
+    bltzl, blezl in dynarec
+[^] Avoid setting the branch delay flag and current PC in generated dynarec code unless necessary
+[^] Much better memory access handling in dynamically recompiled code
+[^] Use a second code buffer for generated dynarec code, to avoid polluting the instruction cache
+[+] Further improve the memory access handling in generated dynarec code
+[!] Fix register usage analysis for lwc1/swc1/mfc1/mtc1 which was preventing base registers used
+    in these instructions from being cached
+[^] Have compensation blocks restore nobbled registers, so on-trace code does't need to reload
+[+] New automatic blender
+[+] New front-end
+[+] New pause menu, with option to reset to main menu
+
+R8 - 25 August 2006
+-------------------
+
+[^] Replaced all uses of sceCtrlReadBufferPositive with sceCtrlPeekBufferPositive.
+[^] Various known value optimisations for the dynamic recompilation engine.
+[^] Various texture cache optimisations and rendering optimisations.
+[+] Implemented a new clipping method which is more efficient and gives better results.
+[-] Removed 'tesselate large triangles' setting.
+[+] Added option to reset emulator to the main menu.
+[^] No longer use index buffers for rendering.
+[^] Implement matrix multiplication using VFPU.
+[^] Implement vertex transform and lighting code using VFPU.
+[^] Implement clipping code using VFPU.
+[^] Minor AddTri optimisations.
+[^] Free background and font textures while emulator is running to free VRAM.
+[!] Fixed bug in default controller config (c-down and dpad-down were broken)
+
+R7 - 13 August 2006
+-------------------
+
+[^] Avoid checking for interrupts in dynarec code in most situations.
+[^] Optimise dynarec Load/Store instructions to avoid checking for interrupts directly.
+[^] Implemented the remaining 32-bit integer instructions in the dynarec.
+[^] Implemented the remaining commong load/store instructions in the dynarec.
+[^] Implemented JAL/JR in dynarec.
+[^] Optimised various texture cache related features.
+[^] Added various known value optimisations to the dynarec engine.
+[^] Link together blocks even when they exit with branch likely instructions.
+[+] Added option to allow frequency of texture update checks to be reduced.
+[+] Added the ability to configure buttons
+[!] Fixed a couple of compatibility issues caused by the dynarec.
+[!] Fixed a couple of issues related to self-modifying code and the dynarec.
+[!] Fixed issues with the framerate counter flickering.
+
+R6 - 19 July 2006
+-----------------
+
+[+] Added over 50 new combiner modes
+[+] Added support for c-buttons
+[+] Load roms from ms0:\N64 in addition to local roms directory
+[!] Fixed backface culling issues
+[!] Correctly implemented flipping to avoid flickering with certain roms
+[!] Plugged memory leak in texture handling code, fixing various crashes
+[!] Fixed issue which caused screenshot function to hang the emulator
+
+R5 - 15 June 2006
+-----------------
+
+[+] New DynaRec engine, resulting in significant performance improvements
+[+] New front end - ability to toggle a couple of options (more to come)
+[+] Save game first pass (eeprom4k, eeprom16k and mempak)
+[^] Various interpreting engine optimisations
+[~] Use .png fileformat for background images, save ~380KB
+[~] Stripped out unnecessary code, save ~250KB
+
+
+R4 - 05 May 2006
+----------------
+
+[!] Disable PSP FPU exceptions, enabling many roms to run.
+[!] Fixed ambient lighting bug.
+[!] Fixed scissoring.
+[~] Only create temp rom file if compressed (not swapped).
+[~] Fixed decaling offset.
+[~] Lots of combiner additions/fixes.
+
+
+R3 - 02 May 2006
+----------------
+
+[+] Added support for streaming in large roms on demand.
+[+] Various combiner (graphics) fixes.
+[!] Fixed 120K wasted memory.
+[~] Minor cosmetic (debug output) tweaks.
+[~] Stopped debug output obscuring screenshots.
+
+R2 - 01 May 2006
+----------------
+
+[+] Now runs in user-mode.
+[!] Rom selector now recognises .z64/.rom files.
+[~] Fixed various hard-coded paths.
+[~] Debug output is now correctly colourised.
+
+
+R1 - 01 May 2006
+----------------
+
+[+] Initial Release
