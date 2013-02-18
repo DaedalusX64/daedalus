@@ -26,16 +26,17 @@
 // Do not add any custom ucode table here! instead just patch any of these 5 tables for all your custom ucode needs..
 // See DLParser_SetUcode for more info
 //
-#define MAX_UCODE		5
+#define MAX_UCODE_TABLE		5
+#define IS_CUSTOM_UCODE(x)	(x>=MAX_UCODE_TABLE)
 
 typedef void(*MicroCodeInstruction)(MicroCodeCommand);
 #define UcodeFunc(name)	void name(MicroCodeCommand)
 
 extern const u32 ucode_stride[];
-extern const MicroCodeInstruction gNormalInstruction[MAX_UCODE][256];
+extern const MicroCodeInstruction gNormalInstruction[MAX_UCODE_TABLE][256];
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-extern const char * gNormalInstructionName[MAX_UCODE][256];
+extern const char * gNormalInstructionName[MAX_UCODE_TABLE][256];
 #endif
 
 UcodeFunc( DLParser_GBI1_CullDL );

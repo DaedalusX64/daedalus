@@ -81,8 +81,8 @@ TEST_DISABLE_SP_FUNCS
 u32 Patch___osSpDeviceBusy_Mario()
 {
 TEST_DISABLE_SP_FUNCS
-
-	gGPR[REG_v0]._u32_0 = IsSpDeviceBusy();
+	// This need to be 64bit, otherwise it causes a branch assumption error in interpreter
+	gGPR[REG_v0]._u64 = IsSpDeviceBusy();
 
 	return PATCH_RET_JR_RA;
 }
@@ -95,7 +95,7 @@ u32 Patch___osSpDeviceBusy_Rugrats()
 {
 TEST_DISABLE_SP_FUNCS
 
-	gGPR[REG_v0]._u32_0 = IsSpDeviceBusy();
+	gGPR[REG_v0]._u64 = IsSpDeviceBusy();
 
 	return PATCH_RET_JR_RA;
 }

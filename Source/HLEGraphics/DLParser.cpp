@@ -327,6 +327,7 @@ void DLParser_Finalise()
 //*************************************************************************************
 // This is called from Microcode.cpp after a custom ucode has been detected and cached
 // This function is only called once per custom ucode set
+// Main resaon for this function is to save memory since custom ucodes share a common table
 //	ucode:			custom ucode (ucode>= MAX_UCODE)
 //	offset:			offset to normal ucode this custom ucode is based of ex GBI0
 //*************************************************************************************
@@ -356,7 +357,6 @@ static void DLParser_SetCustom( u32 ucode, u32 offset )
 		case GBI_LL:
 			SetCommand( 0x80, DLParser_Last_Legion_0x80,	"G_Last_Legion_0x80" );
 			SetCommand( 0x00, DLParser_Last_Legion_0x00,	"G_Last_Legion_0x00" );
-			SetCommand( 0xaf, DLParser_GBI1_SpNoop,			"G_Nothing" );
 			SetCommand( 0xe4, DLParser_TexRect_Last_Legion,	"G_TexRect_Last_Legion" );
 			break;
 		case GBI_PD:
@@ -406,15 +406,13 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 {
 	u32 ucode = GBIMicrocode_DetectVersion( code_base, code_size, data_base, data_size, &DLParser_SetCustom );
 
-	const MicroCodeInstruction *p_table( (ucode<MAX_UCODE) ? gNormalInstruction[ucode] : gCustomInstruction );
-
 	gVertexStride  = ucode_stride[ucode];
 	gLastUcodeBase = code_base;
-	gUcodeFunc	   = p_table;
+	gUcodeFunc	   = IS_CUSTOM_UCODE(ucode) ? gCustomInstruction : gNormalInstruction[ucode];
 
 	// Used for fetching ucode names (Debug Only)
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-	gUcodeName = (ucode < MAX_UCODE) ? (char **)gNormalInstructionName[ ucode ] : gCustomInstructionName;
+	gUcodeName = IS_CUSTOM_UCODE(ucode) ? gCustomInstructionName : (char **)gNormalInstructionName[ucode];
 #endif
 }
 
@@ -487,11 +485,12 @@ void	DLParser_ProcessDList()
 		// Check limit
 		if (gDlistStack.limit >= 0)
 		{
-			// limit is reset to default -1 as well
 			if (--gDlistStack.limit < 0)
 			{
 				DL_PF("**EndDLInMem");
 				gDlistStackPointer--;
+				// limit is already reset to default -1 at this point
+				//gDlistStack.limit = -1;
 			}
 		}
 
@@ -523,8 +522,6 @@ void DLParser_Process()
 	}
 
 	// Update Screen only when something is drawn, otherwise several games ex Army Men will flash or shake.
-	// Update Screen earlier, otherwise several games like ex Mario won't work.
-	//
 	if( g_ROM.GameHacks != CHAMELEON_TWIST_2 ) gGraphicsPlugin->UpdateScreen();
 
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);

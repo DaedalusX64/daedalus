@@ -246,7 +246,6 @@ uObjTxtr *gObjTxtr = NULL;
 void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 {
 	TextureInfo ti;
-	static CRefPtr<CTexture> mpTexture;
 
 	if( txtr == NULL )
 	{
@@ -276,22 +275,12 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 
 		ti.SetSwapped          (0);
 		ti.SetTLutIndex        (sprite->imagePal);
-#ifdef DAEDALUS_FAST_TMEM
-	ti.SetTlutAddress	   ((u32)(gTextureMemory[0]));
-#else
-	ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
-#endif
+		ti.SetTlutAddress	   (TLUT_BASE);
 		ti.SetTLutFormat       (kTT_RGBA16);
 	}
 
-
-	if( (mpTexture != NULL) && (mpTexture->GetTextureInfo() == ti) )
-	{
-		return;
-	}
-
 	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
-	mpTexture = texture;
+	DAEDALUS_ASSERT( texture, "ObjSprite texture is NULL" );
 
 	texture->GetTexture()->InstallTexture();
 	texture->UpdateIfNecessary();
@@ -636,11 +625,7 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 	ti.SetSwapped          (0);
 
 	ti.SetTLutIndex        (objBg->imagePal);
-#ifdef DAEDALUS_FAST_TMEM
-	ti.SetTlutAddress	   ((u32)(gTextureMemory[0]));
-#else
-	ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
-#endif
+	ti.SetTlutAddress	   (TLUT_BASE);
 	ti.SetTLutFormat       (kTT_RGBA16);
 
 
@@ -699,11 +684,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 	ti.SetSwapped          (0);
 
 	ti.SetTLutIndex        (objBg->imagePal);
-#ifdef DAEDALUS_FAST_TMEM
-	ti.SetTlutAddress	   ((u32)(gTextureMemory[0]));
-#else
-	ti.SetTlutAddress	   ((u32)(&gTextureMemory[0]));
-#endif
+	ti.SetTlutAddress	   (TLUT_BASE);
 	ti.SetTLutFormat       (kTT_RGBA16);
 
 

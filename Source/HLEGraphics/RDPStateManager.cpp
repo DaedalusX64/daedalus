@@ -180,6 +180,7 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		u32		address( info.Address );
 		u32		pitch( info.Pitch );
 		bool	swapped( info.Swapped );
+		u32		tlut( TLUT_BASE );
 
 		//Check if tmem_lookup has a valid entry, if not we assume load was done on TMEM[0] and we add the offset //Corn
 		//Games that uses this is Fzero/Space station Silicon Valley/Animal crossing.
@@ -221,7 +222,6 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		//TMEM address 0x100 (gTextureMemory[ 0 ]) and calculate offset from there with TLutIndex(palette index)
 		//This trick saves us from the need to copy the real palette to TMEM and we just pass the pointer //Corn
 		//
-		u32 tlut( (u32)gTextureMemory[0] );
 		if(rdp_tile.size == G_IM_SIZ_4b)
 		{
 			u32 tlut_idx0( g_ROM.TLUT_HACK << 1 );
@@ -239,7 +239,6 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		}
 		ti.SetTlutAddress( tlut );
 #else
-		u32 tlut( (u32)(&gTextureMemory[0]) );
 		ti.SetTlutAddress( rdp_tile.size == G_IM_SIZ_4b ? tlut + (rdp_tile.palette << 5) : tlut );
 #endif
 

@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UICommand.h"
 #include "UISpacer.h"
 
+#include "HLEGraphics/DisplayListDebugger.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/GraphicsContext.h"
 #include "SysPSP/Graphics/DrawText.h"

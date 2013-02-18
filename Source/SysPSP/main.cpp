@@ -116,33 +116,9 @@ PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
 PSP_HEAP_SIZE_KB(-256);
 
 //*************************************************************************************
-// This could potentially give a false positive, but still will be valid error
-//*************************************************************************************
-// List all the errors we want to show here
-//
-static void DaedalusError(u32 version, u32 kernel_button)
-{
-	// ToDo : Add more errors for missing/damaged/old rom.db, preferences.ini ohle cache, and other prxs?
-	//
-	if( kernel_button )
-	{
-		pspDebugScreenPrintf( "	Unsupported Firmware Detected : 0x%08X\n", version );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "	Daedalus requires atleast 4.01 M33 Custom Firmware\n" );
-	}
-	else
-	{
-
-		pspDebugScreenPrintf( "	Error: imposectrl.prx is either missing or damaged" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "	Daedalus requires imposectrl to work properly for this firmware\n" );
-	}
-}
-
-//*************************************************************************************
 //Used to check for compatible FW, we don't allow anything lower than 4.01
 //*************************************************************************************
-static void DaedalusFWCheck(u32 kernel_button)
+static void DaedalusFWCheck()
 {
 // ##define PSP_FIRMWARE Borrowed from Davee
 #define PSP_FIRMWARE(f) ((((f >> 8) & 0xF) << 24) | (((f >> 4) & 0xF) << 16) | ((f & 0xF) << 8) | 0x10)
@@ -156,7 +132,7 @@ static void DaedalusFWCheck(u32 kernel_button)
 		fclose(fh);
 	}
 */
-	if( (ver < PSP_FIRMWARE(0x401)) || (ver <= PSP_FIRMWARE(0x550) && !kernel_button) )
+	if( (ver < PSP_FIRMWARE(0x401)) )
 	{
 		pspDebugScreenInit();
 		pspDebugScreenSetTextColor(0xffffff);
@@ -184,7 +160,9 @@ static void DaedalusFWCheck(u32 kernel_button)
 		pspDebugScreenPrintf( "\n" );
 		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
 		pspDebugScreenPrintf( "\n" );
-		DaedalusError( ver, kernel_button );
+		pspDebugScreenPrintf( "	Unsupported Firmware Detected : 0x%08X\n", ver );
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf( "	Daedalus requires atleast 4.01 M33 Custom Firmware\n" );
 		pspDebugScreenPrintf( "\n" );
 		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
 		sceKernelDelayThread(1000000);
@@ -312,7 +290,8 @@ static bool	Initialize()
 	printf( "Cpu now: %dMHz, Bus: %dMHz\n", scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency() );
 
 	// Set up our Kernel Home button
-	bool bKernelHomeButton = InitHomeButton();
+	//ToDo: This doesn't work properly for Vita, there's no longer a "home" button available
+	InitHomeButton();
 
 	// If (o) is pressed during boot the Emulator will use 32bit
 	// else use default 16bit color mode
@@ -321,10 +300,12 @@ static bool	Initialize()
 	if( pad.Buttons & PSP_CTRL_CIRCLE ) g32bitColorMode = true;
 	else g32bitColorMode = false;
 
-	// Check for unsupported FW
-	DaedalusFWCheck( bKernelHomeButton );
+	// Check for unsupported FW >=4.01 (We use M33 SDK 4.01)
+	// Otherwise PSP model can't be detected correctly
+	DaedalusFWCheck();
 
 	// Initiate MediaEngine
+	//Note: Media Engine is not available for Vita
 	bool bMeStarted = InitialiseJobManager();
 
 // Disable for profiling
@@ -354,11 +335,9 @@ static bool	Initialize()
 #endif
 
 	//Set up the DveMgr (TV Display) and Detect PSP Slim /3K/ Go
-	if ( kuKernelGetModel() != PSP_MODEL_STANDARD )
+	if ( kuKernelGetModel() > PSP_MODEL_STANDARD )
 	{
-		// Check if mediaengine.prx could be initiated, we need it to unlock the extra memory
-		// This tells us if the user's psp have kmode access too
-		//
+		// Can't use extra memory if ME isn't available
 		if( bMeStarted )
 			PSP_IS_SLIM = true;
 
@@ -368,7 +347,7 @@ static bool	Initialize()
 		if (PSP_TV_CABLE == 1)
 			PSP_TV_LACED = 1; // composite cable => interlaced
 		else if( PSP_TV_CABLE == 0 )
-			CModule::Unload( HAVE_DVE );	// Stop and unload dvemgr.prx since if no video cable is
+			CModule::Unload( HAVE_DVE );	// Stop and unload dvemgr.prx since if no video cable is connected
 	}
 
 	HAVE_DVE = (HAVE_DVE < 0) ? 0 : 1; // 0 == no dvemgr, 1 == dvemgr
@@ -447,6 +426,7 @@ static void	DumpDynarecStats( float elapsed_time )
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #include "HLEGraphics/DLParser.h"
+#include "HLEGraphics/DisplayListDebugger.h"
 #endif
 //*************************************************************************************
 //
