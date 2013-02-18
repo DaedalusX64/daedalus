@@ -1,0 +1,180 @@
+﻿//
+// Translation file for DaedalusX64
+// Language : Polski (Polish)
+// Last Updated : 22.02.2012
+// Version : 1.0
+// Translation by : malym45
+//
+//
+// To modify:
+// Please make sure this file is always encoded as UTF-8
+// To create a new translation please use the Default.lng inside Default.7z as base
+// Do not move/remove or translate the first line named as MAGIC NUMBER
+
+// The hash # for your language is : 7b3cb213 (Which is used to display your language name in the GUI)
+// Please check hash.txt inside Default.7z for list of hash numbers for most languages
+// Please add it below MAGIC NUMBER and make sure to translate it
+//
+
+00000000,MAGIC NUMBER
+7b3cb213,Polski
+9dc1820c,Brak dostepnej okladki
+a03fa94a,Boot:
+19db9e32,Region:
+09543b05,Rozmiar:
+08d5d6b9,Zapis:
+ee537eb0,(X) -> Laduj
+ee5b9cf1,([ ]) -> Ustawienia
+29d22763,(/\\) -> Nazwy Plikow
+7b3eaf50,(HOME) -> Wyjdz
+59466b27,(SELECT) -> Usun
+183f4586,Czy chcesz wyjsc?
+859c733e,(X) -> Potwierdz
+1e85c445,Wcisnij jakikolwiek przycisk aby kontynuowac 
+13b51271,(X) Potwierdz       (O) Odwolaj
+b7ca4f3e,Ustawienia Ogolne
+051a94d5,Romy
+9b692907,Wybrany Rom
+c1170d2b,Zapisy
+993f73ff,O programie
+a786de62,Daedalus nie znalazl zadnych romow do zaladowania.
+dcafd211,Mozesz dodac romy do katalogu \\N64\\ na swojej karcie pamieci,      
+df73ecf1,lub do katalogu Romy znajdujacego sie wewnatrz folderu Daedalus.
+d72277a0,Daedalus rozpoznaje wiele roznych typow plikow, 
+4f01e7b5,wliczajac w to .zip, .z64, .v64, .rom, .bin, .pal, .usa and .jap.
+bdd1275c,Edytuj Preferencje 
+ba9c614e,Opcje Zaawansowane 
+7f8644c8,Kody
+e8ad4e74,Rozpocznij Emulacje
+85b79ea0,Edytuj rozne preferencje dla tego romu.
+e6fa21a3,Edytuj zaawansowane opcje dla tego romu.
+037a6ee9,Wlacz i wybierz kody dla tego romu.
+88f3a4c2,Rozpocznij emulowanie wybranego romu.
+bfb757ff,Wybierz slot w ktorym zapisac
+4bd9a865,Wybierz slot z ktorego zaladowac
+11183fe7,Nie ma zapisu do zaladowania
+72b02b7e,Wybierz slot w ktorym zapisac [X:zapisz O:wroc]
+7d24bdfa,Wybierz slot z ktorego zaladowac [X:laduj O:wroc []:usun]
+26145f81,Wcisnij Trojkat aby usunac zapis                           
+0981b45a,Slot
+1670fc01,<pusto>
+6c81a8ee,Zapisywanie...
+d44916e4,Ladowanie...
+24f6055a,Wstrzymano
+57d4e678,Wybierz Slot aby Zapisac
+da257eb4,Zapisz Stan
+284f6577,Laduj/Usun Stan 
+27df9ed3,Zrob Screenshot'a
+bb5092ca,Zapisz obecny stan.
+24312e7d,Przywroc lub usun poprzednio zapisany stan.
+cdec8d9c,Zrob screenshot'a podczas wznawiania.
+4aaa99d7,Wznow Emulacje
+1e25cde5,Wroc do Glownego Menu
+79139258,Wrocic do Glownego Menu?
+17beb20d,Prawa Autorskie (C) 2008-2012 DaedalusX64 Team      
+191b0de3,Prawa Autorskie (C) 2001-2009 StrmnNrmn
+b27fe8d9,Audio HLE kodowane przez Azimer
+82a39ef2,Po informacje i aktualizacje odwiedz:
+8eb50a08,Wylaczono
+34fcd0e7,Wlaczono
+11240414,Asynchroniczny
+af304fb7,Synchroniczny  
+ec4156ec,Nieznany
+00001f35,Nie
+000e02bd,Tak
+930db968,Pelna szykosc 
+e265bfa8,Polowa szybkosci 
+55eef632,Aktualizowanie Tekstur
+ce12dd96,Pomijanie klatek
+05985a81,Powiekszanie obrazu  
+492c372a,Ograniczenie ilosc klatek
+d62ec48b,Dynamiczna Rekompilacja
+477417d2,Wysoko Poziomowa Emulacja (HLE)
+9a686c92,Dzwiek
+28675d34,Kontroler
+e3a9b7b3,Czy odswiezac tekstury pomiedzy klatkami. \nWylacz aby zwiekszyc ilosc klatek za cene jakosci grafiki w niektorych ROMach.
+37ee9082,Okresla jak wiele klatek zostanie pominietych przed wyswietleniem nowej. \nZwiekszanie tej wartosci powinno dac male przyspieszenie, \nza cene bardziej "rwacej" grafiki.  
+74b87a6d,Zwiekszanie rozmiaru obrazu, 100% jest wartoscia domyslna.
+b950b01f,Ogranicz tempo odswiezania do 50/25Hz (PAL) lub 60/30Hz (NTSC).
+48917b8a,Dynamiczna rekompilacja daje znaczne przyspieszenie w emulacji ROMow.
+ad549ea7,Uzyc skopiowanych funkcji OS (szybkie) zamiast emulowania rzeczywistych (wolne) \n(UWAGA, moze powodowac niestabilnosc i/lub zawieszac pewne ROMy).   
+e0366a74,Czy emulowac dzwiek, i czy ten proces ma byc \nasynchroniczny (szybki/"buggy") lub synchroniczny (wolny).    
+487f2ed5,Zapisz & Wroc
+54a93276,Cofnij
+beb13b0c,Potwierdz zmiany w ustawieniach i wroc.
+442b79c8,Cofnij zmiany w ustawieniach i wroc.
+2462a960,Preferencje Romu
+4c3230e6,Wlacz Kody
+c6aa2aab,Ustaw Czestotliwosc Kodow
+04564e07,Czy uzyc kodow dla tego ROMu
+b5ca15d7,Im wyzsza wartosc tym mniej kod bedzie spowalnial emulator, \nkosztem niektore kody moga nie dzialac prawidlowo.
+276e1699,Nie znaleziono kodow dla tej pozycji 
+48119424,4:3 nieskalowany (320x240)
+c9a48cf8,4:3 skalowany (362x272)
+c4d3e6cb,Pelny ekran (480x272)
+1cadb15b,Resetowac pamiec podreczna HLE?
+8ade5a3b,Resetowac ustawienia?
+7c43b365,Daedalus zostanie teraz wylaczony 
+22bc6816,Wcisnij X aby Zaczac
+02123b1a,Klasyczny
+a00e4b11,Czarny
+000cebbf,Czerwony
+bf706ca5,Zielony
+c6c78d35,Magenta
+041e9694,Niebieski
+b85ffe49,Turkusowy
+1ab89f90,Pomaranczowy
+a0d31d90,Fioletowy
+046e1a7f,Szary
+04dbb2b8,Brak
+4d60c1e6,Wyswietl Informacje
+d45b8b73,Wielkosc obrazu
+49ff4d2c,Wymus Filtr Liniowy
+f096e88f,Dodatki do Kontrolera 
+2cd3ab78,Martwe Pole Joystic'a
+23d8d78c,Uzyj Bufora Duzych ROMow 
+d228ec17,Ostrzezenie o niskim poziomie baterii
+2e167ec2,GUI Styl
+ca887fd8,GUI Kolor
+6a4df2ac,Resetuj Ustawienia
+a3bdb5f5,Czy pokazywac dodatkowe informacje podczas grania. \nNiektore tryby wyswietlania sa dostepne tylko w trybie DEBUG
+1bfe167d,Wielkosc obrazu w PSP.
+7f9bdebd,Wlacz aby wymusic filtr liniowy, moze polepszyc wyglad tekstur           
+b4478cb3,Wlacz MemPak albo RumblePak
+a342ced3,Ustaw rozmiar martwego pola dotyczy joystick'a PSP w czasie grania. \nWcisnij Start/X aby edytowac.
+67c8709b,Wylacz dla szybszego ladowania z malymi zwolnieniami podczas zmiany duzych ROMow. Ma efekt tylko podczas ladowania ROMu.  
+a53edd7e,Pozwolic Daedalus'owi informowac o niskim poziomie baterii.
+48580c6c,Przeprowadzi Cie przez resetowanie preferencji \noraz pamieci podrecznej hle do ustawien domyslnych. \nInfo : emulator zostanie wylaczony jesli ustawienia beda resetowane.      
+e1134e27,Optymalizacja Dostepu Pamieci
+f1da3d39,Clean Scene
+c75e1b17,Optymalizacja Dynamicznej Petli
+679a7a90,Podwojne Listy Wyswietlania
+5936df5c,Dopasowanie Video
+931034db,Dopasowanie Dzwieku
+73180dbe,Emulacja Mgly
+d64510cd,Wlacz dla przyspieszenia \n(UWAGA, moze powodowac niestabilnosc i/lub zawieszac pewne ROMy). 
+6be51f9b,Wymus czyszczenie bufora klatek przed dorysowywaniem czegokolwiek na ekranie.       
+cae93146,Podwojne Listy Wyswietlania wlaczone dla przyspieszenia (Dziala na wiekszosc ROMow) 
+b0b8ff1a,Czy dopasowac dzwiek do ilosci klatek (mniej przerywan i trzaskow) 
+1213a2e9,Czy dopasowac video do ilosci klatek (niektore gry beda mniej powolne)
+1a61c1b8,Wlaczyc lub wylaczyc emulacje mgly (Eksperymentalna, dziala tylko na kilka gier)
+ba9c614e,Opcje Zaawansowane
+3580e011,Ustaw minimalny i maksymalny obszar martwego pola. \nGora/Dol: Zwiekszaj lub zmniejszaj martwe pole. \nLewo/Prawo: Wybierz minimalne lub maksymalne martwe pole do ustawienia \nTrojkat: Resetuj do ustawien domyslnych Start/X: Potwierdz. \nSelect/Kolko: Odwolaj"
+f3a27e37,Ustaw Martwe Pole Joystic'a
+f4d401e4,Wybierz Jezyk
+0206e784,Jezyk
+15865cd2,16Bit Kolor Wybrany
+3f7ccd28,32Bit Kolor Wybrany
+7c7ac31a,Pozostalo
+657b212f,Bateria
+053916eb,Czas
+f5381b95,Pozostalo: --g--m
+5e53f605,Ladowanie...
+5df55264,Utworzono
+753ea645,Wydanie
+f2b17060,DaedalusX64 Wersja
+636197c3,Ustaw minimalny i maksymalny obszar martwego pola. \nGora/Dol: Zwiekszaj lub zmniejszaj martwe pole. \nLewo/Prawo: Wybierz minimalne lub maksymalne martwe pole do ustawienia \nTrojkat: Resetuj do ustawien domyslnych. Start/X: Potwierdz. \nSelect/Kolko: Odwolaj  
+000c2620,Min
+000c2302,Max
+
+

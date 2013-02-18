@@ -1,130 +1,135 @@
-Daedalus PSP R13 Readme File
-Copyright (C) 2006-2007 StrmnNrmn
+Daedalusx64 Pre-Beta 3 Readme File
+Copyright (C) 2006-2009 StrmnNrmn
+Copyright (C) 2008-2010 DaedalusX64 Team
 
-This document last edited 04 November 2007
-
-This is the binary distribution of Daedalus PSP. If you are a
-developer, you may find the source distribution more useful.
+This document last edited 20 May 2010 by Wally
 
 What is Daedalus?
 *****************
 
-Daedalus is a Nintendo64 emulator for Windows and PSP. Daedalus
+Daedalus is a Nintendo 64 emulator for Windows and PSP. Daedalus
 is named after the craftsman at King Minos's court who designed
 the labyrinth for the Minotaur.
 
 Getting the Latest Version
 **************************
+Visit http://sourceforge.net/projects/daedalusx64/ and if you can compile you may compile the latest alpha otherwise source it off the net elsewhere.
 
-Daedalus is currently hosted on sourceforge at
-http://sourceforge.net/projects/daedalus-n64. The most recent 
-version of Daedalus will always be available there (and hopefully
-mirrored on some of the other emulation/PSP sites).
 
 About this Release
 ******************
 
-This release of Daedalus for the PSP is currently in early stages
-of development. It is intended to show the potential for a N64
-emulator on the PSP, but the current release has many missing
+This release of DaedalusX64 is currently in beta stages
+of development. 
+
+As for the past releases of Daedalus PSP, this project is intended to show the potential for a N64 emulator on the PSP, but the current release has many missing
 features that make it far from usable:
 
-* There is limited savegame support.
-* Not all the N64 controls can be used simultaneously.
 * Many roms won't boot.
-* Many roms have serious graphical glitches.
-* Many roms have random lockups and crashes.
+* Some roms have serious graphical glitches.
+* Various roms have random lockups and crashes.
 * Many roms run at a low framerate.
 
-Having said all that, I believe most of these problems can be
-overcome in the future.
+Having said all that, We believe most of these problems can be
+overcome in the near future.
 
-Using Daedalus
+
+Compatibility List / Forums 
+http:// compat.daedalusx64.com / http://www.daedalusx64.com
+***************************
+
+Please check the compatibility list frequently as changes may be made to specific versions which could mean your favourite game might start working.
+
+We would also like you to register on the forums which would give you many benefits such as:
+a) ability to update the compatibility list and report bugs.
+b) ability to possibly join the team as a tester / developer if interested.
+c) tell us any ideas you may have for the emulator.
+d) join a great community.
+
+
+
+Using Daedalusx64
 **************
 
 Installation
 ------------
 
-Copy the Daedalus folder to the \PSP\GAME\ folder on your PSP (for
-the v1.5+ firmware release you should also copy across the Daedalus% 
-folder). 
+Copy the Daedalus folder to the \PSP\GAME\ folder on your PSP.
 
-See the Homebrew FAQ on qj.net for more information on 
-how to get homebrew running on your particular version of firmware:
-http://forums.qj.net/showpost.php?p=14662&postcount=2
+Daedalus requires Custom Firmware 4.00 or higher, failing to install CFW 4.00 or higher will mean Daedalus does not load past the firmware check screen.
 
-The PSP Homebrew FAQ is also a good reference:
-http://www.psp-homebrew.eu/faq/index.php
+
+Upgrade Procedure
+------------
+
+Get the latest build from subversion / compiled in mirror
+Remove all HLE files from the SaveGames folder
+Remove rom.db and preferences.ini 
+
+This will ensure that Daedalus is fresh.
 
 Roms
 ----
 
-Roms should be copied to the Roms subdirectory within the
-Daedalus folder. Daedalus recognises most roms formats (.v64, .z64,
-.rom etc) and will also run roms compressed within .zip files.
+Roms can be placed in two locations, either the Daedalus Folder Rom directory or you can create a directory in the root of the memory stick (eg: F:\N64\).
 
-NB: Recent versions of Daedalus will also load any roms found
-within the  \N64\ directory on your PSP. Note that this is in the
-*root* directory of your PSP (e.g. for me it appears as P:\N64\ when 
-I open the USB connection in Windows).
+Daedalus supports most rom formats (.v64, .z64, .rom etc)
 
-When Daedalus boots with a zipped rom, for performance reasons it
-will attempt to decompress it to a temporary file on your memory 
-stick before execution. If you are low on free space, it is 
-recommended that you keep the original rom file on your PC, and 
-manually extract the rom to your Roms directory.
+We support zipped roms, however if zipped the rom will extract itself onto the memory stick anyway so it defeats the purpose of having a zipped rom. If you are running low on space, it is recommended that you extract the rom you want into the Rom Directory.
+
 
 Preview Pictures
 ----------------
 
-Preview pictures for the rom selection screen can be added to the 
-Resources\Preview directory in the Daedalus folder. They should be
-in .png format, in a 4:3 aspect ratio.
+All previews are included in a stable release or on subversion.
 
-To let Daedalus know which picture to use for each rom, you need to
-add a line to the corresponding entry in the main daedalus.ini file,
+Preview pictures can be found in Resources\Preview which you can modify to your liking.
+The Pictures are required to be in .png format, in a 4:3 aspect ratio.
+
+To let Daedalusx64 know which picture to use for each rom, you need to
+add a line to the corresponding entry in the main roms.ini file,
 with this format:
 
 Preview=<filename.png>
 
-Where <filename.png> is the name of the .png file. Don't include any
-directory names in the path.
-
 Save Games
 ----------
 
-Currently Daedalus PSP has limited support for the following save
-game types:
-
-4Kb Eeprom
-16Kb Eeprom
-Mempack
+All the save game types are currently supported, if you have issues saving any game,
+check the roms.ini and make sure the save type is correct.
 
 Save games are created with the same name as the rom file, in the
-Daedalus/SaveGames/ directory.
+Daedalusx64/SaveGames/ directory.
 
 IMPORTANT NOTE: For performance reasons Daedalus only saves out
 modified save game files when the Pause menu is accessed (by pressing
-the 'Select' button while the emulator is running). I'll look at removing
-this restriction ASAP, alongside adding SRAM support.
+the 'home' button while the emulator is running). I'll look at removing
+this restriction ASAP.
+
+Save States
+----------
+
+All the save states are created using this name format : SaveSlotXX.ss ( XX can be from 0 to 15 )
+Save States are saved by default at Daedalusx64/SaveStates/<gamename>/
+But you can also create this directory ms0:/n64/SaveSates and Daedalus will use this directory
+for save state creation and loading. 
+
+In total there's 16 slots for save states, each game has its own 16 slots to choose.
+You can delete any save state easily, just choose the slot you want to delete and press square and then press triangle to confirm.
 
 Main Menu
 ---------
 
-When you run Daedalus, it will present you with a list of all the roms
-it could find in your Roms subdirectory. Use the dpad or analogue stick
-to navigate to the desired rom, and press X or Start to select it.
-A new screen is displayed from which you can select to edit preferences
-for the rom or start emulation. 
-
-You can use the left and right shoulder buttons to cycle between other
-options screens in Daedalus. 
+When you first run DaedalusX64 you will be presented with a nice coverflow menu (Devs will get a listing)
+to select a game you will press DPad left or right then X to select a title, 
+there's various options you can choose from in the menu, every option is explained.
+To cycle through options screens use the left and right shoulder buttons
 
 Pause Menu
 ----------
 
 When a rom is running, you can access the Pause Menu by pressing the 
-'Select' button.
+'Home' button.
 
 From the Pause Menu you can use the left and right shoulder buttons to
 access various option screens. You can use the Pause Menu to take screenshots
@@ -132,12 +137,12 @@ and reset the emulator to the main menu. Screenshots are saved under
 the Dumps/<gamename>/ScreenShots/ directory in the Daedalus folder on your
 memory stick.
 
-You can press the 'Select' button again to quickly return to the emulator.
+You can press the 'Home' button again to quickly return to the emulator.
 
 Controls
 --------
 
-When (and indeed if :) the rom runs, the following controls are mapped
+When and indeed if :) the rom runs, the following controls are mapped
 by default:
 
 N64					PSP
@@ -150,28 +155,44 @@ Z					^ (Triangle)
 L Trigger			L Trigger
 R Trigger			R Trigger
 C buttons			Dpad (Circle unpressed)
+Menu 				Home
 
-As of R7 Daedalus now allows user-configurable controls to be specified.
+Daedalusx allows user-configurable controls to be specified.
 The desired controls can be chosen from the Rom Settings screen.
 
 In order to define your own controller configuration you need to add a 
 new .ini file to the Daedalus/ControllerConfigs directory. There are a
 few examples provided which should give an overview of what is possible.
-I will look at providing a more thorough tutorial shortly.
 
-Support, Bugs, Comments etc
-***************************
 
-If you feel the need to get in touch, I can be contacted at:
+Helping us Develop Daedalusx64
+******************************
+Join us on the forums, post detailed logs for your title of choice, its recommended you include screenshots, save states and if possible debug logs.
 
-					strmnnrmn@gmail.com
+To be rewarded official tester Status, you must remain active and post useful, clear and precise information for everyone to read then elected by staff.
 
-I've been deluged with mail since the first release of this emulator,
-so apologies if I don't get back to you immediately.
+
+Support, Comments, Chat 
+***********************
+
+www.DaedalusX64.com
+
+irc.freenode.net #daedalusx64
 
 Credits
 *******
 
+A big thanks to all our testers, developers and the believers for giving us a hand when we need it.
+
+A huge thanks to the pspdev guys for all their work.
+
+A huge thanks to StrmnNrmn for getting the ball rolling with this excellent emulator and for providing tips to our developers when he can. StrmnNrmn leads a busy life and due to that he sadly can not contribute to the emulator himself.
+
+Another huge thanks to Rice and the Glide2X Napalm team for giving us access to source code and their brains.
+
+
+
+StrmnNrmns Credits:
 The Audio HLE code used in Daedalus was adapted from Azimer's great
 plugin for PC-based emulators. Thanks Azimer! Drop me a line!
 
@@ -182,7 +203,6 @@ know who you are.
 Hello to everyone I used to know in the N64 emulation scene back in 2001 -
 hope you are all doing well!
 
-A huge thanks to the pspdev guys for all their work.
 
 Many thanks to 71M for giving me the inspiration to get this ported over
 and lots of pointers along the way.
