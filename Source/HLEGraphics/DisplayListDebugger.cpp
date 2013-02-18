@@ -790,9 +790,9 @@ void CTextureExplorerDebugMenuOption::Update( const SPspPadState & pad_state, fl
 	if(mDisplayTexture)
 	{
 		const float STICK_ADJUST_PIXELS_PER_SECOND = 256.0f;
-		if(pspFpuAbs(pad_state.Stick.x) < 0.001f && pspFpuAbs(pad_state.Stick.y) < 0.001f)
+		if(fabsf(pad_state.Stick.x) < 0.001f && fabsf(pad_state.Stick.y) < 0.001f)
 		{
-			mTextureOffset *= vfpu_powf( 0.997f, elapsed_time * 1000.0f );
+			mTextureOffset *= powf( 0.997f, elapsed_time * 1000.0f );
 		}
 		else
 		{
