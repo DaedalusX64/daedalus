@@ -330,7 +330,7 @@ void DLParser_Finalise()
 //	ucode:			custom ucode (ucode>= MAX_UCODE)
 //	offset:			offset to normal ucode this custom ucode is based of ex GBI0
 //*************************************************************************************
-void DLParser_SetCustom( u32 ucode, u32 offset )
+static void DLParser_SetCustom( u32 ucode, u32 offset )
 {
 	memcpy( &gCustomInstruction, &gNormalInstruction[offset], 1024 ); // sizeof(gNormalInstruction)/MAX_UCODE
 
@@ -404,7 +404,7 @@ void DLParser_SetCustom( u32 ucode, u32 offset )
 //*****************************************************************************
 void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size )
 {
-	u32 ucode = GBIMicrocode_DetectVersion( code_base, code_size, data_base, data_size );
+	u32 ucode = GBIMicrocode_DetectVersion( code_base, code_size, data_base, data_size, &DLParser_SetCustom );
 
 	const MicroCodeInstruction *p_table( (ucode<MAX_UCODE) ? gNormalInstruction[ucode] : gCustomInstruction );
 

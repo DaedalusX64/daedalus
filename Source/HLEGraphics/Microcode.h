@@ -41,7 +41,11 @@ enum GBIVersion
 //*****************************************************************************
 // Function
 //*****************************************************************************
-u32	 GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
+typedef void (*CustomMicrocodeCallback)( u32 ucode, u32 offset );
+
+u32	 GBIMicrocode_DetectVersion( u32 code_base, u32 code_size,
+								 u32 data_base, u32 data_size,
+								 CustomMicrocodeCallback custom_callback );
 void GBIMicrocode_Reset();
 
 #endif // MICROCODE_H__

@@ -28,8 +28,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // In theory we should never reach this max
 #define MAX_UCODE_CACHE_ENTRIES 6
 
-extern void DLParser_SetCustom( u32 ucode, u32 offset );
-
 
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
@@ -171,16 +169,15 @@ static void GBIMicrocode_Custom( u32 code_hash, u32 &ucode_version, u32 &ucode_o
 
 }
 
-u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size )
+u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size, CustomMicrocodeCallback custom_callback )
 {
-	u32 i;
 	// I think only checking code_base should be enough..
 	u32 idx( code_base + data_base );
-	//
 
 	// Cheap way to cache ucodes, don't check for strings (too slow!) but check last used ucode entries which is alot faster than string comparison.
 	// This only needed for GBI1/2/SDEX ucodes that use LoadUcode, else we only check when code_base changes, which usually never happens
 	//
+	u32 i;
 	for( i = 0; i < MAX_UCODE_CACHE_ENTRIES; i++ )
 	{
 		const UcodeInfo &used( gUcodeInfo[ i ] );
@@ -242,7 +239,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	else
 	{
 		// If this a custom ucode, let's build an array based from ucode_offset
-		DLParser_SetCustom( ucode_version, ucode_offset );
+		custom_callback( ucode_version, ucode_offset );
 	}
 
 	//
