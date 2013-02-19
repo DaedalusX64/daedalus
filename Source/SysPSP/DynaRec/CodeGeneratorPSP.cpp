@@ -44,9 +44,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 using namespace AssemblyUtils;
 
-//Enable unaligned load/store(used in OOT and PD) //Corn
-//#define ENABLE_LWR_LWL
-//#define ENABLE_SWR_SWL
+//Enable unaligned load/store(used in CBFD, OOT and PD) //Corn
+#define ENABLE_LWR_LWL
+#define ENABLE_SWR_SWL
 
 //Enable to load/store floats directly to/from FPU //Corn
 #define ENABLE_LWC1
@@ -69,8 +69,10 @@ using namespace AssemblyUtils;
 
 extern "C" { const void * g_MemoryLookupTableReadForDynarec = g_MemoryLookupTableRead; }	//Important pointer for Dynarec see DynaRecStubs.s
 
-extern "C" { void _DMULTU( u32 A_LSB, u32 A_MSB, u32 B_LSB, u32 B_MSB ); }	//unsigned 64bit multiply  //Corn
-extern "C" { void _DMULT( u32 A_LSB, u32 A_MSB, u32 B_LSB, u32 B_MSB ); }	//signed 64bit multiply (result is 64bit not 128bit!)  //Corn
+extern "C" { void _DDIV( s64 Num, s32 Div ); }	//signed 64bit division  //Corn
+extern "C" { void _DDIVU( u64 Num, u32 Div ); }	//unsigned 64bit division  //Corn
+extern "C" { void _DMULTU( u64 A, u64 B ); }	//unsigned 64bit multiply  //Corn
+extern "C" { void _DMULT( s64 A, s64 B ); }	//signed 64bit multiply (result is 64bit not 128bit!)  //Corn
 
 extern "C" { u64 _FloatToDouble( u32 _float); }	//Uses CPU to pass f64/32 thats why its maskerading as u64/32 //Corn
 extern "C" { u32 _DoubleToFloat( u64 _double); }	//Uses CPU to pass f64/32 thats why its maskerading as u64/32 //Corn
@@ -1447,7 +1449,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 
 #ifdef ENABLE_LWR_LWL
 	case OP_LWL:		GenerateLWL( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_LWR:		if(g_ROM.GameHacks != CONKER) { GenerateLWR( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; } break;
+	case OP_LWR:		GenerateLWR( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
 #endif
 
 	case OP_SB:			GenerateSB( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
@@ -1516,8 +1518,10 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		case SpecOp_DIV:	GenerateDIV( rs, rt );		handled = true; break;
 		case SpecOp_DIVU:	GenerateDIVU( rs, rt );		handled = true; break;
 
-		case SpecOp_DMULTU:	GenerateDMULTU( rs, rt );	handled = true; break;
 		case SpecOp_DMULT:	GenerateDMULT( rs, rt );	handled = true; break;
+		case SpecOp_DMULTU:	GenerateDMULTU( rs, rt );	handled = true; break;
+		//case SpecOp_DDIVU:	GenerateDDIVU( rs, rt );	handled = true; break;
+		//case SpecOp_DDIV:	GenerateDDIV( rs, rt );	handled = true; break;
 
 		case SpecOp_ADD:	GenerateADDU( rd, rs, rt );	handled = true; break;
 		case SpecOp_ADDU:	GenerateADDU( rd, rs, rt );	handled = true; break;
@@ -1916,6 +1920,16 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 
 	EPspReg		reg_base( GetRegisterAndLoadLo( n64_base, PspReg_A0 ) );
 	EPspReg		reg_address( reg_base );
+
+    if( load_op == OP_LWL )
+    {
+        load_op = OP_LW;
+        ADDIU( PspReg_A0, reg_address, offset );    // base + offset
+        ANDI( PspReg_A3, PspReg_A0, 3 );    //copy low 2 bits to A3
+		XOR( PspReg_A0, PspReg_A0, PspReg_A3);	//Zero low 2 bits in address
+        reg_address = PspReg_A0;
+        offset = 0;
+    }
 
 	if( (n64_base == N64Reg_SP) | (gMemoryAccessOptimisation & mQuickLoad) )
 	{
@@ -2751,7 +2765,47 @@ inline void	CCodeGeneratorPSP::GenerateSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 }
 
 //*****************************************************************************
-//
+//64bit unsigned division //Corn
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateDDIVU( EN64Reg rs, EN64Reg rt )
+{
+	mMultIsValid = false;
+	mPreviousLoadBase = N64Reg_R0;	//Invalidate
+	mPreviousStoreBase = N64Reg_R0;	//Invalidate
+
+	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
+	EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_A1 ) );
+	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A2 ) );
+
+	if( reg_lo_a != PspReg_A0 ) OR( PspReg_A0, PspReg_R0, reg_lo_a);
+	if( reg_hi_a != PspReg_A1 ) OR( PspReg_A1, PspReg_R0, reg_hi_a);
+	if( reg_lo_b != PspReg_A2 ) OR( PspReg_A2, PspReg_R0, reg_lo_b);
+
+	JAL( CCodeLabel( (void*)_DDIVU ), true );
+}
+
+//*****************************************************************************
+//64bit signed division //Corn
+//*****************************************************************************
+inline void	CCodeGeneratorPSP::GenerateDDIV( EN64Reg rs, EN64Reg rt )
+{
+	mMultIsValid = false;
+	mPreviousLoadBase = N64Reg_R0;	//Invalidate
+	mPreviousStoreBase = N64Reg_R0;	//Invalidate
+
+	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
+	EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_A1 ) );
+	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A2 ) );
+
+	if( reg_lo_a != PspReg_A0 ) OR( PspReg_A0, PspReg_R0, reg_lo_a);
+	if( reg_hi_a != PspReg_A1 ) OR( PspReg_A1, PspReg_R0, reg_hi_a);
+	if( reg_lo_b != PspReg_A2 ) OR( PspReg_A2, PspReg_R0, reg_lo_b);
+
+	JAL( CCodeLabel( (void*)_DDIV ), true );
+}
+
+//*****************************************************************************
+//64bit unsigned multiply //Corn
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateDMULTU( EN64Reg rs, EN64Reg rt )
 {
@@ -2769,13 +2823,11 @@ inline void	CCodeGeneratorPSP::GenerateDMULTU( EN64Reg rs, EN64Reg rt )
 	if( reg_lo_b != PspReg_A2 ) OR( PspReg_A2, PspReg_R0, reg_lo_b);
 	if( reg_hi_b != PspReg_A3 ) OR( PspReg_A3, PspReg_R0, reg_hi_b);
 
-	JAL( CCodeLabel( (void*)_DMULTU ), true );	//Unsigned MULTIPLY 64bit
-	//SW(PspReg_R0, PspReg_R0, 0);
-//printf("ops\n");
+	JAL( CCodeLabel( (void*)_DMULTU ), true );
 }
 
 //*****************************************************************************
-//
+//64bit signed multiply //Corn
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateDMULT( EN64Reg rs, EN64Reg rt )
 {
@@ -2793,9 +2845,7 @@ inline void	CCodeGeneratorPSP::GenerateDMULT( EN64Reg rs, EN64Reg rt )
 	if( reg_lo_b != PspReg_A2 ) OR( PspReg_A2, PspReg_R0, reg_lo_b);
 	if( reg_hi_b != PspReg_A3 ) OR( PspReg_A3, PspReg_R0, reg_hi_b);
 
-	JAL( CCodeLabel( (void*)_DMULT ), true );	//Unsigned MULTIPLY 64bit
-	//SW(PspReg_R0, PspReg_R0, 0);
-//printf("ops\n");
+	JAL( CCodeLabel( (void*)_DMULT ), true );
 }
 
 //*****************************************************************************
@@ -3847,9 +3897,18 @@ inline void	CCodeGeneratorPSP::GenerateLDC1( u32 address, bool set_branch_delay,
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateLWL( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset )
 {
-	EPspReg	reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
+ 	//Will return the value in PspReg_V0 and the shift in PspReg_A3
+	GenerateLoad( address, PspReg_V0, base, offset, OP_LWL, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+  
+	EPspReg	reg_dst( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
-	GenerateLoad( address, reg_dst, base, offset, OP_LWL, 3, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	SLL( PspReg_A3, PspReg_A3, 0x3 );    // shift *= 8
+    NOR( PspReg_A2, PspReg_R0, PspReg_R0 );    // Load 0xFFFFFFFF
+    SLLV( PspReg_A2, PspReg_A3, PspReg_A2 );    // mask <<= shift
+    NOR( PspReg_A2, PspReg_A2, PspReg_R0 ); // mask != mask
+    SLLV( PspReg_A3, PspReg_A3, PspReg_V0 );    // memory <<= shift
+    AND( reg_dst, reg_dst, PspReg_A2 ); // reg_dst & mask
+    OR( reg_dst, reg_dst, PspReg_A3 );    // reg_dst | memory
 
 	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
@@ -3859,9 +3918,18 @@ inline void	CCodeGeneratorPSP::GenerateLWL( u32 address, bool set_branch_delay, 
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateLWR( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset )
 {
-	EPspReg	reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
+	//Will return the value in PspReg_V0 and the shift in PspReg_A3
+	GenerateLoad( address, PspReg_V0, base, offset, OP_LWL, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	
+	EPspReg	reg_dst( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
-	GenerateLoad( address, reg_dst, base, offset, OP_LWR, 3, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
+	SLL( PspReg_A3, PspReg_A3, 0x3 );    // shift *= 8
+    ADDIU( PspReg_A2, PspReg_R0, 0xFF00 );    // Load 0xFFFFFF00
+    SLLV( PspReg_A2, PspReg_A3, PspReg_A2 );    // mask <<= shift
+    AND( reg_dst, reg_dst, PspReg_A2 ); // reg_dst & mask
+    XORI( PspReg_A3, PspReg_A3, 0x18 ); // shift ^= shift (eg. invert shift)
+    SRLV( PspReg_A3, PspReg_A3, PspReg_V0 );    // memory >>= shift
+    OR( reg_dst, reg_dst, PspReg_A3 );    // reg_dst | memory
 
 	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }

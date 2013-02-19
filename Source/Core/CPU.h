@@ -122,8 +122,10 @@ ALIGNED_TYPE(struct, SCPUState, CACHE_ALIGN)
 
 	REG32			Temp1;				// 0x2A0	Temp storage Dynarec
 	REG32			Temp2;				// 0x2A4	Temp storage Dynarec
+	REG32			Temp3;				// 0x2A8	Temp storage Dynarec
+	REG32			Temp4;				// 0x2AC	Temp storage Dynarec
 
-	CPUEvent		Events[ MAX_CPU_EVENTS ];	// 0x2A8 //In practice there should only ever be 2 CPU_EVENTS
+	CPUEvent		Events[ MAX_CPU_EVENTS ];	// 0x2B0 //In practice there should only ever be 2 CPU_EVENTS
 	u32				NumEvents;
 
 	void			AddJob( u32 job );
