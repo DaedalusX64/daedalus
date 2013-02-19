@@ -334,21 +334,22 @@ void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
 		y0 = objY;
 		x1 = objW - 1.0f;
 		y1 = objH - 1.0f;
-
+		
 		// Used by Worms
-		if( sprite->imageFlags & 0x01 )	//Flip X
+		if( sprite->imageFlags&1 )
 		{
-			PSPRenderer::Get()->Draw2DTextureR(x1, y0, x0, y0, x0, y1, x1, y1, imageW, imageH);
-		}
-		else if( sprite->imageFlags & 0x10 )	//Flip Y(?)
-		{
-			PSPRenderer::Get()->Draw2DTexture(x1, y1, x0, y0, 0, 0, imageW, imageH);
-		}
-		else	//No Flip
-		{
-			PSPRenderer::Get()->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
+			f32 temp = x0;
+			x0 = x1;
+			x1 = temp;
 		}
 
+		if( sprite->imageFlags&0x10 )
+		{
+			f32 temp = y0;
+			y0 = y1;
+			y1 = temp;
+		}
+		PSPRenderer::Get()->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
 		break;
 	}
 }

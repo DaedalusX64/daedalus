@@ -97,7 +97,6 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, u32 address )
 
 	ti.SetSwapped           (false);
 
-	// Proper way, sets tlut index and pointer addr correctly which fixes palette issues in Wipeout/Flying dragon...
 	ti.SetTLutIndex        (0);
 	ti.SetTlutAddress      ((u32)(g_pu8RamBase + RDPSegAddr(sprite->tlut)));
 
@@ -109,36 +108,34 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, u32 address )
 	texture->GetTexture()->InstallTexture();
 	texture->UpdateIfNecessary();
 
-	int imageX, imageY, imageW, imageH;
+	s32 frameX, frameY, frameW, frameH, temp;
 
-	imageX              = sprite->imageX;
-	imageY              = sprite->imageY;
-	imageW              = sprite->width;
-	imageH              = sprite->height;
-
-	int frameX, frameY, frameW, frameH;
+	//imageX              = sprite->imageX;
+	//imageY              = sprite->imageY;
+	//imageW              = sprite->width;
+	//imageH              = sprite->height;
 
 	frameX              = px;
 	frameY              = py;
 	frameW              = (sprite->width / g_Sprite2DInfo.scaleX) + px;
 	frameH              = (sprite->height / g_Sprite2DInfo.scaleY) + py;
 
-	// Wipeout sets this, doesn't seem to do anything?
-	/*if( g_Sprite2DInfo.flipX )
+	// SSV uses this
+	if( g_Sprite2DInfo.flipX )
 	{
-		int temp = frameX;
+		temp = frameX;
 		frameX = frameW;
 		frameW = temp;
 	}
 
 	if( g_Sprite2DInfo.flipY )
 	{
-		int temp = frameY;
+		temp = frameY;
 		frameY = frameH;
 		frameH = temp;
-	}*/
+	}
 
-	PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );
+	PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, 0.0f, 0.0f, (float)sprite->width, (float)sprite->height );
 }
 
 //*****************************************************************************
