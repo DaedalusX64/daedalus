@@ -13,5 +13,6 @@ Source/SysPSP/MediaEnginePRX/MediaEngine.S
 Dumps/
 Roms/
 SaveGames/
+out/
 preferences.ini
 rom.db
