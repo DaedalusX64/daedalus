@@ -52,6 +52,8 @@ class IGraphicsContext : public CGraphicsContext
 
 	virtual void SetDebugScreenTarget( ETargetSurface buffer ) {}
 
+	virtual void ViewportType( u32 * d_width, u32 * d_height ) {}
+
 	virtual void DumpNextScreen() {}
 	virtual void DumpScreenShot() {}
 
