@@ -16,8 +16,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Daedalus", "Daedalus.vcproj
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DveMgr", "Source\SysPSP\DveMgr\DveMgr.vcproj", "{E5DED0CD-E3CE-41C3-A897-3118DEBF903E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExceptionHandler", "Source\SysPSP\ExceptionHandler\prx\ExceptionHandler.vcproj", "{608F235D-9916-4F79-92D9-BB4C4634FDD8}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Daedalus = Debug|Daedalus
@@ -38,8 +36,6 @@ Global
 		{FFEBAAB5-6434-4EFE-B588-801D3349D631}.Release|Daedalus.Build.0 = Release|Win32
 		{E5DED0CD-E3CE-41C3-A897-3118DEBF903E}.Debug|Daedalus.ActiveCfg = Debug|Win32
 		{E5DED0CD-E3CE-41C3-A897-3118DEBF903E}.Release|Daedalus.ActiveCfg = Release|Win32
-		{608F235D-9916-4F79-92D9-BB4C4634FDD8}.Debug|Daedalus.ActiveCfg = Debug|Win32
-		{608F235D-9916-4F79-92D9-BB4C4634FDD8}.Release|Daedalus.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
