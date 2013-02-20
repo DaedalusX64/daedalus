@@ -234,7 +234,7 @@ u32 Patch_sqrtf()
 TEST_DISABLE_MATH_FUNCS
 	f32 f = gCPUState.FPU[12]._f32;
 
-	gCPUState.FPU[00]._f32 = pspFpuSqrt(f);
+	gCPUState.FPU[00]._f32 = Sqrt(f);
 
 	return PATCH_RET_JR_RA;
 }
@@ -251,7 +251,7 @@ TEST_DISABLE_MATH_FUNCS
 
 	//DBGConsole_Msg(0, "sinf(%f) (ra 0x%08x)", f, gGPR[REG_ra]._u32_0);
 
-	gCPUState.FPU[00]._f32 = vfpu_sinf(f);
+	gCPUState.FPU[00]._f32 = sinf(f);
 
 /*	g_dwNumCosSin++;
 	if ((g_dwNumCosSin % 100000) == 0)
@@ -273,7 +273,7 @@ TEST_DISABLE_MATH_FUNCS
 	f32 f = gCPUState.FPU[12]._f32;
 	//DBGConsole_Msg(0, "cosf(%f) (ra 0x%08x)", f, gGPR[REG_ra]._u32_0);
 
-	gCPUState.FPU[00]._f32 = vfpu_cosf(f);
+	gCPUState.FPU[00]._f32 = Cosf(f);
 
 /*	g_dwNumCosSin++;
 	if ((g_dwNumCosSin % 100000) == 0)

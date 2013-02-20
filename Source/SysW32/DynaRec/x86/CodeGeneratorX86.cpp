@@ -42,7 +42,8 @@ using namespace AssemblyUtils;
 
 static const u32		NUM_MIPS_REGISTERS( 32 );
 static const u32		INTEL_REG_UNUSED( ~0 );
-
+// XX this optimisation works very well on the PSP, option to disable it was removed
+static const bool		gDynarecStackOptimisation = true;
 //*****************************************************************************
 //	XXXX
 //*****************************************************************************

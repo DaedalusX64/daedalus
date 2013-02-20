@@ -17,10 +17,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 // Will remove eventually
-#ifndef DAEDALUS_SILENT
+
 #include "stdafx.h"
 #include "Utility/Hash.h"
 
+#ifndef DAEDALUS_SILENT
 //-----------------------------------------------------------------------------
 // MurmurHash2, by Austin Appleby
 // Note - This code makes a few assumptions about how your machine behaves -

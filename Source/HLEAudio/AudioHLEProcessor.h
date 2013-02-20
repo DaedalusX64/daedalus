@@ -62,7 +62,7 @@ private:
 
 
 public:
-	u8	__attribute__((aligned(16))) Buffer[N64_AUDIO_BUFF];
+	ALIGNED_TYPE(u8, Buffer[N64_AUDIO_BUFF], 16);
 	s16		MixerWorkArea[256];
 	u16		ADPCMTable[0x88];
 

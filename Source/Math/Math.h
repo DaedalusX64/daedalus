@@ -3,6 +3,9 @@
 
 #include <math.h>
 
+//ToDo: Use M_PI for x86 platform?
+#define PI   3.141592653589793f
+
 #ifdef DAEDALUS_PSP
 
 // VFPU Math :D
@@ -41,7 +44,6 @@
 // Its because its a .h file, but inlining these short functions is ok. Means also that they take no space unless used.
 
 //#define DOUBLE_CONVERSION // Define to use double and other related conversions.
-#define PI   3.141592653589793f
 
 //Do ACOS(x) ACOS(y) and save in 2D vector on VFPU //Corn
 inline void vfpu_Acos_2Dvec(float x, float y, float *s) {
@@ -462,6 +464,8 @@ inline bool IsNaN_Float(float x)
 
 
 #define Sqrt(x)  pspFpuSqrt((x))
+#define Sinf(x)  vfpu_sinf((x))
+#define Cosf(x)  vfpu_cosf((x))
 
 #else
 
@@ -473,6 +477,16 @@ inline float Sqrt(float x)
 inline float InvSqrt(float x)
 {
 	return 1.0f / Sqrt( x );
+}
+
+inline float Sinf(float x)
+{
+	return sinf( x );
+}
+
+inline float Cosf(float x)
+{
+	return cosf( x );
 }
 
 #endif // DAEDALUS_PSP

@@ -601,10 +601,10 @@ void IMainWindow::OnInitMenu(HWND hWnd, HMENU/* hMenu*/)
 //*****************************************************************************
 void IMainWindow::OnTimer(HWND hWnd, UINT id)
 {
-	static u64 qwLastCount = 0;
+	static u32 LastCount = 0;
 	static u64 last_ticks = 0;
-	s64		qwNum( gCPUState.CPUControl[C0_COUNT]._u64 - qwLastCount );
-	static DWORD dwLastNumFrames = 0;
+	s32		num( gCPUState.CPUControl[C0_COUNT]._u32 - LastCount );
+	static u32 dwLastNumFrames = 0;
 #ifdef DAEDALUS_PROFILE_EXECUTION
 	static DWORD dwLastTLBRHit = 0;
 	static DWORD dwLastTLBWHit = 0;
@@ -646,7 +646,7 @@ void IMainWindow::OnTimer(HWND hWnd, UINT id)
 
 			if ( CDebugConsole::Get()->IsVisible() )
 			{
-				float fMIPS = ((float)qwNum / 1000000.0f)/fElapsedTime;
+				float fMIPS = ((float)num / 1000000.0f)/fElapsedTime;
 				CDebugConsole::Get()->Stats( CDebugConsole::STAT_MIPS, "MIPS: %#.2f  FPS: %#.2f", fMIPS, fFPS);
 				CDebugConsole::Get()->Stats( CDebugConsole::STAT_VIS, "VIs/s: %#.2f",fVIs);
 				CDebugConsole::Get()->Stats( CDebugConsole::STAT_SYNC, "Sync: %#.2f%%",	100 * FramerateLimiter_GetSync());
@@ -682,7 +682,7 @@ void IMainWindow::OnTimer(HWND hWnd, UINT id)
 		}
 
 	}
-	qwLastCount = gCPUState.CPUControl[C0_COUNT]._u64;
+	LastCount = gCPUState.CPUControl[C0_COUNT]._u32;
 	dwLastNumFrames = g_dwNumFrames;
 #ifdef DAEDALUS_PROFILE_EXECUTION
 	dwLastTLBRHit = gTLBReadHit;
