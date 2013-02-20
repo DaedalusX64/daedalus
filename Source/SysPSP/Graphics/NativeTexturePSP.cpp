@@ -291,7 +291,7 @@ CNativeTexture::CNativeTexture( u32 w, u32 h, ETextureFormat texture_format )
 	case TexFmt_CI4_8888:
 		if( !CVideoMemoryManager::Get()->Alloc( PALETTE4_BYTES_REQUIRED, &mpPalette, &mIsPaletteVidMem ) )
 		{
-			DAEDALUS_ERROR( "Out of memory for 4-bit palette, d% bytes", PALETTE4_BYTES_REQUIRED );
+			DAEDALUS_ERROR( "Out of memory for 4-bit palette, %d bytes", PALETTE4_BYTES_REQUIRED );
 		}
 		break;
 
