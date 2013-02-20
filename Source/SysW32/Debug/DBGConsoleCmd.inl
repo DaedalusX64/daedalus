@@ -51,9 +51,9 @@ BEGIN_DBGCOMMAND_MAP(mDebugCommands)
 	DBGCOMMAND_ARGLESS_HELP( "drop textures", &IDebugConsole::CommandDropTextures, "Forces Daedalus to recreate the textures" )
 	DBGCOMMAND_ARGLESS_HELP( "enablegfx", &IDebugConsole::CommandRDPEnableGfx, "Reenables display list processing" )
 	DBGCOMMAND_ARGLESS_HELP( "disablegfx", &IDebugConsole::CommandRDPDisableGfx, "Turns off Display List processing" )
-
+#ifdef DAEDALUS_ENABLE_DYNAREC
 	DBGCOMMAND_ARGLESS( "enable dynarec", &IDebugConsole::CommandCPUDynarecEnable )
-
+#endif
 	DBGCOMMAND_ARGLESS_HELP( "int pi", &IDebugConsole::CommandIntPi, "Generates a PI interrupt" )
 	DBGCOMMAND_ARGLESS_HELP( "int vi", &IDebugConsole::CommandIntVi, "Generates a VI interrupt" )
 	DBGCOMMAND_ARGLESS_HELP( "int ai", &IDebugConsole::CommandIntAi, "Generates a AI interrupt" )
@@ -70,9 +70,8 @@ BEGIN_DBGCOMMAND_MAP(mDebugCommands)
 #endif
 	DBGCOMMAND_ARG_HELP( "list", &IDebugConsole::CommandList, "Shows the specified address in the code view" )
 	DBGCOMMAND_ARGLESS_HELP( "cpu", &IDebugConsole::CommandShowCPU, "Show the CPU code view" )
-	DBGCOMMAND_ARGLESS_HELP( "rsp", &IDebugConsole::CommandShowRSP, "Show the RSP code view" )
 	DBGCOMMAND_ARG_HELP( "fp", &IDebugConsole::CommandFP, "Displays the specified floating point register" )
-	DBGCOMMAND_ARG_HELP( "vec", &IDebugConsole::CommandVec, "Dumps the specified rsp vector" )
+//	DBGCOMMAND_ARG_HELP( "vec", &IDebugConsole::CommandVec, "Dumps the specified rsp vector" )
 
 	DBGCOMMAND_ARG_HELP( "mem", &IDebugConsole::CommandMem, "Shows the memory at the specified address" )
 	DBGCOMMAND_ARG_HELP( "bpx", &IDebugConsole::CommandBPX, "Sets a breakpoint at the specified address" )

@@ -787,7 +787,7 @@ bool CCodeGeneratorX86::GenerateLWC1( u32 ft, EN64Reg base, s16 offset )
 	{
 		GenerateLoad((u32)g_pu8RamBase_8000, base, offset, 0, 32);
 
-		MOV_MEM_REG(&gCPUState.FPU[ft]._u32_0, EAX_CODE);
+		MOV_MEM_REG(&gCPUState.FPU[ft]._u32, EAX_CODE);
 		return true;
 	}
 

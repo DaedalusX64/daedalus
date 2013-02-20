@@ -187,8 +187,6 @@ void CFragment::Execute()
 	// We have to do this when we exit to make sure the cached read pointer is updated correctly
 	CPU_SetPC( gCPUState.CurrentPC );
 }
-
-#ifdef FRAGMENT_SIMULATE_EXECUTION
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -213,6 +211,7 @@ namespace
 				NODEFAULT;
 		}
 	}
+#ifdef FRAGMENT_SIMULATE_EXECUTION
 #ifdef UPDATE_COUNTER_ON_EXCEPTION
 	void UpdateCountAndHandleException_Counter( u32 instructions_executed )
 	{
@@ -237,8 +236,9 @@ namespace
 		}
 
 	}
+#endif
 }
-
+#ifdef FRAGMENT_SIMULATE_EXECUTION
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -605,7 +605,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 	//
 	//	Keep executing ops until we take a branch
 	//
-//	std::vector< CJumpLocation >		exception_handler_jumps;
+	std::vector< CJumpLocation >		exception_handler_jumps;
 	std::vector< SBranchHandlerInfo >	branch_handler_info( branch_details.size() );
 //	bool								checked_cop1_usable( false );
 
@@ -692,14 +692,14 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 
 		CJumpLocation	branch_jump( NULL );
 		p_generator->GenerateOpCode( ti, ti.BranchDelaySlot, p_branch, &branch_jump);
-		/*
+#ifdef DAEDALUS_PSP	
 		CJumpLocation	exception_handler_jump( p_generator->GenerateOpCode( ti, ti.BranchDelaySlot, p_branch, &branch_jump) );
 
 		if( exception_handler_jump.IsSet() )
 		{
 			exception_handler_jumps.push_back( exception_handler_jump );
 		}
-		*/
+#endif
 
 		// Check whether we want to invert the status of this branch
 		if( p_branch != NULL )
@@ -762,14 +762,14 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 			*/
 
 			p_generator->GenerateOpCode( ti, true, NULL, NULL);
-			/*
+#ifdef DAEDALUS_PSP			
 			CJumpLocation	exception_handler_jump( p_generator->GenerateOpCode( ti, true, NULL, NULL) );
 
 			if( exception_handler_jump.IsSet() )
 			{
 				exception_handler_jumps.push_back( exception_handler_jump );
 			}
-			*/
+#endif		
 			num_instructions_executed++;
 		}
 
@@ -814,10 +814,8 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 			}
 		}
 	}
-	// We handle exceptions directly with _ReturnFromDynaRecIfStuffToDo - we should never get here on the psp
-//	DAEDALUS_ASSERT( exception_handler_jumps.empty(), "Not expecting to have any exception handler jumps to process" );
 
-	p_generator->Finalise();
+	p_generator->Finalise( HandleException, exception_handler_jumps );
 
 	mFragmentFunctionLength = p_manager->FinaliseCurrentBlock();
 	mOutputLength = mFragmentFunctionLength - ADDITIONAL_OUTPUT_BYTES;
@@ -831,7 +829,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 //*************************************************************************************
 void CFragment::Assemble( CCodeBufferManager * p_manager, CCodeLabel function_ptr)
 {
-//	std::vector< CJumpLocation >		exception_handler_jumps;
+	std::vector< CJumpLocation >		exception_handler_jumps;
 	SRegisterUsageInfo register_usage;
 
 	CCodeGenerator *p_generator = p_manager->StartNewBlock();
@@ -849,10 +847,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager, CCodeLabel function_pt
 	AssemblyUtils::PatchJumpLong(jump, p_generator->GetCurrentLocation());
 	p_generator->GenerateEretExitCode(100, mpIndirectExitMap);
 
-	// We handle exceptions directly with _ReturnFromDynaRecIfStuffToDo - we should never get here on the psp
-//	DAEDALUS_ASSERT( exception_handler_jumps.empty(), "Not expecting to have any exception handler jumps to process" );
-
-	p_generator->Finalise();
+	p_generator->Finalise( HandleException, exception_handler_jumps );
 	mFragmentFunctionLength = p_manager->FinaliseCurrentBlock();
 	mOutputLength = mFragmentFunctionLength - ADDITIONAL_OUTPUT_BYTES;
 

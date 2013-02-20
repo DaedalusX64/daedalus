@@ -317,8 +317,10 @@ void	CCodeGeneratorPSP::Initialise( u32 entry_address, u32 exit_address, u32 * h
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CCodeGeneratorPSP::Finalise()
+void	CCodeGeneratorPSP::Finalise( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps )
 {
+	// We handle exceptions directly with _ReturnFromDynaRecIfStuffToDo - we should never get here on the psp
+	DAEDALUS_ASSERT( exception_handler_jumps.empty(), "Not expecting to have any exception handler jumps to process" );
 	GenerateAddressCheckFixups();
 
 	CAssemblyWriterPSP::Finalise();

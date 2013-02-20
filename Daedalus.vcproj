@@ -275,6 +275,14 @@
 				Name="Core"
 				>
 				<File
+					RelativePath=".\Source\Core\Cheats.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Core\Cheats.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\Core\CPU.cpp"
 					>
 				</File>
@@ -527,22 +535,6 @@
 					</File>
 					<File
 						RelativePath=".\Source\SysW32\Debug\DebugPaneCP0Regs.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Debug\DebugPaneCP2Dis.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Debug\DebugPaneCP2Dis.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Debug\DebugPaneCP2Regs.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Debug\DebugPaneCP2Regs.h"
 						>
 					</File>
 					<File
@@ -1359,6 +1351,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\Utility\FastMemcpy.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Utility\FastMemcpy.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\Utility\FramerateLimiter.cpp"
 					>
 				</File>
@@ -1463,6 +1463,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\Utility\ROMFileMemory.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Utility\ROMFileMemory.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\Utility\ROMFileUncompressed.cpp"
 					>
 				</File>
@@ -1492,6 +1500,14 @@
 				</File>
 				<File
 					RelativePath=".\Source\Utility\Synchroniser.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Utility\Translate.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Utility\Translate.h"
 					>
 				</File>
 				<File

@@ -149,7 +149,7 @@ void	CDebugPaneCP0Regs::Display( HANDLE hOutput )
 
 		if ( u32( wY ) < bottom )
 		{
-			wsprintf( msg, "%4.4s:%08x", ShortCop0RegNames[r], gCPUState.CPUControl[r]._u32_0 );
+			wsprintf( msg, "%4.4s:%08x", ShortCop0RegNames[r], gCPUState.CPUControl[r]._u32 );
 			WriteString( hOutput, msg, FALSE, wX, wY, sc_wAttrWhite, 13 );
 		}
 		wY ++;

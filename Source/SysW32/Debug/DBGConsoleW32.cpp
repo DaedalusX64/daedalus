@@ -26,9 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DebugPaneOutput.h"
 #include "DebugPaneMemory.h"
 #include "DebugPaneCP0Regs.h"
-#include "DebugPaneCP2Regs.h"
 #include "DebugPaneCP0Dis.h"
-#include "DebugPaneCP2Dis.h"
 
 #include "Debug/Dump.h"
 
@@ -155,7 +153,7 @@ class IDebugConsole : public CDebugConsole
 		void			CommandQuit();
 
 		void			CommandFP(const char * szCommand);
-		void			CommandVec(const char * szCommand);
+		//void			CommandVec(const char * szCommand);
 		void			CommandMem(const char * szCommand);
 		void			CommandList(const char * szCommand);
 	#ifdef DAEDALUS_ENABLE_OS_HOOKS
@@ -165,7 +163,6 @@ class IDebugConsole : public CDebugConsole
 		void			CommandBPD(const char * szCommand);
 		void			CommandBPE(const char * szCommand);
 		void			CommandShowCPU();
-		void			CommandShowRSP();
 
 		void			CommandIntPi() { Msg(0, "Pi Interrupt"); Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_PI); R4300_Interrupt_UpdateCause3(); }
 		void			CommandIntVi() { Msg(0, "Vi Interrupt"); Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_VI); R4300_Interrupt_UpdateCause3(); }
@@ -192,9 +189,9 @@ class IDebugConsole : public CDebugConsole
 		void			CommandCPUSkip()				{ CPU_Skip(); }
 		void			CommandRDPEnableGfx()			{ RSP_HLE_EnableGfx(); }
 		void			CommandRDPDisableGfx()			{ RSP_HLE_DisableGfx(); }
-
+#ifdef DAEDALUS_ENABLE_DYNAREC
 		void			CommandCPUDynarecEnable()		{ CPU_DynarecEnable(); }
-
+#endif
 	#ifdef DUMPOSFUNCTIONS
 		void			CommandPatchDumpOsThreadInfo()	{ Patch_DumpOsThreadInfo(); }
 		void			CommandPatchDumpOsQueueInfo()	{ Patch_DumpOsQueueInfo(); }
@@ -245,9 +242,7 @@ class IDebugConsole : public CDebugConsole
 		CDebugPaneOutput	mPaneOutput;
 		CDebugPaneMemory	mPaneMemory;
 		CDebugPaneCP0Regs	mPaneCP0Regs;
-		CDebugPaneCP2Regs	mPaneCP2Regs;
 		CDebugPaneCP0Dis	mPaneCP0Dis;
-		CDebugPaneCP2Dis	mPaneCP2Dis;
 };
 
 //*****************************************************************************
@@ -372,28 +367,16 @@ bool IDebugConsole::Initialise()
 		return false;
 	}
 
-	if ( !mPaneCP2Regs.Initialise() )
-	{
-		return false;
-	}
-
 	if ( !mPaneCP0Dis.Initialise() )
 	{
 		return false;
 	}
 	mPaneCP0Dis.SetAddress( gCPUState.CurrentPC );
 
-	if ( !mPaneCP2Dis.Initialise() )
-	{
-		return false;
-	}
-
 	mPaneOutput.SetPos(  0, mPaneInfo[ DBGCON_BOT_PANE ].nTopRow+1, 80, mPaneInfo[ DBGCON_BOT_PANE ].nNumLines );
 	mPaneMemory.SetPos(  0, mPaneInfo[ DBGCON_MEM_PANE ].nTopRow+1, 80, mPaneInfo[ DBGCON_MEM_PANE ].nNumLines );
 	mPaneCP0Regs.SetPos( 0, mPaneInfo[ DBGCON_REG_PANE ].nTopRow+1, 80, mPaneInfo[ DBGCON_REG_PANE ].nNumLines );
-	mPaneCP2Regs.SetPos( 0, mPaneInfo[ DBGCON_REG_PANE ].nTopRow+1, 80, mPaneInfo[ DBGCON_REG_PANE ].nNumLines );
 	mPaneCP0Dis.SetPos(  0, mPaneInfo[ DBGCON_MID_PANE ].nTopRow+1, 80, mPaneInfo[ DBGCON_MID_PANE ].nNumLines );
-	mPaneCP2Dis.SetPos(  0, mPaneInfo[ DBGCON_MID_PANE ].nTopRow+1, 80, mPaneInfo[ DBGCON_MID_PANE ].nNumLines );
 
 
 	//
@@ -433,9 +416,7 @@ void IDebugConsole::Finalise()
 	mPaneOutput.Destroy();
 	mPaneMemory.Destroy();
 	mPaneCP0Regs.Destroy();
-	mPaneCP2Regs.Destroy();
 	mPaneCP0Dis.Destroy();
-	mPaneCP2Dis.Destroy();
 
 	if (mConsoleAllocated)
 	{
@@ -457,7 +438,6 @@ void IDebugConsole::UpdateDisplay()
 	// Update the PCs
 	//
 	mPaneCP0Dis.SetAddress( gCPUState.CurrentPC );
-	mPaneCP2Dis.SetAddress( (gRSPState.CurrentPC & 0x0FFF) | 0x04001000 );
 	mPaneOutput.SetOffset( 0 );
 
 	for ( u32 i = 0; i < DBGCON_NUM_PANES; i++ )
@@ -919,14 +899,7 @@ void IDebugConsole::ProcessMouseEvent( const MOUSE_EVENT_RECORD & mr )
 						// Flip pane
 						if ( i == DBGCON_MID_PANE )
 						{
-							if ( mPaneInfo[ DBGCON_MID_PANE ].CurrentPane == &mPaneCP0Dis )
-							{
-								CommandShowRSP();
-							}
-							else
-							{
-								CommandShowCPU();
-							}
+							CommandShowCPU();
 						}
 					}
 				}
@@ -1326,8 +1299,8 @@ void IDebugConsole::CommandFP(const char * szCommand)
 	{
 		// TODO show long and double values
 		DBGConsole_Msg(0, "FP%02d", dwReg);
-		DBGConsole_Msg(0, "w: 0x%08x = %d", gCPUState.FPU[dwReg]._u32_0, gCPUState.FPU[dwReg]._u32_0);
-		DBGConsole_Msg(0, "f: %f", ToFloat(gCPUState.FPU[dwReg]));
+		DBGConsole_Msg(0, "w: 0x%08x = %d", gCPUState.FPU[dwReg]._u32, gCPUState.FPU[dwReg]._u32);
+		DBGConsole_Msg(0, "f: %f", gCPUState.FPU[dwReg]._u32);
 	}
 
 }
@@ -1335,22 +1308,22 @@ void IDebugConsole::CommandFP(const char * szCommand)
 //*****************************************************************************
 //
 //*****************************************************************************
-void IDebugConsole::CommandVec(const char * szCommand)
-{
-	LONG n;
-	DWORD dwReg1, dwReg2, dwReg3;
-
-	// We need the decimal value
-	n = sscanf(szCommand, "%d %d %d", &dwReg1, &dwReg2, &dwReg3);
-	if (n == 1)
-	{
-		RSP_DumpVector(dwReg1);
-	}
-	else if (n == 3)
-	{
-		RSP_DumpVectors(dwReg1, dwReg2, dwReg3);
-	}
-}
+//void IDebugConsole::CommandVec(const char * szCommand)
+//{
+//	LONG n;
+//	DWORD dwReg1, dwReg2, dwReg3;
+//
+//	// We need the decimal value
+//	n = sscanf(szCommand, "%d %d %d", &dwReg1, &dwReg2, &dwReg3);
+//	if (n == 1)
+//	{
+//		RSP_DumpVector(dwReg1);
+//	}
+//	else if (n == 3)
+//	{
+//		RSP_DumpVectors(dwReg1, dwReg2, dwReg3);
+//	}
+//}
 
 //*****************************************************************************
 //
@@ -1699,17 +1672,6 @@ void IDebugConsole::CommandShowCPU()
 	mPaneInfo[ DBGCON_MID_PANE ].CurrentPane = &mPaneCP0Dis;
 	UpdateDisplay();
 }
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void IDebugConsole::CommandShowRSP()
-{
-	mPaneInfo[ DBGCON_REG_PANE ].CurrentPane = &mPaneCP2Regs;
-	mPaneInfo[ DBGCON_MID_PANE ].CurrentPane = &mPaneCP2Dis;
-	UpdateDisplay();
-}
-
 
 //*****************************************************************************
 //

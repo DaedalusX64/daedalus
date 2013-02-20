@@ -31,8 +31,6 @@
 
 #include "stdafx.h"
 
-#include <stdint.h>
-
 #include "Debug/DBGConsole.h"
 #include "Memory.h"
 #include "OSHLE/ultra_sptask.h"
@@ -129,6 +127,7 @@ const u32 TRANSPOSE_TABLE[SUBBLOCK_SIZE] =
  **************************************************************************/
 void jpeg_decode_PS(OSTask *task)
 {
+	s16 *macroblock;
     s16 qtables[3][SUBBLOCK_SIZE];
     u32 mb;
 
@@ -151,9 +150,6 @@ void jpeg_decode_PS(OSTask *task)
         return;
     }
 
-    const u32 subblock_count = mode + 4;
-    const u32 macroblock_size = 2*subblock_count*SUBBLOCK_SIZE;
-
     rdram_read_many_u16((u16*)qtables[0], qtableY_ptr, SUBBLOCK_SIZE);
     rdram_read_many_u16((u16*)qtables[1], qtableU_ptr, SUBBLOCK_SIZE);
     rdram_read_many_u16((u16*)qtables[2], qtableV_ptr, SUBBLOCK_SIZE);
@@ -169,16 +165,25 @@ void jpeg_decode_PS(OSTask *task)
 		EmitTilesMode =  EmitTilesMode2;
 	}
 
+	const u32 subblock_count = mode + 4;
+	const u32 macroblock_size = 2*subblock_count*SUBBLOCK_SIZE;
+
+	macroblock = (s16 *)malloc(sizeof(*macroblock) * macroblock_size);
+	if (!macroblock)
+	{
+		DBGConsole_Msg(0, "jpeg_decode_PS: could not allocate macroblock");
+		return;
+	}
+
     for (mb = 0; mb < macroblock_count; ++mb)
     {
-        s16 macroblock[macroblock_size];
-
         rdram_read_many_u16((u16*)macroblock, address, macroblock_size >> 1);
         DecodeMacroblock2(macroblock, subblock_count, (const s16 (*)[SUBBLOCK_SIZE])qtables);
 		EmitTilesMode(EmitRGBATileLine, macroblock, address);
 
         address += macroblock_size;
     }
+	free(macroblock);
 }
 
 /***************************************************************************
@@ -213,7 +218,7 @@ void jpeg_decode_OB(OSTask *task)
     {
         s16 macroblock[6*SUBBLOCK_SIZE];
 
-        rdram_read_many_u16((uint16_t*)macroblock, address, 6*SUBBLOCK_SIZE);
+        rdram_read_many_u16((u16*)macroblock, address, 6*SUBBLOCK_SIZE);
         DecodeMacroblock1(macroblock, &y_dc, &u_dc, &v_dc, (qscale != 0) ? qtable : NULL);
         EmitTilesMode2(EmitYUVTileLine, macroblock, address);
 

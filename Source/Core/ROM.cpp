@@ -52,7 +52,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ConfigOptions.h"
 
-#ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
+#if defined(DAEDALUS_ENABLE_DYNAREC_PROFILE) || defined(DAEDALUS_W32)
 //*****************************************************************************
 // This isn't really the most appropriate place. Need to check with
 // the graphics plugin really

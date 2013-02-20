@@ -47,6 +47,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ConfigOptions.h"
 
+//FIX ME (these are only declare in PSP files)
+u32					gVISyncRate 	= 1500;
+f32 				gZoomX			= 1.0;
+EFrameskipValue		gFrameskipValue = FV_DISABLED;
+
 /////////////////////////////////////////////////////////////////////
 //
 // Static Declarations
