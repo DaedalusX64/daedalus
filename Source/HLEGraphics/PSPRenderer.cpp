@@ -2754,25 +2754,25 @@ void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH,
 	sceGuEnable(GU_BLEND);
 	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
 
-	
+
 	p_verts[0].pos.x = frameX * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Frame X Offset * X Scale Factor + Screen X Offset
 	p_verts[0].pos.y = frameY * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Frame Y Offset * Y Scale Factor + Screen Y Offset
 	p_verts[0].pos.z = 0.0f;
 	p_verts[0].t0.x  = imageX;											 // X coordinates
-	p_verts[0].t0.y  = imageY;	
-	
+	p_verts[0].t0.y  = imageY;
+
 	p_verts[1].pos.x = frameW * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Translated X Offset + (Image Width  * X Scale Factor)
 	p_verts[1].pos.y = frameY * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Translated Y Offset + (Image Height * Y Scale Factor)
 	p_verts[1].pos.z = 0.0f;
 	p_verts[1].t0.x  = imageW;											 // X dimentions
-	p_verts[1].t0.y  = imageY;		
+	p_verts[1].t0.y  = imageY;
 
 	p_verts[2].pos.x = frameX * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Frame X Offset * X Scale Factor + Screen X Offset
 	p_verts[2].pos.y = frameH * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Frame Y Offset * Y Scale Factor + Screen Y Offset
 	p_verts[2].pos.z = 0.0f;
 	p_verts[2].t0.x  = imageX;											 // X coordinates
-	p_verts[2].t0.y  = imageH;	
-	
+	p_verts[2].t0.y  = imageH;
+
 	p_verts[3].pos.x = frameW * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Translated X Offset + (Image Width  * X Scale Factor)
 	p_verts[3].pos.y = frameH * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Translated Y Offset + (Image Height * Y Scale Factor)
 	p_verts[3].pos.z = 0.0f;
