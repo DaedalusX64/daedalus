@@ -3,9 +3,12 @@
       {
         'target_name': 'daedalus',
         'type': 'executable',
-        'defines': [
-          'HELLO=7',
-        ],
+        'xcode_settings': {
+          'OTHER_CFLAGS': [
+            '-Werror',
+            '-Wformat=0'
+          ],
+        },
         'dependencies': [
           'Source/third_party/libpng/libpng.gyp:libpng',
           'Source/third_party/zlib/zlib.gyp:zlib',
