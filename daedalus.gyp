@@ -7,6 +7,7 @@
           'HELLO=7',
         ],
         'dependencies': [
+          'Source/third_party/libpng/libpng.gyp:libpng',
           'Source/third_party/zlib/zlib.gyp:zlib',
           'Source/third_party/zlib/zlib.gyp:minizip',
         ],
