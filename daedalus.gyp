@@ -111,6 +111,7 @@
               'Source/SysOSX/Debug/DaedalusAssertOSX.cpp',
               'Source/SysOSX/Debug/DebugConsoleOSX.cpp',
               'Source/SysOSX/DynaRec/CodeBufferManagerOSX.cpp',
+              'Source/SysOSX/Graphics/NativeTextureOSX.cpp',
               'Source/SysOSX/Input/InputManagerOSX.cpp',
               'Source/SysOSX/Utility/IOOSX.cpp',
               'Source/SysOSX/Utility/ThreadOSX.cpp',
