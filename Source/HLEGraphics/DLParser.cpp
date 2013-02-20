@@ -726,8 +726,8 @@ void RDP_MoveMemViewport(u32 address)
 
 	PSPRenderer::Get()->SetN64Viewport( vec_scale, vec_trans );
 
-	DL_PF("    Scale: %d %d %d", scale[0], scale[1], scale[2]);
-	DL_PF("    Trans: %d %d %d", trans[0], trans[1], trans[2]);
+	DL_PF("    Scale: %d %d", scale[0], scale[1]);
+	DL_PF("    Trans: %d %d", trans[0], trans[1]);
 }
 
 //*****************************************************************************
