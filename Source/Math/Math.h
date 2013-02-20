@@ -467,12 +467,16 @@ inline bool IsNaN_Float(float x)
 #define Sinf(x)  vfpu_sinf((x))
 #define Cosf(x)  vfpu_cosf((x))
 
+#define Abs(x)	pspFpuAbs((x))
+
 #else
 
 inline float Sqrt(float x)
 {
 	return sqrtf( x );
 }
+
+#define Abs(x)	fabsf((x))
 
 inline float InvSqrt(float x)
 {

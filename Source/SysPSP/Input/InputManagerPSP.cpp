@@ -953,8 +953,8 @@ u32		IInputManager::GetConfigurationFromName( const char * name ) const
 v2	ProjectToUnitSquare( const v2 & in )
 {
 	f32		length( in.Length() );
-	float	abs_x( pspFpuAbs( in.x ) );
-	float	abs_y( pspFpuAbs( in.y ) );
+	float	abs_x( Abs( in.x ) );
+	float	abs_y( Abs( in.y ) );
 	float	scale;
 
 	//

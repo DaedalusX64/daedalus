@@ -299,7 +299,7 @@ void	IMainMenuScreen::Render()
 		u32				text_width( mpContext->GetTextWidth( option_text ) );
 
 		f32				diff( f32( mCurrentOption + i ) - mCurrentDisplayOption );
-		f32				dist( pspFpuAbs( diff ) );
+		f32				dist( Abs( diff ) );
 
 		s32				centre( ( SCREEN_WIDTH - text_width ) / 2 );
 		s32				extreme( diff < 0 ? SCREEN_LEFT : s32( SCREEN_RIGHT - (text_width * min_scale) ) );

@@ -1825,7 +1825,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 			// Set the alpha
 			f32 value = Clamp< f32 >( fog_coeff, 0.0f, 1.0f );
 
-			if( pspFpuAbs( value - mVtxProjected[i].Colour.w ) > 0.01f )
+			if( Abs( value - mVtxProjected[i].Colour.w ) > 0.01f )
 			{
 				printf( "Fog wrong: %f != %f\n", mVtxProjected[i].Colour.w, value );
 			}
@@ -1863,8 +1863,8 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 				ty = (float)vert.tv * mTnL.TextureScaleY;
 			}
 
-			if( pspFpuAbs(tx - mVtxProjected[i].Texture.x ) > 0.0001f ||
-				pspFpuAbs(ty - mVtxProjected[i].Texture.y ) > 0.0001f )
+			if( Abs(tx - mVtxProjected[i].Texture.x ) > 0.0001f ||
+				Abs(ty - mVtxProjected[i].Texture.y ) > 0.0001f )
 			{
 				printf( "tx/y wrong : %f,%f != %f,%f (%s)\n", mVtxProjected[i].Texture.x, mVtxProjected[i].Texture.y, tx, ty, env_map ? "env" : "scale" );
 			}
@@ -2008,8 +2008,8 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 				else
 				{
 					//Cheap way to do Acos(x)/Pi (abs() fixes star in SM64, sort of) //Corn
-					f32 NormX = pspFpuAbs( norm.x );
-					f32 NormY = pspFpuAbs( norm.y );
+					f32 NormX = Abs( norm.x );
+					f32 NormY = Abs( norm.y );
 					mVtxProjected[i].Texture.x =  0.5f - 0.25f * NormX - 0.25f * NormX * NormX * NormX;
 					mVtxProjected[i].Texture.y =  0.5f - 0.25f * NormY - 0.25f * NormY * NormY * NormY;
 				}
