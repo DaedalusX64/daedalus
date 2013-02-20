@@ -233,6 +233,11 @@ static void WriteValue_8440_844F( u32 address, u32 value )
 		}
 		break;
 
+	case 0x4:	// VI_ORIGIN_REG
+		DPF( DEBUG_VI, "VI_ORIGIN_REG set to %d", value );
+		gGraphicsPlugin->UpdateScreen();
+		break;
+
 	case 0x8:	// VI_WIDTH_REG
 		DPF( DEBUG_VI, "VI_WIDTH_REG set to %d pixels", value );
 		if ( gGraphicsPlugin != NULL )

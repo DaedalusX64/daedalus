@@ -70,6 +70,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #else
 #define R4300_IsNaN(x)		_isnan((x))
 #define R4300_Sqrt(x)		Sqrt((x))
+#define R4300_SqrtD(x)		sqrt((x))
 #define R4300_AbsS(x) 		fabsf((x))
 #define R4300_AbsD(x) 		fabs((x))
 #endif
@@ -3261,7 +3262,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_SQRT( R4300_CALL_SIGNATURE )
 
 	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
-	StoreFPR_Double( op_code.fd, R4300_Sqrt(fX) );
+	StoreFPR_Double( op_code.fd, R4300_SqrtD(fX) );
 }
 
 
