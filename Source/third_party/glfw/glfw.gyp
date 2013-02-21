@@ -7,6 +7,18 @@
 				'lib/',
 				'lib/cocoa/',
 			],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          'include/',
+        ],
+      },
+			'link_settings': {
+			  'libraries': [
+			    '$(SDKROOT)/System/Library/Frameworks/Cocoa.framework',
+			    '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
+			    '$(SDKROOT)/System/Library/Frameworks/IOKit.framework',
+			  ],
+			},
 			'sources': [
 				'lib/cocoa/cocoa_enable.m',
 				'lib/cocoa/cocoa_fullscreen.m',
@@ -28,6 +40,7 @@
 				'lib/tga.c',
 				'lib/thread.c',
 				'lib/time.c',
+				'lib/window.c',
 			],
 		}
 	],
