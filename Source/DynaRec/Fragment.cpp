@@ -691,8 +691,10 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 		}
 
 		CJumpLocation	branch_jump( NULL );
-		p_generator->GenerateOpCode( ti, ti.BranchDelaySlot, p_branch, &branch_jump);
+ //PSP, We handle exceptions directly with _ReturnFromDynaRecIfStuffToDo 
 #ifdef DAEDALUS_PSP	
+		p_generator->GenerateOpCode( ti, ti.BranchDelaySlot, p_branch, &branch_jump);
+#else
 		CJumpLocation	exception_handler_jump( p_generator->GenerateOpCode( ti, ti.BranchDelaySlot, p_branch, &branch_jump) );
 
 		if( exception_handler_jump.IsSet() )
@@ -760,9 +762,10 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 				//exception_handler_jumps.push_back( handler );
 			}
 			*/
-
+ //PSP, We handle exceptions directly with _ReturnFromDynaRecIfStuffToDo 
+#ifdef DAEDALUS_PSP	
 			p_generator->GenerateOpCode( ti, true, NULL, NULL);
-#ifdef DAEDALUS_PSP			
+#else		
 			CJumpLocation	exception_handler_jump( p_generator->GenerateOpCode( ti, true, NULL, NULL) );
 
 			if( exception_handler_jump.IsSet() )

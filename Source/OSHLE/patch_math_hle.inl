@@ -251,7 +251,7 @@ TEST_DISABLE_MATH_FUNCS
 
 	//DBGConsole_Msg(0, "sinf(%f) (ra 0x%08x)", f, gGPR[REG_ra]._u32_0);
 
-	gCPUState.FPU[00]._f32 = sinf(f);
+	gCPUState.FPU[00]._f32 = Sinf(f);
 
 /*	g_dwNumCosSin++;
 	if ((g_dwNumCosSin % 100000) == 0)

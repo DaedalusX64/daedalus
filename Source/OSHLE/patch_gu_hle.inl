@@ -708,7 +708,8 @@ TEST_DISABLE_GU_FUNCS
 
 	return PATCH_RET_JR_RA;
 #else
-	return PATCH_RET_NOT_PROCESSED;
+	// FIX ME W32
+	return PATCH_RET_NOT_PROCESSED0(guOrtho);
 #endif
 }
 
