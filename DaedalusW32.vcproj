@@ -177,7 +177,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="delayimp.lib comctl32.lib dinput8.lib shlwapi.lib winmm.lib dxguid.lib dsound.lib"
+				AdditionalDependencies="delayimp.lib comctl32.lib dinput8.lib shlwapi.lib winmm.lib dxguid.lib dsound.lib zlibwapi.lib"
 				OutputFile=".\Builds\PC\Daedalus.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
