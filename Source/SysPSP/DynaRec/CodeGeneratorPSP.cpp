@@ -809,9 +809,6 @@ EPspFloatReg	CCodeGeneratorPSP::GetSimFloatRegisterAndLoad( EN64FloatReg n64_reg
 	//If register is not SimDouble yet or unknown add check and conversion routine
 	if( !mRegisterCache.IsFPSim( n64_reg ) )
 	{
-		mPreviousLoadBase = N64Reg_R0;	//Invalidate
-		mPreviousStoreBase = N64Reg_R0;	//Invalidate	
-
 		MFC1( PspReg_A0, psp_reg_sig );	//Get lo part of double
 		LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
 		CJumpLocation test_reg( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), false ) );	//compare float to signature
@@ -1401,8 +1398,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		return CJumpLocation();
 	}
 
-	if( ((op_code.op != OP_LW) & (op_code.op != OP_LWC1) & (op_code.op != OP_COPRO1)) || branch_delay_slot ) mPreviousLoadBase = N64Reg_R0;	//Invalidate
-	if( ((op_code.op != OP_SW) & (op_code.op != OP_SWC1) & (op_code.op != OP_COPRO1)) || branch_delay_slot ) mPreviousStoreBase = N64Reg_R0;	//Invalidate
+	if( ((op_code.op != OP_LW) & (op_code.op != OP_LWC1) & (op_code.op != OP_SW) & (op_code.op != OP_SWC1) & (op_code.op != OP_COPRO1)) || branch_delay_slot ) mPreviousStoreBase = mPreviousLoadBase = N64Reg_R0;	//Invalidate
 
 	mQuickLoad = ti.Usage.mAccess_8000;
 
@@ -1961,20 +1957,17 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 		//Re use old base register if consegutive accesses from same base register //Corn
 		if( n64_base == mPreviousLoadBase )
 		{
-			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
+			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_K0, offset );
 			return;
 		}
 		else
 		{
-			ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
-			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
+			ADDU( PspReg_K0, reg_address, gMemoryBaseReg );
+			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_K0, offset );
 			mPreviousLoadBase = n64_base;
 			return;
 		}
 	}
-
-	mPreviousLoadBase = N64Reg_R0;	//Invalidate
-	mPreviousStoreBase = N64Reg_R0;	//Invalidate
 
 	if( swizzle != 0 )
 	{
@@ -2255,20 +2248,17 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 		//Re use old base register if consegutive accesses from same base register //Corn
 		if( n64_base == mPreviousStoreBase )
 		{
-			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_V1, offset );
+			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_K1, offset );
 			return;
 		}
 		else
 		{
-			ADDU( PspReg_V1, reg_address, gMemoryBaseReg );
-			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_V1, offset );
+			ADDU( PspReg_K1, reg_address, gMemoryBaseReg );
+			CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_K1, offset );
 			mPreviousStoreBase = n64_base;
 			return;
 		}
 	}
-
-	mPreviousLoadBase = N64Reg_R0;	//Invalidate
-	mPreviousStoreBase = N64Reg_R0;	//Invalidate
 
 	if( swizzle != 0 )
 	{
@@ -2351,9 +2341,6 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op )
 {
-	mPreviousLoadBase = N64Reg_R0;	//Invalidate
-	mPreviousStoreBase = N64Reg_R0;	//Invalidate
-
 	//u32 cache_op  = op_code.rt;
 	//u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 
@@ -2780,8 +2767,6 @@ inline void	CCodeGeneratorPSP::GenerateSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 inline void	CCodeGeneratorPSP::GenerateDDIVU( EN64Reg rs, EN64Reg rt )
 {
 	mMultIsValid = false;
-	mPreviousLoadBase = N64Reg_R0;	//Invalidate
-	mPreviousStoreBase = N64Reg_R0;	//Invalidate
 
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
 	EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_A1 ) );
@@ -2800,8 +2785,6 @@ inline void	CCodeGeneratorPSP::GenerateDDIVU( EN64Reg rs, EN64Reg rt )
 inline void	CCodeGeneratorPSP::GenerateDDIV( EN64Reg rs, EN64Reg rt )
 {
 	mMultIsValid = false;
-	mPreviousLoadBase = N64Reg_R0;	//Invalidate
-	mPreviousStoreBase = N64Reg_R0;	//Invalidate
 
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
 	EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_A1 ) );
@@ -2820,8 +2803,6 @@ inline void	CCodeGeneratorPSP::GenerateDDIV( EN64Reg rs, EN64Reg rt )
 inline void	CCodeGeneratorPSP::GenerateDMULTU( EN64Reg rs, EN64Reg rt )
 {
 	mMultIsValid = false;
-	mPreviousLoadBase = N64Reg_R0;	//Invalidate
-	mPreviousStoreBase = N64Reg_R0;	//Invalidate
 
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
 	EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_A1 ) );
@@ -2842,8 +2823,6 @@ inline void	CCodeGeneratorPSP::GenerateDMULTU( EN64Reg rs, EN64Reg rt )
 inline void	CCodeGeneratorPSP::GenerateDMULT( EN64Reg rs, EN64Reg rt )
 {
 	mMultIsValid = false;
-	mPreviousLoadBase = N64Reg_R0;	//Invalidate
-	mPreviousStoreBase = N64Reg_R0;	//Invalidate
 
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
 	EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_A1 ) );
@@ -2869,9 +2848,6 @@ inline void	CCodeGeneratorPSP::GenerateDADDIU( EN64Reg rt, EN64Reg rs, s16 immed
 	}
 	else
 	{
-		mPreviousLoadBase = N64Reg_R0;	//Invalidate
-		mPreviousStoreBase = N64Reg_R0;	//Invalidate
-
 		EPspReg	reg_lo_d( GetRegisterNoLoadLo( rt, PspReg_V0 ) );
 		EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
 
@@ -2901,10 +2877,6 @@ inline void	CCodeGeneratorPSP::GenerateDADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt
 	//890c258:	00e51821 	addu	d_hi,a_hi,b_hi
 	//890c25c:	01031821 	addu	d_hi,t0,d_hi
 	//890c268:	ad230004 	sw		d_hi,4(t1)
-
-
-	mPreviousLoadBase = N64Reg_R0;	//Invalidate
-	mPreviousStoreBase = N64Reg_R0;	//Invalidate
 
 	EPspReg	reg_lo_d( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
 	EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
@@ -4869,9 +4841,6 @@ inline void	CCodeGeneratorPSP::GenerateCVT_D_S_Sim( u32 fd, u32 fs )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateCVT_D_S( u32 fd, u32 fs )
 {
-	mPreviousLoadBase = N64Reg_R0;	//Invalidate
-	mPreviousStoreBase = N64Reg_R0;	//Invalidate	
-
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
 	EN64FloatReg	n64_fd = EN64FloatReg( fd );
 
