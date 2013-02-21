@@ -253,7 +253,7 @@ BOOL CGraphicsPluginDll::Init()
 		return FALSE;
 	}
 	else
-	{
+	{	
 		DBGConsole_Msg(0, "Graphics plugin initialised ok");
 		return TRUE;
 	}

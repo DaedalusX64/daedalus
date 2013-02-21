@@ -65,6 +65,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef DAEDALUS_PSP
 #define R4300_IsNaN(x) 		pspFpuIsNaN((x))
 #define R4300_Sqrt(x)		pspFpuSqrt((x))
+#define R4300_SqrtD(x)		pspFpuSqrt((x))
 #define R4300_AbsS(x) 		pspFpuAbs((x))
 #define R4300_AbsD(x) 		pspFpuAbs((x))
 #else
