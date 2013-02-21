@@ -44,9 +44,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 using namespace AssemblyUtils;
 
-//Enable unaligned load/store(used in CBFD, OOT and PD) //Corn
+//Enable unaligned load/store(used in CBFD, OOT, Rayman2 and PD) //Corn
 #define ENABLE_LWR_LWL
-#define ENABLE_SWR_SWL
+//#define ENABLE_SWR_SWL
 
 //Enable to load/store floats directly to/from FPU //Corn
 #define ENABLE_LWC1
@@ -1825,6 +1825,14 @@ inline bool	CCodeGeneratorPSP::GenerateDirectLoad( EPspReg psp_dst, EN64Reg base
 	{
 		u32		base_address( mRegisterCache.GetKnownValue( base, 0 )._u32 );
 		u32		address( (base_address + s32( offset )) ^ swizzle );
+
+		if( load_op == OP_LWL )
+		{
+			load_op = OP_LW;
+			u32 shift = address & 3;    
+			address ^= shift;	//Zero low 2 bits in address
+			ADDIU( PspReg_A3, PspReg_R0, shift);	//copy low 2 bits to A3
+		}
 
 		const MemFuncRead & m( g_MemoryLookupTableRead[ address >> 18 ] );
 		if( m.pRead )
