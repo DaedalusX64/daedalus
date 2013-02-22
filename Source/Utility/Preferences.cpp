@@ -503,10 +503,9 @@ void	SRomPreferences::Apply() const
 	gMemoryAccessOptimisation = g_ROM.settings.MemoryAccessOptimisation || MemoryAccessOptimisation;
 	gFrameskipValue = Frameskip;
 	gZoomX = ZoomX;
-	gCheatsEnabled = CheatsEnabled;
+	gCheatsEnabled = CheatsEnabled || g_ROM.settings.CheatsEnabled;
 	gAudioPluginEnabled = AudioEnabled;
 //	gAdaptFrequency = AudioAdaptFrequency;
-
 	gControllerIndex = ControllerIndex;							//Used during ROM initialization
 #ifdef DAEDALUS_PSP
 	CInputManager::Get()->SetConfiguration( ControllerIndex );  //Used after initialization

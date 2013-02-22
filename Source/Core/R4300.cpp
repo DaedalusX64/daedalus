@@ -3375,7 +3375,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_CVT_S( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	f32 fX = LoadFPR_Double( op_code.fs );
+	d64 fX = LoadFPR_Double( op_code.fs );
 
 	//SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
