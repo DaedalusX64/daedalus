@@ -316,7 +316,6 @@ private:
 
 				bool							mQuickLoad;
 
-				EN64Reg							mCurrentRT;
 				EN64Reg							mPreviousLoadBase;
 				EN64Reg							mPreviousStoreBase;
 				bool							mFloatCMPIsValid;

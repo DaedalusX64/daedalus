@@ -1398,7 +1398,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		return CJumpLocation();
 	}
 
-	if( ((op_code.op != OP_LW) & (op_code.op != OP_LWC1) & (op_code.op != OP_SW) & (op_code.op != OP_SWC1) & (op_code.op != OP_COPRO1)) || branch_delay_slot ) mPreviousStoreBase = mPreviousLoadBase = N64Reg_R0;	//Invalidate
+	if( branch_delay_slot ) mPreviousStoreBase = mPreviousLoadBase = N64Reg_R0;	//Invalidate
 
 	mQuickLoad = ti.Usage.mAccess_8000;
 
@@ -1410,8 +1410,6 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	const u32		sa = op_code.sa;
 	//const u32		jump_target( (address&0xF0000000) | (op_code.target<<2) );
 	//const u32		branch_target( address + ( ((s32)(s16)op_code.immediate)<<2 ) + 4);
-
-	mCurrentRT = rt;
 
 	//
 	//	Look for opcodes we can handle manually
@@ -1680,7 +1678,9 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		break;
 	}
 
-	if( (op_code.op != OP_COPRO1) && mPreviousLoadBase == rt ) mPreviousLoadBase = N64Reg_R0;	//Invalidate
+	//Invalidate load/store base regs if they has been modified with current OPcode //Corn
+	if( (ti.Usage.RegWrites >> mPreviousLoadBase) & 1 ) mPreviousLoadBase = N64Reg_R0;	//Invalidate
+	if( (ti.Usage.RegWrites >> mPreviousStoreBase) & 1 ) mPreviousStoreBase = N64Reg_R0;	//Invalidate
 
 	//	Default handling - call interpreting function
 	//
@@ -1914,8 +1914,6 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 										 u32 swizzle,
 										 ReadMemoryFunction p_read_memory )
 {
-	if( mPreviousStoreBase == mCurrentRT ) mPreviousStoreBase = N64Reg_R0;	//Invalidate
-
 	//
 	//	Check if the base pointer is a known value, in which case we can load directly.
 	//
@@ -1930,6 +1928,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
     if( load_op == OP_LWL )
     {
         load_op = OP_LW;
+		mPreviousLoadBase = N64Reg_R0;	//Invalidate
         ADDIU( PspReg_A0, reg_address, offset );    // base + offset
         ANDI( PspReg_A3, PspReg_A0, 3 );    //copy low 2 bits to A3
 		XOR( PspReg_A0, PspReg_A0, PspReg_A3);	//Zero low 2 bits in address
