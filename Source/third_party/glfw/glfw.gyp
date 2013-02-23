@@ -13,11 +13,11 @@
 				],
 			},
 			'link_settings': {
-			  'libraries': [
-			    '$(SDKROOT)/System/Library/Frameworks/Cocoa.framework',
-			    '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
-			    '$(SDKROOT)/System/Library/Frameworks/IOKit.framework',
-			  ],
+				'libraries': [
+					'$(SDKROOT)/System/Library/Frameworks/Cocoa.framework',
+					'$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
+					'$(SDKROOT)/System/Library/Frameworks/IOKit.framework',
+				],
 			},
 			'sources': [
 				'lib/cocoa/cocoa_enable.m',
