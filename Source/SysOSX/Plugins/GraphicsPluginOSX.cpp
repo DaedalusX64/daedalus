@@ -17,7 +17,6 @@
 EFrameskipValue     gFrameskipValue = FV_DISABLED;
 u32                 gVISyncRate     = 1500;
 
-
 class CGraphicsPluginImpl : public CGraphicsPlugin
 {
 	public:
