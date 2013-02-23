@@ -578,6 +578,8 @@ void	CTexture::DumpTexture() const
 		void *	texels;
 		void *	palette;
 
+		// Note that we re-convert the texels because those in the native texture may well already
+		// be swizzle. Maybe we should just have an unswizzle routine?
 		if( GenerateTexels( &texels, &palette, mTextureInfo, mpTexture->GetFormat(), mpTexture->GetStride(), mpTexture->GetBytesRequired() ) )
 		{
 			// NB - this does not include the mirrored texels
@@ -586,9 +588,13 @@ void	CTexture::DumpTexture() const
 			// We have to do this because the palette texels come from emulated tmem, rather
 			// than ram. This means that when we dump out the texture here, tmem won't necessarily
 			// contain our pixels.
-			// Note that we re-convert the texels because those in the native texture may well already
-			// be swizzle. Maybe we should just have an unswizzle routine?
-			PngSaveImage( filepath, texels, mpTexture->GetPalette(), mpTexture->GetFormat(), mpTexture->GetStride(), mTextureInfo.GetWidth(), mTextureInfo.GetHeight(), true );
+			#ifdef DAEDALUS_PSP
+			const void * palette = mpTexture->GetPalette();
+			#else
+			const void * palette = NULL;
+			#endif
+
+			PngSaveImage( filepath, texels, palette, mpTexture->GetFormat(), mpTexture->GetStride(), mTextureInfo.GetWidth(), mTextureInfo.GetHeight(), true );
 		}
 	}
 }

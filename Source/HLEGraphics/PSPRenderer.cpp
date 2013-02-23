@@ -2662,6 +2662,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 
 				//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
 				//If T1 Hack is not enabled index can never be other than 0
+#ifdef DAEDALUS_PSP
 				if(index)
 				{
 					const TextureInfo & ti0(mpTexture[ 0 ]->GetTextureInfo());
@@ -2702,6 +2703,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 						}
 					}
 				}
+#endif // DAEDALUS_PSP
 
 				if( native_texture != NULL )
 				{
@@ -2849,6 +2851,10 @@ void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0
 	sceGuEnable(GU_BLEND);
 	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
 
+#ifdef DAEDALUS_OSX
+	DAEDALUS_ERROR( "Draw2DTextureBlit is not implemented on OSX" );
+#else
+
 // 0 Simpler blit algorithm, but doesn't handle big textures as good? (see StarSoldier)
 // 1 More complex algorithm. used in newer versions of TriEngine, fixes the main screen in StarSoldier
 // Note : We ignore handling height > 512 textures for now
@@ -2977,6 +2983,8 @@ void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0
 		}
 	}
 #endif
+
+#endif // DAEDALUS_OSX
 }
 
 extern void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
