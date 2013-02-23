@@ -2667,11 +2667,12 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 
 					if((ti0.GetFormat() == G_IM_FMT_RGBA) && (ti.GetFormat() == G_IM_FMT_I) && (ti.GetWidth() == ti0.GetWidth()) && (ti.GetHeight() == ti0.GetHeight()))
 					{
+						const CRefPtr<CNativeTexture> & native_texture0( mpTexture[ 0 ]->GetTexture() );
+
 						if( g_ROM.T1_HACK )
 						{
-							const CRefPtr<CNativeTexture> & native_texture0( mpTexture[ 0 ]->GetTexture() );
-							u32* dst=(u32*)(native_texture->GetData());
-							u32* src=(u32*)(native_texture0->GetData());
+							const u32 * src = static_cast<const u32*>(native_texture0->GetData());
+							u32 * dst = static_cast<u32*>(const_cast<void*>(native_texture->GetData()));
 
 							//Merge RGB + I -> RGBA in texture 1
 							//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
@@ -2685,9 +2686,8 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 						}
 						else
 						{
-							const CRefPtr<CNativeTexture> & native_texture0( mpTexture[ 0 ]->GetTexture() );
-							u32* src=(u32*)(native_texture->GetData());
-							u32* dst=(u32*)(native_texture0->GetData());
+							const u32* src = static_cast<const u32*>(native_texture->GetData());
+							u32* dst = static_cast<u32*>(const_cast<void*>(native_texture0->GetData()));
 
 							//Merge RGB + I -> RGBA in texture 0
 							//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
