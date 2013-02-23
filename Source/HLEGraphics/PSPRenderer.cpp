@@ -2852,15 +2852,14 @@ void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0
 // 1 More complex algorithm. used in newer versions of TriEngine, fixes the main screen in StarSoldier
 // Note : We ignore handling height > 512 textures for now
 #if 1
-	u8* pData = (u8*)( texture->GetData()) ;
 	if ( u1 > 512.f )
 	{
 		s32 off = (u1>u0) ? ((int)u0 & ~31) : ((int)u1 & ~31);
 
-		pData += off * GetBitsPerPixel( texture->GetFormat() );
+		const u8* data = static_cast<const u8*>( texture->GetData()) + off * GetBitsPerPixel( texture->GetFormat() );
 		u1 -= off;
 		u0 -= off;
-		sceGuTexImage( 0, Min<u32>(512,texture->GetCorrectedWidth()), Min<u32>(512,texture->GetCorrectedHeight()), texture->GetBlockWidth(), pData );
+		sceGuTexImage( 0, Min<u32>(512,texture->GetCorrectedWidth()), Min<u32>(512,texture->GetCorrectedHeight()), texture->GetBlockWidth(), data );
 	}
 
 	f32 start, end;
@@ -2910,7 +2909,7 @@ void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0
 	f32 xstep = (width/(u1-u0) * uslice);
 	f32 ustep = ((u1-u0) > 0 ? uslice : -uslice);
 
-	u8* data = (u8*)(texture->GetData());
+	const u8* data = static_cast<const u8*>(texture->GetData());
 
 	for ( ; cur_y < y_end; cur_y+=ystep, cur_v+=vstep )
 	{
@@ -2931,7 +2930,7 @@ void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0
 			source_height = (cur_v-v_end);
 		}
 
-		u8* udata = data;
+		const u8* udata = data;
 		// blit maximizing the use of the texture-cache
 		for( ; cur_x < x_end; cur_x+=xstep, cur_u+=ustep )
 		{
