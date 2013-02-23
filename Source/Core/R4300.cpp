@@ -125,7 +125,7 @@ typedef f64 d64;
 #endif
 
 
-inline void SpeedHack(u32 pc, u32 new_pc)
+__forceinline void SpeedHack(u32 pc, u32 new_pc)
 {
 #ifdef SPEEDHACK_INTERPRETER
 	// If jumping to the same address, this might be a busy-wait
@@ -178,7 +178,7 @@ inline void SpeedHack(u32 pc, u32 new_pc)
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void StoreFPR_Long( u32 reg, u64 value )
+__forceinline void StoreFPR_Long( u32 reg, u64 value )
 {
 	REG64	r;
 	r._u64 = value;
@@ -192,7 +192,7 @@ inline void StoreFPR_Long( u32 reg, u64 value )
 //*****************************************************************************
 #define SIMULATESIG 0x1234	//Reduce signature to load value with one OP
 
-inline u64 LoadFPR_Long( u32 reg )
+__forceinline u64 LoadFPR_Long( u32 reg )
 {
 	REG64 res;
 #ifdef SIM_DOUBLES
@@ -210,7 +210,7 @@ inline u64 LoadFPR_Long( u32 reg )
 	return res._u64;
 }
 
-inline d64 LoadFPR_Double( u32 reg )
+__forceinline d64 LoadFPR_Double( u32 reg )
 {
 #ifdef SIM_DOUBLES
 	if (gCPUState.FPU[reg+0]._u32 == SIMULATESIG)
@@ -228,13 +228,13 @@ inline d64 LoadFPR_Double( u32 reg )
 }
 
 #ifdef SIM_DOUBLES
-inline void StoreFPR_Double( u32 reg, d64 value )
+__forceinline void StoreFPR_Double( u32 reg, d64 value )
 {
 	gCPUState.FPU[reg+0]._u32 = SIMULATESIG;
 	gCPUState.FPU[reg+1]._f32 = f32( value );	//No Coversion
 }
 #else
-inline void StoreFPR_Double( u32 reg, f64 value )
+__forceinline void StoreFPR_Double( u32 reg, f64 value )
 {
 	REG64 r;
 	r._f64 = value;

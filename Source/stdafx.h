@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 #ifndef _MSC_VER
 #define MAX_PATH 260
-#define __forceinline	inline
+#define __forceinline	inline __attribute__((always_inline))
 #endif
 
 
