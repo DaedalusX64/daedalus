@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/DLParser.h"
 
 #include "Graphics/GraphicsContext.h"
+#include "Plugins/GraphicsPlugin.h"
 
 #include "Utility/Profiler.h"
 #include "Utility/FramerateLimiter.h"
@@ -119,27 +120,23 @@ static void	UpdateFramerate()
 }
 }
 
-
-//*****************************************************************************
-//
-//*****************************************************************************
-CGraphicsPluginPsp::CGraphicsPluginPsp()
+class CGraphicsPluginImpl : public CGraphicsPlugin
 {
+	public:
+				bool		Initialise();
 
-}
+		virtual bool		StartEmulation()		{ return true; }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-CGraphicsPluginPsp::~CGraphicsPluginPsp()
-{
+		virtual void		ViStatusChanged()		{}
+		virtual void		ViWidthChanged()		{}
+		virtual void		ProcessDList();
 
-}
+		virtual void		UpdateScreen();
 
-//*****************************************************************************
-//
-//*****************************************************************************
-bool CGraphicsPluginPsp::Initialise()
+		virtual void		RomClosed();
+};
+
+bool CGraphicsPluginImpl::Initialise()
 {
 	if(!PSPRenderer::Create())
 	{
@@ -159,32 +156,7 @@ bool CGraphicsPluginPsp::Initialise()
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-bool CGraphicsPluginPsp::StartEmulation()
-{
-	return true;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void CGraphicsPluginPsp::ViStatusChanged()
-{
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void CGraphicsPluginPsp::ViWidthChanged()
-{
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void CGraphicsPluginPsp::ProcessDList()
+void CGraphicsPluginImpl::ProcessDList()
 {
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if (!DLDebugger_Process())
@@ -201,10 +173,8 @@ extern u32 gTotalInstructionCount;
 extern u32 gNumDListsCulled;
 extern u32 gNumRectsClipped;
 #endif
-//*****************************************************************************
-//
-//*****************************************************************************
-void CGraphicsPluginPsp::UpdateScreen()
+
+void CGraphicsPluginImpl::UpdateScreen()
 {
 	//gVblCount++;
 
@@ -296,28 +266,19 @@ void CGraphicsPluginPsp::UpdateScreen()
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void CGraphicsPluginPsp::RomClosed()
+void CGraphicsPluginImpl::RomClosed()
 {
-	//
-	//	Clean up resources used by the PSP build
-	//
 	DBGConsole_Msg(0, "Finalising PSPGraphics");
 	DLParser_Finalise();
 	CTextureCache::Destroy();
 	PSPRenderer::Destroy();
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-CGraphicsPlugin *		CreateGraphicsPlugin()
+CGraphicsPlugin * CreateGraphicsPlugin()
 {
 	DBGConsole_Msg( 0, "Initialising Graphics Plugin [CPSP]" );
 
-	CGraphicsPluginPsp *	plugin( new CGraphicsPluginPsp );
+	CGraphicsPluginImpl * plugin = new CGraphicsPluginImpl;
 	if( !plugin->Initialise() )
 	{
 		delete plugin;

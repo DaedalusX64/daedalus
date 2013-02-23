@@ -24,31 +24,5 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef GRAPHICSPLUGINPSP_H__
 #define GRAPHICSPLUGINPSP_H__
 
-#include "Plugins/GraphicsPlugin.h"
-
-
-class CGraphicsPluginPsp : public CGraphicsPlugin
-{
-	public:
-		CGraphicsPluginPsp();
-
-		virtual ~CGraphicsPluginPsp();
-
-		virtual bool		StartEmulation();
-
-		virtual void		ViStatusChanged();
-		virtual void		ViWidthChanged();
-		virtual void		ProcessDList();
-
-		virtual void		UpdateScreen();
-
-		virtual void		RomClosed();
-
-	private:
-		friend CGraphicsPlugin * CreateGraphicsPlugin();
-
-				bool		Initialise();
-
-};
 
 #endif //GRAPHICSPLUGINPSP_H__
