@@ -1,0 +1,6 @@
+#ifndef GRAPHICSPLUGINOSX_H__
+#define GRAPHICSPLUGINOSX_H__
+
+
+
+#endif //GRAPHICSPLUGINOSX_H__

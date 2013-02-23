@@ -130,11 +130,6 @@ void Dynarec_SetCPUStuffToDo()
 }
 
 
-class CGraphicsPlugin *	CreateGraphicsPlugin()
-{
-	return NULL;
-}
-
 extern "C" {
 void _EnterDynaRec()
 {
