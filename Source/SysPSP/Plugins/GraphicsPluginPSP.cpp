@@ -123,6 +123,8 @@ static void	UpdateFramerate()
 class CGraphicsPluginImpl : public CGraphicsPlugin
 {
 	public:
+		~CGraphicsPluginImpl();
+
 				bool		Initialise();
 
 		virtual bool		StartEmulation()		{ return true; }
@@ -135,6 +137,10 @@ class CGraphicsPluginImpl : public CGraphicsPlugin
 
 		virtual void		RomClosed();
 };
+
+CGraphicsPluginImpl::~CGraphicsPluginImpl()
+{
+}
 
 bool CGraphicsPluginImpl::Initialise()
 {
