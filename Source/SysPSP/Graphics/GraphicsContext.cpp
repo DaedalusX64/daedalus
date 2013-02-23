@@ -108,6 +108,7 @@ static const ScePspIMatrix4 dither_matrixB =
 class IGraphicsContext : public CGraphicsContext
 {
 public:
+	IGraphicsContext();
 	virtual ~IGraphicsContext();
 
 	bool				Initialise();
@@ -138,11 +139,7 @@ public:
 private:
 	void				SaveScreenshot( const char* filename, s32 x, s32 y, u32 width, u32 height );
 
-protected:
-	friend class CSingleton< CGraphicsContext >;
-
-	IGraphicsContext();
-
+private:
 	bool				mInitialised;
 
 	void *				mpBuffers[2];
