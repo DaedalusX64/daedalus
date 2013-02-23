@@ -110,6 +110,7 @@ class IGraphicsContext : public CGraphicsContext
 public:
 	virtual ~IGraphicsContext();
 
+	bool				Initialise();
 	bool				IsInitialised() const { return mInitialised; }
 
 	void				SwitchToChosenDisplay();
@@ -127,7 +128,6 @@ public:
 	void				EndFrame();
 	bool				UpdateFrame( bool wait_for_vbl );
 	bool				GetBufferSize( u32 * p_width, u32 * p_height );
-	bool				Initialise();
 
 	void				SetDebugScreenTarget( ETargetSurface buffer );
 
@@ -160,23 +160,14 @@ protected:
 //*************************************************************************************
 template<> bool CSingleton< CGraphicsContext >::Create()
 {
-	IGraphicsContext * pNewInstance;
-
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
 
-	pNewInstance = new IGraphicsContext();
-	if (!pNewInstance)
-	{
-		return false;
-	}
-
-	pNewInstance->Initialise();
-
-	mpInstance = pNewInstance;
+	IGraphicsContext * instance = new IGraphicsContext();
+	instance->Initialise();
+	mpInstance = instance;
 
 	return true;
 }
-
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
