@@ -567,8 +567,8 @@ void PSPRenderer::SetPSPViewport( s32 x, s32 y, u32 w, u32 h )
 	mN64ToPSPScale.x = gZoomX * f32( w ) / fViWidth;
 	mN64ToPSPScale.y = gZoomX * f32( h ) / fViHeight;
 
-	mN64ToPSPTranslate.x  = f32( x - pspFpuRound(0.55f * (gZoomX - 1.0f) * fViWidth));
-	mN64ToPSPTranslate.y  = f32( y - pspFpuRound(0.55f * (gZoomX - 1.0f) * fViHeight));
+	mN64ToPSPTranslate.x  = f32( x - Round(0.55f * (gZoomX - 1.0f) * fViWidth));
+	mN64ToPSPTranslate.y  = f32( y - Round(0.55f * (gZoomX - 1.0f) * fViHeight));
 
 	if( gRumblePakActive )
 	{
@@ -639,8 +639,8 @@ inline void PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) con
 #else
 inline void PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
 {
-	answ.x = pspFpuRound( pspFpuRound( n64_coords.x ) * mN64ToPSPScale.x + mN64ToPSPTranslate.x );
-	answ.y = pspFpuRound( pspFpuRound( n64_coords.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y );
+	answ.x = Round( Round( n64_coords.x ) * mN64ToPSPScale.x + mN64ToPSPTranslate.x );
+	answ.y = Round( Round( n64_coords.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y );
 }
 #endif
 
@@ -1088,11 +1088,11 @@ void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	v2 screen1;
 	if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
 	{
-		screen0.x = pspFpuRound( pspFpuRound( HD_SCALE * xy0.x ) * mN64ToPSPScale.x + 59 );	//59 in translate is an ugly hack that only work on 480x272 display//Corn
-		screen0.y = pspFpuRound( pspFpuRound( xy0.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y );
+		screen0.x = Round( Round( HD_SCALE * xy0.x ) * mN64ToPSPScale.x + 59 );	//59 in translate is an ugly hack that only work on 480x272 display//Corn
+		screen0.y = Round( Round( xy0.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y );
 
-		screen1.x = pspFpuRound( pspFpuRound( HD_SCALE * xy1.x ) * mN64ToPSPScale.x + 59 ); //59 in translate is an ugly hack that only work on 480x272 display//Corn
-		screen1.y = pspFpuRound( pspFpuRound( xy1.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y );
+		screen1.x = Round( Round( HD_SCALE * xy1.x ) * mN64ToPSPScale.x + 59 ); //59 in translate is an ugly hack that only work on 480x272 display//Corn
+		screen1.y = Round( Round( xy1.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y );
 	}
 	else
 	{

@@ -464,6 +464,7 @@ inline bool IsNaN_Float(float x)
 
 
 #define Sqrt(x)  pspFpuSqrt((x))
+#define Round(x) pspFpuRound((x))
 #define Sinf(x)  vfpu_sinf((x))
 #define Cosf(x)  vfpu_cosf((x))
 
@@ -474,6 +475,11 @@ inline bool IsNaN_Float(float x)
 inline float Sqrt(float x)
 {
 	return sqrtf( x );
+}
+
+inline float Round(float x)
+{
+	return floorf(x + 0.5f);
 }
 
 #define Abs(x)	fabsf((x))
