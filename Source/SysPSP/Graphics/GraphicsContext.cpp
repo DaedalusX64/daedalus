@@ -19,11 +19,11 @@
 */
 
 #include "stdafx.h"
+#include "Graphics/GraphicsContext.h"
 
 #include "../HLEGraphics/RDP.h"
 #include "../HLEGraphics/PSPRenderer.h"
 
-#include "Graphics/GraphicsContext.h"
 #include "Graphics/PngUtil.h"
 #include "SysPSP/Graphics/VideoMemoryManager.h"
 
