@@ -404,7 +404,7 @@ namespace
 		case TexFmt_CI8_8888:	MirrorTexelsST< Psp::PfCI8 , MirrorS, MirrorT >( dst, dst_stride, src, src_stride, width, height ); handled = true; break;
 		}
 
-		DAEDALUS_ASSERT( handled, "Unhandled format" );
+		DAEDALUS_ASSERT( handled, "Unhandled format" ); use(handled);
 	}
 }
 
