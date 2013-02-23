@@ -42,13 +42,16 @@ class IGraphicsContext : public CGraphicsContext
 	{
 		//glEnd();
 	}
-	virtual bool UpdateFrame( bool wait_for_vbl )
+	virtual void UpdateFrame( bool wait_for_vbl )
 	{
 		//SwapBuffers( wglGetCurrentDC() );
-		return true;
 	}
 
-	virtual bool GetBufferSize(u32 * p_width, u32 * p_height) { *p_width=640; *p_height=480; return true;}
+	virtual void GetScreenSize(u32 * width, u32 * height) const
+	{
+		*p_width=640;
+		*p_height=480;
+	}
 
 	virtual void SetDebugScreenTarget( ETargetSurface buffer ) {}
 
@@ -65,8 +68,9 @@ private:
 
 template<> bool CSingleton< CGraphicsContext >::Create()
 {
-	mpInstance = new IGraphicsContext();
+	DAEDALUS_ASSERT_Q(mpInstance == NULL);
 
+	mpInstance = new IGraphicsContext();
 	return mpInstance->Initialise();
 }
 

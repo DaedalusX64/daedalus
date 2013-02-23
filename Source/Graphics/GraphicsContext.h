@@ -34,7 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 class CGraphicsContext : public CSingleton< CGraphicsContext >
 {
 public:
-	//CGraphicsContext();
 	virtual ~CGraphicsContext() {}
 
 	enum ETargetSurface
@@ -60,18 +59,14 @@ public:
 	virtual void Clear(u32 frame_buffer_col, u32 depth) = 0;
 	virtual	void BeginFrame() = 0;
 	virtual void EndFrame() = 0;
-	virtual bool UpdateFrame( bool wait_for_vbl ) = 0;
+	virtual void UpdateFrame( bool wait_for_vbl ) = 0;
 
-	virtual bool GetBufferSize(u32 * p_width, u32 * p_height) = 0;
+	virtual void GetScreenSize(u32 * width, u32 * height) const = 0;
 	virtual void SetDebugScreenTarget( ETargetSurface buffer ) = 0;
 
-	virtual void ViewportType( u32 * d_width, u32 * d_height ) =0;
+	virtual void ViewportType( u32 * d_width, u32 * d_height ) = 0;
 	virtual void DumpNextScreen() = 0;
 	virtual void DumpScreenShot() = 0;
-
-	//static bool CleanScene;
-
-
 };
 
 #endif // __DAEDALUS_GRAPHICSCONTEXT_H__

@@ -107,8 +107,6 @@ enum CycleType
 };
 
 extern bool gRumblePakActive;
-extern u32 SCR_WIDTH;
-extern u32 SCR_HEIGHT;
 extern u32 gAuxAddr;
 
 static f32 fViWidth = 320.0f;
@@ -379,7 +377,10 @@ void PSPRenderer::RestoreRenderStates()
 	sceGuEnable(GU_CLIP_PLANES);
 	//sceGuDisable(GU_CLIP_PLANES);
 
-	sceGuScissor(0,0, SCR_WIDTH,SCR_HEIGHT);
+	u32 width, height;
+	CGraphicsContext::Get()->GetScreenSize(&width, &height);
+
+	sceGuScissor(0,0, width,height);
 	sceGuEnable(GU_SCISSOR_TEST);
 
 	// We do our own lighting

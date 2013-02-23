@@ -76,9 +76,9 @@ extern bool gTakeScreenshotSS;
 //////////////////////////////////////////////
 //bool CGraphicsContext::CleanScene = false;
 //////////////////////////////////////////////
-u32 BUF_WIDTH = 512;
-u32 SCR_WIDTH = 480;
-u32 SCR_HEIGHT = 272;
+static u32 BUF_WIDTH = 512;
+static u32 SCR_WIDTH = 480;
+static u32 SCR_HEIGHT = 272;
 
 u32 LACED_DRAW;
 u32 LACED_DISP;
@@ -127,8 +127,8 @@ public:
 
 	void				BeginFrame();
 	void				EndFrame();
-	bool				UpdateFrame( bool wait_for_vbl );
-	bool				GetBufferSize( u32 * p_width, u32 * p_height );
+	void				UpdateFrame( bool wait_for_vbl );
+	void				GetScreenSize( u32 * width, u32 * height ) const;
 
 	void				SetDebugScreenTarget( ETargetSurface buffer );
 
@@ -159,11 +159,8 @@ template<> bool CSingleton< CGraphicsContext >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
 
-	IGraphicsContext * instance = new IGraphicsContext();
-	instance->Initialise();
-	mpInstance = instance;
-
-	return true;
+	mpInstance = new IGraphicsContext();
+	return mpInstance->Initialise();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -317,7 +314,7 @@ void IGraphicsContext::EndFrame()
 //*****************************************************************************
 //
 //*****************************************************************************
-bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
+void IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 {
 	DAEDALUS_PROFILE( "IGraphicsContext::UpdateFrame" );
 
@@ -404,8 +401,6 @@ bool IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 	// Hack to semi-fix XG2, it uses setprimdepth for background and also does not clear zbuffer //Corn
 	//
 	if( g_ROM.GameHacks == EXTREME_G2 ) sceGuClear(GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);	//Clear Zbuffer
-
-	return true;
 }
 
 //*****************************************************************************
@@ -720,13 +715,12 @@ void IGraphicsContext::StoreSaveScreenData()
 //*****************************************************************************
 //
 //*****************************************************************************
-bool IGraphicsContext::GetBufferSize(u32 * p_width, u32 * p_height)
+void IGraphicsContext::GetScreenSize(u32 * p_width, u32 * p_height) const
 {
 	*p_width = SCR_WIDTH;
 	*p_height = SCR_HEIGHT;
-
-	return true;
 }
+
 //*****************************************************************************
 //
 //*****************************************************************************
