@@ -41,8 +41,8 @@ enum OpCodeValue {
 	OP_LUI			= 15,
 	OP_COPRO0		= 16,
 	OP_COPRO1		= 17,
-/*	OP_SRHACK1		= 18,
-	OP_SRHACK2		= 19,*/
+	OP_SRHACK1		= 18,	//hack OP
+	OP_SRHACK2		= 19,	//hack OP
 	OP_BEQL			= 20,
 	OP_BNEL			= 21,
 	OP_BLEZL		= 22,
@@ -51,13 +51,13 @@ enum OpCodeValue {
 	OP_DADDIU		= 25,
 	OP_LDL			= 26,
 	OP_LDR			= 27,
-/*	OP_PATCH		= 28,
-	OP_SRHACK_UNOPT = 29,
-	OP_SRHACK_OPT   = 30,
-	OP_SRHACK_NOOPT = 31,
-	OP_UNK4			= 29,
-	OP_UNK5			= 30,
-	OP_UNK6			= 31,*/
+	OP_PATCH		= 28,	//hack OP
+	OP_SRHACK_UNOPT = 29,	//hack OP
+	OP_SRHACK_OPT   = 30,	//hack OP
+	OP_SRHACK_NOOPT = 31,	//hack OP
+	OP_UNK4			= 29,	//unknown OP
+	OP_UNK5			= 30,	//unknown OP
+	OP_UNK6			= 31,	//unknown OP
 	OP_LB			= 32,
 	OP_LH			= 33,
 	OP_LWL			= 34,
@@ -76,19 +76,19 @@ enum OpCodeValue {
 	OP_CACHE		= 47,
 	OP_LL			= 48,
 	OP_LWC1			= 49,
-/*	OP_UNK7			= 50,
-	OP_UNK8			= 51,*/
+	OP_UNK7			= 50,	//unknown OP
+	OP_UNK8			= 51,	//unknown OP
 	OP_LLD			= 52,
 	OP_LDC1			= 53,
-//	OP_LDC2 		= 54,
+	OP_LDC2 		= 54,	//not used OP
 	OP_LD			= 55,
 	OP_SC 			= 56,
 	OP_SWC1 		= 57,
-	OP_DBG_BKPT		= 58,
-	OP_UNK10		= 59,
+	OP_DBG_BKPT		= 58,	//unknown OP
+	OP_UNK10		= 59,	//unknown OP
 	OP_SCD 			= 60,
 	OP_SDC1 		= 61,
-//	OP_SDC2 		= 62,/
+	OP_SDC2 		= 62,	//not used OP
 	OP_SD			= 63
 };
 

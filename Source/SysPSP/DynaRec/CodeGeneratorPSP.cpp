@@ -555,7 +555,7 @@ EPspReg	CCodeGeneratorPSP::GetRegisterNoLoad( EN64Reg n64_reg, u32 lo_hi_idx, EP
 }
 
 //*****************************************************************************
-//Copy the value from a (cached) N64 register a scratch PSP register
+//Load value from an emulated N64 register or known value to a PSP register
 //*****************************************************************************
 void	CCodeGeneratorPSP::GetRegisterValue( EPspReg psp_reg, EN64Reg n64_reg, u32 lo_hi_idx )
 {
@@ -563,6 +563,12 @@ void	CCodeGeneratorPSP::GetRegisterValue( EPspReg psp_reg, EN64Reg n64_reg, u32 
 	{
 		//printf( "Loading %s[%d] <- %08x\n", RegNames[ n64_reg ], lo_hi_idx, mRegisterCache.GetKnownValue( n64_reg, lo_hi_idx ) );
 		LoadConstant( psp_reg, mRegisterCache.GetKnownValue( n64_reg, lo_hi_idx )._s32 );
+		if( mRegisterCache.IsCached( n64_reg, lo_hi_idx ) )
+		{
+			mRegisterCache.MarkAsValid( n64_reg, lo_hi_idx, true );
+			mRegisterCache.MarkAsDirty( n64_reg, lo_hi_idx, true );
+			mRegisterCache.ClearKnownValue( n64_reg, lo_hi_idx );
+		}
 	}
 	else
 	{
@@ -1416,81 +1422,6 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	//
 	switch( op_code.op )
 	{
-	case OP_J:			/* nothing to do */		handled = true; break;
-	case OP_JAL:		GenerateJAL( address );	handled = true; break;
-
-	case OP_ADDI:		GenerateADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
-	case OP_ADDIU:		GenerateADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
-	case OP_SLTI:		GenerateSLTI( rt, rs, s16( op_code.immediate ) );	handled = true; break;
-	case OP_SLTIU:		GenerateSLTIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
-
-	case OP_DADDI:		GenerateDADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
-	case OP_DADDIU:		GenerateDADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
-
-	case OP_ANDI:		GenerateANDI( rt, rs, op_code.immediate );			handled = true; break;
-	case OP_ORI:		GenerateORI( rt, rs, op_code.immediate );			handled = true; break;
-	case OP_XORI:		GenerateXORI( rt, rs, op_code.immediate );			handled = true; break;
-	case OP_LUI:		GenerateLUI( rt, s16( op_code.immediate ) );		handled = true; break;
-
-	case OP_LB:			GenerateLB( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_LBU:		GenerateLBU( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_LH:			GenerateLH( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_LHU:		GenerateLHU( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_LW:			GenerateLW( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_LD:			GenerateLD( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_LWC1:		GenerateLWC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
-#ifdef ENABLE_LDC1
-	case OP_LDC1:		if( !branch_delay_slot & gMemoryAccessOptimisation & mQuickLoad ) { GenerateLDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; } break;
-#endif
-
-#ifdef ENABLE_LWR_LWL
-	case OP_LWL:		GenerateLWL( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_LWR:		GenerateLWR( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-#endif
-
-	case OP_SB:			GenerateSB( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_SH:			GenerateSH( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_SW:			GenerateSW( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_SD:			GenerateSD( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_SWC1:		GenerateSWC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
-#ifdef ENABLE_SDC1
-	case OP_SDC1:		if( !branch_delay_slot & gMemoryAccessOptimisation & mQuickLoad ) { GenerateSDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; } break;
-#endif
-
-#ifdef ENABLE_SWR_SWL
-	case OP_SWL:		GenerateSWL( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-	case OP_SWR:		GenerateSWR( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
-#endif
-
-	case OP_BEQ:
-	case OP_BEQL:
-		GenerateBEQ( rs, rt, p_branch, p_branch_jump ); handled = true; break;
-	case OP_BNE:
-	case OP_BNEL:
-		GenerateBNE( rs, rt, p_branch, p_branch_jump ); handled = true; break;
-	case OP_BLEZ:
-	case OP_BLEZL:
-		GenerateBLEZ( rs, p_branch, p_branch_jump ); handled = true; break;
-	case OP_BGTZ:
-	case OP_BGTZL:
-		GenerateBGTZ( rs, p_branch, p_branch_jump ); handled = true; break;
-
-	case OP_CACHE:		GenerateCACHE( base, op_code.immediate, rt ); handled = true; break;
-
-	case OP_REGIMM:
-		switch( op_code.regimm_op )
-		{
-				// These can be handled by the same Generate function, as the 'likely' bit is handled elsewhere
-		case RegImmOp_BLTZ:
-		case RegImmOp_BLTZL:
-			GenerateBLTZ( rs, p_branch, p_branch_jump ); handled = true; break;
-
-		case RegImmOp_BGEZ:
-		case RegImmOp_BGEZL:
-			GenerateBGEZ( rs, p_branch, p_branch_jump ); handled = true; break;
-		}
-		break;
-
 	case OP_SPECOP:
 		switch( op_code.spec_op )
 		{
@@ -1543,6 +1474,77 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			break;
 		}
 		break;
+
+	case OP_REGIMM:
+		switch( op_code.regimm_op )
+		{
+				// These can be handled by the same Generate function, as the 'likely' bit is handled elsewhere
+		case RegImmOp_BLTZ:
+		case RegImmOp_BLTZL:
+			GenerateBLTZ( rs, p_branch, p_branch_jump ); handled = true; break;
+
+		case RegImmOp_BGEZ:
+		case RegImmOp_BGEZL:
+			GenerateBGEZ( rs, p_branch, p_branch_jump ); handled = true; break;
+		}
+		break;
+
+	case OP_J:			/* nothing to do */		handled = true; break;
+	case OP_JAL:		GenerateJAL( address );	handled = true; break;
+
+	case OP_BEQ:		GenerateBEQ( rs, rt, p_branch, p_branch_jump ); handled = true; break;
+	case OP_BEQL:		GenerateBEQ( rs, rt, p_branch, p_branch_jump ); handled = true; break;
+	case OP_BNE:		GenerateBNE( rs, rt, p_branch, p_branch_jump ); handled = true; break;
+	case OP_BNEL:		GenerateBNE( rs, rt, p_branch, p_branch_jump ); handled = true; break;
+	case OP_BLEZ:		GenerateBLEZ( rs, p_branch, p_branch_jump ); handled = true; break;
+	case OP_BLEZL:		GenerateBLEZ( rs, p_branch, p_branch_jump ); handled = true; break;
+	case OP_BGTZ:		GenerateBGTZ( rs, p_branch, p_branch_jump ); handled = true; break;
+	case OP_BGTZL:		GenerateBGTZ( rs, p_branch, p_branch_jump ); handled = true; break;
+
+	case OP_ADDI:		GenerateADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
+	case OP_ADDIU:		GenerateADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
+	case OP_SLTI:		GenerateSLTI( rt, rs, s16( op_code.immediate ) );	handled = true; break;
+	case OP_SLTIU:		GenerateSLTIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
+
+	case OP_DADDI:		GenerateDADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
+	case OP_DADDIU:		GenerateDADDIU( rt, rs, s16( op_code.immediate ) );	handled = true; break;
+
+	case OP_ANDI:		GenerateANDI( rt, rs, op_code.immediate );			handled = true; break;
+	case OP_ORI:		GenerateORI( rt, rs, op_code.immediate );			handled = true; break;
+	case OP_XORI:		GenerateXORI( rt, rs, op_code.immediate );			handled = true; break;
+	case OP_LUI:		GenerateLUI( rt, s16( op_code.immediate ) );		handled = true; break;
+
+	case OP_LB:			GenerateLB( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_LBU:		GenerateLBU( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_LH:			GenerateLH( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_LHU:		GenerateLHU( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_LW:			GenerateLW( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_LD:			GenerateLD( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_LWC1:		GenerateLWC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
+#ifdef ENABLE_LDC1
+	case OP_LDC1:		if( !branch_delay_slot & gMemoryAccessOptimisation & mQuickLoad ) { GenerateLDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; } break;
+#endif
+
+#ifdef ENABLE_LWR_LWL
+	case OP_LWL:		GenerateLWL( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_LWR:		GenerateLWR( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+#endif
+
+	case OP_SB:			GenerateSB( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_SH:			GenerateSH( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_SW:			GenerateSW( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_SD:			GenerateSD( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_SWC1:		GenerateSWC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; break;
+#ifdef ENABLE_SDC1
+	case OP_SDC1:		if( !branch_delay_slot & gMemoryAccessOptimisation & mQuickLoad ) { GenerateSDC1( address, branch_delay_slot, ft, base, s16( op_code.immediate ) );	handled = true; } break;
+#endif
+
+#ifdef ENABLE_SWR_SWL
+	case OP_SWL:		GenerateSWL( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+	case OP_SWR:		GenerateSWR( address, branch_delay_slot, rt, base, s16( op_code.immediate ) );	handled = true; break;
+#endif
+
+	case OP_CACHE:		GenerateCACHE( base, op_code.immediate, rt ); handled = true; break;
 
 	case OP_COPRO0:
 		switch( op_code.cop0_op )
