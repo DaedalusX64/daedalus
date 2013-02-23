@@ -27,6 +27,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/Vector2.h"
 
+#ifdef DAEDALUS_OSX
+#include <GL/glfw.h>
+#endif
+
 class c32;
 
 class CNativeTexture : public CRefCounted
@@ -54,10 +58,11 @@ class CNativeTexture : public CRefCounted
 		inline f32						GetScaleY() const				{ return mScale.y; }
 		u32								GetStride() const;
 		inline ETextureFormat			GetFormat() const				{ return mTextureFormat; }
+
+#ifdef DAEDALUS_PSP
 		inline const void *				GetPalette() const				{ return mpPalette; }
 		inline const void *				GetData() const					{ return mpData; }
-
-		inline bool						IsPalettised() const			{ return IsTextureFormatPalettised( mTextureFormat ); }
+#endif
 
 		u32								GetBytesRequired() const;
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -74,6 +79,12 @@ class CNativeTexture : public CRefCounted
 		u32					mCorrectedHeight;
 		u32					mTextureBlockWidth;		// Multiple of 16 bytes
 		v2					mScale;
+
+#ifdef DAEDALUS_OSX
+		GLuint				mTextureId;
+#endif
+
+#ifdef DAEDALUS_PSP
 		void *				mpData;
 		void *				mpPalette;
 		bool				mIsDataVidMem;
@@ -82,6 +93,7 @@ class CNativeTexture : public CRefCounted
 #ifdef DAEDALUS_ENABLE_ASSERTS
 		bool				mPaletteSet;
 #endif
+#endif // DAEDALUS_PSP
 };
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
