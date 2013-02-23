@@ -46,9 +46,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern void battery_warning();
 extern void HandleEndOfFrame();
 
+extern bool gFrameskipActive;
+
 u32		gSoundSync = 44100;
 u32		gVISyncRate = 1500;
-bool	gFrameskipActive = false;
 bool	gTakeScreenshot = false;
 bool	gTakeScreenshotSS = false;
 

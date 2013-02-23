@@ -165,6 +165,8 @@ char ** gUcodeName = (char **)gNormalInstructionName[ 0 ];
 char * gCustomInstructionName[256];
 #endif
 
+bool					gFrameskipActive = false;
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -566,7 +568,6 @@ void DLParser_Process()
 
 	DL_PF("DP: Firing up RDP!");
 
-	extern bool gFrameskipActive;
 	if(!gFrameskipActive)
 	{
 		PSPRenderer::Get()->SetVIScales();
