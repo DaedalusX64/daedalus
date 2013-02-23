@@ -5,7 +5,17 @@
 
 #include "Debug/DBGConsole.h"
 
+#include "HLEGraphics/PSPRenderer.h"
+#include "HLEGraphics/TextureCache.h"
+#include "HLEGraphics/DLParser.h"
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+#include "HLEGraphics/DisplayListDebugger.h"
+#endif
+
 #include "Plugins/GraphicsPlugin.h"
+
+EFrameskipValue     gFrameskipValue = FV_DISABLED;
+u32                 gVISyncRate     = 1500;
 
 
 class CGraphicsPluginImpl : public CGraphicsPlugin
@@ -32,6 +42,21 @@ CGraphicsPluginImpl::~CGraphicsPluginImpl()
 
 bool CGraphicsPluginImpl::Initialise()
 {
+	if(!PSPRenderer::Create())
+	{
+		return false;
+	}
+
+	if(!CTextureCache::Create())
+	{
+		return false;
+	}
+
+	if (!DLParser_Initialise())
+	{
+		return false;
+	}
+
     // Initialise GLFW
     if( !glfwInit() )
     {
@@ -61,6 +86,14 @@ bool CGraphicsPluginImpl::Initialise()
 
 void CGraphicsPluginImpl::ProcessDList()
 {
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	if (!DLDebugger_Process())
+	{
+		DLParser_Process();
+	}
+#else
+	DLParser_Process();
+#endif
 }
 
 void CGraphicsPluginImpl::UpdateScreen()

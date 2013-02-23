@@ -27,13 +27,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 char		gDaedalusExePath[MAX_PATH+1];
 
-// FIXME
-#include "Utility/Preferences.h"
-u32					gVISyncRate 	= 1500;
-f32 				gZoomX			= 1.0;
-EFrameskipValue		gFrameskipValue = FV_DISABLED;
-
-
 int main(int argc, char **argv)
 {
 	int result = 0;

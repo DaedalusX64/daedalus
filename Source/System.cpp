@@ -29,6 +29,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/RomDB.h"
 #ifdef DAEDALUS_PSP
 #include "Graphics/VideoMemoryManager.h"
+#endif
+
+#if defined(DAEDALUS_PSP) || defined(DAEDALUS_OSX)
 #include "Graphics/GraphicsContext.h"
 #endif
 
@@ -163,7 +166,7 @@ SysEntityEntry SysInitTable[] =
 	{"VideoMemory", CVideoMemoryManager::Create, NULL},
 #endif
 	{"RomBuffer", RomBuffer::Create, RomBuffer::Destroy},
-#ifdef DAEDALUS_PSP
+#if defined(DAEDALUS_PSP) || defined(DAEDALUS_OSX)
 	{"GraphicsContext", CGraphicsContext::Create, CGraphicsContext::Destroy},
 #endif
 };
