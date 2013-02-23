@@ -8,6 +8,9 @@
 				'lib/cocoa/',
 			],
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> [~] Fix glfw.gyp
       'direct_dependent_settings': {
         'include_dirs': [
           'include/',
@@ -20,8 +23,11 @@
 			    '$(SDKROOT)/System/Library/Frameworks/IOKit.framework',
 			  ],
 			},
+<<<<<<< HEAD
 =======
 >>>>>>> [~] Linke OSX build against GLFW
+=======
+>>>>>>> [~] Fix glfw.gyp
 			'sources': [
 				'lib/cocoa/cocoa_enable.m',
 				'lib/cocoa/cocoa_fullscreen.m',
@@ -44,9 +50,13 @@
 				'lib/thread.c',
 				'lib/time.c',
 <<<<<<< HEAD
+<<<<<<< HEAD
 				'lib/window.c',
 =======
 >>>>>>> [~] Linke OSX build against GLFW
+=======
+				'lib/window.c',
+>>>>>>> [~] Fix glfw.gyp
 			],
 		}
 	],
