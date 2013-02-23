@@ -5,8 +5,6 @@
 #include "Math/Math.h"
 #include "Math/MathUtil.h" // Swap
 
-#include <malloc.h>
-
 #ifdef DAEDALUS_PSP
 #include <pspvfpu.h>
 #endif
