@@ -261,32 +261,31 @@ void DMA_PI_CopyToRDRAM()
 			else
 				DMA_FLASH_CopyToDRAM(mem_address, cart_address, pi_length_reg);
 		}
-		/*else if (IsDom1Addr1(cart_address))
+		else if (IsDom1Addr1(cart_address))
 		{
 			DBGConsole_Msg(0, "[YReading from Cart domain 1/addr1] (Ignored)");
 		}
 		else
 		{
 			DBGConsole_Msg(0, "[YUnknown PI Address 0x%08x]", cart_address);
-		}*/
+		}
 	}
 	else
 	{
-		// for paper mario
-		// Doesn't seem to be needed?
-		/*if (cart_address < 0x1fc00000)
+		if (cart_address < 0x1fc00000)
 		{
-			... code below ...
-		*/
+			//DBGConsole_Msg(0, "[YReading from Cart domain 1/addr2]");
+			cart_address -= PI_DOM1_ADDR2;
+			CPU_InvalidateICacheRange( 0x80000000 | mem_address, pi_length_reg );
+			RomBuffer::CopyToRam( g_pu8RamBase, mem_address, gRamSize, cart_address, pi_length_reg );
 
-		//DBGConsole_Msg(0, "[YReading from Cart domain 1/addr2]");
-
-		// FIXME(strmnnrmn): this should be DOM1_ADDR3 if cart_address is > 0x1FD00000?
-		cart_address -= PI_DOM1_ADDR2;
-		CPU_InvalidateICacheRange( 0x80000000 | mem_address, pi_length_reg );
-		RomBuffer::CopyToRam( g_pu8RamBase, mem_address, gRamSize, cart_address, pi_length_reg );
-
-		OnCopiedRom();
+			OnCopiedRom();
+		}
+		else
+		{
+			// Paper Mario
+			DBGConsole_Msg(0, "[YReading from Cart domain 1/addr3]");
+		}
 	}
 
 	Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
