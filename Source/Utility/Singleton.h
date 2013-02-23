@@ -47,7 +47,7 @@ template < class T > class CSingleton
 
 		inline static T * Get()
 		{
-			DAEDALUS_ASSERT(mpInstance != NULL, __FUNCTION__ );
+			DAEDALUS_ASSERT(mpInstance != NULL, "%s", __PRETTY_FUNCTION__ );
 
 			return mpInstance;
 		}
