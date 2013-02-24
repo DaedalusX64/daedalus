@@ -1153,7 +1153,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 	//Always clear Zbuffer if Depthbuffer is selected //Corn
 	if (g_DI.Address == g_CI.Address)
 	{
-		CGraphicsContext::Get()->ClearZBuffer( 0 );
+		CGraphicsContext::Get()->ClearZBuffer();
 		DL_PF("    Clearing ZBuffer");
 		return;
 	}
@@ -1189,7 +1189,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 		// Clear color buffer (screen clear)
 		if( uViWidth == clear_screen_x && uViHeight == clear_screen_y )
 		{
-			CGraphicsContext::Get()->ClearColBuffer( colour.GetColour() );
+			CGraphicsContext::Get()->ClearColBuffer( colour );
 			DL_PF("    Clearing Colour Buffer");
 			return;
 		}

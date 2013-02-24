@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Utility/Singleton.h"
 
+class c32;
+
 // This class basically provides an extra level of security for our
 // multithreaded code. Threads can Grab the CGraphicsContext to prevent
 // other threads from changing/releasing any of the pointers while it is
@@ -53,10 +55,11 @@ public:
 #endif
 
 	virtual void ClearAllSurfaces() = 0;
-	virtual void ClearZBuffer(u32 depth) = 0;
-	virtual void ClearColBuffer(u32 col) = 0;
-	virtual void Clear(bool clear_screen, bool clear_depth) = 0;
-	virtual void Clear(u32 frame_buffer_col, u32 depth) = 0;
+	virtual void ClearToBlack() = 0;
+	virtual void ClearZBuffer() = 0;
+	virtual void ClearColBuffer(const c32 & colour) = 0;
+	virtual void ClearWithColour(u32 frame_buffer_col, u32 depth) = 0;
+
 	virtual	void BeginFrame() = 0;
 	virtual void EndFrame() = 0;
 	virtual void UpdateFrame( bool wait_for_vbl ) = 0;

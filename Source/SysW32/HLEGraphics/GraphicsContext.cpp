@@ -14,20 +14,12 @@ class IGraphicsContext : public CGraphicsContext
 	virtual void ClearAllSurfaces()
 	{
 	}
-	virtual void Clear(bool clear_screen, bool clear_depth)
+	virtual void ClearToBlack()
 	{
-		GLbitfield mask = 0;
-
-		if (clear_screen)
-			mask |= GL_COLOR_BUFFER_BIT;
-		if (clear_depth)
-			mask |= GL_DEPTH_BUFFER_BIT;
-
-		if (mask != 0)
-			glClear(mask);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	virtual void Clear(u32 frame_buffer_col, u32 depth)
+	virtual void ClearWithColour(u32 frame_buffer_col, u32 depth)
 	{
 		glClearColor(0, 0, 0, 0);
 		glClearDepth(depth);

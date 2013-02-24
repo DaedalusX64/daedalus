@@ -3,6 +3,8 @@
 
 #include <GL/glfw.h>
 
+#include "Graphics/ColourValue.h"
+
 
 static u32 SCR_WIDTH = 640;
 static u32 SCR_HEIGHT = 480;
@@ -18,10 +20,10 @@ public:
 	virtual bool IsInitialised() const { return true; }
 
 	virtual void ClearAllSurfaces() {}
-	virtual void ClearZBuffer(u32 depth) {}
-	virtual void ClearColBuffer(u32 col) {}
-	virtual void Clear(bool clear_screen, bool clear_depth) {}
-	virtual void Clear(u32 frame_buffer_col, u32 depth) {}
+	virtual void ClearZBuffer();
+	virtual void ClearColBuffer(const c32 & colour);
+	virtual void ClearToBlack();
+	virtual void ClearWithColour(u32 frame_buffer_col, u32 depth) {}
 	virtual	void BeginFrame() {}
 	virtual void EndFrame() {}
 	virtual void UpdateFrame( bool wait_for_vbl ) {}
@@ -79,3 +81,23 @@ bool IGraphicsContext::Initialise()
 
     return true;
 }
+
+void IGraphicsContext::ClearToBlack()
+{
+	glClearDepth( 0.0f );
+    glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+}
+
+void IGraphicsContext::ClearZBuffer()
+{
+	glClearDepth( 0.0f );
+    glClear( GL_DEPTH_BUFFER_BIT );
+}
+
+void IGraphicsContext::ClearColBuffer(const c32 & colour)
+{
+    glClearColor( colour.GetRf(), colour.GetGf(), colour.GetBf(), colour.GetAf() );
+    glClear( GL_COLOR_BUFFER_BIT );
+}
+

@@ -120,10 +120,10 @@ public:
 
 	void				ClearAllSurfaces();
 
-	void				Clear(bool clear_screen, bool clear_depth);
-	void				Clear(u32 frame_buffer_col, u32 depth);
-	void				ClearZBuffer(u32 depth);
-	void				ClearColBuffer(u32 col);
+	void				ClearToBlack();
+	void				ClearWithColour(u32 frame_buffer_col, u32 depth);
+	void				ClearZBuffer();
+	void				ClearColBuffer(const c32 & colour);
 
 	void				BeginFrame();
 	void				EndFrame();
@@ -219,7 +219,7 @@ void IGraphicsContext::ClearAllSurfaces()
 		sceGuOffset(2048 - (SCR_WIDTH/2),2048 - (SCR_HEIGHT/2));
 		sceGuViewport(2048,2048,SCR_WIDTH,SCR_HEIGHT);
 		sceGuScissor(0,0,SCR_WIDTH,SCR_HEIGHT);
-		Clear( true, true );
+		ClearToBlack();
 		EndFrame();
 		//Get Ready for next Frame
 		UpdateFrame( false );
@@ -231,54 +231,32 @@ void IGraphicsContext::ClearAllSurfaces()
 //*****************************************************************************
 //Clear screen and/or Zbuffer
 //*****************************************************************************
-void IGraphicsContext::Clear(bool clear_screen, bool clear_depth)
+void IGraphicsContext::ClearToBlack()
 {
-	u32	flags(GU_FAST_CLEAR_BIT);
-
-	if(clear_screen)
-	{
-		sceGuClearColor(0xff000000);
-		flags |= GU_COLOR_BUFFER_BIT;
-	}
-
-	if(clear_depth)
-	{
-		sceGuClearDepth(0);
-		flags |= GU_DEPTH_BUFFER_BIT;
-	}
-
-	sceGuClear(flags);
+	sceGuClearColor(0xff000000);
+	sceGuClearDepth(0);
+	sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void IGraphicsContext::Clear(u32 frame_buffer_col, u32 depth)
+void IGraphicsContext::ClearWithColour(u32 frame_buffer_col, u32 depth)
 {
 	sceGuClearColor(frame_buffer_col);
 	sceGuClearDepth(depth);				// 1?
 	sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void IGraphicsContext::ClearZBuffer(u32 depth)
+void IGraphicsContext::ClearZBuffer()
 {
-	//Clear Zbuffer
-	sceGuClearDepth(depth);
-	sceGuClear( GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT );
+	sceGuClearDepth(0);
+	sceGuClear(GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void IGraphicsContext::ClearColBuffer(u32 col)
+void IGraphicsContext::ClearColBuffer(const c32 & colour)
 {
-	//Clear Colour buffer
-	sceGuClearColor(col);
-	sceGuClear( GU_COLOR_BUFFER_BIT | GU_FAST_CLEAR_BIT );
+	sceGuClearColor(colour.GetColour());
+	sceGuClear(GU_COLOR_BUFFER_BIT | GU_FAST_CLEAR_BIT);
 }
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -395,7 +373,7 @@ void IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 	if( gCleanSceneEnabled )
 	{
 		sceGuScissor(0,0,SCR_WIDTH,SCR_HEIGHT);	//Make sure we clear whole screen
-		ClearColBuffer(0xff000000); // ToDo : Use gFillColor instead?
+		ClearColBuffer( c32(0xff000000) ); // ToDo : Use gFillColor instead?
 	}
 
 	// Hack to semi-fix XG2, it uses setprimdepth for background and also does not clear zbuffer //Corn

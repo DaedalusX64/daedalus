@@ -1036,7 +1036,7 @@ void IDisplayListDebugger::Run()
 		}
 
 		CGraphicsContext::Get()->BeginFrame();
-		CGraphicsContext::Get()->Clear( true, true );
+		CGraphicsContext::Get()->ClearToBlack();
 		CGraphicsContext::Get()->EndFrame();
 
 		u64			time_before;

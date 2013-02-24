@@ -235,7 +235,7 @@ void RomBuffer::Open( )
 			length_remaining -= length_to_process;
 
 			CGraphicsContext::Get()->BeginFrame();
-			CGraphicsContext::Get()->Clear(true,true);
+			CGraphicsContext::Get()->ClearToBlack();
 			intraFontPrintf( ltn8, 480/2, (272>>1), "Buffering ROM %d%%...", offset * 100 / sRomSize );
 			CGraphicsContext::Get()->EndFrame();
 			CGraphicsContext::Get()->UpdateFrame( false );

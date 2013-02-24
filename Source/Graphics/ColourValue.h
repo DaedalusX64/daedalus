@@ -39,6 +39,11 @@ class c32 /*: public PixelFormats::Psp::Pf8888*/
 				u8		GetB() const				{ return u8(mColour >> 16); }
 				u8		GetA() const				{ return u8(mColour >> 24); }
 
+				float	GetRf() const				{ return float(GetR()) / 255.f; }
+				float	GetGf() const				{ return float(GetG()) / 255.f; }
+				float	GetBf() const				{ return float(GetB()) / 255.f; }
+				float	GetAf() const				{ return float(GetA()) / 255.f; }
+
 				c32		Add( c32 colour ) const;
 				c32		AddRGB( c32 colour ) const;
 				c32		AddA( c32 colour ) const;

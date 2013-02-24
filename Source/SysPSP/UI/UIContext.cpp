@@ -167,7 +167,7 @@ IUIContext::~IUIContext()
 	for( u32 i = 0; i < 2; ++i )
 	{
 		CGraphicsContext::Get()->BeginFrame();
-		CGraphicsContext::Get()->Clear( true, true );
+		CGraphicsContext::Get()->ClearToBlack();
 		CGraphicsContext::Get()->EndFrame();
 		CGraphicsContext::Get()->UpdateFrame( false );
 	}
@@ -248,7 +248,7 @@ void	IUIContext::RenderTexture( const CNativeTexture * texture, const v2 & tl, c
 //*************************************************************************************
 void	IUIContext::ClearBackground( c32 colour )
 {
-	CGraphicsContext::Get()->Clear( colour.GetColour(), 0 );
+	CGraphicsContext::Get()->ClearWithColour( colour.GetColour(), 0 );
 }
 
 //*************************************************************************************

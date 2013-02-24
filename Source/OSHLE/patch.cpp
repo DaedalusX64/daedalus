@@ -537,7 +537,7 @@ void Patch_RecurseAndFind()
 #ifdef DAEDALUS_PSP
 		//Update patching progress on PSPscreen
 		CGraphicsContext::Get()->BeginFrame();
-		CGraphicsContext::Get()->Clear(true,true);
+		CGraphicsContext::Get()->ClearToBlack();
 		//intraFontPrintf( ltn8, 480/2, (272>>1)-50, "Searching for os functions. This may take several seconds...");
 		intraFontPrintf( ltn8, 480/2, (272>>1), "OS HLE Patching: %d%%", i * 100 / (nPatchSymbols-1));
 		intraFontPrintf( ltn8, 480/2, (272>>1)-50, "Searching for %s", g_PatchSymbols[i]->szName );
@@ -641,7 +641,7 @@ void Patch_RecurseAndFind()
 #else
 		//Update patching progress on PSPscreen
 		CGraphicsContext::Get()->BeginFrame();
-		CGraphicsContext::Get()->Clear(true,true);
+		CGraphicsContext::Get()->ClearToBlack();
 		intraFontPrintf( ltn8, 480/2, (272>>1), "Symbols Identified: %d%%",100 * nFound / (nPatchSymbols-1));
 		intraFontPrintf( ltn8, 480/2, (272>>1)+50, "Range 0x%08x -> 0x%08x", first, last );
 		CGraphicsContext::Get()->EndFrame();
@@ -681,7 +681,7 @@ void Patch_RecurseAndFind()
 
 		//Update patching progress on PSPscreen
 		CGraphicsContext::Get()->BeginFrame();
-		CGraphicsContext::Get()->Clear(true,true);
+		CGraphicsContext::Get()->ClearToBlack();
 		intraFontPrintf( ltn8, 480/2, 272>>1, "Variables Identified: %d%%", 100 * nFound / (nPatchVariables-1) );
 		CGraphicsContext::Get()->EndFrame();
 		CGraphicsContext::Get()->UpdateFrame( true );
