@@ -26,6 +26,7 @@ bool                gTakeScreenshot = false;
 class CGraphicsPluginImpl : public CGraphicsPlugin
 {
 	public:
+		CGraphicsPluginImpl();
 		~CGraphicsPluginImpl();
 
 				bool		Initialise();
@@ -39,7 +40,15 @@ class CGraphicsPluginImpl : public CGraphicsPlugin
 		virtual void		UpdateScreen();
 
 		virtual void		RomClosed();
+
+	private:
+		u32					LastOrigin;
 };
+
+CGraphicsPluginImpl::CGraphicsPluginImpl()
+:	LastOrigin( 0 )
+{
+}
 
 CGraphicsPluginImpl::~CGraphicsPluginImpl()
 {
@@ -47,12 +56,12 @@ CGraphicsPluginImpl::~CGraphicsPluginImpl()
 
 bool CGraphicsPluginImpl::Initialise()
 {
-	if(!PSPRenderer::Create())
+	if (!PSPRenderer::Create())
 	{
 		return false;
 	}
 
-	if(!CTextureCache::Create())
+	if (!CTextureCache::Create())
 	{
 		return false;
 	}
@@ -79,12 +88,11 @@ void CGraphicsPluginImpl::ProcessDList()
 
 void CGraphicsPluginImpl::UpdateScreen()
 {
-	static u32    last_origin = 0;
 	u32 current_origin = Memory_VI_GetRegister(VI_ORIGIN_REG);
 
-	if( current_origin != last_origin )
+	if (current_origin != LastOrigin)
 	{
-		if(gTakeScreenshot)
+		if (gTakeScreenshot)
 		{
 			CGraphicsContext::Get()->DumpNextScreen();
 			gTakeScreenshot = false;
@@ -92,7 +100,7 @@ void CGraphicsPluginImpl::UpdateScreen()
 
 		CGraphicsContext::Get()->UpdateFrame( false );
 
-		last_origin = current_origin;
+		LastOrigin = current_origin;
 	}
 }
 
@@ -108,7 +116,7 @@ class CGraphicsPlugin *	CreateGraphicsPlugin()
 	DBGConsole_Msg( 0, "Initialising Graphics Plugin [CPSP]" );
 
 	CGraphicsPluginImpl * plugin = new CGraphicsPluginImpl;
-	if( !plugin->Initialise() )
+	if (!plugin->Initialise())
 	{
 		delete plugin;
 		plugin = NULL;
