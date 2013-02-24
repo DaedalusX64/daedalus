@@ -84,18 +84,18 @@ void CGraphicsPluginImpl::UpdateScreen()
 
 	if( current_origin != last_origin )
 	{
-	if(gTakeScreenshot)
-	{
-		CGraphicsContext::Get()->DumpNextScreen();
-		gTakeScreenshot = false;
-	}
+		if(gTakeScreenshot)
+		{
+			CGraphicsContext::Get()->DumpNextScreen();
+			gTakeScreenshot = false;
+		}
 
-	CGraphicsContext::Get()->UpdateFrame( false );
+		CGraphicsContext::Get()->UpdateFrame( false );
 
-	static u32 current_frame = 0;
-	current_frame++;
+		static u32 current_frame = 0;
+		current_frame++;
 
-	last_origin = current_origin;
+		last_origin = current_origin;
 	}
 }
 
