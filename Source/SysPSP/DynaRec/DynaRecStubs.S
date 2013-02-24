@@ -679,126 +679,130 @@ _DMULT:
  * uses: t0
  */
 _DDIVU:
-     sw    $t0,_Temp1($fp)	//save reg content
-     beqz    $a1, DDIVU_skip1
-     move    $a3,$zero 
+     beqz	$a1, DDIVU_skip1	//Check if we need a full 64bit division
+     sw		$zero,_MultHi+4($fp)	//Reminder hi
 
-     divu    $zero,$a1,$a2
-     mflo    $a3
-     mfhi    $a1
-DDIVU_skip1:
-     sw    $a3,_MultLo+4($fp)	//Quot hi
-     move    $v0,$zero
-     move    $v1,$zero
-     b    DDIVU_skip2
-     li    $a3,33
+     divu	$zero,$a1,$a2
+     mflo	$a3
+     mfhi	$a1
+     sw		$a3,_MultLo+4($fp)	//Quot hi
+     sw		$t0,_Temp1($fp)	//save reg content
+     move	$v0,$zero
+     move	$v1,$zero
+     b		DDIVU_skip2
+     li		$a3,33
 DDIVU_loop1:
-     srl    $v1,$a1,0x1f
-     sll    $a1,$a1,0x1
-     or    $a1,$a1,t0
-     sll    $a0,$a0,0x1
-     sll    $v0,$v0,0x1
+     srl	$v1,$a1,0x1f
+     sll	$a1,$a1,0x1
+     or		$a1,$a1,t0
+     sll	$a0,$a0,0x1
+     sll	$v0,$v0,0x1
 DDIVU_skip2:
-     bnez    $v1, DDIVU_skip3
-     sltu    $t0,$a1,$a2
+     bnez	$v1, DDIVU_skip3
+     sltu	$t0,$a1,$a2
 
-     bnez    $t0, DDIVU_skip4
+     bnez	$t0, DDIVU_skip4
 DDIVU_skip3:
-     addiu    $a3,$a3,-1
-     subu    $a1,$a1,$a2
-     addiu    $v0,$v0,1
+     addiu	$a3,$a3,-1
+     subu	$a1,$a1,$a2
+     addiu	$v0,$v0,1
 
 DDIVU_skip4:
-     bnez    $a3, DDIVU_loop1
-     srl    $t0,$a0,0x1f
+     bnez	$a3, DDIVU_loop1
+     srl	$t0,$a0,0x1f
 
-     lw    $t0,_Temp1($fp)	//restore reg content
-     sw    $v0,_MultLo+0($fp)	//Quot lo
-     sw    $a1,_MultHi+0($fp)	//Reminder lo
-     jr    $ra
-     sw    $zero,_MultHi+4($fp)	//Reminder hi
+     lw		$t0,_Temp1($fp)	//restore reg content
+     sw		$v0,_MultLo+0($fp)	//Quot lo
+     jr		$ra
+     sw		$a1,_MultHi+0($fp)	//Reminder lo
+
+DDIVU_skip1:	//Do a 32bit div only     
+     divu	$zero,$a0,$a2
+     mflo	$v0
+     mfhi	$a1
+     sw		$v0,_MultLo+0($fp)	//Quot lo
+     sw		$zero,_MultLo+4($fp)	//Quot hi
+     jr		$ra
+     sw		$a1,_MultHi+0($fp)	//Reminder lo
      
- #######################################################################################
+#######################################################################################
 /**
  * Signed 64bit division (Num / Div) -> 64bit quotient and 32bit reminder 
  * void _DDIV(s64 Num, s32 Div);
  * input: a0, a1, a2
  * output: -
  * clobber: a0, a1, a2, a3, v0, v1
- * uses: t0
+ * uses: t0, t1, t2
  */
 _DDIV:
-	sw		$t0,_Temp1($fp)	//save reg content
-	sw		$t1,_Temp2($fp)	//save reg content
 	sw		$t2,_Temp3($fp)	//save reg content
-	sw		$t3,_Temp4($fp)	//save reg content
      
-	bgez	$a1,skip1
-	slt		$t2, $a1, $zero      //is value < 0 ?
+	bgez	$a1,DDIV_skip1	//Make numerator positive if needed
+	slt		$t2, $a1, $zero      //sign = value < 0 ? 1 : 0
 	negu	$a0,$a0
 	negu	$a1,$a1
 	sltu	$v0,$zero,$a0
 	subu	$a1,$a1,$v0
-skip1:
-	bgez	$a2,skip2
-	move	$t1,$zero
-	xori	$t2,$t2,0x1
+DDIV_skip1:
+	bgez	$a2,DDIV_skip2	//Make dividend positive if needed
+	sw		$t0,_Temp1($fp)	//save reg content
+	xori	$t2,$t2,0x1		//sign ^= 1
  	negu	$a2,$a2
-skip2:
-	beqz	$a1,skip3
-	move	$a3,$zero
+DDIV_skip2:
+ 	beqz	$a1,DDIV_skip8	//Check if top 32bit == 0
+	sw		$t1,_Temp2($fp)	//save reg content
 
-	divu	$zero,$a1,$a2
-	mflo	$t1
-	mfhi	$a3
-skip3:
-	move	$t0,$zero
-	move	$v0,$zero
-	move	$t3,$zero
-	b		skip4
-	li		$v1,33
-loop1:
-	srl		$t3,$a3,0x1f
-	sll		$a3,$a3,0x1
-	or		$a3,$a3,$a1
-	sll		$a0,$a0,0x1
-	sll		$v0,$v0,0x1
-skip4:
-	bnez	$t3,skip5
-	sltu	$a1,$a3,$a2
-	bnez	$a1,skip6
-skip5:
-	addiu	$v1,$v1,-1
-	subu	$a3,$a3,$a2
-	addiu	$v0,$v0,1
-skip6:
-	bnez	$v1,loop1
-	srl		$a1,$a0,0x1f
-
+ 	move	$a3,$zero	//Do long 64bit division
+ 	move	$v0,$zero
+ 	move	$t0,$zero
+ 	li		$v1,33
+ 	divu	$zero,$a1,$a2
+ 	mflo	$t1
+ 	b		DDIV_skip4
+ 	mfhi	$a3
+ 	
+DDIV_loop1:
+ 	srl		$t0,$a3,0x1f
+ 	sll		$a3,$a3,0x1
+ 	or		$a3,$a3,$a1
+ 	sll		$a0,$a0,0x1
+ 	sll		$v0,$v0,0x1
+ 	bnez	$t0,DDIV_skip5
+DDIV_skip4:
+ 	sltu	$a1,$a3,$a2
+ 	bnez	$a1,DDIV_skip6
+DDIV_skip5:
+ 	addiu	$v1,$v1,-1
+ 	subu	$a3,$a3,$a2
+ 	addiu	$v0,$v0,1
+DDIV_skip6:
+ 	bnez	$v1,DDIV_loop1
+ 	srl		$a1,$a0,0x1f
+ 	
+DDIV_loop2:
+ 	beqz	$t2,DDIV_skip7	//Need sign flip on result?
 	lw		$t0,_Temp1($fp)	//restore reg content
-	bnez	$t2,skip7
-	lw		$t3,_Temp4($fp)	//restore reg content
 
-	sw		$a1,_MultLo+0($fp)	//Quot lo
-	sw		$t1,_MultLo+4($fp)	//Quot hi
-	sw		$a3,_MultHi+0($fp)	//Reminder lo
+ 	negu	$v0,$v0
+ 	negu	$t1,$t1
+ 	sltu	$v1,$zero,$v0
+ 	subu	$t1,$t1,$v1
+ 	negu	$a3,$a3
+DDIV_skip7:	//No sign flip needed
+ 	sw		$v0,_MultLo+0($fp)	//Quot lo
+ 	sw		$t1,_MultLo+4($fp)	//Quot hi
+ 	sw		$a3,_MultHi+0($fp)	//Rem lo
 	lw		$t1,_Temp2($fp)	//restore reg content
-	jr		$ra
+ 	jr		$ra
 	lw		$t2,_Temp3($fp)	//restore reg content
-	
-skip7:
-	negu	$a1,$a1
-	negu	$t1,$t1
-	sltu	$v1,$zero,$a1
-	subu	$t1,$t1,$v1
-	sw		$a1,_MultLo+0($fp)	//Quot lo
-	sw		$t1,_MultLo+4($fp)	//Quot hi
-	negu	$a3,$a3
-	sw		$a3,_MultHi+0($fp)	//Reminder lo
-	lw		$t1,_Temp2($fp)	//restore reg content
-	jr		$ra
-	lw		$t2,_Temp3($fp)	//restore reg content
-     	
+
+DDIV_skip8:	//Do short 32bit division 
+ 	move	$t1,$zero	//hi part of reminder will be zero
+	divu	$zero,$a0,$a2
+ 	mflo	$v0
+ 	b		DDIV_loop2
+ 	mfhi	$a3
+ 	
 #######################################################################################
 
 	.set pop

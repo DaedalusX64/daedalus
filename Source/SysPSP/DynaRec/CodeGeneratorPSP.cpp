@@ -1447,8 +1447,8 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 
 		case SpecOp_DMULT:	GenerateDMULT( rs, rt );	handled = true; break;
 		case SpecOp_DMULTU:	GenerateDMULTU( rs, rt );	handled = true; break;
-		//case SpecOp_DDIVU:	GenerateDDIVU( rs, rt );	handled = true; break;
-		//case SpecOp_DDIV:	GenerateDDIV( rs, rt );	handled = true; break;
+		case SpecOp_DDIVU:	GenerateDDIVU( rs, rt );	handled = true; break;
+		case SpecOp_DDIV:	GenerateDDIV( rs, rt );	handled = true; break;
 
 		case SpecOp_ADD:	GenerateADDU( rd, rs, rt );	handled = true; break;
 		case SpecOp_ADDU:	GenerateADDU( rd, rs, rt );	handled = true; break;
