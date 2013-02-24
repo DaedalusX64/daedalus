@@ -19,7 +19,7 @@ public:
 	virtual bool Initialise();
 	virtual bool IsInitialised() const { return true; }
 
-	virtual void ClearAllSurfaces() {}
+	virtual void ClearAllSurfaces();
 	virtual void ClearZBuffer();
 	virtual void ClearColBuffer(const c32 & colour);
 	virtual void ClearToBlack();
@@ -81,6 +81,14 @@ bool IGraphicsContext::Initialise()
 
     return true;
 }
+
+void IGraphicsContext::ClearAllSurfaces()
+{
+	// FIXME: this should clear/flip a couple of times to ensure the front and backbuffers are cleared.
+	// Not sure if it's necessary...
+	ClearToBlack();
+}
+
 
 void IGraphicsContext::ClearToBlack()
 {
