@@ -24,9 +24,9 @@ public:
 	virtual void ClearColBuffer(const c32 & colour);
 	virtual void ClearToBlack();
 	virtual void ClearColBufferAndDepth(const c32 & colour);
-	virtual	void BeginFrame() {}
-	virtual void EndFrame() {}
-	virtual void UpdateFrame( bool wait_for_vbl ) {}
+	virtual	void BeginFrame();
+	virtual void EndFrame();
+	virtual void UpdateFrame( bool wait_for_vbl );
 
 	virtual void GetScreenSize(u32 * width, u32 * height) const;
 	virtual void ViewportType(u32 * width, u32 * height) const;
@@ -124,4 +124,61 @@ void IGraphicsContext::ClearColBufferAndDepth(const c32 & colour)
 	glClearDepth( 0.0f );
 	glClearColor( colour.GetRf(), colour.GetGf(), colour.GetBf(), colour.GetAf() );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+}
+
+void IGraphicsContext::BeginFrame()
+{
+
+}
+
+void IGraphicsContext::EndFrame()
+{
+
+}
+
+void IGraphicsContext::UpdateFrame( bool wait_for_vbl )
+{
+    double t = glfwGetTime();
+    int x;
+    glfwGetMousePos( &x, NULL );
+
+    // Get window size (may be different than the requested size)
+    int width, height;
+    glfwGetWindowSize( &width, &height );
+
+    // Special case: avoid division by zero below
+    height = height > 0 ? height : 1;
+
+    glViewport( 0, 0, width, height );
+
+    // Clear color buffer to black
+    glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+    glClear( GL_COLOR_BUFFER_BIT );
+
+    // Select and setup the projection matrix
+    glMatrixMode( GL_PROJECTION );
+    glLoadIdentity();
+    gluPerspective( 65.0f, (GLfloat)width/(GLfloat)height, 1.0f, 100.0f );
+
+    // Select and setup the modelview matrix
+    glMatrixMode( GL_MODELVIEW );
+    glLoadIdentity();
+    gluLookAt( 0.0f, 1.0f, 0.0f,    // Eye-position
+               0.0f, 20.0f, 0.0f,   // View-point
+               0.0f, 0.0f, 1.0f );  // Up-vector
+
+    // Draw a rotating colorful triangle
+    glTranslatef( 0.0f, 14.0f, 0.0f );
+    glRotatef( 0.3f*(GLfloat)x + (GLfloat)t*100.0f, 0.0f, 0.0f, 1.0f );
+    glBegin( GL_TRIANGLES );
+      glColor3f( 1.0f, 0.0f, 0.0f );
+      glVertex3f( -5.0f, 0.0f, -4.0f );
+      glColor3f( 0.0f, 1.0f, 0.0f );
+      glVertex3f( 5.0f, 0.0f, -4.0f );
+      glColor3f( 0.0f, 0.0f, 1.0f );
+      glVertex3f( 0.0f, 0.0f, 6.0f );
+    glEnd();
+
+    // Swap buffers
+    glfwSwapBuffers();
 }

@@ -3,7 +3,11 @@
 
 #include <GL/glfw.h>
 
+#include "Core/Memory.h"
+
 #include "Debug/DBGConsole.h"
+
+#include "Graphics/GraphicsContext.h"
 
 #include "HLEGraphics/PSPRenderer.h"
 #include "HLEGraphics/TextureCache.h"
@@ -14,8 +18,10 @@
 
 #include "Plugins/GraphicsPlugin.h"
 
+
 EFrameskipValue     gFrameskipValue = FV_DISABLED;
 u32                 gVISyncRate     = 1500;
+bool                gTakeScreenshot = false;
 
 class CGraphicsPluginImpl : public CGraphicsPlugin
 {
@@ -73,55 +79,30 @@ void CGraphicsPluginImpl::ProcessDList()
 
 void CGraphicsPluginImpl::UpdateScreen()
 {
-    double t = glfwGetTime();
-    int x;
-    glfwGetMousePos( &x, NULL );
+	static u32    last_origin = 0;
+	u32 current_origin = Memory_VI_GetRegister(VI_ORIGIN_REG);
 
-    // Get window size (may be different than the requested size)
-    int width, height;
-    glfwGetWindowSize( &width, &height );
+	if( current_origin != last_origin )
+	{
+	if(gTakeScreenshot)
+	{
+		CGraphicsContext::Get()->DumpNextScreen();
+		gTakeScreenshot = false;
+	}
 
-    // Special case: avoid division by zero below
-    height = height > 0 ? height : 1;
+	CGraphicsContext::Get()->UpdateFrame( false );
 
-    glViewport( 0, 0, width, height );
+	static u32 current_frame = 0;
+	current_frame++;
 
-    // Clear color buffer to black
-    glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-    glClear( GL_COLOR_BUFFER_BIT );
-
-    // Select and setup the projection matrix
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
-    gluPerspective( 65.0f, (GLfloat)width/(GLfloat)height, 1.0f, 100.0f );
-
-    // Select and setup the modelview matrix
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
-    gluLookAt( 0.0f, 1.0f, 0.0f,    // Eye-position
-               0.0f, 20.0f, 0.0f,   // View-point
-               0.0f, 0.0f, 1.0f );  // Up-vector
-
-    // Draw a rotating colorful triangle
-    glTranslatef( 0.0f, 14.0f, 0.0f );
-    glRotatef( 0.3f*(GLfloat)x + (GLfloat)t*100.0f, 0.0f, 0.0f, 1.0f );
-    glBegin( GL_TRIANGLES );
-      glColor3f( 1.0f, 0.0f, 0.0f );
-      glVertex3f( -5.0f, 0.0f, -4.0f );
-      glColor3f( 0.0f, 1.0f, 0.0f );
-      glVertex3f( 5.0f, 0.0f, -4.0f );
-      glColor3f( 0.0f, 0.0f, 1.0f );
-      glVertex3f( 0.0f, 0.0f, 6.0f );
-    glEnd();
-
-    // Swap buffers
-    glfwSwapBuffers();
+	last_origin = current_origin;
+	}
 }
 
 void CGraphicsPluginImpl::RomClosed()
 {
-    // Close OpenGL window and terminate GLFW
-    glfwTerminate();
+	// Close OpenGL window and terminate GLFW
+	glfwTerminate();
 
 }
 
