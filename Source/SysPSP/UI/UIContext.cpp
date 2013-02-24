@@ -248,7 +248,7 @@ void	IUIContext::RenderTexture( const CNativeTexture * texture, const v2 & tl, c
 //*************************************************************************************
 void	IUIContext::ClearBackground( c32 colour )
 {
-	CGraphicsContext::Get()->ClearWithColour( colour.GetColour(), 0 );
+	CGraphicsContext::Get()->ClearColBufferAndDepth( colour );
 }
 
 //*************************************************************************************

@@ -58,7 +58,7 @@ public:
 	virtual void ClearToBlack() = 0;
 	virtual void ClearZBuffer() = 0;
 	virtual void ClearColBuffer(const c32 & colour) = 0;
-	virtual void ClearWithColour(u32 frame_buffer_col, u32 depth) = 0;
+	virtual void ClearColBufferAndDepth(const c32 & colour) = 0;
 
 	virtual	void BeginFrame() = 0;
 	virtual void EndFrame() = 0;

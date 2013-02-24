@@ -23,7 +23,7 @@ public:
 	virtual void ClearZBuffer();
 	virtual void ClearColBuffer(const c32 & colour);
 	virtual void ClearToBlack();
-	virtual void ClearWithColour(u32 frame_buffer_col, u32 depth) {}
+	virtual void ClearColBufferAndDepth(const c32 & colour);
 	virtual	void BeginFrame() {}
 	virtual void EndFrame() {}
 	virtual void UpdateFrame( bool wait_for_vbl ) {}
@@ -103,19 +103,25 @@ void IGraphicsContext::ClearAllSurfaces()
 void IGraphicsContext::ClearToBlack()
 {
 	glClearDepth( 0.0f );
-    glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
 void IGraphicsContext::ClearZBuffer()
 {
 	glClearDepth( 0.0f );
-    glClear( GL_DEPTH_BUFFER_BIT );
+	glClear( GL_DEPTH_BUFFER_BIT );
 }
 
 void IGraphicsContext::ClearColBuffer(const c32 & colour)
 {
-    glClearColor( colour.GetRf(), colour.GetGf(), colour.GetBf(), colour.GetAf() );
-    glClear( GL_COLOR_BUFFER_BIT );
+	glClearColor( colour.GetRf(), colour.GetGf(), colour.GetBf(), colour.GetAf() );
+	glClear( GL_COLOR_BUFFER_BIT );
 }
 
+void IGraphicsContext::ClearColBufferAndDepth(const c32 & colour)
+{
+	glClearDepth( 0.0f );
+	glClearColor( colour.GetRf(), colour.GetGf(), colour.GetBf(), colour.GetAf() );
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+}

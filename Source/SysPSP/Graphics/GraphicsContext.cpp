@@ -121,9 +121,9 @@ public:
 	void				ClearAllSurfaces();
 
 	void				ClearToBlack();
-	void				ClearWithColour(u32 frame_buffer_col, u32 depth);
 	void				ClearZBuffer();
 	void				ClearColBuffer(const c32 & colour);
+	void				ClearColBufferAndDepth(const c32 & colour);
 
 	void				BeginFrame();
 	void				EndFrame();
@@ -238,13 +238,6 @@ void IGraphicsContext::ClearToBlack()
 	sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);
 }
 
-void IGraphicsContext::ClearWithColour(u32 frame_buffer_col, u32 depth)
-{
-	sceGuClearColor(frame_buffer_col);
-	sceGuClearDepth(depth);				// 1?
-	sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);
-}
-
 void IGraphicsContext::ClearZBuffer()
 {
 	sceGuClearDepth(0);
@@ -255,6 +248,13 @@ void IGraphicsContext::ClearColBuffer(const c32 & colour)
 {
 	sceGuClearColor(colour.GetColour());
 	sceGuClear(GU_COLOR_BUFFER_BIT | GU_FAST_CLEAR_BIT);
+}
+
+void IGraphicsContext::ClearColBufferAndDepth(const c32 & colour)
+{
+	sceGuClearColor(colour.GetColour());
+	sceGuClearDepth(0);
+	sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);
 }
 
 //*****************************************************************************

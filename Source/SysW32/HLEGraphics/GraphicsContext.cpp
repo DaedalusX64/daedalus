@@ -18,13 +18,16 @@ class IGraphicsContext : public CGraphicsContext
 	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
-
-	virtual void ClearWithColour(u32 frame_buffer_col, u32 depth)
+	virtual void ClearColBuffer(const c32 & colour)
 	{
-		glClearColor(0, 0, 0, 0);
-		glClearDepth(depth);
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	    glClearColor( colour.GetRf(), colour.GetGf(), colour.GetBf(), colour.GetAf() );
+	    glClear( GL_COLOR_BUFFER_BIT );
+	}
+	virtual void ClearColBufferAndDepth(const c32 & colour)
+	{
+		glClearDepth( 0.0f );
+	    glClearColor( colour.GetRf(), colour.GetGf(), colour.GetBf(), colour.GetAf() );
+	    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	}
 	virtual	void BeginFrame()
 	{
