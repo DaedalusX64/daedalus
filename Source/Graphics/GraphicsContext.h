@@ -65,9 +65,10 @@ public:
 	virtual void UpdateFrame( bool wait_for_vbl ) = 0;
 
 	virtual void GetScreenSize(u32 * width, u32 * height) const = 0;
+	virtual void ViewportType(u32 * width, u32 * height) const = 0;
+
 	virtual void SetDebugScreenTarget( ETargetSurface buffer ) = 0;
 
-	virtual void ViewportType( u32 * d_width, u32 * d_height ) = 0;
 	virtual void DumpNextScreen() = 0;
 	virtual void DumpScreenShot() = 0;
 };

@@ -41,13 +41,16 @@ class IGraphicsContext : public CGraphicsContext
 
 	virtual void GetScreenSize(u32 * width, u32 * height) const
 	{
-		*p_width=640;
-		*p_height=480;
+		*width  = 640;
+		*height = 480;
+	}
+	virtual void ViewportType(u32 * width, u32 * height) const
+	{
+		GetScreenSize(width, height);
 	}
 
 	virtual void SetDebugScreenTarget( ETargetSurface buffer ) {}
 
-	virtual void ViewportType( u32 * d_width, u32 * d_height ) {}
 
 	virtual void DumpNextScreen() {}
 	virtual void DumpScreenShot() {}

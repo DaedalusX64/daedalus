@@ -132,7 +132,7 @@ public:
 
 	void				SetDebugScreenTarget( ETargetSurface buffer );
 
-	void				ViewportType( u32 * d_width, u32 * d_height );
+	void				ViewportType( u32 * d_width, u32 * d_height ) const;
 	void				DumpScreenShot();
 	void				DumpNextScreen()			{ mDumpNextScreen = 2; }
 
@@ -416,7 +416,7 @@ void IGraphicsContext::SetDebugScreenTarget( ETargetSurface buffer )
 // Change current viewport, either for tv out or PSP itself
 //
 //*****************************************************************************
-void IGraphicsContext::ViewportType( u32 * d_width, u32 * d_height )
+void IGraphicsContext::ViewportType( u32 * d_width, u32 * d_height ) const
 {
 	if( gGlobalPreferences.TVEnable && PSP_TV_CABLE > 0)
 	{

@@ -28,14 +28,10 @@ public:
 	virtual void EndFrame() {}
 	virtual void UpdateFrame( bool wait_for_vbl ) {}
 
-	virtual void GetScreenSize(u32 * width, u32 * height) const
-	{
-		*width = SCR_WIDTH;
-		*height = SCR_HEIGHT;
-	}
-	virtual void SetDebugScreenTarget( ETargetSurface buffer ) {}
+	virtual void GetScreenSize(u32 * width, u32 * height) const;
+	virtual void ViewportType(u32 * width, u32 * height) const;
 
-	virtual void ViewportType( u32 * d_width, u32 * d_height ) {}
+	virtual void SetDebugScreenTarget( ETargetSurface buffer ) {}
 	virtual void DumpNextScreen() {}
 	virtual void DumpScreenShot() {}
 };
@@ -63,7 +59,7 @@ bool IGraphicsContext::Initialise()
     }
 
     // Open a window and create its OpenGL context
-    if( !glfwOpenWindow( 640, 480, 0,0,0,0, 0,0, GLFW_WINDOW ) )
+    if( !glfwOpenWindow( SCR_WIDTH, SCR_HEIGHT, 0,0,0,0, 0,0, GLFW_WINDOW ) )
     {
         fprintf( stderr, "Failed to open GLFW window\n" );
 
@@ -80,6 +76,20 @@ bool IGraphicsContext::Initialise()
     glfwSwapInterval( 1 );
 
     return true;
+}
+
+void IGraphicsContext::GetScreenSize(u32 * width, u32 * height) const
+{
+    int window_width, window_height;
+    glfwGetWindowSize( &window_width, &window_height );
+
+	*width  = window_width;
+	*height = window_height;
+}
+
+void IGraphicsContext::ViewportType(u32 * width, u32 * height) const
+{
+	GetScreenSize(width, height);
 }
 
 void IGraphicsContext::ClearAllSurfaces()
