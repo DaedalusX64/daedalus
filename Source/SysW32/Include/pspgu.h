@@ -47,7 +47,6 @@ void sceGuScissor(int x0, int y0, int x1, int y1);
 
 enum EGuTextureWrapMode
 {
-	GU_WRAP,
 	GU_CLAMP,
 	GU_REPEAT,
 };
