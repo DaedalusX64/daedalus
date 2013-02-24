@@ -92,9 +92,6 @@ void CGraphicsPluginImpl::UpdateScreen()
 
 		CGraphicsContext::Get()->UpdateFrame( false );
 
-		static u32 current_frame = 0;
-		current_frame++;
-
 		last_origin = current_origin;
 	}
 }
