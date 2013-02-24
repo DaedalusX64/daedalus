@@ -56,30 +56,6 @@ bool CGraphicsPluginImpl::Initialise()
 		return false;
 	}
 
-    // Initialise GLFW
-    if( !glfwInit() )
-    {
-        fprintf( stderr, "Failed to initialize GLFW\n" );
-        return false;
-    }
-
-    // Open a window and create its OpenGL context
-    if( !glfwOpenWindow( 640, 480, 0,0,0,0, 0,0, GLFW_WINDOW ) )
-    {
-        fprintf( stderr, "Failed to open GLFW window\n" );
-
-        glfwTerminate();
-        return false;
-    }
-
-    glfwSetWindowTitle( "Daedalus" );
-
-    // Ensure we can capture the escape key being pressed below
-    glfwEnable( GLFW_STICKY_KEYS );
-
-    // Enable vertical sync (on cards that support it)
-    glfwSwapInterval( 1 );
-
 	return true;
 }
 
