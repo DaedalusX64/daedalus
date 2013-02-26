@@ -682,7 +682,7 @@ _DDIVU:
      beqz	$a1, DDIVU_skip1	//Check if we need a full 64bit division
      sw		$zero,_MultHi+4($fp)	//Reminder hi
 
-     divu	$zero,$a1,$a2
+     divu	$a1,$a2
      mflo	$a3
      mfhi	$a1
      sw		$a3,_MultLo+4($fp)	//Quot hi
@@ -694,11 +694,11 @@ _DDIVU:
 DDIVU_loop1:
      srl	$v1,$a1,0x1f
      sll	$a1,$a1,0x1
-     or		$a1,$a1,t0
+     or		$a1,$a1,$t0
      sll	$a0,$a0,0x1
      sll	$v0,$v0,0x1
-DDIVU_skip2:
      bnez	$v1, DDIVU_skip3
+DDIVU_skip2:
      sltu	$t0,$a1,$a2
 
      bnez	$t0, DDIVU_skip4
@@ -717,7 +717,7 @@ DDIVU_skip4:
      sw		$a1,_MultHi+0($fp)	//Reminder lo
 
 DDIVU_skip1:	//Do a 32bit div only     
-     divu	$zero,$a0,$a2
+     divu	$a0,$a2
      mflo	$v0
      mfhi	$a1
      sw		$v0,_MultLo+0($fp)	//Quot lo
@@ -752,11 +752,10 @@ DDIV_skip2:
  	beqz	$a1,DDIV_skip8	//Check if top 32bit == 0
 	sw		$t1,_Temp2($fp)	//save reg content
 
- 	move	$a3,$zero	//Do long 64bit division
+ 	divu	$a1,$a2			//Do long 64bit division
  	move	$v0,$zero
  	move	$t0,$zero
  	li		$v1,33
- 	divu	$zero,$a1,$a2
  	mflo	$t1
  	b		DDIV_skip4
  	mfhi	$a3
@@ -797,8 +796,8 @@ DDIV_skip7:	//No sign flip needed
 	lw		$t2,_Temp3($fp)	//restore reg content
 
 DDIV_skip8:	//Do short 32bit division 
+	divu	$a0,$a2
  	move	$t1,$zero	//hi part of reminder will be zero
-	divu	$zero,$a0,$a2
  	mflo	$v0
  	b		DDIV_loop2
  	mfhi	$a3
