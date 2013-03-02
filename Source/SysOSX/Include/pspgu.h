@@ -129,13 +129,13 @@ enum
 
 enum
 {
-	GU_TEXTURE_32BITF,
-	GU_VERTEX_32BITF,
-	GU_COLOR_8888,
-	GU_TRANSFORM_2D,
-	GU_TRANSFORM_3D,
+	GU_TEXTURE_32BITF	= 1<<0,	// 1
+	GU_VERTEX_32BITF	= 1<<1,	// 2
+	GU_COLOR_8888		= 1<<2,	// 4
+	GU_TRANSFORM_2D		= 1<<3,	// 8
+	GU_TRANSFORM_3D		= 1<<4,	// 16
 };
 
-void sceGuDrawArray(int t, int flag, int num_v, void * x, void * y);
+void sceGuDrawArray(int prim, int vtype, int count, const void * indices, const void * vertices);
 
 #endif // PSPGU_H__

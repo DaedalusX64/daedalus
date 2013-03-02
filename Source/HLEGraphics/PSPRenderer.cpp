@@ -3049,7 +3049,7 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 			matrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop+1], &mProjectionStack[mProjectionTop] );
 #else
 			mProjectionStack[mProjectionTop] = mProjectionStack[mProjectionTop+1] * mProjectionStack[mProjectionTop];
-	#endif
+#endif
 		}
 	}
 

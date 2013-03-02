@@ -51,37 +51,41 @@ IGraphicsContext::~IGraphicsContext()
 
 bool IGraphicsContext::Initialise()
 {
-    // Initialise GLFW
-    if( !glfwInit() )
-    {
-        fprintf( stderr, "Failed to initialize GLFW\n" );
-        return false;
-    }
+	// Initialise GLFW
+	if( !glfwInit() )
+	{
+		fprintf( stderr, "Failed to initialize GLFW\n" );
+		return false;
+	}
 
-    // Open a window and create its OpenGL context
-    if( !glfwOpenWindow( SCR_WIDTH, SCR_HEIGHT, 0,0,0,0, 0,0, GLFW_WINDOW ) )
-    {
-        fprintf( stderr, "Failed to open GLFW window\n" );
+	// Open a window and create its OpenGL context
+	if( !glfwOpenWindow( SCR_WIDTH, SCR_HEIGHT,
+						0,0,0,0,			// RGBA bits
+						24,					// Depth bits
+						0,					// Stencil bits
+						GLFW_WINDOW ) )
+	{
+		fprintf( stderr, "Failed to open GLFW window\n" );
 
-        glfwTerminate();
-        return false;
-    }
+		glfwTerminate();
+		return false;
+	}
 
-    glfwSetWindowTitle( "Daedalus" );
+	glfwSetWindowTitle( "Daedalus" );
 
-    // Ensure we can capture the escape key being pressed below
-    glfwEnable( GLFW_STICKY_KEYS );
+	// Ensure we can capture the escape key being pressed below
+	glfwEnable( GLFW_STICKY_KEYS );
 
-    // Enable vertical sync (on cards that support it)
-    glfwSwapInterval( 1 );
+	// Enable vertical sync (on cards that support it)
+	glfwSwapInterval( 1 );
 
-    return true;
+	return true;
 }
 
 void IGraphicsContext::GetScreenSize(u32 * width, u32 * height) const
 {
-    int window_width, window_height;
-    glfwGetWindowSize( &window_width, &window_height );
+	int window_width, window_height;
+	glfwGetWindowSize( &window_width, &window_height );
 
 	*width  = window_width;
 	*height = window_height;
@@ -102,14 +106,16 @@ void IGraphicsContext::ClearAllSurfaces()
 
 void IGraphicsContext::ClearToBlack()
 {
-	glClearDepth( 0.0f );
+	glDepthMask(GL_TRUE);
+	glClearDepth( 1.0f );
 	glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
 void IGraphicsContext::ClearZBuffer()
 {
-	glClearDepth( 0.0f );
+	glDepthMask(GL_TRUE);
+	glClearDepth( 1.0f );
 	glClear( GL_DEPTH_BUFFER_BIT );
 }
 
@@ -121,64 +127,31 @@ void IGraphicsContext::ClearColBuffer(const c32 & colour)
 
 void IGraphicsContext::ClearColBufferAndDepth(const c32 & colour)
 {
-	glClearDepth( 0.0f );
+	glDepthMask(GL_TRUE);
+	glClearDepth( 1.0f );
 	glClearColor( colour.GetRf(), colour.GetGf(), colour.GetBf(), colour.GetAf() );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
 void IGraphicsContext::BeginFrame()
 {
+	// Get window size (may be different than the requested size)
+	int width, height;
+	glfwGetWindowSize( &width, &height );
 
+	// Special case: avoid division by zero below
+	height = height > 0 ? height : 1;
+
+	glViewport( 0, 0, width, height );
+
+	ClearToBlack();
 }
 
 void IGraphicsContext::EndFrame()
 {
-
 }
 
 void IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 {
-    double t = glfwGetTime();
-    int x;
-    glfwGetMousePos( &x, NULL );
-
-    // Get window size (may be different than the requested size)
-    int width, height;
-    glfwGetWindowSize( &width, &height );
-
-    // Special case: avoid division by zero below
-    height = height > 0 ? height : 1;
-
-    glViewport( 0, 0, width, height );
-
-    // Clear color buffer to black
-    glClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-    glClear( GL_COLOR_BUFFER_BIT );
-
-    // Select and setup the projection matrix
-    glMatrixMode( GL_PROJECTION );
-    glLoadIdentity();
-    gluPerspective( 65.0f, (GLfloat)width/(GLfloat)height, 1.0f, 100.0f );
-
-    // Select and setup the modelview matrix
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
-    gluLookAt( 0.0f, 1.0f, 0.0f,    // Eye-position
-               0.0f, 20.0f, 0.0f,   // View-point
-               0.0f, 0.0f, 1.0f );  // Up-vector
-
-    // Draw a rotating colorful triangle
-    glTranslatef( 0.0f, 14.0f, 0.0f );
-    glRotatef( 0.3f*(GLfloat)x + (GLfloat)t*100.0f, 0.0f, 0.0f, 1.0f );
-    glBegin( GL_TRIANGLES );
-      glColor3f( 1.0f, 0.0f, 0.0f );
-      glVertex3f( -5.0f, 0.0f, -4.0f );
-      glColor3f( 0.0f, 1.0f, 0.0f );
-      glVertex3f( 5.0f, 0.0f, -4.0f );
-      glColor3f( 0.0f, 0.0f, 1.0f );
-      glVertex3f( 0.0f, 0.0f, 6.0f );
-    glEnd();
-
-    // Swap buffers
-    glfwSwapBuffers();
+	glfwSwapBuffers();
 }
