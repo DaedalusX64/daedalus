@@ -20,10 +20,10 @@ static PFN_glDeleteVertexArrays         pglDeleteVertexArrays = NULL;
 // derives from a BaseRenderer, and it'll be able to access this state directly.
 static u64 gMux = 0;
 static u32 gCycleType = 0;
-static float gTexOffset[2] = { 0.f, 0.f };
-static float gTexScale[2] = { 1.f, 1.f };
-static float gPrimColour[4] = { 0.2f, 1.0f, 0.2f, 1.f };
-static float gEnvColour[4] = { 1.0f, 1.0f, 0.2f, 1.f };
+static float gTexOffset[2]	= { 0.f, 0.f };
+static float gTexScale[2]	= { 1.f, 1.f };
+static float gPrimColour[4]	= { 1.f, 1.f, 1.f, 1.f };
+static float gEnvColour[4] 	= { 1.f, 1.f, 1.f, 1.f };
 
 
 #define RESOLVE_GL_FCN(type, var, name) \
