@@ -135,6 +135,7 @@
               'Source/SysOSX/DynaRec/CodeBufferManagerOSX.cpp',
               'Source/SysOSX/Graphics/GraphicsContext.cpp',
               'Source/SysOSX/Graphics/NativeTextureOSX.cpp',
+              'Source/SysOSX/HLEGraphics/RendererOSX.cpp',
               'Source/SysOSX/Input/InputManagerOSX.cpp',
               'Source/SysOSX/Plugins/GraphicsPluginOSX.cpp',
               'Source/SysOSX/Utility/IOOSX.cpp',

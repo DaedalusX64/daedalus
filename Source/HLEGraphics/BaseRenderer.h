@@ -182,7 +182,7 @@ class BaseRenderer
 {
 public:
 	BaseRenderer();
-	~BaseRenderer();
+	virtual ~BaseRenderer();
 
 	void				BeginScene();
 	void				EndScene();

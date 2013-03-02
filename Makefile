@@ -94,6 +94,7 @@ CORE_SRCS = \
 	Source/SysPSP/HLEAudio/AudioCodePSP.cpp \
 	Source/SysPSP/HLEAudio/AudioPluginPSP.cpp \
 	Source/SysPSP/HLEGraphics/ConvertVertices.S \
+	Source/SysPSP/HLEGraphics/RendererPSP.cpp \
 	Source/SysPSP/HLEGraphics/TnLVFPU.S\
 	Source/SysPSP/HLEGraphics/VectorClipping.S \
 	Source/SysPSP/Input/InputManagerPSP.cpp \

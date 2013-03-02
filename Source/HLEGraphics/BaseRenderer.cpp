@@ -232,23 +232,6 @@ DebugBlendSettings gDBlend;
 
 #endif
 
-//*****************************************************************************
-// Creator function for singleton
-//*****************************************************************************
-BaseRenderer * gRenderer = NULL;
-
-bool CreateRenderer()
-{
-	DAEDALUS_ASSERT_Q(gRenderer == NULL);
-	gRenderer = new BaseRenderer();
-	return true;
-}
-void DestroyRenderer()
-{
-	delete gRenderer;
-	gRenderer = NULL;
-}
-
 ViewportInfo	mView;
 //*****************************************************************************
 //
