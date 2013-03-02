@@ -1809,6 +1809,10 @@
 				Name="HLEGraphics"
 				>
 				<File
+					RelativePath=".\Source\HLEGraphics\BaseRenderer.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\HLEGraphics\BlendModes.h"
 					>
 				</File>
@@ -1906,10 +1910,6 @@
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\N64PixelFormat.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\PSPRenderer.h"
 					>
 				</File>
 				<File
@@ -2056,6 +2056,26 @@
 					Name="PSP"
 					>
 					<File
+						RelativePath=".\Source\HLEGraphics\BaseRenderer.cpp"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+					</File>
+					<File
 						RelativePath=".\Source\HLEGraphics\BlendModes.cpp"
 						>
 						<FileConfiguration
@@ -2097,26 +2117,6 @@
 					</File>
 					<File
 						RelativePath=".\Source\HLEGraphics\DisplayListDebugger.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath=".\Source\HLEGraphics\PSPRenderer.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"

@@ -22,7 +22,7 @@
 #include "Graphics/GraphicsContext.h"
 
 #include "../HLEGraphics/RDP.h"
-#include "../HLEGraphics/PSPRenderer.h"
+#include "../HLEGraphics/BaseRenderer.h"
 
 #include "Graphics/PngUtil.h"
 #include "SysPSP/Graphics/VideoMemoryManager.h"

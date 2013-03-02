@@ -967,6 +967,10 @@
 				Name="HLEGraphics"
 				>
 				<File
+					RelativePath=".\Source\HLEGraphics\BaseRenderer.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\HLEGraphics\Blender.cpp"
 					>
 				</File>
@@ -1028,10 +1032,6 @@
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\N64PixelFormat.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\PSPRenderer.h"
 					>
 				</File>
 				<File
@@ -1114,6 +1114,10 @@
 					Name="PSP"
 					>
 					<File
+						RelativePath=".\Source\HLEGraphics\BaseRenderer.cpp"
+						>
+					</File>
+					<File
 						RelativePath=".\Source\HLEGraphics\BlendModes.cpp"
 						>
 					</File>
@@ -1123,10 +1127,6 @@
 					</File>
 					<File
 						RelativePath=".\Source\HLEGraphics\DisplayListDebugger.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\HLEGraphics\PSPRenderer.cpp"
 						>
 					</File>
 					<File

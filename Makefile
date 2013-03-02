@@ -131,6 +131,7 @@ DAED_PSP_SRCS =		Source/SysPSP/Graphics/DrawText.cpp \
 
 DAED_HLEGFX_SRCS =	Source/SysPSP/Plugins/GraphicsPluginPSP.cpp \
 			Source/Plugins/GraphicsPlugin.cpp \
+			Source/HLEGraphics/BaseRenderer.cpp \
 			Source/HLEGraphics/Blender.cpp \
 			Source/HLEGraphics/BlendModes.cpp \
 			Source/HLEGraphics/ColourAdjuster.cpp \
@@ -141,7 +142,6 @@ DAED_HLEGFX_SRCS =	Source/SysPSP/Plugins/GraphicsPluginPSP.cpp \
 			Source/HLEGraphics/Microcode.cpp \
 			Source/HLEGraphics/RDP.cpp \
 			Source/HLEGraphics/RDPStateManager.cpp \
-			Source/HLEGraphics/PSPRenderer.cpp \
 			Source/HLEGraphics/Texture.cpp \
 			Source/HLEGraphics/TextureCache.cpp \
 			Source/HLEGraphics/TextureDescriptor.cpp \

@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Debug/DBGConsole.h"
 
-#include "HLEGraphics/PSPRenderer.h"
+#include "HLEGraphics/BaseRenderer.h"
 #include "HLEGraphics/TextureCache.h"
 #include "HLEGraphics/DLParser.h"
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST

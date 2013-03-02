@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "PSPRenderer.h"
+#include "BaseRenderer.h"
 #include "Texture.h"
 #include "TextureCache.h"
 #include "RDPStateManager.h"
@@ -235,12 +235,12 @@ DebugBlendSettings gDBlend;
 //*****************************************************************************
 // Creator function for singleton
 //*****************************************************************************
-PSPRenderer * gRenderer = NULL;
+BaseRenderer * gRenderer = NULL;
 
 bool CreateRenderer()
 {
 	DAEDALUS_ASSERT_Q(gRenderer == NULL);
-	gRenderer = new PSPRenderer();
+	gRenderer = new BaseRenderer();
 	return true;
 }
 void DestroyRenderer()
@@ -253,7 +253,7 @@ ViewportInfo	mView;
 //*****************************************************************************
 //
 //*****************************************************************************
-PSPRenderer::PSPRenderer()
+BaseRenderer::BaseRenderer()
 :	mN64ToPSPScale( 2.0f, 2.0f )
 ,	mN64ToPSPTranslate( 0.0f, 0.0f )
 ,	mMux( 0 )
@@ -360,7 +360,7 @@ PSPRenderer::PSPRenderer()
 //*****************************************************************************
 //
 //*****************************************************************************
-inline PSPRenderer::~PSPRenderer()
+inline BaseRenderer::~BaseRenderer()
 {
 	delete mFillBlendStates;
 	delete mCopyBlendStates;
@@ -369,7 +369,7 @@ inline PSPRenderer::~PSPRenderer()
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::RestoreRenderStates()
+void BaseRenderer::RestoreRenderStates()
 {
 	// Initialise the device to our default state
 
@@ -424,7 +424,7 @@ void PSPRenderer::RestoreRenderStates()
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::SetVIScales()
+void BaseRenderer::SetVIScales()
 {
 	u32 width = Memory_VI_GetRegister( VI_WIDTH_REG );
 
@@ -469,7 +469,7 @@ void PSPRenderer::SetVIScales()
 //*****************************************************************************
 // Reset for a new frame
 //*****************************************************************************
-void	PSPRenderer::Reset()
+void BaseRenderer::Reset()
 {
 	ResetMatrices();
 
@@ -487,7 +487,7 @@ void	PSPRenderer::Reset()
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::BeginScene()
+void BaseRenderer::BeginScene()
 {
 	CGraphicsContext::Get()->BeginFrame();
 
@@ -541,7 +541,7 @@ void PSPRenderer::BeginScene()
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::EndScene()
+void BaseRenderer::EndScene()
 {
 	CGraphicsContext::Get()->EndFrame();
 
@@ -557,7 +557,7 @@ void PSPRenderer::EndScene()
 //
 //*****************************************************************************
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-void	PSPRenderer::SelectPlaceholderTexture( EPlaceholderTextureType type )
+void BaseRenderer::SelectPlaceholderTexture( EPlaceholderTextureType type )
 {
 	switch( type )
 	{
@@ -573,7 +573,7 @@ void	PSPRenderer::SelectPlaceholderTexture( EPlaceholderTextureType type )
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::SetPSPViewport( s32 x, s32 y, u32 w, u32 h )
+void BaseRenderer::SetPSPViewport( s32 x, s32 y, u32 w, u32 h )
 {
 	mN64ToPSPScale.x = gZoomX * f32( w ) / fViWidth;
 	mN64ToPSPScale.y = gZoomX * f32( h ) / fViHeight;
@@ -593,7 +593,7 @@ void PSPRenderer::SetPSPViewport( s32 x, s32 y, u32 w, u32 h )
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::SetN64Viewport( const v2 & scale, const v2 & trans )
+void BaseRenderer::SetN64Viewport( const v2 & scale, const v2 & trans )
 {
 	// Only Update viewport when it actually changed, this happens rarely
 	//
@@ -613,7 +613,7 @@ void PSPRenderer::SetN64Viewport( const v2 & scale, const v2 & trans )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	PSPRenderer::UpdateViewport()
+void BaseRenderer::UpdateViewport()
 {
 	u32		vx( 2048 );
 	u32		vy( 2048 );
@@ -643,12 +643,12 @@ void	PSPRenderer::UpdateViewport()
 // coords we don't get any gaps.
 //*****************************************************************************
 #if 0
-inline void PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
+inline void BaseRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
 {
 	vfpu_N64_2_PSP( &answ.x, &n64_coords.x, &mN64ToPSPScale.x, &mN64ToPSPTranslate.x);
 }
 #else
-inline void PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
+inline void BaseRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
 {
 	answ.x = Round( Round( n64_coords.x ) * mN64ToPSPScale.x + mN64ToPSPTranslate.x );
 	answ.y = Round( Round( n64_coords.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y );
@@ -658,9 +658,9 @@ inline void PSPRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) con
 //*****************************************************************************
 //
 //*****************************************************************************
-PSPRenderer::SBlendStateEntry	PSPRenderer::LookupBlendState( u64 mux, bool two_cycles )
+BaseRenderer::SBlendStateEntry BaseRenderer::LookupBlendState( u64 mux, bool two_cycles )
 {
-	DAEDALUS_PROFILE( "PSPRenderer::LookupBlendState" );
+	DAEDALUS_PROFILE( "BaseRenderer::LookupBlendState" );
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	mRecordedCombinerStates.insert( mux );
 #endif
@@ -707,9 +707,9 @@ PSPRenderer::SBlendStateEntry	PSPRenderer::LookupBlendState( u64 mux, bool two_c
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags)
+void BaseRenderer::RenderUsingRenderSettings( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags)
 {
-	DAEDALUS_PROFILE( "PSPRenderer::RenderUsingRenderSettings" );
+	DAEDALUS_PROFILE( "BaseRenderer::RenderUsingRenderSettings" );
 
 	const CAlphaRenderSettings *	alpha_settings( states->GetAlphaSettings() );
 
@@ -822,7 +822,7 @@ void PSPRenderer::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 // Used for Blend Explorer, or Nasty texture
 //*****************************************************************************
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux )
+bool BaseRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux )
 {
 	if( IsCombinerStateDisabled( mux ) )
 	{
@@ -882,7 +882,7 @@ bool PSPRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u3
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux)
+void BaseRenderer::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux)
 {
 	// Only dump missing_mux when we awant to search for inexact blends aka HighlightInexactBlendModes is enabled.
 	// Otherwise will dump lotsa of missing_mux even though is not needed since was handled correctly by auto blendmode thing - Salvy
@@ -923,12 +923,12 @@ void PSPRenderer::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertice
 //
 //*****************************************************************************
 extern void InitBlenderMode( u32 blender );
-void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer )
+void BaseRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer )
 {
 
 	static bool	ZFightingEnabled( false );
 
-	DAEDALUS_PROFILE( "PSPRenderer::RenderUsingCurrentBlendMode" );
+	DAEDALUS_PROFILE( "BaseRenderer::RenderUsingCurrentBlendMode" );
 
 	if ( disable_zbuffer )
 	{
@@ -1097,7 +1097,7 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
+void BaseRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
 	EnableTexturing( tile_idx );
 
@@ -1192,7 +1192,7 @@ void PSPRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
+void BaseRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
 	EnableTexturing( tile_idx );
 
@@ -1252,7 +1252,7 @@ void PSPRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
+void BaseRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 {
 /*
 	if ( (gRDPOtherMode._u64 & 0xffff0000) == 0x5f500000 )	//Used by Wave Racer
@@ -1299,9 +1299,9 @@ void PSPRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 //*****************************************************************************
 // Returns true if triangle visible and rendered, false otherwise
 //*****************************************************************************
-bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
+bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 {
-	//DAEDALUS_PROFILE( "PSPRenderer::AddTri" );
+	//DAEDALUS_PROFILE( "BaseRenderer::AddTri" );
 
 	const u32 & f0( mVtxProjected[v0].ClipFlags );
 	const u32 & f1( mVtxProjected[v1].ClipFlags );
@@ -1373,9 +1373,9 @@ bool PSPRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::FlushTris()
+void BaseRenderer::FlushTris()
 {
-	DAEDALUS_PROFILE( "PSPRenderer::FlushTris" );
+	DAEDALUS_PROFILE( "BaseRenderer::FlushTris" );
 	/*
 	if ( mNumIndices == 0 )
 	{
@@ -1623,9 +1623,9 @@ namespace
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_vertices ) const
+void BaseRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_vertices ) const
 {
-	DAEDALUS_PROFILE( "PSPRenderer::PrepareTrisClipped" );
+	DAEDALUS_PROFILE( "BaseRenderer::PrepareTrisClipped" );
 
 	//
 	//	At this point all vertices are lit/projected and have both transformed and projected
@@ -1749,9 +1749,9 @@ void PSPRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_v
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num_vertices ) const
+void BaseRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num_vertices ) const
 {
-	DAEDALUS_PROFILE( "PSPRenderer::PrepareTrisUnclipped" );
+	DAEDALUS_PROFILE( "BaseRenderer::PrepareTrisUnclipped" );
 	DAEDALUS_ASSERT( mNumIndices > 0, "The number of indices should have been checked" );
 
 	u32				num_vertices( mNumIndices );
@@ -1792,7 +1792,7 @@ void PSPRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num
 // Standard rendering pipeline using VFPU(fast)
 //*****************************************************************************
 #ifdef DAEDALUS_PSP_USE_VFPU
-void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
+void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
 	const Matrix4x4 & matWorldProject( GetWorldProject() );
@@ -1825,7 +1825,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 //
 //*****************************************************************************
-/*void PSPRenderer::TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world )
+/*void BaseRenderer::TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world )
 {
 	bool	env_map( (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) == (TNL_LIGHT|TNL_TEXGEN) );
 
@@ -1903,7 +1903,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 //
 //*****************************************************************************
-v4 PSPRenderer::LightVert( const v3 & norm ) const
+v4 BaseRenderer::LightVert( const v3 & norm ) const
 {
 
 	u32 num = mTnL.NumLights;
@@ -1938,7 +1938,7 @@ v4 PSPRenderer::LightVert( const v3 & norm ) const
 //*****************************************************************************
 // Standard rendering pipeline using FPU/CPU
 //*****************************************************************************
-void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
+void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * pVtxBase = (const FiddledVtx*)(g_pu8RamBase + address);
 	const Matrix4x4 & matWorldProject( GetWorldProject() );
@@ -2084,7 +2084,7 @@ void PSPRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 // Conker Bad Fur Day rendering pipeline
 //*****************************************************************************
 #ifdef DAEDALUS_PSP_USE_VFPU
-void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
+void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
 	const Matrix4x4 & matProject( mProjectionStack[mProjectionTop] );
@@ -2103,7 +2103,7 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 //FPU/CPU version //Corn
 //extern f32 gCoord_Mod[16];
 
-void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
+void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
 	//DBGConsole_Msg(0, "In SetNewVertexInfo");
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
@@ -2226,7 +2226,7 @@ void PSPRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 extern u32 gDKRVtxCount;
 extern bool gDKRBillBoard;
 
-void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
+void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 {
 	gDKRVtxCount += n;
 
@@ -2341,7 +2341,7 @@ void PSPRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 // Perfect Dark rendering pipeline
 //*****************************************************************************
 #ifdef DAEDALUS_PSP_USE_VFPU
-void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
+void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + address);
 
@@ -2358,7 +2358,7 @@ void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 }
 
 #else
-void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
+void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + address);
 
@@ -2456,7 +2456,7 @@ void PSPRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
+void BaseRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 {
 	switch ( whered )
 	{
@@ -2530,7 +2530,7 @@ void PSPRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void PSPRenderer::SetVtxColor( u32 vert, c32 color )
+inline void BaseRenderer::SetVtxColor( u32 vert, c32 color )
 {
 	DAEDALUS_ASSERT( vert < MAX_VERTS, " SetVtxColor : Reached max of verts");
 
@@ -2541,7 +2541,7 @@ inline void PSPRenderer::SetVtxColor( u32 vert, c32 color )
 //
 //*****************************************************************************
 /*
-inline void PSPRenderer::SetVtxZ( u32 vert, float z )
+inline void BaseRenderer::SetVtxZ( u32 vert, float z )
 {
 	DAEDALUS_ASSERT( vert < MAX_VERTS, " SetVtxZ : Reached max of verts");
 
@@ -2551,7 +2551,7 @@ inline void PSPRenderer::SetVtxZ( u32 vert, float z )
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void PSPRenderer::SetVtxXY( u32 vert, float x, float y )
+inline void BaseRenderer::SetVtxXY( u32 vert, float x, float y )
 {
 	DAEDALUS_ASSERT( vert < MAX_VERTS, " SetVtxXY : Reached max of verts %d",vert);
 
@@ -2562,7 +2562,7 @@ inline void PSPRenderer::SetVtxXY( u32 vert, float x, float y )
 //*****************************************************************************
 // Init matrix stack to identity matrices (called once per frame)
 //*****************************************************************************
-void PSPRenderer::ResetMatrices()
+void BaseRenderer::ResetMatrices()
 {
 	mProjectionTop = mModelViewTop = 0;
 	mProjectionStack[0] = mModelViewStack[0] = gMatrixIdentity;
@@ -2572,7 +2572,7 @@ void PSPRenderer::ResetMatrices()
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void PSPRenderer::EnableTexturing( u32 tile_idx )
+inline void BaseRenderer::EnableTexturing( u32 tile_idx )
 {
 	EnableTexturing( 0, tile_idx );
 
@@ -2594,9 +2594,9 @@ inline void PSPRenderer::EnableTexturing( u32 tile_idx )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
+void BaseRenderer::EnableTexturing( u32 index, u32 tile_idx )
 {
-	DAEDALUS_PROFILE( "PSPRenderer::EnableTexturing" );
+	DAEDALUS_PROFILE( "BaseRenderer::EnableTexturing" );
 
 	DAEDALUS_ASSERT( tile_idx < 8, "Invalid tile index %d", tile_idx );
 	DAEDALUS_ASSERT( index < NUM_N64_TEXTURES, "Invalid texture index %d", index );
@@ -2734,7 +2734,7 @@ void	PSPRenderer::EnableTexturing( u32 index, u32 tile_idx )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	PSPRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
+void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 {
 	//Clamp scissor to max N64 screen resolution //Corn
 	if( x1 > uViWidth )  x1 = uViWidth;
@@ -2758,9 +2758,9 @@ void	PSPRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH, f32 imageX, f32 imageY, f32 imageW, f32 imageH)
+void BaseRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH, f32 imageX, f32 imageY, f32 imageW, f32 imageH)
 {
-	DAEDALUS_PROFILE( "PSPRenderer::Draw2DTexture" );
+	DAEDALUS_PROFILE( "BaseRenderer::Draw2DTexture" );
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
 
 	sceGuDisable(GU_DEPTH_TEST);
@@ -2805,9 +2805,9 @@ void PSPRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH,
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::Draw2DTextureR( f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3, f32 s, f32 t)	// With Rotation
+void BaseRenderer::Draw2DTextureR( f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3, f32 s, f32 t)	// With Rotation
 {
-	DAEDALUS_PROFILE( "PSPRenderer::Draw2DTextureR" );
+	DAEDALUS_PROFILE( "BaseRenderer::Draw2DTextureR" );
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
 
 	sceGuDisable(GU_DEPTH_TEST);
@@ -2855,7 +2855,7 @@ void PSPRenderer::Draw2DTextureR( f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2
 //	See http://www.assembla.com/code/openTRI for more information.
 //
 //*****************************************************************************
-void PSPRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0, f32 v0, f32 u1, f32 v1, CNativeTexture * texture)
+void BaseRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0, f32 v0, f32 u1, f32 v1, CNativeTexture * texture)
 {
 	sceGuDisable(GU_DEPTH_TEST);
 	sceGuDepthMask( GL_TRUE );
@@ -3008,7 +3008,7 @@ extern void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
+void BaseRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 {
 	// Projection
 	if (bPush)
@@ -3083,7 +3083,7 @@ void PSPRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::SetProjectionDKR(const u32 address, bool mul, u32 idx)
+void BaseRenderer::SetProjectionDKR(const u32 address, bool mul, u32 idx)
 {
 	mDKRMatIdx = idx;
 	mWPmodified = true;
@@ -3120,7 +3120,7 @@ void PSPRenderer::SetProjectionDKR(const u32 address, bool mul, u32 idx)
 //*****************************************************************************
 //
 //*****************************************************************************
-void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
+void BaseRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 {
 	// ModelView
 	if (bPush)
@@ -3184,7 +3184,7 @@ void PSPRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 //*****************************************************************************
 //
 //*****************************************************************************
-inline Matrix4x4 & PSPRenderer::GetWorldProject()
+inline Matrix4x4 & BaseRenderer::GetWorldProject()
 {
 	if( !mWorldProjectValid )
 	{
@@ -3208,7 +3208,7 @@ inline Matrix4x4 & PSPRenderer::GetWorldProject()
 //
 //*****************************************************************************
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-void PSPRenderer::PrintActive()
+void BaseRenderer::PrintActive()
 {
 	const Matrix4x4 & mat( GetWorldProject() );
 	DL_PF(
@@ -3226,7 +3226,7 @@ void PSPRenderer::PrintActive()
 //*****************************************************************************
 //Modify the WorldProject matrix, used by Kirby & SSB //Corn
 //*****************************************************************************
-void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
+void BaseRenderer::InsertMatrix(u32 w0, u32 w1)
 {
 	mWPmodified = true;	//Signal that Worldproject matrix is changed
 
@@ -3268,7 +3268,7 @@ void PSPRenderer::InsertMatrix(u32 w0, u32 w1)
 //*****************************************************************************
 //Replaces the WorldProject matrix //Corn
 //*****************************************************************************
-void PSPRenderer::ForceMatrix(const u32 address)
+void BaseRenderer::ForceMatrix(const u32 address)
 {
 	mWorldProjectValid = true;
 	mWPmodified = true;	//Signal that Worldproject matrix is changed

@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "DLParser.h"
 #include "DLDebug.h"
-#include "PSPRenderer.h"
+#include "BaseRenderer.h"
 #include "N64PixelFormat.h"
 #include "Graphics/NativePixelFormat.h"
 #include "RDP.h"
@@ -1223,7 +1223,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 	}
 
 	// TODO - In 1/2cycle mode, skip bottom/right edges!?
-	// This is done in PSPrenderer.
+	// This is done in BaseRenderer.
 
 	gRenderer->FillRect( xy0, xy1, colour.GetColour() );
 }

@@ -23,7 +23,7 @@
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 
-#include "PSPRenderer.h"
+#include "BaseRenderer.h"
 #include "DLDebug.h"
 #include "DLParser.h"
 #include "TextureCache.h"
@@ -262,7 +262,7 @@ void CCombinerExplorerDebugMenuOption::Display() const
 	{
 		PrintMux( stdout, selected_mux );
 
-		PSPRenderer::SBlendStateEntry entry1( gRenderer->LookupBlendState( selected_mux, false ) );
+		BaseRenderer::SBlendStateEntry entry1( gRenderer->LookupBlendState( selected_mux, false ) );
 		if( entry1.OverrideFunction != NULL )
 		{
 			printf( "1 Cycle: Overridden\n" );
@@ -273,7 +273,7 @@ void CCombinerExplorerDebugMenuOption::Display() const
 			entry1.States->Print();
 		}
 
-		PSPRenderer::SBlendStateEntry	entry2( gRenderer->LookupBlendState( selected_mux, true ) );
+		BaseRenderer::SBlendStateEntry	entry2( gRenderer->LookupBlendState( selected_mux, true ) );
 		if( entry2.OverrideFunction != NULL )
 		{
 			printf( "2 Cycles: Overridden\n" );

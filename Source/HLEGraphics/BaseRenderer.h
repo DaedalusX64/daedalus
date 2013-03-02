@@ -178,11 +178,11 @@ ALIGNED_TYPE(struct, TnLParams, 16)
 //*****************************************************************************
 //
 //*****************************************************************************
-class PSPRenderer
+class BaseRenderer
 {
 public:
-	PSPRenderer();
-	~PSPRenderer();
+	BaseRenderer();
+	~BaseRenderer();
 
 	void				BeginScene();
 	void				EndScene();
@@ -423,6 +423,6 @@ private:
 
 bool CreateRenderer();
 void DestroyRenderer();
-extern PSPRenderer * gRenderer;
+extern BaseRenderer * gRenderer;
 
 #endif // __DAEDALUS_D3DRENDER_H__

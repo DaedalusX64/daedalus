@@ -9,7 +9,7 @@
 
 #include "Graphics/GraphicsContext.h"
 
-#include "HLEGraphics/PSPRenderer.h"
+#include "HLEGraphics/BaseRenderer.h"
 #include "HLEGraphics/TextureCache.h"
 #include "HLEGraphics/DLParser.h"
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
