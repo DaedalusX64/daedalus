@@ -21,8 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DLParser.h"
 #include "DLDebug.h"
 #include "PSPRenderer.h"
-#include "PixelFormatN64.h"
-#include "SysPSP/Graphics/PixelFormatPSP.h"
+#include "N64PixelFormat.h"
+#include "Graphics/NativePixelFormat.h"
 #include "RDP.h"
 #include "RDPStateManager.h"
 #include "TextureCache.h"
@@ -1005,10 +1005,10 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 				sprintf(str, "    %03d: ", i);
 			}
 
-			PixelFormats::N64::Pf5551	n64col( wEntry );
-			PixelFormats::Psp::Pf8888	pspcol( PixelFormats::Psp::Pf8888::Make( n64col ) );
+			N64Pf5551		n64col( wEntry );
+			NativePf8888	nativecol( NativePf8888::Make( n64col ) );
 
-			sprintf(item, "[%04x->%08x] ", n64col.Bits, pspcol.Bits );
+			sprintf(item, "[%04x->%08x] ", n64col.Bits, nativecol.Bits );
 			strcat(str, item);
 		}
 		DL_PF(str);
@@ -1174,13 +1174,13 @@ void DLParser_FillRect( MicroCodeCommand command )
 	{
 		if(g_CI.Size == G_IM_SIZ_16b)
 		{
-			PixelFormats::N64::Pf5551	c( (u16)gFillColor );
-			colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf5551 >( c );
+			N64Pf5551	c( (u16)gFillColor );
+			colour = ConvertPixelFormat< c32, N64Pf5551 >( c );
 		}
 		else
 		{
-			PixelFormats::N64::Pf8888	c( (u32)gFillColor );
-			colour = PixelFormats::convertPixelFormat< c32, PixelFormats::N64::Pf8888 >( c );
+			N64Pf8888	c( (u32)gFillColor );
+			colour = ConvertPixelFormat< c32, N64Pf8888 >( c );
 		}
 
 		const u32 clear_screen_x = ( (command.fillrect.x1 - command.fillrect.x0) );
@@ -1287,7 +1287,7 @@ void DLParser_SetFillColor( MicroCodeCommand command )
 	gFillColor = command.inst.cmd1;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	PixelFormats::N64::Pf5551	n64col( (u16)gFillColor );
+	N64Pf5551	n64col( (u16)gFillColor );
 	DL_PF( "    Color5551=0x%04x", n64col.Bits );
 #endif
 }

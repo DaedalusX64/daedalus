@@ -19,9 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 #include "Graphics/NativeTexture.h"
+#include "Graphics/NativePixelFormat.h"
 #include "Graphics/ColourValue.h"
 #include "VideoMemoryManager.h"
-#include "PixelFormatPSP.h"
 
 #include "Math/MathUtil.h"
 
@@ -30,8 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspgu.h>
 #include <pspdebug.h>
 #include <pspkernel.h>
-
-using namespace PixelFormats::Psp;
 
 //*****************************************************************************
 //
@@ -493,16 +491,16 @@ namespace
 			switch( texture_format )
 			{
 			case TexFmt_5650:
-				ReadPngData< Pf5650 >( width, height, stride, p_png_info->row_pointers, p_png_info->color_type, reinterpret_cast< Pf5650 * >( p_dest ) );
+				ReadPngData< NativePf5650 >( width, height, stride, p_png_info->row_pointers, p_png_info->color_type, reinterpret_cast< NativePf5650 * >( p_dest ) );
 				break;
 			case TexFmt_5551:
-				ReadPngData< Pf5551 >( width, height, stride, p_png_info->row_pointers, p_png_info->color_type, reinterpret_cast< Pf5551 * >( p_dest ) );
+				ReadPngData< NativePf5551 >( width, height, stride, p_png_info->row_pointers, p_png_info->color_type, reinterpret_cast< NativePf5551 * >( p_dest ) );
 				break;
 			case TexFmt_4444:
-				ReadPngData< Pf4444 >( width, height, stride, p_png_info->row_pointers, p_png_info->color_type, reinterpret_cast< Pf4444 * >( p_dest ) );
+				ReadPngData< NativePf4444 >( width, height, stride, p_png_info->row_pointers, p_png_info->color_type, reinterpret_cast< NativePf4444 * >( p_dest ) );
 				break;
 			case TexFmt_8888:
-				ReadPngData< Pf8888 >( width, height, stride, p_png_info->row_pointers, p_png_info->color_type, reinterpret_cast< Pf8888 * >( p_dest ) );
+				ReadPngData< NativePf8888 >( width, height, stride, p_png_info->row_pointers, p_png_info->color_type, reinterpret_cast< NativePf8888 * >( p_dest ) );
 				break;
 
 			case TexFmt_CI4_8888:

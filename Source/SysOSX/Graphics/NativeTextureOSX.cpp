@@ -20,14 +20,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "Graphics/NativeTexture.h"
 #include "Graphics/ColourValue.h"
-#include "SysPSP/Graphics/PixelFormatPSP.h" // FIXME
+#include "Graphics/NativePixelFormat.h"
 
 #include "Math/MathUtil.h"
 
 #include <png.h>
-
-using namespace PixelFormats::Psp;
-
 
 static u32 GetTextureBlockWidth( u32 dimension, ETextureFormat texture_format )
 {
@@ -200,24 +197,23 @@ namespace
 		}
 		else
 		{
-			u32 stride = texture->GetStride();
-
-			u8 ** row_pointers = png_get_rows( p_png_struct, p_png_info );
-			int color_type = png_get_color_type( p_png_struct, p_png_info );
+			u32 	stride       = texture->GetStride();
+			u8 ** 	row_pointers = png_get_rows( p_png_struct, p_png_info );
+			int 	color_type   = png_get_color_type( p_png_struct, p_png_info );
 
 			switch( texture_format )
 			{
 			case TexFmt_5650:
-				ReadPngData< Pf5650 >( width, height, stride, row_pointers, color_type, reinterpret_cast< Pf5650 * >( buffer ) );
+				ReadPngData< NativePf5650 >( width, height, stride, row_pointers, color_type, reinterpret_cast< NativePf5650 * >( buffer ) );
 				break;
 			case TexFmt_5551:
-				ReadPngData< Pf5551 >( width, height, stride, row_pointers, color_type, reinterpret_cast< Pf5551 * >( buffer ) );
+				ReadPngData< NativePf5551 >( width, height, stride, row_pointers, color_type, reinterpret_cast< NativePf5551 * >( buffer ) );
 				break;
 			case TexFmt_4444:
-				ReadPngData< Pf4444 >( width, height, stride, row_pointers, color_type, reinterpret_cast< Pf4444 * >( buffer ) );
+				ReadPngData< NativePf4444 >( width, height, stride, row_pointers, color_type, reinterpret_cast< NativePf4444 * >( buffer ) );
 				break;
 			case TexFmt_8888:
-				ReadPngData< Pf8888 >( width, height, stride, row_pointers, color_type, reinterpret_cast< Pf8888 * >( buffer ) );
+				ReadPngData< NativePf8888 >( width, height, stride, row_pointers, color_type, reinterpret_cast< NativePf8888 * >( buffer ) );
 				break;
 
 			case TexFmt_CI4_8888:

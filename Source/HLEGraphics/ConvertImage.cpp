@@ -24,16 +24,14 @@ Copyright (C) 2001 StrmnNrmn
 #include "DLDebug.h"
 #include "Core/Memory.h"
 
-#include "PixelFormatN64.h"
-#include "SysPSP/Graphics/PixelFormatPSP.h"
+#include "N64PixelFormat.h"
+#include "Graphics/NativePixelFormat.h"
 
 #include "Math/MathUtil.h"
 
 #include "RDP.h"
 
 #include "OSHLE/ultra_gbi.h"
-
-using namespace PixelFormats;
 
 namespace
 {
@@ -113,11 +111,10 @@ static void ConvertGeneric( const TextureDestInfo & dst,
 							ConvertRowFunction swapped_fn,
 							ConvertRowFunction unswapped_fn )
 {
-	OutT *				p_dst( reinterpret_cast< OutT * >( dst.pSurface ) );
-
-	const u8 *			p_src_base( g_pu8RamBase );
-	u32					base_offset( ti.GetLoadAddress() );
-	u32					src_pitch( ti.GetPitch() );
+	OutT *		p_dst       = reinterpret_cast< OutT * >( dst.pSurface );
+	const u8 *	p_src_base  = g_pu8RamBase;
+	u32			base_offset = ti.GetLoadAddress();
+	u32			src_pitch   = ti.GetPitch();
 
 	if ( ti.IsSwapped())
 	{
@@ -150,17 +147,15 @@ static void ConvertGeneric( const TextureDestInfo & dst,
 
 };
 
-typedef void (*ConvertPalettisedRowFunction)( Psp::Pf8888 * p_dst, const u8 * p_src_base, u32 offset, u32 width, const u16 * p_palette );
+typedef void (*ConvertPalettisedRowFunction)( NativePf8888 * p_dst, const u8 * p_src_base, u32 offset, u32 width, const u16 * p_palette );
 
 void ConvertGenericPalettised( const TextureDestInfo & dst, const TextureInfo & ti, ConvertPalettisedRowFunction swapped_fn, ConvertPalettisedRowFunction unswapped_fn )
 {
-	Psp::Pf8888 *		p_dst( reinterpret_cast< Psp::Pf8888 * >( dst.pSurface ) );
-
-	const u8 *			p_src_base( g_pu8RamBase );
-	u32					base_offset( ti.GetLoadAddress() );
-	u32					src_pitch( ti.GetPitch() );
-
-	const u16 *			p_palette( reinterpret_cast< const u16 * >( ti.GetTlutAddress() ) );
+	NativePf8888 *	p_dst       = reinterpret_cast< NativePf8888 * >( dst.pSurface );
+	const u8 *		p_src_base  = g_pu8RamBase;
+	u32				base_offset = ti.GetLoadAddress();
+	u32				src_pitch   = ti.GetPitch();
+	const u16 *		p_palette   = reinterpret_cast< const u16 * >( ti.GetTlutAddress() );
 
 	if (ti.IsSwapped())
 	{
@@ -176,7 +171,7 @@ void ConvertGenericPalettised( const TextureDestInfo & dst, const TextureInfo & 
 			}
 
 			base_offset += src_pitch;
-			p_dst = reinterpret_cast< Psp::Pf8888 * >( (u8*)p_dst + dst.Pitch );
+			p_dst = reinterpret_cast< NativePf8888 * >( (u8*)p_dst + dst.Pitch );
 		}
 	}
 	else
@@ -186,22 +181,21 @@ void ConvertGenericPalettised( const TextureDestInfo & dst, const TextureInfo & 
 			unswapped_fn( p_dst, p_src_base, base_offset, ti.GetWidth(), p_palette );
 
 			base_offset += src_pitch;
-			p_dst = reinterpret_cast< Psp::Pf8888 * >( (u8*)p_dst + dst.Pitch );
+			p_dst = reinterpret_cast< NativePf8888 * >( (u8*)p_dst + dst.Pitch );
 		}
 	}
 }
 
 
-typedef void (*ConvertPaletteFn)( Psp::Pf8888 * p_dst, const u8 * p_palette, u32 entries );
-typedef void (*ConvertPalettisedCI4RowFunction)( Psp::PfCI44 * p_dst, const u8 * p_src_base, u32 offset, u32 width );
+typedef void (*ConvertPaletteFn)( NativePf8888 * p_dst, const u8 * p_palette, u32 entries );
+typedef void (*ConvertPalettisedCI4RowFunction)( NativePfCI44 * p_dst, const u8 * p_src_base, u32 offset, u32 width );
 
 void ConvertGenericPalettisedCI4( const TextureDestInfo & dst, const TextureInfo & ti, ConvertPalettisedCI4RowFunction swapped_fn, ConvertPalettisedCI4RowFunction unswapped_fn, ConvertPaletteFn palette_fn )
 {
-	Psp::PfCI44 *		p_dst( reinterpret_cast< Psp::PfCI44 * >( dst.pSurface ) );
-
-	const u8 *			p_src_base( g_pu8RamBase );
-	u32					base_offset( ti.GetLoadAddress() );
-	u32					src_pitch( ti.GetPitch() );
+	NativePfCI44 *	p_dst       = reinterpret_cast< NativePfCI44 * >( dst.pSurface );
+	const u8 *		p_src_base  = g_pu8RamBase;
+	u32				base_offset = ti.GetLoadAddress();
+	u32				src_pitch   = ti.GetPitch();
 
 	if (ti.IsSwapped())
 	{
@@ -217,7 +211,7 @@ void ConvertGenericPalettisedCI4( const TextureDestInfo & dst, const TextureInfo
 			}
 
 			base_offset += src_pitch;
-			p_dst = reinterpret_cast< Psp::PfCI44 * >( (u8*)p_dst + dst.Pitch );
+			p_dst = reinterpret_cast< NativePfCI44 * >( (u8*)p_dst + dst.Pitch );
 		}
 	}
 	else
@@ -227,26 +221,25 @@ void ConvertGenericPalettisedCI4( const TextureDestInfo & dst, const TextureInfo
 			unswapped_fn( p_dst, p_src_base, base_offset, ti.GetWidth() );
 
 			base_offset += src_pitch;
-			p_dst = reinterpret_cast< Psp::PfCI44 * >( (u8*)p_dst + dst.Pitch );
+			p_dst = reinterpret_cast< NativePfCI44 * >( (u8*)p_dst + dst.Pitch );
 		}
 	}
 
 
-	Psp::Pf8888 *		p_dst_palette( reinterpret_cast< Psp::Pf8888 * >( dst.Palette ) );
-	const u8 *			p_palette( reinterpret_cast< const u8 * >( ti.GetTlutAddress() ) );
+	NativePf8888 *	p_dst_palette = reinterpret_cast< NativePf8888 * >( dst.Palette );
+	const u8 *		p_palette     = reinterpret_cast< const u8 * >( ti.GetTlutAddress() );
 
 	palette_fn( p_dst_palette, p_palette, 16 );
 }
 
-typedef void (*ConvertPalettisedCI8RowFunction)( Psp::PfCI8 * p_dst, const u8 * p_src_base, u32 offset, u32 width );
+typedef void (*ConvertPalettisedCI8RowFunction)( NativePfCI8 * p_dst, const u8 * p_src_base, u32 offset, u32 width );
 
 void ConvertGenericPalettisedCI8( const TextureDestInfo & dst, const TextureInfo & ti, ConvertPalettisedCI8RowFunction swapped_fn, ConvertPalettisedCI8RowFunction unswapped_fn, ConvertPaletteFn palette_fn )
 {
-	Psp::PfCI8 *		p_dst( reinterpret_cast< Psp::PfCI8 * >( dst.pSurface ) );
-
-	const u8 *			p_src_base( g_pu8RamBase );
-	u32					base_offset( ti.GetLoadAddress() );
-	u32					src_pitch( ti.GetPitch() );
+	NativePfCI8 *	p_dst       = reinterpret_cast< NativePfCI8 * >( dst.pSurface );
+	const u8 *		p_src_base  = g_pu8RamBase;
+	u32				base_offset = ti.GetLoadAddress();
+	u32				src_pitch   = ti.GetPitch();
 
 	if (ti.IsSwapped())
 	{
@@ -262,7 +255,7 @@ void ConvertGenericPalettisedCI8( const TextureDestInfo & dst, const TextureInfo
 			}
 
 			base_offset += src_pitch;
-			p_dst = reinterpret_cast< Psp::PfCI8 * >( (u8*)p_dst + dst.Pitch );
+			p_dst = reinterpret_cast< NativePfCI8 * >( (u8*)p_dst + dst.Pitch );
 		}
 	}
 	else
@@ -272,13 +265,13 @@ void ConvertGenericPalettisedCI8( const TextureDestInfo & dst, const TextureInfo
 			unswapped_fn( p_dst, p_src_base, base_offset, ti.GetWidth() );
 
 			base_offset += src_pitch;
-			p_dst = reinterpret_cast< Psp::PfCI8 * >( (u8*)p_dst + dst.Pitch );
+			p_dst = reinterpret_cast< NativePfCI8 * >( (u8*)p_dst + dst.Pitch );
 		}
 	}
 
 
-	Psp::Pf8888 *		p_dst_palette( reinterpret_cast< Psp::Pf8888 * >( dst.Palette ) );
-	const u8 *			p_palette( reinterpret_cast< const u8 * >( ti.GetTlutAddress() ) );
+	NativePf8888 *	p_dst_palette = reinterpret_cast< NativePf8888 * >( dst.Palette );
+	const u8 *		p_palette     = reinterpret_cast< const u8 * >( ti.GetTlutAddress() );
 
 	palette_fn( p_dst_palette, p_palette, 256 );
 }
@@ -316,7 +309,7 @@ struct SConvert
 		{
 			InT	colour( *reinterpret_cast< const InT * >( &p_src_base[offset ^ InFiddle] ) );
 
-			p_dst[x ^ OutFiddle] = convertPixelFormat< OutT, InT >( colour );
+			p_dst[x ^ OutFiddle] = ConvertPixelFormat< OutT, InT >( colour );
 
 			offset += sizeof( InT );
 		}
@@ -332,10 +325,10 @@ struct SConvert
 	{
 		switch( dst.Format )
 		{
-		case TexFmt_5650:	ConvertTextureT< Psp::Pf5650 >( dst, ti ); return;
-		case TexFmt_5551:	ConvertTextureT< Psp::Pf5551 >( dst, ti ); return;
-		case TexFmt_4444:	ConvertTextureT< Psp::Pf4444 >( dst, ti ); return;
-		case TexFmt_8888:	ConvertTextureT< Psp::Pf8888 >( dst, ti ); return;
+		case TexFmt_5650:	ConvertTextureT< NativePf5650 >( dst, ti ); return;
+		case TexFmt_5551:	ConvertTextureT< NativePf5551 >( dst, ti ); return;
+		case TexFmt_4444:	ConvertTextureT< NativePf4444 >( dst, ti ); return;
+		case TexFmt_8888:	ConvertTextureT< NativePf8888 >( dst, ti ); return;
 
 		case TexFmt_CI4_8888: break;
 		case TexFmt_CI8_8888: break;
@@ -380,9 +373,9 @@ struct SConvertIA4
 
 			// Even
 			p_dst[width-1] = OutT( ThreeToEight[(b & 0xE0) >> 5],
-								 ThreeToEight[(b & 0xE0) >> 5],
-								 ThreeToEight[(b & 0xE0) >> 5],
-								 OneToEight[(b & 0x10)   >> 4]);
+								   ThreeToEight[(b & 0xE0) >> 5],
+								   ThreeToEight[(b & 0xE0) >> 5],
+								   OneToEight[(b & 0x10)   >> 4]);
 		}
 	}
 
@@ -396,10 +389,10 @@ struct SConvertIA4
 	{
 		switch( dst.Format )
 		{
-		case TexFmt_5650:	ConvertTextureT< Psp::Pf5650 >( dst, ti ); return;
-		case TexFmt_5551:	ConvertTextureT< Psp::Pf5551 >( dst, ti ); return;
-		case TexFmt_4444:	ConvertTextureT< Psp::Pf4444 >( dst, ti ); return;
-		case TexFmt_8888:	ConvertTextureT< Psp::Pf8888 >( dst, ti ); return;
+		case TexFmt_5650:	ConvertTextureT< NativePf5650 >( dst, ti ); return;
+		case TexFmt_5551:	ConvertTextureT< NativePf5551 >( dst, ti ); return;
+		case TexFmt_4444:	ConvertTextureT< NativePf4444 >( dst, ti ); return;
+		case TexFmt_8888:	ConvertTextureT< NativePf8888 >( dst, ti ); return;
 
 		case TexFmt_CI4_8888: break;
 		case TexFmt_CI8_8888: break;
@@ -462,10 +455,10 @@ struct SConvertI4
 	{
 		switch( dst.Format )
 		{
-		case TexFmt_5650:	ConvertTextureT< Psp::Pf5650 >( dst, ti ); return;
-		case TexFmt_5551:	ConvertTextureT< Psp::Pf5551 >( dst, ti ); return;
-		case TexFmt_4444:	ConvertTextureT< Psp::Pf4444 >( dst, ti ); return;
-		case TexFmt_8888:	ConvertTextureT< Psp::Pf8888 >( dst, ti ); return;
+		case TexFmt_5650:	ConvertTextureT< NativePf5650 >( dst, ti ); return;
+		case TexFmt_5551:	ConvertTextureT< NativePf5551 >( dst, ti ); return;
+		case TexFmt_4444:	ConvertTextureT< NativePf4444 >( dst, ti ); return;
+		case TexFmt_8888:	ConvertTextureT< NativePf8888 >( dst, ti ); return;
 
 		case TexFmt_CI4_8888: break;
 		case TexFmt_CI8_8888: break;
@@ -479,20 +472,20 @@ struct SConvertI4
 //*****************************************************************************
 //
 //*****************************************************************************
-template< typename PalT, u32 F > void ConvertPalette( Psp::Pf8888 * p_dst, const u8 * p_palette, u32 entries )
+template< typename PalT, u32 F > void ConvertPalette( NativePf8888 * p_dst, const u8 * p_palette, u32 entries )
 {
-	const PalT *	p_n64pal( reinterpret_cast< const PalT * >( p_palette ) );
+	const PalT * p_n64pal = reinterpret_cast< const PalT * >( p_palette );
 
 	for( u32 i = 0; i < entries; ++i )
 	{
-		p_dst[ i ] = Psp::Pf8888::Make( p_n64pal[ i ^ F ] );
+		p_dst[ i ] = NativePf8888::Make( p_n64pal[ i ^ F ] );
 	}
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-template< u32 F > void ConvertCI4_Row( Psp::PfCI44 * p_dst, const u8 * p_src_base, u32 offset, u32 width )
+template< u32 F > void ConvertCI4_Row( NativePfCI44 * p_dst, const u8 * p_src_base, u32 offset, u32 width )
 {
 	for (u32 x = 0; x+1 < width; x+=2)
 	{
@@ -515,9 +508,9 @@ template< u32 F > void ConvertCI4_Row( Psp::PfCI44 * p_dst, const u8 * p_src_bas
 //*****************************************************************************
 //
 //*****************************************************************************
-template< typename PalT, u32 F > void ConvertCI4_Row_To_8888( Psp::Pf8888 * p_dst, const u8 * p_src_base, u32 offset, u32 width, const u16 * p_palette )
+template< typename PalT, u32 F > void ConvertCI4_Row_To_8888( NativePf8888 * p_dst, const u8 * p_src_base, u32 offset, u32 width, const u16 * p_palette )
 {
-	const PalT *	p_n64pal( reinterpret_cast< const PalT * >( p_palette ) );
+	const PalT * p_n64pal = reinterpret_cast< const PalT * >( p_palette );
 
 	for (u32 x = 0; x < width; x+=2)
 	{
@@ -526,8 +519,8 @@ template< typename PalT, u32 F > void ConvertCI4_Row_To_8888( Psp::Pf8888 * p_ds
 		u8 bhi = (b&0xf0)>>4;
 		u8 blo = (b&0x0f);
 
-		p_dst[ x + 0 ] = Psp::Pf8888::Make( p_n64pal[ bhi ^ 0x1 ] );	// Remember palette is in different endian order!
-		p_dst[ x + 1 ] = Psp::Pf8888::Make( p_n64pal[ blo ^ 0x1 ] );
+		p_dst[ x + 0 ] = NativePf8888::Make( p_n64pal[ bhi ^ 0x1 ] );	// Remember palette is in different endian order!
+		p_dst[ x + 1 ] = NativePf8888::Make( p_n64pal[ blo ^ 0x1 ] );
 
 		offset++;
 	}
@@ -539,14 +532,14 @@ template< typename PalT, u32 F > void ConvertCI4_Row_To_8888( Psp::Pf8888 * p_ds
 
 		u8 bhi = (b&0xf0)>>4;
 
-		p_dst[width-1] = Psp::Pf8888::Make( p_n64pal[ bhi ^ 0x1 ] );	// Remember palette is in different endian order!
+		p_dst[width-1] = NativePf8888::Make( p_n64pal[ bhi ^ 0x1 ] );	// Remember palette is in different endian order!
 	}
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-template< u32 F > void ConvertCI8_Row( Psp::PfCI8 * p_dst, const u8 * p_src_base, u32 offset, u32 width )
+template< u32 F > void ConvertCI8_Row( NativePfCI8 * p_dst, const u8 * p_src_base, u32 offset, u32 width )
 {
 	for (u32 x = 0; x < width; x++)
 	{
@@ -561,15 +554,15 @@ template< u32 F > void ConvertCI8_Row( Psp::PfCI8 * p_dst, const u8 * p_src_base
 //*****************************************************************************
 //
 //*****************************************************************************
-template< typename PalT, u32 F > void ConvertCI8_Row_To_8888( Psp::Pf8888 * p_dst, const u8 * p_src_base, u32 offset, u32 width, const u16 * p_palette )
+template< typename PalT, u32 F > void ConvertCI8_Row_To_8888( NativePf8888 * p_dst, const u8 * p_src_base, u32 offset, u32 width, const u16 * p_palette )
 {
-	const PalT *	p_n64pal( reinterpret_cast< const PalT * >( p_palette ) );
+	const PalT * p_n64pal = reinterpret_cast< const PalT * >( p_palette );
 
 	for (u32 x = 0; x < width; x++)
 	{
 		u8 b = p_src_base[offset ^ F];
 
-		p_dst[ x ] = Psp::Pf8888::Make( p_n64pal[ b ^ 0x1 ] );	// Remember palette is in different endian order!
+		p_dst[ x ] = NativePf8888::Make( p_n64pal[ b ^ 0x1 ] );	// Remember palette is in different endian order!
 
 		offset++;
 	}
@@ -580,7 +573,7 @@ template< typename PalT, u32 F > void ConvertCI8_Row_To_8888( Psp::Pf8888 * p_ds
 //*****************************************************************************
 void ConvertRGBA16(const TextureDestInfo & dst, const TextureInfo & ti)
 {
-	SConvert< N64::Pf5551 >::ConvertTexture( dst, ti );
+	SConvert< N64Pf5551 >::ConvertTexture( dst, ti );
 }
 
 //*****************************************************************************
@@ -589,7 +582,7 @@ void ConvertRGBA16(const TextureDestInfo & dst, const TextureInfo & ti)
 void ConvertRGBA32(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	// Did have Fiddle of 8 here, pretty sure this was wrong (should have been 4)
-	SConvert< N64::Pf8888 >::ConvertTexture( dst, ti );
+	SConvert< N64Pf8888 >::ConvertTexture( dst, ti );
 }
 
 //*****************************************************************************
@@ -606,7 +599,7 @@ void ConvertIA4(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 void ConvertIA8(const TextureDestInfo & dst, const TextureInfo & ti)
 {
-	SConvert< N64::PfIA8 >::ConvertTexture( dst, ti );
+	SConvert< N64PfIA8 >::ConvertTexture( dst, ti );
 }
 
 //*****************************************************************************
@@ -614,7 +607,7 @@ void ConvertIA8(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 void ConvertIA16(const TextureDestInfo & dst, const TextureInfo & ti)
 {
-	SConvert< N64::PfIA16 >::ConvertTexture( dst, ti );
+	SConvert< N64PfIA16 >::ConvertTexture( dst, ti );
 }
 
 //*****************************************************************************
@@ -630,7 +623,7 @@ void ConvertI4(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 void ConvertI8(const TextureDestInfo & dst, const TextureInfo & ti)
 {
-	SConvert< N64::PfI8 >::ConvertTexture( dst, ti );
+	SConvert< N64PfI8 >::ConvertTexture( dst, ti );
 }
 
 //*****************************************************************************
@@ -641,11 +634,11 @@ void ConvertCI4_RGBA16(const TextureDestInfo & dst, const TextureInfo & ti)
 	switch( dst.Format )
 	{
 	case TexFmt_8888:
-		ConvertGenericPalettised( dst, ti, ConvertCI4_Row_To_8888< N64::Pf5551, 0x4 | 0x3 >, ConvertCI4_Row_To_8888< N64::Pf5551, 0x3 > );
+		ConvertGenericPalettised( dst, ti, ConvertCI4_Row_To_8888< N64Pf5551, 0x4 | 0x3 >, ConvertCI4_Row_To_8888< N64Pf5551, 0x3 > );
 		break;
 
 	case TexFmt_CI4_8888:
-		ConvertGenericPalettisedCI4( dst, ti, ConvertCI4_Row< 0x4 | 0x3 >, ConvertCI4_Row< 0x3 >, ConvertPalette< N64::Pf5551, 0x1 > );
+		ConvertGenericPalettisedCI4( dst, ti, ConvertCI4_Row< 0x4 | 0x3 >, ConvertCI4_Row< 0x3 >, ConvertPalette< N64Pf5551, 0x1 > );
 		break;
 
 	default:
@@ -662,11 +655,11 @@ void ConvertCI4_IA16(const TextureDestInfo & dst, const TextureInfo & ti)
 	switch( dst.Format )
 	{
 	case TexFmt_8888:
-		ConvertGenericPalettised( dst, ti, ConvertCI4_Row_To_8888< N64::PfIA16, 0x4 | 0x3 >, ConvertCI4_Row_To_8888< N64::PfIA16, 0x3 > );
+		ConvertGenericPalettised( dst, ti, ConvertCI4_Row_To_8888< N64PfIA16, 0x4 | 0x3 >, ConvertCI4_Row_To_8888< N64PfIA16, 0x3 > );
 		break;
 
 	case TexFmt_CI4_8888:
-		ConvertGenericPalettisedCI4( dst, ti, ConvertCI4_Row< 0x4 | 0x3 >, ConvertCI4_Row< 0x3 >, ConvertPalette< N64::PfIA16, 0x1 > );
+		ConvertGenericPalettisedCI4( dst, ti, ConvertCI4_Row< 0x4 | 0x3 >, ConvertCI4_Row< 0x3 >, ConvertPalette< N64PfIA16, 0x1 > );
 		break;
 
 	default:
@@ -683,11 +676,11 @@ void ConvertCI8_RGBA16(const TextureDestInfo & dst, const TextureInfo & ti)
 	switch( dst.Format )
 	{
 	case TexFmt_8888:
-		ConvertGenericPalettised( dst, ti, ConvertCI8_Row_To_8888< N64::Pf5551, 0x4 | 0x3 >, ConvertCI8_Row_To_8888< N64::Pf5551, 0x3 > );
+		ConvertGenericPalettised( dst, ti, ConvertCI8_Row_To_8888< N64Pf5551, 0x4 | 0x3 >, ConvertCI8_Row_To_8888< N64Pf5551, 0x3 > );
 		break;
 
 	case TexFmt_CI8_8888:
-		ConvertGenericPalettisedCI8( dst, ti, ConvertCI8_Row< 0x4 | 0x3 >, ConvertCI8_Row< 0x3 >, ConvertPalette< N64::Pf5551, 0x1 > );
+		ConvertGenericPalettisedCI8( dst, ti, ConvertCI8_Row< 0x4 | 0x3 >, ConvertCI8_Row< 0x3 >, ConvertPalette< N64Pf5551, 0x1 > );
 		break;
 
 	default:
@@ -705,11 +698,11 @@ void ConvertCI8_IA16(const TextureDestInfo & dst, const TextureInfo & ti)
 	switch( dst.Format )
 	{
 	case TexFmt_8888:
-		ConvertGenericPalettised( dst, ti, ConvertCI8_Row_To_8888< N64::PfIA16, 0x4 | 0x3 >, ConvertCI8_Row_To_8888< N64::PfIA16, 0x3 > );
+		ConvertGenericPalettised( dst, ti, ConvertCI8_Row_To_8888< N64PfIA16, 0x4 | 0x3 >, ConvertCI8_Row_To_8888< N64PfIA16, 0x3 > );
 		break;
 
 	case TexFmt_CI8_8888:
-		ConvertGenericPalettisedCI8( dst, ti, ConvertCI8_Row< 0x4 | 0x3 >, ConvertCI8_Row< 0x3 >, ConvertPalette< N64::PfIA16, 0x1 > );
+		ConvertGenericPalettisedCI8( dst, ti, ConvertCI8_Row< 0x4 | 0x3 >, ConvertCI8_Row< 0x3 >, ConvertPalette< N64PfIA16, 0x1 > );
 		break;
 
 	default:

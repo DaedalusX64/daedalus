@@ -17,27 +17,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef PIXELFORMATPSP_H_
-#define PIXELFORMATPSP_H_
+#ifndef NATIVEPIXELFORMAT_H_
+#define NATIVEPIXELFORMAT_H_
 
-namespace PixelFormats
+struct NativePf5650
 {
-
-namespace Psp
-{
-
-struct Pf5650
-{
-	union
-	{
-		//struct
-		//{
-		//	unsigned int		R : 5;
-		//	unsigned int		G : 6;
-		//	unsigned int		B : 5;
-		//};
-		u16					Bits;
-	};
+	u16	Bits;
 
 	static u16 Make( u8 r, u8 g, u8 b, u8 a )
 	{
@@ -50,11 +35,11 @@ struct Pf5650
 	}
 
 
-	Pf5650()
+	NativePf5650()
 	{
 	}
 
-	Pf5650( u8 r, u8 g, u8 b, u8 a )
+	NativePf5650( u8 r, u8 g, u8 b, u8 a )
 		:	Bits( Make( r,g,b,a ) )
 	{
 	}
@@ -79,21 +64,11 @@ struct Pf5650
 	static const u32	BitsB = 5;
 	//static const u32	BitsA = 0;
 };
-DAEDALUS_STATIC_ASSERT( sizeof( Pf5650 ) == 2 );
+DAEDALUS_STATIC_ASSERT( sizeof( NativePf5650 ) == 2 );
 
-struct Pf5551
+struct NativePf5551
 {
-	union
-	{
-		//struct
-		//{
-		//	unsigned int		R : 5;
-		//	unsigned int		G : 5;
-		//	unsigned int		B : 5;
-		//	unsigned int		A : 1;
-		//};
-		u16					Bits;
-	};
+	u16	Bits;
 
 	static u16 Make( u8 r, u8 g, u8 b, u8 a )
 	{
@@ -104,11 +79,11 @@ struct Pf5551
 	}
 
 
-	Pf5551()
+	NativePf5551()
 	{
 	}
 
-	Pf5551( u8 r, u8 g, u8 b, u8 a )
+	NativePf5551( u8 r, u8 g, u8 b, u8 a )
 		:	Bits( Make( r,g,b,a ) )
 	{
 	}
@@ -133,21 +108,11 @@ struct Pf5551
 	static const u32	BitsB = 5;
 	static const u32	BitsA = 1;
 };
-DAEDALUS_STATIC_ASSERT( sizeof( Pf5551 ) == 2 );
+DAEDALUS_STATIC_ASSERT( sizeof( NativePf5551 ) == 2 );
 
-struct Pf4444
+struct NativePf4444
 {
-	union
-	{
-		//struct
-		//{
-		//	unsigned		R : 4;
-		//	unsigned		G : 4;
-		//	unsigned		B : 4;
-		//	unsigned		A : 4;
-		//};
-		u16					Bits;
-	};
+	u16	Bits;
 
 	static u16 Make( u8 r, u8 g, u8 b, u8 a )
 	{
@@ -157,11 +122,11 @@ struct Pf4444
 			   ((a >> (8-BitsA)) << ShiftA);
 	}
 
-	Pf4444()
+	NativePf4444()
 	{
 	}
 
-	Pf4444( u8 r, u8 g, u8 b, u8 a )
+	NativePf4444( u8 r, u8 g, u8 b, u8 a )
 		:	Bits( Make( r,g,b,a ) )
 	{
 	}
@@ -186,20 +151,20 @@ struct Pf4444
 	static const u32	BitsB = 4;
 	static const u32	BitsA = 4;
 };
-DAEDALUS_STATIC_ASSERT( sizeof( Pf4444 ) == 2 );
+DAEDALUS_STATIC_ASSERT( sizeof( NativePf4444 ) == 2 );
 
-struct Pf8888
+struct NativePf8888
 {
 	union
 	{
 		struct
 		{
-			u8				R;
-			u8				G;
-			u8				B;
-			u8				A;
+			u8		R;
+			u8		G;
+			u8		B;
+			u8		A;
 		};
-		u32					Bits;
+		u32			Bits;
 	};
 
 	static u32 Make( u8 r, u8 g, u8 b, u8 a )
@@ -211,22 +176,22 @@ struct Pf8888
 	}
 
 	template< typename T >
-	static Pf8888 Make( T c )
+	static NativePf8888 Make( T c )
 	{
-		return Pf8888( c.GetR(), c.GetG(), c.GetB(), c.GetA() );
+		return NativePf8888( c.GetR(), c.GetG(), c.GetB(), c.GetA() );
 	}
 
-	Pf8888()
+	NativePf8888()
 	{
 	}
 
 	// Would like to remove this
-	explicit Pf8888( u32 bits )
+	explicit NativePf8888( u32 bits )
 		:	Bits( bits )
 	{
 	}
 
-	Pf8888( u8 r, u8 g, u8 b, u8 a )
+	NativePf8888( u8 r, u8 g, u8 b, u8 a )
 		:	Bits( Make( r,g,b,a ) )
 	{
 	}
@@ -251,20 +216,17 @@ struct Pf8888
 	static const u32	BitsB = 8;
 	static const u32	BitsA = 8;
 };
-DAEDALUS_STATIC_ASSERT( sizeof( Pf8888 ) == 4 );
+DAEDALUS_STATIC_ASSERT( sizeof( NativePf8888 ) == 4 );
 
-struct PfCI44		// This represents 2 pixels
+struct NativePfCI44		// This represents 2 pixels
 {
-	union
-	{
-		u8					Bits;
-	};
+	u8	Bits;
 
-	PfCI44()
+	NativePfCI44()
 	{
 	}
 
-	explicit PfCI44( u8 bits )
+	explicit NativePfCI44( u8 bits )
 		:	Bits( bits )
 	{
 	}
@@ -279,31 +241,21 @@ struct PfCI44		// This represents 2 pixels
 	static const u8	MaskPixelB = 0xf0;
 
 };
-DAEDALUS_STATIC_ASSERT( sizeof( PfCI44 ) == 1 );
+DAEDALUS_STATIC_ASSERT( sizeof( NativePfCI44 ) == 1 );
 
-struct PfCI8
+struct NativePfCI8
 {
-	union
-	{
-		u8					Bits;
-	};
+	u8	Bits;
 
-	PfCI8()
+	NativePfCI8()
 	{
 	}
 
-	explicit PfCI8( u8 bits )
+	explicit NativePfCI8( u8 bits )
 		:	Bits( bits )
 	{
 	}
 };
-DAEDALUS_STATIC_ASSERT( sizeof( PfCI8 ) == 1 );
+DAEDALUS_STATIC_ASSERT( sizeof( NativePfCI8 ) == 1 );
 
-
-} // Psp
-
-
-} // PixelFormats
-
-
-#endif // PIXELFORMATPSP_H_
+#endif // NATIVEPIXELFORMAT_H_

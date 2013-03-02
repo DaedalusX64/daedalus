@@ -20,19 +20,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __CONVERTIMAGE_H__
 #define __CONVERTIMAGE_H__
 
-
 #include "Graphics/TextureFormat.h"
 
 struct TextureInfo;
-
-namespace PixelFormats
-{
-	namespace Psp
-	{
-		struct Pf8888;
-	}
-}
-
+struct NativePf8888;
 
 struct TextureDestInfo
 {
@@ -46,13 +37,12 @@ struct TextureDestInfo
 	{
 	}
 
-	ETextureFormat				Format;
-	u32							Width;			// Describes the width of the locked area. Use lPitch to move between successive lines
-	u32							Height;			// Describes the height of the locked area
-	s32							Pitch;			// Specifies the number of bytes on each row (not necessarily bitdepth*width/8)
-	void *						pSurface;		// Pointer to the top left pixel of the image
-
-	PixelFormats::Psp::Pf8888 *	Palette;
+	ETextureFormat		Format;
+	u32					Width;			// Describes the width of the locked area. Use lPitch to move between successive lines
+	u32					Height;			// Describes the height of the locked area
+	s32					Pitch;			// Specifies the number of bytes on each row (not necessarily bitdepth*width/8)
+	void *				pSurface;		// Pointer to the top left pixel of the image
+	NativePf8888 *		Palette;
 };
 
 

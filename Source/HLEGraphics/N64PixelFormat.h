@@ -17,34 +17,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef PIXELFORMATN64_H_
-#define PIXELFORMATN64_H_
-
-namespace PixelFormats
-{
+#ifndef N64PIXELFORMAT_H_
+#define N64PIXELFORMAT_H_
 
 template< typename PixelFormatA, typename PixelFormatB >
-inline PixelFormatA convertPixelFormat( PixelFormatB colour )
+inline PixelFormatA ConvertPixelFormat( PixelFormatB colour )
 {
 	return PixelFormatA( colour.GetR(), colour.GetG(), colour.GetB(), colour.GetA() );
 }
 
-namespace N64
+struct N64Pf5551
 {
-
-struct Pf5551
-{
-	union
-	{
-		//struct
-		//{
-		//	unsigned int		A : 1;
-		//	unsigned int		G : 5;
-		//	unsigned int		B : 5;
-		//	unsigned int		R : 5;
-		//};
-		u16					Bits;
-	};
+	u16	Bits;
 
 	static u16 Make( u8 r, u8 g, u8 b, u8 a )
 	{
@@ -54,18 +38,17 @@ struct Pf5551
 			   ((a >> (8-BitsA)) << ShiftA);		// Or could do 'a ? MaskA : 0'
 	}
 
-
-	Pf5551()
+	N64Pf5551()
 	{
 	}
 
 	// Would like to remove this
-	explicit Pf5551( u16 bits )
+	explicit N64Pf5551( u16 bits )
 		:	Bits( bits )
 	{
 	}
 
-	Pf5551( u8 r, u8 g, u8 b, u8 a )
+	N64Pf5551( u8 r, u8 g, u8 b, u8 a )
 		:	Bits( Make( r,g,b,a ) )
 	{
 	}
@@ -90,9 +73,9 @@ struct Pf5551
 	static const u32	BitsB = 5;
 	static const u32	BitsA = 1;
 };
-DAEDALUS_STATIC_ASSERT( sizeof( Pf5551 ) == 2 );
+DAEDALUS_STATIC_ASSERT( sizeof( N64Pf5551 ) == 2 );
 
-struct Pf8888
+struct N64Pf8888
 {
 	union
 	{
@@ -115,21 +98,21 @@ struct Pf8888
 	}
 
 	template< typename T >
-	static Pf8888 Make( T c )
+	static N64Pf8888 Make( T c )
 	{
-		return Pf8888( c.GetR(), c.GetG(), c.GetB(), c.GetA() );
+		return N64Pf8888( c.GetR(), c.GetG(), c.GetB(), c.GetA() );
 	}
 
-	Pf8888()
+	N64Pf8888()
 	{
 	}
 
-	explicit Pf8888( u32 bits )
+	explicit N64Pf8888( u32 bits )
 		:	Bits( bits )
 	{
 	}
 
-	Pf8888( u8 r, u8 g, u8 b, u8 a )
+	N64Pf8888( u8 r, u8 g, u8 b, u8 a )
 		:	Bits( Make( r,g,b,a ) )
 	{
 	}
@@ -154,21 +137,13 @@ struct Pf8888
 	static const u32	BitsB = 8;
 	static const u32	BitsA = 8;
 };
-DAEDALUS_STATIC_ASSERT( sizeof( Pf8888 ) == 4 );
+DAEDALUS_STATIC_ASSERT( sizeof( N64Pf8888 ) == 4 );
 
-struct PfIA8
+struct N64PfIA8
 {
-	union
-	{
-		//struct
-		//{
-		//	unsigned int		A : 4;
-		//	unsigned int		I : 4;
-		//};
-		u8					Bits;
-	};
+	u8	Bits;
 
-	PfIA8()
+	N64PfIA8()
 	{
 	}
 
@@ -188,9 +163,9 @@ struct PfIA8
 	static const u32	BitsI = 4;
 	static const u32	BitsA = 4;
 };
-DAEDALUS_STATIC_ASSERT( sizeof( PfIA8 ) == 1 );
+DAEDALUS_STATIC_ASSERT( sizeof( N64PfIA8 ) == 1 );
 
-struct PfIA16
+struct N64PfIA16
 {
 	union
 	{
@@ -199,10 +174,10 @@ struct PfIA16
 			u8		A;
 			u8		I;
 		};
-		u16					Bits;
+		u16			Bits;
 	};
 
-	PfIA16()
+	N64PfIA16()
 	{
 	}
 
@@ -220,9 +195,9 @@ struct PfIA16
 	static const u32	BitsI = 8;
 	static const u32	BitsA = 8;
 };
-DAEDALUS_STATIC_ASSERT( sizeof( PfIA16 ) == 2 );
+DAEDALUS_STATIC_ASSERT( sizeof( N64PfIA16 ) == 2 );
 
-struct PfI8
+struct N64PfI8
 {
 	union
 	{
@@ -230,10 +205,10 @@ struct PfI8
 		{
 			u8		I;
 		};
-		u8					Bits;
+		u8			Bits;
 	};
 
-	PfI8()
+	N64PfI8()
 	{
 	}
 
@@ -248,12 +223,6 @@ struct PfI8
 
 	static const u32	BitsI = 8;
 };
-DAEDALUS_STATIC_ASSERT( sizeof( PfI8 ) == 1 );
+DAEDALUS_STATIC_ASSERT( sizeof( N64PfI8 ) == 1 );
 
-
-}
-
-} // PixelFormats
-
-
-#endif // PIXELFORMATN64_H_
+#endif // N64PIXELFORMAT_H_

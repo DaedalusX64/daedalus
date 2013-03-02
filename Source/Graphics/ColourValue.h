@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 class v4;
 
-class c32 /*: public PixelFormats::Psp::Pf8888*/
+class c32 /*: public NativePf8888*/
 {
 	public:
 		c32() {}

@@ -21,11 +21,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/PngUtil.h"
 #include "Graphics/TextureFormat.h"
-#include "PixelFormatPSP.h"
+#include "Graphics/NativePixelFormat.h"
 
 #include <png.h>
-
-using namespace PixelFormats;
 
 template< typename T >
 void WritePngRow( u8 * line, const void * src, u32 width )
@@ -45,17 +43,17 @@ void WritePngRow( u8 * line, const void * src, u32 width )
 	}
 }
 
-void WritePngRowPal4( u8 * line, const void * src, u32 width, const Psp::Pf8888 * palette )
+void WritePngRowPal4( u8 * line, const void * src, u32 width, const NativePf8888 * palette )
 {
 	u32 i = 0;
 
-	const Psp::PfCI44 *	p_src( reinterpret_cast< const Psp::PfCI44 * >( src ) );
+	const NativePfCI44 * p_src = reinterpret_cast< const NativePfCI44 * >( src );
 
 	for ( u32 x = 0; x < width; x++ )
 	{
-		Psp::PfCI44		colors( p_src[ x / 2 ] );
+		NativePfCI44	colors( p_src[ x / 2 ] );
 		u8				color_idx( (x&1) ? colors.GetIdxB() : colors.GetIdxA() );
-		Psp::Pf8888		color( palette[ color_idx ] );
+		NativePf8888	color( palette[ color_idx ] );
 
 		line[i++] = color.GetR();
 		line[i++] = color.GetG();
@@ -64,16 +62,16 @@ void WritePngRowPal4( u8 * line, const void * src, u32 width, const Psp::Pf8888 
 	}
 }
 
-void WritePngRowPal8( u8 * line, const void * src, u32 width, const Psp::Pf8888 * palette )
+void WritePngRowPal8( u8 * line, const void * src, u32 width, const NativePf8888 * palette )
 {
 	u32 i = 0;
 
-	const Psp::PfCI8 *	p_src( reinterpret_cast< const Psp::PfCI8 * >( src ) );
+	const NativePfCI8 * p_src = reinterpret_cast< const NativePfCI8 * >( src );
 
 	for ( u32 x = 0; x < width; x++ )
 	{
 		u8				color_idx( p_src[ x ].Bits );
-		Psp::Pf8888		color( palette[ color_idx ] );
+		NativePf8888	color( palette[ color_idx ] );
 
 		line[i++] = color.GetR();
 		line[i++] = color.GetG();
@@ -97,13 +95,13 @@ void PngSaveImage( const char* filename, const void * data, const void * palette
 		return;
 	}
 
-	png_structp png_ptr( png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL) );
+	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (!png_ptr)
 	{
 		fclose(fp);
 		return;
 	}
-	png_infop info_ptr( png_create_info_struct(png_ptr) );
+	png_infop info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr)
 	{
 		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
@@ -117,20 +115,19 @@ void PngSaveImage( const char* filename, const void * data, const void * palette
 
 	u8* line = (u8*) malloc(width * 4);
 
-	const u8 *		p( reinterpret_cast< const u8 * >( data ) );
-
-	const Psp::Pf8888 *		pal8888( reinterpret_cast< const Psp::Pf8888 * >( palette ) );
+	const u8 *				p       = reinterpret_cast< const u8 * >( data );
+	const NativePf8888 *	pal8888 = reinterpret_cast< const NativePf8888 * >( palette );
 
 	for ( u32 y = 0; y < height; y++ )
 	{
 		switch (pixelformat)
 		{
-		case TexFmt_5650:			WritePngRow< Psp::Pf5650 >( line, p, width );	break;
-		case TexFmt_5551:			WritePngRow< Psp::Pf5551 >( line, p, width );	break;
-		case TexFmt_4444:			WritePngRow< Psp::Pf4444 >( line, p, width );	break;
-		case TexFmt_8888:			WritePngRow< Psp::Pf8888 >( line, p, width );	break;
-		case TexFmt_CI4_8888:		WritePngRowPal4( line, p, width, pal8888 );		break;
-		case TexFmt_CI8_8888:		WritePngRowPal8( line, p, width, pal8888 );		break;
+		case TexFmt_5650:		WritePngRow< NativePf5650 >( line, p, width );	break;
+		case TexFmt_5551:		WritePngRow< NativePf5551 >( line, p, width );	break;
+		case TexFmt_4444:		WritePngRow< NativePf4444 >( line, p, width );	break;
+		case TexFmt_8888:		WritePngRow< NativePf8888 >( line, p, width );	break;
+		case TexFmt_CI4_8888:	WritePngRowPal4( line, p, width, pal8888 );		break;
+		case TexFmt_CI8_8888:	WritePngRowPal8( line, p, width, pal8888 );		break;
 		}
 
 		//

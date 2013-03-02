@@ -1905,7 +1905,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\PixelFormatN64.h"
+					RelativePath=".\Source\HLEGraphics\N64PixelFormat.h"
 					>
 				</File>
 				<File
@@ -2793,6 +2793,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\Graphics\NativePixelFormat.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\Graphics\NativeTexture.h"
 					>
 				</File>
@@ -2870,10 +2874,6 @@
 								Name="VCCLCompilerTool"
 							/>
 						</FileConfiguration>
-					</File>
-					<File
-						RelativePath=".\Source\SysPSP\Graphics\PixelFormatPSP.h"
-						>
 					</File>
 					<File
 						RelativePath=".\Source\SysPSP\Graphics\PngUtilPSP.cpp"
