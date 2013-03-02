@@ -84,14 +84,19 @@ void sceGuTexWrap(int u, int v)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, v);
 }
 
+float gTexOffset[2] = { 0.f, 0.f };
+float gTexScale[2] = { 1.f, 1.f };
+
 void sceGuTexOffset(float s, float t)
 {
-	//DAEDALUS_ERROR( "%s: Not implemented", __FUNCTION__ );
+	gTexOffset[0] = s;
+	gTexOffset[1] = t;
 }
 
 void sceGuTexScale(float s, float t)
 {
-	//DAEDALUS_ERROR( "%s: Not implemented", __FUNCTION__ );
+	gTexScale[0] = s;
+	gTexScale[1] = t;
 }
 
 void sceGuTexFilter(EGuTextureFilterMode u, EGuTextureFilterMode v)
@@ -161,6 +166,18 @@ void sceGuDrawArray(int prim, int vtype, int count, const void * indices, const 
 	if (vtype & GU_TEXTURE_32BITF)	{ tex_off = stride; stride += 8; }
 	if (vtype & GU_COLOR_8888)		{ col_off = stride; stride += 4; }
 	if (vtype & GU_VERTEX_32BITF)	{ pos_off = stride; stride += 12; }
+
+	// BODGE! Apply texture offset+scale to all verts. We should do this in a vertex shader.
+	if (vtype & GU_VERTEX_32BITF)
+	{
+		for (int i = 0; i < count; ++i)
+		{
+			float * tex = (float*)(pv + stride*i + tex_off);
+
+			tex[0] = (tex[0] - gTexOffset[0]) * gTexScale[0];
+			tex[1] = (tex[1] - gTexOffset[1]) * gTexScale[1];
+		}
+	}
 
 	// Set up streams
 	if (vtype & GU_TEXTURE_32BITF)
