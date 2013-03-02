@@ -58,6 +58,9 @@ bool IGraphicsContext::Initialise()
 		return false;
 	}
 
+	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
+	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
+
 	// Open a window and create its OpenGL context
 	if( !glfwOpenWindow( SCR_WIDTH, SCR_HEIGHT,
 						0,0,0,0,			// RGBA bits
@@ -79,7 +82,9 @@ bool IGraphicsContext::Initialise()
 	// Enable vertical sync (on cards that support it)
 	glfwSwapInterval( 1 );
 
-	return true;
+	// FIXME(strmnnrmn): this needs tidying.
+	extern bool initgl();
+	return initgl();
 }
 
 void IGraphicsContext::GetScreenSize(u32 * width, u32 * height) const

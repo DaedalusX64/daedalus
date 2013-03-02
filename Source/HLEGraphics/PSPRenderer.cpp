@@ -1007,6 +1007,12 @@ void PSPRenderer::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 	SBlendStateEntry		blend_entry;
 
+	// FIXME(strmnnrmn): we shouldn't need to do this - the GL renderer should just derive from a BaseRenderer.
+#ifdef DAEDALUS_OSX
+	extern void GLRenderer_SetMux(u64 mux, u32 cycle_type, const c32 & prim_col, const c32 & env_col);
+	GLRenderer_SetMux(mMux, cycle_mode, mPrimitiveColour, mEnvColour);
+#endif
+
 	switch ( cycle_mode )
 	{
 		case CYCLE_COPY:		blend_entry.States = mCopyBlendStates; break;
