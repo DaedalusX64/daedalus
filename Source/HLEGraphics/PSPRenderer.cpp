@@ -502,21 +502,26 @@ void PSPRenderer::BeginScene()
 		return;
 	}
 
-	u32	display_width( 0 );
-	u32 display_height( 0 );
+	u32 display_width  = 0;
+	u32 display_height = 0;
 
 	CGraphicsContext::Get()->ViewportType(&display_width, &display_height);
 
 	DAEDALUS_ASSERT( display_width && display_height, "Unhandled viewport type" );
 
-	u32 frame_width(  gGlobalPreferences.TVEnable ? 720 : 480 );
-	u32	frame_height( gGlobalPreferences.TVEnable ? 480 : 272 );
+#ifdef DAEDALUS_PSP
+	u32 frame_width  = gGlobalPreferences.TVEnable ? 720 : 480;
+	u32 frame_height = gGlobalPreferences.TVEnable ? 480 : 272;
+#else
+	u32 frame_width  = display_width;
+	u32 frame_height = display_height;
+#endif
 
 	v2 scale( 640.0f*0.25f, 480.0f*0.25f );
 	v2 trans( 640.0f*0.25f, 480.0f*0.25f );
 
-	s32 display_x( (frame_width - display_width) / 2 );
-	s32 display_y( (frame_height - display_height) / 2 );
+	s32 display_x = (s32)(frame_width - display_width) / 2;
+	s32 display_y = (s32)(frame_height - display_height) / 2;
 
 	SetPSPViewport( display_x, display_y, display_width, display_height );
 	SetN64Viewport( scale, trans );
