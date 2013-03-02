@@ -41,7 +41,7 @@ void DLParser_GBI0_Vtx_WRUS( MicroCodeCommand command )
 
 	DAEDALUS_ASSERT( (v0 + n) < 32, "Warning, attempting to load into invalid vertex positions");
 
-	PSPRenderer::Get()->SetNewVertexInfo( addr, v0, n );
+	gRenderer->SetNewVertexInfo( addr, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	gNumVertices += n;

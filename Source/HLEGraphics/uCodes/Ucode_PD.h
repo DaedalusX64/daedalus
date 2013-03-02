@@ -36,7 +36,7 @@ void DLParser_Vtx_PD( MicroCodeCommand command )
 
 	// Doesn't work anyways
 	// Todo : Implement proper vertex info for PD
-	PSPRenderer::Get()->SetNewVertexInfoPD( address, v0, n );
+	gRenderer->SetNewVertexInfoPD( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
       gNumVertices += n;

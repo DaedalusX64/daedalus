@@ -139,7 +139,7 @@ void DLParser_TexRect_Last_Legion( MicroCodeCommand command )
 	uv1.x = uv0.x + d.x * ( xy1.x - xy0.x );
 	uv1.y = uv0.y + d.y * ( xy1.y - xy0.y );
 
-	PSPRenderer::Get()->TexRect( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );
+	gRenderer->TexRect( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );
 }
 
 #endif // UCODE_LL_H__

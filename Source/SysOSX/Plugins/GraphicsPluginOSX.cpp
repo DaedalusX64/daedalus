@@ -56,7 +56,7 @@ CGraphicsPluginImpl::~CGraphicsPluginImpl()
 
 bool CGraphicsPluginImpl::Initialise()
 {
-	if (!PSPRenderer::Create())
+	if (!CreateRenderer())
 	{
 		return false;
 	}
@@ -106,6 +106,11 @@ void CGraphicsPluginImpl::UpdateScreen()
 
 void CGraphicsPluginImpl::RomClosed()
 {
+	DBGConsole_Msg(0, "Finalising PSPGraphics");
+	DLParser_Finalise();
+	CTextureCache::Destroy();
+	DestroyRenderer();
+
 	// Close OpenGL window and terminate GLFW
 	glfwTerminate();
 

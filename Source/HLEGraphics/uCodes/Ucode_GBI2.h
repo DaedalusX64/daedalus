@@ -27,26 +27,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 void DLParser_GBI2_Vtx( MicroCodeCommand command )
 {
-    u32 address = RDPSegAddr(command.vtx2.addr);
+	u32 address = RDPSegAddr(command.vtx2.addr);
 
-    u32 vend   = command.vtx2.vend >> 1;
-    u32 n      = command.vtx2.n;
-    u32 v0	   = vend - n;
+	u32 vend   = command.vtx2.vend >> 1;
+	u32 n      = command.vtx2.n;
+	u32 v0	   = vend - n;
 
 	DL_PF( "    Address[0x%08x] vEnd[%d] v0[%d] Num[%d]", address, vend, v0, n );
 
-    if ( vend > 64 )
-    {
-        DL_PF( "    *Warning, attempting to load into invalid vertex positions" );
-        DBGConsole_Msg( 0, "DLParser_GBI2_Vtx: Warning, attempting to load into invalid vertex positions: %d -> %d", v0, v0+n );
-        return;
-    }
+	if ( vend > 64 )
+	{
+		DL_PF( "    *Warning, attempting to load into invalid vertex positions" );
+		DBGConsole_Msg( 0, "DLParser_GBI2_Vtx: Warning, attempting to load into invalid vertex positions: %d -> %d", v0, v0+n );
+		return;
+	}
 
-    // Check that address is valid...
+	// Check that address is valid...
 	// Only games I seen that set this are Mario Golf/Tennis, but it looks like is caused by a dynarec issue, anyways they crash eventually
 	DAEDALUS_ASSERT( (address + (n*16) ) < MAX_RAM_ADDRESS, "Address out of range (0x%08x)", address );
 
-	PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
+	gRenderer->SetNewVertexInfo( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	gNumVertices += n;
@@ -71,11 +71,11 @@ void DLParser_GBI2_Mtx( MicroCodeCommand command )
 	// Load matrix from address
 	if (command.mtx2.projection)
 	{
-		PSPRenderer::Get()->SetProjection(address, command.mtx2.nopush==0, command.mtx2.load);
+		gRenderer->SetProjection(address, command.mtx2.nopush==0, command.mtx2.load);
 	}
 	else
 	{
-		PSPRenderer::Get()->SetWorldView(address, command.mtx2.nopush==0, command.mtx2.load);
+		gRenderer->SetWorldView(address, command.mtx2.nopush==0, command.mtx2.load);
 	}
 }
 
@@ -92,7 +92,7 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 	case G_MW_MATRIX:
 		{
 			DL_PF("    G_MW_MATRIX(2)");
-			PSPRenderer::Get()->InsertMatrix(command.inst.cmd0, command.inst.cmd1);
+			gRenderer->InsertMatrix(command.inst.cmd0, command.inst.cmd1);
 		}
 		break;
 
@@ -106,7 +106,7 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 			u32 num_lights = command.mw2.value / 24;
 
 			DL_PF("    G_MW_NUMLIGHT: %d", num_lights);
-			PSPRenderer::Get()->SetNumLights(num_lights);
+			gRenderer->SetNumLights(num_lights);
 		}
 		break;
 /*
@@ -141,7 +141,7 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 
 			//DL_PF(" G_MW_FOG. Mult = 0x%04x (%f), Off = 0x%04x (%f)", wMult, 255.0f * fMult, wOff, 255.0f * fOff );
 
-			PSPRenderer::Get()->SetFogMinMax(min, max);
+			gRenderer->SetFogMinMax(min, max);
 
 			//printf("1Fog %.0f | %.0f || %.0f | %.0f\n", min, max, a, b);
 		}
@@ -156,7 +156,7 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 
 			if (field_offset == 0)
 			{
-				PSPRenderer::Get()->SetLightCol(light_idx, ((command.mw2.value>>24)&0xFF), ((command.mw2.value>>16)&0xFF), ((command.mw2.value>>8)&0xFF) );
+				gRenderer->SetLightCol(light_idx, ((command.mw2.value>>24)&0xFF), ((command.mw2.value>>16)&0xFF), ((command.mw2.value>>8)&0xFF) );
 			}
 		}
 		break;
@@ -281,7 +281,7 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 		{
 			DL_PF("    Force Matrix(2): addr=%08X", address);
 			// Rayman 2, Donald Duck, Tarzan, all wrestling games use this
-			PSPRenderer::Get()->ForceMatrix( address );
+			gRenderer->ForceMatrix( address );
 			// ForceMatrix takes two cmds
 			gDlistStack.address[gDlistStackPointer] += 8;
 		}
@@ -376,7 +376,7 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 	TnLMode.TriCull		= gGeometryMode.GBI2_CullFront | gGeometryMode.GBI2_CullBack;
 	TnLMode.CullBack	= gGeometryMode.GBI2_CullBack;
 
-	PSPRenderer::Get()->SetTnLMode( TnLMode._u32 );
+	gRenderer->SetTnLMode( TnLMode._u32 );
 }
 
 //*****************************************************************************
@@ -384,10 +384,10 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_SetOtherModeH( MicroCodeCommand command )
 {
-    // Mask is constructed slightly differently
-    const u32 mask = (u32)((s32)(0x80000000) >> command.othermode.len) >> command.othermode.sft;
+	// Mask is constructed slightly differently
+	const u32 mask = (u32)((s32)(0x80000000) >> command.othermode.len) >> command.othermode.sft;
 
-    gRDPOtherMode.H = (gRDPOtherMode.H&(~mask)) | command.othermode.data;
+	gRDPOtherMode.H = (gRDPOtherMode.H&(~mask)) | command.othermode.data;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );
@@ -415,18 +415,18 @@ void DLParser_GBI2_SetOtherModeL( MicroCodeCommand command )
 void DLParser_GBI2_Texture( MicroCodeCommand command )
 {
 	u32 tile    = command.texture.tile;
-    bool enable = command.texture.enable_gbi2;   // Seems to use 0x02
+	bool enable = command.texture.enable_gbi2;   // Seems to use 0x02
 
 	DL_PF("    Level[%d] Tile[%d] %s", command.texture.level, tile, enable ? "enable":"disable");
 
-	PSPRenderer::Get()->SetTextureTile( tile );
-    PSPRenderer::Get()->SetTextureEnable( enable );
+	gRenderer->SetTextureTile( tile );
+	gRenderer->SetTextureEnable( enable );
 
 	f32 scale_s = f32(command.texture.scaleS) / (65535.0f * 32.0f);
 	f32 scale_t = f32(command.texture.scaleT)  / (65535.0f * 32.0f);
 
 	DL_PF("    ScaleS[%0.4f], ScaleT[%0.4f]", scale_s*32.0f, scale_t*32.0f);
-	PSPRenderer::Get()->SetTextureScale( scale_s, scale_t );
+	gRenderer->SetTextureScale( scale_s, scale_t );
 }
 
 //*****************************************************************************
@@ -443,41 +443,42 @@ void DLParser_GBI2_DMA_IO( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_Quad( MicroCodeCommand command )
 {
-    // While the next command pair is Tri2, add vertices
+	// While the next command pair is Tri2, add vertices
 	u32 pc = gDlistStack.address[gDlistStackPointer];
-    u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
+	u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
 	bool tris_added = false;
 
-    do{
-        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_QUAD");
+	do
+	{
+		//DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_QUAD");
 
 		// Vertex indices are multiplied by 2
-        u32 v0_idx = command.gbi2line3d.v0 >> 1;
-        u32 v1_idx = command.gbi2line3d.v1 >> 1;
-        u32 v2_idx = command.gbi2line3d.v2 >> 1;
+		u32 v0_idx = command.gbi2line3d.v0 >> 1;
+		u32 v1_idx = command.gbi2line3d.v1 >> 1;
+		u32 v2_idx = command.gbi2line3d.v2 >> 1;
 
-        tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
+		tris_added |= gRenderer->AddTri(v0_idx, v1_idx, v2_idx);
 
-        u32 v3_idx = command.gbi2line3d.v3 >> 1;
-        u32 v4_idx = command.gbi2line3d.v4 >> 1;
+		u32 v3_idx = command.gbi2line3d.v3 >> 1;
+		u32 v4_idx = command.gbi2line3d.v4 >> 1;
 		u32 v5_idx = command.gbi2line3d.v5 >> 1;
 
-        tris_added |= PSPRenderer::Get()->AddTri(v3_idx, v4_idx, v5_idx);
+		tris_added |= gRenderer->AddTri(v3_idx, v4_idx, v5_idx);
 
 		//printf("Q 0x%08x: %08x %08x %d\n", pc-8, command.inst.cmd0, command.inst.cmd1, tris_added);
 
 		command.inst.cmd0 = *pCmdBase++;
-        command.inst.cmd1 = *pCmdBase++;
-        pc += 8;
-    }while( command.inst.cmd == G_GBI2_QUAD );
+		command.inst.cmd1 = *pCmdBase++;
+		pc += 8;
+	} while ( command.inst.cmd == G_GBI2_QUAD );
 
 	gDlistStack.address[gDlistStackPointer] = pc-8;
 
-    if (tris_added)
-    {
-            PSPRenderer::Get()->FlushTris();
-    }
+	if (tris_added)
+	{
+		gRenderer->FlushTris();
+	}
 }
 
 //*****************************************************************************
@@ -488,36 +489,37 @@ void DLParser_GBI2_Line3D( MicroCodeCommand command )
 {
 	// While the next command pair is Tri2, add vertices
 	u32 pc = gDlistStack.address[gDlistStackPointer];
-    u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
+	u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
-    bool tris_added = false;
+	bool tris_added = false;
 
-    do{
-        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_LINE3D");
+	do
+	{
+		//DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_LINE3D");
 
 		u32 v0_idx = command.gbi2line3d.v0 >> 1;
-        u32 v1_idx = command.gbi2line3d.v1 >> 1;
-        u32 v2_idx = command.gbi2line3d.v2 >> 1;
+		u32 v1_idx = command.gbi2line3d.v1 >> 1;
+		u32 v2_idx = command.gbi2line3d.v2 >> 1;
 
-        tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
+		tris_added |= gRenderer->AddTri(v0_idx, v1_idx, v2_idx);
 
-        u32 v3_idx = command.gbi2line3d.v3 >> 1;
-        u32 v4_idx = command.gbi2line3d.v4 >> 1;
+		u32 v3_idx = command.gbi2line3d.v3 >> 1;
+		u32 v4_idx = command.gbi2line3d.v4 >> 1;
 		u32 v5_idx = command.gbi2line3d.v5 >> 1;
 
-        tris_added |= PSPRenderer::Get()->AddTri(v3_idx, v4_idx, v5_idx);
+		tris_added |= gRenderer->AddTri(v3_idx, v4_idx, v5_idx);
 
-        command.inst.cmd0 = *pCmdBase++;
-        command.inst.cmd1 = *pCmdBase++;
-        pc += 8;
-    }while( command.inst.cmd == G_GBI2_LINE3D );
+		command.inst.cmd0 = *pCmdBase++;
+		command.inst.cmd1 = *pCmdBase++;
+		pc += 8;
+	} while ( command.inst.cmd == G_GBI2_LINE3D );
 
 	gDlistStack.address[gDlistStackPointer] = pc-8;
 
-    if (tris_added)
-    {
-            PSPRenderer::Get()->FlushTris();
-    }
+	if (tris_added)
+	{
+		gRenderer->FlushTris();
+	}
 }
 
 //*****************************************************************************
@@ -526,32 +528,33 @@ void DLParser_GBI2_Line3D( MicroCodeCommand command )
 void DLParser_GBI2_Tri1( MicroCodeCommand command )
 {
 
-    // While the next command pair is Tri1, add vertices
+	// While the next command pair is Tri1, add vertices
 	u32 pc = gDlistStack.address[gDlistStackPointer];
-    u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
+	u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
-    bool tris_added = false;
+	bool tris_added = false;
 
-    do{
-        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI1");
+	do
+	{
+		//DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI1");
 
 		u32 v0_idx = command.gbi2tri1.v0 >> 1;
 		u32 v1_idx = command.gbi2tri1.v1 >> 1;
 		u32 v2_idx = command.gbi2tri1.v2 >> 1;
 
-        tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
+		tris_added |= gRenderer->AddTri(v0_idx, v1_idx, v2_idx);
 
-        command.inst.cmd0 = *pCmdBase++;
-        command.inst.cmd1 = *pCmdBase++;
-        pc += 8;
-    }while( command.inst.cmd == G_GBI2_TRI1 );
+		command.inst.cmd0 = *pCmdBase++;
+		command.inst.cmd1 = *pCmdBase++;
+		pc += 8;
+	} while ( command.inst.cmd == G_GBI2_TRI1 );
 
 	gDlistStack.address[gDlistStackPointer] = pc-8;
 
-    if (tris_added)
-    {
-            PSPRenderer::Get()->FlushTris();
-    }
+	if (tris_added)
+	{
+		gRenderer->FlushTris();
+	}
 }
 
 //*****************************************************************************
@@ -561,37 +564,38 @@ void DLParser_GBI2_Tri2( MicroCodeCommand command )
 {
 
 	u32 pc = gDlistStack.address[gDlistStackPointer];
-    u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
+	u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
-    bool tris_added = false;
+	bool tris_added = false;
 
-    do{
-        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI2");
+	do
+	{
+		//DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI2_TRI2");
 
 		// Vertex indices already divided in ucodedef
-        u32 v0_idx = command.gbi2tri2.v0;
-        u32 v1_idx = command.gbi2tri2.v1;
-        u32 v2_idx = command.gbi2tri2.v2;
+		u32 v0_idx = command.gbi2tri2.v0;
+		u32 v1_idx = command.gbi2tri2.v1;
+		u32 v2_idx = command.gbi2tri2.v2;
 
-        tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
+		tris_added |= gRenderer->AddTri(v0_idx, v1_idx, v2_idx);
 
 		u32 v3_idx = command.gbi2tri2.v3;
-        u32 v4_idx = command.gbi2tri2.v4;
-        u32 v5_idx = command.gbi2tri2.v5;
+		u32 v4_idx = command.gbi2tri2.v4;
+		u32 v5_idx = command.gbi2tri2.v5;
 
-        tris_added |= PSPRenderer::Get()->AddTri(v3_idx, v4_idx, v5_idx);
+		tris_added |= gRenderer->AddTri(v3_idx, v4_idx, v5_idx);
 
-        command.inst.cmd0 = *pCmdBase++;
-        command.inst.cmd1 = *pCmdBase++;
-        pc += 8;
-	}while( command.inst.cmd == G_GBI2_TRI2 );
+		command.inst.cmd0 = *pCmdBase++;
+		command.inst.cmd1 = *pCmdBase++;
+		pc += 8;
+	} while ( command.inst.cmd == G_GBI2_TRI2 );
 
 	gDlistStack.address[gDlistStackPointer] = pc-8;
 
-    if (tris_added)
-    {
-            PSPRenderer::Get()->FlushTris();
-    }
+	if (tris_added)
+	{
+		gRenderer->FlushTris();
+	}
 }
 
 //*****************************************************************************

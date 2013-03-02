@@ -66,7 +66,7 @@ void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 
 	//DL_PF(" Word 1: %u, Word 2: %u, Word 3: %u, Word 4: %u, Word 5: %u, Word 6: %u, Word 7: %u, Word 8: %u, Word 9: %u", a1, a2, a3, a4, a5, a6, a7, a8, a9);
 	//DL_PF("    Tile:%d Screen(%f,%f) -> (%f,%f)",				   tile, xy0, xy1, uv0, uv1);
-	PSPRenderer::Get()->TexRect( 0, xy0, xy1, uv0, uv1 );
+	gRenderer->TexRect( 0, xy0, xy1, uv0, uv1 );
 
 	gDlistStack.address[gDlistStackPointer] += 312;
 }

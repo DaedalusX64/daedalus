@@ -24,7 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/Vector3.h"
 #include "Math/Vector4.h"
 #include "Math/Matrix4x4.h"
-#include "Utility/Singleton.h"
 #include "Utility/RefCounted.h"
 #include "DaedalusVtx.h"
 #include "Graphics/ColourValue.h"
@@ -179,13 +178,10 @@ ALIGNED_TYPE(struct, TnLParams, 16)
 //*****************************************************************************
 //
 //*****************************************************************************
-class PSPRenderer : public CSingleton< PSPRenderer >
+class PSPRenderer
 {
-protected:
-	friend class CSingleton< PSPRenderer >;
-	PSPRenderer();
-
 public:
+	PSPRenderer();
 	~PSPRenderer();
 
 	void				BeginScene();
@@ -424,5 +420,9 @@ private:
 	std::set< u64 >		mUnhandledCombinerStates;
 #endif
 };
+
+bool CreateRenderer();
+void DestroyRenderer();
+extern PSPRenderer * gRenderer;
 
 #endif // __DAEDALUS_D3DRENDER_H__

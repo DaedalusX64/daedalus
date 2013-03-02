@@ -25,17 +25,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 void DLParser_GBI0_Vtx( MicroCodeCommand command )
 {
-    u32 addr = RDPSegAddr(command.vtx0.addr);
-    u32 v0   = command.vtx0.v0;
-    u32 n    = command.vtx0.n + 1;
+	u32 addr = RDPSegAddr(command.vtx0.addr);
+	u32 v0   = command.vtx0.v0;
+	u32 n    = command.vtx0.n + 1;
 
-    DL_PF("    Address[0x%08x] v0[%d] Num[%d] Len[0x%04x]", addr, v0, n, command.vtx0.len);
+	DL_PF("    Address[0x%08x] v0[%d] Num[%d] Len[0x%04x]", addr, v0, n, command.vtx0.len);
 
 	// Never seen or should happen, but just in case..
 	DAEDALUS_ASSERT( (v0 + n) < 80, "Warning, attempting to load into invalid vertex positions");
 	DAEDALUS_ASSERT( (addr + (n*16)) < MAX_RAM_ADDRESS, "Address out of range (0x%08x)", addr );
 
-	PSPRenderer::Get()->SetNewVertexInfo( addr, v0, n );
+	gRenderer->SetNewVertexInfo( addr, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	gNumVertices += n;
@@ -57,7 +57,7 @@ inline bool AddTri4( u32 v0, u32 v1, u32 v2 )
 	}
 	else
 	{
-		return PSPRenderer::Get()->AddTri(v0, v1, v2);
+		return gRenderer->AddTri(v0, v1, v2);
 	}
 }
 
@@ -66,12 +66,13 @@ inline bool AddTri4( u32 v0, u32 v1, u32 v2 )
 //*****************************************************************************
 void DLParser_GBI0_Tri4( MicroCodeCommand command )
 {
-    // While the next command pair is Tri2, add vertices
+	// While the next command pair is Tri2, add vertices
 	u32 pc = gDlistStack.address[gDlistStackPointer];
 
-    bool tris_added = false;
+	bool tris_added = false;
 
-    do{
+	do
+	{
 		//DL_PF("    0x%08x: %08x %08x Flag: 0x%02x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, (command.inst.cmd0 >> 16) & 0xFF, "G_GBI1_TRI4");
 
 		//Tri #1
@@ -79,7 +80,7 @@ void DLParser_GBI0_Tri4( MicroCodeCommand command )
 		u32 v1 = command.tri4.v1;
 		u32 v2 = command.tri4.v2;
 
-		tris_added |= PSPRenderer::Get()->AddTri(v0, v1, v2);
+		tris_added |= gRenderer->AddTri(v0, v1, v2);
 
 		//Tri #2
 		u32 v3 = command.tri4.v3;
@@ -105,13 +106,13 @@ void DLParser_GBI0_Tri4( MicroCodeCommand command )
 		command.inst.cmd0 = *(u32 *)(g_pu8RamBase + pc+0);
 		command.inst.cmd1 = *(u32 *)(g_pu8RamBase + pc+4);
 		pc += 8;
-    }while( command.inst.cmd == G_GBI1_TRI2 );
+	} while ( command.inst.cmd == G_GBI1_TRI2 );
 
 	gDlistStack.address[gDlistStackPointer] = pc-8;
 
-    if (tris_added)
-    {
-		PSPRenderer::Get()->FlushTris();
+	if (tris_added)
+	{
+		gRenderer->FlushTris();
 	}
 }
 

@@ -135,7 +135,7 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, u32 address )
 		frameH = temp;
 	}
 
-	PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, 0.0f, 0.0f, (float)sprite->width, (float)sprite->height );
+	gRenderer->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, 0.0f, 0.0f, (float)sprite->width, (float)sprite->height );
 }
 
 //*****************************************************************************

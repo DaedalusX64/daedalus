@@ -42,15 +42,15 @@ void DLParser_DumpVtxInfoDKR(u32 address, u32 v0_idx, u32 num_verts)
 			f32 y = *(s16*)((psSrc + 2) ^ 2);
 			f32 z = *(s16*)((psSrc + 4) ^ 2);
 
-			//u16 wFlags = PSPRenderer::Get()->GetVtxFlags( idx ); //(u16)psSrc[3^0x1];
+			//u16 wFlags = gRenderer->GetVtxFlags( idx ); //(u16)psSrc[3^0x1];
 
 			u8 a = *(u8*)((psSrc + 6) ^ 3);	//R
 			u8 b = *(u8*)((psSrc + 7) ^ 3);	//G
 			u8 c = *(u8*)((psSrc + 8) ^ 3);	//B
 			u8 d = *(u8*)((psSrc + 9) ^ 3);	//A
 
-			const v4 & t = PSPRenderer::Get()->GetTransformedVtxPos( idx );
-			const v4 & p = PSPRenderer::Get()->GetProjectedVtxPos( idx );
+			const v4 & t = gRenderer->GetTransformedVtxPos( idx );
+			const v4 & p = gRenderer->GetProjectedVtxPos( idx );
 
 			DL_PF("    #%02d Pos:{% 0.1f,% 0.1f,% 0.1f}->{% 0.1f,% 0.1f,% 0.1f} Proj:{% 6f,% 6f,% 6f,% 6f} RGBA:{%02x%02x%02x%02x}",
 				idx, x, y, z, t.x, t.y, t.z, p.x/p.w, p.y/p.w, p.z/p.w, p.w, a, b, c, d );
@@ -105,7 +105,7 @@ void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 
 	DAEDALUS_ASSERT( v0_idx < 32, "DKR : v0 out of bound! %d" );
 
-	PSPRenderer::Get()->SetNewVertexInfoDKR(address, v0_idx, num_verts);
+	gRenderer->SetNewVertexInfoDKR(address, v0_idx, num_verts);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	gNumVertices += num_verts;
@@ -168,7 +168,7 @@ void DLParser_Mtx_DKR( MicroCodeCommand command )
 	}
 
 	// Load matrix from address
-	PSPRenderer::Get()->SetProjectionDKR(address, mul, mtx_command);
+	gRenderer->SetProjectionDKR(address, mul, mtx_command);
 }
 
 //*****************************************************************************
@@ -186,7 +186,7 @@ void DLParser_MoveWord_DKR( MicroCodeCommand command )
 	case G_MW_LIGHTCOL:
 		{
 		u32 idx = (command.inst.cmd1 >> 6) & 0x3;
-		PSPRenderer::Get()->DKRMtxChanged( idx );
+		gRenderer->DKRMtxChanged( idx );
 		DL_PF("    DKR MtxIdx: %d", idx);
 		}
 		break;
@@ -228,24 +228,24 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 		u32 v1_idx = tri->v1;
 		u32 v2_idx = tri->v2;
 
-		PSPRenderer::Get()->SetCullMode( !(tri->flag & 0x40), true );
+		gRenderer->SetCullMode( !(tri->flag & 0x40), true );
 
 		//if( info & 0x40000000 )
 		//{	// no cull
-		//	PSPRenderer::Get()->SetCullMode( false, false );
+		//	gRenderer->SetCullMode( false, false );
 		//}
 		//else
 		//{
 		//	// back culling
-		//	PSPRenderer::Get()->SetCullMode( true, true );
+		//	gRenderer->SetCullMode( true, true );
 
 		//	//if (RDP_View_Scales_X < 0)
 		//	//{   // back culling
-		//	//	PSPRenderer::Get()->SetCullMode( true, true );
+		//	//	gRenderer->SetCullMode( true, true );
 		//	//}
 		//	//else
 		//	//{   // front cull
-		//	//	PSPRenderer::Get()->SetCullMode( true, false );
+		//	//	gRenderer->SetCullMode( true, false );
 		//	//}
 		//}
 
@@ -259,26 +259,26 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 		//
 		// This will create problem since some verts will get re-used and over-write new texture coords
 		// To fix it we copy all verts to a new location where we can have individual texture coordinates //Corn
-		PSPRenderer::Get()->CopyVtx( v0_idx, i*3+32);
-		PSPRenderer::Get()->CopyVtx( v1_idx, i*3+33);
-		PSPRenderer::Get()->CopyVtx( v2_idx, i*3+34);
+		gRenderer->CopyVtx( v0_idx, i*3+32);
+		gRenderer->CopyVtx( v1_idx, i*3+33);
+		gRenderer->CopyVtx( v2_idx, i*3+34);
 
-		if( PSPRenderer::Get()->AddTri(i*3+32, i*3+33, i*3+34) )
+		if( gRenderer->AddTri(i*3+32, i*3+33, i*3+34) )
 		{
 			tris_added = true;
 			// Generate texture coordinates...
-			PSPRenderer::Get()->SetVtxTextureCoord( i*3+32, tri->s0, tri->t0 );
-			PSPRenderer::Get()->SetVtxTextureCoord( i*3+33, tri->s1, tri->t1 );
-			PSPRenderer::Get()->SetVtxTextureCoord( i*3+34, tri->s2, tri->t2 );
+			gRenderer->SetVtxTextureCoord( i*3+32, tri->s0, tri->t0 );
+			gRenderer->SetVtxTextureCoord( i*3+33, tri->s1, tri->t1 );
+			gRenderer->SetVtxTextureCoord( i*3+34, tri->s2, tri->t2 );
 		}
 #else
-		if( PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx) )
+		if( gRenderer->AddTri(v0_idx, v1_idx, v2_idx) )
 		{
 			tris_added = true;
 			// Generate texture coordinates...
-			PSPRenderer::Get()->SetVtxTextureCoord( v0_idx, tri->s0, tri->t0 );
-			PSPRenderer::Get()->SetVtxTextureCoord( v1_idx, tri->s1, tri->t1 );
-			PSPRenderer::Get()->SetVtxTextureCoord( v2_idx, tri->s2, tri->t2 );
+			gRenderer->SetVtxTextureCoord( v0_idx, tri->s0, tri->t0 );
+			gRenderer->SetVtxTextureCoord( v1_idx, tri->s1, tri->t1 );
+			gRenderer->SetVtxTextureCoord( v2_idx, tri->s2, tri->t2 );
 		}
 #endif
 		tri++;
@@ -286,7 +286,7 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 
 	if(tris_added)
 	{
-		PSPRenderer::Get()->FlushTris();
+		gRenderer->FlushTris();
 	}
 
 	gDKRVtxCount = 0;
@@ -305,14 +305,14 @@ void DLParser_GBI1_Texture_DKR( MicroCodeCommand command )
 
 	DL_PF("    Level[%d] Tile[%d] %s", command.texture.level, tile, enable? "enable":"disable");
 
-	PSPRenderer::Get()->SetTextureTile( tile);
-	PSPRenderer::Get()->SetTextureEnable( enable);
+	gRenderer->SetTextureTile( tile);
+	gRenderer->SetTextureEnable( enable);
 
 	f32 scale_s = f32(command.texture.scaleS)  / (65535.0f * 32.0f);
 	f32 scale_t = f32(command.texture.scaleT)  / (65535.0f * 32.0f);
 
 	DL_PF("    ScaleS[%0.4f] ScaleT[%0.4f]", scale_s*32.0f, scale_t*32.0f);
-	PSPRenderer::Get()->SetTextureScale( scale_s, scale_t );
+	gRenderer->SetTextureScale( scale_s, scale_t );
 }
 
 #endif // UCODE_DKR_H__

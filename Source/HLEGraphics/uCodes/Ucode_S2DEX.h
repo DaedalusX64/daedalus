@@ -249,7 +249,7 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 
 	if( txtr == NULL )
 	{
-		ti = gRDPStateManager.GetTextureDescriptor( PSPRenderer::Get()->GetTextureTile() );
+		ti = gRDPStateManager.GetTextureDescriptor( gRenderer->GetTextureTile() );
 	}
 	else
 	{
@@ -317,7 +317,7 @@ void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
 		x3 = mat2D.A*objX + mat2D.B*objH + mat2D.X;
 		y3 = mat2D.C*objX + mat2D.D*objH + mat2D.Y;
 
-		PSPRenderer::Get()->Draw2DTextureR( x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH);
+		gRenderer->Draw2DTextureR( x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH);
 		break;
 
 	case PARTIAL_ROTATION:
@@ -326,7 +326,7 @@ void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
 		x1 = mat2D.X + objW / mat2D.BaseScaleX - 1.0f;
 		y1 = mat2D.Y + objH / mat2D.BaseScaleY - 1.0f;
 
-		PSPRenderer::Get()->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
+		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
 		break;
 
 	case NO_ROTATION:
@@ -334,7 +334,7 @@ void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
 		y0 = objY;
 		x1 = objW - 1.0f;
 		y1 = objH - 1.0f;
-		
+
 		// Used by Worms
 		if( sprite->imageFlags&1 )
 		{
@@ -349,7 +349,7 @@ void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
 			y0 = y1;
 			y1 = temp;
 		}
-		PSPRenderer::Get()->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
+		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
 		break;
 	}
 }
@@ -639,11 +639,11 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 	if( imageW >= 512 )
 	{
 		const CRefPtr<CNativeTexture> & native_texture( texture->GetTexture() );
-		PSPRenderer::Get()->Draw2DTextureBlit( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH, native_texture );
+		gRenderer->Draw2DTextureBlit( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH, native_texture );
 	}
 	else
 	{
-		PSPRenderer::Get()->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );
+		gRenderer->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );
 	}
 }
 
@@ -703,11 +703,11 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 		if( imageW >= 512 )
 		{
 			const CRefPtr<CNativeTexture> & native_texture( texture->GetTexture() );
-			PSPRenderer::Get()->Draw2DTextureBlit( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1, native_texture );
+			gRenderer->Draw2DTextureBlit( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1, native_texture );
 		}
 		else
 		{
-			PSPRenderer::Get()->Draw2DTexture( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1 );
+			gRenderer->Draw2DTexture( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1 );
 		}
 	}
 	else
@@ -718,10 +718,10 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 		f32 u1 = (frameW-x2)*scaleX;
 		f32 v1 = (frameH-y2)*scaleY;
 
-		PSPRenderer::Get()->Draw2DTexture(frameX, frameY, x2, y2, imageX, imageY, imageW, imageH);
-		PSPRenderer::Get()->Draw2DTexture(x2, frameY, frameW, y2, 0, imageY, u1, imageH);
-		PSPRenderer::Get()->Draw2DTexture(frameX, y2, x2, frameH, imageX, 0, imageW, v1);
-		PSPRenderer::Get()->Draw2DTexture(x2, y2, frameW, frameH, 0, 0, u1, v1);
+		gRenderer->Draw2DTexture(frameX, frameY, x2, y2, imageX, imageY, imageW, imageH);
+		gRenderer->Draw2DTexture(x2, frameY, frameW, y2, 0, imageY, u1, imageH);
+		gRenderer->Draw2DTexture(frameX, y2, x2, frameH, imageX, 0, imageW, v1);
+		gRenderer->Draw2DTexture(x2, y2, frameW, frameH, 0, 0, u1, v1);
 	}
 }
 

@@ -271,7 +271,7 @@ void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts)
 			f32 y = f32(psSrc[1^0x1]);
 			f32 z = f32(psSrc[2^0x1]);
 
-			u16 wFlags = u16(PSPRenderer::Get()->GetVtxFlags( idx )); //(u16)psSrc[3^0x1];
+			u16 wFlags = u16(gRenderer->GetVtxFlags( idx )); //(u16)psSrc[3^0x1];
 
 			u8 a = pcSrc[12^0x3];
 			u8 b = pcSrc[13^0x3];
@@ -284,8 +284,8 @@ void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts)
 			f32 tu = f32(nTU) * (1.0f / 32.0f);
 			f32 tv = f32(nTV) * (1.0f / 32.0f);
 
-			const v4 & t = PSPRenderer::Get()->GetTransformedVtxPos( idx );
-			const v4 & p = PSPRenderer::Get()->GetProjectedVtxPos( idx );
+			const v4 & t = gRenderer->GetTransformedVtxPos( idx );
+			const v4 & p = gRenderer->GetProjectedVtxPos( idx );
 
 			psSrc += 8;			// Increase by 16 bytes
 			pcSrc += 16;
@@ -505,7 +505,7 @@ void DLParser_Process()
 {
 	DAEDALUS_PROFILE( "DLParser_Process" );
 
-	if ( !CGraphicsContext::Get()->IsInitialised() || !PSPRenderer::IsAvailable() )
+	if ( !CGraphicsContext::Get()->IsInitialised() || !gRenderer )
 	{
 		return;
 	}
@@ -570,11 +570,11 @@ void DLParser_Process()
 
 	if(!gFrameskipActive)
 	{
-		PSPRenderer::Get()->SetVIScales();
-		PSPRenderer::Get()->Reset();
-		PSPRenderer::Get()->BeginScene();
+		gRenderer->SetVIScales();
+		gRenderer->Reset();
+		gRenderer->BeginScene();
 		DLParser_ProcessDList();
-		PSPRenderer::Get()->EndScene();
+		gRenderer->EndScene();
 	}
 
 	// Hack for Chameleon Twist 2, only works if screen is update at last
@@ -682,11 +682,11 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 		);
 
 	//Light color
-	PSPRenderer::Get()->SetLightCol( light_idx, light->r, light->g, light->b );
+	gRenderer->SetLightCol( light_idx, light->r, light->g, light->b );
 
 	//Direction
 	if((light->x | light->y | light->z) != 0)
-		PSPRenderer::Get()->SetLightDirection( light_idx, light->x, light->y, light->z );
+		gRenderer->SetLightDirection( light_idx, light->x, light->y, light->z );
 }
 
 //*****************************************************************************
@@ -725,7 +725,7 @@ void RDP_MoveMemViewport(u32 address)
 	v2 vec_scale( scale[0] * 0.25f, scale[1] * 0.25f );
 	v2 vec_trans( trans[0] * 0.25f, trans[1] * 0.25f );
 
-	PSPRenderer::Get()->SetN64Viewport( vec_scale, vec_trans );
+	gRenderer->SetN64Viewport( vec_scale, vec_trans );
 
 	DL_PF("    Scale: %d %d", scale[0], scale[1]);
 	DL_PF("    Trans: %d %d", trans[0], trans[1]);
@@ -777,7 +777,7 @@ void DLParser_SetPrimDepth( MicroCodeCommand command )
 	DL_PF("    SetPrimDepth z[0x%04x] dz[0x%04x]",
 		command.primdepth.z, command.primdepth.dz);
 
-	PSPRenderer::Get()->SetPrimitiveDepth( command.primdepth.z );
+	gRenderer->SetPrimitiveDepth( command.primdepth.z );
 }
 
 //*****************************************************************************
@@ -839,7 +839,7 @@ void DLParser_SetScissor( MicroCodeCommand command )
 	// Set the cliprect now...
 	if ( scissors.left < scissors.right && scissors.top < scissors.bottom )
 	{
-		PSPRenderer::Get()->SetScissor( scissors.left, scissors.top, scissors.right, scissors.bottom );
+		gRenderer->SetScissor( scissors.left, scissors.top, scissors.right, scissors.bottom );
 	}
 }
 //*****************************************************************************
@@ -1088,7 +1088,7 @@ void DLParser_TexRect( MicroCodeCommand command )
 	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile[%d]", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
 	DL_PF("    Tex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", uv0.x, uv0.y, uv1.x, uv1.y, d.x, d.y);
 
-	PSPRenderer::Get()->TexRect( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );
+	gRenderer->TexRect( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );
 }
 
 //*****************************************************************************
@@ -1140,7 +1140,7 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile[%d]", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
 	DL_PF("    FLIPTex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", uv0.x, uv0.y, uv1.x, uv1.y, d.x, d.y);
 
-	PSPRenderer::Get()->TexRectFlip( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );
+	gRenderer->TexRectFlip( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );
 }
 
 //*****************************************************************************
@@ -1225,7 +1225,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 	// TODO - In 1/2cycle mode, skip bottom/right edges!?
 	// This is done in PSPrenderer.
 
-	PSPRenderer::Get()->FillRect( xy0, xy1, colour.GetColour() );
+	gRenderer->FillRect( xy0, xy1, colour.GetColour() );
 }
 
 //*****************************************************************************
@@ -1269,7 +1269,7 @@ void DLParser_SetCombine( MicroCodeCommand command )
 	Mux._u32_0 = command.inst.cmd1;
 	Mux._u32_1 = command.inst.arg0;
 
-	PSPRenderer::Get()->SetMux( Mux._u64 );
+	gRenderer->SetMux( Mux._u64 );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if (gDisplayListFile != NULL)
@@ -1301,7 +1301,7 @@ void DLParser_SetFogColor( MicroCodeCommand command )
 
 	c32	fog_colour( command.color.r, command.color.g, command.color.b, command.color.a );
 
-	PSPRenderer::Get()->SetFogColour( fog_colour );
+	gRenderer->SetFogColour( fog_colour );
 }
 
 //*****************************************************************************
@@ -1311,7 +1311,7 @@ void DLParser_SetBlendColor( MicroCodeCommand command )
 {
 	DL_PF("    RGBA: %d %d %d %d", command.color.r, command.color.g, command.color.b, command.color.a);
 
-	PSPRenderer::Get()->SetAlphaRef( command.color.a );
+	gRenderer->SetAlphaRef( command.color.a );
 }
 
 //*****************************************************************************
@@ -1323,7 +1323,7 @@ void DLParser_SetPrimColor( MicroCodeCommand command )
 
 	c32	prim_colour( command.color.r, command.color.g, command.color.b, command.color.a );
 
-	PSPRenderer::Get()->SetPrimitiveColour( prim_colour );
+	gRenderer->SetPrimitiveColour( prim_colour );
 }
 
 //*****************************************************************************
@@ -1335,7 +1335,7 @@ void DLParser_SetEnvColor( MicroCodeCommand command )
 
 	c32	env_colour( command.color.r, command.color.g,command.color.b, command.color.a );
 
-	PSPRenderer::Get()->SetEnvColour( env_colour );
+	gRenderer->SetEnvColour( env_colour );
 }
 
 
@@ -1411,9 +1411,9 @@ void DLParser_RDP_Process()
 
 	gRDPStateManager.Reset();
 
-	PSPRenderer::Get()->SetVIScales();
-	PSPRenderer::Get()->Reset();
-	PSPRenderer::Get()->BeginScene();
+	gRenderer->SetVIScales();
+	gRenderer->Reset();
+	gRenderer->BeginScene();
 
 	while( gDlistStack.address[gDlistStackPointer] < end )
 	{
@@ -1422,6 +1422,6 @@ void DLParser_RDP_Process()
 		gUcodeFunc[ command.inst.cmd ]( command );
 	}
 
-	PSPRenderer::Get()->EndScene();
+	gRenderer->EndScene();
 }
 */

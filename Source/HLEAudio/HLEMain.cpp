@@ -134,10 +134,10 @@ void Audio_Ucode()
 
 	AudioHLECommand command;
 
-    do{
+    do {
         command.cmd0 = *p_alist++;
         command.cmd1 = *p_alist++;
         ABI[command.cmd](command);
 		//printf("%08X %08X\n",command.cmd0,command.cmd1);
-	}while(--ucode_size);
+	} while (--ucode_size);
 }

@@ -235,12 +235,18 @@ DebugBlendSettings gDBlend;
 //*****************************************************************************
 // Creator function for singleton
 //*****************************************************************************
-template<> bool CSingleton< PSPRenderer >::Create()
-{
-	DAEDALUS_ASSERT_Q(mpInstance == NULL);
+PSPRenderer * gRenderer = NULL;
 
-	mpInstance = new PSPRenderer();
-	return mpInstance != NULL;
+bool CreateRenderer()
+{
+	DAEDALUS_ASSERT_Q(gRenderer == NULL);
+	gRenderer = new PSPRenderer();
+	return true;
+}
+void DestroyRenderer()
+{
+	delete gRenderer;
+	gRenderer = NULL;
 }
 
 ViewportInfo	mView;

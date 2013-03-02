@@ -144,7 +144,7 @@ CGraphicsPluginImpl::~CGraphicsPluginImpl()
 
 bool CGraphicsPluginImpl::Initialise()
 {
-	if(!PSPRenderer::Create())
+	if(!CreateRenderer())
 	{
 		return false;
 	}
@@ -222,7 +222,7 @@ void CGraphicsPluginImpl::UpdateScreen()
 						break;
 					case 3:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-						pspDebugScreenPrintf( "Dlist[%d] Cull[%d] | Tris[%d] Cull[%d] | Rect[%d] Clip[%d] ", gTotalInstructionCount, gNumDListsCulled, PSPRenderer::Get()->GetNumTrisRendered(), PSPRenderer::Get()->GetNumTrisClipped(), PSPRenderer::Get()->GetNumRect(), gNumRectsClipped);
+						pspDebugScreenPrintf( "Dlist[%d] Cull[%d] | Tris[%d] Cull[%d] | Rect[%d] Clip[%d] ", gTotalInstructionCount, gNumDListsCulled, gRenderer->GetNumTrisRendered(), gRenderer->GetNumTrisClipped(), gRenderer->GetNumRect(), gNumRectsClipped);
 #else
 						pspDebugScreenPrintf( "%#.1f  ", gCurrentFramerate );
 #endif
@@ -277,7 +277,7 @@ void CGraphicsPluginImpl::RomClosed()
 	DBGConsole_Msg(0, "Finalising PSPGraphics");
 	DLParser_Finalise();
 	CTextureCache::Destroy();
-	PSPRenderer::Destroy();
+	DestroyRenderer();
 }
 
 CGraphicsPlugin * CreateGraphicsPlugin()

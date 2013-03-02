@@ -31,13 +31,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 void DLParser_GBI1_Vtx( MicroCodeCommand command )
 {
-    //u32 length    = (command.inst.cmd0)&0xFFFF;
-    //u32 num_verts = (length + 1) / 0x410;
-    //u32 v0_idx    = ((command.inst.cmd0>>16)&0x3f)/2;
+	//u32 length    = (command.inst.cmd0)&0xFFFF;
+	//u32 num_verts = (length + 1) / 0x410;
+	//u32 v0_idx    = ((command.inst.cmd0>>16)&0x3f)/2;
 
 	u32 addr = RDPSegAddr(command.vtx1.addr);
-    u32 v0   = command.vtx1.v0;
-    u32 n    = command.vtx1.n;
+	u32 v0   = command.vtx1.v0;
+	u32 n    = command.vtx1.n;
 
 	DL_PF("    Address 0x%08x, v0: %d, Num: %d, Length: 0x%04x", addr, v0, n, command.vtx1.len);
 
@@ -45,11 +45,11 @@ void DLParser_GBI1_Vtx( MicroCodeCommand command )
 	DAEDALUS_ASSERT( (v0 + n) < 64, "Warning, attempting to load into invalid vertex positions");
 	DAEDALUS_ASSERT( addr < MAX_RAM_ADDRESS, "Address out of range (0x%08x)", addr );
 
-    PSPRenderer::Get()->SetNewVertexInfo( addr, v0, n );
+	gRenderer->SetNewVertexInfo( addr, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-    gNumVertices += n;
-    DLParser_DumpVtxInfo( addr, v0, n );
+	gNumVertices += n;
+	DLParser_DumpVtxInfo( addr, v0, n );
 #endif
 }
 
@@ -69,7 +69,7 @@ void DLParser_GBI1_ModifyVtx( MicroCodeCommand command )
 		return;
 	}
 
-	PSPRenderer::Get()->ModifyVertexInfo( offset, vert, value );
+	gRenderer->ModifyVertexInfo( offset, vert, value );
 }
 
 //*****************************************************************************
@@ -88,11 +88,11 @@ void DLParser_GBI1_Mtx( MicroCodeCommand command )
 	// Load matrix from address
 	if (command.mtx1.projection)
 	{
-		PSPRenderer::Get()->SetProjection(address, command.mtx1.push, command.mtx1.load);
+		gRenderer->SetProjection(address, command.mtx1.push, command.mtx1.load);
 	}
 	else
 	{
-		PSPRenderer::Get()->SetWorldView(address, command.mtx1.push, command.mtx1.load);
+		gRenderer->SetWorldView(address, command.mtx1.push, command.mtx1.load);
 	}
 }
 
@@ -107,7 +107,7 @@ void DLParser_GBI1_PopMtx( MicroCodeCommand command )
 	// Do any of the other bits do anything?
 	// So far only Extreme-G seems to Push/Pop projection matrices
 
-	PSPRenderer::Get()->PopWorldView();
+	gRenderer->PopWorldView();
 }
 
 //*****************************************************************************
@@ -145,7 +145,7 @@ void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 			{
 				DL_PF("		Force Matrix(1): addr=%08X", address);
 				// Rayman 2, Donald Duck, Tarzan, all wrestling games use this
-				PSPRenderer::Get()->ForceMatrix( address );
+				gRenderer->ForceMatrix( address );
 				// ForceMatrix takes four cmds
 				gDlistStack.address[gDlistStackPointer] += 24;
 			}
@@ -190,7 +190,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 	case G_MW_MATRIX:
 		{
 			DL_PF("    G_MW_MATRIX(1)");
-			PSPRenderer::Get()->InsertMatrix(command.inst.cmd0, command.inst.cmd1);
+			gRenderer->InsertMatrix(command.inst.cmd0, command.inst.cmd1);
 		}
 		break;
 
@@ -199,7 +199,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 			u32 num_lights = ((value - 0x80000000) >> 5) - 1;
 
 			DL_PF("    G_MW_NUMLIGHT: Val:%d", num_lights);
-			PSPRenderer::Get()->SetNumLights(num_lights);
+			gRenderer->SetNumLights(num_lights);
 
 		}
 		break;
@@ -232,7 +232,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 
 			//DL_PF(" G_MW_FOG. Mult = 0x%04x (%f), Off = 0x%04x (%f)", wMult, 255.0f * fMult, wOff, 255.0f * fOff );
 
-			PSPRenderer::Get()->SetFogMinMax(min, max);
+			gRenderer->SetFogMinMax(min, max);
 
 			//printf("1Fog %.0f | %.0f || %.0f | %.0f\n", min, max, a, b);
 		}
@@ -248,7 +248,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 			if (field_offset == 0)
 			{
 				// Light col
-				PSPRenderer::Get()->SetLightCol(light_idx, ((value>>24)&0xFF), ((value>>16)&0xFF), ((value>>8)&0xFF) );
+				gRenderer->SetLightCol(light_idx, ((value>>24)&0xFF), ((value>>16)&0xFF), ((value>>8)&0xFF) );
 			}
 		}
 		break;
@@ -256,9 +256,9 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 	case G_MW_POINTS:	// Used in FIFA 98
 		{
 			DL_PF("    G_MW_POINTS");
-			PSPRenderer::Get()->ModifyVertexInfo( (offset / 40), (offset % 40), value);
+			gRenderer->ModifyVertexInfo( (offset / 40), (offset % 40), value);
 		}
- 		break;
+		break;
 /*
 	case G_MW_PERSPNORM:
 		DL_PF("    G_MW_PERSPNORM");
@@ -283,7 +283,7 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 	DL_PF("    Culling using verts %d to %d\n", first, last);
 
 	if( last < first ) return;
-	if( PSPRenderer::Get()->TestVerts( first, last ) )
+	if( gRenderer->TestVerts( first, last ) )
 	{
 		DL_PF("    Display list is visible, returning");
 		return;
@@ -306,7 +306,7 @@ void DLParser_GBI1_DL( MicroCodeCommand command )
 	DAEDALUS_ASSERT( RDPSegAddr(command.dlist.addr) < MAX_RAM_ADDRESS, "Dlist address out of range" );
 	DAEDALUS_ASSERT( gDlistStackPointer < 30, "Dlist array is too deep"  );
 
-    DL_PF("    Address=0x%08x %s", RDPSegAddr(command.dlist.addr), (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
+	DL_PF("    Address=0x%08x %s", RDPSegAddr(command.dlist.addr), (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
 	DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
 	DL_PF("    ############################################");
 
@@ -338,10 +338,10 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 
 	//Seems to work differently for non Zelda games as if Z axis is inverted... //Corn
 
-	//printf("VtxDepth[%d] Zval[%d] Vtx[%d]\n", PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx), (s32)command.branchz.value, command.branchz.vtx);
-	//DL_PF("BranchZ VtxDepth[%d] Zval[%d] Vtx[%d]", PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx), (s32)command.branchz.value, command.branchz.vtx);
+	//printf("VtxDepth[%d] Zval[%d] Vtx[%d]\n", gRenderer->GetVtxDepth(command.branchz.vtx), (s32)command.branchz.value, command.branchz.vtx);
+	//DL_PF("BranchZ VtxDepth[%d] Zval[%d] Vtx[%d]", gRenderer->GetVtxDepth(command.branchz.vtx), (s32)command.branchz.value, command.branchz.vtx);
 
-	if( PSPRenderer::Get()->GetVtxDepth(command.branchz.vtx) <= (s32)command.branchz.value )
+	if( gRenderer->GetVtxDepth(command.branchz.vtx) <= (s32)command.branchz.value )
 	{
 		u32 address = RDPSegAddr(gRDPHalf1);
 
@@ -357,9 +357,9 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 void DLParser_GBI1_LoadUCode( MicroCodeCommand command )
 {
 	u32 code_base = (command.inst.cmd1 & 0x1fffffff);
-    u32 code_size = 0x1000;
-    u32 data_base = gRDPHalf1 & 0x1fffffff;         // Preceeding RDP_HALF1 sets this up
-    u32 data_size = (command.inst.cmd0 & 0xFFFF) + 1;
+	u32 code_size = 0x1000;
+	u32 data_base = gRDPHalf1 & 0x1fffffff;         // Preceeding RDP_HALF1 sets this up
+	u32 data_size = (command.inst.cmd0 & 0xFFFF) + 1;
 
 	DLParser_InitMicrocode( code_base, code_size, data_base, data_size );
 }
@@ -399,7 +399,7 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 	TnLMode.TriCull		= gGeometryMode.GBI1_CullFront | gGeometryMode.GBI1_CullBack;
 	TnLMode.CullBack	= gGeometryMode.GBI1_CullBack;
 
-	PSPRenderer::Get()->SetTnLMode( TnLMode._u32 );
+	gRenderer->SetTnLMode( TnLMode._u32 );
 
 	DL_PF("    ZBuffer %s",			 (gGeometryMode.GBI1_Zbuffer)		? "On" : "Off");
 	DL_PF("    Culling %s",			 (gGeometryMode.GBI1_CullBack)		? "Back face" : (gGeometryMode.GBI1_CullFront) ? "Front face" : "Off");
@@ -418,9 +418,9 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_SetOtherModeL( MicroCodeCommand command )
 {
-    const u32 mask = ((1 << command.othermode.len) - 1) << command.othermode.sft;
+	const u32 mask = ((1 << command.othermode.len) - 1) << command.othermode.sft;
 
-    gRDPOtherMode.L = (gRDPOtherMode.L&(~mask)) | command.othermode.data;
+	gRDPOtherMode.L = (gRDPOtherMode.L&(~mask)) | command.othermode.data;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );
@@ -432,9 +432,9 @@ void DLParser_GBI1_SetOtherModeL( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_SetOtherModeH( MicroCodeCommand command )
 {
-    const u32 mask = ((1 << command.othermode.len) - 1) << command.othermode.sft;
+	const u32 mask = ((1 << command.othermode.len) - 1) << command.othermode.sft;
 
-    gRDPOtherMode.H = (gRDPOtherMode.H&(~mask)) | command.othermode.data;
+	gRDPOtherMode.H = (gRDPOtherMode.H&(~mask)) | command.othermode.data;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );
@@ -450,18 +450,18 @@ void DLParser_GBI1_Texture( MicroCodeCommand command )
 	u32 tile    = command.texture.tile;
 
 	// Seems to use 0x01
-    bool enable = command.texture.enable_gbi0;
+	bool enable = command.texture.enable_gbi0;
 
 	DL_PF("    Level[%d] Tile[%d] %s", command.texture.level, tile, enable? "enable":"disable");
 
-	PSPRenderer::Get()->SetTextureTile( tile);
-	PSPRenderer::Get()->SetTextureEnable( enable);
+	gRenderer->SetTextureTile( tile);
+	gRenderer->SetTextureEnable( enable);
 
 	f32 scale_s = f32(command.texture.scaleS)  / (65535.0f * 32.0f);
 	f32 scale_t = f32(command.texture.scaleT)  / (65535.0f * 32.0f);
 
 	DL_PF("    ScaleS[%0.4f] ScaleT[%0.4f]", scale_s*32.0f, scale_t*32.0f);
-	PSPRenderer::Get()->SetTextureScale( scale_s, scale_t );
+	gRenderer->SetTextureScale( scale_s, scale_t );
 }
 
 //*****************************************************************************
@@ -516,39 +516,40 @@ void DLParser_GBI1_RDPHalf_1( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_Tri2( MicroCodeCommand command )
 {
-    // While the next command pair is Tri2, add vertices
+	// While the next command pair is Tri2, add vertices
 	u32 pc = gDlistStack.address[gDlistStackPointer];
-    u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
+	u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
-    bool tris_added = false;
+	bool tris_added = false;
 
-    do{
-        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_TRI2");
+	do
+	{
+		//DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_TRI2");
 
 		// Vertex indices are multiplied by 10 for GBI0, by 2 for GBI1
 		u32 v0_idx = command.gbi1tri2.v0 >> 1;
 		u32 v1_idx = command.gbi1tri2.v1 >> 1;
 		u32 v2_idx = command.gbi1tri2.v2 >> 1;
 
-		tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
+		tris_added |= gRenderer->AddTri(v0_idx, v1_idx, v2_idx);
 
 		u32 v3_idx = command.gbi1tri2.v3 >> 1;
 		u32 v4_idx = command.gbi1tri2.v4 >> 1;
 		u32 v5_idx = command.gbi1tri2.v5 >> 1;
 
-		tris_added |= PSPRenderer::Get()->AddTri(v3_idx, v4_idx, v5_idx);
+		tris_added |= gRenderer->AddTri(v3_idx, v4_idx, v5_idx);
 
 		command.inst.cmd0= *pCmdBase++;
 		command.inst.cmd1= *pCmdBase++;
 		pc += 8;
-    }while( command.inst.cmd == G_GBI1_TRI2 );
+	} while ( command.inst.cmd == G_GBI1_TRI2 );
 
 	gDlistStack.address[gDlistStackPointer] = pc-8;
 
-    if (tris_added)
-    {
-            PSPRenderer::Get()->FlushTris();
-    }
+	if (tris_added)
+	{
+		gRenderer->FlushTris();
+	}
 }
 
 //*****************************************************************************
@@ -564,34 +565,35 @@ void DLParser_GBI1_Line3D( MicroCodeCommand command )
 		return;
 	}
 
-    // While the next command pair is Tri1, add vertices
+	// While the next command pair is Tri1, add vertices
 	u32 pc	= gDlistStack.address[gDlistStackPointer];
 	u32 stride = gVertexStride;
-    u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
+	u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
 
-    bool tris_added = false;
+	bool tris_added = false;
 
-	do{
-        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_LINE3D");
+	do
+	{
+		//DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_LINE3D");
 
 		u32 v0_idx   = command.gbi1line3d.v0 / stride;
 		u32 v1_idx   = command.gbi1line3d.v1 / stride;
 		u32 v2_idx   = command.gbi1line3d.v2 / stride;
 		u32 v3_idx   = command.gbi1line3d.v3 / stride;
 
-		tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
-		tris_added |= PSPRenderer::Get()->AddTri(v2_idx, v3_idx, v0_idx);
+		tris_added |= gRenderer->AddTri(v0_idx, v1_idx, v2_idx);
+		tris_added |= gRenderer->AddTri(v2_idx, v3_idx, v0_idx);
 
 		command.inst.cmd0 = *pCmdBase++;
 		command.inst.cmd1 = *pCmdBase++;
 		pc += 8;
-	}while( command.inst.cmd == G_GBI1_LINE3D );
+	} while ( command.inst.cmd == G_GBI1_LINE3D );
 
 	gDlistStack.address[gDlistStackPointer] = pc-8;
 
 	if (tris_added)
 	{
-			PSPRenderer::Get()->FlushTris();
+		gRenderer->FlushTris();
 	}
 }
 
@@ -600,34 +602,35 @@ void DLParser_GBI1_Line3D( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_Tri1( MicroCodeCommand command )
 {
-    //DAEDALUS_PROFILE( "DLParser_GBI1_Tri1_T" );
-    // While the next command pair is Tri1, add vertices
+	//DAEDALUS_PROFILE( "DLParser_GBI1_Tri1_T" );
+	// While the next command pair is Tri1, add vertices
 	u32 pc	= gDlistStack.address[gDlistStackPointer];
 	u32 stride = gVertexStride;
-    u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
+	u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
 
-    bool tris_added = false;
+	bool tris_added = false;
 
-    do{
-        //DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_TRI1");
+	do
+	{
+		//DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_TRI1");
 
 		// Vertex indices are multiplied by 10 for Mario64, by 2 for MarioKart
-        u32 v0_idx = command.gbi1tri1.v0 / stride;
-        u32 v1_idx = command.gbi1tri1.v1 / stride;
-        u32 v2_idx = command.gbi1tri1.v2 / stride;
+		u32 v0_idx = command.gbi1tri1.v0 / stride;
+		u32 v1_idx = command.gbi1tri1.v1 / stride;
+		u32 v2_idx = command.gbi1tri1.v2 / stride;
 
-        tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
+		tris_added |= gRenderer->AddTri(v0_idx, v1_idx, v2_idx);
 
-        command.inst.cmd0= *pCmdBase++;
-        command.inst.cmd1= *pCmdBase++;
-        pc += 8;
-    }while( command.inst.cmd == G_GBI1_TRI1 );
+		command.inst.cmd0= *pCmdBase++;
+		command.inst.cmd1= *pCmdBase++;
+		pc += 8;
+	} while ( command.inst.cmd == G_GBI1_TRI1 );
 
 	gDlistStack.address[gDlistStackPointer] = pc-8;
 
-    if (tris_added)
-    {
-		PSPRenderer::Get()->FlushTris();
+	if (tris_added)
+	{
+		gRenderer->FlushTris();
 	}
 }
 

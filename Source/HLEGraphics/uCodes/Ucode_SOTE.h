@@ -33,7 +33,7 @@ void DLParser_GBI0_Vtx_SOTE( MicroCodeCommand command )
 
 	DAEDALUS_ASSERT( n < 32, "Warning, attempting to load into invalid vertex positions" );
 
-	PSPRenderer::Get()->SetNewVertexInfo( address, v0, n );
+	gRenderer->SetNewVertexInfo( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	gNumVertices += n;
@@ -48,11 +48,11 @@ void DLParser_GBI0_Vtx_SOTE( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI0_DL_SOTE( MicroCodeCommand command )
 {
-    u32 address = RDPSegAddr(command.dlist.addr) & (MAX_RAM_ADDRESS-1); // Keep addr in range..
+	u32 address = RDPSegAddr(command.dlist.addr) & (MAX_RAM_ADDRESS-1); // Keep addr in range..
 
 	DAEDALUS_ASSERT( address < MAX_RAM_ADDRESS, "DL addr out of range (0x%08x)", address );
 
-    DL_PF("    Address=0x%08x Push: 0x%02x", address, command.dlist.param);
+	DL_PF("    Address=0x%08x Push: 0x%02x", address, command.dlist.param);
 
 	if( command.dlist.param == G_DL_PUSH )
 		gDlistStackPointer++;
@@ -78,42 +78,42 @@ void DLParser_SetTImg_SOTE( MicroCodeCommand command )
 /*
 void DLParser_GBI0_Line3D_SOTE( MicroCodeCommand command )
 {
-    u32 pc = gDisplayListStack.back().addr;
-    u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
+	u32 pc = gDisplayListStack.back().addr;
+	u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
-    bool tris_added = false;
+	bool tris_added = false;
 
-    while ( command.inst.cmd == G_GBI1_LINE3D )
-    {
-        u32 v0_idx = ((command.inst.cmd1 >> 24) & 0xFF) / 5;
+	while ( command.inst.cmd == G_GBI1_LINE3D )
+	{
+		u32 v0_idx = ((command.inst.cmd1 >> 24) & 0xFF) / 5;
 		u32 v1_idx = ((command.inst.cmd1 >> 16) & 0xFF) / 5;
 		u32 v2_idx = ((command.inst.cmd1 >> 8) & 0xFF) / 5;
 
-        tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
+		tris_added |= gRenderer->AddTri(v0_idx, v1_idx, v2_idx);
 
 		u32 v3_idx = ((command.inst.cmd1 >> 24) & 0xFF) / 5;
 		u32 v4_idx = ((command.inst.cmd1 >> 8) & 0xFF) / 5;
 		u32 v5_idx = (command.inst.cmd1 & 0xFF) / 5;
 
-		tris_added |= PSPRenderer::Get()->AddTri(v3_idx, v4_idx, v5_idx);
+		tris_added |= gRenderer->AddTri(v3_idx, v4_idx, v5_idx);
 
 		command.inst.cmd0			= *(u32 *)(g_pu8RamBase + pc+0);
 		command.inst.cmd1			= *(u32 *)(g_pu8RamBase + pc+4);
 		pc += 8;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-        if ( command.inst.cmd == G_GBI1_LINE3D )
-        {
-                DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
-        }
+		if ( command.inst.cmd == G_GBI1_LINE3D )
+		{
+				DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
+		}
 #endif
-    }
-    gDisplayListStack.back().addr = pc-8;
+	}
+	gDisplayListStack.back().addr = pc-8;
 
-    if (tris_added)
-    {
-            PSPRenderer::Get()->FlushTris();
-    }
+	if (tris_added)
+	{
+		gRenderer->FlushTris();
+	}
 }
 */
 //*****************************************************************************
@@ -122,37 +122,37 @@ void DLParser_GBI0_Line3D_SOTE( MicroCodeCommand command )
 /*
 void DLParser_GBI0_Tri1_SOTE( MicroCodeCommand command )
 {
-    u32 pc = gDisplayListStack.back().addr;
-    u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
+	u32 pc = gDisplayListStack.back().addr;
+	u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
 
-    bool tris_added = false;
+	bool tris_added = false;
 
-    while (command.inst.cmd == G_GBI1_TRI1)
-    {
+	while (command.inst.cmd == G_GBI1_TRI1)
+	{
 
-        u32 v0_idx = ((command.inst.cmd1 >> 16) & 0xFF) / 5;
-        u32 v1_idx = ((command.inst.cmd1 >> 8) & 0xFF) / 5;
-        u32 v2_idx = (command.inst.cmd1 & 0xFF) / 5;
+		u32 v0_idx = ((command.inst.cmd1 >> 16) & 0xFF) / 5;
+		u32 v1_idx = ((command.inst.cmd1 >> 8) & 0xFF) / 5;
+		u32 v2_idx = (command.inst.cmd1 & 0xFF) / 5;
 
-        tris_added |= PSPRenderer::Get()->AddTri(v0_idx, v1_idx, v2_idx);
+		tris_added |= gRenderer->AddTri(v0_idx, v1_idx, v2_idx);
 
 		command.inst.cmd0			= *(u32 *)(g_pu8RamBase + pc+0);
 		command.inst.cmd1			= *(u32 *)(g_pu8RamBase + pc+4);
 		pc += 8;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-        if ( command.inst.cmd == G_GBI1_TRI1 )
-        {
+		if ( command.inst.cmd == G_GBI1_TRI1 )
+		{
 //				DL_PF("0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, gInstructionName[ command.inst.cmd ]);
-        }
+		}
 #endif
-    }
+	}
 
-    gDisplayListStack.back().addr = pc-8;
+	gDisplayListStack.back().addr = pc-8;
 
-    if (tris_added)
-    {
-		PSPRenderer::Get()->FlushTris();
+	if (tris_added)
+	{
+		gRenderer->FlushTris();
 	}
 }
 */

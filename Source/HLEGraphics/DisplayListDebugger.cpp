@@ -204,7 +204,7 @@ CCombinerExplorerDebugMenuOption::CCombinerExplorerDebugMenuOption()
 
 void CCombinerExplorerDebugMenuOption::Display() const
 {
-	const std::set< u64 > & 	combiner_states( PSPRenderer::Get()->GetRecordedCombinerStates() );
+	const std::set< u64 > & 	combiner_states( gRenderer->GetRecordedCombinerStates() );
 
 	printf( "   Use [] to return\n" );
 	printf( "   Use O to select on/off\n" );
@@ -223,10 +223,10 @@ void CCombinerExplorerDebugMenuOption::Display() const
 		u64		state( *it );
 
 		bool	selected( idx == mSelectedIdx );
-		bool	disabled( PSPRenderer::Get()->IsCombinerStateDisabled( state ) );
-		//bool	unhandled( PSPRenderer::Get()->IsCombinerStateUnhandled( state ) );
-		bool	forced( PSPRenderer::Get()->IsCombinerStateForced( state ) );
-		bool	idefault( PSPRenderer::Get()->IsCombinerStateDefault( state ) );
+		bool	disabled( gRenderer->IsCombinerStateDisabled( state ) );
+		//bool	unhandled( gRenderer->IsCombinerStateUnhandled( state ) );
+		bool	forced( gRenderer->IsCombinerStateForced( state ) );
+		bool	idefault( gRenderer->IsCombinerStateDefault( state ) );
 		const char *	text_col;
 
 		if(selected)
@@ -262,7 +262,7 @@ void CCombinerExplorerDebugMenuOption::Display() const
 	{
 		PrintMux( stdout, selected_mux );
 
-		PSPRenderer::SBlendStateEntry entry1( PSPRenderer::Get()->LookupBlendState( selected_mux, false ) );
+		PSPRenderer::SBlendStateEntry entry1( gRenderer->LookupBlendState( selected_mux, false ) );
 		if( entry1.OverrideFunction != NULL )
 		{
 			printf( "1 Cycle: Overridden\n" );
@@ -273,7 +273,7 @@ void CCombinerExplorerDebugMenuOption::Display() const
 			entry1.States->Print();
 		}
 
-		PSPRenderer::SBlendStateEntry	entry2( PSPRenderer::Get()->LookupBlendState( selected_mux, true ) );
+		PSPRenderer::SBlendStateEntry	entry2( gRenderer->LookupBlendState( selected_mux, true ) );
 		if( entry2.OverrideFunction != NULL )
 		{
 			printf( "2 Cycles: Overridden\n" );
@@ -289,7 +289,7 @@ void CCombinerExplorerDebugMenuOption::Display() const
 
 void CCombinerExplorerDebugMenuOption::Update( const SPspPadState & pad_state, float elapsed_time )
 {
-	const std::set< u64 > & 	combiner_states( PSPRenderer::Get()->GetRecordedCombinerStates() );
+	const std::set< u64 > & 	combiner_states( gRenderer->GetRecordedCombinerStates() );
 
 	u32		idx( 0 );
 	u64		selected_state( 0 );
@@ -321,8 +321,8 @@ void CCombinerExplorerDebugMenuOption::Update( const SPspPadState & pad_state, f
 		{
 			if(selected_state != 0)
 			{
-				PSPRenderer::Get()->ToggleDisableCombinerState( selected_state );
-				PSPRenderer::Get()->ToggleNastyTexture( true );
+				gRenderer->ToggleDisableCombinerState( selected_state );
+				gRenderer->ToggleNastyTexture( true );
 				InvalidateDisplay();
 			}
 		}
@@ -331,7 +331,7 @@ void CCombinerExplorerDebugMenuOption::Update( const SPspPadState & pad_state, f
 		{
 			if(selected_state != 0)
 			{
-				PSPRenderer::Get()->ToggleDisableCombinerState( selected_state );
+				gRenderer->ToggleDisableCombinerState( selected_state );
 				InvalidateDisplay();
 			}
 		}
@@ -975,7 +975,7 @@ void IDisplayListDebugger::Run()
 	NTiming::GetPreciseFrequency( &freq );
 	float freq_inv = 1.0f / f32( freq );
 
-	PSPRenderer::Get()->SetRecordCombinerStates( true );
+	gRenderer->SetRecordCombinerStates( true );
 
 	CTimer		timer;
 
@@ -1229,7 +1229,7 @@ void IDisplayListDebugger::Run()
 		pad_state.OldButtons = pad_state.NewButtons;
 	}
 
-	PSPRenderer::Get()->SetRecordCombinerStates( false );
+	gRenderer->SetRecordCombinerStates( false );
 	DLParser_SetInstructionCountLimit( UNLIMITED_INSTRUCTION_COUNT );
 
 	//
