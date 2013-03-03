@@ -440,13 +440,18 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 		if( details.InstallTexture )
 		{
-			if( mpTexture[ g_ROM.T1_HACK ] != NULL )
+			u32 texture_idx = g_ROM.T1_HACK ? 1 : 0;
+
+			if( mpTexture[ texture_idx ] != NULL )
 			{
-				const CRefPtr<CNativeTexture> texture( mpTexture[ g_ROM.T1_HACK ]->GetTexture() );
+				const CRefPtr<CNativeTexture> texture( mpTexture[ texture_idx ]->GetTexture() );
 
 				if(texture != NULL)
 				{
 					texture->InstallTexture();
+
+					sceGuTexWrap( mTexWrap[ texture_idx ].u, mTexWrap[ texture_idx ].v );
+
 					installed_texture = true;
 				}
 			}
@@ -459,8 +464,6 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		}
 
 		details.ColourAdjuster.Process( p_vertices, num_vertices );
-
-		sceGuTexWrap( mTexWrap[texture_idx].u, mTexWrap[texture_idx].v );
 
 		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
 	}
