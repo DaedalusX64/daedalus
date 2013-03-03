@@ -803,6 +803,7 @@ void BaseRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const 
 		ConvertN64ToPsp( xy1, screen1 );
 	}
 
+	// TODO(strmnnrmn): check that sceGuTexOffset is clear here, else the offset will be applied twice!
 	v2 tex_uv0;
 	tex_uv0.x = uv0.x - mTileTopLeft[ 0 ].x;
 	tex_uv0.y = uv0.y - mTileTopLeft[ 0 ].y;
@@ -887,6 +888,7 @@ void BaseRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, co
 	ConvertN64ToPsp( xy0, screen0 );
 	ConvertN64ToPsp( xy1, screen1 );
 
+	// TODO(strmnnrmn): check that sceGuTexOffset is clear here, else the offset will be applied twice!
 	v2 tex_uv0;
 	tex_uv0.x = uv0.x - mTileTopLeft[ 0 ].x;
 	tex_uv0.y = uv0.y - mTileTopLeft[ 0 ].y;
