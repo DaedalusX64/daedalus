@@ -643,7 +643,6 @@ static void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	}
 }
 
-
 void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer )
 {
 	static bool	ZFightingEnabled = false;
@@ -704,7 +703,17 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 	if ((render_mode & GU_TRANSFORM_2D) == GU_TRANSFORM_2D)
 	{
-		glUniformMatrix4fv(program->uloc_project, 1, GL_FALSE, gMatrixIdentity.mRaw);
+		// FIXME(strmnnrmn): These values need to come from the current display. We should compute this matrix in UpdateViewport or similar.
+		const float w = 640.f;
+		const float h = 480.f;
+		const float kMatrixScreenToDevice[] = {
+			2.f / w,       0.f,     0.f,     0.f,
+			    0.f,  -2.f / h,     0.f,     0.f,
+			    0.f,       0.f,     1.f,     0.f,
+			  -1.0f,       1.f,     0.f,     1.f,
+			};
+
+		glUniformMatrix4fv(program->uloc_project, 1, GL_FALSE, kMatrixScreenToDevice);
 	}
 	else
 	{
