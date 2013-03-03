@@ -22,16 +22,30 @@ public:
 
 	SBlendStateEntry	LookupBlendState( u64 mux, bool two_cycles );
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	bool				IsCombinerStateDefault( u64 state ) const	{ return IsInexactDefault( LookupOverrideBlendModeInexact( state ) ); }
-	bool				IsCombinerStateForced( u64 state ) const	{ return LookupOverrideBlendModeForced( state ) != NULL; }
-	//bool				IsCombinerStateUnhandled( u64 state ) const	{ return mUnhandledCombinerStates.find( state ) != mUnhandledCombinerStates.end(); }
-#endif
-
 private:
 	void				RenderUsingRenderSettings( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags );
 
+private:
+	// BlendMode support
+	//
+	typedef std::map< u64, SBlendStateEntry > BlendStatesMap;
+	BlendStatesMap		mBlendStatesMap;
+
+
+	// Functions and members related to the DisplayListDebugger.
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
+public:
+	bool				IsCombinerStateDefault( u64 state ) const	{ return IsInexactDefault( LookupOverrideBlendModeInexact( state ) ); }
+	bool				IsCombinerStateForced( u64 state ) const	{ return LookupOverrideBlendModeForced( state ) != NULL; }
+	//bool				IsCombinerStateUnhandled( u64 state ) const	{ return mUnhandledCombinerStates.find( state ) != mUnhandledCombinerStates.end(); }
+
+	bool				IsCombinerStateDisabled( u64 state ) const	{ return mDisabledCombinerStates.find( state ) != mDisabledCombinerStates.end(); }
+	void				DisableCombinerState( u64 state )			{ mDisabledCombinerStates.insert( state ); }
+	void				EnableCombinerState( u64 state )			{ mDisabledCombinerStates.erase( state ); }
+	void				ToggleDisableCombinerState( u64 state )		{ if( IsCombinerStateDisabled( state )) { EnableCombinerState(state); } else { DisableCombinerState( state ); mNastyTexture = false; } }
+	void				ToggleNastyTexture( bool enable )			{ mNastyTexture = ( enable =! mNastyTexture ); }
+
+private:
 	enum EPlaceholderTextureType
 	{
 		PTT_WHITE = 0,
@@ -42,15 +56,10 @@ private:
 	void				SelectPlaceholderTexture( EPlaceholderTextureType type );
 	bool				DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux );
 	void				DebugMux( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux);
-#endif
 
 private:
-
-	// BlendMode support
-	//
-	typedef std::map< u64, SBlendStateEntry > BlendStatesMap;
-	BlendStatesMap		mBlendStatesMap;
-
+	std::set< u64 >		mDisabledCombinerStates;
+#endif
 };
 
 // NB: this is equivalent to gRenderer, but points to the implementation class, for platform-specific functionality.

@@ -285,13 +285,6 @@ public:
 	// Debugging
 	void					SetRecordCombinerStates( bool enable )	{ mRecordCombinerStates = enable; }					// Sets whether combiner states will be recorded for the subsequent frames
 	const std::set<u64> &	GetRecordedCombinerStates() const		{ return mRecordedCombinerStates; }
-
-	bool				IsCombinerStateDisabled( u64 state ) const	{ return mDisabledCombinerStates.find( state ) != mDisabledCombinerStates.end(); }
-	void				DisableCombinerState( u64 state )			{ mDisabledCombinerStates.insert( state ); }
-	void				EnableCombinerState( u64 state )			{ mDisabledCombinerStates.erase( state ); }
-
-	void				ToggleDisableCombinerState( u64 state )		{ if( IsCombinerStateDisabled( state )) { EnableCombinerState(state); } else { DisableCombinerState( state ); mNastyTexture = false; } }
-	void				ToggleNastyTexture( bool enable )			{ mNastyTexture = ( enable =! mNastyTexture ); }
 #endif
 
 protected:
@@ -396,7 +389,6 @@ protected:
 	bool				mNastyTexture;
 	bool				mRecordCombinerStates;
 	std::set< u64 >		mRecordedCombinerStates;
-	std::set< u64 >		mDisabledCombinerStates;
 	std::set< u64 >		mUnhandledCombinerStates;
 #endif
 };

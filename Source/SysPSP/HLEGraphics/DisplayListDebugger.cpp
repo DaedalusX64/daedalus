@@ -222,8 +222,8 @@ void CCombinerExplorerDebugMenuOption::Display() const
 		u64		state( *it );
 
 		bool	selected( idx == mSelectedIdx );
-		bool	disabled( gRenderer->IsCombinerStateDisabled( state ) );
-		//bool	unhandled( gRenderer->IsCombinerStateUnhandled( state ) );
+		bool	disabled( gRendererPSP->IsCombinerStateDisabled( state ) );
+		//bool	unhandled( gRendererPSP->IsCombinerStateUnhandled( state ) );
 		bool	forced( gRendererPSP->IsCombinerStateForced( state ) );
 		bool	idefault( gRendererPSP->IsCombinerStateDefault( state ) );
 		const char *	text_col;
@@ -320,8 +320,8 @@ void CCombinerExplorerDebugMenuOption::Update( const SPspPadState & pad_state, f
 		{
 			if(selected_state != 0)
 			{
-				gRenderer->ToggleDisableCombinerState( selected_state );
-				gRenderer->ToggleNastyTexture( true );
+				gRendererPSP->ToggleDisableCombinerState( selected_state );
+				gRendererPSP->ToggleNastyTexture( true );
 				InvalidateDisplay();
 			}
 		}
@@ -330,7 +330,7 @@ void CCombinerExplorerDebugMenuOption::Update( const SPspPadState & pad_state, f
 		{
 			if(selected_state != 0)
 			{
-				gRenderer->ToggleDisableCombinerState( selected_state );
+				gRendererPSP->ToggleDisableCombinerState( selected_state );
 				InvalidateDisplay();
 			}
 		}
