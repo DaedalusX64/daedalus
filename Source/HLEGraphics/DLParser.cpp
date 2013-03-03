@@ -78,7 +78,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //*****************************************************************************
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-#define SetCommand( cmd, func, name )	gCustomInstruction[ cmd ] = func;	gCustomInstructionName[ cmd ] = (char *)name;
+#define SetCommand( cmd, func, name )	gCustomInstruction[ cmd ] = func;	gCustomInstructionName[ cmd ] = name;
 #else
 #define SetCommand( cmd, func, name )	gCustomInstruction[ cmd ] = func;
 #endif
@@ -154,8 +154,8 @@ const MicroCodeInstruction *gUcodeFunc = NULL;
 MicroCodeInstruction gCustomInstruction[256];
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-char ** gUcodeName = (char **)gNormalInstructionName[ 0 ];
-char * gCustomInstructionName[256];
+const char ** gUcodeName = gNormalInstructionName[ 0 ];
+const char * gCustomInstructionName[256];
 #endif
 
 bool					gFrameskipActive = false;
@@ -407,7 +407,7 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 
 	// Used for fetching ucode names (Debug Only)
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-	gUcodeName = IS_CUSTOM_UCODE(ucode) ? gCustomInstructionName : (char **)gNormalInstructionName[ucode];
+	gUcodeName = IS_CUSTOM_UCODE(ucode) ? gCustomInstructionName : gNormalInstructionName[ucode];
 #endif
 }
 
