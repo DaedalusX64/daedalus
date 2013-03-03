@@ -78,7 +78,6 @@ enum
 
 void sceGuBlendFunc(EGuBlendOp op, int sf, int df, int a, int b);
 
-void sceGuAlphaFunc(EGuCompareOp op, int a, int b);
 enum EGuMatrixType
 {
 	GU_PROJECTION		= GL_PROJECTION,

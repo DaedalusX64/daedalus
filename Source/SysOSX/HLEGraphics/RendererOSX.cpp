@@ -192,11 +192,6 @@ void sceGuBlendFunc(EGuBlendOp op, int sf, int df, int a, int b)
 	}
 }
 
-void sceGuAlphaFunc(EGuCompareOp op, int a, int b)
-{
-	glAlphaFunc(op, (float)a/255.f);
-}
-
 
 struct ShaderProgram
 {
