@@ -82,11 +82,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //   On OSX we just use malloc, though we could use a scratch allocator to simplify.
 //   On PSP we again use sceGuGetMemory.
 #ifdef DAEDALUS_PSP
-
 #define ALLOC_SCRATCH_VERTS(type, name, count) \
 	type * name = static_cast<type *>(sceGuGetMemory(count * sizeof(type)))
 #endif
 
+#ifdef DAEDALUS_OSX
+#define ALLOC_SCRATCH_VERTS(type, name, count) \
+	type name[count]
+#endif
 
 struct TempVerts
 {
@@ -122,12 +125,6 @@ struct TempVerts
 };
 
 
-#ifdef DAEDALUS_OSX
-
-#define ALLOC_SCRATCH_VERTS(type, name, count) \
-	type name[count]
-
-#endif
 
 
 extern "C"
