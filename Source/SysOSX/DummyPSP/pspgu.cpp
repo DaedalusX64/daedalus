@@ -637,3 +637,52 @@ void sceGuDrawArray(int prim, int vtype, int count, const void * indices, const 
 		break;
 	}
 }
+
+
+
+
+
+void GLRenderer_RenderDaedalusVtx(int prim, const DaedalusVtx * vertices, int count)
+{
+	const ShaderProgram * program = GetShaderForCurrentMode(gMux, gCycleType);
+
+	// Bind all the uniforms
+	glUseProgram(program->program);
+
+	glUniformMatrix4fv(program->uloc_project, 1, GL_FALSE, gProjection.m);
+	glUniform2fv(program->uloc_texoffset, 1, gTexOffset);
+	glUniform2fv(program->uloc_texscale, 1, gTexScale);
+	glUniform1i(program->uloc_texture, 0);
+
+	glUniform4fv(program->uloc_primcol, 1, gPrimColour);
+	glUniform4fv(program->uloc_envcol, 1, gEnvColour);
+
+	// Strip out vertex stream into separate buffers.
+	// TODO(strmnnrmn): Renderer should support generating this data directly.
+
+	for (int i = 0; i < count; ++i)
+	{
+		const DaedalusVtx * vtx = &vertices[i];
+
+		gPositionBuffer[i][0] = vtx->Position.x;
+		gPositionBuffer[i][1] = vtx->Position.y;
+		gPositionBuffer[i][2] = vtx->Position.z;
+
+		gTexCoordBuffer[i][0] = vtx->Texture.x;
+		gTexCoordBuffer[i][1] = vtx->Texture.y;
+
+		gColorBuffer[i] = vtx->Colour.GetColour();
+	}
+
+	glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kPositionBuffer]);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 3 * count, gPositionBuffer);
+
+	glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kTexCoordBuffer]);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 2 * count, gTexCoordBuffer);
+
+	glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kColorBuffer]);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(u32) * count, gColorBuffer);
+
+	glDrawArrays(prim, 0, count);
+}
+

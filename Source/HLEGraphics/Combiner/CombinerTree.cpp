@@ -69,7 +69,7 @@ enum EBuildConstantExpressionOptions
 	BCE_DISALLOW_SHADE,
 };
 
-const CBlendConstantExpression *	BuildConstantExpression( const CCombinerOperand * operand, EBuildConstantExpressionOptions options )
+static const CBlendConstantExpression * BuildConstantExpression( const CCombinerOperand * operand, EBuildConstantExpressionOptions options )
 {
 	if(operand->IsInput())
 	{
