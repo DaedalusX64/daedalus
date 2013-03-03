@@ -737,88 +737,87 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 void RendererOSX::Draw2DTexture(f32 frameX, f32 frameY, f32 frameW, f32 frameH, f32 imageX, f32 imageY, f32 imageW, f32 imageH)
 {
 	DAEDALUS_PROFILE( "RendererOSX::Draw2DTexture" );
-	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
 
-	sceGuDisable(GU_DEPTH_TEST);
-	sceGuDepthMask( GL_TRUE );
-	sceGuShadeModel( GU_FLAT );
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+	glShadeModel(GL_FLAT);
+	glDisable(GL_ALPHA_TEST);
+	//glTexFunc(GL_TFX_REPLACE, GL_TCC_RGBA);
+	glEnable(GL_BLEND);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
-	sceGuTexFilter(GU_LINEAR,GU_LINEAR);
-	sceGuDisable(GU_ALPHA_TEST);
-	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
+	TextureVtx verts[4];
+	verts[0].pos.x = frameX * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Frame X Offset * X Scale Factor + Screen X Offset
+	verts[0].pos.y = frameY * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Frame Y Offset * Y Scale Factor + Screen Y Offset
+	verts[0].pos.z = 0.0f;
+	verts[0].t0.x  = imageX;											 // X coordinates
+	verts[0].t0.y  = imageY;
 
-	sceGuEnable(GU_BLEND);
-	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
+	verts[1].pos.x = frameW * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Translated X Offset + (Image Width  * X Scale Factor)
+	verts[1].pos.y = frameY * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Translated Y Offset + (Image Height * Y Scale Factor)
+	verts[1].pos.z = 0.0f;
+	verts[1].t0.x  = imageW;											 // X dimentions
+	verts[1].t0.y  = imageY;
 
+	verts[2].pos.x = frameX * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Frame X Offset * X Scale Factor + Screen X Offset
+	verts[2].pos.y = frameH * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Frame Y Offset * Y Scale Factor + Screen Y Offset
+	verts[2].pos.z = 0.0f;
+	verts[2].t0.x  = imageX;											 // X coordinates
+	verts[2].t0.y  = imageH;
 
-	p_verts[0].pos.x = frameX * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Frame X Offset * X Scale Factor + Screen X Offset
-	p_verts[0].pos.y = frameY * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Frame Y Offset * Y Scale Factor + Screen Y Offset
-	p_verts[0].pos.z = 0.0f;
-	p_verts[0].t0.x  = imageX;											 // X coordinates
-	p_verts[0].t0.y  = imageY;
+	verts[3].pos.x = frameW * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Translated X Offset + (Image Width  * X Scale Factor)
+	verts[3].pos.y = frameH * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Translated Y Offset + (Image Height * Y Scale Factor)
+	verts[3].pos.z = 0.0f;
+	verts[3].t0.x  = imageW;											 // X dimentions
+	verts[3].t0.y  = imageH;											 // Y dimentions
 
-	p_verts[1].pos.x = frameW * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Translated X Offset + (Image Width  * X Scale Factor)
-	p_verts[1].pos.y = frameY * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Translated Y Offset + (Image Height * Y Scale Factor)
-	p_verts[1].pos.z = 0.0f;
-	p_verts[1].t0.x  = imageW;											 // X dimentions
-	p_verts[1].t0.y  = imageY;
-
-	p_verts[2].pos.x = frameX * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Frame X Offset * X Scale Factor + Screen X Offset
-	p_verts[2].pos.y = frameH * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Frame Y Offset * Y Scale Factor + Screen Y Offset
-	p_verts[2].pos.z = 0.0f;
-	p_verts[2].t0.x  = imageX;											 // X coordinates
-	p_verts[2].t0.y  = imageH;
-
-	p_verts[3].pos.x = frameW * mN64ToPSPScale.x + mN64ToPSPTranslate.x; // Translated X Offset + (Image Width  * X Scale Factor)
-	p_verts[3].pos.y = frameH * mN64ToPSPScale.y + mN64ToPSPTranslate.y; // Translated Y Offset + (Image Height * Y Scale Factor)
-	p_verts[3].pos.z = 0.0f;
-	p_verts[3].t0.x  = imageW;											 // X dimentions
-	p_verts[3].t0.y  = imageH;											 // Y dimentions
-
-	sceGuDrawArray( GU_TRIANGLE_STRIP, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, p_verts );
+	sceGuDrawArray( GU_TRIANGLE_STRIP, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, verts );
 }
 
 void RendererOSX::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3, f32 s, f32 t)	// With Rotation
 {
 	DAEDALUS_PROFILE( "RendererOSX::Draw2DTextureR" );
-	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
 
-	sceGuDisable(GU_DEPTH_TEST);
-	sceGuDepthMask( GL_TRUE );
-	sceGuShadeModel( GU_FLAT );
+	glDisable(GU_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+	glShadeModel(GU_FLAT);
+	glDisable(GU_ALPHA_TEST);
+	//glTexFunc(GU_TFX_REPLACE, GU_TCC_RGBA);
+	glEnable(GU_BLEND);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
-	sceGuTexFilter(GU_LINEAR,GU_LINEAR);
-	sceGuDisable(GU_ALPHA_TEST);
-	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
+	TextureVtx verts[4];
+	verts[0].pos.x = x0 * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
+	verts[0].pos.y = y0 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
+	verts[0].pos.z = 0.0f;
+	verts[0].t0.x  = 0.0f;
+	verts[0].t0.y  = 0.0f;
 
-	sceGuEnable(GU_BLEND);
-	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
+	verts[1].pos.x = x1 * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
+	verts[1].pos.y = y1 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
+	verts[1].pos.z = 0.0f;
+	verts[1].t0.x  = s;
+	verts[1].t0.y  = 0.0f;
 
-	p_verts[0].pos.x = x0 * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
-	p_verts[0].pos.y = y0 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
-	p_verts[0].pos.z = 0.0f;
-	p_verts[0].t0.x  = 0.0f;
-	p_verts[0].t0.y  = 0.0f;
+	verts[2].pos.x = x2 * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
+	verts[2].pos.y = y2 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
+	verts[2].pos.z = 0.0f;
+	verts[2].t0.x  = s;
+	verts[2].t0.y  = t;
 
-	p_verts[1].pos.x = x1 * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
-	p_verts[1].pos.y = y1 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
-	p_verts[1].pos.z = 0.0f;
-	p_verts[1].t0.x  = s;
-	p_verts[1].t0.y  = 0.0f;
+	verts[3].pos.x = x3 * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
+	verts[3].pos.y = y3 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
+	verts[3].pos.z = 0.0f;
+	verts[3].t0.x  = 0.0f;
+	verts[3].t0.y  = t;
 
-	p_verts[2].pos.x = x2 * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
-	p_verts[2].pos.y = y2 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
-	p_verts[2].pos.z = 0.0f;
-	p_verts[2].t0.x  = s;
-	p_verts[2].t0.y  = t;
-
-	p_verts[3].pos.x = x3 * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
-	p_verts[3].pos.y = y3 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
-	p_verts[3].pos.z = 0.0f;
-	p_verts[3].t0.x  = 0.0f;
-	p_verts[3].t0.y  = t;
-
-	sceGuDrawArray( GU_TRIANGLE_FAN, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, p_verts );
+	sceGuDrawArray( GU_TRIANGLE_FAN, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, verts );
 }
 
 //*****************************************************************************
@@ -829,16 +828,16 @@ void RendererOSX::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2,
 //*****************************************************************************
 void RendererOSX::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height, f32 u0, f32 v0, f32 u1, f32 v1, CNativeTexture * texture)
 {
-	sceGuDisable(GU_DEPTH_TEST);
-	sceGuDepthMask( GL_TRUE );
-	sceGuShadeModel( GU_FLAT );
-
-	sceGuTexFilter(GU_LINEAR,GU_LINEAR);
-	sceGuDisable(GU_ALPHA_TEST);
-	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
-
-	sceGuEnable(GU_BLEND);
-	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
+	glDisable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
+	glShadeModel(GL_FLAT);
+	glDisable(GL_ALPHA_TEST);
+	//glTexFunc(GL_TFX_REPLACE, GL_TCC_RGBA);
+	glEnable(GL_BLEND);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
 #ifdef DAEDALUS_OSX
 	DAEDALUS_ERROR( "Draw2DTextureBlit is not implemented on OSX" );
@@ -868,27 +867,27 @@ void RendererOSX::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height, f32 u0,
 	// blit maximizing the use of the texture-cache
 	for( start=0, end=width; start<end; start+=slice )
 	{
-		TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(2*sizeof(TextureVtx));
-
 		f32 poly_width = ((cur_x+slice) > x_end) ? (x_end-cur_x) : slice;
 		f32 source_width = ((cur_u+ustep) > u1) ? (u1-cur_u) : ustep;
 
-		p_verts[0].t0.x = cur_u;
-		p_verts[0].t0.y = v0;
-		p_verts[0].pos.x = cur_x * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
-		p_verts[0].pos.y = y	 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
-		p_verts[0].pos.z = 0;
+		TextureVtx verts[2];
+
+		verts[0].t0.x = cur_u;
+		verts[0].t0.y = v0;
+		verts[0].pos.x = cur_x * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
+		verts[0].pos.y = y	 * mN64ToPSPScale.y + mN64ToPSPTranslate.y;
+		verts[0].pos.z = 0;
 
 		cur_u += source_width;
 		cur_x += poly_width;
 
-		p_verts[1].t0.x = cur_u;
-		p_verts[1].t0.y = v1;
-		p_verts[1].pos.x = cur_x * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
-		p_verts[1].pos.y = height* mN64ToPSPScale.y + mN64ToPSPTranslate.y;
-		p_verts[1].pos.z = 0;
+		verts[1].t0.x = cur_u;
+		verts[1].t0.y = v1;
+		verts[1].pos.x = cur_x * mN64ToPSPScale.x + mN64ToPSPTranslate.x;
+		verts[1].pos.y = height* mN64ToPSPScale.y + mN64ToPSPTranslate.y;
+		verts[1].pos.z = 0;
 
-		sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 2, 0, p_verts );
+		sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 2, 0, verts );
 	}
 #else
 	f32 cur_v = v0;
@@ -940,7 +939,6 @@ void RendererOSX::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height, f32 u0,
 				u_end -= off;
 				sceGuTexImage(0, Min<u32>(512,texture->GetCorrectedWidth()), Min<u32>(512,texture->GetCorrectedHeight()), texture->GetBlockWidth(), udata);
 			}
-			TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(2*sizeof(TextureVtx));
 
 			//f32 poly_width = ((cur_x+xstep) > x_end) ? (x_end-cur_x) : xstep;
 			f32 poly_width = xstep;
@@ -956,19 +954,21 @@ void RendererOSX::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height, f32 u0,
 				source_width = (cur_u-u_end);
 			}
 
-			p_verts[0].t0.x = cur_u;
-			p_verts[0].t0.y = cur_v;
-			p_verts[0].pos.x = cur_x;
-			p_verts[0].pos.y = cur_y;
-			p_verts[0].pos.z = 0;
+			TextureVtx verts[2];
 
-			p_verts[1].t0.x = cur_u + source_width;
-			p_verts[1].t0.y = cur_v + source_height;
-			p_verts[1].pos.x = cur_x + poly_width;
-			p_verts[1].pos.y = cur_y + poly_height;
-			p_verts[1].pos.z = 0;
+			verts[0].t0.x = cur_u;
+			verts[0].t0.y = cur_v;
+			verts[0].pos.x = cur_x;
+			verts[0].pos.y = cur_y;
+			verts[0].pos.z = 0;
 
-			sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 2, 0, p_verts );
+			verts[1].t0.x = cur_u + source_width;
+			verts[1].t0.y = cur_v + source_height;
+			verts[1].pos.x = cur_x + poly_width;
+			verts[1].pos.y = cur_y + poly_height;
+			verts[1].pos.z = 0;
+
+			sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 2, 0, verts );
 		}
 	}
 #endif
