@@ -107,16 +107,6 @@ f32 gZoomX=1.0;	//Default is 1.0f
 // General purpose variable used for debugging
 f32 TEST_VARX = 0.0f;
 f32 TEST_VARY = 0.0f;
-
-ALIGNED_GLOBAL(u32,gWhiteTexture[gPlaceholderTextureWidth * gPlaceholderTextureHeight ], DATA_ALIGN);
-ALIGNED_GLOBAL(u32,gPlaceholderTexture[gPlaceholderTextureWidth * gPlaceholderTextureHeight ], DATA_ALIGN);
-ALIGNED_GLOBAL(u32,gSelectedTexture[gPlaceholderTextureWidth * gPlaceholderTextureHeight ], DATA_ALIGN);
-
-//***************************************************************************
-//*General blender used for Blend Explorer when debuging Dlists //Corn
-//***************************************************************************
-DebugBlendSettings gDBlend;
-
 #endif
 
 ViewportInfo	mView;
@@ -173,28 +163,6 @@ BaseRenderer::BaseRenderer()
 	memset( mTnL.Lights, 0, sizeof(mTnL.Lights) );
 
 	memset( &mView, 0, sizeof(mView) );
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	memset( gWhiteTexture, 0xff, sizeof(gWhiteTexture) );
-
-	memset( &gDBlend.TexInstall, 0, sizeof(gDBlend) );
-	gDBlend.TexInstall = 1;
-
-	u32	texel_idx( 0 );
-	const u32	COL_MAGENTA( c32::Magenta.GetColour() );
-	const u32	COL_GREEN( c32::Green.GetColour() );
-	const u32	COL_BLACK( c32::Black.GetColour() );
-	for(u32 y = 0; y < gPlaceholderTextureHeight; ++y)
-	{
-		for(u32 x = 0; x < gPlaceholderTextureWidth; ++x)
-		{
-			gPlaceholderTexture[ texel_idx ] = ((x&1) == (y&1)) ? COL_MAGENTA : COL_BLACK;
-			gSelectedTexture[ texel_idx ]    = ((x&1) == (y&1)) ? COL_GREEN   : COL_BLACK;
-
-			texel_idx++;
-		}
-	}
-#endif
 }
 
 //*****************************************************************************

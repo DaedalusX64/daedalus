@@ -28,7 +28,16 @@ extern void InitBlenderMode( u32 blender );
 extern void PrintMux( FILE * fh, u64 mux );
 
 // General blender used for Blend Explorer when debuging Dlists //Corn
-extern DebugBlendSettings gDBlend;
+DebugBlendSettings gDBlend;
+
+static const u32 kPlaceholderTextureWidth  = 16;
+static const u32 kPlaceholderTextureHeight = 16;
+static const u32 kPlaceholderSize = kPlaceholderTextureWidth * kPlaceholderTextureHeight;
+
+ALIGNED_GLOBAL(u32,       gWhiteTexture[kPlaceholderSize], DATA_ALIGN);
+ALIGNED_GLOBAL(u32, gPlaceholderTexture[kPlaceholderSize], DATA_ALIGN);
+ALIGNED_GLOBAL(u32,    gSelectedTexture[kPlaceholderSize], DATA_ALIGN);
+
 
 #define BLEND_MODE_MAKER \
 { \
@@ -126,7 +135,7 @@ extern DebugBlendSettings gDBlend;
 	} \
 	details.InstallTexture = gDBlend.TexInstall; \
 	sceGuTexFunc( PSPtxtFunc[ (gDBlend.TXTFUNC >> 1) % 6 ], PSPtxtA[ gDBlend.TXTFUNC & 1 ] ); \
-} \
+}
 
 #endif // DAEDALUS_DEBUG_DISPLAYLIST
 
@@ -161,6 +170,28 @@ RendererPSP::RendererPSP()
 		mFillBlendStates->SetAlphaSettings( alpha_settings );
 		mFillBlendStates->AddColourSettings( colour_settings );
 	}
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	memset( gWhiteTexture, 0xff, sizeof(gWhiteTexture) );
+
+	memset( &gDBlend.TexInstall, 0, sizeof(gDBlend) );
+	gDBlend.TexInstall = 1;
+
+	u32	texel_idx = 0;
+	const u32	COL_MAGENTA = c32::Magenta.GetColour();
+	const u32	COL_GREEN   = c32::Green.GetColour();
+	const u32	COL_BLACK   = c32::Black.GetColour();
+	for(u32 y = 0; y < kPlaceholderTextureHeight; ++y)
+	{
+		for(u32 x = 0; x < kPlaceholderTextureWidth; ++x)
+		{
+			gPlaceholderTexture[ texel_idx ] = ((x&1) == (y&1)) ? COL_MAGENTA : COL_BLACK;
+			gSelectedTexture[ texel_idx ]    = ((x&1) == (y&1)) ? COL_GREEN   : COL_BLACK;
+
+			texel_idx++;
+		}
+	}
+#endif
 }
 
 RendererPSP::~RendererPSP()
@@ -727,9 +758,9 @@ void RendererPSP::SelectPlaceholderTexture( EPlaceholderTextureType type )
 {
 	switch( type )
 	{
-	case PTT_WHITE:			sceGuTexImage(0,gPlaceholderTextureWidth,gPlaceholderTextureHeight,gPlaceholderTextureWidth,gWhiteTexture); break;
-	case PTT_SELECTED:		sceGuTexImage(0,gPlaceholderTextureWidth,gPlaceholderTextureHeight,gPlaceholderTextureWidth,gSelectedTexture); break;
-	case PTT_MISSING:		sceGuTexImage(0,gPlaceholderTextureWidth,gPlaceholderTextureHeight,gPlaceholderTextureWidth,gPlaceholderTexture); break;
+	case PTT_WHITE:			sceGuTexImage(0, kPlaceholderTextureWidth, kPlaceholderTextureHeight, kPlaceholderTextureWidth, gWhiteTexture);       break;
+	case PTT_SELECTED:		sceGuTexImage(0, kPlaceholderTextureWidth, kPlaceholderTextureHeight, kPlaceholderTextureWidth, gSelectedTexture);    break;
+	case PTT_MISSING:		sceGuTexImage(0, kPlaceholderTextureWidth, kPlaceholderTextureHeight, kPlaceholderTextureWidth, gPlaceholderTexture); break;
 	default:
 		DAEDALUS_ERROR( "Unhandled type" );
 		break;
