@@ -245,45 +245,101 @@ CRefPtr<CNativeTexture>	CNativeTexture::CreateFromPng( const char * p_filename, 
 	return LoadPng( p_filename, texture_format );
 }
 
+
 void CNativeTexture::SetData( void * data, void * palette )
 {
-	if( HasData() )
+	if (HasData())
 	{
 		glBindTexture( GL_TEXTURE_2D, mTextureId );
 		glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 
-		switch( mTextureFormat )
+		switch (mTextureFormat)
 		{
 		case TexFmt_5650:
 			glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA,
-						mCorrectedWidth, mCorrectedHeight,
-						0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5_REV, data );
+						  mCorrectedWidth, mCorrectedHeight,
+						  0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5_REV, data );
 			break;
 		case TexFmt_5551:
 			glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA,
-						mCorrectedWidth, mCorrectedHeight,
-						0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, data );
+						  mCorrectedWidth, mCorrectedHeight,
+						  0, GL_RGBA, GL_UNSIGNED_SHORT_1_5_5_5_REV, data );
 			break;
 		case TexFmt_4444:
 			glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA,
-						mCorrectedWidth, mCorrectedHeight,
-						0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4_REV, data );
+						  mCorrectedWidth, mCorrectedHeight,
+						  0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4_REV, data );
 
 			break;
 		case TexFmt_8888:
 			glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA,
-						mCorrectedWidth, mCorrectedHeight,
-						0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, data );
+						  mCorrectedWidth, mCorrectedHeight,
+						  0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, data );
 
 			break;
 		case TexFmt_CI4_8888:
-			DAEDALUS_ASSERT( false, "CI4 not handled" );
-			DAEDALUS_ASSERT( palette, "No palette provided" );
+			{
+				// Convert palletised texture to non-palletised. This is wsteful - we should avoid generating these updated for OSX.
+				const NativePfCI44 * pix_ptr = static_cast< const NativePfCI44 * >( data );
+				const NativePf8888 * pal_ptr = static_cast< const NativePf8888 * >( palette );
+
+				NativePf8888 * out = static_cast<NativePf8888 *>( malloc(mCorrectedWidth * mCorrectedHeight * sizeof(NativePf8888)) );
+				NativePf8888 * out_ptr = out;
+
+				u32 pitch = GetStride();
+
+				for (u32 y = 0; y < mCorrectedHeight; ++y)
+				{
+					for (u32 x = 0; x < mCorrectedWidth; ++x)
+					{
+						NativePfCI44	colors  = pix_ptr[ x / 2 ];
+						u8				pal_idx = (x&1) ? colors.GetIdxB() : colors.GetIdxA();
+
+						*out_ptr = pal_ptr[ pal_idx ];
+						out_ptr++;
+					}
+
+					pix_ptr = reinterpret_cast<const NativePfCI44 *>( reinterpret_cast<const u8 *>(pix_ptr) + pitch );
+				}
+
+				glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA,
+							  mCorrectedWidth, mCorrectedHeight,
+							  0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, out );
+
+				free(out);
+			}
 			break;
 
 		case TexFmt_CI8_8888:
-			DAEDALUS_ASSERT( false, "CI8 not handled" );
-			DAEDALUS_ASSERT( palette, "No palette provided" );
+			{
+				// Convert palletised texture to non-palletised. This is wsteful - we should avoid generating these updated for OSX.
+				const NativePfCI8 *  pix_ptr = static_cast< const NativePfCI8 * >( data );
+				const NativePf8888 * pal_ptr = static_cast< const NativePf8888 * >( palette );
+
+				NativePf8888 * out = static_cast<NativePf8888 *>( malloc(mCorrectedWidth * mCorrectedHeight * sizeof(NativePf8888)) );
+				NativePf8888 * out_ptr = out;
+
+				u32 pitch = GetStride();
+
+				for (u32 y = 0; y < mCorrectedHeight; ++y)
+				{
+					for (u32 x = 0; x < mCorrectedWidth; ++x)
+					{
+						u8	pal_idx = pix_ptr[ x ].Bits;
+
+						*out_ptr = pal_ptr[ pal_idx ];
+						out_ptr++;
+					}
+
+					pix_ptr = reinterpret_cast<const NativePfCI8 *>( reinterpret_cast<const u8 *>(pix_ptr) + pitch );
+				}
+
+				glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA,
+							  mCorrectedWidth, mCorrectedHeight,
+							  0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8_REV, out );
+
+				free(out);
+			}
 			break;
 
 		default:
