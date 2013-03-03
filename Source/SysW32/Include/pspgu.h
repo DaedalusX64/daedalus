@@ -41,7 +41,6 @@ enum EGuTextureWrapMode
 	GU_REPEAT,
 };
 
-void sceGuTexWrap(int u, int v);
 void sceGuTexOffset(float s, float t);
 void sceGuTexScale(float s, float t);
 

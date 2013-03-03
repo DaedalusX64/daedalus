@@ -130,12 +130,6 @@ void sceGuScissor(int x0, int y0, int x1, int y1)
 	glScissor(x0, y0, x1-x0, y1-y0);
 }
 
-void sceGuTexWrap(int u, int v)
-{
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, u);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, v);
-}
-
 void sceGuTexOffset(float s, float t)
 {
 }
