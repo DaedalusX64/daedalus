@@ -71,6 +71,65 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //extern SImageDescriptor g_CI;		// XXXX SImageDescriptor g_CI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 //extern SImageDescriptor g_DI;		// XXXX SImageDescriptor g_DI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 
+// Vertex allocation.
+// ALLOC_SCRATCH_VERTS:
+//   Allocate vertices whose lifetime is determined by the enclosing scope.
+//   On OSX we can allocate using the stack, as OpenGL takes a copy when rendering.
+//   On PSP we just use sceGuGetMemory, which doesn't need to be freed.
+//   'count' must be a compile time constant.
+// AllocVerts/FreeVerts:
+//   Allocate vertices whose lifetime must extend beyond the current scope.
+//   On OSX we just use malloc, though we could use a scratch allocator to simplify.
+//   On PSP we again use sceGuGetMemory.
+#ifdef DAEDALUS_PSP
+
+#define ALLOC_SCRATCH_VERTS(type, name, count) \
+	type * name = static_cast<type *>(sceGuGetMemory(count * sizeof(type)))
+#endif
+
+
+struct TempVerts
+{
+	TempVerts()
+	:	Verts(NULL)
+	,	Count(0)
+	{
+	}
+
+	~TempVerts()
+	{
+#ifdef DAEDALUS_OSX
+		free(Verts);
+#endif
+	}
+
+	DaedalusVtx * Alloc(u32 count)
+	{
+		u32 bytes = count * sizeof(DaedalusVtx);
+#ifdef DAEDALUS_PSP
+		Verts = static_cast<DaedalusVtx*>(sceGuGetMemory(bytes));
+#endif
+#ifdef DAEDALUS_OSX
+		Verts = static_cast<DaedalusVtx*>(malloc(bytes));
+#endif
+
+		Count = count;
+		return Verts;
+	}
+
+	DaedalusVtx *	Verts;
+	u32				Count;
+};
+
+
+#ifdef DAEDALUS_OSX
+
+#define ALLOC_SCRATCH_VERTS(type, name, count) \
+	type name[count]
+
+#endif
+
+
 extern "C"
 {
 void	_TnLVFPU( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
@@ -481,7 +540,7 @@ void BaseRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const 
 	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
 #if 1	//1->SPRITE, 0->STRIP
-	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(2 * sizeof(DaedalusVtx)) );
+	ALLOC_SCRATCH_VERTS(DaedalusVtx, p_vertices, 2);
 
 	p_vertices[0].Position.x = screen0.x;
 	p_vertices[0].Position.y = screen0.y;
@@ -501,7 +560,7 @@ void BaseRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const 
 #else
 	//	To be used with TRIANGLE_STRIP, which requires 40% less verts than TRIANGLE
 	//	For reference for future ports and if SPRITES( which uses %60 less verts than TRIANGLE) causes issues
-	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(4 * sizeof(DaedalusVtx)) );
+	ALLOC_SCRATCH_VERTS(DaedalusVtx, p_vertices, 4);
 
 	p_vertices[0].Position.x = screen0.x;
 	p_vertices[0].Position.y = screen0.y;
@@ -564,7 +623,7 @@ void BaseRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, co
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
 
-	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(4 * sizeof(DaedalusVtx)) );
+	ALLOC_SCRATCH_VERTS(DaedalusVtx, p_vertices, 4);
 
 	p_vertices[0].Position.x = screen0.x;
 	p_vertices[0].Position.y = screen0.y;
@@ -625,7 +684,7 @@ void BaseRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 
-	DaedalusVtx* p_vertices( (DaedalusVtx*)sceGuGetMemory(2 * sizeof(DaedalusVtx)) );
+	ALLOC_SCRATCH_VERTS(DaedalusVtx, p_vertices, 2);
 
 	// No need for Texture.x/y as we don't do any texturing for fillrect
 	p_vertices[0].Position.x = screen0.x;
@@ -740,21 +799,20 @@ void BaseRenderer::FlushTris()
 	*/
 	DAEDALUS_ASSERT( mNumIndices, "Call to FlushTris() with nothing to render" );
 
-	u32				num_vertices;
-	DaedalusVtx *	p_vertices;
+	TempVerts temp_verts;
 
 	// If any bit is set here it means we have to clip the trianlges since PSP HW clipping sux!
 	if(mVtxClipFlagsUnion != 0)
 	{
-		PrepareTrisClipped( &p_vertices, &num_vertices );
+		PrepareTrisClipped( &temp_verts );
 	}
 	else
 	{
-		PrepareTrisUnclipped( &p_vertices, &num_vertices );
+		PrepareTrisUnclipped( &temp_verts );
 	}
 
 	// No vertices to render? //Corn
-	if( num_vertices == 0 )
+	if( temp_verts.Count == 0 )
 	{
 		mNumIndices = 0;
 		mVtxClipFlagsUnion = 0;
@@ -826,7 +884,7 @@ void BaseRenderer::FlushTris()
 
 	//
 	//	Render out our vertices
-	RenderUsingCurrentBlendMode( p_vertices, num_vertices, DRAW_MODE, GU_TRANSFORM_3D, gRDPOtherMode.depth_source ? true : false );
+	RenderUsingCurrentBlendMode( temp_verts.Verts, temp_verts.Count, DRAW_MODE, GU_TRANSFORM_3D, gRDPOtherMode.depth_source ? true : false );
 
 	//sceGuDisable(GU_CULL_FACE);
 
@@ -977,7 +1035,7 @@ namespace
 //*****************************************************************************
 //
 //*****************************************************************************
-void BaseRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_vertices ) const
+void BaseRenderer::PrepareTrisClipped( TempVerts * temp_verts ) const
 {
 	DAEDALUS_PROFILE( "BaseRenderer::PrepareTrisClipped" );
 
@@ -1092,24 +1150,21 @@ void BaseRenderer::PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_
 	//	Now the vertices have been clipped we need to write them into
 	//	a buffer we obtain this from the display list.
 
-	DaedalusVtx *p_vertices( (DaedalusVtx*)sceGuGetMemory(num_vertices * sizeof(DaedalusVtx)) );
+	DaedalusVtx * p_vertices = temp_verts->Alloc(num_vertices);
 
 	memcpy( p_vertices, clip_vtx, num_vertices * sizeof(DaedalusVtx) );	//std memcpy() is as fast as VFPU here!
-
-	*p_p_vertices = p_vertices;
-	*p_num_vertices = num_vertices;
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void BaseRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num_vertices ) const
+void BaseRenderer::PrepareTrisUnclipped( TempVerts * temp_verts ) const
 {
 	DAEDALUS_PROFILE( "BaseRenderer::PrepareTrisUnclipped" );
 	DAEDALUS_ASSERT( mNumIndices > 0, "The number of indices should have been checked" );
 
-	u32				num_vertices( mNumIndices );
-	DaedalusVtx *	p_vertices( (DaedalusVtx*)sceGuGetMemory(num_vertices*sizeof(DaedalusVtx)) );
+	const u32		num_vertices = mNumIndices;
+	DaedalusVtx *	p_vertices   = temp_verts->Alloc(num_vertices);
 
 	//
 	//	Previously this code set up an index buffer to avoid processing the
@@ -1126,7 +1181,7 @@ void BaseRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_nu
 	//
 	//	Now we just shuffle all the data across directly (potentially duplicating verts)
 	//
-	for( u32 i = 0; i < mNumIndices; ++i )
+	for( u32 i = 0; i < num_vertices; ++i )
 	{
 		u32 index = m_swIndexBuffer[ i ];
 
@@ -1137,9 +1192,6 @@ void BaseRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_nu
 		p_vertices[ i ].Position.z = mVtxProjected[ index ].TransformedPos.z;
 	}
  #endif
-
-	*p_p_vertices = p_vertices;
-	*p_num_vertices = num_vertices;
 }
 
 //*****************************************************************************

@@ -34,6 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 class CTexture;
 class CNativeTexture;
+struct TempVerts;
 
 struct ViewportInfo
 {
@@ -288,8 +289,8 @@ protected:
 	void ProcessVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world );
 #endif
 
-	void				PrepareTrisClipped( DaedalusVtx ** p_p_vertices, u32 * p_num_vertices ) const;
-	void				PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_num_vertices ) const;
+	void				PrepareTrisClipped( TempVerts * temp_verts ) const;
+	void				PrepareTrisUnclipped( TempVerts * temp_verts ) const;
 
 	v4					LightVert( const v3 & norm ) const;
 
