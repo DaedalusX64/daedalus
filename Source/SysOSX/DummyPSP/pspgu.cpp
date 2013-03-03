@@ -6,6 +6,7 @@
 #include <GL/glfw.h>
 
 #include "Graphics/ColourValue.h"
+#include "HLEGraphics/BaseRenderer.h"
 
 /* OpenGL 3.0 */
 typedef void (APIENTRY * PFN_glGenVertexArrays)(GLsizei n, GLuint *arrays);
@@ -379,15 +380,6 @@ static const char * kAlphaParams8[8] = {
 	"tex1.a",     "prim.a",
 	"shade.a",    "env.a",
 	"one.a",      "zero.a"
-};
-
-// FIXME: copypasta
-enum CycleType
-{
-	CYCLE_1CYCLE = 0,		// Please keep in this order - matches RDP
-	CYCLE_2CYCLE,
-	CYCLE_COPY,
-	CYCLE_FILL,
 };
 
 static void PrintMux( char (&body)[1024], u64 mux, u32 cycle_type )

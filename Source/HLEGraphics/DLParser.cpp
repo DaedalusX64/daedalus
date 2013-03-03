@@ -101,13 +101,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 //
 //*****************************************************************************
-enum CycleType
-{
-	CYCLE_1CYCLE = 0,		// Please keep in this order - matches RDP
-	CYCLE_2CYCLE,
-	CYCLE_COPY,
-	CYCLE_FILL,
-};
 
 void RDP_MoveMemViewport(u32 address);
 void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );

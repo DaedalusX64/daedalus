@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/ColourValue.h"
 #include "HLEGraphics/DaedalusVtx.h"
+#include "HLEGraphics/Combiner/RenderSettings.h"
 
 enum EBlendConstant
 {

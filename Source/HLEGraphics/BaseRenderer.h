@@ -175,6 +175,14 @@ ALIGNED_TYPE(struct, TnLParams, 16)
 #define Z_POS  0x20	//near
 #define CLIP_TEST_FLAGS ( X_POS | X_NEG | Y_POS | Y_NEG | Z_POS | Z_NEG )
 
+enum CycleType
+{
+	CYCLE_1CYCLE = 0,		// Please keep in this order - matches RDP
+	CYCLE_2CYCLE,
+	CYCLE_COPY,
+	CYCLE_FILL,
+};
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -299,7 +307,7 @@ public:
 
 	SBlendStateEntry	LookupBlendState( u64 mux, bool two_cycles );
 
-private:
+protected:
 	inline void			EnableTexturing( u32 tile_idx );
 	void				EnableTexturing( u32 index, u32 tile_idx );
 
@@ -310,8 +318,7 @@ private:
 
 	void				ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const;
 
-	void				RenderUsingRenderSettings( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags );
-	void				RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer );
+	virtual void		RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer ) = 0;
 
 	// Old code, kept for reference
 #ifdef DAEDALUS_IS_LEGACY
@@ -337,7 +344,7 @@ private:
 	bool				DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux );
 	void				DebugMux( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux);
 #endif
-private:
+protected:
 	enum { MAX_VERTS = 80 };		// F3DLP.Rej supports up to 80 verts!
 
 	TnLParams			mTnL;
