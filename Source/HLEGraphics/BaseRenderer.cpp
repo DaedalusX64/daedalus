@@ -117,110 +117,10 @@ ALIGNED_GLOBAL(u32,gWhiteTexture[gPlaceholderTextureWidth * gPlaceholderTextureH
 ALIGNED_GLOBAL(u32,gPlaceholderTexture[gPlaceholderTextureWidth * gPlaceholderTextureHeight ], DATA_ALIGN);
 ALIGNED_GLOBAL(u32,gSelectedTexture[gPlaceholderTextureWidth * gPlaceholderTextureHeight ], DATA_ALIGN);
 
-extern void		PrintMux( FILE * fh, u64 mux );
-
 //***************************************************************************
 //*General blender used for Blend Explorer when debuging Dlists //Corn
 //***************************************************************************
 DebugBlendSettings gDBlend;
-
-#define BLEND_MODE_MAKER \
-{ \
-	const u32 PSPtxtFunc[5] = \
-	{ \
-		GU_TFX_MODULATE, \
-		GU_TFX_BLEND, \
-		GU_TFX_ADD, \
-		GU_TFX_REPLACE, \
-		GU_TFX_DECAL \
-	}; \
-	const u32 PSPtxtA[2] = \
-	{ \
-		GU_TCC_RGB, \
-		GU_TCC_RGBA \
-	}; \
-	switch( gDBlend.ForceRGB ) \
-	{ \
-		case 1: details.ColourAdjuster.SetRGB( c32::White ); break; \
-		case 2: details.ColourAdjuster.SetRGB( c32::Black ); break; \
-		case 3: details.ColourAdjuster.SetRGB( c32::Red ); break; \
-		case 4: details.ColourAdjuster.SetRGB( c32::Green ); break; \
-		case 5: details.ColourAdjuster.SetRGB( c32::Blue ); break; \
-		case 6: details.ColourAdjuster.SetRGB( c32::Magenta ); break; \
-		case 7: details.ColourAdjuster.SetRGB( c32::Gold ); break; \
-	} \
-	switch( gDBlend.SetRGB ) \
-	{ \
-		case 1: details.ColourAdjuster.SetRGB( details.PrimColour ); break; \
-		case 2: details.ColourAdjuster.SetRGB( details.PrimColour.ReplicateAlpha() ); break; \
-		case 3: details.ColourAdjuster.SetRGB( details.EnvColour ); break; \
-		case 4: details.ColourAdjuster.SetRGB( details.EnvColour.ReplicateAlpha() ); break; \
-	} \
-	switch( gDBlend.SetA ) \
-	{ \
-		case 1: details.ColourAdjuster.SetA( details.PrimColour ); break; \
-		case 2: details.ColourAdjuster.SetA( details.PrimColour.ReplicateAlpha() ); break; \
-		case 3: details.ColourAdjuster.SetA( details.EnvColour ); break; \
-		case 4: details.ColourAdjuster.SetA( details.EnvColour.ReplicateAlpha() ); break; \
-	} \
-	switch( gDBlend.SetRGBA ) \
-	{ \
-		case 1: details.ColourAdjuster.SetRGBA( details.PrimColour ); break; \
-		case 2: details.ColourAdjuster.SetRGBA( details.PrimColour.ReplicateAlpha() ); break; \
-		case 3: details.ColourAdjuster.SetRGBA( details.EnvColour ); break; \
-		case 4: details.ColourAdjuster.SetRGBA( details.EnvColour.ReplicateAlpha() ); break; \
-	} \
-	switch( gDBlend.ModRGB ) \
-	{ \
-		case 1: details.ColourAdjuster.ModulateRGB( details.PrimColour ); break; \
-		case 2: details.ColourAdjuster.ModulateRGB( details.PrimColour.ReplicateAlpha() ); break; \
-		case 3: details.ColourAdjuster.ModulateRGB( details.EnvColour ); break; \
-		case 4: details.ColourAdjuster.ModulateRGB( details.EnvColour.ReplicateAlpha() ); break; \
-	} \
-	switch( gDBlend.ModA ) \
-	{ \
-		case 1: details.ColourAdjuster.ModulateA( details.PrimColour ); break; \
-		case 2: details.ColourAdjuster.ModulateA( details.PrimColour.ReplicateAlpha() ); break; \
-		case 3: details.ColourAdjuster.ModulateA( details.EnvColour ); break; \
-		case 4: details.ColourAdjuster.ModulateA( details.EnvColour.ReplicateAlpha() ); break; \
-	} \
-	switch( gDBlend.ModRGBA ) \
-	{ \
-		case 1: details.ColourAdjuster.ModulateRGBA( details.PrimColour ); break; \
-		case 2: details.ColourAdjuster.ModulateRGBA( details.PrimColour.ReplicateAlpha() ); break; \
-		case 3: details.ColourAdjuster.ModulateRGBA( details.EnvColour ); break; \
-		case 4: details.ColourAdjuster.ModulateRGBA( details.EnvColour.ReplicateAlpha() ); break; \
-	} \
-	switch( gDBlend.SubRGB ) \
-	{ \
-		case 1: details.ColourAdjuster.SubtractRGB( details.PrimColour ); break; \
-		case 2: details.ColourAdjuster.SubtractRGB( details.PrimColour.ReplicateAlpha() ); break; \
-		case 3: details.ColourAdjuster.SubtractRGB( details.EnvColour ); break; \
-		case 4: details.ColourAdjuster.SubtractRGB( details.EnvColour.ReplicateAlpha() ); break; \
-	} \
-	switch( gDBlend.SubA ) \
-	{ \
-		case 1: details.ColourAdjuster.SubtractA( details.PrimColour ); break; \
-		case 2: details.ColourAdjuster.SubtractA( details.PrimColour.ReplicateAlpha() ); break; \
-		case 3: details.ColourAdjuster.SubtractA( details.EnvColour ); break; \
-		case 4: details.ColourAdjuster.SubtractA( details.EnvColour.ReplicateAlpha() ); break; \
-	} \
-	switch( gDBlend.SubRGBA ) \
-	{ \
-		case 1: details.ColourAdjuster.SubtractRGBA( details.PrimColour ); break; \
-		case 2: details.ColourAdjuster.SubtractRGBA( details.PrimColour.ReplicateAlpha() ); break; \
-		case 3: details.ColourAdjuster.SubtractRGBA( details.EnvColour ); break; \
-		case 4: details.ColourAdjuster.SubtractRGBA( details.EnvColour.ReplicateAlpha() ); break; \
-	} \
-	if( gDBlend.AOpaque ) details.ColourAdjuster.SetAOpaque(); \
-	switch( gDBlend.sceENV ) \
-	{ \
-		case 1: sceGuTexEnvColor( details.EnvColour.GetColour() ); break; \
-		case 2: sceGuTexEnvColor( details.PrimColour.GetColour() ); break; \
-	} \
-	details.InstallTexture = gDBlend.TexInstall; \
-	sceGuTexFunc( PSPtxtFunc[ (gDBlend.TXTFUNC >> 1) % 6 ], PSPtxtA[ gDBlend.TXTFUNC & 1 ] ); \
-} \
 
 #endif
 
@@ -531,23 +431,6 @@ void BaseRenderer::EndScene()
 //*****************************************************************************
 //
 //*****************************************************************************
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-void BaseRenderer::SelectPlaceholderTexture( EPlaceholderTextureType type )
-{
-	switch( type )
-	{
-	case PTT_WHITE:			sceGuTexImage(0,gPlaceholderTextureWidth,gPlaceholderTextureHeight,gPlaceholderTextureWidth,gWhiteTexture); break;
-	case PTT_SELECTED:		sceGuTexImage(0,gPlaceholderTextureWidth,gPlaceholderTextureHeight,gPlaceholderTextureWidth,gSelectedTexture); break;
-	case PTT_MISSING:		sceGuTexImage(0,gPlaceholderTextureWidth,gPlaceholderTextureHeight,gPlaceholderTextureWidth,gPlaceholderTexture); break;
-	default:
-		DAEDALUS_ERROR( "Unhandled type" );
-		break;
-	}
-}
-#endif
-//*****************************************************************************
-//
-//*****************************************************************************
 void BaseRenderer::SetPSPViewport( s32 x, s32 y, u32 w, u32 h )
 {
 	mN64ToPSPScale.x = gZoomX * f32( w ) / fViWidth;
@@ -678,107 +561,6 @@ BaseRenderer::SBlendStateEntry BaseRenderer::LookupBlendState( u64 mux, bool two
 
 	return entry;
 }
-
-//*****************************************************************************
-// Used for Blend Explorer, or Nasty texture
-//*****************************************************************************
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-bool BaseRenderer::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux )
-{
-	if( IsCombinerStateDisabled( mux ) )
-	{
-		if( mNastyTexture )
-		{
-			// Use the nasty placeholder texture
-			//
-			sceGuEnable(GU_TEXTURE_2D);
-			SelectPlaceholderTexture( PTT_SELECTED );
-			sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
-			sceGuTexMode(GU_PSM_8888,0,0,GL_TRUE);		// maxmips/a2/swizzle = 0
-			sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
-		}
-		else
-		{
-			//Allow Blend Explorer
-			//
-			SBlendModeDetails		details;
-
-			details.InstallTexture = true;
-			details.EnvColour = mEnvColour;
-			details.PrimColour = mPrimitiveColour;
-			details.ColourAdjuster.Reset();
-
-			//Insert the Blend Explorer
-			BLEND_MODE_MAKER
-
-			bool	installed_texture( false );
-
-			if( details.InstallTexture )
-			{
-				if( mpTexture[ 0 ] != NULL )
-				{
-					const CRefPtr<CNativeTexture> texture( mpTexture[ 0 ]->GetTexture() );
-
-					if(texture != NULL)
-					{
-						texture->InstallTexture();
-						installed_texture = true;
-					}
-				}
-			}
-
-			// If no texture was specified, or if we couldn't load it, clear it out
-			if( !installed_texture ) sceGuDisable( GU_TEXTURE_2D );
-
-			details.ColourAdjuster.Process( p_vertices, num_vertices );
-			sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
-		}
-
-		return true;
-	}
-
-	return false;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void BaseRenderer::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux)
-{
-	// Only dump missing_mux when we awant to search for inexact blends aka HighlightInexactBlendModes is enabled.
-	// Otherwise will dump lotsa of missing_mux even though is not needed since was handled correctly by auto blendmode thing - Salvy
-	//
-	if( gGlobalPreferences.HighlightInexactBlendModes && states->IsInexact() )
-	{
-		if(mUnhandledCombinerStates.find( mux ) == mUnhandledCombinerStates.end())
-		{
-			char szFilePath[MAX_PATH+1];
-
-			Dump_GetDumpDirectory(szFilePath, g_ROM.settings.GameName.c_str());
-
-			IO::Path::Append(szFilePath, "missing_mux.txt");
-
-			FILE * fh( fopen(szFilePath, mUnhandledCombinerStates.empty() ? "w" : "a") );
-			if(fh != NULL)
-			{
-				PrintMux( fh, mux );
-				fclose(fh);
-			}
-
-			mUnhandledCombinerStates.insert( mux );
-		}
-
-		sceGuEnable( GU_TEXTURE_2D );
-		sceGuTexMode( GU_PSM_8888, 0, 0, GL_TRUE );		// maxmips/a2/swizzle = 0
-
-		// Use the nasty placeholder texture
-		SelectPlaceholderTexture( PTT_MISSING );
-		sceGuTexFunc( GU_TFX_REPLACE, GU_TCC_RGBA );
-		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
-	}
-}
-
-#endif	// DAEDALUS_DEBUG_DISPLAYLIST
 
 //*****************************************************************************
 //

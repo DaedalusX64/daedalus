@@ -590,14 +590,6 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 	DAEDALUS_PROFILE( "RendererOSX::RenderUsingCurrentBlendMode" );
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	u32 render_flags( GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF | render_mode );
-
-	// Used for Blend Explorer, or Nasty texture
-	if( DebugBlendmode( p_vertices, num_vertices, triangle_mode, render_flags, mMux ) )
-		return;
-#endif
-
 	if ( disable_zbuffer )
 	{
 		glDisable(GL_DEPTH_TEST);
