@@ -885,6 +885,7 @@ void BaseRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, co
 
 	v2 screen0;
 	v2 screen1;
+	// FIXME(strmnnrmn): why is VT_FULLSCREEN_HD code in TexRect() not also done here?
 	ConvertN64ToPsp( xy0, screen0 );
 	ConvertN64ToPsp( xy1, screen1 );
 
