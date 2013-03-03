@@ -1123,19 +1123,19 @@ void BaseRenderer::PrepareTrisUnclipped( DaedalusVtx ** p_p_vertices, u32 * p_nu
 #ifdef DAEDALUS_PSP_USE_VFPU
 	_ConvertVerticesIndexed( p_vertices, mVtxProjected, num_vertices, m_swIndexBuffer );
 #else
-	 //
-	 //      Now we just shuffle all the data across directly (potentially duplicating verts)
-	 //
-	 for( u32 i = 0; i < mNumIndices; ++i )
-	 {
-			 u32                     index( m_swIndexBuffer[ i ] );
+	//
+	//	Now we just shuffle all the data across directly (potentially duplicating verts)
+	//
+	for( u32 i = 0; i < mNumIndices; ++i )
+	{
+		u32 index = m_swIndexBuffer[ i ];
 
-			 p_vertices[ i ].Texture = mVtxProjected[ index ].Texture;
-			 p_vertices[ i ].Colour = c32( mVtxProjected[ index ].Colour );
-			 p_vertices[ i ].Position.x = mVtxProjected[ index ].TransformedPos.x;
-			 p_vertices[ i ].Position.y = mVtxProjected[ index ].TransformedPos.y;
-			 p_vertices[ i ].Position.z = mVtxProjected[ index ].TransformedPos.z;
-	 }
+		p_vertices[ i ].Texture = mVtxProjected[ index ].Texture;
+		p_vertices[ i ].Colour = c32( mVtxProjected[ index ].Colour );
+		p_vertices[ i ].Position.x = mVtxProjected[ index ].TransformedPos.x;
+		p_vertices[ i ].Position.y = mVtxProjected[ index ].TransformedPos.y;
+		p_vertices[ i ].Position.z = mVtxProjected[ index ].TransformedPos.z;
+	}
  #endif
 
 	*p_p_vertices = p_vertices;
