@@ -30,16 +30,6 @@ void sceGuEnable(EGuMode mode);
 void sceGuFog(float mn, float mx, u32 col);
 void sceGuShadeModel(EGuShadeMode mode);
 
-enum EGuCompareOp
-{
-	GU_GEQUAL,
-	GU_GREATER,
-};
-
-void sceGuDepthMask(int enable);
-void sceGuDepthFunc(EGuCompareOp op);
-void sceGuDepthRange(int a, int b);
-
 void sceGuViewport(int x, int y, int w, int h);
 void sceGuOffset(float s, float t);
 

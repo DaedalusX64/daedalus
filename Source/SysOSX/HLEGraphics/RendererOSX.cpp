@@ -113,29 +113,6 @@ void sceGuShadeModel(EGuShadeMode mode)
 	glShadeModel(mode);
 }
 
-void sceGuDepthMask(int enable)
-{
-	// NB: psp seems to flip the sense of this!
-	glDepthMask(enable ? GL_FALSE : GL_TRUE);
-}
-
-void sceGuDepthFunc(EGuCompareOp op)
-{
-	//glDepthFunc(op);
-
-	// FIXME: psp build has reversed depth.
-	if (op == GL_GEQUAL)
-		glDepthFunc(GL_LEQUAL);
-
-}
-
-void sceGuDepthRange(int a, int b)
-{
-	// NB: ignore this - psp build has flipped z buffer (0 is near)
-	//glDepthRange(a / 65536.f, b / 65536.f);
-}
-
-
 void sceGuViewport(int x, int y, int w, int h)
 {
 	glViewport(x, y, w, h);
