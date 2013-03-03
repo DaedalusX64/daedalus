@@ -659,7 +659,16 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	// Bind all the uniforms
 	glUseProgram(program->program);
 
-	glUniformMatrix4fv(program->uloc_project, 1, GL_FALSE, gProjection.m);
+
+	if ((render_mode & GU_TRANSFORM_2D) == GU_TRANSFORM_2D)
+	{
+		glUniformMatrix4fv(program->uloc_project, 1, GL_FALSE, gMatrixIdentity.mRaw);
+	}
+	else
+	{
+		glUniformMatrix4fv(program->uloc_project, 1, GL_FALSE, gProjection.m);
+	}
+
 	glUniform4f(program->uloc_primcol, mPrimitiveColour.GetRf(), mPrimitiveColour.GetGf(), mPrimitiveColour.GetBf(), mPrimitiveColour.GetAf());
 	glUniform4f(program->uloc_envcol,  mEnvColour.GetRf(),       mEnvColour.GetGf(),       mEnvColour.GetBf(),       mEnvColour.GetAf());
 
