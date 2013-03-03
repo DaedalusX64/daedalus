@@ -23,7 +23,7 @@
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 
-#include "HLEGraphics/BaseRenderer.h"
+#include "SysPSP/HLEGraphics/RendererPSP.h"
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/DLParser.h"
 #include "HLEGraphics/TextureCache.h"
@@ -261,7 +261,7 @@ void CCombinerExplorerDebugMenuOption::Display() const
 	{
 		PrintMux( stdout, selected_mux );
 
-		BaseRenderer::SBlendStateEntry entry1( gRenderer->LookupBlendState( selected_mux, false ) );
+		RendererPSP::SBlendStateEntry entry1( gRendererPSP->LookupBlendState( selected_mux, false ) );
 		if( entry1.OverrideFunction != NULL )
 		{
 			printf( "1 Cycle: Overridden\n" );
@@ -272,7 +272,7 @@ void CCombinerExplorerDebugMenuOption::Display() const
 			entry1.States->Print();
 		}
 
-		BaseRenderer::SBlendStateEntry	entry2( gRenderer->LookupBlendState( selected_mux, true ) );
+		RendererPSP::SBlendStateEntry	entry2( gRendererPSP->LookupBlendState( selected_mux, true ) );
 		if( entry2.OverrideFunction != NULL )
 		{
 			printf( "2 Cycles: Overridden\n" );

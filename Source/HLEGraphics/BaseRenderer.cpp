@@ -516,55 +516,6 @@ inline void BaseRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) co
 //*****************************************************************************
 //
 //*****************************************************************************
-BaseRenderer::SBlendStateEntry BaseRenderer::LookupBlendState( u64 mux, bool two_cycles )
-{
-	DAEDALUS_PROFILE( "BaseRenderer::LookupBlendState" );
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	mRecordedCombinerStates.insert( mux );
-#endif
-
-	REG64 key;
-	key._u64 = mux;
-
-	// Top 8 bits are never set - use the very top one to differentiate between 1/2 cycles
-	key._u32_1 |= (two_cycles << 31);
-
-	BlendStatesMap::const_iterator	it( mBlendStatesMap.find( key._u64 ) );
-	if( it != mBlendStatesMap.end() )
-	{
-		return it->second;
-	}
-
-	// Blendmodes with Inexact blends either get an Override blend or a Default blend (GU_TFX_MODULATE)
-	// If its not an Inexact blend then we check if we need to Force a blend mode none the less// Salvy
-	//
-	SBlendStateEntry entry;
-	CCombinerTree tree( mux, two_cycles );
-	entry.States = tree.GetBlendStates();
-
-	if( entry.States->IsInexact() )
-	{
-		entry.OverrideFunction = LookupOverrideBlendModeInexact( mux );
-	}
-	else
-	{
-		// This is for non-inexact blends, errg hacks and such to be more precise
-		entry.OverrideFunction = LookupOverrideBlendModeForced( mux );
-	}
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	printf( "Adding %08x%08x - %d cycles - %s\n", u32(mux>>32), u32(mux), two_cycles ? 2 : 1, entry.States->IsInexact() ?  IsCombinerStateDefault(mux) ? "Inexact(Default)" : "Inexact(Override)" : entry.OverrideFunction==NULL ? "Auto" : "Forced");
-#endif
-
-	//Add blend mode to the Blend States Map
-	mBlendStatesMap[ key._u64 ] = entry;
-
-	return entry;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
 void BaseRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
 	EnableTexturing( tile_idx );

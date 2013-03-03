@@ -7,6 +7,7 @@
 #include "Debug/Dump.h"
 #include "Graphics/NativeTexture.h"
 #include "HLEGraphics/Combiner/BlendConstant.h"
+#include "HLEGraphics/Combiner/CombinerTree.h"
 #include "HLEGraphics/Combiner/RenderSettings.h"
 #include "HLEGraphics/Texture.h"
 #include "Math/MathUtil.h"
@@ -26,9 +27,7 @@ extern void InitBlenderMode( u32 blender );
 
 extern void PrintMux( FILE * fh, u64 mux );
 
-//***************************************************************************
-//*General blender used for Blend Explorer when debuging Dlists //Corn
-//***************************************************************************
+// General blender used for Blend Explorer when debuging Dlists //Corn
 extern DebugBlendSettings gDBlend;
 
 #define BLEND_MODE_MAKER \
@@ -132,12 +131,57 @@ extern DebugBlendSettings gDBlend;
 #endif // DAEDALUS_DEBUG_DISPLAYLIST
 
 
+RendererPSP::SBlendStateEntry RendererPSP::LookupBlendState( u64 mux, bool two_cycles )
+{
+	DAEDALUS_PROFILE( "RendererPSP::LookupBlendState" );
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	mRecordedCombinerStates.insert( mux );
+#endif
+
+	REG64 key;
+	key._u64 = mux;
+
+	// Top 8 bits are never set - use the very top one to differentiate between 1/2 cycles
+	key._u32_1 |= (two_cycles << 31);
+
+	BlendStatesMap::const_iterator	it( mBlendStatesMap.find( key._u64 ) );
+	if( it != mBlendStatesMap.end() )
+	{
+		return it->second;
+	}
+
+	// Blendmodes with Inexact blends either get an Override blend or a Default blend (GU_TFX_MODULATE)
+	// If its not an Inexact blend then we check if we need to Force a blend mode none the less// Salvy
+	//
+	SBlendStateEntry entry;
+	CCombinerTree tree( mux, two_cycles );
+	entry.States = tree.GetBlendStates();
+
+	if( entry.States->IsInexact() )
+	{
+		entry.OverrideFunction = LookupOverrideBlendModeInexact( mux );
+	}
+	else
+	{
+		// This is for non-inexact blends, errg hacks and such to be more precise
+		entry.OverrideFunction = LookupOverrideBlendModeForced( mux );
+	}
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	printf( "Adding %08x%08x - %d cycles - %s\n", u32(mux>>32), u32(mux), two_cycles ? 2 : 1, entry.States->IsInexact() ?  IsCombinerStateDefault(mux) ? "Inexact(Default)" : "Inexact(Override)" : entry.OverrideFunction==NULL ? "Auto" : "Forced");
+#endif
+
+	//Add blend mode to the Blend States Map
+	mBlendStatesMap[ key._u64 ] = entry;
+
+	return entry;
+}
 
 void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer )
 {
 	static bool	ZFightingEnabled( false );
 
-	DAEDALUS_PROFILE( "BaseRenderer::RenderUsingCurrentBlendMode" );
+	DAEDALUS_PROFILE( "RendererPSP::RenderUsingCurrentBlendMode" );
 
 	if ( disable_zbuffer )
 	{
@@ -495,12 +539,8 @@ void RendererPSP::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2,
 	sceGuDrawArray( GU_TRIANGLE_FAN, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, p_verts );
 }
 
-//*****************************************************************************
-//
-//	The following blitting code was taken from The TriEngine.
-//	See http://www.assembla.com/code/openTRI for more information.
-//
-//*****************************************************************************
+// The following blitting code was taken from The TriEngine.
+// See http://www.assembla.com/code/openTRI for more information.
 void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height, f32 u0, f32 v0, f32 u1, f32 v1, CNativeTexture * texture)
 {
 	sceGuDisable(GU_DEPTH_TEST);
@@ -644,9 +684,6 @@ void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height, f32 u0,
 #endif
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 void RendererPSP::SelectPlaceholderTexture( EPlaceholderTextureType type )
 {
@@ -663,9 +700,7 @@ void RendererPSP::SelectPlaceholderTexture( EPlaceholderTextureType type )
 #endif // DAEDALUS_DEBUG_DISPLAYLIST
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-//*****************************************************************************
 // Used for Blend Explorer, or Nasty texture
-//*****************************************************************************
 bool RendererPSP::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux )
 {
 	if( IsCombinerStateDisabled( mux ) )

@@ -298,15 +298,6 @@ public:
 	void				ToggleNastyTexture( bool enable )			{ mNastyTexture = ( enable =! mNastyTexture ); }
 #endif
 
-	struct SBlendStateEntry
-	{
-		SBlendStateEntry() : OverrideFunction( NULL ), States( NULL ) {}
-		OverrideBlendModeFn			OverrideFunction;
-		const CBlendStates *		States;
-	};
-
-	SBlendStateEntry	LookupBlendState( u64 mux, bool two_cycles );
-
 protected:
 	inline void			EnableTexturing( u32 tile_idx );
 	void				EnableTexturing( u32 index, u32 tile_idx );
@@ -396,8 +387,6 @@ protected:
 	//
 	CBlendStates *		mCopyBlendStates;
 	CBlendStates *		mFillBlendStates;
-	typedef std::map< u64, SBlendStateEntry > BlendStatesMap;
-	BlendStatesMap		mBlendStatesMap;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	//
