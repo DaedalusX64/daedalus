@@ -23,17 +23,16 @@
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 
-#include "BaseRenderer.h"
-#include "DLDebug.h"
-#include "DLParser.h"
-#include "TextureCache.h"
-#include "TextureDescriptor.h"
-#include "Microcode.h"
+#include "HLEGraphics/BaseRenderer.h"
+#include "HLEGraphics/DLDebug.h"
+#include "HLEGraphics/DLParser.h"
+#include "HLEGraphics/TextureCache.h"
+#include "HLEGraphics/TextureDescriptor.h"
+#include "HLEGraphics/Microcode.h"
+#include "HLEGraphics/Combiner/RenderSettings.h"
 
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
-
-#include "Combiner/RenderSettings.h"
 
 #include "Core/ROM.h"
 #include "Debug/Dump.h"
