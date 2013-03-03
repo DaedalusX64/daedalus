@@ -183,7 +183,7 @@ void StaticAnalysis_LB( OpCode op_code, RegisterUsage & recorder ) 			// Load By
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
-	//recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset ); // Don't do optimisation for LB, otherwise Mario 64 won't work :/
+	//recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset ); :/
 }
 
 void StaticAnalysis_LBU( OpCode op_code, RegisterUsage & recorder ) 			// Load Byte Unsigned -- Zero extend byte...
@@ -197,6 +197,7 @@ void StaticAnalysis_LH( OpCode op_code, RegisterUsage & recorder ) 		// Load Hal
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
+	//Don't do optimisation for LB, otherwise Mario 64 won't work, doesn't happen anymore //Salvy
 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
@@ -234,9 +235,9 @@ void StaticAnalysis_LW( OpCode op_code, RegisterUsage & recorder ) 			// Load Wo
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
 
-	// Causes P Mario to BSOD in intro
+	// Causes P Mario to BSOD in intro, doesn't happen anymore //Salvy
 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
-	if( g_ROM.GameHacks != PMARIO ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );	// Breaks Paper Mario
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );	// Breaks Paper Mario
 }
 
 void StaticAnalysis_LWU( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Unsigned

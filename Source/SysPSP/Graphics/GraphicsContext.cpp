@@ -70,7 +70,6 @@ static u32 __attribute__((aligned(16))) callList[64];
 static u32 __attribute__((aligned(16))) ilist[256];
 
 u32 listNum = 0;
-extern ViewportInfo	mView;
 extern bool g32bitColorMode;
 extern bool gTakeScreenshotSS;
 //////////////////////////////////////////////
@@ -224,8 +223,6 @@ void IGraphicsContext::ClearAllSurfaces()
 		//Get Ready for next Frame
 		UpdateFrame( false );
 	}
-
-	mView.Update = true;
 }
 
 //*****************************************************************************

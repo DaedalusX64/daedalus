@@ -165,7 +165,6 @@ f32 TEST_VARX = 0.0f;
 f32 TEST_VARY = 0.0f;
 #endif
 
-ViewportInfo	mView;
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -216,8 +215,6 @@ BaseRenderer::BaseRenderer()
 	mTnL.TextureScaleY = 1.0f;
 
 	memset( mTnL.Lights, 0, sizeof(mTnL.Lights) );
-
-	memset( &mView, 0, sizeof(mView) );
 }
 
 //*****************************************************************************
@@ -303,17 +300,6 @@ void BaseRenderer::BeginScene()
 	ResetDebugState();
 #endif
 
-	// Update viewport only if user changed it in settings or vi register changed it
-	// Both happen really rare
-	//
-	if( !mView.Update					&		//  We need to update after pause menu?
-		(mView.ViWidth  == uViWidth)    &		//  VI register changed width? (bug fix GE007)
-		(mView.ViHeight == uViHeight)   &		//  VI register changed height?
-		(mView.Rumble   == gRumblePakActive) )	//  RumblePak active? Don't bother to update if no rumble feedback too
-	{
-		return;
-	}
-
 	u32 display_width  = 0;
 	u32 display_height = 0;
 
@@ -337,11 +323,6 @@ void BaseRenderer::BeginScene()
 
 	SetPSPViewport( display_x, display_y, display_width, display_height );
 	SetN64Viewport( scale, trans );
-
-	mView.Rumble	= gRumblePakActive;
-	mView.Update	= false;
-	mView.ViWidth	= uViWidth;
-	mView.ViHeight	= uViHeight;
 }
 
 //*****************************************************************************
