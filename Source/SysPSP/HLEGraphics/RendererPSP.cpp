@@ -130,6 +130,44 @@ extern DebugBlendSettings gDBlend;
 
 #endif // DAEDALUS_DEBUG_DISPLAYLIST
 
+RendererPSP::RendererPSP()
+{
+	//
+	//	Set up RGB = T0, A = T0
+	//
+	mCopyBlendStates = new CBlendStates;
+	{
+		CAlphaRenderSettings *	alpha_settings( new CAlphaRenderSettings( "Copy" ) );
+		CRenderSettingsModulate *	colour_settings( new CRenderSettingsModulate( "Copy" ) );
+
+		alpha_settings->AddTermTexel0();
+		colour_settings->AddTermTexel0();
+
+		mCopyBlendStates->SetAlphaSettings( alpha_settings );
+		mCopyBlendStates->AddColourSettings( colour_settings );
+	}
+
+	//
+	//	Set up RGB = Diffuse, A = Diffuse
+	//
+	mFillBlendStates = new CBlendStates;
+	{
+		CAlphaRenderSettings *	alpha_settings( new CAlphaRenderSettings( "Fill" ) );
+		CRenderSettingsModulate *	colour_settings( new CRenderSettingsModulate( "Fill" ) );
+
+		alpha_settings->AddTermConstant( new CBlendConstantExpressionValue( BC_SHADE ) );
+		colour_settings->AddTermConstant(  new CBlendConstantExpressionValue( BC_SHADE ) );
+
+		mFillBlendStates->SetAlphaSettings( alpha_settings );
+		mFillBlendStates->AddColourSettings( colour_settings );
+	}
+}
+
+RendererPSP::~RendererPSP()
+{
+	delete mFillBlendStates;
+	delete mCopyBlendStates;
+}
 
 RendererPSP::SBlendStateEntry RendererPSP::LookupBlendState( u64 mux, bool two_cycles )
 {
