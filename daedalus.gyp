@@ -132,7 +132,6 @@
               'Source/SysOSX/Debug/DaedalusAssertOSX.cpp',
               'Source/SysOSX/Debug/DebugConsoleOSX.cpp',
               'Source/SysOSX/DummyPSP/pspctrl.cpp',
-              'Source/SysOSX/DummyPSP/pspgu.cpp',
               'Source/SysOSX/DynaRec/CodeBufferManagerOSX.cpp',
               'Source/SysOSX/Graphics/GraphicsContext.cpp',
               'Source/SysOSX/Graphics/NativeTextureOSX.cpp',

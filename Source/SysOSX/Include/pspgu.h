@@ -121,10 +121,10 @@ void sceGuSetMatrix(EGuMatrixType type, const ScePspFMatrix4 * mtx);
 
 enum
 {
-	GU_SPRITES,
-	GU_TRIANGLES,
-	GU_TRIANGLE_STRIP,
-	GU_TRIANGLE_FAN,
+	GU_SPRITES = 0,		// FIXME
+	GU_TRIANGLES			= GL_TRIANGLES,
+	GU_TRIANGLE_STRIP		= GL_TRIANGLE_STRIP,
+	GU_TRIANGLE_FAN			= GL_TRIANGLE_FAN,
 };
 
 enum
