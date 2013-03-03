@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __DAEDALUS_D3DRENDER_H__
-#define __DAEDALUS_D3DRENDER_H__
+#ifndef BASERENDERER_H__
+#define BASERENDERER_H__
 
 #include "Math/Vector2.h"
 #include "Math/Vector3.h"
@@ -432,4 +432,4 @@ bool CreateRenderer();
 void DestroyRenderer();
 extern BaseRenderer * gRenderer;
 
-#endif // __DAEDALUS_D3DRENDER_H__
+#endif // BASERENDERER_H__
