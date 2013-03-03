@@ -1979,13 +1979,14 @@ void BaseRenderer::EnableTexturing( u32 index, u32 tile_idx )
 		// Do a hack just for Zelda for now..
 		//
 		if( g_ROM.ZELDA_HACK )
-			 mode_u = GU_CLAMP;
+			mode_u = GU_CLAMP;
 		else
 			mode_u = GU_REPEAT;
 	}
 	if( tile_size.GetHeight() > ti.GetHeight() ) mode_v = GU_REPEAT;
 
-	sceGuTexWrap( mode_u, mode_v );
+	// NB(strmnnrmn): this is *always* called in RendererPSP::RenderUsingRenderSettings, just before rendering. I think it is unnecessary here.
+	//sceGuTexWrap( mode_u, mode_v );
 
 	mTexWrap[ index ].u = mode_u;
 	mTexWrap[ index ].v = mode_v;
