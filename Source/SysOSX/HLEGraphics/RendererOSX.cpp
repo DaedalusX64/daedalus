@@ -108,11 +108,6 @@ void sceGuFog(float mn, float mx, u32 col)
 	//DAEDALUS_ERROR( "%s: Not implemented", __FUNCTION__ );
 }
 
-void sceGuShadeModel(EGuShadeMode mode)
-{
-	glShadeModel(mode);
-}
-
 void sceGuViewport(int x, int y, int w, int h)
 {
 	glViewport(x, y, w, h);
@@ -752,12 +747,12 @@ void RendererOSX::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2,
 {
 	DAEDALUS_PROFILE( "RendererOSX::Draw2DTextureR" );
 
-	glDisable(GU_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
-	glShadeModel(GU_FLAT);
-	glDisable(GU_ALPHA_TEST);
-	//glTexFunc(GU_TFX_REPLACE, GU_TCC_RGBA);
-	glEnable(GU_BLEND);
+	glShadeModel(GL_FLAT);
+	glDisable(GL_ALPHA_TEST);
+	//glTexFunc(GL_TFX_REPLACE, GL_TCC_RGBA);
+	glEnable(GL_BLEND);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);

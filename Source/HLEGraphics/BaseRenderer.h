@@ -178,7 +178,7 @@ public:
 	void				Reset();
 
 	// Various rendering states
-	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags._u32 = (mTnL.Flags._u32 & TNL_TEXTURE) | mode; if(gFogEnabled) (mTnL.Flags.Fog)? sceGuEnable(GU_FOG) : sceGuDisable(GU_FOG); sceGuShadeModel( mTnL.Flags.Shade ? GU_SMOOTH : GU_FLAT ); }
+	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags._u32 = (mTnL.Flags._u32 & TNL_TEXTURE) | mode; UpdateFogEnable(); UpdateShadeModel(); }
 	inline void			SetTextureEnable(bool enable)			{ mTnL.Flags.Texture = enable; }
 	inline void			SetTextureTile(u32 tile)				{ mTextureTile = tile; }
 	inline u32			GetTextureTile() const					{ return mTextureTile; }
@@ -270,6 +270,15 @@ public:
 	inline float		N64ToNativeY(float y) const				{ return y * mN64ToNativeScale.y + mN64ToNativeTranslate.y; }
 
 protected:
+#ifdef DAEDALUS_PSP
+	inline void			UpdateFogEnable()						{ if(gFogEnabled) mTnL.Flags.Fog ? sceGuEnable(GU_FOG) : sceGuDisable(GU_FOG); }
+	inline void			UpdateShadeModel()						{ sceGuShadeModel( mTnL.Flags.Shade ? GU_SMOOTH : GU_FLAT ); }
+#endif
+#ifdef DAEDALUS_OSX
+	inline void			UpdateFogEnable()						{ if(gFogEnabled) mTnL.Flags.Fog ? glEnable(GL_FOG) : glDisable(GL_FOG); }
+	inline void			UpdateShadeModel()						{ glShadeModel( mTnL.Flags.Shade ? GL_SMOOTH : GL_FLAT ); }
+#endif
+
 	inline void			EnableTexturing( u32 tile_idx );
 	void				EnableTexturing( u32 index, u32 tile_idx );
 

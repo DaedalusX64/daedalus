@@ -16,19 +16,12 @@ enum EGuMode
 	GU_TEXTURE_2D,
 };
 
-enum EGuShadeMode
-{
-	GU_FLAT,
-	GU_SMOOTH,
-};
-
 #define GL_FALSE 0
 #define GL_TRUE 1
 
 void sceGuDisable(EGuMode mode);
 void sceGuEnable(EGuMode mode);
 void sceGuFog(float mn, float mx, u32 col);
-void sceGuShadeModel(EGuShadeMode mode);
 
 void sceGuViewport(int x, int y, int w, int h);
 void sceGuOffset(float s, float t);

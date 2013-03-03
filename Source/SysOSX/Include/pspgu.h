@@ -19,17 +19,9 @@ enum EGuMode
 	GU_CLIP_PLANES		= 0,
 };
 
-enum EGuShadeMode
-{
-	GU_FLAT				= GL_FLAT,
-	GU_SMOOTH			= GL_SMOOTH,
-};
-
-
 void sceGuDisable(EGuMode mode);
 void sceGuEnable(EGuMode mode);
 void sceGuFog(float mn, float mx, u32 col);
-void sceGuShadeModel(EGuShadeMode mode);
 
 void sceGuViewport(int x, int y, int w, int h);
 void sceGuOffset(float s, float t);
