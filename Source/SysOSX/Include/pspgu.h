@@ -85,8 +85,6 @@ enum EGuTextureFnB
 
 void sceGuTexFunc(int fn, int b);
 
-void * sceGuGetMemory(size_t len);
-
 
 enum EGuBlendOp
 {

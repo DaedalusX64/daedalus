@@ -197,13 +197,6 @@ void sceGuTexFunc(int fn, int b)
 	//DAEDALUS_ERROR( "%s: Not implemented", __FUNCTION__ );
 }
 
-
-void * sceGuGetMemory(size_t len)
-{
-	// FIXME: leaky!
-	return malloc(len);
-}
-
 void sceGuBlendFunc(EGuBlendOp op, int sf, int df, int a, int b)
 {
 	if (op != 0)
