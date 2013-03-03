@@ -40,16 +40,10 @@ enum EGuTextureWrapMode
 	GU_CLAMP,
 	GU_REPEAT,
 };
-enum EGuTextureFilterMode
-{
-	GU_NEAREST,
-	GU_LINEAR,
-};
+
 void sceGuTexWrap(int u, int v);
 void sceGuTexOffset(float s, float t);
 void sceGuTexScale(float s, float t);
-void sceGuTexFilter(EGuTextureFilterMode u, EGuTextureFilterMode v);
-void sceGuTexEnvColor(u32 c);
 
 
 enum EGuBlendOp

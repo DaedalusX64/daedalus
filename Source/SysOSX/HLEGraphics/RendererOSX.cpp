@@ -144,20 +144,6 @@ void sceGuTexScale(float s, float t)
 {
 }
 
-void sceGuTexFilter(EGuTextureFilterMode u, EGuTextureFilterMode v)
-{
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, u);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, v);
-}
-
-void sceGuTexEnvColor(u32 c)
-{
-	c32 colour( c );
-	const float cv[] = { colour.GetRf(), colour.GetGf(), colour.GetBf(), colour.GetAf() };
-
-	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv);
-}
-
 void sceGuBlendFunc(EGuBlendOp op, int sf, int df, int a, int b)
 {
 	if (op != 0)
@@ -709,8 +695,8 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 				}
 				else
 				{
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GU_NEAREST);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GU_NEAREST);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 				}
 
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mTexWrap[i].u);
