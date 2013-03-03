@@ -81,7 +81,7 @@ extern "C"
 void	_TnLVFPU( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
 void	_TnLVFPUDKR( u32 num_vertices, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out );
 void	_TnLVFPUDKRB( u32 num_vertices, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out );
-void	_TnLVFPUCBFD( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const s8 * model_norm , u32 v0 );
+void	_TnLVFPUCBFD( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const s8 * model_norm, u32 v0 );
 void	_TnLVFPUPD( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtxPD * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const u8 * model_norm );
 
 void	_ConvertVertice( DaedalusVtx * dest, const DaedalusVtx4 * source );
@@ -1859,7 +1859,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 			//
 			if ( mTnL.Flags.TexGen )
 			{
-				v3 model_normal( mn[((i<<1)+0)^3] , mn[((i<<1)+1)^3], vert.normz );
+				v3 model_normal( mn[((i<<1)+0)^3], mn[((i<<1)+1)^3], vert.normz );
 				v3 vecTransformedNormal = matWorld.TransformNormal( model_normal );
 				vecTransformedNormal.Normalise();
 
@@ -2178,18 +2178,18 @@ void BaseRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 
 #if 1
 				// Megaman and other games
-				SetVtxXY( vert, f32(x<<1) / fViWidth , f32(y<<1) / fViHeight );
+				SetVtxXY( vert, f32(x<<1) / fViWidth, f32(y<<1) / fViHeight );
 #else
 				u32 current_scale = Memory_VI_GetRegister(VI_X_SCALE_REG);
 				if((current_scale&0xF) != 0 )
 				{
 					// Tarzan... I don't know why is so different...
-					SetVtxXY( vert, f32(x) / fViWidth , f32(y) / fViHeight );
+					SetVtxXY( vert, f32(x) / fViWidth, f32(y) / fViHeight );
 				}
 				else
 				{
 					// Megaman and other games
-					SetVtxXY( vert, f32(x<<1) / fViWidth , f32(y<<1) / fViHeight );
+					SetVtxXY( vert, f32(x<<1) / fViWidth, f32(y<<1) / fViHeight );
 				}
 #endif
 			}
@@ -2444,7 +2444,7 @@ void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 //*****************************************************************************
 //
 //*****************************************************************************
-void BaseRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW ,f32 frameH, f32 imageX, f32 imageY, f32 imageW, f32 imageH)
+void BaseRenderer::Draw2DTexture( f32 frameX, f32 frameY, f32 frameW, f32 frameH, f32 imageX, f32 imageY, f32 imageW, f32 imageH)
 {
 	DAEDALUS_PROFILE( "BaseRenderer::Draw2DTexture" );
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
@@ -2541,7 +2541,7 @@ void BaseRenderer::Draw2DTextureR( f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y
 //	See http://www.assembla.com/code/openTRI for more information.
 //
 //*****************************************************************************
-void BaseRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width ,f32 height, f32 u0, f32 v0, f32 u1, f32 v1, CNativeTexture * texture)
+void BaseRenderer::Draw2DTextureBlit( f32 x, f32 y, f32 width, f32 height, f32 u0, f32 v0, f32 u1, f32 v1, CNativeTexture * texture)
 {
 	sceGuDisable(GU_DEPTH_TEST);
 	sceGuDepthMask( GL_TRUE );
