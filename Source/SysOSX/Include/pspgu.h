@@ -56,17 +56,11 @@ enum EGuTextureFilterMode
 	GU_NEAREST			= GL_NEAREST,
 	GU_LINEAR			= GL_LINEAR,
 };
-enum EGuTexMode
-{
-	GU_PSM_8888,
-};
-void sceGuTexMode(EGuTexMode mode, int maxmips, int a2, int swiz);
 void sceGuTexWrap(int u, int v);
 void sceGuTexOffset(float s, float t);
 void sceGuTexScale(float s, float t);
 void sceGuTexFilter(EGuTextureFilterMode u, EGuTextureFilterMode v);
 void sceGuTexEnvColor(u32 c);
-void sceGuTexImage(int a, int w, int h, int p, void * d);
 
 enum EGuTextureFunc
 {

@@ -152,13 +152,6 @@ void sceGuScissor(int x0, int y0, int x1, int y1)
 	glScissor(x0, y0, x1-x0, y1-y0);
 }
 
-
-
-void sceGuTexMode(EGuTexMode mode, int maxmips, int a2, int swiz)
-{
-	DAEDALUS_ERROR( "%s: Not implemented", __FUNCTION__ );
-}
-
 void sceGuTexWrap(int u, int v)
 {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, u);
@@ -185,11 +178,6 @@ void sceGuTexEnvColor(u32 c)
 	const float cv[] = { colour.GetRf(), colour.GetGf(), colour.GetBf(), colour.GetAf() };
 
 	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv);
-}
-
-void sceGuTexImage(int a, int w, int h, int p, void * d)
-{
-	//DAEDALUS_ERROR( "%s: Not implemented", __FUNCTION__ );
 }
 
 void sceGuTexFunc(int fn, int b)
