@@ -25,9 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/BaseRenderer.h"
 #include "HLEGraphics/TextureCache.h"
 #include "HLEGraphics/DLParser.h"
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #include "HLEGraphics/DisplayListDebugger.h"
-#endif
 
 #include "Graphics/GraphicsContext.h"
 #include "Plugins/GraphicsPlugin.h"

@@ -60,7 +60,6 @@ CORE_SRCS = \
 	Source/HLEGraphics/Combiner/CombinerTree.cpp \
 	Source/HLEGraphics/Combiner/RenderSettings.cpp \
 	Source/HLEGraphics/ConvertImage.cpp \
-	Source/HLEGraphics/DisplayListDebugger.cpp \
 	Source/HLEGraphics/DLDebug.cpp \
 	Source/HLEGraphics/DLParser.cpp \
 	Source/HLEGraphics/Microcode.cpp \
@@ -95,6 +94,7 @@ CORE_SRCS = \
 	Source/SysPSP/HLEAudio/AudioCodePSP.cpp \
 	Source/SysPSP/HLEAudio/AudioPluginPSP.cpp \
 	Source/SysPSP/HLEGraphics/ConvertVertices.S \
+	Source/SysPSP/HLEGraphics/DisplayListDebugger.cpp \
 	Source/SysPSP/HLEGraphics/RendererPSP.cpp \
 	Source/SysPSP/HLEGraphics/TnLVFPU.S\
 	Source/SysPSP/HLEGraphics/VectorClipping.S \

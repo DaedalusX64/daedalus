@@ -19,7 +19,7 @@
 */
 
 #include "stdafx.h"
-#include "DisplayListDebugger.h"
+#include "HLEGraphics/DisplayListDebugger.h"
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 

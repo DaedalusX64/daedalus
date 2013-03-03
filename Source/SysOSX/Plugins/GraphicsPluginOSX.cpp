@@ -12,9 +12,7 @@
 #include "HLEGraphics/BaseRenderer.h"
 #include "HLEGraphics/TextureCache.h"
 #include "HLEGraphics/DLParser.h"
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #include "HLEGraphics/DisplayListDebugger.h"
-#endif
 
 #include "Plugins/GraphicsPlugin.h"
 
