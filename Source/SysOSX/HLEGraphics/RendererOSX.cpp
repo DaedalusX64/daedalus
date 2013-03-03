@@ -9,6 +9,7 @@
 
 #include "Core/ROM.h"
 #include "Graphics/ColourValue.h"
+#include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
 #include "HLEGraphics/Texture.h"
 #include "OSHLE/ultra_gbi.h"
@@ -531,6 +532,57 @@ void sceGuDrawArray(int prim, int vtype, int count, const void * indices, const 
 	exit(1);
 }
 
+
+void RendererOSX::RestoreRenderStates()
+{
+	// Initialise the device to our default state
+
+	// No fog
+	glDisable(GL_FOG);
+
+	// We do our own culling
+	glDisable(GL_CULL_FACE);
+
+	u32 width, height;
+	CGraphicsContext::Get()->GetScreenSize(&width, &height);
+
+	glScissor(0,0, width,height);
+	glEnable(GL_SCISSOR_TEST);
+
+	// We do our own lighting
+	glDisable(GL_LIGHTING);
+
+	glAlphaFunc(GL_GEQUAL, 4.f/255.f);
+	glEnable(GL_ALPHA_TEST);
+
+	glBlendColor(0.f, 0.f, 0.f, 0.f);
+	glBlendEquation(GL_ADD);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glEnable(GL_BLEND);
+	//glDisable( GL_BLEND ); // Breaks Tarzan's text in menus
+
+	// Default is ZBuffer disabled
+	glDepthMask(GL_FALSE);		// GL_FALSE to disable z-writes
+	glDepthFunc(GL_LEQUAL);
+	glDisable(GL_DEPTH_TEST);
+
+	// Initialise all the renderstate to our defaults.
+	glShadeModel(GL_SMOOTH);
+
+	const float cv[] = { 1.f, 1.f, 1.f, 1.f };
+	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv);
+
+	//Reset uniforms?
+	//glTexOffset(0.0f,0.0f);
+
+	//glFog(near,far,mFogColour);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
 
 void RendererOSX::RenderDaedalusVtx(int prim, const DaedalusVtx * vertices, int count)
 {

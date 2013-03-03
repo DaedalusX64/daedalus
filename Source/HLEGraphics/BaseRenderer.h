@@ -273,7 +273,7 @@ protected:
 	inline void			EnableTexturing( u32 tile_idx );
 	void				EnableTexturing( u32 index, u32 tile_idx );
 
-	void				RestoreRenderStates();
+	virtual void		RestoreRenderStates() = 0;
 
 	void				SetPSPViewport( s32 x, s32 y, u32 w, u32 h );
 	void				UpdateViewport();

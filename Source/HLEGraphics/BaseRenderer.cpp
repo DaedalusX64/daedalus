@@ -230,61 +230,6 @@ BaseRenderer::~BaseRenderer()
 //*****************************************************************************
 //
 //*****************************************************************************
-void BaseRenderer::RestoreRenderStates()
-{
-	// Initialise the device to our default state
-
-	// No fog
-	sceGuDisable(GU_FOG);
-
-	// We do our own culling
-	sceGuDisable(GU_CULL_FACE);
-
-	// But clip our tris please (looks better in far field see Aerogauge)
-	sceGuEnable(GU_CLIP_PLANES);
-	//sceGuDisable(GU_CLIP_PLANES);
-
-	u32 width, height;
-	CGraphicsContext::Get()->GetScreenSize(&width, &height);
-
-	sceGuScissor(0,0, width,height);
-	sceGuEnable(GU_SCISSOR_TEST);
-
-	// We do our own lighting
-	sceGuDisable(GU_LIGHTING);
-
-	sceGuAlphaFunc(GU_GEQUAL, 0x04, 0xff );
-	sceGuEnable(GU_ALPHA_TEST);
-
-	sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-	sceGuEnable(GU_BLEND);
-	//sceGuDisable( GU_BLEND ); // Breaks Tarzan's text in menus
-
-	// Default is ZBuffer disabled
-	sceGuDepthMask(GL_TRUE);	// GL_TRUE to disable z-writes
-	sceGuDepthFunc(GU_GEQUAL);		// GEQUAL?
-	sceGuDisable(GU_DEPTH_TEST);
-
-	// Initialise all the renderstate to our defaults.
-	sceGuShadeModel(GU_SMOOTH);
-
-	sceGuTexEnvColor( c32::White.GetColour() );
-	sceGuTexOffset(0.0f,0.0f);
-
-	//sceGuFog(near,far,mFogColour);
-	// Texturing stuff
-	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGB);
-	//sceGuTexFilter(GU_LINEAR,GU_LINEAR);
-	sceGuTexWrap(GU_REPEAT,GU_REPEAT);
-
-	//sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
-	sceGuSetMatrix( GU_VIEW, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
-	sceGuSetMatrix( GU_MODEL, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
 void BaseRenderer::SetVIScales()
 {
 	u32 width = Memory_VI_GetRegister( VI_WIDTH_REG );
