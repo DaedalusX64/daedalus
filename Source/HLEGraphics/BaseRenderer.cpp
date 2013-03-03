@@ -29,12 +29,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Texture.h"
 #include "TextureCache.h"
 #include "RDPStateManager.h"
-#include "BlendModes.h"
 #include "DLDebug.h"
 
 #include "Combiner/RenderSettings.h"
 #include "Combiner/BlendConstant.h"
-#include "Combiner/CombinerTree.h"
 
 #include "Graphics/NativeTexture.h"
 #include "Graphics/GraphicsContext.h"

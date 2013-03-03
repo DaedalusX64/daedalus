@@ -21,8 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "CombinerTree.h"
 
 #include "CombinerExpression.h"
-#include "RenderSettings.h"
-#include "BlendConstant.h"
+#include "HLEGraphics/Combiner/RenderSettings.h"
+#include "HLEGraphics/Combiner/BlendConstant.h"
 #include "HLEGraphics/RDP.h"
 #include "Utility/Stream.h"
 

@@ -21,9 +21,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 
 #include "BlendModes.h"
-#include "BaseRenderer.h"
-#include "Texture.h"
-#include "RDP.h"
+#include "HLEGraphics/BaseRenderer.h"
+#include "HLEGraphics/Texture.h"
+#include "HLEGraphics/RDP.h"
 
 #include "Graphics/NativeTexture.h"
 #include "Graphics/ColourValue.h"

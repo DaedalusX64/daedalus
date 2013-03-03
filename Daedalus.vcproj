@@ -1813,10 +1813,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\BlendModes.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Source\HLEGraphics\ColourAdjuster.cpp"
 					>
 					<FileConfiguration
@@ -2000,7 +1996,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\Source\HLEGraphics\Combiner\CombinerExpression.cpp"
+						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerExpression.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -2012,15 +2008,15 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\HLEGraphics\Combiner\CombinerExpression.h"
+						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerExpression.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\HLEGraphics\Combiner\CombinerInput.h"
+						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerInput.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\HLEGraphics\Combiner\CombinerTree.cpp"
+						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerTree.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -2032,7 +2028,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\HLEGraphics\Combiner\CombinerTree.h"
+						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerTree.h"
 						>
 					</File>
 					<File
@@ -2076,7 +2072,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\HLEGraphics\BlendModes.cpp"
+						RelativePath=".\Source\SysPSP\HLEGraphics\BlendModes.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -2094,6 +2090,10 @@
 								Name="VCCLCompilerTool"
 							/>
 						</FileConfiguration>
+					</File>
+					<File
+						RelativePath=".\Source\SysPSP\HLEGraphics\BlendModes.h"
+						>
 					</File>
 					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\ConvertVertices.S"

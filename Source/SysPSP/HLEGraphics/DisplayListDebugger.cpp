@@ -224,8 +224,8 @@ void CCombinerExplorerDebugMenuOption::Display() const
 		bool	selected( idx == mSelectedIdx );
 		bool	disabled( gRenderer->IsCombinerStateDisabled( state ) );
 		//bool	unhandled( gRenderer->IsCombinerStateUnhandled( state ) );
-		bool	forced( gRenderer->IsCombinerStateForced( state ) );
-		bool	idefault( gRenderer->IsCombinerStateDefault( state ) );
+		bool	forced( gRendererPSP->IsCombinerStateForced( state ) );
+		bool	idefault( gRendererPSP->IsCombinerStateDefault( state ) );
 		const char *	text_col;
 
 		if(selected)

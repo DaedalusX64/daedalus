@@ -27,7 +27,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/RefCounted.h"
 #include "DaedalusVtx.h"
 #include "Graphics/ColourValue.h"
-#include "BlendModes.h"
 #include "Utility/Preferences.h"
 #include "RDP.h"
 
@@ -287,9 +286,6 @@ public:
 	void					SetRecordCombinerStates( bool enable )	{ mRecordCombinerStates = enable; }					// Sets whether combiner states will be recorded for the subsequent frames
 	const std::set<u64> &	GetRecordedCombinerStates() const		{ return mRecordedCombinerStates; }
 
-	bool				IsCombinerStateDefault( u64 state ) const	{ return IsInexactDefault( LookupOverrideBlendModeInexact( state ) ); }
-	bool				IsCombinerStateForced( u64 state ) const	{ return LookupOverrideBlendModeForced( state ) != NULL; }
-	//bool				IsCombinerStateUnhandled( u64 state ) const	{ return mUnhandledCombinerStates.find( state ) != mUnhandledCombinerStates.end(); }
 	bool				IsCombinerStateDisabled( u64 state ) const	{ return mDisabledCombinerStates.find( state ) != mDisabledCombinerStates.end(); }
 	void				DisableCombinerState( u64 state )			{ mDisabledCombinerStates.insert( state ); }
 	void				EnableCombinerState( u64 state )			{ mDisabledCombinerStates.erase( state ); }
