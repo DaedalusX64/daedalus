@@ -460,6 +460,8 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 		details.ColourAdjuster.Process( p_vertices, num_vertices );
 
+		sceGuTexWrap( mTexWrap[texture_idx].u, mTexWrap[texture_idx].v );
+
 		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
 	}
 	else if( blend_entry.States != NULL )

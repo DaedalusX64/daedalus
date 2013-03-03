@@ -1966,7 +1966,8 @@ void BaseRenderer::EnableTexturing( u32 index, u32 tile_idx )
 	}
 	if( tile_size.GetHeight() > ti.GetHeight() ) mode_v = GU_REPEAT;
 
-	// NB(strmnnrmn): this is *always* called in RendererPSP::RenderUsingRenderSettings, just before rendering. I think it is unnecessary here.
+	// NB(strmnnrmn): this should *always* be called in either RendererPSP::RenderUsingRenderSettings, just before rendering,
+	// or in the OverrideFunction path in RendererPSP::RenderUsingCurrentBlendMode. So it shouldn't be needed here.
 	//sceGuTexWrap( mode_u, mode_v );
 
 	mTexWrap[ index ].u = mode_u;
