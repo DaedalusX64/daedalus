@@ -31,9 +31,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "RDPStateManager.h"
 #include "DLDebug.h"
 
-#include "Combiner/RenderSettings.h"
-#include "Combiner/BlendConstant.h"
-
 #include "Graphics/NativeTexture.h"
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/ColourValue.h"

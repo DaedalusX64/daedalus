@@ -54,8 +54,6 @@ CORE_SRCS = \
 	Source/HLEGraphics/BaseRenderer.cpp \
 	Source/HLEGraphics/Blender.cpp \
 	Source/HLEGraphics/ColourAdjuster.cpp \
-	Source/HLEGraphics/Combiner/BlendConstant.cpp \
-	Source/HLEGraphics/Combiner/RenderSettings.cpp \
 	Source/HLEGraphics/ConvertImage.cpp \
 	Source/HLEGraphics/DLDebug.cpp \
 	Source/HLEGraphics/DLParser.cpp \
@@ -91,8 +89,10 @@ CORE_SRCS = \
 	Source/SysPSP/HLEAudio/AudioCodePSP.cpp \
 	Source/SysPSP/HLEAudio/AudioPluginPSP.cpp \
 	Source/SysPSP/HLEGraphics/BlendModes.cpp \
+	Source/SysPSP/HLEGraphics/Combiner/BlendConstant.cpp \
 	Source/SysPSP/HLEGraphics/Combiner/CombinerExpression.cpp \
 	Source/SysPSP/HLEGraphics/Combiner/CombinerTree.cpp \
+	Source/SysPSP/HLEGraphics/Combiner/RenderSettings.cpp \
 	Source/SysPSP/HLEGraphics/ConvertVertices.S \
 	Source/SysPSP/HLEGraphics/DisplayListDebugger.cpp \
 	Source/SysPSP/HLEGraphics/RendererPSP.cpp \

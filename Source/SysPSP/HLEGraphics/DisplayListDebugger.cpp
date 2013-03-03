@@ -23,13 +23,13 @@
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 
-#include "SysPSP/HLEGraphics/RendererPSP.h"
+#include "HLEGraphics/RendererPSP.h"
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/DLParser.h"
 #include "HLEGraphics/TextureCache.h"
 #include "HLEGraphics/TextureDescriptor.h"
 #include "HLEGraphics/Microcode.h"
-#include "HLEGraphics/Combiner/RenderSettings.h"
+#include "Combiner/RenderSettings.h"
 
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"

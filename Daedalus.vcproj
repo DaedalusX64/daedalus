@@ -1992,7 +1992,7 @@
 					Name="Combiner"
 					>
 					<File
-						RelativePath=".\Source\HLEGraphics\Combiner\BlendConstant.h"
+						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\BlendConstant.h"
 						>
 					</File>
 					<File
@@ -2032,7 +2032,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\Source\HLEGraphics\Combiner\RenderSettings.cpp"
+						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\RenderSettings.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -2044,7 +2044,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\HLEGraphics\Combiner\RenderSettings.h"
+						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\RenderSettings.h"
 						>
 					</File>
 				</Filter>

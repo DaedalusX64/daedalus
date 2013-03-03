@@ -60,8 +60,6 @@
           'Source/HLEAudio/HLEMain.cpp',
           'Source/HLEGraphics/BaseRenderer.cpp',
           'Source/HLEGraphics/Blender.cpp',
-          'Source/HLEGraphics/Combiner/BlendConstant.cpp',
-          'Source/HLEGraphics/Combiner/RenderSettings.cpp',
           'Source/HLEGraphics/uCodes/Ucode.cpp',
           'Source/HLEGraphics/ColourAdjuster.cpp',
           'Source/HLEGraphics/ConvertImage.cpp',
