@@ -36,15 +36,6 @@ class CTexture;
 class CNativeTexture;
 struct TempVerts;
 
-struct ViewportInfo
-{
-	u32  ViWidth;
-	u32  ViHeight;
-
-	bool Update;
-	bool Rumble;
-};
-
 struct TextureVtx
 {
 	v2  t0;
