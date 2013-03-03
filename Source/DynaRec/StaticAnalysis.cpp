@@ -184,7 +184,7 @@ void StaticAnalysis_LB( OpCode op_code, RegisterUsage & recorder ) 			// Load By
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
 	// Don't do optimisation for LB, otherwise Mario 64 won't work 
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset ); :/
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
 void StaticAnalysis_LBU( OpCode op_code, RegisterUsage & recorder ) 			// Load Byte Unsigned -- Zero extend byte...

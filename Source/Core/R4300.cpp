@@ -2900,6 +2900,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D( R4300_CALL_SIGNATURE )
 
 // Used by Mario Party Draft mini game, Earth Worm Jim, Tom and Jerry, Power Puff Girls' disable esimulate double hack
 // Convert float to double...
+#ifdef SIM_DOUBLES
 static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D_2( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2915,7 +2916,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D_2( R4300_CALL_SIGNATURE )
 	gCPUState.FPU[op_code.fd+0]._u32 = r._u32_0;
 	gCPUState.FPU[op_code.fd+1]._u32 = r._u32_1;
 }
-
+#endif
 static void R4300_CALL_TYPE R4300_Cop1_S_EQ( R4300_CALL_SIGNATURE ) 				// Compare for Equality
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3179,6 +3180,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_ABS( R4300_CALL_SIGNATURE )
 }
 
 // Used by Buck Bumble to properly work with simulate doubles...
+#ifdef SIM_DOUBLES
 static void R4300_CALL_TYPE R4300_Cop1_D_ADD_2( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3198,7 +3200,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_ADD_2( R4300_CALL_SIGNATURE )
 	gCPUState.FPU[op_code.fd+1]._u32 = r._u32_1;
 
 }
-
+#endif
 static void R4300_CALL_TYPE R4300_Cop1_D_ADD( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -3676,6 +3678,7 @@ CPU_Instruction	R4300_GetInstructionHandler( OpCode op_code )
 //Used to swap functions(apply hacks) in interpreter mode
 void R4300_Init()
 {
+#ifdef SIM_DOUBLES
 	if(g_ROM.GameHacks == BUCK_BUMBLE)
 	{
 		R4300Cop1DInstruction[Cop1OpFunc_ADD]	= R4300_Cop1_D_ADD_2;
@@ -3694,4 +3697,5 @@ void R4300_Init()
 	{
 		R4300Cop1SInstruction[Cop1OpFunc_CVT_D] = R4300_Cop1_S_CVT_D;
 	}
+#endif
 }
