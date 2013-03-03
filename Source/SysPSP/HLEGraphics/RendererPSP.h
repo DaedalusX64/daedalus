@@ -2,6 +2,9 @@
 #ifndef RENDERERPSP_H__
 #define RENDERERPSP_H__
 
+#include <map>
+#include <set>
+
 #include "HLEGraphics/BaseRenderer.h"
 #include "HLEGraphics/BlendModes.h"
 
@@ -41,6 +44,8 @@ private:
 	// Functions and members related to the DisplayListDebugger.
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 public:
+	virtual void 		ResetDebugState();
+
 	bool				IsCombinerStateDefault( u64 state ) const	{ return IsInexactDefault( LookupOverrideBlendModeInexact( state ) ); }
 	bool				IsCombinerStateForced( u64 state ) const	{ return LookupOverrideBlendModeForced( state ) != NULL; }
 	//bool				IsCombinerStateUnhandled( u64 state ) const	{ return mUnhandledCombinerStates.find( state ) != mUnhandledCombinerStates.end(); }
@@ -50,6 +55,9 @@ public:
 	void				EnableCombinerState( u64 state )			{ mDisabledCombinerStates.erase( state ); }
 	void				ToggleDisableCombinerState( u64 state )		{ if( IsCombinerStateDisabled( state )) { EnableCombinerState(state); } else { DisableCombinerState( state ); mNastyTexture = false; } }
 	void				ToggleNastyTexture( bool enable )			{ mNastyTexture = ( enable =! mNastyTexture ); }
+
+	void					SetRecordCombinerStates( bool enable )	{ mRecordCombinerStates = enable; }					// Sets whether combiner states will be recorded for the subsequent frames
+	const std::set<u64> &	GetRecordedCombinerStates() const		{ return mRecordedCombinerStates; }
 
 private:
 	enum EPlaceholderTextureType
@@ -64,7 +72,12 @@ private:
 	void				DebugMux( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux);
 
 private:
+	bool				mRecordCombinerStates;		// FIXME(strmnnrmn): this variable never seems to be read from?.
+	std::set< u64 >		mRecordedCombinerStates;
+
 	std::set< u64 >		mDisabledCombinerStates;
+
+	std::set< u64 >		mUnhandledCombinerStates;
 #endif
 };
 

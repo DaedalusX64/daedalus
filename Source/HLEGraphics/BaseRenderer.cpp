@@ -140,7 +140,6 @@ BaseRenderer::BaseRenderer()
 ,	mNumTrisClipped( 0 )
 ,	mNumRect( 0 )
 ,	mNastyTexture(false)
-,	mRecordCombinerStates( false )
 #endif
 {
 	DAEDALUS_ASSERT( IsPointerAligned( &mTnL, 16 ), "Oops, mTnL should be 16-byte aligned" );
@@ -300,7 +299,7 @@ void BaseRenderer::BeginScene()
 	RestoreRenderStates();
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	mRecordedCombinerStates.clear();
+	ResetDebugState();
 #endif
 
 	// Update viewport only if user changed it in settings or vi register changed it

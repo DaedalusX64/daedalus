@@ -31,8 +31,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "RDP.h"
 
 #include <pspgu.h>
-#include <set>
-#include <map>
 
 class CTexture;
 class CNativeTexture;
@@ -282,9 +280,8 @@ public:
 	inline u32			GetNumTrisClipped() const				{ return mNumTrisClipped; }
 	inline u32			GetNumRect() const						{ return mNumRect; }
 
-	// Debugging
-	void					SetRecordCombinerStates( bool enable )	{ mRecordCombinerStates = enable; }					// Sets whether combiner states will be recorded for the subsequent frames
-	const std::set<u64> &	GetRecordedCombinerStates() const		{ return mRecordedCombinerStates; }
+
+	virtual void 		ResetDebugState()						{}
 #endif
 
 protected:
@@ -383,9 +380,6 @@ protected:
 
 	// Debugging
 	bool				mNastyTexture;
-	bool				mRecordCombinerStates;
-	std::set< u64 >		mRecordedCombinerStates;
-	std::set< u64 >		mUnhandledCombinerStates;
 #endif
 };
 

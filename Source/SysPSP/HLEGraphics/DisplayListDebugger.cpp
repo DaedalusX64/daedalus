@@ -203,7 +203,7 @@ CCombinerExplorerDebugMenuOption::CCombinerExplorerDebugMenuOption()
 
 void CCombinerExplorerDebugMenuOption::Display() const
 {
-	const std::set< u64 > & 	combiner_states( gRenderer->GetRecordedCombinerStates() );
+	const std::set< u64 > & combiner_states( gRendererPSP->GetRecordedCombinerStates() );
 
 	printf( "   Use [] to return\n" );
 	printf( "   Use O to select on/off\n" );
@@ -288,7 +288,7 @@ void CCombinerExplorerDebugMenuOption::Display() const
 
 void CCombinerExplorerDebugMenuOption::Update( const SPspPadState & pad_state, float elapsed_time )
 {
-	const std::set< u64 > & 	combiner_states( gRenderer->GetRecordedCombinerStates() );
+	const std::set< u64 > & combiner_states( gRendererPSP->GetRecordedCombinerStates() );
 
 	u32		idx( 0 );
 	u64		selected_state( 0 );
@@ -974,7 +974,7 @@ void IDisplayListDebugger::Run()
 	NTiming::GetPreciseFrequency( &freq );
 	float freq_inv = 1.0f / f32( freq );
 
-	gRenderer->SetRecordCombinerStates( true );
+	gRendererPSP->SetRecordCombinerStates( true );
 
 	CTimer		timer;
 
@@ -1228,7 +1228,7 @@ void IDisplayListDebugger::Run()
 		pad_state.OldButtons = pad_state.NewButtons;
 	}
 
-	gRenderer->SetRecordCombinerStates( false );
+	gRendererPSP->SetRecordCombinerStates( false );
 	DLParser_SetInstructionCountLimit( UNLIMITED_INSTRUCTION_COUNT );
 
 	//
