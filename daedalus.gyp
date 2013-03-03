@@ -61,6 +61,7 @@
           'Source/HLEGraphics/BaseRenderer.cpp',
           'Source/HLEGraphics/Blender.cpp',
           'Source/HLEGraphics/BlendModes.cpp',
+          'Source/HLEGraphics/Combiner/BlendConstant.cpp',
           'Source/HLEGraphics/Combiner/CombinerExpression.cpp',
           'Source/HLEGraphics/Combiner/CombinerTree.cpp',
           'Source/HLEGraphics/Combiner/RenderSettings.cpp',

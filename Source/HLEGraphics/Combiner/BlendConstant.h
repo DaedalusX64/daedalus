@@ -24,9 +24,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef BLENDCONSTANT_H_
 #define BLENDCONSTANT_H_
 
+#include <string>
+
 #include "Graphics/ColourValue.h"
-#include "HLEGraphics/DaedalusVtx.h"
-#include "HLEGraphics/Combiner/RenderSettings.h"
+
+struct SRenderState;
 
 enum EBlendConstant
 {
@@ -42,7 +44,8 @@ enum EBlendConstant
 class CBlendConstantExpression
 {
 public:
-	virtual ~CBlendConstantExpression() {}
+	virtual ~CBlendConstantExpression();
+
 	virtual c32					Evaluate( c32 shade, c32 primitive, c32 environment ) const = 0;
 	virtual c32					EvaluateConstant( c32 primitive, c32 environment ) const = 0;
 	virtual bool				TryEvaluateConstant( const SRenderState & state, c32 * out ) const = 0;
@@ -59,107 +62,25 @@ class CBlendConstantExpressionValue : public CBlendConstantExpression
 {
 public:
 	CBlendConstantExpressionValue( EBlendConstant constant )
-		:	mConstant( constant )
+	:	mConstant( constant )
 	{
 	}
 
-	virtual bool				IsShade() const { return mConstant == BC_SHADE; }
+	virtual ~CBlendConstantExpressionValue();
 
-	c32			Evaluate( c32 shade, c32 primitive, c32 environment ) const
-	{
-		switch( mConstant )
-		{
-		case BC_SHADE:				return shade;
-		case BC_PRIMITIVE:			return primitive;
-		case BC_ENVIRONMENT:		return environment;
-		case BC_PRIMITIVE_ALPHA:	return c32( primitive.GetA(), primitive.GetA(), primitive.GetA(), primitive.GetA() );
-		case BC_ENVIRONMENT_ALPHA:	return c32( environment.GetA(), environment.GetA(), environment.GetA(), environment.GetA() );
-		case BC_1:					return c32( 0xffffffff );
-		case BC_0:					return c32( 0x00000000 );
-		}
+	virtual c32					Evaluate( c32 shade, c32 primitive, c32 environment ) const;
+	virtual c32 				EvaluateConstant( c32 primitive, c32 environment ) const;
+	virtual bool 				TryEvaluateConstant( const SRenderState & state, c32 * out ) const;
 
-		DAEDALUS_ERROR( "Unhandled constant" );
-		return c32( 0xffffffff );
-	}
+	virtual bool 				IsShade() const;
 
-	c32			EvaluateConstant( c32 primitive, c32 environment ) const
-	{
-		switch( mConstant )
-		{
-		case BC_SHADE:				DAEDALUS_ERROR( "Shouldn't be here" ); return c32( 0xffffffff );
-		case BC_PRIMITIVE:			return primitive;
-		case BC_ENVIRONMENT:		return environment;
-		case BC_PRIMITIVE_ALPHA:	return c32( primitive.GetA(), primitive.GetA(), primitive.GetA(), primitive.GetA() );
-		case BC_ENVIRONMENT_ALPHA:	return c32( environment.GetA(), environment.GetA(), environment.GetA(), environment.GetA() );
-		case BC_1:					return c32( 0xffffffff );
-		case BC_0:					return c32( 0x00000000 );
-		}
+	virtual void 				ApplyExpressionRGB( const SRenderState & state ) const;
+	virtual void 				ApplyExpressionAlpha( const SRenderState & state ) const;
 
-		DAEDALUS_ERROR( "Unhandled constant" );
-		return c32( 0xffffffff );
-	}
+	virtual std::string 		ToString() const;
 
-	virtual bool				TryEvaluateConstant( const SRenderState & state, c32 * out ) const
-	{
-		switch( mConstant )
-		{
-		case BC_SHADE:				return false;
-		case BC_PRIMITIVE:			*out = state.PrimitiveColour; return true;
-		case BC_ENVIRONMENT:		*out = state.EnvironmentColour; return true;
-		case BC_PRIMITIVE_ALPHA:	*out = c32( state.PrimitiveColour.GetA(), state.PrimitiveColour.GetA(), state.PrimitiveColour.GetA(), state.PrimitiveColour.GetA() ); return true;
-		case BC_ENVIRONMENT_ALPHA:	*out = c32( state.EnvironmentColour.GetA(), state.EnvironmentColour.GetA(), state.EnvironmentColour.GetA(), state.EnvironmentColour.GetA() ); return true;
-		case BC_1:					*out = c32( 0xffffffff ); return true;
-		case BC_0:					*out = c32( 0x00000000 ); return true;
-		}
-
-		DAEDALUS_ERROR( "Unhandled constant" );
-		return false;
-	}
-
-	virtual void	ApplyExpressionRGB( const SRenderState & state ) const
-	{
-		// Applying the shade colour leaves the vertex untouched, so bail out
-		if( mConstant != BC_SHADE )
-		{
-			c32		new_colour( EvaluateConstant( state.PrimitiveColour, state.EnvironmentColour ) );
-			for( u32 i = 0; i < state.NumVertices; ++i )
-			{
-				state.Vertices[ i ].Colour.SetBits( new_colour, c32::MASK_RGB );
-			}
-		}
-	}
-
-	virtual void	ApplyExpressionAlpha( const SRenderState & state ) const
-	{
-		// Applying the shade colour leaves the vertex untouched, so bail out
-		if( mConstant != BC_SHADE )
-		{
-			c32		new_colour( EvaluateConstant( state.PrimitiveColour, state.EnvironmentColour ) );
-			for( u32 i = 0; i < state.NumVertices; ++i )
-			{
-				state.Vertices[ i ].Colour.SetBits( new_colour, c32::MASK_A );
-			}
-		}
-	}
-
-	virtual std::string			ToString() const
-	{
-		switch( mConstant )
-		{
-		case BC_SHADE:				return "Shade";
-		case BC_PRIMITIVE:			return "Primitive";
-		case BC_ENVIRONMENT:		return "Environment";
-		case BC_PRIMITIVE_ALPHA:	return "PrimitiveAlpha";
-		case BC_ENVIRONMENT_ALPHA:	return "EnvironmentAlpha";
-		case BC_1:					return "1";
-		case BC_0:					return "0";
-		}
-
-		DAEDALUS_ERROR( "Unhandled constant" );
-		return "?";
-	}
 private:
-	EBlendConstant					mConstant;
+	EBlendConstant				mConstant;
 };
 
 template< typename ColOp >
@@ -172,175 +93,20 @@ public:
 	{
 	}
 
-	virtual ~CBlendConstantExpression2()
-	{
-		delete mA;
-		delete mB;
-	}
+	virtual ~CBlendConstantExpression2();
 
-	c32			Evaluate( c32 shade, c32 primitive, c32 environment ) const
-	{
-		c32		a( mA->Evaluate( shade, primitive, environment ) );
-		c32		b( mB->Evaluate( shade, primitive, environment ) );
+	virtual c32 				Evaluate( c32 shade, c32 primitive, c32 environment ) const;
+	virtual c32					EvaluateConstant( c32 primitive, c32 environment ) const;
+	virtual bool 				TryEvaluateConstant( const SRenderState & state, c32 * out ) const;
 
-		return ColOp::Process( a, b );
-	}
+	virtual void 				ApplyExpressionRGB( const SRenderState & state ) const;
+	virtual void 				ApplyExpressionAlpha( const SRenderState & state ) const;
 
-	c32			EvaluateConstant( c32 primitive, c32 environment ) const
-	{
-		c32		a( mA->EvaluateConstant( primitive, environment ) );
-		c32		b( mB->EvaluateConstant( primitive, environment ) );
-
-		return ColOp::Process( a, b );
-	}
-
-	virtual bool				TryEvaluateConstant( const SRenderState & state, c32 * out ) const
-	{
-		return false;
-	}
-
-	virtual void	ApplyExpressionRGB( const SRenderState & state ) const
-	{
-		c32	a; bool have_a( mA->TryEvaluateConstant( state, &a ) );
-		c32 b; bool have_b( mB->TryEvaluateConstant( state, &b ) );
-		if( have_a && have_b )
-		{
-			c32	col( ColOp::Process( a, b ) );
-			for( u32 i = 0; i < state.NumVertices; ++i )
-			{
-				state.Vertices[ i ].Colour.SetBits( col, c32::MASK_RGB );
-			}
-		}
-		else if( have_a )
-		{
-			if( mB->IsShade() )
-			{
-				for( u32 i = 0; i < state.NumVertices; ++i )
-				{
-					c32	col( ColOp::Process( a, state.Vertices[ i ].Colour ) );
-
-					state.Vertices[ i ].Colour.SetBits( col, c32::MASK_RGB );
-				}
-			}
-			else
-			{
-				for( u32 i = 0; i < state.NumVertices; ++i )
-				{
-					b = mB->Evaluate( state.Vertices[ i ].Colour, state.PrimitiveColour, state.EnvironmentColour );
-
-					state.Vertices[ i ].Colour.SetBits( ColOp::Process( a, b ), c32::MASK_RGB );
-				}
-			}
-		}
-		else if( have_b )
-		{
-			if( mA->IsShade() )
-			{
-				for( u32 i = 0; i < state.NumVertices; ++i )
-				{
-					c32	col( ColOp::Process( state.Vertices[ i ].Colour, b ) );
-
-					state.Vertices[ i ].Colour.SetBits( col, c32::MASK_RGB );
-				}
-			}
-			else
-			{
-				for( u32 i = 0; i < state.NumVertices; ++i )
-				{
-					a = mA->Evaluate( state.Vertices[ i ].Colour, state.PrimitiveColour, state.EnvironmentColour );
-
-					state.Vertices[ i ].Colour.SetBits( ColOp::Process( a, b ), c32::MASK_RGB );
-				}
-			}
-		}
-		else
-		{
-			for( u32 i = 0; i < state.NumVertices; ++i )
-			{
-				a = mA->Evaluate( state.Vertices[ i ].Colour, state.PrimitiveColour, state.EnvironmentColour );
-				b = mB->Evaluate( state.Vertices[ i ].Colour, state.PrimitiveColour, state.EnvironmentColour );
-
-				state.Vertices[ i ].Colour.SetBits( ColOp::Process( a, b ), c32::MASK_RGB );
-			}
-		}
-	}
-
-	virtual void	ApplyExpressionAlpha( const SRenderState & state ) const
-	{
-		c32	a; bool have_a( mA->TryEvaluateConstant( state, &a ) );
-		c32 b; bool have_b( mB->TryEvaluateConstant( state, &b ) );
-		if( have_a && have_b )
-		{
-			c32	col( ColOp::Process( a, b ) );
-			for( u32 i = 0; i < state.NumVertices; ++i )
-			{
-				state.Vertices[ i ].Colour.SetBits( col, c32::MASK_A );
-			}
-		}
-		else if( have_a )
-		{
-			if( mB->IsShade() )
-			{
-				for( u32 i = 0; i < state.NumVertices; ++i )
-				{
-					c32	col( ColOp::Process( a, state.Vertices[ i ].Colour ) );
-
-					state.Vertices[ i ].Colour.SetBits( col, c32::MASK_A );
-				}
-			}
-			else
-			{
-				for( u32 i = 0; i < state.NumVertices; ++i )
-				{
-					b = mB->Evaluate( state.Vertices[ i ].Colour, state.PrimitiveColour, state.EnvironmentColour );
-
-					state.Vertices[ i ].Colour.SetBits( ColOp::Process( a, b ), c32::MASK_A );
-				}
-			}
-		}
-		else if( have_b )
-		{
-			if( mA->IsShade() )
-			{
-				for( u32 i = 0; i < state.NumVertices; ++i )
-				{
-					c32	col( ColOp::Process( state.Vertices[ i ].Colour, b ) );
-
-					state.Vertices[ i ].Colour.SetBits( col, c32::MASK_A );
-				}
-			}
-			else
-			{
-				for( u32 i = 0; i < state.NumVertices; ++i )
-				{
-					a = mA->Evaluate( state.Vertices[ i ].Colour, state.PrimitiveColour, state.EnvironmentColour );
-
-					state.Vertices[ i ].Colour.SetBits( ColOp::Process( a, b ), c32::MASK_A );
-				}
-			}
-		}
-		else
-		{
-			for( u32 i = 0; i < state.NumVertices; ++i )
-			{
-				a = mA->Evaluate( state.Vertices[ i ].Colour, state.PrimitiveColour, state.EnvironmentColour );
-				b = mB->Evaluate( state.Vertices[ i ].Colour, state.PrimitiveColour, state.EnvironmentColour );
-
-				state.Vertices[ i ].Colour.SetBits( ColOp::Process( a, b ), c32::MASK_A );
-			}
-		}
-	}
-
-	virtual std::string			ToString() const
-	{
-		std::string	str;
-		str += "(" + mA->ToString() + ColOp::OpString() + mB->ToString() + ")";
-		return str;
-	}
+	virtual std::string 		ToString() const;
 
 private:
-	const CBlendConstantExpression *			mA;
-	const CBlendConstantExpression *			mB;
+	const CBlendConstantExpression *	mA;
+	const CBlendConstantExpression *	mB;
 };
 
 struct AddOp
@@ -375,66 +141,16 @@ public:
 	{
 	}
 
-	virtual ~CBlendConstantExpressionBlend()
-	{
-		delete mA;
-		delete mB;
-		delete mF;
-	}
+	virtual ~CBlendConstantExpressionBlend();
 
-	c32			Evaluate( c32 shade, c32 primitive, c32 environment ) const
-	{
-		c32		a( mA->Evaluate( shade, primitive, environment ) );
-		c32		b( mB->Evaluate( shade, primitive, environment ) );
-		c32		f( mF->Evaluate( shade, primitive, environment ) );
+	virtual c32 				Evaluate( c32 shade, c32 primitive, c32 environment ) const;
+	virtual c32 				EvaluateConstant( c32 primitive, c32 environment ) const;
+	virtual bool 				TryEvaluateConstant( const SRenderState & state, c32 * out ) const;
 
-		return a.Interpolate( b, f );
-	}
+	virtual void 				ApplyExpressionRGB( const SRenderState & state ) const;
+	virtual void 				ApplyExpressionAlpha( const SRenderState & state ) const;
 
-	c32			EvaluateConstant( c32 primitive, c32 environment ) const
-	{
-		c32		a( mA->EvaluateConstant( primitive, environment ) );
-		c32		b( mB->EvaluateConstant( primitive, environment ) );
-		c32		f( mF->EvaluateConstant( primitive, environment ) );
-
-		return a.Interpolate( b, f );
-	}
-
-	virtual bool				TryEvaluateConstant( const SRenderState & state, c32 * out ) const
-	{
-		return false;
-	}
-
-	virtual void	ApplyExpressionRGB( const SRenderState & state ) const
-	{
-		for( u32 i = 0; i < state.NumVertices; ++i )
-		{
-			c32		a( mA->Evaluate( state.Vertices[ i ].Colour, state.PrimitiveColour, state.EnvironmentColour ) );
-			c32		b( mB->Evaluate( state.Vertices[ i ].Colour, state.PrimitiveColour, state.EnvironmentColour ) );
-			c32		f( mF->Evaluate( state.Vertices[ i ].Colour, state.PrimitiveColour, state.EnvironmentColour ) );
-
-			state.Vertices[ i ].Colour.SetBits( a.Interpolate( b, f ), c32::MASK_RGB );
-		}
-	}
-
-	virtual void	ApplyExpressionAlpha( const SRenderState & state ) const
-	{
-		for( u32 i = 0; i < state.NumVertices; ++i )
-		{
-			c32		a( mA->Evaluate( state.Vertices[ i ].Colour, state.PrimitiveColour, state.EnvironmentColour ) );
-			c32		b( mB->Evaluate( state.Vertices[ i ].Colour, state.PrimitiveColour, state.EnvironmentColour ) );
-			c32		f( mF->Evaluate( state.Vertices[ i ].Colour, state.PrimitiveColour, state.EnvironmentColour ) );
-
-			state.Vertices[ i ].Colour.SetBits( a.Interpolate( b, f ), c32::MASK_A );
-		}
-	}
-
-	virtual std::string			ToString() const
-	{
-		std::string	str;
-		str += "blend(" + mA->ToString() + ", " + mB->ToString() + ", " + mF->ToString() + ")";
-		return str;
-	}
+	virtual std::string 		ToString() const;
 
 private:
 	const CBlendConstantExpression *			mA;

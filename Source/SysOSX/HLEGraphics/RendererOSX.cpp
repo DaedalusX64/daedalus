@@ -6,6 +6,7 @@
 #include "Core/ROM.h"
 #include "Graphics/NativeTexture.h"
 #include "HLEGraphics/Combiner/BlendConstant.h"
+#include "HLEGraphics/Combiner/RenderSettings.h"
 #include "HLEGraphics/Texture.h"
 #include "OSHLE/ultra_gbi.h"
 
