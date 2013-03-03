@@ -181,11 +181,6 @@ void sceGuTexEnvColor(u32 c)
 	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv);
 }
 
-void sceGuTexFunc(int fn, int b)
-{
-	//DAEDALUS_ERROR( "%s: Not implemented", __FUNCTION__ );
-}
-
 void sceGuBlendFunc(EGuBlendOp op, int sf, int df, int a, int b)
 {
 	if (op != 0)

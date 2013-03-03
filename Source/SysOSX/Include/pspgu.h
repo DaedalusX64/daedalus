@@ -62,23 +62,6 @@ void sceGuTexScale(float s, float t);
 void sceGuTexFilter(EGuTextureFilterMode u, EGuTextureFilterMode v);
 void sceGuTexEnvColor(u32 c);
 
-enum EGuTextureFunc
-{
-	GU_TFX_REPLACE,
-	GU_TFX_MODULATE,
-	GU_TFX_BLEND,
-	GU_TFX_ADD,
-	GU_TFX_DECAL,
-};
-
-enum EGuTextureFnB
-{
-	GU_TCC_RGBA,
-	GU_TCC_RGB,
-};
-
-void sceGuTexFunc(int fn, int b);
-
 
 enum EGuBlendOp
 {
