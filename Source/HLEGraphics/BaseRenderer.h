@@ -265,6 +265,9 @@ public:
 	virtual void 		ResetDebugState()						{}
 #endif
 
+	inline float		N64ToNativeX(float x) const				{ return x * mN64ToNativeScale.x + mN64ToNativeTranslate.x; }
+	inline float		N64ToNativeY(float y) const				{ return y * mN64ToNativeScale.y + mN64ToNativeTranslate.y; }
+
 protected:
 	inline void			EnableTexturing( u32 tile_idx );
 	void				EnableTexturing( u32 index, u32 tile_idx );
@@ -295,8 +298,8 @@ protected:
 
 	TnLParams			mTnL;
 
-	v2					mN64ToPSPScale;
-	v2					mN64ToPSPTranslate;
+	v2					mN64ToNativeScale;
+	v2					mN64ToNativeTranslate;
 
 	v2					mVpScale;
 	v2					mVpTrans;

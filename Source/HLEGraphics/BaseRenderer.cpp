@@ -114,8 +114,8 @@ ViewportInfo	mView;
 //
 //*****************************************************************************
 BaseRenderer::BaseRenderer()
-:	mN64ToPSPScale( 2.0f, 2.0f )
-,	mN64ToPSPTranslate( 0.0f, 0.0f )
+:	mN64ToNativeScale( 2.0f, 2.0f )
+,	mN64ToNativeTranslate( 0.0f, 0.0f )
 ,	mMux( 0 )
 
 ,	mTextureTile(0)
@@ -363,16 +363,16 @@ void BaseRenderer::EndScene()
 //*****************************************************************************
 void BaseRenderer::SetPSPViewport( s32 x, s32 y, u32 w, u32 h )
 {
-	mN64ToPSPScale.x = gZoomX * f32( w ) / fViWidth;
-	mN64ToPSPScale.y = gZoomX * f32( h ) / fViHeight;
+	mN64ToNativeScale.x = gZoomX * f32( w ) / fViWidth;
+	mN64ToNativeScale.y = gZoomX * f32( h ) / fViHeight;
 
-	mN64ToPSPTranslate.x  = f32( x - Round(0.55f * (gZoomX - 1.0f) * fViWidth));
-	mN64ToPSPTranslate.y  = f32( y - Round(0.55f * (gZoomX - 1.0f) * fViHeight));
+	mN64ToNativeTranslate.x  = f32( x - Round(0.55f * (gZoomX - 1.0f) * fViWidth));
+	mN64ToNativeTranslate.y  = f32( y - Round(0.55f * (gZoomX - 1.0f) * fViHeight));
 
 	if( gRumblePakActive )
 	{
-	    mN64ToPSPTranslate.x += (FastRand() & 3);
-		mN64ToPSPTranslate.y += (FastRand() & 3);
+	    mN64ToNativeTranslate.x += (FastRand() & 3);
+		mN64ToNativeTranslate.y += (FastRand() & 3);
 	}
 
 	UpdateViewport();
@@ -433,13 +433,13 @@ void BaseRenderer::UpdateViewport()
 #if 0
 inline void BaseRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
 {
-	vfpu_N64_2_PSP( &answ.x, &n64_coords.x, &mN64ToPSPScale.x, &mN64ToPSPTranslate.x);
+	vfpu_N64_2_PSP( &answ.x, &n64_coords.x, &mN64ToNativeScale.x, &mN64ToNativeTranslate.x);
 }
 #else
 inline void BaseRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
 {
-	answ.x = Round( Round( n64_coords.x ) * mN64ToPSPScale.x + mN64ToPSPTranslate.x );
-	answ.y = Round( Round( n64_coords.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y );
+	answ.x = Round( N64ToNativeX( Round( n64_coords.x ) ) );
+	answ.y = Round( N64ToNativeY( Round( n64_coords.y ) ) );
 }
 #endif
 
@@ -454,11 +454,11 @@ void BaseRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const 
 	v2 screen1;
 	if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
 	{
-		screen0.x = Round( Round( HD_SCALE * xy0.x ) * mN64ToPSPScale.x + 59 );	//59 in translate is an ugly hack that only work on 480x272 display//Corn
-		screen0.y = Round( Round( xy0.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y );
+		screen0.x = Round( Round( HD_SCALE * xy0.x ) * mN64ToNativeScale.x + 59 );	//59 in translate is an ugly hack that only work on 480x272 display//Corn
+		screen0.y = Round( Round( xy0.y )            * mN64ToNativeScale.y + mN64ToNativeTranslate.y );
 
-		screen1.x = Round( Round( HD_SCALE * xy1.x ) * mN64ToPSPScale.x + 59 ); //59 in translate is an ugly hack that only work on 480x272 display//Corn
-		screen1.y = Round( Round( xy1.y ) * mN64ToPSPScale.y + mN64ToPSPTranslate.y );
+		screen1.x = Round( Round( HD_SCALE * xy1.x ) * mN64ToNativeScale.x + 59 ); //59 in translate is an ugly hack that only work on 480x272 display//Corn
+		screen1.y = Round( Round( xy1.y )            * mN64ToNativeScale.y + mN64ToNativeTranslate.y );
 	}
 	else
 	{
