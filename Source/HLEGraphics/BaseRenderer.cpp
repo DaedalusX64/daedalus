@@ -594,6 +594,7 @@ void BaseRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, co
 	p_vertices[3].Texture.x = tex_uv1.x;
 	p_vertices[3].Texture.y = tex_uv1.y;
 
+	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TextRect()?
 	RenderUsingCurrentBlendMode( p_vertices, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -641,6 +642,7 @@ void BaseRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	//p_vertices[1].Texture.x = 1.0f;
 	//p_vertices[1].Texture.y = 0.0f;
 
+	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TexRect()?
 	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, GU_TRANSFORM_2D, true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
