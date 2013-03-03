@@ -251,9 +251,9 @@ BaseRenderer::BaseRenderer()
 ,	mVtxClipFlagsUnion( 0 )
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-,	m_dwNumTrisRendered( 0 )
-,	m_dwNumTrisClipped( 0 )
-,	m_dwNumRect( 0 )
+,	mNumTrisRendered( 0 )
+,	mNumTrisClipped( 0 )
+,	mNumRect( 0 )
 ,	mNastyTexture(false)
 ,	mRecordCombinerStates( false )
 #endif
@@ -452,9 +452,9 @@ void BaseRenderer::Reset()
 	mVtxClipFlagsUnion = 0;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	m_dwNumTrisRendered = 0;
-	m_dwNumTrisClipped = 0;
-	m_dwNumRect = 0;
+	mNumTrisRendered = 0;
+	mNumTrisClipped = 0;
+	mNumRect = 0;
 #endif
 
 }
@@ -872,7 +872,7 @@ void BaseRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const 
 #endif
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	++m_dwNumRect;
+	++mNumRect;
 #endif
 }
 
@@ -933,7 +933,7 @@ void BaseRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, co
 	RenderUsingCurrentBlendMode( p_vertices, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	++m_dwNumRect;
+	++mNumRect;
 #endif
 }
 
@@ -980,7 +980,7 @@ void BaseRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, GU_TRANSFORM_2D, true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	++m_dwNumRect;
+	++mNumRect;
 #endif
 }
 
@@ -999,7 +999,7 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		DL_PF("    Tri: %d,%d,%d (Culled -> NDC box)", v0, v1, v2);
-		++m_dwNumTrisClipped;
+		++mNumTrisClipped;
 #endif
 		return false;
 	}
@@ -1027,7 +1027,7 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 			{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 				DL_PF("    Tri: %d,%d,%d (Culled -> Back Face)", v0, v1, v2);
-				++m_dwNumTrisClipped;
+				++mNumTrisClipped;
 #endif
 				return false;
 			}
@@ -1036,7 +1036,7 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 		{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			DL_PF("    Tri: %d,%d,%d (Culled -> Front Face)", v0, v1, v2);
-			++m_dwNumTrisClipped;
+			++mNumTrisClipped;
 #endif
 			return false;
 		}
@@ -1044,7 +1044,7 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    Tri: %d,%d,%d (Rendered)", v0, v1, v2);
-	++m_dwNumTrisRendered;
+	++mNumTrisRendered;
 #endif
 
 	m_swIndexBuffer[ mNumIndices++ ] = (u16)v0;

@@ -279,9 +279,9 @@ public:
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	// Rendering stats
-	inline u32			GetNumTrisRendered() const				{ return m_dwNumTrisRendered; }
-	inline u32			GetNumTrisClipped() const				{ return m_dwNumTrisClipped; }
-	inline u32			GetNumRect() const						{ return m_dwNumRect; }
+	inline u32			GetNumTrisRendered() const				{ return mNumTrisRendered; }
+	inline u32			GetNumTrisClipped() const				{ return mNumTrisClipped; }
+	inline u32			GetNumRect() const						{ return mNumRect; }
 
 	// Debugging
 	void					SetRecordCombinerStates( bool enable )	{ mRecordCombinerStates = enable; }					// Sets whether combiner states will be recorded for the subsequent frames
@@ -415,9 +415,9 @@ protected:
 	//
 	// Stats
 	//
-	u32					m_dwNumTrisRendered;
-	u32					m_dwNumTrisClipped;
-	u32					m_dwNumRect;
+	u32					mNumTrisRendered;
+	u32					mNumTrisClipped;
+	u32					mNumRect;
 
 	// Debugging
 	bool				mNastyTexture;
