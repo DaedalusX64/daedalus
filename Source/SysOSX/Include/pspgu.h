@@ -5,13 +5,6 @@
 
 #include <GL/glfw.h>
 
-enum EGuMode
-{
-	GU_BLEND			= GL_BLEND,
-};
-
-void sceGuDisable(EGuMode mode);
-void sceGuEnable(EGuMode mode);
 void sceGuFog(float mn, float mx, u32 col);
 
 void sceGuViewport(int x, int y, int w, int h);
@@ -27,22 +20,6 @@ enum EGuTextureWrapMode
 
 void sceGuTexOffset(float s, float t);
 void sceGuTexScale(float s, float t);
-
-
-enum EGuBlendOp
-{
-	GU_ADD					= GL_FUNC_ADD,
-	GU_REVERSE_SUBTRACT		= GL_FUNC_REVERSE_SUBTRACT,
-};
-
-enum
-{
-	GU_SRC_ALPHA			= GL_SRC_ALPHA,
-	GU_ONE_MINUS_SRC_ALPHA	= GL_ONE_MINUS_SRC_ALPHA,
-	GU_FIX					= GL_CONSTANT_COLOR,		// CORRECT?
-};
-
-void sceGuBlendFunc(EGuBlendOp op, int sf, int df, int a, int b);
 
 enum EGuMatrixType
 {

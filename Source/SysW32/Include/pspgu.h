@@ -3,16 +3,10 @@
 #ifndef PSPGU_H__
 #define PSPGU_H__
 
-enum EGuMode
-{
-	GU_BLEND,
-};
 
 #define GL_FALSE 0
 #define GL_TRUE 1
 
-void sceGuDisable(EGuMode mode);
-void sceGuEnable(EGuMode mode);
 void sceGuFog(float mn, float mx, u32 col);
 
 void sceGuViewport(int x, int y, int w, int h);
@@ -28,22 +22,6 @@ enum EGuTextureWrapMode
 
 void sceGuTexOffset(float s, float t);
 void sceGuTexScale(float s, float t);
-
-
-enum EGuBlendOp
-{
-	GU_ADD,
-	GU_REVERSE_SUBTRACT,
-};
-
-enum
-{
-	GU_SRC_ALPHA,
-	GU_ONE_MINUS_SRC_ALPHA,
-	GU_FIX,
-};
-
-void sceGuBlendFunc(EGuBlendOp op, int sf, int df, int a, int b);
 
 enum EGuMatrixType
 {

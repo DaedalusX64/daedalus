@@ -11,15 +11,12 @@
 #include "Graphics/ColourValue.h"
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
+#include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/Texture.h"
 #include "OSHLE/ultra_gbi.h"
 
 BaseRenderer * gRenderer    = NULL;
 RendererOSX *  gRendererOSX = NULL;
-
-extern void InitBlenderMode( u32 blender );
-
-
 
 /* OpenGL 3.0 */
 typedef void (APIENTRY * PFN_glGenVertexArrays)(GLsizei n, GLuint *arrays);
@@ -86,23 +83,6 @@ bool initgl()
 }
 
 
-
-void sceGuDisable(EGuMode mode)
-{
-	if (mode != 0)
-	{
-		glDisable(mode);
-	}
-}
-
-void sceGuEnable(EGuMode mode)
-{
-	if (mode != 0)
-	{
-		glEnable(mode);
-	}
-}
-
 void sceGuFog(float mn, float mx, u32 col)
 {
 	//DAEDALUS_ERROR( "%s: Not implemented", __FUNCTION__ );
@@ -132,18 +112,6 @@ void sceGuTexOffset(float s, float t)
 void sceGuTexScale(float s, float t)
 {
 }
-
-void sceGuBlendFunc(EGuBlendOp op, int sf, int df, int a, int b)
-{
-	if (op != 0)
-	{
-		c32 colour( a );
-		glBlendColor( colour.GetRf(), colour.GetGf(), colour.GetBf(), colour.GetAf() );
-		glBlendEquation(op);
-		glBlendFunc(sf, df);
-	}
-}
-
 
 struct ShaderProgram
 {
@@ -557,6 +525,123 @@ void RendererOSX::RenderDaedalusVtx(int prim, const DaedalusVtx * vertices, int 
 	glDrawArrays(prim, 0, count);
 }
 
+
+/*
+
+Possible Blending Inputs:
+
+    In  -   Input from color combiner
+    Mem -   Input from current frame buffer
+    Fog -   Fog generator
+    BL  -   Blender
+
+Possible Blending Factors:
+    A-IN    -   Alpha from color combiner
+    A-MEM   -   Alpha from current frame buffer
+    (1-A)   -
+    A-FOG   -   Alpha of fog color
+    A-SHADE -   Alpha of shade
+    1   -   1
+    0   -   0
+
+*/
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+const char * sc_szBlClr[4] = { "In",  "Mem",  "Bl",     "Fog" };
+const char * sc_szBlA1[4]  = { "AIn", "AFog", "AShade", "0" };
+const char * sc_szBlA2[4]  = { "1-A", "AMem", "1",      "?" };
+
+static inline void DebugBlender( u32 blender )
+{
+	static u32 mBlender = 0;
+
+	if(mBlender != blender)
+	{
+		printf( "********************************\n\n" );
+		printf( "Unknown Blender: %04x - %s * %s + %s * %s || %s * %s + %s * %s\n",
+				blender,
+				sc_szBlClr[(blender>>14) & 0x3], sc_szBlA1[(blender>>10) & 0x3], sc_szBlClr[(blender>>6) & 0x3], sc_szBlA2[(blender>>2) & 0x3],
+				sc_szBlClr[(blender>>12) & 0x3], sc_szBlA1[(blender>> 8) & 0x3], sc_szBlClr[(blender>>4) & 0x3], sc_szBlA2[(blender   ) & 0x3]);
+		printf( "********************************\n\n" );
+		mBlender = blender;
+	}
+}
+#endif
+
+static void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
+{
+	switch ( blendmode )
+	{
+	//case 0x0044:					// ?
+	//case 0x0055:					// ?
+	case 0x0c08:					// In * 0 + In * 1 || :In * AIn + In * 1-A				Tarzan - Medalion in bottom part of the screen
+	//case 0x0c19:					// ?
+	case 0x0f0a:					// In * 0 + In * 1 || :In * 0 + In * 1					SSV - ??? and MM - Walls, Wipeout - Mountains
+	case 0x0fa5:					// In * 0 + Bl * AMem || :In * 0 + Bl * AMem			OOT Menu
+	//case 0x5f50:					// ?
+	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A		Paper Mario Menu
+	case 0xc302:					// Fog * AIn + In * 1-A || :In * 0 + In * 1				ISS64 - Ground
+	case 0xc702:					// Fog * AFog + In * 1-A || :In * 0 + In * 1			Donald Duck - Sky
+	//case 0xc811:					// ?
+	case 0xfa00:					// Fog * AShade + In * 1-A || :Fog * AShade + In * 1-A	F-Zero - Power Roads
+	//case 0x07c2:					// In * AFog + Fog * 1-A || In * 0 + In * 1				Conker - ??
+		glDisable(GL_BLEND);
+		break;
+
+	//
+	// Add here blenders which work fine with default case but causes too much spam, this disabled in release mode
+	//
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	//case 0x55f0:					// Mem * AFog + Fog * 1-A || :Mem * AFog + Fog * 1-A	Bust a Move 3 - ???
+	case 0x0150:					// In * AIn + Mem * 1-A || :In * AFog + Mem * 1-A		Spiderman - Waterfall Intro
+	case 0x0f5a:					// In * 0 + Mem * 1 || :In * 0 + Mem * 1				Starwars Racer
+	case 0x0010:					// In * AIn + In * 1-A || :In * AIn + Mem * 1-A			Hey You Pikachu - Shadow
+	case 0x0040:					// In * AIn + Mem * 1-A || :In * AIn + In * 1-A			Mario - Princess peach text
+	//case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
+	case 0x04d0:					// In * AFog + Fog * 1-A || In * AIn + Mem * 1-A		Conker's Eyes
+	case 0x0c18:					// In * 0 + In * 1 || :In * AIn + Mem * 1-A:			SSV - WaterFall and dust
+	case 0xc410:					// Fog * AFog + In * 1-A || :In * AIn + Mem * 1-A		Donald Duck - Stars
+	case 0xc810:					// Fog * AShade + In * 1-A || :In * AIn + Mem * 1-A		SSV - Fog? and MM - Shadows
+	case 0xcb02:					// Fog * AShade + In * 1-A || :In * 0 + In * 1			Doom 64 - Weapons
+		glBlendColor(0.f, 0.f, 0.f, 0.f);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+		break;
+#endif
+	//
+	// Default case should handle most blenders, ignore most unknown blenders unless something is messed up
+	//
+	default:
+		// Hack for shadows in ISS64
+		// FIXME(strmnnrmn): not sure about these.
+		// if(g_ROM.GameHacks == ISS64)
+		// {
+		// 	if (blendmode == 0xff5a)	// Actual shadow
+		// 	{
+		//		glBlendFunc(GL_FUNC_REVERSE_SUBTRACT, GL_SRC_ALPHA, GL_FIX, 0, 0);
+		// 		glEnable(GL_BLEND);
+		// 	}
+		// 	else if (blendmode == 0x0050) // Box that appears under the players..
+		// 	{
+		// 		glBlendFunc(GL_FUNC_ADD, GL_SRC_ALPHA, GL_FIX, 0, 0x00ffffff);
+		// 		glEnable(GL_BLEND);
+		// 	}
+		// }
+		// else
+		{
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+			DebugBlender( blendmode );
+			DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", blendmode );
+#endif
+			glBlendColor(0.f, 0.f, 0.f, 0.f);
+			glBlendEquation(GL_FUNC_ADD);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glEnable(GL_BLEND);
+		}
+		break;
+	}
+}
 
 
 void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer )

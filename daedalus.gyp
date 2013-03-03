@@ -59,7 +59,6 @@
           'Source/HLEAudio/AudioHLEProcessor.cpp',
           'Source/HLEAudio/HLEMain.cpp',
           'Source/HLEGraphics/BaseRenderer.cpp',
-          'Source/HLEGraphics/Blender.cpp',
           'Source/HLEGraphics/uCodes/Ucode.cpp',
           'Source/HLEGraphics/ConvertImage.cpp',
           'Source/HLEGraphics/DLDebug.cpp',

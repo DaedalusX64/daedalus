@@ -971,10 +971,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\Blender.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\Source\HLEGraphics\ConvertImage.cpp"
 					>
 				</File>
@@ -1107,6 +1103,10 @@
 					>
 					<File
 						RelativePath=".\Source\HLEGraphics\BaseRenderer.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\SysPSP\HLEGraphics\Blender.cpp"
 						>
 					</File>
 					<File
