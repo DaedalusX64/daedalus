@@ -975,14 +975,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\ColourAdjuster.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\ColourAdjuster.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Source\HLEGraphics\ConvertImage.cpp"
 					>
 				</File>
@@ -1126,11 +1118,23 @@
 						>
 					</File>
 					<File
+						RelativePath=".\Source\SysPSP\HLEGraphics\ColourAdjuster.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\SysPSP\HLEGraphics\ColourAdjuster.h"
+						>
+					</File>
+					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\ConvertVertices.S"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\HLEGraphics\DisplayListDebugger.cpp"
+						RelativePath=".\Source\SysPSP\HLEGraphics\DisplayListDebugger.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\SysPSP\HLEGraphics\RendererPSP.cpp"
 						>
 					</File>
 					<File

@@ -61,7 +61,6 @@
           'Source/HLEGraphics/BaseRenderer.cpp',
           'Source/HLEGraphics/Blender.cpp',
           'Source/HLEGraphics/uCodes/Ucode.cpp',
-          'Source/HLEGraphics/ColourAdjuster.cpp',
           'Source/HLEGraphics/ConvertImage.cpp',
           'Source/HLEGraphics/DLDebug.cpp',
           'Source/HLEGraphics/DLParser.cpp',

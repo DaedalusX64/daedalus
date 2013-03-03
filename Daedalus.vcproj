@@ -1813,7 +1813,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\ColourAdjuster.cpp"
+					RelativePath=".\Source\SysPSP\HLEGraphics\ColourAdjuster.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1825,7 +1825,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\ColourAdjuster.h"
+					RelativePath=".\Source\SysPSP\HLEGraphics\ColourAdjuster.h"
 					>
 				</File>
 				<File
