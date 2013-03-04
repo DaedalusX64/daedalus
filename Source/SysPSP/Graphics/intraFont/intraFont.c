@@ -12,7 +12,6 @@
 
 #include <pspkernel.h>
 #include <pspgu.h>
-#include <pspgum.h>
 #include <pspdisplay.h>
 #include <stdarg.h>
 #include <stdio.h>

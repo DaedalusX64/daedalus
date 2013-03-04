@@ -217,7 +217,7 @@ INCDIR = $(PSPDEV)/SDK/include ./SDK/include
 LIBDIR = $(PSPDEV)/SDK/lib ./SDK/lib
 
 
-LIBS = -lstdc++ -lpsppower -lpspgu -lpspaudiolib -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge
+LIBS = -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge
 
 EXTRA_TARGETS = EBOOT.PBP dvemgr.prx exception.prx mediaengine.prx imposectrl.prx
 

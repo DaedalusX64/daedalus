@@ -33,8 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/NativeTexture.h"
 #include "Graphics/GraphicsContext.h"
-#include "Graphics/ColourValue.h"
-#include "Graphics/PngUtil.h"
 
 #include "Math/MathUtil.h"
 
@@ -45,23 +43,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/ROM.h"
 
 #include "OSHLE/ultra_gbi.h"
-#include "OSHLE/ultra_os.h"		// System type
 
 #include "Math/Math.h"			// VFPU Math
 
 #include "Utility/Profiler.h"
-#include "Utility/Preferences.h"
-#include "Utility/IO.h"
-#include "Utility/FastMemcpy.h"
 #include "Utility/AuxFunc.h"
 
 #include <pspgu.h>
-#include <pspgum.h>
-#include <psputils.h>
-#include <pspdebug.h>
-#include <pspctrl.h>
-#include <pspdisplay.h>
-
 #include <vector>
 
 #include "PushStructPack1.h"
