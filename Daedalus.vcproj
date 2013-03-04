@@ -1849,14 +1849,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\DisplayListDebugger.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\DisplayListDebugger.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Source\HLEGraphics\DLDebug.cpp"
 					>
 				</File>
