@@ -293,7 +293,7 @@ void CNativeTexture::SetData( void * data, void * palette )
 					for (u32 x = 0; x < mCorrectedWidth; ++x)
 					{
 						NativePfCI44	colors  = pix_ptr[ x / 2 ];
-						u8				pal_idx = (x&1) ? colors.GetIdxB() : colors.GetIdxA();
+						u8				pal_idx = (x&1) ? colors.GetIdxA() : colors.GetIdxB();
 
 						*out_ptr = pal_ptr[ pal_idx ];
 						out_ptr++;
