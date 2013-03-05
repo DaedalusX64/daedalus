@@ -9,7 +9,7 @@ void sceGuFog(float mn, float mx, u32 col);
 
 enum EGuTextureWrapMode
 {
-	GU_CLAMP			= GL_CLAMP,
+	GU_CLAMP			= GL_CLAMP_TO_EDGE,
 	GU_REPEAT			= GL_REPEAT,
 };
 
