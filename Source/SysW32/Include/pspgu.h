@@ -21,8 +21,6 @@ void sceGuTexScale(float s, float t);
 enum EGuMatrixType
 {
 	GU_PROJECTION,
-	GU_VIEW,
-	GU_MODEL,
 };
 
 struct ScePspFMatrix4
@@ -36,8 +34,6 @@ void sceGuSetMatrix(EGuMatrixType type, const ScePspFMatrix4 * mtx);
 enum
 {
 	GU_TRIANGLES,
-	GU_TRIANGLE_STRIP,
-	GU_TRIANGLE_FAN,
 };
 
 enum

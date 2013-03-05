@@ -882,7 +882,7 @@ void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	verts[3].Texture.x = uv1.x;
 	verts[3].Texture.y = uv1.y;
 
-	RenderUsingCurrentBlendMode( verts, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
+	RenderUsingCurrentBlendMode( verts, 4, GL_TRIANGLE_STRIP, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;
@@ -932,7 +932,7 @@ void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	verts[3].Texture.y = uv1.y;
 
 	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TextRect()?
-	RenderUsingCurrentBlendMode( verts, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, true );
+	RenderUsingCurrentBlendMode( verts, 4, GL_TRIANGLE_STRIP, GU_TRANSFORM_2D, true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;
@@ -980,7 +980,7 @@ void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	//verts[3].Texture.y = 1.0f;
 
 	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TexRect()?
-	RenderUsingCurrentBlendMode( verts, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, true );
+	RenderUsingCurrentBlendMode( verts, 4, GL_TRIANGLE_STRIP, GU_TRANSFORM_2D, true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;
@@ -1027,7 +1027,7 @@ void RendererOSX::Draw2DTexture(f32 frameX, f32 frameY, f32 frameW, f32 frameH, 
 	verts[3].t0.x  = imageW;				// X dimentions
 	verts[3].t0.y  = imageH;				// Y dimentions
 
-	sceGuDrawArray( GU_TRIANGLE_STRIP, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, verts );
+	sceGuDrawArray( GL_TRIANGLE_STRIP, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, verts );
 }
 
 void RendererOSX::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3, f32 s, f32 t)	// With Rotation
@@ -1070,7 +1070,7 @@ void RendererOSX::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2,
 	verts[3].t0.x  = 0.0f;
 	verts[3].t0.y  = t;
 
-	sceGuDrawArray( GU_TRIANGLE_FAN, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, verts );
+	sceGuDrawArray( GL_TRIANGLE_FAN, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, verts );
 }
 
 //*****************************************************************************
