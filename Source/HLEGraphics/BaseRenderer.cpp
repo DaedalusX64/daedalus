@@ -525,10 +525,6 @@ void BaseRenderer::FlushTris()
 	{
 		EnableTexturing( mTextureTile );
 
-		// Bias points in decal mode
-		// Is this for Z-fight? not working to well for that, at least not on PSP//Corn
-		//if(IsZModeDecal()) for( u32 v = 0; v < num_vertices; v++ ) p_vertices[v].Position.z += 3.14;
-
 		if( (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
 		{
 			sceGuTexOffset( -mTileTopLeft[ 0 ].x * mTileScale[ 0 ].x, -mTileTopLeft[ 0 ].y * mTileScale[ 0 ].y );
