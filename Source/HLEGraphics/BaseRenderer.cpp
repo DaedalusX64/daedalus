@@ -403,24 +403,6 @@ void BaseRenderer::UpdateViewport()
 }
 
 //*****************************************************************************
-// GE 007 and Megaman can act up on this
-// We round these value here, so that when we scale up the coords to our screen
-// coords we don't get any gaps.
-//*****************************************************************************
-#if 0
-inline void BaseRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
-{
-	vfpu_N64_2_PSP( &answ.x, &n64_coords.x, &mN64ToNativeScale.x, &mN64ToNativeTranslate.x);
-}
-#else
-inline void BaseRenderer::ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
-{
-	answ.x = Round( N64ToNativeX( Round( n64_coords.x ) ) );
-	answ.y = Round( N64ToNativeY( Round( n64_coords.y ) ) );
-}
-#endif
-
-//*****************************************************************************
 //
 //*****************************************************************************
 void BaseRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )

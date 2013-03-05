@@ -278,7 +278,23 @@ protected:
 	void				SetPSPViewport( s32 x, s32 y, u32 w, u32 h );
 	void				UpdateViewport();
 
-	void				ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const;
+	//*****************************************************************************
+	// GE 007 and Megaman can act up on this
+	// We round these value here, so that when we scale up the coords to our screen
+	// coords we don't get any gaps.
+	//*****************************************************************************
+	#if 0
+	inline void ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
+	{
+		vfpu_N64_2_PSP( &answ.x, &n64_coords.x, &mN64ToNativeScale.x, &mN64ToNativeTranslate.x);
+	}
+	#else
+	inline void ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
+	{
+		answ.x = Round( N64ToNativeX( Round( n64_coords.x ) ) );
+		answ.y = Round( N64ToNativeY( Round( n64_coords.y ) ) );
+	}
+	#endif
 
 	virtual void		RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer ) = 0;
 
