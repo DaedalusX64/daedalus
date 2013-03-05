@@ -195,7 +195,9 @@ static GLuint make_shader_program(const char* vertex_shader_src, const char* fra
 }
 
 
-std::vector<ShaderProgram *>		gShaders;
+static ShaderProgram * 					gFillShader = NULL;
+static ShaderProgram * 					gCopyShader = NULL;
+static std::vector<ShaderProgram *>		gShaders;
 
 
 static const char * kRGBParams32[] =
@@ -326,10 +328,10 @@ static const char* default_fragment_shader_fmt =
 "uniform sampler2D uTexture1;\n"
 "uniform vec4 uPrimColour;\n"
 "uniform vec4 uEnvColour;\n"
-"out     vec4 fragcol;\n"
 "in      vec2 v_uv0;\n"
 "in      vec2 v_uv1;\n"
 "in      vec4 v_col;\n"
+"out     vec4 fragcol;\n"
 "void main()\n"
 "{\n"
 "	vec4 shade = v_col;\n"
@@ -348,30 +350,8 @@ static const char* default_fragment_shader_fmt =
 "	fragcol = col;\n"
 "}\n";
 
-
-static ShaderProgram * GetShaderForCurrentMode(u64 mux, u32 cycle_type)
+static void InitShaderProgram(ShaderProgram * program, u64 mux, u32 cycle_type, GLuint shader_program)
 {
-	for (u32 i = 0; i < gShaders.size(); ++i)
-	{
-		ShaderProgram * program = gShaders[i];
-		if (program->mMux == mux && program->mCycleType == cycle_type)
-			return program;
-	}
-
-	char body[1024];
-	PrintMux(body, mux, cycle_type);
-
-	char frag_shader[2048];
-	sprintf(frag_shader, default_fragment_shader_fmt, body);
-
-	GLuint shader_program = make_shader_program(default_vertex_shader, frag_shader);
-	if (shader_program == 0)
-	{
-		fprintf(stderr, "ERROR: during creation of the shader program\n");
-		return NULL;
-	}
-
-	ShaderProgram * program = new ShaderProgram;
 	program->mMux           = mux;
 	program->mCycleType     = cycle_type;
 	program->program        = shader_program;
@@ -402,8 +382,82 @@ static ShaderProgram * GetShaderForCurrentMode(u64 mux, u32 cycle_type)
 	glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kColorBuffer]);
 	glEnableVertexAttribArray(attrloc);
 	glVertexAttribPointer(attrloc, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
+}
 
+static ShaderProgram * GetFillShader()
+{
+	if (gFillShader)
+		return gFillShader;
 
+	char body[1024];
+	sprintf(body, "\tcol = shade;\n");
+
+	char frag_shader[2048];
+	sprintf(frag_shader, default_fragment_shader_fmt, body);
+
+	GLuint shader_program = make_shader_program(default_vertex_shader, frag_shader);
+	if (shader_program == 0)
+	{
+		fprintf(stderr, "ERROR: during creation of the shader program\n");
+		return NULL;
+	}
+
+	ShaderProgram * program = new ShaderProgram;
+	InitShaderProgram(program, 0, CYCLE_FILL, shader_program);
+	gFillShader = program;
+
+	return program;
+}
+
+static ShaderProgram * GetCopyShader()
+{
+	if (gCopyShader)
+		return gCopyShader;
+
+	char body[1024];
+	sprintf(body, "\tcol = tex0;\n");
+
+	char frag_shader[2048];
+	sprintf(frag_shader, default_fragment_shader_fmt, body);
+
+	GLuint shader_program = make_shader_program(default_vertex_shader, frag_shader);
+	if (shader_program == 0)
+	{
+		fprintf(stderr, "ERROR: during creation of the shader program\n");
+		return NULL;
+	}
+
+	ShaderProgram * program = new ShaderProgram;
+	InitShaderProgram(program, 0, CYCLE_COPY, shader_program);
+	gCopyShader = program;
+
+	return program;
+}
+
+static ShaderProgram * GetShaderForCurrentMode(u64 mux, u32 cycle_type)
+{
+	for (u32 i = 0; i < gShaders.size(); ++i)
+	{
+		ShaderProgram * program = gShaders[i];
+		if (program->mMux == mux && program->mCycleType == cycle_type)
+			return program;
+	}
+
+	char body[1024];
+	PrintMux(body, mux, cycle_type);
+
+	char frag_shader[2048];
+	sprintf(frag_shader, default_fragment_shader_fmt, body);
+
+	GLuint shader_program = make_shader_program(default_vertex_shader, frag_shader);
+	if (shader_program == 0)
+	{
+		fprintf(stderr, "ERROR: during creation of the shader program\n");
+		return NULL;
+	}
+
+	ShaderProgram * program = new ShaderProgram;
+	InitShaderProgram(program, mux, cycle_type, shader_program);
 	gShaders.push_back(program);
 
 	return program;
@@ -626,6 +680,8 @@ static void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	}
 }
 
+// FIXME(strmnnrmn): for fill/copy modes this does more work than needed.
+// It ends up copying colour/uv coords when not needed, and can use a shader uniform for the fill colour.
 void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer )
 {
 	static bool	ZFightingEnabled = false;
@@ -678,11 +734,17 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		gRDPOtherMode.force_bl ? InitBlenderMode( gRDPOtherMode.blender ) : glDisable( GL_BLEND );
 	}
 
-	const ShaderProgram * program = GetShaderForCurrentMode(mMux, gRDPOtherMode.cycle_type);
+	const ShaderProgram * program = NULL;
 
-	// Bind all the uniforms
+	switch (cycle_mode)
+	{
+	case CYCLE_FILL:	program = GetFillShader(); break;
+	case CYCLE_COPY:	program = GetCopyShader(); break;
+	case CYCLE_1CYCLE:	program = GetShaderForCurrentMode(mMux, cycle_mode); break;
+	case CYCLE_2CYCLE:	program = GetShaderForCurrentMode(mMux, cycle_mode); break;
+	}
+
 	glUseProgram(program->program);
-
 
 	if ((render_mode & GU_TRANSFORM_2D) == GU_TRANSFORM_2D)
 	{
@@ -771,7 +833,32 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		}
 	}
 
-	if (triangle_mode != 0)
+	if (triangle_mode == GU_SPRITES)
+	{
+		if (num_vertices == 2)
+		{
+			DaedalusVtx verts2[4];
+
+			verts2[0]            = p_vertices[0];
+
+			verts2[1]            = p_vertices[0];
+			verts2[1].Position.x = p_vertices[1].Position.x;
+			verts2[1].Texture.x  = p_vertices[1].Texture.x;
+
+			verts2[2]            = p_vertices[0];
+			verts2[2].Position.y = p_vertices[1].Position.y;
+			verts2[2].Texture.y  = p_vertices[1].Texture.y;
+
+			verts2[3]            = p_vertices[1];
+
+			RenderDaedalusVtx( GU_TRIANGLE_STRIP, verts2, 4 );
+		}
+		else
+		{
+			DAEDALUS_ERROR("Expecting 2 verts for sprites.");
+		}
+	}
+	else
 	{
 		RenderDaedalusVtx( triangle_mode, p_vertices, num_vertices );
 	}
