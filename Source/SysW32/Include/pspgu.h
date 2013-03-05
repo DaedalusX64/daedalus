@@ -35,7 +35,6 @@ void sceGuSetMatrix(EGuMatrixType type, const ScePspFMatrix4 * mtx);
 
 enum
 {
-	GU_SPRITES,
 	GU_TRIANGLES,
 	GU_TRIANGLE_STRIP,
 	GU_TRIANGLE_FAN,

@@ -810,12 +810,6 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 					glUniform2f(program->uloc_texoffset[i], 0.f, 0.f);
 					glUniform2f(program->uloc_texscale[i], 1.f, 1.f);
 				}
-				else if (triangle_mode == GU_SPRITES)
-				{
-					// FIXME(strmnnrmn): this is only needed as TexRect et al remove mTileOffset from UVs.
-					glUniform2f(program->uloc_texoffset[i], 0.f, 0.f);
-					glUniform2f(program->uloc_texscale[i], mTileScale[i].x, mTileScale[i].y);
-				}
 				else
 				{
 					glUniform2f(program->uloc_texoffset[i], mTileTopLeft[i].x, mTileTopLeft[i].y);
@@ -839,35 +833,7 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		}
 	}
 
-	if (triangle_mode == GU_SPRITES)
-	{
-		if (num_vertices == 2)
-		{
-			DaedalusVtx verts2[4];
-
-			verts2[0]            = p_vertices[0];
-
-			verts2[1]            = p_vertices[0];
-			verts2[1].Position.x = p_vertices[1].Position.x;
-			verts2[1].Texture.x  = p_vertices[1].Texture.x;
-
-			verts2[2]            = p_vertices[0];
-			verts2[2].Position.y = p_vertices[1].Position.y;
-			verts2[2].Texture.y  = p_vertices[1].Texture.y;
-
-			verts2[3]            = p_vertices[1];
-
-			RenderDaedalusVtx( GU_TRIANGLE_STRIP, verts2, 4 );
-		}
-		else
-		{
-			DAEDALUS_ERROR("Expecting 2 verts for sprites.");
-		}
-	}
-	else
-	{
-		RenderDaedalusVtx( triangle_mode, p_vertices, num_vertices );
-	}
+	RenderDaedalusVtx( triangle_mode, p_vertices, num_vertices );
 }
 
 void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
@@ -879,39 +845,11 @@ void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	ConvertN64ToPsp( xy0, screen0 );
 	ConvertN64ToPsp( xy1, screen1 );
 
-	// TODO(strmnnrmn): check that sceGuTexOffset is clear here, else the offset will be applied twice!
-	v2 tex_uv0;
-	tex_uv0.x = uv0.x - mTileTopLeft[ 0 ].x;
-	tex_uv0.y = uv0.y - mTileTopLeft[ 0 ].y;
-
-	v2 tex_uv1;
-	tex_uv1.x = uv1.x - mTileTopLeft[ 0 ].x;
-	tex_uv1.y = uv1.y - mTileTopLeft[ 0 ].y;
-
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
+	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
 
 	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
-#if 1	//1->SPRITE, 0->STRIP
-	DaedalusVtx verts[2];
-
-	verts[0].Position.x = screen0.x;
-	verts[0].Position.y = screen0.y;
-	verts[0].Position.z = depth;
-	verts[0].Colour = c32(0xffffffff);
-	verts[0].Texture.x = tex_uv0.x;
-	verts[0].Texture.y = tex_uv0.y;
-
-	verts[1].Position.x = screen1.x;
-	verts[1].Position.y = screen1.y;
-	verts[1].Position.z = depth;
-	verts[1].Colour = c32(0xffffffff);
-	verts[1].Texture.x = tex_uv1.x;
-	verts[1].Texture.y = tex_uv1.y;
-
-	RenderUsingCurrentBlendMode( verts, 2, GU_SPRITES, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
-#else
 	//	To be used with TRIANGLE_STRIP, which requires 40% less verts than TRIANGLE
 	//	For reference for future ports and if SPRITES( which uses %60 less verts than TRIANGLE) causes issues
 	DaedalusVtx verts[4];
@@ -920,32 +858,31 @@ void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	verts[0].Position.y = screen0.y;
 	verts[0].Position.z = depth;
 	verts[0].Colour = c32(0xffffffff);
-	verts[0].Texture.x = tex_uv0.x;
-	verts[0].Texture.y = tex_uv0.y;
+	verts[0].Texture.x = uv0.x;
+	verts[0].Texture.y = uv0.y;
 
 	verts[1].Position.x = screen1.x;
 	verts[1].Position.y = screen0.y;
 	verts[1].Position.z = depth;
 	verts[1].Colour = c32(0xffffffff);
-	verts[1].Texture.x = tex_uv1.x;
-	verts[1].Texture.y = tex_uv0.y;
+	verts[1].Texture.x = uv1.x;
+	verts[1].Texture.y = uv0.y;
 
 	verts[2].Position.x = screen0.x;
 	verts[2].Position.y = screen1.y;
 	verts[2].Position.z = depth;
 	verts[2].Colour = c32(0xffffffff);
-	verts[2].Texture.x = tex_uv0.x;
-	verts[2].Texture.y = tex_uv1.y;
+	verts[2].Texture.x = uv0.x;
+	verts[2].Texture.y = uv1.y;
 
 	verts[3].Position.x = screen1.x;
 	verts[3].Position.y = screen1.y;
 	verts[3].Position.z = depth;
 	verts[3].Colour = c32(0xffffffff);
-	verts[3].Texture.x = tex_uv1.x;
-	verts[3].Texture.y = tex_uv1.y;
+	verts[3].Texture.x = uv1.x;
+	verts[3].Texture.y = uv1.y;
 
 	RenderUsingCurrentBlendMode( verts, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
-#endif
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;
@@ -958,21 +895,11 @@ void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 
 	v2 screen0;
 	v2 screen1;
-	// FIXME(strmnnrmn): why is VT_FULLSCREEN_HD code in TexRect() not also done here?
 	ConvertN64ToPsp( xy0, screen0 );
 	ConvertN64ToPsp( xy1, screen1 );
 
-	// TODO(strmnnrmn): check that sceGuTexOffset is clear here, else the offset will be applied twice!
-	v2 tex_uv0;
-	tex_uv0.x = uv0.x - mTileTopLeft[ 0 ].x;
-	tex_uv0.y = uv0.y - mTileTopLeft[ 0 ].y;
-
-	v2 tex_uv1;
-	tex_uv1.x = uv1.x - mTileTopLeft[ 0 ].x;
-	tex_uv1.y = uv1.y - mTileTopLeft[ 0 ].y;
-
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
+	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
 
 	DaedalusVtx verts[4];
 
@@ -980,29 +907,29 @@ void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	verts[0].Position.y = screen0.y;
 	verts[0].Position.z = 0.0f;
 	verts[0].Colour = c32(0xffffffff);
-	verts[0].Texture.x = tex_uv0.x;
-	verts[0].Texture.y = tex_uv0.y;
+	verts[0].Texture.x = uv0.x;
+	verts[0].Texture.y = uv0.y;
 
 	verts[1].Position.x = screen1.x;
 	verts[1].Position.y = screen0.y;
 	verts[1].Position.z = 0.0f;
 	verts[1].Colour = c32(0xffffffff);
-	verts[1].Texture.x = tex_uv0.x;
-	verts[1].Texture.y = tex_uv1.y;
+	verts[1].Texture.x = uv0.x;
+	verts[1].Texture.y = uv1.y;
 
 	verts[2].Position.x = screen0.x;
 	verts[2].Position.y = screen1.y;
 	verts[2].Position.z = 0.0f;
 	verts[2].Colour = c32(0xffffffff);
-	verts[2].Texture.x = tex_uv1.x;
-	verts[2].Texture.y = tex_uv0.y;
+	verts[2].Texture.x = uv1.x;
+	verts[2].Texture.y = uv0.y;
 
 	verts[3].Position.x = screen1.x;
 	verts[3].Position.y = screen1.y;
 	verts[3].Position.z = 0.0f;
 	verts[3].Colour = c32(0xffffffff);
-	verts[3].Texture.x = tex_uv1.x;
-	verts[3].Texture.y = tex_uv1.y;
+	verts[3].Texture.x = uv1.x;
+	verts[3].Texture.y = uv1.y;
 
 	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TextRect()?
 	RenderUsingCurrentBlendMode( verts, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, true );
@@ -1014,17 +941,6 @@ void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 
 void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 {
-/*
-	if ( (gRDPOtherMode._u64 & 0xffff0000) == 0x5f500000 )	//Used by Wave Racer
-	{
-		// this blend mode is mem*0 + mem*1, so we don't need to render it... Very odd!
-		DAEDALUS_ERROR("	mem*0 + mem*1 - skipped");
-		return;
-	}
-*/
-	// This if for C&C - It might break other stuff (I'm not sure if we should allow alpha or not..)
-	//color |= 0xff000000;
-
 	v2 screen0;
 	v2 screen1;
 	ConvertN64ToPsp( xy0, screen0 );
@@ -1032,7 +948,7 @@ void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 
-	DaedalusVtx verts[2];
+	DaedalusVtx verts[4];
 
 	// No need for Texture.x/y as we don't do any texturing for fillrect
 	verts[0].Position.x = screen0.x;
@@ -1043,14 +959,28 @@ void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	//verts[0].Texture.y = 0.0f;
 
 	verts[1].Position.x = screen1.x;
-	verts[1].Position.y = screen1.y;
+	verts[1].Position.y = screen0.y;
 	verts[1].Position.z = 0.0f;
 	verts[1].Colour = c32(color);
-	//verts[1].Texture.x = 1.0f;
-	//verts[1].Texture.y = 0.0f;
+	//verts[1].Texture.x = 0.0f;
+	//verts[1].Texture.y = 1.0f;
+
+	verts[2].Position.x = screen0.x;
+	verts[2].Position.y = screen1.y;
+	verts[2].Position.z = 0.0f;
+	verts[2].Colour = c32(color);
+	//verts[2].Texture.x = 1.0f;
+	//verts[2].Texture.y = 0.0f;
+
+	verts[3].Position.x = screen1.x;
+	verts[3].Position.y = screen1.y;
+	verts[3].Position.z = 0.0f;
+	verts[3].Colour = c32(color);
+	//verts[3].Texture.x = 1.0f;
+	//verts[3].Texture.y = 1.0f;
 
 	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TexRect()?
-	RenderUsingCurrentBlendMode( verts, 2, GU_SPRITES, GU_TRANSFORM_2D, true );
+	RenderUsingCurrentBlendMode( verts, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;
