@@ -2075,10 +2075,10 @@ void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 	ConvertN64ToPsp( n64_coords_br, psp_coords_br );
 
 	//Clamp TOP and LEFT values to 0 if < 0 , needed for zooming //Corn
-	s32 l = Max( s32(psp_coords_tl.x), 0L );
-	s32 t = Max( s32(psp_coords_tl.y), 0L );
-	s32 r =      s32(psp_coords_br.x);
-	s32 b =      s32(psp_coords_br.y);
+	s32 l = Max<s32>( s32(psp_coords_tl.x), 0 );
+	s32 t = Max<s32>( s32(psp_coords_tl.y), 0 );
+	s32 r =           s32(psp_coords_br.x);
+	s32 b =           s32(psp_coords_br.y);
 
 #if defined(DAEDALUS_PSP)
 	// N.B. Think the arguments are x0,y0,x1,y1, and not x,y,w,h as the docs describe
