@@ -810,6 +810,12 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 					glUniform2f(program->uloc_texoffset[i], 0.f, 0.f);
 					glUniform2f(program->uloc_texscale[i], 1.f, 1.f);
 				}
+				else if (triangle_mode == GU_SPRITES)
+				{
+					// FIXME(strmnnrmn): this is only needed as TexRect et al remove mTileOffset from UVs.
+					glUniform2f(program->uloc_texoffset[i], 0.f, 0.f);
+					glUniform2f(program->uloc_texscale[i], mTileScale[i].x, mTileScale[i].y);
+				}
 				else
 				{
 					glUniform2f(program->uloc_texoffset[i], mTileTopLeft[i].x, mTileTopLeft[i].y);
