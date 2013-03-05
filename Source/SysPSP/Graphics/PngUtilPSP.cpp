@@ -52,7 +52,7 @@ void WritePngRowPal4( u8 * line, const void * src, u32 width, const NativePf8888
 	for ( u32 x = 0; x < width; x++ )
 	{
 		NativePfCI44	colors( p_src[ x / 2 ] );
-		u8				color_idx( (x&1) ? colors.GetIdxB() : colors.GetIdxA() );
+		u8				color_idx( (x&1) ? colors.GetIdxB() : colors.GetIdxA() );	// FIXME(strmnnrmn): A/B should be swapped? NativeTextureOSX is broken with this ordering.
 		NativePf8888	color( palette[ color_idx ] );
 
 		line[i++] = color.GetR();
