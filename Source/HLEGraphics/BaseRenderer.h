@@ -32,6 +32,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <pspgu.h>
 
+#define HD_SCALE                          0.754166f
+
 class CTexture;
 class CNativeTexture;
 struct TempVerts;
@@ -192,12 +194,17 @@ public:
 	inline void			SetMux( u64 mux )						{ mMux = mux; }
 	inline void			SetAlphaRef(u32 alpha)					{ mAlphaThreshold = alpha; }
 
-	// Texture stuff
 	inline void			SetTextureScale(float fScaleX, float fScaleY)	{ mTnL.TextureScaleX = fScaleX; mTnL.TextureScaleY = fScaleY; }
+
+	// TextRect stuff
+	virtual void		TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 ) = 0;
+	virtual void		TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 ) = 0;
+	virtual void		FillRect( const v2 & xy0, const v2 & xy1, u32 color ) = 0;
+
+	// Texture stuff
 	virtual void		Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height, f32 u0, f32 v0, f32 u1, f32 v1, CNativeTexture * texture) = 0;
 	virtual void		Draw2DTexture(f32 frameX, f32 frameY, f32 frameW, f32 frameH, f32 imageX, f32 imageY, f32 imageW, f32 imageH) = 0;
 	virtual void		Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3, f32 s, f32 t) = 0;
-
 
 	// Viewport stuff
 	void				SetN64Viewport( const v2 & scale, const v2 & trans );
@@ -227,11 +234,6 @@ public:
 	inline void			SetVtxXY( u32 vert, float x, float y );
 	void				SetVtxZ( u32 vert, float z );
 	inline void			CopyVtx( u32 vert_src, u32 vert_dst ) { mVtxProjected[vert_dst] = mVtxProjected[vert_src]; }
-
-	// TextRect stuff
-	void				TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 );
-	void				TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 );
-	void				FillRect( const v2 & xy0, const v2 & xy1, u32 color );
 
 	// Returns true if triangle visible, false otherwise
 	bool				AddTri(u32 v0, u32 v1, u32 v2);
@@ -270,7 +272,7 @@ protected:
 	inline void			UpdateShadeModel()						{ glShadeModel( mTnL.Flags.Shade ? GL_SMOOTH : GL_FLAT ); }
 #endif
 
-	inline void			EnableTexturing( u32 tile_idx );
+	void				EnableTexturing( u32 tile_idx );
 	void				EnableTexturing( u32 index, u32 tile_idx );
 
 	virtual void		RestoreRenderStates() = 0;

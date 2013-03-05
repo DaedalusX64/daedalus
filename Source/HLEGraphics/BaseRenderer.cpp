@@ -61,25 +61,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //extern SImageDescriptor g_DI;		// XXXX SImageDescriptor g_DI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 
 // Vertex allocation.
-// ALLOC_SCRATCH_VERTS:
-//   Allocate vertices whose lifetime is determined by the enclosing scope.
-//   On OSX we can allocate using the stack, as OpenGL takes a copy when rendering.
-//   On PSP we just use sceGuGetMemory, which doesn't need to be freed.
-//   'count' must be a compile time constant.
 // AllocVerts/FreeVerts:
 //   Allocate vertices whose lifetime must extend beyond the current scope.
 //   On OSX we just use malloc, though we could use a scratch allocator to simplify.
 //   On PSP we again use sceGuGetMemory.
-#ifdef DAEDALUS_PSP
-#define ALLOC_SCRATCH_VERTS(type, name, count) \
-	type * name = static_cast<type *>(sceGuGetMemory(count * sizeof(type)))
-#endif
-
-#ifdef DAEDALUS_OSX
-#define ALLOC_SCRATCH_VERTS(type, name, count) \
-	type name[count]
-#endif
-
 struct TempVerts
 {
 	TempVerts()
@@ -129,8 +114,6 @@ void	_ConvertVerticesIndexed( DaedalusVtx * dest, const DaedalusVtx4 * source, u
 
 u32		_ClipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, const v4 * plane, u32 num_verts );
 }
-
-#define HD_SCALE                          0.754166f
 
 #define GL_TRUE                           1
 #define GL_FALSE                          0
@@ -399,213 +382,6 @@ void BaseRenderer::UpdateViewport()
 	glViewport(vp_x, vp_y, vp_w, vp_h);
 #else
 	DAEDALUS_ERROR("Code to set viewport not implemented on this platform");
-#endif
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void BaseRenderer::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
-{
-	EnableTexturing( tile_idx );
-
-	v2 screen0;
-	v2 screen1;
-	if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
-	{
-		screen0.x = Round( Round( HD_SCALE * xy0.x ) * mN64ToNativeScale.x + 59 );	//59 in translate is an ugly hack that only work on 480x272 display//Corn
-		screen0.y = Round( Round( xy0.y )            * mN64ToNativeScale.y + mN64ToNativeTranslate.y );
-
-		screen1.x = Round( Round( HD_SCALE * xy1.x ) * mN64ToNativeScale.x + 59 ); //59 in translate is an ugly hack that only work on 480x272 display//Corn
-		screen1.y = Round( Round( xy1.y )            * mN64ToNativeScale.y + mN64ToNativeTranslate.y );
-	}
-	else
-	{
-		ConvertN64ToPsp( xy0, screen0 );
-		ConvertN64ToPsp( xy1, screen1 );
-	}
-
-	// TODO(strmnnrmn): check that sceGuTexOffset is clear here, else the offset will be applied twice!
-	v2 tex_uv0;
-	tex_uv0.x = uv0.x - mTileTopLeft[ 0 ].x;
-	tex_uv0.y = uv0.y - mTileTopLeft[ 0 ].y;
-
-	v2 tex_uv1;
-	tex_uv1.x = uv1.x - mTileTopLeft[ 0 ].x;
-	tex_uv1.y = uv1.y - mTileTopLeft[ 0 ].y;
-
-	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
-
-	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
-
-#if 1	//1->SPRITE, 0->STRIP
-	ALLOC_SCRATCH_VERTS(DaedalusVtx, p_vertices, 2);
-
-	p_vertices[0].Position.x = screen0.x;
-	p_vertices[0].Position.y = screen0.y;
-	p_vertices[0].Position.z = depth;
-	p_vertices[0].Colour = c32(0xffffffff);
-	p_vertices[0].Texture.x = tex_uv0.x;
-	p_vertices[0].Texture.y = tex_uv0.y;
-
-	p_vertices[1].Position.x = screen1.x;
-	p_vertices[1].Position.y = screen1.y;
-	p_vertices[1].Position.z = depth;
-	p_vertices[1].Colour = c32(0xffffffff);
-	p_vertices[1].Texture.x = tex_uv1.x;
-	p_vertices[1].Texture.y = tex_uv1.y;
-
-	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
-#else
-	//	To be used with TRIANGLE_STRIP, which requires 40% less verts than TRIANGLE
-	//	For reference for future ports and if SPRITES( which uses %60 less verts than TRIANGLE) causes issues
-	ALLOC_SCRATCH_VERTS(DaedalusVtx, p_vertices, 4);
-
-	p_vertices[0].Position.x = screen0.x;
-	p_vertices[0].Position.y = screen0.y;
-	p_vertices[0].Position.z = depth;
-	p_vertices[0].Colour = c32(0xffffffff);
-	p_vertices[0].Texture.x = tex_uv0.x;
-	p_vertices[0].Texture.y = tex_uv0.y;
-
-	p_vertices[1].Position.x = screen1.x;
-	p_vertices[1].Position.y = screen0.y;
-	p_vertices[1].Position.z = depth;
-	p_vertices[1].Colour = c32(0xffffffff);
-	p_vertices[1].Texture.x = tex_uv1.x;
-	p_vertices[1].Texture.y = tex_uv0.y;
-
-	p_vertices[2].Position.x = screen0.x;
-	p_vertices[2].Position.y = screen1.y;
-	p_vertices[2].Position.z = depth;
-	p_vertices[2].Colour = c32(0xffffffff);
-	p_vertices[2].Texture.x = tex_uv0.x;
-	p_vertices[2].Texture.y = tex_uv1.y;
-
-	p_vertices[3].Position.x = screen1.x;
-	p_vertices[3].Position.y = screen1.y;
-	p_vertices[3].Position.z = depth;
-	p_vertices[3].Colour = c32(0xffffffff);
-	p_vertices[3].Texture.x = tex_uv1.x;
-	p_vertices[3].Texture.y = tex_uv1.y;
-
-	RenderUsingCurrentBlendMode( p_vertices, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
-#endif
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	++mNumRect;
-#endif
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void BaseRenderer::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
-{
-	EnableTexturing( tile_idx );
-
-	v2 screen0;
-	v2 screen1;
-	// FIXME(strmnnrmn): why is VT_FULLSCREEN_HD code in TexRect() not also done here?
-	ConvertN64ToPsp( xy0, screen0 );
-	ConvertN64ToPsp( xy1, screen1 );
-
-	// TODO(strmnnrmn): check that sceGuTexOffset is clear here, else the offset will be applied twice!
-	v2 tex_uv0;
-	tex_uv0.x = uv0.x - mTileTopLeft[ 0 ].x;
-	tex_uv0.y = uv0.y - mTileTopLeft[ 0 ].y;
-
-	v2 tex_uv1;
-	tex_uv1.x = uv1.x - mTileTopLeft[ 0 ].x;
-	tex_uv1.y = uv1.y - mTileTopLeft[ 0 ].y;
-
-	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
-
-	ALLOC_SCRATCH_VERTS(DaedalusVtx, p_vertices, 4);
-
-	p_vertices[0].Position.x = screen0.x;
-	p_vertices[0].Position.y = screen0.y;
-	p_vertices[0].Position.z = 0.0f;
-	p_vertices[0].Colour = c32(0xffffffff);
-	p_vertices[0].Texture.x = tex_uv0.x;
-	p_vertices[0].Texture.y = tex_uv0.y;
-
-	p_vertices[1].Position.x = screen1.x;
-	p_vertices[1].Position.y = screen0.y;
-	p_vertices[1].Position.z = 0.0f;
-	p_vertices[1].Colour = c32(0xffffffff);
-	p_vertices[1].Texture.x = tex_uv0.x;
-	p_vertices[1].Texture.y = tex_uv1.y;
-
-	p_vertices[2].Position.x = screen0.x;
-	p_vertices[2].Position.y = screen1.y;
-	p_vertices[2].Position.z = 0.0f;
-	p_vertices[2].Colour = c32(0xffffffff);
-	p_vertices[2].Texture.x = tex_uv1.x;
-	p_vertices[2].Texture.y = tex_uv0.y;
-
-	p_vertices[3].Position.x = screen1.x;
-	p_vertices[3].Position.y = screen1.y;
-	p_vertices[3].Position.z = 0.0f;
-	p_vertices[3].Colour = c32(0xffffffff);
-	p_vertices[3].Texture.x = tex_uv1.x;
-	p_vertices[3].Texture.y = tex_uv1.y;
-
-	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TextRect()?
-	RenderUsingCurrentBlendMode( p_vertices, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, true );
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	++mNumRect;
-#endif
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void BaseRenderer::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
-{
-/*
-	if ( (gRDPOtherMode._u64 & 0xffff0000) == 0x5f500000 )	//Used by Wave Racer
-	{
-		// this blend mode is mem*0 + mem*1, so we don't need to render it... Very odd!
-		DAEDALUS_ERROR("	mem*0 + mem*1 - skipped");
-		return;
-	}
-*/
-	// This if for C&C - It might break other stuff (I'm not sure if we should allow alpha or not..)
-	//color |= 0xff000000;
-
-	v2 screen0;
-	v2 screen1;
-	ConvertN64ToPsp( xy0, screen0 );
-	ConvertN64ToPsp( xy1, screen1 );
-
-	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-
-	ALLOC_SCRATCH_VERTS(DaedalusVtx, p_vertices, 2);
-
-	// No need for Texture.x/y as we don't do any texturing for fillrect
-	p_vertices[0].Position.x = screen0.x;
-	p_vertices[0].Position.y = screen0.y;
-	p_vertices[0].Position.z = 0.0f;
-	p_vertices[0].Colour = c32(color);
-	//p_vertices[0].Texture.x = 0.0f;
-	//p_vertices[0].Texture.y = 0.0f;
-
-	p_vertices[1].Position.x = screen1.x;
-	p_vertices[1].Position.y = screen1.y;
-	p_vertices[1].Position.z = 0.0f;
-	p_vertices[1].Colour = c32(color);
-	//p_vertices[1].Texture.x = 1.0f;
-	//p_vertices[1].Texture.y = 0.0f;
-
-	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TexRect()?
-	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, GU_TRANSFORM_2D, true );
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	++mNumRect;
 #endif
 }
 
@@ -1878,7 +1654,7 @@ void BaseRenderer::ResetMatrices()
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void BaseRenderer::EnableTexturing( u32 tile_idx )
+void BaseRenderer::EnableTexturing( u32 tile_idx )
 {
 	EnableTexturing( 0, tile_idx );
 
