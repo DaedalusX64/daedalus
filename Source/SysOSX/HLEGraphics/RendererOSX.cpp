@@ -88,13 +88,6 @@ void sceGuFog(float mn, float mx, u32 col)
 	//DAEDALUS_ERROR( "%s: Not implemented", __FUNCTION__ );
 }
 
-
-void sceGuScissor(int x0, int y0, int x1, int y1)
-{
-	// NB: psp scissor passes absolute coords, OpenGL scissor wants width/height
-	glScissor(x0, y0, x1-x0, y1-y0);
-}
-
 void sceGuTexOffset(float s, float t)
 {
 }

@@ -7,8 +7,6 @@
 
 void sceGuFog(float mn, float mx, u32 col);
 
-void sceGuScissor(int x0, int y0, int x1, int y1);
-
 enum EGuTextureWrapMode
 {
 	GU_CLAMP			= GL_CLAMP,

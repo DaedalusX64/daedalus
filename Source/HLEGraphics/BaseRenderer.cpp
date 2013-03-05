@@ -45,6 +45,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/ultra_gbi.h"
 
 #include "Math/Math.h"			// VFPU Math
+#include "Math/MathUtil.h"
 
 #include "Utility/Profiler.h"
 #include "Utility/AuxFunc.h"
@@ -2073,11 +2074,24 @@ void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 	ConvertN64ToPsp( n64_coords_tl, psp_coords_tl );
 	ConvertN64ToPsp( n64_coords_br, psp_coords_br );
 
-	// N.B. Think the arguments are x0,y0,x1,y1, and not x,y,w,h as the docs describe
 	//Clamp TOP and LEFT values to 0 if < 0 , needed for zooming //Corn
+	s32 l = Max( s32(psp_coords_tl.x), 0L );
+	s32 t = Max( s32(psp_coords_tl.y), 0L );
+	s32 r =      s32(psp_coords_br.x);
+	s32 b =      s32(psp_coords_br.y);
+
+#if defined(DAEDALUS_PSP)
+	// N.B. Think the arguments are x0,y0,x1,y1, and not x,y,w,h as the docs describe
 	//printf("%d %d %d %d\n", s32(psp_coords_tl.x),s32(psp_coords_tl.y),s32(psp_coords_br.x),s32(psp_coords_br.y));
-	sceGuScissor( s32(psp_coords_tl.x) < 0 ? 0 : s32(psp_coords_tl.x), s32(psp_coords_tl.y) < 0 ? 0 : s32(psp_coords_tl.y),
-				  s32(psp_coords_br.x), s32(psp_coords_br.y) );
+	sceGuScissor( l, t, r, b );
+#elif defined(DAEDALUS_OSX)
+	// NB: OpenGL is x,y,w,h. Errors if width or height is negative, so clamp this.
+	s32 w = Max( r - l, 0L );
+	s32 h = Max( b - t, 0L );
+	//glScissor( l, t, w, h );
+#else
+	DAEDALUS_ERROR("Need to implement scissor for this platform.")
+#endif
 }
 
 extern void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
