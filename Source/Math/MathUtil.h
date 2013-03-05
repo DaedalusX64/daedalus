@@ -23,21 +23,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/Math.h"
 
-template< typename T > const T & Max( const T & a, const T & b )
+template< typename T >
+inline const T & Max( const T & a, const T & b )
 {
 	if(a > b)
 		return a;
 	return b;
 }
 
-template< typename T > const T & Min( const T & a, const T & b )
+template< typename T >
+inline const T & Min( const T & a, const T & b )
 {
 	if(a < b)
 		return a;
 	return b;
 }
 
-template< typename T > void Swap( T & a, T & b )
+template< typename T >
+inline void Swap( T & a, T & b )
 {
 	T t = a;
 	a = b;
@@ -49,12 +52,14 @@ inline float Interpolate( float a, float b, float r )
 	return a + r * (b - a);
 }
 
-template< typename T > T Square( T x )
+template< typename T >
+inline T Square( T x )
 {
 	return x * x;
 }
 
-template< typename T > T Clamp( T x, T lo, T hi )
+template< typename T >
+inline T Clamp( T x, T lo, T hi )
 {
 	if(x < lo)
 		return lo;
@@ -64,7 +69,8 @@ template< typename T > T Clamp( T x, T lo, T hi )
 		return x;
 }
 
-template< typename T > T Saturate( s32 x );
+template< typename T >
+inline T Saturate( s32 x );
 
 template<> inline s16 Saturate( s32 x )
 {
@@ -77,13 +83,15 @@ template<> inline s8 Saturate( s32 x )
 }
 
 
-template< typename T > const T * RoundPointerDown( const T * p, u32 r )
+template< typename T >
+inline const T * RoundPointerDown( const T * p, u32 r )
 {
 	const u32 mask( r-1 );
 	return reinterpret_cast< const T * >( reinterpret_cast< u32 >( p ) & ~mask );
 }
 
-template< typename T > const T * RoundPointerUp( const T * p, u32 r )
+template< typename T >
+inline const T * RoundPointerUp( const T * p, u32 r )
 {
 	const u32 mask( r-1 );
 	return reinterpret_cast< const T * >( ( reinterpret_cast< u32 >( p ) + mask ) & ~mask );
