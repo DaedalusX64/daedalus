@@ -373,9 +373,6 @@ void BaseRenderer::SetN64Viewport( const v2 & scale, const v2 & trans )
 //*****************************************************************************
 void BaseRenderer::UpdateViewport()
 {
-	u32		vx( 2048 );
-	u32		vy( 2048 );
-
 	v2		n64_min( mVpTrans.x - mVpScale.x, mVpTrans.y - mVpScale.y );
 	v2		n64_max( mVpTrans.x + mVpScale.x, mVpTrans.y + mVpScale.y );
 
@@ -384,15 +381,24 @@ void BaseRenderer::UpdateViewport()
 	ConvertN64ToPsp( n64_min, psp_min );
 	ConvertN64ToPsp( n64_max, psp_max );
 
-	s32		vp_x( s32( psp_min.x ) );
-	s32		vp_y( s32( psp_min.y ) );
-	s32		vp_width( s32( psp_max.x - psp_min.x ) );
-	s32		vp_height( s32( psp_max.y - psp_min.y ) );
+	s32		vp_x = s32( psp_min.x );
+	s32		vp_y = s32( psp_min.y );
+	s32		vp_w = s32( psp_max.x - psp_min.x );
+	s32		vp_h = s32( psp_max.y - psp_min.y );
 
-	//DBGConsole_Msg(0, "[WViewport Changed (%d) (%d)]",vp_width,vp_height );
+	//DBGConsole_Msg(0, "[WViewport Changed (%d) (%d)]",vp_w,vp_h );
 
-	sceGuOffset(vx - (vp_width/2),vy - (vp_height/2));
-	sceGuViewport(vx + vp_x,vy + vp_y,vp_width,vp_height);
+#if defined(DAEDALUS_PSP)
+	const u32 vx = 2048;
+	const u32 vy = 2048;
+
+	sceGuOffset(vx - (vp_w/2),vy - (vp_h/2));
+	sceGuViewport(vx + vp_x, vy + vp_y, vp_w, vp_h);
+#elif defined(DAEDALUS_OSX)
+	glViewport(vp_x, vp_y, vp_w, vp_h);
+#else
+	DAEDALUS_ERROR("Code to set viewport not implemented on this platform");
+#endif
 }
 
 //*****************************************************************************

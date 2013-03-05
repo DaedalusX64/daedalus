@@ -88,16 +88,6 @@ void sceGuFog(float mn, float mx, u32 col)
 	//DAEDALUS_ERROR( "%s: Not implemented", __FUNCTION__ );
 }
 
-void sceGuViewport(int x, int y, int w, int h)
-{
-	glViewport(x, y, w, h);
-}
-
-void sceGuOffset(float s, float t)
-{
-	//DAEDALUS_ERROR( "%s: Not implemented", __FUNCTION__ );
-}
-
 
 void sceGuScissor(int x0, int y0, int x1, int y1)
 {

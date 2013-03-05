@@ -9,9 +9,6 @@
 
 void sceGuFog(float mn, float mx, u32 col);
 
-void sceGuViewport(int x, int y, int w, int h);
-void sceGuOffset(float s, float t);
-
 void sceGuScissor(int x0, int y0, int x1, int y1);
 
 enum EGuTextureWrapMode
