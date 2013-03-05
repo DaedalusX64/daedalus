@@ -42,6 +42,4 @@ enum
 	GU_TRANSFORM_3D		= 1<<4,	// 16
 };
 
-void sceGuDrawArray(int prim, int vtype, int count, const void * indices, const void * vertices);
-
 #endif // PSPGU_H__

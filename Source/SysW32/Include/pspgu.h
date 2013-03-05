@@ -45,6 +45,4 @@ enum
 	GU_TRANSFORM_3D,
 };
 
-void sceGuDrawArray(int t, int flag, int num_v, void * x, void * y);
-
 #endif // PSPGU_H__

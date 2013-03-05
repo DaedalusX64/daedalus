@@ -96,6 +96,17 @@ void sceGuTexScale(float s, float t)
 {
 }
 
+ScePspFMatrix4		gProjection;
+void sceGuSetMatrix(EGuMatrixType type, const ScePspFMatrix4 * mtx)
+{
+	if (type == GL_PROJECTION)
+	{
+		memcpy(&gProjection, mtx, sizeof(gProjection));
+	}
+}
+
+
+
 struct ShaderProgram
 {
 	u64					mMux;
@@ -462,23 +473,6 @@ static ShaderProgram * GetShaderForCurrentMode(u64 mux, u32 cycle_type)
 
 	return program;
 }
-
-
-ScePspFMatrix4		gProjection;
-void sceGuSetMatrix(EGuMatrixType type, const ScePspFMatrix4 * mtx)
-{
-	if (type == GL_PROJECTION)
-	{
-		memcpy(&gProjection, mtx, sizeof(gProjection));
-	}
-}
-
-void sceGuDrawArray(int prim, int vtype, int count, const void * indices, const void * vertices)
-{
-	DAEDALUS_ERROR("Unhandled render");
-	exit(1);
-}
-
 
 void RendererOSX::RestoreRenderStates()
 {
@@ -1027,7 +1021,8 @@ void RendererOSX::Draw2DTexture(f32 frameX, f32 frameY, f32 frameW, f32 frameH, 
 	verts[3].t0.x  = imageW;				// X dimentions
 	verts[3].t0.y  = imageH;				// Y dimentions
 
-	sceGuDrawArray( GL_TRIANGLE_STRIP, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, verts );
+	DAEDALUS_ERROR("Draw2DTexture FIXME");
+	//sceGuDrawArray( GL_TRIANGLE_STRIP, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, verts );
 }
 
 void RendererOSX::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3, f32 s, f32 t)	// With Rotation
@@ -1070,7 +1065,8 @@ void RendererOSX::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2,
 	verts[3].t0.x  = 0.0f;
 	verts[3].t0.y  = t;
 
-	sceGuDrawArray( GL_TRIANGLE_FAN, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, verts );
+	DAEDALUS_ERROR("Draw2DTextureR FIXME");
+	//sceGuDrawArray( GL_TRIANGLE_FAN, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, verts );
 }
 
 //*****************************************************************************
