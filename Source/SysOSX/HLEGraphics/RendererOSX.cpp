@@ -111,6 +111,7 @@ struct ShaderProgram
 {
 	u64					mMux;
 	u32					mCycleType;
+	u32					mAlphaThreshold;
 	GLuint 				program;
 
 	GLint				uloc_project;
@@ -256,7 +257,7 @@ static const char * kAlphaParams8[8] = {
 	"one.a",      "zero.a"
 };
 
-static void PrintMux( char (&body)[1024], u64 mux, u32 cycle_type )
+static void PrintMux(char (&body)[1024], u64 mux, u32 cycle_type, u32 alpha_threshold)
 {
 	u32 mux0 = (u32)(mux>>32);
 	u32 mux1 = (u32)(mux);
@@ -308,6 +309,12 @@ static void PrintMux( char (&body)[1024], u64 mux, u32 cycle_type )
 					  kAlphaParams8[aA0],  kAlphaParams8[bA0],  kAlphaParams8[cA0],  kAlphaParams8[dA0],
 					  kRGBParams16[aRGB1], kRGBParams16[bRGB1], kRGBParams32[cRGB1], kRGBParams8[dRGB1],
 					  kAlphaParams8[aA1],  kAlphaParams8[bA1],  kAlphaParams8[cA1],  kAlphaParams8[dA1]);
+	}
+
+	if (alpha_threshold > 0)
+	{
+		char * p = body + strlen(body);
+		sprintf(p, "\tif(col.a <= %f) discard;\n");
 	}
 }
 
@@ -361,14 +368,15 @@ static const char* default_fragment_shader_fmt =
 "	fragcol = col;\n"
 "}\n";
 
-static void InitShaderProgram(ShaderProgram * program, u64 mux, u32 cycle_type, GLuint shader_program)
+static void InitShaderProgram(ShaderProgram * program, u64 mux, u32 cycle_type, u32 alpha_threshold, GLuint shader_program)
 {
-	program->mMux           = mux;
-	program->mCycleType     = cycle_type;
-	program->program        = shader_program;
-	program->uloc_project   = glGetUniformLocation(shader_program, "uProject");
-	program->uloc_primcol   = glGetUniformLocation(shader_program, "uPrimColour");
-	program->uloc_envcol    = glGetUniformLocation(shader_program, "uEnvColour");
+	program->mMux              = mux;
+	program->mCycleType        = cycle_type;
+	program->mAlphaThreshold   = alpha_threshold;
+	program->program           = shader_program;
+	program->uloc_project      = glGetUniformLocation(shader_program, "uProject");
+	program->uloc_primcol      = glGetUniformLocation(shader_program, "uPrimColour");
+	program->uloc_envcol       = glGetUniformLocation(shader_program, "uEnvColour");
 
 	program->uloc_texoffset[0] = glGetUniformLocation(shader_program, "uTexOffset0");
 	program->uloc_texscale[0]  = glGetUniformLocation(shader_program, "uTexScale0");
@@ -414,7 +422,7 @@ static ShaderProgram * GetFillShader()
 	}
 
 	ShaderProgram * program = new ShaderProgram;
-	InitShaderProgram(program, 0, CYCLE_FILL, shader_program);
+	InitShaderProgram(program, 0, CYCLE_FILL, 0, shader_program);
 	gFillShader = program;
 
 	return program;
@@ -439,23 +447,23 @@ static ShaderProgram * GetCopyShader()
 	}
 
 	ShaderProgram * program = new ShaderProgram;
-	InitShaderProgram(program, 0, CYCLE_COPY, shader_program);
+	InitShaderProgram(program, 0, CYCLE_COPY, 0, shader_program);
 	gCopyShader = program;
 
 	return program;
 }
 
-static ShaderProgram * GetShaderForCurrentMode(u64 mux, u32 cycle_type)
+static ShaderProgram * GetShaderForCurrentMode(u64 mux, u32 cycle_type, u32 alpha_threshold)
 {
 	for (u32 i = 0; i < gShaders.size(); ++i)
 	{
 		ShaderProgram * program = gShaders[i];
-		if (program->mMux == mux && program->mCycleType == cycle_type)
+		if (program->mMux == mux && program->mCycleType == cycle_type && program->mAlphaThreshold == alpha_threshold)
 			return program;
 	}
 
 	char body[1024];
-	PrintMux(body, mux, cycle_type);
+	PrintMux(body, mux, cycle_type, alpha_threshold);
 
 	char frag_shader[2048];
 	sprintf(frag_shader, default_fragment_shader_fmt, body);
@@ -468,7 +476,7 @@ static ShaderProgram * GetShaderForCurrentMode(u64 mux, u32 cycle_type)
 	}
 
 	ShaderProgram * program = new ShaderProgram;
-	InitShaderProgram(program, mux, cycle_type, shader_program);
+	InitShaderProgram(program, mux, cycle_type, alpha_threshold, shader_program);
 	gShaders.push_back(program);
 
 	return program;
@@ -492,9 +500,6 @@ void RendererOSX::RestoreRenderStates()
 
 	// We do our own lighting
 	glDisable(GL_LIGHTING);
-
-	glAlphaFunc(GL_GEQUAL, 4.f/255.f);
-	glEnable(GL_ALPHA_TEST);
 
 	glBlendColor(0.f, 0.f, 0.f, 0.f);
 	glBlendEquation(GL_ADD);
@@ -734,24 +739,25 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		gRDPOtherMode.force_bl ? InitBlenderMode( gRDPOtherMode.blender ) : glDisable( GL_BLEND );
 	}
 
+	u32 alpha_threshold = 0;
+
 	// Initiate Alpha test
 	if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
 	{
 		// G_AC_THRESHOLD || G_AC_DITHER
-		glAlphaFunc( (mAlphaThreshold | g_ROM.ALPHA_HACK) ? GL_GEQUAL : GL_GREATER, (float)mAlphaThreshold / 255.f);
-		glEnable(GL_ALPHA_TEST);
+		// FIXME(strmnnrmn): alpha func: (mAlphaThreshold | g_ROM.ALPHA_HACK) ? GL_GEQUAL : GL_GREATER
+		alpha_threshold = mAlphaThreshold;
 	}
 	else if (gRDPOtherMode.cvg_x_alpha)
 	{
 		// Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
 		// ALso going over 0x30 breaks the birds in Tarzan :(. Need to find a better way to leverage this.
-		glAlphaFunc(GL_GREATER, (float)0x70 / 255.f);
-		glEnable(GL_ALPHA_TEST);
+		alpha_threshold = 0x70;
 	}
 	else
 	{
 		// Use CVG for pixel alpha
-        glDisable(GL_ALPHA_TEST);
+		alpha_threshold = 0;
 	}
 
 	const ShaderProgram * program = NULL;
@@ -760,9 +766,11 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	{
 	case CYCLE_FILL:	program = GetFillShader(); break;
 	case CYCLE_COPY:	program = GetCopyShader(); break;
-	case CYCLE_1CYCLE:	program = GetShaderForCurrentMode(mMux, cycle_mode); break;
-	case CYCLE_2CYCLE:	program = GetShaderForCurrentMode(mMux, cycle_mode); break;
+	case CYCLE_1CYCLE:	program = GetShaderForCurrentMode(mMux, cycle_mode, alpha_threshold); break;
+	case CYCLE_2CYCLE:	program = GetShaderForCurrentMode(mMux, cycle_mode, alpha_threshold); break;
 	}
+
+	DAEDALUS_ASSERT(program != NULL, "Crazy cycle_mode: %d\n", cycle_mode);
 
 	glUseProgram(program->program);
 
@@ -994,7 +1002,6 @@ void RendererOSX::Draw2DTexture(f32 frameX, f32 frameY, f32 frameW, f32 frameH, 
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
 	glShadeModel(GL_FLAT);
-	glDisable(GL_ALPHA_TEST);
 	//glTexFunc(GL_TFX_REPLACE, GL_TCC_RGBA);
 	glEnable(GL_BLEND);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -1038,7 +1045,6 @@ void RendererOSX::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2,
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
 	glShadeModel(GL_FLAT);
-	glDisable(GL_ALPHA_TEST);
 	//glTexFunc(GL_TFX_REPLACE, GL_TCC_RGBA);
 	glEnable(GL_BLEND);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -1086,7 +1092,6 @@ void RendererOSX::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height, f32 u0,
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
 	glShadeModel(GL_FLAT);
-	glDisable(GL_ALPHA_TEST);
 	//glTexFunc(GL_TFX_REPLACE, GL_TCC_RGBA);
 	glEnable(GL_BLEND);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
