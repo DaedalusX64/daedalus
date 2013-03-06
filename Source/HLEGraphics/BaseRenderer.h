@@ -293,6 +293,9 @@ protected:
 	#else
 	inline void ConvertN64ToScreen( const v2 & n64_coords, v2 & answ ) const
 	{
+		// TODO(strmnnrmn): I think the outer Round() is unnecessary, as the
+		// inner Round ensures all vertices are quantised to a regular grid before
+		// transformation. Maybe. Goldeneye's intro looks ok without it, haven't checked megaman.
 		answ.x = Round( N64ToScreenX( Round( n64_coords.x ) ) );
 		answ.y = Round( N64ToScreenY( Round( n64_coords.y ) ) );
 	}
