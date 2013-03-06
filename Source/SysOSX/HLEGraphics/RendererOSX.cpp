@@ -310,7 +310,7 @@ static void PrintMux(char (&body)[1024], u64 mux, u32 cycle_type, u32 alpha_thre
 	if (alpha_threshold > 0)
 	{
 		char * p = body + strlen(body);
-		sprintf(p, "\tif(col.a > %f) discard;\n", (float)alpha_threshold);
+		sprintf(p, "\tif(col.a < %f) discard;\n", (float)alpha_threshold / 255.f);
 	}
 }
 
