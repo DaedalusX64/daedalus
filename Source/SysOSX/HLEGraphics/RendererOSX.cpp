@@ -631,7 +631,7 @@ void RendererOSX::PrepareRenderState(ERenderMode render_mode, bool disable_zbuff
 {
 	static bool	ZFightingEnabled = false;
 
-	DAEDALUS_PROFILE( "RendererOSX::RenderUsingCurrentBlendMode" );
+	DAEDALUS_PROFILE( "RendererOSX::PrepareRenderState" );
 
 	if ( disable_zbuffer )
 	{
@@ -831,7 +831,8 @@ void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	verts[3].Texture.x = uv1.x;
 	verts[3].Texture.y = uv1.y;
 
-	RenderUsingCurrentBlendMode( verts, 4, GL_TRIANGLE_STRIP, kRender2D, gRDPOtherMode.depth_source ? false : true );
+	PrepareRenderState(kRender2D, gRDPOtherMode.depth_source ? false : true);
+	RenderDaedalusVtx(GL_TRIANGLE_STRIP, verts, 4);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;
@@ -881,7 +882,8 @@ void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	verts[3].Texture.y = uv1.y;
 
 	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TextRect()?
-	RenderUsingCurrentBlendMode( verts, 4, GL_TRIANGLE_STRIP, kRender2D, true );
+	PrepareRenderState(kRender2D, true);
+	RenderDaedalusVtx(GL_TRIANGLE_STRIP, verts, 4);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;
@@ -929,7 +931,8 @@ void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	//verts[3].Texture.y = 1.0f;
 
 	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TexRect()?
-	RenderUsingCurrentBlendMode( verts, 4, GL_TRIANGLE_STRIP, kRender2D, true );
+	PrepareRenderState(kRender2D, true);
+	RenderDaedalusVtx(GL_TRIANGLE_STRIP, verts, 4);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;
