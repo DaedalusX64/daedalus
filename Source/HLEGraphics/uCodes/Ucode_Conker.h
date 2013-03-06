@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 void DLParser_Vtx_Conker( MicroCodeCommand command )
 {
 
-	if( bIsOffScreen || (gRDPOtherMode.L == CONKER_SHADOW) )
+	if( g_CI.Format != G_IM_FMT_RGBA || (gRDPOtherMode.L == CONKER_SHADOW) )
 	{
 		DL_PF("    Skipping Conker TnL (Vtx -> Off-Screen/Shadow)");
 		return;
@@ -63,7 +63,7 @@ void DLParser_Tri1_Conker( MicroCodeCommand command )
 
 	// If Off screen rendering is true then just skip the whole list of tris //Corn
 	// Skip shadow as well
-	if( bIsOffScreen || (gRDPOtherMode.L == CONKER_SHADOW) )
+	if( g_CI.Format != G_IM_FMT_RGBA || (gRDPOtherMode.L == CONKER_SHADOW) )
 	{
 		do
 		{
@@ -112,7 +112,7 @@ void DLParser_Tri2_Conker( MicroCodeCommand command )
 
 	// If Off screen rendering is true then just skip the whole list of tris //Corn
 	// Skip shadow as well
-	if( bIsOffScreen || (gRDPOtherMode.L == CONKER_SHADOW) )
+	if( g_CI.Format != G_IM_FMT_RGBA || (gRDPOtherMode.L == CONKER_SHADOW) )
 	{
 		do
 		{
@@ -166,7 +166,7 @@ void DLParser_Tri4_Conker( MicroCodeCommand command )
 
 	// If Off screen rendering is true then just skip the whole list of tris //Corn
 	//
-	if( bIsOffScreen )
+	if( g_CI.Format != G_IM_FMT_RGBA )
 	{
 		do
 		{

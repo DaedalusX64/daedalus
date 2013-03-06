@@ -50,52 +50,46 @@ struct Sprite2DInfo
     u8  flipY;
 };
 
-Sprite2DInfo g_Sprite2DInfo;
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void DLParser_Sprite2DScaleFlip( MicroCodeCommand command )
+inline void DLParser_Sprite2DScaleFlip( MicroCodeCommand command, Sprite2DInfo &info )
 {
-	g_Sprite2DInfo.scaleX = (((command.inst.cmd1)>>16)   &0xFFFF)/1024.0f;
-	g_Sprite2DInfo.scaleY = ( (command.inst.cmd1)        &0xFFFF)/1024.0f;
+	info.scaleX = (((command.inst.cmd1)>>16)   &0xFFFF)/1024.0f;
+	info.scaleY = ( (command.inst.cmd1)        &0xFFFF)/1024.0f;
 
-	g_Sprite2DInfo.flipX = (u8)(((command.inst.cmd0)>>8)     &0xFF);
-	g_Sprite2DInfo.flipY = (u8)( (command.inst.cmd0)         &0xFF);
+	info.flipX = (u8)(((command.inst.cmd0)>>8)     &0xFF);
+	info.flipY = (u8)( (command.inst.cmd0)         &0xFF);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void DLParser_Sprite2DDraw( MicroCodeCommand command, u32 address )
+inline void DLParser_Sprite2DDraw( MicroCodeCommand command, Sprite2DInfo &info, Sprite2DStruct *sprite )
 {
-	Sprite2DStruct *sprite = (Sprite2DStruct *)(g_ps8RamBase + address);
 
     u16 px = (u16)(((command.inst.cmd1)>>16)&0xFFFF)/4;
     u16 py = (u16)( (command.inst.cmd1)     &0xFFFF)/4;
 
 	DAEDALUS_ASSERT( sprite, "Sprite2DStruct is NULL" );
 
-	// This a hack for Wipeout.
-	// TODO : Find a workaround to remove this hack..
+	// Wipeout.
 	if(sprite->width == 0)
-	{
-		DAEDALUS_ERROR("Hack: Width is 0. Skipping Sprite2DDraw");
 		return;
-	}
 
 	// ToDO : Cache ti state as Sprite2D is mostly used for static BGs
 	TextureInfo ti;
 
-	ti.SetFormat            (sprite->format);
-	ti.SetSize              (sprite->size);
+	ti.SetFormat           (sprite->format);
+	ti.SetSize             (sprite->size);
 
-	ti.SetLoadAddress       (RDPSegAddr(sprite->address));
+	ti.SetLoadAddress      (RDPSegAddr(sprite->address));
 
-	ti.SetWidth             (sprite->width);
-	ti.SetHeight            (sprite->height);
-	ti.SetPitch             (sprite->stride << sprite->size >> 1);
+	ti.SetWidth            (sprite->width);
+	ti.SetHeight           (sprite->height);
+	ti.SetPitch            (sprite->stride << sprite->size >> 1);
 
-	ti.SetSwapped           (false);
+	ti.SetSwapped          (false);
 
 	ti.SetTLutIndex        (0);
 	ti.SetTlutAddress      ((u32)(g_pu8RamBase + RDPSegAddr(sprite->tlut)));
@@ -108,32 +102,17 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, u32 address )
 	texture->GetTexture()->InstallTexture();
 	texture->UpdateIfNecessary();
 
-	s32 frameX, frameY, frameW, frameH, temp;
-
-	//imageX              = sprite->imageX;
-	//imageY              = sprite->imageY;
-	//imageW              = sprite->width;
-	//imageH              = sprite->height;
-
-	frameX              = px;
-	frameY              = py;
-	frameW              = (sprite->width / g_Sprite2DInfo.scaleX) + px;
-	frameH              = (sprite->height / g_Sprite2DInfo.scaleY) + py;
+	s32 frameX              = px;
+	s32 frameY              = py;
+	s32 frameW              = (sprite->width / info.scaleX) + px;
+	s32 frameH              = (sprite->height / info.scaleY) + py;
 
 	// SSV uses this
-	if( g_Sprite2DInfo.flipX )
-	{
-		temp = frameX;
-		frameX = frameW;
-		frameW = temp;
-	}
+	if( info.flipX )
+		Swap< s32 >( frameX, frameW );
 
-	if( g_Sprite2DInfo.flipY )
-	{
-		temp = frameY;
-		frameY = frameH;
-		frameH = temp;
-	}
+	if( info.flipY )
+		Swap< s32 >( frameY, frameH );
 
 	gRenderer->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, 0.0f, 0.0f, (float)sprite->width, (float)sprite->height );
 }
@@ -144,7 +123,9 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, u32 address )
 // Used by Flying Dragon
 void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 {
+	Sprite2DInfo info;
     u32 address = RDPSegAddr(command.inst.cmd1) & (MAX_RAM_ADDRESS-1);
+	Sprite2DStruct *sprite = (Sprite2DStruct *)(g_ps8RamBase + address);
 
 	MicroCodeCommand command2;
 	MicroCodeCommand command3;
@@ -157,12 +138,12 @@ void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 
 	if( command2.inst.cmd == G_GBI1_SPRITE2D_SCALEFLIP )
 	{
-		DLParser_Sprite2DScaleFlip( command2 );
+		DLParser_Sprite2DScaleFlip( command2, info );
 	}
 
 	if( command3.inst.cmd == G_GBI1_SPRITE2D_DRAW )
 	{
-		DLParser_Sprite2DDraw( command3, address );
+		DLParser_Sprite2DDraw( command3, info, sprite );
 	}
 }
 

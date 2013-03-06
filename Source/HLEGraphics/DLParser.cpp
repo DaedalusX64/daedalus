@@ -31,6 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "uCodes/UcodeDefs.h"
 #include "uCodes/Ucode.h"
 
+#include "Math/MathUtil.h"
+
 #include "Utility/Profiler.h"
 #include "Utility/IO.h"
 
@@ -51,8 +53,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Test/BatchTest.h"
 
 #include "ConfigOptions.h"
-
-#include "Utility/FastMemcpy.h"
 
 #include <vector>
 
@@ -212,7 +212,6 @@ static u32	gInstructionCountLimit = UNLIMITED_INSTRUCTION_COUNT;
 //*****************************************************************************
 //
 //*****************************************************************************
-bool bIsOffScreen = false;
 u32 gRDPFrame		= 0;
 u32 gAuxAddr		= (u32)g_pu8RamBase;
 
@@ -1041,9 +1040,7 @@ void DLParser_TexRect( MicroCodeCommand command )
 	//if(x0 >= x1) return;
 
 	// Removes offscreen texrect, also fixes several glitches like in John Romero's Daikatana
-	// Note bIsOffScreen will break framebuffer effects.
-	//
-	if( x0 >= scissors.right || y0 >= scissors.bottom || x1 < scissors.left || y1 < scissors.top || bIsOffScreen )
+	if( x0 >= scissors.right || y0 >= scissors.bottom || x1 < scissors.left || y1 < scissors.top || g_CI.Format != G_IM_FMT_RGBA )
 	{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		++gNumRectsClipped;
@@ -1195,7 +1192,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 	//
 	// (1) Removes annoying rect that appears in Conker etc
 	//
-	if( bIsOffScreen )
+	if( g_CI.Format != G_IM_FMT_RGBA )
 	{
 		DL_PF("    Ignoring Fillrect ");
 		return;
@@ -1243,13 +1240,6 @@ void DLParser_SetCImg( MicroCodeCommand command )
 	//g_CI.Bpl		= g_CI.Width << g_CI.Size >> 1;
 
 	DL_PF("    CImg Adr[0x%08x] Format[%s] Size[%s] Width[%d]", RDPSegAddr(command.inst.cmd1), gFormatNames[ g_CI.Format ], gSizeNames[ g_CI.Size ], g_CI.Width);
-
-	// Used to remove offscreen, it removes the black box in the right side of Conker :)
-	// This will break FB, maybe add an option for this when FB is implemented?
-	// Borrowed from Rice Video
-	// Do not check texture size, it breaks Superman and Doom64..
-	//
-	bIsOffScreen = ( /*g_CI.Size != G_IM_SIZ_16b ||*/ g_CI.Format != G_IM_FMT_RGBA || g_CI.Width < 200 );
 }
 
 //*****************************************************************************

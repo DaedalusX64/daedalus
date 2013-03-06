@@ -260,10 +260,9 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 		switch( txtr->block.type )
 		{
 		case S2DEX_OBJLT_TXTRBLOCK:
-			ti.SetWidth            (sprite->imageW/32);
-			ti.SetHeight           (sprite->imageH/32);
-			if( sprite->imageW >= 0x8000 ) ti.SetWidth        ( (0x10000-sprite->imageW)/32);
-			if( sprite->imageH >= 0x8000 ) ti.SetHeight       ( (0x10000-sprite->imageH)/32);
+			// Worms tries to load huge sprites, need a more robust solution..
+			ti.SetWidth            ( ((sprite->imageW >= 0x8000) ? (0x10000-sprite->imageW): sprite->imageW)/32 );
+			ti.SetHeight           ( ((sprite->imageH >= 0x8000) ? (0x10000-sprite->imageH): sprite->imageH)/32 );
 			ti.SetPitch			   ( (2047/(txtr->block.tline-1)) << 3 );
 			break;
 		case S2DEX_OBJLT_TXTRTILE:
@@ -271,6 +270,10 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 			ti.SetHeight           ((txtr->tile.theight+1)>>2);
 			ti.SetPitch			   ( (sprite->imageSiz == G_IM_SIZ_4b) ? (ti.GetWidth() >> 1) : (ti.GetWidth() << (sprite->imageSiz-1)) );
 			break;
+		default:
+			// This should not happen!
+			DAEDALUS_ERROR("Unhandled Obj texture\n");
+			return;
 		}
 
 		ti.SetSwapped          (0);
@@ -317,6 +320,9 @@ void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
 		x3 = mat2D.A*objX + mat2D.B*objH + mat2D.X;
 		y3 = mat2D.C*objX + mat2D.D*objH + mat2D.Y;
 
+		DAEDALUS_ASSERT( (sprite->imageFlags&1) == 0, "Need to flip X" );
+		DAEDALUS_ASSERT( (sprite->imageFlags&0x10) == 0, "Need to flip Y" );
+
 		gRenderer->Draw2DTextureR( x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH);
 		break;
 
@@ -326,6 +332,7 @@ void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
 		x1 = mat2D.X + objW / mat2D.BaseScaleX - 1.0f;
 		y1 = mat2D.Y + objH / mat2D.BaseScaleY - 1.0f;
 
+		// Partial rotation doesn't flip sprites
 		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
 		break;
 
@@ -337,18 +344,11 @@ void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
 
 		// Used by Worms
 		if( sprite->imageFlags&1 )
-		{
-			f32 temp = x0;
-			x0 = x1;
-			x1 = temp;
-		}
+			Swap< f32 >( x0, x1 );
 
 		if( sprite->imageFlags&0x10 )
-		{
-			f32 temp = y0;
-			y0 = y1;
-			y1 = temp;
-		}
+			Swap< f32 >( y0, y1 );
+
 		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
 		break;
 	}
