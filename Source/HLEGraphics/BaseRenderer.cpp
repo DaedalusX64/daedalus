@@ -135,8 +135,8 @@ f32 TEST_VARY = 0.0f;
 //
 //*****************************************************************************
 BaseRenderer::BaseRenderer()
-:	mN64ToNativeScale( 2.0f, 2.0f )
-,	mN64ToNativeTranslate( 0.0f, 0.0f )
+:	mN64ToScreenScale( 2.0f, 2.0f )
+,	mN64ToScreenTranslate( 0.0f, 0.0f )
 ,	mMux( 0 )
 
 ,	mTextureTile(0)
@@ -321,16 +321,21 @@ void BaseRenderer::EndScene()
 //*****************************************************************************
 void BaseRenderer::SetPSPViewport( s32 x, s32 y, u32 w, u32 h )
 {
-	mN64ToNativeScale.x = gZoomX * f32( w ) / fViWidth;
-	mN64ToNativeScale.y = gZoomX * f32( h ) / fViHeight;
+	const f32 fx = (f32)x;
+	const f32 fy = (f32)y;
+	const f32 fw = (f32)w;
+	const f32 fh = (f32)h;
 
-	mN64ToNativeTranslate.x  = f32( x - Round(0.55f * (gZoomX - 1.0f) * fViWidth));
-	mN64ToNativeTranslate.y  = f32( y - Round(0.55f * (gZoomX - 1.0f) * fViHeight));
+	mN64ToScreenScale.x = gZoomX * fw / fViWidth;
+	mN64ToScreenScale.y = gZoomX * fh / fViHeight;
+
+	mN64ToScreenTranslate.x  = fx - Round(0.55f * (gZoomX - 1.0f) * fViWidth);
+	mN64ToScreenTranslate.y  = fy - Round(0.55f * (gZoomX - 1.0f) * fViHeight);
 
 	if( gRumblePakActive )
 	{
-	    mN64ToNativeTranslate.x += (FastRand() & 3);
-		mN64ToNativeTranslate.y += (FastRand() & 3);
+	    mN64ToScreenTranslate.x += (FastRand() & 3);
+		mN64ToScreenTranslate.y += (FastRand() & 3);
 	}
 
 	UpdateViewport();
