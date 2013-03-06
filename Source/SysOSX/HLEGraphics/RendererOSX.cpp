@@ -53,7 +53,7 @@ enum
 static GLuint gVAO;
 static GLuint gVBOs[kNumBuffers];
 
-const int kMaxVertices = 100;
+const int kMaxVertices = 1000;
 
 static float 	gPositionBuffer[kMaxVertices][3];
 static float 	gTexCoordBuffer[kMaxVertices][2];
@@ -525,10 +525,15 @@ void RendererOSX::RestoreRenderStates()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
+// Strip out vertex stream into separate buffers.
+// TODO(strmnnrmn): Renderer should support generating this data directly.
 void RendererOSX::RenderDaedalusVtx(int prim, const DaedalusVtx * vertices, int count)
 {
-	// Strip out vertex stream into separate buffers.
-	// TODO(strmnnrmn): Renderer should support generating this data directly.
+	DAEDALUS_ASSERT(count <= kMaxVertices, "Too many vertices!");
+
+	// Avoid crashing in the unlikely even that our buffers aren't long enough.
+	if (count > kMaxVertices)
+		count = kMaxVertices;
 
 	for (int i = 0; i < count; ++i)
 	{
