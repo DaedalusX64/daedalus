@@ -470,18 +470,7 @@ void RendererOSX::RestoreRenderStates()
 	// Initialise all the renderstate to our defaults.
 	glShadeModel(GL_SMOOTH);
 
-	const float cv[] = { 1.f, 1.f, 1.f, 1.f };
-	glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, cv);
-
-	//Reset uniforms?
-	//glTexOffset(0.0f,0.0f);
-
 	//glFog(near,far,mFogColour);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
 // Strip out vertex stream into separate buffers.
