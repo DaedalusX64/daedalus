@@ -122,6 +122,7 @@ struct ShaderProgram
 	GLint				uloc_texoffset[kNumTextures];
 	GLint				uloc_texture[kNumTextures];
 };
+static std::vector<ShaderProgram *>		gShaders;
 
 
 /* Creates a shader object of the specified type using the specified text
@@ -205,11 +206,6 @@ static GLuint make_shader_program(const char* vertex_shader_src, const char* fra
 	}
 	return program;
 }
-
-
-static ShaderProgram * 					gFillShader = NULL;
-static ShaderProgram * 					gCopyShader = NULL;
-static std::vector<ShaderProgram *>		gShaders;
 
 
 static const char * kRGBParams32[] =
@@ -314,7 +310,7 @@ static void PrintMux(char (&body)[1024], u64 mux, u32 cycle_type, u32 alpha_thre
 	if (alpha_threshold > 0)
 	{
 		char * p = body + strlen(body);
-		sprintf(p, "\tif(col.a <= %f) discard;\n");
+		sprintf(p, "\tif(col.a > %f) discard;\n", (float)alpha_threshold);
 	}
 }
 
@@ -403,58 +399,16 @@ static void InitShaderProgram(ShaderProgram * program, u64 mux, u32 cycle_type, 
 	glVertexAttribPointer(attrloc, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
 }
 
-static ShaderProgram * GetFillShader()
-{
-	if (gFillShader)
-		return gFillShader;
-
-	char body[1024];
-	sprintf(body, "\tcol = shade;\n");
-
-	char frag_shader[2048];
-	sprintf(frag_shader, default_fragment_shader_fmt, body);
-
-	GLuint shader_program = make_shader_program(default_vertex_shader, frag_shader);
-	if (shader_program == 0)
-	{
-		fprintf(stderr, "ERROR: during creation of the shader program\n");
-		return NULL;
-	}
-
-	ShaderProgram * program = new ShaderProgram;
-	InitShaderProgram(program, 0, CYCLE_FILL, 0, shader_program);
-	gFillShader = program;
-
-	return program;
-}
-
-static ShaderProgram * GetCopyShader()
-{
-	if (gCopyShader)
-		return gCopyShader;
-
-	char body[1024];
-	sprintf(body, "\tcol = tex0;\n");
-
-	char frag_shader[2048];
-	sprintf(frag_shader, default_fragment_shader_fmt, body);
-
-	GLuint shader_program = make_shader_program(default_vertex_shader, frag_shader);
-	if (shader_program == 0)
-	{
-		fprintf(stderr, "ERROR: during creation of the shader program\n");
-		return NULL;
-	}
-
-	ShaderProgram * program = new ShaderProgram;
-	InitShaderProgram(program, 0, CYCLE_COPY, 0, shader_program);
-	gCopyShader = program;
-
-	return program;
-}
-
 static ShaderProgram * GetShaderForCurrentMode(u64 mux, u32 cycle_type, u32 alpha_threshold)
 {
+	// In fill/cycle modes, we ignore the mux. Set it to zero so we don't create unecessary shaders.
+	if (cycle_type == CYCLE_FILL || cycle_type == CYCLE_COPY)
+		mux = 0;
+
+	// Not sure about this. Should CYCLE_FILL have alpha kill?
+	if (cycle_type == CYCLE_FILL)
+		alpha_threshold = 0;
+
 	for (u32 i = 0; i < gShaders.size(); ++i)
 	{
 		ShaderProgram * program = gShaders[i];
@@ -760,17 +714,12 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		alpha_threshold = 0;
 	}
 
-	const ShaderProgram * program = NULL;
-
-	switch (cycle_mode)
+	const ShaderProgram * program = GetShaderForCurrentMode(mMux, cycle_mode, alpha_threshold);
+	if (program == NULL)
 	{
-	case CYCLE_FILL:	program = GetFillShader(); break;
-	case CYCLE_COPY:	program = GetCopyShader(); break;
-	case CYCLE_1CYCLE:	program = GetShaderForCurrentMode(mMux, cycle_mode, alpha_threshold); break;
-	case CYCLE_2CYCLE:	program = GetShaderForCurrentMode(mMux, cycle_mode, alpha_threshold); break;
+		// There must have been some failure to compile the shader. Abort!
+		return;
 	}
-
-	DAEDALUS_ASSERT(program != NULL, "Crazy cycle_mode: %d\n", cycle_mode);
 
 	glUseProgram(program->program);
 
