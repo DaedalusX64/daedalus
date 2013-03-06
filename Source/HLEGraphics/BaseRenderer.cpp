@@ -1034,7 +1034,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 			mWorldProject.mRaw[8] *= HD_SCALE;
 			mWorldProject.mRaw[12] *= HD_SCALE;
 		}
-		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject ) );
+		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mWorldProject ) );
 		mModelViewStack[mModelViewTop] = gMatrixIdentity;
 	}
 
