@@ -22,6 +22,7 @@ private:
 	void 				PrepareRenderState(ERenderMode render_mode, bool disable_zbuffer);
 
 	void 				RenderDaedalusVtx(int prim, const DaedalusVtx * vertices, int count);
+	void 				RenderDaedalusVtxStreams(int prim, const float * positions, const float * uvs, const u32 * colours, int count);
 };
 
 // NB: this is equivalent to gRenderer, but points to the implementation class, for platform-specific functionality.

@@ -497,18 +497,22 @@ void RendererOSX::RenderDaedalusVtx(int prim, const DaedalusVtx * vertices, int 
 		gColorBuffer[i] = vtx->Colour.GetColour();
 	}
 
+	RenderDaedalusVtxStreams(prim, &gPositionBuffer[0][0], &gTexCoordBuffer[0][0], &gColorBuffer[0], count);
+}
+
+void RendererOSX::RenderDaedalusVtxStreams(int prim, const float * positions, const float * uvs, const u32 * colours, int count)
+{
 	glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kPositionBuffer]);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 3 * count, gPositionBuffer);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 3 * count, positions);
 
 	glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kTexCoordBuffer]);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 2 * count, gTexCoordBuffer);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 2 * count, uvs);
 
 	glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kColorBuffer]);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(u32) * count, gColorBuffer);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(u32) * count, colours);
 
 	glDrawArrays(prim, 0, count);
 }
-
 
 /*
 
@@ -788,6 +792,7 @@ void RendererOSX::RenderUsingCurrentBlendMode(DaedalusVtx * p_vertices, u32 num_
 void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
 	EnableTexturing( tile_idx );
+	PrepareRenderState(kRender2D, gRDPOtherMode.depth_source ? false : true);
 
 	v2 screen0;
 	v2 screen1;
@@ -799,40 +804,28 @@ void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 
 	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
-	//	To be used with TRIANGLE_STRIP, which requires 40% less verts than TRIANGLE
-	//	For reference for future ports and if SPRITES( which uses %60 less verts than TRIANGLE) causes issues
-	DaedalusVtx verts[4];
+	float positions[] = {
+		screen0.x, screen0.y, depth,
+		screen1.x, screen0.y, depth,
+		screen0.x, screen1.y, depth,
+		screen1.x, screen1.y, depth,
+	};
 
-	verts[0].Position.x = screen0.x;
-	verts[0].Position.y = screen0.y;
-	verts[0].Position.z = depth;
-	verts[0].Colour = c32(0xffffffff);
-	verts[0].Texture.x = uv0.x;
-	verts[0].Texture.y = uv0.y;
+	float uvs[] = {
+		uv0.x, uv0.y,
+		uv1.x, uv0.y,
+		uv0.x, uv1.y,
+		uv1.x, uv1.y,
+	};
 
-	verts[1].Position.x = screen1.x;
-	verts[1].Position.y = screen0.y;
-	verts[1].Position.z = depth;
-	verts[1].Colour = c32(0xffffffff);
-	verts[1].Texture.x = uv1.x;
-	verts[1].Texture.y = uv0.y;
+	u32 colours[] = {
+		0xffffffff,
+		0xffffffff,
+		0xffffffff,
+		0xffffffff,
+	};
 
-	verts[2].Position.x = screen0.x;
-	verts[2].Position.y = screen1.y;
-	verts[2].Position.z = depth;
-	verts[2].Colour = c32(0xffffffff);
-	verts[2].Texture.x = uv0.x;
-	verts[2].Texture.y = uv1.y;
-
-	verts[3].Position.x = screen1.x;
-	verts[3].Position.y = screen1.y;
-	verts[3].Position.z = depth;
-	verts[3].Colour = c32(0xffffffff);
-	verts[3].Texture.x = uv1.x;
-	verts[3].Texture.y = uv1.y;
-
-	PrepareRenderState(kRender2D, gRDPOtherMode.depth_source ? false : true);
-	RenderDaedalusVtx(GL_TRIANGLE_STRIP, verts, 4);
+	RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;
@@ -843,6 +836,9 @@ void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 {
 	EnableTexturing( tile_idx );
 
+	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TextRect()?
+	PrepareRenderState(kRender2D, true);
+
 	v2 screen0;
 	v2 screen1;
 	ConvertN64ToPsp( xy0, screen0 );
@@ -851,39 +847,31 @@ void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
 
-	DaedalusVtx verts[4];
+	// FIXME(strmnnrmn): shouldn't this set depth as in TexRect?
+	const f32 depth = 0.f;
 
-	verts[0].Position.x = screen0.x;
-	verts[0].Position.y = screen0.y;
-	verts[0].Position.z = 0.0f;
-	verts[0].Colour = c32(0xffffffff);
-	verts[0].Texture.x = uv0.x;
-	verts[0].Texture.y = uv0.y;
+	float positions[] = {
+		screen0.x, screen0.y, depth,
+		screen1.x, screen0.y, depth,
+		screen0.x, screen1.y, depth,
+		screen1.x, screen1.y, depth,
+	};
 
-	verts[1].Position.x = screen1.x;
-	verts[1].Position.y = screen0.y;
-	verts[1].Position.z = 0.0f;
-	verts[1].Colour = c32(0xffffffff);
-	verts[1].Texture.x = uv0.x;
-	verts[1].Texture.y = uv1.y;
+	float uvs[] = {
+		uv0.x, uv0.y,
+		uv0.x, uv1.y,
+		uv1.x, uv0.y,
+		uv1.x, uv1.y,
+	};
 
-	verts[2].Position.x = screen0.x;
-	verts[2].Position.y = screen1.y;
-	verts[2].Position.z = 0.0f;
-	verts[2].Colour = c32(0xffffffff);
-	verts[2].Texture.x = uv1.x;
-	verts[2].Texture.y = uv0.y;
+	u32 colours[] = {
+		0xffffffff,
+		0xffffffff,
+		0xffffffff,
+		0xffffffff,
+	};
 
-	verts[3].Position.x = screen1.x;
-	verts[3].Position.y = screen1.y;
-	verts[3].Position.z = 0.0f;
-	verts[3].Colour = c32(0xffffffff);
-	verts[3].Texture.x = uv1.x;
-	verts[3].Texture.y = uv1.y;
-
-	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TextRect()?
-	PrepareRenderState(kRender2D, true);
-	RenderDaedalusVtx(GL_TRIANGLE_STRIP, verts, 4);
+	RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;
@@ -892,6 +880,9 @@ void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 
 void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 {
+	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TexRect()?
+	PrepareRenderState(kRender2D, true);
+
 	v2 screen0;
 	v2 screen1;
 	ConvertN64ToPsp( xy0, screen0 );
@@ -899,40 +890,32 @@ void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 
-	DaedalusVtx verts[4];
+	// FIXME(strmnnrmn): shouldn't this set depth as in TexRect?
+	const f32 depth = 0.f;
 
-	// No need for Texture.x/y as we don't do any texturing for fillrect
-	verts[0].Position.x = screen0.x;
-	verts[0].Position.y = screen0.y;
-	verts[0].Position.z = 0.0f;
-	verts[0].Colour = c32(color);
-	//verts[0].Texture.x = 0.0f;
-	//verts[0].Texture.y = 0.0f;
+	float positions[] = {
+		screen0.x, screen0.y, depth,
+		screen1.x, screen0.y, depth,
+		screen0.x, screen1.y, depth,
+		screen1.x, screen1.y, depth,
+	};
 
-	verts[1].Position.x = screen1.x;
-	verts[1].Position.y = screen0.y;
-	verts[1].Position.z = 0.0f;
-	verts[1].Colour = c32(color);
-	//verts[1].Texture.x = 0.0f;
-	//verts[1].Texture.y = 1.0f;
+	// NB - these aren't needed. Could just pass NULL to RenderDaedalusVtxStreams?
+	float uvs[] = {
+		0.f, 0.f,
+		0.f, 1.f,
+		1.f, 0.f,
+		1.f, 1.f,
+	};
 
-	verts[2].Position.x = screen0.x;
-	verts[2].Position.y = screen1.y;
-	verts[2].Position.z = 0.0f;
-	verts[2].Colour = c32(color);
-	//verts[2].Texture.x = 1.0f;
-	//verts[2].Texture.y = 0.0f;
+	u32 colours[] = {
+		color,
+		color,
+		color,
+		color,
+	};
 
-	verts[3].Position.x = screen1.x;
-	verts[3].Position.y = screen1.y;
-	verts[3].Position.z = 0.0f;
-	verts[3].Colour = c32(color);
-	//verts[3].Texture.x = 1.0f;
-	//verts[3].Texture.y = 1.0f;
-
-	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TexRect()?
-	PrepareRenderState(kRender2D, true);
-	RenderDaedalusVtx(GL_TRIANGLE_STRIP, verts, 4);
+	RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;
