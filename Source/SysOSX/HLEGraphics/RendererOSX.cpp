@@ -836,8 +836,7 @@ void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 {
 	EnableTexturing( tile_idx );
 
-	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TextRect()?
-	PrepareRenderState(kRender2D, true);
+	PrepareRenderState(kRender2D, gRDPOtherMode.depth_source ? false : true);
 
 	v2 screen0;
 	v2 screen1;
@@ -847,8 +846,7 @@ void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
 
-	// FIXME(strmnnrmn): shouldn't this set depth as in TexRect?
-	const f32 depth = 0.f;
+	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
 	float positions[] = {
 		screen0.x, screen0.y, depth,
@@ -880,8 +878,7 @@ void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 
 void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 {
-	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TexRect()?
-	PrepareRenderState(kRender2D, true);
+	PrepareRenderState(kRender2D, gRDPOtherMode.depth_source ? false : true);
 
 	v2 screen0;
 	v2 screen1;
@@ -890,8 +887,7 @@ void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 
-	// FIXME(strmnnrmn): shouldn't this set depth as in TexRect?
-	const f32 depth = 0.f;
+	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
 	float positions[] = {
 		screen0.x, screen0.y, depth,
