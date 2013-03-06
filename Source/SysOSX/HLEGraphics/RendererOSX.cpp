@@ -627,10 +627,7 @@ static void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	}
 }
 
-
-// FIXME(strmnnrmn): for fill/copy modes this does more work than needed.
-// It ends up copying colour/uv coords when not needed, and can use a shader uniform for the fill colour.
-void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, ERenderMode render_mode, bool disable_zbuffer )
+void RendererOSX::PrepareRenderState(ERenderMode render_mode, bool disable_zbuffer)
 {
 	static bool	ZFightingEnabled = false;
 
@@ -778,8 +775,14 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 			}
 		}
 	}
+}
 
-	RenderDaedalusVtx( triangle_mode, p_vertices, num_vertices );
+// FIXME(strmnnrmn): for fill/copy modes this does more work than needed.
+// It ends up copying colour/uv coords when not needed, and can use a shader uniform for the fill colour.
+void RendererOSX::RenderUsingCurrentBlendMode(DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, ERenderMode render_mode, bool disable_zbuffer)
+{
+	PrepareRenderState(render_mode, disable_zbuffer);
+	RenderDaedalusVtx(triangle_mode, p_vertices, num_vertices);
 }
 
 void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
