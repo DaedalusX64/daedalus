@@ -366,8 +366,8 @@ void BaseRenderer::UpdateViewport()
 
 	v2		psp_min;
 	v2		psp_max;
-	ConvertN64ToPsp( n64_min, psp_min );
-	ConvertN64ToPsp( n64_max, psp_max );
+	ConvertN64ToScreen( n64_min, psp_min );
+	ConvertN64ToScreen( n64_max, psp_max );
 
 	s32		vp_x = s32( psp_min.x );
 	s32		vp_y = s32( psp_min.y );
@@ -1832,8 +1832,8 @@ void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 
 	v2 psp_coords_tl;
 	v2 psp_coords_br;
-	ConvertN64ToPsp( n64_coords_tl, psp_coords_tl );
-	ConvertN64ToPsp( n64_coords_br, psp_coords_br );
+	ConvertN64ToScreen( n64_coords_tl, psp_coords_tl );
+	ConvertN64ToScreen( n64_coords_br, psp_coords_br );
 
 	//Clamp TOP and LEFT values to 0 if < 0 , needed for zooming //Corn
 	s32 l = Max<s32>( s32(psp_coords_tl.x), 0 );

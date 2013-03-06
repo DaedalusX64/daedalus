@@ -618,8 +618,8 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	}
 	else
 	{
-		ConvertN64ToPsp( xy0, screen0 );
-		ConvertN64ToPsp( xy1, screen1 );
+		ConvertN64ToScreen( xy0, screen0 );
+		ConvertN64ToScreen( xy1, screen1 );
 	}
 
 	// TODO(strmnnrmn): check that sceGuTexOffset is clear here, else the offset will be applied twice!
@@ -702,8 +702,8 @@ void RendererPSP::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	v2 screen0;
 	v2 screen1;
 	// FIXME(strmnnrmn): why is VT_FULLSCREEN_HD code in TexRect() not also done here?
-	ConvertN64ToPsp( xy0, screen0 );
-	ConvertN64ToPsp( xy1, screen1 );
+	ConvertN64ToScreen( xy0, screen0 );
+	ConvertN64ToScreen( xy1, screen1 );
 
 	// TODO(strmnnrmn): check that sceGuTexOffset is clear here, else the offset will be applied twice!
 	v2 tex_uv0;
@@ -770,8 +770,8 @@ void RendererPSP::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 
 	v2 screen0;
 	v2 screen1;
-	ConvertN64ToPsp( xy0, screen0 );
-	ConvertN64ToPsp( xy1, screen1 );
+	ConvertN64ToScreen( xy0, screen0 );
+	ConvertN64ToScreen( xy1, screen1 );
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 

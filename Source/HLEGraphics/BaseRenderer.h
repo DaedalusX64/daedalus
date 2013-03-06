@@ -286,12 +286,12 @@ protected:
 	// coords we don't get any gaps.
 	//*****************************************************************************
 	#if 0
-	inline void ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
+	inline void ConvertN64ToScreen( const v2 & n64_coords, v2 & answ ) const
 	{
 		vfpu_N64_2_PSP( &answ.x, &n64_coords.x, &mN64ToNativeScale.x, &mN64ToNativeTranslate.x);
 	}
 	#else
-	inline void ConvertN64ToPsp( const v2 & n64_coords, v2 & answ ) const
+	inline void ConvertN64ToScreen( const v2 & n64_coords, v2 & answ ) const
 	{
 		answ.x = Round( N64ToNativeX( Round( n64_coords.x ) ) );
 		answ.y = Round( N64ToNativeY( Round( n64_coords.y ) ) );

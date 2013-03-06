@@ -779,8 +779,8 @@ void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 
 	v2 screen0;
 	v2 screen1;
-	ConvertN64ToPsp( xy0, screen0 );
-	ConvertN64ToPsp( xy1, screen1 );
+	ConvertN64ToScreen( xy0, screen0 );
+	ConvertN64ToScreen( xy1, screen1 );
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
@@ -822,8 +822,8 @@ void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 
 	v2 screen0;
 	v2 screen1;
-	ConvertN64ToPsp( xy0, screen0 );
-	ConvertN64ToPsp( xy1, screen1 );
+	ConvertN64ToScreen( xy0, screen0 );
+	ConvertN64ToScreen( xy1, screen1 );
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
@@ -864,8 +864,8 @@ void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 
 	v2 screen0;
 	v2 screen1;
-	ConvertN64ToPsp( xy0, screen0 );
-	ConvertN64ToPsp( xy1, screen1 );
+	ConvertN64ToScreen( xy0, screen0 );
+	ConvertN64ToScreen( xy1, screen1 );
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 
