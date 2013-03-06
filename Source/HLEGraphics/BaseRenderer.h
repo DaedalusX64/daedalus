@@ -259,8 +259,8 @@ public:
 	virtual void 		ResetDebugState()						{}
 #endif
 
-	inline float		N64ToNativeX(float x) const				{ return x * mN64ToNativeScale.x + mN64ToNativeTranslate.x; }
-	inline float		N64ToNativeY(float y) const				{ return y * mN64ToNativeScale.y + mN64ToNativeTranslate.y; }
+	inline float		N64ToScreenX(float x) const				{ return x * mN64ToNativeScale.x + mN64ToNativeTranslate.x; }
+	inline float		N64ToScreenY(float y) const				{ return y * mN64ToNativeScale.y + mN64ToNativeTranslate.y; }
 
 protected:
 #ifdef DAEDALUS_PSP
@@ -293,8 +293,8 @@ protected:
 	#else
 	inline void ConvertN64ToScreen( const v2 & n64_coords, v2 & answ ) const
 	{
-		answ.x = Round( N64ToNativeX( Round( n64_coords.x ) ) );
-		answ.y = Round( N64ToNativeY( Round( n64_coords.y ) ) );
+		answ.x = Round( N64ToScreenX( Round( n64_coords.x ) ) );
+		answ.y = Round( N64ToScreenY( Round( n64_coords.y ) ) );
 	}
 	#endif
 
