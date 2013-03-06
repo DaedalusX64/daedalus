@@ -82,6 +82,8 @@ bool IGraphicsContext::Initialise()
 	// Enable vertical sync (on cards that support it)
 	glfwSwapInterval( 1 );
 
+	ClearAllSurfaces();
+
 	// FIXME(strmnnrmn): this needs tidying.
 	extern bool initgl();
 	return initgl();
