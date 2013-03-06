@@ -77,7 +77,7 @@ bool IGraphicsContext::Initialise()
 	glfwSetWindowTitle( "Daedalus" );
 
 	// Ensure we can capture the escape key being pressed below
-	glfwEnable( GLFW_STICKY_KEYS );
+	//glfwEnable( GLFW_STICKY_KEYS );
 
 	// Enable vertical sync (on cards that support it)
 	glfwSwapInterval( 1 );
