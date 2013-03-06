@@ -894,12 +894,12 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	}
 
 	const Matrix4x4 & mat_world_project = mWorldProject;
-	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
+	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
 
-	_TnLVFPU( &matWorld, &mat_world_project, pVtxBase, &mVtxProjected[v0], n, &mTnL );
+	_TnLVFPU( &mat_world, &mat_world_project, pVtxBase, &mVtxProjected[v0], n, &mTnL );
 }
 
 //*****************************************************************************
@@ -1041,7 +1041,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	}
 
 	const Matrix4x4 & mat_world_project = mWorldProject;
-	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
+	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1058,19 +1058,19 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		//
 		v4 & projected( mVtxProjected[i].ProjectedPos );
 		projected = mat_world_project.Transform( w );
-		mVtxProjected[i].TransformedPos = matWorld.Transform( w );
+		mVtxProjected[i].TransformedPos = mat_world.Transform( w );
 
 		//	Initialise the clipping flags
 		//
 		u32 clip_flags = 0;
 		if		(projected.x < -projected.w)	clip_flags |= X_POS;
-		else if (projected.x > projected.w)	clip_flags |= X_NEG;
+		else if (projected.x > projected.w)		clip_flags |= X_NEG;
 
 		if		(projected.y < -projected.w)	clip_flags |= Y_POS;
-		else if (projected.y > projected.w)	clip_flags |= Y_NEG;
+		else if (projected.y > projected.w)		clip_flags |= Y_NEG;
 
 		if		(projected.z < -projected.w)	clip_flags |= Z_POS;
-		else if (projected.z > projected.w)	clip_flags |= Z_NEG;
+		else if (projected.z > projected.w)		clip_flags |= Z_NEG;
 		mVtxProjected[i].ClipFlags = clip_flags;
 
 		// LIGHTING OR COLOR
@@ -1080,7 +1080,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 			v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
 
 			v3 vecTransformedNormal;
-			vecTransformedNormal = matWorld.TransformNormal( model_normal );
+			vecTransformedNormal = mat_world.TransformNormal( model_normal );
 			vecTransformedNormal.Normalise();
 
 			mVtxProjected[i].Colour = LightVert(vecTransformedNormal);
@@ -1168,8 +1168,8 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
-	const Matrix4x4 & matProject( mProjectionStack[mProjectionTop] );
-	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
+	const Matrix4x4 & mat_project = mProjectionStack[mProjectionTop];
+	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1177,7 +1177,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 	// Light is not handled for Conker
 	//
 	const s8 *mn = (s8*)(gAuxAddr);
-	_TnLVFPUCBFD( &matWorld, &matProject, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn, v0<<1 );
+	_TnLVFPUCBFD( &mat_world, &mat_project, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn, v0<<1 );
 }
 
 #else
@@ -1188,8 +1188,8 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
 	//DBGConsole_Msg(0, "In SetNewVertexInfo");
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
-	const Matrix4x4 & matProject( mProjectionStack[mProjectionTop] );
-	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
+	const Matrix4x4 & mat_project = mProjectionStack[mProjectionTop];
+	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1208,9 +1208,9 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 		// VTX Transform
 		//
 		v4 & transformed( mVtxProjected[i].TransformedPos );
-		transformed = matWorld.Transform( w );
+		transformed = mat_world.Transform( w );
 		v4 & projected( mVtxProjected[i].ProjectedPos );
-		projected = matProject.Transform( transformed );
+		projected = mat_project.Transform( transformed );
 
 		//	Initialise the clipping flags
 		//
@@ -1255,7 +1255,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 			if ( mTnL.Flags.TexGen )
 			{
 				v3 model_normal( mn[((i<<1)+0)^3], mn[((i<<1)+1)^3], vert.normz );
-				v3 vecTransformedNormal = matWorld.TransformNormal( model_normal );
+				v3 vecTransformedNormal = mat_world.TransformNormal( model_normal );
 				vecTransformedNormal.Normalise();
 
 				const v3 & norm = vecTransformedNormal;
@@ -1426,8 +1426,8 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + address);
 
-	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
-	const Matrix4x4 & matProject( mProjectionStack[mProjectionTop] );
+	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
+	const Matrix4x4 & mat_project = mProjectionStack[mProjectionTop];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1435,7 +1435,7 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 	//Model & Color base vector
 	const u8 *mn = (u8*)gAuxAddr;
 
-	_TnLVFPUPD( &matWorld, &matProject, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn );
+	_TnLVFPUPD( &mat_world, &mat_project, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn );
 }
 
 #else
@@ -1443,8 +1443,8 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + address);
 
-	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
-	const Matrix4x4 & matProject( mProjectionStack[mProjectionTop] );
+	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
+	const Matrix4x4 & mat_project = mProjectionStack[mProjectionTop];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1463,9 +1463,9 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 		// VTX Transform
 		//
 		v4 & transformed( mVtxProjected[i].TransformedPos );
-		transformed = matWorld.Transform( w );
+		transformed = mat_world.Transform( w );
 		v4 & projected( mVtxProjected[i].ProjectedPos );
-		projected = matProject.Transform( transformed );
+		projected = mat_project.Transform( transformed );
 
 
 		// Set Clipflags //Corn
@@ -1485,7 +1485,7 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 			v3	model_normal((f32)mn[vert.cidx+3], (f32)mn[vert.cidx+2], (f32)mn[vert.cidx+1] );
 
 			v3 vecTransformedNormal;
-			vecTransformedNormal = matWorld.TransformNormal( model_normal );
+			vecTransformedNormal = mat_world.TransformNormal( model_normal );
 			vecTransformedNormal.Normalise();
 
 			mVtxProjected[i].Colour = LightVert(vecTransformedNormal);
