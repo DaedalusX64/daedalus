@@ -395,7 +395,7 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	else
 	{
 		// Use CVG for pixel alpha
-        sceGuDisable(GU_ALPHA_TEST);
+		sceGuDisable(GU_ALPHA_TEST);
 	}
 
 	SBlendStateEntry		blend_entry;
