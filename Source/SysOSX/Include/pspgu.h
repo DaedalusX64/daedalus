@@ -28,9 +28,4 @@ struct ScePspFMatrix4
 
 void sceGuSetMatrix(EGuMatrixType type, const ScePspFMatrix4 * mtx);
 
-enum
-{
-	GU_TRIANGLES			= GL_TRIANGLES,
-};
-
 #endif // PSPGU_H__

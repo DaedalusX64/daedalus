@@ -36,7 +36,7 @@ public:
 
 	virtual void		RestoreRenderStates();
 
-	virtual void		RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, ERenderMode render_mode, bool disable_zbuffer );
+	virtual void		RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bool disable_zbuffer );
 
 	virtual void		TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 );
 	virtual void		TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 );
@@ -56,6 +56,7 @@ public:
 	SBlendStateEntry	LookupBlendState( u64 mux, bool two_cycles );
 
 private:
+	void				RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer );
 	void				RenderUsingRenderSettings( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags );
 
 private:

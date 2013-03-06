@@ -631,7 +631,7 @@ static void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	}
 }
 
-void RendererOSX::PrepareRenderState(ERenderMode render_mode, bool disable_zbuffer)
+void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer)
 {
 	static bool	ZFightingEnabled = false;
 
@@ -713,24 +713,7 @@ void RendererOSX::PrepareRenderState(ERenderMode render_mode, bool disable_zbuff
 
 	glUseProgram(program->program);
 
-	if (render_mode == kRender2D)
-	{
-		// FIXME(strmnnrmn): These values need to come from the current display. We should compute this matrix in UpdateViewport or similar.
-		const float w = 640.f;
-		const float h = 480.f;
-		const float kMatrixScreenToDevice[] = {
-			2.f / w,       0.f,     0.f,     0.f,
-			    0.f,  -2.f / h,     0.f,     0.f,
-			    0.f,       0.f,     1.f,     0.f,
-			  -1.0f,       1.f,     0.f,     1.f,
-			};
-
-		glUniformMatrix4fv(program->uloc_project, 1, GL_FALSE, kMatrixScreenToDevice);
-	}
-	else
-	{
-		glUniformMatrix4fv(program->uloc_project, 1, GL_FALSE, gProjection.m);
-	}
+	glUniformMatrix4fv(program->uloc_project, 1, GL_FALSE, mat_project);
 
 	glUniform4f(program->uloc_primcol, mPrimitiveColour.GetRf(), mPrimitiveColour.GetGf(), mPrimitiveColour.GetBf(), mPrimitiveColour.GetAf());
 	glUniform4f(program->uloc_envcol,  mEnvColour.GetRf(),       mEnvColour.GetGf(),       mEnvColour.GetBf(),       mEnvColour.GetAf());
@@ -783,16 +766,16 @@ void RendererOSX::PrepareRenderState(ERenderMode render_mode, bool disable_zbuff
 
 // FIXME(strmnnrmn): for fill/copy modes this does more work than needed.
 // It ends up copying colour/uv coords when not needed, and can use a shader uniform for the fill colour.
-void RendererOSX::RenderUsingCurrentBlendMode(DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, ERenderMode render_mode, bool disable_zbuffer)
+void RendererOSX::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bool disable_zbuffer )
 {
-	PrepareRenderState(render_mode, disable_zbuffer);
-	RenderDaedalusVtx(triangle_mode, p_vertices, num_vertices);
+	PrepareRenderState(gProjection.m, disable_zbuffer);
+	RenderDaedalusVtx(GL_TRIANGLES, p_vertices, num_vertices);
 }
 
 void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
 	EnableTexturing( tile_idx );
-	PrepareRenderState(kRender2D, gRDPOtherMode.depth_source ? false : true);
+	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
 
 	v2 screen0;
 	v2 screen1;
@@ -835,8 +818,7 @@ void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
 	EnableTexturing( tile_idx );
-
-	PrepareRenderState(kRender2D, gRDPOtherMode.depth_source ? false : true);
+	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
 
 	v2 screen0;
 	v2 screen1;
@@ -878,7 +860,7 @@ void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 
 void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 {
-	PrepareRenderState(kRender2D, gRDPOtherMode.depth_source ? false : true);
+	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
 
 	v2 screen0;
 	v2 screen1;

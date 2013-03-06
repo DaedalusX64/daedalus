@@ -17,12 +17,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-//Draw normal filled triangles
-#define DRAW_MODE GU_TRIANGLES
-//Draw lines
-//Also enable clean scene in advanced menu //Corn
-//#define DRAW_MODE GU_LINE_STRIP
-
 #include "stdafx.h"
 
 #include "BaseRenderer.h"
@@ -295,6 +289,16 @@ void BaseRenderer::BeginScene()
 
 	SetPSPViewport( display_x, display_y, display_width, display_height );
 	SetN64Viewport( scale, trans );
+
+	// FIXME(strmnnrmn): These values need to come from the current display. We should compute this matrix in UpdateViewport or similar.
+	const float w = display_width;
+	const float h = display_height;
+	mScreenToDevice = Matrix4x4(
+		2.f / w,       0.f,     0.f,     0.f,
+		    0.f,  -2.f / h,     0.f,     0.f,
+		    0.f,       0.f,     1.f,     0.f,
+		  -1.0f,       1.f,     0.f,     1.f
+	);
 }
 
 //*****************************************************************************
@@ -556,7 +560,7 @@ void BaseRenderer::FlushTris()
 
 	//
 	//	Render out our vertices
-	RenderUsingCurrentBlendMode( temp_verts.Verts, temp_verts.Count, DRAW_MODE, kRender3D, gRDPOtherMode.depth_source ? true : false );
+	RenderTriangles( temp_verts.Verts, temp_verts.Count, gRDPOtherMode.depth_source ? true : false );
 
 	//sceGuDisable(GU_CULL_FACE);
 

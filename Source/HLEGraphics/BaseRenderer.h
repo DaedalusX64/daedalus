@@ -298,13 +298,7 @@ protected:
 	}
 	#endif
 
-	enum ERenderMode
-	{
-		kRender3D,
-		kRender2D,
-	};
-
-	virtual void		RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, ERenderMode render_mode, bool disable_zbuffer ) = 0;
+	virtual void		RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bool disable_zbuffer ) = 0;
 
 	// Old code, kept for reference
 #ifdef DAEDALUS_IS_LEGACY
@@ -369,6 +363,8 @@ protected:
 	bool				mReloadProj;
 	bool				mWPmodified;
 	u32					mDKRMatIdx;
+
+	Matrix4x4			mScreenToDevice;					// Used by OSX renderer - scales screen coords (0..640 etc) to device coords (-1..+1)
 
 	static const u32 	MAX_VERTICES = 320;	//we need at least 80 verts * 3 = 240? But Flying Dragon uses more than 256 //Corn
 	u16					m_swIndexBuffer[MAX_VERTICES];
