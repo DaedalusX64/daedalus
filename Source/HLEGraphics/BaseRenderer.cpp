@@ -875,7 +875,6 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
 
 	UpdateWorldProject();
-	const Matrix4x4 & mat_world_project = mWorldProject;
 
 	//If WoldProjectmatrix has been modified due to insert or force matrix (Kirby, SSB / Tarzan, Rayman2, Donald duck, SW racer, Robot on wheels)
 	//we need to update sceGU projmtx //Corn
@@ -894,6 +893,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		mModelViewStack[mModelViewTop] = gMatrixIdentity;
 	}
 
+	const Matrix4x4 & mat_world_project = mWorldProject;
 	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
@@ -1022,7 +1022,6 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * pVtxBase = (const FiddledVtx*)(g_pu8RamBase + address);
 	UpdateWorldProject();
-	const Matrix4x4 & mat_world_project = mWorldProject;
 
 	//If WoldProjectmatrix has been modified due to insert or force matrix (Kirby, SSB / Tarzan, Rayman2, Donald duck, SW racer, Robot on wheels)
 	//we need to update sceGU projmtx //Corn
@@ -1041,6 +1040,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		mModelViewStack[mModelViewTop] = gMatrixIdentity;
 	}
 
+	const Matrix4x4 & mat_world_project = mWorldProject;
 	const Matrix4x4 & matWorld( mModelViewStack[mModelViewTop] );
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
