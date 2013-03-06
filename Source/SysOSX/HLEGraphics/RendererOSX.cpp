@@ -728,6 +728,26 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		gRDPOtherMode.force_bl ? InitBlenderMode( gRDPOtherMode.blender ) : glDisable( GL_BLEND );
 	}
 
+	// Initiate Alpha test
+	if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
+	{
+		// G_AC_THRESHOLD || G_AC_DITHER
+		glAlphaFunc( (mAlphaThreshold | g_ROM.ALPHA_HACK) ? GL_GEQUAL : GL_GREATER, (float)mAlphaThreshold / 255.f);
+		glEnable(GL_ALPHA_TEST);
+	}
+	else if (gRDPOtherMode.cvg_x_alpha)
+	{
+		// Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
+		// ALso going over 0x30 breaks the birds in Tarzan :(. Need to find a better way to leverage this.
+		glAlphaFunc(GL_GREATER, (float)0x70 / 255.f);
+		glEnable(GL_ALPHA_TEST);
+	}
+	else
+	{
+		// Use CVG for pixel alpha
+        glDisable(GL_ALPHA_TEST);
+	}
+
 	const ShaderProgram * program = NULL;
 
 	switch (cycle_mode)
@@ -761,26 +781,6 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 	glUniform4f(program->uloc_primcol, mPrimitiveColour.GetRf(), mPrimitiveColour.GetGf(), mPrimitiveColour.GetBf(), mPrimitiveColour.GetAf());
 	glUniform4f(program->uloc_envcol,  mEnvColour.GetRf(),       mEnvColour.GetGf(),       mEnvColour.GetBf(),       mEnvColour.GetAf());
-
-	// Initiate Alpha test
-	if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
-	{
-		// G_AC_THRESHOLD || G_AC_DITHER
-		glAlphaFunc( (mAlphaThreshold | g_ROM.ALPHA_HACK) ? GL_GEQUAL : GL_GREATER, (float)mAlphaThreshold / 255.f);
-		glEnable(GL_ALPHA_TEST);
-	}
-	else if (gRDPOtherMode.cvg_x_alpha)
-	{
-		// Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
-		// ALso going over 0x30 breaks the birds in Tarzan :(. Need to find a better way to leverage this.
-		glAlphaFunc(GL_GREATER, (float)0x70 / 255.f);
-		glEnable(GL_ALPHA_TEST);
-	}
-	else
-	{
-		// Use CVG for pixel alpha
-        glDisable(GL_ALPHA_TEST);
-	}
 
 	// FIXME - figure out from mux
 	bool install_textures[] = { true, false };
