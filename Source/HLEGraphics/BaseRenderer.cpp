@@ -873,7 +873,9 @@ void BaseRenderer::PrepareTrisUnclipped( TempVerts * temp_verts ) const
 void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
-	const Matrix4x4 & matWorldProject( GetWorldProject() );
+
+	UpdateWorldProject();
+	const Matrix4x4 & mat_world_project = mWorldProject;
 
 	//If WoldProjectmatrix has been modified due to insert or force matrix (Kirby, SSB / Tarzan, Rayman2, Donald duck, SW racer, Robot on wheels)
 	//we need to update sceGU projmtx //Corn
@@ -897,7 +899,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
 
-	_TnLVFPU( &matWorld, &matWorldProject, pVtxBase, &mVtxProjected[v0], n, &mTnL );
+	_TnLVFPU( &matWorld, &mat_world_project, pVtxBase, &mVtxProjected[v0], n, &mTnL );
 }
 
 //*****************************************************************************
@@ -1019,7 +1021,8 @@ v4 BaseRenderer::LightVert( const v3 & norm ) const
 void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * pVtxBase = (const FiddledVtx*)(g_pu8RamBase + address);
-	const Matrix4x4 & matWorldProject( GetWorldProject() );
+	UpdateWorldProject();
+	const Matrix4x4 & mat_world_project = mWorldProject;
 
 	//If WoldProjectmatrix has been modified due to insert or force matrix (Kirby, SSB / Tarzan, Rayman2, Donald duck, SW racer, Robot on wheels)
 	//we need to update sceGU projmtx //Corn
@@ -1054,7 +1057,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		// VTX Transform
 		//
 		v4 & projected( mVtxProjected[i].ProjectedPos );
-		projected = matWorldProject.Transform( w );
+		projected = mat_world_project.Transform( w );
 		mVtxProjected[i].TransformedPos = matWorld.Transform( w );
 
 		//	Initialise the clipping flags
@@ -1089,8 +1092,8 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 			{
 				// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
 				// If the vert is already lit, then there is no normal (and hence we can't generate tex coord)
-#if 1			// 1->Lets use matWorldProject instead of mat_world for nicer effect (see SSV space ship) //Corn
-				vecTransformedNormal = matWorldProject.TransformNormal( model_normal );
+#if 1			// 1->Lets use mat_world_project instead of mat_world for nicer effect (see SSV space ship) //Corn
+				vecTransformedNormal = mat_world_project.TransformNormal( model_normal );
 				vecTransformedNormal.Normalise();
 #endif
 
@@ -1309,7 +1312,7 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 	gDKRVtxCount += n;
 
 	u32 pVtxBase = u32(g_pu8RamBase + address);
-	const Matrix4x4 & matWorldProject( mProjectionStack[mDKRMatIdx] );
+	const Matrix4x4 & mat_world_project = mProjectionStack[mDKRMatIdx];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1372,10 +1375,10 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 		if( mWPmodified )
 		{	//Only reload matrix if it has been changed and no billbording //Corn
 			mWPmodified = false;
-			sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &matWorldProject) );
+			sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mat_world_project) );
 		}
 #ifdef DAEDALUS_PSP_USE_VFPU
-		_TnLVFPUDKR( n, &matWorldProject, (const FiddledVtx*)pVtxBase, &mVtxProjected[v0] );
+		_TnLVFPUDKR( n, &mat_world_project, (const FiddledVtx*)pVtxBase, &mVtxProjected[v0] );
 #else
 		for (u32 i = v0; i < v0 + n; i++)
 		{
@@ -1386,7 +1389,7 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 			transformed.w = 1.0f;
 
 			v4 & projected( mVtxProjected[i].ProjectedPos );
-			projected = matWorldProject.Transform( transformed );	//Do projection
+			projected = mat_world_project.Transform( transformed );	//Do projection
 
 			// Set Clipflags
 			u32 clip_flags = 0;
@@ -2028,7 +2031,7 @@ void BaseRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 //*****************************************************************************
 //
 //*****************************************************************************
-inline Matrix4x4 & BaseRenderer::GetWorldProject()
+inline void BaseRenderer::UpdateWorldProject()
 {
 	if( !mWorldProjectValid )
 	{
@@ -2044,8 +2047,6 @@ inline Matrix4x4 & BaseRenderer::GetWorldProject()
 		mWorldProject = mModelViewStack[mModelViewTop] * mProjectionStack[mProjectionTop];
 	#endif
 	}
-
-	return mWorldProject;
 }
 
 //*****************************************************************************
@@ -2054,7 +2055,9 @@ inline Matrix4x4 & BaseRenderer::GetWorldProject()
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 void BaseRenderer::PrintActive()
 {
-	const Matrix4x4 & mat( GetWorldProject() );
+	UpdateWorldProject();
+	const Matrix4x4 & mat = mWorldProject;
+
 	DL_PF(
 		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 		"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
