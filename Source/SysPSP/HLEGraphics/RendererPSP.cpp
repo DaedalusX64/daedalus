@@ -311,7 +311,7 @@ RendererPSP::SBlendStateEntry RendererPSP::LookupBlendState( u64 mux, bool two_c
 	return entry;
 }
 
-void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer )
+void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, ERenderMode render_mode, bool disable_zbuffer )
 {
 	static bool	ZFightingEnabled( false );
 
@@ -408,7 +408,8 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		case CYCLE_2CYCLE:		blend_entry = LookupBlendState( mMux, true ); break;
 	}
 
-	u32 render_flags( GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF | render_mode );
+	u32 render_mode_bits = (render_mode == kRender2D) ? GU_TRANSFORM_2D : GU_TRANSFORM_3D;
+	u32 render_flags( GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF | render_mode_bits );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	// Used for Blend Explorer, or Nasty texture
@@ -642,7 +643,7 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	p_vertices[1].Texture.x = tex_uv1.x;
 	p_vertices[1].Texture.y = tex_uv1.y;
 
-	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
+	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, kRender2D, gRDPOtherMode.depth_source ? false : true );
 #else
 	//	To be used with TRIANGLE_STRIP, which requires 40% less verts than TRIANGLE
 	//	For reference for future ports and if SPRITES( which uses %60 less verts than TRIANGLE) causes issues
@@ -676,7 +677,7 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	p_vertices[3].Texture.x = tex_uv1.x;
 	p_vertices[3].Texture.y = tex_uv1.y;
 
-	RenderUsingCurrentBlendMode( p_vertices, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
+	RenderUsingCurrentBlendMode( p_vertices, 4, GU_TRIANGLE_STRIP, kRender2D, gRDPOtherMode.depth_source ? false : true );
 #endif
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -737,7 +738,7 @@ void RendererPSP::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	p_vertices[3].Texture.y = tex_uv1.y;
 
 	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TextRect()?
-	RenderUsingCurrentBlendMode( p_vertices, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, true );
+	RenderUsingCurrentBlendMode( p_vertices, 4, GU_TRIANGLE_STRIP, kRender2D, true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;
@@ -782,7 +783,7 @@ void RendererPSP::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	//p_vertices[1].Texture.y = 0.0f;
 
 	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TexRect()?
-	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, GU_TRANSFORM_2D, true );
+	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, kRender2D, true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;

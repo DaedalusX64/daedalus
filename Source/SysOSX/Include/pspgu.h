@@ -33,13 +33,4 @@ enum
 	GU_TRIANGLES			= GL_TRIANGLES,
 };
 
-enum
-{
-	GU_TEXTURE_32BITF	= 1<<0,	// 1
-	GU_VERTEX_32BITF	= 1<<1,	// 2
-	GU_COLOR_8888		= 1<<2,	// 4
-	GU_TRANSFORM_2D		= 1<<3,	// 8
-	GU_TRANSFORM_3D		= 1<<4,	// 16
-};
-
 #endif // PSPGU_H__

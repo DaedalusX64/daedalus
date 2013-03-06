@@ -674,9 +674,10 @@ static void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	}
 }
 
+
 // FIXME(strmnnrmn): for fill/copy modes this does more work than needed.
 // It ends up copying colour/uv coords when not needed, and can use a shader uniform for the fill colour.
-void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer )
+void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, ERenderMode render_mode, bool disable_zbuffer )
 {
 	static bool	ZFightingEnabled = false;
 
@@ -760,7 +761,7 @@ void RendererOSX::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 	glUseProgram(program->program);
 
-	if ((render_mode & GU_TRANSFORM_2D) == GU_TRANSFORM_2D)
+	if (render_mode == kRender2D)
 	{
 		// FIXME(strmnnrmn): These values need to come from the current display. We should compute this matrix in UpdateViewport or similar.
 		const float w = 640.f;
@@ -876,7 +877,7 @@ void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	verts[3].Texture.x = uv1.x;
 	verts[3].Texture.y = uv1.y;
 
-	RenderUsingCurrentBlendMode( verts, 4, GL_TRIANGLE_STRIP, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
+	RenderUsingCurrentBlendMode( verts, 4, GL_TRIANGLE_STRIP, kRender2D, gRDPOtherMode.depth_source ? false : true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;
@@ -926,7 +927,7 @@ void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	verts[3].Texture.y = uv1.y;
 
 	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TextRect()?
-	RenderUsingCurrentBlendMode( verts, 4, GL_TRIANGLE_STRIP, GU_TRANSFORM_2D, true );
+	RenderUsingCurrentBlendMode( verts, 4, GL_TRIANGLE_STRIP, kRender2D, true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;
@@ -974,7 +975,7 @@ void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	//verts[3].Texture.y = 1.0f;
 
 	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TexRect()?
-	RenderUsingCurrentBlendMode( verts, 4, GL_TRIANGLE_STRIP, GU_TRANSFORM_2D, true );
+	RenderUsingCurrentBlendMode( verts, 4, GL_TRIANGLE_STRIP, kRender2D, true );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++mNumRect;

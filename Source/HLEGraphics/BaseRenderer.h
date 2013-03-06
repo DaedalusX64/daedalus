@@ -298,7 +298,13 @@ protected:
 	}
 	#endif
 
-	virtual void		RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer ) = 0;
+	enum ERenderMode
+	{
+		kRender3D,
+		kRender2D,
+	};
+
+	virtual void		RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, ERenderMode render_mode, bool disable_zbuffer ) = 0;
 
 	// Old code, kept for reference
 #ifdef DAEDALUS_IS_LEGACY

@@ -556,7 +556,7 @@ void BaseRenderer::FlushTris()
 
 	//
 	//	Render out our vertices
-	RenderUsingCurrentBlendMode( temp_verts.Verts, temp_verts.Count, DRAW_MODE, GU_TRANSFORM_3D, gRDPOtherMode.depth_source ? true : false );
+	RenderUsingCurrentBlendMode( temp_verts.Verts, temp_verts.Count, DRAW_MODE, kRender3D, gRDPOtherMode.depth_source ? true : false );
 
 	//sceGuDisable(GU_CULL_FACE);
 
