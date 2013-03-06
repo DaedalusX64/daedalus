@@ -1216,13 +1216,13 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 		//
 		u32 clip_flags = 0;
 		if		(projected.x < -projected.w)	clip_flags |= X_POS;
-		else if (projected.x > projected.w)	clip_flags |= X_NEG;
+		else if (projected.x > projected.w)		clip_flags |= X_NEG;
 
 		if		(projected.y < -projected.w)	clip_flags |= Y_POS;
-		else if (projected.y > projected.w)	clip_flags |= Y_NEG;
+		else if (projected.y > projected.w)		clip_flags |= Y_NEG;
 
 		if		(projected.z < -projected.w)	clip_flags |= Z_POS;
-		else if (projected.z > projected.w)	clip_flags |= Z_NEG;
+		else if (projected.z > projected.w)		clip_flags |= Z_NEG;
 		mVtxProjected[i].ClipFlags = clip_flags;
 
 		// LIGHTING OR COLOR
@@ -1394,13 +1394,13 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
 			// Set Clipflags
 			u32 clip_flags = 0;
 			if		(projected.x < -projected.w)	clip_flags |= X_POS;
-			else if (projected.x > projected.w)	clip_flags |= X_NEG;
+			else if (projected.x > projected.w)		clip_flags |= X_NEG;
 
 			if		(projected.y < -projected.w)	clip_flags |= Y_POS;
-			else if (projected.y > projected.w)	clip_flags |= Y_NEG;
+			else if (projected.y > projected.w)		clip_flags |= Y_NEG;
 
 			if		(projected.z < -projected.w)	clip_flags |= Z_POS;
-			else if (projected.z > projected.w)	clip_flags |= Z_NEG;
+			else if (projected.z > projected.w)		clip_flags |= Z_NEG;
 			mVtxProjected[i].ClipFlags = clip_flags;
 
 			// Assign true vert colour
@@ -1471,13 +1471,13 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 		// Set Clipflags //Corn
 		u32 clip_flags = 0;
 		if		(projected.x < -projected.w)	clip_flags |= X_POS;
-		else if (projected.x > projected.w)	clip_flags |= X_NEG;
+		else if (projected.x > projected.w)		clip_flags |= X_NEG;
 
 		if		(projected.y < -projected.w)	clip_flags |= Y_POS;
-		else if (projected.y > projected.w)	clip_flags |= Y_NEG;
+		else if (projected.y > projected.w)		clip_flags |= Y_NEG;
 
 		if		(projected.z < -projected.w)	clip_flags |= Z_POS;
-		else if (projected.z > projected.w)	clip_flags |= Z_NEG;
+		else if (projected.z > projected.w)		clip_flags |= Z_NEG;
 		mVtxProjected[i].ClipFlags = clip_flags;
 
 		if( mTnL.Flags.Light )
