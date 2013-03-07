@@ -281,25 +281,14 @@ protected:
 	void				UpdateViewport();
 
 	//*****************************************************************************
-	// GE 007 and Megaman can act up on this
 	// We round these value here, so that when we scale up the coords to our screen
 	// coords we don't get any gaps.
 	//*****************************************************************************
-	#if 0
 	inline void ConvertN64ToScreen( const v2 & n64_coords, v2 & answ ) const
 	{
-		vfpu_N64_2_PSP( &answ.x, &n64_coords.x, &mN64ToScreenScale.x, &mN64ToScreenTranslate.x);
+		answ.x = N64ToScreenX( Round( n64_coords.x ) );
+		answ.y = N64ToScreenY( Round( n64_coords.y ) );
 	}
-	#else
-	inline void ConvertN64ToScreen( const v2 & n64_coords, v2 & answ ) const
-	{
-		// TODO(strmnnrmn): I think the outer Round() is unnecessary, as the
-		// inner Round ensures all vertices are quantised to a regular grid before
-		// transformation. Maybe. Goldeneye's intro looks ok without it, haven't checked megaman.
-		answ.x = Round( N64ToScreenX( Round( n64_coords.x ) ) );
-		answ.y = Round( N64ToScreenY( Round( n64_coords.y ) ) );
-	}
-	#endif
 
 	virtual void		RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bool disable_zbuffer ) = 0;
 
