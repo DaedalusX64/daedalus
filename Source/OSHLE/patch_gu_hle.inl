@@ -436,9 +436,9 @@ TEST_DISABLE_GU_FUNCS
 	u8 * pZBase  = (u8 *)ReadAddress(gGPR[REG_a2]._u32_0);
 
 	REG32 x, y, z;
-	x._u32 = QuickRead32Bits(pXBase);
-	y._u32 = QuickRead32Bits(pYBase);
-	z._u32 = QuickRead32Bits(pZBase);
+	x._u32 = QuickRead32Bits(pXBase, 0x0);
+	y._u32 = QuickRead32Bits(pYBase, 0x0);
+	z._u32 = QuickRead32Bits(pZBase, 0x0);
 
 #ifdef DAEDALUS_PSP_USE_VFPU //Corn
 	vfpu_norm_3Dvec(&x._f32, &y._f32, &z._f32);

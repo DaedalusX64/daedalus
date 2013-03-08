@@ -320,9 +320,13 @@ void Memory_Cleanup()
  //*****************************************************************************
  //
  //*****************************************************************************
-static void Memory_Tlb_Hack(const void *p_rom_address)
+static void Memory_Tlb_Hack()
 {
-	if(p_rom_address != NULL)
+	
+	bool RomBaseKnown = RomBuffer::IsRomLoaded() && RomBuffer::IsRomAddressFixed();
+
+	const void *	rom_address( RomBaseKnown ? RomBuffer::GetFixedRomBaseAddress() : NULL );
+	if(rom_address != NULL)
 	{
 	   u32 offset = 0;
 	   switch(g_ROM.rh.CountryID)
@@ -338,7 +342,7 @@ static void Memory_Tlb_Hack(const void *p_rom_address)
 	   u32 start_addr = 0x7F000000 >> 18;
 	   u32 end_addr   = 0x7FFFFFFF >> 18;
 
-	   u8 *pRead = (u8*)(reinterpret_cast< u32 >(p_rom_address) + offset - (start_addr << 18));
+	   u8 *pRead = (u8*)(reinterpret_cast< u32 >(rom_address) + offset - (start_addr << 18));
 
 	   for (u32 i = start_addr; i <= end_addr; i++)
 	   {
@@ -352,7 +356,7 @@ static void Memory_Tlb_Hack(const void *p_rom_address)
 //*****************************************************************************
 //
 //*****************************************************************************
-static void Memory_InitFunc(u32 start, u32 size, const void * ReadRegion, const void * WriteRegion, mReadFunction ReadFunc, mWriteFunction WriteFunc)
+static void Memory_InitFunc(u32 start, u32 size, const u32 ReadRegion, const u32 WriteRegion, mReadFunction ReadFunc, mWriteFunction WriteFunc)
 {
 	u32	start_addr = (start >> 18);
 	u32	end_addr   = ((start + size - 1) >> 18);
@@ -367,14 +371,14 @@ static void Memory_InitFunc(u32 start, u32 size, const void * ReadRegion, const 
 
 		if(ReadRegion)
 		{
-			g_MemoryLookupTableRead[start_addr|(0x8000>>2)].pRead = (u8*)(reinterpret_cast< u32 >(ReadRegion) - (((start>>16)|0x8000) << 16));
-			g_MemoryLookupTableRead[start_addr|(0xA000>>2)].pRead = (u8*)(reinterpret_cast< u32 >(ReadRegion) - (((start>>16)|0xA000) << 16));
+			g_MemoryLookupTableRead[start_addr|(0x8000>>2)].pRead = (u8*)(reinterpret_cast< u32 >(g_pMemoryBuffers[ReadRegion]) - (((start>>16)|0x8000) << 16));
+			g_MemoryLookupTableRead[start_addr|(0xA000>>2)].pRead = (u8*)(reinterpret_cast< u32 >(g_pMemoryBuffers[ReadRegion]) - (((start>>16)|0xA000) << 16));
 		}
 
 		if(WriteRegion)
 		{
-			g_MemoryLookupTableWrite[start_addr|(0x8000>>2)].pWrite = (u8*)(reinterpret_cast< u32 >(WriteRegion) - (((start>>16)|0x8000) << 16));
-			g_MemoryLookupTableWrite[start_addr|(0xA000>>2)].pWrite = (u8*)(reinterpret_cast< u32 >(WriteRegion) - (((start>>16)|0xA000) << 16));
+			g_MemoryLookupTableWrite[start_addr|(0x8000>>2)].pWrite = (u8*)(reinterpret_cast< u32 >(g_pMemoryBuffers[WriteRegion]) - (((start>>16)|0x8000) << 16));
+			g_MemoryLookupTableWrite[start_addr|(0xA000>>2)].pWrite = (u8*)(reinterpret_cast< u32 >(g_pMemoryBuffers[WriteRegion]) - (((start>>16)|0xA000) << 16));
 		}
 
 		start_addr++;
@@ -418,12 +422,6 @@ void Memory_InitTables()
 		g_MemoryLookupTableWrite[i].WriteFunc	= WriteValueMapped;
 	}
 
-
-	bool RomBaseKnown = RomBuffer::IsRomLoaded() && RomBuffer::IsRomAddressFixed();
-
-	// This returns NULL if Rom isn't loaded or Rom base isn't fixed
-	const void *	rom_address( RomBaseKnown ? RomBuffer::GetFixedRomBaseAddress() : NULL );
-
 	u32				rom_size( RomBuffer::GetRomSize() );
 	u32				ram_size( gRamSize );
 
@@ -435,8 +433,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_RDRAM,
 		MEMORY_SIZE_RDRAM_DEFAULT,
-		MEMORY_RDRAM,
-		MEMORY_RDRAM,
+		MEM_RD_RAM,
+		MEM_RD_RAM,
 		Read_8000_807F,
 		WriteValue_8000_807F
 	);
@@ -460,8 +458,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_RAMREGS0,
 		MEMORY_SIZE_RAMREGS0,
-		MEMORY_RAMREGS0,
-		MEMORY_RAMREGS0,
+		MEM_RD_REG0,
+		MEM_RD_REG0,
 		Read_83F0_83F0,
 		WriteValue_83F0_83F0
 	);
@@ -472,8 +470,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_SPMEM,
 		MEMORY_SIZE_SPMEM,
-		MEMORY_SPMEM,
-		MEMORY_SPMEM,
+		MEM_SP_MEM,
+		MEM_SP_MEM,
 		Read_8400_8400,
 		WriteValue_8400_8400
 	);
@@ -483,7 +481,7 @@ void Memory_InitTables()
 	(
 		MEMORY_START_SPREG_1,
 		MEMORY_SIZE_SPREG_1,
-		MEMORY_SPREG_1,
+		MEM_SP_REG,
 		NULL,
 		Read_8404_8404,
 		WriteValue_8404_8404
@@ -494,8 +492,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_SPREG_2,
 		MEMORY_SIZE_SPREG_2,
-		MEMORY_SPREG_2,
-		MEMORY_SPREG_2,
+		MEM_SP_PC_REG,
+		MEM_SP_PC_REG,
 		Read_8408_8408,
 		WriteValue_8408_8408
 	);
@@ -504,7 +502,7 @@ void Memory_InitTables()
 	(
 		MEMORY_START_DPC,
 		MEMORY_SIZE_DPC,
-		MEMORY_DPC,
+		MEM_DPC_REG,
 		NULL,
 		Read_8410_841F,
 		WriteValue_8410_841F
@@ -526,7 +524,7 @@ void Memory_InitTables()
 	(
 		MEMORY_START_MI,
 		MEMORY_SIZE_MI,
-		MEMORY_MI,
+		MEM_MI_REG,
 		NULL,
 		Read_8430_843F,
 		WriteValue_8430_843F
@@ -548,7 +546,7 @@ void Memory_InitTables()
 	(
 		MEMORY_START_AI,
 		MEMORY_SIZE_AI,
-		MEMORY_AI,
+		MEM_AI_REG,
 		NULL,
 		Read_8450_845F,
 		WriteValue_8450_845F
@@ -559,7 +557,7 @@ void Memory_InitTables()
 	(
 		MEMORY_START_PI,
 		MEMORY_SIZE_PI,
-		MEMORY_PI,
+		MEM_PI_REG,
 		NULL,
 		Read_8460_846F,
 		WriteValue_8460_846F
@@ -570,8 +568,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_RI,
 		MEMORY_SIZE_RI,
-		MEMORY_RI,
-		MEMORY_RI,
+		MEM_RI_REG,
+		MEM_RI_REG,
 		Read_8470_847F,
 		WriteValue_8470_847F
 	);
@@ -581,7 +579,7 @@ void Memory_InitTables()
 	(
 		MEMORY_START_SI,
 		MEMORY_SIZE_SI,
-		MEMORY_SI,
+		MEM_SI_REG,
 		NULL,
 		Read_8480_848F,
 		WriteValue_8480_848F
@@ -625,7 +623,7 @@ void Memory_InitTables()
 
 	// Cartridge Domain 2 Address 2 (FlashRam)
 	// FlashRam Read is at 0x800, and FlashRam Write at 0x801
-	// BUT since we shift off the irrelevant bits, we can't do that, so is handled in the functions itself
+	// BUT since we shift off the insignificant bits, we can't do that, so is handled in the functions itself
 	Memory_InitFunc
 	(
 		MEMORY_START_C2A2,
@@ -637,13 +635,11 @@ void Memory_InitTables()
 	);
 
 	// Cartridge Domain 1 Address 2 (Rom)
-	// Map ROM region if the address is fixed (Note Reads to Rom are very rare, actual speedup is unlikely)
-	// Nb: We can do a hack if ROM address isn't fixed by allocating the first 8K bytes of the ROM, but yea I don't think is worth..
 	Memory_InitFunc
 	(
 		MEMORY_START_ROM_IMAGE,
 		rom_size,
-		rom_address,
+		NULL,
 		NULL,
 		ReadROM,
 		WriteValue_ROM
@@ -652,7 +648,7 @@ void Memory_InitTables()
 	// Hack the TLB Map per game
 	if (g_ROM.GameHacks == GOLDEN_EYE)
 	{
-		Memory_Tlb_Hack( rom_address );
+		Memory_Tlb_Hack();
 	}
 
 	// Init/Reset flash Ram

@@ -279,10 +279,6 @@ inline u32 QuickRead32Bits( u8 *p_base, u32 offset )
 {
 	return *(u32 *)(p_base + offset);
 }
-inline u32 QuickRead32Bits( u8 *p_base )
-{
-	return *(u32 *)(p_base);
-}
 
 inline u16 QuickRead16Bits( u8 *p_base, u32 offset )
 {
@@ -386,20 +382,6 @@ inline void QuickWrite32Bits( u8 *p_base, u32 value )
 #define MEMORY_START_PIF		0x1FC00000
 #define MEMORY_START_C1A3		0x1FD00000
 #define MEMORY_START_DUMMY		0x1FFF0000
-
-#define MEMORY_RDRAM			g_pMemoryBuffers[MEM_RD_RAM]
-#define MEMORY_RAMREGS0			g_pMemoryBuffers[MEM_RD_REG0]
-#define MEMORY_SPMEM			g_pMemoryBuffers[MEM_SP_MEM]
-#define MEMORY_SPREG_1			g_pMemoryBuffers[MEM_SP_REG]
-#define MEMORY_SPREG_2			g_pMemoryBuffers[MEM_SP_PC_REG]
-#define MEMORY_DPC				g_pMemoryBuffers[MEM_DPC_REG]
-
-#define MEMORY_MI				g_pMemoryBuffers[MEM_MI_REG]
-#define MEMORY_SI				g_pMemoryBuffers[MEM_SI_REG]
-#define MEMORY_PI				g_pMemoryBuffers[MEM_PI_REG]
-#define MEMORY_AI				g_pMemoryBuffers[MEM_AI_REG]
-#define MEMORY_RI				g_pMemoryBuffers[MEM_RI_REG]
-#define MEMORY_PIF				g_pMemoryBuffers[MEM_PIF_RAM]
 
 #define FLASHRAM_READ_ADDR		0x08000000
 #define FLASHRAM_WRITE_ADDR		0x08010000
