@@ -350,7 +350,7 @@ Matrix4x4 Matrix4x4::operator*( const Matrix4x4 & rhs ) const
 
 //VFPU
 #ifdef DAEDALUS_PSP
-	matrixMultiplyUnaligned( &r, this, &rhs );
+	MatrixMultiplyUnaligned( &r, this, &rhs );
 //CPU
 #else
 	for ( u32 i = 0; i < 4; ++i )
@@ -394,7 +394,7 @@ const Matrix4x4	gMatrixIdentity( 1.0f, 0.0f, 0.0f, 0.0f,
 //
 //	for( u32 i= 0; i < NUM_LOOPS;++i)
 //	{
-//		matrixMultiplyUnaligned( p_r, this, &rhs );
+//		MatrixMultiplyUnaligned( p_r, this, &rhs );
 //	}
 //
 //	NTiming::GetPreciseTime( &end_time2 );
