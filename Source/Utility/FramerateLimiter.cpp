@@ -26,36 +26,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/Memory.h"
 #include "Core/ROM.h"
 
-#include "Debug/DBGConsole.h"
+static u32				gTicksBetweenVbls = 0;			// How many ticks we want to delay between vertical blanks
+static u32				gTicksPerSecond = 0;			// How many ticks there are per second
+static u64				gLastVITime = 0;				// The time of the last vertical blank
+static u32				gLastOrigin = 0;				// The origin that we saw on the last vertical blank
+static u32				gVblsSinceFlip = 0;				// The number of vertical blanks that have occurred since the last n64 flip
+static u32				gCurrentAverageTicksPerVbl = 0;
+static FramerateSyncFn 	gAuxSyncFn = NULL;
 
-#include "OSHLE/ultra_os.h"		// System type
-
-//*****************************************************************************
-//
-//*****************************************************************************
-namespace
+static const u32		gTvFrequencies[] =
 {
-u32				gTicksBetweenVbls( 0 );				// How many ticks we want to delay between vertical blanks
-u32				gTicksPerSecond( 0 );				// How many ticks there are per second
-
-u64				gLastVITime( 0 );					// The time of the last vertical blank
-u32				gLastOrigin( 0 );					// The origin that we saw on the last vertical blank
-u32				gVblsSinceFlip( 0 );				// The number of vertical blanks that have occurred since the last n64 flip
-
-u32				gCurrentAverageTicksPerVbl( 0 );
-
-const u32		gTvFrequencies[] =
-{
-	50,		//OS_TV_PAL,
-	60,		//OS_TV_NTSC,
+	50,		// OS_TV_PAL,
+	60,		// OS_TV_NTSC,
 	50		// OS_TV_MPAL
 };
 
+void FramerateLimiter_SetAuxillarySyncFunction(FramerateSyncFn fn)
+{
+	gAuxSyncFn = fn;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void FramerateLimiter_Reset()
 {
 	u64 frequency;
@@ -63,6 +53,8 @@ void FramerateLimiter_Reset()
 	gLastVITime = 0;
 	gLastOrigin = 0;
 	gVblsSinceFlip = 0;
+
+	//gAuxSyncFn = NULL;	// Should we reset this? Will audio re-init?
 
 	if(NTiming::GetPreciseFrequency(&frequency))
 	{
@@ -78,10 +70,6 @@ void FramerateLimiter_Reset()
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-#if 1	//1->fast, 0->old //Corn
 static u32 FramerateLimiter_UpdateAverageTicksPerVbl( u32 elapsed_ticks )
 {
 	static u32 s[4];
@@ -93,32 +81,7 @@ static u32 FramerateLimiter_UpdateAverageTicksPerVbl( u32 elapsed_ticks )
 	//Average 4 frames
 	return (s[0] + s[1] + s[2] + s[3] + 2) >> 2;
 }
-#else
-const u32		NUM_SYNC_SAMPLES( 8 );				// These are all for keeping track of the current sync rate
 
-template< typename T, size_t L > T Average( const T (&arr)[L] )
-{
-	T sum = 0;
-	for( u32 i = 0; i < L; ++i )
-		sum += arr[ i ];
-
-	return sum / L;
-}
-
-static u32 FramerateLimiter_UpdateAverageTicksPerVbl( u32 elapsed_ticks )
-{
-	static u32	RecentTicksPerVbl[ NUM_SYNC_SAMPLES ];
-	static u32	RecentTicksPerVblIdx( 0 );
-
-	RecentTicksPerVbl[RecentTicksPerVblIdx] = elapsed_ticks;
-	RecentTicksPerVblIdx = (RecentTicksPerVblIdx + 1) % NUM_SYNC_SAMPLES;
-
-	return Average( RecentTicksPerVbl );
-}
-#endif
-//*****************************************************************************
-//
-//*****************************************************************************
 void FramerateLimiter_Limit()
 {
 	gVblsSinceFlip++;
@@ -126,27 +89,29 @@ void FramerateLimiter_Limit()
 	// Only do framerate limiting on frames that correspond to a flip
 	u32 current_origin = Memory_VI_GetRegister(VI_ORIGIN_REG);
 
+	if (gAuxSyncFn)
+	{
+		gAuxSyncFn();
+	}
+
 	if( current_origin == gLastOrigin )
 		return;
 
-	gLastOrigin = current_origin;
-
 	u64	now;
-
 	NTiming::GetPreciseTime(&now);
 
 	u32 elapsed_ticks = (u32)(now - gLastVITime);
 
 	gCurrentAverageTicksPerVbl = FramerateLimiter_UpdateAverageTicksPerVbl( elapsed_ticks / gVblsSinceFlip );
 
-	if( gSpeedSyncEnabled )
+	if( gSpeedSyncEnabled && !gAuxSyncFn )
 	{
-		u32 required_ticks( gTicksBetweenVbls * gVblsSinceFlip );
+		u32 required_ticks = gTicksBetweenVbls * gVblsSinceFlip;
 
 		if( gSpeedSyncEnabled == 2 ) required_ticks = required_ticks << 1;	// Slow down to 1/2 speed //Corn
 
 		// FIXME the constant here will need to be adjusted for different platforms.
-		s32	delay_ticks( required_ticks - elapsed_ticks - 50);	//Remove ~50 ticks for additional processing
+		s32	delay_ticks = required_ticks - elapsed_ticks - 50;	//Remove ~50 ticks for additional processing
 
 		if( delay_ticks > 0 )
 		{
@@ -156,13 +121,11 @@ void FramerateLimiter_Limit()
 		}
 	}
 
+	gLastOrigin = current_origin;
 	gLastVITime = now;
 	gVblsSinceFlip = 0;
 }
 
-//*****************************************************************************
-//	Get the current sync
-//*****************************************************************************
 f32	FramerateLimiter_GetSync()
 {
 	if( gCurrentAverageTicksPerVbl == 0 )
@@ -172,11 +135,7 @@ f32	FramerateLimiter_GetSync()
 	return f32( gTicksBetweenVbls ) / f32( gCurrentAverageTicksPerVbl );
 }
 
-
-//*****************************************************************************
-//
-//*****************************************************************************
-u32		FramerateLimiter_GetTvFrequencyHz()
+u32 FramerateLimiter_GetTvFrequencyHz()
 {
 	return gTvFrequencies[ g_ROM.TvType ];
 }
