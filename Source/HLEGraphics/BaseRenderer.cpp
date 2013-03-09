@@ -848,23 +848,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
 
 	UpdateWorldProject();
-
-	//If WoldProjectmatrix has been modified due to insert or force matrix (Kirby, SSB / Tarzan, Rayman2, Donald duck, SW racer, Robot on wheels)
-	//we need to update sceGU projmtx //Corn
-	if( mWPmodified )
-	{
-		mWPmodified = false;
-		mReloadProj = true;
-		if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
-		{	//proper 16:9 scale
-			mWorldProject.mRaw[0] *= HD_SCALE;
-			mWorldProject.mRaw[4] *= HD_SCALE;
-			mWorldProject.mRaw[8] *= HD_SCALE;
-			mWorldProject.mRaw[12] *= HD_SCALE;
-		}
-		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mWorldProject ) );
-		mModelViewStack[mModelViewTop] = gMatrixIdentity;
-	}
+	PokeWorldProject();
 
 	const Matrix4x4 & mat_world_project = mWorldProject;
 	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
@@ -987,7 +971,6 @@ v4 BaseRenderer::LightVert( const v3 & norm ) const
 	return result;
 }
 
-
 //*****************************************************************************
 // Standard rendering pipeline using FPU/CPU
 //*****************************************************************************
@@ -995,23 +978,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * pVtxBase = (const FiddledVtx*)(g_pu8RamBase + address);
 	UpdateWorldProject();
-
-	//If WoldProjectmatrix has been modified due to insert or force matrix (Kirby, SSB / Tarzan, Rayman2, Donald duck, SW racer, Robot on wheels)
-	//we need to update sceGU projmtx //Corn
-	if( mWPmodified )
-	{
-		mWPmodified = false;
-		mReloadProj = true;
-		if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
-		{	//proper 16:9 scale
-			mWorldProject.mRaw[0] *= HD_SCALE;
-			mWorldProject.mRaw[4] *= HD_SCALE;
-			mWorldProject.mRaw[8] *= HD_SCALE;
-			mWorldProject.mRaw[12] *= HD_SCALE;
-		}
-		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mWorldProject ) );
-		mModelViewStack[mModelViewTop] = gMatrixIdentity;
-	}
+	PokeWorldProject();
 
 	const Matrix4x4 & mat_world_project = mWorldProject;
 	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
@@ -2021,6 +1988,27 @@ inline void BaseRenderer::UpdateWorldProject()
 	#endif
 	}
 }
+
+//If WoldProjectmatrix has been modified due to insert or force matrix (Kirby, SSB / Tarzan, Rayman2, Donald duck, SW racer, Robot on wheels)
+//we need to update sceGU projmtx //Corn
+inline void BaseRenderer::PokeWorldProject()
+{
+	if( mWPmodified )
+	{
+		mWPmodified = false;
+		mReloadProj = true;
+		if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
+		{	//proper 16:9 scale
+			mWorldProject.mRaw[0] *= HD_SCALE;
+			mWorldProject.mRaw[4] *= HD_SCALE;
+			mWorldProject.mRaw[8] *= HD_SCALE;
+			mWorldProject.mRaw[12] *= HD_SCALE;
+		}
+		sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mWorldProject ) );
+		mModelViewStack[mModelViewTop] = gMatrixIdentity;
+	}
+}
+
 
 //*****************************************************************************
 //

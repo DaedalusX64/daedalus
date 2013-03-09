@@ -306,6 +306,7 @@ private:
 	void				UpdateViewport();
 
 	inline void			UpdateWorldProject();
+	inline void 		PokeWorldProject();
 
 protected:
 	enum { MAX_VERTS = 80 };		// F3DLP.Rej supports up to 80 verts!
