@@ -69,14 +69,6 @@ static bool audio_open = false;
 
 static AudioCode * ac;
 
-namespace
-{
-
-/*
- * Audio Threads
- *
- */
-
 static int fillBuffer(SceSize args, void *argp)
 {
 	s16 *fillbuf;
@@ -87,12 +79,6 @@ static int fillBuffer(SceSize args, void *argp)
 		fillbuf = pcmflip ? pcmout2 : pcmout1;
 
 		ac->mAudioBufferUncached->Fill( reinterpret_cast< Sample * >( fillbuf ), PSP_NUM_SAMPLES );
-		/*
-		if( ac->mAdaptFrequency && ac->mAudioBuffer->GetSize() < PSP_NUM_SAMPLES )
-		{
-			ac->DodgeBufferUnderflow();
-		}*/
-
 	}
 	sceKernelExitDeleteThread(0);
 	return 0;
@@ -113,12 +99,7 @@ static int audioOutput(SceSize args, void *argp)
 	return 0;
 }
 
-/*
- *  Initialization
- *
- */
-
-static void AudioInit(void)
+static void AudioInit()
 {
 	// Init semaphore
 	bufferEmpty = sceKernelCreateSema("Buffer Empty", 0, 1, 1, 0);
@@ -154,12 +135,7 @@ static void AudioInit(void)
 	audio_open = true;
 }
 
-
-/*
- *  Deinitialization
- */
-
-static void AudioExit(void)
+static void AudioExit()
 {
 	// Stop stream
 	if (audio_open)
@@ -177,8 +153,6 @@ static void AudioExit(void)
 	sceKernelDeleteSema(bufferEmpty);
 }
 
-}
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -186,7 +160,6 @@ AudioCode::AudioCode()
 :	mAudioPlaying( false )
 ,	mFrequency( 44100 )
 ,	mOutputFrequency( DESIRED_OUTPUT_FREQUENCY )
-//,	mAdaptFrequency( false )
 ,	mBufferLength( 0 )
 {
 	// Allocate audio buffer with malloc_64 to avoid cached/uncached aliasing
@@ -216,17 +189,6 @@ void AudioCode::SetFrequency( u32 frequency )
 	DBGConsole_Msg( 0, "Audio frequency: %d", frequency );
 	mFrequency = frequency;
 }
-
-//*****************************************************************************
-//
-//*****************************************************************************
-/*
-void	AudioCode::SetAdaptFrequency( bool adapt )
-{
-	mAdaptFrequency = adapt;
-	mOutputFrequency = DESIRED_OUTPUT_FREQUENCY;
-}
-*/
 
 struct SAddSamplesJob : public SJob
 {
@@ -271,12 +233,6 @@ struct SAddSamplesJob : public SJob
 	int DoJobComplete()
 	{
 		*mBufferLength = 0;		// Clear the length indicator
-
-		/*u32	output_samples( ( PSP_NUM_SAMPLES * mOutputFreq ) / mFrequency );
-		if( ac->mAdaptFrequency && mBuffer->GetSize() > (BUFFER_SIZE - output_samples) )
-		{
-			ac->DodgeBufferOverflow();
-		}*/
 		return 0;
 	}
 
@@ -370,44 +326,3 @@ u32 AudioCode::GetReadStatus()
 	return 0;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-/*
-void	AudioCode::DodgeBufferUnderflow()
-{
-	//DAEDALUS_ASSERT( mAdaptFrequency, "Shouldn't be dodging" );
-
-	u32 adjust( ADAPTIVE_FREQUENCY_ADJUST );
-	if(mOutputFrequency + adjust < MAX_OUTPUT_FREQUENCY)
-	{
-		mOutputFrequency += adjust;
-		//DBGConsole_Msg( 0, "Adjusting freq to %d", mOutputFrequency );
-	}
-	else
-	{
-		mOutputFrequency = MAX_OUTPUT_FREQUENCY;
-	}
-}
-*/
-//*****************************************************************************
-//
-//*****************************************************************************
-/*
-void	AudioCode::DodgeBufferOverflow()
-{
-	//DAEDALUS_ASSERT( mAdaptFrequency, "Shouldn't be dodging" );
-
-	u32 adjust( ADAPTIVE_FREQUENCY_ADJUST );
-	if( mOutputFrequency - adjust > (DESIRED_OUTPUT_FREQUENCY>>1) )
-	{
-		mOutputFrequency -= adjust;
-		//DBGConsole_Msg( 0, "Restoring freq to %d", mOutputFrequency );
-	}
-	else
-	{
-		mOutputFrequency = DESIRED_OUTPUT_FREQUENCY>>1;
-	}
-
-}
-*/
