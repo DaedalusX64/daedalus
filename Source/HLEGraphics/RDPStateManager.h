@@ -53,10 +53,10 @@ public:
 
 private:
 	inline void				InvalidateAllTileTextureInfo()		{ memset( mTileTextureInfoValid, 0, sizeof(mTileTextureInfoValid) ); }
-	inline u32				EntryIsValid( const u32 tmem )const	{ return (Valid_Entry >> tmem) & 1; }	//Return 1 if entry is valid else 0
-	inline void				SetValidEntry( const u32 tmem )		{ Valid_Entry |= (1 << tmem); }	//Set TMEM address entry as valid
-	inline void				ClearEntries( const u32 tmem )		{ Valid_Entry &= ((u32)~0 >> (31-tmem)); }	//Clear all entries after the specified TMEM address
-	inline void				ClearAllEntries()					{ Valid_Entry = 0; }	//Clear all entries
+	inline u32				EntryIsValid( const u32 tmem )const	{ return (mValidEntryBits >> tmem) & 1; }	//Return 1 if entry is valid else 0
+	inline void				SetValidEntry( const u32 tmem )		{ mValidEntryBits |= (1 << tmem); }	//Set TMEM address entry as valid
+	inline void				ClearEntries( const u32 tmem )		{ mValidEntryBits &= ((u32)~0 >> (31-tmem)); }	//Clear all entries after the specified TMEM address
+	inline void				ClearAllEntries()					{ mValidEntryBits = 0; }	//Clear all entries
 
 private:
 	struct TimgLoadDetails
@@ -69,7 +69,7 @@ private:
 	RDP_Tile				mTiles[ 8 ];
 	RDP_TileSize			mTileSizes[ 8 ];
 	TimgLoadDetails			mTmemLoadInfo[ 32 ];	//Subdivide TMEM area into 32 slots and keep track of texture loads (LoadBlock/LoadTile/LoadTlut) //Corn
-	u32						Valid_Entry;		//Use bits to signal valid entries in TMEM
+	u32						mValidEntryBits;		//Use bits to signal valid entries in TMEM
 
 	mutable TextureInfo		mTileTextureInfo[ 8 ];
 	mutable bool			mTileTextureInfoValid[ 8 ];		// Set to false if this needs rebuilding
