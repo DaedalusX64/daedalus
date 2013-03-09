@@ -52,7 +52,7 @@ public:
 	void			AddSamples( const Sample * samples, u32 num_samples, u32 frequency, u32 output_freq );
 	u32				Fill( Sample * samples, u32 num_samples );
 
-	u32				GetSize() const;
+	u32				GetNumBufferedSamples() const;
 
 private:
 	Sample *		mBufferBegin;

@@ -51,7 +51,7 @@ CAudioBuffer::~CAudioBuffer()
 //*****************************************************************************
 //
 //*****************************************************************************
-u32		CAudioBuffer::GetSize() const
+u32		CAudioBuffer::GetNumBufferedSamples() const
 {
 	 //Todo: Check Cache Routines
 #ifdef DAEDALUS_PSP
@@ -59,7 +59,7 @@ u32		CAudioBuffer::GetSize() const
 #endif
 
 	// Safe? What if we read mWrite, and then mRead moves to start of buffer?
-	s32		diff( mWritePtr - mReadPtr );
+	s32 diff = mWritePtr - mReadPtr;
 
 	if( diff < 0 )
 	{
