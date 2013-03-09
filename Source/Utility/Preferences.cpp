@@ -37,6 +37,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <set>
 #include <map>
 
+// Audio is disabled on the PSP by default, but enabled on other platforms.
+#ifdef DAEDALUS_PSP
+static const EAudioPluginMode kDefaultAudioPluginMode = APM_DISABLED;
+#else
+static const EAudioPluginMode kDefaultAudioPluginMode = APM_ENABLED_SYNC;
+#endif
+
 extern EFrameskipValue gFrameskipValue;
 extern f32 gZoomX;
 //*****************************************************************************
@@ -452,7 +459,7 @@ SRomPreferences::SRomPreferences()
 //	,	AudioAdaptFrequency( false )
 	,	CheckTextureHashFrequency( THF_DISABLED )
 	,	Frameskip( FV_DISABLED )
-	,	AudioEnabled( APM_DISABLED )
+	,	AudioEnabled( kDefaultAudioPluginMode )
 	,	ZoomX( 1.0f )
 	,	SpeedSyncEnabled( 0 )
 	,	ControllerIndex( 0 )
@@ -477,7 +484,7 @@ void SRomPreferences::Reset()
 	MemoryAccessOptimisation = false;
 	CheckTextureHashFrequency = THF_DISABLED;
 	Frameskip = FV_DISABLED;
-	AudioEnabled = APM_DISABLED;
+	AudioEnabled = kDefaultAudioPluginMode;
 //	AudioAdaptFrequency = false;
 	ZoomX = 1.0f;
 	CheatsEnabled = false;
