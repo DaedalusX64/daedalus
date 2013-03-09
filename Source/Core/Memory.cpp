@@ -105,10 +105,6 @@ u32			gTLBWriteHit = 0;
 static void *	gMemBase = NULL;				// Virtual memory base
 #endif
 
-// ROM write support
-u32	  g_pWriteRom;
-bool  g_RomWritten;
-
 #ifdef DAEDALUS_W32
 // Ram base, offset by 0x80000000 and 0xa0000000
 u8 * g_pu8RamBase_8000 = NULL;
@@ -219,9 +215,6 @@ bool Memory_Init()
 	//g_pu8RamBase_A000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0xa0000000;
 	g_pu8RamBase_A000 = ((u8*)MAKE_UNCACHED_PTR(g_pMemoryBuffers[MEM_RD_RAM])) - 0xa0000000;
 #endif
-
-	g_RomWritten = false;
-
 
 	Memory_InitTables();
 
@@ -446,8 +439,8 @@ void Memory_InitTables()
 		(
 			MEMORY_START_EXRDRAM,
 			MEMORY_SIZE_EXRDRAM,
-			NULL,
-			NULL,
+			MEM_UNUSED,
+			MEM_UNUSED,
 			ReadInvalid,
 			WriteValueInvalid
 		);
@@ -482,7 +475,7 @@ void Memory_InitTables()
 		MEMORY_START_SPREG_1,
 		MEMORY_SIZE_SPREG_1,
 		MEM_SP_REG,
-		NULL,
+		MEM_UNUSED,
 		Read_8404_8404,
 		WriteValue_8404_8404
 	);
@@ -503,7 +496,7 @@ void Memory_InitTables()
 		MEMORY_START_DPC,
 		MEMORY_SIZE_DPC,
 		MEM_DPC_REG,
-		NULL,
+		MEM_UNUSED,
 		Read_8410_841F,
 		WriteValue_8410_841F
 	);
@@ -513,8 +506,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_DPS,
 		MEMORY_SIZE_DPS,
-		NULL,
-		NULL,
+		MEM_UNUSED,
+		MEM_UNUSED,
 		Read_8420_842F,
 		WriteValue_8420_842F
 	);
@@ -525,7 +518,7 @@ void Memory_InitTables()
 		MEMORY_START_MI,
 		MEMORY_SIZE_MI,
 		MEM_MI_REG,
-		NULL,
+		MEM_UNUSED,
 		Read_8430_843F,
 		WriteValue_8430_843F
 	);
@@ -535,8 +528,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_VI,
 		MEMORY_SIZE_VI,
-		NULL,
-		NULL,
+		MEM_UNUSED,
+		MEM_UNUSED,
 		Read_8440_844F,
 		WriteValue_8440_844F
 	);
@@ -547,7 +540,7 @@ void Memory_InitTables()
 		MEMORY_START_AI,
 		MEMORY_SIZE_AI,
 		MEM_AI_REG,
-		NULL,
+		MEM_UNUSED,
 		Read_8450_845F,
 		WriteValue_8450_845F
 	);
@@ -558,7 +551,7 @@ void Memory_InitTables()
 		MEMORY_START_PI,
 		MEMORY_SIZE_PI,
 		MEM_PI_REG,
-		NULL,
+		MEM_UNUSED,
 		Read_8460_846F,
 		WriteValue_8460_846F
 	);
@@ -580,7 +573,7 @@ void Memory_InitTables()
 		MEMORY_START_SI,
 		MEMORY_SIZE_SI,
 		MEM_SI_REG,
-		NULL,
+		MEM_UNUSED,
 		Read_8480_848F,
 		WriteValue_8480_848F
 	);
@@ -593,8 +586,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_C2A1,
 		MEMORY_SIZE_C2A1,
-		NULL,
-		NULL,
+		MEM_UNUSED,
+		MEM_UNUSED,
 		ReadInvalid,
 		WriteValueInvalid
 	);*/
@@ -604,8 +597,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_C1A1,
 		MEMORY_SIZE_C1A1,
-		NULL,
-		NULL,
+		MEM_UNUSED,
+		MEM_UNUSED,
 		ReadInvalid,
 		WriteValueInvalid
 	);*/
@@ -615,8 +608,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_PIF,
 		MEMORY_SIZE_PIF,
-		NULL,
-		NULL,
+		MEM_UNUSED,
+		MEM_UNUSED,
 		Read_9FC0_9FCF,
 		WriteValue_9FC0_9FCF
 	);
@@ -628,8 +621,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_C2A2,
 		MEMORY_SIZE_C2A2,
-		NULL,
-		NULL,
+		MEM_UNUSED,
+		MEM_UNUSED,
 		ReadFlashRam,
 		WriteValue_FlashRam
 	);
@@ -639,8 +632,8 @@ void Memory_InitTables()
 	(
 		MEMORY_START_ROM_IMAGE,
 		rom_size,
-		NULL,
-		NULL,
+		MEM_UNUSED,
+		MEM_UNUSED,
 		ReadROM,
 		WriteValue_ROM
 	);

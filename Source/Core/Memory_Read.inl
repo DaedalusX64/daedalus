@@ -212,11 +212,13 @@ static void * ReadFlashRam( u32 address )
 //*****************************************************************************
 static void * ReadROM( u32 address )
 {
-	if (g_RomWritten)
-	{
-		g_RomWritten = false;
-		return (u8 *)&g_pWriteRom;
-	}
+	// Check for value written by Rom, see WriteValue_ROM
+	u32 value = *(u32*)g_pMemoryBuffers[MEM_UNUSED];
+	if (value)
+		return g_pMemoryBuffers[MEM_UNUSED];
+
+	//Check me: GetAddressRaw can potentially return NULL if address > rom size
+	//Why not return g_pMemoryBuffers[MEM_UNUSED] instead?
 	return RomBuffer::GetAddressRaw( (address & 0x03FFFFFF) );
 }
 
@@ -233,7 +235,7 @@ static void * Read_9FC0_9FCF( u32 address )
 	if( (offset < 0x7C0) || (offset > 0x7FF) ) 
 	{
 		DBGConsole_Msg(0, "[GRead from PIF (0x%08x) is invalid", address);
-		return g_pMemoryBuffers[MEM_UNUSED];
+		return ReadInvalid(address);
 	}
 
 	DPF( DEBUG_MEMORY_PIF, "Reading from MEM_PIF: 0x%08x", address );
