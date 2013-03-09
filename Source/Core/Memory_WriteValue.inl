@@ -433,5 +433,7 @@ static void WriteValue_ROM( u32 address, u32 value )
 	// A Bug's Life and Toy Story 2 write to ROM..
 	// Use unused memory buffer, since is always zero'd when calling it, is perfectly safe
 	DBGConsole_Msg(0, "[YWarning : Wrote to ROM -> [0x%08x]", value);
+
+	gWrotetoRom = true;
 	*(u32*)g_pMemoryBuffers[MEM_UNUSED] = value;
 }

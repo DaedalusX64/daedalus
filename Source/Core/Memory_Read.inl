@@ -212,10 +212,12 @@ static void * ReadFlashRam( u32 address )
 //*****************************************************************************
 static void * ReadROM( u32 address )
 {
-	// Check for value written by Rom, see WriteValue_ROM
-	u32 value = *(u32*)g_pMemoryBuffers[MEM_UNUSED];
-	if (value)
+	if (gWrotetoRom)
+	{
+		// Value written by Rom is in MEM_UNUSED
+		gWrotetoRom = false;
 		return g_pMemoryBuffers[MEM_UNUSED];
+	}
 
 	//Check me: GetAddressRaw can potentially return NULL if address > rom size
 	//Why not return g_pMemoryBuffers[MEM_UNUSED] instead?
