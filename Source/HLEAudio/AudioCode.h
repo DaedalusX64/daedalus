@@ -27,15 +27,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _AUDIOCODE_DOT_H_
 #define _AUDIOCODE_DOT_H_
 
-//*****************************************************************************
-//
-//*****************************************************************************
 struct Sample;
 class CAudioBuffer;
 
-//*****************************************************************************
-//
-//*****************************************************************************
+// FIXME(strmnnrmn): Rename this 'AudioRenderer' or 'AudioOutput' or something.
 class AudioCode
 {
 	public:
@@ -63,10 +58,6 @@ class AudioCode
 		bool				mAudioPlaying;
 		bool				mExitAudioThread;
 		u32					mFrequency;
-
-		u32					mOutputFrequency;
-
-		volatile u32		mBufferLength;
 };
 
 #endif

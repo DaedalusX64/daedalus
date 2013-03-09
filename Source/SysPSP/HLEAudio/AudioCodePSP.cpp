@@ -159,8 +159,6 @@ static void AudioExit()
 AudioCode::AudioCode()
 :	mAudioPlaying( false )
 ,	mFrequency( 44100 )
-,	mOutputFrequency( DESIRED_OUTPUT_FREQUENCY )
-,	mBufferLength( 0 )
 {
 	// Allocate audio buffer with malloc_64 to avoid cached/uncached aliasing
 	void * mem = malloc_64( sizeof( CAudioBuffer ) );
@@ -197,15 +195,13 @@ struct SAddSamplesJob : public SJob
 	u32					mNumSamples;
 	u32					mFrequency;
 	u32					mOutputFreq;
-	volatile u32 *		mBufferLength;
 
-	SAddSamplesJob( CAudioBuffer * buffer, const Sample * samples, u32 num_samples, u32 frequency, u32 output_freq, volatile u32 * buffer_len )
+	SAddSamplesJob( CAudioBuffer * buffer, const Sample * samples, u32 num_samples, u32 frequency, u32 output_freq )
 		:	mBuffer( buffer )
 		,	mSamples( samples )
 		,	mNumSamples( num_samples )
 		,	mFrequency( frequency )
 		,	mOutputFreq( output_freq )
-		,	mBufferLength( buffer_len )
 	{
 		InitJob = NULL;
 		DoJob = &DoAddSamplesStatic;
@@ -232,7 +228,6 @@ struct SAddSamplesJob : public SJob
 
 	int DoJobComplete()
 	{
-		*mBufferLength = 0;		// Clear the length indicator
 		return 0;
 	}
 
@@ -250,19 +245,20 @@ u32 AudioCode::AddBuffer( u8 *start, u32 length )
 	if (!mAudioPlaying)
 		StartAudio();
 
-	u32		num_samples( length / sizeof( Sample ) );
-
-	mBufferLength = num_samples;
+	u32 num_samples = length / sizeof( Sample );
 
 	//Adapt Audio to sync% //Corn
-	if(gAudioRateMatch)
+	u32 output_freq;
+	if (gAudioRateMatch)
 	{
-		if(gSoundSync > 88200) mOutputFrequency = 88200;	//limit upper rate
-		else if(gSoundSync < 44100) mOutputFrequency = 44100;	//limit lower rate
-		else mOutputFrequency = gSoundSync;
+		if (gSoundSync > 88200)			output_freq = 88200;	//limit upper rate
+		else if (gSoundSync < 44100)	output_freq = 44100;	//limit lower rate
+		else							output_freq = gSoundSync;
 	}
 	else
-		mOutputFrequency = DESIRED_OUTPUT_FREQUENCY;
+	{
+		output_freq = DESIRED_OUTPUT_FREQUENCY;
+	}
 
 	switch( gAudioPluginEnabled )
 	{
@@ -271,7 +267,7 @@ u32 AudioCode::AddBuffer( u8 *start, u32 length )
 
 	case APM_ENABLED_ASYNC:
 		{
-			SAddSamplesJob	job( mAudioBufferUncached, reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, mOutputFrequency, &mBufferLength );
+			SAddSamplesJob	job( mAudioBufferUncached, reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, output_freq );
 
 			gJobManager.AddJob( &job, sizeof( job ) );
 		}
@@ -279,7 +275,7 @@ u32 AudioCode::AddBuffer( u8 *start, u32 length )
 
 	case APM_ENABLED_SYNC:
 		{
-			mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, mOutputFrequency );
+			mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, output_freq );
 		}
 		break;
 	}
@@ -321,8 +317,7 @@ void AudioCode::StopAudio()
 u32 AudioCode::GetReadStatus()
 {
 	//dcache_wbinv_all();
-	//printf( "Length is currently %d\n", mBufferLength );
-	//return mBufferLength;
+	// NB: code used to return number of samples in mAudioBuffer.
 	return 0;
 }
 

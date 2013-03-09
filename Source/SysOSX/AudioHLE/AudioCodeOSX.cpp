@@ -43,16 +43,11 @@ static const u32	DESIRED_OUTPUT_FREQUENCY = 44100;
 static const u32	MAX_OUTPUT_FREQUENCY = DESIRED_OUTPUT_FREQUENCY * 4;
 static const u32	BUFFER_SIZE = 1024 * 8;
 
-//*****************************************************************************
-//
-//*****************************************************************************
 AudioCode::AudioCode()
-:	mAudioBuffer( new CAudioBuffer( BUFFER_SIZE ) )
+:	mAudioBufferUncached( NULL )	// FIXME(strmnrmn): remove this.
+,	mAudioBuffer( new CAudioBuffer( BUFFER_SIZE ) )
 ,	mAudioPlaying( false )
 ,	mFrequency( 44100 )
-,	mOutputFrequency( DESIRED_OUTPUT_FREQUENCY )
-//,	mAdaptFrequency( false )
-,	mBufferLength( 0 )
 {
 }
 
