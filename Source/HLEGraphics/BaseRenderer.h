@@ -272,8 +272,8 @@ protected:
 	inline void			UpdateShadeModel()						{ glShadeModel( mTnL.Flags.Shade ? GL_SMOOTH : GL_FLAT ); }
 #endif
 
-	void				EnableTexturing( u32 tile_idx );
-	void				EnableTexturing( u32 index, u32 tile_idx );
+	void				UpdateTileSnapshots( u32 tile_idx );
+	void				UpdateTileSnapshot( u32 index, u32 tile_idx );
 
 	virtual void		RestoreRenderStates() = 0;
 
@@ -304,6 +304,8 @@ protected:
 private:
 	void				InitViewport();
 	void				UpdateViewport();
+
+	inline void			UpdateWorldProject();
 
 protected:
 	enum { MAX_VERTS = 80 };		// F3DLP.Rej supports up to 80 verts!
@@ -344,8 +346,6 @@ protected:
 	//Max is 18 according to the manual //Corn
 	//I think we should make this more deep to avoid any issues //Salvy
 	static const u32 MATRIX_STACK_SIZE = 20;
-
-	inline void			UpdateWorldProject();
 
 	mutable Matrix4x4	mWorldProject;
 	Matrix4x4			mProjectionStack[MATRIX_STACK_SIZE];

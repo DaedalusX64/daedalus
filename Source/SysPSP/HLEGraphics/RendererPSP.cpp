@@ -321,7 +321,7 @@ void RendererPSP::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, b
 {
 	if( mTnL.Flags.Texture )
 	{
-		EnableTexturing( mTextureTile );
+		UpdateTileSnapshots( mTextureTile );
 
 		if( (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
 		{
@@ -620,7 +620,7 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 
 void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
-	EnableTexturing( tile_idx );
+	UpdateTileSnapshots( tile_idx );
 
 	v2 screen0;
 	v2 screen1;
@@ -713,7 +713,7 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 
 void RendererPSP::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
-	EnableTexturing( tile_idx );
+	UpdateTileSnapshots( tile_idx );
 
 	v2 screen0;
 	v2 screen1;

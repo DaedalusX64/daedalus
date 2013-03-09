@@ -1628,31 +1628,35 @@ void BaseRenderer::ResetMatrices(u32 size)
 //*****************************************************************************
 //
 //*****************************************************************************
-void BaseRenderer::EnableTexturing( u32 tile_idx )
+void BaseRenderer::UpdateTileSnapshots( u32 tile_idx )
 {
-	EnableTexturing( 0, tile_idx );
+	UpdateTileSnapshot( 0, tile_idx );
 
 //#ifdef RDP_USE_TEXEL1
 
 	if ( g_ROM.LOAD_T1_HACK & !gRDPOtherMode.text_lod )
 	{
 		// LOD is disabled - use two textures
-		EnableTexturing( 1, tile_idx + 1 );
+		UpdateTileSnapshot( 1, tile_idx + 1 );
 	}
 	//else
 	//{
 	//	// LOD is enabled - use the highest detail texture in texel1
-	//	EnableTexturing( 1, tile_idx );
+	//	UpdateTileSnapshot( 1, tile_idx );
 	//}
 //#endif
 }
 
 //*****************************************************************************
-//
+// This captures the state of the RDP tiles in:
+//   mTexWrap
+//   mTileTopLeft
+//   mTileScale
+//   mpTexture
 //*****************************************************************************
-void BaseRenderer::EnableTexturing( u32 index, u32 tile_idx )
+void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 {
-	DAEDALUS_PROFILE( "BaseRenderer::EnableTexturing" );
+	DAEDALUS_PROFILE( "BaseRenderer::UpdateTileSnapshot" );
 
 	DAEDALUS_ASSERT( tile_idx < 8, "Invalid tile index %d", tile_idx );
 	DAEDALUS_ASSERT( index < NUM_N64_TEXTURES, "Invalid texture index %d", index );

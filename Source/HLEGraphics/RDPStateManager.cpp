@@ -149,7 +149,7 @@ namespace
 {
 	//
 	//	Limit the tile's width/height to the number of bits specified by mask_s/t.
-	//	See the detailed noted in BaseRenderer::EnableTexturing for issues relating to this.
+	//	See the detailed noted in BaseRenderer::UpdateTileSnapshots for issues relating to this.
 	//
 	u16		GetTextureDimension( u16 tile_dimension, u8 mask )
 	{
@@ -203,7 +203,7 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 		}
 
 		//	Limit the tile's width/height to the number of bits specified by mask_s/t.
-		//	See the detailed notes in BaseRenderer::EnableTexturing for issues relating to this.
+		//	See the detailed notes in BaseRenderer::UpdateTileSnapshots for issues relating to this.
 		//
 		u16		tile_width( GetTextureDimension( rdp_tilesize.GetWidth(), rdp_tile.mask_s ) );
 		u16		tile_height( GetTextureDimension( rdp_tilesize.GetHeight(), rdp_tile.mask_t ) );

@@ -763,7 +763,7 @@ void RendererOSX::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, b
 {
 	if (mTnL.Flags.Texture)
 	{
-		EnableTexturing( mTextureTile );
+		UpdateTileSnapshots( mTextureTile );
 	}
 
 	bool identity_uv_transform = (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) == (TNL_LIGHT|TNL_TEXGEN);
@@ -774,7 +774,7 @@ void RendererOSX::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, b
 
 void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
-	EnableTexturing( tile_idx );
+	UpdateTileSnapshots( tile_idx );
 	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true, false);
 
 	v2 screen0;
@@ -817,7 +817,7 @@ void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 
 void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
-	EnableTexturing( tile_idx );
+	UpdateTileSnapshots( tile_idx );
 	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true, false);
 
 	v2 screen0;
