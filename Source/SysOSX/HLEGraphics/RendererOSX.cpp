@@ -88,13 +88,6 @@ void sceGuFog(float mn, float mx, u32 col)
 	//DAEDALUS_ERROR( "%s: Not implemented", __FUNCTION__ );
 }
 
-void sceGuTexOffset(float s, float t)
-{
-}
-
-void sceGuTexScale(float s, float t)
-{
-}
 
 ScePspFMatrix4		gProjection;
 void sceGuSetMatrix(EGuMatrixType type, const ScePspFMatrix4 * mtx)
@@ -768,6 +761,11 @@ void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disabl
 // It ends up copying colour/uv coords when not needed, and can use a shader uniform for the fill colour.
 void RendererOSX::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bool disable_zbuffer )
 {
+	if( mTnL.Flags.Texture )
+	{
+		EnableTexturing( mTextureTile );
+	}
+
 	PrepareRenderState(gProjection.m, disable_zbuffer);
 	RenderDaedalusVtx(GL_TRIANGLES, p_vertices, num_vertices);
 }

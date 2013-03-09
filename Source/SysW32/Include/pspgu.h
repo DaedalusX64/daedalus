@@ -15,9 +15,6 @@ enum EGuTextureWrapMode
 	GU_REPEAT,
 };
 
-void sceGuTexOffset(float s, float t);
-void sceGuTexScale(float s, float t);
-
 enum EGuMatrixType
 {
 	GU_PROJECTION,

@@ -524,40 +524,6 @@ void BaseRenderer::FlushTris()
 	}*/
 
 	//
-	// Process the software vertex buffer to apply a couple of
-	// necessary changes to the texture coords (this is required
-	// because some ucodes set the texture after setting the vertices)
-	//
-	if( mTnL.Flags.Texture )
-	{
-		EnableTexturing( mTextureTile );
-
-		if( (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
-		{
-			sceGuTexOffset( -mTileTopLeft[ 0 ].x * mTileScale[ 0 ].x, -mTileTopLeft[ 0 ].y * mTileScale[ 0 ].y );
-			sceGuTexScale( mTileScale[ 0 ].x, mTileScale[ 0 ].y );
-		}
-		else
-		{
-			sceGuTexOffset( 0.0f, 0.0f );
-			sceGuTexScale( 1.0f, 1.0f );
-		}
-	}
-
-	//
-	//	Do BACK/FRONT culling in sceGE
-	//
-	//if( mTnL.Flags.TriCull )
-	//{
-	//	sceGuFrontFace(mTnL.Flags.CullBack? GU_CCW : GU_CW);
-	//	sceGuEnable(GU_CULL_FACE);
-	//}
-	//else
-	//{
-	//	sceGuDisable(GU_CULL_FACE);
-	//}
-
-	//
 	// Check for depth source, this is for Nascar games, hopefully won't mess up anything
 	DAEDALUS_ASSERT( !gRDPOtherMode.depth_source, " Warning : Using depth source in flushtris" );
 

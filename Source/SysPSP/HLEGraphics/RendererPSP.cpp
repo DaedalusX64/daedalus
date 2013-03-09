@@ -319,6 +319,22 @@ RendererPSP::SBlendStateEntry RendererPSP::LookupBlendState( u64 mux, bool two_c
 
 void RendererPSP::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bool disable_zbuffer )
 {
+	if( mTnL.Flags.Texture )
+	{
+		EnableTexturing( mTextureTile );
+
+		if( (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
+		{
+			sceGuTexOffset( -mTileTopLeft[ 0 ].x * mTileScale[ 0 ].x, -mTileTopLeft[ 0 ].y * mTileScale[ 0 ].y );
+			sceGuTexScale( mTileScale[ 0 ].x, mTileScale[ 0 ].y );
+		}
+		else
+		{
+			sceGuTexOffset( 0.0f, 0.0f );
+			sceGuTexScale( 1.0f, 1.0f );
+		}
+	}
+
 	RenderUsingCurrentBlendMode( p_vertices, num_vertices, DRAW_MODE, GU_TRANSFORM_3D, disable_zbuffer );
 }
 
