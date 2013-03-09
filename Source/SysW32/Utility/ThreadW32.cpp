@@ -44,9 +44,7 @@ struct SDaedThreadDetails
 	void *			Argument;
 };
 
-//*****************************************************************************
-//	The real thread is passed in as an argument. We call it and return the result
-//*****************************************************************************
+// The real thread is passed in as an argument. We call it and return the result
 static DWORD WINAPI StartThreadFunc( LPVOID arg )
 {
 	SDaedThreadDetails * thread_details( reinterpret_cast< SDaedThreadDetails * >( arg ) );
@@ -58,10 +56,7 @@ static DWORD WINAPI StartThreadFunc( LPVOID arg )
 	return result;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-s32		CreateThread( const char * name, DaedThread function, void * argument )
+s32 CreateThread( const char * name, DaedThread function, void * argument )
 {
 	DWORD					id;
 	SDaedThreadDetails *	thread_details( new SDaedThreadDetails( function, argument ) );
@@ -76,10 +71,7 @@ s32		CreateThread( const char * name, DaedThread function, void * argument )
 	return 0;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	SetThreadPriority( s32 handle, EThreadPriority pri )
+void SetThreadPriority( s32 handle, EThreadPriority pri )
 {
 	HANDLE	h( reinterpret_cast< HANDLE >( handle ) );
 	if(h != NULL)
@@ -88,10 +80,7 @@ void	SetThreadPriority( s32 handle, EThreadPriority pri )
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	ReleaseThreadHandle( s32 handle )
+void ReleaseThreadHandle( s32 handle )
 {
 	HANDLE	h( reinterpret_cast< HANDLE >( handle ) );
 	if(h != NULL)
@@ -100,11 +89,9 @@ void	ReleaseThreadHandle( s32 handle )
 	}
 }
 
-//*****************************************************************************
-//	Wait the specified time for the thread to finish.
-//	Returns false if the thread didn't terminate
-//*****************************************************************************
-bool	WaitForThreadTermination( s32 handle, s32 timeout )
+// Wait the specified time for the thread to finish.
+// Returns false if the thread didn't terminate
+bool JoinThread( s32 handle, s32 timeout )
 {
 	u32		delay( timeout > 0 ? timeout : INFINITE );
 	bool	signalled( true );
@@ -133,9 +120,6 @@ bool	WaitForThreadTermination( s32 handle, s32 timeout )
 	return signalled;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void ThreadSleepMs( u32 ms )
 {
 	::Sleep( ms );
@@ -147,9 +131,6 @@ void ThreadSleepTicks( u32 ticks )
 	::Sleep( ticks );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void ThreadYield()
 {
 	::Sleep( 0 );

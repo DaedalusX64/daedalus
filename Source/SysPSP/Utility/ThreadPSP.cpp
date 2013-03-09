@@ -44,9 +44,7 @@ struct SDaedThreadDetails
 	void *			Argument;
 };
 
-//*****************************************************************************
-//	The real thread is passed in as an argument. We call it and return the result
-//*****************************************************************************
+// The real thread is passed in as an argument. We call it and return the result
 static int StartThreadFunc( SceSize args, void *argp )
 {
 	int result( -1 );
@@ -61,9 +59,6 @@ static int StartThreadFunc( SceSize args, void *argp )
 	return result;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 s32		CreateThread( const char * name, DaedThread function, void * argument )
 {
 	s32	thid( ::sceKernelCreateThread( name, StartThreadFunc, gThreadPriorities[TP_NORMAL], 0x10000, 0, NULL ) );
@@ -80,10 +75,7 @@ s32		CreateThread( const char * name, DaedThread function, void * argument )
 	return kInvalidThreadHandle;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	SetThreadPriority( s32 handle, EThreadPriority pri )
+void SetThreadPriority( s32 handle, EThreadPriority pri )
 {
 	if(handle != kInvalidThreadHandle)
 	{
@@ -91,44 +83,30 @@ void	SetThreadPriority( s32 handle, EThreadPriority pri )
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	ReleaseThreadHandle( s32 handle )
+void ReleaseThreadHandle( s32 handle )
 {
 	// Nothing to do?
 }
 
-//*****************************************************************************
-//	Wait the specified time for the thread to finish.
-//	Returns false if the thread didn't terminate
-//*****************************************************************************
-bool	WaitForThreadTermination( s32 handle, s32 timeout )
+// Wait the specified time for the thread to finish.
+// Returns false if the thread didn't terminate
+bool JoinThread( s32 handle, s32 timeout )
 {
 	int ret = ::sceKernelWaitThreadEnd(handle, (SceUInt*)&timeout);
 
 	return (ret >= 0);
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void ThreadSleepMs( u32 ms )
 {
 	sceKernelDelayThread( ms * 1000 );		// Delay is specified in microseconds
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void ThreadSleepTicks( u32 ticks )
 {
 	sceKernelDelayThread( ticks );		// Delay is specified in ticks
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void ThreadYield()
 {
 	sceKernelDelayThread( 1 );				// Is 0 valid?

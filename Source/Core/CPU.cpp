@@ -588,7 +588,7 @@ void CPU_WaitFinish()
 {
 	if(gCPUThreadHandle != kInvalidThreadHandle)
 	{
-		WaitForThreadTermination(gCPUThreadHandle, -1);
+		JoinThread(gCPUThreadHandle, -1);
 	}
 }
 
@@ -609,7 +609,7 @@ void CPU_StopThread()
 	if(gCPUThreadHandle != kInvalidThreadHandle)
 	{
 		// Wait forever for it to finish. It will clear/close gCPUThreadHandle when it exits
-		while(gCPUThreadActive && !WaitForThreadTermination(gCPUThreadHandle, 1000))
+		while(gCPUThreadActive && !JoinThread(gCPUThreadHandle, 1000))
 		{
 			DBGConsole_Msg(0, "Waiting for CPU thread (0x%08x) to finish", gCPUThreadHandle);
 		}

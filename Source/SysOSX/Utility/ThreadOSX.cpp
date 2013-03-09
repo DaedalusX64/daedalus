@@ -38,7 +38,7 @@ const int	gThreadPriorities[ TP_NUM_PRIORITIES ] =
 	0x16,		// TP_TIME_CRITICAL
 };
 
-pthread_t	HandleToPthread( s32 handle )
+pthread_t HandleToPthread( s32 handle )
 {
 	return handle == kInvalidThreadHandle ? 0 : reinterpret_cast< pthread_t >( handle );
 }
@@ -75,7 +75,7 @@ void * StartThreadFunc( void * arg )
 
 } // anonymous namespace
 
-s32		CreateThread( const char * name, DaedThread function, void * argument )
+s32 CreateThread( const char * name, DaedThread function, void * argument )
 {
 	pthread_t		thread;
 	pthread_attr_t	thread_attr;
@@ -95,19 +95,19 @@ s32		CreateThread( const char * name, DaedThread function, void * argument )
 	return kInvalidThreadHandle;
 }
 
-void	SetThreadPriority( s32 handle, EThreadPriority pri )
+void SetThreadPriority( s32 handle, EThreadPriority pri )
 {
 	DAEDALUS_ERROR( "Thread priorities not supported" );
 }
 
-void	ReleaseThreadHandle( s32 handle )
+void ReleaseThreadHandle( s32 handle )
 {
 	// Nothing to do?
 }
 
 //	Wait the specified time for the thread to finish.
 //	Returns false if the thread didn't terminate
-bool	WaitForThreadTermination( s32 handle, s32 timeout )
+bool JoinThread( s32 handle, s32 timeout )
 {
 	//u32		delay( timeout > 0 ? timeout : INFINITE );
 	bool	signalled( true );

@@ -64,7 +64,7 @@ void	TerminateThread( ThreadHandle handle );
 //	Returns true if the thread has terminated, false if it is still running
 //	If timeout < 0 this function will block until the thread has finished, otherwise it is a time in MS to wait for
 //
-bool	WaitForThreadTermination( ThreadHandle handle, s32 timeout );
+bool	JoinThread( ThreadHandle handle, s32 timeout );
 
 //
 //	Sleep for the specified number of milliseconds
