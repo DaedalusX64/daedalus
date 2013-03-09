@@ -153,6 +153,9 @@ BaseRenderer::BaseRenderer()
 ,	mReloadProj(true)
 ,	mWPmodified(false)
 
+,	mScreenWidth(0.f)
+,	mScreenHeight(0.f)
+
 ,	mNumIndices(0)
 ,	mVtxClipFlagsUnion( 0 )
 
@@ -264,39 +267,7 @@ void BaseRenderer::BeginScene()
 	ResetDebugState();
 #endif
 
-	u32 display_width  = 0;
-	u32 display_height = 0;
-
-	CGraphicsContext::Get()->ViewportType(&display_width, &display_height);
-
-	DAEDALUS_ASSERT( display_width && display_height, "Unhandled viewport type" );
-
-#ifdef DAEDALUS_PSP
-	u32 frame_width  = gGlobalPreferences.TVEnable ? 720 : 480;
-	u32 frame_height = gGlobalPreferences.TVEnable ? 480 : 272;
-#else
-	u32 frame_width  = display_width;
-	u32 frame_height = display_height;
-#endif
-
-	v2 scale( 640.0f*0.25f, 480.0f*0.25f );
-	v2 trans( 640.0f*0.25f, 480.0f*0.25f );
-
-	s32 display_x = (s32)(frame_width - display_width) / 2;
-	s32 display_y = (s32)(frame_height - display_height) / 2;
-
-	SetPSPViewport( display_x, display_y, display_width, display_height );
-	SetN64Viewport( scale, trans );
-
-	// FIXME(strmnnrmn): These values need to come from the current display. We should compute this matrix in UpdateViewport or similar.
-	const float w = display_width;
-	const float h = display_height;
-	mScreenToDevice = Matrix4x4(
-		2.f / w,       0.f,     0.f,     0.f,
-		    0.f,  -2.f / h,     0.f,     0.f,
-		    0.f,       0.f,     1.f,     0.f,
-		  -1.0f,       1.f,     0.f,     1.f
-	);
+	InitViewport();
 }
 
 //*****************************************************************************
@@ -317,24 +288,55 @@ void BaseRenderer::EndScene()
 //*****************************************************************************
 //
 //*****************************************************************************
-void BaseRenderer::SetPSPViewport( s32 x, s32 y, u32 w, u32 h )
+void BaseRenderer::InitViewport()
 {
-	const f32 fx = (f32)x;
-	const f32 fy = (f32)y;
-	const f32 fw = (f32)w;
-	const f32 fh = (f32)h;
+	// Init the N64 viewport.
+	mVpScale = v2( 640.f*0.25f, 480.f*0.25f );
+	mVpTrans = v2( 640.f*0.25f, 480.f*0.25f );
 
-	mN64ToScreenScale.x = gZoomX * fw / fViWidth;
-	mN64ToScreenScale.y = gZoomX * fh / fViHeight;
+	// Get the current display dimensions. This might change frame by frame e.g. if the window is resized.
+	u32 display_width  = 0;
+	u32 display_height = 0;
+	CGraphicsContext::Get()->ViewportType(&display_width, &display_height);
 
-	mN64ToScreenTranslate.x  = fx - Round(0.55f * (gZoomX - 1.0f) * fViWidth);
-	mN64ToScreenTranslate.y  = fy - Round(0.55f * (gZoomX - 1.0f) * fViHeight);
+	DAEDALUS_ASSERT( display_width && display_height, "Unhandled viewport type" );
+
+	mScreenWidth  = (f32)display_width;
+	mScreenHeight = (f32)display_height;
+
+#ifdef DAEDALUS_PSP
+	// Centralise the viewport in the display.
+	u32 frame_width  = gGlobalPreferences.TVEnable ? 720 : 480;
+	u32 frame_height = gGlobalPreferences.TVEnable ? 480 : 272;
+
+	s32 display_x = (s32)(frame_width  - display_width)  / 2;
+	s32 display_y = (s32)(frame_height - display_height) / 2;
+#else
+	s32 display_x = 0;
+	s32 display_y = 0;
+#endif
+
+	mN64ToScreenScale.x = gZoomX * mScreenWidth  / fViWidth;
+	mN64ToScreenScale.y = gZoomX * mScreenHeight / fViHeight;
+
+	mN64ToScreenTranslate.x  = (f32)display_x - Round(0.55f * (gZoomX - 1.0f) * fViWidth);
+	mN64ToScreenTranslate.y  = (f32)display_y - Round(0.55f * (gZoomX - 1.0f) * fViHeight);
 
 	if( gRumblePakActive )
 	{
 	    mN64ToScreenTranslate.x += (FastRand() & 3);
 		mN64ToScreenTranslate.y += (FastRand() & 3);
 	}
+
+	f32 w = mScreenWidth;
+	f32 h = mScreenHeight;
+
+	mScreenToDevice = Matrix4x4(
+		2.f / w,       0.f,     0.f,     0.f,
+		    0.f,  -2.f / h,     0.f,     0.f,
+		    0.f,       0.f,     1.f,     0.f,
+		  -1.0f,       1.f,     0.f,     1.f
+	);
 
 	UpdateViewport();
 }
@@ -386,7 +388,7 @@ void BaseRenderer::UpdateViewport()
 	sceGuOffset(vx - (vp_w/2),vy - (vp_h/2));
 	sceGuViewport(vx + vp_x, vy + vp_y, vp_w, vp_h);
 #elif defined(DAEDALUS_OSX)
-	glViewport(vp_x, vp_y, vp_w, vp_h);
+	glViewport(vp_x, mScreenHeight - (vp_h + vp_y), vp_w, vp_h);
 #else
 	DAEDALUS_ERROR("Code to set viewport not implemented on this platform");
 #endif
@@ -530,8 +532,6 @@ void BaseRenderer::FlushTris()
 	//
 	//	Render out our vertices
 	RenderTriangles( temp_verts.Verts, temp_verts.Count, gRDPOtherMode.depth_source ? true : false );
-
-	//sceGuDisable(GU_CULL_FACE);
 
 	mNumIndices = 0;
 	mVtxClipFlagsUnion = 0;
@@ -1798,29 +1798,29 @@ void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 	if( x1 > uViWidth )  x1 = uViWidth;
 	if( y1 > uViHeight ) y1 = uViHeight;
 
-	v2 n64_coords_tl( x0, y0 );
-	v2 n64_coords_br( x1, y1 );
+	v2 n64_tl( x0, y0 );
+	v2 n64_br( x1, y1 );
 
-	v2 psp_coords_tl;
-	v2 psp_coords_br;
-	ConvertN64ToScreen( n64_coords_tl, psp_coords_tl );
-	ConvertN64ToScreen( n64_coords_br, psp_coords_br );
+	v2 screen_tl;
+	v2 screen_br;
+	ConvertN64ToScreen( n64_tl, screen_tl );
+	ConvertN64ToScreen( n64_br, screen_br );
 
 	//Clamp TOP and LEFT values to 0 if < 0 , needed for zooming //Corn
-	s32 l = Max<s32>( s32(psp_coords_tl.x), 0 );
-	s32 t = Max<s32>( s32(psp_coords_tl.y), 0 );
-	s32 r =           s32(psp_coords_br.x);
-	s32 b =           s32(psp_coords_br.y);
+	s32 l = Max<s32>( s32(screen_tl.x), 0 );
+	s32 t = Max<s32>( s32(screen_tl.y), 0 );
+	s32 r =           s32(screen_br.x);
+	s32 b =           s32(screen_br.y);
 
 #if defined(DAEDALUS_PSP)
 	// N.B. Think the arguments are x0,y0,x1,y1, and not x,y,w,h as the docs describe
-	//printf("%d %d %d %d\n", s32(psp_coords_tl.x),s32(psp_coords_tl.y),s32(psp_coords_br.x),s32(psp_coords_br.y));
+	//printf("%d %d %d %d\n", s32(screen_tl.x),s32(screen_tl.y),s32(screen_br.x),s32(screen_br.y));
 	sceGuScissor( l, t, r, b );
 #elif defined(DAEDALUS_OSX)
 	// NB: OpenGL is x,y,w,h. Errors if width or height is negative, so clamp this.
 	s32 w = Max( r - l, 0L );
 	s32 h = Max( b - t, 0L );
-	//glScissor( l, t, w, h );
+	glScissor( l, mScreenHeight - (t + h), w, h );
 #else
 	DAEDALUS_ERROR("Need to implement scissor for this platform.")
 #endif

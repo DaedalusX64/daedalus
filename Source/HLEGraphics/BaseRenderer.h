@@ -277,9 +277,6 @@ protected:
 
 	virtual void		RestoreRenderStates() = 0;
 
-	void				SetPSPViewport( s32 x, s32 y, u32 w, u32 h );
-	void				UpdateViewport();
-
 	//*****************************************************************************
 	// We round these value here, so that when we scale up the coords to our screen
 	// coords we don't get any gaps.
@@ -303,6 +300,10 @@ protected:
 	void				PrepareTrisUnclipped( TempVerts * temp_verts ) const;
 
 	v4					LightVert( const v3 & norm ) const;
+
+private:
+	void				InitViewport();
+	void				UpdateViewport();
 
 protected:
 	enum { MAX_VERTS = 80 };		// F3DLP.Rej supports up to 80 verts!
@@ -358,6 +359,8 @@ protected:
 	bool				mWPmodified;
 	u32					mDKRMatIdx;
 
+	float				mScreenWidth;
+	float				mScreenHeight;
 	Matrix4x4			mScreenToDevice;					// Used by OSX renderer - scales screen coords (0..640 etc) to device coords (-1..+1)
 
 	static const u32 	MAX_VERTICES = 320;	//we need at least 80 verts * 3 = 240? But Flying Dragon uses more than 256 //Corn
