@@ -1820,12 +1820,7 @@ void BaseRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 		{
 			// Load projection matrix
 			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
-
-#ifdef DAEDALUS_PSP_USE_VFPU
-			matrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop-1] );
-#else
-			mProjectionStack[mProjectionTop] = mProjectionStack[mProjectionTop] * mProjectionStack[mProjectionTop-1];
-#endif
+			MatrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop-1] );
 		}
 	}
 	else
@@ -1847,11 +1842,7 @@ void BaseRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 		else
 		{
 			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop+1], address);
-#ifdef DAEDALUS_PSP_USE_VFPU
-			matrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop+1], &mProjectionStack[mProjectionTop] );
-#else
-			mProjectionStack[mProjectionTop] = mProjectionStack[mProjectionTop+1] * mProjectionStack[mProjectionTop];
-#endif
+			MatrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop+1], &mProjectionStack[mProjectionTop] );
 		}
 	}
 
@@ -1881,12 +1872,7 @@ void BaseRenderer::SetProjectionDKR(const u32 address, bool mul, u32 idx)
 	if( mul )
 	{
 		MatrixFromN64FixedPoint( mProjectionStack[4], address );	//Only index 0-3 are used by DKR, index 4 and up is free //Corn
-
-#ifdef DAEDALUS_PSP_USE_VFPU
-		matrixMultiplyAligned( &mProjectionStack[idx], &mProjectionStack[4], &mProjectionStack[0] );
-#else
-		mProjectionStack[idx] = mProjectionStack[4] * mProjectionStack[0];
-#endif
+		MatrixMultiplyAligned( &mProjectionStack[idx], &mProjectionStack[4], &mProjectionStack[0] );
 	}
 	else
 	{
@@ -1928,11 +1914,7 @@ void BaseRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 		else	// Multiply ModelView matrix
 		{
 			MatrixFromN64FixedPoint( mModelViewStack[mModelViewTop], address);
-		#ifdef DAEDALUS_PSP_USE_VFPU
-			matrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mModelViewStack[mModelViewTop], &mModelViewStack[mModelViewTop-1] );
-		#else
-			mModelViewStack[mModelViewTop] = mModelViewStack[mModelViewTop] * mModelViewStack[mModelViewTop-1];
-		#endif
+			MatrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mModelViewStack[mModelViewTop], &mModelViewStack[mModelViewTop-1] );
 		}
 	}
 	else	// NoPush
@@ -1946,11 +1928,7 @@ void BaseRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 		{
 			// Multiply ModelView matrix
 			MatrixFromN64FixedPoint( mModelViewStack[mModelViewTop+1], address);
-		#ifdef DAEDALUS_PSP_USE_VFPU
-			matrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mModelViewStack[mModelViewTop+1], &mModelViewStack[mModelViewTop] );
-		#else
-			mModelViewStack[mModelViewTop] = mModelViewStack[mModelViewTop+1] * mModelViewStack[mModelViewTop];
-		#endif
+			MatrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mModelViewStack[mModelViewTop+1], &mModelViewStack[mModelViewTop] );
 		}
 	}
 
@@ -1981,11 +1959,7 @@ inline void BaseRenderer::UpdateWorldProject()
 			mReloadProj = false;
 			sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[mProjectionTop]) );
 		}
-	#ifdef DAEDALUS_PSP_USE_VFPU
-		matrixMultiplyAligned( &mWorldProject, &mModelViewStack[mModelViewTop], &mProjectionStack[mProjectionTop] );
-	#else
-		mWorldProject = mModelViewStack[mModelViewTop] * mProjectionStack[mProjectionTop];
-	#endif
+		MatrixMultiplyAligned( &mWorldProject, &mModelViewStack[mModelViewTop], &mProjectionStack[mProjectionTop] );
 	}
 }
 

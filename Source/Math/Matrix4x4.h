@@ -62,9 +62,7 @@ DAEDALUS_STATIC_ASSERT( sizeof( Matrix4x4 ) == 16*4 );
 
 extern const Matrix4x4	gMatrixIdentity;
 
-#ifdef DAEDALUS_PSP
-void matrixMultiplyUnaligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b);
-void matrixMultiplyAligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b);
-#endif
+void MatrixMultiplyUnaligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b);
+void MatrixMultiplyAligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b);
 
 #endif // MATRIX4X4_H__

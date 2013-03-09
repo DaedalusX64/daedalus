@@ -14,7 +14,7 @@
 
 // Many of these mtx funcs should be inline since they are simple enough and called frequently - Salvy
 
-#ifdef DAEDALUS_PSP
+#ifdef DAEDALUS_PSP_USE_VFPU
 /*
 inline void vsincosf(float angle, v4* result)
 {
@@ -25,7 +25,7 @@ inline void vsincosf(float angle, v4* result)
 	: "+m"(*result) : "r"(angle));
 }
 */
-void matrixMultiplyUnaligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b)
+void MatrixMultiplyUnaligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b)
 {
 	__asm__ volatile (
 
@@ -49,7 +49,7 @@ void matrixMultiplyUnaligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Ma
 		: "=m" (*m_out) : "m" (*mat_a) ,"m" (*mat_b) : "memory" );
 }
 
-void matrixMultiplyAligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b)
+void MatrixMultiplyAligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b)
 {
 	__asm__ volatile (
 
@@ -105,7 +105,23 @@ void myApplyMatrix(v4 *v_out, const Matrix4x4 *mat, const v4 *v_in)
 		"sv.q   R200, 0x0(%0)\n"
 	: : "r" (v_out) , "r" (mat) ,"r" (v_in) );
 }*/
-#endif // DAEDALUS_PSP
+#else // DAEDALUS_PSP_USE_VFPU
+
+
+void MatrixMultiplyUnaligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b)
+{
+	*m_out = *mat_a * *mat_b;
+}
+
+void MatrixMultiplyAligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b)
+{
+	*m_out = *mat_a * *mat_b;
+}
+
+#endif // DAEDALUS_PSP_USE_VFPU
+
+
+
 Matrix4x4 & Matrix4x4::SetIdentity()
 {
 	*this = gMatrixIdentity;
