@@ -50,7 +50,7 @@ public:
 	~CAudioBuffer();
 
 	void			AddSamples( const Sample * samples, u32 num_samples, u32 frequency, u32 output_freq );
-	void			Fill( Sample * samples, u32 num_samples );
+	u32				Fill( Sample * samples, u32 num_samples );
 
 	u32				GetSize() const;
 

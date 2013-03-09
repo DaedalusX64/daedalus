@@ -164,7 +164,7 @@ void	CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CAudioBuffer::Fill( Sample * samples, u32 num_samples )
+u32	CAudioBuffer::Fill( Sample * samples, u32 num_samples )
 {
 	//Todo: Check Cache Routines
 	// Ideally we could just invalidate this range?
@@ -202,6 +202,7 @@ void	CAudioBuffer::Fill( Sample * samples, u32 num_samples )
 
 	//
 	//	If there weren't enough samples, zero out the buffer
+	//	FIXME(strmnnrmn): Unnecessary on OSX...
 	//
 	if( samples_required > 0 )
 	{
@@ -209,5 +210,8 @@ void	CAudioBuffer::Fill( Sample * samples, u32 num_samples )
 		//printf( "Buffer underflow (%d samples)\n", samples_required );
 		memset( out_ptr, 0, samples_required * sizeof( Sample ) );
 	}
+
+	// Return the number of samples written
+	return num_samples - samples_required;
 }
 
