@@ -77,7 +77,7 @@ enum ETnLModeFlags
 	TNL_CULLBACK	= 1 << 8,
 };
 
-typedef struct
+struct TnLPSP
 {
 	union
 	{
@@ -96,9 +96,9 @@ typedef struct
 		};
 		u32	_u32;
 	};
-} TnLPSP;
+};
 
-typedef struct
+struct RDP_GeometryMode
 {
 	union
 	{
@@ -140,9 +140,9 @@ typedef struct
 		};
 		u32	_u32;
 	};
-} RDP_GeometryMode;
+};
 
-typedef struct
+struct RDP_OtherMode
 {
 	union
 	{
@@ -199,9 +199,9 @@ typedef struct
 			u32	H;
 		};
 	};
-} RDP_OtherMode;
+};
 
-typedef struct
+struct RDP_Combine
 {
 	union
 	{
@@ -237,10 +237,10 @@ typedef struct
 			u32	H;
 		};
 	};
-} RDP_Combine;
+};
 
 
-typedef struct
+struct RDP_TexRect
 {
 	union
 	{
@@ -275,9 +275,9 @@ typedef struct
 			u32		cmd : 8;
 		};
 	};
-} RDP_TexRect;
+};
 
-typedef struct
+struct RDP_MemRect
 {
 	union
 	{
@@ -313,7 +313,7 @@ typedef struct
 		};
 
 	};
-} RDP_MemRect;
+};
 
 struct RDP_Tile
 {
