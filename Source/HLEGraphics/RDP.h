@@ -430,12 +430,5 @@ extern u16 gTextureMemory[];
 #define TLUT_BASE ((u32)(&gTextureMemory[0]))
 #endif
 
-//*****************************************************************************
-// Functions
-//*****************************************************************************
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-void	DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode);
-#endif
-
 
 #endif // RDP_H__

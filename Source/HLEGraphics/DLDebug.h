@@ -22,6 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "OSHLE/ultra_sptask.h" // Ugh, could just fwd-decl OSTask, if it wasn't a crazy typedef union.
 
+struct RDP_OtherMode;
+
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -104,6 +106,7 @@ extern void DLDebugger_RequestDebug();
 
 void		DLDebug_HandleDumpDisplayList(OSTask * pTask);
 void		DLDebug_DumpMux(u64 mux);
+void		DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode);
 void		DLDebug_DumpNextDisplayList();
 
 #endif // DAEDALUS_DEBUGDISPLAYLIST_H_
