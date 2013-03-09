@@ -624,7 +624,7 @@ static void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	}
 }
 
-void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer)
+void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer, bool identity_uv_transform)
 {
 	static bool	ZFightingEnabled = false;
 
@@ -728,7 +728,7 @@ void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disabl
 
 				glUniform1i(program->uloc_texture[i], i);
 
-				if( (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) == (TNL_LIGHT|TNL_TEXGEN) )
+				if (identity_uv_transform)
 				{
 					glUniform2f(program->uloc_texoffset[i], 0.f, 0.f);
 					glUniform2f(program->uloc_texscale[i], 1.f, 1.f);
@@ -761,19 +761,21 @@ void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disabl
 // It ends up copying colour/uv coords when not needed, and can use a shader uniform for the fill colour.
 void RendererOSX::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bool disable_zbuffer )
 {
-	if( mTnL.Flags.Texture )
+	if (mTnL.Flags.Texture)
 	{
 		EnableTexturing( mTextureTile );
 	}
 
-	PrepareRenderState(gProjection.m, disable_zbuffer);
+	bool identity_uv_transform = (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) == (TNL_LIGHT|TNL_TEXGEN);
+
+	PrepareRenderState(gProjection.m, disable_zbuffer, identity_uv_transform);
 	RenderDaedalusVtx(GL_TRIANGLES, p_vertices, num_vertices);
 }
 
 void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
 	EnableTexturing( tile_idx );
-	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
+	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true, false);
 
 	v2 screen0;
 	v2 screen1;
@@ -816,7 +818,7 @@ void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
 {
 	EnableTexturing( tile_idx );
-	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
+	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true, false);
 
 	v2 screen0;
 	v2 screen1;
@@ -858,7 +860,7 @@ void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 
 void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 {
-	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
+	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true, false);
 
 	v2 screen0;
 	v2 screen1;
