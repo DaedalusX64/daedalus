@@ -122,7 +122,7 @@ static std::vector<ShaderProgram *>		gShaders;
  */
 static GLuint make_shader(GLenum type, const char* shader_src)
 {
-	printf("%d - %s\n", type, shader_src);
+	//printf("%d - %s\n", type, shader_src);
 
 	GLuint shader = glCreateShader(type);
 	if (shader != 0)
