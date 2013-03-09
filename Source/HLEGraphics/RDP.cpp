@@ -550,10 +550,8 @@ const char *	GetBlenderModeDescription( u32 mode )
 //*****************************************************************************
 //
 //*****************************************************************************
-void	RDP_SetOtherMode( u32 cmd_hi, u32 cmd_lo )
+void DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode)
 {
-	//gRDPOtherMode._u64 = u64( cmd_hi ) << 32 | u64( cmd_lo );
-
 	if (gDisplayListFile != NULL)
 	{
 		// High
@@ -569,48 +567,48 @@ void	RDP_SetOtherMode( u32 cmd_hi, u32 cmd_lo )
 		static const char * szZMode[4]			= { "Opa", "Inter", "XLU", "Decal" };
 		static const char * szZSrcSel[2]		= { "Pixel", "Primitive" };
 
-		u32 dwM1A_1 = (gRDPOtherMode.blender>>14) & 0x3;
-		u32 dwM1B_1 = (gRDPOtherMode.blender>>10) & 0x3;
-		u32 dwM2A_1 = (gRDPOtherMode.blender>>6) & 0x3;
-		u32 dwM2B_1 = (gRDPOtherMode.blender>>2) & 0x3;
+		u32 dwM1A_1 = (mode.blender>>14) & 0x3;
+		u32 dwM1B_1 = (mode.blender>>10) & 0x3;
+		u32 dwM2A_1 = (mode.blender>>6) & 0x3;
+		u32 dwM2B_1 = (mode.blender>>2) & 0x3;
 
-		u32 dwM1A_2 = (gRDPOtherMode.blender>>12) & 0x3;
-		u32 dwM1B_2 = (gRDPOtherMode.blender>>8) & 0x3;
-		u32 dwM2A_2 = (gRDPOtherMode.blender>>4) & 0x3;
-		u32 dwM2B_2 = (gRDPOtherMode.blender   ) & 0x3;
+		u32 dwM1A_2 = (mode.blender>>12) & 0x3;
+		u32 dwM1B_2 = (mode.blender>>8) & 0x3;
+		u32 dwM2A_2 = (mode.blender>>4) & 0x3;
+		u32 dwM2B_2 = (mode.blender   ) & 0x3;
 
-		DL_PF( "    alpha_compare: %s", alphacomptype[ gRDPOtherMode.alpha_compare ]);
-		DL_PF( "    depth_source:  %s", szZSrcSel[ gRDPOtherMode.depth_source ]);
-		DL_PF( "    aa_en:         %d", gRDPOtherMode.aa_en );
-		DL_PF( "    z_cmp:         %d", gRDPOtherMode.z_cmp );
-		DL_PF( "    z_upd:         %d", gRDPOtherMode.z_upd );
-		DL_PF( "    im_rd:         %d", gRDPOtherMode.im_rd );
-		DL_PF( "    clr_on_cvg:    %d", gRDPOtherMode.clr_on_cvg );
-		DL_PF( "    cvg_dst:       %s", szCvgDstMode[ gRDPOtherMode.cvg_dst ] );
-		DL_PF( "    zmode:         %s", szZMode[ gRDPOtherMode.zmode ] );
-		DL_PF( "    cvg_x_alpha:   %d", gRDPOtherMode.cvg_x_alpha );
-		DL_PF( "    alpha_cvg_sel: %d", gRDPOtherMode.alpha_cvg_sel );
-		DL_PF( "    force_bl:      %d", gRDPOtherMode.force_bl );
-		DL_PF( "    tex_edge:      %d", gRDPOtherMode.tex_edge );
-		DL_PF( "    blender:       %04x - %s*%s + %s*%s | %s*%s + %s*%s", gRDPOtherMode.blender,
+		DL_PF( "    alpha_compare: %s", alphacomptype[ mode.alpha_compare ]);
+		DL_PF( "    depth_source:  %s", szZSrcSel[ mode.depth_source ]);
+		DL_PF( "    aa_en:         %d", mode.aa_en );
+		DL_PF( "    z_cmp:         %d", mode.z_cmp );
+		DL_PF( "    z_upd:         %d", mode.z_upd );
+		DL_PF( "    im_rd:         %d", mode.im_rd );
+		DL_PF( "    clr_on_cvg:    %d", mode.clr_on_cvg );
+		DL_PF( "    cvg_dst:       %s", szCvgDstMode[ mode.cvg_dst ] );
+		DL_PF( "    zmode:         %s", szZMode[ mode.zmode ] );
+		DL_PF( "    cvg_x_alpha:   %d", mode.cvg_x_alpha );
+		DL_PF( "    alpha_cvg_sel: %d", mode.alpha_cvg_sel );
+		DL_PF( "    force_bl:      %d", mode.force_bl );
+		DL_PF( "    tex_edge:      %d", mode.tex_edge );
+		DL_PF( "    blender:       %04x - %s*%s + %s*%s | %s*%s + %s*%s", mode.blender,
 										sc_szBlClr[dwM1A_1], sc_szBlA1[dwM1B_1], sc_szBlClr[dwM2A_1], sc_szBlA2[dwM2B_1],
 										sc_szBlClr[dwM1A_2], sc_szBlA1[dwM1B_2], sc_szBlClr[dwM2A_2], sc_szBlA2[dwM2B_2]);
-		DL_PF( "    blend_mask:    %d", gRDPOtherMode.blend_mask );
-		DL_PF( "    alpha_dither:  %s", alphadithertypes[ gRDPOtherMode.alpha_dither ] );
-		DL_PF( "    rgb_dither:    %s", rgbdithertype[ gRDPOtherMode.rgb_dither ] );
-		DL_PF( "    comb_key:      %s", gRDPOtherMode.comb_key ? "Key" : "None" );
-		DL_PF( "    text_conv:     %s", convtype[ gRDPOtherMode.text_conv ] );
-		DL_PF( "    text_filt:     %s", filtertype[ gRDPOtherMode.text_filt ] );
-		DL_PF( "    text_tlut:     %s", textluttype[ gRDPOtherMode.text_tlut ] );
-		DL_PF( "    text_lod:      %s", gRDPOtherMode.text_lod ? "LOD": "Tile" );
-		DL_PF( "    text_detail:   %s", detailtype[ gRDPOtherMode.text_detail ] );
-		DL_PF( "    text_persp:    %s", gRDPOtherMode.text_persp ? "On" : "Off" );
-		DL_PF( "    cycle_type:    %s", cycletype[ gRDPOtherMode.cycle_type ] );
-		DL_PF( "    color_dither:  %d", gRDPOtherMode.color_dither );
-		DL_PF( "    pipeline:      %s", gRDPOtherMode.pipeline ? "1Primitive" : "NPrimitive" );
+		DL_PF( "    blend_mask:    %d", mode.blend_mask );
+		DL_PF( "    alpha_dither:  %s", alphadithertypes[ mode.alpha_dither ] );
+		DL_PF( "    rgb_dither:    %s", rgbdithertype[ mode.rgb_dither ] );
+		DL_PF( "    comb_key:      %s", mode.comb_key ? "Key" : "None" );
+		DL_PF( "    text_conv:     %s", convtype[ mode.text_conv ] );
+		DL_PF( "    text_filt:     %s", filtertype[ mode.text_filt ] );
+		DL_PF( "    text_tlut:     %s", textluttype[ mode.text_tlut ] );
+		DL_PF( "    text_lod:      %s", mode.text_lod ? "LOD": "Tile" );
+		DL_PF( "    text_detail:   %s", detailtype[ mode.text_detail ] );
+		DL_PF( "    text_persp:    %s", mode.text_persp ? "On" : "Off" );
+		DL_PF( "    cycle_type:    %s", cycletype[ mode.cycle_type ] );
+		DL_PF( "    color_dither:  %d", mode.color_dither );
+		DL_PF( "    pipeline:      %s", mode.pipeline ? "1Primitive" : "NPrimitive" );
 
-		u32 c1_mode = (gRDPOtherMode.blender & 0xff00) << 16;
-		u32 c2_mode = (gRDPOtherMode.blender & 0x00ff) << 16;
+		u32 c1_mode = (mode.blender & 0xff00) << 16;
+		u32 c2_mode = (mode.blender & 0x00ff) << 16;
 
 		DL_PF( "      %s", GetBlenderModeDescription( c1_mode ) );
 		DL_PF( "      %s", GetBlenderModeDescription( c2_mode ) );

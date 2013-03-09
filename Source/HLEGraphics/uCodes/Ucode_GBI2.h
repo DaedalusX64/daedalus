@@ -390,7 +390,7 @@ void DLParser_GBI2_SetOtherModeH( MicroCodeCommand command )
 	gRDPOtherMode.H = (gRDPOtherMode.H&(~mask)) | command.othermode.data;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );
+	DLDebug_DumpRDPOtherMode(gRDPOtherMode);
 #endif
 }
 
@@ -405,7 +405,7 @@ void DLParser_GBI2_SetOtherModeL( MicroCodeCommand command )
 	gRDPOtherMode.L = (gRDPOtherMode.L&(~mask)) | command.othermode.data;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );
+	DLDebug_DumpRDPOtherMode(gRDPOtherMode);
 #endif
 }
 

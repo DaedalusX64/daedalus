@@ -434,16 +434,8 @@ extern u16 gTextureMemory[];
 // Functions
 //*****************************************************************************
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-void	RDP_SetOtherMode( u32 cmd_hi, u32 cmd_lo );
+void	DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode);
 #endif
-
-//*****************************************************************************
-//
-//*****************************************************************************
-inline bool	IsZModeDecal()
-{
-	return gRDPOtherMode.zmode == 3;		// TODO enum or #def!
-}
 
 
 #endif // RDP_H__

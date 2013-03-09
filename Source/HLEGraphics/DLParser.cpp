@@ -784,7 +784,7 @@ void DLParser_RDPSetOtherMode( MicroCodeCommand command )
 	gRDPOtherMode.L = command.inst.cmd1;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	RDP_SetOtherMode( gRDPOtherMode.H, gRDPOtherMode.L );
+	DLDebug_DumpRDPOtherMode(gRDPOtherMode);
 #endif
 }
 
