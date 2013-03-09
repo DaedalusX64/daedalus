@@ -22,31 +22,40 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <windows.h>
 
-namespace NTiming
+namespace NTiming {
+
+bool GetPreciseFrequency( u64 * p_freq )
 {
-	bool		GetPreciseFrequency( u64 * p_freq )
+	LARGE_INTEGER	freq;
+	if(::QueryPerformanceFrequency( &freq ))
 	{
-		LARGE_INTEGER	freq;
-		if(::QueryPerformanceFrequency( &freq ))
-		{
-			*p_freq = freq.QuadPart;
-			return true;
-		}
-
-		*p_freq = 1;
-		return false;
+		*p_freq = freq.QuadPart;
+		return true;
 	}
 
-	bool		GetPreciseTime( u64 * p_time )
-	{
-		LARGE_INTEGER	time;
-		if(::QueryPerformanceCounter( &time ))
-		{
-			*p_time = time.QuadPart;
-			return true;
-		}
-
-		*p_time = 0;
-		return false;
-	}
+	*p_freq = 1;
+	return false;
 }
+
+bool GetPreciseTime( u64 * p_time )
+{
+	LARGE_INTEGER	time;
+	if(::QueryPerformanceCounter( &time ))
+	{
+		*p_time = time.QuadPart;
+		return true;
+	}
+
+	*p_time = 0;
+	return false;
+}
+
+u64 ToMilliseconds( u64 ticks )
+{
+	static u64 tick_resolution = 0;
+	if (tick_resolution == 0)
+		GetPreciseFrequency(&tick_resolution);
+	return (ticks*1000LL) / tick_resolution;
+}
+
+} // NTiming
