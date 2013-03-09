@@ -32,101 +32,113 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 class CCritSect
 {
-	public:
+public:
 
-		CCritSect()
-		{
-			InitializeCriticalSection(&cs);
-		}
+	CCritSect()
+	{
+		InitializeCriticalSection(&cs);
+	}
 
-		explicit CCritSect( const char * name )
-		{
-			use( name );		// Can't name?
-			InitializeCriticalSection(&cs);
-		};
+	explicit CCritSect( const char * name )
+	{
+		use( name );		// Can't name?
+		InitializeCriticalSection(&cs);
+	};
 
-		~CCritSect()
-		{
-			DeleteCriticalSection(&cs);
-		}
+	~CCritSect()
+	{
+		DeleteCriticalSection(&cs);
+	}
 
-		void Lock()
-		{
-			EnterCriticalSection(&cs);
-		}
+	void Lock()
+	{
+		EnterCriticalSection(&cs);
+	}
 
-		void Unlock()
-		{
-			LeaveCriticalSection(&cs);
-		}
+	void Unlock()
+	{
+		LeaveCriticalSection(&cs);
+	}
 
-	protected:
-		CRITICAL_SECTION cs;
+protected:
+	CRITICAL_SECTION cs;
 };
 #elif defined(DAEDALUS_PSP)
 
 class CCritSect
 {
-	public:
+public:
 
-		CCritSect()
-			:	mSemaphore( sceKernelCreateSema( "CCritSect", 0, 1, 1, NULL ) )
-		{
-			DAEDALUS_ASSERT( mSemaphore >= 0, "Unable to create semaphore" );
-		}
+	CCritSect()
+		:	mSemaphore( sceKernelCreateSema( "CCritSect", 0, 1, 1, NULL ) )
+	{
+		DAEDALUS_ASSERT( mSemaphore >= 0, "Unable to create semaphore" );
+	}
 
-		explicit CCritSect( const char * name )
-			:	mSemaphore( sceKernelCreateSema( name, 0, 1, 1, NULL ) )
-		{
-			DAEDALUS_ASSERT( mSemaphore >= 0, "Unable to create semaphore" );
-		}
+	explicit CCritSect( const char * name )
+		:	mSemaphore( sceKernelCreateSema( name, 0, 1, 1, NULL ) )
+	{
+		DAEDALUS_ASSERT( mSemaphore >= 0, "Unable to create semaphore" );
+	}
 
-		~CCritSect()
-		{
-			sceKernelDeleteSema( mSemaphore );
-		}
+	~CCritSect()
+	{
+		sceKernelDeleteSema( mSemaphore );
+	}
 
-		void Lock()
-		{
-			sceKernelWaitSema( mSemaphore, 1, NULL );
-		}
+	void Lock()
+	{
+		sceKernelWaitSema( mSemaphore, 1, NULL );
+	}
 
-		void Unlock()
-		{
-			sceKernelSignalSema( mSemaphore, 1 );
-		}
+	void Unlock()
+	{
+		sceKernelSignalSema( mSemaphore, 1 );
+	}
 
-	private:
-		s32	mSemaphore;
+private:
+	s32	mSemaphore;
 };
+
+#elif defined(DAEDALUS_OSX)
+
+class CCritSect
+{
+public:
+
+	CCritSect()
+	{
+		pthread_mutex_init(&mMutex, NULL);
+	}
+
+	explicit CCritSect( const char * name )
+	{
+		pthread_mutex_init(&mMutex, NULL);
+	}
+
+	~CCritSect()
+	{
+		pthread_mutex_destroy(&mMutex);
+	}
+
+	void Lock()
+	{
+		pthread_mutex_lock(&mMutex);
+	}
+
+	void Unlock()
+	{
+		pthread_mutex_unlock(&mMutex);
+	}
+
+private:
+	pthread_mutex_t  mMutex;
+};
+
 
 #else
 
-	// XXXX XXXX XXXX
-class CCritSect
-{
-	public:
-
-		CCritSect()
-		{
-		}
-
-		explicit CCritSect( const char * name )
-		{
-		}
-
-		~CCritSect()
-		{
-		}
-
-		void Lock()
-		{
-		}
-
-		void Unlock()
-		{
-		}
-};
+#error Unhandled platform
 
 #endif
 
