@@ -183,13 +183,7 @@ EProcessResult CAudioPluginOSX::ProcessAList()
 			result = PR_COMPLETED;
 			break;
 		case APM_ENABLED_ASYNC:
-			{
-				DAEDALUS_ASSERT(false, "Unimplemented");
-#if 0
-				SHLEStartJob	job;
-				gJobManager.AddJob( &job, sizeof( job ) );
-#endif
-			}
+			DAEDALUS_ERROR("Unimplemented");
 			result = PR_STARTED;
 			break;
 		case APM_ENABLED_SYNC:

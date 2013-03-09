@@ -15,6 +15,11 @@
           'Source/third_party/zlib/zlib.gyp:minizip',
           'Source/third_party/glfw/glfw.gyp:glfw',
         ],
+        'link_settings': {
+          'libraries': [
+            '$(SDKROOT)/System/Library/Frameworks/AudioToolbox.framework',
+          ],
+        },
         'include_dirs': [
           'Source',
           'Source/Config/Dev',
