@@ -464,7 +464,7 @@ inline bool IsNaN_Float(float x)
 
 
 #define Sqrt(x)  pspFpuSqrt((x))
-#define Round(x) pspFpuRound((x))
+#define Round(x) pspFpuRound((x))		// FIXME(strmnnrmn): results in an int! Alternate version below results in a float!
 #define Sinf(x)  vfpu_sinf((x))
 #define Cosf(x)  vfpu_cosf((x))
 
