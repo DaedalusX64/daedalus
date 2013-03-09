@@ -117,7 +117,7 @@ const  u32			VI_INTR_CYCLES_INIT = 62500;
 static u32			gVerticalInterrupts( 0 );
 static u32			VI_INTR_CYCLES( VI_INTR_CYCLES_INIT );
 
-static s32				gCPUThreadHandle = INVALID_THREAD_HANDLE;
+static s32				gCPUThreadHandle = kInvalidThreadHandle;
 static volatile bool 	gCPUThreadActive = false;
 
 #ifdef USE_SCRATCH_PAD
@@ -568,12 +568,12 @@ bool CPU_StartThread( char * p_failure_reason, u32 length )
 	}
 
 	// If the thread is already running, just return
-	if (gCPUThreadHandle != INVALID_THREAD_HANDLE)
+	if (gCPUThreadHandle != kInvalidThreadHandle)
 		return true;
 
 	// Attempt to create the thread
 	gCPUThreadHandle = CreateThread( "CPU", CPUThreadFunc, NULL );
-	if (gCPUThreadHandle == INVALID_THREAD_HANDLE)
+	if (gCPUThreadHandle == kInvalidThreadHandle)
 	{
 		strncpy( p_failure_reason, CResourceString(IDS_UNABLETOSTARTCPUTHREAD), length );
 		p_failure_reason[ length - 1 ] = '\0';
@@ -586,7 +586,7 @@ bool CPU_StartThread( char * p_failure_reason, u32 length )
 
 void CPU_WaitFinish()
 {
-	if(gCPUThreadHandle != INVALID_THREAD_HANDLE)
+	if(gCPUThreadHandle != kInvalidThreadHandle)
 	{
 		WaitForThreadTermination(gCPUThreadHandle, -1);
 	}
@@ -598,7 +598,7 @@ void CPU_WaitFinish()
 void CPU_StopThread()
 {
 	// If it's not running, just return silently
-	if (gCPUThreadHandle == INVALID_THREAD_HANDLE)
+	if (gCPUThreadHandle == kInvalidThreadHandle)
 		return;
 
 	// If it is running, we need to signal for it to stop
@@ -606,7 +606,7 @@ void CPU_StopThread()
 	Memory_SP_SetRegister(SP_STATUS_REG, SP_STATUS_HALT);
 	CPU_SelectCore();
 
-	if(gCPUThreadHandle != INVALID_THREAD_HANDLE)
+	if(gCPUThreadHandle != kInvalidThreadHandle)
 	{
 		// Wait forever for it to finish. It will clear/close gCPUThreadHandle when it exits
 		while(gCPUThreadActive && !WaitForThreadTermination(gCPUThreadHandle, 1000))
@@ -617,7 +617,7 @@ void CPU_StopThread()
 		DAEDALUS_ASSERT( !gCPUThreadActive, "How come the thread is still marked as active?" );
 
 		ReleaseThreadHandle( gCPUThreadHandle );
-		gCPUThreadHandle = INVALID_THREAD_HANDLE;
+		gCPUThreadHandle = kInvalidThreadHandle;
 
 		DBGConsole_Msg(0, "CPU Thread finished");
 		System_Close();

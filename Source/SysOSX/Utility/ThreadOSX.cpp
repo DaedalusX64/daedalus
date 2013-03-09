@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <unistd.h>
 #include <sched.h>
 
-const s32	INVALID_THREAD_HANDLE( -1 );
+const s32	kInvalidThreadHandle = -1;
 
 namespace
 {
@@ -40,12 +40,12 @@ const int	gThreadPriorities[ TP_NUM_PRIORITIES ] =
 
 pthread_t	HandleToPthread( s32 handle )
 {
-	return handle == INVALID_THREAD_HANDLE ? 0 : reinterpret_cast< pthread_t >( handle );
+	return handle == kInvalidThreadHandle ? 0 : reinterpret_cast< pthread_t >( handle );
 }
 
 s32 PthreadToHandle( pthread_t thread )
 {
-	return thread ? reinterpret_cast< s32 >( thread ) : INVALID_THREAD_HANDLE;
+	return thread ? reinterpret_cast< s32 >( thread ) : kInvalidThreadHandle;
 }
 
 struct SDaedThreadDetails
@@ -92,7 +92,7 @@ s32		CreateThread( const char * name, DaedThread function, void * argument )
 	}
 
 	pthread_attr_destroy( &thread_attr );
-	return INVALID_THREAD_HANDLE;
+	return kInvalidThreadHandle;
 }
 
 void	SetThreadPriority( s32 handle, EThreadPriority pri )

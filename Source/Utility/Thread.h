@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 typedef u32 ( DAEDALUS_THREAD_CALL_TYPE * DaedThread )( void * arg );
 
 typedef s32 ThreadHandle;
-extern const ThreadHandle	INVALID_THREAD_HANDLE;
+extern const ThreadHandle	kInvalidThreadHandle;
 
 enum EThreadPriority
 {
@@ -40,7 +40,7 @@ enum EThreadPriority
 };
 
 //
-//	Returns a thread handle - you must check it for error status (== INVALID_THREAD_HANDLE)
+//	Returns a thread handle - you must check it for error status (== kInvalidThreadHandle)
 //
 ThreadHandle	CreateThread( const char * name, DaedThread function, void * argument );
 

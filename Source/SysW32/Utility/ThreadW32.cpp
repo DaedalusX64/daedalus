@@ -30,7 +30,7 @@ static const int	gThreadPriorities[ TP_NUM_PRIORITIES ] =
 	THREAD_PRIORITY_TIME_CRITICAL,		// TP_TIME_CRITICAL
 };
 
-const s32	INVALID_THREAD_HANDLE( NULL );
+const s32	kInvalidThreadHandle = 0;
 
 struct SDaedThreadDetails
 {

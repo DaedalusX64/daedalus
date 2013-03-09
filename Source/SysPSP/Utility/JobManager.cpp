@@ -75,7 +75,7 @@ CJobManager::CJobManager( u32 job_buffer_size, ETaskMode task_mode )
 ,	mRunBuffer( malloc_64( job_buffer_size ) )
 ,	mJobBufferSize( job_buffer_size )
 ,	mTaskMode( task_mode )
-,	mThread( INVALID_THREAD_HANDLE )
+,	mThread( kInvalidThreadHandle )
 ,	mWorkReady( sceKernelCreateSema( "JMWorkReady", 0, 0, 1, NULL ) )	// Initval is 0 - i.e. no work ready
 ,	mWorkEmpty( sceKernelCreateSema( "JMWorkEmpty", 0, 1, 1, NULL ) )	// Initval is 1 - i.e. work done
 ,	mWantQuit( false )
@@ -109,12 +109,12 @@ CJobManager::~CJobManager()
 //*****************************************************************************
 void CJobManager::Start()
 {
-	if( mThread == INVALID_THREAD_HANDLE )
+	if( mThread == kInvalidThreadHandle )
 	{
 		mWantQuit = false;
 		mThread = CreateThread( "JobManager", JobMain, this );
 
-		DAEDALUS_ASSERT( mThread != INVALID_THREAD_HANDLE, "Unable to start JobManager thread!" );
+		DAEDALUS_ASSERT( mThread != kInvalidThreadHandle, "Unable to start JobManager thread!" );
 	}
 }
 
@@ -123,11 +123,11 @@ void CJobManager::Start()
 //*****************************************************************************
 void CJobManager::Stop()
 {
-	if( mThread != INVALID_THREAD_HANDLE )
+	if( mThread != kInvalidThreadHandle )
 	{
 		mWantQuit = true;
 		sceKernelWaitThreadEnd(mThread, 0);
-		mThread = INVALID_THREAD_HANDLE;
+		mThread = kInvalidThreadHandle;
 	}
 }
 
