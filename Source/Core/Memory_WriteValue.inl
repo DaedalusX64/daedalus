@@ -430,10 +430,9 @@ static void WriteValue_FlashRam( u32 address, u32 value )
 static void WriteValue_ROM( u32 address, u32 value )
 {
 	// Write to ROM support
-	// A Bug's Life and Toy Story 2 write to ROM..
-	// Use unused memory buffer, since is always zero'd when calling it, is perfectly safe
-	DBGConsole_Msg(0, "[YWarning : Wrote to ROM -> [0x%08x]", value);
+	// A Bug's Life and Toy Story 2 write to ROM, add support by storing written value which is used when reading from Rom.
+	g_pWriteRom = value;
 
-	gWrotetoRom = true;
-	*(u32*)g_pMemoryBuffers[MEM_UNUSED] = value;
+	DBGConsole_Msg(0, "[YWarning : Wrote to ROM -> [0x%08x]", value);
+	g_RomWritten = true;
 }

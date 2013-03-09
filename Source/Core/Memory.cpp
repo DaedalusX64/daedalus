@@ -106,7 +106,8 @@ static void *	gMemBase = NULL;				// Virtual memory base
 #endif
 
 // ROM write support
-bool  gWrotetoRom;
+u32	  g_pWriteRom;
+bool  g_RomWritten;
 
 #ifdef DAEDALUS_W32
 // Ram base, offset by 0x80000000 and 0xa0000000
@@ -219,7 +220,8 @@ bool Memory_Init()
 	g_pu8RamBase_A000 = ((u8*)MAKE_UNCACHED_PTR(g_pMemoryBuffers[MEM_RD_RAM])) - 0xa0000000;
 #endif
 
-	gWrotetoRom = false;
+	g_RomWritten = false;
+
 
 	Memory_InitTables();
 

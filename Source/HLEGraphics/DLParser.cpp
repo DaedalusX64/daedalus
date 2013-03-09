@@ -83,7 +83,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SetCommand( cmd, func, name )	gCustomInstruction[ cmd ] = func;
 #endif
 
-
 #define MAX_DL_STACK_SIZE	32
 
 #define N64COL_GETR( col )		(u8((col) >> 24))
@@ -523,6 +522,7 @@ void DLParser_Process()
 	u32 code_size = pTask->t.ucode_size;
 	u32 data_base = (u32)pTask->t.ucode_data & 0x1fffffff;
 	u32 data_size = pTask->t.ucode_data_size;
+	u32 stack_size = pTask->t.dram_stack_size >> 6;
 
 	if ( gLastUcodeBase != code_base )
 	{
@@ -563,6 +563,7 @@ void DLParser_Process()
 	if(!gFrameskipActive)
 	{
 		gRenderer->SetVIScales();
+		gRenderer->ResetMatrices(stack_size);
 		gRenderer->Reset();
 		gRenderer->BeginScene();
 		DLParser_ProcessDList();

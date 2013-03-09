@@ -213,7 +213,7 @@ public:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	void				PrintActive();
 #endif
-	void				ResetMatrices();
+	void				ResetMatrices(u32 size);
 	void				SetProjectionDKR(const u32 address, bool mul, u32 idx);
 	void				SetProjection(const u32 address, bool bPush, bool bReplace);
 	void				SetWorldView(const u32 address, bool bPush, bool bReplace);
@@ -341,6 +341,7 @@ protected:
 	TextureWrap			mTexWrap[ NUM_N64_TEXTURES ];
 
 	//Max is 18 according to the manual //Corn
+	//I think we should make this more deep to avoid any issues //Salvy
 	static const u32 MATRIX_STACK_SIZE = 20;
 
 	inline void			UpdateWorldProject();
@@ -351,6 +352,7 @@ protected:
 	Matrix4x4			mInvProjection;
 	u32					mProjectionTop;
 	u32					mModelViewTop;
+	u32					mMatStackSize;
 	mutable bool		mWorldProjectValid;
 	bool				mReloadProj;
 	bool				mWPmodified;

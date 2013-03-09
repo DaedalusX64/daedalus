@@ -240,8 +240,6 @@ void BaseRenderer::SetVIScales()
 //*****************************************************************************
 void BaseRenderer::Reset()
 {
-	ResetMatrices();
-
 	mNumIndices = 0;
 	mVtxClipFlagsUnion = 0;
 
@@ -457,13 +455,13 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	++mNumTrisRendered;
 #endif
 
+	DAEDALUS_ASSERT( mNumIndices < MAX_VERTICES + 3, " Array overflow, to many Indices" );
+
 	m_swIndexBuffer[ mNumIndices++ ] = (u16)v0;
 	m_swIndexBuffer[ mNumIndices++ ] = (u16)v1;
 	m_swIndexBuffer[ mNumIndices++ ] = (u16)v2;
 
 	mVtxClipFlagsUnion |= f0 | f1 | f2;
-
-	DAEDALUS_ASSERT( mNumIndices < MAX_VERTICES, " Array overflow, to many Indices" );
 
 	return true;
 }
@@ -1652,8 +1650,10 @@ inline void BaseRenderer::SetVtxXY( u32 vert, float x, float y )
 //*****************************************************************************
 // Init matrix stack to identity matrices (called once per frame)
 //*****************************************************************************
-void BaseRenderer::ResetMatrices()
+void BaseRenderer::ResetMatrices(u32 size)
 {
+	mMatStackSize = (size > MATRIX_STACK_SIZE) ? MATRIX_STACK_SIZE : size;
+	DAEDALUS_ASSERT( size !=0, " Invalid mat stack size");
 	mProjectionTop = mModelViewTop = 0;
 	mProjectionStack[0] = mModelViewStack[0] = gMatrixIdentity;
 	mWorldProjectValid = false;
@@ -1867,12 +1867,9 @@ extern void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
 void BaseRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 {
 	// Projection
-	if (bPush)
+	if (bPush && (mProjectionTop < mMatStackSize))
 	{
-		if (mProjectionTop >= (MATRIX_STACK_SIZE-2))
-			DBGConsole_Msg(0, "Pushing past proj stack limits! %d/%d", mProjectionTop, MATRIX_STACK_SIZE);
-		else
-			++mProjectionTop;
+		++mProjectionTop;
 
 		if (bReplace)
 		{
@@ -1979,12 +1976,9 @@ void BaseRenderer::SetProjectionDKR(const u32 address, bool mul, u32 idx)
 void BaseRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 {
 	// ModelView
-	if (bPush)
+	if (bPush && (mModelViewTop < mMatStackSize))
 	{
-		if (mModelViewTop >= (MATRIX_STACK_SIZE-2))
-			DBGConsole_Msg(0, "Pushing past modelview stack limits! %d/%d", mModelViewTop, MATRIX_STACK_SIZE);
-		else
-			++mModelViewTop;
+		++mModelViewTop;
 
 		// We should store the current projection matrix...
 		if (bReplace)
