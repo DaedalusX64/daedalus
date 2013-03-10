@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define HD_SCALE                          0.754166f
 
-class CTexture;
+class CachedTexture;
 class CNativeTexture;
 struct TempVerts;
 
@@ -339,10 +339,10 @@ protected:
 	};
 	static const u32 NUM_N64_TEXTURES = 2;
 
-	CRefPtr<CTexture>	mpTexture[ NUM_N64_TEXTURES ];
-	v2					mTileTopLeft[ NUM_N64_TEXTURES ];
-	v2					mTileScale[ NUM_N64_TEXTURES ];
-	TextureWrap			mTexWrap[ NUM_N64_TEXTURES ];
+	CRefPtr<CachedTexture>	mpTexture[ NUM_N64_TEXTURES ];
+	v2						mTileTopLeft[ NUM_N64_TEXTURES ];
+	v2						mTileScale[ NUM_N64_TEXTURES ];
+	TextureWrap				mTexWrap[ NUM_N64_TEXTURES ];
 
 	//Max is 18 according to the manual //Corn
 	//I think we should make this more deep to avoid any issues //Salvy

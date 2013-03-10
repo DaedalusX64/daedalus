@@ -971,6 +971,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\HLEGraphics\CachedTexture.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\HLEGraphics\CachedTexture.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\HLEGraphics\ConvertImage.cpp"
 					>
 				</File>
@@ -1032,14 +1040,6 @@
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\RDPStateManager.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\Texture.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\Texture.h"
 					>
 				</File>
 				<File

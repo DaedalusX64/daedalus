@@ -18,10 +18,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
+#include "CachedTexture.h"
 
-#include "Texture.h"
 #include "TextureDescriptor.h"
 #include "ConvertImage.h"
+#include "ConfigOptions.h"
 #include "Graphics/NativePixelFormat.h"
 #include "Graphics/NativeTexture.h"
 #include "Graphics/ColourValue.h"
@@ -35,13 +36,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/Dump.h"
 
 #include "Utility/Profiler.h"
-
-#include "Math/MathUtil.h"
-#include "Math/Math.h"
 #include "Utility/IO.h"
 #include "Utility/AuxFunc.h"
 
-#include "ConfigOptions.h"
+#include "Math/MathUtil.h"
+#include "Math/Math.h"
 
 #include <vector>
 
@@ -461,7 +460,7 @@ static void UpdateTexture( const TextureInfo & texture_info, CNativeTexture * te
 	}
 }
 
-CRefPtr<CTexture> CTexture::Create( const TextureInfo & ti )
+CRefPtr<CachedTexture> CachedTexture::Create( const TextureInfo & ti )
 {
 	if( ti.GetWidth() == 0 || ti.GetHeight() == 0 )
 	{
@@ -469,7 +468,7 @@ CRefPtr<CTexture> CTexture::Create( const TextureInfo & ti )
 		return NULL;
 	}
 
-	CRefPtr<CTexture>	texture( new CTexture( ti ) );
+	CRefPtr<CachedTexture>	texture( new CachedTexture( ti ) );
 
 	if (!texture->Initialise())
 	{
@@ -479,7 +478,7 @@ CRefPtr<CTexture> CTexture::Create( const TextureInfo & ti )
 	return texture;
 }
 
-CTexture::CTexture( const TextureInfo & ti )
+CachedTexture::CachedTexture( const TextureInfo & ti )
 :	mTextureInfo( ti )
 ,	mpTexture(NULL)
 ,	mpWhiteTexture(NULL)
@@ -489,11 +488,11 @@ CTexture::CTexture( const TextureInfo & ti )
 {
 }
 
-CTexture::~CTexture()
+CachedTexture::~CachedTexture()
 {
 }
 
-bool CTexture::Initialise()
+bool CachedTexture::Initialise()
 {
 	DAEDALUS_ASSERT_Q(mpTexture == NULL);
 
@@ -536,7 +535,7 @@ bool CTexture::Initialise()
 }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-void CTexture::DumpTexture() const
+void CachedTexture::DumpTexture() const
 {
 	if( mpTexture != NULL && mpTexture->HasData() )
 	{
@@ -580,7 +579,7 @@ void CTexture::DumpTexture() const
 }
 #endif
 
-void CTexture::UpdateIfNecessary()
+void CachedTexture::UpdateIfNecessary()
 {
 	if( !IsFresh() )
 	{
@@ -604,14 +603,14 @@ void CTexture::UpdateIfNecessary()
 	mFrameLastUsed = gRDPFrame;
 }
 
-bool CTexture::IsFresh() const
+bool CachedTexture::IsFresh() const
 {
 	return (gRDPFrame == mFrameLastUsed ||
 			gCheckTextureHashFrequency == 0 ||
 			gRDPFrame < mFrameLastUpToDate + gCheckTextureHashFrequency);
 }
 
-bool CTexture::HasExpired() const
+bool CachedTexture::HasExpired() const
 {
 	if(!IsFresh())
 	{
@@ -633,7 +632,7 @@ bool CTexture::HasExpired() const
 	return gRDPFrame - mFrameLastUsed > (20 + (FastRand() & 0x3));
 }
 
-const CRefPtr<CNativeTexture> &	CTexture::GetWhiteTexture() const
+const CRefPtr<CNativeTexture> &	CachedTexture::GetWhiteTexture() const
 {
 	if(mpWhiteTexture == NULL)
 	{
@@ -651,7 +650,7 @@ const CRefPtr<CNativeTexture> &	CTexture::GetWhiteTexture() const
 }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-u32	CTexture::GetVideoMemoryUsage() const
+u32	CachedTexture::GetVideoMemoryUsage() const
 {
 	u32		usage( 0 );
 
@@ -671,7 +670,7 @@ u32	CTexture::GetVideoMemoryUsage() const
 
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-u32	CTexture::GetSystemMemoryUsage() const
+u32	CachedTexture::GetSystemMemoryUsage() const
 {
 	u32	usage( 0 );
 

@@ -17,10 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __TEXTURECACHE_H__
-#define __TEXTURECACHE_H__
+#ifndef TEXTURECACHE_H__
+#define TEXTURECACHE_H__
 
-#include "Texture.h"
+#include "CachedTexture.h"
 
 #include "Utility/Singleton.h"
 #include "Utility/RefCounted.h"
@@ -49,21 +49,21 @@ class CTextureCache : public CSingleton< CTextureCache >
 		struct STextureInfoSnapshot
 		{
 		public:
-			STextureInfoSnapshot( CTexture * p_texture );
+			STextureInfoSnapshot( CachedTexture * texture );
 
 			STextureInfoSnapshot( const STextureInfoSnapshot & rhs );
 			STextureInfoSnapshot & operator=( const STextureInfoSnapshot & rhs );
 
 			~STextureInfoSnapshot();
 
-			inline const CRefPtr<CTexture> &	GetTexture() const			{ return Texture; }
+			inline const CRefPtr<CachedTexture> &	GetTexture() const			{ return Texture; }
 		private:
-			CRefPtr<CTexture>		Texture;
+			CRefPtr<CachedTexture>		Texture;
 		};
 		virtual void		Snapshot( std::vector< STextureInfoSnapshot > & snapshot ) const = 0;
 #endif
 
-		virtual CRefPtr<CTexture>	GetTexture( const TextureInfo * pti ) = 0;
+		virtual CRefPtr<CachedTexture>	GetTexture( const TextureInfo * pti ) = 0;
 };
 
-#endif	// __TEXTURECACHE_H__
+#endif	// TEXTURECACHE_H__

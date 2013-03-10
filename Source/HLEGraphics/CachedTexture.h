@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef __TEXTURE_H__
-#define __TEXTURE_H__
+#ifndef CACHEDTEXTURE_H__
+#define CACHEDTEXTURE_H__
 
 #include "Utility/RefCounted.h"
 
@@ -28,14 +28,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern u32 gRDPFrame;
 
-class CTexture : public CRefCounted
+class CachedTexture : public CRefCounted
 {
 	protected:
-		CTexture( const TextureInfo & ti );
-		~CTexture();
+		CachedTexture( const TextureInfo & ti );
+		~CachedTexture();
 
 	public:
-		static CRefPtr<CTexture>	Create( const TextureInfo & ti );
+		static CRefPtr<CachedTexture>	Create( const TextureInfo & ti );
 
 		inline const CRefPtr<CNativeTexture> &	GetTexture() const					{ return mpTexture; }
 		const CRefPtr<CNativeTexture> &			GetWhiteTexture() const;		// Returns a texture with the RGB channels set to white (alpha remains the same)
@@ -66,4 +66,4 @@ class CTexture : public CRefCounted
 };
 
 
-#endif	// __TEXTURE_H__
+#endif	// CACHEDTEXTURE_H__

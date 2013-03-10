@@ -599,7 +599,7 @@ bool CTextureExplorerDebugMenuOption::OverrideDisplay() const
 	u32		texture_height( 32 );
 	if( mSelectedIdx < mSnapshot.size() )
 	{
-		const CRefPtr<CTexture> &	n64_texture( mSnapshot[ mSelectedIdx ].GetTexture() );
+		const CRefPtr<CachedTexture> & n64_texture( mSnapshot[ mSelectedIdx ].GetTexture() );
 		if( n64_texture != NULL )
 		{
 			const TextureInfo &		info( n64_texture->GetTextureInfo() );
@@ -1018,15 +1018,15 @@ void IDisplayListDebugger::Run()
 			DLDebug_DumpNextDisplayList();
 
 			// Dump textures
-			std::vector<CTextureCache::STextureInfoSnapshot>	fSnapshot;
-			CTextureCache::Get()->Snapshot( fSnapshot );
+			std::vector<CTextureCache::STextureInfoSnapshot> snapshot;
+			CTextureCache::Get()->Snapshot( snapshot );
 
-			sort( fSnapshot.begin(), fSnapshot.end(), OrderTextures );
+			sort( snapshot.begin(), snapshot.end(), OrderTextures );
 
 			// Dump each in turn
-			for( u32 i = 0; i < fSnapshot.size(); ++i )
+			for( u32 i = 0; i < snapshot.size(); ++i )
 			{
-				const CRefPtr<CTexture> &		n64_texture( fSnapshot[ i ].GetTexture() );
+				const CRefPtr<CachedTexture> & n64_texture = snapshot[ i ].GetTexture();
 				if( n64_texture != NULL )
 				{
 					n64_texture->DumpTexture();

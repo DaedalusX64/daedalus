@@ -282,7 +282,7 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 		ti.SetTLutFormat       (kTT_RGBA16);
 	}
 
-	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
+	CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetTexture( &ti ) );
 	DAEDALUS_ASSERT( texture, "ObjSprite texture is NULL" );
 
 	texture->GetTexture()->InstallTexture();
@@ -630,7 +630,7 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 	ti.SetTLutFormat       (kTT_RGBA16);
 
 
-	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
+	CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();
 	texture->UpdateIfNecessary();
 
@@ -689,7 +689,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 	ti.SetTLutFormat       (kTT_RGBA16);
 
 
-	CRefPtr<CTexture>       texture( CTextureCache::Get()->GetTexture( &ti ) );
+	CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetTexture( &ti ) );
 	texture->GetTexture()->InstallTexture();
 	texture->UpdateIfNecessary();
 

@@ -1933,7 +1933,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\Texture.cpp"
+					RelativePath=".\Source\HLEGraphics\CachedTexture.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1945,7 +1945,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\Texture.h"
+					RelativePath=".\Source\HLEGraphics\CachedTexture.h"
 					>
 				</File>
 				<File

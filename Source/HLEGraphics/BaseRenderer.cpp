@@ -20,7 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 
 #include "BaseRenderer.h"
-#include "Texture.h"
 #include "TextureCache.h"
 #include "RDPStateManager.h"
 #include "DLDebug.h"
@@ -1691,7 +1690,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	}
 	else
 	{
-		const CRefPtr<CTexture>	texture( CTextureCache::Get()->GetTexture( &ti ) );
+		const CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetTexture( &ti ) );
 
 		if( texture != NULL )
 		{

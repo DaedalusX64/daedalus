@@ -12,7 +12,7 @@
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
 #include "HLEGraphics/DLDebug.h"
-#include "HLEGraphics/Texture.h"
+#include "HLEGraphics/CachedTexture.h"
 #include "OSHLE/ultra_gbi.h"
 
 BaseRenderer * gRenderer    = NULL;

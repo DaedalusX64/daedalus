@@ -11,7 +11,7 @@
 #include "HLEGraphics/DLDebug.h"
 #include "Combiner/CombinerTree.h"
 #include "Combiner/RenderSettings.h"
-#include "HLEGraphics/Texture.h"
+#include "HLEGraphics/CachedTexture.h"
 #include "Math/MathUtil.h"
 #include "OSHLE/ultra_gbi.h"
 #include "Utility/IO.h"

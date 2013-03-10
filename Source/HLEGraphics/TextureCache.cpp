@@ -50,7 +50,7 @@ public:
 			void			SetDumpTextures( bool dump_textures )	{ mDumpTextures = dump_textures; }
 			bool			GetDumpTextures( ) const				{ return mDumpTextures; }
 #endif
-			CRefPtr<CTexture>GetTexture(const TextureInfo * pti);
+			CRefPtr<CachedTexture>GetTexture(const TextureInfo * pti);
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	virtual	void			DisplayStats();
@@ -69,21 +69,21 @@ protected:
 		{
 			return a < b;
 		}
-		bool operator()( const CRefPtr<CTexture> & a, const TextureInfo & b ) const
+		bool operator()( const CRefPtr<CachedTexture> & a, const TextureInfo & b ) const
 		{
 			return a->GetTextureInfo() < b;
 		}
-		bool operator()( const TextureInfo & a, const CRefPtr<CTexture> & b ) const
+		bool operator()( const TextureInfo & a, const CRefPtr<CachedTexture> & b ) const
 		{
 			return a < b->GetTextureInfo();
 		}
-			bool operator()( const CRefPtr<CTexture> & a, const CRefPtr<CTexture> & b ) const
+			bool operator()( const CRefPtr<CachedTexture> & a, const CRefPtr<CachedTexture> & b ) const
 		{
 			return a->GetTextureInfo() < b->GetTextureInfo();
 		}
 	};
 
-	typedef std::vector< CRefPtr<CTexture> >	TextureVec;
+	typedef std::vector< CRefPtr<CachedTexture> >	TextureVec;
 	TextureVec				mTextures;
 
 	//
@@ -107,7 +107,7 @@ protected:
 		return ti.GetHashCode() & (HASH_TABLE_SIZE-1);
 	}
 
-	mutable CRefPtr<CTexture>	mpCacheHashTable[HASH_TABLE_SIZE];
+	mutable CRefPtr<CachedTexture>	mpCacheHashTable[HASH_TABLE_SIZE];
 
 	bool					mDumpTextures;
 };
@@ -154,13 +154,13 @@ void ITextureCache::PurgeOldTextures()
 	//
 	for( s32 i = mTextures.size() - 1; i >= 0; --i )
 	{
-		CRefPtr<CTexture> &	texture( mTextures[ i ] );
+		CRefPtr<CachedTexture> & texture = mTextures[ i ];
 		if ( texture->HasExpired() )
 		{
 			//printf("Texture load address -> %d\n",mTextures[ i ]->GetTextureInfo().GetLoadAddress());
 
-			u32	ixa( MakeHashIdxA( texture->GetTextureInfo() ) );
-			u32 ixb( MakeHashIdxB( texture->GetTextureInfo() ) );
+			u32	ixa = MakeHashIdxA( texture->GetTextureInfo() );
+			u32 ixb = MakeHashIdxB( texture->GetTextureInfo() );
 
 			if( mpCacheHashTable[ixa] == texture )
 			{
@@ -220,7 +220,7 @@ static void TextureCacheStat( u32 l1_hit, u32 l2_hit, u32 size )
 // If already in table, return cached copy
 // Otherwise, create surfaces, and load texture into memory
 //*************************************************************************************
-CRefPtr<CTexture> ITextureCache::GetTexture(const TextureInfo * pti)
+CRefPtr<CachedTexture> ITextureCache::GetTexture(const TextureInfo * pti)
 {
 	DAEDALUS_PROFILE( "ITextureCache::GetTexture" );
 
@@ -241,8 +241,8 @@ CRefPtr<CTexture> ITextureCache::GetTexture(const TextureInfo * pti)
 		return mpCacheHashTable[ixb];
 	}
 
-	CRefPtr<CTexture>		texture;
-	TextureVec::iterator	it( std::lower_bound( mTextures.begin(), mTextures.end(), *pti, SSortTextureEntries() ) );
+	CRefPtr<CachedTexture>		texture;
+	TextureVec::iterator		it( std::lower_bound( mTextures.begin(), mTextures.end(), *pti, SSortTextureEntries() ) );
 	if( it != mTextures.end() && (*it)->GetTextureInfo() == *pti )
 	{
 		texture = *it;
@@ -250,7 +250,7 @@ CRefPtr<CTexture> ITextureCache::GetTexture(const TextureInfo * pti)
 	}
 	else
 	{
-		texture = CTexture::Create( *pti );
+		texture = CachedTexture::Create( *pti );
 		if (texture != NULL)
 		{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -288,7 +288,7 @@ void	ITextureCache::GetUsedTextureStats( u32 * p_num_textures,
 
 	for( TextureVec::const_iterator it = mTextures.begin(); it != mTextures.end(); ++it )
 	{
-		const CRefPtr<CTexture> & texture( *it );
+		const CRefPtr<CachedTexture> & texture( *it );
 		num_textures++;
 		video_memory_used += texture->GetVideoMemoryUsage();
 		system_memory_used += texture->GetSystemMemoryUsage();
@@ -328,8 +328,8 @@ void	ITextureCache::Snapshot( std::vector< STextureInfoSnapshot > & snapshot ) c
 	}
 }
 
-CTextureCache::STextureInfoSnapshot::STextureInfoSnapshot( CTexture * p_texture )
-:	Texture( p_texture )
+CTextureCache::STextureInfoSnapshot::STextureInfoSnapshot( CachedTexture * texture )
+:	Texture( texture )
 {
 }
 

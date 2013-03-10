@@ -52,13 +52,13 @@ CORE_SRCS = \
 	Source/HLEAudio/AudioHLEProcessor.cpp \
 	Source/HLEAudio/HLEMain.cpp \
 	Source/HLEGraphics/BaseRenderer.cpp \
+	Source/HLEGraphics/CachedTexture.cpp \
 	Source/HLEGraphics/ConvertImage.cpp \
 	Source/HLEGraphics/DLDebug.cpp \
 	Source/HLEGraphics/DLParser.cpp \
 	Source/HLEGraphics/Microcode.cpp \
 	Source/HLEGraphics/RDP.cpp \
 	Source/HLEGraphics/RDPStateManager.cpp \
-	Source/HLEGraphics/Texture.cpp \
 	Source/HLEGraphics/TextureCache.cpp \
 	Source/HLEGraphics/TextureDescriptor.cpp \
 	Source/HLEGraphics/uCodes/Ucode.cpp \
