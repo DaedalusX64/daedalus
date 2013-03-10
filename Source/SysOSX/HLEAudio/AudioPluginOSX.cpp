@@ -137,39 +137,6 @@ u32 CAudioPluginOSX::ReadLength()
 	return 0;
 }
 
-struct SHLEStartJob : public SJob
-{
-	SHLEStartJob()
-	{
-		 InitJob = NULL;
-		 DoJob = &DoHLEStartStatic;
-		 FiniJob = &DoHLEFinishedStatic;
-	}
-
-	static int DoHLEStartStatic( SJob * arg )
-	{
-		 SHLEStartJob *  job( static_cast< SHLEStartJob * >( arg ) );
-		 return job->DoHLEStart();
-	}
-
-	static int DoHLEFinishedStatic( SJob * arg )
-	{
-		 SHLEStartJob *  job( static_cast< SHLEStartJob * >( arg ) );
-		 return job->DoHLEFinish();
-	}
-
-	int DoHLEStart()
-	{
-		 Audio_Ucode();
-		 return 0;
-	}
-
-	int DoHLEFinish()
-	{
-		 CPU_AddEvent(RSP_AUDIO_INTR_CYCLES, CPU_EVENT_AUDIO);
-		 return 0;
-	}
-};
 
 EProcessResult CAudioPluginOSX::ProcessAList()
 {

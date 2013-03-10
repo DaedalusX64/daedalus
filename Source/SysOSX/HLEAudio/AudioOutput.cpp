@@ -164,8 +164,7 @@ static void AudioExit()
 }
 
 AudioOutput::AudioOutput()
-:	mAudioBufferUncached( NULL )	// FIXME(strmnrmn): remove this.
-,	mAudioBuffer( new CAudioBuffer( kAudioBufferSize ) )
+:	mAudioBuffer( new CAudioBuffer( kAudioBufferSize ) )
 ,	mAudioPlaying( false )
 ,	mFrequency( 44100 )
 {

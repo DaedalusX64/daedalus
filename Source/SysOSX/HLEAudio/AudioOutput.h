@@ -47,9 +47,6 @@ class AudioOutput
 	public:
 		void				FillBuffer( Sample * buffer, u32 num_samples );
 
-	public:
-		CAudioBuffer *		mAudioBufferUncached;
-
 	private:
 		CAudioBuffer *		mAudioBuffer;
 		bool				mAudioPlaying;
