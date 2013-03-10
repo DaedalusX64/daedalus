@@ -204,7 +204,7 @@ void AudioPluginOSX::AudioCallback(void * arg, AudioQueueRef queue, AudioQueueBu
 	AudioPluginOSX * plugin = static_cast<AudioPluginOSX *>(arg);
 
 	u32 num_samples = buffer->mAudioDataBytesCapacity / sizeof(Sample);
-	u32 samples_written = plugin->mAudioBuffer.Fill(static_cast<Sample *>(buffer->mAudioData), num_samples);
+	u32 samples_written = plugin->mAudioBuffer.Drain(static_cast<Sample *>(buffer->mAudioData), num_samples);
 
 	u32 remaining_samples = plugin->mAudioBuffer.GetNumBufferedSamples();
 	gBufferLenMs = (1000 * remaining_samples) / kOutputFrequency;

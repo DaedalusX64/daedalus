@@ -24,25 +24,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef AUDIOBUFFER_H__
 #define AUDIOBUFFER_H__
 
-
-//*****************************************************************************
-//
-//*****************************************************************************
 struct Sample
 {
 	s16		L;
 	s16		R;
 };
 
-//*****************************************************************************
+// A utility class for buffering up samples, upsampling to the desired
+// output frequency and copying them to the desired output buffer.
 //
-//	A utility class for buffering up samples, upsampling to the desired
-//	output frequency and copying them to the desired output buffer.
-//
-//	N.B. This class currently does no synchronisation - it's assumed that
-//	the calling code will handle this
-//
-//*****************************************************************************
+// N.B. This class currently does no synchronisation - it's assumed that
+// the calling code will handle this
 class CAudioBuffer
 {
 public:
@@ -50,7 +42,7 @@ public:
 	~CAudioBuffer();
 
 	void			AddSamples( const Sample * samples, u32 num_samples, u32 frequency, u32 output_freq );
-	u32				Fill( Sample * samples, u32 num_samples );
+	u32				Drain( Sample * samples, u32 num_samples );
 
 	u32				GetNumBufferedSamples() const;
 

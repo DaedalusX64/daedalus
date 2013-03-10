@@ -80,7 +80,7 @@ static int fillBuffer(SceSize args, void *argp)
 		sceKernelWaitSema(bufferEmpty, 1, 0);
 		fillbuf = pcmflip ? pcmout2 : pcmout1;
 
-		ac->mAudioBufferUncached->Fill( reinterpret_cast< Sample * >( fillbuf ), PSP_NUM_SAMPLES );
+		ac->mAudioBufferUncached->Drain( reinterpret_cast< Sample * >( fillbuf ), PSP_NUM_SAMPLES );
 	}
 	sceKernelExitDeleteThread(0);
 	return 0;

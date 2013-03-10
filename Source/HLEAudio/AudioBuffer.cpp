@@ -29,9 +29,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ConfigOptions.h"
 
-//*****************************************************************************
-//
-//*****************************************************************************
 CAudioBuffer::CAudioBuffer( u32 buffer_size )
 	:	mBufferBegin( new Sample[ buffer_size ] )
 	,	mBufferEnd( mBufferBegin + buffer_size )
@@ -40,18 +37,12 @@ CAudioBuffer::CAudioBuffer( u32 buffer_size )
 {
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 CAudioBuffer::~CAudioBuffer()
 {
 	delete [] mBufferBegin;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-u32		CAudioBuffer::GetNumBufferedSamples() const
+u32 CAudioBuffer::GetNumBufferedSamples() const
 {
 	 //Todo: Check Cache Routines
 #ifdef DAEDALUS_PSP
@@ -69,10 +60,7 @@ u32		CAudioBuffer::GetNumBufferedSamples() const
 	return diff;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 frequency, u32 output_freq )
+void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 frequency, u32 output_freq )
 {
 	DAEDALUS_ASSERT( frequency <= output_freq, "Input frequency is too high" );
 
@@ -120,9 +108,7 @@ void	CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 		out.L = out.R = v;
 
 #else
-		//*****************************************************************************
 		// Resample in integer mode (faster & less ASM code) //Corn
-		//*****************************************************************************
 		Sample	out;
 
 		out.L = samples[ in_idx ].L + ((( samples[ in_idx + 1 ].L - samples[ in_idx ].L ) * s ) >> 12 );
@@ -161,10 +147,7 @@ void	CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 	mWritePtr = write_ptr;		// Needs cache wbinv
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-u32	CAudioBuffer::Fill( Sample * samples, u32 num_samples )
+u32	CAudioBuffer::Drain( Sample * samples, u32 num_samples )
 {
 	//Todo: Check Cache Routines
 	// Ideally we could just invalidate this range?
