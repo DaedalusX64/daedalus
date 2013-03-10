@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 
 #include "AudioPluginPSP.h"
-#include "HLEAudio/AudioCode.h"
+#include "HLEAudio/AudioOutput.h"
 #include "HLEAudio/audiohle.h"
 
 #include "SysPSP/Utility/JobManager.h"
@@ -60,9 +60,9 @@ EAudioPluginMode gAudioPluginEnabled( APM_DISABLED );
 //
 //*****************************************************************************
 CAudioPluginPsp::CAudioPluginPsp()
-:	mAudioCode( new AudioCode )
+:	mAudioOutput( new AudioOutput )
 {
-	//mAudioCode->SetAdaptFrequency( gAdaptFrequency );
+	//mAudioOutput->SetAdaptFrequency( gAdaptFrequency );
 	//gAudioPluginEnabled = APM_ENABLED_SYNC; // for testing
 }
 
@@ -71,7 +71,7 @@ CAudioPluginPsp::CAudioPluginPsp()
 //*****************************************************************************
 CAudioPluginPsp::~CAudioPluginPsp()
 {
-	delete mAudioCode;
+	delete mAudioOutput;
 }
 
 //*****************************************************************************
@@ -88,7 +88,7 @@ CAudioPluginPsp *	CAudioPluginPsp::Create()
 /*
 void	CAudioPluginPsp::SetAdaptFrequecy( bool adapt )
 {
-	mAudioCode->SetAdaptFrequency( adapt );
+	mAudioOutput->SetAdaptFrequency( adapt );
 }
 */
 //*****************************************************************************
@@ -105,7 +105,7 @@ bool		CAudioPluginPsp::StartEmulation()
 void	CAudioPluginPsp::StopEmulation()
 {
 	Audio_Reset();
-	mAudioCode->StopAudio();
+	mAudioOutput->StopAudio();
 }
 
 void	CAudioPluginPsp::DacrateChanged( int SystemType )
@@ -115,7 +115,7 @@ void	CAudioPluginPsp::DacrateChanged( int SystemType )
 	u32 dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
 	u32	frequency = type / (dacrate + 1);
 
-	mAudioCode->SetFrequency( frequency );
+	mAudioOutput->SetFrequency( frequency );
 }
 
 
@@ -126,18 +126,18 @@ void	CAudioPluginPsp::LenChanged()
 {
 	if( gAudioPluginEnabled > APM_DISABLED )
 	{
-		//mAudioCode->SetAdaptFrequency( gAdaptFrequency );
+		//mAudioOutput->SetAdaptFrequency( gAdaptFrequency );
 
 		u32		address( Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF );
 		u32		length(Memory_AI_GetRegister(AI_LEN_REG));
 
-		u32		result( mAudioCode->AddBuffer( g_pu8RamBase + address, length ) );
+		u32		result( mAudioOutput->AddBuffer( g_pu8RamBase + address, length ) );
 
 		use(result);
 	}
 	else
 	{
-		mAudioCode->StopAudio();
+		mAudioOutput->StopAudio();
 	}
 }
 
@@ -220,7 +220,7 @@ EProcessResult	CAudioPluginPsp::ProcessAList()
 //*****************************************************************************
 void	CAudioPluginPsp::RomClosed()
 {
-	mAudioCode->StopAudio();
+	mAudioOutput->StopAudio();
 }
 
 //*****************************************************************************

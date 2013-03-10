@@ -110,7 +110,7 @@
             ],
             'sources': [
               'Source/SysW32/main.cpp',
-              'Source/SysW32/AudioHLE/AudioPluginW32.cpp',
+              'Source/SysW32/HLEAudio/AudioPluginW32.cpp',
               'Source/SysW32/Debug/DaedalusAssertW32.cpp',
               'Source/SysW32/Debug/DebugConsoleW32.cpp',
               'Source/SysW32/Utility/IOW32.cpp',
@@ -124,8 +124,8 @@
             ],
             'sources': [
               'Source/SysOSX/main.cpp',
-              'Source/SysOSX/AudioHLE/AudioCodeOSX.cpp',
-              'Source/SysOSX/AudioHLE/AudioPluginOSX.cpp',
+              'Source/SysOSX/HLEAudio/AudioOutputOSX.cpp',
+              'Source/SysOSX/HLEAudio/AudioPluginOSX.cpp',
               'Source/SysOSX/Debug/DaedalusAssertOSX.cpp',
               'Source/SysOSX/Debug/DebugConsoleOSX.cpp',
               'Source/SysOSX/DummyPSP/pspctrl.cpp',

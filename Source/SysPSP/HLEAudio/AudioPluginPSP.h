@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Plugins/AudioPlugin.h"
 
-class AudioCode;
+class AudioOutput;
 
 class CAudioPluginPsp : public CAudioPlugin
 {
@@ -45,7 +45,7 @@ public:
 //			void			SetAdaptFrequecy( bool adapt );
 
 private:
-	AudioCode *			mAudioCode;
+	AudioOutput *			mAudioOutput;
 };
 
 

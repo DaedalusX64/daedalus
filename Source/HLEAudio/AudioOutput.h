@@ -24,18 +24,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //	Drop me a line if you get chance :)
 //
 
-#ifndef _AUDIOCODE_DOT_H_
-#define _AUDIOCODE_DOT_H_
+#ifndef AUDIOOUTPUT_H__
+#define AUDIOOUTPUT_H__
 
 struct Sample;
 class CAudioBuffer;
 
-// FIXME(strmnnrmn): Rename this 'AudioRenderer' or 'AudioOutput' or something.
-class AudioCode
+class AudioOutput
 {
 	public:
-		AudioCode();
-		~AudioCode();
+		AudioOutput();
+		~AudioOutput();
 
 		// Buffer Functions for the Audio Code
 		void				SetFrequency( u32 frequency );			// Sets the Nintendo64 Game Audio Frequency
@@ -60,4 +59,4 @@ class AudioCode
 		u32					mFrequency;
 };
 
-#endif
+#endif // AUDIOOUTPUT_H__

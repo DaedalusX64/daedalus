@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #include "stdafx.h"
+#include "HLEAudio/AudioOutput.h"
 
 #include <stdio.h>
 
@@ -33,7 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <CoreFoundation/CFRunLoop.h>
 
 #include "Debug/DBGConsole.h"
-#include "HLEAudio/AudioCode.h"
 #include "HLEAudio/AudioBuffer.h"
 #include "Utility/FramerateLimiter.h"
 #include "Utility/Thread.h"
@@ -163,7 +163,7 @@ static void AudioExit()
 
 }
 
-AudioCode::AudioCode()
+AudioOutput::AudioOutput()
 :	mAudioBufferUncached( NULL )	// FIXME(strmnrmn): remove this.
 ,	mAudioBuffer( new CAudioBuffer( kAudioBufferSize ) )
 ,	mAudioPlaying( false )
@@ -171,20 +171,20 @@ AudioCode::AudioCode()
 {
 }
 
-AudioCode::~AudioCode( )
+AudioOutput::~AudioOutput( )
 {
 	StopAudio();
 
 	delete mAudioBuffer;
 }
 
-void AudioCode::SetFrequency( u32 frequency )
+void AudioOutput::SetFrequency( u32 frequency )
 {
 	DBGConsole_Msg(0, "Audio frequency: %d", frequency);
 	mFrequency = frequency;
 }
 
-u32 AudioCode::AddBuffer( u8 *start, u32 length )
+u32 AudioOutput::AddBuffer( u8 *start, u32 length )
 {
 	if (length == 0)
 		return 0;
@@ -205,7 +205,7 @@ u32 AudioCode::AddBuffer( u8 *start, u32 length )
 	return 0;
 }
 
-void AudioCode::StartAudio()
+void AudioOutput::StartAudio()
 {
 	if (mAudioPlaying)
 		return;
@@ -222,7 +222,7 @@ void AudioCode::StartAudio()
 	}
 }
 
-void AudioCode::StopAudio()
+void AudioOutput::StopAudio()
 {
 	if (!mAudioPlaying)
 		return;
@@ -235,7 +235,7 @@ void AudioCode::StopAudio()
 	AudioExit();
 }
 
-u32 AudioCode::GetReadStatus()
+u32 AudioOutput::GetReadStatus()
 {
 	return 0;
 }

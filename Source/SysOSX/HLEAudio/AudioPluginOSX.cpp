@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 
 #include "Plugins/AudioPlugin.h"
-#include "HLEAudio/AudioCode.h"
+#include "HLEAudio/AudioOutput.h"
 #include "HLEAudio/audiohle.h"
 
 #include "SysPSP/Utility/JobManager.h"
@@ -61,7 +61,7 @@ public:
 //			void			SetAdaptFrequecy( bool adapt );
 
 private:
-	AudioCode *			mAudioCode;
+	AudioOutput *			mAudioOutput;
 };
 
 
@@ -69,15 +69,15 @@ EAudioPluginMode gAudioPluginEnabled( APM_DISABLED );
 //bool gAdaptFrequency( false );
 
 CAudioPluginOSX::CAudioPluginOSX()
-:	mAudioCode( new AudioCode )
+:	mAudioOutput( new AudioOutput )
 {
-	//mAudioCode->SetAdaptFrequency( gAdaptFrequency );
+	//mAudioOutput->SetAdaptFrequency( gAdaptFrequency );
 	//gAudioPluginEnabled = APM_ENABLED_SYNC; // for testing
 }
 
 CAudioPluginOSX::~CAudioPluginOSX()
 {
-	delete mAudioCode;
+	delete mAudioOutput;
 }
 
 CAudioPluginOSX *	CAudioPluginOSX::Create()
@@ -88,7 +88,7 @@ CAudioPluginOSX *	CAudioPluginOSX::Create()
 /*
 void CAudioPluginOSX::SetAdaptFrequecy( bool adapt )
 {
-	mAudioCode->SetAdaptFrequency( adapt );
+	mAudioOutput->SetAdaptFrequency( adapt );
 }
 */
 
@@ -100,7 +100,7 @@ bool CAudioPluginOSX::StartEmulation()
 void CAudioPluginOSX::StopEmulation()
 {
 	Audio_Reset();
-	mAudioCode->StopAudio();
+	mAudioOutput->StopAudio();
 }
 
 void CAudioPluginOSX::DacrateChanged( int SystemType )
@@ -110,25 +110,25 @@ void CAudioPluginOSX::DacrateChanged( int SystemType )
 	u32 dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
 	u32	frequency = type / (dacrate + 1);
 
-	mAudioCode->SetFrequency( frequency );
+	mAudioOutput->SetFrequency( frequency );
 }
 
 void CAudioPluginOSX::LenChanged()
 {
 	if( gAudioPluginEnabled > APM_DISABLED )
 	{
-		//mAudioCode->SetAdaptFrequency( gAdaptFrequency );
+		//mAudioOutput->SetAdaptFrequency( gAdaptFrequency );
 
 		u32		address( Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF );
 		u32		length(Memory_AI_GetRegister(AI_LEN_REG));
 
-		u32		result( mAudioCode->AddBuffer( g_pu8RamBase + address, length ) );
+		u32		result( mAudioOutput->AddBuffer( g_pu8RamBase + address, length ) );
 
 		use(result);
 	}
 	else
 	{
-		mAudioCode->StopAudio();
+		mAudioOutput->StopAudio();
 	}
 }
 
@@ -197,7 +197,7 @@ EProcessResult CAudioPluginOSX::ProcessAList()
 
 void CAudioPluginOSX::RomClosed()
 {
-	mAudioCode->StopAudio();
+	mAudioOutput->StopAudio();
 }
 
 CAudioPlugin * CreateAudioPlugin()
