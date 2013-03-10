@@ -47,8 +47,9 @@ struct SImageDescriptor
 
 	inline u32 GetPitch() const
 	{
-		DAEDALUS_ASSERT( Size, " No need to compute Pitch" );
-		return (Width << Size >> 1);
+		// What's this checking for?
+		DAEDALUS_ASSERT( Size, "No need to compute Pitch" );
+		return ((Width << Size) >> 1);
 	}
 
 	//Get Bpl -> ( Width << Size >> 1 )
@@ -58,10 +59,15 @@ struct SImageDescriptor
 	}
 
 	// Optimised version when Size == G_IM_SIZ_16b
+	inline u32 GetPitch16bpp() const
+	{
+		return Width << 1;
+	}
 	inline u32 GetAddress16bpp(u32 x, u32 y) const
 	{
 		return Address + ((y * Width + x) << 1);
 	}
+
 };
 
 //*****************************************************************************
