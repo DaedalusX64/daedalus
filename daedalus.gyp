@@ -124,7 +124,7 @@
             ],
             'sources': [
               'Source/SysOSX/main.cpp',
-              'Source/SysOSX/HLEAudio/AudioOutputOSX.cpp',
+              'Source/SysOSX/HLEAudio/AudioOutput.cpp',
               'Source/SysOSX/HLEAudio/AudioPluginOSX.cpp',
               'Source/SysOSX/Debug/DaedalusAssertOSX.cpp',
               'Source/SysOSX/Debug/DebugConsoleOSX.cpp',

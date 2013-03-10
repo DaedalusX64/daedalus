@@ -84,7 +84,7 @@ CORE_SRCS = \
 	Source/SysPSP/Graphics/NativeTexturePSP.cpp \
 	Source/SysPSP/Graphics/PngUtilPSP.cpp \
 	Source/SysPSP/Graphics/VideoMemoryManager.cpp \
-	Source/SysPSP/HLEAudio/AudioOutputPSP.cpp \
+	Source/SysPSP/HLEAudio/AudioOutput.cpp \
 	Source/SysPSP/HLEAudio/AudioPluginPSP.cpp \
 	Source/SysPSP/HLEGraphics/Blender.cpp \
 	Source/SysPSP/HLEGraphics/BlendModes.cpp \
