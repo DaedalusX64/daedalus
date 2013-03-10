@@ -45,6 +45,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ConfigOptions.h"
 
+extern u32 gSoundSync;
+
 static const u32	DESIRED_OUTPUT_FREQUENCY = 44100;
 static const u32	MAX_OUTPUT_FREQUENCY = DESIRED_OUTPUT_FREQUENCY * 4;
 
@@ -153,9 +155,6 @@ static void AudioExit()
 	sceKernelDeleteSema(bufferEmpty);
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 AudioOutput::AudioOutput()
 :	mAudioPlaying( false )
 ,	mFrequency( 44100 )
@@ -168,9 +167,6 @@ AudioOutput::AudioOutput()
 	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 AudioOutput::~AudioOutput( )
 {
 	StopAudio();
@@ -179,9 +175,6 @@ AudioOutput::~AudioOutput( )
 	free( mAudioBuffer );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void AudioOutput::SetFrequency( u32 frequency )
 {
 	DBGConsole_Msg( 0, "Audio frequency: %d", frequency );
@@ -233,10 +226,6 @@ struct SAddSamplesJob : public SJob
 
 };
 
-//*****************************************************************************
-//
-//*****************************************************************************
-extern u32 gSoundSync;
 u32 AudioOutput::AddBuffer( u8 *start, u32 length )
 {
 	if (length == 0)
@@ -283,9 +272,6 @@ u32 AudioOutput::AddBuffer( u8 *start, u32 length )
 	return 0;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void AudioOutput::StartAudio()
 {
 	if (mAudioPlaying)
@@ -298,9 +284,6 @@ void AudioOutput::StartAudio()
 	AudioInit();
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void AudioOutput::StopAudio()
 {
 	if (!mAudioPlaying)
@@ -310,14 +293,3 @@ void AudioOutput::StopAudio()
 
 	AudioExit();
 }
-
-//*****************************************************************************
-//
-//*****************************************************************************
-u32 AudioOutput::GetReadStatus()
-{
-	//dcache_wbinv_all();
-	// NB: code used to return number of samples in mAudioBuffer.
-	return 0;
-}
-

@@ -235,8 +235,3 @@ void AudioOutput::StopAudio()
 	AudioExit();
 }
 
-u32 AudioOutput::GetReadStatus()
-{
-	return 0;
-}
-

@@ -44,8 +44,6 @@ class AudioOutput
 		void				StopAudio( );						// Stops the Audio PlayBack (as if paused)
 		void				StartAudio( );						// Starts the Audio PlayBack (as if unpaused)
 
-		u32					GetReadStatus( );					// Returns the status on the read pointer
-
 	public:
 		void				FillBuffer( Sample * buffer, u32 num_samples );
 
