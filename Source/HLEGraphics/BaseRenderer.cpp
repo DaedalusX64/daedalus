@@ -1801,54 +1801,31 @@ extern void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
 //*****************************************************************************
 //
 //*****************************************************************************
-void BaseRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
+void BaseRenderer::SetProjection(const u32 address, bool bReplace)
 {
 	// Projection
-	// The projection stack is 1 matrix deep, so it cannot be pushed. 
-	//if (bPush && (mProjectionTop < mMatStackSize))
-	//{
-	//	++mProjectionTop;
-
-	//	if (bReplace)
-	//	{
-	//		// Load projection matrix
-	//		MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
-
-	//		if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
-	//			mProjectionStack[mProjectionTop].mRaw[0] *= HD_SCALE;	//proper 16:9 scale
-	//	}
-	//	else
-	//	{
-	//		// Load projection matrix
-	//		MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
-	//		MatrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop-1] );
-	//	}
-	//}
-	//else
+	if (bReplace)
 	{
-		if (bReplace)
-		{
-			// Load projection matrix
-			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
+		// Load projection matrix
+		MatrixFromN64FixedPoint( mProjectionStack[0], address);
 
-			//Hack needed to show heart in OOT & MM
-			//it renders at Z cordinate = 0.0f that gets clipped away.
-			//so we translate them a bit along Z to make them stick :) //Corn
-			//
-			if( g_ROM.ZELDA_HACK )
-				mProjectionStack[mProjectionTop].mRaw[14] += 0.4f;
-			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
-				mProjectionStack[mProjectionTop].mRaw[0] *= HD_SCALE;	//proper 16:9 scale
-		}
-		else
-		{
-			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop+1], address);
-			MatrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop+1], &mProjectionStack[mProjectionTop] );
-		}
+		//Hack needed to show heart in OOT & MM
+		//it renders at Z cordinate = 0.0f that gets clipped away.
+		//so we translate them a bit along Z to make them stick :) //Corn
+		//
+		if( g_ROM.ZELDA_HACK )
+			mProjectionStack[0].mRaw[14] += 0.4f;
+		if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
+			mProjectionStack[0].mRaw[0] *= HD_SCALE;	//proper 16:9 scale
+	}
+	else
+	{
+		MatrixFromN64FixedPoint( mProjectionStack[1], address);
+		MatrixMultiplyAligned( &mProjectionStack[0], &mProjectionStack[1], &mProjectionStack[0] );
 	}
 
 	mWorldProjectValid = false;
-	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[mProjectionTop]) );
+	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[0]) );
 
 	DL_PF("    Level = %d\n"
 		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
@@ -1856,10 +1833,10 @@ void BaseRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
 		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n",
 		mProjectionTop,
-		mProjectionStack[mProjectionTop].m[0][0], mProjectionStack[mProjectionTop].m[0][1], mProjectionStack[mProjectionTop].m[0][2], mProjectionStack[mProjectionTop].m[0][3],
-		mProjectionStack[mProjectionTop].m[1][0], mProjectionStack[mProjectionTop].m[1][1], mProjectionStack[mProjectionTop].m[1][2], mProjectionStack[mProjectionTop].m[1][3],
-		mProjectionStack[mProjectionTop].m[2][0], mProjectionStack[mProjectionTop].m[2][1], mProjectionStack[mProjectionTop].m[2][2], mProjectionStack[mProjectionTop].m[2][3],
-		mProjectionStack[mProjectionTop].m[3][0], mProjectionStack[mProjectionTop].m[3][1], mProjectionStack[mProjectionTop].m[3][2], mProjectionStack[mProjectionTop].m[3][3]);
+		mProjectionStack[0].m[0][0], mProjectionStack[0].m[0][1], mProjectionStack[0].m[0][2], mProjectionStack[0].m[0][3],
+		mProjectionStack[0].m[1][0], mProjectionStack[0].m[1][1], mProjectionStack[0].m[1][2], mProjectionStack[0].m[1][3],
+		mProjectionStack[0].m[2][0], mProjectionStack[0].m[2][1], mProjectionStack[0].m[2][2], mProjectionStack[0].m[2][3],
+		mProjectionStack[0].m[3][0], mProjectionStack[0].m[3][1], mProjectionStack[0].m[3][2], mProjectionStack[0].m[3][3]);
 }
 
 //*****************************************************************************

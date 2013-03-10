@@ -215,7 +215,7 @@ public:
 #endif
 	void				ResetMatrices(u32 size);
 	void				SetProjectionDKR(const u32 address, bool mul, u32 idx);
-	void				SetProjection(const u32 address, bool bPush, bool bReplace);
+	void				SetProjection(const u32 address, bool bReplace);
 	void				SetWorldView(const u32 address, bool bPush, bool bReplace);
 	inline void			PopProjection() {if (mProjectionTop > 0) --mProjectionTop;	mWorldProjectValid = false;}
 	inline void			PopWorldView()	{if (mModelViewTop > 0)	 --mModelViewTop;	mWorldProjectValid = false;}
@@ -349,7 +349,8 @@ protected:
 	static const u32 MATRIX_STACK_SIZE = 20;
 
 	mutable Matrix4x4	mWorldProject;
-	Matrix4x4			mProjectionStack[MATRIX_STACK_SIZE];
+	// The projection stack is 1 matrix deep, but we use one extra as temp storage
+	Matrix4x4			mProjectionStack[2];
 	Matrix4x4			mModelViewStack[MATRIX_STACK_SIZE];
 	Matrix4x4			mInvProjection;
 	u32					mProjectionTop;

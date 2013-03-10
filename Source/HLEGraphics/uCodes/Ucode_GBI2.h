@@ -71,7 +71,7 @@ void DLParser_GBI2_Mtx( MicroCodeCommand command )
 	// Load matrix from address
 	if (command.mtx2.projection)
 	{
-		gRenderer->SetProjection(address, command.mtx2.nopush==0, command.mtx2.load);
+		gRenderer->SetProjection(address, command.mtx2.load);
 	}
 	else
 	{
