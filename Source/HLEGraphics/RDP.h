@@ -417,14 +417,15 @@ struct RDP_TileSize
 
 #include "PopStructPack.h"
 
+
 //*****************************************************************************
 // Externs
 //*****************************************************************************
 extern RDP_OtherMode		gRDPOtherMode;
 
 #ifdef DAEDALUS_FAST_TMEM
-extern u32* gTextureMemory[ 4096 >> 6 ];
-#define TLUT_BASE ((u32)(gTextureMemory[0]))
+extern u32* gTlutLoadAddresses[ 4096 >> 6 ];
+#define TLUT_BASE ((u32)(gTlutLoadAddresses[0]))
 #else
 extern u16 gTextureMemory[];
 #define TLUT_BASE ((u32)(&gTextureMemory[0]))

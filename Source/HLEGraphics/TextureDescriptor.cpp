@@ -63,23 +63,6 @@ u32 TextureInfo::GetSizeInBits() const
 //*************************************************************************************
 //
 //*************************************************************************************
-/*const void *	TextureInfo::GetPalettePtr() const
-{
-	//Debug Palette pointers
-	#if 0
-		printf("0x%02x\n",TLutIndex << (g_ROM.TLUT_HACK? 4:2));
-		for(u32 i=0;i<0x40;i+=8) printf("0x%02x -> %08x %08x %08x %08x %08x %08x %08x %08x\n", i<<2,
-			(u32)gTextureMemory[ i+0 ], (u32)gTextureMemory[ i+1 ], (u32)gTextureMemory[ i+2 ], (u32)gTextureMemory[ i+3 ],
-			(u32)gTextureMemory[ i+4 ], (u32)gTextureMemory[ i+5 ], (u32)gTextureMemory[ i+6 ], (u32)gTextureMemory[ i+7 ]);
-		printf("\n\n");
-	#endif
-
-	return (void *)TlutAddress;
-}
-*/
-//*************************************************************************************
-//
-//*************************************************************************************
 inline u32	TextureInfo::GetWidthInBytes() const
 {
 	return pixels2bytes( Width, Size );

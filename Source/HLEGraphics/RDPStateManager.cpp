@@ -219,13 +219,13 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 
 #ifdef DAEDALUS_FAST_TMEM
 		//If indexed TMEM PAL address is NULL then assume that the base address is stored in
-		//TMEM address 0x100 (gTextureMemory[ 0 ]) and calculate offset from there with TLutIndex(palette index)
+		//TMEM address 0x100 (gTlutLoadAddresses[ 0 ]) and calculate offset from there with TLutIndex(palette index)
 		//This trick saves us from the need to copy the real palette to TMEM and we just pass the pointer //Corn
 		//
 		if(rdp_tile.size == G_IM_SIZ_4b)
 		{
 			u32 tlut_idx0( g_ROM.TLUT_HACK << 1 );
-			u32 tlut_idx1( (u32)gTextureMemory[ rdp_tile.palette << tlut_idx0 ] );
+			u32 tlut_idx1( (u32)gTlutLoadAddresses[ rdp_tile.palette << tlut_idx0 ] );
 
 			//If pointer == NULL(=invalid entry) add offset to base address (TMEM[0] + offset)
 			if(tlut_idx1 == 0)

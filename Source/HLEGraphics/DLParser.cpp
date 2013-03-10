@@ -305,7 +305,7 @@ bool DLParser_Initialise()
 
 #ifdef DAEDALUS_FAST_TMEM
 	//Clear pointers in TMEM block //Corn
-	memset(gTextureMemory, 0, sizeof(gTextureMemory));
+	memset(gTlutLoadAddresses, 0, sizeof(gTlutLoadAddresses));
 #endif
 	return true;
 }
@@ -951,7 +951,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 
 #ifdef DAEDALUS_FAST_TMEM
 	//Store address of PAL (assuming PAL is only stored in upper half of TMEM) //Corn
-	gTextureMemory[ (rdp_tile.tmem>>2) & 0x3F ] = (u32*)address;
+	gTlutLoadAddresses[ (rdp_tile.tmem>>2) & 0x3F ] = (u32*)address;
 #else
 	//This corresponds to the number of palette entries (16 or 256) 16bit
 	//Seems partial load of palette is allowed -> count != 16 or 256 (MM, SSB, Starfox64, MRC) //Corn

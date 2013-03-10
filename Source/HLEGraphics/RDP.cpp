@@ -21,12 +21,6 @@
 #include "stdafx.h"
 #include "RDP.h"
 
-#include "DLParser.h"
-#include "DLDebug.h"
-#include "Debug/DBGConsole.h"
-
-#include "Core/Memory.h"
-
 // This needs a huge clean up or be removed as is now, it only holds debug code..
 
 //*****************************************************************************
@@ -36,7 +30,7 @@ RDP_OtherMode		gRDPOtherMode;
 
 #ifdef DAEDALUS_FAST_TMEM
 //Granularity down to 24bytes is good enuff also only need to address the upper half of TMEM for palettes//Corn
-u32* gTextureMemory[ 4096 >> 6 ];
+u32* gTlutLoadAddresses[ 4096 >> 6 ];
 #else
 u16 gTextureMemory[ 512 ];
 #endif
