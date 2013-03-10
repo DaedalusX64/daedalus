@@ -52,9 +52,15 @@ struct SImageDescriptor
 	}
 
 	//Get Bpl -> ( Width << Size >> 1 )
-	inline u32 GetAddress( u32 x, u32 y ) const
+	inline u32 GetAddress(u32 x, u32 y) const
 	{
-		return Address + y * (Width << Size >> 1) + (x << Size >> 1);
+		return Address + y * ((Width << Size) >> 1) + ((x << Size) >> 1);
+	}
+
+	// Optimised version when Size == G_IM_SIZ_16b
+	inline u32 GetAddress16bpp(u32 x, u32 y) const
+	{
+		return Address + ((y * Width + x) << 1);
 	}
 };
 

@@ -937,14 +937,15 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 {
 	// Tlut fmt is sometimes wrong (in 007) and is set after tlut load, but before tile load
 	// Format is always 16bpp - RGBA16 or IA16:
+	DAEDALUS_DL_ASSERT(g_TI.Size == G_IM_SIZ_16b, "Crazy tlut load - not 16bpp");
 
-	u32 uls     = command.loadtile.sl >> 2;	//Left
-	u32 ult		= command.loadtile.tl >> 2;	//Top
-	u32 lrs     = command.loadtile.sh >> 2;	//Right
-	u32 tile_idx= command.loadtile.tile;
-	u32 address = (u32)g_pu8RamBase + g_TI.Address + ((uls + ult * g_TI.Width) << 1);
+	u32 uls      = command.loadtile.sl >> 2;	//Left
+	u32 ult		 = command.loadtile.tl >> 2;	//Top
+	u32 lrs      = command.loadtile.sh >> 2;	//Right
+	u32 tile_idx = command.loadtile.tile;
+	u32 address  = (u32)g_pu8RamBase + g_TI.GetAddress16bpp(uls, ult);
 
-	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tile_idx ) );
+	const RDP_Tile & rdp_tile = gRDPStateManager.GetTile( tile_idx );
 
 	u32 count = (lrs - uls) + 1;
 	use(count);
