@@ -33,6 +33,7 @@ static u32				gLastOrigin = 0;				// The origin that we saw on the last vertical
 static u32				gVblsSinceFlip = 0;				// The number of vertical blanks that have occurred since the last n64 flip
 static u32				gCurrentAverageTicksPerVbl = 0;
 static FramerateSyncFn 	gAuxSyncFn = NULL;
+static void *			gAuxSyncArg = NULL;
 
 static const u32		gTvFrequencies[] =
 {
@@ -41,9 +42,10 @@ static const u32		gTvFrequencies[] =
 	50		// OS_TV_MPAL
 };
 
-void FramerateLimiter_SetAuxillarySyncFunction(FramerateSyncFn fn)
+void FramerateLimiter_SetAuxillarySyncFunction(FramerateSyncFn fn, void * arg)
 {
-	gAuxSyncFn = fn;
+	gAuxSyncFn  = fn;
+	gAuxSyncArg = arg;
 }
 
 void FramerateLimiter_Reset()
@@ -54,7 +56,8 @@ void FramerateLimiter_Reset()
 	gLastOrigin = 0;
 	gVblsSinceFlip = 0;
 
-	//gAuxSyncFn = NULL;	// Should we reset this? Will audio re-init?
+	//gAuxSyncFn  = NULL;	// Should we reset this? Will audio re-init?
+	//gAuxSyncArg = NULL;
 
 	if(NTiming::GetPreciseFrequency(&frequency))
 	{
@@ -91,7 +94,7 @@ void FramerateLimiter_Limit()
 
 	if (gAuxSyncFn)
 	{
-		gAuxSyncFn();
+		gAuxSyncFn(gAuxSyncArg);
 	}
 
 	if( current_origin == gLastOrigin )
