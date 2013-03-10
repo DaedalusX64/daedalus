@@ -249,7 +249,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	gUcodeInfo[ i ].ucode = ucode_version;
 	gUcodeInfo[ i ].set = true;
 
-	DBGConsole_Msg(0,"Detected %s Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]",ucode_offset == u32(~0) ? "Custom" :"", ucode_version, code_hash, str, g_ROM.settings.GameName.c_str() );
+	DBGConsole_Msg(0,"Detected %s Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]",ucode_offset == u32(~0) ? "" :"Custom", ucode_version, code_hash, str, g_ROM.settings.GameName.c_str() );
 // This is no longer needed as we now have an auto ucode detector, I'll leave it as reference ~Salvy
 //
 /*

@@ -102,12 +102,12 @@ void DLParser_GBI1_Mtx( MicroCodeCommand command )
 void DLParser_GBI1_PopMtx( MicroCodeCommand command )
 {
 	DL_PF("    Command: (%s)",	command.inst.cmd1 ? "Projection" : "ModelView");
-	DAEDALUS_ASSERT( !command.inst.cmd1, "Trying to Push/Pop projection matrices");
 
 	// Do any of the other bits do anything?
 	// So far only Extreme-G seems to Push/Pop projection matrices
-
-	gRenderer->PopWorldView();
+	// Can't pop projection matrix
+	if(command.inst.cmd1 == 0)
+		gRenderer->PopWorldView();
 }
 
 //*****************************************************************************
@@ -309,6 +309,8 @@ void DLParser_GBI1_DL( MicroCodeCommand command )
 	DL_PF("    Address=0x%08x %s", RDPSegAddr(command.dlist.addr), (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
 	DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
 	DL_PF("    ############################################");
+	if (gDlistStackPointer >= 9) 
+		printf("ggg\n");
 
 	if( command.dlist.param == G_DL_PUSH )
 		gDlistStackPointer++;

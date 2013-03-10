@@ -1804,26 +1804,27 @@ extern void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
 void BaseRenderer::SetProjection(const u32 address, bool bPush, bool bReplace)
 {
 	// Projection
-	if (bPush && (mProjectionTop < mMatStackSize))
-	{
-		++mProjectionTop;
+	// The projection stack is 1 matrix deep, so it cannot be pushed. 
+	//if (bPush && (mProjectionTop < mMatStackSize))
+	//{
+	//	++mProjectionTop;
 
-		if (bReplace)
-		{
-			// Load projection matrix
-			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
+	//	if (bReplace)
+	//	{
+	//		// Load projection matrix
+	//		MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
 
-			if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
-				mProjectionStack[mProjectionTop].mRaw[0] *= HD_SCALE;	//proper 16:9 scale
-		}
-		else
-		{
-			// Load projection matrix
-			MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
-			MatrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop-1] );
-		}
-	}
-	else
+	//		if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
+	//			mProjectionStack[mProjectionTop].mRaw[0] *= HD_SCALE;	//proper 16:9 scale
+	//	}
+	//	else
+	//	{
+	//		// Load projection matrix
+	//		MatrixFromN64FixedPoint( mProjectionStack[mProjectionTop], address);
+	//		MatrixMultiplyAligned( &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop], &mProjectionStack[mProjectionTop-1] );
+	//	}
+	//}
+	//else
 	{
 		if (bReplace)
 		{
