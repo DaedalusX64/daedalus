@@ -350,7 +350,8 @@ protected:
 
 	mutable Matrix4x4	mWorldProject;
 	// The projection stack is 1 matrix deep, but we use one extra as temp storage
-	Matrix4x4			mProjectionStack[2];
+	// NB! SetProjectionDKR indexes mProjectionStack[4]!
+	Matrix4x4			mProjectionStack[5];
 	Matrix4x4			mModelViewStack[MATRIX_STACK_SIZE];
 	Matrix4x4			mInvProjection;
 	u32					mProjectionTop;
