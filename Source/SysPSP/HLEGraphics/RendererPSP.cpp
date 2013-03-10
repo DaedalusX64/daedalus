@@ -598,7 +598,7 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 
 				if(out.MakeTextureWhite)
 				{
-					texture = mpTexture[ texture_idx ]->GetRecolouredTexture( c32::White );
+					texture = mpTexture[ texture_idx ]->GetWhiteTexture();
 				}
 
 				if(texture != NULL)

@@ -405,96 +405,7 @@ namespace
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-CRefPtr<CTexture> CTexture::Create( const TextureInfo & ti )
-{
-	if( ti.GetWidth() == 0 || ti.GetHeight() == 0 )
-	{
-		DAEDALUS_ERROR( "Trying to create 0 width/height texture" );
-		return NULL;
-	}
-
-	CRefPtr<CTexture>	texture( new CTexture( ti ) );
-
-	if (!texture->Initialise())
-	{
-		texture = NULL;
-	}
-
-	return texture;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-CTexture::CTexture( const TextureInfo & ti )
-:	mTextureInfo( ti )
-,	mpTexture(NULL)
-,	mpRecolouredTexture(NULL)
-,	mTextureContentsHash( ti.GenerateHashValue() )
-,	mFrameLastUpToDate( gRDPFrame )
-,	mFrameLastUsed( gRDPFrame )
-{
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-CTexture::~CTexture()
-{
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-bool CTexture::Initialise()
-{
-	DAEDALUS_ASSERT_Q(mpTexture == NULL);
-
-	ETextureFormat texture_format( mTextureInfo.SelectNativeFormat() );
-
-	u32		width( mTextureInfo.GetWidth() );
-	u32		height( mTextureInfo.GetHeight() );
-
-	if( mTextureInfo.GetMirrorS() && mTextureInfo.GetMirrorT() )
-	{
-		mpTexture = CNativeTexture::Create( width*2, height*2, texture_format );
-	}
-	else if( mTextureInfo.GetMirrorS() )
-	{
-		mpTexture = CNativeTexture::Create( width*2, height, texture_format );
-	}
-	else if( mTextureInfo.GetMirrorT() )
-	{
-		mpTexture = CNativeTexture::Create( width, height*2, texture_format );
-	}
-	else
-	{
-		mpTexture = CNativeTexture::Create( width, height, texture_format );
-	}
-
-	if( mpTexture != NULL )
-	{
-		// If this we're performing Texture updated checks, randomly offset the
-		// 'FrameLastUpToDate' time. This ensures when lots of textures are
-		// created on the same frame we update them over a nice distribution of frames.
-
-		if(gCheckTextureHashFrequency > 0)
-		{
-			mFrameLastUpToDate += FastRand() & (gCheckTextureHashFrequency - 1);
-		}
-		UpdateTexture( mTextureInfo, mpTexture, false, c32::White );
-	}
-
-	return mpTexture != NULL;
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
-void CTexture::UpdateTexture( const TextureInfo & texture_info, CNativeTexture * texture, bool recolour, c32 colour )
+static void UpdateTexture( const TextureInfo & texture_info, CNativeTexture * texture, const c32 * recolour )
 {
 	DAEDALUS_PROFILE( "Texture Conversion" );
 
@@ -512,7 +423,7 @@ void CTexture::UpdateTexture( const TextureInfo & texture_info, CNativeTexture *
 			//
 			if( recolour )
 			{
-				Recolour( texels, palette, texture_info.GetWidth(), texture_info.GetHeight(), texture->GetStride(), texture->GetFormat(), colour );
+				Recolour( texels, palette, texture_info.GetWidth(), texture_info.GetHeight(), texture->GetStride(), texture->GetFormat(), *recolour );
 			}
 
 			//
@@ -549,11 +460,83 @@ void CTexture::UpdateTexture( const TextureInfo & texture_info, CNativeTexture *
 		}
 	}
 }
+
+CRefPtr<CTexture> CTexture::Create( const TextureInfo & ti )
+{
+	if( ti.GetWidth() == 0 || ti.GetHeight() == 0 )
+	{
+		DAEDALUS_ERROR( "Trying to create 0 width/height texture" );
+		return NULL;
+	}
+
+	CRefPtr<CTexture>	texture( new CTexture( ti ) );
+
+	if (!texture->Initialise())
+	{
+		texture = NULL;
+	}
+
+	return texture;
+}
+
+CTexture::CTexture( const TextureInfo & ti )
+:	mTextureInfo( ti )
+,	mpTexture(NULL)
+,	mpWhiteTexture(NULL)
+,	mTextureContentsHash( ti.GenerateHashValue() )
+,	mFrameLastUpToDate( gRDPFrame )
+,	mFrameLastUsed( gRDPFrame )
+{
+}
+
+CTexture::~CTexture()
+{
+}
+
+bool CTexture::Initialise()
+{
+	DAEDALUS_ASSERT_Q(mpTexture == NULL);
+
+	ETextureFormat texture_format( mTextureInfo.SelectNativeFormat() );
+
+	u32		width( mTextureInfo.GetWidth() );
+	u32		height( mTextureInfo.GetHeight() );
+
+	if( mTextureInfo.GetMirrorS() && mTextureInfo.GetMirrorT() )
+	{
+		mpTexture = CNativeTexture::Create( width*2, height*2, texture_format );
+	}
+	else if( mTextureInfo.GetMirrorS() )
+	{
+		mpTexture = CNativeTexture::Create( width*2, height, texture_format );
+	}
+	else if( mTextureInfo.GetMirrorT() )
+	{
+		mpTexture = CNativeTexture::Create( width, height*2, texture_format );
+	}
+	else
+	{
+		mpTexture = CNativeTexture::Create( width, height, texture_format );
+	}
+
+	if( mpTexture != NULL )
+	{
+		// If this we're performing Texture updated checks, randomly offset the
+		// 'FrameLastUpToDate' time. This ensures when lots of textures are
+		// created on the same frame we update them over a nice distribution of frames.
+
+		if(gCheckTextureHashFrequency > 0)
+		{
+			mFrameLastUpToDate += FastRand() & (gCheckTextureHashFrequency - 1);
+		}
+		UpdateTexture( mTextureInfo, mpTexture, NULL );
+	}
+
+	return mpTexture != NULL;
+}
+
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-//*************************************************************************************
-//
-//*************************************************************************************
-void	CTexture::DumpTexture() const
+void CTexture::DumpTexture() const
 {
 	if( mpTexture != NULL && mpTexture->HasData() )
 	{
@@ -596,10 +579,8 @@ void	CTexture::DumpTexture() const
 	}
 }
 #endif
-//*************************************************************************************
-//
-//*************************************************************************************
-void	CTexture::UpdateIfNecessary()
+
+void CTexture::UpdateIfNecessary()
 {
 	if( !IsFresh() )
 	{
@@ -610,7 +591,7 @@ void	CTexture::UpdateIfNecessary()
 
 		if (mTextureContentsHash != hash_value)
 		{
-			UpdateTexture( mTextureInfo, mpTexture, false, c32::White );
+			UpdateTexture( mTextureInfo, mpTexture, NULL );
 			mTextureContentsHash = hash_value;
 		}
 
@@ -623,20 +604,14 @@ void	CTexture::UpdateIfNecessary()
 	mFrameLastUsed = gRDPFrame;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-bool	CTexture::IsFresh() const
+bool CTexture::IsFresh() const
 {
 	return (gRDPFrame == mFrameLastUsed ||
 			gCheckTextureHashFrequency == 0 ||
 			gRDPFrame < mFrameLastUpToDate + gCheckTextureHashFrequency);
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-bool	CTexture::HasExpired() const
+bool CTexture::HasExpired() const
 {
 	if(!IsFresh())
 	{
@@ -658,31 +633,24 @@ bool	CTexture::HasExpired() const
 	return gRDPFrame - mFrameLastUsed > (20 + (FastRand() & 0x3));
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-const CRefPtr<CNativeTexture> &	CTexture::GetRecolouredTexture( c32 colour ) const
+const CRefPtr<CNativeTexture> &	CTexture::GetWhiteTexture() const
 {
-	// XXXX this ignores the colour argument if different to the last call
-	if(mpRecolouredTexture == NULL)
+	if(mpWhiteTexture == NULL)
 	{
 		DAEDALUS_ASSERT( mpTexture != NULL, "There is no existing texture" );
 
 		CRefPtr<CNativeTexture>	new_texture( CNativeTexture::Create( mpTexture->GetWidth(), mpTexture->GetHeight(), mpTexture->GetFormat() ) );
 		if( new_texture && new_texture->HasData() )
 		{
-			UpdateTexture( mTextureInfo, new_texture, true, colour );
+			UpdateTexture( mTextureInfo, new_texture, &c32::White );
 		}
-		mpRecolouredTexture = new_texture;
+		mpWhiteTexture = new_texture;
 	}
 
-	return mpRecolouredTexture;
+	return mpWhiteTexture;
 }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-//*****************************************************************************
-//
-//*****************************************************************************
 u32	CTexture::GetVideoMemoryUsage() const
 {
 	u32		usage( 0 );
@@ -692,17 +660,17 @@ u32	CTexture::GetVideoMemoryUsage() const
 		usage += mpTexture->GetVideoMemoryUsage();
 	}
 
-	if(mpRecolouredTexture != NULL)
+	if(mpWhiteTexture != NULL)
 	{
-		usage += mpRecolouredTexture->GetVideoMemoryUsage();
+		usage += mpWhiteTexture->GetVideoMemoryUsage();
 	}
 
 	return 0;
 }
+#endif	//DAEDALUS_DEBUG_DISPLAYLIST
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 u32	CTexture::GetSystemMemoryUsage() const
 {
 	u32	usage( 0 );
@@ -712,12 +680,11 @@ u32	CTexture::GetSystemMemoryUsage() const
 		usage += mpTexture->GetSystemMemoryUsage();
 	}
 
-	if(mpRecolouredTexture != NULL)
+	if(mpWhiteTexture != NULL)
 	{
-		usage += mpRecolouredTexture->GetSystemMemoryUsage();
+		usage += mpWhiteTexture->GetSystemMemoryUsage();
 	}
 
 	return usage;
 }
-
 #endif	//DAEDALUS_DEBUG_DISPLAYLIST

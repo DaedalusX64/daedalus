@@ -28,9 +28,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern u32 gRDPFrame;
 
-class c32;
-struct TextureInfo;
-
 class CTexture : public CRefCounted
 {
 	protected:
@@ -41,7 +38,7 @@ class CTexture : public CRefCounted
 		static CRefPtr<CTexture>	Create( const TextureInfo & ti );
 
 		inline const CRefPtr<CNativeTexture> &	GetTexture() const					{ return mpTexture; }
-		const CRefPtr<CNativeTexture> &			GetRecolouredTexture( c32 colour ) const;				// Returns a texture with the RGB channels set to the specified colour (alpha remains the same)
+		const CRefPtr<CNativeTexture> &			GetWhiteTexture() const;		// Returns a texture with the RGB channels set to white (alpha remains the same)
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		u32								GetVideoMemoryUsage() const;
@@ -56,13 +53,12 @@ class CTexture : public CRefCounted
 	private:
 				bool					Initialise();
 				bool					IsFresh() const;
-		static	void					UpdateTexture( const TextureInfo & texture_info, CNativeTexture * texture, bool recolour, c32 colour );
 
 	private:
 		TextureInfo						mTextureInfo;
 
 		CRefPtr<CNativeTexture>			mpTexture;
-		mutable CRefPtr<CNativeTexture>	mpRecolouredTexture;
+		mutable CRefPtr<CNativeTexture>	mpWhiteTexture;
 
 		u32								mTextureContentsHash;
 		u32								mFrameLastUpToDate;	// Frame # that this was last updated
