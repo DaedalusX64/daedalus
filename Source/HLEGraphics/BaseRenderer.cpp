@@ -146,7 +146,6 @@ BaseRenderer::BaseRenderer()
 
 ,	mFogColour(0x00FFFFFF)
 
-,	mProjectionTop(0)
 ,	mModelViewTop(0)
 ,	mWorldProjectValid(false)
 ,	mReloadProj(true)
@@ -1107,7 +1106,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
-	const Matrix4x4 & mat_project = mProjectionStack[mProjectionTop];
+	const Matrix4x4 & mat_project = mProjectionStack[0];
 	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
@@ -1127,7 +1126,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
 	//DBGConsole_Msg(0, "In SetNewVertexInfo");
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
-	const Matrix4x4 & mat_project = mProjectionStack[mProjectionTop];
+	const Matrix4x4 & mat_project = mProjectionStack[0];
 	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
@@ -1366,7 +1365,7 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + address);
 
 	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
-	const Matrix4x4 & mat_project = mProjectionStack[mProjectionTop];
+	const Matrix4x4 & mat_project = mProjectionStack[0];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1383,7 +1382,7 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + address);
 
 	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
-	const Matrix4x4 & mat_project = mProjectionStack[mProjectionTop];
+	const Matrix4x4 & mat_project = mProjectionStack[0];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1586,7 +1585,7 @@ void BaseRenderer::ResetMatrices(u32 size)
 {
 	mMatStackSize = (size > MATRIX_STACK_SIZE) ? MATRIX_STACK_SIZE : size;
 	DAEDALUS_ASSERT( size !=0, " Invalid mat stack size");
-	mProjectionTop = mModelViewTop = 0;
+	mModelViewTop = 0;
 	mProjectionStack[0] = mModelViewStack[0] = gMatrixIdentity;
 	mWorldProjectValid = false;
 }
@@ -1826,12 +1825,11 @@ void BaseRenderer::SetProjection(const u32 address, bool bReplace)
 	mWorldProjectValid = false;
 	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[0]) );
 
-	DL_PF("    Level = %d\n"
-		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
+	DL_PF(
+		"	 %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
 		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
 		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
 		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n",
-		mProjectionTop,
 		mProjectionStack[0].m[0][0], mProjectionStack[0].m[0][1], mProjectionStack[0].m[0][2], mProjectionStack[0].m[0][3],
 		mProjectionStack[0].m[1][0], mProjectionStack[0].m[1][1], mProjectionStack[0].m[1][2], mProjectionStack[0].m[1][3],
 		mProjectionStack[0].m[2][0], mProjectionStack[0].m[2][1], mProjectionStack[0].m[2][2], mProjectionStack[0].m[2][3],
@@ -1934,9 +1932,9 @@ inline void BaseRenderer::UpdateWorldProject()
 		if( mReloadProj )
 		{
 			mReloadProj = false;
-			sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[mProjectionTop]) );
+			sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[0]) );
 		}
-		MatrixMultiplyAligned( &mWorldProject, &mModelViewStack[mModelViewTop], &mProjectionStack[mProjectionTop] );
+		MatrixMultiplyAligned( &mWorldProject, &mModelViewStack[mModelViewTop], &mProjectionStack[0] );
 	}
 }
 
@@ -1992,7 +1990,7 @@ void BaseRenderer::InsertMatrix(u32 w0, u32 w1)
 	//Make sure WP matrix is up to date before changing WP matrix
 	if( !mWorldProjectValid )
 	{
-		mWorldProject = mModelViewStack[mModelViewTop] * mProjectionStack[mProjectionTop];
+		mWorldProject = mModelViewStack[mModelViewTop] * mProjectionStack[0];
 		mWorldProjectValid = true;
 	}
 

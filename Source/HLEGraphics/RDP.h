@@ -47,8 +47,6 @@ struct SImageDescriptor
 
 	inline u32 GetPitch() const
 	{
-		// What's this checking for?
-		DAEDALUS_ASSERT( Size, "No need to compute Pitch" );
 		return ((Width << Size) >> 1);
 	}
 

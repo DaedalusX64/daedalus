@@ -235,7 +235,7 @@ v3 Matrix4x4::Transform( const v3 & vec ) const
 
 	return v3(trans.x, trans.y, trans.z);
 }
-
+/*
 Matrix4x4		Matrix4x4::Transpose() const
 {
 	return Matrix4x4( m11, m21, m31, m41,
@@ -243,15 +243,14 @@ Matrix4x4		Matrix4x4::Transpose() const
 					  m13, m23, m33, m43,
 					  m14, m24, m34, m44 );
 }
-
 Matrix4x4	Matrix4x4::Inverse() const
 {
-	/*Matrix4x4 temp;
+	//Matrix4x4 temp;
 
-	invert_matrix_general( (const float*)m, (float*)temp.m );
+	//invert_matrix_general( (const float*)m, (float*)temp.m );
 
-	return temp;
-*/
+	//return temp;
+
 	float	augmented[ 4 ][ 8 ];
 
 	//
@@ -325,7 +324,7 @@ Matrix4x4	Matrix4x4::Inverse() const
 					  augmented[ 2 ][ 4 ], augmented[ 2 ][ 5 ], augmented[ 2 ][ 6 ], augmented[ 2 ][ 7 ],
 					  augmented[ 3 ][ 4 ], augmented[ 3 ][ 5 ], augmented[ 3 ][ 6 ], augmented[ 3 ][ 7 ] );
 }
-/*
+
 void myMulMatrixCPU(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b)
 {
 	for ( u32 i = 0; i < 4; ++i )

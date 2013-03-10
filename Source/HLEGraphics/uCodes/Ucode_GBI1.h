@@ -303,18 +303,20 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_DL( MicroCodeCommand command )
 {
-	DAEDALUS_ASSERT( RDPSegAddr(command.dlist.addr) < MAX_RAM_ADDRESS, "Dlist address out of range" );
-	DAEDALUS_ASSERT( gDlistStackPointer < 30, "Dlist array is too deep"  );
+#if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_ASSERTS)
+	u32 addr = RDPSegAddr(command.dlist.addr);
+	DAEDALUS_ASSERT( addr < MAX_RAM_ADDRESS, "Dlist address out of range" );
+	DAEDALUS_ASSERT( gDlistStackPointer < 9, "Dlist array is getting too deep"  );
 
-	DL_PF("    Address=0x%08x %s", RDPSegAddr(command.dlist.addr), (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
+	DL_PF("    Address=0x%08x %s", addr, (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
 	DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
 	DL_PF("    ############################################");
-	if (gDlistStackPointer >= 9) 
-		printf("ggg\n");
+#endif
 
 	if( command.dlist.param == G_DL_PUSH )
 		gDlistStackPointer++;
 
+	// Compiler gives much better asm if RDPSegAddr.. is sticked directly here 
 	gDlistStack.address[gDlistStackPointer] = RDPSegAddr(command.dlist.addr);
 }
 

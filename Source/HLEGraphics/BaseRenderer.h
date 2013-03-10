@@ -217,7 +217,7 @@ public:
 	void				SetProjectionDKR(const u32 address, bool mul, u32 idx);
 	void				SetProjection(const u32 address, bool bReplace);
 	void				SetWorldView(const u32 address, bool bPush, bool bReplace);
-	inline void			PopProjection() {if (mProjectionTop > 0) --mProjectionTop;	mWorldProjectValid = false;}
+	//inline void			PopProjection() {if (mProjectionTop > 0) --mProjectionTop;	mWorldProjectValid = false;}
 	inline void			PopWorldView()	{if (mModelViewTop > 0)	 --mModelViewTop;	mWorldProjectValid = false;}
 	void				InsertMatrix(u32 w0, u32 w1);
 	void				ForceMatrix(const u32 address);
@@ -349,12 +349,10 @@ protected:
 	static const u32 MATRIX_STACK_SIZE = 20;
 
 	mutable Matrix4x4	mWorldProject;
-	// The projection stack is 1 matrix deep, but we use one extra as temp storage
-	// NB! SetProjectionDKR indexes mProjectionStack[4]!
+	// The projection stack is 1 matrix deep, but we use more for DKR 1-4
+	// Todo : Why not use modelview stack for DKR? either way they are "unused" for DKR
 	Matrix4x4			mProjectionStack[5];
 	Matrix4x4			mModelViewStack[MATRIX_STACK_SIZE];
-	Matrix4x4			mInvProjection;
-	u32					mProjectionTop;
 	u32					mModelViewTop;
 	u32					mMatStackSize;
 	mutable bool		mWorldProjectValid;
