@@ -956,7 +956,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	//This corresponds to the number of palette entries (16 or 256) 16bit
 	//Seems partial load of palette is allowed -> count != 16 or 256 (MM, SSB, Starfox64, MRC) //Corn
 	u32 offset = rdp_tile.tmem - 256;				// starting location in the palettes
-	DAEDALUS_ASSERT( count > 0x100, "Check me: TMEM" );
+	DAEDALUS_ASSERT( count <= 256, "Check me: TMEM - count is %d", count );
 
 	//Copy PAL to the PAL memory
 	u16 * p_source = (u16*)address;
