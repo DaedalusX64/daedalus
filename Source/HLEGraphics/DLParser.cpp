@@ -939,15 +939,16 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	// Format is always 16bpp - RGBA16 or IA16:
 	//DAEDALUS_DL_ASSERT(g_TI.Size == G_IM_SIZ_16b, "Crazy tlut load - not 16bpp");
 
-	u32 uls      = command.loadtile.sl >> 2;	//Left
-	u32 ult		 = command.loadtile.tl >> 2;	//Top
-	u32 lrs      = command.loadtile.sh >> 2;	//Right
-	u32 tile_idx = command.loadtile.tile;
-	u32 address  = (u32)g_pu8RamBase + g_TI.GetAddress16bpp(uls, ult);
+	u32    uls        = command.loadtile.sl;		//Left
+	u32    ult        = command.loadtile.tl;		//Top
+	u32    lrs        = command.loadtile.sh;		//Right
+	u32    tile_idx   = command.loadtile.tile;
+	u32    ram_offset = g_TI.GetAddress16bpp(uls >> 2, ult >> 2);
+	void * address    = g_pu8RamBase + ram_offset;
 
 	const RDP_Tile & rdp_tile = gRDPStateManager.GetTile( tile_idx );
 
-	u32 count = (lrs - uls) + 1;
+	u32 count = ((lrs - uls)>>2) + 1;
 	use(count);
 
 #ifdef DAEDALUS_FAST_TMEM
@@ -960,23 +961,21 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	DAEDALUS_ASSERT( count <= 256, "Check me: TMEM - count is %d", count );
 
 	//Copy PAL to the PAL memory
-	u16 * p_source = (u16*)address;
+	u16 * palette = (u16*)address;
 
 	for (u32 i=0; i<count; i++)
 	{
-		gPaletteMemory[ i+offset ] = p_source[ i ];
+		gPaletteMemory[ i+offset ] = palette[ i ];
 	}
 
-	//printf("Addr %08X : TMEM %03X : Tile %d : PAL %d\n",address, tmem, tile_idx, count);
-
-	//memcpy_vfpu_BE(p_dest, p_source, count << 1);	//for (u32 i=0; i<count; i++) p_dest[ i ] = p_source[ i ];
+	//printf("Addr %08X : TMEM %03X : Tile %d : PAL %d\n", ram_offset, tmem, tile_idx, count);
 #endif
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	u32 lrt = command.loadtile.th >> 2;	//Bottom
+	u32 lrt = command.loadtile.th;	//Bottom
 
 	DL_PF("    TLut Addr[0x%08x] TMEM[0x%03x] Tile[%d] Count[%d] Format[%s] (%d,%d)->(%d,%d)",
-		address, rdp_tile.tmem, tile_idx, count, gTLUTTypeName[gRDPOtherMode.text_tlut], uls, ult, lrs, lrt);
+		address, rdp_tile.tmem, tile_idx, count, gTLUTTypeName[gRDPOtherMode.text_tlut], uls >> 2, ult >> 2, lrs >> 2, lrt >> 2);
 
 	// This code dumps the palette colors
 	//
@@ -985,21 +984,19 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 	{
 		char str[300] = "";
 		char item[300];
-		u16 *pBase = (u16*)address;
+		u16 * palette = (u16*)address;
 
 		for (u32 i = 0; i < count; i++)
 		{
-			u16 wEntry = pBase[i ^ 0x1];
+			u16 entry = palette[i ^ 0x1];
 
 			if (i % 8 == 0)
 			{
 				DL_PF(str);
-
-				// Clear
 				sprintf(str, "    %03d: ", i);
 			}
 
-			N64Pf5551		n64col( wEntry );
+			N64Pf5551		n64col( entry );
 			NativePf8888	nativecol( NativePf8888::Make( n64col ) );
 
 			sprintf(item, "[%04x->%08x] ", n64col.Bits, nativecol.Bits );
