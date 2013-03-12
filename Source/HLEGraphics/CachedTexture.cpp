@@ -60,6 +60,16 @@ static const bool kUpdateTexturesEveryFrame = true;
 #endif
 
 
+#ifdef DAEDALUS_OSX
+
+static ETextureFormat SelectNativeFormat(const TextureInfo & ti)
+{
+	// On OSX, always use RGBA 8888 textures.
+	return TexFmt_8888;
+}
+
+#else
+
 #define DEFTEX	TexFmt_8888
 
 static const ETextureFormat TFmt[ 32 ] =
@@ -93,6 +103,7 @@ static ETextureFormat SelectNativeFormat(const TextureInfo & ti)
 	u32 idx = (ti.GetFormat() << 2) | ti.GetSize();
 	return g_ROM.LOAD_T1_HACK ? TFmt_hack[idx] : TFmt[idx];
 }
+#endif
 
 static bool GenerateTexels( void ** p_texels, void ** p_palette, const TextureInfo & texture_info, ETextureFormat texture_format, u32 pitch, u32 buffer_size )
 {
