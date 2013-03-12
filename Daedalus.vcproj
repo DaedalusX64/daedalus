@@ -1965,7 +1965,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\TextureDescriptor.cpp"
+					RelativePath=".\Source\HLEGraphics\TextureInfo.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1977,7 +1977,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\TextureDescriptor.h"
+					RelativePath=".\Source\HLEGraphics\TextureInfo.h"
 					>
 				</File>
 				<Filter

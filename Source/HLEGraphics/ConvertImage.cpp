@@ -19,7 +19,7 @@ Copyright (C) 2001 StrmnNrmn
 
 #include "stdafx.h"
 #include "ConvertImage.h"
-#include "TextureDescriptor.h"
+#include "TextureInfo.h"
 
 #include "DLDebug.h"
 #include "Core/Memory.h"

@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define RDPSTATEMANAGER_H_
 
 #include "RDP.h"
-#include "TextureDescriptor.h"
+#include "TextureInfo.h"
 
 #include <map>
 

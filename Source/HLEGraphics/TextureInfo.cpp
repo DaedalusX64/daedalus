@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "TextureDescriptor.h"
+#include "TextureInfo.h"
 #include "OSHLE/ultra_gbi.h"
 
 #include "RDP.h"

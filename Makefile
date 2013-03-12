@@ -60,7 +60,7 @@ CORE_SRCS = \
 	Source/HLEGraphics/RDP.cpp \
 	Source/HLEGraphics/RDPStateManager.cpp \
 	Source/HLEGraphics/TextureCache.cpp \
-	Source/HLEGraphics/TextureDescriptor.cpp \
+	Source/HLEGraphics/TextureInfo.cpp \
 	Source/HLEGraphics/uCodes/Ucode.cpp \
 	Source/Interface/RomDB.cpp \
 	Source/Math/Matrix4x4.cpp \
