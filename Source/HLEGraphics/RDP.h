@@ -437,8 +437,8 @@ extern RDP_OtherMode		gRDPOtherMode;
 extern u32* gTlutLoadAddresses[ 4096 >> 6 ];
 #define TLUT_BASE ((u32)(gTlutLoadAddresses[0]))
 #else
-extern u16 gTextureMemory[];
-#define TLUT_BASE ((u32)(&gTextureMemory[0]))
+extern u16 gPaletteMemory[];
+#define TLUT_BASE ((u32)(&gPaletteMemory[0]))
 #endif
 
 

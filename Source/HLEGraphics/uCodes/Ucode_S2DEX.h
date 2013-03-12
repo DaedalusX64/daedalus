@@ -483,10 +483,10 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 
 		for( u32 i=offset; i<offset+size; i++ )
 		{
-			gTextureMemory[ i ] = *src++;
+			gPaletteMemory[ i ] = *src++;
 		}
 
-		//memcpy_vfpu_BE((void *)&gTextureMemory[ (offset << 1) & 0x3FF ], (void *)ObjTlutAddr, (size << 1));
+		//memcpy_vfpu_BE((void *)&gPaletteMemory[ (offset << 1) & 0x3FF ], (void *)ObjTlutAddr, (size << 1));
 
 		//printf("Source[%p] TMEM[%d] Size[%d]\n",(u32*)ObjTlutAddr , (offset << 1) & 0x3FF, (size << 1));
 #endif

@@ -964,7 +964,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 
 	for (u32 i=0; i<count; i++)
 	{
-		gTextureMemory[ i+offset ] = p_source[ i ];
+		gPaletteMemory[ i+offset ] = p_source[ i ];
 	}
 
 	//printf("Addr %08X : TMEM %03X : Tile %d : PAL %d\n",address, tmem, tile_idx, count);

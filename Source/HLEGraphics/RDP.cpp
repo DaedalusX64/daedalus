@@ -32,5 +32,5 @@ RDP_OtherMode		gRDPOtherMode;
 //Granularity down to 24bytes is good enuff also only need to address the upper half of TMEM for palettes//Corn
 u32* gTlutLoadAddresses[ 4096 >> 6 ];
 #else
-u16 gTextureMemory[ 512 ];
+u16 gPaletteMemory[ 512 ];
 #endif
