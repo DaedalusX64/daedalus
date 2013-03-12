@@ -20,18 +20,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "RDPStateManager.h"
 
-
 #include "Core/ROM.h"
+#include "Core/Memory.h"
 #include "DLDebug.h"
 
 #include "Math/MathUtil.h"
 
 #include "OSHLE/ultra_gbi.h"
 
+#include "HLEGraphics/uCodes/UcodeDefs.h"
+
 
 extern SImageDescriptor g_TI;		//Texture data from Timg ucode
 
 CRDPStateManager gRDPStateManager;
+
+static const char * const kTLUTTypeName[] = {"None", "?", "RGBA16", "IA16"};
 
 CRDPStateManager::CRDPStateManager()
 {
@@ -79,48 +83,111 @@ void CRDPStateManager::SetTileSize( const RDP_TileSize & tile_size )
 	}
 }
 
-void CRDPStateManager::LoadBlock( u32 idx, u32 address, bool swapped )
+void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 {
+	u32 uls			= load.sl;	//Left
+	u32 ult			= load.tl;	//Top
+	u32 dxt			= load.th;	// 1.11 fixed point
+	u32 tile_idx	= load.tile;
+	u32 address		= g_TI.GetAddress( uls, ult );
+	//u32 ByteSize	= (load.sh + 1) << (g_TI.Size == G_IM_SIZ_32b);
+
+	bool	swapped = (dxt) ? false : true;
+
+	DL_PF("    Tile[%d] (%d,%d - %d) DXT[0x%04x] = [%d]Bytes/line => [%d]Pixels/line Address[0x%08x]",
+		tile_idx,
+		uls, ult,
+		load.sh,
+		dxt,
+		(g_TI.Width << g_TI.Size >> 1),
+		bytes2pixels( (g_TI.Width << g_TI.Size >> 1), g_TI.Size ),
+		address);
+
 	InvalidateAllTileTextureInfo();		// Can potentially invalidate all texture infos
 
-	u32	tmem_lookup( mTiles[ idx ].tmem >> 4 );
+	u32	tmem_lookup( mTiles[ tile_idx ].tmem >> 4 );
 
 	//Invalidate load info after current TMEM address to the end of TMEM (fixes Fzero and SSV) //Corn
 	ClearEntries( tmem_lookup );
 	SetValidEntry( tmem_lookup );
 
-	TimgLoadDetails& info( mTmemLoadInfo[ tmem_lookup ] );
+	TimgLoadDetails & info = mTmemLoadInfo[ tmem_lookup ];
 	info.Address = address;
 	info.Pitch	 = ~0;
 	info.Swapped = swapped;
 }
 
-void CRDPStateManager::LoadTile( u32 idx, u32 address )
+void CRDPStateManager::LoadTile(const SetLoadTile & load)
 {
+	u32 uls      = load.sl;	//Left
+	u32 ult      = load.tl;	//Top
+	u32 tile_idx = load.tile;
+	u32 address  = g_TI.GetAddress( uls / 4, ult / 4 );
+
+	DL_PF("    Tile[%d] (%d,%d)->(%d,%d) [%d x %d] Address[0x%08x]",
+		tile_idx,
+		load.sl / 4, load.tl / 4, load.sh / 4 + 1, load.th / 4 + 1,
+		(load.sh - load.sl) / 4 + 1, (load.th - load.tl) / 4 + 1,
+		address);
+
 	InvalidateAllTileTextureInfo();		// Can potentially invalidate all texture infos
 
-	u32	tmem_lookup( mTiles[ idx ].tmem >> 4 );
+	u32	tmem_lookup( mTiles[ tile_idx ].tmem >> 4 );
 
 	SetValidEntry( tmem_lookup );
 
-	TimgLoadDetails& info( mTmemLoadInfo[ tmem_lookup ] );
+	TimgLoadDetails & info = mTmemLoadInfo[ tmem_lookup ];
 	info.Address = address;
 	info.Pitch = g_TI.GetPitch();
 	info.Swapped = false;
 }
 
-/*void CRDPStateManager::LoadTlut( u32 idx, u32 address )
+void CRDPStateManager::LoadTlut(const SetLoadTile & load)
 {
-	InvalidateAllTileTextureInfo();		// Can potentially invalidate all texture infos
+	// Tlut fmt is sometimes wrong (in 007) and is set after tlut load, but before tile load
+	// Format is always 16bpp - RGBA16 or IA16:
+	//DAEDALUS_DL_ASSERT(g_TI.Size == G_IM_SIZ_16b, "Crazy tlut load - not 16bpp");
 
-	u32	tmem_lookup( mTiles[ idx ].tmem >> 4 );
+	u32    uls        = load.sl;		//Left
+	u32    ult        = load.tl;		//Top
+	u32    lrs        = load.sh;		//Right
+	u32    tile_idx   = load.tile;
+	u32    ram_offset = g_TI.GetAddress16bpp(uls >> 2, ult >> 2);
+	void * address    = g_pu8RamBase + ram_offset;
 
-	SetValidEntry( tmem_lookup );
+	const RDP_Tile & rdp_tile = gRDPStateManager.GetTile( tile_idx );
 
-	mTMEM_Load[ tmem_lookup ].Address = address;
-	mTMEM_Load[ tmem_lookup ].Pitch = g_TI.GetPitch();
-	mTMEM_Load[ tmem_lookup ].Swapped = false;
-}*/
+	u32 count = ((lrs - uls)>>2) + 1;
+	use(count);
+
+#ifdef DAEDALUS_FAST_TMEM
+	//Store address of PAL (assuming PAL is only stored in upper half of TMEM) //Corn
+	gTlutLoadAddresses[ (rdp_tile.tmem>>2) & 0x3F ] = (u32*)address;
+#else
+	//This corresponds to the number of palette entries (16 or 256) 16bit
+	//Seems partial load of palette is allowed -> count != 16 or 256 (MM, SSB, Starfox64, MRC) //Corn
+	u32 offset = rdp_tile.tmem - 256;				// starting location in the palettes
+	DAEDALUS_ASSERT( count <= 256, "Check me: TMEM - count is %d", count );
+
+	//Copy PAL to the PAL memory
+	u16 * palette = (u16*)address;
+
+	for (u32 i=0; i<count; i++)
+	{
+		gPaletteMemory[ i+offset ] = palette[ i ];
+	}
+
+	//printf("Addr %08X : TMEM %03X : Tile %d : PAL %d\n", ram_offset, tmem, tile_idx, count);
+#endif
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	u32 lrt = load.th;	//Bottom
+
+	DL_PF("    TLut Addr[0x%08x] TMEM[0x%03x] Tile[%d] Count[%d] Format[%s] (%d,%d)->(%d,%d)",
+		address, rdp_tile.tmem, tile_idx, count, kTLUTTypeName[gRDPOtherMode.text_tlut], uls >> 2, ult >> 2, lrs >> 2, lrt >> 2);
+
+#endif
+}
 
 // Limit the tile's width/height to the number of bits specified by mask_s/t.
 // See the detailed noted in BaseRenderer::UpdateTileSnapshots for issues relating to this.

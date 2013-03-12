@@ -244,8 +244,6 @@ static const char * const gFormatNames[8] = {"RGBA", "YUV", "CI", "IA", "I", "?1
 static const char * const gSizeNames[4]   = {"4bpp", "8bpp", "16bpp", "32bpp"};
 static const char * const gOnOffNames[2]  = {"Off", "On"};
 
-static const char * const gTLUTTypeName[4] = {"None", "?", "RGBA16", "IA16"};
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -890,25 +888,7 @@ void DLParser_SetTImg( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_LoadBlock( MicroCodeCommand command )
 {
-	u32 uls			= command.loadtile.sl;	//Left
-	u32 ult			= command.loadtile.tl;	//Top
-	u32 dxt			= command.loadtile.th;	// 1.11 fixed point
-	u32 tile_idx	= command.loadtile.tile;
-	u32 address		= g_TI.GetAddress( uls, ult );
-	//u32 ByteSize	= (command.loadtile.sh + 1) << (g_TI.Size == G_IM_SIZ_32b);
-
-	bool	swapped = (dxt) ? false : true;
-
-	DL_PF("    Tile[%d] (%d,%d - %d) DXT[0x%04x] = [%d]Bytes/line => [%d]Pixels/line Address[0x%08x]",
-		tile_idx,
-		uls, ult,
-		command.loadtile.sh,
-		dxt,
-		(g_TI.Width << g_TI.Size >> 1),
-		bytes2pixels( (g_TI.Width << g_TI.Size >> 1), g_TI.Size ),
-		address);
-
-	gRDPStateManager.LoadBlock( tile_idx, address, swapped );
+	gRDPStateManager.LoadBlock( command.loadtile );
 }
 
 //*****************************************************************************
@@ -916,96 +896,15 @@ void DLParser_LoadBlock( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_LoadTile( MicroCodeCommand command )
 {
-	u32 uls			= command.loadtile.sl;	//Left
-	u32 ult			= command.loadtile.tl;	//Top
-	u32 tile_idx	= command.loadtile.tile;
-	u32 address		= g_TI.GetAddress( uls / 4, ult / 4 );
-
-	DL_PF("    Tile[%d] (%d,%d)->(%d,%d) [%d x %d] Address[0x%08x]",
-		tile_idx,
-		command.loadtile.sl / 4, command.loadtile.tl / 4, command.loadtile.sh / 4 + 1, command.loadtile.th / 4 + 1,
-		(command.loadtile.sh - command.loadtile.sl) / 4 + 1, (command.loadtile.th - command.loadtile.tl) / 4 + 1,
-		address);
-
-	gRDPStateManager.LoadTile( tile_idx, address );
+	gRDPStateManager.LoadTile( command.loadtile );
 }
 
 //*****************************************************************************
-// Load data into the tlut
+//
 //*****************************************************************************
 void DLParser_LoadTLut( MicroCodeCommand command )
 {
-	// Tlut fmt is sometimes wrong (in 007) and is set after tlut load, but before tile load
-	// Format is always 16bpp - RGBA16 or IA16:
-	//DAEDALUS_DL_ASSERT(g_TI.Size == G_IM_SIZ_16b, "Crazy tlut load - not 16bpp");
-
-	u32    uls        = command.loadtile.sl;		//Left
-	u32    ult        = command.loadtile.tl;		//Top
-	u32    lrs        = command.loadtile.sh;		//Right
-	u32    tile_idx   = command.loadtile.tile;
-	u32    ram_offset = g_TI.GetAddress16bpp(uls >> 2, ult >> 2);
-	void * address    = g_pu8RamBase + ram_offset;
-
-	const RDP_Tile & rdp_tile = gRDPStateManager.GetTile( tile_idx );
-
-	u32 count = ((lrs - uls)>>2) + 1;
-	use(count);
-
-#ifdef DAEDALUS_FAST_TMEM
-	//Store address of PAL (assuming PAL is only stored in upper half of TMEM) //Corn
-	gTlutLoadAddresses[ (rdp_tile.tmem>>2) & 0x3F ] = (u32*)address;
-#else
-	//This corresponds to the number of palette entries (16 or 256) 16bit
-	//Seems partial load of palette is allowed -> count != 16 or 256 (MM, SSB, Starfox64, MRC) //Corn
-	u32 offset = rdp_tile.tmem - 256;				// starting location in the palettes
-	DAEDALUS_ASSERT( count <= 256, "Check me: TMEM - count is %d", count );
-
-	//Copy PAL to the PAL memory
-	u16 * palette = (u16*)address;
-
-	for (u32 i=0; i<count; i++)
-	{
-		gPaletteMemory[ i+offset ] = palette[ i ];
-	}
-
-	//printf("Addr %08X : TMEM %03X : Tile %d : PAL %d\n", ram_offset, tmem, tile_idx, count);
-#endif
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	u32 lrt = command.loadtile.th;	//Bottom
-
-	DL_PF("    TLut Addr[0x%08x] TMEM[0x%03x] Tile[%d] Count[%d] Format[%s] (%d,%d)->(%d,%d)",
-		address, rdp_tile.tmem, tile_idx, count, gTLUTTypeName[gRDPOtherMode.text_tlut], uls >> 2, ult >> 2, lrs >> 2, lrt >> 2);
-
-	// This code dumps the palette colors
-	//
-#if 0
-	if (gDisplayListFile != NULL)
-	{
-		char str[300] = "";
-		char item[300];
-		u16 * palette = (u16*)address;
-
-		for (u32 i = 0; i < count; i++)
-		{
-			u16 entry = palette[i ^ 0x1];
-
-			if (i % 8 == 0)
-			{
-				DL_PF(str);
-				sprintf(str, "    %03d: ", i);
-			}
-
-			N64Pf5551		n64col( entry );
-			NativePf8888	nativecol( NativePf8888::Make( n64col ) );
-
-			sprintf(item, "[%04x->%08x] ", n64col.Bits, nativecol.Bits );
-			strcat(str, item);
-		}
-		DL_PF(str);
-	}
-#endif
-#endif
+	gRDPStateManager.LoadTlut( command.loadtile );
 }
 
 //*****************************************************************************

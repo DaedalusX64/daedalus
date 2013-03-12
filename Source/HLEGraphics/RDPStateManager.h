@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <map>
 
+struct SetLoadTile;
+
 class CRDPStateManager
 {
 public:
@@ -40,9 +42,10 @@ public:
 
 	void							SetTile( const RDP_Tile & tile );
 	void							SetTileSize( const RDP_TileSize & tile_size );
-	void							LoadBlock( u32 idx, u32 address, bool swapped );
-	void							LoadTile( u32 idx, u32 address );
-	//void							LoadTlut( u32 idx, u32 address )
+
+	void							LoadBlock(const SetLoadTile & load);
+	void							LoadTile(const SetLoadTile & load);
+	void							LoadTlut(const SetLoadTile & load);
 
 	// Retrive tile addr loading. used by Yoshi_MemRect
 	inline u32						GetTileAddress( const u32 tmem ) const { return mTmemLoadInfo[ tmem >> 4 ].Address; }
