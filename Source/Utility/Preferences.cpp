@@ -44,33 +44,32 @@ static const EAudioPluginMode kDefaultAudioPluginMode = APM_DISABLED;
 static const EAudioPluginMode kDefaultAudioPluginMode = APM_ENABLED_SYNC;
 #endif
 
-extern EFrameskipValue gFrameskipValue;
-extern f32 gZoomX;
-//*****************************************************************************
-//
-//*****************************************************************************
-SGlobalPreferences	gGlobalPreferences;
+static u32						GetTexureHashFrequencyAsFrames( ETextureHashFrequency thf );
+static ETextureHashFrequency	GetTextureHashFrequencyFromFrames( u32 frames );
 
-//*****************************************************************************
-//
-//*****************************************************************************
+static u32						GetFrameskipValueAsInt( EFrameskipValue value );
+static EFrameskipValue			GetFrameskipValueFromInt( u32 value );
+
+
+extern EFrameskipValue			gFrameskipValue;
+extern f32 						gZoomX;
+
+SGlobalPreferences				gGlobalPreferences;
+
 class IPreferences : public CPreferences
 {
 	public:
 		IPreferences();
 		virtual ~IPreferences();
 
-		//
-		// CPreferences implementation
-		//
-		bool						OpenPreferencesFile( const char * filename );
-		void						Commit();
+		bool					OpenPreferencesFile( const char * filename );
+		void					Commit();
 
-		bool						GetRomPreferences( const RomID & id, SRomPreferences * preferences ) const;
-		void						SetRomPreferences( const RomID & id, const SRomPreferences & preferences );
+		bool					GetRomPreferences( const RomID & id, SRomPreferences * preferences ) const;
+		void					SetRomPreferences( const RomID & id, const SRomPreferences & preferences );
 
 	private:
-		void						OutputSectionDetails( const RomID & id, const SRomPreferences & preferences, FILE * fh );
+		void					OutputSectionDetails( const RomID & id, const SRomPreferences & preferences, FILE * fh );
 
 	private:
 		typedef std::map<RomID, SRomPreferences>	PreferencesMap;
@@ -81,11 +80,6 @@ class IPreferences : public CPreferences
 		std::string				mFilename;
 };
 
-
-
-//*****************************************************************************
-// Singleton creator
-//*****************************************************************************
 template<> bool	CSingleton< CPreferences >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
@@ -95,10 +89,10 @@ template<> bool	CSingleton< CPreferences >::Create()
 	return true;
 }
 
+CPreferences::~CPreferences()
+{
+}
 
-//*****************************************************************************
-// Constructor
-//*****************************************************************************
 IPreferences::IPreferences()
 :	mDirty( false )
 {
@@ -107,9 +101,6 @@ IPreferences::IPreferences()
 	OpenPreferencesFile( ini_filename );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 IPreferences::~IPreferences()
 {
 	if ( mDirty )
@@ -118,24 +109,15 @@ IPreferences::~IPreferences()
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-static RomID	RomIDFromString( const char * str )
+static RomID RomIDFromString( const char * str )
 {
 	u32 crc1, crc2, country;
 	sscanf( str, "%08x%08x-%02x", &crc1, &crc2, &country );
 	return RomID( crc1, crc2, (u8)country );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 bool IPreferences::OpenPreferencesFile( const char * filename )
 {
-	//
-	// Remember the filename
-	//
 	mFilename = filename;
 
 	CIniFile * p_ini_file( CIniFile::Create( filename ) );
@@ -251,11 +233,11 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		}
 		if( section->FindProperty( "CheckTextureHashFrequency", &property ) )
 		{
-			preferences.CheckTextureHashFrequency = ROM_GetTextureHashFrequencyFromFrames( atoi( property->GetValue() ) );
+			preferences.CheckTextureHashFrequency = GetTextureHashFrequencyFromFrames( atoi( property->GetValue() ) );
 		}
 		if( section->FindProperty( "Frameskip", &property ) )
 		{
-			preferences.Frameskip = ROM_GetFrameskipValueFromInt( atoi( property->GetValue() ) );
+			preferences.Frameskip = GetFrameskipValueFromInt( atoi( property->GetValue() ) );
 		}
 		if( section->FindProperty( "AudioEnabled", &property ) )
 		{
@@ -297,9 +279,6 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences & preferences, FILE * fh )
 {
 	// Generate the CRC-ID for this rom:
@@ -307,31 +286,29 @@ void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences
 	CRomSettingsDB::Get()->GetSettings( id, &settings );
 
 	fprintf(fh, "{%08x%08x-%02x}\t// %s\n", id.CRC[0], id.CRC[1], id.CountryID, settings.GameName.c_str() );
-	fprintf(fh, "PatchesEnabled=%d\n",preferences.PatchesEnabled);
-	fprintf(fh, "SpeedSyncEnabled=%d\n",preferences.SpeedSyncEnabled);
-	fprintf(fh, "DynarecEnabled=%d\n",preferences.DynarecEnabled);
-	fprintf(fh, "DynarecLoopOptimisation=%d\n",preferences.DynarecLoopOptimisation);
-	fprintf(fh, "DynarecDoublesOptimisation=%d\n",preferences.DynarecDoublesOptimisation);
-	fprintf(fh, "DoubleDisplayEnabled=%d\n",preferences.DoubleDisplayEnabled);
-	fprintf(fh, "CleanSceneEnabled=%d\n",preferences.CleanSceneEnabled);
-	fprintf(fh, "AudioRateMatch=%d\n",preferences.AudioRateMatch);
-	fprintf(fh, "VideoRateMatch=%d\n",preferences.VideoRateMatch);
-	fprintf(fh, "FogEnabled=%d\n",preferences.FogEnabled);
-	fprintf(fh, "CheckTextureHashFrequency=%d\n", ROM_GetTexureHashFrequencyAsFrames( preferences.CheckTextureHashFrequency ) );
-	fprintf(fh, "Frameskip=%d\n", ROM_GetFrameskipValueAsInt( preferences.Frameskip ) );
-	fprintf(fh, "AudioEnabled=%d\n", preferences.AudioEnabled);
-	fprintf(fh, "ZoomX=%f\n", preferences.ZoomX );
-	fprintf(fh, "MemoryAccessOptimisation=%d\n",preferences.MemoryAccessOptimisation);
-	fprintf(fh, "CheatsEnabled=%d\n",preferences.CheatsEnabled);
+	fprintf(fh, "PatchesEnabled=%d\n",             preferences.PatchesEnabled);
+	fprintf(fh, "SpeedSyncEnabled=%d\n",           preferences.SpeedSyncEnabled);
+	fprintf(fh, "DynarecEnabled=%d\n",             preferences.DynarecEnabled);
+	fprintf(fh, "DynarecLoopOptimisation=%d\n",    preferences.DynarecLoopOptimisation);
+	fprintf(fh, "DynarecDoublesOptimisation=%d\n", preferences.DynarecDoublesOptimisation);
+	fprintf(fh, "DoubleDisplayEnabled=%d\n",       preferences.DoubleDisplayEnabled);
+	fprintf(fh, "CleanSceneEnabled=%d\n",          preferences.CleanSceneEnabled);
+	fprintf(fh, "AudioRateMatch=%d\n",             preferences.AudioRateMatch);
+	fprintf(fh, "VideoRateMatch=%d\n",             preferences.VideoRateMatch);
+	fprintf(fh, "FogEnabled=%d\n",                 preferences.FogEnabled);
+	fprintf(fh, "CheckTextureHashFrequency=%d\n",  GetTexureHashFrequencyAsFrames( preferences.CheckTextureHashFrequency ) );
+	fprintf(fh, "Frameskip=%d\n",                  GetFrameskipValueAsInt( preferences.Frameskip ) );
+	fprintf(fh, "AudioEnabled=%d\n",               preferences.AudioEnabled);
+	fprintf(fh, "ZoomX=%f\n",                      preferences.ZoomX );
+	fprintf(fh, "MemoryAccessOptimisation=%d\n",   preferences.MemoryAccessOptimisation);
+	fprintf(fh, "CheatsEnabled=%d\n",              preferences.CheatsEnabled);
 #ifdef DAEDALUS_PSP
-	fprintf(fh, "Controller=%s\n", CInputManager::Get()->GetConfigurationName( preferences.ControllerIndex ));
+	fprintf(fh, "Controller=%s\n",                CInputManager::Get()->GetConfigurationName( preferences.ControllerIndex ));
 #endif
 	fprintf(fh, "\n");			// Spacer
 }
 
-//*****************************************************************************
-//	Write out the .ini file, keeping the original comments intact
-//*****************************************************************************
+// Write out the .ini file, keeping the original comments intact
 void IPreferences::Commit()
 {
 	FILE * fh( fopen(mFilename.c_str(), "w") );
@@ -373,11 +350,9 @@ void IPreferences::Commit()
 	}
 }
 
-//*****************************************************************************
 // Retreive the preferences for the specified rom. Returns false if the rom is
 // not in the database
-//*****************************************************************************
-bool	IPreferences::GetRomPreferences( const RomID & id, SRomPreferences * preferences ) const
+bool IPreferences::GetRomPreferences( const RomID & id, SRomPreferences * preferences ) const
 {
 	PreferencesMap::const_iterator	it( mPreferences.find( id ) );
 	if ( it != mPreferences.end() )
@@ -391,10 +366,8 @@ bool	IPreferences::GetRomPreferences( const RomID & id, SRomPreferences * prefer
 	}
 }
 
-//*****************************************************************************
 // Update the preferences for the specified rom - creates a new entry if necessary
-//*****************************************************************************
-void	IPreferences::SetRomPreferences( const RomID & id, const SRomPreferences & preferences )
+void IPreferences::SetRomPreferences( const RomID & id, const SRomPreferences & preferences )
 {
 	PreferencesMap::iterator	it( mPreferences.find( id ) );
 	if ( it != mPreferences.end() )
@@ -409,9 +382,6 @@ void	IPreferences::SetRomPreferences( const RomID & id, const SRomPreferences & 
 	mDirty = true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 SGlobalPreferences::SGlobalPreferences()
 :	DisplayFramerate( 0 )
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -433,17 +403,11 @@ SGlobalPreferences::SGlobalPreferences()
 {
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void SGlobalPreferences::Apply() const
 {
 
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 SRomPreferences::SRomPreferences()
 	:	PatchesEnabled( true )
 	,	DynarecEnabled( true )
@@ -466,63 +430,54 @@ SRomPreferences::SRomPreferences()
 {
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void SRomPreferences::Reset()
 {
-	PatchesEnabled = true;
-	SpeedSyncEnabled = 0;
-	DynarecEnabled = true;
-	DynarecLoopOptimisation = false;
+	PatchesEnabled             = true;
+	SpeedSyncEnabled           = 0;
+	DynarecEnabled             = true;
+	DynarecLoopOptimisation    = false;
 	DynarecDoublesOptimisation = false;
-	DoubleDisplayEnabled = true;
-	CleanSceneEnabled = false;
-	AudioRateMatch = false;
-	VideoRateMatch = false;
-	FogEnabled = false;
-	MemoryAccessOptimisation = false;
-	CheckTextureHashFrequency = THF_DISABLED;
-	Frameskip = FV_DISABLED;
-	AudioEnabled = kDefaultAudioPluginMode;
-//	AudioAdaptFrequency = false;
-	ZoomX = 1.0f;
-	CheatsEnabled = false;
-	ControllerIndex = 0;
+	DoubleDisplayEnabled       = true;
+	CleanSceneEnabled          = false;
+	AudioRateMatch             = false;
+	VideoRateMatch             = false;
+	FogEnabled                 = false;
+	MemoryAccessOptimisation   = false;
+	CheckTextureHashFrequency  = THF_DISABLED;
+	Frameskip                  = FV_DISABLED;
+	AudioEnabled               = kDefaultAudioPluginMode;
+	//AudioAdaptFrequency      = false;
+	ZoomX                      = 1.0f;
+	CheatsEnabled              = false;
+	ControllerIndex            = 0;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	SRomPreferences::Apply() const
+void SRomPreferences::Apply() const
 {
-	gOSHooksEnabled		= PatchesEnabled;
-	gSpeedSyncEnabled	= SpeedSyncEnabled;
-	gDynarecEnabled		= g_ROM.settings.DynarecSupported && DynarecEnabled;
+	gOSHooksEnabled             = PatchesEnabled;
+	gSpeedSyncEnabled           = SpeedSyncEnabled;
+	gDynarecEnabled             = g_ROM.settings.DynarecSupported && DynarecEnabled;
 	gDynarecLoopOptimisation	= DynarecLoopOptimisation;	// && g_ROM.settings.DynarecLoopOptimisation;
 	gDynarecDoublesOptimisation	= g_ROM.settings.DynarecDoublesOptimisation || DynarecDoublesOptimisation;
-	gDoubleDisplayEnabled = g_ROM.settings.DoubleDisplayEnabled && DoubleDisplayEnabled; // I don't know why DD won't disabled if we set ||
-	gCleanSceneEnabled = g_ROM.settings.CleanSceneEnabled || CleanSceneEnabled;
-	gAudioRateMatch = g_ROM.settings.AudioRateMatch || AudioRateMatch;
-	gVideoRateMatch = g_ROM.settings.VideoRateMatch || VideoRateMatch;
-	gFogEnabled = g_ROM.settings.FogEnabled || FogEnabled;
-	gCheckTextureHashFrequency = ROM_GetTexureHashFrequencyAsFrames( CheckTextureHashFrequency );
-	gMemoryAccessOptimisation = g_ROM.settings.MemoryAccessOptimisation || MemoryAccessOptimisation;
-	gFrameskipValue = Frameskip;
-	gZoomX = ZoomX;
-	gCheatsEnabled = CheatsEnabled || g_ROM.settings.CheatsEnabled;
-	gAudioPluginEnabled = AudioEnabled;
-//	gAdaptFrequency = AudioAdaptFrequency;
-	gControllerIndex = ControllerIndex;							//Used during ROM initialization
+	gDoubleDisplayEnabled       = g_ROM.settings.DoubleDisplayEnabled && DoubleDisplayEnabled; // I don't know why DD won't disabled if we set ||
+	gCleanSceneEnabled          = g_ROM.settings.CleanSceneEnabled || CleanSceneEnabled;
+	gAudioRateMatch             = g_ROM.settings.AudioRateMatch || AudioRateMatch;
+	gVideoRateMatch             = g_ROM.settings.VideoRateMatch || VideoRateMatch;
+	gFogEnabled                 = g_ROM.settings.FogEnabled || FogEnabled;
+	gCheckTextureHashFrequency  = GetTexureHashFrequencyAsFrames( CheckTextureHashFrequency );
+	gMemoryAccessOptimisation   = g_ROM.settings.MemoryAccessOptimisation || MemoryAccessOptimisation;
+	gFrameskipValue             = Frameskip;
+	gZoomX                      = ZoomX;
+	gCheatsEnabled              = CheatsEnabled || g_ROM.settings.CheatsEnabled;
+	gAudioPluginEnabled         = AudioEnabled;
+//	gAdaptFrequency             = AudioAdaptFrequency;
+	gControllerIndex            = ControllerIndex;							//Used during ROM initialization
 #ifdef DAEDALUS_PSP
 	CInputManager::Get()->SetConfiguration( ControllerIndex );  //Used after initialization
 #endif
 }
 
 
-//*****************************************************************************
-//
-//*****************************************************************************
 static const u32 gTextureHashFreqeuncies[] =
 {
 	0,	//THF_DISABLED = 0,
@@ -545,10 +500,7 @@ static const char * const gTextureHashFreqeuncyDescriptions[] =
 	"Every 32 Frames",	//THF_EVERY_32,
 };
 
-//*****************************************************************************
-//
-//*****************************************************************************
-u32	ROM_GetTexureHashFrequencyAsFrames( ETextureHashFrequency thf )
+static u32 GetTexureHashFrequencyAsFrames( ETextureHashFrequency thf )
 {
 	if(thf >= 0 && thf < NUM_THF)
 	{
@@ -558,10 +510,7 @@ u32	ROM_GetTexureHashFrequencyAsFrames( ETextureHashFrequency thf )
 	return 0;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-ETextureHashFrequency	ROM_GetTextureHashFrequencyFromFrames( u32 frames )
+static ETextureHashFrequency GetTextureHashFrequencyFromFrames( u32 frames )
 {
 	for( u32 i = 0; i < NUM_THF; ++i )
 	{
@@ -574,10 +523,7 @@ ETextureHashFrequency	ROM_GetTextureHashFrequencyFromFrames( u32 frames )
 	return THF_EVERY_32;	// Return the maximum
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-const char * ROM_GetTextureHashFrequencyDescription( ETextureHashFrequency thf )
+const char * Preferences_GetTextureHashFrequencyDescription( ETextureHashFrequency thf )
 {
 	if(thf >= 0 && thf < NUM_THF)
 	{
@@ -587,18 +533,12 @@ const char * ROM_GetTextureHashFrequencyDescription( ETextureHashFrequency thf )
 	return "?";
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-u32	ROM_GetFrameskipValueAsInt( EFrameskipValue value )
+u32	GetFrameskipValueAsInt( EFrameskipValue value )
 {
 	return value;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-EFrameskipValue	ROM_GetFrameskipValueFromInt( u32 value )
+EFrameskipValue	GetFrameskipValueFromInt( u32 value )
 {
 //  This is always False
 //	if( value < FV_DISABLED )
@@ -610,10 +550,7 @@ EFrameskipValue	ROM_GetFrameskipValueFromInt( u32 value )
 	return EFrameskipValue( value );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-const char *			ROM_GetFrameskipDescription( EFrameskipValue value )
+const char * Preferences_GetFrameskipDescription( EFrameskipValue value )
 {
 	switch( value )
 	{

@@ -174,22 +174,17 @@ class	RomID;
 //*****************************************************************************
 class CPreferences : public CSingleton< CPreferences >
 {
-	public:
-		virtual					~CPreferences() {}
+public:
+	virtual				~CPreferences();
 
-		virtual bool			OpenPreferencesFile( const char * filename ) = 0;
-		virtual void			Commit() = 0;
+	virtual bool		OpenPreferencesFile( const char * filename ) = 0;
+	virtual void		Commit() = 0;
 
-		virtual bool			GetRomPreferences( const RomID & id, SRomPreferences * preferences ) const = 0;
-		virtual void			SetRomPreferences( const RomID & id, const SRomPreferences & preferences ) = 0;
+	virtual bool		GetRomPreferences( const RomID & id, SRomPreferences * preferences ) const = 0;
+	virtual void		SetRomPreferences( const RomID & id, const SRomPreferences & preferences ) = 0;
 };
 
-u32						ROM_GetTexureHashFrequencyAsFrames( ETextureHashFrequency thf );
-ETextureHashFrequency	ROM_GetTextureHashFrequencyFromFrames( u32 frames );
-const char *			ROM_GetTextureHashFrequencyDescription( ETextureHashFrequency thf );
-
-u32						ROM_GetFrameskipValueAsInt( EFrameskipValue value );
-EFrameskipValue			ROM_GetFrameskipValueFromInt( u32 value );
-const char *			ROM_GetFrameskipDescription( EFrameskipValue value );
+const char *	Preferences_GetTextureHashFrequencyDescription( ETextureHashFrequency thf );
+const char *	Preferences_GetFrameskipDescription( EFrameskipValue value );
 
 #endif // PREFERENCES_H_

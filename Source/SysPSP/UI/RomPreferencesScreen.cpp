@@ -65,7 +65,7 @@ namespace
 		virtual	void			OnNext()				{ *mSetting = ETextureHashFrequency( ( *mSetting + 1 ) % NUM_THF ); }
 		virtual	void			OnPrevious()			{ *mSetting = ETextureHashFrequency( ( *mSetting + NUM_THF - 1 ) % NUM_THF ); }
 
-		virtual const char *	GetSettingName() const	{ return ROM_GetTextureHashFrequencyDescription( *mSetting ); }
+		virtual const char *	GetSettingName() const	{ return Preferences_GetTextureHashFrequencyDescription( *mSetting ); }
 
 	private:
 		ETextureHashFrequency *	mSetting;
@@ -174,7 +174,7 @@ namespace
 		virtual	void			OnNext()				{ *mSetting = EFrameskipValue( (*mSetting + 1) % NUM_FRAMESKIP_VALUES ); }
 		virtual	void			OnPrevious()			{ *mSetting = EFrameskipValue( (*mSetting + NUM_FRAMESKIP_VALUES - 1) % NUM_FRAMESKIP_VALUES ); }
 
-		virtual const char *	GetSettingName() const	{ return ROM_GetFrameskipDescription( *mSetting ); }
+		virtual const char *	GetSettingName() const	{ return Preferences_GetFrameskipDescription( *mSetting ); }
 
 	private:
 		EFrameskipValue *		mSetting;
