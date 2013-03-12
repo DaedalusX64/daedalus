@@ -27,7 +27,7 @@
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/DLParser.h"
 #include "HLEGraphics/TextureCache.h"
-#include "HLEGraphics/TextureDescriptor.h"
+#include "HLEGraphics/TextureInfo.h"
 #include "HLEGraphics/Microcode.h"
 #include "Combiner/RenderSettings.h"
 
