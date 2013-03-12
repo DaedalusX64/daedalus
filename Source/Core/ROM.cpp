@@ -71,9 +71,9 @@ RomInfo g_ROM;
 void DumpROMInfo( const ROMHeader & header )
 {
 	// The "Header" is actually something to do with the PI_DOM_*_OFS values...
-	DBGConsole_Msg(0, "Header:			0x%02x%02x%02x%02x", header.x1, header.x2, header.x3, header.x4);
+	DBGConsole_Msg(0, "Header:          0x%02x%02x%02x%02x", header.x1, header.x2, header.x3, header.x4);
 	DBGConsole_Msg(0, "Clockrate:       0x%08x", header.ClockRate);
-	DBGConsole_Msg(0, "BootAddr:		0x%08x", SwapEndian(header.BootAddress));
+	DBGConsole_Msg(0, "BootAddr:        0x%08x", SwapEndian(header.BootAddress));
 	DBGConsole_Msg(0, "Release:         0x%08x", header.Release);
 	DBGConsole_Msg(0, "CRC1:            0x%08x", header.CRC1);
 	DBGConsole_Msg(0, "CRC2:            0x%08x", header.CRC2);
