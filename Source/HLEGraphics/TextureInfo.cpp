@@ -23,7 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "TextureInfo.h"
 #include "OSHLE/ultra_gbi.h"
 
-#include "RDP.h"
 #include "ConfigOptions.h"
 
 #include "Core/Memory.h"
@@ -34,43 +33,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/ROM.h"
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-//*************************************************************************************
-//
-//*************************************************************************************
-namespace
-{
-const char * const	pszImgFormat[8] = {"RGBA", "YUV", "CI", "IA", "I", "?1", "?2", "?3"};
-const u32			pnImgSize[4]   = {4, 8, 16, 32};
-}
+static const char * const	gImageFormatNames[8] = {"RGBA", "YUV", "CI", "IA", "I", "?1", "?2", "?3"};
+static const u32			gImageSizesInBits[4] = {4, 8, 16, 32};
 
-//*************************************************************************************
-//
-//*************************************************************************************
 const char * TextureInfo::GetFormatName() const
 {
-	return pszImgFormat[ Format ];
+	return gImageFormatNames[ Format ];
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 u32 TextureInfo::GetSizeInBits() const
 {
-	return pnImgSize[ Size ];
+	return gImageSizesInBits[ Size ];
 }
 #endif
 
-//*************************************************************************************
-//
-//*************************************************************************************
-inline u32	TextureInfo::GetWidthInBytes() const
-{
-	return pixels2bytes( Width, Size );
-}
-
-//*************************************************************************************
-//Fast hash for checking is data in a texture source has changed //Corn
-//*************************************************************************************
+// Fast hash for checking is data in a texture source has changed //Corn
 u32 TextureInfo::GenerateHashValue() const
 {
 	//Rewritten to use less recources //Corn

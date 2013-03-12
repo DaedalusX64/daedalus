@@ -67,8 +67,6 @@ public:
 	u32						GetSizeInBits() const;
 #endif
 
-	u32						GetWidthInBytes() const;
-
 	inline u32				GetLoadAddress() const			{ return LoadAddress; }
 	inline u32				GetTlutAddress() const			{ return TlutAddress; }
 	inline u32				GetTmemAddress() const			{ return TmemAddress; }
