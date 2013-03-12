@@ -112,7 +112,7 @@ static bool GenerateTexels( void ** p_texels, void ** p_palette, const TextureIn
 	//Checking if the palette pointer is less than 0x1000 (rather than just NULL) fixes it.
 	if( palette && (texture_info.GetTlutAddress() < 0x1000) ) return false;
 
-	if (DoConversion(dst, texture_info))
+	if (ConvertTexture(dst, texture_info))
 	{
 		*p_texels = texels;
 		*p_palette = palette;

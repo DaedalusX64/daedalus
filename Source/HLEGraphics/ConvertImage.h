@@ -46,6 +46,6 @@ struct TextureDestInfo
 };
 
 
-bool DoConversion(const TextureDestInfo & dsti, const TextureInfo & ti);
+bool ConvertTexture(const TextureDestInfo & dsti, const TextureInfo & ti);
 
 #endif

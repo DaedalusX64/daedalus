@@ -678,7 +678,7 @@ static const ConvertFunction gConvertFunctions[ 32 ] =
 	NULL,			NULL,			NULL,				NULL					// ?
 };
 
-bool DoConversion(const TextureDestInfo & dsti, const TextureInfo & ti)
+bool ConvertTexture(const TextureDestInfo & dsti, const TextureInfo & ti)
 {
 	const ConvertFunction fn = gConvertFunctions[ (ti.GetFormat() << 2) | ti.GetSize() ];
 	if( fn )
