@@ -51,6 +51,7 @@ class CachedTexture : public CRefCounted
 	private:
 				bool					Initialise();
 				bool					IsFresh() const;
+				bool					UpdateTextureHash();
 
 	private:
 		const TextureInfo				mTextureInfo;

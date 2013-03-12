@@ -48,6 +48,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 static std::vector<u8>		gTexelBuffer;
 static NativePf8888		gPaletteBuffer[ 256 ];
 
+// NB: On the PSP we generate a lightweight hash of the texture data before
+// updating the native texture. This avoids some expensive work where possible.
+// On other platforms (e.g. OSX) updating textures is relatively inexpensive, so
+// we just skip the hashing process entirely, and update textures every frame
+// regardless of whether they've actually changed.
+#ifdef DAEDALUS_PSP
+static const bool kCheckHashBeforeUpdate = true;
+#else
+static const bool kCheckHashBeforeUpdate = false;
+#endif
+
 
 #define DEFTEX	TexFmt_8888
 
@@ -187,7 +198,7 @@ CachedTexture::CachedTexture( const TextureInfo & ti )
 :	mTextureInfo( ti )
 ,	mpTexture(NULL)
 ,	mpWhiteTexture(NULL)
-,	mTextureContentsHash( ti.GenerateHashValue() )
+,	mTextureContentsHash( 0 )
 ,	mFrameLastUpToDate( gRDPFrame )
 ,	mFrameLastUsed( gRDPFrame )
 {
@@ -218,36 +229,49 @@ bool CachedTexture::Initialise()
 		{
 			mFrameLastUpToDate = gRDPFrame + (FastRand() & (gCheckTextureHashFrequency - 1));
 		}
+		UpdateTextureHash();
 		UpdateTexture( mTextureInfo, mpTexture, NULL );
 	}
 
 	return mpTexture != NULL;
 }
 
+// Update the hash of the texture. Returns true if the texture should be updated.
+bool CachedTexture::UpdateTextureHash()
+{
+	if (kCheckHashBeforeUpdate)
+	{
+		u32 new_hash_value = mTextureInfo.GenerateHashValue();
+		bool changed       = new_hash_value != mTextureContentsHash;
+
+		mTextureContentsHash = new_hash_value;
+		return changed;
+	}
+	else
+	{
+		// NB always assume we need updating.
+		return true;
+	}
+}
+
 void CachedTexture::UpdateIfNecessary()
 {
 	if( !IsFresh() )
 	{
-		//
-		// Generate and check the current crc
-		//
-		u32 hash_value( mTextureInfo.GenerateHashValue() );
-
-		if (mTextureContentsHash != hash_value)
+		if (UpdateTextureHash())
 		{
 			UpdateTexture( mTextureInfo, mpTexture, NULL );
-			mTextureContentsHash = hash_value;
 		}
 
-		//
-		//	One way or another, this is up to date now
-		//
+		// FIXME(strmnrmn): should probably recreate mpWhiteTexture if it exists, else it may have stale data.
+
 		mFrameLastUpToDate = gRDPFrame;
 	}
 
 	mFrameLastUsed = gRDPFrame;
 }
 
+// IsFresh - has this cached texture been updated recently?
 bool CachedTexture::IsFresh() const
 {
 	return (gRDPFrame == mFrameLastUsed ||
