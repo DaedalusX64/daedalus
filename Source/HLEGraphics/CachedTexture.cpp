@@ -532,27 +532,13 @@ bool CachedTexture::Initialise()
 {
 	DAEDALUS_ASSERT_Q(mpTexture == NULL);
 
-	ETextureFormat 	texture_format = SelectNativeFormat(mTextureInfo);
-	u32				width          = mTextureInfo.GetWidth();
-	u32				height         = mTextureInfo.GetHeight();
+	u32 width  = mTextureInfo.GetWidth();
+	u32 height = mTextureInfo.GetHeight();
 
-	if( mTextureInfo.GetMirrorS() && mTextureInfo.GetMirrorT() )
-	{
-		mpTexture = CNativeTexture::Create( width*2, height*2, texture_format );
-	}
-	else if( mTextureInfo.GetMirrorS() )
-	{
-		mpTexture = CNativeTexture::Create( width*2, height, texture_format );
-	}
-	else if( mTextureInfo.GetMirrorT() )
-	{
-		mpTexture = CNativeTexture::Create( width, height*2, texture_format );
-	}
-	else
-	{
-		mpTexture = CNativeTexture::Create( width, height, texture_format );
-	}
+	if (mTextureInfo.GetMirrorS()) width  *= 2;
+	if (mTextureInfo.GetMirrorT()) height *= 2;
 
+	mpTexture = CNativeTexture::Create( width, height, SelectNativeFormat(mTextureInfo) );
 	if( mpTexture != NULL )
 	{
 		// If this we're performing Texture updated checks, randomly offset the
