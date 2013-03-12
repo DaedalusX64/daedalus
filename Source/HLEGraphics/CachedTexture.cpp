@@ -281,19 +281,23 @@ bool CachedTexture::IsFresh() const
 
 bool CachedTexture::HasExpired() const
 {
-	if(!IsFresh())
+	if (!IsFresh())
 	{
-		//Hack to make WONDER PROJECT J2 work (need to reload some textures every frame!) //Corn
-		if( (g_ROM.GameHacks == WONDER_PROJECTJ2) && (mTextureInfo.GetTLutFormat() == kTT_RGBA16) && (mTextureInfo.GetSize() == G_IM_SIZ_8b) ) return true;
+		if (kCheckHashBeforeUpdate)
+		{
+			//Hack to make WONDER PROJECT J2 work (need to reload some textures every frame!) //Corn
+			if( (g_ROM.GameHacks == WONDER_PROJECTJ2) && (mTextureInfo.GetTLutFormat() == kTT_RGBA16) && (mTextureInfo.GetSize() == G_IM_SIZ_8b) ) return true;
 
-		//Hack for Worms Armageddon
-		if( (g_ROM.GameHacks == WORMS_ARMAGEDDON) && (mTextureInfo.GetSize() == G_IM_SIZ_8b) && (mTextureContentsHash != mTextureInfo.GenerateHashValue()) ) return true;
+			//Hack for Worms Armageddon
+			if( (g_ROM.GameHacks == WORMS_ARMAGEDDON) && (mTextureInfo.GetSize() == G_IM_SIZ_8b) && (mTextureContentsHash != mTextureInfo.GenerateHashValue()) ) return true;
 
-		//Hack for Zelda OOT & MM text (only needed if there is not a general hash check) //Corn
-		if( g_ROM.ZELDA_HACK && (mTextureInfo.GetSize() == G_IM_SIZ_4b) && mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
+			//Hack for Zelda OOT & MM text (only needed if there is not a general hash check) //Corn
+			if( g_ROM.ZELDA_HACK && (mTextureInfo.GetSize() == G_IM_SIZ_4b) && mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
 
-		//Check if texture has changed
-		//if( mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
+			//Check if texture has changed
+			//if( mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
+		}
+
 	}
 
 	//Otherwise we wait 20+random(0-3) frames before trashing the texture if unused
