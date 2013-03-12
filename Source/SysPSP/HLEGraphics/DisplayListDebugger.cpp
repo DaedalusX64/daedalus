@@ -527,7 +527,7 @@ namespace
 {
 	bool OrderTextures( const CTextureCache::STextureInfoSnapshot & lhs, const CTextureCache::STextureInfoSnapshot & rhs )
 	{
-	   return lhs.GetTexture()->GetTextureInfo().GetLoadAddress() < rhs.GetTexture()->GetTextureInfo().GetLoadAddress();
+	   return lhs.Texture->GetTextureInfo().GetLoadAddress() < rhs.Texture->GetTextureInfo().GetLoadAddress();
 	}
 
 #define GL_TRUE                           1
@@ -599,7 +599,7 @@ bool CTextureExplorerDebugMenuOption::OverrideDisplay() const
 	u32		texture_height( 32 );
 	if( mSelectedIdx < mSnapshot.size() )
 	{
-		const CRefPtr<CachedTexture> & n64_texture( mSnapshot[ mSelectedIdx ].GetTexture() );
+		const CRefPtr<CachedTexture> & n64_texture( mSnapshot[ mSelectedIdx ].Texture );
 		if( n64_texture != NULL )
 		{
 			const TextureInfo &		info( n64_texture->GetTextureInfo() );
@@ -713,7 +713,7 @@ void CTextureExplorerDebugMenuOption::Display() const
 	{
 		DAEDALUS_ASSERT( i >= 0 && i < s32( mSnapshot.size() ), "Invalid snapshot index" );
 		const CTextureCache::STextureInfoSnapshot &		info( mSnapshot[ i ] );
-		const TextureInfo &								ti( info.GetTexture()->GetTextureInfo() );
+		const TextureInfo &								ti( info.Texture->GetTextureInfo() );
 
 		bool	selected( u32( i ) == mSelectedIdx );
 		const char *	text_col;
@@ -1026,7 +1026,7 @@ void IDisplayListDebugger::Run()
 			// Dump each in turn
 			for( u32 i = 0; i < snapshot.size(); ++i )
 			{
-				const CRefPtr<CachedTexture> & n64_texture = snapshot[ i ].GetTexture();
+				const CRefPtr<CachedTexture> & n64_texture = snapshot[ i ].Texture;
 				if( n64_texture != NULL )
 				{
 					n64_texture->DumpTexture();

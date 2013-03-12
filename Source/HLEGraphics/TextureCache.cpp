@@ -35,118 +35,35 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //#define PROFILE_TEXTURE_CACHE
 
-//*************************************************************************************
-//
-//*************************************************************************************
-class ITextureCache : public CTextureCache
-{
-public:
-	ITextureCache();
-	~ITextureCache();
-
-			void			PurgeOldTextures();
-			void			DropTextures();
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-			void			SetDumpTextures( bool dump_textures )	{ mDumpTextures = dump_textures; }
-			bool			GetDumpTextures( ) const				{ return mDumpTextures; }
-#endif
-			CRefPtr<CachedTexture>GetTexture(const TextureInfo * pti);
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	virtual	void			DisplayStats();
-
-			void			Snapshot( std::vector< STextureInfoSnapshot > & snapshot ) const;
-
-protected:
-			void			GetUsedTextureStats( u32 * p_num_textures, u32 * p_video_memory_used, u32 * p_system_memory_used ) const;
-#endif
-
-protected:
-	struct SSortTextureEntries
-	{
-	public:
-		bool operator()( const TextureInfo & a, const TextureInfo & b ) const
-		{
-			return a < b;
-		}
-		bool operator()( const CRefPtr<CachedTexture> & a, const TextureInfo & b ) const
-		{
-			return a->GetTextureInfo() < b;
-		}
-		bool operator()( const TextureInfo & a, const CRefPtr<CachedTexture> & b ) const
-		{
-			return a < b->GetTextureInfo();
-		}
-			bool operator()( const CRefPtr<CachedTexture> & a, const CRefPtr<CachedTexture> & b ) const
-		{
-			return a->GetTextureInfo() < b->GetTextureInfo();
-		}
-	};
-
-	typedef std::vector< CRefPtr<CachedTexture> >	TextureVec;
-	TextureVec				mTextures;
-
-	//
-	//	We implement a 2-way skewed associative cache.
-	//	Each TextureInfo is hashed using two different methods, to reduce the chance of collisions
-	//
-	static const u32 HASH_TABLE_BITS = 9;
-	static const u32 HASH_TABLE_SIZE = 1<<HASH_TABLE_BITS;
-
-	inline static u32 MakeHashIdxA( const TextureInfo & ti )
-	{
-		u32 address( ti.GetLoadAddress() );
-		u32 hash( (address >> (HASH_TABLE_BITS*2)) ^ (address >> HASH_TABLE_BITS) ^ address );
-
-		hash ^= ti.GetTLutIndex() >> 2;			// Useful for palettised fonts, e.g in Starfox
-
-		return hash & (HASH_TABLE_SIZE-1);
-	}
-	inline static u32 MakeHashIdxB( const TextureInfo & ti )
-	{
-		return ti.GetHashCode() & (HASH_TABLE_SIZE-1);
-	}
-
-	mutable CRefPtr<CachedTexture>	mpCacheHashTable[HASH_TABLE_SIZE];
-
-	bool					mDumpTextures;
-};
-
-
-// Interface
-
-//*****************************************************************************
-//
-//*****************************************************************************
 template<> bool CSingleton< CTextureCache >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
 
-	mpInstance = new ITextureCache();
+	mpInstance = new CTextureCache();
 	return mpInstance != NULL;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-ITextureCache::ITextureCache()
-:	mDumpTextures(false)
+CTextureCache::~CTextureCache()
 {
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-ITextureCache::~ITextureCache()
+inline u32 CTextureCache::MakeHashIdxA( const TextureInfo & ti )
 {
-	DropTextures();
+	u32 address( ti.GetLoadAddress() );
+	u32 hash( (address >> (HASH_TABLE_BITS*2)) ^ (address >> HASH_TABLE_BITS) ^ address );
+
+	hash ^= ti.GetTLutIndex() >> 2;			// Useful for palettised fonts, e.g in Starfox
+
+	return hash & (HASH_TABLE_SIZE-1);
 }
 
+inline u32 CTextureCache::MakeHashIdxB( const TextureInfo & ti )
+{
+	return ti.GetHashCode() & (HASH_TABLE_SIZE-1);
+}
 
-//*************************************************************************************
 // Purge any textures that haven't been used recently
-//*************************************************************************************
-void ITextureCache::PurgeOldTextures()
+void CTextureCache::PurgeOldTextures()
 {
 	//
 	//	Erase expired textures in reverse order, which should require less
@@ -176,10 +93,7 @@ void ITextureCache::PurgeOldTextures()
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-void ITextureCache::DropTextures()
+void CTextureCache::DropTextures()
 {
 	mTextures.clear();
 	for( u32 i = 0; i < HASH_TABLE_SIZE; ++i )
@@ -188,9 +102,6 @@ void ITextureCache::DropTextures()
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 #ifdef PROFILE_TEXTURE_CACHE
 #define RECORD_CACHE_HIT( a, b )		TextureCacheStat( a, b, mTextures.size() )
 
@@ -216,13 +127,32 @@ static void TextureCacheStat( u32 l1_hit, u32 l2_hit, u32 size )
 
 #endif
 
-//*************************************************************************************
+struct SSortTextureEntries
+{
+public:
+	bool operator()( const TextureInfo & a, const TextureInfo & b ) const
+	{
+		return a < b;
+	}
+	bool operator()( const CRefPtr<CachedTexture> & a, const TextureInfo & b ) const
+	{
+		return a->GetTextureInfo() < b;
+	}
+	bool operator()( const TextureInfo & a, const CRefPtr<CachedTexture> & b ) const
+	{
+		return a < b->GetTextureInfo();
+	}
+	bool operator()( const CRefPtr<CachedTexture> & a, const CRefPtr<CachedTexture> & b ) const
+	{
+		return a->GetTextureInfo() < b->GetTextureInfo();
+	}
+};
+
 // If already in table, return cached copy
 // Otherwise, create surfaces, and load texture into memory
-//*************************************************************************************
-CRefPtr<CachedTexture> ITextureCache::GetTexture(const TextureInfo * pti)
+CRefPtr<CachedTexture> CTextureCache::GetTexture(const TextureInfo * pti)
 {
-	DAEDALUS_PROFILE( "ITextureCache::GetTexture" );
+	DAEDALUS_PROFILE( "CTextureCache::GetTexture" );
 
 	//
 	// Retrieve the texture from the cache (if it already exists)
@@ -253,12 +183,6 @@ CRefPtr<CachedTexture> ITextureCache::GetTexture(const TextureInfo * pti)
 		texture = CachedTexture::Create( *pti );
 		if (texture != NULL)
 		{
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-			if ( mDumpTextures )
-			{
-				texture->DumpTexture();
-			}
-#endif
 			mTextures.insert( it, texture );
 		}
 
@@ -274,50 +198,9 @@ CRefPtr<CachedTexture> ITextureCache::GetTexture(const TextureInfo * pti)
 
 	return texture;
 }
+
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-//*************************************************************************************
-//
-//*************************************************************************************
-void	ITextureCache::GetUsedTextureStats( u32 * p_num_textures,
-											u32 * p_video_memory_used,
-											u32 * p_system_memory_used ) const
-{
-	u32	num_textures( 0 );
-	u32	video_memory_used( 0 );
-	u32	system_memory_used( 0 );
-
-	for( TextureVec::const_iterator it = mTextures.begin(); it != mTextures.end(); ++it )
-	{
-		const CRefPtr<CachedTexture> & texture( *it );
-		num_textures++;
-		video_memory_used += texture->GetVideoMemoryUsage();
-		system_memory_used += texture->GetSystemMemoryUsage();
-	}
-
-	*p_num_textures = num_textures;
-	*p_video_memory_used = video_memory_used;
-	*p_system_memory_used = system_memory_used;
-}
-
-//*************************************************************************************
-//	Display info on the number of textures in the cache
-//*************************************************************************************
-void	ITextureCache::DisplayStats()
-{
-	u32		used_textures;
-	u32		used_texture_video_mem;
-	u32		used_texture_system_mem;
-
-	GetUsedTextureStats( &used_textures, &used_texture_video_mem, &used_texture_system_mem );
-
-	printf( "Texture Cache Stats\n" );
-	printf( " Used: %3d v:%4dKB s:%4dKB\n", used_textures, used_texture_video_mem / 1024, used_texture_system_mem / 1024 );
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
-void	ITextureCache::Snapshot( std::vector< STextureInfoSnapshot > & snapshot ) const
+void CTextureCache::Snapshot( std::vector< STextureInfoSnapshot > & snapshot ) const
 {
 	snapshot.erase( snapshot.begin(), snapshot.end() );
 
@@ -326,30 +209,6 @@ void	ITextureCache::Snapshot( std::vector< STextureInfoSnapshot > & snapshot ) c
 		STextureInfoSnapshot	info( *it );
 		snapshot.push_back( info );
 	}
-}
-
-CTextureCache::STextureInfoSnapshot::STextureInfoSnapshot( CachedTexture * texture )
-:	Texture( texture )
-{
-}
-
-CTextureCache::STextureInfoSnapshot::STextureInfoSnapshot( const STextureInfoSnapshot & rhs )
-:	Texture( rhs.Texture )
-{
-}
-
-CTextureCache::STextureInfoSnapshot & CTextureCache::STextureInfoSnapshot::operator=( const STextureInfoSnapshot & rhs )
-{
-	if( this != &rhs )
-	{
-		Texture = rhs.Texture;
-	}
-
-	return *this;
-}
-
-CTextureCache::STextureInfoSnapshot::~STextureInfoSnapshot()
-{
 }
 
 

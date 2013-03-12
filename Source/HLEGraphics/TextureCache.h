@@ -25,45 +25,47 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Singleton.h"
 #include "Utility/RefCounted.h"
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #include <vector>
-#endif
 
 struct TextureInfo;
 
 
 class CTextureCache : public CSingleton< CTextureCache >
 {
-	public:
-		virtual ~CTextureCache() {};
+public:
+	virtual ~CTextureCache();
 
-		virtual void		PurgeOldTextures() = 0;
-		virtual void		DropTextures() = 0;
+	CRefPtr<CachedTexture>	GetTexture(const TextureInfo * pti);
+
+	void		PurgeOldTextures();
+	void		DropTextures();
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		virtual void		SetDumpTextures( bool dump_textures ) = 0;
-		virtual bool		GetDumpTextures( ) const = 0;
+	struct STextureInfoSnapshot
+	{
+		explicit STextureInfoSnapshot( CachedTexture * texture ) : Texture( texture ) {}
 
-		virtual void		DisplayStats() = 0;
-
-		struct STextureInfoSnapshot
-		{
-		public:
-			STextureInfoSnapshot( CachedTexture * texture );
-
-			STextureInfoSnapshot( const STextureInfoSnapshot & rhs );
-			STextureInfoSnapshot & operator=( const STextureInfoSnapshot & rhs );
-
-			~STextureInfoSnapshot();
-
-			inline const CRefPtr<CachedTexture> &	GetTexture() const			{ return Texture; }
-		private:
-			CRefPtr<CachedTexture>		Texture;
-		};
-		virtual void		Snapshot( std::vector< STextureInfoSnapshot > & snapshot ) const = 0;
+		CRefPtr<CachedTexture>		Texture;
+	};
+	void		Snapshot( std::vector< STextureInfoSnapshot > & snapshot ) const;
 #endif
 
-		virtual CRefPtr<CachedTexture>	GetTexture( const TextureInfo * pti ) = 0;
+private:
+	//
+	//	We implement a 2-way skewed associative cache.
+	//	Each TextureInfo is hashed using two different methods, to reduce the chance of collisions
+	//
+	static const u32 HASH_TABLE_BITS = 9;
+	static const u32 HASH_TABLE_SIZE = 1<<HASH_TABLE_BITS;
+
+	inline static u32 MakeHashIdxA( const TextureInfo & ti );
+	inline static u32 MakeHashIdxB( const TextureInfo & ti );
+
+	// FIXME(strmnnrmn): we should have a struct of TextureInfo+CachedTexture instead -
+	// doing binary search on this array needs a memory indirect for every probe.
+	typedef std::vector< CRefPtr<CachedTexture> >	TextureVec;
+	TextureVec						mTextures;
+	mutable CRefPtr<CachedTexture>	mpCacheHashTable[HASH_TABLE_SIZE];
 };
 
 #endif	// TEXTURECACHE_H__
