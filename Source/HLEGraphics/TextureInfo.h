@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef TEXTUREDESCRIPTOR_H_
-#define TEXTUREDESCRIPTOR_H_
+#ifndef TEXTUREINFO_H__
+#define TEXTUREINFO_H__
 
 #include "Graphics/TextureFormat.h"
 
@@ -106,4 +106,4 @@ public:
 
 };
 
-#endif // TEXTUREDESCRIPTOR_H_
+#endif // TEXTUREINFO_H__
