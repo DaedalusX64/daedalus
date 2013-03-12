@@ -1753,11 +1753,10 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 #endif
 
 			const CRefPtr<CNativeTexture> & native_texture = texture->GetTexture();
-			if( native_texture != NULL )
-			{
-				mTileScale[ index ].x = native_texture->GetScaleX();
-				mTileScale[ index ].y = native_texture->GetScaleY();
-			}
+
+			DAEDALUS_ASSERT(native_texture != NULL, "Shouldn't be able to initialise CachedTexture with no NativeTexture.");
+			mTileScale[ index ].x = native_texture->GetScaleX();
+			mTileScale[ index ].y = native_texture->GetScaleY();
 		}
 	}
 }
