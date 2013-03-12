@@ -54,9 +54,9 @@ static NativePf8888		gPaletteBuffer[ 256 ];
 // we just skip the hashing process entirely, and update textures every frame
 // regardless of whether they've actually changed.
 #ifdef DAEDALUS_PSP
-static const bool kCheckHashBeforeUpdate = true;
+static const bool kUpdateTexturesEveryFrame = false;
 #else
-static const bool kCheckHashBeforeUpdate = false;
+static const bool kUpdateTexturesEveryFrame = true;
 #endif
 
 
@@ -239,19 +239,17 @@ bool CachedTexture::Initialise()
 // Update the hash of the texture. Returns true if the texture should be updated.
 bool CachedTexture::UpdateTextureHash()
 {
-	if (kCheckHashBeforeUpdate)
-	{
-		u32 new_hash_value = mTextureInfo.GenerateHashValue();
-		bool changed       = new_hash_value != mTextureContentsHash;
-
-		mTextureContentsHash = new_hash_value;
-		return changed;
-	}
-	else
+	if (kUpdateTexturesEveryFrame)
 	{
 		// NB always assume we need updating.
 		return true;
 	}
+
+	u32 new_hash_value = mTextureInfo.GenerateHashValue();
+	bool changed       = new_hash_value != mTextureContentsHash;
+
+	mTextureContentsHash = new_hash_value;
+	return changed;
 }
 
 void CachedTexture::UpdateIfNecessary()
@@ -274,16 +272,25 @@ void CachedTexture::UpdateIfNecessary()
 // IsFresh - has this cached texture been updated recently?
 bool CachedTexture::IsFresh() const
 {
-	return (gRDPFrame == mFrameLastUsed ||
-			gCheckTextureHashFrequency == 0 ||
-			gRDPFrame < mFrameLastUpToDate + gCheckTextureHashFrequency);
+	if (gRDPFrame == mFrameLastUsed)
+		return true;
+
+	// If we're not updating textures every frame, check how long it's been
+	// since we last updated it.
+	if (!kUpdateTexturesEveryFrame)
+	{
+		return (gCheckTextureHashFrequency == 0 ||
+				gRDPFrame < mFrameLastUpToDate + gCheckTextureHashFrequency);
+	}
+
+	return false;
 }
 
 bool CachedTexture::HasExpired() const
 {
-	if (!IsFresh())
+	if (!kUpdateTexturesEveryFrame)
 	{
-		if (kCheckHashBeforeUpdate)
+		if (!IsFresh())
 		{
 			//Hack to make WONDER PROJECT J2 work (need to reload some textures every frame!) //Corn
 			if( (g_ROM.GameHacks == WONDER_PROJECTJ2) && (mTextureInfo.GetTLutFormat() == kTT_RGBA16) && (mTextureInfo.GetSize() == G_IM_SIZ_8b) ) return true;
@@ -297,7 +304,6 @@ bool CachedTexture::HasExpired() const
 			//Check if texture has changed
 			//if( mTextureContentsHash != mTextureInfo.GenerateHashValue() ) return true;
 		}
-
 	}
 
 	//Otherwise we wait 20+random(0-3) frames before trashing the texture if unused
