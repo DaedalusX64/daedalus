@@ -1615,6 +1615,54 @@ void BaseRenderer::UpdateTileSnapshots( u32 tile_idx )
 //#endif
 }
 
+#ifdef DAEDALUS_PSP
+static void T1Hack(CachedTexture * texture0, CachedTexture * texture1)
+{
+	const TextureInfo & ti0 = texture0->GetTextureInfo();
+	const TextureInfo & ti1 = texture1->GetTextureInfo();
+
+	if((ti0.GetFormat() == G_IM_FMT_RGBA) &&
+	   (ti1.GetFormat() == G_IM_FMT_I) &&
+	   (ti1.GetWidth()  == ti0.GetWidth()) &&
+	   (ti1.GetHeight() == ti0.GetHeight()))
+	{
+		const CRefPtr<CNativeTexture> & native_texture0 = texture0->GetTexture();
+		const CRefPtr<CNativeTexture> & native_texture1 = texture1->GetTexture();
+
+		if( g_ROM.T1_HACK )
+		{
+			const u32 * src = static_cast<const u32*>(native_texture0->GetData());
+			u32 * dst       = static_cast<      u32*>(native_texture1->GetData());
+
+			//Merge RGB + I -> RGBA in texture 1
+			//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
+			u32 size = native_texture1->GetWidth() * native_texture1->GetHeight() >> 1;
+			for(u32 i=0; i < size ; i++)
+			{
+				*dst = (*dst & 0xF000F000) | (*src & 0x0FFF0FFF);
+				dst++;
+				src++;
+			}
+		}
+		else
+		{
+			const u32* src = static_cast<const u32*>(native_texture1->GetData());
+			u32* dst       = static_cast<      u32*>(native_texture0->GetData());
+
+			//Merge RGB + I -> RGBA in texture 0
+			//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
+			u32 size = native_texture1->GetWidth() * native_texture1->GetHeight() >> 1;
+			for(u32 i=0; i < size ; i++)
+			{
+				*dst = (*dst & 0x0FFF0FFF) | (*src & 0xF000F000);
+				dst++;
+				src++;
+			}
+		}
+	}
+}
+#endif // DAEDALUS_PSP
+
 //*****************************************************************************
 // This captures the state of the RDP tiles in:
 //   mTexWrap
@@ -1629,13 +1677,13 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	DAEDALUS_ASSERT( tile_idx < 8, "Invalid tile index %d", tile_idx );
 	DAEDALUS_ASSERT( index < NUM_N64_TEXTURES, "Invalid texture index %d", index );
 
-	const TextureInfo & ti( gRDPStateManager.GetTextureDescriptor( tile_idx ) );
+	const TextureInfo &  ti        = gRDPStateManager.GetTextureDescriptor( tile_idx );
+	const RDP_Tile &     rdp_tile  = gRDPStateManager.GetTile( tile_idx );
+	const RDP_TileSize & tile_size = gRDPStateManager.GetTileSize( tile_idx );
 
 	//	Initialise the wrapping/texture offset first, which can be set
 	//	independently of the actual texture.
 	//
-	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( tile_idx ) );
-	const RDP_TileSize & tile_size( gRDPStateManager.GetTileSize( tile_idx ) );
 
 	// Initialise the clamping state. When the mask is 0, it forces clamp mode.
 	//
@@ -1658,21 +1706,15 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 		// ToDo : Find a proper workaround for this, if this disabled the castle in Link's stage in SSB is broken :/
 		// Do a hack just for Zelda for now..
 		//
-		if( g_ROM.ZELDA_HACK )
-			mode_u = GU_CLAMP;
-		else
-			mode_u = GU_REPEAT;
+		mode_u = g_ROM.ZELDA_HACK ? GU_CLAMP : GU_REPEAT;
 	}
-	if( tile_size.GetHeight() > ti.GetHeight() ) mode_v = GU_REPEAT;
 
-	// NB(strmnnrmn): this should *always* be called in either RendererPSP::RenderUsingRenderSettings, just before rendering,
-	// or in the OverrideFunction path in RendererPSP::RenderUsingCurrentBlendMode. So it shouldn't be needed here.
-	//sceGuTexWrap( mode_u, mode_v );
+	if( tile_size.GetHeight() > ti.GetHeight() )
+		mode_v = GU_REPEAT;
 
 	mTexWrap[ index ].u = mode_u;
 	mTexWrap[ index ].v = mode_v;
 
-	// XXXX Double check this
 	mTileTopLeft[ index ].x = f32(tile_size.left) / 4.0f;
 	mTileTopLeft[ index ].y = f32(tile_size.top) / 4.0f;
 
@@ -1683,10 +1725,11 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 			mTileTopLeft[ index ].x, mTileTopLeft[ index ].y, mTileScale[ index ].x, mTileScale[ index ].y );
 
 	// Avoid texture update, if texture is the same as last time around.
-	if( (mpTexture[ index ] != NULL) && (mpTexture[ index ]->GetTextureInfo() == ti) ) return;
+	if( mpTexture[ index ] != NULL && mpTexture[ index ]->GetTextureInfo() == ti )
+		return;
 
 	// Check for 0 width/height textures
-	if( (ti.GetWidth() == 0) || (ti.GetHeight() == 0) )
+	if( ti.GetWidth() == 0 || ti.GetHeight() == 0 )
 	{
 		DAEDALUS_DL_ERROR( "Loading texture with 0 width/height" );
 	}
@@ -1705,53 +1748,16 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 
 				mpTexture[ index ] = texture;
 
-				const CRefPtr<CNativeTexture> & native_texture( texture->GetTexture() );
-
+#ifdef DAEDALUS_PSP
 				//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
 				//If T1 Hack is not enabled index can never be other than 0
-#ifdef DAEDALUS_PSP
 				if(index)
 				{
-					const TextureInfo & ti0(mpTexture[ 0 ]->GetTextureInfo());
-
-					if((ti0.GetFormat() == G_IM_FMT_RGBA) && (ti.GetFormat() == G_IM_FMT_I) && (ti.GetWidth() == ti0.GetWidth()) && (ti.GetHeight() == ti0.GetHeight()))
-					{
-						const CRefPtr<CNativeTexture> & native_texture0( mpTexture[ 0 ]->GetTexture() );
-
-						if( g_ROM.T1_HACK )
-						{
-							const u32 * src = static_cast<const u32*>(native_texture0->GetData());
-							u32 * dst = static_cast<u32*>(const_cast<void*>(native_texture->GetData()));
-
-							//Merge RGB + I -> RGBA in texture 1
-							//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
-							u32 size = native_texture->GetWidth() * native_texture->GetHeight() >> 1;
-							for(u32 i=0; i < size ; i++)
-							{
-								*dst = (*dst & 0xF000F000) | (*src & 0x0FFF0FFF);
-								dst++;
-								src++;
-							}
-						}
-						else
-						{
-							const u32* src = static_cast<const u32*>(native_texture->GetData());
-							u32* dst = static_cast<u32*>(const_cast<void*>(native_texture0->GetData()));
-
-							//Merge RGB + I -> RGBA in texture 0
-							//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
-							u32 size = native_texture->GetWidth() * native_texture->GetHeight() >> 1;
-							for(u32 i=0; i < size ; i++)
-							{
-								*dst = (*dst & 0x0FFF0FFF) | (*src & 0xF000F000);
-								dst++;
-								src++;
-							}
-						}
-					}
+					T1Hack(mpTexture[0], mpTexture[1]);
 				}
-#endif // DAEDALUS_PSP
+#endif
 
+				const CRefPtr<CNativeTexture> & native_texture( texture->GetTexture() );
 				if( native_texture != NULL )
 				{
 					mTileScale[ index ].x = native_texture->GetScaleX();
@@ -1761,6 +1767,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 		}
 	}
 }
+
 //*****************************************************************************
 //
 //*****************************************************************************
