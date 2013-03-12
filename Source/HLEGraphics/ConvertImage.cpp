@@ -36,13 +36,13 @@ Copyright (C) 2001 StrmnNrmn
 namespace
 {
 
-const u8 OneToEight[2] =
+static const u8 OneToEight[2] =
 {
 	0x00,		// 0 -> 00 00 00 00
 	0xff		// 1 -> 11 11 11 11
 };
 
-const u8 ThreeToEight[8] =
+static const u8 ThreeToEight[8] =
 {
 	0x00,		// 000 -> 00 00 00 00
 	0x24,		// 001 -> 00 10 01 00
@@ -55,7 +55,7 @@ const u8 ThreeToEight[8] =
 };
 
 
-const u8 FourToEight[16] =
+static const u8 FourToEight[16] =
 {
 	0x00, 0x11, 0x22, 0x33,
 	0x44, 0x55, 0x66, 0x77,
@@ -149,7 +149,7 @@ static void ConvertGeneric( const TextureDestInfo & dst,
 
 typedef void (*ConvertPalettisedRowFunction)( NativePf8888 * p_dst, const u8 * p_src_base, u32 offset, u32 width, const u16 * p_palette );
 
-void ConvertGenericPalettised( const TextureDestInfo & dst, const TextureInfo & ti, ConvertPalettisedRowFunction swapped_fn, ConvertPalettisedRowFunction unswapped_fn )
+static void ConvertGenericPalettised( const TextureDestInfo & dst, const TextureInfo & ti, ConvertPalettisedRowFunction swapped_fn, ConvertPalettisedRowFunction unswapped_fn )
 {
 	NativePf8888 *	p_dst       = reinterpret_cast< NativePf8888 * >( dst.pSurface );
 	const u8 *		p_src_base  = g_pu8RamBase;
@@ -190,7 +190,7 @@ void ConvertGenericPalettised( const TextureDestInfo & dst, const TextureInfo & 
 typedef void (*ConvertPaletteFn)( NativePf8888 * p_dst, const u8 * p_palette, u32 entries );
 typedef void (*ConvertPalettisedCI4RowFunction)( NativePfCI44 * p_dst, const u8 * p_src_base, u32 offset, u32 width );
 
-void ConvertGenericPalettisedCI4( const TextureDestInfo & dst, const TextureInfo & ti, ConvertPalettisedCI4RowFunction swapped_fn, ConvertPalettisedCI4RowFunction unswapped_fn, ConvertPaletteFn palette_fn )
+static void ConvertGenericPalettisedCI4( const TextureDestInfo & dst, const TextureInfo & ti, ConvertPalettisedCI4RowFunction swapped_fn, ConvertPalettisedCI4RowFunction unswapped_fn, ConvertPaletteFn palette_fn )
 {
 	NativePfCI44 *	p_dst       = reinterpret_cast< NativePfCI44 * >( dst.pSurface );
 	const u8 *		p_src_base  = g_pu8RamBase;
@@ -234,7 +234,7 @@ void ConvertGenericPalettisedCI4( const TextureDestInfo & dst, const TextureInfo
 
 typedef void (*ConvertPalettisedCI8RowFunction)( NativePfCI8 * p_dst, const u8 * p_src_base, u32 offset, u32 width );
 
-void ConvertGenericPalettisedCI8( const TextureDestInfo & dst, const TextureInfo & ti, ConvertPalettisedCI8RowFunction swapped_fn, ConvertPalettisedCI8RowFunction unswapped_fn, ConvertPaletteFn palette_fn )
+static void ConvertGenericPalettisedCI8( const TextureDestInfo & dst, const TextureInfo & ti, ConvertPalettisedCI8RowFunction swapped_fn, ConvertPalettisedCI8RowFunction unswapped_fn, ConvertPaletteFn palette_fn )
 {
 	NativePfCI8 *	p_dst       = reinterpret_cast< NativePfCI8 * >( dst.pSurface );
 	const u8 *		p_src_base  = g_pu8RamBase;
@@ -472,7 +472,8 @@ struct SConvertI4
 //*****************************************************************************
 //
 //*****************************************************************************
-template< typename PalT, u32 F > void ConvertPalette( NativePf8888 * p_dst, const u8 * p_palette, u32 entries )
+template< typename PalT, u32 F >
+static void ConvertPalette( NativePf8888 * p_dst, const u8 * p_palette, u32 entries )
 {
 	const PalT * p_n64pal = reinterpret_cast< const PalT * >( p_palette );
 
@@ -485,7 +486,8 @@ template< typename PalT, u32 F > void ConvertPalette( NativePf8888 * p_dst, cons
 //*****************************************************************************
 //
 //*****************************************************************************
-template< u32 F > void ConvertCI4_Row( NativePfCI44 * p_dst, const u8 * p_src_base, u32 offset, u32 width )
+template< u32 F >
+static void ConvertCI4_Row( NativePfCI44 * p_dst, const u8 * p_src_base, u32 offset, u32 width )
 {
 	for (u32 x = 0; x+1 < width; x+=2)
 	{
@@ -508,7 +510,8 @@ template< u32 F > void ConvertCI4_Row( NativePfCI44 * p_dst, const u8 * p_src_ba
 //*****************************************************************************
 //
 //*****************************************************************************
-template< typename PalT, u32 F > void ConvertCI4_Row_To_8888( NativePf8888 * p_dst, const u8 * p_src_base, u32 offset, u32 width, const u16 * p_palette )
+template< typename PalT, u32 F >
+static void ConvertCI4_Row_To_8888( NativePf8888 * p_dst, const u8 * p_src_base, u32 offset, u32 width, const u16 * p_palette )
 {
 	const PalT * p_n64pal = reinterpret_cast< const PalT * >( p_palette );
 
@@ -539,7 +542,8 @@ template< typename PalT, u32 F > void ConvertCI4_Row_To_8888( NativePf8888 * p_d
 //*****************************************************************************
 //
 //*****************************************************************************
-template< u32 F > void ConvertCI8_Row( NativePfCI8 * p_dst, const u8 * p_src_base, u32 offset, u32 width )
+template< u32 F >
+static void ConvertCI8_Row( NativePfCI8 * p_dst, const u8 * p_src_base, u32 offset, u32 width )
 {
 	for (u32 x = 0; x < width; x++)
 	{
@@ -554,7 +558,8 @@ template< u32 F > void ConvertCI8_Row( NativePfCI8 * p_dst, const u8 * p_src_bas
 //*****************************************************************************
 //
 //*****************************************************************************
-template< typename PalT, u32 F > void ConvertCI8_Row_To_8888( NativePf8888 * p_dst, const u8 * p_src_base, u32 offset, u32 width, const u16 * p_palette )
+template< typename PalT, u32 F >
+static  void ConvertCI8_Row_To_8888( NativePf8888 * p_dst, const u8 * p_src_base, u32 offset, u32 width, const u16 * p_palette )
 {
 	const PalT * p_n64pal = reinterpret_cast< const PalT * >( p_palette );
 
@@ -571,7 +576,7 @@ template< typename PalT, u32 F > void ConvertCI8_Row_To_8888( NativePf8888 * p_d
 //*****************************************************************************
 //
 //*****************************************************************************
-void ConvertRGBA16(const TextureDestInfo & dst, const TextureInfo & ti)
+static void ConvertRGBA16(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	SConvert< N64Pf5551 >::ConvertTexture( dst, ti );
 }
@@ -579,7 +584,7 @@ void ConvertRGBA16(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 //
 //*****************************************************************************
-void ConvertRGBA32(const TextureDestInfo & dst, const TextureInfo & ti)
+static void ConvertRGBA32(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	// Did have Fiddle of 8 here, pretty sure this was wrong (should have been 4)
 	SConvert< N64Pf8888 >::ConvertTexture( dst, ti );
@@ -589,7 +594,7 @@ void ConvertRGBA32(const TextureDestInfo & dst, const TextureInfo & ti)
 // E.g. Dear Mario text
 // Copy, Score etc
 //*****************************************************************************
-void ConvertIA4(const TextureDestInfo & dst, const TextureInfo & ti)
+static void ConvertIA4(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	SConvertIA4::ConvertTexture( dst, ti );
 }
@@ -597,7 +602,7 @@ void ConvertIA4(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 // E.g Mario's head textures
 //*****************************************************************************
-void ConvertIA8(const TextureDestInfo & dst, const TextureInfo & ti)
+static void ConvertIA8(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	SConvert< N64PfIA8 >::ConvertTexture( dst, ti );
 }
@@ -605,7 +610,7 @@ void ConvertIA8(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 // E.g. camera's clouds, shadows
 //*****************************************************************************
-void ConvertIA16(const TextureDestInfo & dst, const TextureInfo & ti)
+static void ConvertIA16(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	SConvert< N64PfIA16 >::ConvertTexture( dst, ti );
 }
@@ -613,7 +618,7 @@ void ConvertIA16(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 // Used by MarioKart
 //*****************************************************************************
-void ConvertI4(const TextureDestInfo & dst, const TextureInfo & ti)
+static void ConvertI4(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	SConvertI4::ConvertTexture( dst, ti );
 }
@@ -621,7 +626,7 @@ void ConvertI4(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 // Used by MarioKart
 //*****************************************************************************
-void ConvertI8(const TextureDestInfo & dst, const TextureInfo & ti)
+static void ConvertI8(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	SConvert< N64PfI8 >::ConvertTexture( dst, ti );
 }
@@ -629,7 +634,7 @@ void ConvertI8(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 // Used by Starfox intro
 //*****************************************************************************
-void ConvertCI4_RGBA16(const TextureDestInfo & dst, const TextureInfo & ti)
+static void ConvertCI4_RGBA16(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	switch( dst.Format )
 	{
@@ -650,7 +655,7 @@ void ConvertCI4_RGBA16(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 // Used by Starfox intro
 //*****************************************************************************
-void ConvertCI4_IA16(const TextureDestInfo & dst, const TextureInfo & ti)
+static void ConvertCI4_IA16(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	switch( dst.Format )
 	{
@@ -671,7 +676,7 @@ void ConvertCI4_IA16(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 // Used by MarioKart for Cars etc
 //*****************************************************************************
-void ConvertCI8_RGBA16(const TextureDestInfo & dst, const TextureInfo & ti)
+static void ConvertCI8_RGBA16(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	switch( dst.Format )
 	{
@@ -693,7 +698,7 @@ void ConvertCI8_RGBA16(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 // Used by MarioKart for Cars etc
 //*****************************************************************************
-void ConvertCI8_IA16(const TextureDestInfo & dst, const TextureInfo & ti)
+static void ConvertCI8_IA16(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	switch( dst.Format )
 	{
@@ -714,7 +719,7 @@ void ConvertCI8_IA16(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 // Convert CI8 images. We need to switch on the palette type
 //*****************************************************************************
-void	ConvertCI8(const TextureDestInfo & dst, const TextureInfo & ti)
+static void ConvertCI8(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	ETLutFmt tlut_format = ti.GetTLutFormat();
 	if( tlut_format == kTT_RGBA16 )
@@ -730,7 +735,7 @@ void	ConvertCI8(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 // Convert CI4 images. We need to switch on the palette type
 //*****************************************************************************
-void	ConvertCI4(const TextureDestInfo & dst, const TextureInfo & ti)
+static void ConvertCI4(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	ETLutFmt tlut_format = ti.GetTLutFormat();
 	if( tlut_format == kTT_RGBA16 )
@@ -748,7 +753,8 @@ void	ConvertCI4(const TextureDestInfo & dst, const TextureInfo & ti)
 //*****************************************************************************
 //
 //*****************************************************************************
-const ConvertFunction	gConvertFunctions[ 32 ] =
+typedef void ( *ConvertFunction )( const TextureDestInfo & dst, const TextureInfo & ti);
+static const ConvertFunction gConvertFunctions[ 32 ] =
 {
 	// 4bpp				8bpp			16bpp				32bpp
 	NULL,			NULL,			ConvertRGBA16,		ConvertRGBA32,			// RGBA
@@ -760,3 +766,16 @@ const ConvertFunction	gConvertFunctions[ 32 ] =
 	NULL,			NULL,			NULL,				NULL,					// ?
 	NULL,			NULL,			NULL,				NULL					// ?
 };
+
+bool DoConversion(TextureDestInfo & dst, const TextureInfo & texture_info)
+{
+	const ConvertFunction fn = gConvertFunctions[ (texture_info.GetFormat() << 2) | texture_info.GetSize() ];
+	if( fn )
+	{
+		fn( dst, texture_info );
+		return true;
+	}
+
+	return false;
+}
+
