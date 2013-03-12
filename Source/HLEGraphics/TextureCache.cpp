@@ -150,37 +150,37 @@ public:
 
 // If already in table, return cached copy
 // Otherwise, create surfaces, and load texture into memory
-CRefPtr<CachedTexture> CTextureCache::GetTexture(const TextureInfo * pti)
+CRefPtr<CachedTexture> CTextureCache::GetOrCreateTexture(const TextureInfo & ti)
 {
-	DAEDALUS_PROFILE( "CTextureCache::GetTexture" );
+	DAEDALUS_PROFILE( "CTextureCache::GetOrCreateTexture" );
 
 	//
 	// Retrieve the texture from the cache (if it already exists)
 	//
-	u32	ixa( MakeHashIdxA( *pti ) );
-	if( mpCacheHashTable[ixa] && mpCacheHashTable[ixa]->GetTextureInfo() == *pti )
+	u32	ixa = MakeHashIdxA( ti );
+	if( mpCacheHashTable[ixa] && mpCacheHashTable[ixa]->GetTextureInfo() == ti )
 	{
 		RECORD_CACHE_HIT( 1, 0 );
 		return mpCacheHashTable[ixa];
 	}
 
-	u32 ixb( MakeHashIdxB( *pti ) );
-	if( mpCacheHashTable[ixb] && mpCacheHashTable[ixb]->GetTextureInfo() == *pti )
+	u32 ixb = MakeHashIdxB( ti );
+	if( mpCacheHashTable[ixb] && mpCacheHashTable[ixb]->GetTextureInfo() == ti )
 	{
 		RECORD_CACHE_HIT( 1, 0 );
 		return mpCacheHashTable[ixb];
 	}
 
 	CRefPtr<CachedTexture>		texture;
-	TextureVec::iterator		it( std::lower_bound( mTextures.begin(), mTextures.end(), *pti, SSortTextureEntries() ) );
-	if( it != mTextures.end() && (*it)->GetTextureInfo() == *pti )
+	TextureVec::iterator		it = std::lower_bound( mTextures.begin(), mTextures.end(), ti, SSortTextureEntries() );
+	if( it != mTextures.end() && (*it)->GetTextureInfo() == ti )
 	{
 		texture = *it;
 		RECORD_CACHE_HIT( 0, 1 );
 	}
 	else
 	{
-		texture = CachedTexture::Create( *pti );
+		texture = CachedTexture::Create( ti );
 		if (texture != NULL)
 		{
 			mTextures.insert( it, texture );

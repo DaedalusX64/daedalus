@@ -96,7 +96,7 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, Sprite2DInfo &info,
 
 	ti.SetTLutFormat       (kTT_RGBA16);
 
-	CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetTexture( &ti ) );
+	CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetOrCreateTexture( ti ) );
 	DAEDALUS_ASSERT( texture, "Sprite2D texture is NULL" );
 
 	texture->GetTexture()->InstallTexture();

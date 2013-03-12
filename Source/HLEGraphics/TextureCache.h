@@ -35,7 +35,7 @@ class CTextureCache : public CSingleton< CTextureCache >
 public:
 	virtual ~CTextureCache();
 
-	CRefPtr<CachedTexture>	GetTexture(const TextureInfo * pti);
+	CRefPtr<CachedTexture>	GetOrCreateTexture(const TextureInfo & ti);
 
 	void		PurgeOldTextures();
 	void		DropTextures();

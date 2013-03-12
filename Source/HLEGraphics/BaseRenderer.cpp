@@ -1735,7 +1735,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	}
 	else
 	{
-		CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetTexture( &ti ) );
+		CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetOrCreateTexture( ti ) );
 
 		if( texture != NULL && texture != mpTexture[ index ] )
 		{
