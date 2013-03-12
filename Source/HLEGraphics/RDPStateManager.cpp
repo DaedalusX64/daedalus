@@ -31,35 +31,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern SImageDescriptor g_TI;		//Texture data from Timg ucode
 
-//*****************************************************************************
-//
-//*****************************************************************************
+CRDPStateManager gRDPStateManager;
+
 CRDPStateManager::CRDPStateManager()
 {
 	ClearAllEntries();
 	InvalidateAllTileTextureInfo();
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 CRDPStateManager::~CRDPStateManager()
 {
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void CRDPStateManager::Reset()
 {
 	ClearAllEntries();
 	InvalidateAllTileTextureInfo();
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	CRDPStateManager::SetTile( const RDP_Tile & tile )
+void CRDPStateManager::SetTile( const RDP_Tile & tile )
 {
 	u32 idx( tile.tile_idx );
 
@@ -70,10 +60,7 @@ void	CRDPStateManager::SetTile( const RDP_Tile & tile )
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	CRDPStateManager::SetTileSize( const RDP_TileSize & tile_size )
+void CRDPStateManager::SetTileSize( const RDP_TileSize & tile_size )
 {
 	u32 idx( tile_size.tile_idx );
 
@@ -92,10 +79,7 @@ void	CRDPStateManager::SetTileSize( const RDP_TileSize & tile_size )
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	CRDPStateManager::LoadBlock( u32 idx, u32 address, bool swapped )
+void CRDPStateManager::LoadBlock( u32 idx, u32 address, bool swapped )
 {
 	InvalidateAllTileTextureInfo();		// Can potentially invalidate all texture infos
 
@@ -111,10 +95,7 @@ void	CRDPStateManager::LoadBlock( u32 idx, u32 address, bool swapped )
 	info.Swapped = swapped;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	CRDPStateManager::LoadTile( u32 idx, u32 address )
+void CRDPStateManager::LoadTile( u32 idx, u32 address )
 {
 	InvalidateAllTileTextureInfo();		// Can potentially invalidate all texture infos
 
@@ -127,10 +108,8 @@ void	CRDPStateManager::LoadTile( u32 idx, u32 address )
 	info.Pitch = g_TI.GetPitch();
 	info.Swapped = false;
 }
-//*****************************************************************************
-//
-//*****************************************************************************
-/*void	CRDPStateManager::LoadTlut( u32 idx, u32 address )
+
+/*void CRDPStateManager::LoadTlut( u32 idx, u32 address )
 {
 	InvalidateAllTileTextureInfo();		// Can potentially invalidate all texture infos
 
@@ -142,29 +121,19 @@ void	CRDPStateManager::LoadTile( u32 idx, u32 address )
 	mTMEM_Load[ tmem_lookup ].Pitch = g_TI.GetPitch();
 	mTMEM_Load[ tmem_lookup ].Swapped = false;
 }*/
-//*****************************************************************************
-//
-//*****************************************************************************
-namespace
-{
-	//
-	//	Limit the tile's width/height to the number of bits specified by mask_s/t.
-	//	See the detailed noted in BaseRenderer::UpdateTileSnapshots for issues relating to this.
-	//
-	u16		GetTextureDimension( u16 tile_dimension, u8 mask )
-	{
-		if( mask != 0 )
-		{
-			return Min< u16 >( 1 << mask, tile_dimension );
-		}
 
-		return tile_dimension;
+// Limit the tile's width/height to the number of bits specified by mask_s/t.
+// See the detailed noted in BaseRenderer::UpdateTileSnapshots for issues relating to this.
+static inline u16 GetTextureDimension( u16 tile_dimension, u8 mask )
+{
+	if( mask != 0 )
+	{
+		return Min< u16 >( 1 << mask, tile_dimension );
 	}
+
+	return tile_dimension;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 {
 	DAEDALUS_ASSERT( idx < ARRAYSIZE( mTileTextureInfoValid ), "Invalid index %d", idx );
@@ -274,10 +243,3 @@ const TextureInfo & CRDPStateManager::GetTextureDescriptor( u32 idx ) const
 
 	return mTileTextureInfo[ idx ];
 }
-
-//*****************************************************************************
-//
-//*****************************************************************************
-// Effectively a singleton...needs refactoring
-CRDPStateManager		gRDPStateManager;
-
