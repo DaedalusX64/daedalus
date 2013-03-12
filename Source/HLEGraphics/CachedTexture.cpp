@@ -48,6 +48,41 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 static std::vector<u8>		gTexelBuffer;
 static NativePf8888		gPaletteBuffer[ 256 ];
 
+
+#define DEFTEX	TexFmt_8888
+
+static const ETextureFormat TFmt[ 32 ] =
+{
+//	4bpp				8bpp				16bpp				32bpp
+	DEFTEX,				DEFTEX,				TexFmt_5551,		TexFmt_8888,		// RGBA
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// YUV
+	TexFmt_CI4_8888,	TexFmt_CI8_8888,	DEFTEX,				DEFTEX,				// CI
+	TexFmt_4444,		TexFmt_4444,		TexFmt_8888,		DEFTEX,				// IA
+	TexFmt_4444,		TexFmt_8888,		DEFTEX,				DEFTEX,				// I
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX				// ?
+};
+
+static const ETextureFormat TFmt_hack[ 32 ] =
+{
+//	4bpp				8bpp				16bpp				32bpp
+	DEFTEX,				DEFTEX,				TexFmt_4444,		TexFmt_8888,		// RGBA
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// YUV
+	TexFmt_CI4_8888,	TexFmt_CI8_8888,	DEFTEX,				DEFTEX,				// CI
+	TexFmt_4444,		TexFmt_4444,		TexFmt_8888,		DEFTEX,				// IA
+	TexFmt_4444,		TexFmt_4444,		DEFTEX,				DEFTEX,				// I
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX				// ?
+};
+
+static ETextureFormat SelectNativeFormat(const TextureInfo & ti)
+{
+	u32 idx = (ti.GetFormat() << 2) | ti.GetSize();
+	return g_ROM.LOAD_T1_HACK ? TFmt_hack[idx] : TFmt[idx];
+}
+
 static bool GenerateTexels( void ** p_texels, void ** p_palette, const TextureInfo & texture_info, ETextureFormat texture_format, u32 pitch, u32 buffer_size )
 {
 	TextureDestInfo dst( texture_format );
@@ -89,41 +124,6 @@ static bool GenerateTexels( void ** p_texels, void ** p_palette, const TextureIn
 
 	return false;
 }
-
-#define DEFTEX	TexFmt_8888
-
-static const ETextureFormat TFmt[ 32 ] =
-{
-//	4bpp				8bpp				16bpp				32bpp
-	DEFTEX,				DEFTEX,				TexFmt_5551,		TexFmt_8888,		// RGBA
-	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// YUV
-	TexFmt_CI4_8888,	TexFmt_CI8_8888,	DEFTEX,				DEFTEX,				// CI
-	TexFmt_4444,		TexFmt_4444,		TexFmt_8888,		DEFTEX,				// IA
-	TexFmt_4444,		TexFmt_8888,		DEFTEX,				DEFTEX,				// I
-	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
-	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
-	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX				// ?
-};
-
-static const ETextureFormat TFmt_hack[ 32 ] =
-{
-//	4bpp				8bpp				16bpp				32bpp
-	DEFTEX,				DEFTEX,				TexFmt_4444,		TexFmt_8888,		// RGBA
-	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// YUV
-	TexFmt_CI4_8888,	TexFmt_CI8_8888,	DEFTEX,				DEFTEX,				// CI
-	TexFmt_4444,		TexFmt_4444,		TexFmt_8888,		DEFTEX,				// IA
-	TexFmt_4444,		TexFmt_4444,		DEFTEX,				DEFTEX,				// I
-	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
-	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
-	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX				// ?
-};
-
-static ETextureFormat SelectNativeFormat(const TextureInfo & ti)
-{
-	u32 idx = (ti.GetFormat() << 2) | ti.GetSize();
-	return g_ROM.LOAD_T1_HACK ? TFmt_hack[idx] : TFmt[idx];
-}
-
 
 static void UpdateTexture( const TextureInfo & texture_info, CNativeTexture * texture, const c32 * recolour )
 {
