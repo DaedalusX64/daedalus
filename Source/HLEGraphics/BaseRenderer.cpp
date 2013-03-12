@@ -1583,8 +1583,11 @@ inline void BaseRenderer::SetVtxXY( u32 vert, float x, float y )
 //*****************************************************************************
 void BaseRenderer::ResetMatrices(u32 size)
 {
+	//Tigger's Honey Hunt
+	if(size == 0)	
+		size = MATRIX_STACK_SIZE;
+
 	mMatStackSize = (size > MATRIX_STACK_SIZE) ? MATRIX_STACK_SIZE : size;
-	DAEDALUS_ASSERT( size !=0, " Invalid mat stack size");
 	mModelViewTop = 0;
 	mProjectionStack[0] = mModelViewStack[0] = gMatrixIdentity;
 	mWorldProjectValid = false;
