@@ -39,9 +39,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // Audio is disabled on the PSP by default, but enabled on other platforms.
 #ifdef DAEDALUS_PSP
-static const EAudioPluginMode kDefaultAudioPluginMode = APM_DISABLED;
+static const EAudioPluginMode      kDefaultAudioPluginMode      = APM_DISABLED;
+static const ETextureHashFrequency kDefaultTextureHashFrequency = THF_DISABLED;
 #else
-static const EAudioPluginMode kDefaultAudioPluginMode = APM_ENABLED_SYNC;
+static const EAudioPluginMode      kDefaultAudioPluginMode      = APM_ENABLED_SYNC;
+static const ETextureHashFrequency kDefaultTextureHashFrequency = THF_EVERY_FRAME;
 #endif
 
 static u32						GetTexureHashFrequencyAsFrames( ETextureHashFrequency thf );
@@ -421,7 +423,7 @@ SRomPreferences::SRomPreferences()
 	,   MemoryAccessOptimisation( false )
 	,	CheatsEnabled( false )
 //	,	AudioAdaptFrequency( false )
-	,	CheckTextureHashFrequency( THF_DISABLED )
+	,	CheckTextureHashFrequency( kDefaultTextureHashFrequency )
 	,	Frameskip( FV_DISABLED )
 	,	AudioEnabled( kDefaultAudioPluginMode )
 	,	ZoomX( 1.0f )
@@ -443,7 +445,7 @@ void SRomPreferences::Reset()
 	VideoRateMatch             = false;
 	FogEnabled                 = false;
 	MemoryAccessOptimisation   = false;
-	CheckTextureHashFrequency  = THF_DISABLED;
+	CheckTextureHashFrequency  = kDefaultTextureHashFrequency;
 	Frameskip                  = FV_DISABLED;
 	AudioEnabled               = kDefaultAudioPluginMode;
 	//AudioAdaptFrequency      = false;
