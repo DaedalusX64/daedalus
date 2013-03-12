@@ -43,33 +43,33 @@ struct Sprite2DStruct
 
 struct Sprite2DInfo
 {
-    f32 scaleX;
-    f32 scaleY;
+	f32 scaleX;
+	f32 scaleY;
 
-    u8  flipX;
-    u8  flipY;
+	u8  flipX;
+	u8  flipY;
 };
 
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void DLParser_Sprite2DScaleFlip( MicroCodeCommand command, Sprite2DInfo &info )
+inline void DLParser_Sprite2DScaleFlip( MicroCodeCommand command, Sprite2DInfo *info )
 {
-	info.scaleX = (((command.inst.cmd1)>>16)   &0xFFFF)/1024.0f;
-	info.scaleY = ( (command.inst.cmd1)        &0xFFFF)/1024.0f;
+	info->scaleX = (((command.inst.cmd1)>>16)   &0xFFFF)/1024.0f;
+	info->scaleY = ( (command.inst.cmd1)        &0xFFFF)/1024.0f;
 
-	info.flipX = (u8)(((command.inst.cmd0)>>8)     &0xFF);
-	info.flipY = (u8)( (command.inst.cmd0)         &0xFF);
+	info->flipX = (u8)(((command.inst.cmd0)>>8)     &0xFF);
+	info->flipY = (u8)( (command.inst.cmd0)         &0xFF);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void DLParser_Sprite2DDraw( MicroCodeCommand command, Sprite2DInfo &info, Sprite2DStruct *sprite )
+inline void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo &info, Sprite2DStruct *sprite )
 {
 
-    u16 px = (u16)(((command.inst.cmd1)>>16)&0xFFFF)/4;
-    u16 py = (u16)( (command.inst.cmd1)     &0xFFFF)/4;
+	u16 px = (u16)(((command.inst.cmd1)>>16)&0xFFFF)/4;
+	u16 py = (u16)( (command.inst.cmd1)     &0xFFFF)/4;
 
 	DAEDALUS_ASSERT( sprite, "Sprite2DStruct is NULL" );
 
@@ -123,8 +123,14 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, Sprite2DInfo &info,
 // Used by Flying Dragon
 void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 {
-	Sprite2DInfo info;
-    u32 address = RDPSegAddr(command.inst.cmd1) & (MAX_RAM_ADDRESS-1);
+	// FIXME(strmnnrmn) - gcc was warning about info being uninititialised in this
+	// function, so I inited it here.
+	// If command2.inst.cmd != G_GBI1_SPRITE2D_SCALEFLIP for any reason,
+	// then it would have rendered a load of crap to the screen. We probably
+	// shouldn't even call DLParser_Sprite2DDraw if there's no
+	// G_GBI1_SPRITE2D_SCALEFLIP command.
+	Sprite2DInfo info = { 0.f, 0.f, 0, 0 };
+	u32 address = RDPSegAddr(command.inst.cmd1) & (MAX_RAM_ADDRESS-1);
 	Sprite2DStruct *sprite = (Sprite2DStruct *)(g_ps8RamBase + address);
 
 	MicroCodeCommand command2;
@@ -138,7 +144,7 @@ void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 
 	if( command2.inst.cmd == G_GBI1_SPRITE2D_SCALEFLIP )
 	{
-		DLParser_Sprite2DScaleFlip( command2, info );
+		DLParser_Sprite2DScaleFlip( command2, &info );
 	}
 
 	if( command3.inst.cmd == G_GBI1_SPRITE2D_DRAW )
