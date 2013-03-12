@@ -101,11 +101,11 @@ static bool GenerateTexels( void ** p_texels, void ** p_palette, const TextureIn
 	//memset( texels, 0, buffer_size );
 
 	// Return a temporary buffer to use
-	dst.pSurface = texels;
-	dst.Width    = texture_info.GetWidth();
-	dst.Height   = texture_info.GetHeight();
-	dst.Pitch    = pitch;
-	dst.Palette  = palette;
+	dst.Data    = texels;
+	dst.Width   = texture_info.GetWidth();
+	dst.Height  = texture_info.GetHeight();
+	dst.Pitch   = pitch;
+	dst.Palette = palette;
 
 	//Do nothing if palette address is NULL or close to NULL in a palette texture //Corn
 	//Loading a SaveState (OOT -> SSV) dont bring back our TMEM data which causes issues for the first rendered frame.

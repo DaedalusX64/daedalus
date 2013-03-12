@@ -27,12 +27,12 @@ struct NativePf8888;
 
 struct TextureDestInfo
 {
-	TextureDestInfo( ETextureFormat tex_fmt )
+	explicit TextureDestInfo( ETextureFormat tex_fmt )
 		:	Format( tex_fmt )
 		,	Width( 0 )
 		,	Height( 0 )
 		,	Pitch( 0 )
-		,	pSurface( NULL )
+		,	Data( NULL )
 		,	Palette( NULL )
 	{
 	}
@@ -41,11 +41,11 @@ struct TextureDestInfo
 	u32					Width;			// Describes the width of the locked area. Use lPitch to move between successive lines
 	u32					Height;			// Describes the height of the locked area
 	s32					Pitch;			// Specifies the number of bytes on each row (not necessarily bitdepth*width/8)
-	void *				pSurface;		// Pointer to the top left pixel of the image
+	void *				Data;			// Pointer to the top left pixel of the image
 	NativePf8888 *		Palette;
 };
 
 
-bool DoConversion(TextureDestInfo & dst, const TextureInfo & texture_info);
+bool DoConversion(const TextureDestInfo & dsti, const TextureInfo & ti);
 
 #endif
