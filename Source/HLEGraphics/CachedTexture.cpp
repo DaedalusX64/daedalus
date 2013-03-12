@@ -603,12 +603,12 @@ void CachedTexture::DumpTexture() const
 			// than ram. This means that when we dump out the texture here, tmem won't necessarily
 			// contain our pixels.
 			#ifdef DAEDALUS_PSP
-			const void * palette = mpTexture->GetPalette();
+			const void * native_palette = mpTexture->GetPalette();
 			#else
-			const void * palette = NULL;
+			const void * native_palette = NULL;
 			#endif
 
-			PngSaveImage( filepath, texels, palette, mpTexture->GetFormat(), mpTexture->GetStride(), mTextureInfo.GetWidth(), mTextureInfo.GetHeight(), true );
+			PngSaveImage( filepath, texels, native_palette, mpTexture->GetFormat(), mpTexture->GetStride(), mTextureInfo.GetWidth(), mTextureInfo.GetHeight(), true );
 		}
 	}
 }
