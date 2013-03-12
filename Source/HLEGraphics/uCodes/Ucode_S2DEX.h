@@ -479,7 +479,7 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 		u32 size	= ObjTlut->pnum+1;
 		u32 offset  = ObjTlut->phead-0x100;
 
-		DAEDALUS_ASSERT( offset+size > 0x100, "Check me: TMEM" );
+		DAEDALUS_ASSERT( offset+size <= 0x100, "Check me: TMEM" );
 
 		for( u32 i=offset; i<offset+size; i++ )
 		{
