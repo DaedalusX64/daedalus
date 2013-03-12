@@ -97,8 +97,6 @@ public:
 	inline void				SetMirrorS( bool mirror_s )		{ MirrorS = mirror_s; }
 	inline void				SetMirrorT( bool mirror_t )		{ MirrorT = mirror_t; }
 
-	ETextureFormat			SelectNativeFormat() const;
-
 	inline int				Compare( const TextureInfo & rhs ) const			{ return memcmp( this, &rhs, sizeof( TextureInfo ) ); }
 	inline bool				operator==( const TextureInfo & rhs ) const			{ return Compare( rhs ) == 0; }
 	inline bool				operator!=( const TextureInfo & rhs ) const			{ return Compare( rhs ) != 0; }

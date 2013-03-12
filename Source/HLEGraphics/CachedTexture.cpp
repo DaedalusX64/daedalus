@@ -404,6 +404,42 @@ namespace
 	}
 }
 
+
+#define DEFTEX	TexFmt_8888
+
+static const ETextureFormat TFmt[ 32 ] =
+{
+//	4bpp				8bpp				16bpp				32bpp
+	DEFTEX,				DEFTEX,				TexFmt_5551,		TexFmt_8888,		// RGBA
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// YUV
+	TexFmt_CI4_8888,	TexFmt_CI8_8888,	DEFTEX,				DEFTEX,				// CI
+	TexFmt_4444,		TexFmt_4444,		TexFmt_8888,		DEFTEX,				// IA
+	TexFmt_4444,		TexFmt_8888,		DEFTEX,				DEFTEX,				// I
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX				// ?
+};
+
+static const ETextureFormat TFmt_hack[ 32 ] =
+{
+//	4bpp				8bpp				16bpp				32bpp
+	DEFTEX,				DEFTEX,				TexFmt_4444,		TexFmt_8888,		// RGBA
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// YUV
+	TexFmt_CI4_8888,	TexFmt_CI8_8888,	DEFTEX,				DEFTEX,				// CI
+	TexFmt_4444,		TexFmt_4444,		TexFmt_8888,		DEFTEX,				// IA
+	TexFmt_4444,		TexFmt_4444,		DEFTEX,				DEFTEX,				// I
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX,				// ?
+	DEFTEX,				DEFTEX,				DEFTEX,				DEFTEX				// ?
+};
+
+static ETextureFormat SelectNativeFormat(const TextureInfo & ti)
+{
+	u32 idx = (ti.GetFormat() << 2) | ti.GetSize();
+	return g_ROM.LOAD_T1_HACK ? TFmt_hack[idx] : TFmt[idx];
+}
+
+
 static void UpdateTexture( const TextureInfo & texture_info, CNativeTexture * texture, const c32 * recolour )
 {
 	DAEDALUS_PROFILE( "Texture Conversion" );
@@ -496,10 +532,9 @@ bool CachedTexture::Initialise()
 {
 	DAEDALUS_ASSERT_Q(mpTexture == NULL);
 
-	ETextureFormat texture_format( mTextureInfo.SelectNativeFormat() );
-
-	u32		width( mTextureInfo.GetWidth() );
-	u32		height( mTextureInfo.GetHeight() );
+	ETextureFormat 	texture_format = SelectNativeFormat(mTextureInfo);
+	u32				width          = mTextureInfo.GetWidth();
+	u32				height         = mTextureInfo.GetHeight();
 
 	if( mTextureInfo.GetMirrorS() && mTextureInfo.GetMirrorT() )
 	{

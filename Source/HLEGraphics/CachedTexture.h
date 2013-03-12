@@ -55,7 +55,7 @@ class CachedTexture : public CRefCounted
 				bool					IsFresh() const;
 
 	private:
-		TextureInfo						mTextureInfo;
+		const TextureInfo				mTextureInfo;
 
 		CRefPtr<CNativeTexture>			mpTexture;
 		mutable CRefPtr<CNativeTexture>	mpWhiteTexture;
