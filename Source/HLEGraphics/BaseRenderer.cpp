@@ -1731,7 +1731,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	// Check for 0 width/height textures
 	if( ti.GetWidth() == 0 || ti.GetHeight() == 0 )
 	{
-		DAEDALUS_DL_ERROR( "Loading texture with 0 width/height" );
+		DAEDALUS_DL_ERROR( "Loading texture with 0 width/height in slot %d", index );
 	}
 	else
 	{
