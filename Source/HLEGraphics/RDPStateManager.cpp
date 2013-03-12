@@ -30,12 +30,53 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "HLEGraphics/uCodes/UcodeDefs.h"
 
+//#define ACCURATE_TMEM 1
+
 
 extern SImageDescriptor g_TI;		//Texture data from Timg ucode
 
 CRDPStateManager gRDPStateManager;
 
 static const char * const kTLUTTypeName[] = {"None", "?", "RGBA16", "IA16"};
+
+#ifdef ACCURATE_TMEM
+static u8 gTMEM[4096];	// 4Kb
+
+// FIXME(strmnnrmn): dst/src are always gTMEM/g_pu32RamBase
+static inline void CopyLineQwords(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
+{
+	memcpy(dst + dst_offset, src + src_offset, qwords * 8);
+}
+
+static inline void CopyLineQwordsSwap(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
+{
+	for (u32 i = 0; i < qwords; ++i)
+	{
+		// FIXME: should be easy to optimise this.
+		dst[(dst_offset+0)^0x1] = src[src_offset+0];
+		dst[(dst_offset+1)^0x1] = src[src_offset+1];
+		dst_offset += 2;
+		src_offset += 2;
+	}
+}
+
+// FIXME(strmnnrmn): dst/src are always gTMEM/g_pu8RamBase
+static inline void CopyLine(u8 * dst, u32 dst_offset, u8 * src, u32 src_offset, u32 bytes)
+{
+	memcpy(dst + dst_offset, src + src_offset, bytes);
+}
+
+static inline void CopyLineSwap(u8 * dst, u32 dst_offset, u8 * src, u32 src_offset, u32 bytes)
+{
+	for (u32 i = 0; i < bytes; ++i)
+	{
+		// Alternate 64 bit words are swapped
+		dst[(dst_offset+i)^0x4] = src[src_offset+i];
+	}
+}
+#endif
+
+
 
 CRDPStateManager::CRDPStateManager()
 {
@@ -105,7 +146,9 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 
 	InvalidateAllTileTextureInfo();		// Can potentially invalidate all texture infos
 
-	u32	tmem_lookup( mTiles[ tile_idx ].tmem >> 4 );
+	const RDP_Tile & rdp_tile = mTiles[tile_idx];
+
+	u32	tmem_lookup = rdp_tile.tmem >> 4;
 
 	//Invalidate load info after current TMEM address to the end of TMEM (fixes Fzero and SSV) //Corn
 	ClearEntries( tmem_lookup );
@@ -115,6 +158,52 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 	info.Address = address;
 	info.Pitch	 = ~0;
 	info.Swapped = swapped;
+
+
+#ifdef ACCURATE_TMEM
+	u32 lrs    = load.sh;
+	u32 bytes  = ((lrs+1) << g_TI.Size) >> 1;
+	u32 qwords = (bytes+7) / 8;
+
+	u32 * tmem_data = reinterpret_cast<u32*>(gTMEM);
+	u32 * ram 		= g_pu32RamBase;
+	u32 ram_offset  = address / 4;  				// Offset in 32 bit words
+	u32 tmem_offset = (rdp_tile.tmem << 3) >> 2;	// Offset in 32 bit words
+
+	if (dxt == 0)
+	{
+		CopyLineQwords(tmem_data, tmem_offset, ram, ram_offset, qwords);
+	}
+	else
+	{
+		u32 qwords_per_line = (2048 + dxt-1) / dxt;
+
+		DAEDALUS_ASSERT(qwords_per_line == (u32)ceilf(2048.f / (float)dxt), "Broken DXT calc");
+
+		u32 row_swizzle = 0;
+
+		for (u32 i = 0; i < qwords; /* updated in loop */)
+		{
+			u32 qwords_to_copy = Min(qwords-i, qwords_per_line);
+
+			if (row_swizzle)
+			{
+				CopyLineQwordsSwap(tmem_data, tmem_offset, ram, ram_offset, qwords_to_copy);
+			}
+			else
+			{
+				CopyLineQwords(tmem_data, tmem_offset, ram, ram_offset, qwords_to_copy);
+			}
+
+			i           += qwords_to_copy;
+			tmem_offset += qwords_to_copy * 2;	// 2 32bit words per qword
+			ram_offset  += qwords_to_copy * 2;
+			row_swizzle ^= 0x1;					// Odd lines are word swapped
+		}
+	}
+
+	//InvalidateTileHashes();
+#endif // ACCURATE_TMEM
 }
 
 void CRDPStateManager::LoadTile(const SetLoadTile & load)
@@ -132,7 +221,9 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 
 	InvalidateAllTileTextureInfo();		// Can potentially invalidate all texture infos
 
-	u32	tmem_lookup( mTiles[ tile_idx ].tmem >> 4 );
+	const RDP_Tile & rdp_tile = mTiles[tile_idx];
+
+	u32	tmem_lookup = rdp_tile.tmem >> 4;
 
 	SetValidEntry( tmem_lookup );
 
@@ -140,6 +231,58 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	info.Address = address;
 	info.Pitch = g_TI.GetPitch();
 	info.Swapped = false;
+
+#ifdef ACCURATE_TMEM
+	u32 lrs    = load.sh;
+	u32 lrt    = load.th;
+
+	u32 ram_address = address;
+	u32 pitch       = g_TI.GetPitch();
+	u32 h           = ((lrt-ult)>>2) + 1;
+	u32 w           = ((lrs-uls)>>2) + 1;
+	u32 bytes       = ((h * w) << g_TI.Size) >> 1;
+	u32 qwords      = (bytes+7) / 8;
+
+	if (qwords > 512)
+		qwords = 512;
+
+	u8 * tmem_data   = reinterpret_cast<u8*>(gTMEM);
+	u32  tmem_offset = rdp_tile.tmem << 3;
+	u8 * ram         = g_pu8RamBase;
+	u32  ram_offset  = ram_address;
+
+	u32 bytes_per_line      = (w << g_TI.Size) >> 1;
+	u32 bytes_per_tmem_line = rdp_tile.line << 3;
+
+	if (g_TI.Size == G_IM_SIZ_32b)
+	{
+		bytes_per_tmem_line *= 2;
+	}
+
+	for (u32 y = 0; y < h; ++y)
+	{
+		if (y&1)
+		{
+			CopyLineSwap(tmem_data, tmem_offset, ram, ram_offset, bytes_per_tmem_line);
+		}
+		else
+		{
+			CopyLine(tmem_data, tmem_offset, ram, ram_offset, bytes_per_tmem_line);
+		}
+
+		// Pad lines to quadword.
+		// FIXME memset?
+		for (u32 x = bytes_per_tmem_line; x < bytes_per_tmem_line; ++x)
+		{
+			tmem_data[tmem_offset+0] = 0;
+		}
+
+		tmem_offset += bytes_per_tmem_line;
+		ram_offset  += pitch;
+	}
+
+	//InvalidateTileHashes();
+#endif // ACCURATE_TMEM
 }
 
 void CRDPStateManager::LoadTlut(const SetLoadTile & load)
@@ -155,7 +298,7 @@ void CRDPStateManager::LoadTlut(const SetLoadTile & load)
 	u32    ram_offset = g_TI.GetAddress16bpp(uls >> 2, ult >> 2);
 	void * address    = g_pu8RamBase + ram_offset;
 
-	const RDP_Tile & rdp_tile = gRDPStateManager.GetTile( tile_idx );
+	const RDP_Tile & rdp_tile = mTiles[tile_idx];
 
 	u32 count = ((lrs - uls)>>2) + 1;
 	use(count);
@@ -185,8 +328,16 @@ void CRDPStateManager::LoadTlut(const SetLoadTile & load)
 
 	DL_PF("    TLut Addr[0x%08x] TMEM[0x%03x] Tile[%d] Count[%d] Format[%s] (%d,%d)->(%d,%d)",
 		address, rdp_tile.tmem, tile_idx, count, kTLUTTypeName[gRDPOtherMode.text_tlut], uls >> 2, ult >> 2, lrs >> 2, lrt >> 2);
-
 #endif
+
+#ifdef ACCURATE_TMEM
+	u32 pitch       = g_TI.GetPitch16bpp();
+	u32 texels      = ((lrs - uls)>>2) + 1;
+	u32 bytes       = texels*2;
+	u32 tmem_offset = rdp_tile.tmem << 3;
+
+	CopyLine(gTMEM, tmem_offset, g_pu8RamBase, ram_offset, bytes);
+#endif // ACCURATE_TMEM
 }
 
 // Limit the tile's width/height to the number of bits specified by mask_s/t.
