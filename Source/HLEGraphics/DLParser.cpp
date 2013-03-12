@@ -937,7 +937,7 @@ void DLParser_LoadTLut( MicroCodeCommand command )
 {
 	// Tlut fmt is sometimes wrong (in 007) and is set after tlut load, but before tile load
 	// Format is always 16bpp - RGBA16 or IA16:
-	DAEDALUS_DL_ASSERT(g_TI.Size == G_IM_SIZ_16b, "Crazy tlut load - not 16bpp");
+	//DAEDALUS_DL_ASSERT(g_TI.Size == G_IM_SIZ_16b, "Crazy tlut load - not 16bpp");
 
 	u32 uls      = command.loadtile.sl >> 2;	//Left
 	u32 ult		 = command.loadtile.tl >> 2;	//Top
