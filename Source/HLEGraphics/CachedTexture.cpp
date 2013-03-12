@@ -216,7 +216,7 @@ bool CachedTexture::Initialise()
 
 		if(gCheckTextureHashFrequency > 0)
 		{
-			mFrameLastUpToDate += FastRand() & (gCheckTextureHashFrequency - 1);
+			mFrameLastUpToDate = gRDPFrame + (FastRand() & (gCheckTextureHashFrequency - 1));
 		}
 		UpdateTexture( mTextureInfo, mpTexture, NULL );
 	}
