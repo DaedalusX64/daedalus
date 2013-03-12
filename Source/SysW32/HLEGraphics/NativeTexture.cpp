@@ -12,16 +12,6 @@ bool	ConvertTexture( const TextureDestInfo & dst, const TextureInfo & ti )
 	return true;
 }
 
-u32 CNativeTexture::GetSystemMemoryUsage() const
-{
-	return 0;
-}
-
-u32 CNativeTexture::GetVideoMemoryUsage() const
-{
-	return 0;
-}
-
 bool CNativeTexture::HasData() const
 {
 	return true;

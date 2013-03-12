@@ -612,7 +612,7 @@ void CachedTexture::DumpTexture() const
 		}
 	}
 }
-#endif
+#endif // DAEDALUS_DEBUG_DISPLAYLIST
 
 void CachedTexture::UpdateIfNecessary()
 {
@@ -684,41 +684,4 @@ const CRefPtr<CNativeTexture> &	CachedTexture::GetWhiteTexture() const
 	return mpWhiteTexture;
 }
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-u32	CachedTexture::GetVideoMemoryUsage() const
-{
-	u32		usage( 0 );
 
-	if(mpTexture != NULL)
-	{
-		usage += mpTexture->GetVideoMemoryUsage();
-	}
-
-	if(mpWhiteTexture != NULL)
-	{
-		usage += mpWhiteTexture->GetVideoMemoryUsage();
-	}
-
-	return 0;
-}
-#endif	//DAEDALUS_DEBUG_DISPLAYLIST
-
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-u32	CachedTexture::GetSystemMemoryUsage() const
-{
-	u32	usage( 0 );
-
-	if(mpTexture != NULL)
-	{
-		usage += mpTexture->GetSystemMemoryUsage();
-	}
-
-	if(mpWhiteTexture != NULL)
-	{
-		usage += mpWhiteTexture->GetSystemMemoryUsage();
-	}
-
-	return usage;
-}
-#endif	//DAEDALUS_DEBUG_DISPLAYLIST

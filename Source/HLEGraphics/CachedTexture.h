@@ -41,8 +41,6 @@ class CachedTexture : public CRefCounted
 		const CRefPtr<CNativeTexture> &			GetWhiteTexture() const;		// Returns a texture with the RGB channels set to white (alpha remains the same)
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		u32								GetVideoMemoryUsage() const;
-		u32								GetSystemMemoryUsage() const;
 		void							DumpTexture() const;
 #endif
 		inline const TextureInfo &		GetTextureInfo() const				{ return mTextureInfo; }
