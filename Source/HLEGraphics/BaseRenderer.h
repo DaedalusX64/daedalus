@@ -28,7 +28,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DaedalusVtx.h"
 #include "Graphics/ColourValue.h"
 #include "Utility/Preferences.h"
-#include "RDP.h"
 
 #include <pspgu.h>
 
@@ -124,6 +123,41 @@ ALIGNED_TYPE(struct, DaedalusLight, 16)
 };
 
 DAEDALUS_STATIC_ASSERT( sizeof( DaedalusLight ) == 32 );
+
+// Order here should be the same as in TnLPSP
+enum ETnLModeFlags
+{
+	TNL_LIGHT		= 1 << 0,
+	TNL_TEXTURE		= 1 << 1,
+	TNL_TEXGEN		= 1 << 2,
+	TNL_TEXGENLIN	= 1 << 3,
+	TNL_FOG			= 1 << 4,
+	TNL_SHADE		= 1 << 5,
+	TNL_ZBUFFER		= 1 << 6,
+	TNL_TRICULL		= 1 << 7,
+	TNL_CULLBACK	= 1 << 8,
+};
+
+struct TnLPSP
+{
+	union
+	{
+		struct
+		{
+			u32 Light : 1;			// 0x1
+			u32 Texture : 1;		// 0x2
+			u32 TexGen : 1;			// 0x4
+			u32 TexGenLin : 1;		// 0x8
+			u32 Fog : 1;			// 0x10
+			u32 Shade : 1;			// 0x20
+			u32 Zbuffer : 1;		// 0x40
+			u32 TriCull : 1;		// 0x80
+			u32 CullBack : 1;		// 0x100
+			u32 pad0 : 23;			// 0x0
+		};
+		u32	_u32;
+	};
+};
 
 ALIGNED_TYPE(struct, TnLParams, 16)
 {

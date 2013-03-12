@@ -77,6 +77,15 @@ private:
 };
 
 extern CRDPStateManager		gRDPStateManager;
+extern RDP_OtherMode		gRDPOtherMode;
+
+#ifdef DAEDALUS_FAST_TMEM
+extern u32* gTlutLoadAddresses[ 4096 >> 6 ];
+#define TLUT_BASE ((u32)(gTlutLoadAddresses[0]))
+#else
+extern u16 gPaletteMemory[];
+#define TLUT_BASE ((u32)(&gPaletteMemory[0]))
+#endif
 
 
 #endif // RDPSTATEMANAGER_H_

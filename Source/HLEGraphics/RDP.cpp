@@ -22,15 +22,3 @@
 #include "RDP.h"
 
 // This needs a huge clean up or be removed as is now, it only holds debug code..
-
-//*****************************************************************************
-// RDP state
-//*****************************************************************************
-RDP_OtherMode		gRDPOtherMode;
-
-#ifdef DAEDALUS_FAST_TMEM
-//Granularity down to 24bytes is good enuff also only need to address the upper half of TMEM for palettes//Corn
-u32* gTlutLoadAddresses[ 4096 >> 6 ];
-#else
-u16 gPaletteMemory[ 512 ];
-#endif

@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "HLEGraphics/uCodes/UcodeDefs.h"
 
-//#define ACCURATE_TMEM 1
+//#define DAEDALUS_ACCURATE_TMEM 1
 
 
 extern SImageDescriptor g_TI;		//Texture data from Timg ucode
@@ -39,8 +39,22 @@ CRDPStateManager gRDPStateManager;
 
 static const char * const kTLUTTypeName[] = {"None", "?", "RGBA16", "IA16"};
 
-#ifdef ACCURATE_TMEM
+RDP_OtherMode		gRDPOtherMode;
+
+#ifdef DAEDALUS_FAST_TMEM
+//Granularity down to 24bytes is good enuff also only need to address the upper half of TMEM for palettes//Corn
+u32* gTlutLoadAddresses[ 4096 >> 6 ];
+#else
+u16 gPaletteMemory[ 512 ];
+#endif
+
+
+#ifdef DAEDALUS_ACCURATE_TMEM
 static u8 gTMEM[4096];	// 4Kb
+#endif
+
+
+#ifdef DAEDALUS_ACCURATE_TMEM
 
 // FIXME(strmnnrmn): dst/src are always gTMEM/g_pu32RamBase
 static inline void CopyLineQwords(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
@@ -160,7 +174,7 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 	info.Swapped = swapped;
 
 
-#ifdef ACCURATE_TMEM
+#ifdef DAEDALUS_ACCURATE_TMEM
 	u32 lrs    = load.sh;
 	u32 bytes  = ((lrs+1) << g_TI.Size) >> 1;
 	u32 qwords = (bytes+7) / 8;
@@ -203,7 +217,7 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 	}
 
 	//InvalidateTileHashes();
-#endif // ACCURATE_TMEM
+#endif // DAEDALUS_ACCURATE_TMEM
 }
 
 void CRDPStateManager::LoadTile(const SetLoadTile & load)
@@ -232,7 +246,7 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	info.Pitch = g_TI.GetPitch();
 	info.Swapped = false;
 
-#ifdef ACCURATE_TMEM
+#ifdef DAEDALUS_ACCURATE_TMEM
 	u32 lrs    = load.sh;
 	u32 lrt    = load.th;
 
@@ -282,7 +296,7 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	}
 
 	//InvalidateTileHashes();
-#endif // ACCURATE_TMEM
+#endif // DAEDALUS_ACCURATE_TMEM
 }
 
 void CRDPStateManager::LoadTlut(const SetLoadTile & load)
@@ -330,14 +344,14 @@ void CRDPStateManager::LoadTlut(const SetLoadTile & load)
 		address, rdp_tile.tmem, tile_idx, count, kTLUTTypeName[gRDPOtherMode.text_tlut], uls >> 2, ult >> 2, lrs >> 2, lrt >> 2);
 #endif
 
-#ifdef ACCURATE_TMEM
+#ifdef DAEDALUS_ACCURATE_TMEM
 	u32 pitch       = g_TI.GetPitch16bpp();
 	u32 texels      = ((lrs - uls)>>2) + 1;
 	u32 bytes       = texels*2;
 	u32 tmem_offset = rdp_tile.tmem << 3;
 
 	CopyLine(gTMEM, tmem_offset, g_pu8RamBase, ram_offset, bytes);
-#endif // ACCURATE_TMEM
+#endif // DAEDALUS_ACCURATE_TMEM
 }
 
 // Limit the tile's width/height to the number of bits specified by mask_s/t.

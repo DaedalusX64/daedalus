@@ -3,15 +3,16 @@
 
 #include <pspgu.h>
 
+#include "Combiner/BlendConstant.h"
+#include "Combiner/CombinerTree.h"
+#include "Combiner/RenderSettings.h"
 #include "Core/ROM.h"
 #include "Debug/Dump.h"
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
-#include "Combiner/BlendConstant.h"
-#include "HLEGraphics/DLDebug.h"
-#include "Combiner/CombinerTree.h"
-#include "Combiner/RenderSettings.h"
 #include "HLEGraphics/CachedTexture.h"
+#include "HLEGraphics/DLDebug.h"
+#include "HLEGraphics/RDPStateManager.h"
 #include "Math/MathUtil.h"
 #include "OSHLE/ultra_gbi.h"
 #include "Utility/IO.h"

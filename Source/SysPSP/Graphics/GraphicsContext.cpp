@@ -21,9 +21,7 @@
 #include "stdafx.h"
 #include "Graphics/GraphicsContext.h"
 
-#include "../HLEGraphics/RDP.h"
-#include "../HLEGraphics/BaseRenderer.h"
-
+#include "Graphics/ColourValue.h"
 #include "Graphics/PngUtil.h"
 #include "SysPSP/Graphics/VideoMemoryManager.h"
 
