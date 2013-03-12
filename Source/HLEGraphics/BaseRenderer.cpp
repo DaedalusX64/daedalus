@@ -1735,34 +1735,28 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	}
 	else
 	{
-		const CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetTexture( &ti ) );
+		CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetTexture( &ti ) );
 
-		if( texture != NULL )
+		if( texture != NULL && texture != mpTexture[ index ] )
 		{
-			//
-			//	Avoid update check and divides if the texture is already installed
-			//
-			if( texture != mpTexture[ index ] )
-			{
-				texture->UpdateIfNecessary();
+			texture->UpdateIfNecessary();
 
-				mpTexture[ index ] = texture;
+			mpTexture[ index ] = texture;
 
 #ifdef DAEDALUS_PSP
-				//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
-				//If T1 Hack is not enabled index can never be other than 0
-				if(index)
-				{
-					T1Hack(mpTexture[0], mpTexture[1]);
-				}
+			//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
+			//If T1 Hack is not enabled index can never be other than 0
+			if(index)
+			{
+				T1Hack(mpTexture[0], mpTexture[1]);
+			}
 #endif
 
-				const CRefPtr<CNativeTexture> & native_texture( texture->GetTexture() );
-				if( native_texture != NULL )
-				{
-					mTileScale[ index ].x = native_texture->GetScaleX();
-					mTileScale[ index ].y = native_texture->GetScaleY();
-				}
+			const CRefPtr<CNativeTexture> & native_texture = texture->GetTexture();
+			if( native_texture != NULL )
+			{
+				mTileScale[ index ].x = native_texture->GetScaleX();
+				mTileScale[ index ].y = native_texture->GetScaleY();
 			}
 		}
 	}
