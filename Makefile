@@ -44,6 +44,7 @@ CORE_SRCS = \
 	Source/DynaRec/StaticAnalysis.cpp \
 	Source/DynaRec/TraceRecorder.cpp \
 	Source/Graphics/ColourValue.cpp \
+	Source/Graphics/TextureTransform.cpp \
 	Source/HLEAudio/ABI1.cpp \
 	Source/HLEAudio/ABI2.cpp \
 	Source/HLEAudio/ABI3.cpp \
