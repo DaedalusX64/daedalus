@@ -96,10 +96,6 @@ template<> struct SSwizzleInfo< 4 >
 	enum { Swizzle = 2 };
 };
 
-
-//*****************************************************************************
-//
-//*****************************************************************************
 template < typename OutT >
 struct SConvertGeneric
 {
@@ -276,9 +272,6 @@ static void ConvertGenericPalettisedCI8( const TextureDestInfo & dst, const Text
 	palette_fn( p_dst_palette, p_palette, 256 );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 template < typename InT >
 struct SConvert
 {
@@ -339,9 +332,6 @@ struct SConvert
 	}
 };
 
-//*****************************************************************************
-//
-//*****************************************************************************
 struct SConvertIA4
 {
 	enum { Fiddle = 0x3 };
@@ -403,9 +393,6 @@ struct SConvertIA4
 	}
 };
 
-//*****************************************************************************
-//
-//*****************************************************************************
 struct SConvertI4
 {
 	enum { Fiddle = 0x3 };
@@ -469,9 +456,6 @@ struct SConvertI4
 	}
 };
 
-//*****************************************************************************
-//
-//*****************************************************************************
 template< typename PalT, u32 F >
 static void ConvertPalette( NativePf8888 * p_dst, const u8 * p_palette, u32 entries )
 {
@@ -483,9 +467,6 @@ static void ConvertPalette( NativePf8888 * p_dst, const u8 * p_palette, u32 entr
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 template< u32 F >
 static void ConvertCI4_Row( NativePfCI44 * p_dst, const u8 * p_src_base, u32 offset, u32 width )
 {
@@ -507,9 +488,6 @@ static void ConvertCI4_Row( NativePfCI44 * p_dst, const u8 * p_src_base, u32 off
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 template< typename PalT, u32 F >
 static void ConvertCI4_Row_To_8888( NativePf8888 * p_dst, const u8 * p_src_base, u32 offset, u32 width, const u16 * p_palette )
 {
@@ -539,9 +517,6 @@ static void ConvertCI4_Row_To_8888( NativePf8888 * p_dst, const u8 * p_src_base,
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 template< u32 F >
 static void ConvertCI8_Row( NativePfCI8 * p_dst, const u8 * p_src_base, u32 offset, u32 width )
 {
@@ -555,9 +530,6 @@ static void ConvertCI8_Row( NativePfCI8 * p_dst, const u8 * p_src_base, u32 offs
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 template< typename PalT, u32 F >
 static  void ConvertCI8_Row_To_8888( NativePf8888 * p_dst, const u8 * p_src_base, u32 offset, u32 width, const u16 * p_palette )
 {
@@ -573,178 +545,117 @@ static  void ConvertCI8_Row_To_8888( NativePf8888 * p_dst, const u8 * p_src_base
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 static void ConvertRGBA16(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	SConvert< N64Pf5551 >::ConvertTexture( dst, ti );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 static void ConvertRGBA32(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	// Did have Fiddle of 8 here, pretty sure this was wrong (should have been 4)
 	SConvert< N64Pf8888 >::ConvertTexture( dst, ti );
 }
 
-//*****************************************************************************
-// E.g. Dear Mario text
-// Copy, Score etc
-//*****************************************************************************
 static void ConvertIA4(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	SConvertIA4::ConvertTexture( dst, ti );
 }
 
-//*****************************************************************************
-// E.g Mario's head textures
-//*****************************************************************************
 static void ConvertIA8(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	SConvert< N64PfIA8 >::ConvertTexture( dst, ti );
 }
 
-//*****************************************************************************
-// E.g. camera's clouds, shadows
-//*****************************************************************************
 static void ConvertIA16(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	SConvert< N64PfIA16 >::ConvertTexture( dst, ti );
 }
 
-//*****************************************************************************
-// Used by MarioKart
-//*****************************************************************************
 static void ConvertI4(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	SConvertI4::ConvertTexture( dst, ti );
 }
 
-//*****************************************************************************
-// Used by MarioKart
-//*****************************************************************************
 static void ConvertI8(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	SConvert< N64PfI8 >::ConvertTexture( dst, ti );
 }
 
-//*****************************************************************************
-// Used by Starfox intro
-//*****************************************************************************
-static void ConvertCI4_RGBA16(const TextureDestInfo & dst, const TextureInfo & ti)
-{
-	switch( dst.Format )
-	{
-	case TexFmt_8888:
-		ConvertGenericPalettised( dst, ti, ConvertCI4_Row_To_8888< N64Pf5551, 0x4 | 0x3 >, ConvertCI4_Row_To_8888< N64Pf5551, 0x3 > );
-		break;
-
-	case TexFmt_CI4_8888:
-		ConvertGenericPalettisedCI4( dst, ti, ConvertCI4_Row< 0x4 | 0x3 >, ConvertCI4_Row< 0x3 >, ConvertPalette< N64Pf5551, 0x1 > );
-		break;
-
-	default:
-		DAEDALUS_ERROR( "Unhandled format for CI4RGB16 textures" );
-		break;
-	}
-}
-
-//*****************************************************************************
-// Used by Starfox intro
-//*****************************************************************************
-static void ConvertCI4_IA16(const TextureDestInfo & dst, const TextureInfo & ti)
-{
-	switch( dst.Format )
-	{
-	case TexFmt_8888:
-		ConvertGenericPalettised( dst, ti, ConvertCI4_Row_To_8888< N64PfIA16, 0x4 | 0x3 >, ConvertCI4_Row_To_8888< N64PfIA16, 0x3 > );
-		break;
-
-	case TexFmt_CI4_8888:
-		ConvertGenericPalettisedCI4( dst, ti, ConvertCI4_Row< 0x4 | 0x3 >, ConvertCI4_Row< 0x3 >, ConvertPalette< N64PfIA16, 0x1 > );
-		break;
-
-	default:
-		DAEDALUS_ERROR( "Unhandled format for CI4IA16 textures" );
-		break;
-	}
-}
-
-//*****************************************************************************
-// Used by MarioKart for Cars etc
-//*****************************************************************************
-static void ConvertCI8_RGBA16(const TextureDestInfo & dst, const TextureInfo & ti)
-{
-	switch( dst.Format )
-	{
-	case TexFmt_8888:
-		ConvertGenericPalettised( dst, ti, ConvertCI8_Row_To_8888< N64Pf5551, 0x4 | 0x3 >, ConvertCI8_Row_To_8888< N64Pf5551, 0x3 > );
-		break;
-
-	case TexFmt_CI8_8888:
-		ConvertGenericPalettisedCI8( dst, ti, ConvertCI8_Row< 0x4 | 0x3 >, ConvertCI8_Row< 0x3 >, ConvertPalette< N64Pf5551, 0x1 > );
-		break;
-
-	default:
-		DAEDALUS_ERROR( "Unhandled format for CI8RGB16 textures" );
-		break;
-	}
-
-}
-
-//*****************************************************************************
-// Used by MarioKart for Cars etc
-//*****************************************************************************
-static void ConvertCI8_IA16(const TextureDestInfo & dst, const TextureInfo & ti)
-{
-	switch( dst.Format )
-	{
-	case TexFmt_8888:
-		ConvertGenericPalettised( dst, ti, ConvertCI8_Row_To_8888< N64PfIA16, 0x4 | 0x3 >, ConvertCI8_Row_To_8888< N64PfIA16, 0x3 > );
-		break;
-
-	case TexFmt_CI8_8888:
-		ConvertGenericPalettisedCI8( dst, ti, ConvertCI8_Row< 0x4 | 0x3 >, ConvertCI8_Row< 0x3 >, ConvertPalette< N64PfIA16, 0x1 > );
-		break;
-
-	default:
-		DAEDALUS_ERROR( "Unhandled format for CI8IA16 textures" );
-		break;
-	}
-}
-
-//*****************************************************************************
-// Convert CI8 images. We need to switch on the palette type
-//*****************************************************************************
 static void ConvertCI8(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	ETLutFmt tlut_format = ti.GetTLutFormat();
 	if( tlut_format == kTT_RGBA16 )
 	{
-		ConvertCI8_RGBA16( dst, ti );
+		switch( dst.Format )
+		{
+		case TexFmt_8888:
+			ConvertGenericPalettised( dst, ti, ConvertCI8_Row_To_8888< N64Pf5551, 0x4 | 0x3 >, ConvertCI8_Row_To_8888< N64Pf5551, 0x3 > );
+			break;
+
+		case TexFmt_CI8_8888:
+			ConvertGenericPalettisedCI8( dst, ti, ConvertCI8_Row< 0x4 | 0x3 >, ConvertCI8_Row< 0x3 >, ConvertPalette< N64Pf5551, 0x1 > );
+			break;
+
+		default:
+			DAEDALUS_ERROR( "Unhandled format for CI8RGB16 textures" );
+			break;
+		}
 	}
 	else if( tlut_format == kTT_IA16 )
 	{
-		ConvertCI8_IA16( dst, ti );
+		switch( dst.Format )
+		{
+		case TexFmt_8888:
+			ConvertGenericPalettised( dst, ti, ConvertCI8_Row_To_8888< N64PfIA16, 0x4 | 0x3 >, ConvertCI8_Row_To_8888< N64PfIA16, 0x3 > );
+			break;
+
+		case TexFmt_CI8_8888:
+			ConvertGenericPalettisedCI8( dst, ti, ConvertCI8_Row< 0x4 | 0x3 >, ConvertCI8_Row< 0x3 >, ConvertPalette< N64PfIA16, 0x1 > );
+			break;
+
+		default:
+			DAEDALUS_ERROR( "Unhandled format for CI8IA16 textures" );
+			break;
+		}
 	}
 }
 
-//*****************************************************************************
-// Convert CI4 images. We need to switch on the palette type
-//*****************************************************************************
 static void ConvertCI4(const TextureDestInfo & dst, const TextureInfo & ti)
 {
 	ETLutFmt tlut_format = ti.GetTLutFormat();
 	if( tlut_format == kTT_RGBA16 )
 	{
-		ConvertCI4_RGBA16( dst, ti );
+		switch( dst.Format )
+		{
+		case TexFmt_8888:
+			ConvertGenericPalettised( dst, ti, ConvertCI4_Row_To_8888< N64Pf5551, 0x4 | 0x3 >, ConvertCI4_Row_To_8888< N64Pf5551, 0x3 > );
+			break;
+
+		case TexFmt_CI4_8888:
+			ConvertGenericPalettisedCI4( dst, ti, ConvertCI4_Row< 0x4 | 0x3 >, ConvertCI4_Row< 0x3 >, ConvertPalette< N64Pf5551, 0x1 > );
+			break;
+
+		default:
+			DAEDALUS_ERROR( "Unhandled format for CI4RGB16 textures" );
+			break;
+		}
 	}
 	else if( tlut_format == kTT_IA16 )
 	{
-		ConvertCI4_IA16( dst, ti );
+		switch( dst.Format )
+		{
+		case TexFmt_8888:
+			ConvertGenericPalettised( dst, ti, ConvertCI4_Row_To_8888< N64PfIA16, 0x4 | 0x3 >, ConvertCI4_Row_To_8888< N64PfIA16, 0x3 > );
+			break;
+
+		case TexFmt_CI4_8888:
+			ConvertGenericPalettisedCI4( dst, ti, ConvertCI4_Row< 0x4 | 0x3 >, ConvertCI4_Row< 0x3 >, ConvertPalette< N64PfIA16, 0x1 > );
+			break;
+
+		default:
+			DAEDALUS_ERROR( "Unhandled format for CI4IA16 textures" );
+			break;
+		}
 	}
 }
 
