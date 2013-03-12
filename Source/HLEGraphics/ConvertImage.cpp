@@ -589,11 +589,13 @@ static void ConvertCI8(const TextureDestInfo & dst, const TextureInfo & ti)
 		switch( dst.Format )
 		{
 		case TexFmt_8888:
-			ConvertGenericPalettised( dst, ti, ConvertCI8_Row_To_8888< N64Pf5551, 0x4 | 0x3 >, ConvertCI8_Row_To_8888< N64Pf5551, 0x3 > );
+			ConvertGenericPalettised( dst, ti, ConvertCI8_Row_To_8888< N64Pf5551, 0x4 | 0x3 >,
+											   ConvertCI8_Row_To_8888< N64Pf5551, 0x3 > );
 			break;
 
 		case TexFmt_CI8_8888:
-			ConvertGenericPalettisedCI8( dst, ti, ConvertCI8_Row< 0x4 | 0x3 >, ConvertCI8_Row< 0x3 >, ConvertPalette< N64Pf5551, 0x1 > );
+			ConvertGenericPalettisedCI8( dst, ti, ConvertCI8_Row< 0x4 | 0x3 >,
+												  ConvertCI8_Row< 0x3 >, ConvertPalette< N64Pf5551, 0x1 > );
 			break;
 
 		default:
@@ -606,11 +608,13 @@ static void ConvertCI8(const TextureDestInfo & dst, const TextureInfo & ti)
 		switch( dst.Format )
 		{
 		case TexFmt_8888:
-			ConvertGenericPalettised( dst, ti, ConvertCI8_Row_To_8888< N64PfIA16, 0x4 | 0x3 >, ConvertCI8_Row_To_8888< N64PfIA16, 0x3 > );
+			ConvertGenericPalettised( dst, ti, ConvertCI8_Row_To_8888< N64PfIA16, 0x4 | 0x3 >,
+											   ConvertCI8_Row_To_8888< N64PfIA16, 0x3 > );
 			break;
 
 		case TexFmt_CI8_8888:
-			ConvertGenericPalettisedCI8( dst, ti, ConvertCI8_Row< 0x4 | 0x3 >, ConvertCI8_Row< 0x3 >, ConvertPalette< N64PfIA16, 0x1 > );
+			ConvertGenericPalettisedCI8( dst, ti, ConvertCI8_Row< 0x4 | 0x3 >,
+												  ConvertCI8_Row< 0x3 >, ConvertPalette< N64PfIA16, 0x1 > );
 			break;
 
 		default:
@@ -628,11 +632,13 @@ static void ConvertCI4(const TextureDestInfo & dst, const TextureInfo & ti)
 		switch( dst.Format )
 		{
 		case TexFmt_8888:
-			ConvertGenericPalettised( dst, ti, ConvertCI4_Row_To_8888< N64Pf5551, 0x4 | 0x3 >, ConvertCI4_Row_To_8888< N64Pf5551, 0x3 > );
+			ConvertGenericPalettised( dst, ti, ConvertCI4_Row_To_8888< N64Pf5551, 0x4 | 0x3 >,
+											   ConvertCI4_Row_To_8888< N64Pf5551, 0x3 > );
 			break;
 
 		case TexFmt_CI4_8888:
-			ConvertGenericPalettisedCI4( dst, ti, ConvertCI4_Row< 0x4 | 0x3 >, ConvertCI4_Row< 0x3 >, ConvertPalette< N64Pf5551, 0x1 > );
+			ConvertGenericPalettisedCI4( dst, ti, ConvertCI4_Row< 0x4 | 0x3 >,
+												  ConvertCI4_Row< 0x3 >, ConvertPalette< N64Pf5551, 0x1 > );
 			break;
 
 		default:
@@ -645,11 +651,13 @@ static void ConvertCI4(const TextureDestInfo & dst, const TextureInfo & ti)
 		switch( dst.Format )
 		{
 		case TexFmt_8888:
-			ConvertGenericPalettised( dst, ti, ConvertCI4_Row_To_8888< N64PfIA16, 0x4 | 0x3 >, ConvertCI4_Row_To_8888< N64PfIA16, 0x3 > );
+			ConvertGenericPalettised( dst, ti, ConvertCI4_Row_To_8888< N64PfIA16, 0x4 | 0x3 >,
+											   ConvertCI4_Row_To_8888< N64PfIA16, 0x3 > );
 			break;
 
 		case TexFmt_CI4_8888:
-			ConvertGenericPalettisedCI4( dst, ti, ConvertCI4_Row< 0x4 | 0x3 >, ConvertCI4_Row< 0x3 >, ConvertPalette< N64PfIA16, 0x1 > );
+			ConvertGenericPalettisedCI4( dst, ti, ConvertCI4_Row< 0x4 | 0x3 >,
+												  ConvertCI4_Row< 0x3 >, ConvertPalette< N64PfIA16, 0x1 > );
 			break;
 
 		default:
