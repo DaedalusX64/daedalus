@@ -569,51 +569,6 @@ bool CachedTexture::Initialise()
 	return mpTexture != NULL;
 }
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-void CachedTexture::DumpTexture() const
-{
-	if( mpTexture != NULL && mpTexture->HasData() )
-	{
-		char filename[MAX_PATH+1];
-		char filepath[MAX_PATH+1];
-		char dumpdir[MAX_PATH+1];
-
-		IO::Path::Combine( dumpdir, g_ROM.settings.GameName.c_str(), "Textures" );
-
-		Dump_GetDumpDirectory( filepath, dumpdir );
-
-		sprintf( filename, "%08x-%s_%dbpp-%dx%d-%dx%d.png",
-							mTextureInfo.GetLoadAddress(), mTextureInfo.GetFormatName(), mTextureInfo.GetSizeInBits(),
-							0, 0,		// Left/Top
-							mTextureInfo.GetWidth(), mTextureInfo.GetHeight() );
-
-		IO::Path::Append( filepath, filename );
-
-		void *	texels;
-		void *	palette;
-
-		// Note that we re-convert the texels because those in the native texture may well already
-		// be swizzle. Maybe we should just have an unswizzle routine?
-		if( GenerateTexels( &texels, &palette, mTextureInfo, mpTexture->GetFormat(), mpTexture->GetStride(), mpTexture->GetBytesRequired() ) )
-		{
-			// NB - this does not include the mirrored texels
-
-			// NB we use the palette from the native texture. This is a total hack.
-			// We have to do this because the palette texels come from emulated tmem, rather
-			// than ram. This means that when we dump out the texture here, tmem won't necessarily
-			// contain our pixels.
-			#ifdef DAEDALUS_PSP
-			const void * native_palette = mpTexture->GetPalette();
-			#else
-			const void * native_palette = NULL;
-			#endif
-
-			PngSaveImage( filepath, texels, native_palette, mpTexture->GetFormat(), mpTexture->GetStride(), mTextureInfo.GetWidth(), mTextureInfo.GetHeight(), true );
-		}
-	}
-}
-#endif // DAEDALUS_DEBUG_DISPLAYLIST
-
 void CachedTexture::UpdateIfNecessary()
 {
 	if( !IsFresh() )
@@ -684,4 +639,47 @@ const CRefPtr<CNativeTexture> &	CachedTexture::GetWhiteTexture() const
 	return mpWhiteTexture;
 }
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+void CachedTexture::DumpTexture() const
+{
+	if( mpTexture != NULL && mpTexture->HasData() )
+	{
+		char filename[MAX_PATH+1];
+		char filepath[MAX_PATH+1];
+		char dumpdir[MAX_PATH+1];
 
+		IO::Path::Combine( dumpdir, g_ROM.settings.GameName.c_str(), "Textures" );
+
+		Dump_GetDumpDirectory( filepath, dumpdir );
+
+		sprintf( filename, "%08x-%s_%dbpp-%dx%d-%dx%d.png",
+							mTextureInfo.GetLoadAddress(), mTextureInfo.GetFormatName(), mTextureInfo.GetSizeInBits(),
+							0, 0,		// Left/Top
+							mTextureInfo.GetWidth(), mTextureInfo.GetHeight() );
+
+		IO::Path::Append( filepath, filename );
+
+		void *	texels;
+		void *	palette;
+
+		// Note that we re-convert the texels because those in the native texture may well already
+		// be swizzle. Maybe we should just have an unswizzle routine?
+		if( GenerateTexels( &texels, &palette, mTextureInfo, mpTexture->GetFormat(), mpTexture->GetStride(), mpTexture->GetBytesRequired() ) )
+		{
+			// NB - this does not include the mirrored texels
+
+			// NB we use the palette from the native texture. This is a total hack.
+			// We have to do this because the palette texels come from emulated tmem, rather
+			// than ram. This means that when we dump out the texture here, tmem won't necessarily
+			// contain our pixels.
+			#ifdef DAEDALUS_PSP
+			const void * native_palette = mpTexture->GetPalette();
+			#else
+			const void * native_palette = NULL;
+			#endif
+
+			PngSaveImage( filepath, texels, native_palette, mpTexture->GetFormat(), mpTexture->GetStride(), mTextureInfo.GetWidth(), mTextureInfo.GetHeight(), true );
+		}
+	}
+}
+#endif // DAEDALUS_DEBUG_DISPLAYLIST
