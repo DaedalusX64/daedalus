@@ -131,13 +131,14 @@ class	IController : public CController
 		bool			OnRomOpen();
 		void			OnRomClose();
 
-		void			Process();
+		void			ProcessRead();
+		void			ProcessWrite();
 
 	private:
 		//
 		//
 		//
-
+		void			ProcessReadController(u8 *cmd, u32 channel);
 		bool			ProcessController(u8 *cmd, u32 device);
 		bool			ProcessEeprom(u8 *cmd);
 
@@ -148,6 +149,7 @@ class	IController : public CController
 		void			CommandReadRumblePack(u8 *cmd);
 		void			CommandWriteRumblePack(u8 *cmd);
 		void			CommandReadRTC(u8 *cmd);
+		void			DecipherPIFRam();
 
 		u8				CalculateDataCrc(const u8 * pBuf) DAEDALUS_ATTRIBUTE_PURE;
 #ifdef DAEDALUS_ENABLE_ASSERTS
@@ -245,19 +247,13 @@ IController::IController() :
 #endif
 	for ( u32 i = 0; i < NUM_CONTROLLERS; i++ )
 	{
-		mContPresent[ i ] = true;
+		mContPresent[ i ] = false;
 		mContMemPackPresent[ i ] = false;
 	}
 
 	mContMemPackPresent[ 0 ] = true;
-
-	// Only one controller is "connected" for the PSP
-#ifdef DAEDALUS_PSP
-	for ( u32 i = PC_CONTROLLER_1; i < NUM_CONTROLLERS; i++ )
-	{
-		mContPresent[ i ] = false;
-	}
-#endif
+	// Only one controller is enabled, this has to be revised once mltiplayer is introduced
+	mContPresent[ 0 ] = true;
 }
 
 //*****************************************************************************
@@ -329,7 +325,7 @@ void IController::OnRomClose()
 //*****************************************************************************
 //
 //*****************************************************************************
-void IController::Process()
+void IController::ProcessWrite()
 {
 #ifdef DAEDALUS_DEBUG_PIF
 	memcpy(mpInput, mpPifRam, 64);
@@ -342,8 +338,11 @@ void IController::Process()
 	u32 count = 0;
 	u32 channel = 0;
 
-	// Read controller data here (here gets called fewer times than CONT_READ_CONTROLLER)
-	CInputManager::Get()->GetState( mContPads );
+    if (mpPifRam[0x3F] > 1)
+    {
+		DecipherPIFRam();
+		return;
+	}
 
 	while(count < 64)
 	{
@@ -391,9 +390,81 @@ void IController::Process()
 		}
 		else
 		{
-			DAEDALUS_ERROR( "Trying to read from invalid controller channel! %d", channel );
+			DAEDALUS_ERROR( "Trying to write from invalid controller channel! %d", channel );
 			break;
 		}
+
+		channel++;
+		count += cmd[0] + (cmd[1] & 0x3f) + 2;
+
+	}
+
+	mpPifRam[63] = 0;	// Set the last bit is 0 as successfully return
+
+#ifdef DAEDALUS_DEBUG_PIF
+	DPF_PIF("Before | After:");
+
+	for ( u32 x = 0; x < 64; x+=8 )
+	{
+		DPF_PIF( "0x%02x%02x%02x%02x : 0x%02x%02x%02x%02x  |  0x%02x%02x%02x%02x : 0x%02x%02x%02x%02x",
+			mpInput[(x + 0)],  mpInput[(x + 1)],  mpInput[(x + 2)],  mpInput[(x + 3)],
+			mpInput[(x + 4)],  mpInput[(x + 5)],  mpInput[(x + 6)],  mpInput[(x + 7)],
+			mpPifRam[(x + 0)], mpPifRam[(x + 1)], mpPifRam[(x + 2)], mpPifRam[(x + 3)],
+			mpPifRam[(x + 4)], mpPifRam[(x + 5)], mpPifRam[(x + 6)], mpPifRam[(x + 7)] );
+	}
+	DPF_PIF("");
+	DPF_PIF("");
+	DPF_PIF("**                                         **");
+	DPF_PIF("*********************************************");
+#endif
+}
+
+void IController::ProcessRead()
+{
+#ifdef DAEDALUS_DEBUG_PIF
+	memcpy(mpInput, mpPifRam, 64);
+	DPF_PIF("");
+	DPF_PIF("");
+	DPF_PIF("*********************************************");
+	DPF_PIF("**                                         **");
+#endif
+
+	u32 count = 0;
+	u32 channel = 0;
+
+	// Read controller data here (here gets called fewer times than CONT_READ_CONTROLLER)
+	CInputManager::Get()->GetState( mContPads );
+
+	while(count < 64)
+	{
+		u8 *cmd = &mpPifRam[count];
+
+		// command is ready
+		if(cmd[0] == CONT_TX_SIZE_FORMAT_END)
+		{
+			break;
+		}
+
+		// dummy data..
+		if((cmd[0] == CONT_TX_SIZE_DUMMYDATA) || (cmd[0] == CONT_TX_SIZE_CHANRESET))
+		{
+			count++;
+			continue;
+		}
+
+		DAEDALUS_ASSERT( (cmd[0] !=  0xB4) || (cmd[0] != 0x56) || (cmd[0] != 0xB8), "PIF : NOP command? %02x", cmd[0] );
+
+		// next channel
+		if(cmd[0] == CONT_TX_SIZE_CHANSKIP)
+		{
+			count++;
+			channel++;
+			continue;
+		}
+
+		// 0-3 = controller channel
+		if( channel < PC_EEPROM )
+			ProcessReadController(cmd, channel );
 
 		channel++;
 		count += cmd[0] + (cmd[1] & 0x3f) + 2;
@@ -435,6 +506,29 @@ void IController::DumpInput() const
 	}
 }
 #endif
+//*****************************************************************************
+// 
+//*****************************************************************************
+void	IController::ProcessReadController(u8 *cmd, u32 channel)
+{
+	if( !mContPresent[channel] )
+	{
+		DPF_PIF("Controller %d is not connected",channel);
+        cmd[1] |= 0x80;
+        cmd[3] = 0xFF;
+        cmd[4] = 0xFF;
+        cmd[5] = 0xFF;			// Not connected
+		return;
+	}
+	if ( cmd[2] == CONT_READ_CONTROLLER )
+	{
+		DPF_PIF("Controller: Executing READ_CONTROLLER");
+		cmd[3] = mContPads[channel].button >> 8;
+		cmd[4] = mContPads[channel].button;
+		cmd[5] = mContPads[channel].stick_x;
+		cmd[6] = mContPads[channel].stick_y;
+	}
+}
 
 //*****************************************************************************
 // i points to start of command
@@ -467,13 +561,7 @@ bool	IController::ProcessController(u8 *cmd, u32 channel)
 		break;
 
 	case CONT_READ_CONTROLLER:		// Controller
-		DPF_PIF("Controller: Executing READ_CONTROLLER");
-		// Hack - we need to only write the number of bytes asked for!
-		// This is controller status
-		cmd[3] = mContPads[channel].button >> 8;
-		cmd[4] = mContPads[channel].button;
-		cmd[5] = mContPads[channel].stick_x;
-		cmd[6] = mContPads[channel].stick_y;
+		// Nothing todo here
 		break;
 
 	case CONT_READ_MEMPACK:
@@ -753,5 +841,78 @@ void	IController::CommandReadRTC(u8 *cmd)
 		DAEDALUS_ERROR( "Unknown Eeprom command: %02x", cmd[3] );
 		break;
 	}
+}
 
+//*****************************************************************************
+// 
+//*****************************************************************************
+//http://www.emutalk.net/threads/53217-N64-PIF-CIC-NUS-6105-Algorithm-Finally-Reversed
+//
+//Copyright 2011 X-Scale. All rights reserved.
+//
+/*
+ * This software provides an algorithm that emulates the protection scheme of 
+ * N64 PIF/CIC-NUS-6105, by determining the proper response to each challenge. 
+ * It was synthesized after a careful, exhaustive and detailed analysis of the 
+ * challenge/response pairs stored in the 'pif2.dat' file from Project 64. 
+ * These challenge/response pairs were the only resource used during this 
+ * project. There was no kind of physical access to N64 hardware.
+*/
+
+#define CHL_LEN 0x20
+void IController::DecipherPIFRam()
+{
+	// calculate the proper response for the given challenge (X-Scale's algorithm)
+	char lut0[0x10] = {
+		0x4, 0x7, 0xA, 0x7, 0xE, 0x5, 0xE, 0x1, 
+		0xC, 0xF, 0x8, 0xF, 0x6, 0x3, 0x6, 0x9
+	};
+	char lut1[0x10] = {
+		0x4, 0x1, 0xA, 0x7, 0xE, 0x5, 0xE, 0x1, 
+		0xC, 0x9, 0x8, 0x5, 0x6, 0x3, 0xC, 0x9
+	};
+	char challenge[30], response[30];
+	int i=0;
+	switch (mpPifRam[0x3F])
+	{
+	case 0x02:
+		// format the 'challenge' message into 30 nibbles for X-Scale's CIC code
+		for (i = 0; i < 15; i++)
+		{
+			challenge[i*2] =   (mpPifRam[48+i] >> 4) & 0x0f;
+			challenge[i*2+1] =  mpPifRam[48+i]       & 0x0f;
+		}
+
+		char key, *lut;
+		int i, sgn, mag, mod;
+	        
+		for (key = 0xB, lut = lut0, i = 0; i < (CHL_LEN - 2); i++) 
+		{
+			response[i] = (key + 5 * challenge[i]) & 0xF;
+			key = lut[(int) response[i]];
+			sgn = (response[i] >> 3) & 0x1;
+			mag = ((sgn == 1) ? ~response[i] : response[i]) & 0x7;
+			mod = (mag % 3 == 1) ? sgn : 1 - sgn;
+			if (lut == lut1 && (response[i] == 0x1 || response[i] == 0x9))
+				mod = 1;
+			if (lut == lut1 && (response[i] == 0xB || response[i] == 0xE))
+				mod = 0;
+			lut = (mod == 1) ? lut1 : lut0;
+		}
+
+		// re-format the 'response' into a byte stream
+		for (i = 0; i < 15; i++)
+		{
+			mpPifRam[48+i] = (response[i*2] << 4) + response[i*2+1];
+		}
+		// the last byte (2 nibbles) is always 0
+		mpPifRam[63] = 0;
+		break;
+	case 0x08:
+		mpPifRam[63] = 0;
+		break;
+	default:
+		DAEDALUS_ERROR("Failed to decipher pif ram");
+		break;
+	}
 }

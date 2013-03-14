@@ -59,6 +59,7 @@ void DMA_SP_CopyFromRDRAM()
 	if((spmem_address_reg & 0x1000) == 0)
 	{
 		//FIXME(strmnnrmn): shouldn't this be using _swizzle?
+		//No swizzle is okay since alignment and size constrains are met //Salvy
 		fast_memcpy(&g_pu8SpMemBase[(spmem_address_reg & 0xFFF)],
 					&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)], splen);
 	}
@@ -103,6 +104,7 @@ void DMA_SP_CopyToRDRAM()
 	if((spmem_address_reg & 0x1000) == 0)
 	{
 		//FIXME(strmnnrmn): shouldn't this be using _swizzle?
+		//No swizzle is okay since alignment and size constrains are met //Salvy
 		fast_memcpy(&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
 					&g_pu8SpMemBase[(spmem_address_reg & 0xFFF)], splen);
 	}
@@ -146,6 +148,8 @@ void DMA_SI_CopyFromDRAM( )
 		p_dst[i] = BSWAP32(p_src[i]);
 	}
 
+	CController::Get()->ProcessWrite();
+
 	Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SI);
 	R4300_Interrupt_UpdateCause3();
@@ -157,7 +161,8 @@ void DMA_SI_CopyFromDRAM( )
 void DMA_SI_CopyToDRAM( )
 {
 	// Check controller status!
-	CController::Get()->Process();
+	// Shouldn't this be after swapping?/Salvy
+	CController::Get()->ProcessRead();
 
 	u32 mem = Memory_SI_GetRegister(SI_DRAM_ADDR_REG) & 0x1fffffff;
 	u32 * p_src = (u32 *)g_pMemoryBuffers[MEM_PIF_RAM];
@@ -170,6 +175,7 @@ void DMA_SI_CopyToDRAM( )
 	{
 		p_dst[i] = BSWAP32(p_src[i]);
 	}
+
 
 	Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SI);
@@ -245,8 +251,8 @@ void DMA_PI_CopyToRDRAM()
 
 	DPF( DEBUG_MEMORY_PI, "PI: Copying %d bytes of data from 0x%08x to 0x%08x", pi_length_reg, cart_address, mem_address );
 
-	DAEDALUS_ASSERT(!IsDom1Addr1(cart_address), "The code below doesn't handle dom1/addr1 correctly");
-	DAEDALUS_ASSERT(!IsDom1Addr3(cart_address), "The code below doesn't handle dom1/addr3 correctly");
+	//DAEDALUS_ASSERT(!IsDom1Addr1(cart_address), "The code below doesn't handle dom1/addr1 correctly");
+	//DAEDALUS_ASSERT(!IsDom1Addr3(cart_address), "The code below doesn't handle dom1/addr3 correctly");
 
 	if (cart_address < 0x10000000)
     {

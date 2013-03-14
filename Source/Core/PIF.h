@@ -39,7 +39,8 @@ class CController : public CSingleton< CController >
 		virtual bool			OnRomOpen() = 0;
 		virtual void			OnRomClose() = 0;
 
-		virtual void			Process() = 0;
+		virtual void			ProcessRead() = 0;
+		virtual void			ProcessWrite() = 0;
 
 		static void				Reset() { CController::Get()->OnRomOpen(); }
 		static void				RomClose() { CController::Get()->OnRomClose(); }
