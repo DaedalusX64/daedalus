@@ -1036,6 +1036,16 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_FillRect( MicroCodeCommand command )
 {
+	//
+	// (1) Removes annoying rect that appears in Conker etc
+	// (2) Removes fillrects that cover screen in banjo tooie
+
+	if( (g_CI.Format != G_IM_FMT_RGBA) || (g_ROM.GameHacks == BANJO_TOOIE && g_TI.Format == G_IM_FMT_CI && g_TI.Size == G_IM_SIZ_8b && g_TI.Width == g_CI.Width))
+	{
+		DL_PF("    Ignoring Fillrect ");
+		return;
+	}
+
 	// Note, in some modes, the right/bottom lines aren't drawn
 
 	//Always clear Zbuffer if Depthbuffer is selected //Corn
@@ -1086,14 +1096,6 @@ void DLParser_FillRect( MicroCodeCommand command )
 	{
 		// Should we use Prim or Blend colour? Doesn't work well see Mk64 transition before a race
 		colour = c32(0);
-	}
-	//
-	// (1) Removes annoying rect that appears in Conker etc
-	//
-	if( g_CI.Format != G_IM_FMT_RGBA )
-	{
-		DL_PF("    Ignoring Fillrect ");
-		return;
 	}
 
 	DL_PF("    Filling Rectangle (%d,%d)->(%d,%d)", command.fillrect.x0, command.fillrect.y0, command.fillrect.x1, command.fillrect.y1);
