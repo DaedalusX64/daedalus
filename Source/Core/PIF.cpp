@@ -465,7 +465,11 @@ void IController::ProcessRead()
 		// 0-3 = controller channel
 		if( channel < PC_EEPROM )
 			ProcessReadController(cmd, channel );
-
+		else if( channel > PC_EEPROM)
+		{
+			DAEDALUS_ERROR( "Trying to read from invalid controller channel! %d", channel );
+			break;
+		}
 		channel++;
 		count += cmd[0] + (cmd[1] & 0x3f) + 2;
 

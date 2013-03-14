@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //Speedy random returns a number 1 to (2^32)-1 //Corn
 inline u32 FastRand()
 {
-	const u32 IO_RAND=0x12345678;
-	return (IO_RAND << 1) | (((IO_RAND >> 31) ^ (IO_RAND >> 28)) & 1);
+	static u32 IO_RAND=0x12345678;
+	IO_RAND = (IO_RAND << 1) | (((IO_RAND >> 31) ^ (IO_RAND >> 28)) & 1);
+	return IO_RAND;
 }
