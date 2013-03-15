@@ -67,11 +67,8 @@ inline void DLParser_Sprite2DScaleFlip( MicroCodeCommand command, Sprite2DInfo *
 //*****************************************************************************
 inline void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo &info, Sprite2DStruct *sprite )
 {
-
 	u16 px = (u16)(((command.inst.cmd1)>>16)&0xFFFF)/4;
 	u16 py = (u16)( (command.inst.cmd1)     &0xFFFF)/4;
-
-	DAEDALUS_ASSERT( sprite, "Sprite2DStruct is NULL" );
 
 	// Wipeout.
 	if(sprite->width == 0)
@@ -123,34 +120,37 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo 
 // Used by Flying Dragon
 void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 {
-	// FIXME(strmnnrmn) - gcc was warning about info being uninititialised in this
-	// function, so I inited it here.
-	// If command2.inst.cmd != G_GBI1_SPRITE2D_SCALEFLIP for any reason,
-	// then it would have rendered a load of crap to the screen. We probably
-	// shouldn't even call DLParser_Sprite2DDraw if there's no
-	// G_GBI1_SPRITE2D_SCALEFLIP command.
-	Sprite2DInfo info = { 0.f, 0.f, 0, 0 };
-	u32 address = RDPSegAddr(command.inst.cmd1) & (MAX_RAM_ADDRESS-1);
-	Sprite2DStruct *sprite = (Sprite2DStruct *)(g_ps8RamBase + address);
+	Sprite2DInfo info;
+	Sprite2DStruct *sprite;
 
-	MicroCodeCommand command2;
-	MicroCodeCommand command3;
-
-	//
-	// Fetch the next two instructions (Scaleflip and Draw)
-	//
-	DLParser_FetchNextCommand( &command2 );
-	DLParser_FetchNextCommand( &command3 );
-
-	if( command2.inst.cmd == G_GBI1_SPRITE2D_SCALEFLIP )
+	u32 pc = gDlistStack.address[gDlistStackPointer];
+	u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
+	
+	// This assumes sprite2D is always followed by flip and draw
+	// Try to execute as many sprite2d ucodes as possible, I seen chains over 200! in FB
+	do
 	{
-		DLParser_Sprite2DScaleFlip( command2, &info );
-	}
+		u32 address = RDPSegAddr(command.inst.cmd1) & (MAX_RAM_ADDRESS-1);
+		sprite = (Sprite2DStruct *)(g_ps8RamBase + address);
 
-	if( command3.inst.cmd == G_GBI1_SPRITE2D_DRAW )
-	{
-		DLParser_Sprite2DDraw( command3, info, sprite );
-	}
+		// Fetch Sprite2D Flip
+		command.inst.cmd0= *pCmdBase++;
+		command.inst.cmd1= *pCmdBase++;
+		DAEDALUS_ASSERT(command.inst.cmd == G_GBI1_SPRITE2D_SCALEFLIP, "Opps, was expecting Sprite2D Flip");
+		DLParser_Sprite2DScaleFlip( command, &info );
+
+		// Fetch Sprite2D Draw
+		command.inst.cmd0= *pCmdBase++;
+		command.inst.cmd1= *pCmdBase++;
+		DAEDALUS_ASSERT(command.inst.cmd == G_GBI1_SPRITE2D_DRAW, "Opps, was expecting Sprite2D Draw");
+		DLParser_Sprite2DDraw( command, info, sprite );
+
+		command.inst.cmd0= *pCmdBase++;
+		command.inst.cmd1= *pCmdBase++;
+		pc += 24;
+	} while ( command.inst.cmd == G_GBI1_SPRITE2D_BASE );
+	
+	gDlistStack.address[gDlistStackPointer] = pc-8;
 }
 
 #endif // UCODE_SPRITE2D_H__
