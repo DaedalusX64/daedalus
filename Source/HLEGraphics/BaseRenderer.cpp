@@ -322,6 +322,7 @@ void BaseRenderer::InitViewport()
 
 	if( gRumblePakActive )
 	{
+		printf("z %d\n",(FastRand() & 3));
 	    mN64ToScreenTranslate.x += (FastRand() & 3);
 		mN64ToScreenTranslate.y += (FastRand() & 3);
 	}
@@ -1821,8 +1822,9 @@ void BaseRenderer::SetProjection(const u32 address, bool bReplace)
 	}
 	else
 	{
-		MatrixFromN64FixedPoint( mProjectionStack[1], address);
-		MatrixMultiplyAligned( &mProjectionStack[0], &mProjectionStack[1], &mProjectionStack[0] );
+		ALIGNED_TYPE(Matrix4x4, temp, 16);
+		MatrixFromN64FixedPoint( temp, address);
+		MatrixMultiplyAligned( &mProjectionStack[0], &temp, &mProjectionStack[0] );
 	}
 
 	mWorldProjectValid = false;
@@ -1849,8 +1851,9 @@ void BaseRenderer::SetProjectionDKR(const u32 address, bool mul, u32 idx)
 
 	if( mul )
 	{
-		MatrixFromN64FixedPoint( mProjectionStack[4], address );	//Only index 0-3 are used by DKR, index 4 and up is free //Corn
-		MatrixMultiplyAligned( &mProjectionStack[idx], &mProjectionStack[4], &mProjectionStack[0] );
+		ALIGNED_TYPE(Matrix4x4, temp, 16);
+		MatrixFromN64FixedPoint( temp, address );
+		MatrixMultiplyAligned( &mProjectionStack[idx], &temp, &mProjectionStack[0] );
 	}
 	else
 	{
@@ -1876,6 +1879,8 @@ void BaseRenderer::SetProjectionDKR(const u32 address, bool mul, u32 idx)
 //*****************************************************************************
 void BaseRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 {
+	ALIGNED_TYPE(Matrix4x4, temp, 16);
+
 	// ModelView
 	if (bPush && (mModelViewTop < mMatStackSize))
 	{
@@ -1891,8 +1896,8 @@ void BaseRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 		}
 		else	// Multiply ModelView matrix
 		{
-			MatrixFromN64FixedPoint( mModelViewStack[mModelViewTop], address);
-			MatrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mModelViewStack[mModelViewTop], &mModelViewStack[mModelViewTop-1] );
+			MatrixFromN64FixedPoint( temp, address);
+			MatrixMultiplyAligned( &mModelViewStack[mModelViewTop], &temp, &mModelViewStack[mModelViewTop-1] );
 		}
 	}
 	else	// NoPush
@@ -1905,8 +1910,8 @@ void BaseRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 		else
 		{
 			// Multiply ModelView matrix
-			MatrixFromN64FixedPoint( mModelViewStack[mModelViewTop+1], address);
-			MatrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mModelViewStack[mModelViewTop+1], &mModelViewStack[mModelViewTop] );
+			MatrixFromN64FixedPoint( temp, address);
+			MatrixMultiplyAligned( &mModelViewStack[mModelViewTop], &temp, &mModelViewStack[mModelViewTop] );
 		}
 	}
 

@@ -383,9 +383,9 @@ protected:
 	static const u32 MATRIX_STACK_SIZE = 20;
 
 	mutable Matrix4x4	mWorldProject;
-	// The projection stack is 1 matrix deep, but we use more for DKR 1-4
+	// The projection stack is 1 matrix deep, but we use more for DKR 1-3
 	// Todo : Why not use modelview stack for DKR? either way they are "unused" for DKR
-	Matrix4x4			mProjectionStack[5];
+	Matrix4x4			mProjectionStack[4];
 	Matrix4x4			mModelViewStack[MATRIX_STACK_SIZE];
 	u32					mModelViewTop;
 	u32					mMatStackSize;
