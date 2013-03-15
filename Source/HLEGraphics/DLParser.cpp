@@ -1037,10 +1037,8 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 void DLParser_FillRect( MicroCodeCommand command )
 {
 	//
-	// (1) Removes annoying rect that appears in Conker etc
-	// (2) Removes fillrects that cover screen in banjo tooie
-
-	if( (g_CI.Format != G_IM_FMT_RGBA) || (g_ROM.GameHacks == BANJO_TOOIE && g_TI.Format == G_IM_FMT_CI && g_TI.Size == G_IM_SIZ_8b && g_TI.Width == g_CI.Width))
+	// Removes annoying rect that appears in Conker and fillrects that cover screen in banjo tooie
+	if( g_CI.Format != G_IM_FMT_RGBA )
 	{
 		DL_PF("    Ignoring Fillrect ");
 		return;

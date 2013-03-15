@@ -371,7 +371,6 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x3954: g_ROM.GameHacks = TIGERS_HONEY_HUNT;	break;
 	case 0x5632: g_ROM.GameHacks = CHAMELEON_TWIST_2;	break;
 	case 0x344b: g_ROM.GameHacks = KIRBY64;				break;
-	case 0x3742: g_ROM.GameHacks = BANJO_TOOIE;			break;
 	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
 	case 0x4643: g_ROM.GameHacks = CLAY_FIGHTER_63;		break;
 	case 0x504A: g_ROM.GameHacks = ISS64;				break;
