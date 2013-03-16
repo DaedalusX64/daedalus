@@ -248,7 +248,7 @@ public:
 	void				PrintActive();
 #endif
 	void				ResetMatrices(u32 size);
-	void				SetProjectionDKR(const u32 address, bool mul, u32 idx);
+	void				SetDKRMat(const u32 address, bool mul, u32 idx);
 	void				SetProjection(const u32 address, bool bReplace);
 	void				SetWorldView(const u32 address, bool bPush, bool bReplace);
 	//inline void			PopProjection() {if (mProjectionTop > 0) --mProjectionTop;	mWorldProjectValid = false;}
@@ -260,7 +260,7 @@ public:
 	// Vertex stuff
 	void				SetNewVertexInfo(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!
 	void				SetNewVertexInfoConker(u32 address, u32 v0, u32 n);	// For conker..
-	void				SetNewVertexInfoDKR(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!
+	void				SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboard);	// Assumes dwAddress has already been checked!
 	void				SetNewVertexInfoPD(u32 address, u32 v0, u32 n);	// Assumes dwAddress has already been checked!
 	void				ModifyVertexInfo(u32 whered, u32 vert, u32 val);
 	void				SetVtxColor( u32 vert, c32 color );
@@ -383,10 +383,8 @@ protected:
 	static const u32 MATRIX_STACK_SIZE = 20;
 
 	mutable Matrix4x4	mWorldProject;
-	// The projection stack is 1 matrix deep, but we use more for DKR 1-3
-	// Todo : Why not use modelview stack for DKR? either way they are "unused" for DKR
-	Matrix4x4			mProjectionStack[4];
-	Matrix4x4			mModelViewStack[MATRIX_STACK_SIZE];
+	Matrix4x4			mProjectionMat;
+	Matrix4x4			mModelViewStack[MATRIX_STACK_SIZE];	//DKR reuses these and need at least 4 //Corn
 	u32					mModelViewTop;
 	u32					mMatStackSize;
 	mutable bool		mWorldProjectValid;
@@ -396,7 +394,10 @@ protected:
 
 	float				mScreenWidth;
 	float				mScreenHeight;
+
+#if defined(DAEDALUS_OSX)
 	Matrix4x4			mScreenToDevice;					// Used by OSX renderer - scales screen coords (0..640 etc) to device coords (-1..+1)
+#endif
 
 	static const u32 	MAX_VERTICES = 320;	//we need at least 80 verts * 3 = 240? But Flying Dragon uses more than 256 //Corn
 	u16					m_swIndexBuffer[MAX_VERTICES];

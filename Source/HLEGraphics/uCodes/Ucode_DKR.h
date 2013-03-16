@@ -105,7 +105,9 @@ void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 
 	DAEDALUS_ASSERT( v0_idx < 32, "DKR : v0 out of bound! %d" );
 
-	gRenderer->SetNewVertexInfoDKR(address, v0_idx, num_verts);
+	gRenderer->SetNewVertexInfoDKR(address, v0_idx, num_verts, gDKRBillBoard);
+
+	gDKRVtxCount += num_verts;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	gNumVertices += num_verts;
@@ -168,7 +170,7 @@ void DLParser_Mtx_DKR( MicroCodeCommand command )
 	}
 
 	// Load matrix from address
-	gRenderer->SetProjectionDKR(address, mul, mtx_command);
+	gRenderer->SetDKRMat(address, mul, mtx_command);
 }
 
 //*****************************************************************************

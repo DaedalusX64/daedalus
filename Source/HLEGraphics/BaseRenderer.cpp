@@ -322,11 +322,11 @@ void BaseRenderer::InitViewport()
 
 	if( gRumblePakActive )
 	{
-		printf("z %d\n",(FastRand() & 3));
 	    mN64ToScreenTranslate.x += (FastRand() & 3);
 		mN64ToScreenTranslate.y += (FastRand() & 3);
 	}
 
+#if defined(DAEDALUS_OSX)
 	f32 w = mScreenWidth;
 	f32 h = mScreenHeight;
 
@@ -336,6 +336,7 @@ void BaseRenderer::InitViewport()
 		    0.f,       0.f,     1.f,     0.f,
 		  -1.0f,       1.f,     0.f,     1.f
 	);
+#endif
 
 	UpdateViewport();
 }
@@ -1107,7 +1108,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
-	const Matrix4x4 & mat_project = mProjectionStack[0];
+	const Matrix4x4 & mat_project = mProjectionMat;
 	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
@@ -1127,7 +1128,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
 	//DBGConsole_Msg(0, "In SetNewVertexInfo");
 	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
-	const Matrix4x4 & mat_project = mProjectionStack[0];
+	const Matrix4x4 & mat_project = mProjectionMat;
 	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
@@ -1243,40 +1244,35 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 // Assumes address has already been checked!
 // DKR/Jet Force Gemini rendering pipeline
 //*****************************************************************************
-extern u32 gDKRVtxCount;
-extern bool gDKRBillBoard;
-
-void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n)
+void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboard)
 {
-	gDKRVtxCount += n;
-
 	u32 pVtxBase = u32(g_pu8RamBase + address);
-	const Matrix4x4 & mat_world_project = mProjectionStack[mDKRMatIdx];
+	const Matrix4x4 & mat_world_project = mModelViewStack[mDKRMatIdx];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
 	DL_PF( "    CMtx[%d] Add base[%s]", mDKRMatIdx, gDKRBillBoard? "On":"Off");
 
-	if( gDKRBillBoard )
+	if( billboard )
 	{	//Copy vertices adding base vector and the color data
 		mWPmodified = false;
 
 #ifdef DAEDALUS_PSP_USE_VFPU
-		_TnLVFPUDKRB( n, &mProjectionStack[0], (const FiddledVtx*)pVtxBase, &mVtxProjected[v0] );
+		_TnLVFPUDKRB( n, &mModelViewStack[0], (const FiddledVtx*)pVtxBase, &mVtxProjected[v0] );
 #else
 		v4 & BaseVec( mVtxProjected[0].TransformedPos );
 
 		//Hack to worldproj matrix to scale and rotate billbords //Corn
-		Matrix4x4 mat( mProjectionStack[0]);
-		mat.mRaw[0] *= mProjectionStack[2].mRaw[0] * 0.5f;
-		mat.mRaw[4] *= mProjectionStack[2].mRaw[0] * 0.5f;
-		mat.mRaw[8] *= mProjectionStack[2].mRaw[0] * 0.5f;
-		mat.mRaw[1] *= mProjectionStack[2].mRaw[0] * 0.375f;
-		mat.mRaw[5] *= mProjectionStack[2].mRaw[0] * 0.375f;
-		mat.mRaw[9] *= mProjectionStack[2].mRaw[0] * 0.375f;
-		mat.mRaw[2] *= mProjectionStack[2].mRaw[10] * 0.5f;
-		mat.mRaw[6] *= mProjectionStack[2].mRaw[10] * 0.5f;
-		mat.mRaw[10] *= mProjectionStack[2].mRaw[10] * 0.5f;
+		Matrix4x4 mat( mModelViewStack[0]);
+		mat.mRaw[0] *= mModelViewStack[2].mRaw[0] * 0.5f;
+		mat.mRaw[4] *= mModelViewStack[2].mRaw[0] * 0.5f;
+		mat.mRaw[8] *= mModelViewStack[2].mRaw[0] * 0.5f;
+		mat.mRaw[1] *= mModelViewStack[2].mRaw[0] * 0.375f;
+		mat.mRaw[5] *= mModelViewStack[2].mRaw[0] * 0.375f;
+		mat.mRaw[9] *= mModelViewStack[2].mRaw[0] * 0.375f;
+		mat.mRaw[2] *= mModelViewStack[2].mRaw[10] * 0.5f;
+		mat.mRaw[6] *= mModelViewStack[2].mRaw[10] * 0.5f;
+		mat.mRaw[10] *= mModelViewStack[2].mRaw[10] * 0.5f;
 
 		for (u32 i = v0; i < v0 + n; i++)
 		{
@@ -1366,7 +1362,7 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + address);
 
 	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
-	const Matrix4x4 & mat_project = mProjectionStack[0];
+	const Matrix4x4 & mat_project = mProjectionMat;
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1383,7 +1379,7 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + address);
 
 	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
-	const Matrix4x4 & mat_project = mProjectionStack[0];
+	const Matrix4x4 & mat_project = mProjectionMat;
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
@@ -1590,7 +1586,7 @@ void BaseRenderer::ResetMatrices(u32 size)
 
 	mMatStackSize = (size > MATRIX_STACK_SIZE) ? MATRIX_STACK_SIZE : size;
 	mModelViewTop = 0;
-	mProjectionStack[0] = mModelViewStack[0] = gMatrixIdentity;
+	mProjectionMat = mModelViewStack[0] = gMatrixIdentity;
 	mWorldProjectValid = false;
 }
 
@@ -1601,19 +1597,26 @@ void BaseRenderer::UpdateTileSnapshots( u32 tile_idx )
 {
 	UpdateTileSnapshot( 0, tile_idx );
 
-//#ifdef RDP_USE_TEXEL1
-
+#ifdef DAEDALUS_PSP
 	if ( g_ROM.LOAD_T1_HACK & !gRDPOtherMode.text_lod )
 	{
 		// LOD is disabled - use two textures
 		UpdateTileSnapshot( 1, tile_idx + 1 );
 	}
-	//else
-	//{
-	//	// LOD is enabled - use the highest detail texture in texel1
-	//	UpdateTileSnapshot( 1, tile_idx );
-	//}
-//#endif
+#else
+#ifdef RDP_USE_TEXEL1
+	if ( !gRDPOtherMode.text_lod )
+	{
+		// LOD is disabled - use two textures
+		UpdateTileSnapshot( 1, tile_idx + 1 );
+	}
+	else
+	{
+		// LOD is enabled - use the highest detail texture in texel1
+		UpdateTileSnapshot( 1, tile_idx );
+	}
+#endif
+#endif
 }
 
 #ifdef DAEDALUS_PSP
@@ -1809,42 +1812,42 @@ void BaseRenderer::SetProjection(const u32 address, bool bReplace)
 	if (bReplace)
 	{
 		// Load projection matrix
-		MatrixFromN64FixedPoint( mProjectionStack[0], address);
+		MatrixFromN64FixedPoint( mProjectionMat, address);
 
 		//Hack needed to show heart in OOT & MM
 		//it renders at Z cordinate = 0.0f that gets clipped away.
 		//so we translate them a bit along Z to make them stick :) //Corn
 		//
 		if( g_ROM.ZELDA_HACK )
-			mProjectionStack[0].mRaw[14] += 0.4f;
+			mProjectionMat.mRaw[14] += 0.4f;
 		if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
-			mProjectionStack[0].mRaw[0] *= HD_SCALE;	//proper 16:9 scale
+			mProjectionMat.mRaw[0] *= HD_SCALE;	//proper 16:9 scale
 	}
 	else
 	{
 		ALIGNED_TYPE(Matrix4x4, temp, 16);
 		MatrixFromN64FixedPoint( temp, address);
-		MatrixMultiplyAligned( &mProjectionStack[0], &temp, &mProjectionStack[0] );
+		MatrixMultiplyAligned( &mProjectionMat, &temp, &mProjectionMat );
 	}
 
 	mWorldProjectValid = false;
-	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[0]) );
+	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionMat) );
 
 	DL_PF(
 		"	 %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
 		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
 		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n"
 		"    %#+12.5f %#+12.5f %#+12.7f %#+12.5f\n",
-		mProjectionStack[0].m[0][0], mProjectionStack[0].m[0][1], mProjectionStack[0].m[0][2], mProjectionStack[0].m[0][3],
-		mProjectionStack[0].m[1][0], mProjectionStack[0].m[1][1], mProjectionStack[0].m[1][2], mProjectionStack[0].m[1][3],
-		mProjectionStack[0].m[2][0], mProjectionStack[0].m[2][1], mProjectionStack[0].m[2][2], mProjectionStack[0].m[2][3],
-		mProjectionStack[0].m[3][0], mProjectionStack[0].m[3][1], mProjectionStack[0].m[3][2], mProjectionStack[0].m[3][3]);
+		mProjectionMat.m[0][0], mProjectionMat.m[0][1], mProjectionMat.m[0][2], mProjectionMat.m[0][3],
+		mProjectionMat.m[1][0], mProjectionMat.m[1][1], mProjectionMat.m[1][2], mProjectionMat.m[1][3],
+		mProjectionMat.m[2][0], mProjectionMat.m[2][1], mProjectionMat.m[2][2], mProjectionMat.m[2][3],
+		mProjectionMat.m[3][0], mProjectionMat.m[3][1], mProjectionMat.m[3][2], mProjectionMat.m[3][3]);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void BaseRenderer::SetProjectionDKR(const u32 address, bool mul, u32 idx)
+void BaseRenderer::SetDKRMat(const u32 address, bool mul, u32 idx)
 {
 	mDKRMatIdx = idx;
 	mWPmodified = true;
@@ -1853,15 +1856,15 @@ void BaseRenderer::SetProjectionDKR(const u32 address, bool mul, u32 idx)
 	{
 		ALIGNED_TYPE(Matrix4x4, temp, 16);
 		MatrixFromN64FixedPoint( temp, address );
-		MatrixMultiplyAligned( &mProjectionStack[idx], &temp, &mProjectionStack[0] );
+		MatrixMultiplyAligned( &mModelViewStack[idx], &temp, &mModelViewStack[0] );
 	}
 	else
 	{
-		MatrixFromN64FixedPoint( mProjectionStack[idx], address );
+		MatrixFromN64FixedPoint( mModelViewStack[idx], address );
 	}
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	const Matrix4x4 & mtx( mProjectionStack[idx] );
+	const Matrix4x4 & mtx( mModelViewStack[idx] );
 	DL_PF("    Mtx_DKR: Index %d %s Address 0x%08x\n"
 			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
 			"    %#+12.5f %#+12.5f %#+12.5f %#+12.5f\n"
@@ -1940,9 +1943,9 @@ inline void BaseRenderer::UpdateWorldProject()
 		if( mReloadProj )
 		{
 			mReloadProj = false;
-			sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionStack[0]) );
+			sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mProjectionMat) );
 		}
-		MatrixMultiplyAligned( &mWorldProject, &mModelViewStack[mModelViewTop], &mProjectionStack[0] );
+		MatrixMultiplyAligned( &mWorldProject, &mModelViewStack[mModelViewTop], &mProjectionMat );
 	}
 }
 
@@ -1998,7 +2001,7 @@ void BaseRenderer::InsertMatrix(u32 w0, u32 w1)
 	//Make sure WP matrix is up to date before changing WP matrix
 	if( !mWorldProjectValid )
 	{
-		mWorldProject = mModelViewStack[mModelViewTop] * mProjectionStack[0];
+		mWorldProject = mModelViewStack[mModelViewTop] * mProjectionMat;
 		mWorldProjectValid = true;
 	}
 
