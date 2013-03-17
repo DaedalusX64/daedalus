@@ -21,11 +21,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define UCODE_DKR_H__
 
 u32 gDKRMatrixAddr = 0;
-u32 gDKRAddr = 0;
 u32 gDKRVtxCount = 0;
 bool gDKRBillBoard = false;
 
-// DKR verts are extra 4 bytes
+// DKR verts are 10 bytes
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 //*****************************************************************************
 //
@@ -83,12 +82,12 @@ void DLParser_DumpVtxInfoDKR(u32 address, u32 v0_idx, u32 num_verts)
 //*****************************************************************************
 void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 {
-	u32 address		= command.inst.cmd1 + gDKRAddr;
+	u32 address		= command.inst.cmd1 + gAuxAddr;
 	u32 num_verts   = ((command.inst.cmd0 >> 19) & 0x1F);
 	u32 v0_idx		= 0;
+	
 	// Increase by one num verts for DKR
-	if( g_ROM.GameHacks == DKR )
-		num_verts++;
+	if( g_ROM.GameHacks == DKR ) num_verts++;
 
 	if( command.inst.cmd0 & 0x00010000 )
 	{
@@ -102,8 +101,6 @@ void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 
 	v0_idx = ((command.inst.cmd0 >> 9) & 0x1F) + gDKRVtxCount;
 	DL_PF("    Address[0x%08x] v0[%d] Num[%d]", address, v0_idx, num_verts);
-
-	DAEDALUS_ASSERT( v0_idx < 32, "DKR : v0 out of bound! %d" );
 
 	gRenderer->SetNewVertexInfoDKR(address, v0_idx, num_verts, gDKRBillBoard);
 
@@ -119,12 +116,6 @@ void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-// BB2k
-// DKR
-//00229B70: 07020010 000DEFC8 CMD G_DLINMEM  Displaylist at 800DEFC8 (stackp 1, limit 2)
-//00229A58: 06000000 800DE520 CMD G_GBI1_DL  Displaylist at 800DE520 (stackp 1, limit 0)
-//00229B90: 07070038 00225850 CMD G_DLINMEM  Displaylist at 80225850 (stackp 1, limit 7)
-
 void DLParser_DLInMem( MicroCodeCommand command )
 {
 	gDlistStackPointer++;
@@ -139,21 +130,10 @@ void DLParser_DLInMem( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-/*
-00229C28: 01400040 002327C0 CMD G_MTX  {Matrix} at 802327C0 ind 1  Load:Mod
-00229BB8: 01400040 00232740 CMD G_MTX  {Matrix} at 80232740 ind 1  Load:Mod
-00229BF0: 01400040 00232780 CMD G_MTX  {Matrix} at 80232780 ind 1  Load:Mod
-00229B28: 01000040 002326C0 CMD G_MTX  {Matrix} at 802326C0  Mul:Mod
-00229B78: 01400040 00232700 CMD G_MTX  {Matrix} at 80232700  Mul:Mod
-*/
-
-// 0x80 seems to be mul
-// 0x40 load
-
 void DLParser_Mtx_DKR( MicroCodeCommand command )
 {
 	u32 address		= command.inst.cmd1 + RDPSegAddr(gDKRMatrixAddr);
-	u32 mtx_command = (command.inst.cmd0 >> 16) & 0xF;
+	u32 mtx_command = (command.inst.cmd0 >> 16) & 0x3;
 	//u32 length      = (command.inst.cmd0      )& 0xFFFF;
 
 	bool mul = false;
@@ -204,23 +184,19 @@ void DLParser_MoveWord_DKR( MicroCodeCommand command )
 void DLParser_Set_Addr_DKR( MicroCodeCommand command )
 {
 	gDKRMatrixAddr  = command.inst.cmd0 & 0x00FFFFFF;
-	gDKRAddr		= RDPSegAddr(command.inst.cmd1 & 0x00FFFFFF);
+	gAuxAddr		= RDPSegAddr(command.inst.cmd1 & 0x00FFFFFF);
 	gDKRVtxCount	= 0;
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-//DKR: 00229BA8: 05710080 001E4AF0 CMD G_DMATRI  Triangles 9 at 801E4AF0
 void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 {
 	u32 address = RDPSegAddr(command.inst.cmd1);
-	u32 count = (command.inst.cmd0 >> 4) & 0xFFF;
+	u32 count = (command.inst.cmd0 >> 4) & 0x1F;	//Count should never exceed 16
 
-	// Unlike normal tris ucodes this has the tris info in rdram
 	TriDKR *tri = (TriDKR*)(g_pu8RamBase + address);
-
-	DAEDALUS_ASSERT( count < 16, "DKR to many triangles, indexing outside mVtxProjected array" );
 
 	bool tris_added = false;
 
@@ -259,19 +235,23 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 
 #if 1	//1->Fixes texture scaling, 0->Render as is and get some texture scaling errors
 		//
-		// This will create problem since some verts will get re-used and over-write new texture coords
-		// To fix it we copy all verts to a new location where we can have individual texture coordinates //Corn
-		gRenderer->CopyVtx( v0_idx, i*3+32);
-		gRenderer->CopyVtx( v1_idx, i*3+33);
-		gRenderer->CopyVtx( v2_idx, i*3+34);
+		// This will create problem since some verts will get re-used and over-write new texture coords before previous has been rendered
+		// To fix it we copy all verts to a new location where we can have individual texture coordinates for each triangle//Corn
+		const u32 new_v0_idx = i * 3 + 32;
+		const u32 new_v1_idx = i * 3 + 33;
+		const u32 new_v2_idx = i * 3 + 34;
 
-		if( gRenderer->AddTri(i*3+32, i*3+33, i*3+34) )
+		gRenderer->CopyVtx( v0_idx, new_v0_idx);
+		gRenderer->CopyVtx( v1_idx, new_v1_idx);
+		gRenderer->CopyVtx( v2_idx, new_v2_idx);
+
+		if( gRenderer->AddTri(new_v0_idx, new_v1_idx, new_v2_idx) )
 		{
 			tris_added = true;
 			// Generate texture coordinates...
-			gRenderer->SetVtxTextureCoord( i*3+32, tri->s0, tri->t0 );
-			gRenderer->SetVtxTextureCoord( i*3+33, tri->s1, tri->t1 );
-			gRenderer->SetVtxTextureCoord( i*3+34, tri->s2, tri->t2 );
+			gRenderer->SetVtxTextureCoord( new_v0_idx, tri->s0, tri->t0 );
+			gRenderer->SetVtxTextureCoord( new_v1_idx, tri->s1, tri->t1 );
+			gRenderer->SetVtxTextureCoord( new_v2_idx, tri->s2, tri->t2 );
 		}
 #else
 		if( gRenderer->AddTri(v0_idx, v1_idx, v2_idx) )
