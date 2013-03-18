@@ -383,6 +383,7 @@ protected:
 	static const u32 MATRIX_STACK_SIZE = 20;
 
 	mutable Matrix4x4	mWorldProject;
+	Matrix4x4			mTempMat;
 	Matrix4x4			mProjectionMat;
 	Matrix4x4			mModelViewStack[MATRIX_STACK_SIZE];	//DKR reuses these and need at least 4 //Corn
 	u32					mModelViewTop;

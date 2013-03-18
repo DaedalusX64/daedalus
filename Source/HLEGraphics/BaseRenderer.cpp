@@ -1251,7 +1251,7 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
-	DL_PF( "    CMtx[%d] Add base[%s]", mDKRMatIdx, gDKRBillBoard? "On":"Off");
+	DL_PF( "    CMtx[%d] Add base[%s]", mDKRMatIdx, billboard? "On":"Off");
 
 	if( billboard )
 	{	//Copy vertices adding base vector and the color data
@@ -1825,9 +1825,8 @@ void BaseRenderer::SetProjection(const u32 address, bool bReplace)
 	}
 	else
 	{
-		ALIGNED_TYPE(Matrix4x4, temp, 16);
-		MatrixFromN64FixedPoint( temp, address);
-		MatrixMultiplyAligned( &mProjectionMat, &temp, &mProjectionMat );
+		MatrixFromN64FixedPoint( mTempMat, address);
+		MatrixMultiplyAligned( &mProjectionMat, &mTempMat, &mProjectionMat );
 	}
 
 	mWorldProjectValid = false;
@@ -1854,9 +1853,8 @@ void BaseRenderer::SetDKRMat(const u32 address, bool mul, u32 idx)
 
 	if( mul )
 	{
-		ALIGNED_TYPE(Matrix4x4, temp, 16);
-		MatrixFromN64FixedPoint( temp, address );
-		MatrixMultiplyAligned( &mModelViewStack[idx], &temp, &mModelViewStack[0] );
+		MatrixFromN64FixedPoint( mTempMat, address );
+		MatrixMultiplyAligned( &mModelViewStack[idx], &mTempMat, &mModelViewStack[0] );
 	}
 	else
 	{
@@ -1882,8 +1880,6 @@ void BaseRenderer::SetDKRMat(const u32 address, bool mul, u32 idx)
 //*****************************************************************************
 void BaseRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 {
-	ALIGNED_TYPE(Matrix4x4, temp, 16);
-
 	// ModelView
 	if (bPush && (mModelViewTop < mMatStackSize))
 	{
@@ -1899,8 +1895,8 @@ void BaseRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 		}
 		else	// Multiply ModelView matrix
 		{
-			MatrixFromN64FixedPoint( temp, address);
-			MatrixMultiplyAligned( &mModelViewStack[mModelViewTop], &temp, &mModelViewStack[mModelViewTop-1] );
+			MatrixFromN64FixedPoint( mTempMat, address);
+			MatrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mTempMat, &mModelViewStack[mModelViewTop-1] );
 		}
 	}
 	else	// NoPush
@@ -1913,8 +1909,8 @@ void BaseRenderer::SetWorldView(const u32 address, bool bPush, bool bReplace)
 		else
 		{
 			// Multiply ModelView matrix
-			MatrixFromN64FixedPoint( temp, address);
-			MatrixMultiplyAligned( &mModelViewStack[mModelViewTop], &temp, &mModelViewStack[mModelViewTop] );
+			MatrixFromN64FixedPoint( mTempMat, address);
+			MatrixMultiplyAligned( &mModelViewStack[mModelViewTop], &mTempMat, &mModelViewStack[mModelViewTop] );
 		}
 	}
 
