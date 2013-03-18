@@ -147,6 +147,62 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 	mWritePtr = write_ptr;		// Needs cache wbinv
 }
 
+#ifdef DAEDALUS_PSP
+u32	CAudioBuffer::Drain( Sample * samples, u32 num_samples )
+{
+	//Todo: Check Cache Routines
+	// Ideally we could just invalidate this range?
+	//dcache_wbinv_range_unaligned( mBufferBegin, mBufferEnd );
+
+	const Sample *	read_ptr( mReadPtr );		// No need to invalidate, as this is uncached/volatile
+	const Sample *	write_ptr( mWritePtr );		//
+
+	Sample *	out_ptr( samples );
+	u32			samples_required( num_samples );
+	static Sample	LastSample_old;
+	Sample	LastSample(LastSample_old);
+
+	while( samples_required > 0 )
+	{
+		// Check if empty
+		if( read_ptr == write_ptr )
+			break;
+
+		LastSample = *read_ptr++;
+		*out_ptr++ = LastSample;
+
+		if( read_ptr >= mBufferEnd )
+			read_ptr = mBufferBegin;
+
+		samples_required--;
+	}
+
+	//static FILE * fh = NULL;
+	//if( !fh )
+	//{
+	//	fh = fopen( "audio_out.raw", "wb" );
+	//}
+	//fwrite( samples, sizeof( Sample ), (num_samples-samples_required), fh );
+	//fflush( fh );
+
+	mReadPtr = read_ptr;		// No need to invalidate, as this is uncached
+
+	//Pad with last sample if not enought samples to avoid pops and clicks //Corn
+	//
+	while( samples_required > 0 )
+	{
+		*out_ptr++ = LastSample;
+		samples_required--;
+	}
+
+	LastSample_old = LastSample;
+
+	// Return the number of samples written
+	return num_samples - samples_required;
+}
+
+#else
+
 u32	CAudioBuffer::Drain( Sample * samples, u32 num_samples )
 {
 	//Todo: Check Cache Routines
@@ -198,3 +254,4 @@ u32	CAudioBuffer::Drain( Sample * samples, u32 num_samples )
 	return num_samples - samples_required;
 }
 
+#endif
