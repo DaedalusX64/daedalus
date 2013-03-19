@@ -224,7 +224,7 @@ static EProcessResult RSP_HLE_Audio()
 
 	if (gHLEAudioEnabled && g_pAiPlugin != NULL)
 	{
-		g_pAiPlugin->ProcessAList();
+		return g_pAiPlugin->ProcessAList();
 	}
 	return PR_COMPLETED;
 }
