@@ -166,7 +166,7 @@ static void	RSP_HLE_DumpTaskInfo( const OSTask * pTask )
 //*****************************************************************************
 //
 //*****************************************************************************
-void RSP_HLE_Finished(u32 setbits)
+void RSP_HLE_Finished(const u32 setbits)
 {
 	// Need to point to last instr?
 	//Memory_DPC_SetRegister(DPC_CURRENT_REG, (u32)pTask->t.data_ptr);
@@ -174,7 +174,7 @@ void RSP_HLE_Finished(u32 setbits)
 	//
 	// Set the SP flags appropriately. The RSP is not running anyway, no need to stop it
 	//
-	u32 status( Memory_SP_SetRegisterBits(SP_STATUS_REG, setbits|SP_STATUS_BROKE|SP_STATUS_HALT) );
+	u32 status( Memory_SP_SetRegisterBits(SP_STATUS_REG, setbits) );
 
 	//
 	// We've set the SP_STATUS_BROKE flag - better check if it causes an interrupt
@@ -233,7 +233,7 @@ static EProcessResult RSP_HLE_Audio()
 //
 //*****************************************************************************
 // RSP_HLE_Jpeg and RSP_HLE_CICX105 were borrowed from Mupen64plus
-static u32 sum_bytes(const u8 *bytes, u32 size)
+u32 sum_bytes(const u8 *bytes, u32 size)
 {
     u32 sum = 0;
     const u8 * const bytes_end = bytes + size;
@@ -319,51 +319,50 @@ void RSP_HLE_ProcessTask()
 #endif
 
 	EProcessResult	result( PR_NOT_STARTED );
-	u32 setbits = SP_STATUS_TASKDONE;
 
 	//
 	// If we want to handle the task, set the pointer
 	//
 	DAEDALUS_ASSERT( !gRSPHLEActive, "RSP HLE already active, can't run '%s' yet. Status: %08x\n", task_name, Memory_SP_GetRegister(SP_STATUS_REG) );
 
-	if(pTask->t.ucode_boot_size <= 0x1000)
+	// non task
+	if(pTask->t.ucode_boot_size > 0x1000)
 	{
-		switch ( pTask->t.type )
-		{
-			case M_GFXTASK:
-				result = RSP_HLE_Graphics();
-				break;
-
-			case M_AUDTASK:
-				result = RSP_HLE_Audio();
-				break;
-
-			case M_VIDTASK:
-				// Can't handle
-				break;
-
-			case M_JPGTASK:
-				result = RSP_HLE_Jpeg(pTask);
-				break;
-
-			default:
-				// Can't handle
-				DBGConsole_Msg(0, "Unknown task: %08x", pTask->t.type );
-				//	RSP_HLE_DumpTaskInfo( pTask );
-				//	RDP_DumpRSPCode("boot",    0xDEAFF00D, (u32*)(g_pu8RamBase + (((u32)pTask->t.ucode_boot)&0x00FFFFFF)), 0x04001000, pTask->t.ucode_boot_size);
-				//	RDP_DumpRSPCode("unkcode", 0xDEAFF00D, (u32*)(g_pu8RamBase + (((u32)pTask->t.ucode)&0x00FFFFFF)),      0x04001080, 0x1000 - 0x80);//pTask->t.ucode_size);
-				break;
-		}
+		RSP_HLE_CICX105(pTask);
+		RSP_HLE_Finished(SP_STATUS_BROKE|SP_STATUS_HALT);
+		return;
 	}
-	else
+
+	switch ( pTask->t.type )
 	{
-		result = RSP_HLE_CICX105(pTask);
-		setbits = 0;
+		case M_GFXTASK:
+			result = RSP_HLE_Graphics();
+			break;
+
+		case M_AUDTASK:
+			result = RSP_HLE_Audio();
+			break;
+
+		case M_VIDTASK:
+			// Can't handle
+			break;
+
+		case M_JPGTASK:
+			result = RSP_HLE_Jpeg(pTask);
+			break;
+
+		default:
+			// Can't handle
+			DBGConsole_Msg(0, "Unknown task: %08x", pTask->t.type );
+			//	RSP_HLE_DumpTaskInfo( pTask );
+			//	RDP_DumpRSPCode("boot",    0xDEAFF00D, (u32*)(g_pu8RamBase + (((u32)pTask->t.ucode_boot)&0x00FFFFFF)), 0x04001000, pTask->t.ucode_boot_size);
+			//	RDP_DumpRSPCode("unkcode", 0xDEAFF00D, (u32*)(g_pu8RamBase + (((u32)pTask->t.ucode)&0x00FFFFFF)),      0x04001080, 0x1000 - 0x80);//pTask->t.ucode_size);
+			break;
 	}
 
 	// Started and completed. No need to change cores. [synchronously]
 	if( result == PR_COMPLETED )
-		RSP_HLE_Finished(setbits);
+		RSP_HLE_Finished(SP_STATUS_TASKDONE|SP_STATUS_BROKE|SP_STATUS_HALT);
 	//else
 	// Not started (PR_NOT_STARTED)
 	// Or still active (PR_STARTED) [asynchronously]
