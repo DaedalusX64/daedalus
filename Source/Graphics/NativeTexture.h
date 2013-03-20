@@ -53,16 +53,16 @@ class CNativeTexture : public CRefCounted
 		inline u32						GetHeight() const				{ return mHeight; }
 		inline u32						GetCorrectedWidth() const		{ return mCorrectedWidth; }
 		inline u32						GetCorrectedHeight() const		{ return mCorrectedHeight; }
-		inline const v2 &				GetScale() const				{ return mScale; }
-		inline f32						GetScaleX() const				{ return mScale.x; }
-		inline f32						GetScaleY() const				{ return mScale.y; }
 		u32								GetStride() const;
 		inline ETextureFormat			GetFormat() const				{ return mTextureFormat; }
 
 #ifdef DAEDALUS_PSP
 		inline const void *				GetPalette() const				{ return mpPalette; }
 		inline const void *				GetData() const					{ return mpData; }
-		inline void *					GetData()					{ return mpData; }
+		inline void *					GetData()						{ return mpData; }
+
+		inline f32						GetScaleX() const				{ return mScale.x; }
+		inline f32						GetScaleY() const				{ return mScale.y; }
 #endif
 
 		u32								GetBytesRequired() const;
@@ -75,13 +75,13 @@ class CNativeTexture : public CRefCounted
 		u32					mCorrectedWidth;
 		u32					mCorrectedHeight;
 		u32					mTextureBlockWidth;		// Multiple of 16 bytes
-		v2					mScale;
 
 #ifdef DAEDALUS_OSX
 		GLuint				mTextureId;
 #endif
 
 #ifdef DAEDALUS_PSP
+		v2					mScale;
 		void *				mpData;
 		void *				mpPalette;
 		bool				mIsDataVidMem;
