@@ -131,14 +131,12 @@ class	IController : public CController
 		bool			OnRomOpen();
 		void			OnRomClose();
 
-		void			ProcessRead();
-		void			ProcessWrite();
+		void			Process();
 
 	private:
 		//
 		//
 		//
-		void			ProcessReadController(u8 *cmd, u32 channel);
 		bool			ProcessController(u8 *cmd, u32 device);
 		bool			ProcessEeprom(u8 *cmd);
 
@@ -149,13 +147,13 @@ class	IController : public CController
 		void			CommandReadRumblePack(u8 *cmd);
 		void			CommandWriteRumblePack(u8 *cmd);
 		void			CommandReadRTC(u8 *cmd);
-		void			DecipherPIFRam();
 
-		u8				CalculateDataCrc(const u8 * pBuf) DAEDALUS_ATTRIBUTE_PURE;
+		u8				CalculateDataCrc(const u8 * pBuf) DAEDALUS_ATTRIBUTE_CONST;
 #ifdef DAEDALUS_ENABLE_ASSERTS
 		bool			IsEepromPresent() const						{ return mpEepromData != NULL; }
 #endif
 
+		void			n64_cic_nus_6105();
 		u8				Byte2Bcd(s32 n)								{ n %= 100; return ((n / 10) << 4) | (n % 10); }
 
 
@@ -325,7 +323,7 @@ void IController::OnRomClose()
 //*****************************************************************************
 //
 //*****************************************************************************
-void IController::ProcessWrite()
+void IController::Process()
 {
 #ifdef DAEDALUS_DEBUG_PIF
 	memcpy(mpInput, mpPifRam, 64);
@@ -337,100 +335,16 @@ void IController::ProcessWrite()
 
 	u32 count = 0;
 	u32 channel = 0;
-
-    if (mpPifRam[0x3F] > 1)
-    {
-		DecipherPIFRam();
+	u32 *tmp = (u32*)mpPifRam;
+	if ((tmp[0] == 0xFFFFFFFF) && 
+		(tmp[1] == 0xFFFFFFFF) &&
+		(tmp[2] == 0xFFFFFFFF) &&
+		(tmp[3] == 0xFFFFFFFF))
+	{
+		DBGConsole_Msg(0, "[YDecrypting PifRam]");
+		n64_cic_nus_6105();
 		return;
 	}
-
-	while(count < 64)
-	{
-		u8 *cmd = &mpPifRam[count];
-
-		// command is ready
-		if(cmd[0] == CONT_TX_SIZE_FORMAT_END)
-		{
-			break;
-		}
-
-		// dummy data..
-		if((cmd[0] == CONT_TX_SIZE_DUMMYDATA) || (cmd[0] == CONT_TX_SIZE_CHANRESET))
-		{
-			count++;
-			continue;
-		}
-
-		DAEDALUS_ASSERT( (cmd[0] !=  0xB4) || (cmd[0] != 0x56) || (cmd[0] != 0xB8), "PIF : NOP command? %02x", cmd[0] );
-		/*if((cmd[0] ==  0xB4) || (cmd[0] == 0x56) || (cmd[0] == 0xB8))
-		{
-			count++;
-			continue;
-		}*/
-
-		// next channel
-		if(cmd[0] == CONT_TX_SIZE_CHANSKIP)
-		{
-			count++;
-			channel++;
-			continue;
-		}
-
-		// 0-3 = controller channel
-		if( channel < PC_EEPROM )
-		{
-			if ( !ProcessController(cmd, channel) )
-				break;
-		}
-		// 4 = eeprom channel
-		else if( channel == PC_EEPROM)
-		{
-			if ( !ProcessEeprom(cmd) )
-				break;
-		}
-		else
-		{
-			DAEDALUS_ERROR( "Trying to write from invalid controller channel! %d", channel );
-			break;
-		}
-
-		channel++;
-		count += cmd[0] + (cmd[1] & 0x3f) + 2;
-
-	}
-
-	mpPifRam[63] = 0;	// Set the last bit is 0 as successfully return
-
-#ifdef DAEDALUS_DEBUG_PIF
-	DPF_PIF("Before | After:");
-
-	for ( u32 x = 0; x < 64; x+=8 )
-	{
-		DPF_PIF( "0x%02x%02x%02x%02x : 0x%02x%02x%02x%02x  |  0x%02x%02x%02x%02x : 0x%02x%02x%02x%02x",
-			mpInput[(x + 0)],  mpInput[(x + 1)],  mpInput[(x + 2)],  mpInput[(x + 3)],
-			mpInput[(x + 4)],  mpInput[(x + 5)],  mpInput[(x + 6)],  mpInput[(x + 7)],
-			mpPifRam[(x + 0)], mpPifRam[(x + 1)], mpPifRam[(x + 2)], mpPifRam[(x + 3)],
-			mpPifRam[(x + 4)], mpPifRam[(x + 5)], mpPifRam[(x + 6)], mpPifRam[(x + 7)] );
-	}
-	DPF_PIF("");
-	DPF_PIF("");
-	DPF_PIF("**                                         **");
-	DPF_PIF("*********************************************");
-#endif
-}
-
-void IController::ProcessRead()
-{
-#ifdef DAEDALUS_DEBUG_PIF
-	memcpy(mpInput, mpPifRam, 64);
-	DPF_PIF("");
-	DPF_PIF("");
-	DPF_PIF("*********************************************");
-	DPF_PIF("**                                         **");
-#endif
-
-	u32 count = 0;
-	u32 channel = 0;
 
 	// Read controller data here (here gets called fewer times than CONT_READ_CONTROLLER)
 	CInputManager::Get()->GetState( mContPads );
@@ -464,10 +378,19 @@ void IController::ProcessRead()
 
 		// 0-3 = controller channel
 		if( channel < PC_EEPROM )
-			ProcessReadController(cmd, channel );
-		else if( channel > PC_EEPROM)
 		{
-			DAEDALUS_ERROR( "Trying to read from invalid controller channel! %d", channel );
+			if ( !ProcessController(cmd, channel) )
+				break;
+		}
+		// 4 = eeprom channel
+		else if( channel == PC_EEPROM)
+		{
+			if ( !ProcessEeprom(cmd) )
+				break;
+		}
+		else
+		{
+			DAEDALUS_ERROR( "Trying to write from invalid controller channel! %d", channel );
 			break;
 		}
 		channel++;
@@ -510,29 +433,6 @@ void IController::DumpInput() const
 	}
 }
 #endif
-//*****************************************************************************
-// 
-//*****************************************************************************
-void	IController::ProcessReadController(u8 *cmd, u32 channel)
-{
-	if( !mContPresent[channel] )
-	{
-		DPF_PIF("Controller %d is not connected",channel);
-        cmd[1] |= 0x80;
-        cmd[3] = 0xFF;
-        cmd[4] = 0xFF;
-        cmd[5] = 0xFF;			// Not connected
-		return;
-	}
-	if ( cmd[2] == CONT_READ_CONTROLLER )
-	{
-		DPF_PIF("Controller: Executing READ_CONTROLLER");
-		cmd[3] = mContPads[channel].button >> 8;
-		cmd[4] = mContPads[channel].button;
-		cmd[5] = mContPads[channel].stick_x;
-		cmd[6] = mContPads[channel].stick_y;
-	}
-}
 
 //*****************************************************************************
 // i points to start of command
@@ -565,7 +465,11 @@ bool	IController::ProcessController(u8 *cmd, u32 channel)
 		break;
 
 	case CONT_READ_CONTROLLER:		// Controller
-		// Nothing todo here
+		DPF_PIF("Controller: Executing READ_CONTROLLER");
+		cmd[3] = mContPads[channel].button >> 8;
+		cmd[4] = mContPads[channel].button;
+		cmd[5] = mContPads[channel].stick_x;
+		cmd[6] = mContPads[channel].stick_y;
 		break;
 
 	case CONT_READ_MEMPACK:
@@ -864,7 +768,7 @@ void	IController::CommandReadRTC(u8 *cmd)
 */
 
 #define CHL_LEN 0x20
-void IController::DecipherPIFRam()
+void IController::n64_cic_nus_6105()
 {
 	// calculate the proper response for the given challenge (X-Scale's algorithm)
 	char lut0[0x10] = {
@@ -888,7 +792,7 @@ void IController::DecipherPIFRam()
 		}
 
 		char key, *lut;
-		int i, sgn, mag, mod;
+		int sgn, mag, mod;
 	        
 		for (key = 0xB, lut = lut0, i = 0; i < (CHL_LEN - 2); i++) 
 		{
@@ -916,7 +820,7 @@ void IController::DecipherPIFRam()
 		mpPifRam[63] = 0;
 		break;
 	default:
-		DAEDALUS_ERROR("Failed to decipher pif ram");
+		DAEDALUS_ERROR("Failed to decrypt pif ram");
 		break;
 	}
 }

@@ -148,8 +148,6 @@ void DMA_SI_CopyFromDRAM( )
 		p_dst[i] = BSWAP32(p_src[i]);
 	}
 
-	CController::Get()->ProcessWrite();
-
 	Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SI);
 	R4300_Interrupt_UpdateCause3();
@@ -161,8 +159,7 @@ void DMA_SI_CopyFromDRAM( )
 void DMA_SI_CopyToDRAM( )
 {
 	// Check controller status!
-	// Shouldn't this be after swapping?/Salvy
-	CController::Get()->ProcessRead();
+	CController::Get()->Process();
 
 	u32 mem = Memory_SI_GetRegister(SI_DRAM_ADDR_REG) & 0x1fffffff;
 	u32 * p_src = (u32 *)g_pMemoryBuffers[MEM_PIF_RAM];
