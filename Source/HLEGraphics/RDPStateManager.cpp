@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/MathUtil.h"
 
+#include "Utility/FastMemcpy.h"
+
 #include "OSHLE/ultra_gbi.h"
 
 #include "HLEGraphics/uCodes/UcodeDefs.h"
@@ -56,7 +58,17 @@ static u8 gTMEM[4096];	// 4Kb
 // FIXME(strmnnrmn): dst/src are always gTMEM/g_pu32RamBase
 static inline void CopyLineQwords(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
 {
-	memcpy(dst + dst_offset, src + src_offset, qwords * 8);
+	// Doesn't work. Something misaligned?
+	//memcpy_swizzle(dst + dst_offset, src + src_offset, qwords * 8);
+
+	for (u32 i = 0; i < qwords; ++i)
+	{
+		// FIXME: should be easy to optimise this.
+		dst[(dst_offset+0)] = BSWAP32(src[src_offset+0]);
+		dst[(dst_offset+1)] = BSWAP32(src[src_offset+1]);
+		dst_offset += 2;
+		src_offset += 2;
+	}
 }
 
 static inline void CopyLineQwordsSwap(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
@@ -64,8 +76,8 @@ static inline void CopyLineQwordsSwap(u32 * dst, u32 dst_offset, u32 * src, u32 
 	for (u32 i = 0; i < qwords; ++i)
 	{
 		// FIXME: should be easy to optimise this.
-		dst[(dst_offset+0)^0x1] = src[src_offset+0];
-		dst[(dst_offset+1)^0x1] = src[src_offset+1];
+		dst[(dst_offset+0)^0x1] = BSWAP32(src[src_offset+0]);
+		dst[(dst_offset+1)^0x1] = BSWAP32(src[src_offset+1]);
 		dst_offset += 2;
 		src_offset += 2;
 	}
@@ -74,7 +86,13 @@ static inline void CopyLineQwordsSwap(u32 * dst, u32 dst_offset, u32 * src, u32 
 // FIXME(strmnnrmn): dst/src are always gTMEM/g_pu8RamBase
 static inline void CopyLine(u8 * dst, u32 dst_offset, u8 * src, u32 src_offset, u32 bytes)
 {
-	memcpy(dst + dst_offset, src + src_offset, bytes);
+	// Doesn't work. Something misaligned?
+	//memcpy_swizzle(dst + dst_offset, src + src_offset, bytes);
+
+	for (u32 i = 0; i < bytes; ++i)
+	{
+		dst[(dst_offset+i)] = src[(src_offset+i)^U8_TWIDDLE];
+	}
 }
 
 static inline void CopyLineSwap(u8 * dst, u32 dst_offset, u8 * src, u32 src_offset, u32 bytes)
@@ -82,7 +100,7 @@ static inline void CopyLineSwap(u8 * dst, u32 dst_offset, u8 * src, u32 src_offs
 	for (u32 i = 0; i < bytes; ++i)
 	{
 		// Alternate 64 bit words are swapped
-		dst[(dst_offset+i)^0x4] = src[src_offset+i];
+		dst[(dst_offset+i)^0x4] = src[(src_offset+i)^U8_TWIDDLE];
 	}
 }
 #endif
