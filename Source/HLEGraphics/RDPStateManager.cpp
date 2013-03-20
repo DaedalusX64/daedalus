@@ -368,23 +368,22 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 	DAEDALUS_ASSERT( idx < ARRAYSIZE( mTileTextureInfoValid ), "Invalid index %d", idx );
 	if( !mTileTextureInfoValid[ idx ] )
 	{
-		TextureInfo &			ti( mTileTextureInfo[ idx ] );
+		TextureInfo &			ti           = mTileTextureInfo[ idx ];
+		const RDP_Tile &		rdp_tile     = mTiles[ idx ];
+		const RDP_TileSize &	rdp_tilesize = mTileSizes[ idx ];
+		const u32				tmem_lookup  = rdp_tile.tmem >> 4;
+		const TimgLoadDetails &	info         = mTmemLoadInfo[ tmem_lookup ];
 
-		const RDP_Tile &		rdp_tile( mTiles[ idx ] );
-		const RDP_TileSize &	rdp_tilesize( mTileSizes[ idx ] );
-		const u32				tmem_lookup( rdp_tile.tmem >> 4 );
-		const TimgLoadDetails&	info( mTmemLoadInfo[ tmem_lookup ] );
-
-		u32		address( info.Address );
-		u32		pitch( info.Pitch );
-		bool	swapped( info.Swapped );
-		u32		tlut( TLUT_BASE );
+		u32		address = info.Address;
+		u32		pitch   = info.Pitch;
+		bool	swapped = info.Swapped;
+		u32		tlut    = TLUT_BASE;
 
 		//Check if tmem_lookup has a valid entry, if not we assume load was done on TMEM[0] and we add the offset //Corn
 		//Games that uses this is Fzero/Space station Silicon Valley/Animal crossing.
 		if(	EntryIsValid( tmem_lookup ) == 0 )
 		{
-			const TimgLoadDetails&	info_base ( mTmemLoadInfo[ 0 ] );
+			const TimgLoadDetails & info_base = mTmemLoadInfo[ 0 ];
 
 			//Calculate offset in bytes and add to base address
 			address = info_base.Address + (rdp_tile.tmem << 3);
@@ -397,18 +396,18 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		if ( pitch == u32(~0) )
 		{
 			if( rdp_tile.size == G_IM_SIZ_32b )	pitch = rdp_tile.line << 4;
-			else pitch = rdp_tile.line << 3;
+			else 								pitch = rdp_tile.line << 3;
 		}
 
 		//	Limit the tile's width/height to the number of bits specified by mask_s/t.
 		//	See the detailed notes in BaseRenderer::UpdateTileSnapshots for issues relating to this.
 		//
-		u16		tile_width( GetTextureDimension( rdp_tilesize.GetWidth(), rdp_tile.mask_s ) );
-		u16		tile_height( GetTextureDimension( rdp_tilesize.GetHeight(), rdp_tile.mask_t ) );
+		u16		tile_width  = GetTextureDimension( rdp_tilesize.GetWidth(),  rdp_tile.mask_s );
+		u16		tile_height = GetTextureDimension( rdp_tilesize.GetHeight(), rdp_tile.mask_t );
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
-		u32		num_pixels( tile_width * tile_height );
-		u32		num_bytes( pixels2bytes( num_pixels, rdp_tile.size ) );
+		u32		num_pixels = tile_width * tile_height;
+		u32		num_bytes  = pixels2bytes( num_pixels, rdp_tile.size );
 		DAEDALUS_DL_ASSERT( num_bytes <= 4096, "Suspiciously large texture load: %d bytes (%dx%d, %dbpp)", num_bytes, tile_width, tile_height, (1<<(rdp_tile.size+2)) );
 
 		// May not work if Left (10.2 format) is not even?
@@ -422,8 +421,8 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		//
 		if(rdp_tile.size == G_IM_SIZ_4b)
 		{
-			u32 tlut_idx0( g_ROM.TLUT_HACK << 1 );
-			u32 tlut_idx1( (u32)gTlutLoadAddresses[ rdp_tile.palette << tlut_idx0 ] );
+			u32 tlut_idx0 = g_ROM.TLUT_HACK << 1;
+			u32 tlut_idx1 = (u32)gTlutLoadAddresses[ rdp_tile.palette << tlut_idx0 ];
 
 			//If pointer == NULL(=invalid entry) add offset to base address (TMEM[0] + offset)
 			if(tlut_idx1 == 0)
