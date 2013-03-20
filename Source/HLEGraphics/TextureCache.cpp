@@ -43,6 +43,11 @@ template<> bool CSingleton< CTextureCache >::Create()
 	return mpInstance != NULL;
 }
 
+CTextureCache::CTextureCache()
+{
+	memset( mpCacheHashTable, 0, sizeof(mpCacheHashTable) );
+}
+
 CTextureCache::~CTextureCache()
 {
 }

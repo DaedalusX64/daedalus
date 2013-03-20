@@ -33,6 +33,7 @@ struct TextureInfo;
 class CTextureCache : public CSingleton< CTextureCache >
 {
 public:
+	CTextureCache();
 	virtual ~CTextureCache();
 
 	CRefPtr<CNativeTexture>	GetOrCreateTexture(const TextureInfo & ti);
