@@ -48,9 +48,9 @@ public:
 	void							LoadTlut(const SetLoadTile & load);
 
 	// Retrive tile addr loading. used by Yoshi_MemRect
-	inline u32						GetTileAddress( const u32 tmem ) const { return mTmemLoadInfo[ tmem >> 4 ].Address; }
+	inline u32						GetTileAddress( u32 tmem ) const { return mTmemLoadInfo[ tmem >> 4 ].Address; }
 
-	const TextureInfo &				GetUpdatedTextureDescriptor( const u32 idx );
+	const TextureInfo &				GetUpdatedTextureDescriptor( u32 idx );
 
 private:
 	inline void				InvalidateAllTileTextureInfo()		{ memset( mTileTextureInfoValid, 0, sizeof(mTileTextureInfoValid) ); }
