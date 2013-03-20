@@ -165,10 +165,10 @@ static void ConvertGeneric( const TextureDestInfo & dsti,
 
 typedef void (*ConvertPalettisedRowFunction)( NativePf8888 * dst, const u8 * src, u32 src_offset, u32 width, const NativePf8888 * palette );
 
-static void ConvertGenericPalettised( const TextureDestInfo & dsti, const TextureInfo & ti,
-									  const NativePf8888 * palette,
-									  ConvertPalettisedRowFunction swapped_fn,
-									  ConvertPalettisedRowFunction unswapped_fn )
+static void ConvertPalettisedTo8888( const TextureDestInfo & dsti, const TextureInfo & ti,
+									 const NativePf8888 * palette,
+									 ConvertPalettisedRowFunction swapped_fn,
+									 ConvertPalettisedRowFunction unswapped_fn )
 {
 	NativePf8888 *	dst        = reinterpret_cast< NativePf8888 * >( dsti.Data );
 	const u8 *		src        = g_pu8RamBase;
@@ -205,9 +205,9 @@ static void ConvertGenericPalettised( const TextureDestInfo & dsti, const Textur
 }
 
 template<typename OutT>
-static void ConvertGenericPalettisedCI( const TextureDestInfo & dsti, const TextureInfo & ti,
-										void (*swapped_fn)( OutT * dst, const u8 * src, u32 src_offset, u32 width ),
-										void (*unswapped_fn)( OutT * dst, const u8 * src, u32 src_offset, u32 width ) )
+static void ConvertPalettisedToCI( const TextureDestInfo & dsti, const TextureInfo & ti,
+								   void (*swapped_fn)( OutT * dst, const u8 * src, u32 src_offset, u32 width ),
+								   void (*unswapped_fn)( OutT * dst, const u8 * src, u32 src_offset, u32 width ) )
 {
 	OutT *		dst        = reinterpret_cast< OutT * >( dsti.Data );
 	const u8 *	src        = g_pu8RamBase;
@@ -573,14 +573,15 @@ static void ConvertCI8(const TextureDestInfo & dsti, const TextureInfo & ti)
 	switch( dsti.Format )
 	{
 	case TexFmt_8888:
-		ConvertGenericPalettised( dsti, ti, dst_palette,
-								  ConvertCI8_Row_To_8888< 0x4 | 0x3 >,
-								  ConvertCI8_Row_To_8888< 0x3 > );
+		ConvertPalettisedTo8888( dsti, ti, dst_palette,
+								 ConvertCI8_Row_To_8888< 0x4 | 0x3 >,
+								 ConvertCI8_Row_To_8888< 0x3 > );
 		break;
 
 	case TexFmt_CI8_8888:
-		ConvertGenericPalettisedCI( dsti, ti, ConvertCI8_Row< 0x4 | 0x3 >,
-											  ConvertCI8_Row< 0x3 > );
+		ConvertPalettisedToCI( dsti, ti,
+							   ConvertCI8_Row< 0x4 | 0x3 >,
+							   ConvertCI8_Row< 0x3 > );
 		break;
 
 	default:
@@ -603,14 +604,15 @@ static void ConvertCI4(const TextureDestInfo & dsti, const TextureInfo & ti)
 	switch( dsti.Format )
 	{
 	case TexFmt_8888:
-		ConvertGenericPalettised( dsti, ti, dst_palette,
-								  ConvertCI4_Row_To_8888< 0x4 | 0x3 >,
-								  ConvertCI4_Row_To_8888< 0x3 > );
+		ConvertPalettisedTo8888( dsti, ti, dst_palette,
+								 ConvertCI4_Row_To_8888< 0x4 | 0x3 >,
+								 ConvertCI4_Row_To_8888< 0x3 > );
 		break;
 
 	case TexFmt_CI4_8888:
-		ConvertGenericPalettisedCI( dsti, ti, ConvertCI4_Row< 0x4 | 0x3 >,
-											  ConvertCI4_Row< 0x3 > );
+		ConvertPalettisedToCI( dsti, ti,
+							   ConvertCI4_Row< 0x4 | 0x3 >,
+							   ConvertCI4_Row< 0x3 > );
 		break;
 
 	default:
