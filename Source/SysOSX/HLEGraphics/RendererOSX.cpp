@@ -879,8 +879,8 @@ void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	// NB - these aren't needed. Could just pass NULL to RenderDaedalusVtxStreams?
 	float uvs[] = {
 		0.f, 0.f,
-		0.f, 1.f,
 		1.f, 0.f,
+		0.f, 1.f,
 		1.f, 1.f,
 	};
 
