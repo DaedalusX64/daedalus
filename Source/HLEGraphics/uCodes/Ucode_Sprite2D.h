@@ -93,7 +93,7 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo 
 
 	ti.SetTLutFormat       (kTT_RGBA16);
 
-	gRenderer->LoadTextureDirectly(ti);
+	CRefPtr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
 
 	s32 frameX              = px;
 	s32 frameY              = py;
@@ -107,7 +107,9 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo 
 	if( info.flipY )
 		Swap< s32 >( frameY, frameH );
 
-	gRenderer->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, 0.0f, 0.0f, (float)sprite->width, (float)sprite->height );
+	gRenderer->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH,
+							  0.0f, 0.0f, (float)sprite->width, (float)sprite->height,
+							  texture );
 }
 
 //*****************************************************************************

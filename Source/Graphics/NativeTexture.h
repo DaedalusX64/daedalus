@@ -61,7 +61,8 @@ class CNativeTexture : public CRefCounted
 
 #ifdef DAEDALUS_PSP
 		inline const void *				GetPalette() const				{ return mpPalette; }
-		inline void *					GetData()						{ return mpData; }
+		inline const void *				GetData() const					{ return mpData; }
+		inline void *					GetData()					{ return mpData; }
 #endif
 
 		u32								GetBytesRequired() const;

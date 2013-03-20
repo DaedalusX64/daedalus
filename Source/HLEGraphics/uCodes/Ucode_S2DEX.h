@@ -243,7 +243,7 @@ uObjTxtr *gObjTxtr = NULL;
 //*****************************************************************************
 //
 //*****************************************************************************
-void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
+static inline CRefPtr<CNativeTexture> Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 {
 	TextureInfo ti;
 
@@ -273,7 +273,7 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 		default:
 			// This should not happen!
 			DAEDALUS_ERROR("Unhandled Obj texture\n");
-			return;
+			return NULL;
 		}
 
 		ti.SetSwapped          (0);
@@ -282,13 +282,13 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 		ti.SetTLutFormat       (kTT_RGBA16);
 	}
 
-	gRenderer->LoadTextureDirectly(ti);
+	return gRenderer->LoadTextureDirectly(ti);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
+static inline void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode, const CNativeTexture * texture )
 {
 	f32 imageW = sprite->imageW / 32.0f;
 	f32 imageH = sprite->imageH / 32.0f;
@@ -329,7 +329,7 @@ void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
 		y1 = mat2D.Y + objH / mat2D.BaseScaleY - 1.0f;
 
 		// Partial rotation doesn't flip sprites
-		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
+		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH, texture);
 		break;
 
 	case NO_ROTATION:
@@ -345,7 +345,7 @@ void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode )
 		if( sprite->imageFlags&0x10 )
 			Swap< f32 >( y0, y1 );
 
-		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH);
+		gRenderer->Draw2DTexture(x0, y0, x1, y1, 0, 0, imageW, imageH, texture);
 		break;
 	}
 }
@@ -357,9 +357,8 @@ void DLParser_S2DEX_ObjSprite( MicroCodeCommand command )
 {
 	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	Load_ObjSprite( sprite, NULL );
-	Draw_ObjSprite( sprite, FULL_ROTATION );
-
+	CRefPtr<CNativeTexture> texture = Load_ObjSprite( sprite, NULL );
+	Draw_ObjSprite( sprite, FULL_ROTATION, texture );
 }
 
 //*****************************************************************************
@@ -371,8 +370,8 @@ void DLParser_S2DEX_ObjRectangle( MicroCodeCommand command )
 {
 	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	Load_ObjSprite( sprite, gObjTxtr );
-	Draw_ObjSprite( sprite, NO_ROTATION );
+	CRefPtr<CNativeTexture> texture = Load_ObjSprite( sprite, gObjTxtr );
+	Draw_ObjSprite( sprite, NO_ROTATION, texture );
 }
 
 //*****************************************************************************
@@ -383,8 +382,8 @@ void DLParser_S2DEX_ObjRectangleR( MicroCodeCommand command )
 {
 	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	Load_ObjSprite( sprite, gObjTxtr );
-	Draw_ObjSprite( sprite, PARTIAL_ROTATION );
+	CRefPtr<CNativeTexture> texture = Load_ObjSprite( sprite, gObjTxtr );
+	Draw_ObjSprite( sprite, PARTIAL_ROTATION, texture );
 }
 
 //*****************************************************************************
@@ -395,8 +394,8 @@ void DLParser_S2DEX_ObjLdtxSprite( MicroCodeCommand command )
 {
 	uObjTxSprite *sprite = (uObjTxSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	Load_ObjSprite( &sprite->sprite, &sprite->txtr );
-	Draw_ObjSprite( &sprite->sprite, FULL_ROTATION );
+	CRefPtr<CNativeTexture> texture = Load_ObjSprite( &sprite->sprite, &sprite->txtr );
+	Draw_ObjSprite( &sprite->sprite, FULL_ROTATION, texture );
 }
 
 //*****************************************************************************
@@ -407,8 +406,8 @@ void DLParser_S2DEX_ObjLdtxRect( MicroCodeCommand command )
 {
 	uObjTxSprite *sprite = (uObjTxSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	Load_ObjSprite( &sprite->sprite, &sprite->txtr );
-	Draw_ObjSprite( &sprite->sprite, NO_ROTATION );
+	CRefPtr<CNativeTexture> texture = Load_ObjSprite( &sprite->sprite, &sprite->txtr );
+	Draw_ObjSprite( &sprite->sprite, NO_ROTATION, texture );
 }
 
 //*****************************************************************************
@@ -419,8 +418,8 @@ void DLParser_S2DEX_ObjLdtxRectR( MicroCodeCommand command )
 {
 	uObjTxSprite *sprite = (uObjTxSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
-	Load_ObjSprite( &sprite->sprite, &sprite->txtr );
-	Draw_ObjSprite( &sprite->sprite, PARTIAL_ROTATION );
+	CRefPtr<CNativeTexture> texture = Load_ObjSprite( &sprite->sprite, &sprite->txtr );
+	Draw_ObjSprite( &sprite->sprite, PARTIAL_ROTATION, texture );
 }
 
 //*****************************************************************************
@@ -626,17 +625,9 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 	ti.SetTLutFormat       (kTT_RGBA16);
 
 	CRefPtr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
-
-	// Handle large images (width > 512) with blitting, since the PSP HW can't handle
-	// Handling height > 512 doesn't work good? Ignore for now
-	if( imageW >= 512 )
-	{
-		gRenderer->Draw2DTextureBlit( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH, texture );
-	}
-	else
-	{
-		gRenderer->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH );
-	}
+	gRenderer->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH,
+							  (float)imageX, (float)imageY, (float)imageW, (float)imageH,
+							  texture );
 }
 
 //*****************************************************************************
@@ -687,16 +678,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 		f32 s1 = (frameW-frameX)*scaleX + imageX;
 		f32 t1 = (frameH-frameY)*scaleY + imageY;
 
-		// Handle large images (width > 512) with blitting, since the PSP HW can't handle
-		// Handling height > 512 doesn't work good? Ignore for now
-		if( imageW >= 512 )
-		{
-			gRenderer->Draw2DTextureBlit( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1, texture );
-		}
-		else
-		{
-			gRenderer->Draw2DTexture( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1 );
-		}
+		gRenderer->Draw2DTexture( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1, texture );
 	}
 	else
 	{
@@ -706,10 +688,10 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 		f32 u1 = (frameW-x2)*scaleX;
 		f32 v1 = (frameH-y2)*scaleY;
 
-		gRenderer->Draw2DTexture(frameX, frameY, x2, y2, imageX, imageY, imageW, imageH);
-		gRenderer->Draw2DTexture(x2, frameY, frameW, y2, 0, imageY, u1, imageH);
-		gRenderer->Draw2DTexture(frameX, y2, x2, frameH, imageX, 0, imageW, v1);
-		gRenderer->Draw2DTexture(x2, y2, frameW, frameH, 0, 0, u1, v1);
+		gRenderer->Draw2DTexture(frameX, frameY, x2, y2, imageX, imageY, imageW, imageH, texture);
+		gRenderer->Draw2DTexture(x2, frameY, frameW, y2, 0, imageY, u1, imageH, texture);
+		gRenderer->Draw2DTexture(frameX, y2, x2, frameH, imageX, 0, imageW, v1, texture);
+		gRenderer->Draw2DTexture(x2, y2, frameW, frameH, 0, 0, u1, v1, texture);
 	}
 }
 

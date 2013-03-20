@@ -826,8 +826,18 @@ void RendererPSP::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 #endif
 }
 
-void RendererPSP::Draw2DTexture(f32 frameX, f32 frameY, f32 frameW, f32 frameH, f32 imageX, f32 imageY, f32 imageW, f32 imageH)
+void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
+								f32 u0, f32 v0, f32 u1, f32 v1,
+								const CNativeTexture * texture)
 {
+	// Handle large images (width > 512) with blitting, since the PSP HW can't handle
+	// Handling height > 512 doesn't work well? Ignore for now.
+	if( u1 >= 512 )
+	{
+		Draw2DTextureBlit( x0, y0, x1, y1, u0, v0, u1, v1, texture );
+		return;
+	}
+
 	DAEDALUS_PROFILE( "RendererPSP::Draw2DTexture" );
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
 
@@ -843,34 +853,36 @@ void RendererPSP::Draw2DTexture(f32 frameX, f32 frameY, f32 frameW, f32 frameH, 
 	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
 
 
-	p_verts[0].pos.x = N64ToScreenX(frameX);	// Frame X Offset * X Scale Factor + Screen X Offset
-	p_verts[0].pos.y = N64ToScreenY(frameY);	// Frame Y Offset * Y Scale Factor + Screen Y Offset
+	p_verts[0].pos.x = N64ToScreenX(x0);
+	p_verts[0].pos.y = N64ToScreenY(y0);
 	p_verts[0].pos.z = 0.0f;
-	p_verts[0].t0.x  = imageX;					// X coordinates
-	p_verts[0].t0.y  = imageY;
+	p_verts[0].t0.x  = u0;
+	p_verts[0].t0.y  = v0;
 
-	p_verts[1].pos.x = N64ToScreenX(frameW);	// Translated X Offset + (Image Width  * X Scale Factor)
-	p_verts[1].pos.y = N64ToScreenY(frameY);	// Translated Y Offset + (Image Height * Y Scale Factor)
+	p_verts[1].pos.x = N64ToScreenX(x1);
+	p_verts[1].pos.y = N64ToScreenY(y0);
 	p_verts[1].pos.z = 0.0f;
-	p_verts[1].t0.x  = imageW;					// X dimentions
-	p_verts[1].t0.y  = imageY;
+	p_verts[1].t0.x  = u1;
+	p_verts[1].t0.y  = v0;
 
-	p_verts[2].pos.x = N64ToScreenX(frameX);	// Frame X Offset * X Scale Factor + Screen X Offset
-	p_verts[2].pos.y = N64ToScreenY(frameH);	// Frame Y Offset * Y Scale Factor + Screen Y Offset
+	p_verts[2].pos.x = N64ToScreenX(x0);
+	p_verts[2].pos.y = N64ToScreenY(y1);
 	p_verts[2].pos.z = 0.0f;
-	p_verts[2].t0.x  = imageX;					// X coordinates
-	p_verts[2].t0.y  = imageH;
+	p_verts[2].t0.x  = u0;
+	p_verts[2].t0.y  = v1;
 
-	p_verts[3].pos.x = N64ToScreenX(frameW);	// Translated X Offset + (Image Width  * X Scale Factor)
-	p_verts[3].pos.y = N64ToScreenY(frameH);	// Translated Y Offset + (Image Height * Y Scale Factor)
+	p_verts[3].pos.x = N64ToScreenX(x1);
+	p_verts[3].pos.y = N64ToScreenY(y1);
 	p_verts[3].pos.z = 0.0f;
-	p_verts[3].t0.x  = imageW;					// X dimentions
-	p_verts[3].t0.y  = imageH;					// Y dimentions
+	p_verts[3].t0.x  = u1;
+	p_verts[3].t0.y  = v1;
 
 	sceGuDrawArray( GU_TRIANGLE_STRIP, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, p_verts );
 }
 
-void RendererPSP::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3, f32 s, f32 t)	// With Rotation
+void RendererPSP::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1,
+								 f32 x2, f32 y2, f32 x3, f32 y3,
+								 f32 s, f32 t)	// With Rotation
 {
 	DAEDALUS_PROFILE( "RendererPSP::Draw2DTextureR" );
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
@@ -915,8 +927,16 @@ void RendererPSP::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2,
 
 // The following blitting code was taken from The TriEngine.
 // See http://www.assembla.com/code/openTRI for more information.
-void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height, f32 u0, f32 v0, f32 u1, f32 v1, CNativeTexture * texture)
+void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height,
+									f32 u0, f32 v0, f32 u1, f32 v1,
+									const CNativeTexture * texture)
 {
+	if (!texture)
+	{
+		DAEDALUS_ERROR("No texture in Draw2DTextureBlit");
+		return;
+	}
+
 	sceGuDisable(GU_DEPTH_TEST);
 	sceGuDepthMask(GL_TRUE);
 	sceGuShadeModel(GU_FLAT);
