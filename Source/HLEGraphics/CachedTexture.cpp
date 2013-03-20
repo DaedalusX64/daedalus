@@ -125,10 +125,23 @@ static bool GenerateTexels(void ** p_texels,
 	NativePf8888 *	palette = IsTextureFormatPalettised( texture_format ) ? gPaletteBuffer : NULL;
 
 #ifdef DAEDALUS_ACCURATE_TMEM
-	if (ConvertTile(ti, texels, palette, texture_format, pitch))
-#else
-	if (ConvertTexture(ti, texels, palette, texture_format, pitch))
+	// NB: if line is 0, it implies this is a direct load from ram (e.g. DLParser_Sprite2DDraw etc)
+	if (ti.Line > 0)
+	{
+		if (ConvertTile(ti, texels, palette, texture_format, pitch))
+		{
+			*p_texels  = texels;
+			*p_palette = palette;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 #endif
+
+	if (ConvertTexture(ti, texels, palette, texture_format, pitch))
 	{
 		*p_texels  = texels;
 		*p_palette = palette;
