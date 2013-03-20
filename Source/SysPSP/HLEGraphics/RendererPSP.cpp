@@ -325,7 +325,7 @@ void RendererPSP::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, b
 	{
 		UpdateTileSnapshots( mTextureTile );
 
-		const CNativeTexture * texture = mRecentTexture[0];
+		const CNativeTexture * texture = mBoundTexture[0];
 
 		if( texture && (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
 		{
@@ -477,9 +477,9 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		{
 			u32 texture_idx = g_ROM.T1_HACK ? 1 : 0;
 
-			if( mRecentTexture[ texture_idx ] )
+			if( mBoundTexture[ texture_idx ] )
 			{
-				mRecentTexture[ texture_idx ]->InstallTexture();
+				mBoundTexture[ texture_idx ]->InstallTexture();
 
 				sceGuTexWrap( mTexWrap[ texture_idx ].u, mTexWrap[ texture_idx ].v );
 
@@ -563,7 +563,7 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 
 		bool installed_texture = false;
 
-		u32 texture_idx( 0 );
+		u32 texture_idx = 0;
 
 		if(install_texture0 || install_texture1)
 		{
@@ -582,7 +582,7 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 				// NB if install_texture0 and install_texture1 are both set, 1 wins out
 				texture_idx = install_texture1;
 
-				const CNativeTexture * texture1 = mRecentTexture[ 1 ];
+				const CNativeTexture * texture1 = mBoundTexture[ 1 ];
 
 				if( install_texture1 && texture1 && mTnL.Flags.Texture && (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
 				{
@@ -603,13 +603,13 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 
 			if(out.MakeTextureWhite)
 			{
-				TextureInfo white_ti = mRecentTextureInfo[ texture_idx ];
+				TextureInfo white_ti = mBoundTextureInfo[ texture_idx ];
 				white_ti.SetWhite(true);
 				texture = CTextureCache::Get()->GetOrCreateTexture( white_ti );
 			}
 			else
 			{
-				texture = mRecentTexture[ texture_idx ];
+				texture = mBoundTexture[ texture_idx ];
 			}
 
 			if(texture != NULL)
@@ -1103,13 +1103,13 @@ bool RendererPSP::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u3
 			//Insert the Blend Explorer
 			BLEND_MODE_MAKER
 
-			bool	installed_texture = false;
+			bool installed_texture = false;
 
 			if( details.InstallTexture )
 			{
-				if( mRecentTexture[0] != NULL )
+				if( mBoundTexture[0] != NULL )
 				{
-					mRecentTexture[0]->InstallTexture();
+					mBoundTexture[0]->InstallTexture();
 					installed_texture = true;
 				}
 			}

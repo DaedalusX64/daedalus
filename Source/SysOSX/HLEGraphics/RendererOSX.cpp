@@ -719,7 +719,7 @@ void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disabl
 		if (!install_textures[i])
 			continue;
 
-		CNativeTexture * texture = mRecentTexture[i];
+		CNativeTexture * texture = mBoundTexture[i];
 
 		if (texture != NULL)
 		{

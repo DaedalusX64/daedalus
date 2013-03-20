@@ -373,8 +373,8 @@ protected:
 	};
 	static const u32 NUM_N64_TEXTURES = 2;
 
-	TextureInfo				mRecentTextureInfo[ NUM_N64_TEXTURES ];
-	CRefPtr<CNativeTexture>	mRecentTexture[ NUM_N64_TEXTURES ];
+	TextureInfo				mBoundTextureInfo[ NUM_N64_TEXTURES ];
+	CRefPtr<CNativeTexture>	mBoundTexture[ NUM_N64_TEXTURES ];
 
 	v2						mTileTopLeft[ NUM_N64_TEXTURES ];
 	TextureWrap				mTexWrap[ NUM_N64_TEXTURES ];

@@ -277,8 +277,8 @@ void BaseRenderer::EndScene()
 	//	Clear this, to ensure we're force to check for updates to it on the next frame
 	for( u32 i = 0; i < NUM_N64_TEXTURES; i++ )
 	{
-		mRecentTextureInfo[ i ] = TextureInfo();
-		mRecentTexture[ i ]     = NULL;
+		mBoundTextureInfo[ i ] = TextureInfo();
+		mBoundTexture[ i ]     = NULL;
 	}
 }
 
@@ -1665,7 +1665,7 @@ static void T1Hack(const TextureInfo & ti0, CNativeTexture * texture0,
 // This captures the state of the RDP tiles in:
 //   mTexWrap
 //   mTileTopLeft
-//   mRecentTexture
+//   mBoundTexture
 //*****************************************************************************
 void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 {
@@ -1679,7 +1679,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	const RDP_TileSize & tile_size = gRDPStateManager.GetTileSize( tile_idx );
 
 	// Avoid texture update, if texture is the same as last time around.
-	if( mRecentTexture[ index ] == NULL || mRecentTextureInfo[ index ] != ti )
+	if( mBoundTexture[ index ] == NULL || mBoundTextureInfo[ index ] != ti )
 	{
 		// Check for 0 width/height textures
 		if( ti.GetWidth() == 0 || ti.GetHeight() == 0 )
@@ -1690,17 +1690,17 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 		{
 			CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
 
-			if( texture != NULL && texture != mRecentTexture[ index ] )
+			if( texture != NULL && texture != mBoundTexture[ index ] )
 			{
-				mRecentTextureInfo[index] = ti;
-				mRecentTexture[index]     = texture;
+				mBoundTextureInfo[index] = ti;
+				mBoundTexture[index]     = texture;
 
 #ifdef DAEDALUS_PSP
 				//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
 				//If T1 Hack is not enabled index can never be other than 0
 				if(index)
 				{
-					T1Hack(mRecentTextureInfo[0], mRecentTexture[0], mRecentTextureInfo[1], mRecentTexture[1]);
+					T1Hack(mBoundTextureInfo[0], mBoundTexture[0], mBoundTextureInfo[1], mBoundTexture[1]);
 				}
 #endif
 			}
