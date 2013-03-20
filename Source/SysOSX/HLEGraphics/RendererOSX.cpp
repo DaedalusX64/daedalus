@@ -900,90 +900,99 @@ void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 #endif
 }
 
-void RendererOSX::Draw2DTexture(f32 frameX, f32 frameY, f32 frameW, f32 frameH, f32 imageX, f32 imageY, f32 imageW, f32 imageH)
+void RendererOSX::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
+								f32 u0, f32 v0, f32 u1, f32 v1)
 {
 	DAEDALUS_PROFILE( "RendererOSX::Draw2DTexture" );
 
-	glDisable(GL_DEPTH_TEST);
-	glDepthMask(GL_TRUE);
-	glShadeModel(GL_FLAT);
-	//glTexFunc(GL_TFX_REPLACE, GL_TCC_RGBA);
+	// FIXME(strmnnrmn): is this right? Gross anyway.
+	gRDPOtherMode.cycle_type = CYCLE_COPY;
+
+	PrepareRenderState(mScreenToDevice.mRaw, true /* disable_depth */, false);
+
 	glEnable(GL_BLEND);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	TextureVtx verts[4];
-	verts[0].pos.x = N64ToScreenX(frameX);	// Frame X Offset * X Scale Factor + Screen X Offset
-	verts[0].pos.y = N64ToScreenY(frameY);	// Frame Y Offset * Y Scale Factor + Screen Y Offset
-	verts[0].pos.z = 0.0f;
-	verts[0].t0.x  = imageX;				// X coordinates
-	verts[0].t0.y  = imageY;
+	float sx0 = N64ToScreenX(x0);
+	float sy0 = N64ToScreenY(y0);
 
-	verts[1].pos.x = N64ToScreenX(frameW);	// Translated X Offset + (Image Width  * X Scale Factor)
-	verts[1].pos.y = N64ToScreenY(frameY);	// Translated Y Offset + (Image Height * Y Scale Factor)
-	verts[1].pos.z = 0.0f;
-	verts[1].t0.x  = imageW;				// X dimentions
-	verts[1].t0.y  = imageY;
+	float sx1 = N64ToScreenX(x1);
+	float sy1 = N64ToScreenY(y1);
 
-	verts[2].pos.x = N64ToScreenX(frameX);	// Frame X Offset * X Scale Factor + Screen X Offset
-	verts[2].pos.y = N64ToScreenY(frameH);	// Frame Y Offset * Y Scale Factor + Screen Y Offset
-	verts[2].pos.z = 0.0f;
-	verts[2].t0.x  = imageX;				// X coordinates
-	verts[2].t0.y  = imageH;
+	const f32 depth = 0.0f;
 
-	verts[3].pos.x = N64ToScreenX(frameW);	// Translated X Offset + (Image Width  * X Scale Factor)
-	verts[3].pos.y = N64ToScreenY(frameH);	// Translated Y Offset + (Image Height * Y Scale Factor)
-	verts[3].pos.z = 0.0f;
-	verts[3].t0.x  = imageW;				// X dimentions
-	verts[3].t0.y  = imageH;				// Y dimentions
+	float positions[] = {
+		sx0, sy0, depth,
+		sx1, sy0, depth,
+		sx0, sy1, depth,
+		sx1, sy1, depth,
+	};
 
-	DAEDALUS_ERROR("Draw2DTexture FIXME");
-	//sceGuDrawArray( GL_TRIANGLE_STRIP, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, verts );
+	float uvs[] = {
+		u0, v0,
+		u1, v0,
+		u0, v1,
+		u1, v1,
+	};
+
+	u32 colours[] = {
+		0xffffffff,
+		0xffffffff,
+		0xffffffff,
+		0xffffffff,
+	};
+
+	RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
 }
 
-void RendererOSX::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2, f32 x3, f32 y3, f32 s, f32 t)	// With Rotation
+void RendererOSX::Draw2DTextureR(f32 x0, f32 y0,
+								 f32 x1, f32 y1,
+								 f32 x2, f32 y2,
+								 f32 x3, f32 y3,
+								 f32 s, f32 t)	// With Rotation
 {
 	DAEDALUS_PROFILE( "RendererOSX::Draw2DTextureR" );
 
-	glDisable(GL_DEPTH_TEST);
-	glDepthMask(GL_TRUE);
-	glShadeModel(GL_FLAT);
-	//glTexFunc(GL_TFX_REPLACE, GL_TCC_RGBA);
+	DAEDALUS_ERROR("Draw2DTextureR is untested")
+
+	// FIXME(strmnnrmn): is this right? Gross anyway.
+	gRDPOtherMode.cycle_type = CYCLE_COPY;
+
+	PrepareRenderState(mScreenToDevice.mRaw, true /* disable_depth */, false);
+
 	glEnable(GL_BLEND);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	TextureVtx verts[4];
-	verts[0].pos.x = N64ToScreenX(x0);
-	verts[0].pos.y = N64ToScreenY(y0);
-	verts[0].pos.z = 0.0f;
-	verts[0].t0.x  = 0.0f;
-	verts[0].t0.y  = 0.0f;
+	const f32 depth = 0.0f;
 
-	verts[1].pos.x = N64ToScreenX(x1);
-	verts[1].pos.y = N64ToScreenY(y1);
-	verts[1].pos.z = 0.0f;
-	verts[1].t0.x  = s;
-	verts[1].t0.y  = 0.0f;
+	float positions[] = {
+		N64ToScreenX(x0), N64ToScreenY(y0), depth,
+		N64ToScreenX(x1), N64ToScreenY(y1), depth,
+		N64ToScreenX(x2), N64ToScreenY(y2), depth,
+		N64ToScreenX(x3), N64ToScreenY(y3), depth,
+	};
 
-	verts[2].pos.x = N64ToScreenX(x2);
-	verts[2].pos.y = N64ToScreenY(y2);
-	verts[2].pos.z = 0.0f;
-	verts[2].t0.x  = s;
-	verts[2].t0.y  = t;
+	float uvs[] = {
+		0.f, 0.f,
+		s,   0.f,
+		s,   t,
+		0.f, t,
+	};
 
-	verts[3].pos.x = N64ToScreenX(x3);
-	verts[3].pos.y = N64ToScreenY(y3);
-	verts[3].pos.z = 0.0f;
-	verts[3].t0.x  = 0.0f;
-	verts[3].t0.y  = t;
+	u32 colours[] = {
+		0xffffffff,
+		0xffffffff,
+		0xffffffff,
+		0xffffffff,
+	};
 
-	DAEDALUS_ERROR("Draw2DTextureR FIXME");
-	//sceGuDrawArray( GL_TRIANGLE_FAN, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 4, 0, verts );
+	RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
 }
 
 //*****************************************************************************
@@ -992,34 +1001,39 @@ void RendererOSX::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1, f32 x2, f32 y2,
 //	See http://www.assembla.com/code/openTRI for more information.
 //
 //*****************************************************************************
-void RendererOSX::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height, f32 u0, f32 v0, f32 u1, f32 v1, CNativeTexture * texture)
+void RendererOSX::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height,
+									f32 u0, f32 v0, f32 u1, f32 v1,
+									CNativeTexture * texture)
 {
-	glDisable(GL_DEPTH_TEST);
-	glDepthMask(GL_TRUE);
-	glShadeModel(GL_FLAT);
-	//glTexFunc(GL_TFX_REPLACE, GL_TCC_RGBA);
+	DAEDALUS_ERROR("Draw2DTextureBlit is untested")
+
+	// FIXME(strmnnrmn): is this right? Gross anyway.
+	gRDPOtherMode.cycle_type = CYCLE_COPY;
+
+	PrepareRenderState(mScreenToDevice.mRaw, true /* disable_depth */, false);
+
 	glEnable(GL_BLEND);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-#ifdef DAEDALUS_OSX
-	DAEDALUS_ERROR( "Draw2DTextureBlit is not implemented on OSX" );
-#else
-
-// 0 Simpler blit algorithm, but doesn't handle big textures as good? (see StarSoldier)
+// 0 Simpler blit algorithm, but doesn't handle big textures as well? (see StarSoldier)
 // 1 More complex algorithm. used in newer versions of TriEngine, fixes the main screen in StarSoldier
 // Note : We ignore handling height > 512 textures for now
 #if 1
+
 	if ( u1 > 512.f )
 	{
+		DAEDALUS_ERROR("Large texture isn't handled correctly?")
+/*
 		s32 off = (u1>u0) ? ((int)u0 & ~31) : ((int)u1 & ~31);
 
 		const u8* data = static_cast<const u8*>( texture->GetData()) + off * GetBitsPerPixel( texture->GetFormat() );
 		u1 -= off;
 		u0 -= off;
 		sceGuTexImage( 0, Min<u32>(512,texture->GetCorrectedWidth()), Min<u32>(512,texture->GetCorrectedHeight()), texture->GetBlockWidth(), data );
+*/
 	}
 
 	f32 start, end;
@@ -1035,24 +1049,43 @@ void RendererOSX::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height, f32 u0,
 		f32 poly_width = ((cur_x+slice) > x_end) ? (x_end-cur_x) : slice;
 		f32 source_width = ((cur_u+ustep) > u1) ? (u1-cur_u) : ustep;
 
-		TextureVtx verts[2];
-
-		verts[0].t0.x = cur_u;
-		verts[0].t0.y = v0;
-		verts[0].pos.x = N64ToScreenX(cur_x);
-		verts[0].pos.y = N64ToScreenY(y);
-		verts[0].pos.z = 0;
+		float sx0 = N64ToScreenX(cur_x);
+		float sy0 = N64ToScreenY(y);
+		float su0 = cur_u;
+		float sv0 = v0;
 
 		cur_u += source_width;
 		cur_x += poly_width;
 
-		verts[1].t0.x = cur_u;
-		verts[1].t0.y = v1;
-		verts[1].pos.x = N64ToScreenX(cur_x);
-		verts[1].pos.y = N64ToScreenY(height);
-		verts[1].pos.z = 0;
+		float sx1 = N64ToScreenX(cur_x);
+		float sy1 = N64ToScreenY(height);
+		float su1 = cur_u;
+		float sv1 = v1;
 
-		sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 2, 0, verts );
+		const f32 depth = 0.0f;
+
+		float positions[] = {
+			sx0, sy0, depth,
+			sx1, sy0, depth,
+			sx0, sy1, depth,
+			sx1, sy1, depth,
+		};
+
+		float uvs[] = {
+			u0, v0,
+			u1, v0,
+			u0, v1,
+			u1, v1,
+		};
+
+		u32 colours[] = {
+			0xffffffff,
+			0xffffffff,
+			0xffffffff,
+			0xffffffff,
+		};
+
+		RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
 	}
 #else
 	f32 cur_v = v0;
@@ -1137,8 +1170,6 @@ void RendererOSX::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height, f32 u0,
 		}
 	}
 #endif
-
-#endif // DAEDALUS_OSX
 }
 
 bool CreateRenderer()
