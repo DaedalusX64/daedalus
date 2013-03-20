@@ -28,14 +28,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern u32 gRDPFrame;
 
-class CachedTexture : public CRefCounted
+class CachedTexture
 {
 	protected:
 		explicit CachedTexture( const TextureInfo & ti );
 		~CachedTexture();
 
 	public:
-		static CRefPtr<CachedTexture>	Create( const TextureInfo & ti );
+		static CachedTexture *			Create( const TextureInfo & ti );
 
 		inline const CRefPtr<CNativeTexture> &	GetTexture() const			{ return mpTexture; }
 		inline const TextureInfo &		GetTextureInfo() const				{ return mTextureInfo; }

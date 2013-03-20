@@ -176,7 +176,7 @@ static void UpdateTexture( const TextureInfo & ti, CNativeTexture * texture )
 	}
 }
 
-CRefPtr<CachedTexture> CachedTexture::Create( const TextureInfo & ti )
+CachedTexture * CachedTexture::Create( const TextureInfo & ti )
 {
 	if( ti.GetWidth() == 0 || ti.GetHeight() == 0 )
 	{
@@ -184,11 +184,10 @@ CRefPtr<CachedTexture> CachedTexture::Create( const TextureInfo & ti )
 		return NULL;
 	}
 
-	CRefPtr<CachedTexture>	texture( new CachedTexture( ti ) );
-
+	CachedTexture *	texture = new CachedTexture( ti );
 	if (!texture->Initialise())
 	{
-		texture = NULL;
+		return NULL;
 	}
 
 	return texture;

@@ -71,11 +71,9 @@ void CTextureCache::PurgeOldTextures()
 	//
 	for( s32 i = mTextures.size() - 1; i >= 0; --i )
 	{
-		CRefPtr<CachedTexture> & texture = mTextures[ i ];
+		CachedTexture * texture = mTextures[ i ];
 		if ( texture->HasExpired() )
 		{
-			//printf("Texture load address -> %d\n",mTextures[ i ]->GetTextureInfo().GetLoadAddress());
-
 			u32	ixa = MakeHashIdxA( texture->GetTextureInfo() );
 			u32 ixb = MakeHashIdxB( texture->GetTextureInfo() );
 
@@ -89,12 +87,18 @@ void CTextureCache::PurgeOldTextures()
 			}
 
 			mTextures.erase( mTextures.begin() + i );
+
+			delete texture;
 		}
 	}
 }
 
 void CTextureCache::DropTextures()
 {
+	for( u32 i = 0; i < mTextures.size(); ++i)
+	{
+		delete mTextures[i];
+	}
 	mTextures.clear();
 	for( u32 i = 0; i < HASH_TABLE_SIZE; ++i )
 	{
@@ -134,15 +138,15 @@ public:
 	{
 		return a < b;
 	}
-	bool operator()( const CRefPtr<CachedTexture> & a, const TextureInfo & b ) const
+	bool operator()( const CachedTexture * a, const TextureInfo & b ) const
 	{
 		return a->GetTextureInfo() < b;
 	}
-	bool operator()( const TextureInfo & a, const CRefPtr<CachedTexture> & b ) const
+	bool operator()( const TextureInfo & a, const CachedTexture * b ) const
 	{
 		return a < b->GetTextureInfo();
 	}
-	bool operator()( const CRefPtr<CachedTexture> & a, const CRefPtr<CachedTexture> & b ) const
+	bool operator()( const CachedTexture * a, const CachedTexture * b ) const
 	{
 		return a->GetTextureInfo() < b->GetTextureInfo();
 	}
@@ -150,7 +154,7 @@ public:
 
 // If already in table, return cached copy
 // Otherwise, create surfaces, and load texture into memory
-CRefPtr<CachedTexture> CTextureCache::GetOrCreateCachedTexture(const TextureInfo & ti)
+CachedTexture * CTextureCache::GetOrCreateCachedTexture(const TextureInfo & ti)
 {
 	DAEDALUS_PROFILE( "CTextureCache::GetOrCreateCachedTexture" );
 
@@ -175,7 +179,7 @@ CRefPtr<CachedTexture> CTextureCache::GetOrCreateCachedTexture(const TextureInfo
 		return mpCacheHashTable[ixb];
 	}
 
-	CRefPtr<CachedTexture>	texture;
+	CachedTexture *	texture = NULL;
 	TextureVec::iterator	it = std::lower_bound( mTextures.begin(), mTextures.end(), ti, SSortTextureEntries() );
 	if( it != mTextures.end() && (*it)->GetTextureInfo() == ti )
 	{
@@ -207,7 +211,7 @@ CRefPtr<CachedTexture> CTextureCache::GetOrCreateCachedTexture(const TextureInfo
 
 CRefPtr<CNativeTexture> CTextureCache::GetOrCreateTexture(const TextureInfo & ti)
 {
-	CRefPtr<CachedTexture> base_texture = GetOrCreateCachedTexture(ti);
+	CachedTexture * base_texture = GetOrCreateCachedTexture(ti);
 	if (!base_texture)
 		return NULL;
 

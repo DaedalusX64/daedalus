@@ -55,7 +55,7 @@ public:
 #endif
 
 private:
-	CRefPtr<CachedTexture> GetOrCreateCachedTexture(const TextureInfo & ti);
+	CachedTexture * GetOrCreateCachedTexture(const TextureInfo & ti);
 
 	//
 	//	We implement a 2-way skewed associative cache.
@@ -69,9 +69,9 @@ private:
 
 	// FIXME(strmnnrmn): we should have a struct of TextureInfo+CachedTexture instead -
 	// doing binary search on this array needs a memory indirect for every probe.
-	typedef std::vector< CRefPtr<CachedTexture> >	TextureVec;
-	TextureVec						mTextures;
-	mutable CRefPtr<CachedTexture>	mpCacheHashTable[HASH_TABLE_SIZE];
+	typedef std::vector< CachedTexture * >	TextureVec;
+	TextureVec			mTextures;
+	CachedTexture *		mpCacheHashTable[HASH_TABLE_SIZE];
 };
 
 #endif	// TEXTURECACHE_H__
