@@ -205,6 +205,16 @@ CRefPtr<CachedTexture> CTextureCache::GetOrCreateTexture(const TextureInfo & ti)
 	return texture;
 }
 
+CRefPtr<CNativeTexture>	CTextureCache::GetOrCreateWhiteTexture(const TextureInfo & ti)
+{
+	CRefPtr<CachedTexture> base_texture = GetOrCreateTexture(ti);
+	if (!base_texture)
+		return NULL;
+
+	return base_texture->GetWhiteTexture();
+}
+
+
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 void CTextureCache::Snapshot( std::vector< STextureInfoSnapshot > & snapshot ) const
 {

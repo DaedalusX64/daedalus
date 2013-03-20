@@ -720,40 +720,36 @@ void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disabl
 		if (!install_textures[i])
 			continue;
 
-		if (mpTexture[i] != NULL)
+		if (mRecentTexture[i] != NULL)
 		{
-			CRefPtr<CNativeTexture> texture = mpTexture[i]->GetTexture();
-			if (texture != NULL)
+			mRecentTexture[i]->InstallTexture();
+
+			glUniform1i(program->uloc_texture[i], i);
+
+			if (identity_uv_transform)
 			{
-				texture->InstallTexture();
-
-				glUniform1i(program->uloc_texture[i], i);
-
-				if (identity_uv_transform)
-				{
-					glUniform2f(program->uloc_texoffset[i], 0.f, 0.f);
-					glUniform2f(program->uloc_texscale[i], 1.f, 1.f);
-				}
-				else
-				{
-					glUniform2f(program->uloc_texoffset[i], mTileTopLeft[i].x, mTileTopLeft[i].y);
-					glUniform2f(program->uloc_texscale[i], mTileScale[i].x, mTileScale[i].y);
-				}
-
-				if( (gRDPOtherMode.text_filt != G_TF_POINT) | (gGlobalPreferences.ForceLinearFilter) )
-				{
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				}
-				else
-				{
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-				}
-
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mTexWrap[i].u);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mTexWrap[i].v);
+				glUniform2f(program->uloc_texoffset[i], 0.f, 0.f);
+				glUniform2f(program->uloc_texscale[i], 1.f, 1.f);
 			}
+			else
+			{
+				glUniform2f(program->uloc_texoffset[i], mTileTopLeft[i].x, mTileTopLeft[i].y);
+				glUniform2f(program->uloc_texscale[i], mTileScale[i].x, mTileScale[i].y);
+			}
+
+			if( (gRDPOtherMode.text_filt != G_TF_POINT) | (gGlobalPreferences.ForceLinearFilter) )
+			{
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			}
+			else
+			{
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			}
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, mTexWrap[i].u);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, mTexWrap[i].v);
 		}
 	}
 }

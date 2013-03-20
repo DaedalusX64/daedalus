@@ -279,7 +279,8 @@ void BaseRenderer::EndScene()
 	//	Clear this, to ensure we're force to check for updates to it on the next frame
 	for( u32 i = 0; i < NUM_N64_TEXTURES; i++ )
 	{
-		mpTexture[ i ] = NULL;
+		mRecentTextureInfo[ i ] = TextureInfo();
+		mRecentTexture[ i ]     = NULL;
 	}
 }
 
@@ -1620,27 +1621,22 @@ void BaseRenderer::UpdateTileSnapshots( u32 tile_idx )
 }
 
 #ifdef DAEDALUS_PSP
-static void T1Hack(CachedTexture * texture0, CachedTexture * texture1)
+static void T1Hack(const TextureInfo & ti0, CNativeTexture * texture0,
+				   const TextureInfo & ti1, CNativeTexture * texture1)
 {
-	const TextureInfo & ti0 = texture0->GetTextureInfo();
-	const TextureInfo & ti1 = texture1->GetTextureInfo();
-
 	if((ti0.GetFormat() == G_IM_FMT_RGBA) &&
 	   (ti1.GetFormat() == G_IM_FMT_I) &&
 	   (ti1.GetWidth()  == ti0.GetWidth()) &&
 	   (ti1.GetHeight() == ti0.GetHeight()))
 	{
-		const CRefPtr<CNativeTexture> & native_texture0 = texture0->GetTexture();
-		const CRefPtr<CNativeTexture> & native_texture1 = texture1->GetTexture();
-
 		if( g_ROM.T1_HACK )
 		{
-			const u32 * src = static_cast<const u32*>(native_texture0->GetData());
-			u32 * dst       = static_cast<      u32*>(native_texture1->GetData());
+			const u32 * src = static_cast<const u32*>(texture0->GetData());
+			u32 * dst       = static_cast<      u32*>(texture1->GetData());
 
 			//Merge RGB + I -> RGBA in texture 1
 			//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
-			u32 size = native_texture1->GetWidth() * native_texture1->GetHeight() >> 1;
+			u32 size = texture1->GetWidth() * texture1->GetHeight() >> 1;
 			for(u32 i=0; i < size ; i++)
 			{
 				*dst = (*dst & 0xF000F000) | (*src & 0x0FFF0FFF);
@@ -1650,12 +1646,12 @@ static void T1Hack(CachedTexture * texture0, CachedTexture * texture1)
 		}
 		else
 		{
-			const u32* src = static_cast<const u32*>(native_texture1->GetData());
-			u32* dst       = static_cast<      u32*>(native_texture0->GetData());
+			const u32* src = static_cast<const u32*>(texture1->GetData());
+			u32* dst       = static_cast<      u32*>(texture0->GetData());
 
 			//Merge RGB + I -> RGBA in texture 0
 			//We do two pixels in one go since its 16bit (RGBA_4444) //Corn
-			u32 size = native_texture1->GetWidth() * native_texture1->GetHeight() >> 1;
+			u32 size = texture1->GetWidth() * texture1->GetHeight() >> 1;
 			for(u32 i=0; i < size ; i++)
 			{
 				*dst = (*dst & 0x0FFF0FFF) | (*src & 0xF000F000);
@@ -1672,7 +1668,7 @@ static void T1Hack(CachedTexture * texture0, CachedTexture * texture1)
 //   mTexWrap
 //   mTileTopLeft
 //   mTileScale
-//   mpTexture
+//   mRecentTexture
 //*****************************************************************************
 void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 {
@@ -1729,7 +1725,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 			mTileTopLeft[ index ].x, mTileTopLeft[ index ].y, mTileScale[ index ].x, mTileScale[ index ].y );
 
 	// Avoid texture update, if texture is the same as last time around.
-	if( mpTexture[ index ] != NULL && mpTexture[ index ]->GetTextureInfo() == ti )
+	if( mRecentTexture[ index ] != NULL && mRecentTextureInfo[ index ] == ti )
 		return;
 
 	// Check for 0 width/height textures
@@ -1741,16 +1737,17 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	{
 		CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetOrCreateTexture( ti ) );
 
-		if( texture != NULL && texture != mpTexture[ index ] )
+		if( texture != NULL && texture->GetTexture() != mRecentTexture[ index ] )
 		{
-			mpTexture[ index ] = texture;
+			mRecentTextureInfo[index] = ti;
+			mRecentTexture[index]     = texture->GetTexture();
 
 #ifdef DAEDALUS_PSP
 			//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
 			//If T1 Hack is not enabled index can never be other than 0
 			if(index)
 			{
-				T1Hack(mpTexture[0], mpTexture[1]);
+				T1Hack(mRecentTextureInfo[0], mRecentTexture[0], mRecentTextureInfo[1], mRecentTexture[1]);
 			}
 #endif
 

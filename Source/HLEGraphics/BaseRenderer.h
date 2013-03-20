@@ -25,7 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/Vector4.h"
 #include "Math/Matrix4x4.h"
 #include "Utility/RefCounted.h"
-#include "DaedalusVtx.h"
+#include "HLEGraphics/DaedalusVtx.h"
+#include "HLEGraphics/TextureInfo.h"
 #include "Graphics/ColourValue.h"
 #include "Utility/Preferences.h"
 
@@ -373,7 +374,9 @@ protected:
 	};
 	static const u32 NUM_N64_TEXTURES = 2;
 
-	CRefPtr<CachedTexture>	mpTexture[ NUM_N64_TEXTURES ];
+	TextureInfo				mRecentTextureInfo[ NUM_N64_TEXTURES ];
+	CRefPtr<CNativeTexture>	mRecentTexture[ NUM_N64_TEXTURES ];
+
 	v2						mTileTopLeft[ NUM_N64_TEXTURES ];
 	v2						mTileScale[ NUM_N64_TEXTURES ];
 	TextureWrap				mTexWrap[ NUM_N64_TEXTURES ];

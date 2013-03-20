@@ -13,6 +13,7 @@
 #include "HLEGraphics/CachedTexture.h"
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/RDPStateManager.h"
+#include "HLEGraphics/TextureCache.h"
 #include "Math/MathUtil.h"
 #include "OSHLE/ultra_gbi.h"
 #include "Utility/IO.h"
@@ -471,18 +472,13 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		{
 			u32 texture_idx = g_ROM.T1_HACK ? 1 : 0;
 
-			if( mpTexture[ texture_idx ] != NULL )
+			if( mRecentTexture[ texture_idx ] )
 			{
-				const CRefPtr<CNativeTexture> & texture = mpTexture[ texture_idx ]->GetTexture();
+				mRecentTexture[ texture_idx ]->InstallTexture();
 
-				if(texture != NULL)
-				{
-					texture->InstallTexture();
+				sceGuTexWrap( mTexWrap[ texture_idx ].u, mTexWrap[ texture_idx ].v );
 
-					sceGuTexWrap( mTexWrap[ texture_idx ].u, mTexWrap[ texture_idx ].v );
-
-					installed_texture = true;
-				}
+				installed_texture = true;
 			}
 		}
 
@@ -593,13 +589,17 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 				texture_idx = install_texture0 ? 0 : 1;
 			}
 
-			if( mpTexture[texture_idx] != NULL )
+			if( mRecentTexture[texture_idx] != NULL )
 			{
-				CRefPtr<CNativeTexture> texture = mpTexture[ texture_idx ]->GetTexture();
+				CRefPtr<CNativeTexture> texture;
 
 				if(out.MakeTextureWhite)
 				{
-					texture = mpTexture[ texture_idx ]->GetWhiteTexture();
+					texture = CTextureCache::Get()->GetOrCreateWhiteTexture( mRecentTextureInfo[ texture_idx ] );
+				}
+				else
+				{
+					texture = mRecentTexture[ texture_idx ];
 				}
 
 				if(texture != NULL)
@@ -1084,29 +1084,24 @@ bool RendererPSP::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u3
 		{
 			//Allow Blend Explorer
 			//
-			SBlendModeDetails		details;
+			SBlendModeDetails details;
 
 			details.InstallTexture = true;
-			details.EnvColour = mEnvColour;
-			details.PrimColour = mPrimitiveColour;
+			details.EnvColour      = mEnvColour;
+			details.PrimColour     = mPrimitiveColour;
 			details.ColourAdjuster.Reset();
 
 			//Insert the Blend Explorer
 			BLEND_MODE_MAKER
 
-			bool	installed_texture( false );
+			bool	installed_texture = false;
 
 			if( details.InstallTexture )
 			{
-				if( mpTexture[ 0 ] != NULL )
+				if( mRecentTexture[0] != NULL )
 				{
-					const CRefPtr<CNativeTexture> & texture = mpTexture[ 0 ]->GetTexture();
-
-					if(texture != NULL)
-					{
-						texture->InstallTexture();
-						installed_texture = true;
-					}
+					mRecentTexture[0]->InstallTexture();
+					installed_texture = true;
 				}
 			}
 
