@@ -17,35 +17,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __CONVERTIMAGE_H__
-#define __CONVERTIMAGE_H__
+#ifndef CONVERTIMAGE_H__
+#define CONVERTIMAGE_H__
 
 #include "Graphics/TextureFormat.h"
 
 struct TextureInfo;
 struct NativePf8888;
 
-struct TextureDestInfo
-{
-	explicit TextureDestInfo( ETextureFormat tex_fmt )
-		:	Format( tex_fmt )
-		,	Width( 0 )
-		,	Height( 0 )
-		,	Pitch( 0 )
-		,	Data( NULL )
-		,	Palette( NULL )
-	{
-	}
+bool ConvertTexture(void * texels,
+					NativePf8888 * palette,
+					const TextureInfo & ti,
+					ETextureFormat texture_format,
+					u32 pitch);
 
-	ETextureFormat		Format;
-	u32					Width;			// Describes the width of the locked area. Use lPitch to move between successive lines
-	u32					Height;			// Describes the height of the locked area
-	s32					Pitch;			// Specifies the number of bytes on each row (not necessarily bitdepth*width/8)
-	void *				Data;			// Pointer to the top left pixel of the image
-	NativePf8888 *		Palette;
-};
-
-
-bool ConvertTexture(const TextureDestInfo & dsti, const TextureInfo & ti);
-
-#endif
+#endif // CONVERTIMAGE_H__

@@ -46,7 +46,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <vector>
 
 static std::vector<u8>		gTexelBuffer;
-static NativePf8888		gPaletteBuffer[ 256 ];
+static NativePf8888			gPaletteBuffer[ 256 ];
 
 // NB: On the PSP we generate a lightweight hash of the texture data before
 // updating the native texture. This avoids some expensive work where possible.
@@ -105,38 +105,27 @@ static ETextureFormat SelectNativeFormat(const TextureInfo & ti)
 }
 #endif
 
-static bool GenerateTexels( void ** p_texels, void ** p_palette, const TextureInfo & texture_info, ETextureFormat texture_format, u32 pitch, u32 buffer_size )
+static bool GenerateTexels(void ** p_texels,
+						   void ** p_palette,
+						   const TextureInfo & ti,
+						   ETextureFormat texture_format,
+						   u32 pitch,
+						   u32 buffer_size)
 {
-	TextureDestInfo dst( texture_format );
-
 	if( gTexelBuffer.size() < buffer_size ) //|| gTexelBuffer.size() > (128 * 1024))//Cut off for downsizing may need to be adjusted to prevent some thrashing
 	{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		printf( "Resizing texel buffer to %d bytes. Texture is %dx%d\n", buffer_size, texture_info.GetWidth(), texture_info.GetHeight() );
+		printf( "Resizing texel buffer to %d bytes. Texture is %dx%d\n", buffer_size, ti.GetWidth(), ti.GetHeight() );
 #endif
 		gTexelBuffer.resize( buffer_size );
 	}
 
 	void *			texels  = &gTexelBuffer[0];
-	NativePf8888 *	palette = IsTextureFormatPalettised( dst.Format ) ? gPaletteBuffer : NULL;
+	NativePf8888 *	palette = IsTextureFormatPalettised( texture_format ) ? gPaletteBuffer : NULL;
 
-	//memset( texels, 0, buffer_size );
-
-	// Return a temporary buffer to use
-	dst.Data    = texels;
-	dst.Width   = texture_info.GetWidth();
-	dst.Height  = texture_info.GetHeight();
-	dst.Pitch   = pitch;
-	dst.Palette = palette;
-
-	//Do nothing if palette address is NULL or close to NULL in a palette texture //Corn
-	//Loading a SaveState (OOT -> SSV) dont bring back our TMEM data which causes issues for the first rendered frame.
-	//Checking if the palette pointer is less than 0x1000 (rather than just NULL) fixes it.
-	if( palette && (texture_info.GetTlutAddress() < 0x1000) ) return false;
-
-	if (ConvertTexture(dst, texture_info))
+	if (ConvertTexture(texels, palette, ti, texture_format, pitch))
 	{
-		*p_texels = texels;
+		*p_texels  = texels;
 		*p_palette = palette;
 		return true;
 	}
@@ -144,7 +133,7 @@ static bool GenerateTexels( void ** p_texels, void ** p_palette, const TextureIn
 	return false;
 }
 
-static void UpdateTexture( const TextureInfo & texture_info, CNativeTexture * texture, const c32 * recolour )
+static void UpdateTexture( const TextureInfo & ti, CNativeTexture * texture, const c32 * recolour )
 {
 	DAEDALUS_PROFILE( "Texture Conversion" );
 
@@ -155,14 +144,14 @@ static void UpdateTexture( const TextureInfo & texture_info, CNativeTexture * te
 		void *	texels;
 		void *	palette;
 
-		if( GenerateTexels( &texels, &palette, texture_info, texture->GetFormat(), texture->GetStride(), texture->GetBytesRequired() ) )
+		if( GenerateTexels( &texels, &palette, ti, texture->GetFormat(), texture->GetStride(), texture->GetBytesRequired() ) )
 		{
 			//
 			//	Recolour the texels
 			//
 			if( recolour )
 			{
-				Recolour( texels, palette, texture_info.GetWidth(), texture_info.GetHeight(), texture->GetStride(), texture->GetFormat(), *recolour );
+				Recolour( texels, palette, ti.GetWidth(), ti.GetHeight(), texture->GetStride(), texture->GetFormat(), *recolour );
 			}
 
 			//
@@ -170,16 +159,16 @@ static void UpdateTexture( const TextureInfo & texture_info, CNativeTexture * te
 			//	is less than the mask value clamp correctly. It still doesn't fix those
 			//	textures with a width which is greater than the power-of-2 size.
 			//
-			ClampTexels( texels, texture_info.GetWidth(), texture_info.GetHeight(), texture->GetCorrectedWidth(), texture->GetCorrectedHeight(), texture->GetStride(), texture->GetFormat() );
+			ClampTexels( texels, ti.GetWidth(), ti.GetHeight(), texture->GetCorrectedWidth(), texture->GetCorrectedHeight(), texture->GetStride(), texture->GetFormat() );
 
 			//
 			//	Mirror the texels if required (in-place)
 			//
-			bool mirror_s = texture_info.GetMirrorS();
-			bool mirror_t = texture_info.GetMirrorT();
+			bool mirror_s = ti.GetMirrorS();
+			bool mirror_t = ti.GetMirrorT();
 			if( mirror_s || mirror_t )
 			{
-				MirrorTexels( mirror_s, mirror_t, texels, texture->GetStride(), texels, texture->GetStride(), texture->GetFormat(), texture_info.GetWidth(), texture_info.GetHeight() );
+				MirrorTexels( mirror_s, mirror_t, texels, texture->GetStride(), texels, texture->GetStride(), texture->GetFormat(), ti.GetWidth(), ti.GetHeight() );
 			}
 
 			texture->SetData( texels, palette );

@@ -24,17 +24,37 @@ Copyright (C) 2001 StrmnNrmn
 #include "DLDebug.h"
 #include "Core/Memory.h"
 
+#include "RDP.h"
 #include "N64PixelFormat.h"
+
 #include "Graphics/NativePixelFormat.h"
 
 #include "Math/MathUtil.h"
-
-#include "RDP.h"
 
 #include "OSHLE/ultra_gbi.h"
 
 namespace
 {
+
+struct TextureDestInfo
+{
+	explicit TextureDestInfo( ETextureFormat tex_fmt )
+		:	Format( tex_fmt )
+		,	Width( 0 )
+		,	Height( 0 )
+		,	Pitch( 0 )
+		,	Data( NULL )
+		,	Palette( NULL )
+	{
+	}
+
+	ETextureFormat		Format;
+	u32					Width;			// Describes the width of the locked area. Use lPitch to move between successive lines
+	u32					Height;			// Describes the height of the locked area
+	s32					Pitch;			// Specifies the number of bytes on each row (not necessarily bitdepth*width/8)
+	void *				Data;			// Pointer to the top left pixel of the image
+	NativePf8888 *		Palette;
+};
 
 static const u8 OneToEight[2] =
 {
@@ -678,8 +698,26 @@ static const ConvertFunction gConvertFunctions[ 32 ] =
 	NULL,			NULL,			NULL,				NULL					// ?
 };
 
-bool ConvertTexture(const TextureDestInfo & dsti, const TextureInfo & ti)
+bool ConvertTexture(void * texels,
+					NativePf8888 * palette,
+					const TextureInfo & ti,
+					ETextureFormat texture_format,
+					u32 pitch)
 {
+	//Do nothing if palette address is NULL or close to NULL in a palette texture //Corn
+	//Loading a SaveState (OOT -> SSV) dont bring back our TMEM data which causes issues for the first rendered frame.
+	//Checking if the palette pointer is less than 0x1000 (rather than just NULL) fixes it.
+	if( palette && (ti.GetTlutAddress() < 0x1000) ) return false;
+
+	//memset( texels, 0, buffer_size );
+
+	TextureDestInfo dsti( texture_format );
+	dsti.Data    = texels;
+	dsti.Width   = ti.GetWidth();
+	dsti.Height  = ti.GetHeight();
+	dsti.Pitch   = pitch;
+	dsti.Palette = palette;
+
 	const ConvertFunction fn = gConvertFunctions[ (ti.GetFormat() << 2) | ti.GetSize() ];
 	if( fn )
 	{

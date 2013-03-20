@@ -37,8 +37,8 @@ class CachedTexture : public CRefCounted
 	public:
 		static CRefPtr<CachedTexture>	Create( const TextureInfo & ti );
 
-		inline const CRefPtr<CNativeTexture> &	GetTexture() const					{ return mpTexture; }
-		const CRefPtr<CNativeTexture> &			GetWhiteTexture() const;		// Returns a texture with the RGB channels set to white (alpha remains the same)
+		inline const CRefPtr<CNativeTexture> &	GetTexture() const			{ return mpTexture; }
+		const CRefPtr<CNativeTexture> &			GetWhiteTexture() const;	// Returns a texture with the RGB channels set to white (alpha remains the same)
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		void							DumpTexture() const;
