@@ -8,6 +8,7 @@
 #include <GL/glfw.h>
 
 #include "Core/ROM.h"
+#include "Debug/DBGConsole.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
@@ -701,6 +702,7 @@ void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disabl
 	if (program == NULL)
 	{
 		// There must have been some failure to compile the shader. Abort!
+		DBGConsole_Msg(0, "Couldn't generate a shader for mux %llx, cycle %d, alpha %d\n", mMux, cycle_mode, alpha_threshold);
 		return;
 	}
 
