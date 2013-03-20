@@ -1767,6 +1767,8 @@ void BaseRenderer::PrepareTexRectUVs(v2 * uv0, v2 * uv1)
 	*uv1 = *uv1 - mTileTopLeft[0];
 	mTileTopLeft[0].x = mTileTopLeft[0].y = 0.f;
 
+	bool can_clamp_safely = true;
+
 	if (uv0->x < 0)
 	{
 		float w = mBoundTextureInfo[0].GetWidth();
@@ -1777,7 +1779,8 @@ void BaseRenderer::PrepareTexRectUVs(v2 * uv0, v2 * uv1)
 			float v = ceilf(-uv0->x / w) * w;
 			uv0->x += v;
 			uv1->x += v;
-			DAEDALUS_ASSERT(uv1->x >= 0 && uv1->x <= w, "uv1x wraps - shouldn't clamp");
+			if (uv1->x < 0.f || uv1->x > w)
+				can_clamp_safely = false;
 		}
 	}
 
@@ -1789,14 +1792,19 @@ void BaseRenderer::PrepareTexRectUVs(v2 * uv0, v2 * uv1)
 			float v = ceilf(-uv0->y / h) * h;
 			uv0->y += v;
 			uv1->y += v;
-			DAEDALUS_ASSERT(uv1->y >= 0 && uv1->y <= h, "uv1y wraps - shouldn't clamp");
+			if (uv1->y < 0.f || uv1->y > h)
+				can_clamp_safely = false;
 		}
 	}
 
 	// NB: assume that TexRects don't do any wraping. Fix a number of subtle glitches
 	// in Mario Kart, 1080.
 	// Do this after UpdateTileSnapshot, which sets mTexWrap
-	mTexWrap[0].u = mTexWrap[0].v = GU_CLAMP;
+	if (can_clamp_safely)
+	{
+		mTexWrap[0].u = mTexWrap[0].v = GU_CLAMP;
+	}
+	//else set to GU_REPEAT?
 }
 
 //*****************************************************************************
