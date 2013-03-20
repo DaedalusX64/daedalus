@@ -1678,9 +1678,34 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	const RDP_Tile &     rdp_tile  = gRDPStateManager.GetTile( tile_idx );
 	const RDP_TileSize & tile_size = gRDPStateManager.GetTileSize( tile_idx );
 
-	//	Initialise the wrapping/texture offset first, which can be set
-	//	independently of the actual texture.
-	//
+	// Avoid texture update, if texture is the same as last time around.
+	if( mRecentTexture[ index ] == NULL || mRecentTextureInfo[ index ] != ti )
+	{
+		// Check for 0 width/height textures
+		if( ti.GetWidth() == 0 || ti.GetHeight() == 0 )
+		{
+			DAEDALUS_DL_ERROR( "Loading texture with 0 width/height in slot %d", index );
+		}
+		else
+		{
+			CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
+
+			if( texture != NULL && texture != mRecentTexture[ index ] )
+			{
+				mRecentTextureInfo[index] = ti;
+				mRecentTexture[index]     = texture;
+
+#ifdef DAEDALUS_PSP
+				//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
+				//If T1 Hack is not enabled index can never be other than 0
+				if(index)
+				{
+					T1Hack(mRecentTextureInfo[0], mRecentTexture[0], mRecentTextureInfo[1], mRecentTexture[1]);
+				}
+#endif
+			}
+		}
+	}
 
 	// Initialise the clamping state. When the mask is 0, it forces clamp mode.
 	//
@@ -1714,35 +1739,6 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 
 	mTileTopLeft[ index ].x = f32(tile_size.left) / 4.0f;
 	mTileTopLeft[ index ].y = f32(tile_size.top) / 4.0f;
-
-	// Avoid texture update, if texture is the same as last time around.
-	if( mRecentTexture[ index ] == NULL || mRecentTextureInfo[ index ] != ti )
-	{
-		// Check for 0 width/height textures
-		if( ti.GetWidth() == 0 || ti.GetHeight() == 0 )
-		{
-			DAEDALUS_DL_ERROR( "Loading texture with 0 width/height in slot %d", index );
-		}
-		else
-		{
-			CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
-
-			if( texture != NULL && texture != mRecentTexture[ index ] )
-			{
-				mRecentTextureInfo[index] = ti;
-				mRecentTexture[index]     = texture;
-
-#ifdef DAEDALUS_PSP
-				//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
-				//If T1 Hack is not enabled index can never be other than 0
-				if(index)
-				{
-					T1Hack(mRecentTextureInfo[0], mRecentTexture[0], mRecentTextureInfo[1], mRecentTexture[1]);
-				}
-#endif
-			}
-		}
-	}
 
 	DL_PF( "    Use Tile[%d] as Texture[%d] [%dx%d] [%s/%dbpp] [%s u, %s v] -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] TopLeft[%0.3f|%0.3f]",
 			tile_idx, index, ti.GetWidth(), ti.GetHeight(), ti.GetFormatName(), ti.GetSizeInBits(),
