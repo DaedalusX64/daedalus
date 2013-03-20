@@ -150,9 +150,9 @@ public:
 
 // If already in table, return cached copy
 // Otherwise, create surfaces, and load texture into memory
-CRefPtr<CachedTexture> CTextureCache::GetOrCreateTexture(const TextureInfo & ti)
+CRefPtr<CachedTexture> CTextureCache::GetOrCreateCachedTexture(const TextureInfo & ti)
 {
-	DAEDALUS_PROFILE( "CTextureCache::GetOrCreateTexture" );
+	DAEDALUS_PROFILE( "CTextureCache::GetOrCreateCachedTexture" );
 
 	//
 	// Retrieve the texture from the cache (if it already exists)
@@ -205,9 +205,18 @@ CRefPtr<CachedTexture> CTextureCache::GetOrCreateTexture(const TextureInfo & ti)
 	return texture;
 }
 
+CRefPtr<CNativeTexture> CTextureCache::GetOrCreateTexture(const TextureInfo & ti)
+{
+	CRefPtr<CachedTexture> base_texture = GetOrCreateCachedTexture(ti);
+	if (!base_texture)
+		return NULL;
+
+	return base_texture->GetTexture();
+}
+
 CRefPtr<CNativeTexture>	CTextureCache::GetOrCreateWhiteTexture(const TextureInfo & ti)
 {
-	CRefPtr<CachedTexture> base_texture = GetOrCreateTexture(ti);
+	CRefPtr<CachedTexture> base_texture = GetOrCreateCachedTexture(ti);
 	if (!base_texture)
 		return NULL;
 

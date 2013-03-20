@@ -35,7 +35,7 @@ class CTextureCache : public CSingleton< CTextureCache >
 public:
 	virtual ~CTextureCache();
 
-	CRefPtr<CachedTexture>	GetOrCreateTexture(const TextureInfo & ti);
+	CRefPtr<CNativeTexture>	GetOrCreateTexture(const TextureInfo & ti);
 	CRefPtr<CNativeTexture>	GetOrCreateWhiteTexture(const TextureInfo & ti);
 
 	void		PurgeOldTextures();
@@ -52,6 +52,8 @@ public:
 #endif
 
 private:
+	CRefPtr<CachedTexture> GetOrCreateCachedTexture(const TextureInfo & ti);
+
 	//
 	//	We implement a 2-way skewed associative cache.
 	//	Each TextureInfo is hashed using two different methods, to reduce the chance of collisions

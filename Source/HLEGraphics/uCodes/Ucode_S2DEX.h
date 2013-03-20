@@ -282,10 +282,10 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 		ti.SetTLutFormat       (kTT_RGBA16);
 	}
 
-	CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetOrCreateTexture( ti ) );
+	CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
 	DAEDALUS_ASSERT( texture, "ObjSprite texture is NULL" );
 
-	texture->GetTexture()->InstallTexture();
+	texture->InstallTexture();
 }
 
 //*****************************************************************************
@@ -629,15 +629,14 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 	ti.SetTLutFormat       (kTT_RGBA16);
 
 
-	CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetOrCreateTexture( ti ) );
-	texture->GetTexture()->InstallTexture();
+	CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
+	texture->InstallTexture();
 
 	// Handle large images (width > 512) with blitting, since the PSP HW can't handle
 	// Handling height > 512 doesn't work good? Ignore for now
 	if( imageW >= 512 )
 	{
-		const CRefPtr<CNativeTexture> & native_texture( texture->GetTexture() );
-		gRenderer->Draw2DTextureBlit( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH, native_texture );
+		gRenderer->Draw2DTextureBlit( (float)frameX, (float)frameY, (float)frameW, (float)frameH, (float)imageX, (float)imageY, (float)imageW, (float)imageH, texture );
 	}
 	else
 	{
@@ -687,8 +686,8 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 	ti.SetTLutFormat       (kTT_RGBA16);
 
 
-	CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetOrCreateTexture( ti ) );
-	texture->GetTexture()->InstallTexture();
+	CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
+	texture->InstallTexture();
 
 	if (g_ROM.GameHacks != YOSHI)
 	{
@@ -699,8 +698,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 		// Handling height > 512 doesn't work good? Ignore for now
 		if( imageW >= 512 )
 		{
-			const CRefPtr<CNativeTexture> & native_texture( texture->GetTexture() );
-			gRenderer->Draw2DTextureBlit( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1, native_texture );
+			gRenderer->Draw2DTextureBlit( frameX, frameY, frameW, frameH, imageX, imageY, s1, t1, texture );
 		}
 		else
 		{

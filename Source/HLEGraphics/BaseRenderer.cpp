@@ -1735,12 +1735,12 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	}
 	else
 	{
-		CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetOrCreateTexture( ti ) );
+		CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
 
-		if( texture != NULL && texture->GetTexture() != mRecentTexture[ index ] )
+		if( texture != NULL && texture != mRecentTexture[ index ] )
 		{
 			mRecentTextureInfo[index] = ti;
-			mRecentTexture[index]     = texture->GetTexture();
+			mRecentTexture[index]     = texture;
 
 #ifdef DAEDALUS_PSP
 			//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
@@ -1751,11 +1751,8 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 			}
 #endif
 
-			const CRefPtr<CNativeTexture> & native_texture = texture->GetTexture();
-
-			DAEDALUS_ASSERT(native_texture != NULL, "Shouldn't be able to initialise CachedTexture with no NativeTexture.");
-			mTileScale[ index ].x = native_texture->GetScaleX();
-			mTileScale[ index ].y = native_texture->GetScaleY();
+			mTileScale[ index ].x = texture->GetScaleX();
+			mTileScale[ index ].y = texture->GetScaleY();
 		}
 	}
 }
