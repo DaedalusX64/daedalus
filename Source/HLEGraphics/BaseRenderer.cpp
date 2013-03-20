@@ -1747,6 +1747,58 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 			mTileTopLeft[ index ].x, mTileTopLeft[ index ].y );
 }
 
+// This transforms UVs so that they're positive. The aim is to ensure UVs are in the
+// range [0,0..w,h]. If we can do this, we can specify GL_CLAMP_TO_EDGE/GU_CLAMP,
+// which fixes some artifacts when rendering, such as bleed from wrapping at the edges
+// of textures.
+// There are two inputs into the final uvs: the vertex UV and the mTileTopLeft value:
+//   final_uv = (vert_uv - mTileTopLeft).
+// When rendering a large logo, most games set uv0=(s,t) and mTileTopLeft=(s,t) so
+// that the resulting final_uv = (0,0). But some games (e.g. Automobili Lamborghini)
+// set uv0=(0,0) but still have mTileTopLeft=(s,t). This results in a final_uv of (-s,-t).
+// I think that the only reason this happened to work was because s was some multiple
+// of the texture width, and so with GL_REPEAT the texrect rendered ok.
+// Anyway the fix is to subtract mTileTopLeft from the uvs, zero it, then add multiples
+// of the texture width/height until the uvs are positive. Then we can update mTexWrap
+// to GL_CLAMP_TO_EDGE/GU_CLAMP and everything works correctly. In theory :)
+void BaseRenderer::PrepareTexRectUVs(v2 * uv0, v2 * uv1)
+{
+	*uv0 = *uv0 - mTileTopLeft[0];
+	*uv1 = *uv1 - mTileTopLeft[0];
+	mTileTopLeft[0].x = mTileTopLeft[0].y = 0.f;
+
+	if (uv0->x < 0)
+	{
+		float w = mBoundTextureInfo[0].GetWidth();
+		if (w > 0)
+		{
+			// If integer, this would simply be (-uv0x + w-1) % w
+			// NB! we have to apply the same offset to both coords, to preserve direction of mapping (i.e., don't clamp each independently)
+			float v = ceilf(-uv0->x / w) * w;
+			uv0->x += v;
+			uv1->x += v;
+			DAEDALUS_ASSERT(uv1->x >= 0 && uv1->x <= w, "uv1x wraps - shouldn't clamp");
+		}
+	}
+
+	if (uv0->y < 0)
+	{
+		float h = mBoundTextureInfo[0].GetHeight();
+		if (h > 0)
+		{
+			float v = ceilf(-uv0->y / h) * h;
+			uv0->y += v;
+			uv1->y += v;
+			DAEDALUS_ASSERT(uv1->y >= 0 && uv1->y <= h, "uv1y wraps - shouldn't clamp");
+		}
+	}
+
+	// NB: assume that TexRects don't do any wraping. Fix a number of subtle glitches
+	// in Mario Kart, 1080.
+	// Do this after UpdateTileSnapshot, which sets mTexWrap
+	mTexWrap[0].u = mTexWrap[0].v = GU_CLAMP;
+}
+
 //*****************************************************************************
 //
 //*****************************************************************************

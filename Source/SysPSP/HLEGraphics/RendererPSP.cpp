@@ -628,9 +628,14 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 	}
 }
 
-void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
+void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0_, const v2 & uv1_ )
 {
 	UpdateTileSnapshots( tile_idx );
+
+	// NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
+	v2 uv0 = uv0_;
+	v2 uv1 = uv1_;
+	PrepareTexRectUVs(&uv0, &uv1);
 
 	v2 screen0;
 	v2 screen1;
@@ -721,9 +726,14 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 #endif
 }
 
-void RendererPSP::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
+void RendererPSP::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0_, const v2 & uv1_ )
 {
 	UpdateTileSnapshots( tile_idx );
+
+	// NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
+	v2 uv0 = uv0_;
+	v2 uv1 = uv1_;
+	PrepareTexRectUVs(&uv0, &uv1);
 
 	v2 screen0;
 	v2 screen1;

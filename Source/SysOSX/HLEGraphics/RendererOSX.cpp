@@ -772,9 +772,16 @@ void RendererOSX::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, b
 	RenderDaedalusVtx(GL_TRIANGLES, p_vertices, num_vertices);
 }
 
-void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
+void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0_, const v2 & uv1_ )
 {
 	UpdateTileSnapshots( tile_idx );
+
+	// NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
+	// We have to do it before PrepareRenderState, because those values are applied to the graphics state.
+	v2 uv0 = uv0_;
+	v2 uv1 = uv1_;
+	PrepareTexRectUVs(&uv0, &uv1);
+
 	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true, false);
 
 	v2 screen0;
@@ -815,9 +822,16 @@ void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 #endif
 }
 
-void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 )
+void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0_, const v2 & uv1_ )
 {
 	UpdateTileSnapshots( tile_idx );
+
+	// NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
+	// We have to do it before PrepareRenderState, because those values are applied to the graphics state.
+	v2 uv0 = uv0_;
+	v2 uv1 = uv1_;
+	PrepareTexRectUVs(&uv0, &uv1);
+
 	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true, false);
 
 	v2 screen0;
