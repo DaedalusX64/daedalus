@@ -653,17 +653,8 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 		ConvertN64ToScreen( xy1, screen1 );
 	}
 
-	// TODO(strmnnrmn): check that sceGuTexOffset is clear here, else the offset will be applied twice!
-	v2 tex_uv0;
-	tex_uv0.x = uv0.x - mTileTopLeft[ 0 ].x;
-	tex_uv0.y = uv0.y - mTileTopLeft[ 0 ].y;
-
-	v2 tex_uv1;
-	tex_uv1.x = uv1.x - mTileTopLeft[ 0 ].x;
-	tex_uv1.y = uv1.y - mTileTopLeft[ 0 ].y;
-
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
+	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
 
 	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
@@ -674,15 +665,15 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	p_vertices[0].Position.y = screen0.y;
 	p_vertices[0].Position.z = depth;
 	p_vertices[0].Colour = c32(0xffffffff);
-	p_vertices[0].Texture.x = tex_uv0.x;
-	p_vertices[0].Texture.y = tex_uv0.y;
+	p_vertices[0].Texture.x = uv0.x;
+	p_vertices[0].Texture.y = uv0.y;
 
 	p_vertices[1].Position.x = screen1.x;
 	p_vertices[1].Position.y = screen1.y;
 	p_vertices[1].Position.z = depth;
 	p_vertices[1].Colour = c32(0xffffffff);
-	p_vertices[1].Texture.x = tex_uv1.x;
-	p_vertices[1].Texture.y = tex_uv1.y;
+	p_vertices[1].Texture.x = uv1.x;
+	p_vertices[1].Texture.y = uv1.y;
 
 	RenderUsingCurrentBlendMode( p_vertices, 2, GU_SPRITES, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
 #else
@@ -694,29 +685,29 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	p_vertices[0].Position.y = screen0.y;
 	p_vertices[0].Position.z = depth;
 	p_vertices[0].Colour = c32(0xffffffff);
-	p_vertices[0].Texture.x = tex_uv0.x;
-	p_vertices[0].Texture.y = tex_uv0.y;
+	p_vertices[0].Texture.x = uv0.x;
+	p_vertices[0].Texture.y = uv0.y;
 
 	p_vertices[1].Position.x = screen1.x;
 	p_vertices[1].Position.y = screen0.y;
 	p_vertices[1].Position.z = depth;
 	p_vertices[1].Colour = c32(0xffffffff);
-	p_vertices[1].Texture.x = tex_uv1.x;
-	p_vertices[1].Texture.y = tex_uv0.y;
+	p_vertices[1].Texture.x = uv1.x;
+	p_vertices[1].Texture.y = uv0.y;
 
 	p_vertices[2].Position.x = screen0.x;
 	p_vertices[2].Position.y = screen1.y;
 	p_vertices[2].Position.z = depth;
 	p_vertices[2].Colour = c32(0xffffffff);
-	p_vertices[2].Texture.x = tex_uv0.x;
-	p_vertices[2].Texture.y = tex_uv1.y;
+	p_vertices[2].Texture.x = uv0.x;
+	p_vertices[2].Texture.y = uv1.y;
 
 	p_vertices[3].Position.x = screen1.x;
 	p_vertices[3].Position.y = screen1.y;
 	p_vertices[3].Position.z = depth;
 	p_vertices[3].Colour = c32(0xffffffff);
-	p_vertices[3].Texture.x = tex_uv1.x;
-	p_vertices[3].Texture.y = tex_uv1.y;
+	p_vertices[3].Texture.x = uv1.x;
+	p_vertices[3].Texture.y = uv1.y;
 
 	RenderUsingCurrentBlendMode( p_vertices, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, gRDPOtherMode.depth_source ? false : true );
 #endif
@@ -741,17 +732,8 @@ void RendererPSP::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	ConvertN64ToScreen( xy0, screen0 );
 	ConvertN64ToScreen( xy1, screen1 );
 
-	// TODO(strmnnrmn): check that sceGuTexOffset is clear here, else the offset will be applied twice!
-	v2 tex_uv0;
-	tex_uv0.x = uv0.x - mTileTopLeft[ 0 ].x;
-	tex_uv0.y = uv0.y - mTileTopLeft[ 0 ].y;
-
-	v2 tex_uv1;
-	tex_uv1.x = uv1.x - mTileTopLeft[ 0 ].x;
-	tex_uv1.y = uv1.y - mTileTopLeft[ 0 ].y;
-
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", tex_uv0.x, tex_uv0.y, tex_uv1.x, tex_uv1.y );
+	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
 
 	DaedalusVtx * p_vertices = static_cast<DaedalusVtx *>(sceGuGetMemory(4 * sizeof(DaedalusVtx)));
 
@@ -759,29 +741,29 @@ void RendererPSP::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 	p_vertices[0].Position.y = screen0.y;
 	p_vertices[0].Position.z = 0.0f;
 	p_vertices[0].Colour = c32(0xffffffff);
-	p_vertices[0].Texture.x = tex_uv0.x;
-	p_vertices[0].Texture.y = tex_uv0.y;
+	p_vertices[0].Texture.x = uv0.x;
+	p_vertices[0].Texture.y = uv0.y;
 
 	p_vertices[1].Position.x = screen1.x;
 	p_vertices[1].Position.y = screen0.y;
 	p_vertices[1].Position.z = 0.0f;
 	p_vertices[1].Colour = c32(0xffffffff);
-	p_vertices[1].Texture.x = tex_uv0.x;
-	p_vertices[1].Texture.y = tex_uv1.y;
+	p_vertices[1].Texture.x = uv0.x;
+	p_vertices[1].Texture.y = uv1.y;
 
 	p_vertices[2].Position.x = screen0.x;
 	p_vertices[2].Position.y = screen1.y;
 	p_vertices[2].Position.z = 0.0f;
 	p_vertices[2].Colour = c32(0xffffffff);
-	p_vertices[2].Texture.x = tex_uv1.x;
-	p_vertices[2].Texture.y = tex_uv0.y;
+	p_vertices[2].Texture.x = uv1.x;
+	p_vertices[2].Texture.y = uv0.y;
 
 	p_vertices[3].Position.x = screen1.x;
 	p_vertices[3].Position.y = screen1.y;
 	p_vertices[3].Position.z = 0.0f;
 	p_vertices[3].Colour = c32(0xffffffff);
-	p_vertices[3].Texture.x = tex_uv1.x;
-	p_vertices[3].Texture.y = tex_uv1.y;
+	p_vertices[3].Texture.x = uv1.x;
+	p_vertices[3].Texture.y = uv1.y;
 
 	// FIXME(strmnnrmn): shouldn't this pass gRDPOtherMode.depth_source ? false : true for the disable_zbuffer arg, as TextRect()?
 	RenderUsingCurrentBlendMode( p_vertices, 4, GU_TRIANGLE_STRIP, GU_TRANSFORM_2D, true );
