@@ -286,7 +286,7 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 
 		// Pad lines to quadword.
 		// FIXME memset?
-		for (u32 x = bytes_per_tmem_line; x < bytes_per_tmem_line; ++x)
+		for (u32 x = bytes_per_line; x < bytes_per_tmem_line; ++x)
 		{
 			tmem_data[tmem_offset+0] = 0;
 		}
