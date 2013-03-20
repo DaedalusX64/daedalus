@@ -299,12 +299,7 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 			CopyLine(tmem_data, tmem_offset, ram, ram_offset, bytes_per_tmem_line);
 		}
 
-		// Pad lines to quadword.
-		// FIXME memset?
-		for (u32 x = bytes_per_line; x < bytes_per_tmem_line; ++x)
-		{
-			tmem_data[tmem_offset+0] = 0;
-		}
+		// There might be uninitialised padding bytes here, but we don't care.
 
 		tmem_offset += bytes_per_tmem_line;
 		ram_offset  += pitch;
