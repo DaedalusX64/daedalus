@@ -24,6 +24,9 @@
           'Source',
           'Source/Config/Dev',
         ],
+        'defines': [
+          'DAEDALUS_ACCURATE_TMEM',
+        ],
         'sources': [
           'Source/Core/Cheats.cpp',
           'Source/Core/CPU.cpp',
