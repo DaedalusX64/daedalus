@@ -50,7 +50,7 @@ public:
 	// Retrive tile addr loading. used by Yoshi_MemRect
 	inline u32						GetTileAddress( const u32 tmem ) const { return mTmemLoadInfo[ tmem >> 4 ].Address; }
 
-	const TextureInfo &				GetTextureDescriptor( const u32 idx ) const;
+	const TextureInfo &				GetUpdatedTextureDescriptor( const u32 idx );
 
 private:
 	inline void				InvalidateAllTileTextureInfo()		{ memset( mTileTextureInfoValid, 0, sizeof(mTileTextureInfoValid) ); }
@@ -72,8 +72,8 @@ private:
 	TimgLoadDetails			mTmemLoadInfo[ 32 ];	//Subdivide TMEM area into 32 slots and keep track of texture loads (LoadBlock/LoadTile/LoadTlut) //Corn
 	u32						mValidEntryBits;		//Use bits to signal valid entries in TMEM
 
-	mutable TextureInfo		mTileTextureInfo[ 8 ];
-	mutable bool			mTileTextureInfoValid[ 8 ];		// Set to false if this needs rebuilding
+	TextureInfo				mTileTextureInfo[ 8 ];
+	bool					mTileTextureInfoValid[ 8 ];		// Set to false if this needs rebuilding
 };
 
 extern CRDPStateManager		gRDPStateManager;

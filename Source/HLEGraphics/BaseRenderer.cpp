@@ -1677,7 +1677,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	DAEDALUS_ASSERT( tile_idx < 8, "Invalid tile index %d", tile_idx );
 	DAEDALUS_ASSERT( index < NUM_N64_TEXTURES, "Invalid texture index %d", index );
 
-	const TextureInfo &  ti        = gRDPStateManager.GetTextureDescriptor( tile_idx );
+	const TextureInfo &  ti        = gRDPStateManager.GetUpdatedTextureDescriptor( tile_idx );
 	const RDP_Tile &     rdp_tile  = gRDPStateManager.GetTile( tile_idx );
 	const RDP_TileSize & tile_size = gRDPStateManager.GetTileSize( tile_idx );
 

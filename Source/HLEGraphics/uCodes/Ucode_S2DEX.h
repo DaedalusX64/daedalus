@@ -249,7 +249,7 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 
 	if( txtr == NULL )
 	{
-		ti = gRDPStateManager.GetTextureDescriptor( gRenderer->GetTextureTile() );
+		ti = gRDPStateManager.GetUpdatedTextureDescriptor( gRenderer->GetTextureTile() );
 	}
 	else
 	{
