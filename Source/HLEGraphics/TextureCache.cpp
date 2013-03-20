@@ -161,6 +161,8 @@ CRefPtr<CachedTexture> CTextureCache::GetOrCreateTexture(const TextureInfo & ti)
 	if( mpCacheHashTable[ixa] && mpCacheHashTable[ixa]->GetTextureInfo() == ti )
 	{
 		RECORD_CACHE_HIT( 1, 0 );
+		mpCacheHashTable[ixa]->UpdateIfNecessary();
+
 		return mpCacheHashTable[ixa];
 	}
 
@@ -168,6 +170,8 @@ CRefPtr<CachedTexture> CTextureCache::GetOrCreateTexture(const TextureInfo & ti)
 	if( mpCacheHashTable[ixb] && mpCacheHashTable[ixb]->GetTextureInfo() == ti )
 	{
 		RECORD_CACHE_HIT( 1, 0 );
+		mpCacheHashTable[ixb]->UpdateIfNecessary();
+
 		return mpCacheHashTable[ixb];
 	}
 
@@ -192,6 +196,8 @@ CRefPtr<CachedTexture> CTextureCache::GetOrCreateTexture(const TextureInfo & ti)
 	// Update the hashtable
 	if( texture )
 	{
+		texture->UpdateIfNecessary();
+
 		mpCacheHashTable[ixa] = texture;
 		mpCacheHashTable[ixb] = texture;
 	}

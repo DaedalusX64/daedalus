@@ -1581,7 +1581,7 @@ inline void BaseRenderer::SetVtxXY( u32 vert, float x, float y )
 void BaseRenderer::ResetMatrices(u32 size)
 {
 	//Tigger's Honey Hunt
-	if(size == 0)	
+	if(size == 0)
 		size = MATRIX_STACK_SIZE;
 
 	mMatStackSize = (size > MATRIX_STACK_SIZE) ? MATRIX_STACK_SIZE : size;
@@ -1743,8 +1743,6 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 
 		if( texture != NULL && texture != mpTexture[ index ] )
 		{
-			texture->UpdateIfNecessary();
-
 			mpTexture[ index ] = texture;
 
 #ifdef DAEDALUS_PSP

@@ -45,13 +45,15 @@ class CachedTexture : public CRefCounted
 #endif
 		inline const TextureInfo &		GetTextureInfo() const				{ return mTextureInfo; }
 		inline	void					Touch() 							{ mFrameLastUsed = gRDPFrame; }
-		void							UpdateIfNecessary();
 		bool							HasExpired() const;
 
 	private:
-				bool					Initialise();
-				bool					IsFresh() const;
-				bool					UpdateTextureHash();
+		friend class CTextureCache;
+		void							UpdateIfNecessary();
+
+		bool							Initialise();
+		bool							IsFresh() const;
+		bool							UpdateTextureHash();
 
 	private:
 		const TextureInfo				mTextureInfo;

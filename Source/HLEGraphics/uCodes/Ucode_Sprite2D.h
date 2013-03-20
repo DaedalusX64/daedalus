@@ -97,7 +97,6 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo 
 	DAEDALUS_ASSERT( texture, "Sprite2D texture is NULL" );
 
 	texture->GetTexture()->InstallTexture();
-	texture->UpdateIfNecessary();
 
 	s32 frameX              = px;
 	s32 frameY              = py;

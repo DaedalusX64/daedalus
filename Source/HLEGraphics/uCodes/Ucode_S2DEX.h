@@ -286,7 +286,6 @@ void Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
 	DAEDALUS_ASSERT( texture, "ObjSprite texture is NULL" );
 
 	texture->GetTexture()->InstallTexture();
-	texture->UpdateIfNecessary();
 }
 
 //*****************************************************************************
@@ -632,7 +631,6 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 
 	CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetOrCreateTexture( ti ) );
 	texture->GetTexture()->InstallTexture();
-	texture->UpdateIfNecessary();
 
 	// Handle large images (width > 512) with blitting, since the PSP HW can't handle
 	// Handling height > 512 doesn't work good? Ignore for now
@@ -691,7 +689,6 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 
 	CRefPtr<CachedTexture> texture( CTextureCache::Get()->GetOrCreateTexture( ti ) );
 	texture->GetTexture()->InstallTexture();
-	texture->UpdateIfNecessary();
 
 	if (g_ROM.GameHacks != YOSHI)
 	{
