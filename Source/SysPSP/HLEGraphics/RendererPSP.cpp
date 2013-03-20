@@ -473,7 +473,7 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 			if( mpTexture[ texture_idx ] != NULL )
 			{
-				const CRefPtr<CNativeTexture> texture( mpTexture[ texture_idx ]->GetTexture() );
+				const CRefPtr<CNativeTexture> & texture = mpTexture[ texture_idx ]->GetTexture();
 
 				if(texture != NULL)
 				{
@@ -595,7 +595,7 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 
 			if( mpTexture[texture_idx] != NULL )
 			{
-				CRefPtr<CNativeTexture> texture( mpTexture[ texture_idx ]->GetTexture() );
+				CRefPtr<CNativeTexture> texture = mpTexture[ texture_idx ]->GetTexture();
 
 				if(out.MakeTextureWhite)
 				{
@@ -1100,7 +1100,7 @@ bool RendererPSP::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u3
 			{
 				if( mpTexture[ 0 ] != NULL )
 				{
-					const CRefPtr<CNativeTexture> texture( mpTexture[ 0 ]->GetTexture() );
+					const CRefPtr<CNativeTexture> & texture = mpTexture[ 0 ]->GetTexture();
 
 					if(texture != NULL)
 					{
