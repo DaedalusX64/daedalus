@@ -323,8 +323,8 @@ static const char* default_vertex_shader =
 "\n"
 "void main()\n"
 "{\n"
-"	v_uv0 = (in_uv - uTexOffset0) * uTexScale0;\n"
-"	v_uv1 = (in_uv - uTexOffset1) * uTexScale1;\n"
+"	v_uv0 = (in_uv - uTexOffset0) / uTexScale0;\n"
+"	v_uv1 = (in_uv - uTexOffset1) / uTexScale1;\n"
 "	v_col = in_col;\n"
 "	gl_Position = uProject * vec4(in_pos, 1.0);\n"
 "}\n";
@@ -735,7 +735,7 @@ void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disabl
 			else
 			{
 				glUniform2f(program->uloc_texoffset[i], mTileTopLeft[i].x, mTileTopLeft[i].y);
-				glUniform2f(program->uloc_texscale[i], texture->GetScaleX(), texture->GetScaleY());
+				glUniform2f(program->uloc_texscale[i], (float)texture->GetCorrectedWidth(), (float)texture->GetCorrectedHeight());
 			}
 
 			if( (gRDPOtherMode.text_filt != G_TF_POINT) | (gGlobalPreferences.ForceLinearFilter) )
