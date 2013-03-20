@@ -698,9 +698,9 @@ static const ConvertFunction gConvertFunctions[ 32 ] =
 	NULL,			NULL,			NULL,				NULL					// ?
 };
 
-bool ConvertTexture(void * texels,
+bool ConvertTexture(const TextureInfo & ti,
+					void * texels,
 					NativePf8888 * palette,
-					const TextureInfo & ti,
 					ETextureFormat texture_format,
 					u32 pitch)
 {

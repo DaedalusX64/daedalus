@@ -25,9 +25,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 struct TextureInfo;
 struct NativePf8888;
 
-bool ConvertTexture(void * texels,
+bool ConvertTexture(const TextureInfo & ti,
+					void * texels,
 					NativePf8888 * palette,
-					const TextureInfo & ti,
 					ETextureFormat texture_format,
 					u32 pitch);
 

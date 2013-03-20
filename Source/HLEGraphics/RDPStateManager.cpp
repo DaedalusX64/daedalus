@@ -49,7 +49,7 @@ u16 gPaletteMemory[ 512 ];
 
 
 #ifdef DAEDALUS_ACCURATE_TMEM
-static u8 gTMEM[4096];	// 4Kb
+u8 gTMEM[4096];	// 4Kb
 #endif
 
 
@@ -455,6 +455,11 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		ti.SetTlutAddress( tlut );
 #else
 		ti.SetTlutAddress( rdp_tile.size == G_IM_SIZ_4b ? tlut + (rdp_tile.palette << 5) : tlut );
+#endif
+
+#ifdef DAEDALUS_ACCURATE_TMEM
+		ti.Line = rdp_tile.line;
+		ti.Palette = rdp_tile.palette;
 #endif
 
 		ti.SetTmemAddress( rdp_tile.tmem );

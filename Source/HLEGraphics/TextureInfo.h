@@ -51,6 +51,11 @@ private:
 
 	bool		White : 1;			// Force the RGB channels to white (PSP Blender support).
 									// Typically this is set on a copy of the TextureInfo.
+#ifdef DAEDALUS_ACCURATE_TMEM
+public:
+	u32			Line : 9;
+	u32			Palette : 4;
+#endif
 
 public:
 	// Pretty gross. Needed so that any padding bytes are consistently zeroed.

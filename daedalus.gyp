@@ -70,6 +70,7 @@
           'Source/HLEGraphics/BaseRenderer.cpp',
           'Source/HLEGraphics/CachedTexture.cpp',
           'Source/HLEGraphics/ConvertImage.cpp',
+          'Source/HLEGraphics/ConvertTile.cpp',
           'Source/HLEGraphics/DLDebug.cpp',
           'Source/HLEGraphics/DLParser.cpp',
           'Source/HLEGraphics/Microcode.cpp',

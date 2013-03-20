@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "TextureInfo.h"
 #include "ConvertImage.h"
+#include "ConvertTile.h"
 #include "ConfigOptions.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/NativePixelFormat.h"
@@ -60,15 +61,15 @@ static const bool kUpdateTexturesEveryFrame = true;
 #endif
 
 
-// #ifdef DAEDALUS_OSX
+#ifdef DAEDALUS_OSX
 
-// static ETextureFormat SelectNativeFormat(const TextureInfo & ti)
-// {
-// 	// On OSX, always use RGBA 8888 textures.
-// 	return TexFmt_8888;
-// }
+static ETextureFormat SelectNativeFormat(const TextureInfo & ti)
+{
+	// On OSX, always use RGBA 8888 textures.
+	return TexFmt_8888;
+}
 
-// #else
+#else
 
 #define DEFTEX	TexFmt_8888
 
@@ -103,7 +104,7 @@ static ETextureFormat SelectNativeFormat(const TextureInfo & ti)
 	u32 idx = (ti.GetFormat() << 2) | ti.GetSize();
 	return g_ROM.LOAD_T1_HACK ? TFmt_hack[idx] : TFmt[idx];
 }
-//#endif
+#endif
 
 static bool GenerateTexels(void ** p_texels,
 						   void ** p_palette,
@@ -123,7 +124,11 @@ static bool GenerateTexels(void ** p_texels,
 	void *			texels  = &gTexelBuffer[0];
 	NativePf8888 *	palette = IsTextureFormatPalettised( texture_format ) ? gPaletteBuffer : NULL;
 
-	if (ConvertTexture(texels, palette, ti, texture_format, pitch))
+#ifdef DAEDALUS_ACCURATE_TMEM
+	if (ConvertTile(ti, texels, palette, texture_format, pitch))
+#else
+	if (ConvertTexture(ti, texels, palette, texture_format, pitch))
+#endif
 	{
 		*p_texels  = texels;
 		*p_palette = palette;
