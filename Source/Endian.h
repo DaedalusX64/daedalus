@@ -25,7 +25,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define ENDIAN_H_
 
 #if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
-#define	BSWAP32(x) x
 #define BSWAP32(x) x
 #define BSWAP16(x) x
 #define WSWAP32(x) x
