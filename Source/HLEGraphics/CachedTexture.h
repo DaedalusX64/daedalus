@@ -43,7 +43,6 @@ class CachedTexture : public CRefCounted
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		static void						DumpTexture( const TextureInfo & ti, CNativeTexture * texture );
 #endif
-		inline	void					Touch() 							{ mFrameLastUsed = gRDPFrame; }
 		bool							HasExpired() const;
 
 	private:
