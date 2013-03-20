@@ -170,8 +170,6 @@ BaseRenderer::BaseRenderer()
 	{
 		mTileTopLeft[t].x = 0.0f;
 		mTileTopLeft[t].y = 0.0f;
-		mTileScale[t].x = 1.0f;
-		mTileScale[t].y = 1.0f;
 		mTexWrap[t].u = 0;
 		mTexWrap[t].v = 0;
 	}
@@ -1667,7 +1665,6 @@ static void T1Hack(const TextureInfo & ti0, CNativeTexture * texture0,
 // This captures the state of the RDP tiles in:
 //   mTexWrap
 //   mTileTopLeft
-//   mTileScale
 //   mRecentTexture
 //*****************************************************************************
 void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
@@ -1718,43 +1715,40 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	mTileTopLeft[ index ].x = f32(tile_size.left) / 4.0f;
 	mTileTopLeft[ index ].y = f32(tile_size.top) / 4.0f;
 
-	DL_PF( "    Use Tile[%d] as Texture[%d] [%dx%d] [%s/%dbpp] [%s u, %s v] -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] TopLeft[%0.3f|%0.3f] Scale[%0.3f|%0.3f]",
+	// Avoid texture update, if texture is the same as last time around.
+	if( mRecentTexture[ index ] == NULL || mRecentTextureInfo[ index ] != ti )
+	{
+		// Check for 0 width/height textures
+		if( ti.GetWidth() == 0 || ti.GetHeight() == 0 )
+		{
+			DAEDALUS_DL_ERROR( "Loading texture with 0 width/height in slot %d", index );
+		}
+		else
+		{
+			CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
+
+			if( texture != NULL && texture != mRecentTexture[ index ] )
+			{
+				mRecentTextureInfo[index] = ti;
+				mRecentTexture[index]     = texture;
+
+#ifdef DAEDALUS_PSP
+				//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
+				//If T1 Hack is not enabled index can never be other than 0
+				if(index)
+				{
+					T1Hack(mRecentTextureInfo[0], mRecentTexture[0], mRecentTextureInfo[1], mRecentTexture[1]);
+				}
+#endif
+			}
+		}
+	}
+
+	DL_PF( "    Use Tile[%d] as Texture[%d] [%dx%d] [%s/%dbpp] [%s u, %s v] -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] TopLeft[%0.3f|%0.3f]",
 			tile_idx, index, ti.GetWidth(), ti.GetHeight(), ti.GetFormatName(), ti.GetSizeInBits(),
 			(mode_u==GU_CLAMP)? "Clamp" : "Repeat", (mode_v==GU_CLAMP)? "Clamp" : "Repeat",
 			ti.GetLoadAddress(), ti.GetTlutAddress(), ti.GetHashCode(), ti.GetPitch(),
-			mTileTopLeft[ index ].x, mTileTopLeft[ index ].y, mTileScale[ index ].x, mTileScale[ index ].y );
-
-	// Avoid texture update, if texture is the same as last time around.
-	if( mRecentTexture[ index ] != NULL && mRecentTextureInfo[ index ] == ti )
-		return;
-
-	// Check for 0 width/height textures
-	if( ti.GetWidth() == 0 || ti.GetHeight() == 0 )
-	{
-		DAEDALUS_DL_ERROR( "Loading texture with 0 width/height in slot %d", index );
-	}
-	else
-	{
-		CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
-
-		if( texture != NULL && texture != mRecentTexture[ index ] )
-		{
-			mRecentTextureInfo[index] = ti;
-			mRecentTexture[index]     = texture;
-
-#ifdef DAEDALUS_PSP
-			//If second texture is loaded try to merge two textures RGB(T0) + A(T1) into one RGBA(T1) //Corn
-			//If T1 Hack is not enabled index can never be other than 0
-			if(index)
-			{
-				T1Hack(mRecentTextureInfo[0], mRecentTexture[0], mRecentTextureInfo[1], mRecentTexture[1]);
-			}
-#endif
-
-			mTileScale[ index ].x = texture->GetScaleX();
-			mTileScale[ index ].y = texture->GetScaleY();
-		}
-	}
+			mTileTopLeft[ index ].x, mTileTopLeft[ index ].y );
 }
 
 //*****************************************************************************

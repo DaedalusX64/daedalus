@@ -377,7 +377,6 @@ protected:
 	CRefPtr<CNativeTexture>	mRecentTexture[ NUM_N64_TEXTURES ];
 
 	v2						mTileTopLeft[ NUM_N64_TEXTURES ];
-	v2						mTileScale[ NUM_N64_TEXTURES ];
 	TextureWrap				mTexWrap[ NUM_N64_TEXTURES ];
 
 	//Max is 18 according to the manual //Corn

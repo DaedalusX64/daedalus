@@ -719,9 +719,11 @@ void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disabl
 		if (!install_textures[i])
 			continue;
 
-		if (mRecentTexture[i] != NULL)
+		CNativeTexture * texture = mRecentTexture[i];
+
+		if (texture != NULL)
 		{
-			mRecentTexture[i]->InstallTexture();
+			texture->InstallTexture();
 
 			glUniform1i(program->uloc_texture[i], i);
 
@@ -733,7 +735,7 @@ void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disabl
 			else
 			{
 				glUniform2f(program->uloc_texoffset[i], mTileTopLeft[i].x, mTileTopLeft[i].y);
-				glUniform2f(program->uloc_texscale[i], mTileScale[i].x, mTileScale[i].y);
+				glUniform2f(program->uloc_texscale[i], texture->GetScaleX(), texture->GetScaleY());
 			}
 
 			if( (gRDPOtherMode.text_filt != G_TF_POINT) | (gGlobalPreferences.ForceLinearFilter) )

@@ -325,10 +325,15 @@ void RendererPSP::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, b
 	{
 		UpdateTileSnapshots( mTextureTile );
 
-		if( (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
+		const CNativeTexture * texture = mRecentTexture[0];
+
+		if( texture && (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
 		{
-			sceGuTexOffset( -mTileTopLeft[ 0 ].x * mTileScale[ 0 ].x, -mTileTopLeft[ 0 ].y * mTileScale[ 0 ].y );
-			sceGuTexScale( mTileScale[ 0 ].x, mTileScale[ 0 ].y );
+			float scale_x = texture->GetScaleX();
+			float scale_y = texture->GetScaleY();
+
+			sceGuTexOffset( -mTileTopLeft[ 0 ].x * scale_x, -mTileTopLeft[ 0 ].y * scale_y );
+			sceGuTexScale( scale_x, scale_y );
 		}
 		else
 		{
@@ -577,10 +582,15 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 				// NB if install_texture0 and install_texture1 are both set, 1 wins out
 				texture_idx = install_texture1;
 
-				if( install_texture1 & mTnL.Flags.Texture && (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
+				const CNativeTexture * texture1 = mRecentTexture[ 1 ];
+
+				if( install_texture1 && texture1 && mTnL.Flags.Texture && (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
 				{
-					sceGuTexOffset( -mTileTopLeft[ 1 ].x * mTileScale[ 1 ].x, -mTileTopLeft[ 1 ].y * mTileScale[ 1 ].y );
-					sceGuTexScale( mTileScale[ 1 ].x, mTileScale[ 1 ].y );
+					float scale_x = texture1->GetScaleX();
+					float scale_y = texture1->GetScaleY();
+
+					sceGuTexOffset( -mTileTopLeft[ 1 ].x * scale_x, -mTileTopLeft[ 1 ].y * scale_y );
+					sceGuTexScale( scale_x, scale_y );
 				}
 			}
 			else
