@@ -11,7 +11,7 @@ Source/SysPSP/DveMgr/pspDveManager_driver.S
 Source/SysPSP/KernelButtonsPrx/imposectrl.S
 Source/SysPSP/MediaEnginePRX/MediaEngine.S
 Dumps/
-Roms/
+Roms
 SaveGames/
 out/
 preferences.ini
