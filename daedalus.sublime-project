@@ -4,7 +4,7 @@
 		{
 			"path": ".",
 			"folder_exclude_patterns": [
-			   "out"
+			   "out", "Roms"
 			],
 			"file_exclude_patterns": [
 			   ".tags", "Makefile.cache",
