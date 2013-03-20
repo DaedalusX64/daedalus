@@ -311,9 +311,11 @@ bool CachedTexture::HasExpired() const
 }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-void CachedTexture::DumpTexture() const
+void CachedTexture::DumpTexture( const TextureInfo & ti, CNativeTexture * texture )
 {
-	if( mpTexture != NULL && mpTexture->HasData() )
+	DAEDALUS_ASSERT(texture != NULL, "Should have a texture");
+
+	if( texture != NULL && texture->HasData() )
 	{
 		char filename[MAX_PATH+1];
 		char filepath[MAX_PATH+1];
@@ -324,9 +326,9 @@ void CachedTexture::DumpTexture() const
 		Dump_GetDumpDirectory( filepath, dumpdir );
 
 		sprintf( filename, "%08x-%s_%dbpp-%dx%d-%dx%d.png",
-							mTextureInfo.GetLoadAddress(), mTextureInfo.GetFormatName(), mTextureInfo.GetSizeInBits(),
+							ti.GetLoadAddress(), ti.GetFormatName(), ti.GetSizeInBits(),
 							0, 0,		// Left/Top
-							mTextureInfo.GetWidth(), mTextureInfo.GetHeight() );
+							ti.GetWidth(), ti.GetHeight() );
 
 		IO::Path::Append( filepath, filename );
 
@@ -335,7 +337,7 @@ void CachedTexture::DumpTexture() const
 
 		// Note that we re-convert the texels because those in the native texture may well already
 		// be swizzle. Maybe we should just have an unswizzle routine?
-		if( GenerateTexels( &texels, &palette, mTextureInfo, mpTexture->GetFormat(), mpTexture->GetStride(), mpTexture->GetBytesRequired() ) )
+		if( GenerateTexels( &texels, &palette, ti, texture->GetFormat(), texture->GetStride(), texture->GetBytesRequired() ) )
 		{
 			// NB - this does not include the mirrored texels
 
@@ -344,12 +346,12 @@ void CachedTexture::DumpTexture() const
 			// than ram. This means that when we dump out the texture here, tmem won't necessarily
 			// contain our pixels.
 			#ifdef DAEDALUS_PSP
-			const void * native_palette = mpTexture->GetPalette();
+			const void * native_palette = texture->GetPalette();
 			#else
 			const void * native_palette = NULL;
 			#endif
 
-			PngSaveImage( filepath, texels, native_palette, mpTexture->GetFormat(), mpTexture->GetStride(), mTextureInfo.GetWidth(), mTextureInfo.GetHeight(), true );
+			PngSaveImage( filepath, texels, native_palette, texture->GetFormat(), texture->GetStride(), ti.GetWidth(), ti.GetHeight(), true );
 		}
 	}
 }

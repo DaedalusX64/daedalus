@@ -43,9 +43,13 @@ public:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	struct STextureInfoSnapshot
 	{
-		explicit STextureInfoSnapshot( CachedTexture * texture ) : Texture( texture ) {}
+		STextureInfoSnapshot( const TextureInfo & info, CNativeTexture * texture )
+		: Info( info ), Texture( texture )
+		{
+		}
 
-		CRefPtr<CachedTexture>		Texture;
+		TextureInfo					Info;
+		CRefPtr<CNativeTexture>		Texture;
 	};
 	void		Snapshot( std::vector< STextureInfoSnapshot > & snapshot ) const;
 #endif

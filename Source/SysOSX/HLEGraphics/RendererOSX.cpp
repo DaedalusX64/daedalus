@@ -12,7 +12,6 @@
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
 #include "HLEGraphics/DLDebug.h"
-#include "HLEGraphics/CachedTexture.h"
 #include "HLEGraphics/RDPStateManager.h"
 #include "OSHLE/ultra_gbi.h"
 

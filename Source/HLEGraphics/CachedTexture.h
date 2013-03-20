@@ -31,18 +31,18 @@ extern u32 gRDPFrame;
 class CachedTexture : public CRefCounted
 {
 	protected:
-		CachedTexture( const TextureInfo & ti );
+		explicit CachedTexture( const TextureInfo & ti );
 		~CachedTexture();
 
 	public:
 		static CRefPtr<CachedTexture>	Create( const TextureInfo & ti );
 
 		inline const CRefPtr<CNativeTexture> &	GetTexture() const			{ return mpTexture; }
+		inline const TextureInfo &		GetTextureInfo() const				{ return mTextureInfo; }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		void							DumpTexture() const;
+		static void						DumpTexture( const TextureInfo & ti, CNativeTexture * texture );
 #endif
-		inline const TextureInfo &		GetTextureInfo() const				{ return mTextureInfo; }
 		inline	void					Touch() 							{ mFrameLastUsed = gRDPFrame; }
 		bool							HasExpired() const;
 

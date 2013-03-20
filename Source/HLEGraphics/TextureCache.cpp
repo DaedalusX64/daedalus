@@ -221,7 +221,7 @@ void CTextureCache::Snapshot( std::vector< STextureInfoSnapshot > & snapshot ) c
 
 	for( TextureVec::const_iterator it = mTextures.begin(); it != mTextures.end(); ++it )
 	{
-		STextureInfoSnapshot	info( *it );
+		STextureInfoSnapshot	info( (*it)->GetTextureInfo(), (*it)->GetTexture() );
 		snapshot.push_back( info );
 	}
 }

@@ -23,13 +23,15 @@
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 
-#include "HLEGraphics/RendererPSP.h"
+#include "Combiner/RenderSettings.h"
+
+#include "HLEGraphics/CachedTexture.h"
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/DLParser.h"
+#include "HLEGraphics/Microcode.h"
+#include "HLEGraphics/RendererPSP.h"
 #include "HLEGraphics/TextureCache.h"
 #include "HLEGraphics/TextureInfo.h"
-#include "HLEGraphics/Microcode.h"
-#include "Combiner/RenderSettings.h"
 
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
@@ -37,10 +39,10 @@
 #include "Core/ROM.h"
 #include "Debug/Dump.h"
 
-#include "Utility/Timer.h"
-#include "Utility/Preferences.h"
-#include "Utility/Timing.h"
 #include "Utility/IO.h"
+#include "Utility/Preferences.h"
+#include "Utility/Timer.h"
+#include "Utility/Timing.h"
 
 #include <set>
 #include <vector>
@@ -527,7 +529,7 @@ namespace
 {
 	bool OrderTextures( const CTextureCache::STextureInfoSnapshot & lhs, const CTextureCache::STextureInfoSnapshot & rhs )
 	{
-	   return lhs.Texture->GetTextureInfo().GetLoadAddress() < rhs.Texture->GetTextureInfo().GetLoadAddress();
+	   return lhs.Info.GetLoadAddress() < rhs.Info.GetLoadAddress();
 	}
 
 #define GL_TRUE                           1
@@ -575,7 +577,7 @@ CTextureExplorerDebugMenuOption::CTextureExplorerDebugMenuOption()
 
 	CTextureCache::Get()->Snapshot( mSnapshot );
 
-	sort( mSnapshot.begin(), mSnapshot.end(), OrderTextures );
+	sort( mSnapshot.begin(), mSnapshot.end(), &OrderTextures );
 }
 
 struct TextureVtx
@@ -595,20 +597,16 @@ bool CTextureExplorerDebugMenuOption::OverrideDisplay() const
 		return false;
 
 	CRefPtr<CNativeTexture> texture;
-	u32		texture_width( 32 );
-	u32		texture_height( 32 );
+	u32 texture_width  = 32;
+	u32 texture_height = 32;
 	if( mSelectedIdx < mSnapshot.size() )
 	{
-		const CRefPtr<CachedTexture> & n64_texture( mSnapshot[ mSelectedIdx ].Texture );
-		if( n64_texture != NULL )
-		{
-			const TextureInfo &		info( n64_texture->GetTextureInfo() );
+		texture = mSnapshot[ mSelectedIdx ].Texture;
 
-			texture_width = info.GetWidth();
-			texture_height = info.GetHeight();
+		const TextureInfo & info = mSnapshot[ mSelectedIdx ].Info;
 
-			texture = n64_texture->GetTexture();
-		}
+		texture_width  = info.GetWidth();
+		texture_height = info.GetHeight();
 	}
 
 	CGraphicsContext::Get()->BeginFrame();
@@ -712,24 +710,14 @@ void CTextureExplorerDebugMenuOption::Display() const
 	for( s32 i = min_to_show; i <= max_to_show; ++i )
 	{
 		DAEDALUS_ASSERT( i >= 0 && i < s32( mSnapshot.size() ), "Invalid snapshot index" );
-		const CTextureCache::STextureInfoSnapshot &		info( mSnapshot[ i ] );
-		const TextureInfo &								ti( info.Texture->GetTextureInfo() );
+		const TextureInfo & ti = mSnapshot[i].Info;
 
-		bool	selected( u32( i ) == mSelectedIdx );
-		const char *	text_col;
-
-		if(selected)
-		{
-			text_col = TERMINAL_YELLOW;
-		}
-		else
-		{
-			text_col = TERMINAL_WHITE;
-		}
+		bool			selected = u32( i ) == mSelectedIdx;
+		const char *	text_col = selected ? TERMINAL_YELLOW : TERMINAL_WHITE;
 
 		// XXXX
-		u32	left( 0 );
-		u32	top( 0 );
+		u32	left = 0;
+		u32	top  = 0;
 
 		printf( " %s%03d %c%08x (%d,%d -> %dx%d, %d) %s/%dbpp, %04x, %04x\n",
 			text_col, i, selected ? '*' : ' ',
@@ -1021,16 +1009,12 @@ void IDisplayListDebugger::Run()
 			std::vector<CTextureCache::STextureInfoSnapshot> snapshot;
 			CTextureCache::Get()->Snapshot( snapshot );
 
-			sort( snapshot.begin(), snapshot.end(), OrderTextures );
+			sort( snapshot.begin(), snapshot.end(), &OrderTextures );
 
 			// Dump each in turn
 			for( u32 i = 0; i < snapshot.size(); ++i )
 			{
-				const CRefPtr<CachedTexture> & n64_texture = snapshot[ i ].Texture;
-				if( n64_texture != NULL )
-				{
-					n64_texture->DumpTexture();
-				}
+				CachedTexture::DumpTexture( snapshot[i].Info, snapshot[i].Texture );
 			}
 		}
 

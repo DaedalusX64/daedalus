@@ -22,7 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "BlendModes.h"
 #include "HLEGraphics/BaseRenderer.h"
-#include "HLEGraphics/CachedTexture.h"
 
 #include "Graphics/NativeTexture.h"
 #include "Graphics/ColourValue.h"
