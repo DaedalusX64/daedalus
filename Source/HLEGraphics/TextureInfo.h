@@ -49,6 +49,9 @@ private:
 	bool		MirrorS : 1;
 	bool		MirrorT : 1;
 
+	bool		White : 1;			// Force the RGB channels to white (PSP Blender support).
+									// Typically this is set on a copy of the TextureInfo.
+
 public:
 	// Pretty gross. Needed so that any padding bytes are consistently zeroed.
 	TextureInfo()											{ memset( this, 0, sizeof( TextureInfo ) ); }
@@ -80,6 +83,7 @@ public:
 	inline bool				IsSwapped() const				{ return Swapped; }
 	inline bool				GetMirrorS() const				{ return MirrorS; }
 	inline bool				GetMirrorT() const				{ return MirrorT; }
+	inline bool				GetWhite() const				{ return White; }
 
 	inline void				SetLoadAddress( u32 address )	{ LoadAddress = address; }
 	inline void				SetTlutAddress( u32 address )	{ TlutAddress = address; }
@@ -94,6 +98,7 @@ public:
 	inline void				SetSwapped( bool swapped )		{ Swapped = swapped; }
 	inline void				SetMirrorS( bool mirror_s )		{ MirrorS = mirror_s; }
 	inline void				SetMirrorT( bool mirror_t )		{ MirrorT = mirror_t; }
+	inline void				SetWhite( bool white )			{ White = white; }
 
 	inline int				Compare( const TextureInfo & rhs ) const			{ return memcmp( this, &rhs, sizeof( TextureInfo ) ); }
 	inline bool				operator==( const TextureInfo & rhs ) const			{ return Compare( rhs ) == 0; }

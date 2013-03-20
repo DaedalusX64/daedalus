@@ -133,7 +133,7 @@ static bool GenerateTexels(void ** p_texels,
 	return false;
 }
 
-static void UpdateTexture( const TextureInfo & ti, CNativeTexture * texture, const c32 * recolour )
+static void UpdateTexture( const TextureInfo & ti, CNativeTexture * texture )
 {
 	DAEDALUS_PROFILE( "Texture Conversion" );
 
@@ -149,9 +149,9 @@ static void UpdateTexture( const TextureInfo & ti, CNativeTexture * texture, con
 			//
 			//	Recolour the texels
 			//
-			if( recolour )
+			if( ti.GetWhite() )
 			{
-				Recolour( texels, palette, ti.GetWidth(), ti.GetHeight(), texture->GetStride(), texture->GetFormat(), *recolour );
+				Recolour( texels, palette, ti.GetWidth(), ti.GetHeight(), texture->GetStride(), texture->GetFormat(), c32::White );
 			}
 
 			//
@@ -197,7 +197,6 @@ CRefPtr<CachedTexture> CachedTexture::Create( const TextureInfo & ti )
 CachedTexture::CachedTexture( const TextureInfo & ti )
 :	mTextureInfo( ti )
 ,	mpTexture(NULL)
-,	mpWhiteTexture(NULL)
 ,	mTextureContentsHash( 0 )
 ,	mFrameLastUpToDate( gRDPFrame )
 ,	mFrameLastUsed( gRDPFrame )
@@ -230,7 +229,7 @@ bool CachedTexture::Initialise()
 			mFrameLastUpToDate = gRDPFrame + (FastRand() & (gCheckTextureHashFrequency - 1));
 		}
 		UpdateTextureHash();
-		UpdateTexture( mTextureInfo, mpTexture, NULL );
+		UpdateTexture( mTextureInfo, mpTexture );
 	}
 
 	return mpTexture != NULL;
@@ -258,7 +257,7 @@ void CachedTexture::UpdateIfNecessary()
 	{
 		if (UpdateTextureHash())
 		{
-			UpdateTexture( mTextureInfo, mpTexture, NULL );
+			UpdateTexture( mTextureInfo, mpTexture );
 		}
 
 		// FIXME(strmnrmn): should probably recreate mpWhiteTexture if it exists, else it may have stale data.
@@ -309,23 +308,6 @@ bool CachedTexture::HasExpired() const
 	//Otherwise we wait 20+random(0-3) frames before trashing the texture if unused
 	//Spread trashing them over time so not all get killed at once (lower value uses less VRAM) //Corn
 	return gRDPFrame - mFrameLastUsed > (20 + (FastRand() & 0x3));
-}
-
-const CRefPtr<CNativeTexture> &	CachedTexture::GetWhiteTexture() const
-{
-	if(mpWhiteTexture == NULL)
-	{
-		DAEDALUS_ASSERT( mpTexture != NULL, "There is no existing texture" );
-
-		CRefPtr<CNativeTexture>	new_texture( CNativeTexture::Create( mpTexture->GetWidth(), mpTexture->GetHeight(), mpTexture->GetFormat() ) );
-		if( new_texture && new_texture->HasData() )
-		{
-			UpdateTexture( mTextureInfo, new_texture, &c32::White );
-		}
-		mpWhiteTexture = new_texture;
-	}
-
-	return mpWhiteTexture;
 }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST

@@ -36,7 +36,6 @@ public:
 	virtual ~CTextureCache();
 
 	CRefPtr<CNativeTexture>	GetOrCreateTexture(const TextureInfo & ti);
-	CRefPtr<CNativeTexture>	GetOrCreateWhiteTexture(const TextureInfo & ti);
 
 	void		PurgeOldTextures();
 	void		DropTextures();

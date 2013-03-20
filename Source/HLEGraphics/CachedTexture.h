@@ -38,7 +38,6 @@ class CachedTexture : public CRefCounted
 		static CRefPtr<CachedTexture>	Create( const TextureInfo & ti );
 
 		inline const CRefPtr<CNativeTexture> &	GetTexture() const			{ return mpTexture; }
-		const CRefPtr<CNativeTexture> &			GetWhiteTexture() const;	// Returns a texture with the RGB channels set to white (alpha remains the same)
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		void							DumpTexture() const;
@@ -59,7 +58,6 @@ class CachedTexture : public CRefCounted
 		const TextureInfo				mTextureInfo;
 
 		CRefPtr<CNativeTexture>			mpTexture;
-		mutable CRefPtr<CNativeTexture>	mpWhiteTexture;
 
 		u32								mTextureContentsHash;
 		u32								mFrameLastUpToDate;	// Frame # that this was last updated
