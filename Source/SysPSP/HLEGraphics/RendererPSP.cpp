@@ -589,26 +589,23 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 				texture_idx = install_texture0 ? 0 : 1;
 			}
 
-			if( mRecentTexture[texture_idx] != NULL )
+			CRefPtr<CNativeTexture> texture;
+
+			if(out.MakeTextureWhite)
 			{
-				CRefPtr<CNativeTexture> texture;
+				TextureInfo white_ti = mRecentTextureInfo[ texture_idx ];
+				white_ti.SetWhite(true);
+				texture = CTextureCache::Get()->GetOrCreateTexture( white_ti );
+			}
+			else
+			{
+				texture = mRecentTexture[ texture_idx ];
+			}
 
-				if(out.MakeTextureWhite)
-				{
-					TextureInfo white_ti = mRecentTextureInfo[ texture_idx ];
-					white_ti.SetWhite(true);
-					texture = CTextureCache::Get()->GetOrCreateTexture( white_ti );
-				}
-				else
-				{
-					texture = mRecentTexture[ texture_idx ];
-				}
-
-				if(texture != NULL)
-				{
-					texture->InstallTexture();
-					installed_texture = true;
-				}
+			if(texture != NULL)
+			{
+				texture->InstallTexture();
+				installed_texture = true;
 			}
 		}
 
