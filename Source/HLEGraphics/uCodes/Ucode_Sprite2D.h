@@ -93,10 +93,7 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo 
 
 	ti.SetTLutFormat       (kTT_RGBA16);
 
-	CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
-	DAEDALUS_ASSERT( texture, "Sprite2D texture is NULL" );
-
-	texture->InstallTexture();
+	gRenderer->LoadTextureDirectly(ti);
 
 	s32 frameX              = px;
 	s32 frameY              = py;

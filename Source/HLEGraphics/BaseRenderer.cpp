@@ -1750,6 +1750,22 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 //*****************************************************************************
 //
 //*****************************************************************************
+CRefPtr<CNativeTexture> BaseRenderer::LoadTextureDirectly( const TextureInfo & ti )
+{
+	CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
+	DAEDALUS_ASSERT( texture, "texture is NULL" );
+
+	texture->InstallTexture();
+
+	mBoundTexture[0] = texture;
+	mBoundTextureInfo[0] = ti;
+
+	return texture;
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
 void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 {
 	//Clamp scissor to max N64 screen resolution //Corn
