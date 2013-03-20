@@ -141,17 +141,19 @@ static void UpdateTexture( const TextureInfo & ti, CNativeTexture * texture )
 
 	if ( texture != NULL && texture->HasData() )
 	{
+		ETextureFormat	format = texture->GetFormat();
+		u32 			stride = texture->GetStride();
+
 		void *	texels;
 		void *	palette;
-
-		if( GenerateTexels( &texels, &palette, ti, texture->GetFormat(), texture->GetStride(), texture->GetBytesRequired() ) )
+		if( GenerateTexels( &texels, &palette, ti, format, stride, texture->GetBytesRequired() ) )
 		{
 			//
 			//	Recolour the texels
 			//
 			if( ti.GetWhite() )
 			{
-				Recolour( texels, palette, ti.GetWidth(), ti.GetHeight(), texture->GetStride(), texture->GetFormat(), c32::White );
+				Recolour( texels, palette, ti.GetWidth(), ti.GetHeight(), stride, format, c32::White );
 			}
 
 			//
@@ -159,7 +161,7 @@ static void UpdateTexture( const TextureInfo & ti, CNativeTexture * texture )
 			//	is less than the mask value clamp correctly. It still doesn't fix those
 			//	textures with a width which is greater than the power-of-2 size.
 			//
-			ClampTexels( texels, ti.GetWidth(), ti.GetHeight(), texture->GetCorrectedWidth(), texture->GetCorrectedHeight(), texture->GetStride(), texture->GetFormat() );
+			ClampTexels( texels, ti.GetWidth(), ti.GetHeight(), texture->GetCorrectedWidth(), texture->GetCorrectedHeight(), stride, format );
 
 			//
 			//	Mirror the texels if required (in-place)
@@ -168,7 +170,7 @@ static void UpdateTexture( const TextureInfo & ti, CNativeTexture * texture )
 			bool mirror_t = ti.GetMirrorT();
 			if( mirror_s || mirror_t )
 			{
-				MirrorTexels( mirror_s, mirror_t, texels, texture->GetStride(), texels, texture->GetStride(), texture->GetFormat(), ti.GetWidth(), ti.GetHeight() );
+				MirrorTexels( mirror_s, mirror_t, texels, stride, texels, stride, format, ti.GetWidth(), ti.GetHeight() );
 			}
 
 			texture->SetData( texels, palette );
