@@ -129,24 +129,24 @@ static void ConvertRGBA32(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 row_swizzle = 0;
 	for (u32 y = 0; y < height; ++y)
 	{
-	  u32 src_offset = src_row_offset;
-	  u32 dst_offset = dst_row_offset;
-	  for (u32 x = 0; x < width; ++x)
-	  {
-		u32 o = src_offset^row_swizzle;
+		u32 src_offset = src_row_offset;
+		u32 dst_offset = dst_row_offset;
+		for (u32 x = 0; x < width; ++x)
+		{
+			u32 o = src_offset^row_swizzle;
 
-		dst[dst_offset+0] = src[o];
-		dst[dst_offset+1] = src[o+1];
-		dst[dst_offset+2] = src[o+2];
-		dst[dst_offset+3] = src[o+3];
+			dst[dst_offset+0] = src[o];
+			dst[dst_offset+1] = src[o+1];
+			dst[dst_offset+2] = src[o+2];
+			dst[dst_offset+3] = src[o+3];
 
-		src_offset += 4;
-		dst_offset += 4;
-	  }
-	  src_row_offset += src_row_stride;
-	  dst_row_offset += dst_row_stride;
+			src_offset += 4;
+			dst_offset += 4;
+		}
+		src_row_offset += src_row_stride;
+		dst_row_offset += dst_row_stride;
 
-	  row_swizzle ^= 0x4;   // Alternate lines are word-swapped
+		row_swizzle ^= 0x4;   // Alternate lines are word-swapped
 	}
 }
 
@@ -166,25 +166,25 @@ static void ConvertRGBA16(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 row_swizzle = 0;
 	for (u32 y = 0; y < height; ++y)
 	{
-	  u32 src_offset = src_row_offset;
-	  u32 dst_offset = dst_row_offset;
-	  for (u32 x = 0; x < width; ++x)
-	  {
-		u32 o         = src_offset^row_swizzle;
-		u16 src_pixel = (src[o]<<8) | src[o+1];
+		u32 src_offset = src_row_offset;
+		u32 dst_offset = dst_row_offset;
+		for (u32 x = 0; x < width; ++x)
+		{
+			u32 o         = src_offset^row_swizzle;
+			u16 src_pixel = (src[o]<<8) | src[o+1];
 
-		dst[dst_offset+0] = FiveToEight[(src_pixel>>11)&0x1f];
-		dst[dst_offset+1] = FiveToEight[(src_pixel>> 6)&0x1f];
-		dst[dst_offset+2] = FiveToEight[(src_pixel>> 1)&0x1f];
-		dst[dst_offset+3] = ((src_pixel     )&0x01)? 255 : 0;
+			dst[dst_offset+0] = FiveToEight[(src_pixel>>11)&0x1f];
+			dst[dst_offset+1] = FiveToEight[(src_pixel>> 6)&0x1f];
+			dst[dst_offset+2] = FiveToEight[(src_pixel>> 1)&0x1f];
+			dst[dst_offset+3] = ((src_pixel     )&0x01)? 255 : 0;
 
-		src_offset += 2;
-		dst_offset += 4;
-	  }
-	  src_row_offset += src_row_stride;
-	  dst_row_offset += dst_row_stride;
+			src_offset += 2;
+			dst_offset += 4;
+		}
+		src_row_offset += src_row_stride;
+		dst_row_offset += dst_row_stride;
 
-	  row_swizzle ^= 0x4;   // Alternate lines are word-swapped
+		row_swizzle ^= 0x4;   // Alternate lines are word-swapped
 	}
 }
 
@@ -215,21 +215,21 @@ static void ConvertCI8T(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 row_swizzle = 0;
 	for (u32 y = 0; y < height; ++y)
 	{
-	  u32 src_offset = src_row_offset;
-	  u32 dst_offset = dst_row_offset;
-	  for (u32 x = 0; x < width; ++x)
-	  {
-		u8 src_pixel = src[src_offset^row_swizzle];
+		u32 src_offset = src_row_offset;
+		u32 dst_offset = dst_row_offset;
+		for (u32 x = 0; x < width; ++x)
+		{
+			u8 src_pixel = src[src_offset^row_swizzle];
 
-		dst[dst_offset+0] = palette[src_pixel];
+			dst[dst_offset+0] = palette[src_pixel];
 
-		src_offset += 1;
-		dst_offset += 1;
-	  }
-	  src_row_offset += src_row_stride;
-	  dst_row_offset += dst_row_stride;
+			src_offset += 1;
+			dst_offset += 1;
+		}
+		src_row_offset += src_row_stride;
+		dst_row_offset += dst_row_stride;
 
-	  row_swizzle ^= 0x4;   // Alternate lines are word-swapped
+		row_swizzle ^= 0x4;   // Alternate lines are word-swapped
 	}
 }
 
@@ -261,20 +261,20 @@ static void ConvertCI4T(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 row_swizzle = 0;
 	for (u32 y = 0; y < height; ++y)
 	{
-	  u32 src_offset = src_row_offset;
-	  u32 dst_offset = dst_row_offset;
+		u32 src_offset = src_row_offset;
+		u32 dst_offset = dst_row_offset;
 
-	  // Process 2 pixels at a time
-	  for (u32 x = 0; x+1 < width; x += 2)
-	  {
-		u16 src_pixel = src[src_offset^row_swizzle];
+		// Process 2 pixels at a time
+		for (u32 x = 0; x+1 < width; x += 2)
+		{
+			u16 src_pixel = src[src_offset^row_swizzle];
 
-		dst[dst_offset+0] = palette[(src_pixel&0xf0)>>4];
-		dst[dst_offset+1] = palette[(src_pixel&0x0f)>>0];
+			dst[dst_offset+0] = palette[(src_pixel&0xf0)>>4];
+			dst[dst_offset+1] = palette[(src_pixel&0x0f)>>0];
 
-		src_offset += 1;
-		dst_offset += 2;
-	  }
+			src_offset += 1;
+			dst_offset += 2;
+		}
 
 		// Handle trailing pixel, if odd width
 		if (width&1)
@@ -287,10 +287,10 @@ static void ConvertCI4T(const TileDestInfo & dsti, const TextureInfo & ti)
 			dst_offset += 1;
 		}
 
-	  src_row_offset += src_row_stride;
-	  dst_row_offset += dst_row_stride;
+		src_row_offset += src_row_stride;
+		dst_row_offset += dst_row_stride;
 
-	  row_swizzle ^= 0x4;   // Alternate lines are word-swapped
+		row_swizzle ^= 0x4;   // Alternate lines are word-swapped
 	}
 }
 
@@ -362,28 +362,28 @@ static void ConvertIA16(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 row_swizzle = 0;
 	for (u32 y = 0; y < height; ++y)
 	{
-	  u32 src_offset = src_row_offset;
-	  u32 dst_offset = dst_row_offset;
-	  for (u32 x = 0; x < width; ++x)
-	  {
-		u32 o        = src_offset^row_swizzle;
-		u8 src_pixel = src[o];
+		u32 src_offset = src_row_offset;
+		u32 dst_offset = dst_row_offset;
+		for (u32 x = 0; x < width; ++x)
+		{
+			u32 o        = src_offset^row_swizzle;
+			u8 src_pixel = src[o];
 
-		u8 i = src[o+0];
-		u8 a = src[o+1];
+			u8 i = src[o+0];
+			u8 a = src[o+1];
 
-		dst[dst_offset+0] = i;
-		dst[dst_offset+1] = i;
-		dst[dst_offset+2] = i;
-		dst[dst_offset+3] = a;
+			dst[dst_offset+0] = i;
+			dst[dst_offset+1] = i;
+			dst[dst_offset+2] = i;
+			dst[dst_offset+3] = a;
 
-		src_offset += 2;
-		dst_offset += 4;
-	  }
-	  src_row_offset += src_row_stride;
-	  dst_row_offset += dst_row_stride;
+			src_offset += 2;
+			dst_offset += 4;
+		}
+		src_row_offset += src_row_stride;
+		dst_row_offset += dst_row_stride;
 
-	  row_swizzle ^= 0x4;   // Alternate lines are word-swapped
+		row_swizzle ^= 0x4;   // Alternate lines are word-swapped
 	}
 }
 
@@ -403,28 +403,28 @@ static void ConvertIA8(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 row_swizzle = 0;
 	for (u32 y = 0; y < height; ++y)
 	{
-	  u32 src_offset = src_row_offset;
-	  u32 dst_offset = dst_row_offset;
-	  for (u32 x = 0; x < width; ++x)
-	  {
-		u32 o        = src_offset^row_swizzle;
-		u8 src_pixel = src[o];
+		u32 src_offset = src_row_offset;
+		u32 dst_offset = dst_row_offset;
+		for (u32 x = 0; x < width; ++x)
+		{
+			u32 o        = src_offset^row_swizzle;
+			u8 src_pixel = src[o];
 
-		u8 i = FourToEight[(src_pixel>>4)&0xf];
-		u8 a = FourToEight[(src_pixel   )&0xf];
+			u8 i = FourToEight[(src_pixel>>4)&0xf];
+			u8 a = FourToEight[(src_pixel   )&0xf];
 
-		dst[dst_offset+0] = i;
-		dst[dst_offset+1] = i;
-		dst[dst_offset+2] = i;
-		dst[dst_offset+3] = a;
+			dst[dst_offset+0] = i;
+			dst[dst_offset+1] = i;
+			dst[dst_offset+2] = i;
+			dst[dst_offset+3] = a;
 
-		src_offset += 1;
-		dst_offset += 4;
-	  }
-	  src_row_offset += src_row_stride;
-	  dst_row_offset += dst_row_stride;
+			src_offset += 1;
+			dst_offset += 4;
+		}
+		src_row_offset += src_row_stride;
+		dst_row_offset += dst_row_stride;
 
-	  row_swizzle ^= 0x4;   // Alternate lines are word-swapped
+		row_swizzle ^= 0x4;   // Alternate lines are word-swapped
 	}
 }
 
@@ -444,34 +444,34 @@ static void ConvertIA4(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 row_swizzle = 0;
 	for (u32 y = 0; y < height; ++y)
 	{
-	  u32 src_offset = src_row_offset;
-	  u32 dst_offset = dst_row_offset;
+		u32 src_offset = src_row_offset;
+		u32 dst_offset = dst_row_offset;
 
-	  // Process 2 pixels at a time
-	  for (u32 x = 0; x+1 < width; x += 2)
-	  {
-		u32 o         = src_offset^row_swizzle;
-		u16 src_pixel = src[o];
+		// Process 2 pixels at a time
+		for (u32 x = 0; x+1 < width; x += 2)
+		{
+			u32 o         = src_offset^row_swizzle;
+			u16 src_pixel = src[o];
 
-		u8 i0 = ThreeToEight[(src_pixel&0xe0)>>5];
-		u8 a0 =   OneToEight[(src_pixel&0x10)>>4];
+			u8 i0 = ThreeToEight[(src_pixel&0xe0)>>5];
+			u8 a0 =   OneToEight[(src_pixel&0x10)>>4];
 
-		u8 i1 = ThreeToEight[(src_pixel&0x0e)>>1];
-		u8 a1 =   OneToEight[(src_pixel&0x01)>>0];
+			u8 i1 = ThreeToEight[(src_pixel&0x0e)>>1];
+			u8 a1 =   OneToEight[(src_pixel&0x01)>>0];
 
-		dst[dst_offset+0] = i0;
-		dst[dst_offset+1] = i0;
-		dst[dst_offset+2] = i0;
-		dst[dst_offset+3] = a0;
+			dst[dst_offset+0] = i0;
+			dst[dst_offset+1] = i0;
+			dst[dst_offset+2] = i0;
+			dst[dst_offset+3] = a0;
 
-		dst[dst_offset+4] = i1;
-		dst[dst_offset+5] = i1;
-		dst[dst_offset+6] = i1;
-		dst[dst_offset+7] = a1;
+			dst[dst_offset+4] = i1;
+			dst[dst_offset+5] = i1;
+			dst[dst_offset+6] = i1;
+			dst[dst_offset+7] = a1;
 
-		src_offset += 1;
-		dst_offset += 8;
-	  }
+			src_offset += 1;
+			dst_offset += 8;
+		}
 
 		// Handle trailing pixel, if odd width
 		if (width&1)
@@ -514,26 +514,26 @@ static void ConvertI8(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 row_swizzle = 0;
 	for (u32 y = 0; y < height; ++y)
 	{
-	  u32 src_offset = src_row_offset;
-	  u32 dst_offset = dst_row_offset;
-	  for (u32 x = 0; x < width; ++x)
-	  {
-		u32 o = src_offset^row_swizzle;
+		u32 src_offset = src_row_offset;
+		u32 dst_offset = dst_row_offset;
+		for (u32 x = 0; x < width; ++x)
+		{
+			u32 o = src_offset^row_swizzle;
 
-		u8 i = src[o];
+			u8 i = src[o];
 
-		dst[dst_offset+0] = i;
-		dst[dst_offset+1] = i;
-		dst[dst_offset+2] = i;
-		dst[dst_offset+3] = i;
+			dst[dst_offset+0] = i;
+			dst[dst_offset+1] = i;
+			dst[dst_offset+2] = i;
+			dst[dst_offset+3] = i;
 
-		src_offset += 1;
-		dst_offset += 4;
-	  }
-	  src_row_offset += src_row_stride;
-	  dst_row_offset += dst_row_stride;
+			src_offset += 1;
+			dst_offset += 4;
+		}
+		src_row_offset += src_row_stride;
+		dst_row_offset += dst_row_stride;
 
-	  row_swizzle ^= 0x4;   // Alternate lines are word-swapped
+		row_swizzle ^= 0x4;   // Alternate lines are word-swapped
 	}
 }
 
