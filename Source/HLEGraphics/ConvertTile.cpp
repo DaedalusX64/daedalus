@@ -631,6 +631,8 @@ bool ConvertTile(const TextureInfo & ti,
 	dsti.Pitch   = pitch;
 	dsti.Palette = palette;
 
+	DAEDALUS_ASSERT(ti.Line != 0, "No line");
+
 	const ConvertFunction fn = gConvertFunctions[ (ti.GetFormat() << 2) | ti.GetSize() ];
 	if( fn )
 	{
