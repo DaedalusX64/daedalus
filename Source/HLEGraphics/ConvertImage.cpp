@@ -511,6 +511,7 @@ static void ConvertCI4_Row( NativePfCI44 * dst, const u8 * src, u32 src_offset, 
 template< typename PalT, u32 F >
 static void ConvertCI4_Row_To_8888( NativePf8888 * dst, const u8 * src, u32 src_offset, u32 width, const u16 * palette )
 {
+	DAEDALUS_ASSERT(palette, "No palette");
 	const PalT * n64pal = reinterpret_cast< const PalT * >( palette );
 
 	for (u32 x = 0; x < width; x+=2)
@@ -550,6 +551,7 @@ static void ConvertCI8_Row( NativePfCI8 * dst, const u8 * src, u32 src_offset, u
 template< typename PalT, u32 F >
 static  void ConvertCI8_Row_To_8888( NativePf8888 * dst, const u8 * src, u32 src_offset, u32 width, const u16 * palette )
 {
+	DAEDALUS_ASSERT(palette, "No palette");
 	const PalT * n64pal = reinterpret_cast< const PalT * >( palette );
 
 	for (u32 x = 0; x < width; x++)
@@ -598,6 +600,8 @@ static void ConvertI8(const TextureDestInfo & dsti, const TextureInfo & ti)
 
 static void ConvertCI8(const TextureDestInfo & dsti, const TextureInfo & ti)
 {
+	DAEDALUS_ASSERT(ti.GetTlutAddress(), "No TLUT address");
+
 	ETLutFmt tlut_format = ti.GetTLutFormat();
 	if( tlut_format == kTT_RGBA16 )
 	{
@@ -641,6 +645,8 @@ static void ConvertCI8(const TextureDestInfo & dsti, const TextureInfo & ti)
 
 static void ConvertCI4(const TextureDestInfo & dsti, const TextureInfo & ti)
 {
+	DAEDALUS_ASSERT(ti.GetTlutAddress(), "No TLUT address");
+
 	ETLutFmt tlut_format = ti.GetTLutFormat();
 	if( tlut_format == kTT_RGBA16 )
 	{
@@ -707,7 +713,8 @@ bool ConvertTexture(const TextureInfo & ti,
 	//Do nothing if palette address is NULL or close to NULL in a palette texture //Corn
 	//Loading a SaveState (OOT -> SSV) dont bring back our TMEM data which causes issues for the first rendered frame.
 	//Checking if the palette pointer is less than 0x1000 (rather than just NULL) fixes it.
-	if( palette && (ti.GetTlutAddress() < 0x1000) ) return false;
+	// Seems to happen on the first frame of Goldeneye too?
+	if( (ti.GetFormat() == G_IM_FMT_CI) && (ti.GetTlutAddress() < 0x1000) ) return false;
 
 	//memset( texels, 0, buffer_size );
 
