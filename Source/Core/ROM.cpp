@@ -370,7 +370,6 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x514D: g_ROM.GameHacks = PMARIO;				break;
 	case 0x3954: g_ROM.GameHacks = TIGERS_HONEY_HUNT;	break;
 	case 0x5632: g_ROM.GameHacks = CHAMELEON_TWIST_2;	break;
-	case 0x344b: g_ROM.GameHacks = KIRBY64;				break;
 	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
 	case 0x4643: g_ROM.GameHacks = CLAY_FIGHTER_63;		break;
 	case 0x504A: g_ROM.GameHacks = ISS64;				break;
@@ -380,7 +379,13 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x4C42: g_ROM.GameHacks = BUCK_BUMBLE;			break;
 	case 0x4441: g_ROM.GameHacks = WORMS_ARMAGEDDON;	break;
 	
-	case 0x434C: g_ROM.NO_CLAMP_HACK = true;	break;	//Automobili Lamborghini
+	case 0x434C:	//Automobili Lamborghini
+		g_ROM.NO_CLAMP_HACK = true;
+		break;
+	case 0x344b:
+		g_ROM.GameHacks = KIRBY64;
+		g_ROM.NO_CLAMP_HACK = true;
+		break;
 	//case 0x5750:	//PilotWings64
 	case 0x4B42:	//Banjo-Kazooie
 	case 0x4450:	//Perfect Dark
