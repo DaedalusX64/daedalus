@@ -144,7 +144,8 @@ void CRDPStateManager::SetTileSize( const RDP_TileSize & tile_size )
 		// Wetrix hack
 		if( (tile_size.top > tile_size.bottom) | (tile_size.left > tile_size.right) )
 		{
-			DAEDALUS_DL_ERROR( "Specifying negative width/height for tile descriptor" );
+			DAEDALUS_DL_ERROR( "Specifying negative width/height for tile descriptor (%d,%d) -> (%d,%d)",
+				tile_size.left, tile_size.right, tile_size.top, tile_size.bottom );
 			return;
 		}
 
