@@ -379,6 +379,8 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5359: g_ROM.GameHacks = YOSHI;				break;
 	case 0x4C42: g_ROM.GameHacks = BUCK_BUMBLE;			break;
 	case 0x4441: g_ROM.GameHacks = WORMS_ARMAGEDDON;	break;
+	
+	case 0x434C: g_ROM.NO_CLAMP_HACK = true;	break;	//Automobili Lamborghini
 	//case 0x5750:	//PilotWings64
 	case 0x4B42:	//Banjo-Kazooie
 	case 0x4450:	//Perfect Dark

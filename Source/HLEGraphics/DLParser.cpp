@@ -950,7 +950,7 @@ void DLParser_TexRect( MicroCodeCommand command )
 	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
 	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
 	v2 xy1;
-	v2 uv0( tex_rect.s / 32.0f, tex_rect.t / 32.0f );
+	v2 uv0( tex_rect.s / 32.0f, (tex_rect.dtdy < 0 ? tex_rect.t + 32 : tex_rect.t) / 32.0f );	//Fixes California Speed
 	v2 uv1;
 
 	//
@@ -1002,7 +1002,7 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
 	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
 	v2 xy1;
-	v2 uv0( tex_rect.s / 32.0f, tex_rect.t / 32.0f );
+	v2 uv0( tex_rect.s / 32.0f, (tex_rect.dtdy < 0 ? tex_rect.t + 32 : tex_rect.t) / 32.0f );	//Fixes California Speed
 	v2 uv1;
 
 	//

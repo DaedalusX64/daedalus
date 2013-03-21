@@ -632,10 +632,11 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 {
 	UpdateTileSnapshots( tile_idx );
 
-	// NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
-	v2 uv0 = uv0_;
-	v2 uv1 = uv1_;
-	PrepareTexRectUVs(&uv0, &uv1);
+	if( !g_ROM.NO_CLAMP_HACK )
+	{
+		mTexWrap[0].u = mTexWrap[0].v = GU_CLAMP;
+		mTexWrap[1].u = mTexWrap[1].v = GU_CLAMP;
+	}
 
 	v2 screen0;
 	v2 screen1;
@@ -652,6 +653,14 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 		ConvertN64ToScreen( xy0, screen0 );
 		ConvertN64ToScreen( xy1, screen1 );
 	}
+
+	v2 uv0;
+	v2 uv1;
+	uv0.x = uv0_.x - mTileTopLeft[ 0 ].x;
+	uv0.y = uv0_.y - mTileTopLeft[ 0 ].y;
+
+	uv1.x = uv1_.x - mTileTopLeft[ 0 ].x;
+	uv1.y = uv1_.y - mTileTopLeft[ 0 ].y;
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
@@ -721,16 +730,26 @@ void RendererPSP::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 {
 	UpdateTileSnapshots( tile_idx );
 
-	// NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
-	v2 uv0 = uv0_;
-	v2 uv1 = uv1_;
-	PrepareTexRectUVs(&uv0, &uv1);
+	if( !g_ROM.NO_CLAMP_HACK )
+	{
+		mTexWrap[0].u = mTexWrap[0].v = GU_CLAMP;
+		mTexWrap[1].u = mTexWrap[1].v = GU_CLAMP;
+	}
 
 	v2 screen0;
 	v2 screen1;
 	// FIXME(strmnnrmn): why is VT_FULLSCREEN_HD code in TexRect() not also done here?
 	ConvertN64ToScreen( xy0, screen0 );
 	ConvertN64ToScreen( xy1, screen1 );
+
+	v2 uv0;
+	v2 uv1;
+
+	uv0.x = uv0_.x - mTileTopLeft[ 0 ].x;
+	uv0.y = uv0_.y - mTileTopLeft[ 0 ].y;
+
+	uv1.x = uv1_.x - mTileTopLeft[ 0 ].x;
+	uv1.y = uv1_.y - mTileTopLeft[ 0 ].y;
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
