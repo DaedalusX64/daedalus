@@ -1747,6 +1747,66 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 			mTileTopLeft[ index ].x, mTileTopLeft[ index ].y );
 }
 
+
+// This transforms UVs so that they're positive. The aim is to ensure UVs are in the
+// range [(0,0),(w,h)]. If we can do this, we can specify GL_CLAMP_TO_EDGE/GU_CLAMP,
+// which fixes some artifacts when rendering, such as bleed from wrapping at the edges
+// of textures. E.g. http://imgur.com/db3Adws,dX9vOWE#1
+// There are two inputs into the final uvs: the vertex UV and the mTileTopLeft value:
+//   final_uv = (vert_uv - mTileTopLeft).
+// When rendering a large logo, most games set uv0=(s,t) and mTileTopLeft=(s,t) so
+// that the resulting final_uv = (0,0). But some games (e.g. Automobili Lamborghini)
+// set uv0=(0,0) but still have mTileTopLeft=(s,t). This results in a final_uv of (-s,-t).
+// I think that the only reason this happened to work was because s was some multiple
+// of the texture width, and so with GL_REPEAT the texrect rendered ok.
+// Anyway the fix is to subtract mTileTopLeft from the uvs, zero it, then add multiples
+// of the texture width/height until the uvs are positive. Then if the resulting UVs
+// are in the range [(0,0),(w,h)] we can update mTexWrap to GL_CLAMP_TO_EDGE/GU_CLAMP
+// and everything works correctly.
+inline void FixUV(u32 * wrap, float * c0, float * c1, float size)
+{
+	// Many texrects already have GU_CLAMP set, so avoid some work.
+	if (*wrap != GU_CLAMP)
+	{
+		DAEDALUS_ASSERT(size > 0.f, "Texture has crazy width/height");
+
+		// Check if the coord is negative - if so, offset to the range [0,size]
+		if (*c0 < 0.f)
+		{
+			// If integer, this would simply be (-uv0x + size-1) % size
+			// NB! we have to apply the same offset to both coords, to preserve direction of mapping (i.e., don't clamp each independently)
+			float v = ceilf(-*c0 / size) * size;
+			*c0 += v;
+			*c1 += v;
+		}
+
+		// If both coords are in the range [0,size], we can clamp safely.
+		// If integer, this would be just '(unsigned)c0 <= size & (unsigned)c1 <= size'.
+		// NB c0 is guaranteed >= 0 here, so don't bother checking.
+		DAEDALUS_ASSERT(*c0 >= 0.0, "Arithmetic error");
+		if (*c0 <= size &&
+			*c1 <= size && *c1 >= 0.f)
+		{
+			*wrap = GU_CLAMP;
+		}
+	}
+}
+
+// puv0, puv1 are in/out arguments.
+void BaseRenderer::PrepareTexRectUVs(v2 * puv0, v2 * puv1)
+{
+	v2 uv0 = *puv0 - mTileTopLeft[0];
+	v2 uv1 = *puv1 - mTileTopLeft[0];
+	mTileTopLeft[0].x = 0.f;
+	mTileTopLeft[0].y = 0.f;
+
+	FixUV(&mTexWrap[0].u, &uv0.x, &uv1.x, mBoundTextureInfo[0].GetWidth());
+	FixUV(&mTexWrap[0].v, &uv0.y, &uv1.y, mBoundTextureInfo[0].GetHeight());
+
+	*puv0 = uv0;
+	*puv1 = uv1;
+}
+
 //*****************************************************************************
 //
 //*****************************************************************************

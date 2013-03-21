@@ -310,6 +310,8 @@ protected:
 	void				UpdateTileSnapshots( u32 tile_idx );
 	void				UpdateTileSnapshot( u32 index, u32 tile_idx );
 
+	void 				PrepareTexRectUVs(v2 * puv0, v2 * puv1);
+
 	virtual void		RestoreRenderStates() = 0;
 
 	//*****************************************************************************
