@@ -324,10 +324,10 @@ static const PspFpuRoundMode		gNativeRoundingModes[ RM_NUM_MODES ] =
 	PSP_FPU_RM,	// RM_FLOOR,
 };
 
-inline void SET_ROUND_MODE()
+inline void SET_ROUND_MODE( ERoundingMode mode )
 {
 	// I don't think anything is required here?
-	//pspFpuSetRoundmode( gNativeRoundingModes[ gRoundingMode ] );
+	//pspFpuSetRoundmode( gNativeRoundingModes[ mode ] );
 }
 
 //These ASM routines converts float to int and puts the value in CPU rather than FPU which is important if one wants to sign extent it to 64bit later //Corn
@@ -372,9 +372,9 @@ static const int		gNativeRoundingModes[ RM_NUM_MODES ] =
 	_RC_DOWN,	// RM_FLOOR,
 };
 
-__forceinline void SET_ROUND_MODE()
+__forceinline void SET_ROUND_MODE( ERoundingMode mode )
 {
-	_controlfp( gNativeRoundingModes[ gRoundingMode ], _MCW_RC );
+	_controlfp( gNativeRoundingModes[ mode ], _MCW_RC );
 }
 
 __forceinline s32 f32_to_s32( f32 x, ERoundingMode mode )	{ SET_ROUND_MODE( mode ); return (s32)x; }
@@ -411,9 +411,9 @@ static const int		gNativeRoundingModes[ RM_NUM_MODES ] =
 	FE_DOWNWARD,	// RM_FLOOR,
 };
 
-inline void SET_ROUND_MODE()
+inline void SET_ROUND_MODE( ERoundingMode mode )
 {
-	fesetround( gNativeRoundingModes[ gRoundingMode ] );
+	fesetround( gNativeRoundingModes[ mode ] );
 }
 
 inline s32 f32_to_s32( f32 x, ERoundingMode mode )	{ SET_ROUND_MODE( mode ); return (s32)x; }
@@ -2535,7 +2535,7 @@ static void R4300_CALL_TYPE R4300_Cop1_CTC1( R4300_CALL_SIGNATURE ) 		// move Co
 		default:				NODEFAULT;
 		}
 
-		SET_ROUND_MODE();
+		SET_ROUND_MODE(gRoundingMode);
 	}
 	//else
 	//{
@@ -2613,7 +2613,7 @@ static void R4300_CALL_TYPE R4300_Cop1_W_CVT_S( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	s32 nTemp = LoadFPR_Word( op_code.fs );
 
@@ -2624,7 +2624,7 @@ static void R4300_CALL_TYPE R4300_Cop1_W_CVT_D( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	s32 nTemp = LoadFPR_Word( op_code.fs );
 
@@ -2649,7 +2649,7 @@ static void R4300_CALL_TYPE R4300_Cop1_L_CVT_S( R4300_CALL_SIGNATURE )
 
 	s64 nTemp = LoadFPR_Long( op_code.fs );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Single( op_code.fd, s64_to_f32( nTemp ));
 }
@@ -2660,7 +2660,7 @@ static void R4300_CALL_TYPE R4300_Cop1_L_CVT_D( R4300_CALL_SIGNATURE )
 
 	s64 nTemp = LoadFPR_Long( op_code.fs );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Double( op_code.fd, s64_to_d64( nTemp ) );
 }
@@ -2687,7 +2687,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_ADD( R4300_CALL_SIGNATURE )
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Single( op_code.fd, fX + fY );
 }
@@ -2700,7 +2700,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_SUB( R4300_CALL_SIGNATURE )
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Single( op_code.fd, fX - fY );
 }
@@ -2713,7 +2713,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_MUL( R4300_CALL_SIGNATURE )
 	f32 fX = LoadFPR_Single( op_code.fs );
 	f32 fY = LoadFPR_Single( op_code.ft );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Single( op_code.fd, fX * fY );
 }
@@ -2726,7 +2726,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_DIV( R4300_CALL_SIGNATURE )
 	f32 fDividend = LoadFPR_Single( op_code.fs );
 	f32 fDivisor  = LoadFPR_Single( op_code.ft );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	// Should we handle if /0? GoldenEye007 and Exitebike does this.
 	// Not sure if is worth to handle this, I have yet to see a game that fails due this..
@@ -2757,7 +2757,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_SQRT( R4300_CALL_SIGNATURE )
 	// fd = sqrt(fs)
 	f32 fX = LoadFPR_Single( op_code.fs );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 	StoreFPR_Single( op_code.fd, R4300_Sqrt(fX) );
 }
 
@@ -2769,7 +2769,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_NEG( R4300_CALL_SIGNATURE )
 	// fd = -(fs)
 	f32 fX = LoadFPR_Single( op_code.fs );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Single( op_code.fd, -fX );
 }
@@ -2782,7 +2782,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_MOV( R4300_CALL_SIGNATURE )
 	f32 fValue = LoadFPR_Single( op_code.fs );
 
 	// Just copy bits directly?
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Single( op_code.fd, fValue );
 }
@@ -2793,7 +2793,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_ABS( R4300_CALL_SIGNATURE )
 
 	f32 fX = LoadFPR_Single( op_code.fs );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Single( op_code.fd, R4300_AbsS(fX) );
 }
@@ -2901,7 +2901,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	f32 fX = LoadFPR_Single( op_code.fs );
 
@@ -2915,7 +2915,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D_2( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	f32 fX = LoadFPR_Single( op_code.fs );
 
@@ -3184,7 +3184,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_ABS( R4300_CALL_SIGNATURE )
 
 	d64 fX = LoadFPR_Double( op_code.fs );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Double( op_code.fd, R4300_AbsD(fX) );
 }
@@ -3199,7 +3199,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_ADD_2( R4300_CALL_SIGNATURE )
 	d64 fX = LoadFPR_Double( op_code.fs );
 	d64 fY = LoadFPR_Double( op_code.ft );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	REG64	r;
 
@@ -3219,7 +3219,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_ADD( R4300_CALL_SIGNATURE )
 	d64 fX = LoadFPR_Double( op_code.fs );
 	d64 fY = LoadFPR_Double( op_code.ft );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Double( op_code.fd, fX + fY );
 
@@ -3233,7 +3233,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_SUB( R4300_CALL_SIGNATURE )
 	d64 fX = LoadFPR_Double( op_code.fs );
 	d64 fY = LoadFPR_Double( op_code.ft );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Double( op_code.fd, fX - fY );
 }
@@ -3246,7 +3246,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_MUL( R4300_CALL_SIGNATURE )
 	d64 fX = LoadFPR_Double( op_code.fs );
 	d64 fY = LoadFPR_Double( op_code.ft );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Double( op_code.fd, fX * fY );
 }
@@ -3261,7 +3261,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_DIV( R4300_CALL_SIGNATURE )
 
 	DAEDALUS_ASSERT(fDivisor != 0, "Double divide by zero");
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Double( op_code.fd,  fDividend / fDivisor );
 }
@@ -3273,7 +3273,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_SQRT( R4300_CALL_SIGNATURE )
 	// fd = sqrt(fs)
 	d64 fX = LoadFPR_Double( op_code.fs );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Double( op_code.fd, R4300_SqrtD(fX) );
 }
@@ -3286,7 +3286,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_NEG( R4300_CALL_SIGNATURE )
 	// fd = -(fs)
 	d64 fX = LoadFPR_Double( op_code.fs );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Double( op_code.fd, -fX );
 }
@@ -3303,7 +3303,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_MOV( R4300_CALL_SIGNATURE )
 	// fd = fs
 	d64 fX = LoadFPR_Double( op_code.fs );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Double( op_code.fd, fX );
 #endif
@@ -3389,7 +3389,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_CVT_S( R4300_CALL_SIGNATURE )
 
 	d64 fX = LoadFPR_Double( op_code.fs );
 
-	SET_ROUND_MODE( );		//XXXX Is this needed?
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Single( op_code.fd, fX );
 }
