@@ -1,4 +1,6 @@
 #include "stdafx.h"
+
+#ifdef DAEDALUS_ACCURATE_TMEM
 #include "ConvertTile.h"
 #include "RDP.h"
 #include "TextureInfo.h"
@@ -7,7 +9,7 @@
 #include <vector>
 
 static std::vector<u8>	gTexelBuffer;
-static NativePf8888		gPaletteBuffer[ 256 ];
+//static NativePf8888		gPaletteBuffer[ 256 ];
 
 struct TileDestInfo
 {
@@ -367,7 +369,7 @@ static void ConvertIA16(const TileDestInfo & dsti, const TextureInfo & ti)
 		for (u32 x = 0; x < width; ++x)
 		{
 			u32 o        = src_offset^row_swizzle;
-			u8 src_pixel = src[o];
+			//u8 src_pixel = src[o];
 
 			u8 i = src[o+0];
 			u8 a = src[o+1];
@@ -643,3 +645,4 @@ bool ConvertTile(const TextureInfo & ti,
 	DAEDALUS_ERROR("Unhandled format %d/%d", ti.GetFormat(), ti.GetSize());
 	return false;
 }
+#endif //DAEDALUS_ACCURATE_TMEM

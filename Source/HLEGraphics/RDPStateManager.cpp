@@ -281,7 +281,7 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	u8 * ram         = g_pu8RamBase;
 	u32  ram_offset  = ram_address;
 
-	u32 bytes_per_line      = (w << g_TI.Size) >> 1;
+	//u32 bytes_per_line      = (w << g_TI.Size) >> 1;
 	u32 bytes_per_tmem_line = rdp_tile.line << 3;
 
 	if (g_TI.Size == G_IM_SIZ_32b)
@@ -356,7 +356,7 @@ void CRDPStateManager::LoadTlut(const SetLoadTile & load)
 #endif
 
 #ifdef DAEDALUS_ACCURATE_TMEM
-	u32 pitch       = g_TI.GetPitch16bpp();
+	//u32 pitch       = g_TI.GetPitch16bpp();
 	u32 texels      = ((lrs - uls)>>2) + 1;
 	u32 bytes       = texels*2;
 	u32 tmem_offset = rdp_tile.tmem << 3;

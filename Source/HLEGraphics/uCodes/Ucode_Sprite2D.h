@@ -65,10 +65,8 @@ inline void DLParser_Sprite2DScaleFlip( MicroCodeCommand command, Sprite2DInfo *
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo &info, Sprite2DStruct *sprite )
+void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo &info, Sprite2DStruct *sprite )
 {
-	u16 px = (u16)(((command.inst.cmd1)>>16)&0xFFFF)/4;
-	u16 py = (u16)( (command.inst.cmd1)     &0xFFFF)/4;
 
 	// Wipeout.
 	if(sprite->width == 0)
@@ -86,7 +84,7 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo 
 	ti.SetHeight           (sprite->height);
 	ti.SetPitch            (sprite->stride << sprite->size >> 1);
 
-	ti.SetSwapped          (false);
+	ti.SetSwapped          (0);
 
 	ti.SetTLutIndex        (0);
 	ti.SetTlutAddress      ((u32)(g_pu8RamBase + RDPSegAddr(sprite->tlut)));
@@ -95,10 +93,15 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo 
 
 	CRefPtr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
 
+	u16 px = (u16)((command.inst.cmd1>>16)&0xFFFF)/4;
+	u16 py = (u16)(command.inst.cmd1 &0xFFFF)/4;
+	u16 pw = (u16)(sprite->width / info.scaleX);
+	u16 ph = (u16)(sprite->height / info.scaleY);
+
 	s32 frameX              = px;
 	s32 frameY              = py;
-	s32 frameW              = (sprite->width / info.scaleX) + px;
-	s32 frameH              = (sprite->height / info.scaleY) + py;
+	s32 frameW              = pw + px;
+	s32 frameH              = ph + py;
 
 	// SSV uses this
 	if( info.flipX )
@@ -107,8 +110,8 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo 
 	if( info.flipY )
 		Swap< s32 >( frameY, frameH );
 
-	gRenderer->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH,
-							  0.0f, 0.0f, (float)sprite->width, (float)sprite->height,
+	gRenderer->Draw2DTexture( (f32)frameX, (f32)frameY, (f32)frameW, (f32)frameH,
+							  0.0f, 0.0f, (f32)sprite->width, (f32)sprite->height,
 							  texture );
 }
 
@@ -118,6 +121,8 @@ inline void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo 
 // Used by Flying Dragon
 void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 {
+
+	u32 address;
 	Sprite2DInfo info;
 	Sprite2DStruct *sprite;
 
@@ -127,29 +132,45 @@ void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 	// This assumes sprite2D is always followed by flip and draw 
 	// according to the manual base and flip has to be called before drawing, so this assumption should be fine
 	// Try to execute as many sprite2d ucodes as possible, I seen chains over 200! in FB
-	do
+	// Arg Glover calls RDP Sync before draw for the sky..
+	while(1)
 	{
-		u32 address = RDPSegAddr(command.inst.cmd1) & (MAX_RAM_ADDRESS-1);
+		address = RDPSegAddr(command.inst.cmd1) & (MAX_RAM_ADDRESS-1);
 		sprite = (Sprite2DStruct *)(g_ps8RamBase + address);
 
 		// Fetch Sprite2D Flip
 		command.inst.cmd0= *pCmdBase++;
 		command.inst.cmd1= *pCmdBase++;
-		DAEDALUS_ASSERT(command.inst.cmd == G_GBI1_SPRITE2D_SCALEFLIP, "Opps, was expecting Sprite2D Flip");
-		DLParser_Sprite2DScaleFlip( command, &info );
+		if(command.inst.cmd == G_GBI1_SPRITE2D_SCALEFLIP)
+		{
+			DLParser_Sprite2DScaleFlip( command, &info );
+			pc += 8;
+		}
+		else
+			break;
 
 		// Fetch Sprite2D Draw
 		command.inst.cmd0= *pCmdBase++;
 		command.inst.cmd1= *pCmdBase++;
-		DAEDALUS_ASSERT(command.inst.cmd == G_GBI1_SPRITE2D_DRAW, "Opps, was expecting Sprite2D Draw");
-		DLParser_Sprite2DDraw( command, info, sprite );
+		if(command.inst.cmd == G_GBI1_SPRITE2D_DRAW)
+		{
+			DLParser_Sprite2DDraw( command, info, sprite );
+			pc += 8;
+		}
+		else
+			break;
 
+
+		// Fetch Sprite2D Base
 		command.inst.cmd0= *pCmdBase++;
 		command.inst.cmd1= *pCmdBase++;
-		pc += 24;
-	} while ( command.inst.cmd == G_GBI1_SPRITE2D_BASE );
+		if(command.inst.cmd == G_GBI1_SPRITE2D_BASE)
+			pc += 8;
+		else
+			break;
+	}
 	
-	gDlistStack.address[gDlistStackPointer] = pc-8;
+	gDlistStack.address[gDlistStackPointer] = pc;
 }
 
 #endif // UCODE_SPRITE2D_H__

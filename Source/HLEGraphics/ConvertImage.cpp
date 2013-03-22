@@ -648,7 +648,7 @@ bool ConvertTexture(const TextureInfo & ti,
 	//Checking if the palette pointer is less than 0x1000 (rather than just NULL) fixes it.
 	// Seems to happen on the first frame of Goldeneye too?
 #ifdef DAEDALUS_FAST_TMEM
-	if( palette && (ti.GetTlutAddress() < 0x1000) ) return false;
+	if( (ti.GetFormat() == G_IM_FMT_CI) && (ti.GetTlutAddress() < 0x1000) ) return false;
 #endif
 	//memset( texels, 0, buffer_size );
 

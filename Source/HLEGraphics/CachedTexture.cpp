@@ -61,8 +61,7 @@ static const bool kUpdateTexturesEveryFrame = true;
 #endif
 
 
-#ifdef DAEDALUS_OSX
-
+#if defined(DAEDALUS_OSX) || defined(DAEDALUS_ACCURATE_TMEM)
 static ETextureFormat SelectNativeFormat(const TextureInfo & ti)
 {
 	// On OSX, always use RGBA 8888 textures.
@@ -126,6 +125,7 @@ static bool GenerateTexels(void ** p_texels,
 
 #ifdef DAEDALUS_ACCURATE_TMEM
 	// NB: if line is 0, it implies this is a direct load from ram (e.g. DLParser_Sprite2DDraw etc)
+	// This check isn't robust enough, SSV set ti.Line == 0 in game without calling Sprite2D
 	if (ti.Line > 0)
 	{
 		if (ConvertTile(ti, texels, palette, texture_format, pitch))

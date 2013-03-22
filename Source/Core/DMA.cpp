@@ -51,32 +51,34 @@ void DMA_SP_CopyFromRDRAM()
 	u32 rdlen_reg         = Memory_SP_GetRegister(SP_RD_LEN_REG);
 
 #ifdef DAEDALUS_PSP
-	u32 splen			 = (rdlen_reg & 0xFFF) + 1;	//[0-11] is length to transfer
-
-	DAEDALUS_ASSERT( (splen & 0x1) == 0, "Warning, PI DMA DRAM from SP, odd length = %d", splen);
-
 	// Ignore IMEM for speed (we don't do low-level RSP anyways on the PSP)
 	if((spmem_address_reg & 0x1000) == 0)
 	{
 		//FIXME(strmnnrmn): shouldn't this be using _swizzle?
 		//No swizzle is okay since alignment and size constrains are met //Salvy
 		fast_memcpy(&g_pu8SpMemBase[(spmem_address_reg & 0xFFF)],
-					&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)], splen);
+					&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)], (rdlen_reg & 0xFFF) + 1);
 	}
 #else
 
 	u32 rdram_address = (rdram_address_reg&0x00FFFFFF)	& ~7;	// Align to 8 byte boundary
 	u32 spmem_address = (spmem_address_reg&0x1FFF)		& ~7;	// Align to 8 byte boundary
-	u32 length = ((rdlen_reg    )&0x0FFF) | 7;					// Round up to 8 bytes
-	u32 count  = ((rdlen_reg>>12)&0x00FF);
+	u32 length = ((rdlen_reg    &0x0FFF) | 7)+1;					// Round up to 8 bytes
+	u32 count  = ((rdlen_reg>>12)&0x00FF)+1;
 	u32 skip   = ((rdlen_reg>>20)&0x0FFF);
 
-	for (u32 c = 0; c <= count; c++ )
+	for (u32 c = 0; c < count; c++ )
 	{
-		fast_memcpy_swizzle( &g_pu8SpMemBase[spmem_address], &g_pu8RamBase[rdram_address], length+1 );
+		// Conker needs this
+		if ( rdram_address  > gRamSize )
+		{
+			//DBGConsole_Msg( 0, "(0x%08x) (0x%08x)", spmem_address, rdram_address );
+			break;
+		}
+		fast_memcpy_swizzle( &g_pu8SpMemBase[spmem_address], &g_pu8RamBase[rdram_address], length );
 
-		rdram_address += length+1 + skip;
-		spmem_address += length+1;
+		rdram_address += length + skip;
+		spmem_address += length;
 	}
 
 #endif
@@ -96,31 +98,32 @@ void DMA_SP_CopyToRDRAM()
 	u32 wrlen_reg         = Memory_SP_GetRegister(SP_WR_LEN_REG);
 
 #ifdef DAEDALUS_PSP
-	u32 splen			 = (wrlen_reg & 0xFFF) + 1;	//[0-11] is length to transfer
-
-	DAEDALUS_ASSERT( (splen & 0x1) == 0, "Warning, PI DMA DRAM to SP, odd length = %d", splen)
-
 	// Ignore IMEM for speed (we don't do low-level RSP anyways on the PSP)
 	if((spmem_address_reg & 0x1000) == 0)
 	{
 		//FIXME(strmnnrmn): shouldn't this be using _swizzle?
 		//No swizzle is okay since alignment and size constrains are met //Salvy
 		fast_memcpy(&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
-					&g_pu8SpMemBase[(spmem_address_reg & 0xFFF)], splen);
+					&g_pu8SpMemBase[(spmem_address_reg & 0xFFF)], (wrlen_reg & 0xFFF) + 1);
 	}
 
 #else
 	u32 rdram_address = (rdram_address_reg&0x00FFFFFF)	& ~7;	// Align to 8 byte boundary
 	u32 spmem_address = (spmem_address_reg&0x1FFF)		& ~7;	// Align to 8 byte boundary
-	u32 length = ((wrlen_reg    )&0x0FFF) | 7;					// Round up to 8 bytes
-	u32 count  = ((wrlen_reg>>12)&0x00FF);
+	u32 length = ((wrlen_reg    &0x0FFF) | 7)+1;				// Round up to 8 bytes
+	u32 count  = ((wrlen_reg>>12)&0x00FF)+1;
 	u32 skip   = ((wrlen_reg>>20)&0x0FFF);
 
-	for ( u32 c = 0; c <= count; c++ )
+	for ( u32 c = 0; c < count; c++ )
 	{
-		fast_memcpy_swizzle( &g_pu8RamBase[rdram_address], &g_pu8SpMemBase[spmem_address], length+1 );
-		rdram_address += length+1 + skip;
-		spmem_address += length+1;
+		if ( rdram_address  > gRamSize )
+		{
+			//DBGConsole_Msg( 0, "(0x%08x) (0x%08x)", spmem_address, rdram_address );
+			break;
+		}
+		fast_memcpy_swizzle( &g_pu8RamBase[rdram_address], &g_pu8SpMemBase[spmem_address], length );
+		rdram_address += length + skip;
+		spmem_address += length;
 	}
 
 #endif
