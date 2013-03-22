@@ -1685,11 +1685,14 @@ static void R4300_CALL_TYPE R4300_Special_DIVU( R4300_CALL_SIGNATURE ) 			// DIV
 static void R4300_CALL_TYPE R4300_Special_DMULT( R4300_CALL_SIGNATURE ) 		// Double Multiply
 {
 	R4300_CALL_MAKE_OP( op_code );
-#if 0
+#ifdef DAEDALUS_PSP
+	// Fast only handles 64bit multiplication
 	// Reserved Instruction exception
 	gCPUState.MultLo._u64 = gGPR[ op_code.rs ]._s64 * gGPR[ op_code.rt ]._s64;
 	gCPUState.MultHi._u64 = 0;
 #else
+	// Proper
+	// Handles up to 128bit multiplication
 	s64 rrs = gGPR[ op_code.rs ]._s64;
 	s64 rrt = gGPR[ op_code.rt ]._s64;
 	s64 lo, hi;
@@ -1750,11 +1753,14 @@ static void R4300_CALL_TYPE R4300_Special_DMULTU( R4300_CALL_SIGNATURE ) 			// D
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-#if 0
+#ifdef DAEDALUS_PSP
+	// Fast only handles 64bit multiplication
 	// Reserved Instruction exception
 	gCPUState.MultLo._u64 = gGPR[ op_code.rs ]._u64 * gGPR[ op_code.rt ]._u64;
 	gCPUState.MultHi._u64 = 0;
 #else
+	// Proper
+	// Handles up to 128bit multiplication
 	s64 rrs = gGPR[ op_code.rs ]._s64;
 	s64 rrt = gGPR[ op_code.rt ]._s64;
 
