@@ -105,10 +105,7 @@ enum EGameHacks
 	SUPER_BOWLING,
 	ZELDA_OOT,
 	ZELDA_MM,
-	TIGERS_HONEY_HUNT,
-	KIRBY64,
 	TARZAN,
-	PMARIO,
 	GEX_GECKO,
 	WONDER_PROJECTJ2,
 	ANIMAL_CROSSING,
@@ -152,7 +149,7 @@ struct RomInfo
 			u32			ALPHA_HACK:1;			//HACK for AIDYN CHRONICLES
 			u32			DISABLE_LBU_OPT:1;		//Disable memory optimation for
 			u32			DISABLE_SIM_CVT_D_S:1;	//Hack to disable sim-CVT_D_S
-			u32			NO_CLAMP_HACK:1;		//Dont use CLAMP in TexRects
+			u32			Pad7:1;	//free
 			u32			Pad8:1;	//free
 			u32			Pad9:1;	//free
 			u32			PadA:1;	//free

@@ -657,7 +657,7 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
 
 	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
-
+	
 #if 1	//1->SPRITE, 0->STRIP
 	DaedalusVtx * p_vertices = static_cast<DaedalusVtx *>(sceGuGetMemory(2 * sizeof(DaedalusVtx)));
 
@@ -822,21 +822,24 @@ void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 								f32 u0, f32 v0, f32 u1, f32 v1,
 								const CNativeTexture * texture)
 {
-	// Handle large images (width > 512) with blitting, since the PSP HW can't handle
-	// Handling height > 512 doesn't work well? Ignore for now.
-	if( u1 >= 512 )
-	{
-		Draw2DTextureBlit( x0, y0, x1, y1, u0, v0, u1, v1, texture );
-		return;
-	}
-
 	DAEDALUS_PROFILE( "RendererPSP::Draw2DTexture" );
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
 
-	sceGuDisable(GU_DEPTH_TEST);
-	sceGuDepthMask(GL_TRUE);
+	// Enable or Disable ZBuffer test
+	if ( (mTnL.Flags.Zbuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd )
+	{
+		sceGuEnable(GU_DEPTH_TEST);
+	}
+	else
+	{
+		sceGuDisable(GU_DEPTH_TEST);
+	}
+
+	// GL_TRUE to disable z-writes
+	sceGuDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
 	sceGuShadeModel(GU_FLAT);
 
+	//ToDO: Set alpha/blend states according RenderUsingCurrentBlendMode?
 	sceGuTexFilter(GU_LINEAR, GU_LINEAR);
 	sceGuDisable(GU_ALPHA_TEST);
 	sceGuTexFunc(GU_TFX_REPLACE, GU_TCC_RGBA);
@@ -844,6 +847,13 @@ void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 	sceGuEnable(GU_BLEND);
 	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
 
+	// Handle large images (width > 512) with blitting, since the PSP HW can't handle
+	// Handling height > 512 doesn't work well? Ignore for now.
+	if( u1 >= 512 )
+	{
+		Draw2DTextureBlit( x0, y0, x1, y1, u0, v0, u1, v1, texture );
+		return;
+	}
 
 	p_verts[0].pos.x = N64ToScreenX(x0);
 	p_verts[0].pos.y = N64ToScreenY(y0);
@@ -879,10 +889,21 @@ void RendererPSP::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1,
 	DAEDALUS_PROFILE( "RendererPSP::Draw2DTextureR" );
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
 
-	sceGuDisable(GU_DEPTH_TEST);
-	sceGuDepthMask(GL_TRUE);
+	// Enable or Disable ZBuffer test
+	if ( (mTnL.Flags.Zbuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd )
+	{
+		sceGuEnable(GU_DEPTH_TEST);
+	}
+	else
+	{
+		sceGuDisable(GU_DEPTH_TEST);
+	}
+
+	// GL_TRUE to disable z-writes
+	sceGuDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
 	sceGuShadeModel(GU_FLAT);
 
+	//ToDO: Set alpha/blend states according RenderUsingCurrentBlendMode?
 	sceGuTexFilter(GU_LINEAR, GU_LINEAR);
 	sceGuDisable(GU_ALPHA_TEST);
 	sceGuTexFunc(GU_TFX_REPLACE, GU_TCC_RGBA);
@@ -928,17 +949,6 @@ void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height,
 		DAEDALUS_ERROR("No texture in Draw2DTextureBlit");
 		return;
 	}
-
-	sceGuDisable(GU_DEPTH_TEST);
-	sceGuDepthMask(GL_TRUE);
-	sceGuShadeModel(GU_FLAT);
-
-	sceGuTexFilter(GU_LINEAR, GU_LINEAR);
-	sceGuDisable(GU_ALPHA_TEST);
-	sceGuTexFunc(GU_TFX_REPLACE, GU_TCC_RGBA);
-
-	sceGuEnable(GU_BLEND);
-	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
 
 // 0 Simpler blit algorithm, but doesn't handle big textures as good? (see StarSoldier)
 // 1 More complex algorithm. used in newer versions of TriEngine, fixes the main screen in StarSoldier

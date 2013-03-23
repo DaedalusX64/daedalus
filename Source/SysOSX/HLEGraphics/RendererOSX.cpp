@@ -579,7 +579,7 @@ static void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	case 0x0f5a:					// In * 0 + Mem * 1 || :In * 0 + Mem * 1				Starwars Racer
 	case 0x0010:					// In * AIn + In * 1-A || :In * AIn + Mem * 1-A			Hey You Pikachu - Shadow
 	case 0x0040:					// In * AIn + Mem * 1-A || :In * AIn + In * 1-A			Mario - Princess peach text
-	//case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
+	case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
 	case 0x04d0:					// In * AFog + Fog * 1-A || In * AIn + Mem * 1-A		Conker's Eyes
 	case 0x0c18:					// In * 0 + In * 1 || :In * AIn + Mem * 1-A:			SSV - WaterFall and dust
 	case 0xc410:					// Fog * AFog + In * 1-A || :In * AIn + Mem * 1-A		Donald Duck - Stars
@@ -923,7 +923,7 @@ void RendererOSX::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 	// FIXME(strmnnrmn): is this right? Gross anyway.
 	gRDPOtherMode.cycle_type = CYCLE_COPY;
 
-	PrepareRenderState(mScreenToDevice.mRaw, true /* disable_depth */, false);
+	PrepareRenderState(mScreenToDevice.mRaw, false /* disable_depth */, false);
 
 	glEnable(GL_BLEND);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -974,7 +974,7 @@ void RendererOSX::Draw2DTextureR(f32 x0, f32 y0,
 	// FIXME(strmnnrmn): is this right? Gross anyway.
 	gRDPOtherMode.cycle_type = CYCLE_COPY;
 
-	PrepareRenderState(mScreenToDevice.mRaw, true /* disable_depth */, false);
+	PrepareRenderState(mScreenToDevice.mRaw, false /* disable_depth */, false);
 
 	glEnable(GL_BLEND);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

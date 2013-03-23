@@ -205,7 +205,8 @@ public:
 	void				Reset();
 
 	// Various rendering states
-	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags._u32 = (mTnL.Flags._u32 & TNL_TEXTURE) | mode; UpdateFogEnable(); UpdateShadeModel(); }
+	// Don't think we need to updateshademodel, it breaks tiger's honey hunt
+	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags._u32 = (mTnL.Flags._u32 & TNL_TEXTURE) | mode; UpdateFogEnable(); /*UpdateShadeModel();*/ }
 	inline void			SetTextureEnable(bool enable)			{ mTnL.Flags.Texture = enable; }
 	inline void			SetTextureTile(u32 tile)				{ mTextureTile = tile; }
 	inline u32			GetTextureTile() const					{ return mTextureTile; }
@@ -216,7 +217,11 @@ public:
 	inline void			SetFogColour( c32 colour )				{ mFogColour = colour; }
 
 	// PrimDepth will replace the z value if depth_source=1 (z range 32767-0 while PSP depthbuffer range 0-65535)//Corn
+#ifdef DAEDALUS_PSP
 	inline void			SetPrimitiveDepth( u32 z )				{ mPrimDepth = (f32)( ( ( 32767 - z ) << 1) + 1 ); }
+#else
+	inline void			SetPrimitiveDepth( u32 z )				{ mPrimDepth = (f32)(z)/(f32)0x8000; }
+#endif
 	inline void			SetPrimitiveColour( c32 colour )		{ mPrimitiveColour = colour; }
 	inline c32			GetPrimitiveColour()					{ return mPrimitiveColour; }
 	inline void			SetEnvColour( c32 colour )				{ mEnvColour = colour; }
