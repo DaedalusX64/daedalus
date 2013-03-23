@@ -58,7 +58,7 @@ void DLParser_GBI1_Vtx( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_ModifyVtx( MicroCodeCommand command )
 {
-	u32 offset =  command.modifyvtx.offset;
+	u32 offset = command.modifyvtx.offset;
 	u32 vert   = command.modifyvtx.vtx;
 	u32 value  = command.modifyvtx.value;
 
@@ -256,7 +256,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 	case G_MW_POINTS:	// Used in FIFA 98
 		{
 			DL_PF("    G_MW_POINTS");
-			gRenderer->ModifyVertexInfo( (offset / 40), (offset % 40), value);
+			gRenderer->ModifyVertexInfo( (offset % 40), (offset / 40), value);
 		}
 		break;
 /*
@@ -316,7 +316,7 @@ void DLParser_GBI1_DL( MicroCodeCommand command )
 	if( command.dlist.param == G_DL_PUSH )
 		gDlistStackPointer++;
 
-	// Compiler gives much better asm if RDPSegAddr.. is sticked directly here 
+	// Compiler gives much better asm if RDPSegAddr.. is sticked directly here
 	gDlistStack.address[gDlistStackPointer] = RDPSegAddr(command.dlist.addr);
 }
 
