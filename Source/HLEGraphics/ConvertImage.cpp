@@ -282,7 +282,9 @@ struct SConvert
 	template < typename OutT >
 	static inline void ConvertTextureT( const TextureDestInfo & dsti, const TextureInfo & ti )
 	{
-		SConvertGeneric< OutT >::ConvertGeneric( dsti, ti, ConvertRow< OutT, Fiddle, Swizzle >, ConvertRow< OutT, Fiddle, 0 > );
+		SConvertGeneric< OutT >::ConvertGeneric( dsti, ti,
+												 ConvertRow< OutT, Fiddle, Swizzle >,
+												 ConvertRow< OutT, Fiddle, 0 > );
 	}
 
 	static void ConvertTexture( const TextureDestInfo & dsti, const TextureInfo & ti )
