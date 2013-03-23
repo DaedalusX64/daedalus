@@ -75,10 +75,14 @@ void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo &info, 
 	// ToDO : Cache ti state as Sprite2D is mostly used for static BGs
 	TextureInfo ti;
 
+	u32 address = RDPSegAddr(sprite->address);
+
+	SImageDescriptor	desc = { sprite->format, sprite->size, sprite->stride, address };
+
 	ti.SetFormat           (sprite->format);
 	ti.SetSize             (sprite->size);
 
-	ti.SetLoadAddress      (RDPSegAddr(sprite->address));
+	ti.SetLoadAddress      (desc.GetAddress(sprite->imageX, sprite->imageY));
 
 	ti.SetWidth            (sprite->width);
 	ti.SetHeight           (sprite->height);
@@ -128,8 +132,8 @@ void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 
 	u32 pc = gDlistStack.address[gDlistStackPointer];
 	u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
-	
-	// This assumes sprite2D is always followed by flip and draw 
+
+	// This assumes sprite2D is always followed by flip and draw
 	// according to the manual base and flip has to be called before drawing, so this assumption should be fine
 	// Try to execute as many sprite2d ucodes as possible, I seen chains over 200! in FB
 	// Arg Glover calls RDP Sync before draw for the sky..
@@ -169,7 +173,7 @@ void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 		else
 			break;
 	}
-	
+
 	gDlistStack.address[gDlistStackPointer] = pc;
 }
 
