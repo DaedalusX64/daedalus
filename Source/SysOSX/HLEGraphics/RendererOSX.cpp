@@ -971,8 +971,6 @@ void RendererOSX::Draw2DTextureR(f32 x0, f32 y0,
 {
 	DAEDALUS_PROFILE( "RendererOSX::Draw2DTextureR" );
 
-	DAEDALUS_ERROR("Draw2DTextureR is untested")
-
 	// FIXME(strmnnrmn): is this right? Gross anyway.
 	gRDPOtherMode.cycle_type = CYCLE_COPY;
 
@@ -1007,7 +1005,7 @@ void RendererOSX::Draw2DTextureR(f32 x0, f32 y0,
 		0xffffffff,
 	};
 
-	RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
+	RenderDaedalusVtxStreams(GL_TRIANGLE_FAN, positions, uvs, colours, 4);
 }
 
 bool CreateRenderer()
