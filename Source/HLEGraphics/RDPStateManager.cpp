@@ -210,13 +210,13 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 
 		DAEDALUS_ASSERT(qwords_per_line == (u32)ceilf(2048.f / (float)dxt), "Broken DXT calc");
 
-		u32 row_swizzle = 0;
+		u32 odd_row = 0;
 
 		for (u32 i = 0; i < qwords; /* updated in loop */)
 		{
 			u32 qwords_to_copy = Min(qwords-i, qwords_per_line);
 
-			if (row_swizzle)
+			if (odd_row)
 			{
 				CopyLineQwordsSwap(tmem_data, tmem_offset, ram, ram_offset, qwords_to_copy);
 			}
@@ -228,7 +228,7 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 			i           += qwords_to_copy;
 			tmem_offset += qwords_to_copy * 2;	// 2 32bit words per qword
 			ram_offset  += qwords_to_copy * 2;
-			row_swizzle ^= 0x1;					// Odd lines are word swapped
+			odd_row     ^= 0x1;					// Odd lines are word swapped
 		}
 	}
 
