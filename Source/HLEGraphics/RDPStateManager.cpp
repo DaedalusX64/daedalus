@@ -56,6 +56,8 @@ u8 gTMEM[4096];	// 4Kb
 #ifdef DAEDALUS_ACCURATE_TMEM
 
 // FIXME(strmnnrmn): dst/src are always gTMEM/g_pu32RamBase
+// FIXME: should be easy to optimise all of these.
+
 static inline void CopyLineQwords(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
 {
 	// Doesn't work. Something misaligned?
@@ -63,7 +65,6 @@ static inline void CopyLineQwords(u32 * dst, u32 dst_offset, u32 * src, u32 src_
 
 	for (u32 i = 0; i < qwords; ++i)
 	{
-		// FIXME: should be easy to optimise this.
 		dst[(dst_offset+0)] = BSWAP32(src[src_offset+0]);
 		dst[(dst_offset+1)] = BSWAP32(src[src_offset+1]);
 		dst_offset += 2;
@@ -75,9 +76,21 @@ static inline void CopyLineQwordsSwap(u32 * dst, u32 dst_offset, u32 * src, u32 
 {
 	for (u32 i = 0; i < qwords; ++i)
 	{
-		// FIXME: should be easy to optimise this.
+		// Alternate 32 bit words are swapped
 		dst[(dst_offset+0)^0x1] = BSWAP32(src[src_offset+0]);
 		dst[(dst_offset+1)^0x1] = BSWAP32(src[src_offset+1]);
+		dst_offset += 2;
+		src_offset += 2;
+	}
+}
+
+static inline void CopyLineQwordsSwap32(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
+{
+	for (u32 i = 0; i < qwords; ++i)
+	{
+		// Alternate 64 bit words are swapped
+		dst[(dst_offset+0)^0x2] = BSWAP32(src[src_offset+0]);
+		dst[(dst_offset+1)^0x2] = BSWAP32(src[src_offset+1]);
 		dst_offset += 2;
 		src_offset += 2;
 	}
@@ -99,8 +112,17 @@ static inline void CopyLineSwap(u8 * dst, u32 dst_offset, u8 * src, u32 src_offs
 {
 	for (u32 i = 0; i < bytes; ++i)
 	{
-		// Alternate 64 bit words are swapped
+		// Alternate 32 bit words are swapped
 		dst[(dst_offset+i)^0x4] = src[(src_offset+i)^U8_TWIDDLE];
+	}
+}
+
+static inline void CopyLineSwap32(u8 * dst, u32 dst_offset, u8 * src, u32 src_offset, u32 bytes)
+{
+	for (u32 i = 0; i < bytes; ++i)
+	{
+		// Alternate 64 bit words are swapped
+		dst[(dst_offset+i)^0x8] = src[(src_offset+i)^U8_TWIDDLE];
 	}
 }
 #endif
@@ -211,14 +233,20 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 		DAEDALUS_ASSERT(qwords_per_line == (u32)ceilf(2048.f / (float)dxt), "Broken DXT calc");
 
 		u32 odd_row = 0;
-
 		for (u32 i = 0; i < qwords; /* updated in loop */)
 		{
 			u32 qwords_to_copy = Min(qwords-i, qwords_per_line);
 
 			if (odd_row)
 			{
-				CopyLineQwordsSwap(tmem_data, tmem_offset, ram, ram_offset, qwords_to_copy);
+				if (g_TI.Size == 3)
+				{
+					CopyLineQwordsSwap32(tmem_data, tmem_offset, ram, ram_offset, qwords_to_copy);
+				}
+				else
+				{
+					CopyLineQwordsSwap(tmem_data, tmem_offset, ram, ram_offset, qwords_to_copy);
+				}
 			}
 			else
 			{
@@ -293,7 +321,14 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	{
 		if (y&1)
 		{
-			CopyLineSwap(tmem_data, tmem_offset, ram, ram_offset, bytes_per_tmem_line);
+			if (g_TI.Size == 3)
+			{
+				CopyLineSwap32(tmem_data, tmem_offset, ram, ram_offset, bytes_per_tmem_line);
+			}
+			else
+			{
+				CopyLineSwap(tmem_data, tmem_offset, ram, ram_offset, bytes_per_tmem_line);
+			}
 		}
 		else
 		{

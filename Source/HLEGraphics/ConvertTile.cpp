@@ -148,7 +148,7 @@ static void ConvertRGBA32(const TileDestInfo & dsti, const TextureInfo & ti)
 		src_row_offset += src_row_stride;
 		dst_row_offset += dst_row_stride;
 
-		row_swizzle ^= 0x4;   // Alternate lines are word-swapped
+		row_swizzle ^= 0x8;   // Alternate lines are qword-swapped
 	}
 }
 
