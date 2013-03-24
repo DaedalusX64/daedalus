@@ -122,13 +122,10 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 
 void memcpy_byteswap32( void* dst, const void* src, size_t size )
 {
-	u8* src8 = (u8*)src;
-	u8* dst8 = (u8*)dst;
+	u32* src32 = (u32*)src;
+	u32* dst32 = (u32*)dst;
 
-	u32* src32 = (u32*)src8;
-	u32* dst32 = (u32*)dst8;
-
-	if( ((uintptr_t)src8&0x3 )==0)
+	if( ((uintptr_t)src&0x3 )==0)
 	{
 		u32 size32 = size >> 2;
 		size &= 0x3;		// Remaining bits
@@ -149,9 +146,10 @@ void memcpy_byteswap32( void* dst, const void* src, size_t size )
 
 			src32 += 4;
 		}
-		src8 = (u8*)src32;
-		dst8 = (u8*)dst32;
 	}
+
+	u8* src8 = (u8*)src32;
+	u8* dst8 = (u8*)dst32;
 
 	while(size--)
 	{
