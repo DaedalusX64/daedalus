@@ -15,10 +15,18 @@ void WriteStandardHeader(WebDebugConnection * connection, const char * title)
 	connection->WriteString("	</head><body>\n");
 }
 
-void WriteStandardFooter(WebDebugConnection * connection)
+void WriteStandardFooter(WebDebugConnection * connection, const char * user_script)
 {
 	connection->WriteString(
 		"<script src=\"js/bootstrap.min.js\"></script>\n"
+		"<script src=\"js/jquery-1.9.1.min.js\"></script>\n"
+	);
+
+	// If there's a user script, append it after the other scripts.
+	if (user_script)
+		connection->WriteF("<script src=\"%s\"></script>\n", user_script);
+
+	connection->WriteString(
 		"</body>\n"
 		"</html>\n"
 	);
