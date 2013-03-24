@@ -60,6 +60,7 @@
           'Source/DynaRec/StaticAnalysis.cpp',
           'Source/DynaRec/TraceRecorder.cpp',
           'Source/Graphics/ColourValue.cpp',
+          'Source/Graphics/PngUtil.cpp',
           'Source/Graphics/TextureTransform.cpp',
           'Source/HLEAudio/ABI1.cpp',
           'Source/HLEAudio/ABI2.cpp',
@@ -105,7 +106,6 @@
           'Source/Utility/ZLibWrapper.cpp',
           'Source/ConfigOptions.cpp',
           'Source/System.cpp',
-          'Source/SysPSP/Graphics/PngUtilPSP.cpp',
 
           #FIXME
           'Source/SysW32/Dynarec/x86/AssemblyUtilsX86.cpp',

@@ -44,6 +44,7 @@ CORE_SRCS = \
 	Source/DynaRec/StaticAnalysis.cpp \
 	Source/DynaRec/TraceRecorder.cpp \
 	Source/Graphics/ColourValue.cpp \
+	Source/Graphics/PngUtil.cpp \
 	Source/Graphics/TextureTransform.cpp \
 	Source/HLEAudio/ABI1.cpp \
 	Source/HLEAudio/ABI2.cpp \
@@ -84,7 +85,6 @@ CORE_SRCS = \
 	Source/SysPSP/Graphics/intraFont/intraFont.c \
 	Source/SysPSP/Graphics/intraFont/libccc.c \
 	Source/SysPSP/Graphics/NativeTexturePSP.cpp \
-	Source/SysPSP/Graphics/PngUtilPSP.cpp \
 	Source/SysPSP/Graphics/VideoMemoryManager.cpp \
 	Source/SysPSP/HLEAudio/AudioOutput.cpp \
 	Source/SysPSP/HLEAudio/AudioPluginPSP.cpp \
