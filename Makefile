@@ -143,6 +143,7 @@ CORE_SRCS = \
 	Source/System.cpp \
 	Source/Test/BatchTest.cpp \
 	Source/Utility/CRC.cpp \
+	Source/Utility/DataSink.cpp \
 	Source/Utility/FastMemcpy.cpp \
 	Source/Utility/FramerateLimiter.cpp \
 	Source/Utility/Hash.cpp \
