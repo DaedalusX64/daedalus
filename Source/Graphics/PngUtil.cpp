@@ -98,7 +98,7 @@ static void PngFlush(png_structp png_ptr)
 // Save texture as PNG
 // From Shazz/71M - thanks guys!
 //*****************************************************************************
-static void PngSaveImage( DataSink * sink, const void * data, const void * palette, ETextureFormat pixelformat, u32 pitch, u32 width, u32 height, bool use_alpha )
+void PngSaveImage( DataSink * sink, const void * data, const void * palette, ETextureFormat pixelformat, s32 pitch, u32 width, u32 height, bool use_alpha )
 {
 	DAEDALUS_ASSERT( !IsTextureFormatPalettised( pixelformat ) || palette, "No palette specified" );
 
@@ -121,6 +121,12 @@ static void PngSaveImage( DataSink * sink, const void * data, const void * palet
 
 	const u8 *				p       = reinterpret_cast< const u8 * >( data );
 	const NativePf8888 *	pal8888 = reinterpret_cast< const NativePf8888 * >( palette );
+
+	// If the pitch is negative (i.e for a screenshot), start at the last row and work backwards.
+	if (pitch < 0)
+	{
+		p += -pitch * (height-1);
+	}
 
 	for ( u32 y = 0; y < height; y++ )
 	{
@@ -146,7 +152,7 @@ static void PngSaveImage( DataSink * sink, const void * data, const void * palet
 			}
 		}
 
-		p = p + pitch;
+		p += pitch;
 		png_write_row(png_ptr, line);
 	}
 
@@ -156,7 +162,7 @@ static void PngSaveImage( DataSink * sink, const void * data, const void * palet
 }
 
 void PngSaveImage( const char* filename, const void * data, const void * palette,
-				   ETextureFormat format, u32 stride,
+				   ETextureFormat format, s32 stride,
 				   u32 width, u32 height, bool use_alpha )
 {
 	FileSink sink;
