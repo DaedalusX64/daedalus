@@ -774,6 +774,8 @@ void RendererOSX::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, b
 
 void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0_, const v2 & uv1_ )
 {
+	// FIXME(strmnnrmn): in copy mode, depth buffer is always disabled. Might not need to check this explicitly.
+
 	UpdateTileSnapshots( tile_idx );
 
 	// NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.

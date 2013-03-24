@@ -927,6 +927,9 @@ void DLParser_TexRect( MicroCodeCommand command )
 	tex_rect.cmd2 = command2.inst.cmd1;
 	tex_rect.cmd3 = command3.inst.cmd1;
 
+	// NB: In FILL and COPY mode, rectangles are scissored to the nearest four pixel boundary.
+	// This isn't currently handled, but I don't know of any games that depend on it.
+
 	// Do compare with integers saves CPU //Corn
 	u32	x0 = tex_rect.x0 >> 2;
 	u32	y0 = tex_rect.y0 >> 2;
