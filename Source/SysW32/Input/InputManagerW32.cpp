@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Input/InputManager.h"
 #include "Debug/DBGConsole.h"
 #include "SysW32/Utility/ConfigHandler.h"
-#include "Utility/CritSect.h"
+#include "Utility/Mutex.h"
 #include "Utility/Synchroniser.h"
 #include "Utility/IO.h"
 #include "Resources/resource.h"
@@ -277,7 +277,7 @@ class IInputManager : public CInputManager
 
 		PollData * m_pPollData;
 
-		CCritSect		mCritSect;
+		Mutex		mCritSect;
 };
 
 // This basically says if the n64 control is a button or a

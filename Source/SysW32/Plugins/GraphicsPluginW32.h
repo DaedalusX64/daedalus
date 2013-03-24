@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Plugins/GraphicsPlugin.h"
 #include "GraphicsPlugin_Spec.h"
-#include "Utility/CritSect.h"
+#include "Utility/Mutex.h"
 #include "Debug/DBGConsole.h"
 
 #define PLUGIN_SPEC_CALL		__cdecl
@@ -304,7 +304,7 @@ class CGraphicsPluginDll : public CGraphicsPlugin
 		BOOL		m_bLoadedOk;
 		CHAR		mModuleName[MAX_PATH+1];
 
-		CCritSect	mCritSect;
+		Mutex		mCritSect;
 };
 
 #endif //GRAPHICSPLUGINW32_H__

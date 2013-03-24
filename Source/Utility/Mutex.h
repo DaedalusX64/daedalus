@@ -27,25 +27,28 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef DAEDALUS_PSP
 #include <pspthreadman.h>
 #endif
+#ifdef DAEDALUS_OSX
+#include <pthread.h>
+#endif
 
 #if defined(DAEDALUS_W32)
 
-class CCritSect
+class Mutex
 {
 public:
 
-	CCritSect()
+	Mutex()
 	{
 		InitializeCriticalSection(&cs);
 	}
 
-	explicit CCritSect( const char * name )
+	explicit Mutex( const char * name )
 	{
 		use( name );		// Can't name?
 		InitializeCriticalSection(&cs);
 	};
 
-	~CCritSect()
+	~Mutex()
 	{
 		DeleteCriticalSection(&cs);
 	}
@@ -65,23 +68,23 @@ protected:
 };
 #elif defined(DAEDALUS_PSP)
 
-class CCritSect
+class Mutex
 {
 public:
 
-	CCritSect()
-		:	mSemaphore( sceKernelCreateSema( "CCritSect", 0, 1, 1, NULL ) )
+	Mutex()
+		:	mSemaphore( sceKernelCreateSema( "Mutex", 0, 1, 1, NULL ) )
 	{
 		DAEDALUS_ASSERT( mSemaphore >= 0, "Unable to create semaphore" );
 	}
 
-	explicit CCritSect( const char * name )
+	explicit Mutex( const char * name )
 		:	mSemaphore( sceKernelCreateSema( name, 0, 1, 1, NULL ) )
 	{
 		DAEDALUS_ASSERT( mSemaphore >= 0, "Unable to create semaphore" );
 	}
 
-	~CCritSect()
+	~Mutex()
 	{
 		sceKernelDeleteSema( mSemaphore );
 	}
@@ -102,21 +105,21 @@ private:
 
 #elif defined(DAEDALUS_OSX)
 
-class CCritSect
+class Mutex
 {
 public:
 
-	CCritSect()
+	Mutex()
 	{
 		pthread_mutex_init(&mMutex, NULL);
 	}
 
-	explicit CCritSect( const char * name )
+	explicit Mutex( const char * name )
 	{
 		pthread_mutex_init(&mMutex, NULL);
 	}
 
-	~CCritSect()
+	~Mutex()
 	{
 		pthread_mutex_destroy(&mMutex);
 	}
@@ -143,23 +146,40 @@ private:
 #endif
 
 
-class CAutoCritSect
+class MutexLock
 {
 public:
-	explicit CAutoCritSect( CCritSect & section ) : mSection( section )
+	explicit MutexLock( Mutex * mutex )
+	:	mOwnedMutex( mutex )
 	{
-		mSection.Lock();
+		if (mOwnedMutex)
+			mOwnedMutex->Lock();
 	}
-	~CAutoCritSect()
+	~MutexLock()
 	{
-		mSection.Unlock();
+		if (mOwnedMutex)
+			mOwnedMutex->Unlock();
+	}
+
+	void Set(Mutex * mutex)
+	{
+		if (mOwnedMutex)
+			mOwnedMutex->Unlock();
+		mOwnedMutex = mutex;
+		if (mOwnedMutex)
+			mOwnedMutex->Lock();
+	}
+
+	bool HasLock(const Mutex & mutex) const
+	{
+		return mOwnedMutex == &mutex;
 	}
 
 private:
-	CCritSect &	mSection;
+	Mutex *	mOwnedMutex;
 };
 
-#define AUTO_CRIT_SECT( x )		CAutoCritSect daed_auto_crit_sect( x )
+#define AUTO_CRIT_SECT( x )		MutexLock daed_auto_crit_sect( &x )
 
 
-#endif //#ifndef CRITSECT_H__
+#endif // CRITSECT_H__

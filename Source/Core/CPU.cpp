@@ -45,7 +45,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Hash.h"
 #include "Utility/Thread.h"
 #include "Utility/IO.h"
-#include "Utility/CritSect.h"
+#include "Utility/Mutex.h"
 
 #include "Test/BatchTest.h"
 
@@ -93,9 +93,8 @@ std::string			gSaveStateFilename	= "";
 namespace
 {
 
-static bool		gCPUStopOnSimpleState	= false;			// When stopping, try to stop in a 'simple' state (i.e. no RSP running and not in a branch delay slot)
-
-CCritSect	gSaveStateCritialSection;
+static bool			gCPUStopOnSimpleState	= false;			// When stopping, try to stop in a 'simple' state (i.e. no RSP running and not in a branch delay slot)
+static Mutex		gSaveStateMutex;
 
 enum ESaveStateOperation
 {
@@ -442,7 +441,7 @@ static bool	CPU_IsStateSimple()
 //*****************************************************************************
 bool	CPU_SaveState( const char * filename )
 {
-	AUTO_CRIT_SECT( gSaveStateCritialSection );
+	MutexLock lock( &gSaveStateMutex );
 
 	bool	success;
 
@@ -478,7 +477,7 @@ bool	CPU_SaveState( const char * filename )
 //*****************************************************************************
 bool	CPU_LoadState( const char * filename )
 {
-	AUTO_CRIT_SECT( gSaveStateCritialSection );
+	MutexLock lock( &gSaveStateMutex );
 
 	bool	success;
 
@@ -631,7 +630,7 @@ void CPU_StopThread()
 //*****************************************************************************
 static void HandleSaveStateOperation()
 {
-	AUTO_CRIT_SECT( gSaveStateCritialSection );
+	MutexLock lock( &gSaveStateMutex );
 
 	//
 	// Handle the save state
