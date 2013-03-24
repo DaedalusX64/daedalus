@@ -178,7 +178,7 @@ SysEntityEntry SysInitTable[] =
 #ifdef DAEDALUS_OSX
 	{"WebDebug",			WebDebug_Init, 				WebDebug_Fini},
 	{"TextureCacheWebDebug",TextureCache_RegisterWebDebug, 	NULL},
-	{"TextureCacheWebDebug",DLDebugger_RegisterWebDebug, 	NULL},
+	{"DLDebuggerWebDebug",	DLDebugger_RegisterWebDebug, 	NULL},
 #endif
 };
 
