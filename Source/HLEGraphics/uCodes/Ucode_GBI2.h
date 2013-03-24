@@ -78,16 +78,16 @@ void DLParser_GBI2_Mtx( MicroCodeCommand command )
 		gRenderer->SetWorldView(address, command.mtx2.nopush==0, command.mtx2.load);
 	}
 }
-//*****************************************************************************	 
-//	 
-//*****************************************************************************	 
-void DLParser_GBI2_PopMtx( MicroCodeCommand command )	 
-{	 
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_GBI2_PopMtx( MicroCodeCommand command )
+{
 	DL_PF("    Command: (%s)",	command.inst.cmd1 ? "Projection" : "ModelView");
 	DAEDALUS_ASSERT( (command.inst.cmd1>>6) == 1, "Opps was expecting to pop matrix");
 
 	// Just pop the worldview matrix
-	gRenderer->PopWorldView();	 
+	gRenderer->PopWorldView();
 }
 
 //*****************************************************************************
