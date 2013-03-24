@@ -7,8 +7,8 @@
           'OTHER_CFLAGS': [
             '-Werror',
             '-Wformat=0',
-            '-O4',
-            '-g'
+            #'-O4',
+            #'-g'
           ],
         },
         'dependencies': [
