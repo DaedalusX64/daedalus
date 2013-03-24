@@ -163,36 +163,20 @@ static void ServeFile(WebDebugConnection * connection, const char * filename)
 		return;
 	}
 
-	// Figure out the filesize for the content-type header.
-	fseek(fh, 0, SEEK_END);
-	size_t len = ftell(fh);
-	fseek(fh, 0, SEEK_SET);
-
 	// FIXME(strmnnrmn): determine the content type from the file extension.
 	// There's only JS for now.
-	// Ugh - should pass in len here, but that seems to cause chrome to time out.
-	connection->BeginResponse(200, len, "application/javascript");
+	connection->BeginResponse(200, -1, "application/javascript");
 
-	static const u32 kBufSize = 1024;
+	static const size_t kBufSize = 1024;
+	size_t len_read;
 	char buf[kBufSize];
-	size_t len_remain = len;
-	while (len_remain > 0)
+	do
 	{
-		size_t len_to_copy = Min<size_t>(len_remain, kBufSize);
-
-		printf("Copying %d bytes, %d remain [C%s]\n", len_to_copy, len_remain, filename);
-
-		size_t len_read = fread(buf, 1, len_to_copy, fh);
-		if (len_read != len_to_copy)
-		{
-			// Error!
-			printf("Error reading %d bytes got %d remain [C%s]\n", len_to_copy, len_read, filename);
-			break;
-		}
-
-		connection->Write(buf, len_to_copy);
-		len_remain -= len_to_copy;
+		len_read = fread(buf, 1, kBufSize, fh);
+		if (len_read > 0)
+			connection->Write(buf, len_read);
 	}
+	while (len_read == kBufSize);
 
 	connection->EndResponse();
 	fclose(fh);
