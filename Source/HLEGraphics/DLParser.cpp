@@ -1212,6 +1212,7 @@ void DLParser_SetPrimColor( MicroCodeCommand command )
 
 	c32	prim_colour( command.color.r, command.color.g, command.color.b, command.color.a );
 
+	gRenderer->SetPrimitiveLODFraction(command.color.prim_level / 256.f);
 	gRenderer->SetPrimitiveColour( prim_colour );
 }
 

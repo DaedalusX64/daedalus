@@ -140,6 +140,7 @@ BaseRenderer::BaseRenderer()
 ,	mAlphaThreshold(0)
 
 ,	mPrimDepth( 0.0f )
+,	mPrimLODFraction( 0.f )
 
 ,	mFogColour(0x00FFFFFF)
 
