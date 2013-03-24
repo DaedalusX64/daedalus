@@ -55,9 +55,6 @@ u8 gTMEM[4096];	// 4Kb
 
 #ifdef DAEDALUS_ACCURATE_TMEM
 
-void (*CopyLineQwordsMode)(u32*, u32, u32*, u32, u32);
-void (*CopyLineMode)(u8*, u32, u8*, u32, u32);
-
 // FIXME(strmnnrmn): dst/src are always gTMEM/g_pu32RamBase
 // FIXME: should be easy to optimise all of these.
 
@@ -237,11 +234,13 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 	}
 	else
 	{
+		void (*CopyLineQwordsMode)(u32*, u32, u32*, u32, u32);
+
 		if(g_TI.Size == G_IM_SIZ_32b)
 			CopyLineQwordsMode = CopyLineQwordsSwap32;
 		else
 			CopyLineQwordsMode = CopyLineQwordsSwap;
-		
+
 		u32 qwords_per_line = (2048 + dxt-1) / dxt;
 
 		DAEDALUS_ASSERT(qwords_per_line == (u32)ceilf(2048.f / (float)dxt), "Broken DXT calc");
@@ -318,6 +317,8 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 
 	//u32 bytes_per_line      = (w << g_TI.Size) >> 1;
 	u32 bytes_per_tmem_line = rdp_tile.line << 3;
+
+	void (*CopyLineMode)(u8*, u32, u8*, u32, u32);
 
 	if (g_TI.Size == G_IM_SIZ_32b)
 	{
