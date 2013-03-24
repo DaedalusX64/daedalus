@@ -330,7 +330,7 @@ bool CachedTexture::HasExpired() const
 }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-void CachedTexture::DumpTexture( const TextureInfo & ti, CNativeTexture * texture )
+void CachedTexture::DumpTexture( const TextureInfo & ti, const CNativeTexture * texture )
 {
 	DAEDALUS_ASSERT(texture != NULL, "Should have a texture");
 
@@ -364,11 +364,7 @@ void CachedTexture::DumpTexture( const TextureInfo & ti, CNativeTexture * textur
 			// We have to do this because the palette texels come from emulated tmem, rather
 			// than ram. This means that when we dump out the texture here, tmem won't necessarily
 			// contain our pixels.
-			#ifdef DAEDALUS_PSP
 			const void * native_palette = texture->GetPalette();
-			#else
-			const void * native_palette = NULL;
-			#endif
 
 			PngSaveImage( filepath, texels, native_palette, texture->GetFormat(), texture->GetStride(), ti.GetWidth(), ti.GetHeight(), true );
 		}
