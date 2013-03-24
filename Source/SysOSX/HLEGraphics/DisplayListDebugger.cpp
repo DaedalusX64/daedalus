@@ -5,22 +5,51 @@
 #include "SysOSX/Debug/WebDebugTemplate.h"
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
+
+static bool gDebugging = false;
+
 bool DLDebugger_IsDebugging()
 {
-	return false;
+	return gDebugging;
 }
 
 void DLDebugger_RequestDebug()
 {
+	gDebugging = true;
 }
 
 bool DLDebugger_Process()
 {
+	if (gDebugging)
+	{
+		printf("Debugging\n");
+		gDebugging = false;
+	}
 	return false;
 }
 
 static void DLDebugHandler(void * arg, WebDebugConnection * connection)
 {
+	const WebDebugConnection::QueryParams & params = connection->GetQueryParams();
+	if (!params.empty())
+	{
+		for (size_t i = 0; i < params.size(); ++i)
+		{
+			if (params[i].Key == "action")
+			{
+				if (params[i].Value == "stop")
+				{
+					DLDebugger_RequestDebug();
+				}
+			}
+		}
+
+		connection->BeginResponse(200, -1, "text/plain" );
+		connection->WriteString("ok\n");
+		connection->EndResponse();
+		return;
+	}
+
 	connection->BeginResponse(200, -1, "text/html" );
 
 	WriteStandardHeader(connection, "Display List");
@@ -37,12 +66,7 @@ static void DLDebugHandler(void * arg, WebDebugConnection * connection)
 		"</div>\n"
 	);
 
-
-	connection->WriteString(
-		"<script src=\"js/dldebugger.js\"></script>\n"
-	);
-
-	WriteStandardFooter(connection);
+	WriteStandardFooter(connection, "js/dldebugger.js");
 	connection->EndResponse();
 }
 

@@ -2,7 +2,17 @@
 
 (function (daedalus) {'use strict';
   daedalus.init = function () {
-    alert('hi');
+
+    var $d = $('<div />');
+    var $stop = $('<button>Stop</button>');
+    $d.append($stop);
+
+    $stop.click(function () {
+      $.post('/dldebugger?action=stop');
+    });
+
+    $('body').append($d);
+
   };
 
 }(window.daedalus = window.daedalus || {}));
