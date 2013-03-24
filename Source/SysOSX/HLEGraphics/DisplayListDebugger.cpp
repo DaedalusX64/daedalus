@@ -30,13 +30,16 @@ static void DLDebugHandler(void * arg, WebDebugConnection * connection)
 		"	<div class=\"row\">\n"
 		"		<div class=\"span12\">\n"
 	);
-
 	connection->WriteString("<h1 id=\"title\">Display List</h1>\n");
-
 	connection->WriteString(
 		"		</div>\n"
 		"	</div>\n"
 		"</div>\n"
+	);
+
+
+	connection->WriteString(
+		"<script src=\"js/dldebugger.js\"></script>\n"
 	);
 
 	WriteStandardFooter(connection);
@@ -46,7 +49,7 @@ static void DLDebugHandler(void * arg, WebDebugConnection * connection)
 bool DLDebugger_RegisterWebDebug()
 {
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	WebDebug_Register( "/dldebug", &DLDebugHandler, NULL );
+	WebDebug_Register( "/dldebugger", &DLDebugHandler, NULL );
 #endif
 	return true;
 }
