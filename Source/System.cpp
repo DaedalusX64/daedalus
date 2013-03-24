@@ -41,6 +41,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_OSX
 #include "SysOSX/Debug/WebDebug.h"
+#include "HLEGraphics/TextureCacheWebDebug.h"
 #endif
 
 #include "Utility/FramerateLimiter.h"
@@ -175,6 +176,7 @@ SysEntityEntry SysInitTable[] =
 #endif
 #ifdef DAEDALUS_OSX
 	{"WebDebug",			WebDebug_Init, 				WebDebug_Fini},
+	{"TextureCacheWebDebug",TextureCache_RegisterWebDebug, 	WebDebug_Fini},
 #endif
 };
 

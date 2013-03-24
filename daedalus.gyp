@@ -81,6 +81,7 @@
           'Source/HLEGraphics/RDP.cpp',
           'Source/HLEGraphics/RDPStateManager.cpp',
           'Source/HLEGraphics/TextureCache.cpp',
+          'Source/HLEGraphics/TextureCacheWebDebug.cpp',
           'Source/HLEGraphics/TextureInfo.cpp',
           'Source/HLEGraphics/uCodes/Ucode.cpp',
           'Source/Interface/RomDB.cpp',
