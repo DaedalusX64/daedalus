@@ -22,11 +22,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/PngUtil.h"
 #include "Graphics/TextureFormat.h"
 #include "Graphics/NativePixelFormat.h"
+#include "Graphics/NativeTexture.h"
+#include "Utility/DataSink.h"
 
 #include <png.h>
 
 template< typename T >
-void WritePngRow( u8 * line, const void * src, u32 width )
+static void WritePngRow( u8 * line, const void * src, u32 width )
 {
 	u32 i = 0;
 
@@ -43,7 +45,7 @@ void WritePngRow( u8 * line, const void * src, u32 width )
 	}
 }
 
-void WritePngRowPal4( u8 * line, const void * src, u32 width, const NativePf8888 * palette )
+static void WritePngRowPal4( u8 * line, const void * src, u32 width, const NativePf8888 * palette )
 {
 	u32 i = 0;
 
@@ -62,7 +64,7 @@ void WritePngRowPal4( u8 * line, const void * src, u32 width, const NativePf8888
 	}
 }
 
-void WritePngRowPal8( u8 * line, const void * src, u32 width, const NativePf8888 * palette )
+static void WritePngRowPal8( u8 * line, const void * src, u32 width, const NativePf8888 * palette )
 {
 	u32 i = 0;
 
@@ -80,36 +82,38 @@ void WritePngRowPal8( u8 * line, const void * src, u32 width, const NativePf8888
 	}
 }
 
+static void PngWrite(png_structp png_ptr, png_bytep data, png_size_t len)
+{
+	DataSink * sink = static_cast<DataSink*>(png_get_io_ptr(png_ptr));
+	sink->Write(data, len);
+}
+
+static void PngFlush(png_structp png_ptr)
+{
+	DataSink * sink = static_cast<DataSink*>(png_get_io_ptr(png_ptr));
+	sink->Flush();
+}
+
 //*****************************************************************************
 // Save texture as PNG
 // From Shazz/71M - thanks guys!
 //*****************************************************************************
-void PngSaveImage( const char* filename, const void * data, const void * palette, ETextureFormat pixelformat, u32 pitch, u32 width, u32 height, bool use_alpha )
+static void PngSaveImage( DataSink * sink, const void * data, const void * palette, ETextureFormat pixelformat, u32 pitch, u32 width, u32 height, bool use_alpha )
 {
 	DAEDALUS_ASSERT( !IsTextureFormatPalettised( pixelformat ) || palette, "No palette specified" );
 
-	FILE* fp = fopen(filename, "wb");
-	if (!fp)
-	{
-		DAEDALUS_ERROR( "Couldn't open file for output" );
-		return;
-	}
-
 	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (!png_ptr)
-	{
-		fclose(fp);
 		return;
-	}
+
 	png_infop info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr)
 	{
 		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
-		fclose(fp);
 		return;
 	}
 
-	png_init_io(png_ptr, fp);
+	png_set_write_fn(png_ptr, sink, &PngWrite, &PngFlush);
 	png_set_IHDR(png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 	png_write_info(png_ptr, info_ptr);
 
@@ -149,5 +153,28 @@ void PngSaveImage( const char* filename, const void * data, const void * palette
 	free(line);
 	png_write_end(png_ptr, info_ptr);
 	png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
-	fclose(fp);
 }
+
+void PngSaveImage( const char* filename, const void * data, const void * palette,
+				   ETextureFormat format, u32 stride,
+				   u32 width, u32 height, bool use_alpha )
+{
+	FileSink sink;
+	if (!sink.Open(filename))
+	{
+		DAEDALUS_ERROR( "Couldn't open file for output" );
+		return;
+	}
+
+	PngSaveImage(&sink, data, palette, format, stride, width, height, use_alpha);
+}
+
+void PngSaveImage( DataSink * sink, const CNativeTexture * texture )
+{
+	DAEDALUS_ASSERT(texture->HasData(), "Should have a texture");
+
+	PngSaveImage( sink, texture->GetData(), texture->GetPalette(),
+		texture->GetFormat(), texture->GetStride(),
+		texture->GetWidth(), texture->GetHeight(), true );
+}
+
