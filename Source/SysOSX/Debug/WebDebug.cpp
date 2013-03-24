@@ -323,7 +323,7 @@ static u32 WebDebugThread(void * arg)
 		// 	}
 		// }
 
-		ThreadSleepMs(30);
+		ThreadSleepMs(10);
 
 		++frame_counter;
 	}
