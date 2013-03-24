@@ -1617,25 +1617,39 @@ void BaseRenderer::UpdateTileSnapshots( u32 tile_idx )
 {
 	UpdateTileSnapshot( 0, tile_idx );
 
-#ifdef DAEDALUS_PSP
+#if defined(DAEDALUS_PSP)
 	if ( g_ROM.LOAD_T1_HACK & !gRDPOtherMode.text_lod )
 	{
 		// LOD is disabled - use two textures
 		UpdateTileSnapshot( 1, tile_idx + 1 );
 	}
-#else
-#ifdef RDP_USE_TEXEL1
-	if ( !gRDPOtherMode.text_lod )
+#elif defined(DAEDALUS_OSX) || defined(RDP_USE_TEXEL1)
+// FIXME(strmnnrmn): What's RDP_USE_TEXEL1? Can we remove it?
+
+	if (gRDPOtherMode.cycle_type == CYCLE_2CYCLE)
 	{
-		// LOD is disabled - use two textures
-		UpdateTileSnapshot( 1, tile_idx + 1 );
-	}
-	else
-	{
+		u32 t1_tile = (tile_idx + 1) & 7;
+
+		// NB: I don't think we need to do this. lod_frac is set to 0.0 in the
+		// OSX pixel shader, so it'll always use Texel 0 when mipmapping.
 		// LOD is enabled - use the highest detail texture in texel1
-		UpdateTileSnapshot( 1, tile_idx );
+		// if ( gRDPOtherMode.text_lod )
+		// 	t1_tile = tile_idx;
+
+		if ( !gRDPStateManager.IsTileInitialised(t1_tile) )
+		{
+			// FIXME(strmnnrmn): This happens a lot - not just for Tony Hawk.
+			// DAEDALUS_DL_ERROR("Using T1, but it's not been set up");
+
+			// FIXME(strmnnrmn): This is required so that Tony Hawk's text renders correctly.
+			// It's odd. It calls TexRect with tile 1, and has
+			// a color combiner that uses Texel 1 but not Texel 0.
+			// But tile 2 has never been initialised.
+			t1_tile = tile_idx;
+		}
+
+		UpdateTileSnapshot( 1, t1_tile );
 	}
-#endif
 #endif
 }
 
@@ -1696,6 +1710,10 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	DAEDALUS_ASSERT( tile_idx < 8, "Invalid tile index %d", tile_idx );
 	DAEDALUS_ASSERT( index < NUM_N64_TEXTURES, "Invalid texture index %d", index );
 
+	// This hapens a lot! Even for index 0 (i.e. the main texture!)
+	// It might just be code that lazily does a texrect with Primcolour (i.e. not using either T0 or T1)?
+	// DAEDALUS_ASSERT( gRDPStateManager.IsTileInitialised( tile_idx ), "Tile %d hasn't been set up (index %d)", tile_idx, index );
+
 	const TextureInfo &  ti        = gRDPStateManager.GetUpdatedTextureDescriptor( tile_idx );
 	const RDP_Tile &     rdp_tile  = gRDPStateManager.GetTile( tile_idx );
 	const RDP_TileSize & tile_size = gRDPStateManager.GetTileSize( tile_idx );
@@ -1726,6 +1744,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 				}
 #endif
 			}
+#endif
 		}
 	}
 

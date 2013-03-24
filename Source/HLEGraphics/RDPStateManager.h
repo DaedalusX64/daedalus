@@ -40,6 +40,12 @@ public:
 	inline const RDP_Tile &			GetTile( u32 idx ) const				{ return mTiles[ idx ]; }
 	inline const RDP_TileSize &		GetTileSize( u32 idx ) const			{ return mTileSizes[ idx ]; }
 
+	inline bool IsTileInitialised( u32 idx ) const
+	{
+		// mTile is zeroed to RGBA/4 on init. If we're RGBA/4, assume we're not initialised.
+		return mTiles[idx].format != 0 || mTiles[idx].size != 0;
+	}
+
 	void							SetTile( const RDP_Tile & tile );
 	void							SetTileSize( const RDP_TileSize & tile_size );
 

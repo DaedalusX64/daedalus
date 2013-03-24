@@ -292,7 +292,8 @@ static void SprintMux(char (&body)[1024], u64 mux, u32 cycle_type, u32 alpha_thr
 	{
 		sprintf(body, "\tcol.rgb = (%s - %s) * %s + %s;\n"
 					  "\tcol.a   = (%s - %s) * %s + %s;\n"
-					  "\tcombined = vec4(col.rgb, col.a);\n"
+					  "\tcombined = col;\n"
+					  "\ttex0 = tex1;\n"		// NB: tex0 becomes tex1 on the second cycle - see mame.
 					  "\tcol.rgb = (%s - %s) * %s + %s;\n"
 					  "\tcol.a   = (%s - %s) * %s + %s;\n",
 					  kRGBParams16[aRGB0], kRGBParams16[bRGB0], kRGBParams32[cRGB0], kRGBParams8[dRGB0],
@@ -726,8 +727,11 @@ void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disabl
 
 		if (texture != NULL)
 		{
+			glActiveTexture(GL_TEXTURE0 + i);
+
 			texture->InstallTexture();
 
+			// NB: think this can be done just once per program.
 			glUniform1i(program->uloc_texture[i], i);
 
 			if (identity_uv_transform)
