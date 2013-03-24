@@ -51,6 +51,8 @@ static void test_log(const char* text)
 WebDebugConnection::WebDebugConnection(WebbyConnection * connection)
 :	mConnection(connection)
 ,	mState(kUnresponded)
+,	mBytesExpected(0)
+,	mBytesWritten(0)
 {
 }
 
@@ -63,6 +65,8 @@ void WebDebugConnection::BeginResponse(int code, int content_length, const char 
 {
 	DAEDALUS_ASSERT(mState == kUnresponded, "Already responded to this request");
 
+	mBytesExpected = content_length >= 0 ? content_length : 0;
+
 	WebbyHeader headers[] = {
 		{ "Content-Type", content_type },
 	};
@@ -73,6 +77,7 @@ void WebDebugConnection::BeginResponse(int code, int content_length, const char 
 
 size_t WebDebugConnection::Write(const void * p, size_t len)
 {
+	mBytesWritten += len;
 	return WebbyWrite(mConnection, p, len);
 }
 
@@ -85,7 +90,7 @@ void WebDebugConnection::WriteString(const char * str)
 {
 	DAEDALUS_ASSERT(mState == kResponding, "Should be in Responding state");
 
-	WebbyWrite(mConnection, str, strlen(str));
+	Write(str, strlen(str));
 }
 
 void WebDebugConnection::WriteF(const char * format, ...)
@@ -101,12 +106,16 @@ void WebDebugConnection::WriteF(const char * format, ...)
 	buffer[kBufferLen-1] = 0;
 	va_end(va);
 
-	WebbyWrite(mConnection, buffer, strlen(buffer));
+	Write(buffer, strlen(buffer));
 }
 
 void WebDebugConnection::EndResponse()
 {
 	DAEDALUS_ASSERT(mState == kResponding, "Should be in Responding state");
+	DAEDALUS_ASSERT(mBytesExpected == 0 || mBytesWritten == mBytesExpected,
+		"Promised %d bytes, but only wrote %d",
+		mBytesExpected, mBytesWritten);
+
 	WebbyEndResponse(mConnection);
 	mState = kResponded;
 }

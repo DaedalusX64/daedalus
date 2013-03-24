@@ -32,6 +32,9 @@ public:
 private:
 	struct WebbyConnection * 	mConnection;
 	State						mState;
+
+	size_t						mBytesExpected;
+	size_t						mBytesWritten;
 };
 
 typedef void (*WebDebugHandler)(void * arg, WebDebugConnection * connection);
