@@ -11,8 +11,12 @@
 #include <unistd.h>
 #endif
 
+#include <string>
 #include <vector>
 
+#include "Debug/DBGConsole.h"
+#include "Math/MathUtil.h"
+#include "Utility/IO.h"
 #include "Utility/Thread.h"
 
 enum
@@ -27,6 +31,12 @@ struct WebDebugHandlerEntry
 	void *			Arg;
 };
 
+struct StaticResource
+{
+	std::string		Resource;
+	std::string		FullPath;
+};
+
 static void *				gServerMemory = NULL;
 static struct WebbyServer * gServer       = NULL;
 static volatile bool		gKeepRunning  = false;
@@ -35,6 +45,7 @@ static ThreadHandle 		gThread       = kInvalidThreadHandle;
 static int 									ws_connection_count;
 static struct WebbyConnection *				ws_connections[MAX_WSCONN];
 static std::vector<WebDebugHandlerEntry>	gHandlers;
+static std::vector<StaticResource>			gStaticResources;
 
 void WebDebug_Register(const char * request, WebDebugHandler handler, void * arg)
 {
@@ -143,25 +154,82 @@ static void Generate404(WebDebugConnection * connection, const char * request)
 	connection->EndResponse();
 }
 
+static void ServeFile(WebDebugConnection * connection, const char * filename)
+{
+	FILE * fh = fopen(filename, "rb");
+	if (!fh)
+	{
+		Generate404(connection, filename);
+		return;
+	}
+
+	// Figure out the filesize for the content-type header.
+	fseek(fh, 0, SEEK_END);
+	size_t len = ftell(fh);
+	fseek(fh, 0, SEEK_SET);
+
+	// FIXME(strmnnrmn): determine the content type from the file extension.
+	// There's only JS for now.
+	// Ugh - should pass in len here, but that seems to cause chrome to time out.
+	connection->BeginResponse(200, len, "application/javascript");
+
+	static const u32 kBufSize = 1024;
+	char buf[kBufSize];
+	size_t len_remain = len;
+	while (len_remain > 0)
+	{
+		size_t len_to_copy = Min<size_t>(len_remain, kBufSize);
+
+		printf("Copying %d bytes, %d remain [C%s]\n", len_to_copy, len_remain, filename);
+
+		size_t len_read = fread(buf, 1, len_to_copy, fh);
+		if (len_read != len_to_copy)
+		{
+			// Error!
+			printf("Error reading %d bytes got %d remain [C%s]\n", len_to_copy, len_read, filename);
+			break;
+		}
+
+		connection->Write(buf, len_to_copy);
+		len_remain -= len_to_copy;
+	}
+
+	connection->EndResponse();
+	fclose(fh);
+}
+
 static int WebDebugDispatch(struct WebbyConnection *connection)
 {
+	WebDebugConnection dbg_connection(connection);
+
+	// Check dynamic handlers.
 	for (size_t i = 0; i < gHandlers.size(); ++i)
 	{
 		const WebDebugHandlerEntry & entry = gHandlers[i];
 		if (strcmp(connection->request.uri, entry.Request) == 0)
 		{
-			WebDebugConnection dbg_connection(connection);
-
 			entry.Handler(entry.Arg, &dbg_connection);
 
-			DAEDALUS_ASSERT(dbg_connection.GetState() != WebDebugConnection::kResponding, "Failed to call EndResponse");
+			DAEDALUS_ASSERT(dbg_connection.GetState() == WebDebugConnection::kResponded, "Failed to handle the response");
 
 			// Return success if we handled the connection.
-			return dbg_connection.GetState() == WebDebugConnection::kResponded;
+			return 1;
 		}
 	}
 
-	WebDebugConnection dbg_connection(connection);
+	// Check static resources.
+	for (size_t i = 0; i < gStaticResources.size(); ++i)
+	{
+		const StaticResource & resource = gStaticResources[i];
+
+		if (strcmp(connection->request.uri, resource.Resource.c_str()) == 0)
+		{
+			ServeFile(&dbg_connection, resource.FullPath.c_str());
+			return 1;
+		}
+	}
+
+	DBGConsole_Msg(0, "404 [R%s]", connection->request.uri);
 	Generate404(&dbg_connection, connection->request.uri);
 	return 1;
 }
@@ -285,7 +353,7 @@ bool WebDebug_Init()
 	memset(&config, 0, sizeof config);
 	config.bind_address        = "127.0.0.1";
 	config.listening_port      = 8081;
-	config.flags               = WEBBY_SERVER_WEBSOCKETS;
+	config.flags               = WEBBY_SERVER_WEBSOCKETS/* | WEBBY_SERVER_LOG_DEBUG*/;
 	config.connection_max      = 4;
 	config.request_buffer_size = 2048;
 	config.io_buffer_size      = 8192;
@@ -304,6 +372,40 @@ bool WebDebug_Init()
 	{
 		fprintf(stderr, "failed to init server\n");
 		return false;
+	}
+
+	// FIXME(strmnnrmn): need to copy these files to the Data dir, and reference
+	// relative to the executable.
+	//IO::Path::PathBuf js_path = __FILE__;
+	//IO::Path::RemoveFileSpec(js_path);
+	//IO::Path::Append(js_path, "js/");
+	IO::Path::PathBuf js_path = "/Users/paulholden/dev/daedalus/Source/SysOSX/Debug/js/";
+
+	IO::FindHandleT find_handle;
+	IO::FindDataT find_data;
+	DBGConsole_Msg(0, "Looking for static resource in [C%s]", js_path);
+	if (IO::FindFileOpen(js_path, &find_handle, find_data))
+	{
+		do
+		{
+			const char * filename = find_data.Name;
+
+			IO::Path::PathBuf full_path;
+			IO::Path::Combine(full_path, js_path, filename);
+
+			StaticResource resource;
+			resource.Resource = "/js/";
+			resource.Resource += filename;
+			resource.FullPath = full_path;
+
+			DBGConsole_Msg(0, " adding [M%s] -> [C%s]",
+				resource.Resource.c_str(), resource.FullPath.c_str());
+
+			gStaticResources.push_back(resource);
+		}
+		while (IO::FindFileNext(find_handle, find_data));
+
+		IO::FindFileClose(find_handle);
 	}
 
 	gKeepRunning = true;
