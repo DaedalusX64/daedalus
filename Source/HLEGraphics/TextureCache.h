@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Utility/Singleton.h"
 #include "Utility/RefCounted.h"
+#include "Utility/Mutex.h"
 
 #include <vector>
 
@@ -41,7 +42,9 @@ public:
 	void		PurgeOldTextures();
 	void		DropTextures();
 
+
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	Mutex * 	GetDebugMutex()		{ return &mDebugMutex; }
 	struct STextureInfoSnapshot
 	{
 		STextureInfoSnapshot( const TextureInfo & info, CNativeTexture * texture )
@@ -52,7 +55,12 @@ public:
 		TextureInfo					Info;
 		CRefPtr<CNativeTexture>		Texture;
 	};
-	void		Snapshot( std::vector< STextureInfoSnapshot > & snapshot ) const;
+
+	// You must have a valid lock to call Snapshot.
+	void		Snapshot(const MutexLock & lock, std::vector< STextureInfoSnapshot > & snapshot) const;
+#else
+	// Don't bother locking if we're not debugging.
+	Mutex * 	GetDebugMutex()		{ return NULL; }
 #endif
 
 private:
@@ -73,6 +81,9 @@ private:
 	typedef std::vector< CachedTexture * >	TextureVec;
 	TextureVec			mTextures;
 	CachedTexture *		mpCacheHashTable[HASH_TABLE_SIZE];
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	Mutex				mDebugMutex;
+#endif
 };
 
 #endif	// TEXTURECACHE_H__

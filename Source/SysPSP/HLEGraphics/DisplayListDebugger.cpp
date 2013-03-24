@@ -574,7 +574,11 @@ CTextureExplorerDebugMenuOption::CTextureExplorerDebugMenuOption()
 		mCheckerTexture->SetData( gCheckTexture, NULL );
 	}
 
-	CTextureCache::Get()->Snapshot( mSnapshot );
+	{
+		// The lock isn't really needed, as on the PSP we run this single threaded.
+		MutexLock lock(CTextureCache::Get()->GetDebugMutex());
+		CTextureCache::Get()->Snapshot( lock, mSnapshot );
+	}
 
 	sort( mSnapshot.begin(), mSnapshot.end(), &OrderTextures );
 }
@@ -1005,8 +1009,10 @@ void IDisplayListDebugger::Run()
 			DLDebug_DumpNextDisplayList();
 
 			// Dump textures
+			MutexLock lock(CTextureCache::Get()->GetDebugMutex());
+
 			std::vector<CTextureCache::STextureInfoSnapshot> snapshot;
-			CTextureCache::Get()->Snapshot( snapshot );
+			CTextureCache::Get()->Snapshot( lock, snapshot );
 
 			sort( snapshot.begin(), snapshot.end(), &OrderTextures );
 

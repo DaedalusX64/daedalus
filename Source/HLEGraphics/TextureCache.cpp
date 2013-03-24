@@ -44,6 +44,9 @@ template<> bool CSingleton< CTextureCache >::Create()
 }
 
 CTextureCache::CTextureCache()
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+:	mDebugMutex("TextureCache")
+#endif
 {
 	memset( mpCacheHashTable, 0, sizeof(mpCacheHashTable) );
 }
@@ -70,6 +73,8 @@ inline u32 CTextureCache::MakeHashIdxB( const TextureInfo & ti )
 // Purge any textures that haven't been used recently
 void CTextureCache::PurgeOldTextures()
 {
+	MutexLock lock(GetDebugMutex());
+
 	//
 	//	Erase expired textures in reverse order, which should require less
 	//	copying when large clumps of textures are released simultaneously.
@@ -100,6 +105,8 @@ void CTextureCache::PurgeOldTextures()
 
 void CTextureCache::DropTextures()
 {
+	MutexLock lock(GetDebugMutex());
+
 	for( u32 i = 0; i < mTextures.size(); ++i)
 	{
 		delete mTextures[i];
@@ -163,6 +170,9 @@ CachedTexture * CTextureCache::GetOrCreateCachedTexture(const TextureInfo & ti)
 {
 	DAEDALUS_PROFILE( "CTextureCache::GetOrCreateCachedTexture" );
 
+	// NB: this is a no-op in normal builds.
+	MutexLock lock(GetDebugMutex());
+
 	//
 	// Retrieve the texture from the cache (if it already exists)
 	//
@@ -224,8 +234,10 @@ CRefPtr<CNativeTexture> CTextureCache::GetOrCreateTexture(const TextureInfo & ti
 }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-void CTextureCache::Snapshot( std::vector< STextureInfoSnapshot > & snapshot ) const
+void CTextureCache::Snapshot(const MutexLock & lock, std::vector< STextureInfoSnapshot > & snapshot) const
 {
+	DAEDALUS_ASSERT(lock.HasLock(mDebugMutex), "No debug lock");
+
 	snapshot.erase( snapshot.begin(), snapshot.end() );
 
 	for( TextureVec::const_iterator it = mTextures.begin(); it != mTextures.end(); ++it )
