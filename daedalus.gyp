@@ -10,10 +10,11 @@
           ],
         },
         'dependencies': [
-          'Source/third_party/libpng/libpng.gyp:libpng',
-          'Source/third_party/zlib/zlib.gyp:zlib',
-          'Source/third_party/zlib/zlib.gyp:minizip',
           'Source/third_party/glfw/glfw.gyp:glfw',
+          'Source/third_party/libpng/libpng.gyp:libpng',
+          'Source/third_party/webby/webby.gyp:webby',
+          'Source/third_party/zlib/zlib.gyp:minizip',
+          'Source/third_party/zlib/zlib.gyp:zlib',
         ],
         'link_settings': {
           'libraries': [
