@@ -29,6 +29,8 @@
 bool DLDebugger_IsDebugging();
 void DLDebugger_RequestDebug();
 bool DLDebugger_Process();
+
+bool DLDebugger_RegisterWebDebug();
 #endif
 
 #endif // __DAEDALUS_DISPLAYLISTDEBUGGER_H__
