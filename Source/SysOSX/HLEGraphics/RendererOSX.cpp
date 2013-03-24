@@ -111,6 +111,7 @@ struct ShaderProgram
 	GLint				uloc_project;
 	GLint				uloc_primcol;
 	GLint				uloc_envcol;
+	GLint				uloc_primlodfrac;
 
 	GLint				uloc_texscale[kNumTextures];
 	GLint				uloc_texoffset[kNumTextures];
@@ -272,14 +273,13 @@ static void SprintMux(char (&body)[1024], u64 mux, u32 cycle_type, u32 alpha_thr
 	u32 cA1    = (mux1>>18)&0x07;	// c2 a3		// Ac1
 	u32 dA1    = (mux1    )&0x07;	// c2 a4		// Ad1
 
-
 	if (cycle_type == CYCLE_FILL)
 	{
-		strcpy(body, "col = shade;\n");
+		strcpy(body, "\tcol = shade;\n");
 	}
 	else if (cycle_type == CYCLE_COPY)
 	{
-		strcpy(body, "col = tex0;\n");
+		strcpy(body, "\tcol = tex0;\n");
 	}
 	else if (cycle_type == CYCLE_1CYCLE)
 	{
@@ -336,6 +336,7 @@ static const char* default_fragment_shader_fmt =
 "uniform sampler2D uTexture1;\n"
 "uniform vec4 uPrimColour;\n"
 "uniform vec4 uEnvColour;\n"
+"uniform float uPrimLODFrac;\n"
 "in      vec2 v_uv0;\n"
 "in      vec2 v_uv1;\n"
 "in      vec4 v_col;\n"
@@ -352,7 +353,7 @@ static const char* default_fragment_shader_fmt =
 "	vec4 col;\n"
 "	vec4 combined = vec4(0,0,0,1);\n"
 "	float lod_frac      = 0.0;\n"		// FIXME
-"	float prim_lod_frac = 0.0;\n"		// FIXME
+"	float prim_lod_frac = uPrimLODFrac;\n"
 "	float k5            = 0.0;\n"		// FIXME
 "%s\n"		// Body is injected here
 "	fragcol = col;\n"
@@ -367,6 +368,7 @@ static void InitShaderProgram(ShaderProgram * program, u64 mux, u32 cycle_type, 
 	program->uloc_project      = glGetUniformLocation(shader_program, "uProject");
 	program->uloc_primcol      = glGetUniformLocation(shader_program, "uPrimColour");
 	program->uloc_envcol       = glGetUniformLocation(shader_program, "uEnvColour");
+	program->uloc_primlodfrac  = glGetUniformLocation(shader_program, "uPrimLODFrac");
 
 	program->uloc_texoffset[0] = glGetUniformLocation(shader_program, "uTexOffset0");
 	program->uloc_texscale[0]  = glGetUniformLocation(shader_program, "uTexScale0");
@@ -707,6 +709,7 @@ void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disabl
 
 	glUniform4f(program->uloc_primcol, mPrimitiveColour.GetRf(), mPrimitiveColour.GetGf(), mPrimitiveColour.GetBf(), mPrimitiveColour.GetAf());
 	glUniform4f(program->uloc_envcol,  mEnvColour.GetRf(),       mEnvColour.GetGf(),       mEnvColour.GetBf(),       mEnvColour.GetAf());
+	glUniform1f(program->uloc_primlodfrac, mPrimLODFraction);
 
 	// Second texture is sampled in 2 cycle mode if text_lod is clear (when set,
 	// gRDPOtherMode.text_lod enables mipmapping, but we just set lod_frac to 0.
