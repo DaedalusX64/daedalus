@@ -36,8 +36,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 namespace
 {
-u32		PALETTE4_BYTES_REQUIRED( 16 * sizeof( u32 ) );
-u32		PALETTE8_BYTES_REQUIRED( 256 * sizeof( u32 ) );
+static const u32 kPalette4BytesRequired = 16 * sizeof( NativePf8888 );
+static const u32 kPalette8BytesRequired = 256 * sizeof( NativePf8888 );
 
 //*****************************************************************************
 //
@@ -287,16 +287,16 @@ CNativeTexture::CNativeTexture( u32 w, u32 h, ETextureFormat texture_format )
 	switch( texture_format )
 	{
 	case TexFmt_CI4_8888:
-		if( !CVideoMemoryManager::Get()->Alloc( PALETTE4_BYTES_REQUIRED, &mpPalette, &mIsPaletteVidMem ) )
+		if( !CVideoMemoryManager::Get()->Alloc( kPalette4BytesRequired, &mpPalette, &mIsPaletteVidMem ) )
 		{
-			DAEDALUS_ERROR( "Out of memory for 4-bit palette, %d bytes", PALETTE4_BYTES_REQUIRED );
+			DAEDALUS_ERROR( "Out of memory for 4-bit palette, %d bytes", kPalette4BytesRequired );
 		}
 		break;
 
 	case TexFmt_CI8_8888:
-		if( !CVideoMemoryManager::Get()->Alloc( PALETTE8_BYTES_REQUIRED, &mpPalette, &mIsPaletteVidMem ) )
+		if( !CVideoMemoryManager::Get()->Alloc( kPalette8BytesRequired, &mpPalette, &mIsPaletteVidMem ) )
 		{
-			DAEDALUS_ERROR( "Out of memory for 8-bit palette, %d bytes", PALETTE8_BYTES_REQUIRED );
+			DAEDALUS_ERROR( "Out of memory for 8-bit palette, %d bytes", kPalette8BytesRequired );
 		}
 		break;
 
@@ -564,10 +564,10 @@ void	CNativeTexture::SetData( void * data, void * palette )
 			switch( mTextureFormat )
 			{
 			case TexFmt_CI4_8888:
-				memcpy( mpPalette, palette, PALETTE4_BYTES_REQUIRED );
+				memcpy( mpPalette, palette, kPalette4BytesRequired );
 				break;
 			case TexFmt_CI8_8888:
-				memcpy( mpPalette, palette, PALETTE8_BYTES_REQUIRED );
+				memcpy( mpPalette, palette, kPalette8BytesRequired );
 				break;
 
 			default:
