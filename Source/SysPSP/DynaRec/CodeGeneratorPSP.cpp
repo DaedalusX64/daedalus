@@ -1930,7 +1930,6 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
     if( load_op == OP_LWL )
     {
         load_op = OP_LW;
-		mPreviousLoadBase = N64Reg_R0;	//Invalidate
         ADDIU( PspReg_A0, reg_address, offset );    // base + offset
         ANDI( PspReg_A3, PspReg_A0, 3 );    //copy low 2 bits to A3
 		XOR( PspReg_A0, PspReg_A0, PspReg_A3);	//Zero low 2 bits in address
@@ -3880,9 +3879,14 @@ inline void	CCodeGeneratorPSP::GenerateLDC1( u32 address, bool set_branch_delay,
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateLWL( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset )
 {
- 	//Will return the value in PspReg_V0 and the shift in PspReg_A3
+	//Have to invalidate previous load base and also make sure we dont cache the current one, thus two invalidates
+	mPreviousLoadBase = N64Reg_R0;	//Invalidate
+
+	//Will return the value in PspReg_V0 and the shift in PspReg_A3
 	GenerateLoad( address, PspReg_V0, base, offset, OP_LWL, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
   
+	mPreviousLoadBase = N64Reg_R0;	//Invalidate
+
 	EPspReg	reg_dst( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
 	SLL( PspReg_A3, PspReg_A3, 0x3 );    // shift *= 8
@@ -3901,9 +3905,14 @@ inline void	CCodeGeneratorPSP::GenerateLWL( u32 address, bool set_branch_delay, 
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateLWR( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset )
 {
+	//Have to invalidate previous load base and also make sure we dont cache the current one, thus two invalidates
+	mPreviousLoadBase = N64Reg_R0;	//Invalidate
+
 	//Will return the value in PspReg_V0 and the shift in PspReg_A3
 	GenerateLoad( address, PspReg_V0, base, offset, OP_LWL, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
 	
+	mPreviousLoadBase = N64Reg_R0;	//Invalidate
+
 	EPspReg	reg_dst( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
 	SLL( PspReg_A3, PspReg_A3, 0x3 );    // shift *= 8
