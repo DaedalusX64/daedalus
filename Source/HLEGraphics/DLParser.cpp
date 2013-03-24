@@ -953,6 +953,8 @@ void DLParser_TexRect( MicroCodeCommand command )
 	v2 uv0( tex_rect.s / 32.0f, (tex_rect.dtdy < 0 ? tex_rect.t + 32 : tex_rect.t) / 32.0f );	//Fixes California Speed
 	v2 uv1;
 
+	DAEDALUS_DL_ASSERT(d.x > 0, "Negative or zero dsdx in TexRect (%f). UVs might be off.", d.x);
+
 	//
 	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
 	//
@@ -1004,6 +1006,9 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	v2 xy1;
 	v2 uv0( tex_rect.s / 32.0f, (tex_rect.dtdy < 0 ? tex_rect.t + 32 : tex_rect.t) / 32.0f );	//Fixes California Speed
 	v2 uv1;
+
+	DAEDALUS_DL_ASSERT(d.x > 0, "Negative or zero dsdx (%f) in TexRectFlip. UVs might be off.", d.x);
+	DAEDALUS_DL_ASSERT(d.y > 0, "Negative or zero dtdy (%f) in TexRectFlip. UVs might be off.", d.y);
 
 	//
 	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
