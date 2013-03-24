@@ -713,8 +713,11 @@ void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disabl
 	glUniform4f(program->uloc_primcol, mPrimitiveColour.GetRf(), mPrimitiveColour.GetGf(), mPrimitiveColour.GetBf(), mPrimitiveColour.GetAf());
 	glUniform4f(program->uloc_envcol,  mEnvColour.GetRf(),       mEnvColour.GetGf(),       mEnvColour.GetBf(),       mEnvColour.GetAf());
 
-	// FIXME - figure out from mux
-	bool install_textures[] = { true, false };
+	// Second texture is sampled in 2 cycle mode if text_lod is clear (when set,
+	// gRDPOtherMode.text_lod enables mipmapping, but we just set lod_frac to 0.
+	bool use_t1 = cycle_mode == CYCLE_2CYCLE;
+
+	bool install_textures[] = { true, use_t1 };
 
 	for (u32 i = 0; i < kNumTextures; ++i)
 	{
