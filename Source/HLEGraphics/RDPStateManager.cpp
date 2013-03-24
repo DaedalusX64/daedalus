@@ -460,7 +460,7 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		DAEDALUS_DL_ASSERT( num_bytes <= 4096, "Suspiciously large texture load: %d bytes (%dx%d, %dbpp)", num_bytes, tile_width, tile_height, (1<<(rdp_tile.size+2)) );
 
 		// May not work if Left (10.2 format) is not even?
-		DAEDALUS_DL_ASSERT( (rdp_tile.size > 0) || (rdp_tilesize.left & 4) == 0, "Expecting an even Left for 4bpp formats (left is %d)", rdp_tilesize.left );
+		DAEDALUS_DL_ASSERT( (rdp_tile.size > 0) || (rdp_tilesize.left & 4) == 0, "Expecting an even Left for 4bpp formats (left is %f)", rdp_tilesize.left / 4.f );
 #endif
 
 #ifdef DAEDALUS_FAST_TMEM
