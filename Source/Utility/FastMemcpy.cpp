@@ -131,20 +131,23 @@ void memcpy_byteswap32( void* dst, const void* src, size_t size )
 	if( ((uintptr_t)src8&0x3 )==0)
 	{
 		u32 size32 = size >> 2;
-		size &= 0x3;
+		size &= 0x3;		// Remaining bits
 		while (size32&0x3)
 		{
-			*dst32++ = BSWAP32(*src32++);
+			*dst32++ = BSWAP32(src32[0]);
+			src32 += 1;
 			size32--;
 		}
-		
+
 		u32 size128 = size32 >> 2;
 		while (size128--)
 		{
-			*dst32++ = BSWAP32(*src32++);
-			*dst32++ = BSWAP32(*src32++);
-			*dst32++ = BSWAP32(*src32++);
-			*dst32++ = BSWAP32(*src32++);
+			*dst32++ = BSWAP32(src32[0]);
+			*dst32++ = BSWAP32(src32[1]);
+			*dst32++ = BSWAP32(src32[2]);
+			*dst32++ = BSWAP32(src32[3]);
+
+			src32 += 4;
 		}
 		src8 = (u8*)src32;
 		dst8 = (u8*)dst32;
