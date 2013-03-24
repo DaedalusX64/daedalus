@@ -13,7 +13,7 @@
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 static void TextureHandler(void * arg, WebDebugConnection * connection)
 {
-	const char * params = connection->GetQueryParams();
+	const char * params = connection->GetQueryString();
 	if (!params)
 		return;
 

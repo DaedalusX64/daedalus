@@ -2,6 +2,9 @@
 #define WEBDEBUG_H_
 
 #include "Utility/DataSink.h"
+#include "Utility/String.h"
+
+#include <vector>
 
 struct WebbyConnection;
 
@@ -17,8 +20,18 @@ public:
 		kResponded,
 	};
 
-	const char * 	GetQueryParams() const;
+	struct Param
+	{
+		ConstStringRef Key;
+		ConstStringRef Value;
+	};
+
+	typedef std::vector<Param> QueryParams;
+
+	const char * 	GetQueryString() const;
 	State			GetState() const				{ return mState; }
+
+	const QueryParams & GetQueryParams() const		{ return mQueryParams; }
 
 	void 			BeginResponse(int code, int content_length, const char * content_type);
 	void			EndResponse();
@@ -35,6 +48,8 @@ private:
 
 	size_t						mBytesExpected;
 	size_t						mBytesWritten;
+
+	QueryParams					mQueryParams;
 };
 
 typedef void (*WebDebugHandler)(void * arg, WebDebugConnection * connection);

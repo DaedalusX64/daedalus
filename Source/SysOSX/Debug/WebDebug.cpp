@@ -17,6 +17,7 @@
 #include "Debug/DBGConsole.h"
 #include "Math/MathUtil.h"
 #include "Utility/IO.h"
+#include "Utility/StringUtil.h"
 #include "Utility/Thread.h"
 
 enum
@@ -65,9 +66,23 @@ WebDebugConnection::WebDebugConnection(WebbyConnection * connection)
 ,	mBytesExpected(0)
 ,	mBytesWritten(0)
 {
+	if (const char * params = connection->request.query_params)
+	{
+		std::vector<ConstStringRef> args;
+		Split(params, '&', &args);
+
+		mQueryParams.reserve(args.size());
+		for (size_t i = 0; i < args.size(); ++i)
+		{
+			Param param;
+			SplitAt(args[i], '=', &param.Key, &param.Value);
+
+			mQueryParams.push_back(param);
+		}
+	}
 }
 
-const char * WebDebugConnection::GetQueryParams() const
+const char * WebDebugConnection::GetQueryString() const
 {
 	return mConnection->request.query_params;
 }
