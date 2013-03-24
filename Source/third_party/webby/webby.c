@@ -448,7 +448,7 @@ WebbyServerMemoryNeeded(const struct WebbyServerConfig *config)
 {
   return
     WB_ALIGN_ARB(sizeof(struct WebbyServer), 16) +
-    WB_ALIGN_ARB(config->connection_max * sizeof(struct WebbyConnection), 16) +
+    WB_ALIGN_ARB((config->connection_max - 1) * sizeof(struct WebbyConnectionPrv), 16) +
     config->connection_max * config->request_buffer_size +
     config->connection_max * config->io_buffer_size;
 }
@@ -468,7 +468,7 @@ WebbyServerInit(struct WebbyServerConfig *config, void *memory, size_t memory_si
 
   buffer +=
     WB_ALIGN_ARB(sizeof(struct WebbyServer), 16) +
-    WB_ALIGN_ARB(config->connection_max * sizeof(struct WebbyConnection), 16);
+    WB_ALIGN_ARB((config->connection_max - 1) * sizeof(struct WebbyConnectionPrv), 16);
 
   for (i = 0; i < config->connection_max; ++i)
   {
