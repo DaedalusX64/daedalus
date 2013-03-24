@@ -39,11 +39,10 @@ inline u32 bytes2pixels( u32 bytes, u32 size )
 
 struct SImageDescriptor
 {
-	u32 Format;	// "RGBA", "YUV", "CI", "IA", "I", "?1", "?2", "?3"
-	u32 Size;	// "4bpp", "8bpp", "16bpp", "32bpp"
-	u32 Width;	// Num Pixels
+	u32 Format;		// "RGBA", "YUV", "CI", "IA", "I", "?1", "?2", "?3"
+	u32 Size;		// "4bpp", "8bpp", "16bpp", "32bpp"
+	u32 Width;		// Num Pixels
 	u32 Address;	// Location
-	//u32 Bpl; // Width << Size >> 1
 
 	inline u32 GetPitch() const
 	{
