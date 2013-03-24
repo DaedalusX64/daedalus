@@ -3,6 +3,7 @@
 #include "TextureCache.h"
 
 #include "SysOSX/Debug/WebDebug.h"
+#include "SysOSX/Debug/WebDebugTemplate.h"
 
 #include "Utility/Mutex.h"
 #include "Utility/DataSink.h"
@@ -66,7 +67,29 @@ static void TextureCacheHandler(void * arg, WebDebugConnection * connection)
 {
 	connection->BeginResponse(200, -1, "text/html" );
 
+	WriteStandardHeader(connection, "Texture Cache");
+
+	connection->WriteString(
+		"<div class=\"container\">\n"
+		"	<div class=\"row\">\n"
+		"		<div class=\"span12\">\n"
+	);
 	connection->WriteString("<h1>Texture Cache</h1>\n");
+	connection->WriteString("<table class=\"table table-condensed\">");
+	connection->WriteString("<thead>");
+
+	connection->WriteF(
+		"<tr>"
+		"<th>Format</th>"
+		"<th>Pitch</th>"
+		"<th>Width</th>"
+		"<th>Height</th>"
+		"<th>Image</th>"
+		"</tr>"
+		"\n" );
+
+	connection->WriteString("</thead>");
+	connection->WriteString("<tbody>");
 
 	// NB: maintain a lock for as long as we have a ref to any textures.
 	// If we delete textures on this thread, we'll crash OpenGL.
@@ -75,22 +98,6 @@ static void TextureCacheHandler(void * arg, WebDebugConnection * connection)
 
 		std::vector<CTextureCache::STextureInfoSnapshot> textures;
 		CTextureCache::Get()->Snapshot(lock, textures);
-
-		connection->WriteString("<table>");
-		connection->WriteString("<thead>");
-
-		connection->WriteF(
-			"<tr>"
-			"<th>Format</th>"
-			"<th>Pitch</th>"
-			"<th>Width</th>"
-			"<th>Height</th>"
-			"<th>Image</th>"
-			"</tr>"
-			"\n" );
-
-		connection->WriteString("</thead>");
-		connection->WriteString("<tbody>");
 
 		for (size_t i = 0; i < textures.size(); ++i)
 		{
@@ -117,11 +124,18 @@ static void TextureCacheHandler(void * arg, WebDebugConnection * connection)
 				snap.Texture->GetHeight()
 			);
 		}
-
-		connection->WriteString("</tbody>");
-		connection->WriteString("</table>");
 	}
 
+	connection->WriteString("</tbody>");
+	connection->WriteString("</table>");
+
+	connection->WriteString(
+		"		</div>\n"
+		"	</div>\n"
+		"</div>\n"
+	);
+
+	WriteStandardFooter(connection);
 	connection->EndResponse();
 }
 #endif	//DAEDALUS_DEBUG_DISPLAYLIST
