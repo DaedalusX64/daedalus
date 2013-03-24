@@ -154,6 +154,20 @@ static void Generate404(WebDebugConnection * connection, const char * request)
 	connection->EndResponse();
 }
 
+static const char * GetContentTypeForFilename(const char * filename)
+{
+	const char * ext = strrchr(filename, '.');
+	if (ext)
+	{
+		if (strcmp(ext, ".js") == 0)	return "application/javascript";
+		if (strcmp(ext, ".css") == 0)	return "text/css";
+		if (strcmp(ext, ".png") == 0)	return "image/png";
+	}
+
+	DBGConsole_Msg(0, "Unknown filetype [C%s]", filename);
+	return "text/plain";
+}
+
 static void ServeFile(WebDebugConnection * connection, const char * filename)
 {
 	FILE * fh = fopen(filename, "rb");
@@ -163,9 +177,7 @@ static void ServeFile(WebDebugConnection * connection, const char * filename)
 		return;
 	}
 
-	// FIXME(strmnnrmn): determine the content type from the file extension.
-	// There's only JS for now.
-	connection->BeginResponse(200, -1, "application/javascript");
+	connection->BeginResponse(200, -1, GetContentTypeForFilename(filename));
 
 	static const size_t kBufSize = 1024;
 	size_t len_read;
@@ -319,6 +331,44 @@ static u32 WebDebugThread(void * arg)
 	return 0;
 }
 
+static void AddStaticContent(const char * dir, const char * root)
+{
+	IO::FindHandleT find_handle;
+	IO::FindDataT   find_data;
+
+	if (IO::FindFileOpen(dir, &find_handle, find_data))
+	{
+		do
+		{
+			IO::Path::PathBuf full_path;
+			IO::Path::Combine(full_path, dir, find_data.Name);
+
+			std::string resource_path = root;
+			resource_path += '/';
+			resource_path += find_data.Name;
+
+			if (IO::Directory::IsDirectory(full_path))
+			{
+				AddStaticContent(full_path, resource_path.c_str());
+			}
+			else if (IO::File::Exists(full_path))
+			{
+				StaticResource resource;
+				resource.Resource = resource_path;
+				resource.FullPath = full_path;
+
+				DBGConsole_Msg(0, " adding [M%s] -> [C%s]",
+					resource.Resource.c_str(), resource.FullPath.c_str());
+
+				gStaticResources.push_back(resource);
+			}
+		}
+		while (IO::FindFileNext(find_handle, find_data));
+
+		IO::FindFileClose(find_handle);
+	}
+}
+
 bool WebDebug_Init()
 {
 #if defined(DAEDALUS_W32)
@@ -360,37 +410,11 @@ bool WebDebug_Init()
 
 	// FIXME(strmnnrmn): need to copy these files to the Data dir, and reference
 	// relative to the executable.
-	//IO::Path::PathBuf js_path = __FILE__;
-	//IO::Path::RemoveFileSpec(js_path);
-	//IO::Path::Append(js_path, "js/");
-	IO::Path::PathBuf js_path = "/Users/paulholden/dev/daedalus/Source/SysOSX/Debug/js/";
-
-	IO::FindHandleT find_handle;
-	IO::FindDataT find_data;
-	DBGConsole_Msg(0, "Looking for static resource in [C%s]", js_path);
-	if (IO::FindFileOpen(js_path, &find_handle, find_data))
-	{
-		do
-		{
-			const char * filename = find_data.Name;
-
-			IO::Path::PathBuf full_path;
-			IO::Path::Combine(full_path, js_path, filename);
-
-			StaticResource resource;
-			resource.Resource = "/js/";
-			resource.Resource += filename;
-			resource.FullPath = full_path;
-
-			DBGConsole_Msg(0, " adding [M%s] -> [C%s]",
-				resource.Resource.c_str(), resource.FullPath.c_str());
-
-			gStaticResources.push_back(resource);
-		}
-		while (IO::FindFileNext(find_handle, find_data));
-
-		IO::FindFileClose(find_handle);
-	}
+	//IO::Path::PathBuf data_path = __FILE__;
+	//IO::Path::RemoveFileSpec(data_path);
+	IO::Path::PathBuf data_path = "/Users/paulholden/dev/daedalus/Source/SysOSX/Debug/";
+	DBGConsole_Msg(0, "Looking for static resource in [C%s]", data_path);
+	AddStaticContent(data_path, "");
 
 	gKeepRunning = true;
 	gThread      = CreateThread( "WebDebug", &WebDebugThread, gServer );
