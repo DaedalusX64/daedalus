@@ -133,6 +133,7 @@
               'Source/SysOSX/HLEAudio/AudioPluginOSX.cpp',
               'Source/SysOSX/Debug/DaedalusAssertOSX.cpp',
               'Source/SysOSX/Debug/DebugConsoleOSX.cpp',
+              'Source/SysOSX/Debug/WebDebug.cpp',
               'Source/SysOSX/DummyPSP/pspctrl.cpp',
               'Source/SysOSX/DynaRec/CodeBufferManagerOSX.cpp',
               'Source/SysOSX/Graphics/GraphicsContext.cpp',

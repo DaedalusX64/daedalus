@@ -39,6 +39,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/MainWindow.h"
 #endif
 
+#ifdef DAEDALUS_OSX
+#include "SysOSX/Debug/WebDebug.h"
+#endif
+
 #include "Utility/FramerateLimiter.h"
 #include "Utility/Synchroniser.h"
 #include "Utility/Profiler.h"
@@ -143,64 +147,62 @@ static void DisableConsole()
 SysEntityEntry SysInitTable[] =
 {
 #ifdef DAEDALUS_DEBUG_CONSOLE
-	{"DebugConsole", CDebugConsole::Create, CDebugConsole::Destroy},
+	{"DebugConsole",		CDebugConsole::Create,		CDebugConsole::Destroy},
 #endif
 #ifdef DAEDALUS_LOG
-	{"Logger", Debug_InitLogging,Debug_FinishLogging},
+	{"Logger",				Debug_InitLogging,			Debug_FinishLogging},
 #endif
 #ifdef DAEDALUS_ENABLE_PROFILING
-	{"Profiler", CProfiler::Create, CProfiler::Destroy},
+	{"Profiler",			CProfiler::Create,			CProfiler::Destroy},
 #endif
-	{"ROM Database", CRomDB::Create, CRomDB::Destroy},
-	{"ROM Settings", CRomSettingsDB::Create, CRomSettingsDB::Destroy},
-	{"InputManager", CInputManager::Create, CInputManager::Destroy},
-	{"Language", 	 Translate_Init, NULL},
-	{"Preference", CPreferences::Create, CPreferences::Destroy},
-	{"Memory", Memory_Init, Memory_Fini},
+	{"ROM Database",		CRomDB::Create,				CRomDB::Destroy},
+	{"ROM Settings",		CRomSettingsDB::Create,		CRomSettingsDB::Destroy},
+	{"InputManager",		CInputManager::Create,		CInputManager::Destroy},
+	{"Language",			Translate_Init,				NULL},
+	{"Preference",			CPreferences::Create,		CPreferences::Destroy},
+	{"Memory",				Memory_Init,				Memory_Fini},
 #ifdef DAEDALUS_W32
-	{"Main Window", CMainWindow::Create, CMainWindow::Destroy},
-	{"Enable Debug Console", EnableConsole, DisableConsole},
+	{"Main Window",			CMainWindow::Create,		CMainWindow::Destroy},
+	{"Enable Debug Console", EnableConsole,				DisableConsole},
 #endif
-	{"Controller", CController::Create, CController::Destroy},
+	{"Controller",			CController::Create,		CController::Destroy},
 #ifdef DAEDALUS_PSP
-	{"VideoMemory", CVideoMemoryManager::Create, NULL},
+	{"VideoMemory",			CVideoMemoryManager::Create, NULL},
 #endif
-	{"RomBuffer", RomBuffer::Create, RomBuffer::Destroy},
+	{"RomBuffer",			RomBuffer::Create,			RomBuffer::Destroy},
 #if defined(DAEDALUS_PSP) || defined(DAEDALUS_OSX)
-	{"GraphicsContext", CGraphicsContext::Create, CGraphicsContext::Destroy},
+	{"GraphicsContext",		CGraphicsContext::Create,	CGraphicsContext::Destroy},
+#endif
+#ifdef DAEDALUS_OSX
+	{"WebDebug",			WebDebug_Init, 				WebDebug_Fini},
 #endif
 };
 
 RomEntityEntry RomInitTable[] =
 {
-	{"RomBuffer", RomBuffer::Open, RomBuffer::Close},
-	{"Settings", ROM_LoadFile, ROM_UnloadFile},
-	{"InputManager", CInputManager::Init, CInputManager::Fini},
-	{"Memory", Memory_Reset, Memory_Cleanup},
+	{"RomBuffer",			RomBuffer::Open, 		RomBuffer::Close},
+	{"Settings",			ROM_LoadFile,			ROM_UnloadFile},
+	{"InputManager",		CInputManager::Init,	CInputManager::Fini},
+	{"Memory",				Memory_Reset,			Memory_Cleanup},
 #ifdef DAEDALUS_W32
-	{"Main Window", CMainWindow::StartEmu, CMainWindow::StopEmu},
+	{"Main Window",			CMainWindow::StartEmu, CMainWindow::StopEmu},
 #endif
-	{"Audio", InitAudioPlugin, DisposeAudioPlugin },
-	{"Graphics", InitGraphicsPlugin, DisposeGraphicsPlugin},
-	{"FramerateLimiter", FramerateLimiter_Reset, NULL},
+	{"Audio",				InitAudioPlugin,		DisposeAudioPlugin },
+	{"Graphics",			InitGraphicsPlugin,		DisposeGraphicsPlugin},
+	{"FramerateLimiter",	FramerateLimiter_Reset,	NULL},
 	//{"RSP", RSP_Reset, NULL},
-	{"CPU", CPU_Reset, CPU_Finalise},
-	{"ROM", ROM_ReBoot, ROM_Unload},
-	{"Controller", CController::Reset, CController::RomClose},
-	{"Save", Save::Reset, Save::Fini},
+	{"CPU",					CPU_Reset,				CPU_Finalise},
+	{"ROM",					ROM_ReBoot,				ROM_Unload},
+	{"Controller",			CController::Reset,		CController::RomClose},
+	{"Save",				Save::Reset,			Save::Fini},
 #ifdef DAEDALUS_ENABLE_SYNCHRONISATION
-	{"CSynchroniser", CSynchroniser::InitialiseSynchroniser, CSynchroniser::Destroy},
+	{"CSynchroniser",		CSynchroniser::InitialiseSynchroniser, CSynchroniser::Destroy},
 #endif
 };
 
-
-static const int nSysInitEntries = sizeof(SysInitTable) / sizeof(SysEntityEntry);
-static const int nRomInitEntries = sizeof(RomInitTable) / sizeof(RomEntityEntry);
-
-
 bool System_Init()
 {
-	for(int i = 0; i < nSysInitEntries; i++)
+	for(int i = 0; i < ARRAYSIZE(SysInitTable); i++)
 	{
 		if (SysInitTable[i].init == NULL)
 			continue;
@@ -222,7 +224,7 @@ bool System_Init()
 void System_Open(const char *romname)
 {
 	strcpy(g_ROM.szFileName, romname);
-	for(int i = 0; i < nRomInitEntries; i++)
+	for(int i = 0; i < ARRAYSIZE(RomInitTable); i++)
 	{
 		if (RomInitTable[i].open == NULL)
 			continue;
@@ -234,7 +236,7 @@ void System_Open(const char *romname)
 
 void System_Close()
 {
-	for(int i = nRomInitEntries - 1 ; i >= 0; i--)
+	for(int i = ARRAYSIZE(RomInitTable) - 1 ; i >= 0; i--)
 	{
 		if (RomInitTable[i].close == NULL)
 			continue;
@@ -246,7 +248,7 @@ void System_Close()
 
 void System_Finalize()
 {
-	for(int i = nSysInitEntries - 1; i >= 0; i--)
+	for(int i = ARRAYSIZE(SysInitTable) - 1; i >= 0; i--)
 	{
 		if (SysInitTable[i].final == NULL)
 			continue;
