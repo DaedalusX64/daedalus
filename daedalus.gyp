@@ -103,6 +103,7 @@
           'Source/Utility/ROMFileMemory.cpp',
           'Source/Utility/ROMFileUncompressed.cpp',
           'Source/Utility/Stream.cpp',
+          'Source/Utility/StringUtil.cpp',
           'Source/Utility/Synchroniser.cpp',
           'Source/Utility/Timer.cpp',
           'Source/Utility/Translate.cpp',

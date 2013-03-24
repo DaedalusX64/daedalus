@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Translate.h"
 #include "IO.h"
+#include "StringUtil.h"
 #include "VolatileMem.h"
 
 #include "SysPSP/Utility/PathsPSP.h"

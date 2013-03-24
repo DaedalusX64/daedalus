@@ -461,20 +461,18 @@ class CString
 		u32				mMaxLength;
 };
 
-inline char * Tidy(char * s)
+
+struct ConstStringRef
 {
-	if (s == NULL || *s == '\0')
-		return s;
+	ConstStringRef() : Begin(NULL), End(NULL) {}
+	explicit ConstStringRef(const char * str) : Begin(str), End(str+strlen(str)) {}
+	explicit ConstStringRef(const char * b, const char * e) : Begin(b), End(e) {}
 
-	char * p = s + strlen(s);
+	size_t size() const { return End - Begin; }
 
-	p--;
-	while (p >= s && (*p == ' ' || *p == '\r' || *p == '\n'))
-	{
-		*p = 0;
-		p--;
-	}
-	return s;
-}
+	const char *	Begin;
+	const char *	End;
+};
+
 
 #endif //#DAEDALUS_STRING_H__
