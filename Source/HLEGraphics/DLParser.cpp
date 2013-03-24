@@ -915,9 +915,6 @@ void DLParser_TexRect( MicroCodeCommand command )
 	MicroCodeCommand command2;
 	MicroCodeCommand command3;
 
-	//
-	// Fetch the next two instructions
-	//
 	DLParser_FetchNextCommand( &command2 );
 	DLParser_FetchNextCommand( &command3 );
 
@@ -926,6 +923,8 @@ void DLParser_TexRect( MicroCodeCommand command )
 	tex_rect.cmd1 = command.inst.cmd1;
 	tex_rect.cmd2 = command2.inst.cmd1;
 	tex_rect.cmd3 = command3.inst.cmd1;
+
+	DAEDALUS_DL_ASSERT(gRDPOtherMode.cycle_type != CYCLE_COPY || tex_rect.dsdx == (4<<10), "Expecting dsdx of 4<<10 in copy mode, got %d", tex_rect.dsdx);
 
 	// NB: In FILL and COPY mode, rectangles are scissored to the nearest four pixel boundary.
 	// This isn't currently handled, but I don't know of any games that depend on it.
@@ -953,10 +952,9 @@ void DLParser_TexRect( MicroCodeCommand command )
 	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
 	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
 	v2 xy1;
-	v2 uv0( tex_rect.s / 32.0f, (tex_rect.dtdy < 0 ? tex_rect.t + 32 : tex_rect.t) / 32.0f );	//Fixes California Speed
+	v2 uv0( (tex_rect.s + (tex_rect.dsdx < 0 ? 32 : 0)) / 32.0f,
+			(tex_rect.t + (tex_rect.dtdy < 0 ? 32 : 0)) / 32.0f );	//Fixes California Speed
 	v2 uv1;
-
-	DAEDALUS_DL_ASSERT(d.x > 0, "Negative or zero dsdx in TexRect (%f). UVs might be off.", d.x);
 
 	//
 	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
@@ -992,9 +990,6 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	MicroCodeCommand command2;
 	MicroCodeCommand command3;
 
-	//
-	// Fetch the next two instructions
-	//
 	DLParser_FetchNextCommand( &command2 );
 	DLParser_FetchNextCommand( &command3 );
 
@@ -1004,14 +999,14 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	tex_rect.cmd2 = command2.inst.cmd1;
 	tex_rect.cmd3 = command3.inst.cmd1;
 
+	DAEDALUS_DL_ASSERT(gRDPOtherMode.cycle_type != CYCLE_COPY || tex_rect.dsdx == (4<<10), "Expecting dsdx of 4<<10 in copy mode, got %d", tex_rect.dsdx);
+
 	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
 	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
 	v2 xy1;
-	v2 uv0( tex_rect.s / 32.0f, (tex_rect.dtdy < 0 ? tex_rect.t + 32 : tex_rect.t) / 32.0f );	//Fixes California Speed
+	v2 uv0( (tex_rect.s + (tex_rect.dsdx < 0 ? 32 : 0)) / 32.0f,	// For Wetrix
+			(tex_rect.t + (tex_rect.dtdy < 0 ? 32 : 0)) / 32.0f );	// For Wetrix
 	v2 uv1;
-
-	DAEDALUS_DL_ASSERT(d.x > 0, "Negative or zero dsdx (%f) in TexRectFlip. UVs might be off.", d.x);
-	DAEDALUS_DL_ASSERT(d.y > 0, "Negative or zero dtdy (%f) in TexRectFlip. UVs might be off.", d.y);
 
 	//
 	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
