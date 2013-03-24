@@ -107,8 +107,8 @@ void WebDebugConnection::EndResponse()
 {
 	DAEDALUS_ASSERT(mState == kResponding, "Should be in Responding state");
 	WebbyEndResponse(mConnection);
+	mState = kResponded;
 }
-
 
 static int WebDebugDispatch(struct WebbyConnection *connection)
 {
