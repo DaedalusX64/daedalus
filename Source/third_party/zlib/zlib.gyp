@@ -3,6 +3,13 @@
     {
       'target_name': 'zlib',
       'type': 'static_library',
+      'xcode_settings': {
+        'OTHER_CFLAGS': [
+          #'-Werror',
+          '-O3',
+          '-g'
+        ],
+      },
       'sources': [
         'adler32.c',
         'compress.c',
@@ -42,6 +49,13 @@
     }, {
       'target_name': 'minizip',
       'type': 'static_library',
+      'xcode_settings': {
+        'OTHER_CFLAGS': [
+          #'-Werror',
+          '-O3',
+          '-g'
+        ],
+      },
       'sources': [
         'contrib/minizip/ioapi.c',
         'contrib/minizip/ioapi.h',

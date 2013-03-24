@@ -6,7 +6,9 @@
         'xcode_settings': {
           'OTHER_CFLAGS': [
             '-Werror',
-            '-Wformat=0'
+            '-Wformat=0',
+            '-O4',
+            '-g'
           ],
         },
         'dependencies': [
