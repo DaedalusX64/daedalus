@@ -221,6 +221,7 @@ public:
 	inline void			SetPrimitiveDepth( u32 z )				{ mPrimDepth = (f32)( ( ( 32767 - z ) << 1) + 1 ); }
 #else
 	inline void			SetPrimitiveDepth( u32 z )				{ mPrimDepth = (f32)(z)/(f32)0x8000; }
+#endif
 	inline void			SetPrimitiveLODFraction( f32 f )		{ mPrimLODFraction = f; }
 	inline void			SetPrimitiveColour( c32 colour )		{ mPrimitiveColour = colour; }
 	inline void			SetEnvColour( c32 colour )				{ mEnvColour = colour; }
