@@ -465,6 +465,9 @@ void RendererOSX::RestoreRenderStates()
 	glShadeModel(GL_SMOOTH);
 
 	//glFog(near,far,mFogColour);
+
+	// Enable this for rendering decals (glPolygonOffset).
+	glEnable(GL_POLYGON_OFFSET_FILL);
 }
 
 // Strip out vertex stream into separate buffers.
@@ -622,13 +625,12 @@ static void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 			glEnable(GL_BLEND);
 		}
 		break;
-	}
+	}*/
 }
+
 
 void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer, bool identity_uv_transform)
 {
-	static bool	ZFightingEnabled = false;
-
 	DAEDALUS_PROFILE( "RendererOSX::PrepareRenderState" );
 
 	if ( disable_zbuffer )
@@ -638,21 +640,14 @@ void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disabl
 	}
 	else
 	{
-		// Fixes Zfighting issues we have on the PSP.
+		// Decal mode
 		if( gRDPOtherMode.zmode == 3 )
 		{
-			if( !ZFightingEnabled )
-			{
-				ZFightingEnabled = true;
-				//FIXME
-				//glDepthRange(65535 / 65536.f, 80 / 65536.f);
-			}
+			glPolygonOffset(-1.0, -1.0);
 		}
-		else if( ZFightingEnabled )
+		else
 		{
-			ZFightingEnabled = false;
-			//FIXME
-			//glDepthRange(65535 / 65536.f, 0 / 65536.f);
+			glPolygonOffset(0.0, 0.0);
 		}
 
 		// Enable or Disable ZBuffer test
