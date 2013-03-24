@@ -106,6 +106,7 @@ extern void DLDebugger_RequestDebug();
 
 void		DLDebug_HandleDumpDisplayList(OSTask * pTask);
 void		DLDebug_DumpMux(u64 mux);
+void		DLDebug_PrintMux( FILE * fh, u64 mux );
 void		DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode);
 void		DLDebug_DumpNextDisplayList();
 

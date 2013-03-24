@@ -247,7 +247,7 @@ static const char * kAlphaParams8[8] = {
 	"one.a",      "zero.a"
 };
 
-static void PrintMux(char (&body)[1024], u64 mux, u32 cycle_type, u32 alpha_threshold)
+static void SprintMux(char (&body)[1024], u64 mux, u32 cycle_type, u32 alpha_threshold)
 {
 	u32 mux0 = (u32)(mux>>32);
 	u32 mux1 = (u32)(mux);
@@ -411,7 +411,7 @@ static ShaderProgram * GetShaderForCurrentMode(u64 mux, u32 cycle_type, u32 alph
 	}
 
 	char body[1024];
-	PrintMux(body, mux, cycle_type, alpha_threshold);
+	SprintMux(body, mux, cycle_type, alpha_threshold);
 
 	char frag_shader[2048];
 	sprintf(frag_shader, default_fragment_shader_fmt, body);

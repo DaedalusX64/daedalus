@@ -35,8 +35,6 @@ extern void InitBlenderMode( u32 blender );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 
-extern void PrintMux( FILE * fh, u64 mux );
-
 // General blender used for Blend Explorer when debuging Dlists //Corn
 DebugBlendSettings gDBlend;
 
@@ -1170,7 +1168,7 @@ void RendererPSP::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertice
 			FILE * fh( fopen(szFilePath, mUnhandledCombinerStates.empty() ? "w" : "a") );
 			if(fh != NULL)
 			{
-				PrintMux( fh, mux );
+				DLDebug_PrintMux( fh, mux );
 				fclose(fh);
 			}
 

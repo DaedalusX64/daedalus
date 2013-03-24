@@ -60,7 +60,6 @@ using std::sort;
 //
 //*****************************************************************************
 extern float	TEST_VARX, TEST_VARY;
-extern void		PrintMux( FILE * fh, u64 mux );
 extern DebugBlendSettings gDBlend;
 
 //*****************************************************************************
@@ -261,7 +260,7 @@ void CCombinerExplorerDebugMenuOption::Display() const
 
 	if( selected_mux != 0 )
 	{
-		PrintMux( stdout, selected_mux );
+		DLDebug_PrintMux( stdout, selected_mux );
 
 		RendererPSP::SBlendStateEntry entry1( gRendererPSP->LookupBlendState( selected_mux, false ) );
 		if( entry1.OverrideFunction != NULL )

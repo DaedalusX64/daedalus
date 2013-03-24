@@ -17,39 +17,75 @@ static bool 		gDumpNextDisplayList 		= false;
 static const char *	gDisplayListRootPath 		= "DisplayLists";
 static const char *	gDisplayListDumpPathFormat 	= "dl%04d.txt";
 
-static const char * const sc_colcombtypes32[32] =
+static const char * const kMulInputRGB[32] =
 {
 	"Combined    ", "Texel0      ",
 	"Texel1      ", "Primitive   ",
 	"Shade       ", "Env         ",
-	"1           ", "CombAlp     ",
-	"Texel0_Alp  ", "Texel1_Alp  ",
+	"KeyScale    ", "CombinedAlph",
+	"Texel0_Alpha", "Texel1_Alpha",
 	"Prim_Alpha  ", "Shade_Alpha ",
 	"Env_Alpha   ", "LOD_Frac    ",
 	"PrimLODFrac ", "K5          ",
-	"?           ", "?           ",
-	"?           ", "?           ",
-	"?           ", "?           ",
-	"?           ", "?           ",
-	"?           ", "?           ",
-	"?           ", "?           ",
-	"?           ", "?           ",
-	"?           ",	"0           "
+	"0           ", "0           ",
+	"0           ", "0           ",
+	"0           ", "0           ",
+	"0           ", "0           ",
+	"0           ", "0           ",
+	"0           ", "0           ",
+	"0           ", "0           ",
+	"0           ",	"0           "
 };
 
-static const char * const sc_colcombtypes16[16] =
+static const char * const kSubAInputRGB[16] =
 {
 	"Combined    ", "Texel0      ",
 	"Texel1      ", "Primitive   ",
 	"Shade       ", "Env         ",
-	"1           ", "CombAlp     ",
-	"Texel0_Alp  ", "Texel1_Alp  ",
-	"Prim_Alp    ", "Shade_Alpha ",
-	"Env_Alpha   ", "LOD_Frac    ",
-	"PrimLOD_Frac", "0           "
+	"1           ", "Noise       ",
+	"0           ", "0           ",
+	"0           ", "0           ",
+	"0           ", "0           ",
+	"0           ", "0           ",
 };
 
-static const char * const sc_colcombtypes8[8] =
+static const char * const kSubBInputRGB[16] =
+{
+	"Combined    ", "Texel0      ",
+	"Texel1      ", "Primitive   ",
+	"Shade       ", "Env         ",
+	"KeyCenter   ", "K4          ",
+	"0           ", "0           ",
+	"0           ", "0           ",
+	"0           ", "0           ",
+	"0           ", "0           ",
+};
+
+static const char * const kAddInputRGB[8] =
+{
+	"Combined    ", "Texel0      ",
+	"Texel1      ", "Primitive   ",
+	"Shade       ", "Env         ",
+	"1           ", "0           ",
+};
+
+static const char * const kSubInputAlpha[8] =
+{
+	"Combined    ", "Texel0      ",
+	"Texel1      ", "Primitive   ",
+	"Shade       ", "Env         ",
+	"1           ", "0           ",
+};
+
+static const char * const kMulInputAlpha[8] =
+{
+	"LOD_Frac    ", "Texel0      ",
+	"Texel1      ", "Primitive   ",
+	"Shade       ", "Env         ",
+	"PrimLOD_Frac", "0           ",
+};
+
+static const char * const kAddInputAlpha[8] =
 {
 	"Combined    ", "Texel0      ",
 	"Texel1      ", "Primitive   ",
@@ -85,467 +121,48 @@ void DLDebug_DumpMux( u64 mux )
 
 	DL_PF("    Mux: 0x%08x%08x", mux0, mux1);
 
-	DL_PF("    RGB0: (%s - %s) * %s + %s", sc_colcombtypes16[aRGB0], sc_colcombtypes16[bRGB0], sc_colcombtypes32[cRGB0], sc_colcombtypes8[dRGB0]);
-	DL_PF("    A0  : (%s - %s) * %s + %s", sc_colcombtypes8[aA0], sc_colcombtypes8[bA0], sc_colcombtypes8[cA0], sc_colcombtypes8[dA0]);
-	DL_PF("    RGB1: (%s - %s) * %s + %s", sc_colcombtypes16[aRGB1], sc_colcombtypes16[bRGB1], sc_colcombtypes32[cRGB1], sc_colcombtypes8[dRGB1]);
-	DL_PF("    A1  : (%s - %s) * %s + %s", sc_colcombtypes8[aA1],  sc_colcombtypes8[bA1], sc_colcombtypes8[cA1],  sc_colcombtypes8[dA1]);
+	DL_PF("    RGB0: (%s - %s) * %s + %s", kSubAInputRGB[aRGB0], kSubBInputRGB[bRGB0], kMulInputRGB[cRGB0], kAddInputRGB[dRGB0]);
+	DL_PF("    A0  : (%s - %s) * %s + %s", kSubInputAlpha[aA0],  kSubInputAlpha[bA0],  kMulInputAlpha[cA0], kAddInputAlpha[dA0]);
+	DL_PF("    RGB1: (%s - %s) * %s + %s", kSubAInputRGB[aRGB1], kSubBInputRGB[bRGB1], kMulInputRGB[cRGB1], kAddInputRGB[dRGB1]);
+	DL_PF("    A1  : (%s - %s) * %s + %s", kSubInputAlpha[aA1],  kSubInputAlpha[bA1],  kMulInputAlpha[cA1], kAddInputAlpha[dA1]);
 }
 
-static const char * sc_szBlClr[4] = { "In",  "Mem",  "Bl",     "Fog" };
-static const char * sc_szBlA1[4]  = { "AIn", "AFog", "AShade", "0" };
-static const char * sc_szBlA2[4]  = { "1-A", "AMem", "1",      "?" };
-
-#define	G_BL_CLR_IN	0
-#define	G_BL_CLR_MEM	1
-#define	G_BL_CLR_BL	2
-#define	G_BL_CLR_FOG	3
-#define	G_BL_1MA	0
-#define	G_BL_A_MEM	1
-#define	G_BL_A_IN	0
-#define	G_BL_A_FOG	1
-#define	G_BL_A_SHADE	2
-#define	G_BL_1		2
-#define	G_BL_0		3
-
-#define	GBL_c1(m1a, m1b, m2a, m2b)	\
-	(m1a) << 30 | (m1b) << 26 | (m2a) << 22 | (m2b) << 18
-#define	GBL_c2(m1a, m1b, m2a, m2b)	\
-	(m1a) << 28 | (m1b) << 24 | (m2a) << 20 | (m2b) << 16
-
-#define	RM_AA_ZB_OPA_SURF(clk)					\
-	AA_EN | Z_CMP | Z_UPD | IM_RD | CVG_DST_CLAMP |		\
-	ZMODE_OPA | ALPHA_CVG_SEL |				\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)
-
-#define	RM_RA_ZB_OPA_SURF(clk)					\
-	AA_EN | Z_CMP | Z_UPD | CVG_DST_CLAMP |			\
-	ZMODE_OPA | ALPHA_CVG_SEL |				\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)
-
-#define	RM_AA_ZB_XLU_SURF(clk)					\
-	AA_EN | Z_CMP | IM_RD | CVG_DST_WRAP | CLR_ON_CVG |	\
-	FORCE_BL | ZMODE_XLU |					\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_AA_ZB_OPA_DECAL(clk)					\
-	AA_EN | Z_CMP | IM_RD | CVG_DST_WRAP | ALPHA_CVG_SEL |	\
-	ZMODE_DEC |						\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)
-
-#define	RM_RA_ZB_OPA_DECAL(clk)					\
-	AA_EN | Z_CMP | CVG_DST_WRAP | ALPHA_CVG_SEL |		\
-	ZMODE_DEC |						\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)
-
-#define	RM_AA_ZB_XLU_DECAL(clk)					\
-	AA_EN | Z_CMP | IM_RD | CVG_DST_WRAP | CLR_ON_CVG |	\
-	FORCE_BL | ZMODE_DEC |					\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_AA_ZB_OPA_INTER(clk)					\
-	AA_EN | Z_CMP | Z_UPD | IM_RD | CVG_DST_CLAMP |		\
-	ALPHA_CVG_SEL |	ZMODE_INTER |				\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)
-
-#define	RM_RA_ZB_OPA_INTER(clk)					\
-	AA_EN | Z_CMP | Z_UPD | CVG_DST_CLAMP |			\
-	ALPHA_CVG_SEL |	ZMODE_INTER |				\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)
-
-#define	RM_AA_ZB_XLU_INTER(clk)					\
-	AA_EN | Z_CMP | IM_RD | CVG_DST_WRAP | CLR_ON_CVG |	\
-	FORCE_BL | ZMODE_INTER |				\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_AA_ZB_XLU_LINE(clk)					\
-	AA_EN | Z_CMP | IM_RD | CVG_DST_CLAMP | CVG_X_ALPHA |	\
-	ALPHA_CVG_SEL | FORCE_BL | ZMODE_XLU |			\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_AA_ZB_DEC_LINE(clk)					\
-	AA_EN | Z_CMP | IM_RD | CVG_DST_SAVE | CVG_X_ALPHA |	\
-	ALPHA_CVG_SEL | FORCE_BL | ZMODE_DEC |			\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_AA_ZB_TEX_EDGE(clk)					\
-	AA_EN | Z_CMP | Z_UPD | IM_RD | CVG_DST_CLAMP |		\
-	CVG_X_ALPHA | ALPHA_CVG_SEL | ZMODE_OPA | TEX_EDGE |	\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)
-
-#define	RM_AA_ZB_TEX_INTER(clk)					\
-	AA_EN | Z_CMP | Z_UPD | IM_RD | CVG_DST_CLAMP |		\
-	CVG_X_ALPHA | ALPHA_CVG_SEL | ZMODE_INTER | TEX_EDGE |	\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)
-
-#define	RM_AA_ZB_SUB_SURF(clk)					\
-	AA_EN | Z_CMP | Z_UPD | IM_RD | CVG_DST_FULL |		\
-	ZMODE_OPA | ALPHA_CVG_SEL |				\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)
-
-#define	RM_AA_ZB_PCL_SURF(clk)					\
-	AA_EN | Z_CMP | Z_UPD | IM_RD | CVG_DST_CLAMP |		\
-	ZMODE_OPA | G_AC_DITHER | 				\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_AA_ZB_OPA_TERR(clk)					\
-	AA_EN | Z_CMP | Z_UPD | IM_RD | CVG_DST_CLAMP |		\
-	ZMODE_OPA | ALPHA_CVG_SEL |				\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_AA_ZB_TEX_TERR(clk)					\
-	AA_EN | Z_CMP | Z_UPD | IM_RD | CVG_DST_CLAMP |		\
-	CVG_X_ALPHA | ALPHA_CVG_SEL | ZMODE_OPA | TEX_EDGE |	\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_AA_ZB_SUB_TERR(clk)					\
-	AA_EN | Z_CMP | Z_UPD | IM_RD | CVG_DST_FULL |		\
-	ZMODE_OPA | ALPHA_CVG_SEL |				\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-
-#define	RM_AA_OPA_SURF(clk)					\
-	AA_EN | IM_RD | CVG_DST_CLAMP |				\
-	ZMODE_OPA | ALPHA_CVG_SEL |				\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)
-
-#define	RM_RA_OPA_SURF(clk)					\
-	AA_EN | CVG_DST_CLAMP |				\
-	ZMODE_OPA | ALPHA_CVG_SEL |				\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)
-
-#define	RM_AA_XLU_SURF(clk)					\
-	AA_EN | IM_RD | CVG_DST_WRAP | CLR_ON_CVG | FORCE_BL |	\
-	ZMODE_OPA |						\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_AA_XLU_LINE(clk)					\
-	AA_EN | IM_RD | CVG_DST_CLAMP | CVG_X_ALPHA |		\
-	ALPHA_CVG_SEL | FORCE_BL | ZMODE_OPA |			\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_AA_DEC_LINE(clk)					\
-	AA_EN | IM_RD | CVG_DST_FULL | CVG_X_ALPHA |		\
-	ALPHA_CVG_SEL | FORCE_BL | ZMODE_OPA |			\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_AA_TEX_EDGE(clk)					\
-	AA_EN | IM_RD | CVG_DST_CLAMP |				\
-	CVG_X_ALPHA | ALPHA_CVG_SEL | ZMODE_OPA | TEX_EDGE |	\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)
-
-#define	RM_AA_SUB_SURF(clk)					\
-	AA_EN | IM_RD | CVG_DST_FULL |				\
-	ZMODE_OPA | ALPHA_CVG_SEL |				\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)
-
-#define	RM_AA_PCL_SURF(clk)					\
-	AA_EN | IM_RD | CVG_DST_CLAMP |				\
-	ZMODE_OPA | G_AC_DITHER | 				\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_AA_OPA_TERR(clk)					\
-	AA_EN | IM_RD | CVG_DST_CLAMP |				\
-	ZMODE_OPA | ALPHA_CVG_SEL |				\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_AA_TEX_TERR(clk)					\
-	AA_EN | IM_RD | CVG_DST_CLAMP |				\
-	CVG_X_ALPHA | ALPHA_CVG_SEL | ZMODE_OPA | TEX_EDGE |	\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_AA_SUB_TERR(clk)					\
-	AA_EN | IM_RD | CVG_DST_FULL |				\
-	ZMODE_OPA | ALPHA_CVG_SEL |				\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-
-#define	RM_ZB_OPA_SURF(clk)					\
-	Z_CMP | Z_UPD | CVG_DST_FULL | ALPHA_CVG_SEL |		\
-	ZMODE_OPA |						\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)
-
-#define	RM_ZB_XLU_SURF(clk)					\
-	Z_CMP | IM_RD | CVG_DST_FULL | FORCE_BL | ZMODE_XLU |	\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_ZB_OPA_DECAL(clk)					\
-	Z_CMP | CVG_DST_FULL | ALPHA_CVG_SEL | ZMODE_DEC |	\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_A_MEM)
-
-#define	RM_ZB_XLU_DECAL(clk)					\
-	Z_CMP | IM_RD | CVG_DST_FULL | FORCE_BL | ZMODE_DEC |	\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_ZB_CLD_SURF(clk)					\
-	Z_CMP | IM_RD | CVG_DST_SAVE | FORCE_BL | ZMODE_XLU |	\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_ZB_OVL_SURF(clk)					\
-	Z_CMP | IM_RD | CVG_DST_SAVE | FORCE_BL | ZMODE_DEC |	\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_ZB_PCL_SURF(clk)					\
-	Z_CMP | Z_UPD | CVG_DST_FULL | ZMODE_OPA |		\
-	G_AC_DITHER | 						\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_0, G_BL_CLR_IN, G_BL_1)
-
-
-#define	RM_OPA_SURF(clk)					\
-	CVG_DST_CLAMP | FORCE_BL | ZMODE_OPA |			\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_0, G_BL_CLR_IN, G_BL_1)
-
-#define	RM_XLU_SURF(clk)					\
-	IM_RD | CVG_DST_FULL | FORCE_BL | ZMODE_OPA |		\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_TEX_EDGE(clk)					\
-	CVG_DST_CLAMP | CVG_X_ALPHA | ALPHA_CVG_SEL | FORCE_BL |\
-	ZMODE_OPA | TEX_EDGE | AA_EN |					\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_0, G_BL_CLR_IN, G_BL_1)
-
-#define	RM_CLD_SURF(clk)					\
-	IM_RD | CVG_DST_SAVE | FORCE_BL | ZMODE_OPA |		\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)
-
-#define	RM_PCL_SURF(clk)					\
-	CVG_DST_FULL | FORCE_BL | ZMODE_OPA | 			\
-	G_AC_DITHER | 						\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_0, G_BL_CLR_IN, G_BL_1)
-
-#define	RM_ADD(clk)					\
-	IM_RD | CVG_DST_SAVE | FORCE_BL | ZMODE_OPA |	\
-	GBL_c##clk(G_BL_CLR_IN, G_BL_A_FOG, G_BL_CLR_MEM, G_BL_1)
-
-#define	RM_NOOP(clk)	\
-	GBL_c##clk(0, 0, 0, 0)
-
-#define RM_VISCVG(clk) \
-	IM_RD | FORCE_BL |     \
-	GBL_c##clk(G_BL_CLR_IN, G_BL_0, G_BL_CLR_BL, G_BL_A_MEM)
-
-/* for rendering to an 8-bit framebuffer */
-#define RM_OPA_CI(clk)                    \
-	CVG_DST_CLAMP | ZMODE_OPA |          \
-	GBL_c##clk(G_BL_CLR_IN, G_BL_0, G_BL_CLR_IN, G_BL_1)
-
-
-
-#define	G_RM_AA_ZB_OPA_SURF	RM_AA_ZB_OPA_SURF(1)
-#define	G_RM_AA_ZB_OPA_SURF2	RM_AA_ZB_OPA_SURF(2)
-#define	G_RM_AA_ZB_XLU_SURF	RM_AA_ZB_XLU_SURF(1)
-#define	G_RM_AA_ZB_XLU_SURF2	RM_AA_ZB_XLU_SURF(2)
-#define	G_RM_AA_ZB_OPA_DECAL	RM_AA_ZB_OPA_DECAL(1)
-#define	G_RM_AA_ZB_OPA_DECAL2	RM_AA_ZB_OPA_DECAL(2)
-#define	G_RM_AA_ZB_XLU_DECAL	RM_AA_ZB_XLU_DECAL(1)
-#define	G_RM_AA_ZB_XLU_DECAL2	RM_AA_ZB_XLU_DECAL(2)
-#define	G_RM_AA_ZB_OPA_INTER	RM_AA_ZB_OPA_INTER(1)
-#define	G_RM_AA_ZB_OPA_INTER2	RM_AA_ZB_OPA_INTER(2)
-#define	G_RM_AA_ZB_XLU_INTER	RM_AA_ZB_XLU_INTER(1)
-#define	G_RM_AA_ZB_XLU_INTER2	RM_AA_ZB_XLU_INTER(2)
-#define	G_RM_AA_ZB_XLU_LINE	RM_AA_ZB_XLU_LINE(1)
-#define	G_RM_AA_ZB_XLU_LINE2	RM_AA_ZB_XLU_LINE(2)
-#define	G_RM_AA_ZB_DEC_LINE	RM_AA_ZB_DEC_LINE(1)
-#define	G_RM_AA_ZB_DEC_LINE2	RM_AA_ZB_DEC_LINE(2)
-#define	G_RM_AA_ZB_TEX_EDGE	RM_AA_ZB_TEX_EDGE(1)
-#define	G_RM_AA_ZB_TEX_EDGE2	RM_AA_ZB_TEX_EDGE(2)
-#define	G_RM_AA_ZB_TEX_INTER	RM_AA_ZB_TEX_INTER(1)
-#define	G_RM_AA_ZB_TEX_INTER2	RM_AA_ZB_TEX_INTER(2)
-#define	G_RM_AA_ZB_SUB_SURF	RM_AA_ZB_SUB_SURF(1)
-#define	G_RM_AA_ZB_SUB_SURF2	RM_AA_ZB_SUB_SURF(2)
-#define	G_RM_AA_ZB_PCL_SURF	RM_AA_ZB_PCL_SURF(1)
-#define	G_RM_AA_ZB_PCL_SURF2	RM_AA_ZB_PCL_SURF(2)
-#define	G_RM_AA_ZB_OPA_TERR	RM_AA_ZB_OPA_TERR(1)
-#define	G_RM_AA_ZB_OPA_TERR2	RM_AA_ZB_OPA_TERR(2)
-#define	G_RM_AA_ZB_TEX_TERR	RM_AA_ZB_TEX_TERR(1)
-#define	G_RM_AA_ZB_TEX_TERR2	RM_AA_ZB_TEX_TERR(2)
-#define	G_RM_AA_ZB_SUB_TERR	RM_AA_ZB_SUB_TERR(1)
-#define	G_RM_AA_ZB_SUB_TERR2	RM_AA_ZB_SUB_TERR(2)
-
-#define	G_RM_RA_ZB_OPA_SURF	RM_RA_ZB_OPA_SURF(1)
-#define	G_RM_RA_ZB_OPA_SURF2	RM_RA_ZB_OPA_SURF(2)
-#define	G_RM_RA_ZB_OPA_DECAL	RM_RA_ZB_OPA_DECAL(1)
-#define	G_RM_RA_ZB_OPA_DECAL2	RM_RA_ZB_OPA_DECAL(2)
-#define	G_RM_RA_ZB_OPA_INTER	RM_RA_ZB_OPA_INTER(1)
-#define	G_RM_RA_ZB_OPA_INTER2	RM_RA_ZB_OPA_INTER(2)
-
-#define	G_RM_AA_OPA_SURF	RM_AA_OPA_SURF(1)
-#define	G_RM_AA_OPA_SURF2	RM_AA_OPA_SURF(2)
-#define	G_RM_AA_XLU_SURF	RM_AA_XLU_SURF(1)
-#define	G_RM_AA_XLU_SURF2	RM_AA_XLU_SURF(2)
-#define	G_RM_AA_XLU_LINE	RM_AA_XLU_LINE(1)
-#define	G_RM_AA_XLU_LINE2	RM_AA_XLU_LINE(2)
-#define	G_RM_AA_DEC_LINE	RM_AA_DEC_LINE(1)
-#define	G_RM_AA_DEC_LINE2	RM_AA_DEC_LINE(2)
-#define	G_RM_AA_TEX_EDGE	RM_AA_TEX_EDGE(1)
-#define	G_RM_AA_TEX_EDGE2	RM_AA_TEX_EDGE(2)
-#define	G_RM_AA_SUB_SURF	RM_AA_SUB_SURF(1)
-#define	G_RM_AA_SUB_SURF2	RM_AA_SUB_SURF(2)
-#define	G_RM_AA_PCL_SURF	RM_AA_PCL_SURF(1)
-#define	G_RM_AA_PCL_SURF2	RM_AA_PCL_SURF(2)
-#define	G_RM_AA_OPA_TERR	RM_AA_OPA_TERR(1)
-#define	G_RM_AA_OPA_TERR2	RM_AA_OPA_TERR(2)
-#define	G_RM_AA_TEX_TERR	RM_AA_TEX_TERR(1)
-#define	G_RM_AA_TEX_TERR2	RM_AA_TEX_TERR(2)
-#define	G_RM_AA_SUB_TERR	RM_AA_SUB_TERR(1)
-#define	G_RM_AA_SUB_TERR2	RM_AA_SUB_TERR(2)
-
-#define	G_RM_RA_OPA_SURF	RM_RA_OPA_SURF(1)
-#define	G_RM_RA_OPA_SURF2	RM_RA_OPA_SURF(2)
-
-#define	G_RM_ZB_OPA_SURF	RM_ZB_OPA_SURF(1)
-#define	G_RM_ZB_OPA_SURF2	RM_ZB_OPA_SURF(2)
-#define	G_RM_ZB_XLU_SURF	RM_ZB_XLU_SURF(1)
-#define	G_RM_ZB_XLU_SURF2	RM_ZB_XLU_SURF(2)
-#define	G_RM_ZB_OPA_DECAL	RM_ZB_OPA_DECAL(1)
-#define	G_RM_ZB_OPA_DECAL2	RM_ZB_OPA_DECAL(2)
-#define	G_RM_ZB_XLU_DECAL	RM_ZB_XLU_DECAL(1)
-#define	G_RM_ZB_XLU_DECAL2	RM_ZB_XLU_DECAL(2)
-#define	G_RM_ZB_CLD_SURF	RM_ZB_CLD_SURF(1)
-#define	G_RM_ZB_CLD_SURF2	RM_ZB_CLD_SURF(2)
-#define	G_RM_ZB_OVL_SURF	RM_ZB_OVL_SURF(1)
-#define	G_RM_ZB_OVL_SURF2	RM_ZB_OVL_SURF(2)
-#define	G_RM_ZB_PCL_SURF	RM_ZB_PCL_SURF(1)
-#define	G_RM_ZB_PCL_SURF2	RM_ZB_PCL_SURF(2)
-
-#define	G_RM_OPA_SURF		RM_OPA_SURF(1)
-#define	G_RM_OPA_SURF2		RM_OPA_SURF(2)
-#define	G_RM_XLU_SURF		RM_XLU_SURF(1)
-#define	G_RM_XLU_SURF2		RM_XLU_SURF(2)
-#define	G_RM_CLD_SURF		RM_CLD_SURF(1)
-#define	G_RM_CLD_SURF2		RM_CLD_SURF(2)
-#define	G_RM_TEX_EDGE		RM_TEX_EDGE(1)
-#define	G_RM_TEX_EDGE2		RM_TEX_EDGE(2)
-#define	G_RM_PCL_SURF		RM_PCL_SURF(1)
-#define	G_RM_PCL_SURF2		RM_PCL_SURF(2)
-#define G_RM_ADD       		RM_ADD(1)
-#define G_RM_ADD2      		RM_ADD(2)
-#define G_RM_NOOP       	RM_NOOP(1)
-#define G_RM_NOOP2      	RM_NOOP(2)
-#define G_RM_VISCVG    		RM_VISCVG(1)
-#define G_RM_VISCVG2    	RM_VISCVG(2)
-#define G_RM_OPA_CI         RM_OPA_CI(1)
-#define G_RM_OPA_CI2        RM_OPA_CI(2)
-
-
-#define	G_RM_FOG_SHADE_A	GBL_c1(G_BL_CLR_FOG, G_BL_A_SHADE, G_BL_CLR_IN, G_BL_1MA)
-#define	G_RM_FOG_PRIM_A		GBL_c1(G_BL_CLR_FOG, G_BL_A_FOG, G_BL_CLR_IN, G_BL_1MA)
-#define	G_RM_PASS		GBL_c1(G_BL_CLR_IN, G_BL_0, G_BL_CLR_IN, G_BL_1)
-
-
-const char *	GetBlenderModeDescription( u32 mode )
+void DLDebug_PrintMux( FILE * fh, u64 mux )
 {
-	switch ( mode & ~3 )
-	{
-		case G_RM_AA_ZB_OPA_SURF:			return "G_RM_AA_ZB_OPA_SURF";
-		case G_RM_AA_ZB_OPA_SURF2:			return "G_RM_AA_ZB_OPA_SURF2";
-		case G_RM_AA_ZB_XLU_SURF:			return "G_RM_AA_ZB_XLU_SURF";
-		case G_RM_AA_ZB_XLU_SURF2:			return "G_RM_AA_ZB_XLU_SURF2";
-		case G_RM_AA_ZB_OPA_DECAL:			return "G_RM_AA_ZB_OPA_DECAL";
-		case G_RM_AA_ZB_OPA_DECAL2:			return "G_RM_AA_ZB_OPA_DECAL2";
-		case G_RM_AA_ZB_XLU_DECAL:			return "G_RM_AA_ZB_XLU_DECAL";
-		case G_RM_AA_ZB_XLU_DECAL2:			return "G_RM_AA_ZB_XLU_DECAL2";
-		case G_RM_AA_ZB_OPA_INTER:			return "G_RM_AA_ZB_OPA_INTER";
-		case G_RM_AA_ZB_OPA_INTER2:			return "G_RM_AA_ZB_OPA_INTER2";
-		case G_RM_AA_ZB_XLU_INTER:			return "G_RM_AA_ZB_XLU_INTER";
-		case G_RM_AA_ZB_XLU_INTER2:			return "G_RM_AA_ZB_XLU_INTER2";
-		case G_RM_AA_ZB_XLU_LINE:			return "G_RM_AA_ZB_XLU_LINE";
-		case G_RM_AA_ZB_XLU_LINE2:			return "G_RM_AA_ZB_XLU_LINE2";
-		case G_RM_AA_ZB_DEC_LINE:			return "G_RM_AA_ZB_DEC_LINE";
-		case G_RM_AA_ZB_DEC_LINE2:			return "G_RM_AA_ZB_DEC_LINE2";
-		case G_RM_AA_ZB_TEX_EDGE:			return "G_RM_AA_ZB_TEX_EDGE";
-		case G_RM_AA_ZB_TEX_EDGE2:			return "G_RM_AA_ZB_TEX_EDGE2";
-		case G_RM_AA_ZB_TEX_INTER:			return "G_RM_AA_ZB_TEX_INTER";
-		case G_RM_AA_ZB_TEX_INTER2:			return "G_RM_AA_ZB_TEX_INTER2";
-		case G_RM_AA_ZB_SUB_SURF:			return "G_RM_AA_ZB_SUB_SURF";
-		case G_RM_AA_ZB_SUB_SURF2:			return "G_RM_AA_ZB_SUB_SURF2";
-		case G_RM_AA_ZB_PCL_SURF:			return "G_RM_AA_ZB_PCL_SURF";
-		case G_RM_AA_ZB_PCL_SURF2:			return "G_RM_AA_ZB_PCL_SURF2";
-		case G_RM_AA_ZB_OPA_TERR:			return "G_RM_AA_ZB_OPA_TERR";
-		case G_RM_AA_ZB_OPA_TERR2:			return "G_RM_AA_ZB_OPA_TERR2";
-		case G_RM_AA_ZB_TEX_TERR:			return "G_RM_AA_ZB_TEX_TERR";
-		case G_RM_AA_ZB_TEX_TERR2:			return "G_RM_AA_ZB_TEX_TERR2";
-		case G_RM_AA_ZB_SUB_TERR:			return "G_RM_AA_ZB_SUB_TERR";
-		case G_RM_AA_ZB_SUB_TERR2:			return "G_RM_AA_ZB_SUB_TERR2";
-		case G_RM_RA_ZB_OPA_SURF:			return "G_RM_RA_ZB_OPA_SURF";
-		case G_RM_RA_ZB_OPA_SURF2:			return "G_RM_RA_ZB_OPA_SURF2";
-		case G_RM_RA_ZB_OPA_DECAL:			return "G_RM_RA_ZB_OPA_DECAL";
-		case G_RM_RA_ZB_OPA_DECAL2:			return "G_RM_RA_ZB_OPA_DECAL2";
-		case G_RM_RA_ZB_OPA_INTER:			return "G_RM_RA_ZB_OPA_INTER";
-		case G_RM_RA_ZB_OPA_INTER2:			return "G_RM_RA_ZB_OPA_INTER2";
-		case G_RM_AA_OPA_SURF:				return "G_RM_AA_OPA_SURF";
-		case G_RM_AA_OPA_SURF2:				return "G_RM_AA_OPA_SURF2";
-		case G_RM_AA_XLU_SURF:				return "G_RM_AA_XLU_SURF";
-		case G_RM_AA_XLU_SURF2:				return "G_RM_AA_XLU_SURF2";
-		case G_RM_AA_XLU_LINE:				return "G_RM_AA_XLU_LINE";
-		case G_RM_AA_XLU_LINE2:				return "G_RM_AA_XLU_LINE2";
-		case G_RM_AA_DEC_LINE:				return "G_RM_AA_DEC_LINE";
-		case G_RM_AA_DEC_LINE2:				return "G_RM_AA_DEC_LINE2";
-		case G_RM_AA_TEX_EDGE:				return "G_RM_AA_TEX_EDGE";
-		case G_RM_AA_TEX_EDGE2:				return "G_RM_AA_TEX_EDGE2";
-		case G_RM_AA_SUB_SURF:				return "G_RM_AA_SUB_SURF";
-		case G_RM_AA_SUB_SURF2:				return "G_RM_AA_SUB_SURF2";
-		case G_RM_AA_PCL_SURF:				return "G_RM_AA_PCL_SURF";
-		case G_RM_AA_PCL_SURF2:				return "G_RM_AA_PCL_SURF2";
-		case G_RM_AA_OPA_TERR:				return "G_RM_AA_OPA_TERR";
-		case G_RM_AA_OPA_TERR2:				return "G_RM_AA_OPA_TERR2";
-		case G_RM_AA_TEX_TERR:				return "G_RM_AA_TEX_TERR";
-		case G_RM_AA_TEX_TERR2:				return "G_RM_AA_TEX_TERR2";
-		case G_RM_AA_SUB_TERR:				return "G_RM_AA_SUB_TERR";
-		case G_RM_AA_SUB_TERR2:				return "G_RM_AA_SUB_TERR2";
-		case G_RM_RA_OPA_SURF:				return "G_RM_RA_OPA_SURF";
-		case G_RM_RA_OPA_SURF2:				return "G_RM_RA_OPA_SURF2";
-		case G_RM_ZB_OPA_SURF:				return "G_RM_ZB_OPA_SURF";
-		case G_RM_ZB_OPA_SURF2:				return "G_RM_ZB_OPA_SURF2";
-		case G_RM_ZB_XLU_SURF:				return "G_RM_ZB_XLU_SURF";
-		case G_RM_ZB_XLU_SURF2:				return "G_RM_ZB_XLU_SURF2";
-		case G_RM_ZB_OPA_DECAL:				return "G_RM_ZB_OPA_DECAL";
-		case G_RM_ZB_OPA_DECAL2:			return "G_RM_ZB_OPA_DECAL2";
-		case G_RM_ZB_XLU_DECAL:				return "G_RM_ZB_XLU_DECAL";
-		case G_RM_ZB_XLU_DECAL2:			return "G_RM_ZB_XLU_DECAL2";
-		case G_RM_ZB_CLD_SURF:				return "G_RM_ZB_CLD_SURF";
-		case G_RM_ZB_CLD_SURF2:				return "G_RM_ZB_CLD_SURF2";
-		case G_RM_ZB_OVL_SURF:				return "G_RM_ZB_OVL_SURF";
-		case G_RM_ZB_OVL_SURF2:				return "G_RM_ZB_OVL_SURF2";
-		case G_RM_ZB_PCL_SURF:				return "G_RM_ZB_PCL_SURF";
-		case G_RM_ZB_PCL_SURF2:				return "G_RM_ZB_PCL_SURF2";
-		case G_RM_OPA_SURF:					return "G_RM_OPA_SURF";
-		case G_RM_OPA_SURF2:				return "G_RM_OPA_SURF2";
-		case G_RM_XLU_SURF:					return "G_RM_XLU_SURF";
-		case G_RM_XLU_SURF2:				return "G_RM_XLU_SURF2";
-		case G_RM_CLD_SURF:					return "G_RM_CLD_SURF";
-		case G_RM_CLD_SURF2:				return "G_RM_CLD_SURF2";
-		case G_RM_TEX_EDGE:					return "G_RM_TEX_EDGE";
-		case G_RM_TEX_EDGE2:				return "G_RM_TEX_EDGE2";
-		case G_RM_PCL_SURF:					return "G_RM_PCL_SURF";
-		case G_RM_PCL_SURF2:				return "G_RM_PCL_SURF2";
-		case G_RM_ADD:						return "G_RM_ADD";
-		case G_RM_ADD2:						return "G_RM_ADD2";
-		case G_RM_NOOP:						return "G_RM_NOOP";
-		//case G_RM_NOOP2:					return "G_RM_NOOP2";
-		case G_RM_VISCVG:					return "G_RM_VISCVG";
-		case G_RM_VISCVG2:					return "G_RM_VISCVG2";
-		case G_RM_OPA_CI:					return "G_RM_OPA_CI";
-		case G_RM_OPA_CI2:					return "G_RM_OPA_CI2";
-		case G_RM_FOG_SHADE_A:				return "G_RM_FOG_SHADE_A";
-		case G_RM_FOG_PRIM_A:				return "G_RM_FOG_PRIM_A";
-	//	case G_RM_PASS:						return "G_RM_PASS";
+	u32 mux0 = (u32)(mux>>32);
+	u32 mux1 = (u32)(mux);
 
-		default:
-			{
-				switch ( mode & 0xff000000 )
-				{
-				case G_RM_FOG_SHADE_A:			return "G_RM_FOG_SHADE_A";
-				case G_RM_FOG_PRIM_A:			return "G_RM_FOG_PRIM_A";
-				case G_RM_PASS:					return "G_RM_PASS";
-				}
-				break;
-			}
-	}
+	u32 aRGB0  = (mux0>>20)&0x0F;	// c1 c1		// a0
+	u32 bRGB0  = (mux1>>28)&0x0F;	// c1 c2		// b0
+	u32 cRGB0  = (mux0>>15)&0x1F;	// c1 c3		// c0
+	u32 dRGB0  = (mux1>>15)&0x07;	// c1 c4		// d0
 
-	static char buffer[32];
-	sprintf( buffer, "Unknown: %08x", mode  );
-	return buffer;
+	u32 aA0    = (mux0>>12)&0x07;	// c1 a1		// Aa0
+	u32 bA0    = (mux1>>12)&0x07;	// c1 a2		// Ab0
+	u32 cA0    = (mux0>>9 )&0x07;	// c1 a3		// Ac0
+	u32 dA0    = (mux1>>9 )&0x07;	// c1 a4		// Ad0
+
+	u32 aRGB1  = (mux0>>5 )&0x0F;	// c2 c1		// a1
+	u32 bRGB1  = (mux1>>24)&0x0F;	// c2 c2		// b1
+	u32 cRGB1  = (mux0    )&0x1F;	// c2 c3		// c1
+	u32 dRGB1  = (mux1>>6 )&0x07;	// c2 c4		// d1
+
+	u32 aA1    = (mux1>>21)&0x07;	// c2 a1		// Aa1
+	u32 bA1    = (mux1>>3 )&0x07;	// c2 a2		// Ab1
+	u32 cA1    = (mux1>>18)&0x07;	// c2 a3		// Ac1
+	u32 dA1    = (mux1    )&0x07;	// c2 a4		// Ad1
+
+	fprintf(fh, "//case 0x%08x%08xLL:\n", mux0, mux1);
+	fprintf(fh, "//aRGB0: (%s - %s) * %s + %s\n", kSubAInputRGB[aRGB0], kSubBInputRGB[bRGB0], kMulInputRGB[cRGB0], kAddInputRGB[dRGB0]);
+	fprintf(fh, "//aA0  : (%s - %s) * %s + %s\n", kSubInputAlpha[aA0],  kSubInputAlpha[bA0],  kMulInputAlpha[cA0], kAddInputAlpha[dA0]);
+	fprintf(fh, "//aRGB1: (%s - %s) * %s + %s\n", kSubAInputRGB[aRGB1], kSubBInputRGB[bRGB1], kMulInputRGB[cRGB1], kAddInputRGB[dRGB1]);
+	fprintf(fh, "//aA1  : (%s - %s) * %s + %s\n", kSubInputAlpha[aA1],  kSubInputAlpha[bA1],  kMulInputAlpha[cA1], kAddInputAlpha[dA1]);
+	fprintf(fh, "void BlendMode_0x%08x%08xLL( BLEND_MODE_ARGS )\n{\n}\n\n", mux0, mux1);
 }
+
+static const char * const kBlendCl[] = { "In",  "Mem",  "Bl",     "Fog" };
+static const char * const kBlendA1[] = { "AIn", "AFog", "AShade", "0" };
+static const char * const kBlendA2[] = { "1-A", "AMem", "1",      "?" };
 
 void DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode)
 {
@@ -588,8 +205,8 @@ void DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode)
 		DL_PF( "    force_bl:      %d", mode.force_bl );
 		DL_PF( "    tex_edge:      %d", mode.tex_edge );
 		DL_PF( "    blender:       %04x - %s*%s + %s*%s | %s*%s + %s*%s", mode.blender,
-										sc_szBlClr[dwM1A_1], sc_szBlA1[dwM1B_1], sc_szBlClr[dwM2A_1], sc_szBlA2[dwM2B_1],
-										sc_szBlClr[dwM1A_2], sc_szBlA1[dwM1B_2], sc_szBlClr[dwM2A_2], sc_szBlA2[dwM2B_2]);
+										kBlendCl[dwM1A_1], kBlendA1[dwM1B_1], kBlendCl[dwM2A_1], kBlendA2[dwM2B_1],
+										kBlendCl[dwM1A_2], kBlendA1[dwM1B_2], kBlendCl[dwM2A_2], kBlendA2[dwM2B_2]);
 		DL_PF( "    blend_mask:    %d", mode.blend_mask );
 		DL_PF( "    alpha_dither:  %s", alphadithertypes[ mode.alpha_dither ] );
 		DL_PF( "    rgb_dither:    %s", rgbdithertype[ mode.rgb_dither ] );
@@ -603,12 +220,6 @@ void DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode)
 		DL_PF( "    cycle_type:    %s", cycletype[ mode.cycle_type ] );
 		DL_PF( "    color_dither:  %d", mode.color_dither );
 		DL_PF( "    pipeline:      %s", mode.pipeline ? "1Primitive" : "NPrimitive" );
-
-		u32 c1_mode = (mode.blender & 0xff00) << 16;
-		u32 c2_mode = (mode.blender & 0x00ff) << 16;
-
-		DL_PF( "      %s", GetBlenderModeDescription( c1_mode ) );
-		DL_PF( "      %s", GetBlenderModeDescription( c2_mode ) );
 	}
 }
 
