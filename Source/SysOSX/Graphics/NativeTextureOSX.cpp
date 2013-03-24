@@ -26,6 +26,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <png.h>
 
+static const u32 kPalette4BytesRequired = 16 * sizeof( NativePf8888 );
+static const u32 kPalette8BytesRequired = 256 * sizeof( NativePf8888 );
+
 static u32 GetTextureBlockWidth( u32 dimension, ETextureFormat texture_format )
 {
 	DAEDALUS_ASSERT( GetNextPowerOf2( dimension ) == dimension, "This is not a power of 2" );
@@ -58,12 +61,32 @@ CNativeTexture::CNativeTexture( u32 w, u32 h, ETextureFormat texture_format )
 ,	mCorrectedHeight( CorrectDimension( h ) )
 ,	mTextureBlockWidth( GetTextureBlockWidth( mCorrectedWidth, texture_format ) )
 ,	mTextureId( 0 )
+,	mpData( NULL )
+,	mpPalette( NULL )
 {
 	glGenTextures( 1, &mTextureId );
+
+	size_t data_len = GetBytesRequired();
+	mpData = malloc(data_len);
+	memset(mpData, 0, data_len);
+
+	if (texture_format == TexFmt_CI4_8888)
+	{
+		mpPalette = malloc(kPalette8BytesRequired);
+	}
+	else if (texture_format == TexFmt_CI8_8888)
+	{
+		mpPalette = malloc(kPalette4BytesRequired);
+	}
 }
 
 CNativeTexture::~CNativeTexture()
 {
+	if (mpData)
+		free(mpData);
+	if (mpPalette)
+		free(mpPalette);
+
 	glDeleteTextures( 1, &mTextureId );
 }
 
@@ -245,6 +268,20 @@ CRefPtr<CNativeTexture>	CNativeTexture::CreateFromPng( const char * p_filename, 
 
 void CNativeTexture::SetData( void * data, void * palette )
 {
+	// It's pretty gross that we don't pass this in, or better yet, provide a way for
+	// the caller to write directly to our buffers instead of setting the data.
+	size_t data_len = GetBytesRequired();
+	memcpy(mpData, data, data_len);
+
+	if (mTextureFormat == TexFmt_CI4_8888)
+	{
+		memcpy(mpPalette, palette, kPalette4BytesRequired);
+	}
+	else if (mTextureFormat == TexFmt_CI8_8888)
+	{
+		memcpy(mpPalette, palette, kPalette8BytesRequired);
+	}
+
 	if (HasData())
 	{
 		glBindTexture( GL_TEXTURE_2D, mTextureId );
@@ -352,7 +389,7 @@ u32	CNativeTexture::GetStride() const
 	return CalcBytesRequired( mTextureBlockWidth, mTextureFormat );
 }
 
-u32		CNativeTexture::GetBytesRequired() const
+u32 CNativeTexture::GetBytesRequired() const
 {
 	return GetStride() * mCorrectedHeight;
 }
