@@ -737,8 +737,11 @@ void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disabl
 			}
 			else
 			{
-				glUniform2f(program->uloc_texoffset[i], mTileTopLeft[i].x, mTileTopLeft[i].y);
-				glUniform2f(program->uloc_texscale[i], (float)texture->GetCorrectedWidth(), (float)texture->GetCorrectedHeight());
+				float shifts = kShiftScales[mTexShift[i].s];
+				float shiftt = kShiftScales[mTexShift[i].t];
+
+				glUniform2f(program->uloc_texoffset[i], mTileTopLeft[i].x * shifts, mTileTopLeft[i].y * shiftt);
+				glUniform2f(program->uloc_texscale[i], (float)texture->GetCorrectedWidth() * shifts, (float)texture->GetCorrectedHeight() * shiftt);
 			}
 
 			if( (gRDPOtherMode.text_filt != G_TF_POINT) | (gGlobalPreferences.ForceLinearFilter) )

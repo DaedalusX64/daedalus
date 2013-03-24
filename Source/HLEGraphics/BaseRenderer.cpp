@@ -127,6 +127,27 @@ f32 TEST_VARX = 0.0f;
 f32 TEST_VARY = 0.0f;
 #endif
 
+
+const float kShiftScales[] = {
+	(float)(1 << 0),
+	(float)(1 << 1),
+	(float)(1 << 2),
+	(float)(1 << 3),
+	(float)(1 << 4),
+	(float)(1 << 5),
+	(float)(1 << 6),
+	(float)(1 << 7),
+	(float)(1 << 8),
+	(float)(1 << 9),
+	(float)(1 << 10),
+	1.f / (float)(1 << 5),
+	1.f / (float)(1 << 4),
+	1.f / (float)(1 << 3),
+	1.f / (float)(1 << 2),
+	1.f / (float)(1 << 1),
+};
+DAEDALUS_STATIC_ASSERT(ARRAYSIZE(kShiftScales) == 16);
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -164,12 +185,14 @@ BaseRenderer::BaseRenderer()
 {
 	DAEDALUS_ASSERT( IsPointerAligned( &mTnL, 16 ), "Oops, mTnL should be 16-byte aligned" );
 
-	for ( u32 t = 0; t < NUM_N64_TEXTURES; t++ )
+	for ( u32 i = 0; i < NUM_N64_TEXTURES; i++ )
 	{
-		mTileTopLeft[t].x = 0.0f;
-		mTileTopLeft[t].y = 0.0f;
-		mTexWrap[t].u = 0;
-		mTexWrap[t].v = 0;
+		mTileTopLeft[i].x = 0.0f;
+		mTileTopLeft[i].y = 0.0f;
+		mTexWrap[i].u = 0;
+		mTexWrap[i].v = 0;
+		mTexShift[i].s = 0;
+		mTexShift[i].t = 0;
 	}
 
 	mTnL.Flags._u32 = 0;
@@ -1662,6 +1685,7 @@ static void T1Hack(const TextureInfo & ti0, CNativeTexture * texture0,
 //*****************************************************************************
 // This captures the state of the RDP tiles in:
 //   mTexWrap
+//   mTexShift
 //   mTileTopLeft
 //   mBoundTexture
 //*****************************************************************************
@@ -1735,6 +1759,9 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	mTexWrap[ index ].u = mode_u;
 	mTexWrap[ index ].v = mode_v;
 
+	mTexShift[ index ].s = rdp_tile.shift_s;
+	mTexShift[ index ].t = rdp_tile.shift_t;
+
 	mTileTopLeft[ index ].x = f32(tile_size.left) / 4.0f;
 	mTileTopLeft[ index ].y = f32(tile_size.top) / 4.0f;
 
@@ -1761,8 +1788,11 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 // of the texture width/height until the uvs are positive. Then if the resulting UVs
 // are in the range [(0,0),(w,h)] we can update mTexWrap to GL_CLAMP_TO_EDGE/GU_CLAMP
 // and everything works correctly.
-inline void FixUV(u32 * wrap, float * c0, float * c1, float size)
+inline void FixUV(u32 * wrap, float * c0, float * c1, float offset, float size)
 {
+	*c0 -= offset;
+	*c1 -= offset;
+
 	// Many texrects already have GU_CLAMP set, so avoid some work.
 	if (*wrap != GU_CLAMP)
 	{
@@ -1793,16 +1823,25 @@ inline void FixUV(u32 * wrap, float * c0, float * c1, float size)
 // puv0, puv1 are in/out arguments.
 void BaseRenderer::PrepareTexRectUVs(v2 * puv0, v2 * puv1)
 {
-	v2 uv0 = *puv0 - mTileTopLeft[0];
-	v2 uv1 = *puv1 - mTileTopLeft[0];
+	v2 		offset = mTileTopLeft[0];
+	float 	size_x = mBoundTextureInfo[0].GetWidth();
+	float 	size_y = mBoundTextureInfo[0].GetHeight();
+
+#ifdef DAEDALUS_OSX
+	// If using mTexShift, we need to take it into account here.
+	float ss = kShiftScales[mTexShift[0].s];
+	float st = kShiftScales[mTexShift[0].t];
+	offset.x *= ss;
+	offset.y *= st;
+	size_x *= ss;
+	size_y *= st;
+#endif
+
+	FixUV(&mTexWrap[0].u, &puv0->x, &puv1->x, offset.x, size_x);
+	FixUV(&mTexWrap[0].v, &puv0->y, &puv1->y, offset.y, size_y);
+
 	mTileTopLeft[0].x = 0.f;
 	mTileTopLeft[0].y = 0.f;
-
-	FixUV(&mTexWrap[0].u, &uv0.x, &uv1.x, mBoundTextureInfo[0].GetWidth());
-	FixUV(&mTexWrap[0].v, &uv0.y, &uv1.y, mBoundTextureInfo[0].GetHeight());
-
-	*puv0 = uv0;
-	*puv1 = uv1;
 }
 
 //*****************************************************************************

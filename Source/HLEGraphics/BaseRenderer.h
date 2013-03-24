@@ -379,6 +379,11 @@ protected:
 		u32	u;
 		u32 v;
 	};
+	struct TextureShift
+	{
+		u8 s;
+		u8 t;
+	};
 	static const u32 NUM_N64_TEXTURES = 2;
 
 	TextureInfo				mBoundTextureInfo[ NUM_N64_TEXTURES ];
@@ -386,6 +391,7 @@ protected:
 
 	v2						mTileTopLeft[ NUM_N64_TEXTURES ];
 	TextureWrap				mTexWrap[ NUM_N64_TEXTURES ];
+	TextureShift			mTexShift[ NUM_N64_TEXTURES ];
 
 	//Max is 18 according to the manual //Corn
 	//I think we should make this more deep to avoid any issues //Salvy
@@ -434,5 +440,7 @@ protected:
 bool CreateRenderer();
 void DestroyRenderer();
 extern BaseRenderer * gRenderer;
+
+extern const float kShiftScales[];
 
 #endif // BASERENDERER_H__
