@@ -119,3 +119,39 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 		*(u8*)((uintptr_t)dst8++ ^ U8_TWIDDLE) = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
 	}
 }
+
+void memcpy_byteswap32( void* dst, const void* src, size_t size )
+{
+	u8* src8 = (u8*)src;
+	u8* dst8 = (u8*)dst;
+
+	u32* src32 = (u32*)src8;
+	u32* dst32 = (u32*)dst8;
+
+	if( ((uintptr_t)src8&0x3 )==0)
+	{
+		u32 size32 = size >> 2;
+		size &= 0x3;
+		while (size32&0x3)
+		{
+			*dst32++ = BSWAP32(*src32++);
+			size32--;
+		}
+		
+		u32 size128 = size32 >> 2;
+		while (size128--)
+		{
+			*dst32++ = BSWAP32(*src32++);
+			*dst32++ = BSWAP32(*src32++);
+			*dst32++ = BSWAP32(*src32++);
+			*dst32++ = BSWAP32(*src32++);
+		}
+		src8 = (u8*)src32;
+		dst8 = (u8*)dst32;
+	}
+
+	while(size--)
+	{
+		*dst8++ = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
+	}
+}

@@ -55,14 +55,17 @@ u8 gTMEM[4096];	// 4Kb
 
 #ifdef DAEDALUS_ACCURATE_TMEM
 
+void (*CopyLineQwordsMode)(u32*, u32, u32*, u32, u32);
+void (*CopyLineMode)(u8*, u32, u8*, u32, u32);
+
 // FIXME(strmnnrmn): dst/src are always gTMEM/g_pu32RamBase
 // FIXME: should be easy to optimise all of these.
 
 static inline void CopyLineQwords(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
 {
-	// Doesn't work. Something misaligned?
-	//memcpy_swizzle(dst + dst_offset, src + src_offset, qwords * 8);
-
+#if 1 // fast
+	memcpy_byteswap32(dst + dst_offset, src + src_offset, qwords * 8);
+#else
 	for (u32 i = 0; i < qwords; ++i)
 	{
 		dst[(dst_offset+0)] = BSWAP32(src[src_offset+0]);
@@ -70,9 +73,10 @@ static inline void CopyLineQwords(u32 * dst, u32 dst_offset, u32 * src, u32 src_
 		dst_offset += 2;
 		src_offset += 2;
 	}
+#endif
 }
 
-static inline void CopyLineQwordsSwap(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
+static void CopyLineQwordsSwap(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
 {
 	for (u32 i = 0; i < qwords; ++i)
 	{
@@ -84,7 +88,7 @@ static inline void CopyLineQwordsSwap(u32 * dst, u32 dst_offset, u32 * src, u32 
 	}
 }
 
-static inline void CopyLineQwordsSwap32(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
+static void CopyLineQwordsSwap32(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
 {
 	for (u32 i = 0; i < qwords; ++i)
 	{
@@ -99,13 +103,14 @@ static inline void CopyLineQwordsSwap32(u32 * dst, u32 dst_offset, u32 * src, u3
 // FIXME(strmnnrmn): dst/src are always gTMEM/g_pu8RamBase
 static inline void CopyLine(u8 * dst, u32 dst_offset, u8 * src, u32 src_offset, u32 bytes)
 {
-	// Doesn't work. Something misaligned?
-	//memcpy_swizzle(dst + dst_offset, src + src_offset, bytes);
-
+#if 1 // fast
+	memcpy_byteswap32(dst + dst_offset, src + src_offset, bytes);
+#else
 	for (u32 i = 0; i < bytes; ++i)
 	{
 		dst[(dst_offset+i)] = src[(src_offset+i)^U8_TWIDDLE];
 	}
+#endif
 }
 
 static inline void CopyLineSwap(u8 * dst, u32 dst_offset, u8 * src, u32 src_offset, u32 bytes)
@@ -232,6 +237,11 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 	}
 	else
 	{
+		if(g_TI.Size == G_IM_SIZ_32b)
+			CopyLineQwordsMode = CopyLineQwordsSwap32;
+		else
+			CopyLineQwordsMode = CopyLineQwordsSwap;
+		
 		u32 qwords_per_line = (2048 + dxt-1) / dxt;
 
 		DAEDALUS_ASSERT(qwords_per_line == (u32)ceilf(2048.f / (float)dxt), "Broken DXT calc");
@@ -243,14 +253,7 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 
 			if (odd_row)
 			{
-				if (g_TI.Size == 3)
-				{
-					CopyLineQwordsSwap32(tmem_data, tmem_offset, ram, ram_offset, qwords_to_copy);
-				}
-				else
-				{
-					CopyLineQwordsSwap(tmem_data, tmem_offset, ram, ram_offset, qwords_to_copy);
-				}
+				CopyLineQwordsMode(tmem_data, tmem_offset, ram, ram_offset, qwords_to_copy);
 			}
 			else
 			{
@@ -319,20 +322,18 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	if (g_TI.Size == G_IM_SIZ_32b)
 	{
 		bytes_per_tmem_line *= 2;
+		CopyLineMode = CopyLineSwap32;
+	}
+	else
+	{
+		CopyLineMode = CopyLineSwap;
 	}
 
 	for (u32 y = 0; y < h; ++y)
 	{
 		if (y&1)
 		{
-			if (g_TI.Size == 3)
-			{
-				CopyLineSwap32(tmem_data, tmem_offset, ram, ram_offset, bytes_per_tmem_line);
-			}
-			else
-			{
-				CopyLineSwap(tmem_data, tmem_offset, ram, ram_offset, bytes_per_tmem_line);
-			}
+			CopyLineMode(tmem_data, tmem_offset, ram, ram_offset, bytes_per_tmem_line);
 		}
 		else
 		{
