@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "WebDebug.h"
+#include "WebDebugTemplate.h"
 #include <webby.h>
 
 #ifdef DAEDALUS_W32
@@ -110,6 +111,29 @@ void WebDebugConnection::EndResponse()
 	mState = kResponded;
 }
 
+static void Generate404(WebDebugConnection * connection, const char * request)
+{
+	connection->BeginResponse(404, -1, "text/html" );
+
+	WriteStandardHeader(connection, "404 - Page Not Found");
+
+	connection->WriteString(
+		"<div class=\"container\">\n"
+		"	<div class=\"row\">\n"
+		"		<div class=\"span12\">\n"
+	);
+	connection->WriteString("<h1>404 - Page Not Found</h1>\n");
+	connection->WriteF("<div>%s was not found. Boo.</div>", request);
+	connection->WriteString(
+		"		</div>\n"
+		"	</div>\n"
+		"</div>\n"
+	);
+
+	WriteStandardFooter(connection);
+	connection->EndResponse();
+}
+
 static int WebDebugDispatch(struct WebbyConnection *connection)
 {
 	for (size_t i = 0; i < gHandlers.size(); ++i)
@@ -128,7 +152,9 @@ static int WebDebugDispatch(struct WebbyConnection *connection)
 		}
 	}
 
-	return 0;
+	WebDebugConnection dbg_connection(connection);
+	Generate404(&dbg_connection, connection->request.uri);
+	return 1;
 }
 
 static int test_ws_connect(struct WebbyConnection *connection)
