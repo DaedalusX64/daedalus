@@ -1744,7 +1744,6 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 				}
 #endif
 			}
-#endif
 		}
 	}
 

@@ -628,7 +628,7 @@ static void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 			glEnable(GL_BLEND);
 		}
 		break;
-	}*/
+	}
 }
 
 
