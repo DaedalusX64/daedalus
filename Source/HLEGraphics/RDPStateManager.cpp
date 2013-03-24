@@ -63,7 +63,7 @@ void (*CopyLineMode)(u8*, u32, u8*, u32, u32);
 
 static inline void CopyLineQwords(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
 {
-#if 1 // fast
+#if DAEDALUS_PSP // fast
 	memcpy_byteswap32(dst + dst_offset, src + src_offset, qwords * 8);
 #else
 	for (u32 i = 0; i < qwords; ++i)
@@ -103,7 +103,7 @@ static void CopyLineQwordsSwap32(u32 * dst, u32 dst_offset, u32 * src, u32 src_o
 // FIXME(strmnnrmn): dst/src are always gTMEM/g_pu8RamBase
 static inline void CopyLine(u8 * dst, u32 dst_offset, u8 * src, u32 src_offset, u32 bytes)
 {
-#if 1 // fast
+#ifdef DAEDALUS_PSP // fast
 	memcpy_byteswap32(dst + dst_offset, src + src_offset, bytes);
 #else
 	for (u32 i = 0; i < bytes; ++i)
