@@ -211,8 +211,12 @@ namespace IO
 	{
 		DAEDALUS_ASSERT( handle != NULL, "Cannot search with invalid directory handle" );
 
-		if( dirent * ep = readdir( static_cast< DIR * >( handle ) ) )
+		while (dirent * ep = readdir( static_cast< DIR * >( handle ) ) )
 		{
+			// Ignore hidden files (and '.' and '..')
+			if (ep->d_name[0] == '.')
+				continue;
+
 			strncpy( data.Name, ep->d_name, Path::MAX_PATH_LEN );
 			data.Name[Path::MAX_PATH_LEN] = 0;
 			return true;

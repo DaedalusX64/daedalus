@@ -27,7 +27,7 @@ bool FileSink::Open(const char * filename)
 size_t FileSink::Write(const void * p, size_t len)
 {
 	if (Handle)
-		return fwrite(p, len, 1, Handle);
+		return fwrite(p, 1, len, Handle);
 
 	return 0;
 }

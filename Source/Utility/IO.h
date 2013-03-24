@@ -47,6 +47,8 @@ namespace IO
 	{
 		const u32	MAX_PATH_LEN = 260;
 
+		typedef char PathBuf[MAX_PATH_LEN];
+
 		char *				Combine( char * p_dest, const char * p_dir, const char * p_file );
 		bool				Append( char * p_path, const char * p_more );
 		const char *		FindExtension( const char * p_path );

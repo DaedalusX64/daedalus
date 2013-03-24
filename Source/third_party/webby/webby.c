@@ -1183,6 +1183,7 @@ static void wb_update_client(struct WebbyServer *srv, struct WebbyConnectionPrv*
           if (connection->flags & WB_CLOSE_AFTER_RESPONSE)
           {
             connection->flags &= ~WB_ALIVE;
+            return;
           }
           else
           {
@@ -1245,7 +1246,10 @@ static void wb_update_client(struct WebbyServer *srv, struct WebbyConnectionPrv*
           case WEBBY_WS_OP_PING:
             dbg(srv, "received websocket ping request");
             if (0 != send_fully(connection->socket, websocket_pong, sizeof websocket_pong))
+            {
               connection->flags &= ~WB_ALIVE;
+              return;
+            }
             break;
 
           default:
@@ -1329,7 +1333,7 @@ WebbyServerUpdate(struct WebbyServer *srv)
   {
     do
     {
-      dbg(srv, "awake on incoming", i);
+      dbg(srv, "awake on incoming");
       err = wb_on_incoming(srv);
     } while (0 == err);
   }
@@ -1362,7 +1366,7 @@ WebbyServerUpdate(struct WebbyServer *srv)
 
       remain = srv->connection_count - i - 1;
       wb_close_client(srv, connection);
-      memmove(&srv->connections[i], &srv->connections[i + 1], remain);
+      memmove(&srv->connections[i], &srv->connections[i + 1], remain*sizeof(srv->connections[i]));
       --srv->connection_count;
     }
     else
