@@ -38,6 +38,25 @@ void Split(ConstStringRef str, char split_char, std::vector<ConstStringRef> * pi
 	}
 }
 
+void SplitAt(ConstStringRef str, char split_char, ConstStringRef * left, ConstStringRef * right)
+{
+	for (const char * p = str.Begin; p < str.End; ++p)
+	{
+		if (*p == split_char)
+		{
+			left->Begin = str.Begin;
+			left->End = p;
+			right->Begin = p+1;
+			right->End = str.End;
+			return;
+		}
+	}
+
+	// Split char wasn't found - just return the whole string as 'left'.
+	*left = str;
+	*right = ConstStringRef();
+}
+
 // void Print(const std::vector<ConstStringRef> & pieces)
 // {
 // 	for (size_t i = 0; i < pieces.size(); ++i)

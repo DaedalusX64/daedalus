@@ -465,10 +465,16 @@ class CString
 struct ConstStringRef
 {
 	ConstStringRef() : Begin(NULL), End(NULL) {}
-	explicit ConstStringRef(const char * str) : Begin(str), End(str+strlen(str)) {}
+	/*explicit */ConstStringRef(const char * str) : Begin(str), End(str+strlen(str)) {}
 	explicit ConstStringRef(const char * b, const char * e) : Begin(b), End(e) {}
 
 	size_t size() const { return End - Begin; }
+
+	bool operator==(const char * rhs) const	{ return operator==(ConstStringRef(rhs)); }
+	bool operator==(const ConstStringRef & rhs) const
+	{
+		return size() == rhs.size() && memcmp(Begin, rhs.Begin, size()) == 0;
+	}
 
 	const char *	Begin;
 	const char *	End;
