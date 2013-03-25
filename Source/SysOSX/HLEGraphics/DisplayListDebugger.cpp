@@ -7,6 +7,8 @@
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/PngUtil.h"
 
+#include "HLEGraphics/DLDebug.h"
+
 #include "Utility/Mutex.h"
 
 #include <GL/glfw.h>
@@ -19,10 +21,16 @@ static bool gDebugging = false;
 static GLFWcond gScreenshotCond   = NULL;
 static GLFWmutex gScreenshotMutex = NULL;
 
-// This mutex is to ensure that only one connection can request a screenshot at a time.
-static Mutex gSerialiseScreenshots("Screenshots");
+enum DebugTask
+{
+	kTaskUndefined,
+	kTaskTakeScreenshot,
+};
 
-static WebDebugConnection * gScreenshotConnection = NULL;
+// This mutex is to ensure that only one connection can request a screenshot at a time.
+static Mutex 				gMainThreadSync("MainThreadSync");
+static WebDebugConnection * gActiveConnection = NULL;
+static DebugTask			gDebugTask        = kTaskUndefined;
 
 bool DLDebugger_IsDebugging()
 {
@@ -32,6 +40,8 @@ bool DLDebugger_IsDebugging()
 void DLDebugger_RequestDebug()
 {
 	gDebugging = true;
+
+	DLDebug_DumpNextDisplayList();
 }
 
 bool DLDebugger_Process()
@@ -44,26 +54,46 @@ bool DLDebugger_Process()
 
 	// Check if a web request is waiting for a screenshot.
 	glfwLockMutex(gScreenshotMutex);
-	if (WebDebugConnection * connection = gScreenshotConnection)
+	if (WebDebugConnection * connection = gActiveConnection)
 	{
-		u32 width;
-		u32 height;
-		CGraphicsContext::Get()->GetScreenSize(&width, &height);
+		bool handled = false;
+		switch (gDebugTask)
+		{
+			case kTaskUndefined:
+				break;
+			case kTaskTakeScreenshot:
+			{
+				connection->BeginResponse(200, -1, "image/png" );
 
-		// Make the BYTE array, factor of 3 because it's RBG.
-		void * pixels = malloc( 4 * width * height );
+				u32 width;
+				u32 height;
+				CGraphicsContext::Get()->GetScreenSize(&width, &height);
 
-		glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+				// Make the BYTE array, factor of 3 because it's RBG.
+				void * pixels = malloc( 4 * width * height );
 
-		// NB, pass a negative pitch, to render the screenshot the right way ip.
-		s32 pitch = -(width * 4);
+				glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-		PngSaveImage(connection, pixels, NULL, TexFmt_8888, pitch, width, height, false);
+				// NB, pass a negative pitch, to render the screenshot the right way ip.
+				s32 pitch = -(width * 4);
 
-		free(pixels);
+				PngSaveImage(connection, pixels, NULL, TexFmt_8888, pitch, width, height, false);
 
-		connection->EndResponse();
-		gScreenshotConnection = NULL;
+				free(pixels);
+
+				connection->EndResponse();
+				handled = true;
+				break;
+			}
+		}
+
+		if (!handled)
+		{
+			Generate500(connection, "Unhandled DebugTask");
+		}
+		gActiveConnection = NULL;
+		gDebugTask = kTaskUndefined;
+
 	}
 	glfwUnlockMutex(gScreenshotMutex);
 	glfwSignalCond(gScreenshotCond);
@@ -73,14 +103,13 @@ bool DLDebugger_Process()
 
 static void TakeScreenshot(WebDebugConnection * connection)
 {
-	connection->BeginResponse(200, -1, "image/png" );
-
 	// Only one request for a screenshot can be serviced at a time.
-	MutexLock lock(&gSerialiseScreenshots);
+	MutexLock lock(&gMainThreadSync);
 
 	// Request a screenshot from the main thread.
 	glfwLockMutex(gScreenshotMutex);
-	gScreenshotConnection = connection;
+	gActiveConnection = connection;
+	gDebugTask        = kTaskTakeScreenshot;
 	glfwWaitCond(gScreenshotCond, gScreenshotMutex, GLFW_INFINITY);
 	glfwUnlockMutex(gScreenshotMutex);
 }
