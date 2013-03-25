@@ -997,6 +997,8 @@ void IDisplayListDebugger::Run()
 			CGraphicsContext::Get()->DumpScreenShot();
 		}
 
+		DataSink * debug_sink = NULL;
+
 		if( dump_texture_dlist )
 		{
 			dump_texture_dlist = false;
@@ -1006,7 +1008,7 @@ void IDisplayListDebugger::Run()
 			printf( "Dumping Display List and Textures...\n" );
 
 			// Dump the display list
-			DLDebug_DumpNextDisplayList();
+			debug_sink = DLDebug_CreateFileSink();
 
 			// Dump textures
 			MutexLock lock(CTextureCache::Get()->GetDebugMutex());
@@ -1044,7 +1046,11 @@ void IDisplayListDebugger::Run()
 
 		if( render_dlist )
 		{
-			DLParser_Process();
+			DLParser_Process(debug_sink);
+
+			// We can delete the sink as soon as we're done with it.
+			delete debug_sink;
+			debug_sink = NULL;
 		}
 
 		u64			time_after;

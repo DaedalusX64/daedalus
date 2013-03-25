@@ -104,12 +104,15 @@ extern void DLDebugger_RequestDebug();
 
 #endif
 
-void		DLDebug_Finish();
+DataSink *	DLDebug_CreateFileSink();
+
+void 		DLDebug_SetSink(DataSink * sink);
+
 void		DLDebug_Printf(const char * fmt, ...);
-void		DLDebug_HandleDumpDisplayList(OSTask * pTask);
+
+void		DLDebug_DumpTaskInfo( const OSTask * pTask );
 void		DLDebug_DumpMux(u64 mux);
 void		DLDebug_PrintMux( FILE * fh, u64 mux );
 void		DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode);
-void		DLDebug_DumpNextDisplayList();
 
 #endif // DAEDALUS_DEBUGDISPLAYLIST_H_

@@ -21,18 +21,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __DLPARSER_H__
 #define __DLPARSER_H__
 
+class DataSink;
 
-//*************************************************************************************
-//
-//*************************************************************************************
 bool DLParser_Initialise();
 void DLParser_Finalise();
-void DLParser_Process();
+void DLParser_Process(DataSink * debug_sink = NULL);
 
-
-//*************************************************************************************
-//
-//*************************************************************************************
 // Various debugger commands:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 

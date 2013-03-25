@@ -490,7 +490,7 @@ void	DLParser_ProcessDList()
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_Process()
+void DLParser_Process(DataSink * debug_sink)
 {
 	DAEDALUS_PROFILE( "DLParser_Process" );
 
@@ -549,11 +549,10 @@ void DLParser_Process()
 	gCurrentInstructionCount = 0;
 	gNumDListsCulled = 0;
 	gNumVertices = 0;
-	gNumRectsClipped =0;
-	//
-	// Prepare to dump this displaylist, if necessary
-	//
-	DLDebug_HandleDumpDisplayList( pTask );
+	gNumRectsClipped = 0;
+	if (debug_sink)
+		DLDebug_SetSink(debug_sink);
+	DLDebug_DumpTaskInfo( pTask );
 #endif
 
 	DL_PF("DP: Firing up RDP!");
@@ -576,7 +575,7 @@ void DLParser_Process()
 	FinishRDPJob();
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DLDebug_Finish();
+	DLDebug_SetSink(NULL);
 	gTotalInstructionCount = gCurrentInstructionCount;
 
 #endif

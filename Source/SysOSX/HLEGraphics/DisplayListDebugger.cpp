@@ -40,8 +40,6 @@ bool DLDebugger_IsDebugging()
 void DLDebugger_RequestDebug()
 {
 	gDebugging = true;
-
-	DLDebug_DumpNextDisplayList();
 }
 
 bool DLDebugger_Process()

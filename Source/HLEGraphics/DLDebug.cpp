@@ -13,8 +13,19 @@
 #include "OSHLE/ultra_gbi.h"
 #include "Utility/IO.h"
 
+DataSink * gDisplayListSink = NULL;
+
+void DLDebug_SetSink(DataSink * sink)
+{
+	gDisplayListSink = sink;
+}
+
 void DLDebug_Printf(const char * fmt, ...)
 {
+	// This is normally checked outside this function (DL_PF) but double check to be safe.
+	if (!gDisplayListSink)
+		return;
+
 	static const u32 kBufferLen = 1024;
 	char buffer[kBufferLen];
 
@@ -39,12 +50,6 @@ void DLDebug_Printf(const char * fmt, ...)
 
 	gDisplayListSink->Write(buffer, len);
 }
-
-
-DataSink *			gDisplayListSink 			= NULL;
-static bool 		gDumpNextDisplayList 		= false;
-static const char *	gDisplayListRootPath 		= "DisplayLists";
-static const char *	gDisplayListDumpPathFormat 	= "dl%04d.txt";
 
 static const char * const kMulInputRGB[32] =
 {
@@ -252,7 +257,7 @@ void DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode)
 	}
 }
 
-static void	DLParser_DumpTaskInfo( const OSTask * pTask )
+void DLDebug_DumpTaskInfo( const OSTask * pTask )
 {
 	DL_PF( "Task:         %08x",      pTask->t.type  );
 	DL_PF( "Flags:        %08x",      pTask->t.flags  );
@@ -275,56 +280,34 @@ static void	DLParser_DumpTaskInfo( const OSTask * pTask )
 	DL_PF( "YieldDataSize:%08x",      pTask->t.yield_data_size );
 }
 
-void DLDebug_HandleDumpDisplayList( OSTask * pTask )
+DataSink * DLDebug_CreateFileSink()
 {
-	if (gDumpNextDisplayList)
+	DBGConsole_Msg( 0, "Dumping display list" );
+	static u32 count = 0;
+
+	char szFilePath[MAX_PATH+1];
+	char szFileName[MAX_PATH+1];
+	char szDumpDir[MAX_PATH+1];
+
+	IO::Path::Combine(szDumpDir, g_ROM.settings.GameName.c_str(), "DisplayLists");
+
+	Dump_GetDumpDirectory(szFilePath, szDumpDir);
+
+	sprintf(szFileName, "dl%04d.txt", count++);
+
+	IO::Path::Append(szFilePath, szFileName);
+
+	FileSink * sink = new FileSink();
+	if (!sink->Open(szFilePath, "w"))
 	{
-		DBGConsole_Msg( 0, "Dumping display list" );
-		static u32 count = 0;
-
-		char szFilePath[MAX_PATH+1];
-		char szFileName[MAX_PATH+1];
-		char szDumpDir[MAX_PATH+1];
-
-		IO::Path::Combine(szDumpDir, g_ROM.settings.GameName.c_str(), gDisplayListRootPath);
-
-		Dump_GetDumpDirectory(szFilePath, szDumpDir);
-
-		sprintf(szFileName, "dl%04d.txt", count++);
-
-		IO::Path::Append(szFilePath, szFileName);
-
-		FileSink * sink = new FileSink();
-		if (sink->Open(szFilePath, "w"))
-		{
-			gDisplayListSink = sink;
-			DBGConsole_Msg(0, "RDP: Dumping Display List as %s", szFilePath);
-		}
-		else
-		{
-			delete sink;
-			DBGConsole_Msg(0, "RDP: Couldn't create dumpfile %s", szFilePath);
-		}
-
-		DLParser_DumpTaskInfo( pTask );
-
-		// Clear flag as we're done
-		gDumpNextDisplayList = false;
+		delete sink;
+		DBGConsole_Msg(0, "RDP: Couldn't create dumpfile %s", szFilePath);
+		return NULL;
 	}
+
+	DBGConsole_Msg(0, "RDP: Dumping Display List as %s", szFilePath);
+	return sink;
 }
 
-void DLDebug_Finish()
-{
-	if (gDisplayListSink)
-	{
-		delete gDisplayListSink;
-		gDisplayListSink = NULL;
-	}
-}
-
-void DLDebug_DumpNextDisplayList()
-{
-	gDumpNextDisplayList = true;
-}
 
 #endif // DAEDALUS_DEBUG_DISPLAYLIST
