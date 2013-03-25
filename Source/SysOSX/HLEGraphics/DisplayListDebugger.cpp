@@ -10,9 +10,11 @@
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/DLParser.h"
 
+#include "Utility/StringUtil.h"
 #include "Utility/Mutex.h"
 
 #include <GL/glfw.h>
+
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 
@@ -25,6 +27,9 @@ static GLFWmutex gScreenshotMutex = NULL;
 enum DebugTask
 {
 	kTaskUndefined,
+	kTaskStartDebugging,
+	kTaskStopDebugging,
+	kTaskScrub,
 	kTaskTakeScreenshot,
 	kTaskDumpDList,
 };
@@ -44,10 +49,8 @@ void DLDebugger_RequestDebug()
 	gDebugging = true;
 }
 
-bool DLDebugger_Process()
+void DLDebugger_ProcessDebugTask()
 {
-	bool processed = false;
-
 	// Check if a web request is waiting for a screenshot.
 	glfwLockMutex(gScreenshotMutex);
 	if (WebDebugConnection * connection = gActiveConnection)
@@ -57,6 +60,36 @@ bool DLDebugger_Process()
 		{
 			case kTaskUndefined:
 				break;
+			case kTaskStartDebugging:
+			{
+				u32 num_ops = DLParser_GetTotalInstructionCount();
+
+				connection->BeginResponse(200, -1, "text/plain" );
+				connection->WriteF("{\"num_ops\":%d}", num_ops);
+				connection->EndResponse();
+				gDebugging = true;
+				handled = true;
+				break;
+			}
+			case kTaskStopDebugging:
+			{
+				connection->BeginResponse(200, -1, "text/plain" );
+				connection->WriteString("ok");
+				connection->EndResponse();
+				gDebugging = false;
+				handled = true;
+				break;
+			}
+			case kTaskScrub:
+			{
+				DLParser_Process(NULL);
+
+				connection->BeginResponse(200, -1, "text/plain" );
+				connection->WriteString("ok");
+				connection->EndResponse();
+				handled = true;
+				break;
+			}
 			case kTaskTakeScreenshot:
 			{
 				connection->BeginResponse(200, -1, "image/png" );
@@ -70,7 +103,7 @@ bool DLDebugger_Process()
 
 				glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-				// NB, pass a negative pitch, to render the screenshot the right way ip.
+				// NB, pass a negative pitch, to render the screenshot the right way up.
 				s32 pitch = -(width * 4);
 
 				PngSaveImage(connection, pixels, NULL, TexFmt_8888, pitch, width, height, false);
@@ -101,12 +134,18 @@ bool DLDebugger_Process()
 	}
 	glfwUnlockMutex(gScreenshotMutex);
 	glfwSignalCond(gScreenshotCond);
+}
 
-	if (gDebugging)
+bool DLDebugger_Process()
+{
+	DLDebugger_ProcessDebugTask();
+
+	while(gDebugging)
 	{
-		printf("Debugging\n");
-		// FIXME: run DLParser_Process with a FileSink.
-		gDebugging = false;
+		DLParser_Process();
+		DLDebugger_ProcessDebugTask();
+
+		CGraphicsContext::Get()->UpdateFrame( false );
 	}
 
 	return false;
@@ -130,16 +169,31 @@ static void DLDebugHandler(void * arg, WebDebugConnection * connection)
 	const WebDebugConnection::QueryParams & params = connection->GetQueryParams();
 	if (!params.empty())
 	{
+		bool ok = false;
+
 		for (size_t i = 0; i < params.size(); ++i)
 		{
 			if (params[i].Key == "action")
 			{
 				if (params[i].Value == "stop")
 				{
-					DLDebugger_RequestDebug();
+					DoTask(connection, kTaskStartDebugging);
+					return;
+				}
+				else if (params[i].Value == "start")
+				{
+					DoTask(connection, kTaskStopDebugging);
+					return;
 				}
 			}
-			else if (params[i].Key == "setcmd")
+			else if (params[i].Key == "scrub")
+			{
+				u32 op = ParseU32(params[i].Value, 10);
+				DLParser_SetInstructionCountLimit(op);
+				DoTask(connection, kTaskScrub);
+				return;
+			}
+			else if (params[i].Key == "screen")
 			{
 				//int cmd = atoi(params[i].Value);
 				DoTask(connection, kTaskTakeScreenshot);
@@ -154,8 +208,8 @@ static void DLDebugHandler(void * arg, WebDebugConnection * connection)
 		}
 
 		// Fallthrough for handlers that just return 'ok'.
-		connection->BeginResponse(200, -1, "text/plain" );
-		connection->WriteString("ok\n");
+		connection->BeginResponse(ok ? 200 : 400, -1, "text/plain" );
+		connection->WriteString(ok ? "ok\n" : "fail\n");
 		connection->EndResponse();
 		return;
 	}
