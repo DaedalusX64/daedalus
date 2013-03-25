@@ -10,10 +10,10 @@ static u32 SCR_WIDTH = 640;
 static u32 SCR_HEIGHT = 480;
 
 
-class IGraphicsContext : public CGraphicsContext
+class GraphicsContextGL : public CGraphicsContext
 {
 public:
-	virtual ~IGraphicsContext();
+	virtual ~GraphicsContextGL();
 
 
 	virtual bool Initialise();
@@ -40,16 +40,16 @@ template<> bool CSingleton< CGraphicsContext >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
 
-	mpInstance = new IGraphicsContext();
+	mpInstance = new GraphicsContextGL();
 	return mpInstance->Initialise();
 }
 
 
-IGraphicsContext::~IGraphicsContext()
+GraphicsContextGL::~GraphicsContextGL()
 {
 }
 
-bool IGraphicsContext::Initialise()
+bool GraphicsContextGL::Initialise()
 {
 	// Initialise GLFW
 	if( !glfwInit() )
@@ -89,7 +89,7 @@ bool IGraphicsContext::Initialise()
 	return initgl();
 }
 
-void IGraphicsContext::GetScreenSize(u32 * width, u32 * height) const
+void GraphicsContextGL::GetScreenSize(u32 * width, u32 * height) const
 {
 	int window_width, window_height;
 	glfwGetWindowSize( &window_width, &window_height );
@@ -98,12 +98,12 @@ void IGraphicsContext::GetScreenSize(u32 * width, u32 * height) const
 	*height = window_height;
 }
 
-void IGraphicsContext::ViewportType(u32 * width, u32 * height) const
+void GraphicsContextGL::ViewportType(u32 * width, u32 * height) const
 {
 	GetScreenSize(width, height);
 }
 
-void IGraphicsContext::ClearAllSurfaces()
+void GraphicsContextGL::ClearAllSurfaces()
 {
 	// FIXME: this should clear/flip a couple of times to ensure the front and backbuffers are cleared.
 	// Not sure if it's necessary...
@@ -111,7 +111,7 @@ void IGraphicsContext::ClearAllSurfaces()
 }
 
 
-void IGraphicsContext::ClearToBlack()
+void GraphicsContextGL::ClearToBlack()
 {
 	glDepthMask(GL_TRUE);
 	glClearDepth( 1.0f );
@@ -119,20 +119,20 @@ void IGraphicsContext::ClearToBlack()
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
-void IGraphicsContext::ClearZBuffer()
+void GraphicsContextGL::ClearZBuffer()
 {
 	glDepthMask(GL_TRUE);
 	glClearDepth( 1.0f );
 	glClear( GL_DEPTH_BUFFER_BIT );
 }
 
-void IGraphicsContext::ClearColBuffer(const c32 & colour)
+void GraphicsContextGL::ClearColBuffer(const c32 & colour)
 {
 	glClearColor( colour.GetRf(), colour.GetGf(), colour.GetBf(), colour.GetAf() );
 	glClear( GL_COLOR_BUFFER_BIT );
 }
 
-void IGraphicsContext::ClearColBufferAndDepth(const c32 & colour)
+void GraphicsContextGL::ClearColBufferAndDepth(const c32 & colour)
 {
 	glDepthMask(GL_TRUE);
 	glClearDepth( 1.0f );
@@ -140,7 +140,7 @@ void IGraphicsContext::ClearColBufferAndDepth(const c32 & colour)
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 
-void IGraphicsContext::BeginFrame()
+void GraphicsContextGL::BeginFrame()
 {
 	// Get window size (may be different than the requested size)
 	int width, height;
@@ -154,11 +154,11 @@ void IGraphicsContext::BeginFrame()
 	ClearToBlack();
 }
 
-void IGraphicsContext::EndFrame()
+void GraphicsContextGL::EndFrame()
 {
 }
 
-void IGraphicsContext::UpdateFrame( bool wait_for_vbl )
+void GraphicsContextGL::UpdateFrame( bool wait_for_vbl )
 {
 	glfwSwapBuffers();
 }
