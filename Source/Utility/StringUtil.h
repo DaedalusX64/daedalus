@@ -10,6 +10,9 @@ void Split(ConstStringRef str, char split_char, std::vector<ConstStringRef> * pi
 // Splits at the first instance of split_char.
 void SplitAt(ConstStringRef str, char split_char, ConstStringRef * left, ConstStringRef * right);
 
+// Unlike atoi, atol etc, this works with unterminated ranges.
+u32 ParseU32(ConstStringRef str, u32 base);
+
 char * Tidy(char * s);
 
 #endif // STRINGUTIL_H_

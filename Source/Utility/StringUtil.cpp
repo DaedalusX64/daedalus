@@ -57,6 +57,32 @@ void SplitAt(ConstStringRef str, char split_char, ConstStringRef * left, ConstSt
 	*right = ConstStringRef();
 }
 
+u32 ParseU32(ConstStringRef str, u32 base)
+{
+	u32 val = 0;
+	for (const char * p = str.Begin; p < str.End; ++p)
+	{
+		char c = *p;
+
+		// Bail as soon as we see a non-decimal value.
+		u32 digit = base;
+		if (c >= '0' && c <= '9')
+			digit = c - '0';
+		else if (c >= 'a' && c <= 'z')
+			digit = 10 + (c - 'a');
+		else if (c >= 'A' && c <= 'Z')
+			digit = 10 + (c - 'A');
+
+		if (digit >= base)
+			break;
+
+		val *= base;
+		val += c - '0';
+	}
+
+	return val;
+}
+
 // void Print(const std::vector<ConstStringRef> & pieces)
 // {
 // 	for (size_t i = 0; i < pieces.size(); ++i)
