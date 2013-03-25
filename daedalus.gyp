@@ -136,6 +136,7 @@
             'sources': [
               'Source/SysGL/Graphics/GraphicsContextGL.cpp',
               'Source/SysGL/Graphics/NativeTextureGL.cpp',
+              'Source/SysGL/HLEGraphics/GraphicsPluginGL.cpp',
               'Source/SysGL/HLEGraphics/RendererGL.cpp',
 
               'Source/SysOSX/main.cpp',
@@ -148,7 +149,6 @@
               'Source/SysOSX/DynaRec/CodeBufferManagerOSX.cpp',
               'Source/SysOSX/HLEGraphics/DisplayListDebugger.cpp',
               'Source/SysOSX/Input/InputManagerOSX.cpp',
-              'Source/SysOSX/Plugins/GraphicsPluginOSX.cpp',
               'Source/SysOSX/Utility/IOOSX.cpp',
               'Source/SysOSX/Utility/ThreadOSX.cpp',
               'Source/SysOSX/Utility/TimingOSX.cpp',

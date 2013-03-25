@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "GraphicsPluginOSX.h"
 
 #include <GL/glfw.h>
 
