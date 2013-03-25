@@ -17,10 +17,10 @@ FileSink::~FileSink()
 		fclose(Handle);
 }
 
-bool FileSink::Open(const char * filename)
+bool FileSink::Open(const char * filename, const char * mode)
 {
 	DAEDALUS_ASSERT(Handle == NULL, "Alreadh have an open file");
-	Handle = fopen(filename, "wb");
+	Handle = fopen(filename, mode);
 	return Handle != NULL;
 }
 

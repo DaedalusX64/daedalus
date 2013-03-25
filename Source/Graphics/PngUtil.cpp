@@ -166,7 +166,7 @@ void PngSaveImage( const char* filename, const void * data, const void * palette
 				   u32 width, u32 height, bool use_alpha )
 {
 	FileSink sink;
-	if (!sink.Open(filename))
+	if (!sink.Open(filename, "wb"))
 	{
 		DAEDALUS_ERROR( "Couldn't open file for output" );
 		return;

@@ -15,7 +15,7 @@ public:
 	FileSink();
 	~FileSink();
 
-	bool Open(const char * filename);
+	bool Open(const char * filename, const char * mode);
 
 	virtual size_t Write(const void * p, size_t len);
 	virtual void Flush();
