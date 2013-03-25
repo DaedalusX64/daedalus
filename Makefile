@@ -97,6 +97,7 @@ CORE_SRCS = \
 	Source/SysPSP/HLEGraphics/Combiner/RenderSettings.cpp \
 	Source/SysPSP/HLEGraphics/ConvertVertices.S \
 	Source/SysPSP/HLEGraphics/DisplayListDebugger.cpp \
+	Source/SysPSP/HLEGraphics/GraphicsPluginPSP.cpp \
 	Source/SysPSP/HLEGraphics/RendererPSP.cpp \
 	Source/SysPSP/HLEGraphics/TnLVFPU.S\
 	Source/SysPSP/HLEGraphics/VectorClipping.S \
@@ -105,7 +106,6 @@ CORE_SRCS = \
 	Source/SysPSP/main.cpp \
 	Source/SysPSP/MediaEnginePRX/me.c \
 	Source/SysPSP/MediaEnginePRX/MediaEngine.S \
-	Source/SysPSP/Plugins/GraphicsPluginPSP.cpp \
 	Source/SysPSP/UI/AboutComponent.cpp \
 	Source/SysPSP/UI/AdjustDeadzoneScreen.cpp \
 	Source/SysPSP/UI/AdvancedOptionsScreen.cpp \

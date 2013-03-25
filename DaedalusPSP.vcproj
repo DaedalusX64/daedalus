@@ -694,11 +694,7 @@
 					Name="PSP"
 					>
 					<File
-						RelativePath=".\Source\SysPSP\Plugins\GraphicsPluginPSP.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysPSP\Plugins\GraphicsPluginPSP.h"
+						RelativePath=".\Source\SysPSP\HLEGraphics\GraphicsPluginPSP.cpp"
 						>
 					</File>
 				</Filter>

@@ -1226,7 +1226,7 @@
 					Name="PSP"
 					>
 					<File
-						RelativePath=".\Source\SysPSP\Plugins\GraphicsPluginPSP.cpp"
+						RelativePath=".\Source\SysPSP\HLEGraphics\GraphicsPluginPSP.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
