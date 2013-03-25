@@ -134,6 +134,8 @@
               'Source/SysOSX/Include',
             ],
             'sources': [
+              'Source/SysGL/HLEGraphics/RendererGL.cpp',
+
               'Source/SysOSX/main.cpp',
               'Source/SysOSX/HLEAudio/AudioPluginOSX.cpp',
               'Source/SysOSX/Debug/DaedalusAssertOSX.cpp',
@@ -145,7 +147,6 @@
               'Source/SysOSX/Graphics/GraphicsContext.cpp',
               'Source/SysOSX/Graphics/NativeTextureOSX.cpp',
               'Source/SysOSX/HLEGraphics/DisplayListDebugger.cpp',
-              'Source/SysOSX/HLEGraphics/RendererOSX.cpp',
               'Source/SysOSX/Input/InputManagerOSX.cpp',
               'Source/SysOSX/Plugins/GraphicsPluginOSX.cpp',
               'Source/SysOSX/Utility/IOOSX.cpp',

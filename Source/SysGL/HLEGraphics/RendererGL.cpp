@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "RendererOSX.h"
+#include "RendererGL.h"
 
 #include <pspgu.h>
 
@@ -16,8 +16,8 @@
 #include "HLEGraphics/RDPStateManager.h"
 #include "OSHLE/ultra_gbi.h"
 
-BaseRenderer * gRenderer    = NULL;
-RendererOSX *  gRendererOSX = NULL;
+BaseRenderer * gRenderer   = NULL;
+RendererGL *   gRendererGL = NULL;
 
 /* OpenGL 3.0 */
 typedef void (APIENTRY * PFN_glGenVertexArrays)(GLsizei n, GLuint *arrays);
@@ -433,7 +433,7 @@ static ShaderProgram * GetShaderForCurrentMode(u64 mux, u32 cycle_type, u32 alph
 	return program;
 }
 
-void RendererOSX::RestoreRenderStates()
+void RendererGL::RestoreRenderStates()
 {
 	// Initialise the device to our default state
 
@@ -475,7 +475,7 @@ void RendererOSX::RestoreRenderStates()
 
 // Strip out vertex stream into separate buffers.
 // TODO(strmnnrmn): Renderer should support generating this data directly.
-void RendererOSX::RenderDaedalusVtx(int prim, const DaedalusVtx * vertices, int count)
+void RendererGL::RenderDaedalusVtx(int prim, const DaedalusVtx * vertices, int count)
 {
 	DAEDALUS_ASSERT(count <= kMaxVertices, "Too many vertices!");
 
@@ -500,7 +500,7 @@ void RendererOSX::RenderDaedalusVtx(int prim, const DaedalusVtx * vertices, int 
 	RenderDaedalusVtxStreams(prim, &gPositionBuffer[0][0], &gTexCoordBuffer[0][0], &gColorBuffer[0], count);
 }
 
-void RendererOSX::RenderDaedalusVtxStreams(int prim, const float * positions, const float * uvs, const u32 * colours, int count)
+void RendererGL::RenderDaedalusVtxStreams(int prim, const float * positions, const float * uvs, const u32 * colours, int count)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kPositionBuffer]);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 3 * count, positions);
@@ -632,9 +632,9 @@ static void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 }
 
 
-void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer, bool identity_uv_transform)
+void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer, bool identity_uv_transform)
 {
-	DAEDALUS_PROFILE( "RendererOSX::PrepareRenderState" );
+	DAEDALUS_PROFILE( "RendererGL::PrepareRenderState" );
 
 	if ( disable_zbuffer )
 	{
@@ -767,7 +767,7 @@ void RendererOSX::PrepareRenderState(const float (&mat_project)[16], bool disabl
 
 // FIXME(strmnnrmn): for fill/copy modes this does more work than needed.
 // It ends up copying colour/uv coords when not needed, and can use a shader uniform for the fill colour.
-void RendererOSX::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bool disable_zbuffer )
+void RendererGL::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bool disable_zbuffer )
 {
 	if (mTnL.Flags.Texture)
 	{
@@ -780,7 +780,7 @@ void RendererOSX::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, b
 	RenderDaedalusVtx(GL_TRIANGLES, p_vertices, num_vertices);
 }
 
-void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0_, const v2 & uv1_ )
+void RendererGL::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0_, const v2 & uv1_ )
 {
 	// FIXME(strmnnrmn): in copy mode, depth buffer is always disabled. Might not need to check this explicitly.
 
@@ -832,7 +832,7 @@ void RendererOSX::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 #endif
 }
 
-void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0_, const v2 & uv1_ )
+void RendererGL::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0_, const v2 & uv1_ )
 {
 	UpdateTileSnapshots( tile_idx );
 
@@ -882,7 +882,7 @@ void RendererOSX::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, con
 #endif
 }
 
-void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
+void RendererGL::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 {
 	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true, false);
 
@@ -924,11 +924,11 @@ void RendererOSX::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 #endif
 }
 
-void RendererOSX::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
-								f32 u0, f32 v0, f32 u1, f32 v1,
-								const CNativeTexture * texture)
+void RendererGL::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
+							   f32 u0, f32 v0, f32 u1, f32 v1,
+							   const CNativeTexture * texture)
 {
-	DAEDALUS_PROFILE( "RendererOSX::Draw2DTexture" );
+	DAEDALUS_PROFILE( "RendererGL::Draw2DTexture" );
 
 	// FIXME(strmnnrmn): is this right? Gross anyway.
 	gRDPOtherMode.cycle_type = CYCLE_COPY;
@@ -973,13 +973,13 @@ void RendererOSX::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 	RenderDaedalusVtxStreams(GL_TRIANGLE_STRIP, positions, uvs, colours, 4);
 }
 
-void RendererOSX::Draw2DTextureR(f32 x0, f32 y0,
-								 f32 x1, f32 y1,
-								 f32 x2, f32 y2,
-								 f32 x3, f32 y3,
-								 f32 s, f32 t)	// With Rotation
+void RendererGL::Draw2DTextureR(f32 x0, f32 y0,
+								f32 x1, f32 y1,
+								f32 x2, f32 y2,
+								f32 x3, f32 y3,
+								f32 s, f32 t)	// With Rotation
 {
-	DAEDALUS_PROFILE( "RendererOSX::Draw2DTextureR" );
+	DAEDALUS_PROFILE( "RendererGL::Draw2DTextureR" );
 
 	// FIXME(strmnnrmn): is this right? Gross anyway.
 	gRDPOtherMode.cycle_type = CYCLE_COPY;
@@ -1021,13 +1021,13 @@ void RendererOSX::Draw2DTextureR(f32 x0, f32 y0,
 bool CreateRenderer()
 {
 	DAEDALUS_ASSERT_Q(gRenderer == NULL);
-	gRendererOSX = new RendererOSX();
-	gRenderer    = gRendererOSX;
+	gRendererGL = new RendererGL();
+	gRenderer   = gRendererGL;
 	return true;
 }
 void DestroyRenderer()
 {
-	delete gRendererOSX;
-	gRendererOSX = NULL;
-	gRenderer    = NULL;
+	delete gRendererGL;
+	gRendererGL = NULL;
+	gRenderer   = NULL;
 }

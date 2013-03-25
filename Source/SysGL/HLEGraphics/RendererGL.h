@@ -1,9 +1,9 @@
-#ifndef RENDEREROSX_H__
-#define RENDEREROSX_H__
+#ifndef RENDERERGL_H__
+#define RENDERERGL_H__
 
 #include "HLEGraphics/BaseRenderer.h"
 
-class RendererOSX : public BaseRenderer
+class RendererGL : public BaseRenderer
 {
 public:
 	virtual void		RestoreRenderStates();
@@ -28,6 +28,6 @@ private:
 };
 
 // NB: this is equivalent to gRenderer, but points to the implementation class, for platform-specific functionality.
-extern RendererOSX * gRendererOSX;
+extern RendererGL * gRendererGL;
 
-#endif // RENDEREROSX_H__
+#endif // RENDERERGL_H__
