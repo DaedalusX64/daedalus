@@ -52,6 +52,9 @@ private:
 	QueryParams					mQueryParams;
 };
 
+void Generate404(WebDebugConnection * connection, const char * request);
+void Generate500(WebDebugConnection * connection, const char * message);
+
 typedef void (*WebDebugHandler)(void * arg, WebDebugConnection * connection);
 void WebDebug_Register(const char * request, WebDebugHandler handler, void * arg);
 

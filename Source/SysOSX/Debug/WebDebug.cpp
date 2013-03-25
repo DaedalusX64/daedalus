@@ -146,7 +146,7 @@ void WebDebugConnection::EndResponse()
 	mState = kResponded;
 }
 
-static void Generate404(WebDebugConnection * connection, const char * request)
+void Generate404(WebDebugConnection * connection, const char * request)
 {
 	connection->BeginResponse(404, -1, "text/html" );
 
@@ -168,6 +168,31 @@ static void Generate404(WebDebugConnection * connection, const char * request)
 	WriteStandardFooter(connection);
 	connection->EndResponse();
 }
+
+void Generate500(WebDebugConnection * connection, const char * message)
+{
+	connection->BeginResponse(500, -1, "text/html" );
+
+	WriteStandardHeader(connection, "404 - Page Not Found");
+
+	connection->WriteString(
+		"<div class=\"container\">\n"
+		"	<div class=\"row\">\n"
+		"		<div class=\"span12\">\n"
+	);
+	connection->WriteString("<h1>500 - Epic Fail</h1>\n");
+	connection->WriteF("<div>%s. Sad Panda :(</div>", message);
+	connection->WriteString(
+		"		</div>\n"
+		"	</div>\n"
+		"</div>\n"
+	);
+
+	WriteStandardFooter(connection);
+	connection->EndResponse();
+}
+
+
 
 static const char * GetContentTypeForFilename(const char * filename)
 {
