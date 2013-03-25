@@ -31,7 +31,7 @@ bool gDKRBillBoard = false;
 //*****************************************************************************
 void DLParser_DumpVtxInfoDKR(u32 address, u32 v0_idx, u32 num_verts)
 {
-	if (gDisplayListFile != NULL)
+	if (DLDebug_IsActive())
 	{
 		u32 psSrc = (u32)(g_pu8RamBase + address);
 
@@ -85,7 +85,7 @@ void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 	u32 address		= command.inst.cmd1 + gAuxAddr;
 	u32 num_verts   = ((command.inst.cmd0 >> 19) & 0x1F);
 	u32 v0_idx		= 0;
-	
+
 	// Increase by one num verts for DKR
 	if( g_ROM.GameHacks == DKR ) num_verts++;
 

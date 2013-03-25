@@ -3,6 +3,8 @@
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 
+#include <stdarg.h>
+
 #include "RDP.h"
 #include "Core/ROM.h"
 
@@ -11,8 +13,35 @@
 #include "OSHLE/ultra_gbi.h"
 #include "Utility/IO.h"
 
+void DLDebug_Printf(const char * fmt, ...)
+{
+	static const u32 kBufferLen = 1024;
+	char buffer[kBufferLen];
 
-FILE * 				gDisplayListFile 			= NULL;
+	va_list va;
+	va_start(va, fmt);
+
+	// I've never been confident that this returns a sane value across platforms.
+	/*len = */vsnprintf( buffer, kBufferLen, fmt, va );
+
+	// This should be guaranteed...
+	buffer[kBufferLen-1] = 0;
+	va_end(va);
+
+	size_t len = strlen(buffer);
+
+	// Append a newline, if there's space in the buffer.
+	if (len < 1024)
+	{
+		buffer[len] = '\n';
+		++len;
+	}
+
+	gDisplayListSink->Write(buffer, len);
+}
+
+
+DataSink *			gDisplayListSink 			= NULL;
 static bool 		gDumpNextDisplayList 		= false;
 static const char *	gDisplayListRootPath 		= "DisplayLists";
 static const char *	gDisplayListDumpPathFormat 	= "dl%04d.txt";
@@ -166,7 +195,7 @@ static const char * const kBlendA2[] = { "1-A", "AMem", "1",      "?" };
 
 void DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode)
 {
-	if (gDisplayListFile != NULL)
+	if (DLDebug_IsActive())
 	{
 		// High
 		static const char *alphadithertypes[4]	= {"Pattern", "NotPattern", "Noise", "Disable"};
@@ -265,16 +294,31 @@ void DLDebug_HandleDumpDisplayList( OSTask * pTask )
 
 		IO::Path::Append(szFilePath, szFileName);
 
-		gDisplayListFile = fopen( szFilePath, "w" );
-		if (gDisplayListFile != NULL)
+		FileSink * sink = new FileSink();
+		if (sink->Open(szFilePath, "w"))
+		{
+			gDisplayListSink = sink;
 			DBGConsole_Msg(0, "RDP: Dumping Display List as %s", szFilePath);
+		}
 		else
+		{
+			delete sink;
 			DBGConsole_Msg(0, "RDP: Couldn't create dumpfile %s", szFilePath);
+		}
 
 		DLParser_DumpTaskInfo( pTask );
 
 		// Clear flag as we're done
 		gDumpNextDisplayList = false;
+	}
+}
+
+void DLDebug_Finish()
+{
+	if (gDisplayListSink)
+	{
+		delete gDisplayListSink;
+		gDisplayListSink = NULL;
 	}
 }
 

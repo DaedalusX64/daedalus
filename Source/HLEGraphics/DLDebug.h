@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DAEDALUS_DEBUGDISPLAYLIST_H_
 
 #include "OSHLE/ultra_sptask.h" // Ugh, could just fwd-decl OSTask, if it wasn't a crazy typedef union.
+#include "Utility/DataSink.h"
 
 struct RDP_OtherMode;
 
@@ -29,16 +30,15 @@ struct RDP_OtherMode;
 //*************************************************************************************
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 
-extern FILE * gDisplayListFile;
+extern DataSink * gDisplayListSink;
 
-#define DL_PF( ... )									\
-{														\
-	if( gDisplayListFile != NULL )						\
-	{													\
-		fprintf( gDisplayListFile, __VA_ARGS__ );		\
-		fputs( "\n", gDisplayListFile );				\
-	}													\
-}
+inline bool DLDebug_IsActive() { return gDisplayListSink != NULL; }
+
+#define DL_PF(...)							\
+	do {									\
+		if( DLDebug_IsActive() )			\
+			DLDebug_Printf( __VA_ARGS__ );	\
+	} while(0)
 
 #else
 
@@ -104,6 +104,8 @@ extern void DLDebugger_RequestDebug();
 
 #endif
 
+void		DLDebug_Finish();
+void		DLDebug_Printf(const char * fmt, ...);
 void		DLDebug_HandleDumpDisplayList(OSTask * pTask);
 void		DLDebug_DumpMux(u64 mux);
 void		DLDebug_PrintMux( FILE * fh, u64 mux );

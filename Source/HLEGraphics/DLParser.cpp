@@ -249,7 +249,7 @@ static const char * const gOnOffNames[2]  = {"Off", "On"};
 //*****************************************************************************
 void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts)
 {
-	if (gDisplayListFile != NULL)
+	if (DLDebug_IsActive())
 	{
 		s8 *pcSrc = (s8 *)(g_pu8RamBase + address);
 		s16 *psSrc = (s16 *)(g_pu8RamBase + address);
@@ -576,12 +576,7 @@ void DLParser_Process()
 	FinishRDPJob();
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	if (gDisplayListFile != NULL)
-	{
-		fclose( gDisplayListFile );
-		gDisplayListFile = NULL;
-	}
-
+	DLDebug_Finish();
 	gTotalInstructionCount = gCurrentInstructionCount;
 
 #endif
@@ -1156,7 +1151,7 @@ void DLParser_SetCombine( MicroCodeCommand command )
 	gRenderer->SetMux( Mux._u64 );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	if (gDisplayListFile != NULL)
+	if (DLDebug_IsActive())
 	{
 		DLDebug_DumpMux( Mux._u64 );
 	}
