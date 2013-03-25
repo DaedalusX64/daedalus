@@ -8,6 +8,7 @@
 #include "Graphics/PngUtil.h"
 
 #include "HLEGraphics/DLDebug.h"
+#include "HLEGraphics/DLParser.h"
 
 #include "Utility/Mutex.h"
 
@@ -25,6 +26,7 @@ enum DebugTask
 {
 	kTaskUndefined,
 	kTaskTakeScreenshot,
+	kTaskDumpDList,
 };
 
 // This mutex is to ensure that only one connection can request a screenshot at a time.
@@ -44,11 +46,7 @@ void DLDebugger_RequestDebug()
 
 bool DLDebugger_Process()
 {
-	if (gDebugging)
-	{
-		printf("Debugging\n");
-		gDebugging = false;
-	}
+	bool processed = false;
 
 	// Check if a web request is waiting for a screenshot.
 	glfwLockMutex(gScreenshotMutex);
@@ -83,6 +81,14 @@ bool DLDebugger_Process()
 				handled = true;
 				break;
 			}
+			case kTaskDumpDList:
+			{
+				connection->BeginResponse(200, -1, "text/plain" );
+				DLParser_Process(connection);
+				connection->EndResponse();
+				handled = true;
+				break;
+			}
 		}
 
 		if (!handled)
@@ -96,10 +102,17 @@ bool DLDebugger_Process()
 	glfwUnlockMutex(gScreenshotMutex);
 	glfwSignalCond(gScreenshotCond);
 
+	if (gDebugging)
+	{
+		printf("Debugging\n");
+		// FIXME: run DLParser_Process with a FileSink.
+		gDebugging = false;
+	}
+
 	return false;
 }
 
-static void TakeScreenshot(WebDebugConnection * connection)
+static void DoTask(WebDebugConnection * connection, DebugTask task)
 {
 	// Only one request for a screenshot can be serviced at a time.
 	MutexLock lock(&gMainThreadSync);
@@ -107,7 +120,7 @@ static void TakeScreenshot(WebDebugConnection * connection)
 	// Request a screenshot from the main thread.
 	glfwLockMutex(gScreenshotMutex);
 	gActiveConnection = connection;
-	gDebugTask        = kTaskTakeScreenshot;
+	gDebugTask        = task;
 	glfwWaitCond(gScreenshotCond, gScreenshotMutex, GLFW_INFINITY);
 	glfwUnlockMutex(gScreenshotMutex);
 }
@@ -129,7 +142,13 @@ static void DLDebugHandler(void * arg, WebDebugConnection * connection)
 			else if (params[i].Key == "setcmd")
 			{
 				//int cmd = atoi(params[i].Value);
-				TakeScreenshot(connection);
+				DoTask(connection, kTaskTakeScreenshot);
+				return;
+			}
+			else if (params[i].Key == "dump")
+			{
+				//int cmd = atoi(params[i].Value);
+				DoTask(connection, kTaskDumpDList);
 				return;
 			}
 		}
