@@ -723,7 +723,7 @@ static void wb_close_client(struct WebbyServer *srv, struct WebbyConnectionPrv* 
 {
   (void) srv;
 
-  if (connection->flags & WB_ALIVE)
+  if (connection->socket != WB_INVALID_SOCKET)
   {
     wb_close_socket(connection->socket);
     connection->socket = WB_INVALID_SOCKET;
