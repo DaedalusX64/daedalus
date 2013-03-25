@@ -135,6 +135,7 @@
             ],
             'sources': [
               'Source/SysGL/Graphics/GraphicsContextGL.cpp',
+              'Source/SysGL/Graphics/NativeTextureGL.cpp',
               'Source/SysGL/HLEGraphics/RendererGL.cpp',
 
               'Source/SysOSX/main.cpp',
@@ -145,7 +146,6 @@
               'Source/SysOSX/Debug/WebDebugTemplate.cpp',
               'Source/SysOSX/DummyPSP/pspctrl.cpp',
               'Source/SysOSX/DynaRec/CodeBufferManagerOSX.cpp',
-              'Source/SysOSX/Graphics/NativeTextureOSX.cpp',
               'Source/SysOSX/HLEGraphics/DisplayListDebugger.cpp',
               'Source/SysOSX/Input/InputManagerOSX.cpp',
               'Source/SysOSX/Plugins/GraphicsPluginOSX.cpp',
