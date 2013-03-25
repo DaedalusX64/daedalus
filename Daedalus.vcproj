@@ -598,30 +598,6 @@
 						</FileConfiguration>
 					</File>
 				</Filter>
-				<Filter
-					Name="Xbox"
-					>
-					<File
-						RelativePath=".\Source\SysXbox\Debug\DBGConsoleXbox.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-				</Filter>
 			</Filter>
 			<Filter
 				Name="DynaRec"
@@ -947,30 +923,6 @@
 					>
 				</File>
 				<Filter
-					Name="Xbox"
-					>
-					<File
-						RelativePath=".\Source\SysXbox\Interface\MainWindowXbox.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-				</Filter>
-				<Filter
 					Name="W32"
 					>
 					<File
@@ -1244,38 +1196,6 @@
 								Name="VCCLCompilerTool"
 							/>
 						</FileConfiguration>
-					</File>
-					<File
-						RelativePath=".\Source\SysPSP\Plugins\GraphicsPluginPSP.h"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Xbox"
-					>
-					<File
-						RelativePath=".\Source\SysXbox\Plugins\GraphicsPluginXbox.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath=".\Source\SysXbox\Plugins\GraphicsPluginXbox.h"
-						>
 					</File>
 				</Filter>
 			</Filter>
