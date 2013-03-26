@@ -566,7 +566,7 @@ void BaseRenderer::FlushTris()
 //Croping triangles just outside the NDC box and let PSP HW do the final crop
 //improves quality but fails in some games (Rocket Robot/Lego racers)//Corn
 //*****************************************************************************
-const v4 __attribute__((aligned(16))) NDCPlane[6] =
+ALIGNED_TYPE(const v4, NDCPlane[6], 16) =
 {
 	v4(  0.f,  0.f, -1.f, -1.f ),	// near
 	v4(  0.f,  0.f,  1.f, -1.f ),	// far

@@ -1267,6 +1267,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\Utility\DataSink.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Utility\DataSink.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\Utility\DaedalusTypes.h"
 					>
 				</File>
@@ -1412,6 +1420,14 @@
 				</File>
 				<File
 					RelativePath=".\Source\Utility\String.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Utility\StringUtil.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Utility\StringUtil.h"
 					>
 				</File>
 				<File
@@ -1729,6 +1745,10 @@
 				Name="HLEGraphics"
 				>
 				<File
+					RelativePath=".\Source\HLEGraphics\BaseRenderer.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\HLEGraphics\BaseRenderer.h"
 					>
 				</File>
@@ -1751,14 +1771,7 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\ConvertImage.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
+
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\ConvertImage.h"
@@ -1779,22 +1792,6 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\DLParser.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\DLParser.h"
@@ -1803,14 +1800,6 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\Microcode.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\Microcode.h"
@@ -1823,14 +1812,6 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\RDP.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\RDP.h"
@@ -1839,14 +1820,6 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\RDPStateManager.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\RDPStateManager.h"
@@ -1855,14 +1828,6 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\CachedTexture.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\CachedTexture.h"
@@ -1871,14 +1836,6 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\TextureCache.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\TextureCache.h"
@@ -1887,17 +1844,17 @@
 				<File
 					RelativePath=".\Source\HLEGraphics\TextureInfo.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\TextureInfo.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\HLEGraphics\uCodes\Ucode.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\HLEGraphics\uCodes\Ucode.h"
 					>
 				</File>
 				<Filter
@@ -1963,26 +1920,6 @@
 				<Filter
 					Name="PSP"
 					>
-					<File
-						RelativePath=".\Source\HLEGraphics\BaseRenderer.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
 					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\BlendModes.cpp"
 						>
@@ -2713,7 +2650,23 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\Graphics\PngUtil.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Graphics\PngUtil.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\Graphics\TextureFormat.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Graphics\TextureTransform.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Graphics\TextureTransform.h"
 					>
 				</File>
 				<Filter

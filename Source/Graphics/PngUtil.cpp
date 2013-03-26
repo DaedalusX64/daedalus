@@ -113,7 +113,8 @@ void PngSaveImage( DataSink * sink, const void * data, const void * palette, ETe
 		return;
 	}
 
-	png_set_write_fn(png_ptr, sink, &PngWrite, &PngFlush);
+	// MVS complains that cannot convert this parameters, a cast was added //Salvy
+	png_set_write_fn(png_ptr, sink, (png_rw_ptr)&PngWrite, (png_flush_ptr)&PngFlush);
 	png_set_IHDR(png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 	png_write_info(png_ptr, info_ptr);
 
