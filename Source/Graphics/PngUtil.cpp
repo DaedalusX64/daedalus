@@ -82,13 +82,13 @@ static void WritePngRowPal8( u8 * line, const void * src, u32 width, const Nativ
 	}
 }
 
-static void PngWrite(png_structp png_ptr, png_bytep data, png_size_t len)
+static void DAEDALUS_ZLIB_CALL_TYPE PngWrite(png_structp png_ptr, png_bytep data, png_size_t len)
 {
 	DataSink * sink = static_cast<DataSink*>(png_get_io_ptr(png_ptr));
 	sink->Write(data, len);
 }
 
-static void PngFlush(png_structp png_ptr)
+static void DAEDALUS_ZLIB_CALL_TYPE PngFlush(png_structp png_ptr)
 {
 	DataSink * sink = static_cast<DataSink*>(png_get_io_ptr(png_ptr));
 	sink->Flush();
@@ -113,8 +113,7 @@ void PngSaveImage( DataSink * sink, const void * data, const void * palette, ETe
 		return;
 	}
 
-	// MVS complains that cannot convert this parameters, a cast was added //Salvy
-	png_set_write_fn(png_ptr, sink, (png_rw_ptr)&PngWrite, (png_flush_ptr)&PngFlush);
+	png_set_write_fn(png_ptr, sink, PngWrite, PngFlush);
 	png_set_IHDR(png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 	png_write_info(png_ptr, info_ptr);
 
