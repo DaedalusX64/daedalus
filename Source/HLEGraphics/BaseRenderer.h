@@ -413,7 +413,7 @@ protected:
 	float				mScreenWidth;
 	float				mScreenHeight;
 
-#if defined(DAEDALUS_OSX)
+#if defined(DAEDALUS_GL)
 	Matrix4x4			mScreenToDevice;					// Used by OSX renderer - scales screen coords (0..640 etc) to device coords (-1..+1)
 #endif
 

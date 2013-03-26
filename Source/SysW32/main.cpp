@@ -47,11 +47,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ConfigOptions.h"
 
-//FIX ME (these are only declare in PSP files)
-u32					gVISyncRate 	= 1500;
-f32 				gZoomX			= 1.0;
-EFrameskipValue		gFrameskipValue = FV_DISABLED;
-
 /////////////////////////////////////////////////////////////////////
 //
 // Static Declarations
@@ -87,169 +82,33 @@ char		gDaedalusExePath[MAX_PATH+1];
 HINSTANCE	g_hInstance = NULL;
 
 OSVERSIONINFO g_OSVersionInfo;
-
-/////////////////////////////////////////////////////////////////////
-//
-// WinMain
-//
-/////////////////////////////////////////////////////////////////////
-int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst,
-				   LPSTR command_line, int nWinMode)
+int main(int argc, char **argv)
 {
-	int		return_code;
-
-#ifdef _DEBUG
-	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF |
-					//_CRTDBG_CHECK_ALWAYS_DF |
-					_CRTDBG_DELAY_FREE_MEM_DF |
-					_CRTDBG_LEAK_CHECK_DF );
-#endif
-
-	_Module.Init( NULL, hThisInst );
-
-	    int    argc;
-    char** argv;
-
-    char*  arg;
-    int    index;
-
-    // count the arguments
-
-    argc = 1;
-    arg  = command_line;
-
-    while (arg[0] != 0) {
-        while (arg[0] != 0 && arg[0] == ' ') {
-            arg++;
-        }
-        if (arg[0] != 0) {
-            argc++;
-            while (arg[0] != 0 && arg[0] != ' ') {
-                arg++;
-            }
-        }
-    }
-
-    // tokenize the arguments
-    argv = (char**)malloc(argc * sizeof(char*));
-
-    arg = command_line;
-    index = 1;
-
-    while (arg[0] != 0) {
-        while (arg[0] != 0 && arg[0] == ' ') {
-            arg++;
-        }
-        if (arg[0] != 0) {
-            argv[index] = arg;
-            index++;
-            while (arg[0] != 0 && arg[0] != ' ') {
-                arg++;
-            }
-            if (arg[0] != 0) {
-                arg[0] = 0;
-                arg++;
-            }
-        }
-    }
-
-    // put the program name into argv[0]
-
-    char filename[_MAX_PATH];
-
-    GetModuleFileName(NULL, filename, _MAX_PATH);
-    argv[0] = filename;
-
-	return_code = DaedalusMain( nWinMode, argc, argv );
-
-	free(argv);
-	_Module.Term();
-
-	return return_code;
-}
-
-
-//*****************************************************************************
-//
-//*****************************************************************************
-static int  DaedalusMain( int nWinMode , int argc, char **argv)
-{
-	int nResult = 0;
-	BOOL bResult;
-
-	g_hInstance = _Module.GetModuleInstance();
-
-	g_OSVersionInfo.dwOSVersionInfoSize = sizeof(g_OSVersionInfo);
-	GetVersionEx(&g_OSVersionInfo);
-
-	// must be setup before checking for DLLs to display localized error message
-	Localization_SetLanguage();
-
-	LoadStrings();
-	GetModuleFileName(g_hInstance, gDaedalusExePath, MAX_PATH);
-	IO::Path::RemoveFileSpec(gDaedalusExePath);
-
-	// Check for DX8 - nice idea from Lkb!!
-	// We delayload dinput8.dll (ddraw.dll is almost always likely to be found)
-	// This ensures that Daedalus will start up ok.
-	// We check here for dinput8.dll - if it's missing then we return
-	// a more meaningful error than windows would, and quit
+	char			path[MAX_PATH];
+	int result = 0;
+	if (argc > 0)
 	{
-		HINSTANCE hInstDInput;
-
-		hInstDInput = LoadLibrary("dinput8.dll");
-		if (hInstDInput == NULL)
-		{
-			MessageBox(NULL, CResourceString(IDS_NODX8),
-							 g_szDaedalusName, MB_ICONSTOP|MB_OK);
-			return 0;
-		}
-		FreeLibrary(hInstDInput);
+		strcpy(path, argv[0]);
+		IO::Path::RemoveFileSpec(path);
+		strcpy(gDaedalusExePath, path);
+		strcat(path, "/AeroGauge.z64");
+		fprintf(stderr, "Loading %s\n",path);
+	}
+	else
+	{
+		return 1;
 	}
 
-	//
-	// Read configuration before doing anything major
-	//
-	ReadConfiguration();
+	//ReadConfiguration();
 
-	bResult = System_Init();
-	if ( !bResult )
+	if (!System_Init())
 		return 1;
 
-	//
-	// Create the console if it's enabled. Don't care about failures
-	//
-	DisplayDisclaimer();
-	DisplayConfig();
+	//ToDO: Fix ROM batch
 
-	// Wrap the main processing in an exception handler
-	// This should at least let us save the config/inifile
-	// if something goes wrong.
-	try
-	{
-#ifdef DAEDALUS_BATCH_TEST_ENABLED
-		if (argc > 1)
-		{
-			BatchTestMain( argc, argv);
-		}
-#endif
-		nResult = RunMain();
-	}
-	catch (...)
-	{
-		if (g_DaedalusConfig.TrapExceptions)
-			MessageBox(NULL, CResourceString(IDS_EXCEPTION), g_szDaedalusName, MB_OK);
-		else
-		{
-			throw;
-		}
-	}
-
-
-	//
-	// Write current config out to the registry
-	//
-	WriteConfiguration();
+	System_Open(path);
+	CPU_Run();
+	System_Close();
 
 	//
 	// Turn off the debug console
@@ -258,45 +117,217 @@ static int  DaedalusMain( int nWinMode , int argc, char **argv)
 
 	System_Finalize();
 
-	return nResult;
+	return result;
 }
-
-
-int RunMain(void)
-{
-	MSG msg;
-	HACCEL hMainAccel;
-
-	// Load the accelerators
-	hMainAccel = LoadAccelerators( g_hInstance, MAKEINTRESOURCE(IDR_APP_ACCELERATOR));
-
-
-	// Was PeekMessage - caused huge slowdown on Win9x machines.
-	// (but not on Win2k machines strangely). There is no good reason
-	// for PeekMessage being there. Originally the CPU was driven off the idle
-	// time in this loop. When I moved the CPU stuff to its own thread, I must
-	// have fogotten to change this back to GetMessage. Oops.
-	while (GetMessage(&msg, (HWND)NULL, 0,0))//, PM_REMOVE))
-	{
-
-		// Disable this code so that the listview passes accelerator commands on
-		//if (msg.hwnd == CMainWindow::Get()->GetWindow())
-		{
-			if (!TranslateAccelerator(CMainWindow::Get()->GetWindow(), hMainAccel, &msg))
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-		}
-		/*else
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}*/
-	}
-
-	return 0;
-}
+/////////////////////////////////////////////////////////////////////
+//
+// WinMain
+//
+/////////////////////////////////////////////////////////////////////
+//int WINAPI WinMain(HINSTANCE hThisInst, HINSTANCE hPrevInst,
+//				   LPSTR command_line, int nWinMode)
+//{
+//	int		return_code;
+//
+//#ifdef _DEBUG
+//	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF |
+//					//_CRTDBG_CHECK_ALWAYS_DF |
+//					_CRTDBG_DELAY_FREE_MEM_DF |
+//					_CRTDBG_LEAK_CHECK_DF );
+//#endif
+//
+//	_Module.Init( NULL, hThisInst );
+//
+//	    int    argc;
+//    char** argv;
+//
+//    char*  arg;
+//    int    index;
+//
+//    // count the arguments
+//
+//    argc = 1;
+//    arg  = command_line;
+//
+//    while (arg[0] != 0) {
+//        while (arg[0] != 0 && arg[0] == ' ') {
+//            arg++;
+//        }
+//        if (arg[0] != 0) {
+//            argc++;
+//            while (arg[0] != 0 && arg[0] != ' ') {
+//                arg++;
+//            }
+//        }
+//    }
+//
+//    // tokenize the arguments
+//    argv = (char**)malloc(argc * sizeof(char*));
+//
+//    arg = command_line;
+//    index = 1;
+//
+//    while (arg[0] != 0) {
+//        while (arg[0] != 0 && arg[0] == ' ') {
+//            arg++;
+//        }
+//        if (arg[0] != 0) {
+//            argv[index] = arg;
+//            index++;
+//            while (arg[0] != 0 && arg[0] != ' ') {
+//                arg++;
+//            }
+//            if (arg[0] != 0) {
+//                arg[0] = 0;
+//                arg++;
+//            }
+//        }
+//    }
+//
+//    // put the program name into argv[0]
+//
+//    char filename[_MAX_PATH];
+//
+//    GetModuleFileName(NULL, filename, _MAX_PATH);
+//    argv[0] = filename;
+//
+//	return_code = DaedalusMain( nWinMode, argc, argv );
+//
+//	free(argv);
+//	_Module.Term();
+//
+//	return return_code;
+//}
+//
+//
+////*****************************************************************************
+////
+////*****************************************************************************
+//static int  DaedalusMain( int nWinMode , int argc, char **argv)
+//{
+//	int nResult = 0;
+//	BOOL bResult;
+//
+//	g_hInstance = _Module.GetModuleInstance();
+//
+//	g_OSVersionInfo.dwOSVersionInfoSize = sizeof(g_OSVersionInfo);
+//	GetVersionEx(&g_OSVersionInfo);
+//
+//	// must be setup before checking for DLLs to display localized error message
+//	Localization_SetLanguage();
+//
+//	LoadStrings();
+//	GetModuleFileName(g_hInstance, gDaedalusExePath, MAX_PATH);
+//	IO::Path::RemoveFileSpec(gDaedalusExePath);
+//
+//	// Check for DX8 - nice idea from Lkb!!
+//	// We delayload dinput8.dll (ddraw.dll is almost always likely to be found)
+//	// This ensures that Daedalus will start up ok.
+//	// We check here for dinput8.dll - if it's missing then we return
+//	// a more meaningful error than windows would, and quit
+//	{
+//		HINSTANCE hInstDInput;
+//
+//		hInstDInput = LoadLibrary("dinput8.dll");
+//		if (hInstDInput == NULL)
+//		{
+//			MessageBox(NULL, CResourceString(IDS_NODX8),
+//							 g_szDaedalusName, MB_ICONSTOP|MB_OK);
+//			return 0;
+//		}
+//		FreeLibrary(hInstDInput);
+//	}
+//
+//	//
+//	// Read configuration before doing anything major
+//	//
+//	ReadConfiguration();
+//
+//	bResult = System_Init();
+//	if ( !bResult )
+//		return 1;
+//
+//	//
+//	// Create the console if it's enabled. Don't care about failures
+//	//
+//	DisplayDisclaimer();
+//	DisplayConfig();
+//
+//	// Wrap the main processing in an exception handler
+//	// This should at least let us save the config/inifile
+//	// if something goes wrong.
+//	try
+//	{
+//#ifdef DAEDALUS_BATCH_TEST_ENABLED
+//		if (argc > 1)
+//		{
+//			BatchTestMain( argc, argv);
+//		}
+//#endif
+//		nResult = RunMain();
+//	}
+//	catch (...)
+//	{
+//		if (g_DaedalusConfig.TrapExceptions)
+//			MessageBox(NULL, CResourceString(IDS_EXCEPTION), g_szDaedalusName, MB_OK);
+//		else
+//		{
+//			throw;
+//		}
+//	}
+//
+//
+//	//
+//	// Write current config out to the registry
+//	//
+//	WriteConfiguration();
+//
+//	//
+//	// Turn off the debug console
+//	//
+//	CDebugConsole::Get()->EnableConsole( false );
+//
+//	System_Finalize();
+//
+//	return nResult;
+//}
+//
+//
+//int RunMain(void)
+//{
+//	MSG msg;
+//	HACCEL hMainAccel;
+//
+//	// Load the accelerators
+//	hMainAccel = LoadAccelerators( g_hInstance, MAKEINTRESOURCE(IDR_APP_ACCELERATOR));
+//
+//
+//	// Was PeekMessage - caused huge slowdown on Win9x machines.
+//	// (but not on Win2k machines strangely). There is no good reason
+//	// for PeekMessage being there. Originally the CPU was driven off the idle
+//	// time in this loop. When I moved the CPU stuff to its own thread, I must
+//	// have fogotten to change this back to GetMessage. Oops.
+//	while (GetMessage(&msg, (HWND)NULL, 0,0))//, PM_REMOVE))
+//	{
+//
+//		// Disable this code so that the listview passes accelerator commands on
+//		//if (msg.hwnd == CMainWindow::Get()->GetWindow())
+//		{
+//			if (!TranslateAccelerator(CMainWindow::Get()->GetWindow(), hMainAccel, &msg))
+//			{
+//				TranslateMessage(&msg);
+//				DispatchMessage(&msg);
+//			}
+//		}
+//		/*else
+//		{
+//			TranslateMessage(&msg);
+//			DispatchMessage(&msg);
+//		}*/
+//	}
+//
+//	return 0;
+//}
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 void LoadStrings(void)

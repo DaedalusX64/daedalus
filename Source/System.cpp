@@ -31,9 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/VideoMemoryManager.h"
 #endif
 
-#if defined(DAEDALUS_PSP) || defined(DAEDALUS_OSX)
 #include "Graphics/GraphicsContext.h"
-#endif
+
 
 #ifdef DAEDALUS_W32
 #include "Interface/MainWindow.h"
@@ -165,16 +164,15 @@ SysEntityEntry SysInitTable[] =
 	{"Memory",				Memory_Init,				Memory_Fini},
 #ifdef DAEDALUS_W32
 	{"Main Window",			CMainWindow::Create,		CMainWindow::Destroy},
-	{"Enable Debug Console", EnableConsole,				DisableConsole},
+	//{"Enable Debug Console", EnableConsole,				DisableConsole},
 #endif
 	{"Controller",			CController::Create,		CController::Destroy},
 #ifdef DAEDALUS_PSP
 	{"VideoMemory",			CVideoMemoryManager::Create, NULL},
 #endif
 	{"RomBuffer",			RomBuffer::Create,			RomBuffer::Destroy},
-#if defined(DAEDALUS_PSP) || defined(DAEDALUS_OSX)
 	{"GraphicsContext",		CGraphicsContext::Create,	CGraphicsContext::Destroy},
-#endif
+
 #ifdef DAEDALUS_OSX
 	{"WebDebug",			WebDebug_Init, 				WebDebug_Fini},
 	{"TextureCacheWebDebug",TextureCache_RegisterWebDebug, 	NULL},

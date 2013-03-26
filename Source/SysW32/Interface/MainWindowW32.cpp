@@ -23,7 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 
 #include "Interface/MainWindow.h"
-#include "ConfigDialog.h"
 #include "RomSettingsDialog.h"
 #include "FileNameHandler.h"
 
@@ -697,10 +696,7 @@ void IMainWindow::OnTimer(HWND hWnd, UINT id)
 //*****************************************************************************
 void IMainWindow::OnMove(HWND hWnd, int x, int y)
 {
-	if ( gGraphicsPlugin != NULL )
-	{
-		gGraphicsPlugin->MoveScreen(x, y);
-	}
+
 }
 
 //*****************************************************************************
@@ -861,41 +857,9 @@ void IMainWindow::OnCommand(HWND hWnd, int id, HWND hwndCtl, UINT codeNotify)
 			CInputManager::Get()->Configure(hWnd);
 			break;
 
-		case IDM_CONFIGURATION:
-			{
-				CConfigDialog	dialog;
-
-				dialog.DoModal();
-			}
-			break;
-
-		case IDM_GRAPHICS_CONFIG:
-			if ( gGraphicsPlugin == NULL )
-			{
-				gGraphicsPlugin = CreateGraphicsPlugin();
-			}
-			gGraphicsPlugin->DllConfig( hWnd );
-
-			break;
 
 		case IDM_ABOUT:
 			DialogBox( _Module.GetResourceInstance(), MAKEINTRESOURCE(IDD_ABOUT), hWnd, AboutDlgProc);
-			break;
-		case IDM_SCREENSHOT:
-			if ( gGraphicsPlugin != NULL )
-			{
-				gGraphicsPlugin->ExecuteCommand( DAEDALUS_GFX_CAPTURESCREEN, NULL );
-			}
-			break;
-
-		case IDM_TOGGLEFULLSCREEN:
-			{
-				if ( gGraphicsPlugin != NULL )
-				{
-					gGraphicsPlugin->ChangeWindow();
-				}
-			}
-
 			break;
 
 		case IDM_DAEDALUS_HOME:
@@ -923,12 +887,6 @@ void IMainWindow::OnKeyUp(HWND hWnd, UINT vk, BOOL fDown, int cRepeat, UINT flag
 	switch ( vk )
 	{
 		// None of this will work, because we're using exclusive dinput:
-		case VK_F1:
-			if ( gGraphicsPlugin != NULL )
-			{
-				gGraphicsPlugin->ExecuteCommand( DAEDALUS_GFX_DUMPDL, NULL );
-			}
-			break;
 
 #ifdef DAEDALUS_LOG
 		case VK_F2:
@@ -1018,10 +976,6 @@ void IMainWindow::OnStartEmu(HWND hWnd)
 
 	RECT rc;
 	GetWindowRect(hWnd, &rc);
-	if ( gGraphicsPlugin != NULL )
-	{
-		gGraphicsPlugin->MoveScreen(rc.left,rc.top);
-	}
 }
 
 

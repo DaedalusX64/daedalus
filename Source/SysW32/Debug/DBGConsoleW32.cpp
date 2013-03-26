@@ -181,11 +181,6 @@ class IDebugConsole : public CDebugConsole
 		void			CommandWrite64(const char * szCommand);
 		void			CommandWriteReg(const char * szCommand);
 
-		void			CommandDumpNextDisplayList();
-		void			CommandDumpTextures();
-		void			CommandNoDumpTextures();
-		void			CommandDropTextures();
-
 		void			CommandCPUSkip()				{ CPU_Skip(); }
 		void			CommandRDPEnableGfx()			{ RSP_HLE_EnableGfx(); }
 		void			CommandRDPDisableGfx()			{ RSP_HLE_DisableGfx(); }
@@ -1786,55 +1781,7 @@ void IDebugConsole::CommandStop()
 }
 
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void IDebugConsole::CommandDumpNextDisplayList()
-{
-	if ( gGraphicsPlugin != NULL )
-	{
-		gGraphicsPlugin->ExecuteCommand( DAEDALUS_GFX_DUMPDL, NULL );
-	}
-}
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void IDebugConsole::CommandDumpTextures()
-{
-	if ( gGraphicsPlugin != NULL )
-	{
-		Msg( 0, "[YTexture dumping enabled" );
-		gGraphicsPlugin->ExecuteCommand( DAEDALUS_GFX_DUMPTEXTURES, NULL );
-	}
-	else
-	{
-		Msg( 0, "[YGraphics plugin is not available" );
-	}
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void IDebugConsole::CommandNoDumpTextures()
-{
-	if ( gGraphicsPlugin != NULL )
-	{
-		Msg( 0, "[YTexture dumping disabled" );
-		gGraphicsPlugin->ExecuteCommand( DAEDALUS_GFX_NODUMPTEXTURES, NULL );
-	}
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void IDebugConsole::CommandDropTextures()
-{
-	if ( gGraphicsPlugin != NULL )
-	{
-		gGraphicsPlugin->ExecuteCommand( DAEDALUS_GFX_DROPTEXTURES, NULL );
-	}
-}
 
 //*****************************************************************************
 //

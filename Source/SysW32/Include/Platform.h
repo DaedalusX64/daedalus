@@ -63,4 +63,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Breakpoint
 #define DAEDALUS_HALT					__asm { int 3 }
 
+#define DAEDALUS_GL
+
+
 #endif // PLATFORM_H_

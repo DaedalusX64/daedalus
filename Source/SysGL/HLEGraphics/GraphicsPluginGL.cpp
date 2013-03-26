@@ -1,7 +1,5 @@
 #include "stdafx.h"
 
-#include <GL/glfw.h>
-
 #include "Core/Memory.h"
 
 #include "Debug/DBGConsole.h"
@@ -15,6 +13,9 @@
 
 #include "Plugins/GraphicsPlugin.h"
 
+
+#include <GL/glew.h>
+#include <GL/glfw.h>
 
 EFrameskipValue     gFrameskipValue = FV_DISABLED;
 u32                 gVISyncRate     = 1500;
@@ -73,7 +74,7 @@ bool CGraphicsPluginImpl::Initialise()
 
 void CGraphicsPluginImpl::ProcessDList()
 {
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+#if 0
 	if (!DLDebugger_Process())
 	{
 		DLParser_Process();

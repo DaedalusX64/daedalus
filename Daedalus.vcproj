@@ -930,14 +930,6 @@
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysW32\Interface\ConfigDialog.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Interface\ConfigDialog.h"
-						>
-					</File>
-					<File
 						RelativePath=".\Source\SysW32\Interface\FileNameHandler.cpp"
 						>
 					</File>
@@ -955,10 +947,6 @@
 					</File>
 					<File
 						RelativePath=".\Source\SysW32\Interface\PageDialog.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Interface\PluginsPage.cpp"
 						>
 					</File>
 					<File
@@ -1159,14 +1147,6 @@
 					</File>
 					<File
 						RelativePath=".\Source\SysW32\Plugins\GraphicsPlugin_Spec.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Plugins\GraphicsPluginW32.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Plugins\GraphicsPluginW32.h"
 						>
 					</File>
 					<File
@@ -1916,6 +1896,26 @@
 						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\RenderSettings.h"
 						>
 					</File>
+					<Filter
+						Name="W32"
+						>	
+					<File
+							RelativePath=".\Source\SysW32\HLEGraphics\DisplayListDebugger.cpp"
+						>
+					</File>
+					<File
+							RelativePath=".\Source\SysGL\HLEGraphics\RendererGL.cpp"
+						>
+					</File>
+					<File
+							RelativePath=".\Source\SysGL\HLEGraphics\RendererGL.h"
+						>
+					</File>
+					<File
+							RelativePath=".\Source\SysGL\HLEGraphics\GraphicsPluginGL.cpp"
+						>
+					</File>
+					</Filter>
 				</Filter>
 				<Filter
 					Name="PSP"
@@ -2642,6 +2642,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\Graphics\GraphicsContext.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\Graphics\NativePixelFormat.h"
 					>
 				</File>
@@ -2669,6 +2673,18 @@
 					RelativePath=".\Source\Graphics\TextureTransform.h"
 					>
 				</File>
+				<Filter
+					Name="W32"
+					>	
+					<File
+						RelativePath=".\Source\SysGL\Graphics\GraphicsContextGL.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\SysGL\Graphics\NativeTextureGL.cpp"
+						>
+					</File>
+					</Filter>
 				<Filter
 					Name="PSP"
 					>
@@ -2715,10 +2731,6 @@
 								Name="VCCLCompilerTool"
 							/>
 						</FileConfiguration>
-					</File>
-					<File
-						RelativePath=".\Source\Graphics\GraphicsContext.h"
-						>
 					</File>
 					<File
 						RelativePath=".\Source\SysPSP\Graphics\NativeTexturePSP.cpp"

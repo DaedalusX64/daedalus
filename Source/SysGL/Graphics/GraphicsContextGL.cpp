@@ -1,7 +1,10 @@
-#include "stdafx.h"
-#include "Graphics/GraphicsContext.h"
 
+#include "stdafx.h"
+#ifdef DAEDALUS_W32
+#include <GL/glew.h>
+#endif
 #include <GL/glfw.h>
+#include "Graphics/GraphicsContext.h"
 
 #include "Graphics/ColourValue.h"
 
@@ -48,7 +51,7 @@ template<> bool CSingleton< CGraphicsContext >::Create()
 GraphicsContextGL::~GraphicsContextGL()
 {
 }
-
+extern bool initgl();
 bool GraphicsContextGL::Initialise()
 {
 	// Initialise GLFW
@@ -85,7 +88,6 @@ bool GraphicsContextGL::Initialise()
 	ClearAllSurfaces();
 
 	// FIXME(strmnnrmn): this needs tidying.
-	extern bool initgl();
 	return initgl();
 }
 

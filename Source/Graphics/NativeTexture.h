@@ -27,7 +27,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/Vector2.h"
 
-#ifdef DAEDALUS_OSX
+#ifdef DAEDALUS_GL
+#ifdef DAEDALUS_W32
+#include <GL/glew.h>
+#endif
 #include <GL/glfw.h>
 #endif
 
@@ -79,7 +82,7 @@ class CNativeTexture : public CRefCounted
 		void *				mpData;
 		void *				mpPalette;
 
-#ifdef DAEDALUS_OSX
+#ifdef DAEDALUS_GL
 		GLuint				mTextureId;
 #endif
 

@@ -65,7 +65,7 @@ struct TempVerts
 
 	~TempVerts()
 	{
-#ifdef DAEDALUS_OSX
+#ifdef DAEDALUS_GL
 		free(Verts);
 #endif
 	}
@@ -76,7 +76,7 @@ struct TempVerts
 #ifdef DAEDALUS_PSP
 		Verts = static_cast<DaedalusVtx*>(sceGuGetMemory(bytes));
 #endif
-#ifdef DAEDALUS_OSX
+#ifdef DAEDALUS_GL
 		Verts = static_cast<DaedalusVtx*>(malloc(bytes));
 #endif
 
@@ -346,7 +346,7 @@ void BaseRenderer::InitViewport()
 		mN64ToScreenTranslate.y += (FastRand() & 3);
 	}
 
-#if defined(DAEDALUS_OSX)
+#if defined(DAEDALUS_GL)
 	f32 w = mScreenWidth;
 	f32 h = mScreenHeight;
 
@@ -407,7 +407,7 @@ void BaseRenderer::UpdateViewport()
 
 	sceGuOffset(vx - (vp_w/2),vy - (vp_h/2));
 	sceGuViewport(vx + vp_x, vy + vp_y, vp_w, vp_h);
-#elif defined(DAEDALUS_OSX)
+#elif defined(DAEDALUS_GL)
 	glViewport(vp_x, mScreenHeight - (vp_h + vp_y), vp_w, vp_h);
 #else
 	DAEDALUS_ERROR("Code to set viewport not implemented on this platform");
@@ -1623,7 +1623,7 @@ void BaseRenderer::UpdateTileSnapshots( u32 tile_idx )
 		// LOD is disabled - use two textures
 		UpdateTileSnapshot( 1, tile_idx + 1 );
 	}
-#elif defined(DAEDALUS_OSX) || defined(RDP_USE_TEXEL1)
+#elif defined(DAEDALUS_GL) || defined(RDP_USE_TEXEL1)
 // FIXME(strmnnrmn): What's RDP_USE_TEXEL1? Can we remove it?
 
 	if (gRDPOtherMode.cycle_type == CYCLE_2CYCLE)
@@ -1845,7 +1845,7 @@ void BaseRenderer::PrepareTexRectUVs(v2 * puv0, v2 * puv1)
 	float 	size_x = mBoundTextureInfo[0].GetWidth();
 	float 	size_y = mBoundTextureInfo[0].GetHeight();
 
-#ifdef DAEDALUS_OSX
+#ifdef DAEDALUS_GL
 	// If using mTexShift, we need to take it into account here.
 	float ss = kShiftScales[mTexShift[0].s];
 	float st = kShiftScales[mTexShift[0].t];
@@ -1905,7 +1905,7 @@ void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 	// N.B. Think the arguments are x0,y0,x1,y1, and not x,y,w,h as the docs describe
 	//printf("%d %d %d %d\n", s32(screen_tl.x),s32(screen_tl.y),s32(screen_br.x),s32(screen_br.y));
 	sceGuScissor( l, t, r, b );
-#elif defined(DAEDALUS_OSX)
+#elif defined(DAEDALUS_GL)
 	// NB: OpenGL is x,y,w,h. Errors if width or height is negative, so clamp this.
 	s32 w = Max( r - l, 0L );
 	s32 h = Max( b - t, 0L );
