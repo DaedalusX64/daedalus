@@ -479,6 +479,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\Debug\DebugConsoleImpl.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\Debug\DebugConsoleImpl.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\Debug\DBGConsole.h"
 					>
 				</File>
@@ -510,7 +518,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysW32\Debug\DBGConsoleW32.cpp"
+						RelativePath=".\Source\SysOSX\Debug\DebugConsoleOSX.cpp"
 						>
 					</File>
 					<File
