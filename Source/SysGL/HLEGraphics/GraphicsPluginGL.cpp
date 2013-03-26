@@ -14,7 +14,9 @@
 #include "Plugins/GraphicsPlugin.h"
 
 
+#ifdef DAEDALUS_W32
 #include <GL/glew.h>
+#endif
 #include <GL/glfw.h>
 
 EFrameskipValue     gFrameskipValue = FV_DISABLED;
@@ -74,7 +76,7 @@ bool CGraphicsPluginImpl::Initialise()
 
 void CGraphicsPluginImpl::ProcessDList()
 {
-#if 0
+#ifdef DAEDALUS_DEBUG_DISPLAYLIS
 	if (!DLDebugger_Process())
 	{
 		DLParser_Process();
