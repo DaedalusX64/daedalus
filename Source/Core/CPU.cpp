@@ -886,18 +886,21 @@ void CPU_SetCompare(u32 value)
 	{
 		if (value != 0)
 		{
-			if (value > gCPUState.CPUControl[C0_COUNT]._u32)
-			{
-				// XXXX Looks very suspicious to me...was this the Oot timer fix?
-				u32		diff_32( value - gCPUState.CPUControl[C0_COUNT]._u32 );
+			// NB, value can be less than COUNT here, which indicates that the counter is close to wrapping.
+			// Don't do anything special to handle this - just treat delta as an unsigned value.
+			u32 delta = value - gCPUState.CPUControl[C0_COUNT]._u32;
 
-				CPU_SetCompareEvent( diff_32 );
-			}
-			else
-			{
-				//0x100000000 + value - gCPUState.CPUControl[C0_COUNT]._u32
-				DAEDALUS_ERROR(" SetCompare Underflow : Need to handle");
-			}
+			// This fires a lot for Zelda OoT. It's benign.
+			// If seems to keep setting a delta of 140624981 when the counter is close to wrapping.
+			// if (value < gCPUState.CPUControl[C0_COUNT]._u32)
+			// {
+			// 	DBGConsole_Msg(0, "SetCompare wrapping: %d -> %d = %d", gCPUState.CPUControl[C0_COUNT]._u32, value, delta);
+			// }
+			CPU_SetCompareEvent( delta );
+		}
+		else
+		{
+			//DBGConsole_Msg(0, "[RIgnoring SetCompare 0] - is this right?");
 		}
 
 		gCPUState.CPUControl[C0_COMPARE]._u32 = value;
