@@ -9,6 +9,8 @@
 
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/DLParser.h"
+#include "HLEGraphics/RDP.h"
+#include "HLEGraphics/RDPStateManager.h"
 
 #include "Utility/StringUtil.h"
 #include "Utility/Mutex.h"
@@ -27,12 +29,17 @@ static GLFWmutex gScreenshotMutex = NULL;
 enum DebugTask
 {
 	kTaskUndefined,
-	kTaskStartDebugging,
-	kTaskStopDebugging,
+	kBreakExecution,
+	kResumeExecution,
 	kTaskScrub,
 	kTaskTakeScreenshot,
 	kTaskDumpDList,
 };
+
+static const char * const kApplicationJSON = "application/json";
+static const char * const kImagePng        = "image/png";
+static const char * const kTextHTML        = "text/html";
+static const char * const kTextPlain       = "text/plain";
 
 // This mutex is to ensure that only one connection can request a screenshot at a time.
 static Mutex 				gMainThreadSync("MainThreadSync");
@@ -62,22 +69,22 @@ void DLDebugger_ProcessDebugTask()
 		{
 			case kTaskUndefined:
 				break;
-			case kTaskStartDebugging:
+			case kBreakExecution:
 			{
 				u32 num_ops = DLParser_Process(kUnlimitedInstructionCount, NULL);
 				gInstructionCountLimit = num_ops;
 
-				connection->BeginResponse(200, -1, "text/plain" );
+				connection->BeginResponse(200, -1, kApplicationJSON);
 				connection->WriteF("{\"num_ops\":%d}", num_ops);
 				connection->EndResponse();
 				gDebugging = true;
 				handled = true;
 				break;
 			}
-			case kTaskStopDebugging:
+			case kResumeExecution:
 			{
 				gInstructionCountLimit = kUnlimitedInstructionCount;
-				connection->BeginResponse(200, -1, "text/plain");
+				connection->BeginResponse(200, -1, kTextPlain);
 				connection->WriteString("ok");
 				connection->EndResponse();
 				gDebugging = false;
@@ -88,15 +95,45 @@ void DLDebugger_ProcessDebugTask()
 			{
 				DLParser_Process(gInstructionCountLimit, NULL);
 
-				connection->BeginResponse(200, -1, "text/plain" );
-				connection->WriteString("ok");
+				connection->BeginResponse(200, -1, kApplicationJSON);
+				connection->WriteString("{\n");
+				connection->WriteString("\"tiles\": [\n");
+				for (u32 i = 0; i < 8; ++i)
+				{
+					if (i > 0)
+						connection->WriteString(",\n");
+
+					const RDP_Tile &     tile      = gRDPStateManager.GetTile(i);
+					const RDP_TileSize & tile_size = gRDPStateManager.GetTileSize(i);
+					connection->WriteString("\t{\n");
+					connection->WriteF("\t\t\"format\": %d,\n",   tile.format);
+					connection->WriteF("\t\t\"size\": %d,\n",     tile.size);
+					connection->WriteF("\t\t\"line\": %d,\n",     tile.line);
+					connection->WriteF("\t\t\"tmem\": %d,\n",     tile.tmem);
+					connection->WriteF("\t\t\"palette\": %d,\n",  tile.palette);
+					connection->WriteF("\t\t\"clamp_s\": %d,\n",  tile.clamp_s);
+					connection->WriteF("\t\t\"mirror_s\": %d,\n", tile.mirror_s);
+					connection->WriteF("\t\t\"mask_s\": %d,\n",   tile.mask_s);
+					connection->WriteF("\t\t\"shift_s\": %d,\n",  tile.shift_s);
+					connection->WriteF("\t\t\"clamp_t\": %d,\n",  tile.clamp_t);
+					connection->WriteF("\t\t\"mirror_t\": %d,\n", tile.mirror_t);
+					connection->WriteF("\t\t\"mask_t\": %d,\n",   tile.mask_t);
+					connection->WriteF("\t\t\"shift_t\": %d,\n",  tile.shift_t);
+					connection->WriteF("\t\t\"left\": %d,\n",     tile_size.left);
+					connection->WriteF("\t\t\"top\": %d,\n",      tile_size.top);
+					connection->WriteF("\t\t\"right\": %d,\n",    tile_size.right);
+					connection->WriteF("\t\t\"bottom\": %d\n",    tile_size.bottom);
+					connection->WriteString("\t}");
+				}
+				connection->WriteString("]");
+				connection->WriteString("}");
 				connection->EndResponse();
 				handled = true;
 				break;
 			}
 			case kTaskTakeScreenshot:
 			{
-				connection->BeginResponse(200, -1, "image/png" );
+				connection->BeginResponse(200, -1, kImagePng);
 
 				u32 width;
 				u32 height;
@@ -120,7 +157,7 @@ void DLDebugger_ProcessDebugTask()
 			}
 			case kTaskDumpDList:
 			{
-				connection->BeginResponse(200, -1, "text/plain");
+				connection->BeginResponse(200, -1, kTextPlain);
 				DLParser_Process(kUnlimitedInstructionCount, connection);
 				connection->EndResponse();
 				handled = true;
@@ -179,14 +216,14 @@ static void DLDebugHandler(void * arg, WebDebugConnection * connection)
 		{
 			if (params[i].Key == "action")
 			{
-				if (params[i].Value == "stop")
+				if (params[i].Value == "break")
 				{
-					DoTask(connection, kTaskStartDebugging);
+					DoTask(connection, kBreakExecution);
 					return;
 				}
-				else if (params[i].Value == "start")
+				else if (params[i].Value == "resume")
 				{
-					DoTask(connection, kTaskStopDebugging);
+					DoTask(connection, kResumeExecution);
 					return;
 				}
 			}
@@ -211,13 +248,13 @@ static void DLDebugHandler(void * arg, WebDebugConnection * connection)
 		}
 
 		// Fallthrough for handlers that just return 'ok'.
-		connection->BeginResponse(ok ? 200 : 400, -1, "text/plain" );
+		connection->BeginResponse(ok ? 200 : 400, -1, kTextPlain);
 		connection->WriteString(ok ? "ok\n" : "fail\n");
 		connection->EndResponse();
 		return;
 	}
 
-	connection->BeginResponse(200, -1, "text/html" );
+	connection->BeginResponse(200, -1, kTextHTML);
 
 	WriteStandardHeader(connection, "Display List");
 
