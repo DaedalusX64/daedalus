@@ -453,10 +453,6 @@ class MsvsSettings(object):
         map={'1': ':NO', '2': ''}, prefix='/LARGEADDRESSAWARE')
     # TODO(scottmg): This should sort of be somewhere else (not really a flag).
     ld('AdditionalDependencies', prefix='')
-    # TODO(scottmg): These too.
-    ldflags.extend(('kernel32.lib', 'user32.lib', 'gdi32.lib', 'winspool.lib',
-        'comdlg32.lib', 'advapi32.lib', 'shell32.lib', 'ole32.lib',
-        'oleaut32.lib', 'uuid.lib', 'odbc32.lib', 'DelayImp.lib'))
 
     # If the base address is not specifically controlled, DYNAMICBASE should
     # be on by default.
@@ -600,7 +596,8 @@ class MsvsSettings(object):
                  ('iid', iid),
                  ('proxy', proxy)]
     # TODO(scottmg): Are there configuration settings to set these flags?
-    flags = ['/char', 'signed', '/env', 'win32', '/Oicf']
+    target_platform = 'win32' if self.GetArch(config) == 'x86' else 'x64'
+    flags = ['/char', 'signed', '/env', target_platform, '/Oicf']
     return outdir, output, variables, flags
 
 

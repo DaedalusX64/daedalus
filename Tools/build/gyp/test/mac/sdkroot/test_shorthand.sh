@@ -5,4 +5,8 @@
 
 set -e
 
-test $SDKROOT = /Developer/SDKs/MacOSX10.6.sdk
+if ! expected=$(xcodebuild -version -sdk macosx10.6 Path 2>/dev/null) ; then
+  expected=$(xcodebuild -version -sdk macosx10.7 Path)
+fi
+
+test $SDKROOT = $expected

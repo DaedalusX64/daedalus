@@ -920,6 +920,7 @@ class NinjaWriter:
       ldflags = config.get('ldflags', [])
       if is_executable and len(solibs):
         ldflags.append('-Wl,-rpath=\$$ORIGIN/lib/')
+        ldflags.append('-Wl,-rpath-link=lib/')
     self.WriteVariableList('ldflags',
                            gyp.common.uniquer(map(self.ExpandSpecial,
                                                   ldflags)))
@@ -1318,6 +1319,13 @@ def OpenOutput(path, mode='w'):
   return open(path, mode)
 
 
+def CommandWithWrapper(cmd, wrappers, prog):
+  wrapper = wrappers.get(cmd, '')
+  if wrapper:
+    return wrapper + ' ' + prog
+  return prog
+
+
 def GenerateOutputForConfig(target_list, target_dicts, data, params,
                             config_name):
   options = params['options']
@@ -1377,6 +1385,12 @@ def GenerateOutputForConfig(target_list, target_dicts, data, params,
   make_global_settings = data[build_file].get('make_global_settings', [])
   build_to_root = gyp.common.InvertRelativePath(build_dir,
                                                 options.toplevel_dir)
+  flock = 'flock'
+  if flavor == 'mac':
+    flock = './gyp-mac-tool flock'
+  wrappers = {}
+  if flavor != 'win':
+    wrappers['LINK'] = flock + ' linker.lock'
   for key, value in make_global_settings:
     if key == 'CC':
       cc = os.path.join(build_to_root, value)
@@ -1392,14 +1406,13 @@ def GenerateOutputForConfig(target_list, target_dicts, data, params,
       cxx_host_global_setting = value
     if key == 'LD.host':
       ld_host = os.path.join(build_to_root, value)
+    if key.endswith('_wrapper'):
+      wrappers[key[:-len('_wrapper')]] = os.path.join(build_to_root, value)
 
-  flock = 'flock'
-  if flavor == 'mac':
-    flock = './gyp-mac-tool flock'
   cc = GetEnvironFallback(['CC_target', 'CC'], cc)
-  master_ninja.variable('cc', cc)
+  master_ninja.variable('cc', CommandWithWrapper('CC', wrappers, cc))
   cxx = GetEnvironFallback(['CXX_target', 'CXX'], cxx)
-  master_ninja.variable('cxx', cxx)
+  master_ninja.variable('cxx', CommandWithWrapper('CXX', wrappers, cxx))
   ld = GetEnvironFallback(['LD_target', 'LD'], ld)
 
   if not cc_host:
@@ -1416,7 +1429,7 @@ def GenerateOutputForConfig(target_list, target_dicts, data, params,
     master_ninja.variable('mt', 'mt.exe')
     master_ninja.variable('use_dep_database', '1')
   else:
-    master_ninja.variable('ld', flock + ' linker.lock ' + ld)
+    master_ninja.variable('ld', CommandWithWrapper('LINK', wrappers, ld))
     master_ninja.variable('ar', GetEnvironFallback(['AR_target', 'AR'], 'ar'))
 
   master_ninja.variable('ar_host', GetEnvironFallback(['AR_host'], 'ar'))
@@ -1430,12 +1443,15 @@ def GenerateOutputForConfig(target_list, target_dicts, data, params,
     cc_host = cc_host_global_setting.replace('$(CC)', cc)
   if '$(CXX)' in cxx_host and cxx_host_global_setting:
     cxx_host = cxx_host_global_setting.replace('$(CXX)', cxx)
-  master_ninja.variable('cc_host', cc_host)
-  master_ninja.variable('cxx_host', cxx_host)
+  master_ninja.variable('cc_host',
+                        CommandWithWrapper('CC.host', wrappers, cc_host))
+  master_ninja.variable('cxx_host',
+                        CommandWithWrapper('CXX.host', wrappers, cxx_host))
   if flavor == 'win':
     master_ninja.variable('ld_host', ld_host)
   else:
-    master_ninja.variable('ld_host', flock + ' linker.lock ' + ld_host)
+    master_ninja.variable('ld_host', CommandWithWrapper(
+        'LINK', wrappers, ld_host))
 
   master_ninja.newline()
 
@@ -1768,6 +1784,9 @@ def GenerateOutput(target_list, target_dicts, data, params):
   user_config = params.get('generator_flags', {}).get('config', None)
   if gyp.common.GetFlavor(params) == 'win':
     target_list, target_dicts = MSVSUtil.ShardTargets(target_list, target_dicts)
+    target_list, target_dicts = MSVSUtil.InsertLargePdbShims(
+        target_list, target_dicts, generator_default_variables)
+
   if user_config:
     GenerateOutputForConfig(target_list, target_dicts, data, params,
                             user_config)

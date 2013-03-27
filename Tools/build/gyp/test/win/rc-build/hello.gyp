@@ -22,6 +22,10 @@
         'hello.cpp',
         'hello.rc',
       ],
+      'libraries': [
+        'kernel32.lib',
+        'user32.lib',
+      ],
     },
     {
       'target_name': 'with_resources_subdir',
@@ -40,6 +44,10 @@
       'sources': [
         'hello.cpp',
         'subdir/hello2.rc',
+      ],
+      'libraries': [
+        'kernel32.lib',
+        'user32.lib',
       ],
     },
     {

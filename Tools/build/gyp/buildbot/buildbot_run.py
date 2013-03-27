@@ -84,10 +84,6 @@ def GypTestFormat(title, format=None, msvs_version=None):
   print '@@@BUILD_STEP ' + title + '@@@'
   sys.stdout.flush()
   env = os.environ.copy()
-  # TODO(bradnelson): remove this when this issue is resolved:
-  #     http://code.google.com/p/chromium/issues/detail?id=108251
-  if format == 'ninja':
-    env['NOGOLD'] = '1'
   if msvs_version:
     env['GYP_MSVS_VERSION'] = msvs_version
   command = ' '.join(

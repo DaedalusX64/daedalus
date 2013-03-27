@@ -1525,7 +1525,7 @@ $(obj).$(TOOLSET)/$(TARGET)/%%.o: $(obj)/%%%s FORCE_DO_CMD
       for link_dep in link_deps:
         assert ' ' not in link_dep, (
             "Spaces in alink input filenames not supported (%s)"  % link_dep)
-      if (self.flavor not in ('mac', 'win') and not
+      if (self.flavor not in ('mac', 'openbsd', 'win') and not
           self.is_standalone_static_library):
         self.WriteDoCmd([self.output_binary], link_deps, 'alink_thin',
                         part_of_all, postbuilds=postbuilds)
@@ -1985,6 +1985,7 @@ def GenerateOutput(target_list, target_dicts, data, params):
         'extra_commands': SHARED_HEADER_SUN_COMMANDS,
     })
   elif flavor == 'freebsd':
+    # Note: OpenBSD has sysutils/flock. lockf seems to be FreeBSD specific.
     header_params.update({
         'flock': 'lockf',
     })
@@ -2002,14 +2003,22 @@ def GenerateOutput(target_list, target_dicts, data, params):
 
   build_file, _, _ = gyp.common.ParseQualifiedTarget(target_list[0])
   make_global_settings_array = data[build_file].get('make_global_settings', [])
+  wrappers = {}
+  wrappers['LINK'] = '%s $(builddir)/linker.lock' % flock_command
+  for key, value in make_global_settings_array:
+    if key.endswith('_wrapper'):
+      wrappers[key[:-len('_wrapper')]] = '$(abspath %s)' % value
   make_global_settings = ''
   for key, value in make_global_settings_array:
+    if re.match('.*_wrapper', key):
+      continue
     if value[0] != '$':
       value = '$(abspath %s)' % value
-    if key == 'LINK':
-      make_global_settings += ('%s ?= %s $(builddir)/linker.lock %s\n' %
-                               (key, flock_command, value))
-    elif key in ('CC', 'CC.host', 'CXX', 'CXX.host'):
+    wrapper = wrappers.get(key)
+    if wrapper:
+      value = '%s %s' % (wrapper, value)
+      del wrappers[key]
+    if key in ('CC', 'CC.host', 'CXX', 'CXX.host'):
       make_global_settings += (
           'ifneq (,$(filter $(origin %s), undefined default))\n' % key)
       # Let gyp-time envvars win over global settings.
@@ -2019,6 +2028,9 @@ def GenerateOutput(target_list, target_dicts, data, params):
       make_global_settings += 'endif\n'
     else:
       make_global_settings += '%s ?= %s\n' % (key, value)
+  # TODO(ukai): define cmd when only wrapper is specified in
+  # make_global_settings.
+
   header_params['make_global_settings'] = make_global_settings
 
   ensure_directory_exists(makefile_path)

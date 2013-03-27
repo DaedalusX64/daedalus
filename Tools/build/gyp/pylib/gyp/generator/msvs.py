@@ -64,6 +64,7 @@ generator_additional_path_sections = [
 generator_additional_non_configuration_keys = [
     'msvs_cygwin_dirs',
     'msvs_cygwin_shell',
+    'msvs_large_pdb',
     'msvs_shard',
 ]
 
@@ -205,6 +206,10 @@ def _ConvertSourcesToFilterHierarchy(sources, prefix=None, excluded=None,
 
 def _ToolAppend(tools, tool_name, setting, value, only_if_unset=False):
   if not value: return
+  _ToolSetOrAppend(tools, tool_name, setting, value, only_if_unset)
+
+
+def _ToolSetOrAppend(tools, tool_name, setting, value, only_if_unset=False):
   # TODO(bradnelson): ugly hack, fix this more generally!!!
   if 'Directories' in setting or 'Dependencies' in setting:
     if type(value) == str:
@@ -233,7 +238,7 @@ def _ConfigPlatform(config_data):
 
 def _ConfigBaseName(config_name, platform_name):
   if config_name.endswith('_' + platform_name):
-    return config_name[0:-len(platform_name)-1]
+    return config_name[0:-len(platform_name) - 1]
   else:
     return config_name
 
@@ -271,7 +276,7 @@ def _BuildCommandLineForRuleRaw(spec, cmd, cygwin_shell, has_input_path,
                               '`cygpath -m "${INPUTPATH}"`')
                     for i in direct_cmd]
     direct_cmd = ['\\"%s\\"' % i.replace('"', '\\\\\\"') for i in direct_cmd]
-    #direct_cmd = gyp.common.EncodePOSIXShellList(direct_cmd)
+    # direct_cmd = gyp.common.EncodePOSIXShellList(direct_cmd)
     direct_cmd = ' '.join(direct_cmd)
     # TODO(quote):  regularize quoting path names throughout the module
     cmd = ''
@@ -307,7 +312,7 @@ def _BuildCommandLineForRuleRaw(spec, cmd, cygwin_shell, has_input_path,
     # If the argument starts with a slash or dash, it's probably a command line
     # switch
     arguments = [i if (i[:1] in "/-") else _FixPath(i) for i in cmd[1:]]
-    arguments = [i.replace('$(InputDir)','%INPUTDIR%') for i in arguments]
+    arguments = [i.replace('$(InputDir)', '%INPUTDIR%') for i in arguments]
     arguments = [MSVSSettings.FixVCMacroSlashes(i) for i in arguments]
     if quote_cmd:
       # Support a mode for using cmd directly.
@@ -721,7 +726,7 @@ def _EscapeCommandLineArgumentForMSBuild(s):
   """Escapes a Windows command-line argument for use by MSBuild."""
 
   def _Replace(match):
-    return (len(match.group(1))/2*4)*'\\' + '\\"'
+    return (len(match.group(1)) / 2 * 4) * '\\' + '\\"'
 
   # Escape all quotes so that they are interpreted literally.
   s = quote_replacer_regex2.sub(_Replace, s)
@@ -1042,6 +1047,10 @@ def _AddConfigurationToMSVSProject(p, spec, config_type, config_name, config):
   # Add in user specified msvs_settings.
   msvs_settings = config.get('msvs_settings', {})
   MSVSSettings.ValidateMSVSSettings(msvs_settings)
+
+  # Prevent default library inheritance from the environment.
+  _ToolAppend(tools, 'VCLinkerTool', 'AdditionalDependencies', ['$(NOINHERIT)'])
+
   for tool in msvs_settings:
     settings = config['msvs_settings'][tool]
     for setting in settings:
@@ -1760,6 +1769,11 @@ def GenerateOutput(target_list, target_dicts, data, params):
   # Optionally shard targets marked with 'msvs_shard': SHARD_COUNT.
   (target_list, target_dicts) = MSVSUtil.ShardTargets(target_list, target_dicts)
 
+  # Optionally use the large PDB workaround for targets marked with
+  # 'msvs_large_pdb': 1.
+  (target_list, target_dicts) = MSVSUtil.InsertLargePdbShims(
+        target_list, target_dicts, generator_default_variables)
+
   # Prepare the set of configurations.
   configs = set()
   for qualified_target in target_list:
@@ -1807,7 +1821,7 @@ def GenerateOutput(target_list, target_dicts, data, params):
     if generator_flags.get('msvs_error_on_missing_sources', False):
       raise GypError(error_message)
     else:
-      print >>sys.stdout, "Warning: " + error_message
+      print >> sys.stdout, "Warning: " + error_message
 
 
 def _GenerateMSBuildFiltersFile(filters_path, source_files,
@@ -2742,8 +2756,10 @@ def _FinalizeMSBuildSettings(spec, configuration):
               'AdditionalIncludeDirectories', include_dirs)
   _ToolAppend(msbuild_settings, 'ResourceCompile',
               'AdditionalIncludeDirectories', resource_include_dirs)
-  # Add in libraries.
-  _ToolAppend(msbuild_settings, 'Link', 'AdditionalDependencies', libraries)
+  # Add in libraries, note that even for empty libraries, we want this
+  # set, to prevent inheriting default libraries from the enviroment.
+  _ToolSetOrAppend(msbuild_settings, 'Link', 'AdditionalDependencies',
+                  libraries)
   if out_file:
     _ToolAppend(msbuild_settings, msbuild_tool, 'OutputFile', out_file,
                 only_if_unset=True)
@@ -2777,8 +2793,7 @@ def _GetValueFormattedForMSBuild(tool_name, name, value):
   if type(value) == list:
     # For some settings, VS2010 does not automatically extends the settings
     # TODO(jeanluc) Is this what we want?
-    if name in ['AdditionalDependencies',
-                'AdditionalIncludeDirectories',
+    if name in ['AdditionalIncludeDirectories',
                 'AdditionalLibraryDirectories',
                 'AdditionalOptions',
                 'DelayLoadDLLs',

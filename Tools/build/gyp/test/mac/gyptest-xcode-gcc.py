@@ -10,6 +10,7 @@ Verifies that xcode-style GCC_... settings are handled properly.
 
 import TestGyp
 
+import os
 import sys
 
 def IgnoreOutput(string, expected_string):
@@ -24,9 +25,16 @@ if sys.platform == 'darwin':
   # List of targets that'll pass. It expects targets of the same name with
   # '-fail' appended that'll fail to build.
   targets = [
-    'warn_about_invalid_offsetof_macro',
     'warn_about_missing_newline',
   ]
+
+  # clang doesn't warn on invalid offsetofs, it silently ignores
+  # -Wno-invalid-offsetof.
+  # TODO(thakis): This isn't really the right way to detect the compiler,
+  # `which cc` detects what make ends up using, and Xcode has some embedded
+  # compiler, but it's a reliable proxy at least on the bots.
+  if os.readlink('/usr/bin/cc') != 'clang':
+    targets.append('warn_about_invalid_offsetof_macro')
 
   for target in targets:
     test.build('test.gyp', target, chdir=CHDIR)

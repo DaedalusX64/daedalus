@@ -13,7 +13,7 @@ import TestGyp
 import sys
 
 if sys.platform == 'darwin':
-  expected_error = 'Old-style plist parser: missing semicolon in dictionary.'
+  expected_error = 'Old-style plist parser: missing semicolon in dictionary'
   saw_expected_error = [False]  # Python2 has no "nonlocal" keyword.
   def match(a, b):
     if a == b:

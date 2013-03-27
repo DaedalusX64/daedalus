@@ -7,7 +7,7 @@
     {
       'target_name': 'test_default',
       'type': 'executable',
-      'sources': ['default-libs.cc'],
+      'sources': ['no-default-libs.cc'],
     },
   ]
 }

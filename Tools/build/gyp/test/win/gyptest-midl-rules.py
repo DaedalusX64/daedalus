@@ -17,6 +17,8 @@ if sys.platform == 'win32':
 
   CHDIR = 'idl-rules'
   test.run_gyp('basic-idl.gyp', chdir=CHDIR)
-  test.build('basic-idl.gyp', test.ALL, chdir=CHDIR)
+  for platform in ['Win32', 'x64']:
+    test.set_configuration('Debug|%s' % platform)
+    test.build('basic-idl.gyp', test.ALL, chdir=CHDIR)
 
-  test.pass_test()
+    test.pass_test()
