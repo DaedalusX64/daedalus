@@ -307,11 +307,9 @@ protected:
 	inline void			UpdateFogEnable()						{ if(gFogEnabled) mTnL.Flags.Fog ? sceGuEnable(GU_FOG) : sceGuDisable(GU_FOG); }
 	inline void			UpdateShadeModel()						{ sceGuShadeModel( mTnL.Flags.Shade ? GU_SMOOTH : GU_FLAT ); }
 #endif
-#ifdef DAEDALUS_OSX
+#ifdef DAEDALUS_GL
 	inline void			UpdateFogEnable()						{ if(gFogEnabled) mTnL.Flags.Fog ? glEnable(GL_FOG) : glDisable(GL_FOG); }
 	inline void			UpdateShadeModel()						{ glShadeModel( mTnL.Flags.Shade ? GL_SMOOTH : GL_FLAT ); }
-#else
-	inline void			UpdateFogEnable(){}	//FIX ME W32
 #endif
 	void				UpdateTileSnapshots( u32 tile_idx );
 	void				UpdateTileSnapshot( u32 index, u32 tile_idx );
