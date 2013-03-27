@@ -551,7 +551,7 @@ static const char * const kBlendCl[] = { "In",  "Mem",  "Bl",     "Fog" };
 static const char * const kBlendA1[] = { "AIn", "AFog", "AShade", "0" };
 static const char * const kBlendA2[] = { "1-A", "AMem", "1",      "?" };
 
-static inline void DebugBlender( u32 blender, u32 alpha_cvg_sel, u32 cvg_x_alpha )
+static inline void DebugBlender(u32 cycle_type, u32 blender, u32 alpha_cvg_sel, u32 cvg_x_alpha)
 {
 	static u32 last_blender = 0;
 
@@ -560,13 +560,22 @@ static inline void DebugBlender( u32 blender, u32 alpha_cvg_sel, u32 cvg_x_alpha
 		printf( "********************************\n\n" );
 		printf( "Unknown Blender. alpha_cvg_sel: %d cvg_x_alpha: %d\n",
 				alpha_cvg_sel, cvg_x_alpha );
-		printf( "0x%04x: // %s * %s + %s * %s\n",
+		printf( "0x%04x: // %s * %s + %s * %s",
 				blender,
+				kBlendCl[(blender>>14) & 0x3],
+				kBlendA1[(blender>>10) & 0x3],
+				kBlendCl[(blender>> 6) & 0x3],
+				kBlendA2[(blender>> 2) & 0x3]);
+
+		if (cycle_type == CYCLE_2CYCLE)
+		{
+			printf( " | %s * %s + %s * %s",
 				kBlendCl[(blender>>12) & 0x3],
 				kBlendA1[(blender>> 8) & 0x3],
-				kBlendCl[(blender>>4) & 0x3],
-				kBlendA2[(blender   ) & 0x3]);
-		printf( "********************************\n\n" );
+				kBlendCl[(blender>> 4) & 0x3],
+				kBlendA2[(blender    ) & 0x3]);
+		}
+		printf( "\n********************************\n\n" );
 		last_blender = blender;
 	}
 }
@@ -579,7 +588,8 @@ static void InitBlenderMode()
 	u32 alpha_cvg_sel = gRDPOtherMode.alpha_cvg_sel;
 	u32 blendmode     = gRDPOtherMode.blender;
 
-	u32 active_mode = ((cycle_type == CYCLE_2CYCLE) ? blendmode : (blendmode>>2)) & 0x3333;
+	// NB: If we're running in 1cycle mode, ignore the 2nd cycle.
+	u32 active_mode = (cycle_type == CYCLE_2CYCLE) ? blendmode : (blendmode & 0xcccc);
 
 	enum BlendType
 	{
@@ -589,43 +599,66 @@ static void InitBlenderMode()
 	};
 	BlendType type = kBlendModeOpaque;
 
+	// FIXME(strmnnrmn): lots of these need fog!
+
 	switch (active_mode)
 	{
-	case 0x0010: // In * AIn + Mem * 1-A
-		if (!alpha_cvg_sel ||cvg_x_alpha)
+	case 0x0040: // In * AIn + Mem * 1-A
+		// MarioKart (spinning logo).
+		if (!alpha_cvg_sel || cvg_x_alpha)
 			type = kBlendModeAlphaTrans;
 		break;
-	case 0x0110: // In * AFog + Mem * 1-A
-		// FIXME: this needs to blend the input colour with the fog alpha, but we don't compute this yet.
-		type = kBlendModeOpaque;
+	case 0x0440: // In * AFog + Mem * 1-A
+		// Bomberman64. alpha_cvg_sel: 1 cvg_x_alpha: 1
+		if (!alpha_cvg_sel || cvg_x_alpha)
+			type = kBlendModeAlphaTrans;
 		break;
-	case 0x0302: // In * 0 + In * 1
+	case 0x04d0: // In * AFog + Fog * 1-A | In * AIn + Mem * 1-A
+		// Conker.
+		type = kBlendModeAlphaTrans;
+		break;
+	case 0x0150: // In * AIn + Mem * 1-A | In * AFog + Mem * 1-A
+		// Spiderman.
+		type = kBlendModeAlphaTrans;
+		break;
+	case 0x0c08: // In * 0 + In * 1
+		// MarioKart (spinning logo)
 		// This blend mode doesn't use the alpha value
 		type = kBlendModeOpaque;
 		break;
-	case 0x0310: // In * 0 + Mem * 1-A
-		type = kBlendModeFade;
+	case 0x0c18: // In * 0 + In * 1 | In * AIn + Mem * 1-A
+		// StarFox main menu.
+		if (!alpha_cvg_sel ||cvg_x_alpha)
+			type = kBlendModeAlphaTrans;
 		break;
-	case 0x1310: // Mem * 0 + Mem * 1-A
+	case 0x0f0a: // In * 0 + In * 1 | In * 0 + In * 1
+		// Zelda OoT.
+		type = kBlendModeOpaque;
+		break;
+	case 0x4c40: // Mem * 0 + Mem * 1-A
 		//Waverace - alpha_cvg_sel: 0 cvg_x_alpha: 1
 		type = kBlendModeFade;
 		break;
-	case 0x3110: // Fog * AFog + Mem * 1-A
-		// FIXME: fog!
-		type = kBlendModeFade;
-		break;
-	case 0x3200: // Fog * AShade + In * 1-A
-		// FIXME: fog!
+	case 0x8410: // Bl * AFog + In * 1-A | In * AIn + Mem * 1-A
+		// Paper Mario.
 		type = kBlendModeAlphaTrans;
 		break;
-	case 0x0321: // In * 0 + Bl * AMem
-		// Hmm - not sure about what this is doing. Zelda OoT pause screen.
+	case 0xc800: // Fog * AShade + In * 1-A
+		//Bomberman64. alpha_cvg_sel: 0 cvg_x_alpha: 1
+		type = kBlendModeOpaque;
+		break;
+	case 0xc810: // Fog * AShade + In * 1-A | In * AIn + Mem * 1-A
+		// AeroGauge (ingame)
 		type = kBlendModeAlphaTrans;
 		break;
+	// case 0x0321: // In * 0 + Bl * AMem
+	// 	// Hmm - not sure about what this is doing. Zelda OoT pause screen.
+	// 	type = kBlendModeAlphaTrans;
+	// 	break;
 
 	default:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DebugBlender( active_mode, alpha_cvg_sel, cvg_x_alpha );
+		DebugBlender( cycle_type, active_mode, alpha_cvg_sel, cvg_x_alpha );
 		DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", active_mode );
 #endif
 	}
