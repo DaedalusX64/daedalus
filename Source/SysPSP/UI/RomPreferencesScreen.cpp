@@ -132,11 +132,11 @@ namespace
 		virtual	void			OnNext()				{ *mSetting += 0.01f; *mSetting = *mSetting > 1.5f ? 1.5f : *mSetting;}
 		virtual	void			OnPrevious()			{ *mSetting -= 0.01f; *mSetting = *mSetting < 1.0f ? 1.0f : *mSetting;}
 
-		virtual const char *	GetSettingName() const	{ sprintf( (char*)mString, "%.0f%%", (double)(*mSetting*100.0f) ); return (const char*) mString; }
+		virtual const char *	GetSettingName() const	{ sprintf( mString, "%.0f%%", (double)(*mSetting*100.0f) ); return mString; }
 
 	private:
-		float *		mSetting;
-		char 		mString[8];
+		float *			mSetting;
+		mutable char 	mString[8];
 	};
 
 	class CAdjustFrequencySetting : public CUISetting
