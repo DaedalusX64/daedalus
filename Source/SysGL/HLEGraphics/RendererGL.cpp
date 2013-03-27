@@ -547,98 +547,105 @@ Possible Blending Factors:
 */
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-const char * sc_szBlClr[4] = { "In",  "Mem",  "Bl",     "Fog" };
-const char * sc_szBlA1[4]  = { "AIn", "AFog", "AShade", "0" };
-const char * sc_szBlA2[4]  = { "1-A", "AMem", "1",      "?" };
+static const char * const kBlendCl[] = { "In",  "Mem",  "Bl",     "Fog" };
+static const char * const kBlendA1[] = { "AIn", "AFog", "AShade", "0" };
+static const char * const kBlendA2[] = { "1-A", "AMem", "1",      "?" };
 
-static inline void DebugBlender( u32 blender )
+static inline void DebugBlender( u32 blender, u32 alpha_cvg_sel, u32 cvg_x_alpha )
 {
-	static u32 mBlender = 0;
+	static u32 last_blender = 0;
 
-	if(mBlender != blender)
+	if(last_blender != blender)
 	{
 		printf( "********************************\n\n" );
-		printf( "Unknown Blender: %04x - %s * %s + %s * %s || %s * %s + %s * %s\n",
+		printf( "Unknown Blender. alpha_cvg_sel: %d cvg_x_alpha: %d\n",
+				alpha_cvg_sel, cvg_x_alpha );
+		printf( "0x%04x: // %s * %s + %s * %s\n",
 				blender,
-				sc_szBlClr[(blender>>14) & 0x3], sc_szBlA1[(blender>>10) & 0x3], sc_szBlClr[(blender>>6) & 0x3], sc_szBlA2[(blender>>2) & 0x3],
-				sc_szBlClr[(blender>>12) & 0x3], sc_szBlA1[(blender>> 8) & 0x3], sc_szBlClr[(blender>>4) & 0x3], sc_szBlA2[(blender   ) & 0x3]);
+				kBlendCl[(blender>>12) & 0x3],
+				kBlendA1[(blender>> 8) & 0x3],
+				kBlendCl[(blender>>4) & 0x3],
+				kBlendA2[(blender   ) & 0x3]);
 		printf( "********************************\n\n" );
-		mBlender = blender;
+		last_blender = blender;
 	}
 }
 #endif
 
-static void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
+static void InitBlenderMode()
 {
-	switch ( blendmode )
+	u32 cycle_type    = gRDPOtherMode.cycle_type;
+	u32 cvg_x_alpha   = gRDPOtherMode.cvg_x_alpha;
+	u32 alpha_cvg_sel = gRDPOtherMode.alpha_cvg_sel;
+	u32 blendmode     = gRDPOtherMode.blender;
+
+	u32 active_mode = ((cycle_type == CYCLE_2CYCLE) ? blendmode : (blendmode>>2)) & 0x3333;
+
+	enum BlendType
 	{
-	//case 0x0044:					// ?
-	//case 0x0055:					// ?
-	case 0x0c08:					// In * 0 + In * 1 || :In * AIn + In * 1-A				Tarzan - Medalion in bottom part of the screen
-	//case 0x0c19:					// ?
-	case 0x0f0a:					// In * 0 + In * 1 || :In * 0 + In * 1					SSV - ??? and MM - Walls, Wipeout - Mountains
-	case 0x0fa5:					// In * 0 + Bl * AMem || :In * 0 + Bl * AMem			OOT Menu
-	//case 0x5f50:					// ?
-	case 0x8410:					// Bl * AFog + In * 1-A || :In * AIn + Mem * 1-A		Paper Mario Menu
-	case 0xc302:					// Fog * AIn + In * 1-A || :In * 0 + In * 1				ISS64 - Ground
-	case 0xc702:					// Fog * AFog + In * 1-A || :In * 0 + In * 1			Donald Duck - Sky
-	//case 0xc811:					// ?
-	case 0xfa00:					// Fog * AShade + In * 1-A || :Fog * AShade + In * 1-A	F-Zero - Power Roads
-	//case 0x07c2:					// In * AFog + Fog * 1-A || In * 0 + In * 1				Conker - ??
-		glDisable(GL_BLEND);
+		kBlendModeOpaque,
+		kBlendModeAlphaTrans,
+		kBlendModeFade,
+	};
+	BlendType type = kBlendModeOpaque;
+
+	switch (active_mode)
+	{
+	case 0x0010: // In * AIn + Mem * 1-A
+		if (!alpha_cvg_sel ||cvg_x_alpha)
+			type = kBlendModeAlphaTrans;
+		break;
+	case 0x0110: // In * AFog + Mem * 1-A
+		// FIXME: this needs to blend the input colour with the fog alpha, but we don't compute this yet.
+		type = kBlendModeOpaque;
+		break;
+	case 0x0302: // In * 0 + In * 1
+		// This blend mode doesn't use the alpha value
+		type = kBlendModeOpaque;
+		break;
+	case 0x0310: // In * 0 + Mem * 1-A
+		type = kBlendModeFade;
+		break;
+	case 0x1310: // Mem * 0 + Mem * 1-A
+		//Waverace - alpha_cvg_sel: 0 cvg_x_alpha: 1
+		type = kBlendModeFade;
+		break;
+	case 0x3110: // Fog * AFog + Mem * 1-A
+		// FIXME: fog!
+		type = kBlendModeFade;
+		break;
+	case 0x3200: // Fog * AShade + In * 1-A
+		// FIXME: fog!
+		type = kBlendModeAlphaTrans;
+		break;
+	case 0x0321: // In * 0 + Bl * AMem
+		// Hmm - not sure about what this is doing. Zelda OoT pause screen.
+		type = kBlendModeAlphaTrans;
 		break;
 
-	//
-	// Add here blenders which work fine with default case but causes too much spam, this disabled in release mode
-	//
+	default:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	//case 0x55f0:					// Mem * AFog + Fog * 1-A || :Mem * AFog + Fog * 1-A	Bust a Move 3 - ???
-	case 0x0150:					// In * AIn + Mem * 1-A || :In * AFog + Mem * 1-A		Spiderman - Waterfall Intro
-	case 0x0f5a:					// In * 0 + Mem * 1 || :In * 0 + Mem * 1				Starwars Racer
-	case 0x0010:					// In * AIn + In * 1-A || :In * AIn + Mem * 1-A			Hey You Pikachu - Shadow
-	case 0x0040:					// In * AIn + Mem * 1-A || :In * AIn + In * 1-A			Mario - Princess peach text
-	case 0x0050:					// In * AIn + Mem * 1-A || :In * AIn + Mem * 1-A:		SSV - TV Screen and SM64 text
-	case 0x04d0:					// In * AFog + Fog * 1-A || In * AIn + Mem * 1-A		Conker's Eyes
-	case 0x0c18:					// In * 0 + In * 1 || :In * AIn + Mem * 1-A:			SSV - WaterFall and dust
-	case 0xc410:					// Fog * AFog + In * 1-A || :In * AIn + Mem * 1-A		Donald Duck - Stars
-	case 0xc810:					// Fog * AShade + In * 1-A || :In * AIn + Mem * 1-A		SSV - Fog? and MM - Shadows
-	case 0xcb02:					// Fog * AShade + In * 1-A || :In * 0 + In * 1			Doom 64 - Weapons
+		DebugBlender( active_mode, alpha_cvg_sel, cvg_x_alpha );
+		DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", active_mode );
+#endif
+	}
+
+	switch (type)
+	{
+	case kBlendModeOpaque:
+		glDisable(GL_BLEND);
+		break;
+	case kBlendModeAlphaTrans:
 		glBlendColor(0.f, 0.f, 0.f, 0.f);
 		glBlendEquation(GL_FUNC_ADD);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 		break;
-#endif
-	//
-	// Default case should handle most blenders, ignore most unknown blenders unless something is messed up
-	//
-	default:
-		// Hack for shadows in ISS64
-		// FIXME(strmnnrmn): not sure about these.
-		// if(g_ROM.GameHacks == ISS64)
-		// {
-		// 	if (blendmode == 0xff5a)	// Actual shadow
-		// 	{
-		//		glBlendFunc(GL_FUNC_REVERSE_SUBTRACT, GL_SRC_ALPHA, GL_FIX, 0, 0);
-		// 		glEnable(GL_BLEND);
-		// 	}
-		// 	else if (blendmode == 0x0050) // Box that appears under the players..
-		// 	{
-		// 		glBlendFunc(GL_FUNC_ADD, GL_SRC_ALPHA, GL_FIX, 0, 0x00ffffff);
-		// 		glEnable(GL_BLEND);
-		// 	}
-		// }
-		// else
-		{
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-			DebugBlender( blendmode );
-			DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", blendmode );
-#endif
-			glBlendColor(0.f, 0.f, 0.f, 0.f);
-			glBlendEquation(GL_FUNC_ADD);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glEnable(GL_BLEND);
-		}
+	case kBlendModeFade:
+		glBlendColor(0.f, 0.f, 0.f, 0.f);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
 		break;
 	}
 }
@@ -682,9 +689,13 @@ void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable
 	u32 cycle_mode = gRDPOtherMode.cycle_type;
 
 	// Initiate Blender
-	if(cycle_mode < CYCLE_COPY)
+	if(cycle_mode < CYCLE_COPY && gRDPOtherMode.force_bl)
 	{
-		gRDPOtherMode.force_bl ? InitBlenderMode( gRDPOtherMode.blender ) : glDisable( GL_BLEND );
+		InitBlenderMode();
+	}
+	else
+	{
+		glDisable(GL_BLEND);
 	}
 
 	u32 alpha_threshold = 0;
