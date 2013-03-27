@@ -25,18 +25,8 @@ class DataSink;
 
 bool DLParser_Initialise();
 void DLParser_Finalise();
-void DLParser_Process(DataSink * debug_sink = NULL);
 
-// Various debugger commands:
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-
-const u32	UNLIMITED_INSTRUCTION_COUNT( u32( ~0 ) );
-
-u32			DLParser_GetTotalInstructionCount();
-u32			DLParser_GetInstructionCountLimit();
-void		DLParser_SetInstructionCountLimit( u32 limit );
-
-#endif
-
+const u32 kUnlimitedInstructionCount = u32( ~0 );
+u32 DLParser_Process(u32 instruction_limit = kUnlimitedInstructionCount, DataSink * debug_sink = NULL);
 
 #endif	// __DLPARSER_H__

@@ -203,9 +203,7 @@ void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts);
 u32			gNumDListsCulled;
 u32			gNumVertices;
 u32			gNumRectsClipped;
-static u32	gCurrentInstructionCount = 0;			// Used for debugging display lists
-u32			gTotalInstructionCount = 0;
-static u32	gInstructionCountLimit = UNLIMITED_INSTRUCTION_COUNT;
+u32			gNumInstructionsExecuted = 0;
 #endif
 
 //*****************************************************************************
@@ -430,20 +428,22 @@ SProfileItemHandle * gpProfileItemHandles[ 256 ];
 //*****************************************************************************
 //	Process the entire display list in one go
 //*****************************************************************************
-void	DLParser_ProcessDList()
+static u32 DLParser_ProcessDList(u32 instruction_limit)
 {
 	MicroCodeCommand command;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	//Check if address is outside legal RDRAM
-	u32			pc( gDlistStack.address[gDlistStackPointer] );
+	u32 pc = gDlistStack.address[gDlistStackPointer];
 
 	if ( pc > MAX_RAM_ADDRESS )
 	{
 		DBGConsole_Msg(0, "Display list PC is out of range: 0x%08x", pc );
-		return;
+		return 0;
 	}
 #endif
+
+	u32 current_instruction_count = 0;
 
 	while(gDlistStackPointer >= 0)
 	{
@@ -453,18 +453,18 @@ void	DLParser_ProcessDList()
 		//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		//use the gInstructionName table for fecthing names.
-		gCurrentInstructionCount++;
-		DL_PF("[%05d] 0x%08x: %08x %08x %-10s", gCurrentInstructionCount, pc, command.inst.cmd0, command.inst.cmd1, gUcodeName[command.inst.cmd ]);
+		current_instruction_count++;
+		DL_PF("[%05d] 0x%08x: %08x %08x %-10s", current_instruction_count, pc, command.inst.cmd0, command.inst.cmd1, gUcodeName[command.inst.cmd ]);
 
 		PROFILE_DL_CMD( command.inst.cmd );
 
 		gUcodeFunc[ command.inst.cmd ]( command );
 
-		if( gInstructionCountLimit != UNLIMITED_INSTRUCTION_COUNT )
+		if( instruction_limit != kUnlimitedInstructionCount )
 		{
-			if( gCurrentInstructionCount >= gInstructionCountLimit )
+			if( current_instruction_count >= instruction_limit )
 			{
-				return;
+				return current_instruction_count;
 			}
 		}
 #else
@@ -484,19 +484,20 @@ void	DLParser_ProcessDList()
 				//gDlistStack.limit = -1;
 			}
 		}
-
 	}
+
+	return current_instruction_count;
 }
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_Process(DataSink * debug_sink)
+u32 DLParser_Process(u32 instruction_limit, DataSink * debug_sink)
 {
 	DAEDALUS_PROFILE( "DLParser_Process" );
 
 	if ( !CGraphicsContext::Get()->IsInitialised() || !gRenderer )
 	{
-		return;
+		return 0;
 	}
 
 	// Shut down the debug console when we start rendering
@@ -545,8 +546,6 @@ void DLParser_Process(DataSink * debug_sink)
 	gRDPStateManager.Reset();
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	gTotalInstructionCount = 0;
-	gCurrentInstructionCount = 0;
 	gNumDListsCulled = 0;
 	gNumVertices = 0;
 	gNumRectsClipped = 0;
@@ -557,13 +556,15 @@ void DLParser_Process(DataSink * debug_sink)
 
 	DL_PF("DP: Firing up RDP!");
 
+	u32 count = 0;
+
 	if(!gFrameskipActive)
 	{
 		gRenderer->SetVIScales();
 		gRenderer->ResetMatrices(stack_size);
 		gRenderer->Reset();
 		gRenderer->BeginScene();
-		DLParser_ProcessDList();
+		count = DLParser_ProcessDList(instruction_limit);
 		gRenderer->EndScene();
 	}
 
@@ -576,8 +577,11 @@ void DLParser_Process(DataSink * debug_sink)
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DLDebug_SetSink(NULL);
-	gTotalInstructionCount = gCurrentInstructionCount;
 
+	// NB: only update gNumInstructionsExecuted when we rendered something.
+	// I'd really like to get rid of gNumInstructionsExecuted.
+	if (!gFrameskipActive)
+		gNumInstructionsExecuted = count;
 #endif
 
 #ifdef DAEDALUS_BATCH_TEST_ENABLED
@@ -585,6 +589,8 @@ void DLParser_Process(DataSink * debug_sink)
 	if( handler )
 		handler->OnDisplayListComplete();
 #endif
+
+	return count;
 }
 
 //*****************************************************************************
@@ -1216,37 +1222,6 @@ void DLParser_SetEnvColor( MicroCodeCommand command )
 
 	gRenderer->SetEnvColour( env_colour );
 }
-
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-//*****************************************************************************
-//
-//*****************************************************************************
-u32 DLParser_GetTotalInstructionCount()
-{
-	return gTotalInstructionCount;
-}
-#endif
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-//*****************************************************************************
-//
-//*****************************************************************************
-u32 DLParser_GetInstructionCountLimit()
-{
-	return gInstructionCountLimit;
-}
-#endif
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_SetInstructionCountLimit( u32 limit )
-{
-	gInstructionCountLimit = limit;
-}
-#endif
 
 //*****************************************************************************
 //RSP TRI commands..

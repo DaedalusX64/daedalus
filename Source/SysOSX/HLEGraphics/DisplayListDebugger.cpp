@@ -39,6 +39,8 @@ static Mutex 				gMainThreadSync("MainThreadSync");
 static WebDebugConnection * gActiveConnection = NULL;
 static DebugTask			gDebugTask        = kTaskUndefined;
 
+static u32					gInstructionCountLimit = kUnlimitedInstructionCount;
+
 bool DLDebugger_IsDebugging()
 {
 	return gDebugging;
@@ -62,7 +64,8 @@ void DLDebugger_ProcessDebugTask()
 				break;
 			case kTaskStartDebugging:
 			{
-				u32 num_ops = DLParser_GetTotalInstructionCount();
+				u32 num_ops = DLParser_Process(kUnlimitedInstructionCount, NULL);
+				gInstructionCountLimit = num_ops;
 
 				connection->BeginResponse(200, -1, "text/plain" );
 				connection->WriteF("{\"num_ops\":%d}", num_ops);
@@ -73,7 +76,8 @@ void DLDebugger_ProcessDebugTask()
 			}
 			case kTaskStopDebugging:
 			{
-				connection->BeginResponse(200, -1, "text/plain" );
+				gInstructionCountLimit = kUnlimitedInstructionCount;
+				connection->BeginResponse(200, -1, "text/plain");
 				connection->WriteString("ok");
 				connection->EndResponse();
 				gDebugging = false;
@@ -82,7 +86,7 @@ void DLDebugger_ProcessDebugTask()
 			}
 			case kTaskScrub:
 			{
-				DLParser_Process(NULL);
+				DLParser_Process(gInstructionCountLimit, NULL);
 
 				connection->BeginResponse(200, -1, "text/plain" );
 				connection->WriteString("ok");
@@ -116,8 +120,8 @@ void DLDebugger_ProcessDebugTask()
 			}
 			case kTaskDumpDList:
 			{
-				connection->BeginResponse(200, -1, "text/plain" );
-				DLParser_Process(connection);
+				connection->BeginResponse(200, -1, "text/plain");
+				DLParser_Process(kUnlimitedInstructionCount, connection);
 				connection->EndResponse();
 				handled = true;
 				break;
@@ -142,7 +146,7 @@ bool DLDebugger_Process()
 
 	while(gDebugging)
 	{
-		DLParser_Process();
+		DLParser_Process(gInstructionCountLimit, NULL);
 		DLDebugger_ProcessDebugTask();
 
 		CGraphicsContext::Get()->UpdateFrame( false );
@@ -188,8 +192,7 @@ static void DLDebugHandler(void * arg, WebDebugConnection * connection)
 			}
 			else if (params[i].Key == "scrub")
 			{
-				u32 op = ParseU32(params[i].Value, 10);
-				DLParser_SetInstructionCountLimit(op);
+				gInstructionCountLimit = ParseU32(params[i].Value, 10);
 				DoTask(connection, kTaskScrub);
 				return;
 			}

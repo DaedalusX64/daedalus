@@ -62,6 +62,10 @@ using std::sort;
 extern float	TEST_VARX, TEST_VARY;
 extern DebugBlendSettings gDBlend;
 
+// FIXME: we shouldn't rely on this global state.
+// We should call DLParser_Process(kUnlimitedInstructionCount) when we enter the debugger, and that will return a count. T
+extern u32 gNumInstructionsExecuted;
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -798,7 +802,7 @@ void CTextureExplorerDebugMenuOption::Update( const SPspPadState & pad_state, fl
 class CDisplayListLengthDebugMenuOption : public CDebugMenuOption
 {
 	public:
-		CDisplayListLengthDebugMenuOption();
+		CDisplayListLengthDebugMenuOption(u32 total, u32 * limit);
 
 		virtual void			Display() const;
 		virtual void			Update( const SPspPadState & pad_state, float elapsed_time );
@@ -807,34 +811,28 @@ class CDisplayListLengthDebugMenuOption : public CDebugMenuOption
 
 	private:
 				u32				mTotalInstructionCount;
-				u32				mInstructionCountLimit;
+				u32 *			mInstructionCountLimit;
 
 				float			mFractionalAdjustment;
 };
 
-CDisplayListLengthDebugMenuOption::CDisplayListLengthDebugMenuOption()
-:	mTotalInstructionCount( 0 )
-,	mInstructionCountLimit( UNLIMITED_INSTRUCTION_COUNT )
+CDisplayListLengthDebugMenuOption::CDisplayListLengthDebugMenuOption(u32 total, u32 * limit)
+:	mTotalInstructionCount( total )
+,	mInstructionCountLimit( limit )
 ,	mFractionalAdjustment( 0.0f )
 {
 }
 
 void CDisplayListLengthDebugMenuOption::Display() const
 {
-	printf( "Display list length %d / %d:\n", mInstructionCountLimit == UNLIMITED_INSTRUCTION_COUNT ? mTotalInstructionCount : mInstructionCountLimit, mTotalInstructionCount );
+	printf( "Display list length %d / %d:\n", *mInstructionCountLimit, mTotalInstructionCount );
 	printf( "   Use [] to return\n" );
 	printf( "   Use up/down to adjust\n" );
 }
 
 void CDisplayListLengthDebugMenuOption::Update( const SPspPadState & pad_state, float elapsed_time )
 {
-	if( mTotalInstructionCount == 0 )
-	{
-		mTotalInstructionCount = DLParser_GetTotalInstructionCount();
-		mInstructionCountLimit = mTotalInstructionCount;
-	}
-
-	float		rate_adjustment( 1.0f );
+	float	rate_adjustment( 1.0f );
 
 	if(pad_state.NewButtons & PSP_CTRL_RTRIGGER)
 	{
@@ -864,15 +862,13 @@ void CDisplayListLengthDebugMenuOption::Update( const SPspPadState & pad_state, 
 	s32 adjustment = s32( mFractionalAdjustment );
 	if( adjustment != 0 )
 	{
-		s32		new_limit( mInstructionCountLimit + adjustment );
+		s32 new_limit = *mInstructionCountLimit + adjustment;
 
-		mInstructionCountLimit = u32( Clamp< s32 >( new_limit, 0, mTotalInstructionCount ) );
+		*mInstructionCountLimit = u32( Clamp< s32 >( new_limit, 0, mTotalInstructionCount ) );
 		mFractionalAdjustment -= float( adjustment );
 
 		InvalidateDisplay();
 	}
-
-	DLParser_SetInstructionCountLimit( mInstructionCountLimit );
 }
 
 //*****************************************************************************
@@ -972,10 +968,13 @@ void IDisplayListDebugger::Run()
 	typedef std::vector< CDebugMenuOption * > DebugMenuOptionVector;
 	DebugMenuOptionVector	menu_options;
 
+	u32		total_instruction_count = gNumInstructionsExecuted;
+	u32		instruction_limit       = gNumInstructionsExecuted;
+
 	menu_options.push_back( new CCombinerExplorerDebugMenuOption );
 	menu_options.push_back( new CBlendDebugMenuOption );
 	menu_options.push_back( new CTextureExplorerDebugMenuOption );
-	menu_options.push_back( new CDisplayListLengthDebugMenuOption );
+	menu_options.push_back( new CDisplayListLengthDebugMenuOption(total_instruction_count, &instruction_limit) );
 	menu_options.push_back( new CDecalOffsetDebugMenuOption );
 
 	u32		highlighted_option( 0 );
@@ -985,7 +984,6 @@ void IDisplayListDebugger::Run()
 	bool	need_update_display( true );
 	bool	dump_next_screen( false );
 	bool	dump_texture_dlist( false );
-	u32		total_instruction_count( DLParser_GetTotalInstructionCount() );
 
 	while( (pad_state.NewButtons & PSP_CTRL_HOME) != 0 || !menu_button_pressed )
 	{
@@ -1046,7 +1044,7 @@ void IDisplayListDebugger::Run()
 
 		if( render_dlist )
 		{
-			DLParser_Process(debug_sink);
+			DLParser_Process(instruction_limit, debug_sink);
 
 			// We can delete the sink as soon as we're done with it.
 			delete debug_sink;
@@ -1113,7 +1111,7 @@ void IDisplayListDebugger::Run()
 		{
 			printf( TERMINAL_CLEAR_SCREEN );
 			printf( TERMINAL_TOP_LEFT );
-			printf( "Dlist took %dms (%fHz) [%d/%d]\n", s32(elapsed_ms), framerate, DLParser_GetInstructionCountLimit(), total_instruction_count );
+			printf( "Dlist took %dms (%fHz) [%d/%d]\n", s32(elapsed_ms), framerate, instruction_limit, total_instruction_count );
 			printf( "\n" );
 
 			if( p_current_option != NULL )
@@ -1146,7 +1144,7 @@ void IDisplayListDebugger::Run()
 			// Just update timing info
 			printf( TERMINAL_TOP_LEFT );
 			printf( TERMINAL_CLEAR_LINE );
-			printf( "Dlist took %dms (%fHz) [%d/%d]\n", s32(elapsed_ms), framerate, DLParser_GetInstructionCountLimit(), total_instruction_count );
+			printf( "Dlist took %dms (%fHz) [%d/%d]\n", s32(elapsed_ms), framerate, instruction_limit, total_instruction_count );
 			printf( TERMINAL_RESTORE_POS );
 		}
 		fflush( stdout );
@@ -1224,7 +1222,6 @@ void IDisplayListDebugger::Run()
 	}
 
 	gRendererPSP->SetRecordCombinerStates( false );
-	DLParser_SetInstructionCountLimit( UNLIMITED_INSTRUCTION_COUNT );
 
 	//
 	//	Clean up

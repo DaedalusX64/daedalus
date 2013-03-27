@@ -172,7 +172,7 @@ void CGraphicsPluginImpl::ProcessDList()
 }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-extern u32 gTotalInstructionCount;
+extern u32 gNumInstructionsExecuted;
 extern u32 gNumDListsCulled;
 extern u32 gNumRectsClipped;
 #endif
@@ -219,7 +219,7 @@ void CGraphicsPluginImpl::UpdateScreen()
 						break;
 					case 3:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-						pspDebugScreenPrintf( "Dlist[%d] Cull[%d] | Tris[%d] Cull[%d] | Rect[%d] Clip[%d] ", gTotalInstructionCount, gNumDListsCulled, gRenderer->GetNumTrisRendered(), gRenderer->GetNumTrisClipped(), gRenderer->GetNumRect(), gNumRectsClipped);
+						pspDebugScreenPrintf( "Dlist[%d] Cull[%d] | Tris[%d] Cull[%d] | Rect[%d] Clip[%d] ", gNumInstructionsExecuted, gNumDListsCulled, gRenderer->GetNumTrisRendered(), gRenderer->GetNumTrisClipped(), gRenderer->GetNumRect(), gNumRectsClipped);
 #else
 						pspDebugScreenPrintf( "%#.1f  ", gCurrentFramerate );
 #endif
