@@ -33,9 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/patch.h"		// For GetCorrectOp
 #include "OSHLE/ultra_R4300.h"
 #include "ConfigOptions.h"
-#ifdef DAEDALUS_W32
-#include "Interface/MainWindow.h"	// Main_SelectSaveDir()
-#endif
 #include <ctype.h>
 
 static char gDumpDir[MAX_PATH+1] = "";
@@ -92,10 +89,6 @@ void Dump_GetSaveDirectory(char * p_file_path, const char * p_rom_name, const ch
 	// If the Save path has not yet been set up, prompt user
 	if (strlen(g_DaedalusConfig.szSaveDir) == 0)
 	{
-	#ifdef DAEDALUS_W32
-		CMainWindow::Get()->SelectSaveDir( CMainWindow::Get()->GetWindow() );
-	#endif
-
 		// User may have cancelled
 		if (strlen(g_DaedalusConfig.szSaveDir) == 0)
 		{

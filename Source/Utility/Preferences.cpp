@@ -27,8 +27,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interface/RomDB.h"
 
 #include "Utility/IO.h"
+#ifdef DAEDALUS_PSP
 #include "Utility/Translate.h"
-
+#endif
 #include "ConfigOptions.h"
 
 #include "Input/InputManager.h"
@@ -151,10 +152,12 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		FLOAT_SETTING( gGlobalPreferences, StickMinDeadzone, defaults );
 		FLOAT_SETTING( gGlobalPreferences, StickMaxDeadzone, defaults );
 //		INT_SETTING( gGlobalPreferences, Language, defaults );
+#ifdef DAEDALUS_PSP
 		if( section->FindProperty( "Language", &property ) )
 		{
 			gGlobalPreferences.Language = Translate_IndexFromName( property->GetValue() );
 		}
+#endif
 		if( section->FindProperty( "GuiColor", &property ) )
 		{
 			u32 value( property->GetIntValue(defaults.GuiColor) );
@@ -321,8 +324,9 @@ void IPreferences::Commit()
 #define OUTPUT_BOOL( b, nm, def )		fprintf( fh, "%s=%s\n", #nm, b.nm ? "yes" : "no" );
 #define OUTPUT_FLOAT( b, nm, def )		fprintf( fh, "%s=%f\n", #nm, b.nm );
 #define OUTPUT_INT( b, nm, def )		fprintf( fh, "%s=%d\n", #nm, b.nm );
+#ifdef DAEDALUS_PSP
 #define OUTPUT_LANGUAGE( b, nm, def )	fprintf( fh, "%s=%s\n", #nm, Translate_NameFromIndex( b.nm ) );
-
+#endif
 		OUTPUT_INT( gGlobalPreferences, DisplayFramerate, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, ForceLinearFilter, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, RumblePak, defaults );
@@ -335,7 +339,9 @@ void IPreferences::Commit()
 		OUTPUT_INT( gGlobalPreferences, GuiColor, defaults )
 		OUTPUT_FLOAT( gGlobalPreferences, StickMinDeadzone, defaults );
 		OUTPUT_FLOAT( gGlobalPreferences, StickMaxDeadzone, defaults );
+#ifdef DAEDALUS_PSP
 		OUTPUT_LANGUAGE( gGlobalPreferences, Language, defaults );
+#endif
 		OUTPUT_INT( gGlobalPreferences, ViewportType, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, TVEnable, defaults );
 		OUTPUT_BOOL( gGlobalPreferences, TVLaced, defaults );

@@ -36,7 +36,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <mmsystem.h>
 #include <dsound.h>
-#include "Interface/MainWindow.h"
 
 #define NUMCAPTUREEVENTS	3
 #define BufferSize			0x5000
@@ -147,7 +146,7 @@ bool		CAudioPluginW32::StartEmulation()
 		return FALSE;
 	}
 
-	if ( FAILED( hr = IDirectSound_SetCooperativeLevel(lpds, CMainWindow::Get()->GetWindow(), DSSCL_PRIORITY   ))) {
+	if ( FAILED( hr = IDirectSound_SetCooperativeLevel(lpds, GetConsoleWindow(), DSSCL_PRIORITY   ))) {
 		return FALSE;
 	}
 	for ( count = 0; count < NUMCAPTUREEVENTS; count++ ) {

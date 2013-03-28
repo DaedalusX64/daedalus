@@ -33,11 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/GraphicsContext.h"
 
-
-#ifdef DAEDALUS_W32
-#include "Interface/MainWindow.h"
-#endif
-
 #ifdef DAEDALUS_OSX
 #include "SysOSX/Debug/WebDebug.h"
 #include "HLEGraphics/TextureCacheWebDebug.h"
@@ -48,8 +43,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Synchroniser.h"
 #include "Utility/Profiler.h"
 #include "Utility/Preferences.h"
+#ifdef DAEDALUS_PSP
 #include "Utility/Translate.h"
-
+#endif
 #include "Input/InputManager.h"		// CInputManager::Create/Destroy
 
 #include "Debug/DBGConsole.h"
@@ -146,12 +142,12 @@ SysEntityEntry SysInitTable[] =
 	{"ROM Database",		CRomDB::Create,				CRomDB::Destroy},
 	{"ROM Settings",		CRomSettingsDB::Create,		CRomSettingsDB::Destroy},
 	{"InputManager",		CInputManager::Create,		CInputManager::Destroy},
+#ifdef DAEDALUS_PSP
 	{"Language",			Translate_Init,				NULL},
+#endif
 	{"Preference",			CPreferences::Create,		CPreferences::Destroy},
 	{"Memory",				Memory_Init,				Memory_Fini},
-#ifdef DAEDALUS_W32
-	{"Main Window",			CMainWindow::Create,		CMainWindow::Destroy},
-#endif
+
 	{"Controller",			CController::Create,		CController::Destroy},
 #ifdef DAEDALUS_PSP
 	{"VideoMemory",			CVideoMemoryManager::Create, NULL},
@@ -172,9 +168,7 @@ RomEntityEntry RomInitTable[] =
 	{"Settings",			ROM_LoadFile,			ROM_UnloadFile},
 	{"InputManager",		CInputManager::Init,	CInputManager::Fini},
 	{"Memory",				Memory_Reset,			Memory_Cleanup},
-#ifdef DAEDALUS_W32
-	{"Main Window",			CMainWindow::StartEmu, CMainWindow::StopEmu},
-#endif
+
 	{"Audio",				InitAudioPlugin,		DisposeAudioPlugin },
 	{"Graphics",			InitGraphicsPlugin,		DisposeGraphicsPlugin},
 	{"FramerateLimiter",	FramerateLimiter_Reset,	NULL},

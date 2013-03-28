@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "System.h"
 
-#include "Interface/MainWindow.h"
 #include "Interface/RomDB.h"
 
 #include "Utility/ConfigHandler.h"	//
@@ -91,7 +90,7 @@ int main(int argc, char **argv)
 		strcpy(path, argv[0]);
 		IO::Path::RemoveFileSpec(path);
 		strcpy(gDaedalusExePath, path);
-		strcat(path, "/Aerogauge.z64");
+		strcat(path, "/super.z64");
 		fprintf(stderr, "Loading %s\n",path);
 	}
 	else

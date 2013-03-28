@@ -53,7 +53,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Plugins/AudioPlugin.h"
 #include "SysW32/Utility/ResourceString.h"
 #include "Resources/resource.h"
-#include "Interface/MainWindow.h"		// For MWM_STARTEMU etc
 #endif
 
 #include "Debug/DebugLog.h"
@@ -683,12 +682,6 @@ void CPUMain()
 		{
 			throw;
 		}
-
-		#ifdef DAEDALUS_W32
-			CMainWindow::Get()->MessageBox(CResourceString(IDS_CPUTHREAD_EXCEPTION),
-										   g_szDaedalusName,
-										   MB_ICONEXCLAMATION|MB_OK);
-		#endif
 	}
 #endif
 

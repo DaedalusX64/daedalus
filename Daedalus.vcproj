@@ -919,10 +919,6 @@
 				Name="Interface"
 				>
 				<File
-					RelativePath=".\Source\Interface\MainWindow.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Source\Interface\RomDB.cpp"
 					>
 				</File>
@@ -946,10 +942,6 @@
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysW32\Interface\MainWindowW32.cpp"
-						>
-					</File>
-					<File
 						RelativePath=".\Source\SysW32\Interface\RomSettingsDialog.cpp"
 						>
 					</File>
@@ -966,10 +958,6 @@
 						</File>
 						<File
 							RelativePath=".\Source\SysW32\Interface\DirectoriesPage.h"
-							>
-						</File>
-						<File
-							RelativePath=".\Source\SysW32\Interface\PluginsPage.h"
 							>
 						</File>
 						<File
@@ -1139,22 +1127,6 @@
 					>
 				</File>
 				<Filter
-					Name="W32"
-					>
-					<File
-						RelativePath=".\Source\SysW32\Plugins\AudioPlugin_Spec.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Plugins\GraphicsPlugin_Spec.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Plugins\ZilmarPlugin_Spec.h"
-						>
-					</File>
-				</Filter>
-				<Filter
 					Name="PSP"
 					>
 					<File
@@ -1311,14 +1283,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\MemoryPool.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Utility\MemoryPool.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Source\Utility\Preferences.cpp"
 					>
 				</File>
@@ -1416,14 +1380,6 @@
 				</File>
 				<File
 					RelativePath=".\Source\Utility\Synchroniser.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Utility\Translate.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Utility\Translate.h"
 					>
 				</File>
 				<File
@@ -1733,18 +1689,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\SysPSP\HLEGraphics\ColourAdjuster.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
 					RelativePath=".\Source\SysPSP\HLEGraphics\ColourAdjuster.h"
 					>
 				</File>
@@ -1851,14 +1795,6 @@
 					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerExpression.cpp"
 						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerExpression.h"
@@ -1871,14 +1807,6 @@
 					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerTree.cpp"
 						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerTree.h"
@@ -1887,14 +1815,6 @@
 					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\RenderSettings.cpp"
 						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\RenderSettings.h"

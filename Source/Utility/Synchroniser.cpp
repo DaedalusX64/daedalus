@@ -26,10 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/MathUtil.h"
 
-#ifndef DAEDALUS_PSP
-#include "Interface/MainWindow.h"
-#endif
-
 #include "Utility/IO.h"
 
 #include "Debug/DBGConsole.h"
@@ -106,9 +102,6 @@ void CSynchroniser::Destroy()
 void	CSynchroniser::HandleOutOfStorage()
 {
 	const char *	message( "Out of storage for synchroniser" );
-#ifndef DAEDALUS_PSP
-	CMainWindow::Get()->MessageBox( message );
-#endif
 	DBGConsole_Msg( 0, message );
 	Destroy();
 }
@@ -119,9 +112,6 @@ void	CSynchroniser::HandleOutOfStorage()
 void	CSynchroniser::HandleOutOfInput()
 {
 	const char *	message( "Out of input for synchroniser" );
-#ifndef DAEDALUS_PSP
-	CMainWindow::Get()->MessageBox( message );
-#endif
 	DBGConsole_Msg( 0, message );
 	Destroy();
 }
@@ -135,9 +125,6 @@ void	CSynchroniser::HandleOutOfSynch( const char * msg )
 	sprintf( message, "Synchronisation Failed at 0x%08x: %s", gCPUState.CurrentPC, msg );
 	gCPUState.Dump();
 
-#ifndef DAEDALUS_PSP
-	CMainWindow::Get()->MessageBox( message );
-#endif
 	CPU_Halt( message );
 	Destroy();
 }

@@ -55,10 +55,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/Fragment.h"
 #include "DynaRec/FragmentCache.h"
 
-#ifdef DAEDALUS_W32
-#include "Interface/MainWindow.h"	// For Main_SetStatus
-#endif
-
 #include "ultra_os.h"
 #include "ultra_rcp.h"
 #include "ultra_sptask.h"
@@ -524,13 +520,6 @@ void Patch_RecurseAndFind()
 	for (u32 i = 0; i < nPatchSymbols && !gCPUState.IsJobSet( CPU_STOP_RUNNING ); i++)
 	{
 
-#ifdef DAEDALUS_W32
-		CMainWindow::Get()->SetStatus(0,
-									  "OS HLE: %d / %d Looking for %s",
-									  i,
-									  nPatchSymbols,
-									  g_PatchSymbols[i]->szName);
-#endif //DAEDALUS_W32
 #ifdef DAEDALUS_DEBUG_CONSOLE
 		CDebugConsole::Get()->MsgOverwrite(0, "OS HLE: %d / %d Looking for [G%s]",
 			i, nPatchSymbols, g_PatchSymbols[i]->szName);
@@ -563,9 +552,7 @@ void Patch_RecurseAndFind()
 		CDebugConsole::Get()->MsgOverwrite( 0, "OS HLE: Aborted" );
 		CDebugConsole::Get()->MsgOverwriteEnd();
 #endif
-#ifdef DAEDALUS_W32
-		CMainWindow::Get()->SetStatus( 0, "OS HLE: Aborted" );
-#endif
+
 		return;
 	}
 #ifdef DAEDALUS_DEBUG_CONSOLE
@@ -573,13 +560,6 @@ void Patch_RecurseAndFind()
 		nPatchSymbols, nPatchSymbols);
 
 	CDebugConsole::Get()->MsgOverwriteEnd();
-#endif
-
-#ifdef DAEDALUS_W32
-	CMainWindow::Get()->SetStatus(0,
-								  "OS HLE: %d / %d All done",
-								  nPatchSymbols,
-								  nPatchSymbols);
 #endif
 
 	first = u32(~0);
