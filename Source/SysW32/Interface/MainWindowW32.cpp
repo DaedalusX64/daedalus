@@ -50,7 +50,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Resources/resource.h"
 
 #include "Plugins/AudioPlugin.h"
-#include "SysW32/Plugins/GraphicsPluginW32.h"
 
 #include "ConfigOptions.h"
 
@@ -487,8 +486,6 @@ LRESULT IMainWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPar
 {
 	switch (message)
 	{
-		case WM_ENTERSIZEMOVE: CInputManager::Get()->Unaquire(); break;
-		case WM_ENTERMENULOOP: CInputManager::Get()->Unaquire(); PauseDrawing(); break;
 	    case WM_EXITMENULOOP: RestartDrawing(); break;
 
 		HANDLE_MSG( hWnd, WM_CREATE, OnCreate );
@@ -853,10 +850,6 @@ void IMainWindow::OnCommand(HWND hWnd, int id, HWND hwndCtl, UINT codeNotify)
 			}
 			break;
 
-		case IDM_INPUTCONFIG:
-			CInputManager::Get()->Configure(hWnd);
-			break;
-
 
 		case IDM_ABOUT:
 			DialogBox( _Module.GetResourceInstance(), MAKEINTRESOURCE(IDD_ABOUT), hWnd, AboutDlgProc);
@@ -984,8 +977,6 @@ void IMainWindow::OnStartEmu(HWND hWnd)
 //*****************************************************************************
 void IMainWindow::OnEndEmu(HWND hWnd)
 {
-	// Release the keyboard!
-	CInputManager::Get()->Unaquire();
 
 	ShowWindow(m_hWndList, SW_SHOW);
 	EnableWindow(m_hWndList, TRUE);

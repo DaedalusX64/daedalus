@@ -40,8 +40,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DAEDALUS_TRAP_PLUGIN_EXCEPTIONS
 #undef DAEDALUS_BREAKPOINTS_ENABLED
 #define DAEDALUS_ENABLE_OS_HOOKS
-#define DAEDALUS_SIMULATE_DOUBLE
 #define DAEDALUS_COMPRESSED_ROM_SUPPORT
+#define DAEDALUS_GL
+#define DAEDALUS_ACCURATE_TMEM
 
 #define DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_LITTLE
 
@@ -62,8 +63,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // Breakpoint
 #define DAEDALUS_HALT					__asm { int 3 }
-
-#define DAEDALUS_GL
 
 
 #endif // PLATFORM_H_

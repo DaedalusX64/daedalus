@@ -50,6 +50,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Test/BatchTest.h"
 
 #ifdef DAEDALUS_W32
+#include "Plugins/AudioPlugin.h"
 #include "SysW32/Utility/ResourceString.h"
 #include "Resources/resource.h"
 #include "Interface/MainWindow.h"		// For MWM_STARTEMU etc
@@ -829,7 +830,12 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			{
 				HandleSaveStateOperation();
 			}
-
+#ifdef DAEDALUS_W32
+			if (g_pAiPlugin != NULL)
+			{
+				g_pAiPlugin->Update(false);
+			}
+#endif
 #ifdef DAEDALUS_BATCH_TEST_ENABLED
 			CBatchTestEventHandler * handler( BatchTest_GetHandler() );
 			if( handler )

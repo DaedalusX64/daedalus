@@ -911,7 +911,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\Source\SysW32\Input\InputManagerW32.cpp"
+					RelativePath=".\Source\SysOSX\Input\InputManagerOSX.cpp"
 					>
 				</File>
 			</Filter>
@@ -947,14 +947,6 @@
 					</File>
 					<File
 						RelativePath=".\Source\SysW32\Interface\MainWindowW32.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Interface\PageDialog.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Interface\PageDialog.h"
 						>
 					</File>
 					<File
@@ -1763,6 +1755,10 @@
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\ConvertImage.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\HLEGraphics\ConvertTile.cpp"
 					>
 				</File>
 				<File

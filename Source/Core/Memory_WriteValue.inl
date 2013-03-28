@@ -85,7 +85,6 @@ static void WriteValue_8404_8404( u32 address, u32 value )
 	{
 	case 0x0:	// SP_MEM_ADDR_REG
 	case 0x4:	// SP_DRAM_ADDR_REG
-	case 0x1c:	// SP_SEMAPHORE_REG TODO - Make this do something?
 		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_SP_REG] + offset) = value;
 		break;
 
@@ -101,6 +100,9 @@ static void WriteValue_8404_8404( u32 address, u32 value )
 
 	case 0x10:	//SP_STATUS_REG
 		MemoryUpdateSPStatus( value );
+		break;
+	case 0x1c:	// SP_SEMAPHORE_REG ToDO: Read should be 0 too
+		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_SP_REG] + offset) = 0;
 		break;
 /*
 	case SP_DMA_FULL_REG:
@@ -235,7 +237,10 @@ static void WriteValue_8440_844F( u32 address, u32 value )
 
 	case 0x4:	// VI_ORIGIN_REG
 		DPF( DEBUG_VI, "VI_ORIGIN_REG set to %d", value );
+		// Builtin video plugin already calls UpdateScreen in DLParser_Process
+#ifndef DAEDALUS_GL
 		gGraphicsPlugin->UpdateScreen();
+#endif
 		break;
 
 	case 0x8:	// VI_WIDTH_REG

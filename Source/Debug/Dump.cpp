@@ -32,11 +32,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/IO.h"
 #include "OSHLE/patch.h"		// For GetCorrectOp
 #include "OSHLE/ultra_R4300.h"
+#include "ConfigOptions.h"
 #ifdef DAEDALUS_W32
 #include "Interface/MainWindow.h"	// Main_SelectSaveDir()
 #endif
-#include "ConfigOptions.h"
-
 #include <ctype.h>
 
 static char gDumpDir[MAX_PATH+1] = "";

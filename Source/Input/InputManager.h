@@ -11,15 +11,6 @@ class CInputManager : public CSingleton< CInputManager >
 	public:
 		virtual ~CInputManager() {}
 
-#ifdef DAEDALUS_W32
-		virtual void Unaquire() = 0;
-		virtual void Configure(HWND hWndParent) = 0;
-
-		// Nasty - should really be hidden in implementation
-		virtual BOOL InputSelectDialogProc(HWND hWndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
-		virtual BOOL InputConfigDialogProc(HWND hWndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
-#endif
-
 #ifdef DAEDALUS_PSP
 		virtual u32				GetNumConfigurations() const = 0;
 		virtual const char *	GetConfigurationName( u32 configuration_idx ) const = 0;
