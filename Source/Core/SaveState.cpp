@@ -26,10 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ROM.h"
 #include "R4300.h"
 
-#ifdef DAEDALUS_W32
-#include "Interface/MainWindow.h"
-#endif
-
 #include "Utility/ROMFile.h"
 #include "Utility/ZlibWrapper.h"
 
@@ -40,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/MathUtil.h"
 
-
+#include "Debug/DBGConsole.h"
 //
 //	SaveState code written initially by Lkb. Seems to be based about Project 64's
 //	savestate format, which is partially documented here: http://www.hcs64.com/usf/usf.txt
@@ -337,11 +333,7 @@ bool SaveState_LoadFromFile( const char * filename )
 	stream >> value;
 	if(value != SAVESTATE_PROJECT64_MAGIC_NUMBER)
 	{
-#ifdef DAEDALUS_W32
-		CMainWindow::Get()->MessageBox("Wrong magic number - savestate could be damaged or not in Daedalus/Project64 format", "Warning", MB_ICONWARNING);
-#else
-		printf( "Wrong magic number - savestate could be damaged or not in Daedalus/Project64 format" );
-#endif
+		DBGConsole_Msg(0, "Wrong magic number - savestate could be damaged or not in Daedalus/Project64 format" );
 		return false;
 	}
 	stream >> gRamSize;
@@ -355,13 +347,9 @@ bool SaveState_LoadFromFile( const char * filename )
 	if(g_ROM.mRomID != new_rom_id)
 	{
 		//ToDo: Give Option to switch Roms to one listed in SaveState if available.
-#ifdef DAEDALUS_W32
-		CMainWindow::Get()->MessageBox("ROM name in savestate is different from the name of the currently loaded ROM", "Warning", MB_ICONWARNING);
-#else
-		printf( "ROM name in savestate is different from the name of the currently loaded ROM: %x-%x-%02x, %x-%x-%02x\n",
+		DBGConsole_Msg(0, "ROM name in savestate is different from the name of the currently loaded ROM: %x-%x-%02x, %x-%x-%02x\n",
 			g_ROM.mRomID.CRC[0], g_ROM.mRomID.CRC[1], g_ROM.mRomID.CountryID,
 			new_rom_id.CRC[0], new_rom_id.CRC[1], new_rom_id.CountryID);
-#endif
 		return false;
 	}
 

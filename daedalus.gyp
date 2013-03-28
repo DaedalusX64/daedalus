@@ -106,7 +106,6 @@
           'Source/Utility/StringUtil.cpp',
           'Source/Utility/Synchroniser.cpp',
           'Source/Utility/Timer.cpp',
-          'Source/Utility/Translate.cpp',
           'Source/Utility/ZLibWrapper.cpp',
           'Source/ConfigOptions.cpp',
           'Source/System.cpp',
