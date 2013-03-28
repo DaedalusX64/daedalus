@@ -112,7 +112,7 @@
           'Source/System.cpp',
 
           #FIXME
-          'Source/SysW32/Dynarec/x86/AssemblyUtilsX86.cpp',
+          'Source/SysW32/DynaRec/x86/AssemblyUtilsX86.cpp',
         ],
         'conditions': [
           ['OS=="win"', {
