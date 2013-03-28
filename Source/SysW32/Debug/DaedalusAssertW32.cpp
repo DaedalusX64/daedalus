@@ -21,6 +21,7 @@
 #include "stdafx.h"
 #include "Debug/DaedalusAssert.h"
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 #include <crtdbg.h>
 #include <windows.h>
 
@@ -55,9 +56,6 @@ EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression,
 
 EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression, const char * file, unsigned int line, const char * msg, ... )
 {
-#ifdef DAEDALUS_XB
-	return AR_IGNORE;
-#else
 	char buffer[ 1024 ];
 	va_list va;
 	va_start(va, msg);
@@ -89,8 +87,6 @@ EAssertResult DAEDALUS_VARARG_CALL_TYPE DaedalusAssert( const char * expression,
 		return AR_BREAK;
 
 	exit( 1 );
-#endif
 }
-
-
 #endif		// _DEBUG
+#endif		// DAEDALUS_ENABLE_ASSERTS

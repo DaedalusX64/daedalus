@@ -34,6 +34,7 @@ static const WORD sc_wAttrWhite			= FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_B
 //*****************************************************************************
 void	CDebugPaneMemory::Display( HANDLE hOutput )
 {
+#ifndef DAEDALUS_SILENT
 	CHAR buf[120];
 
 	u32 x = GetX();
@@ -83,6 +84,7 @@ void	CDebugPaneMemory::Display( HANDLE hOutput )
 
 		address+=4*4;
 	}
+#endif
 }
 
 

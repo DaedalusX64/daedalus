@@ -42,6 +42,7 @@ static const WORD sc_wAttrBoldWhite		= FOREGROUND_INTENSITY|FOREGROUND_RED|FOREG
 //*****************************************************************************
 void	CDebugPaneCP0Dis::Display( HANDLE hOutput )
 {
+#ifndef DAEDALUS_SILENT
 	u16 wY;
 	DWORD * pPC;
 	char opinfo[120];
@@ -139,6 +140,7 @@ void	CDebugPaneCP0Dis::Display( HANDLE hOutput )
 
 		pc+=4;
 	}
+#endif
 }
 
 

@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 		strcpy(path, argv[0]);
 		IO::Path::RemoveFileSpec(path);
 		strcpy(gDaedalusExePath, path);
-		strcat(path, "/AeroGauge.z64");
+		strcat(path, "/Aerogauge.z64");
 		fprintf(stderr, "Loading %s\n",path);
 	}
 	else
@@ -113,7 +113,9 @@ int main(int argc, char **argv)
 	//
 	// Turn off the debug console
 	//
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	CDebugConsole::Get()->EnableConsole( false );
+#endif
 
 	System_Finalize();
 

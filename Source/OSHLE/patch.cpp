@@ -513,9 +513,11 @@ void Patch_RecurseAndFind()
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	CDebugConsole::Get()->MsgOverwriteStart();
 #else
+#ifdef DAEDALUS_PSP
 	// Load our font here, Intrafont used in UI is destroyed when emulation starts
 	intraFont* ltn8  = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ASCII);
 	intraFontSetStyle( ltn8, 1.0f, 0xFF000000, 0xFFFFFFFF, INTRAFONT_ALIGN_CENTER );
+#endif
 #endif
 
 	// Loops through all symbols, until name is null
@@ -639,6 +641,7 @@ void Patch_RecurseAndFind()
 		DBGConsole_Msg(0, "%d/%d symbols identified, in range 0x%08x -> 0x%08x",
 		nFound, nPatchSymbols, first, last);
 #else
+#ifdef DAEDALUS_PSP
 		//Update patching progress on PSPscreen
 		CGraphicsContext::Get()->BeginFrame();
 		CGraphicsContext::Get()->ClearToBlack();
@@ -646,6 +649,7 @@ void Patch_RecurseAndFind()
 		intraFontPrintf( ltn8, 480/2, (272>>1)+50, "Range 0x%08x -> 0x%08x", first, last );
 		CGraphicsContext::Get()->EndFrame();
 		CGraphicsContext::Get()->UpdateFrame( true );
+#endif
 #endif
 	}
 
@@ -678,7 +682,7 @@ void Patch_RecurseAndFind()
 #ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "%d/%d variables identified", nFound, nPatchVariables);
 #else
-
+#ifdef DAEDALUS_PSP
 		//Update patching progress on PSPscreen
 		CGraphicsContext::Get()->BeginFrame();
 		CGraphicsContext::Get()->ClearToBlack();
@@ -686,11 +690,14 @@ void Patch_RecurseAndFind()
 		CGraphicsContext::Get()->EndFrame();
 		CGraphicsContext::Get()->UpdateFrame( true );
 #endif
+#endif
 	}
 
 #ifndef DAEDALUS_DEBUG_CONSOLE
+#ifdef DAEDALUS_PSP
 	// Unload font after we done patching progress
 	intraFontUnload( ltn8 );
+#endif
 #endif
 
 }

@@ -109,7 +109,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="./Source/SysW32/Include;./Source/Config/Dev;./Source/"
+				AdditionalIncludeDirectories="./Source/SysW32/Include;./Source/Config/Release;./Source/"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="true"
 				RuntimeLibrary="2"

@@ -652,6 +652,7 @@ static void InitBlenderMode()
 		DebugBlender( cycle_type, active_mode, alpha_cvg_sel, cvg_x_alpha );
 		DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", active_mode );
 #endif
+		break;
 	}
 
 	switch (type)

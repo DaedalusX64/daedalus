@@ -66,6 +66,7 @@ static const DWORD sc_Cop0RegsToShow[] =
 //*****************************************************************************
 void	CDebugPaneCP0Regs::Display( HANDLE hOutput )
 {
+#ifndef DAEDALUS_SILENT
 	char msg[200];
 
 	u32 base;
@@ -159,6 +160,7 @@ void	CDebugPaneCP0Regs::Display( HANDLE hOutput )
 			wY = s16( y );
 		}
 	}
+#endif
 }
 
 

@@ -151,7 +151,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="./Source/SysW32/Include;./Source/Config/Dev;./Source/"
+				AdditionalIncludeDirectories="./Source/SysW32/Include;./Source/Config/Release;./Source/"
 				PreprocessorDefinitions="NDEBUG;WIN32;_CONSOLE"
 				StringPooling="true"
 				RuntimeLibrary="2"

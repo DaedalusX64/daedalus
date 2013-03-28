@@ -639,7 +639,7 @@ void IMainWindow::OnTimer(HWND hWnd, UINT id)
 			fElapsedTime = float( elapsed_ticks ) / float( frequency );
 			fFPS = ((float)(g_dwNumFrames-dwLastNumFrames)/fElapsedTime);
 			fVIs = ( Fsync * f32( FramerateLimiter_GetTvFrequencyHz() ) );
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 			if ( CDebugConsole::Get()->IsVisible() )
 			{
 				float fMIPS = ((float)num / 1000000.0f)/fElapsedTime;
@@ -672,7 +672,7 @@ void IMainWindow::OnTimer(HWND hWnd, UINT id)
 			#endif
 
 			}
-
+#endif
 			CMainWindow::Get()->SetStatus(1, "VIs/s: %#.2f FPS: %#.2f",fVIs, fFPS);
 
 		}

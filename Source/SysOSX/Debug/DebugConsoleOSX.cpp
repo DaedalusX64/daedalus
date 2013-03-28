@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdarg.h>
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugConsoleImpl.h"
 
@@ -185,3 +186,4 @@ void IDebugConsole::Msg(u32 type, const char * format, ...)
 	if (temp)
 		free(temp);
 }
+#endif

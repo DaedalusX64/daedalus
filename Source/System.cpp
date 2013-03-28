@@ -131,19 +131,6 @@ static void DisposeAudioPlugin()
 	}
 }
 
-#ifdef DAEDALUS_W32
-static bool EnableConsole()
-{
-	CDebugConsole::Get()->EnableConsole( true );
-
-	return true;
-}
-
-static void DisableConsole()
-{
-	CDebugConsole::Get()->EnableConsole( false );
-}
-#endif
 
 SysEntityEntry SysInitTable[] =
 {
@@ -164,7 +151,6 @@ SysEntityEntry SysInitTable[] =
 	{"Memory",				Memory_Init,				Memory_Fini},
 #ifdef DAEDALUS_W32
 	{"Main Window",			CMainWindow::Create,		CMainWindow::Destroy},
-	//{"Enable Debug Console", EnableConsole,				DisableConsole},
 #endif
 	{"Controller",			CController::Create,		CController::Destroy},
 #ifdef DAEDALUS_PSP
