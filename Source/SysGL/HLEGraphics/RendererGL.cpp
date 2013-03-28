@@ -64,16 +64,7 @@ static u32 		gColorBuffer[kMaxVertices];
 
 bool initgl()
 {
-	// Initialise GLEW
-#ifdef DAEDALUS_W32
-	//glewExperimental = GL_TRUE;
-	GLenum err = glewInit();
-	if (err != GLEW_OK || !GLEW_VERSION_3_2)
-	{
-		fprintf( stderr, "Failed to initialize GLEW\n" );
-		return false;
-	}
-#endif
+
     GLboolean status = GL_TRUE;
     RESOLVE_GL_FCN(PFN_glGenVertexArrays, pglGenVertexArrays, "glGenVertexArrays");
     RESOLVE_GL_FCN(PFN_glDeleteVertexArrays, pglDeleteVertexArrays, "glDeleteVertexArrays");

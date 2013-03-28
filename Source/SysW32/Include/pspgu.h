@@ -3,28 +3,26 @@
 #ifndef PSPGU_H__
 #define PSPGU_H__
 
-
-#define GL_FALSE 0
-#define GL_TRUE 1
+#include <GL/glew.h>
+#include <GL/glfw.h>
 
 void sceGuFog(float mn, float mx, u32 col);
 
 enum EGuTextureWrapMode
 {
-	GU_CLAMP,
-	GU_REPEAT,
+	GU_CLAMP			= GL_CLAMP_TO_EDGE,
+	GU_REPEAT			= GL_REPEAT,
 };
 
 enum EGuMatrixType
 {
-	GU_PROJECTION,
+	GU_PROJECTION		= GL_PROJECTION,
 };
 
 struct ScePspFMatrix4
 {
 	float m[16];
 };
-
 
 void sceGuSetMatrix(EGuMatrixType type, const ScePspFMatrix4 * mtx);
 
