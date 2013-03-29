@@ -33,9 +33,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ConfigOptions.h"
 
-
 #include <mmsystem.h>
 #include <dsound.h>
+
+//ToDo: Audio should run in its own thread
+
 
 #define NUMCAPTUREEVENTS	3
 #define BufferSize			0x5000
@@ -146,7 +148,7 @@ bool		CAudioPluginW32::StartEmulation()
 		return FALSE;
 	}
 
-	if ( FAILED( hr = IDirectSound_SetCooperativeLevel(lpds, GetConsoleWindow(), DSSCL_PRIORITY   ))) {
+	if ( FAILED( hr = IDirectSound8_SetCooperativeLevel(lpds, GetConsoleWindow(), DSSCL_PRIORITY   ))) {
 		return FALSE;
 	}
 	for ( count = 0; count < NUMCAPTUREEVENTS; count++ ) {
@@ -171,11 +173,11 @@ void	CAudioPluginW32::StopEmulation()
 	Audio_Reset();
 
 	if (lpdsbuf) {
-		IDirectSoundBuffer_Release(lpdsbuf);
+		IDirectSoundBuffer8_Release(lpdsbuf);
 		lpdsbuf = NULL;
 	}
 	if ( lpds ) {
-		IDirectSound_Release(lpds);
+		IDirectSound8_Release(lpds);
 		lpds = NULL;
 	}
 }
@@ -240,20 +242,6 @@ void	CAudioPluginW32::LenChanged()
 			FillBuffer((2 + offset) & 3);
 		}
 
-		if (!Playing) {
-			for (count = 0; count < 3; count ++) {
-				if (SndBuffer[count] == Buffer_Full) {
-					Playing = TRUE;
-					IDirectSoundBuffer_Play(lpdsbuf, 0, 0, 0 );
-					return;
-				}
-			}
-		} else {
-			IDirectSoundBuffer_GetStatus(lpdsbuf,&dwStatus);
-			if ((dwStatus & DSBSTATUS_PLAYING) == 0) {
-				IDirectSoundBuffer_Play(lpdsbuf, 0, 0, 0 );
-			}
-		}
 	}
 	else
 	{
@@ -269,12 +257,30 @@ u32		CAudioPluginW32::ReadLength()
 	return Snd1Len;
 }
 
+
 //*****************************************************************************
 //
 //*****************************************************************************
 void	CAudioPluginW32::Update( bool Wait )
 {
-	u32 dwEvt;
+	int count=0;
+	u32 dwStatus, dwEvt;
+
+	if (!Playing) {
+		for (count = 0; count < 3; count ++) {
+			if (SndBuffer[count] == Buffer_Full) 
+			{
+				Playing = TRUE;
+				IDirectSoundBuffer8_Play(lpdsbuf, 0, 0, DSBPLAY_LOOPING );
+				return;
+			}
+		}
+	} else {
+		IDirectSoundBuffer8_GetStatus(lpdsbuf,&dwStatus);
+		if ((dwStatus & DSBSTATUS_PLAYING) == 0) {
+			IDirectSoundBuffer8_Play(lpdsbuf, 0, 0, DSBPLAY_LOOPING );
+		}
+	}
 
 	if (Wait) {
 		dwEvt = MsgWaitForMultipleObjects(NUMCAPTUREEVENTS,rghEvent,FALSE,
@@ -288,30 +294,36 @@ void	CAudioPluginW32::Update( bool Wait )
 		return;
 	}
 
-	switch (dwEvt) {
-		case 0:
-			SndBuffer[0] = Buffer_Empty;
-			FillSectionWithSilence(0);
-			SndBuffer[1] = Buffer_Playing;
-			FillBuffer(2);
-			FillBuffer(0);
-			break;
-		case 1:
-			SndBuffer[1] = Buffer_Empty;
-			FillSectionWithSilence(1);
-			SndBuffer[2] = Buffer_Playing;
-			FillBuffer(0);
-			FillBuffer(1);
-			break;
-		case 2:
-			SndBuffer[2] = Buffer_Empty;
-			FillSectionWithSilence(2);
-			SndBuffer[0] = Buffer_Playing;
-			FillBuffer(1);
-			FillBuffer(2);
-			IDirectSoundBuffer_Play(lpdsbuf, 0, 0, 0 );
-			break;
-			}
+	switch (dwEvt)
+	{
+	case 0:
+		SndBuffer[0] = Buffer_Empty;
+		FillSectionWithSilence(0);
+		SndBuffer[1] = Buffer_Playing;
+		FillBuffer(2);
+		FillBuffer(0);
+		break;
+	case 1:
+		SndBuffer[1] = Buffer_Empty;
+		FillSectionWithSilence(1);
+		SndBuffer[2] = Buffer_Playing;
+		FillBuffer(0);
+		FillBuffer(1);
+		break;
+	case 2:
+		SndBuffer[2] = Buffer_Empty;
+		FillSectionWithSilence(2);
+		SndBuffer[0] = Buffer_Playing;
+		FillBuffer(1);
+		FillBuffer(2);
+		//IDirectSoundBuffer_Play(lpdsbuf, 0, 0, 0 );
+		break;
+	}
+
+	if (Playing && (SndBuffer[2] == Buffer_Full) ||(SndBuffer[1] == Buffer_Full) ||(SndBuffer[0] == Buffer_Full))
+	{
+		ThreadSleepMs(10);
+	}
 }
 
 EProcessResult	CAudioPluginW32::ProcessAList()
@@ -356,7 +368,7 @@ void CAudioPluginW32::SetupDSoundBuffers(void) {
 	WAVEFORMATEX        wfm;
 	HRESULT             hr;
 
-	if (lpdsbuf) { IDirectSoundBuffer_Release(lpdsbuf); }
+	if (lpdsbuf) { IDirectSoundBuffer8_Release(lpdsbuf); }
 
 	memset( &dsPrimaryBuff, 0, sizeof( DSBUFFERDESC ) );
 	dsPrimaryBuff.dwSize        = sizeof( DSBUFFERDESC );
@@ -372,11 +384,11 @@ void CAudioPluginW32::SetupDSoundBuffers(void) {
 	wfm.nBlockAlign = wfm.wBitsPerSample / 8 * wfm.nChannels;
 	wfm.nAvgBytesPerSec = wfm.nSamplesPerSec * wfm.nBlockAlign;
 
-	hr = IDirectSound_CreateSoundBuffer(lpds,&dsPrimaryBuff, &lpdsb, NULL);
+	hr = IDirectSound8_CreateSoundBuffer(lpds,&dsPrimaryBuff, &lpdsb, NULL);
 
 	if (SUCCEEDED ( hr ) ) {
-		IDirectSoundBuffer_SetFormat(lpdsb, &wfm );
-		IDirectSoundBuffer_Play(lpdsb, 0, 0, DSBPLAY_LOOPING );
+		IDirectSoundBuffer8_SetFormat(lpdsb, &wfm );
+		IDirectSoundBuffer8_Play(lpdsb, 0, 0, DSBPLAY_LOOPING );
 	}
 
 	wfm.nSamplesPerSec = Frequency;
@@ -390,7 +402,7 @@ void CAudioPluginW32::SetupDSoundBuffers(void) {
 	dsbdesc.dwBufferBytes = BufferSize * 3;
 	dsbdesc.lpwfxFormat = &wfm;
 
-	if ( FAILED( hr = IDirectSound_CreateSoundBuffer(lpds, &dsbdesc, &lpdsbuf, NULL ) ) ) {
+	if ( FAILED( hr = IDirectSound8_CreateSoundBuffer(lpds, &dsbdesc, &lpdsbuf, NULL ) ) ) {
 		DisplayError("Failed in creation of Play buffer 1");
 	}
 	FillBufferWithSilence( lpdsbuf );
@@ -404,14 +416,12 @@ void CAudioPluginW32::SetupDSoundBuffers(void) {
 	rgdscbpn[3].dwOffset = DSBPN_OFFSETSTOP;
 	rgdscbpn[3].hEventNotify = rghEvent[3];
 
-	if ( FAILED( hr = IDirectSound_QueryInterface(lpdsbuf, IID_IDirectSoundNotify, ( VOID ** )&lpdsNotify ) ) ) {
-		DisplayError("IDirectSound_QueryInterface: Failed\n");
+	if ( FAILED( hr = IDirectSound8_QueryInterface(lpdsbuf, IID_IDirectSoundNotify, ( VOID ** )&lpdsNotify ) ) ) {
 		return;
 	}
 
 	// Set capture buffer notifications.
 	if ( FAILED( hr = IDirectSoundNotify_SetNotificationPositions(lpdsNotify, NUMCAPTUREEVENTS, rgdscbpn ) ) ) {
-		DisplayError("IDirectSoundNotify_SetNotificationPositions: Failed");
 		return;
 	}
 }
@@ -433,14 +443,14 @@ bool CAudioPluginW32::FillBufferWithSilence( LPDIRECTSOUNDBUFFER lpDsb ) {
 	u8*   pb1;
 	u32   cb1;
 
-	if ( FAILED( IDirectSoundBuffer_GetFormat(lpDsb, &wfx, sizeof( WAVEFORMATEX ), &dwSizeWritten ) ) ) {
+	if ( FAILED( IDirectSoundBuffer8_GetFormat(lpDsb, &wfx, sizeof( WAVEFORMATEX ), &dwSizeWritten ) ) ) {
 		return FALSE;
 	}
 
-	if ( SUCCEEDED( IDirectSoundBuffer_Lock(lpDsb,0,0,(LPVOID*)&pb1,&cb1,NULL,NULL,DSBLOCK_ENTIREBUFFER))) {
+	if ( SUCCEEDED( IDirectSoundBuffer8_Lock(lpDsb,0,0,(LPVOID*)&pb1,&cb1,NULL,NULL,DSBLOCK_ENTIREBUFFER))) {
 		FillMemory( pb1, cb1, ( wfx.wBitsPerSample == 8 ) ? 128 : 0 );
 
-		IDirectSoundBuffer_Unlock(lpDsb, pb1, cb1, NULL, 0 );
+		IDirectSoundBuffer8_Unlock(lpDsb, pb1, cb1, NULL, 0 );
 		return TRUE;
 	}
 
@@ -451,15 +461,15 @@ void CAudioPluginW32::FillSectionWithSilence( int buffer ) {
 	u32 dwBytesLocked;
 	VOID *lpvData;
 
-	if (FAILED( IDirectSoundBuffer_Lock(lpdsbuf, BufferSize * buffer,BufferSize, &lpvData, &dwBytesLocked,
+	if (FAILED( IDirectSoundBuffer8_Lock(lpdsbuf, BufferSize * buffer,BufferSize, &lpvData, &dwBytesLocked,
 		NULL, NULL, 0  ) ) )
 	{
-		IDirectSoundBuffer_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
+		IDirectSoundBuffer8_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
 		DisplayError("FAILED lock");
 		return;
 	}
 	FillMemory( lpvData, dwBytesLocked, 0 );
-	IDirectSoundBuffer_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
+	IDirectSoundBuffer8_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
 }
 
 void CAudioPluginW32::FillBuffer ( int buffer ) {
@@ -469,10 +479,10 @@ void CAudioPluginW32::FillBuffer ( int buffer ) {
 	if (Snd1Len == 0) { return; }
 	if (SndBuffer[buffer] == Buffer_Empty) {
 		if (Snd1Len >= BufferSize) {
-			if (FAILED( IDirectSoundBuffer_Lock(lpdsbuf, BufferSize * buffer,BufferSize, &lpvData, &dwBytesLocked,
+			if (FAILED( IDirectSoundBuffer8_Lock(lpdsbuf, BufferSize * buffer,BufferSize, &lpvData, &dwBytesLocked,
 				NULL, NULL, 0  ) ) )
 			{
-				IDirectSoundBuffer_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
+				IDirectSoundBuffer8_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
 				DisplayError("FAILED lock");
 				return;
 			}
@@ -480,12 +490,12 @@ void CAudioPluginW32::FillBuffer ( int buffer ) {
 			SndBuffer[buffer] = Buffer_Full;
 			Snd1ReadPos += dwBytesLocked;
 			Snd1Len -= dwBytesLocked;
-			IDirectSoundBuffer_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
+			IDirectSoundBuffer8_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
 		} else {
-			if (FAILED( IDirectSoundBuffer_Lock(lpdsbuf, BufferSize * buffer,Snd1Len, &lpvData, &dwBytesLocked,
+			if (FAILED( IDirectSoundBuffer8_Lock(lpdsbuf, BufferSize * buffer,Snd1Len, &lpvData, &dwBytesLocked,
 				NULL, NULL, 0  ) ) )
 			{
-				IDirectSoundBuffer_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
+				IDirectSoundBuffer8_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
 				DisplayError("FAILED lock");
 				return;
 			}
@@ -494,14 +504,14 @@ void CAudioPluginW32::FillBuffer ( int buffer ) {
 			Snd1ReadPos += dwBytesLocked;
 			SpaceLeft = BufferSize - Snd1Len;
 			Snd1Len = 0;
-			IDirectSoundBuffer_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
+			IDirectSoundBuffer8_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
 		}
 	} else if (SndBuffer[buffer] == Buffer_HalfFull) {
 		if (Snd1Len >= SpaceLeft) {
-			if (FAILED( IDirectSoundBuffer_Lock(lpdsbuf, (BufferSize * (buffer + 1)) - SpaceLeft ,SpaceLeft, &lpvData,
+			if (FAILED( IDirectSoundBuffer8_Lock(lpdsbuf, (BufferSize * (buffer + 1)) - SpaceLeft ,SpaceLeft, &lpvData,
 				&dwBytesLocked, NULL, NULL, 0  ) ) )
 			{
-				IDirectSoundBuffer_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
+				IDirectSoundBuffer8_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
 				DisplayError("FAILED lock");
 				return;
 			}
@@ -509,12 +519,12 @@ void CAudioPluginW32::FillBuffer ( int buffer ) {
 			SndBuffer[buffer] = Buffer_Full;
 			Snd1ReadPos += dwBytesLocked;
 			Snd1Len -= dwBytesLocked;
-			IDirectSoundBuffer_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
+			IDirectSoundBuffer8_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
 		} else {
-			if (FAILED( IDirectSoundBuffer_Lock(lpdsbuf, (BufferSize * (buffer + 1)) - SpaceLeft,Snd1Len, &lpvData, &dwBytesLocked,
+			if (FAILED( IDirectSoundBuffer8_Lock(lpdsbuf, (BufferSize * (buffer + 1)) - SpaceLeft,Snd1Len, &lpvData, &dwBytesLocked,
 				NULL, NULL, 0  ) ) )
 			{
-				IDirectSoundBuffer_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
+				IDirectSoundBuffer8_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
 				DisplayError("FAILED lock");
 				return;
 			}
@@ -523,7 +533,7 @@ void CAudioPluginW32::FillBuffer ( int buffer ) {
 			Snd1ReadPos += dwBytesLocked;
 			SpaceLeft = SpaceLeft - Snd1Len;
 			Snd1Len = 0;
-			IDirectSoundBuffer_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
+			IDirectSoundBuffer8_Unlock(lpdsbuf, lpvData, dwBytesLocked, NULL, 0 );
 		}
 	}
 	if (Snd1Len == 0) {
