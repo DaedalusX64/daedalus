@@ -20,13 +20,14 @@ void DLDebug_SetSink(DataSink * sink)
 	gDisplayListSink = sink;
 }
 
-void DLDebug_Printf(const char * fmt, ...)
+static const u32 kBufferLen = 1024;
+
+void DLDebug_PrintfNewline(const char * fmt, ...)
 {
 	// This is normally checked outside this function (DL_PF) but double check to be safe.
 	if (!gDisplayListSink)
 		return;
 
-	static const u32 kBufferLen = 1024;
 	char buffer[kBufferLen];
 
 	va_list va;
@@ -34,12 +35,11 @@ void DLDebug_Printf(const char * fmt, ...)
 
 	// I've never been confident that this returns a sane value across platforms.
 	/*len = */vsnprintf( buffer, kBufferLen, fmt, va );
+	size_t len = strlen(buffer);
 
 	// This should be guaranteed...
 	buffer[kBufferLen-1] = 0;
 	va_end(va);
-
-	size_t len = strlen(buffer);
 
 	// Append a newline, if there's space in the buffer.
 	if (len < 1024)
@@ -47,6 +47,28 @@ void DLDebug_Printf(const char * fmt, ...)
 		buffer[len] = '\n';
 		++len;
 	}
+
+	gDisplayListSink->Write(buffer, len);
+}
+
+void DLDebug_Printf(const char * fmt, ...)
+{
+	// This is normally checked outside this function (DL_PF) but double check to be safe.
+	if (!gDisplayListSink)
+		return;
+
+	char buffer[kBufferLen];
+
+	va_list va;
+	va_start(va, fmt);
+
+	// I've never been confident that this returns a sane value across platforms.
+	/*len = */vsnprintf( buffer, kBufferLen, fmt, va );
+	size_t len = strlen(buffer);
+
+	// This should be guaranteed...
+	buffer[kBufferLen-1] = 0;
+	va_end(va);
 
 	gDisplayListSink->Write(buffer, len);
 }

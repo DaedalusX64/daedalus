@@ -34,7 +34,15 @@ extern DataSink * gDisplayListSink;
 
 inline bool DLDebug_IsActive() { return gDisplayListSink != NULL; }
 
-#define DL_PF(...)							\
+#define DL_PF(...)									\
+	do {											\
+		if( DLDebug_IsActive() )					\
+			DLDebug_PrintfNewline( __VA_ARGS__ );	\
+	} while(0)
+
+
+// Ugh - print out without newlines (needed for HTML <pre> output)
+#define DL_PF_(...)							\
 	do {									\
 		if( DLDebug_IsActive() )			\
 			DLDebug_Printf( __VA_ARGS__ );	\
@@ -108,6 +116,7 @@ DataSink *	DLDebug_CreateFileSink();
 
 void 		DLDebug_SetSink(DataSink * sink);
 
+void		DLDebug_PrintfNewline(const char * fmt, ...);
 void		DLDebug_Printf(const char * fmt, ...);
 
 void		DLDebug_DumpTaskInfo( const OSTask * pTask );
