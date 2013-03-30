@@ -440,9 +440,6 @@ static u32 DLParser_ProcessDList(u32 instruction_limit)
 	{
 		DLParser_FetchNextCommand( &command );
 
-		// Note: make sure have frame skip disabled for the dlist debugger to work
-		//
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		DL_BEGIN_INSTR(current_instruction_count, command.inst.cmd0, command.inst.cmd1, gUcodeName[command.inst.cmd]);
 
 		PROFILE_DL_CMD( command.inst.cmd );
@@ -453,6 +450,9 @@ static u32 DLParser_ProcessDList(u32 instruction_limit)
 
 		current_instruction_count++;
 
+		// Note: make sure have frame skip disabled for the dlist debugger to work
+		//
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		if( instruction_limit != kUnlimitedInstructionCount )
 		{
 			if( current_instruction_count >= instruction_limit )
@@ -461,10 +461,6 @@ static u32 DLParser_ProcessDList(u32 instruction_limit)
 			}
 		}
 #else
-
-		PROFILE_DL_CMD( command.inst.cmd );
-
-		gUcodeFunc[ command.inst.cmd ]( command );
 #endif
 		// Check limit
 		if (gDlistStack.limit >= 0)
