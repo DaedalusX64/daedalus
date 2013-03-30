@@ -64,7 +64,6 @@ static u32 		gColorBuffer[kMaxVertices];
 
 bool initgl()
 {
-
     GLboolean status = GL_TRUE;
     RESOLVE_GL_FCN(PFN_glGenVertexArrays, pglGenVertexArrays, "glGenVertexArrays");
     RESOLVE_GL_FCN(PFN_glDeleteVertexArrays, pglDeleteVertexArrays, "glDeleteVertexArrays");
@@ -596,13 +595,15 @@ static void InitBlenderMode()
 	{
 	case 0x0040: // In * AIn + Mem * 1-A
 		// MarioKart (spinning logo).
-		if (!alpha_cvg_sel || cvg_x_alpha)
-			type = kBlendModeAlphaTrans;
+		type = kBlendModeAlphaTrans;
+		break;
+	case 0x0050: // In * AIn + Mem * 1-A | In * AIn + Mem * 1-A
+		// Extreme-G.
+		type = kBlendModeAlphaTrans;
 		break;
 	case 0x0440: // In * AFog + Mem * 1-A
 		// Bomberman64. alpha_cvg_sel: 1 cvg_x_alpha: 1
-		if (!alpha_cvg_sel || cvg_x_alpha)
-			type = kBlendModeAlphaTrans;
+		type = kBlendModeAlphaTrans;
 		break;
 	case 0x04d0: // In * AFog + Fog * 1-A | In * AIn + Mem * 1-A
 		// Conker.
@@ -619,8 +620,11 @@ static void InitBlenderMode()
 		break;
 	case 0x0c18: // In * 0 + In * 1 | In * AIn + Mem * 1-A
 		// StarFox main menu.
-		if (!alpha_cvg_sel ||cvg_x_alpha)
-			type = kBlendModeAlphaTrans;
+		type = kBlendModeAlphaTrans;
+		break;
+	case 0x0c40: // In * 0 + Mem * 1-A
+		// Extreme-G.
+		type = kBlendModeFade;
 		break;
 	case 0x0f0a: // In * 0 + In * 1 | In * 0 + In * 1
 		// Zelda OoT.
@@ -654,6 +658,12 @@ static void InitBlenderMode()
 #endif
 		break;
 	}
+
+	// NB: we only have alpha in the blender is alpha_cvg_sel is 0 or cvg_x_alpha is 1.
+	bool have_alpha = !alpha_cvg_sel || cvg_x_alpha;
+
+	if (type == kBlendModeAlphaTrans && !have_alpha)
+		type = kBlendModeOpaque;
 
 	switch (type)
 	{
