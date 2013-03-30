@@ -41,6 +41,23 @@ static WebDebugConnection * gActiveConnection = NULL;
 static DebugTask			gDebugTask        = kTaskUndefined;
 static u32					gInstructionCountLimit = kUnlimitedInstructionCount;
 
+
+class HTMLDebugOutput : public DLDebugOutput
+{
+public:
+	explicit HTMLDebugOutput(WebDebugConnection * connection)
+	:	Connection(connection)
+	{
+	}
+
+	virtual size_t Write(const void * p, size_t len)
+	{
+		return Connection->Write(p, len);
+	}
+
+	WebDebugConnection * Connection;
+};
+
 bool DLDebugger_IsDebugging()
 {
 	return gDebugging;
@@ -157,7 +174,10 @@ void DLDebugger_ProcessDebugTask()
 			case kTaskDumpDList:
 			{
 				connection->BeginResponse(200, -1, kTextPlain);
-				DLParser_Process(kUnlimitedInstructionCount, connection);
+
+				HTMLDebugOutput		dl_output(connection);
+
+				DLParser_Process(kUnlimitedInstructionCount, &dl_output);
 				connection->EndResponse();
 				handled = true;
 				break;

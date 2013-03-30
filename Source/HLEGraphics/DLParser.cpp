@@ -492,7 +492,7 @@ static u32 DLParser_ProcessDList(u32 instruction_limit)
 //*****************************************************************************
 //
 //*****************************************************************************
-u32 DLParser_Process(u32 instruction_limit, DataSink * debug_sink)
+u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 {
 	DAEDALUS_PROFILE( "DLParser_Process" );
 
@@ -550,8 +550,8 @@ u32 DLParser_Process(u32 instruction_limit, DataSink * debug_sink)
 	gNumDListsCulled = 0;
 	gNumVertices = 0;
 	gNumRectsClipped = 0;
-	if (debug_sink)
-		DLDebug_SetSink(debug_sink);
+	if (debug_output)
+		DLDebug_SetOutput(debug_output);
 	DLDebug_DumpTaskInfo( pTask );
 #endif
 
@@ -577,7 +577,7 @@ u32 DLParser_Process(u32 instruction_limit, DataSink * debug_sink)
 	FinishRDPJob();
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DLDebug_SetSink(NULL);
+	DLDebug_SetOutput(NULL);
 
 	// NB: only update gNumInstructionsExecuted when we rendered something.
 	// I'd really like to get rid of gNumInstructionsExecuted.

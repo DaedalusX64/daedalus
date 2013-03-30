@@ -25,40 +25,65 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 struct RDP_OtherMode;
 
-//*************************************************************************************
-//
-//*************************************************************************************
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 
-extern DataSink * gDisplayListSink;
+class DLDebugOutput
+{
+public:
+	~DLDebugOutput();
 
-inline bool DLDebug_IsActive() { return gDisplayListSink != NULL; }
+	void Print(const char * fmt, ...);
+	void PrintLine(const char * fmt, ...);	// Automatically appends a newline.
 
-#define DL_PF(...)									\
-	do {											\
-		if( DLDebug_IsActive() )					\
-			DLDebug_PrintfNewline( __VA_ARGS__ );	\
+	virtual size_t Write(const void * p, size_t len) = 0;
+
+private:
+	static const u32 kBufferLen = 1024;
+	char	mBuffer[kBufferLen];
+};
+
+
+extern DLDebugOutput * gDLDebugOutput;
+
+inline bool DLDebug_IsActive() { return gDLDebugOutput != NULL; }
+
+#define DL_PF(...)										\
+	do {												\
+		if( gDLDebugOutput )							\
+			gDLDebugOutput->PrintLine( __VA_ARGS__ );	\
 	} while(0)
 
 
 // Ugh - print out without newlines (needed for HTML <pre> output)
-#define DL_PF_(...)							\
-	do {									\
-		if( DLDebug_IsActive() )			\
-			DLDebug_Printf( __VA_ARGS__ );	\
+#define DL_PF_(...)									\
+	do {											\
+		if( gDLDebugOutput )						\
+			gDLDebugOutput->Print( __VA_ARGS__ );	\
 	} while(0)
+
+DLDebugOutput *	DLDebug_CreateFileOutput();
+
+void 		DLDebug_SetOutput(DLDebugOutput * output);
+
+void		DLDebug_DumpTaskInfo( const OSTask * pTask );
+void		DLDebug_DumpMux(u64 mux);
+void		DLDebug_PrintMux( FILE * fh, u64 mux );
+void		DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode);
+
+void		DLDebug_DumpRDPOtherModeL(u32 mask, u32 data);
+void		DLDebug_DumpRDPOtherModeH(u32 mask, u32 data);
+
 
 #else
 
 #define DL_PF(...)		do {} while(0)
+#define DL_PF_(...)		do {} while(0)
 
 #endif
 
 
 
-//*************************************************************************************
-//	Provide some special assert macros to allow display list debugging
-//*************************************************************************************
+// Provide some special assert macros to allow display list debugging
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) && defined( DAEDALUS_ENABLE_ASSERTS )
 
 extern void DLDebugger_RequestDebug();
@@ -111,20 +136,5 @@ extern void DLDebugger_RequestDebug();
 #define DAEDALUS_DL_ERROR( ... )			DAEDALUS_ERROR( __VA_ARGS__ )
 
 #endif
-
-DataSink *	DLDebug_CreateFileSink();
-
-void 		DLDebug_SetSink(DataSink * sink);
-
-void		DLDebug_PrintfNewline(const char * fmt, ...);
-void		DLDebug_Printf(const char * fmt, ...);
-
-void		DLDebug_DumpTaskInfo( const OSTask * pTask );
-void		DLDebug_DumpMux(u64 mux);
-void		DLDebug_PrintMux( FILE * fh, u64 mux );
-void		DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode);
-
-void		DLDebug_DumpRDPOtherModeL(u32 mask, u32 data);
-void		DLDebug_DumpRDPOtherModeH(u32 mask, u32 data);
 
 #endif // DAEDALUS_DEBUGDISPLAYLIST_H_

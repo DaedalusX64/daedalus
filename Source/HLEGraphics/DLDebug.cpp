@@ -13,64 +13,56 @@
 #include "OSHLE/ultra_gbi.h"
 #include "Utility/IO.h"
 
-DataSink * gDisplayListSink = NULL;
+DLDebugOutput * gDLDebugOutput = NULL;
 
-void DLDebug_SetSink(DataSink * sink)
+void DLDebug_SetOutput(DLDebugOutput * output)
 {
-	gDisplayListSink = sink;
+	gDLDebugOutput = output;
 }
 
-static const u32 kBufferLen = 1024;
-
-void DLDebug_PrintfNewline(const char * fmt, ...)
+DLDebugOutput::~DLDebugOutput()
 {
-	// This is normally checked outside this function (DL_PF) but double check to be safe.
-	if (!gDisplayListSink)
-		return;
+}
 
-	char buffer[kBufferLen];
-
+void DLDebugOutput::PrintLine(const char * fmt, ...)
+{
 	va_list va;
 	va_start(va, fmt);
 
 	// I've never been confident that this returns a sane value across platforms.
-	/*len = */vsnprintf( buffer, kBufferLen, fmt, va );
-	size_t len = strlen(buffer);
-
+	/*len = */vsnprintf( mBuffer, kBufferLen, fmt, va );
 	// This should be guaranteed...
-	buffer[kBufferLen-1] = 0;
+	mBuffer[kBufferLen-1] = 0;
+	size_t len = strlen(mBuffer);
+
 	va_end(va);
 
 	// Append a newline, if there's space in the buffer.
 	if (len < 1024)
 	{
-		buffer[len] = '\n';
+		mBuffer[len] = '\n';
 		++len;
 	}
 
-	gDisplayListSink->Write(buffer, len);
+	Write(mBuffer, len);
 }
 
-void DLDebug_Printf(const char * fmt, ...)
+void DLDebugOutput::Print(const char * fmt, ...)
 {
-	// This is normally checked outside this function (DL_PF) but double check to be safe.
-	if (!gDisplayListSink)
-		return;
-
 	char buffer[kBufferLen];
 
 	va_list va;
 	va_start(va, fmt);
 
 	// I've never been confident that this returns a sane value across platforms.
-	/*len = */vsnprintf( buffer, kBufferLen, fmt, va );
-	size_t len = strlen(buffer);
-
+	/*len = */vsnprintf( mBuffer, kBufferLen, fmt, va );
 	// This should be guaranteed...
-	buffer[kBufferLen-1] = 0;
+	mBuffer[kBufferLen-1] = 0;
+	size_t len = strlen(mBuffer);
+
 	va_end(va);
 
-	gDisplayListSink->Write(buffer, len);
+	Write(mBuffer, len);
 }
 
 static const char * const kMulInputRGB[32] =
@@ -449,33 +441,55 @@ void DLDebug_DumpTaskInfo( const OSTask * pTask )
 	DL_PF( "YieldDataSize:%08x",      pTask->t.yield_data_size );
 }
 
-DataSink * DLDebug_CreateFileSink()
+class DLDebugOutputFile : public DLDebugOutput
 {
-	DBGConsole_Msg( 0, "Dumping display list" );
+public:
+	DLDebugOutputFile() : Sink(new FileSink)
+	{
+	}
+	~DLDebugOutputFile()
+	{
+		delete Sink;
+	}
+
+	bool Open(const char * filename)
+	{
+		return Sink->Open(filename, "w");
+	}
+
+	virtual size_t Write(const void * p, size_t len)
+	{
+		return Sink->Write(p, len);
+	}
+
+	FileSink * Sink;
+};
+
+DLDebugOutput * DLDebug_CreateFileOutput()
+{
 	static u32 count = 0;
 
-	char szFilePath[MAX_PATH+1];
-	char szFileName[MAX_PATH+1];
-	char szDumpDir[MAX_PATH+1];
+	IO::Path::PathBuf dumpdir;
+	IO::Path::Combine(dumpdir, g_ROM.settings.GameName.c_str(), "DisplayLists");
 
-	IO::Path::Combine(szDumpDir, g_ROM.settings.GameName.c_str(), "DisplayLists");
+	IO::Path::PathBuf filepath;
+	Dump_GetDumpDirectory(filepath, dumpdir);
 
-	Dump_GetDumpDirectory(szFilePath, szDumpDir);
+	char filename[64];
+	sprintf(filename, "dl%04d.txt", count++);
 
-	sprintf(szFileName, "dl%04d.txt", count++);
+	IO::Path::Append(filepath, filename);
 
-	IO::Path::Append(szFilePath, szFileName);
-
-	FileSink * sink = new FileSink();
-	if (!sink->Open(szFilePath, "w"))
+	DLDebugOutputFile * output = new DLDebugOutputFile();
+	if (!output->Open(filepath))
 	{
-		delete sink;
-		DBGConsole_Msg(0, "RDP: Couldn't create dumpfile %s", szFilePath);
+		delete output;
+		DBGConsole_Msg(0, "RDP: Couldn't create dumpfile %s", filepath);
 		return NULL;
 	}
 
-	DBGConsole_Msg(0, "RDP: Dumping Display List as %s", szFilePath);
-	return sink;
+	DBGConsole_Msg(0, "RDP: Dumping Display List as %s", filepath);
+	return output;
 }
 
 

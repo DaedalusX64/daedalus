@@ -21,12 +21,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __DLPARSER_H__
 #define __DLPARSER_H__
 
-class DataSink;
+class DLDebugOutput;
 
 bool DLParser_Initialise();
 void DLParser_Finalise();
 
 const u32 kUnlimitedInstructionCount = u32( ~0 );
-u32 DLParser_Process(u32 instruction_limit = kUnlimitedInstructionCount, DataSink * debug_sink = NULL);
+u32 DLParser_Process(u32 instruction_limit = kUnlimitedInstructionCount, DLDebugOutput * debug_output = NULL);
 
 #endif	// __DLPARSER_H__
