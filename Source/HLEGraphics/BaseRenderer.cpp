@@ -481,11 +481,11 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	++mNumTrisRendered;
 #endif
 
-	DAEDALUS_ASSERT( mNumIndices + 3 < MAX_VERTICES, " Array overflow, to many Indices" );
+	DAEDALUS_ASSERT( mNumIndices + 3 < kMaxIndices, "Array overflow, too many Indices" );
 
-	m_swIndexBuffer[ mNumIndices++ ] = (u16)v0;
-	m_swIndexBuffer[ mNumIndices++ ] = (u16)v1;
-	m_swIndexBuffer[ mNumIndices++ ] = (u16)v2;
+	mIndexBuffer[ mNumIndices++ ] = (u16)v0;
+	mIndexBuffer[ mNumIndices++ ] = (u16)v1;
+	mIndexBuffer[ mNumIndices++ ] = (u16)v2;
 
 	mVtxClipFlagsUnion |= f0 | f1 | f2;
 
@@ -724,9 +724,9 @@ void BaseRenderer::PrepareTrisClipped( TempVerts * temp_verts ) const
 
 	for(u32 i = 0; i < (mNumIndices - 2);)
 	{
-		const u32 & idx0 = m_swIndexBuffer[ i++ ];
-		const u32 & idx1 = m_swIndexBuffer[ i++ ];
-		const u32 & idx2 = m_swIndexBuffer[ i++ ];
+		const u32 & idx0 = mIndexBuffer[ i++ ];
+		const u32 & idx1 = mIndexBuffer[ i++ ];
+		const u32 & idx2 = mIndexBuffer[ i++ ];
 
 		//Check if any of the vertices are outside the clipbox (NDC), if so we need to clip the triangle
 		if(mVtxProjected[idx0].ClipFlags | mVtxProjected[idx1].ClipFlags | mVtxProjected[idx2].ClipFlags)
@@ -842,17 +842,17 @@ void BaseRenderer::PrepareTrisUnclipped( TempVerts * temp_verts ) const
 	//
 	//	http://forums.ps2dev.org/viewtopic.php?t=4703
 	//
-	//DAEDALUS_STATIC_ASSERT( MAX_CLIPPED_VERTS > ARRAYSIZE(m_swIndexBuffer) );
+	//DAEDALUS_STATIC_ASSERT( MAX_CLIPPED_VERTS > ARRAYSIZE(mIndexBuffer) );
 
 #ifdef DAEDALUS_PSP_USE_VFPU
-	_ConvertVerticesIndexed( p_vertices, mVtxProjected, num_vertices, m_swIndexBuffer );
+	_ConvertVerticesIndexed( p_vertices, mVtxProjected, num_vertices, mIndexBuffer );
 #else
 	//
 	//	Now we just shuffle all the data across directly (potentially duplicating verts)
 	//
 	for( u32 i = 0; i < num_vertices; ++i )
 	{
-		u32 index = m_swIndexBuffer[ i ];
+		u32 index = mIndexBuffer[ i ];
 
 		p_vertices[ i ].Texture = mVtxProjected[ index ].Texture;
 		p_vertices[ i ].Colour = c32( mVtxProjected[ index ].Colour );
