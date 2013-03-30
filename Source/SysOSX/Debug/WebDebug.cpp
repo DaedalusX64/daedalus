@@ -357,7 +357,7 @@ static int test_ws_frame(struct WebbyConnection *connection, const struct WebbyW
 	return 0;
 }
 
-static u32 WebDebugThread(void * arg)
+static u32 DAEDALUS_THREAD_CALL_TYPE WebDebugThread(void * arg)
 {
 	WebbyServer * server = static_cast<WebbyServer*>(arg);
 	int frame_counter = 0;

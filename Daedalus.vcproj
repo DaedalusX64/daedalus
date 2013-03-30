@@ -502,6 +502,10 @@
 					RelativePath=".\Source\Debug\Dump.h"
 					>
 				</File>
+				<File
+					RelativePath=".\Source\Debug\webby.cpp"
+					>
+				</File>
 				<Filter
 					Name="W32"
 					>
@@ -511,6 +515,22 @@
 					</File>
 					<File
 						RelativePath=".\Source\SysOSX\Debug\DebugConsoleOSX.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\SysOSX\Debug\WebDebugTemplate.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\SysOSX\Debug\WebDebugTemplate.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\SysOSX\Debug\WebDebug.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\SysOSX\Debug\WebDebug.h"
 						>
 					</File>
 				</Filter>
@@ -1585,6 +1605,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\SysPSP\HLEGraphics\ColourAdjuster.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\HLEGraphics\ConvertImage.cpp"
 					>
 				</File>
@@ -1715,7 +1739,7 @@
 						Name="W32"
 						>	
 					<File
-							RelativePath=".\Source\SysW32\HLEGraphics\DisplayListDebugger.cpp"
+							RelativePath=".\Source\SysOSX\HLEGraphics\DisplayListDebugger.cpp"
 						>
 					</File>
 					<File
@@ -1724,6 +1748,14 @@
 					</File>
 					<File
 							RelativePath=".\Source\SysGL\HLEGraphics\RendererGL.h"
+						>
+					</File>
+					<File
+							RelativePath=".\Source\HLEGraphics\TextureCacheWebDebug.cpp"
+						>
+					</File>
+					<File
+							RelativePath=".\Source\HLEGraphics\TextureCacheWebDebug.h"
 						>
 					</File>
 					<File
