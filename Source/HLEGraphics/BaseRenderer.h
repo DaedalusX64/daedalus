@@ -386,14 +386,14 @@ protected:
 		u8 s;
 		u8 t;
 	};
-	static const u32 NUM_N64_TEXTURES = 2;
+	static const u32 kNumBoundTextures = 2;
 
-	TextureInfo				mBoundTextureInfo[ NUM_N64_TEXTURES ];
-	CRefPtr<CNativeTexture>	mBoundTexture[ NUM_N64_TEXTURES ];
+	TextureInfo				mBoundTextureInfo[ kNumBoundTextures ];
+	CRefPtr<CNativeTexture>	mBoundTexture[ kNumBoundTextures ];
 
-	v2						mTileTopLeft[ NUM_N64_TEXTURES ];
-	TextureWrap				mTexWrap[ NUM_N64_TEXTURES ];
-	TextureShift			mTexShift[ NUM_N64_TEXTURES ];
+	v2						mTileTopLeft[ kNumBoundTextures ];
+	TextureWrap				mTexWrap[ kNumBoundTextures ];
+	TextureShift			mTexShift[ kNumBoundTextures ];
 
 	//Max is 18 according to the manual //Corn
 	//I think we should make this more deep to avoid any issues //Salvy

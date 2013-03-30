@@ -185,7 +185,7 @@ BaseRenderer::BaseRenderer()
 {
 	DAEDALUS_ASSERT( IsPointerAligned( &mTnL, 16 ), "Oops, mTnL should be 16-byte aligned" );
 
-	for ( u32 i = 0; i < NUM_N64_TEXTURES; i++ )
+	for ( u32 i = 0; i < kNumBoundTextures; i++ )
 	{
 		mTileTopLeft[i].x = 0.0f;
 		mTileTopLeft[i].y = 0.0f;
@@ -296,7 +296,7 @@ void BaseRenderer::EndScene()
 
 	//
 	//	Clear this, to ensure we're force to check for updates to it on the next frame
-	for( u32 i = 0; i < NUM_N64_TEXTURES; i++ )
+	for( u32 i = 0; i < kNumBoundTextures; i++ )
 	{
 		mBoundTextureInfo[ i ] = TextureInfo();
 		mBoundTexture[ i ]     = NULL;
@@ -1708,7 +1708,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	DAEDALUS_PROFILE( "BaseRenderer::UpdateTileSnapshot" );
 
 	DAEDALUS_ASSERT( tile_idx < 8, "Invalid tile index %d", tile_idx );
-	DAEDALUS_ASSERT( index < NUM_N64_TEXTURES, "Invalid texture index %d", index );
+	DAEDALUS_ASSERT( index < kNumBoundTextures, "Invalid texture index %d", index );
 
 	// This hapens a lot! Even for index 0 (i.e. the main texture!)
 	// It might just be code that lazily does a texrect with Primcolour (i.e. not using either T0 or T1)?
