@@ -32,7 +32,7 @@ CORE_SRCS = \
 	Source/Core/RSP.cpp \
 	Source/Core/RSP_HLE.cpp \
 	Source/Core/Save.cpp \
-	Source/Core/Savestate.cpp \
+	Source/Core/SaveState.cpp \
 	Source/Core/TLB.cpp \
 	Source/Debug/DebugLog.cpp \
 	Source/Debug/Dump.cpp \
