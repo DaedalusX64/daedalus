@@ -55,6 +55,18 @@ public:
 		return Connection->Write(p, len);
 	}
 
+	virtual void BeginInstruction(u32 idx, u32 cmd0, u32 cmd1, const char * name)
+	{
+		Print("<span class=\"hle-instr\" id=\"I%d\">", idx);
+		Print("%05d %08x%08x %-10s\n", idx, cmd0, cmd1, name);
+		Print("<span class=\"hle-detail\" style=\"display:none\">");
+	}
+
+	virtual void EndInstruction()
+	{
+		Print("</span></span>");
+	}
+
 	WebDebugConnection * Connection;
 };
 

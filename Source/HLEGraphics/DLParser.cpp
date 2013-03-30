@@ -452,12 +452,13 @@ static u32 DLParser_ProcessDList(u32 instruction_limit)
 		// Note: make sure have frame skip disabled for the dlist debugger to work
 		//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		//use the gInstructionName table for fecthing names.
-		DL_PF("[%05d] 0x%08x: %08x %08x %-10s", current_instruction_count, pc, command.inst.cmd0, command.inst.cmd1, gUcodeName[command.inst.cmd ]);
+		DL_BEGIN_INSTR(current_instruction_count, command.inst.cmd0, command.inst.cmd1, gUcodeName[command.inst.cmd]);
 
 		PROFILE_DL_CMD( command.inst.cmd );
 
 		gUcodeFunc[ command.inst.cmd ]( command );
+
+		DL_END_INSTR();
 
 		current_instruction_count++;
 

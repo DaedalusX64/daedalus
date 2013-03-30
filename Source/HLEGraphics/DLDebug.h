@@ -37,6 +37,9 @@ public:
 
 	virtual size_t Write(const void * p, size_t len) = 0;
 
+	virtual void BeginInstruction(u32 idx, u32 cmd0, u32 cmd1, const char * name) = 0;
+	virtual void EndInstruction() = 0;
+
 private:
 	static const u32 kBufferLen = 1024;
 	char	mBuffer[kBufferLen];
@@ -61,6 +64,19 @@ inline bool DLDebug_IsActive() { return gDLDebugOutput != NULL; }
 			gDLDebugOutput->Print( __VA_ARGS__ );	\
 	} while(0)
 
+#define DL_BEGIN_INSTR(idx, c0, c1, nm) 			\
+	do {											\
+		if (gDLDebugOutput)							\
+			gDLDebugOutput->BeginInstruction(idx, c0, c1, nm);	\
+	} while(0)
+
+#define DL_END_INSTR() 								\
+	do {											\
+		if (gDLDebugOutput) 						\
+			gDLDebugOutput->EndInstruction();		\
+	} while(0)
+
+
 DLDebugOutput *	DLDebug_CreateFileOutput();
 
 void 		DLDebug_SetOutput(DLDebugOutput * output);
@@ -78,6 +94,9 @@ void		DLDebug_DumpRDPOtherModeH(u32 mask, u32 data);
 
 #define DL_PF(...)		do {} while(0)
 #define DL_PF_(...)		do {} while(0)
+
+#define DL_BEGIN_INSTR(idx, c0, c1, nm)  do {} while(0)
+#define DL_END_INSTR()	do {} while(0)
 
 #endif
 
