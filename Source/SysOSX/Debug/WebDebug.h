@@ -52,6 +52,15 @@ private:
 	QueryParams					mQueryParams;
 };
 
+extern const char * const kApplicationJavascript;
+extern const char * const kApplicationJSON;
+extern const char * const kImagePng;
+extern const char * const kTextCSS;
+extern const char * const kTextHTML;
+extern const char * const kTextPlain;
+
+
+bool ServeResource(WebDebugConnection * connection, const char * resource_path);
 void Generate404(WebDebugConnection * connection, const char * request);
 void Generate500(WebDebugConnection * connection, const char * message);
 

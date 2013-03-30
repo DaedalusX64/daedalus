@@ -48,6 +48,13 @@ static struct WebbyConnection *				ws_connections[MAX_WSCONN];
 static std::vector<WebDebugHandlerEntry>	gHandlers;
 static std::vector<StaticResource>			gStaticResources;
 
+const char * const kApplicationJavascript = "application/javascript";
+const char * const kApplicationJSON       = "application/json";
+const char * const kImagePng              = "image/png";
+const char * const kTextCSS               = "text/css";
+const char * const kTextHTML              = "text/html";
+const char * const kTextPlain             = "text/plain";
+
 void WebDebug_Register(const char * request, WebDebugHandler handler, void * arg)
 {
 	WebDebugHandlerEntry entry = { request, handler, arg };
@@ -148,7 +155,7 @@ void WebDebugConnection::EndResponse()
 
 void Generate404(WebDebugConnection * connection, const char * request)
 {
-	connection->BeginResponse(404, -1, "text/html" );
+	connection->BeginResponse(404, -1, kTextHTML );
 
 	WriteStandardHeader(connection, "404 - Page Not Found");
 
@@ -171,7 +178,7 @@ void Generate404(WebDebugConnection * connection, const char * request)
 
 void Generate500(WebDebugConnection * connection, const char * message)
 {
-	connection->BeginResponse(500, -1, "text/html" );
+	connection->BeginResponse(500, -1, kTextHTML );
 
 	WriteStandardHeader(connection, "404 - Page Not Found");
 
@@ -192,20 +199,19 @@ void Generate500(WebDebugConnection * connection, const char * message)
 	connection->EndResponse();
 }
 
-
-
 static const char * GetContentTypeForFilename(const char * filename)
 {
 	const char * ext = strrchr(filename, '.');
 	if (ext)
 	{
-		if (strcmp(ext, ".js") == 0)	return "application/javascript";
-		if (strcmp(ext, ".css") == 0)	return "text/css";
-		if (strcmp(ext, ".png") == 0)	return "image/png";
+		if (strcmp(ext, ".js") == 0)	return kApplicationJavascript;
+		if (strcmp(ext, ".css") == 0)	return kTextCSS;
+		if (strcmp(ext, ".html") == 0)	return kTextHTML;
+		if (strcmp(ext, ".png") == 0)	return kImagePng;
 	}
 
 	DBGConsole_Msg(0, "Unknown filetype [C%s]", filename);
-	return "text/plain";
+	return kTextPlain;
 }
 
 static void ServeFile(WebDebugConnection * connection, const char * filename)
@@ -234,6 +240,22 @@ static void ServeFile(WebDebugConnection * connection, const char * filename)
 	fclose(fh);
 }
 
+bool ServeResource(WebDebugConnection * connection, const char * resource_path)
+{
+	for (size_t i = 0; i < gStaticResources.size(); ++i)
+	{
+		const StaticResource & resource = gStaticResources[i];
+
+		if (strcmp(resource_path, resource.Resource.c_str()) == 0)
+		{
+			ServeFile(connection, resource.FullPath.c_str());
+			return true;
+		}
+	}
+
+	return false;
+}
+
 static int WebDebugDispatch(struct WebbyConnection *connection)
 {
 	WebDebugConnection dbg_connection(connection);
@@ -249,21 +271,13 @@ static int WebDebugDispatch(struct WebbyConnection *connection)
 			DAEDALUS_ASSERT(dbg_connection.GetState() == WebDebugConnection::kResponded, "Failed to handle the response");
 
 			// Return success if we handled the connection.
-			return 1;
+			return 0;
 		}
 	}
 
 	// Check static resources.
-	for (size_t i = 0; i < gStaticResources.size(); ++i)
-	{
-		const StaticResource & resource = gStaticResources[i];
-
-		if (strcmp(connection->request.uri, resource.Resource.c_str()) == 0)
-		{
-			ServeFile(&dbg_connection, resource.FullPath.c_str());
-			return 1;
-		}
-	}
+	if (ServeResource(&dbg_connection, connection->request.uri))
+		return 0;
 
 	DBGConsole_Msg(0, "404 [R%s]", connection->request.uri);
 	Generate404(&dbg_connection, connection->request.uri);
@@ -427,8 +441,8 @@ bool WebDebug_Init()
 	memset(&config, 0, sizeof config);
 	config.bind_address        = "127.0.0.1";
 	config.listening_port      = 8081;
-	config.flags               = WEBBY_SERVER_WEBSOCKETS/* | WEBBY_SERVER_LOG_DEBUG*/;
-	config.connection_max      = 4;
+	config.flags               = WEBBY_SERVER_WEBSOCKETS;
+	config.connection_max      = 16;		// Chrome and Firefox open lots of connections simultaneously.
 	config.request_buffer_size = 2048;
 	config.io_buffer_size      = 8192;
 	config.dispatch            = &WebDebugDispatch;
@@ -437,6 +451,9 @@ bool WebDebug_Init()
 	config.ws_connected        = &test_ws_connected;
 	config.ws_closed           = &test_ws_closed;
 	config.ws_frame            = &test_ws_frame;
+
+	if (0)
+		config.flags = WEBBY_SERVER_LOG_DEBUG;
 
 	int memory_size = WebbyServerMemoryNeeded(&config);
 	gServerMemory = malloc(memory_size);
