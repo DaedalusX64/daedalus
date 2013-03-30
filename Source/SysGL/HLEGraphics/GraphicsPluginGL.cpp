@@ -106,7 +106,7 @@ void CGraphicsPluginImpl::UpdateScreen()
 
 void CGraphicsPluginImpl::RomClosed()
 {
-	DBGConsole_Msg(0, "Finalising PSPGraphics");
+	DBGConsole_Msg(0, "Finalising GLGraphics");
 	DLParser_Finalise();
 	CTextureCache::Destroy();
 	DestroyRenderer();
@@ -118,7 +118,7 @@ void CGraphicsPluginImpl::RomClosed()
 
 class CGraphicsPlugin *	CreateGraphicsPlugin()
 {
-	DBGConsole_Msg( 0, "Initialising Graphics Plugin [CPSP]" );
+	DBGConsole_Msg( 0, "Initialising Graphics Plugin [CGL]" );
 
 	CGraphicsPluginImpl * plugin = new CGraphicsPluginImpl;
 	if (!plugin->Initialise())

@@ -218,30 +218,6 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="Resource Files"
-			>
-			<File
-				RelativePath=".\Source\Resources\d_logo.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\Resources\daedalus.bmp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\Resources\resource.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\Resources\Script1.rc"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\Resources\Script1.rc2"
-				>
-			</File>
-		</Filter>
 		<File
 			RelativePath=".\Source\SysW32\main.cpp"
 			>

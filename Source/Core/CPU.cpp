@@ -51,8 +51,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_W32
 #include "Plugins/AudioPlugin.h"
-#include "SysW32/Utility/ResourceString.h"
-#include "Resources/resource.h"
 #endif
 
 #include "Debug/DebugLog.h"
@@ -561,8 +559,7 @@ bool CPU_StartThread( char * p_failure_reason, u32 length )
 {
 	if (!RomBuffer::IsRomLoaded())
 	{
-		strncpy( p_failure_reason, CResourceString(IDS_NOROMLOADED), length );
-		p_failure_reason[ length - 1 ] = '\0';
+		DBGConsole_Msg(0, "No ROM is loaded");
 		return false;
 	}
 
@@ -574,8 +571,6 @@ bool CPU_StartThread( char * p_failure_reason, u32 length )
 	gCPUThreadHandle = CreateThread( "CPU", CPUThreadFunc, NULL );
 	if (gCPUThreadHandle == kInvalidThreadHandle)
 	{
-		strncpy( p_failure_reason, CResourceString(IDS_UNABLETOSTARTCPUTHREAD), length );
-		p_failure_reason[ length - 1 ] = '\0';
 		DBGConsole_Msg(0, "Create CPU Thread failed: %s.", p_failure_reason);
 		return false;
 	}

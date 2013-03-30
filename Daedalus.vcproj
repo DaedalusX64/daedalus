@@ -175,10 +175,6 @@
 				RelativePath=".\Source\stdafx.h"
 				>
 			</File>
-			<File
-				RelativePath=".\Source\VersionNo.h"
-				>
-			</File>
 			<Filter
 				Name="Configs"
 				>
@@ -514,51 +510,7 @@
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysW32\Debug\DBGConsoleCmd.inl"
-						>
-					</File>
-					<File
 						RelativePath=".\Source\SysOSX\Debug\DebugConsoleOSX.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Debug\DebugPane.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Debug\DebugPane.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Debug\DebugPaneCP0Dis.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Debug\DebugPaneCP0Dis.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Debug\DebugPaneCP0Regs.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Debug\DebugPaneCP0Regs.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Debug\DebugPaneMemory.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Debug\DebugPaneMemory.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Debug\DebugPaneOutput.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Debug\DebugPaneOutput.h"
 						>
 					</File>
 				</Filter>
@@ -941,14 +893,6 @@
 						RelativePath=".\Source\SysW32\Interface\FileNameHandler.h"
 						>
 					</File>
-					<File
-						RelativePath=".\Source\SysW32\Interface\RomSettingsDialog.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Interface\RomSettingsDialog.h"
-						>
-					</File>
 					<Filter
 						Name="Page Headers"
 						>
@@ -966,26 +910,6 @@
 						</File>
 					</Filter>
 				</Filter>
-			</Filter>
-			<Filter
-				Name="Localisation"
-				>
-				<File
-					RelativePath=".\Source\Localisation\LanguageTable.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Localisation\LanguageTable.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Localisation\Localization.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Localisation\Localization.h"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="OSHLE"
@@ -1176,30 +1100,6 @@
 				</File>
 				<File
 					RelativePath=".\Source\stdafx.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Resource Files"
-				>
-				<File
-					RelativePath=".\Source\Resources\d_logo.ico"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Resources\daedalus.bmp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Resources\resource.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Resources\Script1.rc"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Resources\Script1.rc2"
 					>
 				</File>
 			</Filter>
@@ -1437,10 +1337,6 @@
 					</File>
 					<File
 						RelativePath=".\Source\SysW32\Utility\IOW32.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Utility\ResourceString.h"
 						>
 					</File>
 					<File
@@ -1689,13 +1585,8 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\SysPSP\HLEGraphics\ColourAdjuster.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Source\HLEGraphics\ConvertImage.cpp"
 					>
-
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\ConvertImage.h"

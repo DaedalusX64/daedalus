@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
+#ifndef DAEDALUS_SILENT
 /*==============================unasmt.h==============================*/
 /* Percent tokens in strings:
    First char after '%':
@@ -832,4 +833,4 @@ char *disasmx86(u8 *opcode1,int codeoff1,int *len)
     *len=codeoff-codeoff1;
     return(res);
 }
-
+#endif
