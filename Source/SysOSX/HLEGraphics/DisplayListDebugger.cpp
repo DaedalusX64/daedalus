@@ -123,8 +123,15 @@ void DLDebugger_ProcessDebugTask()
 
 				connection->BeginResponse(200, -1, kApplicationJSON);
 				connection->WriteString("{\n");
-				connection->WriteF("\t\"mux\": {\"hi\": \"0x%08x\", \"lo\": \"0x%08x\"},\n",
+				connection->WriteF("\t\"combine\": {\"hi\": \"0x%08x\", \"lo\": \"0x%08x\"},\n",
 					mux_hi, mux_lo);
+				connection->WriteF("\t\"rdpOtherModeH\": \"0x%08x\",\n", gRDPOtherMode.H);
+				connection->WriteF("\t\"rdpOtherModeL\": \"0x%08x\",\n", gRDPOtherMode.L);
+				connection->WriteF("\t\"fillColor\": \"0x%08x\",\n", gRenderer->GetFillColour());	// FIXME: this is usually 16-bit
+				connection->WriteF("\t\"envColor\": \"0x%08x\",\n", gRenderer->GetEnvColour().GetColour());
+				connection->WriteF("\t\"primColor\": \"0x%08x\",\n", gRenderer->GetPrimitiveColour().GetColour());
+				connection->WriteF("\t\"blendColour\": \"0x%08x\",\n", gRenderer->GetBlendColour().GetColour());
+				connection->WriteF("\t\"fogColor\": \"0x%08x\",\n", gRenderer->GetFogColour().GetColour());
 				connection->WriteString("\t\"tiles\": [\n");
 				for (u32 i = 0; i < 8; ++i)
 				{
@@ -133,6 +140,7 @@ void DLDebugger_ProcessDebugTask()
 
 					const RDP_Tile &     tile      = gRDPStateManager.GetTile(i);
 					const RDP_TileSize & tile_size = gRDPStateManager.GetTileSize(i);
+
 					connection->WriteString("\t{\n");
 					connection->WriteF("\t\t\"format\": %d,\n",   tile.format);
 					connection->WriteF("\t\t\"size\": %d,\n",     tile.size);

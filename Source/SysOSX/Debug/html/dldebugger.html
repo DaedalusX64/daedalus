@@ -1,40 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<link href="css/bootstrap.min.css" rel="stylesheet">
-		<link href="css/dldebugger.css" rel="stylesheet">
-		<title>Display List</title>
-	</head>
+  <head>
+    <meta charset="utf-8">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/dldebugger.css" rel="stylesheet">
+    <title>Display List</title>
+  </head>
 <body>
-	<div class="container">
-		<h1>Display List</h1>
-	    <div class="row"><div class="span12"><img id="screen" src="dldebugger?screen"/></div></div>
+  <div class="container-fluid">
+    <h1>Display List</h1>
+    <div class="row">
+      <div class="span8 screen-container">
+        <img class="screen" id="screen" src="dldebugger?screen" />
+        <div id="dlist" class="span10 dlist">
+        </div>
+      </div>
+      <div class="span2" id="performance"></div>
+    </div>
 
-	    <div class="span12">
-	    	<div class="row">&nbsp;</div>
-		</div>
+    <div class="span12">
+      <div class="row-fluid">&nbsp;</div>
+    </div>
 
-	    <div class="span12">
-	    	<div class="row">
-	    		<div class="btn-group">
-		    		<button class="btn" id="ctrl-break"><i class="icon-pause"></i> Break</button>
-		    		<button class="btn" id="ctrl-resume"><i class="icon-play"></i> Resume</button>
-		    	</div>
+  <div class="row-fluid">
+    <div class="span12">
+      <div class="btn-toolbar">
+        <div class="btn-group">
+          <button class="btn" id="ctrl-break"><i class="icon-pause"></i> Break</button>
+          <button class="btn" id="ctrl-resume"><i class="icon-play"></i> Resume</button>
+        </div>
+      </div>
+      <div class="scrub">
+        <div class="scrub-text"></div>
+        <div><input type="range" min="0" max="0" value="0"/></div>
+      </div>
+      <br>
+      <div class="dl-state">
+        <div class="dl-tabs">
+          <ul class="nav nav-tabs" data-tabs="tabs">
+            <li><a href="#dl-geometrymode-content" id="dl-geometrymode-tab" data-toggle="tab">Geometry Mode</a></li>
+            <li><a href="#dl-vertices-content" id="dl-vertices-tab" data-toggle="tab">Vertices</a></li>
+            <li class="active"><a href="#dl-textures-content" id="dl-textures-tab" data-toggle="tab">Textures</a></li>
+            <li><a href="#dl-combiner-content" id="dl-combiner-tab" data-toggle="tab">Combiner</a></li>
+            <li><a href="#dl-rdp-content" id="dl-rdp-tab" data-toggle="tab">RDP</a></li>
+          </ul>
+          <div class="tab-content">
+            <div class="tab-pane" id="dl-geometrymode-content"></div>
+            <div class="tab-pane" id="dl-vertices-content"></div>
+            <div class="tab-pane active" id="dl-textures-content"></div>
+            <div class="tab-pane" id="dl-rdp-content"></div>
+            <div class="tab-pane" id="dl-combiner-content"></div>
+          </div>
+        </div>
+      </div>
 
-				<div class="scrub">
-					<div class="scrub-text"></div>
-					<div><input type="range" min="0" max="0" value="0"/></div>
-				</div>
+    </div>
+  </div>
+  </div>
 
-			    <div id="tiles">
-			    </div>
-	    	</div>
-	    </div>
-	</div>
-
-	<script src="js/bootstrap.min.js"></script>
-	<script src="js/jquery-1.9.1.min.js"></script>
-	<script src="js/dldebugger.js"></script>
+  <script src="js/jquery-1.9.1.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/dldebugger.js"></script>
 </body>
 </html>

@@ -1,7 +1,38 @@
 body { padding-top: 20px; }
-.fixed { font-family: Menlo,Monaco,"Courier New",monospace; font-size: 12px; }
+
+.fixed {
+  font-family: Menlo,Monaco,"Courier New",monospace;
+  font-size: 12px;
+}
 
 .scrub { width: 640px; }
 .scrub input { width: 100%; }
-.hle-disasm { background-color: whiteSmoke; height: 480px; color: #fff;  overflow: scroll; position: relative; }
-.combine { display: inline-block; }
+
+.combine {
+  display: inline-block;
+}
+
+.screen-container {
+  white-space:nowrap;
+}
+
+.screen {
+  vertical-align:top;
+  display:inline-block;
+  background-color:#000;
+}
+
+.dlist {
+  display:inline-block;
+  float:none;
+  background-color: whiteSmoke;
+  height: 480px;
+  color: #fff;
+  overflow: scroll;
+  position: relative;
+}
+
+.dlist pre {
+  white-space: pre;
+  word-wrap: normal;
+}
