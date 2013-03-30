@@ -481,7 +481,7 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	++mNumTrisRendered;
 #endif
 
-	DAEDALUS_ASSERT( mNumIndices < MAX_VERTICES + 3, " Array overflow, to many Indices" );
+	DAEDALUS_ASSERT( mNumIndices + 3 < MAX_VERTICES, " Array overflow, to many Indices" );
 
 	m_swIndexBuffer[ mNumIndices++ ] = (u16)v0;
 	m_swIndexBuffer[ mNumIndices++ ] = (u16)v1;
