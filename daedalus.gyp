@@ -144,7 +144,6 @@
               'Source/SysOSX/Debug/DebugConsoleOSX.cpp',
               'Source/SysOSX/Debug/WebDebug.cpp',
               'Source/SysOSX/Debug/WebDebugTemplate.cpp',
-              'Source/SysOSX/DummyPSP/pspctrl.cpp',
               'Source/SysOSX/DynaRec/CodeBufferManagerOSX.cpp',
               'Source/SysOSX/HLEGraphics/DisplayListDebugger.cpp',
               'Source/SysOSX/Input/InputManagerOSX.cpp',
