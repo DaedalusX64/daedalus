@@ -133,6 +133,17 @@ namespace IO
 		{
 			strncpy( data.Name, _data.name, Path::MAX_PATH_LEN );
 			data.Name[Path::MAX_PATH_LEN] = 0;
+
+			// Ignore hidden files (and '.' and '..')
+			if (data.Name[0] == '.')
+			{
+				if (!FindFileNext(*handle, data))
+				{
+					FindFileClose(*handle);
+					*handle = -1;
+					return false;
+				}
+			}
 			return true;
 		}
 
@@ -144,8 +155,12 @@ namespace IO
 		DAEDALUS_ASSERT( handle != -1, "Cannot search with invalid directory handle" );
 
 		_finddata_t	_data;
-		if( _findnext( handle, &_data ) != -1 )
+		while ( _findnext( handle, &_data ) != -1)
 		{
+			// Ignore hidden files (and '.' and '..')
+			if (_data.name[0] == '.')
+				continue;
+
 			strncpy( data.Name, _data.name, Path::MAX_PATH_LEN );
 			data.Name[Path::MAX_PATH_LEN] = 0;
 			return true;
