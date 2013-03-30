@@ -393,30 +393,30 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_GBI2_SetOtherModeH( MicroCodeCommand command )
+void DLParser_GBI2_SetOtherModeL( MicroCodeCommand command )
 {
 	// Mask is constructed slightly differently
 	const u32 mask = (u32)((s32)(0x80000000) >> command.othermode.len) >> command.othermode.sft;
 
-	gRDPOtherMode.H = (gRDPOtherMode.H&(~mask)) | command.othermode.data;
+	gRDPOtherMode.L = (gRDPOtherMode.L & ~mask) | command.othermode.data;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DLDebug_DumpRDPOtherMode(gRDPOtherMode);
+	DLDebug_DumpRDPOtherModeL(mask, command.othermode.data);
 #endif
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_GBI2_SetOtherModeL( MicroCodeCommand command )
+void DLParser_GBI2_SetOtherModeH( MicroCodeCommand command )
 {
 	// Mask is constructed slightly differently
 	const u32 mask = (u32)((s32)(0x80000000) >> command.othermode.len) >> command.othermode.sft;
 
-	gRDPOtherMode.L = (gRDPOtherMode.L&(~mask)) | command.othermode.data;
+	gRDPOtherMode.H = (gRDPOtherMode.H & ~mask) | command.othermode.data;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DLDebug_DumpRDPOtherMode(gRDPOtherMode);
+	DLDebug_DumpRDPOtherModeH(mask, command.othermode.data);
 #endif
 }
 

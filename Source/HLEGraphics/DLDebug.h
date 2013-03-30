@@ -115,4 +115,7 @@ void		DLDebug_DumpMux(u64 mux);
 void		DLDebug_PrintMux( FILE * fh, u64 mux );
 void		DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode);
 
+void		DLDebug_DumpRDPOtherModeL(u32 mask, u32 data);
+void		DLDebug_DumpRDPOtherModeH(u32 mask, u32 data);
+
 #endif // DAEDALUS_DEBUGDISPLAYLIST_H_

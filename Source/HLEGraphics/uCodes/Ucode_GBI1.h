@@ -430,10 +430,10 @@ void DLParser_GBI1_SetOtherModeL( MicroCodeCommand command )
 {
 	const u32 mask = ((1 << command.othermode.len) - 1) << command.othermode.sft;
 
-	gRDPOtherMode.L = (gRDPOtherMode.L&(~mask)) | command.othermode.data;
+	gRDPOtherMode.L = (gRDPOtherMode.L & ~mask) | command.othermode.data;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DLDebug_DumpRDPOtherMode(gRDPOtherMode);
+	DLDebug_DumpRDPOtherModeL(mask, command.othermode.data);
 #endif
 }
 
@@ -444,10 +444,10 @@ void DLParser_GBI1_SetOtherModeH( MicroCodeCommand command )
 {
 	const u32 mask = ((1 << command.othermode.len) - 1) << command.othermode.sft;
 
-	gRDPOtherMode.H = (gRDPOtherMode.H&(~mask)) | command.othermode.data;
+	gRDPOtherMode.H = (gRDPOtherMode.H & ~mask) | command.othermode.data;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DLDebug_DumpRDPOtherMode(gRDPOtherMode);
+	DLDebug_DumpRDPOtherModeH(mask, command.othermode.data);
 #endif
 }
 

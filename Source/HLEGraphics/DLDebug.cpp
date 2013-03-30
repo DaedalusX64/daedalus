@@ -194,66 +194,213 @@ void DLDebug_PrintMux( FILE * fh, u64 mux )
 	fprintf(fh, "void BlendMode_0x%08x%08xLL( BLEND_MODE_ARGS )\n{\n}\n\n", mux0, mux1);
 }
 
-static const char * const kBlendCl[] = { "In",  "Mem",  "Bl",     "Fog" };
-static const char * const kBlendA1[] = { "AIn", "AFog", "AShade", "0" };
-static const char * const kBlendA2[] = { "1-A", "AMem", "1",      "?" };
+static const char * const kBlendCl[]				= { "In",  "Mem",  "Bl",     "Fog" };
+static const char * const kBlendA1[]				= { "AIn", "AFog", "AShade", "0" };
+static const char * const kBlendA2[]				= { "1-A", "AMem", "1",      "?" };
+
+static const char * const kAlphaCompareValues[]		= {"None", "Threshold", "?", "Dither"};
+static const char * const kDepthSourceValues[]		= {"Pixel", "Primitive"};
+
+static const char * const kCvgDestValues[]			= {"Clamp", "Wrap", "Full", "Save"};
+static const char * const kZModeValues[]			= {"Opa", "Inter", "XLU", "Decal"};
+
+static const char * const kAlphaDitherValues[]		= {"Pattern", "NotPattern", "Noise", "Disable"};
+static const char * const kRGBDitherValues[]		= {"MagicSQ", "Bayer", "Noise", "Disable"};
+static const char * const kCombKeyValues[]			= {"None", "Key"};
+static const char * const kTextureConvValues[]		= {"Conv", "?", "?", "?",   "?", "FiltConv", "Filt", "?"};
+static const char * const kTextureFilterValues[]	= {"Point", "?", "Bilinear", "Average"};
+static const char * const kTextureLUTValues[]		= {"None", "?", "RGBA16", "IA16"};
+static const char * const kTextureLODValues[]		= {"Tile", "LOD"};
+static const char * const kTextureDetailValues[]	= {"Clamp", "Sharpen", "Detail", "?"};
+static const char * const kCycleTypeValues[]		= {"1Cycle", "2Cycle", "Copy", "Fill"};
+static const char * const kPipelineValues[]			= {"NPrimitive", "1Primitive"};
+
+static const char * const kOnOffValues[]            = {"Off", "On"};
+
+struct OtherModeData
+{
+	const char *			Name;
+	u32						Bits;
+	u32						Shift;
+	const char * const *	Values;
+	void					(*Fn)(u32);		// Custom function
+};
+
+static void DumpRenderMode(u32 data);
+static void DumpBlender(u32 data);
+
+static const OtherModeData kOtherModeLData[] = {
+	{ "alpha_compare", 2, G_MDSFT_ALPHACOMPARE,		kAlphaCompareValues },
+	{ "depth_source",  1, G_MDSFT_ZSRCSEL,			kDepthSourceValues },
+
+#if 0
+	// G_MDSFT_RENDERMODE
+	{ "aa_en",         1, 3,						kOnOffValues },
+	{ "z_cmp",         1, 4,						kOnOffValues },
+	{ "z_upd",         1, 5,						kOnOffValues },
+	{ "im_rd",         1, 6,						kOnOffValues },
+	{ "clr_on_cvg",    1, 7,						kOnOffValues },
+	{ "cvg_dst",       2, 8,						kCvgDestValues },
+	{ "zmode",         2, 10,						kZModeValues },
+	{ "cvg_x_alpha",   1, 12,						kOnOffValues },
+	{ "alpha_cvg_sel", 1, 13,						kOnOffValues },
+	{ "force_bl",      1, 14,						kOnOffValues },
+	{ "tex_edge",      1, 15,						kOnOffValues },
+#else
+	{ "render_mode",   13, G_MDSFT_RENDERMODE,		NULL, &DumpRenderMode },
+#endif
+
+	{ "blender",      16, G_MDSFT_BLENDER,			NULL, &DumpBlender }, // Custom output
+};
+
+static const OtherModeData kOtherModeHData[] = {
+	{ "blend_mask",    4, G_MDSFT_BLENDMASK,		NULL },
+	{ "alpha_dither",  2, G_MDSFT_ALPHADITHER,		kAlphaDitherValues },
+	{ "rgb_dither",    2, G_MDSFT_RGBDITHER,		kRGBDitherValues },
+	{ "comb_key",      1, G_MDSFT_COMBKEY,			kCombKeyValues },
+	{ "text_conv",     3, G_MDSFT_TEXTCONV,			kTextureConvValues },
+	{ "text_filt",     2, G_MDSFT_TEXTFILT,			kTextureFilterValues },
+	{ "text_tlut",     2, G_MDSFT_TEXTLUT,			kTextureLUTValues },
+	{ "text_lod",      1, G_MDSFT_TEXTLOD,			kTextureLODValues },
+	{ "text_detail",   2, G_MDSFT_TEXTDETAIL,		kTextureDetailValues },
+	{ "text_persp",    1, G_MDSFT_TEXTPERSP,		kOnOffValues },
+	{ "cycle_type",    2, G_MDSFT_CYCLETYPE,		kCycleTypeValues },
+	{ "color_dither",  1, G_MDSFT_COLORDITHER,		NULL },
+	{ "pipeline",      1, G_MDSFT_PIPELINE,			kPipelineValues },
+};
+
+static const u32 kOtherModeLabelWidth = 15;
+
+static void DumpOtherMode(const OtherModeData * table, u32 table_len, u32 * mask_, u32 * data_)
+{
+	u32 mask = *mask_;
+	u32 data = *data_;
+
+	const char padstr[] = "                    ";
+
+	for (u32 i = 0; i < table_len; ++i)
+	{
+		const OtherModeData & e = table[i];
+
+		u32 mode_mask = ((1 << e.Bits)-1) << e.Shift;
+
+		if ((mask & mode_mask) == mode_mask)
+		{
+			u32 val = (data & mode_mask) >> e.Shift;
+
+			s32 pad = kOtherModeLabelWidth - (strlen(e.Name) + 1);
+			if (e.Values)
+			{
+				DL_PF("  %s:%.*s%s", e.Name, pad, padstr, e.Values[val]);
+			}
+			else if (e.Fn)
+			{
+				e.Fn(data);	// NB pass unshifted value.
+			}
+			else
+			{
+				DL_PF("  %s:%.*s%d", e.Name, pad, padstr, val);
+			}
+
+			mask &= ~mode_mask;
+			data &= ~mode_mask;
+		}
+	}
+
+	*mask_ = mask;
+	*data_ = data;
+}
+
+// Slightly nicer output of rendermode, as a single line
+static void DumpRenderMode(u32 data)
+{
+	char buf[256] = "";
+	if (data & AA_EN)               strcat(buf, "|AA_EN");
+	if (data & Z_CMP)               strcat(buf, "|Z_CMP");
+	if (data & Z_UPD)               strcat(buf, "|Z_UPD");
+	if (data & IM_RD)               strcat(buf, "|IM_RD");
+	if (data & CLR_ON_CVG)          strcat(buf, "|CLR_ON_CVG");
+
+	u32 cvg = data & 0x0300;
+		 if (cvg == CVG_DST_CLAMP)  strcat(buf, "|CVG_DST_CLAMP");
+	else if (cvg == CVG_DST_WRAP)   strcat(buf, "|CVG_DST_WRAP");
+	else if (cvg == CVG_DST_FULL)   strcat(buf, "|CVG_DST_FULL");
+	else if (cvg == CVG_DST_SAVE)   strcat(buf, "|CVG_DST_SAVE");
+
+	u32 zmode = data & 0x0c00;
+		 if (zmode == ZMODE_OPA)    strcat(buf, "|ZMODE_OPA");
+	else if (zmode == ZMODE_INTER)  strcat(buf, "|ZMODE_INTER");
+	else if (zmode == ZMODE_XLU)    strcat(buf, "|ZMODE_XLU");
+	else if (zmode == ZMODE_DEC)    strcat(buf, "|ZMODE_DEC");
+
+	if (data & CVG_X_ALPHA)         strcat(buf, "|CVG_X_ALPHA");
+	if (data & ALPHA_CVG_SEL)       strcat(buf, "|ALPHA_CVG_SEL");
+	if (data & FORCE_BL)            strcat(buf, "|FORCE_BL");
+
+	char * p = buf;
+	if (*p)
+		++p;		// Skip '|'
+	else
+		strcpy(p, "0");
+
+	DL_PF("  render_mode:   %s", p);
+}
+
+static void DumpBlender(u32 data)
+{
+	u32 blender = data >> G_MDSFT_BLENDER;
+
+	u32 m1a_1 = (blender >>14) & 0x3;
+	u32 m1b_1 = (blender >>10) & 0x3;
+	u32 m2a_1 = (blender >> 6) & 0x3;
+	u32 m2b_1 = (blender >> 2) & 0x3;
+
+	u32 m1a_2 = (blender >>12) & 0x3;
+	u32 m1b_2 = (blender >> 8) & 0x3;
+	u32 m2a_2 = (blender >> 4) & 0x3;
+	u32 m2b_2 = (blender     ) & 0x3;
+
+	DL_PF("  blender:       0x%04x - %s*%s + %s*%s | %s*%s + %s*%s",
+		blender,
+		kBlendCl[m1a_1], kBlendA1[m1b_1], kBlendCl[m2a_1], kBlendA2[m2b_1],
+		kBlendCl[m1a_2], kBlendA1[m1b_2], kBlendCl[m2a_2], kBlendA2[m2b_2]);
+}
 
 void DLDebug_DumpRDPOtherMode(const RDP_OtherMode & mode)
 {
 	if (DLDebug_IsActive())
 	{
-		// High
-		static const char *alphadithertypes[4]	= {"Pattern", "NotPattern", "Noise", "Disable"};
-		static const char *rgbdithertype[4]		= {"MagicSQ", "Bayer", "Noise", "Disable"};
-		static const char *convtype[8]			= {"Conv", "?", "?", "?",   "?", "FiltConv", "Filt", "?"};
-		static const char *filtertype[4]		= {"Point", "?", "Bilinear", "Average"};
-		static const char *textluttype[4]		= {"None", "?", "RGBA16", "IA16"};
-		static const char *cycletype[4]			= {"1Cycle", "2Cycle", "Copy", "Fill"};
-		static const char *detailtype[4]		= {"Clamp", "Sharpen", "Detail", "?"};
-		static const char *alphacomptype[4]		= {"None", "Threshold", "?", "Dither"};
-		static const char * szCvgDstMode[4]		= { "Clamp", "Wrap", "Full", "Save" };
-		static const char * szZMode[4]			= { "Opa", "Inter", "XLU", "Decal" };
-		static const char * szZSrcSel[2]		= { "Pixel", "Primitive" };
+		u32 mask = 0xffffffff;
+		u32 data = mode.L;
+		DumpOtherMode(kOtherModeLData, ARRAYSIZE(kOtherModeLData), &mask, &data);
 
-		u32 dwM1A_1 = (mode.blender>>14) & 0x3;
-		u32 dwM1B_1 = (mode.blender>>10) & 0x3;
-		u32 dwM2A_1 = (mode.blender>>6) & 0x3;
-		u32 dwM2B_1 = (mode.blender>>2) & 0x3;
+		mask = 0xffffffff;
+		data = mode.H;
+		DumpOtherMode(kOtherModeHData, ARRAYSIZE(kOtherModeHData), &mask, &data);
+	}
+}
 
-		u32 dwM1A_2 = (mode.blender>>12) & 0x3;
-		u32 dwM1B_2 = (mode.blender>>8) & 0x3;
-		u32 dwM2A_2 = (mode.blender>>4) & 0x3;
-		u32 dwM2B_2 = (mode.blender   ) & 0x3;
+void DLDebug_DumpRDPOtherModeL(u32 mask, u32 data)
+{
+	if (DLDebug_IsActive())
+	{
+		DumpOtherMode(kOtherModeLData, ARRAYSIZE(kOtherModeLData), &mask, &data);
 
-		DL_PF( "    alpha_compare: %s", alphacomptype[ mode.alpha_compare ]);
-		DL_PF( "    depth_source:  %s", szZSrcSel[ mode.depth_source ]);
-		DL_PF( "    aa_en:         %d", mode.aa_en );
-		DL_PF( "    z_cmp:         %d", mode.z_cmp );
-		DL_PF( "    z_upd:         %d", mode.z_upd );
-		DL_PF( "    im_rd:         %d", mode.im_rd );
-		DL_PF( "    clr_on_cvg:    %d", mode.clr_on_cvg );
-		DL_PF( "    cvg_dst:       %s", szCvgDstMode[ mode.cvg_dst ] );
-		DL_PF( "    zmode:         %s", szZMode[ mode.zmode ] );
-		DL_PF( "    cvg_x_alpha:   %d", mode.cvg_x_alpha );
-		DL_PF( "    alpha_cvg_sel: %d", mode.alpha_cvg_sel );
-		DL_PF( "    force_bl:      %d", mode.force_bl );
-		DL_PF( "    tex_edge:      %d", mode.tex_edge );
-		DL_PF( "    blender:       %04x - %s*%s + %s*%s | %s*%s + %s*%s", mode.blender,
-										kBlendCl[dwM1A_1], kBlendA1[dwM1B_1], kBlendCl[dwM2A_1], kBlendA2[dwM2B_1],
-										kBlendCl[dwM1A_2], kBlendA1[dwM1B_2], kBlendCl[dwM2A_2], kBlendA2[dwM2B_2]);
-		DL_PF( "    blend_mask:    %d", mode.blend_mask );
-		DL_PF( "    alpha_dither:  %s", alphadithertypes[ mode.alpha_dither ] );
-		DL_PF( "    rgb_dither:    %s", rgbdithertype[ mode.rgb_dither ] );
-		DL_PF( "    comb_key:      %s", mode.comb_key ? "Key" : "None" );
-		DL_PF( "    text_conv:     %s", convtype[ mode.text_conv ] );
-		DL_PF( "    text_filt:     %s", filtertype[ mode.text_filt ] );
-		DL_PF( "    text_tlut:     %s", textluttype[ mode.text_tlut ] );
-		DL_PF( "    text_lod:      %s", mode.text_lod ? "LOD": "Tile" );
-		DL_PF( "    text_detail:   %s", detailtype[ mode.text_detail ] );
-		DL_PF( "    text_persp:    %s", mode.text_persp ? "On" : "Off" );
-		DL_PF( "    cycle_type:    %s", cycletype[ mode.cycle_type ] );
-		DL_PF( "    color_dither:  %d", mode.color_dither );
-		DL_PF( "    pipeline:      %s", mode.pipeline ? "1Primitive" : "NPrimitive" );
+		// Just check we're not handling some unusual calls.
+		DAEDALUS_ASSERT(mask == 0, "OtherModeL mask is non zero: %08x", mask);
+		DAEDALUS_ASSERT(data == 0, "OtherModeL data is non zero: %08x", data);
+	}
+}
+
+void DLDebug_DumpRDPOtherModeH(u32 mask, u32 data)
+{
+	if (DLDebug_IsActive())
+	{
+		DumpOtherMode(kOtherModeHData, ARRAYSIZE(kOtherModeHData), &mask, &data);
+
+		// Just check we're not handling some unusual calls.
+		DAEDALUS_ASSERT(mask == 0, "OtherModeH mask is non zero: %08x", mask);
+		DAEDALUS_ASSERT(data == 0, "OtherModeH data is non zero: %08x", data);
 	}
 }
 
