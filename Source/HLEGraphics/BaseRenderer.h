@@ -288,6 +288,9 @@ public:
 	inline u32			GetVtxFlags( u32 i ) const				{ return mVtxProjected[ i ].ClipFlags; }
 
 	inline u64			GetMux() const							{ return mMux; }
+	inline c32			GetPrimitiveColour() const				{ return mPrimitiveColour; }
+	inline c32			GetEnvColour() const					{ return mEnvColour; }
+	inline c32			GetFogColour() const					{ return mFogColour; }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	// Rendering stats
