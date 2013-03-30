@@ -76,7 +76,7 @@ bool CGraphicsPluginImpl::Initialise()
 
 void CGraphicsPluginImpl::ProcessDList()
 {
-#ifdef DAEDALUS_DEBUG_DISPLAYLIS
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	if (!DLDebugger_Process())
 	{
 		DLParser_Process();
