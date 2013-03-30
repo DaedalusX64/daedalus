@@ -352,7 +352,7 @@ private:
 	inline void 		PokeWorldProject();
 
 protected:
-	enum { MAX_VERTS = 80 };		// F3DLP.Rej supports up to 80 verts!
+	static const u32 kMaxN64Vertices = 80;		// F3DLP.Rej supports up to 80 verts!
 
 	TnLParams			mTnL;
 
@@ -422,7 +422,7 @@ protected:
 	u32					mNumIndices;
 
 	// Processed vertices waiting for output...
-	DaedalusVtx4		mVtxProjected[MAX_VERTS];			// Transformed and projected vertices (suitable for clipping etc)
+	DaedalusVtx4		mVtxProjected[kMaxN64Vertices];		// Transformed and projected vertices (suitable for clipping etc)
 	u32					mVtxClipFlagsUnion;					// Bitwise OR of all the vertex flags added to the current batch. If this is 0, we can trivially accept everything without clipping
 
 

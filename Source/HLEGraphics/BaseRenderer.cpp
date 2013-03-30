@@ -421,6 +421,10 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 {
 	//DAEDALUS_PROFILE( "BaseRenderer::AddTri" );
 
+	DAEDALUS_ASSERT( v0 < kMaxN64Vertices, "Vertex index is out of bounds (%d)", v0 );
+	DAEDALUS_ASSERT( v1 < kMaxN64Vertices, "Vertex index is out of bounds (%d)", v1 );
+	DAEDALUS_ASSERT( v2 < kMaxN64Vertices, "Vertex index is out of bounds (%d)", v2 );
+
 	const u32 & f0( mVtxProjected[v0].ClipFlags );
 	const u32 & f1( mVtxProjected[v1].ClipFlags );
 	const u32 & f2( mVtxProjected[v2].ClipFlags );
@@ -1568,7 +1572,7 @@ void BaseRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 //*****************************************************************************
 inline void BaseRenderer::SetVtxColor( u32 vert, c32 color )
 {
-	DAEDALUS_ASSERT( vert < MAX_VERTS, " SetVtxColor : Reached max of verts");
+	DAEDALUS_ASSERT( vert < kMaxN64Vertices, "Vertex index is out of bounds (%d)", vert );
 
 	mVtxProjected[vert].Colour = color.GetColourV4();
 }
@@ -1579,7 +1583,7 @@ inline void BaseRenderer::SetVtxColor( u32 vert, c32 color )
 /*
 inline void BaseRenderer::SetVtxZ( u32 vert, float z )
 {
-	DAEDALUS_ASSERT( vert < MAX_VERTS, " SetVtxZ : Reached max of verts");
+	DAEDALUS_ASSERT( vert < kMaxN64Vertices, "Vertex index is out of bounds (%d)", vert );
 
 	mVtxProjected[vert].TransformedPos.z = z;
 }
@@ -1589,7 +1593,7 @@ inline void BaseRenderer::SetVtxZ( u32 vert, float z )
 //*****************************************************************************
 inline void BaseRenderer::SetVtxXY( u32 vert, float x, float y )
 {
-	DAEDALUS_ASSERT( vert < MAX_VERTS, " SetVtxXY : Reached max of verts %d",vert);
+	DAEDALUS_ASSERT( vert < kMaxN64Vertices, "Vertex index is out of bounds (%d)", vert );
 
 	mVtxProjected[vert].TransformedPos.x = x;
 	mVtxProjected[vert].TransformedPos.y = y;
