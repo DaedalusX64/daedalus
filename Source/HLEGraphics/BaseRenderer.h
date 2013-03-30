@@ -287,6 +287,8 @@ public:
 	inline v4			GetProjectedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].ProjectedPos; }
 	inline u32			GetVtxFlags( u32 i ) const				{ return mVtxProjected[ i ].ClipFlags; }
 
+	inline u64			GetMux() const							{ return mMux; }
+
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	// Rendering stats
 	inline u32			GetNumTrisRendered() const				{ return mNumTrisRendered; }

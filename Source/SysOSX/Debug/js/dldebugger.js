@@ -6,41 +6,15 @@
   var debugNumOps = 0;
 
   daedalus.init = function () {
+    var $tabs = $('#tiles');
 
-    var $d = $('<div />');
-
-    var $img = $('<div class="row"><div class="span12"><img id="screen" src="dldebugger?screen"/></div></div>');
-    $d.append($img);
-
-    var $pad = $('<div class="span12"><div class="row" /></div>');
-    $d.append($pad);
-
-    $pad.find('div').html('&nbsp;');
-
-    var $control_div = $('<div class="span12"><div class="row" /></div>');
-    $d.append($control_div);
-
-    var $break = $('<button class="btn"><i class="icon-pause"></i> Break</button>');
-    var $resume = $('<button class="btn"><i class="icon-play"></i> Resume</button>');
-    var $controls = $('<div class="btn-group">');
-    $controls.append($break);
-    $controls.append($resume);
-
-    var $tabs = $('<div id="tiles" />');
-
-    $dlistScrub = $(
-      '<div class="scrub" style="width:640px">' +
-      '  <div class="scrub-text"></div>' +
-      '  <div><input type="range" min="0" max="0" value="0" style="width:100%"/></div>' +
-      '</div>');
+    $dlistScrub = $('.scrub');
     $dlistScrub.find('input').change(function () {
       setScrubTime($(this).val() | 0);
     });
     setScrubRange(0);
 
-    $control_div.find('div').append($controls).append($dlistScrub).append($tabs);
-
-    $break.click(function () {
+    $('#ctrl-break').click(function () {
       $.post('/dldebugger?action=break', function(data) {
         // Update the scrubber based on the new length of disassembly
         debugNumOps = data.num_ops > 0 ? (data.num_ops-1) : 0;
@@ -53,12 +27,9 @@
         $.post('/dldebugger?action=dump');
       });
     });
-    $resume.click(function () {
+    $('#ctrl-resume').click(function () {
       $.post('/dldebugger?action=resume');
     });
-
-    $('body').find('.container').append($d);
-
   };
 
   // FIXME: we should reuse n64js/hle.js :)

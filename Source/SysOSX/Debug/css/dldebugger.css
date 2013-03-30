@@ -1,0 +1,7 @@
+body { padding-top: 20px; }
+.fixed { font-family: Menlo,Monaco,"Courier New",monospace; font-size: 12px; }
+
+.scrub { width: 640px; }
+.scrub input { width: 100%; }
+.hle-disasm { background-color: whiteSmoke; height: 480px; color: #fff;  overflow: scroll; position: relative; }
+.combine { display: inline-block; }

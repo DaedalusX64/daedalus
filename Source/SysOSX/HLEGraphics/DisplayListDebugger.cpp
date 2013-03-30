@@ -7,6 +7,7 @@
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/PngUtil.h"
 
+#include "HLEGraphics/BaseRenderer.h"
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/DLParser.h"
 #include "HLEGraphics/RDP.h"
@@ -23,8 +24,8 @@
 static bool gDebugging = false;
 
 // These coordinate requests between the web threads and the main thread (only the main thread can call OpenGL functions)
-static GLFWcond gScreenshotCond   = NULL;
-static GLFWmutex gScreenshotMutex = NULL;
+static GLFWcond  gMainThreadCond  = NULL;
+static GLFWmutex gMainThreadMutex = NULL;
 
 enum DebugTask
 {
@@ -36,16 +37,8 @@ enum DebugTask
 	kTaskDumpDList,
 };
 
-static const char * const kApplicationJSON = "application/json";
-static const char * const kImagePng        = "image/png";
-static const char * const kTextHTML        = "text/html";
-static const char * const kTextPlain       = "text/plain";
-
-// This mutex is to ensure that only one connection can request a screenshot at a time.
-static Mutex 				gMainThreadSync("MainThreadSync");
 static WebDebugConnection * gActiveConnection = NULL;
 static DebugTask			gDebugTask        = kTaskUndefined;
-
 static u32					gInstructionCountLimit = kUnlimitedInstructionCount;
 
 bool DLDebugger_IsDebugging()
@@ -61,7 +54,7 @@ void DLDebugger_RequestDebug()
 void DLDebugger_ProcessDebugTask()
 {
 	// Check if a web request is waiting for a screenshot.
-	glfwLockMutex(gScreenshotMutex);
+	glfwLockMutex(gMainThreadMutex);
 	if (WebDebugConnection * connection = gActiveConnection)
 	{
 		bool handled = false;
@@ -95,9 +88,15 @@ void DLDebugger_ProcessDebugTask()
 			{
 				DLParser_Process(gInstructionCountLimit, NULL);
 
+				u64 mux = gRenderer->GetMux();
+				u32 mux_hi = mux >> 32;
+				u32 mux_lo = mux & 0xffffffff;
+
 				connection->BeginResponse(200, -1, kApplicationJSON);
 				connection->WriteString("{\n");
-				connection->WriteString("\"tiles\": [\n");
+				connection->WriteF("\t\"mux\": {\"hi\": \"0x%08x\", \"lo\": \"0x%08x\"},\n",
+					mux_hi, mux_lo);
+				connection->WriteString("\t\"tiles\": [\n");
 				for (u32 i = 0; i < 8; ++i)
 				{
 					if (i > 0)
@@ -173,8 +172,8 @@ void DLDebugger_ProcessDebugTask()
 		gDebugTask = kTaskUndefined;
 
 	}
-	glfwUnlockMutex(gScreenshotMutex);
-	glfwSignalCond(gScreenshotCond);
+	glfwUnlockMutex(gMainThreadMutex);
+	glfwSignalCond(gMainThreadCond);
 }
 
 bool DLDebugger_Process()
@@ -194,15 +193,12 @@ bool DLDebugger_Process()
 
 static void DoTask(WebDebugConnection * connection, DebugTask task)
 {
-	// Only one request for a screenshot can be serviced at a time.
-	MutexLock lock(&gMainThreadSync);
-
 	// Request a screenshot from the main thread.
-	glfwLockMutex(gScreenshotMutex);
+	glfwLockMutex(gMainThreadMutex);
 	gActiveConnection = connection;
 	gDebugTask        = task;
-	glfwWaitCond(gScreenshotCond, gScreenshotMutex, GLFW_INFINITY);
-	glfwUnlockMutex(gScreenshotMutex);
+	glfwWaitCond(gMainThreadCond, gMainThreadMutex, GLFW_INFINITY);
+	glfwUnlockMutex(gMainThreadMutex);
 }
 
 static void DLDebugHandler(void * arg, WebDebugConnection * connection)
@@ -254,24 +250,10 @@ static void DLDebugHandler(void * arg, WebDebugConnection * connection)
 		return;
 	}
 
-	connection->BeginResponse(200, -1, kTextHTML);
-
-	WriteStandardHeader(connection, "Display List");
-
-	connection->WriteString(
-		"<div class=\"container\">\n"
-		"	<div class=\"row\">\n"
-		"		<div class=\"span12\">\n"
-	);
-	connection->WriteString("<h1 id=\"title\">Display List</h1>\n");
-	connection->WriteString(
-		"		</div>\n"
-		"	</div>\n"
-		"</div>\n"
-	);
-
-	WriteStandardFooter(connection, "js/dldebugger.js");
-	connection->EndResponse();
+	if (!ServeResource(connection, "/html/dldebugger.html"))
+	{
+		Generate500(connection, "Couldn't load html/debugger.html");
+	}
 }
 
 bool DLDebugger_RegisterWebDebug()
@@ -279,8 +261,8 @@ bool DLDebugger_RegisterWebDebug()
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	WebDebug_Register( "/dldebugger", &DLDebugHandler, NULL );
 #endif
-	gScreenshotCond = glfwCreateCond();
-	gScreenshotMutex = glfwCreateMutex();
+	gMainThreadCond = glfwCreateCond();
+	gMainThreadMutex = glfwCreateMutex();
 	return true;
 }
 

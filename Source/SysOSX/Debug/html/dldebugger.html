@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/dldebugger.css" rel="stylesheet">
+		<title>Display List</title>
+	</head>
+<body>
+	<div class="container">
+		<h1>Display List</h1>
+	    <div class="row"><div class="span12"><img id="screen" src="dldebugger?screen"/></div></div>
+
+	    <div class="span12">
+	    	<div class="row">&nbsp;</div>
+		</div>
+
+	    <div class="span12">
+	    	<div class="row">
+	    		<div class="btn-group">
+		    		<button class="btn" id="ctrl-break"><i class="icon-pause"></i> Break</button>
+		    		<button class="btn" id="ctrl-resume"><i class="icon-play"></i> Resume</button>
+		    	</div>
+
+				<div class="scrub">
+					<div class="scrub-text"></div>
+					<div><input type="range" min="0" max="0" value="0"/></div>
+				</div>
+
+			    <div id="tiles">
+			    </div>
+	    	</div>
+	    </div>
+	</div>
+
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/jquery-1.9.1.min.js"></script>
+	<script src="js/dldebugger.js"></script>
+</body>
+</html>
