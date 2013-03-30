@@ -225,6 +225,8 @@ public:
 	inline void			SetPrimitiveLODFraction( f32 f )		{ mPrimLODFraction = f; }
 	inline void			SetPrimitiveColour( c32 colour )		{ mPrimitiveColour = colour; }
 	inline void			SetEnvColour( c32 colour )				{ mEnvColour = colour; }
+	inline void			SetBlendColour( c32 colour )			{ mBlendColour = colour; }
+	inline void			SetFillColour( u32 colour )				{ mFillColour = colour; }
 
 	inline void			SetNumLights(u32 num)					{ mTnL.NumLights = num; }
 	inline void			SetLightCol(u32 l, f32 r, f32 g, f32 b) { mTnL.Lights[l].Colour.x= r/255.0f; mTnL.Lights[l].Colour.y= g/255.0f; mTnL.Lights[l].Colour.z= b/255.0f; mTnL.Lights[l].Colour.w= 1.0f; }
@@ -291,6 +293,8 @@ public:
 	inline c32			GetPrimitiveColour() const				{ return mPrimitiveColour; }
 	inline c32			GetEnvColour() const					{ return mEnvColour; }
 	inline c32			GetFogColour() const					{ return mFogColour; }
+	inline c32			GetBlendColour() const					{ return mBlendColour; }
+	inline u32			GetFillColour() const					{ return mFillColour; }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	// Rendering stats
@@ -374,10 +378,11 @@ protected:
 	f32					mPrimDepth;
 	f32					mPrimLODFraction;
 
-	c32					mFogColour;
-	c32					mPrimitiveColour;
-	c32					mEnvColour;
-
+	c32					mFogColour;				// Blender
+	c32					mPrimitiveColour;		// Combiner
+	c32					mEnvColour;				// Combiner
+	c32					mBlendColour;			// Blender
+	u32					mFillColour;			// RDP. NB u32 not c32 as this is typically 2 16-bit colour values.
 	// Texturing
 	struct TextureWrap
 	{

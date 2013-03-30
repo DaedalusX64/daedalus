@@ -163,7 +163,11 @@ BaseRenderer::BaseRenderer()
 ,	mPrimDepth( 0.0f )
 ,	mPrimLODFraction( 0.f )
 
-,	mFogColour(0x00FFFFFF)
+,	mFogColour(0x00ffffff)			// NB top bits not set. Intentional?
+,	mPrimitiveColour(0xffffffff)
+,	mEnvColour(0xffffffff)
+,	mBlendColour(0xffffffff)
+,	mFillColour(0xffffffff)
 
 ,	mModelViewTop(0)
 ,	mWorldProjectValid(false)

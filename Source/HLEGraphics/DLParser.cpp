@@ -141,7 +141,6 @@ static RDP_GeometryMode gGeometryMode;
 static DList			gDlistStack;
 static s32				gDlistStackPointer = -1;
 static u32				gVertexStride	 = 0;
-static u32				gFillColor		 = 0xFFFFFFFF;
 static u32				gRDPHalf1		 = 0;
 static u32				gLastUcodeBase   = 0;
 
@@ -1057,17 +1056,18 @@ void DLParser_FillRect( MicroCodeCommand command )
 	// Problem was that we can only clear screen in fill mode
 
 	u32 cycle_mode = gRDPOtherMode.cycle_type;
+	u32 fill_colour = gRenderer->GetFillColour();
 
 	if ( cycle_mode == CYCLE_FILL )
 	{
 		if(g_CI.Size == G_IM_SIZ_16b)
 		{
-			N64Pf5551	c( (u16)gFillColor );
+			N64Pf5551	c( (u16)fill_colour );
 			colour = ConvertPixelFormat< c32, N64Pf5551 >( c );
 		}
 		else
 		{
-			N64Pf8888	c( (u32)gFillColor );
+			N64Pf8888	c( (u32)fill_colour );
 			colour = ConvertPixelFormat< c32, N64Pf8888 >( c );
 		}
 
@@ -1157,12 +1157,14 @@ void DLParser_SetCombine( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_SetFillColor( MicroCodeCommand command )
 {
-	gFillColor = command.inst.cmd1;
+	u32 fill_colour = command.inst.cmd1;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	N64Pf5551	n64col( (u16)gFillColor );
+	N64Pf5551	n64col( (u16)fill_colour );
 	DL_PF( "    Color5551=0x%04x", n64col.Bits );
 #endif
+
+	gRenderer->SetFillColour( fill_colour );
 }
 
 //*****************************************************************************
@@ -1184,7 +1186,10 @@ void DLParser_SetBlendColor( MicroCodeCommand command )
 {
 	DL_PF("    RGBA: %d %d %d %d", command.color.r, command.color.g, command.color.b, command.color.a);
 
-	gRenderer->SetAlphaRef( command.color.a );
+	c32	blend_colour( command.color.r, command.color.g, command.color.b, command.color.a );
+
+	gRenderer->SetAlphaRef( command.color.a );	// FIXME - should remove AlphaRef and just use mBlendColour.GetA()
+	gRenderer->SetBlendColour( blend_colour );
 }
 
 //*****************************************************************************
