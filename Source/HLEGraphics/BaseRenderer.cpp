@@ -425,9 +425,9 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	DAEDALUS_ASSERT( v1 < kMaxN64Vertices, "Vertex index is out of bounds (%d)", v1 );
 	DAEDALUS_ASSERT( v2 < kMaxN64Vertices, "Vertex index is out of bounds (%d)", v2 );
 
-	const u32 & f0( mVtxProjected[v0].ClipFlags );
-	const u32 & f1( mVtxProjected[v1].ClipFlags );
-	const u32 & f2( mVtxProjected[v2].ClipFlags );
+	const u32 & f0 = mVtxProjected[v0].ClipFlags;
+	const u32 & f1 = mVtxProjected[v1].ClipFlags;
+	const u32 & f2 = mVtxProjected[v2].ClipFlags;
 
 	if ( f0 & f1 & f2 )
 	{
@@ -443,17 +443,17 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	//
 	if( mTnL.Flags.TriCull )
 	{
-		const v4 & A( mVtxProjected[v0].ProjectedPos );
-		const v4 & B( mVtxProjected[v1].ProjectedPos );
-		const v4 & C( mVtxProjected[v2].ProjectedPos );
+		const v4 & A = mVtxProjected[v0].ProjectedPos;
+		const v4 & B = mVtxProjected[v1].ProjectedPos;
+		const v4 & C = mVtxProjected[v2].ProjectedPos;
 
 		//Avoid using 1/w, will use five more mults but save three divides //Corn
 		//Precalc reused w combos so compiler does a proper job
-		const f32 ABw(A.w*B.w);
-		const f32 ACw(A.w*C.w);
-		const f32 BCw(B.w*C.w);
-		const f32 AxBC(A.x*BCw);
-		const f32 AyBC(A.y*BCw);
+		const f32 ABw  = A.w*B.w;
+		const f32 ACw  = A.w*C.w;
+		const f32 BCw  = B.w*C.w;
+		const f32 AxBC = A.x*BCw;
+		const f32 AyBC = A.y*BCw;
 
 		if( (((B.x*ACw - AxBC)*(C.y*ABw - AyBC) - (C.x*ABw - AxBC)*(B.y*ACw - AyBC)) * ABw * C.w) <= 0.f )
 		{
