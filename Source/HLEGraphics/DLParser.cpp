@@ -175,10 +175,12 @@ inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
 {
 	// Current PC is the last value on the stack
 	u32 pc = gDlistStack.address[gDlistStackPointer];
+
+	DAEDALUS_ASSERT(pc < MAX_RAM_ADDRESS, "Display list PC is out of range: 0x%08x", pc );
+
 	*p_command = *(MicroCodeCommand*)(g_pu8RamBase + pc);
 
 	gDlistStack.address[gDlistStackPointer]+= 8;
-
 }
 
 //*****************************************************************************
@@ -431,17 +433,6 @@ SProfileItemHandle * gpProfileItemHandles[ 256 ];
 static u32 DLParser_ProcessDList(u32 instruction_limit)
 {
 	MicroCodeCommand command;
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	//Check if address is outside legal RDRAM
-	u32 pc = gDlistStack.address[gDlistStackPointer];
-
-	if ( pc > MAX_RAM_ADDRESS )
-	{
-		DBGConsole_Msg(0, "Display list PC is out of range: 0x%08x", pc );
-		return 0;
-	}
-#endif
 
 	u32 current_instruction_count = 0;
 
