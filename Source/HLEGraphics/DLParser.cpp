@@ -453,12 +453,13 @@ static u32 DLParser_ProcessDList(u32 instruction_limit)
 		//
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		//use the gInstructionName table for fecthing names.
-		current_instruction_count++;
 		DL_PF("[%05d] 0x%08x: %08x %08x %-10s", current_instruction_count, pc, command.inst.cmd0, command.inst.cmd1, gUcodeName[command.inst.cmd ]);
 
 		PROFILE_DL_CMD( command.inst.cmd );
 
 		gUcodeFunc[ command.inst.cmd ]( command );
+
+		current_instruction_count++;
 
 		if( instruction_limit != kUnlimitedInstructionCount )
 		{
