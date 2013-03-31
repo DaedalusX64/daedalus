@@ -467,15 +467,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\Debug\DBGConsole.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\Debug\DebugConsoleImpl.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\Source\Debug\DebugConsoleImpl.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Debug\DBGConsole.h"
 					>
 				</File>
 				<File
@@ -494,10 +494,6 @@
 					RelativePath=".\Source\Debug\Dump.h"
 					>
 				</File>
-				<File
-					RelativePath=".\Source\Debug\webby.cpp"
-					>
-				</File>
 				<Filter
 					Name="W32"
 					>
@@ -510,19 +506,19 @@
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysOSX\Debug\WebDebugTemplate.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysOSX\Debug\WebDebugTemplate.h"
-						>
-					</File>
-					<File
 						RelativePath=".\Source\SysOSX\Debug\WebDebug.cpp"
 						>
 					</File>
 					<File
 						RelativePath=".\Source\SysOSX\Debug\WebDebug.h"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\SysOSX\Debug\WebDebugTemplate.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\Source\SysOSX\Debug\WebDebugTemplate.h"
 						>
 					</File>
 				</Filter>
@@ -855,6 +851,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\SysOSX\Input\InputManagerOSX.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\SysPSP\Input\InputManagerPSP.cpp"
 					>
 					<FileConfiguration
@@ -873,10 +873,6 @@
 							Name="VCCLCompilerTool"
 						/>
 					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\Source\SysOSX\Input\InputManagerOSX.cpp"
-					>
 				</File>
 			</Filter>
 			<Filter
@@ -1131,15 +1127,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\Utility\DaedalusTypes.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\Utility\DataSink.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\Source\Utility\DataSink.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Utility\DaedalusTypes.h"
 					>
 				</File>
 				<File
@@ -1597,6 +1593,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Source\HLEGraphics\CachedTexture.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\HLEGraphics\CachedTexture.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Source\SysPSP\HLEGraphics\ColourAdjuster.h"
 					>
 				</File>
@@ -1654,14 +1658,6 @@
 				</File>
 				<File
 					RelativePath=".\Source\HLEGraphics\RDPStateManager.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\CachedTexture.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEGraphics\CachedTexture.h"
 					>
 				</File>
 				<File
@@ -1773,31 +1769,31 @@
 					</File>
 					<Filter
 						Name="W32"
-						>	
-					<File
+						>
+						<File
 							RelativePath=".\Source\SysOSX\HLEGraphics\DisplayListDebugger.cpp"
-						>
-					</File>
-					<File
-							RelativePath=".\Source\SysGL\HLEGraphics\RendererGL.cpp"
-						>
-					</File>
-					<File
-							RelativePath=".\Source\SysGL\HLEGraphics\RendererGL.h"
-						>
-					</File>
-					<File
-							RelativePath=".\Source\HLEGraphics\TextureCacheWebDebug.cpp"
-						>
-					</File>
-					<File
-							RelativePath=".\Source\HLEGraphics\TextureCacheWebDebug.h"
-						>
-					</File>
-					<File
+							>
+						</File>
+						<File
 							RelativePath=".\Source\SysGL\HLEGraphics\GraphicsPluginGL.cpp"
-						>
-					</File>
+							>
+						</File>
+						<File
+							RelativePath=".\Source\SysGL\HLEGraphics\RendererGL.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\Source\SysGL\HLEGraphics\RendererGL.h"
+							>
+						</File>
+						<File
+							RelativePath=".\Source\HLEGraphics\TextureCacheWebDebug.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\Source\HLEGraphics\TextureCacheWebDebug.h"
+							>
+						</File>
 					</Filter>
 				</Filter>
 				<Filter
@@ -1941,7 +1937,15 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\SysPSP\HLEAudio\AudioOutput.h"
+					RelativePath=".\Source\HLEAudio\audiohle.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\HLEAudio\AudioHLEProcessor.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Source\HLEAudio\AudioHLEProcessor.h"
 					>
 				</File>
 				<File
@@ -1965,15 +1969,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\Source\HLEAudio\audiohle.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEAudio\AudioHLEProcessor.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\HLEAudio\AudioHLEProcessor.h"
+					RelativePath=".\Source\SysPSP\HLEAudio\AudioOutput.h"
 					>
 				</File>
 				<File
@@ -2558,7 +2554,7 @@
 				</File>
 				<Filter
 					Name="W32"
-					>	
+					>
 					<File
 						RelativePath=".\Source\SysGL\Graphics\GraphicsContextGL.cpp"
 						>
@@ -2567,7 +2563,7 @@
 						RelativePath=".\Source\SysGL\Graphics\NativeTextureGL.cpp"
 						>
 					</File>
-					</Filter>
+				</Filter>
 				<Filter
 					Name="PSP"
 					>
@@ -2751,6 +2747,22 @@
 				<File
 					RelativePath=".\Source\Test\BatchTest.h"
 					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Third Party"
+				>
+				<File
+					RelativePath=".\Source\third_party\webby\webby.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
 				</File>
 			</Filter>
 		</Filter>
