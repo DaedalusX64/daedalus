@@ -218,7 +218,7 @@ void System_Open(const char *romname)
 
 void System_Close()
 {
-	for(u32 i = ARRAYSIZE(RomInitTable) - 1 ; i >= 0; i--)
+	for(s32 i = ARRAYSIZE(RomInitTable) - 1 ; i >= 0; i--)
 	{
 		if (RomInitTable[i].close == NULL)
 			continue;
@@ -230,7 +230,7 @@ void System_Close()
 
 void System_Finalize()
 {
-	for(u32 i = ARRAYSIZE(SysInitTable) - 1; i >= 0; i--)
+	for(s32 i = ARRAYSIZE(SysInitTable) - 1; i >= 0; i--)
 	{
 		if (SysInitTable[i].final == NULL)
 			continue;
