@@ -127,7 +127,7 @@ f32 TEST_VARX = 0.0f;
 f32 TEST_VARY = 0.0f;
 #endif
 
-
+#ifdef DAEDALUS_GL
 const float kShiftScales[] = {
 	(float)(1 << 0),
 	(float)(1 << 1),
@@ -147,7 +147,7 @@ const float kShiftScales[] = {
 	1.f / (float)(1 << 1),
 };
 DAEDALUS_STATIC_ASSERT(ARRAYSIZE(kShiftScales) == 16);
-
+#endif
 //*****************************************************************************
 //
 //*****************************************************************************

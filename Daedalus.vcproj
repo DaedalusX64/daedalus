@@ -399,14 +399,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\RSP.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\Core\RSP.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Source\Core\RSP_HLE.cpp"
 					>
 				</File>
@@ -1653,10 +1645,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\RDP.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\Source\HLEGraphics\RDP.h"
 					>
 				</File>
@@ -1710,6 +1698,22 @@
 					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerExpression.cpp"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerExpression.h"
@@ -1722,6 +1726,22 @@
 					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerTree.cpp"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerTree.h"
@@ -1730,6 +1750,22 @@
 					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\RenderSettings.cpp"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\RenderSettings.h"

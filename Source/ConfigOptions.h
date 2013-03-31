@@ -28,33 +28,16 @@
 // Config stuff
 struct DaedalusConfig
 {
-	bool		RecurseRomDirectory;
-	bool		WarnMemoryErrors;
-	bool		RunAutomatically;
-	bool		TrapExceptions;
-#ifdef DAEDALUS_W32
-#ifndef DAEDALUS_PUBLIC_RELEASE
-	bool		ShowDebug;
-#endif
-	RECT		rcMainWindow;			// Could probably be removed?
-	char		szGfxPluginFileName[MAX_PATH];
-#endif
-
 	// Urgh - will make this a vector at some point!!
 	enum { MAX_ROMS_DIRS = 100 };
-	u32			nNumRomsDirs;
 	char		szRomsDirs[MAX_ROMS_DIRS][MAX_PATH+1];
-
-
 	char		szSaveDir[MAX_PATH+1];
 };
 
 extern DaedalusConfig	g_DaedalusConfig;
 
 // Per-ROM config
-extern bool gGraphicsEnabled;			// Show graphics
 extern bool gDynarecEnabled;			// Use dynamic recompilation
-//extern bool gDynarecStackOptimisation;	// Enable the dynarec stack optmisation
 extern bool gDynarecLoopOptimisation;	// Enable the dynarec loop optmisation
 extern bool gDynarecDoublesOptimisation;	// Enable the dynarec loop optmisation
 extern bool gOSHooksEnabled;			// Apply os-hooks
@@ -80,7 +63,6 @@ enum EAudioPluginMode
 };
 
 extern EAudioPluginMode gAudioPluginEnabled;
-//extern bool gAdaptFrequency;
 
 
 #endif // __CONFIGOPTIONS_H__

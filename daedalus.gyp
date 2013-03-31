@@ -47,7 +47,6 @@
           'Source/Core/ROMBuffer.cpp',
           'Source/Core/ROMImage.cpp',
           'Source/Core/RomSettings.cpp',
-          'Source/Core/RSP.cpp',
           'Source/Core/RSP_HLE.cpp',
           'Source/Core/Save.cpp',
           'Source/Core/SaveState.cpp',

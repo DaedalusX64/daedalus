@@ -29,9 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ConfigOptions.h"
 
 u32		gSpeedSyncEnabled			= 0;		// Enable to limit frame rate.
-bool	gGraphicsEnabled			= true;		// Show graphics
 bool	gDynarecEnabled				= true;		// Use dynamic recompilation
-//bool	gDynarecStackOptimisation	= true;		// Enable the dynarec stack optmisation
 bool	gDynarecLoopOptimisation	= false;	// Enable the dynarec loop optmisation
 bool	gDynarecDoublesOptimisation	= false;	// Enable the dynarec Doubles optmisation
 bool	gOSHooksEnabled				= true;		// Apply os-hooks
@@ -45,29 +43,4 @@ bool    gMemoryAccessOptimisation   = false;    // Enable the memory access optm
 bool	gCheatsEnabled				= false;	// Enable cheat codes
 u32		gControllerIndex			= 0;		// Which controller config to set
 
-DaedalusConfig g_DaedalusConfig =
-{
-	false,			// RecurseRomDirectory	// Recursively scan rom directories?
-	false,			// WarnMemoryErrors;	// Warn on all memory access errors?
-											// If false, the exception handler is
-											// taken without any warnings on the debug console
-
-	true,			// RunAutomatically;	// Run roms automatically after loading
-
-	true,			// TrapExceptions;		// If set, this causes exceptions in the audio
-											// plugin, cpu thread and graphics processing to
-											// be handled nicely. I turn this off for
-											// development to see when things mess up
-#ifdef DAEDALUS_W32
-#ifndef DAEDALUS_PUBLIC_RELEASE
-	true,			// ShowDebug;			// Show the debug console?
-#endif //DAEDALUS_PUBLIC_RELEASE
-	{CW_USEDEFAULT,CW_USEDEFAULT,640,480},	// rcMainWindow;		// Could probably be removed?
-	"",				// szGfxPluginFileName	//
-#endif //DAEDALUS_W32
-
-	0,				// nNumRomsDirs
-	// szRomsDir
-	// szSaveDir
-
-};
+DaedalusConfig g_DaedalusConfig;

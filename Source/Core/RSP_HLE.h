@@ -24,7 +24,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef RSPHLE_H__
 #define RSPHLE_H__
 
-#define 	RSP_AUDIO_INTR_CYCLES 	1
+#include "Memory.h"
+
+// Returns true if the rsp is running either LLE or HLE
+inline bool RSP_IsRunning(){ return (Memory_SP_GetRegister( SP_STATUS_REG ) & SP_STATUS_HALT) == 0; }
+
+#ifdef DAEDALUS_ENABLE_ASSERTS
+extern volatile bool gRSPHLEActive;
+inline bool RSP_IsRunningLLE(){ return RSP_IsRunning() && !gRSPHLEActive; }	// Returns true if the rsp is running with LLE
+inline bool RSP_IsRunningHLE(){	return RSP_IsRunning() && gRSPHLEActive; }	// Returns true if the rsp is running with HLE
+#endif
 
 enum EProcessResult
 {
@@ -34,8 +43,5 @@ enum EProcessResult
 };
 
 void RSP_HLE_ProcessTask();
-
-void RSP_HLE_EnableGfx();
-void RSP_HLE_DisableGfx();
 
 #endif //RSPHLE_H__

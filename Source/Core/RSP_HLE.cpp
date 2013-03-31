@@ -19,7 +19,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "CPU.h"
 #include "Interrupt.h"
 #include "RSP_HLE.h"
 #include "RSP.h"
@@ -43,31 +42,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Test/BatchTest.h"
 
-#include "ConfigOptions.h"
+//Do we reaaly need this??? //Salvy
+#ifdef DAEDALUS_ENABLE_ASSERTS
+volatile bool gRSPHLEActive = false;
+#endif
+
+static const bool	gGraphicsEnabled = true;
+static const bool	gAudioEnabled	 = true;	
 
 #if 0
 static void RDP_DumpRSPCode(char * szName, u32 dwCRC, u32 * pBase, u32 dwPCBase, u32 dwLen);
 static void RDP_DumpRSPData(char * szName, u32 dwCRC, u32 * pBase, u32 dwPCBase, u32 dwLen);
 #endif
-
-bool	gHLEGraphicsEnabled = true;
-bool	gHLEAudioEnabled = true;
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void RSP_HLE_EnableGfx()
-{
-	gGraphicsEnabled = true;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void RSP_HLE_DisableGfx()
-{
-	gGraphicsEnabled = false;
-}
 
 #if 0
 //*****************************************************************************
@@ -166,7 +152,7 @@ static void	RSP_HLE_DumpTaskInfo( const OSTask * pTask )
 //*****************************************************************************
 //
 //*****************************************************************************
-void RSP_HLE_Finished(const u32 setbits)
+void RSP_HLE_Finished(u32 setbits)
 {
 	// Need to point to last instr?
 	//Memory_DPC_SetRegister(DPC_CURRENT_REG, (u32)pTask->t.data_ptr);
@@ -222,7 +208,7 @@ static EProcessResult RSP_HLE_Audio()
 {
 	DAEDALUS_PROFILE( "HLE: Audio" );
 
-	if (gHLEAudioEnabled && g_pAiPlugin != NULL)
+	if (gAudioEnabled && g_pAiPlugin != NULL)
 	{
 		return g_pAiPlugin->ProcessAList();
 	}
@@ -244,13 +230,14 @@ u32 sum_bytes(const u8 *bytes, u32 size)
     return sum;
 }
 
-void jpeg_decode_PS(OSTask *task);
-void jpeg_decode_OB(OSTask *task);
 //*****************************************************************************
 //
 //*****************************************************************************
 static EProcessResult RSP_HLE_Jpeg(OSTask * task)
 {
+void jpeg_decode_PS(OSTask *task);
+void jpeg_decode_OB(OSTask *task);
+
 	// most ucode_boot procedure copy 0xf80 bytes of ucode whatever the ucode_size is.
 	// For practical purpose we use a ucode_size = min(0xf80, task->ucode_size)
 	u32 sum = sum_bytes(g_pu8RamBase + (u32)task->t.ucode , Min<u32>(task->t.ucode_size, 0xf80) >> 1);
@@ -264,10 +251,6 @@ static EProcessResult RSP_HLE_Jpeg(OSTask * task)
     case 0x130de: // Ogre Battle background decompression
         jpeg_decode_OB(task);
 		break;
-	// RSP_HLE_Finished sets this flag after finishing the task anyways
-	/*case 0x278:	// Zelda OOT during boot
-		Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_SIG2);
-		break;*/
 	}
 
 	return PR_COMPLETED;
@@ -363,7 +346,4 @@ void RSP_HLE_ProcessTask()
 	// Started and completed. No need to change cores. [synchronously]
 	if( result == PR_COMPLETED )
 		RSP_HLE_Finished(SP_STATUS_TASKDONE|SP_STATUS_BROKE|SP_STATUS_HALT);
-	//else
-	// Not started (PR_NOT_STARTED)
-	// Or still active (PR_STARTED) [asynchronously]
 }
