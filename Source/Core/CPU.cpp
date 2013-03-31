@@ -24,7 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "CPU.h"
 #include "System.h"
 #include "Registers.h"					// For REG_?? defines
-#include "RSP.h"
 #include "Memory.h"
 #include "Interrupt.h"
 #include "ROMBuffer.h"
@@ -34,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Interpret.h"
 #include "Save.h"
 #include "ROM.h"
+#include "RSP_HLE.h"
 #include "ConfigOptions.h"
 #include "Cheats.h"
 

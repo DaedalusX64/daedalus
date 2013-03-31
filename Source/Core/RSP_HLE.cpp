@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Interrupt.h"
 #include "RSP_HLE.h"
-#include "RSP.h"
 #include "Memory.h"
 
 #include "Debug/DebugLog.h"
@@ -48,7 +47,7 @@ volatile bool gRSPHLEActive = false;
 #endif
 
 static const bool	gGraphicsEnabled = true;
-static const bool	gAudioEnabled	 = true;	
+static const bool	gAudioEnabled	 = true;
 
 #if 0
 static void RDP_DumpRSPCode(char * szName, u32 dwCRC, u32 * pBase, u32 dwPCBase, u32 dwLen);

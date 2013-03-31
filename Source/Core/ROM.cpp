@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ROM.h"
 #include "Cheats.h"
 #include "CPU.h"
-#include "RSP.h"
 #include "PIF.h"		// CController
 #include "R4300.h"
 #include "ROMBuffer.h"
@@ -376,7 +375,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5359: g_ROM.GameHacks = YOSHI;				break;
 	case 0x4C42: g_ROM.GameHacks = BUCK_BUMBLE;			break;
 	case 0x4441: g_ROM.GameHacks = WORMS_ARMAGEDDON;	break;
-	
+
 	case 0x4B42:	//Banjo-Kazooie
 		g_ROM.TLUT_HACK = true;
 		g_ROM.DISABLE_LBU_OPT = true;

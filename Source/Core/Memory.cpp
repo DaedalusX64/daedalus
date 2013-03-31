@@ -24,7 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "CPU.h"
 #include "DMA.h"
-#include "RSP.h"
 #include "Interrupt.h"
 #include "ROM.h"
 #include "ROMBuffer.h"
