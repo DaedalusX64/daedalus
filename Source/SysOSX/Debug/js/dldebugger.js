@@ -77,6 +77,9 @@
         $dlistOutput.scrollTop($dlistOutput.scrollTop() + $instr.position().top -
                                $dlistOutput.height()/2 + $instr.height()/2);
       }
+      $dlistOutput.find('.hle-detail').hide();
+      $instr.find('.hle-detail').show();
+
       $dlistOutput.find('.hle-instr').removeAttr('style');
       $instr.css('background-color', 'rgb(255,255,204)');
 
