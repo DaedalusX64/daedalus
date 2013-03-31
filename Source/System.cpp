@@ -184,7 +184,7 @@ RomEntityEntry RomInitTable[] =
 
 bool System_Init()
 {
-	for(int i = 0; i < ARRAYSIZE(SysInitTable); i++)
+	for(u32 i = 0; i < ARRAYSIZE(SysInitTable); i++)
 	{
 		if (SysInitTable[i].init == NULL)
 			continue;
@@ -206,7 +206,7 @@ bool System_Init()
 void System_Open(const char *romname)
 {
 	strcpy(g_ROM.szFileName, romname);
-	for(int i = 0; i < ARRAYSIZE(RomInitTable); i++)
+	for(u32 i = 0; i < ARRAYSIZE(RomInitTable); i++)
 	{
 		if (RomInitTable[i].open == NULL)
 			continue;
@@ -218,7 +218,7 @@ void System_Open(const char *romname)
 
 void System_Close()
 {
-	for(int i = ARRAYSIZE(RomInitTable) - 1 ; i >= 0; i--)
+	for(u32 i = ARRAYSIZE(RomInitTable) - 1 ; i >= 0; i--)
 	{
 		if (RomInitTable[i].close == NULL)
 			continue;
@@ -230,7 +230,7 @@ void System_Close()
 
 void System_Finalize()
 {
-	for(int i = ARRAYSIZE(SysInitTable) - 1; i >= 0; i--)
+	for(u32 i = ARRAYSIZE(SysInitTable) - 1; i >= 0; i--)
 	{
 		if (SysInitTable[i].final == NULL)
 			continue;
