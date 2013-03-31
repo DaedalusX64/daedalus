@@ -40,6 +40,16 @@
     $('#ctrl-resume').click(function () {
       $.post('/dldebugger?action=resume');
     });
+    $('#ctrl-prev').click(function () {
+      if (debugBailAfter > 0) {
+        setScrubTime(debugBailAfter - 1);
+      }
+    });
+    $('#ctrl-next').click(function () {
+      if (debugBailAfter <  debugNumOps) {
+        setScrubTime(debugBailAfter + 1);
+      }
+    });
   };
 
   // FIXME: we should reuse n64js/hle.js :)
