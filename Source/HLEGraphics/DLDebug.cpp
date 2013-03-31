@@ -462,7 +462,7 @@ public:
 		return Sink->Write(p, len);
 	}
 
-	virtual void BeginInstruction(u32 idx, u32 cmd0, u32 cmd1, const char * name)
+	virtual void BeginInstruction(u32 idx, u32 cmd0, u32 cmd1, u32 depth, const char * name)
 	{
 		Print("[%05d] %08x %08x %-10s\n", idx, cmd0, cmd1, name);
 	}

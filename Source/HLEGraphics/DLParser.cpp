@@ -439,7 +439,7 @@ static u32 DLParser_ProcessDList(u32 instruction_limit)
 	{
 		DLParser_FetchNextCommand( &command );
 
-		DL_BEGIN_INSTR(current_instruction_count, command.inst.cmd0, command.inst.cmd1, gUcodeName[command.inst.cmd]);
+		DL_BEGIN_INSTR(current_instruction_count, command.inst.cmd0, command.inst.cmd1, gDlistStackPointer, gUcodeName[command.inst.cmd]);
 
 		PROFILE_DL_CMD( command.inst.cmd );
 
