@@ -201,52 +201,49 @@ void	CAudioPluginW32::DacrateChanged( int SystemType )
 //*****************************************************************************
 void	CAudioPluginW32::LenChanged()
 {
-	if( gAudioPluginEnabled > APM_DISABLED )
-	{
-		int count, temp;
-		u32 dwStatus;
+	if( !gAudioPluginEnabled )
+		return;
 
-		if (Memory_AI_GetRegister(AI_LEN_REG) == 0) { return; }
-		Memory_AI_SetRegisterBits(AI_STATUS_REG, AI_STATUS_FIFO_FULL);
-		Snd1Len = (Memory_AI_GetRegister(AI_LEN_REG) & 0x3FFF8);
-		temp = Snd1Len;
-		Snd1ReadPos = g_pu8RamBase + (Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0x00FFFFF8);
+	int count, temp;
+	u32 dwStatus;
 
-		int offset = 0;
-		if (Playing) {
-			for (count = 0; count < 3; count ++) {
-				if (SndBuffer[count] == Buffer_Playing) {
-					offset = (count + 1) & 3;
-				}
-			}
-		} else {
-			offset = 0;
-		}
+	if (Memory_AI_GetRegister(AI_LEN_REG) == 0) { return; }
+	Memory_AI_SetRegisterBits(AI_STATUS_REG, AI_STATUS_FIFO_FULL);
+	Snd1Len = (Memory_AI_GetRegister(AI_LEN_REG) & 0x3FFF8);
+	temp = Snd1Len;
+	Snd1ReadPos = g_pu8RamBase + (Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0x00FFFFF8);
 
+	int offset = 0;
+	if (Playing) {
 		for (count = 0; count < 3; count ++) {
-			if (SndBuffer[(count + offset) & 3] == Buffer_HalfFull) {
-				FillBuffer((count + offset) & 3);
-				count = 3;
+			if (SndBuffer[count] == Buffer_Playing) {
+				offset = (count + 1) & 3;
 			}
 		}
-		for (count = 0; count < 3; count ++) {
-			if (SndBuffer[(count + offset) & 3] == Buffer_Full) {
-				FillBuffer((count + offset + 1) & 3);
-				FillBuffer((count + offset + 2) & 3);
-				count = 20;
-			}
-		}
-		if (count < 10) {
-			FillBuffer((0 + offset) & 3);
-			FillBuffer((1 + offset) & 3);
-			FillBuffer((2 + offset) & 3);
-		}
-
+	} else {
+		offset = 0;
 	}
-	else
-	{
 
+	for (count = 0; count < 3; count ++) {
+		if (SndBuffer[(count + offset) & 3] == Buffer_HalfFull) {
+			FillBuffer((count + offset) & 3);
+			count = 3;
+		}
 	}
+	for (count = 0; count < 3; count ++) {
+		if (SndBuffer[(count + offset) & 3] == Buffer_Full) {
+			FillBuffer((count + offset + 1) & 3);
+			FillBuffer((count + offset + 2) & 3);
+			count = 20;
+		}
+	}
+	if (count < 10) {
+		FillBuffer((0 + offset) & 3);
+		FillBuffer((1 + offset) & 3);
+		FillBuffer((2 + offset) & 3);
+	}
+
+	Update(false);
 }
 
 //*****************************************************************************
@@ -476,7 +473,13 @@ void CAudioPluginW32::FillBuffer ( int buffer ) {
 	u32 dwBytesLocked;
 	VOID *lpvData;
 
-	if (Snd1Len == 0) { return; }
+	if (Snd1Len == 0) 
+	{ 	
+		Memory_AI_ClrRegisterBits(AI_STATUS_REG, AI_STATUS_FIFO_FULL);
+		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_AI);
+		R4300_Interrupt_UpdateCause3();
+		return; 
+	}
 	if (SndBuffer[buffer] == Buffer_Empty) {
 		if (Snd1Len >= BufferSize) {
 			if (FAILED( IDirectSoundBuffer8_Lock(lpdsbuf, BufferSize * buffer,BufferSize, &lpvData, &dwBytesLocked,
