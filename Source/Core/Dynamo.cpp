@@ -452,7 +452,11 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 				{
 					if (gResetFragmentCache)
 					{
+#ifdef DAEDALUS_ENABLE_OS_HOOKS
 						if (gFragmentCache.GetCacheSize() >= gNumOfOSFunctions)
+#else
+						if(true)
+#endif
 						{
 							gFragmentCache.Clear();
 							gHotTraceCountMap.clear();		// Makes sense to clear this now, to get accurate usage stats

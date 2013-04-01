@@ -55,4 +55,7 @@ extern CComModule _Module;
 extern HINSTANCE	g_hInstance;
 extern char			g_szDaedalusName[256];
 
+//We link GLFWDLL.lib, which requires this to be defined
+#define GLFW_DLL
+
 #endif // DAEDALUSW32_H_
