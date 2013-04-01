@@ -49,7 +49,7 @@ void DLDebugOutput::PrintLine(const char * fmt, ...)
 
 void DLDebugOutput::Print(const char * fmt, ...)
 {
-	char buffer[kBufferLen];
+	//char buffer[kBufferLen];
 
 	va_list va;
 	va_start(va, fmt);

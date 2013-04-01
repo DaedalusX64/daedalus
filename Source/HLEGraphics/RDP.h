@@ -72,46 +72,50 @@ struct SImageDescriptor
 //*****************************************************************************
 #include "PushStructPack1.h"
 
-
-struct RDP_GeometryMode
+struct RDP_GB1_GeometryMode
 {
 	union
 	{
-		union
+		struct
 		{
-			struct
-			{
-				u32 GBI1_Zbuffer : 1;		// 0x1
-				u32 GBI1_Texture : 1;		// 0x2
-				u32 GBI1_Shade : 1;			// 0x4
-				u32 GBI1_pad0 : 6;			// 0x0
-				u32 GBI1_ShadingSmooth : 1;	// 0x200
-				u32 GBI1_pad1 : 2;			// 0x0
-				u32 GBI1_CullFront : 1;		// 0x1000
-				u32 GBI1_CullBack : 1;		// 0x2000
-				u32 GBI1_pad2 : 2;			// 0x0
-				u32 GBI1_Fog : 1;			// 0x10000
-				u32 GBI1_Lighting : 1;		// 0x20000
-				u32 GBI1_TexGen : 1;		// 0x40000
-				u32 GBI1_TexGenLin : 1;		// 0x80000
-				u32 GBI1_Lod : 1;			// 0x100000
-				u32 GBI1_pad3 : 11;			// 0x0
-			};
-			struct
-			{
-				u32 GBI2_Zbuffer : 1;		// 0x1
-				u32 GBI2_pad0 : 8;			// 0x0
-				u32 GBI2_CullBack : 1;		// 0x200
-				u32 GBI2_CullFront : 1;		// 0x400
-				u32 GBI2_pad1 : 5;			// 0x0
-				u32 GBI2_Fog : 1;			// 0x10000
-				u32 GBI2_Lighting : 1;		// 0x20000
-				u32 GBI2_TexGen : 1;		// 0x40000
-				u32 GBI2_TexGenLin : 1;		// 0x80000
-				u32 GBI2_Lod : 1;			// 0x100000
-				u32 GBI2_ShadingSmooth : 1;	// 0x200000
-				u32 GBI2_pad2 : 10;			// 0x0
-			};
+			u32 Zbuffer : 1;		// 0x1
+			u32 Texture : 1;		// 0x2
+			u32 Shade : 1;			// 0x4
+			u32 pad0 : 6;			// 0x0
+			u32 ShadingSmooth : 1;	// 0x200
+			u32 pad1 : 2;			// 0x0
+			u32 CullFront : 1;		// 0x1000
+			u32 CullBack : 1;		// 0x2000
+			u32 pad2 : 2;			// 0x0
+			u32 Fog : 1;			// 0x10000
+			u32 Lighting : 1;		// 0x20000
+			u32 TexGen : 1;		// 0x40000
+			u32 TexGenLin : 1;		// 0x80000
+			u32 Lod : 1;			// 0x100000
+			u32 pad3 : 11;			// 0x0
+		};
+		u32	_u32;
+	};
+};
+
+struct RDP_GB2_GeometryMode
+{
+	union
+	{
+		struct
+		{
+			u32 Zbuffer : 1;		// 0x1
+			u32 pad0 : 8;			// 0x0
+			u32 CullBack : 1;		// 0x200
+			u32 CullFront : 1;		// 0x400
+			u32 pad1 : 5;			// 0x0
+			u32 Fog : 1;			// 0x10000
+			u32 Lighting : 1;		// 0x20000
+			u32 TexGen : 1;		// 0x40000
+			u32 TexGenLin : 1;		// 0x80000
+			u32 Lod : 1;			// 0x100000
+			u32 ShadingSmooth : 1;	// 0x200000
+			u32 pad2 : 10;			// 0x0
 		};
 		u32	_u32;
 	};

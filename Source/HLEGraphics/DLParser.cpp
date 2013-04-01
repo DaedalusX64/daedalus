@@ -137,7 +137,6 @@ static bool gFirstCall = true;
 
 static u32				gSegments[16];
 static RDP_Scissor		scissors;
-static RDP_GeometryMode gGeometryMode;
 static DList			gDlistStack;
 static s32				gDlistStackPointer = -1;
 static u32				gVertexStride	 = 0;
