@@ -381,47 +381,46 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 {
 	const u32 mask = command.inst.cmd1;
 
-	TnLPSP TnLMode;
-	RDP_GB1_GeometryMode Mode;
-
 	if(command.inst.cmd & 1)
 	{
-		Mode._u32 |= mask;
+		gGeometryMode._u32 |= mask;
 		DL_PF("    Setting mask -> 0x%08x", mask);
 	}
 	else
 	{
-		Mode._u32 &= ~mask;
+		gGeometryMode._u32 &= ~mask;
 		DL_PF("    Clearing mask -> 0x%08x", mask);
 	}
 
-	TnLMode.Light		= Mode.Lighting;
+	TnLPSP TnLMode;
+
+	TnLMode.Light		= gGeometryMode.GBI1_Lighting;
 
 	//Force this to false
 	TnLMode.Texture		= 0;
 
-	TnLMode.TexGen		= Mode.TexGen;
-	TnLMode.TexGenLin   = Mode.TexGenLin;
-	TnLMode.Fog			= Mode.Fog;
-	TnLMode.Shade		= Mode.Shade/* & Mode.ShadingSmooth*/;
-	TnLMode.Zbuffer		= Mode.Zbuffer;
+	TnLMode.TexGen		= gGeometryMode.GBI1_TexGen;
+	TnLMode.TexGenLin   = gGeometryMode.GBI1_TexGenLin;
+	TnLMode.Fog			= gGeometryMode.GBI1_Fog;
+	TnLMode.Shade		= gGeometryMode.GBI1_Shade/* & gGeometryMode.GBI1_ShadingSmooth*/;
+	TnLMode.Zbuffer		= gGeometryMode.GBI1_Zbuffer;
 
 	// CULL_BACK has priority, Fixes Mortal Kombat 4
-	TnLMode.TriCull		= Mode.CullFront | Mode.CullBack;
-	TnLMode.CullBack	= Mode.CullBack;
+	TnLMode.TriCull		= gGeometryMode.GBI1_CullFront | gGeometryMode.GBI1_CullBack;
+	TnLMode.CullBack	= gGeometryMode.GBI1_CullBack;
 
 	gRenderer->SetTnLMode( TnLMode._u32 );
 
-	DL_PF("    ZBuffer %s",			 (Mode.Zbuffer)		? "On" : "Off");
-	DL_PF("    Culling %s",			 (Mode.CullBack)		? "Back face" : (Mode.CullFront) ? "Front face" : "Off");
-	DL_PF("    Shade %s",			 (Mode.Shade)			? "On" : "Off");
-	DL_PF("    Smooth Shading %s",	 (Mode.ShadingSmooth) ? "On" : "Off");
-	DL_PF("    Lighting %s",		 (Mode.Lighting)		? "On" : "Off");
-	DL_PF("    Texture %s",			 (Mode.Texture)		? "On" : "Off");
-	DL_PF("    Texture Gen %s",		 (Mode.TexGen)		? "On" : "Off");
-	DL_PF("    Texture Gen Linear %s", (Mode.TexGenLin)	? "On" : "Off");
-	DL_PF("    Fog %s",				 (Mode.Fog)			? "On" : "Off");
-	DL_PF("    LOD %s",				 (Mode.Lod)			? "On" : "Off");
+	DL_PF("    ZBuffer %s",			 (gGeometryMode.GBI1_Zbuffer)		? "On" : "Off");
+	DL_PF("    Culling %s",			 (gGeometryMode.GBI1_CullBack)		? "Back face" : (gGeometryMode.GBI1_CullFront) ? "Front face" : "Off");
+	DL_PF("    Shade %s",			 (gGeometryMode.GBI1_Shade)			? "On" : "Off");
+	DL_PF("    Smooth Shading %s",	 (gGeometryMode.GBI1_ShadingSmooth) ? "On" : "Off");
+	DL_PF("    Lighting %s",		 (gGeometryMode.GBI1_Lighting)		? "On" : "Off");
+	DL_PF("    Texture %s",			 (gGeometryMode.GBI1_Texture)		? "On" : "Off");
+	DL_PF("    Texture Gen %s",		 (gGeometryMode.GBI1_TexGen)		? "On" : "Off");
+	DL_PF("    Texture Gen Linear %s", (gGeometryMode.GBI1_TexGenLin)	? "On" : "Off");
+	DL_PF("    Fog %s",				 (gGeometryMode.GBI1_Fog)			? "On" : "Off");
+	DL_PF("    LOD %s",				 (gGeometryMode.GBI1_Lod)			? "On" : "Off");
 }
 
 //*****************************************************************************

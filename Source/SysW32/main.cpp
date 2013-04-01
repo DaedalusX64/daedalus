@@ -41,7 +41,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 char		gDaedalusExePath[MAX_PATH+1];
 
-int main(int argc, char **argv)
+int __cdecl main(int argc, char **argv)
 {
 	int result = 0;
 	if (argc > 0)

@@ -1,4 +1,6 @@
 #include "stdafx.h"
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #include "WebDebugTemplate.h"
 #include "WebDebug.h"
 
@@ -31,3 +33,4 @@ void WriteStandardFooter(WebDebugConnection * connection, const char * user_scri
 		"</html>\n"
 	);
 }
+#endif

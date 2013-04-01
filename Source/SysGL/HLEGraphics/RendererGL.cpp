@@ -638,6 +638,10 @@ static void InitBlenderMode()
 		// Paper Mario.
 		type = kBlendModeAlphaTrans;
 		break;
+	case 0xc410: // Fog * AFog + In * 1-A | In * AIn + Mem * 1-A
+		// Donald Duck (Dust)
+		type = kBlendModeAlphaTrans;
+		break;
 	case 0xc800: // Fog * AShade + In * 1-A
 		//Bomberman64. alpha_cvg_sel: 0 cvg_x_alpha: 1
 		type = kBlendModeOpaque;

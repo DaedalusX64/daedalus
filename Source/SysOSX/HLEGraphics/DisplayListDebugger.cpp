@@ -1,4 +1,6 @@
 #include "stdafx.h"
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #include "HLEGraphics/DisplayListDebugger.h"
 
 #include "SysOSX/Debug/WebDebug.h"
@@ -17,9 +19,6 @@
 #include "Utility/Mutex.h"
 
 #include <GL/glfw.h>
-
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 
 static bool gDebugging = false;
 

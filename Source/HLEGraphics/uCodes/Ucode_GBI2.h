@@ -363,30 +363,29 @@ void DLParser_GBI2_DL_Count( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 {
-	RDP_GB2_GeometryMode Mode;
-	Mode._u32 &= command.inst.arg0;
-	Mode._u32 |= command.inst.arg1;
+	gGeometryMode._u32 &= command.inst.arg0;
+	gGeometryMode._u32 |= command.inst.arg1;
 
 	DL_PF("    0x%08x 0x%08x =(x & 0x%08x) | 0x%08x", command.inst.cmd0, command.inst.cmd1, command.inst.arg0, command.inst.arg1);
-	DL_PF("    ZBuffer %s", (Mode.Zbuffer) ? "On" : "Off");
-	DL_PF("    Culling %s", (Mode.CullBack) ? "Back face" : (Mode.CullFront) ? "Front face" : "Off");
-	DL_PF("    Flat Shading %s", (Mode.ShadingSmooth) ? "On" : "Off");
-	DL_PF("    Lighting %s", (Mode.Lighting) ? "On" : "Off");
-	DL_PF("    Texture Gen %s", (Mode.TexGen) ? "On" : "Off");
-	DL_PF("    Texture Gen Linear %s", (Mode.TexGenLin) ? "On" : "Off");
-	DL_PF("    Fog %s", (Mode.Fog) ? "On" : "Off");
+	DL_PF("    ZBuffer %s", (gGeometryMode.GBI2_Zbuffer) ? "On" : "Off");
+	DL_PF("    Culling %s", (gGeometryMode.GBI2_CullBack) ? "Back face" : (gGeometryMode.GBI2_CullFront) ? "Front face" : "Off");
+	DL_PF("    Flat Shading %s", (gGeometryMode.GBI2_ShadingSmooth) ? "On" : "Off");
+	DL_PF("    Lighting %s", (gGeometryMode.GBI2_Lighting) ? "On" : "Off");
+	DL_PF("    Texture Gen %s", (gGeometryMode.GBI2_TexGen) ? "On" : "Off");
+	DL_PF("    Texture Gen Linear %s", (gGeometryMode.GBI2_TexGenLin) ? "On" : "Off");
+	DL_PF("    Fog %s", (gGeometryMode.GBI2_Fog) ? "On" : "Off");
 
 	TnLPSP TnLMode;
 
-	TnLMode.Light		= Mode.Lighting;
+	TnLMode.Light		= gGeometryMode.GBI2_Lighting;
 	TnLMode.Texture		= 0;	//Force this to false
-	TnLMode.TexGen		= Mode.TexGen;
-	TnLMode.TexGenLin	= Mode.TexGenLin;
-	TnLMode.Fog			= Mode.Fog;
-	TnLMode.Shade		= !(Mode.TexGenLin/* & (g_ROM.GameHacks != TIGERS_HONEY_HUNT)*/);
-	TnLMode.Zbuffer		= Mode.Zbuffer;
-	TnLMode.TriCull		= Mode.CullFront | Mode.CullBack;
-	TnLMode.CullBack	= Mode.CullBack;
+	TnLMode.TexGen		= gGeometryMode.GBI2_TexGen;
+	TnLMode.TexGenLin	= gGeometryMode.GBI2_TexGenLin;
+	TnLMode.Fog			= gGeometryMode.GBI2_Fog;
+	TnLMode.Shade		= !(gGeometryMode.GBI2_TexGenLin/* & (g_ROM.GameHacks != TIGERS_HONEY_HUNT)*/);
+	TnLMode.Zbuffer		= gGeometryMode.GBI2_Zbuffer;
+	TnLMode.TriCull		= gGeometryMode.GBI2_CullFront | gGeometryMode.GBI2_CullBack;
+	TnLMode.CullBack	= gGeometryMode.GBI2_CullBack;
 
 	gRenderer->SetTnLMode( TnLMode._u32 );
 }

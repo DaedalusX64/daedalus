@@ -156,9 +156,11 @@ SysEntityEntry SysInitTable[] =
 	{"GraphicsContext",		CGraphicsContext::Create,	CGraphicsContext::Destroy},
 
 #if defined(DAEDALUS_OSX) || defined(DAEDALUS_W32)
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	{"WebDebug",			WebDebug_Init, 				WebDebug_Fini},
 	{"TextureCacheWebDebug",TextureCache_RegisterWebDebug, 	NULL},
 	{"DLDebuggerWebDebug",	DLDebugger_RegisterWebDebug, 	NULL},
+#endif
 #endif
 };
 

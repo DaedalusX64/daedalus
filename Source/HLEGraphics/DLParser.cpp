@@ -137,6 +137,7 @@ static bool gFirstCall = true;
 
 static u32				gSegments[16];
 static RDP_Scissor		scissors;
+static RDP_GeometryMode gGeometryMode;
 static DList			gDlistStack;
 static s32				gDlistStackPointer = -1;
 static u32				gVertexStride	 = 0;
@@ -445,12 +446,10 @@ static u32 DLParser_ProcessDList(u32 instruction_limit)
 		gUcodeFunc[ command.inst.cmd ]( command );
 
 		DL_END_INSTR();
-
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		current_instruction_count++;
 
 		// Note: make sure have frame skip disabled for the dlist debugger to work
-		//
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		if( instruction_limit != kUnlimitedInstructionCount )
 		{
 			if( current_instruction_count >= instruction_limit )
@@ -458,7 +457,6 @@ static u32 DLParser_ProcessDList(u32 instruction_limit)
 				return current_instruction_count;
 			}
 		}
-#else
 #endif
 		// Check limit
 		if (gDlistStack.limit >= 0)

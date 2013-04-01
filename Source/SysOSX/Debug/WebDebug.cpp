@@ -1,4 +1,6 @@
 #include "stdafx.h"
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #include "WebDebug.h"
 #include "WebDebugTemplate.h"
 #include <webby.h>
@@ -495,3 +497,4 @@ void WebDebug_Fini()
 	WSACleanup();
 #endif
 }
+#endif //DAEDALUS_DEBUG_DISPLAYLIST
