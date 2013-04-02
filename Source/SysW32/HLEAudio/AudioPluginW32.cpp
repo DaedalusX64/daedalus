@@ -36,9 +36,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <mmsystem.h>
 #include <dsound.h>
 
-//ToDo: Audio should run in its own thread
-
-
 #define NUMCAPTUREEVENTS	3
 #define BufferSize			0x5000
 
@@ -86,11 +83,11 @@ public:
 	virtual u32				ReadLength();
 	virtual EProcessResult	ProcessAList();
 	virtual void			RomClosed();
-
 private:
 	u32 Frequency, Dacrate, Snd1Len, SpaceLeft, SndBuffer[3], Playing;
 	BYTE *Snd1ReadPos;
 
+	static u32 DAEDALUS_THREAD_CALL_TYPE AudioThread(void * arg);
 	LPDIRECTSOUNDBUFFER  lpdsbuf;
 	LPDIRECTSOUND        lpds;
 	LPDIRECTSOUNDNOTIFY  lpdsNotify;
@@ -155,11 +152,16 @@ bool		CAudioPluginW32::StartEmulation()
 		if (rghEvent[count] == NULL ) { return FALSE; }
 	}
 	Dacrate = 0;
-	Playing = FALSE;
+	Playing = false;
 	SndBuffer[0] = Buffer_Empty;
 	SndBuffer[1] = Buffer_Empty;
 	SndBuffer[2] = Buffer_Empty;
 
+	if (CreateThread( "Audio", AudioThread, this ) == kInvalidThreadHandle)
+	{
+		DAEDALUS_ERROR("Failed to start the audio thread!");
+		gAudioPluginEnabled = APM_DISABLED;
+	}
 	return true;
 
 }
@@ -184,6 +186,19 @@ void	CAudioPluginW32::StopEmulation()
 	}
 }
 
+u32	DAEDALUS_THREAD_CALL_TYPE CAudioPluginW32::AudioThread(void * arg)
+{
+	CAudioPluginW32 * plugin = static_cast<CAudioPluginW32 *>(arg);
+	while(1)
+	{
+		plugin->Update(true);
+		ThreadSleepMs(1);
+	}
+
+	return 0;
+}
+
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -203,15 +218,16 @@ void	CAudioPluginW32::DacrateChanged( int SystemType )
 //*****************************************************************************
 void	CAudioPluginW32::LenChanged()
 {
-	if( !gAudioPluginEnabled )
+	if( gAudioPluginEnabled == APM_DISABLED )
 		return;
 
 	int count, temp;
-	u32 dwStatus;
+	u32 status, len;
 
-	if (Memory_AI_GetRegister(AI_LEN_REG) == 0) { return; }
+	len = Memory_AI_GetRegister(AI_LEN_REG);
+	if (len == 0) { return; }
 	Memory_AI_SetRegisterBits(AI_STATUS_REG, AI_STATUS_FIFO_FULL);
-	Snd1Len = (Memory_AI_GetRegister(AI_LEN_REG) & 0x3FFF8);
+	Snd1Len = (len & 0x3FFF8);
 	temp = Snd1Len;
 	Snd1ReadPos = g_pu8RamBase + (Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0x00FFFFF8);
 
@@ -244,8 +260,27 @@ void	CAudioPluginW32::LenChanged()
 		FillBuffer((1 + offset) & 3);
 		FillBuffer((2 + offset) & 3);
 	}
+	if (!Playing) {
+		for (count = 0; count < 3; count ++) {
+			if (SndBuffer[count] == Buffer_Full) 
+			{
+				Playing = true;
+				IDirectSoundBuffer8_Play(lpdsbuf, 0, 0, DSBPLAY_LOOPING );
+				return;
+			}
+		}
+	} else {
+		IDirectSoundBuffer8_GetStatus(lpdsbuf,&status);
+		if ((status & DSBSTATUS_PLAYING) == 0) {
+			IDirectSoundBuffer8_Play(lpdsbuf, 0, 0, DSBPLAY_LOOPING );
+		}
+	}
 
-	Update(false);
+	// SpeedSync
+	if (Playing && (SndBuffer[2] == Buffer_Full) ||(SndBuffer[1] == Buffer_Full) ||(SndBuffer[0] == Buffer_Full))
+	{
+		ThreadSleepMs(10);
+	}
 }
 
 //*****************************************************************************
@@ -265,23 +300,7 @@ void	CAudioPluginW32::Update( bool Wait )
 	int count=0;
 	u32 dwStatus, dwEvt;
 
-	if (!Playing) {
-		for (count = 0; count < 3; count ++) {
-			if (SndBuffer[count] == Buffer_Full) 
-			{
-				Playing = TRUE;
-				IDirectSoundBuffer8_Play(lpdsbuf, 0, 0, DSBPLAY_LOOPING );
-				return;
-			}
-		}
-	} else {
-		IDirectSoundBuffer8_GetStatus(lpdsbuf,&dwStatus);
-		if ((dwStatus & DSBSTATUS_PLAYING) == 0) {
-			IDirectSoundBuffer8_Play(lpdsbuf, 0, 0, DSBPLAY_LOOPING );
-		}
-	}
-
-	if (Wait) {
+	if (Wait&Playing) {
 		dwEvt = MsgWaitForMultipleObjects(NUMCAPTUREEVENTS,rghEvent,FALSE,
 			INFINITE,QS_ALLINPUT);
 	} else {
@@ -317,11 +336,6 @@ void	CAudioPluginW32::Update( bool Wait )
 		FillBuffer(2);
 		//IDirectSoundBuffer_Play(lpdsbuf, 0, 0, 0 );
 		break;
-	}
-
-	if (Playing && (SndBuffer[2] == Buffer_Full) ||(SndBuffer[1] == Buffer_Full) ||(SndBuffer[0] == Buffer_Full))
-	{
-		ThreadSleepMs(10);
 	}
 }
 
