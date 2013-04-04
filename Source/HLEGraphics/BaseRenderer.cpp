@@ -1852,9 +1852,15 @@ inline void FixUV(u32 * wrap, float * c0, float * c1, float offset, float size)
 // puv0, puv1 are in/out arguments.
 void BaseRenderer::PrepareTexRectUVs(v2 * puv0, v2 * puv1)
 {
+	const RDP_Tile & rdp_tile  = gRDPStateManager.GetTile( mActiveTile[0] );
+
 	v2 		offset = mTileTopLeft[0];
 	float 	size_x = mBoundTextureInfo[0].GetWidth();
 	float 	size_y = mBoundTextureInfo[0].GetHeight();
+
+	// If mirroring, we need to scroll twice as far to line up.
+	if (rdp_tile.mirror_s)	size_x *= 2;
+	if (rdp_tile.mirror_t)	size_y *= 2;
 
 #ifdef DAEDALUS_GL
 	// If using mTexShift, we need to take it into account here.
