@@ -168,15 +168,6 @@ void CRDPStateManager::SetTileSize( const RDP_TileSize & tile_size )
 
 	if( mTileSizes[ idx ] != tile_size )
 	{
-		// XXXX might be able to remove this with recent tile loading fixes?
-		// Wetrix hack
-		if( (tile_size.top > tile_size.bottom) | (tile_size.left > tile_size.right) )
-		{
-			DAEDALUS_DL_ERROR( "Specifying negative width/height for tile descriptor (%d,%d) -> (%d,%d)",
-				tile_size.left, tile_size.right, tile_size.top, tile_size.bottom );
-			return;
-		}
-
 		mTileSizes[ idx ] = tile_size;
 		mTileTextureInfoValid[ idx ] = false;
 	}
@@ -414,16 +405,40 @@ void CRDPStateManager::LoadTlut(const SetLoadTile & load)
 #endif // DAEDALUS_ACCURATE_TMEM
 }
 
+// FIXME(strmnnrmn): I think the Min() below is wrong and sometimes computes
+// widths/heights that are too small (e.g. for Zelda's Nintendo intro it
+// causes 0x32, 32x1 textures to be generated for T1).
+//
+// Really there are two dimensions we care about:
+//  1) the size of the texture addressed by the RDP
+//		the mask determines the size, else the tile size is used
+//		NB these are the values at render time, which may differ from load time
+//  2) the size of the source texture
+//		dictated by the tile size possibly, and this might only be valid at
+//		the time of LoadTile)
+//
+// Problems arise because games can set the mask and then meddle with the tile
+// size as they render. e.g. Zelda sets a mask then adjusts the top/left to
+// scroll the texture. It sets 0,0 in bottom/right as they're not
+// used by the RDP (because mask is set)
+//
+// So we may need a way of defining these dimensions separately: use the value
+// from mask to set the size of the native texture, and then use the tile size
+// to tell ConvertImage how many texels to convert.
+//
+// For DAEDALUS_ACCURATE_TMEM this is less of an issue - we already
+// have the texels loaded with the correct pitch in tmem, so all we
+// care about is the mask.
+
 // Limit the tile's width/height to the number of bits specified by mask_s/t.
 // See the detailed noted in BaseRenderer::UpdateTileSnapshots for issues relating to this.
 static inline u16 GetTextureDimension( u16 tile_dimension, u8 mask )
 {
-	if( mask != 0 )
-	{
-		return Min< u16 >( 1 << mask, tile_dimension );
-	}
-
-	return tile_dimension;
+#ifdef DAEDALUS_ACCURATE_TMEM
+	return mask ? (1 << mask) : tile_dimension;
+#else
+	return mask ? Min< u16 >( 1 << mask, tile_dimension ) : tile_dimension;
+#endif
 }
 
 const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
@@ -468,12 +483,6 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		u16		tile_width  = GetTextureDimension( rdp_tilesize.GetWidth(),  rdp_tile.mask_s );
 		u16		tile_height = GetTextureDimension( rdp_tilesize.GetHeight(), rdp_tile.mask_t );
 
-#ifdef DAEDALUS_ENABLE_ASSERTS
-		u32		num_pixels = tile_width * tile_height;
-		u32		num_bytes  = pixels2bytes( num_pixels, rdp_tile.size );
-		DAEDALUS_DL_ASSERT( num_bytes <= 4096, "Suspiciously large texture load: %d bytes (%dx%d, %dbpp)", num_bytes, tile_width, tile_height, (1<<(rdp_tile.size+2)) );
-#endif
-
 #ifdef DAEDALUS_FAST_TMEM
 		//If indexed TMEM PAL address is NULL then assume that the base address is stored in
 		//TMEM address 0x100 (gTlutLoadAddresses[ 0 ]) and calculate offset from there with TLutIndex(palette index)
@@ -500,8 +509,11 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 #endif
 
 #ifdef DAEDALUS_ACCURATE_TMEM
-		ti.Line = rdp_tile.line;
+		ti.Line    = rdp_tile.line;
 		ti.Palette = rdp_tile.palette;
+
+		// NB: ACCURATE_TMEM doesn't care about pitch - it's already been loaded into tmem.
+		// We only care about line.
 #endif
 
 		ti.SetTmemAddress( rdp_tile.tmem );
