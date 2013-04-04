@@ -690,7 +690,7 @@ static void InitBlenderMode()
 }
 
 
-void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer, bool identity_uv_transform)
+void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer)
 {
 	DAEDALUS_PROFILE( "RendererGL::PrepareRenderState" );
 
@@ -796,19 +796,11 @@ void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable
 			// NB: think this can be done just once per program.
 			glUniform1i(program->uloc_texture[i], i);
 
-			if (identity_uv_transform)
-			{
-				glUniform2f(program->uloc_texoffset[i], 0.f, 0.f);
-				glUniform2f(program->uloc_texscale[i], 1.f, 1.f);
-			}
-			else
-			{
-				float shifts = kShiftScales[mTexShift[i].s];
-				float shiftt = kShiftScales[mTexShift[i].t];
+			float shifts = kShiftScales[mTexShift[i].s];
+			float shiftt = kShiftScales[mTexShift[i].t];
 
-				glUniform2f(program->uloc_texoffset[i], mTileTopLeft[i].x * shifts, mTileTopLeft[i].y * shiftt);
-				glUniform2f(program->uloc_texscale[i], (float)texture->GetCorrectedWidth() * shifts, (float)texture->GetCorrectedHeight() * shiftt);
-			}
+			glUniform2f(program->uloc_texoffset[i], mTileTopLeft[i].x * shifts, mTileTopLeft[i].y * shiftt);
+			glUniform2f(program->uloc_texscale[i], (float)texture->GetCorrectedWidth() * shifts, (float)texture->GetCorrectedHeight() * shiftt);
 
 			if( (gRDPOtherMode.text_filt != G_TF_POINT) | (gGlobalPreferences.ForceLinearFilter) )
 			{
@@ -836,9 +828,24 @@ void RendererGL::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bo
 		UpdateTileSnapshots( mTextureTile );
 	}
 
-	bool identity_uv_transform = (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) == (TNL_LIGHT|TNL_TEXGEN);
+	// FIXME: this should be applied in SetNewVertexInfo, and use TextureScaleX/Y to set the scale
+	if (mTnL.Flags.Light && mTnL.Flags.TexGen)
+	{
+		mTileTopLeft[0].x = 0;
+		mTileTopLeft[0].y = 0;
+		if (CNativeTexture * texture = mBoundTexture[0])
+		{
+			float w = (float)texture->GetCorrectedWidth();
+			float h = (float)texture->GetCorrectedHeight();
+			for (u32 i = 0; i < num_vertices; ++i)
+			{
+				p_vertices[i].Texture.x *= w;
+				p_vertices[i].Texture.y *= h;
+			}
+		}
+	}
 
-	PrepareRenderState(gProjection.m, disable_zbuffer, identity_uv_transform);
+	PrepareRenderState(gProjection.m, disable_zbuffer);
 	RenderDaedalusVtx(GL_TRIANGLES, p_vertices, num_vertices);
 }
 
@@ -854,7 +861,7 @@ void RendererGL::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2
 	v2 uv1 = uv1_;
 	PrepareTexRectUVs(&uv0, &uv1);
 
-	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true, false);
+	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
 
 	v2 screen0;
 	v2 screen1;
@@ -904,7 +911,7 @@ void RendererGL::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, cons
 	v2 uv1 = uv1_;
 	PrepareTexRectUVs(&uv0, &uv1);
 
-	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true, false);
+	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
 
 	v2 screen0;
 	v2 screen1;
@@ -946,7 +953,7 @@ void RendererGL::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, cons
 
 void RendererGL::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 {
-	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true, false);
+	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
 
 	v2 screen0;
 	v2 screen1;
@@ -995,7 +1002,7 @@ void RendererGL::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 	// FIXME(strmnnrmn): is this right? Gross anyway.
 	gRDPOtherMode.cycle_type = CYCLE_COPY;
 
-	PrepareRenderState(mScreenToDevice.mRaw, false /* disable_depth */, false);
+	PrepareRenderState(mScreenToDevice.mRaw, false /* disable_depth */);
 
 	glEnable(GL_BLEND);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -1046,7 +1053,7 @@ void RendererGL::Draw2DTextureR(f32 x0, f32 y0,
 	// FIXME(strmnnrmn): is this right? Gross anyway.
 	gRDPOtherMode.cycle_type = CYCLE_COPY;
 
-	PrepareRenderState(mScreenToDevice.mRaw, false /* disable_depth */, false);
+	PrepareRenderState(mScreenToDevice.mRaw, false /* disable_depth */);
 
 	glEnable(GL_BLEND);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

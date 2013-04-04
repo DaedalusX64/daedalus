@@ -21,7 +21,7 @@ public:
 									   f32 s, f32 t);
 
 private:
-	void 				PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer, bool identity_uv_transform);
+	void 				PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer);
 
 	void 				RenderDaedalusVtx(int prim, const DaedalusVtx * vertices, int count);
 	void 				RenderDaedalusVtxStreams(int prim, const float * positions, const float * uvs, const u32 * colours, int count);
