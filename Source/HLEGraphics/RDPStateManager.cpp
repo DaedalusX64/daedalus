@@ -223,6 +223,8 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 	u32 bytes  = ((lrs+1) << g_TI.Size) >> 1;
 	u32 qwords = (bytes+7) / 8;
 
+	DAEDALUS_DL_ASSERT( bytes <= 4096, "Suspiciously large loadblock: %d bytes", bytes );
+
 	u32 * tmem_data = reinterpret_cast<u32*>(gTMEM);
 	u32 * ram 		= g_pu32RamBase;
 	u32 ram_offset  = address / 4;  				// Offset in 32 bit words
@@ -287,6 +289,8 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 
 	const RDP_Tile & rdp_tile = mTiles[tile_idx];
 
+	DAEDALUS_DL_ASSERT( (rdp_tile.size > 0) || (uls & 4) == 0, "Expecting an even Left for 4bpp formats (left is %f)", uls / 4.f );
+
 	u32	tmem_lookup = rdp_tile.tmem >> 4;
 
 	SetValidEntry( tmem_lookup );
@@ -306,6 +310,10 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	u32 w           = ((lrs-uls)>>2) + 1;
 	u32 bytes       = ((h * w) << g_TI.Size) >> 1;
 	u32 qwords      = (bytes+7) / 8;
+
+	DAEDALUS_DL_ASSERT( bytes <= 4096,
+		"Suspiciously large texture load: %d bytes (%dx%d, %dbpp)",
+		bytes, w, h, (1<<(g_TI.Size+2)) );
 
 	if (qwords > 512)
 		qwords = 512;
@@ -464,9 +472,6 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		u32		num_pixels = tile_width * tile_height;
 		u32		num_bytes  = pixels2bytes( num_pixels, rdp_tile.size );
 		DAEDALUS_DL_ASSERT( num_bytes <= 4096, "Suspiciously large texture load: %d bytes (%dx%d, %dbpp)", num_bytes, tile_width, tile_height, (1<<(rdp_tile.size+2)) );
-
-		// May not work if Left (10.2 format) is not even?
-		DAEDALUS_DL_ASSERT( (rdp_tile.size > 0) || (rdp_tilesize.left & 4) == 0, "Expecting an even Left for 4bpp formats (left is %f)", rdp_tilesize.left / 4.f );
 #endif
 
 #ifdef DAEDALUS_FAST_TMEM
