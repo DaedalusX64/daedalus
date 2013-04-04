@@ -403,6 +403,10 @@ protected:
 	TextureWrap				mTexWrap[ kNumBoundTextures ];
 	TextureShift			mTexShift[ kNumBoundTextures ];
 
+	// Index of the corresponding tile state.
+	u8						mActiveTile[ kNumBoundTextures ];
+
+
 	//Max is 18 according to the manual //Corn
 	//I think we should make this more deep to avoid any issues //Salvy
 	static const u32 MATRIX_STACK_SIZE = 20;

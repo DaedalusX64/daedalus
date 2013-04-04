@@ -197,6 +197,7 @@ BaseRenderer::BaseRenderer()
 		mTexWrap[i].v = 0;
 		mTexShift[i].s = 0;
 		mTexShift[i].t = 0;
+		mActiveTile[i] = 0;
 	}
 
 	mTnL.Flags._u32 = 0;
@@ -1757,8 +1758,8 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 
 	// Initialise the clamping state. When the mask is 0, it forces clamp mode.
 	//
-	u32 mode_u = (rdp_tile.clamp_s | ( rdp_tile.mask_s == 0)) ? GU_CLAMP : GU_REPEAT;
-	u32 mode_v = (rdp_tile.clamp_t | ( rdp_tile.mask_t == 0)) ? GU_CLAMP : GU_REPEAT;
+	u32 mode_u = (rdp_tile.clamp_s | (rdp_tile.mask_s == 0)) ? GU_CLAMP : GU_REPEAT;
+	u32 mode_v = (rdp_tile.clamp_t | (rdp_tile.mask_t == 0)) ? GU_CLAMP : GU_REPEAT;
 
 	//	In CRDPStateManager::GetTextureDescriptor, we limit the maximum dimension of a
 	//	texture to that define by the mask_s/mask_t value.
@@ -1790,6 +1791,8 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 
 	mTileTopLeft[ index ].x = f32(tile_size.left) / 4.0f;
 	mTileTopLeft[ index ].y = f32(tile_size.top) / 4.0f;
+
+	mActiveTile[ index ] = tile_idx;
 
 	DL_PF( "    Use Tile[%d] as Texture[%d] [%dx%d] [%s/%dbpp] [%s u, %s v] -> Adr[0x%08x] PAL[0x%x] Hash[0x%08x] Pitch[%d] TopLeft[%0.3f|%0.3f]",
 			tile_idx, index, ti.GetWidth(), ti.GetHeight(), ti.GetFormatName(), ti.GetSizeInBits(),
