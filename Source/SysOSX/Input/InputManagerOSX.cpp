@@ -42,33 +42,29 @@ public:
 
 	virtual u32							GetConfigurationFromName( const char * name ) const;
 private:
-	f32 *mJoyStick;
-	u8 *mJoyButton;
+	bool InitGamePad();
+	void GetJoyPad(OSContPad *pPad);
 
 	u32 mNumAxes;
 	u32 mNumButtoms;
-
-	bool mGamePad;
+	bool mIsGamePad;
+	
+	f32 *mJoyStick;
+	u8 *mJoyButton;
 
 };
 
-IInputManager::IInputManager()
+IInputManager::IInputManager() :
+	mJoyStick( NULL ),
+	mJoyButton( NULL ),
+	mNumAxes( 0 ),
+	mNumButtoms( 0 ),
+	mIsGamePad( false )
 {
-	mGamePad = glfwGetJoystickParam(GLFW_JOYSTICK_1, GLFW_PRESENT);
-	if(mGamePad)
+	if(!InitGamePad())
 	{
-		mNumAxes = glfwGetJoystickParam(GLFW_JOYSTICK_1,GLFW_AXES);
-		mNumButtoms = glfwGetJoystickParam(GLFW_JOYSTICK_1,GLFW_BUTTONS);
-		if(mNumAxes == 0 || mNumButtoms == 0)
-		{
-			DAEDALUS_ERROR("Invalid number of axis/buttons");
-			mGamePad = false;
-			return;
-		}
-		//Only two axis are needed
-		mJoyStick = new f32[2];
-		mJoyButton = new u8[mNumButtoms];
-	}
+        DAEDALUS_ASSERT(!mIsGamePad, "Couldn't init gamepad");
+    }
 }
 
 IInputManager::~IInputManager()
@@ -85,11 +81,60 @@ bool IInputManager::Initialise()
 	return true;
 }
 
+bool IInputManager::InitGamePad()
+{
+	mIsGamePad = glfwGetJoystickParam(GLFW_JOYSTICK_1, GLFW_PRESENT);
+	if(mIsGamePad)
+	{
+		mNumAxes = glfwGetJoystickParam(GLFW_JOYSTICK_1,GLFW_AXES);
+		mNumButtoms = glfwGetJoystickParam(GLFW_JOYSTICK_1,GLFW_BUTTONS);
+		if(mNumAxes && mNumButtoms )
+		{
+			mJoyStick = new f32[2];	//Only two axis are needed
+			mJoyButton = new u8[mNumButtoms];
+			return true;
+		}
+	}
+	return false;
+}
 
+void IInputManager::GetJoyPad(OSContPad *pPad)
+{
+	static const s32 N64_ANALOGUE_STICK_RANGE =  80;
+
+    if(!glfwGetJoystickPos(GLFW_JOYSTICK_1, mJoyStick, 2 ))
+	{
+		// gamepad was disconnected?
+        DAEDALUS_ERROR("Couldn't read axes");
+		mIsGamePad = false;
+        return;
+    }
+    
+	if(!glfwGetJoystickButtons(GLFW_JOYSTICK_1, mJoyButton, mNumButtoms))
+	{
+		// gamepad was disconnected?
+		DAEDALUS_ERROR("Couldn't read buttons");
+		mIsGamePad = false;
+		return;
+	}
+
+	//ToDo: Different gamepads will need different configuration, this is for PS3/PS2 controller
+	if (mJoyButton[11])		pPad->button |= START_BUTTON;
+	if (mJoyButton[2])		pPad->button |= A_BUTTON;
+	if (mJoyButton[3])		pPad->button |= B_BUTTON;
+	if (mJoyButton[6])		pPad->button |= Z_TRIG;
+	if (mJoyButton[4])		pPad->button |= L_TRIG;
+	if (mJoyButton[5])		pPad->button |= R_TRIG;
+
+	pPad->stick_x =  s8(mJoyStick[0] * N64_ANALOGUE_STICK_RANGE);
+	pPad->stick_y =  s8(mJoyStick[1] * N64_ANALOGUE_STICK_RANGE);
+
+	//ToDo: Map DPAD and c buttons
+	//DPAD and hat POV are implemented until glfw 3.0 shall we update? :) 
+}
 
 bool IInputManager::GetState( OSContPad pPad[4] )
 {
-	
 	// Clear the initial state
 	for(u32 cont = 0; cont < 4; cont++)
 	{
@@ -98,46 +143,13 @@ bool IInputManager::GetState( OSContPad pPad[4] )
 		pPad[cont].stick_y = 0;
 	}
 
-	//Ah cool a gamepad is connected
-	//Only tested with a PS3 controller!
-	if(mGamePad)
-	{	
-		s32 result;
-		static const s32 N64_ANALOGUE_STICK_RANGE =  80;
-	
-		result = glfwGetJoystickPos(GLFW_JOYSTICK_1, mJoyStick, 2 );
-		// gamepad was disconnected?
-	    if(result < 2)
-		{
-	        DAEDALUS_ERROR("Couldn't read axes");
-			mGamePad = false;
-	        return false;
-	    }
-	    
-		result = glfwGetJoystickButtons(GLFW_JOYSTICK_1, mJoyButton, mNumButtoms);
-		// gamepad was disconnected?
-		if(result < mNumButtoms)
-		{
-			DAEDALUS_ERROR("Couldn't read buttons");
-			mGamePad = false;
-			return false;
-		}
-
-		if (mJoyButton[11])		pPad[0].button |= START_BUTTON;
-		if (mJoyButton[2])		pPad[0].button |= A_BUTTON;
-		if (mJoyButton[3])		pPad[0].button |= B_BUTTON;
-		if (mJoyButton[6])		pPad[0].button |= Z_TRIG;
-		if (mJoyButton[4])		pPad[0].button |= L_TRIG;
-		if (mJoyButton[5])		pPad[0].button |= R_TRIG;
-
-		//ToDo: Map DPAD and c buttons :(
-
-		pPad[0].stick_x =  s8(mJoyStick[0] * N64_ANALOGUE_STICK_RANGE);
-		pPad[0].stick_y =  s8(mJoyStick[1] * N64_ANALOGUE_STICK_RANGE);
+	//Check if a gamepad is connected, If not fallback to keyboard
+	if( mIsGamePad == true)
+	{
+		GetJoyPad(&pPad[0]);
 	}
 	else
 	{
-		// Fallback to keyboard
 		if (glfwGetKey( 'A' ))		pPad[0].button |= START_BUTTON;
 		if (glfwGetKey( 'S' ))		pPad[0].button |= A_BUTTON;
 		if (glfwGetKey( 'X' ))		pPad[0].button |= B_BUTTON;
