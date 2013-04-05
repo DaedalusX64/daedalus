@@ -793,11 +793,13 @@ void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable
 
 			texture->InstallTexture();
 
+			const RDP_Tile & rdp_tile = gRDPStateManager.GetTile( mActiveTile[i] );
+
 			// NB: think this can be done just once per program.
 			glUniform1i(program->uloc_texture[i], i);
 
-			float shifts = kShiftScales[mTexShift[i].s];
-			float shiftt = kShiftScales[mTexShift[i].t];
+			float shifts = kShiftScales[rdp_tile.shift_s];
+			float shiftt = kShiftScales[rdp_tile.shift_t];
 
 			glUniform2f(program->uloc_texoffset[i], mTileTopLeft[i].x * shifts, mTileTopLeft[i].y * shiftt);
 			glUniform2f(program->uloc_texscale[i], (float)texture->GetCorrectedWidth() * shifts, (float)texture->GetCorrectedHeight() * shiftt);

@@ -195,8 +195,6 @@ BaseRenderer::BaseRenderer()
 		mTileTopLeft[i].y = 0.0f;
 		mTexWrap[i].u = 0;
 		mTexWrap[i].v = 0;
-		mTexShift[i].s = 0;
-		mTexShift[i].t = 0;
 		mActiveTile[i] = 0;
 	}
 
@@ -1708,7 +1706,6 @@ static void T1Hack(const TextureInfo & ti0, CNativeTexture * texture0,
 //*****************************************************************************
 // This captures the state of the RDP tiles in:
 //   mTexWrap
-//   mTexShift
 //   mTileTopLeft
 //   mBoundTexture
 //*****************************************************************************
@@ -1786,9 +1783,6 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	mTexWrap[ index ].u = mode_u;
 	mTexWrap[ index ].v = mode_v;
 
-	mTexShift[ index ].s = rdp_tile.shift_s;
-	mTexShift[ index ].t = rdp_tile.shift_t;
-
 	mTileTopLeft[ index ].x = f32(tile_size.left) / 4.0f;
 	mTileTopLeft[ index ].y = f32(tile_size.top) / 4.0f;
 
@@ -1852,7 +1846,7 @@ inline void FixUV(u32 * wrap, float * c0, float * c1, float offset, float size)
 // puv0, puv1 are in/out arguments.
 void BaseRenderer::PrepareTexRectUVs(v2 * puv0, v2 * puv1)
 {
-	const RDP_Tile & rdp_tile  = gRDPStateManager.GetTile( mActiveTile[0] );
+	const RDP_Tile & rdp_tile = gRDPStateManager.GetTile( mActiveTile[0] );
 
 	v2 		offset = mTileTopLeft[0];
 	float 	size_x = mBoundTextureInfo[0].GetWidth();
@@ -1864,8 +1858,8 @@ void BaseRenderer::PrepareTexRectUVs(v2 * puv0, v2 * puv1)
 
 #ifdef DAEDALUS_GL
 	// If using mTexShift, we need to take it into account here.
-	float ss = kShiftScales[mTexShift[0].s];
-	float st = kShiftScales[mTexShift[0].t];
+	float ss = kShiftScales[rdp_tile.shift_s];
+	float st = kShiftScales[rdp_tile.shift_t];
 	offset.x *= ss;
 	offset.y *= st;
 	size_x *= ss;

@@ -401,7 +401,6 @@ protected:
 
 	v2						mTileTopLeft[ kNumBoundTextures ];
 	TextureWrap				mTexWrap[ kNumBoundTextures ];
-	TextureShift			mTexShift[ kNumBoundTextures ];
 
 	// Index of the corresponding tile state.
 	u8						mActiveTile[ kNumBoundTextures ];
