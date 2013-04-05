@@ -16,6 +16,7 @@
 #include "HLEGraphics/RDPStateManager.h"
 
 #include "Utility/StringUtil.h"
+#include "Utility/Thread.h"
 #include "Utility/Mutex.h"
 
 #include <GL/glfw.h>
@@ -225,6 +226,9 @@ bool DLDebugger_Process()
 		DLDebugger_ProcessDebugTask();
 
 		CGraphicsContext::Get()->UpdateFrame( false );
+
+		// FIXME: shouldn't need to do this, just wake up when there's incoming WebDebug request.
+		ThreadSleepMs(10);
 	}
 
 	return false;
