@@ -1918,8 +1918,8 @@ void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 	sceGuScissor( l, t, r, b );
 #elif defined(DAEDALUS_GL)
 	// NB: OpenGL is x,y,w,h. Errors if width or height is negative, so clamp this.
-	s32 w = Max( r - l, 0L );
-	s32 h = Max( b - t, 0L );
+	s32 w = Max<s32>( r - l, 0 );
+	s32 h = Max<s32>( b - t, 0 );
 	glScissor( l, mScreenHeight - (t + h), w, h );
 #else
 	DAEDALUS_ERROR("Need to implement scissor for this platform.")
