@@ -94,6 +94,8 @@ bool IInputManager::InitGamePad()
 			mJoyButton = new u8[mNumButtoms];
 			return true;
 		}
+		else
+			mIsGamePad = false;
 	}
 	return false;
 }
@@ -120,11 +122,18 @@ void IInputManager::GetJoyPad(OSContPad *pPad)
 
 	//ToDo: Different gamepads will need different configuration, this is for PS3/PS2 controller
 	if (mJoyButton[11])		pPad->button |= START_BUTTON;
+	if (mJoyButton[9])		pPad->button |= START_BUTTON;
 	if (mJoyButton[2])		pPad->button |= A_BUTTON;
 	if (mJoyButton[3])		pPad->button |= B_BUTTON;
 	if (mJoyButton[6])		pPad->button |= Z_TRIG;
 	if (mJoyButton[4])		pPad->button |= L_TRIG;
 	if (mJoyButton[5])		pPad->button |= R_TRIG;
+
+	// Used to see key presses, useful to add a different button configuration
+	//for(u32 i = 0; i < mNumButtoms; i++)
+	//	printf("%d",mJoyButton[i]);
+
+	//printf("\n");
 
 	pPad->stick_x =  s8(mJoyStick[0] * N64_ANALOGUE_STICK_RANGE);
 	pPad->stick_y =  s8(mJoyStick[1] * N64_ANALOGUE_STICK_RANGE);
