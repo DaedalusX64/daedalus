@@ -84,22 +84,23 @@ template<> inline s8 Saturate( s32 x )
 
 
 template< typename T >
-inline const T * RoundPointerDown( const T * p, u32 r )
+inline const T * RoundPointerDown( const T * p, uintptr_t r )
 {
-	const u32 mask( r-1 );
-	return reinterpret_cast< const T * >( reinterpret_cast< u32 >( p ) & ~mask );
+	const uintptr_t mask = r-1;
+	return reinterpret_cast< const T * >( reinterpret_cast< uintptr_t >( p ) & ~mask );
 }
 
 template< typename T >
-inline const T * RoundPointerUp( const T * p, u32 r )
+inline const T * RoundPointerUp( const T * p, uintptr_t r )
 {
-	const u32 mask( r-1 );
-	return reinterpret_cast< const T * >( ( reinterpret_cast< u32 >( p ) + mask ) & ~mask );
+	const uintptr_t mask = r-1;
+	return reinterpret_cast< const T * >( ( reinterpret_cast< uintptr_t >( p ) + mask ) & ~mask );
 }
 
-inline bool IsPointerAligned( const void * p, u32 r )
+inline bool IsPointerAligned( const void * p, uintptr_t r )
 {
-	 return (reinterpret_cast< u32 >( p ) & (r-1)) == 0;
+	const uintptr_t mask = r-1;
+	 return (reinterpret_cast< uintptr_t >( p ) & mask) == 0;
 }
 
 inline u32 AlignPow2( u32 x, u32 r )
