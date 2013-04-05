@@ -28,7 +28,7 @@ const s32	kInvalidThreadHandle = -1;
 
 namespace
 {
-DAEDALUS_STATIC_ASSERT( sizeof( pthread_t ) == sizeof( s32 ) );
+DAEDALUS_STATIC_ASSERT( sizeof( pthread_t ) == sizeof( ThreadHandle ) );
 
 const int	gThreadPriorities[ TP_NUM_PRIORITIES ] =
 {
@@ -38,14 +38,14 @@ const int	gThreadPriorities[ TP_NUM_PRIORITIES ] =
 	0x16,		// TP_TIME_CRITICAL
 };
 
-pthread_t HandleToPthread( s32 handle )
+pthread_t HandleToPthread( ThreadHandle handle )
 {
 	return handle == kInvalidThreadHandle ? 0 : reinterpret_cast< pthread_t >( handle );
 }
 
-s32 PthreadToHandle( pthread_t thread )
+ThreadHandle PthreadToHandle( pthread_t thread )
 {
-	return thread ? reinterpret_cast< s32 >( thread ) : kInvalidThreadHandle;
+	return thread ? reinterpret_cast< ThreadHandle >( thread ) : kInvalidThreadHandle;
 }
 
 struct SDaedThreadDetails
@@ -75,17 +75,16 @@ void * StartThreadFunc( void * arg )
 
 } // anonymous namespace
 
-s32 CreateThread( const char * name, DaedThread function, void * argument )
+ThreadHandle CreateThread( const char * name, DaedThread function, void * argument )
 {
 	pthread_t		thread;
 	pthread_attr_t	thread_attr;
 
 	pthread_attr_init( &thread_attr );
 
-	SDaedThreadDetails *	thread_details( new SDaedThreadDetails( function, argument ) );
+	SDaedThreadDetails *	thread_details = new SDaedThreadDetails( function, argument );
 
-	s32	result( ::pthread_create( &thread, &thread_attr, &StartThreadFunc, thread_details ) );
-
+	s32	result = ::pthread_create( &thread, &thread_attr, &StartThreadFunc, thread_details );
 	if(result == 0)
 	{
 		return PthreadToHandle( thread );
@@ -95,19 +94,19 @@ s32 CreateThread( const char * name, DaedThread function, void * argument )
 	return kInvalidThreadHandle;
 }
 
-void SetThreadPriority( s32 handle, EThreadPriority pri )
+void SetThreadPriority( ThreadHandle handle, EThreadPriority pri )
 {
 	DAEDALUS_ERROR( "Thread priorities not supported" );
 }
 
-void ReleaseThreadHandle( s32 handle )
+void ReleaseThreadHandle( ThreadHandle handle )
 {
 	// Nothing to do?
 }
 
 //	Wait the specified time for the thread to finish.
 //	Returns false if the thread didn't terminate
-bool JoinThread( s32 handle, s32 timeout )
+bool JoinThread( ThreadHandle handle, s32 timeout )
 {
 	//u32		delay( timeout > 0 ? timeout : INFINITE );
 	bool	signalled( true );
