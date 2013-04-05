@@ -446,9 +446,8 @@ static u32 DLParser_ProcessDList(u32 instruction_limit)
 		gUcodeFunc[ command.inst.cmd ]( command );
 
 		DL_END_INSTR();
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		current_instruction_count++;
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		// Note: make sure have frame skip disabled for the dlist debugger to work
 		if( instruction_limit != kUnlimitedInstructionCount )
 		{
@@ -457,7 +456,9 @@ static u32 DLParser_ProcessDList(u32 instruction_limit)
 				return current_instruction_count;
 			}
 		}
+		current_instruction_count++;
 #endif
+
 		// Check limit
 		if (gDlistStack.limit >= 0)
 		{
