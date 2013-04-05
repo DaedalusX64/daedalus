@@ -33,7 +33,7 @@ public:
 	virtual bool						Initialise();
 	virtual void						Finalise()					{}
 
-	virtual bool						GetState( OSContPad pPad[4] );
+	virtual void						GetState( OSContPad pPad[4] );
 
 	virtual u32							GetNumConfigurations() const;
 	virtual const char *				GetConfigurationName( u32 configuration_idx ) const;
@@ -42,7 +42,7 @@ public:
 
 	virtual u32							GetConfigurationFromName( const char * name ) const;
 private:
-	bool InitGamePad();
+	void InitGamePad();
 	void GetJoyPad(OSContPad *pPad);
 
 	u32 mNumAxes;
@@ -61,10 +61,7 @@ IInputManager::IInputManager() :
 	mNumButtoms( 0 ),
 	mIsGamePad( false )
 {
-	if(!InitGamePad())
-	{
-        DAEDALUS_ASSERT(!mIsGamePad, "Couldn't init gamepad");
-    }
+	InitGamePad();
 }
 
 IInputManager::~IInputManager()
@@ -81,7 +78,7 @@ bool IInputManager::Initialise()
 	return true;
 }
 
-bool IInputManager::InitGamePad()
+void IInputManager::InitGamePad()
 {
 	mIsGamePad = glfwGetJoystickParam(GLFW_JOYSTICK_1, GLFW_PRESENT);
 	if(mIsGamePad)
@@ -92,12 +89,12 @@ bool IInputManager::InitGamePad()
 		{
 			mJoyStick = new f32[2];	//Only two axis are needed
 			mJoyButton = new u8[mNumButtoms];
-			return true;
+			return;
 		}
-		else
-			mIsGamePad = false;
+
+		mIsGamePad = false;
+		DAEDALUS_ERROR("Couldn't init gamepad");
 	}
-	return false;
 }
 
 void IInputManager::GetJoyPad(OSContPad *pPad)
@@ -143,7 +140,7 @@ void IInputManager::GetJoyPad(OSContPad *pPad)
 	//DPAD and hat POV are implemented until glfw 3.0 shall we update? :) 
 }
 
-bool IInputManager::GetState( OSContPad pPad[4] )
+void IInputManager::GetState( OSContPad pPad[4] )
 {
 	// Clear the initial state
 	for(u32 cont = 0; cont < 4; cont++)
@@ -183,8 +180,6 @@ bool IInputManager::GetState( OSContPad pPad[4] )
 		if (glfwGetKey( GLFW_KEY_UP ))		pPad[0].stick_y = +80;
 		if (glfwGetKey( GLFW_KEY_DOWN ))	pPad[0].stick_y = -80;
 	}
-
-	return true;
 }
 
 template<> bool	CSingleton< CInputManager >::Create()

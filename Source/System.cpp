@@ -142,18 +142,19 @@ SysEntityEntry SysInitTable[] =
 	{"ROM Database",		CRomDB::Create,				CRomDB::Destroy},
 	{"ROM Settings",		CRomSettingsDB::Create,		CRomSettingsDB::Destroy},
 #ifdef DAEDALUS_PSP
+	{"VideoMemory",			CVideoMemoryManager::Create, NULL},
+#endif
+	{"GraphicsContext",		CGraphicsContext::Create,	CGraphicsContext::Destroy},
+	{"InputManager",		CInputManager::Create,		CInputManager::Destroy},
+#ifdef DAEDALUS_PSP
 	{"Language",			Translate_Init,				NULL},
 #endif
 	{"Preference",			CPreferences::Create,		CPreferences::Destroy},
 	{"Memory",				Memory_Init,				Memory_Fini},
 
 	{"Controller",			CController::Create,		CController::Destroy},
-#ifdef DAEDALUS_PSP
-	{"VideoMemory",			CVideoMemoryManager::Create, NULL},
-#endif
 	{"RomBuffer",			RomBuffer::Create,			RomBuffer::Destroy},
-	{"GraphicsContext",		CGraphicsContext::Create,	CGraphicsContext::Destroy},
-	{"InputManager",		CInputManager::Create,		CInputManager::Destroy},
+
 #if defined(DAEDALUS_OSX) || defined(DAEDALUS_W32)
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	{"WebDebug",			WebDebug_Init, 				WebDebug_Fini},

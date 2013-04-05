@@ -366,6 +366,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x324a: g_ROM.GameHacks = WONDER_PROJECTJ2;	break;
 	case 0x4547: g_ROM.GameHacks = GOLDEN_EYE;			break;
 	case 0x5742: g_ROM.GameHacks = SUPER_BOWLING;		break;
+	case 0x514D: g_ROM.GameHacks = PMARIO;				break;
 	case 0x5632: g_ROM.GameHacks = CHAMELEON_TWIST_2;	break;
 	case 0x4154: g_ROM.GameHacks = TARZAN;				break;
 	case 0x4643: g_ROM.GameHacks = CLAY_FIGHTER_63;		break;

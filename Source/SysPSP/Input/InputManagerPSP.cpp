@@ -28,6 +28,9 @@ namespace
 	static const f32					DEFAULT_MIN_DEADZONE = 0.28f;
 	static const f32					DEFAULT_MAX_DEADZONE = 1.f;
 
+	static const s32					N64_ANALOGUE_STICK_RANGE( 80 );
+	static const s32					PSP_ANALOGUE_STICK_RANGE( 128 );
+
 
 class CButtonMapping
 {
@@ -266,7 +269,7 @@ class IInputManager : public CInputManager
 		virtual bool						Initialise();
 		virtual void						Finalise()					{}
 
-		virtual bool						GetState( OSContPad pPad[4] );
+		virtual void						GetState( OSContPad pPad[4] );
 
 		virtual u32							GetNumConfigurations() const;
 		virtual const char *				GetConfigurationName( u32 configuration_idx ) const;
@@ -276,6 +279,7 @@ class IInputManager : public CInputManager
 		virtual u32							GetConfigurationFromName( const char * name ) const;
 
 	private:
+		void								SwapJoyStick(OSContPad *pPad, SceCtrlData *pad);
 		void								LoadControllerConfigs( const char * p_dir );
 		CControllerConfig *					BuildDefaultConfig();
 		CControllerConfig *					BuildControllerConfig( const char * filename );
@@ -322,10 +326,66 @@ bool	IInputManager::Initialise()
 	return true;
 }
 
+void IInputManager::SwapJoyStick(OSContPad *pPad, SceCtrlData *pad)
+{
+	switch( mpControllerConfig->GetJoySwap() )
+	{
+		case 'A':	//No swap (default)
+			break;
+
+		case 'B':	//Swap Joystick with PSP Dpad
+			{
+			u32 tmp = pad->Buttons;	//Save a copy
+
+			// Make a digital version of the Analogue stick that can be mapped to N64 buttons //Corn
+			pad->Buttons &= ~(PSP_CTRL_UP | PSP_CTRL_DOWN | PSP_CTRL_RIGHT | PSP_CTRL_LEFT);	//Clear out original DPAD
+			if(pPad->stick_x > 40) pad->Buttons |= PSP_CTRL_RIGHT;
+			else if(pPad->stick_x < -40) pad->Buttons |= PSP_CTRL_LEFT;
+
+			if(pPad->stick_y > 40) pad->Buttons |= PSP_CTRL_UP;
+			else if(pPad->stick_y < -40) pad->Buttons |= PSP_CTRL_DOWN;
+
+			//Set Stick
+			if( tmp & PSP_CTRL_RIGHT ) pPad->stick_x = s8(N64_ANALOGUE_STICK_RANGE);
+			else if( tmp & PSP_CTRL_LEFT ) pPad->stick_x = -s8(N64_ANALOGUE_STICK_RANGE);
+			else pPad->stick_x = 0;
+
+			if( tmp & PSP_CTRL_UP ) pPad->stick_y = s8(N64_ANALOGUE_STICK_RANGE);
+			else if( tmp & PSP_CTRL_DOWN ) pPad->stick_y = -s8(N64_ANALOGUE_STICK_RANGE);
+			else pPad->stick_y = 0;
+			}
+			break;
+
+		case 'C':	//Swap Joystick with PSP buttons
+			{
+			u32 tmp = pad->Buttons;	//Save a copy
+
+			// Make a digital version of the Analogue stick that can be mapped to N64 buttons //Corn
+			pad->Buttons &= ~(PSP_CTRL_TRIANGLE | PSP_CTRL_CROSS | PSP_CTRL_CIRCLE | PSP_CTRL_SQUARE);	//Clear out original buttons
+			if(pPad->stick_x > 40) pad->Buttons |= PSP_CTRL_CIRCLE;
+			else if(pPad->stick_x < -40) pad->Buttons |= PSP_CTRL_SQUARE;
+
+			if(pPad->stick_y > 40) pad->Buttons |= PSP_CTRL_TRIANGLE;
+			else if(pPad->stick_y < -40) pad->Buttons |= PSP_CTRL_CROSS;
+
+			//Set Stick
+			if( tmp & PSP_CTRL_CIRCLE ) pPad->stick_x = s8(N64_ANALOGUE_STICK_RANGE);
+			else if( tmp & PSP_CTRL_SQUARE ) pPad->stick_x = -s8(N64_ANALOGUE_STICK_RANGE);
+			else pPad->stick_x = 0;
+
+			if( tmp & PSP_CTRL_TRIANGLE ) pPad->stick_y = s8(N64_ANALOGUE_STICK_RANGE);
+			else if( tmp & PSP_CTRL_CROSS ) pPad->stick_y = -s8(N64_ANALOGUE_STICK_RANGE);
+			else pPad->stick_y = 0;
+			}
+			break;
+		default:
+			break;
+	}
+}
 //*****************************************************************************
 //
 //*****************************************************************************
-bool IInputManager::GetState( OSContPad pPad[4] )
+void IInputManager::GetState( OSContPad pPad[4] )
 {
 	// Clear the initial state of the four controllers
 	for(u32 cont = 0; cont < 4; cont++)
@@ -338,9 +398,6 @@ bool IInputManager::GetState( OSContPad pPad[4] )
 	SceCtrlData pad;
 
 	sceCtrlPeekBufferPositive(&pad, 1);	//Get PSP button inputs
-
-	static const s32	N64_ANALOGUE_STICK_RANGE( 80 );
-	static const s32	PSP_ANALOGUE_STICK_RANGE( 128 );
 
 	//	'Normalise' from 0..255 -> -128..+127
 	//
@@ -359,58 +416,7 @@ bool IInputManager::GetState( OSContPad pPad[4] )
 
 	DAEDALUS_ASSERT( mpControllerConfig != NULL, "We should always have a valid controller" );
 
-	switch( mpControllerConfig->GetJoySwap() )
-	{
-		case 'B':	//Swap Joystick with PSP Dpad
-			{
-			u32 tmp = pad.Buttons;	//Save a copy
-
-			// Make a digital version of the Analogue stick that can be mapped to N64 buttons //Corn
-			pad.Buttons &= ~(PSP_CTRL_UP | PSP_CTRL_DOWN | PSP_CTRL_RIGHT | PSP_CTRL_LEFT);	//Clear out original DPAD
-			if(pPad[0].stick_x > 40) pad.Buttons |= PSP_CTRL_RIGHT;
-			else if(pPad[0].stick_x < -40) pad.Buttons |= PSP_CTRL_LEFT;
-
-			if(pPad[0].stick_y > 40) pad.Buttons |= PSP_CTRL_UP;
-			else if(pPad[0].stick_y < -40) pad.Buttons |= PSP_CTRL_DOWN;
-
-			//Set Stick
-			if( tmp & PSP_CTRL_RIGHT ) pPad[0].stick_x = s8(N64_ANALOGUE_STICK_RANGE);
-			else if( tmp & PSP_CTRL_LEFT ) pPad[0].stick_x = -s8(N64_ANALOGUE_STICK_RANGE);
-			else pPad[0].stick_x = 0;
-
-			if( tmp & PSP_CTRL_UP ) pPad[0].stick_y = s8(N64_ANALOGUE_STICK_RANGE);
-			else if( tmp & PSP_CTRL_DOWN ) pPad[0].stick_y = -s8(N64_ANALOGUE_STICK_RANGE);
-			else pPad[0].stick_y = 0;
-			}
-			break;
-
-		case 'C':	//Swap Joystick with PSP buttons
-			{
-			u32 tmp = pad.Buttons;	//Save a copy
-
-			// Make a digital version of the Analogue stick that can be mapped to N64 buttons //Corn
-			pad.Buttons &= ~(PSP_CTRL_TRIANGLE | PSP_CTRL_CROSS | PSP_CTRL_CIRCLE | PSP_CTRL_SQUARE);	//Clear out original buttons
-			if(pPad[0].stick_x > 40) pad.Buttons |= PSP_CTRL_CIRCLE;
-			else if(pPad[0].stick_x < -40) pad.Buttons |= PSP_CTRL_SQUARE;
-
-			if(pPad[0].stick_y > 40) pad.Buttons |= PSP_CTRL_TRIANGLE;
-			else if(pPad[0].stick_y < -40) pad.Buttons |= PSP_CTRL_CROSS;
-
-			//Set Stick
-			if( tmp & PSP_CTRL_CIRCLE ) pPad[0].stick_x = s8(N64_ANALOGUE_STICK_RANGE);
-			else if( tmp & PSP_CTRL_SQUARE ) pPad[0].stick_x = -s8(N64_ANALOGUE_STICK_RANGE);
-			else pPad[0].stick_x = 0;
-
-			if( tmp & PSP_CTRL_TRIANGLE ) pPad[0].stick_y = s8(N64_ANALOGUE_STICK_RANGE);
-			else if( tmp & PSP_CTRL_CROSS ) pPad[0].stick_y = -s8(N64_ANALOGUE_STICK_RANGE);
-			else pPad[0].stick_y = 0;
-			}
-			break;
-
-		case 'A':	//No swap (default)
-		default:
-			break;
-	}
+	SwapJoyStick(&pPad[0], &pad);
 
 	pPad[0].button = mpControllerConfig->GetN64ButtonsState( pad.Buttons );
 
@@ -419,8 +425,6 @@ bool IInputManager::GetState( OSContPad pPad[4] )
 	{
 		SYNCH_DATA( pPad[cont] );
 	}
-
-	return true;
 }
 
 //*****************************************************************************

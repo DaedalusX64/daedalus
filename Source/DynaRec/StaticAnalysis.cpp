@@ -210,7 +210,8 @@ void StaticAnalysis_LHU( OpCode op_code, RegisterUsage & recorder )			// Load Ha
 void StaticAnalysis_LWL( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Left
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+	// Causes P Mario to BSOD in intro
+	if( g_ROM.GameHacks != PMARIO ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_LDL( OpCode op_code, RegisterUsage & recorder )

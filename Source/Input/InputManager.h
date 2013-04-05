@@ -22,7 +22,7 @@ class CInputManager : public CSingleton< CInputManager >
 		virtual bool Initialise() = 0;
 		virtual void Finalise() = 0;
 
-		virtual bool GetState( OSContPad pPad[4] ) = 0;
+		virtual void GetState( OSContPad pPad[4] ) = 0;
 
 		static void Init() { CInputManager::Get()->Initialise();}
 		static void Fini() { CInputManager::Get()->Finalise();}

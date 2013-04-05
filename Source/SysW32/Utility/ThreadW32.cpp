@@ -30,7 +30,7 @@ static const int	gThreadPriorities[ TP_NUM_PRIORITIES ] =
 	THREAD_PRIORITY_TIME_CRITICAL,		// TP_TIME_CRITICAL
 };
 
-const s32	kInvalidThreadHandle = 0;
+const ThreadHandle	kInvalidThreadHandle = 0;
 
 struct SDaedThreadDetails
 {
@@ -56,7 +56,7 @@ static DWORD WINAPI StartThreadFunc( LPVOID arg )
 	return result;
 }
 
-s32 CreateThread( const char * name, DaedThread function, void * argument )
+ThreadHandle CreateThread( const char * name, DaedThread function, void * argument )
 {
 	DWORD					id;
 	SDaedThreadDetails *	thread_details( new SDaedThreadDetails( function, argument ) );
@@ -71,7 +71,7 @@ s32 CreateThread( const char * name, DaedThread function, void * argument )
 	return 0;
 }
 
-void SetThreadPriority( s32 handle, EThreadPriority pri )
+void SetThreadPriority( ThreadHandle handle, EThreadPriority pri )
 {
 	HANDLE	h( reinterpret_cast< HANDLE >( handle ) );
 	if(h != NULL)
@@ -80,7 +80,7 @@ void SetThreadPriority( s32 handle, EThreadPriority pri )
 	}
 }
 
-void ReleaseThreadHandle( s32 handle )
+void ReleaseThreadHandle( ThreadHandle handle )
 {
 	HANDLE	h( reinterpret_cast< HANDLE >( handle ) );
 	if(h != NULL)
@@ -91,7 +91,7 @@ void ReleaseThreadHandle( s32 handle )
 
 // Wait the specified time for the thread to finish.
 // Returns false if the thread didn't terminate
-bool JoinThread( s32 handle, s32 timeout )
+bool JoinThread( ThreadHandle handle, s32 timeout )
 {
 	u32		delay( timeout > 0 ? timeout : INFINITE );
 	bool	signalled( true );
