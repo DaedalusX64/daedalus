@@ -40,12 +40,12 @@ const int	gThreadPriorities[ TP_NUM_PRIORITIES ] =
 
 pthread_t HandleToPthread( ThreadHandle handle )
 {
-	return handle == kInvalidThreadHandle ? 0 : reinterpret_cast< pthread_t >( handle );
+	return handle == kInvalidThreadHandle ? 0 : (pthread_t)handle;
 }
 
 ThreadHandle PthreadToHandle( pthread_t thread )
 {
-	return thread ? reinterpret_cast< ThreadHandle >( thread ) : kInvalidThreadHandle;
+	return thread ? (ThreadHandle)thread : kInvalidThreadHandle;
 }
 
 struct SDaedThreadDetails
