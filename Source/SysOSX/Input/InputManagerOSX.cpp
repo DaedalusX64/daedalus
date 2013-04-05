@@ -22,6 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <GL/glfw.h>
 
+
+
 class IInputManager : public CInputManager
 {
 public:
@@ -39,14 +41,43 @@ public:
 	virtual void						SetConfiguration( u32 configuration_idx );
 
 	virtual u32							GetConfigurationFromName( const char * name ) const;
+private:
+	f32 *mJoyStick;
+	u8 *mJoyButton;
+
+	u32 mNumAxes;
+	u32 mNumButtoms;
+
+	bool mGamePad;
+
 };
 
 IInputManager::IInputManager()
 {
+	mGamePad = glfwGetJoystickParam(GLFW_JOYSTICK_1, GLFW_PRESENT);
+	if(mGamePad)
+	{
+		mNumAxes = glfwGetJoystickParam(GLFW_JOYSTICK_1,GLFW_AXES);
+		mNumButtoms = glfwGetJoystickParam(GLFW_JOYSTICK_1,GLFW_BUTTONS);
+		if(mNumAxes == 0 || mNumButtoms == 0)
+		{
+			DAEDALUS_ERROR("Invalid number of axis/buttons");
+			mGamePad = false;
+			return;
+		}
+		//Only two axis are needed
+		mJoyStick = new f32[2];
+		mJoyButton = new u8[mNumButtoms];
+	}
 }
 
 IInputManager::~IInputManager()
 {
+	if(mJoyStick)
+		delete [] mJoyStick;
+
+	if(mJoyButton)
+		delete [] mJoyButton;
 }
 
 bool IInputManager::Initialise()
@@ -54,8 +85,11 @@ bool IInputManager::Initialise()
 	return true;
 }
 
+
+
 bool IInputManager::GetState( OSContPad pPad[4] )
 {
+	
 	// Clear the initial state
 	for(u32 cont = 0; cont < 4; cont++)
 	{
@@ -64,28 +98,69 @@ bool IInputManager::GetState( OSContPad pPad[4] )
 		pPad[cont].stick_y = 0;
 	}
 
-	if (glfwGetKey( 'A' ))		pPad[0].button |= START_BUTTON;
-	if (glfwGetKey( 'S' ))		pPad[0].button |= A_BUTTON;
-	if (glfwGetKey( 'X' ))		pPad[0].button |= B_BUTTON;
-	if (glfwGetKey( 'Z' ))		pPad[0].button |= Z_TRIG;
-	if (glfwGetKey( 'Y' ))		pPad[0].button |= Z_TRIG;		// For German keyboards :)
-	if (glfwGetKey( 'C' ))		pPad[0].button |= L_TRIG;
-	if (glfwGetKey( 'V' ))		pPad[0].button |= R_TRIG;
+	//Ah cool a gamepad is connected
+	//Only tested with a PS3 controller!
+	if(mGamePad)
+	{	
+		s32 result;
+		static const s32 N64_ANALOGUE_STICK_RANGE =  80;
+	
+		result = glfwGetJoystickPos(GLFW_JOYSTICK_1, mJoyStick, 2 );
+		// gamepad was disconnected?
+	    if(result < 2)
+		{
+	        DAEDALUS_ERROR("Couldn't read axes");
+			mGamePad = false;
+	        return false;
+	    }
+	    
+		result = glfwGetJoystickButtons(GLFW_JOYSTICK_1, mJoyButton, mNumButtoms);
+		// gamepad was disconnected?
+		if(result < mNumButtoms)
+		{
+			DAEDALUS_ERROR("Couldn't read buttons");
+			mGamePad = false;
+			return false;
+		}
 
-	if (glfwGetKey( 'T' ))		pPad[0].button |= U_JPAD;
-	if (glfwGetKey( 'G' ))		pPad[0].button |= D_JPAD;
-	if (glfwGetKey( 'F' ))		pPad[0].button |= L_JPAD;
-	if (glfwGetKey( 'H' ))		pPad[0].button |= R_JPAD;
+		if (mJoyButton[11])		pPad[0].button |= START_BUTTON;
+		if (mJoyButton[2])		pPad[0].button |= A_BUTTON;
+		if (mJoyButton[3])		pPad[0].button |= B_BUTTON;
+		if (mJoyButton[6])		pPad[0].button |= Z_TRIG;
+		if (mJoyButton[4])		pPad[0].button |= L_TRIG;
+		if (mJoyButton[5])		pPad[0].button |= R_TRIG;
 
-	if (glfwGetKey( 'I' ))		pPad[0].button |= U_CBUTTONS;
-	if (glfwGetKey( 'K' ))		pPad[0].button |= D_CBUTTONS;
-	if (glfwGetKey( 'J' ))		pPad[0].button |= L_CBUTTONS;
-	if (glfwGetKey( 'L' ))		pPad[0].button |= R_CBUTTONS;
+		//ToDo: Map DPAD and c buttons :(
 
-	if (glfwGetKey( GLFW_KEY_LEFT ))	pPad[0].stick_x = -80;
-	if (glfwGetKey( GLFW_KEY_RIGHT ))	pPad[0].stick_x = +80;
-	if (glfwGetKey( GLFW_KEY_UP ))		pPad[0].stick_y = +80;
-	if (glfwGetKey( GLFW_KEY_DOWN ))	pPad[0].stick_y = -80;
+		pPad[0].stick_x =  s8(mJoyStick[0] * N64_ANALOGUE_STICK_RANGE);
+		pPad[0].stick_y =  s8(mJoyStick[1] * N64_ANALOGUE_STICK_RANGE);
+	}
+	else
+	{
+		// Fallback to keyboard
+		if (glfwGetKey( 'A' ))		pPad[0].button |= START_BUTTON;
+		if (glfwGetKey( 'S' ))		pPad[0].button |= A_BUTTON;
+		if (glfwGetKey( 'X' ))		pPad[0].button |= B_BUTTON;
+		if (glfwGetKey( 'Z' ))		pPad[0].button |= Z_TRIG;
+		if (glfwGetKey( 'Y' ))		pPad[0].button |= Z_TRIG;		// For German keyboards :)
+		if (glfwGetKey( 'C' ))		pPad[0].button |= L_TRIG;
+		if (glfwGetKey( 'V' ))		pPad[0].button |= R_TRIG;
+
+		if (glfwGetKey( 'T' ))		pPad[0].button |= U_JPAD;
+		if (glfwGetKey( 'G' ))		pPad[0].button |= D_JPAD;
+		if (glfwGetKey( 'F' ))		pPad[0].button |= L_JPAD;
+		if (glfwGetKey( 'H' ))		pPad[0].button |= R_JPAD;
+
+		if (glfwGetKey( 'I' ))		pPad[0].button |= U_CBUTTONS;
+		if (glfwGetKey( 'K' ))		pPad[0].button |= D_CBUTTONS;
+		if (glfwGetKey( 'J' ))		pPad[0].button |= L_CBUTTONS;
+		if (glfwGetKey( 'L' ))		pPad[0].button |= R_CBUTTONS;
+
+		if (glfwGetKey( GLFW_KEY_LEFT ))	pPad[0].stick_x = -80;
+		if (glfwGetKey( GLFW_KEY_RIGHT ))	pPad[0].stick_x = +80;
+		if (glfwGetKey( GLFW_KEY_UP ))		pPad[0].stick_y = +80;
+		if (glfwGetKey( GLFW_KEY_DOWN ))	pPad[0].stick_y = -80;
+	}
 
 	return true;
 }
