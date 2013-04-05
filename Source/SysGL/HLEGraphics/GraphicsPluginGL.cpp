@@ -13,6 +13,8 @@
 
 #include "Plugins/GraphicsPlugin.h"
 
+#include "Utility/Timing.h"
+
 
 #ifdef DAEDALUS_W32
 #include <GL/glew.h>
@@ -22,6 +24,71 @@
 EFrameskipValue     gFrameskipValue = FV_DISABLED;
 u32                 gVISyncRate     = 1500;
 bool                gTakeScreenshot = false;
+
+namespace
+{
+	//u32					gVblCount = 0;
+	u32					gFlipCount = 0;
+	//float				gCurrentVblrate = 0.0f;
+	float				gCurrentFramerate = 0.0f;
+	u64					gLastFramerateCalcTime = 0;
+	u64					gTicksPerSecond = 0;
+
+#ifdef DAEDALUS_FRAMERATE_ANALYSIS
+	u32					gTotalFrames = 0;
+	u64					gFirstFrameTime = 0;
+	FILE *				gFramerateFile = NULL;
+#endif
+
+static void	UpdateFramerate()
+{
+#ifdef DAEDALUS_FRAMERATE_ANALYSIS
+	gTotalFrames++;
+#endif
+	gFlipCount++;
+
+	u64			now;
+	NTiming::GetPreciseTime( &now );
+
+	if(gLastFramerateCalcTime == 0)
+	{
+		u64		freq;
+		gLastFramerateCalcTime = now;
+
+		NTiming::GetPreciseFrequency( &freq );
+		gTicksPerSecond = freq;
+	}
+
+#ifdef DAEDALUS_FRAMERATE_ANALYSIS
+	if( gFramerateFile == NULL )
+	{
+		gFirstFrameTime = now;
+		gFramerateFile = fopen( "framerate.csv", "w" );
+	}
+	fprintf( gFramerateFile, "%d,%f\n", gTotalFrames, f32(now - gFirstFrameTime) / f32(gTicksPerSecond) );
+#endif
+
+	// If 1 second has elapsed since last recalculation, do it now
+	u64		ticks_since_recalc( now - gLastFramerateCalcTime );
+	if(ticks_since_recalc > gTicksPerSecond)
+	{
+		//gCurrentVblrate = float( gVblCount * gTicksPerSecond ) / float( ticks_since_recalc );
+		gCurrentFramerate = float( gFlipCount * gTicksPerSecond ) / float( ticks_since_recalc );
+
+		//gVblCount = 0;
+		gFlipCount = 0;
+		gLastFramerateCalcTime = now;
+
+#ifdef DAEDALUS_FRAMERATE_ANALYSIS
+		if( gFramerateFile != NULL )
+		{
+			fflush( gFramerateFile );
+		}
+#endif
+	}
+
+}
+}
 
 class CGraphicsPluginImpl : public CGraphicsPlugin
 {
@@ -92,6 +159,13 @@ void CGraphicsPluginImpl::UpdateScreen()
 
 	if (current_origin != LastOrigin)
 	{
+		UpdateFramerate();
+		char string[22];
+		sprintf(string, "Daedalus | FPS %#.1f", gCurrentFramerate);
+
+		// Can't find a way to append window tittle, just override it
+		glfwSetWindowTitle(string);
+
 		if (gTakeScreenshot)
 		{
 			CGraphicsContext::Get()->DumpNextScreen();

@@ -131,9 +131,10 @@ void IInputManager::GetJoyPad(OSContPad *pPad)
 
 	// Used to see key presses, useful to add a different button configuration
 	//for(u32 i = 0; i < mNumButtoms; i++)
-	//	printf("%d",mJoyButton[i]);
-
-	//printf("\n");
+	//{
+	//	if(mJoyButton[i])
+	//		printf("%d\n",i);
+	//}
 
 	pPad->stick_x =  s8(mJoyStick[0] * N64_ANALOGUE_STICK_RANGE);
 	pPad->stick_y =  s8(mJoyStick[1] * N64_ANALOGUE_STICK_RANGE);
