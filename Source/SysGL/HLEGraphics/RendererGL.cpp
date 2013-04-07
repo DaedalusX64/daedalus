@@ -158,14 +158,24 @@ struct ShaderConfiguration
 {
 	u64		Mux;
 	u32		CycleType : 2;
+	u32		BilerpFilter : 1;
+	u32		ClampS0 : 1;
+	u32		ClampT0 : 1;
+	u32		ClampS1 : 1;
+	u32		ClampT1 : 1;
 	u8		AlphaThreshold;
 };
 
 inline bool operator==(const ShaderConfiguration & a, const ShaderConfiguration & b)
 {
 	return
-		a.Mux == b.Mux &&
-		a.CycleType == b.CycleType &&
+		a.Mux            == b.Mux &&
+		a.CycleType      == b.CycleType &&
+		a.BilerpFilter   == b.BilerpFilter &&
+		a.ClampS0        == b.ClampS0 &&
+		a.ClampT0        == b.ClampT0 &&
+		a.ClampS1        == b.ClampS1 &&
+		a.ClampT1        == b.ClampT1 &&
 		a.AlphaThreshold == b.AlphaThreshold;
 }
 
@@ -360,6 +370,19 @@ static const char* default_fragment_shader_fmt =
 "}\n";
 
 
+static inline const char * GetFilter(bool bilerp, bool clamp_s, bool clamp_t)
+{
+	if (bilerp)
+	{
+		if (clamp_s && clamp_t)	return "fetchBilinearClampedST";
+		else if (clamp_s)		return "fetchBilinearClampedS";
+		else if (clamp_t)		return "fetchBilinearClampedT";
+		else					return "fetchBilinear";
+	}
+
+	return "fetchPoint";
+}
+
 static void SprintShader(char (&frag_shader)[2048], const ShaderConfiguration & config)
 {
 	u32 mux0 = (u32)(config.Mux>>32);
@@ -389,8 +412,8 @@ static void SprintShader(char (&frag_shader)[2048], const ShaderConfiguration & 
 
 	u32 cycle_type = config.CycleType;
 
-	const char * cycle1_filter = "fetchBilinear";
-	const char * cycle2_filter = "fetchBilinear";
+	const char * filter0 = GetFilter(config.BilerpFilter, config.ClampS0, config.ClampT0);
+	const char * filter1 = GetFilter(config.BilerpFilter, config.ClampS1, config.ClampT1);
 
 	if (cycle_type == CYCLE_FILL)
 	{
@@ -400,7 +423,7 @@ static void SprintShader(char (&frag_shader)[2048], const ShaderConfiguration & 
 	{
 		sprintf(body,
 			"\tcol = %s(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n",
-			cycle1_filter);
+			filter0);
 	}
 	else if (cycle_type == CYCLE_1CYCLE)
 	{
@@ -408,7 +431,7 @@ static void SprintShader(char (&frag_shader)[2048], const ShaderConfiguration & 
 					  "\tvec4 tex1 = %s(sti, uTileShift1, uTileMirror1, uTileMask1, uTileTL1, uTileBR1, uTileClampEnable1, uTexture1, uTexScale1);\n"
 					  "\tcol.rgb = (%s - %s) * %s + %s;\n"
 					  "\tcol.a   = (%s - %s) * %s + %s;\n",
-					  cycle1_filter, cycle1_filter,
+					  filter0, filter1,
 					  kRGBParams16[aRGB0], kRGBParams16[bRGB0], kRGBParams32[cRGB0], kRGBParams8[dRGB0],
 					  kAlphaParams8[aA0],  kAlphaParams8[bA0],  kAlphaParams8[cA0],  kAlphaParams8[dA0]);
 	}
@@ -420,10 +443,9 @@ static void SprintShader(char (&frag_shader)[2048], const ShaderConfiguration & 
 					  "\tcol.a   = (%s - %s) * %s + %s;\n"
 					  "\tcombined = col;\n"
 					  "\ttex0 = tex1;\n"		// NB: tex0 becomes tex1 on the second cycle - see mame.
-												// FIXME: need to refetch texel if filter changes here?
 					  "\tcol.rgb = (%s - %s) * %s + %s;\n"
 					  "\tcol.a   = (%s - %s) * %s + %s;\n",
-					  cycle1_filter, cycle1_filter,
+					  filter0, filter1,
 					  kRGBParams16[aRGB0], kRGBParams16[bRGB0], kRGBParams32[cRGB0], kRGBParams8[dRGB0],
 					  kAlphaParams8[aA0],  kAlphaParams8[bA0],  kAlphaParams8[cA0],  kAlphaParams8[dA0],
 					  kRGBParams16[aRGB1], kRGBParams16[bRGB1], kRGBParams32[cRGB1], kRGBParams8[dRGB1],
@@ -485,20 +507,25 @@ static void InitShaderProgram(ShaderProgram * program, const ShaderConfiguration
 	glVertexAttribPointer(attrloc, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
 }
 
-static void MakeShaderConfigFromCurrentState(u64 mux, const RDP_OtherMode & mode, const c32 & blend_col, ShaderConfiguration * config)
+void RendererGL::MakeShaderConfigFromCurrentState(ShaderConfiguration * config) const
 {
-	config->Mux = mux;
-	config->CycleType = mode.cycle_type;
+	config->Mux = mMux;
+	config->CycleType = gRDPOtherMode.cycle_type;
 	config->AlphaThreshold = 0;
+	config->BilerpFilter = true;
+	config->ClampS0 = false;
+	config->ClampT0 = false;
+	config->ClampS1 = false;
+	config->ClampT1 = false;
 
 	// Initiate Alpha test
-	if( (mode.alpha_compare == G_AC_THRESHOLD) && !mode.alpha_cvg_sel )
+	if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
 	{
 		// G_AC_THRESHOLD || G_AC_DITHER
 		// FIXME(strmnnrmn): alpha func: (mAlphaThreshold | g_ROM.ALPHA_HACK) ? GL_GEQUAL : GL_GREATER
-		config->AlphaThreshold = blend_col.GetA();
+		config->AlphaThreshold = mBlendColour.GetA();
 	}
-	else if (mode.cvg_x_alpha)
+	else if (gRDPOtherMode.cvg_x_alpha)
 	{
 		// Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
 		// ALso going over 0x30 breaks the birds in Tarzan :(. Need to find a better way to leverage this.
@@ -518,6 +545,21 @@ static void MakeShaderConfigFromCurrentState(u64 mux, const RDP_OtherMode & mode
 	// Not sure about this. Should CYCLE_FILL have alpha kill?
 	if (cycle_type == CYCLE_FILL)
 		config->AlphaThreshold = 0;
+
+	config->BilerpFilter = (gRDPOtherMode.text_filt != G_TF_POINT) || (gGlobalPreferences.ForceLinearFilter);
+
+	// If running the bilinear filter, check if we need to clamp in S or T.
+	// Really, this is checking to see how we set mTexWrap in PrepareTexRectUVs.
+	// Fixes California Speed, Mario Kart backgrounds.
+	// (NB: better fix for California Speed is just to force a point filter...)
+	if (config->BilerpFilter)
+	{
+		config->ClampS0 = mTexWrap[0].u == GU_CLAMP;
+		config->ClampT0 = mTexWrap[0].v == GU_CLAMP;
+
+		config->ClampS1 = mTexWrap[1].u == GU_CLAMP;
+		config->ClampT1 = mTexWrap[1].v == GU_CLAMP;
+	}
 }
 
 static ShaderProgram * GetShaderForConfig(const ShaderConfiguration & config)
@@ -867,7 +909,7 @@ void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable
 	}
 
 	ShaderConfiguration config;
-	MakeShaderConfigFromCurrentState(mMux, gRDPOtherMode, mBlendColour, &config);
+	MakeShaderConfigFromCurrentState(&config);
 
 	const ShaderProgram * program = GetShaderForConfig(config);
 	if (program == NULL)
