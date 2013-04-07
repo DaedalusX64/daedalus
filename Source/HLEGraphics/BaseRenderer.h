@@ -43,14 +43,8 @@ struct TextureVtx
 	v2  t0;
 	v3  pos;
 };
-/*
-struct LineVtx
-{
-	c32	colour;
-	v3  pos;
-};
-*/
-//Cant be used for DKR since pointer start as odd and even addresses //Corn
+
+//Can't be used for DKR since pointer start as odd and even addresses //Corn
 struct FiddledVtxDKR
 {
 	s16 y;
@@ -238,8 +232,8 @@ public:
 	inline void			SetTextureScale(float fScaleX, float fScaleY)	{ mTnL.TextureScaleX = fScaleX; mTnL.TextureScaleY = fScaleY; }
 
 	// TextRect stuff
-	virtual void		TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 ) = 0;
-	virtual void		TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0, const v2 & uv1 ) = 0;
+	virtual void		TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 ) = 0;
+	virtual void		TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 ) = 0;
 	virtual void		FillRect( const v2 & xy0, const v2 & xy1, u32 color ) = 0;
 
 	// Texture stuff
@@ -323,7 +317,7 @@ protected:
 	void				UpdateTileSnapshots( u32 tile_idx );
 	void				UpdateTileSnapshot( u32 index, u32 tile_idx );
 
-	void 				PrepareTexRectUVs(v2 * puv0, v2 * puv1);
+	void 				PrepareTexRectUVs(TexCoord * puv0, TexCoord * puv1);
 
 	virtual void		RestoreRenderStates() = 0;
 
@@ -397,7 +391,7 @@ protected:
 	TextureInfo				mBoundTextureInfo[ kNumBoundTextures ];
 	CRefPtr<CNativeTexture>	mBoundTexture[ kNumBoundTextures ];
 
-	v2						mTileTopLeft[ kNumBoundTextures ];
+	TexCoord				mTileTopLeft[ kNumBoundTextures ];
 	TextureWrap				mTexWrap[ kNumBoundTextures ];
 
 	// Index of the corresponding tile state.
@@ -452,6 +446,12 @@ bool CreateRenderer();
 void DestroyRenderer();
 extern BaseRenderer * gRenderer;
 
-extern const float kShiftScales[];
+inline s16 ApplyShift(s16 c, u8 shift)
+{
+	if (shift <= 10)
+		return c << shift;
+
+	return c >> (16 - shift);
+}
 
 #endif // BASERENDERER_H__

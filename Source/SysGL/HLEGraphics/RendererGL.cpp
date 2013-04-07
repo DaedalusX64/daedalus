@@ -314,10 +314,10 @@ static void SprintMux(char (&body)[1024], u64 mux, u32 cycle_type, u32 alpha_thr
 static const char* default_vertex_shader =
 "#version 150\n"
 "uniform mat4 uProject;\n"
-"uniform vec2 uTexScale0;\n"
-"uniform vec2 uTexScale1;\n"
-"uniform vec2 uTexOffset0;\n"
-"uniform vec2 uTexOffset1;\n"
+"uniform ivec2 uTexScale0;\n"
+"uniform ivec2 uTexScale1;\n"
+"uniform ivec2 uTexOffset0;\n"
+"uniform ivec2 uTexOffset1;\n"
 "in      vec3 in_pos;\n"
 "in      vec2 in_uv;\n"
 "in      vec4 in_col;\n"
@@ -327,8 +327,8 @@ static const char* default_vertex_shader =
 "\n"
 "void main()\n"
 "{\n"
-"	v_uv0 = ((in_uv / 32.0) - uTexOffset0) / uTexScale0;\n"
-"	v_uv1 = ((in_uv / 32.0) - uTexOffset1) / uTexScale1;\n"
+"	v_uv0 = (in_uv - uTexOffset0) / (uTexScale0 * 32.0);\n"
+"	v_uv1 = (in_uv - uTexOffset1) / (uTexScale1 * 32.0);\n"
 "	v_col = in_col;\n"
 "	gl_Position = uProject * vec4(in_pos, 1.0);\n"
 "}\n";
@@ -798,11 +798,12 @@ void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable
 			// NB: think this can be done just once per program.
 			glUniform1i(program->uloc_texture[i], i);
 
-			float shifts = kShiftScales[rdp_tile.shift_s];
-			float shiftt = kShiftScales[rdp_tile.shift_t];
-
-			glUniform2f(program->uloc_texoffset[i], mTileTopLeft[i].x * shifts, mTileTopLeft[i].y * shiftt);
-			glUniform2f(program->uloc_texscale[i], (float)texture->GetCorrectedWidth() * shifts, (float)texture->GetCorrectedHeight() * shiftt);
+			glUniform2i(program->uloc_texoffset[i],
+					ApplyShift(mTileTopLeft[i].s, rdp_tile.shift_s),
+					ApplyShift(mTileTopLeft[i].t, rdp_tile.shift_t));
+			glUniform2i(program->uloc_texscale[i],
+					ApplyShift(texture->GetCorrectedWidth(),  rdp_tile.shift_s),
+					ApplyShift(texture->GetCorrectedHeight(), rdp_tile.shift_t));
 
 			if( (gRDPOtherMode.text_filt != G_TF_POINT) | (gGlobalPreferences.ForceLinearFilter) )
 			{
@@ -833,8 +834,8 @@ void RendererGL::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bo
 	// FIXME: this should be applied in SetNewVertexInfo, and use TextureScaleX/Y to set the scale
 	if (mTnL.Flags.Light && mTnL.Flags.TexGen)
 	{
-		mTileTopLeft[0].x = 0;
-		mTileTopLeft[0].y = 0;
+		mTileTopLeft[0].s = 0;
+		mTileTopLeft[0].t = 0;
 		if (CNativeTexture * texture = mBoundTexture[0])
 		{
 			float w = (float)texture->GetCorrectedWidth();
@@ -851,7 +852,7 @@ void RendererGL::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bo
 	RenderDaedalusVtx(GL_TRIANGLES, p_vertices, num_vertices);
 }
 
-void RendererGL::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0_, const v2 & uv1_ )
+void RendererGL::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 )
 {
 	// FIXME(strmnnrmn): in copy mode, depth buffer is always disabled. Might not need to check this explicitly.
 
@@ -859,9 +860,7 @@ void RendererGL::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2
 
 	// NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
 	// We have to do it before PrepareRenderState, because those values are applied to the graphics state.
-	v2 uv0 = uv0_;
-	v2 uv1 = uv1_;
-	PrepareTexRectUVs(&uv0, &uv1);
+	PrepareTexRectUVs(&st0, &st1);
 
 	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
 
@@ -871,7 +870,7 @@ void RendererGL::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2
 	ConvertN64ToScreen( xy1, screen1 );
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
+	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", st0.s / 32.f, st0.t / 32.f, st1.s / 32.f, st1.t / 32.f );
 
 	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
@@ -883,10 +882,10 @@ void RendererGL::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2
 	};
 
 	TexCoord uvs[] = {
-		TexCoord( uv0.x, uv0.y ),
-		TexCoord( uv1.x, uv0.y ),
-		TexCoord( uv0.x, uv1.y ),
-		TexCoord( uv1.x, uv1.y ),
+		TexCoord( st0.s, st0.t ),
+		TexCoord( st1.s, st0.t ),
+		TexCoord( st0.s, st1.t ),
+		TexCoord( st1.s, st1.t ),
 	};
 
 	u32 colours[] = {
@@ -903,15 +902,13 @@ void RendererGL::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2
 #endif
 }
 
-void RendererGL::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0_, const v2 & uv1_ )
+void RendererGL::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 )
 {
 	UpdateTileSnapshots( tile_idx );
 
 	// NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
 	// We have to do it before PrepareRenderState, because those values are applied to the graphics state.
-	v2 uv0 = uv0_;
-	v2 uv1 = uv1_;
-	PrepareTexRectUVs(&uv0, &uv1);
+	PrepareTexRectUVs(&st0, &st1);
 
 	PrepareRenderState(mScreenToDevice.mRaw, gRDPOtherMode.depth_source ? false : true);
 
@@ -921,7 +918,7 @@ void RendererGL::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, cons
 	ConvertN64ToScreen( xy1, screen1 );
 
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
+	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", st0.s / 32.f, st0.t / 32.f, st1.s / 32.f, st1.t / 32.f );
 
 	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
@@ -933,10 +930,10 @@ void RendererGL::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, cons
 	};
 
 	TexCoord uvs[] = {
-		TexCoord( uv0.x, uv0.y ),
-		TexCoord( uv0.x, uv1.y ),
-		TexCoord( uv1.x, uv0.y ),
-		TexCoord( uv1.x, uv1.y ),
+		TexCoord( st0.s, st0.t ),
+		TexCoord( st0.s, st1.t ),
+		TexCoord( st1.s, st0.t ),
+		TexCoord( st1.s, st1.t ),
 	};
 
 	u32 colours[] = {

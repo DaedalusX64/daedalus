@@ -127,27 +127,7 @@ f32 TEST_VARX = 0.0f;
 f32 TEST_VARY = 0.0f;
 #endif
 
-#ifdef DAEDALUS_GL
-const float kShiftScales[] = {
-	(float)(1 << 0),
-	(float)(1 << 1),
-	(float)(1 << 2),
-	(float)(1 << 3),
-	(float)(1 << 4),
-	(float)(1 << 5),
-	(float)(1 << 6),
-	(float)(1 << 7),
-	(float)(1 << 8),
-	(float)(1 << 9),
-	(float)(1 << 10),
-	1.f / (float)(1 << 5),
-	1.f / (float)(1 << 4),
-	1.f / (float)(1 << 3),
-	1.f / (float)(1 << 2),
-	1.f / (float)(1 << 1),
-};
-DAEDALUS_STATIC_ASSERT(ARRAYSIZE(kShiftScales) == 16);
-#endif
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -189,8 +169,8 @@ BaseRenderer::BaseRenderer()
 
 	for ( u32 i = 0; i < kNumBoundTextures; i++ )
 	{
-		mTileTopLeft[i].x = 0.0f;
-		mTileTopLeft[i].y = 0.0f;
+		mTileTopLeft[i].s = 0;
+		mTileTopLeft[i].t = 0;
 		mTexWrap[i].u = 0;
 		mTexWrap[i].v = 0;
 		mActiveTile[i] = 0;
@@ -1781,8 +1761,8 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	mTexWrap[ index ].u = mode_u;
 	mTexWrap[ index ].v = mode_v;
 
-	mTileTopLeft[ index ].x = f32(tile_size.left) / 4.0f;
-	mTileTopLeft[ index ].y = f32(tile_size.top) / 4.0f;
+	mTileTopLeft[ index ].s = tile_size.left << 3;	// Convert 10.2 fixed point to 10.5
+	mTileTopLeft[ index ].t = tile_size.top  << 3;
 
 	mActiveTile[ index ] = tile_idx;
 
@@ -1790,7 +1770,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 			tile_idx, index, ti.GetWidth(), ti.GetHeight(), ti.GetFormatName(), ti.GetSizeInBits(),
 			(mode_u==GU_CLAMP)? "Clamp" : "Repeat", (mode_v==GU_CLAMP)? "Clamp" : "Repeat",
 			ti.GetLoadAddress(), ti.GetTlutAddress(), ti.GetHashCode(), ti.GetPitch(),
-			mTileTopLeft[ index ].x, mTileTopLeft[ index ].y );
+			mTileTopLeft[ index ].s / 32.f, mTileTopLeft[ index ].t / 32.f );
 }
 
 
@@ -1809,46 +1789,47 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 // of the texture width/height until the uvs are positive. Then if the resulting UVs
 // are in the range [(0,0),(w,h)] we can update mTexWrap to GL_CLAMP_TO_EDGE/GU_CLAMP
 // and everything works correctly.
-inline void FixUV(u32 * wrap, float * c0, float * c1, float offset, float size)
+inline void FixUV(u32 * wrap, s16 * c0_, s16 * c1_, s16 offset, u32 size)
 {
-	*c0 -= offset;
-	*c1 -= offset;
+	DAEDALUS_ASSERT(size > 0, "Texture has crazy width/height");
+
+	s16 c0 = *c0_ - offset;
+	s16 c1 = *c1_ - offset;
 
 	// Many texrects already have GU_CLAMP set, so avoid some work.
-	if (*wrap != GU_CLAMP)
+	if (*wrap != GU_CLAMP && size > 0)
 	{
-		DAEDALUS_ASSERT(size > 0.f, "Texture has crazy width/height");
+		s16 lowest = Min(c0, c1);
 
-		// Check if the coord is negative - if so, offset to the range [0,size]
-		if (*c0 < 0.f)
-		{
-			// If integer, this would simply be (-uv0x + size-1) % size
-			// NB! we have to apply the same offset to both coords, to preserve direction of mapping (i.e., don't clamp each independently)
-			float v = ceilf(-*c0 / size) * size;
-			*c0 += v;
-			*c1 += v;
-		}
+		// Figure out by how much to translate so that the lowest of c0/c1 lies in the range [0,size]
+		// If we do lowest%size, we run the risk of implementation dependent behaviour for modulo of negative values.
+		// lowest + (size<<16) just adds a large multiple of size, which guarantees the result is positive.
+		s16 trans = (s16)(((s32)lowest + (size<<16)) % size) - lowest;
+
+		// NB! we have to apply the same offset to both coords, to preserve direction of mapping (i.e., don't clamp each independently)
+		c0 += trans;
+		c1 += trans;
 
 		// If both coords are in the range [0,size], we can clamp safely.
-		// If integer, this would be just '(unsigned)c0 <= size & (unsigned)c1 <= size'.
-		// NB c0 is guaranteed >= 0 here, so don't bother checking.
-		DAEDALUS_ASSERT(*c0 >= 0.0, "Arithmetic error");
-		if (*c0 <= size &&
-			*c1 <= size && *c1 >= 0.f)
+		if ((u16)c0 <= size &&
+			(u16)c1 <= size)
 		{
 			*wrap = GU_CLAMP;
 		}
 	}
+
+	*c0_ = c0;
+	*c1_ = c1;
 }
 
 // puv0, puv1 are in/out arguments.
-void BaseRenderer::PrepareTexRectUVs(v2 * puv0, v2 * puv1)
+void BaseRenderer::PrepareTexRectUVs(TexCoord * puv0, TexCoord * puv1)
 {
 	const RDP_Tile & rdp_tile = gRDPStateManager.GetTile( mActiveTile[0] );
 
-	v2 		offset = mTileTopLeft[0];
-	float 	size_x = mBoundTextureInfo[0].GetWidth();
-	float 	size_y = mBoundTextureInfo[0].GetHeight();
+	TexCoord	offset = mTileTopLeft[0];
+	u32 		size_x = mBoundTextureInfo[0].GetWidth()  << 5;
+	u32 		size_y = mBoundTextureInfo[0].GetHeight() << 5;
 
 	// If mirroring, we need to scroll twice as far to line up.
 	if (rdp_tile.mirror_s)	size_x *= 2;
@@ -1856,19 +1837,17 @@ void BaseRenderer::PrepareTexRectUVs(v2 * puv0, v2 * puv1)
 
 #ifdef DAEDALUS_GL
 	// If using mTexShift, we need to take it into account here.
-	float ss = kShiftScales[rdp_tile.shift_s];
-	float st = kShiftScales[rdp_tile.shift_t];
-	offset.x *= ss;
-	offset.y *= st;
-	size_x *= ss;
-	size_y *= st;
+	offset.s = ApplyShift(offset.s, rdp_tile.shift_s);
+	offset.t = ApplyShift(offset.t, rdp_tile.shift_t);
+	size_x   = ApplyShift(size_x,   rdp_tile.shift_s);
+	size_y   = ApplyShift(size_y,   rdp_tile.shift_t);
 #endif
 
-	FixUV(&mTexWrap[0].u, &puv0->x, &puv1->x, offset.x, size_x);
-	FixUV(&mTexWrap[0].v, &puv0->y, &puv1->y, offset.y, size_y);
+	FixUV(&mTexWrap[0].u, &puv0->s, &puv1->s, offset.s, size_x);
+	FixUV(&mTexWrap[0].v, &puv0->t, &puv1->t, offset.t, size_y);
 
-	mTileTopLeft[0].x = 0.f;
-	mTileTopLeft[0].y = 0.f;
+	mTileTopLeft[0].s = 0;
+	mTileTopLeft[0].t = 0;
 }
 
 //*****************************************************************************

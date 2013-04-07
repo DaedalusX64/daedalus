@@ -1,0 +1,160 @@
+#version 150
+
+uniform sampler2D uTexture0;
+uniform sampler2D uTexture1;
+uniform vec2 uTexScale0;
+uniform vec2 uTexScale1;
+uniform vec4 uPrimColour;
+uniform vec4 uEnvColour;
+uniform float uPrimLODFrac;
+in      vec2 v_st;
+in      vec4 v_col;
+out     vec4 fragcol;
+
+
+uniform bvec2 uTileClampEnable0;
+uniform ivec2 uTileTL0;		// 10.2 fixed point
+uniform ivec2 uTileBR0;		// 10.2 fixed point
+uniform ivec2 uTileDiff0;	// 10.2 bits - ((uTileL>>2) - (uTileH>>2))<<2
+uniform vec2  uTileShift0;	// floating point
+uniform ivec2 uTileMask0;	// 10.5 fixed point
+uniform ivec2 uTileMirror0;	// 10.5 fixed point
+
+uniform bvec2 uTileClampEnable1;
+uniform ivec2 uTileTL1;
+uniform ivec2 uTileBR1;
+uniform vec2  uTileShift1;
+uniform ivec2 uTileDiff1;	// (uTileL>>2) - (uTileH>>2)
+uniform ivec2 uTileMask1;
+uniform ivec2 uTileMirror1;
+
+
+ivec2 imix(ivec2 a, ivec2 b, bvec2 c)
+{
+	return ivec2(mix(a,b,c));
+}
+
+/*
+// Shift Clamp Mask
+
+Shift
+*maxs = ((*S >> 3) >= tile[num].sh);	// Not for copy
+
+#define TRELATIVE(x, y)     ((((x) >> 3) - (y)) << 3) | (x & 7);
+sss1 = TRELATIVE(sss1, tile[i].sl)
+INT32 sfrac = sss1 & 0x1f;
+Clamp:
+	if clamp_s | !mask_s
+	diff[i] = (tile[i].sh >> 2) - (tile[i].sl >> 2);
+
+Mask
+*/
+/*
+
+    #00 Flags: 0x0000 Pos:{ 52.0, 94.0, 56.0} Tex:{ 117.78,  82.34} Extra: 5b f1 58 00 Tran:{-130.235, 52.606,-736.237, 1.000} Proj:{-0.331548, 0.178564, 0.665295, 736.236938}
+    #01 Flags: 0x0000 Pos:{ 66.0, 147.0, 69.0} Tex:{ 125.31, 104.00} Extra: 5e 37 42 00 Tran:{-108.856, 104.382,-735.981, 1.000} Proj:{-0.277218, 0.354433, 0.665173, 735.980774}
+    #02 Flags: 0x0000 Pos:{-1.0, 110.0, 91.0} Tex:{  89.44,  88.72} Extra: 00 5d 57 00 Tran:{-144.898, 69.064,-674.926, 1.000} Proj:{-0.402384, 0.255725, 0.633460, 674.925842}
+    #03 Flags: 0x0000 Pos:{-53.0, 94.0, 56.0} Tex:{  61.06,  82.34} Extra: a5 f1 58 00 Tran:{-207.288, 55.955,-665.685, 1.000} Proj:{-0.583635, 0.210060, 0.628153, 665.685120}
+    #04 Flags: 0x0000 Pos:{-67.0, 147.0, 69.0} Tex:{  53.53, 104.00} Extra: a2 37 42 00 Tran:{-206.457, 108.624,-646.615, 1.000} Proj:{-0.598437, 0.419811, 0.616722, 646.615112}
+    #05 Flags: 0x0000 Pos:{-1.0, 163.0, 101.0} Tex:{  89.44, 110.34} Extra: 00 45 6b 00 Tran:{-135.808, 121.383,-667.462, 1.000} Proj:{-0.381359, 0.454471, 0.629185, 667.462097}
+
+    tile #	format	size	line	tmem	palette	cm_s	mask_s	shift_s	cm_t	mask_t	shift_t	left	top	right	bottom
+0	G_IM_FMT_CI	G_IM_SIZ_4b	1	0	0	G_TX_MIRROR|G_TX_CLAMP	4	0
+                                                    G_TX_CLAMP	5	0
+                               	61	85.25	92	108.25
+*/
+// coord:  10.5
+// return: 10.5
+ivec2 shift(ivec2 coord, vec2 shift_scale)
+{
+	return ivec2(coord / shift_scale);
+}
+
+// coord: 10.5
+// return 10.5
+ivec2 translate(ivec2 coord, ivec2 off)
+{
+	return (((coord>>3) - off)<<3) | (coord & 7);
+}
+
+// coord:  10.5
+// return: 10.5
+ivec2 clamp(ivec2 coord, ivec2 tile_tl, ivec2 tile_br, ivec2 tile_diff, bvec2 clamp_enable)
+//	, out bvec2 clamped_tl_out, out bvec2 clamped_br_out)
+{
+	ivec2 coord_relative = ((translate(coord, tile_tl) << 17) >> 20) & 0x1fff;
+	//ivec2 coord_relative = translate(coord, tile_tl);
+	coord_relative = coord_relative << 3;
+
+	bvec2 clamped_tl    = lessThan(coord >> 3, tile_tl);
+	bvec2 clamped_br    = greaterThan(coord >> 3, tile_br);
+
+	ivec2 coord_clampedx = imix(coord_relative, ivec2(0,0), clamped_tl);
+	ivec2 coord_clamped  = imix(coord_clampedx, tile_diff<<3, clamped_br);
+	ivec2 coord_out      = imix(coord_relative, coord_clamped, clamp_enable);
+
+	//clamped_tl_out = clamped_tl;
+	//clamped_br_out = clamped_br;
+
+	return coord_out;
+}
+
+// coord:  10.5
+// return: 10.5
+ivec2 mask(ivec2 coord, ivec2 mirror_bits, ivec2 mask_bits)
+{
+	ivec2 ones   = ivec2( -1, -1 );
+	ivec2 zeroes = ivec2(  0,  0 );
+
+	coord ^= imix(zeroes, ones, notEqual(coord & mirror_bits, zeroes));	// Invert the bits if mirroring.
+	coord &= mask_bits;
+	return coord;
+}
+
+void readTexture(vec2 st_in, vec2 shift_scale, ivec2 mirror_bits, ivec2 mask_bits,
+					ivec2 tile_tl, ivec2 tile_br, ivec2 tile_diff, bvec2 clamp_enable,
+					vec2 tex_scale, sampler2D tex, out vec4 tex0)
+{
+	//bvec2 clamped_tl;
+	//bvec2 clamped_br;
+	ivec2 uv0i = ivec2(st_in);
+	uv0i = shift(uv0i, shift_scale);
+	uv0i = clamp(uv0i, tile_tl, tile_br, tile_diff, clamp_enable);
+	//	, clamped_tl, clamped_br);
+	uv0i = mask(uv0i, mirror_bits, mask_bits);
+
+	vec2 uv0 = (uv0i * tex_scale) / 32.0f;
+	tex0  = texture(tex, uv0);
+
+	// tex0.x = mix(tex0.x, 1.f, clamped_br.x && clamp_enable.x);
+	// tex0.y = mix(tex0.y, 0.f, clamped_br.x && clamp_enable.x);
+	// tex0.z = mix(tex0.z, 1.f, clamped_br.x && clamp_enable.x);
+	// tex0.w = mix(tex0.w, 1.f, clamped_br.x && clamp_enable.x);
+
+	// tex0.x = mix(tex0.x, 0.f, clamped_tl.x && clamp_enable.x);
+	// tex0.y = mix(tex0.y, 1.f, clamped_tl.x && clamp_enable.x);
+	// tex0.z = mix(tex0.z, 0.f, clamped_tl.x && clamp_enable.x);
+	// tex0.w = mix(tex0.w, 1.f, clamped_tl.x && clamp_enable.x);
+
+}
+
+void main()
+{
+	ivec2 sti = ivec2(v_st);
+	vec4 tex0;
+	vec4 tex1;
+	readTexture(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileDiff0, uTileClampEnable0, uTexScale0, uTexture0, tex0);
+	readTexture(sti, uTileShift1, uTileMirror1, uTileMask1, uTileTL1, uTileBR1, uTileDiff1, uTileClampEnable1, uTexScale1, uTexture1, tex1);
+	vec4 shade = v_col;
+	vec4 prim  = uPrimColour;
+	vec4 env   = uEnvColour;
+	vec4 one   = vec4(1,1,1,1);
+	vec4 zero  = vec4(0,0,0,0);
+	vec4 col;
+	vec4 combined = vec4(0,0,0,1);
+	float lod_frac      = 0.0;		// FIXME
+	float prim_lod_frac = uPrimLODFrac;
+	float k5            = 0.0;		// FIXME
+%s		// Body is injected here
+	fragcol = col;
+}

@@ -330,7 +330,8 @@ void RendererPSP::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, b
 			float scale_x = texture->GetScaleX();
 			float scale_y = texture->GetScaleY();
 
-			sceGuTexOffset( -mTileTopLeft[ 0 ].x * scale_x, -mTileTopLeft[ 0 ].y * scale_y );
+			sceGuTexOffset( -mTileTopLeft[ 0 ].s * scale_x / 32.f,
+							-mTileTopLeft[ 0 ].t * scale_y / 32.f );
 			sceGuTexScale( scale_x, scale_y );
 		}
 		else
@@ -588,7 +589,8 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 					float scale_x = texture1->GetScaleX();
 					float scale_y = texture1->GetScaleY();
 
-					sceGuTexOffset( -mTileTopLeft[ 1 ].x * scale_x, -mTileTopLeft[ 1 ].y * scale_y );
+					sceGuTexOffset( -mTileTopLeft[ 1 ].s * scale_x / 32.f,
+									-mTileTopLeft[ 1 ].t * scale_y / 32.f );
 					sceGuTexScale( scale_x, scale_y );
 				}
 			}
@@ -627,14 +629,17 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 	}
 }
 
-void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0_, const v2 & uv1_ )
+void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 )
 {
 	UpdateTileSnapshots( tile_idx );
 
 	// NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
-	v2 uv0 = uv0_;
-	v2 uv1 = uv1_;
-	PrepareTexRectUVs(&uv0, &uv1);
+	PrepareTexRectUVs(&st0, &st1);
+
+	// Convert fixed point uvs back to floating point format.
+	// NB: would be nice to pass these as s16 ints, and use GU_TEXTURE_16BIT
+	v2 uv0( (float)st0.s / 32.f, (float)st0.t / 32.f );
+	v2 uv1( (float)st1.s / 32.f, (float)st1.t / 32.f );
 
 	v2 screen0;
 	v2 screen1;
@@ -716,14 +721,17 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 #endif
 }
 
-void RendererPSP::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2 & uv0_, const v2 & uv1_ )
+void RendererPSP::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 )
 {
 	UpdateTileSnapshots( tile_idx );
 
 	// NB: we have to do this after UpdateTileSnapshot, as it set up mTileTopLeft etc.
-	v2 uv0 = uv0_;
-	v2 uv1 = uv1_;
-	PrepareTexRectUVs(&uv0, &uv1);
+	PrepareTexRectUVs(&st0, &st1);
+
+	// Convert fixed point uvs back to floating point format.
+	// NB: would be nice to pass these as s16 ints, and use GU_TEXTURE_16BIT
+	v2 uv0( (float)st0.s / 32.f, (float)st0.t / 32.f );
+	v2 uv1( (float)st1.s / 32.f, (float)st1.t / 32.f );
 
 	v2 screen0;
 	v2 screen1;

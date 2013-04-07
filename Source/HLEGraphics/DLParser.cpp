@@ -966,7 +966,10 @@ void DLParser_TexRect( MicroCodeCommand command )
 	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile[%d]", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
 	DL_PF("    Tex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", uv0.x, uv0.y, uv1.x, uv1.y, d.x, d.y);
 
-	gRenderer->TexRect( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );
+	TexCoord st0( uv0.x, uv0.y );
+	TexCoord st1( uv1.x, uv1.y );
+
+	gRenderer->TexRect( tex_rect.tile_idx, xy0, xy1, st0, st1 );
 }
 
 //*****************************************************************************
@@ -1019,7 +1022,10 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile[%d]", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
 	DL_PF("    FLIPTex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", uv0.x, uv0.y, uv1.x, uv1.y, d.x, d.y);
 
-	gRenderer->TexRectFlip( tex_rect.tile_idx, xy0, xy1, uv0, uv1 );
+	TexCoord st0( uv0.x, uv0.y );
+	TexCoord st1( uv1.x, uv1.y );
+
+	gRenderer->TexRectFlip( tex_rect.tile_idx, xy0, xy1, st0, st1 );
 }
 
 //*****************************************************************************

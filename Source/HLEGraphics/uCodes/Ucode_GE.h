@@ -61,8 +61,8 @@ void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 
 	v2 xy0( x0, x0 );
 	v2 xy1( y0, y0 );
-	v2 uv0( 0, 0 );
-	v2 uv1( t0 / 40.0f, t0 / 40.0f );
+	TexCoord uv0( 0.f, 0.f );
+	TexCoord uv1( t0 / 40.0f, t0 / 40.0f );
 
 	//DL_PF(" Word 1: %u, Word 2: %u, Word 3: %u, Word 4: %u, Word 5: %u, Word 6: %u, Word 7: %u, Word 8: %u, Word 9: %u", a1, a2, a3, a4, a5, a6, a7, a8, a9);
 	//DL_PF("    Tile:%d Screen(%f,%f) -> (%f,%f)",				   tile, xy0, xy1, uv0, uv1);
