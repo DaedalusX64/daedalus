@@ -152,6 +152,14 @@
             ],
           }],
         ],
+        'copies': [
+          {
+            'files': [
+              'roms.ini',
+            ],
+            'destination': '<(PRODUCT_DIR)/',
+          },
+        ],
       },
     ],
   }
