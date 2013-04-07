@@ -737,14 +737,14 @@ void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable
 		glDisable(GL_BLEND);
 	}
 
-	u32 alpha_threshold = 0;
+	u8 alpha_threshold = 0;
 
 	// Initiate Alpha test
 	if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
 	{
 		// G_AC_THRESHOLD || G_AC_DITHER
-		// FIXME(strmnnrmn): alpha func: (mAlphaThreshold | g_ROM.ALPHA_HACK) ? GL_GEQUAL : GL_GREATER
-		alpha_threshold = mAlphaThreshold;
+		// FIXME(strmnnrmn): alpha func: (alpha_threshold | g_ROM.ALPHA_HACK) ? GL_GEQUAL : GL_GREATER
+		alpha_threshold = mBlendColour.GetA();
 	}
 	else if (gRDPOtherMode.cvg_x_alpha)
 	{

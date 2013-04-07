@@ -1188,7 +1188,6 @@ void DLParser_SetBlendColor( MicroCodeCommand command )
 
 	c32	blend_colour( command.color.r, command.color.g, command.color.b, command.color.a );
 
-	gRenderer->SetAlphaRef( command.color.a );	// FIXME - should remove AlphaRef and just use mBlendColour.GetA()
 	gRenderer->SetBlendColour( blend_colour );
 }
 

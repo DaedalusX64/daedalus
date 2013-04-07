@@ -413,7 +413,8 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
 	{
 		// G_AC_THRESHOLD || G_AC_DITHER
-		sceGuAlphaFunc( (mAlphaThreshold | g_ROM.ALPHA_HACK) ? GU_GEQUAL : GU_GREATER, mAlphaThreshold, 0xff);
+		u8 alpah_threshold = mBlendColour.GetA();
+		sceGuAlphaFunc( (alpah_threshold | g_ROM.ALPHA_HACK) ? GU_GEQUAL : GU_GREATER, alpah_threshold, 0xff);
 		sceGuEnable(GU_ALPHA_TEST);
 	}
 	// I think this implies that alpha is coming from
@@ -655,7 +656,7 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
 
 	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
-	
+
 #if 1	//1->SPRITE, 0->STRIP
 	DaedalusVtx * p_vertices = static_cast<DaedalusVtx *>(sceGuGetMemory(2 * sizeof(DaedalusVtx)));
 

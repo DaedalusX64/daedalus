@@ -233,7 +233,6 @@ public:
 	inline void			SetLightDirection(u32 l, f32 x, f32 y, f32 z)			{ v3 n(x, y, z); n.Normalise(); mTnL.Lights[l].Direction.x=n.x; mTnL.Lights[l].Direction.y=n.y; mTnL.Lights[l].Direction.z=n.z; mTnL.Lights[l].Padding0=0.0f; }
 
 	inline void			SetMux( u64 mux )						{ mMux = mux; }
-	inline void			SetAlphaRef(u32 alpha)					{ mAlphaThreshold = alpha; }
 
 	inline void			SetTextureScale(float fScaleX, float fScaleY)	{ mTnL.TextureScaleX = fScaleX; mTnL.TextureScaleY = fScaleY; }
 
@@ -372,8 +371,6 @@ protected:
 	u64					mMux;
 
 	u32					mTextureTile;
-
-	u32					mAlphaThreshold;
 
 	f32					mPrimDepth;
 	f32					mPrimLODFraction;

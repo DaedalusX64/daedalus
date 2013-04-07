@@ -158,15 +158,13 @@ BaseRenderer::BaseRenderer()
 
 ,	mTextureTile(0)
 
-,	mAlphaThreshold(0)
-
 ,	mPrimDepth( 0.0f )
 ,	mPrimLODFraction( 0.f )
 
 ,	mFogColour(0x00ffffff)			// NB top bits not set. Intentional?
 ,	mPrimitiveColour(0xffffffff)
 ,	mEnvColour(0xffffffff)
-,	mBlendColour(0xffffffff)
+,	mBlendColour(255, 255, 255, 0)
 ,	mFillColour(0xffffffff)
 
 ,	mModelViewTop(0)
