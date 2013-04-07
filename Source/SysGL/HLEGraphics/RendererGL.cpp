@@ -152,13 +152,26 @@ void sceGuSetMatrix(EGuMatrixType type, const ScePspFMatrix4 * mtx)
 	}
 }
 
+// This defines all the state that is expressed by a given shader.
+// If any of these fields change, it requires building a different shader.
+struct ShaderConfiguration
+{
+	u64		Mux;
+	u32		CycleType : 2;
+	u8		AlphaThreshold;
+};
 
+inline bool operator==(const ShaderConfiguration & a, const ShaderConfiguration & b)
+{
+	return
+		a.Mux == b.Mux &&
+		a.CycleType == b.CycleType &&
+		a.AlphaThreshold == b.AlphaThreshold;
+}
 
 struct ShaderProgram
 {
-	u64					mMux;
-	u32					mCycleType;
-	u32					mAlphaThreshold;
+	ShaderConfiguration config;
 	GLuint 				program;
 
 	GLint				uloc_project;
@@ -346,10 +359,11 @@ static const char* default_fragment_shader_fmt =
 "	fragcol = col;\n"
 "}\n";
 
-static void SprintShader(char (&frag_shader)[2048], u64 mux, u32 cycle_type, u32 alpha_threshold)
+
+static void SprintShader(char (&frag_shader)[2048], const ShaderConfiguration & config)
 {
-	u32 mux0 = (u32)(mux>>32);
-	u32 mux1 = (u32)(mux);
+	u32 mux0 = (u32)(config.Mux>>32);
+	u32 mux1 = (u32)(config.Mux);
 
 	u32 aRGB0  = (mux0>>20)&0x0F;	// c1 c1		// a0
 	u32 bRGB0  = (mux1>>28)&0x0F;	// c1 c2		// b0
@@ -372,6 +386,8 @@ static void SprintShader(char (&frag_shader)[2048], u64 mux, u32 cycle_type, u32
 	u32 dA1    = (mux1    )&0x07;	// c2 a4		// Ad1
 
 	char body[1024];
+
+	u32 cycle_type = config.CycleType;
 
 	const char * cycle1_filter = "fetchBilinear";
 	const char * cycle2_filter = "fetchBilinear";
@@ -414,20 +430,18 @@ static void SprintShader(char (&frag_shader)[2048], u64 mux, u32 cycle_type, u32
 					  kAlphaParams8[aA1],  kAlphaParams8[bA1],  kAlphaParams8[cA1],  kAlphaParams8[dA1]);
 	}
 
-	if (alpha_threshold > 0)
+	if (config.AlphaThreshold > 0)
 	{
 		char * p = body + strlen(body);
-		sprintf(p, "\tif(col.a < %f) discard;\n", (float)alpha_threshold / 255.f);
+		sprintf(p, "\tif(col.a < %f) discard;\n", (float)config.AlphaThreshold / 255.f);
 	}
 
 	sprintf(frag_shader, default_fragment_shader_fmt, body);
 }
 
-static void InitShaderProgram(ShaderProgram * program, u64 mux, u32 cycle_type, u32 alpha_threshold, GLuint shader_program)
+static void InitShaderProgram(ShaderProgram * program, const ShaderConfiguration & config, GLuint shader_program)
 {
-	program->mMux              = mux;
-	program->mCycleType        = cycle_type;
-	program->mAlphaThreshold   = alpha_threshold;
+	program->config            = config;
 	program->program           = shader_program;
 	program->uloc_project      = glGetUniformLocation(shader_program, "uProject");
 	program->uloc_primcol      = glGetUniformLocation(shader_program, "uPrimColour");
@@ -471,27 +485,54 @@ static void InitShaderProgram(ShaderProgram * program, u64 mux, u32 cycle_type, 
 	glVertexAttribPointer(attrloc, 4, GL_UNSIGNED_BYTE, GL_TRUE, 0, 0);
 }
 
-static ShaderProgram * GetShaderForCurrentMode(u64 mux, u32 cycle_type, u32 alpha_threshold)
+static void MakeShaderConfigFromCurrentState(u64 mux, const RDP_OtherMode & mode, const c32 & blend_col, ShaderConfiguration * config)
 {
-	DAEDALUS_ASSERT( gN64FramentLibrary != NULL, "Haven't initialised the n64 fragment library" );
+	config->Mux = mux;
+	config->CycleType = mode.cycle_type;
+	config->AlphaThreshold = 0;
+
+	// Initiate Alpha test
+	if( (mode.alpha_compare == G_AC_THRESHOLD) && !mode.alpha_cvg_sel )
+	{
+		// G_AC_THRESHOLD || G_AC_DITHER
+		// FIXME(strmnnrmn): alpha func: (mAlphaThreshold | g_ROM.ALPHA_HACK) ? GL_GEQUAL : GL_GREATER
+		config->AlphaThreshold = blend_col.GetA();
+	}
+	else if (mode.cvg_x_alpha)
+	{
+		// Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
+		// ALso going over 0x30 breaks the birds in Tarzan :(. Need to find a better way to leverage this.
+		config->AlphaThreshold = 0x70;
+	}
+	else
+	{
+		// Use CVG for pixel alpha
+		config->AlphaThreshold = 0;
+	}
 
 	// In fill/cycle modes, we ignore the mux. Set it to zero so we don't create unecessary shaders.
+	u32 cycle_type = config->CycleType;
 	if (cycle_type == CYCLE_FILL || cycle_type == CYCLE_COPY)
-		mux = 0;
+		config->Mux = 0;
 
 	// Not sure about this. Should CYCLE_FILL have alpha kill?
 	if (cycle_type == CYCLE_FILL)
-		alpha_threshold = 0;
+		config->AlphaThreshold = 0;
+}
+
+static ShaderProgram * GetShaderForConfig(const ShaderConfiguration & config)
+{
+	DAEDALUS_ASSERT( gN64FramentLibrary != NULL, "Haven't initialised the n64 fragment library" );
 
 	for (u32 i = 0; i < gShaders.size(); ++i)
 	{
 		ShaderProgram * program = gShaders[i];
-		if (program->mMux == mux && program->mCycleType == cycle_type && program->mAlphaThreshold == alpha_threshold)
+		if (program->config == config)
 			return program;
 	}
 
 	char frag_shader[2048];
-	SprintShader(frag_shader, mux, cycle_type, alpha_threshold);
+	SprintShader(frag_shader, config);
 
 	const char * vertex_lines[] = { default_vertex_shader };
 	const char * fragment_lines[] = { gN64FramentLibrary, frag_shader };
@@ -506,7 +547,7 @@ static ShaderProgram * GetShaderForCurrentMode(u64 mux, u32 cycle_type, u32 alph
 	}
 
 	ShaderProgram * program = new ShaderProgram;
-	InitShaderProgram(program, mux, cycle_type, alpha_threshold, shader_program);
+	InitShaderProgram(program, config, shader_program);
 	gShaders.push_back(program);
 
 	return program;
@@ -825,32 +866,14 @@ void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable
 		glDisable(GL_BLEND);
 	}
 
-	u8 alpha_threshold = 0;
+	ShaderConfiguration config;
+	MakeShaderConfigFromCurrentState(mMux, gRDPOtherMode, mBlendColour, &config);
 
-	// Initiate Alpha test
-	if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
-	{
-		// G_AC_THRESHOLD || G_AC_DITHER
-		// FIXME(strmnnrmn): alpha func: (alpha_threshold | g_ROM.ALPHA_HACK) ? GL_GEQUAL : GL_GREATER
-		alpha_threshold = mBlendColour.GetA();
-	}
-	else if (gRDPOtherMode.cvg_x_alpha)
-	{
-		// Going over 0x70 brakes OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
-		// ALso going over 0x30 breaks the birds in Tarzan :(. Need to find a better way to leverage this.
-		alpha_threshold = 0x70;
-	}
-	else
-	{
-		// Use CVG for pixel alpha
-		alpha_threshold = 0;
-	}
-
-	const ShaderProgram * program = GetShaderForCurrentMode(mMux, cycle_mode, alpha_threshold);
+	const ShaderProgram * program = GetShaderForConfig(config);
 	if (program == NULL)
 	{
 		// There must have been some failure to compile the shader. Abort!
-		DBGConsole_Msg(0, "Couldn't generate a shader for mux %llx, cycle %d, alpha %d\n", mMux, cycle_mode, alpha_threshold);
+		DBGConsole_Msg(0, "Couldn't generate a shader for mux %llx, cycle %d, alpha %d\n", config.Mux, config.CycleType, config.AlphaThreshold);
 		return;
 	}
 
