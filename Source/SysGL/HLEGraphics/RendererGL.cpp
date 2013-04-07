@@ -4,10 +4,7 @@
 #include <pspgu.h>
 
 #include <vector>
-#ifdef DAEDALUS_W32
-#include <GL/glew.h>
-#endif
-#include <GL/glfw.h>
+#include "SysGL/GL.h"
 
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"

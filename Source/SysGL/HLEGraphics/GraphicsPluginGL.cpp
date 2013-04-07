@@ -15,11 +15,7 @@
 
 #include "Utility/Timing.h"
 
-
-#ifdef DAEDALUS_W32
-#include <GL/glew.h>
-#endif
-#include <GL/glfw.h>
+#include "SysGL/GL.h"
 
 EFrameskipValue     gFrameskipValue = FV_DISABLED;
 u32                 gVISyncRate     = 1500;

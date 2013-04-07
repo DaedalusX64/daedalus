@@ -1,9 +1,6 @@
 
 #include "stdafx.h"
-#ifdef DAEDALUS_W32
-#include <GL/glew.h>
-#endif
-#include <GL/glfw.h>
+#include "SysGL/GL.h"
 #include "Graphics/GraphicsContext.h"
 
 #include "Graphics/ColourValue.h"

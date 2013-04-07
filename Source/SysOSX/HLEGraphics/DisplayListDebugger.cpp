@@ -19,7 +19,7 @@
 #include "Utility/Thread.h"
 #include "Utility/Mutex.h"
 
-#include <GL/glfw.h>
+#include "SysGL/GL.h"
 
 static bool gDebugging = false;
 

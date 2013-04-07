@@ -20,9 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "Input/InputManager.h"
 
-#include <GL/glfw.h>
-
-
+#include "SysGL/GL.h"
 
 class IInputManager : public CInputManager
 {
@@ -48,7 +46,7 @@ private:
 	u32 mNumAxes;
 	u32 mNumButtoms;
 	bool mIsGamePad;
-	
+
 	f32 *mJoyStick;
 	u8 *mJoyButton;
 
@@ -108,7 +106,7 @@ void IInputManager::GetJoyPad(OSContPad *pPad)
 		mIsGamePad = false;
         return;
     }
-    
+
 	if(!glfwGetJoystickButtons(GLFW_JOYSTICK_1, mJoyButton, mNumButtoms))
 	{
 		// gamepad was disconnected?
@@ -137,7 +135,7 @@ void IInputManager::GetJoyPad(OSContPad *pPad)
 	pPad->stick_y =  s8(mJoyStick[1] * N64_ANALOGUE_STICK_RANGE);
 
 	//ToDo: Map DPAD and c buttons
-	//DPAD and hat POV are implemented until glfw 3.0 shall we update? :) 
+	//DPAD and hat POV are implemented until glfw 3.0 shall we update? :)
 }
 
 void IInputManager::GetState( OSContPad pPad[4] )

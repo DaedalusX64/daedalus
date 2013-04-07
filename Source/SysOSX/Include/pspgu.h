@@ -3,7 +3,7 @@
 #ifndef PSPGU_H__
 #define PSPGU_H__
 
-#include <GL/glfw.h>
+#include "SysGL/GL.h"
 
 void sceGuFog(float mn, float mx, u32 col);
 
