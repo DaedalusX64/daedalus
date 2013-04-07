@@ -163,6 +163,7 @@ void GraphicsContextGL::BeginFrame()
 	height = height > 0 ? height : 1;
 
 	glViewport( 0, 0, width, height );
+	glScissor( 0, 0, width, height );
 
 	ClearToBlack();
 }
