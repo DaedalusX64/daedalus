@@ -412,21 +412,19 @@ static void SprintShader(char (&frag_shader)[2048], const ShaderConfiguration & 
 
 	u32 cycle_type = config.CycleType;
 
-	const char * filter0 = GetFilter(config.BilerpFilter, config.ClampS0, config.ClampT0);
-	const char * filter1 = GetFilter(config.BilerpFilter, config.ClampS1, config.ClampT1);
-
 	if (cycle_type == CYCLE_FILL)
 	{
 		strcpy(body, "\tcol = shade;\n");
 	}
 	else if (cycle_type == CYCLE_COPY)
 	{
-		sprintf(body,
-			"\tcol = %s(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n",
-			filter0);
+		strcpy(body, "\tcol = fetchCopy(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n");
 	}
 	else if (cycle_type == CYCLE_1CYCLE)
 	{
+		const char * filter0 = GetFilter(config.BilerpFilter, config.ClampS0, config.ClampT0);
+		const char * filter1 = GetFilter(config.BilerpFilter, config.ClampS1, config.ClampT1);
+
 		sprintf(body, "\tvec4 tex0 = %s(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n"
 					  "\tvec4 tex1 = %s(sti, uTileShift1, uTileMirror1, uTileMask1, uTileTL1, uTileBR1, uTileClampEnable1, uTexture1, uTexScale1);\n"
 					  "\tcol.rgb = (%s - %s) * %s + %s;\n"
@@ -437,6 +435,9 @@ static void SprintShader(char (&frag_shader)[2048], const ShaderConfiguration & 
 	}
 	else
 	{
+		const char * filter0 = GetFilter(config.BilerpFilter, config.ClampS0, config.ClampT0);
+		const char * filter1 = GetFilter(config.BilerpFilter, config.ClampS1, config.ClampT1);
+
 		sprintf(body, "\tvec4 tex0 = %s(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n"
 					  "\tvec4 tex1 = %s(sti, uTileShift1, uTileMirror1, uTileMask1, uTileTL1, uTileBR1, uTileClampEnable1, uTexture1, uTexScale1);\n"
 					  "\tcol.rgb = (%s - %s) * %s + %s;\n"

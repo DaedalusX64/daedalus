@@ -196,8 +196,20 @@ vec4 fetchPoint(vec2 st_in, vec2 shift_scale, ivec2 mirror_bits, ivec2 mask_bits
 	uv = clampPoint(uv, tile_tl, tile_br, clamp_enable);
 	uv = mask(uv, mirror_bits, mask_bits);
 
-	vec4 col = texelFetch(tex, uv, 0);
-	return col;
+	return texelFetch(tex, uv, 0);
+}
+
+// For cycle type Copy - there is no clamping.
+vec4 fetchCopy(vec2 st_in, vec2 shift_scale, ivec2 mirror_bits, ivec2 mask_bits,
+			  ivec2 tile_tl, ivec2 tile_br, bvec2 clamp_enable,
+			  sampler2D tex, vec2 tex_scale)
+{
+	ivec2 uv = ivec2(st_in);
+	uv = shift(uv, shift_scale);
+	uv = (((uv>>3) - tile_tl) >> 2) & 0x1fff;
+	uv = mask(uv, mirror_bits, mask_bits);
+
+	return texelFetch(tex, uv, 0);
 }
 
 // This just uses regular OpenGL texture filtering.
