@@ -41,6 +41,21 @@ ALIGNED_TYPE(struct, DaedalusVtx4, 16)
 
 DAEDALUS_STATIC_ASSERT( sizeof(DaedalusVtx4) == 64 );
 
+struct TexCoord
+{
+	s16		s;
+	s16		t;
+
+	TexCoord()
+	{
+	}
+	TexCoord(s16 s_, s16 t_) : s(s_), t(t_)
+	{
+	}
+	TexCoord(float s_, float t_) : s( (s16)(s_ * 32.f) ), t( (s16)(t_ * 32.f) )
+	{
+	}
+};
 
 // The ordering of these elements is determined by the PSP hardware
 struct DaedalusVtx

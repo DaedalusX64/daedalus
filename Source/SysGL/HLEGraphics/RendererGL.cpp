@@ -59,7 +59,7 @@ static GLuint gVBOs[kNumBuffers];
 const int kMaxVertices = 1000;
 
 static float 	gPositionBuffer[kMaxVertices][3];
-static float 	gTexCoordBuffer[kMaxVertices][2];
+static TexCoord gTexCoordBuffer[kMaxVertices];
 static u32 		gColorBuffer[kMaxVertices];
 
 bool initgl()
@@ -327,8 +327,8 @@ static const char* default_vertex_shader =
 "\n"
 "void main()\n"
 "{\n"
-"	v_uv0 = (in_uv - uTexOffset0) / uTexScale0;\n"
-"	v_uv1 = (in_uv - uTexOffset1) / uTexScale1;\n"
+"	v_uv0 = ((in_uv / 32.0) - uTexOffset0) / uTexScale0;\n"
+"	v_uv1 = ((in_uv / 32.0) - uTexOffset1) / uTexScale1;\n"
 "	v_col = in_col;\n"
 "	gl_Position = uProject * vec4(in_pos, 1.0);\n"
 "}\n";
@@ -390,7 +390,7 @@ static void InitShaderProgram(ShaderProgram * program, u64 mux, u32 cycle_type, 
 	attrloc = glGetAttribLocation(program->program, "in_uv");
 	glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kTexCoordBuffer]);
 	glEnableVertexAttribArray(attrloc);
-	glVertexAttribPointer(attrloc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(attrloc, 2, GL_SHORT, GL_FALSE, 0, 0);
 
 	attrloc = glGetAttribLocation(program->program, "in_col");
 	glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kColorBuffer]);
@@ -493,22 +493,22 @@ void RendererGL::RenderDaedalusVtx(int prim, const DaedalusVtx * vertices, int c
 		gPositionBuffer[i][1] = vtx->Position.y;
 		gPositionBuffer[i][2] = vtx->Position.z;
 
-		gTexCoordBuffer[i][0] = vtx->Texture.x;
-		gTexCoordBuffer[i][1] = vtx->Texture.y;
+		gTexCoordBuffer[i].s = (int)(vtx->Texture.x * 32.f);
+		gTexCoordBuffer[i].t = (int)(vtx->Texture.y * 32.f);
 
 		gColorBuffer[i] = vtx->Colour.GetColour();
 	}
 
-	RenderDaedalusVtxStreams(prim, &gPositionBuffer[0][0], &gTexCoordBuffer[0][0], &gColorBuffer[0], count);
+	RenderDaedalusVtxStreams(prim, &gPositionBuffer[0][0], &gTexCoordBuffer[0], &gColorBuffer[0], count);
 }
 
-void RendererGL::RenderDaedalusVtxStreams(int prim, const float * positions, const float * uvs, const u32 * colours, int count)
+void RendererGL::RenderDaedalusVtxStreams(int prim, const float * positions, const TexCoord * uvs, const u32 * colours, int count)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kPositionBuffer]);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 3 * count, positions);
 
 	glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kTexCoordBuffer]);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * 2 * count, uvs);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(TexCoord) * count, uvs);
 
 	glBindBuffer(GL_ARRAY_BUFFER, gVBOs[kColorBuffer]);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(u32) * count, colours);
@@ -882,11 +882,11 @@ void RendererGL::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, const v2
 		screen1.x, screen1.y, depth,
 	};
 
-	float uvs[] = {
-		uv0.x, uv0.y,
-		uv1.x, uv0.y,
-		uv0.x, uv1.y,
-		uv1.x, uv1.y,
+	TexCoord uvs[] = {
+		TexCoord( uv0.x, uv0.y ),
+		TexCoord( uv1.x, uv0.y ),
+		TexCoord( uv0.x, uv1.y ),
+		TexCoord( uv1.x, uv1.y ),
 	};
 
 	u32 colours[] = {
@@ -932,11 +932,11 @@ void RendererGL::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, cons
 		screen1.x, screen1.y, depth,
 	};
 
-	float uvs[] = {
-		uv0.x, uv0.y,
-		uv0.x, uv1.y,
-		uv1.x, uv0.y,
-		uv1.x, uv1.y,
+	TexCoord uvs[] = {
+		TexCoord( uv0.x, uv0.y ),
+		TexCoord( uv0.x, uv1.y ),
+		TexCoord( uv1.x, uv0.y ),
+		TexCoord( uv1.x, uv1.y ),
 	};
 
 	u32 colours[] = {
@@ -974,11 +974,11 @@ void RendererGL::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	};
 
 	// NB - these aren't needed. Could just pass NULL to RenderDaedalusVtxStreams?
-	float uvs[] = {
-		0.f, 0.f,
-		1.f, 0.f,
-		0.f, 1.f,
-		1.f, 1.f,
+	TexCoord uvs[] = {
+		TexCoord( 0.f, 0.f ),
+		TexCoord( 1.f, 0.f ),
+		TexCoord( 0.f, 1.f ),
+		TexCoord( 1.f, 1.f ),
 	};
 
 	u32 colours[] = {
@@ -1027,11 +1027,11 @@ void RendererGL::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 		sx1, sy1, depth,
 	};
 
-	float uvs[] = {
-		u0, v0,
-		u1, v0,
-		u0, v1,
-		u1, v1,
+	TexCoord uvs[] = {
+		TexCoord( u0, v0 ),
+		TexCoord( u1, v0 ),
+		TexCoord( u0, v1 ),
+		TexCoord( u1, v1 ),
 	};
 
 	u32 colours[] = {
@@ -1072,11 +1072,11 @@ void RendererGL::Draw2DTextureR(f32 x0, f32 y0,
 		N64ToScreenX(x3), N64ToScreenY(y3), depth,
 	};
 
-	float uvs[] = {
-		0.f, 0.f,
-		s,   0.f,
-		s,   t,
-		0.f, t,
+	TexCoord uvs[] = {
+		TexCoord( 0.f, 0.f ),
+		TexCoord(   s, 0.f ),
+		TexCoord(   s,   t ),
+		TexCoord( 0.f,   t ),
 	};
 
 	u32 colours[] = {

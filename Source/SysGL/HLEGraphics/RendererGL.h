@@ -24,7 +24,7 @@ private:
 	void 				PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer);
 
 	void 				RenderDaedalusVtx(int prim, const DaedalusVtx * vertices, int count);
-	void 				RenderDaedalusVtxStreams(int prim, const float * positions, const float * uvs, const u32 * colours, int count);
+	void 				RenderDaedalusVtxStreams(int prim, const float * positions, const TexCoord * uvs, const u32 * colours, int count);
 };
 
 // NB: this is equivalent to gRenderer, but points to the implementation class, for platform-specific functionality.

@@ -37,6 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 class CNativeTexture;
 struct TempVerts;
 
+// FIXME - this is for the PSP only.
 struct TextureVtx
 {
 	v2  t0;
