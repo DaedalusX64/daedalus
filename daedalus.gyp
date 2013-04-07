@@ -157,6 +157,7 @@
             'destination': '<(PRODUCT_DIR)/',
             'files': [
               'roms.ini',
+              'Source/SysGL/HLEGraphics/n64.psh',
             ],
           },
           {

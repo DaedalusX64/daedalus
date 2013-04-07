@@ -17,6 +17,7 @@
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/RDPStateManager.h"
 #include "OSHLE/ultra_gbi.h"
+#include "Utility/IO.h"
 
 BaseRenderer * gRenderer   = NULL;
 RendererGL *   gRendererGL = NULL;
@@ -92,7 +93,9 @@ bool initgl()
 
 	// FIXME(strmnnrmn): need a nicer 'load file' utility function.
 	{
-		const char * shader_path = "/Users/paulholden/dev/daedalus/Source/SysGL/HLEGraphics/n64.psh";
+		IO::Path::PathBuf shader_path;
+		IO::Path::Combine(shader_path, gDaedalusExePath, "n64.psh");
+
 		FILE * fh = fopen(shader_path, "r");
 		if (!fh)
 		{
