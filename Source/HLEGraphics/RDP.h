@@ -150,13 +150,13 @@ struct RDP_OtherMode
 			u32		alpha_dither : 2;			// 4..5
 			u32		rgb_dither : 2;				// 6..7
 
-			u32		comb_key : 1;				// 8..8
-			u32		text_conv : 3;				// 9..11
-			u32		text_filt : 2;				// 12..13
-			u32		text_tlut : 2;				// 14..15
+			u32		comb_key : 1;				//  8.. 8
+			u32		text_conv : 3;				//  9..11 - 9: bi_lerp0, 10: bi_lerp1, 11: convert_one
+			u32		text_filt : 2;				// 12..13 - 12: mid_texel, 13: sample_type
+			u32		text_tlut : 2;				// 14..15 - 14: tlut_type, 15: tlut_en
 
 			u32		text_lod : 1;				// 16..16
-			u32		text_detail : 2;			// 17..18
+			u32		text_detail : 2;			// 17..18 - 17: sharpen_en, 18: detail_en
 			u32		text_persp : 1;				// 19..19
 			u32		cycle_type : 2;				// 20..21
 			u32		color_dither : 1;			// 22..22 - not supported
