@@ -21,6 +21,8 @@
 BaseRenderer * gRenderer   = NULL;
 RendererGL *   gRendererGL = NULL;
 
+static bool gAccurateUVPipe = true;
+
 /* OpenGL 3.0 */
 typedef void (APIENTRY * PFN_glGenVertexArrays)(GLsizei n, GLuint *arrays);
 typedef void (APIENTRY * PFN_glBindVertexArray)(GLuint array);
@@ -29,6 +31,9 @@ typedef void (APIENTRY * PFN_glDeleteVertexArrays)(GLsizei n, GLuint *arrays);
 static PFN_glGenVertexArrays            pglGenVertexArrays = NULL;
 static PFN_glBindVertexArray            pglBindVertexArray = NULL;
 static PFN_glDeleteVertexArrays         pglDeleteVertexArrays = NULL;
+
+// We read n64.psh into this.
+static const char * 					gN64FramentLibrary = NULL;
 
 static const u32 kNumTextures = 2;
 
@@ -43,6 +48,25 @@ static const u32 kNumTextures = 2;
     }
 
 
+const float kShiftScales[] = {
+    1.f / (float)(1 << 0),
+    1.f / (float)(1 << 1),
+    1.f / (float)(1 << 2),
+    1.f / (float)(1 << 3),
+    1.f / (float)(1 << 4),
+    1.f / (float)(1 << 5),
+    1.f / (float)(1 << 6),
+    1.f / (float)(1 << 7),
+    1.f / (float)(1 << 8),
+    1.f / (float)(1 << 9),
+    1.f / (float)(1 << 10),
+    (float)(1 << 5),
+    (float)(1 << 4),
+    (float)(1 << 3),
+    (float)(1 << 2),
+    (float)(1 << 1),
+};
+DAEDALUS_STATIC_ASSERT(ARRAYSIZE(kShiftScales) == 16);
 
 enum
 {
@@ -64,6 +88,33 @@ static u32 		gColorBuffer[kMaxVertices];
 
 bool initgl()
 {
+	DAEDALUS_ASSERT(gN64FramentLibrary == NULL, "Already initialised");
+
+	// FIXME(strmnnrmn): need a nicer 'load file' utility function.
+	{
+		const char * shader_path = "/Users/paulholden/dev/daedalus/Source/SysGL/HLEGraphics/n64.psh";
+		FILE * fh = fopen(shader_path, "r");
+		if (!fh)
+		{
+			DAEDALUS_ERROR("Couldn't load shader source %s", shader_path);
+			fprintf(stderr, "ERROR: couldn't load shader source %s\n", shader_path);
+			return false;
+		}
+
+		fseek(fh, 0, SEEK_END);
+		size_t l = ftell(fh);
+		fseek(fh, 0, SEEK_SET);
+		char * p = (char *)malloc(l+1);
+		fread(p, l, 1, fh);
+		p[l] = 0;
+		fclose(fh);
+
+		gN64FramentLibrary = p;
+	}
+
+	// Only do software emulation of mirror_s/mirror_t if we're not doing accurate UV handling
+	gRDPStateManager.SetEmulateMirror(!gAccurateUVPipe);
+
     GLboolean status = GL_TRUE;
     RESOLVE_GL_FCN(PFN_glGenVertexArrays, pglGenVertexArrays, "glGenVertexArrays");
     RESOLVE_GL_FCN(PFN_glDeleteVertexArrays, pglDeleteVertexArrays, "glDeleteVertexArrays");
@@ -115,23 +166,31 @@ struct ShaderProgram
 	GLint				uloc_envcol;
 	GLint				uloc_primlodfrac;
 
+	GLint				uloc_tileclamp[kNumTextures];
+	GLint				uloc_tiletl[kNumTextures];
+	GLint				uloc_tilebr[kNumTextures];
+	GLint				uloc_tileshift[kNumTextures];
+	GLint				uloc_tilemask[kNumTextures];
+	GLint				uloc_tilemirror[kNumTextures];
+
 	GLint				uloc_texscale[kNumTextures];
-	GLint				uloc_texoffset[kNumTextures];
 	GLint				uloc_texture[kNumTextures];
+
+	GLint				uloc_foo;
 };
 static std::vector<ShaderProgram *>		gShaders;
 
 
 /* Creates a shader object of the specified type using the specified text
  */
-static GLuint make_shader(GLenum type, const char* shader_src)
+static GLuint make_shader(GLenum type, const char** lines, size_t num_lines)
 {
 	//printf("%d - %s\n", type, shader_src);
 
 	GLuint shader = glCreateShader(type);
 	if (shader != 0)
 	{
-		glShaderSource(shader, 1, (const GLchar**)&shader_src, NULL);
+		glShaderSource(shader, num_lines, lines, NULL);
 		glCompileShader(shader);
 
 		GLint shader_ok;
@@ -153,7 +212,8 @@ static GLuint make_shader(GLenum type, const char* shader_src)
 
 /* Creates a program object using the specified vertex and fragment text
  */
-static GLuint make_shader_program(const char* vertex_shader_src, const char* fragment_shader_src)
+static GLuint make_shader_program(const char ** vertex_lines, size_t num_vertex_lines,
+								  const char ** fragment_lines, size_t num_fragment_lines)
 {
 	GLuint program = 0u;
 	GLint program_ok;
@@ -162,10 +222,10 @@ static GLuint make_shader_program(const char* vertex_shader_src, const char* fra
 	GLsizei log_length;
 	char info_log[8192];
 
-	vertex_shader = make_shader(GL_VERTEX_SHADER, vertex_shader_src);
+	vertex_shader = make_shader(GL_VERTEX_SHADER, vertex_lines, num_vertex_lines);
 	if (vertex_shader != 0u)
 	{
-		fragment_shader = make_shader(GL_FRAGMENT_SHADER, fragment_shader_src);
+		fragment_shader = make_shader(GL_FRAGMENT_SHADER, fragment_lines, num_fragment_lines);
 		if (fragment_shader != 0u)
 		{
 			/* make the program that connect the two shader and link it */
@@ -250,7 +310,43 @@ static const char * kAlphaParams8[8] = {
 	"one.a",      "zero.a"
 };
 
-static void SprintMux(char (&body)[1024], u64 mux, u32 cycle_type, u32 alpha_threshold)
+static const char* default_vertex_shader =
+"#version 150\n"
+"uniform mat4 uProject;\n"
+"in      vec3 in_pos;\n"
+"in      vec2 in_uv;\n"
+"in      vec4 in_col;\n"
+"out     vec2 v_st;\n"
+"out     vec4 v_col;\n"
+"\n"
+"void main()\n"
+"{\n"
+"	v_st = in_uv;\n"
+"	v_col = in_col;\n"
+"	gl_Position = uProject * vec4(in_pos, 1.0);\n"
+"}\n";
+
+// FIXME(strmnnrmn): texel fetch filter changes between cycles.
+static const char* default_fragment_shader_fmt =
+"void main()\n"
+"{\n"
+"	ivec2 sti = ivec2(v_st);\n"
+"\n"
+"	vec4 shade = v_col;\n"
+"	vec4 prim  = uPrimColour;\n"
+"	vec4 env   = uEnvColour;\n"
+"	vec4 one   = vec4(1,1,1,1);\n"
+"	vec4 zero  = vec4(0,0,0,0);\n"
+"	vec4 col;\n"
+"	vec4 combined = vec4(0,0,0,1);\n"
+"	float lod_frac      = 0.0;		// FIXME\n"
+"	float prim_lod_frac = uPrimLODFrac;\n"
+"	float k5            = 0.0;		// FIXME\n"
+"%s		// Body is injected here\n"
+"	fragcol = col;\n"
+"}\n";
+
+static void SprintShader(char (&frag_shader)[2048], u64 mux, u32 cycle_type, u32 alpha_threshold)
 {
 	u32 mux0 = (u32)(mux>>32);
 	u32 mux1 = (u32)(mux);
@@ -275,29 +371,43 @@ static void SprintMux(char (&body)[1024], u64 mux, u32 cycle_type, u32 alpha_thr
 	u32 cA1    = (mux1>>18)&0x07;	// c2 a3		// Ac1
 	u32 dA1    = (mux1    )&0x07;	// c2 a4		// Ad1
 
+	char body[1024];
+
+	const char * cycle1_filter = "fetchBilinear";
+	const char * cycle2_filter = "fetchBilinear";
+
 	if (cycle_type == CYCLE_FILL)
 	{
 		strcpy(body, "\tcol = shade;\n");
 	}
 	else if (cycle_type == CYCLE_COPY)
 	{
-		strcpy(body, "\tcol = tex0;\n");
+		sprintf(body,
+			"\tcol = %s(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n",
+			cycle1_filter);
 	}
 	else if (cycle_type == CYCLE_1CYCLE)
 	{
-		sprintf(body, "\tcol.rgb = (%s - %s) * %s + %s;\n"
+		sprintf(body, "\tvec4 tex0 = %s(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n"
+					  "\tvec4 tex1 = %s(sti, uTileShift1, uTileMirror1, uTileMask1, uTileTL1, uTileBR1, uTileClampEnable1, uTexture1, uTexScale1);\n"
+					  "\tcol.rgb = (%s - %s) * %s + %s;\n"
 					  "\tcol.a   = (%s - %s) * %s + %s;\n",
+					  cycle1_filter, cycle1_filter,
 					  kRGBParams16[aRGB0], kRGBParams16[bRGB0], kRGBParams32[cRGB0], kRGBParams8[dRGB0],
 					  kAlphaParams8[aA0],  kAlphaParams8[bA0],  kAlphaParams8[cA0],  kAlphaParams8[dA0]);
 	}
 	else
 	{
-		sprintf(body, "\tcol.rgb = (%s - %s) * %s + %s;\n"
+		sprintf(body, "\tvec4 tex0 = %s(sti, uTileShift0, uTileMirror0, uTileMask0, uTileTL0, uTileBR0, uTileClampEnable0, uTexture0, uTexScale0);\n"
+					  "\tvec4 tex1 = %s(sti, uTileShift1, uTileMirror1, uTileMask1, uTileTL1, uTileBR1, uTileClampEnable1, uTexture1, uTexScale1);\n"
+					  "\tcol.rgb = (%s - %s) * %s + %s;\n"
 					  "\tcol.a   = (%s - %s) * %s + %s;\n"
 					  "\tcombined = col;\n"
 					  "\ttex0 = tex1;\n"		// NB: tex0 becomes tex1 on the second cycle - see mame.
+												// FIXME: need to refetch texel if filter changes here?
 					  "\tcol.rgb = (%s - %s) * %s + %s;\n"
 					  "\tcol.a   = (%s - %s) * %s + %s;\n",
+					  cycle1_filter, cycle1_filter,
 					  kRGBParams16[aRGB0], kRGBParams16[bRGB0], kRGBParams32[cRGB0], kRGBParams8[dRGB0],
 					  kAlphaParams8[aA0],  kAlphaParams8[bA0],  kAlphaParams8[cA0],  kAlphaParams8[dA0],
 					  kRGBParams16[aRGB1], kRGBParams16[bRGB1], kRGBParams32[cRGB1], kRGBParams8[dRGB1],
@@ -309,58 +419,9 @@ static void SprintMux(char (&body)[1024], u64 mux, u32 cycle_type, u32 alpha_thr
 		char * p = body + strlen(body);
 		sprintf(p, "\tif(col.a < %f) discard;\n", (float)alpha_threshold / 255.f);
 	}
+
+	sprintf(frag_shader, default_fragment_shader_fmt, body);
 }
-
-static const char* default_vertex_shader =
-"#version 150\n"
-"uniform mat4 uProject;\n"
-"uniform ivec2 uTexScale0;\n"
-"uniform ivec2 uTexScale1;\n"
-"uniform ivec2 uTexOffset0;\n"
-"uniform ivec2 uTexOffset1;\n"
-"in      vec3 in_pos;\n"
-"in      vec2 in_uv;\n"
-"in      vec4 in_col;\n"
-"out     vec2 v_uv0;\n"
-"out     vec2 v_uv1;\n"
-"out     vec4 v_col;\n"
-"\n"
-"void main()\n"
-"{\n"
-"	v_uv0 = (in_uv - uTexOffset0) / (uTexScale0 * 32.0);\n"
-"	v_uv1 = (in_uv - uTexOffset1) / (uTexScale1 * 32.0);\n"
-"	v_col = in_col;\n"
-"	gl_Position = uProject * vec4(in_pos, 1.0);\n"
-"}\n";
-
-static const char* default_fragment_shader_fmt =
-"#version 150\n"
-"uniform sampler2D uTexture0;\n"
-"uniform sampler2D uTexture1;\n"
-"uniform vec4 uPrimColour;\n"
-"uniform vec4 uEnvColour;\n"
-"uniform float uPrimLODFrac;\n"
-"in      vec2 v_uv0;\n"
-"in      vec2 v_uv1;\n"
-"in      vec4 v_col;\n"
-"out     vec4 fragcol;\n"
-"void main()\n"
-"{\n"
-"	vec4 shade = v_col;\n"
-"	vec4 prim  = uPrimColour;\n"
-"	vec4 env   = uEnvColour;\n"
-"	vec4 one   = vec4(1,1,1,1);\n"
-"	vec4 zero  = vec4(0,0,0,0);\n"
-"	vec4 tex0  = texture(uTexture0, v_uv0);\n"
-"	vec4 tex1  = texture(uTexture1, v_uv1);\n"
-"	vec4 col;\n"
-"	vec4 combined = vec4(0,0,0,1);\n"
-"	float lod_frac      = 0.0;\n"		// FIXME
-"	float prim_lod_frac = uPrimLODFrac;\n"
-"	float k5            = 0.0;\n"		// FIXME
-"%s\n"		// Body is injected here
-"	fragcol = col;\n"
-"}\n";
 
 static void InitShaderProgram(ShaderProgram * program, u64 mux, u32 cycle_type, u32 alpha_threshold, GLuint shader_program)
 {
@@ -373,13 +434,25 @@ static void InitShaderProgram(ShaderProgram * program, u64 mux, u32 cycle_type, 
 	program->uloc_envcol       = glGetUniformLocation(shader_program, "uEnvColour");
 	program->uloc_primlodfrac  = glGetUniformLocation(shader_program, "uPrimLODFrac");
 
-	program->uloc_texoffset[0] = glGetUniformLocation(shader_program, "uTexOffset0");
-	program->uloc_texscale[0]  = glGetUniformLocation(shader_program, "uTexScale0");
-	program->uloc_texture [0]  = glGetUniformLocation(shader_program, "uTexture0");
+	program->uloc_foo			= glGetUniformLocation(shader_program, "uFoo");
 
-	program->uloc_texoffset[1] = glGetUniformLocation(shader_program, "uTexOffset1");
-	program->uloc_texscale[1]  = glGetUniformLocation(shader_program, "uTexScale1");
-	program->uloc_texture[1]   = glGetUniformLocation(shader_program, "uTexture1");
+	program->uloc_tileclamp[0]  = glGetUniformLocation(shader_program, "uTileClampEnable0");
+	program->uloc_tiletl[0]     = glGetUniformLocation(shader_program, "uTileTL0");
+	program->uloc_tilebr[0]     = glGetUniformLocation(shader_program, "uTileBR0");
+	program->uloc_tileshift[0]  = glGetUniformLocation(shader_program, "uTileShift0");
+	program->uloc_tilemask[0]   = glGetUniformLocation(shader_program, "uTileMask0");
+	program->uloc_tilemirror[0] = glGetUniformLocation(shader_program, "uTileMirror0");
+	program->uloc_texscale[0]   = glGetUniformLocation(shader_program, "uTexScale0");
+	program->uloc_texture [0]   = glGetUniformLocation(shader_program, "uTexture0");
+
+	program->uloc_tileclamp[1]  = glGetUniformLocation(shader_program, "uTileClampEnable1");
+	program->uloc_tiletl[1]     = glGetUniformLocation(shader_program, "uTileTL1");
+	program->uloc_tilebr[1]     = glGetUniformLocation(shader_program, "uTileBR1");
+	program->uloc_tileshift[1]  = glGetUniformLocation(shader_program, "uTileShift1");
+	program->uloc_tilemask[1]   = glGetUniformLocation(shader_program, "uTileMask1");
+	program->uloc_tilemirror[1] = glGetUniformLocation(shader_program, "uTileMirror1");
+	program->uloc_texscale[1]   = glGetUniformLocation(shader_program, "uTexScale1");
+	program->uloc_texture[1]    = glGetUniformLocation(shader_program, "uTexture1");
 
 	GLuint attrloc;
 	attrloc = glGetAttribLocation(program->program, "in_pos");
@@ -400,6 +473,8 @@ static void InitShaderProgram(ShaderProgram * program, u64 mux, u32 cycle_type, 
 
 static ShaderProgram * GetShaderForCurrentMode(u64 mux, u32 cycle_type, u32 alpha_threshold)
 {
+	DAEDALUS_ASSERT( gN64FramentLibrary != NULL, "Haven't initialised the n64 fragment library" );
+
 	// In fill/cycle modes, we ignore the mux. Set it to zero so we don't create unecessary shaders.
 	if (cycle_type == CYCLE_FILL || cycle_type == CYCLE_COPY)
 		mux = 0;
@@ -415,13 +490,15 @@ static ShaderProgram * GetShaderForCurrentMode(u64 mux, u32 cycle_type, u32 alph
 			return program;
 	}
 
-	char body[1024];
-	SprintMux(body, mux, cycle_type, alpha_threshold);
-
 	char frag_shader[2048];
-	sprintf(frag_shader, default_fragment_shader_fmt, body);
+	SprintShader(frag_shader, mux, cycle_type, alpha_threshold);
 
-	GLuint shader_program = make_shader_program(default_vertex_shader, frag_shader);
+	const char * vertex_lines[] = { default_vertex_shader };
+	const char * fragment_lines[] = { gN64FramentLibrary, frag_shader };
+
+	GLuint shader_program = make_shader_program(
+								vertex_lines, ARRAYSIZE(vertex_lines),
+								fragment_lines, ARRAYSIZE(fragment_lines));
 	if (shader_program == 0)
 	{
 		fprintf(stderr, "ERROR: during creation of the shader program\n");
@@ -493,6 +570,7 @@ void RendererGL::RenderDaedalusVtx(int prim, const DaedalusVtx * vertices, int c
 		gPositionBuffer[i][1] = vtx->Position.y;
 		gPositionBuffer[i][2] = vtx->Position.z;
 
+		// FIXME(strmnnrmn): maintain the texture coords in 10.5 format.
 		gTexCoordBuffer[i].s = (int)(vtx->Texture.x * 32.f);
 		gTexCoordBuffer[i].t = (int)(vtx->Texture.y * 32.f);
 
@@ -690,6 +768,16 @@ static void InitBlenderMode()
 }
 
 
+inline u32 MakeMask(u32 m)
+{
+	return m ? ((1<<m)-1) : 0xffffffff;
+}
+
+inline u32 MakeMirror(u32 mirror, u32 m)
+{
+	return (mirror && m) ? (1<<m) : 0;
+}
+
 void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable_zbuffer)
 {
 	DAEDALUS_PROFILE( "RendererGL::PrepareRenderState" );
@@ -780,6 +868,9 @@ void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable
 
 	bool install_textures[] = { true, use_t1 };
 
+extern u32 gRDPFrame;
+	glUniform1i(program->uloc_foo, gRDPFrame);
+
 	for (u32 i = 0; i < kNumTextures; ++i)
 	{
 		if (!install_textures[i])
@@ -793,17 +884,32 @@ void RendererGL::PrepareRenderState(const float (&mat_project)[16], bool disable
 
 			texture->InstallTexture();
 
-			const RDP_Tile & rdp_tile = gRDPStateManager.GetTile( mActiveTile[i] );
+			u8 tile_idx = mActiveTile[i];
+			const RDP_Tile &     rdp_tile  = gRDPStateManager.GetTile( tile_idx );
+			const RDP_TileSize & tile_size = gRDPStateManager.GetTileSize( tile_idx );
 
 			// NB: think this can be done just once per program.
 			glUniform1i(program->uloc_texture[i], i);
 
-			glUniform2i(program->uloc_texoffset[i],
-					ApplyShift(mTileTopLeft[i].s, rdp_tile.shift_s),
-					ApplyShift(mTileTopLeft[i].t, rdp_tile.shift_t));
-			glUniform2i(program->uloc_texscale[i],
-					ApplyShift(texture->GetCorrectedWidth(),  rdp_tile.shift_s),
-					ApplyShift(texture->GetCorrectedHeight(), rdp_tile.shift_t));
+			bool clamp_s = rdp_tile.clamp_s || (rdp_tile.mask_s == 0);
+			bool clamp_t = rdp_tile.clamp_t || (rdp_tile.mask_t == 0);
+
+			u32 mirror_bits_s = MakeMirror(rdp_tile.mirror_s, rdp_tile.mask_s);
+			u32 mirror_bits_t = MakeMirror(rdp_tile.mirror_t, rdp_tile.mask_t);
+
+			u32 mask_bits_s = MakeMask(rdp_tile.mask_s);
+			u32 mask_bits_t = MakeMask(rdp_tile.mask_t);
+
+			glUniform2i(program->uloc_tileclamp[i], clamp_s, clamp_t);
+
+			glUniform2f(program->uloc_tileshift[i],  kShiftScales[rdp_tile.shift_s],  kShiftScales[rdp_tile.shift_t]);
+			glUniform2i(program->uloc_tilemask[i],   mask_bits_s,   mask_bits_t);
+			glUniform2i(program->uloc_tilemirror[i], mirror_bits_s, mirror_bits_t);
+
+			glUniform2i(program->uloc_tiletl[i], mTileTopLeft[i].s, mTileTopLeft[i].t);
+			glUniform2i(program->uloc_tilebr[i], tile_size.right,   tile_size.bottom);
+
+			glUniform2f(program->uloc_texscale[i], 1.f / texture->GetCorrectedWidth(), 1.f / texture->GetCorrectedHeight());
 
 			if( (gRDPOtherMode.text_filt != G_TF_POINT) | (gGlobalPreferences.ForceLinearFilter) )
 			{
@@ -834,16 +940,20 @@ void RendererGL::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bo
 	// FIXME: this should be applied in SetNewVertexInfo, and use TextureScaleX/Y to set the scale
 	if (mTnL.Flags.Light && mTnL.Flags.TexGen)
 	{
-		mTileTopLeft[0].s = 0;
-		mTileTopLeft[0].t = 0;
 		if (CNativeTexture * texture = mBoundTexture[0])
 		{
+			// FIXME(strmnnrmn): I don't understand why the tile t/l is used here,
+			// but without it the Goldeneye Rareware logo looks off.
+			// It implies that the RSP code is checking RDP tile state, which seems wrong.
+			// gsDPSetHilite1Tile might set up some RSP state?
+			float x = (float)mTileTopLeft[0].s / 4.f;
+			float y = (float)mTileTopLeft[0].t / 4.f;
 			float w = (float)texture->GetCorrectedWidth();
 			float h = (float)texture->GetCorrectedHeight();
 			for (u32 i = 0; i < num_vertices; ++i)
 			{
-				p_vertices[i].Texture.x *= w;
-				p_vertices[i].Texture.y *= h;
+				p_vertices[i].Texture.x = (p_vertices[i].Texture.x * w) + x;
+				p_vertices[i].Texture.y = (p_vertices[i].Texture.y * h) + y;
 			}
 		}
 	}

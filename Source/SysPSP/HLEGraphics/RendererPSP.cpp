@@ -330,8 +330,8 @@ void RendererPSP::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, b
 			float scale_x = texture->GetScaleX();
 			float scale_y = texture->GetScaleY();
 
-			sceGuTexOffset( -mTileTopLeft[ 0 ].s * scale_x / 32.f,
-							-mTileTopLeft[ 0 ].t * scale_y / 32.f );
+			sceGuTexOffset( -mTileTopLeft[ 0 ].s * scale_x / 4.f,
+							-mTileTopLeft[ 0 ].t * scale_y / 4.f );
 			sceGuTexScale( scale_x, scale_y );
 		}
 		else
@@ -589,8 +589,8 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 					float scale_x = texture1->GetScaleX();
 					float scale_y = texture1->GetScaleY();
 
-					sceGuTexOffset( -mTileTopLeft[ 1 ].s * scale_x / 32.f,
-									-mTileTopLeft[ 1 ].t * scale_y / 32.f );
+					sceGuTexOffset( -mTileTopLeft[ 1 ].s * scale_x / 4.f,
+									-mTileTopLeft[ 1 ].t * scale_y / 4.f );
 					sceGuTexScale( scale_x, scale_y );
 				}
 			}

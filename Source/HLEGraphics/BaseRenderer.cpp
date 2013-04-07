@@ -1761,8 +1761,8 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	mTexWrap[ index ].u = mode_u;
 	mTexWrap[ index ].v = mode_v;
 
-	mTileTopLeft[ index ].s = tile_size.left << 3;	// Convert 10.2 fixed point to 10.5
-	mTileTopLeft[ index ].t = tile_size.top  << 3;
+	mTileTopLeft[ index ].s = tile_size.left;
+	mTileTopLeft[ index ].t = tile_size.top;
 
 	mActiveTile[ index ] = tile_idx;
 
@@ -1770,7 +1770,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 			tile_idx, index, ti.GetWidth(), ti.GetHeight(), ti.GetFormatName(), ti.GetSizeInBits(),
 			(mode_u==GU_CLAMP)? "Clamp" : "Repeat", (mode_v==GU_CLAMP)? "Clamp" : "Repeat",
 			ti.GetLoadAddress(), ti.GetTlutAddress(), ti.GetHashCode(), ti.GetPitch(),
-			mTileTopLeft[ index ].s / 32.f, mTileTopLeft[ index ].t / 32.f );
+			mTileTopLeft[ index ].s / 4.f, mTileTopLeft[ index ].t / 4.f );
 }
 
 
@@ -1793,8 +1793,10 @@ inline void FixUV(u32 * wrap, s16 * c0_, s16 * c1_, s16 offset, u32 size)
 {
 	DAEDALUS_ASSERT(size > 0, "Texture has crazy width/height");
 
-	s16 c0 = *c0_ - offset;
-	s16 c1 = *c1_ - offset;
+	s16 offset_10_5 = offset << 3;
+
+	s16 c0 = *c0_ - offset_10_5;
+	s16 c1 = *c1_ - offset_10_5;
 
 	// Many texrects already have GU_CLAMP set, so avoid some work.
 	if (*wrap != GU_CLAMP && size > 0)
@@ -1836,7 +1838,7 @@ void BaseRenderer::PrepareTexRectUVs(TexCoord * puv0, TexCoord * puv1)
 	if (rdp_tile.mirror_t)	size_y *= 2;
 
 #ifdef DAEDALUS_GL
-	// If using mTexShift, we need to take it into account here.
+	// If using shift, we need to take it into account here.
 	offset.s = ApplyShift(offset.s, rdp_tile.shift_s);
 	offset.t = ApplyShift(offset.t, rdp_tile.shift_t);
 	size_x   = ApplyShift(size_x,   rdp_tile.shift_s);
