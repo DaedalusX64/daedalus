@@ -46,8 +46,8 @@ private:
 	u32			TLutFmt : 2;		// e.g. ?, ?, RGBA16, IA16
 //	u32			Tile : 3;			// e.g. Tile number (0-7)
 	bool		Swapped : 1;		// Are odd lines word swapped?
-	bool		MirrorS : 1;
-	bool		MirrorT : 1;
+	bool		EmulateMirrorS : 1;
+	bool		EmulateMirrorT : 1;
 
 	bool		White : 1;			// Force the RGB channels to white (PSP Blender support).
 									// Typically this is set on a copy of the TextureInfo.
@@ -86,8 +86,8 @@ public:
 	inline ETLutFmt			GetTLutFormat() const			{ return (ETLutFmt)TLutFmt; }
 	inline u32				GetTLutIndex() const			{ return TLutIndex; }
 	inline bool				IsSwapped() const				{ return Swapped; }
-	inline bool				GetMirrorS() const				{ return MirrorS; }
-	inline bool				GetMirrorT() const				{ return MirrorT; }
+	inline bool				GetEmulateMirrorS() const		{ return EmulateMirrorS; }
+	inline bool				GetEmulateMirrorT() const		{ return EmulateMirrorT; }
 	inline bool				GetWhite() const				{ return White; }
 
 	inline void				SetLoadAddress( u32 address )	{ LoadAddress = address; }
@@ -101,8 +101,8 @@ public:
 	inline void				SetTLutFormat( ETLutFmt format ){ TLutFmt = format; }
 	inline void				SetTLutIndex( u32 index )		{ TLutIndex = index; }
 	inline void				SetSwapped( bool swapped )		{ Swapped = swapped; }
-	inline void				SetMirrorS( bool mirror_s )		{ MirrorS = mirror_s; }
-	inline void				SetMirrorT( bool mirror_t )		{ MirrorT = mirror_t; }
+	inline void				SetEmulateMirrorS( bool e )		{ EmulateMirrorS = e; }
+	inline void				SetEmulateMirrorT( bool e )		{ EmulateMirrorT = e; }
 	inline void				SetWhite( bool white )			{ White = white; }
 
 	inline int				Compare( const TextureInfo & rhs ) const			{ return memcmp( this, &rhs, sizeof( TextureInfo ) ); }

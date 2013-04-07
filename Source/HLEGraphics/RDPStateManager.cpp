@@ -132,6 +132,7 @@ static inline void CopyLineSwap32(u8 * dst, u32 dst_offset, u8 * src, u32 src_of
 
 
 CRDPStateManager::CRDPStateManager()
+:	EmulateMirror(true)
 {
 	ClearAllEntries();
 	InvalidateAllTileTextureInfo();
@@ -534,8 +535,9 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		ti.SetPitch( pitch );
 		ti.SetTLutFormat( (ETLutFmt)gRDPOtherMode.text_tlut );
 		ti.SetSwapped( swapped );
-		ti.SetMirrorS( rdp_tile.mirror_s );
-		ti.SetMirrorT( rdp_tile.mirror_t );
+
+		ti.SetEmulateMirrorS( EmulateMirror && rdp_tile.mirror_s );
+		ti.SetEmulateMirrorT( EmulateMirror && rdp_tile.mirror_t );
 
 		// Hack - Extreme-G specifies RGBA/8 textures, but they're really CI8
 		if( ti.GetFormat() == G_IM_FMT_RGBA && ti.GetSize() <= G_IM_SIZ_8b ) ti.SetFormat( G_IM_FMT_CI );
