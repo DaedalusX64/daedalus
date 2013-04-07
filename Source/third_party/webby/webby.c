@@ -1272,12 +1272,12 @@ static void wb_update_client(struct WebbyServer *srv, struct WebbyConnectionPrv*
           }
         }
 
-        reset_connection(srv, connection);
-        connection->state = WBC_WEBSOCKET;
-
         /* Back to non-blocking mode */
         if (0 != make_connection_nonblocking(connection))
           return;
+
+        reset_connection(srv, connection);
+        connection->state = WBC_WEBSOCKET;
 
         break;
       }
