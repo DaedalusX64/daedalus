@@ -949,6 +949,7 @@ void DLParser_TexRect( MicroCodeCommand command )
 	{
 		case CYCLE_COPY:
 			d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
+			// NB! Fall through!
 		case CYCLE_FILL:
 			xy1.x = (tex_rect.x1 + 4) * 0.25f;
 			xy1.y = (tex_rect.y1 + 4) * 0.25f;
@@ -1001,6 +1002,7 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	{
 		case CYCLE_COPY:
 			d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
+			// NB! Fall through!
 		case CYCLE_FILL:
 			xy1.x = (tex_rect.x1 + 4) * 0.25f;
 			xy1.y = (tex_rect.y1 + 4) * 0.25f;
