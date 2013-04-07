@@ -467,16 +467,8 @@ bool WebDebug_Init()
 		return false;
 	}
 
-	// FIXME(strmnnrmn): need to copy these files to the Data dir, and reference
-	// relative to the executable.
-	//IO::Path::PathBuf data_path = __FILE__;
-	//IO::Path::RemoveFileSpec(data_path);
-#ifdef DAEDALUS_OSX
-	IO::Path::PathBuf data_path = "/Users/paulholden/dev/daedalus/Source/SysOSX/Debug/Web/";
-#else
 	IO::Path::PathBuf data_path;
 	IO::Path::Combine(data_path, gDaedalusExePath, "Web");
-#endif
 	DBGConsole_Msg(0, "Looking for static resource in [C%s]", data_path);
 	AddStaticContent(data_path, "");
 

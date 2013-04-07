@@ -154,10 +154,16 @@
         ],
         'copies': [
           {
+            'destination': '<(PRODUCT_DIR)/',
             'files': [
               'roms.ini',
             ],
+          },
+          {
             'destination': '<(PRODUCT_DIR)/',
+            'files': [
+              'Source/SysOSX/Debug/Web/',
+            ],
           },
         ],
       },
