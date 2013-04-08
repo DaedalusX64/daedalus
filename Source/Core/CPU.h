@@ -154,7 +154,7 @@ void	CPU_Finalise();
 void	CPU_Step();
 void	CPU_Skip();
 bool	CPU_Run();
-bool	CPU_StartThread( char * p_failure_reason, u32 length );
+bool	CPU_StartThread( char * p_failure_reason );
 void	CPU_StopThread();
 bool	CPU_SaveState( const char * filename );
 bool	CPU_LoadState( const char * filename );

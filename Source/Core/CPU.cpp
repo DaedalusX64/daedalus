@@ -49,6 +49,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Test/BatchTest.h"
 
+#ifdef DAEDALUS_W32
+#include "Plugins/AudioPlugin.h"
+#endif
+
 #include "Debug/DebugLog.h"
 #include "Debug/DBGConsole.h"
 
@@ -551,7 +555,7 @@ static u32 DAEDALUS_THREAD_CALL_TYPE CPUThreadFunc( void * /*arg*/ )
 	return 0;
 }
 
-bool CPU_StartThread( char * p_failure_reason, u32 length )
+bool CPU_StartThread( char * p_failure_reason )
 {
 	if (!RomBuffer::IsRomLoaded())
 	{
@@ -801,7 +805,10 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			gVerticalInterrupts++;
 
 			FramerateLimiter_Limit();
-
+#ifdef DAEDALUS_W32
+			if (g_pAiPlugin != NULL)
+				g_pAiPlugin->Update(false);
+#endif
 			Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_VI);
 			R4300_Interrupt_UpdateCause3();
 

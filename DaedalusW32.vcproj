@@ -212,7 +212,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /Y /D /E /C /F Data\PC\*.*  .\Builds\PC\&#x0D;&#x0A;xcopy /I /Y /D /E  /F Source\SysOSX\Debug\Web\*.*  .\Builds\PC\Web\&#x0D;&#x0A;"
+				CommandLine="xcopy /Y /D /E /C /F Data\PC\*.*  .\Builds\PC\&#x0D;&#x0A;xcopy /I /Y /D /E  /F Source\SysOSX\Debug\Web\*.*  .\Builds\PC\Web\&#x0D;&#x0A;xcopy /I /Y /D /E  /F Source\SysGL\HLEGraphics\n64.psh  .\Builds\PC\&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

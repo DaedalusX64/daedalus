@@ -165,8 +165,9 @@ BaseRenderer::BaseRenderer()
 ,	mNastyTexture(false)
 #endif
 {
+#ifdef DAEDALUS_PSP
 	DAEDALUS_ASSERT( IsPointerAligned( &mTnL, 16 ), "Oops, mTnL should be 16-byte aligned" );
-
+#endif
 	for ( u32 i = 0; i < kNumBoundTextures; i++ )
 	{
 		mTileTopLeft[i].s = 0;

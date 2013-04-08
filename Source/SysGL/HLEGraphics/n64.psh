@@ -31,9 +31,8 @@ uniform int uFoo;
 
 ivec2 imix(ivec2 a, ivec2 b, bvec2 c)
 {
-	return ivec2(mix(a,b,c));
+        return ivec2(mix(vec2(a),vec2(b),c));
 }
-
 // coord:  10.5
 // return: 10.5
 ivec2 shift(ivec2 coord, vec2 shift_scale)
@@ -103,7 +102,7 @@ vec4 bilinear_n64(vec4 col_00, vec4 col_01, vec4 col_10, vec4 col_11, ivec2 frac
 	vec4 col0  = mix(col_00, col_11, uppersel);
 	vec4 col1  = mix(col_10, col_01, uppersel);
 	vec4 col2  = mix(col_01, col_10, uppersel);
-	vec2 fracf = mix(frac, 0x20 - frac, uppersel.xy) / 32.f;
+	vec2 fracf = imix(frac, 0x20 - frac, uppersel.xy) / 32.f;
 
 	vec4 col = col0 + (fracf.x * (col1 - col0)) + (fracf.y * (col2 - col0));
 	return clamp(col, 0.f, 1.f);

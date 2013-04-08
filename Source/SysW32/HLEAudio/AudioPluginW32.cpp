@@ -36,6 +36,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <mmsystem.h>
 #include <dsound.h>
 
+//This is disabled, it doesn't work well, causes random deadlocks/Lock failures :(
+//Would be nice to get it working correctly, since running audio in the main thread is abit jerky
+//#define AUDIO_THREADED
+
 #define NUMCAPTUREEVENTS	3
 #define BufferSize			0x5000
 
@@ -83,18 +87,20 @@ public:
 	virtual u32				ReadLength();
 	virtual EProcessResult	ProcessAList();
 	virtual void			RomClosed();
+	virtual void			Update( bool wait );
 private:
 	u32 Frequency, Dacrate, Snd1Len, SpaceLeft, SndBuffer[3], Playing;
 	BYTE *Snd1ReadPos;
-
-	static u32 DAEDALUS_THREAD_CALL_TYPE AudioThread(void * arg);
+#ifdef
+	static u32 __stdcall AudioThread(void * arg);
+#endif
 	LPDIRECTSOUNDBUFFER  lpdsbuf;
 	LPDIRECTSOUND        lpds;
 	LPDIRECTSOUNDNOTIFY  lpdsNotify;
-	HANDLE               rghEvent[NUMCAPTUREEVENTS + 1];
-	DSBPOSITIONNOTIFY    rgdscbpn[NUMCAPTUREEVENTS + 1];
+	HANDLE               rghEvent[NUMCAPTUREEVENTS];
+	DSBPOSITIONNOTIFY    rgdscbpn[NUMCAPTUREEVENTS];
 
-	void Update( bool wait );
+	void SpeedSync();
 	void SetupDSoundBuffers();
 	bool CAudioPluginW32::FillBufferWithSilence( LPDIRECTSOUNDBUFFER lpDsb );
 
@@ -141,27 +147,28 @@ bool		CAudioPluginW32::StartEmulation()
 	int count;
 
 	if ( FAILED( hr = DirectSoundCreate( NULL, &lpds, NULL ) ) ) {
-		return FALSE;
+		return false;
 	}
 
 	if ( FAILED( hr = IDirectSound8_SetCooperativeLevel(lpds, GetConsoleWindow(), DSSCL_PRIORITY   ))) {
-		return FALSE;
+		return false;
 	}
 	for ( count = 0; count < NUMCAPTUREEVENTS; count++ ) {
-		rghEvent[count] = CreateEvent( NULL, FALSE, FALSE, NULL );
-		if (rghEvent[count] == NULL ) { return FALSE; }
+		rghEvent[count] = CreateEvent( NULL, false, false, NULL );
+		if (rghEvent[count] == NULL ) { return false; }
 	}
 	Dacrate = 0;
 	Playing = false;
 	SndBuffer[0] = Buffer_Empty;
 	SndBuffer[1] = Buffer_Empty;
 	SndBuffer[2] = Buffer_Empty;
-
+#ifdef AUDIO_THREADED
 	if (CreateThread( "Audio", AudioThread, this ) == kInvalidThreadHandle)
 	{
 		DAEDALUS_ERROR("Failed to start the audio thread!");
 		gAudioPluginEnabled = APM_DISABLED;
 	}
+#endif
 	return true;
 
 }
@@ -172,6 +179,10 @@ bool		CAudioPluginW32::StartEmulation()
 void	CAudioPluginW32::StopEmulation()
 {
 	Audio_Reset();
+
+#ifndef AUDIO_THREADED
+	//ToDo: Terminate thread
+#endif
 
 	if (lpdsbuf)
 	{
@@ -185,7 +196,7 @@ void	CAudioPluginW32::StopEmulation()
 		lpds = NULL;
 	}
 }
-
+#ifdef AUDIO_THREADED
 u32	DAEDALUS_THREAD_CALL_TYPE CAudioPluginW32::AudioThread(void * arg)
 {
 	CAudioPluginW32 * plugin = static_cast<CAudioPluginW32 *>(arg);
@@ -197,7 +208,7 @@ u32	DAEDALUS_THREAD_CALL_TYPE CAudioPluginW32::AudioThread(void * arg)
 
 	return 0;
 }
-
+#endif
 
 //*****************************************************************************
 //
@@ -213,6 +224,13 @@ void	CAudioPluginW32::DacrateChanged( int SystemType )
 	}
 }
 
+void	CAudioPluginW32::SpeedSync()
+{
+	if (Playing && (SndBuffer[2] == Buffer_Full) ||(SndBuffer[1] == Buffer_Full) ||(SndBuffer[0] == Buffer_Full))
+	{
+		ThreadSleepMs(10);
+	}
+}
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -260,27 +278,10 @@ void	CAudioPluginW32::LenChanged()
 		FillBuffer((1 + offset) & 3);
 		FillBuffer((2 + offset) & 3);
 	}
-	if (!Playing) {
-		for (count = 0; count < 3; count ++) {
-			if (SndBuffer[count] == Buffer_Full) 
-			{
-				Playing = true;
-				IDirectSoundBuffer8_Play(lpdsbuf, 0, 0, DSBPLAY_LOOPING );
-				return;
-			}
-		}
-	} else {
-		IDirectSoundBuffer8_GetStatus(lpdsbuf,&status);
-		if ((status & DSBSTATUS_PLAYING) == 0) {
-			IDirectSoundBuffer8_Play(lpdsbuf, 0, 0, DSBPLAY_LOOPING );
-		}
-	}
-
-	// SpeedSync
-	if (Playing && (SndBuffer[2] == Buffer_Full) ||(SndBuffer[1] == Buffer_Full) ||(SndBuffer[0] == Buffer_Full))
-	{
-		ThreadSleepMs(10);
-	}
+#ifndef AUDIO_THREADED
+	Update(false);
+#endif
+	SpeedSync();
 }
 
 //*****************************************************************************
@@ -298,13 +299,13 @@ u32		CAudioPluginW32::ReadLength()
 void	CAudioPluginW32::Update( bool Wait )
 {
 	int count=0;
-	u32 dwStatus, dwEvt;
+	u32 status, dwEvt;
 
 	if (Wait&Playing) {
-		dwEvt = MsgWaitForMultipleObjects(NUMCAPTUREEVENTS,rghEvent,FALSE,
+		dwEvt = MsgWaitForMultipleObjects(NUMCAPTUREEVENTS,rghEvent,false,
 			INFINITE,QS_ALLINPUT);
 	} else {
-		dwEvt = MsgWaitForMultipleObjects(NUMCAPTUREEVENTS,rghEvent,FALSE,
+		dwEvt = MsgWaitForMultipleObjects(NUMCAPTUREEVENTS,rghEvent,false,
 			0,QS_ALLINPUT);
 	}
 	dwEvt -= WAIT_OBJECT_0;
@@ -337,6 +338,28 @@ void	CAudioPluginW32::Update( bool Wait )
 		//IDirectSoundBuffer_Play(lpdsbuf, 0, 0, 0 );
 		break;
 	}
+
+	if (!Playing) 
+	{
+		for (count = 0; count < 3; count ++) 
+		{
+			if (SndBuffer[count] == Buffer_Full) 
+			{
+				Playing = true;
+				IDirectSoundBuffer8_Play(lpdsbuf, 0, 0, DSBPLAY_LOOPING );
+				return;
+			}
+		}
+	} 
+	else 
+	{
+		IDirectSoundBuffer8_GetStatus(lpdsbuf,&status);
+		if ((status & DSBSTATUS_PLAYING) == 0)
+		{
+			IDirectSoundBuffer8_Play(lpdsbuf, 0, 0, DSBPLAY_LOOPING );
+		}
+	}
+	
 }
 
 EProcessResult	CAudioPluginW32::ProcessAList()
@@ -437,6 +460,8 @@ void CAudioPluginW32::SetupDSoundBuffers(void) {
 	if ( FAILED( hr = IDirectSoundNotify_SetNotificationPositions(lpdsNotify, NUMCAPTUREEVENTS, rgdscbpn ) ) ) {
 		return;
 	}
+
+	IDirectSoundBuffer_Play(lpdsbuf, 0, 0, 0 );
 }
 
 bool CAudioPluginW32::FillBufferWithSilence( LPDIRECTSOUNDBUFFER lpDsb ) {
@@ -447,7 +472,7 @@ bool CAudioPluginW32::FillBufferWithSilence( LPDIRECTSOUNDBUFFER lpDsb ) {
 	u32   cb1;
 
 	if ( FAILED( IDirectSoundBuffer8_GetFormat(lpDsb, &wfx, sizeof( WAVEFORMATEX ), &dwSizeWritten ) ) ) {
-		return FALSE;
+		return false;
 	}
 
 	if ( SUCCEEDED( IDirectSoundBuffer8_Lock(lpDsb,0,0,(LPVOID*)&pb1,&cb1,NULL,NULL,DSBLOCK_ENTIREBUFFER))) {
@@ -457,7 +482,7 @@ bool CAudioPluginW32::FillBufferWithSilence( LPDIRECTSOUNDBUFFER lpDsb ) {
 		return TRUE;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void CAudioPluginW32::FillSectionWithSilence( int buffer ) {
