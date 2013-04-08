@@ -946,8 +946,8 @@ void DLParser_TexRect( MicroCodeCommand command )
 	s32 rect_dsdx = tex_rect.dsdx;
 	s32 rect_dtdy = tex_rect.dtdy;
 
-	if(rect_dsdx < 0) rect_s0 += 32;	//Fixes California Speed
-	if(rect_dtdy < 0) rect_t0 += 32;
+	rect_s0 += (((u32)rect_dsdx >> 31) << 5);	//Fixes California Speed
+	rect_t0 += (((u32)rect_dtdy >> 31) << 5);
 
 	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1<<2 to the w/h)
 	//
@@ -997,39 +997,46 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 
 	DAEDALUS_DL_ASSERT(gRDPOtherMode.cycle_type != CYCLE_COPY || tex_rect.dsdx == (4<<10), "Expecting dsdx of 4<<10 in copy mode, got %d", tex_rect.dsdx);
 
-	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
-	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
-	v2 xy1;
-	v2 uv0( (tex_rect.s + (tex_rect.dsdx < 0 ? 32 : 0)) / 32.0f,	// For Wetrix
-			(tex_rect.t + (tex_rect.dtdy < 0 ? 32 : 0)) / 32.0f );	// For Wetrix
-	v2 uv1;
+	//Keep integers for as long as possible //Corn
+	s32 rect_x0 = tex_rect.x0;
+	s32 rect_y0 = tex_rect.y0;
+	s32 rect_x1 = tex_rect.x1;
+	s32 rect_y1 = tex_rect.y1;
 
-	//
-	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
+	s16 rect_s0 = tex_rect.s;
+	s16 rect_t0 = tex_rect.t;
+
+	s32 rect_dsdx = tex_rect.dsdx;
+	s32 rect_dtdy = tex_rect.dtdy;
+
+	rect_s0 += (((u32)rect_dsdx >> 31) << 5);	// For Wetrix
+	rect_t0 += (((u32)rect_dtdy >> 31) << 5);
+
+	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1<<2 to the w/h)
 	//
 	switch ( gRDPOtherMode.cycle_type )
 	{
 		case CYCLE_COPY:
-			d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
+			rect_dsdx = rect_dsdx >> 2;	// In copy mode 4 pixels are copied at once.
 			// NB! Fall through!
 		case CYCLE_FILL:
-			xy1.x = (tex_rect.x1 + 4) * 0.25f;
-			xy1.y = (tex_rect.y1 + 4) * 0.25f;
+			rect_x1 += 4;
+			rect_y1 += 4;
 			break;
 		default:
-			xy1.x = tex_rect.x1 * 0.25f;
-			xy1.y = tex_rect.y1 * 0.25f;
 			break;
 	}
 
-	uv1.x = uv0.x + d.x * ( xy1.y - xy0.y );		// Flip - use y
-	uv1.y = uv0.y + d.y * ( xy1.x - xy0.x );		// Flip - use x
+	s16 rect_s1 = rect_s0 + (rect_dsdx * ( rect_y1 - rect_y0 ) >> 7);	// Flip - use y
+	s16 rect_t1 = rect_t0 + (rect_dtdy * ( rect_x1 - rect_x0 ) >> 7);	// Flip - use x
+
+	TexCoord st0( rect_s0, rect_t0 );
+	TexCoord st1( rect_s1, rect_t1 );
+	v2 xy0( rect_x0 / 4.0f, rect_y0 / 4.0f );
+	v2 xy1( rect_x1 / 4.0f, rect_y1 / 4.0f );
 
 	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile[%d]", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
-	DL_PF("    FLIPTex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", uv0.x, uv0.y, uv1.x, uv1.y, d.x, d.y);
-
-	TexCoord st0( uv0.x, uv0.y );
-	TexCoord st1( uv1.x, uv1.y );
+	DL_PF("    FlipTex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", rect_s0/32.f, rect_t0/32.f, rect_s1/32.f, rect_t1/32.f, rect_dsdx/1024.f, rect_dtdy/1024.f);
 
 	gRenderer->TexRectFlip( tex_rect.tile_idx, xy0, xy1, st0, st1 );
 }
