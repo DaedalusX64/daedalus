@@ -25,11 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DAEDALUSW32_H_
 
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
-#include <atlbase.h>
-#include <atlstdthunk.h> // For using ATL 7.1 from the WinDDK with VSExpress
-#include <atlwin.h>
 #include <windows.h>
-#include <windowsx.h>
 #include <intrin.h>
 
 #include <algorithm>
@@ -49,11 +45,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define new NEW_INLINE_WORKAROUND
 #endif // NEW_INLINE_WORKAROUND
 #endif // _DEBUG
-
-// Pretty horrid - should probably live somewhere else...
-extern CComModule _Module;
-extern HINSTANCE	g_hInstance;
-extern char			g_szDaedalusName[256];
 
 //We link GLFWDLL.lib, which requires this to be defined
 #define GLFW_DLL

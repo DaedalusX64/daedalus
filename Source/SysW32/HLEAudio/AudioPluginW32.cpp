@@ -91,7 +91,7 @@ public:
 private:
 	u32 Frequency, Dacrate, Snd1Len, SpaceLeft, SndBuffer[3], Playing;
 	BYTE *Snd1ReadPos;
-#ifdef
+#ifdef AUDIO_THREADED
 	static u32 __stdcall AudioThread(void * arg);
 #endif
 	LPDIRECTSOUNDBUFFER  lpdsbuf;
@@ -359,7 +359,6 @@ void	CAudioPluginW32::Update( bool Wait )
 			IDirectSoundBuffer8_Play(lpdsbuf, 0, 0, DSBPLAY_LOOPING );
 		}
 	}
-	
 }
 
 EProcessResult	CAudioPluginW32::ProcessAList()

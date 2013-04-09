@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Interface/RomDB.h"
 
-#include "Utility/ConfigHandler.h"	//
 #include "Utility/Preferences.h"
 #include "Utility/Profiler.h"		// CProfiler::Create/Destroy
 #include "Utility/IO.h"
@@ -38,26 +37,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Test/BatchTest.h"
 
 #include "ConfigOptions.h"
-
 char		gDaedalusExePath[MAX_PATH+1];
 
 int __cdecl main(int argc, char **argv)
 {
-	int result = 0;
-	if (argc > 0)
+	HMODULE hModule = GetModuleHandle(NULL);
+	if (hModule != NULL)
 	{
-		//ToDO: Implementation of realpath for W32
-		IO::Path::RemoveFileSpec(argv[0]);
-		strcpy(gDaedalusExePath, argv[0]);
-		
+		GetModuleFileName(hModule, gDaedalusExePath, MAX_PATH);
+		IO::Path::RemoveFileSpec(gDaedalusExePath);
 	}
 	else
 	{
 		fprintf(stderr, "Couldn't determine executable path\n");
 		return 1;
 	}
-	
+	DAEDALUS_ERROR("%s",rom_path);
 	//ReadConfiguration();
+
+	int result = 0;
+	char rom_path[MAX_PATH+1];
 
 	if (!System_Init())
 		return 1;
@@ -94,9 +93,11 @@ int __cdecl main(int argc, char **argv)
 		else if (filename)
 		{
 			//Need absolute path when loading from Visual Studio
-			strcat(argv[0], argv[1]);
-			fprintf(stderr, "Loading %s\n",argv[0]);
-			System_Open(argv[0]);
+			//This is ok when loading from console too, since arg0 will be empty, it'll just load file name (arg1)
+			IO::Path::Combine(rom_path, gDaedalusExePath, argv[1]);
+			fprintf(stderr, "Loading %s\n",rom_path);
+			DAEDALUS_ERROR("%s",rom_path);
+			System_Open(rom_path);
 			CPU_Run();
 			System_Close();
 		}
@@ -121,5 +122,6 @@ int __cdecl main(int argc, char **argv)
 
 	System_Finalize();
 
+	
 	return result;
 }

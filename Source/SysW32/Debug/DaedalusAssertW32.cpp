@@ -23,7 +23,6 @@
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
 #include <crtdbg.h>
-#include <windows.h>
 
 DaedalusAssertHook gAssertHook = NULL;
 

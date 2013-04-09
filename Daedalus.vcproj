@@ -893,14 +893,6 @@
 						RelativePath=".\Source\SysW32\Interface\CheckBox.h"
 						>
 					</File>
-					<File
-						RelativePath=".\Source\SysW32\Interface\FileNameHandler.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Interface\FileNameHandler.h"
-						>
-					</File>
 					<Filter
 						Name="Page Headers"
 						>
@@ -1331,14 +1323,6 @@
 				<Filter
 					Name="W32"
 					>
-					<File
-						RelativePath=".\Source\SysW32\Utility\ConfigHandler.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysW32\Utility\ConfigHandler.h"
-						>
-					</File>
 					<File
 						RelativePath=".\Source\SysW32\Utility\DISASM86.cpp"
 						>

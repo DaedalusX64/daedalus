@@ -20,8 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "Utility/Thread.h"
 
-#include <Windows.h>
-
 static const int	gThreadPriorities[ TP_NUM_PRIORITIES ] =
 {
 	THREAD_PRIORITY_BELOW_NORMAL,		// TP_LOW
