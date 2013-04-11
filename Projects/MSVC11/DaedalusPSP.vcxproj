@@ -1,0 +1,418 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{52A6C596-EDA5-4822-A48B-890BD9AF9147}</ProjectGuid>
+    <RootNamespace>DaedalusPSP</RootNamespace>
+    <Keyword>MakeFileProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC71.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)\bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\obj\$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine>vsmake</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>vsmake clean &amp;&amp; vsmake</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>vsmake clean</NMakeCleanCommandLine>
+    <NMakeOutput>EBOOT.PBP</NMakeOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)\bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\obj\$(Configuration)\</IntDir>
+    <NMakeBuildCommandLine>vsmake</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine>vsmake clean &amp;&amp; vsmake</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine>vsmake clean</NMakeCleanCommandLine>
+    <NMakeOutput>EBOOT.PBP</NMakeOutput>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <BuildLog>
+      <Path>$(IntDir)$(ProjectName)BuildLog.htm</Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <BuildLog>
+      <Path>$(IntDir)$(ProjectName)BuildLog.htm</Path>
+    </BuildLog>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\BuildOptions.h" />
+    <ClInclude Include="Source\Endian.h" />
+    <ClInclude Include="Source\PopStructPack.h" />
+    <ClInclude Include="Source\PushStructPack1.h" />
+    <ClInclude Include="Source\VersionNo.h" />
+    <ClInclude Include="Source\Config\Release\BuildConfig.h" />
+    <ClInclude Include="Source\Config\Dev\BuildConfig.h" />
+    <ClInclude Include="Source\SysPSP\Include\Platform.h" />
+    <ClInclude Include="Source\ConfigOptions.h" />
+    <ClInclude Include="Source\Core\Cheats.h" />
+    <ClInclude Include="Source\Core\CPU.h" />
+    <ClInclude Include="Source\Core\DMA.h" />
+    <ClInclude Include="Source\Core\Dynamo.h" />
+    <ClInclude Include="Source\Core\Interpret.h" />
+    <ClInclude Include="Source\Core\Interrupt.h" />
+    <ClInclude Include="Source\Core\N64Reg.h" />
+    <ClInclude Include="Source\Core\PIF.h" />
+    <ClInclude Include="Source\Core\R4300.h" />
+    <ClInclude Include="Source\Core\R4300Instruction.h" />
+    <ClInclude Include="Source\Core\R4300OpCode.h" />
+    <ClInclude Include="Source\Core\Registers.h" />
+    <ClInclude Include="Source\Core\ROM.h" />
+    <ClInclude Include="Source\Core\ROMBuffer.h" />
+    <ClInclude Include="Source\Core\ROMImage.h" />
+    <ClInclude Include="Source\Core\RomSettings.h" />
+    <ClInclude Include="Source\Core\RSP.h" />
+    <ClInclude Include="Source\Core\RSP_HLE.h" />
+    <ClInclude Include="Source\Core\Save.h" />
+    <ClInclude Include="Source\Core\SaveState.h" />
+    <ClInclude Include="Source\Core\TLB.h" />
+    <ClInclude Include="Source\Core\Memory.h" />
+    <ClInclude Include="Source\Debug\DaedalusAssert.h" />
+    <ClInclude Include="Source\Debug\DBGConsole.h" />
+    <ClInclude Include="Source\Debug\DebugLog.h" />
+    <ClInclude Include="Source\Debug\Dump.h" />
+    <ClInclude Include="Source\DynaRec\AssemblyBuffer.h" />
+    <ClInclude Include="Source\DynaRec\AssemblyUtils.h" />
+    <ClInclude Include="Source\DynaRec\BranchType.h" />
+    <ClInclude Include="Source\DynaRec\CodeBufferManager.h" />
+    <ClInclude Include="Source\DynaRec\CodeGenerator.h" />
+    <ClInclude Include="Source\DynaRec\DynaRecProfile.h" />
+    <ClInclude Include="Source\DynaRec\Fragment.h" />
+    <ClInclude Include="Source\DynaRec\FragmentCache.h" />
+    <ClInclude Include="Source\DynaRec\IndirectExitMap.h" />
+    <ClInclude Include="Source\DynaRec\RegisterSpan.h" />
+    <ClInclude Include="Source\DynaRec\StaticAnalysis.h" />
+    <ClInclude Include="Source\DynaRec\Trace.h" />
+    <ClInclude Include="Source\DynaRec\TraceRecorder.h" />
+    <ClInclude Include="Source\SysPSP\DynaRec\AssemblyWriterPSP.h" />
+    <ClInclude Include="Source\SysPSP\DynaRec\CodeGeneratorPSP.h" />
+    <ClInclude Include="Source\SysPSP\DynaRec\DynarecTargetPSP.h" />
+    <ClInclude Include="Source\SysPSP\DynaRec\N64RegisterCachePSP.h" />
+    <ClInclude Include="Source\Input\InputManager.h" />
+    <ClInclude Include="Source\Interface\RomDB.h" />
+    <ClInclude Include="Source\Localisation\LanguageTable.h" />
+    <ClInclude Include="Source\Localisation\Localization.h" />
+    <ClInclude Include="Source\OSHLE\OS.h" />
+    <ClInclude Include="Source\OSHLE\OSMesgQueue.h" />
+    <ClInclude Include="Source\OSHLE\OSTask.h" />
+    <ClInclude Include="Source\OSHLE\patch.h" />
+    <ClInclude Include="Source\OSHLE\patch_symbols.h" />
+    <ClInclude Include="Source\OSHLE\ultra_abi.h" />
+    <ClInclude Include="Source\OSHLE\ultra_gbi.h" />
+    <ClInclude Include="Source\OSHLE\ultra_mbi.h" />
+    <ClInclude Include="Source\OSHLE\ultra_os.h" />
+    <ClInclude Include="Source\OSHLE\ultra_R4300.h" />
+    <ClInclude Include="Source\OSHLE\ultra_rcp.h" />
+    <ClInclude Include="Source\OSHLE\ultra_sptask.h" />
+    <ClInclude Include="Source\Plugins\AudioPlugin.h" />
+    <ClInclude Include="Source\Plugins\GraphicsPlugin.h" />
+    <ClInclude Include="Source\stdafx.h" />
+    <ClInclude Include="Source\Utility\Alignment.h" />
+    <ClInclude Include="Source\Utility\CRC.h" />
+    <ClInclude Include="Source\Utility\DaedalusTypes.h" />
+    <ClInclude Include="Source\Utility\FramerateLimiter.h" />
+    <ClInclude Include="Source\Utility\Functor.h" />
+    <ClInclude Include="Source\Utility\Hash.h" />
+    <ClInclude Include="Source\Utility\IniFile.h" />
+    <ClInclude Include="Source\Utility\IO.h" />
+    <ClInclude Include="Source\Utility\MathUtil.h" />
+    <ClInclude Include="Source\Utility\MemoryHeap.h" />
+    <ClInclude Include="Source\Utility\MemoryPool.h" />
+    <ClInclude Include="Source\Utility\Preferences.h" />
+    <ClInclude Include="Source\Utility\PrintOpCode.h" />
+    <ClInclude Include="Source\Utility\Profiler.h" />
+    <ClInclude Include="Source\Utility\RefCounted.h" />
+    <ClInclude Include="Source\Utility\ROMFile.h" />
+    <ClInclude Include="Source\Utility\ROMFileCache.h" />
+    <ClInclude Include="Source\Utility\ROMFileCompressed.h" />
+    <ClInclude Include="Source\Utility\ROMFileUncompressed.h" />
+    <ClInclude Include="Source\Utility\Singleton.h" />
+    <ClInclude Include="Source\Utility\Stream.h" />
+    <ClInclude Include="Source\Utility\String.h" />
+    <ClInclude Include="Source\Utility\Synchroniser.h" />
+    <ClInclude Include="Source\Utility\Timer.h" />
+    <ClInclude Include="Source\Utility\Timing.h" />
+    <ClInclude Include="Source\Utility\Zip\unzip.h" />
+    <ClInclude Include="Source\Utility\ZlibWrapper.h" />
+    <ClInclude Include="Source\SysPSP\Utility\CacheUtil.h" />
+    <ClInclude Include="Source\SysPSP\Utility\JobManager.h" />
+    <ClInclude Include="Source\SysPSP\Utility\PathsPSP.h" />
+    <ClInclude Include="Source\Utility\AtomicPrimitives.h" />
+    <ClInclude Include="Source\Utility\Mutex.h" />
+    <ClInclude Include="Source\Utility\SpinLock.h" />
+    <ClInclude Include="Source\Utility\Thread.h" />
+    <ClInclude Include="Source\HLEGraphics\BaseRenderer.h" />
+    <ClInclude Include="Source\HLEGraphics\CachedTexture.h" />
+    <ClInclude Include="Source\HLEGraphics\ConvertImage.h" />
+    <ClInclude Include="Source\HLEGraphics\DaedalusVtx.h" />
+    <ClInclude Include="Source\HLEGraphics\DisplayListDebugger.h" />
+    <ClInclude Include="Source\HLEGraphics\DLDebug.h" />
+    <ClInclude Include="Source\HLEGraphics\DLParser.h" />
+    <ClInclude Include="Source\HLEGraphics\Microcode.h" />
+    <ClInclude Include="Source\HLEGraphics\N64PixelFormat.h" />
+    <ClInclude Include="Source\HLEGraphics\RDP.h" />
+    <ClInclude Include="Source\HLEGraphics\RDPStateManager.h" />
+    <ClInclude Include="Source\HLEGraphics\TextureCache.h" />
+    <ClInclude Include="Source\HLEGraphics\TextureInfo.h" />
+    <ClInclude Include="Source\SysPSP\HLEGraphics\Combiner\BlendConstant.h" />
+    <ClInclude Include="Source\SysPSP\HLEGraphics\Combiner\CombinerExpression.h" />
+    <ClInclude Include="Source\SysPSP\HLEGraphics\Combiner\CombinerInput.h" />
+    <ClInclude Include="Source\SysPSP\HLEGraphics\Combiner\CombinerTree.h" />
+    <ClInclude Include="Source\SysPSP\HLEGraphics\Combiner\RenderSettings.h" />
+    <ClInclude Include="Source\SysPSP\HLEGraphics\BlendModes.h" />
+    <ClInclude Include="Source\SysPSP\HLEGraphics\ColourAdjuster.h" />
+    <ClInclude Include="Source\HLEGraphics\uCodes\Ucode.h" />
+    <ClInclude Include="Source\HLEGraphics\uCodes\Ucode_Conker.h" />
+    <ClInclude Include="Source\HLEGraphics\uCodes\Ucode_DKR.h" />
+    <ClInclude Include="Source\HLEGraphics\uCodes\Ucode_GBI0.h" />
+    <ClInclude Include="Source\HLEGraphics\uCodes\Ucode_GBI1.h" />
+    <ClInclude Include="Source\HLEGraphics\uCodes\Ucode_GBI2.h" />
+    <ClInclude Include="Source\HLEGraphics\uCodes\Ucode_GE.h" />
+    <ClInclude Include="Source\HLEGraphics\uCodes\Ucode_LL.h" />
+    <ClInclude Include="Source\HLEGraphics\uCodes\Ucode_PD.h" />
+    <ClInclude Include="Source\HLEGraphics\uCodes\Ucode_S2DEX.h" />
+    <ClInclude Include="Source\HLEGraphics\uCodes\Ucode_SOTE.h" />
+    <ClInclude Include="Source\HLEGraphics\uCodes\Ucode_Sprite2D.h" />
+    <ClInclude Include="Source\HLEGraphics\uCodes\Ucode_WRUS.h" />
+    <ClInclude Include="Source\HLEGraphics\uCodes\UcodeDefs.h" />
+    <ClInclude Include="Source\HLEAudio\AudioBuffer.h" />
+    <ClInclude Include="Source\SysPSP\HLEAudio\AudioOutput.h" />
+    <ClInclude Include="Source\HLEAudio\audiohle.h" />
+    <ClInclude Include="Source\HLEAudio\AudioHLEProcessor.h" />
+    <ClInclude Include="Source\SysPSP\HLEAudio\AudioPluginPSP.h" />
+    <ClInclude Include="Source\SysPSP\UI\ColourPulser.h" />
+    <ClInclude Include="Source\SysPSP\UI\UIAlignment.h" />
+    <ClInclude Include="Source\SysPSP\UI\UICommand.h" />
+    <ClInclude Include="Source\SysPSP\UI\UIContext.h" />
+    <ClInclude Include="Source\SysPSP\UI\UIElement.h" />
+    <ClInclude Include="Source\SysPSP\UI\UISetting.h" />
+    <ClInclude Include="Source\SysPSP\UI\UISpacer.h" />
+    <ClInclude Include="Source\SysPSP\UI\AdjustDeadzoneScreen.h" />
+    <ClInclude Include="Source\SysPSP\UI\AdvancedOptionsScreen.h" />
+    <ClInclude Include="Source\SysPSP\UI\MainMenuScreen.h" />
+    <ClInclude Include="Source\SysPSP\UI\PauseScreen.h" />
+    <ClInclude Include="Source\SysPSP\UI\RomPreferencesScreen.h" />
+    <ClInclude Include="Source\SysPSP\UI\SplashScreen.h" />
+    <ClInclude Include="Source\SysPSP\UI\UIScreen.h" />
+    <ClInclude Include="Source\SysPSP\UI\AboutComponent.h" />
+    <ClInclude Include="Source\SysPSP\UI\GlobalSettingsComponent.h" />
+    <ClInclude Include="Source\SysPSP\UI\PauseOptionsComponent.h" />
+    <ClInclude Include="Source\SysPSP\UI\RomSelectorComponent.h" />
+    <ClInclude Include="Source\SysPSP\UI\SavestateSelectorComponent.h" />
+    <ClInclude Include="Source\SysPSP\UI\SelectedRomComponent.h" />
+    <ClInclude Include="Source\SysPSP\UI\UIComponent.h" />
+    <ClInclude Include="Source\Graphics\ColourValue.h" />
+    <ClInclude Include="Source\Graphics\NativePixelFormat.h" />
+    <ClInclude Include="Source\Graphics\NativeTexture.h" />
+    <ClInclude Include="Source\Graphics\TextureFormat.h" />
+    <ClInclude Include="Source\SysPSP\Graphics\DrawText.h" />
+    <ClInclude Include="Source\Graphics\GraphicsContext.h" />
+    <ClInclude Include="Source\SysPSP\Graphics\VideoMemoryManager.h" />
+    <ClInclude Include="Source\SysPSP\Graphics\intraFont\intraFont.h" />
+    <ClInclude Include="Source\Math\Math.h" />
+    <ClInclude Include="Source\Math\MathUtil.h" />
+    <ClInclude Include="Source\Math\Matrix4x4.h" />
+    <ClInclude Include="Source\Math\Vector2.h" />
+    <ClInclude Include="Source\Math\Vector3.h" />
+    <ClInclude Include="Source\Math\Vector4.h" />
+    <ClInclude Include="Source\Test\BatchTest.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\ConfigOptions.cpp" />
+    <ClCompile Include="Source\Core\Cheats.cpp" />
+    <ClCompile Include="Source\Core\CPU.cpp" />
+    <ClCompile Include="Source\Core\DMA.cpp" />
+    <ClCompile Include="Source\Core\Dynamo.cpp" />
+    <ClCompile Include="Source\Core\FlashMem.cpp" />
+    <ClCompile Include="Source\Core\Interpret.cpp" />
+    <ClCompile Include="Source\Core\Interrupts.cpp" />
+    <ClCompile Include="Source\Core\JpegTask.cpp" />
+    <ClCompile Include="Source\Core\PIF.cpp" />
+    <ClCompile Include="Source\Core\R4300.cpp" />
+    <ClCompile Include="Source\Core\Registers.cpp" />
+    <ClCompile Include="Source\Core\ROM.cpp" />
+    <ClCompile Include="Source\Core\ROMBuffer.cpp" />
+    <ClCompile Include="Source\Core\ROMImage.cpp" />
+    <ClCompile Include="Source\Core\RomSettings.cpp" />
+    <ClCompile Include="Source\Core\RSP.cpp" />
+    <ClCompile Include="Source\Core\RSP_HLE.cpp" />
+    <ClCompile Include="Source\Core\Save.cpp" />
+    <ClCompile Include="Source\Core\Savestate.cpp" />
+    <ClCompile Include="Source\Core\TLB.cpp" />
+    <ClCompile Include="Source\Core\Memory.cpp" />
+    <ClCompile Include="Source\Debug\DebugLog.cpp" />
+    <ClCompile Include="Source\Debug\Dump.cpp" />
+    <ClCompile Include="Source\SysPSP\Debug\DaedalusAssertPSP.cpp" />
+    <ClCompile Include="Source\SysPSP\Debug\DBGConsolePSP.cpp" />
+    <ClCompile Include="Source\DynaRec\BranchType.cpp" />
+    <ClCompile Include="Source\DynaRec\DynaRecProfile.cpp" />
+    <ClCompile Include="Source\DynaRec\Fragment.cpp" />
+    <ClCompile Include="Source\DynaRec\FragmentCache.cpp" />
+    <ClCompile Include="Source\DynaRec\IndirectExitMap.cpp" />
+    <ClCompile Include="Source\DynaRec\StaticAnalysis.cpp" />
+    <ClCompile Include="Source\DynaRec\TraceRecorder.cpp" />
+    <ClCompile Include="Source\SysPSP\DynaRec\AssemblyUtilsPSP.cpp" />
+    <ClCompile Include="Source\SysPSP\DynaRec\AssemblyWriterPSP.cpp" />
+    <ClCompile Include="Source\SysPSP\DynaRec\CodeBufferManagerPSP.cpp" />
+    <ClCompile Include="Source\SysPSP\DynaRec\CodeGeneratorPSP.cpp" />
+    <ClCompile Include="Source\SysPSP\DynaRec\DynarecTargetPSP.cpp" />
+    <ClCompile Include="Source\SysPSP\DynaRec\N64RegisterCachePSP.cpp" />
+    <ClCompile Include="Source\SysPSP\Input\InputManagerPSP.cpp" />
+    <ClCompile Include="Source\Interface\RomDB.cpp" />
+    <ClCompile Include="Source\Localisation\LanguageTable.cpp" />
+    <ClCompile Include="Source\Localisation\Localization.cpp" />
+    <ClCompile Include="Source\OSHLE\OS.cpp" />
+    <ClCompile Include="Source\OSHLE\patch.cpp" />
+    <ClCompile Include="Source\Plugins\GraphicsPlugin.cpp" />
+    <ClCompile Include="Source\SysPSP\HLEGraphics\GraphicsPluginPSP.cpp" />
+    <ClCompile Include="Source\Utility\CRC.cpp" />
+    <ClCompile Include="Source\Utility\FramerateLimiter.cpp" />
+    <ClCompile Include="Source\Utility\Hash.cpp" />
+    <ClCompile Include="Source\Utility\IniFile.cpp" />
+    <ClCompile Include="Source\Utility\MemoryHeap.cpp" />
+    <ClCompile Include="Source\Utility\MemoryPool.cpp" />
+    <ClCompile Include="Source\Utility\Preferences.cpp" />
+    <ClCompile Include="Source\Utility\PrintOpCode.cpp" />
+    <ClCompile Include="Source\Utility\Profiler.cpp" />
+    <ClCompile Include="Source\Utility\ROMFile.cpp" />
+    <ClCompile Include="Source\Utility\ROMFileCache.cpp" />
+    <ClCompile Include="Source\Utility\ROMFileCompressed.cpp" />
+    <ClCompile Include="Source\Utility\ROMFileUncompressed.cpp" />
+    <ClCompile Include="Source\Utility\Stream.cpp" />
+    <ClCompile Include="Source\Utility\Synchroniser.cpp" />
+    <ClCompile Include="Source\Utility\Timer.cpp" />
+    <ClCompile Include="Source\Utility\Zip\unzip.c" />
+    <ClCompile Include="Source\Utility\ZLibWrapper.cpp" />
+    <ClCompile Include="Source\SysPSP\Utility\DebugMemory.cpp" />
+    <ClCompile Include="Source\SysPSP\Utility\exception.cpp" />
+    <ClCompile Include="Source\SysPSP\Utility\IOPSP.cpp" />
+    <ClCompile Include="Source\SysPSP\Utility\JobManager.cpp" />
+    <ClCompile Include="Source\SysPSP\Utility\ThreadPSP.cpp" />
+    <ClCompile Include="Source\SysPSP\Utility\TimingPSP.cpp" />
+    <ClCompile Include="Source\HLEGraphics\CachedTexture.cpp" />
+    <ClCompile Include="Source\HLEGraphics\ConvertImage.cpp" />
+    <ClCompile Include="Source\HLEGraphics\DisplayListDebugger.cpp" />
+    <ClCompile Include="Source\HLEGraphics\DLDebug.cpp" />
+    <ClCompile Include="Source\HLEGraphics\DLParser.cpp" />
+    <ClCompile Include="Source\HLEGraphics\Microcode.cpp" />
+    <ClCompile Include="Source\HLEGraphics\RDP.cpp" />
+    <ClCompile Include="Source\HLEGraphics\RDPStateManager.cpp" />
+    <ClCompile Include="Source\HLEGraphics\TextureCache.cpp" />
+    <ClCompile Include="Source\HLEGraphics\TextureInfo.cpp" />
+    <ClCompile Include="Source\SysPSP\HLEGraphics\Combiner\BlendConstant.cpp" />
+    <ClCompile Include="Source\SysPSP\HLEGraphics\Combiner\CombinerExpression.cpp" />
+    <ClCompile Include="Source\SysPSP\HLEGraphics\Combiner\CombinerTree.cpp" />
+    <ClCompile Include="Source\SysPSP\HLEGraphics\Combiner\RenderSettings.cpp" />
+    <ClCompile Include="Source\HLEGraphics\BaseRenderer.cpp" />
+    <ClCompile Include="Source\SysPSP\HLEGraphics\Blender.cpp" />
+    <ClCompile Include="Source\SysPSP\HLEGraphics\BlendModes.cpp" />
+    <ClCompile Include="Source\SysPSP\HLEGraphics\ColourAdjuster.cpp" />
+    <ClCompile Include="Source\SysPSP\HLEGraphics\DisplayListDebugger.cpp" />
+    <ClCompile Include="Source\SysPSP\HLEGraphics\RendererPSP.cpp" />
+    <ClCompile Include="Source\HLEGraphics\uCodes\Ucode.cpp" />
+    <ClCompile Include="Source\HLEAudio\AudioBuffer.cpp" />
+    <ClCompile Include="Source\SysPSP\HLEAudio\AudioOutput.cpp" />
+    <ClCompile Include="Source\HLEAudio\AudioHLEProcessor.cpp" />
+    <ClCompile Include="Source\SysPSP\HLEAudio\AudioPluginPSP.cpp" />
+    <ClCompile Include="Source\HLEAudio\HLEMain.cpp" />
+    <ClCompile Include="Source\HLEAudio\ABI1.cpp" />
+    <ClCompile Include="Source\HLEAudio\ABI2.cpp" />
+    <ClCompile Include="Source\HLEAudio\ABI3.cpp" />
+    <ClCompile Include="Source\HLEAudio\ABI3mp3.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\ColourPulser.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\UICommand.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\UIContext.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\UIElement.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\UISetting.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\AdjustDeadzoneScreen.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\AdvancedOptionsScreen.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\MainMenuScreen.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\PauseScreen.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\RomPreferencesScreen.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\SplashScreen.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\UIScreen.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\AboutComponent.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\GlobalSettingsComponent.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\PauseOptionsComponent.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\RomSelectorComponent.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\RomSelectorComponentdebug.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\SavestateSelectorComponent.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\SelectedRomComponent.cpp" />
+    <ClCompile Include="Source\SysPSP\UI\UIComponent.cpp" />
+    <ClCompile Include="Source\Graphics\ColourValue.cpp" />
+    <ClCompile Include="Source\SysPSP\Graphics\DrawText.cpp" />
+    <ClCompile Include="Source\SysPSP\Graphics\GraphicsContext.cpp" />
+    <ClCompile Include="Source\SysPSP\Graphics\NativeTexturePSP.cpp" />
+    <ClCompile Include="Source\SysPSP\Graphics\PngUtilPSP.cpp" />
+    <ClCompile Include="Source\SysPSP\Graphics\VideoMemoryManager.cpp" />
+    <ClCompile Include="Source\SysPSP\Graphics\intraFont\intraFont.c" />
+    <ClCompile Include="Source\Math\Matrix4x4.cpp" />
+    <ClCompile Include="Source\Test\BatchTest.cpp" />
+    <ClCompile Include="Source\SysPSP\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Source\Core\R4300_Jump.inl" />
+    <None Include="Source\Core\Memory_Read.inl" />
+    <None Include="Source\Core\Memory_ReadInternal.inl" />
+    <None Include="Source\Core\Memory_Write.inl" />
+    <None Include="Source\Core\Memory_WriteValue.inl" />
+    <None Include="Source\SysPSP\DynaRec\DynaRecStubs.S" />
+    <None Include="Source\OSHLE\patch_ai_hle.inl" />
+    <None Include="Source\OSHLE\patch_cache_hle.inl" />
+    <None Include="Source\OSHLE\patch_eeprom_hle.inl" />
+    <None Include="Source\OSHLE\patch_gu_hle.inl" />
+    <None Include="Source\OSHLE\patch_math_hle.inl" />
+    <None Include="Source\OSHLE\patch_mesg_hle.inl" />
+    <None Include="Source\OSHLE\patch_pi_hle.inl" />
+    <None Include="Source\OSHLE\patch_regs_hle.inl" />
+    <None Include="Source\OSHLE\patch_si_hle.inl" />
+    <None Include="Source\OSHLE\patch_sp_hle.inl" />
+    <None Include="Source\OSHLE\patch_symbols.inl" />
+    <None Include="Source\OSHLE\patch_thread_hle.inl" />
+    <None Include="Source\OSHLE\patch_timer_hle.inl" />
+    <None Include="Source\OSHLE\patch_tlb_hle.inl" />
+    <None Include="Source\OSHLE\patch_util_hle.inl" />
+    <None Include="Source\OSHLE\patch_vi_hle.inl" />
+    <None Include="Source\SysPSP\Utility\AtomicPrimitives.S" />
+    <None Include="Source\SysPSP\Utility\DisableFPUExceptions.S" />
+    <None Include="Source\SysPSP\HLEGraphics\ConvertVertices.S" />
+    <None Include="Source\SysPSP\HLEGraphics\TnLVFPU.S" />
+    <None Include="Source\SysPSP\HLEGraphics\TransformWithColour.S" />
+    <None Include="Source\SysPSP\HLEGraphics\TransformWithLighting.S" />
+    <None Include="Source\SysPSP\HLEGraphics\VectorClipping.S" />
+    <None Include="Makefile" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

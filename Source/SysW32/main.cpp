@@ -52,7 +52,7 @@ int __cdecl main(int argc, char **argv)
 		fprintf(stderr, "Couldn't determine executable path\n");
 		return 1;
 	}
-	DAEDALUS_ERROR("%s",rom_path);
+
 	//ReadConfiguration();
 
 	int result = 0;
@@ -96,7 +96,6 @@ int __cdecl main(int argc, char **argv)
 			//This is ok when loading from console too, since arg0 will be empty, it'll just load file name (arg1)
 			IO::Path::Combine(rom_path, gDaedalusExePath, argv[1]);
 			fprintf(stderr, "Loading %s\n",rom_path);
-			DAEDALUS_ERROR("%s",rom_path);
 			System_Open(rom_path);
 			CPU_Run();
 			System_Close();

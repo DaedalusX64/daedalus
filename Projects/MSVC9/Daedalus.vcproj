@@ -42,7 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="./Source/SysW32/Include;./Source/Config/Dev;./Source/"
+				AdditionalIncludeDirectories="../../Source/SysW32/Include;../../Source/Config/Dev;../../Source/"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				StringPooling="true"
 				BasicRuntimeChecks="3"
@@ -109,7 +109,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				FavorSizeOrSpeed="1"
-				AdditionalIncludeDirectories="./Source/SysW32/Include;./Source/Config/Release;./Source/"
+				AdditionalIncludeDirectories="../../Source/SysW32/Include;../../Source/Config/Release;../../Source/"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -156,23 +156,23 @@
 			Name="Headers"
 			>
 			<File
-				RelativePath=".\Source\BuildOptions.h"
+				RelativePath="..\..\Source\BuildOptions.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\Endian.h"
+				RelativePath="..\..\Source\Endian.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\PopStructPack.h"
+				RelativePath="..\..\Source\PopStructPack.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\PushStructPack1.h"
+				RelativePath="..\..\Source\PushStructPack1.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\stdafx.h"
+				RelativePath="..\..\Source\stdafx.h"
 				>
 			</File>
 			<Filter
@@ -182,7 +182,7 @@
 					Name="Dev"
 					>
 					<File
-						RelativePath=".\Source\Config\Dev\BuildConfig.h"
+						RelativePath="..\..\Source\Config\Dev\BuildConfig.h"
 						>
 					</File>
 				</Filter>
@@ -190,7 +190,7 @@
 					Name="Release"
 					>
 					<File
-						RelativePath=".\Source\Config\Release\BuildConfig.h"
+						RelativePath="..\..\Source\Config\Release\BuildConfig.h"
 						>
 					</File>
 				</Filter>
@@ -202,7 +202,7 @@
 					Name="OSX"
 					>
 					<File
-						RelativePath=".\Source\SysOSX\Include\Platform.h"
+						RelativePath="..\..\Source\SysOSX\Include\Platform.h"
 						>
 					</File>
 				</Filter>
@@ -210,7 +210,7 @@
 					Name="PSP"
 					>
 					<File
-						RelativePath=".\Source\SysPSP\Include\Platform.h"
+						RelativePath="..\..\Source\SysPSP\Include\Platform.h"
 						>
 					</File>
 				</Filter>
@@ -218,11 +218,11 @@
 					Name="W32"
 					>
 					<File
-						RelativePath=".\Source\SysW32\Include\DaedalusW32.h"
+						RelativePath="..\..\Source\SysW32\Include\DaedalusW32.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysW32\Include\Platform.h"
+						RelativePath="..\..\Source\SysW32\Include\Platform.h"
 						>
 					</File>
 				</Filter>
@@ -232,15 +232,15 @@
 			Name="Source Files"
 			>
 			<File
-				RelativePath=".\Source\ConfigOptions.cpp"
+				RelativePath="..\..\Source\ConfigOptions.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\ConfigOptions.h"
+				RelativePath="..\..\Source\ConfigOptions.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\StdAfx.cpp"
+				RelativePath="..\..\Source\StdAfx.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -260,201 +260,201 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Source\System.cpp"
+				RelativePath="..\..\Source\System.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\System.h"
+				RelativePath="..\..\Source\System.h"
 				>
 			</File>
 			<Filter
 				Name="Core"
 				>
 				<File
-					RelativePath=".\Source\Core\Cheats.cpp"
+					RelativePath="..\..\Source\Core\Cheats.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\Cheats.h"
+					RelativePath="..\..\Source\Core\Cheats.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\CPU.cpp"
+					RelativePath="..\..\Source\Core\CPU.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\CPU.h"
+					RelativePath="..\..\Source\Core\CPU.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\DMA.cpp"
+					RelativePath="..\..\Source\Core\DMA.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\DMA.h"
+					RelativePath="..\..\Source\Core\DMA.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\Dynamo.cpp"
+					RelativePath="..\..\Source\Core\Dynamo.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\Dynamo.h"
+					RelativePath="..\..\Source\Core\Dynamo.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\FlashMem.cpp"
+					RelativePath="..\..\Source\Core\FlashMem.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\Interpret.cpp"
+					RelativePath="..\..\Source\Core\Interpret.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\Interpret.h"
+					RelativePath="..\..\Source\Core\Interpret.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\Interrupt.h"
+					RelativePath="..\..\Source\Core\Interrupt.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\Interrupts.cpp"
+					RelativePath="..\..\Source\Core\Interrupts.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\JpegTask.cpp"
+					RelativePath="..\..\Source\Core\JpegTask.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\N64Reg.h"
+					RelativePath="..\..\Source\Core\N64Reg.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\PIF.cpp"
+					RelativePath="..\..\Source\Core\PIF.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\PIF.h"
+					RelativePath="..\..\Source\Core\PIF.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\R4300.cpp"
+					RelativePath="..\..\Source\Core\R4300.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\R4300.h"
+					RelativePath="..\..\Source\Core\R4300.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\R4300_Jump.inl"
+					RelativePath="..\..\Source\Core\R4300_Jump.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\R4300Instruction.h"
+					RelativePath="..\..\Source\Core\R4300Instruction.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\R4300OpCode.h"
+					RelativePath="..\..\Source\Core\R4300OpCode.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\Registers.cpp"
+					RelativePath="..\..\Source\Core\Registers.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\Registers.h"
+					RelativePath="..\..\Source\Core\Registers.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\ROM.cpp"
+					RelativePath="..\..\Source\Core\ROM.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\ROM.h"
+					RelativePath="..\..\Source\Core\ROM.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\ROMBuffer.cpp"
+					RelativePath="..\..\Source\Core\ROMBuffer.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\ROMBuffer.h"
+					RelativePath="..\..\Source\Core\ROMBuffer.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\ROMImage.cpp"
+					RelativePath="..\..\Source\Core\ROMImage.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\ROMImage.h"
+					RelativePath="..\..\Source\Core\ROMImage.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\RomSettings.cpp"
+					RelativePath="..\..\Source\Core\RomSettings.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\RomSettings.h"
+					RelativePath="..\..\Source\Core\RomSettings.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\RSP_HLE.cpp"
+					RelativePath="..\..\Source\Core\RSP_HLE.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\RSP_HLE.h"
+					RelativePath="..\..\Source\Core\RSP_HLE.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\Save.cpp"
+					RelativePath="..\..\Source\Core\Save.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\Save.h"
+					RelativePath="..\..\Source\Core\Save.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\Savestate.cpp"
+					RelativePath="..\..\Source\Core\Savestate.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\SaveState.h"
+					RelativePath="..\..\Source\Core\SaveState.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\TLB.cpp"
+					RelativePath="..\..\Source\Core\TLB.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Core\TLB.h"
+					RelativePath="..\..\Source\Core\TLB.h"
 					>
 				</File>
 				<Filter
 					Name="Memory"
 					>
 					<File
-						RelativePath=".\Source\Core\Memory.cpp"
+						RelativePath="..\..\Source\Core\Memory.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\Core\Memory.h"
+						RelativePath="..\..\Source\Core\Memory.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\Core\Memory_Read.inl"
+						RelativePath="..\..\Source\Core\Memory_Read.inl"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\Core\Memory_ReadInternal.inl"
+						RelativePath="..\..\Source\Core\Memory_ReadInternal.inl"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\Core\Memory_Write.inl"
+						RelativePath="..\..\Source\Core\Memory_Write.inl"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\Core\Memory_WriteValue.inl"
+						RelativePath="..\..\Source\Core\Memory_WriteValue.inl"
 						>
 					</File>
 				</Filter>
@@ -463,62 +463,62 @@
 				Name="Debug"
 				>
 				<File
-					RelativePath=".\Source\Debug\DaedalusAssert.h"
+					RelativePath="..\..\Source\Debug\DaedalusAssert.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Debug\DBGConsole.h"
+					RelativePath="..\..\Source\Debug\DBGConsole.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Debug\DebugConsoleImpl.cpp"
+					RelativePath="..\..\Source\Debug\DebugConsoleImpl.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Debug\DebugConsoleImpl.h"
+					RelativePath="..\..\Source\Debug\DebugConsoleImpl.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Debug\DebugLog.cpp"
+					RelativePath="..\..\Source\Debug\DebugLog.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Debug\DebugLog.h"
+					RelativePath="..\..\Source\Debug\DebugLog.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Debug\Dump.cpp"
+					RelativePath="..\..\Source\Debug\Dump.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Debug\Dump.h"
+					RelativePath="..\..\Source\Debug\Dump.h"
 					>
 				</File>
 				<Filter
 					Name="W32"
 					>
 					<File
-						RelativePath=".\Source\SysW32\Debug\DaedalusAssertW32.cpp"
+						RelativePath="..\..\Source\SysW32\Debug\DaedalusAssertW32.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysOSX\Debug\DebugConsoleOSX.cpp"
+						RelativePath="..\..\Source\SysOSX\Debug\DebugConsoleOSX.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysOSX\Debug\WebDebug.cpp"
+						RelativePath="..\..\Source\SysOSX\Debug\WebDebug.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysOSX\Debug\WebDebug.h"
+						RelativePath="..\..\Source\SysOSX\Debug\WebDebug.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysOSX\Debug\WebDebugTemplate.cpp"
+						RelativePath="..\..\Source\SysOSX\Debug\WebDebugTemplate.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysOSX\Debug\WebDebugTemplate.h"
+						RelativePath="..\..\Source\SysOSX\Debug\WebDebugTemplate.h"
 						>
 					</File>
 				</Filter>
@@ -526,7 +526,7 @@
 					Name="PSP"
 					>
 					<File
-						RelativePath=".\Source\SysPSP\Debug\DaedalusAssertPSP.cpp"
+						RelativePath="..\..\Source\SysPSP\Debug\DaedalusAssertPSP.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -546,7 +546,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\Debug\DBGConsolePSP.cpp"
+						RelativePath="..\..\Source\SysPSP\Debug\DBGConsolePSP.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -571,90 +571,90 @@
 				Name="DynaRec"
 				>
 				<File
-					RelativePath=".\Source\DynaRec\AssemblyBuffer.h"
+					RelativePath="..\..\Source\DynaRec\AssemblyBuffer.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\AssemblyUtils.h"
+					RelativePath="..\..\Source\DynaRec\AssemblyUtils.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\BranchType.cpp"
+					RelativePath="..\..\Source\DynaRec\BranchType.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\BranchType.h"
+					RelativePath="..\..\Source\DynaRec\BranchType.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\CodeBufferManager.h"
+					RelativePath="..\..\Source\DynaRec\CodeBufferManager.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\CodeGenerator.h"
+					RelativePath="..\..\Source\DynaRec\CodeGenerator.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\DynaRecProfile.cpp"
+					RelativePath="..\..\Source\DynaRec\DynaRecProfile.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\DynaRecProfile.h"
+					RelativePath="..\..\Source\DynaRec\DynaRecProfile.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\Fragment.cpp"
+					RelativePath="..\..\Source\DynaRec\Fragment.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\Fragment.h"
+					RelativePath="..\..\Source\DynaRec\Fragment.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\FragmentCache.cpp"
+					RelativePath="..\..\Source\DynaRec\FragmentCache.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\FragmentCache.h"
+					RelativePath="..\..\Source\DynaRec\FragmentCache.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\IndirectExitMap.cpp"
+					RelativePath="..\..\Source\DynaRec\IndirectExitMap.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\IndirectExitMap.h"
+					RelativePath="..\..\Source\DynaRec\IndirectExitMap.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\RegisterSpan.h"
+					RelativePath="..\..\Source\DynaRec\RegisterSpan.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\StaticAnalysis.cpp"
+					RelativePath="..\..\Source\DynaRec\StaticAnalysis.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\StaticAnalysis.h"
+					RelativePath="..\..\Source\DynaRec\StaticAnalysis.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\Trace.h"
+					RelativePath="..\..\Source\DynaRec\Trace.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\TraceRecorder.cpp"
+					RelativePath="..\..\Source\DynaRec\TraceRecorder.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\DynaRec\TraceRecorder.h"
+					RelativePath="..\..\Source\DynaRec\TraceRecorder.h"
 					>
 				</File>
 				<Filter
 					Name="PSP"
 					>
 					<File
-						RelativePath=".\Source\SysPSP\DynaRec\AssemblyUtilsPSP.cpp"
+						RelativePath="..\..\Source\SysPSP\DynaRec\AssemblyUtilsPSP.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -674,7 +674,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\DynaRec\AssemblyWriterPSP.cpp"
+						RelativePath="..\..\Source\SysPSP\DynaRec\AssemblyWriterPSP.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -694,31 +694,11 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\DynaRec\AssemblyWriterPSP.h"
+						RelativePath="..\..\Source\SysPSP\DynaRec\AssemblyWriterPSP.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\DynaRec\CodeBufferManagerPSP.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath=".\Source\SysPSP\DynaRec\CodeGeneratorPSP.cpp"
+						RelativePath="..\..\Source\SysPSP\DynaRec\CodeBufferManagerPSP.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -738,11 +718,31 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\DynaRec\CodeGeneratorPSP.h"
+						RelativePath="..\..\Source\SysPSP\DynaRec\CodeGeneratorPSP.cpp"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\..\Source\SysPSP\DynaRec\CodeGeneratorPSP.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\DynaRec\DynaRecStubs.S"
+						RelativePath="..\..\Source\SysPSP\DynaRec\DynaRecStubs.S"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -762,7 +762,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\DynaRec\DynarecTargetPSP.cpp"
+						RelativePath="..\..\Source\SysPSP\DynaRec\DynarecTargetPSP.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -782,11 +782,11 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\DynaRec\DynarecTargetPSP.h"
+						RelativePath="..\..\Source\SysPSP\DynaRec\DynarecTargetPSP.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\DynaRec\N64RegisterCachePSP.cpp"
+						RelativePath="..\..\Source\SysPSP\DynaRec\N64RegisterCachePSP.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -806,7 +806,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\DynaRec\N64RegisterCachePSP.h"
+						RelativePath="..\..\Source\SysPSP\DynaRec\N64RegisterCachePSP.h"
 						>
 					</File>
 				</Filter>
@@ -814,31 +814,31 @@
 					Name="W32"
 					>
 					<File
-						RelativePath=".\Source\SysW32\DynaRec\x86\AssemblyUtilsX86.cpp"
+						RelativePath="..\..\Source\SysW32\DynaRec\x86\AssemblyUtilsX86.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysW32\DynaRec\x86\AssemblyWriterX86.cpp"
+						RelativePath="..\..\Source\SysW32\DynaRec\x86\AssemblyWriterX86.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysW32\DynaRec\x86\AssemblyWriterX86.h"
+						RelativePath="..\..\Source\SysW32\DynaRec\x86\AssemblyWriterX86.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysW32\DynaRec\x86\CodeBufferManagerX86.cpp"
+						RelativePath="..\..\Source\SysW32\DynaRec\x86\CodeBufferManagerX86.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysW32\DynaRec\x86\CodeGeneratorX86.cpp"
+						RelativePath="..\..\Source\SysW32\DynaRec\x86\CodeGeneratorX86.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysW32\DynaRec\x86\CodeGeneratorX86.h"
+						RelativePath="..\..\Source\SysW32\DynaRec\x86\CodeGeneratorX86.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysW32\DynaRec\x86\DynarecTargetX86.h"
+						RelativePath="..\..\Source\SysW32\DynaRec\x86\DynarecTargetX86.h"
 						>
 					</File>
 				</Filter>
@@ -847,15 +847,15 @@
 				Name="Input"
 				>
 				<File
-					RelativePath=".\Source\Input\InputManager.h"
+					RelativePath="..\..\Source\Input\InputManager.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\SysOSX\Input\InputManagerOSX.cpp"
+					RelativePath="..\..\Source\SysOSX\Input\InputManagerOSX.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\SysPSP\Input\InputManagerPSP.cpp"
+					RelativePath="..\..\Source\SysPSP\Input\InputManagerPSP.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -879,33 +879,33 @@
 				Name="Interface"
 				>
 				<File
-					RelativePath=".\Source\Interface\RomDB.cpp"
+					RelativePath="..\..\Source\Interface\RomDB.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Interface\RomDB.h"
+					RelativePath="..\..\Source\Interface\RomDB.h"
 					>
 				</File>
 				<Filter
 					Name="W32"
 					>
 					<File
-						RelativePath=".\Source\SysW32\Interface\CheckBox.h"
+						RelativePath="..\..\Source\SysW32\Interface\CheckBox.h"
 						>
 					</File>
 					<Filter
 						Name="Page Headers"
 						>
 						<File
-							RelativePath=".\Source\SysW32\Interface\DebugPage.h"
+							RelativePath="..\..\Source\SysW32\Interface\DebugPage.h"
 							>
 						</File>
 						<File
-							RelativePath=".\Source\SysW32\Interface\DirectoriesPage.h"
+							RelativePath="..\..\Source\SysW32\Interface\DirectoriesPage.h"
 							>
 						</File>
 						<File
-							RelativePath=".\Source\SysW32\Interface\SettingsPage.h"
+							RelativePath="..\..\Source\SysW32\Interface\SettingsPage.h"
 							>
 						</File>
 					</Filter>
@@ -915,122 +915,122 @@
 				Name="OSHLE"
 				>
 				<File
-					RelativePath=".\Source\OSHLE\OS.cpp"
+					RelativePath="..\..\Source\OSHLE\OS.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\OS.h"
+					RelativePath="..\..\Source\OSHLE\OS.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\OSMesgQueue.h"
+					RelativePath="..\..\Source\OSHLE\OSMesgQueue.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\OSTask.h"
+					RelativePath="..\..\Source\OSHLE\OSTask.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch.cpp"
+					RelativePath="..\..\Source\OSHLE\patch.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch.h"
+					RelativePath="..\..\Source\OSHLE\patch.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_ai_hle.inl"
+					RelativePath="..\..\Source\OSHLE\patch_ai_hle.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_cache_hle.inl"
+					RelativePath="..\..\Source\OSHLE\patch_cache_hle.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_eeprom_hle.inl"
+					RelativePath="..\..\Source\OSHLE\patch_eeprom_hle.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_gu_hle.inl"
+					RelativePath="..\..\Source\OSHLE\patch_gu_hle.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_math_hle.inl"
+					RelativePath="..\..\Source\OSHLE\patch_math_hle.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_mesg_hle.inl"
+					RelativePath="..\..\Source\OSHLE\patch_mesg_hle.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_pi_hle.inl"
+					RelativePath="..\..\Source\OSHLE\patch_pi_hle.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_regs_hle.inl"
+					RelativePath="..\..\Source\OSHLE\patch_regs_hle.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_si_hle.inl"
+					RelativePath="..\..\Source\OSHLE\patch_si_hle.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_sp_hle.inl"
+					RelativePath="..\..\Source\OSHLE\patch_sp_hle.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_symbols.h"
+					RelativePath="..\..\Source\OSHLE\patch_symbols.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_symbols.inl"
+					RelativePath="..\..\Source\OSHLE\patch_symbols.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_thread_hle.inl"
+					RelativePath="..\..\Source\OSHLE\patch_thread_hle.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_timer_hle.inl"
+					RelativePath="..\..\Source\OSHLE\patch_timer_hle.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_tlb_hle.inl"
+					RelativePath="..\..\Source\OSHLE\patch_tlb_hle.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_util_hle.inl"
+					RelativePath="..\..\Source\OSHLE\patch_util_hle.inl"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\OSHLE\patch_vi_hle.inl"
+					RelativePath="..\..\Source\OSHLE\patch_vi_hle.inl"
 					>
 				</File>
 				<Filter
 					Name="OS Headers"
 					>
 					<File
-						RelativePath=".\Source\OSHLE\ultra_abi.h"
+						RelativePath="..\..\Source\OSHLE\ultra_abi.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\OSHLE\ultra_mbi.h"
+						RelativePath="..\..\Source\OSHLE\ultra_mbi.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\OSHLE\ultra_os.h"
+						RelativePath="..\..\Source\OSHLE\ultra_os.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\OSHLE\ultra_R4300.h"
+						RelativePath="..\..\Source\OSHLE\ultra_R4300.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\OSHLE\ultra_rcp.h"
+						RelativePath="..\..\Source\OSHLE\ultra_rcp.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\OSHLE\ultra_sptask.h"
+						RelativePath="..\..\Source\OSHLE\ultra_sptask.h"
 						>
 					</File>
 				</Filter>
@@ -1039,22 +1039,22 @@
 				Name="Plugins"
 				>
 				<File
-					RelativePath=".\Source\Plugins\AudioPlugin.h"
+					RelativePath="..\..\Source\Plugins\AudioPlugin.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Plugins\GraphicsPlugin.cpp"
+					RelativePath="..\..\Source\Plugins\GraphicsPlugin.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Plugins\GraphicsPlugin.h"
+					RelativePath="..\..\Source\Plugins\GraphicsPlugin.h"
 					>
 				</File>
 				<Filter
 					Name="PSP"
 					>
 					<File
-						RelativePath=".\Source\SysPSP\HLEGraphics\GraphicsPluginPSP.cpp"
+						RelativePath="..\..\Source\SysPSP\HLEGraphics\GraphicsPluginPSP.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1079,7 +1079,7 @@
 				Name="Precompiled"
 				>
 				<File
-					RelativePath=".\Source\StdAfx.cpp"
+					RelativePath="..\..\Source\StdAfx.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1099,7 +1099,7 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\Source\stdafx.h"
+					RelativePath="..\..\Source\stdafx.h"
 					>
 				</File>
 			</Filter>
@@ -1107,195 +1107,195 @@
 				Name="Utility"
 				>
 				<File
-					RelativePath=".\Source\Utility\Alignment.h"
+					RelativePath="..\..\Source\Utility\Alignment.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\CRC.cpp"
+					RelativePath="..\..\Source\Utility\CRC.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\CRC.h"
+					RelativePath="..\..\Source\Utility\CRC.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\DaedalusTypes.h"
+					RelativePath="..\..\Source\Utility\DaedalusTypes.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\DataSink.cpp"
+					RelativePath="..\..\Source\Utility\DataSink.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\DataSink.h"
+					RelativePath="..\..\Source\Utility\DataSink.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\FastMemcpy.cpp"
+					RelativePath="..\..\Source\Utility\FastMemcpy.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\FastMemcpy.h"
+					RelativePath="..\..\Source\Utility\FastMemcpy.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\FramerateLimiter.cpp"
+					RelativePath="..\..\Source\Utility\FramerateLimiter.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\FramerateLimiter.h"
+					RelativePath="..\..\Source\Utility\FramerateLimiter.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\Functor.h"
+					RelativePath="..\..\Source\Utility\Functor.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\Hash.cpp"
+					RelativePath="..\..\Source\Utility\Hash.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\Hash.h"
+					RelativePath="..\..\Source\Utility\Hash.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\IniFile.cpp"
+					RelativePath="..\..\Source\Utility\IniFile.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\IniFile.h"
+					RelativePath="..\..\Source\Utility\IniFile.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\IO.h"
+					RelativePath="..\..\Source\Utility\IO.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\MathUtil.h"
+					RelativePath="..\..\Source\Utility\MathUtil.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\MemoryHeap.cpp"
+					RelativePath="..\..\Source\Utility\MemoryHeap.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\MemoryHeap.h"
+					RelativePath="..\..\Source\Utility\MemoryHeap.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\Preferences.cpp"
+					RelativePath="..\..\Source\Utility\Preferences.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\Preferences.h"
+					RelativePath="..\..\Source\Utility\Preferences.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\PrintOpCode.cpp"
+					RelativePath="..\..\Source\Utility\PrintOpCode.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\PrintOpCode.h"
+					RelativePath="..\..\Source\Utility\PrintOpCode.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\Profiler.cpp"
+					RelativePath="..\..\Source\Utility\Profiler.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\Profiler.h"
+					RelativePath="..\..\Source\Utility\Profiler.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\RefCounted.h"
+					RelativePath="..\..\Source\Utility\RefCounted.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\ROMFile.cpp"
+					RelativePath="..\..\Source\Utility\ROMFile.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\ROMFile.h"
+					RelativePath="..\..\Source\Utility\ROMFile.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\ROMFileCache.cpp"
+					RelativePath="..\..\Source\Utility\ROMFileCache.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\ROMFileCache.h"
+					RelativePath="..\..\Source\Utility\ROMFileCache.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\ROMFileCompressed.cpp"
+					RelativePath="..\..\Source\Utility\ROMFileCompressed.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\ROMFileCompressed.h"
+					RelativePath="..\..\Source\Utility\ROMFileCompressed.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\ROMFileMemory.cpp"
+					RelativePath="..\..\Source\Utility\ROMFileMemory.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\ROMFileMemory.h"
+					RelativePath="..\..\Source\Utility\ROMFileMemory.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\ROMFileUncompressed.cpp"
+					RelativePath="..\..\Source\Utility\ROMFileUncompressed.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\ROMFileUncompressed.h"
+					RelativePath="..\..\Source\Utility\ROMFileUncompressed.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\Singleton.h"
+					RelativePath="..\..\Source\Utility\Singleton.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\Stream.cpp"
+					RelativePath="..\..\Source\Utility\Stream.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\Stream.h"
+					RelativePath="..\..\Source\Utility\Stream.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\String.h"
+					RelativePath="..\..\Source\Utility\String.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\StringUtil.cpp"
+					RelativePath="..\..\Source\Utility\StringUtil.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\StringUtil.h"
+					RelativePath="..\..\Source\Utility\StringUtil.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\Synchroniser.cpp"
+					RelativePath="..\..\Source\Utility\Synchroniser.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\Synchroniser.h"
+					RelativePath="..\..\Source\Utility\Synchroniser.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\Timer.cpp"
+					RelativePath="..\..\Source\Utility\Timer.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\Timer.h"
+					RelativePath="..\..\Source\Utility\Timer.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\Timing.h"
+					RelativePath="..\..\Source\Utility\Timing.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\ZLibWrapper.cpp"
+					RelativePath="..\..\Source\Utility\ZLibWrapper.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1317,26 +1317,26 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\Source\Utility\ZlibWrapper.h"
+					RelativePath="..\..\Source\Utility\ZlibWrapper.h"
 					>
 				</File>
 				<Filter
 					Name="W32"
 					>
 					<File
-						RelativePath=".\Source\SysW32\Utility\DISASM86.cpp"
+						RelativePath="..\..\Source\SysW32\Utility\DISASM86.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysW32\Utility\IOW32.cpp"
+						RelativePath="..\..\Source\SysW32\Utility\IOW32.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysW32\Utility\ThreadW32.cpp"
+						RelativePath="..\..\Source\SysW32\Utility\ThreadW32.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysW32\Utility\TimingW32.cpp"
+						RelativePath="..\..\Source\SysW32\Utility\TimingW32.cpp"
 						>
 					</File>
 				</Filter>
@@ -1344,15 +1344,15 @@
 					Name="PSP"
 					>
 					<File
-						RelativePath=".\Source\SysPSP\Utility\AtomicPrimitives.S"
+						RelativePath="..\..\Source\SysPSP\Utility\AtomicPrimitives.S"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\Utility\CacheUtil.h"
+						RelativePath="..\..\Source\SysPSP\Utility\CacheUtil.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\Utility\DebugMemory.cpp"
+						RelativePath="..\..\Source\SysPSP\Utility\DebugMemory.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1372,7 +1372,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\Utility\DisableFPUExceptions.S"
+						RelativePath="..\..\Source\SysPSP\Utility\DisableFPUExceptions.S"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1392,7 +1392,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\Utility\IOPSP.cpp"
+						RelativePath="..\..\Source\SysPSP\Utility\IOPSP.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1412,7 +1412,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\Utility\JobManager.cpp"
+						RelativePath="..\..\Source\SysPSP\Utility\JobManager.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1432,15 +1432,15 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\Utility\JobManager.h"
+						RelativePath="..\..\Source\SysPSP\Utility\JobManager.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\Utility\PathsPSP.h"
+						RelativePath="..\..\Source\SysPSP\Utility\PathsPSP.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\Utility\ThreadPSP.cpp"
+						RelativePath="..\..\Source\SysPSP\Utility\ThreadPSP.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1460,7 +1460,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\Utility\TimingPSP.cpp"
+						RelativePath="..\..\Source\SysPSP\Utility\TimingPSP.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1484,7 +1484,7 @@
 					Name="OSX"
 					>
 					<File
-						RelativePath=".\Source\SysOSX\Utility\IOOSX.cpp"
+						RelativePath="..\..\Source\SysOSX\Utility\IOOSX.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1504,7 +1504,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysOSX\Utility\ThreadOSX.cpp"
+						RelativePath="..\..\Source\SysOSX\Utility\ThreadOSX.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1524,7 +1524,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysOSX\Utility\TimingOSX.cpp"
+						RelativePath="..\..\Source\SysOSX\Utility\TimingOSX.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1548,19 +1548,19 @@
 					Name="Threading"
 					>
 					<File
-						RelativePath=".\Source\Utility\AtomicPrimitives.h"
+						RelativePath="..\..\Source\Utility\AtomicPrimitives.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\Utility\Mutex.h"
+						RelativePath="..\..\Source\Utility\Mutex.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\Utility\SpinLock.h"
+						RelativePath="..\..\Source\Utility\SpinLock.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\Utility\Thread.h"
+						RelativePath="..\..\Source\Utility\Thread.h"
 						>
 					</File>
 				</Filter>
@@ -1569,142 +1569,114 @@
 				Name="HLEGraphics"
 				>
 				<File
-					RelativePath=".\Source\HLEGraphics\BaseRenderer.cpp"
+					RelativePath="..\..\Source\HLEGraphics\BaseRenderer.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\BaseRenderer.h"
+					RelativePath="..\..\Source\HLEGraphics\BaseRenderer.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\CachedTexture.cpp"
+					RelativePath="..\..\Source\HLEGraphics\CachedTexture.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\CachedTexture.h"
+					RelativePath="..\..\Source\HLEGraphics\CachedTexture.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\SysPSP\HLEGraphics\ColourAdjuster.h"
+					RelativePath="..\..\Source\SysPSP\HLEGraphics\ColourAdjuster.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\ConvertImage.cpp"
+					RelativePath="..\..\Source\HLEGraphics\ConvertImage.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\ConvertImage.h"
+					RelativePath="..\..\Source\HLEGraphics\ConvertImage.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\ConvertTile.cpp"
+					RelativePath="..\..\Source\HLEGraphics\ConvertTile.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\DaedalusVtx.h"
+					RelativePath="..\..\Source\HLEGraphics\DaedalusVtx.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\DLDebug.cpp"
+					RelativePath="..\..\Source\HLEGraphics\DLDebug.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\DLDebug.h"
+					RelativePath="..\..\Source\HLEGraphics\DLDebug.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\DLParser.cpp"
+					RelativePath="..\..\Source\HLEGraphics\DLParser.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\DLParser.h"
+					RelativePath="..\..\Source\HLEGraphics\DLParser.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\Microcode.cpp"
+					RelativePath="..\..\Source\HLEGraphics\Microcode.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\Microcode.h"
+					RelativePath="..\..\Source\HLEGraphics\Microcode.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\N64PixelFormat.h"
+					RelativePath="..\..\Source\HLEGraphics\N64PixelFormat.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\RDP.h"
+					RelativePath="..\..\Source\HLEGraphics\RDP.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\RDPStateManager.cpp"
+					RelativePath="..\..\Source\HLEGraphics\RDPStateManager.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\RDPStateManager.h"
+					RelativePath="..\..\Source\HLEGraphics\RDPStateManager.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\TextureCache.cpp"
+					RelativePath="..\..\Source\HLEGraphics\TextureCache.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\TextureCache.h"
+					RelativePath="..\..\Source\HLEGraphics\TextureCache.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\TextureInfo.cpp"
+					RelativePath="..\..\Source\HLEGraphics\TextureInfo.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\TextureInfo.h"
+					RelativePath="..\..\Source\HLEGraphics\TextureInfo.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\uCodes\Ucode.cpp"
+					RelativePath="..\..\Source\HLEGraphics\uCodes\Ucode.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEGraphics\uCodes\Ucode.h"
+					RelativePath="..\..\Source\HLEGraphics\uCodes\Ucode.h"
 					>
 				</File>
 				<Filter
 					Name="Combiner"
 					>
 					<File
-						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\BlendConstant.h"
+						RelativePath="..\..\Source\SysPSP\HLEGraphics\Combiner\BlendConstant.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerExpression.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerExpression.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerInput.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerTree.cpp"
+						RelativePath="..\..\Source\SysPSP\HLEGraphics\Combiner\CombinerExpression.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1724,11 +1696,15 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\CombinerTree.h"
+						RelativePath="..\..\Source\SysPSP\HLEGraphics\Combiner\CombinerExpression.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\RenderSettings.cpp"
+						RelativePath="..\..\Source\SysPSP\HLEGraphics\Combiner\CombinerInput.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\Source\SysPSP\HLEGraphics\Combiner\CombinerTree.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1748,34 +1724,58 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\HLEGraphics\Combiner\RenderSettings.h"
+						RelativePath="..\..\Source\SysPSP\HLEGraphics\Combiner\CombinerTree.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\Source\SysPSP\HLEGraphics\Combiner\RenderSettings.cpp"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\..\Source\SysPSP\HLEGraphics\Combiner\RenderSettings.h"
 						>
 					</File>
 					<Filter
 						Name="W32"
 						>
 						<File
-							RelativePath=".\Source\SysOSX\HLEGraphics\DisplayListDebugger.cpp"
+							RelativePath="..\..\Source\SysOSX\HLEGraphics\DisplayListDebugger.cpp"
 							>
 						</File>
 						<File
-							RelativePath=".\Source\SysGL\HLEGraphics\GraphicsPluginGL.cpp"
+							RelativePath="..\..\Source\SysGL\HLEGraphics\GraphicsPluginGL.cpp"
 							>
 						</File>
 						<File
-							RelativePath=".\Source\SysGL\HLEGraphics\RendererGL.cpp"
+							RelativePath="..\..\Source\SysGL\HLEGraphics\RendererGL.cpp"
 							>
 						</File>
 						<File
-							RelativePath=".\Source\SysGL\HLEGraphics\RendererGL.h"
+							RelativePath="..\..\Source\SysGL\HLEGraphics\RendererGL.h"
 							>
 						</File>
 						<File
-							RelativePath=".\Source\HLEGraphics\TextureCacheWebDebug.cpp"
+							RelativePath="..\..\Source\HLEGraphics\TextureCacheWebDebug.cpp"
 							>
 						</File>
 						<File
-							RelativePath=".\Source\HLEGraphics\TextureCacheWebDebug.h"
+							RelativePath="..\..\Source\HLEGraphics\TextureCacheWebDebug.h"
 							>
 						</File>
 					</Filter>
@@ -1784,7 +1784,7 @@
 					Name="PSP"
 					>
 					<File
-						RelativePath=".\Source\SysPSP\HLEGraphics\BlendModes.cpp"
+						RelativePath="..\..\Source\SysPSP\HLEGraphics\BlendModes.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1804,11 +1804,11 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\HLEGraphics\BlendModes.h"
+						RelativePath="..\..\Source\SysPSP\HLEGraphics\BlendModes.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\HLEGraphics\ConvertVertices.S"
+						RelativePath="..\..\Source\SysPSP\HLEGraphics\ConvertVertices.S"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1828,7 +1828,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\HLEGraphics\DisplayListDebugger.cpp"
+						RelativePath="..\..\Source\HLEGraphics\DisplayListDebugger.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1848,7 +1848,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\HLEGraphics\TransformWithColour.S"
+						RelativePath="..\..\Source\SysPSP\HLEGraphics\TransformWithColour.S"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1868,7 +1868,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\HLEGraphics\TransformWithLighting.S"
+						RelativePath="..\..\Source\SysPSP\HLEGraphics\TransformWithLighting.S"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1888,7 +1888,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\HLEGraphics\VectorClipping.S"
+						RelativePath="..\..\Source\SysPSP\HLEGraphics\VectorClipping.S"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1913,51 +1913,27 @@
 				Name="HLEAudio"
 				>
 				<File
-					RelativePath=".\Source\HLEAudio\AudioBuffer.cpp"
+					RelativePath="..\..\Source\HLEAudio\AudioBuffer.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEAudio\AudioBuffer.h"
+					RelativePath="..\..\Source\HLEAudio\AudioBuffer.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEAudio\audiohle.h"
+					RelativePath="..\..\Source\HLEAudio\audiohle.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEAudio\AudioHLEProcessor.cpp"
+					RelativePath="..\..\Source\HLEAudio\AudioHLEProcessor.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEAudio\AudioHLEProcessor.h"
+					RelativePath="..\..\Source\HLEAudio\AudioHLEProcessor.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\SysPSP\HLEAudio\AudioOutput.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\Source\SysPSP\HLEAudio\AudioOutput.h"
-					>
-				</File>
-				<File
-					RelativePath=".\Source\SysPSP\HLEAudio\AudioPluginPSP.cpp"
+					RelativePath="..\..\Source\SysPSP\HLEAudio\AudioOutput.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -1977,34 +1953,58 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\Source\SysPSP\HLEAudio\AudioPluginPSP.h"
+					RelativePath="..\..\Source\SysPSP\HLEAudio\AudioOutput.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\SysW32\HLEAudio\AudioPluginW32.cpp"
+					RelativePath="..\..\Source\SysPSP\HLEAudio\AudioPluginPSP.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						ExcludedFromBuild="true"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\Source\SysPSP\HLEAudio\AudioPluginPSP.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\HLEAudio\HLEMain.cpp"
+					RelativePath="..\..\Source\SysW32\HLEAudio\AudioPluginW32.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\HLEAudio\HLEMain.cpp"
 					>
 				</File>
 				<Filter
 					Name="ABI"
 					>
 					<File
-						RelativePath=".\Source\HLEAudio\ABI1.cpp"
+						RelativePath="..\..\Source\HLEAudio\ABI1.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\HLEAudio\ABI2.cpp"
+						RelativePath="..\..\Source\HLEAudio\ABI2.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\HLEAudio\ABI3.cpp"
+						RelativePath="..\..\Source\HLEAudio\ABI3.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\HLEAudio\ABI3mp3.cpp"
+						RelativePath="..\..\Source\HLEAudio\ABI3mp3.cpp"
 						>
 					</File>
 				</Filter>
@@ -2020,7 +2020,7 @@
 					Name="PSP"
 					>
 					<File
-						RelativePath=".\Source\SysPSP\UI\ColourPulser.cpp"
+						RelativePath="..\..\Source\SysPSP\UI\ColourPulser.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -2040,39 +2040,15 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\UI\ColourPulser.h"
+						RelativePath="..\..\Source\SysPSP\UI\ColourPulser.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\UI\UIAlignment.h"
+						RelativePath="..\..\Source\SysPSP\UI\UIAlignment.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\UI\UICommand.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath=".\Source\SysPSP\UI\UICommand.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysPSP\UI\UIContext.cpp"
+						RelativePath="..\..\Source\SysPSP\UI\UICommand.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -2092,35 +2068,11 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\UI\UIContext.h"
+						RelativePath="..\..\Source\SysPSP\UI\UICommand.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\UI\UIElement.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath=".\Source\SysPSP\UI\UIElement.h"
-						>
-					</File>
-					<File
-						RelativePath=".\Source\SysPSP\UI\UISetting.cpp"
+						RelativePath="..\..\Source\SysPSP\UI\UIContext.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -2140,18 +2092,66 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\UI\UISetting.h"
+						RelativePath="..\..\Source\SysPSP\UI\UIContext.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\UI\UISpacer.h"
+						RelativePath="..\..\Source\SysPSP\UI\UIElement.cpp"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\..\Source\SysPSP\UI\UIElement.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\Source\SysPSP\UI\UISetting.cpp"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\..\Source\SysPSP\UI\UISetting.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\Source\SysPSP\UI\UISpacer.h"
 						>
 					</File>
 					<Filter
 						Name="Screens"
 						>
 						<File
-							RelativePath=".\Source\SysPSP\UI\AdjustDeadzoneScreen.cpp"
+							RelativePath="..\..\Source\SysPSP\UI\AdjustDeadzoneScreen.cpp"
 							>
 							<FileConfiguration
 								Name="Debug|Win32"
@@ -2171,35 +2171,11 @@
 							</FileConfiguration>
 						</File>
 						<File
-							RelativePath=".\Source\SysPSP\UI\AdjustDeadzoneScreen.h"
+							RelativePath="..\..\Source\SysPSP\UI\AdjustDeadzoneScreen.h"
 							>
 						</File>
 						<File
-							RelativePath=".\Source\SysPSP\UI\AdvancedOptionsScreen.cpp"
-							>
-							<FileConfiguration
-								Name="Debug|Win32"
-								ExcludedFromBuild="true"
-								>
-								<Tool
-									Name="VCCLCompilerTool"
-								/>
-							</FileConfiguration>
-							<FileConfiguration
-								Name="Release|Win32"
-								ExcludedFromBuild="true"
-								>
-								<Tool
-									Name="VCCLCompilerTool"
-								/>
-							</FileConfiguration>
-						</File>
-						<File
-							RelativePath=".\Source\SysPSP\UI\AdvancedOptionsScreen.h"
-							>
-						</File>
-						<File
-							RelativePath=".\Source\SysPSP\UI\MainMenuScreen.cpp"
+							RelativePath="..\..\Source\SysPSP\UI\AdvancedOptionsScreen.cpp"
 							>
 							<FileConfiguration
 								Name="Debug|Win32"
@@ -2219,35 +2195,11 @@
 							</FileConfiguration>
 						</File>
 						<File
-							RelativePath=".\Source\SysPSP\UI\MainMenuScreen.h"
+							RelativePath="..\..\Source\SysPSP\UI\AdvancedOptionsScreen.h"
 							>
 						</File>
 						<File
-							RelativePath=".\Source\SysPSP\UI\PauseScreen.cpp"
-							>
-							<FileConfiguration
-								Name="Debug|Win32"
-								ExcludedFromBuild="true"
-								>
-								<Tool
-									Name="VCCLCompilerTool"
-								/>
-							</FileConfiguration>
-							<FileConfiguration
-								Name="Release|Win32"
-								ExcludedFromBuild="true"
-								>
-								<Tool
-									Name="VCCLCompilerTool"
-								/>
-							</FileConfiguration>
-						</File>
-						<File
-							RelativePath=".\Source\SysPSP\UI\PauseScreen.h"
-							>
-						</File>
-						<File
-							RelativePath=".\Source\SysPSP\UI\RomPreferencesScreen.cpp"
+							RelativePath="..\..\Source\SysPSP\UI\MainMenuScreen.cpp"
 							>
 							<FileConfiguration
 								Name="Debug|Win32"
@@ -2267,35 +2219,11 @@
 							</FileConfiguration>
 						</File>
 						<File
-							RelativePath=".\Source\SysPSP\UI\RomPreferencesScreen.h"
+							RelativePath="..\..\Source\SysPSP\UI\MainMenuScreen.h"
 							>
 						</File>
 						<File
-							RelativePath=".\Source\SysPSP\UI\SplashScreen.cpp"
-							>
-							<FileConfiguration
-								Name="Debug|Win32"
-								ExcludedFromBuild="true"
-								>
-								<Tool
-									Name="VCCLCompilerTool"
-								/>
-							</FileConfiguration>
-							<FileConfiguration
-								Name="Release|Win32"
-								ExcludedFromBuild="true"
-								>
-								<Tool
-									Name="VCCLCompilerTool"
-								/>
-							</FileConfiguration>
-						</File>
-						<File
-							RelativePath=".\Source\SysPSP\UI\SplashScreen.h"
-							>
-						</File>
-						<File
-							RelativePath=".\Source\SysPSP\UI\UIScreen.cpp"
+							RelativePath="..\..\Source\SysPSP\UI\PauseScreen.cpp"
 							>
 							<FileConfiguration
 								Name="Debug|Win32"
@@ -2315,7 +2243,79 @@
 							</FileConfiguration>
 						</File>
 						<File
-							RelativePath=".\Source\SysPSP\UI\UIScreen.h"
+							RelativePath="..\..\Source\SysPSP\UI\PauseScreen.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\Source\SysPSP\UI\RomPreferencesScreen.cpp"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								ExcludedFromBuild="true"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								ExcludedFromBuild="true"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath="..\..\Source\SysPSP\UI\RomPreferencesScreen.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\Source\SysPSP\UI\SplashScreen.cpp"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								ExcludedFromBuild="true"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								ExcludedFromBuild="true"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath="..\..\Source\SysPSP\UI\SplashScreen.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\Source\SysPSP\UI\UIScreen.cpp"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								ExcludedFromBuild="true"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								ExcludedFromBuild="true"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath="..\..\Source\SysPSP\UI\UIScreen.h"
 							>
 						</File>
 					</Filter>
@@ -2323,7 +2323,7 @@
 						Name="Components"
 						>
 						<File
-							RelativePath=".\Source\SysPSP\UI\AboutComponent.cpp"
+							RelativePath="..\..\Source\SysPSP\UI\AboutComponent.cpp"
 							>
 							<FileConfiguration
 								Name="Debug|Win32"
@@ -2343,35 +2343,11 @@
 							</FileConfiguration>
 						</File>
 						<File
-							RelativePath=".\Source\SysPSP\UI\AboutComponent.h"
+							RelativePath="..\..\Source\SysPSP\UI\AboutComponent.h"
 							>
 						</File>
 						<File
-							RelativePath=".\Source\SysPSP\UI\GlobalSettingsComponent.cpp"
-							>
-							<FileConfiguration
-								Name="Debug|Win32"
-								ExcludedFromBuild="true"
-								>
-								<Tool
-									Name="VCCLCompilerTool"
-								/>
-							</FileConfiguration>
-							<FileConfiguration
-								Name="Release|Win32"
-								ExcludedFromBuild="true"
-								>
-								<Tool
-									Name="VCCLCompilerTool"
-								/>
-							</FileConfiguration>
-						</File>
-						<File
-							RelativePath=".\Source\SysPSP\UI\GlobalSettingsComponent.h"
-							>
-						</File>
-						<File
-							RelativePath=".\Source\SysPSP\UI\PauseOptionsComponent.cpp"
+							RelativePath="..\..\Source\SysPSP\UI\GlobalSettingsComponent.cpp"
 							>
 							<FileConfiguration
 								Name="Debug|Win32"
@@ -2391,35 +2367,11 @@
 							</FileConfiguration>
 						</File>
 						<File
-							RelativePath=".\Source\SysPSP\UI\PauseOptionsComponent.h"
+							RelativePath="..\..\Source\SysPSP\UI\GlobalSettingsComponent.h"
 							>
 						</File>
 						<File
-							RelativePath=".\Source\SysPSP\UI\RomSelectorComponent.cpp"
-							>
-							<FileConfiguration
-								Name="Debug|Win32"
-								ExcludedFromBuild="true"
-								>
-								<Tool
-									Name="VCCLCompilerTool"
-								/>
-							</FileConfiguration>
-							<FileConfiguration
-								Name="Release|Win32"
-								ExcludedFromBuild="true"
-								>
-								<Tool
-									Name="VCCLCompilerTool"
-								/>
-							</FileConfiguration>
-						</File>
-						<File
-							RelativePath=".\Source\SysPSP\UI\RomSelectorComponent.h"
-							>
-						</File>
-						<File
-							RelativePath=".\Source\SysPSP\UI\SavestateSelectorComponent.cpp"
+							RelativePath="..\..\Source\SysPSP\UI\PauseOptionsComponent.cpp"
 							>
 							<FileConfiguration
 								Name="Debug|Win32"
@@ -2439,35 +2391,11 @@
 							</FileConfiguration>
 						</File>
 						<File
-							RelativePath=".\Source\SysPSP\UI\SavestateSelectorComponent.h"
+							RelativePath="..\..\Source\SysPSP\UI\PauseOptionsComponent.h"
 							>
 						</File>
 						<File
-							RelativePath=".\Source\SysPSP\UI\SelectedRomComponent.cpp"
-							>
-							<FileConfiguration
-								Name="Debug|Win32"
-								ExcludedFromBuild="true"
-								>
-								<Tool
-									Name="VCCLCompilerTool"
-								/>
-							</FileConfiguration>
-							<FileConfiguration
-								Name="Release|Win32"
-								ExcludedFromBuild="true"
-								>
-								<Tool
-									Name="VCCLCompilerTool"
-								/>
-							</FileConfiguration>
-						</File>
-						<File
-							RelativePath=".\Source\SysPSP\UI\SelectedRomComponent.h"
-							>
-						</File>
-						<File
-							RelativePath=".\Source\SysPSP\UI\UIComponent.cpp"
+							RelativePath="..\..\Source\SysPSP\UI\RomSelectorComponent.cpp"
 							>
 							<FileConfiguration
 								Name="Debug|Win32"
@@ -2487,7 +2415,79 @@
 							</FileConfiguration>
 						</File>
 						<File
-							RelativePath=".\Source\SysPSP\UI\UIComponent.h"
+							RelativePath="..\..\Source\SysPSP\UI\RomSelectorComponent.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\Source\SysPSP\UI\SavestateSelectorComponent.cpp"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								ExcludedFromBuild="true"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								ExcludedFromBuild="true"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath="..\..\Source\SysPSP\UI\SavestateSelectorComponent.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\Source\SysPSP\UI\SelectedRomComponent.cpp"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								ExcludedFromBuild="true"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								ExcludedFromBuild="true"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath="..\..\Source\SysPSP\UI\SelectedRomComponent.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\Source\SysPSP\UI\UIComponent.cpp"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								ExcludedFromBuild="true"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								ExcludedFromBuild="true"
+								>
+								<Tool
+									Name="VCCLCompilerTool"
+								/>
+							</FileConfiguration>
+						</File>
+						<File
+							RelativePath="..\..\Source\SysPSP\UI\UIComponent.h"
 							>
 						</File>
 					</Filter>
@@ -2497,54 +2497,54 @@
 				Name="Graphics"
 				>
 				<File
-					RelativePath=".\Source\Graphics\ColourValue.cpp"
+					RelativePath="..\..\Source\Graphics\ColourValue.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Graphics\ColourValue.h"
+					RelativePath="..\..\Source\Graphics\ColourValue.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Graphics\GraphicsContext.h"
+					RelativePath="..\..\Source\Graphics\GraphicsContext.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Graphics\NativePixelFormat.h"
+					RelativePath="..\..\Source\Graphics\NativePixelFormat.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Graphics\NativeTexture.h"
+					RelativePath="..\..\Source\Graphics\NativeTexture.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Graphics\PngUtil.cpp"
+					RelativePath="..\..\Source\Graphics\PngUtil.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Graphics\PngUtil.h"
+					RelativePath="..\..\Source\Graphics\PngUtil.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Graphics\TextureFormat.h"
+					RelativePath="..\..\Source\Graphics\TextureFormat.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Graphics\TextureTransform.cpp"
+					RelativePath="..\..\Source\Graphics\TextureTransform.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Graphics\TextureTransform.h"
+					RelativePath="..\..\Source\Graphics\TextureTransform.h"
 					>
 				</File>
 				<Filter
 					Name="W32"
 					>
 					<File
-						RelativePath=".\Source\SysGL\Graphics\GraphicsContextGL.cpp"
+						RelativePath="..\..\Source\SysGL\Graphics\GraphicsContextGL.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysGL\Graphics\NativeTextureGL.cpp"
+						RelativePath="..\..\Source\SysGL\Graphics\NativeTextureGL.cpp"
 						>
 					</File>
 				</Filter>
@@ -2552,7 +2552,7 @@
 					Name="PSP"
 					>
 					<File
-						RelativePath=".\Source\SysPSP\Graphics\DrawText.cpp"
+						RelativePath="..\..\Source\SysPSP\Graphics\DrawText.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -2572,31 +2572,11 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\Graphics\DrawText.h"
+						RelativePath="..\..\Source\SysPSP\Graphics\DrawText.h"
 						>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\Graphics\GraphicsContext.cpp"
-						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							ExcludedFromBuild="true"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath=".\Source\SysPSP\Graphics\NativeTexturePSP.cpp"
+						RelativePath="..\..\Source\SysPSP\Graphics\GraphicsContext.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -2616,7 +2596,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\Graphics\PngUtilPSP.cpp"
+						RelativePath="..\..\Source\SysPSP\Graphics\NativeTexturePSP.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -2636,7 +2616,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\Graphics\VideoMemoryManager.cpp"
+						RelativePath="..\..\Source\SysPSP\Graphics\PngUtilPSP.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -2656,14 +2636,34 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath=".\Source\SysPSP\Graphics\VideoMemoryManager.h"
+						RelativePath="..\..\Source\SysPSP\Graphics\VideoMemoryManager.cpp"
+						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							ExcludedFromBuild="true"
+							>
+							<Tool
+								Name="VCCLCompilerTool"
+							/>
+						</FileConfiguration>
+					</File>
+					<File
+						RelativePath="..\..\Source\SysPSP\Graphics\VideoMemoryManager.h"
 						>
 					</File>
 					<Filter
 						Name="intraFont"
 						>
 						<File
-							RelativePath=".\Source\SysPSP\Graphics\intraFont\intraFont.c"
+							RelativePath="..\..\Source\SysPSP\Graphics\intraFont\intraFont.c"
 							>
 							<FileConfiguration
 								Name="Debug|Win32"
@@ -2683,7 +2683,7 @@
 							</FileConfiguration>
 						</File>
 						<File
-							RelativePath=".\Source\SysPSP\Graphics\intraFont\intraFont.h"
+							RelativePath="..\..\Source\SysPSP\Graphics\intraFont\intraFont.h"
 							>
 						</File>
 					</Filter>
@@ -2693,31 +2693,31 @@
 				Name="Math"
 				>
 				<File
-					RelativePath=".\Source\Math\Math.h"
+					RelativePath="..\..\Source\Math\Math.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Math\MathUtil.h"
+					RelativePath="..\..\Source\Math\MathUtil.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Math\Matrix4x4.cpp"
+					RelativePath="..\..\Source\Math\Matrix4x4.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Math\Matrix4x4.h"
+					RelativePath="..\..\Source\Math\Matrix4x4.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Math\Vector2.h"
+					RelativePath="..\..\Source\Math\Vector2.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Math\Vector3.h"
+					RelativePath="..\..\Source\Math\Vector3.h"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Math\Vector4.h"
+					RelativePath="..\..\Source\Math\Vector4.h"
 					>
 				</File>
 			</Filter>
@@ -2725,11 +2725,11 @@
 				Name="Test"
 				>
 				<File
-					RelativePath=".\Source\Test\BatchTest.cpp"
+					RelativePath="..\..\Source\Test\BatchTest.cpp"
 					>
 				</File>
 				<File
-					RelativePath=".\Source\Test\BatchTest.h"
+					RelativePath="..\..\Source\Test\BatchTest.h"
 					>
 				</File>
 			</Filter>
@@ -2737,7 +2737,7 @@
 				Name="Third Party"
 				>
 				<File
-					RelativePath=".\Source\third_party\webby\webby.c"
+					RelativePath="..\..\Source\third_party\webby\webby.c"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
