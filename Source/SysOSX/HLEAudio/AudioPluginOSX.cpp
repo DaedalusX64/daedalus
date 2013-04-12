@@ -224,8 +224,6 @@ void AudioPluginOSX::AudioCallback(void * arg, AudioQueueRef queue, AudioQueueBu
 
 	if (!plugin->mKeepRunning)
 	{
-		AudioQueueStop(queue, false);
-		AudioQueueDispose(queue, false);
 		CFRunLoopStop(CFRunLoopGetCurrent());
 	}
 }
@@ -263,6 +261,9 @@ u32 AudioPluginOSX::AudioThread(void * arg)
 	AudioQueueStart(queue, NULL);
 
 	CFRunLoopRun();
+
+	AudioQueueStop(queue, false);
+	AudioQueueDispose(queue, false);
 
 	for (u32 i = 0; i < kNumBuffers; ++i)
 	{
