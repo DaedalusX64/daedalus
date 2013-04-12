@@ -69,14 +69,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //	New dynarec engine
 //
 #ifdef DAEDALUS_PROFILE_EXECUTION
-u64									gTotalInstructionsExecuted = 0;
-u64									gTotalInstructionsEmulated = 0;
+u64					gTotalInstructionsExecuted = 0;
+u64					gTotalInstructionsEmulated = 0;
 #endif
-
-
-//*****************************************************************************
-//
-//*****************************************************************************
 
 #ifdef DAEDALUS_BREAKPOINTS_ENABLED
 std::vector< DBG_BreakPoint > g_BreakPoints;
@@ -84,16 +79,12 @@ std::vector< DBG_BreakPoint > g_BreakPoints;
 
 volatile u32 eventQueueLocked = 0;
 
+static bool			gCPURunning        = false;			// CPU is actively running
+u32					gLastPC            = 0xffffffff;
+u8 *				gLastAddress       = NULL;
+std::string			gSaveStateFilename = "";
 
-static bool			gCPURunning				= false;			// CPU is actively running
-u32					gLastPC = 0xffffffff;
-u8 *				gLastAddress = NULL;
-std::string			gSaveStateFilename	= "";
-
-namespace
-{
-
-static bool			gCPUStopOnSimpleState	= false;			// When stopping, try to stop in a 'simple' state (i.e. no RSP running and not in a branch delay slot)
+static bool			gCPUStopOnSimpleState = false;			// When stopping, try to stop in a 'simple' state (i.e. no RSP running and not in a branch delay slot)
 static Mutex		gSaveStateMutex;
 
 enum ESaveStateOperation
@@ -103,15 +94,8 @@ enum ESaveStateOperation
 	SSO_LOAD,
 };
 
-ESaveStateOperation		gSaveStateOperation = SSO_NONE;
+static ESaveStateOperation		gSaveStateOperation = SSO_NONE;
 
-
-}
-
-
-//*****************************************************************************
-//
-//*****************************************************************************
 const  u32			VI_INTR_CYCLES_INIT = 62500;
 static u32			gVerticalInterrupts( 0 );
 static u32			VI_INTR_CYCLES( VI_INTR_CYCLES_INIT );
@@ -125,7 +109,6 @@ ALIGNED_GLOBAL(SCPUState, gCPUState, CACHE_ALIGN);
 //
 //*****************************************************************************
 static void HandleSaveStateOperation() DAEDALUS_ATTRIBUTE_NOINLINE;
-static void CPUMain();
 static bool	CPU_IsStateSimple()		   DAEDALUS_ATTRIBUTE_CONST;
 void (* g_pCPUCore)();
 //*****************************************************************************
@@ -505,22 +488,6 @@ bool CPU_LoadState( const char * filename )
 }
 
 //*****************************************************************************
-// For running the CPU in the main thread. This may need revising when
-// audio is introduced
-//*****************************************************************************
-bool CPU_Run()
-{
-	if (RomBuffer::IsRomLoaded())
-	{
-		CPUMain();
-
-		return true;
-	}
-
-	return false;
-}
-
-//*****************************************************************************
 //
 //*****************************************************************************
 void CPU_SelectCore()
@@ -602,8 +569,11 @@ static void HandleSaveStateOperation()
 //*****************************************************************************
 //
 //*****************************************************************************
-void CPUMain()
+bool CPU_Run()
 {
+	if (!RomBuffer::IsRomLoaded())
+		return false;
+
 	gCPURunning = true;
 	gCPUStopOnSimpleState = false;
 
@@ -636,6 +606,8 @@ void CPUMain()
 	// Update the screen. It's probably better handled elsewhere...
 	CDebugConsole::Get()->UpdateDisplay();
 #endif
+
+	return true;
 }
 
 //*****************************************************************************
