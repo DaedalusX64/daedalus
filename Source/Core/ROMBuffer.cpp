@@ -180,22 +180,22 @@ void RomBuffer::Destroy()
 //*****************************************************************************
 //
 //*****************************************************************************
-void RomBuffer::Open( )
+bool RomBuffer::Open()
 {
 	CNullOutputStream messages;
-	const char *	filename   = g_ROM.szFileName;
-	ROMFile * 		p_rom_file = ROMFile::Create( filename );
+	const char * filename   = g_ROM.szFileName;
+	ROMFile *    p_rom_file = ROMFile::Create( filename );
 	if(p_rom_file == NULL)
 	{
 		DBGConsole_Msg(0, "Failed to create [C%s]\n", filename);
-		return;
+		return false;
 	}
 
 	if( !p_rom_file->Open( messages ) )
 	{
 		DBGConsole_Msg(0, "Failed to open [C%s]\n", filename);
 		delete p_rom_file;
-		return;
+		return false;
 	}
 
 	sRomSize = p_rom_file->GetRomSize();
@@ -212,7 +212,7 @@ void RomBuffer::Open( )
 			DBGConsole_Msg(0, "Failed to load [C%s]\n", filename);
 			CROMFileMemory::Get()->Free( p_bytes );
 			delete p_rom_file;
-			return;
+			return false;
 		}
 #else
 		u32 offset( 0 );
@@ -300,6 +300,7 @@ void RomBuffer::Open( )
 
 	DBGConsole_Msg(0, "Opened [C%s]\n", filename);
 	sRomLoaded = true;
+	return true;
 }
 
 //*****************************************************************************

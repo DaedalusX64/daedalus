@@ -336,7 +336,7 @@ void IController::Process()
 	u32 count = 0;
 	u32 channel = 0;
 	u32 *tmp = (u32*)mpPifRam;
-	if ((tmp[0] == 0xFFFFFFFF) && 
+	if ((tmp[0] == 0xFFFFFFFF) &&
 		(tmp[1] == 0xFFFFFFFF) &&
 		(tmp[2] == 0xFFFFFFFF) &&
 		(tmp[3] == 0xFFFFFFFF))
@@ -752,18 +752,18 @@ void	IController::CommandReadRTC(u8 *cmd)
 }
 
 //*****************************************************************************
-// 
+//
 //*****************************************************************************
 //http://www.emutalk.net/threads/53217-N64-PIF-CIC-NUS-6105-Algorithm-Finally-Reversed
 //
 //Copyright 2011 X-Scale. All rights reserved.
 //
 /*
- * This software provides an algorithm that emulates the protection scheme of 
- * N64 PIF/CIC-NUS-6105, by determining the proper response to each challenge. 
- * It was synthesized after a careful, exhaustive and detailed analysis of the 
- * challenge/response pairs stored in the 'pif2.dat' file from Project 64. 
- * These challenge/response pairs were the only resource used during this 
+ * This software provides an algorithm that emulates the protection scheme of
+ * N64 PIF/CIC-NUS-6105, by determining the proper response to each challenge.
+ * It was synthesized after a careful, exhaustive and detailed analysis of the
+ * challenge/response pairs stored in the 'pif2.dat' file from Project 64.
+ * These challenge/response pairs were the only resource used during this
  * project. There was no kind of physical access to N64 hardware.
 */
 
@@ -772,11 +772,11 @@ void IController::n64_cic_nus_6105()
 {
 	// calculate the proper response for the given challenge (X-Scale's algorithm)
 	char lut0[0x10] = {
-		0x4, 0x7, 0xA, 0x7, 0xE, 0x5, 0xE, 0x1, 
+		0x4, 0x7, 0xA, 0x7, 0xE, 0x5, 0xE, 0x1,
 		0xC, 0xF, 0x8, 0xF, 0x6, 0x3, 0x6, 0x9
 	};
 	char lut1[0x10] = {
-		0x4, 0x1, 0xA, 0x7, 0xE, 0x5, 0xE, 0x1, 
+		0x4, 0x1, 0xA, 0x7, 0xE, 0x5, 0xE, 0x1,
 		0xC, 0x9, 0x8, 0x5, 0x6, 0x3, 0xC, 0x9
 	};
 	char challenge[30], response[30];
@@ -793,8 +793,8 @@ void IController::n64_cic_nus_6105()
 
 		char key, *lut;
 		int sgn, mag, mod;
-	        
-		for (key = 0xB, lut = lut0, i = 0; i < (CHL_LEN - 2); i++) 
+
+		for (key = 0xB, lut = lut0, i = 0; i < (CHL_LEN - 2); i++)
 		{
 			response[i] = (key + 5 * challenge[i]) & 0xF;
 			key = lut[(int) response[i]];

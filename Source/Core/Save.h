@@ -29,7 +29,7 @@ private:
 	static bool mempackDirty;
 
 public:
-	static void Reset();
+	static bool Reset();
 	static void Flush(bool force = false);
 	static void Fini() { Flush(true);}
 

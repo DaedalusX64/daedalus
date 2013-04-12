@@ -274,7 +274,7 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 //*****************************************************************************
 //
 //*****************************************************************************
-void ROM_ReBoot()
+bool ROM_ReBoot()
 {
 	//
 	// Find out the CIC type and initialise various systems based on the CIC type
@@ -339,6 +339,7 @@ void ROM_ReBoot()
 
 	//CPU_AddBreakPoint( 0xA4000040 );
 	//CPU_AddBreakPoint( 0xbfc00000 );
+	return true;
 }
 
 //*****************************************************************************
@@ -470,7 +471,7 @@ void ROM_GetRomNameFromHeader( std::string & rom_name, const ROMHeader & header 
 //*****************************************************************************
 //
 //*****************************************************************************
-void ROM_LoadFile()
+bool ROM_LoadFile()
 {
 	RomID		rom_id;
 	u32			rom_size;
@@ -490,10 +491,10 @@ void ROM_LoadFile()
 			preferences.Reset();
 		}
 
-		ROM_LoadFile( rom_id, settings, preferences );
+		return ROM_LoadFile( rom_id, settings, preferences );
 	}
 
-	return;
+	return false;
 }
 
 

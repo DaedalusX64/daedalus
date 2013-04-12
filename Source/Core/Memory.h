@@ -84,7 +84,7 @@ extern const u32 MemoryRegionSizes[NUM_MEM_BUFFERS];
 
 bool			Memory_Init();
 void			Memory_Fini();
-void			Memory_Reset();
+bool			Memory_Reset();
 void			Memory_Cleanup();
 
 

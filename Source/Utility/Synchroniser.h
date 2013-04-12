@@ -71,9 +71,9 @@ class CSynchroniser
 		virtual void			ResetData() = 0;
 
 	public:
-		static void InitialiseSynchroniser();
-		static CSynchroniser * CreateProducer( const char * filename );
-		static CSynchroniser * CreateConsumer( const char * filename );
+		static bool				InitialiseSynchroniser();
+		static CSynchroniser *	CreateProducer( const char * filename );
+		static CSynchroniser *	CreateConsumer( const char * filename );
 
 		static void Destroy();
 

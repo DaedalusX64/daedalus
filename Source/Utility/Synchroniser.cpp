@@ -259,7 +259,7 @@ CSynchroniser::ESynchResult	ISynchConsumer::SynchData( void * data, u32 length )
 }
 
 
-void CSynchroniser::InitialiseSynchroniser()
+bool CSynchroniser::InitialiseSynchroniser()
 {
 	const char *name = g_ROM.szFileName;
 	CSynchroniser *	p_synch;
@@ -279,6 +279,7 @@ void CSynchroniser::InitialiseSynchroniser()
 	}
 
 	//return p_synch != NULL && p_synch->IsOpen();
+	return true;
 }
 
 #endif	//DAEDALUS_ENABLE_SYNCHRONISATION

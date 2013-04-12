@@ -57,7 +57,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 CGraphicsPlugin * gGraphicsPlugin   = NULL;
 CAudioPlugin	* g_pAiPlugin		= NULL;
 
-static void InitAudioPlugin()
+static bool InitAudioPlugin()
 {
 	DAEDALUS_ASSERT( g_pAiPlugin == NULL, "Why is there already an audio plugin?" );
 
@@ -71,9 +71,10 @@ static void InitAudioPlugin()
 		}
 		g_pAiPlugin = audio_plugin;
 	}
+	return true;
 }
 
-static void InitGraphicsPlugin()
+static bool InitGraphicsPlugin()
 {
 	DAEDALUS_ASSERT( gGraphicsPlugin == NULL, "The graphics plugin should not be initialised at this point" );
 	CGraphicsPlugin * graphics_plugin = CreateGraphicsPlugin();
@@ -86,6 +87,7 @@ static void InitGraphicsPlugin()
 		}
 		gGraphicsPlugin = graphics_plugin;
 	}
+	return true;
 }
 
 static void DisposeGraphicsPlugin()
@@ -158,7 +160,7 @@ static const SysEntityEntry gSysInitTable[] =
 struct RomEntityEntry
 {
 	const char *name;
-	void (*open)();
+	bool (*open)();
 	void (*close)();
 };
 
@@ -205,7 +207,7 @@ bool System_Init()
 	return true;
 }
 
-void System_Open(const char * filename)
+bool System_Open(const char * filename)
 {
 	strcpy(g_ROM.szFileName, filename);
 	for(u32 i = 0; i < ARRAYSIZE(gRomInitTable); i++)
@@ -216,8 +218,14 @@ void System_Open(const char * filename)
 			continue;
 
 		DBGConsole_Msg(0, "==>Open %s", entry.name);
-		entry.open();
+		if (!entry.open())
+		{
+			DBGConsole_Msg(0, "==>Open %s [RFAILED]", entry.name);
+			return false;
+		}
 	}
+
+	return true;
 }
 
 void System_Close()

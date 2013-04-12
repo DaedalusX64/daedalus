@@ -166,9 +166,9 @@ struct RomInfo
 //*****************************************************************************
 // Functions
 //*****************************************************************************
-void ROM_ReBoot();
+bool ROM_ReBoot();
 void ROM_Unload();
-void ROM_LoadFile();
+bool ROM_LoadFile();
 void ROM_UnloadFile();
 bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRomPreferences & preferences );
 

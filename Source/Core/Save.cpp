@@ -40,7 +40,7 @@ char	Save::szMempackFileName[MAX_PATH+1];
 bool	Save::mempackDirty;
 
 
-void Save::Reset()
+bool Save::Reset()
 {
 	const char	*ext;
 	FILE 		*fp;
@@ -115,6 +115,8 @@ void Save::Reset()
 		InitMempackContent();
 		mempackDirty = true;
 	}
+
+	return true;
 }
 
 void Save::Flush(bool force)

@@ -48,7 +48,7 @@ void FramerateLimiter_SetAuxillarySyncFunction(FramerateSyncFn fn, void * arg)
 	gAuxSyncArg = arg;
 }
 
-void FramerateLimiter_Reset()
+bool FramerateLimiter_Reset()
 {
 	u64 frequency;
 
@@ -71,6 +71,7 @@ void FramerateLimiter_Reset()
 		gTicksBetweenVbls = 0;
 		gTicksPerSecond = 0;
 	}
+	return true;
 }
 
 static u32 FramerateLimiter_UpdateAverageTicksPerVbl( u32 elapsed_ticks )

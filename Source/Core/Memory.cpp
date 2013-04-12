@@ -270,7 +270,7 @@ void Memory_Fini(void)
 //*****************************************************************************
 //
 //*****************************************************************************
-void Memory_Reset()
+bool Memory_Reset()
 {
 	u32 i;
 	u32 main_mem;
@@ -306,6 +306,7 @@ void Memory_Reset()
 	}
 
 	gDMAUsed = false;
+	return true;
 }
 
 //*****************************************************************************
@@ -321,7 +322,7 @@ void Memory_Cleanup()
  //*****************************************************************************
 static void Memory_Tlb_Hack()
 {
-	
+
 	bool RomBaseKnown = RomBuffer::IsRomLoaded() && RomBuffer::IsRomAddressFixed();
 
 	const void *	rom_address( RomBaseKnown ? RomBuffer::GetFixedRomBaseAddress() : NULL );

@@ -38,7 +38,7 @@ class RomBuffer
 		static bool		Create();
 		static void		Destroy();
 
-		static void		Open();
+		static bool		Open();
 		static void		Close();
 
 		static bool		IsRomLoaded();
