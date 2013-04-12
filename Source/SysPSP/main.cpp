@@ -589,8 +589,8 @@ int main(int argc, char* argv[])
 		//Ex. from PSPLink -> ./Daedalus.prx "Roms/StarFox 64.v64" //Corn
 		if( argc > 1 )
 		{
-			printf("Loading %s\n", (char*)argv[1] );
-			System_Open( (char*)argv[1] );
+			printf("Loading %s\n", argv[1] );
+			System_Open( argv[1] );
 			CPU_Run();
 			System_Close();
 			Finalise();
