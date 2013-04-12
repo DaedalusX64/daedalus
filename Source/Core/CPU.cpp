@@ -105,12 +105,10 @@ SCPUState *gPtrCPUState = (SCPUState*)0x10000;
 #else
 ALIGNED_GLOBAL(SCPUState, gCPUState, CACHE_ALIGN);
 #endif
-//*****************************************************************************
-//
-//*****************************************************************************
-static void HandleSaveStateOperation() DAEDALUS_ATTRIBUTE_NOINLINE;
+
 static bool	CPU_IsStateSimple()		   DAEDALUS_ATTRIBUTE_CONST;
 void (* g_pCPUCore)();
+
 //*****************************************************************************
 //
 //*****************************************************************************

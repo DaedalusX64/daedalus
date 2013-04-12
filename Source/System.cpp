@@ -61,7 +61,7 @@ static void InitAudioPlugin()
 {
 	DAEDALUS_ASSERT( g_pAiPlugin == NULL, "Why is there already an audio plugin?" );
 
-	CAudioPlugin * audio_plugin( CreateAudioPlugin() );
+	CAudioPlugin * audio_plugin = CreateAudioPlugin();
 	if( audio_plugin != NULL )
 	{
 		if( !audio_plugin->StartEmulation() )
@@ -76,7 +76,7 @@ static void InitAudioPlugin()
 static void InitGraphicsPlugin()
 {
 	DAEDALUS_ASSERT( gGraphicsPlugin == NULL, "The graphics plugin should not be initialised at this point" );
-	CGraphicsPlugin *	graphics_plugin( CreateGraphicsPlugin() );
+	CGraphicsPlugin * graphics_plugin = CreateGraphicsPlugin();
 	if( graphics_plugin != NULL )
 	{
 		if( !graphics_plugin->StartEmulation() )
@@ -100,10 +100,10 @@ static void DisposeGraphicsPlugin()
 
 static void DisposeAudioPlugin()
 {
-	CAudioPlugin *audio_plugin(g_pAiPlugin);
 	// Make a copy of the plugin, and set the global pointer to NULL;
 	// This stops other threads from trying to access the plugin
 	// while we're in the process of shutting it down.
+	CAudioPlugin * audio_plugin = g_pAiPlugin;
 	g_pAiPlugin = NULL;
 	if (audio_plugin != NULL)
 	{
