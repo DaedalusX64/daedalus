@@ -24,7 +24,7 @@
           ],
         },
         'include_dirs': [
-          'Source',
+          '../../Source',
           '../../Source/Config/Dev',
         ],
         'defines': [
@@ -156,7 +156,7 @@
           {
             'destination': '<(PRODUCT_DIR)/',
             'files': [
-              'roms.ini',
+              '../../Data/PSP/roms.ini',
               '../../Source/SysGL/HLEGraphics/n64.psh',
             ],
           },
@@ -164,6 +164,12 @@
             'destination': '<(PRODUCT_DIR)/',
             'files': [
               '../../Source/SysOSX/Debug/Web/',
+            ],
+          },
+          {
+            'destination': '<(PRODUCT_DIR)/Web/js',
+            'files': [
+              '../../Source/SysOSX/Debug/Web/js/dldebugger.js',
             ],
           },
         ],
