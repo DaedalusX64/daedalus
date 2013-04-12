@@ -31,23 +31,6 @@ class IDebugConsole : public CDebugConsole
 		IDebugConsole();
 		virtual ~IDebugConsole()	{ }
 
-		void			EnableConsole( bool bEnable )
-		{
-		}
-
-		bool			IsVisible() const
-		{
-			return true;
-		}
-
-		void			UpdateDisplay()
-		{
-		}
-
-		void			DisplayProfile()
-		{
-		}
-
 		void Msg(u32 type, const char * format, ...);
 
 		void MsgOverwriteStart() {}
@@ -60,12 +43,6 @@ class IDebugConsole : public CDebugConsole
 			printf("\n");
 		}
 		void MsgOverwriteEnd() {}
-
-		void Stats( StatType stat, const char * format, ...)
-		{
-
-		}
-
 };
 
 template<> bool CSingleton< CDebugConsole >::Create()

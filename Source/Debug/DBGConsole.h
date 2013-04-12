@@ -34,36 +34,11 @@ class CDebugConsole : public CSingleton< CDebugConsole >
 	public:
 		virtual ~CDebugConsole();
 
-		virtual void EnableConsole( bool bEnable ) = 0;
-		virtual bool IsVisible() const = 0;
-
-		virtual void UpdateDisplay() = 0;
-
-		enum StatType
-		{
-			STAT_MIPS = 0,
-			STAT_VIS,
-			STAT_GEOM,
-			STAT_SYNC,
-			STAT_TEX,
-			STAT_TLB,
-			STAT_EXCEP,
-			STAT_DYNAREC,
-			STAT_TEXIGNORE,
-			STAT_DLCULL,
-			STAT_PI,
-			STAT_SP,
-
-			NUM_STAT_ITEMS,
-		};
-
 		virtual void DAEDALUS_VARARG_CALL_TYPE	Msg( u32 type, const char * format, ... ) = 0;
 
 		virtual void							MsgOverwriteStart() = 0;
 		virtual void DAEDALUS_VARARG_CALL_TYPE	MsgOverwrite( u32 type, const char * format, ... ) = 0;
 		virtual void							MsgOverwriteEnd() = 0;
-
-		virtual void DAEDALUS_VARARG_CALL_TYPE	Stats( StatType stat, const char * format, ... ) = 0;
 };
 
 #define DBGConsole_Msg( type, ... )			CDebugConsole::Get()->Msg( type, __VA_ARGS__ )

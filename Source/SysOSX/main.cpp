@@ -106,12 +106,6 @@ int main(int argc, char **argv)
 	//
 	//WriteConfiguration();
 
-	//
-	// Turn off the debug console
-	//
-#ifdef DAEDALUS_DEBUG_CONSOLE
-	CDebugConsole::Get()->EnableConsole( false );
-#endif
 	System_Finalize();
 
 	return result;

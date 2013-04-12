@@ -491,9 +491,6 @@ u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 	// to remove any stuff lingering on the screen.
 	if(gFirstCall)
 	{
-#ifdef DAEDALUS_DEBUG_CONSOLE
-		CDebugConsole::Get()->EnableConsole( false );
-#endif
 		CGraphicsContext::Get()->ClearAllSurfaces();
 
 		gFirstCall = false;

@@ -31,23 +31,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define DAEDALUS_USETERMINAL
 
+static bool gEchoDebugToScreen = false;
+
 class IDebugConsole : public CDebugConsole
 {
 	public:
 		IDebugConsole();
 		virtual ~IDebugConsole();
 
-		void			EnableConsole( bool bEnable );
-		bool			IsVisible() const;
-
-		void			UpdateDisplay();
-
 		void DAEDALUS_VARARG_CALL_TYPE	Msg(u32 type, const char * szFormat, ...);
 
 		void							MsgOverwriteStart();
 		void DAEDALUS_VARARG_CALL_TYPE	MsgOverwrite(u32 type, const char * szFormat, ...);
 		void							MsgOverwriteEnd();
-		void DAEDALUS_VARARG_CALL_TYPE	Stats( StatType stat, const char * szFormat, ...)			{}
 
 private:
 			enum	ETerminalColour
@@ -66,7 +62,6 @@ private:
 			void				DisplayString( const char * p_string );
 			void				SetCurrentTerminalColour( ETerminalColour tc );
 private:
-			bool				mDebugScreenEnabled;
 			u32					mCurrentY;
 
 	static	const char * const	mTerminalColours[NUM_TERMINAL_COLOURS];
@@ -147,7 +142,7 @@ CDebugConsole::~CDebugConsole()
 //*****************************************************************************
 void	IDebugConsole::DisplayString( const char * p_string )
 {
-	if( mDebugScreenEnabled )
+	if( gEchoDebugToScreen )
 	{
 		pspDebugScreenPrintf( "%s", p_string );
 	}
@@ -166,7 +161,7 @@ void	IDebugConsole::DisplayString( const char * p_string )
 //*****************************************************************************
 void	IDebugConsole::SetCurrentTerminalColour( ETerminalColour tc )
 {
-	if( mDebugScreenEnabled )
+	if( gEchoDebugToScreen )
 	{
 		pspDebugScreenSetTextColor( mScreenColours[ tc ].GetColour() );
 	}
@@ -265,8 +260,7 @@ void IDebugConsole::ParseAndDisplayString( const char * p_string, ETerminalColou
 //
 //*****************************************************************************
 IDebugConsole::IDebugConsole()
-:	mDebugScreenEnabled( true )
-,	mCurrentY( 0 )
+:	mCurrentY( 0 )
 {
 	pspDebugScreenSetXY(0, 0);
 }
@@ -275,33 +269,6 @@ IDebugConsole::IDebugConsole()
 //
 //*****************************************************************************
 IDebugConsole::~IDebugConsole()
-{
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void	IDebugConsole::EnableConsole( bool bEnable )
-{
-	if( !mDebugScreenEnabled && bEnable )
-	{
-		pspDebugScreenSetXY(0, 0);
-	}
-	mDebugScreenEnabled = bEnable;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-bool	IDebugConsole::IsVisible() const
-{
-	return mDebugScreenEnabled;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void	IDebugConsole::UpdateDisplay()
 {
 }
 
@@ -351,7 +318,7 @@ void DAEDALUS_VARARG_CALL_TYPE	IDebugConsole::MsgOverwrite(u32 type, const char 
 
 	ParseAndDisplayString( mFormattingBuffer, TC_w );
 	//DisplayString( "\n" );
-	if( mDebugScreenEnabled )
+	if( gEchoDebugToScreen )
 	{
 		pspDebugScreenPrintf( "\n" );
 	}

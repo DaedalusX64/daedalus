@@ -339,9 +339,6 @@ void ROM_ReBoot()
 
 	//CPU_AddBreakPoint( 0xA4000040 );
 	//CPU_AddBreakPoint( 0xbfc00000 );
-#ifdef DAEDALUS_DEBUG_CONSOLE
-	CDebugConsole::Get()->UpdateDisplay();
-#endif
 }
 
 //*****************************************************************************
