@@ -308,14 +308,14 @@ bool RomBuffer::Open()
 //*****************************************************************************
 void	RomBuffer::Close()
 {
-	if( sRomFixed )
+	if (spRomData)
 	{
 		CROMFileMemory::Get()->Free( spRomData );
 		spRomData = NULL;
 	}
-	else
+
+	if (spRomFileCache)
 	{
-		DAEDALUS_ASSERT( spRomFileCache != NULL, "How come we have no file cache?" );
 		spRomFileCache->Close();
 		delete spRomFileCache;
 		spRomFileCache = NULL;
