@@ -42,19 +42,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //	savestate format, which is partially documented here: http://www.hcs64.com/usf/usf.txt
 //
 
-//*************************************************************************************
-//
-//*************************************************************************************
-class SaveState_ostream
+const u32 SAVESTATE_PROJECT64_MAGIC_NUMBER = 0x23D8A6C8;
+
+class SaveState_ostream_gzip
 {
 public:
-	virtual ~SaveState_ostream() {}
-
-	virtual void skip(size_t size) = 0;
-	virtual void write(const void* data, size_t size) = 0;
+	SaveState_ostream_gzip( const char * filename )
+		: mStream( filename )
+	{
+	}
 
 	template<typename T>
-	inline SaveState_ostream& operator << (const T& data)
+	inline SaveState_ostream_gzip& operator << (const T& data)
 	{
 		write(&data, sizeof(T));
 		return *this;
@@ -74,26 +73,13 @@ public:
 		if(size > MemoryRegionSizes[buffernum])
 			skip(size - MemoryRegionSizes[buffernum]);
 	}
-};
-
-class SaveState_ostream_gzip : public SaveState_ostream
-{
-public:
-	SaveState_ostream_gzip( const char * filename )
-		: mStream( filename )
-	{
-	}
-
-	~SaveState_ostream_gzip()
-	{
-	}
 
 	bool IsValid() const
 	{
 		return mStream.IsOpen();
 	}
 
-	virtual void skip( size_t size )
+	void skip( size_t size )
 	{
 		const size_t	MAX_ZEROES = 512;
 		char			zeroes[ MAX_ZEROES ];
@@ -113,33 +99,37 @@ public:
 		}
 	}
 
-	virtual void write( const void * data, size_t size )
+	size_t write( const void * data, size_t size )
 	{
-		if( mStream.IsOpen() )
-		{
-			mStream.WriteData( data, size );
-		}
+		if( mStream.WriteData( data, size ))
+			return size;
+
+		return 0;
 	}
 
 private:
 	Zlib::COutStream		mStream;
 };
 
-//*************************************************************************************
-//
-//*************************************************************************************
-class SaveState_istream
+class SaveState_istream_gzip
 {
 public:
-	virtual ~SaveState_istream() {}
+	explicit SaveState_istream_gzip( const char * filename )
+		: mStream( filename )
+	{}
 
-	virtual void skip(size_t size) = 0;
-	virtual void read(void* data, size_t size) = 0;
+	inline bool IsValid() const
+	{
+		return mStream.IsOpen();
+	}
 
 	template<typename T>
-	inline SaveState_istream& operator >> (T& data)
+	inline SaveState_istream_gzip& operator >> (T& data)
 	{
-		read(&data, sizeof(T));
+		if (read(&data, sizeof(data)) != sizeof(data))
+		{
+			memset(&data, 0, sizeof(data));
+		}
 		return *this;
 	}
 
@@ -167,30 +157,7 @@ public:
 		}
 	}
 
-};
-
-
-
-//*************************************************************************************
-//
-//*************************************************************************************
-class SaveState_istream_gzip : public SaveState_istream
-{
-public:
-	SaveState_istream_gzip( const char * filename )
-		: mStream( filename )
-	{}
-
-	~SaveState_istream_gzip()
-	{
-	}
-
-	bool IsValid() const
-	{
-		return mStream.IsOpen();
-	}
-
-	virtual void skip( size_t size )
+	void skip( size_t size )
 	{
 		if( mStream.IsOpen() )
 		{
@@ -210,29 +177,19 @@ public:
 		}
 	}
 
-	virtual void read(void* data, size_t size)
+	size_t read(void* data, size_t size)
 	{
-		if( mStream.IsOpen() )
-		{
-			if( !mStream.ReadData( data, size ) )
-			{
-				// Error handling!
-			}
-		}
+		if( mStream.ReadData( data, size ) )
+			return size;
+
+		return 0;
 	}
 
 private:
 	Zlib::CInStream			mStream;
 };
 
-//*************************************************************************************
-//
-//*************************************************************************************
-const u32 SAVESTATE_PROJECT64_MAGIC_NUMBER = 0x23D8A6C8;
 
-//*************************************************************************************
-//
-//*************************************************************************************
 bool SaveState_SaveToFile( const char * filename )
 {
 	SaveState_ostream_gzip stream( filename );
@@ -295,12 +252,10 @@ bool SaveState_SaveToFile( const char * filename )
 	stream.write_memory_buffer(MEM_SP_MEM);
 	return true;
 }
-//*************************************************************************************
-//
-//*************************************************************************************
+
 // In revision >=715 we were byte swapping PIF RAM in a temp buffer, this broke compatibility with PJ64 saves
 // Now that is fixed this been added for compatibility reasons for any ss created within those revs..
-void Swap_PIF()
+static void Swap_PIF()
 {
 	u8 * pPIFRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
 
@@ -319,9 +274,6 @@ void Swap_PIF()
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 bool SaveState_LoadFromFile( const char * filename )
 {
 	SaveState_istream_gzip stream( filename );
@@ -447,9 +399,6 @@ bool SaveState_LoadFromFile( const char * filename )
 	return true;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 RomID SaveState_GetRomID( const char * filename )
 {
 	SaveState_istream_gzip stream( filename );
@@ -472,9 +421,6 @@ RomID SaveState_GetRomID( const char * filename )
 	return RomID( rom_header.CRC1, rom_header.CRC2, rom_header.CountryID );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 const char* SaveState_GetRom( const char * filename )
 {
 	SaveState_istream_gzip stream( filename );
