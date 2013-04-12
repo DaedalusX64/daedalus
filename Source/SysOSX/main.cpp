@@ -24,9 +24,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/CPU.h"
 #include "Utility/IO.h"
 #include "Test/BatchTest.h"
+#include "Interface/RomDB.h"
 
 #ifdef DAEDALUS_LINUX
-#include "linux/limits.h"
+#include <linux/limits.h>
 #endif
 
 char		gDaedalusExePath[MAX_PATH+1];
@@ -75,6 +76,19 @@ int main(int argc, char **argv)
 				{
 					batch_test = true;
 					break;
+				}
+				else if (strcmp( arg, "-roms" ) == 0 )
+				{
+					if (i+1 < argc)
+					{
+						const char * relative_path = argv[i+1];
+						++i;
+
+						IO::Path::PathBuf	dir;
+						realpath(relative_path, dir);
+
+						CRomDB::Get()->AddRomDirectory(dir);
+					}
 				}
 			}
 			else
