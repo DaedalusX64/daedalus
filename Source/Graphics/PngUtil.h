@@ -29,4 +29,6 @@ void PngSaveImage( const char* filename, const void * data, const void * palette
 void PngSaveImage( DataSink * sink, const void * data, const void * palette, ETextureFormat pixelformat, s32 pitch, u32 width, u32 height, bool use_alpha );
 void PngSaveImage( DataSink * sink, const CNativeTexture * texture );
 
+void FlattenTexture(const CNativeTexture * texture, void * dst, size_t len);
+
 #endif // PNGUTIL_H__

@@ -184,3 +184,33 @@ void PngSaveImage( DataSink * sink, const CNativeTexture * texture )
 		texture->GetWidth(), texture->GetHeight(), true );
 }
 
+// Utility function to flatten a native texture into an array of NativePf8888 values.
+// Should live elsewhere, but need to share WritePngRow.
+void FlattenTexture(const CNativeTexture * texture, void * dst, size_t len)
+{
+	const u8 *           p       = reinterpret_cast< const u8 * >( texture->GetData() );
+	const NativePf8888 * pal8888 = reinterpret_cast< const NativePf8888 * >( texture->GetPalette() );
+
+	u32 width  = texture->GetWidth();
+	u32 height = texture->GetHeight();
+	u32 pitch  = texture->GetStride();
+
+	DAEDALUS_ASSERT(len == width * sizeof(NativePf8888) * height, "Unexpected number of bytes.");
+
+	u8 * line = static_cast<u8 *>( dst );
+	for ( u32 y = 0; y < height; y++ )
+	{
+		switch (texture->GetFormat())
+		{
+		case TexFmt_5650:		WritePngRow< NativePf5650 >( line, p, width );	break;
+		case TexFmt_5551:		WritePngRow< NativePf5551 >( line, p, width );	break;
+		case TexFmt_4444:		WritePngRow< NativePf4444 >( line, p, width );	break;
+		case TexFmt_8888:		WritePngRow< NativePf8888 >( line, p, width );	break;
+		case TexFmt_CI4_8888:	WritePngRowPal4( line, p, width, pal8888 );		break;
+		case TexFmt_CI8_8888:	WritePngRowPal8( line, p, width, pal8888 );		break;
+		}
+
+		p    += pitch;
+		line += width * sizeof(NativePf8888);
+	}
+}
