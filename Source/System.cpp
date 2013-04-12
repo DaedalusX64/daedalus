@@ -54,21 +54,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Plugins/GraphicsPlugin.h"
 #include "Plugins/AudioPlugin.h"
 
-typedef struct
-{
-	const char *name;
-	bool (*init)();
-	void (*final)();
-}SysEntityEntry;
-
-typedef struct
-{
-	const char *name;
-	void (*open)();
-	void (*close)();
-}RomEntityEntry;
-
-
 CGraphicsPlugin * gGraphicsPlugin   = NULL;
 CAudioPlugin	* g_pAiPlugin		= NULL;
 
@@ -127,8 +112,14 @@ static void DisposeAudioPlugin()
 	}
 }
 
+struct SysEntityEntry
+{
+	const char *name;
+	bool (*init)();
+	void (*final)();
+};
 
-SysEntityEntry SysInitTable[] =
+static const SysEntityEntry gSysInitTable[] =
 {
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	{"DebugConsole",		CDebugConsole::Create,		CDebugConsole::Destroy},
@@ -164,14 +155,21 @@ SysEntityEntry SysInitTable[] =
 #endif
 };
 
-RomEntityEntry RomInitTable[] =
+struct RomEntityEntry
+{
+	const char *name;
+	void (*open)();
+	void (*close)();
+};
+
+static const RomEntityEntry gRomInitTable[] =
 {
 	{"RomBuffer",			RomBuffer::Open, 		RomBuffer::Close},
 	{"Settings",			ROM_LoadFile,			ROM_UnloadFile},
 	{"InputManager",		CInputManager::Init,	CInputManager::Fini},
 	{"Memory",				Memory_Reset,			Memory_Cleanup},
 
-	{"Audio",				InitAudioPlugin,		DisposeAudioPlugin },
+	{"Audio",				InitAudioPlugin,		DisposeAudioPlugin},
 	{"Graphics",			InitGraphicsPlugin,		DisposeGraphicsPlugin},
 	{"FramerateLimiter",	FramerateLimiter_Reset,	NULL},
 	//{"RSP", RSP_Reset, NULL},
@@ -186,18 +184,20 @@ RomEntityEntry RomInitTable[] =
 
 bool System_Init()
 {
-	for(u32 i = 0; i < ARRAYSIZE(SysInitTable); i++)
+	for(u32 i = 0; i < ARRAYSIZE(gSysInitTable); i++)
 	{
-		if (SysInitTable[i].init == NULL)
+		const SysEntityEntry & entry = gSysInitTable[i];
+
+		if (entry.init == NULL)
 			continue;
 
-		if (SysInitTable[i].init())
+		if (entry.init())
 		{
-			DBGConsole_Msg(0, "==>Initialized %s", SysInitTable[i].name);
+			DBGConsole_Msg(0, "==>Initialized %s", entry.name);
 		}
 		else
 		{
-			DBGConsole_Msg(0, "==>Initialize %s Failed", SysInitTable[i].name);
+			DBGConsole_Msg(0, "==>Initialize %s Failed", entry.name);
 			return false;
 		}
 	}
@@ -205,40 +205,46 @@ bool System_Init()
 	return true;
 }
 
-void System_Open(const char *romname)
+void System_Open(const char * filename)
 {
-	strcpy(g_ROM.szFileName, romname);
-	for(u32 i = 0; i < ARRAYSIZE(RomInitTable); i++)
+	strcpy(g_ROM.szFileName, filename);
+	for(u32 i = 0; i < ARRAYSIZE(gRomInitTable); i++)
 	{
-		if (RomInitTable[i].open == NULL)
+		const RomEntityEntry & entry = gRomInitTable[i];
+
+		if (entry.open == NULL)
 			continue;
 
-		DBGConsole_Msg(0, "==>Open %s", RomInitTable[i].name);
-		RomInitTable[i].open();
+		DBGConsole_Msg(0, "==>Open %s", entry.name);
+		entry.open();
 	}
 }
 
 void System_Close()
 {
-	for(s32 i = ARRAYSIZE(RomInitTable) - 1 ; i >= 0; i--)
+	for(s32 i = ARRAYSIZE(gRomInitTable) - 1 ; i >= 0; i--)
 	{
-		if (RomInitTable[i].close == NULL)
+		const RomEntityEntry & entry = gRomInitTable[i];
+
+		if (entry.close == NULL)
 			continue;
 
-		DBGConsole_Msg(0, "==>Close %s", RomInitTable[i].name);
-		RomInitTable[i].close();
+		DBGConsole_Msg(0, "==>Close %s", entry.name);
+		entry.close();
 	}
 }
 
 void System_Finalize()
 {
-	for(s32 i = ARRAYSIZE(SysInitTable) - 1; i >= 0; i--)
+	for(s32 i = ARRAYSIZE(gSysInitTable) - 1; i >= 0; i--)
 	{
-		if (SysInitTable[i].final == NULL)
+		const SysEntityEntry & entry = gSysInitTable[i];
+
+		if (entry.final == NULL)
 			continue;
 
-		DBGConsole_Msg(0, "==>Finalize %s", SysInitTable[i].name);
-		SysInitTable[i].final();
+		DBGConsole_Msg(0, "==>Finalize %s", entry.name);
+		entry.final();
 	}
 }
 
