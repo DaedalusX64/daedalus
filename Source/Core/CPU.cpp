@@ -58,10 +58,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "OSHLE/ultra_R4300.h"
 
-
 #include <algorithm>
 #include <string>
 
+#ifdef DAEDALUS_GL
+#include "SysGL/GL.h"
+#endif
 
 //
 //	New dynarec engine
@@ -437,7 +439,7 @@ static bool	CPU_IsStateSimple()
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	CPU_SaveState( const char * filename )
+bool CPU_SaveState( const char * filename )
 {
 	MutexLock lock( &gSaveStateMutex );
 
@@ -473,7 +475,7 @@ bool	CPU_SaveState( const char * filename )
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	CPU_LoadState( const char * filename )
+bool CPU_LoadState( const char * filename )
 {
 	MutexLock lock( &gSaveStateMutex );
 
@@ -625,6 +627,35 @@ void CPU_StopThread()
 //*****************************************************************************
 static void HandleSaveStateOperation()
 {
+#ifdef DAEDALUS_GL
+	// Debounce keys
+	static bool save_was_pressed = false;
+	static bool load_was_pressed = false;
+
+	bool save_pressed = glfwGetKey( GLFW_KEY_F9 );
+	bool load_pressed = glfwGetKey( GLFW_KEY_F8 );
+
+	if (save_pressed && !save_was_pressed)
+	{
+		IO::Path::PathBuf filename;
+		IO::Path::Combine(filename, gDaedalusExePath, "quick.save");
+		CPU_SaveState(filename);
+	}
+	if (load_pressed && !load_was_pressed)
+	{
+		printf("loading\n");
+		IO::Path::PathBuf filename;
+		IO::Path::Combine(filename, gDaedalusExePath, "quick.save");
+		CPU_LoadState(filename);
+	}
+
+	save_was_pressed = save_pressed;
+	load_was_pressed = load_pressed;
+#endif
+
+	if( gSaveStateOperation == SSO_NONE )
+		return;
+
 	MutexLock lock( &gSaveStateMutex );
 
 	//
@@ -817,10 +848,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			if ((gVerticalInterrupts & 0x3F) == 0) // once every 60 VBLs
 				Save::Flush();
 			//Same here?
-			if( gSaveStateOperation != SSO_NONE )
-			{
-				HandleSaveStateOperation();
-			}
+			HandleSaveStateOperation();
 
 #ifdef DAEDALUS_BATCH_TEST_ENABLED
 			CBatchTestEventHandler * handler( BatchTest_GetHandler() );
