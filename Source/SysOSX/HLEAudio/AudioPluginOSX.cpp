@@ -80,7 +80,6 @@ public:
 	virtual void			LenChanged();
 	virtual u32				ReadLength()			{ return 0; }
 	virtual EProcessResult	ProcessAList();
-	virtual void			RomClosed();
 
 	void					AddBuffer(void * ptr, u32 length);	// Uploads a new buffer and returns status
 
@@ -123,11 +122,6 @@ bool AudioPluginOSX::StartEmulation()
 void AudioPluginOSX::StopEmulation()
 {
 	Audio_Reset();
-	StopAudio();
-}
-
-void AudioPluginOSX::RomClosed()
-{
 	StopAudio();
 }
 
