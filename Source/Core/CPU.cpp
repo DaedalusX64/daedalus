@@ -419,6 +419,11 @@ static bool	CPU_IsStateSimple()
 //*****************************************************************************
 bool CPU_SaveState( const char * filename )
 {
+	if (!gCPURunning)
+	{
+		return SaveState_SaveToFile( filename );
+	}
+
 	MutexLock lock( &gSaveStateMutex );
 
 	// Abort if already in the process of loading/saving
@@ -427,16 +432,11 @@ bool CPU_SaveState( const char * filename )
 		return false;
 	}
 
-	if( gCPURunning )
-	{
-		gSaveStateOperation = SSO_SAVE;
-		gSaveStateFilename = filename;
-		gCPUState.AddJob(CPU_CHANGE_CORE);
+	gSaveStateOperation = SSO_SAVE;
+	gSaveStateFilename = filename;
+	gCPUState.AddJob(CPU_CHANGE_CORE);
 
-		return true;
-	}
-
-	return SaveState_SaveToFile( filename );
+	return true;
 }
 
 
@@ -445,6 +445,11 @@ bool CPU_SaveState( const char * filename )
 //*****************************************************************************
 bool CPU_LoadState( const char * filename )
 {
+	if (!gCPURunning)
+	{
+		return SaveState_LoadFromFile(filename);
+	}
+
 	MutexLock lock( &gSaveStateMutex );
 
 	// Abort if already in the process of loading/saving
@@ -453,16 +458,11 @@ bool CPU_LoadState( const char * filename )
 		return false;
 	}
 
-	if( gCPURunning )
-	{
-		gSaveStateOperation = SSO_LOAD;
-		gSaveStateFilename = filename;
-		gCPUState.AddJob(CPU_CHANGE_CORE);
+	gSaveStateOperation = SSO_LOAD;
+	gSaveStateFilename = filename;
+	gCPUState.AddJob(CPU_CHANGE_CORE);
 
-		return true;	// XXXX could fail
-	}
-
-	return SaveState_LoadFromFile(filename);
+	return true;	// XXXX could fail
 }
 
 //*****************************************************************************
