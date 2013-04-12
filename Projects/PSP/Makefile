@@ -279,7 +279,7 @@ psplink: $(PSP_EBOOT) $(TARGET).elf
 	prxtool -y $(TARGET).elf > $(BUILDS_DX_DIR)/$(TARGET).sym
 
 #Need to create dirs one by one because windows can't use mkdir -p
-install: $(PSP_EBOOT) $(TARGET).prx dvemgr.prx exception.prx mediaengine.prx kernelbuttons.prx $(TARGET).elf
+install: $(PSP_EBOOT) $(TARGET).prx dvemgr.prx exception.prx mediaengine.prx imposectrl.prx $(TARGET).elf
 	-mkdir "$(BUILDS_DIR)"
 	-mkdir "$(BUILDS_PSP_DIR)"
 	-mkdir "$(BUILDS_GAME_DIR)"
@@ -292,7 +292,7 @@ install: $(PSP_EBOOT) $(TARGET).prx dvemgr.prx exception.prx mediaengine.prx ker
 #be carefull of probably already compiled files with old rev number
 TMP_BASE_DIR=tmp_build
 TMP_DX_DIR:=$(TMP_BASE_DIR)/PSP/GAME/DaedalusX64_$(VERSION)/
-zip: $(PSP_EBOOT) dvemgr.prx mediaengine.prx exception.prx kernelbuttons.prx
+zip: $(PSP_EBOOT) dvemgr.prx mediaengine.prx exception.prx imposectrl.prx
 	-mkdir tarballs 2> /dev/null
 	-mkdir -p $(TMP_DX_DIR) 2> /dev/null
 	cp $^ $(TMP_DX_DIR)
