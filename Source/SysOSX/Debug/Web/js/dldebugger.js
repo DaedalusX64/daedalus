@@ -34,6 +34,8 @@
           var $pre = $('<pre />');
           $pre.html(ret);
           $dlistOutput.html($pre);
+
+          // FIXME: setScrubTime here? At least need to set position.
         });
       });
     });
@@ -383,18 +385,59 @@
     return 'G_TX_WRAP';
   }
 
+  function buildTexture(tile_idx) {
+    var tile = state.tiles[tile_idx];
+    if (tile && tile.texture && tile.texture.data && tile.texture.width > 0 && tile.texture.height > 0) {
+      // Copy + scale texture data.
+      var scale = 8;
+      var w = tile.texture.width  * scale;
+      var h = tile.texture.height * scale;
+      var $canvas = $( '<canvas width="' + w + '" height="' + h + '" style="background-color: black" />', {'width':w, 'height':h} );
+      var dst_ctx = $canvas[0].getContext('2d');
+
+      var dst_img_data = dst_ctx.createImageData(w, h);
+
+      var src            = Base64.decodeArray(tile.texture.data);
+      var dst            = dst_img_data.data;
+      var src_row_stride = tile.texture.width*4;
+      var dst_row_stride = dst_img_data.width*4;
+
+      // Repeat last pixel across all lines
+      var x;
+      var y;
+      for (y = 0; y < h; ++y) {
+
+        var src_offset = src_row_stride * Math.floor(y/scale);
+        var dst_offset = dst_row_stride * y;
+
+        for (x = 0; x < w; ++x) {
+          var o = src_offset + Math.floor(x/scale)*4;
+          dst[dst_offset+0] = src[o+0];
+          dst[dst_offset+1] = src[o+1];
+          dst[dst_offset+2] = src[o+2];
+          dst[dst_offset+3] = src[o+3];
+          dst_offset += 4;
+        }
+      }
+
+      dst_ctx.putImageData(dst_img_data, 0, 0);
+
+      return $canvas;
+    }
+  }
+
   function buildTexturesTab() {
     var $d = $('<div />');
 
     $d.append(buildTilesTable());
 
-    // var i, $t;
-    // for (i = 0; i < 8; ++i) {
-    //   $t = buildTexture(i);
-    //   if ($t) {
-    //     $d.append($t);
-    //   }
-    // }
+    var i, $t;
+    for (i = 0; i < 8; ++i) {
+      $t = buildTexture(i);
+      if ($t) {
+        $d.append($t);
+      }
+    }
 
     return $d;
   }
@@ -620,6 +663,46 @@
 
       return decoded;
   }
+
+
+  var Base64 = {
+    lookup : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+    decodeArray : function (str) {
+      if ((str.length % 4) !== 0)
+        throw 'Length should be multiple of 4 bytes';
+      var outl = (str.length / 4) * 3;
+      if (str.charAt(str.length-1) === '=') outl--;
+      if (str.charAt(str.length-2) === '=') outl--;
+
+      var arr = new Uint8Array(outl);
+      var outi = 0;
+
+      var i;
+      for (i = 0; i < str.length; i += 4) {
+        var a = this.lookup.indexOf(str.charAt(i+0));
+        var b = this.lookup.indexOf(str.charAt(i+1));
+        var c = this.lookup.indexOf(str.charAt(i+2));
+        var d = this.lookup.indexOf(str.charAt(i+3));
+
+        var c0 = (a << 2) | (b >>> 4);
+        var c1 = ((b & 15) << 4) | (c >>> 2);
+        var c2 = ((c & 3) << 6) | d;
+
+        arr[outi++] = c0;
+        if (c !== 64) {
+          arr[outi++] = c1;
+        }
+        if (d !== 64) {
+          arr[outi++] = c2;
+        }
+      }
+
+      if (outi != outl)
+        throw "Didn't decode the correct number of bytes";
+
+      return arr;
+    }
+  };
 
 
   function padString(v,len) {

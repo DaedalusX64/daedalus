@@ -7,6 +7,7 @@
 #include "SysOSX/Debug/WebDebugTemplate.h"
 
 #include "Graphics/GraphicsContext.h"
+#include "Graphics/NativeTexture.h"
 #include "Graphics/PngUtil.h"
 
 #include "HLEGraphics/BaseRenderer.h"
@@ -14,6 +15,7 @@
 #include "HLEGraphics/DLParser.h"
 #include "HLEGraphics/RDP.h"
 #include "HLEGraphics/RDPStateManager.h"
+#include "HLEGraphics/TextureCache.h"
 
 #include "Utility/StringUtil.h"
 #include "Utility/Thread.h"
@@ -41,6 +43,50 @@ static WebDebugConnection * gActiveConnection = NULL;
 static DebugTask			gDebugTask        = kTaskUndefined;
 static u32					gInstructionCountLimit = kUnlimitedInstructionCount;
 
+static void Base64Encode(const void * data, size_t len, DataSink * sink)
+{
+	const char * table = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+	const u8 * b = static_cast<const u8 *>(data);
+	const u8 * e = b + len;
+
+	size_t out_len = ((len+2)/3) * 4;
+	char * buffer = static_cast<char *>(malloc( out_len ));
+	char * dst = buffer;
+
+	const u8 * src = b;
+	for ( ; src + 2 < e; src += 3)
+	{
+		u32 v = (src[0] << 16) | (src[1] << 8) | src[2];
+
+		dst[0] = table[(v >> 18) & 0x3f];
+		dst[1] = table[(v >> 12) & 0x3f];
+		dst[2] = table[(v >>  6) & 0x3f];
+		dst[3] = table[(v >>  0) & 0x3f];
+
+		dst += 4;
+	}
+
+	if (src < e)
+	{
+		u32 c0 = src[0];
+		u32 c1 = src+1 < e ? src[1] : 0;
+		u32 c2 = src+2 < e ? src[2] : 0;
+
+		u32 v = (c0 << 16) | (c1 << 8) | c2;
+
+		dst[0] =             table[(v >> 18) & 0x3f];
+		dst[1] =             table[(v >> 12) & 0x3f];
+		dst[2] = src+1 < e ? table[(v >>  6) & 0x3f] : '=';
+		dst[3] = src+2 < e ? table[(v >>  0) & 0x3f] : '=';
+
+		dst += 4;
+	}
+
+	DAEDALUS_ASSERT(dst == buffer+out_len, "Oops");
+	sink->Write(buffer, out_len);
+	free(buffer);
+}
 
 class HTMLDebugOutput : public DLDebugOutput
 {
@@ -78,6 +124,20 @@ bool DLDebugger_IsDebugging()
 void DLDebugger_RequestDebug()
 {
 	gDebugging = true;
+}
+
+
+static void EncodeTexture(const CNativeTexture * texture, DataSink * sink)
+{
+	u32 width  = texture->GetWidth();
+	u32 height = texture->GetHeight();
+	size_t num_bytes = width * 4 * height;
+	u8 * bytes = static_cast<u8 * >(malloc(num_bytes));
+
+	FlattenTexture(texture, bytes, num_bytes);
+
+	Base64Encode(bytes, num_bytes, sink);
+	free(bytes);
 }
 
 void DLDebugger_ProcessDebugTask()
@@ -158,7 +218,34 @@ void DLDebugger_ProcessDebugTask()
 					connection->WriteF("\t\t\"left\": %d,\n",     tile_size.left);
 					connection->WriteF("\t\t\"top\": %d,\n",      tile_size.top);
 					connection->WriteF("\t\t\"right\": %d,\n",    tile_size.right);
-					connection->WriteF("\t\t\"bottom\": %d\n",    tile_size.bottom);
+					connection->WriteF("\t\t\"bottom\": %d,\n",   tile_size.bottom);
+
+					bool wrote_data = false;
+					if ((tile.format != 0 || tile.size != 0) &&
+						tile_size.GetWidth() > 0 &&
+						tile_size.GetHeight() > 0)
+					{
+						const TextureInfo &  ti = gRDPStateManager.GetUpdatedTextureDescriptor(i);
+						CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture(ti);
+						if (texture)
+						{
+							connection->WriteString("\t\t\"texture\": {\n");
+							connection->WriteF("\t\t\t\"width\": %d,\n", texture->GetWidth());
+							connection->WriteF("\t\t\t\"height\": %d,\n", texture->GetHeight());
+							connection->WriteString("\t\t\t\"data\": \"");
+							EncodeTexture(texture, connection);
+							connection->WriteString("\"\n");
+							connection->WriteString("\t\t}\n");
+							wrote_data = true;
+						}
+					}
+
+					if (!wrote_data)
+					{
+						connection->WriteString("\t\t\"texture\": {}\n");
+					}
+
+
 					connection->WriteString("\t}");
 				}
 				connection->WriteString("]");
