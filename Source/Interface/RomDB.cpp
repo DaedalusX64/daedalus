@@ -366,6 +366,7 @@ void IRomDB::AddRomEntry( const char * filename, const RomID & id, u32 rom_size,
 
 void IRomDB::AddRomDirectory(const char * directory)
 {
+	DBGConsole_Msg(0, "Adding roms directory [C%s]", directory);
 	std::string			full_path;
 
 	IO::FindHandleT		find_handle;
