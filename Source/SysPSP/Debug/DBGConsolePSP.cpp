@@ -22,104 +22,35 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_DEBUG_CONSOLE
 
-#include "Graphics/ColourValue.h"
-
+#include "Debug/DebugConsoleImpl.h"
 #include "Test/BatchTest.h"
 
-#include <pspdebug.h>
 #include <stdarg.h>
 
-#define DAEDALUS_USETERMINAL
+static const char * const kTerminalSaveCursor			= "\033[s";
+static const char * const kTerminalRestoreCursor		= "\033[u";
+static const char * const kTerminalEraseLine			= "\033[2K";
 
-static bool gEchoDebugToScreen = false;
 
 class IDebugConsole : public CDebugConsole
 {
-	public:
-		IDebugConsole();
-		virtual ~IDebugConsole();
+public:
+	virtual void		Msg(u32 type, const char * format, ...);
 
-		void DAEDALUS_VARARG_CALL_TYPE	Msg(u32 type, const char * szFormat, ...);
-
-		void							MsgOverwriteStart();
-		void DAEDALUS_VARARG_CALL_TYPE	MsgOverwrite(u32 type, const char * szFormat, ...);
-		void							MsgOverwriteEnd();
+	virtual void		MsgOverwriteStart();
+	virtual void		MsgOverwrite(u32 type, const char * format, ...);
+	virtual void		MsgOverwriteEnd();
 
 private:
-			enum	ETerminalColour
-			{
-				TC_DEFAULT = 0,
-				TC_r, TC_g, TC_y, TC_b, TC_m, TC_c, TC_w,
-				TC_R, TC_G, TC_Y, TC_B, TC_M, TC_C, TC_W,
-				TC_INVALID,
-				NUM_TERMINAL_COLOURS,
-			};
+	void				ParseAndDisplayString( const char * p_string, ETerminalColour default_colour );
 
-	static ETerminalColour		GetTerminalColour( char c );
+	void				DisplayString( const char * p_string );
+	void				SetCurrentTerminalColour( ETerminalColour tc );
 
-			void				ParseAndDisplayString( const char * p_string, ETerminalColour default_colour );
 
-			void				DisplayString( const char * p_string );
-			void				SetCurrentTerminalColour( ETerminalColour tc );
-private:
-			u32					mCurrentY;
-
-	static	const char * const	mTerminalColours[NUM_TERMINAL_COLOURS];
-	static	const c32			mScreenColours[NUM_TERMINAL_COLOURS];
-	static	char				mFormattingBuffer[ 2048 ];
-
+	char				mFormattingBuffer[ 2048 ];
 };
 
-//*****************************************************************************
-//
-//*****************************************************************************
-
-const char * const IDebugConsole::mTerminalColours[NUM_TERMINAL_COLOURS] =
-{
-	"",		// TC_DEFAULT
-	"\033[0;31m", "\033[0;32m", "\033[0;33m", "\033[0;34m", "\033[0;35m", "\033[0;36m", "\033[0;37m",
-	"\033[1;31m", "\033[1;32m", "\033[1;33m", "\033[1;34m", "\033[1;35m", "\033[1;36m", "\033[1;37m",
-	"",		// TC_INVALID
-};
-
-namespace
-{
-	const u8 NORMAL = 200;
-	const u8 BRIGHT = 255;
-	const char * const TERMINAL_SAVE_CURSOR			= "\033[s";
-	const char * const TERMINAL_RESTORE_CURSOR		= "\033[u";
-	const char * const TERMINAL_ERASE_LINE			= "\033[2K";
-}
-
-const c32 IDebugConsole::mScreenColours[NUM_TERMINAL_COLOURS] =
-{
-	c32( 0, 0, 0 ),		// TC_DEFAULT
-	c32( NORMAL, 0, 0 ),
-	c32( 0, NORMAL, 0 ),
-	c32( NORMAL, NORMAL, 0 ),
-	c32( 0, 0, NORMAL ),
-	c32( NORMAL, 0, NORMAL ),
-	c32( 0, NORMAL, NORMAL ),
-	c32( NORMAL, NORMAL, NORMAL ),
-	c32( BRIGHT, 0, 0 ),
-	c32( 0, BRIGHT, 0 ),
-	c32( BRIGHT, BRIGHT, 0 ),
-	c32( 0, 0, BRIGHT ),
-	c32( BRIGHT, 0, BRIGHT ),
-	c32( 0, BRIGHT, BRIGHT ),
-	c32( BRIGHT, BRIGHT, BRIGHT ),
-	c32( 0, 0, 0 ),		// TC_INVALID
-};
-
-
-//*****************************************************************************
-//
-//*****************************************************************************
-char	IDebugConsole::mFormattingBuffer[ 2048 ];
-
-//*****************************************************************************
-//
-//*****************************************************************************
 template<> bool	CSingleton< CDebugConsole >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
@@ -129,23 +60,12 @@ template<> bool	CSingleton< CDebugConsole >::Create()
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 CDebugConsole::~CDebugConsole()
 {
-
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	IDebugConsole::DisplayString( const char * p_string )
+void IDebugConsole::DisplayString( const char * p_string )
 {
-	if( gEchoDebugToScreen )
-	{
-		pspDebugScreenPrintf( "%s", p_string );
-	}
 	printf( "%s", p_string );
 
 #ifdef DAEDALUS_BATCH_TEST_ENABLED
@@ -156,49 +76,11 @@ void	IDebugConsole::DisplayString( const char * p_string )
 
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	IDebugConsole::SetCurrentTerminalColour( ETerminalColour tc )
+void IDebugConsole::SetCurrentTerminalColour( ETerminalColour tc )
 {
-	if( gEchoDebugToScreen )
-	{
-		pspDebugScreenSetTextColor( mScreenColours[ tc ].GetColour() );
-	}
-#ifdef DAEDALUS_USETERMINAL
-	printf( mTerminalColours[ tc ] );
-#endif
+	printf( GetTerminalColourString(tc) );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-IDebugConsole::ETerminalColour IDebugConsole::GetTerminalColour(char c)
-{
-	switch(c)
-	{
-		case 'r': return TC_r;
-		case 'g': return TC_g;
-		case 'y': return TC_y;
-		case 'b': return TC_b;
-		case 'm': return TC_m;
-		case 'c': return TC_c;
-		case 'w': return TC_w;
-		case 'R': return TC_R;
-		case 'G': return TC_G;
-		case 'Y': return TC_Y;
-		case 'B': return TC_B;
-		case 'M': return TC_M;
-		case 'C': return TC_C;
-		case 'W': return TC_W;
-		default: return TC_INVALID;
-	}
-}
-
-
-//*****************************************************************************
-//
-//*****************************************************************************
 void IDebugConsole::ParseAndDisplayString( const char * p_string, ETerminalColour default_colour )
 {
 	SetCurrentTerminalColour( default_colour );
@@ -256,79 +138,43 @@ void IDebugConsole::ParseAndDisplayString( const char * p_string, ETerminalColou
 	SetCurrentTerminalColour( TC_DEFAULT );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-IDebugConsole::IDebugConsole()
-:	mCurrentY( 0 )
-{
-	pspDebugScreenSetXY(0, 0);
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-IDebugConsole::~IDebugConsole()
-{
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void DAEDALUS_VARARG_CALL_TYPE	IDebugConsole::Msg(u32 type, const char * szFormat, ...)
+void IDebugConsole::Msg(u32 type, const char * format, ...)
 {
 	va_list			va;
 
 	// Format the output
-	va_start( va, szFormat );
+	va_start( va, format );
 	// Don't use wvsprintf as it doesn't handle floats!
-	vsprintf( mFormattingBuffer, szFormat, va );
+	vsprintf( mFormattingBuffer, format, va );
 	va_end( va );
 
 	ParseAndDisplayString( mFormattingBuffer, TC_w );
 	DisplayString( "\n" );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	IDebugConsole::MsgOverwriteStart()
+void IDebugConsole::MsgOverwriteStart()
 {
-	mCurrentY = pspDebugScreenGetY();
-	printf( TERMINAL_SAVE_CURSOR );
+	printf( kTerminalSaveCursor );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void DAEDALUS_VARARG_CALL_TYPE	IDebugConsole::MsgOverwrite(u32 type, const char * szFormat, ...)
+void IDebugConsole::MsgOverwrite(u32 type, const char * format, ...)
 {
 	va_list			va;
 
 	// Format the output
-	va_start( va, szFormat );
+	va_start( va, format );
 	// Don't use wvsprintf as it doesn't handle floats!
-	vsprintf( mFormattingBuffer, szFormat, va );
+	vsprintf( mFormattingBuffer, format, va );
 	va_end( va );
 
-	pspDebugScreenSetXY(0, mCurrentY);
-#ifdef DAEDALUS_USETERMINAL
-	printf( "%s%s", TERMINAL_ERASE_LINE, TERMINAL_RESTORE_CURSOR );
-#endif
+	printf( "%s%s", kTerminalEraseLine, kTerminalRestoreCursor );
 
 	ParseAndDisplayString( mFormattingBuffer, TC_w );
-	//DisplayString( "\n" );
-	if( gEchoDebugToScreen )
-	{
-		pspDebugScreenPrintf( "\n" );
-	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	IDebugConsole::MsgOverwriteEnd()
+void IDebugConsole::MsgOverwriteEnd()
 {
 	printf( "\n" );		// Final newline for the terminal
 }
-#endif //DAEDALUS_DEBUG_CONSOLE
+
+#endif // DAEDALUS_DEBUG_CONSOLE

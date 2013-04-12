@@ -34,6 +34,7 @@ CORE_SRCS = \
 	$(SRCDIR)/Core/Save.cpp \
 	$(SRCDIR)/Core/SaveState.cpp \
 	$(SRCDIR)/Core/TLB.cpp \
+	$(SRCDIR)/Debug/DebugConsoleImpl.cpp \
 	$(SRCDIR)/Debug/DebugLog.cpp \
 	$(SRCDIR)/Debug/Dump.cpp \
 	$(SRCDIR)/DynaRec/BranchType.cpp \
