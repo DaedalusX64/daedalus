@@ -47,7 +47,13 @@ template<> bool CSingleton< CGraphicsContext >::Create()
 
 GraphicsContextGL::~GraphicsContextGL()
 {
+	// glew
+
+	glfwCloseWindow();
+
+	glfwTerminate();
 }
+
 extern bool initgl();
 bool GraphicsContextGL::Initialise()
 {
@@ -119,7 +125,6 @@ void GraphicsContextGL::ClearAllSurfaces()
 	// Not sure if it's necessary...
 	ClearToBlack();
 }
-
 
 void GraphicsContextGL::ClearToBlack()
 {

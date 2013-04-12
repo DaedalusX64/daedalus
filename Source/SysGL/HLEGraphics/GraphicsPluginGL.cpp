@@ -180,10 +180,6 @@ void CGraphicsPluginImpl::RomClosed()
 	DLParser_Finalise();
 	CTextureCache::Destroy();
 	DestroyRenderer();
-
-	// Close OpenGL window and terminate GLFW
-	glfwTerminate();
-
 }
 
 class CGraphicsPlugin *	CreateGraphicsPlugin()
