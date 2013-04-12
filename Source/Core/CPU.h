@@ -154,8 +154,6 @@ void	CPU_Finalise();
 void	CPU_Step();
 void	CPU_Skip();
 bool	CPU_Run();
-bool	CPU_StartThread( char * p_failure_reason );
-void	CPU_StopThread();
 bool	CPU_SaveState( const char * filename );
 bool	CPU_LoadState( const char * filename );
 void	CPU_Halt( const char * reason );
@@ -174,7 +172,6 @@ bool	CPU_IsRunning();
 void	CPU_AddEvent( s32 count, ECPUEventType event_type );
 void	CPU_SkipToNextEvent();
 bool	CPU_CheckStuffToDo();
-//void	CPU_WaitFinish();
 
 // For PSP, we just keep running forever. For other platforms we need to bail when the user quits.
 #ifdef DAEDALUS_PSP

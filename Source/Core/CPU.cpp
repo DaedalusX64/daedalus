@@ -116,9 +116,6 @@ const  u32			VI_INTR_CYCLES_INIT = 62500;
 static u32			gVerticalInterrupts( 0 );
 static u32			VI_INTR_CYCLES( VI_INTR_CYCLES_INIT );
 
-static s32				gCPUThreadHandle = kInvalidThreadHandle;
-static volatile bool 	gCPUThreadActive = false;
-
 #ifdef USE_SCRATCH_PAD
 SCPUState *gPtrCPUState = (SCPUState*)0x10000;
 #else
@@ -357,7 +354,6 @@ void CPU_Reset( )
 	gLastAddress = NULL;
 
 	gCPURunning = false;
-	gCPUThreadActive = false;
 	gCPUStopOnSimpleState = false;
 	RESET_EVENT_QUEUE_LOCK();
 
@@ -546,82 +542,6 @@ void CPU_SelectCore()
 	}
 }
 
-#ifdef DAEDALUS_W32
-//*****************************************************************************
-// Thread stuff
-//*****************************************************************************
-static u32 DAEDALUS_THREAD_CALL_TYPE CPUThreadFunc( void * /*arg*/ )
-{
-	CPUMain();
-
-	return 0;
-}
-
-bool CPU_StartThread( char * p_failure_reason )
-{
-	if (!RomBuffer::IsRomLoaded())
-	{
-		DBGConsole_Msg(0, "No ROM is loaded");
-		return false;
-	}
-
-	// If the thread is already running, just return
-	if (gCPUThreadHandle != kInvalidThreadHandle)
-		return true;
-
-	// Attempt to create the thread
-	gCPUThreadHandle = CreateThread( "CPU", CPUThreadFunc, NULL );
-	if (gCPUThreadHandle == kInvalidThreadHandle)
-	{
-		DBGConsole_Msg(0, "Create CPU Thread failed: %s.", p_failure_reason);
-		return false;
-	}
-
-	return true;
-}
-
-void CPU_WaitFinish()
-{
-	if(gCPUThreadHandle != kInvalidThreadHandle)
-	{
-		JoinThread(gCPUThreadHandle, -1);
-	}
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void CPU_StopThread()
-{
-	// If it's not running, just return silently
-	if (gCPUThreadHandle == kInvalidThreadHandle)
-		return;
-
-	// If it is running, we need to signal for it to stop
-	CPU_Halt( "StopThread" );
-	Memory_SP_SetRegister(SP_STATUS_REG, SP_STATUS_HALT);
-	CPU_SelectCore();
-
-	if(gCPUThreadHandle != kInvalidThreadHandle)
-	{
-		// Wait forever for it to finish. It will clear/close gCPUThreadHandle when it exits
-		while(gCPUThreadActive && !JoinThread(gCPUThreadHandle, 1000))
-		{
-			DBGConsole_Msg(0, "Waiting for CPU thread (0x%08x) to finish", gCPUThreadHandle);
-		}
-
-		DAEDALUS_ASSERT( !gCPUThreadActive, "How come the thread is still marked as active?" );
-
-		ReleaseThreadHandle( gCPUThreadHandle );
-		gCPUThreadHandle = kInvalidThreadHandle;
-
-		DBGConsole_Msg(0, "CPU Thread finished");
-		System_Close();
-	}
-
-}
-#endif
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -685,7 +605,6 @@ static void HandleSaveStateOperation()
 void CPUMain()
 {
 	gCPURunning = true;
-	gCPUThreadActive = true;
 	gCPUStopOnSimpleState = false;
 
 	RESET_EVENT_QUEUE_LOCK();
@@ -712,7 +631,6 @@ void CPUMain()
 #endif
 
 	gCPURunning = false;
-	gCPUThreadActive = false;
 
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	// Update the screen. It's probably better handled elsewhere...
