@@ -421,32 +421,22 @@ bool CPU_SaveState( const char * filename )
 {
 	MutexLock lock( &gSaveStateMutex );
 
-	bool	success;
-
-	//
-	//	Abort if already in the process of loading/saving
-	//
+	// Abort if already in the process of loading/saving
 	if( gSaveStateOperation != SSO_NONE )
 	{
-		success = false;
+		return false;
 	}
-	else
+
+	if( gCPURunning )
 	{
-		if( gCPURunning )
-		{
-			gSaveStateOperation = SSO_SAVE;
-			gSaveStateFilename = filename;
-			gCPUState.AddJob(CPU_CHANGE_CORE);
+		gSaveStateOperation = SSO_SAVE;
+		gSaveStateFilename = filename;
+		gCPUState.AddJob(CPU_CHANGE_CORE);
 
-			success = true;
-		}
-		else
-		{
-			success = SaveState_SaveToFile( filename );
-		}
+		return true;
 	}
 
-	return success;
+	return SaveState_SaveToFile( filename );
 }
 
 
@@ -457,33 +447,22 @@ bool CPU_LoadState( const char * filename )
 {
 	MutexLock lock( &gSaveStateMutex );
 
-	bool	success;
-
-	//
-	//	Abort if already in the process of loading/saving
-	//
+	// Abort if already in the process of loading/saving
 	if( gSaveStateOperation != SSO_NONE )
 	{
-		success = false;
+		return false;
 	}
-	else
+
+	if( gCPURunning )
 	{
-		if( gCPURunning )
-		{
-			gSaveStateOperation = SSO_LOAD;
-			gSaveStateFilename = filename;
-			gCPUState.AddJob(CPU_CHANGE_CORE);
+		gSaveStateOperation = SSO_LOAD;
+		gSaveStateFilename = filename;
+		gCPUState.AddJob(CPU_CHANGE_CORE);
 
-			success = true;	// XXXX could fail
-		}
-		else
-		{
-			SaveState_LoadFromFile(filename);
-			success = true;	// XXXX could fail
-		}
+		return true;	// XXXX could fail
 	}
 
-	return success;
+	return SaveState_LoadFromFile(filename);
 }
 
 //*****************************************************************************
