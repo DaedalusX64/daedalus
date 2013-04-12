@@ -335,19 +335,18 @@ void	IPauseOptionsComponent::LoadState()
 void	IPauseOptionsComponent::OnSaveStateSlotSelected( const char * filename )
 {
 	IO::File::Delete( filename ); // Ensure that we're re-creating the file
-	CPU_SaveState( filename );
+	CPU_RequestSaveStateWhenSafe( filename );
 
 	gTakeScreenshot = true;
 	gTakeScreenshotSS = true;
 }
-
 
 //*************************************************************************************
 //
 //*************************************************************************************
 void	IPauseOptionsComponent::OnLoadStateSlotSelected( const char * filename )
 {
-	CPU_LoadState( filename );
+	CPU_RequestLoadState( filename );
 }
 
 //*************************************************************************************

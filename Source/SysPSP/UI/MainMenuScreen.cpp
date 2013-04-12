@@ -358,27 +358,36 @@ void	IMainMenuScreen::OnRomSelected( const char * rom_filename )
 //*************************************************************************************
 void	IMainMenuScreen::OnSavestateSelected( const char * savestate_filename )
 {
-	if (!CPU_IsRunning())
+	// If the CPU is running we need to queue a request to load the state
+	// (and possibly switch roms). Otherwise we just load the rom directly
+	if( CPU_IsRunning() )
 	{
-		const char *romName = SaveState_GetRom(savestate_filename);
-
-		if (romName == NULL)
+		if( CPU_RequestLoadState( savestate_filename ) )
+		{
+			mIsFinished = true;
+		}
+		else
+		{
+			// Should report some kind of error
+		}
+	}
+	else
+	{
+		const char * rom_filename = SaveState_GetRom(savestate_filename);
+		if( rom_filename == NULL )
 		{
 			// report error?
 			return;
 		}
 
-		System_Open(romName);
-		mIsFinished = true;
-	}
+		System_Open(rom_filename);
 
-	if( CPU_LoadState( savestate_filename ) )
-	{
+		if( !SaveState_LoadFromFile( savestate_filename ) )
+		{
+			// Should report some kind of error
+		}
+
 		mIsFinished = true;
-	}
-	else
-	{
-		// Should report some kind of error
 	}
 }
 

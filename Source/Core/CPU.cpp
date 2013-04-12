@@ -439,12 +439,10 @@ void CPU_SelectCore()
 //*****************************************************************************
 //
 //*****************************************************************************
-bool CPU_SaveState( const char * filename )
+bool CPU_RequestSaveState( const char * filename )
 {
-	if (!gCPURunning)
-	{
-		return SaveState_SaveToFile( filename );
-	}
+	// Call SaveState_SaveToFile directly if the CPU is not running.
+	DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");
 
 	MutexLock lock( &gSaveStateMutex );
 
@@ -461,12 +459,10 @@ bool CPU_SaveState( const char * filename )
 	return true;
 }
 
-bool CPU_LoadState( const char * filename )
+bool CPU_RequestLoadState( const char * filename )
 {
-	if (!gCPURunning)
-	{
-		return SaveState_LoadFromFile(filename);
-	}
+	// Call SaveState_SaveToFile directly if the CPU is not running.
+	DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");
 
 	MutexLock lock( &gSaveStateMutex );
 
@@ -483,7 +479,7 @@ bool CPU_LoadState( const char * filename )
 	return true;	// XXXX could fail
 }
 
-static void HandleSaveStateOperation()
+static void HandleSystemKeys()
 {
 #ifdef DAEDALUS_GL
 	// Debounce keys
@@ -497,19 +493,28 @@ static void HandleSaveStateOperation()
 	{
 		IO::Path::PathBuf filename;
 		IO::Path::Combine(filename, gDaedalusExePath, "quick.save");
-		CPU_SaveState(filename);
+		CPU_RequestSaveState(filename);
 	}
 	if (load_pressed && !load_was_pressed)
 	{
-		printf("loading\n");
 		IO::Path::PathBuf filename;
 		IO::Path::Combine(filename, gDaedalusExePath, "quick.save");
-		CPU_LoadState(filename);
+		CPU_RequestLoadState(filename);
+	}
+
+	if (glfwGetKey(GLFW_KEY_ESC))
+	{
+		CPU_Halt("Escape");
 	}
 
 	save_was_pressed = save_pressed;
 	load_was_pressed = load_pressed;
 #endif
+}
+
+static void HandleSaveStateOperationOnVerticalBlank()
+{
+	DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");
 
 	if( gSaveStateOperation == SSO_NONE )
 		return;
@@ -525,16 +530,56 @@ static void HandleSaveStateOperation()
 		DAEDALUS_ERROR( "Unreachable" );
 		break;
 	case SSO_SAVE:
-		printf( "Saving '%s'\n", gSaveStateFilename.c_str() );
+		DBGConsole_Msg(0, "Saving '%s'\n", gSaveStateFilename.c_str());
 		SaveState_SaveToFile( gSaveStateFilename.c_str() );
+		gSaveStateOperation = SSO_NONE;
 		break;
 	case SSO_LOAD:
-		printf( "Loading '%s'\n", gSaveStateFilename.c_str() );
-		SaveState_LoadFromFile( gSaveStateFilename.c_str() );
-		CPU_ResetFragmentCache();
+		DBGConsole_Msg(0, "Loading '%s'\n", gSaveStateFilename.c_str());
+
+		// Try to load the savestate immediately. If this fails, it
+		// usually means that we're running the correct rom (we should have a
+		// separate return code to check this case). In that case we
+		// stop the cpu and handle the load in
+		// HandleSaveStateOperationOnCPUStopRunning.
+		if (SaveState_LoadFromFile( gSaveStateFilename.c_str() ))
+		{
+			CPU_ResetFragmentCache();
+			gSaveStateOperation = SSO_NONE;
+		}
+		else
+		{
+			// Halt the CPU so that we can swap the rom safely and load the savesate.
+			CPU_Halt("Load SaveSate");
+			// NB: return without clearing gSaveStateOperation
+		}
 		break;
 	}
+}
+
+// Returns true if we handled a load request and should keep running.
+static bool HandleSaveStateOperationOnCPUStopRunning()
+{
+	if (gSaveStateOperation != SSO_LOAD)
+		return false;
+
+	MutexLock lock( &gSaveStateMutex );
+
 	gSaveStateOperation = SSO_NONE;
+
+	if (const char * rom_filename = SaveState_GetRom(gSaveStateFilename.c_str()))
+	{
+		System_Close();
+		System_Open(rom_filename);
+		SaveState_LoadFromFile(gSaveStateFilename.c_str());
+	}
+	else
+	{
+		DBGConsole_Msg(0, "Couldn't find matching rom for %s\n", gSaveStateFilename.c_str());
+		// Keep running with the current rom.
+	}
+
+	return true;
 }
 
 //*****************************************************************************
@@ -545,17 +590,24 @@ bool CPU_Run()
 	if (!RomBuffer::IsRomLoaded())
 		return false;
 
-	gCPURunning = true;
-	gCPUStopOnSimpleState = false;
-
-	RESET_EVENT_QUEUE_LOCK();
-
-	while( gCPURunning )
+	while (1)
 	{
-		g_pCPUCore();
+		gCPURunning = true;
+		gCPUStopOnSimpleState = false;
+		DAEDALUS_ASSERT(gSaveStateOperation == SSO_NONE, "Shouldn't have a save state operation queued.");
+
+		RESET_EVENT_QUEUE_LOCK();
+
+		while( gCPURunning )
+		{
+			g_pCPUCore();
+		}
+
+		if (!HandleSaveStateOperationOnCPUStopRunning())
+			break;
 	}
 
-	gCPURunning = false;
+	DAEDALUS_ASSERT(!gCPURunning, "gCPURunning should be false by now.");
 
 	return true;
 }
@@ -683,12 +735,22 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_VI);
 			R4300_Interrupt_UpdateCause3();
 
-			//ToDo: Has to be a better way than this???
-			//Maybe After each X frames instead of each 60 VI?
+			// ToDo: Has to be a better way than this???
+			// Maybe After each X frames instead of each 60 VI?
+			// (strmnnrmn): I don't see what's so bad about checking these on a vbl,
+			//   because it means we can remain responsive even if the game is not rendering frames
+			//   (e.g. if it's slow starting up)
+			//   Alternatively, we could add a special-purpose CPU even that triggers every
+			//   N cycles, but that would have a small impact on framerate (it would
+			//   interrupt the dynamo tracer for instance)
+			// FIXME(strmnnrmn): however we should have a nicer mechanism for hooking these
+			//   callbacks in so that CPU.cpp doesn't need to know about them.
 			if ((gVerticalInterrupts & 0x3F) == 0) // once every 60 VBLs
 				Save::Flush();
-			//Same here?
-			HandleSaveStateOperation();
+
+			HandleSystemKeys();
+
+			HandleSaveStateOperationOnVerticalBlank();
 
 #ifdef DAEDALUS_BATCH_TEST_ENABLED
 			CBatchTestEventHandler * handler( BatchTest_GetHandler() );
