@@ -579,26 +579,10 @@ bool CPU_Run()
 
 	RESET_EVENT_QUEUE_LOCK();
 
-
-#ifdef DAEDALUS_TRAP_PLUGIN_EXCEPTIONS
-	try
-#endif
+	while( gCPURunning )
 	{
-		while( gCPURunning )
-		{
-			g_pCPUCore();
-		}
+		g_pCPUCore();
 	}
-#ifdef DAEDALUS_TRAP_PLUGIN_EXCEPTIONS
-	catch (...)
-	{
-		gCPURunning = false;
-		if ( !g_DaedalusConfig.TrapExceptions)
-		{
-			throw;
-		}
-	}
-#endif
 
 	gCPURunning = false;
 
