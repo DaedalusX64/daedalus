@@ -10,6 +10,9 @@
           '-g'
         ],
       },
+      'defines': [
+        'Z_HAVE_UNISTD_H',
+      ],
       'sources': [
         'adler32.c',
         'compress.c',
