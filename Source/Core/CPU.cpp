@@ -417,57 +417,6 @@ static bool	CPU_IsStateSimple()
 //*****************************************************************************
 //
 //*****************************************************************************
-bool CPU_SaveState( const char * filename )
-{
-	if (!gCPURunning)
-	{
-		return SaveState_SaveToFile( filename );
-	}
-
-	MutexLock lock( &gSaveStateMutex );
-
-	// Abort if already in the process of loading/saving
-	if( gSaveStateOperation != SSO_NONE )
-	{
-		return false;
-	}
-
-	gSaveStateOperation = SSO_SAVE;
-	gSaveStateFilename = filename;
-	gCPUState.AddJob(CPU_CHANGE_CORE);
-
-	return true;
-}
-
-
-//*****************************************************************************
-//
-//*****************************************************************************
-bool CPU_LoadState( const char * filename )
-{
-	if (!gCPURunning)
-	{
-		return SaveState_LoadFromFile(filename);
-	}
-
-	MutexLock lock( &gSaveStateMutex );
-
-	// Abort if already in the process of loading/saving
-	if( gSaveStateOperation != SSO_NONE )
-	{
-		return false;
-	}
-
-	gSaveStateOperation = SSO_LOAD;
-	gSaveStateFilename = filename;
-	gCPUState.AddJob(CPU_CHANGE_CORE);
-
-	return true;	// XXXX could fail
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
 void CPU_SelectCore()
 {
 #ifdef DAEDALUS_ENABLE_DYNAREC
@@ -490,6 +439,50 @@ void CPU_SelectCore()
 //*****************************************************************************
 //
 //*****************************************************************************
+bool CPU_SaveState( const char * filename )
+{
+	if (!gCPURunning)
+	{
+		return SaveState_SaveToFile( filename );
+	}
+
+	MutexLock lock( &gSaveStateMutex );
+
+	// Abort if already in the process of loading/saving
+	if( gSaveStateOperation != SSO_NONE )
+	{
+		return false;
+	}
+
+	gSaveStateOperation = SSO_SAVE;
+	gSaveStateFilename = filename;
+	gCPUState.AddJob(CPU_CHANGE_CORE);
+
+	return true;
+}
+
+bool CPU_LoadState( const char * filename )
+{
+	if (!gCPURunning)
+	{
+		return SaveState_LoadFromFile(filename);
+	}
+
+	MutexLock lock( &gSaveStateMutex );
+
+	// Abort if already in the process of loading/saving
+	if( gSaveStateOperation != SSO_NONE )
+	{
+		return false;
+	}
+
+	gSaveStateOperation = SSO_LOAD;
+	gSaveStateFilename = filename;
+	gCPUState.AddJob(CPU_CHANGE_CORE);
+
+	return true;	// XXXX could fail
+}
+
 static void HandleSaveStateOperation()
 {
 #ifdef DAEDALUS_GL
