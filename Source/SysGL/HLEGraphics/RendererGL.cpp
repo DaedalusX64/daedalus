@@ -804,6 +804,11 @@ static void InitBlenderMode()
 		// Donald Duck (Dust)
 		type = kBlendModeAlphaTrans;
 		break;
+	case 0xc440: // Fog * AFog + Mem * 1-A
+		// Banjo Kazooie
+		// FIXME: blends fog over existing?
+		type = kBlendModeOpaque;
+		break;
 	case 0xc800: // Fog * AShade + In * 1-A
 		//Bomberman64. alpha_cvg_sel: 0 cvg_x_alpha: 1
 		type = kBlendModeOpaque;
