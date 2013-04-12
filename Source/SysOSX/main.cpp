@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 
 	if (argc > 0)
 	{
-		char exe_path[PATH_MAX+1];
+		IO::Path::PathBuf exe_path;
 		realpath(argv[0], exe_path);
 
 		strcpy(gDaedalusExePath, exe_path);
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
 		}
 		else if (filename)
 		{
-			System_Open( argv[1] );
+			System_Open( filename );
 			CPU_Run();
 			System_Close();
 		}
