@@ -137,7 +137,7 @@
     //$dlistState.find('#dl-vertices-content').html(buildVerticesTab());
     $dlistState.find('#dl-textures-content').html(buildTexturesTab());
     $dlistState.find('#dl-combiner-content').html(buildCombinerTab());
-    //$dlistState.find('#dl-rdp-content').html(buildRDPTab());
+    $dlistState.find('#dl-rdp-content').html(buildRDPTab());
   }
 
   function getDefine(m, v) {
@@ -161,6 +161,111 @@
     G_IM_SIZ_16b:     2,
     G_IM_SIZ_32b:     3
   };
+
+ var renderModeFlags = {
+    AA_EN:               0x0008,
+    Z_CMP:               0x0010,
+    Z_UPD:               0x0020,
+    IM_RD:               0x0040,
+    CLR_ON_CVG:          0x0080,
+    CVG_DST_CLAMP:       0,
+    CVG_DST_WRAP:        0x0100,
+    CVG_DST_FULL:        0x0200,
+    CVG_DST_SAVE:        0x0300,
+    ZMODE_OPA:           0,
+    ZMODE_INTER:         0x0400,
+    ZMODE_XLU:           0x0800,
+    ZMODE_DEC:           0x0c00,
+    CVG_X_ALPHA:         0x1000,
+    ALPHA_CVG_SEL:       0x2000,
+    FORCE_BL:            0x4000,
+    TEX_EDGE:            0x0000 /* used to be 0x8000 */
+  };
+
+  var blendColourSources = [
+    'G_BL_CLR_IN',
+    'G_BL_CLR_MEM',
+    'G_BL_CLR_BL',
+    'G_BL_CLR_FOG'
+  ];
+
+  var blendSourceFactors = [
+    'G_BL_A_IN',
+    'G_BL_A_FOG',
+    'G_BL_A_SHADE',
+    'G_BL_0'
+  ];
+
+  var blendDestFactors = [
+    'G_BL_1MA',
+    'G_BL_A_MEM',
+    'G_BL_1',
+    'G_BL_0'
+  ];
+
+  function blendOpText(v) {
+    var m1a = (v>>>12)&0x3;
+    var m1b = (v>>> 8)&0x3;
+    var m2a = (v>>> 4)&0x3;
+    var m2b = (v>>> 0)&0x3;
+
+    return blendColourSources[m1a] + ',' + blendSourceFactors[m1b] + ',' + blendColourSources[m2a] + ',' + blendDestFactors[m2b];
+  }
+
+  function getRenderModeFlagsText(data) {
+    var t = '';
+
+    if (data & renderModeFlags.AA_EN)               t += '|AA_EN';
+    if (data & renderModeFlags.Z_CMP)               t += '|Z_CMP';
+    if (data & renderModeFlags.Z_UPD)               t += '|Z_UPD';
+    if (data & renderModeFlags.IM_RD)               t += '|IM_RD';
+    if (data & renderModeFlags.CLR_ON_CVG)          t += '|CLR_ON_CVG';
+
+    var cvg = data & 0x0300;
+         if (cvg === renderModeFlags.CVG_DST_CLAMP) t += '|CVG_DST_CLAMP';
+    else if (cvg === renderModeFlags.CVG_DST_WRAP)  t += '|CVG_DST_WRAP';
+    else if (cvg === renderModeFlags.CVG_DST_FULL)  t += '|CVG_DST_FULL';
+    else if (cvg === renderModeFlags.CVG_DST_SAVE)  t += '|CVG_DST_SAVE';
+
+    var zmode = data & 0x0c00;
+         if (zmode === renderModeFlags.ZMODE_OPA)   t += '|ZMODE_OPA';
+    else if (zmode === renderModeFlags.ZMODE_INTER) t += '|ZMODE_INTER';
+    else if (zmode === renderModeFlags.ZMODE_XLU)   t += '|ZMODE_XLU';
+    else if (zmode === renderModeFlags.ZMODE_DEC)   t += '|ZMODE_DEC';
+
+    if (data & renderModeFlags.CVG_X_ALPHA)         t += '|CVG_X_ALPHA';
+    if (data & renderModeFlags.ALPHA_CVG_SEL)       t += '|ALPHA_CVG_SEL';
+    if (data & renderModeFlags.FORCE_BL)            t += '|FORCE_BL';
+
+    var c0 = t.length > 0 ? t.substr(1) : '0';
+
+    var blend = data >>> G_MDSFT_BLENDER;
+
+    var c1 = 'GBL_c1(' + blendOpText(blend>>>2) + ') | GBL_c2(' + blendOpText(blend) + ') /*' + n64js.toString16(blend) + '*/';
+
+    return c0 + ', ' + c1;
+  }
+
+  // G_SETOTHERMODE_L sft: shift count
+  var G_MDSFT_ALPHACOMPARE    = 0;
+  var G_MDSFT_ZSRCSEL         = 2;
+  var G_MDSFT_RENDERMODE      = 3;
+  var G_MDSFT_BLENDER         = 16;
+
+  var G_AC_MASK     = 3 << G_MDSFT_ALPHACOMPARE;
+  var G_ZS_MASK     = 1 << G_MDSFT_ZSRCSEL;
+
+  function getAlphaCompareType() {
+    return state.rdpOtherModeL & G_AC_MASK;
+  }
+
+  function getCoverageTimesAlpha() {
+     return (state.rdpOtherModeL & renderModeFlags.CVG_X_ALPHA) !== 0;  // fragment coverage (0) or alpha (1)?
+  }
+
+  function getAlphaCoverageSelect() {
+    return (state.rdpOtherModeL & renderModeFlags.ALPHA_CVG_SEL) !== 0;  // use fragment coverage * fragment alpha
+  }
 
   //G_SETOTHERMODE_H shift count
   var G_MDSFT_BLENDMASK       = 0;
@@ -189,11 +294,80 @@
   var G_CD_MASK     = 3 << G_MDSFT_RGBDITHER;
   var G_AD_MASK     = 3 << G_MDSFT_ALPHADITHER;
 
+  var pipelineModeValues = {
+    G_PM_1PRIMITIVE:   1 << G_MDSFT_PIPELINE,
+    G_PM_NPRIMITIVE:   0 << G_MDSFT_PIPELINE
+  };
+
   var cycleTypeValues = {
     G_CYC_1CYCLE:     0 << G_MDSFT_CYCLETYPE,
     G_CYC_2CYCLE:     1 << G_MDSFT_CYCLETYPE,
     G_CYC_COPY:       2 << G_MDSFT_CYCLETYPE,
     G_CYC_FILL:       3 << G_MDSFT_CYCLETYPE
+  };
+
+  var texturePerspValues = {
+    G_TP_NONE:        0 << G_MDSFT_TEXTPERSP,
+    G_TP_PERSP:       1 << G_MDSFT_TEXTPERSP
+  };
+
+  var textureDetailValues = {
+    G_TD_CLAMP:       0 << G_MDSFT_TEXTDETAIL,
+    G_TD_SHARPEN:     1 << G_MDSFT_TEXTDETAIL,
+    G_TD_DETAIL:      2 << G_MDSFT_TEXTDETAIL
+  };
+
+  var textureLODValues = {
+    G_TL_TILE:        0 << G_MDSFT_TEXTLOD,
+    G_TL_LOD:         1 << G_MDSFT_TEXTLOD
+  };
+
+  var textureLUTValues = {
+    G_TT_NONE:        0 << G_MDSFT_TEXTLUT,
+    G_TT_RGBA16:      2 << G_MDSFT_TEXTLUT,
+    G_TT_IA16:        3 << G_MDSFT_TEXTLUT
+  };
+
+  var textureFilterValues = {
+    G_TF_POINT:       0 << G_MDSFT_TEXTFILT,
+    G_TF_AVERAGE:     3 << G_MDSFT_TEXTFILT,
+    G_TF_BILERP:      2 << G_MDSFT_TEXTFILT
+  };
+
+  var textureConvertValues = {
+    G_TC_CONV:       0 << G_MDSFT_TEXTCONV,
+    G_TC_FILTCONV:   5 << G_MDSFT_TEXTCONV,
+    G_TC_FILT:       6 << G_MDSFT_TEXTCONV
+  };
+
+  var combineKeyValues = {
+    G_CK_NONE:        0 << G_MDSFT_COMBKEY,
+    G_CK_KEY:         1 << G_MDSFT_COMBKEY
+  };
+
+  var colorDitherValues = {
+    G_CD_MAGICSQ:     0 << G_MDSFT_RGBDITHER,
+    G_CD_BAYER:       1 << G_MDSFT_RGBDITHER,
+    G_CD_NOISE:       2 << G_MDSFT_RGBDITHER,
+    G_CD_DISABLE:     3 << G_MDSFT_RGBDITHER
+  };
+
+  var alphaDitherValues = {
+    G_AD_PATTERN:     0 << G_MDSFT_ALPHADITHER,
+    G_AD_NOTPATTERN:  1 << G_MDSFT_ALPHADITHER,
+    G_AD_NOISE:       2 << G_MDSFT_ALPHADITHER,
+    G_AD_DISABLE:     3 << G_MDSFT_ALPHADITHER
+  };
+
+  var alphaCompareValues = {
+    G_AC_NONE:          0 << G_MDSFT_ALPHACOMPARE,
+    G_AC_THRESHOLD:     1 << G_MDSFT_ALPHACOMPARE,
+    G_AC_DITHER:        3 << G_MDSFT_ALPHACOMPARE
+  };
+
+  var depthSourceValues = {
+    G_ZS_PIXEL:         0 << G_MDSFT_ZSRCSEL,
+    G_ZS_PRIM:          1 << G_MDSFT_ZSRCSEL
   };
 
   function getCycleType() {
@@ -281,6 +455,41 @@
       $table.append($tr);
     }
 
+    return $table;
+  }
+
+  function buildRDPTab() {
+
+    var l = state.rdpOtherModeL;
+    var h = state.rdpOtherModeH;
+    var vals = {
+      alphaCompare: getDefine(alphaCompareValues,   l & G_AC_MASK),
+      depthSource:  getDefine(depthSourceValues,    l & G_ZS_MASK),
+      renderMode:   getRenderModeFlagsText(l),
+
+    //var G_MDSFT_BLENDMASK       = 0;
+      alphaDither:    getDefine(alphaDitherValues,    h & G_AD_MASK),
+      colorDither:    getDefine(colorDitherValues,    h & G_CD_MASK),
+      combineKey:     getDefine(combineKeyValues,     h & G_CK_MASK),
+      textureConvert: getDefine(textureConvertValues, h & G_TC_MASK),
+      textureFilter:  getDefine(textureFilterValues,  h & G_TF_MASK),
+      textureLUT:     getDefine(textureLUTValues,     h & G_TT_MASK),
+      textureLOD:     getDefine(textureLODValues,     h & G_TL_MASK),
+      texturePersp:   getDefine(texturePerspValues,   h & G_TP_MASK),
+      textureDetail:  getDefine(textureDetailValues,  h & G_TD_MASK),
+      cycleType:      getDefine(cycleTypeValues,      h & G_CYC_MASK),
+      pipelineMode:   getDefine(pipelineModeValues,   h & G_PM_MASK)
+    };
+
+    var $table = $('<table class="table table-condensed" style="width: auto;"></table>');
+
+    var $tr, i;
+    for (i in vals) {
+      if (vals.hasOwnProperty(i)) {
+        $tr = $('<tr><td>' + i + '</td><td>' + vals[i] + '</td></tr>');
+        $table.append($tr);
+      }
+    }
     return $table;
   }
 
@@ -412,6 +621,56 @@
       return decoded;
   }
 
+
+  function padString(v,len) {
+    var t = v.toString();
+    while (t.length < len) {
+      t = '0' + t;
+    }
+    return t;
+  }
+
+  function toHex(r, bits) {
+    r = Number(r);
+    if (r < 0) {
+        r = 0xFFFFFFFF + r + 1;
+    }
+
+    var t = r.toString(16);
+
+    if (bits) {
+      var len = Math.floor(bits / 4); // 4 bits per hex char
+      while (t.length < len) {
+        t = '0' + t;
+      }
+    }
+
+    return t;
+  }
+
+  function toString8(v) {
+    return '0x' + toHex((v&0xff)>>>0, 8);
+  }
+  function toString16(v) {
+    return '0x' + toHex((v&0xffff)>>>0, 16);
+  }
+  function toString32(v) {
+    return '0x' + toHex(v, 32);
+  }
+
+  function toString64(hi, lo) {
+    var t = toHex(lo, 32);
+    var u = toHex(hi, 32);
+    return '0x' + u + t;
+  }
+
+  var n64js = {};
+  n64js.padString  = padString;
+  n64js.toHex      = toHex;
+  n64js.toString8  = toString8;
+  n64js.toString16 = toString16;
+  n64js.toString32 = toString32;
+  n64js.toString64 = toString64;
 
 }(window.daedalus = window.daedalus || {}));
 
