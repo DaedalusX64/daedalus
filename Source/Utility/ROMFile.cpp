@@ -54,7 +54,8 @@ bool IsRomfilename( const char * rom_filename )
 //*****************************************************************************
 ROMFile * ROMFile::Create( const char * filename )
 {
-	if (_strcmpi(IO::Path::FindExtension( filename ), ".zip") == 0)
+	const char * ext = IO::Path::FindExtension( filename );
+	if (ext && _strcmpi(ext, ".zip") == 0)
 	{
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
 		return new ROMFileCompressed( filename );
