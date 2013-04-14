@@ -89,7 +89,7 @@ bool GraphicsContextGL::Initialise()
 	glfwSwapInterval( 1 );
 
 	// Initialise GLEW
-#ifdef DAEDALUS_W32
+#if defined (DAEDALUS_W32) || defined (DAEDALUS_LINUX)
 	//glewExperimental = GL_TRUE;
 	GLenum err = glewInit();
 	if (err != GLEW_OK || !GLEW_VERSION_3_2)

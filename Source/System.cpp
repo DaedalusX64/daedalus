@@ -60,7 +60,6 @@ CAudioPlugin	* g_pAiPlugin		= NULL;
 static bool InitAudioPlugin()
 {
 	DAEDALUS_ASSERT( g_pAiPlugin == NULL, "Why is there already an audio plugin?" );
-
 	CAudioPlugin * audio_plugin = CreateAudioPlugin();
 	if( audio_plugin != NULL )
 	{
@@ -170,8 +169,9 @@ static const RomEntityEntry gRomInitTable[] =
 	{"Settings",			ROM_LoadFile,			ROM_UnloadFile},
 	{"InputManager",		CInputManager::Init,	CInputManager::Fini},
 	{"Memory",				Memory_Reset,			Memory_Cleanup},
-
+#ifndef DAEDALUS_LINUX
 	{"Audio",				InitAudioPlugin,		DisposeAudioPlugin},
+#endif
 	{"Graphics",			InitGraphicsPlugin,		DisposeGraphicsPlugin},
 	{"FramerateLimiter",	FramerateLimiter_Reset,	NULL},
 	//{"RSP", RSP_Reset, NULL},

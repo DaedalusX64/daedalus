@@ -29,9 +29,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdio.h>
 
+#ifndef DAEDALUS_LINUX
 #include <AudioToolbox/AudioQueue.h>
 #include <CoreAudio/CoreAudioTypes.h>
 #include <CoreFoundation/CFRunLoop.h>
+#endif
 
 #include "ConfigOptions.h"
 #include "Core/Memory.h"
@@ -87,8 +89,9 @@ public:
 	void					StartAudio();						// Starts the Audio PlayBack (as if unpaused)
 
 	static void				AudioSyncFunction(void * arg);
-
+#ifndef DAEDALUS_LINUX
 	static void 			AudioCallback(void * arg, AudioQueueRef queue, AudioQueueBufferRef buffer);
+#endif
 	static u32 				AudioThread(void * arg);
 
 private:
@@ -193,9 +196,10 @@ void AudioPluginOSX::AddBuffer(void * ptr, u32 length)
 	DPF_AUDIO("Queuing %d samples @%dHz - %.2fms - bufferlen now %d\n",
 		num_samples, mFrequency, ms, mBufferLenMs);
 }
-
+#ifndef DAEDALUS_LINUX
 void AudioPluginOSX::AudioCallback(void * arg, AudioQueueRef queue, AudioQueueBufferRef buffer)
 {
+
 	AudioPluginOSX * plugin = static_cast<AudioPluginOSX *>(arg);
 
 	u32 num_samples     = buffer->mAudioDataBytesCapacity / sizeof(Sample);
@@ -226,12 +230,13 @@ void AudioPluginOSX::AudioCallback(void * arg, AudioQueueRef queue, AudioQueueBu
 	{
 		CFRunLoopStop(CFRunLoopGetCurrent());
 	}
-}
 
+}
+#endif
 u32 AudioPluginOSX::AudioThread(void * arg)
 {
 	AudioPluginOSX * plugin = static_cast<AudioPluginOSX *>(arg);
-
+#ifndef DAEDALUS_LINUX
 	AudioStreamBasicDescription format;
 
 	format.mSampleRate       = kOutputFrequency;
@@ -246,7 +251,6 @@ u32 AudioPluginOSX::AudioThread(void * arg)
 
 	AudioQueueRef			queue;
 	AudioQueueBufferRef		buffers[kNumBuffers];
-
 	AudioQueueNewOutput(&format, &AudioCallback, plugin, CFRunLoopGetCurrent(), kCFRunLoopCommonModes, 0, &queue);
 
 	for (u32 i = 0; i < kNumBuffers; ++i)
@@ -270,7 +274,7 @@ u32 AudioPluginOSX::AudioThread(void * arg)
 		AudioQueueFreeBuffer(queue, buffers[i]);
 		buffers[i] = NULL;
 	}
-
+#endif
 	return 0;
 }
 
