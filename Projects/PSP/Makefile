@@ -218,8 +218,8 @@ DEP_FILES := $(DEP_FILES:.S=.d)
 
 ASFLAGS =
 
-INCDIR = $(PSPDEV)/SDK/include ../../SDK/include
-LIBDIR = $(PSPDEV)/SDK/lib ../../SDK/lib
+INCDIR = $(PSPDEV)/SDK/include ./SDK/include
+LIBDIR = $(PSPDEV)/SDK/lib ./SDK/lib
 
 
 LIBS = -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge
