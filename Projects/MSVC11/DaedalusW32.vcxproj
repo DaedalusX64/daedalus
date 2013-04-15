@@ -155,10 +155,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y /D /E /C /F Data\PC\*.*  .\Builds\PC\
+      <Command>xcopy /Y /D /E /C /F ..\..\Data\PC\*.*  .\Builds\PC\
 xcopy /I /Y /D /E  /F ..\..\Source\SysOSX\Debug\Web\*.*  .\Builds\PC\Web\
 xcopy /I /Y /D /E  /F ..\..\Source\SysGL\HLEGraphics\n64.psh  .\Builds\PC\
-xcopy /Y /D /E /C /F ..\..\Data\PC\*.*  .\Builds\PC\
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
