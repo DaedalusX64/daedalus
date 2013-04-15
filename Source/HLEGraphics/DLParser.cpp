@@ -341,8 +341,6 @@ static void DLParser_SetCustom( u32 ucode, u32 offset )
 			break;
 		case GBI_SE:
 			SetCommand( 0x04, DLParser_GBI0_Vtx_SOTE, "G_Vtx_SOTE" );
-			SetCommand( 0x06, DLParser_GBI0_DL_SOTE,  "G_DL_SOTE" );
-			SetCommand( 0xfd, DLParser_SetTImg_SOTE,  "G_SetTImg_SOTE" );
 			break;
 		case GBI_LL:
 			SetCommand( 0x80, DLParser_Last_Legion_0x80,	"G_Last_Legion_0x80" );
@@ -859,7 +857,7 @@ void DLParser_SetTImg( MicroCodeCommand command )
 	g_TI.Format		= command.img.fmt;
 	g_TI.Size		= command.img.siz;
 	g_TI.Width		= command.img.width + 1;
-	g_TI.Address	= RDPSegAddr(command.img.addr);
+	g_TI.Address	= RDPSegAddr(command.img.addr) & (MAX_RAM_ADDRESS-1);
 	//g_TI.bpl		= g_TI.Width << g_TI.Size >> 1;
 
 	DL_PF("    TImg Adr[0x%08x] Format[%s/%s] Width[%d] Pitch[%d] Bytes/line[%d]",
@@ -1142,7 +1140,7 @@ void DLParser_SetCImg( MicroCodeCommand command )
 	g_CI.Format = command.img.fmt;
 	g_CI.Size   = command.img.siz;
 	g_CI.Width  = command.img.width + 1;
-	g_CI.Address = RDPSegAddr(command.img.addr);
+	g_CI.Address = RDPSegAddr(command.img.addr) & (MAX_RAM_ADDRESS-1);
 	//g_CI.Bpl		= g_CI.Width << g_CI.Size >> 1;
 
 	DL_PF("    CImg Adr[0x%08x] Format[%s] Size[%s] Width[%d]", RDPSegAddr(command.inst.cmd1), gFormatNames[ g_CI.Format ], gSizeNames[ g_CI.Size ], g_CI.Width);

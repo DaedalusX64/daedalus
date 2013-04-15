@@ -323,7 +323,7 @@ void DLParser_GBI1_DL( MicroCodeCommand command )
 		gDlistStackPointer++;
 
 	// Compiler gives much better asm if RDPSegAddr.. is sticked directly here
-	gDlistStack.address[gDlistStackPointer] = RDPSegAddr(command.dlist.addr);
+	gDlistStack.address[gDlistStackPointer] = RDPSegAddr(command.dlist.addr) & (MAX_RAM_ADDRESS-1);
 }
 
 //*****************************************************************************

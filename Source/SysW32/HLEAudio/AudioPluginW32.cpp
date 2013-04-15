@@ -99,7 +99,6 @@ private:
 	HANDLE               rghEvent[NUMCAPTUREEVENTS];
 	DSBPOSITIONNOTIFY    rgdscbpn[NUMCAPTUREEVENTS];
 
-	void SpeedSync();
 	void SetupDSoundBuffers();
 	bool CAudioPluginW32::FillBufferWithSilence( LPDIRECTSOUNDBUFFER lpDsb );
 
@@ -223,13 +222,6 @@ void	CAudioPluginW32::DacrateChanged( int SystemType )
 	}
 }
 
-void	CAudioPluginW32::SpeedSync()
-{
-	if (Playing && (SndBuffer[2] == Buffer_Full) ||(SndBuffer[1] == Buffer_Full) ||(SndBuffer[0] == Buffer_Full))
-	{
-		ThreadSleepMs(10);
-	}
-}
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -239,7 +231,7 @@ void	CAudioPluginW32::LenChanged()
 		return;
 
 	int count, temp;
-	u32 status, len;
+	u32 len;
 
 	len = Memory_AI_GetRegister(AI_LEN_REG);
 	if (len == 0) { return; }
@@ -280,7 +272,6 @@ void	CAudioPluginW32::LenChanged()
 #ifndef AUDIO_THREADED
 	Update(false);
 #endif
-	SpeedSync();
 }
 
 //*****************************************************************************
@@ -357,6 +348,12 @@ void	CAudioPluginW32::Update( bool Wait )
 		{
 			IDirectSoundBuffer8_Play(lpdsbuf, 0, 0, DSBPLAY_LOOPING );
 		}
+	}
+
+	// Speed Sync
+	if (Playing && (SndBuffer[2] == Buffer_Full) ||(SndBuffer[1] == Buffer_Full) ||(SndBuffer[0] == Buffer_Full))
+	{
+		ThreadSleepMs(10);
 	}
 }
 

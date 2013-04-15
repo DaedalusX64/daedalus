@@ -40,37 +40,6 @@ void DLParser_GBI0_Vtx_SOTE( MicroCodeCommand command )
 	DLParser_DumpVtxInfo( address, v0, n );
 #endif
 }
-//
-// SOTE gets out of range, make sure to keep it in range otherwise will crash/gfx will b incorrect
-//
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_GBI0_DL_SOTE( MicroCodeCommand command )
-{
-	u32 address = RDPSegAddr(command.dlist.addr) & (MAX_RAM_ADDRESS-1); // Keep addr in range..
-
-	DAEDALUS_ASSERT( address < MAX_RAM_ADDRESS, "DL addr out of range (0x%08x)", address );
-
-	DL_PF("    Address=0x%08x Push: 0x%02x", address, command.dlist.param);
-
-	if( command.dlist.param == G_DL_PUSH )
-		gDlistStackPointer++;
-
-	gDlistStack.address[gDlistStackPointer] = address;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_SetTImg_SOTE( MicroCodeCommand command )
-{
-	g_TI.Format		= command.img.fmt;
-	g_TI.Size		= command.img.siz;
-	g_TI.Width		= command.img.width + 1;
-	g_TI.Address	= RDPSegAddr(command.img.addr) & (MAX_RAM_ADDRESS-1); // Keep addr in range..
-	//g_TI.bpl		= g_TI.Width << g_TI.Size >> 1;
-}
 
 //*****************************************************************************
 //
