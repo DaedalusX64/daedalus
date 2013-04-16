@@ -65,7 +65,10 @@ bool ROMFileUncompressed::Open( COutputStream & messages )
 	{
 		return false;
 	}
-	SetHeaderMagic( header );
+	if (!SetHeaderMagic( header ))
+	{
+		return false;
+	}
 
 	//
 	//	Determine the rom size

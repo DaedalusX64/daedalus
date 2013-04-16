@@ -21,8 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #pragma once
 #endif // _MSC_VER > 1000
 
-#ifndef __DAEDALUS_ROMFILE_H__
-#define __DAEDALUS_ROMFILE_H__
+#ifndef UTILITY_ROMFILE_H_
+#define UTILITY_ROMFILE_H_
 
 class COutputStream;
 
@@ -53,7 +53,7 @@ public:
 	static	void		ByteSwap_3210( void * p_bytes, u32 length );
 
 protected:
-			void		SetHeaderMagic( u32 magic );
+			bool		SetHeaderMagic( u32 magic );
 			void		CorrectSwap( u8 * p_bytes, u32 length );
 
 private:
@@ -64,4 +64,4 @@ protected:
 	u32							mHeaderMagic;
 };
 
-#endif
+#endif // UTILITY_ROMFILE_H_

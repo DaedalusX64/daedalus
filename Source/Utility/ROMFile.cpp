@@ -29,9 +29,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <algorithm>
 
-//*************************************************************************************
-//
-//*************************************************************************************
 bool IsRomfilename( const char * rom_filename )
 {
 	const char * last_period( strrchr( rom_filename, '.' ) );
@@ -49,9 +46,6 @@ bool IsRomfilename( const char * rom_filename )
 		    _strcmpi(last_period, ".zip") == 0);
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 ROMFile * ROMFile::Create( const char * filename )
 {
 	const char * ext = IO::Path::FindExtension( filename );
@@ -69,25 +63,16 @@ ROMFile * ROMFile::Create( const char * filename )
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 ROMFile::ROMFile( const char * filename )
 :	mFilename( filename )
 ,	mHeaderMagic( 0 )
 {
 }
 
-//*****************************************************************************
-// Destructor
-//*****************************************************************************
 ROMFile::~ROMFile()
 {
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 bool ROMFile::LoadData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages )
 {
 	if( !LoadRawData( bytes_to_read, p_bytes, messages ) )
@@ -99,20 +84,14 @@ bool ROMFile::LoadData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-bool	ROMFile::RequiresSwapping() const
+bool ROMFile::RequiresSwapping() const
 {
 	DAEDALUS_ASSERT( mHeaderMagic != 0, "The header magic hasn't been set" );
 
 	return mHeaderMagic != 0x80371240;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	ROMFile::SetHeaderMagic( u32 magic )
+bool ROMFile::SetHeaderMagic( u32 magic )
 {
 	mHeaderMagic = magic;
 
@@ -124,16 +103,16 @@ void	ROMFile::SetHeaderMagic( u32 magic )
 	case 0x12408037:
 		break;
 	default:
-		DAEDALUS_ERROR( "Unhandled swapping mode" );
+		DAEDALUS_ERROR( "Unhandled swapping mode %08x for %s", magic, mFilename.GetUnsafePtr() );
 		DBGConsole_Msg(0, "[CUnknown ROM format for %s: 0x%08x", mFilename.GetUnsafePtr(), magic);
+			return false;
 	}
 #endif
+
+	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void	ROMFile::CorrectSwap( u8 * p_bytes, u32 length )
+void ROMFile::CorrectSwap( u8 * p_bytes, u32 length )
 {
 	switch (mHeaderMagic)
 	{
@@ -147,15 +126,13 @@ void	ROMFile::CorrectSwap( u8 * p_bytes, u32 length )
 		ByteSwap_2301( p_bytes, length );
 		break;
 	default:
-		DAEDALUS_ERROR( "Unhandled swapping mode" );
+		DAEDALUS_ERROR( "Unhandled swapping mode: %08x", mHeaderMagic );
 		break;
 	}
 }
 
-//*****************************************************************************
 // Swap bytes from 37 80 40 12
 // to              40 12 37 80
-//*****************************************************************************
 void ROMFile::ByteSwap_2301( void * p_bytes, u32 length )
 {
 	u32* p = (u32*)p_bytes;
@@ -167,10 +144,8 @@ void ROMFile::ByteSwap_2301( void * p_bytes, u32 length )
 }
 
 
-//*****************************************************************************
 // Swap bytes from 80 37 12 40
 // to              40 12 37 80
-//*****************************************************************************
 void ROMFile::ByteSwap_3210( void * p_bytes, u32 length )
 {
 	u8* p = (u8*)p_bytes;

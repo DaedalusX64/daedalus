@@ -112,7 +112,10 @@ bool ROMFileCompressed::Open( COutputStream & messages )
 							unzCloseCurrentFile(mZipFile);
 							mRomSize = file_info.uncompressed_size;
 							mFoundRom = true;
-							SetHeaderMagic( magic );
+							if (!SetHeaderMagic( magic ))
+							{
+								DBGConsole_Msg(0, "Bad header magic for [C%s]", rom_filename);
+							}
 							break;
 						}
 					}
