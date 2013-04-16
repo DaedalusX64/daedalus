@@ -152,8 +152,8 @@
               'SysOSX/Include',
             ],
             'sources': [
+              # FIXME - we should move these to a common SysPosix dir...
               'SysOSX/main.cpp',
-              'SysOSX/HLEAudio/AudioPluginOSX.cpp',
               'SysOSX/Debug/DaedalusAssertOSX.cpp',
               'SysOSX/Debug/DebugConsoleOSX.cpp',
               'SysOSX/Debug/WebDebug.cpp',
@@ -164,6 +164,8 @@
               'SysOSX/Utility/IOOSX.cpp',
               'SysOSX/Utility/ThreadOSX.cpp',
               'SysOSX/Utility/TimingOSX.cpp',
+
+              'SysLinux/HLEAudio/AudioPluginLinux.cpp',
             ],
           }],
         ],
