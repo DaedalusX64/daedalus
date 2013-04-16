@@ -44,7 +44,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/AtomicPrimitives.h"
 #include "Utility/Hash.h"
 #include "Utility/Thread.h"
-#include "Utility/IO.h"
 #include "Utility/Mutex.h"
 
 #include "Test/BatchTest.h"
@@ -64,6 +63,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef DAEDALUS_GL
 #include "SysGL/GL.h"
 #endif
+
+extern void R4300_Init();
 
 //
 //	New dynarec engine
@@ -96,9 +97,9 @@ enum ESaveStateOperation
 
 static ESaveStateOperation		gSaveStateOperation = SSO_NONE;
 
-const  u32			VI_INTR_CYCLES_INIT = 62500;
-static u32			gVerticalInterrupts( 0 );
-static u32			VI_INTR_CYCLES( VI_INTR_CYCLES_INIT );
+const  u32			kInitialVIInterruptCycles = 62500;
+static u32			gVerticalInterrupts = 0;
+static u32			VI_INTR_CYCLES = kInitialVIInterruptCycles;
 
 #ifdef USE_SCRATCH_PAD
 SCPUState *gPtrCPUState = (SCPUState*)0x10000;
@@ -109,9 +110,6 @@ ALIGNED_GLOBAL(SCPUState, gCPUState, CACHE_ALIGN);
 static bool	CPU_IsStateSimple()		   DAEDALUS_ATTRIBUTE_CONST;
 void (* g_pCPUCore)();
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void CPU_SkipToNextEvent()
 {
 	LOCK_EVENT_QUEUE();
@@ -121,21 +119,15 @@ void CPU_SkipToNextEvent()
 	gCPUState.Events[ 0 ].mCount = 1;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 static void CPU_ResetEventList()
 {
-	gCPUState.Events[ 0 ].mCount = VI_INTR_CYCLES_INIT;
+	gCPUState.Events[ 0 ].mCount     = kInitialVIInterruptCycles;
 	gCPUState.Events[ 0 ].mEventType = CPU_EVENT_VBL;
 	gCPUState.NumEvents = 1;
 
 	RESET_EVENT_QUEUE_LOCK();
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void CPU_AddEvent( s32 count, ECPUEventType event_type )
 {
 	LOCK_EVENT_QUEUE();
@@ -146,7 +138,7 @@ void CPU_AddEvent( s32 count, ECPUEventType event_type )
 	u32 event_idx;
 	for( event_idx = 0; event_idx < gCPUState.NumEvents; ++event_idx )
 	{
-		CPUEvent & event( gCPUState.Events[ event_idx ] );
+		CPUEvent & event = gCPUState.Events[ event_idx ];
 
 		if( count <= event.mCount )
 		{
@@ -156,7 +148,7 @@ void CPU_AddEvent( s32 count, ECPUEventType event_type )
 			//
 			event.mCount -= count;
 
-			u32 num_to_copy( gCPUState.NumEvents - event_idx );
+			u32 num_to_copy = gCPUState.NumEvents - event_idx;
 			if( num_to_copy > 0 )
 			{
 				memmove( &gCPUState.Events[ event_idx+1 ], &gCPUState.Events[ event_idx ], num_to_copy * sizeof( CPUEvent ) );
@@ -176,9 +168,6 @@ void CPU_AddEvent( s32 count, ECPUEventType event_type )
 	gCPUState.NumEvents++;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 static void CPU_SetCompareEvent( s32 count )
 {
 	{
@@ -199,7 +188,7 @@ static void CPU_SetCompareEvent( s32 count )
 				if( i+1 < gCPUState.NumEvents )
 				{
 					gCPUState.Events[ i+1 ].mCount += gCPUState.Events[ i ].mCount;
-					u32 num_to_copy( gCPUState.NumEvents - (i+1) );
+					u32 num_to_copy = gCPUState.NumEvents - (i+1);
 					memmove( &gCPUState.Events[ i ], &gCPUState.Events[ i+1 ], num_to_copy * sizeof( CPUEvent ) );
 				}
 				gCPUState.NumEvents--;
@@ -211,9 +200,6 @@ static void CPU_SetCompareEvent( s32 count )
 	CPU_AddEvent( count, CPU_EVENT_COMPARE );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 static ECPUEventType CPU_PopEvent()
 {
 	LOCK_EVENT_QUEUE();
@@ -222,9 +208,9 @@ static ECPUEventType CPU_PopEvent()
 	DAEDALUS_ASSERT( gCPUState.Events[ 0 ].mCount <= 0, "Popping event when cycles remain" );
 	//DAEDALUS_ASSERT( gCPUState.Events[ 0 ].mCount == 0, "Popping event with a bit of underflow" );
 
-	ECPUEventType	event_type( gCPUState.Events[ 0 ].mEventType );
+	ECPUEventType event_type = gCPUState.Events[ 0 ].mEventType;
 
-	u32	num_to_copy( gCPUState.NumEvents - 1 );
+	u32	num_to_copy = gCPUState.NumEvents - 1;
 	if( num_to_copy > 0 )
 	{
 		memmove( &gCPUState.Events[ 0 ], &gCPUState.Events[ 1 ], num_to_copy * sizeof( CPUEvent ) );
@@ -234,9 +220,7 @@ static ECPUEventType CPU_PopEvent()
 	return event_type;
 }
 
-//*****************************************************************************
 // XXXX This is for savestate. Looks very suspicious to me
-//*****************************************************************************
 u32 CPU_GetVideoInterruptEventCount()
 {
 	for( u32 i = 0; i < gCPUState.NumEvents; ++i )
@@ -250,9 +234,7 @@ u32 CPU_GetVideoInterruptEventCount()
 	return 0;
 }
 
-//*****************************************************************************
 // XXXX This is for savestate. Looks very suspicious to me
-//*****************************************************************************
 void CPU_SetVideoInterruptEventCount( u32 count )
 {
 	for( u32 i = 0; i < gCPUState.NumEvents; ++i )
@@ -265,18 +247,12 @@ void CPU_SetVideoInterruptEventCount( u32 count )
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void SCPUState::ClearStuffToDo()
 {
 	StuffToDo = 0;
 	Dynarec_ClearedCPUStuffToDo();
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void SCPUState::AddJob( u32 job )
 {
 	u32 stuff( AtomicBitSet( &StuffToDo, 0xffffffff, job ) );
@@ -286,9 +262,6 @@ void SCPUState::AddJob( u32 job )
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void SCPUState::ClearJob( u32 job )
 {
 	u32 stuff( AtomicBitSet( &StuffToDo, ~job, 0x00000000 ) );
@@ -299,22 +272,27 @@ void SCPUState::ClearJob( u32 job )
 }
 
 #ifdef DAEDALUS_ENABLE_SYNCHRONISATION
-static const unsigned char regName[32][5] =
+static const char * const kRegisterNames[] =
 {
-    "zr", "at", "v0", "v1", "a0", "a1", "a2", "a3",
-    "t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
-    "s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7",
-    "t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra"
+	"zr", "at", "v0", "v1", "a0", "a1", "a2", "a3",
+	"t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
+	"s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7",
+	"t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra"
 };
+DAEDALUS_STATIC_ASSERT(ARRAYSIZE(kRegisterNames) == 32);
 
 void SCPUState::Dump()
 {
 	DBGConsole_Msg(0, "Emulation CPU State:");
 	{
 		for(int i=0; i<32; i+=4)
+		{
 			DBGConsole_Msg(0, "%s:%08X %s:%08X %s:%08X %s:%08X",
-			regName[i], gCPUState.CPU[i]._u32_0, regName[i+1], gCPUState.CPU[i+1]._u32_0,
-			regName[i+2], gCPUState.CPU[i+2]._u32_0, regName[i+3], gCPUState.CPU[i+3]._u32_0);
+			kRegisterNames[i+0], gCPUState.CPU[i+0]._u32_0,
+			kRegisterNames[i+1], gCPUState.CPU[i+1]._u32_0,
+			kRegisterNames[i+2], gCPUState.CPU[i+2]._u32_0,
+			kRegisterNames[i+3], gCPUState.CPU[i+3]._u32_0);
+		}
 
 		DBGConsole_Msg(0, "TargetPC: %08x", gCPUState.TargetPC);
 		DBGConsole_Msg(0, "CurrentPC: %08x", gCPUState.CurrentPC);
@@ -323,10 +301,6 @@ void SCPUState::Dump()
 }
 #endif
 
-extern void R4300_Init();
-//*****************************************************************************
-//
-//*****************************************************************************
 bool CPU_Reset( )
 {
 	DBGConsole_Msg(0, "Resetting CPU");
@@ -346,9 +320,9 @@ bool CPU_Reset( )
 
 	for(u32 i = 0; i < 32; i++)
 	{
-		gCPUState.CPU[i]._u64 = 0;
+		gCPUState.CPU[i]._u64        = 0;
 		gCPUState.CPUControl[i]._u32 = 0;
-		gCPUState.FPU[i]._u32 = 0;
+		gCPUState.FPU[i]._u32        = 0;
 		gCPUState.FPUControl[i]._u32 = 0;
 	}
 
@@ -359,12 +333,12 @@ bool CPU_Reset( )
 	}
 
 	// From R4300 manual
-	gCPUState.CPUControl[C0_RAND]._u32		= 32-1;			// TLBENTRIES-1
-	//gCPUState.CPUControl[C0_SR]._u32		= 0x70400004;	//*SR_FR |*/ SR_ERL | SR_CU2|SR_CU1|SR_CU0;
+	gCPUState.CPUControl[C0_RAND]._u32   = 32-1;			// TLBENTRIES-1
+	//gCPUState.CPUControl[C0_SR]._u32   = 0x70400004;	//*SR_FR |*/ SR_ERL | SR_CU2|SR_CU1|SR_CU0;
 	R4300_SetSR(0x70400004);
-	gCPUState.CPUControl[C0_PRID]._u32	= 0x00000b10;	// Was 0xb00 - test rom reports 0xb10!!
-	gCPUState.CPUControl[C0_CONFIG]._u32	= 0x0006E463;	// 0x00066463;
-	gCPUState.CPUControl[C0_WIRED]._u32   = 0x0;
+	gCPUState.CPUControl[C0_PRID]._u32   = 0x00000b10;	// Was 0xb00 - test rom reports 0xb10!!
+	gCPUState.CPUControl[C0_CONFIG]._u32 = 0x0006E463;	// 0x00066463;
+	gCPUState.CPUControl[C0_WIRED]._u32  = 0x0;
 
 	gCPUState.FPUControl[0]._u32 = 0x00000511;
 
@@ -391,9 +365,6 @@ bool CPU_Reset( )
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void CPU_Finalise()
 {
 #ifdef DAEDALUS_ENABLE_DYNAREC
@@ -404,19 +375,13 @@ void CPU_Finalise()
 #endif
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 static bool	CPU_IsStateSimple()
 {
-	bool	rsp_halted( !RSP_IsRunning() );
+	bool rsp_halted = !RSP_IsRunning();
 
 	return rsp_halted && (gCPUState.Delay == NO_DELAY);
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void CPU_SelectCore()
 {
 #ifdef DAEDALUS_ENABLE_DYNAREC
@@ -436,9 +401,6 @@ void CPU_SelectCore()
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 bool CPU_RequestSaveState( const char * filename )
 {
 	// Call SaveState_SaveToFile directly if the CPU is not running.
@@ -582,9 +544,6 @@ static bool HandleSaveStateOperationOnCPUStopRunning()
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 bool CPU_Run()
 {
 	if (!RomBuffer::IsRomLoaded())
@@ -598,7 +557,7 @@ bool CPU_Run()
 
 		RESET_EVENT_QUEUE_LOCK();
 
-		while( gCPURunning )
+		while (gCPURunning)
 		{
 			g_pCPUCore();
 		}
@@ -612,9 +571,6 @@ bool CPU_Run()
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void CPU_Halt( const char * reason )
 {
 	DBGConsole_Msg( 0, "CPU Halting: %s", reason );
@@ -623,9 +579,6 @@ void CPU_Halt( const char * reason )
 }
 
 #ifdef DAEDALUS_BREAKPOINTS_ENABLED
-//*****************************************************************************
-//
-//*****************************************************************************
 void CPU_AddBreakPoint( u32 address )
 {
 	OpCode * pdwOp;
@@ -642,21 +595,18 @@ void CPU_AddBreakPoint( u32 address )
 		DBG_BreakPoint bpt;
 		DBGConsole_Msg(0, "[YInserting BreakPoint at 0x%08x]", address);
 
-		bpt.mOriginalOp = *pdwOp;
-		bpt.mEnabled = true;
+		bpt.mOriginalOp       = *pdwOp;
+		bpt.mEnabled          = true;
 		bpt.mTemporaryDisable = false;
 		g_BreakPoints.push_back(bpt);
 
-		pdwOp->op = OP_DBG_BKPT;
+		pdwOp->op       = OP_DBG_BKPT;
 		pdwOp->bp_index = (g_BreakPoints.size() - 1);
 	}
 }
 #endif
 
 #ifdef DAEDALUS_BREAKPOINTS_ENABLED
-//*****************************************************************************
-//
-//*****************************************************************************
 void CPU_EnableBreakPoint( u32 address, bool enable )
 {
 	OpCode * pdwOp;
@@ -670,7 +620,7 @@ void CPU_EnableBreakPoint( u32 address, bool enable )
 	}
 	else
 	{
-		OpCode op_code( *pdwOp );
+		OpCode op_code = *pdwOp;
 
 		if (op_code.op != OP_DBG_BKPT)
 		{
@@ -679,7 +629,7 @@ void CPU_EnableBreakPoint( u32 address, bool enable )
 		}
 
 		// Entry is in lower 26 bits...
-		u32 breakpoint_idx( op_code.bp_index );
+		u32 breakpoint_idx = op_code.bp_index;
 
 		if (breakpoint_idx < g_BreakPoints.size())
 		{
@@ -691,9 +641,6 @@ void CPU_EnableBreakPoint( u32 address, bool enable )
 }
 #endif
 
-//*****************************************************************************
-//
-//*****************************************************************************
 extern u32 gVISyncRate;
 extern "C"
 {
@@ -701,12 +648,12 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 {
 	DAEDALUS_ASSERT( gCPUState.NumEvents > 0, "Should always have at least one event queued up" );
 
-	switch ( CPU_PopEvent() )
+	switch (CPU_PopEvent())
 	{
 	case CPU_EVENT_VBL:
 		{
 			//Todo: Work on VI_INTR_CYCLES should be 62500 * (60/Real game FPS)
-			u32		vertical_sync_reg( Memory_VI_GetRegister( VI_V_SYNC_REG ) );
+			u32 vertical_sync_reg = Memory_VI_GetRegister( VI_V_SYNC_REG );
 			if (vertical_sync_reg == 0)
 			{
 				VI_INTR_CYCLES = 62500;
@@ -753,8 +700,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			HandleSaveStateOperationOnVerticalBlank();
 
 #ifdef DAEDALUS_BATCH_TEST_ENABLED
-			CBatchTestEventHandler * handler( BatchTest_GetHandler() );
-			if( handler )
+			if (CBatchTestEventHandler * handler = BatchTest_GetHandler())
 				handler->OnVerticalBlank();
 #endif
 
@@ -772,7 +718,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 		break;
 	case CPU_EVENT_AUDIO:
 		{
-			u32 status( Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_TASKDONE|SP_STATUS_YIELDED|SP_STATUS_BROKE|SP_STATUS_HALT) );
+			u32 status = Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_TASKDONE|SP_STATUS_YIELDED|SP_STATUS_BROKE|SP_STATUS_HALT);
 			if( status & SP_STATUS_INTR_BREAK )
 				CPU_AddEvent(4000, CPU_EVENT_SPINT);
 		}
@@ -789,9 +735,6 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 }
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void CPU_SetCompare(u32 value)
 {
 	gCPUState.CPUControl[C0_CAUSE]._u32 &= ~CAUSE_IP8;
@@ -830,12 +773,9 @@ void CPU_SetCompare(u32 value)
 }
 
 #ifdef DAEDALUS_ENABLE_SYNCHRONISATION
-//*****************************************************************************
-//
-//*****************************************************************************
 u32	CPU_ProduceRegisterHash()
 {
-	u32	hash( 0 );
+	u32	hash = 0;
 
 	if ( DAED_SYNC_MASK & DAED_SYNC_REG_GPR )
 	{
@@ -861,10 +801,8 @@ u32	CPU_ProduceRegisterHash()
 #endif
 
 #ifdef FRAGMENT_SIMULATE_EXECUTION
-//*****************************************************************************
-//	Execute the specified opcode
-//*****************************************************************************
-void	CPU_ExecuteOpRaw( u32 count, u32 address, OpCode op_code, CPU_Instruction p_instruction, bool * p_branch_taken )
+// Execute the specified opcode
+void CPU_ExecuteOpRaw( u32 count, u32 address, OpCode op_code, CPU_Instruction p_instruction, bool * p_branch_taken )
 {
 	gCPUState.CurrentPC = address;
 
@@ -879,9 +817,6 @@ void	CPU_ExecuteOpRaw( u32 count, u32 address, OpCode op_code, CPU_Instruction p
 }
 #endif
 
-//*****************************************************************************
-//
-//*****************************************************************************
 extern "C"
 {
 void CPU_UpdateCounter( u32 ops_executed )
@@ -893,7 +828,7 @@ void CPU_UpdateCounter( u32 ops_executed )
 	gTotalInstructionsExecuted += ops_executed;
 #endif
 
-	const u32	cycles( ops_executed * COUNTER_INCREMENT_PER_OP );
+	const u32 cycles = ops_executed * COUNTER_INCREMENT_PER_OP;
 
 	// Increment count register
 	gCPUState.CPUControl[C0_COUNT]._u32 += cycles;
@@ -903,10 +838,8 @@ void CPU_UpdateCounter( u32 ops_executed )
 		CPU_HANDLE_COUNT_INTERRUPT();
 	}
 }
+
 #ifdef UPDATE_COUNTER_ON_EXCEPTION
-//*****************************************************************************
-//
-//*****************************************************************************
 // As above, but no interrupts are fired
 void CPU_UpdateCounterNoInterrupt( u32 ops_executed )
 {
@@ -914,7 +847,7 @@ void CPU_UpdateCounterNoInterrupt( u32 ops_executed )
 
 	if( ops_executed > 0 )
 	{
-		const u32	cycles( ops_executed * COUNTER_INCREMENT_PER_OP );
+		const u32 cycles = ops_executed * COUNTER_INCREMENT_PER_OP;
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
 		gTotalInstructionsExecuted += ops_executed;
@@ -924,7 +857,7 @@ void CPU_UpdateCounterNoInterrupt( u32 ops_executed )
 		gCPUState.CPUControl[C0_COUNT]._u32 += cycles;
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
-		bool	ready( CPU_ProcessEventCycles( cycles ) );
+		bool	ready = CPU_ProcessEventCycles( cycles );
 		use( ready );
 		DAEDALUS_ASSERT(!ready, "Ignoring Count interrupt");	// Just a test - remove eventually (needs to handle this)
 #endif
@@ -933,14 +866,12 @@ void CPU_UpdateCounterNoInterrupt( u32 ops_executed )
 #endif
 }
 
-//*****************************************************************************
-//	Return true if change the core
-//*****************************************************************************
-bool	CPU_CheckStuffToDo()
+// Return true if change the core
+bool CPU_CheckStuffToDo()
 {
 	// We do this in a slightly different order to ensure that
 	// any interrupts are taken care of before we execute an op
-	u32	stuff_to_do( gCPUState.GetStuffToDo() );
+	u32	stuff_to_do = gCPUState.GetStuffToDo();
 	if( stuff_to_do )
 	{
 		// Process Interrupts/Exceptions on a priority basis
@@ -972,11 +903,8 @@ bool	CPU_CheckStuffToDo()
 	return false;
 }
 
-
-//*****************************************************************************
-//	Return true if the CPU is running
-//*****************************************************************************
-bool	CPU_IsRunning()
+// Return true if the CPU is running
+bool CPU_IsRunning()
 {
 	return gCPURunning;
 }
