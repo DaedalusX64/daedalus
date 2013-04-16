@@ -20,9 +20,16 @@ static void HandleKeys(int key, int state)
 			IO::Path::Combine(filename, gDaedalusExePath, buf);
 
 			if (ctrl_down)
+			{
 				CPU_RequestSaveState(filename);
+			}
 			else
-				CPU_RequestLoadState(filename);	
+			{
+				if (IO::File::Exists(filename))
+				{
+					CPU_RequestLoadState(filename);
+				}
+			}
 		}
 
 		if (key == GLFW_KEY_ESC)
@@ -46,5 +53,5 @@ bool UI_Init()
 
 void UI_Finalise()
 {
-	CPU_UnregisterVblCallback(&PollKeyboard, NULL);	
+	CPU_UnregisterVblCallback(&PollKeyboard, NULL);
 }
