@@ -4,44 +4,47 @@
 #include "SysGL/GL.h"
 #include "Utility/IO.h"
 
-static void HandleSystemKeys(void * arg)
+static void HandleKeys(int key, int state)
 {
-	// Debounce keys
-	static bool save_was_pressed = false;
-	static bool load_was_pressed = false;
-
-	bool save_pressed = glfwGetKey( GLFW_KEY_F9 );
-	bool load_pressed = glfwGetKey( GLFW_KEY_F8 );
-
-	if (save_pressed && !save_was_pressed)
+	if (state)
 	{
-		IO::Path::PathBuf filename;
-		IO::Path::Combine(filename, gDaedalusExePath, "quick.save");
-		CPU_RequestSaveState(filename);
-	}
-	if (load_pressed && !load_was_pressed)
-	{
-		IO::Path::PathBuf filename;
-		IO::Path::Combine(filename, gDaedalusExePath, "quick.save");
-		CPU_RequestLoadState(filename);
-	}
+		if (key >= '0' && key <= '9')
+		{
+			int idx = key - '0';
 
-	if (glfwGetKey(GLFW_KEY_ESC))
-	{
-		CPU_Halt("Escape");
-	}
+			bool ctrl_down = glfwGetKey(GLFW_KEY_LCTRL) || glfwGetKey(GLFW_KEY_RCTRL);
 
-	save_was_pressed = save_pressed;
-	load_was_pressed = load_pressed;
+			char buf[64];
+			sprintf(buf, "quick%d.save", idx);
+			IO::Path::PathBuf filename;
+			IO::Path::Combine(filename, gDaedalusExePath, buf);
+
+			if (ctrl_down)
+				CPU_RequestSaveState(filename);
+			else
+				CPU_RequestLoadState(filename);	
+		}
+
+		if (key == GLFW_KEY_ESC)
+		{
+			CPU_Halt("Escape");
+		}	
+	}
+}
+
+static void PollKeyboard(void * arg)
+{
+	glfwPollEvents();
 }
 
 bool UI_Init()
 {
-	CPU_RegisterVblCallback(&HandleSystemKeys, NULL);
+	glfwSetKeyCallback(&HandleKeys);
+	CPU_RegisterVblCallback(&PollKeyboard, NULL);
 	return true;
 }
 
 void UI_Finalise()
 {
-	CPU_UnregisterVblCallback(&HandleSystemKeys, NULL);	
+	CPU_UnregisterVblCallback(&PollKeyboard, NULL);	
 }
