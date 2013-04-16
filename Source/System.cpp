@@ -177,9 +177,7 @@ static const RomEntityEntry gRomInitTable[] =
 	{"Settings",			ROM_LoadFile,			ROM_UnloadFile},
 	{"InputManager",		CInputManager::Init,	CInputManager::Fini},
 	{"Memory",				Memory_Reset,			Memory_Cleanup},
-#ifndef DAEDALUS_LINUX
 	{"Audio",				InitAudioPlugin,		DisposeAudioPlugin},
-#endif
 	{"Graphics",			InitGraphicsPlugin,		DisposeGraphicsPlugin},
 	{"FramerateLimiter",	FramerateLimiter_Reset,	NULL},
 	//{"RSP", RSP_Reset, NULL},
