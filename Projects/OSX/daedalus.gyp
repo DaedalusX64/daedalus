@@ -12,6 +12,7 @@
           ],
         },
         'dependencies': [
+          '../../Source/SysGL/SysGL.gyp:SysGL',
           '../../Source/third_party/glfw/glfw.gyp:glfw',
           '../../Source/third_party/libpng/libpng.gyp:libpng',
           '../../Source/third_party/webby/webby.gyp:webby',
@@ -132,12 +133,6 @@
               '../../Source/SysOSX/Include',
             ],
             'sources': [
-              '../../Source/SysGL/Graphics/GraphicsContextGL.cpp',
-              '../../Source/SysGL/Graphics/NativeTextureGL.cpp',
-              '../../Source/SysGL/HLEGraphics/GraphicsPluginGL.cpp',
-              '../../Source/SysGL/HLEGraphics/RendererGL.cpp',
-              '../../Source/SysGL/Interface/UI.cpp',
-
               '../../Source/SysOSX/main.cpp',
               '../../Source/SysOSX/HLEAudio/AudioPluginOSX.cpp',
               '../../Source/SysOSX/Debug/DaedalusAssertOSX.cpp',
@@ -158,7 +153,6 @@
             'destination': '<(PRODUCT_DIR)/',
             'files': [
               '../../Data/PSP/roms.ini',
-              '../../Source/SysGL/HLEGraphics/n64.psh',
             ],
           },
           {
