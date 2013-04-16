@@ -173,6 +173,10 @@ void	CPU_AddEvent( s32 count, ECPUEventType event_type );
 void	CPU_SkipToNextEvent();
 bool	CPU_CheckStuffToDo();
 
+typedef void (*VblCallbackFn)(void * arg);
+void CPU_RegisterVblCallback(VblCallbackFn fn, void * arg);
+void CPU_UnregisterVblCallback(VblCallbackFn fn, void * arg);
+
 // For PSP, we just keep running forever. For other platforms we need to bail when the user quits.
 #ifdef DAEDALUS_PSP
 #define CPU_KeepRunning() (1)

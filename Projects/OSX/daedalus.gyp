@@ -136,6 +136,7 @@
               '../../Source/SysGL/Graphics/NativeTextureGL.cpp',
               '../../Source/SysGL/HLEGraphics/GraphicsPluginGL.cpp',
               '../../Source/SysGL/HLEGraphics/RendererGL.cpp',
+              '../../Source/SysGL/Interface/UI.cpp',
 
               '../../Source/SysOSX/main.cpp',
               '../../Source/SysOSX/HLEAudio/AudioPluginOSX.cpp',

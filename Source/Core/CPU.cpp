@@ -60,10 +60,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <algorithm>
 #include <string>
 
-#ifdef DAEDALUS_GL
-#include "SysGL/GL.h"
-#endif
-
 extern void R4300_Init();
 
 //
@@ -109,6 +105,34 @@ ALIGNED_GLOBAL(SCPUState, gCPUState, CACHE_ALIGN);
 
 static bool	CPU_IsStateSimple()		   DAEDALUS_ATTRIBUTE_CONST;
 void (* g_pCPUCore)();
+
+typedef void (*VblCallbackFn)(void * arg);
+struct VblCallback
+{
+	VblCallbackFn		Fn;
+	void *				Arg;
+};
+
+std::vector<VblCallback>		gVblCallbacks;
+
+
+void CPU_RegisterVblCallback(VblCallbackFn fn, void * arg)
+{
+	VblCallback callback = { fn, arg };
+	gVblCallbacks.push_back(callback);
+}
+
+void CPU_UnregisterVblCallback(VblCallbackFn fn, void * arg)
+{
+	for (std::vector<VblCallback>::iterator it = gVblCallbacks.begin(); it != gVblCallbacks.end(); ++it)
+	{
+		if (it->Fn == fn && it->Arg == arg)
+		{
+			gVblCallbacks.erase(it);
+			break;
+		}
+	}
+}
 
 void CPU_SkipToNextEvent()
 {
@@ -441,39 +465,6 @@ bool CPU_RequestLoadState( const char * filename )
 	return true;	// XXXX could fail
 }
 
-static void HandleSystemKeys()
-{
-#ifdef DAEDALUS_GL
-	// Debounce keys
-	static bool save_was_pressed = false;
-	static bool load_was_pressed = false;
-
-	bool save_pressed = glfwGetKey( GLFW_KEY_F9 );
-	bool load_pressed = glfwGetKey( GLFW_KEY_F8 );
-
-	if (save_pressed && !save_was_pressed)
-	{
-		IO::Path::PathBuf filename;
-		IO::Path::Combine(filename, gDaedalusExePath, "quick.save");
-		CPU_RequestSaveState(filename);
-	}
-	if (load_pressed && !load_was_pressed)
-	{
-		IO::Path::PathBuf filename;
-		IO::Path::Combine(filename, gDaedalusExePath, "quick.save");
-		CPU_RequestLoadState(filename);
-	}
-
-	if (glfwGetKey(GLFW_KEY_ESC))
-	{
-		CPU_Halt("Escape");
-	}
-
-	save_was_pressed = save_pressed;
-	load_was_pressed = load_pressed;
-#endif
-}
-
 static void HandleSaveStateOperationOnVerticalBlank()
 {
 	DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");
@@ -695,7 +686,11 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			if ((gVerticalInterrupts & 0x3F) == 0) // once every 60 VBLs
 				Save::Flush();
 
-			HandleSystemKeys();
+			for (size_t i = 0; i < gVblCallbacks.size(); ++i)
+			{
+				VblCallback & callback = gVblCallbacks[i];
+				callback.Fn(callback.Arg);
+			}
 
 			HandleSaveStateOperationOnVerticalBlank();
 
