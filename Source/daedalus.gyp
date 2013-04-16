@@ -13,17 +13,12 @@
         },
         'dependencies': [
           'SysGL/SysGL.gyp:SysGL',
-          'third_party/glfw/glfw.gyp:glfw',
+          'third_party/glfw/glfw.gyp:glfw', # FIXME: should transitively pull in include dir
           'third_party/libpng/libpng.gyp:libpng',
           'third_party/webby/webby.gyp:webby',
           'third_party/zlib/zlib.gyp:minizip',
           'third_party/zlib/zlib.gyp:zlib',
         ],
-        'link_settings': {
-          'libraries': [
-            '$(SDKROOT)/System/Library/Frameworks/AudioToolbox.framework',
-          ],
-        },
         'include_dirs': [
           '.',
           'Config/Dev',
@@ -129,6 +124,30 @@
             ],
           }],
           ['OS=="mac"', {
+            'include_dirs': [
+              'SysOSX/Include',
+            ],
+            'link_settings': {
+              'libraries': [
+                '$(SDKROOT)/System/Library/Frameworks/AudioToolbox.framework',
+              ],
+            },
+            'sources': [
+              'SysOSX/main.cpp',
+              'SysOSX/HLEAudio/AudioPluginOSX.cpp',
+              'SysOSX/Debug/DaedalusAssertOSX.cpp',
+              'SysOSX/Debug/DebugConsoleOSX.cpp',
+              'SysOSX/Debug/WebDebug.cpp',
+              'SysOSX/Debug/WebDebugTemplate.cpp',
+              'SysOSX/DynaRec/CodeBufferManagerOSX.cpp',
+              'SysOSX/HLEGraphics/DisplayListDebugger.cpp',
+              'SysOSX/Input/InputManagerOSX.cpp',
+              'SysOSX/Utility/IOOSX.cpp',
+              'SysOSX/Utility/ThreadOSX.cpp',
+              'SysOSX/Utility/TimingOSX.cpp',
+            ],
+          }],
+          ['OS=="linux"', {
             'include_dirs': [
               'SysOSX/Include',
             ],
