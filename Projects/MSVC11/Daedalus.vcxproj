@@ -447,6 +447,7 @@
     <ClCompile Include="..\..\Source\SysOSX\HLEGraphics\DisplayListDebugger.cpp" />
     <ClCompile Include="..\..\Source\SysGL\HLEGraphics\GraphicsPluginGL.cpp" />
     <ClCompile Include="..\..\Source\SysGL\HLEGraphics\RendererGL.cpp" />
+	<ClCompile Include="..\..\Source\SysGL\Interface\UI.cpp" />
     <ClCompile Include="..\..\Source\HLEGraphics\TextureCacheWebDebug.cpp" />
     <ClCompile Include="..\..\Source\SysPSP\HLEGraphics\BlendModes.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

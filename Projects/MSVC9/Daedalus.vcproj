@@ -1896,6 +1896,14 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\Source\SysGL\Interface\UI.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\Source\SysGL\Interface\UI.h"
+						>
+					</File>
+					<File
 						RelativePath="..\..\Source\HLEGraphics\TextureCacheWebDebug.cpp"
 						>
 					</File>

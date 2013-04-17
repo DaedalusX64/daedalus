@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 
 #include "Math/MathUtil.h"
+#include "Utility/FastMemcpy.h"
 
 inline s32		FixedPointMul16( s32 a, s32 b )
 {
@@ -50,6 +51,8 @@ static void SETVOL3( AudioHLECommand command )
 		if (Flags & 0x2)
 		{ // 290
 			gAudioHLEState.VolLeft  = (s16)command.cmd0; // 0x50
+			// CHECK ME, It should be >> 10 according to azimer's SETVOL3, which fixes cracky sound in conker when he talks
+			// BUT makes the sound effect almost unhearable //Salvy
 			gAudioHLEState.EnvDry	= (s16)(command.cmd1 >> 16); // 0x4E
 			gAudioHLEState.EnvWet	= (s16)command.cmd1; // 0x4C
 		}
@@ -287,16 +290,16 @@ static void DMEMMOVE3( AudioHLECommand command )
 {
 	// Needs accuracy verification...
 	u32 v0, v1;
-	u32 cnt;
+	//u32 cnt;
 	v0 = (command.cmd0 & (N64_AUDIO_BUFF - 1)) + 0x4f0;
 	v1 = ((command.cmd1 >> 0x10) & (N64_AUDIO_BUFF - 1)) + 0x4f0;
 	u32 count = ((command.cmd1+3) & (N64_AUDIO_BUFF - 4));
 
-	//memcpy (dmem+v1, dmem+v0, count-1);
-	for (cnt = 0; cnt < count; cnt++)
+	memcpy_swizzle(gAudioHLEState.Buffer+v1, gAudioHLEState.Buffer+v0, count);
+	/*for (cnt = 0; cnt < count; cnt++)
 	{
 		*(u8 *)(gAudioHLEState.Buffer+((cnt+v1)^3)) = *(u8 *)(gAudioHLEState.Buffer+((cnt+v0)^3));
-	}
+	}*/
 }
 
 static void SETLOOP3( AudioHLECommand command )
@@ -380,8 +383,10 @@ static void ADPCM3( AudioHLECommand command )
 
 			inp1[j]=(s16)((icode&0xf0)<<8);			// this will in effect be signed
 
-			DAEDALUS_ASSERT( code>12, "Unhandled code - %d", code );
-			inp1[j]=((s32)((s32)inp1[j]*(s32)vscale)>>16);
+			// Conker and Banjo set this!
+			if(code<12)
+				inp1[j]=((s32)((s32)inp1[j]*(s32)vscale)>>16);
+
 			j++;
 
 			inp1[j]=(s16)((icode&0xf)<<12);
@@ -398,8 +403,9 @@ static void ADPCM3( AudioHLECommand command )
 
 			inp2[j]=(s16)((icode&0xf0)<<8);			// this will in effect be signed
 
-			DAEDALUS_ASSERT( code>12, "Unhandled code - %d", code );
-			inp2[j]=((s32)((s32)inp2[j]*(s32)vscale)>>16);
+			if(code<12)
+				inp2[j]=((s32)((s32)inp2[j]*(s32)vscale)>>16);
+
 			j++;
 
 			inp2[j]=(s16)((icode&0xf)<<12);

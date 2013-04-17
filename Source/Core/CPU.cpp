@@ -106,6 +106,7 @@ ALIGNED_GLOBAL(SCPUState, gCPUState, CACHE_ALIGN);
 static bool	CPU_IsStateSimple()		   DAEDALUS_ATTRIBUTE_CONST;
 void (* g_pCPUCore)();
 
+#ifdef DAEDALUS_GL
 typedef void (*VblCallbackFn)(void * arg);
 struct VblCallback
 {
@@ -133,6 +134,7 @@ void CPU_UnregisterVblCallback(VblCallbackFn fn, void * arg)
 		}
 	}
 }
+#endif	//DAEDALUS_GL
 
 void CPU_SkipToNextEvent()
 {
@@ -685,13 +687,13 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			//   callbacks in so that CPU.cpp doesn't need to know about them.
 			if ((gVerticalInterrupts & 0x3F) == 0) // once every 60 VBLs
 				Save::Flush();
-
+#ifdef DAEDALUS_GL
 			for (size_t i = 0; i < gVblCallbacks.size(); ++i)
 			{
 				VblCallback & callback = gVblCallbacks[i];
 				callback.Fn(callback.Arg);
 			}
-
+#endif
 			HandleSaveStateOperationOnVerticalBlank();
 
 #ifdef DAEDALUS_BATCH_TEST_ENABLED

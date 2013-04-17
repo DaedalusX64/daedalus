@@ -39,12 +39,17 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 			u32 srcTmp;
 			u32 dstTmp;
 			u32 size32 = size >> 2;
-			size &= 0x3;
 
 			switch( (uintptr_t)src8&0x3 )
 			{
 				case 0:	//Both src and dst are aligned to 4 bytes
 					{
+#ifdef DAEDALUS_W32
+						// MSVC11 memcpy is almost 50% faster! It takes advantage of SSE2
+						memcpy(dst, src, size & ~0x3);
+#else
+						//This is faster than PSP's GCC memcpy
+						//ToDo: Profile for other plaforms to see if memcpy is faster
 						while (size32&0x3)
 						{
 							*dst32++ = *src32++;
@@ -61,6 +66,7 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 						}
 
 						src8 = (u8*)src32;
+#endif
 					}
 					break;
 
@@ -114,6 +120,7 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 	}
 
 	// Copy the remaing byte by byte...
+	size &= 0x3;
 	while(size--)
 	{
 		*(u8*)((uintptr_t)dst8++ ^ U8_TWIDDLE) = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
@@ -128,7 +135,6 @@ void memcpy_byteswap32( void* dst, const void* src, size_t size )
 	if( ((uintptr_t)src&0x3 )==0)
 	{
 		u32 size32 = size >> 2;
-		size &= 0x3;		// Remaining bits
 		while (size32&0x3)
 		{
 			*dst32++ = BSWAP32(src32[0]);
@@ -151,6 +157,8 @@ void memcpy_byteswap32( void* dst, const void* src, size_t size )
 	u8* src8 = (u8*)src32;
 	u8* dst8 = (u8*)dst32;
 
+	// Copy the remaing byte by byte...
+	size &= 0x3;
 	while(size--)
 	{
 		*dst8++ = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);

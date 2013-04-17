@@ -4,7 +4,7 @@
 #include "SysGL/GL.h"
 #include "Utility/IO.h"
 
-static void HandleKeys(int key, int state)
+static void GLFWCALL HandleKeys(int key, int state)
 {
 	if (state)
 	{
