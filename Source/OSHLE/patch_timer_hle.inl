@@ -15,7 +15,7 @@ TEST_DISABLE_TIMER_FUNCS
 
 	s64 sum = (s64)(s32)((s32)count + (s32)TimeLo);
 
-	CPU_SetCompare(sum);
+	CPU_SetCompare((u32)sum);
 
 	return PATCH_RET_JR_RA;
 }

@@ -1076,7 +1076,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 	{
 		if(g_CI.Size == G_IM_SIZ_16b)
 		{
-			N64Pf5551	c( (u16)fill_colour );
+			N64Pf5551	c( (u16)(fill_colour & 0xffff) );
 			colour = ConvertPixelFormat< c32, N64Pf5551 >( c );
 		}
 		else
@@ -1104,8 +1104,8 @@ void DLParser_FillRect( MicroCodeCommand command )
 
 	DL_PF("    Filling Rectangle (%d,%d)->(%d,%d)", command.fillrect.x0, command.fillrect.y0, command.fillrect.x1, command.fillrect.y1);
 
-	v2 xy0( command.fillrect.x0, command.fillrect.y0 );
-	v2 xy1( command.fillrect.x1, command.fillrect.y1 );
+	v2 xy0( (f32)command.fillrect.x0, (f32)command.fillrect.y0 );
+	v2 xy1( (f32)command.fillrect.x1, (f32)command.fillrect.y1 );
 
 	//
 	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
@@ -1129,6 +1129,7 @@ void DLParser_SetZImg( MicroCodeCommand command )
 {
 	DL_PF("    ZImg Adr[0x%08x]", RDPSegAddr(command.inst.cmd1));
 
+	// No need check for (MAX_RAM_ADDRESS-1) here, since g_DI.Address is never used to reference a RAM location
 	g_DI.Address = RDPSegAddr(command.inst.cmd1);
 }
 
@@ -1174,7 +1175,7 @@ void DLParser_SetFillColor( MicroCodeCommand command )
 	u32 fill_colour = command.inst.cmd1;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	N64Pf5551	n64col( (u16)fill_colour );
+	N64Pf5551	n64col( (u16)(fill_colour & 0xffff) );
 	DL_PF( "    Color5551=0x%04x", n64col.Bits );
 #endif
 

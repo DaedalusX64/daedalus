@@ -3391,7 +3391,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_CVT_S( R4300_CALL_SIGNATURE )
 
 	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
-	StoreFPR_Single( op_code.fd, fX );
+	StoreFPR_Single( op_code.fd, (f32)fX );
 }
 
 // Convert f64 to word...

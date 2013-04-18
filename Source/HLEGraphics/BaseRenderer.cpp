@@ -390,7 +390,7 @@ void BaseRenderer::UpdateViewport()
 	sceGuOffset(vx - (vp_w/2),vy - (vp_h/2));
 	sceGuViewport(vx + vp_x, vy + vp_y, vp_w, vp_h);
 #elif defined(DAEDALUS_GL)
-	glViewport(vp_x, mScreenHeight - (vp_h + vp_y), vp_w, vp_h);
+	glViewport(vp_x, (s32)mScreenHeight - (vp_h + vp_y), vp_w, vp_h);
 #else
 	DAEDALUS_ERROR("Code to set viewport not implemented on this platform");
 #endif
@@ -1878,8 +1878,8 @@ void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 	if( x1 > uViWidth )  x1 = uViWidth;
 	if( y1 > uViHeight ) y1 = uViHeight;
 
-	v2 n64_tl( x0, y0 );
-	v2 n64_br( x1, y1 );
+	v2 n64_tl( (f32)x0, (f32)y0 );
+	v2 n64_br( (f32)x1, (f32)y1 );
 
 	v2 screen_tl;
 	v2 screen_br;
@@ -1900,7 +1900,7 @@ void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 	// NB: OpenGL is x,y,w,h. Errors if width or height is negative, so clamp this.
 	s32 w = Max<s32>( r - l, 0 );
 	s32 h = Max<s32>( b - t, 0 );
-	glScissor( l, mScreenHeight - (t + h), w, h );
+	glScissor( l, (s32)mScreenHeight - (t + h), w, h );
 #else
 	DAEDALUS_ERROR("Need to implement scissor for this platform.")
 #endif

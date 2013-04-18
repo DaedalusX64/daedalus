@@ -63,8 +63,8 @@ bool FramerateLimiter_Reset()
 	{
 		DAEDALUS_ASSERT(g_ROM.TvType <= sizeof(gTvFrequencies) / sizeof(u32), "Unknow TV type: %d", g_ROM.TvType);
 
-		gTicksBetweenVbls = frequency / (u64)gTvFrequencies[ g_ROM.TvType ];
-		gTicksPerSecond = frequency;
+		gTicksBetweenVbls = (u32)(frequency / (u64)gTvFrequencies[ g_ROM.TvType ]);
+		gTicksPerSecond = (u32)frequency;
 	}
 	else
 	{

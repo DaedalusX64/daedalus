@@ -226,8 +226,8 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 
 	case G_MW_FOG: // WIP, only works for a few games
 		{
-			f32 a = value >> 16;
-			f32 b = value & 0xFFFF;
+			f32 a = f32(value >> 16);
+			f32 b = f32(value & 0xFFFF);
 
 			//f32 min = b - a;
 			//f32 max = b + a;

@@ -459,51 +459,32 @@ TEST_DISABLE_GU_FUNCS
 
 // NOT the same function as guNormalise_Mario
 // This take one pointer, not 3
-// Mmmm can't find any game that uses this :/
 u32 Patch_guNormalize_Rugrats() //Using VFPU and no memcpy //Corn
 {
 TEST_DISABLE_GU_FUNCS
-	u32 sX = gGPR[REG_a0]._u32_0;
-	u32 sY = sX + 4;
-	u32 sZ = sX + 8;
+	u8 * pBase  = (u8 *)ReadAddress(gGPR[REG_a0]._u32_0);
 
-	DBGConsole_Msg(0, "Rugrats");
+	REG32 x, y, z;
+	x._u32 = QuickRead32Bits(pBase, 0x0);
+	y._u32 = QuickRead32Bits(pBase, 0x4);
+	z._u32 = QuickRead32Bits(pBase, 0x8);
 
-	union
-	{
-		u32 x;
-		f32 fX;
-	}uX;
-
-	union
-	{
-		u32 y;
-		f32 fY;
-	}uY;
-
-	union
-	{
-		u32 z;
-		f32 fZ;
-	}uZ;
-
-	uX.x = Read32Bits(sX);
-	uY.y = Read32Bits(sY);
-	uZ.z = Read32Bits(sZ);
+	// Mmmm can't find any game that uses this :/
+	DAEDALUS_ERROR("guNormalize_Rugrats: Check me");
 
 #ifdef DAEDALUS_PSP_USE_VFPU //Corn
-	vfpu_norm_3Dvec(&uX.fX, &uY.fY, &uZ.fZ);
+	vfpu_norm_3Dvec(&x._f32, &y._f32, &z._f32);
 #else
-	f32 fLenRecip = 1.0f / sqrtf((uX.x * uX.x) + (uY.y * uY.y) + (uZ.z * uZ.z));
+	f32 fLenRecip = 1.0f / sqrtf((x._f32 * x._f32) + (y._f32 * y._f32) + (z._f32 * z._f32));
 
-	uX.x *= fLenRecip;
- 	uY.y *= fLenRecip;
- 	uZ.z *= fLenRecip;
+	x._f32 *= fLenRecip;
+ 	y._f32 *= fLenRecip;
+ 	z._f32 *= fLenRecip;
 #endif
 
-	Write32Bits(sX, uX.x);
-	Write32Bits(sY, uY.y);
-	Write32Bits(sZ, uZ.z);
+	QuickWrite32Bits(pBase, 0x0, x._u32);
+	QuickWrite32Bits(pBase, 0x4, y._u32);
+	QuickWrite32Bits(pBase, 0x8, z._u32);
 
 	return PATCH_RET_JR_RA;
 }

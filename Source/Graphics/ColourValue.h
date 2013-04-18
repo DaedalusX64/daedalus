@@ -34,10 +34,10 @@ class c32 /*: public NativePf8888*/
 				u32		GetColour() const			{ return mColour; }
 				v4		GetColourV4() const;
 
-				u8		GetR() const				{ return u8(mColour      ); }
-				u8		GetG() const				{ return u8(mColour >>  8); }
-				u8		GetB() const				{ return u8(mColour >> 16); }
-				u8		GetA() const				{ return u8(mColour >> 24); }
+				u8		GetR() const				{ return u8((mColour      )& 0xff); }
+				u8		GetG() const				{ return u8((mColour >>  8)& 0xff); }
+				u8		GetB() const				{ return u8((mColour >> 16)& 0xff); }
+				u8		GetA() const				{ return u8((mColour >> 24)& 0xff); }
 
 				float	GetRf() const				{ return float(GetR()) / 255.f; }
 				float	GetGf() const				{ return float(GetG()) / 255.f; }

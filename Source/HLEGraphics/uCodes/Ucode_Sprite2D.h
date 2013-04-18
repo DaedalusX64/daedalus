@@ -125,7 +125,6 @@ void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo &info, 
 // Used by Flying Dragon
 void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 {
-
 	u32 address;
 	Sprite2DInfo info;
 	Sprite2DStruct *sprite;
@@ -133,11 +132,9 @@ void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 	u32 pc = gDlistStack.address[gDlistStackPointer];
 	u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
 
-	// This assumes sprite2D is always followed by flip and draw
-	// according to the manual base and flip has to be called before drawing, so this assumption should be fine
 	// Try to execute as many sprite2d ucodes as possible, I seen chains over 200! in FB
-	// Arg Glover calls RDP Sync before draw for the sky..
-	while(1)
+	// NB Glover calls RDP Sync before draw for the sky.. so checks were added
+	do
 	{
 		address = RDPSegAddr(command.inst.cmd1) & (MAX_RAM_ADDRESS-1);
 		sprite = (Sprite2DStruct *)(g_ps8RamBase + address);
@@ -145,36 +142,30 @@ void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 		// Fetch Sprite2D Flip
 		command.inst.cmd0= *pCmdBase++;
 		command.inst.cmd1= *pCmdBase++;
-		if(command.inst.cmd == G_GBI1_SPRITE2D_SCALEFLIP)
+		if(command.inst.cmd != G_GBI1_SPRITE2D_SCALEFLIP)
 		{
-			DLParser_Sprite2DScaleFlip( command, &info );
 			pc += 8;
-		}
-		else
 			break;
+		}
+		DLParser_Sprite2DScaleFlip( command, &info );
 
 		// Fetch Sprite2D Draw
 		command.inst.cmd0= *pCmdBase++;
 		command.inst.cmd1= *pCmdBase++;
-		if(command.inst.cmd == G_GBI1_SPRITE2D_DRAW)
+		if(command.inst.cmd != G_GBI1_SPRITE2D_DRAW)
 		{
-			DLParser_Sprite2DDraw( command, info, sprite );
-			pc += 8;
-		}
-		else
+			pc += 16;	//We have executed atleast 2 instructions at this point
 			break;
-
+		}
+		DLParser_Sprite2DDraw( command, info, sprite );
 
 		// Fetch Sprite2D Base
 		command.inst.cmd0= *pCmdBase++;
 		command.inst.cmd1= *pCmdBase++;
-		if(command.inst.cmd == G_GBI1_SPRITE2D_BASE)
-			pc += 8;
-		else
-			break;
-	}
+		pc += 24;
+	}while(command.inst.cmd == G_GBI1_SPRITE2D_BASE);
 
-	gDlistStack.address[gDlistStackPointer] = pc;
+	gDlistStack.address[gDlistStackPointer] = pc-8;
 }
 
 #endif // UCODE_SPRITE2D_H__

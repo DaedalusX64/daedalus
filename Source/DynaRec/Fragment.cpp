@@ -747,9 +747,9 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 		if( !details.Likely && details.DelaySlotTraceIndex != -1 )
 		{
 			const STraceEntry & ti( trace[ details.DelaySlotTraceIndex ] );
-#ifdef DAEDALUS_DEBUG_CONSOLE
-			OpCode		delay_op_code( ti.OpCode );
-#endif
+//#ifdef DAEDALUS_DEBUG_CONSOLE
+//			OpCode		delay_op_code( ti.OpCode );
+//#endif
 #ifdef FRAGMENT_SIMULATE_EXECUTION
 			u32			delay_address( ti.Address );
 #endif

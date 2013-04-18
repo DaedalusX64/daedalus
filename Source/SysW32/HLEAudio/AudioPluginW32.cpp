@@ -48,7 +48,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define Buffer_HalfFull		2
 #define Buffer_Full			3
 
-void Soundmemcpy(void * dest, const void * src, size_t count) {
+static void Soundmemcpy(void * dest, const void * src, size_t count) {
 	_asm {
 		mov edi, dest
 			mov ecx, src
@@ -291,7 +291,7 @@ void	CAudioPluginW32::Update( bool Wait )
 	int count=0;
 	u32 status, dwEvt;
 
-	if (Wait&Playing) {
+	if (Wait&&Playing) {
 		dwEvt = MsgWaitForMultipleObjects(NUMCAPTUREEVENTS,rghEvent,false,
 			INFINITE,QS_ALLINPUT);
 	} else {

@@ -413,7 +413,7 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 			}
 
 			u32 addr, value;
-			codegrouplist[codegroupcount].active = line[c1 + 1] - '0';
+			codegrouplist[codegroupcount].active = (line[c1 + 1] - '0') ? true : false;
 			codegrouplist[codegroupcount].enable = false;
 			codegrouplist[codegroupcount].codecount = 0;
 

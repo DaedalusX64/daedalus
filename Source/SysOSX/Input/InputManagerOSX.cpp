@@ -78,7 +78,7 @@ bool IInputManager::Initialise()
 
 void IInputManager::InitGamePad()
 {
-	mIsGamePad = glfwGetJoystickParam(GLFW_JOYSTICK_1, GLFW_PRESENT);
+	mIsGamePad = glfwGetJoystickParam(GLFW_JOYSTICK_1, GLFW_PRESENT) ? true : false;
 	if(mIsGamePad)
 	{
 		mNumAxes = glfwGetJoystickParam(GLFW_JOYSTICK_1,GLFW_AXES);

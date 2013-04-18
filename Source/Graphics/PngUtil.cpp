@@ -157,6 +157,7 @@ void PngSaveImage( DataSink * sink, const void * data, const void * palette, ETe
 	}
 
 	free(line);
+	line = NULL;
 	png_write_end(png_ptr, info_ptr);
 	png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
 }
