@@ -37,6 +37,11 @@
               '../../Source/SysOSX/Include',
             ],
           }],
+  	   ['OS=="linux"', {
+            'include_dirs': [
+              '../../Source/SysOSX/Include',
+            ],
+          }],
         ],
         'copies': [
           {
