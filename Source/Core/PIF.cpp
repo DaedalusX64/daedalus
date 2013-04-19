@@ -466,10 +466,10 @@ bool	IController::ProcessController(u8 *cmd, u32 channel)
 
 	case CONT_READ_CONTROLLER:		// Controller
 		DPF_PIF("Controller: Executing READ_CONTROLLER");
-		cmd[3] = mContPads[channel].button >> 8;
-		cmd[4] = mContPads[channel].button & 0xff;
-		cmd[5] = mContPads[channel].stick_x;
-		cmd[6] = mContPads[channel].stick_y;
+		cmd[3] = (u8)(mContPads[channel].button >> 8);
+		cmd[4] = (u8)mContPads[channel].button;
+		cmd[5] = (u8)mContPads[channel].stick_x;
+		cmd[6] = (u8)mContPads[channel].stick_y;
 		break;
 
 	case CONT_READ_MEMPACK:
@@ -706,7 +706,7 @@ void	IController::CommandWriteRumblePack(u8 *cmd)
 
 	if ( addr == 0xC000 )
 	{
-		gRumblePakActive = cmd[5] ? true : false;
+		gRumblePakActive = (bool)cmd[5];	//0 inactive and 1 for active
 	}
 
 	cmd[37] = CalculateDataCrc(&cmd[5]);

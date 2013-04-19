@@ -1076,7 +1076,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 	{
 		if(g_CI.Size == G_IM_SIZ_16b)
 		{
-			N64Pf5551	c( (u16)(fill_colour & 0xffff) );
+			N64Pf5551	c( (u16)fill_colour );
 			colour = ConvertPixelFormat< c32, N64Pf5551 >( c );
 		}
 		else
@@ -1175,7 +1175,7 @@ void DLParser_SetFillColor( MicroCodeCommand command )
 	u32 fill_colour = command.inst.cmd1;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	N64Pf5551	n64col( (u16)(fill_colour & 0xffff) );
+	N64Pf5551	n64col( (u16)fill_colour );
 	DL_PF( "    Color5551=0x%04x", n64col.Bits );
 #endif
 
