@@ -96,8 +96,8 @@ private:
 	LPDIRECTSOUNDBUFFER  lpdsbuf;
 	LPDIRECTSOUND        lpds;
 	LPDIRECTSOUNDNOTIFY  lpdsNotify;
-	HANDLE               rghEvent[NUMCAPTUREEVENTS];
-	DSBPOSITIONNOTIFY    rgdscbpn[NUMCAPTUREEVENTS];
+	HANDLE               rghEvent[NUMCAPTUREEVENTS+1];
+	DSBPOSITIONNOTIFY    rgdscbpn[NUMCAPTUREEVENTS+1];
 
 	void SetupDSoundBuffers();
 	bool CAudioPluginW32::FillBufferWithSilence( LPDIRECTSOUNDBUFFER lpDsb );

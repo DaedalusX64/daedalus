@@ -97,15 +97,15 @@ void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo &info, 
 
 	CRefPtr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
 
-	u16 px = (u16)((command.inst.cmd1>>16)&0xFFFF)/4;
-	u16 py = (u16)(command.inst.cmd1 &0xFFFF)/4;
+	s16 px = (s16)((command.inst.cmd1>>16)&0xFFFF)/4;
+	s16 py = (s16)(command.inst.cmd1 &0xFFFF)/4;
 	u16 pw = (u16)(sprite->width / info.scaleX);
 	u16 ph = (u16)(sprite->height / info.scaleY);
 
 	s32 frameX              = px;
 	s32 frameY              = py;
-	s32 frameW              = pw + px;
-	s32 frameH              = ph + py;
+	s32 frameW              = px + pw;
+	s32 frameH              = py + ph;
 
 	// SSV uses this
 	if( info.flipX )
