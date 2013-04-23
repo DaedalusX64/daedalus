@@ -38,7 +38,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Cheats.h"
 
 #include "Utility/PrintOpCode.h"
-#include "Utility/Profiler.h"
 #include "Utility/FramerateLimiter.h"
 #include "Utility/Synchroniser.h"
 #include "Utility/AtomicPrimitives.h"
@@ -692,11 +691,6 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			}
 
 			HandleSaveStateOperationOnVerticalBlank();
-
-#ifdef DAEDALUS_ENABLE_PROFILING
-			CProfiler::Get()->Update();
-			CProfiler::Get()->Display();
-#endif
 		}
 		break;
 	case CPU_EVENT_COMPARE:

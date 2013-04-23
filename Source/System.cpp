@@ -124,6 +124,30 @@ struct SysEntityEntry
 	void (*final)();
 };
 
+#ifdef DAEDALUS_ENABLE_PROFILING
+static void ProfilerVblCallback(void * arg)
+{
+	CProfiler::Get()->Update();
+	CProfiler::Get()->Display();
+}
+
+static bool Profiler_Init()
+{
+	if (!CProfiler::Create())
+		return false;
+
+	CPU_RegisterVblCallback(&ProfilerVblCallback, NULL);
+
+	return true;
+}
+
+static void Profiler_Fini()
+{
+	CPU_UnregisterVblCallback(&ProfilerVblCallback, NULL);
+	CProfiler::Destroy();
+}
+#endif
+
 static const SysEntityEntry gSysInitTable[] =
 {
 #ifdef DAEDALUS_DEBUG_CONSOLE
@@ -133,7 +157,7 @@ static const SysEntityEntry gSysInitTable[] =
 	{"Logger",				Debug_InitLogging,			Debug_FinishLogging},
 #endif
 #ifdef DAEDALUS_ENABLE_PROFILING
-	{"Profiler",			CProfiler::Create,			CProfiler::Destroy},
+	{"Profiler",			Profiler_Init,				Profiler_Fini},
 #endif
 	{"ROM Database",		CRomDB::Create,				CRomDB::Destroy},
 	{"ROM Settings",		CRomSettingsDB::Create,		CRomSettingsDB::Destroy},
