@@ -679,8 +679,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			//   Alternatively, we could add a special-purpose CPU even that triggers every
 			//   N cycles, but that would have a small impact on framerate (it would
 			//   interrupt the dynamo tracer for instance)
-			// FIXME(strmnnrmn): however we should have a nicer mechanism for hooking these
-			//   callbacks in so that CPU.cpp doesn't need to know about them.
+			// TODO(strmnnrmn): should register this with CPU_RegisterVblCallback.
 			if ((gVerticalInterrupts & 0x3F) == 0) // once every 60 VBLs
 				Save::Flush();
 
