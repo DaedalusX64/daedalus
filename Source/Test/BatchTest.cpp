@@ -301,6 +301,7 @@ void BatchTestMain( int argc, char* argv[] )
 	gBatchFH = NULL;
 
 	delete gBatchTestEventHandler;
+	gBatchTestEventHandler = NULL;
 }
 
 // Should make these configurable
