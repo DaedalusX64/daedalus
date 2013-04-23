@@ -36,19 +36,17 @@
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //  See http://www.boost.org/libs/static_assert for documentation.
 //
-#ifndef DAEDALUS_ENABLE_ASSERTS
-
-//#define DAEDALUS_STATIC_ASSERT( ... )	{}
-#define DAEDALUS_STATIC_ASSERT( x )
-
-#else
-
 template <bool> struct STATIC_ASSERTION_FAILURE;
 template <> struct STATIC_ASSERTION_FAILURE<true>{};
 template<int x> struct static_assert_test{};
 
+// NB! This should be enabled across all builds regardless of whether DAEDALUS_ENABLE_ASSERTS is set!
+// It's a compile-time assert and has no runtime cost!
 #define DAEDALUS_STATIC_ASSERT( x )								\
    typedef static_assert_test<sizeof(STATIC_ASSERTION_FAILURE< (bool)( x ) >)>	static_assert_typedef_##__COUNTER__
+
+
+#ifdef DAEDALUS_ENABLE_ASSERTS
 
 enum EAssertResult
 {
@@ -78,7 +76,7 @@ inline void SetAssertHook( DaedalusAssertHook hook )
 //
 // Use this to report on problems with the emulator - not the emulated title
 //
-#define DAED_ASSERT( e, ... )													\
+#define DAEDALUS_ASSERT( e, ... )												\
 {																				\
 	static bool ignore = false;													\
 	if ( !(e) && !ignore )														\
@@ -102,7 +100,7 @@ inline void SetAssertHook( DaedalusAssertHook hook )
 //
 // Use this to assert without specifying a message
 //
-#define DAED_ASSERT_Q( e )														\
+#define DAEDALUS_ASSERT_Q( e )													\
 {																				\
 	static bool ignore = false;													\
 	if ( !(e) && !ignore )														\
@@ -126,7 +124,7 @@ inline void SetAssertHook( DaedalusAssertHook hook )
 //
 // Use this to assert unconditionally - e.g. for unhandled cases
 //
-#define DAED_ERROR( ... )														\
+#define DAEDALUS_ERROR( ... )													\
 {																				\
 	static bool ignore = false;													\
 	if ( !ignore )																\
@@ -147,31 +145,12 @@ inline void SetAssertHook( DaedalusAssertHook hook )
 	}																			\
 }
 
-#endif // DAEDALUS_ENABLE_ASSERTS
-
-#ifndef DAEDALUS_ENABLE_ASSERTS
+#else // DAEDALUS_ENABLE_ASSERTS
 
 #define DAEDALUS_ASSERT( e, ... )	{}
 #define DAEDALUS_ASSERT_Q( e )		{}
 #define DAEDALUS_ERROR( ... )		{}
 
-#else
-
-//
-// Use this to report on problems with the emulator - not the emulated title
-//
-#define DAEDALUS_ASSERT( e, ... )	DAED_ASSERT( e, __VA_ARGS__ )
-
-//
-// Use this to assert without specifying a message
-//
-#define DAEDALUS_ASSERT_Q( e )		DAED_ASSERT_Q( e )
-
-//
-// Use this to assert unconditionally - e.g. for unhandled cases
-//
-#define DAEDALUS_ERROR( ... )		DAED_ERROR( __VA_ARGS__ )
-
-#endif
+#endif // DAEDALUS_ENABLE_ASSERTS
 
 #endif // DAEDALUSASSERT_H_
