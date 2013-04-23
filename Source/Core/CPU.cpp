@@ -326,7 +326,7 @@ void SCPUState::Dump()
 }
 #endif
 
-bool CPU_Reset( )
+bool CPU_RomOpen()
 {
 	DBGConsole_Msg(0, "Resetting CPU");
 
@@ -390,7 +390,7 @@ bool CPU_Reset( )
 	return true;
 }
 
-void CPU_Finalise()
+void CPU_RomClose()
 {
 #ifdef DAEDALUS_ENABLE_DYNAREC
 	#ifdef DAEDALUS_DEBUG_DYNAREC

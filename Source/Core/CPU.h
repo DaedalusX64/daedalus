@@ -149,8 +149,8 @@ ALIGNED_EXTERN(SCPUState, gCPUState, CACHE_ALIGN);
 //*****************************************************************************
 //
 //*****************************************************************************
-bool	CPU_Reset();
-void	CPU_Finalise();
+bool	CPU_RomOpen();
+void	CPU_RomClose();
 void	CPU_Step();
 void	CPU_Skip();
 bool	CPU_Run();

@@ -181,7 +181,7 @@ static const RomEntityEntry gRomInitTable[] =
 	{"Graphics",			InitGraphicsPlugin,		DisposeGraphicsPlugin},
 	{"FramerateLimiter",	FramerateLimiter_Reset,	NULL},
 	//{"RSP", RSP_Reset, NULL},
-	{"CPU",					CPU_Reset,				CPU_Finalise},
+	{"CPU",					CPU_RomOpen,			CPU_RomClose},
 	{"ROM",					ROM_ReBoot,				ROM_Unload},
 	{"Controller",			CController::Reset,		CController::RomClose},
 	{"Save",				Save::Reset,			Save::Fini},
