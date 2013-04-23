@@ -92,6 +92,7 @@
           'Utility/MemoryHeap.cpp',
           'Utility/Preferences.cpp',
           'Utility/PrintOpCode.cpp',
+          'Utility/Profiler.cpp',
           'Utility/ROMFile.cpp',
           'Utility/ROMFileCache.cpp',
           'Utility/ROMFileCompressed.cpp',
