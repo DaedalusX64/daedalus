@@ -13,9 +13,9 @@
         },
         'include_dirs': [
           '../',
-          '../Config/Dev',
         ],
         'dependencies': [
+          '../Config/Config.gyp:Config',
           '../third_party/glfw/glfw.gyp:glfw',
           '../third_party/libpng/libpng.gyp:libpng',
         ],
@@ -29,17 +29,17 @@
         'conditions': [
           ['OS=="win"', {
             'include_dirs': [
-              '../../Source/SysW32/Include',
+              '../SysW32/Include',
             ],
           }],
           ['OS=="mac"', {
             'include_dirs': [
-              '../../Source/SysOSX/Include',
+              '../SysOSX/Include',
             ],
           }],
-  	   ['OS=="linux"', {
+          ['OS=="linux"', {
             'include_dirs': [
-              '../../Source/SysOSX/Include',
+              '../SysOSX/Include',
             ],
           }],
         ],
@@ -47,7 +47,7 @@
           {
             'destination': '<(PRODUCT_DIR)/',
             'files': [
-              '../../Source/SysGL/HLEGraphics/n64.psh',
+              '../SysGL/HLEGraphics/n64.psh',
             ],
           },
         ],

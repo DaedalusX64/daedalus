@@ -12,6 +12,7 @@
           ],
         },
         'dependencies': [
+          'Config/Config.gyp:Config',
           'SysGL/SysGL.gyp:SysGL',
           'third_party/glfw/glfw.gyp:glfw', # FIXME: should transitively pull in include dir
           'third_party/libpng/libpng.gyp:libpng',
@@ -21,7 +22,6 @@
         ],
         'include_dirs': [
           '.',
-          'Config/Dev',
         ],
         'defines': [
           'DAEDALUS_ACCURATE_TMEM',
