@@ -19,12 +19,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifndef HASH_H_
 #define HASH_H_
-#ifndef DAEDALUS_SILENT
+
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
 
 unsigned int murmur2_hash ( const void * key, int len, unsigned int seed );
 unsigned int murmur2_neutral_hash ( const void * key, int len, unsigned int seed );
-#endif // 0
+
 #endif // HASH_H_

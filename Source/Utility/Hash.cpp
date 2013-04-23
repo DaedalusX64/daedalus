@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "Utility/Hash.h"
 
-#ifndef DAEDALUS_SILENT
 //-----------------------------------------------------------------------------
 // MurmurHash2, by Austin Appleby
 // Note - This code makes a few assumptions about how your machine behaves -
@@ -133,4 +132,3 @@ unsigned int murmur2_neutral_hash ( const void * key, int len, unsigned int seed
 
 	return h;
 }
-#endif
