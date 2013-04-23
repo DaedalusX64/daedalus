@@ -18,20 +18,13 @@
 #include <map>
 #include <algorithm>
 
-namespace
-{
-
-u64	GetNow()
+static u64 GetNow()
 {
 	u64 now;
 	NTiming::GetPreciseTime( &now );
 	return now;
 }
-}
 
-//*************************************************************************************
-//
-//*************************************************************************************
 class CProfileItem
 {
 	public:
@@ -81,7 +74,7 @@ public:
 		u32 i;
 		for( i = 0; i < mItems.size() && i < rhs.mItems.size(); ++i )
 		{
-			s32		compare( stricmp( mItems[ i ]->GetName(), rhs.mItems[ i ]->GetName() ) );
+			s32		compare = _strcmpi( mItems[ i ]->GetName(), rhs.mItems[ i ]->GetName() );
 			if( compare != 0 )
 			{
 				return compare;
@@ -115,10 +108,6 @@ private:
 	u32								mHitCount;				// The total number of times StartTiming() has been called since the last Reset()
 };
 
-
-//*************************************************************************************
-//
-//*************************************************************************************
 class CProfilerImpl
 {
 	public:
@@ -136,7 +125,6 @@ class CProfilerImpl
 	private:
 		CProfileCallstack *		GetActiveStats();
 
-
 	private:
 		typedef std::vector< CProfileItem * >			ProfileItemList;
 		typedef std::stack< CProfileItem * >			ProfileItemStack;
@@ -152,81 +140,63 @@ class CProfilerImpl
 };
 
 
-//*************************************************************************************
-//
-//*************************************************************************************
 CProfilerImpl::CProfilerImpl()
 {
 	u64	frequency;
 	NTiming::GetPreciseFrequency( &frequency );
 	mFrequencyInv = 1.0f / float( frequency );
 
-	SProfileItemHandle	root_item( AddItem( "<root>" ) );
+	SProfileItemHandle	root_item = AddItem( "<root>" );
 	Enter( root_item );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 CProfilerImpl::~CProfilerImpl()
 {
 	for( ProfileItemList::iterator it = mItems.begin(); it != mItems.end(); ++it )
 	{
-		CProfileItem * p_item( *it );
-		delete p_item;
+		CProfileItem * item = *it;
+		delete item;
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-SProfileItemHandle		CProfilerImpl::AddItem( const char * p_str )
+SProfileItemHandle CProfilerImpl::AddItem( const char * p_str )
 {
 	// Create a new item
 	SProfileItemHandle	handle( mItems.size() );
-	CProfileItem *		p_item( new CProfileItem( p_str ) );
+	CProfileItem *		p_item = new CProfileItem( p_str );
 
 	mItems.push_back( p_item );
 
 	return handle;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-void	CProfilerImpl::Display()
+void CProfilerImpl::Display()
 {
 }
 
-namespace
+static void Pad( char * str, u32 length )
 {
-	void Pad( char * str, u32 length )
+	u32 actLen = strlen( str );
+
+	if (actLen > length)
 	{
-		u32 actLen = strlen( str );
+		str[length] = '\0';
+		str[length - 1 ] = '.';
+		str[length - 2 ] = '.';
+		str[length - 3 ] = '.';
+	}
+	else
+	{
+		char * end( str +  actLen);
 
-		if (actLen > length)
+		while( u32(end - str) < length )
 		{
-			str[length] = '\0';
-			str[length - 1 ] = '.';
-			str[length - 2 ] = '.';
-			str[length - 3 ] = '.';
+			*end++ = ' ';
 		}
-		else
-		{
-			char * end( str +  actLen);
-
-			while( u32(end - str) < length )
-			{
-				*end++ = ' ';
-			}
-			*end = '\0';
-		}
+		*end = '\0';
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 struct SortByCallstack
 {
 	bool operator()( const CProfileCallstack * a, const CProfileCallstack * b )
@@ -236,17 +206,17 @@ struct SortByCallstack
 };
 
 
-void	CProfilerImpl::Update()
+void CProfilerImpl::Update()
 {
 	DAEDALUS_ASSERT( mActiveCallstacks.size() == mActiveItems.size(), "Why are there different numbers of callstacks/items?" );
 
-	u64			now( GetNow() );
+	u64 now = GetNow();
 	for( u32 i = 0; i < mActiveCallstacks.size(); ++i )
 	{
 		mActiveCallstacks[ i ]->StopTiming( now );
 	}
 
-	u64			total_root_time( 0 );
+	u64 total_root_time = 0;
 	if( mActiveCallstacks.size() > 0 )
 	{
 		total_root_time = mActiveCallstacks[ 0 ]->GetTotalTime();
@@ -265,7 +235,7 @@ void	CProfilerImpl::Update()
 	std::vector< const CProfileCallstack * >	active_callstacks;
 	for( CallstackStatsMap::const_iterator it = mCallstackStatsMap.begin(); it != mCallstackStatsMap.end(); ++it )
 	{
-		const CProfileCallstack *	callstack( it->second );
+		const CProfileCallstack * callstack = it->second;
 		if( callstack->GetHitCount() > 0 )
 		{
 			active_callstacks.push_back( callstack );
@@ -280,23 +250,22 @@ void	CProfilerImpl::Update()
 
 	for( u32 i = 0; i < active_callstacks.size(); ++i )
 	{
-		const CProfileCallstack *	callstack( active_callstacks[ i ] );
+		const CProfileCallstack * callstack = active_callstacks[ i ];
 
-		u64					parent_time( 0 );
-		const CProfileCallstack *	parent( callstack->GetParent() );
-		if( parent != NULL )
+		u64 parent_time = 0;
+		if ( const CProfileCallstack * parent = callstack->GetParent() )
 		{
 			parent_time = parent->GetTotalTime();
 		}
 
-		u32		hit_count( callstack->GetHitCount() );
+		u32		hit_count = callstack->GetHitCount();
 
 		// Display details on this item
-		u32		depth( callstack->GetDepth() );
-		u32		total_us( u32( callstack->GetTotalTime() * 1000.0f * 1000.0f * mFrequencyInv ) );
+		u32		depth = callstack->GetDepth();
+		u32		total_us = u32( callstack->GetTotalTime() * 1000.0f * 1000.0f * mFrequencyInv );
 
-		f32		percent_parent_time( 0 );
-		f32		percent_total_time( 0 );
+		f32		percent_parent_time = 0;
+		f32		percent_total_time = 0;
 
 		if( parent_time != 0 )
 		{
@@ -321,7 +290,7 @@ void	CProfilerImpl::Update()
 
 	for( CallstackStatsMap::iterator it = mCallstackStatsMap.begin(); it != mCallstackStatsMap.end(); ++it )
 	{
-		CProfileCallstack *	callstack( it->second );
+		CProfileCallstack *	callstack = it->second;
 		callstack->Reset();
 	}
 
@@ -331,14 +300,12 @@ void	CProfilerImpl::Update()
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-CProfileCallstack *	CProfilerImpl::GetActiveStats()
+CProfileCallstack * CProfilerImpl::GetActiveStats()
 {
-	CProfileCallstack *				callstack;
-	u32								callstack_hash( ComputeCallstackHash( mActiveItems ) );
-	CallstackStatsMap::iterator	it( mCallstackStatsMap.find( callstack_hash ) );
+	u32 callstack_hash = ComputeCallstackHash( mActiveItems );
+	CallstackStatsMap::iterator	it = mCallstackStatsMap.find( callstack_hash );
+
+	CProfileCallstack *	callstack;
 	if( it == mCallstackStatsMap.end() )
 	{
 		CProfileCallstack *	parent_callstack( mActiveCallstacks.empty() ? NULL : mActiveCallstacks.back() );
@@ -354,19 +321,17 @@ CProfileCallstack *	CProfilerImpl::GetActiveStats()
 	return callstack;
 }
 
-//*************************************************************************************
 // Start profiling for an item
-//*************************************************************************************
-void	CProfilerImpl::Enter( SProfileItemHandle handle )
+void CProfilerImpl::Enter( SProfileItemHandle handle )
 {
 	DAEDALUS_ASSERT( handle.Handle < mItems.size(), "Invalid handle!" );
 	DAEDALUS_ASSERT( mActiveCallstacks.size() == mActiveItems.size(), "Why are there different numbers of callstacks/items?" );
 
-	CProfileItem *			item( mItems[ handle.Handle ] );
+	CProfileItem * item = mItems[ handle.Handle ];
 
 	mActiveItems.push_back( item );
 
-	CProfileCallstack *		callstack( GetActiveStats() );
+	CProfileCallstack * callstack = GetActiveStats();
 
 	mActiveCallstacks.push_back( callstack );
 
@@ -375,22 +340,20 @@ void	CProfilerImpl::Enter( SProfileItemHandle handle )
 	DAEDALUS_ASSERT( mActiveCallstacks.size() == mActiveItems.size(), "Why are there different numbers of callstacks/items?" );
 }
 
-//*************************************************************************************
 // Stop profiling for an item
-//*************************************************************************************
-void	CProfilerImpl::Exit( SProfileItemHandle handle )
+void CProfilerImpl::Exit( SProfileItemHandle handle )
 {
 	DAEDALUS_ASSERT( handle.Handle < mItems.size(), "Invalid handle!" );
 	DAEDALUS_ASSERT( mActiveCallstacks.size() == mActiveItems.size(), "Why are there different numbers of callstacks/items?" );
 
-	u64					now( GetNow() );
-	CProfileItem *		item( mItems[ handle.Handle ] );
+	u64				now = GetNow();
+	CProfileItem *	item = mItems[ handle.Handle ];
 
 	if( !mActiveItems.empty() )
 	{
 		if( item == mActiveItems.back() )
 		{
-			CProfileCallstack *		callstack( mActiveCallstacks.back() );
+			CProfileCallstack *		callstack = mActiveCallstacks.back();
 			mActiveItems.pop_back();
 			mActiveCallstacks.pop_back();
 
@@ -409,20 +372,14 @@ void	CProfilerImpl::Exit( SProfileItemHandle handle )
 	DAEDALUS_ASSERT( mActiveCallstacks.size() == mActiveItems.size(), "Why are there different numbers of callstacks/items?" );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-void	CProfileCallstack::Reset()
+void CProfileCallstack::Reset()
 {
 	mTotalTime = 0;
 	mStartTime = 0;
 	mHitCount = 0;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-void	CProfileCallstack::StartTiming()
+void CProfileCallstack::StartTiming()
 {
 	DAEDALUS_ASSERT( mStartTime == 0, "Already timing - recursive?" );
 
@@ -430,9 +387,6 @@ void	CProfileCallstack::StartTiming()
 	mStartTime = GetNow();
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void CProfileCallstack::StopTiming( u64 now )
 {
 	DAEDALUS_ASSERT( mStartTime != 0, "We're not currently timing" );
@@ -444,25 +398,16 @@ void CProfileCallstack::StopTiming( u64 now )
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 CProfiler::CProfiler()
 :	mpImpl( new CProfilerImpl( ) )
 {
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 CProfiler::~CProfiler()
 {
 	delete mpImpl;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 template<> bool CSingleton< CProfiler >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
@@ -472,44 +417,29 @@ template<> bool CSingleton< CProfiler >::Create()
 	return true;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-SProfileItemHandle		CProfiler::AddItem( const char * p_str )
+SProfileItemHandle CProfiler::AddItem( const char * p_str )
 {
 	return mpImpl->AddItem( p_str );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-void	CProfiler::Enter( SProfileItemHandle handle )
+void CProfiler::Enter( SProfileItemHandle handle )
 {
 	mpImpl->Enter( handle );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-void	CProfiler::Exit( SProfileItemHandle handle )
+void CProfiler::Exit( SProfileItemHandle handle )
 {
 	mpImpl->Exit( handle );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void CProfiler::Update()
 {
 	mpImpl->Update();
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void CProfiler::Display()
 {
 	mpImpl->Display();
 }
 
-#endif
+#endif // DAEDALUS_ENABLE_PROFILING
