@@ -95,6 +95,11 @@ CBatchTestEventHandler * BatchTest_GetHandler()
 	return gBatchTestEventHandler;
 }
 
+static void BatchVblHandler( void * arg )
+{
+	gBatchTestEventHandler->OnVerticalBlank();
+}
+
 static void MakeNewLogFilename( char (&filepath)[MAX_PATH+1], const char * rundir )
 {
 	u32 count = 0;
@@ -212,10 +217,11 @@ void BatchTestMain( int argc, char* argv[] )
 
 	CTimer	timer;
 
-	//
 	//	Set up an assert hook to capture all asserts
-	//
 	SetAssertHook( BatchAssertHook );
+
+	// Hook in our Vbl handler.
+	CPU_RegisterVblCallback( &BatchVblHandler, NULL );
 
 	char tmpfilepath[MAX_PATH+1];
 	IO::Path::Combine( tmpfilepath, rundir, "tmp.tmp" );
@@ -288,6 +294,7 @@ void BatchTestMain( int argc, char* argv[] )
 
 	}
 
+	CPU_UnregisterVblCallback( &BatchVblHandler, NULL );
 	SetAssertHook( NULL );
 
 	fclose( gBatchFH );

@@ -46,8 +46,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Thread.h"
 #include "Utility/Mutex.h"
 
-#include "Test/BatchTest.h"
-
 #ifdef DAEDALUS_W32
 #include "Plugins/AudioPlugin.h"
 #endif
@@ -694,11 +692,6 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			}
 
 			HandleSaveStateOperationOnVerticalBlank();
-
-#ifdef DAEDALUS_BATCH_TEST_ENABLED
-			if (CBatchTestEventHandler * handler = BatchTest_GetHandler())
-				handler->OnVerticalBlank();
-#endif
 
 #ifdef DAEDALUS_ENABLE_PROFILING
 			CProfiler::Get()->Update();
