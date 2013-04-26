@@ -619,8 +619,7 @@ void RendererGL::RestoreRenderStates()
 	glBlendEquation(GL_ADD);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glEnable(GL_BLEND);
-	//glDisable( GL_BLEND ); // Breaks Tarzan's text in menus
+	glDisable( GL_BLEND );
 
 	// Default is ZBuffer disabled
 	glDepthMask(GL_FALSE);		// GL_FALSE to disable z-writes

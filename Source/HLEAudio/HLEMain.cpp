@@ -91,18 +91,19 @@ void Audio_Reset()
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void Audio_Ucode_Detect(OSTask * pTask)
+void Audio_Ucode_Detect(OSTask * pTask)
 {
-	if (*(u32*)(g_pu8RamBase + (u32)pTask->t.ucode_data + 0) != 0x01)
+	u8* p_base = g_pu8RamBase + (u32)pTask->t.ucode_data;
+	if (*(u32*)(p_base + 0) != 0x01)
 	{
-		if (*(u32*)(g_pu8RamBase + (u32)pTask->t.ucode_data + 0) == 0x0F)
+		if (*(u32*)(p_base + 0) == 0x0F)
 			ABI=ABIUnknown;
 		else
 			ABI=ABI3;
 	}
 	else
 	{
-		if (*(u32*)(g_pu8RamBase + (u32)pTask->t.ucode_data + 0x30) == 0xF0000F00)
+		if (*(u32*)(p_base + 0x30) == 0xF0000F00)
 			ABI=ABI1;
 		else
 			ABI=ABI2;
@@ -118,8 +119,7 @@ void Audio_Ucode()
 
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 
-	// Only detect ABI once, unless is a different ucode
-	//
+	// Only detect ABI once
 	if ( !bAudioChanged )
 	{
 		bAudioChanged = true;

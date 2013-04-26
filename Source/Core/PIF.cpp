@@ -706,7 +706,7 @@ void	IController::CommandWriteRumblePack(u8 *cmd)
 
 	if ( addr == 0xC000 )
 	{
-		gRumblePakActive = (bool)cmd[5];	//0 inactive and 1 for active
+		gRumblePakActive = cmd[5] ? true : false;	//0 inactive and 1 for active
 	}
 
 	cmd[37] = CalculateDataCrc(&cmd[5]);

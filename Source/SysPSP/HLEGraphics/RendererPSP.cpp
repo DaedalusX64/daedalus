@@ -225,10 +225,14 @@ void RendererPSP::RestoreRenderStates()
 	sceGuEnable(GU_CLIP_PLANES);
 	//sceGuDisable(GU_CLIP_PLANES);
 
-	u32 width, height;
-	CGraphicsContext::Get()->GetScreenSize(&width, &height);
+	//u32 width, height;
+	//CGraphicsContext::Get()->GetScreenSize(&width, &height);
 
-	sceGuScissor(0,0, width,height);
+	//This was breaking Glover's sky and Rocket Robot's right/left sides of the screen when in un/scaled mode
+	//I think the problem was that GetScreenSize for PSP only returns 480x240, we should get the current screen size?
+	//Or get scissor.left/right/top/bottom, then pass them trough ConvertN64ToScreen and then use those to set PSP scissors
+	//sceGuScissor(0,0, width,height);
+
 	sceGuEnable(GU_SCISSOR_TEST);
 
 	// We do our own lighting
@@ -237,9 +241,7 @@ void RendererPSP::RestoreRenderStates()
 	sceGuAlphaFunc(GU_GEQUAL, 0x04, 0xff );
 	sceGuEnable(GU_ALPHA_TEST);
 
-	sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-	sceGuEnable(GU_BLEND);
-	//sceGuDisable( GU_BLEND ); // Breaks Tarzan's text in menus
+	sceGuDisable( GU_BLEND );
 
 	// Default is ZBuffer disabled
 	sceGuDepthMask(GL_TRUE);	// GL_TRUE to disable z-writes
@@ -404,9 +406,13 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 	// Initiate Blender
 	//
-	if(cycle_mode < CYCLE_COPY)
+	if(cycle_mode < CYCLE_COPY && gRDPOtherMode.force_bl)
 	{
-		gRDPOtherMode.force_bl ? InitBlenderMode( gRDPOtherMode.blender ) : sceGuDisable( GU_BLEND );
+		InitBlenderMode(gRDPOtherMode.blender);
+	}
+	else
+	{
+		sceGuDisable( GU_BLEND );
 	}
 
 	// Initiate Alpha test

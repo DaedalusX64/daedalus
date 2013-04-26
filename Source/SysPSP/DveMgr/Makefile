@@ -30,4 +30,4 @@ pspDveManager_driver.S : $(PRX_EXPORTS)
 	psp-build-exports --build-stubs $(PRX_EXPORTS)
 
 all: $(FINAL_TARGET) pspDveManager.S pspDveManager_driver.S
-	cp $(FINAL_TARGET) "../../.."
+	cp $(FINAL_TARGET) "../../../Projects/PSP"
