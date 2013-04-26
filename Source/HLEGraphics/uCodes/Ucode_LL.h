@@ -109,38 +109,47 @@ void DLParser_TexRect_Last_Legion( MicroCodeCommand command )
 	tex_rect.cmd0 = command.inst.cmd0;
 	tex_rect.cmd1 = command.inst.cmd1;
 
-	// Note : these are in a different order than normal texrect!
+	// Note : The only difference with normal texrect is that these are in a different order!
 	tex_rect.cmd2 = command3.inst.cmd1;
 	tex_rect.cmd3 = command2.inst.cmd1;
 
-	v2 d( tex_rect.dsdx / 1024.0f, tex_rect.dtdy / 1024.0f );
-	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
-	v2 xy1;
-	v2 uv0( tex_rect.s / 32.0f, tex_rect.t / 32.0f );
-	v2 uv1;
+	//Keep integers for as long as possible //Corn
+	s32 rect_x0 = tex_rect.x0;
+	s32 rect_y0 = tex_rect.y0;
+	s32 rect_x1 = tex_rect.x1;
+	s32 rect_y1 = tex_rect.y1;
 
-	//
-	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
+	s16 rect_s0 = tex_rect.s;
+	s16 rect_t0 = tex_rect.t;
+
+	s32 rect_dsdx = tex_rect.dsdx;
+	s32 rect_dtdy = tex_rect.dtdy;
+
+	//rect_s0 += (((u32)rect_dsdx >> 31) << 5);	//Fixes California Speed
+	//rect_t0 += (((u32)rect_dtdy >> 31) << 5);
+
+	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1<<2 to the w/h)
 	//
 	switch ( gRDPOtherMode.cycle_type )
 	{
 		case CYCLE_COPY:
-			d.x *= 0.25f;	// In copy mode 4 pixels are copied at once.
+			rect_dsdx = rect_dsdx >> 2;	// In copy mode 4 pixels are copied at once.
+			// NB! Fall through!
 		case CYCLE_FILL:
-			xy1.x = (tex_rect.x1 + 4) * 0.25f;
-			xy1.y = (tex_rect.y1 + 4) * 0.25f;
+			rect_x1 += 4;
+			rect_y1 += 4;
 			break;
 		default:
-			xy1.x = tex_rect.x1 * 0.25f;
-			xy1.y = tex_rect.y1 * 0.25f;
 			break;
 	}
 
-	uv1.x = uv0.x + d.x * ( xy1.x - xy0.x );
-	uv1.y = uv0.y + d.y * ( xy1.y - xy0.y );
+	s16 rect_s1 = rect_s0 + (rect_dsdx * ( rect_x1 - rect_x0 ) >> 7);
+	s16 rect_t1 = rect_t0 + (rect_dtdy * ( rect_y1 - rect_y0 ) >> 7);
 
-	TexCoord st0( uv0.x, uv0.y );
-	TexCoord st1( uv1.x, uv1.y );
+	TexCoord st0( rect_s0, rect_t0 );
+	TexCoord st1( rect_s1, rect_t1 );
+	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
+	v2 xy1( tex_rect.x1 / 4.0f, tex_rect.y1 / 4.0f );
 
 	gRenderer->TexRect( tex_rect.tile_idx, xy0, xy1, st0, st1 );
 }
