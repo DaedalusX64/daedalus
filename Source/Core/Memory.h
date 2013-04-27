@@ -95,57 +95,11 @@ typedef void (*MemWriteValueFunction )( u32 address, u32 value );
 typedef bool (*InternalMemFastFunction)( u32 address, void ** p_translated );
 #endif
 
-/* Modified by Lkb (24/8/2001)
-   These tables were declared as pointers and dynamically allocated.
-   However, by declaring them as pointers to access the tables the interpreter must use code like this:
-
-   MOV EAX, DWORD PTR [address_of_the_variable_g_MemoryLookupTableRead]
-   MOV EAX, DWORD PTR [EAX + desired_offset]
-
-   Instead, by declaring them as integers the address of table is "known" at compile time
-   (at load-time it may be relocated but the code referencing it will be patched)
-   and the interpreter can use code like this:
-
-   MOV EAX, DWORD PTR [address_of_the_array_g_MemoryLookupTableRead + desired_offset]
-
-   Note that dynarec-generated code is not affected by this
-
-   The exotic construction is required to ensure page-alignment
-
-   Memory.cpp also changed appropriately
-*/
-
-// For debugging, it's more important to be able to use the debugger
-#ifndef DAEDALUS_ALIGN_REGISTERS
-extern MemFuncRead  g_MemoryLookupTableRead[0x4000];
-extern MemFuncWrite g_MemoryLookupTableWrite[0x4000];
+extern MemFuncRead  				g_MemoryLookupTableRead[0x4000];
+extern MemFuncWrite 				g_MemoryLookupTableWrite[0x4000];
 #ifndef DAEDALUS_SILENT
 extern InternalMemFastFunction		InternalReadFastTable[0x4000];
 #endif
-
-#else // DAEDALUS_ALIGN_REGISTERS
-
-#include "PushStructPack1.h"
-ALIGNED_TYPE(struct, memory_tables_struct_t, PAGE_ALIGN)
-{
-	MemFuncRead						_g_MemoryLookupTableRead[0x4000];
-	MemFuncWrite					_g_MemoryLookupTableWrite[0x4000];
-#ifndef DAEDALUS_SILENT
-	InternalMemFastFunction			_InternalReadFastTable[0x4000];
-#endif
-};
-ALIGNED_EXTERN(memory_tables_struct_t, memory_tables_struct, PAGE_ALIGN);
-#include "PopStructPack.h"
-
-
-#define g_MemoryLookupTableRead (memory_tables_struct._g_MemoryLookupTableRead)
-#define g_MemoryLookupTableWrite (memory_tables_struct._g_MemoryLookupTableWrite)
-
-#ifndef DAEDALUS_SILENT
-#define InternalReadFastTable (memory_tables_struct._InternalReadFastTable)
-#endif
-#endif // DAEDALUS_ALIGN_REGISTERS
-
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //

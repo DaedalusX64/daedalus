@@ -131,17 +131,11 @@ void Flash_Init();
 //*****************************************************************************
 //
 //*****************************************************************************
-#ifndef DAEDALUS_ALIGN_REGISTERS
 MemFuncRead  g_MemoryLookupTableRead[0x4000];
 MemFuncWrite g_MemoryLookupTableWrite[0x4000];
 #ifndef DAEDALUS_SILENT
 InternalMemFastFunction InternalReadFastTable[0x4000];
 #endif
-#else // DAEDALUS_ALIGN_REGISTERS
-
-ALIGNED_GLOBAL(memory_tables_struct_t, memory_tables_struct, PAGE_ALIGN);
-
-#endif // DAEDALUS_ALIGN_REGISTERS
 
 //*****************************************************************************
 //

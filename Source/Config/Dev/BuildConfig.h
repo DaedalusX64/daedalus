@@ -42,12 +42,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //#define	DAEDALUS_PROFILE_EXECUTION			// Enable to keep track of various execution stats
 #define	DAEDALUS_BATCH_TEST_ENABLED			// Enable the batch test
 //#define	ALLOW_TRACES_WHICH_EXCEPT
-#define	DAEDALUS_ALIGN_REGISTERS
 #define	DAEDALUS_FAST_TMEM						// Disable for full TMEM emulation for palettes (slower and uses more memory)
 #define	DAEDALUS_LOG							// Enable various logging
 //#define	DAEDALUS_DIALOGS					// Enable this to ask confimation dialogs in the GUI
 //#define	DAEDALUS_SILENT						// Define to quiet Debug Messages
-//#define DAEDALUS_ACCURATE_TMEM				// Full tmem emulation(Very accurate, but slighty slower) When this defined, is irrelevant having DAEDALUS_FAST_TMEM defined or not 
+//#define DAEDALUS_ACCURATE_TMEM				// Full tmem emulation(Very accurate, but slighty slower) When this defined, is irrelevant having DAEDALUS_FAST_TMEM defined or not
 //#define	DAEDALUS_IS_LEGACY					// Old code, unused etc.. Kept for reference, undef to save space on the elf. Will remove soon.
 
 #endif // CONFIG_H_
