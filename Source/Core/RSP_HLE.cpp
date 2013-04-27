@@ -41,11 +41,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Test/BatchTest.h"
 
-//Do we reaaly need this??? //Salvy
-#ifdef DAEDALUS_ENABLE_ASSERTS
-volatile bool gRSPHLEActive = false;
-#endif
-
 static const bool	gGraphicsEnabled = true;
 static const bool	gAudioEnabled	 = true;
 
@@ -296,16 +291,8 @@ static EProcessResult RSP_HLE_CICX105(OSTask * task)
 void RSP_HLE_ProcessTask()
 {
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
-#ifdef DAEDALUS_ENABLE_ASSERTS
-	const char* task_name= "?";
-#endif
 
 	EProcessResult	result( PR_NOT_STARTED );
-
-	//
-	// If we want to handle the task, set the pointer
-	//
-	DAEDALUS_ASSERT( !gRSPHLEActive, "RSP HLE already active, can't run '%s' yet. Status: %08x\n", task_name, Memory_SP_GetRegister(SP_STATUS_REG) );
 
 	// non task
 	if(pTask->t.ucode_boot_size > 0x1000)

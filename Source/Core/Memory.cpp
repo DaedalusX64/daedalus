@@ -608,11 +608,6 @@ void Memory_InitTables()
 
 void MemoryUpdateSPStatus( u32 flags )
 {
-#ifdef DAEDALUS_ENABLE_ASSERTS
-	u32		status = Memory_SP_GetRegister( SP_STATUS_REG );
-	DAEDALUS_ASSERT( !gRSPHLEActive || (status & SP_STATUS_HALT) == 0, "HLE active (%d), but HALT set (%08x)", gRSPHLEActive, status );
-#endif
-
 #ifdef DEBUG_SP_STATUS_REG
 	DBGConsole_Msg( 0, "----------" );
 	if (flags & SP_CLR_HALT)				DBGConsole_Msg( 0, "SP: Clearing Halt" );
@@ -654,13 +649,11 @@ void MemoryUpdateSPStatus( u32 flags )
 	if (flags & SP_CLR_HALT)
 	{
 		clr_bits |= SP_STATUS_HALT;
-		DAEDALUS_ASSERT( !gRSPHLEActive, "Clearing halt with RSP HLE task running" );
 		start_rsp = true;
 	}
 	else if (flags & SP_SET_HALT)
 	{
 		set_bits |= SP_STATUS_HALT;
-		DAEDALUS_ASSERT( !gRSPHLEActive, "Setting halt with RSP HLE task running" );
 		stop_rsp = true;
 	}
 
@@ -706,16 +699,10 @@ void MemoryUpdateSPStatus( u32 flags )
 	//
 	if (start_rsp)
 	{
-		DAEDALUS_ASSERT( !gRSPHLEActive, "RSP HLE already active. Status was %08x, now %08x", status, new_status );
-		DAEDALUS_ASSERT( (status & SP_STATUS_BROKE) == 0, "Unexpected RSP HLE status %08x", status );
+		DAEDALUS_ASSERT( (new_status & SP_STATUS_BROKE) == 0, "Unexpected RSP HLE status %08x", new_status );
 
 		// Check for tasks whenever the RSP is started
 		RSP_HLE_ProcessTask();
-	}
-	else if (stop_rsp)
-	{
-		// As we handle all RSP via HLE, nothing to do here.
-		DAEDALUS_ASSERT( !RSP_IsRunningHLE(), "Stopping RSP while HLE task still running. Not good!" );
 	}
 }
 
