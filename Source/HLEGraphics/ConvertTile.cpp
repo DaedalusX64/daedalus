@@ -31,26 +31,6 @@ struct TileDestInfo
 	NativePf8888 *		Palette;
 };
 
-static void FillChecker(const TileDestInfo & dsti, const TextureInfo & ti)
-{
-	for (u32 y = 0; y < dsti.Height; ++y)
-	{
-		u32 * p = (u32*)((u8*)dsti.Data + dsti.Pitch * y);
-		for (u32 x = 0; x < dsti.Width; ++x)
-		{
-			if ((x&0x8) ^ (y&0x8))
-			{
-				*p = 0xffffffff;
-			}
-			else
-			{
-				*p = 0x00000000;
-			}
-			++p;
-		}
-	}
-}
-
 static const u8 OneToEight[] = {
 	0x00,   // 0 -> 00 00 00 00
 	0xff    // 1 -> 11 11 11 11
