@@ -17,96 +17,61 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-//
-// InternalRead is only used for debug puposes
-//
+// InternalRead is only used for debug puposes.
 
-//*****************************************************************************
-//
-//*****************************************************************************
-static bool InternalReadInvalid( u32 address, void ** p_translated )
+static InternalMemFastFunction gInternalReadFastTable[0x4000];
+
+bool Memory_GetInternalReadAddress(u32 address, void ** translated)
 {
-	//DBGConsole_Msg(0, "Illegal Internal Read of 0x%08x at 0x%08x", address, (u32)gCPUState.CurrentPC);
-	*p_translated = g_pMemoryBuffers[MEM_UNUSED];
+	return (gInternalReadFastTable)[(address)>>18](address, translated);
+}
+
+static bool InternalReadInvalid( u32 address, void ** translated )
+{
+	*translated = g_pMemoryBuffers[MEM_UNUSED];
 	return false;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-static bool InternalReadMapped( u32 address, void ** p_translated )
+static bool InternalReadMapped( u32 address, void ** translated )
 {
 	bool missing;
-
-#ifdef DAEDALUS_PROFILE_EXECUTION
-	gTLBReadHit++;
-#endif
 
 	u32 physical_addr = TLBEntry::Translate(address, missing);
 	if (physical_addr != 0)
 	{
-		*p_translated = g_pu8RamBase + (physical_addr & 0x007FFFFF);
+		*translated = g_pu8RamBase + (physical_addr & 0x007FFFFF);
 
 		return true;
 	}
-	else
-	{
-		if (missing)
-		{
-			// No valid TLB entry - throw TLB Refill Exception
-			return InternalReadInvalid( address, p_translated );
-		}
-		else
-		{
-			// Throw TLB Invalid exception
-			return InternalReadInvalid( address, p_translated );
-		}
-	}
+
+	return InternalReadInvalid(address, translated);
 }
 
-
-//*****************************************************************************
-//
-//*****************************************************************************
-static bool InternalRead_4Mb_8000_803F( u32 address, void ** p_translated )
+static bool InternalRead_4Mb_8000_803F( u32 address, void ** translated )
 {
-	*p_translated = g_pu8RamBase + (address & 0x003FFFFF);
+	*translated = g_pu8RamBase + (address & 0x003FFFFF);
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-static bool InternalRead_8Mb_8000_807F( u32 address, void ** p_translated )
+static bool InternalRead_8Mb_8000_807F( u32 address, void ** translated )
 {
-	*p_translated = g_pu8RamBase + (address & 0x007FFFFF);
+	*translated = g_pu8RamBase + (address & 0x007FFFFF);
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-static bool InternalReadROM( u32 address, void ** p_translated )
+static bool InternalReadROM( u32 address, void ** translated )
 {
 	// Note: NOT 0x1FFFFFFF
 	u32		offset( address & 0x00FFFFFF );
 
-	*p_translated = RomBuffer::GetAddressRaw( offset );
-	if( *p_translated != NULL )
-	{
-		//DPF(DEBUG_MEMORY, "Reading from ROM: 0x%08x", address);
+	*translated = RomBuffer::GetAddressRaw( offset );
+	if (*translated != NULL)
 		return true;
-	}
-	else
-	{
-		return InternalReadInvalid( address, p_translated );
-	}
+
+	return InternalReadInvalid( address, translated );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-static bool InternalRead_8400_8400( u32 address, void ** p_translated )
+static bool InternalRead_8400_8400( u32 address, void ** translated )
 {
 	u32 offset;
 
@@ -117,19 +82,14 @@ static bool InternalRead_8400_8400( u32 address, void ** p_translated )
 
 		offset = address & 0x1FFF;
 
-		*p_translated = (u8 *)g_pMemoryBuffers[MEM_SP_MEM] + offset;
+		*translated = (u8 *)g_pMemoryBuffers[MEM_SP_MEM] + offset;
 		return true;
 	}
-	else
-	{
-		return InternalReadInvalid( address, p_translated );
-	}
+
+	return InternalReadInvalid( address, translated );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-static bool InternalRead_9FC0_9FCF( u32 address, void ** p_translated )
+static bool InternalRead_9FC0_9FCF( u32 address, void ** translated )
 {
 	u32 offset;
 
@@ -139,10 +99,9 @@ static bool InternalRead_9FC0_9FCF( u32 address, void ** p_translated )
 
 		offset = address & 0x0FFF;
 
-		*p_translated = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset;
+		*translated = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset;
 		return true;
 	}
-
 	else if ((address&0x1FFFFFFF) <= PIF_RAM_END)
 	{
 		DPF( DEBUG_MEMORY_PIF, "Reading from MEM_PIF_RAM: 0x%08x", address );
@@ -150,17 +109,13 @@ static bool InternalRead_9FC0_9FCF( u32 address, void ** p_translated )
 
 		offset = address & 0x0FFF;
 
-		*p_translated = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset;
+		*translated = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + offset;
 		return true;
 	}
-	else
-	{
-		return InternalReadInvalid( address, p_translated );
-	}
+
+	return InternalReadInvalid( address, translated );
 }
-//*****************************************************************************
-//
-//*****************************************************************************
+
 struct InternalMemMapEntry
 {
 	u32 mStartAddr, mEndAddr;

@@ -112,20 +112,17 @@ u8 * g_pu8RamBase_8000 = NULL;
 u8 * g_pu8RamBase_A000 = NULL;
 #endif
 
+MemFuncRead  	g_MemoryLookupTableRead[0x4000];
+MemFuncWrite 	g_MemoryLookupTableWrite[0x4000];
+void * 			g_pMemoryBuffers[NUM_MEM_BUFFERS];
+
+
 #include "Memory_Read.inl"
 #include "Memory_WriteValue.inl"
 
 #ifndef DAEDALUS_SILENT
 #include "Memory_ReadInternal.inl"
 #endif
-
-MemFuncRead  			g_MemoryLookupTableRead[0x4000];
-MemFuncWrite 			g_MemoryLookupTableWrite[0x4000];
-#ifndef DAEDALUS_SILENT
-InternalMemFastFunction gInternalReadFastTable[0x4000];
-#endif
-
-void * 					g_pMemoryBuffers[NUM_MEM_BUFFERS];
 
 bool Memory_Init()
 {
