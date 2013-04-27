@@ -279,7 +279,7 @@ void Dump_RSPDisassemble(const char * p_file_name)
 		file_path[MAX_PATH-1] = '\0';
 	}
 
-	DBGConsole_Msg(0, "Disassembling from 0x%08x to 0x%08x ([C%s])", start, end, file_path); use(end);
+	DBGConsole_Msg(0, "Disassembling from 0x%08x to 0x%08x ([C%s])", start, end, file_path);
 
 	FILE * fp( fopen(file_path, "w") );
 	if (fp == NULL)

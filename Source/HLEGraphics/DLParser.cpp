@@ -152,8 +152,8 @@ const MicroCodeInstruction *gUcodeFunc = NULL;
 MicroCodeInstruction gCustomInstruction[256];
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-const char ** gUcodeName = gNormalInstructionName[ 0 ];
-const char * gCustomInstructionName[256];
+static const char ** gUcodeName = gNormalInstructionName[ 0 ];
+static const char * gCustomInstructionName[256];
 #endif
 
 bool					gFrameskipActive = false;
@@ -237,12 +237,12 @@ extern u32 uViHeight;
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 static const char * const gFormatNames[8] = {"RGBA", "YUV", "CI", "IA", "I", "?1", "?2", "?3"};
 
 static const char * const gSizeNames[4]   = {"4bpp", "8bpp", "16bpp", "32bpp"};
 static const char * const gOnOffNames[2]  = {"Off", "On"};
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -283,8 +283,8 @@ void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts)
 		}
 	}
 }
-
 #endif
+
 //*****************************************************************************
 //
 //*****************************************************************************

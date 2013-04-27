@@ -226,10 +226,10 @@ struct SAddSamplesJob : public SJob
 
 };
 
-u32 AudioOutput::AddBuffer( u8 *start, u32 length )
+void AudioOutput::AddBuffer( u8 *start, u32 length )
 {
 	if (length == 0)
-		return 0;
+		return;
 
 	if (!mAudioPlaying)
 		StartAudio();
@@ -268,8 +268,6 @@ u32 AudioOutput::AddBuffer( u8 *start, u32 length )
 		}
 		break;
 	}
-
-	return 0;
 }
 
 void AudioOutput::StartAudio()

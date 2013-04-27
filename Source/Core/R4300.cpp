@@ -2261,7 +2261,7 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 		case C0_PAGEMASK:
 			gCPUState.CPUControl[C0_PAGEMASK]._u32 = new_value & 0x01FFE000;
 			//DBGConsole_Msg(0, "Setting PageMask register to 0x%08x", new_value);
-			break;	
+			break;
 
 		case C0_WIRED:
 			// Set to top limit on write to wired
@@ -2294,7 +2294,7 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 			DPF( DEBUG_REGS, "CAUSE set to 0x%08x (was: 0x%08x)", new_value, gGPR[ op_code.rt ]._u32_0 );
 			gCPUState.CPUControl[C0_CAUSE]._u32 &=             ~(CAUSE_SW1|CAUSE_SW2);
 			gCPUState.CPUControl[C0_CAUSE]._u32 |= (new_value & (CAUSE_SW1|CAUSE_SW2));
-			break; 
+			break;
 		case C0_SR:
 			// Software can enable/disable interrupts here. We check if Interrupt Enable is
 			//  set, and if there are any pending interrupts. If there are, then we set the

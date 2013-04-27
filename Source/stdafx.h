@@ -45,6 +45,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <string.h>
 
+#define DAEDALUS_USE(...)	do { (void)sizeof(__VA_ARGS__, 0); } while(0)
+
 // Platform specifc #includes, externs, #defines etc
 #ifdef DAEDALUS_W32
 #include "DaedalusW32.h"
@@ -71,9 +73,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #endif
-
-
-#define use(x)	do { } while(&(x) != &(x))
 
 #ifndef ARRAYSIZE
 #define ARRAYSIZE(arr)   (sizeof(arr) / sizeof(arr[0]))

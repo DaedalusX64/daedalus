@@ -30,8 +30,6 @@ void DLParser_Vtx_PD( MicroCodeCommand command )
 	u32 n  = (((command.inst.cmd0)>>20)&0x0F)+1;
 	u32 len = (command.inst.cmd0)&0xFFFF;
 
-	use(len);
-
 	DL_PF("    Address[0x%08x] Len[%d] v0[%d] Num[%d]", address, len, v0, n);
 
 	// Doesn't work anyways

@@ -153,9 +153,9 @@ inline void SetAssertHook( DaedalusAssertHook hook )
 
 #else // DAEDALUS_ENABLE_ASSERTS
 
-#define DAEDALUS_ASSERT( e, ... )	{}
-#define DAEDALUS_ASSERT_Q( e )		{}
-#define DAEDALUS_ERROR( ... )		{}
+#define DAEDALUS_ASSERT( ... )		do { DAEDALUS_USE(__VA_ARGS__); } while(0)
+#define DAEDALUS_ASSERT_Q( ... )	do { DAEDALUS_USE(__VA_ARGS__); } while(0)
+#define DAEDALUS_ERROR( ... )		do { DAEDALUS_USE(__VA_ARGS__); } while(0)
 
 #endif // DAEDALUS_ENABLE_ASSERTS
 

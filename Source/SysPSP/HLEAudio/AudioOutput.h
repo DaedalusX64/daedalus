@@ -38,7 +38,7 @@ class AudioOutput
 
 		// Buffer Functions for the Audio Code
 		void				SetFrequency( u32 frequency );			// Sets the Nintendo64 Game Audio Frequency
-		u32					AddBuffer( u8 * start, u32 length );	// Uploads a new buffer and returns status
+		void				AddBuffer( u8 * start, u32 length );	// Uploads a new buffer
 
 		// Management functions
 		void				StopAudio( );						// Stops the Audio PlayBack (as if paused)

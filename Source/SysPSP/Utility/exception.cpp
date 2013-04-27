@@ -177,8 +177,6 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 	const u32 RDRAM_end = (u32)g_pu8RamBase + 8 * 1024 * 1024;
     SceCtrlData pad;
 	bool exit = false;
-	u32 scroll_epc	= (u32)regs->epc;
-	use(scroll_epc);
 
 	pspDebugScreenInit();
     pspDebugScreenSetBackColor(0x00FF0000);
@@ -212,19 +210,21 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 		}
 
 #ifndef DAEDALUS_SILENT
+		u32 scroll_epc	= (u32)regs->epc;
+
 		u32 inst_before_ex = 15;
 		u32 inst_after_ex = 4;
-		const OpCode * p( (OpCode *)(scroll_epc - (inst_before_ex * 4)) );
+		const OpCode * p = (OpCode *)(scroll_epc - (inst_before_ex * 4));
 
 		pspDebugScreenPrintf("\n");
 		while( p < (OpCode *)(scroll_epc + (inst_after_ex * 4)) )
 		{
 			char opinfo[128];
 
-			OpCode op( *p );
+			OpCode op = *p;
 
 			SprintOpCodeInfo( opinfo, (u32)p, op );
-			pspDebugScreenPrintf("%s%p: <0x%08x> %s\n",(u32)regs->epc == (u32)p ? "*":" ", p, op._u32, opinfo);
+			pspDebugScreenPrintf("%s%p: <0x%08x> %s\n", scroll_epc == (u32)p ? "*":" ", p, op._u32, opinfo);
 
 			++p;
 		}

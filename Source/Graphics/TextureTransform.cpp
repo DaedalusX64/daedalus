@@ -311,7 +311,7 @@ static void MirrorTexels( void * dst, u32 dst_stride, const void * src, u32 src_
 	case TexFmt_CI8_8888:	MirrorTexelsST< NativePfCI8 , MirrorS, MirrorT >( dst, dst_stride, src, src_stride, width, height ); handled = true; break;
 	}
 
-	DAEDALUS_ASSERT( handled, "Unhandled format" ); use(handled);
+	DAEDALUS_ASSERT( handled, "Unhandled format" );
 }
 
 void MirrorTexels( bool mirror_s, bool mirror_t,

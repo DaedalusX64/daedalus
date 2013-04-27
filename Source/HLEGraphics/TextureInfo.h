@@ -70,10 +70,8 @@ public:
 	// Compute a hash of the contents of the texture data. Not to be confused with GetHashCode() that hashes the Textureinfo!
 	u32						GenerateHashValue() const;
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	const char *			GetFormatName() const;
 	u32						GetSizeInBits() const;
-#endif
 
 	inline u32				GetLoadAddress() const			{ return LoadAddress; }
 	inline u32				GetTlutAddress() const			{ return TlutAddress; }

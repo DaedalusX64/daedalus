@@ -1149,11 +1149,7 @@ extern void MemoryUpdateSPStatus( u32 flags );
 u32 Patch___osContAddressCrc()
 {
 TEST_DISABLE_FUNCS
-#ifdef DAEDALUS_DEBUG_CONSOLE
-	u32 address = gGPR[REG_a0]._u32_0;
-	use(address);
-	DBGConsole_Msg(0, "__osContAddressCrc(0x%08x)", address);
-#endif
+	DBGConsole_Msg(0, "__osContAddressCrc(0x%08x)", gGPR[REG_a0]._u32_0);
 	return PATCH_RET_NOT_PROCESSED;
 }
 

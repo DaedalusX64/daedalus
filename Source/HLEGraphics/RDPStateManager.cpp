@@ -367,7 +367,7 @@ void CRDPStateManager::LoadTlut(const SetLoadTile & load)
 	const RDP_Tile & rdp_tile = mTiles[tile_idx];
 
 	u32 count = ((lrs - uls)>>2) + 1;
-	use(count);
+	DAEDALUS_USE(count);
 
 #ifdef DAEDALUS_FAST_TMEM
 	//Store address of PAL (assuming PAL is only stored in upper half of TMEM) //Corn

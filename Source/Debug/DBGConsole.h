@@ -45,7 +45,7 @@ class CDebugConsole : public CSingleton< CDebugConsole >
 
 #else
 
-#define DBGConsole_Msg(...)					do {} while(0)
+#define DBGConsole_Msg(...)					do { DAEDALUS_USE(__VA_ARGS__); } while(0)
 
 #endif // DAEDALUS_DEBUG_CONSOLE
 

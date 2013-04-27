@@ -92,11 +92,11 @@ void		DLDebug_DumpRDPOtherModeH(u32 mask, u32 data);
 
 #else
 
-#define DL_PF(...)		do {} while(0)
-#define DL_PF_(...)		do {} while(0)
+#define DL_PF(...)								do { DAEDALUS_USE(__VA_ARGS__); } while(0)
+#define DL_PF_(...)								do { DAEDALUS_USE(__VA_ARGS__); } while(0)
 
-#define DL_BEGIN_INSTR(idx, c0, c1, depth, nm)  do {} while(0)
-#define DL_END_INSTR()	do {} while(0)
+#define DL_BEGIN_INSTR(idx, c0, c1, depth, nm)  do { } while(0)
+#define DL_END_INSTR()							do { } while(0)
 
 #endif
 

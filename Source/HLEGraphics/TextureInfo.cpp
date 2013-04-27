@@ -32,7 +32,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Core/ROM.h"
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 static const char * const	gImageFormatNames[8] = {"RGBA", "YUV", "CI", "IA", "I", "?1", "?2", "?3"};
 static const u32			gImageSizesInBits[4] = {4, 8, 16, 32};
 
@@ -45,7 +44,6 @@ u32 TextureInfo::GetSizeInBits() const
 {
 	return gImageSizesInBits[ Size ];
 }
-#endif
 
 // Fast hash for checking is data in a texture source has changed //Corn
 u32 TextureInfo::GenerateHashValue() const
