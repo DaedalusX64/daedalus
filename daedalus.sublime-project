@@ -18,7 +18,7 @@
 			"name": "gyp",
 			"shell": true,
 			"working_dir": "${project_path}/",
-			"cmd": ["$project_path/Tools/build_osx_ninja.sh"],
+			"cmd": ["$project_path/Tools/build_proj_ninja.sh"],
 			"selector": "source.gyp"
 		},
 		{
