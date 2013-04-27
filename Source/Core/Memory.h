@@ -98,86 +98,6 @@ typedef bool (*InternalMemFastFunction)( u32 address, void ** p_translated );
 extern MemFuncRead  				g_MemoryLookupTableRead[0x4000];
 extern MemFuncWrite 				g_MemoryLookupTableWrite[0x4000];
 
-///////////////////////////////////////////////////////////////////////////////////////
-//
-//
-
-/* Added by Lkb (24/8/2001)
-   These tables are used to implement a faster memory system similar to the one used in gnuboy (http://gnuboy.unix-fu.org/ - read docs/HACKING).
-   However instead of testing for zero the entry like gnuboy, Daedalus checks the sign of the addition results.
-   When the pointer table entry is valid, this should be faster since instead of MOV/TEST/ADD (1+1+1 uops) it uses just ADD mem (2 uops)
-   But when the pointer table entry is invalid, it may be slower because it computes the address twice
-
-   # Old system:
-   .intel_syntax
-   MOV EAX, address
-   MOV ECX, EAX
-   SHR EAX, 18
-   CALL DWORD PTR [g_MemoryLookupTableRead + EAX*4]
-   # --> (for RAM)
-   ADD ECX, [rambase_variable]
-   MOV EAX, ECX
-   RET
-
-   # gnuboy system:
-   .intel_syntax
-   MOV EAX, address
-   MOV EDX, EAX
-   SHR EDX, 18
-   MOV ECX, [g_ReadAddressPointerLookupTable + EDX*4]
-   TEST ECX, ECX
-   JS pointer_null # usually not taken - thus forward branch
-   ADD EAX, ECX
-pointer_null_return_x:
-#   [...] <rest of function code>
-#   RET
-
-pointer_null_x:
-   MOV ECX, EAX
-   CALL DWORD PTR [g_MemoryLookupTableRead + EDX*4]
-#  --> (for RAM)
-#  ADD ECX, [rambase_variable]
-#  MOV EAX, ECX
-#  RET
-#  <--
-   JMP pointer_null_return
-
-   # New system:
-   .intel_syntax
-   MOV EAX, address
-   MOV EDX, EAX
-   SHR EDX, 18
-   ADD EAX, [g_ReadAddressPointerLookupTable + EDX*4]
-   JS pointer_null # usually not taken - thus forward branch
-pointer_null_return_x:
-#   [...] <rest of function code>
-#   RET
-
-pointer_null_x:
-   MOV ECX, address
-   CALL DWORD PTR [g_MemoryLookupTableRead + EDX*4]
-#  --> (for RAM)
-#  ADD ECX, [rambase_variable]
-#  MOV EAX, ECX
-#  RET
-#  <--
-   JMP pointer_null_return
-
-   Note however that the compiler may generate worse code.
-
-   The old system is still usable (and it is required even if the new one is used since it will fallback to the old for access to memory-mapped hw registers and similar areas)
-
-   TODO: instead of looking up TLB entries each time TLB-mapped memory is used, it is probably much faster to change the pointer table every time the TLB is modified
-*/
-
-#if 0
-//Slow memory access
-#define FuncTableReadAddress(address)  (void *)(g_MemoryLookupTableRead[(address)>>18].ReadFunc(address))
-#define FuncTableWriteAddress(address, value)  (g_MemoryLookupTableWrite[(address)>>18].WriteFunc(address, value))
-
-#define ReadAddress FuncTableReadAddress
-#define WriteAddress FuncTableWriteAddress
-#else
 // Fast memory access
 inline void* DAEDALUS_ATTRIBUTE_CONST ReadAddress( u32 address )
 {
@@ -204,9 +124,6 @@ inline void WriteAddress( u32 address, u32 value )
 	// Need to go through the HW access handlers or TLB (Slow)
 	m.WriteFunc( address, value );
 }
-
-#endif /* 0 */
-
 
 #ifndef DAEDALUS_SILENT
 bool Memory_GetInternalReadAddress(u32 address, void ** p_translated);
@@ -238,15 +155,6 @@ inline void QuickWrite16Bits( u8 *p_base, u32 offset, u16 value)
 	*(u16 *)((uintptr_t)(p_base + offset) ^ U16_TWIDDLE) = value;
 }
 
-/*typedef struct { u32 value[4]; } u128;
-inline void QuickWrite512Bits( u8 *p_base, u8 *p_source )
-{
-	*(u128 *)(p_base     ) = *(u128 *)(p_source     );
-	*(u128 *)(p_base + 16) = *(u128 *)(p_source + 16);
-	*(u128 *)(p_base + 32) = *(u128 *)(p_source + 32);
-	*(u128 *)(p_base + 48) = *(u128 *)(p_source + 48);
-}*/
-
 inline void QuickWrite64Bits( u8 *p_base, u32 offset, u64 value )
 {
 	u64 data = (value>>32) + (value<<32);
@@ -262,10 +170,6 @@ inline void QuickWrite32Bits( u8 *p_base, u32 value )
 {
 	*(u32 *)(p_base) = value;
 }
-
-
-//#define MEMORY_CHECK_ALIGN( address, align )	DAEDALUS_ASSERT( (address & ~(align-1)) == 0, "Unaligned memory access" )
-#define MEMORY_CHECK_ALIGN( address, align )
 
 // Useful defines for making code look nicer:
 #define g_pu8RamBase ((u8*)g_pMemoryBuffers[MEM_RD_RAM])
@@ -339,6 +243,10 @@ extern u8 * g_pu8RamBase_8000;
 extern u8 * g_pu8RamBase_A000;
 #endif
 
+
+//#define MEMORY_CHECK_ALIGN( address, align )	DAEDALUS_ASSERT( (address & ~(align-1)) == 0, "Unaligned memory access" )
+#define MEMORY_CHECK_ALIGN( address, align )
+
 #if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
 
 inline u64 Read64Bits( u32 address )				{ MEMORY_CHECK_ALIGN( address, 8 ); return *(u64 *)ReadAddress( address ); }
@@ -389,7 +297,7 @@ inline void Write8Bits_NoSwizzle( u32 address, u8 data )	{                      
 		return ((u32 *)g_pMemoryBuffers[memory_buffer])[ (reg - base_reg) / 4 ];		\
 	}																					\
 																						\
-	inline u32 Memory_##set##_SetRegisterBits( u32 reg, u32 and_bits, u32 or_bits )	\
+	inline u32 Memory_##set##_SetRegisterBits( u32 reg, u32 and_bits, u32 or_bits )		\
 	{																					\
 		u32 * p( &((u32 *)g_pMemoryBuffers[memory_buffer])[ (reg - base_reg) / 4 ] );	\
 		return AtomicBitSet( p, and_bits, or_bits );									\
