@@ -149,9 +149,7 @@ class	IController : public CController
 		void			CommandReadRTC(u8 *cmd);
 
 		u8				CalculateDataCrc(const u8 * pBuf) DAEDALUS_ATTRIBUTE_CONST;
-#ifdef DAEDALUS_ENABLE_ASSERTS
 		bool			IsEepromPresent() const						{ return mpEepromData != NULL; }
-#endif
 
 		void			n64_cic_nus_6105();
 		u8				Byte2Bcd(s32 n)								{ n %= 100; return ((n / 10) << 4) | (n % 10); }
