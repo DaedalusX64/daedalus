@@ -39,7 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ConfigOptions.h"
 
-static const u32	MAXIMUM_MEM_SIZE( MEMORY_8_MEG );
+static const u32	kMaximumMemSize = MEMORY_8_MEG;
 
 #undef min
 
@@ -47,28 +47,29 @@ static const u32	MAXIMUM_MEM_SIZE( MEMORY_8_MEG );
 static void DisplayVIControlInfo( u32 control_reg );
 #endif
 
-//
-//	VirtualAlloc is only supported on Win32 architectures
-//
+// VirtualAlloc is only supported on Win32 architectures
 #ifdef DAEDALUS_W32
 #define DAED_USE_VIRTUAL_ALLOC
 #endif
 
 void MemoryUpdateSPStatus( u32 flags );
+void MemoryUpdateMI( u32 value );
 static void MemoryUpdateDP( u32 value );
 static void MemoryModeRegMI( u32 value );
-void MemoryUpdateMI( u32 value );
 static void MemoryUpdatePI( u32 value );
 static void MemoryUpdatePIF();
 
 static void Memory_InitTables();
-//*****************************************************************************
-//
-//*****************************************************************************
+
+// Flash RAM Support
+extern u32 FlashStatus[2];
+void Flash_DoCommand(u32);
+void Flash_Init();
+
 const u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 {
 	0x04,				// This seems enough (Salvy)
-	MAXIMUM_MEM_SIZE,	// RD_RAM
+	kMaximumMemSize,	// RD_RAM
 	0x2000,				// SP_MEM
 
 	0x40,				// PIF_RAM
@@ -90,10 +91,7 @@ const u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 	0x20000				// MEMPACK
 };
 
-//*****************************************************************************
-//
-//*****************************************************************************
-u32			gRamSize =  MAXIMUM_MEM_SIZE;	// Size of emulated RAM
+u32			gRamSize =  kMaximumMemSize;	// Size of emulated RAM
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
 u32			gTLBReadHit  = 0;
@@ -114,13 +112,6 @@ u8 * g_pu8RamBase_8000 = NULL;
 u8 * g_pu8RamBase_A000 = NULL;
 #endif
 
-// Flash RAM Support
-extern u32 FlashStatus[2];
-void Flash_DoCommand(u32);
-void Flash_Init();
-//*****************************************************************************
-//
-//*****************************************************************************
 #include "Memory_Read.inl"
 #include "Memory_WriteValue.inl"
 
@@ -128,26 +119,17 @@ void Flash_Init();
 #include "Memory_ReadInternal.inl"
 #endif
 
-//*****************************************************************************
-//
-//*****************************************************************************
-MemFuncRead  g_MemoryLookupTableRead[0x4000];
-MemFuncWrite g_MemoryLookupTableWrite[0x4000];
+MemFuncRead  			g_MemoryLookupTableRead[0x4000];
+MemFuncWrite 			g_MemoryLookupTableWrite[0x4000];
 #ifndef DAEDALUS_SILENT
 InternalMemFastFunction InternalReadFastTable[0x4000];
 #endif
 
-//*****************************************************************************
-//
-//*****************************************************************************
-void * g_pMemoryBuffers[NUM_MEM_BUFFERS];
+void * 					g_pMemoryBuffers[NUM_MEM_BUFFERS];
 
-//*****************************************************************************
-//
-//*****************************************************************************
 bool Memory_Init()
 {
-	gRamSize = MAXIMUM_MEM_SIZE;
+	gRamSize = kMaximumMemSize;
 
 #ifdef DAED_USE_VIRTUAL_ALLOC
 	gMemBase = VirtualAlloc(0, 512*1024*1024, MEM_RESERVE, PAGE_READWRITE);
@@ -181,17 +163,17 @@ bool Memory_Init()
 
 #else
 	//u32 count = 0;
-	for(u32 m = 0; m < NUM_MEM_BUFFERS; m++)
+	for (u32 m = 0; m < NUM_MEM_BUFFERS; m++)
 	{
-		u32		region_size( MemoryRegionSizes[m] );
+		u32 region_size = MemoryRegionSizes[m];
 		// Skip zero sized areas. An example of this is the cart rom
-		if(region_size > 0)
+		if (region_size > 0)
 		{
 			//count+=region_size;
 			g_pMemoryBuffers[m] = new u8[region_size];
 			//g_pMemoryBuffers[m] = Memory_AllocRegion(region_size);
 
-			if(g_pMemoryBuffers[m] == NULL)
+			if (g_pMemoryBuffers[m] == NULL)
 			{
 				return false;
 			}
@@ -221,9 +203,6 @@ bool Memory_Init()
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void Memory_Fini(void)
 {
 	DPF(DEBUG_MEMORY, "Freeing Memory");
@@ -233,7 +212,7 @@ void Memory_Fini(void)
 	//
 	//	We have to free this buffer separately
 	//
-	if(g_pMemoryBuffers[MEM_UNUSED])
+	if (g_pMemoryBuffers[MEM_UNUSED])
 	{
 		delete [] reinterpret_cast< u8 * >( g_pMemoryBuffers[MEM_UNUSED] );
 		g_pMemoryBuffers[MEM_UNUSED] = NULL;
@@ -243,9 +222,9 @@ void Memory_Fini(void)
 	gMemBase = NULL;
 
 #else
-	for(u32 m = 0; m < NUM_MEM_BUFFERS; m++)
+	for (u32 m = 0; m < NUM_MEM_BUFFERS; m++)
 	{
-		if(g_pMemoryBuffers[m] != NULL)
+		if (g_pMemoryBuffers[m] != NULL)
 		{
 			delete [] (u8*)(g_pMemoryBuffers[m]);
 			g_pMemoryBuffers[m] = NULL;
@@ -261,25 +240,16 @@ void Memory_Fini(void)
 	memset( g_pMemoryBuffers, 0, sizeof( g_pMemoryBuffers ) );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 bool Memory_Reset()
 {
-	u32 i;
-	u32 main_mem;
-
-	if (g_ROM.settings.ExpansionPakUsage != PAK_UNUSED)
-		main_mem = MEMORY_8_MEG;
-	else
-		main_mem = MEMORY_4_MEG;
+	u32 main_mem = g_ROM.settings.ExpansionPakUsage != PAK_UNUSED ? MEMORY_8_MEG : MEMORY_4_MEG;
 
 	DBGConsole_Msg(0, "Reseting Memory - %d MB", main_mem/(1024*1024));
 
-	if(main_mem > MAXIMUM_MEM_SIZE)
+	if (main_mem > kMaximumMemSize)
 	{
-		DBGConsole_Msg( 0, "Memory_Reset: Can't reset with more than %dMB ram", MAXIMUM_MEM_SIZE / (1024*1024) );
-		main_mem = MAXIMUM_MEM_SIZE;
+		DBGConsole_Msg( 0, "Memory_Reset: Can't reset with more than %dMB ram", kMaximumMemSize / (1024*1024) );
+		main_mem = kMaximumMemSize;
 	}
 
 	// Set memory size to specified value
@@ -291,9 +261,9 @@ bool Memory_Reset()
 
 	// Required - virtual alloc gives zeroed memory but this is also used when resetting
 	// Clear memory
-	for (i = 0; i < NUM_MEM_BUFFERS; i++)
+	for (u32 i = 0; i < NUM_MEM_BUFFERS; i++)
 	{
-		if ( g_pMemoryBuffers[i] )
+		if (g_pMemoryBuffers[i])
 		{
 			memset(g_pMemoryBuffers[i], 0, MemoryRegionSizes[i]);
 		}
@@ -303,24 +273,16 @@ bool Memory_Reset()
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void Memory_Cleanup()
 {
-
 }
 
- //*****************************************************************************
- //
- //*****************************************************************************
 static void Memory_Tlb_Hack()
 {
-
 	bool RomBaseKnown = RomBuffer::IsRomLoaded() && RomBuffer::IsRomAddressFixed();
 
-	const void *	rom_address( RomBaseKnown ? RomBuffer::GetFixedRomBaseAddress() : NULL );
-	if(rom_address != NULL)
+	const void * rom_address = RomBaseKnown ? RomBuffer::GetFixedRomBaseAddress() : NULL;
+	if (rom_address != NULL)
 	{
 	   u32 offset = 0;
 	   switch(g_ROM.rh.CountryID)
@@ -336,7 +298,7 @@ static void Memory_Tlb_Hack()
 	   u32 start_addr = 0x7F000000 >> 18;
 	   u32 end_addr   = 0x7FFFFFFF >> 18;
 
-	   u8 *pRead = (u8*)(reinterpret_cast< u32 >(rom_address) + offset - (start_addr << 18));
+	   u8 * pRead = (u8*)(reinterpret_cast< u32 >(rom_address) + offset - (start_addr << 18));
 
 	   for (u32 i = start_addr; i <= end_addr; i++)
 	   {
@@ -347,15 +309,12 @@ static void Memory_Tlb_Hack()
 	g_MemoryLookupTableRead[0x70000000 >> 18].pRead = (u8*)(reinterpret_cast< u32 >( g_pMemoryBuffers[MEM_RD_RAM]) - 0x70000000);
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 static void Memory_InitFunc(u32 start, u32 size, const u32 ReadRegion, const u32 WriteRegion, mReadFunction ReadFunc, mWriteFunction WriteFunc)
 {
 	u32	start_addr = (start >> 18);
 	u32	end_addr   = ((start + size - 1) >> 18);
 
-	while(start_addr <= end_addr)
+	while (start_addr <= end_addr)
 	{
 		g_MemoryLookupTableRead[start_addr|(0x8000>>2)].ReadFunc= ReadFunc;
 		g_MemoryLookupTableWrite[start_addr|(0x8000>>2)].WriteFunc = WriteFunc;
@@ -363,13 +322,13 @@ static void Memory_InitFunc(u32 start, u32 size, const u32 ReadRegion, const u32
 		g_MemoryLookupTableRead[start_addr|(0xA000>>2)].ReadFunc= ReadFunc;
 		g_MemoryLookupTableWrite[start_addr|(0xA000>>2)].WriteFunc = WriteFunc;
 
-		if(ReadRegion)
+		if (ReadRegion)
 		{
 			g_MemoryLookupTableRead[start_addr|(0x8000>>2)].pRead = (u8*)(reinterpret_cast< u32 >(g_pMemoryBuffers[ReadRegion]) - (((start>>16)|0x8000) << 16));
 			g_MemoryLookupTableRead[start_addr|(0xA000>>2)].pRead = (u8*)(reinterpret_cast< u32 >(g_pMemoryBuffers[ReadRegion]) - (((start>>16)|0xA000) << 16));
 		}
 
-		if(WriteRegion)
+		if (WriteRegion)
 		{
 			g_MemoryLookupTableWrite[start_addr|(0x8000>>2)].pWrite = (u8*)(reinterpret_cast< u32 >(g_pMemoryBuffers[WriteRegion]) - (((start>>16)|0x8000) << 16));
 			g_MemoryLookupTableWrite[start_addr|(0xA000>>2)].pWrite = (u8*)(reinterpret_cast< u32 >(g_pMemoryBuffers[WriteRegion]) - (((start>>16)|0xA000) << 16));
@@ -379,45 +338,41 @@ static void Memory_InitFunc(u32 start, u32 size, const u32 ReadRegion, const u32
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void Memory_InitTables()
 {
-	u32 i;
-
 	memset(g_MemoryLookupTableRead, 0, sizeof(MemFuncRead) * 0x4000);
 	memset(g_MemoryLookupTableWrite, 0, sizeof(MemFuncWrite) * 0x4000);
 
-	for(i = 0; i < (0x10000 >> 2); i++)
+	u32 i;
+	for (i = 0; i < (0x10000 >> 2); i++)
 	{
 		g_MemoryLookupTableRead[i].pRead = NULL;
 		g_MemoryLookupTableWrite[i].pWrite = NULL;
 	}
 
 	// 0x00000000 - 0x7FFFFFFF Mapped Memory
-	for(i = 0; i < (0x8000 >> 2); i++)
+	for (i = 0; i < (0x8000 >> 2); i++)
 	{
 		g_MemoryLookupTableRead[i].ReadFunc		= ReadMapped;
 		g_MemoryLookupTableWrite[i].WriteFunc	= WriteValueMapped;
 	}
 
 	// Invalidate all entries, mapped regions are untouched (0x00000000 - 0x7FFFFFFF, 0xC0000000 - 0x10000000 )
-	for(i = (0x8000 >> 2); i < (0xC000 >> 2); i++)
+	for (i = (0x8000 >> 2); i < (0xC000 >> 2); i++)
 	{
 		g_MemoryLookupTableRead[i].ReadFunc		= ReadInvalid;
 		g_MemoryLookupTableWrite[i].WriteFunc	= WriteValueInvalid;
 	}
 
 	// 0xC0000000 - 0x10000000 Mapped Memory
-	for(i = (0xC000 >> 2); i < (0x10000 >> 2); i++)
+	for (i = (0xC000 >> 2); i < (0x10000 >> 2); i++)
 	{
 		g_MemoryLookupTableRead[i].ReadFunc		= ReadMapped;
 		g_MemoryLookupTableWrite[i].WriteFunc	= WriteValueMapped;
 	}
 
-	u32				rom_size( RomBuffer::GetRomSize() );
-	u32				ram_size( gRamSize );
+	u32 rom_size = RomBuffer::GetRomSize();
+	u32 ram_size = gRamSize;
 
 	DBGConsole_Msg(0, "Initialising %s main memory", (ram_size == MEMORY_8_MEG) ? "8Mb" : "4Mb");
 
@@ -654,13 +609,10 @@ void Memory_InitTables()
 #endif
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void MemoryUpdateSPStatus( u32 flags )
 {
 #ifdef DAEDALUS_ENABLE_ASSERTS
-	u32		status( Memory_SP_GetRegister( SP_STATUS_REG ) );
+	u32		status = Memory_SP_GetRegister( SP_STATUS_REG );
 	DAEDALUS_ASSERT( !gRSPHLEActive || (status & SP_STATUS_HALT) == 0, "HLE active (%d), but HALT set (%08x)", gRSPHLEActive, status );
 #endif
 
@@ -699,8 +651,8 @@ void MemoryUpdateSPStatus( u32 flags )
 	bool start_rsp = false;
 	bool stop_rsp = false;
 
-	u32		clr_bits = 0;
-	u32		set_bits = 0;
+	u32	clr_bits = 0;
+	u32	set_bits = 0;
 
 	if (flags & SP_CLR_HALT)
 	{
@@ -757,7 +709,7 @@ void MemoryUpdateSPStatus( u32 flags )
 	//
 	// We execute the task here, after we've written to the SP status register.
 	//
-	if( start_rsp )
+	if (start_rsp)
 	{
 #ifdef DAEDAULUS_ENABLEASSERTS
 		DAEDALUS_ASSERT( !gRSPHLEActive, "RSP HLE already active. Status was %08x, now %08x", status, new_status );
@@ -768,7 +720,7 @@ void MemoryUpdateSPStatus( u32 flags )
 		RSP_HLE_ProcessTask();
 	}
 #ifdef DAEDAULUS_ENABLEASSERTS
-	else if ( stop_rsp )
+	else if (stop_rsp)
 	{
 		// As we handle all RSP via HLE, nothing to do here.
 		DAEDALUS_ASSERT( !RSP_IsRunningHLE(), "Stopping RSP while HLE task still running. Not good!" );
@@ -777,9 +729,7 @@ void MemoryUpdateSPStatus( u32 flags )
 }
 
 #undef DISPLAY_DPC_WRITES
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void MemoryUpdateDP( u32 flags )
 {
 	// Ignore address, as this is only called with DPC_STATUS_REG write
@@ -819,12 +769,8 @@ void MemoryUpdateDP( u32 flags )
 
 	// Write back the value
 	Memory_DPC_SetRegister(DPC_STATUS_REG, dpc_status);
-
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void MemoryUpdateMI( u32 value )
 {
 	u32 mi_intr_mask_reg = Memory_MI_GetRegister(MI_INTR_MASK_REG);
@@ -853,35 +799,26 @@ void MemoryUpdateMI( u32 value )
 	Memory_MI_SetRegister( MI_INTR_MASK_REG, mi_intr_mask_reg );
 
 	// Check if any interrupts are enabled now, and immediately trigger an interrupt
-	//if(mi_intr_mask_reg & 0x0000003F & mi_intr_reg)
-	if(mi_intr_mask_reg & mi_intr_reg)
+	//if (mi_intr_mask_reg & 0x0000003F & mi_intr_reg)
+	if (mi_intr_mask_reg & mi_intr_reg)
 	{
 		R4300_Interrupt_UpdateCause3();
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void MemoryModeRegMI( u32 value )
 {
 	u32 mi_mode_reg = Memory_MI_GetRegister(MI_MODE_REG);
 
-	// ToDO : Avoid branching
-	if(value & MI_SET_RDRAM)
-		mi_mode_reg |= MI_MODE_RDRAM;
-	else if(value & MI_CLR_RDRAM)
-		mi_mode_reg &= ~MI_MODE_RDRAM;
+	// TODO : Avoid branching
+		 if (value & MI_SET_RDRAM)	mi_mode_reg |=  MI_MODE_RDRAM;
+	else if (value & MI_CLR_RDRAM)	mi_mode_reg &= ~MI_MODE_RDRAM;
 
-	if(value & MI_SET_INIT)
-		mi_mode_reg |= MI_MODE_INIT;
-    else if(value & MI_CLR_INIT)
-		mi_mode_reg &= ~MI_MODE_INIT;
+		 if (value & MI_SET_INIT)	mi_mode_reg |=  MI_MODE_INIT;
+    else if (value & MI_CLR_INIT)	mi_mode_reg &= ~MI_MODE_INIT;
 
-	if(value & MI_SET_EBUS)
-		mi_mode_reg |= MI_MODE_EBUS;
-    else if(value & MI_CLR_EBUS)
-		mi_mode_reg &= ~MI_MODE_EBUS;
+		 if (value & MI_SET_EBUS)	mi_mode_reg |=  MI_MODE_EBUS;
+    else if (value & MI_CLR_EBUS)	mi_mode_reg &= ~MI_MODE_EBUS;
 
 	Memory_MI_SetRegister( MI_MODE_REG, mi_mode_reg );
 
@@ -893,9 +830,6 @@ void MemoryModeRegMI( u32 value )
 }
 
 #ifdef DAEDALUS_LOG
-//*****************************************************************************
-//
-//*****************************************************************************
 static void DisplayVIControlInfo( u32 control_reg )
 {
 	DPF( DEBUG_VI, "VI Control:", (control_reg & VI_CTRL_GAMMA_DITHER_ON) ? "On" : "Off" );
@@ -911,13 +845,9 @@ static void DisplayVIControlInfo( u32 control_reg )
 	DPF( DEBUG_VI, "         Interlace: %s", (control_reg & VI_CTRL_SERRATE_ON) ? "On" : "Off" );
 	DPF( DEBUG_VI, "         AAMask: 0x%02x", (control_reg&VI_CTRL_ANTIALIAS_MASK)>>8 );
 	DPF( DEBUG_VI, "         DitherFilter: %s", (control_reg & VI_CTRL_DITHER_FILTER_ON) ? "On" : "Off" );
-
 }
 #endif
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void MemoryUpdatePI( u32 value )
 {
 	if (value & PI_STATUS_RESET)
@@ -936,14 +866,12 @@ void MemoryUpdatePI( u32 value )
 	}
 }
 
-//*****************************************************************************
-//	The PIF control byte has been written to - process this command
-//*****************************************************************************
+// The PIF control byte has been written to - process this command
 void MemoryUpdatePIF()
 {
 	u8 * pPIFRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
 	u8 command = pPIFRam[ 0x3F ^ U8_TWIDDLE];
-	if( command == 0x08 )
+	if (command == 0x08)
 	{
 		pPIFRam[ 0x3F ^ U8_TWIDDLE ] = 0x00;
 
@@ -956,5 +884,4 @@ void MemoryUpdatePIF()
 	{
 		DBGConsole_Msg( 0, "[GUnknown control value: 0x%02x", command );
 	}
-
 }
