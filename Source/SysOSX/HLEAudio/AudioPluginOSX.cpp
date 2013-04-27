@@ -49,7 +49,7 @@ EAudioPluginMode gAudioPluginEnabled = APM_DISABLED;
 #if DEBUG_AUDIO
 #define DPF_AUDIO(...)	do { printf(__VA_ARGS__); } while(0)
 #else
-#define DPF_AUDIO(...)	do {} while(0)
+#define DPF_AUDIO(...)	do { (void)sizeof(__VA_ARGS__); } while(0)
 #endif
 
 static const u32 kOutputFrequency = 44100;
@@ -206,7 +206,7 @@ void AudioPluginOSX::AudioCallback(void * arg, AudioQueueRef queue, AudioQueueBu
 
 	float ms = (float)samples_written * 1000.f / (float)kOutputFrequency;
 	DPF_AUDIO("Playing %d samples @%dHz - %.2fms - bufferlen now %d\n",
-			samples_written, kOutputFrequency, ms, mBufferLenMs);
+			samples_written, kOutputFrequency, ms, plugin->mBufferLenMs);
 
 	if (samples_written == 0)
 	{

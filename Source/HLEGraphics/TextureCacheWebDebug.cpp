@@ -37,7 +37,6 @@ static void TextureHandler(void * arg, WebDebugConnection * connection)
 			for (size_t i = 0; i < textures.size(); ++i)
 			{
 				CTextureCache::STextureInfoSnapshot & snap = textures[i];
-				const TextureInfo & ti = snap.Info;
 				if ((CNativeTexture*)snap.Texture == ptr)
 				{
 					texture = snap.Texture;

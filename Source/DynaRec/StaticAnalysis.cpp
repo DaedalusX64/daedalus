@@ -851,18 +851,18 @@ void StaticAnalysis_Cop1_S_CVT_D( OpCode op_code, RegisterUsage & recorder )
 }
 
 // FIXME: this is not referenced anywhere
-void StaticAnalysis_Cop1_S_EQ( OpCode op_code, RegisterUsage & recorder ) 				// Compare for Equality
-{
-	RegFPRRead( op_code.fs );
-	RegFPRRead( op_code.ft );
-}
+//void StaticAnalysis_Cop1_S_EQ( OpCode op_code, RegisterUsage & recorder ) 				// Compare for Equality
+//{
+//	RegFPRRead( op_code.fs );
+//	RegFPRRead( op_code.ft );
+//}
 
 // FIXME: this is not referenced anywhere
-void StaticAnalysis_Cop1_S_LT( OpCode op_code, RegisterUsage & recorder ) 				// Compare for Equality
-{
-	RegFPRRead( op_code.fs );
-	RegFPRRead( op_code.ft );
-}
+//void StaticAnalysis_Cop1_S_LT( OpCode op_code, RegisterUsage & recorder ) 				// Compare for Equality
+//{
+//	RegFPRRead( op_code.fs );
+//	RegFPRRead( op_code.ft );
+//}
 
 void StaticAnalysis_Cop1_Compare_S( OpCode op_code, RegisterUsage & recorder )
 {

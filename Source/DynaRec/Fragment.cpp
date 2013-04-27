@@ -747,13 +747,13 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 		if( !details.Likely && details.DelaySlotTraceIndex != -1 )
 		{
 			const STraceEntry & ti( trace[ details.DelaySlotTraceIndex ] );
-//#ifdef DAEDALUS_DEBUG_CONSOLE
-//			OpCode		delay_op_code( ti.OpCode );
-//#endif
 #ifdef FRAGMENT_SIMULATE_EXECUTION
 			u32			delay_address( ti.Address );
 #endif
 			/*
+#ifdef DAEDALUS_DEBUG_CONSOLE
+			OpCode		delay_op_code( ti.OpCode );
+#endif
 			if( delay_op_code.op == OP_COPRO1 && !checked_cop1_usable )
 			{
 				checked_cop1_usable = true;
@@ -762,17 +762,17 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 				//exception_handler_jumps.push_back( handler );
 			}
 			*/
- //PSP, We handle exceptions directly with _ReturnFromDynaRecIfStuffToDo 
-#ifdef DAEDALUS_PSP	
+ //PSP, We handle exceptions directly with _ReturnFromDynaRecIfStuffToDo
+#ifdef DAEDALUS_PSP
 			p_generator->GenerateOpCode( ti, true, NULL, NULL);
-#else		
+#else
 			CJumpLocation	exception_handler_jump( p_generator->GenerateOpCode( ti, true, NULL, NULL) );
 
 			if( exception_handler_jump.IsSet() )
 			{
 				exception_handler_jumps.push_back( exception_handler_jump );
 			}
-#endif		
+#endif
 			num_instructions_executed++;
 		}
 

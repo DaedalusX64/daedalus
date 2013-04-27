@@ -52,12 +52,12 @@ private:
 
 };
 
-IInputManager::IInputManager() :
-	mJoyStick( NULL ),
-	mJoyButton( NULL ),
-	mNumAxes( 0 ),
-	mNumButtoms( 0 ),
-	mIsGamePad( false )
+IInputManager::IInputManager()
+:	mNumAxes( 0 )
+,	mNumButtoms( 0 )
+,	mIsGamePad( false )
+,	mJoyStick( NULL )
+,	mJoyButton( NULL )
 {
 	InitGamePad();
 }

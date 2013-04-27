@@ -51,6 +51,7 @@ bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
 	else
 	{
 		DAEDALUS_ERROR( "Unhandled jump type" );
+		return false;
 	}
 
 	u32		offset( jump.GetOffset( target ) - instruction_length );

@@ -148,7 +148,6 @@ void IDebugConsole::Msg(u32 type, const char * format, ...)
 		temp = (char *)malloc(len+1);
 
 		ParseFormatString(format, temp, len);
-		char * o = temp;
 
 		format = temp;
 	}

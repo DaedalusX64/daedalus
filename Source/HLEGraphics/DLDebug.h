@@ -30,7 +30,7 @@ struct RDP_OtherMode;
 class DLDebugOutput
 {
 public:
-	~DLDebugOutput();
+	virtual ~DLDebugOutput();
 
 	void Print(const char * fmt, ...);
 	void PrintLine(const char * fmt, ...);	// Automatically appends a newline.

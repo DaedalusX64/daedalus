@@ -43,7 +43,6 @@ EAssertResult DaedalusAssert( const char * expression, const char * file, unsign
 	printf( "%s\n", buffer );
 	printf( "\n" );
 
-	EAssertResult result = AR_BREAK;
 	bool done = false;
 	while (!done)
 	{
