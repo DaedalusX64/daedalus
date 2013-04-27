@@ -202,6 +202,8 @@ ifndef CONFIG
 	CONFIG=Release
 endif
 
+CFLAGS += -Wno-unused-value
+
 CXXFLAGS = -fno-exceptions -fno-rtti -iquote$(SRCDIR)/SysPSP/Include -iquote$(SRCDIR)/Config/$(CONFIG) -iquote$(SRCDIR) -iquote$(SRCDIR)/SysPSP
 
 CORE_OBJS := $(CORE_SRCS)
