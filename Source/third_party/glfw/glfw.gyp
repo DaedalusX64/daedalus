@@ -56,6 +56,11 @@
             'lib/cocoa/cocoa_window.m',
           ],
         }],
+        ['OS=="linux"', {
+          'include_dirs': [
+            'lib/x11/',
+          ],
+        }],
       ],
     }
   ],
