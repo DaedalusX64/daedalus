@@ -29,7 +29,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Interface/RomDB.h"
 
-
 #include "Math/MathUtil.h"
 
 #include "Debug/DBGConsole.h"
@@ -52,15 +51,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ConfigOptions.h"
 
 #if defined(DAEDALUS_ENABLE_DYNAREC_PROFILE) || defined(DAEDALUS_W32)
-//*****************************************************************************
 // This isn't really the most appropriate place. Need to check with
 // the graphics plugin really
-//*****************************************************************************
 u32 g_dwNumFrames = 0;
 #endif
-//*****************************************************************************
-//
-//*****************************************************************************
+
 RomInfo g_ROM;
 
 static void DumpROMInfo( const ROMHeader & header )
@@ -84,9 +79,6 @@ static void DumpROMInfo( const ROMHeader & header )
 	DBGConsole_Msg(0, "Unknown5:        0x%02x", header.Unknown5);
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 {
 	// gCPUState.CPUControl[C0_SR]		= 0x34000000;	//*SR_FR |*/ SR_ERL | SR_CU2|SR_CU1|SR_CU0;
@@ -112,7 +104,6 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 
 	//REVISION_REGISTER   = 0x00000511;
 	//STATUS_REGISTER     = 0x34000000;
-
 
 	gGPR[0]._u64=0x0000000000000000LL;
 	gGPR[6]._u64=0xFFFFFFFFA4001F0CLL;
@@ -266,15 +257,12 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 	CPU_SetPC(0xA4000040);
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 bool ROM_ReBoot()
 {
 	//
 	// Find out the CIC type and initialise various systems based on the CIC type
 	//
-	u8			rom_base[ RAMROM_GAME_OFFSET ];
+	u8	rom_base[ RAMROM_GAME_OFFSET ];
 	RomBuffer::GetRomBytesRaw( rom_base, 0, RAMROM_GAME_OFFSET );
 
 	g_ROM.cic_chip = ROM_GenerateCICType( rom_base );
@@ -332,22 +320,13 @@ bool ROM_ReBoot()
 	}*/
 	ROM_SimulatePIFBoot( g_ROM.cic_chip, g_ROM.rh.CountryID );
 
-	//CPU_AddBreakPoint( 0xA4000040 );
-	//CPU_AddBreakPoint( 0xbfc00000 );
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void ROM_Unload()
 {
-
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 void SpecificGameHacks( const ROMHeader & id )
 {
 	printf("ROM ID[%04X]\n", id.CartID);
@@ -447,9 +426,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	}
 }
 
-//*****************************************************************************
 // Copy across text, null terminate, and strip spaces
-//*****************************************************************************
 void ROM_GetRomNameFromHeader( std::string & rom_name, const ROMHeader & header )
 {
 	char	buffer[20+1];
@@ -458,30 +435,27 @@ void ROM_GetRomNameFromHeader( std::string & rom_name, const ROMHeader & header 
 
 	rom_name = buffer;
 
-	const char * whitespace_chars( " \t\r\n" );
+	const char * whitespace_chars = " \t\r\n";
 	rom_name.erase( 0, rom_name.find_first_not_of(whitespace_chars) );
 	rom_name.erase( rom_name.find_last_not_of(whitespace_chars)+1 );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 bool ROM_LoadFile()
 {
 	RomID		rom_id;
 	u32			rom_size;
 	ECicType	boot_type;
 
-	if(ROM_GetRomDetailsByFilename(g_ROM.szFileName, &rom_id, &rom_size, &boot_type ))
+	if (ROM_GetRomDetailsByFilename(g_ROM.szFileName, &rom_id, &rom_size, &boot_type ))
 	{
 		RomSettings			settings;
 		SRomPreferences		preferences;
 
-		if ( !CRomSettingsDB::Get()->GetSettings( rom_id, &settings ) )
+		if (!CRomSettingsDB::Get()->GetSettings( rom_id, &settings ))
 		{
 			settings.Reset();
 		}
-		if( !CPreferences::Get()->GetRomPreferences( rom_id, &preferences ) )
+		if (!CPreferences::Get()->GetRomPreferences( rom_id, &preferences ))
 		{
 			preferences.Reset();
 		}
@@ -492,54 +466,42 @@ bool ROM_LoadFile()
 	return false;
 }
 
-
 void ROM_UnloadFile()
 {
 	// Copy across various bits
 	g_ROM.mRomID = RomID();
 	g_ROM.settings = RomSettings();
 }
-//*****************************************************************************
-//
-//*****************************************************************************
+
 bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRomPreferences & preferences )
 {
-#ifdef DAEDALUS_DEBUG_CONSOLE
-	const char *filename(g_ROM.szFileName);
-	DBGConsole_Msg(0, "Reading rom image: [C%s]", filename);
-#endif
+	DBGConsole_Msg(0, "Reading rom image: [C%s]", g_ROM.szFileName);
 
 	// Get information about the rom header
 	RomBuffer::GetRomBytesRaw( &g_ROM.rh, 0, sizeof(ROMHeader) );
 
-	//
 	//	Swap into native format
-	//
 	ROMFile::ByteSwap_3210( &g_ROM.rh, sizeof(ROMHeader) );
 
 	DAEDALUS_ASSERT( RomID( g_ROM.rh ) == rom_id, "Why is the rom id incorrect?" );
 
 	// Copy across various bits
-	g_ROM.mRomID = rom_id;
+	g_ROM.mRomID   = rom_id;
 	g_ROM.settings = settings;
-	g_ROM.TvType = ROM_GetTvTypeFromID( g_ROM.rh.CountryID );
+	g_ROM.TvType   = ROM_GetTvTypeFromID( g_ROM.rh.CountryID );
 
 	// Game specific hacks..
 	SpecificGameHacks( g_ROM.rh );
 
 	DumpROMInfo( g_ROM.rh );
 
-	//
-	//
 	// Read and apply preferences from preferences.ini
-	//
 	preferences.Apply();
 
 	// Parse cheat file this rom, if cheat feature is enabled
 	// This is also done when accessing the cheat menu
 	// But we do this when ROM is loaded too, to allow any forced enabled cheats to work.
-	//
-	if( gCheatsEnabled )
+	if (gCheatsEnabled)
 	{
 		CheatCodes_Read( g_ROM.settings.GameName.c_str(), "Daedalus.cht", g_ROM.rh.CountryID );
 	}
@@ -558,31 +520,28 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 bool ROM_GetRomName( const char * filename, std::string & game_name )
 {
-	ROMFile * p_rom_file( ROMFile::Create( filename ) );
-	if(p_rom_file == NULL)
+	ROMFile * p_rom_file = ROMFile::Create( filename );
+	if (p_rom_file == NULL)
 	{
 		return false;
 	}
 
 	CNullOutputStream messages;
 
-	if( !p_rom_file->Open( messages ) )
+	if (!p_rom_file->Open( messages ))
 	{
 		delete p_rom_file;
 		return false;
 	}
 
 	// Only read in the header
-	const u32	bytes_to_read( sizeof(ROMHeader) );
-	u32			size_aligned( AlignPow2( bytes_to_read, 4 ) );	// Needed?
-	u8 *		p_bytes( new u8[size_aligned] );
+	const u32	bytes_to_read = sizeof(ROMHeader);
+	u32			size_aligned = AlignPow2( bytes_to_read, 4 );	// Needed?
+	u8 *		p_bytes = new u8[size_aligned];
 
-	if(!p_rom_file->LoadData( bytes_to_read, p_bytes, messages ))
+	if (!p_rom_file->LoadData( bytes_to_read, p_bytes, messages ))
 	{
 		// Lots of files don't have any info - don't worry about it
 		delete [] p_bytes;
@@ -590,16 +549,12 @@ bool ROM_GetRomName( const char * filename, std::string & game_name )
 		return false;
 	}
 
-	//
 	//	Swap into native format
-	//
 	ROMFile::ByteSwap_3210( p_bytes, bytes_to_read );
 
-	//
 	// Get the address of the rom header
 	// Setup the rom id and size
-	//
-	const ROMHeader * prh( reinterpret_cast<const ROMHeader *>( p_bytes ) );
+	const ROMHeader * prh = reinterpret_cast<const ROMHeader *>( p_bytes );
 	ROM_GetRomNameFromHeader( game_name, *prh );
 
 	delete [] p_bytes;
@@ -607,25 +562,17 @@ bool ROM_GetRomName( const char * filename, std::string & game_name )
 	return true;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 bool ROM_GetRomDetailsByFilename( const char * filename, RomID * id, u32 * rom_size, ECicType * boot_type )
 {
 	return CRomDB::Get()->QueryByFilename( filename, id, rom_size, boot_type );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 bool ROM_GetRomDetailsByID( const RomID & id, u32 * rom_size, ECicType * boot_type )
 {
 	return CRomDB::Get()->QueryByID( id, rom_size, boot_type );
 }
 
-//*****************************************************************************
 // Association between a country id value, tv type and name
-//*****************************************************************************
 struct CountryIDInfo
 {
 	s8				CountryID;
@@ -650,36 +597,29 @@ static const CountryIDInfo g_CountryCodeInfo[] =
 	{ 'Y', "PAL",		OS_TV_PAL }
 };
 
-
-
-//*****************************************************************************
 // Get a string representing the country name from an ID value
-//*****************************************************************************
 const char * ROM_GetCountryNameFromID( u8 country_id )
 {
-	for ( u32 i = 0; i < ARRAYSIZE( g_CountryCodeInfo ); i++)
+	for (u32 i = 0; i < ARRAYSIZE( g_CountryCodeInfo ); i++)
 	{
-		if ( g_CountryCodeInfo[i].CountryID == country_id )
+		if (g_CountryCodeInfo[i].CountryID == country_id)
 		{
 			return g_CountryCodeInfo[i].CountryName;
 		}
 	}
+
 	return "?";
 }
 
-
-//*****************************************************************************
-//
-//*****************************************************************************
 u32 ROM_GetTvTypeFromID( u8 country_id )
 {
-	for ( u32 i = 0; i < ARRAYSIZE( g_CountryCodeInfo ); i++ )
+	for (u32 i = 0; i < ARRAYSIZE( g_CountryCodeInfo ); i++)
 	{
-		if ( g_CountryCodeInfo[i].CountryID == country_id )
+		if (g_CountryCodeInfo[i].CountryID == country_id)
 		{
 			return g_CountryCodeInfo[i].TvType;
 		}
 	}
+
 	return OS_TV_NTSC;
 }
-
