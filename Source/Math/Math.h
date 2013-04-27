@@ -470,6 +470,11 @@ inline bool IsNaN_Float(float x)
 
 #define Abs(x)	pspFpuAbs((x))
 
+inline void SinCos(float x, float * s, float * c)
+{
+	vfpu_sincos(x, s, c);
+}
+
 #else
 
 inline float Sqrt(float x)
@@ -497,6 +502,12 @@ inline float Sinf(float x)
 inline float Cosf(float x)
 {
 	return cosf( x );
+}
+
+inline void SinCos(float x, float * s, float * c)
+{
+	*s = sinf(x);
+	*c = cosf(x);
 }
 
 #endif // DAEDALUS_PSP

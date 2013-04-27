@@ -142,16 +142,10 @@ Matrix4x4 & Matrix4x4::SetScaling( float scale )
 
 Matrix4x4 & Matrix4x4::SetRotateX( float angle )
 {
-#ifdef DAEDALUS_PSP
-//	float	s( vfpu_sinf( angle ) );
-//	float	c( vfpu_cosf( angle ) );
 	float	s;
 	float	c;
-	vfpu_sincos(angle, &s, &c);
-#else
-	float	s( sinf( angle ) );
-	float	c( cosf( angle ) );
-#endif
+	SinCos(angle, &s, &c);
+
 	m11 = 1;	m12 = 0;	m13 = 0;	m14 = 0;
 	m21 = 0;	m22 = c;	m23 = -s;	m24 = 0;
 	m31 = 0;	m32 = s;	m33 = c;	m34 = 0;
@@ -161,16 +155,9 @@ Matrix4x4 & Matrix4x4::SetRotateX( float angle )
 
 Matrix4x4 & Matrix4x4::SetRotateY( float angle )
 {
-#ifdef DAEDALUS_PSP
-//	float	s( vfpu_sinf( angle ) );
-//	float	c( vfpu_cosf( angle ) );
 	float	s;
 	float	c;
-	vfpu_sincos(angle, &s, &c);
-#else
-	float	s( sinf( angle ) );
-	float	c( cosf( angle ) );
-#endif
+	SinCos(angle, &s, &c);
 
 	m11 = c;	m12 = 0;	m13 = s;	m14 = 0;
 	m21 = 0;	m22 = 1;	m23 = 0;	m24 = 0;
@@ -181,16 +168,9 @@ Matrix4x4 & Matrix4x4::SetRotateY( float angle )
 
 Matrix4x4 & Matrix4x4::SetRotateZ( float angle )
 {
-#ifdef DAEDALUS_PSP
-//	float	s( vfpu_sinf( angle ) );
-//	float	c( vfpu_cosf( angle ) );
 	float	s;
 	float	c;
-	vfpu_sincos(angle, &s, &c);
-#else
-	float	s( sinf( angle ) );
-	float	c( cosf( angle ) );
-#endif
+	SinCos(angle, &s, &c);
 
 	m11 = c;	m12 = -s;	m13 = 0;	m14 = 0;
 	m21 = s;	m22 = c;	m23 = 0;	m24 = 0;
