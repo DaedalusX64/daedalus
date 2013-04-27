@@ -701,7 +701,7 @@ void MemoryUpdateSPStatus( u32 flags )
 	set_bits |= (flags & SP_SET_SIG6) >> 9;
 	set_bits |= (flags & SP_SET_SIG7) >> 10;
 
-#ifdef DAEDAULUS_ENABLEASSERTS
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	u32 new_status = Memory_SP_SetRegisterBits( SP_STATUS_REG, ~clr_bits, set_bits );
 #else
 	Memory_SP_SetRegisterBits( SP_STATUS_REG, ~clr_bits, set_bits );
@@ -711,15 +711,15 @@ void MemoryUpdateSPStatus( u32 flags )
 	//
 	if (start_rsp)
 	{
-#ifdef DAEDAULUS_ENABLEASSERTS
+#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( !gRSPHLEActive, "RSP HLE already active. Status was %08x, now %08x", status, new_status );
-		DAEDALUS_ASSERT( (status & SP_STATUS_BROKE) == 0 ),"Unexpected RSP HLE status %08x", status );
+		DAEDALUS_ASSERT( (status & SP_STATUS_BROKE) == 0, "Unexpected RSP HLE status %08x", status );
 #endif
 
 		// Check for tasks whenever the RSP is started
 		RSP_HLE_ProcessTask();
 	}
-#ifdef DAEDAULUS_ENABLEASSERTS
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	else if (stop_rsp)
 	{
 		// As we handle all RSP via HLE, nothing to do here.
