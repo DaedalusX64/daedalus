@@ -293,7 +293,6 @@ bool SaveState_LoadFromFile( const char * filename )
 	stream >> rom_header;
 	ROMFile::ByteSwap_3210(&rom_header, 64);
 
-	RomID	current_rom_id( g_ROM.mRomID );
 	RomID	new_rom_id( rom_header.CRC1, rom_header.CRC2, rom_header.CountryID );
 
 	if(g_ROM.mRomID != new_rom_id)
