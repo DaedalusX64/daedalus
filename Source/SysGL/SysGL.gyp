@@ -19,6 +19,7 @@
         ],
         'dependencies': [
           '../Config/Config.gyp:Config',
+          '../third_party/glew/glew.gyp:glew',
           '../third_party/glfw/glfw.gyp:glfw',
           '../third_party/libpng/libpng.gyp:libpng',
         ],

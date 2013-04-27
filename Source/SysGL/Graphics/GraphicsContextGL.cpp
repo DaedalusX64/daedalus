@@ -89,7 +89,6 @@ bool GraphicsContextGL::Initialise()
 	glfwSwapInterval( 1 );
 
 	// Initialise GLEW
-#if defined (DAEDALUS_W32) || defined (DAEDALUS_LINUX)
 	//glewExperimental = GL_TRUE;
 	GLenum err = glewInit();
 	if (err != GLEW_OK || !GLEW_VERSION_3_2)
@@ -97,7 +96,6 @@ bool GraphicsContextGL::Initialise()
 		fprintf( stderr, "Failed to initialize GLEW\n" );
 		return false;
 	}
-#endif
 
 	ClearAllSurfaces();
 

@@ -17,6 +17,7 @@
         'dependencies': [
           'Config/Config.gyp:Config',
           'SysGL/SysGL.gyp:SysGL',
+          'third_party/glew/glew.gyp:glew', # FIXME: should transitively pull in include dir
           'third_party/glfw/glfw.gyp:glfw', # FIXME: should transitively pull in include dir
           'third_party/libpng/libpng.gyp:libpng',
           'third_party/webby/webby.gyp:webby',
