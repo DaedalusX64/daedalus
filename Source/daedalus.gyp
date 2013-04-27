@@ -150,7 +150,7 @@
           }],
           ['OS=="linux"', {
             'include_dirs': [
-              'SysOSX/Include',
+              'SysLinux/Include',
             ],
             'sources': [
               # FIXME - we should move these to a common SysPosix dir...
