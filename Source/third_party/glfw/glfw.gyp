@@ -12,7 +12,6 @@
       },
       'include_dirs': [
         'lib/',
-        'lib/cocoa/',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -36,6 +35,9 @@
       ],
       'conditions': [
         ['OS=="mac"', {
+          'include_dirs': [
+            'lib/cocoa/',
+          ],
           'link_settings': {
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/Cocoa.framework',
