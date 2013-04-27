@@ -11,6 +11,9 @@
             #'-g'
           ],
         },
+        'cflags': [
+          '-std=c++11', '-Wno-c++11-compat',
+        ],
         'include_dirs': [
           '../',
         ],
@@ -39,7 +42,7 @@
           }],
           ['OS=="linux"', {
             'include_dirs': [
-              '../SysOSX/Include',
+              '../SysLinux/Include',
             ],
           }],
         ],

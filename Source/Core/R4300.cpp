@@ -42,7 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <float.h>
 #endif
 
-#if defined(DAEDALUS_OSX)
+#if defined(DAEDALUS_OSX) || defined(DAEDALUS_LINUX)
 #include <fenv.h>
 #define _isnan isnan
 #endif
@@ -401,7 +401,7 @@ __forceinline s64 d64_to_s64_round( d64 x ) { SET_ROUND_MODE( RM_ROUND ); return
 __forceinline s64 d64_to_s64_ceil( d64 x )  { SET_ROUND_MODE( RM_CEIL ); return (s64)x; }
 __forceinline s64 d64_to_s64_floor( d64 x ) { SET_ROUND_MODE( RM_FLOOR ); return (s64)x; }
 
-#elif defined(DAEDALUS_OSX)
+#elif defined(DAEDALUS_OSX) || defined(DAEDALUS_LINUX)
 
 static const int		gNativeRoundingModes[ RM_NUM_MODES ] =
 {

@@ -77,7 +77,7 @@ inline u32 AtomicBitSet( volatile u32 * ptr, u32 and_bits, u32 or_bits )
 	return new_value;
 }
 
-#elif defined( DAEDALUS_OSX )
+#elif defined( DAEDALUS_OSX ) || defined( DAEDALUS_LINUX )
 
 inline u32 AtomicIncrement( volatile u32 * ptr )
 {

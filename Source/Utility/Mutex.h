@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef DAEDALUS_PSP
 #include <pspthreadman.h>
 #endif
-#ifdef DAEDALUS_OSX
+#if defined(DAEDALUS_OSX) || defined(DAEDALUS_LINUX)
 #include <pthread.h>
 #endif
 
@@ -103,7 +103,7 @@ private:
 	s32	mSemaphore;
 };
 
-#elif defined(DAEDALUS_OSX)
+#elif defined(DAEDALUS_OSX) || defined(DAEDALUS_LINUX)
 
 class Mutex
 {

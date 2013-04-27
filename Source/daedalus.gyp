@@ -11,6 +11,9 @@
             #'-g'
           ],
         },
+        'cflags': [
+          '-std=c++11', '-Wno-c++11-compat',
+        ],
         'dependencies': [
           'Config/Config.gyp:Config',
           'SysGL/SysGL.gyp:SysGL',

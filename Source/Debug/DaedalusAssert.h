@@ -27,6 +27,11 @@
 
 // Ideas for the ignored assert taken from Game Programming Gems I
 
+#ifdef __clang__
+
+#define DAEDALUS_STATIC_ASSERT( x ) static_assert((x), "Static Assert")
+
+#else
 //
 // This static assert is bastardised from Boost:
 // http://www.boost.org/boost/static_assert.hpp
@@ -45,6 +50,7 @@ template<int x> struct static_assert_test{};
 #define DAEDALUS_STATIC_ASSERT( x )								\
    typedef static_assert_test<sizeof(STATIC_ASSERTION_FAILURE< (bool)( x ) >)>	static_assert_typedef_##__COUNTER__
 
+#endif
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
 

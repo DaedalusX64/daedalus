@@ -150,7 +150,7 @@ InternalMemMapEntry InternalMemMapEntries[] =
 	{ 0xC000, 0xDFFF, InternalReadMapped },			// Mapped Memory
 	{ 0xE000, 0xFFFF, InternalReadMapped },			// Mapped Memory
 
-	{ ~0,  ~0, NULL}
+	{ 0,  0, NULL}
 };
 
 void Memory_InitInternalTables(u32 ram_size)
@@ -162,7 +162,7 @@ void Memory_InitInternalTables(u32 ram_size)
 	u32 start_addr = 0;
 	u32 end_addr = 0;
 
-	while (InternalMemMapEntries[entry].mStartAddr != u32(~0))
+	while (InternalMemMapEntries[entry].InternalReadFastFunction != NULL)
 	{
 		start_addr = InternalMemMapEntries[entry].mStartAddr;
 		end_addr = InternalMemMapEntries[entry].mEndAddr;

@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #if defined(DAEDALUS_PSP)
 #define _strcmpi stricmp
-#elif defined(DAEDALUS_PS3) || defined(DAEDALUS_OSX)
+#elif defined(DAEDALUS_PS3) || defined(DAEDALUS_OSX) || defined(DAEDALUS_LINUX)
 #define _strcmpi strcasecmp
 #endif
 
