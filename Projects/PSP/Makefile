@@ -134,7 +134,7 @@ CORE_SRCS = \
 	$(SRCDIR)/SysPSP/Utility/DebugMemory.cpp \
 	$(SRCDIR)/SysPSP/Utility/DisableFPUExceptions.S \
 	$(SRCDIR)/SysPSP/Utility/exception.cpp \
-	$(SRCDIR)/SysPSP/Utility/FastMemcpy.cpp \
+	$(SRCDIR)/SysPSP/Utility/FastMemcpyPSP.cpp \
 	$(SRCDIR)/SysPSP/Utility/IOPSP.cpp \
 	$(SRCDIR)/SysPSP/Utility/JobManager.cpp \
 	$(SRCDIR)/SysPSP/Utility/ModulePSP.cpp \
