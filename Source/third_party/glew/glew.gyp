@@ -21,6 +21,9 @@
       'include_dirs': [
         'include/',
       ],
+      'defines': [
+        'GLEW_STATIC',
+      ],
       'sources': [
         'src/glew.c',
         'src/glewinfo.c',
