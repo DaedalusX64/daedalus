@@ -763,7 +763,7 @@ static void R4300_CALL_TYPE R4300_BEQ( R4300_CALL_SIGNATURE ) 		// Branch on Equ
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	DAEDALUS_ASSERT( (gGPR[op_code.rs]._u32_0 == gGPR[op_code.rt]._u32_0) == (gGPR[op_code.rs]._u64 == gGPR[op_code.rt]._u64), "Branching assumption invalid" )
+	DAEDALUS_ASSERT( (gGPR[op_code.rs]._u32_0 == gGPR[op_code.rt]._u32_0) == (gGPR[op_code.rs]._u64 == gGPR[op_code.rt]._u64), "Branching assumption invalid" );
 
 	//branch if rs == rt
 	if ( gGPR[op_code.rs]._u32_0 == gGPR[op_code.rt]._u32_0 )
@@ -781,7 +781,7 @@ static void R4300_CALL_TYPE R4300_BNE( R4300_CALL_SIGNATURE )             // Bra
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	DAEDALUS_ASSERT( (gGPR[op_code.rs]._u32_0 != gGPR[op_code.rt]._u32_0) == (gGPR[op_code.rs]._u64 != gGPR[op_code.rt]._u64), "Branching assumption invalid" )
+	DAEDALUS_ASSERT( (gGPR[op_code.rs]._u32_0 != gGPR[op_code.rt]._u32_0) == (gGPR[op_code.rs]._u64 != gGPR[op_code.rt]._u64), "Branching assumption invalid" );
 
 	//branch if rs <> rt
 	if ( gGPR[op_code.rs]._u32_0 != gGPR[op_code.rt]._u32_0 )
@@ -799,7 +799,7 @@ static void R4300_CALL_TYPE R4300_BLEZ( R4300_CALL_SIGNATURE ) 			// Branch on L
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	DAEDALUS_ASSERT( (gGPR[op_code.rs]._s32_0 <= 0) == (gGPR[op_code.rs]._s64 <= 0), "Branching assumption invalid" )
+	DAEDALUS_ASSERT( (gGPR[op_code.rs]._s32_0 <= 0) == (gGPR[op_code.rs]._s64 <= 0), "Branching assumption invalid" );
 
 	//branch if rs <= 0
 	//if ((s64)gGPR[op_code.rs] <= 0)
@@ -818,7 +818,7 @@ static void R4300_CALL_TYPE R4300_BGTZ( R4300_CALL_SIGNATURE ) 			// Branch on G
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	DAEDALUS_ASSERT( (gGPR[op_code.rs]._s32_0 > 0) == (gGPR[op_code.rs]._s64 > 0), "Branching assumption invalid" )
+	DAEDALUS_ASSERT( (gGPR[op_code.rs]._s32_0 > 0) == (gGPR[op_code.rs]._s64 > 0), "Branching assumption invalid" );
 
 	//branch if rs > 0
 	//if ((s64)gGPR[op_code.rs] > 0)
