@@ -104,7 +104,6 @@ CORE_SRCS = \
 	$(SRCDIR)/SysPSP/HLEGraphics/VectorClipping.S \
 	$(SRCDIR)/SysPSP/Input/InputManagerPSP.cpp \
 	$(SRCDIR)/SysPSP/KernelButtonsPrx/imposectrl.S \
-	$(SRCDIR)/SysPSP/main.cpp \
 	$(SRCDIR)/SysPSP/MediaEnginePRX/me.c \
 	$(SRCDIR)/SysPSP/MediaEnginePRX/MediaEngine.S \
 	$(SRCDIR)/SysPSP/UI/AboutComponent.cpp \
@@ -160,6 +159,7 @@ CORE_SRCS = \
 	$(SRCDIR)/Utility/ROMFileUncompressed.cpp \
 	$(SRCDIR)/Utility/Stream.cpp \
 	$(SRCDIR)/Utility/StringUtil.cpp \
+	$(SRCDIR)/Utility/Synchroniser.cpp \
 	$(SRCDIR)/Utility/Timer.cpp \
 	$(SRCDIR)/Utility/Translate.cpp \
 	$(SRCDIR)/Utility/ZLibWrapper.cpp
@@ -168,37 +168,33 @@ DAED_GPROF_SRCS = \
 	$(SRCDIR)/SysPSP/Debug/prof.c \
 	$(SRCDIR)/SysPSP/Debug/mcount.S
 
-ADDITIONAL_SYNC_SRCS = \
-	$(SRCDIR)/Utility/Synchroniser.cpp \
-	$(SRCDIR)/Utility/ZLibWrapper.cpp	# Already specified in CORE_SRCS - remove
 
+SRCS = \
+	$(SRCDIR)/SysPSP/main.cpp \
 
 ifdef PSPGPROF
 	CONFIG=Profile
 
-	CFLAGS			= -pg -g -O2 -G0 -D_DEBUG -Wall -MD -ffast-math -fsingle-precision-constant
+	CFLAGS	= -pg -g -O2 -G0 -D_DEBUG -Wall -MD -ffast-math -fsingle-precision-constant
 
-	SRCS			= $(CORE_SRCS) $(DAED_GPROF_SRCS)
+	CORE_SRCS	+= $(DAED_GPROF_SRCS)
 else
 ifdef DEBUG
 	CONFIG=Dev #default config in Debug build is "Dev"
 
-	CFLAGS			= -g -O1 -fno-omit-frame-pointer -G0 -D_DEBUG -MD \
+	CFLAGS	= -g -O1 -fno-omit-frame-pointer -G0 -D_DEBUG -MD \
 				  -W -Wcast-qual -Wchar-subscripts -Wno-unused -Wpointer-arith\
 				  -Wredundant-decls -Wshadow -Wwrite-strings
 				#-Winline -Wcast-align
 
-	SRCS			= $(CORE_SRCS) $(ADDITIONAL_SYNC_SRCS)
 else
-	CFLAGS			= -O2 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition
+	CFLAGS	= -O2 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition
 					#-pipe
 					#-Wextra
 					#-fno-builtin
 					#-fgcse-after-reload
 					#-funroll-loops
-	LDFLAGS 		= "-Wl,-O1"
-
-	SRCS			= $(CORE_SRCS)
+	LDFLAGS	= "-Wl,-O1"
 endif
 endif
 
@@ -208,11 +204,19 @@ endif
 
 CXXFLAGS = -fno-exceptions -fno-rtti -iquote$(SRCDIR)/SysPSP/Include -iquote$(SRCDIR)/Config/$(CONFIG) -iquote$(SRCDIR) -iquote$(SRCDIR)/SysPSP
 
-OBJS := $(SRCS:.cpp=.o)
+CORE_OBJS := $(CORE_SRCS)
+CORE_OBJS := $(CORE_OBJS:.cpp=.o)
+CORE_OBJS := $(CORE_OBJS:.c=.o)
+CORE_OBJS := $(CORE_OBJS:.S=.o)
+
+OBJS = $(SRCS)
+OBJS := $(OBJS:.cpp=.o)
 OBJS := $(OBJS:.c=.o)
 OBJS := $(OBJS:.S=.o)
+OBJS += daedalus.a
 
-DEP_FILES := $(SRCS:.cpp=.d)
+DEP_FILES = $(SRCS) $(CORE_SRCS)
+DEP_FILES := $(DEP_FILES:.cpp=.d)
 DEP_FILES := $(DEP_FILES:.c=.d)
 DEP_FILES := $(DEP_FILES:.S=.d)
 
@@ -224,7 +228,7 @@ LIBDIR = $(PSPDEV)/SDK/lib ./SDK/lib
 
 LIBS = -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge
 
-EXTRA_TARGETS = EBOOT.PBP dvemgr.prx exception.prx mediaengine.prx imposectrl.prx
+EXTRA_TARGETS = EBOOT.PBP dvemgr.prx exception.prx mediaengine.prx imposectrl.prx daedalus.a $(CORE_OBJS)
 
 PSP_EBOOT_TITLE = DaedalusX64 Beta 3 Update
 PSP_EBOOT_ICON  = icon0.png
@@ -310,6 +314,10 @@ zip: $(PSP_EBOOT) dvemgr.prx mediaengine.prx exception.prx imposectrl.prx
 	REV=$$(LC_ALL=C svn info | grep Revision | grep -e [0-9]* -o | tr -d '\n') && \
 	    cd tmp_build && zip -r ../tarballs/"DaedalusX64_$$REV.zip" PSP
 	rm -r $(TMP_BASE_DIR) 2>/dev/null
+
+daedalus.a: $(CORE_OBJS)
+	$(AR) cru $@ $(CORE_OBJS)
+	$(RANLIB) $@
 
 $(SRCDIR)/SysPSP/MediaEnginePRX/MediaEngine.S:
 	$(MAKE) -C $(SRCDIR)/SysPSP/MediaEnginePRX all
