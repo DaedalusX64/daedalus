@@ -98,7 +98,7 @@ typedef bool (*InternalMemFastFunction)( u32 address, void ** p_translated );
 extern MemFuncRead  				g_MemoryLookupTableRead[0x4000];
 extern MemFuncWrite 				g_MemoryLookupTableWrite[0x4000];
 #ifndef DAEDALUS_SILENT
-extern InternalMemFastFunction		InternalReadFastTable[0x4000];
+extern InternalMemFastFunction		gInternalReadFastTable[0x4000];
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -214,7 +214,7 @@ inline void WriteAddress( u32 address, u32 value )
 #ifndef DAEDALUS_SILENT
 inline bool Memory_GetInternalReadAddress(u32 address, void ** p_translated)
 {
-	return (InternalReadFastTable)[(address)>>18](address, p_translated);
+	return (gInternalReadFastTable)[(address)>>18](address, p_translated);
 }
 #endif
 

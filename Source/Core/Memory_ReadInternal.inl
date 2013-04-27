@@ -200,7 +200,7 @@ InternalMemMapEntry InternalMemMapEntries[] =
 
 void Memory_InitInternalTables(u32 ram_size)
 {
-	memset(InternalReadFastTable, 0, sizeof(InternalMemFastFunction) * 0x4000);
+	memset(gInternalReadFastTable, 0, sizeof(gInternalReadFastTable));
 
 	u32 i = 0;
 	u32 entry = 0;
@@ -214,7 +214,7 @@ void Memory_InitInternalTables(u32 ram_size)
 
 		for (i = (start_addr>>2); i <= (end_addr>>2); i++)
 		{
-			InternalReadFastTable[i]  = InternalMemMapEntries[entry].InternalReadFastFunction;
+			gInternalReadFastTable[i] = InternalMemMapEntries[entry].InternalReadFastFunction;
 		}
 
 		entry++;
@@ -226,7 +226,7 @@ void Memory_InitInternalTables(u32 ram_size)
 
 	for (i = (start_addr>>2); i <= (end_addr>>2); i++)
 	{
-		InternalReadFastTable[i]  = InternalRead_8Mb_8000_807F;
+		gInternalReadFastTable[i] = InternalRead_8Mb_8000_807F;
 	}
 
 
@@ -237,7 +237,6 @@ void Memory_InitInternalTables(u32 ram_size)
 
 	for (i = (start_addr>>2); i <= (end_addr>>2); i++)
 	{
-		InternalReadFastTable[i]  = InternalRead_4Mb_8000_803F;
-
+		gInternalReadFastTable[i] = InternalRead_4Mb_8000_803F;
 	}
 }

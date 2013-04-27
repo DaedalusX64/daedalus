@@ -122,7 +122,7 @@ u8 * g_pu8RamBase_A000 = NULL;
 MemFuncRead  			g_MemoryLookupTableRead[0x4000];
 MemFuncWrite 			g_MemoryLookupTableWrite[0x4000];
 #ifndef DAEDALUS_SILENT
-InternalMemFastFunction InternalReadFastTable[0x4000];
+InternalMemFastFunction gInternalReadFastTable[0x4000];
 #endif
 
 void * 					g_pMemoryBuffers[NUM_MEM_BUFFERS];
