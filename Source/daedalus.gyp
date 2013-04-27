@@ -1,21 +1,12 @@
  {
+    'includes': [
+      'common.gypi',
+    ],
     'targets': [
       {
         'target_name': 'daedalus',
         'type': 'executable',
-        'xcode_settings': {
-          'OTHER_CFLAGS': [
-            '-Werror',
-            '-Wformat=0',
-            #'-O4',
-            #'-g'
-          ],
-        },
-        'cflags': [
-          '-std=c++11', '-Wno-c++11-compat',
-        ],
         'dependencies': [
-          'Config/Config.gyp:Config',
           'SysGL/SysGL.gyp:SysGL',
           'third_party/glew/glew.gyp:glew', # FIXME: should transitively pull in include dir
           'third_party/glfw/glfw.gyp:glfw', # FIXME: should transitively pull in include dir

@@ -1,24 +1,15 @@
  {
+    'includes': [
+      '../common.gypi',
+    ],
     'targets': [
       {
         'target_name': 'SysGL',
         'type': 'static_library',
-        'xcode_settings': {
-          'OTHER_CFLAGS': [
-            '-Werror',
-            '-Wformat=0',
-            #'-O4',
-            #'-g'
-          ],
-        },
-        'cflags': [
-          '-std=c++11', '-Wno-c++11-compat',
-        ],
         'include_dirs': [
           '../',
         ],
         'dependencies': [
-          '../Config/Config.gyp:Config',
           '../third_party/glew/glew.gyp:glew',
           '../third_party/glfw/glfw.gyp:glfw',
           '../third_party/libpng/libpng.gyp:libpng',
