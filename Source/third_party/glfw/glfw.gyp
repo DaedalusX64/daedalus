@@ -19,22 +19,7 @@
           'include/',
         ],
       },
-      'link_settings': {
-        'libraries': [
-          '$(SDKROOT)/System/Library/Frameworks/Cocoa.framework',
-          '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
-          '$(SDKROOT)/System/Library/Frameworks/IOKit.framework',
-        ],
-      },
       'sources': [
-        'lib/cocoa/cocoa_enable.m',
-        'lib/cocoa/cocoa_fullscreen.m',
-        'lib/cocoa/cocoa_glext.m',
-        'lib/cocoa/cocoa_init.m',
-        'lib/cocoa/cocoa_joystick.m',
-        'lib/cocoa/cocoa_thread.c',
-        'lib/cocoa/cocoa_time.m',
-        'lib/cocoa/cocoa_window.m',
         'lib/enable.c',
         'lib/fullscreen.c',
         'lib/glext.c',
@@ -48,6 +33,27 @@
         'lib/thread.c',
         'lib/time.c',
         'lib/window.c',
+      ],
+      'conditions': [
+        ['OS=="mac"', {
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/Cocoa.framework',
+              '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
+              '$(SDKROOT)/System/Library/Frameworks/IOKit.framework',
+            ],
+          },
+          'sources': [
+            'lib/cocoa/cocoa_enable.m',
+            'lib/cocoa/cocoa_fullscreen.m',
+            'lib/cocoa/cocoa_glext.m',
+            'lib/cocoa/cocoa_init.m',
+            'lib/cocoa/cocoa_joystick.m',
+            'lib/cocoa/cocoa_thread.c',
+            'lib/cocoa/cocoa_time.m',
+            'lib/cocoa/cocoa_window.m',
+          ],
+        }],
       ],
     }
   ],
