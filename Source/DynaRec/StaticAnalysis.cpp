@@ -337,15 +337,6 @@ void StaticAnalysis_SDC1( OpCode op_code, RegisterUsage & recorder )		// Store D
 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-
 void StaticAnalysis_Special_Unk( OpCode op_code, RegisterUsage & recorder )
 {
 	// Just ignore
@@ -580,15 +571,6 @@ void StaticAnalysis_Special_DSRA32( OpCode op_code, RegisterUsage & recorder ) 	
 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rt ) );
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-
 void StaticAnalysis_RegImm_BLTZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Less than Zero
 {
 	recorder.Record( RegSrcUse( op_code.rs ) );
@@ -618,15 +600,6 @@ void StaticAnalysis_RegImm_BGEZAL( OpCode op_code, RegisterUsage & recorder ) 		
 {
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
 
 void StaticAnalysis_Cop0_MFC0( OpCode op_code, RegisterUsage & recorder )
 {
@@ -658,15 +631,6 @@ void StaticAnalysis_TLB_TLBP( OpCode op_code, RegisterUsage & recorder ) 				// 
 void StaticAnalysis_TLB_ERET( OpCode op_code, RegisterUsage & recorder )
 {
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
 
 void StaticAnalysis_Cop1_MTC1( OpCode op_code, RegisterUsage & recorder )
 {
@@ -718,16 +682,6 @@ void StaticAnalysis_BC1_BC1TL( OpCode op_code, RegisterUsage & recorder )		// Br
 {
 }
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////// WORD FP Instrs /////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-
 void StaticAnalysis_Cop1_W_CVT_S( OpCode op_code, RegisterUsage & recorder )
 {
 	RegFPRWrite( op_code.fd );
@@ -753,15 +707,6 @@ void StaticAnalysis_Cop1_WInstr( OpCode op_code, RegisterUsage & recorder )
 	}
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////// LONG FP Instrs /////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-
 void StaticAnalysis_Cop1_L_CVT_S( OpCode op_code, RegisterUsage & recorder )
 {
 	RegFPRWrite( op_code.fd );
@@ -786,16 +731,6 @@ void StaticAnalysis_Cop1_LInstr( OpCode op_code, RegisterUsage & recorder )
 			return;
 	}
 }
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////// Single FP Instrs //////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
 
 void StaticAnalysis_Cop1_S_ADD( OpCode op_code, RegisterUsage & recorder )
 {
@@ -915,12 +850,14 @@ void StaticAnalysis_Cop1_S_CVT_D( OpCode op_code, RegisterUsage & recorder )
 	RegFPRRead( op_code.fs );
 }
 
+// FIXME: this is not referenced anywhere
 void StaticAnalysis_Cop1_S_EQ( OpCode op_code, RegisterUsage & recorder ) 				// Compare for Equality
 {
 	RegFPRRead( op_code.fs );
 	RegFPRRead( op_code.ft );
 }
 
+// FIXME: this is not referenced anywhere
 void StaticAnalysis_Cop1_S_LT( OpCode op_code, RegisterUsage & recorder ) 				// Compare for Equality
 {
 	RegFPRRead( op_code.fs );
@@ -932,15 +869,6 @@ void StaticAnalysis_Cop1_Compare_S( OpCode op_code, RegisterUsage & recorder )
 	RegFPRRead( op_code.fs );
 	RegFPRRead( op_code.ft );
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
 
 void StaticAnalysis_Cop1_D_ADD( OpCode op_code, RegisterUsage & recorder )
 {
@@ -1066,41 +994,30 @@ void StaticAnalysis_Cop1_Compare_D( OpCode op_code, RegisterUsage & recorder )
 	RegFPRRead( op_code.ft );
 }
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////
-
-//*************************************************************************************
 // Opcode Jump Table
-//*************************************************************************************
 StaticAnalysisFunction gStaticAnalysisInstruction[64] =
 {
-	StaticAnalysis_Special, StaticAnalysis_RegImm, StaticAnalysis_J, StaticAnalysis_JAL, StaticAnalysis_BEQ, StaticAnalysis_BNE, StaticAnalysis_BLEZ, StaticAnalysis_BGTZ,
-	StaticAnalysis_ADDI, StaticAnalysis_ADDIU, StaticAnalysis_SLTI, StaticAnalysis_SLTIU, StaticAnalysis_ANDI, StaticAnalysis_ORI, StaticAnalysis_XORI, StaticAnalysis_LUI,
-	StaticAnalysis_CoPro0, StaticAnalysis_CoPro1, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_BEQL, StaticAnalysis_BNEL, StaticAnalysis_BLEZL, StaticAnalysis_BGTZL,
-	StaticAnalysis_DADDI, StaticAnalysis_DADDIU, StaticAnalysis_LDL, StaticAnalysis_LDR, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
-	StaticAnalysis_LB, StaticAnalysis_LH, StaticAnalysis_LWL, StaticAnalysis_LW, StaticAnalysis_LBU, StaticAnalysis_LHU, StaticAnalysis_LWR, StaticAnalysis_LWU,
-	StaticAnalysis_SB, StaticAnalysis_SH, StaticAnalysis_SWL, StaticAnalysis_SW, StaticAnalysis_SDL, StaticAnalysis_SDR, StaticAnalysis_SWR, StaticAnalysis_CACHE,
-	StaticAnalysis_LL, StaticAnalysis_LWC1, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_LLD, StaticAnalysis_LDC1, StaticAnalysis_LDC2, StaticAnalysis_LD,
-	StaticAnalysis_SC, StaticAnalysis_SWC1, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_SCD, StaticAnalysis_SDC1, StaticAnalysis_SDC2, StaticAnalysis_SD
+	StaticAnalysis_Special, StaticAnalysis_RegImm, StaticAnalysis_J,    StaticAnalysis_JAL,   StaticAnalysis_BEQ,  StaticAnalysis_BNE,  StaticAnalysis_BLEZ,  StaticAnalysis_BGTZ,
+	StaticAnalysis_ADDI,    StaticAnalysis_ADDIU,  StaticAnalysis_SLTI, StaticAnalysis_SLTIU, StaticAnalysis_ANDI, StaticAnalysis_ORI,  StaticAnalysis_XORI,  StaticAnalysis_LUI,
+	StaticAnalysis_CoPro0,  StaticAnalysis_CoPro1, StaticAnalysis_Unk,  StaticAnalysis_Unk,   StaticAnalysis_BEQL, StaticAnalysis_BNEL, StaticAnalysis_BLEZL, StaticAnalysis_BGTZL,
+	StaticAnalysis_DADDI,   StaticAnalysis_DADDIU, StaticAnalysis_LDL,  StaticAnalysis_LDR,   StaticAnalysis_Unk,  StaticAnalysis_Unk,  StaticAnalysis_Unk,   StaticAnalysis_Unk,
+	StaticAnalysis_LB,      StaticAnalysis_LH,     StaticAnalysis_LWL,  StaticAnalysis_LW,    StaticAnalysis_LBU,  StaticAnalysis_LHU,  StaticAnalysis_LWR,   StaticAnalysis_LWU,
+	StaticAnalysis_SB,      StaticAnalysis_SH,     StaticAnalysis_SWL,  StaticAnalysis_SW,    StaticAnalysis_SDL,  StaticAnalysis_SDR,  StaticAnalysis_SWR,   StaticAnalysis_CACHE,
+	StaticAnalysis_LL,      StaticAnalysis_LWC1,   StaticAnalysis_Unk,  StaticAnalysis_Unk,   StaticAnalysis_LLD,  StaticAnalysis_LDC1, StaticAnalysis_LDC2,  StaticAnalysis_LD,
+	StaticAnalysis_SC,      StaticAnalysis_SWC1,   StaticAnalysis_Unk,  StaticAnalysis_Unk,   StaticAnalysis_SCD,  StaticAnalysis_SDC1, StaticAnalysis_SDC2,  StaticAnalysis_SD
 };
 
-//*************************************************************************************
 // SpecialOpCode Jump Table
-//*************************************************************************************
 StaticAnalysisFunction gStaticAnalysisSpecialInstruction[64] =
 {
-	StaticAnalysis_Special_SLL, StaticAnalysis_Special_Unk, StaticAnalysis_Special_SRL, StaticAnalysis_Special_SRA, StaticAnalysis_Special_SLLV, StaticAnalysis_Special_Unk, StaticAnalysis_Special_SRLV, StaticAnalysis_Special_SRAV,
-	StaticAnalysis_Special_JR, StaticAnalysis_Special_JALR, StaticAnalysis_Special_Unk, StaticAnalysis_Special_Unk, StaticAnalysis_Special_SYSCALL, StaticAnalysis_Special_BREAK, StaticAnalysis_Special_Unk, StaticAnalysis_Special_SYNC,
-	StaticAnalysis_Special_MFHI, StaticAnalysis_Special_MTHI, StaticAnalysis_Special_MFLO, StaticAnalysis_Special_MTLO, StaticAnalysis_Special_DSLLV, StaticAnalysis_Special_Unk, StaticAnalysis_Special_DSRLV, StaticAnalysis_Special_DSRAV,
-	StaticAnalysis_Special_MULT, StaticAnalysis_Special_MULTU, StaticAnalysis_Special_DIV, StaticAnalysis_Special_DIVU, StaticAnalysis_Special_DMULT, StaticAnalysis_Special_DMULTU, StaticAnalysis_Special_DDIV, StaticAnalysis_Special_DDIVU,
-	StaticAnalysis_Special_ADD, StaticAnalysis_Special_ADDU, StaticAnalysis_Special_SUB, StaticAnalysis_Special_SUBU, StaticAnalysis_Special_AND, StaticAnalysis_Special_OR, StaticAnalysis_Special_XOR, StaticAnalysis_Special_NOR,
-	StaticAnalysis_Special_Unk, StaticAnalysis_Special_Unk, StaticAnalysis_Special_SLT, StaticAnalysis_Special_SLTU, StaticAnalysis_Special_DADD, StaticAnalysis_Special_DADDU, StaticAnalysis_Special_DSUB, StaticAnalysis_Special_DSUBU,
-	StaticAnalysis_Special_TGE, StaticAnalysis_Special_TGEU, StaticAnalysis_Special_TLT, StaticAnalysis_Special_TLTU, StaticAnalysis_Special_TEQ, StaticAnalysis_Special_Unk, StaticAnalysis_Special_TNE, StaticAnalysis_Special_Unk,
-	StaticAnalysis_Special_DSLL, StaticAnalysis_Special_Unk, StaticAnalysis_Special_DSRL, StaticAnalysis_Special_DSRA, StaticAnalysis_Special_DSLL32, StaticAnalysis_Special_Unk, StaticAnalysis_Special_DSRL32, StaticAnalysis_Special_DSRA32
+	StaticAnalysis_Special_SLL,  StaticAnalysis_Special_Unk,   StaticAnalysis_Special_SRL,  StaticAnalysis_Special_SRA,  StaticAnalysis_Special_SLLV,    StaticAnalysis_Special_Unk,    StaticAnalysis_Special_SRLV,   StaticAnalysis_Special_SRAV,
+	StaticAnalysis_Special_JR,   StaticAnalysis_Special_JALR,  StaticAnalysis_Special_Unk,  StaticAnalysis_Special_Unk,  StaticAnalysis_Special_SYSCALL, StaticAnalysis_Special_BREAK,  StaticAnalysis_Special_Unk,    StaticAnalysis_Special_SYNC,
+	StaticAnalysis_Special_MFHI, StaticAnalysis_Special_MTHI,  StaticAnalysis_Special_MFLO, StaticAnalysis_Special_MTLO, StaticAnalysis_Special_DSLLV,   StaticAnalysis_Special_Unk,    StaticAnalysis_Special_DSRLV,  StaticAnalysis_Special_DSRAV,
+	StaticAnalysis_Special_MULT, StaticAnalysis_Special_MULTU, StaticAnalysis_Special_DIV,  StaticAnalysis_Special_DIVU, StaticAnalysis_Special_DMULT,   StaticAnalysis_Special_DMULTU, StaticAnalysis_Special_DDIV,   StaticAnalysis_Special_DDIVU,
+	StaticAnalysis_Special_ADD,  StaticAnalysis_Special_ADDU,  StaticAnalysis_Special_SUB,  StaticAnalysis_Special_SUBU, StaticAnalysis_Special_AND,     StaticAnalysis_Special_OR,     StaticAnalysis_Special_XOR,    StaticAnalysis_Special_NOR,
+	StaticAnalysis_Special_Unk,  StaticAnalysis_Special_Unk,   StaticAnalysis_Special_SLT,  StaticAnalysis_Special_SLTU, StaticAnalysis_Special_DADD,    StaticAnalysis_Special_DADDU,  StaticAnalysis_Special_DSUB,   StaticAnalysis_Special_DSUBU,
+	StaticAnalysis_Special_TGE,  StaticAnalysis_Special_TGEU,  StaticAnalysis_Special_TLT,  StaticAnalysis_Special_TLTU, StaticAnalysis_Special_TEQ,     StaticAnalysis_Special_Unk,    StaticAnalysis_Special_TNE,    StaticAnalysis_Special_Unk,
+	StaticAnalysis_Special_DSLL, StaticAnalysis_Special_Unk,   StaticAnalysis_Special_DSRL, StaticAnalysis_Special_DSRA, StaticAnalysis_Special_DSLL32,  StaticAnalysis_Special_Unk,    StaticAnalysis_Special_DSRL32, StaticAnalysis_Special_DSRA32
 };
 
 void StaticAnalysis_Special( OpCode op_code, RegisterUsage & recorder )
@@ -1108,16 +1025,12 @@ void StaticAnalysis_Special( OpCode op_code, RegisterUsage & recorder )
 	gStaticAnalysisSpecialInstruction[ op_code.spec_op ]( op_code, recorder );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 StaticAnalysisFunction gStaticAnalysisRegImmInstruction[32] =
 {
-
-	StaticAnalysis_RegImm_BLTZ,   StaticAnalysis_RegImm_BGEZ,   StaticAnalysis_RegImm_BLTZL,   StaticAnalysis_RegImm_BGEZL,   StaticAnalysis_Unk,  StaticAnalysis_Unk, StaticAnalysis_Unk,  StaticAnalysis_Unk,
+	StaticAnalysis_RegImm_BLTZ,   StaticAnalysis_RegImm_BGEZ,   StaticAnalysis_RegImm_BLTZL,   StaticAnalysis_RegImm_BGEZL,   StaticAnalysis_Unk,         StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk,
 	StaticAnalysis_RegImm_TGEI,   StaticAnalysis_RegImm_TGEIU,  StaticAnalysis_RegImm_TLTI,    StaticAnalysis_RegImm_TLTIU,   StaticAnalysis_RegImm_TEQI, StaticAnalysis_Unk, StaticAnalysis_RegImm_TNEI, StaticAnalysis_Unk,
-	StaticAnalysis_RegImm_BLTZAL, StaticAnalysis_RegImm_BGEZAL, StaticAnalysis_RegImm_BLTZALL, StaticAnalysis_RegImm_BGEZALL, StaticAnalysis_Unk,  StaticAnalysis_Unk, StaticAnalysis_Unk,  StaticAnalysis_Unk,
-	StaticAnalysis_Unk,    StaticAnalysis_Unk,    StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,  StaticAnalysis_Unk, StaticAnalysis_Unk,  StaticAnalysis_Unk
+	StaticAnalysis_RegImm_BLTZAL, StaticAnalysis_RegImm_BGEZAL, StaticAnalysis_RegImm_BLTZALL, StaticAnalysis_RegImm_BGEZALL, StaticAnalysis_Unk,         StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk,
+	StaticAnalysis_Unk,           StaticAnalysis_Unk,           StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,         StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk
 };
 
 void StaticAnalysis_RegImm( OpCode op_code, RegisterUsage & recorder )
@@ -1125,15 +1038,13 @@ void StaticAnalysis_RegImm( OpCode op_code, RegisterUsage & recorder )
 	gStaticAnalysisRegImmInstruction[ op_code.regimm_op ]( op_code, recorder );
 }
 
-//*************************************************************************************
 // COP0 Jump Table
-//*************************************************************************************
 StaticAnalysisFunction gStaticAnalysisCop0Instruction[32] =
 {
 	StaticAnalysis_Cop0_MFC0, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Cop0_MTC0, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
-	StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
-	StaticAnalysis_Cop0_TLB, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
-	StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
+	StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
+	StaticAnalysis_Cop0_TLB,  StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
+	StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
 };
 
 void StaticAnalysis_CoPro0( OpCode op_code, RegisterUsage & recorder )
@@ -1141,19 +1052,17 @@ void StaticAnalysis_CoPro0( OpCode op_code, RegisterUsage & recorder )
 	gStaticAnalysisCop0Instruction[ op_code.cop0_op ]( op_code, recorder );
 }
 
-//*************************************************************************************
 // TLBOpCode Jump Table
-//*************************************************************************************
 StaticAnalysisFunction gStaticAnalysisTLBInstruction[64] =
 {
-	StaticAnalysis_Unk, StaticAnalysis_TLB_TLBR, StaticAnalysis_TLB_TLBWI, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_TLB_TLBWR, StaticAnalysis_Unk,
-	StaticAnalysis_TLB_TLBP, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
-	StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
-	StaticAnalysis_TLB_ERET, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
-	StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
-	StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
-	StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
-	StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
+	StaticAnalysis_Unk,      StaticAnalysis_TLB_TLBR, StaticAnalysis_TLB_TLBWI, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_TLB_TLBWR, StaticAnalysis_Unk,
+	StaticAnalysis_TLB_TLBP, StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+	StaticAnalysis_Unk,      StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+	StaticAnalysis_TLB_ERET, StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+	StaticAnalysis_Unk,      StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+	StaticAnalysis_Unk,      StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+	StaticAnalysis_Unk,      StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+	StaticAnalysis_Unk,      StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
 };
 
 void StaticAnalysis_Cop0_TLB( OpCode op_code, RegisterUsage & recorder )
@@ -1161,16 +1070,13 @@ void StaticAnalysis_Cop0_TLB( OpCode op_code, RegisterUsage & recorder )
 	gStaticAnalysisTLBInstruction[ op_code.cop0tlb_funct ]( op_code, recorder );
 }
 
-
-//*************************************************************************************
 // COP1 Jump Table
-//*************************************************************************************
 StaticAnalysisFunction gStaticAnalysisCop1Instruction[32] =
 {
 	StaticAnalysis_Cop1_MFC1,    StaticAnalysis_Cop1_DMFC1,  StaticAnalysis_Cop1_CFC1, StaticAnalysis_Unk, StaticAnalysis_Cop1_MTC1,   StaticAnalysis_Cop1_DMTC1,  StaticAnalysis_Cop1_CTC1, StaticAnalysis_Unk,
-	StaticAnalysis_Cop1_BCInstr, StaticAnalysis_Unk,    StaticAnalysis_Unk,  StaticAnalysis_Unk, StaticAnalysis_Unk,    StaticAnalysis_Unk,    StaticAnalysis_Unk,  StaticAnalysis_Unk,
-	StaticAnalysis_Cop1_SInstr,  StaticAnalysis_Cop1_DInstr, StaticAnalysis_Unk,  StaticAnalysis_Unk, StaticAnalysis_Cop1_WInstr, StaticAnalysis_Cop1_LInstr, StaticAnalysis_Unk,  StaticAnalysis_Unk,
-	StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk,  StaticAnalysis_Unk, StaticAnalysis_Unk,    StaticAnalysis_Unk,    StaticAnalysis_Unk,  StaticAnalysis_Unk
+	StaticAnalysis_Cop1_BCInstr, StaticAnalysis_Unk,         StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk,         StaticAnalysis_Unk,       StaticAnalysis_Unk,
+	StaticAnalysis_Cop1_SInstr,  StaticAnalysis_Cop1_DInstr, StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Cop1_WInstr, StaticAnalysis_Cop1_LInstr, StaticAnalysis_Unk,       StaticAnalysis_Unk,
+	StaticAnalysis_Unk,          StaticAnalysis_Unk,         StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk,         StaticAnalysis_Unk,       StaticAnalysis_Unk
 };
 
 void StaticAnalysis_CoPro1( OpCode op_code, RegisterUsage & recorder )
@@ -1178,9 +1084,6 @@ void StaticAnalysis_CoPro1( OpCode op_code, RegisterUsage & recorder )
 	gStaticAnalysisCop1Instruction[ op_code.cop1_op ]( op_code, recorder );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 StaticAnalysisFunction gStaticAnalysisCop1BC1Instruction[4] =
 {
 	StaticAnalysis_BC1_BC1F, StaticAnalysis_BC1_BC1T, StaticAnalysis_BC1_BC1FL, StaticAnalysis_BC1_BC1TL
@@ -1191,19 +1094,17 @@ void StaticAnalysis_Cop1_BCInstr( OpCode op_code, RegisterUsage & recorder )
 	gStaticAnalysisCop1BC1Instruction[ op_code.cop1_bc ]( op_code, recorder );
 }
 
-//*************************************************************************************
 // Single Jump Table
-//*************************************************************************************
 StaticAnalysisFunction gStaticAnalysisCop1SInstruction[64] =
 {
-	StaticAnalysis_Cop1_S_ADD,     StaticAnalysis_Cop1_S_SUB,     StaticAnalysis_Cop1_S_MUL,    StaticAnalysis_Cop1_S_DIV,     StaticAnalysis_Cop1_S_SQRT,    StaticAnalysis_Cop1_S_ABS,     StaticAnalysis_Cop1_S_MOV,    StaticAnalysis_Cop1_S_NEG,
-	StaticAnalysis_Cop1_S_ROUND_L, StaticAnalysis_Cop1_S_TRUNC_L,	StaticAnalysis_Cop1_S_CEIL_L, StaticAnalysis_Cop1_S_FLOOR_L, StaticAnalysis_Cop1_S_ROUND_W, StaticAnalysis_Cop1_S_TRUNC_W, StaticAnalysis_Cop1_S_CEIL_W, StaticAnalysis_Cop1_S_FLOOR_W,
-	StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk,
-	StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk,
-	StaticAnalysis_Unk,     StaticAnalysis_Cop1_S_CVT_D,   StaticAnalysis_Unk,    StaticAnalysis_Unk,     StaticAnalysis_Cop1_S_CVT_W,   StaticAnalysis_Cop1_S_CVT_L,   StaticAnalysis_Unk,    StaticAnalysis_Unk,
-	StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk,    StaticAnalysis_Unk,
-	StaticAnalysis_Cop1_Compare_S,  StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S,     StaticAnalysis_Cop1_Compare_S,     StaticAnalysis_Cop1_Compare_S,    StaticAnalysis_Cop1_Compare_S,
-	StaticAnalysis_Cop1_Compare_S,  StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S,      StaticAnalysis_Cop1_Compare_S,     StaticAnalysis_Cop1_Compare_S,     StaticAnalysis_Cop1_Compare_S,
+	StaticAnalysis_Cop1_S_ADD,      StaticAnalysis_Cop1_S_SUB,     StaticAnalysis_Cop1_S_MUL,     StaticAnalysis_Cop1_S_DIV,     StaticAnalysis_Cop1_S_SQRT,    StaticAnalysis_Cop1_S_ABS,     StaticAnalysis_Cop1_S_MOV,     StaticAnalysis_Cop1_S_NEG,
+	StaticAnalysis_Cop1_S_ROUND_L,  StaticAnalysis_Cop1_S_TRUNC_L, StaticAnalysis_Cop1_S_CEIL_L,  StaticAnalysis_Cop1_S_FLOOR_L, StaticAnalysis_Cop1_S_ROUND_W, StaticAnalysis_Cop1_S_TRUNC_W, StaticAnalysis_Cop1_S_CEIL_W,  StaticAnalysis_Cop1_S_FLOOR_W,
+	StaticAnalysis_Unk,             StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+	StaticAnalysis_Unk,             StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+	StaticAnalysis_Unk,             StaticAnalysis_Cop1_S_CVT_D,   StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Cop1_S_CVT_W,   StaticAnalysis_Cop1_S_CVT_L,   StaticAnalysis_Unk,            StaticAnalysis_Unk,
+	StaticAnalysis_Unk,             StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+	StaticAnalysis_Cop1_Compare_S,  StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S,
+	StaticAnalysis_Cop1_Compare_S,  StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S, StaticAnalysis_Cop1_Compare_S,
 };
 
 void StaticAnalysis_Cop1_SInstr( OpCode op_code, RegisterUsage & recorder )
@@ -1211,19 +1112,17 @@ void StaticAnalysis_Cop1_SInstr( OpCode op_code, RegisterUsage & recorder )
 	gStaticAnalysisCop1SInstruction[ op_code.cop1_funct ]( op_code, recorder );
 }
 
-//*************************************************************************************
 // Double Jump Table
-//*************************************************************************************
 StaticAnalysisFunction gStaticAnalysisCop1DInstruction[64] =
 {
-	StaticAnalysis_Cop1_D_ADD,     StaticAnalysis_Cop1_D_SUB,     StaticAnalysis_Cop1_D_MUL, StaticAnalysis_Cop1_D_DIV, StaticAnalysis_Cop1_D_SQRT, StaticAnalysis_Cop1_D_ABS, StaticAnalysis_Cop1_D_MOV, StaticAnalysis_Cop1_D_NEG,
-	StaticAnalysis_Cop1_D_ROUND_L, StaticAnalysis_Cop1_D_TRUNC_L, StaticAnalysis_Cop1_D_CEIL_L, StaticAnalysis_Cop1_D_FLOOR_L, StaticAnalysis_Cop1_D_ROUND_W, StaticAnalysis_Cop1_D_TRUNC_W, StaticAnalysis_Cop1_D_CEIL_W, StaticAnalysis_Cop1_D_FLOOR_W,
-	StaticAnalysis_Unk,		StaticAnalysis_Unk,     StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
-	StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
-	StaticAnalysis_Cop1_D_CVT_S,   StaticAnalysis_Unk,     StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Cop1_D_CVT_W, StaticAnalysis_Cop1_D_CVT_L, StaticAnalysis_Unk, StaticAnalysis_Unk,
-	StaticAnalysis_Unk,     StaticAnalysis_Unk,     StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
-	StaticAnalysis_Cop1_Compare_D,  StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D,     StaticAnalysis_Cop1_Compare_D,     StaticAnalysis_Cop1_Compare_D,    StaticAnalysis_Cop1_Compare_D,
-	StaticAnalysis_Cop1_Compare_D,  StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D,      StaticAnalysis_Cop1_Compare_D,     StaticAnalysis_Cop1_Compare_D,     StaticAnalysis_Cop1_Compare_D,
+	StaticAnalysis_Cop1_D_ADD,      StaticAnalysis_Cop1_D_SUB,     StaticAnalysis_Cop1_D_MUL,     StaticAnalysis_Cop1_D_DIV,     StaticAnalysis_Cop1_D_SQRT,    StaticAnalysis_Cop1_D_ABS,     StaticAnalysis_Cop1_D_MOV,     StaticAnalysis_Cop1_D_NEG,
+	StaticAnalysis_Cop1_D_ROUND_L,  StaticAnalysis_Cop1_D_TRUNC_L, StaticAnalysis_Cop1_D_CEIL_L,  StaticAnalysis_Cop1_D_FLOOR_L, StaticAnalysis_Cop1_D_ROUND_W, StaticAnalysis_Cop1_D_TRUNC_W, StaticAnalysis_Cop1_D_CEIL_W,  StaticAnalysis_Cop1_D_FLOOR_W,
+	StaticAnalysis_Unk,		        StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+	StaticAnalysis_Unk,             StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+	StaticAnalysis_Cop1_D_CVT_S,    StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Cop1_D_CVT_W,   StaticAnalysis_Cop1_D_CVT_L,   StaticAnalysis_Unk,            StaticAnalysis_Unk,
+	StaticAnalysis_Unk,             StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,            StaticAnalysis_Unk,
+	StaticAnalysis_Cop1_Compare_D,  StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D,
+	StaticAnalysis_Cop1_Compare_D,  StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D, StaticAnalysis_Cop1_Compare_D,
 };
 
 void StaticAnalysis_Cop1_DInstr( OpCode op_code, RegisterUsage & recorder )
@@ -1231,13 +1130,12 @@ void StaticAnalysis_Cop1_DInstr( OpCode op_code, RegisterUsage & recorder )
 	gStaticAnalysisCop1DInstruction[ op_code.cop1_funct ]( op_code, recorder );
 }
 
-
 }
 
 namespace StaticAnalysis
 {
 
-void		Analyse( OpCode op_code, RegisterUsage & reg_usage )
+void Analyse( OpCode op_code, RegisterUsage & reg_usage )
 {
 	gStaticAnalysisInstruction[ op_code.op ]( op_code, reg_usage );
 }
