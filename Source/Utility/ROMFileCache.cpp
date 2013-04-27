@@ -45,12 +45,10 @@ struct SChunkInfo
 	u32				StartOffset;
 	mutable u32		LastUseIdx;
 
-#ifdef DAEDALUS_ENABLE_ASSERTS
 	bool		ContainsAddress( u32 address ) const
 	{
 		return address >= StartOffset && address < StartOffset + CHUNK_SIZE;
 	}
-#endif
 
 	bool		InUse() const
 	{
