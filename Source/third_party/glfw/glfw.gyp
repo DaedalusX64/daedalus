@@ -62,6 +62,9 @@
           ],
           'link_settings': {
             'libraries': [
+              '-lX11',
+              '-lGL',
+              '-lrt',
             ],
           },
           'sources': [
