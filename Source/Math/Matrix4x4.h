@@ -30,6 +30,7 @@ ALIGNED_TYPE(class, Matrix4x4, 16)
 		Matrix4x4 & SetRotateX( float angle );
 		Matrix4x4 & SetRotateY( float angle );
 		Matrix4x4 & SetRotateZ( float angle );
+		Matrix4x4 & SetTranslate( const v3 & vec );
 
 		//Matrix4x4 Transpose() const;
 		//Matrix4x4 Inverse() const;
