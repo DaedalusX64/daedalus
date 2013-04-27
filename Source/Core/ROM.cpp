@@ -63,11 +63,7 @@ u32 g_dwNumFrames = 0;
 //*****************************************************************************
 RomInfo g_ROM;
 
-#ifdef DAEDALUS_DEBUG_CONSOLE
-//*****************************************************************************
-//
-//*****************************************************************************
-void DumpROMInfo( const ROMHeader & header )
+static void DumpROMInfo( const ROMHeader & header )
 {
 	// The "Header" is actually something to do with the PI_DOM_*_OFS values...
 	DBGConsole_Msg(0, "Header:          0x%02x%02x%02x%02x", header.x1, header.x2, header.x3, header.x4);
@@ -87,7 +83,6 @@ void DumpROMInfo( const ROMHeader & header )
 	DBGConsole_Msg(0, "CountryID:       0x%02x - '%c'", header.CountryID, (char)header.CountryID);
 	DBGConsole_Msg(0, "Unknown5:        0x%02x", header.Unknown5);
 }
-#endif
 
 //*****************************************************************************
 //
@@ -532,9 +527,8 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	// Game specific hacks..
 	SpecificGameHacks( g_ROM.rh );
 
-#ifdef DAEDALUS_DEBUG_CONSOLE
 	DumpROMInfo( g_ROM.rh );
-#endif
+
 	//
 	//
 	// Read and apply preferences from preferences.ini
