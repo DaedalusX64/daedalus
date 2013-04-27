@@ -59,28 +59,6 @@ u32 Vector2ColourClampedVFPU(const v4 * col_in)
 	return c32::Make( out_ints[0], out_ints[1], out_ints[2], out_ints[3] );
 }
 
-//*****************************************************************************
-// Around 320,000 ticks/million
-//*****************************************************************************
-u32 Vector2ColourUnclampedVFPU(const v4 * col_in)
-{
-	u32		out_ints[4];
-
-	__asm__ volatile (
-
-		"ulv.q		R000, 0  + %1\n"		// Load col_in into R000
-		"lv.q		R001, %2\n"				// Load SCALE into R001 (we know it's aligned)
-
-		"vmul.q		R000, R000, R001\n"		// R000 = R000 * [255,255,255,255]
-
-		"vf2in.q	R000, R000, 0\n"		// R000 = (s32)(R000) << 0		- or is scale applied before? could use << 8 to scale to 0..255? Would need to be careful of 1.0 overflowing to 256
-		"usv.q		R000, %0\n"				// Save out value
-
-		: "=m" (out_ints) : "m" (*col_in), "m" (SCALE) : "memory" );
-
-	return c32::Make( out_ints[0], out_ints[1], out_ints[2], out_ints[3] );
-}
-
 #endif // DAEDALUS_PSP
 
 //*****************************************************************************
@@ -97,19 +75,6 @@ inline u32	Vector2ColourClampedCPU( const v4 * col_in )
 }
 
 //*****************************************************************************
-// Around 15,000 ticks/million (! - much faster than VFPU version
-//*****************************************************************************
-inline u32	Vector2ColourUnclampedCPU( const v4 * col_in )
-{
-	u8 r( u8(col_in->x * 255.0f) );
-	u8 g( u8(col_in->y * 255.0f) );
-	u8 b( u8(col_in->z * 255.0f) );
-	u8 a( u8(col_in->w * 255.0f) );
-
-	return c32::Make( r, g, b, a );
-}
-
-//*****************************************************************************
 //
 //*****************************************************************************
 inline u32	Vector2ColourClamped( const v4 & colour )
@@ -120,15 +85,6 @@ inline u32	Vector2ColourClamped( const v4 & colour )
 #else
 	return Vector2ColourClampedCPU( &colour );
 #endif
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-inline u32	Vector2ColourUnclamped( const v4 & colour )
-{
-	// This is always faster than the VFPU version
-	return Vector2ColourUnclampedCPU( &colour );
 }
 
 //*****************************************************************************
