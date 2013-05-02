@@ -62,7 +62,7 @@ extern CODEGROUP	*codegrouplist;
 
 void				CheatCodes_Activate( CHEAT_MODE mode );
 bool				CheatCodes_Read(const char *rom_name, const char *file, u8 countryID);
-void				CheatCodes_Disable( u32 index, bool enable );
+void				CheatCodes_Disable( u32 index );
 
 
 #endif // CHEATS_H_

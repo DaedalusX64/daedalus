@@ -44,7 +44,6 @@ public:
 
 	explicit Mutex( const char * name )
 	{
-		use( name );		// Can't name?
 		InitializeCriticalSection(&cs);
 	};
 

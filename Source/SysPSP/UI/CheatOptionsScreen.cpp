@@ -105,23 +105,28 @@ public:
 	// Make read only the cheat list if enable cheat code option is disable
 	virtual bool			IsReadOnly() const
 	{
-		// Disable any active cheat codes
-		CheatCodes_Disable( mIndex, *mCheatEnabled);
-		return !(*mCheatEnabled);
+		if(!*mCheatEnabled)
+		{
+			//Disable all active cheat codes
+			CheatCodes_Disable( mIndex );
+			return true;
+		}
+		return false;
 	}
 
 	virtual bool			IsSelectable()	const	{ return !IsReadOnly(); }
-
-	virtual	void			OnNext()				{ if( !IsReadOnly() ) codegrouplist[mIndex].active = !codegrouplist[mIndex].active; }
-	virtual	void			OnPrevious()			{ if( !IsReadOnly() ) codegrouplist[mIndex].active = !codegrouplist[mIndex].active; }
 
 	virtual	void			OnSelected()
 	{
 
 		if(!codegrouplist[mIndex].active)
+		{
 			codegrouplist[mIndex].active = true;
+		}
 		else
-			codegrouplist[mIndex].active = false;
+		{
+			CheatCodes_Disable( mIndex);
+		}
 
 	}
 	virtual const char *	GetSettingName() const
@@ -184,18 +189,24 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 	CPreferences::Get()->GetRomPreferences( mRomID, &mRomPreferences );
 
 	RomSettings			settings;
-	if ( CRomSettingsDB::Get()->GetSettings( mRomID, &settings ) )
+	if ( CRomSettingsDB::Get()->GetSettings( rom_id, &settings ) )
 	{
  		mRomName = settings.GameName;
 	}
-	printf("%d | %d | %d\n",mRomPreferences.CheatsEnabled,gCheatsEnabled,settings.CheatsEnabled);
+
+	// HACK: if cheatcode feature is forced in roms.ini, force preference too
+	// This is done mainly to reflect that cheat option is being forced
+	// We should handle this in preferences.cpp, since is kind of confusing for the user that forced options in roms.ini don't reflect it in preferences menu
+	if(settings.CheatsEnabled)
+		mRomPreferences.CheatsEnabled = true;
+
 	// Read hack code for this rom
 	// We always parse the cheat file when the cheat menu is accessed, to always have cheats ready to be used by the user without hassle
 	// Also we do this to make sure we clear any non-associated cheats, we only parse once per ROM access too :)
 	//
 	CheatCodes_Read( mRomName.c_str(), "Daedalus.cht", mRomID.CountryID );
 
-	mElements.Add( new CBoolSetting( &gCheatsEnabled, "Enable Cheat Codes", "Whether to use cheat codes for this ROM", "Yes", "No" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Whether to use cheat codes for this ROM", "Yes", "No" ) );
 	
 	// ToDo: add a dialog if cheatcodes were truncated, aka MAX_CHEATCODE_PER_GROUP is reached
 	for(u32 i = 0; i < MAX_CHEATCODE_PER_LOAD; i++)
@@ -204,7 +215,7 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 		if(codegroupcount > 0 && codegroupcount > i)
 		{
 			// Generate list of available cheatcodes
-			mElements.Add( new CCheatType( i, codegrouplist[i].name, &gCheatsEnabled, codegrouplist[i].note ) );
+			mElements.Add( new CCheatType( i, codegrouplist[i].name, &mRomPreferences.CheatsEnabled, codegrouplist[i].note ) );
 		}
 		else
 		{

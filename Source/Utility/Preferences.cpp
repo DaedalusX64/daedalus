@@ -476,7 +476,7 @@ void SRomPreferences::Apply() const
 	gMemoryAccessOptimisation   = g_ROM.settings.MemoryAccessOptimisation || MemoryAccessOptimisation;
 	gFrameskipValue             = Frameskip;
 	gZoomX                      = ZoomX;
-	gCheatsEnabled              = CheatsEnabled || g_ROM.settings.CheatsEnabled;
+	gCheatsEnabled              = g_ROM.settings.CheatsEnabled || CheatsEnabled;
 	gAudioPluginEnabled         = AudioEnabled;
 //	gAdaptFrequency             = AudioAdaptFrequency;
 	gControllerIndex            = ControllerIndex;							//Used during ROM initialization

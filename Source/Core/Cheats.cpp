@@ -65,7 +65,6 @@ u32		codegroupcount		= 0;
 //*****************************************************************************
 static void CheatCodes_Apply(u32 index, u32 mode)
 {
-	u8* p_mem = NULL;
 	bool skip = false;
 
 	for (u32 i = 0; i < codegrouplist[index].codecount; i ++)
@@ -81,13 +80,12 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 		u32 address = (code.addr & 0xFFFFFF);
 		u16 value	= code.val;
 		u32 type	= (code.addr >> 24) & 0xFF;
+		u8* p_mem	= g_pu8RamBase + address; // addr is already pre-swapped
 
 		switch(type)
 		{
 		case 0x80:
 		case 0xA0:
-			p_mem = g_pu8RamBase + (address ^ U8_TWIDDLE);
-
 			// Check if orig value is initialized and valid to store current value
 			if((code.orig == CHEAT_CODE_MAGIC_VALUE) && code.orig )
 				code.orig = *(u8 *)(p_mem);
@@ -104,8 +102,6 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 			break;
 		case 0x81:
 		case 0xA1:
-			p_mem = g_pu8RamBase + (address ^ U16_TWIDDLE);
-
 			// Check if orig value is initialized and valid to store current value
 			if((code.orig == CHEAT_CODE_MAGIC_VALUE) && code.orig )
 				code.orig = *(u16 *)(p_mem);
@@ -121,27 +117,21 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 			*(u16 *)(p_mem) = value;
 			break;
 		case 0xD0:
-			p_mem = g_pu8RamBase + (address ^ U8_TWIDDLE);
 			skip = ( *(u8 *)(p_mem) != value );
 			break;
 		case 0xD1:
-			p_mem = g_pu8RamBase + (address ^ U16_TWIDDLE);
 			skip = ( *(u16 *)(p_mem) != value );
 			break;
 		case 0xD2:
-			p_mem = g_pu8RamBase + (address ^ U8_TWIDDLE);
 			skip = ( *(u8 *)(p_mem) == value );
 			break;
 		case 0xD3:
-			p_mem = g_pu8RamBase + (address ^ U16_TWIDDLE);
 			skip = ( *(u16 *)(p_mem) == value );
 			break;
 		case 0x88:
-			p_mem = g_pu8RamBase + (address ^ U8_TWIDDLE);
 			if( mode == GS_BUTTON )*(u8 *)(p_mem) = (u8)value;
 			break;
 		case 0x89:
-			p_mem = g_pu8RamBase + (address ^ U16_TWIDDLE);
 			if( mode == GS_BUTTON )	*(u16 *)(p_mem) = value;
 			break;
 		case 0x04:
@@ -158,9 +148,9 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 					type		= codegrouplist[index].codelist[i + 1].addr >> 24;
 					address		= (codegrouplist[index].codelist[i + 1].addr & 0x00FFFFFF);
 					value		= codegrouplist[index].codelist[i + 1].val;
-					u8 valbyte = (u8)value;
+					u8 valbyte  = (u8)value;
+					p_mem		= g_pu8RamBase + address;
 
-					p_mem = g_pu8RamBase + (address);
 					switch(type)
 					{
 					case 0x80:
@@ -213,11 +203,9 @@ void CheatCodes_Activate( CHEAT_MODE mode )
 //*****************************************************************************
 //
 //*****************************************************************************
-void CheatCodes_Disable( u32 index, bool enable )
+void CheatCodes_Disable( u32 index )
 {
-	// If cheat feature is disabled, and there's currently any cheat enabled
-	// Disable 'em
-	if(!enable && codegrouplist[index].enable)
+	if(codegrouplist[index].enable)
 	{
 		codegrouplist[index].active = false;
 		codegrouplist[index].enable = false;
@@ -412,7 +400,7 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 				codegrouplist[codegroupcount].note[0] = '\0';
 			}
 
-			u32 addr, value;
+			u32 addr, value ;
 			codegrouplist[codegroupcount].active = (line[c1 + 1] - '0') ? true : false;
 			codegrouplist[codegroupcount].enable = false;
 			codegrouplist[codegroupcount].codecount = 0;
@@ -425,6 +413,35 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 				{
 					sscanf( line + c1 + 1 + c2 * 14,"%08x-%04x", &addr, &value );
 
+					// Pre-swap address
+					switch((addr >> 24) & 0xFF)
+					{
+					case 0x80:
+					case 0xA0:
+					case 0xD0:
+					case 0xD2:
+					case 0x88:
+						addr ^= U8_TWIDDLE;
+						break;
+					case 0x81:
+					case 0xA1:
+					case 0xD1:
+					case 0xD3:
+					case 0x89:
+						addr ^= U16_TWIDDLE;
+						break;
+					case 0x04:
+						break;
+					case 0x50:
+						//ToDO: Uncompress Serial Repeater cheat code? 
+						//We could convert it to a normal cheat code by just filling each slot with the repeater counter, but it would waste plenty of memory..
+						//Or atleast iterate here to pre swap the addresses
+						break;
+					default:
+						//Unhandled cheat code? I think we handle most if not all cheat code types?
+						//ToDo: Cull any unhandled cheat code
+						break;
+					}
 					codegrouplist[codegroupcount].codelist[c2].orig = CHEAT_CODE_MAGIC_VALUE;
 					codegrouplist[codegroupcount].codelist[c2].addr = addr;
 					codegrouplist[codegroupcount].codelist[c2].val = (u16)value;
