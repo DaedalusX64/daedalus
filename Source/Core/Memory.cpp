@@ -722,7 +722,7 @@ void MemoryUpdateDP( u32 flags )
 		dpc_status &= ~DPC_STATUS_FREEZE;
 
 		u32 status = Memory_SP_GetRegister( SP_STATUS_REG );
-		if((status & SP_CLR_HALT) == 0)
+		if((status & SP_STATUS_HALT) == 0)
 		{
 			Memory_DPC_ClrRegisterBits(DPC_STATUS_REG, DPC_STATUS_FREEZE);
 
