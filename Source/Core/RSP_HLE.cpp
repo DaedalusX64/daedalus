@@ -213,7 +213,7 @@ static EProcessResult RSP_HLE_Audio()
 //
 //*****************************************************************************
 // RSP_HLE_Jpeg and RSP_HLE_CICX105 were borrowed from Mupen64plus
-u32 sum_bytes(const u8 *bytes, u32 size)
+static u32 sum_bytes(const u8 *bytes, u32 size)
 {
     u32 sum = 0;
     const u8 * const bytes_end = bytes + size;
@@ -227,7 +227,7 @@ u32 sum_bytes(const u8 *bytes, u32 size)
 //*****************************************************************************
 //
 //*****************************************************************************
-static EProcessResult RSP_HLE_Jpeg(OSTask * task)
+EProcessResult RSP_HLE_Jpeg(OSTask * task)
 {
 void jpeg_decode_PS(OSTask *task);
 void jpeg_decode_OB(OSTask *task);
@@ -253,7 +253,7 @@ void jpeg_decode_OB(OSTask *task);
 //*****************************************************************************
 //
 //*****************************************************************************
-static EProcessResult RSP_HLE_CICX105(OSTask * task)
+EProcessResult RSP_HLE_CICX105(OSTask * task)
 {
     const u32 sum = sum_bytes(g_pu8SpImemBase, 0x1000 >> 1);
 
@@ -293,6 +293,12 @@ void RSP_HLE_ProcessTask()
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 
 	EProcessResult	result( PR_NOT_STARTED );
+
+	// frozen task
+	if( Memory_DPC_GetRegister(DPC_STATUS_REG) & DPC_STATUS_FREEZE )
+	{
+		return;
+	}
 
 	// non task
 	if(pTask->t.ucode_boot_size > 0x1000)

@@ -153,7 +153,7 @@ bool Memory_Init()
 	//cartDom1                        = (u8*)VirtualAlloc( (void*)(base+0x06000000),	0x10000,	MEM_COMMIT, PAGE_READWRITE );
 	g_pMemoryBuffers[ MEM_SAVE      ] = (u8*)VirtualAlloc( (void*)(base+0x08000000),	0x20000,	MEM_COMMIT, PAGE_READWRITE );
 	//g_pMemoryBuffers[MEM_CARTROM  ] = (u8*)VirtualAlloc( (void*)(base+0x10000000),	cart_size,	MEM_COMMIT, PAGE_READWRITE);
-	g_pMemoryBuffers[ MEM_PIF_RAM   ] = (u8*)VirtualAlloc( (void*)(base+0x1FC00000),	0x800,		MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEM_PIF_RAM   ] = (u8*)VirtualAlloc( (void*)(base+0x1FC00000),	0x40,		MEM_COMMIT, PAGE_READWRITE );
 	//cartDom4                        = (u8*)VirtualAlloc( (void*)(base+0x1FD00000),	0x10000,	MEM_COMMIT, PAGE_READWRITE );
 	g_pMemoryBuffers[ MEM_MEMPACK   ] = (u8*)VirtualAlloc( NULL,						0x20000,	MEM_COMMIT, PAGE_READWRITE );
 	g_pMemoryBuffers[ MEM_UNUSED    ] = new u8[ MemoryRegionSizes[MEM_UNUSED] ];
@@ -717,8 +717,22 @@ void MemoryUpdateDP( u32 flags )
 	// ToDO : Avoid branching
 	if (flags & DPC_CLR_XBUS_DMEM_DMA)			dpc_status &= ~DPC_STATUS_XBUS_DMEM_DMA;
 	if (flags & DPC_SET_XBUS_DMEM_DMA)			dpc_status |= DPC_STATUS_XBUS_DMEM_DMA;
-	if (flags & DPC_CLR_FREEZE)					dpc_status &= ~DPC_STATUS_FREEZE;
-	//if (flags & DPC_SET_FREEZE)				dpc_status |= DPC_STATUS_FREEZE;	// Thanks Lemmy! <= what's wrong with this? ~ Salvy
+	if (flags & DPC_CLR_FREEZE)
+	{
+		dpc_status &= ~DPC_STATUS_FREEZE;
+
+		u32 status = Memory_SP_GetRegister( SP_STATUS_REG );
+		if((status & SP_CLR_HALT) == 0)
+		{
+			Memory_DPC_ClrRegisterBits(DPC_STATUS_REG, DPC_STATUS_FREEZE);
+
+			DAEDALUS_ASSERT( (status & SP_STATUS_BROKE) == 0, "Unexpected RSP HLE status %08x", status );
+			//DBGConsole_Msg(0, "Unfreezing task");
+			RSP_HLE_ProcessTask();
+		}
+	}
+
+	if (flags & DPC_SET_FREEZE)					dpc_status |= DPC_STATUS_FREEZE;
 	if (flags & DPC_CLR_FLUSH)					dpc_status &= ~DPC_STATUS_FLUSH;
 	if (flags & DPC_SET_FLUSH)					dpc_status |= DPC_STATUS_FLUSH;
 
@@ -744,7 +758,6 @@ void MemoryUpdateDP( u32 flags )
 	DBGConsole_Msg( 0, "Modified DPC_STATUS_REG - now %08x", dpc_status );
 #endif
 
-	// Write back the value
 	Memory_DPC_SetRegister(DPC_STATUS_REG, dpc_status);
 }
 

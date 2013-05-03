@@ -3088,6 +3088,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_F( R4300_CALL_SIGNATURE )
 }
 
 // Blast Corps fails here.
+// DK64 trows fp nan exception 
 static void R4300_CALL_TYPE R4300_Cop1_S_NGT( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
