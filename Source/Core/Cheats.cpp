@@ -373,6 +373,7 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 			// Codes for the group are in the string line[]
 			for(c1 = 0; line[c1] != '=' && line[c1] != '\0'; c1++) codegrouplist[codegroupcount].name[c1] = line[c1];
 
+			// FIXME: xocde reckons this is dodgy - if c1 is 0 (first char is '='), this will index [-1]!
 			if(codegrouplist[codegroupcount].name[c1 - 1] != ',')
 			{
 				codegrouplist[codegroupcount].name[c1] = '\0';
