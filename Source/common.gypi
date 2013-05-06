@@ -1,7 +1,7 @@
 {
   'target_defaults': {
     'include_dirs': [
-      'Config/Dev/',
+      'Config/Release/',
     ],
     'cflags': [
       '-std=c++11', '-Wno-c++11-compat',
