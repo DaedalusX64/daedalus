@@ -476,11 +476,9 @@ void CMP3Decode::InnerLoop()
 	u32 offset = 0x10-(t4>>1);
 
 	u32 addptr = t6 & 0xFFE0;
-	offset = 0x10-(t4>>1);
 
 	s32 v2=0, v4=0, v6=0, v8=0;
 
-	offset = 0x10-(t4>>1);// + x*0x40;
 	for (int x = 0; x < 8; x++)
 	{
 		v2 = v4 = v6 = v8 = 0;
