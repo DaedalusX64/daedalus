@@ -1460,7 +1460,7 @@
 					Name="OSX"
 					>
 					<File
-						RelativePath="..\..\Source\SysOSX\Utility\IOOSX.cpp"
+						RelativePath="..\..\Source\SysPosix\Utility\IOPosix.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1480,7 +1480,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath="..\..\Source\SysOSX\Utility\ThreadOSX.cpp"
+						RelativePath="..\..\Source\SysPosix\Utility\ThreadPosix.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
@@ -1500,7 +1500,7 @@
 						</FileConfiguration>
 					</File>
 					<File
-						RelativePath="..\..\Source\SysOSX\Utility\TimingOSX.cpp"
+						RelativePath="..\..\Source\SysPosix\Utility\TimingPosix.cpp"
 						>
 						<FileConfiguration
 							Name="Debug|Win32"
