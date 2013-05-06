@@ -173,15 +173,35 @@
             ],
           },
           {
-            'destination': '<(PRODUCT_DIR)/',
+            'destination': '<(PRODUCT_DIR)/Web/css',
             'files': [
-              'SysOSX/Debug/Web/',
+              'SysOSX/Debug/Web/css/bootstrap-responsive.css',
+              'SysOSX/Debug/Web/css/bootstrap-responsive.min.css',
+              'SysOSX/Debug/Web/css/bootstrap.css',
+              'SysOSX/Debug/Web/css/bootstrap.min.css',
+              'SysOSX/Debug/Web/css/dldebugger.css',
+            ],
+          },
+          {
+            'destination': '<(PRODUCT_DIR)/Web/html/',
+            'files': [
+              'SysOSX/Debug/Web/html/dldebugger.html',
+            ],
+          },
+          {
+            'destination': '<(PRODUCT_DIR)/Web/img',
+            'files': [
+              'SysOSX/Debug/Web/img/glyphicons-halflings-white.png',
+              'SysOSX/Debug/Web/img/glyphicons-halflings.png',
             ],
           },
           {
             'destination': '<(PRODUCT_DIR)/Web/js',
             'files': [
+              'SysOSX/Debug/Web/js/bootstrap.js',
+              'SysOSX/Debug/Web/js/bootstrap.min.js',
               'SysOSX/Debug/Web/js/dldebugger.js',
+              'SysOSX/Debug/Web/js/jquery-1.9.1.min.js',
             ],
           },
         ],
