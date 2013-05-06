@@ -88,6 +88,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 	#define CATCH_NAN_EXCEPTION(op, valX, valY)
 #endif
 
+// FIXME(strmnnrmn): we should put this on a separate #define, like have a DAEDALUS_DEBUG/DAEDALUS_RELEASE or something.
 #ifdef DAEDALUS_DEBUG_CONSOLE
 inline void CHECK_R0( u32 op )
 {
@@ -1701,13 +1702,13 @@ static void R4300_CALL_TYPE R4300_Special_DMULT( R4300_CALL_SIGNATURE ) 		// Dou
 	u64 result1, result2, result3, result4;
 	u64 temp1, temp2, temp3, temp4;
 	s32 sign = 0;
-   
+
 	if (rrs < 0)
 	{
 		op2 = -rrs;
 		sign = 1 - sign;
 	}
-	else 
+	else
 		op2 = rrs;
 
 	if (rrt < 0)
@@ -1715,30 +1716,30 @@ static void R4300_CALL_TYPE R4300_Special_DMULT( R4300_CALL_SIGNATURE ) 		// Dou
 		op4 = -rrt;
 		sign = 1 - sign;
 	}
-	else 
+	else
 		op4 = rrt;
-   
+
 	op1 = op2 & 0xFFFFFFFF;
 	op2 = (op2 >> 32) & 0xFFFFFFFF;
 	op3 = op4 & 0xFFFFFFFF;
 	op4 = (op4 >> 32) & 0xFFFFFFFF;
-   
+
 	temp1 = op1 * op3;
 	temp2 = (temp1 >> 32) + op1 * op4;
 	temp3 = op2 * op3;
 	temp4 = (temp3 >> 32) + op2 * op4;
-   
+
 	result1 = temp1 & 0xFFFFFFFF;
 	result2 = temp2 + (temp3 & 0xFFFFFFFF);
 	result3 = (result2 >> 32) + temp4;
 	result4 = (result3 >> 32);
-   
+
 	lo = result1 | (result2 << 32);
 	hi = (result3 & 0xFFFFFFFF) | (result4 << 32);
 	if (sign)
 	{
 		hi = ~hi;
-		if (!lo) 
+		if (!lo)
 			hi++;
 		else
 			lo = ~lo + 1;
@@ -1767,22 +1768,22 @@ static void R4300_CALL_TYPE R4300_Special_DMULTU( R4300_CALL_SIGNATURE ) 			// D
 	u64 op1, op2, op3, op4;
 	u64 result1, result2, result3, result4;
 	u64 temp1, temp2, temp3, temp4;
-   
+
 	op1 = rrs & 0xFFFFFFFF;
 	op2 = (rrs >> 32) & 0xFFFFFFFF;
 	op3 = rrt & 0xFFFFFFFF;
 	op4 = (rrt >> 32) & 0xFFFFFFFF;
-   
+
 	temp1 = op1 * op3;
 	temp2 = (temp1 >> 32) + op1 * op4;
 	temp3 = op2 * op3;
 	temp4 = (temp3 >> 32) + op2 * op4;
-   
+
 	result1 = temp1 & 0xFFFFFFFF;
 	result2 = temp2 + (temp3 & 0xFFFFFFFF);
 	result3 = (result2 >> 32) + temp4;
 	result4 = (result3 >> 32);
-   
+
 	gCPUState.MultLo._s64 = result1 | (result2 << 32);
 	gCPUState.MultHi._s64 = (result3 & 0xFFFFFFFF) | (result4 << 32);
 
