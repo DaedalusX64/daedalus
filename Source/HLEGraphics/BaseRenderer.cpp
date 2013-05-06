@@ -800,10 +800,12 @@ void BaseRenderer::PrepareTrisClipped( TempVerts * temp_verts ) const
 	//
 	//	Now the vertices have been clipped we need to write them into
 	//	a buffer we obtain this from the display list.
+	if (num_vertices > 0)
+	{
+		DaedalusVtx * p_vertices = temp_verts->Alloc(num_vertices);
 
-	DaedalusVtx * p_vertices = temp_verts->Alloc(num_vertices);
-
-	memcpy( p_vertices, clip_vtx, num_vertices * sizeof(DaedalusVtx) );	//std memcpy() is as fast as VFPU here!
+		memcpy( p_vertices, clip_vtx, num_vertices * sizeof(DaedalusVtx) );	//std memcpy() is as fast as VFPU here!
+	}
 }
 
 //*****************************************************************************
