@@ -3,4 +3,4 @@ export GYP_GENERATORS='xcode'
 # export CC=clang
 # export CXX=clang++
 
-./Tools/build/gyp/gyp --generator-output=xcode --depth=0 --toplevel-dir . ./Source/daedalus.gyp
+./Tools/build/gyp/gyp --generator-output=out/xcode --depth=0 --toplevel-dir . ./Source/daedalus.gyp
