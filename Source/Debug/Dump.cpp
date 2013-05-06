@@ -62,8 +62,7 @@ void Dump_GetDumpDirectory(char * p_file_path, const char * p_sub_dir)
 	}
 	else
 	{
-		strncpy(p_file_path, gDumpDir, MAX_PATH);
-		p_file_path[MAX_PATH-1] = '\0';
+		IO::Path::Assign(p_file_path, gDumpDir);
 	}
 
 #ifdef DAEDALUS_DEBUG_CONSOLE
@@ -93,8 +92,7 @@ void Dump_GetSaveDirectory(char * p_file_path, const char * p_rom_name, const ch
 		if (strlen(g_DaedalusConfig.szSaveDir) == 0)
 		{
 			// Default to rom path
-			strncpy(g_DaedalusConfig.szSaveDir, p_rom_name, MAX_PATH);
-			g_DaedalusConfig.szSaveDir[MAX_PATH-1] = '\0';
+			IO::Path::Assign(g_DaedalusConfig.szSaveDir, p_rom_name);
 			IO::Path::RemoveFileSpec(g_DaedalusConfig.szSaveDir);
 #ifndef DAEDALUS_PSP
 			// FIXME(strmnnrmn): for OSX I generate savegames in a subdir Save, to make it easier to clean up.
@@ -179,10 +177,8 @@ void Dump_Disassemble(u32 start, u32 end, const char * p_file_name)
 	}
 	else
 	{
-		strncpy(file_path, p_file_name, MAX_PATH);
-		file_path[MAX_PATH-1] = '\0';
+		IO::Path::Assign(file_path, p_file_name);
 	}
-
 
 	u8 * p_base;
 	if (!Memory_GetInternalReadAddress(start, (void**)&p_base))
@@ -275,8 +271,7 @@ void Dump_RSPDisassemble(const char * p_file_name)
 	}
 	else
 	{
-		strncpy(file_path, p_file_name, MAX_PATH);
-		file_path[MAX_PATH-1] = '\0';
+		IO::Path::Assign(file_path, p_file_name);
 	}
 
 	DBGConsole_Msg(0, "Disassembling from 0x%08x to 0x%08x ([C%s])", start, end, file_path);
@@ -317,8 +312,7 @@ void Dump_Strings( const char * p_file_name )
 	}
 	else
 	{
-		strncpy(file_path, p_file_name, MAX_PATH);
-		file_path[MAX_PATH-1] = '\0';
+		IO::Path::Assign(file_path, p_file_name);
 	}
 
 	DBGConsole_Msg(0, "Dumping strings in rom ([C%s])", file_path);

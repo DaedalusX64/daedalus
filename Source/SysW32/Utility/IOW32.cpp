@@ -57,8 +57,7 @@ namespace IO
 
 			// Make sure parent exists,
 			char	p_path_parent[ IO::Path::MAX_PATH_LEN+1 ];
-			strncpy( p_path_parent, p_path, IO::Path::MAX_PATH_LEN );
-			p_path_parent[IO::Path::MAX_PATH_LEN-1] = '\0';
+			IO::Path::Assign( p_path_parent, p_path );
 			IO::Path::RemoveBackslash( p_path_parent );
 			if( IO::Path::RemoveFileSpec( p_path_parent ) )
 			{
@@ -131,8 +130,7 @@ namespace IO
 
 		if( *handle != -1 )
 		{
-			strncpy( data.Name, _data.name, Path::MAX_PATH_LEN );
-			data.Name[Path::MAX_PATH_LEN] = 0;
+			IO::Path::Assign( data.Name, _data.name );
 
 			// Ignore hidden files (and '.' and '..')
 			if (data.Name[0] == '.')
@@ -161,8 +159,7 @@ namespace IO
 			if (_data.name[0] == '.')
 				continue;
 
-			strncpy( data.Name, _data.name, Path::MAX_PATH_LEN );
-			data.Name[Path::MAX_PATH_LEN] = 0;
+			IO::Path::Assign( data.Name, _data.name );
 			return true;
 		}
 

@@ -49,6 +49,12 @@ namespace IO
 
 		typedef char PathBuf[MAX_PATH_LEN];
 
+		inline void Assign( char * p_dest, const char * p_dir )
+		{
+			strncpy(p_dest, p_dir, MAX_PATH_LEN);
+			p_dest[MAX_PATH_LEN-1] = '\0';
+		}
+
 		char *				Combine( char * p_dest, const char * p_dir, const char * p_file );
 		bool				Append( char * p_path, const char * p_more );
 		const char *		FindExtension( const char * p_path );

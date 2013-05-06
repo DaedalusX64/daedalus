@@ -79,8 +79,7 @@ namespace IO
 
 			// Make sure parent exists,
 			char	p_path_parent[ IO::Path::MAX_PATH_LEN+1 ];
-			strncpy( p_path_parent, p_path, IO::Path::MAX_PATH_LEN );
-			p_path_parent[IO::Path::MAX_PATH_LEN-1] = '\0';
+			IO::Path::Assign( p_path_parent, p_path );
 			IO::Path::RemoveBackslash( p_path_parent );
 			if( IO::Path::RemoveFileSpec( p_path_parent ) )
 			{
@@ -263,8 +262,7 @@ namespace IO
 
 		if( sceIoDread( handle, &gDirEntry.Dirent ) > 0 )
 		{
-			strncpy( data.Name, gDirEntry.Dirent.d_name, Path::MAX_PATH_LEN );
-			data.Name[Path::MAX_PATH_LEN] = 0;
+			IO::Path::Assign( data.Name, gDirEntry.Dirent.d_name );
 			return true;
 		}
 
