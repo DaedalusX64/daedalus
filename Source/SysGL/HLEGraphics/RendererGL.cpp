@@ -115,6 +115,7 @@ bool initgl()
 	// Only do software emulation of mirror_s/mirror_t if we're not doing accurate UV handling
 	gRDPStateManager.SetEmulateMirror(!gAccurateUVPipe);
 
+	// FIXME(strmnnrmn): we shouldn't need these with GLEW, but they don't seem to resolve on OSX.
     GLboolean status = GL_TRUE;
     RESOLVE_GL_FCN(PFN_glGenVertexArrays, pglGenVertexArrays, "glGenVertexArrays");
     RESOLVE_GL_FCN(PFN_glDeleteVertexArrays, pglDeleteVertexArrays, "glDeleteVertexArrays");
