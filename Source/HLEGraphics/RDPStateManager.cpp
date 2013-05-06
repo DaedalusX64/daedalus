@@ -301,21 +301,16 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	u32 h           = ((lrt-ult)>>2) + 1;
 	u32 w           = ((lrs-uls)>>2) + 1;
 	u32 bytes       = ((h * w) << g_TI.Size) >> 1;
-	u32 qwords      = (bytes+7) / 8;
 
 	DAEDALUS_DL_ASSERT( bytes <= 4096,
 		"Suspiciously large texture load: %d bytes (%dx%d, %dbpp)",
 		bytes, w, h, (1<<(g_TI.Size+2)) );
-
-	if (qwords > 512)
-		qwords = 512;
 
 	u8 * tmem_data   = reinterpret_cast<u8*>(gTMEM);
 	u32  tmem_offset = rdp_tile.tmem << 3;
 	u8 * ram         = g_pu8RamBase;
 	u32  ram_offset  = ram_address;
 
-	//u32 bytes_per_line      = (w << g_TI.Size) >> 1;
 	u32 bytes_per_tmem_line = rdp_tile.line << 3;
 
 	void (*CopyLineMode)(u8*, u32, u8*, u32, u32);
