@@ -44,10 +44,12 @@ bool Debug_InitLogging()
 
 	IO::Path::Append(szLogFileName, "daedalus.txt");
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	if ( CDebugConsole::IsAvailable() )
 	{
 		CDebugConsole::Get()->Msg( 0, "Creating Dump file '%s'", szLogFileName );
 	}
+#endif
 	g_hOutputLog = fopen( szLogFileName, "w" );
 
 	return g_hOutputLog != NULL;
