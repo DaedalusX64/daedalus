@@ -791,13 +791,13 @@ void DLParser_RDPFullSync( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_SetScissor( MicroCodeCommand command )
 {
-	// The coords are all in 8:2 fixed point
+	// The coords are all in 10:2 fixed point
 	// Set up scissoring zone, we'll use it to scissor other stuff ex Texrect
 	//
-	scissors.left    = command.scissor.x0 >> 2;
-	scissors.top     = command.scissor.y0 >> 2;
-	scissors.right   = command.scissor.x1 >> 2;
-	scissors.bottom  = command.scissor.y1 >> 2;
+	scissors.left    = command.scissor.x0>>2;
+	scissors.top     = command.scissor.y0>>2;
+	scissors.right   = command.scissor.x1>>2;
+	scissors.bottom  = command.scissor.y1>>2;
 
 	// Hack to correct Super Bowling's right screen, left screen needs fb emulation
 	if ( g_ROM.GameHacks == SUPER_BOWLING && g_CI.Address%0x100 != 0 )
@@ -910,18 +910,21 @@ void DLParser_TexRect( MicroCodeCommand command )
 	// NB: In FILL and COPY mode, rectangles are scissored to the nearest four pixel boundary.
 	// This isn't currently handled, but I don't know of any games that depend on it.
 
-	// Do compare with integers saves CPU //Corn
-	u32	x0 = tex_rect.x0 >> 2;
-	u32	y0 = tex_rect.y0 >> 2;
-	u32	x1 = tex_rect.x1 >> 2;
-	u32	y1 = tex_rect.y1 >> 2;
+	//Keep integers for as long as possible //Corn
+	u32 rect_x0 = tex_rect.x0;
+	u32 rect_y0 = tex_rect.y0;
+	u32 rect_x1 = tex_rect.x1;
+	u32 rect_y1 = tex_rect.y1;
 
-	// X for upper left corner should be less than X for lower right corner else skip rendering it
-	// seems to happen in Rayman 2
-	//if(x0 >= x1) return;
+	// X for upper left corner should be less than X for lower right corner else skip rendering it, seems to happen in Rayman 2
+	//if( rect_x0 >= rect_x1 ) return;
 
 	// Removes offscreen texrect, also fixes several glitches like in John Romero's Daikatana
-	if( x0 >= scissors.right || y0 >= scissors.bottom || x1 < scissors.left || y1 < scissors.top || g_CI.Format != G_IM_FMT_RGBA )
+	if( rect_x0 >= (scissors.right<<2) ||
+		rect_y0 >= (scissors.bottom<<2) ||
+		rect_x1 <  (scissors.left<<2) ||
+		rect_y1 <  (scissors.top<<2) ||
+		g_CI.Format != G_IM_FMT_RGBA )
 	{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		++gNumRectsClipped;
@@ -929,19 +932,13 @@ void DLParser_TexRect( MicroCodeCommand command )
 		return;
 	};
 
-	//Keep integers for as long as possible //Corn
-	s32 rect_x0 = tex_rect.x0;
-	s32 rect_y0 = tex_rect.y0;
-	s32 rect_x1 = tex_rect.x1;
-	s32 rect_y1 = tex_rect.y1;
-
 	s16 rect_s0 = tex_rect.s;
 	s16 rect_t0 = tex_rect.t;
 
 	s32 rect_dsdx = tex_rect.dsdx;
 	s32 rect_dtdy = tex_rect.dtdy;
 
-	rect_s0 += (((u32)rect_dsdx >> 31) << 5);	//Fixes California Speed
+	rect_s0 += (((u32)rect_dsdx >> 31) << 5);	//Fixes California Speed, if(rect_dsdx<0) rect_s0 += 32;
 	rect_t0 += (((u32)rect_dtdy >> 31) << 5);
 
 	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1<<2 to the w/h)
@@ -959,11 +956,12 @@ void DLParser_TexRect( MicroCodeCommand command )
 			break;
 	}
 
-	s16 rect_s1 = rect_s0 + (rect_dsdx * ( rect_x1 - rect_x0 ) >> 7);
+	s16 rect_s1 = rect_s0 + (rect_dsdx * ( rect_x1 - rect_x0 ) >> 7);	// 7 = (>>10)=1/1024, (>>2)=1/4 and (<<5)=32
 	s16 rect_t1 = rect_t0 + (rect_dtdy * ( rect_y1 - rect_y0 ) >> 7);
 
 	TexCoord st0( rect_s0, rect_t0 );
 	TexCoord st1( rect_s1, rect_t1 );
+
 	v2 xy0( rect_x0 / 4.0f, rect_y0 / 4.0f );
 	v2 xy1( rect_x1 / 4.0f, rect_y1 / 4.0f );
 
@@ -993,10 +991,10 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	DAEDALUS_DL_ASSERT(gRDPOtherMode.cycle_type != CYCLE_COPY || tex_rect.dsdx == (4<<10), "Expecting dsdx of 4<<10 in copy mode, got %d", tex_rect.dsdx);
 
 	//Keep integers for as long as possible //Corn
-	s32 rect_x0 = tex_rect.x0;
-	s32 rect_y0 = tex_rect.y0;
-	s32 rect_x1 = tex_rect.x1;
-	s32 rect_y1 = tex_rect.y1;
+	u32 rect_x0 = tex_rect.x0;
+	u32 rect_y0 = tex_rect.y0;
+	u32 rect_x1 = tex_rect.x1;
+	u32 rect_y1 = tex_rect.y1;
 
 	s16 rect_s0 = tex_rect.s;
 	s16 rect_t0 = tex_rect.t;
@@ -1027,6 +1025,7 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 
 	TexCoord st0( rect_s0, rect_t0 );
 	TexCoord st1( rect_s1, rect_t1 );
+
 	v2 xy0( rect_x0 / 4.0f, rect_y0 / 4.0f );
 	v2 xy1( rect_x1 / 4.0f, rect_y1 / 4.0f );
 

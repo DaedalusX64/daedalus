@@ -305,7 +305,7 @@ static void DumpOtherMode(const OtherModeData * table, u32 table_len, u32 * mask
 			s32 pad = kOtherModeLabelWidth - (strlen(e.Name) + 1);
 			if (e.Values)
 			{
-				DL_PF("  %s:%.*s%s", e.Name, pad, padstr, e.Values[val]);
+				DL_PF("    %s:%.*s%s", e.Name, pad, padstr, e.Values[val]);
 			}
 			else if (e.Fn)
 			{
@@ -313,7 +313,7 @@ static void DumpOtherMode(const OtherModeData * table, u32 table_len, u32 * mask
 			}
 			else
 			{
-				DL_PF("  %s:%.*s%d", e.Name, pad, padstr, val);
+				DL_PF("    %s:%.*s%d", e.Name, pad, padstr, val);
 			}
 
 			mask &= ~mode_mask;
@@ -357,7 +357,7 @@ static void DumpRenderMode(u32 data)
 	else
 		strcpy(p, "0");
 
-	DL_PF("  render_mode:   %s", p);
+	DL_PF("    render_mode:   %s", p);
 }
 
 static void DumpBlender(u32 data)
@@ -374,7 +374,7 @@ static void DumpBlender(u32 data)
 	u32 m2a_2 = (blender >> 4) & 0x3;
 	u32 m2b_2 = (blender     ) & 0x3;
 
-	DL_PF("  blender:       0x%04x - %s*%s + %s*%s | %s*%s + %s*%s",
+	DL_PF("    blender:       0x%04x - %s*%s + %s*%s | %s*%s + %s*%s",
 		blender,
 		kBlendCl[m1a_1], kBlendA1[m1b_1], kBlendCl[m2a_1], kBlendA2[m2b_1],
 		kBlendCl[m1a_2], kBlendA1[m1b_2], kBlendCl[m2a_2], kBlendA2[m2b_2]);
