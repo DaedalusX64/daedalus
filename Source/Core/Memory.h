@@ -238,10 +238,8 @@ inline void QuickWrite32Bits( u8 *p_base, u32 value )
 #define FLASHRAM_READ_ADDR		0x08000000
 #define FLASHRAM_WRITE_ADDR		0x08010000
 
-#ifdef DAEDALUS_W32
 extern u8 * g_pu8RamBase_8000;
-extern u8 * g_pu8RamBase_A000;
-#endif
+//extern u8 * g_pu8RamBase_A000;
 
 
 //#define MEMORY_CHECK_ALIGN( address, align )	DAEDALUS_ASSERT( (address & ~(align-1)) == 0, "Unaligned memory access" )

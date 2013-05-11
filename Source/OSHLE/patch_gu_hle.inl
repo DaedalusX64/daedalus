@@ -377,50 +377,39 @@ TEST_DISABLE_GU_FUNCS
 	u8 * pMtxLBaseHiBits = (u8 *)(pMtxBase + 0x00);
 	u8 * pMtxLBaseLoBits = (u8 *)(pMtxBase + 0x20);
 
-	union
-	{
-		u32 iFA;
-		f32 fFA;
-	}uA;
-
-	union
-	{
-		u32 iFB;
-		f32 fFB;
-	}uB;
-
-	u32 a, b;
+	REG32 a, b;
+	u32 tmp_a, tmp_b;
 	u32 hibits;
 	u32 lobits;
 	u32 row;
 
 	for (row = 0; row < 4; row++)
 	{
-		uA.iFA = QuickRead32Bits(pMtxFBase, (row << 4) + 0x0);
-		uB.iFB = QuickRead32Bits(pMtxFBase, (row << 4) + 0x4);
+		a._u32 = QuickRead32Bits(pMtxFBase, (row << 4) + 0x0);
+		b._u32 = QuickRead32Bits(pMtxFBase, (row << 4) + 0x4);
 
 		// Should be TRUNC
-		a = (u32)(uA.fFA * fScale);
-		b = (u32)(uB.fFB * fScale);
+		tmp_a = (u32)(a._f32 * fScale);
+		tmp_b = (u32)(b._f32 * fScale);
 
-		hibits = (a & 0xFFFF0000) | (b >> 16);
+		hibits = (tmp_a & 0xFFFF0000) | (tmp_b >> 16);
 		QuickWrite32Bits(pMtxLBaseHiBits, (row << 3) , hibits);
 
-		lobits = (a << 16) | (b & 0x0000FFFF);
+		lobits = (tmp_a << 16) | (tmp_b & 0x0000FFFF);
 		QuickWrite32Bits(pMtxLBaseLoBits, (row << 3) , lobits);
 
 		/////
-		uA.iFA = QuickRead32Bits(pMtxFBase, (row << 4) + 0x8);
-		uB.iFB = QuickRead32Bits(pMtxFBase, (row << 4) + 0xc);
+		a._u32 = QuickRead32Bits(pMtxFBase, (row << 4) + 0x8);
+		b._u32 = QuickRead32Bits(pMtxFBase, (row << 4) + 0xc);
 
 		// Should be TRUNC
-		a = (u32)(uA.fFA * fScale);
-		b = (u32)(uB.fFB * fScale);
+		tmp_a = (u32)(a._f32 * fScale);
+		tmp_b = (u32)(b._f32 * fScale);
 
-		hibits = (a & 0xFFFF0000) | (b >> 16);
+		hibits = (tmp_a & 0xFFFF0000) | (tmp_b >> 16);
 		QuickWrite32Bits(pMtxLBaseHiBits, (row << 3) + 4, hibits);
 
-		lobits = (a << 16) | (b & 0x0000FFFF);
+		lobits = (tmp_a << 16) | (tmp_b & 0x0000FFFF);
 		QuickWrite32Bits(pMtxLBaseLoBits, (row << 3) + 4, lobits);
 	}
 
@@ -492,77 +481,37 @@ TEST_DISABLE_GU_FUNCS
 u32 Patch_guOrthoF()
 {
 TEST_DISABLE_GU_FUNCS
-	union
-	{
-		u32 L;
-		f32 fL;
-	}uL;
-
-	union
-	{
-		u32 R;
-		f32 fR;
-	}uR;
-
-	union
-	{
-		u32 B;
-		f32 fB;
-	}uB;
-
-	union
-	{
-		u32 T;
-		f32 fT;
-	}uT;
-
-	union
-	{
-		u32 N;
-		f32 fN;
-	}uN;
-
-	union
-	{
-		u32 F;
-		f32 fF;
-	}uF;
-
-	union
-	{
-		u32 S;
-		f32 fS;
-	}uS;
+	REG32 l, r, b, t, n, f, s;
 
 	u8 * pMtxBase   = (u8 *)ReadAddress(gGPR[REG_a0]._u32_0);	// Base address
-	u8 * pStackBase = (u8 *)ReadAddress(gGPR[REG_sp]._u32_0);	// Base stack address
-	uL.L = gGPR[REG_a1]._u32_0;	//Left
-	uR.R = gGPR[REG_a2]._u32_0;	//Right
-	uB.B = gGPR[REG_a3]._u32_0;	//Bottom
-	uT.T = QuickRead32Bits(pStackBase, 0x10);	//Top
-	uN.N = QuickRead32Bits(pStackBase, 0x14);	//Near
-	uF.F = QuickRead32Bits(pStackBase, 0x18);	//Far
-	uS.S = QuickRead32Bits(pStackBase, 0x1c);	//Scale
+	u8 * pStackBase = g_pu8RamBase_8000 + gGPR[REG_sp]._u32_0;	//Base stack address, this is safe since stack is always in physical memory
+	l._u32 = gGPR[REG_a1]._u32_0;	//Left
+	r._u32 = gGPR[REG_a2]._u32_0;	//Right
+	b._u32 = gGPR[REG_a3]._u32_0;	//Bottom
+	t._u32 = QuickRead32Bits(pStackBase, 0x10);	//Top
+	n._u32 = QuickRead32Bits(pStackBase, 0x14);	//Near
+	f._u32 = QuickRead32Bits(pStackBase, 0x18);	//Far
+	s._u32 = QuickRead32Bits(pStackBase, 0x1c);	//Scale
 
 #ifdef DAEDALUS_PSP_USE_VFPU //Corn
-	vfpu_matrix_OrthoF(pMtxBase, uL.fL, uR.fR, uB.fB, uT.fT, uN.fN, uF.fF, uS.fS);
+	vfpu_matrix_OrthoF(pMtxBase, l._f32, r._f32, b._f32, t._f32, n._f32, f._f32, s._f32);
 
 #else
-	f32 fRmL = uR.fR - uL.fL;
-	f32 fTmB = uT.fT - uB.fB;
-	f32 fFmN = uF.fF - uN.fN;
-	f32 fRpL = uR.fR + uL.fL;
-	f32 fTpB = uT.fT + uB.fB;
-	f32 fFpN = uF.fF + uN.fN;
+	f32 fRmL = r._f32 - l._f32;
+	f32 fTmB = t._f32 - b._f32;
+	f32 fFmN = f._f32 - n._f32;
+	f32 fRpL = r._f32 + l._f32;
+	f32 fTpB = t._f32 + b._f32;
+	f32 fFpN = f._f32 + n._f32;
 
 	// Re-use unused old variables to store Matrix values
-	uL.fL =  2.0f * uS.fS / fRmL;
-	uR.fR =  2.0f * uS.fS / fTmB;
-	uB.fB = -2.0f * uS.fS / fFmN;
+	l._f32 =  2.0f * s._f32 / fRmL;
+	r._f32 =  2.0f * s._f32 / fTmB;
+	b._f32 = -2.0f * s._f32 / fFmN;
 
-	uT.fT = -fRpL * uS.fS / fRmL;
-	uN.fN = -fTpB * uS.fS / fTmB;
-	uF.fF = -fFpN * uS.fS / fFmN;
+	t._f32 = -fRpL * s._f32 / fRmL;
+	n._f32 = -fTpB * s._f32 / fTmB;
+	f._f32 = -fFpN * s._f32 / fFmN;
 
 	/*
 	0   2/(r-l)
@@ -571,25 +520,25 @@ TEST_DISABLE_GU_FUNCS
 	3 -(l+r)/(r-l) -(t+b)/(t-b) -(f+n)/(f-n)     1*/
 
 	// 0x3f800000 is 1.0 in IEEE fp
-	QuickWrite32Bits(pMtxBase, 0x00, uL.L);
+	QuickWrite32Bits(pMtxBase, 0x00, l._u32);
 	QuickWrite32Bits(pMtxBase, 0x04, 0);
 	QuickWrite32Bits(pMtxBase, 0x08, 0);
 	QuickWrite32Bits(pMtxBase, 0x0c, 0);
 
 	QuickWrite32Bits(pMtxBase, 0x10, 0);
-	QuickWrite32Bits(pMtxBase, 0x14, uR.R);
+	QuickWrite32Bits(pMtxBase, 0x14, r._u32);
 	QuickWrite32Bits(pMtxBase, 0x18, 0);
 	QuickWrite32Bits(pMtxBase, 0x1c, 0);
 
 	QuickWrite32Bits(pMtxBase, 0x20, 0);
 	QuickWrite32Bits(pMtxBase, 0x24, 0);
-	QuickWrite32Bits(pMtxBase, 0x28, uB.B);
+	QuickWrite32Bits(pMtxBase, 0x28, b._u32);
 	QuickWrite32Bits(pMtxBase, 0x2c, 0);
 
-	QuickWrite32Bits(pMtxBase, 0x30, uT.T);
-	QuickWrite32Bits(pMtxBase, 0x34, uN.N);
-	QuickWrite32Bits(pMtxBase, 0x38, uF.F);
-	QuickWrite32Bits(pMtxBase, 0x3c, uS.S);
+	QuickWrite32Bits(pMtxBase, 0x30, t._u32);
+	QuickWrite32Bits(pMtxBase, 0x34, n._u32);
+	QuickWrite32Bits(pMtxBase, 0x38, f._u32);
+	QuickWrite32Bits(pMtxBase, 0x3c, s._u32);
 #endif
 
 	return PATCH_RET_JR_RA;
@@ -602,88 +551,47 @@ TEST_DISABLE_GU_FUNCS
 
 #ifdef DAEDALUS_PSP_USE_VFPU
 	u32 s_TempMatrix[16];
-
-	union
-	{
-		u32 L;
-		f32 fL;
-	}uL;
-
-	union
-	{
-		u32 R;
-		f32 fR;
-	}uR;
-
-	union
-	{
-		u32 B;
-		f32 fB;
-	}uB;
-
-	union
-	{
-		u32 T;
-		f32 fT;
-	}uT;
-
-	union
-	{
-		u32 N;
-		f32 fN;
-	}uN;
-
-	union
-	{
-		u32 F;
-		f32 fF;
-	}uF;
-
-	union
-	{
-		u32 S;
-		f32 fS;
-	}uS;
+	REG32 l, r, b, t, n, f, s;
 
 	u8 * pMtxBase   = (u8 *)ReadAddress(gGPR[REG_a0]._u32_0);	// Fixed point Base address
-	u8 * pStackBase = (u8 *)ReadAddress(gGPR[REG_sp]._u32_0);	// Base stack address
-	uL.L = gGPR[REG_a1]._u32_0;	//Left
-	uR.R = gGPR[REG_a2]._u32_0;	//Right
-	uB.B = gGPR[REG_a3]._u32_0;	//Bottom
-	uT.T = QuickRead32Bits(pStackBase, 0x10);	//Top
-	uN.N = QuickRead32Bits(pStackBase, 0x14);	//Near
-	uF.F = QuickRead32Bits(pStackBase, 0x18);	//Far
-	uS.S = QuickRead32Bits(pStackBase,  0x1c);	//Scale
+	u8 * pStackBase = g_pu8RamBase_8000 + gGPR[REG_sp]._u32_0;	//Base stack address, this is safe since stack is always in physical memory
+	l._u32 = gGPR[REG_a1]._u32_0;	//Left
+	r._u32 = gGPR[REG_a2]._u32_0;	//Right
+	b._u32 = gGPR[REG_a3]._u32_0;	//Bottom
+	t._u32 = QuickRead32Bits(pStackBase, 0x10);	//Top
+	n._u32 = QuickRead32Bits(pStackBase, 0x14);	//Near
+	f._u32 = QuickRead32Bits(pStackBase, 0x18);	//Far
+	s._u32 = QuickRead32Bits(pStackBase,  0x1c);	//Scale
 
-	vfpu_matrix_Ortho((u8 *)s_TempMatrix, uL.fL, uR.fR, uB.fB, uT.fT, uN.fN, uF.fF, uS.fS);
+	vfpu_matrix_Ortho((u8 *)s_TempMatrix, l._f32, r._f32, b._f32, t._f32, n._f32, f._f32, s._f32);
 
 //Convert to proper N64 fixed point matrix
 	u8 * pMtxLBaseHiBits = (u8 *)(pMtxBase + 0x00);
 	u8 * pMtxLBaseLoBits = (u8 *)(pMtxBase + 0x20);
 
-	u32 a, b;
+	u32 tmp_a, tmp_b;
 	u32 hibits,lobits;
 	u32 row, indx=0;
 
 	for (row = 0; row < 4; row++)
 	{
-		a = s_TempMatrix[indx++];
-		b = s_TempMatrix[indx++];
+		tmp_a = s_TempMatrix[indx++];
+		tmp_b = s_TempMatrix[indx++];
 
-		hibits = (a & 0xFFFF0000) | (b >> 16);
+		hibits = (tmp_a & 0xFFFF0000) | (tmp_b >> 16);
 		QuickWrite32Bits(pMtxLBaseHiBits, (row << 3) , hibits);
 
-		lobits = (a << 16) | (b & 0x0000FFFF);
+		lobits = (tmp_a << 16) | (tmp_b & 0x0000FFFF);
 		QuickWrite32Bits(pMtxLBaseLoBits, (row << 3) , lobits);
 
 		/////
-		a = s_TempMatrix[indx++];
-		b = s_TempMatrix[indx++];
+		tmp_a = s_TempMatrix[indx++];
+		tmp_b = s_TempMatrix[indx++];
 
-		hibits = (a & 0xFFFF0000) | (b >> 16);
+		hibits = (tmp_a & 0xFFFF0000) | (tmp_b >> 16);
 		QuickWrite32Bits(pMtxLBaseHiBits, (row << 3) + 4, hibits);
 
-		lobits = (a << 16) | (b & 0x0000FFFF);
+		lobits = (tmp_a << 16) | (tmp_b & 0x0000FFFF);
 		QuickWrite32Bits(pMtxLBaseLoBits, (row << 3) + 4, lobits);
 	}
 
@@ -700,86 +608,53 @@ u32 Patch_guRotateF()
 TEST_DISABLE_GU_FUNCS
 
 	f32 s,c;
+	REG32 a, r, x, y, z;
 
-	union
-	{
-		u32 a;
-		f32 fA;
-	}uA;
+	u8 * pMtxBase = (u8 *)ReadAddress(gGPR[REG_a0]._u32_0);		//Matrix base address
+	u8 * pStackBase = g_pu8RamBase_8000 + gGPR[REG_sp]._u32_0;	//Base stack address, this is safe since stack is always in physical memory
 
-	union
-	{
-		u32 x;
-		f32 fX;
-	}uX;
+	a._u32 = gGPR[REG_a1]._u32_0;	//Angle in degrees + -> CCW
+	x._u32 = gGPR[REG_a2]._u32_0;	//X
+	y._u32 = gGPR[REG_a3]._u32_0;	//Y
+	z._u32 = QuickRead32Bits(pStackBase, 0x10);	//Z
 
-	union
-	{
-		u32 y;
-		f32 fY;
-	}uY;
-
-	union
-	{
-		u32 z;
-		f32 fZ;
-	}uZ;
-
-	union
-	{
-		u32 r;
-		f32 fR;
-	}uR;
-
-	u8 * pMtxBase = (u8 *)ReadAddress(gGPR[REG_a0]._u32_0);	//Matrix base address
-	uA.a = gGPR[REG_a1]._u32_0;	//Angle in degrees + -> CCW
-	uX.x = gGPR[REG_a2]._u32_0;	//X
-	uY.y = gGPR[REG_a3]._u32_0;	//Y
-	uZ.z = Read32Bits(gGPR[REG_sp]._u32_0 + 0x10);	//Z
-
-#ifdef DAEDALUS_PSP
-	vfpu_sincos(uA.fA*(PI/180.0f), &s, &c);
-#else
-	f32 angle = uA.fA*(PI/180.0f);
-	s= sinf( angle );
-	c= cosf( angle );
-#endif
+	SinCos(a._f32*(PI/180.0f), &s, &c);
 //According to the manual the vector should be normalized in this function (Seems to work fine without it but risky)
-//	vfpu_norm_3Dvec(&uX.fX, &uY.fY, &uZ.fZ);
+//	vfpu_norm_3Dvec(&x._f32, &y._f32, &z._f32);
 
 //Row #1
-	uR.fR = uX.fX * uX.fX + c * (1.0f - uX.fX * uX.fX);
-	QuickWrite32Bits(pMtxBase, 0x00, uR.r);
+	r._f32 = x._f32 * x._f32 + c * (1.0f - x._f32 * x._f32);
+	QuickWrite32Bits(pMtxBase, 0x00, r._u32);
 
-	uR.fR = uX.fX * uY.fY * (1.0f - c) + uZ.fZ * s;
-	QuickWrite32Bits(pMtxBase, 0x04, uR.r);
+	r._f32= x._f32 * y._f32 * (1.0f - c) + z._f32 * s;
+	QuickWrite32Bits(pMtxBase, 0x04, r._u32);
 
-	uR.fR = uZ.fZ * uX.fX * (1.0f - c) - uY.fY * s;
-	QuickWrite32Bits(pMtxBase, 0x08, uR.r);
+	r._f32 = z._f32 * x._f32 * (1.0f - c) - y._f32 * s;
+	QuickWrite32Bits(pMtxBase, 0x08, r._u32);
 
 	QuickWrite32Bits(pMtxBase, 0x0c, 0x00000000);
 
 //Row #2
-	uR.fR = uX.fX * uY.fY * (1.0f - c) - uZ.fZ * s;
-	QuickWrite32Bits(pMtxBase, 0x10, uR.r);
+	r._f32 = x._f32 * y._f32 * (1.0f - c) - z._f32 * s;
+	QuickWrite32Bits(pMtxBase, 0x10, r._u32);
 
-	uR.fR = uY.fY * uY.fY + c * (1.0f - uY.fY * uY.fY);
-	QuickWrite32Bits(pMtxBase, 0x14, uR.r);
+	r._f32 = y._f32 * y._f32 + c * (1.0f - y._f32 * y._f32);
+	QuickWrite32Bits(pMtxBase, 0x14, r._u32);
 
-	uR.fR = uY.fY * uZ.fZ * (1.0f - c) + uX.fX * s;
-	QuickWrite32Bits(pMtxBase, 0x18, uR.r);
+	r._f32 = y._f32 * z._f32 * (1.0f - c) + x._f32 * s;
+	QuickWrite32Bits(pMtxBase, 0x18, r._u32);
 
 	QuickWrite32Bits(pMtxBase, 0x1c, 0x00000000);
 
 //Row #3
-	uR.fR = uZ.fZ * uX.fX * (1.0f - c) + uY.fY * s;
-	QuickWrite32Bits(pMtxBase, 0x20, uR.r);
+	r._f32 = z._f32 * x._f32 * (1.0f - c) + y._f32 * s;
+	QuickWrite32Bits(pMtxBase, 0x20, r._u32);
 
-	uR.fR = uY.fY * uZ.fZ * (1.0f - c) - uX.fX * s;
-	QuickWrite32Bits(pMtxBase, 0x24, uR.r);
+	r._f32 = y._f32 * z._f32 * (1.0f - c) - x._f32 * s;
+	QuickWrite32Bits(pMtxBase, 0x24, r._u32);
 
-	uR.fR = uZ.fZ * uZ.fZ + c * (1.0f - uZ.fZ * uZ.fZ);
-	QuickWrite32Bits(pMtxBase, 0x28, uR.r);
+	r._f32 = z._f32 * z._f32 + c * (1.0f - z._f32 * z._f32);
+	QuickWrite32Bits(pMtxBase, 0x28, r._u32);
 
 	QuickWrite32Bits(pMtxBase, 0x2c, 0x00000000);
 

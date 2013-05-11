@@ -152,6 +152,10 @@ void	CFragment::SetCache( const CFragmentCache * p_cache )
 //*************************************************************************************
 //
 //*************************************************************************************
+// This is the second place where most of the CPU time is spent
+//  %   cumulative   self              self     total           
+// time   seconds   seconds    calls   s/call   s/call  name    
+// 5.33     25.96     3.49   557781     0.00     0.00  CFragment::Execute()
 void CFragment::Execute()
 {
 	DAEDALUS_PROFILE( "CFragment::Execute" );
@@ -173,10 +177,16 @@ void CFragment::Execute()
 	}
 
 #else
-	const void *		p( g_pu8RamBase - 0x80000000 );
+	const void *		p( g_pu8RamBase_8000 );
+#ifdef DAEDALUS_PSP
+	// Nasty.. so it can be a constant, this a very hot function, need to optimize out as much as possible for the PSP!
+	DAEDALUS_ASSERT( gRamSize == MEMORY_8_MEG, "Please change below to MEMORY_4_MEG" );
+	u32					upper( 0x80000000 + MEMORY_8_MEG );
+#else
 	u32					upper( 0x80000000 + gRamSize );
-	_EnterDynaRec( mEntryPoint.GetTarget(), &gCPUState, p, upper );
 #endif
+	_EnterDynaRec( mEntryPoint.GetTarget(), &gCPUState, p, upper );
+#endif	// FRAGMENT_SIMULATE_EXECUTION
 
 	SYNCH_POINT( DAED_SYNC_FRAGMENT_PC, gCPUState.CurrentPC + gCPUState.Delay, "Program Counter/Delay doesn't match on exit from fragment" );
 	//if(gCPUState.Delay != NO_DELAY)
@@ -212,21 +222,16 @@ namespace
 		}
 	}
 #ifdef FRAGMENT_SIMULATE_EXECUTION
-#ifdef UPDATE_COUNTER_ON_EXCEPTION
-	void UpdateCountAndHandleException_Counter( u32 instructions_executed )
+	void UpdateCountAndHandleException( u32 instructions_executed )
 	{
+#ifdef UPDATE_COUNTER_ON_EXCEPTION
 		// If we're updating the counter on every instruction, there's no need to do this...
 	#ifndef IMMEDIATE_COUNTER_UPDATE
 		CPU_UpdateCounterNoInterrupt( instructions_executed );
 	#endif
-		HandleException();
-	}
-#else
-	void UpdateCountAndHandleException()
-	{
-		HandleException();
-	}
 #endif
+		HandleException();
+	}
 	void CheckCop1Usable()
 	{
 		if( (gCPUState.CPUControl[C0_SR]._u32_0 & SR_CU1) == 0 )
@@ -236,7 +241,7 @@ namespace
 		}
 
 	}
-#endif
+#endif	//FRAGMENT_SIMULATE_EXECUTION
 }
 #ifdef FRAGMENT_SIMULATE_EXECUTION
 //*************************************************************************************
@@ -289,11 +294,7 @@ CFragment * CFragment::Simulate()
 			CheckCop1Usable();
 			if(gCPUState.GetStuffToDo() != 0)
 			{
-#ifdef UPDATE_COUNTER_ON_EXCEPTION
 				UpdateCountAndHandleException_Counter( instructions_executed );
-#else
-				UpdateCountAndHandleException();
-#endif
 				return NULL;
 			}
 		}
@@ -309,11 +310,7 @@ CFragment * CFragment::Simulate()
 
 		if(gCPUState.GetStuffToDo() != 0)
 		{
-#ifdef UPDATE_COUNTER_ON_EXCEPTION
 			UpdateCountAndHandleException_Counter( instructions_executed );
-#else
-			UpdateCountAndHandleException();
-#endif
 			return NULL;
 		}
 
@@ -445,11 +442,7 @@ CFragment * CFragment::Simulate()
 				CheckCop1Usable();
 				if(gCPUState.GetStuffToDo() != 0)
 				{
-#ifdef UPDATE_COUNTER_ON_EXCEPTION
 					UpdateCountAndHandleException_Counter( instructions_executed );
-#else
-					UpdateCountAndHandleException();
-#endif
 					return NULL;
 				}
 			}
@@ -463,11 +456,7 @@ CFragment * CFragment::Simulate()
 
 			if(gCPUState.GetStuffToDo() != 0)
 			{
-#ifdef UPDATE_COUNTER_ON_EXCEPTION
 				UpdateCountAndHandleException_Counter( instructions_executed );
-#else
-				UpdateCountAndHandleException();
-#endif
 				return NULL;
 			}
 

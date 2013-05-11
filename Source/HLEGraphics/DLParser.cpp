@@ -911,19 +911,15 @@ void DLParser_TexRect( MicroCodeCommand command )
 	// This isn't currently handled, but I don't know of any games that depend on it.
 
 	//Keep integers for as long as possible //Corn
-	u32 rect_x0 = tex_rect.x0;
-	u32 rect_y0 = tex_rect.y0;
-	u32 rect_x1 = tex_rect.x1;
-	u32 rect_y1 = tex_rect.y1;
 
 	// X for upper left corner should be less than X for lower right corner else skip rendering it, seems to happen in Rayman 2
 	//if( rect_x0 >= rect_x1 ) return;
 
 	// Removes offscreen texrect, also fixes several glitches like in John Romero's Daikatana
-	if( rect_x0 >= (scissors.right<<2) ||
-		rect_y0 >= (scissors.bottom<<2) ||
-		rect_x1 <  (scissors.left<<2) ||
-		rect_y1 <  (scissors.top<<2) ||
+	if( tex_rect.x0 >= (scissors.right<<2) ||
+		tex_rect.y0 >= (scissors.bottom<<2) ||
+		tex_rect.x1 <  (scissors.left<<2) ||
+		tex_rect.y1 <  (scissors.top<<2) ||
 		g_CI.Format != G_IM_FMT_RGBA )
 	{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -942,28 +938,25 @@ void DLParser_TexRect( MicroCodeCommand command )
 	rect_t0 += (((u32)rect_dtdy >> 31) << 5);
 
 	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1<<2 to the w/h)
-	//
-	switch ( gRDPOtherMode.cycle_type )
+	u32 cycle_mode = gRDPOtherMode.cycle_type;
+	if ( cycle_mode >= CYCLE_COPY )
 	{
-		case CYCLE_COPY:
-			rect_dsdx = rect_dsdx >> 2;	// In copy mode 4 pixels are copied at once.
-			// NB! Fall through!
-		case CYCLE_FILL:
-			rect_x1 += 4;
-			rect_y1 += 4;
-			break;
-		default:
-			break;
+		// In copy mode 4 pixels are copied at once.
+		if ( cycle_mode == CYCLE_COPY )
+			rect_dsdx = rect_dsdx >> 2;
+
+		tex_rect.x1 += 4;
+		tex_rect.y1 += 4;
 	}
 
-	s16 rect_s1 = rect_s0 + (rect_dsdx * ( rect_x1 - rect_x0 ) >> 7);	// 7 = (>>10)=1/1024, (>>2)=1/4 and (<<5)=32
-	s16 rect_t1 = rect_t0 + (rect_dtdy * ( rect_y1 - rect_y0 ) >> 7);
+	s16 rect_s1 = rect_s0 + (rect_dsdx * ( tex_rect.x1 - tex_rect.x0 ) >> 7);	// 7 = (>>10)=1/1024, (>>2)=1/4 and (<<5)=32
+	s16 rect_t1 = rect_t0 + (rect_dtdy * ( tex_rect.y1 - tex_rect.y0 ) >> 7);
 
 	TexCoord st0( rect_s0, rect_t0 );
 	TexCoord st1( rect_s1, rect_t1 );
 
-	v2 xy0( rect_x0 / 4.0f, rect_y0 / 4.0f );
-	v2 xy1( rect_x1 / 4.0f, rect_y1 / 4.0f );
+	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
+	v2 xy1( tex_rect.x1 / 4.0f, tex_rect.y1 / 4.0f );
 
 	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile[%d]", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
 	DL_PF("    Tex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", rect_s0/32.f, rect_t0/32.f, rect_s1/32.f, rect_t1/32.f, rect_dsdx/1024.f, rect_dtdy/1024.f);
@@ -991,10 +984,6 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	DAEDALUS_DL_ASSERT(gRDPOtherMode.cycle_type != CYCLE_COPY || tex_rect.dsdx == (4<<10), "Expecting dsdx of 4<<10 in copy mode, got %d", tex_rect.dsdx);
 
 	//Keep integers for as long as possible //Corn
-	u32 rect_x0 = tex_rect.x0;
-	u32 rect_y0 = tex_rect.y0;
-	u32 rect_x1 = tex_rect.x1;
-	u32 rect_y1 = tex_rect.y1;
 
 	s16 rect_s0 = tex_rect.s;
 	s16 rect_t0 = tex_rect.t;
@@ -1006,28 +995,25 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	rect_t0 += (((u32)rect_dtdy >> 31) << 5);
 
 	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1<<2 to the w/h)
-	//
-	switch ( gRDPOtherMode.cycle_type )
+	u32 cycle_mode = gRDPOtherMode.cycle_type;
+	if ( cycle_mode >= CYCLE_COPY )
 	{
-		case CYCLE_COPY:
-			rect_dsdx = rect_dsdx >> 2;	// In copy mode 4 pixels are copied at once.
-			// NB! Fall through!
-		case CYCLE_FILL:
-			rect_x1 += 4;
-			rect_y1 += 4;
-			break;
-		default:
-			break;
+		// In copy mode 4 pixels are copied at once.
+		if ( cycle_mode == CYCLE_COPY )
+			rect_dsdx = rect_dsdx >> 2;
+
+		tex_rect.x1 += 4;
+		tex_rect.y1 += 4;
 	}
 
-	s16 rect_s1 = rect_s0 + (rect_dsdx * ( rect_y1 - rect_y0 ) >> 7);	// Flip - use y
-	s16 rect_t1 = rect_t0 + (rect_dtdy * ( rect_x1 - rect_x0 ) >> 7);	// Flip - use x
+	s16 rect_s1 = rect_s0 + (rect_dsdx * ( tex_rect.y1 - tex_rect.y0 ) >> 7);	// Flip - use y
+	s16 rect_t1 = rect_t0 + (rect_dtdy * ( tex_rect.x1 - tex_rect.x0 ) >> 7);	// Flip - use x
 
 	TexCoord st0( rect_s0, rect_t0 );
 	TexCoord st1( rect_s1, rect_t1 );
 
-	v2 xy0( rect_x0 / 4.0f, rect_y0 / 4.0f );
-	v2 xy1( rect_x1 / 4.0f, rect_y1 / 4.0f );
+	v2 xy0( tex_rect.x0 / 4.0f, tex_rect.y0 / 4.0f );
+	v2 xy1( tex_rect.x1 / 4.0f, tex_rect.y1 / 4.0f );
 
 	DL_PF("    Screen(%.1f,%.1f) -> (%.1f,%.1f) Tile[%d]", xy0.x, xy0.y, xy1.x, xy1.y, tex_rect.tile_idx);
 	DL_PF("    FlipTex:(%#5.3f,%#5.3f) -> (%#5.3f,%#5.3f) (DSDX:%#5f DTDY:%#5f)", rect_s0/32.f, rect_t0/32.f, rect_s1/32.f, rect_t1/32.f, rect_dsdx/1024.f, rect_dtdy/1024.f);

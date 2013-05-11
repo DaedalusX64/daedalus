@@ -106,11 +106,9 @@ static void *	gMemBase = NULL;				// Virtual memory base
 u32	  g_pWriteRom;
 bool  g_RomWritten;
 
-#ifdef DAEDALUS_W32
 // Ram base, offset by 0x80000000 and 0xa0000000
 u8 * g_pu8RamBase_8000 = NULL;
-u8 * g_pu8RamBase_A000 = NULL;
-#endif
+//u8 * g_pu8RamBase_A000 = NULL;
 
 MemFuncRead  	g_MemoryLookupTableRead[0x4000];
 MemFuncWrite 	g_MemoryLookupTableWrite[0x4000];
@@ -186,11 +184,9 @@ bool Memory_Init()
 	//printf("%d bytes used of memory\n",count);
 #endif
 
-#ifdef DAEDALUS_W32
 	g_pu8RamBase_8000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0x80000000;
 	//g_pu8RamBase_A000 = ((u8*)g_pMemoryBuffers[MEM_RD_RAM]) - 0xa0000000;
-	g_pu8RamBase_A000 = ((u8*)MAKE_UNCACHED_PTR(g_pMemoryBuffers[MEM_RD_RAM])) - 0xa0000000;
-#endif
+	//g_pu8RamBase_A000 = ((u8*)MAKE_UNCACHED_PTR(g_pMemoryBuffers[MEM_RD_RAM])) - 0xa0000000;
 
 	g_RomWritten = false;
 
@@ -713,25 +709,12 @@ void MemoryUpdateDP( u32 flags )
 	// DBGConsole_Msg(0, "DP Status: 0x%08x", flags);
 
 	u32 dpc_status  =  Memory_DPC_GetRegister(DPC_STATUS_REG);
+	bool unfreeze_task  = false;
 
 	// ToDO : Avoid branching
 	if (flags & DPC_CLR_XBUS_DMEM_DMA)			dpc_status &= ~DPC_STATUS_XBUS_DMEM_DMA;
 	if (flags & DPC_SET_XBUS_DMEM_DMA)			dpc_status |= DPC_STATUS_XBUS_DMEM_DMA;
-	if (flags & DPC_CLR_FREEZE)
-	{
-		dpc_status &= ~DPC_STATUS_FREEZE;
-
-		u32 status = Memory_SP_GetRegister( SP_STATUS_REG );
-		if((status & SP_STATUS_HALT) == 0)
-		{
-			Memory_DPC_ClrRegisterBits(DPC_STATUS_REG, DPC_STATUS_FREEZE);
-
-			DAEDALUS_ASSERT( (status & SP_STATUS_BROKE) == 0, "Unexpected RSP HLE status %08x", status );
-			//DBGConsole_Msg(0, "Unfreezing task");
-			RSP_HLE_ProcessTask();
-		}
-	}
-
+	if (flags & DPC_CLR_FREEZE)					{ dpc_status &= ~DPC_STATUS_FREEZE;	unfreeze_task = true; }
 	if (flags & DPC_SET_FREEZE)					dpc_status |= DPC_STATUS_FREEZE;
 	if (flags & DPC_CLR_FLUSH)					dpc_status &= ~DPC_STATUS_FLUSH;
 	if (flags & DPC_SET_FLUSH)					dpc_status |= DPC_STATUS_FLUSH;
@@ -759,6 +742,16 @@ void MemoryUpdateDP( u32 flags )
 #endif
 
 	Memory_DPC_SetRegister(DPC_STATUS_REG, dpc_status);
+
+	if (unfreeze_task)
+	{
+		u32 status = Memory_SP_GetRegister( SP_STATUS_REG );
+		if((status & SP_STATUS_HALT) == 0)
+		{
+			DAEDALUS_ASSERT( (status & SP_STATUS_BROKE) == 0, "Unexpected RSP HLE status %08x", status );
+			RSP_HLE_ProcessTask();
+		}
+	}
 }
 
 void MemoryUpdateMI( u32 value )

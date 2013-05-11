@@ -106,7 +106,7 @@ u32 gNumOfOSFunctions;
 #define PATCH_RET_ERET RET_JR_ERET()
 
 // Increase this number every time we changed the symbol table
-static const u32 MAGIC_HEADER = 0x80000143;
+static const u32 MAGIC_HEADER = 0x80000144;
 
 static bool gPatchesApplied = false;
 
