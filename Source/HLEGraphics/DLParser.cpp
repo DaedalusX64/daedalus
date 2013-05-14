@@ -222,6 +222,7 @@ extern u32 uViHeight;
 #include "uCodes/Ucode_GBI1.h"
 #include "uCodes/Ucode_GBI2.h"
 #include "uCodes/Ucode_DKR.h"
+#include "uCodes/Ucode_FB.h"
 #include "uCodes/Ucode_GE.h"
 #include "uCodes/Ucode_PD.h"
 #include "uCodes/Ucode_Conker.h"

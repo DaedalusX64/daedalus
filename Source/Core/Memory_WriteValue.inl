@@ -218,6 +218,8 @@ static void WriteValue_8440_844F( u32 address, u32 value )
 	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_VI_REG] + offset) = value;
 }
 #else
+extern void DrawFrameBuffer(u32);
+extern u32 gRDPFrame;
 static void WriteValue_8440_844F( u32 address, u32 value )
 {
 	u32 offset = address & 0xFF;
@@ -237,10 +239,19 @@ static void WriteValue_8440_844F( u32 address, u32 value )
 
 	case 0x4:	// VI_ORIGIN_REG
 		DPF( DEBUG_VI, "VI_ORIGIN_REG set to %d", value );
-		// Builtin video plugin already calls UpdateScreen in DLParser_Process
+
+		 // NB: if no display lists executed, interpret framebuffer
+		if( gRDPFrame == 0 )
+		{
+			DrawFrameBuffer(value & 0x7FFFFF);
+		}
+		else
+		{
+			// Builtin video plugin already calls UpdateScreen in DLParser_Process
 #ifndef DAEDALUS_GL
-		gGraphicsPlugin->UpdateScreen();
+			gGraphicsPlugin->UpdateScreen();
 #endif
+		}
 		break;
 
 	case 0x8:	// VI_WIDTH_REG

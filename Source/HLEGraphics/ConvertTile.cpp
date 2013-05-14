@@ -8,7 +8,7 @@
 
 #include <vector>
 
-static std::vector<u8>	gTexelBuffer;
+//static std::vector<u8>	gTexelBuffer;
 //static NativePf8888		gPaletteBuffer[ 256 ];
 
 struct TileDestInfo

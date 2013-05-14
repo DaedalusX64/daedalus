@@ -225,10 +225,8 @@ void Memory_Fini(void)
 	}
 #endif
 
-#ifdef DAEDALUS_W32
 	g_pu8RamBase_8000 = NULL;
-	g_pu8RamBase_A000 = NULL;
-#endif
+	//g_pu8RamBase_A000 = NULL;
 
 	memset( g_pMemoryBuffers, 0, sizeof( g_pMemoryBuffers ) );
 }

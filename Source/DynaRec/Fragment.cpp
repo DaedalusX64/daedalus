@@ -178,13 +178,8 @@ void CFragment::Execute()
 
 #else
 	const void *		p( g_pu8RamBase_8000 );
-#ifdef DAEDALUS_PSP
-	// Nasty.. so it can be a constant, this a very hot function, need to optimize out as much as possible for the PSP!
-	DAEDALUS_ASSERT( gRamSize == MEMORY_8_MEG, "Please change below to MEMORY_4_MEG" );
-	u32					upper( 0x80000000 + MEMORY_8_MEG );
-#else
 	u32					upper( 0x80000000 + gRamSize );
-#endif
+
 	_EnterDynaRec( mEntryPoint.GetTarget(), &gCPUState, p, upper );
 #endif	// FRAGMENT_SIMULATE_EXECUTION
 
