@@ -22,19 +22,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //ToDO: Implement me PSP
 #ifndef DAEDALUS_PSP
-void LoadFrameBuffer(u32 origin)
+static inline CRefPtr<CNativeTexture> LoadFrameBuffer(u32 origin)
 {
 	u32 width  = Memory_VI_GetRegister( VI_WIDTH_REG );
 	if( width == 0 )
 	{
 		DAEDALUS_ERROR("Loading 0 size frame buffer?");
-		return;
+		return NULL;
 	}
 
 	if( origin <= width*2 )
 	{
 		DAEDALUS_ERROR("Loading small frame buffer not supported");
-		return;
+		return NULL;
 	}
 
 	TextureInfo ti;
@@ -54,11 +54,14 @@ void LoadFrameBuffer(u32 origin)
 	ti.SetWidth				(FB_WIDTH);	
 	ti.SetHeight			(FB_HEIGHT);
 	ti.SetPitch				(width << 2 >> 1);
-	CRefPtr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
 
-	//
-	//Borrowed from N64js
-	//
+	return gRenderer->LoadTextureDirectly(ti);
+}
+
+//Borrowed from StrmnNrmn's N64js
+static inline void DrawFrameBuffer(u32 origin, const CNativeTexture * texture)
+{
+
 	u16 pixels[FB_WIDTH*FB_HEIGHT];	// TODO: should cache this, but at some point we'll need to deal with variable framebuffer size, so do this later.
 	u32 src_offset = 0;
 
@@ -75,15 +78,21 @@ void LoadFrameBuffer(u32 origin)
 		}
 	}
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, FB_WIDTH, FB_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, pixels);
+
+	//FIX ME, sprite is inverted
 	gRenderer->Draw2DTexture(0, 0, FB_WIDTH, FB_HEIGHT, 0, 0, FB_WIDTH, FB_HEIGHT, texture);
 }
 
 
-void DrawFrameBuffer(u32 origin)
+void RenderFrameBuffer(u32 origin)
 {
 	gRenderer->SetVIScales();
 	gRenderer->BeginScene();
-	LoadFrameBuffer(origin);
+
+	CRefPtr<CNativeTexture> texture = LoadFrameBuffer(origin);
+	if(texture != NULL)
+		DrawFrameBuffer(origin, texture);
+
 	gRenderer->EndScene();
 	gGraphicsPlugin->UpdateScreen();
 	

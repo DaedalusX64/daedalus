@@ -218,7 +218,7 @@ static void WriteValue_8440_844F( u32 address, u32 value )
 	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_VI_REG] + offset) = value;
 }
 #else
-extern void DrawFrameBuffer(u32);
+extern void RenderFrameBuffer(u32);
 extern u32 gRDPFrame;
 static void WriteValue_8440_844F( u32 address, u32 value )
 {
@@ -243,7 +243,7 @@ static void WriteValue_8440_844F( u32 address, u32 value )
 		 // NB: if no display lists executed, interpret framebuffer
 		if( gRDPFrame == 0 )
 		{
-			DrawFrameBuffer(value & 0x7FFFFF);
+			RenderFrameBuffer(value & 0x7FFFFF);
 		}
 		else
 		{
