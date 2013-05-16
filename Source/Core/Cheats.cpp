@@ -65,21 +65,22 @@ u32		codegroupcount		= 0;
 //*****************************************************************************
 static void CheatCodes_Apply(u32 index, u32 mode)
 {
+	CHEATCODENODE *code = (CHEATCODENODE*)codegrouplist[index].codelist;
+	u32 num = codegrouplist[index].codecount; // number of codes
+	bool enable = codegrouplist[index].enable;
 	bool skip = false;
 
-	for (u32 i = 0; i < codegrouplist[index].codecount; i ++)
+	while(num--)
 	{
-		// Used by activator codes
+		// Used by activator code->
 		if(skip == true)
 		{
 			skip = false;
 			continue;
 		}
-
-		CODENODE_STRUCT &code( codegrouplist[index].codelist[i] );
-		u32 address = (code.addr & 0xFFFFFF);
-		u16 value	= code.val;
-		u32 type	= (code.addr >> 24) & 0xFF;
+		u32 address = (code->addr & 0xFFFFFF);
+		u16 value	= code->val;
+		u32 type	= (code->addr >> 24) & 0xFF;
 		u8* p_mem	= g_pu8RamBase + address; // addr is already pre-swapped
 
 		switch(type)
@@ -87,15 +88,15 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 		case 0x80:
 		case 0xA0:
 			// Check if orig value is initialized and valid to store current value
-			if((code.orig == CHEAT_CODE_MAGIC_VALUE) && code.orig )
-				code.orig = *(u8 *)(p_mem);
+			if((code->orig == CHEAT_CODE_MAGIC_VALUE) && code->orig )
+				code->orig = *(u8 *)(p_mem);
 
-			// Cheat code is no longer active, restore to saved value
+			// Cheat code->is no longer active, restore to saved value
 			// Set CHEAT_CODE_MAGIC_VALUE as well to make sure we can save the most recent value later on
-			if(!codegrouplist[index].enable)
+			if(!enable)
 			{
-				value = (u8)code.orig;
-				code.orig = CHEAT_CODE_MAGIC_VALUE;
+				value = code->orig;
+				code->orig = CHEAT_CODE_MAGIC_VALUE;
 			}
 
 			*(u8 *)(p_mem) = (u8)value;
@@ -103,15 +104,15 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 		case 0x81:
 		case 0xA1:
 			// Check if orig value is initialized and valid to store current value
-			if((code.orig == CHEAT_CODE_MAGIC_VALUE) && code.orig )
-				code.orig = *(u16 *)(p_mem);
+			if((code->orig == CHEAT_CODE_MAGIC_VALUE) && code->orig )
+				code->orig = *(u16 *)(p_mem);
 
-			// Cheat code is no longer active, restore to saved value
+			// Cheat code->is no longer active, restore to saved value
 			// Set CHEAT_CODE_MAGIC_VALUE as well to make sure we can save the most recent value later on
-			if(!codegrouplist[index].enable)
+			if(!enable)
 			{
-				value = code.orig;
-				code.orig = CHEAT_CODE_MAGIC_VALUE;
+				value = code->orig;
+				code->orig = CHEAT_CODE_MAGIC_VALUE;
 			}
 
 			*(u16 *)(p_mem) = value;
@@ -135,50 +136,51 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 			if( mode == GS_BUTTON )	*(u16 *)(p_mem) = value;
 			break;
 		case 0x04:
-			if( ((code.addr >> 20) & 0xF) == 0x5 )
-				Memory_AI_SetRegister(code.addr & 0x0FFFFFFF, value);
+			if( ((code->addr >> 20) & 0xF) == 0x5 )
+				Memory_AI_SetRegister(code->addr & 0x0FFFFFFF, value);
 			break;
 		case 0x50:
 			{
+				skip		= true;
 				s32	count	= (address & 0x0000FF00) >> 8;	// repeat count
 				u32	offset	= (address & 0x000000FF);
 				u16	valinc	= value;
-				if(i + 1 < codegrouplist[index].codecount)
-				{
-					type		= codegrouplist[index].codelist[i + 1].addr >> 24;
-					address		= (codegrouplist[index].codelist[i + 1].addr & 0x00FFFFFF);
-					value		= codegrouplist[index].codelist[i + 1].val;
-					u8 valbyte  = (u8)value;
-					p_mem		= g_pu8RamBase + address;
 
-					switch(type)
+				//ToDo: Check if we'll overflow when fetching next code, I don't think it can happen, but we should add atleast an assert
+				code++;
+
+				type		= code->addr >> 24;
+				address		= (code->addr & 0x00FFFFFF);
+				value		= code->val;
+				p_mem		= g_pu8RamBase + address;
+
+				switch(type)
+				{
+				case 0x80:
+					do
 					{
-					case 0x80:
-						do
-						{
-							*(u8 *)((u32)p_mem ^ U8_TWIDDLE) = valbyte;
-							p_mem += offset;
-							valbyte += (u8)valinc;
-							count--;
-						} while(count > 0);
-						break;
-					case 0x81:
-						do
-						{
-							*(u16 *)((u32)p_mem ^ U16_TWIDDLE) = value;
-							p_mem += offset;
-							value += valinc;
-							count--;
-						} while(count > 0);
-						break;
-					default:
-						break;
-					}
+						*(u8 *)((u32)p_mem ^ U8_TWIDDLE) = (u8)value;
+						p_mem += offset;
+						value += (u8)valinc;
+						count--;
+					} while(count > 0);
+					break;
+				case 0x81:
+					do
+					{
+						*(u16 *)((u32)p_mem ^ U16_TWIDDLE) = value;
+						p_mem += offset;
+						value += valinc;
+						count--;
+					} while(count > 0);
+					break;
+				default:
+					break;
 				}
 			}
-			skip = true;
 			break;
 		}
+		code++;
 	}
 }
 
@@ -261,11 +263,12 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 	u32				c1, c2;
 	FILE			*stream;
 
-	// Add country ID to this ROM name, to avoid mixing cheat codes of different region in the same entry
+	// Add country ID to this ROM name, to avoid mixing cheat code of different region in the same entry
 	// Only the country id is important (first char)
 	sprintf( current_rom_name, "%s (%c)", rom_name, ROM_GetCountryNameFromID(countryID)[0]);
 
 	// Do not parse again, if we already parsed for this ROM
+	// Should compare codegrouplist instead, but it'll use up quiet bit of memory
 	if(strcmp(current_rom_name, last_rom_name) == 0)
 	{
 		//printf("Cheat file is already parsed for this ROM\n");
@@ -297,10 +300,6 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 		return true;
 	}
 
-	// g_ROM.rh.Name adds extra spaces, remove 'em
-	// No longer needed as we now fetch ROM name from Rom.ini
-	//Tidy( current_rom_name );
-
 	// Locate the entry for current rom by searching for g_ROM.rh.Name
 	//
 	sprintf(romname, "[%s]", current_rom_name);
@@ -310,7 +309,6 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 	while(fgets(line, 256, stream))
 	{
 		// Remove any extra character that is added at the end of the string
-		//
 		Tidy(line);
 
 		if(strcmp(line, romname) == 0)
@@ -363,7 +361,7 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 		codegrouplist = (CODEGROUP *) malloc_volatile(numberofgroups *sizeof(CODEGROUP));
 		if(codegrouplist == NULL)
 		{
-			//printf("Cannot allocate memory to load cheat codes");
+			//printf("Cannot allocate memory to load cheat code");
 			return false;
 		}
 
@@ -401,7 +399,7 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 				codegrouplist[codegroupcount].note[0] = '\0';
 			}
 
-			u32 addr, value ;
+			u32 addr, value;
 			codegrouplist[codegroupcount].active = (line[c1 + 1] - '0') ? true : false;
 			codegrouplist[codegroupcount].enable = false;
 			codegrouplist[codegroupcount].codecount = 0;
@@ -413,36 +411,42 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 				if (c2 < MAX_CHEATCODE_PER_ENTRY)
 				{
 					sscanf( line + c1 + 1 + c2 * 14,"%08x-%04x", &addr, &value );
-
-					// Pre-swap address
-					switch((addr >> 24) & 0xFF)
+					if( c2 > 0 && ((codegrouplist[codegroupcount].codelist[c2-1].addr >> 24) & 0xFF) == 0x50 )
 					{
-					case 0x80:
-					case 0xA0:
-					case 0xD0:
-					case 0xD2:
-					case 0x88:
-						addr ^= U8_TWIDDLE;
-						break;
-					case 0x81:
-					case 0xA1:
-					case 0xD1:
-					case 0xD3:
-					case 0x89:
-						addr ^= U16_TWIDDLE;
-						break;
-					case 0x04:
-						break;
-					case 0x50:
-						//ToDO: Uncompress Serial Repeater cheat code? 
-						//We could convert it to a normal cheat code by just filling each slot with the repeater counter, but it would waste plenty of memory..
-						//Or atleast iterate here to pre swap the addresses
-						break;
-					default:
-						//Unhandled cheat code? I think we handle most if not all cheat code types?
-						//ToDo: Cull any unhandled cheat code
-						break;
+						//ToDO: Uncompress Serial Repeater cheat code; ex addr = (temp + offset) ^ U8_TWIDDLE
+						//Then we can convert it to a normal cheat code by just filling each slot with the repeater counter, but it would alot of memory..
+						//The way compressed cheat codes work is in pairs, the serial repeater 0x50xxx and the actual code 0x80/81xxx; ex 50001801-0001,80118444-0000
+						//For now if previous cheatcode was compressed, don't preswap
 					}
+					else
+					{
+						// Pre-swap address
+						switch((addr >> 24) & 0xFF)
+						{
+						case 0x80:
+						case 0xA0:
+						case 0xD0:
+						case 0xD2:
+						case 0x88:
+							addr ^= U8_TWIDDLE;
+							break;
+						case 0x81:
+						case 0xA1:
+						case 0xD1:
+						case 0xD3:
+						case 0x89:
+							addr ^= U16_TWIDDLE;
+							break;
+						case 0x04:
+							break;
+						case 0x50:
+							break;
+						default:
+							//Unhandled cheat code? I think we handle most if not all cheat code->types?
+							break;
+						}
+					}
+	
 					codegrouplist[codegroupcount].codelist[c2].orig = CHEAT_CODE_MAGIC_VALUE;
 					codegrouplist[codegroupcount].codelist[c2].addr = addr;
 					codegrouplist[codegroupcount].codelist[c2].val = (u16)value;
@@ -458,16 +462,13 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 					break;
 				}
 			}
-
 			codegroupcount++;
 		}
-
-		//printf("Succesfully Loaded %d groups of cheat codes\n", codegroupcount);
 	}
 	else
 	{
 		// Cannot find entry for the current rom
-		//printf("Cannot find entry %d groups of cheat code\n", codegroupcount);
+		//printf("Cannot find entry %d groups of cheat code->n", codegroupcount);
 	}
 
 	fclose(stream);
