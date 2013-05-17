@@ -837,7 +837,7 @@ void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 {
 	DAEDALUS_PROFILE( "RendererPSP::Draw2DTexture" );
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
-
+	
 	// Enable or Disable ZBuffer test
 	if ( (mTnL.Flags.Zbuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd )
 	{
@@ -864,6 +864,7 @@ void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 	// Handling height > 512 doesn't work well? Ignore for now.
 	if( u1 >= 512 )
 	{
+
 		Draw2DTextureBlit( x0, y0, x1, y1, u0, v0, u1, v1, texture );
 		return;
 	}
@@ -966,7 +967,7 @@ void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height,
 // 0 Simpler blit algorithm, but doesn't handle big textures as good? (see StarSoldier)
 // 1 More complex algorithm. used in newer versions of TriEngine, fixes the main screen in StarSoldier
 // Note : We ignore handling height > 512 textures for now
-#if 1
+#if 0
 	if ( u1 > 512.f )
 	{
 		s32 off = (u1>u0) ? ((int)u0 & ~31) : ((int)u1 & ~31);
@@ -1077,14 +1078,14 @@ void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height,
 
 			p_verts[0].t0.x = cur_u;
 			p_verts[0].t0.y = cur_v;
-			p_verts[0].pos.x = cur_x;
-			p_verts[0].pos.y = cur_y;
+			p_verts[0].pos.x = N64ToScreenX(cur_x);
+			p_verts[0].pos.y = N64ToScreenY(cur_y);
 			p_verts[0].pos.z = 0;
 
 			p_verts[1].t0.x = cur_u + source_width;
 			p_verts[1].t0.y = cur_v + source_height;
-			p_verts[1].pos.x = cur_x + poly_width;
-			p_verts[1].pos.y = cur_y + poly_height;
+			p_verts[1].pos.x = N64ToScreenX(cur_x + poly_width);
+			p_verts[1].pos.y = N64ToScreenY(cur_y + poly_height);
 			p_verts[1].pos.z = 0;
 
 			sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 2, 0, p_verts );

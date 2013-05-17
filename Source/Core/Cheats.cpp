@@ -146,39 +146,40 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 				u32	offset	= (address & 0x000000FF);
 				u16	valinc	= value;
 
-				//ToDo: Check if we'll overflow when fetching next code, I don't think it can happen, but we should add atleast an assert
-				code++;
-
-				type		= code->addr >> 24;
-				address		= (code->addr & 0x00FFFFFF);
-				value		= code->val;
-				p_mem		= g_pu8RamBase + address;
-
-				switch(type)
+				if( (num - 1) > 0)
 				{
-				case 0x80:
-					do
+					code++;
+					type		= code->addr >> 24;
+					address		= (code->addr & 0x00FFFFFF);
+					value		= code->val;
+					p_mem		= g_pu8RamBase + address;
+
+					switch(type)
 					{
-						*(u8 *)((u32)p_mem ^ U8_TWIDDLE) = (u8)value;
-						p_mem += offset;
-						value += (u8)valinc;
-						count--;
-					} while(count > 0);
-					break;
-				case 0x81:
-					do
-					{
-						*(u16 *)((u32)p_mem ^ U16_TWIDDLE) = value;
-						p_mem += offset;
-						value += valinc;
-						count--;
-					} while(count > 0);
-					break;
-				default:
-					break;
+					case 0x80:
+						do
+						{
+							*(u8 *)((u32)p_mem ^ U8_TWIDDLE) = (u8)value;
+							p_mem += offset;
+							value += (u8)valinc;
+							count--;
+						} while(count > 0);
+						break;
+					case 0x81:
+						do
+						{
+							*(u16 *)((u32)p_mem ^ U16_TWIDDLE) = value;
+							p_mem += offset;
+							value += valinc;
+							count--;
+						} while(count > 0);
+						break;
+					default:
+						break;
+					}
 				}
+				break;
 			}
-			break;
 		}
 		code++;
 	}
