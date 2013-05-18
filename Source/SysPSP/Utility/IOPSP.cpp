@@ -199,7 +199,7 @@ namespace IO
 		{
 			SceUID fh;
 
-			IO::filename file;
+			IO::Filename file;
 			fh = sceIoDopen(p_path);
 
 			if( fh )

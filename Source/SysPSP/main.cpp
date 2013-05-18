@@ -45,6 +45,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/CPU.h"
 #include "Core/Save.h"
 #include "Input/InputManager.h"
+#include "System/Paths.h"
 #include "Utility/Profiler.h"
 #include "Utility/IO.h"
 #include "Utility/Preferences.h"
