@@ -164,14 +164,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\PopStructPack.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\PushStructPack1.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\Source\stdafx.h"
 				>
 			</File>

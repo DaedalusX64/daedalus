@@ -40,7 +40,6 @@ const u32 RAMROM_GAME_OFFSET		= 0x1000;
 //*****************************************************************************
 //
 //*****************************************************************************
-#include "PushStructPack1.h"
 struct ROMHeader
 {
 	u8		x1, x2, x3, x4;
@@ -60,8 +59,6 @@ struct ROMHeader
 	s8		CountryID;
 	u8		Unknown5;
 };
-#include "PopStructPack.h"
-
 DAEDALUS_STATIC_ASSERT( sizeof(ROMHeader) == RAMROM_BOOTSTRAP_OFFSET );
 
 //*****************************************************************************

@@ -45,10 +45,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <vector>
 
-#include "PushStructPack1.h"
-
-#include "PopStructPack.h"
-
 // Vertex allocation.
 // AllocVerts/FreeVerts:
 //   Allocate vertices whose lifetime must extend beyond the current scope.
