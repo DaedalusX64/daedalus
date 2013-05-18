@@ -265,9 +265,9 @@ static void WriteValue_8450_845F( u32 address, u32 value )
 		// LS 3 bits ignored
 		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_AI_REG] + offset) = value;
 
-		if (g_pAiPlugin != NULL)
+		if (gAudioPlugin != NULL)
 		{
-			g_pAiPlugin->LenChanged();
+			gAudioPlugin->LenChanged();
 		}
 		break;
 
@@ -279,11 +279,11 @@ static void WriteValue_8450_845F( u32 address, u32 value )
 	case 0x10:	//AI_DACRATE_REG
 		*(u32 *)((u8 *)g_pMemoryBuffers[MEM_AI_REG] + offset) = value;
 
-		if (g_pAiPlugin != NULL)
+		if (gAudioPlugin != NULL)
 		{
 			//When we set PAL mode for PAL games it corrects the sound pitch to the same as
 			//NTSC games but it will also limit FPS 2% higher as well //Corn
-			g_pAiPlugin->DacrateChanged( g_ROM.TvType ? CAudioPlugin::ST_NTSC : CAudioPlugin::ST_PAL );
+			gAudioPlugin->DacrateChanged( g_ROM.TvType ? CAudioPlugin::ST_NTSC : CAudioPlugin::ST_PAL );
 		}
 		break;
 	default:

@@ -54,7 +54,7 @@ public:
 //	This needs to be defined for all targets.
 //	The implementation can return NULL if audio is not supported
 //
-CAudioPlugin *		CreateAudioPlugin();
-extern CAudioPlugin *		g_pAiPlugin;
+CAudioPlugin *			CreateAudioPlugin();
+extern CAudioPlugin *	gAudioPlugin;
 
 #endif // AUDIOPLUGIN_H__

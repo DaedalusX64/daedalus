@@ -59,11 +59,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Plugins/AudioPlugin.h"
 
 CGraphicsPlugin * gGraphicsPlugin   = NULL;
-CAudioPlugin	* g_pAiPlugin		= NULL;
+CAudioPlugin	* gAudioPlugin		= NULL;
 
 static bool InitAudioPlugin()
 {
-	DAEDALUS_ASSERT( g_pAiPlugin == NULL, "Why is there already an audio plugin?" );
+	DAEDALUS_ASSERT( gAudioPlugin == NULL, "Why is there already an audio plugin?" );
 	CAudioPlugin * audio_plugin = CreateAudioPlugin();
 	if( audio_plugin != NULL )
 	{
@@ -72,7 +72,7 @@ static bool InitAudioPlugin()
 			delete audio_plugin;
 			audio_plugin = NULL;
 		}
-		g_pAiPlugin = audio_plugin;
+		gAudioPlugin = audio_plugin;
 	}
 	return true;
 }
@@ -108,8 +108,8 @@ static void DisposeAudioPlugin()
 	// Make a copy of the plugin, and set the global pointer to NULL;
 	// This stops other threads from trying to access the plugin
 	// while we're in the process of shutting it down.
-	CAudioPlugin * audio_plugin = g_pAiPlugin;
-	g_pAiPlugin = NULL;
+	CAudioPlugin * audio_plugin = gAudioPlugin;
+	gAudioPlugin = NULL;
 	if (audio_plugin != NULL)
 	{
 		audio_plugin->StopEmulation();

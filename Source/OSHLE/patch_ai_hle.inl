@@ -42,8 +42,8 @@ TEST_DISABLE_AI_FUNCS
 	Memory_AI_SetRegister( AI_LEN_REG, len );
 	Memory_AI_SetRegister( AI_DRAM_ADDR_REG, addr );
 
-	DAEDALUS_ASSERT( g_pAiPlugin, "Unable to initialize Audio plugin");
-	g_pAiPlugin->LenChanged();
+	DAEDALUS_ASSERT( gAudioPlugin, "Unable to initialize Audio plugin");
+	gAudioPlugin->LenChanged();
 
 	// Return 0 if succesfully DMA'd audio
 	// Return -1 when audio is disabled (Stops the DMA operation), doesn't seem to work..
