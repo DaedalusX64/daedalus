@@ -121,7 +121,7 @@ void R4300_CALL_TYPE CPU_InvalidateICacheRange( u32 address, u32 length )
 //	TranslateOp:	Use this to translate breakpoints/patches to original op
 //					before execution.
 //*****************************************************************************
-template< bool TraceEnabled > __forceinline void CPU_EXECUTE_OP()
+template< bool TraceEnabled > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 {
 
 	u8 * p_Instruction;

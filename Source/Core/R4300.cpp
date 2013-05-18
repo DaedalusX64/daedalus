@@ -127,7 +127,7 @@ typedef f64 d64;
 #endif
 
 
-__forceinline void SpeedHack(u32 pc, u32 new_pc)
+DAEDALUS_FORCEINLINE void SpeedHack(u32 pc, u32 new_pc)
 {
 #ifdef SPEEDHACK_INTERPRETER
 	// If jumping to the same address, this might be a busy-wait
@@ -180,7 +180,7 @@ __forceinline void SpeedHack(u32 pc, u32 new_pc)
 //*****************************************************************************
 //
 //*****************************************************************************
-__forceinline void StoreFPR_Long( u32 reg, u64 value )
+DAEDALUS_FORCEINLINE void StoreFPR_Long( u32 reg, u64 value )
 {
 	REG64	r;
 	r._u64 = value;
@@ -194,7 +194,7 @@ __forceinline void StoreFPR_Long( u32 reg, u64 value )
 //*****************************************************************************
 #define SIMULATESIG 0x1234	//Reduce signature to load value with one OP
 
-__forceinline u64 LoadFPR_Long( u32 reg )
+DAEDALUS_FORCEINLINE u64 LoadFPR_Long( u32 reg )
 {
 	REG64 res;
 #ifdef SIM_DOUBLES
@@ -212,7 +212,7 @@ __forceinline u64 LoadFPR_Long( u32 reg )
 	return res._u64;
 }
 
-__forceinline d64 LoadFPR_Double( u32 reg )
+DAEDALUS_FORCEINLINE d64 LoadFPR_Double( u32 reg )
 {
 #ifdef SIM_DOUBLES
 	if (gCPUState.FPU[reg+0]._u32 == SIMULATESIG)
@@ -230,13 +230,13 @@ __forceinline d64 LoadFPR_Double( u32 reg )
 }
 
 #ifdef SIM_DOUBLES
-__forceinline void StoreFPR_Double( u32 reg, d64 value )
+DAEDALUS_FORCEINLINE void StoreFPR_Double( u32 reg, d64 value )
 {
 	gCPUState.FPU[reg+0]._u32 = SIMULATESIG;
 	gCPUState.FPU[reg+1]._f32 = f32( value );	//No Coversion
 }
 #else
-__forceinline void StoreFPR_Double( u32 reg, f64 value )
+DAEDALUS_FORCEINLINE void StoreFPR_Double( u32 reg, f64 value )
 {
 	REG64 r;
 	r._f64 = value;
@@ -249,22 +249,22 @@ __forceinline void StoreFPR_Double( u32 reg, f64 value )
 //
 //*****************************************************************************
 
-__forceinline s32 LoadFPR_Word( u32 reg )
+DAEDALUS_FORCEINLINE s32 LoadFPR_Word( u32 reg )
 {
 	return gCPUState.FPU[reg]._s32;
 }
 
-__forceinline void StoreFPR_Word( u32 reg, s32 value )
+DAEDALUS_FORCEINLINE void StoreFPR_Word( u32 reg, s32 value )
 {
 	gCPUState.FPU[reg]._s32 = value;
 }
 
-__forceinline f32 LoadFPR_Single( u32 reg )
+DAEDALUS_FORCEINLINE f32 LoadFPR_Single( u32 reg )
 {
 	return gCPUState.FPU[reg]._f32;
 }
 
-__forceinline void StoreFPR_Single( u32 reg, f32 value )
+DAEDALUS_FORCEINLINE void StoreFPR_Single( u32 reg, f32 value )
 {
 	gCPUState.FPU[reg]._f32 = value;
 }
@@ -275,22 +275,22 @@ __forceinline void StoreFPR_Single( u32 reg, f32 value )
 //
 //*****************************************************************************
 
-__forceinline f32 s32_to_f32( s32 x )
+DAEDALUS_FORCEINLINE f32 s32_to_f32( s32 x )
 {
 	return (f32)x;
 }
 
-__forceinline d64 s32_to_d64( s32 x )
+DAEDALUS_FORCEINLINE d64 s32_to_d64( s32 x )
 {
 	return (d64)x;
 }
 
-__forceinline f32 s64_to_f32( s64 x )
+DAEDALUS_FORCEINLINE f32 s64_to_f32( s64 x )
 {
 	return (f32)x;
 }
 
-__forceinline d64 s64_to_d64( s64 x )
+DAEDALUS_FORCEINLINE d64 s64_to_d64( s64 x )
 {
 	return (d64)x;
 }
@@ -301,12 +301,12 @@ __forceinline d64 s64_to_d64( s64 x )
 //
 //*****************************************************************************
 
-__forceinline d64 f32_to_d64( f32 x )
+DAEDALUS_FORCEINLINE d64 f32_to_d64( f32 x )
 {
 	return (d64)x;
 }
 
-__forceinline f32 d64_to_f32( d64 x )
+DAEDALUS_FORCEINLINE f32 d64_to_f32( d64 x )
 {
 	return (f32)x;
 }
@@ -374,34 +374,34 @@ static const int		gNativeRoundingModes[ RM_NUM_MODES ] =
 	_RC_DOWN,	// RM_FLOOR,
 };
 
-__forceinline void SET_ROUND_MODE( ERoundingMode mode )
+DAEDALUS_FORCEINLINE void SET_ROUND_MODE( ERoundingMode mode )
 {
 	_controlfp( gNativeRoundingModes[ mode ], _MCW_RC );
 }
 
-__forceinline s32 f32_to_s32( f32 x, ERoundingMode mode )	{ SET_ROUND_MODE( mode ); return (s32)x; }
-__forceinline s32 f32_to_s32_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)x; }
-__forceinline s32 f32_to_s32_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)x; }
-__forceinline s32 f32_to_s32_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s32)x; }
-__forceinline s32 f32_to_s32_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)x; }
+DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x, ERoundingMode mode )	{ SET_ROUND_MODE( mode ); return (s32)x; }
+DAEDALUS_FORCEINLINE s32 f32_to_s32_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)x; }
+DAEDALUS_FORCEINLINE s32 f32_to_s32_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)x; }
+DAEDALUS_FORCEINLINE s32 f32_to_s32_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s32)x; }
+DAEDALUS_FORCEINLINE s32 f32_to_s32_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)x; }
 
-__forceinline s64 f32_to_s64( f32 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s64)x; }
-__forceinline s64 f32_to_s64_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s64)x; }
-__forceinline s64 f32_to_s64_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s64)x; }
-__forceinline s64 f32_to_s64_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s64)x; }
-__forceinline s64 f32_to_s64_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s64)x; }
+DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s64)x; }
+DAEDALUS_FORCEINLINE s64 f32_to_s64_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s64)x; }
+DAEDALUS_FORCEINLINE s64 f32_to_s64_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s64)x; }
+DAEDALUS_FORCEINLINE s64 f32_to_s64_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s64)x; }
+DAEDALUS_FORCEINLINE s64 f32_to_s64_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s64)x; }
 
-__forceinline s32 d64_to_s32( d64 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s32)x; }
-__forceinline s32 d64_to_s32_trunc( d64 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)x; }
-__forceinline s32 d64_to_s32_round( d64 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)x; }
-__forceinline s32 d64_to_s32_ceil( d64 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s32)x; }
-__forceinline s32 d64_to_s32_floor( d64 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)x; }
+DAEDALUS_FORCEINLINE s32 d64_to_s32( d64 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s32)x; }
+DAEDALUS_FORCEINLINE s32 d64_to_s32_trunc( d64 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)x; }
+DAEDALUS_FORCEINLINE s32 d64_to_s32_round( d64 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)x; }
+DAEDALUS_FORCEINLINE s32 d64_to_s32_ceil( d64 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s32)x; }
+DAEDALUS_FORCEINLINE s32 d64_to_s32_floor( d64 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)x; }
 
-__forceinline s64 d64_to_s64( d64 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s64)x; }
-__forceinline s64 d64_to_s64_trunc( d64 x ) { SET_ROUND_MODE( RM_TRUNC ); return (s64)x; }
-__forceinline s64 d64_to_s64_round( d64 x ) { SET_ROUND_MODE( RM_ROUND ); return (s64)x; }
-__forceinline s64 d64_to_s64_ceil( d64 x )  { SET_ROUND_MODE( RM_CEIL ); return (s64)x; }
-__forceinline s64 d64_to_s64_floor( d64 x ) { SET_ROUND_MODE( RM_FLOOR ); return (s64)x; }
+DAEDALUS_FORCEINLINE s64 d64_to_s64( d64 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s64)x; }
+DAEDALUS_FORCEINLINE s64 d64_to_s64_trunc( d64 x ) { SET_ROUND_MODE( RM_TRUNC ); return (s64)x; }
+DAEDALUS_FORCEINLINE s64 d64_to_s64_round( d64 x ) { SET_ROUND_MODE( RM_ROUND ); return (s64)x; }
+DAEDALUS_FORCEINLINE s64 d64_to_s64_ceil( d64 x )  { SET_ROUND_MODE( RM_CEIL ); return (s64)x; }
+DAEDALUS_FORCEINLINE s64 d64_to_s64_floor( d64 x ) { SET_ROUND_MODE( RM_FLOOR ); return (s64)x; }
 
 #elif defined(DAEDALUS_OSX) || defined(DAEDALUS_LINUX)
 

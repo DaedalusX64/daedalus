@@ -47,7 +47,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //	TranslateOp:	Use this to translate breakpoints/patches to original op
 //					before execution.
 //*****************************************************************************
-template< bool TranslateOp > __forceinline void CPU_EXECUTE_OP()
+template< bool TranslateOp > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 {
 	u8 * p_Instruction;
 
