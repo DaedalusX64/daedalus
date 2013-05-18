@@ -21,11 +21,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __FILENAMEHANDLER_H__
 
 #include <commdlg.h>
+#include "Utility/IO.h"
 
 class FileNameHandler {
 public:
 	// MODIFIED BY Lkb - 21/jul/2001 - savestate support
-	FileNameHandler( LPCTSTR , LPCTSTR , int, LPCTSTR, LPCTSTR pszDefaultDir = NULL );
+	FileNameHandler( LPCTSTR szSectionName,
+					 LPCTSTR szFilter, int nFilterIndex, LPCTSTR szDefExt, LPCTSTR pszDefaultDir = NULL );
 	~FileNameHandler();
 
 	void GetDefaultDirectory( LPTSTR );
@@ -46,8 +48,7 @@ private:
 	char				m_szFile[300];
 	char				m_szFileTitle[300];
 
-	char				m_szCurrentDirectory[MAX_PATH];
-
+	IO::Filename		m_szCurrentDirectory;
 };
 
 #endif //__FILENAMEHANDLER_H__

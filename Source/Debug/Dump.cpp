@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <ctype.h>
 
-static char gDumpDir[MAX_PATH+1] = "";
+static IO::Filename gDumpDir = "";
 
 //*****************************************************************************
 // Initialise the directory where files are dumped
@@ -44,7 +44,6 @@ static char gDumpDir[MAX_PATH+1] = "";
 void Dump_GetDumpDirectory(char * p_file_path, const char * p_sub_dir)
 {
 	// Appends szBase to the global dump base. Stores in p_file_path
-
 
 	if (gDumpDir[0] == '\0')
 	{
@@ -84,7 +83,7 @@ void Dump_GetDumpDirectory(char * p_file_path, const char * p_sub_dir)
 //*****************************************************************************
 void Dump_GetSaveDirectory(char * p_file_path, const char * p_rom_name, const char * p_ext)
 {
-	char file_name[MAX_PATH+1];
+	IO::Filename file_name;
 
 	// If the Save path has not yet been set up, prompt user
 	if (strlen(g_DaedalusConfig.szSaveDir) == 0)
@@ -111,7 +110,7 @@ void Dump_GetSaveDirectory(char * p_file_path, const char * p_rom_name, const ch
 	}
 
 	// Form the filename from the file spec (i.e. strip path)
-	strcpy( file_name, IO::Path::FindFileName( p_rom_name ) );
+	IO::Path::Assign( file_name, IO::Path::FindFileName( p_rom_name ) );
 	IO::Path::RemoveExtension( file_name );
 	IO::Path::AddExtension(file_name, p_ext);
 
@@ -125,7 +124,6 @@ void Dump_GetSaveDirectory(char * p_file_path, const char * p_rom_name, const ch
 
 	// Not in either dir - default to SaveDir
 	IO::Path::Combine(p_file_path, g_DaedalusConfig.szSaveDir, file_name);
-
 }
 
 #ifndef DAEDALUS_SILENT
@@ -164,7 +162,7 @@ void Dump_DisassembleMIPSRange(FILE * fh, u32 address_offset, const OpCode * b, 
 
 void Dump_Disassemble(u32 start, u32 end, const char * p_file_name)
 {
-	char file_path[MAX_PATH+1];
+	IO::Filename file_path;
 
 	// Cute hack - if the end of the range is less than the start,
 	// assume it is a length to disassemble
@@ -263,7 +261,7 @@ void Dump_RSPDisassemble(const char * p_file_name)
 		return;
 	}
 
-	char file_path[MAX_PATH+1];
+	IO::Filename file_path;
 
 	if (p_file_name == NULL || strlen(p_file_name) == 0)
 	{
@@ -301,7 +299,7 @@ void Dump_RSPDisassemble(const char * p_file_name)
 //*****************************************************************************
 void Dump_Strings( const char * p_file_name )
 {
-	char file_path[ MAX_PATH+1 ];
+	IO::Filename file_path;
 	FILE * fp;
 
 	static const u32 MIN_LENGTH = 5;

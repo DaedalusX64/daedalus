@@ -1175,7 +1175,7 @@ void RendererPSP::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertice
 	{
 		if(mUnhandledCombinerStates.find( mux ) == mUnhandledCombinerStates.end())
 		{
-			char szFilePath[MAX_PATH+1];
+			IO::Filename szFilePath;
 
 			Dump_GetDumpDirectory(szFilePath, g_ROM.settings.GameName.c_str());
 

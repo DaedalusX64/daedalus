@@ -19,14 +19,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-class Save{
-private:
-	static char szSaveFileName[MAX_PATH+1];
-	static bool SaveDirty;
-	static u32	nSaveSize;
+#include "Utility/IO.h"
 
-	static char szMempackFileName[MAX_PATH+1];
-	static bool mempackDirty;
+class Save
+{
+private:
+	static IO::Filename szSaveFileName;
+	static bool 		SaveDirty;
+	static u32			nSaveSize;
+
+	static IO::Filename szMempackFileName;
+	static bool 		mempackDirty;
 
 public:
 	static bool Reset();

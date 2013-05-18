@@ -101,7 +101,7 @@ CPreferences::~CPreferences()
 IPreferences::IPreferences()
 :	mDirty( false )
 {
-	char ini_filename[MAX_PATH + 1];
+	IO::Filename ini_filename;
 	IO::Path::Combine( ini_filename, gDaedalusExePath, "preferences.ini" );
 	OpenPreferencesFile( ini_filename );
 }

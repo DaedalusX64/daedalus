@@ -528,8 +528,8 @@ void IGraphicsContext::SaveScreenshot( const char* filename, s32 x, s32 y, u32 w
 //*****************************************************************************
 void IGraphicsContext::DumpScreenShot()
 {
-	char szFilePath[MAX_PATH+1];
-	char szDumpDir[MAX_PATH+1];
+	IO::Filename szFilePath;
+	IO::Filename szDumpDir;
 
 // Do not combine more than one dir for release, since pic will be saved in ms0:/PICTURE/
 #ifndef DAEDALUS_SILENT
@@ -540,14 +540,13 @@ void IGraphicsContext::DumpScreenShot()
 
 	Dump_GetDumpDirectory(szFilePath, szDumpDir);
 
-	char	unique_filename[MAX_PATH+1];
+	IO::Filename unique_filename;
 	u32 count = 0;
 	do
 	{
-		char	test_name[MAX_PATH+1];
+		IO::Filename test_name;
 
 		sprintf(test_name, gScreenDumpDumpPathFormat, count++);
-
 		IO::Path::Combine( unique_filename, szFilePath, test_name );
 
 	} while( IO::File::Exists( unique_filename ) );
@@ -585,9 +584,9 @@ void IGraphicsContext::StoreSaveScreenData()
 
 	void * buffer;
 	char pngbuffer[128*1024];
-	char pngfile[ MAX_PATH ];
-	extern std::string	gSaveStateFilename;
+	IO::Filename pngfile;
 
+	extern std::string	gSaveStateFilename;
 	sprintf( pngfile,"%s.png", gSaveStateFilename.c_str() );	//Add .png to filename
 
 	u32		display_width = 0;

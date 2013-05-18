@@ -67,14 +67,12 @@ namespace IO
 				return true;
 
 			// Make sure parent exists,
-			char	p_path_parent[ IO::Path::MAX_PATH_LEN+1 ];
+			IO::Filename	p_path_parent;
 			IO::Path::Assign( p_path_parent, p_path );
 			IO::Path::RemoveBackslash( p_path_parent );
 			if( IO::Path::RemoveFileSpec( p_path_parent ) )
 			{
-				//
 				//	Recursively create parents. Need to be careful of stack overflow
-				//
 				if( !EnsureExists( p_path_parent ) )
 					return false;
 			}

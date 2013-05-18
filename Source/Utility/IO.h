@@ -47,7 +47,7 @@ namespace IO
 	{
 		const u32	MAX_PATH_LEN = 260;
 
-		typedef char PathBuf[MAX_PATH_LEN];
+		typedef char PathBuf[MAX_PATH_LEN+1];
 
 		inline void Assign( char * p_dest, const char * p_dir )
 		{
@@ -68,9 +68,11 @@ namespace IO
 #endif
 	}
 
+	typedef Path::PathBuf Filename;
+
 	struct FindDataT
 	{
-		char	Name[Path::MAX_PATH_LEN+1];
+		Filename	Name;
 	};
 
 #if defined( DAEDALUS_PSP )

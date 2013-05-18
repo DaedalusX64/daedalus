@@ -32,13 +32,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static void InitMempackContent();
 
-char	Save::szSaveFileName[MAX_PATH+1];
-bool	Save::SaveDirty;
-u32		Save::nSaveSize;
+IO::Filename	Save::szSaveFileName;
+bool			Save::SaveDirty;
+u32				Save::nSaveSize;
 
-char	Save::szMempackFileName[MAX_PATH+1];
-bool	Save::mempackDirty;
-
+IO::Filename	Save::szMempackFileName;
+bool			Save::mempackDirty;
 
 bool Save::Reset()
 {

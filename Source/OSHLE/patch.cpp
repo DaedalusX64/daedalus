@@ -180,7 +180,7 @@ void Patch_PatchAll()
 	}
 #ifdef DUMPOSFUNCTIONS
 	FILE *fp;
-	char path[MAX_PATH + 1];
+	IO::Filename path;
 	Dump_GetDumpDirectory(path, "");
 	IO::Path::Append(path, "n64.cfg");
 	fp = fopen(path, "w");
@@ -190,7 +190,7 @@ void Patch_PatchAll()
 		if (g_PatchSymbols[i]->bFound)
 		{
 #ifdef DUMPOSFUNCTIONS
-			char buf[MAX_PATH + 1];
+			IO::Filename buf;
 			PatchSymbol * ps = g_PatchSymbols[i];
 			Dump_GetDumpDirectory(buf, "oshle");
 			IO::Path::Append(buf, ps->szName);
@@ -954,7 +954,7 @@ fail_find:
 
 static void Patch_FlushCache()
 {
-	char name[MAX_PATH + 1];
+	IO::Filename name;
 
 	Dump_GetSaveDirectory(name, g_ROM.szFileName, ".hle");
 	DBGConsole_Msg(0, "Write OSHLE cache: %s", name);
@@ -1010,7 +1010,7 @@ static void Patch_FlushCache()
 
 static bool Patch_GetCache()
 {
-	char name[MAX_PATH + 1];
+	IO::Filename name;
 
 	Dump_GetSaveDirectory(name, g_ROM.szFileName, ".hle");
 	FILE *fp = fopen(name, "rb");

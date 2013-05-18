@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Debug/DBGConsole.h"
 
+#include "Utility/IO.h"
 #include "Utility/Stream.h"
 
 //*****************************************************************************
@@ -67,7 +68,7 @@ bool ROMFileCompressed::Open( COutputStream & messages )
 
     s32				err;
 	unz_file_info	file_info;
-	char			rom_filename[MAX_PATH+1];
+	IO::Filename	rom_filename;
 
 	err = unzGoToFirstFile(mZipFile);
 	if (err != UNZ_OK)
@@ -79,7 +80,7 @@ bool ROMFileCompressed::Open( COutputStream & messages )
 		do
 		{
 			err = unzGetCurrentFileInfo(mZipFile, &file_info,
-										rom_filename, MAX_PATH,
+										rom_filename, ARRAYSIZE(rom_filename),
 										NULL, 0,
 										NULL, 0);
 			if (err != UNZ_OK)

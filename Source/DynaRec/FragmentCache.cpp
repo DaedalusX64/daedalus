@@ -331,10 +331,10 @@ void CFragmentCache::DumpStats( const char * outputdir ) const
 	std::sort( all_fragments.begin(), all_fragments.end(), SDescendingCyclesSort() );
 
 
-	char	filename[ IO::Path::MAX_PATH_LEN + 1 ];
-	char	fragments_dir[ IO::Path::MAX_PATH_LEN + 1 ];
+	IO::Filename	filename;
+	IO::Filename	fragments_dir;
 
-	strcpy( fragments_dir, outputdir );
+	IO::Path::Assign( fragments_dir, outputdir );
 	IO::Path::Append( fragments_dir, "fragments" );
 	IO::Directory::EnsureExists( fragments_dir );
 
@@ -372,8 +372,8 @@ void CFragmentCache::DumpStats( const char * outputdir ) const
 			fprintf( fh, "<td>%#.2f</td>", f32( fragment->GetOutputLength() ) / f32( fragment->GetInputLength() ) );
 			fputs( "</tr>\n", fh );
 
-			char	fragment_path[ IO::Path::MAX_PATH_LEN + 1 ];
-			char	fragment_name[ 32+1 ];
+			IO::Filename	fragment_path;
+			char			fragment_name[ 32+1 ];
 			sprintf( fragment_name, "%08x.html", fragment->GetEntryAddress() );
 			IO::Path::Combine( fragment_path, fragments_dir, fragment_name );
 

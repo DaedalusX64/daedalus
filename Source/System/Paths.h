@@ -4,6 +4,6 @@
 
 #include "Utility/IO.h"
 
-extern char			gDaedalusExePath[IO::Path::MAX_PATH_LEN+1];
+extern IO::Filename gDaedalusExePath;
 
 #endif // SYSTEM_PATHS_H_

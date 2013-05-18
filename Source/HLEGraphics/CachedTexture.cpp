@@ -336,9 +336,9 @@ void CachedTexture::DumpTexture( const TextureInfo & ti, const CNativeTexture * 
 
 	if( texture != NULL && texture->HasData() )
 	{
-		char filename[MAX_PATH+1];
-		char filepath[MAX_PATH+1];
-		char dumpdir[MAX_PATH+1];
+		IO::Filename filename;
+		IO::Filename filepath;
+		IO::Filename dumpdir;
 
 		IO::Path::Combine( dumpdir, g_ROM.settings.GameName.c_str(), "Textures" );
 

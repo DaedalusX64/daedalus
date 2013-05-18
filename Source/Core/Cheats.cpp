@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "OSHLE/ultra_R4300.h"
 #include "System/Paths.h"
+#include "Utility/IO.h"
 #include "Utility/StringUtil.h"
 #include "Utility/VolatileMem.h"
 
@@ -259,7 +260,6 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 	char			current_rom_name[128];
 	static char		last_rom_name[128];
 
-	char			path[MAX_PATH];
 	char			line[2048], romname[256]/*, errormessage[400]*/;	//changed line length to 2048 previous was 256
 	bool			bfound;
 	u32				c1, c2;
@@ -282,8 +282,8 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 	// Always clear when parsing a new ROM
 	CheatCodes_Clear();
 
-	strcpy(path, gDaedalusExePath);
-	strcat(path, file);
+	IO::Filename	path;
+	IO::Path::Combine(path, gDaedalusExePath, file);
 
 	stream = fopen(path, "rt");
 	if(stream == NULL)
@@ -448,7 +448,7 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 							break;
 						}
 					}
-	
+
 					codegrouplist[codegroupcount].codelist[c2].orig = CHEAT_CODE_MAGIC_VALUE;
 					codegrouplist[codegroupcount].codelist[c2].addr = addr;
 					codegrouplist[codegroupcount].codelist[c2].val = (u16)value;

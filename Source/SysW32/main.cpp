@@ -39,7 +39,7 @@ int __cdecl main(int argc, char **argv)
 	HMODULE hModule = GetModuleHandle(NULL);
 	if (hModule != NULL)
 	{
-		GetModuleFileName(hModule, gDaedalusExePath, MAX_PATH);
+		GetModuleFileName(hModule, gDaedalusExePath, ARRAYLEN(gDaedalusExePath));
 		IO::Path::RemoveFileSpec(gDaedalusExePath);
 	}
 	else
@@ -51,7 +51,7 @@ int __cdecl main(int argc, char **argv)
 	//ReadConfiguration();
 
 	int result = 0;
-	char rom_path[MAX_PATH+1];
+	IO::Filename rom_path;
 
 	if (!System_Init())
 		return 1;

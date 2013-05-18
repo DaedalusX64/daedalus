@@ -55,7 +55,7 @@ void MakeRomList( const char * romdir, std::vector< std::string > & roms )
 			const char * filename( find_data.Name );
 			if( IsRomfilename( filename ) )
 			{
-				char rompath[MAX_PATH+1];
+				IO::Filename rompath;
 
 				IO::Path::Combine( rompath, romdir, filename );
 
@@ -100,13 +100,12 @@ static void BatchVblHandler( void * arg )
 	gBatchTestEventHandler->OnVerticalBlank();
 }
 
-static void MakeNewLogFilename( char (&filepath)[MAX_PATH+1], const char * rundir )
+static void MakeNewLogFilename( IO::Filename & filepath, const char * rundir )
 {
 	u32 count = 0;
 	do
 	{
-		char filename[MAX_PATH+1];
-
+		char filename[64];
 		sprintf( filename, "log%04d.txt", count );
 		++count;
 
@@ -115,14 +114,14 @@ static void MakeNewLogFilename( char (&filepath)[MAX_PATH+1], const char * rundi
 	while( IO::File::Exists( filepath ) );
 }
 
-static void SprintRunDirectory( char (&rundir)[MAX_PATH+1], const char * batchdir, u32 run_id )
+static void SprintRunDirectory( IO::Filename & rundir, const char * batchdir, u32 run_id )
 {
-	char filename[MAX_PATH+1];
+	char filename[64];
 	sprintf( filename, "run%04d", run_id );
 	IO::Path::Combine(rundir, batchdir, filename);
 }
 
-static bool MakeRunDirectory( char (&rundir)[MAX_PATH+1], const char * batchdir )
+static bool MakeRunDirectory( IO::Filename & rundir, const char * batchdir )
 {
 	// Find an unused directory
 	for( u32 run_id = 0; run_id < 100; ++run_id )
@@ -175,10 +174,10 @@ void BatchTestMain( int argc, char* argv[] )
 		}
 	}
 
-	char batchdir[MAX_PATH+1];
+	IO::Filename batchdir;
 	Dump_GetDumpDirectory( batchdir, "batch" );
 
-	char rundir[MAX_PATH+1];
+	IO::Filename rundir;
 	if( run_id < 0 )
 	{
 		if( !MakeRunDirectory( rundir, batchdir ) )
@@ -199,7 +198,7 @@ void BatchTestMain( int argc, char* argv[] )
 
 	gBatchTestEventHandler = new CBatchTestEventHandler();
 
-	char logpath[MAX_PATH+1];
+	IO::Filename logpath;
 	MakeNewLogFilename( logpath, rundir );
 	gBatchFH = fopen(logpath, "w");
 	if( !gBatchFH )
@@ -223,7 +222,7 @@ void BatchTestMain( int argc, char* argv[] )
 	// Hook in our Vbl handler.
 	CPU_RegisterVblCallback( &BatchVblHandler, NULL );
 
-	char tmpfilepath[MAX_PATH+1];
+	IO::Filename tmpfilepath;
 	IO::Path::Combine( tmpfilepath, rundir, "tmp.tmp" );
 
 	while( !roms.empty() )
@@ -241,7 +240,7 @@ void BatchTestMain( int argc, char* argv[] )
 		roms.erase( roms.begin() + idx );
 
 		// Make a filename of the form: '<rundir>/<romfilename>.txt'
-		char rom_logpath[MAX_PATH+1];
+		IO::Filename rom_logpath;
 		IO::Path::Combine( rom_logpath, rundir, IO::Path::FindFileName( r.c_str() ) );
 		IO::Path::AddExtension( rom_logpath, ".txt" );
 

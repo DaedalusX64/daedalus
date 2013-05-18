@@ -78,7 +78,7 @@ namespace IO
 				return true;
 
 			// Make sure parent exists,
-			char	p_path_parent[ IO::Path::MAX_PATH_LEN+1 ];
+			IO::Filename	p_path_parent;
 			IO::Path::Assign( p_path_parent, p_path );
 			IO::Path::RemoveBackslash( p_path_parent );
 			if( IO::Path::RemoveFileSpec( p_path_parent ) )
@@ -199,7 +199,7 @@ namespace IO
 		{
 			SceUID fh;
 
-			char file[MAX_PATH + 1];
+			IO::filename file;
 			fh = sceIoDopen(p_path);
 
 			if( fh )
@@ -207,7 +207,7 @@ namespace IO
 				while(sceIoDread( fh, &gDirEntry.Dirent ))
 				{
 					SceIoStat stat;
-					snprintf(file, Path::MAX_PATH_LEN, "%s/%s", p_path, gDirEntry.Dirent.d_name);
+					IO::Path::Combine(file, p_path, gDirEntry.Dirent.d_name);
 
 					sceIoGetstat( file, &stat );
 					if( (stat.st_mode & 0x1000) == 0x1000 )

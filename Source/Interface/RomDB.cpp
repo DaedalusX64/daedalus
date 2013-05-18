@@ -100,7 +100,9 @@ class IRomDB : public CRomDB
 				ID = id;
 			}
 
-			char		FileName[ MAX_PATH + 1 ];
+			// This is actually IO::Path::MAX_PATH_LEN+1, but we need to ensure that it doesn't change if we ever change the MAX_PATH_LEN constant.
+			static const u32 kMaxFilenameLen = 260;
+			char		FileName[ kMaxFilenameLen + 1 ];
 			RomID		ID;
 		};
 
@@ -160,7 +162,7 @@ class IRomDB : public CRomDB
 		typedef std::vector< RomFilesKeyValue >	FilenameVec;
 		typedef std::vector< RomDetails >		DetailsVec;
 
-		char							mRomDBFileName[ MAX_PATH + 1 ];
+		IO::Filename					mRomDBFileName;
 		FilenameVec						mRomFiles;
 		DetailsVec						mRomDetails;
 		bool							mDirty;
@@ -172,7 +174,7 @@ template<> bool	CSingleton< CRomDB >::Create()
 
 	mpInstance = new IRomDB();
 
-	char romdb_filename[ MAX_PATH + 1 ];
+	IO::Filename romdb_filename;
 	IO::Path::Combine( romdb_filename, gDaedalusExePath, "rom.db" );
 	/*ret = */mpInstance->OpenDB( romdb_filename );
 	// Ignore failure - this file might not exist on first run.
@@ -205,7 +207,7 @@ bool IRomDB::OpenDB( const char * filename )
 	//
 	// Remember the filename
 	//
-	strcpy( mRomDBFileName, filename );
+	IO::Path::Assign( mRomDBFileName, filename );
 
 	FILE * fh = fopen( filename, "rb" );
 	if ( !fh )

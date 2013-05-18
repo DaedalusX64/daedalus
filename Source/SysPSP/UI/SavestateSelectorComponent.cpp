@@ -25,20 +25,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UIElement.h"
 #include "UICommand.h"
 
-// FIXME(strmnnrmn): why file relative and not project relative paths?
-#include "../../Core/ROM.h"
-#include "../../Core/SaveState.h"
-
-#include "../../Utility/Stream.h"
-#include "../../Utility/IO.h"
-#include "../../Utility/Translate.h"
-
-#include "../../Math/Vector2.h"
-
-#include "../Graphics/DrawText.h"
-
+#include "Core/ROM.h"
+#include "Core/SaveState.h"
 #include "Graphics/NativeTexture.h"
+#include "Math/Vector2.h"
+#include "SysPSP/Graphics/DrawText.h"
 #include "System/Paths.h"
+#include "Utility/IO.h"
+#include "Utility/Stream.h"
+#include "Utility/Translate.h"
 
 #include <pspctrl.h>
 #include <pspgu.h>
@@ -84,7 +79,7 @@ class ISavestateSelectorComponent : public CSavestateSelectorComponent
 		virtual void				Render();
 		virtual bool				IsFinished() const									{ return mIsFinished; }
 	public:
-		char 					current_slot_path[MAX_PATH];
+		IO::Filename			current_slot_path;
 		bool					isGameRunning;
 
 	private:
@@ -106,7 +101,7 @@ class ISavestateSelectorComponent : public CSavestateSelectorComponent
 		CUIElementBag				mElements;
 		std::vector<std::string> 		mElementTitle;
 		bool					mSlotEmpty[ NUM_SAVESTATE_SLOTS ];
-		char					mPVFilename[ NUM_SAVESTATE_SLOTS ][ MAX_PATH ];
+		IO::Filename			mPVFilename[ NUM_SAVESTATE_SLOTS ];
 		s8						mPVExists[ NUM_SAVESTATE_SLOTS ];	//0=skip, 1=file exists, -1=show no preview
 		CRefPtr<CNativeTexture>	mPreviewTexture;
 		u32						mLastPreviewLoad;
@@ -142,9 +137,9 @@ namespace
 {
 	void MakeSaveSlotPath(char * ss_path, char * png_path, u32 slot_idx, char *slot_path )
 	{
-		char	filename_png[ MAX_PATH ];
-		char	filename_ss[ MAX_PATH ];
-		char    sub_path[ MAX_PATH ];
+		IO::Filename	filename_png;
+		IO::Filename	filename_ss;
+		IO::Filename    sub_path;
 		sprintf( filename_png, "saveslot%u.ss.png", slot_idx );
 		sprintf( filename_ss, "saveslot%u.ss", slot_idx );
 		sprintf( sub_path, "SaveStates/%s", slot_path);
@@ -195,7 +190,7 @@ void ISavestateSelectorComponent::LoadFolders(){
 	IO::FindDataT		find_data;
 	u32 i=0;
 	const char * description_text( mAccessType == AT_SAVING ? "Select the slot in which to save" : "Select the slot from which to load" );
-	char full_path[MAX_PATH];
+	IO::Filename full_path;
 	// We're using the same vector for directory names and slots, so we have to clear it
 	mElements.Clear();
 	for( u32 i = 0; i < NUM_SAVESTATE_SLOTS; ++i ) mPVExists[ i ] = 0;
@@ -265,7 +260,7 @@ void ISavestateSelectorComponent::LoadSlots(){
 		COutputStringStream		str;
 		str << Translate_String("Slot ") << (i+1) << ": ";
 
-		char filename_ss[ MAX_PATH ];
+		IO::Filename filename_ss;
 		MakeSaveSlotPath( filename_ss, mPVFilename[ i ], i, current_slot_path);
 
 		mPVExists[ i ] = IO::File::Exists( mPVFilename[ i ] ) ? 1 : -1;
@@ -329,8 +324,8 @@ void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, 
 	{
 		mIsFinished = true;
 
-		char filename_ss[ MAX_PATH ];
-		char filename_png[ MAX_PATH ];
+		IO::Filename filename_ss;
+		IO::Filename filename_png;
 		MakeSaveSlotPath( filename_ss, filename_png, mSelectedSlot, current_slot_path );
 
 		(*mOnSlotSelected)( filename_ss );
@@ -404,11 +399,11 @@ void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, 
 
 void	ISavestateSelectorComponent::deleteSlot(u32 id_ss)
 {
-    char	ss_path[ MAX_PATH ];
-    char	png_path[ MAX_PATH ];
-    char	filename_ss[ MAX_PATH ];
-    char	filename_png[ MAX_PATH ];
-    char	sub_path[ MAX_PATH ];
+    IO::Filename	ss_path;
+    IO::Filename	png_path;
+    IO::Filename	filename_ss;
+    IO::Filename	filename_png;
+    IO::Filename	sub_path;
     sprintf( filename_ss, "saveslot%u.ss", id_ss );
     sprintf( filename_png, "saveslot%u.png", id_ss );
     sprintf( sub_path, "SaveStates/%s", current_slot_path);

@@ -22,10 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Utility/IO.h"
 
-///////////////////////////////////////////////
-//// Constructors / Deconstructors
-///////////////////////////////////////////////
-
 // MODIFIED BY Lkb - 21/jul/2001 - savestate support
 FileNameHandler::FileNameHandler(LPCTSTR szSectionName,
 								 LPCTSTR szFilter, int nFilterIndex, LPCTSTR szDefExt, LPCTSTR pszDefaultDir)
@@ -53,7 +49,6 @@ FileNameHandler::FileNameHandler(LPCTSTR szSectionName,
 	m_OFN.lpstrDefExt = szDefExt;
 	m_OFN.Flags = OFN_EXPLORER | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
 	m_OFN.hInstance = g_hInstance;
-
 }
 
 FileNameHandler::~FileNameHandler()
@@ -61,11 +56,9 @@ FileNameHandler::~FileNameHandler()
 	SetDefaultDirectory(m_szCurrentDirectory);
 }
 
-/////////////////////////////////////////////////////
 // Get the default directory from the system
 // registry (if specified, otherwise it creates)
-void
-FileNameHandler::GetDefaultDirectory(LPTSTR szOutBuffer)
+void FileNameHandler::GetDefaultDirectory(LPTSTR szOutBuffer)
 {
 	HKEY hRegKey;
 	DWORD datatype, nResult;
@@ -100,7 +93,7 @@ FileNameHandler::GetDefaultDirectory(LPTSTR szOutBuffer)
 	else if (nResult == REG_OPENED_EXISTING_KEY)
 	{
 		// Key was already in registry - try to read value
-		DWORD datasize = MAX_PATH;
+		DWORD datasize = ARRAYSIZE(m_szSectionName);
 		if (RegQueryValueEx(hRegKey, m_szSectionName, NULL,
 			&datatype, (LPBYTE) szOutBuffer, &datasize) != ERROR_SUCCESS)
 		{
@@ -126,12 +119,9 @@ FileNameHandler::GetDefaultDirectory(LPTSTR szOutBuffer)
 	RegCloseKey(hRegKey);
 }
 
-
-/////////////////////////////////////////////////////
 // Set the default directory to the system
 // registry (if specified, otherwise it creates)
-void
-FileNameHandler::SetDefaultDirectory(LPCTSTR szDir)
+void FileNameHandler::SetDefaultDirectory(LPCTSTR szDir)
 {
 	HKEY hRegKey;
 	DWORD nResult;
@@ -156,63 +146,59 @@ FileNameHandler::SetDefaultDirectory(LPCTSTR szDir)
 	RegCloseKey(hRegKey);
 }
 
-//////////////////////////////////////////////////
-// szOutBuffer must be at least MAX_PATH in length
-void
-FileNameHandler::GetModuleDirectory(LPTSTR szOutBuffer)
+// szOutBuffer must be at least IO::Path::MAX_PATH_LEN in length
+// FIXME(strmnnrmn): Pass a PathBuf.
+void FileNameHandler::GetModuleDirectory(LPTSTR szOutBuffer)
 {
 	// Gets the directory that this DLL was loaded from
-	GetModuleFileName(g_hInstance, szOutBuffer, MAX_PATH);
+	GetModuleFileName(g_hInstance, szOutBuffer, IO::Path::MAX_PATH_LEN);
 
 	// Remove trailing slash
 	IO::Path::RemoveFileSpec(szOutBuffer);
 }
 
-//////////////////////////////////////////////////
 // Retrieves the path from the currently selected file
-// szOutBuffer must be at least MAX_PATH in length
-void
-FileNameHandler::GetCurrentDirectory(LPTSTR szOutBuffer)
+// szOutBuffer must be at least IO::Path::MAX_PATH_LEN in length
+// FIXME(strmnnrmn): Pass a PathBuf.
+void FileNameHandler::GetCurrentDirectory(LPTSTR szOutBuffer)
 {
-	lstrcpyn(szOutBuffer, m_szFile, MAX_PATH);
+	lstrcpyn(szOutBuffer, m_szFile, IO::Path::MAX_PATH_LEN);
 
 	// Remove trailing slash
 	IO::Path::RemoveFileSpec(szOutBuffer);
 }
 
-//////////////////////////////////////////////////
 // Retrieves the path/name of the currently selected file
-void
-FileNameHandler::GetCurrentFileName(LPTSTR szOutBuffer)
+// szOutBuffer must be at least IO::Path::MAX_PATH_LEN in length
+// FIXME(strmnnrmn): Pass a PathBuf.
+void FileNameHandler::GetCurrentFileName(LPTSTR szOutBuffer)
 {
-	lstrcpyn(szOutBuffer, m_szFile, MAX_PATH);
+	lstrcpyn(szOutBuffer, m_szFile, IO::Path::MAX_PATH_LEN);
 }
 
-//////////////////////////////////////////////////
 // Set the current filename
-void
-FileNameHandler::SetFileName(LPCTSTR szNewName)
+// szOutBuffer must be at least IO::Path::MAX_PATH_LEN in length
+// FIXME(strmnnrmn): Pass a PathBuf.
+void FileNameHandler::SetFileName(LPCTSTR szNewName)
 {
-	lstrcpyn(m_szFile, szNewName, MAX_PATH);
+	lstrcpyn(m_szFile, szNewName, IO::Path::MAX_PATH_LEN);
 }
 
-//////////////////////////////////////////////////
 // Opens a common file requester and gets filename.
 // Returns FALSE is user clicked cancel, TRUE if
 // user clicked ok
-BOOL
-FileNameHandler::GetOpenName(HWND hwnd, LPTSTR szOutBuffer)
+BOOL FileNameHandler::GetOpenName(HWND hwnd, LPTSTR szOutBuffer)
 {
 	m_OFN.hwndOwner = hwnd;
 
 	// If the file title has been set, use it as the filename
 	// (this gets rid of the ugly directory info)
 	if (lstrlen(m_szFileTitle) > 0)
-		lstrcpyn(m_szFile, m_szFileTitle, MAX_PATH);
+		lstrcpyn(m_szFile, m_szFileTitle, IO::Path::MAX_PATH_LEN);
 
 	if(GetOpenFileName(&m_OFN))
 	{
-		lstrcpyn(szOutBuffer, m_szFile, MAX_PATH);
+		lstrcpyn(szOutBuffer, m_szFile, IO::Path::MAX_PATH_LEN);
 
 		// Copy the current directory
 		GetCurrentDirectory(m_szCurrentDirectory);
@@ -222,21 +208,19 @@ FileNameHandler::GetOpenName(HWND hwnd, LPTSTR szOutBuffer)
 	}
 }
 
-//////////////////////////////////////////////////
 // Opens a common file requester and gets filename.
 // Returns FALSE is user clicked cancel, TRUE if
 // user clicked ok
-BOOL
-FileNameHandler::GetSaveName(HWND hwnd, LPTSTR szOutBuffer)
+BOOL FileNameHandler::GetSaveName(HWND hwnd, LPTSTR szOutBuffer)
 {
 	m_OFN.hwndOwner = hwnd;
 
 	if (lstrlen(m_szFileTitle) > 0)
-		lstrcpyn(m_szFile, m_szFileTitle, MAX_PATH);
+		lstrcpyn(m_szFile, m_szFileTitle, IO::Path::MAX_PATH_LEN);
 
 	if(GetSaveFileName(&m_OFN))
 	{
-		lstrcpyn(szOutBuffer, m_szFile, MAX_PATH);
+		lstrcpyn(szOutBuffer, m_szFile, IO::Path::MAX_PATH_LEN);
 
 		// Copy the current directory
 		GetCurrentDirectory(m_szCurrentDirectory);

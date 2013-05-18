@@ -848,7 +848,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 
 			if( !mRomsList[ mCurrentSelection ]->mSettings.Preview.empty() )
 			{
-				char		preview_filename[ MAX_PATH + 1 ];
+				IO::Filename preview_filename;
 				IO::Path::Combine( preview_filename, gPreviewDirectory, mRomsList[ mCurrentSelection ]->mSettings.Preview.c_str() );
 
 				mpPreviewTexture = CNativeTexture::CreateFromPng( preview_filename, TexFmt_8888 );

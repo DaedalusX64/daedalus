@@ -19,27 +19,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "Interrupt.h"
 #include "RSP_HLE.h"
-#include "Memory.h"
 
+#include "Interrupt.h"
+#include "Memory.h"
+#include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
 #include "Debug/Dump.h"			// For Dump_GetDumpDirectory()
-
 #include "Math/MathUtil.h"
-
-#include "OSHLE/ultra_rcp.h"
 #include "OSHLE/ultra_mbi.h"
+#include "OSHLE/ultra_rcp.h"
 #include "OSHLE/ultra_sptask.h"
-
-#include "Debug/DBGConsole.h"
 #include "Plugins/AudioPlugin.h"
 #include "Plugins/GraphicsPlugin.h"
-
-#include "Utility/Profiler.h"
-#include "Utility/PrintOpCode.h"
-
 #include "Test/BatchTest.h"
+#include "Utility/IO.h"
+#include "Utility/PrintOpCode.h"
+#include "Utility/Profiler.h"
 
 static const bool	gGraphicsEnabled = true;
 static const bool	gAudioEnabled	 = true;
@@ -56,8 +52,8 @@ static void RDP_DumpRSPData(char * szName, u32 dwCRC, u32 * pBase, u32 dwPCBase,
 void RDP_DumpRSPCode(char * szName, u32 dwCRC, u32 * pBase, u32 dwPCBase, u32 dwLen)
 {
 	char opinfo[400];
-	char szFilePath[MAX_PATH+1];
-	char szFileName[MAX_PATH+1];
+	IO::Filename szFilePath;
+	IO::Filename szFileName;
 	FILE * fp;
 
 	Dump_GetDumpDirectory(szFilePath, "rsp_dumps");
@@ -94,8 +90,8 @@ void RDP_DumpRSPCode(char * szName, u32 dwCRC, u32 * pBase, u32 dwPCBase, u32 dw
 //*****************************************************************************
 void RDP_DumpRSPData(char * szName, u32 dwCRC, u32 * pBase, u32 dwPCBase, u32 dwLen)
 {
-	char szFilePath[MAX_PATH+1];
-	char szFileName[MAX_PATH+1];
+	IO::Filename szFilePath;
+	IO::Filename szFileName;
 	FILE * fp;
 
 	Dump_GetDumpDirectory(szFilePath, "rsp_dumps");

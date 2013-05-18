@@ -25,13 +25,16 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#include "Utility/IO.h"
+
 // Config stuff
 struct DaedalusConfig
 {
 	// Urgh - will make this a vector at some point!!
+  // FIXME(strmnnrmn): this is pretty wasteful - 100*260 = 26000 bytes.
 	enum { MAX_ROMS_DIRS = 100 };
-	char		szRomsDirs[MAX_ROMS_DIRS][MAX_PATH+1];
-	char		szSaveDir[MAX_PATH+1];
+	IO::Filename		szRomsDirs[MAX_ROMS_DIRS];
+	IO::Filename		szSaveDir;
 };
 
 extern DaedalusConfig	g_DaedalusConfig;

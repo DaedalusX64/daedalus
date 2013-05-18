@@ -259,7 +259,7 @@ bool Translate_Read(u32 idx, const char * dir)
 
 	const char * ext( ".lng" );
 	char line[1024];
-	char path[MAX_PATH];
+	IO::Filename path;
 	char *string;
 	FILE *stream;
 

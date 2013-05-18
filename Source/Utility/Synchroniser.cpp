@@ -263,7 +263,7 @@ bool CSynchroniser::InitialiseSynchroniser()
 {
 	const char *name = g_ROM.szFileName;
 	CSynchroniser *	p_synch;
-	char filename[MAX_PATH + 1];
+	IO::Filename filename;
 
 	Dump_GetSaveDirectory(filename, name, ".syn");
 

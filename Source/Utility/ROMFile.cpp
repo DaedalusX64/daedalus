@@ -64,9 +64,9 @@ ROMFile * ROMFile::Create( const char * filename )
 }
 
 ROMFile::ROMFile( const char * filename )
-:	mFilename( filename )
-,	mHeaderMagic( 0 )
+:	mHeaderMagic( 0 )
 {
+	IO::Path::Assign( mFilename, filename );
 }
 
 ROMFile::~ROMFile()
@@ -103,8 +103,8 @@ bool ROMFile::SetHeaderMagic( u32 magic )
 	case 0x12408037:
 		break;
 	default:
-		DAEDALUS_ERROR( "Unhandled swapping mode %08x for %s", magic, mFilename.GetUnsafePtr() );
-		DBGConsole_Msg(0, "[CUnknown ROM format for %s: 0x%08x", mFilename.GetUnsafePtr(), magic);
+		DAEDALUS_ERROR( "Unhandled swapping mode %08x for %s", magic, mFilename );
+		DBGConsole_Msg(0, "[CUnknown ROM format for %s: 0x%08x", mFilename, magic);
 			return false;
 	}
 #endif

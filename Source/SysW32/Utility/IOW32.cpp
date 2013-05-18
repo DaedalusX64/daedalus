@@ -56,7 +56,7 @@ namespace IO
 				return true;
 
 			// Make sure parent exists,
-			char	p_path_parent[ IO::Path::MAX_PATH_LEN+1 ];
+			IO::Filename	p_path_parent;
 			IO::Path::Assign( p_path_parent, p_path );
 			IO::Path::RemoveBackslash( p_path_parent );
 			if( IO::Path::RemoveFileSpec( p_path_parent ) )
@@ -123,7 +123,7 @@ namespace IO
 
 	bool	FindFileOpen( const char * path, FindHandleT * handle, FindDataT & data )
 	{
-		char name[Path::MAX_PATH_LEN];
+		IO::Filename name;
 		Path::Combine(name, path, "*.*");
 		_finddata_t	_data;
 		*handle = _findfirst( name, &_data );

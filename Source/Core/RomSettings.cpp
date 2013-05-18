@@ -132,7 +132,7 @@ class IRomSettingsDB : public CRomSettingsDB
 		SettingsMap				mSettings;
 
 		bool					mDirty;				// (STRMNNRMN - Changed since read from disk?)
-		char					mFilename[MAX_PATH + 1];
+		IO::Filename			mFilename;
 };
 
 
@@ -146,7 +146,7 @@ template<> bool	CSingleton< CRomSettingsDB >::Create()
 
 	mpInstance = new IRomSettingsDB();
 
-	char		ini_filename[MAX_PATH+1];
+	IO::Filename	ini_filename;
 	IO::Path::Combine( ini_filename, gDaedalusExePath, "roms.ini" );
 	mpInstance->OpenSettingsFile( ini_filename );
 
@@ -332,8 +332,8 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 //*****************************************************************************
 void IRomSettingsDB::Commit()
 {
-	char szFileNameOut[MAX_PATH+1];
-	char szFileNameDelete[MAX_PATH+1];
+	IO::Filename szFileNameOut;
+	IO::Filename szFileNameDelete;
 	FILE * fhIn;
 	FILE * fhOut;
 	char szBuf[1024+1];

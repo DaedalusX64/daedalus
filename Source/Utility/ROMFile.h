@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef UTILITY_ROMFILE_H_
 #define UTILITY_ROMFILE_H_
 
+#include "Utility/IO.h"
+
 class COutputStream;
 
 bool IsRomfilename( const char * rom_filename );
@@ -60,8 +62,8 @@ private:
 	virtual bool		LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages ) = 0;
 
 protected:
-	CFixedString< MAX_PATH >	mFilename;
-	u32							mHeaderMagic;
+	IO::Filename		mFilename;
+	u32					mHeaderMagic;
 };
 
 #endif // UTILITY_ROMFILE_H_

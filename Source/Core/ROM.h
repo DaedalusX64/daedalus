@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DAEDALUS_ROM_H_
 
 #include "ROMImage.h"
-
+#include "Utility/IO.h"
 
 inline u32 SwapEndian( u32 x )
 {
@@ -130,13 +130,13 @@ enum EGameHacks
 //*****************************************************************************
 struct RomInfo
 {
-	char        szFileName[MAX_PATH + 1];
-	RomID		mRomID;					// The RomID (unique to this rom)
+	IO::Filename	szFileName;
+	RomID			mRomID;					// The RomID (unique to this rom)
 
-	ROMHeader	rh;						// Copy of the ROM header, correctly byteswapped
-	RomSettings settings;				// Settings for this rom
-	u32			TvType;					// OS_TV_NTSC etc
-	ECicType	cic_chip;				// CIC boot chip type
+	ROMHeader		rh;						// Copy of the ROM header, correctly byteswapped
+	RomSettings 	settings;				// Settings for this rom
+	u32				TvType;					// OS_TV_NTSC etc
+	ECicType		cic_chip;				// CIC boot chip type
 	union
 	{
 		u32 HACKS_u32;

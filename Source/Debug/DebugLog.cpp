@@ -38,7 +38,7 @@ static FILE *		g_hOutputLog	= NULL;
 //*****************************************************************************
 bool Debug_InitLogging()
 {
-	char szLogFileName[MAX_PATH+1];
+	IO::Filename szLogFileName;
 
 	Dump_GetDumpDirectory(szLogFileName, "");
 
