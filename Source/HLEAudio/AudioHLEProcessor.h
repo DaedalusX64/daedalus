@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //	and modified by StrmnNrmn to work with Daedalus PSP. Thanks Azimer!
 //	Drop me a line if you get chance :)
 //
+#ifndef AUDIOHLEPROCESSOR_H_
+#define AUDIOHLEPROCESSOR_H_
 
 //Size of N64 audio processing buffer (org. 0x10000). Have to be a power of 2 (2^N) //Corn
 #define N64_AUDIO_BUFF 0x1000
@@ -93,3 +95,5 @@ public:
 };
 
 extern AudioHLEState gAudioHLEState;
+
+#endif // AUDIOHLEPROCESSOR_H_

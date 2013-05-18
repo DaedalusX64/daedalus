@@ -18,6 +18,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+#ifndef AUDIOHLE_H_
+#define AUDIOHLE_H_
+
 //
 //	N.B. This source code is derived from Azimer's Audio plugin (v0.55?)
 //	and modified by StrmnNrmn to work with Daedalus PSP. Thanks Azimer!
@@ -368,3 +371,5 @@ typedef void ( * AudioHLEInstruction )( AudioHLECommand command );
 // Use these functions to interface with the HLE Audio...
 void Audio_Ucode();
 void Audio_Reset();
+
+#endif // AUDIOHLE_H_
