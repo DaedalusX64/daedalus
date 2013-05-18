@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define ZEXPORT DAEDALUS_ZLIB_CALL_TYPE
 
 //This should be pulled from the system's include directory..
-#include "Utility/Zip/unzip.h"
+#include <unzip.h>
 
 #include "ROMFile.h"
 
