@@ -53,7 +53,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DaedalusAssert.h"
 #include "Utility/DaedalusTypes.h"
 #include "Utility/String.h"
-#include "Utility/Profiler.h"
 
 //*****************************************************************************
 //

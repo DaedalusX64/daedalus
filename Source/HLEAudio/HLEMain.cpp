@@ -31,6 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "OSHLE/ultra_sptask.h"
 
+#include "Utility/Profiler.h"
+
 // Audio UCode lists
 // Dummy UCode Handler
 //

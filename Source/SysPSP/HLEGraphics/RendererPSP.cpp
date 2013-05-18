@@ -17,6 +17,8 @@
 #include "Math/MathUtil.h"
 #include "OSHLE/ultra_gbi.h"
 #include "Utility/IO.h"
+#include "Utility/Profiler.h"
+
 
 //Draw normal filled triangles
 #define DRAW_MODE GU_TRIANGLES
