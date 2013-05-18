@@ -35,12 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <string.h>
 
-#if defined(DAEDALUS_PSP)
-#define _strcmpi stricmp
-#elif defined(DAEDALUS_PS3) || defined(DAEDALUS_OSX) || defined(DAEDALUS_LINUX)
-#define _strcmpi strcasecmp
-#endif
-
 // Platform specifc #includes, externs, #defines etc
 #ifdef DAEDALUS_W32
 #include "DaedalusW32.h"
