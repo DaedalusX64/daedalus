@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef NATIVEPIXELFORMAT_H_
 #define NATIVEPIXELFORMAT_H_
 
+#include "Utility/Macros.h"
+
 struct NativePf5650
 {
 	u16	Bits;

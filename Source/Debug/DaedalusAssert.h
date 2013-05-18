@@ -25,6 +25,8 @@
 #ifndef DAEDALUSASSERT_H_
 #define DAEDALUSASSERT_H_
 
+#include "Utility/Macros.h"
+
 // Ideas for the ignored assert taken from Game Programming Gems I
 
 #if defined(__clang__) && __has_feature(cxx_static_assert)

@@ -41,8 +41,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define _strcmpi strcasecmp
 #endif
 
-#define DAEDALUS_USE(...)	do { (void)sizeof(__VA_ARGS__, 0); } while(0)
-
 // Platform specifc #includes, externs, #defines etc
 #ifdef DAEDALUS_W32
 #include "DaedalusW32.h"
