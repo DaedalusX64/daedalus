@@ -24,9 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef ROMIMAGE_H_
 #define ROMIMAGE_H_
 
-//*****************************************************************************
-//
-//*****************************************************************************
 //const u32 RAMROM_FONTDATA_SIZE		= 1152;
 //const u32 RAMROM_CLOCKRATE_MASK		= 0xfffffff0;
 
@@ -37,9 +34,6 @@ const u32 RAMROM_BOOTSTRAP_OFFSET	= 0x40;
 //const u32 RAMROM_FONTDATA_OFFSET	= 0xb70;
 const u32 RAMROM_GAME_OFFSET		= 0x1000;
 
-//*****************************************************************************
-//
-//*****************************************************************************
 struct ROMHeader
 {
 	u8		x1, x2, x3, x4;
@@ -61,9 +55,6 @@ struct ROMHeader
 };
 DAEDALUS_STATIC_ASSERT( sizeof(ROMHeader) == RAMROM_BOOTSTRAP_OFFSET );
 
-//*****************************************************************************
-//
-//*****************************************************************************
 enum ECicType
 {
 	CIC_UNKNOWN = -1,

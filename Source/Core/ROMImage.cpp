@@ -20,9 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "ROMImage.h"
 
-//*****************************************************************************
 // Find out the CIC type
-//*****************************************************************************
 ECicType ROM_GenerateCICType( const u8 * p_rom_base )
 {
 	u32	cic = 0;
@@ -47,9 +45,6 @@ ECicType ROM_GenerateCICType( const u8 * p_rom_base )
 	}
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 const char * ROM_GetCicName( ECicType cic_type )
 {
 	switch(cic_type)
@@ -62,5 +57,3 @@ const char * ROM_GetCicName( ECicType cic_type )
 	default:		return "?";
 	}
 }
-
-
