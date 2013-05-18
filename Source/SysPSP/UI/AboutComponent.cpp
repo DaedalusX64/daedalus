@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/MathUtil.h"
 
 #include "SysPSP/Utility/PathsPSP.h"
+#include "Utility/String.h"
 #include "Utility/Translate.h"
 
 #include "svnversion.h"

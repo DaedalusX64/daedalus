@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/IO.h"
 
 #include <algorithm>
+#include <string.h>
 
 bool IsRomfilename( const char * rom_filename )
 {

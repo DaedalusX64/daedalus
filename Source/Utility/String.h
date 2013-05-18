@@ -20,12 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef DAEDALUS_STRING_H__
 #define DAEDALUS_STRING_H__
 
-#if defined(DAEDALUS_PSP)
-#define _strcmpi stricmp
-#elif defined(DAEDALUS_PS3) || defined(DAEDALUS_OSX) || defined(DAEDALUS_LINUX)
-#define _strcmpi strcasecmp
-#endif
-
 class CConstString
 {
 	public:

@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef ROMSETTINGS_H_
 #define ROMSETTINGS_H_
 
-#include <string>
+#include "Utility/String.h"
 
 //*****************************************************************************
 // Configurable settings for a rom
