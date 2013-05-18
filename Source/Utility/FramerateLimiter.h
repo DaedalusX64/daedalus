@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef FRAMERATELIMITER_H_
 #define FRAMERATELIMITER_H_
 
+#include "Utility/DaedalusTypes.h"
+
 extern u32		gSpeedSyncEnabled;
 
 bool			FramerateLimiter_Reset();

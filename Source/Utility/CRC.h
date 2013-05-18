@@ -20,8 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef DAEDALUS_CRC_H__
 #define DAEDALUS_CRC_H__
 
+#include "Utility/DaedalusTypes.h"
 
 u32 daedalus_crc32(u32 crc, const u8 *buf, u32 len);
-
 
 #endif // DAEDALUS_CRC_H__

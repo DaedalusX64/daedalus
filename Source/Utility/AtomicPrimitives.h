@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef ATOMICPRIMITIVES_H_
 #define ATOMICPRIMITIVES_H_
 
+#include "Utility/DaedalusTypes.h"
+
 #if defined( DAEDALUS_PSP )
 
 extern "C"

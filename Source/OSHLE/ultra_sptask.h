@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __ULTRA_SPTASK_H__
 #define __ULTRA_SPTASK_H__
 
+#include "Utility/DaedalusTypes.h"
+
 typedef struct {
 	u32	type;
 	u32	flags;

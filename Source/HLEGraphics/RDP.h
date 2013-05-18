@@ -26,6 +26,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#include "Utility/DaedalusTypes.h"
 
 inline u32 pixels2bytes( u32 pixels, u32 size )
 {

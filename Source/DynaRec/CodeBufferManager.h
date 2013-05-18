@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef CODEBUFFERMANAGER_H_
 #define CODEBUFFERMANAGER_H_
 
+#include "Utility/DaedalusTypes.h"
+
 class CCodeGenerator;
 
 class CCodeBufferManager

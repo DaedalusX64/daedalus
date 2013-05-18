@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef DAEDALUS_IO_H_
 #define DAEDALUS_IO_H_
 
+#include "Utility/DaedalusTypes.h"
+
 #ifdef DAEDALUS_PSP
 #include <pspiofilemgr.h>
 #endif

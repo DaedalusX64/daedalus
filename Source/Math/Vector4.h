@@ -2,6 +2,7 @@
 #define VECTOR4_H__
 
 #include "Math/Math.h"	// VFPU Math
+#include "Utility/DaedalusTypes.h"
 
 ALIGNED_TYPE(class, v4, 16)
 {

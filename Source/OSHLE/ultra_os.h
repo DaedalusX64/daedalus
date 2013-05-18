@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __ULTRA_OS__
 #define __ULTRA_OS__
 
+#include "Utility/DaedalusTypes.h"
+
 // Definitions for N64 Operating System structures
 
 /////////////////////////////////////////////////////

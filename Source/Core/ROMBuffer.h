@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef ROMBUFFER_H_
 #define ROMBUFFER_H_
 
+#include "Utility/DaedalusTypes.h"
 
 //
 //	This class is responsible for maintaining the image of the rom.

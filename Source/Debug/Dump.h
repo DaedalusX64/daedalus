@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __DUMP_H__
 #define __DUMP_H__
 
+#include "Utility/DaedalusTypes.h"
+
 struct OpCode;
 
 void Dump_GetDumpDirectory(char * p_file_path, const char * p_sub_dir);

@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __DAEDALUS_BRANCHTYPE_H__
 #define __DAEDALUS_BRANCHTYPE_H__
 
+#include "Utility/DaedalusTypes.h"
+
 struct OpCode;
 
 enum ER4300BranchType

@@ -28,6 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdarg.h>
 
+#include "Utility/DaedalusTypes.h"
+
 enum EDebugFlags
 {
 	DEBUG_PI =				 1<<1,

@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef DBGCONSOLE_H_
 #define DBGCONSOLE_H_
 
+#include "Utility/DaedalusTypes.h"
 #include "Utility/Singleton.h"
 #include "Utility/Macros.h"
 

@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef ZLIBWRAPPER_H__
 #define ZLIBWRAPPER_H__
 
+#include "Utility/DaedalusTypes.h"
+
 namespace Zlib
 {
 	typedef void *	gzFile;

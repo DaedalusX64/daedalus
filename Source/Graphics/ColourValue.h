@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef COLOURVALUE_H_
 #define COLOURVALUE_H_
 
+#include "Utility/DaedalusTypes.h"
+
 class v4;
 
 class c32 /*: public NativePf8888*/

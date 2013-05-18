@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef DMA_H_
 #define DMA_H_
 
+#include "Utility/DaedalusTypes.h"
 
 void DMA_PI_CopyToRDRAM();
 void DMA_PI_CopyFromRDRAM();

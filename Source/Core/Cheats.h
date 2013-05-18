@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef CHEATS_H_
 #define CHEATS_H_
 
+#include "Utility/DaedalusTypes.h"
+
 // Limit the number of cheatcodes on the PSP, for performance reasons
 #define MAX_CHEATCODE_PER_LOAD		16
 

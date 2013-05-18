@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __DAEDALUS_R4300INSTRUCTION_H__
 #define __DAEDALUS_R4300INSTRUCTION_H__
 
+#include "Utility/DaedalusTypes.h"
+
 // Through various tests, it seems the compiler generates much better code by
 // passing the opcode as a primitive datatype (as it can stick the value directly
 // in a register rather than passing it via the stack). Unfortunately we have to

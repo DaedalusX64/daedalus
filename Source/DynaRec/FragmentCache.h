@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __DAEDALUS_FRAGMENTCACHE_H__
 #define __DAEDALUS_FRAGMENTCACHE_H__
 
+#include "Utility/DaedalusTypes.h"
+
 class	CFragment;
 class	CJumpLocation;
 class	CCodeBufferManager;

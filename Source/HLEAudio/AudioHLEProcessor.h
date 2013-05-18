@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef AUDIOHLEPROCESSOR_H_
 #define AUDIOHLEPROCESSOR_H_
 
+#include "Utility/DaedalusTypes.h"
+
 //Size of N64 audio processing buffer (org. 0x10000). Have to be a power of 2 (2^N) //Corn
 #define N64_AUDIO_BUFF 0x1000
 

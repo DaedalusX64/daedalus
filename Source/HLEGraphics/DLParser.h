@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __DLPARSER_H__
 #define __DLPARSER_H__
 
+#include "Utility/DaedalusTypes.h"
+
 class DLDebugOutput;
 
 bool DLParser_Initialise();

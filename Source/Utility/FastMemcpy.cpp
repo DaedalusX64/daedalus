@@ -10,6 +10,8 @@ homepage: http://wordpress.fx-world.org
 #include "stdafx.h"
 #include "FastMemcpy.h"
 
+#include "Utility/DaedalusTypes.h"
+
 //*****************************************************************************
 //Copy native N64 memory with CPU only //Corn
 //Little Endian

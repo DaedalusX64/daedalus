@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include <GL/glfw.h>
 
+#include "Utility/DaedalusTypes.h"
 
 // FIXME: burn all of this with fire.
 
