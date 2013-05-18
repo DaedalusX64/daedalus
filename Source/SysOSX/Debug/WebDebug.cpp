@@ -20,6 +20,7 @@
 #include "Math/MathUtil.h"
 #include "System/Paths.h"
 #include "Utility/IO.h"
+#include "Utility/Macros.h"
 #include "Utility/StringUtil.h"
 #include "Utility/Thread.h"
 

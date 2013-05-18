@@ -7,11 +7,12 @@
 
 #include "RDP.h"
 #include "Core/ROM.h"
-
 #include "Debug/DBGConsole.h"
 #include "Debug/Dump.h"
 #include "OSHLE/ultra_gbi.h"
 #include "Utility/IO.h"
+#include "Utility/Macros.h"
+
 
 DLDebugOutput * gDLDebugOutput = NULL;
 

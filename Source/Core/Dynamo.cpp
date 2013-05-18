@@ -37,6 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/DynaRecProfile.h"
 
 #include "Utility/IO.h"
+#include "Utility/Macros.h"
 #include "Utility/Profiler.h"
 
 #include "OSHLE/ultra_R4300.h"
@@ -196,7 +197,7 @@ template< bool TraceEnabled > __forceinline void CPU_EXECUTE_OP()
 		// Normal operation - just increment the PC
 		INCREMENT_PC();
 		break;
-	default:	// MSVC extension - the default will never be reached
+	default:
 		NODEFAULT;
 	}
 }

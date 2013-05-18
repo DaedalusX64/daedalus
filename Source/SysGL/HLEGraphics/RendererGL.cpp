@@ -14,6 +14,7 @@
 #include "SysGL/GL.h"
 #include "System/Paths.h"
 #include "Utility/IO.h"
+#include "Utility/Macros.h"
 #include "Utility/Profiler.h"
 
 

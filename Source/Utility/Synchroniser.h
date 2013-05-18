@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef SYNCHRONISER_H_
 #define SYNCHRONISER_H_
 
+#include "Utility/Macros.h"
+
 #ifdef DAEDALUS_ENABLE_SYNCHRONISATION
 //*****************************************************************************
 //	Synchronisation flags

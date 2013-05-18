@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "SysPSP/Utility/PathsPSP.h"
 
+#include "Utility/Macros.h"
 #include "Utility/Preferences.h"
 #include "Utility/Translate.h"
 

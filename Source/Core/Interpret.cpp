@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "R4300.h"
 #include "Interpret.h"
 
+#include "Utility/Macros.h"
 #include "Utility/Profiler.h"
 #include "Utility/Synchroniser.h"
 
@@ -125,7 +126,7 @@ template< bool TranslateOp > __forceinline void CPU_EXECUTE_OP()
 		// Normal operation - just increment the PC
 		INCREMENT_PC();
 		break;
-	default:	// MSVC extension - the default will never be reached
+	default:
 		NODEFAULT;
 	}
 }

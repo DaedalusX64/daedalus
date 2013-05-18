@@ -59,25 +59,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DaedalusAssert.h"
 #include "Utility/DaedalusTypes.h"
 
-//*****************************************************************************
-//
-//*****************************************************************************
-#ifdef DAEDALUS_ENABLE_ASSERTS
-
-#define NODEFAULT		DAEDALUS_ERROR( "No default - we shouldn't be here" )
-
-#else
-
-#ifdef _MSC_VER
-#define NODEFAULT		__assume( 0 )
-#else
-#define NODEFAULT		//DAEDALUS_EXPECT_LIKELY(1)?
-#endif
-
-#endif
-
-#ifndef ARRAYSIZE
-#define ARRAYSIZE(arr)   (sizeof(arr) / sizeof(arr[0]))
-#endif
-
 #endif // PRECOMPILED_H_

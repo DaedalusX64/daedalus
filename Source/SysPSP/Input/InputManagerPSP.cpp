@@ -1,23 +1,22 @@
 #include "stdafx.h"
-#include "ConfigOptions.h"
 #include "Input/InputManager.h"
 
-#include "Utility/Synchroniser.h"
-#include "Utility/IniFile.h"
-#include "Utility/Preferences.h"
-#include "Utility/Stream.h"
-#include "Utility/IO.h"
-#include "SysPSP/Utility/PathsPSP.h"
+#include "ConfigOptions.h"
 
 #include "Debug/DBGConsole.h"
-
-#include "Math/MathUtil.h"
 #include "Math/Math.h"	// VFPU Math
+#include "Math/MathUtil.h"
+#include "SysPSP/Utility/PathsPSP.h"
+#include "Utility/IniFile.h"
+#include "Utility/IO.h"
+#include "Utility/Macros.h"
+#include "Utility/Preferences.h"
+#include "Utility/Stream.h"
+#include "Utility/Synchroniser.h"
 
 #include <pspctrl.h>
 #include <psptypes.h>
 #include <pspkernel.h>
-
 
 #include <stack>
 #include <string>

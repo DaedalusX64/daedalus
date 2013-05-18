@@ -35,9 +35,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/CodeBufferManager.h"
 #include "DynaRec/CodeGenerator.h"
 
+#include "Utility/Macros.h"
 #include "Utility/PrintOpCode.h"
-#include "Utility/Synchroniser.h"
 #include "Utility/Profiler.h"
+#include "Utility/Synchroniser.h"
 
 #include "OSHLE/ultra_R4300.h"
 #include "OSHLE/patch.h"
@@ -212,7 +213,7 @@ namespace
 			case NO_DELAY:
 				gCPUState.CurrentPC += 4;
 				break;
-			default:	// MSVC extension - the default will never be reached
+			default:
 				NODEFAULT;
 		}
 	}

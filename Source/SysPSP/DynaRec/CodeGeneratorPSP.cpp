@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/MathUtil.h"
 
+#include "Utility/Macros.h"
 #include "Utility/PrintOpCode.h"
 #include "Utility/Profiler.h"
 
@@ -230,7 +231,7 @@ void HandleException_extern()
 			gCPUState.CurrentPC = gCPUState.TargetPC;
 			gCPUState.Delay = NO_DELAY;
 			break;
-		default:	// MSVC extension - the default will never be reached
+		default:
 			NODEFAULT;
 	}
 }
