@@ -20,17 +20,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "System.h"
 
-#include "Debug/DBGConsole.h"
 #include "Core/CPU.h"
-#include "Utility/IO.h"
-#include "Test/BatchTest.h"
+#include "Debug/DBGConsole.h"
 #include "Interface/RomDB.h"
+#include "System/Paths.h"
+#include "Test/BatchTest.h"
+#include "Utility/IO.h"
 
 #ifdef DAEDALUS_LINUX
 #include <linux/limits.h>
 #endif
-
-char		gDaedalusExePath[MAX_PATH+1];
 
 int main(int argc, char **argv)
 {

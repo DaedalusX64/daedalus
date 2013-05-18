@@ -19,25 +19,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "Debug/DebugLog.h"
-#include "Debug/DBGConsole.h"		// DBGConsole_Enable
-
-#include "Core/ROM.h"				// ROM_Unload
-#include "Core/CPU.h"
-#include "Core/RomSettings.h"
-
+#include "ConfigOptions.h"
 #include "System.h"
 
+#include "Core/CPU.h"
+#include "Core/ROM.h"				// ROM_Unload
+#include "Core/RomSettings.h"
+#include "Debug/DBGConsole.h"		// DBGConsole_Enable
+#include "Debug/DebugLog.h"
 #include "Interface/RomDB.h"
-
+#include "System/Paths.h"
+#include "Test/BatchTest.h"
+#include "Utility/IO.h"
 #include "Utility/Preferences.h"
 #include "Utility/Profiler.h"		// CProfiler::Create/Destroy
-#include "Utility/IO.h"
-
-#include "Test/BatchTest.h"
-
-#include "ConfigOptions.h"
-char		gDaedalusExePath[MAX_PATH+1];
 
 int __cdecl main(int argc, char **argv)
 {

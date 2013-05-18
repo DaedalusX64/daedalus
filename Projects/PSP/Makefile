@@ -141,6 +141,7 @@ CORE_SRCS = \
 	$(SRCDIR)/SysPSP/Utility/TimingPSP.cpp \
 	$(SRCDIR)/SysPSP/Utility/VolatileMemPSP.cpp \
 	$(SRCDIR)/System.cpp \
+	$(SRCDIR)/System/Paths.cpp \
 	$(SRCDIR)/Test/BatchTest.cpp \
 	$(SRCDIR)/Utility/CRC.cpp \
 	$(SRCDIR)/Utility/DataSink.cpp \

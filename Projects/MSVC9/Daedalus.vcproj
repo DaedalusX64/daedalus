@@ -251,14 +251,6 @@
 					/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath="..\..\Source\System.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Source\System.h"
-				>
-			</File>
 			<Filter
 				Name="Core"
 				>
@@ -1068,6 +1060,26 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\stdafx.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="System"
+				>
+				<File
+					RelativePath="..\..\Source\System.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\System.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\System\Paths.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\System\Paths.h"
 					>
 				</File>
 			</Filter>

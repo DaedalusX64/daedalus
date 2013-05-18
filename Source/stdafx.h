@@ -41,7 +41,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include <stdio.h>
-//#include <math.h>			// For sqrt()
 #include <stdlib.h>
 #include <string.h>
 
@@ -81,11 +80,5 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DAEDALUS_VERSION		"0.08b"
 #define DAEDALUS_SITE			"http://strmnnrmn.blogspot.com/"
 #endif
-
-//*****************************************************************************
-//
-//*****************************************************************************
-extern char			gDaedalusExePath[MAX_PATH+1];
-
 
 #endif // PRECOMPILED_H_

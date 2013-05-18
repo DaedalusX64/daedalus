@@ -24,14 +24,12 @@
 
 #include "Core/ROM.h"
 #include "Core/ROMImage.h"
-
 #include "Debug/DBGConsole.h"
-
 #include "Math/MathUtil.h"
-
+#include "System/Paths.h"
+#include "Utility/IO.h"
 #include "Utility/ROMFile.h"
 #include "Utility/Stream.h"
-#include "Utility/IO.h"
 
 #include <vector>
 #include <algorithm>

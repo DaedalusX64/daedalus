@@ -19,20 +19,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // Display stuff like registers, instructions, memory usage and so on
 #include "stdafx.h"
-
 #include "Dump.h"
 #include "DebugLog.h"
 #include "DBGConsole.h"
+#include "ConfigOptions.h"
 
-#include "Core/Memory.h"
 #include "Core/CPU.h"
 #include "Core/Interrupt.h"
+#include "Core/Memory.h"
 #include "Core/ROMBuffer.h"
-#include "Utility/PrintOpCode.h"
-#include "Utility/IO.h"
 #include "OSHLE/patch.h"		// For GetCorrectOp
 #include "OSHLE/ultra_R4300.h"
-#include "ConfigOptions.h"
+#include "System/Paths.h"
+#include "Utility/IO.h"
+#include "Utility/PrintOpCode.h"
+
 #include <ctype.h>
 
 static char gDumpDir[MAX_PATH+1] = "";

@@ -275,6 +275,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\Source\System.cpp" />
+    <ClCompile Include="..\..\Source\System\Paths.cpp" />
     <ClCompile Include="..\..\Source\Core\Cheats.cpp" />
     <ClCompile Include="..\..\Source\Core\CPU.cpp" />
     <ClCompile Include="..\..\Source\Core\DMA.cpp" />

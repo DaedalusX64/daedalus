@@ -77,6 +77,7 @@
           'Interface/RomDB.cpp',
           'Math/Matrix4x4.cpp',
           'Plugins/GraphicsPlugin.cpp',
+          'System/Paths.cpp',
           'Test/BatchTest.cpp',
           'Utility/CRC.cpp',
           'Utility/DataSink.cpp',

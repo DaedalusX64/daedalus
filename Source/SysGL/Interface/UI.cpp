@@ -2,7 +2,9 @@
 #include "UI.h"
 #include "Core/CPU.h"
 #include "SysGL/GL.h"
+#include "System/Paths.h"
 #include "Utility/IO.h"
+
 
 static void GLFWCALL HandleKeys(int key, int state)
 {
@@ -35,7 +37,7 @@ static void GLFWCALL HandleKeys(int key, int state)
 		if (key == GLFW_KEY_ESC)
 		{
 			CPU_Halt("Escape");
-		}	
+		}
 	}
 }
 

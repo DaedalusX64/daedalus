@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "UIElement.h"
 #include "UICommand.h"
 
+// FIXME(strmnnrmn): why file relative and not project relative paths?
 #include "../../Core/ROM.h"
 #include "../../Core/SaveState.h"
 
@@ -37,6 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../Graphics/DrawText.h"
 
 #include "Graphics/NativeTexture.h"
+#include "System/Paths.h"
 
 #include <pspctrl.h>
 #include <pspgu.h>

@@ -2,7 +2,6 @@
 #include "RendererGL.h"
 
 #include <vector>
-#include "SysGL/GL.h"
 
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
@@ -12,7 +11,10 @@
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/RDPStateManager.h"
 #include "OSHLE/ultra_gbi.h"
+#include "SysGL/GL.h"
+#include "System/Paths.h"
 #include "Utility/IO.h"
+
 
 BaseRenderer * gRenderer   = NULL;
 RendererGL *   gRendererGL = NULL;

@@ -78,7 +78,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #undef DAEDALUS_CALLBACKS
 #endif
 
-char gDaedalusExePath[MAX_PATH+1] = DAEDALUS_PSP_PATH( "" );
 
 extern "C"
 {
@@ -282,6 +281,8 @@ extern bool InitialiseJobManager();
 //*************************************************************************************
 static bool	Initialize()
 {
+	strcpy(gDaedalusExePath, DAEDALUS_PSP_PATH( "" ));
+
 	printf( "Cpu was: %dMHz, Bus: %dMHz\n", scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency() );
 	if (scePowerSetClockFrequency(333, 333, 166) != 0)
 	{

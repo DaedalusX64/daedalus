@@ -23,12 +23,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Cheats.h"
 #include "Memory.h"
 #include "ROM.h"
+#include "ConfigOptions.h"
 
 #include "OSHLE/ultra_R4300.h"
-#include "ConfigOptions.h"
+#include "System/Paths.h"
 #include "Utility/StringUtil.h"
-
 #include "Utility/VolatileMem.h"
+
 //
 // Cheatcode routines and format based from 1964
 //

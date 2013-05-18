@@ -33,6 +33,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ConfigOptions.h"
 
 #include "Input/InputManager.h"
+#include "System/Paths.h"
+
 
 #include <string>
 #include <set>
