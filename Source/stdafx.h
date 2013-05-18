@@ -40,7 +40,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DaedalusW32.h"
 #endif
 
-#include "Debug/DaedalusAssert.h"
 #include "Utility/DaedalusTypes.h"
 
 #endif // PRECOMPILED_H_
