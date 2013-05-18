@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "RendererGL.h"
 
-#include <pspgu.h>
-
 #include <vector>
 #include "SysGL/GL.h"
 
