@@ -2,6 +2,8 @@
 #ifndef FASTMEMCPY_H_
 #define FASTMEMCPY_H_
 
+#include <stdlib.h>
+
 // Define to profile memcpys (PSP only!)
 //#define PROFILE_MEMCPY
 

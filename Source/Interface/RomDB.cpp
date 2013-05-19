@@ -19,8 +19,12 @@
 */
 
 #include "stdafx.h"
-
 #include "RomDB.h"
+
+#include <stdio.h>
+
+#include <vector>
+#include <algorithm>
 
 #include "Core/ROM.h"
 #include "Core/ROMImage.h"
@@ -30,9 +34,6 @@
 #include "Utility/IO.h"
 #include "Utility/ROMFile.h"
 #include "Utility/Stream.h"
-
-#include <vector>
-#include <algorithm>
 
 static const u64 ROMDB_MAGIC_NO	= 0x42444D5244454144LL; //DAEDRMDB		// 44 41 45 44 52 4D 44 42
 static const u32 ROMDB_CURRENT_VERSION = 4;

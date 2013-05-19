@@ -1,6 +1,8 @@
 #ifndef DATASINK_H_
 #define DATASINK_H_
 
+#include <stdio.h>
+
 class DataSink
 {
 public:

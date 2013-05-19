@@ -9,14 +9,16 @@ http://gitorious.org/~jjs/ags/ags-for-psp
 
 #include "stdafx.h"
 
-#include "Debug/DaedalusAssert.h"
-#include "Utility/ModulePSP.h"
+#include <malloc.h>
+#include <stdio.h>
 
 #include <pspkernel.h>
 #include <psppower.h>
 #include <pspsuspend.h>
 
-#include <malloc.h>
+#include "Debug/DaedalusAssert.h"
+#include "Utility/ModulePSP.h"
+
 
 bool bVolatileMem = false;
 //*************************************************************************************

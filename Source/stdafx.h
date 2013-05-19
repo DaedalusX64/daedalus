@@ -31,8 +31,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Endian.h"
 
-#include <stdio.h>
-
 // Platform specifc #includes, externs, #defines etc
 #ifdef DAEDALUS_W32
 #include "DaedalusW32.h"

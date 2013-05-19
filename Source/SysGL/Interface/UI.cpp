@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include "UI.h"
+
+#include <stdio.h>
+
 #include "Core/CPU.h"
 #include "SysGL/GL.h"
 #include "System/Paths.h"

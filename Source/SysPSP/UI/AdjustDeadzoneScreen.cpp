@@ -20,23 +20,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "AdjustDeadzoneScreen.h"
 
+#include <stdio.h>
+
+#include <pspctrl.h>
+#include <pspgu.h>
 
 #include "UIContext.h"
 #include "UIScreen.h"
 
+#include "Input/InputManager.h"
 #include "Math/Math.h"	// VFPU Math
 #include "Math/MathUtil.h"
 #include "Math/Vector2.h"
-
 #include "SysPSP/Graphics/DrawText.h"
-
-#include "Input/InputManager.h"
-
 #include "Utility/Preferences.h"
 #include "Utility/Translate.h"
 
-#include <pspctrl.h>
-#include <pspgu.h>
 
 namespace
 {

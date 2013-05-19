@@ -20,25 +20,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "RomPreferencesScreen.h"
 
+#include <stdio.h>
+
+#include <pspctrl.h>
+
 #include "UIContext.h"
 #include "UIScreen.h"
 #include "UISetting.h"
 #include "UISpacer.h"
 #include "UICommand.h"
 
+#include "ConfigOptions.h"
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
-
-#include "Utility/Preferences.h"
-
-#include "Input/InputManager.h"
-
 #include "Graphics/ColourValue.h"
+#include "Input/InputManager.h"
 #include "SysPSP/Graphics/DrawText.h"
-
-#include "ConfigOptions.h"
-
-#include <pspctrl.h>
+#include "Utility/Preferences.h"
 
 namespace
 {

@@ -1,0 +1,14 @@
+Graphics Bugs
+
+Flag waving girl in Cruisin USA isn't alpha blended right
+Colours on N in banjo kazooi intro
+Glover isn't rendering
+Cruisin Exotica screen viewport is messed up (as is Star Soldier)
+Tony Hawk menus - corrupt characters
+Tony Hawk characters render funny
+Spiderman characters render funny
+Wipeout doesn't render
+Wetrix doesn't render
+Waverace screen is weirdly stretched
+Characters for name entry screen in Zelda messed up
+

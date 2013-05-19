@@ -20,10 +20,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __DAEDALUS_TRACERECORDER_H__
 #define __DAEDALUS_TRACERECORDER_H__
 
+#include <stdlib.h>
+
+#include <vector>
+
 #include "Trace.h"
 #include "RegisterSpan.h"
 
-#include <vector>
 
 class CFragment;
 class CCodeBufferManager;

@@ -19,6 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 #include "ROM.h"
+
+#include <stdio.h>
+
 #include "Cheats.h"
 #include "CPU.h"
 #include "PIF.h"		// CController

@@ -1,5 +1,8 @@
 
 #include "stdafx.h"
+
+#include <stdio.h>
+
 #include "SysGL/GL.h"
 #include "Graphics/GraphicsContext.h"
 

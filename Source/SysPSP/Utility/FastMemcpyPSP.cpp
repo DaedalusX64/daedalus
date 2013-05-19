@@ -12,6 +12,8 @@ homepage: http://wordpress.fx-world.org
 #include "Utility/DaedalusTypes.h"
 
 #include <string.h>
+#include <time.h> // psprtc.h is broken, needs this.
+
 #include <psprtc.h>
 #include <psppower.h>
 

@@ -19,15 +19,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 #include "RomSelectorComponent.h"
-#include "UIContext.h"
-#include "UIScreen.h"
-#include "Dialogs.h"
+
+#include <stdio.h>
+
+#include <string>
+#include <vector>
+#include <map>
+#include <algorithm>
 
 #include <psptypes.h>
 #include <pspkernel.h>
 #include <pspctrl.h>
 #include <pspdisplay.h>
 #include <pspgu.h>
+
+#include "UIContext.h"
+#include "UIScreen.h"
+#include "Dialogs.h"
 
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
@@ -44,11 +52,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Preferences.h"
 #include "Utility/ROMFile.h"
 #include "Utility/String.h"
-
-#include <string>
-#include <vector>
-#include <map>
-#include <algorithm>
 
 namespace
 {

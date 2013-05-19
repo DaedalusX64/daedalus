@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef RENDERSETTINGS_H_
 #define RENDERSETTINGS_H_
 
+#include <stdio.h>
+
 #include <string>
 #include <vector>
 

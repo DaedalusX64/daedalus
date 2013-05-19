@@ -23,6 +23,9 @@
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
 
+#include <stdarg.h>
+#include <stdio.h>
+
 #include <pspdebug.h>
 #include <pspctrl.h>
 #include <pspgu.h>
@@ -32,7 +35,6 @@
 #define PSP_PIXEL_FORMAT 3
 #include <pspdisplay.h>
 
-#include <stdarg.h>
 
 DaedalusAssertHook gAssertHook = NULL;
 

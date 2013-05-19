@@ -20,25 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "PauseScreen.h"
 
-#include "UIContext.h"
-#include "UIScreen.h"
-#include "AboutComponent.h"
-#include "GlobalSettingsComponent.h"
-#include "PauseOptionsComponent.h"
-
-#include "SysPSP/Graphics/DrawText.h"
-#include "Graphics/ColourValue.h"
-#include "Graphics/GraphicsContext.h"
-
-#include "Core/ROM.h"
-#include "Core/CPU.h"
-#include "Core/RomSettings.h"
-
-#include "Math/MathUtil.h"
-#include "Utility/Functor.h"
-#include "Utility/Translate.h"
-
-#include "SysPSP/Utility/Buttons.h"
+#include <stdio.h>
 
 #include <psprtc.h>
 #include <psppower.h>
@@ -46,6 +28,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspgu.h>
 
 #include <string>
+
+#include "UIContext.h"
+#include "UIScreen.h"
+#include "AboutComponent.h"
+#include "GlobalSettingsComponent.h"
+#include "PauseOptionsComponent.h"
+
+#include "Core/CPU.h"
+#include "Core/ROM.h"
+#include "Core/RomSettings.h"
+#include "Graphics/ColourValue.h"
+#include "Graphics/GraphicsContext.h"
+#include "Math/MathUtil.h"
+#include "SysPSP/Graphics/DrawText.h"
+#include "SysPSP/Utility/Buttons.h"
+#include "Utility/Functor.h"
+#include "Utility/Translate.h"
 
 extern void battery_info();
 

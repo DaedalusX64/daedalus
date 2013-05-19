@@ -25,6 +25,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#include <stdlib.h>
+
 #include "Debug/DaedalusAssert.h"
 
 //

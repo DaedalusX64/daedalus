@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __DAEDALUS_ROMFILEUNCOMPRESSED_H__
 #define __DAEDALUS_ROMFILEUNCOMPRESSED_H__
 
+#include <stdio.h>
+
 #include "ROMFile.h"
 
 class ROMFileUncompressed : public ROMFile

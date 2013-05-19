@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef TEXTUREFORMAT_H_
 #define TEXTUREFORMAT_H_
 
+#include <stdlib.h>
+
 #include "Utility/DaedalusTypes.h"
 
 enum	ETextureFormat

@@ -19,30 +19,28 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 #include "CodeGeneratorPSP.h"
+
+#include <limits.h>
+#include <stdio.h>
+
+#include <algorithm>
+
 #include "N64RegisterCachePSP.h"
+
+#include "ConfigOptions.h"
+#include "Core/CPU.h"
+#include "Core/Memory.h"
+#include "Core/R4300.h"
+#include "Core/Registers.h"
+#include "Core/ROM.h"
+#include "Debug/DBGConsole.h"
 #include "DynaRec/AssemblyUtils.h"
 #include "DynaRec/Trace.h"
-
 #include "Math/MathUtil.h"
-
+#include "OSHLE/ultra_R4300.h"
 #include "Utility/Macros.h"
 #include "Utility/PrintOpCode.h"
 #include "Utility/Profiler.h"
-
-#include "Core/R4300.h"
-#include "Core/CPU.h"
-#include "Core/Memory.h"
-#include "Core/Registers.h"
-#include "Core/ROM.h"
-
-#include "OSHLE/ultra_R4300.h"
-
-#include "Debug/DBGConsole.h"
-
-#include "ConfigOptions.h"
-
-#include <algorithm>
-#include <limits.h>
 
 using namespace AssemblyUtils;
 
@@ -347,7 +345,7 @@ void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register
 	{
 		mAvailableRegisters.push( gRegistersToUseForCaching[ i ] );
 	}
-	
+
 	// Optimization for self looping code
 	if( gDynarecLoopOptimisation & loops_to_self )
 	{
@@ -1830,7 +1828,7 @@ inline bool	CCodeGeneratorPSP::GenerateDirectLoad( EPspReg psp_dst, EN64Reg base
 		if( load_op == OP_LWL )
 		{
 			load_op = OP_LW;
-			u32 shift = address & 3;    
+			u32 shift = address & 3;
 			address ^= shift;	//Zero low 2 bits in address
 			ADDIU( PspReg_A3, PspReg_R0, shift);	//copy low 2 bits to A3
 		}
@@ -3887,7 +3885,7 @@ inline void	CCodeGeneratorPSP::GenerateLWL( u32 address, bool set_branch_delay, 
 
 	//Will return the value in PspReg_V0 and the shift in PspReg_A3
 	GenerateLoad( address, PspReg_V0, base, offset, OP_LWL, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
-  
+
 	mPreviousLoadBase = N64Reg_R0;	//Invalidate
 
 	EPspReg	reg_dst( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
@@ -3913,7 +3911,7 @@ inline void	CCodeGeneratorPSP::GenerateLWR( u32 address, bool set_branch_delay, 
 
 	//Will return the value in PspReg_V0 and the shift in PspReg_A3
 	GenerateLoad( address, PspReg_V0, base, offset, OP_LWL, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
-	
+
 	mPreviousLoadBase = N64Reg_R0;	//Invalidate
 
 	EPspReg	reg_dst( GetRegisterAndLoadLo( rt, PspReg_A0 ) );

@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "Utility/ModulePSP.h"
 
+#include <stdio.h>
+
 #include <pspsdk.h>
 
 namespace CModule

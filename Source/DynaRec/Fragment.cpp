@@ -20,6 +20,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "Fragment.h"
 
+#include <stdio.h>
+
+#include <algorithm>
+
 #include "FragmentCache.h"
 #include "BranchType.h"
 #include "StaticAnalysis.h"
@@ -43,7 +47,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/ultra_R4300.h"
 #include "OSHLE/patch.h"
 
-#include <algorithm>
 
 //#define IMMEDIATE_COUNTER_UPDATE
 //#define UPDATE_COUNTER_ON_EXCEPTION
@@ -154,8 +157,8 @@ void	CFragment::SetCache( const CFragmentCache * p_cache )
 //
 //*************************************************************************************
 // This is the second place where most of the CPU time is spent
-//  %   cumulative   self              self     total           
-// time   seconds   seconds    calls   s/call   s/call  name    
+//  %   cumulative   self              self     total
+// time   seconds   seconds    calls   s/call   s/call  name
 // 5.33     25.96     3.49   557781     0.00     0.00  CFragment::Execute()
 void CFragment::Execute()
 {
@@ -676,8 +679,8 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 		}
 
 		CJumpLocation	branch_jump( NULL );
- //PSP, We handle exceptions directly with _ReturnFromDynaRecIfStuffToDo 
-#ifdef DAEDALUS_PSP	
+ //PSP, We handle exceptions directly with _ReturnFromDynaRecIfStuffToDo
+#ifdef DAEDALUS_PSP
 		p_generator->GenerateOpCode( ti, ti.BranchDelaySlot, p_branch, &branch_jump);
 #else
 		CJumpLocation	exception_handler_jump( p_generator->GenerateOpCode( ti, ti.BranchDelaySlot, p_branch, &branch_jump) );

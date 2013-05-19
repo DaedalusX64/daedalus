@@ -19,6 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
+#include <stdio.h>
+
 #include "SaveState.h"
 #include "System.h"
 #include "Memory.h"
@@ -26,17 +28,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ROM.h"
 #include "R4300.h"
 
-#include "Utility/ROMFile.h"
-#include "Utility/ZlibWrapper.h"
-
+#include "Debug/DBGConsole.h"
 #include "Interface/RomDB.h"
-
+#include "Math/MathUtil.h"
 #include "OSHLE/patch.h"
 #include "OSHLE/ultra_R4300.h"
-
-#include "Math/MathUtil.h"
-
-#include "Debug/DBGConsole.h"
+#include "Utility/ROMFile.h"
+#include "Utility/ZlibWrapper.h"
 //
 //	SaveState code written initially by Lkb. Seems to be based about Project 64's
 //	savestate format, which is partially documented here: http://www.hcs64.com/usf/usf.txt

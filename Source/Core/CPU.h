@@ -20,11 +20,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef CPU_H_
 #define CPU_H_
 
+#include <stdlib.h>
+
 #include "R4300Instruction.h"
 #include "R4300OpCode.h"
 #include "Memory.h"
 #include "TLB.h"
 #include "Utility/SpinLock.h"
+
 //*****************************************************************************
 //
 //*****************************************************************************

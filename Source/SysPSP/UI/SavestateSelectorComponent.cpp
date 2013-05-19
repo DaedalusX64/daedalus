@@ -17,8 +17,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "../../stdafx.h"
+#include "stdafx.h"
 #include "SavestateSelectorComponent.h"
+
+#include <stdio.h>
+
+#include <pspctrl.h>
+#include <pspgu.h>
 
 #include "UIContext.h"
 #include "UIScreen.h"
@@ -34,9 +39,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/IO.h"
 #include "Utility/Stream.h"
 #include "Utility/Translate.h"
-
-#include <pspctrl.h>
-#include <pspgu.h>
 
 namespace
 {
@@ -455,18 +457,18 @@ void	ISavestateSelectorComponent::Render()
 		CUIElement *	element( mElements.GetSelectedElement() );
 		if( element != NULL )
 		{
-				
-			if( mPVExists[ mElements.GetSelectedIndex() ] == 1 )	
+
+			if( mPVExists[ mElements.GetSelectedIndex() ] == 1 )
 			{
 				v2	tl( ICON_AREA_LEFT+2, ICON_AREA_TOP+2 );
 				v2	wh( ICON_AREA_WIDTH-4, ICON_AREA_HEIGHT-4 );
-				
+
 				if( mPreviewTexture == NULL || mElements.GetSelectedIndex() != mLastPreviewLoad )
 				{
 					mPreviewTexture = CNativeTexture::CreateFromPng( mPVFilename[ mElements.GetSelectedIndex() ], TexFmt_8888 );
 					mLastPreviewLoad = mElements.GetSelectedIndex();
 				}
-				
+
 				mpContext->DrawRect( ICON_AREA_LEFT, ICON_AREA_TOP, ICON_AREA_WIDTH, ICON_AREA_HEIGHT, c32::White );
 				mpContext->RenderTexture( mPreviewTexture, tl, wh, c32::White );
 			}

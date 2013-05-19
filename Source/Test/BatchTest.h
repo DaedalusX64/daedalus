@@ -19,9 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_BATCH_TEST_ENABLED
 
-#include "Utility/Timer.h"
+#include <stdio.h>
 
 #include <vector>
+
+#include "Utility/Timer.h"
 
 class CBatchTestEventHandler
 {
