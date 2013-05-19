@@ -31,6 +31,8 @@
 
 #include "stdafx.h"
 
+#include <stdlib.h>
+
 #include "Debug/DBGConsole.h"
 #include "Memory.h"
 #include "OSHLE/ultra_sptask.h"

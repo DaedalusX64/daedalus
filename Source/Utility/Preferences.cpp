@@ -20,6 +20,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 #include "Preferences.h"
+
+#include <stdlib.h>
+
+#include <string>
+#include <set>
+#include <map>
+
 #include "IniFile.h"
 #include "FramerateLimiter.h"
 
@@ -34,11 +41,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Input/InputManager.h"
 #include "System/Paths.h"
-
-
-#include <string>
-#include <set>
-#include <map>
 
 // Audio is disabled on the PSP by default, but enabled on other platforms.
 #ifdef DAEDALUS_PSP

@@ -18,14 +18,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
+#include "PngUtil.h"
 
-#include "Graphics/PngUtil.h"
+#include <stdlib.h>
+#include <png.h>
+
 #include "Graphics/TextureFormat.h"
 #include "Graphics/NativePixelFormat.h"
 #include "Graphics/NativeTexture.h"
 #include "Utility/DataSink.h"
-
-#include <png.h>
 
 template< typename T >
 static void WritePngRow( u8 * line, const void * src, u32 width )

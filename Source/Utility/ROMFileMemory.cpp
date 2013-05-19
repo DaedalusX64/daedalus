@@ -22,6 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ROMFileMemory.h"
 #include "MemoryHeap.h"
 
+#include <stdlib.h>
+
 extern bool PSP_IS_SLIM;
 //*****************************************************************************
 //
