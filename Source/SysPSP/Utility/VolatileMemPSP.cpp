@@ -9,6 +9,7 @@ http://gitorious.org/~jjs/ags/ags-for-psp
 
 #include "stdafx.h"
 
+#include "Debug/DaedalusAssert.h"
 #include "Utility/ModulePSP.h"
 
 #include <pspkernel.h>

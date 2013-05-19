@@ -21,11 +21,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef UIELEMENT_H_
 #define UIELEMENT_H_
 
-class CUIContext;
-class c32;
+#include "Utility/DaedalusTypes.h"
 
 #include <vector>
 #include "UIAlignment.h"
+
+class CUIContext;
+class c32;
 
 //*************************************************************************************
 //

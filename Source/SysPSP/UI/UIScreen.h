@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef UISCREEN_H_
 #define UISCREEN_H_
 
+#include "Utility/DaedalusTypes.h"
+
 class v2;
 class c32;
 class CUIContext;

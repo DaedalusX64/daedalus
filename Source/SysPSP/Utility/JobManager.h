@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef JOBMANAGER_H_
 #define JOBMANAGER_H_
 
+#include "Utility/DaedalusTypes.h"
+
 
 enum ETaskMode
 {

@@ -25,6 +25,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#include "Debug/DaedalusAssert.h"
+
 //
 // CSingleton is an abstract base class for classes where only one
 // instance exists throughout the execution of the program
