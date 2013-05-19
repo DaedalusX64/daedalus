@@ -41,17 +41,17 @@ static inline CRefPtr<CNativeTexture> LoadFrameBuffer(u32 origin)
 
 	//ToDO: We should use uViWidth+1 and uViHeight+1
 #define FB_WIDTH  320
-#define FB_HEIGHT 240	
+#define FB_HEIGHT 240
 
 	ti.SetSwapped			(0);
 	ti.SetTLutIndex			(0);
 	ti.SetTlutAddress		(TLUT_BASE);
-	ti.SetTLutFormat		(kTT_RGBA16); 
+	ti.SetTLutFormat		(kTT_RGBA16);
 	ti.SetFormat			(0);
 	ti.SetSize				(2);
 
 	ti.SetLoadAddress		(origin - width*2);
-	ti.SetWidth				(FB_WIDTH);	
+	ti.SetWidth				(FB_WIDTH);
 	ti.SetHeight			(FB_HEIGHT);
 	ti.SetPitch				(width << 2 >> 1);
 
@@ -62,12 +62,12 @@ static inline CRefPtr<CNativeTexture> LoadFrameBuffer(u32 origin)
 static inline void DrawFrameBuffer(u32 origin, const CNativeTexture * texture)
 {
 
-	u16 pixels[FB_WIDTH*FB_HEIGHT];	// TODO: should cache this, but at some point we'll need to deal with variable framebuffer size, so do this later.
+	u16 * pixels = (u16*)malloc(FB_WIDTH*FB_HEIGHT * sizeof(u16));	// TODO: should cache this, but at some point we'll need to deal with variable framebuffer size, so do this later.
 	u32 src_offset = 0;
 
-	for (u32 y = 0; y < FB_HEIGHT; ++y) 
+	for (u32 y = 0; y < FB_HEIGHT; ++y)
 	{
-		u32 dst_row_offset = (FB_HEIGHT-1-y) * FB_WIDTH;
+		u32 dst_row_offset = y * FB_WIDTH;
 		u32 dst_offset     = dst_row_offset;
 
 		for (u32 x = 0; x < FB_WIDTH; ++x)
@@ -79,8 +79,9 @@ static inline void DrawFrameBuffer(u32 origin, const CNativeTexture * texture)
 	}
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, FB_WIDTH, FB_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, pixels);
 
-	//FIX ME, sprite is inverted
 	gRenderer->Draw2DTexture(0, 0, FB_WIDTH, FB_HEIGHT, 0, 0, FB_WIDTH, FB_HEIGHT, texture);
+
+	free(pixels);
 }
 
 
@@ -95,7 +96,7 @@ void RenderFrameBuffer(u32 origin)
 
 	gRenderer->EndScene();
 	gGraphicsPlugin->UpdateScreen();
-	
 }
+
 #endif	// DAEDALUS_PSP
 #endif // UCODE_FB__
