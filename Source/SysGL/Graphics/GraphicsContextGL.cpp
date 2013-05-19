@@ -167,8 +167,6 @@ void GraphicsContextGL::BeginFrame()
 
 	glViewport( 0, 0, width, height );
 	glScissor( 0, 0, width, height );
-
-	ClearToBlack();
 }
 
 void GraphicsContextGL::EndFrame()
