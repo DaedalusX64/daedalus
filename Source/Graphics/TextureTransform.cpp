@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "TextureTransform.h"
 
+#include <string.h>
+
 #include "ColourValue.h"
 #include "NativePixelFormat.h"
 #include "TextureFormat.h"

@@ -11,6 +11,7 @@ homepage: http://wordpress.fx-world.org
 #include "Utility/FastMemcpy.h"
 #include "Utility/DaedalusTypes.h"
 
+#include <string.h>
 #include <psprtc.h>
 #include <psppower.h>
 

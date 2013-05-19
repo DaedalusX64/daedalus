@@ -22,6 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/TextureFormat.h"
 
+#include <string.h>
+
 enum ETLutFmt
 {
 	kTT_NONE = 0,	// G_TT_NONE

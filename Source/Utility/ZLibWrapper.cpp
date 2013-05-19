@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "ZlibWrapper.h"
 
+#include <string.h>
 #include <zlib.h>
 
 #include "Math/MathUtil.h"

@@ -21,17 +21,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "JobManager.h"
 
-#include "Utility/Mutex.h"
-#include "Utility/ModulePSP.h"
-#include "Utility/Thread.h"
-
-#include "Debug/DBGConsole.h"
-
-#include "SysPSP/Utility/CacheUtil.h"
-#include "SysPSP/MediaEnginePRX/me.h"
-
+#include <string.h>
 #include <pspsdk.h>
 #include <pspkernel.h>
+
+#include "Debug/DBGConsole.h"
+#include "SysPSP/MediaEnginePRX/me.h"
+#include "SysPSP/Utility/CacheUtil.h"
+#include "Utility/ModulePSP.h"
+#include "Utility/Mutex.h"
+#include "Utility/Thread.h"
 
 #ifdef DAEDALUS_PSP_USE_ME
 bool gLoadedMediaEnginePRX = false;

@@ -20,7 +20,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef DRAWTEXT_H_
 #define DRAWTEXT_H_
 
+#include <string.h>
+
 #include <vector>
+
 #include "Graphics/ColourValue.h"
 #include "SysPSP/UI/UIAlignment.h"
 
