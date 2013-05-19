@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef REFCOUNTED_H_
-#define REFCOUNTED_H_
+#ifndef UTILITY_REFCOUNTED_H_
+#define UTILITY_REFCOUNTED_H_
 
 #include <stdlib.h>
 
@@ -123,4 +123,4 @@ private:
 	T *			mPtr;
 };
 
-#endif	// REFCOUNTED_H_
+#endif // UTILITY_REFCOUNTED_H_

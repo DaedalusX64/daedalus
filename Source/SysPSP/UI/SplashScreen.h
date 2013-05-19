@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SPLASHSCREEN_H_
-#define SPLASHSCREEN_H_
+#ifndef SYSPSP_UI_SPLASHSCREEN_H_
+#define SYSPSP_UI_SPLASHSCREEN_H_
 
 class CUIContext;
 
@@ -33,4 +33,4 @@ class CSplashScreen
 		virtual void				Run() = 0;
 };
 
-#endif	// SPLASHSCREEN_H_
+#endif // SYSPSP_UI_SPLASHSCREEN_H_

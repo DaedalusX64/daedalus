@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef DAEDALUSTYPES_H__
-#define DAEDALUSTYPES_H__
+#ifndef UTILITY_DAEDALUSTYPES_H_
+#define UTILITY_DAEDALUSTYPES_H_
 
 #include "Debug/DaedalusAssert.h"
 
@@ -121,4 +121,4 @@ DAEDALUS_STATIC_ASSERT( sizeof( REG32 ) == sizeof( u32 ) );
 #define _strcmpi strcasecmp
 #endif
 
-#endif // DAEDALUSTYPES_H__
+#endif // UTILITY_DAEDALUSTYPES_H_

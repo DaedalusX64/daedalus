@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef DAEDALUSMEMORY_H__
-#define DAEDALUSMEMORY_H__
+#ifndef CORE_MEMORY_H_
+#define CORE_MEMORY_H_
 
 #include "OSHLE/ultra_rcp.h"
 #include "Utility/AtomicPrimitives.h"
@@ -328,4 +328,4 @@ REGISTER_FUNCTIONS( DPC, DPC_BASE_REG, MEM_DPC_REG )
 
 #undef REGISTER_FUNCTIONS
 
-#endif	// DAEDALUSMEMORY_H__
+#endif // CORE_MEMORY_H_

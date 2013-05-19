@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __FILENAMEHANDLER_H__
-#define __FILENAMEHANDLER_H__
+#ifndef SYSW32_INTERFACE_FILENAMEHANDLER_H_
+#define SYSW32_INTERFACE_FILENAMEHANDLER_H_
 
 #include <commdlg.h>
 #include "Utility/IO.h"
@@ -51,5 +51,5 @@ private:
 	IO::Filename		m_szCurrentDirectory;
 };
 
-#endif //__FILENAMEHANDLER_H__
+#endif // SYSW32_INTERFACE_FILENAMEHANDLER_H_
 

@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __DAEDALUS_R4300INSTRUCTION_H__
-#define __DAEDALUS_R4300INSTRUCTION_H__
+#ifndef CORE_R4300INSTRUCTION_H_
+#define CORE_R4300INSTRUCTION_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -34,4 +34,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 typedef void (R4300_CALL_TYPE *CPU_Instruction )( R4300_CALL_SIGNATURE );
 
 
-#endif
+#endif // CORE_R4300INSTRUCTION_H_

@@ -20,8 +20,8 @@
 
 #pragma once
 
-#ifndef DAEDALUSASSERT_H_
-#define DAEDALUSASSERT_H_
+#ifndef DEBUG_DAEDALUSASSERT_H_
+#define DEBUG_DAEDALUSASSERT_H_
 
 #include "Utility/Macros.h"
 
@@ -159,4 +159,4 @@ inline void SetAssertHook( DaedalusAssertHook hook )
 
 #endif // DAEDALUS_ENABLE_ASSERTS
 
-#endif // DAEDALUSASSERT_H_
+#endif // DEBUG_DAEDALUSASSERT_H_

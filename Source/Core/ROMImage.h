@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef ROMIMAGE_H_
-#define ROMIMAGE_H_
+#ifndef CORE_ROMIMAGE_H_
+#define CORE_ROMIMAGE_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -72,4 +72,4 @@ ECicType		ROM_GenerateCICType( const u8 * rom_base );
 
 const char *	ROM_GetCicName( ECicType cic_type );
 
-#endif // ROMIMAGE_H_
+#endif // CORE_ROMIMAGE_H_

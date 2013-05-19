@@ -20,8 +20,8 @@
 
 #pragma once
 
-#ifndef __ROMDB_H__
-#define __ROMDB_H__
+#ifndef INTERFACE_ROMDB_H_
+#define INTERFACE_ROMDB_H_
 
 #include "Utility/Singleton.h"
 
@@ -46,4 +46,4 @@ class	CRomDB :  public CSingleton< CRomDB >
 };
 
 
-#endif // __ROMDB_H__
+#endif // INTERFACE_ROMDB_H_

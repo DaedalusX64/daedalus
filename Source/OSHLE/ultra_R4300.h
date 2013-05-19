@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __ULTRA_R4300_H__
-#define __ULTRA_R4300_H__
+#ifndef OSHLE_ULTRA_R4300_H_
+#define OSHLE_ULTRA_R4300_H_
 
 #define	KUBASE		0
 #define	KUSIZE		0x80000000
@@ -268,4 +268,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	FPCSR_RM_RM		0x00000003
 
 
-#endif // __ULTRA_R4300_H__
+#endif // OSHLE_ULTRA_R4300_H_

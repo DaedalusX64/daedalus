@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef STREAM_H_
-#define STREAM_H_
+#ifndef UTILITY_STREAM_H_
+#define UTILITY_STREAM_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -71,5 +71,4 @@ inline COutputStream & operator<<( COutputStream & str, CNullOutputStream & rhs 
 
 COutputStream & operator<<( COutputStream & str, COutputStringStream & rhs );
 
-#endif
-
+#endif // UTILITY_STREAM_H_

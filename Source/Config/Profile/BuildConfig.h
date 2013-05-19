@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef CONFIG_PROFILE_BUILDCONFIG_H_
+#define CONFIG_PROFILE_BUILDCONFIG_H_
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -50,4 +50,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // This must be Enable, otherwise no gprof output.
 #define DAEDALUS_PSP_GPROF
 
-#endif // CONFIG_H_
+#endif // CONFIG_PROFILE_BUILDCONFIG_H_

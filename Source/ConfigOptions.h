@@ -20,8 +20,8 @@
 
 #pragma once
 
-#ifndef __CONFIGOPTIONS_H__
-#define __CONFIGOPTIONS_H__
+#ifndef CONFIGOPTIONS_H_
+#define CONFIGOPTIONS_H_
 
 #include "Utility/IO.h"
 
@@ -64,5 +64,4 @@ enum EAudioPluginMode
 
 extern EAudioPluginMode gAudioPluginEnabled;
 
-
-#endif // __CONFIGOPTIONS_H__
+#endif // CONFIGOPTIONS_H_

@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef MODULE_H_
-#define MODULE_H_
+#ifndef SYSPSP_UTILITY_MODULEPSP_H_
+#define SYSPSP_UTILITY_MODULEPSP_H_
 
 namespace CModule
 {
@@ -26,4 +26,4 @@ namespace CModule
 	int Load( const char *path );
 }
 
-#endif // MODULE_H_
+#endif // SYSPSP_UTILITY_MODULEPSP_H_

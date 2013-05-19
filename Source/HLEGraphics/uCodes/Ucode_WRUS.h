@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef UCODE_WRUS_H__
-#define UCODE_WRUS_H__
+#ifndef HLEGRAPHICS_UCODES_UCODE_WRUS_H_
+#define HLEGRAPHICS_UCODES_UCODE_WRUS_H_
 
 //*****************************************************************************
 // The previous way of calculating was based on the assumption that
@@ -48,4 +48,4 @@ void DLParser_GBI0_Vtx_WRUS( MicroCodeCommand command )
 
 }
 
-#endif // UCODE_WRUS_H__
+#endif // HLEGRAPHICS_UCODES_UCODE_WRUS_H_

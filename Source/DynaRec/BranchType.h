@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __DAEDALUS_BRANCHTYPE_H__
-#define __DAEDALUS_BRANCHTYPE_H__
+#ifndef DYNAREC_BRANCHTYPE_H_
+#define DYNAREC_BRANCHTYPE_H_
 
 #include "Utility/DaedalusTypes.h"
 #include <stdlib.h>
@@ -93,4 +93,4 @@ inline bool IsBranchTypeDirect( ER4300BranchType type )
 
 u32	GetBranchTarget( u32 address, OpCode op_code, ER4300BranchType type );
 
-#endif // __DAEDALUS_BRANCHTYPE_H__
+#endif // DYNAREC_BRANCHTYPE_H_

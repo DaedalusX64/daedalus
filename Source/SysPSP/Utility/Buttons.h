@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef BUTTONS_H
-#define BUTTONS_H
+#ifndef SYSPSP_UTILITY_BUTTONS_H_
+#define SYSPSP_UTILITY_BUTTONS_H_
 //
 // This a wrapper to easy up the use of kernel buttons prx
 //
@@ -48,4 +48,4 @@ bool InitHomeButton();
 
 //void DaedalusReadButtons(u32 buttons);
 
-#endif	//BUTTONS_H
+#endif // SYSPSP_UTILITY_BUTTONS_H_

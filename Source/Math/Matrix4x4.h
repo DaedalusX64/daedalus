@@ -1,5 +1,5 @@
-#ifndef MATRIX4X4_H__
-#define MATRIX4X4_H__
+#ifndef MATH_MATRIX4X4_H_
+#define MATH_MATRIX4X4_H_
 
 #include "Utility/Alignment.h"
 
@@ -68,4 +68,4 @@ extern const Matrix4x4	gMatrixIdentity;
 void MatrixMultiplyUnaligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b);
 void MatrixMultiplyAligned(Matrix4x4 * m_out, const Matrix4x4 *mat_a, const Matrix4x4 *mat_b);
 
-#endif // MATRIX4X4_H__
+#endif // MATH_MATRIX4X4_H_

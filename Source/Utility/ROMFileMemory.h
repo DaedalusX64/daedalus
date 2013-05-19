@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef ROMFILEMEMORY_H_
-#define ROMFILEMEMORY_H_
+#ifndef UTILITY_ROMFILEMEMORY_H_
+#define UTILITY_ROMFILEMEMORY_H_
 
 #include "Utility/DaedalusTypes.h"
 #include "Utility/Singleton.h"
@@ -35,4 +35,4 @@ public:
 };
 
 
-#endif // ROMFILEMEMORY_H_
+#endif // UTILITY_ROMFILEMEMORY_H_

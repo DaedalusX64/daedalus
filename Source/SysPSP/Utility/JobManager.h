@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef JOBMANAGER_H_
-#define JOBMANAGER_H_
+#ifndef SYSPSP_UTILITY_JOBMANAGER_H_
+#define SYSPSP_UTILITY_JOBMANAGER_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -75,4 +75,4 @@ private:
 
 extern CJobManager gJobManager;
 
-#endif // JOBMANAGER_H_
+#endif // SYSPSP_UTILITY_JOBMANAGER_H_

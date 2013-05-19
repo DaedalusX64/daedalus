@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef UICOMMAND_H_
-#define UICOMMAND_H_
+#ifndef SYSPSP_UI_UICOMMAND_H_
+#define SYSPSP_UI_UICOMMAND_H_
 
 #include "UIElement.h"
 
@@ -89,4 +89,4 @@ public:
 	virtual	void			OnSelected()			{ }
 };
 
-#endif	// UICOMMAND_H_
+#endif // SYSPSP_UI_UICOMMAND_H_

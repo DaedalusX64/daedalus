@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef TRANSLATE_H_
-#define TRANSLATE_H_
+#ifndef UTILITY_TRANSLATE_H_
+#define UTILITY_TRANSLATE_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -39,4 +39,4 @@ u32			 Translate_Number();
 u32			 Translate_IndexFromName( const char * name );
 const char * Translate_NameFromIndex( u32 idx );
 
-#endif // TRANSLATE_H_
+#endif // UTILITY_TRANSLATE_H_

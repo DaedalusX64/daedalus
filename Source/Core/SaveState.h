@@ -20,8 +20,8 @@
 
 #pragma once
 
-#ifndef __SAVESTATE_H__
-#define __SAVESTATE_H__
+#ifndef CORE_SAVESTATE_H_
+#define CORE_SAVESTATE_H_
 
 class RomID;
 
@@ -30,4 +30,4 @@ bool SaveState_SaveToFile( const char * filename );
 RomID SaveState_GetRomID( const char * filename );
 const char* SaveState_GetRom(const char * filename);
 
-#endif //__SAVESTATE_H__
+#endif // CORE_SAVESTATE_H_

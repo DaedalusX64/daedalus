@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __ULTRA_RCP_H__
-#define __ULTRA_RCP_H__
+#ifndef OSHLE_ULTRA_RCP_H_
+#define OSHLE_ULTRA_RCP_H_
 
 #define SP_DMEM_START		0x04000000
 #define SP_DMEM_END			0x04000FFF
@@ -343,4 +343,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define PIF_RAM_START	0x1FC007C0
 #define PIF_RAM_END		0x1FC007FF
 
-#endif // __ULTRA_RCP_H__
+#endif // OSHLE_ULTRA_RCP_H_

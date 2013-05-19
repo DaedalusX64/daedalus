@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef COLOURPULSER_H_
-#define COLOURPULSER_H_
+#ifndef SYSPSP_UI_COLOURPULSER_H_
+#define SYSPSP_UI_COLOURPULSER_H_
 
 #include "Graphics/ColourValue.h"
 
@@ -41,4 +41,4 @@ class CColourPulser
 		c32					mCurrentColour;
 };
 
-#endif	// COLOURPULSER_H_
+#endif // SYSPSP_UI_COLOURPULSER_H_

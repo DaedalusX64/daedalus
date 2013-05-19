@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef PAUSEOPTIONSCOMPONENT_H_
-#define PAUSEOPTIONSCOMPONENT_H_
+#ifndef SYSPSP_UI_PAUSEOPTIONSCOMPONENT_H_
+#define SYSPSP_UI_PAUSEOPTIONSCOMPONENT_H_
 
 #include "UIComponent.h"
 
@@ -34,4 +34,4 @@ class CPauseOptionsComponent : public CUIComponent
 		static CPauseOptionsComponent *	Create( CUIContext * p_context, CFunctor * on_resume, CFunctor * on_reset );
 };
 
-#endif	// PAUSEOPTIONSCOMPONENT_H_
+#endif // SYSPSP_UI_PAUSEOPTIONSCOMPONENT_H_

@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef UCODE_DKR_H__
-#define UCODE_DKR_H__
+#ifndef HLEGRAPHICS_UCODES_UCODE_DKR_H_
+#define HLEGRAPHICS_UCODES_UCODE_DKR_H_
 
 u32 gDKRMatrixAddr = 0;
 u32 gDKRVtxCount = 0;
@@ -297,4 +297,4 @@ void DLParser_GBI1_Texture_DKR( MicroCodeCommand command )
 	gRenderer->SetTextureScale( scale_s, scale_t );
 }
 
-#endif // UCODE_DKR_H__
+#endif // HLEGRAPHICS_UCODES_UCODE_DKR_H_

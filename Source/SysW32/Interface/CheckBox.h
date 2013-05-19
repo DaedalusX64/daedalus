@@ -20,8 +20,8 @@
 
 #pragma once
 
-#ifndef CHECKBOX_H_
-#define CHECKBOX_H_
+#ifndef SYSW32_INTERFACE_CHECKBOX_H_
+#define SYSW32_INTERFACE_CHECKBOX_H_
 
 // Windowsx.h type defines - hope these don't conflict with anything!
 #define CheckBox_GetCheck(hwnd)			SendMessage(hwnd, BM_GETCHECK, 0,0)
@@ -29,4 +29,4 @@
 
 #define CheckBox_IsChecked( hwnd )		(CheckBox_GetCheck( (hwnd) ) == BST_CHECKED)
 
-#endif
+#endif // SYSW32_INTERFACE_CHECKBOX_H_

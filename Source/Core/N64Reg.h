@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef N64REG_H__
-#define N64REG_H__
+#ifndef CORE_N64REG_H_
+#define CORE_N64REG_H_
 
 enum EN64Reg
 {
@@ -41,4 +41,4 @@ enum EN64FloatReg
 	NUM_N64_FP_REGS,
 };
 
-#endif // N64REG_H__
+#endif // CORE_N64REG_H_

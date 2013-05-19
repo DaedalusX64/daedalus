@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef CODEGENERATORX86_H_
-#define CODEGENERATORX86_H_
+#ifndef SYSW32_DYNAREC_X86_CODEGENERATORX86_H_
+#define SYSW32_DYNAREC_X86_CODEGENERATORX86_H_
 
 #include "DynaRec/CodeGenerator.h"
 #include "AssemblyWriterX86.h"
@@ -99,4 +99,4 @@ class CCodeGeneratorX86 : public CCodeGenerator, public CAssemblyWriterX86
 				bool	GenerateJR( EN64Reg rs);
 };
 
-#endif // CODEGENERATORX86_H_
+#endif // SYSW32_DYNAREC_X86_CODEGENERATORX86_H_

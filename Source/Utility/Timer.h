@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef TIMER_H_
-#define TIMER_H_
+#ifndef UTILITY_TIMER_H_
+#define UTILITY_TIMER_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -37,5 +37,5 @@ class CTimer
 		f32			mFreqInv;
 };
 
-#endif // TIMER_H_
+#endif // UTILITY_TIMER_H_
 

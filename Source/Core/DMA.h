@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef DMA_H_
-#define DMA_H_
+#ifndef CORE_DMA_H_
+#define CORE_DMA_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -39,4 +39,4 @@ bool DMA_FLASH_CopyFromDRAM(u32 dest, u32 len);
 extern bool gDMAUsed;
 
 
-#endif	// DMA_H_
+#endif // CORE_DMA_H_

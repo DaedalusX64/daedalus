@@ -16,8 +16,8 @@
    Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#ifndef UCODE_H
-#define UCODE_H
+#ifndef HLEGRAPHICS_UCODES_UCODE_H_
+#define HLEGRAPHICS_UCODES_UCODE_H_
 
 #include "stdafx.h"
 #include "UcodeDefs.h"
@@ -195,4 +195,4 @@ UcodeFunc( DLParser_Vtx_PD );
 //UcodeFunc( DLParser_Tri4_PD );
 UcodeFunc( DLParser_SetTImg_SOTE );
 
-#endif // UCODE_H__
+#endif // HLEGRAPHICS_UCODES_UCODE_H___

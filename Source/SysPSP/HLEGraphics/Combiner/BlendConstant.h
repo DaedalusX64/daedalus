@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef BLENDCONSTANT_H_
-#define BLENDCONSTANT_H_
+#ifndef SYSPSP_HLEGRAPHICS_COMBINER_BLENDCONSTANT_H_
+#define SYSPSP_HLEGRAPHICS_COMBINER_BLENDCONSTANT_H_
 
 #include <string>
 
@@ -156,4 +156,4 @@ private:
 	const CBlendConstantExpression *			mF;
 };
 
-#endif // BLENDCONSTANT_H_
+#endif // SYSPSP_HLEGRAPHICS_COMBINER_BLENDCONSTANT_H_

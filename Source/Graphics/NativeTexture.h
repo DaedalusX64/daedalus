@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef NATIVETEXTURE_H_
-#define NATIVETEXTURE_H_
+#ifndef GRAPHICS_NATIVETEXTURE_H_
+#define GRAPHICS_NATIVETEXTURE_H_
 
 #include "Utility/RefCounted.h"
 
@@ -94,4 +94,4 @@ class CNativeTexture : public CRefCounted
 #endif // DAEDALUS_PSP
 };
 
-#endif	// NATIVETEXTURE_H_
+#endif // GRAPHICS_NATIVETEXTURE_H_

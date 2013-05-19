@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef BLENDMODES_H__
-#define BLENDMODES_H__
+#ifndef SYSPSP_HLEGRAPHICS_BLENDMODES_H_
+#define SYSPSP_HLEGRAPHICS_BLENDMODES_H_
 
 #include "Graphics/ColourValue.h"
 #include "HLEGraphics/ColourAdjuster.h"
@@ -40,5 +40,5 @@ bool					IsInexactDefault( OverrideBlendModeFn Fn );
 OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux );
 OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux );
 
-#endif // BLENDMODES_H__
+#endif // SYSPSP_HLEGRAPHICS_BLENDMODES_H_
 

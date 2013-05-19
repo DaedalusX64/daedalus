@@ -1,5 +1,5 @@
-#ifndef DAEDMATHS_H__
-#define DAEDMATHS_H__
+#ifndef MATH_MATH_H_
+#define MATH_MATH_H_
 
 #include <math.h>
 
@@ -512,5 +512,5 @@ inline void SinCos(float x, float * s, float * c)
 
 #endif // DAEDALUS_PSP
 
-#endif // DAEDMATHS_H__
+#endif // MATH_MATH_H_
 

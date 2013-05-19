@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef UCODE_LL_H__
-#define UCODE_LL_H__
+#ifndef HLEGRAPHICS_UCODES_UCODE_LL_H_
+#define HLEGRAPHICS_UCODES_UCODE_LL_H_
 
 //*****************************************************************************
 
@@ -154,4 +154,4 @@ void DLParser_TexRect_Last_Legion( MicroCodeCommand command )
 	gRenderer->TexRect( tex_rect.tile_idx, xy0, xy1, st0, st1 );
 }
 
-#endif // UCODE_LL_H__
+#endif // HLEGRAPHICS_UCODES_UCODE_LL_H_

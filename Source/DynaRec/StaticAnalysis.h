@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #pragma once
 
-#ifndef __DAEDALUS_STATICANALYSIS_H__
-#define __DAEDALUS_STATICANALYSIS_H__
+#ifndef DYNAREC_STATICANALYSIS_H_
+#define DYNAREC_STATICANALYSIS_H_
 
 #include "BranchType.h"
 #include "Core/Memory.h"
@@ -148,4 +148,4 @@ namespace StaticAnalysis
 	void		Analyse( OpCode op_code, RegisterUsage & reg_usage );
 }
 
-#endif // __DAEDALUS_STATICANALYSIS_H__
+#endif // DYNAREC_STATICANALYSIS_H_

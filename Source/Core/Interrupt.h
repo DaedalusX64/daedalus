@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __INTERRUPT_H__
-#define __INTERRUPT_H__
+#ifndef CORE_INTERRUPT_H_
+#define CORE_INTERRUPT_H_
 
 #include "CPU.h"
 #include "OSHLE/ultra_R4300.h"
@@ -57,4 +57,4 @@ extern u32 gNumInterrupts;
 #endif
 
 
-#endif
+#endif // CORE_INTERRUPT_H_

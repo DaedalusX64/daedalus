@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __DUMP_H__
-#define __DUMP_H__
+#ifndef DEBUG_DUMP_H_
+#define DEBUG_DUMP_H_
 
 #include <stdio.h>
 
@@ -41,4 +41,4 @@ void Dump_Strings(const char * p_file_name);
 
 #endif
 
-#endif //__DUMP_H__
+#endif // DEBUG_DUMP_H_

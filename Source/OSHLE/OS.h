@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __DAEDALUSOS_H__
-#define __DAEDALUSOS_H__
+#ifndef OSHLE_OS_H_
+#define OSHLE_OS_H_
 
 #include "patch.h"
 #include "patch_symbols.h"
@@ -42,4 +42,4 @@ u32 OS_HLE___osProbeTLB(u32 vaddr);
 void OS_HLE_osCreateMesgQueue(u32 queue, u32 msgBuffer, u32 msgCount);
 #endif
 
-#endif //__DAEDALUSOS_H__
+#endif // OSHLE_OS_H_

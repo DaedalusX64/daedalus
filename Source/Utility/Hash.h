@@ -19,10 +19,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef HASH_H_
-#define HASH_H_
+#ifndef UTILITY_HASH_H_
+#define UTILITY_HASH_H_
 
 unsigned int murmur2_hash ( const void * key, int len, unsigned int seed );
 unsigned int murmur2_neutral_hash ( const void * key, int len, unsigned int seed );
 
-#endif // HASH_H_
+#endif // UTILITY_HASH_H_

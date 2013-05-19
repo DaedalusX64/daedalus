@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef UCODE_CONKER_H__
-#define UCODE_CONKER_H__
+#ifndef HLEGRAPHICS_UCODES_UCODE_CONKER_H_
+#define HLEGRAPHICS_UCODES_UCODE_CONKER_H_
 
 // Alot cheaper than check mux
 // Shadow only seems to be drawn by Tr1/2 ucodes
@@ -373,4 +373,4 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 
 
 
-#endif // UCODE_CONKER_H__
+#endif // HLEGRAPHICS_UCODES_UCODE_CONKER_H_

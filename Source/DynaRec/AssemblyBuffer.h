@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef ASSEMBLYBUFFER_H_
-#define ASSEMBLYBUFFER_H_
+#ifndef DYNAREC_ASSEMBLYBUFFER_H_
+#define DYNAREC_ASSEMBLYBUFFER_H_
 
 #include <string.h>
 
@@ -88,4 +88,4 @@ protected:
 	u32						mCurrentPos;		// Current writing position in buffer
 };
 
-#endif // ASSEMBLYBUFFER_H_
+#endif // DYNAREC_ASSEMBLYBUFFER_H_

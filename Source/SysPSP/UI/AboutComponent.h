@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef ABOUTCOMPONENT_H_
-#define ABOUTCOMPONENT_H_
+#ifndef SYSPSP_UI_ABOUTCOMPONENT_H_
+#define SYSPSP_UI_ABOUTCOMPONENT_H_
 
 #include "UIComponent.h"
 
@@ -31,4 +31,4 @@ class CAboutComponent : public CUIComponent
 		static CAboutComponent *	Create( CUIContext * p_context );
 };
 
-#endif	// ABOUTCOMPONENT_H_
+#endif // SYSPSP_UI_ABOUTCOMPONENT_H_

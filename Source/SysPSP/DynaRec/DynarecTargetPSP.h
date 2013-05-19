@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef DYNARECTARGETPSP_H_
-#define DYNARECTARGETPSP_H_
+#ifndef SYSPSP_DYNAREC_DYNARECTARGETPSP_H_
+#define SYSPSP_DYNAREC_DYNARECTARGETPSP_H_
 
 #include "Core/R4300OpCode.h"
 
@@ -127,4 +127,4 @@ struct PspOpCode
 };
 
 
-#endif // DYNARECTARGETPSP_H_
+#endif // SYSPSP_DYNAREC_DYNARECTARGETPSP_H_

@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef ASSEMBLYWRITERX86_H_
-#define ASSEMBLYWRITERX86_H_
+#ifndef SYSW32_DYNAREC_X86_ASSEMBLYWRITERX86_H_
+#define SYSW32_DYNAREC_X86_ASSEMBLYWRITERX86_H_
 
 #include "DynaRec/AssemblyBuffer.h"
 #include "DynarecTargetX86.h"
@@ -204,4 +204,4 @@ class CAssemblyWriterX86
 		CAssemblyBuffer *				mpAssemblyBuffer;
 };
 
-#endif // ASSEMBLYWRITERX86_H_
+#endif // SYSW32_DYNAREC_X86_ASSEMBLYWRITERX86_H_

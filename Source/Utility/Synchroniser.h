@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef SYNCHRONISER_H_
-#define SYNCHRONISER_H_
+#ifndef UTILITY_SYNCHRONISER_H_
+#define UTILITY_SYNCHRONISER_H_
 
 #include "Utility/Macros.h"
 
@@ -139,4 +139,4 @@ class CSynchroniser
 #endif
 
 
-#endif // SYNCHRONISER_H_
+#endif // UTILITY_SYNCHRONISER_H_

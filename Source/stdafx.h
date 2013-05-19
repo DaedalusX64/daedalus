@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef PRECOMPILED_H_
-#define PRECOMPILED_H_
+#ifndef STDAFX_H_
+#define STDAFX_H_
 
 //*****************************************************************************
 //	These are our various compilation options
@@ -34,4 +34,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Utility/DaedalusTypes.h"
 
-#endif // PRECOMPILED_H_
+#endif // STDAFX_H_

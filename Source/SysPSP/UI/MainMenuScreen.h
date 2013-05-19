@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef MAINMENUSCREEN_H_
-#define MAINMENUSCREEN_H_
+#ifndef SYSPSP_UI_MAINMENUSCREEN_H_
+#define SYSPSP_UI_MAINMENUSCREEN_H_
 
 class CUIContext;
 
@@ -33,4 +33,4 @@ class CMainMenuScreen
 		virtual void				Run() = 0;
 };
 
-#endif	// MAINMENUSCREEN_H_
+#endif // SYSPSP_UI_MAINMENUSCREEN_H_

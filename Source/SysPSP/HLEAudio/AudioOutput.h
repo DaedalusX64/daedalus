@@ -24,8 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //	Drop me a line if you get chance :)
 //
 
-#ifndef AUDIOOUTPUT_H__
-#define AUDIOOUTPUT_H__
+#ifndef SYSPSP_HLEAUDIO_AUDIOOUTPUT_H_
+#define SYSPSP_HLEAUDIO_AUDIOOUTPUT_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -59,4 +59,4 @@ class AudioOutput
 		u32					mFrequency;
 };
 
-#endif // AUDIOOUTPUT_H__
+#endif // SYSPSP_HLEAUDIO_AUDIOOUTPUT_H_

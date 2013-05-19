@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef AUDIOPLUGIN_PSP_H_
-#define AUDIOPLUGIN_PSP_H_
+#ifndef SYSPSP_HLEAUDIO_AUDIOPLUGINPSP_H_
+#define SYSPSP_HLEAUDIO_AUDIOPLUGINPSP_H_
 
 #include "Plugins/AudioPlugin.h"
 
@@ -48,5 +48,5 @@ private:
 };
 
 
-#endif // AUDIOPLUGIN_PSP_H_
+#endif // SYSPSP_HLEAUDIO_AUDIOPLUGINPSP_H_
 

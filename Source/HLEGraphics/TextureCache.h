@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef TEXTURECACHE_H__
-#define TEXTURECACHE_H__
+#ifndef HLEGRAPHICS_TEXTURECACHE_H_
+#define HLEGRAPHICS_TEXTURECACHE_H_
 
 #include "CachedTexture.h"
 
@@ -86,4 +86,4 @@ private:
 #endif
 };
 
-#endif	// TEXTURECACHE_H__
+#endif // HLEGRAPHICS_TEXTURECACHE_H_

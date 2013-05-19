@@ -20,8 +20,8 @@
 
 #pragma once
 
-#ifndef __DAEDALUS_DISPLAYLISTDEBUGGER_H__
-#define __DAEDALUS_DISPLAYLISTDEBUGGER_H__
+#ifndef HLEGRAPHICS_DISPLAYLISTDEBUGGER_H_
+#define HLEGRAPHICS_DISPLAYLISTDEBUGGER_H_
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 bool DLDebugger_IsDebugging();
@@ -31,4 +31,4 @@ bool DLDebugger_Process();
 bool DLDebugger_RegisterWebDebug();
 #endif
 
-#endif // __DAEDALUS_DISPLAYLISTDEBUGGER_H__
+#endif // HLEGRAPHICS_DISPLAYLISTDEBUGGER_H_

@@ -1,5 +1,5 @@
-#ifndef __INPUTMANAGER_H__
-#define __INPUTMANAGER_H__
+#ifndef INPUT_INPUTMANAGER_H_
+#define INPUT_INPUTMANAGER_H_
 
 #include "OSHLE/ultra_os.h"
 #include "Utility/Singleton.h"
@@ -32,4 +32,4 @@ class CInputManager : public CSingleton< CInputManager >
 v2	ApplyDeadzone( const v2 & in, f32 min_deadzone, f32 max_deadzone );
 #endif
 
-#endif // __INPUTMANAGER_H__
+#endif // INPUT_INPUTMANAGER_H_

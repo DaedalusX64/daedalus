@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef DEBUGLOG_H_
-#define DEBUGLOG_H_
+#ifndef DEBUG_DEBUGLOG_H_
+#define DEBUG_DEBUGLOG_H_
 
 #ifdef DAEDALUS_LOG
 
@@ -86,6 +86,6 @@ void		Debug_Print( const char * format, ... );
 #define DPF( flags, ... )		DAED_LOG( flags, __VA_ARGS__ )
 
 
-#endif // DEBUGLOG_H_
+#endif // DEBUG_DEBUGLOG_H_
 
 

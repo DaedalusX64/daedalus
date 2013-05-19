@@ -1,5 +1,5 @@
-#ifndef VECTOR2_H__
-#define VECTOR2_H__
+#ifndef MATH_VECTOR2_H_
+#define MATH_VECTOR2_H_
 
 #include "Math/Math.h"	// VFPU Math
 
@@ -72,4 +72,4 @@ public:
 	float x, y;
 };
 
-#endif // VECTOR2_H__
+#endif // MATH_VECTOR2_H_

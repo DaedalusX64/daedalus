@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef ASSEMBLYWRITERPSP_H_
-#define ASSEMBLYWRITERPSP_H_
+#ifndef SYSPSP_DYNAREC_ASSEMBLYWRITERPSP_H_
+#define SYSPSP_DYNAREC_ASSEMBLYWRITERPSP_H_
 
 #include "DynaRec/AssemblyBuffer.h"
 #include "DynarecTargetPSP.h"
@@ -185,4 +185,4 @@ class CAssemblyWriterPSP
 		CAssemblyBuffer *				mpAssemblyBufferB;
 };
 
-#endif // ASSEMBLYWRITERPSP_H_
+#endif // SYSPSP_DYNAREC_ASSEMBLYWRITERPSP_H_

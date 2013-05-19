@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __PATCH_H__
-#define __PATCH_H__
+#ifndef OSHLE_PATCH_H_
+#define OSHLE_PATCH_H_
 
 #include "Core/Registers.h"		// For SRHACK_???? etc
 #include "Core/CPU.h"		// Breakpoint stuff
@@ -194,4 +194,4 @@ void Patch_DumpOsQueueInfo();
 void Patch_DumpOsEventInfo();
 #endif
 
-#endif
+#endif // OSHLE_PATCH_H_

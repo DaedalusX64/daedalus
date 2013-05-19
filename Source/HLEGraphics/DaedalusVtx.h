@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __DAEDALUS_DAEDALUSVTX_H__
-#define __DAEDALUS_DAEDALUSVTX_H__
+#ifndef HLEGRAPHICS_DAEDALUSVTX_H_
+#define HLEGRAPHICS_DAEDALUSVTX_H_
 
 #include "Math/Vector2.h"
 #include "Math/Vector3.h"
@@ -78,4 +78,4 @@ struct DaedalusVtx
 
 DAEDALUS_STATIC_ASSERT( sizeof(DaedalusVtx) == 24 );
 
-#endif // __DAEDALUS_DAEDALUSVTX_H__
+#endif // HLEGRAPHICS_DAEDALUSVTX_H_

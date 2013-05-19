@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef RENDERSETTINGS_H_
-#define RENDERSETTINGS_H_
+#ifndef SYSPSP_HLEGRAPHICS_COMBINER_RENDERSETTINGS_H_
+#define SYSPSP_HLEGRAPHICS_COMBINER_RENDERSETTINGS_H_
 
 #include <stdio.h>
 
@@ -210,4 +210,4 @@ private:
 
 };
 
-#endif // RENDERSETTINGS_H_
+#endif // SYSPSP_HLEGRAPHICS_COMBINER_RENDERSETTINGS_H_

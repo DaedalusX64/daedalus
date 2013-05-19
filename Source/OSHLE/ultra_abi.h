@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __ULTRA_ABI_H__
-#define __ULTRA_ABI_H__
+#ifndef OSHLE_ULTRA_ABI_H_
+#define OSHLE_ULTRA_ABI_H_
 
 
 // Audio commands:
@@ -57,4 +57,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define A_MIX			0x10
 
 
-#endif // __ULTRA_ABI_H__
+#endif // OSHLE_ULTRA_ABI_H_

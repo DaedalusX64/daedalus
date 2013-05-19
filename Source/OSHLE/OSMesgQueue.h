@@ -1,5 +1,5 @@
-#ifndef OSMESGQUEUE_H_
-#define OSMESGQUEUE_H_
+#ifndef OSHLE_OSMESGQUEUE_H_
+#define OSHLE_OSMESGQUEUE_H_
 
 #include "ultra_os.h"
 
@@ -94,4 +94,4 @@ protected:
 
 };
 
-#endif // OSMESGQUEUE_H_
+#endif // OSHLE_OSMESGQUEUE_H_

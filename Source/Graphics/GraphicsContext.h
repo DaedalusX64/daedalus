@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef __DAEDALUS_GRAPHICSCONTEXT_H__
-#define __DAEDALUS_GRAPHICSCONTEXT_H__
+#ifndef GRAPHICS_GRAPHICSCONTEXT_H_
+#define GRAPHICS_GRAPHICSCONTEXT_H_
 
 #include "Utility/DaedalusTypes.h"
 #include "Utility/Singleton.h"
@@ -72,4 +72,4 @@ public:
 	virtual void DumpScreenShot() = 0;
 };
 
-#endif // __DAEDALUS_GRAPHICSCONTEXT_H__
+#endif // GRAPHICS_GRAPHICSCONTEXT_H_

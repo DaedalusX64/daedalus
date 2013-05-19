@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef ALIGNMENT_H__
-#define ALIGNMENT_H__
+#ifndef UTILITY_ALIGNMENT_H_
+#define UTILITY_ALIGNMENT_H_
 
 #if defined(DAEDALUS_W32)
 
@@ -91,4 +91,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #endif
 
-#endif //ALIGNMENT_H__
+#endif // UTILITY_ALIGNMENT_H_

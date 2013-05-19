@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef CACHEUTIL_H_
-#define CACHEUTIL_H_
+#ifndef SYSPSP_UTILITY_CACHEUTIL_H_
+#define SYSPSP_UTILITY_CACHEUTIL_H_
 
 #include "Math/MathUtil.h"
 
@@ -71,4 +71,4 @@ inline void dcache_inv_range(void *addr, int size)
 }
 #endif
 
-#endif // CACHEUTIL_H_
+#endif // SYSPSP_UTILITY_CACHEUTIL_H_

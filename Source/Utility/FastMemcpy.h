@@ -1,6 +1,6 @@
 
-#ifndef FASTMEMCPY_H_
-#define FASTMEMCPY_H_
+#ifndef UTILITY_FASTMEMCPY_H_
+#define UTILITY_FASTMEMCPY_H_
 
 #include <stdlib.h>
 
@@ -43,4 +43,4 @@ void memcpy_vfpu_byteswap( void* dst, const void* src, size_t size );
 #endif // DAEDALUS_PSP
 
 
-#endif // FASTMEMCPY_H_
+#endif // UTILITY_FASTMEMCPY_H_

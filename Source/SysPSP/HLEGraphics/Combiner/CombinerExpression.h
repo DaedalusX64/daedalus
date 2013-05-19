@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef COMBINEREXPRESSION_H_
-#define COMBINEREXPRESSION_H_
+#ifndef SYSPSP_HLEGRAPHICS_COMBINER_COMBINEREXPRESSION_H_
+#define SYSPSP_HLEGRAPHICS_COMBINER_COMBINEREXPRESSION_H_
 
 #include <vector>
 #include <algorithm>
@@ -256,4 +256,4 @@ private:
 	std::vector< Node >	mOperands;
 };
 
-#endif // COMBINEREXPRESSION_H_
+#endif // SYSPSP_HLEGRAPHICS_COMBINER_COMBINEREXPRESSION_H_
