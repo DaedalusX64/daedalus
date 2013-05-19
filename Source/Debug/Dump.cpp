@@ -82,6 +82,8 @@ void Dump_GetSaveDirectory(char * rootdir, const char * rom_filename, const char
 	// If the Save path has not yet been set up, prompt user
 	if (strlen(g_DaedalusConfig.mSaveDir) == 0)
 	{
+		// FIXME: missing prompt here!
+
 		// User may have cancelled
 		if (strlen(g_DaedalusConfig.mSaveDir) == 0)
 		{
