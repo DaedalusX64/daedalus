@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#include <stdio.h>
+
 #include "Core/Memory.h"
 
 #include "Debug/DBGConsole.h"
