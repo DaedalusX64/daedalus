@@ -18,9 +18,7 @@
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #ifndef __ROMDB_H__
 #define __ROMDB_H__

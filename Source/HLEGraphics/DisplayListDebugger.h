@@ -18,12 +18,10 @@
 
 */
 
+#pragma once
+
 #ifndef __DAEDALUS_DISPLAYLISTDEBUGGER_H__
 #define __DAEDALUS_DISPLAYLISTDEBUGGER_H__
-
-#if _MSC_VER > 1000
-#pragma once
-#endif
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 bool DLDebugger_IsDebugging();

@@ -18,9 +18,7 @@
  *
  ******************************************************************************/
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #ifndef __INIFILE_H__
 #define __INIFILE_H__

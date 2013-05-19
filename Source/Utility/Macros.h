@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef MACROS_H_
 #define MACROS_H_
 

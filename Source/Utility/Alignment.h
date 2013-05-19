@@ -17,10 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif
-
 
 #ifndef ALIGNMENT_H__
 #define ALIGNMENT_H__

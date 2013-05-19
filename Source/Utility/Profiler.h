@@ -1,13 +1,10 @@
 // Profiler.h: interface for the CProfiler class.
 //
 //////////////////////////////////////////////////////////////////////
+#pragma once
 
 #ifndef __PROFILER_H__
 #define __PROFILER_H__
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
 
 #ifdef DAEDALUS_ENABLE_PROFILING
 

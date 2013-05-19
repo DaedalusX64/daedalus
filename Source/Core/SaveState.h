@@ -18,9 +18,7 @@
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #ifndef __SAVESTATE_H__
 #define __SAVESTATE_H__
