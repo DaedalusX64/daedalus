@@ -100,6 +100,8 @@ int main(int argc, char **argv)
 		{
 			#ifdef DAEDALUS_BATCH_TEST_ENABLED
 				BatchTestMain(argc, argv);
+			#else
+				fprintf(stderr, "BatchTest mode is not present in this build.\n");
 			#endif
 		}
 		else if (filename)
