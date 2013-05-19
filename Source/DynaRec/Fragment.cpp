@@ -185,7 +185,7 @@ void CFragment::Execute()
 	u32					upper( 0x80000000 + gRamSize );
 
 	_EnterDynaRec( mEntryPoint.GetTarget(), &gCPUState, p, upper );
-#endif	// FRAGMENT_SIMULATE_EXECUTION
+#endif // FRAGMENT_SIMULATE_EXECUTION
 
 	SYNCH_POINT( DAED_SYNC_FRAGMENT_PC, gCPUState.CurrentPC + gCPUState.Delay, "Program Counter/Delay doesn't match on exit from fragment" );
 	//if(gCPUState.Delay != NO_DELAY)
@@ -240,7 +240,7 @@ namespace
 		}
 
 	}
-#endif	//FRAGMENT_SIMULATE_EXECUTION
+#endif // FRAGMENT_SIMULATE_EXECUTION
 }
 #ifdef FRAGMENT_SIMULATE_EXECUTION
 //*************************************************************************************
@@ -498,7 +498,7 @@ CFragment * CFragment::Simulate()
 
 	return p_target_fragment;
 }
-#endif	// FRAGMENT_SIMULATE_EXECUTION
+#endif // FRAGMENT_SIMULATE_EXECUTION
 
 //*************************************************************************************
 //

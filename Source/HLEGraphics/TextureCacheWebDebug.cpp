@@ -58,7 +58,7 @@ static void TextureHandler(void * arg, WebDebugConnection * connection)
 
 	connection->EndResponse();
 }
-#endif	//DAEDALUS_DEBUG_DISPLAYLIST
+#endif // DAEDALUS_DEBUG_DISPLAYLIST
 
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -137,7 +137,7 @@ static void TextureCacheHandler(void * arg, WebDebugConnection * connection)
 	WriteStandardFooter(connection);
 	connection->EndResponse();
 }
-#endif	//DAEDALUS_DEBUG_DISPLAYLIST
+#endif // DAEDALUS_DEBUG_DISPLAYLIST
 
 bool TextureCache_RegisterWebDebug()
 {

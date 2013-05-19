@@ -89,7 +89,7 @@ static const char * const gEventStrings[23] =
 	"OS_EVENT_RDB_FLUSH_PROF",
 	"OS_EVENT_RDB_ACK_PROF"
 };
-#endif	// DUMPOSFUNCTIONS
+#endif // DUMPOSFUNCTIONS
 
 u32 gNumOfOSFunctions;
 
@@ -445,7 +445,7 @@ void Patch_DumpOsEventInfo()
 }
 
 
-#endif	// DUMPOSFUNCTIONS
+#endif // DUMPOSFUNCTIONS
 
 bool Patch_Hacks( PatchSymbol * ps )
 {

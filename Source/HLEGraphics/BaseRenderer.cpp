@@ -664,7 +664,7 @@ u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
 
 	return vOut;
 }
-#endif	//CPU clip
+#endif // CPU clip
 
 //*****************************************************************************
 //
@@ -1102,7 +1102,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	}
 }
 
-#endif	//Transform VFPU/FPU
+#endif // Transform VFPU/FPU
 
 //*****************************************************************************
 // Conker Bad Fur Day rendering pipeline
