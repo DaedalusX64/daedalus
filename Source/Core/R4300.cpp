@@ -20,22 +20,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "R4300.h"
 
-#include "Debug/DebugLog.h"
 #include "CPU.h"
 #include "Interrupt.h"
-#include "DynaRec/TraceRecorder.h"
-
-#include "OSHLE/ultra_R4300.h"
-
-#include "Math/Math.h"	// VFPU Math
-
-#include "Utility/AuxFunc.h"
-#include "Utility/Macros.h"
-
 #include "ROM.h"
+
+#include "Config/ConfigOptions.h"
 #include "Core/Registers.h"			// For REG_?? defines
 #include "Debug/DBGConsole.h"
-#include "ConfigOptions.h"
+#include "Debug/DebugLog.h"
+#include "DynaRec/TraceRecorder.h"
+#include "Math/Math.h"	// VFPU Math
+#include "OSHLE/ultra_R4300.h"
+#include "Utility/AuxFunc.h"
+#include "Utility/Macros.h"
 
 #ifdef DAEDALUS_PSP
 #include <pspfpu.h>
@@ -3084,7 +3081,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_F( R4300_CALL_SIGNATURE )
 }
 
 // Blast Corps fails here.
-// DK64 trows fp nan exception 
+// DK64 trows fp nan exception
 static void R4300_CALL_TYPE R4300_Cop1_S_NGT( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );

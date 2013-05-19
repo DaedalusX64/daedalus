@@ -1,20 +1,20 @@
 #include "stdafx.h"
 
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+
 #include <pspgu.h>
 #include <pspkernel.h>
 #include <pspsdk.h>
 #include <pspctrl.h>
 #include <kubridge.h>
-#include <unistd.h>
-#include <stdio.h>
-#include <string.h>
 
-#include "Debug/Dump.h"
-#include "ConfigOptions.h"
+#include "Config/ConfigOptions.h"
+#include "Core/CPU.h"
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
-#include "Core/CPU.h"
-
+#include "Debug/Dump.h"
 #include "Utility/PrintOpCode.h"
 
 #include "svnversion.h"

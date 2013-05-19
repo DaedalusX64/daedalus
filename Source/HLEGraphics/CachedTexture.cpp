@@ -20,31 +20,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "CachedTexture.h"
 
+#include <vector>
+
 #include "TextureInfo.h"
 #include "ConvertImage.h"
 #include "ConvertTile.h"
-#include "ConfigOptions.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/NativePixelFormat.h"
 #include "Graphics/NativeTexture.h"
 #include "Graphics/PngUtil.h"
 #include "Graphics/TextureTransform.h"
 
-#include "OSHLE/ultra_gbi.h"
-
+#include "Config/ConfigOptions.h"
 #include "Core/ROM.h"
-
 #include "Debug/DBGConsole.h"
 #include "Debug/Dump.h"
-
-#include "Utility/Profiler.h"
-#include "Utility/IO.h"
-#include "Utility/AuxFunc.h"
-
-#include "Math/MathUtil.h"
 #include "Math/Math.h"
-
-#include <vector>
+#include "Math/MathUtil.h"
+#include "OSHLE/ultra_gbi.h"
+#include "Utility/AuxFunc.h"
+#include "Utility/IO.h"
+#include "Utility/Profiler.h"
 
 static std::vector<u8>		gTexelBuffer;
 static NativePf8888			gPaletteBuffer[ 256 ];

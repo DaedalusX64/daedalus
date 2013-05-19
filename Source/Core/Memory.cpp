@@ -28,15 +28,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ROM.h"
 #include "ROMBuffer.h"
 
-#include "Debug/DebugLog.h"
+#include "Config/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
-
+#include "Debug/DebugLog.h"
+#include "Debug/DebugLog.h"
+#include "Debug/Dump.h"		// Dump_GetSaveDirectory()
 #include "OSHLE/ultra_R4300.h"
-
 #include "Plugins/AudioPlugin.h"
 #include "Plugins/GraphicsPlugin.h"
-
-#include "ConfigOptions.h"
 
 static const u32	kMaximumMemSize = MEMORY_8_MEG;
 

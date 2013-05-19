@@ -22,6 +22,7 @@
           'DAEDALUS_ACCURATE_TMEM',
         ],
         'sources': [
+          'Config/ConfigOptions.cpp',
           'Core/Cheats.cpp',
           'Core/CPU.cpp',
           'Core/DMA.cpp',
@@ -101,7 +102,6 @@
           'Utility/Synchroniser.cpp',
           'Utility/Timer.cpp',
           'Utility/ZLibWrapper.cpp',
-          'ConfigOptions.cpp',
           'System.cpp',
 
           #FIXME

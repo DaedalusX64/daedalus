@@ -1,8 +1,15 @@
 #include "stdafx.h"
 #include "Input/InputManager.h"
 
-#include "ConfigOptions.h"
+#include <stack>
+#include <string>
+#include <vector>
 
+#include <pspctrl.h>
+#include <psptypes.h>
+#include <pspkernel.h>
+
+#include "Config/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "Math/Math.h"	// VFPU Math
 #include "Math/MathUtil.h"
@@ -13,14 +20,6 @@
 #include "Utility/Preferences.h"
 #include "Utility/Stream.h"
 #include "Utility/Synchroniser.h"
-
-#include <pspctrl.h>
-#include <psptypes.h>
-#include <pspkernel.h>
-
-#include <stack>
-#include <string>
-#include <vector>
 
 namespace
 {

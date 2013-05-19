@@ -20,10 +20,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Display stuff like registers, instructions, memory usage and so on
 #include "stdafx.h"
 #include "Dump.h"
+
+#include <ctype.h>
+
 #include "DebugLog.h"
 #include "DBGConsole.h"
-#include "ConfigOptions.h"
 
+#include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
 #include "Core/Interrupt.h"
 #include "Core/Memory.h"
@@ -33,8 +36,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/Paths.h"
 #include "Utility/IO.h"
 #include "Utility/PrintOpCode.h"
-
-#include <ctype.h>
 
 static IO::Filename gDumpDir = "";
 

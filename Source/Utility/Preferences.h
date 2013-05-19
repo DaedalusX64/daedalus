@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef UTILITY_PREFERENCES_H_
 #define UTILITY_PREFERENCES_H_
 
-#include "ConfigOptions.h"
+#include "Config/ConfigOptions.h"
 
 enum ETextureHashFrequency
 {

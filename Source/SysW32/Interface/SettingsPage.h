@@ -22,8 +22,8 @@
 #ifndef SYSW32_INTERFACE_SETTINGSPAGE_H_
 #define SYSW32_INTERFACE_SETTINGSPAGE_H_
 
+#include "Config/ConfigOptions.h"
 #include "SysW32/Interface/CheckBox.h"
-#include "ConfigOptions.h"
 
 class CSettingsPage : public CPageDialog, public CDialogImpl< CSettingsPage >
 {

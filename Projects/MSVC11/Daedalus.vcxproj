@@ -90,13 +90,13 @@
     <ClInclude Include="..\..\Source\PopStructPack.h" />
     <ClInclude Include="..\..\Source\PushStructPack1.h" />
     <ClInclude Include="..\..\Source\stdafx.h" />
+    <ClInclude Include="..\..\Source\Config\ConfigOptions.h" />
     <ClInclude Include="..\..\Source\Config\Dev\BuildConfig.h" />
     <ClInclude Include="..\..\Source\Config\Release\BuildConfig.h" />
     <ClInclude Include="..\..\Source\SysOSX\Include\Platform.h" />
     <ClInclude Include="..\..\Source\SysPSP\Include\Platform.h" />
     <ClInclude Include="..\..\Source\SysW32\Include\DaedalusW32.h" />
     <ClInclude Include="..\..\Source\SysW32\Include\Platform.h" />
-    <ClInclude Include="..\..\Source\ConfigOptions.h" />
     <ClInclude Include="..\..\Source\System.h" />
     <ClInclude Include="..\..\Source\Core\Cheats.h" />
     <ClInclude Include="..\..\Source\Core\CPU.h" />
@@ -269,13 +269,13 @@
     <ClInclude Include="..\..\Source\Test\BatchTest.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\ConfigOptions.cpp" />
     <ClCompile Include="..\..\Source\StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\Source\System.cpp" />
     <ClCompile Include="..\..\Source\System\Paths.cpp" />
+    <ClCompile Include="..\..\Source\Config\ConfigOptions.cpp" />
     <ClCompile Include="..\..\Source\Core\Cheats.cpp" />
     <ClCompile Include="..\..\Source\Core\CPU.cpp" />
     <ClCompile Include="..\..\Source\Core\DMA.cpp" />

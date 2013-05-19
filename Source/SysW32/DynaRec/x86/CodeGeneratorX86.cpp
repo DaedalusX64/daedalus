@@ -20,22 +20,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 #include "CodeGeneratorX86.h"
-#include "DynaRec/Trace.h"
-#include "DynaRec/IndirectExitMap.h"
 
-#include "Debug/DebugLog.h"
-#include "Debug/DBGConsole.h"
-
+#include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
-#include "Core/Registers.h"
 #include "Core/R4300.h"
-
-#include "OSHLE/ultra_R4300.h"
-
+#include "Core/Registers.h"
+#include "Debug/DBGConsole.h"
+#include "Debug/DebugLog.h"
 #include "DynaRec/AssemblyUtils.h"
+#include "DynaRec/IndirectExitMap.h"
 #include "DynaRec/StaticAnalysis.h"
-
-#include "ConfigOptions.h"
+#include "DynaRec/Trace.h"
+#include "OSHLE/ultra_R4300.h"
 
 
 using namespace AssemblyUtils;

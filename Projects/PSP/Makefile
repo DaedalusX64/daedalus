@@ -13,7 +13,7 @@ TARGET = Daedalus
 SRCDIR = ../../Source
 
 CORE_SRCS = \
-	$(SRCDIR)/ConfigOptions.cpp \
+	$(SRCDIR)/Config/ConfigOptions.cpp \
 	$(SRCDIR)/Core/Cheats.cpp \
 	$(SRCDIR)/Core/CPU.cpp \
 	$(SRCDIR)/Core/DMA.cpp \

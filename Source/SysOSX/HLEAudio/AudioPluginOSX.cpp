@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <CoreAudio/CoreAudioTypes.h>
 #include <CoreFoundation/CFRunLoop.h>
 
-#include "ConfigOptions.h"
+#include "Config/ConfigOptions.h"
 #include "Core/Memory.h"
 #include "Debug/DBGConsole.h"
 #include "HLEAudio/AudioBuffer.h"
