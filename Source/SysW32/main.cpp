@@ -39,7 +39,7 @@ int __cdecl main(int argc, char **argv)
 	HMODULE hModule = GetModuleHandle(NULL);
 	if (hModule != NULL)
 	{
-		GetModuleFileName(hModule, gDaedalusExePath, ARRAYLEN(gDaedalusExePath));
+		GetModuleFileName(hModule, gDaedalusExePath, ARRAYSIZE(gDaedalusExePath));
 		IO::Path::RemoveFileSpec(gDaedalusExePath);
 	}
 	else

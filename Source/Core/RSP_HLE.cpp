@@ -322,6 +322,11 @@ void RSP_HLE_ProcessTask()
 			result = RSP_HLE_Jpeg(pTask);
 			break;
 
+		// This can be easily handled, need to find first a game that uses this though
+		case M_FBTASK:
+			DAEDALUS_ERROR("FB task is not handled");
+			break;
+
 		default:
 			// Can't handle
 			DBGConsole_Msg(0, "Unknown task: %08x", pTask->t.type );
