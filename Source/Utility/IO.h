@@ -51,8 +51,6 @@ namespace IO
 	{
 		const u32	kMaxPathLen = 260;
 
-		typedef char PathBuf[kMaxPathLen+1];
-
 		inline void Assign( char * p_dest, const char * p_dir )
 		{
 			strncpy(p_dest, p_dir, kMaxPathLen);
@@ -78,7 +76,7 @@ namespace IO
 		}
 	}
 
-	typedef Path::PathBuf Filename;
+	typedef char Filename[IO::Path::kMaxPathLen+1];
 
 	struct FindDataT
 	{

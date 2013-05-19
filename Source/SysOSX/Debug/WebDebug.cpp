@@ -399,7 +399,7 @@ static void AddStaticContent(const char * dir, const char * root)
 	{
 		do
 		{
-			IO::Path::PathBuf full_path;
+			IO::Filename full_path;
 			IO::Path::Combine(full_path, dir, find_data.Name);
 
 			std::string resource_path = root;
@@ -470,7 +470,7 @@ bool WebDebug_Init()
 		return false;
 	}
 
-	IO::Path::PathBuf data_path;
+	IO::Filename data_path;
 	IO::Path::Combine(data_path, gDaedalusExePath, "Web");
 	DBGConsole_Msg(0, "Looking for static resource in [C%s]", data_path);
 	AddStaticContent(data_path, "");

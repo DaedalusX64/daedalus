@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 
 	if (argc > 0)
 	{
-		IO::Path::PathBuf exe_path;
+		IO::Filename exe_path;
 		realpath(argv[0], exe_path);
 
 		strcpy(gDaedalusExePath, exe_path);
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 						const char * relative_path = argv[i+1];
 						++i;
 
-						IO::Path::PathBuf	dir;
+						IO::Filename	dir;
 						realpath(relative_path, dir);
 
 						CRomDB::Get()->AddRomDirectory(dir);

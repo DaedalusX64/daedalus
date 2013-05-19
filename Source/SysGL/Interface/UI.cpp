@@ -23,16 +23,17 @@ static void GLFWCALL HandleKeys(int key, int state)
 
 			bool ctrl_down = glfwGetKey(GLFW_KEY_LCTRL) || glfwGetKey(GLFW_KEY_RCTRL);
 
-			IO::Path::PathBuf filename;
-			IO::Path::PathBuf path_sub;
-			IO::Path::PathBuf path_ss;
-			IO::Path::PathBuf filename_ss;
-
+			char filename_ss[64];
 			sprintf( filename_ss, "saveslot%u.ss", idx );
+
+			IO::Filename path_sub;
 			sprintf( path_sub, "SaveStates\\%s", g_ROM.settings.GameName.c_str());
 
+			IO::Filename path_ss;
 			IO::Path::Combine( path_ss, gDaedalusExePath, path_sub );
 			IO::Directory::EnsureExists( path_ss );		// Ensure this dir exists
+
+			IO::Filename filename;
 			IO::Path::Combine(filename, path_ss, filename_ss);
 
 			if (ctrl_down)
