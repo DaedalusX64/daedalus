@@ -81,6 +81,7 @@
           'OSHLE/patch.cpp',
           'Plugins/GraphicsPlugin.cpp',
           'System/Paths.cpp',
+          'System/System.cpp',
           'Test/BatchTest.cpp',
           'Utility/CRC.cpp',
           'Utility/DataSink.cpp',
@@ -102,7 +103,6 @@
           'Utility/Synchroniser.cpp',
           'Utility/Timer.cpp',
           'Utility/ZLibWrapper.cpp',
-          'System.cpp',
 
           #FIXME
           'SysW32/DynaRec/x86/AssemblyUtilsX86.cpp',

@@ -1067,7 +1067,7 @@
 				Name="System"
 				>
 				<File
-					RelativePath="..\..\Source\System.cpp"
+					RelativePath="..\..\Source\System\System.cpp"
 					>
 				</File>
 				<File

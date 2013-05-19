@@ -33,7 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <kubridge.h>
 #include <pspsysmem.h>
 
-#include "System.h"
 #include "Config/ConfigOptions.h"
 #include "Core/Cheats.h"
 #include "Core/CPU.h"
@@ -56,6 +55,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Utility/Buttons.h"
 #include "SysPSP/Utility/PathsPSP.h"
 #include "System/Paths.h"
+#include "System/System.h"
 #include "Test/BatchTest.h"
 #include "Utility/IO.h"
 #include "Utility/ModulePSP.h"

@@ -19,8 +19,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "System.h"
-
 #include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
 #include "Core/ROM.h"				// ROM_Unload
@@ -29,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DebugLog.h"
 #include "Interface/RomDB.h"
 #include "System/Paths.h"
+#include "System/System.h"
 #include "Test/BatchTest.h"
 #include "Utility/IO.h"
 #include "Utility/Preferences.h"
