@@ -11,6 +11,7 @@ homepage: http://wordpress.fx-world.org
 #include "FastMemcpy.h"
 
 #include "Utility/DaedalusTypes.h"
+#include "Utility/Endian.h"
 
 //*****************************************************************************
 //Copy native N64 memory with CPU only //Corn

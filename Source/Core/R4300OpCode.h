@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define R4300OPCODE_H__
 
 #include "Utility/DaedalusTypes.h"
+#include "Utility/Endian.h"
 #include "N64Reg.h"
 
 enum OpCodeValue {

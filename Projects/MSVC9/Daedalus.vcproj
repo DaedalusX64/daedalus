@@ -160,7 +160,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\Endian.h"
+				RelativePath="..\..\Source\Utility\Endian.h"
 				>
 			</File>
 			<File

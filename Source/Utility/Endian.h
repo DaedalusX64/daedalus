@@ -21,24 +21,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #pragma once
 #endif // _MSC_VER > 1000
 
+#include "Utility/DaedalusTypes.h"
+
 #ifndef ENDIAN_H_
 #define ENDIAN_H_
 
 #if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
 #define BSWAP32(x) x
-#define BSWAP16(x) x
-#define WSWAP32(x) x
 #define U8_TWIDDLE 0x0
 #define U16_TWIDDLE 0x0
 #elif (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_LITTLE)
 #ifdef DAEDALUS_PSP
 #define BSWAP32(x) __builtin_bswap32(x)
-#define BSWAP16(x) __builtin_allegrex_wsbh(x)
-#define WSWAP32(x) __builtin_allegrex_rotr(x, 16)
 #else
 #define BSWAP32(x) ((x >> 24) | ((x >> 8) & 0xFF00) | ((x & 0xFF00) << 8) | (x << 24))
-#define BSWAP16(x) (((u32)(x)>>8 & 0x00FF00FF) | ((u32)(x) & 0x00FF00FF) << 8)
-#define WSWAP32(x) ((u32)(x)>>16 | (u32)(x)<<16)
 #endif
 #define U8_TWIDDLE 0x3
 #define U16_TWIDDLE 0x2
@@ -46,5 +42,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #else
 #error No DAEDALUS_ENDIAN_MODE specified
 #endif
+
+
+inline u32 SwapEndian( u32 x )
+{
+	return BSWAP32(x);
+}
 
 #endif // ENDIAN_H_

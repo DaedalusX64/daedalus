@@ -87,7 +87,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\BuildOptions.h" />
-    <ClInclude Include="..\..\Source\Endian.h" />
     <ClInclude Include="..\..\Source\PopStructPack.h" />
     <ClInclude Include="..\..\Source\PushStructPack1.h" />
     <ClInclude Include="..\..\Source\stdafx.h" />
@@ -170,6 +169,7 @@
     <ClInclude Include="..\..\Source\Utility\CRC.h" />
     <ClInclude Include="..\..\Source\Utility\DaedalusTypes.h" />
     <ClInclude Include="..\..\Source\Utility\DataSink.h" />
+    <ClInclude Include="..\..\Source\Utility\Endian.h" />
     <ClInclude Include="..\..\Source\Utility\FastMemcpy.h" />
     <ClInclude Include="..\..\Source\Utility\FramerateLimiter.h" />
     <ClInclude Include="..\..\Source\Utility\Functor.h" />

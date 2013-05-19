@@ -22,37 +22,34 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_PSP
 #include "Graphics/GraphicsContext.h"
-#include "../Graphics/intraFont/intraFont.h"
+#include "SysPSP/Graphics/intraFont/intraFont.h"
 #endif
 
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
+
+#include <stddef.h>		// offsetof
 
 #include "patch_symbols.h"
 #include "OS.h"
 #include "OSMesgQueue.h"
 
-#include "Core/Memory.h"
 #include "Core/CPU.h"
+#include "Core/DMA.h"
+#include "Core/Memory.h"
 #include "Core/R4300.h"
 #include "Core/Registers.h"
 #include "Core/ROM.h"
-#include "Core/DMA.h"
-
-#include "Utility/Profiler.h"
-#include "Utility/CRC.h"
-
-#include "Plugins/AudioPlugin.h"
-
-#include "Debug/Dump.h"
-#include "Debug/DebugLog.h"
 #include "Debug/DBGConsole.h"
-
-#include "Utility/FastMemcpy.h"
-
-#include "Math/Math.h"	// VFPU Math
-
+#include "Debug/DebugLog.h"
+#include "Debug/Dump.h"
 #include "DynaRec/Fragment.h"
 #include "DynaRec/FragmentCache.h"
+#include "Math/Math.h"	// VFPU Math
+#include "Plugins/AudioPlugin.h"
+#include "Utility/CRC.h"
+#include "Utility/Endian.h"
+#include "Utility/FastMemcpy.h"
+#include "Utility/Profiler.h"
 
 #include "ultra_os.h"
 #include "ultra_rcp.h"
@@ -61,10 +58,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ConfigOptions.h"
 
-#include <stddef.h>		// offsetof
 
 #ifdef DUMPOSFUNCTIONS
-#include "Debug/dump.h"
+#include "Debug/Dump.h"
 #include "Utility/IO.h"
 
 static const char * g_szEventStrings[23] =
