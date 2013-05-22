@@ -906,12 +906,6 @@ void DLParser_TexRect( MicroCodeCommand command )
 	tex_rect.cmd2 = command2.inst.cmd1;
 	tex_rect.cmd3 = command3.inst.cmd1;
 
-    u32 a = gDlistStack.address[gDlistStackPointer];
-    u8 cmdHalf1 = g_pu8RamBase[a+3];
-    u8 cmdHalf2 = g_pu8RamBase[a+11];
-
-    if ((cmdHalf1 == 0xE1 && cmdHalf2 == 0xF1) || (cmdHalf1 == 0xB4 && cmdHalf2 == 0xB3) || (cmdHalf1 == 0xB3 && cmdHalf2 == 0xB2))
-		printf("woot\n");
 	DAEDALUS_DL_ASSERT(gRDPOtherMode.cycle_type != CYCLE_COPY || tex_rect.dsdx == (4<<10), "Expecting dsdx of 4<<10 in copy mode, got %d", tex_rect.dsdx);
 
 	// NB: In FILL and COPY mode, rectangles are scissored to the nearest four pixel boundary.
@@ -919,8 +913,8 @@ void DLParser_TexRect( MicroCodeCommand command )
 
 	//Keep integers for as long as possible //Corn
 
-	// X for upper left corner should be less than X for lower right corner else skip rendering it, seems to happen in Rayman 2
-	//if( tex_rect.x0 >= tex_rect.x1 ) printf("yay\n");
+	// X for upper left corner should be less than X for lower right corner else skip rendering it, seems to happen in Rayman 2 and Star Soldier
+	//if( tex_rect.x0 >= tex_rect.x1 )
 
 	// Removes offscreen texrect, also fixes several glitches like in John Romero's Daikatana
 	if( tex_rect.x0 >= (scissors.right<<2) ||
