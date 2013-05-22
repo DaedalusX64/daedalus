@@ -98,7 +98,8 @@ TEST_DISABLE_UTIL_FUNCS
 		if( SrcChar == 0 ) break;	//Return NULL address
 	}
 
-	gGPR[REG_v0]._u32_0 = MatchAddr;
+	//This has to be signed extended!
+	gGPR[REG_v0]._s64 = (s64)(s32)MatchAddr;
 
 	return PATCH_RET_JR_RA;
 }

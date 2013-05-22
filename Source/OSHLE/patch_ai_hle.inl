@@ -45,9 +45,8 @@ TEST_DISABLE_AI_FUNCS
 	DAEDALUS_ASSERT( gAudioPlugin, "Unable to initialize Audio plugin");
 	gAudioPlugin->LenChanged();
 
-	// Return 0 if succesfully DMA'd audio
-	// Return -1 when audio is disabled (Stops the DMA operation), doesn't seem to work..
-	gGPR[REG_v0]._u32_0 = gAudioPluginEnabled ? 0 : ~0;
+	// Return 0 if succesfully DMA'd audio, otherwise -1 if busy
+	gGPR[REG_v0]._u32_0 = 0;
 	//gGPR[REG_v1]._u64 = gAudioPluginEnabled ? 0 : ~0;
 
 	return PATCH_RET_JR_RA;
