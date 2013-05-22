@@ -906,6 +906,12 @@ void DLParser_TexRect( MicroCodeCommand command )
 	tex_rect.cmd2 = command2.inst.cmd1;
 	tex_rect.cmd3 = command3.inst.cmd1;
 
+    u32 a = gDlistStack.address[gDlistStackPointer];
+    u8 cmdHalf1 = g_pu8RamBase[a+3];
+    u8 cmdHalf2 = g_pu8RamBase[a+11];
+
+    if ((cmdHalf1 == 0xE1 && cmdHalf2 == 0xF1) || (cmdHalf1 == 0xB4 && cmdHalf2 == 0xB3) || (cmdHalf1 == 0xB3 && cmdHalf2 == 0xB2))
+		printf("woot\n");
 	DAEDALUS_DL_ASSERT(gRDPOtherMode.cycle_type != CYCLE_COPY || tex_rect.dsdx == (4<<10), "Expecting dsdx of 4<<10 in copy mode, got %d", tex_rect.dsdx);
 
 	// NB: In FILL and COPY mode, rectangles are scissored to the nearest four pixel boundary.
@@ -914,7 +920,7 @@ void DLParser_TexRect( MicroCodeCommand command )
 	//Keep integers for as long as possible //Corn
 
 	// X for upper left corner should be less than X for lower right corner else skip rendering it, seems to happen in Rayman 2
-	//if( rect_x0 >= rect_x1 ) return;
+	//if( tex_rect.x0 >= tex_rect.x1 ) printf("yay\n");
 
 	// Removes offscreen texrect, also fixes several glitches like in John Romero's Daikatana
 	if( tex_rect.x0 >= (scissors.right<<2) ||
@@ -1035,72 +1041,89 @@ void DLParser_FillRect( MicroCodeCommand command )
 		return;
 	}
 
-	// Note, in some modes, the right/bottom lines aren't drawn
+	u32 fill_colour = gRenderer->GetFillColour();
 
 	//Always clear Zbuffer if Depthbuffer is selected //Corn
 	if (g_DI.Address == g_CI.Address)
 	{
 		CGraphicsContext::Get()->ClearZBuffer();
+
+		//Clear framebuffer, thanks Gonetz! http://www.emutalk.net/threads/15818-How-to-implement-quot-emulate-clear-quot-Answer-and-Question
+		//This fixes the jumpy camera in DK64, also the sun and flames glare in Zelda
+		//This is very expensive, currently is only enabled for DK64
+		if(g_ROM.GameHacks == DK64)
+		{
+			u32 x0 = command.fillrect.x0;
+			u32 x1 = command.fillrect.x1;
+			u32 y0 = command.fillrect.y0;
+			u32 y1 = command.fillrect.y1;
+			u32 zi_width_in_dwords = g_CI.Width >> 1;
+
+			u32 * dst = (u32*)(g_pu8RamBase + g_CI.Address);
+			dst += x0 * zi_width_in_dwords;
+
+			for( u32 y = y0; y <y1; y++ )
+			{
+				for( u32 x = x0; x < x1; x++ )
+				{
+					dst[x] = fill_colour;
+				}
+				dst += zi_width_in_dwords;
+			}
+		}
 		DL_PF("    Clearing ZBuffer");
 		return;
 	}
 
+	// Note, in some modes, the right/bottom lines aren't drawn
+
 	// TODO - Check colour image format to work out how this should be decoded!
 	c32		colour;
 
-	// Clear the screen if large rectangle?
-	// This seems to mess up with the Zelda game select screen
-	// For some reason it draws a large rect over the entire
-	// display, right at the end of the dlist. It sets the primitive
-	// colour just before, so maybe I'm missing something??
-	// Problem was that we can only clear screen in fill mode
-
 	u32 cycle_mode = gRDPOtherMode.cycle_type;
-	u32 fill_colour = gRenderer->GetFillColour();
-
-	if ( cycle_mode == CYCLE_FILL )
-	{
-		if(g_CI.Size == G_IM_SIZ_16b)
-		{
-			N64Pf5551	c( (u16)fill_colour );
-			colour = ConvertPixelFormat< c32, N64Pf5551 >( c );
-		}
-		else
-		{
-			N64Pf8888	c( (u32)fill_colour );
-			colour = ConvertPixelFormat< c32, N64Pf8888 >( c );
-		}
-
-		const u32 clear_screen_x = ( (command.fillrect.x1 - command.fillrect.x0) );
-		const u32 clear_screen_y = ( (command.fillrect.y1 - command.fillrect.y0) );
-
-		// Clear color buffer (screen clear)
-		if( uViWidth == clear_screen_x && uViHeight == clear_screen_y )
-		{
-			CGraphicsContext::Get()->ClearColBuffer( colour );
-			DL_PF("    Clearing Colour Buffer");
-			return;
-		}
-	}
-	else
-	{
-		// Should we use Prim or Blend colour? Doesn't work well see Mk64 transition before a race
-		colour = c32(0);
-	}
-
-	DL_PF("    Filling Rectangle (%d,%d)->(%d,%d)", command.fillrect.x0, command.fillrect.y0, command.fillrect.x1, command.fillrect.y1);
-
-	v2 xy0( (f32)command.fillrect.x0, (f32)command.fillrect.y0 );
-	v2 xy1( (f32)command.fillrect.x1, (f32)command.fillrect.y1 );
-
 	//
 	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
 	//
 	if ( cycle_mode >= CYCLE_COPY )
 	{
-		xy1.x += 1.0f;
-		xy1.y += 1.0f;
+		if ( cycle_mode == CYCLE_FILL )
+		{
+			if(g_CI.Size == G_IM_SIZ_16b)
+			{
+				N64Pf5551	c( (u16)fill_colour );
+				colour = ConvertPixelFormat< c32, N64Pf5551 >( c );
+			}
+			else
+			{
+				N64Pf8888	c( (u32)fill_colour );
+				colour = ConvertPixelFormat< c32, N64Pf8888 >( c );
+			}
+
+			u32 clear_screen_x = command.fillrect.x1 - command.fillrect.x0;
+			u32 clear_screen_y = command.fillrect.y1 - command.fillrect.y0;
+
+			// Clear color buffer (screen clear)
+			if( uViWidth == clear_screen_x && uViHeight == clear_screen_y )
+			{
+				CGraphicsContext::Get()->ClearColBuffer( colour );
+				DL_PF("    Clearing Colour Buffer");
+				return;
+			}
+		}
+		else
+		{
+			// Should we use Prim or Blend colour? Doesn't work well see Mk64 transition before a race
+			colour = c32(0);
+		}
+
+		command.fillrect.x1++;
+		command.fillrect.y1++;
 	}
+	DL_PF("    Filling Rectangle (%d,%d)->(%d,%d)", command.fillrect.x0, command.fillrect.y0, command.fillrect.x1, command.fillrect.y1);
+
+	//Converting int->float with bitfields, gives some damn good asm on the PSP
+	v2 xy0( (f32)command.fillrect.x0, (f32)command.fillrect.y0 );
+	v2 xy1( (f32)command.fillrect.x1, (f32)command.fillrect.y1 );
 
 	// TODO - In 1/2cycle mode, skip bottom/right edges!?
 	// This is done in BaseRenderer.
