@@ -54,6 +54,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #undef SIM_DOUBLES
 #endif
 
+// So far the only games I observed that write to r0 are SF 2049 and Jet Force Gemini
+// Is not worth wasting resources on the PSP checking for r0, we do check for LW though, otherwise SF 2049 crashes when the race is about to start
+// Note: We need to check for R0 in the dynarec as well
+#ifndef DAEDALUS_PSP
+#define DAEDALUS_CHECK_R0
+#endif
+
+// If debug console is enabled, check for r0, so we can still log any writes to r0 when debugging on the PSP
+#ifdef DAEDALUS_DEBUG_CONSOLE
+#define DAEDALUS_CHECK_R0
+#endif
+
+// Can we disable this for the PSP? doesn't seem to do anything when dynarec is enabled (trace is active) /Salvy
 #define SPEEDHACK_INTERPRETER
 
 #define	R4300_CALL_MAKE_OP( var )	OpCode	var;	var._u32 = op_code_bits
@@ -77,33 +90,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define R4300_AbsD(x) 		fabs((x))
 #endif
 
-
+//Nothing todo, I'll remove this eventually..
+//Just log exceptions, so far the only games I obsereved that trow are DK64 and Blast Corps 
 #ifdef DAEDALUS_DEBUG_CONSOLE
 #define CATCH_NAN_EXCEPTION(op, valX, valY) \
 	if(R4300_IsNaN(valX + valY)) \
 	{ \
 		DBGConsole_Msg( 0, "Should throw fp nan exception in %s ?",op ); \
-		return; \
 	}
 #else
 	#define CATCH_NAN_EXCEPTION(op, valX, valY)
 #endif
-
-// FIXME(strmnnrmn): we should put this on a separate #define, like have a DAEDALUS_DEBUG/DAEDALUS_RELEASE or something.
-#ifdef DAEDALUS_DEBUG_CONSOLE
-inline void CHECK_R0( u32 op )
-{
-	if(gGPR[0]._u64 != 0)
-	{
+ 
+#ifdef DAEDALUS_CHECK_R0
+#define CHECK_R0( op ) \
+	if(op == 0)	\
+	{ \
 		DBGConsole_Msg(0, "Warning: Attempted write to r0!"); \
-		gGPR[0]._u64 = 0; // Ensure r0 is always zero (easier than trapping writes?)
-		//return;
+		return;	\
 	}
-
-	DAEDALUS_ASSERT( op, "Possible attempt to write to r0!");
-}
 #else
-	inline void CHECK_R0( u32 op ) {}
+	#define CHECK_R0( op )
 #endif
 
 //
@@ -1211,12 +1218,10 @@ static void R4300_CALL_TYPE R4300_LW( R4300_CALL_SIGNATURE ) 			// Load Word
 	CHECK_R0( op_code.rt );
 
 	// This is for San Francisco 2049. An R0 errg.. otherwise it crashes when the race is about to start.
+#ifndef DAEDALUS_CHECK_R0
 	if (op_code.rt == 0)
-	{
-		DAEDALUS_ERROR("Attempted write to r0!");
-		return;	// I think is better to trap it than override it
-	}
-
+		return;
+#endif
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 	gGPR[op_code.rt]._s64 = (s64)(s32)Read32Bits(address);
 }
