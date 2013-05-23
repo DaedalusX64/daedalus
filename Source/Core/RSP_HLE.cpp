@@ -290,12 +290,6 @@ void RSP_HLE_ProcessTask()
 
 	EProcessResult	result( PR_NOT_STARTED );
 
-	// frozen task
-	if( Memory_DPC_GetRegister(DPC_STATUS_REG) & DPC_STATUS_FREEZE )
-	{
-		return;
-	}
-
 	// non task
 	if(pTask->t.ucode_boot_size > 0x1000)
 	{
@@ -307,6 +301,11 @@ void RSP_HLE_ProcessTask()
 	switch ( pTask->t.type )
 	{
 		case M_GFXTASK:
+			// frozen task
+			if(Memory_DPC_GetRegister(DPC_STATUS_REG) & DPC_STATUS_FREEZE)
+			{
+				return;
+			}
 			result = RSP_HLE_Graphics();
 			break;
 
@@ -322,12 +321,10 @@ void RSP_HLE_ProcessTask()
 			result = RSP_HLE_Jpeg(pTask);
 			break;
 
-		// This can be easily handled, need to find first a game that uses this though
-		case M_FBTASK:
-			DAEDALUS_ERROR("FB task is not handled");
-			break;
-
 		default:
+			// This can be easily handled, need to find first a game that uses this though
+			DAEDALUS_ASSERT( pTask->t.type != M_FBTASK, "FB task is not handled");
+
 			// Can't handle
 			DBGConsole_Msg(0, "Unknown task: %08x", pTask->t.type );
 			//	RSP_HLE_DumpTaskInfo( pTask );

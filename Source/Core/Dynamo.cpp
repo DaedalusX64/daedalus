@@ -458,6 +458,8 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 					if (gResetFragmentCache)
 					{
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
+						//Don't reset the cache if there is no fragment except OSHLE function stubs
+						//Mmm this is breaking Banjo Tooie, should we remove this? //Salvy
 						if (gFragmentCache.GetCacheSize() >= gNumOfOSFunctions)
 #else
 						if(true)
