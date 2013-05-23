@@ -229,6 +229,10 @@ bool IPreferences::OpenPreferencesFile( const char * filename )
 		{
 			preferences.CleanSceneEnabled = property->GetBooleanValue( false );
 		}
+		if( section->FindProperty( "ClearDepthFrameBuffer", &property ) )
+		{
+			preferences.ClearDepthFrameBuffer = property->GetBooleanValue( false );
+		}
 		if( section->FindProperty( "AudioRateMatch", &property ) )
 		{
             preferences.AudioRateMatch = property->GetBooleanValue( false );
@@ -303,6 +307,7 @@ void IPreferences::OutputSectionDetails( const RomID & id, const SRomPreferences
 	fprintf(fh, "DynarecDoublesOptimisation=%d\n", preferences.DynarecDoublesOptimisation);
 	fprintf(fh, "DoubleDisplayEnabled=%d\n",       preferences.DoubleDisplayEnabled);
 	fprintf(fh, "CleanSceneEnabled=%d\n",          preferences.CleanSceneEnabled);
+	fprintf(fh, "ClearDepthFrameBuffer=%d\n",	   preferences.ClearDepthFrameBuffer);
 	fprintf(fh, "AudioRateMatch=%d\n",             preferences.AudioRateMatch);
 	fprintf(fh, "VideoRateMatch=%d\n",             preferences.VideoRateMatch);
 	fprintf(fh, "FogEnabled=%d\n",                 preferences.FogEnabled);
@@ -428,6 +433,7 @@ SRomPreferences::SRomPreferences()
 	,	DynarecDoublesOptimisation( false )
 	,	DoubleDisplayEnabled( true )
 	,	CleanSceneEnabled( false )
+	,	ClearDepthFrameBuffer( false )
 	,	AudioRateMatch( false )
 	,	VideoRateMatch( false )
 	,	FogEnabled( false )
@@ -452,6 +458,7 @@ void SRomPreferences::Reset()
 	DynarecDoublesOptimisation = false;
 	DoubleDisplayEnabled       = true;
 	CleanSceneEnabled          = false;
+	ClearDepthFrameBuffer	   = false;
 	AudioRateMatch             = false;
 	VideoRateMatch             = false;
 	FogEnabled                 = false;
@@ -474,6 +481,7 @@ void SRomPreferences::Apply() const
 	gDynarecDoublesOptimisation	= g_ROM.settings.DynarecDoublesOptimisation || DynarecDoublesOptimisation;
 	gDoubleDisplayEnabled       = g_ROM.settings.DoubleDisplayEnabled && DoubleDisplayEnabled; // I don't know why DD won't disabled if we set ||
 	gCleanSceneEnabled          = g_ROM.settings.CleanSceneEnabled || CleanSceneEnabled;
+	gClearDepthFrameBuffer      = g_ROM.settings.ClearDepthFrameBuffer || ClearDepthFrameBuffer;
 	gAudioRateMatch             = g_ROM.settings.AudioRateMatch || AudioRateMatch;
 	gVideoRateMatch             = g_ROM.settings.VideoRateMatch || VideoRateMatch;
 	gFogEnabled                 = g_ROM.settings.FogEnabled || FogEnabled;

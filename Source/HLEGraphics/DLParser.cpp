@@ -54,8 +54,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ConfigOptions.h"
 
-#include <vector>
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -1022,6 +1020,41 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	gRenderer->TexRectFlip( tex_rect.tile_idx, xy0, xy1, st0, st1 );
 }
 
+void Clear_N64DepthBuffer( MicroCodeCommand command, u32 fill_colour )
+{
+#if 1
+	//Fast, assumes the whole screen is cleared //Corn
+	u32 * dst = (u32*)(g_pu8RamBase + g_CI.Address);
+	u32 * end = (u32*)(dst + (command.fillrect.y1*(g_CI.Width >> 1)));
+
+	do
+	{
+		*dst++ = fill_colour;
+		*dst++ = fill_colour;
+		*dst++ = fill_colour;
+		*dst++ = fill_colour;
+	} while(dst < end);
+#else
+	u32 x0 = command.fillrect.x0;
+	u32 x1 = command.fillrect.x1;
+	u32 y1 = command.fillrect.y1;
+	u32 y0 = command.fillrect.y0;
+	u32 zi_width_in_dwords = g_CI.Width >> 1;
+
+	u32 * dst = (u32*)(g_pu8RamBase + g_CI.Address);
+	dst += x0 * zi_width_in_dwords;
+
+	for( u32 y = y0; y <y1; y++ )
+	{
+		for( u32 x = x0; x < x1; x++ )
+		{
+			dst[x] = fill_colour;
+		}
+		dst += zi_width_in_dwords;
+	}
+#endif
+}
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -1044,26 +1077,12 @@ void DLParser_FillRect( MicroCodeCommand command )
 
 		//Clear framebuffer, thanks Gonetz! http://www.emutalk.net/threads/15818-How-to-implement-quot-emulate-clear-quot-Answer-and-Question
 		//This fixes the jumpy camera in DK64, also the sun and flames glare in Zelda
-		//This is very expensive, currently is only enabled for DK64
-		if(g_ROM.GameHacks == DK64)
+		//This always enabled for PC, this should be optional once we have a GUI to disable it!
+#ifndef DAEDALUS_PSP
+		if(gClearDepthFrameBuffer)
+#endif
 		{
-			u32 x0 = command.fillrect.x0;
-			u32 x1 = command.fillrect.x1;
-			u32 y0 = command.fillrect.y0;
-			u32 y1 = command.fillrect.y1;
-			u32 zi_width_in_dwords = g_CI.Width >> 1;
-
-			u32 * dst = (u32*)(g_pu8RamBase + g_CI.Address);
-			dst += x0 * zi_width_in_dwords;
-
-			for( u32 y = y0; y <y1; y++ )
-			{
-				for( u32 x = x0; x < x1; x++ )
-				{
-					dst[x] = fill_colour;
-				}
-				dst += zi_width_in_dwords;
-			}
+			Clear_N64DepthBuffer(command, fill_colour);
 		}
 		DL_PF("    Clearing ZBuffer");
 		return;
@@ -1072,7 +1091,8 @@ void DLParser_FillRect( MicroCodeCommand command )
 	// Note, in some modes, the right/bottom lines aren't drawn
 
 	// TODO - Check colour image format to work out how this should be decoded!
-	c32		colour;
+	// Should we init with Prim or Blend colour? Doesn't work well see Mk64 transition before a race
+	c32		colour = c32(0);
 
 	u32 cycle_mode = gRDPOtherMode.cycle_type;
 	//
@@ -1103,11 +1123,6 @@ void DLParser_FillRect( MicroCodeCommand command )
 				DL_PF("    Clearing Colour Buffer");
 				return;
 			}
-		}
-		else
-		{
-			// Should we use Prim or Blend colour? Doesn't work well see Mk64 transition before a race
-			colour = c32(0);
 		}
 
 		command.fillrect.x1++;

@@ -36,6 +36,7 @@ bool	gOSHooksEnabled				= true;		// Apply os-hooks
 u32		gCheckTextureHashFrequency	= 0;		// How often to check textures for updates (every N frames, 0 to disable)
 bool	gDoubleDisplayEnabled		= true;		// Workaround for games that have shaking issues
 bool	gCleanSceneEnabled			= false;	// Clean our Scenes, it gets rid of many glitches
+bool	gClearDepthFrameBuffer		= false;	// Clears depth frame buffer, fixes shaky camera in DK64 and sun/flame glare in Zelda
 bool	gAudioRateMatch				= false;	// Matches audio rate with framerate, only works if 50-100% sync rate
 bool	gVideoRateMatch				= false;	// Matches VI rate with framerate
 bool	gFogEnabled					= false;	// Enable fog

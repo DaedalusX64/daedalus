@@ -142,6 +142,7 @@ struct SRomPreferences
 	bool						DynarecDoublesOptimisation;
 	bool						DoubleDisplayEnabled;
 	bool						CleanSceneEnabled;
+	bool						ClearDepthFrameBuffer;
 	bool						AudioRateMatch;
 	bool						VideoRateMatch;
 	bool						FogEnabled;

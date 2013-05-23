@@ -301,6 +301,10 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 		{
 			settings.CleanSceneEnabled = p_property->GetBooleanValue( false );
 		}
+		if( p_section->FindProperty( "ClearDepthFrameBuffer", &p_property ) )
+		{
+			settings.ClearDepthFrameBuffer = p_property->GetBooleanValue( false );
+		}
 		if( p_section->FindProperty( "AudioRateMatch", &p_property ) )
 		{
 			settings.AudioRateMatch = p_property->GetBooleanValue( false );
@@ -438,6 +442,7 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	if( !settings.DynarecDoublesOptimisation )	fprintf(fh, "DynarecDoublesOptimisation=yes\n");
 	if( !settings.DoubleDisplayEnabled )		fprintf(fh, "DoubleDisplayEnabled=no\n");
 	if( settings.CleanSceneEnabled )			fprintf(fh, "CleanSceneEnabled=yes\n");
+	if( settings.ClearDepthFrameBuffer )		fprintf(fh, "ClearDepthFrameBuffer=yes\n");
 	if( settings.AudioRateMatch )				fprintf(fh, "AudioRateMatch=yes\n");
 	if( settings.VideoRateMatch )				fprintf(fh, "VideoRateMatch=yes\n");
 	if( settings.FogEnabled )					fprintf(fh, "FogEnabled=yes\n");
@@ -499,6 +504,7 @@ RomSettings::RomSettings()
 ,	DynarecDoublesOptimisation( false )
 ,	DoubleDisplayEnabled( true )
 ,	CleanSceneEnabled( false )
+,	ClearDepthFrameBuffer( false )
 ,	AudioRateMatch( false )
 ,	VideoRateMatch( false )
 ,	FogEnabled( false )
@@ -531,6 +537,7 @@ void	RomSettings::Reset()
 	DynarecDoublesOptimisation = false;
 	DoubleDisplayEnabled = true;
 	CleanSceneEnabled = false;
+	ClearDepthFrameBuffer = false;
 	AudioRateMatch = false;
 	VideoRateMatch = false;
 	FogEnabled = false;
