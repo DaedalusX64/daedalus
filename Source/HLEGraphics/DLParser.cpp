@@ -1078,7 +1078,7 @@ void DLParser_FillRect( MicroCodeCommand command )
 		//Clear framebuffer, thanks Gonetz! http://www.emutalk.net/threads/15818-How-to-implement-quot-emulate-clear-quot-Answer-and-Question
 		//This fixes the jumpy camera in DK64, also the sun and flames glare in Zelda
 		//This always enabled for PC, this should be optional once we have a GUI to disable it!
-#ifndef DAEDALUS_PSP
+#ifdef DAEDALUS_PSP
 		if(gClearDepthFrameBuffer)
 #endif
 		{
