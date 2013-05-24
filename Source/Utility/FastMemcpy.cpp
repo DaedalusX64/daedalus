@@ -47,8 +47,9 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 			{
 				case 0:	//Both src and dst are aligned to 4 bytes
 					{
-#ifdef DAEDALUS_W32
+#if 0 //DAEDALUS_W32
 						// MSVC11 memcpy is almost 50% faster! It takes advantage of SSE2
+						// Mmm breaks wipeout
 						memcpy(dst, src, size & ~0x3);
 #else
 						//This is faster than PSP's GCC memcpy
