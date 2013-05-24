@@ -1650,7 +1650,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 			case Cop1OpFunc_CMP_NGE:	GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_NGE, op_code.ft ); handled = true; break;
 			case Cop1OpFunc_CMP_LE:		GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_LE, op_code.ft ); handled = true; break;
 			//This breaks D64, but I think is a bug somewhere else since interpreter trows fp nan exception in Cop1_S_NGT
-			case Cop1OpFunc_CMP_NGT:	GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_NGT, op_code.ft ); handled = true; break;
+			case Cop1OpFunc_CMP_NGT:	if(g_ROM.GameHacks != DK64)	GenerateCMP_S( op_code.fs, Cop1OpFunc_CMP_NGT, op_code.ft ); handled = true; break;
 			}
 			break;
 

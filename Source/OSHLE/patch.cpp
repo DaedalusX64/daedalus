@@ -170,6 +170,8 @@ void Patch_ApplyPatches()
 
 void Patch_PatchAll()
 {
+	gNumOfOSFunctions = 0;
+
 	if (!gPatchesApplied)
 	{
 		Patch_ApplyPatches();

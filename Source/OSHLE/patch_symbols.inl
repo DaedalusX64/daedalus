@@ -1973,7 +1973,7 @@ PATCH_FUNCTION_ENTRY(__osEnqueueThread)
 #endif
 
 #ifndef DISABLE_SP_FUNCTIONS
-PATCH_FUNCTION_ENTRY(osSpTaskStartGo) //buggy, SSB (?? Seems to work fine -Salvy)
+PATCH_FUNCTION_ENTRY(osSpTaskStartGo)
 PATCH_FUNCTION_ENTRY(osSpTaskYield)
 PATCH_FUNCTION_ENTRY(osSpTaskYielded)
 PATCH_FUNCTION_ENTRY(osSpTaskLoad)
@@ -1989,7 +1989,7 @@ PATCH_FUNCTION_ENTRY(__osSpDeviceBusy)
 PATCH_FUNCTION_ENTRY(osWritebackDCacheAll)
 PATCH_FUNCTION_ENTRY(osWritebackDCache)
 PATCH_FUNCTION_ENTRY(osInvalDCache)
-PATCH_FUNCTION_ENTRY(osInvalICache)	//buggy, causing issues in FZero (4th race in demo loop) and StarFox
+PATCH_FUNCTION_ENTRY(osInvalICache)
 #endif
 
 #ifndef DISABLE_TLB_FUNCTIONS
@@ -2055,7 +2055,7 @@ PATCH_FUNCTION_ENTRY(osSetEventMesg)
 #ifndef DISABLE_CPU_FUNCTIONS
 PATCH_FUNCTION_ENTRY(__osGetCause)
 PATCH_FUNCTION_ENTRY(__osDisableInt)
-PATCH_FUNCTION_ENTRY(__osRestoreInt)  //buggy, breaks DOOM64
+PATCH_FUNCTION_ENTRY(__osRestoreInt)
 PATCH_FUNCTION_ENTRY(__osAtomicDec)
 PATCH_FUNCTION_ENTRY(__osSetFpcCsr)
 PATCH_FUNCTION_ENTRY(__osSetCompare)
