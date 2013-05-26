@@ -34,7 +34,7 @@ void RegFPRRead( u32 r ) {}
 void RegFPRWrite( u32 r ) {}
 
 
-typedef void (*StaticAnalysisFunction )( OpCode op_code, RegisterUsage & recorder );
+typedef void (*const StaticAnalysisFunction )( OpCode op_code, RegisterUsage & recorder );
 
 
 // Forward declarations
@@ -82,30 +82,36 @@ void StaticAnalysis_Special_TNE( OpCode op_code, RegisterUsage & recorder ) {}
 void StaticAnalysis_J( OpCode op_code, RegisterUsage & recorder ) 				// Jump
 {
 	// No registers used
+	recorder.BranchOP( BT_J );
 }
 
 void StaticAnalysis_JAL( OpCode op_code, RegisterUsage & recorder ) 				// Jump And Link
 {
+	recorder.BranchOP( BT_JAL );
 	recorder.Record( RegDstUse( N64Reg_RA ) );
 }
 
 void StaticAnalysis_BEQ( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Equal
 {
+	recorder.BranchOP( BT_BEQ );
 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
 }
 
 void StaticAnalysis_BNE( OpCode op_code, RegisterUsage & recorder )             // Branch on Not Equal
 {
+	recorder.BranchOP( BT_BNE );
 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
 }
 
 void StaticAnalysis_BLEZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Less than of Equal to Zero
 {
+	recorder.BranchOP( BT_BLEZ );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
 void StaticAnalysis_BGTZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Greater than Zero
 {
+	recorder.BranchOP( BT_BGTZ );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
@@ -161,21 +167,25 @@ void StaticAnalysis_LUI( OpCode op_code, RegisterUsage & recorder ) 				// Load 
 
 void StaticAnalysis_BEQL( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Equal Likely
 {
+	recorder.BranchOP( BT_BEQL );
 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
 }
 
 void StaticAnalysis_BNEL( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Not Equal Likely
 {
+	recorder.BranchOP( BT_BNEL );
 	recorder.Record( RegSrcUse( op_code.rs ), RegSrcUse( op_code.rt ) );
 }
 
 void StaticAnalysis_BLEZL( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Less than or Equal to Zero Likely
 {
+	recorder.BranchOP( BT_BLEZL );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
 void StaticAnalysis_BGTZL( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Greater than Zero Likely
 {
+	recorder.BranchOP( BT_BGTZL );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
@@ -183,7 +193,6 @@ void StaticAnalysis_LB( OpCode op_code, RegisterUsage & recorder ) 			// Load By
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
-	// Don't do optimisation for LB, otherwise Mario 64 won't work 
 	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 + op_code.offset );
 }
 
@@ -376,11 +385,13 @@ void StaticAnalysis_Special_SRAV( OpCode op_code, RegisterUsage & recorder ) 		/
 
 void StaticAnalysis_Special_JR( OpCode op_code, RegisterUsage & recorder ) 			// Jump Register
 {
+	recorder.BranchOP( BT_JR );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
 void StaticAnalysis_Special_JALR( OpCode op_code, RegisterUsage & recorder ) 		// Jump and Link register
 {
+	recorder.BranchOP( BT_JALR );
 	recorder.Record( RegDstUse( op_code.rd ), RegSrcUse( op_code.rs ) );
 }
 
@@ -573,31 +584,37 @@ void StaticAnalysis_Special_DSRA32( OpCode op_code, RegisterUsage & recorder ) 	
 
 void StaticAnalysis_RegImm_BLTZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Less than Zero
 {
+	recorder.BranchOP( BT_BLTZ );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
 void StaticAnalysis_RegImm_BLTZL( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Less than Zero Likely
 {
+	recorder.BranchOP( BT_BLTZL );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
 void StaticAnalysis_RegImm_BLTZAL( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Less than Zero And Link
 {
+	recorder.BranchOP( BT_BLTZAL );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
 void StaticAnalysis_RegImm_BGEZ( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Greater than or Equal to Zero
 {
+	recorder.BranchOP( BT_BGEZ );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
 void StaticAnalysis_RegImm_BGEZL( OpCode op_code, RegisterUsage & recorder ) 			// Branch on Greater than or Equal to Zero Likely
 {
+	recorder.BranchOP( BT_BGEZL );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
 void StaticAnalysis_RegImm_BGEZAL( OpCode op_code, RegisterUsage & recorder ) 		// Branch on Greater than or Equal to Zero And Link
 {
+	recorder.BranchOP( BT_BGEZAL );
 	recorder.Record( RegSrcUse( op_code.rs ) );
 }
 
@@ -630,6 +647,7 @@ void StaticAnalysis_TLB_TLBP( OpCode op_code, RegisterUsage & recorder ) 				// 
 
 void StaticAnalysis_TLB_ERET( OpCode op_code, RegisterUsage & recorder )
 {
+	recorder.BranchOP( BT_ERET );
 }
 
 void StaticAnalysis_Cop1_MTC1( OpCode op_code, RegisterUsage & recorder )
@@ -668,18 +686,22 @@ void StaticAnalysis_Cop1_CTC1( OpCode op_code, RegisterUsage & recorder ) 		// m
 
 void StaticAnalysis_BC1_BC1F( OpCode op_code, RegisterUsage & recorder )		// Branch on FPU False
 {
+	recorder.BranchOP( BT_BC1F );
 }
 
 void StaticAnalysis_BC1_BC1T( OpCode op_code, RegisterUsage & recorder )	// Branch on FPU True
 {
+	recorder.BranchOP( BT_BC1T );
 }
 
 void StaticAnalysis_BC1_BC1FL( OpCode op_code, RegisterUsage & recorder )	// Branch on FPU False Likely
 {
+	recorder.BranchOP( BT_BC1FL );
 }
 
 void StaticAnalysis_BC1_BC1TL( OpCode op_code, RegisterUsage & recorder )		// Branch on FPU True Likely
 {
+	recorder.BranchOP( BT_BC1TL );
 }
 
 void StaticAnalysis_Cop1_W_CVT_S( OpCode op_code, RegisterUsage & recorder )
@@ -995,7 +1017,7 @@ void StaticAnalysis_Cop1_Compare_D( OpCode op_code, RegisterUsage & recorder )
 }
 
 // Opcode Jump Table
-StaticAnalysisFunction gStaticAnalysisInstruction[64] =
+const StaticAnalysisFunction gStaticAnalysisInstruction[64] =
 {
 	StaticAnalysis_Special, StaticAnalysis_RegImm, StaticAnalysis_J,    StaticAnalysis_JAL,   StaticAnalysis_BEQ,  StaticAnalysis_BNE,  StaticAnalysis_BLEZ,  StaticAnalysis_BGTZ,
 	StaticAnalysis_ADDI,    StaticAnalysis_ADDIU,  StaticAnalysis_SLTI, StaticAnalysis_SLTIU, StaticAnalysis_ANDI, StaticAnalysis_ORI,  StaticAnalysis_XORI,  StaticAnalysis_LUI,
@@ -1008,7 +1030,7 @@ StaticAnalysisFunction gStaticAnalysisInstruction[64] =
 };
 
 // SpecialOpCode Jump Table
-StaticAnalysisFunction gStaticAnalysisSpecialInstruction[64] =
+const StaticAnalysisFunction gStaticAnalysisSpecialInstruction[64] =
 {
 	StaticAnalysis_Special_SLL,  StaticAnalysis_Special_Unk,   StaticAnalysis_Special_SRL,  StaticAnalysis_Special_SRA,  StaticAnalysis_Special_SLLV,    StaticAnalysis_Special_Unk,    StaticAnalysis_Special_SRLV,   StaticAnalysis_Special_SRAV,
 	StaticAnalysis_Special_JR,   StaticAnalysis_Special_JALR,  StaticAnalysis_Special_Unk,  StaticAnalysis_Special_Unk,  StaticAnalysis_Special_SYSCALL, StaticAnalysis_Special_BREAK,  StaticAnalysis_Special_Unk,    StaticAnalysis_Special_SYNC,
@@ -1025,7 +1047,7 @@ void StaticAnalysis_Special( OpCode op_code, RegisterUsage & recorder )
 	gStaticAnalysisSpecialInstruction[ op_code.spec_op ]( op_code, recorder );
 }
 
-StaticAnalysisFunction gStaticAnalysisRegImmInstruction[32] =
+const StaticAnalysisFunction gStaticAnalysisRegImmInstruction[32] =
 {
 	StaticAnalysis_RegImm_BLTZ,   StaticAnalysis_RegImm_BGEZ,   StaticAnalysis_RegImm_BLTZL,   StaticAnalysis_RegImm_BGEZL,   StaticAnalysis_Unk,         StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk,
 	StaticAnalysis_RegImm_TGEI,   StaticAnalysis_RegImm_TGEIU,  StaticAnalysis_RegImm_TLTI,    StaticAnalysis_RegImm_TLTIU,   StaticAnalysis_RegImm_TEQI, StaticAnalysis_Unk, StaticAnalysis_RegImm_TNEI, StaticAnalysis_Unk,
@@ -1039,7 +1061,7 @@ void StaticAnalysis_RegImm( OpCode op_code, RegisterUsage & recorder )
 }
 
 // COP0 Jump Table
-StaticAnalysisFunction gStaticAnalysisCop0Instruction[32] =
+const StaticAnalysisFunction gStaticAnalysisCop0Instruction[32] =
 {
 	StaticAnalysis_Cop0_MFC0, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Cop0_MTC0, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
 	StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,
@@ -1053,7 +1075,7 @@ void StaticAnalysis_CoPro0( OpCode op_code, RegisterUsage & recorder )
 }
 
 // TLBOpCode Jump Table
-StaticAnalysisFunction gStaticAnalysisTLBInstruction[64] =
+const StaticAnalysisFunction gStaticAnalysisTLBInstruction[64] =
 {
 	StaticAnalysis_Unk,      StaticAnalysis_TLB_TLBR, StaticAnalysis_TLB_TLBWI, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_TLB_TLBWR, StaticAnalysis_Unk,
 	StaticAnalysis_TLB_TLBP, StaticAnalysis_Unk,      StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk, StaticAnalysis_Unk,       StaticAnalysis_Unk,
@@ -1071,7 +1093,7 @@ void StaticAnalysis_Cop0_TLB( OpCode op_code, RegisterUsage & recorder )
 }
 
 // COP1 Jump Table
-StaticAnalysisFunction gStaticAnalysisCop1Instruction[32] =
+const StaticAnalysisFunction gStaticAnalysisCop1Instruction[32] =
 {
 	StaticAnalysis_Cop1_MFC1,    StaticAnalysis_Cop1_DMFC1,  StaticAnalysis_Cop1_CFC1, StaticAnalysis_Unk, StaticAnalysis_Cop1_MTC1,   StaticAnalysis_Cop1_DMTC1,  StaticAnalysis_Cop1_CTC1, StaticAnalysis_Unk,
 	StaticAnalysis_Cop1_BCInstr, StaticAnalysis_Unk,         StaticAnalysis_Unk,       StaticAnalysis_Unk, StaticAnalysis_Unk,         StaticAnalysis_Unk,         StaticAnalysis_Unk,       StaticAnalysis_Unk,
@@ -1084,7 +1106,7 @@ void StaticAnalysis_CoPro1( OpCode op_code, RegisterUsage & recorder )
 	gStaticAnalysisCop1Instruction[ op_code.cop1_op ]( op_code, recorder );
 }
 
-StaticAnalysisFunction gStaticAnalysisCop1BC1Instruction[4] =
+const StaticAnalysisFunction gStaticAnalysisCop1BC1Instruction[4] =
 {
 	StaticAnalysis_BC1_BC1F, StaticAnalysis_BC1_BC1T, StaticAnalysis_BC1_BC1FL, StaticAnalysis_BC1_BC1TL
 };
@@ -1095,7 +1117,7 @@ void StaticAnalysis_Cop1_BCInstr( OpCode op_code, RegisterUsage & recorder )
 }
 
 // Single Jump Table
-StaticAnalysisFunction gStaticAnalysisCop1SInstruction[64] =
+const StaticAnalysisFunction gStaticAnalysisCop1SInstruction[64] =
 {
 	StaticAnalysis_Cop1_S_ADD,      StaticAnalysis_Cop1_S_SUB,     StaticAnalysis_Cop1_S_MUL,     StaticAnalysis_Cop1_S_DIV,     StaticAnalysis_Cop1_S_SQRT,    StaticAnalysis_Cop1_S_ABS,     StaticAnalysis_Cop1_S_MOV,     StaticAnalysis_Cop1_S_NEG,
 	StaticAnalysis_Cop1_S_ROUND_L,  StaticAnalysis_Cop1_S_TRUNC_L, StaticAnalysis_Cop1_S_CEIL_L,  StaticAnalysis_Cop1_S_FLOOR_L, StaticAnalysis_Cop1_S_ROUND_W, StaticAnalysis_Cop1_S_TRUNC_W, StaticAnalysis_Cop1_S_CEIL_W,  StaticAnalysis_Cop1_S_FLOOR_W,
@@ -1113,7 +1135,7 @@ void StaticAnalysis_Cop1_SInstr( OpCode op_code, RegisterUsage & recorder )
 }
 
 // Double Jump Table
-StaticAnalysisFunction gStaticAnalysisCop1DInstruction[64] =
+const StaticAnalysisFunction gStaticAnalysisCop1DInstruction[64] =
 {
 	StaticAnalysis_Cop1_D_ADD,      StaticAnalysis_Cop1_D_SUB,     StaticAnalysis_Cop1_D_MUL,     StaticAnalysis_Cop1_D_DIV,     StaticAnalysis_Cop1_D_SQRT,    StaticAnalysis_Cop1_D_ABS,     StaticAnalysis_Cop1_D_MOV,     StaticAnalysis_Cop1_D_NEG,
 	StaticAnalysis_Cop1_D_ROUND_L,  StaticAnalysis_Cop1_D_TRUNC_L, StaticAnalysis_Cop1_D_CEIL_L,  StaticAnalysis_Cop1_D_FLOOR_L, StaticAnalysis_Cop1_D_ROUND_W, StaticAnalysis_Cop1_D_TRUNC_W, StaticAnalysis_Cop1_D_CEIL_W,  StaticAnalysis_Cop1_D_FLOOR_W,
@@ -1137,6 +1159,7 @@ namespace StaticAnalysis
 
 void Analyse( OpCode op_code, RegisterUsage & reg_usage )
 {
+	reg_usage.BranchOP( BT_NOT_BRANCH );
 	gStaticAnalysisInstruction[ op_code.op ]( op_code, reg_usage );
 }
 

@@ -18,9 +18,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #pragma once
 
+#ifndef __DAEDALUS_STATICANALYSIS_H__
+#define __DAEDALUS_STATICANALYSIS_H__
+
+#include "BranchType.h"
 #include "Core/Memory.h"
+
 struct OpCode;
 
+// Mmm move these macros somewhere else
 #define IS_SEG_8000(x)			((x & 0xE0000000) == 0x80000000)
 #define IS_SEG_A000(x)			((x & 0xE0000000) == 0xA0000000)
 #define IS_SEG_A000_8000(x)		(((x ^ 0x80000000) & 0xC0000000) == 0)
@@ -62,15 +68,15 @@ namespace StaticAnalysis
 		u32			RegReads;
 		u32			RegWrites;
 		u32			RegBase;
-		bool		mAccess_8000;
-//		bool		mAccess_A000;
+		bool		Access8000;
+		ER4300BranchType BranchType;
 
 		RegisterUsage()
 			:	RegReads( 0 )
 			,	RegWrites( 0 )
 			,	RegBase( 0 )
-			,   mAccess_8000( false )
-//			,   mAccess_A000( false )
+			,   Access8000( false )
+			,   BranchType( BT_NOT_BRANCH )
 		{
 		}
 
@@ -113,10 +119,15 @@ namespace StaticAnalysis
 			RegBase = (1<<b.Reg);
 		}
 
+		inline void	BranchOP(ER4300BranchType type)	
+		{
+			BranchType = type;
+		}
+
 		// Compiler was already inlining this, but just in case..
 		inline void		Access(u32 address)
 		{
-			mAccess_8000 = IS_SEG_8000(address);
+			Access8000 = IS_SEG_8000(address);
 
 			/*
 			if( IS_SEG_8000(address) )
@@ -136,3 +147,5 @@ namespace StaticAnalysis
 
 	void		Analyse( OpCode op_code, RegisterUsage & reg_usage );
 }
+
+#endif // __DAEDALUS_STATICANALYSIS_H__

@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define __DAEDALUS_BRANCHTYPE_H__
 
 #include "Utility/DaedalusTypes.h"
+#include <stdlib.h>
 
 struct OpCode;
 
@@ -59,14 +60,37 @@ enum ER4300BranchType
 //	BT_MAX,
 };
 
-ER4300BranchType		GetBranchType( OpCode op_code );
-//ER4300BranchType		GetInverseBranch( ER4300BranchType type );
-u32						GetBranchTarget( u32 address, OpCode op_code, ER4300BranchType type );
-bool					IsConditionalBranch( ER4300BranchType type );
-bool					IsBranchTypeDirect( ER4300BranchType type );
-bool					IsBranchTypeLikely( ER4300BranchType type );
+inline bool IsBranchTypeLikely( ER4300BranchType type )
+{
+	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
 
-//OpCode					GetInverseBranch( OpCode op_code );
-//OpCode					UpdateBranchTarget( OpCode op_code, u32 op_address, u32 target_address );
+	if( type < BT_BEQ )
+		return true;
+	else
+		return false;
+
+}
+
+inline bool IsConditionalBranch( ER4300BranchType type )
+{
+	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
+
+	if( type >= BT_J )
+		return false;
+	else
+		return true;
+}
+
+inline bool IsBranchTypeDirect( ER4300BranchType type )
+{
+	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
+
+	if( type >= BT_JR )
+		return false;
+	else
+		return true;
+}
+
+u32	GetBranchTarget( u32 address, OpCode op_code, ER4300BranchType type );
 
 #endif // __DAEDALUS_BRANCHTYPE_H__

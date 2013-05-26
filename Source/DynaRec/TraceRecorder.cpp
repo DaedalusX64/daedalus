@@ -150,6 +150,9 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 		mExpectedExitTraceAddress = address + 4;
 	}
 
+	StaticAnalysis::RegisterUsage usage;
+	StaticAnalysis::Analyse(op_code,usage);
+
 	//
 	//	If this is a branch, we need to determine if it was taken or not.
 	//	We store a information about the 'off-trace' target.
@@ -158,7 +161,7 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 	//
 	u32		branch_idx( INVALID_IDX );
 
-	ER4300BranchType	branch_type( GetBranchType( op_code ) );
+	ER4300BranchType	branch_type( usage.BranchType );
 	if( branch_type != BT_NOT_BRANCH )
 	{
 		SBranchDetails	details;
@@ -245,10 +248,6 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 		branch_idx = mBranchDetails.size();
 		mBranchDetails.push_back( details );
 	}
-
-	StaticAnalysis::RegisterUsage usage;
-
-	StaticAnalysis::Analyse(op_code,usage);
 
 	// Add this op to the trace buffer.
 	STraceEntry		entry = { address, op_code, usage, branch_idx, branch_delay_slot };

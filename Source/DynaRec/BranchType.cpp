@@ -25,10 +25,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/R4300OpCode.h"
 #include "Utility/Macros.h"
 
-//
-// I think we should check for branch type in static analyzer - Salvy
-//
-
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -52,75 +48,6 @@ static const ER4300BranchType gInverseBranchTypes[] =
 };
 
 */
-//*************************************************************************************
-//
-//*************************************************************************************
-ER4300BranchType GetBranchType( OpCode op_code )
-{
-	switch( op_code.op )
-	{
-	case OP_J:				return BT_J;
-	case OP_JAL:			return BT_JAL;
-	case OP_BEQ:			return BT_BEQ;
-	case OP_BNE:			return BT_BNE;
-	case OP_BLEZ:			return BT_BLEZ;
-	case OP_BGTZ:			return BT_BGTZ;
-	case OP_BEQL:			return BT_BEQL;
-	case OP_BNEL:			return BT_BNEL;
-	case OP_BLEZL:			return BT_BLEZL;
-	case OP_BGTZL:			return BT_BGTZL;
-
-	case OP_REGIMM:
-		switch( op_code.regimm_op )
-		{
-		case RegImmOp_BLTZ:		return BT_BLTZ;
-		case RegImmOp_BGEZ:		return BT_BGEZ;
-		case RegImmOp_BLTZL:	return BT_BLTZL;
-		case RegImmOp_BGEZL:	return BT_BGEZL;
-		case RegImmOp_BLTZAL:	return BT_BLTZAL;
-		case RegImmOp_BGEZAL:	return BT_BGEZAL;
-		case RegImmOp_BLTZALL:	return BT_BLTZALL;
-		case RegImmOp_BGEZALL:	return BT_BGEZALL;
-		default:
-			break;
-		}
-		break;
-
-	case OP_SPECOP:
-		switch( op_code.spec_op )
-		{
-		case SpecOp_JR:			return BT_JR;
-		case SpecOp_JALR:		return BT_JALR;
-		default:
-			break;
-		}
-		break;
-
-	case OP_COPRO0:
-		if( op_code.cop0_op == Cop0Op_TLB )
-		{
-			switch( op_code.cop0tlb_funct )
-			{
-			case OP_ERET:	return BT_ERET;
-			}
-		}
-		break;
-	case OP_COPRO1:
-		if( op_code.cop1_op == Cop1Op_BCInstr )
-		{
-			switch( op_code.cop1_bc )
-			{
-			case Cop1BCOp_BC1F:		return BT_BC1F;
-			case Cop1BCOp_BC1T:		return BT_BC1T;
-			case Cop1BCOp_BC1FL:	return BT_BC1FL;
-			case Cop1BCOp_BC1TL:	return BT_BC1TL;
-			}
-		}
-		break;
-	}
-
-	return BT_NOT_BRANCH;
-}
 
 //*************************************************************************************
 //
@@ -330,7 +257,8 @@ u32 GetBranchTarget( u32 address, OpCode op_code, ER4300BranchType type )
 	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
 
 	// We pass the type in for efficiency - check that it's correct in debug though
-	DAEDALUS_ASSERT( GetBranchType( op_code ) == type, "Specified type is inconsistant with op code" );
+	// This already checked
+	//DAEDALUS_ASSERT( GetBranchType( op_code ) == type, "Specified type is inconsistant with op code" );
 
 	if( type < BT_J )
 	{
@@ -345,49 +273,5 @@ u32 GetBranchTarget( u32 address, OpCode op_code, ER4300BranchType type )
 
 	// These are all indirect
 	return  0;
-}
-
-//
-// Bellow Functions are very simple 2 ops (jr,slti) shall we inline them?
-// They assume we have already checked for BT_NOT_BRANCH which is of course already checked ;)
-//
-//*************************************************************************************
-//
-//*************************************************************************************
-bool IsConditionalBranch( ER4300BranchType type )
-{
-	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
-
-	if( type >= BT_J )
-		return false;
-	else
-		return true;
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
-bool IsBranchTypeDirect( ER4300BranchType type )
-{
-	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
-
-	if( type >= BT_JR )
-		return false;
-	else
-		return true;
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
-bool IsBranchTypeLikely( ER4300BranchType type )
-{
-	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
-
-	if( type < BT_BEQ )
-		return true;
-	else
-		return false;
-
 }
 

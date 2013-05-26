@@ -1406,7 +1406,7 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 
 	if( branch_delay_slot ) mPreviousStoreBase = mPreviousLoadBase = N64Reg_R0;	//Invalidate
 
-	mQuickLoad = ti.Usage.mAccess_8000;
+	mQuickLoad = ti.Usage.Access8000;
 
 	const EN64Reg	rs = EN64Reg( op_code.rs );
 	const EN64Reg	rt = EN64Reg( op_code.rt );
