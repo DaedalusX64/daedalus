@@ -268,9 +268,9 @@ const EPspReg	gRegistersToUseForCaching[] =
 //	PspReg_S6,		// Memory upper bound
 //	PspReg_S7,		// Used for g_pu8RamBase - 0x80000000
 //	PspReg_S8,		// Used for base register (&gCPUState)
-//	PspReg_K0,		//Used by Kernel but seems to work if we borrow it...(could come back and bite us if we use kernel stuff?) //Corn
-//	PspReg_K1,		//Used by Kernel but seems to work if we borrow it...(could come back and bite us if we use kernel stuff?)
-//	PspReg_GP,		//Crashes when exiting to pause menu, needs saving to work?
+//	PspReg_K0,		//Used as load base register. Normally it is reserved for Kernel but seems to work if we borrow it...(could come back and bite us if we use kernel stuff?) //Corn
+//	PspReg_K1,		//Used as store base register. Normally it is reserved for Kernel but seems to work if we borrow it...(could come back and bite us if we use kernel stuff?)
+//	PspReg_GP,		//This needs saving to work?
 };
 }
 
@@ -2852,8 +2852,17 @@ inline void	CCodeGeneratorPSP::GenerateDADDIU( EN64Reg rt, EN64Reg rs, s16 immed
 		EPspReg	reg_lo_d( GetRegisterNoLoadLo( rt, PspReg_V0 ) );
 		EPspReg	reg_lo_a( GetRegisterAndLoadLo( rs, PspReg_A0 ) );
 
-		ADDIU( reg_lo_d, reg_lo_a, immediate );
-		SLTU( PspReg_A1, reg_lo_d, reg_lo_a );		// Overflowed?
+		if(reg_lo_d == reg_lo_a)
+		{
+			ADDIU( PspReg_A0, reg_lo_a, immediate );
+			SLTU( PspReg_A1, PspReg_A0, reg_lo_a );		// Overflowed?
+			OR( reg_lo_d, PspReg_A0, PspReg_R0 );
+		}
+		else
+		{
+			ADDIU( reg_lo_d, reg_lo_a, immediate );
+			SLTU( PspReg_A1, reg_lo_d, reg_lo_a );		// Overflowed?
+		}
 		StoreRegisterLo( rt, reg_lo_d );
 
 		EPspReg	reg_hi_d( GetRegisterNoLoadHi( rt, PspReg_V0 ) );
@@ -2884,7 +2893,8 @@ inline void	CCodeGeneratorPSP::GenerateDADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt
 	EPspReg	reg_lo_b( GetRegisterAndLoadLo( rt, PspReg_A1 ) );
 
 	ADDU( reg_lo_d, reg_lo_a, reg_lo_b );
-	SLTU( PspReg_V1, reg_lo_d, reg_lo_a );		// Overflowed?
+    //Assumes that just one of the source regs are the same as DST
+	SLTU( PspReg_V1, reg_lo_d, reg_lo_d == reg_lo_a ? reg_lo_b : reg_lo_a  );		// Overflowed?
 	StoreRegisterLo( rd, reg_lo_d );
 
 	EPspReg	reg_hi_d( GetRegisterNoLoadHi( rd, PspReg_V0 ) );
