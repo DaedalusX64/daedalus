@@ -410,6 +410,10 @@ void IInputManager::GetState( OSContPad pPad[4] )
 
 	stick = ApplyDeadzone( stick, gGlobalPreferences.StickMinDeadzone, gGlobalPreferences.StickMaxDeadzone );
 
+	//Smoother joystick sensitivity //Corn
+	stick.x = 0.5f * stick.x + 0.5f * stick.x * stick.x * stick.x;
+	stick.y = 0.5f * stick.y + 0.5f * stick.y * stick.y * stick.y;
+
 	pPad[0].stick_x =  s8(stick.x * N64_ANALOGUE_STICK_RANGE);
 	pPad[0].stick_y = -s8(stick.y * N64_ANALOGUE_STICK_RANGE);
 
