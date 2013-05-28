@@ -122,13 +122,12 @@ static void Patch_ApplyPatch(u32 i);
 static u32  nPatchSymbols;
 static u32  nPatchVariables;
 
-//For testing mostly performance hit on the PSP, adds two ops (sw, sra)
-//Some games are sensible when we don't sign ext, expects the hi part to be cleared?
-//Maybe only enable for PC?
-#if 0
-#define SIGN64(result)	result = (s64)((s32)result)
+//For performance we ignore sign ext in certain patches that are known to return 32bit values (gives upto ~5% speedup in some games ex SSV), but this causes "Branching assumption invalid" errors in interpreter
+//I guess some games expect the hi bits to be cleared? We only ignore sign ext for PSP since performance is a concern, and other than the above assert I haven't noticed any issue. //Salvy
+#ifndef DAEDALUS_PSP
+#define SIGN64(reg)	gGPR[reg]._s64 = (s64)gGPR[reg]._s32_0
 #else
-#define SIGN64(result)
+#define SIGN64(reg)
 #endif
 
 void Patch_Reset()

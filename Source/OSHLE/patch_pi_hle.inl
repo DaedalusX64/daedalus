@@ -117,7 +117,7 @@ TEST_DISABLE_PI_FUNCS
 	}
 
 	gGPR[REG_v0]._u32_0 = 0;
-	SIGN64(gGPR[REG_v0]._s64);
+	SIGN64(REG_v0);
 
 	return PATCH_RET_JR_RA;
 }

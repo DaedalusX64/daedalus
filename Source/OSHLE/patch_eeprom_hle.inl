@@ -93,7 +93,7 @@ TEST_DISABLE_EEPROM_FUNCS
 		gGPR[REG_v0]._u32_0 = 0;
 		break;
 	}
-	SIGN64(gGPR[REG_v0]._s64);
+	SIGN64(REG_v0);
 
 	// Side effect From osEepStatus
 	//Write32Bits(VAR_ADDRESS(osEepPifThingamy2), 5);
