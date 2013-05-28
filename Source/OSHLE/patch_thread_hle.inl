@@ -790,6 +790,8 @@ TEST_DISABLE_THREAD_FUNCS
 	u32 thread = QuickRead32Bits(pBase, 0x0);
 
 	gGPR[REG_v0]._u32_0 = thread;
+	SIGN64(gGPR[REG_v0]._s64);
+
 	QuickWrite32Bits(pBase, Read32Bits(thread + 0x0));
 	//DBGConsole_Msg(0, "0x%08x = __osPopThread(0x%08x)", thread, queue);
 

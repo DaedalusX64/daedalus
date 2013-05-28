@@ -85,6 +85,7 @@ inline bool IsSiDeviceBusy()
 u32 Patch___osSiDeviceBusy()
 {
 	gGPR[REG_v0]._u32_0 = IsSiDeviceBusy();
+	SIGN64(gGPR[REG_v0]._s64);
 
 	return PATCH_RET_JR_RA;
 }
@@ -98,13 +99,15 @@ u32 Patch___osSiRawReadIo_Mario()
 	u32 valAddr = gGPR[REG_a1]._u32_0;
 
 	if (IsSiDeviceBusy() != 0)
-		gGPR[REG_v0]._u32_0 = -1;
+		gGPR[REG_v0]._u32_0 = ~0;
 	else
 	{
 		port |= 0xA0000000;
 		Write32Bits(valAddr, Read32Bits(port));
 		gGPR[REG_v0]._u32_0 = 0;
 	}
+
+	SIGN64(gGPR[REG_v0]._s64);
 	return PATCH_RET_JR_RA;
 }
 
@@ -117,13 +120,14 @@ u32 Patch___osSiRawReadIo_Zelda()
 	u32 valAddr = gGPR[REG_a1]._u32_0;
 
 	if (IsSiDeviceBusy() != 0)
-		gGPR[REG_v0]._u32_0 = -1;
+		gGPR[REG_v0]._u32_0 = ~0;
 	else
 	{
 		port |= 0xA0000000;
 		Write32Bits(valAddr, Read32Bits(port));
 		gGPR[REG_v0]._u32_0 = 0;
 	}
+	SIGN64(gGPR[REG_v0]._s64);
 	return PATCH_RET_JR_RA;
 }
 
@@ -136,13 +140,14 @@ u32 Patch___osSiRawWriteIo_Mario()
 	u32 val = gGPR[REG_a1]._u32_0;
 
 	if (IsSiDeviceBusy() != 0)
-		gGPR[REG_v0]._u32_0 = -1;
+		gGPR[REG_v0]._u32_0 = ~0;
 	else
 	{
 		port |= 0xA0000000;
 		Write32Bits(port, val);
 		gGPR[REG_v0]._u32_0 = 0;
 	}
+	SIGN64(gGPR[REG_v0]._s64);
 	return PATCH_RET_JR_RA;
 }
 
@@ -155,13 +160,14 @@ u32 Patch___osSiRawWriteIo_Zelda()
 	u32 val = gGPR[REG_a1]._u32_0;
 
 	if (IsSiDeviceBusy() != 0)
-		gGPR[REG_v0]._u32_0 = -1;
+		gGPR[REG_v0]._u32_0 = ~0;
 	else
 	{
 		port |= 0xA0000000;
 		Write32Bits(port, val);
 		gGPR[REG_v0]._u32_0 = 0;
 	}
+	SIGN64(gGPR[REG_v0]._s64);
 	return PATCH_RET_JR_RA;
 }
 
@@ -198,6 +204,7 @@ u32 Patch___osSiRawStartDma_Mario()
 	}
 
 	gGPR[REG_v0]._u32_0 = 0;
+	SIGN64(gGPR[REG_v0]._s64);
 
 	return PATCH_RET_JR_RA;
 }
@@ -235,6 +242,7 @@ u32 Patch___osSiRawStartDma_Rugrats()
 	}
 
 	gGPR[REG_v0]._u32_0 = 0;
+	SIGN64(gGPR[REG_v0]._s64);
 
 	return PATCH_RET_JR_RA;
 }

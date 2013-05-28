@@ -119,8 +119,17 @@ static bool Patch_GetCache();
 static void Patch_FlushCache();
 
 static void Patch_ApplyPatch(u32 i);
-u32  nPatchSymbols;
+static u32  nPatchSymbols;
 static u32  nPatchVariables;
+
+//For testing mostly performance hit on the PSP, adds two ops (sw, sra)
+//Some games are sensible when we don't sign ext, expects the hi part to be cleared?
+//Maybe only enable for PC?
+#if 0
+#define SIGN64(result)	result = (s64)((s32)result)
+#else
+#define SIGN64(result)
+#endif
 
 void Patch_Reset()
 {

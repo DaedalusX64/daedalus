@@ -1,6 +1,5 @@
 #define TEST_DISABLE_EEPROM_FUNCS //return PATCH_RET_NOT_PROCESSED;
 
-// I don't think for Eeprom patches we need to cast 64bit types - Salvy
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -35,7 +34,8 @@ TEST_DISABLE_EEPROM_FUNCS
 	Write16Bits(ContStatus + 0, type);	// type
 	Write8Bits(ContStatus + 2, 0);		// status
 	Write8Bits(ContStatus + 3, data);	// errno
-	gGPR[REG_v0]._u64 = data;
+	gGPR[REG_v0]._u32_0 = data;
+	SIGN64( gGPR[REG_v0]._s64 );
 
 	return PATCH_RET_JR_RA;
 }
@@ -75,7 +75,6 @@ TEST_DISABLE_FUNCS
 //
 //*****************************************************************************
 // Used in Mario Kart
-// Why cast to u64/s64?
 u32 Patch_osEepromProbe()
 {
 TEST_DISABLE_EEPROM_FUNCS
@@ -85,15 +84,16 @@ TEST_DISABLE_EEPROM_FUNCS
 	switch( g_ROM.settings.SaveType )
 	{
 	case SAVE_TYPE_EEP4K:
-		gGPR[REG_v0]._u64 = EEPROM_TYPE_4K;
+		gGPR[REG_v0]._u32_0 = EEPROM_TYPE_4K;
 		break;
 	case SAVE_TYPE_EEP16K:
-		gGPR[REG_v0]._u64 = EEPROM_TYPE_16K;
+		gGPR[REG_v0]._u32_0 = EEPROM_TYPE_16K;
 		break;
 	default:			// No Eeprom, SRAM, FlashRam etc. or error..
-		gGPR[REG_v0]._u64 = 0;
+		gGPR[REG_v0]._u32_0 = 0;
 		break;
 	}
+	SIGN64(gGPR[REG_v0]._s64);
 
 	// Side effect From osEepStatus
 	//Write32Bits(VAR_ADDRESS(osEepPifThingamy2), 5);

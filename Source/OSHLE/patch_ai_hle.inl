@@ -8,7 +8,7 @@ u32 Patch_osAiGetLength()
 TEST_DISABLE_AI_FUNCS
 	// Hardcoding 2880 here causes Aerogauge to get 40%+ speed up, yammy!
 	gGPR[REG_v0]._u32_0 = Memory_AI_GetRegister(AI_LEN_REG);
-	//gGPR[REG_v0]._s64 = (s64)(s32)len;
+	SIGN64(gGPR[REG_v0]._s64);
 
 	return PATCH_RET_JR_RA;
 }
@@ -47,6 +47,7 @@ TEST_DISABLE_AI_FUNCS
 
 	// Return 0 if succesfully DMA'd audio, otherwise -1 if busy
 	gGPR[REG_v0]._u32_0 = 0;
+	SIGN64(gGPR[REG_v0]._s64);
 
 	return PATCH_RET_JR_RA;
 }
@@ -75,6 +76,7 @@ u32 Patch___osAiDeviceBusy()
 {
 TEST_DISABLE_AI_FUNCS
 	gGPR[REG_v0]._u32_0 = IsAiDeviceBusy();
+	SIGN64(gGPR[REG_v0]._s64);
 
 	return PATCH_RET_JR_RA;
 }

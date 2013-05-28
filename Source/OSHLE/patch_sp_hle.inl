@@ -71,6 +71,7 @@ TEST_DISABLE_SP_FUNCS
 	}
 
 	gGPR[REG_v0]._u32_0 = 0;
+	SIGN64(gGPR[REG_v0]._s64);
 
 	return PATCH_RET_JR_RA;
 }
@@ -81,8 +82,9 @@ TEST_DISABLE_SP_FUNCS
 u32 Patch___osSpDeviceBusy_Mario()
 {
 TEST_DISABLE_SP_FUNCS
-	// This need to be 64bit, otherwise it causes a branch assumption error in interpreter
-	gGPR[REG_v0]._u64 = IsSpDeviceBusy();
+	
+	gGPR[REG_v0]._u32_0 = IsSpDeviceBusy();
+	SIGN64(gGPR[REG_v0]._s64);	// very important, otherwise it causes a branch assumption error in interpreter
 
 	return PATCH_RET_JR_RA;
 }
@@ -95,7 +97,8 @@ u32 Patch___osSpDeviceBusy_Rugrats()
 {
 TEST_DISABLE_SP_FUNCS
 
-	gGPR[REG_v0]._u64 = IsSpDeviceBusy();
+	gGPR[REG_v0]._u32_0 = IsSpDeviceBusy();
+	SIGN64(gGPR[REG_v0]._s64);
 
 	return PATCH_RET_JR_RA;
 }
@@ -110,6 +113,7 @@ u32 Patch___osSpGetStatus_Mario()
 TEST_DISABLE_SP_FUNCS
 
 	gGPR[REG_v0]._u32_0 = SpGetStatus();
+	SIGN64(gGPR[REG_v0]._s64);
 
 	return PATCH_RET_JR_RA;
 }
@@ -123,6 +127,7 @@ u32 Patch___osSpGetStatus_Rugrats()
 TEST_DISABLE_SP_FUNCS
 
 	gGPR[REG_v0]._u32_0 = SpGetStatus();
+	SIGN64(gGPR[REG_v0]._s64);
 
 	return PATCH_RET_JR_RA;
 }
@@ -175,6 +180,7 @@ TEST_DISABLE_SP_FUNCS
 		gGPR[REG_v0]._u32_0 = ~0;
 	}
 
+	SIGN64(gGPR[REG_v0]._s64);
 	return PATCH_RET_JR_RA;
 }
 
@@ -321,6 +327,7 @@ u32 Patch_osSpTaskYield_Mario()
 TEST_DISABLE_SP_FUNCS
 
 	gGPR[REG_v0]._u32_0 = 0;
+	SIGN64(gGPR[REG_v0]._s64);
 	return PATCH_RET_JR_RA;
 }
 
@@ -332,6 +339,7 @@ u32 Patch_osSpTaskYield_Rugrats()
 TEST_DISABLE_SP_FUNCS
 
 	gGPR[REG_v0]._u32_0 = 0;
+	SIGN64(gGPR[REG_v0]._s64);
 	return PATCH_RET_JR_RA;
 }
 
@@ -346,5 +354,6 @@ TEST_DISABLE_SP_FUNCS
 	OSTask * pSrcTask = (OSTask *)ReadAddress(gGPR[REG_a0]._u32_0);
 
 	gGPR[REG_v0]._u32_0 = (pSrcTask->t.flags & OS_TASK_YIELDED);
+	SIGN64(gGPR[REG_v0]._s64);
 	return PATCH_RET_JR_RA;
 }

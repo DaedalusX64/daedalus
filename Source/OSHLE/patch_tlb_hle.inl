@@ -32,6 +32,7 @@ TEST_DISABLE_TLB_FUNCS
 	//DBGConsole_Msg(0, "Probe: 0x%08x -> 0x%08x", VAddr, dwPAddr);
 
 	gGPR[REG_v0]._u32_0 = OS_HLE___osProbeTLB( addr );
+	SIGN64(gGPR[REG_v0]._s64);
 
 	return PATCH_RET_JR_RA;
 }
@@ -46,6 +47,7 @@ TEST_DISABLE_TLB_FUNCS
 	//DBGConsole_Msg(0, "osVirtualToPhysical(0x%08x)", addr);
 
 	gGPR[REG_v0]._u32_0 = ConvertToPhysics( addr );
+	SIGN64(gGPR[REG_v0]._s64);
 
 	return PATCH_RET_JR_RA;
 }
@@ -61,6 +63,7 @@ TEST_DISABLE_TLB_FUNCS
 	//DBGConsole_Msg(0, "osVirtualToPhysical(0x%08x)", (u32)gGPR[REG_a0]);
 
 	gGPR[REG_v0]._u32_0 = ConvertToPhysics( addr );
+	SIGN64(gGPR[REG_v0]._s64);
 
 	return PATCH_RET_JR_RA;
 }
