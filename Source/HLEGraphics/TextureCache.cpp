@@ -53,6 +53,7 @@ CTextureCache::CTextureCache()
 
 CTextureCache::~CTextureCache()
 {
+	DropTextures();
 }
 
 inline u32 CTextureCache::MakeHashIdxA( const TextureInfo & ti )
