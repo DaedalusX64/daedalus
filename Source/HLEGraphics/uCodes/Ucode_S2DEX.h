@@ -239,11 +239,11 @@ enum ESpriteMode
 	NO_ROTATION
 };
 
-uObjTxtr *gObjTxtr = NULL;
+static uObjTxtr *gObjTxtr = NULL;
 //*****************************************************************************
 //
 //*****************************************************************************
-static inline CRefPtr<CNativeTexture> Load_ObjSprite( uObjSprite *sprite, uObjTxtr *txtr )
+static inline CRefPtr<CNativeTexture> Load_ObjSprite( const uObjSprite *sprite, const uObjTxtr *txtr )
 {
 	TextureInfo ti;
 
@@ -288,7 +288,7 @@ static inline CRefPtr<CNativeTexture> Load_ObjSprite( uObjSprite *sprite, uObjTx
 //*****************************************************************************
 //
 //*****************************************************************************
-static inline void Draw_ObjSprite( uObjSprite *sprite, ESpriteMode mode, const CNativeTexture * texture )
+static inline void Draw_ObjSprite( const uObjSprite *sprite, ESpriteMode mode, const CNativeTexture * texture )
 {
 	f32 imageW = sprite->imageW / 32.0f;
 	f32 imageH = sprite->imageH / 32.0f;
@@ -474,16 +474,12 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 		u32 size	= ObjTlut->pnum+1;
 		u32 offset  = ObjTlut->phead-0x100;
 
-		DAEDALUS_ASSERT( offset+size <= 0x100, "Check me: TMEM" );
+		DAEDALUS_ASSERT( (offset+size) <= 0x100, "Check me: TMEM" );
 
-		for( u32 i=offset; i<offset+size; i++ )
+		for( u32 i=offset; i < (offset+size); i++ )
 		{
 			gPaletteMemory[ i ] = *src++;
 		}
-
-		//memcpy_vfpu_BE((void *)&gPaletteMemory[ (offset << 1) & 0x3FF ], (void *)ObjTlutAddr, (size << 1));
-
-		//printf("Source[%p] TMEM[%d] Size[%d]\n",(u32*)ObjTlutAddr , (offset << 1) & 0x3FF, (size << 1));
 #endif
 		gObjTxtr = NULL;
 	}

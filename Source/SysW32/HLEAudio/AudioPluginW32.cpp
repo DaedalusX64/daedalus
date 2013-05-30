@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Plugins/AudioPlugin.h"
 #include "HLEAudio/audiohle.h"
 
+#include "Utility/FastMemcpy.h"
 #include "Utility/Thread.h"
 
 #include "Core/Interrupt.h"
@@ -48,25 +49,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define Buffer_HalfFull		2
 #define Buffer_Full			3
 
-static void Soundmemcpy(void * dest, const void * src, size_t count) {
-	_asm {
-		mov edi, dest
-			mov ecx, src
-			mov edx, 0
-memcpyloop1:
-		mov ax, word ptr [ecx + edx]
-		mov bx, word ptr [ecx + edx + 2]
-		mov  word ptr [edi + edx + 2],ax
-			mov  word ptr [edi + edx],bx
-			add edx, 4
-			mov ax, word ptr [ecx + edx]
-		mov bx, word ptr [ecx + edx + 2]
-		mov  word ptr [edi + edx + 2],ax
-			mov  word ptr [edi + edx],bx
-			add edx, 4
-			cmp edx, count
-			jb memcpyloop1
-	}
+inline void Soundmemcpy(void * dest, const void * src, size_t count)
+{
+	memcpy_byteswap(dest, src, count);
 }
 
 
@@ -89,7 +74,8 @@ public:
 	virtual void			Update( bool wait );
 private:
 	u32 Frequency, Dacrate, Snd1Len, SpaceLeft, SndBuffer[3], Playing;
-	BYTE *Snd1ReadPos;
+	u8 *Snd1ReadPos;
+	bool AIReady;
 #ifdef AUDIO_THREADED
 	static u32 __stdcall AudioThread(void * arg);
 #endif
@@ -115,6 +101,7 @@ EAudioPluginMode gAudioPluginEnabled( APM_ENABLED_SYNC );
 //*****************************************************************************
 CAudioPluginW32::CAudioPluginW32()
 :	Dacrate(0)
+,	AIReady(false)
 ,	lpds(NULL)
 ,	lpdsbuf(NULL)
 ,	lpdsNotify(NULL)
@@ -157,6 +144,7 @@ bool		CAudioPluginW32::StartEmulation()
 	}
 	Dacrate = 0;
 	Playing = false;
+	AIReady = false;
 	SndBuffer[0] = Buffer_Empty;
 	SndBuffer[1] = Buffer_Empty;
 	SndBuffer[2] = Buffer_Empty;
@@ -230,15 +218,14 @@ void	CAudioPluginW32::LenChanged()
 	if( gAudioPluginEnabled == APM_DISABLED )
 		return;
 
-	int count, temp;
-	u32 len;
+	u32 len, count;
 
 	len = Memory_AI_GetRegister(AI_LEN_REG);
 	if (len == 0) { return; }
 	Memory_AI_SetRegisterBits(AI_STATUS_REG, AI_STATUS_FIFO_FULL);
 	Snd1Len = (len & 0x3FFF8);
-	temp = Snd1Len;
 	Snd1ReadPos = g_pu8RamBase + (Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0x00FFFFF8);
+	AIReady = true;
 
 	int offset = 0;
 	if (Playing) {
@@ -288,8 +275,11 @@ u32		CAudioPluginW32::ReadLength()
 //*****************************************************************************
 void	CAudioPluginW32::Update( bool Wait )
 {
-	int count=0;
-	u32 status, dwEvt;
+	u32 status, count, dwEvt;
+
+	// Bug fix DK64
+	if(!AIReady)
+		return;
 
 	if (Wait&&Playing) {
 		dwEvt = MsgWaitForMultipleObjects(NUMCAPTUREEVENTS,rghEvent,false,
@@ -499,6 +489,7 @@ void CAudioPluginW32::FillBuffer ( int buffer ) {
 		//R4300_Interrupt_UpdateCause3();
 		return;
 	}
+
 	if (SndBuffer[buffer] == Buffer_Empty)
 	{
 		if (Snd1Len >= BufferSize)

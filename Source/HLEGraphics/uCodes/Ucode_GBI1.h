@@ -454,15 +454,11 @@ void DLParser_GBI1_SetOtherModeH( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_Texture( MicroCodeCommand command )
 {
-	u32 tile    = command.texture.tile;
 
-	// Seems to use 0x01
-	bool enable = command.texture.enable_gbi0;
+	DL_PF("    Level[%d] Tile[%d] %s", command.texture.level, command.texture.tile, command.texture.enable_gbi0? "enable":"disable");
 
-	DL_PF("    Level[%d] Tile[%d] %s", command.texture.level, tile, enable? "enable":"disable");
-
-	gRenderer->SetTextureTile( tile);
-	gRenderer->SetTextureEnable( enable);
+	gRenderer->SetTextureTile( command.texture.tile);
+	gRenderer->SetTextureEnable( command.texture.enable_gbi0);
 
 	f32 scale_s = f32(command.texture.scaleS)  / (65535.0f * 32.0f);
 	f32 scale_t = f32(command.texture.scaleT)  / (65535.0f * 32.0f);

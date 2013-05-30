@@ -32,8 +32,6 @@ void DLParser_Vtx_PD( MicroCodeCommand command )
 
 	DL_PF("    Address[0x%08x] Len[%d] v0[%d] Num[%d]", address, len, v0, n);
 
-	// Doesn't work anyways
-	// Todo : Implement proper vertex info for PD
 	gRenderer->SetNewVertexInfoPD( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
