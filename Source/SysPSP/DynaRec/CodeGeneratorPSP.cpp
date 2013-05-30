@@ -4195,18 +4195,38 @@ inline void	CCodeGeneratorPSP::GenerateBGTZ( EN64Reg rs, const SBranchDetails * 
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BGTZ?" );
 
-	EPspReg		reg_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
+	EPspReg		reg_lo( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
 
-	// XXXX This may actually need to be a 64 bit compare, but this is what R4300.cpp does
-
-	if( p_branch->ConditionalBranchTaken )
+	//64bit compare is needed for DK64 or DK can walk trough walls
+	if(g_ROM.GameHacks == DK64)
 	{
-		// Flip the sign of the test -
-		*p_branch_jump = BLEZ( reg_a, CCodeLabel(NULL), true );
+		//Do 64 bit compare //Corn
+		EPspReg		reg_hi( GetRegisterAndLoadHi( rs, PspReg_V1 ) );
+
+		OR( PspReg_V1, reg_lo, reg_hi);
+
+		if( p_branch->ConditionalBranchTaken )
+		{
+			// Flip the sign of the test -
+			*p_branch_jump = BLEZ( PspReg_V1, CCodeLabel(NULL), true );
+		}
+		else
+		{
+			*p_branch_jump = BGTZ( PspReg_V1, CCodeLabel(NULL), true );
+		}
 	}
 	else
 	{
-		*p_branch_jump = BGTZ( reg_a, CCodeLabel(NULL), true );
+		//Do a fast 32 bit compare //Corn
+		if( p_branch->ConditionalBranchTaken )
+		{
+			// Flip the sign of the test -
+			*p_branch_jump = BLEZ( reg_lo, CCodeLabel(NULL), true );
+		}
+		else
+		{
+			*p_branch_jump = BGTZ( reg_lo, CCodeLabel(NULL), true );
+		}
 	}
 }
 
