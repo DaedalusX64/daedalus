@@ -110,7 +110,7 @@ u32 Patch___osGetSR()
 TEST_DISABLE_REG_FUNCS
 
 	gGPR[REG_v0]._u32_0 = gCPUState.CPUControl[C0_SR]._u32;
-	SIGN64( gGPR[REG_v0]._s64 );
+	SIGN64(REG_v0);
 	//DBGConsole_Msg(0, "__osGetSR()");
 
 	return PATCH_RET_JR_RA;
