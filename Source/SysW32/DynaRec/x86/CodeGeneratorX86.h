@@ -88,6 +88,7 @@ class CCodeGeneratorX86 : public CCodeGenerator, public CAssemblyWriterX86
 				void	GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op );
 				bool	GenerateLW(EN64Reg rt, EN64Reg base, s16 offset );
 				bool	GenerateSW(EN64Reg rt, EN64Reg base, s16 offset );
+				bool	GenerateSWC1( u32 ft, EN64Reg base, s16 offset );
 				bool	GenerateLB(EN64Reg rt, EN64Reg base, s16 offset );
 				bool	GenerateLBU(EN64Reg rt, EN64Reg base, s16 offset );
 				bool	GenerateLH(EN64Reg rt, EN64Reg base, s16 offset );

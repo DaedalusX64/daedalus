@@ -523,14 +523,17 @@ CJumpLocation	CCodeGeneratorX86::GenerateOpCode( const STraceEntry& ti, bool bra
 	{
 		case OP_J:			handled = true; break;
 		case OP_JAL:		handled = GenerateJAL( address, jump_target); break;
-		case OP_CACHE:
-			GenerateCACHE( base, op_code.immediate, rt ); handled = true; break;
+		case OP_CACHE:		GenerateCACHE( base, op_code.immediate, rt ); handled = true; break;
+			
 
 		case OP_LW:
 			handled = GenerateLW(rt, base, s16(op_code.immediate));
 			break;
 		case OP_SW:
 			handled = GenerateSW(rt, base, s16(op_code.immediate));
+			break;
+		case OP_SWC1:
+			handled = GenerateSWC1(ft, base, s16(op_code.immediate));
 			break;
 		case OP_LB:
 			handled = GenerateLB(rt, base, s16(op_code.immediate));
@@ -545,20 +548,18 @@ CJumpLocation	CCodeGeneratorX86::GenerateOpCode( const STraceEntry& ti, bool bra
 			handled = GenerateLWC1(ft, base, s16(op_code.immediate));
 			break;
 		case OP_ADDIU:
+		case OP_ADDI:
 			handled = GenerateADDIU(rt, rs, s16(op_code.immediate));
 			break;
-		case OP_ADDI:
-			handled = GenerateADDI(rt, rs, s16(op_code.immediate));
-			break;
 
-		case OP_SPECOP:
+		/*case OP_SPECOP:
 			{
 				switch(op_code.spec_op)
 				{
 				case SpecOp_JR:
 					handled = GenerateJR(rs); break;
 				}
-			}
+			}*/
 	}
 
 	if (!handled)
@@ -719,6 +720,22 @@ bool CCodeGeneratorX86::GenerateLW( EN64Reg rt, EN64Reg base, s16 offset )
 	return false;
 }
 
+
+bool CCodeGeneratorX86::GenerateSWC1( u32 ft, EN64Reg base, s16 offset )
+{
+	if (gDynarecStackOptimisation && base == N64Reg_SP)
+	{
+		MOV_REG_MEM(ECX_CODE, &gCPUState.CPU[base]._u32_0);
+		ADDI(ECX_CODE, (u32)g_pu8RamBase_8000);
+
+		MOV_REG_MEM(EAX_CODE, &gCPUState.FPU[ft]._u32);
+		MOV_MEM_BASE_OFFSET_REG(ECX_CODE, offset, EAX_CODE);
+		return true;
+	}
+
+	return false;
+}
+
 bool CCodeGeneratorX86::GenerateSW( EN64Reg rt, EN64Reg base, s16 offset )
 {
 	if (gDynarecStackOptimisation && base == N64Reg_SP)
@@ -781,19 +798,6 @@ bool CCodeGeneratorX86::GenerateLH( EN64Reg rt, EN64Reg base, s16 offset )
 	return false;
 }
 
-bool CCodeGeneratorX86::GenerateLWC1( u32 ft, EN64Reg base, s16 offset )
-{
-	if (gDynarecStackOptimisation && base == N64Reg_SP)
-	{
-		GenerateLoad((u32)g_pu8RamBase_8000, base, offset, 0, 32);
-
-		MOV_MEM_REG(&gCPUState.FPU[ft]._u32, EAX_CODE);
-		return true;
-	}
-
-	return false;
-}
-
 bool CCodeGeneratorX86::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate )
 {
 	MOV_REG_MEM(EAX_CODE, &gCPUState.CPU[rs]._u32_0);
@@ -805,15 +809,17 @@ bool CCodeGeneratorX86::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate )
 	return true;
 }
 
-bool CCodeGeneratorX86::GenerateADDI( EN64Reg rt, EN64Reg rs, s16 immediate )
+bool CCodeGeneratorX86::GenerateLWC1( u32 ft, EN64Reg base, s16 offset )
 {
-	MOV_REG_MEM(EAX_CODE, &gCPUState.CPU[rs]._u32_0);
-	ADDI(EAX_CODE, immediate);
-	CDQ();
-	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, EAX_CODE);
-	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, EDX_CODE);
+	if (gDynarecStackOptimisation && base == N64Reg_SP)
+	{
+		GenerateLoad((u32)g_pu8RamBase_8000, base, offset, 0, 32);
 
-	return true;
+		MOV_MEM_REG(&gCPUState.FPU[ft]._u32, EAX_CODE);
+		return true;
+	}
+
+	return false;
 }
 
 bool	CCodeGeneratorX86::GenerateJAL( u32 address, u32 target )
