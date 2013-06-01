@@ -183,7 +183,7 @@ void RomBuffer::Destroy()
 bool RomBuffer::Open()
 {
 	CNullOutputStream messages;
-	const char * filename   = g_ROM.szFileName;
+	const char * filename   = g_ROM.mFileName;
 	ROMFile *    p_rom_file = ROMFile::Create( filename );
 	if(p_rom_file == NULL)
 	{

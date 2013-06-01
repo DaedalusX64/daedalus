@@ -450,7 +450,7 @@ bool ROM_LoadFile()
 	u32			rom_size;
 	ECicType	boot_type;
 
-	if (ROM_GetRomDetailsByFilename(g_ROM.szFileName, &rom_id, &rom_size, &boot_type ))
+	if (ROM_GetRomDetailsByFilename(g_ROM.mFileName, &rom_id, &rom_size, &boot_type ))
 	{
 		RomSettings			settings;
 		SRomPreferences		preferences;
@@ -479,7 +479,7 @@ void ROM_UnloadFile()
 
 bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRomPreferences & preferences )
 {
-	DBGConsole_Msg(0, "Reading rom image: [C%s]", g_ROM.szFileName);
+	DBGConsole_Msg(0, "Reading rom image: [C%s]", g_ROM.mFileName);
 
 	// Get information about the rom header
 	RomBuffer::GetRomBytesRaw( &g_ROM.rh, 0, sizeof(ROMHeader) );

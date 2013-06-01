@@ -240,7 +240,7 @@ bool System_Init()
 
 bool System_Open(const char * filename)
 {
-	strcpy(g_ROM.szFileName, filename);
+	strcpy(g_ROM.mFileName, filename);
 	for(u32 i = 0; i < ARRAYSIZE(gRomInitTable); i++)
 	{
 		const RomEntityEntry & entry = gRomInitTable[i];

@@ -71,7 +71,7 @@ bool Save_Reset()
 	gSaveDirty = false;
 	if (gSaveSize > 0)
 	{
-		Dump_GetSaveDirectory(gSaveFileName, g_ROM.szFileName, ext);
+		Dump_GetSaveDirectory(gSaveFileName, g_ROM.mFileName, ext);
 
 		FILE * fp = fopen(gSaveFileName, "rb");
 		if (fp != NULL)
@@ -100,7 +100,7 @@ bool Save_Reset()
 
 	// init mempack
 	{
-		Dump_GetSaveDirectory(gMempackFileName, g_ROM.szFileName, ".mpk");
+		Dump_GetSaveDirectory(gMempackFileName, g_ROM.mFileName, ".mpk");
 		FILE * fp = fopen(gMempackFileName, "rb");
 		if (fp != NULL)
 		{

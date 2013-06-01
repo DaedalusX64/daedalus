@@ -261,7 +261,7 @@ CSynchroniser::ESynchResult	ISynchConsumer::SynchData( void * data, u32 length )
 
 bool CSynchroniser::InitialiseSynchroniser()
 {
-	const char *name = g_ROM.szFileName;
+	const char *name = g_ROM.mFileName;
 	CSynchroniser *	p_synch;
 	IO::Filename filename;
 

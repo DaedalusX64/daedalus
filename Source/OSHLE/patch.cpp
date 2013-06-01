@@ -962,7 +962,7 @@ static void Patch_FlushCache()
 {
 	IO::Filename name;
 
-	Dump_GetSaveDirectory(name, g_ROM.szFileName, ".hle");
+	Dump_GetSaveDirectory(name, g_ROM.mFileName, ".hle");
 	DBGConsole_Msg(0, "Write OSHLE cache: %s", name);
 
 	FILE *fp = fopen(name, "wb");
@@ -1018,7 +1018,7 @@ static bool Patch_GetCache()
 {
 	IO::Filename name;
 
-	Dump_GetSaveDirectory(name, g_ROM.szFileName, ".hle");
+	Dump_GetSaveDirectory(name, g_ROM.mFileName, ".hle");
 	FILE *fp = fopen(name, "rb");
 
 	if (fp != NULL)
