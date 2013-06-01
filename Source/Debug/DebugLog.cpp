@@ -38,19 +38,19 @@ static FILE *		g_hOutputLog	= NULL;
 //*****************************************************************************
 bool Debug_InitLogging()
 {
-	IO::Filename szLogFileName;
+	IO::Filename log_filename;
 
-	Dump_GetDumpDirectory(szLogFileName, "");
+	Dump_GetDumpDirectory(log_filename, "");
 
-	IO::Path::Append(szLogFileName, "daedalus.txt");
+	IO::Path::Append(log_filename, "daedalus.txt");
 
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	if ( CDebugConsole::IsAvailable() )
 	{
-		CDebugConsole::Get()->Msg( 0, "Creating Dump file '%s'", szLogFileName );
+		CDebugConsole::Get()->Msg( 0, "Creating Dump file '%s'", log_filename );
 	}
 #endif
-	g_hOutputLog = fopen( szLogFileName, "w" );
+	g_hOutputLog = fopen( log_filename, "w" );
 
 	return g_hOutputLog != NULL;
 }
@@ -70,21 +70,21 @@ void Debug_FinishLogging()
 //*****************************************************************************
 //
 //*****************************************************************************
-void Debug_Print( const char * szFormat, ... )
+void Debug_Print( const char * format, ... )
 {
-	if(g_bLog && szFormat != NULL )
+	if(g_bLog && format != NULL )
 	{
-		char szBuffer[1024+1];
-		char * pszBuffer = szBuffer;
+		char buffer[1024+1];
+		char * p = buffer;
 		va_list va;
 		// Parse the buffer:
 		// Format the output
-		va_start(va, szFormat);
+		va_start(va, format);
 		// Don't use wvsprintf as it doesn't handle floats!
-		vsprintf(pszBuffer, szFormat, va);
+		vsprintf(p, format, va);
 		va_end(va);
 
-		fprintf( g_hOutputLog, "%s\n", pszBuffer );
+		fprintf( g_hOutputLog, "%s\n", p );
 	}
 }
 

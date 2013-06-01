@@ -73,7 +73,7 @@ bool		Debug_InitLogging();
 void		Debug_FinishLogging();
 bool		Debug_GetLoggingEnabled();
 void		Debug_SetLoggingEnabled( bool enabled );
-void		Debug_Print( const char * szFormat, ... );
+void		Debug_Print( const char * format, ... );
 
 #define DAED_CHECK_LOG( flags )			DAED_DEBUG_MASK & (flags)
 #define DAED_LOG( flags, ... )		if( DAED_DEBUG_MASK & (flags) ) Debug_Print( __VA_ARGS__ )
