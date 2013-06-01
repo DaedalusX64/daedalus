@@ -178,7 +178,6 @@ void GraphicsContextGL::UpdateFrame( bool wait_for_vbl )
 	glfwSwapBuffers();
 //	if( gCleanSceneEnabled ) //TODO: This should be optional
 	{
-		glScissor(0,0,SCR_WIDTH,SCR_HEIGHT);	//Make sure we clear whole screen
 		ClearColBuffer( c32(0xff000000) ); // ToDo : Use gFillColor instead?
 	}
 }
