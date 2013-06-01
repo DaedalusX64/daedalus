@@ -29,8 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Returns return type to determine what kind of post-processing should occur
 typedef u32 (*PatchFunction)();
 
-#define VAR_ADDRESS(name)  (g_##name##_v.location)
-#define VAR_FOUND(name)  (g_##name##_v.bFound)
+#define VAR_ADDRESS(name)  (g_##name##_v.Location)
+#define VAR_FOUND(name)  (g_##name##_v.Found)
 
 
 enum PATCH_CROSSREF_TYPE
@@ -46,49 +46,51 @@ struct _PatchSymbol;
 
 typedef struct
 {
-	u32 offset;				// Opcode offset
-	PATCH_CROSSREF_TYPE nType;	// Type - J/JAL/LUI/ORI
-	struct _PatchSymbol * pSymbol;		// Only one of these is valid
-	struct _PatchVariable * pVariable;
+	u32 					Offset;		// Opcode offset
+	PATCH_CROSSREF_TYPE		Type;		// Type - J/JAL/LUI/ORI
+	struct _PatchSymbol *	Symbol;		// Only one of these is valid
+	struct _PatchVariable *	Variable;
 } PatchCrossRef;
 
 #define PATCH_PARTIAL_CRC_LEN 4
 
 typedef struct
 {
-	u32 nNumOps;
-	PatchCrossRef * pCrossRefs;
-	PatchFunction pFunction;
+	u32					NumOps;
+	PatchCrossRef *		CrossRefs;
+	PatchFunction 		Function;
 
-	u32		firstop;			// First op in signature (used for rapid scanning)
-	u32		partial_crc;		// Crc after 4 ops (ignoring symbol bits)
-	u32		crc;				// Crc for entire buffer (ignoring symbol bits)
+	u32					FirstOp;		// First op in signature (used for rapid scanning)
+	u32					PartialCRC;		// Crc after 4 ops (ignoring symbol bits)
+	u32					CRC;			// Crc for entire buffer (ignoring symbol bits)
 } PatchSignature;
 
 
 typedef struct _PatchSymbol
 {
-	bool bFound;				// Has this symbol been found?
-	u32 location;				// What is the address of the symbol?
-	const char * Name;			// Symbol name
+	bool 				Found;		// Has this symbol been found?
+	u32 				Location;	// What is the address of the symbol?
+	const char * 		Name;		// Symbol name
 
-	OpCode opReplaced;			// The op that was replaced when we were patched in
+	OpCode opReplaced;				// The op that was replaced when we were patched in
 
-	PatchSignature * pSignatures; // Crossrefs for this code (Function symbols only)
+	PatchSignature *	Signatures; // Crossrefs for this code (Function symbols only)
 
-	PatchFunction pFunction;	// The installed patch Emulated function call (Function symbols only)
+	PatchFunction 		Function;	// The installed patch Emulated function call (Function symbols only)
 } PatchSymbol;
 
 typedef struct _PatchVariable
 {
-	bool bFound;				// Has this symbol been found?
-	u32 location;				// What is the address of the symbol?
-	const char * Name;			// Symbol name
+	bool 				Found;		// Has this symbol been found?
+	u32					Location;	// What is the address of the symbol?
+	const char *		Name;		// Symbol name
 
 	// For now have these as separate fields. We probably want to
 	// put them into a union
-	bool bFoundHi; bool bFoundLo;
-	u16 wHiPart; u16 wLoPart;
+	bool 				FoundHi;
+	bool 				FoundLo;
+	u16 				HiWord;
+	u16 				LoWord;
 
 } PatchVariable;
 ///////////////////////////////////////////////////////////////
@@ -153,7 +155,7 @@ PatchVariable * name[] = {
 #define END_PATCH_VARIABLE_TABLE() \
 NULL};
 
-#define CALL_PATCHED_FUNCTION(name) g_##name##_s.pFunction()
+#define CALL_PATCHED_FUNCTION(name) g_##name##_s.Function()
 
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
 

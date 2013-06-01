@@ -450,7 +450,7 @@ TEST_DISABLE_THREAD_FUNCS
 		gGPR[REG_a0]._s64 = (s64)(s32)queue;
 		gGPR[REG_a1]._s64 = (s64)(s32)thread;
 
-		g___osDequeueThread_s.pFunction();
+		g___osDequeueThread_s.Function();
 	}
 
 	CurrThread = Read32Bits(VAR_ADDRESS(osGlobalThreadList));
@@ -682,7 +682,7 @@ TEST_DISABLE_THREAD_FUNCS
 		gGPR[REG_a0]._u32_0 = ThreadQueue;
 		gGPR[REG_a1]._u32_0 = thread;
 
-		g___osEnqueueThread_s.pFunction();
+		g___osEnqueueThread_s.Function();
 	}
 	else if (ThreadState == OS_STATE_STOPPED)
 	{
@@ -702,7 +702,7 @@ TEST_DISABLE_THREAD_FUNCS
 			gGPR[REG_a0]._u32_0 = ThreadQueue;
 			gGPR[REG_a1]._u32_0 = thread;
 
-			g___osEnqueueThread_s.pFunction();
+			g___osEnqueueThread_s.Function();
 		}
 		else
 		{
@@ -712,7 +712,7 @@ TEST_DISABLE_THREAD_FUNCS
 			gGPR[REG_a0]._u32_0 = queue;
 			gGPR[REG_a1]._u32_0 = thread;
 
-			g___osEnqueueThread_s.pFunction();
+			g___osEnqueueThread_s.Function();
 
 			// Pop the highest priority thread from the queue
 			u32 NewThread = Read32Bits(queue + 0x0);
@@ -722,7 +722,7 @@ TEST_DISABLE_THREAD_FUNCS
 			gGPR[REG_a0]._u32_0 = ThreadQueue;
 			gGPR[REG_a1]._u32_0 = NewThread;
 
-			g___osEnqueueThread_s.pFunction();
+			g___osEnqueueThread_s.Function();
 		}
 	}
 	else
