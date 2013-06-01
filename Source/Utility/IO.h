@@ -66,7 +66,7 @@ namespace IO
 		char *				RemoveBackslash( char * p_path );
 		bool				RemoveFileSpec( char * p_path );
 		void				RemoveExtension( char * p_path );
-		bool				AddExtension( char * p_path, const char * p_ext );
+		void				AddExtension( char * p_path, const char * p_ext );
 #ifdef DAEDALUS_PSP
 		int					DeleteRecursive(const char* p_path, const char * p_extension);
 #endif

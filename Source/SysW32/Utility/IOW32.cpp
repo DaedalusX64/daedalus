@@ -114,10 +114,10 @@ namespace IO
 			::PathRemoveExtension( p_path );
 		}
 
-		bool	AddExtension( char * p_path, const char * p_ext )
+		void	AddExtension( char * p_path, const char * p_ext )
 		{
 			PathRemoveExtension( p_path );
-			return ::PathAddExtension( p_path, p_ext ) ? true : false;
+			::PathAddExtension( p_path, p_ext );
 		}
 	}
 

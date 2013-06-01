@@ -176,10 +176,9 @@ namespace IO
 			}
 		}
 
-		bool	AddExtension( char * p_path, const char * p_ext )
+		void	AddExtension( char * p_path, const char * p_ext )
 		{
 			strcat( p_path, p_ext );
-			return true;
 		}
 	}
 
