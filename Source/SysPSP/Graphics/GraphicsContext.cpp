@@ -528,17 +528,17 @@ void IGraphicsContext::SaveScreenshot( const char* filename, s32 x, s32 y, u32 w
 //*****************************************************************************
 void IGraphicsContext::DumpScreenShot()
 {
-	IO::Filename szFilePath;
-	IO::Filename szDumpDir;
+	IO::Filename dumpdir;
 
 // Do not combine more than one dir for release, since pic will be saved in ms0:/PICTURE/
 #ifndef DAEDALUS_SILENT
-	IO::Path::Combine(szDumpDir, g_ROM.settings.GameName.c_str(), gScreenDumpRootPath);
+	IO::Path::Combine(dumpdir, g_ROM.settings.GameName.c_str(), gScreenDumpRootPath);
 #else
-	strcpy(szDumpDir, g_ROM.settings.GameName.c_str());
+	IO::Path::Assign(dumpdir, g_ROM.settings.GameName.c_str());
 #endif
 
-	Dump_GetDumpDirectory(szFilePath, szDumpDir);
+	IO::Filename filepath;
+	Dump_GetDumpDirectory(filepath, dumpdir);
 
 	IO::Filename unique_filename;
 	u32 count = 0;
@@ -547,7 +547,7 @@ void IGraphicsContext::DumpScreenShot()
 		IO::Filename test_name;
 
 		sprintf(test_name, gScreenDumpDumpPathFormat, count++);
-		IO::Path::Combine( unique_filename, szFilePath, test_name );
+		IO::Path::Combine( unique_filename, filepath, test_name );
 
 	} while( IO::File::Exists( unique_filename ) );
 
