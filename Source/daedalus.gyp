@@ -76,6 +76,8 @@
           'HLEGraphics/uCodes/Ucode.cpp',
           'Interface/RomDB.cpp',
           'Math/Matrix4x4.cpp',
+          'OSHLE/OS.cpp',
+          'OSHLE/patch.cpp',
           'Plugins/GraphicsPlugin.cpp',
           'System/Paths.cpp',
           'Test/BatchTest.cpp',

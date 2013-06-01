@@ -5,10 +5,10 @@
 u32 Patch_osInvalICache_Mario()
 {
 TEST_DISABLE_CACHE_FUNCS
+#ifdef DAEDALUS_ENABLE_DYNAREC
 	u32 p = gGPR[REG_a0]._u32_0;
 	u32 len = gGPR[REG_a1]._u32_0;
 
-#ifdef DAEDALUS_ENABLE_DYNAREC
 	if (len < 0x4000)
 		CPU_InvalidateICacheRange(p, len);
 	else

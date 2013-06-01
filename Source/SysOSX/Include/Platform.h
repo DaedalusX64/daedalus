@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #define DAEDALUS_COMPRESSED_ROM_SUPPORT
+#define DAEDALUS_ENABLE_OS_HOOKS
 
 #define DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_LITTLE
 
