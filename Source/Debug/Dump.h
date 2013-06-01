@@ -26,8 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 struct OpCode;
 
-void Dump_GetDumpDirectory(char * p_file_path, const char * p_sub_dir);
-void Dump_GetSaveDirectory(char * p_file_path, const char * p_rom_name, const char * p_ext);
+void Dump_GetDumpDirectory(char * rootdir, const char * subdir);
+void Dump_GetSaveDirectory(char * rootdir, const char * rom_filename, const char * extension);
 
 #ifndef DAEDALUS_SILENT
 

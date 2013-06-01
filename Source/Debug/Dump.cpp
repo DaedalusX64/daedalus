@@ -38,13 +38,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static IO::Filename gDumpDir = "";
 
-//*****************************************************************************
 // Initialise the directory where files are dumped
-//*****************************************************************************
-void Dump_GetDumpDirectory(char * p_file_path, const char * p_sub_dir)
+// Appends subdir to the global dump base. Stores in rootdir
+void Dump_GetDumpDirectory(char * rootdir, const char * subdir)
 {
-	// Appends szBase to the global dump base. Stores in p_file_path
-
 	if (gDumpDir[0] == '\0')
 	{
 		// Initialise
@@ -56,35 +53,31 @@ void Dump_GetDumpDirectory(char * p_file_path, const char * p_sub_dir)
 	}
 
 	// If a subdirectory was specified, append
-	if (p_sub_dir[0] != '\0')
+	if (subdir[0] != '\0')
 	{
-		IO::Path::Combine(p_file_path, gDumpDir, p_sub_dir);
+		IO::Path::Combine(rootdir, gDumpDir, subdir);
 	}
 	else
 	{
-		IO::Path::Assign(p_file_path, gDumpDir);
+		IO::Path::Assign(rootdir, gDumpDir);
 	}
 
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	if(CDebugConsole::IsAvailable())
 	{
-		//DBGConsole_Msg( 0, "Dump dir: [C%s]", p_file_path );
+		//DBGConsole_Msg( 0, "Dump dir: [C%s]", rootdir );
 	}
 #endif
-	IO::Directory::EnsureExists(p_file_path);
+	IO::Directory::EnsureExists(rootdir);
 
 }
 
 
-//*****************************************************************************
 // E.g. Dump_GetSaveDirectory([out], "c:\roms\test.rom", ".sra")
 // would first try to find the save in g_DaedalusConfig.mSaveDir. If this is not
-// found, g_DaedalusConfig.szRomsDir is checked.
-//*****************************************************************************
-void Dump_GetSaveDirectory(char * p_file_path, const char * p_rom_name, const char * p_ext)
+// found, g_DaedalusConfig.mRomsDir is checked.
+void Dump_GetSaveDirectory(char * rootdir, const char * rom_filename, const char * extension)
 {
-	IO::Filename file_name;
-
 	// If the Save path has not yet been set up, prompt user
 	if (strlen(g_DaedalusConfig.mSaveDir) == 0)
 	{
@@ -92,12 +85,11 @@ void Dump_GetSaveDirectory(char * p_file_path, const char * p_rom_name, const ch
 		if (strlen(g_DaedalusConfig.mSaveDir) == 0)
 		{
 			// Default to rom path
-			IO::Path::Assign(g_DaedalusConfig.mSaveDir, p_rom_name);
+			IO::Path::Assign(g_DaedalusConfig.mSaveDir, rom_filename);
 			IO::Path::RemoveFileSpec(g_DaedalusConfig.mSaveDir);
 #ifndef DAEDALUS_PSP
 			// FIXME(strmnnrmn): for OSX I generate savegames in a subdir Save, to make it easier to clean up.
 			IO::Path::Append(g_DaedalusConfig.mSaveDir, "Save");
-			IO::Directory::EnsureExists(g_DaedalusConfig.mSaveDir);
 #endif
 
 #ifdef DAEDALUS_DEBUG_CONSOLE
@@ -109,12 +101,14 @@ void Dump_GetSaveDirectory(char * p_file_path, const char * p_rom_name, const ch
 		}
 	}
 
-	// Form the filename from the file spec (i.e. strip path)
-	IO::Path::Assign( file_name, IO::Path::FindFileName( p_rom_name ) );
-	IO::Path::RemoveExtension( file_name );
-	IO::Path::AddExtension(file_name, p_ext);
+	IO::Directory::EnsureExists(g_DaedalusConfig.mSaveDir);
 
-	IO::Path::Combine(p_file_path, g_DaedalusConfig.mSaveDir, file_name);
+	// Form the filename from the file spec (i.e. strip path and replace the extension)
+	IO::Filename file_name;
+	IO::Path::Assign(file_name, IO::Path::FindFileName(rom_filename));
+	IO::Path::SetExtension(file_name, extension);
+
+	IO::Path::Combine(rootdir, g_DaedalusConfig.mSaveDir, file_name);
 }
 
 #ifndef DAEDALUS_SILENT
