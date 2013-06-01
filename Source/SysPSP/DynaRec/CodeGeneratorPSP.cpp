@@ -4200,11 +4200,18 @@ inline void	CCodeGeneratorPSP::GenerateBGTZ( EN64Reg rs, const SBranchDetails * 
 	//64bit compare is needed for DK64 or DK can walk trough walls
 	if(g_ROM.GameHacks == DK64)
 	{
-		//Do 64 bit compare //Corn
+#if 0
+		//Do a full 64 bit compare //Corn
+		SRL( PspReg_V0, reg_lo, 1);	//Free MSB sign bit
+		ANDI( PspReg_V1, reg_lo, 1);	//Extract LSB bit
+		OR( PspReg_V0, PspReg_V0, PspReg_V1);	//Merge with OR
 		EPspReg		reg_hi( GetRegisterAndLoadHi( rs, PspReg_V1 ) );
-
+		OR( PspReg_V1, PspReg_V0, reg_hi);	//Merge lo with hi part of register with sign bit
+#else
+		//This takes some shortcuts //Corn
+		EPspReg		reg_hi( GetRegisterAndLoadHi( rs, PspReg_V1 ) );
 		OR( PspReg_V1, reg_lo, reg_hi);
-
+#endif
 		if( p_branch->ConditionalBranchTaken )
 		{
 			// Flip the sign of the test -
