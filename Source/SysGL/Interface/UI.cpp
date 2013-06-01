@@ -8,7 +8,6 @@
 #include "System/Paths.h"
 #include "Utility/IO.h"
 
-
 static void GLFWCALL HandleKeys(int key, int state)
 {
 	if (state)
@@ -19,10 +18,16 @@ static void GLFWCALL HandleKeys(int key, int state)
 
 			bool ctrl_down = glfwGetKey(GLFW_KEY_LCTRL) || glfwGetKey(GLFW_KEY_RCTRL);
 
-			char buf[64];
-			sprintf(buf, "quick%d.save", idx);
+			IO::Path::PathBuf path;
 			IO::Path::PathBuf filename;
-			IO::Path::Combine(filename, gDaedalusExePath, buf);
+
+			IO::Path::Combine(path, gDaedalusExePath, "SaveStates");
+			IO::Directory::EnsureExists( path );		// Ensure this dir exists
+
+			char buf[64];
+			sprintf(buf, "quick%d.save", idx);		//Why not use the same name format as PSP? SaveSlotXX.ss
+			IO::Path::Combine(filename, path, buf);
+
 
 			if (ctrl_down)
 			{

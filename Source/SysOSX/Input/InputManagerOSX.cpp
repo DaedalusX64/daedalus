@@ -155,23 +155,24 @@ void IInputManager::GetState( OSContPad pPad[4] )
 	}
 	else
 	{
-		if (glfwGetKey( 'A' ))		pPad[0].button |= START_BUTTON;
-		if (glfwGetKey( 'S' ))		pPad[0].button |= A_BUTTON;
-		if (glfwGetKey( 'X' ))		pPad[0].button |= B_BUTTON;
+		if (glfwGetKey( 'X' ))		pPad[0].button |= A_BUTTON;
+		if (glfwGetKey( 'C' ))		pPad[0].button |= B_BUTTON;
 		if (glfwGetKey( 'Z' ))		pPad[0].button |= Z_TRIG;
 		if (glfwGetKey( 'Y' ))		pPad[0].button |= Z_TRIG;		// For German keyboards :)
-		if (glfwGetKey( 'C' ))		pPad[0].button |= L_TRIG;
-		if (glfwGetKey( 'V' ))		pPad[0].button |= R_TRIG;
+		if (glfwGetKey( 'A' ))		pPad[0].button |= L_TRIG;
+		if (glfwGetKey( 'S' ))		pPad[0].button |= R_TRIG;
 
-		if (glfwGetKey( 'T' ))		pPad[0].button |= U_JPAD;
-		if (glfwGetKey( 'G' ))		pPad[0].button |= D_JPAD;
-		if (glfwGetKey( 'F' ))		pPad[0].button |= L_JPAD;
-		if (glfwGetKey( 'H' ))		pPad[0].button |= R_JPAD;
+		if (glfwGetKey( GLFW_KEY_ENTER ))	pPad[0].button |= START_BUTTON;
 
-		if (glfwGetKey( 'I' ))		pPad[0].button |= U_CBUTTONS;
-		if (glfwGetKey( 'K' ))		pPad[0].button |= D_CBUTTONS;
-		if (glfwGetKey( 'J' ))		pPad[0].button |= L_CBUTTONS;
-		if (glfwGetKey( 'L' ))		pPad[0].button |= R_CBUTTONS;
+		if (glfwGetKey( GLFW_KEY_KP_8 ))	pPad[0].button |= U_JPAD;
+		if (glfwGetKey( GLFW_KEY_KP_2 ))	pPad[0].button |= D_JPAD;
+		if (glfwGetKey( GLFW_KEY_KP_4 ))	pPad[0].button |= L_JPAD;
+		if (glfwGetKey( GLFW_KEY_KP_6 ))	pPad[0].button |= R_JPAD;
+
+		if (glfwGetKey( GLFW_KEY_HOME ))	pPad[0].button |= U_CBUTTONS;
+		if (glfwGetKey( GLFW_KEY_END ))		pPad[0].button |= D_CBUTTONS;
+		if (glfwGetKey( GLFW_KEY_DEL ))		pPad[0].button |= L_CBUTTONS;
+		if (glfwGetKey( GLFW_KEY_PAGEDOWN ))pPad[0].button |= R_CBUTTONS;
 
 		if (glfwGetKey( GLFW_KEY_LEFT ))	pPad[0].stick_x = -80;
 		if (glfwGetKey( GLFW_KEY_RIGHT ))	pPad[0].stick_x = +80;

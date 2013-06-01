@@ -1,7 +1,8 @@
-Daedalus v0.07b Readme File
-Copyright (C) 2001 StrmnNrmn
+Daedalus v1.00 Readme File for PC/OSX/Linux
+Copyright (C) 2001-2013 StrmnNrmn
+Copyright (C) 2008-2013 DaedalusX64 Team
 
-This document last edited 3 June 2001.
+This document last edited 31 May 2013
 
 This is the binary distribution of Daedalus. If you are a
 developer, you may find the source distribution more useful.
@@ -9,17 +10,16 @@ developer, you may find the source distribution more useful.
 What is Daedalus?
 *****************
 
-Daedalus is a Nintendo64 emulator for Windows. Daedalus is named
+Daedalus is a Nintendo64 emulator for PSP/Windows/OSX/Linux. Daedalus is named
 after the craftsman at King Minos's court who designed the 
 labyrinth for the Minotaur.
 
 Getting the Latest Version
 **************************
 
-Daedalus is currently hosted on the Boob site at
-http://daedalus.boob.co.uk/. The most recent version of
-Daedalus will always be available there (and hopefully mirrored
-on some of the other emulation sites).
+Binaries are currently hosted on http://www.daedalusx64.com
+Source can be found on https://github.com/hulkholden/daedalus
+The most recent version of Daedalus will always be available there (and hopefully mirrored on some of the other emulation sites).
 
 Using Daedalus
 ***************
@@ -27,77 +27,38 @@ Using Daedalus
 Loading Roms
 ------------
 
-Daedalus should be very easy to use. To open a rom, use the
-"File->Open" menu and select the name of the rom to load. The
-rom is automatically executed. Daedalus remembers the last rom
-you opened from the File menu and will list all the other roms
-from that directory next time you start it up.
+Daedalus should be very easy to use. To open a rom, just drag it to the Daedalus executable.
 
 Configuring Audio and Graphics
 ------------------------------
 
-Audio support is currently provided through Zilmar's audio
-plugin spec. Thanks to Azimer, Daedalus now ships with a demo of his
-forthcoming pluging for TrueReality. This demos plugin works with all
-ABI 1 ucodes. You will need to set up this plugin for use using the
-steps described below. 
-
-Daedalus has built-in graphics handling, and it also supports plugins
-that support Zilmar's plugin spec.
-
-You can download alternative plugins from many sites. Emulation 64's
-Plugin page (http://www.emulation64.com/plugin64.htm) has many plugins
-available for download.
-
-To configure audio, choose "Config->Audio Configuaration..." from
-the menu. The dialog box will show any plugins that are present in 
-the Plugins directory of Daedalus, so you will need to copy any
-plugins there. From v0.03b, Daedalus should be capable of hot-swapping
-audio plugins while the emulator is running. If you have any
-difficulties please try restarting the emulator.
-
-To configure graphics, choose "Config->Graphics Configuration..." from
-the menu. In order to change graphics plugins while the emulator is
-running, you will need to stop/start the CPU. In order to use
-Daedalus's built-in graphics, disable the use of the plugin in the
-Graphics Configuration dialog.
- [NOTES: At the moment there a few differences in the way that
-  the built-in graphics and the plugins behave. Fullscreen mode
-  is NOT YET supported for plugins, but probably will be fixed for
-  the next release. Screen shots are not yet supported for the
-  plugins. The status bar is disabled for the built-in graphics.]
-
+Daedalus has built-in graphics and audio handling, no futher configuration is required.
 
 Configuring Input
 -----------------
 
-Input is provided by DirectInput8 (you can configure controllers
-using the "Gaming Options" control panel option). Within Daedalus, 
-controller configuration is performed by selecting 
-"Config->Input Configuration...". Daedalus now supports multiple
-controllers. The default configuration is as follows:
+Input is provided by GLFW, gamepads are supported too (PS3 controller is recommended).
+To use a gamepad, make sure is connected before starting Daedalus, also make sure the drivers for your gamepad are correctly installed.
+Currently input configurations are not supported, also gamepad support is very limited.
 
-Analogue Stick: Arrow Keys
-Digital Pad   : T, F, G, V
-C Buttons     : I, J, K, M
-A             : A
-B             : S
-Z Trigger     : X
-L Trigger     : [
-R Trigger     : ]
+Digital Pad   : Num 4, Num 6, Num 8, Num 2
+C Buttons     : Delete, PageDown, Home, End
+A             : X
+B             : C
+Z Trigger     : Z
+Z Trigger     : Y (German keyboards)
+L Trigger     : A
+R Trigger     : S
 Start         : Enter
 
-Daedalus 0.04b onwards supports Input configuration files (.din files). These
-can (theoretically) be swapped between users, so pre-made configurations
-can be distributed easily. 
 
-Saved States
+Save Games
 ------------
 
-Daedalus currently supports Eeprom, Mempack and SRAM saves in the
+Daedalus supports Eeprom, Mempack, SRAM and FlashRam saves in the
 same format as Nemu (.sav, .mpk and .sra respectively). 
 
-To use other people's saved state with your roms, you must
+To use other people's saves with your roms, you must
 rename them so they have the same filespec as the rom, and
 place them in the same directory. For instance, for:
 
@@ -110,6 +71,16 @@ C:\Roms\wibble.sav
 And the mempack would be
 
 C:\Roms\wibble.mpk
+
+
+Saved States
+------------
+
+All the save states are created using this name format : quickXX.save ( XX can be from 0 to 9 )
+Save states are saved by default at SaveStates/<quickXX.save>
+
+To create a save state, press Ctrl 0-9 and for loading press 0-9.
+Each number corresponds to each slot where the save state was created.
 
 Rom Support
 -----------
@@ -125,38 +96,15 @@ recongnises the FIRST rom in the zip file, so there is
 no point in putting multiple roms into the same zipfile.
 
 
-Requirements
+Minimun Requirements
 ************
 
-I have not tested Daedalus on anything lower than my development
-machine, which is a P3-500, GeForce 2 MX with 128Mb RAM. 
 
-Daedalus requires DirectX 8 (or 8a) to be installed, which you
-can download from http://www.microsoft.com/directx/
-
-For those that have asked:
-
-Graphics:  Direct3D 7, Zilmar's plugin spec
-Input   :  DirectInput 8
-Audio   :  Zilmar's plugin spec
-
-3DfX and ATi
-************
-
-There are still problems with Voodoo based cards. I have tried
-as much as possible to remove the bugs that caused Daedalus to 
-crash on 3dfx cards, but there are still many graphical glitches
-remaining. Unfortunately as I do not have a Voodoo card of my own,
-it is very difficult for me to test and fix bugs. Hopefully over
-the coming weeks support for 3dfx cards should improve
-substantially.
-
-If you find that Daedalus causes problems with your graphics card,
-you now have the option of trying one of the graphics plugins that
-are available.
+Video card with support for atleast OpenGL 3.2
+Please refer to your hardware vendor and make sure to always have the latest drivers installed
 
 
-Support, Bugs, Comments etc
+Support, Bugs, Comments ,Chat etc
 ***************************
 
 This version of Daedalus should be considered a BETA RELEASE and
@@ -165,7 +113,9 @@ as such it is anticipated that it will crash from time to time.
 For support issues, bug reports, comments and so on, please visit
 the Daedalus homepage:
 
-http://daedalus.boob.co.uk/
+www.DaedalusX64.com
+
+irc.freenode.net #daedalusx64
 
 Who / What is StrmnNrmn?
 ************************
@@ -177,29 +127,53 @@ shortened to "StrmnNrmn".
 Credits
 *******
 
-Thanks to CyRUS64 for prompting me to release the emulator,
-for helping with some of the programming tasks and for hosting
-the Daedalus site on Boob.
+StrmnNrmns Credits:
+********************
 
-A very big thanks to the following people:
+The Audio HLE code used in Daedalus was adapted from Azimer's great
+plugin for PC-based emulators. Thanks Azimer! Drop me a line!
 
-o Azimer, _Demo_, F|RES, Icepir8, Jabo, LaC, Lemmy, Niki Waibel,
-  Zilmar, and all the other N64 emu developers who have put up with
-  my awkward questions over the past few months!
-o Bjz, CyRUS64 and Genueix for compiling the ini file with this release.
-o A big thanks to JTS and others in #daedalus for helping to sort
-  out the 3dfx bugs.
-o Thanks to Gorxon and Genueix for maintaining the website (and
-  The Gypsy for hosting!).
-o Thanks to JTS for doing the FAQ.
-o Thanks to Lkb for some very nice additions to the Debug Console
-  and mirrored texture support for cards that don't support it
-  in hardware. Lkb has also added much better localisation support,
-  and been improving the Dynamic Recompiler.
-o Thanks to Jun Su and Orkin for various other changes.
+A special thanks to everyone who was involved with Daedalus on the PC in 
+the past. Sorry I was so rubbish at keeping the project ticking along. You
+know who you are.
 
-Check the credits.txt file for more details.
+Hello to everyone I used to know in the N64 emulation scene back in 2001 -
+hope you are all doing well!
 
+
+Many thanks to 71M for giving me the inspiration to get this ported over
+and lots of pointers along the way.
+
+A big hello to the Super Zamoyski Bros :)
+
+Many thanks to all the people who suggested using the Circle button to 
+toggle between the Dpad and C buttons. I received over two dozen emails and
+comments suggesting this approach, so thanks for that :)
+
+Many thanks to hlide and Raphael in the PS2Dev forums for advice on
+various VFPU issues.
+
+Many thanks to Exophase and laxer3A for their continued input.
+
+Thanks to Lkb for his various improvements to the PC build. The current 
+savestate support is derived from his work.
+
+Daedalusx64 Credits:
+*********************
+
+A big thanks to all our testers, and believers for giving us a hand when we need it.
+A huge thanks to StrmnNrmn for getting the ball rolling with this excellent emulator and for providing tips to our developers when he can.
+And many thanks to the following developers who have helped in improving this emulator.
+
+Howard0su
+Salvy
+Corn
+Hlide
+Grazz
+Chilly Willy
+Maxi_Jack
+Wally
+Kreationz
 
 Copying
 *******
