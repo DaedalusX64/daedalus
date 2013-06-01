@@ -32,7 +32,7 @@ struct DaedalusConfig
 {
 	// FIXME(strmnnrmn): We never seem to assign to mRomsDir?!
 	IO::Filename		mRomsDir;
-	IO::Filename		szSaveDir;
+	IO::Filename		mSaveDir;
 };
 
 extern DaedalusConfig	g_DaedalusConfig;

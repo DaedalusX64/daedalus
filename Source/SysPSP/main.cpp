@@ -358,7 +358,7 @@ static bool	Initialize()
     sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
 
 	// Init the savegame directory
-	strcpy( g_DaedalusConfig.szSaveDir, DAEDALUS_PSP_PATH( "SaveGames/" ) );
+	strcpy( g_DaedalusConfig.mSaveDir, DAEDALUS_PSP_PATH( "SaveGames/" ) );
 
 	if (!System_Init())
 		return false;

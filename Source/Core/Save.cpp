@@ -40,7 +40,8 @@ static bool				gMempackDirty;
 
 bool Save_Reset()
 {
-	IO::Directory::EnsureExists(g_DaedalusConfig.szSaveDir);
+	// FIXME(strmnnrmn): Dump_GetSaveDirectly should do this.
+	IO::Directory::EnsureExists(g_DaedalusConfig.mSaveDir);
 
 	const char * ext;
 	switch (g_ROM.settings.SaveType)
