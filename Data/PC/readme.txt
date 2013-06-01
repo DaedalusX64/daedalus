@@ -107,8 +107,7 @@ Please refer to your hardware vendor and make sure to always have the latest dri
 Support, Bugs, Comments ,Chat etc
 ***************************
 
-This version of Daedalus should be considered a BETA RELEASE and
-as such it is anticipated that it will crash from time to time.
+This version of Daedalus should be considered a BETA RELEASE and as such, bugs are expected.
 
 For support issues, bug reports, comments and so on, please visit
 the Daedalus homepage:

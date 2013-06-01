@@ -1,8 +1,8 @@
 Daedalusx64 Pre-Beta 3 Readme File
-Copyright (C) 2006-2009 StrmnNrmn
-Copyright (C) 2008-2010 DaedalusX64 Team
+Copyright (C) 2001-2013 StrmnNrmn
+Copyright (C) 2008-2013 DaedalusX64 Team
 
-This document last edited 20 May 2010 by Wally
+This document last edited 31 May 2013
 
 What is Daedalus?
 *****************
@@ -120,7 +120,7 @@ You can delete any save state easily, just choose the slot you want to delete an
 Main Menu
 ---------
 
-When you first run DaedalusX64 you will be presented with a nice coverflow menu (Devs will get a listing)
+When you first run DaedalusX64 you will be presented with a nice list of yor games
 to select a game you will press DPad left or right then X to select a title, 
 there's various options you can choose from in the menu, every option is explained.
 To cycle through options screens use the left and right shoulder buttons
@@ -182,17 +182,9 @@ irc.freenode.net #daedalusx64
 Credits
 *******
 
-A big thanks to all our testers, developers and the believers for giving us a hand when we need it.
-
-A huge thanks to the pspdev guys for all their work.
-
-A huge thanks to StrmnNrmn for getting the ball rolling with this excellent emulator and for providing tips to our developers when he can. StrmnNrmn leads a busy life and due to that he sadly can not contribute to the emulator himself.
-
-Another huge thanks to Rice and the Glide2X Napalm team for giving us access to source code and their brains.
-
-
-
 StrmnNrmns Credits:
+********************
+
 The Audio HLE code used in Daedalus was adapted from Azimer's great
 plugin for PC-based emulators. Thanks Azimer! Drop me a line!
 
@@ -220,6 +212,23 @@ Many thanks to Exophase and laxer3A for their continued input.
 
 Thanks to Lkb for his various improvements to the PC build. The current 
 savestate support is derived from his work.
+
+Daedalusx64 Credits:
+*********************
+
+A big thanks to all our testers, and believers for giving us a hand when we need it.
+A huge thanks to StrmnNrmn for getting the ball rolling with this excellent emulator and for providing tips to our developers when he can.
+And many thanks to the following developers who have helped in improving this emulator.
+
+Howard0su
+Salvy
+Corn
+Hlide
+Grazz
+Chilly Willy
+Maxi_Jack
+Wally
+Kreationz
 
 Copying
 *******
