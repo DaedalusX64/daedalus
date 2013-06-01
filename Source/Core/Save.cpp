@@ -32,12 +32,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static void InitMempackContent();
 
-IO::Filename	Save::szSaveFileName;
-bool			Save::SaveDirty;
-u32				Save::nSaveSize;
+static IO::Filename		gSaveFileName;
+static bool				gSaveDirty;
+static u32				gSaveSize;
+static IO::Filename		gMempackFileName;
+static bool				gMempackDirty;
 
-IO::Filename	Save::szMempackFileName;
-bool			Save::mempackDirty;
+void Save::MarkSaveDirty()
+{
+	gSaveDirty = true;
+}
+
+void Save::MarkMempackDirty()
+{
+	gMempackDirty = true;
+}
 
 bool Save::Reset()
 {
@@ -51,38 +60,38 @@ bool Save::Reset()
 	{
 	case SAVE_TYPE_EEP4K:
 		ext = ".sav";
-		nSaveSize = 4 * 1024;
+		gSaveSize = 4 * 1024;
 		break;
 	case SAVE_TYPE_EEP16K:
 		ext = ".sav";
-		nSaveSize = 16 * 1024;
+		gSaveSize = 16 * 1024;
 		break;
 	case SAVE_TYPE_SRAM:
 		ext = ".sra";
-		nSaveSize = 32 * 1024;
+		gSaveSize = 32 * 1024;
 		break;
 	case SAVE_TYPE_FLASH:
 		ext = ".fla";
-		nSaveSize = 128 * 1024;
+		gSaveSize = 128 * 1024;
 		break;
 	default:
 		ext = "";
-		nSaveSize = 0;
+		gSaveSize = 0;
 		break;
 	}
 
-	DAEDALUS_ASSERT( nSaveSize <=  MemoryRegionSizes[MEM_SAVE], "Save size is larger than allocated memory");
-	SaveDirty = false;
-	if (nSaveSize > 0)
+	DAEDALUS_ASSERT( gSaveSize <=  MemoryRegionSizes[MEM_SAVE], "Save size is larger than allocated memory");
+	gSaveDirty = false;
+	if (gSaveSize > 0)
 	{
-		Dump_GetSaveDirectory(szSaveFileName, g_ROM.szFileName, ext);
-		DBGConsole_Msg(0, "Loading save from [C%s]", szSaveFileName);
+		Dump_GetSaveDirectory(gSaveFileName, g_ROM.szFileName, ext);
+		DBGConsole_Msg(0, "Loading save from [C%s]", gSaveFileName);
 		u8* pDst = (u8*)g_pMemoryBuffers[MEM_SAVE];
 
-		fp = fopen(szSaveFileName, "rb");
+		fp = fopen(gSaveFileName, "rb");
 		if (fp != NULL)
 		{
-			for ( u32 d = 0; d < nSaveSize; d += sizeof(buffer) )
+			for ( u32 d = 0; d < gSaveSize; d += sizeof(buffer) )
 			{
 				fread(buffer, sizeof(buffer), 1, fp);
 
@@ -95,24 +104,24 @@ bool Save::Reset()
 		}
 		else
 		{
-			DBGConsole_Msg(0, "Save File [C%s] cannot be found.", szSaveFileName);
+			DBGConsole_Msg(0, "Save File [C%s] cannot be found.", gSaveFileName);
 		}
 	}
 	// init mempack
-	Dump_GetSaveDirectory(szMempackFileName, g_ROM.szFileName, ".mpk");
-	DBGConsole_Msg(0, "Loading MemPack from [C%s]", szMempackFileName);
-	fp = fopen(szMempackFileName, "rb");
+	Dump_GetSaveDirectory(gMempackFileName, g_ROM.szFileName, ".mpk");
+	DBGConsole_Msg(0, "Loading MemPack from [C%s]", gMempackFileName);
+	fp = fopen(gMempackFileName, "rb");
 	if (fp != NULL)
 	{
 		fread(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);
 		fclose(fp);
-		mempackDirty = false;
+		gMempackDirty = false;
 	}
 	else
 	{
-		DBGConsole_Msg(0, "MemPack File [C%s] cannot be found.", szMempackFileName);
+		DBGConsole_Msg(0, "MemPack File [C%s] cannot be found.", gMempackFileName);
 		InitMempackContent();
-		mempackDirty = true;
+		gMempackDirty = true;
 	}
 
 	return true;
@@ -120,17 +129,17 @@ bool Save::Reset()
 
 void Save::Flush(bool force)
 {
-	if ((SaveDirty || force) && g_ROM.settings.SaveType != SAVE_TYPE_UNKNOWN)
+	if ((gSaveDirty || force) && g_ROM.settings.SaveType != SAVE_TYPE_UNKNOWN)
 	{
 		u8		buffer[2048];
 		u8 *	p_src = (u8*)g_pMemoryBuffers[MEM_SAVE];
 
-		DBGConsole_Msg(0, "Saving to [C%s]", szSaveFileName);
+		DBGConsole_Msg(0, "Saving to [C%s]", gSaveFileName);
 
-		FILE *fp = fopen(szSaveFileName, "wb");
+		FILE *fp = fopen(gSaveFileName, "wb");
 		if (fp != NULL)
 		{
-			for ( u32 d = 0; d < nSaveSize; d += sizeof(buffer) )
+			for ( u32 d = 0; d < gSaveSize; d += sizeof(buffer) )
 			{
 				for ( u32 i = 0; i < sizeof(buffer); i++ )
 				{
@@ -140,20 +149,20 @@ void Save::Flush(bool force)
 			}
 			fclose(fp);
 		}
-		SaveDirty = false;
+		gSaveDirty = false;
 	}
 
-	if (mempackDirty || force)
+	if (gMempackDirty || force)
 	{
-		DBGConsole_Msg(0, "Saving MemPack to [C%s]", szMempackFileName);
+		DBGConsole_Msg(0, "Saving MemPack to [C%s]", gMempackFileName);
 
-		FILE *fp = fopen(szMempackFileName, "wb");
+		FILE *fp = fopen(gMempackFileName, "wb");
 		if (fp != NULL)
 		{
 			fwrite(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);
 			fclose(fp);
 		}
-		mempackDirty = false;
+		gMempackDirty = false;
 	}
 }
 

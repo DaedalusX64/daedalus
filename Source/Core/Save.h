@@ -19,23 +19,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#include "Utility/IO.h"
-
 class Save
 {
-private:
-	static IO::Filename szSaveFileName;
-	static bool 		SaveDirty;
-	static u32			nSaveSize;
-
-	static IO::Filename szMempackFileName;
-	static bool 		mempackDirty;
-
 public:
 	static bool Reset();
 	static void Flush(bool force = false);
 	static void Fini() { Flush(true);}
 
-	static void MarkSaveDirty() { SaveDirty = true; }
-	static void MarkMempackDirty() { mempackDirty = true; }
+	static void MarkSaveDirty();
+	static void MarkMempackDirty();
 };
