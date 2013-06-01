@@ -30,10 +30,8 @@
 // Config stuff
 struct DaedalusConfig
 {
-	// Urgh - will make this a vector at some point!!
-  // FIXME(strmnnrmn): this is pretty wasteful - 100*260 = 26000 bytes.
-	enum { MAX_ROMS_DIRS = 100 };
-	IO::Filename		szRomsDirs[MAX_ROMS_DIRS];
+	// FIXME(strmnnrmn): We never seem to assign to mRomsDir?!
+	IO::Filename		mRomsDir;
 	IO::Filename		szSaveDir;
 };
 

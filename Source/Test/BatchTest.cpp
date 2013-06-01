@@ -138,11 +138,11 @@ static bool MakeRunDirectory( IO::Filename & rundir, const char * batchdir )
 
 void BatchTestMain( int argc, char* argv[] )
 {
-	//ToDo: Allow other directories and configuration
+	// TODO: Allow other directories and configuration
 #ifdef DAEDALUS_PSP
 	const char * const romdir = "host1:/";
 #else
-	const char * const romdir = g_DaedalusConfig.szRomsDirs[0];
+	const char * const romdir = g_DaedalusConfig.mRomsDir;
 #endif
 
 	bool	random_order( false );		// Whether to randomise the order of processing, to help avoid hangs

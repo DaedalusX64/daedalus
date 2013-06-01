@@ -115,15 +115,6 @@ void Dump_GetSaveDirectory(char * p_file_path, const char * p_rom_name, const ch
 	IO::Path::AddExtension(file_name, p_ext);
 
 	IO::Path::Combine(p_file_path, g_DaedalusConfig.szSaveDir, file_name);
-	if (IO::File::Exists(p_file_path))
-		return;
-
-	IO::Path::Combine(p_file_path, g_DaedalusConfig.szRomsDirs[ 0 ], file_name);
-	if (IO::File::Exists(p_file_path))
-		return;
-
-	// Not in either dir - default to SaveDir
-	IO::Path::Combine(p_file_path, g_DaedalusConfig.szSaveDir, file_name);
 }
 
 #ifndef DAEDALUS_SILENT
