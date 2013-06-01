@@ -127,10 +127,10 @@ Main Menu
 ---------
 
 When you first run DaedalusX64 you will be presented with a nice list of your
-games to select a game you will press DPad left or right then X to select a
+games. To select a game you will press DPad left or right then X to select a
 title, there's various options you can choose from in the menu, every option is
 explained. To cycle through options screens use the left and right shoulder
-buttons
+buttons.
 
 Pause Menu
 ----------
@@ -164,12 +164,12 @@ R Trigger           R Trigger
 C buttons           Dpad (Circle unpressed)
 Menu                Home
 
-Daedalusx allows user-configurable controls to be specified.
-The desired controls can be chosen from the Rom Settings screen.
+Daedalusx allows user-configurable controls to be specified. The desired
+controls can be chosen from the Rom Settings screen.
 
-In order to define your own controller configuration you need to add a
-new .ini file to the Daedalus/ControllerConfigs directory. There are a
-few examples provided which should give an overview of what is possible.
+In order to define your own controller configuration you need to add a new .ini
+file to the Daedalus/ControllerConfigs directory. There are a few examples
+provided which should give an overview of what is possible.
 
 
 Helping us Develop Daedalusx64
