@@ -70,6 +70,12 @@ namespace IO
 #ifdef DAEDALUS_PSP
 		int					DeleteRecursive(const char* p_path, const char * p_extension);
 #endif
+
+		inline void SetExtension( char * p_path, const char * p_extension)
+		{
+			RemoveExtension(p_path);
+			AddExtension(p_path, p_extension);
+		}
 	}
 
 	typedef Path::PathBuf Filename;
