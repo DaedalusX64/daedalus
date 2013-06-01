@@ -1,6 +1,8 @@
 #ifndef WEBDEBUGTEMPLATE_H_
 #define WEBDEBUGTEMPLATE_H_
 
+#include <stdlib.h>
+
 class WebDebugConnection;
 
 void WriteStandardHeader(WebDebugConnection * connection, const char * title);
