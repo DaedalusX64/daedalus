@@ -339,24 +339,22 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 //*****************************************************************************
 void IRomSettingsDB::Commit()
 {
-	IO::Filename szFileNameOut;
-	IO::Filename szFileNameDelete;
-	FILE * fhIn;
-	FILE * fhOut;
-	char szBuf[1024+1];
-	char trim_chars[]="{}\n\r"; //remove first and last character
+	IO::Filename filename_tmp;
+	IO::Filename filename_del;
 
-	sprintf(szFileNameOut, "%s.tmp", mFilename);
-	sprintf(szFileNameDelete, "%s.del", mFilename);
+	sprintf(filename_tmp, "%s.tmp", mFilename);
+	sprintf(filename_del, "%s.del", mFilename);
 
-	fhIn = fopen(mFilename, "r");
-	if (fhIn == NULL)
-		return;
-
-	fhOut = fopen(szFileNameOut, "w");
-	if (fhOut == NULL)
+	FILE * fh_src = fopen(mFilename, "r");
+	if (fh_src == NULL)
 	{
-		fclose(fhIn);
+		return;
+	}
+
+	FILE * fh_dst = fopen(filename_tmp, "w");
+	if (fh_dst == NULL)
+	{
+		fclose(fh_src);
 		return;
 	}
 
@@ -365,12 +363,15 @@ void IRomSettingsDB::Commit()
 	//
 	std::set<RomID>		visited;
 
-	while (fgets(szBuf, 1024, fhIn))
+	char szBuf[1024+1];
+	while (fgets(szBuf, 1024, fh_src))
 	{
 		if (szBuf[0] == '{')
 		{
+			const char * const trim_chars = "{}\n\r"; //remove first and last character
+
 			// Start of section
-			trim( szBuf,trim_chars );
+			trim( szBuf, trim_chars );
 
 			RomID id( RomIDFromString( szBuf ) );
 
@@ -384,7 +385,7 @@ void IRomSettingsDB::Commit()
 			if( it != mSettings.end() )
 			{
 				// Output this CRC
-				OutputSectionDetails( id, it->second, fhOut );
+				OutputSectionDetails( id, it->second, fh_dst );
 			}
 			else
 			{
@@ -395,7 +396,7 @@ void IRomSettingsDB::Commit()
 		else if (szBuf[0] == '/')
 		{
 			// Comment
-			fputs(szBuf, fhOut);
+			fputs(szBuf, fh_dst);
 			continue;
 		}
 
@@ -407,17 +408,17 @@ void IRomSettingsDB::Commit()
 		// Skip any that have not been done.
 		if ( visited.find( it->first ) == visited.end() )
 		{
-			OutputSectionDetails( it->first, it->second, fhOut );
+			OutputSectionDetails( it->first, it->second, fh_dst );
 		}
 	}
 
-	fclose( fhOut );
-	fclose( fhIn );
+	fclose( fh_dst );
+	fclose( fh_src );
 
 	// Create the new file
-	IO::File::Move( mFilename, szFileNameDelete );
-	IO::File::Move( szFileNameOut, mFilename );
-	IO::File::Delete( szFileNameDelete );
+	IO::File::Move( mFilename, filename_del );
+	IO::File::Move( filename_tmp, mFilename );
+	IO::File::Delete( filename_del );
 
 	mDirty = false;
 }
