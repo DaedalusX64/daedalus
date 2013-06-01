@@ -63,7 +63,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/Dump.h"
 #include "Utility/IO.h"
 
-static const char * g_szEventStrings[23] =
+static const char * const gEventStrings[23] =
 {
 	"OS_EVENT_SW1",
 	"OS_EVENT_SW2",
@@ -199,12 +199,12 @@ void Patch_PatchAll()
 			IO::Filename buf;
 			PatchSymbol * ps = g_PatchSymbols[i];
 			Dump_GetDumpDirectory(buf, "oshle");
-			IO::Path::Append(buf, ps->szName);
+			IO::Path::Append(buf, ps->Name);
 
 			Dump_Disassemble(PHYS_TO_K0(ps->location), PHYS_TO_K0(ps->location) + ps->pSignatures->nNumOps * sizeof(OpCode),
 				buf);
 
-			fprintf(fp, "%s 0x%08x\n", ps->szName, PHYS_TO_K0(ps->location));
+			fprintf(fp, "%s 0x%08x\n", ps->Name, PHYS_TO_K0(ps->location));
 #endif
 			gNumOfOSFunctions++;
 			Patch_ApplyPatch(i);
@@ -231,7 +231,7 @@ void Patch_ApplyPatch(u32 i)
 
 #ifndef DAEDALUS_SILENT
 // Return the location of a symbol
-u32 Patch_GetSymbolAddress(const char * szName)
+u32 Patch_GetSymbolAddress(const char * name)
 {
 	// Search new list
 	for (u32 p = 0; p < nPatchSymbols; p++)
@@ -240,7 +240,7 @@ u32 Patch_GetSymbolAddress(const char * szName)
 		if (!g_PatchSymbols[p]->bFound)
 			continue;
 
-		if (_strcmpi(g_PatchSymbols[p]->szName, szName) == 0)
+		if (_strcmpi(g_PatchSymbols[p]->Name, name) == 0)
 			return PHYS_TO_K0(g_PatchSymbols[p]->location);
 
 	}
@@ -274,7 +274,7 @@ const char * Patch_GetJumpAddressName(u32 jump)
 		// fail if all dependent symbols are not found
 		if (pdwPatchBase == pdwOpBase)
 		{
-			return g_PatchSymbols[p]->szName;
+			return g_PatchSymbols[p]->Name;
 		}
 
 	}
@@ -359,9 +359,9 @@ void Patch_DumpOsQueueInfo()
 	//DBGConsole_Msg(0, "01234567, 01234567, 01234567, xxxx, xxxx, xxxx, 01234567",
 	for (i = 0; i <	g_MessageQueues.size(); i++)
 	{
-		char szFullQueue[30];
-		char szEmptyQueue[30];
-		char szType[60] = "";
+		char fullqueue_buffer[30];
+		char emptyqueue_buffer[30];
+		char type_buffer[60] = "";
 
 		dwQueue = g_MessageQueues[i];
 
@@ -382,40 +382,40 @@ void Patch_DumpOsQueueInfo()
 		}
 
 		if (dwFullQ == VAR_ADDRESS(osNullMsgQueue))
-			sprintf(szFullQueue, "       -");
+			sprintf(fullqueue_buffer, "       -");
 		else
-			sprintf(szFullQueue, "%08x", dwFullQ);
+			sprintf(fullqueue_buffer, "%08x", dwFullQ);
 
 		if (dwEmptyQ == VAR_ADDRESS(osNullMsgQueue))
-			sprintf(szEmptyQueue, "       -");
+			sprintf(emptyqueue_buffer, "       -");
 		else
-			sprintf(szEmptyQueue, "%08x", dwEmptyQ);
+			sprintf(emptyqueue_buffer, "%08x", dwEmptyQ);
 
 		if (dwQueue == VAR_ADDRESS(osSiAccessQueue))
 		{
-			sprintf(szType, "<- Si Access");
+			sprintf(type_buffer, "<- Si Access");
 
 		}
 		else if (dwQueue == VAR_ADDRESS(osPiAccessQueue))
 		{
-			sprintf(szType, "<- Pi Access");
+			sprintf(type_buffer, "<- Pi Access");
 		}
 
 
 		// Try and find in the event mesg array
-		if (strlen(szType) == 0 && VAR_FOUND(osEventMesgArray))
+		if (strlen(type_buffer) == 0 && VAR_FOUND(osEventMesgArray))
 		{
 			for (u32 j = 0; j <	23; j++)
 			{
 				if (dwQueue == Read32Bits(VAR_ADDRESS(osEventMesgArray) + (j * 8) + 0x0))
 				{
-					sprintf(szType, "<- %s", g_szEventStrings[j]);
+					sprintf(type_buffer, "<- %s", gEventStrings[j]);
 					break;
 				}
 			}
 		}
 		DBGConsole_Msg(0, "%08x, %s, %s, % 4d, % 4d, % 4d, %08x %s",
-			dwQueue, szEmptyQueue, szFullQueue, dwValidCount, dwFirst, dwMsgCount, dwMsg, szType);
+			dwQueue, emptyqueue_buffer, fullqueue_buffer, dwValidCount, dwFirst, dwMsgCount, dwMsg, type_buffer);
 	}
 #endif
 }
@@ -434,15 +434,13 @@ void Patch_DumpOsEventInfo()
 
 	DBGConsole_Msg(0, "");
 	DBGConsole_Msg(0, "Events:                      Queue      Message");
-	//DBGConsole_Msg(0, "  xxxxxxxxxxxxxxxxxxxxxxxxxx 0x01234567 0x01234567",..);
 	for (u32 i = 0; i <	23; i++)
 	{
 		dwQueue = Read32Bits(VAR_ADDRESS(osEventMesgArray) + (i * 8) + 0x0);
 		dwMsg   = Read32Bits(VAR_ADDRESS(osEventMesgArray) + (i * 8) + 0x4);
 
-
 		DBGConsole_Msg(0, "  %-26s 0x%08x 0x%08x",
-			g_szEventStrings[i], dwQueue, dwMsg);
+			gEventStrings[i], dwQueue, dwMsg);
 	}
 }
 
@@ -467,7 +465,7 @@ bool Patch_Hacks( PatchSymbol * ps )
 	case ANIMAL_CROSSING:
 	case CLAY_FIGHTER_63:
 
-		if( strcmp("osSendMesg",ps->szName) == 0)
+		if( strcmp("osSendMesg", ps->Name) == 0)
 		{
 			bfound = true;
 			break;
@@ -478,13 +476,13 @@ bool Patch_Hacks( PatchSymbol * ps )
 	// __osDispatchThread and __osEnqueueAndYield causes Body Harvest to not boot
 	// This game is very sensitive with IRQs, see DMA.cpp (DMA_SI_CopyToDRAM)
 	case BODY_HARVEST:
-		if( strcmp("__osDispatchThread",ps->szName) == 0)
+		if( strcmp("__osDispatchThread", ps->Name) == 0)
 		{
 			bfound = true;
 			break;
 
 		}
-		if( strcmp("__osEnqueueAndYield",ps->szName) == 0)
+		if( strcmp("__osEnqueueAndYield", ps->Name) == 0)
 		{
 			bfound = true;
 			break;
@@ -527,7 +525,7 @@ void Patch_RecurseAndFind()
 
 #ifdef DAEDALUS_DEBUG_CONSOLE
 		CDebugConsole::Get()->MsgOverwrite(0, "OS HLE: %d / %d Looking for [G%s]",
-			i, nPatchSymbols, g_PatchSymbols[i]->szName);
+			i, nPatchSymbols, g_PatchSymbols[i]->Name);
 		fflush(stdout);
 #else
 #ifdef DAEDALUS_PSP
@@ -536,7 +534,7 @@ void Patch_RecurseAndFind()
 		CGraphicsContext::Get()->ClearToBlack();
 		//intraFontPrintf( ltn8, 480/2, (272>>1)-50, "Searching for os functions. This may take several seconds...");
 		intraFontPrintf( ltn8, 480/2, (272>>1), "OS HLE Patching: %d%%", i * 100 / (nPatchSymbols-1));
-		intraFontPrintf( ltn8, 480/2, (272>>1)-50, "Searching for %s", g_PatchSymbols[i]->szName );
+		intraFontPrintf( ltn8, 480/2, (272>>1)-50, "Searching for %s", g_PatchSymbols[i]->Name );
 		CGraphicsContext::Get()->EndFrame();
 		CGraphicsContext::Get()->UpdateFrame( true );
 #endif
@@ -575,7 +573,7 @@ void Patch_RecurseAndFind()
 	{
 		if (!g_PatchSymbols[i]->bFound)
 		{
-			//DBGConsole_Msg(0, "[W%s] not found", g_PatchSymbols[i]->szName);
+			//DBGConsole_Msg(0, "[W%s] not found", g_PatchSymbols[i]->Name);
 		}
 		else
 		{
@@ -590,8 +588,8 @@ void Patch_RecurseAndFind()
 					g_PatchSymbols[j]->location))
 				{
 						DBGConsole_Msg(0, "Warning [C%s==%s]",
-							g_PatchSymbols[i]->szName,
-							g_PatchSymbols[j]->szName);
+							g_PatchSymbols[i]->Name,
+							g_PatchSymbols[j]->Name);
 
 					// Don't patch!
 					g_PatchSymbols[i]->bFound = false;
@@ -604,7 +602,7 @@ void Patch_RecurseAndFind()
 			//
 			if( Patch_Hacks(g_PatchSymbols[i]) )
 			{
-				DBGConsole_Msg(0, "[ROS Hack : Disabling %s]",g_PatchSymbols[i]->szName);
+				DBGConsole_Msg(0, "[ROS Hack : Disabling %s]", g_PatchSymbols[i]->Name);
 				g_PatchSymbols[i]->bFound = false;
 			}
 
@@ -630,7 +628,7 @@ void Patch_RecurseAndFind()
 		//Update patching progress on PSPscreen
 		CGraphicsContext::Get()->BeginFrame();
 		CGraphicsContext::Get()->ClearToBlack();
-		intraFontPrintf( ltn8, 480/2, (272>>1), "Symbols Identified: %d%%",100 * nFound / (nPatchSymbols-1));
+		intraFontPrintf( ltn8, 480/2, (272>>1), "Symbols Identified: %d%%", 100 * nFound / (nPatchSymbols-1));
 		intraFontPrintf( ltn8, 480/2, (272>>1)+50, "Range 0x%08x -> 0x%08x", first, last );
 		CGraphicsContext::Get()->EndFrame();
 		CGraphicsContext::Get()->UpdateFrame( true );
@@ -643,7 +641,7 @@ void Patch_RecurseAndFind()
 	{
 		if (!g_PatchVariables[i]->bFound)
 		{
-			//DBGConsole_Msg(0, "[W%s] not found", g_PatchVariables[i]->szName);
+			//DBGConsole_Msg(0, "[W%s] not found", g_PatchVariables[i]->Name);
 		}
 		else
 		{
@@ -657,8 +655,8 @@ void Patch_RecurseAndFind()
 					g_PatchVariables[j]->location))
 				{
 						DBGConsole_Msg(0, "Warning [C%s==%s]",
-							g_PatchVariables[i]->szName,
-							g_PatchVariables[j]->szName);
+							g_PatchVariables[i]->Name,
+							g_PatchVariables[j]->Name);
 				}
 			}
 
@@ -871,7 +869,7 @@ bool Patch_VerifyLocation_CheckSignature(PatchSymbol * ps,
 #ifdef DAEDALUS_DEBUG_CONSOLE
 			if (pcr->offset < last)
 			{
-				DBGConsole_Msg(0, "%s: CrossReference offsets out of order", ps->szName);
+				DBGConsole_Msg(0, "%s: CrossReference offsets out of order", ps->Name);
 			}
 
 			last = pcr->offset;
@@ -1074,7 +1072,7 @@ static u32 RET_NOT_PROCESSED(PatchSymbol* ps)
 	DAEDALUS_ASSERT( ps != NULL, "Not Supported" );
 
 	gCPUState.CurrentPC = PHYS_TO_K0(ps->location);
-	//DBGConsole_Msg(0, "%s RET_NOT_PROCESSED PC=0x%08x RA=0x%08x", ps->szName, gCPUState.TargetPC, gGPR[REG_ra]._u32_0);
+	//DBGConsole_Msg(0, "%s RET_NOT_PROCESSED PC=0x%08x RA=0x%08x", ps->Name, gCPUState.TargetPC, gGPR[REG_ra]._u32_0);
 
 	gCPUState.Delay = NO_DELAY;
 	gCPUState.TargetPC = gCPUState.CurrentPC;

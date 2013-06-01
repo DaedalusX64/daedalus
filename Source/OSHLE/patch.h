@@ -70,7 +70,7 @@ typedef struct _PatchSymbol
 {
 	bool bFound;				// Has this symbol been found?
 	u32 location;				// What is the address of the symbol?
-	const char * szName;				// Symbol name
+	const char * Name;			// Symbol name
 
 	OpCode opReplaced;			// The op that was replaced when we were patched in
 
@@ -83,7 +83,7 @@ typedef struct _PatchVariable
 {
 	bool bFound;				// Has this symbol been found?
 	u32 location;				// What is the address of the symbol?
-	const char * szName;				// Symbol name
+	const char * Name;			// Symbol name
 
 	// For now have these as separate fields. We probably want to
 	// put them into a union
@@ -184,7 +184,7 @@ void Patch_PatchAll();
 
 #ifndef DAEDALUS_SILENT
 const char * Patch_GetJumpAddressName(u32 jump);
-u32 Patch_GetSymbolAddress(const char * szName);
+u32 Patch_GetSymbolAddress(const char * name);
 #endif
 #ifdef DUMPOSFUNCTIONS
 void Patch_DumpOsThreadInfo();

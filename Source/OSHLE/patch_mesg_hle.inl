@@ -12,7 +12,7 @@ TEST_DISABLE_MESG_FUNCS
 	/*if (vent < 23)
 	{
 		DBGConsole_Msg(0, "osSetEventMesg(%s, 0x%08x, 0x%08x)",
-			g_szEventStrings[vent], queue, msg);
+			gEventStrings[vent], queue, msg);
 	}
 	else
 	{
@@ -41,7 +41,7 @@ TEST_DISABLE_MESG_FUNCS
 	/*if (vent < 23)
 	{
 		DBGConsole_Msg(0, "osSetEventMesg(%s, 0x%08x, 0x%08x)",
-			g_szEventStrings[vent], queue, msg);
+			gEventStrings[vent], queue, msg);
 	}
 	else
 	{
