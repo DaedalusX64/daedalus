@@ -242,7 +242,7 @@ void BatchTestMain( int argc, char* argv[] )
 		// Make a filename of the form: '<rundir>/<romfilename>.txt'
 		IO::Filename rom_logpath;
 		IO::Path::Combine( rom_logpath, rundir, IO::Path::FindFileName( r.c_str() ) );
-		IO::Path::AddExtension( rom_logpath, ".txt" );
+		IO::Path::SetExtension( rom_logpath, ".txt" );
 
 		bool	result_exists( IO::File::Exists( rom_logpath ) );
 

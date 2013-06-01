@@ -116,7 +116,6 @@ namespace IO
 
 		void	AddExtension( char * p_path, const char * p_ext )
 		{
-			PathRemoveExtension( p_path );
 			::PathAddExtension( p_path, p_ext );
 		}
 	}
