@@ -1173,18 +1173,16 @@ void RendererPSP::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertice
 	// Only dump missing_mux when we awant to search for inexact blends aka HighlightInexactBlendModes is enabled.
 	// Otherwise will dump lotsa of missing_mux even though is not needed since was handled correctly by auto blendmode thing - Salvy
 	//
-	if( gGlobalPreferences.HighlightInexactBlendModes && states->IsInexact() )
+	if (gGlobalPreferences.HighlightInexactBlendModes && states->IsInexact())
 	{
-		if(mUnhandledCombinerStates.find( mux ) == mUnhandledCombinerStates.end())
+		if (mUnhandledCombinerStates.find( mux ) == mUnhandledCombinerStates.end())
 		{
-			IO::Filename szFilePath;
+			IO::Filename filepath;
+			Dump_GetDumpDirectory(filepath, g_ROM.settings.GameName.c_str());
+			IO::Path::Append(filepath, "missing_mux.txt");
 
-			Dump_GetDumpDirectory(szFilePath, g_ROM.settings.GameName.c_str());
-
-			IO::Path::Append(szFilePath, "missing_mux.txt");
-
-			FILE * fh( fopen(szFilePath, mUnhandledCombinerStates.empty() ? "w" : "a") );
-			if(fh != NULL)
+			FILE * fh = fopen(filepath, mUnhandledCombinerStates.empty() ? "w" : "a");
+			if (fh != NULL)
 			{
 				DLDebug_PrintMux( fh, mux );
 				fclose(fh);
