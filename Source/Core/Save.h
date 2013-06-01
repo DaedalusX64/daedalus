@@ -19,13 +19,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-class Save
-{
-public:
-	static bool Reset();
-	static void Flush(bool force = false);
-	static void Fini() { Flush(true);}
+bool Save_Reset();
+void Save_Fini();
 
-	static void MarkSaveDirty();
-	static void MarkMempackDirty();
-};
+void Save_MarkSaveDirty();
+void Save_MarkMempackDirty();
+
+void Save_Flush(bool force = false);

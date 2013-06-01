@@ -493,7 +493,7 @@ void HandleEndOfFrame()
 //#endif
 
 		// No longer needed since we save normally now, and not jsut when entering the pause menu ;)
-		//Save::Flush(true);
+		//Save_Flush(true);
 
 		// switch back to the LCD display
 		CGraphicsContext::Get()->SwitchToLcdDisplay();

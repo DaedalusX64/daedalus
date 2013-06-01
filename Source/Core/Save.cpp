@@ -38,17 +38,7 @@ static u32				gSaveSize;
 static IO::Filename		gMempackFileName;
 static bool				gMempackDirty;
 
-void Save::MarkSaveDirty()
-{
-	gSaveDirty = true;
-}
-
-void Save::MarkMempackDirty()
-{
-	gMempackDirty = true;
-}
-
-bool Save::Reset()
+bool Save_Reset()
 {
 	const char	*ext;
 	FILE 		*fp;
@@ -127,7 +117,22 @@ bool Save::Reset()
 	return true;
 }
 
-void Save::Flush(bool force)
+void Save_Fini()
+{
+	Save_Flush(true);
+}
+
+void Save_MarkSaveDirty()
+{
+	gSaveDirty = true;
+}
+
+void Save_MarkMempackDirty()
+{
+	gMempackDirty = true;
+}
+
+void Save_Flush(bool force)
 {
 	if ((gSaveDirty || force) && g_ROM.settings.SaveType != SAVE_TYPE_UNKNOWN)
 	{

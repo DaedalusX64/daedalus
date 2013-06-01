@@ -92,11 +92,11 @@ void Flash_DoCommand(u32 FlashRAM_Command)
 				break;
 			case FLASHRAM_MODE_ERASE:
 				memset((u8*)g_pMemoryBuffers[MEM_SAVE] + FlashRAM_Offset, 0xFF, 128);
-				Save::MarkSaveDirty();
+				Save_MarkSaveDirty();
 				break;
 			case FLASHRAM_MODE_WRITE:
 				memcpy((u8*)g_pMemoryBuffers[MEM_SAVE] + FlashRAM_Offset, FlashBlock, 128);
-				Save::MarkSaveDirty();
+				Save_MarkSaveDirty();
 				break;
 			default:
 				DBGConsole_Msg(0, "Writing %X to flash ram command register\nFlashFlag: %d",FlashRAM_Command,FlashFlag);

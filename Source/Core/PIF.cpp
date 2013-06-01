@@ -558,7 +558,7 @@ void	IController::CommandReadEeprom(u8* cmd)
 //*****************************************************************************
 void	IController::CommandWriteEeprom(u8* cmd)
 {
-	Save::MarkSaveDirty();
+	Save_MarkSaveDirty();
 	memcpy(mpEepromData + cmd[3] * 8, &cmd[4], 8);
 }
 
@@ -669,7 +669,7 @@ void	IController::CommandWriteMemPack(u32 channel, u8 *cmd)
 
 		if (addr <= 0x7FE0)
 		{
-			Save::MarkMempackDirty();
+			Save_MarkMempackDirty();
 			memcpy(&mMemPack[channel][addr], data, 32);
 		}
 		else

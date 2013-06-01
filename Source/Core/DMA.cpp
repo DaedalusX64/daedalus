@@ -335,7 +335,7 @@ void DMA_PI_CopyFromRDRAM()
 		else
 			DMA_FLASH_CopyFromDRAM(mem_address, pi_length_reg);
 
-		Save::MarkSaveDirty();
+		Save_MarkSaveDirty();
 	}
 	else
 	{

@@ -209,7 +209,7 @@ static const RomEntityEntry gRomInitTable[] =
 	{"CPU",					CPU_RomOpen,			CPU_RomClose},
 	{"ROM",					ROM_ReBoot,				ROM_Unload},
 	{"Controller",			CController::Reset,		CController::RomClose},
-	{"Save",				Save::Reset,			Save::Fini},
+	{"Save",				Save_Reset,				Save_Fini},
 #ifdef DAEDALUS_ENABLE_SYNCHRONISATION
 	{"CSynchroniser",		CSynchroniser::InitialiseSynchroniser, CSynchroniser::Destroy},
 #endif

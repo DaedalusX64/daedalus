@@ -682,7 +682,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 			//   interrupt the dynamo tracer for instance)
 			// TODO(strmnnrmn): should register this with CPU_RegisterVblCallback.
 			if ((gVerticalInterrupts & 0x3F) == 0) // once every 60 VBLs
-				Save::Flush();
+				Save_Flush();
 
 			for (size_t i = 0; i < gVblCallbacks.size(); ++i)
 			{
