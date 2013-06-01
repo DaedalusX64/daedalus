@@ -101,7 +101,7 @@ class IRomDB : public CRomDB
 				ID = id;
 			}
 
-			// This is actually IO::Path::MAX_PATH_LEN+1, but we need to ensure that it doesn't change if we ever change the MAX_PATH_LEN constant.
+			// This is actually IO::Path::kMaxPathLen+1, but we need to ensure that it doesn't change if we ever change the kMaxPathLen constant.
 			static const u32 kMaxFilenameLen = 260;
 			char		FileName[ kMaxFilenameLen + 1 ];
 			RomID		ID;

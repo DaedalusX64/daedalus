@@ -147,42 +147,42 @@ void FileNameHandler::SetDefaultDirectory(LPCTSTR szDir)
 	RegCloseKey(hRegKey);
 }
 
-// szOutBuffer must be at least IO::Path::MAX_PATH_LEN in length
+// szOutBuffer must be at least IO::Path::kMaxPathLen in length
 // FIXME(strmnnrmn): Pass a PathBuf.
 void FileNameHandler::GetModuleDirectory(LPTSTR szOutBuffer)
 {
 	// Gets the directory that this DLL was loaded from
-	GetModuleFileName(g_hInstance, szOutBuffer, IO::Path::MAX_PATH_LEN);
+	GetModuleFileName(g_hInstance, szOutBuffer, IO::Path::kMaxPathLen);
 
 	// Remove trailing slash
 	IO::Path::RemoveFileSpec(szOutBuffer);
 }
 
 // Retrieves the path from the currently selected file
-// szOutBuffer must be at least IO::Path::MAX_PATH_LEN in length
+// szOutBuffer must be at least IO::Path::kMaxPathLen in length
 // FIXME(strmnnrmn): Pass a PathBuf.
 void FileNameHandler::GetCurrentDirectory(LPTSTR szOutBuffer)
 {
-	lstrcpyn(szOutBuffer, m_szFile, IO::Path::MAX_PATH_LEN);
+	lstrcpyn(szOutBuffer, m_szFile, IO::Path::kMaxPathLen);
 
 	// Remove trailing slash
 	IO::Path::RemoveFileSpec(szOutBuffer);
 }
 
 // Retrieves the path/name of the currently selected file
-// szOutBuffer must be at least IO::Path::MAX_PATH_LEN in length
+// szOutBuffer must be at least IO::Path::kMaxPathLen in length
 // FIXME(strmnnrmn): Pass a PathBuf.
 void FileNameHandler::GetCurrentFileName(LPTSTR szOutBuffer)
 {
-	lstrcpyn(szOutBuffer, m_szFile, IO::Path::MAX_PATH_LEN);
+	lstrcpyn(szOutBuffer, m_szFile, IO::Path::kMaxPathLen);
 }
 
 // Set the current filename
-// szOutBuffer must be at least IO::Path::MAX_PATH_LEN in length
+// szOutBuffer must be at least IO::Path::kMaxPathLen in length
 // FIXME(strmnnrmn): Pass a PathBuf.
 void FileNameHandler::SetFileName(LPCTSTR szNewName)
 {
-	lstrcpyn(m_szFile, szNewName, IO::Path::MAX_PATH_LEN);
+	lstrcpyn(m_szFile, szNewName, IO::Path::kMaxPathLen);
 }
 
 // Opens a common file requester and gets filename.
@@ -195,11 +195,11 @@ BOOL FileNameHandler::GetOpenName(HWND hwnd, LPTSTR szOutBuffer)
 	// If the file title has been set, use it as the filename
 	// (this gets rid of the ugly directory info)
 	if (lstrlen(m_szFileTitle) > 0)
-		lstrcpyn(m_szFile, m_szFileTitle, IO::Path::MAX_PATH_LEN);
+		lstrcpyn(m_szFile, m_szFileTitle, IO::Path::kMaxPathLen);
 
 	if(GetOpenFileName(&m_OFN))
 	{
-		lstrcpyn(szOutBuffer, m_szFile, IO::Path::MAX_PATH_LEN);
+		lstrcpyn(szOutBuffer, m_szFile, IO::Path::kMaxPathLen);
 
 		// Copy the current directory
 		GetCurrentDirectory(m_szCurrentDirectory);
@@ -217,11 +217,11 @@ BOOL FileNameHandler::GetSaveName(HWND hwnd, LPTSTR szOutBuffer)
 	m_OFN.hwndOwner = hwnd;
 
 	if (lstrlen(m_szFileTitle) > 0)
-		lstrcpyn(m_szFile, m_szFileTitle, IO::Path::MAX_PATH_LEN);
+		lstrcpyn(m_szFile, m_szFileTitle, IO::Path::kMaxPathLen);
 
 	if(GetSaveFileName(&m_OFN))
 	{
-		lstrcpyn(szOutBuffer, m_szFile, IO::Path::MAX_PATH_LEN);
+		lstrcpyn(szOutBuffer, m_szFile, IO::Path::kMaxPathLen);
 
 		// Copy the current directory
 		GetCurrentDirectory(m_szCurrentDirectory);

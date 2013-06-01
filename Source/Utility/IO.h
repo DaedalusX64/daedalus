@@ -49,14 +49,14 @@ namespace IO
 
 	namespace Path
 	{
-		const u32	MAX_PATH_LEN = 260;
+		const u32	kMaxPathLen = 260;
 
-		typedef char PathBuf[MAX_PATH_LEN+1];
+		typedef char PathBuf[kMaxPathLen+1];
 
 		inline void Assign( char * p_dest, const char * p_dir )
 		{
-			strncpy(p_dest, p_dir, MAX_PATH_LEN);
-			p_dest[MAX_PATH_LEN-1] = '\0';
+			strncpy(p_dest, p_dir, kMaxPathLen);
+			p_dest[kMaxPathLen-1] = '\0';
 		}
 
 		char *				Combine( char * p_dest, const char * p_dir, const char * p_file );
