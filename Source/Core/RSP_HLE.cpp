@@ -40,43 +40,31 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 static const bool	gGraphicsEnabled = true;
 static const bool	gAudioEnabled	 = true;
 
-#if 0
-static void RDP_DumpRSPCode(char * szName, u32 dwCRC, u32 * pBase, u32 dwPCBase, u32 dwLen);
-static void RDP_DumpRSPData(char * szName, u32 dwCRC, u32 * pBase, u32 dwPCBase, u32 dwLen);
-#endif
 
 #if 0
-//*****************************************************************************
-//
-//*****************************************************************************
-void RDP_DumpRSPCode(char * szName, u32 dwCRC, u32 * pBase, u32 dwPCBase, u32 dwLen)
+static void RDP_DumpRSPCode(char * name, u32 crc, u32 * mem_base, u32 pc_base, u32 len)
 {
-	char opinfo[400];
-	IO::Filename szFilePath;
-	IO::Filename szFileName;
-	FILE * fp;
+	char filename[100];
+	sprintf(filename, "task_dump_%s_crc_0x%08x.txt", name, crc);
 
-	Dump_GetDumpDirectory(szFilePath, "rsp_dumps");
+	IO::Filename filepath;
+	Dump_GetDumpDirectory(filepath, "rsp_dumps");
+	IO::Path::Append(filepath, filename);
 
-	sprintf(szFileName, "task_dump_%s_crc_0x%08x.txt", szName, dwCRC);
-
-	IO::Path::Append(szFilePath, szFileName);
-
-
-	fp = fopen(szFilePath, "w");
+	FILE * fp = fopen(filepath, "w");
 	if (fp == NULL)
 		return;
 
-	u32 dwIndex;
-	for (dwIndex = 0; dwIndex < dwLen; dwIndex+=4)
+	for (u32 i = 0; i < len; i+=4)
 	{
 		OpCode op;
-		u32 pc = dwIndex&0x0FFF;
-		op._u32 = pBase[dwIndex/4];
+		u32 pc = i & 0x0FFF;
+		op._u32 = mem_base[i/4];
 
-		SprintRSPOpCodeInfo( opinfo, pc + dwPCBase, op );
+		char opinfo[400];
+		SprintRSPOpCodeInfo( opinfo, pc + pc_base, op );
 
-		fprintf(fp, "0x%08x: <0x%08x> %s\n", pc + dwPCBase, op._u32, opinfo);
+		fprintf(fp, "0x%08x: <0x%08x> %s\n", pc + pc_base, op._u32, opinfo);
 		//fprintf(fp, "<0x%08x>\n", dwOpCode);
 	}
 
@@ -85,37 +73,28 @@ void RDP_DumpRSPCode(char * szName, u32 dwCRC, u32 * pBase, u32 dwPCBase, u32 dw
 #endif
 
 #if 0
-//*****************************************************************************
-//
-//*****************************************************************************
-void RDP_DumpRSPData(char * szName, u32 dwCRC, u32 * pBase, u32 dwPCBase, u32 dwLen)
+static void RDP_DumpRSPData(char * name, u32 crc, u32 * mem_base, u32 pc_base, u32 len)
 {
-	IO::Filename szFilePath;
-	IO::Filename szFileName;
-	FILE * fp;
+	char filename[100];
+	sprintf(filename, "task_data_dump_%s_crc_0x%08x.txt", name, crc);
 
-	Dump_GetDumpDirectory(szFilePath, "rsp_dumps");
+	IO::Filename filepath;
+	Dump_GetDumpDirectory(filepath, "rsp_dumps");
+	IO::Path::Append(filepath, filename);
 
-	sprintf(szFileName, "task_data_dump_%s_crc_0x%08x.txt", szName, dwCRC);
-
-	IO::Path::Append(szFilePath, szFileName);
-
-	fp = fopen(szFilePath, "w");
+	FILE * fp = fopen(filepath, "w");
 	if (fp == NULL)
 		return;
 
-	u32 dwIndex;
-	for (dwIndex = 0; dwIndex < dwLen; dwIndex+=4)
+	for (u32 i = 0; i < len; i+=4)
 	{
-		u32 dwData;
-		u32 pc = dwIndex&0x0FFF;
-		dwData = pBase[dwIndex/4];
+		u32 pc = i & 0x0FFF;
+		u32 data = mem_base[i/4];
 
-		fprintf(fp, "0x%08x: 0x%08x\n", pc + dwPCBase, dwData);
+		fprintf(fp, "0x%08x: 0x%08x\n", pc + pc_base, data);
 	}
 
 	fclose(fp);
-
 }
 #endif
 
