@@ -363,17 +363,17 @@ void IRomSettingsDB::Commit()
 	//
 	std::set<RomID>		visited;
 
-	char szBuf[1024+1];
-	while (fgets(szBuf, 1024, fh_src))
+	char buffer[1024+1];
+	while (fgets(buffer, 1024, fh_src))
 	{
-		if (szBuf[0] == '{')
+		if (buffer[0] == '{')
 		{
 			const char * const trim_chars = "{}\n\r"; //remove first and last character
 
 			// Start of section
-			trim( szBuf, trim_chars );
+			trim( buffer, trim_chars );
 
-			RomID id( RomIDFromString( szBuf ) );
+			RomID id( RomIDFromString( buffer ) );
 
 			// Avoid duplicated entries for this id
 			if ( visited.find( id ) != visited.end() )
@@ -393,10 +393,10 @@ void IRomSettingsDB::Commit()
 				// replaces the inifile while Daedalus is running!
 			}
 		}
-		else if (szBuf[0] == '/')
+		else if (buffer[0] == '/')
 		{
 			// Comment
-			fputs(szBuf, fh_dst);
+			fputs(buffer, fh_dst);
 			continue;
 		}
 
