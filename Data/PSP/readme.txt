@@ -119,7 +119,7 @@ Daedalusx64/SaveStates/<gamename>/. But you can also create this directory
 ms0:/n64/SaveSates and Daedalus will use this directory for save state creation
 and loading.
 
-In total there's 16 slots for save states, each game has its own 16 slots to
+In total there's 64 slots for save states, each game has its own 64 slots to
 choose. You can delete any save state easily, just choose the slot you want to
 delete and press square and then press triangle to confirm.
 
