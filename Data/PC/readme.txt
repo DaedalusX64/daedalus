@@ -55,6 +55,9 @@ Start         : Enter
 Save Games
 ------------
 
+IMPORTANT NOTE: For performance reasons Daedalus only saves out
+modified save game every 60 vbl.
+
 Daedalus supports Eeprom, Mempack, SRAM and FlashRam saves in the
 same format as Nemu (.sav, .mpk and .sra respectively). 
 
@@ -76,11 +79,13 @@ C:\Roms\wibble.mpk
 Saved States
 ------------
 
-All the save states are created using this name format : quickXX.save ( XX can be from 0 to 9 )
-Save states are saved by default at SaveStates/<quickXX.save>
+All the save states are created using this name format : SaveSlotXX.ss (XX can
+be from 0 to 10) Save States are saved by default at
+/SaveStates/<gamename>/.
 
 To create a save state, press Ctrl 0-9 and for loading press 0-9.
 Each number corresponds to each slot where the save state was created.
+Each game has 10 slots to save.
 
 Rom Support
 -----------
@@ -177,8 +182,8 @@ Kreationz
 Copying
 *******
 
-Daedalus is released under the GNU General Public License,
-and the sourcecode is available from the Boob site. 
+Daedalus is released under the GNU General Public License, and the sourcecode is
+available at https://github.com/hulkholden/daedalus.
 
 Disclaimer
 **********
