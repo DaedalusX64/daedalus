@@ -106,9 +106,8 @@ game, check the roms.ini and make sure the save type is correct.
 Save games are created with the same name as the rom file, in the
 Daedalusx64/SaveGames/ directory.
 
-IMPORTANT NOTE: For performance reasons Daedalus only saves out modified save
-game files when the Pause menu is accessed (by pressing the 'home' button while
-the emulator is running). I'll look at removing this restriction ASAP.
+IMPORTANT NOTE: For performance reasons Daedalus only saves out
+modified save game every 60 vbl.
 
 Save States
 -----------

@@ -275,6 +275,9 @@ on other systems it may take only a fraction of a second to complete.
 This function registers a function calling \textbf{glfwTerminate} with the
 atexit facility of the C library.
 
+If \GLFW\ is initialized already, this function returns GL\_TRUE immediately
+without affecting state.
+
 On Mac OS X, this function will change the current directory of the application
 to the \textbf{Contents/Resources} subdirectory of the application's bundle, if
 present.  For more information on bundles, see the Bundle Programming Guide
@@ -448,7 +451,7 @@ GLFW\_STEREO             & GL\_FALSE        & Specify if stereo rendering should
 GLFW\_WINDOW\_NO\_RESIZE & GL\_FALSE        & Specify whether the window can be resized by the user (not used for fullscreen windows).\\ \hline
 GLFW\_FSAA\_SAMPLES      & 0                & Number of samples to use for the multisampling buffer. Zero disables multisampling.\\ \hline
 GLFW\_OPENGL\_VERSION\_MAJOR & 1	        & Major number of the desired minimum \OpenGL\ version.\\ \hline
-GLFW\_OPENGL\_VERSION\_MINOR & 1	        & Minor number of the desired minimum \OpenGL\ version.\\ \hline
+GLFW\_OPENGL\_VERSION\_MINOR & 0	        & Minor number of the desired minimum \OpenGL\ version.\\ \hline
 GLFW\_OPENGL\_FORWARD\_COMPAT & GL\_FALSE   & Specify whether the \OpenGL\ context should be forward-compatible (i.e. disallow legacy functionality).
                                               This should only be used when requesting \OpenGL\ version 3.0 or above.\\ \hline
 GLFW\_OPENGL\_DEBUG\_CONTEXT & GL\_FALSE    & Specify whether a debug context should be created.\\ \hline
@@ -516,7 +519,7 @@ by calling \textbf{glfwSetWindowSize}.
 The GLFW\_OPENGL\_VERSION\_MAJOR and GLFW\_OPENGL\_VERSION\_MINOR hints specify
 the \OpenGL\ version that the created context must be compatible with,
 \emph{not} the exact version to use.  It is therefore perfectly safe to use the
-default of version 1.1 for legacy code and you will still get
+default of version 1.0 for legacy code and you will still get
 backwards-compatible contexts of version 3.0 and above when available.
 
 To make the behavior of the above version hints consistent across both modern

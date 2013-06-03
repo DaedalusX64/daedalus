@@ -1,0 +1,177 @@
+//
+// Translation file for DaedalusX64
+// Language : Deutsch
+// Last Updated :11/1/2012 Deutschland/Germany
+// Version : V1.0
+// Translation by : Vedat
+//
+//
+// To modify:
+// Please make sure this file is always encoded as UTF-8
+// To create a new translation please use the Default.lng inside Default.7z as base
+// Do not move/remove or translate the first line named as MAGIC NUMBER
+
+// The hash # for your language is : (Which is used to display your language name in the GUI)
+// Please check hash.txt inside Default.7z for list of hash numbers for most languages
+// Please add it below MAGIC NUMBER and make sure to translate it
+
+00000000,MAGIC NUMBER
+848edfe8,Deutsch
+9dc1820c,Keine Vorschau vorhanden
+a03fa94a,Laden:
+19db9e32,Land:
+09543b05,Groesse
+08d5d6b9,Speichern:
+ee537eb0,(X) -> Laden
+ee5b9cf1,([ ]) -> Einstellungen
+29d22763,(/\\) -> Dateiname
+7b3eaf50,(HOME) -> Verlassen
+59466b27,(SELECT) -> Loeschen
+183f4586,Verlassen?
+859c733e,(X) -> Fortfahren
+1e85c445,Drueck irgenteine Taste zum Fortfahren
+13b51271,(X) Fortrahren       (O) Abbrechen
+b7ca4f3e,Globale Einstellungen
+051a94d5,Roms
+9b692907,Gewaehlte Rom
+c1170d2b,Speicherstaende
+DAEDDAED,Darueber
+a786de62,Daedalus konmte keine Roms zum Laden finden.
+dcafd211,Du kannst Roms in den \\N64\\ Ordner auf deinem Memorystick einfuegen,
+df73ecf1,oder die Roms in den den Romordner im Daedalusordner einfuegen.
+d72277a0,Daedalus erkennt verschieden Datentypen,
+4f01e7b5,fuege nur Datein mit .zip, .z64, .v64, .rom, .bin, .pal, .usa und .jap-Endugen ein.
+bdd1275c,Einstellungen bearbeiten
+ba9c614e,Erweiterte Optionen
+7f8644c8,Cheats
+e8ad4e74,Starte Emulation
+85b79ea0,Bearbeiten verschiedener Einstellungen fuer diese Rom.
+e6fa21a3,Bearbeiten verschiedener erweiteterter Einstellungen fuer diese Rom.
+037a6ee9,Erlaube und waehle cheats fuer diese Rom.
+88f3a4c2,Starte emulation der gewaehlten Rom.
+bfb757ff,Waehle Speicherslot in das gespeichert werden soll.
+4bd9a865,Waehle Seicherslot von dem geladen werden soll
+11183fe7,Es gibt keine Speicherstaende zum laden
+72b02b7e,Waehle Slot in das gespeichert werden soll [X:Speichern O:Zurueck]
+7d24bdfa,Waehle Slot von dem geladen werden soll [X:Laden O:Zurueck []:Loeschen]
+26145f81,Drueck Dreick zum loeschen von diesem Speicherstand
+0981b45a,Slot
+1670fc01,<leer>
+6c81a8ee,Speichert...
+d44916e4,Laed...
+24f6055a,Pause
+57d4e678,Waehle ein Slot zum speichern von
+da257eb4,Speicherstand
+284f6577,Lade/Loesche Speicherstand
+27df9ed3,Screenshot machen
+bb5092ca,Speichere den aktuellen Stand.
+24312e7d,Wiederherstellen oder Löschen eines zuvor gespeicherten Speicerstandes.
+cdec8d9c,Screenshot machen.
+4aaa99d7,Emulation fortfahren
+1e25cde5,Zum Hauptmenue zurueck
+79139258,Zurueck zum Hauptmenue?
+17beb20d,Copyright (C) 2008-2013 DaedalusX64 Team
+191b0de3,Copyright (C) 2001-2009 StrmnNrmn
+b27fe8d9,Audio HLE Code von Azimer
+82a39ef2,Fuer Updates und Neuichkeiten besuche:
+8eb50a08,Nicht erlaubt
+34fcd0e7,Erlaubt
+11240414,Asynchron
+af304fb7,Synchron
+ec4156ec,Unbekannten
+00001f35,Nein
+000e02bd,Ja
+930db968,Volle Geschwindigkeit
+e265bfa8,Halbe Geschwindigkeit
+55eef632,Textur Update Ueberpruefung
+ce12dd96,Frameskip
+05985a81,Zoom
+492c372a,Beschraenkte Framerate
+d62ec48b,Dynamische Kompilierung
+477417d2,Hohe Qualitaet Emulation
+9a686c92,Ton
+28675d34,Controller
+e3a9b7b3,Ob für Textur-Updates zwischen den Frames ueberprueft weden sollen. Deaktiviere diese, verringet die Framerate, verbessert aber die Qualitaet der Grafik der Rom.
+37ee9082,Dieser legt fest, wie viele Bilder vor dem Erstellen eines neuen Rahmens uebersprungen werden sollen. Erhoehung dieses Wertes gibt eine kleine Geschwindigkeitssteigerung auf Kosten von mehr ruckartige Grafiken.
+74b87a6d,Erhoeht Bildschirmgroesse. Der Wert wird die Standard-Bildschirmgroeße ueberschreiben. 100% ist Standard.
+b950b01f,Begrenzen Sie die Bildwiederholfrequenz auf 50/25Hz (PAL) oder 60/30Hz (NTSC).
+48917b8a,Dynamische Kompilierung gibt eine betraechtliche Geschwindigkeiterhoeung fuer die ROM-Emulation.
+ad549ea7,Ob replizierte OS Funktionsaufrufe (schneller) statt echte Emulation (langsamer) verwendet werden soll(ACHTUNG, kann zu Instabilitaet und / oder Absturz auf bestimmten ROMs fuehren).
+e0366a74,Ob Audio-Emulation erlaubt ist und ob Audio Asynchron (schnell / felehrhaft) oder Synchron (langsam) verwendet werden soll.
+487f2ed5,Speichern & Zurueck
+54a93276,Abbrechen
+beb13b0c,Bestaetigt die Aenderungen an den Einstellungen und beendet aktulles Menue.
+442b79c8,Bricht die Aenderungen an den Einstellungen ab und beendet aktulles Menue.
+2462a960,Rom Einstellungen
+4c3230e6,Erlaube Cheats
+c6aa2aab,Uebernehme Cheat Codes FrequenzS
+04564e07,Ob Cheats fuer diese Rom genutzt werden sollen
+b5ca15d7,Je hoeher dieser Wert, desto weniger Leistung wird vom Emulator verlangt, sodass bestimmte Cheats nicht richtig funktionieren koennten.
+276e1699,Keine Cheats gefunden
+48119424,4:3 unskaliert (320x240)
+c9a48cf8,4:3 skaliert (362x272)
+c4d3e6cb,Vollbildschirm (480x272)
+1cadb15b,HLE-Cache Zuruecksetzen?
+8ade5a3b,Einstellung zuruecksetzen?
+7c43b365,Daedalus wird nun verlassen
+22bc6816,Drueck X zum starten
+02123b1a,Klassik
+a00e4b11,Schwarz
+000cebbf,Rot
+bf706ca5,Gruen
+c6c78d35,Magenta
+041e9694,Blau
+b85ffe49,Tuerkis
+1ab89f90,Orange
+a0d31d90,Rosa
+046e1a7f,Grau
+04dbb2b8,Nichts
+4d60c1e6,Display Info
+d45b8b73,Ansichtsfenstergroesse
+49ff4d2c,Erzwingt Linearfilter
+f096e88f,Controller zubehoer
+2cd3ab78,Stick ungueltigkeitsbereich
+23d8d78c,Nutze großen Rommpuffer
+d228ec17,Schwache Batterie-warnung
+2e167ec2,GUI Style
+ca887fd8,GUI Farbe
+6a4df2ac,Einstellung zuruecksetzen
+a3bdb5f5,Ob einfuegte Infos waehrend des Spiel angezeigt werden sollen. Manche sind nur im DEBUG-Modus vorhanden.
+1bfe167d,Die Groesse des Ansichtsfensters auf der PSP.
+7f9bdebd,Erlauben, um Linearfilterung zu erzwingen. Kann Aussehen von Textur verbessern.
+b4478cb3,Erlauben fuer MemPak oder RumblePak
+a342ced3,Passe die Groesse der Deadzone des PSP-Sticks waehrend des Spielens an. Druecke Start / X zum bearbeiten.
+67c8709b,Nicht Erlauben fuer ein schnelleres Laden mit einenm kleinen geschwindigkeitsverlust beim Laden von neuen Spielabschnitten in grossen Roms. Wird aktiv wenn Rom geladen wird.
+a53edd7e,Ob Erlaubt ist, dass Daedalus bei schwacher Batterie warnt.
+48580c6c,Setzt Einstellungen auf die Standardwerte und setzt HLE Cache-Dateien zurueck. Hinweis: Emulator wird danach beendet
+e1134e27,Speicherzugriffoptimierung
+f1da3d39,Szenenerneuerung
+c75e1b17,Dynamische Schleifenoptimierung
+679a7a90,Doppelte Displaylisten
+5936df5c,Videoraten im Spiel
+931034db,Audioraten im Spiel
+73180dbe,Nebelemulation
+d64510cd,Erlauben fuer mehr geschwindigkeit (ACHTUNG, Kann zu Unstabilitaet oder zum Absturz der Rom fueren).
+6be51f9b,Zwingt erneuerung des Framepuffer vor dem Zeichnen einer neuen Primitive
+cae93146,Doppelte Displayliste erlauben fuer Geschwindigkeitserhoehung (Klappt auf den meisten ROMs)
+b0b8ff1a,Ob Audiorate an Framerate angepasst werden soll (weniger Stoergeraeuche)
+1213a2e9,Ob Videorate an Framerate angepasst werden soll (macht einige Spiel weinger rucklig)
+1a61c1b8,Ob Nebelemulation verwendet werden soll (Experimential, klappt nur bei manchen ROMs).
+ba9c614e,Erweiterte Optionen
+3580e011,Justiere den minimum und maximum Ungueltigkeitsbereich. Oben/Unten: Vergroessert/Verkleinert von Innen oder Aussen. Links/Rechts: Justiere max. oder min. des Gueltigkeitsbereich. Dreieck: Standarteinstellungen. Start/X: Fortfahren. Select/Kreis: Abbrechen
+f3a27e37,Justiere Stickungueltigkeitsbereich
+f4d401e4,Waehle Sprache
+0206e784,Sprache
+15865cd2,16Bit-Farbe gewaehlt
+3f7ccd28,32Bit-Farbe gewaehlt
+7c7ac31a,Uebrig
+657b212f,Batterie
+053916eb,Zeit
+f5381b95,Uebrig: --h--m
+5e53f605,Aufladen...
+5df55264,Erstellt
+753ea645,Release
+f2b17060,DaedalusX64 Revision
+636197c3,Justiere minimum und maximum Ungueltigkeitsbereich. Hoch/Unten: Erhoehen oder verrinegrn. Links/Rechts: Waehle minimum oder maximum zum Einstellen. Dreieck: Standarteinstellungen. Start/X: Bestaetigen. Select/Kreis: Abbrechen
+000c2620,Min
+000c2302,Max

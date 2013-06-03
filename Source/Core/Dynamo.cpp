@@ -54,8 +54,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // War God is sensitive to gHotTraceThreshold
 // PD is sensitive to gMaxHotTraceMapSize
 //
+// Banjo Tooie needs a larger cache size
+// BUT leave PSP cache size untouched for now
+#ifdef DAEDALUS_PSP
+#define TRACE_SIZE 512
+#else
+#define TRACE_SIZE 1024
+#endif
+
 static const u32					gMaxFragmentCacheSize = (8192 + 1024); //Maximum amount of fragments in the cache
-static const u32					gMaxHotTraceMapSize = (2048 + 512);
+static const u32					gMaxHotTraceMapSize = (2048 + TRACE_SIZE);
 static const u32					gHotTraceThreshold = 10;	//How many times interpreter has to loop a trace before it becomes hot and sent to dynarec
 
 //typedef CMemoryPoolAllocator< std::pair< const u32, u32 > > MyAllocator;

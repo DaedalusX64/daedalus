@@ -84,10 +84,12 @@ void DLParser_GBI2_Mtx( MicroCodeCommand command )
 void DLParser_GBI2_PopMtx( MicroCodeCommand command )
 {
 	DL_PF("    Command: (%s)",	command.inst.cmd1 ? "Projection" : "ModelView");
-	DAEDALUS_ASSERT( (command.inst.cmd1>>6) == 1, "Opps was expecting to pop matrix");
+
+	// Banjo Tooie, pops more than one matrix
+	u32 num = command.inst.cmd1>>6;
 
 	// Just pop the worldview matrix
-	gRenderer->PopWorldView();
+	gRenderer->PopWorldView(num);
 }
 
 //*****************************************************************************
