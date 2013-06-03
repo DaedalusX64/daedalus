@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Core/Memory.h"
 #include "Core/ROM.h"
+#include "Debug/DBGConsole.h"
 #include "HLEGraphics/uCodes/UcodeDefs.h"
 #include "Math/MathUtil.h"
 #include "OSHLE/ultra_gbi.h"
@@ -211,14 +212,21 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 #ifdef DAEDALUS_ACCURATE_TMEM
 	u32 lrs    = load.sh;
 	u32 bytes  = ((lrs+1) << g_TI.Size) >> 1;
-	u32 qwords = (bytes+7) / 8;
 
 	DAEDALUS_DL_ASSERT( bytes <= 4096, "Suspiciously large loadblock: %d bytes", bytes );
+	DAEDALUS_DL_ASSERT( bytes, "LoadBLock: No bytes??" );
 
+	u32 qwords = (bytes+7) / 8;
 	u32 * tmem_data = reinterpret_cast<u32*>(gTMEM);
 	u32 * ram 		= g_pu32RamBase;
 	u32 ram_offset  = address / 4;  				// Offset in 32 bit words
 	u32 tmem_offset = (rdp_tile.tmem << 3) >> 2;	// Offset in 32 bit words
+
+	if (( (address + bytes) > MAX_RAM_ADDRESS) || ((rdp_tile.tmem << 3) + bytes) > 4096 )
+	{
+		DBGConsole_Msg(0, "[WWarning LoadBlock address is invalid]" );
+		return;
+	}
 
 	if (dxt == 0)
 	{
@@ -308,8 +316,13 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	u32  tmem_offset = rdp_tile.tmem << 3;
 	u8 * ram         = g_pu8RamBase;
 	u32  ram_offset  = ram_address;
-
 	u32 bytes_per_tmem_line = rdp_tile.line << 3;
+
+	if ((address + bytes) > MAX_RAM_ADDRESS)
+	{
+		DBGConsole_Msg(0, "[WWarning LoadTile address is invalid]" );
+		return;
+	}
 
 	void (*CopyLineMode)(u8*, u32, u8*, u32, u32);
 

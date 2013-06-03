@@ -11,7 +11,7 @@
 #include "Utility/IO.h"
 #include "Utility/Thread.h"
 
-static bool toggle_fullscreen = false;
+//static bool toggle_fullscreen = false;
 
 static void GLFWCALL HandleKeys(int key, int state)
 {
@@ -47,7 +47,8 @@ static void GLFWCALL HandleKeys(int key, int state)
 				}
 			}
 		}
-
+// Wait for GLF 3 which adds proper full screen support
+#if 0
 		if(key == GLFW_KEY_F1)
 		{
 			// Toggle fullscreen on/off
@@ -80,7 +81,7 @@ static void GLFWCALL HandleKeys(int key, int state)
 				return;
 			}
 		}
-
+#endif
 		if (key == GLFW_KEY_ESC)
 		{
 			CPU_Halt("Escape");

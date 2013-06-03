@@ -46,6 +46,17 @@
 #define _NET_WM_STATE_ADD           1
 #define _NET_WM_STATE_TOGGLE        2
 
+#ifndef GLXBadProfileARB
+ #define GLXBadProfileARB 13
+#endif
+
+
+//========================================================================
+// The X error code as provided to the X error handler
+//========================================================================
+
+static unsigned long _glfwErrorCode = Success;
+
 
 //************************************************************************
 //****                  GLFW internal functions                       ****
@@ -58,6 +69,7 @@
 
 static int errorHandler( Display *display, XErrorEvent *event )
 {
+    _glfwErrorCode = event->error_code;
     return 0;
 }
 
@@ -432,7 +444,7 @@ static _GLFWfbconfig *getFBConfigs( unsigned int *found )
 
     *found = 0;
 
-    if( _glfwLibrary.glxMajor == 1 && _glfwLibrary.glxMinor < 3 )
+    if( _glfwLibrary.GLX.versionMajor == 1 && _glfwLibrary.GLX.versionMinor < 3 )
     {
         if( !_glfwWin.has_GLX_SGIX_fbconfig )
         {
@@ -535,6 +547,31 @@ static _GLFWfbconfig *getFBConfigs( unsigned int *found )
     XFree( fbconfigs );
 
     return result;
+}
+
+
+//========================================================================
+// Create the OpenGL context using the legacy interface
+//========================================================================
+
+static GLXContext createLegacyContext( GLXFBConfig fbconfig )
+{
+    if( _glfwWin.has_GLX_SGIX_fbconfig )
+    {
+        return _glfwWin.CreateContextWithConfigSGIX( _glfwLibrary.display,
+                                                     fbconfig,
+                                                     GLX_RGBA_TYPE,
+                                                     NULL,
+                                                     True );
+    }
+    else
+    {
+        return glXCreateNewContext( _glfwLibrary.display,
+                                    fbconfig,
+                                    GLX_RGBA_TYPE,
+                                    NULL,
+                                    True );
+    }
 }
 
 
@@ -667,6 +704,19 @@ static int createContext( const _GLFWwndconfig *wndconfig, GLXFBConfigID fbconfi
         // We are done, so unset the error handler again (see above)
         XSetErrorHandler( NULL );
 
+        if( _glfwWin.context == NULL )
+        {
+            // HACK: This is a fallback for the broken Mesa implementation of
+            // GLX_ARB_create_context_profile, which fails default 1.0 context
+            // creation with a GLXBadProfileARB error in violation of the spec
+            if( _glfwErrorCode == _glfwLibrary.GLX.errorBase + GLXBadProfileARB &&
+                wndconfig->glProfile == 0 &&
+                wndconfig->glForward == GL_FALSE )
+            {
+                _glfwWin.context = createLegacyContext( *fbconfig );
+            }
+        }
+
         // Copy the debug context hint as there's no way of verifying it
         // This is the only code path capable of creating a debug context,
         // so leave it as false (from the earlier memset) otherwise
@@ -674,22 +724,7 @@ static int createContext( const _GLFWwndconfig *wndconfig, GLXFBConfigID fbconfi
     }
     else
     {
-        if( _glfwWin.has_GLX_SGIX_fbconfig )
-        {
-            _glfwWin.context = _glfwWin.CreateContextWithConfigSGIX( _glfwLibrary.display,
-                                                                     *fbconfig,
-                                                                     GLX_RGBA_TYPE,
-                                                                     NULL,
-                                                                     True );
-        }
-        else
-        {
-            _glfwWin.context = glXCreateNewContext( _glfwLibrary.display,
-                                                    *fbconfig,
-                                                    GLX_RGBA_TYPE,
-                                                    NULL,
-                                                    True );
-        }
+        _glfwWin.context = createLegacyContext( *fbconfig );
     }
 
     XFree( fbconfig );

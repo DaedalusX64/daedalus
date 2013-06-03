@@ -1155,7 +1155,7 @@ static int createWindow( const _GLFWwndconfig *wndconfig,
     _glfwWin.window = NULL;
 
     // Set common window styles
-    dwStyle   = WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_VISIBLE;
+    dwStyle   = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
     dwExStyle = WS_EX_APPWINDOW;
 
     // Set window style, depending on fullscreen mode
@@ -1431,6 +1431,7 @@ int _glfwPlatformOpenWindow( int width, int height,
                       SWP_NOMOVE | SWP_NOSIZE );
     }
 
+    ShowWindow( _glfwWin.window, SW_SHOWNORMAL );
     setForegroundWindow( _glfwWin.window );
     SetFocus( _glfwWin.window );
 
