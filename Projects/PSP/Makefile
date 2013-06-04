@@ -257,13 +257,7 @@ BUILDS_GAME_DIR = $(BUILDS_PSP_DIR)/GAME
 BUILDS_DX_DIR = $(BUILDS_GAME_DIR)/DaedalusX64
 
 
-#RESULT := $(shell LC_ALL=C svn info | grep Revision | grep -e [0-9]* -o | tr -d '\n') #does not work with Windows...
-VERSION = $(shell svnversion -n 2> Makefile.cache)
-
-#If the .svn directory wasn't found, perhaps we're using git-svn?
-ifeq ($(VERSION),Unversioned directory)
-	VERSION = $(shell git svn info . | sed -ne 's/^Revision: //p')
-endif
+VERSION = $(shell git show-ref refs/heads/master | cut -d " " -f 1 | cut -c 31-40)
 
 ifeq ($(VERSION),)
 	#Windows
