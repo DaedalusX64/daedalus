@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef UCODE_S2DEX_H__
-#define UCODE_S2DEX_H__
+#ifndef HLEGRAPHICS_UCODES_UCODE_S2DEX_H_
+#define HLEGRAPHICS_UCODES_UCODE_S2DEX_H_
 
 //*****************************************************************************
 // Needed by S2DEX
@@ -691,4 +691,4 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 	}
 }
 
-#endif // UCODE_S2DEX_H__
+#endif // HLEGRAPHICS_UCODES_UCODE_S2DEX_H_

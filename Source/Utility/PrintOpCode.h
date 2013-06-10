@@ -17,12 +17,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __OPCODE_H__
-#define __OPCODE_H__
+#ifndef UTILITY_PRINTOPCODE_H_
+#define UTILITY_PRINTOPCODE_H_
 
 struct OpCode;
 
 void SprintOpCodeInfo( char *str, u32 address, OpCode op );
 void SprintRSPOpCodeInfo( char *str, u32 address, OpCode op );
 
-#endif
+#endif // UTILITY_PRINTOPCODE_H_

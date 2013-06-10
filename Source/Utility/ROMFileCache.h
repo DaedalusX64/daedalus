@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#ifndef __DAEDALUS_ROMFILECACHE_H__
-#define __DAEDALUS_ROMFILECACHE_H__
+#ifndef UTILITY_ROMFILECACHE_H_
+#define UTILITY_ROMFILECACHE_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -61,4 +59,4 @@ class ROMFileCache
 		static const CacheIdx	INVALID_IDX = CacheIdx(-1);
 };
 
-#endif // __DAEDALUS_ROMFILECACHE_H__
+#endif // UTILITY_ROMFILECACHE_H_

@@ -18,12 +18,10 @@
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#ifndef __ROMDB_H__
-#define __ROMDB_H__
+#ifndef INTERFACE_ROMDB_H_
+#define INTERFACE_ROMDB_H_
 
 #include "Utility/Singleton.h"
 
@@ -48,4 +46,4 @@ class	CRomDB :  public CSingleton< CRomDB >
 };
 
 
-#endif // __ROMDB_H__
+#endif // INTERFACE_ROMDB_H_

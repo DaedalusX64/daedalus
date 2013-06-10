@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef COLOURADJUSTER_H__
-#define COLOURADJUSTER_H__
+#ifndef SYSPSP_HLEGRAPHICS_COLOURADJUSTER_H_
+#define SYSPSP_HLEGRAPHICS_COLOURADJUSTER_H_
 
 #include "Graphics/ColourValue.h"
 
@@ -67,4 +67,4 @@ private:
 	c32			mSubtractColour;
 };
 
-#endif // COLOURADJUSTER_H__
+#endif // SYSPSP_HLEGRAPHICS_COLOURADJUSTER_H_

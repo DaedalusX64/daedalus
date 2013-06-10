@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef UCODE1_H__
-#define UCODE1_H__
+#ifndef HLEGRAPHICS_UCODES_UCODE_GBI1_H_
+#define HLEGRAPHICS_UCODES_UCODE_GBI1_H_
 
 
 //*****************************************************************************
@@ -637,4 +637,4 @@ void DLParser_GBI1_Tri1( MicroCodeCommand command )
 	}
 }
 
-#endif // UCODE1_H__
+#endif // HLEGRAPHICS_UCODES_UCODE_GBI1_H_

@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#ifndef PATHSPSP_H_
-#define PATHSPSP_H_
+#ifndef SYSPSP_UTILITY_PATHSPSP_H_
+#define SYSPSP_UTILITY_PATHSPSP_H_
 
 #ifdef DAEDALUS_SILENT
 #define DAEDALUS_PSP_PATH(p)				p
@@ -34,4 +32,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #endif
 
-#endif // PATHSPSP_H_
+#endif // SYSPSP_UTILITY_PATHSPSP_H_

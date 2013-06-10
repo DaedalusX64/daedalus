@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef TIMING_H_
-#define TIMING_H_
+#ifndef UTILITY_TIMING_H_
+#define UTILITY_TIMING_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -30,4 +30,4 @@ u64			ToMilliseconds( u64 ticks );
 
 }
 
-#endif // TIMING_H_
+#endif // UTILITY_TIMING_H_

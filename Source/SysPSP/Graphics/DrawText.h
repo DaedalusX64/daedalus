@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef DRAWTEXT_H_
-#define DRAWTEXT_H_
+#ifndef SYSPSP_GRAPHICS_DRAWTEXT_H_
+#define SYSPSP_GRAPHICS_DRAWTEXT_H_
 
 #include <string.h>
 
@@ -67,4 +67,4 @@ namespace DrawTextUtilities
 	//inline void		WrapText( CDrawText::EFont font, s32 width, const char * p_str, std::vector<u32> & lengths )			{ WrapText( font, width, p_str, strlen( p_str ), lengths ); }
 }
 
-#endif	// DRAWTEXT_H_
+#endif // SYSPSP_GRAPHICS_DRAWTEXT_H_

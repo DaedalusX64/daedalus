@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __DAEDALUS_FRAGMENTCACHE_H__
-#define __DAEDALUS_FRAGMENTCACHE_H__
+#ifndef DYNAREC_FRAGMENTCACHE_H_
+#define DYNAREC_FRAGMENTCACHE_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -136,4 +136,4 @@ private:
 };
 
 extern CFragmentCache				gFragmentCache;
-#endif
+#endif // DYNAREC_FRAGMENTCACHE_H_

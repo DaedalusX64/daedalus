@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef _DIALOG_H
-#define	_DIALOG_H
+#ifndef SYSPSP_UI_DIALOGS_H_
+#define SYSPSP_UI_DIALOGS_H_
 
 class CUIContext;
 class CDialog
@@ -30,5 +30,5 @@ public:
 
 extern CDialog				gShowDialog;
 
-#endif	/* _DIALOG_H */
+#endif // SYSPSP_UI_DIALOGS_H_
 

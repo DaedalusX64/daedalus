@@ -1,5 +1,5 @@
-#ifndef __OSTASK_H__
-#define __OSTASK_H__
+#ifndef OSHLE_OSTASK_H_
+#define OSHLE_OSTASK_H_
 
 #include "ultra_sptask.h"
 
@@ -16,4 +16,4 @@ protected:
 
 };
 
-#endif
+#endif // OSHLE_OSTASK_H_

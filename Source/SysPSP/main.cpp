@@ -33,41 +33,36 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <kubridge.h>
 #include <pspsysmem.h>
 
-#include "System.h"
+#include "Config/ConfigOptions.h"
+#include "Core/Cheats.h"
+#include "Core/CPU.h"
+#include "Core/CPU.h"
+#include "Core/Memory.h"
+#include "Core/PIF.h"
+#include "Core/RomSettings.h"
+#include "Core/Save.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
-#include "Interface/RomDB.h"
-#include "Core/RomSettings.h"
-#include "Core/Memory.h"
-#include "Core/CPU.h"
-#include "Core/Cheats.h"
-#include "Core/PIF.h"
-#include "Core/CPU.h"
-#include "Core/Save.h"
-#include "Input/InputManager.h"
-#include "System/Paths.h"
-#include "Utility/Profiler.h"
-#include "Utility/IO.h"
-#include "Utility/Preferences.h"
-#include "Utility/Timer.h"
-#include "Utility/Thread.h"
-#include "Utility/ModulePSP.h"
-
 #include "Graphics/GraphicsContext.h"
-
-#include "SysPSP/UI/UIContext.h"
+#include "HLEGraphics/TextureCache.h"
+#include "Input/InputManager.h"
+#include "Interface/RomDB.h"
+#include "SysPSP/Graphics/DrawText.h"
 #include "SysPSP/UI/MainMenuScreen.h"
 #include "SysPSP/UI/PauseScreen.h"
 #include "SysPSP/UI/SplashScreen.h"
-#include "SysPSP/Graphics/DrawText.h"
-#include "SysPSP/Utility/PathsPSP.h"
+#include "SysPSP/UI/UIContext.h"
 #include "SysPSP/Utility/Buttons.h"
-
-#include "HLEGraphics/TextureCache.h"
-
+#include "SysPSP/Utility/PathsPSP.h"
+#include "System/Paths.h"
+#include "System/System.h"
 #include "Test/BatchTest.h"
-
-#include "ConfigOptions.h"
+#include "Utility/IO.h"
+#include "Utility/ModulePSP.h"
+#include "Utility/Preferences.h"
+#include "Utility/Profiler.h"
+#include "Utility/Thread.h"
+#include "Utility/Timer.h"
 
 /* Define to enable Exit Callback */
 // Do not enable this, callbacks don't get along with our exit dialog :p

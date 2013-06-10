@@ -282,4 +282,4 @@ bool CSynchroniser::InitialiseSynchroniser()
 	return true;
 }
 
-#endif	//DAEDALUS_ENABLE_SYNCHRONISATION
+#endif // DAEDALUS_ENABLE_SYNCHRONISATION

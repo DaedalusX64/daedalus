@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __DAEDALUS_R4300_H__
-#define __DAEDALUS_R4300_H__
+#ifndef CORE_R4300_H_
+#define CORE_R4300_H_
 
 #include "R4300OpCode.h"
 #include "R4300Instruction.h"
@@ -40,4 +40,4 @@ inline void			R4300_ExecuteInstruction( OpCode op_code )
 	R4300Instruction[ op_code.op ]( op_code._u32 );
 }
 
-#endif
+#endif // CORE_R4300_H_

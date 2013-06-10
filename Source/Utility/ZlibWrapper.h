@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef ZLIBWRAPPER_H__
-#define ZLIBWRAPPER_H__
+#ifndef UTILITY_ZLIBWRAPPER_H_
+#define UTILITY_ZLIBWRAPPER_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -76,5 +76,4 @@ namespace Zlib
 
 }
 
-
-#endif
+#endif // UTILITY_ZLIBWRAPPER_H_

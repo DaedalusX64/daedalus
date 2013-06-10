@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#ifndef DAEDALUS_ROM_H_
-#define DAEDALUS_ROM_H_
+#ifndef CORE_ROM_H_
+#define CORE_ROM_H_
 
 #include "ROMImage.h"
 #include "Utility/IO.h"
@@ -185,4 +183,4 @@ extern RomInfo g_ROM;
 extern u32 g_dwNumFrames;
 #endif
 
-#endif // DAEDALUS_ROM_H_
+#endif // CORE_ROM_H_

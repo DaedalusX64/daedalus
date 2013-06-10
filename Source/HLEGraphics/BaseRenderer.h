@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef BASERENDERER_H__
-#define BASERENDERER_H__
+#ifndef HLEGRAPHICS_BASERENDERER_H_
+#define HLEGRAPHICS_BASERENDERER_H_
 
 #include "Math/Vector2.h"
 #include "Math/Vector3.h"
@@ -458,4 +458,4 @@ inline s16 ApplyShift(s16 c, u8 shift)
 	return c >> (16 - shift);
 }
 
-#endif // BASERENDERER_H__
+#endif // HLEGRAPHICS_BASERENDERER_H_

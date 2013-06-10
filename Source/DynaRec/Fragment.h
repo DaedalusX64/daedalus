@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __DAEDALUS_FRAGMENT_H__
-#define __DAEDALUS_FRAGMENT_H__
+#ifndef DYNAREC_FRAGMENT_H_
+#define DYNAREC_FRAGMENT_H_
 
 #include "Trace.h"
 #include "RegisterSpan.h"
@@ -136,4 +136,4 @@ private:
 
 };
 
-#endif
+#endif // DYNAREC_FRAGMENT_H_

@@ -17,14 +17,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef HASH_H_
-#define HASH_H_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
+#ifndef UTILITY_HASH_H_
+#define UTILITY_HASH_H_
 
 unsigned int murmur2_hash ( const void * key, int len, unsigned int seed );
 unsigned int murmur2_neutral_hash ( const void * key, int len, unsigned int seed );
 
-#endif // HASH_H_
+#endif // UTILITY_HASH_H_

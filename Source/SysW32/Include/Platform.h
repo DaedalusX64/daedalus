@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#ifndef PLATFORM_H_
-#define PLATFORM_H_
+#ifndef SYSW32_INCLUDE_PLATFORM_H_
+#define SYSW32_INCLUDE_PLATFORM_H_
 
 //
 //	Make sure this platform is defined correctly
@@ -65,4 +63,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DAEDALUS_HALT					__asm { int 3 }
 
 
-#endif // PLATFORM_H_
+#endif // SYSW32_INCLUDE_PLATFORM_H_

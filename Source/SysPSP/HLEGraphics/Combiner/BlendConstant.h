@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif
 
-#ifndef BLENDCONSTANT_H_
-#define BLENDCONSTANT_H_
+#ifndef SYSPSP_HLEGRAPHICS_COMBINER_BLENDCONSTANT_H_
+#define SYSPSP_HLEGRAPHICS_COMBINER_BLENDCONSTANT_H_
 
 #include <string>
 
@@ -158,4 +156,4 @@ private:
 	const CBlendConstantExpression *			mF;
 };
 
-#endif // BLENDCONSTANT_H_
+#endif // SYSPSP_HLEGRAPHICS_COMBINER_BLENDCONSTANT_H_

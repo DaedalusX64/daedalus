@@ -1,6 +1,6 @@
 
-#ifndef RENDERERPSP_H__
-#define RENDERERPSP_H__
+#ifndef SYSPSP_HLEGRAPHICS_RENDERERPSP_H_
+#define SYSPSP_HLEGRAPHICS_RENDERERPSP_H_
 
 #include <map>
 #include <set>
@@ -114,4 +114,4 @@ private:
 // NB: this is equivalent to gRenderer, but points to the implementation class, for platform-specific functionality.
 extern RendererPSP * gRendererPSP;
 
-#endif // RENDERERPSP_H__
+#endif // SYSPSP_HLEGRAPHICS_RENDERERPSP_H_

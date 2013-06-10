@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef DAEDALUS_STRING_H__
-#define DAEDALUS_STRING_H__
+#ifndef UTILITY_STRING_H_
+#define UTILITY_STRING_H_
 
 #include <string.h>
 
@@ -479,4 +479,4 @@ struct ConstStringRef
 };
 
 
-#endif //#DAEDALUS_STRING_H__
+#endif // UTILITY_STRING_H_

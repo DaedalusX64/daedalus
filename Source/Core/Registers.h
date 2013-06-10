@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __REGISTERS_H__
-#define __REGISTERS_H__
+#ifndef CORE_REGISTERS_H_
+#define CORE_REGISTERS_H_
 
 /*
     CPU: Instructions encoded by opcode field.
@@ -53,4 +53,4 @@ extern const char *RegNames[32];
 extern const char *Cop0RegNames[32];
 extern const char *ShortCop0RegNames[32];
 
-#endif // __REGISTERS_H__
+#endif // CORE_REGISTERS_H_

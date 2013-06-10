@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef MEMORYPOOL_H_
-#define MEMORYPOOL_H_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
+#ifndef UTILITY_MEMORYPOOL_H_
+#define UTILITY_MEMORYPOOL_H_
 
 //
 //	XXXX Work in progress - don't use!
@@ -204,4 +202,4 @@ inline bool operator!=( const CMemoryPoolAllocator< T > &, const CMemoryPoolAllo
 	return false;
 }
 
-#endif // MEMORYPOOL_H_
+#endif // UTILITY_MEMORYPOOL_H_

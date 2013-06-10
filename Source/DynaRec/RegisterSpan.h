@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __DAEDALUS_REGISTERSPAN_H__
-#define __DAEDALUS_REGISTERSPAN_H__
+#ifndef DYNAREC_REGISTERSPAN_H_
+#define DYNAREC_REGISTERSPAN_H_
 
 #include "Core/N64Reg.h"
 
@@ -89,4 +89,4 @@ struct SRegisterUsageInfo
 };
 
 
-#endif
+#endif // DYNAREC_REGISTERSPAN_H_

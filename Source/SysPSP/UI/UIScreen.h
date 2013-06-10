@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef UISCREEN_H_
-#define UISCREEN_H_
+#ifndef SYSPSP_UI_UISCREEN_H_
+#define SYSPSP_UI_UISCREEN_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -45,4 +45,4 @@ class CUIScreen
 
 };
 
-#endif	// UISCREEN_H_
+#endif // SYSPSP_UI_UISCREEN_H_

@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef MICROCODE_H__
-#define MICROCODE_H__
+#ifndef HLEGRAPHICS_MICROCODE_H_
+#define HLEGRAPHICS_MICROCODE_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -50,4 +50,4 @@ u32	 GBIMicrocode_DetectVersion( u32 code_base, u32 code_size,
 								 CustomMicrocodeCallback custom_callback );
 void GBIMicrocode_Reset();
 
-#endif // MICROCODE_H__
+#endif // HLEGRAPHICS_MICROCODE_H_

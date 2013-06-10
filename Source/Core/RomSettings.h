@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif
 
-#ifndef ROMSETTINGS_H_
-#define ROMSETTINGS_H_
+#ifndef CORE_ROMSETTINGS_H_
+#define CORE_ROMSETTINGS_H_
 
 #include "Utility/String.h"
 
@@ -107,4 +105,4 @@ const char * ROM_GetExpansionPakUsageName( EExpansionPakUsage pak_usage );
 const char *	ROM_GetSaveTypeName( ESaveType save_type );
 
 
-#endif // ROMSETTINGS_H_
+#endif // CORE_ROMSETTINGS_H_

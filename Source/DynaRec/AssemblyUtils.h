@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif
 
-#ifndef ASSEMBLYUTILS_H_
-#define ASSEMBLYUTILS_H_
+#ifndef DYNAREC_ASSEMBLYUTILS_H_
+#define DYNAREC_ASSEMBLYUTILS_H_
 
 #include <stdlib.h>
 
@@ -83,4 +81,4 @@ namespace AssemblyUtils
 	void		ReplaceBranchWithJump( CJumpLocation branch, CCodeLabel target );
 }
 
-#endif // ASSEMBLYUTILS_H_
+#endif // DYNAREC_ASSEMBLYUTILS_H_

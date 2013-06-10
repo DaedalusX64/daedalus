@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __DAEDALUS_TRACE_H__
-#define __DAEDALUS_TRACE_H__
+#ifndef DYNAREC_TRACE_H_
+#define DYNAREC_TRACE_H_
 
 #include "Core/R4300OpCode.h"
 #include "StaticAnalysis.h"
@@ -63,4 +63,4 @@ struct SBranchDetails
 	SpeedHackProbe		SpeedHack;
 };
 
-#endif // __DAEDALUS_TRACE_H__
+#endif // DYNAREC_TRACE_H_

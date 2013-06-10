@@ -18,12 +18,10 @@
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#ifndef __CONFIGDIALOG_H__
-#define __CONFIGDIALOG_H__
+#ifndef SYSW32_INTERFACE_CONFIGDIALOG_H_
+#define SYSW32_INTERFACE_CONFIGDIALOG_H_
 
 //*****************************************************************************
 // Include Files
@@ -99,4 +97,4 @@ class CConfigDialog : public CDialogImpl< CConfigDialog >
 
 
 
-#endif	// __CONFIGDIALOG_H__
+#endif // SYSW32_INTERFACE_CONFIGDIALOG_H_

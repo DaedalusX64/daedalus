@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef UCODE_SPRITE2D_H__
-#define UCODE_SPRITE2D_H__
+#ifndef HLEGRAPHICS_UCODES_UCODE_SPRITE2D_H_
+#define HLEGRAPHICS_UCODES_UCODE_SPRITE2D_H_
 
 //*****************************************************************************
 // Needed by Sprite2D
@@ -168,4 +168,4 @@ void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 	gDlistStack.address[gDlistStackPointer] = pc-8;
 }
 
-#endif // UCODE_SPRITE2D_H__
+#endif // HLEGRAPHICS_UCODES_UCODE_SPRITE2D_H_

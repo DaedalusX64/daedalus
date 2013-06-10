@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef CODEBUFFERMANAGER_H_
-#define CODEBUFFERMANAGER_H_
+#ifndef DYNAREC_CODEBUFFERMANAGER_H_
+#define DYNAREC_CODEBUFFERMANAGER_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -40,4 +40,4 @@ public:
 };
 
 
-#endif // CODEBUFFERMANAGER_H_
+#endif // DYNAREC_CODEBUFFERMANAGER_H_

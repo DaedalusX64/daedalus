@@ -1,5 +1,5 @@
-#ifndef STRINGUTIL_H_
-#define STRINGUTIL_H_
+#ifndef UTILITY_STRINGUTIL_H_
+#define UTILITY_STRINGUTIL_H_
 
 #include <vector>
 #include "Utility/String.h"
@@ -15,4 +15,4 @@ u32 ParseU32(ConstStringRef str, u32 base);
 
 char * Tidy(char * s);
 
-#endif // STRINGUTIL_H_
+#endif // UTILITY_STRINGUTIL_H_

@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif
 
-#ifndef COMBINERTREE_H_
-#define COMBINERTREE_H_
+#ifndef SYSPSP_HLEGRAPHICS_COMBINER_COMBINERTREE_H_
+#define SYSPSP_HLEGRAPHICS_COMBINER_COMBINERTREE_H_
 
 #include "Utility/DaedalusTypes.h"
 #include "CombinerInput.h"
@@ -70,4 +68,4 @@ private:
 	CBlendStates *				mBlendStates;
 };
 
-#endif // COMBINERTREE_H_
+#endif // SYSPSP_HLEGRAPHICS_COMBINER_COMBINERTREE_H_

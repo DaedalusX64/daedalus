@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef DAEDALUS_IO_H_
-#define DAEDALUS_IO_H_
+#ifndef UTILITY_IO_H_
+#define UTILITY_IO_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -51,8 +51,6 @@ namespace IO
 	{
 		const u32	kMaxPathLen = 260;
 
-		typedef char PathBuf[kMaxPathLen+1];
-
 		inline void Assign( char * p_dest, const char * p_dir )
 		{
 			strncpy(p_dest, p_dir, kMaxPathLen);
@@ -78,7 +76,7 @@ namespace IO
 		}
 	}
 
-	typedef Path::PathBuf Filename;
+	typedef char Filename[IO::Path::kMaxPathLen+1];
 
 	struct FindDataT
 	{
@@ -100,5 +98,4 @@ namespace IO
 	bool	FindFileClose( FindHandleT handle );
 }
 
-#endif
-
+#endif // UTILITY_IO_H_

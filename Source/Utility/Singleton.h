@@ -18,12 +18,10 @@
 
 */
 
-#ifndef SINGLETON_H__
-#define SINGLETON_H__
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
+#ifndef UTILITY_SINGLETON_H_
+#define UTILITY_SINGLETON_H_
 
 #include <stdlib.h>
 
@@ -86,4 +84,4 @@ template < class T > class CSingleton
 
 template < class T > T * CSingleton< T >::mpInstance = NULL;
 
-#endif //#ifndef SINGLETON_H__
+#endif // UTILITY_SINGLETON_H_

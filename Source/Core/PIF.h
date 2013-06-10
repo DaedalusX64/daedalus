@@ -17,13 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-
-#ifndef __CONTROLLER_H__
-#define __CONTROLLER_H__
+#ifndef CORE_PIF_H_
+#define CORE_PIF_H_
 
 #include "Utility/Singleton.h"
 
@@ -45,5 +42,4 @@ class CController : public CSingleton< CController >
 		static void				RomClose() { CController::Get()->OnRomClose(); }
 };
 
-
-#endif	//__CONTROLLER_H__
+#endif // CORE_PIF_H_

@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef TEXTUREFORMAT_H_
-#define TEXTUREFORMAT_H_
+#ifndef GRAPHICS_TEXTUREFORMAT_H_
+#define GRAPHICS_TEXTUREFORMAT_H_
 
 #include <stdlib.h>
 
@@ -64,4 +64,4 @@ inline u32		CalcBytesRequired( u32 pixels, ETextureFormat texture_format )
 	return ( pixels * GetBitsPerPixel( texture_format ) + 4 ) / 8;
 }
 
-#endif // TEXTUREFORMAT_H_
+#endif // GRAPHICS_TEXTUREFORMAT_H_

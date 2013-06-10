@@ -19,6 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 #include "DLParser.h"
+
+#include <vector>
+
 #include "DLDebug.h"
 #include "BaseRenderer.h"
 #include "N64PixelFormat.h"
@@ -31,28 +34,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "uCodes/UcodeDefs.h"
 #include "uCodes/Ucode.h"
 
-#include "Math/MathUtil.h"
-
-#include "Utility/Profiler.h"
-#include "Utility/IO.h"
-
-#include "Graphics/GraphicsContext.h"
-#include "Plugins/GraphicsPlugin.h"
-
-#include "Debug/Dump.h"
-#include "Debug/DBGConsole.h"
-
+#include "Config/ConfigOptions.h"
+#include "Core/CPU.h"
 #include "Core/Memory.h"
 #include "Core/ROM.h"
-#include "Core/CPU.h"
-
-#include "OSHLE/ultra_sptask.h"
+#include "Debug/DBGConsole.h"
+#include "Debug/Dump.h"
+#include "Graphics/GraphicsContext.h"
+#include "Math/MathUtil.h"
 #include "OSHLE/ultra_gbi.h"
 #include "OSHLE/ultra_rcp.h"
-
+#include "OSHLE/ultra_sptask.h"
+#include "Plugins/GraphicsPlugin.h"
 #include "Test/BatchTest.h"
-
-#include "ConfigOptions.h"
+#include "Utility/IO.h"
+#include "Utility/Profiler.h"
 
 //*****************************************************************************
 //

@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef THREAD_H_
-#define THREAD_H_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
+#ifndef UTILITY_THREAD_H_
+#define UTILITY_THREAD_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -83,4 +81,4 @@ void	ThreadSleepTicks( u32 ticks );
 //
 void	ThreadYield();
 
-#endif // THREAD_H_
+#endif // UTILITY_THREAD_H_

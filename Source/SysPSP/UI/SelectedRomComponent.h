@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef SELECTEDROMCOMPONENT_H_
-#define SELECTEDROMCOMPONENT_H_
+#ifndef SYSPSP_UI_SELECTEDROMCOMPONENT_H_
+#define SYSPSP_UI_SELECTEDROMCOMPONENT_H_
 
 #include "UIComponent.h"
 #include "Utility/Functor.h"
@@ -37,4 +37,4 @@ class CSelectedRomComponent : public CUIComponent
 		virtual void					SetRomID( const RomID & rom_id ) = 0;
 };
 
-#endif	// SELECTEDROMCOMPONENT_H_
+#endif // SYSPSP_UI_SELECTEDROMCOMPONENT_H_

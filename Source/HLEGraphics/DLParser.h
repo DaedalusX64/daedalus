@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef __DLPARSER_H__
-#define __DLPARSER_H__
+#ifndef HLEGRAPHICS_DLPARSER_H_
+#define HLEGRAPHICS_DLPARSER_H_
 
 #include <stdlib.h>
 
@@ -33,4 +33,4 @@ void DLParser_Finalise();
 const u32 kUnlimitedInstructionCount = u32( ~0 );
 u32 DLParser_Process(u32 instruction_limit = kUnlimitedInstructionCount, DLDebugOutput * debug_output = NULL);
 
-#endif	// __DLPARSER_H__
+#endif // HLEGRAPHICS_DLPARSER_H_

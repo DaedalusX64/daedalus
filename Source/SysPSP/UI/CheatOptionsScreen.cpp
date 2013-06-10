@@ -20,27 +20,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "CheatOptionsScreen.h"
 
+#include <pspctrl.h>
+
 #include "UIContext.h"
 #include "UIScreen.h"
 #include "UISetting.h"
 #include "UISpacer.h"
 #include "UICommand.h"
 
+#include "Config/ConfigOptions.h"
 #include "Core/Cheats.h"
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
-
-#include "Utility/Preferences.h"
-
-#include "Input/InputManager.h"
-#include "../../Utility/Stream.h"
-#include "../../Utility/IO.h"
 #include "Graphics/ColourValue.h"
+#include "Input/InputManager.h"
 #include "SysPSP/Graphics/DrawText.h"
+#include "Utility/IO.h"
+#include "Utility/Preferences.h"
+#include "Utility/Stream.h"
 
-#include "ConfigOptions.h"
-
-#include <pspctrl.h>
 
 namespace
 {
@@ -54,9 +52,7 @@ namespace
 	const s32		DESCRIPTION_AREA_LEFT = 16;
 	const s32		DESCRIPTION_AREA_RIGHT = 480-16;
 
-	const u32				TEXT_AREA_TOP = 272 / 2;
-
-
+	const u32		TEXT_AREA_TOP = 272 / 2;
 }
 
 //*************************************************************************************
@@ -207,7 +203,7 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 	CheatCodes_Read( mRomName.c_str(), "Daedalus.cht", mRomID.CountryID );
 
 	mElements.Add( new CBoolSetting( &mRomPreferences.CheatsEnabled, "Enable Cheat Codes", "Whether to use cheat codes for this ROM", "Yes", "No" ) );
-	
+
 	// ToDo: add a dialog if cheatcodes were truncated, aka MAX_CHEATCODE_PER_GROUP is reached
 	for(u32 i = 0; i < MAX_CHEATCODE_PER_LOAD; i++)
 	{

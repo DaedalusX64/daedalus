@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef UIELEMENT_H_
-#define UIELEMENT_H_
+#ifndef SYSPSP_UI_UIELEMENT_H_
+#define SYSPSP_UI_UIELEMENT_H_
 
 #include <stdlib.h>
 
@@ -83,4 +83,4 @@ private:
 };
 
 
-#endif	// UIELEMENT_H_
+#endif // SYSPSP_UI_UIELEMENT_H_

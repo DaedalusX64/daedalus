@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#ifndef AUDIOBUFFER_H__
-#define AUDIOBUFFER_H__
+#ifndef HLEAUDIO_AUDIOBUFFER_H_
+#define HLEAUDIO_AUDIOBUFFER_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -57,4 +55,4 @@ private:
 };
 
 
-#endif // AUDIOBUFFER_H__
+#endif // HLEAUDIO_AUDIOBUFFER_H_

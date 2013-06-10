@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_PSP
 #include "Graphics/GraphicsContext.h"
-#include "../Graphics/intraFont/intraFont.h"
+#include "SysPSP/Graphics/intraFont/intraFont.h"
 #endif
 
 #include "Math/MathUtil.h"

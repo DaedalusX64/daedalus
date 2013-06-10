@@ -19,11 +19,11 @@
 */
 
 
-#ifndef __SETTINGSPAGEDIALOG_H__
-#define __SETTINGSPAGEDIALOG_H__
+#ifndef SYSW32_INTERFACE_SETTINGSPAGE_H_
+#define SYSW32_INTERFACE_SETTINGSPAGE_H_
 
+#include "Config/ConfigOptions.h"
 #include "SysW32/Interface/CheckBox.h"
-#include "ConfigOptions.h"
 
 class CSettingsPage : public CPageDialog, public CDialogImpl< CSettingsPage >
 {
@@ -85,4 +85,4 @@ class CSettingsPage : public CPageDialog, public CDialogImpl< CSettingsPage >
 
 };
 
-#endif // __SETTINGSPAGEDIALOG_H__
+#endif // SYSW32_INTERFACE_SETTINGSPAGE_H_

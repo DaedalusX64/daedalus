@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef NATIVEPIXELFORMAT_H_
-#define NATIVEPIXELFORMAT_H_
+#ifndef GRAPHICS_NATIVEPIXELFORMAT_H_
+#define GRAPHICS_NATIVEPIXELFORMAT_H_
 
 #include "Utility/Macros.h"
 
@@ -260,4 +260,4 @@ struct NativePfCI8
 };
 DAEDALUS_STATIC_ASSERT( sizeof( NativePfCI8 ) == 1 );
 
-#endif // NATIVEPIXELFORMAT_H_
+#endif // GRAPHICS_NATIVEPIXELFORMAT_H_

@@ -22,32 +22,28 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdio.h>
 
+#include <algorithm>
+
 #include "CPU.h"
 #include "Registers.h"					// For REG_?? defines
 #include "Memory.h"
 #include "Interrupt.h"
 #include "R4300.h"
 
-#include "Utility/Synchroniser.h"
-
-#include "Debug/DebugLog.h"
+#include "Config/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
-
-#include "DynaRec/FragmentCache.h"
-#include "DynaRec/Fragment.h"
-#include "DynaRec/TraceRecorder.h"
+#include "Debug/DebugLog.h"
 #include "DynaRec/DynaRecProfile.h"
-
+#include "DynaRec/Fragment.h"
+#include "DynaRec/FragmentCache.h"
+#include "DynaRec/TraceRecorder.h"
+#include "OSHLE/patch.h"				// GetCorrectOp
+#include "OSHLE/ultra_R4300.h"
 #include "Utility/IO.h"
 #include "Utility/Macros.h"
 #include "Utility/Profiler.h"
+#include "Utility/Synchroniser.h"
 
-#include "OSHLE/ultra_R4300.h"
-#include "OSHLE/patch.h"				// GetCorrectOp
-
-#include "ConfigOptions.h"
-
-#include <algorithm>
 #ifdef DAEDALUS_ENABLE_DYNAREC
 
 // These values are very sensitive to change in some games so be carefull!!! //Corn

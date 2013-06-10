@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef N64PIXELFORMAT_H_
-#define N64PIXELFORMAT_H_
+#ifndef HLEGRAPHICS_N64PIXELFORMAT_H_
+#define HLEGRAPHICS_N64PIXELFORMAT_H_
 
 template< typename PixelFormatA, typename PixelFormatB >
 inline PixelFormatA ConvertPixelFormat( PixelFormatB colour )
@@ -225,4 +225,4 @@ struct N64PfI8
 };
 DAEDALUS_STATIC_ASSERT( sizeof( N64PfI8 ) == 1 );
 
-#endif // N64PIXELFORMAT_H_
+#endif // HLEGRAPHICS_N64PIXELFORMAT_H_

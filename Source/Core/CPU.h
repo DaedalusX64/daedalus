@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef CPU_H_
-#define CPU_H_
+#ifndef CORE_CPU_H_
+#define CORE_CPU_H_
 
 #include <stdlib.h>
 
@@ -266,4 +266,4 @@ extern u32									g_HardwareInterrupt;
 extern u32 CPU_ProduceRegisterHash();
 #endif
 
-#endif // CPU_H_
+#endif // CORE_CPU_H_

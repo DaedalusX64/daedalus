@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef UCODE_GE_H__
-#define UCODE_GE_H__
+#ifndef HLEGRAPHICS_UCODES_UCODE_GE_H_
+#define HLEGRAPHICS_UCODES_UCODE_GE_H_
 
 #undef __GE_NOTHING
 //*****************************************************************************
@@ -72,4 +72,4 @@ void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 }
 
 
-#endif // UCODE_GE_H__
+#endif // HLEGRAPHICS_UCODES_UCODE_GE_H_

@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __DAEDALUS_DYNARECPROFILE_H__
-#define __DAEDALUS_DYNARECPROFILE_H__
+#ifndef DYNAREC_DYNARECPROFILE_H_
+#define DYNAREC_DYNARECPROFILE_H_
 
 //#define DAEDALUS_ENABLE_DYNAREC_PROFILE
 
@@ -41,4 +41,4 @@ namespace DynarecProfile
 
 #endif
 
-#endif // __DAEDALUS_DYNARECPROFILE_H__
+#endif // DYNAREC_DYNARECPROFILE_H_

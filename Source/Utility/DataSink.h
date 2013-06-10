@@ -1,5 +1,5 @@
-#ifndef DATASINK_H_
-#define DATASINK_H_
+#ifndef UTILITY_DATASINK_H_
+#define UTILITY_DATASINK_H_
 
 #include <stdio.h>
 
@@ -26,4 +26,4 @@ private:
 	FILE * 		Handle;
 };
 
-#endif // DATASINK_H_
+#endif // UTILITY_DATASINK_H_

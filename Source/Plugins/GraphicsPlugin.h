@@ -17,13 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-
-#ifndef GRAPHICSPLUGIN_H__
-#define GRAPHICSPLUGIN_H__
+#ifndef PLUGINS_GRAPHICSPLUGIN_H_
+#define PLUGINS_GRAPHICSPLUGIN_H_
 
 class CGraphicsPlugin
 {
@@ -39,8 +36,6 @@ class CGraphicsPlugin
 		virtual void		UpdateScreen() = 0;
 
 		virtual void		RomClosed() = 0;
-
-
 };
 
 //
@@ -49,4 +44,4 @@ class CGraphicsPlugin
 CGraphicsPlugin *		CreateGraphicsPlugin();
 extern CGraphicsPlugin * gGraphicsPlugin;
 
-#endif // GRAPHICSPLUGIN_H__
+#endif // PLUGINS_GRAPHICSPLUGIN_H_

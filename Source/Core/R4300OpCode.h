@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef R4300OPCODE_H__
-#define R4300OPCODE_H__
+#ifndef CORE_R4300OPCODE_H_
+#define CORE_R4300OPCODE_H_
 
 #include "Utility/DaedalusTypes.h"
 #include "Utility/Endian.h"
@@ -515,4 +515,4 @@ struct OpCode
 // Make sure we don't mess this up :)
 DAEDALUS_STATIC_ASSERT( sizeof( OpCode ) == sizeof( u32 ) );
 
-#endif // R4300OPCODE_H__
+#endif // CORE_R4300OPCODE_H_

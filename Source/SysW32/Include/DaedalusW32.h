@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#ifndef DAEDALUSW32_H_
-#define DAEDALUSW32_H_
+#ifndef SYSW32_INCLUDE_DAEDALUSW32_H_
+#define SYSW32_INCLUDE_DAEDALUSW32_H_
 
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 #include <windows.h>
@@ -49,4 +47,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //We link GLFWDLL.lib, which requires this to be defined
 #define GLFW_DLL
 
-#endif // DAEDALUSW32_H_
+#endif // SYSW32_INCLUDE_DAEDALUSW32_H_

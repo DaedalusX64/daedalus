@@ -1,5 +1,5 @@
-#ifndef VECTOR4_H__
-#define VECTOR4_H__
+#ifndef MATH_VECTOR4_H_
+#define MATH_VECTOR4_H_
 
 #include "Math/Math.h"	// VFPU Math
 #include "Utility/Alignment.h"
@@ -70,4 +70,4 @@ public:
 };
 
 
-#endif // VECTOR4_H__
+#endif // MATH_VECTOR4_H_

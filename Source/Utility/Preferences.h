@@ -17,14 +17,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif
 
-#ifndef PREFERENCES_H_
-#define PREFERENCES_H_
+#ifndef UTILITY_PREFERENCES_H_
+#define UTILITY_PREFERENCES_H_
 
-#include "ConfigOptions.h"
+#include "Config/ConfigOptions.h"
 
 enum ETextureHashFrequency
 {
@@ -188,4 +186,4 @@ public:
 const char *	Preferences_GetTextureHashFrequencyDescription( ETextureHashFrequency thf );
 const char *	Preferences_GetFrameskipDescription( EFrameskipValue value );
 
-#endif // PREFERENCES_H_
+#endif // UTILITY_PREFERENCES_H_

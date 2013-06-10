@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __ULTRA_MBI_H__
-#define __ULTRA_MBI_H__
+#ifndef OSHLE_ULTRA_MBI_H_
+#define OSHLE_ULTRA_MBI_H_
 
 #define	M_GFXTASK	1
 #define	M_AUDTASK	2
@@ -32,4 +32,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	SEGMENT_ADDR(num, off)	(((num) << 24) + (off))
 
 
-#endif // __ULTRA_MBI_H__
+#endif // OSHLE_ULTRA_MBI_H_

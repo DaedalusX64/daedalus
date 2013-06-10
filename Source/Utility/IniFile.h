@@ -18,12 +18,10 @@
  *
  ******************************************************************************/
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#ifndef __INIFILE_H__
-#define __INIFILE_H__
+#ifndef UTILITY_INIFILE_H_
+#define UTILITY_INIFILE_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -74,4 +72,4 @@ class CIniFile
 		virtual const CIniFileSection *		GetSectionByName( const char * section_name ) const = 0;
 };
 
-#endif //__INIFILE_H__
+#endif // UTILITY_INIFILE_H_

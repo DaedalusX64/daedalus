@@ -28,17 +28,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "R4300.h"
 #include "Interpret.h"
 
+#include "Config/ConfigOptions.h"
+#include "Debug/DBGConsole.h"
+#include "Debug/DebugLog.h"
+#include "OSHLE/patch.h"				// GetCorrectOp
+#include "OSHLE/ultra_R4300.h"
 #include "Utility/Macros.h"
 #include "Utility/Profiler.h"
 #include "Utility/Synchroniser.h"
-
-#include "Debug/DebugLog.h"
-#include "Debug/DBGConsole.h"
-
-#include "OSHLE/ultra_R4300.h"
-#include "OSHLE/patch.h"				// GetCorrectOp
-
-#include "ConfigOptions.h"
 
 //*****************************************************************************
 //	Execute a single MIPS op. The conditionals for the templated arguments

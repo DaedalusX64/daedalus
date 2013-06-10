@@ -18,12 +18,10 @@
 
 */
 
-#ifndef __CONFIGOPTIONS_H__
-#define __CONFIGOPTIONS_H__
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
+#ifndef CONFIG_CONFIGOPTIONS_H_
+#define CONFIG_CONFIGOPTIONS_H_
 
 #include "Utility/IO.h"
 
@@ -66,5 +64,4 @@ enum EAudioPluginMode
 
 extern EAudioPluginMode gAudioPluginEnabled;
 
-
-#endif // __CONFIGOPTIONS_H__
+#endif // CONFIG_CONFIGOPTIONS_H_

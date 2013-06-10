@@ -1,5 +1,5 @@
-#ifndef VECTOR3_H__
-#define VECTOR3_H__
+#ifndef MATH_VECTOR3_H_
+#define MATH_VECTOR3_H_
 
 #include "Math/Math.h"	// VFPU Math
 
@@ -123,4 +123,4 @@ public:
 	float x, y, z;
 };
 
-#endif // VECTOR3_H__
+#endif // MATH_VECTOR3_H_

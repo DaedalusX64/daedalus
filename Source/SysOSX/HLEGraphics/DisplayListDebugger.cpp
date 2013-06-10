@@ -396,4 +396,4 @@ bool DLDebugger_RegisterWebDebug()
 	return true;
 }
 
-#endif	//DAEDALUS_DEBUG_DISPLAYLIST
+#endif // DAEDALUS_DEBUG_DISPLAYLIST

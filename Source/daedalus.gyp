@@ -22,6 +22,7 @@
           'DAEDALUS_ACCURATE_TMEM',
         ],
         'sources': [
+          'Config/ConfigOptions.cpp',
           'Core/Cheats.cpp',
           'Core/CPU.cpp',
           'Core/DMA.cpp',
@@ -80,6 +81,7 @@
           'OSHLE/patch.cpp',
           'Plugins/GraphicsPlugin.cpp',
           'System/Paths.cpp',
+          'System/System.cpp',
           'Test/BatchTest.cpp',
           'Utility/CRC.cpp',
           'Utility/DataSink.cpp',
@@ -101,8 +103,6 @@
           'Utility/Synchroniser.cpp',
           'Utility/Timer.cpp',
           'Utility/ZLibWrapper.cpp',
-          'ConfigOptions.cpp',
-          'System.cpp',
 
           #FIXME
           'SysW32/DynaRec/x86/AssemblyUtilsX86.cpp',

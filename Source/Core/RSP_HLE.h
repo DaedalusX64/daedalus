@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#ifndef RSPHLE_H__
-#define RSPHLE_H__
+#ifndef CORE_RSP_HLE_H_
+#define CORE_RSP_HLE_H_
 
 #include "Memory.h"
 
@@ -38,4 +36,4 @@ enum EProcessResult
 
 void RSP_HLE_ProcessTask();
 
-#endif //RSPHLE_H__
+#endif // CORE_RSP_HLE_H_

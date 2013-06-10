@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __DAEDALUS_TRACERECORDER_H__
-#define __DAEDALUS_TRACERECORDER_H__
+#ifndef DYNAREC_TRACERECORDER_H_
+#define DYNAREC_TRACERECORDER_H_
 
 #include <stdlib.h>
 
@@ -70,4 +70,4 @@ private:
 };
 extern CTraceRecorder				gTraceRecorder;
 
-#endif // __DAEDALUS_TRACERECORDER_H__
+#endif // DYNAREC_TRACERECORDER_H_

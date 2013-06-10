@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef DAEDALUS_DEBUGDISPLAYLIST_H_
-#define DAEDALUS_DEBUGDISPLAYLIST_H_
+#ifndef HLEGRAPHICS_DLDEBUG_H_
+#define HLEGRAPHICS_DLDEBUG_H_
 
 #include "OSHLE/ultra_sptask.h" // Ugh, could just fwd-decl OSTask, if it wasn't a crazy typedef union.
 #include "Utility/DataSink.h"
@@ -157,4 +157,4 @@ extern void DLDebugger_RequestDebug();
 
 #endif
 
-#endif // DAEDALUS_DEBUGDISPLAYLIST_H_
+#endif // HLEGRAPHICS_DLDEBUG_H_

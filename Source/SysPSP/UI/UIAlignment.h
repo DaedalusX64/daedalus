@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef UIALIGNMENT_H_
-#define UIALIGNMENT_H_
+#ifndef SYSPSP_UI_UIALIGNMENT_H_
+#define SYSPSP_UI_UIALIGNMENT_H_
 
 enum EAlignType
 {
@@ -34,4 +34,4 @@ enum EVerticalAlign
 };
 
 
-#endif // UIALIGNMENT_H_
+#endif // SYSPSP_UI_UIALIGNMENT_H_

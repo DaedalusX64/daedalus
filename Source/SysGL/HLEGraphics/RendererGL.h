@@ -1,5 +1,5 @@
-#ifndef RENDERERGL_H__
-#define RENDERERGL_H__
+#ifndef SYSGL_HLEGRAPHICS_RENDERERGL_H_
+#define SYSGL_HLEGRAPHICS_RENDERERGL_H_
 
 #include "HLEGraphics/BaseRenderer.h"
 
@@ -32,4 +32,4 @@ private:
 // NB: this is equivalent to gRenderer, but points to the implementation class, for platform-specific functionality.
 extern RendererGL * gRendererGL;
 
-#endif // RENDERERGL_H__
+#endif // SYSGL_HLEGRAPHICS_RENDERERGL_H_

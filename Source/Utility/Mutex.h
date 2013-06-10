@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef CRITSECT_H__
-#define CRITSECT_H__
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
+#ifndef UTILITY_MUTEX_H_
+#define UTILITY_MUTEX_H_
 
 #ifdef DAEDALUS_PSP
 #include <pspthreadman.h>
@@ -181,4 +179,4 @@ private:
 #define AUTO_CRIT_SECT( x )		MutexLock daed_auto_crit_sect( &x )
 
 
-#endif // CRITSECT_H__
+#endif // UTILITY_MUTEX_H_

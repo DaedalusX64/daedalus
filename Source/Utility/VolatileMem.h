@@ -1,7 +1,7 @@
 
 
-#ifndef VOLATILEMEM_H_
-#define VOLATILEMEM_H_
+#ifndef UTILITY_VOLATILEMEM_H_
+#define UTILITY_VOLATILEMEM_H_
 
 #ifdef DAEDALUS_PSP
 void* malloc_volatile_PSP(size_t size);
@@ -26,4 +26,4 @@ inline void free_volatile(void* ptr)
 #endif
 }
 
-#endif // VOLATILEMEM_H_
+#endif // UTILITY_VOLATILEMEM_H_

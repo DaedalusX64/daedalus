@@ -18,12 +18,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "System.h"
 
 #include "Core/CPU.h"
 #include "Debug/DBGConsole.h"
 #include "Interface/RomDB.h"
 #include "System/Paths.h"
+#include "System/System.h"
 #include "Test/BatchTest.h"
 #include "Utility/IO.h"
 
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 
 	if (argc > 0)
 	{
-		IO::Path::PathBuf exe_path;
+		IO::Filename exe_path;
 		realpath(argv[0], exe_path);
 
 		strcpy(gDaedalusExePath, exe_path);
@@ -83,7 +83,7 @@ int main(int argc, char **argv)
 						const char * relative_path = argv[i+1];
 						++i;
 
-						IO::Path::PathBuf	dir;
+						IO::Filename	dir;
 						realpath(relative_path, dir);
 
 						CRomDB::Get()->AddRomDirectory(dir);
@@ -100,6 +100,8 @@ int main(int argc, char **argv)
 		{
 			#ifdef DAEDALUS_BATCH_TEST_ENABLED
 				BatchTestMain(argc, argv);
+			#else
+				fprintf(stderr, "BatchTest mode is not present in this build.\n");
 			#endif
 		}
 		else if (filename)

@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef CheatOPTIONSSCREEN_H_
-#define CheatOPTIONSSCREEN_H_
+#ifndef SYSPSP_UI_CHEATOPTIONSSCREEN_H_
+#define SYSPSP_UI_CHEATOPTIONSSCREEN_H_
 
 class CUIContext;
 class RomID;
@@ -34,4 +34,4 @@ class CCheatOptionsScreen
 		virtual void				Run() = 0;
 };
 
-#endif	// CheatOPTIONSSCREEN_H_
+#endif // SYSPSP_UI_CHEATOPTIONSSCREEN_H_

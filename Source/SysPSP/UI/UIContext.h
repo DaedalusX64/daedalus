@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef UICONTEXT_H_
-#define UICONTEXT_H_
+#ifndef SYSPSP_UI_UICONTEXT_H_
+#define SYSPSP_UI_UICONTEXT_H_
 
 #include "Graphics/ColourValue.h"
 #include "UIAlignment.h"
@@ -105,4 +105,4 @@ class CUIContext
 		virtual u32					GetTextWidth( const char * text ) const = 0;
 };
 
-#endif	// UICONTEXT_H_
+#endif // SYSPSP_UI_UICONTEXT_H_

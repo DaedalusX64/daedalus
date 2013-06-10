@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __ULTRA_GBI_H__
-#define __ULTRA_GBI_H__
+#ifndef OSHLE_ULTRA_GBI_H_
+#define OSHLE_ULTRA_GBI_H_
 
 
 //*****************************************************************************
@@ -528,4 +528,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define G_RDP_TRI_SHADE_TXTR_ZBUFF	0xcf /* shade, txtr, zbuff trngl: 11001111 */
 
 
-#endif // __ULTRA_GBI_H__
+#endif // OSHLE_ULTRA_GBI_H_

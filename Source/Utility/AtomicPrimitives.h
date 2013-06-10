@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef ATOMICPRIMITIVES_H_
-#define ATOMICPRIMITIVES_H_
+#ifndef UTILITY_ATOMICPRIMITIVES_H_
+#define UTILITY_ATOMICPRIMITIVES_H_
 
 #include <stdlib.h>
 #include "Utility/DaedalusTypes.h"
@@ -110,5 +110,5 @@ inline u32 AtomicBitSet( volatile u32 * ptr, u32 and_bits, u32 or_bits )
 
 #endif
 
-#endif // ATOMICPRIMITIVES_H_
+#endif // UTILITY_ATOMICPRIMITIVES_H_
 

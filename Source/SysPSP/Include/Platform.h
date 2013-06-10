@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#ifndef PLATFORM_H_
-#define PLATFORM_H_
+#ifndef SYSPSP_INCLUDE_PLATFORM_H_
+#define SYSPSP_INCLUDE_PLATFORM_H_
 
 //
 //	Make sure this platform is defined correctly
@@ -54,4 +52,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define __has_feature(x) 0
 
-#endif // PLATFORM_H_
+#endif // SYSPSP_INCLUDE_PLATFORM_H_

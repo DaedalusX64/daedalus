@@ -21,25 +21,21 @@
 #include "stdafx.h"
 #include "Graphics/GraphicsContext.h"
 
-#include "Graphics/ColourValue.h"
-#include "Graphics/PngUtil.h"
-#include "SysPSP/Graphics/VideoMemoryManager.h"
-
-#include "Debug/DBGConsole.h"
-#include "Debug/Dump.h"
-
-#include "Utility/VolatileMem.h"
-#include "Utility/Profiler.h"
-#include "Utility/Preferences.h"
-#include "Utility/IO.h"
-
-#include "Core/ROM.h"
-
-#include "ConfigOptions.h"
-
 #include <pspgu.h>
 #include <pspdisplay.h>
 #include <pspdebug.h>
+
+#include "Config/ConfigOptions.h"
+#include "Core/ROM.h"
+#include "Debug/DBGConsole.h"
+#include "Debug/Dump.h"
+#include "Graphics/ColourValue.h"
+#include "Graphics/PngUtil.h"
+#include "SysPSP/Graphics/VideoMemoryManager.h"
+#include "Utility/IO.h"
+#include "Utility/Preferences.h"
+#include "Utility/Profiler.h"
+#include "Utility/VolatileMem.h"
 
 namespace
 {

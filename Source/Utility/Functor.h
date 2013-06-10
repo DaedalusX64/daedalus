@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef FUNCTOR_H_
-#define FUNCTOR_H_
+#ifndef UTILITY_FUNCTOR_H_
+#define UTILITY_FUNCTOR_H_
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 class CFunctor
 {
@@ -96,4 +94,4 @@ private:
 	T						Value;
 };
 
-#endif // FUNCTOR_H_
+#endif // UTILITY_FUNCTOR_H_

@@ -479,10 +479,10 @@ DLDebugOutput * DLDebug_CreateFileOutput()
 {
 	static u32 count = 0;
 
-	IO::Path::PathBuf dumpdir;
+	IO::Filename dumpdir;
 	IO::Path::Combine(dumpdir, g_ROM.settings.GameName.c_str(), "DisplayLists");
 
-	IO::Path::PathBuf filepath;
+	IO::Filename filepath;
 	Dump_GetDumpDirectory(filepath, dumpdir);
 
 	char filename[64];

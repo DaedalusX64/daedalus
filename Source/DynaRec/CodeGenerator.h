@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif
 
-#ifndef CODEGENERATOR_H_
-#define CODEGENERATOR_H_
+#ifndef DYNAREC_CODEGENERATOR_H_
+#define DYNAREC_CODEGENERATOR_H_
 
 struct	OpCode;
 struct	SBranchDetails;
@@ -78,4 +76,4 @@ extern "C"
 	void R4300_CALL_TYPE _EnterDynaRec( const void * p_function, const void * p_base_pointer, const void * p_rebased_mem, u32 mem_limit );
 }
 
-#endif // CODEGENERATOR_H_
+#endif // DYNAREC_CODEGENERATOR_H_

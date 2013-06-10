@@ -23,8 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //	and modified by StrmnNrmn to work with Daedalus PSP. Thanks Azimer!
 //	Drop me a line if you get chance :)
 //
-#ifndef AUDIOHLEPROCESSOR_H_
-#define AUDIOHLEPROCESSOR_H_
+#ifndef HLEAUDIO_AUDIOHLEPROCESSOR_H_
+#define HLEAUDIO_AUDIOHLEPROCESSOR_H_
 
 #include "Utility/Alignment.h"
 #include "Utility/DaedalusTypes.h"
@@ -99,4 +99,4 @@ public:
 
 extern AudioHLEState gAudioHLEState;
 
-#endif // AUDIOHLEPROCESSOR_H_
+#endif // HLEAUDIO_AUDIOHLEPROCESSOR_H_

@@ -19,18 +19,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "stdafx.h"
-
 #include "TextureInfo.h"
-#include "OSHLE/ultra_gbi.h"
 
-#include "ConfigOptions.h"
-
+#include "Config/ConfigOptions.h"
 #include "Core/Memory.h"
-
-#include "Utility/Profiler.h"
-#include "Utility/Hash.h"
-
 #include "Core/ROM.h"
+#include "OSHLE/ultra_gbi.h"
+#include "Utility/Hash.h"
+#include "Utility/Profiler.h"
 
 static const char * const	gImageFormatNames[8] = {"RGBA", "YUV", "CI", "IA", "I", "?1", "?2", "?3"};
 static const u32			gImageSizesInBits[4] = {4, 8, 16, 32};

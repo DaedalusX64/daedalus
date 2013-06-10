@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef RDPSTATEMANAGER_H_
-#define RDPSTATEMANAGER_H_
+#ifndef HLEGRAPHICS_RDPSTATEMANAGER_H_
+#define HLEGRAPHICS_RDPSTATEMANAGER_H_
 
 #include "RDP.h"
 #include "TextureInfo.h"
@@ -99,4 +99,4 @@ extern u16 gPaletteMemory[];
 #endif
 
 
-#endif // RDPSTATEMANAGER_H_
+#endif // HLEGRAPHICS_RDPSTATEMANAGER_H_

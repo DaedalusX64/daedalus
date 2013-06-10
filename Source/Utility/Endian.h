@@ -17,14 +17,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #include "Utility/DaedalusTypes.h"
 
-#ifndef ENDIAN_H_
-#define ENDIAN_H_
+#ifndef UTILITY_ENDIAN_H_
+#define UTILITY_ENDIAN_H_
 
 #if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)
 #define BSWAP32(x) x
@@ -49,4 +47,4 @@ inline u32 SwapEndian( u32 x )
 	return BSWAP32(x);
 }
 
-#endif // ENDIAN_H_
+#endif // UTILITY_ENDIAN_H_

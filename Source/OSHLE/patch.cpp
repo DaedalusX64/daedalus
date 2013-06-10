@@ -20,11 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "patch.h"
 
-#ifdef DAEDALUS_PSP
-#include "Graphics/GraphicsContext.h"
-#include "SysPSP/Graphics/intraFont/intraFont.h"
-#endif
-
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
 
 #include <stddef.h>		// offsetof
@@ -33,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OS.h"
 #include "OSMesgQueue.h"
 
+#include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
 #include "Core/DMA.h"
 #include "Core/Memory.h"
@@ -45,19 +41,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/Fragment.h"
 #include "DynaRec/FragmentCache.h"
 #include "Math/Math.h"	// VFPU Math
+#include "OSHLE/ultra_os.h"
+#include "OSHLE/ultra_R4300.h"
+#include "OSHLE/ultra_rcp.h"
+#include "OSHLE/ultra_sptask.h"
 #include "Plugins/AudioPlugin.h"
 #include "Utility/CRC.h"
 #include "Utility/Endian.h"
 #include "Utility/FastMemcpy.h"
 #include "Utility/Profiler.h"
 
-#include "ultra_os.h"
-#include "ultra_rcp.h"
-#include "ultra_sptask.h"
-#include "ultra_R4300.h"
-
-#include "ConfigOptions.h"
-
+#ifdef DAEDALUS_PSP
+#include "Graphics/GraphicsContext.h"
+#include "SysPSP/Graphics/intraFont/intraFont.h"
+#endif
 
 #ifdef DUMPOSFUNCTIONS
 #include "Debug/Dump.h"
@@ -89,7 +86,7 @@ static const char * const gEventStrings[23] =
 	"OS_EVENT_RDB_FLUSH_PROF",
 	"OS_EVENT_RDB_ACK_PROF"
 };
-#endif	// DUMPOSFUNCTIONS
+#endif // DUMPOSFUNCTIONS
 
 u32 gNumOfOSFunctions;
 
@@ -445,7 +442,7 @@ void Patch_DumpOsEventInfo()
 }
 
 
-#endif	// DUMPOSFUNCTIONS
+#endif // DUMPOSFUNCTIONS
 
 bool Patch_Hacks( PatchSymbol * ps )
 {

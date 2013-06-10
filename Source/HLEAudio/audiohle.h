@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef AUDIOHLE_H_
-#define AUDIOHLE_H_
+#ifndef HLEAUDIO_AUDIOHLE_H_
+#define HLEAUDIO_AUDIOHLE_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -374,4 +374,4 @@ typedef void ( * AudioHLEInstruction )( AudioHLECommand command );
 void Audio_Ucode();
 void Audio_Reset();
 
-#endif // AUDIOHLE_H_
+#endif // HLEAUDIO_AUDIOHLE_H_

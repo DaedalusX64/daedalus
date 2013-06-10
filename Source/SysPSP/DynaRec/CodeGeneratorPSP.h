@@ -19,12 +19,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //Define to use jumptable dynarec
 //#define NEW_DYNAREC_COMPILER
 
-#if _MSC_VER > 1000
 #pragma once
-#endif
 
-#ifndef CODEGENERATORPSP_H_
-#define CODEGENERATORPSP_H_
+#ifndef SYSPSP_DYNAREC_CODEGENERATORPSP_H_
+#define SYSPSP_DYNAREC_CODEGENERATORPSP_H_
 
 #include "DynaRec/CodeGenerator.h"
 #include "AssemblyWriterPSP.h"
@@ -325,4 +323,4 @@ private:
 };
 
 
-#endif // CODEGENERATORPSP_H_
+#endif // SYSPSP_DYNAREC_CODEGENERATORPSP_H_

@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif
 
-#ifndef N64REGISTERCACHEPSP_H_
-#define N64REGISTERCACHEPSP_H_
+#ifndef SYSPSP_DYNAREC_N64REGISTERCACHEPSP_H_
+#define SYSPSP_DYNAREC_N64REGISTERCACHEPSP_H_
 
 #include <stdlib.h>
 
@@ -184,4 +182,4 @@ private:
 		FPRegisterCacheInfoPSP	mFPRegisterCacheInfo[ NUM_N64_FP_REGS ];
 };
 
-#endif
+#endif // SYSPSP_DYNAREC_N64REGISTERCACHEPSP_H_

@@ -20,10 +20,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // Stuff to handle Processor
 #include "stdafx.h"
-
 #include "CPU.h"
+
+#include <algorithm>
+#include <string>
+#include <vector>
+
 #include "Cheats.h"
-#include "ConfigOptions.h"
 #include "Dynamo.h"
 #include "Interpret.h"
 #include "Interrupt.h"
@@ -35,8 +38,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "RSP_HLE.h"
 #include "Save.h"
 #include "SaveState.h"
-#include "System.h"
 
+#include "Config/ConfigOptions.h"
+#include "Debug/DBGConsole.h"
+#include "Debug/DebugLog.h"
+#include "OSHLE/ultra_R4300.h"
+#include "System/System.h"
 #include "Utility/AtomicPrimitives.h"
 #include "Utility/FramerateLimiter.h"
 #include "Utility/Hash.h"
@@ -49,15 +56,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef DAEDALUS_W32
 #include "Plugins/AudioPlugin.h"
 #endif
-
-#include "Debug/DebugLog.h"
-#include "Debug/DBGConsole.h"
-
-#include "OSHLE/ultra_R4300.h"
-
-#include <algorithm>
-#include <string>
-#include <vector>
 
 extern void R4300_Init();
 

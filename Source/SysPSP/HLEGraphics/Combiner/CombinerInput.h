@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif
 
-#ifndef COMBINERINPUT_H_
-#define COMBINERINPUT_H_
+#ifndef SYSPSP_HLEGRAPHICS_COMBINER_COMBINERINPUT_H_
+#define SYSPSP_HLEGRAPHICS_COMBINER_COMBINERINPUT_H_
 
 //*****************************************************************************
 //
@@ -51,4 +49,4 @@ enum ECombinerInput
 
 const char * GetCombinerInputName( ECombinerInput input );
 
-#endif // COMBINERINPUT_H_
+#endif // SYSPSP_HLEGRAPHICS_COMBINER_COMBINERINPUT_H_

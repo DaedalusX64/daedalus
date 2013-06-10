@@ -31,17 +31,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "IniFile.h"
 #include "FramerateLimiter.h"
 
+#include "Config/ConfigOptions.h"
 #include "Core/ROM.h"
+#include "Input/InputManager.h"
 #include "Interface/RomDB.h"
-
+#include "System/Paths.h"
 #include "Utility/IO.h"
+
 #ifdef DAEDALUS_PSP
 #include "Utility/Translate.h"
 #endif
-#include "ConfigOptions.h"
-
-#include "Input/InputManager.h"
-#include "System/Paths.h"
 
 // Audio is disabled on the PSP by default, but enabled on other platforms.
 #ifdef DAEDALUS_PSP

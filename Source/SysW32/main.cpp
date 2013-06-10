@@ -19,9 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "ConfigOptions.h"
-#include "System.h"
-
+#include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
 #include "Core/ROM.h"				// ROM_Unload
 #include "Core/RomSettings.h"
@@ -29,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DebugLog.h"
 #include "Interface/RomDB.h"
 #include "System/Paths.h"
+#include "System/System.h"
 #include "Test/BatchTest.h"
 #include "Utility/IO.h"
 #include "Utility/Preferences.h"
@@ -83,6 +82,8 @@ int __cdecl main(int argc, char **argv)
 		{
 			#ifdef DAEDALUS_BATCH_TEST_ENABLED
 				BatchTestMain(argc, argv);
+			#else
+				fprintf(stderr, "BatchTest mode is not present in this build.\n");
 			#endif
 		}
 		else if (filename)

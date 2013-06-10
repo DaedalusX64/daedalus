@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef __ULTRA_SPTASK_H__
-#define __ULTRA_SPTASK_H__
+#ifndef OSHLE_ULTRA_SPTASK_H_
+#define OSHLE_ULTRA_SPTASK_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -61,4 +61,4 @@ typedef union {
 #define OS_TASK_USR2			0x0040
 #define OS_TASK_USR3			0x0080
 
-#endif // __ULTRA_SPTASK_H__
+#endif // OSHLE_ULTRA_SPTASK_H_

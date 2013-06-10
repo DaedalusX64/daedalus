@@ -1,13 +1,10 @@
 // Profiler.h: interface for the CProfiler class.
 //
 //////////////////////////////////////////////////////////////////////
-
-#ifndef __PROFILER_H__
-#define __PROFILER_H__
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
+#ifndef UTILITY_PROFILER_H_
+#define UTILITY_PROFILER_H_
 
 #ifdef DAEDALUS_ENABLE_PROFILING
 
@@ -86,4 +83,4 @@ private:
 
 #endif
 
-#endif // __PROFILER_H__
+#endif // UTILITY_PROFILER_H_

@@ -1,5 +1,7 @@
-#ifndef MACROS_H_
-#define MACROS_H_
+#pragma once
+
+#ifndef UTILITY_MACROS_H_
+#define UTILITY_MACROS_H_
 
 #ifdef _MSC_VER
 #define DAEDALUS_FORCEINLINE __forceinline
@@ -27,4 +29,4 @@
 
 #define DAEDALUS_USE(...)	do { (void)sizeof(__VA_ARGS__, 0); } while(0)
 
-#endif // MACROS_H_
+#endif // UTILITY_MACROS_H_

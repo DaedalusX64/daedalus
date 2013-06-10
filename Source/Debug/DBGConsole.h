@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#ifndef DBGCONSOLE_H_
-#define DBGCONSOLE_H_
+#ifndef DEBUG_DBGCONSOLE_H_
+#define DEBUG_DBGCONSOLE_H_
 
 #include "Utility/DaedalusTypes.h"
 #include "Utility/Singleton.h"
@@ -50,5 +48,5 @@ class CDebugConsole : public CSingleton< CDebugConsole >
 
 #endif // DAEDALUS_DEBUG_CONSOLE
 
-#endif // DBGCONSOLE_H_
+#endif // DEBUG_DBGCONSOLE_H_
 

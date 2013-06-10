@@ -19,12 +19,10 @@
 */
 
 
-#ifndef RDP_H__
-#define RDP_H__
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
+
+#ifndef HLEGRAPHICS_RDP_H_
+#define HLEGRAPHICS_RDP_H_
 
 #include "Utility/DaedalusTypes.h"
 
@@ -392,4 +390,4 @@ struct RDP_TileSize
 };
 DAEDALUS_STATIC_ASSERT(sizeof(RDP_TileSize) == 8);
 
-#endif // RDP_H__
+#endif // HLEGRAPHICS_RDP_H_

@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef UCODE_PD_H__
-#define UCODE_PD_H__
+#ifndef HLEGRAPHICS_UCODES_UCODE_PD_H_
+#define HLEGRAPHICS_UCODES_UCODE_PD_H_
 
 //*****************************************************************************
 //
@@ -49,4 +49,4 @@ void DLParser_Set_Vtx_CI_PD( MicroCodeCommand command )
 	gAuxAddr = (u32)g_pu8RamBase + RDPSegAddr(command.inst.cmd1);
 }
 
-#endif // UCODE_PD_H__
+#endif // HLEGRAPHICS_UCODES_UCODE_PD_H_

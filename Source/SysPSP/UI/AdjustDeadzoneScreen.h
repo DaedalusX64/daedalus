@@ -18,8 +18,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 
-#ifndef ADJUSTDEADZONESCREEN_H_
-#define ADJUSTDEADZONESCREEN_H_
+#ifndef SYSPSP_UI_ADJUSTDEADZONESCREEN_H_
+#define SYSPSP_UI_ADJUSTDEADZONESCREEN_H_
 
 class CUIContext;
 
@@ -33,4 +33,4 @@ class CAdjustDeadzoneScreen
 		virtual void				Run() = 0;
 };
 
-#endif	// ADJUSTDEADZONESCREEN_H_
+#endif // SYSPSP_UI_ADJUSTDEADZONESCREEN_H_

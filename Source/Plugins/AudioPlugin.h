@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#ifndef AUDIOPLUGIN_H__
-#define AUDIOPLUGIN_H__
+#ifndef PLUGINS_AUDIOPLUGIN_H_
+#define PLUGINS_AUDIOPLUGIN_H_
 
 #include "Core/RSP_HLE.h"
 
@@ -57,4 +55,4 @@ public:
 CAudioPlugin *			CreateAudioPlugin();
 extern CAudioPlugin *	gAudioPlugin;
 
-#endif // AUDIOPLUGIN_H__
+#endif // PLUGINS_AUDIOPLUGIN_H_

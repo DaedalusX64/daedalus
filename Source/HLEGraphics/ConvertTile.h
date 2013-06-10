@@ -1,5 +1,5 @@
-#ifndef CONVERTTILE_H__
-#define CONVERTTILE_H__
+#ifndef HLEGRAPHICS_CONVERTTILE_H_
+#define HLEGRAPHICS_CONVERTTILE_H_
 
 #include "Graphics/TextureFormat.h"
 
@@ -12,4 +12,4 @@ bool ConvertTile(const TextureInfo & ti,
 				 ETextureFormat texture_format,
 				 u32 pitch);
 
-#endif // CONVERTTILE_H__
+#endif // HLEGRAPHICS_CONVERTTILE_H_

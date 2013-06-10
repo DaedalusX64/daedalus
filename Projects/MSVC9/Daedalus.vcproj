@@ -224,11 +224,11 @@
 			Name="Source Files"
 			>
 			<File
-				RelativePath="..\..\Source\ConfigOptions.cpp"
+				RelativePath="..\..\Source\Config\ConfigOptions.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Source\ConfigOptions.h"
+				RelativePath="..\..\Source\Config\ConfigOptions.h"
 				>
 			</File>
 			<File
@@ -1067,7 +1067,7 @@
 				Name="System"
 				>
 				<File
-					RelativePath="..\..\Source\System.cpp"
+					RelativePath="..\..\Source\System\System.cpp"
 					>
 				</File>
 				<File

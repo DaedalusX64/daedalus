@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef CONVERTIMAGE_H__
-#define CONVERTIMAGE_H__
+#ifndef HLEGRAPHICS_CONVERTIMAGE_H_
+#define HLEGRAPHICS_CONVERTIMAGE_H_
 
 #include "Graphics/TextureFormat.h"
 
@@ -31,4 +31,4 @@ bool ConvertTexture(const TextureInfo & ti,
 					ETextureFormat texture_format,
 					u32 pitch);
 
-#endif // CONVERTIMAGE_H__
+#endif // HLEGRAPHICS_CONVERTIMAGE_H_

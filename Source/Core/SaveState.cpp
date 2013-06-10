@@ -22,7 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 
 #include "SaveState.h"
-#include "System.h"
 #include "Memory.h"
 #include "CPU.h"
 #include "ROM.h"
@@ -33,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/MathUtil.h"
 #include "OSHLE/patch.h"
 #include "OSHLE/ultra_R4300.h"
+#include "System/System.h"
 #include "Utility/ROMFile.h"
 #include "Utility/ZlibWrapper.h"
 //

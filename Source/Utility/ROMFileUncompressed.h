@@ -17,12 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
-#ifndef __DAEDALUS_ROMFILEUNCOMPRESSED_H__
-#define __DAEDALUS_ROMFILEUNCOMPRESSED_H__
+#ifndef UTILITY_ROMFILEUNCOMPRESSED_H_
+#define UTILITY_ROMFILEUNCOMPRESSED_H_
 
 #include <stdio.h>
 
@@ -47,4 +45,4 @@ private:
 	u32					mRomSize;
 };
 
-#endif
+#endif // UTILITY_ROMFILEUNCOMPRESSED_H_

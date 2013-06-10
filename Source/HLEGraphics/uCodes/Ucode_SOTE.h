@@ -17,8 +17,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef UCODE_SOTE_H__
-#define UCODE_SOTE_H__
+#ifndef HLEGRAPHICS_UCODES_UCODE_SOTE_H_
+#define HLEGRAPHICS_UCODES_UCODE_SOTE_H_
 
 //*****************************************************************************
 //
@@ -128,4 +128,4 @@ void DLParser_GBI0_Tri1_SOTE( MicroCodeCommand command )
 
 
 
-#endif // UCODE_SOTE_H__
+#endif // HLEGRAPHICS_UCODES_UCODE_SOTE_H_
