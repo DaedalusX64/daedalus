@@ -98,7 +98,7 @@ void Audio_Ucode_Detect(OSTask * pTask)
 	u8* p_base = g_pu8RamBase + (u32)pTask->t.ucode_data;
 	if (*(u32*)(p_base + 0) != 0x01)
 	{
-		if (*(u32*)(p_base + 0) == 0x0F)
+		if (*(u32*)(p_base + 0x10) == 0x00000001)
 			ABI=ABIUnknown;
 		else
 			ABI=ABI3;
@@ -133,13 +133,15 @@ void Audio_Ucode()
 
 	u32 * p_alist = (u32 *)(g_pu8RamBase + (u32)pTask->t.data_ptr);
 	u32 ucode_size = (pTask->t.data_size >> 3);
+	if( ucode_size == 0 )	return;	// Musyx..
 
 	AudioHLECommand command;
 
-    do {
-        command.cmd0 = *p_alist++;
-        command.cmd1 = *p_alist++;
-        ABI[command.cmd](command);
+	// Very important, do not change this loop do{ }while(..);, otherwise there's static in games ex Zelda
+	do {
+		command.cmd0 = *p_alist++;
+		command.cmd1 = *p_alist++;
+		ABI[command.cmd](command);
 		//printf("%08X %08X\n",command.cmd0,command.cmd1);
 	} while (--ucode_size);
 }

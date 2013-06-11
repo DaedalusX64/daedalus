@@ -181,14 +181,14 @@ static inline void CopyLineSwap32(u8 * dst, u32 dst_offset, u8 * src, u32 src_of
 	if( ((uintptr_t)src32&0x3 )==0)
 	{
 		u32 size128 = bytes >> 4;
-		bytes &= 0xF;
+		bytes &= 0xf;
 
 		while (size128--)
 		{
 			dst32[0] = BSWAP32(src32[2]);
 			dst32[1] = BSWAP32(src32[3]);
-			dst32[2] = BSWAP32(src32[1]);
-			dst32[3] = BSWAP32(src32[0]);
+			dst32[2] = BSWAP32(src32[0]);
+			dst32[3] = BSWAP32(src32[1]);
 			dst32 += 4;
 			src32 += 4;
 		}
