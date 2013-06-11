@@ -5,6 +5,7 @@
 #include "RDP.h"
 #include "TextureInfo.h"
 #include "Graphics/NativePixelFormat.h"
+#include "Utility/Alignment.h"
 
 #include <vector>
 
@@ -87,7 +88,7 @@ static const u8 FiveToEight[] = {
 	0xff  // 11111 -> 11111111
  };
 
-extern u8 gTMEM[4096];
+ALIGNED_EXTERN(u8, gTMEM[4096], 16);
 
 static void ConvertRGBA32(const TileDestInfo & dsti, const TextureInfo & ti)
 {

@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "HLEGraphics/uCodes/UcodeDefs.h"
 #include "Math/MathUtil.h"
 #include "OSHLE/ultra_gbi.h"
+#include "Utility/Alignment.h"
 #include "Utility/Endian.h"
 #include "Utility/FastMemcpy.h"
 #include "Utility/Macros.h"
@@ -46,22 +47,22 @@ u32* gTlutLoadAddresses[ 4096 >> 6 ];
 u16 gPaletteMemory[ 512 ];
 #endif
 
+#define MAX_TMEM_ADDRESS 4096
 
 #ifdef DAEDALUS_ACCURATE_TMEM
-u8 gTMEM[4096];	// 4Kb
+ALIGNED_GLOBAL(u8, gTMEM[ MAX_TMEM_ADDRESS ], 16);	// 4Kb
 #endif
 
 
 #ifdef DAEDALUS_ACCURATE_TMEM
 
 // FIXME(strmnnrmn): dst/src are always gTMEM/g_pu32RamBase
-// FIXME: should be easy to optimise all of these.
+// FIXME: CopyLineQwords** need to check src alignment, see N64 logo in Banjo K.
+// TODO: Fast tmem copy for CopyLineQwords**
+#define FAST_TMEM_COPY
 
 static inline void CopyLineQwords(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
 {
-#if 1 // fast
-	memcpy_byteswap32(dst + dst_offset, src + src_offset, qwords * 8);
-#else
 	for (u32 i = 0; i < qwords; ++i)
 	{
 		dst[(dst_offset+0)] = BSWAP32(src[src_offset+0]);
@@ -69,7 +70,6 @@ static inline void CopyLineQwords(u32 * dst, u32 dst_offset, u32 * src, u32 src_
 		dst_offset += 2;
 		src_offset += 2;
 	}
-#endif
 }
 
 static void CopyLineQwordsSwap(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
@@ -99,8 +99,33 @@ static void CopyLineQwordsSwap32(u32 * dst, u32 dst_offset, u32 * src, u32 src_o
 // FIXME(strmnnrmn): dst/src are always gTMEM/g_pu8RamBase
 static inline void CopyLine(u8 * dst, u32 dst_offset, u8 * src, u32 src_offset, u32 bytes)
 {
-#if 1 // fast
-	memcpy_byteswap32(dst + dst_offset, src + src_offset, bytes);
+#ifdef FAST_TMEM_COPY
+	u32* src32 = (u32*)(src + src_offset);
+	u32* dst32 = (u32*)(dst + dst_offset);
+
+	if( ((uintptr_t)src32&0x3 )==0)
+	{
+		u32 size32 = bytes >> 2;
+		bytes &= 0x3;
+
+		while (size32--)
+		{
+			*dst32++ = BSWAP32(src32[0]);
+			src32++;
+		}
+	}
+	else
+	{
+		//Happens quiet often! 
+		//TODO: Optimize me
+		//DBGConsole_Msg(0, "[WWarning CopyLine: Performing slow copy]" );
+	}
+	u8* src8 = (u8*)src32;
+	u8* dst8 = (u8*)dst32;
+	while(bytes--)
+	{
+		*dst8++ = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
+	}
 #else
 	for (u32 i = 0; i < bytes; ++i)
 	{
@@ -111,20 +136,80 @@ static inline void CopyLine(u8 * dst, u32 dst_offset, u8 * src, u32 src_offset, 
 
 static inline void CopyLineSwap(u8 * dst, u32 dst_offset, u8 * src, u32 src_offset, u32 bytes)
 {
+#ifdef FAST_TMEM_COPY
+	u32* src32 = (u32*)(src + src_offset);
+	u32* dst32 = (u32*)(dst + dst_offset);
+
+	if( ((uintptr_t)src32&0x3 )==0)
+	{
+		u32 size64 = bytes >> 3;
+		bytes &= 0x7;
+
+		while (size64--)
+		{
+			dst32[0] = BSWAP32(src32[1]);
+			dst32[1] = BSWAP32(src32[0]);
+			dst32 += 2;
+			src32 += 2;
+		}
+	}
+	else
+	{
+		//DBGConsole_Msg(0, "[WWarning CopyLineSwap: Performing slow copy]" );
+	}
+	u8* src8 = (u8*)src32;
+	u8* dst8 = (u8*)dst32;
+	while(bytes--)
+	{
+		*(u8*)((uintptr_t)dst8++ ^ 0x4) = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
+	}
+#else
 	for (u32 i = 0; i < bytes; ++i)
 	{
 		// Alternate 32 bit words are swapped
 		dst[(dst_offset+i)^0x4] = src[(src_offset+i)^U8_TWIDDLE];
 	}
+#endif
 }
 
 static inline void CopyLineSwap32(u8 * dst, u32 dst_offset, u8 * src, u32 src_offset, u32 bytes)
 {
+#ifdef FAST_TMEM_COPY
+	u32* src32 = (u32*)(src + src_offset);
+	u32* dst32 = (u32*)(dst + dst_offset);
+
+	if( ((uintptr_t)src32&0x3 )==0)
+	{
+		u32 size128 = bytes >> 4;
+		bytes &= 0xF;
+
+		while (size128--)
+		{
+			dst32[0] = BSWAP32(src32[2]);
+			dst32[1] = BSWAP32(src32[3]);
+			dst32[2] = BSWAP32(src32[1]);
+			dst32[3] = BSWAP32(src32[0]);
+			dst32 += 4;
+			src32 += 4;
+		}
+	}
+	else
+	{
+		//DBGConsole_Msg(0, "[WWarning CopyLineSwap32: Performing slow copy]" );
+	}
+	u8* src8 = (u8*)src32;
+	u8* dst8 = (u8*)dst32;
+	while(bytes--)
+	{
+		*(u8*)((uintptr_t)dst8++ ^ 0x8) = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
+	}
+#else	
 	for (u32 i = 0; i < bytes; ++i)
 	{
 		// Alternate 64 bit words are swapped
 		dst[(dst_offset+i)^0x8] = src[(src_offset+i)^U8_TWIDDLE];
 	}
+#endif
 }
 #endif
 
@@ -219,14 +304,17 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 	u32 qwords = (bytes+7) / 8;
 	u32 * tmem_data = reinterpret_cast<u32*>(gTMEM);
 	u32 * ram 		= g_pu32RamBase;
-	u32 ram_offset  = address / 4;  				// Offset in 32 bit words
-	u32 tmem_offset = (rdp_tile.tmem << 3) >> 2;	// Offset in 32 bit words
+	u32 tmem_offset = (rdp_tile.tmem << 3);
+	u32 ram_offset  = address;
 
-	if (( (address + bytes) > MAX_RAM_ADDRESS) || ((rdp_tile.tmem << 3) + bytes) > 4096 )
+	if (( (address + bytes) > MAX_RAM_ADDRESS) || (tmem_offset + bytes) > MAX_TMEM_ADDRESS )
 	{
 		DBGConsole_Msg(0, "[WWarning LoadBlock address is invalid]" );
 		return;
 	}
+
+	ram_offset  = address >> 2;  		// Offset in 32 bit words
+	tmem_offset = tmem_offset >> 2;		// Offset in 32 bit words
 
 	if (dxt == 0)
 	{
@@ -318,7 +406,7 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	u32  ram_offset  = ram_address;
 	u32 bytes_per_tmem_line = rdp_tile.line << 3;
 
-	if ((address + bytes) > MAX_RAM_ADDRESS)
+	if ((address + bytes) > MAX_RAM_ADDRESS || (tmem_offset + bytes) > MAX_TMEM_ADDRESS)
 	{
 		DBGConsole_Msg(0, "[WWarning LoadTile address is invalid]" );
 		return;
