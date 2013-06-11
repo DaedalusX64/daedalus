@@ -353,7 +353,8 @@ struct AudioHLECommand
 		{
 			int		: 32;
 			int		: 24;
-			unsigned int		cmd : 8;
+			u32		cmd : 5;
+			u32		: 3;
 		};
 	};
 };
