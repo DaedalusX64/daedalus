@@ -12,8 +12,6 @@ void memcpy_test( void * dst, const void * src, size_t size );
 #endif
 
 void memcpy_byteswap( void* dst, const void* src, size_t size );	// Little endian, platform independent, ALWAYS swaps.
-void memcpy_byteswap32( void* dst, const void* src, size_t size );
-
 
 // memcpy_swizzle is just a regular memcpy on big-endian targets.
 #if (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_BIG)

@@ -42,6 +42,7 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 			u32 srcTmp;
 			u32 dstTmp;
 			u32 size32 = size >> 2;
+			size &= 0x3;
 
 			switch( (uintptr_t)src8&0x3 )
 			{
@@ -124,47 +125,8 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 	}
 
 	// Copy the remaing byte by byte...
-	size &= 0x3;
 	while(size--)
 	{
 		*(u8*)((uintptr_t)dst8++ ^ U8_TWIDDLE) = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
-	}
-}
-
-void memcpy_byteswap32( void* dst, const void* src, size_t size )
-{
-	u32* src32 = (u32*)src;
-	u32* dst32 = (u32*)dst;
-
-	if( ((uintptr_t)src&0x3 )==0)
-	{
-		u32 size32 = size >> 2;
-		while (size32&0x3)
-		{
-			*dst32++ = BSWAP32(src32[0]);
-			src32 += 1;
-			size32--;
-		}
-
-		u32 size128 = size32 >> 2;
-		while (size128--)
-		{
-			*dst32++ = BSWAP32(src32[0]);
-			*dst32++ = BSWAP32(src32[1]);
-			*dst32++ = BSWAP32(src32[2]);
-			*dst32++ = BSWAP32(src32[3]);
-
-			src32 += 4;
-		}
-	}
-
-	u8* src8 = (u8*)src32;
-	u8* dst8 = (u8*)dst32;
-
-	// Copy the remaing byte by byte...
-	size &= 0x3;
-	while(size--)
-	{
-		*dst8++ = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
 	}
 }
