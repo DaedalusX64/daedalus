@@ -39,7 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //#define AUDIO_THREADED
 
 #define NUMCAPTUREEVENTS	3
-#define BufferSize			0x5000
+#define BufferSize			0x3000
 
 #define Buffer_Empty		0
 #define Buffer_Playing		1
