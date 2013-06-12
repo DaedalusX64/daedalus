@@ -3,6 +3,7 @@
 #ifdef DAEDALUS_ACCURATE_TMEM
 #include "ConvertTile.h"
 #include "RDP.h"
+#include "Core/ROM.h"
 #include "TextureInfo.h"
 #include "Graphics/NativePixelFormat.h"
 #include "Utility/Alignment.h"
@@ -229,6 +230,12 @@ static void ConvertCI4T(const TileDestInfo & dsti, const TextureInfo & ti)
 
 	// Convert the palette once, here.
 	u32 pal_address = 0x100 + ((ti.Palette * 16 * 2) >> 3);
+
+	// Animal Crossing, Majora's Mask, SSV, Banjo K's N64 logo
+	// Would be nice to have a proper fix
+	if(g_ROM.TLUT_HACK)
+		pal_address = 0x100 + (ti.Palette << 4);
+
 	u32 pal_offset = pal_address << 3;
 	u32 palette[16];
 	for (u32 i = 0; i < 16; ++i)
