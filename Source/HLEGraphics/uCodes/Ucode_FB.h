@@ -40,13 +40,13 @@ static inline CRefPtr<CNativeTexture> LoadFrameBuffer(u32 origin)
 #define FB_HEIGHT 240
 
 	DAEDALUS_ASSERT(g_CI.Size == G_IM_SIZ_16b,"32b frame buffer is not supported");
-	DAEDALUS_ASSERT((uViWidth+1) == FB_WIDTH,"Variable width is not handled");
-	DAEDALUS_ASSERT((uViHeight+1) == FB_HEIGHT,"Variable height is not handled");
+	//DAEDALUS_ASSERT((uViWidth+1) == FB_WIDTH,"Variable width is not handled");
+	//DAEDALUS_ASSERT((uViHeight+1) == FB_HEIGHT,"Variable height is not handled");
 
 	TextureInfo ti;
 
 	ti.SetSwapped			(0);
-	ti.SetTLutIndex			(0);
+	ti.SetPalette			(0);
 	ti.SetTlutAddress		(TLUT_BASE);
 	ti.SetTLutFormat		(kTT_RGBA16);
 	ti.SetFormat			(0);

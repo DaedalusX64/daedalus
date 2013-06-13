@@ -97,12 +97,12 @@ static void CopyLineQwordsSwap32(u32 * dst, u32 dst_offset, u32 * src, u32 src_o
 }
 
 // FIXME(strmnnrmn): dst/src are always gTMEM/g_pu8RamBase
-static inline void CopyLine(u8 * dst, u32 dst_offset, u8 * src, u32 src_offset, u32 bytes)
+static inline void CopyLine(void * dst, const void * src, u32 bytes)
 {
-#ifdef FAST_TMEM_COPY
-	u32* src32 = (u32*)(src + src_offset);
-	u32* dst32 = (u32*)(dst + dst_offset);
+	u32* src32 = (u32*)src;
+	u32* dst32 = (u32*)dst;
 
+#ifdef FAST_TMEM_COPY
 	if( ((uintptr_t)src32&0x3 )==0)
 	{
 		u32 size32 = bytes >> 2;
@@ -116,30 +116,26 @@ static inline void CopyLine(u8 * dst, u32 dst_offset, u8 * src, u32 src_offset, 
 	}
 	else
 	{
-		//Happens quiet often! 
+		//Happens quiet often in Zelda!
 		//TODO: Optimize me
 		//DBGConsole_Msg(0, "[WWarning CopyLine: Performing slow copy]" );
 	}
+#endif
+
 	u8* src8 = (u8*)src32;
 	u8* dst8 = (u8*)dst32;
 	while(bytes--)
 	{
 		*dst8++ = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
 	}
-#else
-	for (u32 i = 0; i < bytes; ++i)
-	{
-		dst[(dst_offset+i)] = src[(src_offset+i)^U8_TWIDDLE];
-	}
-#endif
 }
 
-static inline void CopyLineSwap(u8 * dst, u32 dst_offset, u8 * src, u32 src_offset, u32 bytes)
+static inline void CopyLineSwap(void * dst, const void * src, u32 bytes)
 {
-#ifdef FAST_TMEM_COPY
-	u32* src32 = (u32*)(src + src_offset);
-	u32* dst32 = (u32*)(dst + dst_offset);
+	u32* src32 = (u32*)src;
+	u32* dst32 = (u32*)dst;
 
+#ifdef FAST_TMEM_COPY
 	if( ((uintptr_t)src32&0x3 )==0)
 	{
 		u32 size64 = bytes >> 3;
@@ -157,31 +153,27 @@ static inline void CopyLineSwap(u8 * dst, u32 dst_offset, u8 * src, u32 src_offs
 	{
 		//DBGConsole_Msg(0, "[WWarning CopyLineSwap: Performing slow copy]" );
 	}
-	u8* src8 = (u8*)src32;
-	u8* dst8 = (u8*)dst32;
+#endif
+
+	u8* src8 = (u8*)src;
+	u8* dst8 = (u8*)dst;
 	while(bytes--)
 	{
+		// Alternate 32 bit words are swapped
 		*(u8*)((uintptr_t)dst8++ ^ 0x4) = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
 	}
-#else
-	for (u32 i = 0; i < bytes; ++i)
-	{
-		// Alternate 32 bit words are swapped
-		dst[(dst_offset+i)^0x4] = src[(src_offset+i)^U8_TWIDDLE];
-	}
-#endif
 }
 
-static inline void CopyLineSwap32(u8 * dst, u32 dst_offset, u8 * src, u32 src_offset, u32 bytes)
+static inline void CopyLineSwap32(void * dst, const void * src, u32 bytes)
 {
-#ifdef FAST_TMEM_COPY
-	u32* src32 = (u32*)(src + src_offset);
-	u32* dst32 = (u32*)(dst + dst_offset);
+	u32* src32 = (u32*)(src);
+	u32* dst32 = (u32*)(dst);
 
+#ifdef FAST_TMEM_COPY
 	if( ((uintptr_t)src32&0x3 )==0)
 	{
 		u32 size128 = bytes >> 4;
-		bytes &= 0xf;
+		bytes &= 0xF;
 
 		while (size128--)
 		{
@@ -197,22 +189,17 @@ static inline void CopyLineSwap32(u8 * dst, u32 dst_offset, u8 * src, u32 src_of
 	{
 		//DBGConsole_Msg(0, "[WWarning CopyLineSwap32: Performing slow copy]" );
 	}
+#endif
+
 	u8* src8 = (u8*)src32;
 	u8* dst8 = (u8*)dst32;
 	while(bytes--)
 	{
+		// Alternate 64 bit words are swapped
 		*(u8*)((uintptr_t)dst8++ ^ 0x8) = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
 	}
-#else	
-	for (u32 i = 0; i < bytes; ++i)
-	{
-		// Alternate 64 bit words are swapped
-		dst[(dst_offset+i)^0x8] = src[(src_offset+i)^U8_TWIDDLE];
-	}
-#endif
 }
 #endif
-
 
 
 CRDPStateManager::CRDPStateManager()
@@ -364,6 +351,7 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	u32 ult      = load.tl;	//Top
 	u32 tile_idx = load.tile;
 	u32 address  = g_TI.GetAddress( uls / 4, ult / 4 );
+	u32 pitch    = g_TI.GetPitch();
 
 	DL_PF("    Tile[%d] (%d,%d)->(%d,%d) [%d x %d] Address[0x%08x]",
 		tile_idx,
@@ -378,12 +366,11 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	DAEDALUS_DL_ASSERT( (rdp_tile.size > 0) || (uls & 4) == 0, "Expecting an even Left for 4bpp formats (left is %f)", uls / 4.f );
 
 	u32	tmem_lookup = rdp_tile.tmem >> 4;
-
 	SetValidEntry( tmem_lookup );
 
 	TimgLoadDetails & info = mTmemLoadInfo[ tmem_lookup ];
 	info.Address = address;
-	info.Pitch = g_TI.GetPitch();
+	info.Pitch = pitch;
 	info.Swapped = false;
 
 #ifdef DAEDALUS_ACCURATE_TMEM
@@ -391,7 +378,6 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	u32 lrt    = load.th;
 
 	u32 ram_address = address;
-	u32 pitch       = g_TI.GetPitch();
 	u32 h           = ((lrt-ult)>>2) + 1;
 	u32 w           = ((lrs-uls)>>2) + 1;
 	u32 bytes       = ((h * w) << g_TI.Size) >> 1;
@@ -400,9 +386,7 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 		"Suspiciously large texture load: %d bytes (%dx%d, %dbpp)",
 		bytes, w, h, (1<<(g_TI.Size+2)) );
 
-	u8 * tmem_data   = reinterpret_cast<u8*>(gTMEM);
 	u32  tmem_offset = rdp_tile.tmem << 3;
-	u8 * ram         = g_pu8RamBase;
 	u32  ram_offset  = ram_address;
 	u32 bytes_per_tmem_line = rdp_tile.line << 3;
 
@@ -412,7 +396,7 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 		return;
 	}
 
-	void (*CopyLineMode)(u8*, u32, u8*, u32, u32);
+	void (*CopyLineMode)(void*, const void*, u32);
 
 	if (g_TI.Size == G_IM_SIZ_32b)
 	{
@@ -424,21 +408,24 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 		CopyLineMode = CopyLineSwap;
 	}
 
+	u8* dst = gTMEM + tmem_offset;
+	u8* src = g_pu8RamBase + ram_offset;
+
 	for (u32 y = 0; y < h; ++y)
 	{
 		if (y&1)
 		{
-			CopyLineMode(tmem_data, tmem_offset, ram, ram_offset, bytes_per_tmem_line);
+			CopyLineMode(dst, src, bytes_per_tmem_line);
 		}
 		else
 		{
-			CopyLine(tmem_data, tmem_offset, ram, ram_offset, bytes_per_tmem_line);
+			CopyLine(dst, src, bytes_per_tmem_line);
 		}
 
 		// There might be uninitialised padding bytes here, but we don't care.
 
-		tmem_offset += bytes_per_tmem_line;
-		ram_offset  += pitch;
+		dst += bytes_per_tmem_line;
+		src += pitch;
 	}
 
 	//InvalidateTileHashes();
@@ -454,6 +441,7 @@ void CRDPStateManager::LoadTlut(const SetLoadTile & load)
 	u32    uls        = load.sl;		//Left
 	u32    ult        = load.tl;		//Top
 	u32    lrs        = load.sh;		//Right
+	u32	   lrt		  = load.th;	    //Bottom
 	u32    tile_idx   = load.tile;
 	u32    ram_offset = g_TI.GetAddress16bpp(uls >> 2, ult >> 2);
 	void * address    = g_pu8RamBase + ram_offset;
@@ -462,6 +450,7 @@ void CRDPStateManager::LoadTlut(const SetLoadTile & load)
 
 	u32 count = ((lrs - uls)>>2) + 1;
 	DAEDALUS_USE(count);
+	DAEDALUS_USE(lrt);
 
 #ifdef DAEDALUS_FAST_TMEM
 	//Store address of PAL (assuming PAL is only stored in upper half of TMEM) //Corn
@@ -479,25 +468,18 @@ void CRDPStateManager::LoadTlut(const SetLoadTile & load)
 	{
 		gPaletteMemory[ i+offset ] = palette[ i ];
 	}
-
-	//printf("Addr %08X : TMEM %03X : Tile %d : PAL %d\n", ram_offset, tmem, tile_idx, count);
 #endif
-
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	u32 lrt = load.th;	//Bottom
 
 	DL_PF("    TLut Addr[0x%08x] TMEM[0x%03x] Tile[%d] Count[%d] Format[%s] (%d,%d)->(%d,%d)",
 		address, rdp_tile.tmem, tile_idx, count, kTLUTTypeName[gRDPOtherMode.text_tlut], uls >> 2, ult >> 2, lrs >> 2, lrt >> 2);
-#endif
 
 #ifdef DAEDALUS_ACCURATE_TMEM
 	//u32 pitch       = g_TI.GetPitch16bpp();
-	u32 texels      = ((lrs - uls)>>2) + 1;
-	u32 bytes       = texels*2;
+	u32 bytes       = count*2;
 	u32 tmem_offset = rdp_tile.tmem << 3;
 
-	CopyLine(gTMEM, tmem_offset, g_pu8RamBase, ram_offset, bytes);
-#endif // DAEDALUS_ACCURATE_TMEM
+	CopyLine(gTMEM + tmem_offset, g_pu8RamBase + ram_offset, bytes);
+#endif
 }
 
 // Limit the tile's width/height to the number of bits specified by mask_s/t.
@@ -569,7 +551,10 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		u16		tile_width  = GetTextureDimension( rdp_tilesize.GetWidth(),  rdp_tile.mask_s, rdp_tile.clamp_s );
 		u16		tile_height = GetTextureDimension( rdp_tilesize.GetHeight(), rdp_tile.mask_t, rdp_tile.clamp_t );
 
-#ifdef DAEDALUS_FAST_TMEM
+#if defined(DAEDALUS_ACCURATE_TMEM)
+		ti.SetTlutAddress( tlut );
+#elif defined(DAEDALUS_FAST_TMEM)
+		//
 		//If indexed TMEM PAL address is NULL then assume that the base address is stored in
 		//TMEM address 0x100 (gTlutLoadAddresses[ 0 ]) and calculate offset from there with TLutIndex(palette index)
 		//This trick saves us from the need to copy the real palette to TMEM and we just pass the pointer //Corn
@@ -596,15 +581,13 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 
 #ifdef DAEDALUS_ACCURATE_TMEM
 		ti.Line    = rdp_tile.line;
-		ti.Palette = rdp_tile.palette;
-
 		// NB: ACCURATE_TMEM doesn't care about pitch - it's already been loaded into tmem.
 		// We only care about line.
 #endif
 
 		ti.SetTmemAddress( rdp_tile.tmem );
 		ti.SetLoadAddress( address );
-		ti.SetTLutIndex( rdp_tile.palette );
+		ti.SetPalette( rdp_tile.palette );
 		ti.SetFormat( rdp_tile.format );
 		ti.SetSize( rdp_tile.size );
 

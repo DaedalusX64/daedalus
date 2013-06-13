@@ -277,7 +277,7 @@ static inline CRefPtr<CNativeTexture> Load_ObjSprite( const uObjSprite *sprite, 
 		}
 
 		ti.SetSwapped          (0);
-		ti.SetTLutIndex        (sprite->imagePal);
+		ti.SetPalette          (sprite->imagePal);
 		ti.SetTlutAddress	   (TLUT_BASE);
 		ti.SetTLutFormat       (kTT_RGBA16);
 	}
@@ -616,7 +616,7 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 
 	ti.SetSwapped          (0);
 
-	ti.SetTLutIndex        (objBg->imagePal);
+	ti.SetPalette          (objBg->imagePal);
 	ti.SetTlutAddress	   (TLUT_BASE);
 	ti.SetTLutFormat       (kTT_RGBA16);
 
@@ -663,7 +663,7 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 
 	ti.SetSwapped          (0);
 
-	ti.SetTLutIndex        (objBg->imagePal);
+	ti.SetPalette		   (objBg->imagePal);
 	ti.SetTlutAddress	   (TLUT_BASE);
 	ti.SetTLutFormat       (kTT_RGBA16);
 

@@ -61,7 +61,7 @@ inline u32 CTextureCache::MakeHashIdxA( const TextureInfo & ti )
 	u32 address( ti.GetLoadAddress() );
 	u32 hash( (address >> (HASH_TABLE_BITS*2)) ^ (address >> HASH_TABLE_BITS) ^ address );
 
-	hash ^= ti.GetTLutIndex() >> 2;			// Useful for palettised fonts, e.g in Starfox
+	hash ^= ti.GetPalette() >> 2;			// Useful for palettised fonts, e.g in Starfox
 
 	return hash & (HASH_TABLE_SIZE-1);
 }

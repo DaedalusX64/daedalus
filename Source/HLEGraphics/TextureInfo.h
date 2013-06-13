@@ -42,7 +42,7 @@ private:
 	u16			Pitch;				// Number of bytes in a texture row
 
 	u32			TmemAddress : 9;	// TMEM address (0x000 - 0x1FF)
-	u32			TLutIndex : 4;		// Palette index (0-15)
+	u32			Palette : 4;		// Palette index (0-15)
 	u32			Format : 3;			// e.g. RGBA, YUV, CI, IA, I...
 	u32			Size : 2;			// e.g. 4bpp, 8bpp, 16bpp, 32bpp
 	u32			TLutFmt : 2;		// e.g. ?, ?, RGBA16, IA16
@@ -56,7 +56,6 @@ private:
 #ifdef DAEDALUS_ACCURATE_TMEM
 public:
 	u32			Line : 9;
-	u32			Palette : 4;
 #endif
 
 public:
@@ -84,7 +83,7 @@ public:
 	inline u32				GetHeight() const				{ return Height; }
 	inline u32				GetPitch() const				{ return Pitch; }
 	inline ETLutFmt			GetTLutFormat() const			{ return (ETLutFmt)TLutFmt; }
-	inline u32				GetTLutIndex() const			{ return TLutIndex; }
+	inline u32				GetPalette() const				{ return Palette; }
 	inline bool				IsSwapped() const				{ return Swapped; }
 	inline bool				GetEmulateMirrorS() const		{ return EmulateMirrorS; }
 	inline bool				GetEmulateMirrorT() const		{ return EmulateMirrorT; }
@@ -99,7 +98,7 @@ public:
 	inline void				SetHeight( u32 height )			{ Height = height; }
 	inline void				SetPitch( u32 pitch )			{ Pitch = pitch; }
 	inline void				SetTLutFormat( ETLutFmt format ){ TLutFmt = format; }
-	inline void				SetTLutIndex( u32 index )		{ TLutIndex = index; }
+	inline void				SetPalette( u32 index )			{ Palette = index; }
 	inline void				SetSwapped( bool swapped )		{ Swapped = swapped; }
 	inline void				SetEmulateMirrorS( bool e )		{ EmulateMirrorS = e; }
 	inline void				SetEmulateMirrorT( bool e )		{ EmulateMirrorT = e; }
