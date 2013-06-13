@@ -57,6 +57,9 @@ ALIGNED_GLOBAL(u8, gTMEM[ MAX_TMEM_ADDRESS ], 16);	// 4Kb
 #ifdef DAEDALUS_ACCURATE_TMEM
 
 // FIXME: CopyLineQwords** need to check src alignment!?
+
+// TODO: Simplify CopyLine**: Due to how TMEM is organized, erg the last 3 bits in the address are always "0"
+// It should be safe to assume copies will always be atleast one qword
 #define FAST_TMEM_COPY
 
 static inline void CopyLineQwords(void * dst, const void * src, u32 qwords)
@@ -118,7 +121,6 @@ static void CopyLineQwordsSwap32(void * dst, const void * src, u32 qwords)
 	u32* dst32 = (u32*)dst;
 
 	DAEDALUS_ASSERT( ((uintptr_t)src32&0x3 )==0, "src is not aligned!");
-	DAEDALUS_ASSERT( (qwords & 0xF)==0, "Check remainings! %d",qwords);
 
 	u32 size128 = qwords >>1;
 
@@ -130,6 +132,15 @@ static void CopyLineQwordsSwap32(void * dst, const void * src, u32 qwords)
 		dst32[1]  = BSWAP32(src32[3]);
 		dst32 += 4;
 		src32 += 4;
+	}
+
+	// Copy any remaining quadword
+	qwords&=0x1;
+	while(qwords--)
+	{
+		*(u32*)((uintptr_t)dst32++ ^ 0x8) = BSWAP32(src32[0]);
+		*(u32*)((uintptr_t)dst32++ ^ 0x8) = BSWAP32(src32[1]);
+		src32+=2;
 	}
 #else
 	u8* src8 = (u8*)src;
