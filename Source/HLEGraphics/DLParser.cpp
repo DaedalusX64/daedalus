@@ -112,6 +112,14 @@ struct N64Light
     u8 pad1, b2, g2, r2;	// Unused..
     s8 pad2, z, y, x;		// Direction
 };
+
+struct N64LightMM
+{
+    u8 pad0, b, g, r;
+    u8 pad1, b2, g2, r2;
+    s16 y, x, range, z;		// What to do with range?
+};
+
 struct RDP_Scissor
 {
 	u32 left, top, right, bottom;
@@ -640,20 +648,47 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 {
 	DAEDALUS_ASSERT( light_idx < 16, "Warning: invalid light # = %d", light_idx );
 
-	N64Light *light = (N64Light*)(g_pu8RamBase + address);
+	u8 *base = g_pu8RamBase + address;
+	f32 r, g, b, x, y, z;
+	bool valid;
+	
+	if((g_ROM.GameHacks == ZELDA_MM) && (base[0] == 0x08) && (base[4] == 0xFF))
+	{
+		N64LightMM *light = (N64LightMM*)base;
+		r = light->r;
+		g = light->g;
+		b = light->b;
+		
+		x = light->x;
+		y = light->y;
+		z = light->z;
+		valid = (light->x | light->y | light->z) ? true : false;
+	}
+	else
+	{
+		N64Light *light = (N64Light*)base;
+		r = light->r;
+		g = light->g;
+		b = light->b;
+		
+		x = light->x;
+		y = light->y;
+		z = light->z;
+		valid = (light->x | light->y | light->z) ? true : false;
+		
+	}
+
 	DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d] %s direction",
-		light_idx,
-		light->r, light->g, light->b,
-		light->x, light->y,	light->z,
-		(light->x | light->y | light->z)? "Valid" : "Invalid"
+		light_idx, r, g, b, x, y, z,
+		valid ? "Valid" : "Invalid"
 		);
 
 	//Light color
-	gRenderer->SetLightCol( light_idx, light->r, light->g, light->b );
+	gRenderer->SetLightCol( light_idx, r, g, b );
 
 	//Direction
-	if((light->x | light->y | light->z) != 0)
-		gRenderer->SetLightDirection( light_idx, light->x, light->y, light->z );
+	if(valid != 0)
+		gRenderer->SetLightDirection( light_idx, x, y, z );
 }
 
 //*****************************************************************************

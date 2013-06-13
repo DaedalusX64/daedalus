@@ -252,7 +252,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 			if (field_offset == 0)
 			{
 				// Light col
-				gRenderer->SetLightCol(light_idx, ((value>>24)&0xFF), ((value>>16)&0xFF), ((value>>8)&0xFF) );
+				gRenderer->SetLightCol(light_idx, (f32)((value>>24)&0xFF), (f32)((value>>16)&0xFF), (f32)((value>>8)&0xFF) );
 			}
 		}
 		break;
