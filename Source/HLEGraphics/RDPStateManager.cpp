@@ -56,47 +56,92 @@ ALIGNED_GLOBAL(u8, gTMEM[ MAX_TMEM_ADDRESS ], 16);	// 4Kb
 
 #ifdef DAEDALUS_ACCURATE_TMEM
 
-// FIXME(strmnnrmn): dst/src are always gTMEM/g_pu32RamBase
-// FIXME: CopyLineQwords** need to check src alignment, see N64 logo in Banjo K.
-// TODO: Fast tmem copy for CopyLineQwords**
+// FIXME: CopyLineQwords** need to check src alignment!?
 #define FAST_TMEM_COPY
 
-static inline void CopyLineQwords(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
+static inline void CopyLineQwords(void * dst, const void * src, u32 qwords)
 {
-	for (u32 i = 0; i < qwords; ++i)
+#ifdef FAST_TMEM_COPY
+	u32* src32 = (u32*)src;
+	u32* dst32 = (u32*)dst;
+
+	DAEDALUS_ASSERT( ((uintptr_t)src32&0x3)==0, "src is not aligned!");
+
+	while(qwords--)
 	{
-		dst[(dst_offset+0)] = BSWAP32(src[src_offset+0]);
-		dst[(dst_offset+1)] = BSWAP32(src[src_offset+1]);
-		dst_offset += 2;
-		src_offset += 2;
+		dst32[0] = BSWAP32(src32[0]);
+		dst32[1] = BSWAP32(src32[1]);
+		dst32 += 2;
+		src32 += 2;
 	}
+#else
+	u8* src8 = (u8*)src;
+	u8* dst8 = (u8*)dst;
+	u32 bytes = qwords * 8;
+	while(bytes--)
+	{
+		*dst8++ = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
+	}
+#endif
 }
 
-static void CopyLineQwordsSwap(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
+static void CopyLineQwordsSwap(void * dst, const void * src, u32 qwords)
 {
-	for (u32 i = 0; i < qwords; ++i)
+#ifdef FAST_TMEM_COPY
+	u32* src32 = (u32*)src;
+	u32* dst32 = (u32*)dst;
+
+	DAEDALUS_ASSERT( ((uintptr_t)src32&0x3 )==0, "src is not aligned!");
+
+	while(qwords--)
 	{
-		// Alternate 32 bit words are swapped
-		dst[(dst_offset+0)^0x1] = BSWAP32(src[src_offset+0]);
-		dst[(dst_offset+1)^0x1] = BSWAP32(src[src_offset+1]);
-		dst_offset += 2;
-		src_offset += 2;
+		dst32[1]  = BSWAP32(src32[0]);
+		dst32[0]  = BSWAP32(src32[1]);
+		dst32 += 2;
+		src32 += 2;
 	}
+#else
+	u8* src8 = (u8*)src;
+	u8* dst8 = (u8*)dst;
+	u32 bytes = qwords * 8;
+	while(bytes--)
+	{
+		*(u8*)((uintptr_t)dst8++ ^ 0x4)  = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
+	}
+#endif
 }
 
-static void CopyLineQwordsSwap32(u32 * dst, u32 dst_offset, u32 * src, u32 src_offset, u32 qwords)
+static void CopyLineQwordsSwap32(void * dst, const void * src, u32 qwords)
 {
-	for (u32 i = 0; i < qwords; ++i)
+#ifdef FAST_TMEM_COPY
+	u32* src32 = (u32*)src;
+	u32* dst32 = (u32*)dst;
+
+	DAEDALUS_ASSERT( ((uintptr_t)src32&0x3 )==0, "src is not aligned!");
+	DAEDALUS_ASSERT( (qwords & 0xF)==0, "Check remainings! %d",qwords);
+
+	u32 size128 = qwords >>1;
+
+	while(size128--)
 	{
-		// Alternate 64 bit words are swapped
-		dst[(dst_offset+0)^0x2] = BSWAP32(src[src_offset+0]);
-		dst[(dst_offset+1)^0x2] = BSWAP32(src[src_offset+1]);
-		dst_offset += 2;
-		src_offset += 2;
+		dst32[2]  = BSWAP32(src32[0]);
+		dst32[3]  = BSWAP32(src32[1]);
+		dst32[0]  = BSWAP32(src32[2]);
+		dst32[1]  = BSWAP32(src32[3]);
+		dst32 += 4;
+		src32 += 4;
 	}
+#else
+	u8* src8 = (u8*)src;
+	u8* dst8 = (u8*)dst;
+	u32 bytes = qwords * 8;
+	while(bytes--)
+	{
+		*(u8*)((uintptr_t)dst8++ ^ 0x8)  = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
+	}
+#endif
 }
 
-// FIXME(strmnnrmn): dst/src are always gTMEM/g_pu8RamBase
 static inline void CopyLine(void * dst, const void * src, u32 bytes)
 {
 	u32* src32 = (u32*)src;
@@ -289,8 +334,6 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 	DAEDALUS_DL_ASSERT( bytes, "LoadBLock: No bytes??" );
 
 	u32 qwords = (bytes+7) / 8;
-	u32 * tmem_data = reinterpret_cast<u32*>(gTMEM);
-	u32 * ram 		= g_pu32RamBase;
 	u32 tmem_offset = (rdp_tile.tmem << 3);
 	u32 ram_offset  = address;
 
@@ -303,13 +346,16 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 	ram_offset  = address >> 2;  		// Offset in 32 bit words
 	tmem_offset = tmem_offset >> 2;		// Offset in 32 bit words
 
+	u32* dst = ((u32*)gTMEM) + tmem_offset;
+	u32* src = g_pu32RamBase + ram_offset;
+
 	if (dxt == 0)
 	{
-		CopyLineQwords(tmem_data, tmem_offset, ram, ram_offset, qwords);
+		CopyLineQwords(dst, src, qwords);
 	}
 	else
 	{
-		void (*CopyLineQwordsMode)(u32*, u32, u32*, u32, u32);
+		void (*CopyLineQwordsMode)(void*, const void*, u32);
 
 		if(g_TI.Size == G_IM_SIZ_32b)
 			CopyLineQwordsMode = CopyLineQwordsSwap32;
@@ -327,16 +373,16 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 
 			if (odd_row)
 			{
-				CopyLineQwordsMode(tmem_data, tmem_offset, ram, ram_offset, qwords_to_copy);
+				CopyLineQwordsMode(dst, src, qwords_to_copy);
 			}
 			else
 			{
-				CopyLineQwords(tmem_data, tmem_offset, ram, ram_offset, qwords_to_copy);
+				CopyLineQwords(dst, src, qwords_to_copy);
 			}
 
 			i           += qwords_to_copy;
-			tmem_offset += qwords_to_copy * 2;	// 2 32bit words per qword
-			ram_offset  += qwords_to_copy * 2;
+			dst			+= qwords_to_copy * 2;	// 2 32bit words per qword
+			src			+= qwords_to_copy * 2;
 			odd_row     ^= 0x1;					// Odd lines are word swapped
 		}
 	}
