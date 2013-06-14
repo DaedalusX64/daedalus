@@ -67,6 +67,7 @@ bool GraphicsContextGL::Initialise()
 		return false;
 	}
 
+	glfwOpenWindowHint(GLFW_FSAA_SAMPLES,4);
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
 	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
 
@@ -101,6 +102,9 @@ bool GraphicsContextGL::Initialise()
 	}
 
 	ClearAllSurfaces();
+	
+	if (glfwGetWindowParam(GLFW_FSAA_SAMPLES) != 0)
+		fprintf( stderr, "Full Screen Anti-Aliasing 4X has been enabled\n" );
 
 	// FIXME(strmnnrmn): this needs tidying.
 	return initgl();
