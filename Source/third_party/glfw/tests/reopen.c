@@ -33,108 +33,114 @@
 //
 //========================================================================
 
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-static GLboolean closed = GL_FALSE;
-
-static const char* get_mode_name(int mode)
+static void error_callback(int error, const char* description)
 {
-    switch (mode)
-    {
-        case GLFW_WINDOW:
-            return "windowed";
-        case GLFW_FULLSCREEN:
-            return "fullscreen";
-        default:
-            return "unknown";
-    }
+    fprintf(stderr, "Error: %s\n", description);
 }
 
-static void GLFWCALL window_size_callback(int width, int height)
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 
-static int GLFWCALL window_close_callback(void)
+static void window_close_callback(GLFWwindow* window)
 {
     printf("Close callback triggered\n");
-    closed = GL_TRUE;
-    return 0;
 }
 
-static void GLFWCALL key_callback(int key, int action)
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (action != GLFW_PRESS)
         return;
 
     switch (key)
     {
-        case 'Q':
-        case GLFW_KEY_ESC:
-            closed = GL_TRUE;
+        case GLFW_KEY_Q:
+        case GLFW_KEY_ESCAPE:
+            glfwSetWindowShouldClose(window, GL_TRUE);
             break;
     }
 }
 
-static int open_window(int width, int height, int mode)
+static GLFWwindow* open_window(int width, int height, GLFWmonitor* monitor)
 {
-    double base = glfwGetTime();
+    double base;
+    GLFWwindow* window;
 
-    if (!glfwOpenWindow(width, height, 0, 0, 0, 0, 16, 0, mode))
-    {
-        fprintf(stderr, "Failed to create %s mode GLFW window\n", get_mode_name(mode));
-        return 0;
-    }
+    base = glfwGetTime();
 
-    glfwSetWindowTitle("Window Re-opener");
-    glfwSetWindowSizeCallback(window_size_callback);
-    glfwSetWindowCloseCallback(window_close_callback);
-    glfwSetKeyCallback(key_callback);
+    window = glfwCreateWindow(width, height, "Window Re-opener", monitor, NULL);
+    if (!window)
+        return NULL;
+
+    glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
-    printf("Opening %s mode window took %0.3f seconds\n",
-           get_mode_name(mode),
-           glfwGetTime() - base);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetWindowCloseCallback(window, window_close_callback);
+    glfwSetKeyCallback(window, key_callback);
 
-    return 1;
+    if (monitor)
+    {
+        printf("Opening full screen window on monitor %s took %0.3f seconds\n",
+               glfwGetMonitorName(monitor),
+               glfwGetTime() - base);
+    }
+    else
+    {
+        printf("Opening regular window took %0.3f seconds\n",
+               glfwGetTime() - base);
+    }
+
+    return window;
 }
 
-static void close_window(void)
+static void close_window(GLFWwindow* window)
 {
     double base = glfwGetTime();
-
-    glfwCloseWindow();
-
+    glfwDestroyWindow(window);
     printf("Closing window took %0.3f seconds\n", glfwGetTime() - base);
 }
 
 int main(int argc, char** argv)
 {
     int count = 0;
+    GLFWwindow* window;
+
+    srand((unsigned int) time(NULL));
+
+    glfwSetErrorCallback(error_callback);
 
     if (!glfwInit())
-    {
-        fprintf(stderr, "Failed to initialize GLFW\n");
-        exit(1);
-    }
+        exit(EXIT_FAILURE);
 
     for (;;)
     {
-        if (!open_window(640, 480, (count & 1) ? GLFW_FULLSCREEN : GLFW_WINDOW))
+        GLFWmonitor* monitor = NULL;
+
+        if (count & 1)
+        {
+            int monitorCount;
+            GLFWmonitor** monitors = glfwGetMonitors(&monitorCount);
+            monitor = monitors[rand() % monitorCount];
+        }
+
+        window = open_window(640, 480, monitor);
+        if (!window)
         {
             glfwTerminate();
-            exit(1);
+            exit(EXIT_FAILURE);
         }
 
         glMatrixMode(GL_PROJECTION);
         glOrtho(-1.f, 1.f, -1.f, 1.f, 1.f, -1.f);
         glMatrixMode(GL_MODELVIEW);
-
-        glClearColor(0.f, 0.f, 0.f, 0.f);
-        glColor3f(1.f, 1.f, 1.f);
 
         glfwSetTime(0.0);
 
@@ -147,24 +153,25 @@ int main(int argc, char** argv)
             glRectf(-0.5f, -0.5f, 1.f, 1.f);
             glPopMatrix();
 
-            glfwSwapBuffers();
+            glfwSwapBuffers(window);
+            glfwPollEvents();
 
-            if (closed)
-                close_window();
-
-            if (!glfwGetWindowParam(GLFW_OPENED))
+            if (glfwWindowShouldClose(window))
             {
+                close_window(window);
                 printf("User closed window\n");
 
                 glfwTerminate();
-                exit(0);
+                exit(EXIT_SUCCESS);
             }
         }
 
         printf("Closing window\n");
-        close_window();
+        close_window(window);
 
         count++;
     }
+
+    glfwTerminate();
 }
 

@@ -31,26 +31,78 @@
 //
 //========================================================================
 
-#include <GL/glfw.h>
-
-#define _CRT_SECURE_NO_WARNINGS
+#include <GLFW/glfw3.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 #include <locale.h>
 
-static GLboolean keyrepeat  = 0;
-static GLboolean systemkeys = 1;
+// These must match the input mode defaults
+static GLboolean closeable = GL_TRUE;
+
+// Event index
 static unsigned int counter = 0;
 
 static const char* get_key_name(int key)
 {
     switch (key)
     {
-        case GLFW_KEY_UNKNOWN:      return "unknown";
-        case GLFW_KEY_SPACE:        return "space";
-        case GLFW_KEY_ESC:          return "escape";
+        // Printable keys
+        case GLFW_KEY_A:            return "A";
+        case GLFW_KEY_B:            return "B";
+        case GLFW_KEY_C:            return "C";
+        case GLFW_KEY_D:            return "D";
+        case GLFW_KEY_E:            return "E";
+        case GLFW_KEY_F:            return "F";
+        case GLFW_KEY_G:            return "G";
+        case GLFW_KEY_H:            return "H";
+        case GLFW_KEY_I:            return "I";
+        case GLFW_KEY_J:            return "J";
+        case GLFW_KEY_K:            return "K";
+        case GLFW_KEY_L:            return "L";
+        case GLFW_KEY_M:            return "M";
+        case GLFW_KEY_N:            return "N";
+        case GLFW_KEY_O:            return "O";
+        case GLFW_KEY_P:            return "P";
+        case GLFW_KEY_Q:            return "Q";
+        case GLFW_KEY_R:            return "R";
+        case GLFW_KEY_S:            return "S";
+        case GLFW_KEY_T:            return "T";
+        case GLFW_KEY_U:            return "U";
+        case GLFW_KEY_V:            return "V";
+        case GLFW_KEY_W:            return "W";
+        case GLFW_KEY_X:            return "X";
+        case GLFW_KEY_Y:            return "Y";
+        case GLFW_KEY_Z:            return "Z";
+        case GLFW_KEY_1:            return "1";
+        case GLFW_KEY_2:            return "2";
+        case GLFW_KEY_3:            return "3";
+        case GLFW_KEY_4:            return "4";
+        case GLFW_KEY_5:            return "5";
+        case GLFW_KEY_6:            return "6";
+        case GLFW_KEY_7:            return "7";
+        case GLFW_KEY_8:            return "8";
+        case GLFW_KEY_9:            return "9";
+        case GLFW_KEY_0:            return "0";
+        case GLFW_KEY_SPACE:        return "SPACE";
+        case GLFW_KEY_MINUS:        return "MINUS";
+        case GLFW_KEY_EQUAL:        return "EQUAL";
+        case GLFW_KEY_LEFT_BRACKET: return "LEFT BRACKET";
+        case GLFW_KEY_RIGHT_BRACKET: return "RIGHT BRACKET";
+        case GLFW_KEY_BACKSLASH:    return "BACKSLASH";
+        case GLFW_KEY_SEMICOLON:    return "SEMICOLON";
+        case GLFW_KEY_APOSTROPHE:   return "APOSTROPHE";
+        case GLFW_KEY_GRAVE_ACCENT: return "GRAVE ACCENT";
+        case GLFW_KEY_COMMA:        return "COMMA";
+        case GLFW_KEY_PERIOD:       return "PERIOD";
+        case GLFW_KEY_SLASH:        return "SLASH";
+        case GLFW_KEY_WORLD_1:      return "WORLD 1";
+        case GLFW_KEY_WORLD_2:      return "WORLD 2";
+
+        // Function keys
+        case GLFW_KEY_ESCAPE:       return "ESCAPE";
         case GLFW_KEY_F1:           return "F1";
         case GLFW_KEY_F2:           return "F2";
         case GLFW_KEY_F3:           return "F3";
@@ -76,52 +128,54 @@ static const char* get_key_name(int key)
         case GLFW_KEY_F23:          return "F23";
         case GLFW_KEY_F24:          return "F24";
         case GLFW_KEY_F25:          return "F25";
-        case GLFW_KEY_UP:           return "up";
-        case GLFW_KEY_DOWN:         return "down";
-        case GLFW_KEY_LEFT:         return "left";
-        case GLFW_KEY_RIGHT:        return "right";
-        case GLFW_KEY_LSHIFT:       return "left shift";
-        case GLFW_KEY_RSHIFT:       return "right shift";
-        case GLFW_KEY_LCTRL:        return "left control";
-        case GLFW_KEY_RCTRL:        return "right control";
-        case GLFW_KEY_LALT:         return "left alt";
-        case GLFW_KEY_RALT:         return "right alt";
-        case GLFW_KEY_TAB:          return "tab";
-        case GLFW_KEY_ENTER:        return "enter";
-        case GLFW_KEY_BACKSPACE:    return "backspace";
-        case GLFW_KEY_INSERT:       return "insert";
-        case GLFW_KEY_DEL:          return "delete";
-        case GLFW_KEY_PAGEUP:       return "page up";
-        case GLFW_KEY_PAGEDOWN:     return "page down";
-        case GLFW_KEY_HOME:         return "home";
-        case GLFW_KEY_END:          return "end";
-        case GLFW_KEY_KP_0:         return "keypad 0";
-        case GLFW_KEY_KP_1:         return "keypad 1";
-        case GLFW_KEY_KP_2:         return "keypad 2";
-        case GLFW_KEY_KP_3:         return "keypad 3";
-        case GLFW_KEY_KP_4:         return "keypad 4";
-        case GLFW_KEY_KP_5:         return "keypad 5";
-        case GLFW_KEY_KP_6:         return "keypad 6";
-        case GLFW_KEY_KP_7:         return "keypad 7";
-        case GLFW_KEY_KP_8:         return "keypad 8";
-        case GLFW_KEY_KP_9:         return "keypad 9";
-        case GLFW_KEY_KP_DIVIDE:    return "keypad divide";
-        case GLFW_KEY_KP_MULTIPLY:  return "keypad multiply";
-        case GLFW_KEY_KP_SUBTRACT:  return "keypad subtract";
-        case GLFW_KEY_KP_ADD:       return "keypad add";
-        case GLFW_KEY_KP_DECIMAL:   return "keypad decimal";
-        case GLFW_KEY_KP_EQUAL:     return "keypad equal";
-        case GLFW_KEY_KP_ENTER:     return "keypad enter";
-        case GLFW_KEY_KP_NUM_LOCK:  return "keypad num lock";
-        case GLFW_KEY_CAPS_LOCK:    return "caps lock";
-        case GLFW_KEY_SCROLL_LOCK:  return "scroll lock";
-        case GLFW_KEY_PAUSE:        return "pause";
-        case GLFW_KEY_LSUPER:       return "left super";
-        case GLFW_KEY_RSUPER:       return "right super";
-        case GLFW_KEY_MENU:         return "menu";
-    }
+        case GLFW_KEY_UP:           return "UP";
+        case GLFW_KEY_DOWN:         return "DOWN";
+        case GLFW_KEY_LEFT:         return "LEFT";
+        case GLFW_KEY_RIGHT:        return "RIGHT";
+        case GLFW_KEY_LEFT_SHIFT:   return "LEFT SHIFT";
+        case GLFW_KEY_RIGHT_SHIFT:  return "RIGHT SHIFT";
+        case GLFW_KEY_LEFT_CONTROL: return "LEFT CONTROL";
+        case GLFW_KEY_RIGHT_CONTROL: return "RIGHT CONTROL";
+        case GLFW_KEY_LEFT_ALT:     return "LEFT ALT";
+        case GLFW_KEY_RIGHT_ALT:    return "RIGHT ALT";
+        case GLFW_KEY_TAB:          return "TAB";
+        case GLFW_KEY_ENTER:        return "ENTER";
+        case GLFW_KEY_BACKSPACE:    return "BACKSPACE";
+        case GLFW_KEY_INSERT:       return "INSERT";
+        case GLFW_KEY_DELETE:       return "DELETE";
+        case GLFW_KEY_PAGE_UP:      return "PAGE UP";
+        case GLFW_KEY_PAGE_DOWN:    return "PAGE DOWN";
+        case GLFW_KEY_HOME:         return "HOME";
+        case GLFW_KEY_END:          return "END";
+        case GLFW_KEY_KP_0:         return "KEYPAD 0";
+        case GLFW_KEY_KP_1:         return "KEYPAD 1";
+        case GLFW_KEY_KP_2:         return "KEYPAD 2";
+        case GLFW_KEY_KP_3:         return "KEYPAD 3";
+        case GLFW_KEY_KP_4:         return "KEYPAD 4";
+        case GLFW_KEY_KP_5:         return "KEYPAD 5";
+        case GLFW_KEY_KP_6:         return "KEYPAD 6";
+        case GLFW_KEY_KP_7:         return "KEYPAD 7";
+        case GLFW_KEY_KP_8:         return "KEYPAD 8";
+        case GLFW_KEY_KP_9:         return "KEYPAD 9";
+        case GLFW_KEY_KP_DIVIDE:    return "KEYPAD DIVIDE";
+        case GLFW_KEY_KP_MULTIPLY:  return "KEYPAD MULTPLY";
+        case GLFW_KEY_KP_SUBTRACT:  return "KEYPAD SUBTRACT";
+        case GLFW_KEY_KP_ADD:       return "KEYPAD ADD";
+        case GLFW_KEY_KP_DECIMAL:   return "KEYPAD DECIMAL";
+        case GLFW_KEY_KP_EQUAL:     return "KEYPAD EQUAL";
+        case GLFW_KEY_KP_ENTER:     return "KEYPAD ENTER";
+        case GLFW_KEY_PRINT_SCREEN: return "PRINT SCREEN";
+        case GLFW_KEY_NUM_LOCK:     return "NUM LOCK";
+        case GLFW_KEY_CAPS_LOCK:    return "CAPS LOCK";
+        case GLFW_KEY_SCROLL_LOCK:  return "SCROLL LOCK";
+        case GLFW_KEY_PAUSE:        return "PAUSE";
+        case GLFW_KEY_LEFT_SUPER:   return "LEFT SUPER";
+        case GLFW_KEY_RIGHT_SUPER:  return "RIGHT SUPER";
+        case GLFW_KEY_MENU:         return "MENU";
+        case GLFW_KEY_UNKNOWN:      return "UNKNOWN";
 
-    return NULL;
+        default:                    return NULL;
+    }
 }
 
 static const char* get_action_name(int action)
@@ -129,9 +183,11 @@ static const char* get_action_name(int action)
     switch (action)
     {
         case GLFW_PRESS:
-            return "was pressed";
+            return "pressed";
         case GLFW_RELEASE:
-            return "was released";
+            return "released";
+        case GLFW_REPEAT:
+            return "repeated";
     }
 
     return "caused unknown action";
@@ -152,21 +208,63 @@ static const char* get_button_name(int button)
     return NULL;
 }
 
-static const char* get_character_string(int character)
+static const char* get_mods_name(int mods)
 {
-  static char result[6 + 1];
+    static char name[512];
 
-  int length = wctomb(result, character);
-  if (length == -1)
-    length = 0;
+    name[0] = '\0';
 
-  result[length] = '\0';
-  return result;
+    if (mods & GLFW_MOD_SHIFT)
+        strcat(name, " shift");
+    if (mods & GLFW_MOD_CONTROL)
+        strcat(name, " control");
+    if (mods & GLFW_MOD_ALT)
+        strcat(name, " alt");
+    if (mods & GLFW_MOD_SUPER)
+        strcat(name, " super");
+
+    return name;
 }
 
-static void GLFWCALL window_size_callback(int width, int height)
+static const char* get_character_string(int character)
+{
+    // This assumes UTF-8, which is stupid
+    static char result[6 + 1];
+
+    int length = wctomb(result, character);
+    if (length == -1)
+        length = 0;
+
+    result[length] = '\0';
+    return result;
+}
+
+static void error_callback(int error, const char* description)
+{
+    fprintf(stderr, "Error: %s\n", description);
+}
+
+static void window_pos_callback(GLFWwindow* window, int x, int y)
+{
+    printf("%08x at %0.3f: Window position: %i %i\n",
+           counter++,
+           glfwGetTime(),
+           x,
+           y);
+}
+
+static void window_size_callback(GLFWwindow* window, int width, int height)
 {
     printf("%08x at %0.3f: Window size: %i %i\n",
+           counter++,
+           glfwGetTime(),
+           width,
+           height);
+}
+
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    printf("%08x at %0.3f: Framebuffer size: %i %i\n",
            counter++,
            glfwGetTime(),
            width,
@@ -175,137 +273,195 @@ static void GLFWCALL window_size_callback(int width, int height)
     glViewport(0, 0, width, height);
 }
 
-static int GLFWCALL window_close_callback(void)
+static void window_close_callback(GLFWwindow* window)
 {
     printf("%08x at %0.3f: Window close\n", counter++, glfwGetTime());
-    return 1;
+
+    glfwSetWindowShouldClose(window, closeable);
 }
 
-static void GLFWCALL window_refresh_callback(void)
+static void window_refresh_callback(GLFWwindow* window)
 {
     printf("%08x at %0.3f: Window refresh\n", counter++, glfwGetTime());
+
+    if (glfwGetCurrentContext())
+    {
+        glClear(GL_COLOR_BUFFER_BIT);
+        glfwSwapBuffers(window);
+    }
 }
 
-static void GLFWCALL mouse_button_callback(int button, int action)
+static void window_focus_callback(GLFWwindow* window, int focused)
+{
+    printf("%08x at %0.3f: Window %s\n",
+           counter++,
+           glfwGetTime(),
+           focused ? "focused" : "defocused");
+}
+
+static void window_iconify_callback(GLFWwindow* window, int iconified)
+{
+    printf("%08x at %0.3f: Window was %s\n",
+           counter++,
+           glfwGetTime(),
+           iconified ? "iconified" : "restored");
+}
+
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
     const char* name = get_button_name(button);
 
     printf("%08x at %0.3f: Mouse button %i", counter++, glfwGetTime(), button);
 
     if (name)
-        printf(" (%s) was %s\n", name, get_action_name(action));
-    else
-        printf(" was %s\n", get_action_name(action));
+        printf(" (%s)", name);
+
+    if (mods)
+        printf(" (with%s)", get_mods_name(mods));
+
+    printf(" was %s\n", get_action_name(action));
 }
 
-static void GLFWCALL mouse_position_callback(int x, int y)
+static void cursor_position_callback(GLFWwindow* window, double x, double y)
 {
-    printf("%08x at %0.3f: Mouse position: %i %i\n", counter++, glfwGetTime(), x, y);
+    printf("%08x at %0.3f: Cursor position: %f %f\n", counter++, glfwGetTime(), x, y);
 }
 
-static void GLFWCALL mouse_wheel_callback(int position)
+static void cursor_enter_callback(GLFWwindow* window, int entered)
 {
-    printf("%08x at %0.3f: Mouse wheel: %i\n", counter++, glfwGetTime(), position);
+    printf("%08x at %0.3f: Cursor %s window\n",
+           counter++,
+           glfwGetTime(),
+           entered ? "entered" : "left");
 }
 
-static void GLFWCALL key_callback(int key, int action)
+static void scroll_callback(GLFWwindow* window, double x, double y)
+{
+    printf("%08x at %0.3f: Scroll: %0.3f %0.3f\n", counter++, glfwGetTime(), x, y);
+}
+
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     const char* name = get_key_name(key);
 
-    printf("%08x at %0.3f: Key 0x%04x", counter++, glfwGetTime(), key);
+    printf("%08x at %0.3f: Key 0x%04x Scancode 0x%04x",
+           counter++, glfwGetTime(), key, scancode);
 
     if (name)
-        printf(" (%s) was %s\n", name, get_action_name(action));
-    else if (isgraph(key))
-        printf(" (%c) was %s\n", key, get_action_name(action));
-    else
-        printf(" was %s\n", get_action_name(action));
+        printf(" (%s)", name);
+
+    if (mods)
+        printf(" (with%s)", get_mods_name(mods));
+
+    printf(" was %s\n", get_action_name(action));
 
     if (action != GLFW_PRESS)
         return;
 
     switch (key)
     {
-        case 'R':
+        case GLFW_KEY_C:
         {
-            keyrepeat = !keyrepeat;
-            if (keyrepeat)
-                glfwEnable(GLFW_KEY_REPEAT);
-            else
-                glfwDisable(GLFW_KEY_REPEAT);
+            closeable = !closeable;
 
-            printf("(( key repeat %s ))\n", keyrepeat ? "enabled" : "disabled");
-            break;
-        }
-
-        case 'S':
-        {
-            systemkeys = !systemkeys;
-            if( systemkeys )
-                glfwEnable(GLFW_SYSTEM_KEYS);
-            else
-                glfwDisable(GLFW_SYSTEM_KEYS);
-
-            printf("(( system keys %s ))\n", systemkeys ? "enabled" : "disabled");
+            printf("(( closing %s ))\n", closeable ? "enabled" : "disabled");
             break;
         }
     }
 }
 
-static void GLFWCALL char_callback(int character, int action)
+static void char_callback(GLFWwindow* window, unsigned int character)
 {
-    printf("%08x at %0.3f: Character 0x%04x", counter++, glfwGetTime(), character);
+    printf("%08x at %0.3f: Character 0x%08x (%s) input\n",
+           counter++,
+           glfwGetTime(),
+           character,
+           get_character_string(character));
+}
 
-    printf(" (%s) %s\n", get_character_string(character), get_action_name(action));
+void monitor_callback(GLFWmonitor* monitor, int event)
+{
+    if (event == GLFW_CONNECTED)
+    {
+        int x, y, widthMM, heightMM;
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+        glfwGetMonitorPos(monitor, &x, &y);
+        glfwGetMonitorPhysicalSize(monitor, &widthMM, &heightMM);
+
+        printf("%08x at %0.3f: Monitor %s (%ix%i at %ix%i, %ix%i mm) was connected\n",
+               counter++,
+               glfwGetTime(),
+               glfwGetMonitorName(monitor),
+               mode->width, mode->height,
+               x, y,
+               widthMM, heightMM);
+    }
+    else
+    {
+        printf("%08x at %0.3f: Monitor %s was disconnected\n",
+               counter++,
+               glfwGetTime(),
+               glfwGetMonitorName(monitor));
+    }
 }
 
 int main(void)
 {
+    GLFWwindow* window;
+    int width, height;
+
     setlocale(LC_ALL, "");
 
+    glfwSetErrorCallback(error_callback);
+
     if (!glfwInit())
-    {
-        fprintf(stderr, "Failed to initialize GLFW\n");
-        exit(1);
-    }
+        exit(EXIT_FAILURE);
 
     printf("Library initialized\n");
 
-    if (!glfwOpenWindow(0, 0, 0, 0, 0, 0, 0, 0, GLFW_WINDOW))
+    window = glfwCreateWindow(640, 480, "Event Linter", NULL, NULL);
+    if (!window)
     {
         glfwTerminate();
-
-        fprintf(stderr, "Failed to create GLFW window");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     printf("Window opened\n");
 
-    glfwSetWindowTitle("Event Linter");
+    glfwSetMonitorCallback(monitor_callback);
+
+    glfwSetWindowPosCallback(window, window_pos_callback);
+    glfwSetWindowSizeCallback(window, window_size_callback);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetWindowCloseCallback(window, window_close_callback);
+    glfwSetWindowRefreshCallback(window, window_refresh_callback);
+    glfwSetWindowFocusCallback(window, window_focus_callback);
+    glfwSetWindowIconifyCallback(window, window_iconify_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetCursorPosCallback(window, cursor_position_callback);
+    glfwSetCursorEnterCallback(window, cursor_enter_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetCharCallback(window, char_callback);
+
+    glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
-    glfwSetWindowSizeCallback(window_size_callback);
-    glfwSetWindowCloseCallback(window_close_callback);
-    glfwSetWindowRefreshCallback(window_refresh_callback);
-    glfwSetMouseButtonCallback(mouse_button_callback);
-    glfwSetMousePosCallback(mouse_position_callback);
-    glfwSetMouseWheelCallback(mouse_wheel_callback);
-    glfwSetKeyCallback(key_callback);
-    glfwSetCharCallback(char_callback);
-
-    printf("Key repeat should be %s\n", keyrepeat ? "enabled" : "disabled");
-    printf("System keys should be %s\n", systemkeys ? "enabled" : "disabled");
+    glfwGetWindowSize(window, &width, &height);
+    printf("Window size should be %ix%i\n", width, height);
 
     printf("Main loop starting\n");
 
-    while (glfwGetWindowParam(GLFW_OPENED) == GL_TRUE)
+    while (!glfwWindowShouldClose(window))
     {
         glfwWaitEvents();
-        glClear(GL_COLOR_BUFFER_BIT);
-        glfwSwapBuffers();
+
+        // Workaround for an issue with msvcrt and mintty
+        fflush(stdout);
     }
 
     glfwTerminate();
-    exit(0);
+    exit(EXIT_SUCCESS);
 }
 
