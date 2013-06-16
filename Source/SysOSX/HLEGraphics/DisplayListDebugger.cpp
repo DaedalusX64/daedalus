@@ -17,6 +17,7 @@
 #include "HLEGraphics/RDPStateManager.h"
 #include "HLEGraphics/TextureCache.h"
 
+#include "Utility/Cond.h"
 #include "Utility/StringUtil.h"
 #include "Utility/Thread.h"
 #include "Utility/Mutex.h"
@@ -25,9 +26,10 @@
 
 static bool gDebugging = false;
 
+
 // These coordinate requests between the web threads and the main thread (only the main thread can call OpenGL functions)
-static GLFWcond  gMainThreadCond  = NULL;
-static GLFWmutex gMainThreadMutex = NULL;
+static Cond * gMainThreadCond   = NULL;
+static Mutex * gMainThreadMutex = NULL;
 
 enum DebugTask
 {
@@ -143,7 +145,8 @@ static void EncodeTexture(const CNativeTexture * texture, DataSink * sink)
 void DLDebugger_ProcessDebugTask()
 {
 	// Check if a web request is waiting for a screenshot.
-	glfwLockMutex(gMainThreadMutex);
+	// FIXME: MutexLock
+	gMainThreadMutex->Lock();
 	if (WebDebugConnection * connection = gActiveConnection)
 	{
 		bool handled = false;
@@ -299,8 +302,8 @@ void DLDebugger_ProcessDebugTask()
 		gDebugTask = kTaskUndefined;
 
 	}
-	glfwUnlockMutex(gMainThreadMutex);
-	glfwSignalCond(gMainThreadCond);
+	gMainThreadMutex->Unlock();
+	CondSignal(gMainThreadCond);
 }
 
 bool DLDebugger_Process()
@@ -324,11 +327,11 @@ bool DLDebugger_Process()
 static void DoTask(WebDebugConnection * connection, DebugTask task)
 {
 	// Request a screenshot from the main thread.
-	glfwLockMutex(gMainThreadMutex);
+	MutexLock lock(gMainThreadMutex);
+
 	gActiveConnection = connection;
 	gDebugTask        = task;
-	glfwWaitCond(gMainThreadCond, gMainThreadMutex, GLFW_INFINITY);
-	glfwUnlockMutex(gMainThreadMutex);
+	CondWait(gMainThreadCond, gMainThreadMutex, kTimeoutInfinity);
 }
 
 static void DLDebugHandler(void * arg, WebDebugConnection * connection)
@@ -391,8 +394,8 @@ bool DLDebugger_RegisterWebDebug()
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	WebDebug_Register( "/dldebugger", &DLDebugHandler, NULL );
 #endif
-	gMainThreadCond = glfwCreateCond();
-	gMainThreadMutex = glfwCreateMutex();
+	gMainThreadCond = CondCreate();
+	gMainThreadMutex = new Mutex();
 	return true;
 }
 
