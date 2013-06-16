@@ -346,7 +346,7 @@
     <ClCompile Include="..\..\Source\SysW32\DynaRec\x86\AssemblyWriterX86.cpp" />
     <ClCompile Include="..\..\Source\SysW32\DynaRec\x86\CodeBufferManagerX86.cpp" />
     <ClCompile Include="..\..\Source\SysW32\DynaRec\x86\CodeGeneratorX86.cpp" />
-    <ClCompile Include="..\..\Source\SysOSX\Input\InputManagerOSX.cpp" />
+    <ClCompile Include="..\..\Source\SysGL\Input\InputManagerGL.cpp" />
     <ClCompile Include="..\..\Source\SysPSP\Input\InputManagerPSP.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

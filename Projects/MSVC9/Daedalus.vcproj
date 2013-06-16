@@ -835,7 +835,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\Source\SysOSX\Input\InputManagerOSX.cpp"
+					RelativePath="..\..\Source\SysGL\Input\InputManagerGL.cpp"
 					>
 				</File>
 				<File

@@ -19,6 +19,7 @@
           'Graphics/NativeTextureGL.cpp',
           'HLEGraphics/GraphicsPluginGL.cpp',
           'HLEGraphics/RendererGL.cpp',
+          'Input/InputManagerGL.cpp',
           'Interface/UI.cpp',
         ],
         'conditions': [
