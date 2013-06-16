@@ -44,10 +44,8 @@ static void ComputeWait(double timeout, timespec * wait)
 
 void CondWait(Cond * cond, Mutex * mutex, double timeout)
 {
-	// Select infinite or timed wait
 	if (timeout <= 0)
 	{
-		// Wait for condition (infinite wait)
 		pthread_cond_wait( (pthread_cond_t *)cond, &mutex->mMutex );
 	}
 	else
@@ -57,8 +55,8 @@ void CondWait(Cond * cond, Mutex * mutex, double timeout)
 
 		pthread_cond_timedwait( (pthread_cond_t *)cond, &mutex->mMutex, &wait );
 	}
-
 }
+
 void CondSignal(Cond * cond)
 {
 	pthread_cond_signal( (pthread_cond_t *)cond );
