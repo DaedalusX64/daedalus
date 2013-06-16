@@ -56,10 +56,11 @@ ALIGNED_GLOBAL(u8, gTMEM[ MAX_TMEM_ADDRESS ], 16);	// 4Kb
 
 #ifdef DAEDALUS_ACCURATE_TMEM
 
-// FIXME: CopyLineQwords** need to check src alignment!?
+// CopyLineQwords** passes in an offset in 32bit words, (i.e. does mem_address/4) 
+// So it's aligned by definition, we have asserts in place just in case!
 
-// TODO: Simplify CopyLine**: Due to how TMEM is organized, erg the last 3 bits in the address are always "0"
-// It should be safe to assume copies will always be atleast one qword
+// Due to how TMEM is organized, erg the last 3 bits in the address are always "0"
+// It should be safe to assume copies will always be update in qwords
 #define FAST_TMEM_COPY
 
 static inline void CopyLineQwords(void * dst, const void * src, u32 qwords)
@@ -143,6 +144,7 @@ static void CopyLineQwordsSwap32(void * dst, const void * src, u32 qwords)
 		src32+=2;
 	}
 #else
+
 	u8* src8 = (u8*)src;
 	u8* dst8 = (u8*)dst;
 	u32 bytes = qwords * 8;
@@ -155,35 +157,56 @@ static void CopyLineQwordsSwap32(void * dst, const void * src, u32 qwords)
 
 static inline void CopyLine(void * dst, const void * src, u32 bytes)
 {
-	u32* src32 = (u32*)src;
-	u32* dst32 = (u32*)dst;
+	u8* src8 = (u8*)src;
+	u8* dst8 = (u8*)dst;
 
 #ifdef FAST_TMEM_COPY
-	if( ((uintptr_t)src32&0x3 )==0)
-	{
-		u32 size32 = bytes >> 2;
-		bytes &= 0x3;
+	u32* src32 = (u32*)src8;
+	u32* dst32 = (u32*)dst8;
 
+	DAEDALUS_ASSERT((bytes&0x3)==0, "CopyLine: Remaning bytes! (%d)",bytes);
+
+	u32 size32 = bytes >> 2;
+	u32 src_alignment = (uintptr_t)src32&0x3;
+
+	if(src_alignment == 0)
+	{
 		while (size32--)
 		{
 			*dst32++ = BSWAP32(src32[0]);
 			src32++;
 		}
+		src8 = (u8*)src32;
 	}
 	else
 	{
-		//Happens quiet often in Zelda!
-		//TODO: Optimize me
-		//DBGConsole_Msg(0, "[WWarning CopyLine: Performing slow copy]" );
-	}
-#endif
+		// Zelda and DK64 have unaligned copies. so let's optimize 'em
+		src32 = (u32*)((uintptr_t)src8 & ~0x3);
+		u32 src_tmp = *src32++;
+		u32 dst_tmp = 0;
 
-	u8* src8 = (u8*)src32;
-	u8* dst8 = (u8*)dst32;
+		// calculate offset 3..1..2
+		u32 offset = 4-src_alignment;
+		u32 lshift = src_alignment<<3;
+		u32 rshift = offset<<3;
+
+		while(size32--)
+		{
+			dst_tmp = src_tmp << lshift;
+			src_tmp = *src32++;
+			dst_tmp|= src_tmp >> rshift;
+			*dst32++ = BSWAP32(dst_tmp);
+		}
+		src8 = (u8*)src32 - offset;
+	}
+	dst8 = (u8*)dst32;
+#else
+
 	while(bytes--)
 	{
 		*dst8++ = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
 	}
+#endif
 }
 
 static inline void CopyLineSwap(void * dst, const void * src, u32 bytes)
@@ -192,10 +215,11 @@ static inline void CopyLineSwap(void * dst, const void * src, u32 bytes)
 	u32* dst32 = (u32*)dst;
 
 #ifdef FAST_TMEM_COPY
+	DAEDALUS_ASSERT((bytes&0x7)==0, "CopyLineSwap: Remaning bytes! (%d)",bytes);
+
 	if( ((uintptr_t)src32&0x3 )==0)
 	{
 		u32 size64 = bytes >> 3;
-		bytes &= 0x7;
 
 		while (size64--)
 		{
@@ -207,7 +231,8 @@ static inline void CopyLineSwap(void * dst, const void * src, u32 bytes)
 	}
 	else
 	{
-		//DBGConsole_Msg(0, "[WWarning CopyLineSwap: Performing slow copy]" );
+		// Optimize me: Bomberman, Zelda, and Quest 64 have unaligned copies here
+		DBGConsole_Msg(0, "[WWarning CopyLineSwap: Performing slow copy]" );
 	}
 #endif
 
@@ -222,14 +247,15 @@ static inline void CopyLineSwap(void * dst, const void * src, u32 bytes)
 
 static inline void CopyLineSwap32(void * dst, const void * src, u32 bytes)
 {
+#ifdef FAST_TMEM_COPY	
 	u32* src32 = (u32*)(src);
 	u32* dst32 = (u32*)(dst);
 
-#ifdef FAST_TMEM_COPY
+	DAEDALUS_ASSERT((bytes&0x7)==0, "CopyLineSwap32: Remaning bytes! (%d)",bytes);
+
 	if( ((uintptr_t)src32&0x3 )==0)
 	{
 		u32 size128 = bytes >> 4;
-		bytes &= 0xF;
 
 		while (size128--)
 		{
@@ -240,12 +266,22 @@ static inline void CopyLineSwap32(void * dst, const void * src, u32 bytes)
 			dst32 += 4;
 			src32 += 4;
 		}
+
+		// Copy any remaining quadword
+		bytes&=0xF;
+		while(bytes--)
+		{
+			*(u32*)((uintptr_t)dst32++ ^ 0x8) = BSWAP32(src32[0]);
+			*(u32*)((uintptr_t)dst32++ ^ 0x8) = BSWAP32(src32[1]);
+			src32+=2;
+		}
 	}
 	else
 	{
-		//DBGConsole_Msg(0, "[WWarning CopyLineSwap32: Performing slow copy]" );
+		// Have yet to see game with unaligned copies here
+		DBGConsole_Msg(0, "[WWarning CopyLineSwap32: Performing slow copy]" );
 	}
-#endif
+#else
 
 	u8* src8 = (u8*)src32;
 	u8* dst8 = (u8*)dst32;
@@ -254,6 +290,7 @@ static inline void CopyLineSwap32(void * dst, const void * src, u32 bytes)
 		// Alternate 64 bit words are swapped
 		*(u8*)((uintptr_t)dst8++ ^ 0x8) = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
 	}
+#endif
 }
 #endif
 
