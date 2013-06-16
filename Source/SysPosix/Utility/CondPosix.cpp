@@ -8,6 +8,8 @@
 
 const double kTimeoutInfinity = 0.f;
 
+// Cond wrapper derived from GLFW 2.7, see http://www.glfw.org/.
+
 Cond * CondCreate()
 {
 	pthread_cond_t * cond = (pthread_cond_t *)malloc( sizeof(pthread_cond_t) );
@@ -30,11 +32,11 @@ static void ComputeWait(double timeout, timespec * wait)
 {
 	timeval currenttime;
 	gettimeofday( &currenttime, NULL );
-	long dt_sec  = (long) timeout;
-	long dt_usec = (long) ((timeout - (double)dt_sec) * 1000000.0);
+	long dt_sec  = (long)timeout;
+	long dt_usec = (long)((timeout - (double)dt_sec) * 1000000.0);
 
 	wait->tv_nsec = (currenttime.tv_usec + dt_usec) * 1000L;
-	if( wait->tv_nsec > 1000000000L )
+	if (wait->tv_nsec > 1000000000L)
 	{
 		wait->tv_nsec -= 1000000000L;
 		dt_sec++;
