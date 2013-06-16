@@ -28,47 +28,32 @@ public:
 	IInputManager();
 	virtual ~IInputManager();
 
-	virtual bool						Initialise();
-	virtual void						Finalise()					{}
+	virtual bool				Initialise();
+	virtual void				Finalise()					{}
 
-	virtual void						GetState( OSContPad pPad[4] );
+	virtual void				GetState( OSContPad pPad[4] );
 
-	virtual u32							GetNumConfigurations() const;
-	virtual const char *				GetConfigurationName( u32 configuration_idx ) const;
-	virtual const char *				GetConfigurationDescription( u32 configuration_idx ) const;
-	virtual void						SetConfiguration( u32 configuration_idx );
+	virtual u32					GetNumConfigurations() const;
+	virtual const char *		GetConfigurationName( u32 configuration_idx ) const;
+	virtual const char *		GetConfigurationDescription( u32 configuration_idx ) const;
+	virtual void				SetConfiguration( u32 configuration_idx );
 
-	virtual u32							GetConfigurationFromName( const char * name ) const;
+	virtual u32					GetConfigurationFromName( const char * name ) const;
 private:
 	void InitGamePad();
 	void GetJoyPad(OSContPad *pPad);
 
-	u32 mNumAxes;
-	u32 mNumButtoms;
 	bool mIsGamePad;
-
-	f32 *mJoyStick;
-	u8 *mJoyButton;
-
 };
 
 IInputManager::IInputManager()
-:	mNumAxes( 0 )
-,	mNumButtoms( 0 )
-,	mIsGamePad( false )
-,	mJoyStick( NULL )
-,	mJoyButton( NULL )
+:	mIsGamePad( false )
 {
 	InitGamePad();
 }
 
 IInputManager::~IInputManager()
 {
-	if(mJoyStick)
-		delete [] mJoyStick;
-
-	if(mJoyButton)
-		delete [] mJoyButton;
 }
 
 bool IInputManager::Initialise()
@@ -76,30 +61,19 @@ bool IInputManager::Initialise()
 	return true;
 }
 
+// FIXME: maybe don't have an explicit init step, just check glfwJoystickPresent every frame?
 void IInputManager::InitGamePad()
 {
-	mIsGamePad = glfwGetJoystickParam(GLFW_JOYSTICK_1, GLFW_PRESENT) ? true : false;
-	if(mIsGamePad)
-	{
-		mNumAxes = glfwGetJoystickParam(GLFW_JOYSTICK_1,GLFW_AXES);
-		mNumButtoms = glfwGetJoystickParam(GLFW_JOYSTICK_1,GLFW_BUTTONS);
-		if(mNumAxes && mNumButtoms )
-		{
-			mJoyStick = new f32[2];	//Only two axis are needed
-			mJoyButton = new u8[mNumButtoms];
-			return;
-		}
-
-		mIsGamePad = false;
-		DAEDALUS_ERROR("Couldn't init gamepad");
-	}
+	mIsGamePad = glfwJoystickPresent(GLFW_JOYSTICK_1);
 }
 
 void IInputManager::GetJoyPad(OSContPad *pPad)
 {
 	static const s32 N64_ANALOGUE_STICK_RANGE =  80;
 
-    if(!glfwGetJoystickPos(GLFW_JOYSTICK_1, mJoyStick, 2 ))
+	int num_axes;
+	const float * axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &num_axes);
+    if(!axes || num_axes < 2)
 	{
 		// gamepad was disconnected?
         DAEDALUS_ERROR("Couldn't read axes");
@@ -107,7 +81,9 @@ void IInputManager::GetJoyPad(OSContPad *pPad)
         return;
     }
 
-	if(!glfwGetJoystickButtons(GLFW_JOYSTICK_1, mJoyButton, mNumButtoms))
+    int num_buttons;
+	const u8 * buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &num_buttons);
+	if(!buttons || num_buttons < 12)
 	{
 		// gamepad was disconnected?
 		DAEDALUS_ERROR("Couldn't read buttons");
@@ -116,23 +92,23 @@ void IInputManager::GetJoyPad(OSContPad *pPad)
 	}
 
 	//ToDo: Different gamepads will need different configuration, this is for PS3/PS2 controller
-	if (mJoyButton[11])		pPad->button |= START_BUTTON;
-	if (mJoyButton[9])		pPad->button |= START_BUTTON;
-	if (mJoyButton[2])		pPad->button |= A_BUTTON;
-	if (mJoyButton[3])		pPad->button |= B_BUTTON;
-	if (mJoyButton[6])		pPad->button |= Z_TRIG;
-	if (mJoyButton[4])		pPad->button |= L_TRIG;
-	if (mJoyButton[5])		pPad->button |= R_TRIG;
+	if (buttons[11])	pPad->button |= START_BUTTON;
+	if (buttons[9])		pPad->button |= START_BUTTON;
+	if (buttons[2])		pPad->button |= A_BUTTON;
+	if (buttons[3])		pPad->button |= B_BUTTON;
+	if (buttons[6])		pPad->button |= Z_TRIG;
+	if (buttons[4])		pPad->button |= L_TRIG;
+	if (buttons[5])		pPad->button |= R_TRIG;
 
 	// Used to see key presses, useful to add a different button configuration
-	//for(u32 i = 0; i < mNumButtoms; i++)
+	//for(u32 i = 0; i < num_buttons; i++)
 	//{
-	//	if(mJoyButton[i])
+	//	if(buttons[i])
 	//		printf("%d\n",i);
 	//}
 
-	pPad->stick_x =  s8(mJoyStick[0] * N64_ANALOGUE_STICK_RANGE);
-	pPad->stick_y =  s8(mJoyStick[1] * N64_ANALOGUE_STICK_RANGE);
+	pPad->stick_x =  s8(axes[0] * N64_ANALOGUE_STICK_RANGE);
+	pPad->stick_y =  s8(axes[1] * N64_ANALOGUE_STICK_RANGE);
 
 	//ToDo: Map DPAD and c buttons
 	//DPAD and hat POV are implemented until glfw 3.0 shall we update? :)
@@ -148,36 +124,36 @@ void IInputManager::GetState( OSContPad pPad[4] )
 		pPad[cont].stick_y = 0;
 	}
 
-	//Check if a gamepad is connected, If not fallback to keyboard
-	if( mIsGamePad == true)
+	// Check if a gamepad is connected, If not fallback to keyboard
+	if(mIsGamePad == true)
 	{
 		GetJoyPad(&pPad[0]);
 	}
-	else
+	else if(GLFWwindow* window = gWindow)
 	{
-		if (glfwGetKey( 'X' ))		pPad[0].button |= A_BUTTON;
-		if (glfwGetKey( 'C' ))		pPad[0].button |= B_BUTTON;
-		if (glfwGetKey( 'Z' ))		pPad[0].button |= Z_TRIG;
-		if (glfwGetKey( 'Y' ))		pPad[0].button |= Z_TRIG;		// For German keyboards :)
-		if (glfwGetKey( 'A' ))		pPad[0].button |= L_TRIG;
-		if (glfwGetKey( 'S' ))		pPad[0].button |= R_TRIG;
+		if (glfwGetKey( window, 'X' ))		pPad[0].button |= A_BUTTON;
+		if (glfwGetKey( window, 'C' ))		pPad[0].button |= B_BUTTON;
+		if (glfwGetKey( window, 'Z' ))		pPad[0].button |= Z_TRIG;
+		if (glfwGetKey( window, 'Y' ))		pPad[0].button |= Z_TRIG;		// For German keyboards :)
+		if (glfwGetKey( window, 'A' ))		pPad[0].button |= L_TRIG;
+		if (glfwGetKey( window, 'S' ))		pPad[0].button |= R_TRIG;
 
-		if (glfwGetKey( GLFW_KEY_ENTER ))	pPad[0].button |= START_BUTTON;
+		if (glfwGetKey( window, GLFW_KEY_ENTER ))		pPad[0].button |= START_BUTTON;
 
-		if (glfwGetKey( GLFW_KEY_KP_8 ))	pPad[0].button |= U_JPAD;
-		if (glfwGetKey( GLFW_KEY_KP_2 ))	pPad[0].button |= D_JPAD;
-		if (glfwGetKey( GLFW_KEY_KP_4 ))	pPad[0].button |= L_JPAD;
-		if (glfwGetKey( GLFW_KEY_KP_6 ))	pPad[0].button |= R_JPAD;
+		if (glfwGetKey( window, GLFW_KEY_KP_8 ))		pPad[0].button |= U_JPAD;
+		if (glfwGetKey( window, GLFW_KEY_KP_2 ))		pPad[0].button |= D_JPAD;
+		if (glfwGetKey( window, GLFW_KEY_KP_4 ))		pPad[0].button |= L_JPAD;
+		if (glfwGetKey( window, GLFW_KEY_KP_6 ))		pPad[0].button |= R_JPAD;
 
-		if (glfwGetKey( GLFW_KEY_HOME ))	pPad[0].button |= U_CBUTTONS;
-		if (glfwGetKey( GLFW_KEY_END ))		pPad[0].button |= D_CBUTTONS;
-		if (glfwGetKey( GLFW_KEY_DEL ))		pPad[0].button |= L_CBUTTONS;
-		if (glfwGetKey( GLFW_KEY_PAGEDOWN ))pPad[0].button |= R_CBUTTONS;
+		if (glfwGetKey( window, GLFW_KEY_HOME ))		pPad[0].button |= U_CBUTTONS;
+		if (glfwGetKey( window, GLFW_KEY_END ))			pPad[0].button |= D_CBUTTONS;
+		if (glfwGetKey( window, GLFW_KEY_DELETE ))		pPad[0].button |= L_CBUTTONS;
+		if (glfwGetKey( window, GLFW_KEY_PAGE_DOWN ))	pPad[0].button |= R_CBUTTONS;
 
-		if (glfwGetKey( GLFW_KEY_LEFT ))	pPad[0].stick_x = -80;
-		if (glfwGetKey( GLFW_KEY_RIGHT ))	pPad[0].stick_x = +80;
-		if (glfwGetKey( GLFW_KEY_UP ))		pPad[0].stick_y = +80;
-		if (glfwGetKey( GLFW_KEY_DOWN ))	pPad[0].stick_y = -80;
+		if (glfwGetKey( window, GLFW_KEY_LEFT ))		pPad[0].stick_x = -80;
+		if (glfwGetKey( window, GLFW_KEY_RIGHT ))		pPad[0].stick_x = +80;
+		if (glfwGetKey( window, GLFW_KEY_UP ))			pPad[0].stick_y = +80;
+		if (glfwGetKey( window, GLFW_KEY_DOWN ))		pPad[0].stick_y = -80;
 	}
 }
 

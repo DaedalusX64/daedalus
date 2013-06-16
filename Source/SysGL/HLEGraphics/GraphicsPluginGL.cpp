@@ -158,11 +158,12 @@ void CGraphicsPluginImpl::UpdateScreen()
 	if (current_origin != LastOrigin)
 	{
 		UpdateFramerate();
+
+		// FIXME: safe printf
 		char string[22];
 		sprintf(string, "Daedalus | FPS %#.1f", gCurrentFramerate);
 
-		// Can't find a way to append window tittle, just override it
-		glfwSetWindowTitle(string);
+		glfwSetWindowTitle(gWindow, string);
 
 		if (gTakeScreenshot)
 		{
