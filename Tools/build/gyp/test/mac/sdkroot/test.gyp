@@ -17,5 +17,19 @@
         },
       ],
     },
+    {
+      'target_name': 'absolute',
+      'type': 'executable',
+      'sources': [ 'file.cc', ],
+      'xcode_settings': {
+        'SDKROOT': '<(sdk_path)',
+      },
+      'postbuilds': [
+        {
+          'postbuild_name': 'envtest',
+          'action': [ './test_shorthand.sh', ],
+        },
+      ],
+    },
   ],
 }

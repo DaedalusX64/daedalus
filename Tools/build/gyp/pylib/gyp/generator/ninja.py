@@ -370,6 +370,8 @@ class NinjaWriter:
                                                            generator_flags)
       arch = self.msvs_settings.GetArch(config_name)
       self.ninja.variable('arch', self.win_env[arch])
+      self.ninja.variable('cc', '$cl_' + arch)
+      self.ninja.variable('cxx', '$cl_' + arch)
 
     # Compute predepends for all rules.
     # actions_depends is the dependencies this target depends on before running
@@ -607,6 +609,7 @@ class NinjaWriter:
 
       # For each source file, write an edge that generates all the outputs.
       for source in rule.get('rule_sources', []):
+        source = os.path.normpath(source)
         dirname, basename = os.path.split(source)
         root, ext = os.path.splitext(basename)
 
@@ -628,7 +631,11 @@ class NinjaWriter:
           if var == 'root':
             extra_bindings.append(('root', cygwin_munge(root)))
           elif var == 'dirname':
-            extra_bindings.append(('dirname', cygwin_munge(dirname)))
+            # '$dirname' is a parameter to the rule action, which means
+            # it shouldn't be converted to a Ninja path.  But we don't
+            # want $!PRODUCT_DIR in there either.
+            dirname_expanded = self.ExpandSpecial(dirname, self.base_to_build)
+            extra_bindings.append(('dirname', cygwin_munge(dirname_expanded)))
           elif var == 'source':
             # '$source' is a parameter to the rule action, which means
             # it shouldn't be converted to a Ninja path.  But we don't
@@ -761,8 +768,9 @@ class NinjaWriter:
     if self.flavor == 'win':
       include_dirs = self.msvs_settings.AdjustIncludeDirs(include_dirs,
                                                           config_name)
+    env = self.GetSortedXcodeEnv()
     self.WriteVariableList('includes',
-        [QuoteShellArgument('-I' + self.GypPathToNinja(i), self.flavor)
+        [QuoteShellArgument('-I' + self.GypPathToNinja(i, env), self.flavor)
          for i in include_dirs])
 
     pch_commands = precompiled_header.GetPchBuildCommands()
@@ -919,8 +927,11 @@ class NinjaWriter:
     else:
       ldflags = config.get('ldflags', [])
       if is_executable and len(solibs):
-        ldflags.append('-Wl,-rpath=\$$ORIGIN/lib/')
-        ldflags.append('-Wl,-rpath-link=lib/')
+        rpath = 'lib/'
+        if self.toolset != 'target':
+          rpath += self.toolset
+        ldflags.append('-Wl,-rpath=\$$ORIGIN/%s' % rpath)
+        ldflags.append('-Wl,-rpath-link=%s' % rpath)
     self.WriteVariableList('ldflags',
                            gyp.common.uniquer(map(self.ExpandSpecial,
                                                   ldflags)))
@@ -971,7 +982,7 @@ class NinjaWriter:
       if self.xcode_settings:
         variables.append(('libtool_flags',
                           self.xcode_settings.GetLibtoolflags(config_name)))
-      if (self.flavor not in ('mac', 'win') and not
+      if (self.flavor not in ('mac', 'openbsd', 'win') and not
           self.is_standalone_static_library):
         self.ninja.build(self.target.binary, 'alink_thin', link_deps,
                          order_only=compile_deps, variables=variables)
@@ -1033,13 +1044,15 @@ class NinjaWriter:
     if not self.xcode_settings or spec['type'] == 'none' or not output:
       return ''
     output = QuoteShellArgument(output, self.flavor)
-    target_postbuilds = self.xcode_settings.GetTargetPostbuilds(
-        self.config_name,
-        os.path.normpath(os.path.join(self.base_to_build, output)),
-        QuoteShellArgument(
-            os.path.normpath(os.path.join(self.base_to_build, output_binary)),
-            self.flavor),
-        quiet=True)
+    target_postbuilds = []
+    if output_binary is not None:
+      target_postbuilds = self.xcode_settings.GetTargetPostbuilds(
+          self.config_name,
+          os.path.normpath(os.path.join(self.base_to_build, output)),
+          QuoteShellArgument(
+              os.path.normpath(os.path.join(self.base_to_build, output_binary)),
+              self.flavor),
+          quiet=True)
     postbuilds = gyp.xcode_emulation.GetSpecPostbuildCommands(spec, quiet=True)
     postbuilds = target_postbuilds + postbuilds
     if not postbuilds:
@@ -1326,6 +1339,34 @@ def CommandWithWrapper(cmd, wrappers, prog):
   return prog
 
 
+def GetDefaultConcurrentLinks():
+  """Returns a best-guess for a number of concurrent links."""
+  if sys.platform in ('win32', 'cygwin'):
+    import ctypes
+
+    class MEMORYSTATUSEX(ctypes.Structure):
+      _fields_ = [
+        ("dwLength", ctypes.c_ulong),
+        ("dwMemoryLoad", ctypes.c_ulong),
+        ("ullTotalPhys", ctypes.c_ulonglong),
+        ("ullAvailPhys", ctypes.c_ulonglong),
+        ("ullTotalPageFile", ctypes.c_ulonglong),
+        ("ullAvailPageFile", ctypes.c_ulonglong),
+        ("ullTotalVirtual", ctypes.c_ulonglong),
+        ("ullAvailVirtual", ctypes.c_ulonglong),
+        ("sullAvailExtendedVirtual", ctypes.c_ulonglong),
+      ]
+
+    stat = MEMORYSTATUSEX()
+    stat.dwLength = ctypes.sizeof(stat)
+    ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(stat))
+
+    return max(1, stat.ullTotalPhys / (2 ** 31))
+  else:
+    # TODO(scottmg): Implement this for other platforms.
+    return 1
+
+
 def GenerateOutputForConfig(target_list, target_dicts, data, params,
                             config_name):
   options = params['options']
@@ -1364,11 +1405,12 @@ def GenerateOutputForConfig(target_list, target_dicts, data, params,
   #   'CC_host'/'CXX_host' enviroment variable, cc_host/cxx_host should be set
   #   to cc/cxx.
   if flavor == 'win':
+    # Overridden by local arch choice in the use_deps case.
+    # Chromium's ffmpeg c99conv.py currently looks for a 'cc =' line in
+    # build.ninja so needs something valid here. http://crbug.com/233985
     cc = 'cl.exe'
     cxx = 'cl.exe'
     ld = 'link.exe'
-    gyp.msvs_emulation.GenerateEnvironmentFiles(
-        toplevel_build, generator_flags, OpenOutput)
     ld_host = '$ld'
   else:
     cc = 'gcc'
@@ -1385,12 +1427,7 @@ def GenerateOutputForConfig(target_list, target_dicts, data, params,
   make_global_settings = data[build_file].get('make_global_settings', [])
   build_to_root = gyp.common.InvertRelativePath(build_dir,
                                                 options.toplevel_dir)
-  flock = 'flock'
-  if flavor == 'mac':
-    flock = './gyp-mac-tool flock'
   wrappers = {}
-  if flavor != 'win':
-    wrappers['LINK'] = flock + ' linker.lock'
   for key, value in make_global_settings:
     if key == 'CC':
       cc = os.path.join(build_to_root, value)
@@ -1408,6 +1445,21 @@ def GenerateOutputForConfig(target_list, target_dicts, data, params,
       ld_host = os.path.join(build_to_root, value)
     if key.endswith('_wrapper'):
       wrappers[key[:-len('_wrapper')]] = os.path.join(build_to_root, value)
+
+  # Support wrappers from environment variables too.
+  for key, value in os.environ.iteritems():
+    if key.lower().endswith('_wrapper'):
+      key_prefix = key[:-len('_wrapper')]
+      key_prefix = re.sub(r'\.HOST$', '.host', key_prefix)
+      wrappers[key_prefix] = os.path.join(build_to_root, value)
+
+  if flavor == 'win':
+    cl_paths = gyp.msvs_emulation.GenerateEnvironmentFiles(
+        toplevel_build, generator_flags, OpenOutput)
+    for arch, path in cl_paths.iteritems():
+      master_ninja.variable(
+          'cl_' + arch, CommandWithWrapper('CC', wrappers,
+                                           QuoteShellArgument(path, flavor)))
 
   cc = GetEnvironFallback(['CC_target', 'CC'], cc)
   master_ninja.variable('cc', CommandWithWrapper('CC', wrappers, cc))
@@ -1427,7 +1479,6 @@ def GenerateOutputForConfig(target_list, target_dicts, data, params,
     master_ninja.variable('rc', 'rc.exe')
     master_ninja.variable('asm', 'ml.exe')
     master_ninja.variable('mt', 'mt.exe')
-    master_ninja.variable('use_dep_database', '1')
   else:
     master_ninja.variable('ld', CommandWithWrapper('LINK', wrappers, ld))
     master_ninja.variable('ar', GetEnvironFallback(['AR_target', 'AR'], 'ar'))
@@ -1455,13 +1506,19 @@ def GenerateOutputForConfig(target_list, target_dicts, data, params,
 
   master_ninja.newline()
 
+  master_ninja.pool('link_pool', depth=GetDefaultConcurrentLinks())
+  master_ninja.newline()
+
+  deps = 'msvc' if flavor == 'win' else 'gcc'
+
   if flavor != 'win':
     master_ninja.rule(
       'cc',
       description='CC $out',
       command=('$cc -MMD -MF $out.d $defines $includes $cflags $cflags_c '
               '$cflags_pch_c -c $in -o $out'),
-      depfile='$out.d')
+      depfile='$out.d',
+      deps=deps)
     master_ninja.rule(
       'cc_s',
       description='CC $out',
@@ -1472,13 +1529,14 @@ def GenerateOutputForConfig(target_list, target_dicts, data, params,
       description='CXX $out',
       command=('$cxx -MMD -MF $out.d $defines $includes $cflags $cflags_cc '
               '$cflags_pch_cc -c $in -o $out'),
-      depfile='$out.d')
+      depfile='$out.d',
+      deps=deps)
   else:
-    cc_command = ('ninja -t msvc -o $out -e $arch '
+    cc_command = ('ninja -t msvc -e $arch ' +
                   '-- '
                   '$cc /nologo /showIncludes /FC '
                   '@$out.rsp /c $in /Fo$out /Fd$pdbname ')
-    cxx_command = ('ninja -t msvc -o $out -e $arch '
+    cxx_command = ('ninja -t msvc -e $arch ' +
                    '-- '
                    '$cxx /nologo /showIncludes /FC '
                    '@$out.rsp /c $in /Fo$out /Fd$pdbname ')
@@ -1488,14 +1546,16 @@ def GenerateOutputForConfig(target_list, target_dicts, data, params,
       command=cc_command,
       depfile='$out.d',
       rspfile='$out.rsp',
-      rspfile_content='$defines $includes $cflags $cflags_c')
+      rspfile_content='$defines $includes $cflags $cflags_c',
+      deps=deps)
     master_ninja.rule(
       'cxx',
       description='CXX $out',
       command=cxx_command,
       depfile='$out.d',
       rspfile='$out.rsp',
-      rspfile_content='$defines $includes $cflags $cflags_cc')
+      rspfile_content='$defines $includes $cflags $cflags_cc',
+      deps=deps)
     master_ninja.rule(
       'idl',
       description='IDL $in',
@@ -1549,18 +1609,21 @@ def GenerateOutputForConfig(target_list, target_dicts, data, params,
       restat=True,
       command=(mtime_preserving_solink_base % {
           'suffix': '-Wl,--whole-archive $in $solibs -Wl,--no-whole-archive '
-          '$libs'}))
+          '$libs'}),
+      pool='link_pool')
     master_ninja.rule(
       'solink_module',
       description='SOLINK(module) $lib',
       restat=True,
       command=(mtime_preserving_solink_base % {
-          'suffix': '-Wl,--start-group $in $solibs -Wl,--end-group $libs'}))
+          'suffix': '-Wl,--start-group $in $solibs -Wl,--end-group $libs'}),
+      pool='link_pool')
     master_ninja.rule(
       'link',
       description='LINK $out',
       command=('$ld $ldflags -o $out '
-               '-Wl,--start-group $in $solibs -Wl,--end-group $libs'))
+               '-Wl,--start-group $in $solibs -Wl,--end-group $libs'),
+      pool='link_pool')
   elif flavor == 'win':
     master_ninja.rule(
         'alink',
@@ -1583,11 +1646,13 @@ def GenerateOutputForConfig(target_list, target_dicts, data, params,
     master_ninja.rule('solink', description=dlldesc, command=dllcmd,
                       rspfile='$dll.rsp',
                       rspfile_content='$libs $in_newline $ldflags',
-                      restat=True)
+                      restat=True,
+                      pool='link_pool')
     master_ninja.rule('solink_module', description=dlldesc, command=dllcmd,
                       rspfile='$dll.rsp',
                       rspfile_content='$libs $in_newline $ldflags',
-                      restat=True)
+                      restat=True,
+                      pool='link_pool')
     # Note that ldflags goes at the end so that it has the option of
     # overriding default settings earlier in the command line.
     master_ninja.rule(
@@ -1601,20 +1666,23 @@ def GenerateOutputForConfig(target_list, target_dicts, data, params,
                  '$mt -nologo -manifest $manifests -out:$out.manifest' %
                  (sys.executable, sys.executable, sys.executable)),
         rspfile='$out.rsp',
-        rspfile_content='$in_newline $libs $ldflags')
+        rspfile_content='$in_newline $libs $ldflags',
+        pool='link_pool')
   else:
     master_ninja.rule(
       'objc',
       description='OBJC $out',
       command=('$cc -MMD -MF $out.d $defines $includes $cflags $cflags_objc '
                '$cflags_pch_objc -c $in -o $out'),
-      depfile='$out.d')
+      depfile='$out.d',
+      deps=deps)
     master_ninja.rule(
       'objcxx',
       description='OBJCXX $out',
       command=('$cxx -MMD -MF $out.d $defines $includes $cflags $cflags_objcc '
                '$cflags_pch_objcc -c $in -o $out'),
-      depfile='$out.d')
+      depfile='$out.d',
+      deps=deps)
     master_ninja.rule(
       'alink',
       description='LIBTOOL-STATIC $out, POSTBUILDS',
@@ -1650,19 +1718,22 @@ def GenerateOutputForConfig(target_list, target_dicts, data, params,
       description='SOLINK $lib, POSTBUILDS',
       restat=True,
       command=(mtime_preserving_solink_base % {
-          'suffix': '$in $solibs $libs$postbuilds'}))
+          'suffix': '$in $solibs $libs$postbuilds'}),
+      pool='link_pool')
     master_ninja.rule(
       'solink_module',
       description='SOLINK(module) $lib, POSTBUILDS',
       restat=True,
       command=(mtime_preserving_solink_base % {
-          'suffix': '$in $solibs $libs$postbuilds'}))
+          'suffix': '$in $solibs $libs$postbuilds'}),
+      pool='link_pool')
 
     master_ninja.rule(
       'link',
       description='LINK $out, POSTBUILDS',
       command=('$ld $ldflags -o $out '
-               '$in $solibs $libs$postbuilds'))
+               '$in $solibs $libs$postbuilds'),
+      pool='link_pool')
     master_ninja.rule(
       'infoplist',
       description='INFOPLIST $out',
@@ -1799,7 +1870,7 @@ def GenerateOutput(target_list, target_dicts, data, params):
         for config_name in config_names:
           arglists.append(
               (target_list, target_dicts, data, params, config_name))
-          pool.map(CallGenerateOutputForConfig, arglists)
+        pool.map(CallGenerateOutputForConfig, arglists)
       except KeyboardInterrupt, e:
         pool.terminate()
         raise e

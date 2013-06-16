@@ -28,8 +28,16 @@ if sys.platform == 'darwin':
   if proc.returncode:
     sdk = '10.7'
 
+  proc = subprocess.Popen(['xcodebuild', '-version',
+                           '-sdk', 'macosx' + sdk, 'Path'],
+                          stdout=subprocess.PIPE)
+  sdk_path = proc.communicate()[0].rstrip('\n')
+  if proc.returncode != 0:
+    test.fail_test()
+
   test.write('sdkroot/test.gyp', test.read('sdkroot/test.gyp') % sdk)
 
-  test.run_gyp('test.gyp', chdir='sdkroot')
+  test.run_gyp('test.gyp', '-D', 'sdk_path=%s' % sdk_path,
+               chdir='sdkroot')
   test.build('test.gyp', test.ALL, chdir='sdkroot')
   test.pass_test()

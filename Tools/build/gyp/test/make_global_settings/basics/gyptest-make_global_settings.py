@@ -37,10 +37,8 @@ LINK ?= ./gyp-mac-tool flock $(builddir)/linker.lock $(abspath clang++)
   test.must_contain('Makefile', link_expected)
 if test.format == 'ninja':
   cc_expected = 'cc = ' + os.path.join('..', '..', 'clang')
-  ld_expected = 'ld = flock linker.lock $cxx'
-  if sys.platform == 'darwin':
-    ld_expected = './gyp-mac-tool flock linker.lock $cxx'
-  elif sys.platform == 'win32':
+  ld_expected = 'ld = $cxx'
+  if sys.platform == 'win32':
     ld_expected = 'link.exe'
   test.must_contain('out/Default/build.ninja', cc_expected)
   test.must_contain('out/Default/build.ninja', ld_expected)

@@ -11,9 +11,9 @@ Test that two targets with the same name generates an error.
 import TestGyp
 import TestCmd
 
-# TODO(sbc): Remove the need for match_re below, and make scons
-# error messages consistent with other generators by removing
-# input.py:generator_wants_absolute_build_file_paths.
+# TODO(sbc): Remove the use of match_re below, done because scons
+# error messages were not consistent with other generators.
+# Also remove input.py:generator_wants_absolute_build_file_paths.
 
 test = TestGyp.TestGyp()
 

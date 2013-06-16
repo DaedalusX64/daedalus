@@ -133,6 +133,14 @@ class MacTool(object):
       evar = '${%s}' % key
       lines = string.replace(lines, evar, os.environ[key])
 
+    # Remove any keys with values that haven't been replaced.
+    lines = lines.split('\n')
+    for i in range(len(lines)):
+      if lines[i].strip().startswith("<string>${"):
+        lines[i] = None
+        lines[i - 1] = None
+    lines = '\n'.join(filter(lambda x: x is not None, lines))
+
     # Write out the file with variables replaced.
     fd = open(dest, 'w')
     fd.write(lines)

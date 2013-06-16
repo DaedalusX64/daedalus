@@ -28,6 +28,7 @@ if sys.platform == 'darwin':
                                     chdir='app-bundle')
   test.must_exist(info_plist)
   test.must_contain(info_plist, 'com.google.Test App Gyp')  # Variable expansion
+  test.must_not_contain(info_plist, '${MACOSX_DEPLOYMENT_TARGET}');
 
   # Resources
   test.built_file_must_exist(

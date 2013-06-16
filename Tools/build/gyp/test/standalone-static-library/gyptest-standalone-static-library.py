@@ -22,8 +22,6 @@ test = TestGyp.TestGyp(formats=['!android'])
 # Verify that types other than static_library cause a failure.
 test.run_gyp('invalid.gyp', status=1, stderr=None)
 target_str = 'invalid.gyp:bad#target'
-if test.format == 'scons':
-  target_str = os.path.join(os.path.realpath(os.curdir), target_str)
 err = ['gyp: Target %s has type executable but standalone_static_library flag '
        'is only valid for static_library type.' % target_str]
 test.must_contain_all_lines(test.stderr(), err)
@@ -33,12 +31,8 @@ test.run_gyp('mylib.gyp')
 test.build('mylib.gyp', target='prog')
 
 # Verify that the static library is copied to the correct location.
-if test.format == 'scons':
-  # For scons, we expect the library to be copied to the shared lib dir.
-  standalone_static_library_dir = test.SHARED_LIB
-else:
-  # Otherwise, we expect the library to be copied to $PRODUCT_DIR.
-  standalone_static_library_dir = test.EXECUTABLE
+# We expect the library to be copied to $PRODUCT_DIR.
+standalone_static_library_dir = test.EXECUTABLE
 path_to_lib = os.path.split(
     test.built_file_path('mylib', type=standalone_static_library_dir))[0]
 lib_name = test.built_file_basename('mylib', type=test.STATIC_LIB)

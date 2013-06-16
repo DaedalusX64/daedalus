@@ -724,6 +724,14 @@ def _FormatAsEnvironmentBlock(envvar_dict):
   block += nul
   return block
 
+def _ExtractCLPath(output_of_where):
+  """Gets the path to cl.exe based on the output of calling the environment
+  setup batch file, followed by the equivalent of `where`."""
+  # Take the first line, as that's the first found in the PATH.
+  for line in output_of_where.strip().splitlines():
+    if line.startswith('LOC:'):
+      return line[len('LOC:'):].strip()
+
 def GenerateEnvironmentFiles(toplevel_build_dir, generator_flags, open_out):
   """It's not sufficient to have the absolute path to the compiler, linker,
   etc. on Windows, as those tools rely on .dlls being in the PATH. We also
@@ -739,10 +747,16 @@ def GenerateEnvironmentFiles(toplevel_build_dir, generator_flags, open_out):
   meet your requirement (e.g. for custom toolchains), you can pass
   "-G ninja_use_custom_environment_files" to the gyp to suppress file
   generation and use custom environment files prepared by yourself."""
+  archs = ('x86', 'x64')
   if generator_flags.get('ninja_use_custom_environment_files', 0):
-    return
+    cl_paths = {}
+    for arch in archs:
+      cl_paths[arch] = 'cl.exe'
+    return cl_paths
   vs = GetVSVersion(generator_flags)
-  for arch in ('x86', 'x64'):
+  cl_paths = {}
+  for arch in archs:
+    # Extract environment variables for subprocesses.
     args = vs.SetupScript(arch)
     args.extend(('&&', 'set'))
     popen = subprocess.Popen(
@@ -753,6 +767,15 @@ def GenerateEnvironmentFiles(toplevel_build_dir, generator_flags, open_out):
     f = open_out(os.path.join(toplevel_build_dir, 'environment.' + arch), 'wb')
     f.write(env_block)
     f.close()
+
+    # Find cl.exe location for this architecture.
+    args = vs.SetupScript(arch)
+    args.extend(('&&',
+      'for', '%i', 'in', '(cl.exe)', 'do', '@echo', 'LOC:%~$PATH:i'))
+    popen = subprocess.Popen(args, shell=True, stdout=subprocess.PIPE)
+    output, _ = popen.communicate()
+    cl_paths[arch] = _ExtractCLPath(output)
+  return cl_paths
 
 def VerifyMissingSources(sources, build_dir, generator_flags, gyp_to_ninja):
   """Emulate behavior of msvs_error_on_missing_sources present in the msvs

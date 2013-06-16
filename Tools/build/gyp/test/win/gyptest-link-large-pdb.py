@@ -17,8 +17,10 @@ import sys
 CHDIR = 'large-pdb'
 
 
-def CheckImageAndPdb(test, image_basename, expected_page_size):
-  pdb_basename = image_basename + '.pdb'
+def CheckImageAndPdb(test, image_basename, expected_page_size,
+                     pdb_basename=None):
+  if not pdb_basename:
+    pdb_basename = image_basename + '.pdb'
   test.built_file_must_exist(image_basename, chdir=CHDIR)
   test.built_file_must_exist(pdb_basename, chdir=CHDIR)
 
@@ -39,11 +41,30 @@ if sys.platform == 'win32':
   test = TestGyp.TestGyp(formats=['msvs', 'ninja'])
 
   test.run_gyp('large-pdb.gyp', chdir=CHDIR)
-  test.build('large-pdb.gyp', test.ALL, chdir=CHDIR)
 
+  test.build('large-pdb.gyp', 'large_pdb_exe', chdir=CHDIR)
   CheckImageAndPdb(test, 'large_pdb_exe.exe', 4096)
+
+  test.build('large-pdb.gyp', 'small_pdb_exe', chdir=CHDIR)
   CheckImageAndPdb(test, 'small_pdb_exe.exe', 1024)
+
+  test.build('large-pdb.gyp', 'large_pdb_dll', chdir=CHDIR)
   CheckImageAndPdb(test, 'large_pdb_dll.dll', 4096)
+
+  test.build('large-pdb.gyp', 'small_pdb_dll', chdir=CHDIR)
   CheckImageAndPdb(test, 'small_pdb_dll.dll', 1024)
+
+  test.build('large-pdb.gyp', 'large_pdb_implicit_exe', chdir=CHDIR)
+  CheckImageAndPdb(test, 'large_pdb_implicit_exe.exe', 4096)
+
+  # This target has a different PDB name because it uses an
+  # 'msvs_large_pdb_path' variable.
+  test.build('large-pdb.gyp', 'large_pdb_variable_exe', chdir=CHDIR)
+  CheckImageAndPdb(test, 'large_pdb_variable_exe.exe', 4096,
+                   pdb_basename='foo.pdb')
+
+  # This target has a different output name because it uses 'product_name'.
+  test.build('large-pdb.gyp', 'large_pdb_product_exe', chdir=CHDIR)
+  CheckImageAndPdb(test, 'bar.exe', 4096)
 
   test.pass_test()

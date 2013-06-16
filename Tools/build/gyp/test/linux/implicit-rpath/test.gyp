@@ -9,6 +9,12 @@
       'sources': [ 'file.c' ],
     },
     {
+      'target_name': 'shared_no_so_suffix',
+      'product_extension': 'so.0.1',
+      'type': 'shared_library',
+      'sources': [ 'file.c' ],
+    },
+    {
       'target_name': 'static',
       'type': 'static_library',
       'sources': [ 'file.c' ],
@@ -19,6 +25,14 @@
       'sources': [ 'main.c' ],
       'dependencies': [
         'shared',
+      ]
+    },
+    {
+      'target_name': 'shared_executable_no_so_suffix',
+      'type': 'executable',
+      'sources': [ 'main.c' ],
+      'dependencies': [
+        'shared_no_so_suffix',
       ]
     },
     {

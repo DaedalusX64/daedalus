@@ -7,7 +7,6 @@ pylib/gyp/MSVSProject.py
 pylib/gyp/MSVSToolFile.py
 pylib/gyp/MSVSUserFile.py
 pylib/gyp/MSVSVersion.py
-pylib/gyp/SCons.py
 pylib/gyp/__init__.py
 pylib/gyp/common.py
 pylib/gyp/input.py
@@ -17,5 +16,4 @@ pylib/gyp/generator/gypd.py
 pylib/gyp/generator/gypsh.py
 pylib/gyp/generator/make.py
 pylib/gyp/generator/msvs.py
-pylib/gyp/generator/scons.py
 pylib/gyp/generator/xcode.py

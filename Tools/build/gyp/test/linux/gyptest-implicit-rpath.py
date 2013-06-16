@@ -39,6 +39,9 @@ if sys.platform.startswith('linux'):
   if GetRpaths('shared_executable') != [expect]:
     test.fail_test()
 
+  if GetRpaths('shared_executable_no_so_suffix') != [expect]:
+    test.fail_test()
+
   if GetRpaths('static_executable'):
     test.fail_test()
 

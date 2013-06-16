@@ -25,6 +25,8 @@ class XcodeSettings(object):
   def __init__(self, spec):
     self.spec = spec
 
+    self.isIOS = False
+
     # Per-target 'xcode_settings' are pushed down into configs earlier by gyp.
     # This means self.xcode_settings[config] always contains all settings
     # for that config -- the per-target settings as well. Settings that are
@@ -33,6 +35,9 @@ class XcodeSettings(object):
     configs = spec['configurations']
     for configname, config in configs.iteritems():
       self.xcode_settings[configname] = config.get('xcode_settings', {})
+      if self.xcode_settings[configname].get('IPHONEOS_DEPLOYMENT_TARGET',
+                                             None):
+        self.isIOS = True
 
     # This is only non-None temporarily during the execution of some methods.
     self.configname = None
@@ -79,7 +84,7 @@ class XcodeSettings(object):
           'WRAPPER_EXTENSION', default=default_wrapper_extension)
       return '.' + self.spec.get('product_extension', wrapper_extension)
     elif self.spec['type'] == 'executable':
-      return '.app'
+      return '.' + self.spec.get('product_extension', 'app')
     else:
       assert False, "Don't know extension for '%s', target '%s'" % (
           self.spec['type'], self.spec['target_name'])
@@ -104,6 +109,8 @@ class XcodeSettings(object):
   def GetBundleContentsFolderPath(self):
     """Returns the qualified path to the bundle's contents folder. E.g.
     Chromium.app/Contents or Foo.bundle/Versions/A. Only valid for bundles."""
+    if self.isIOS:
+      return self.GetWrapperName()
     assert self._IsBundle()
     if self.spec['type'] == 'shared_library':
       return os.path.join(
@@ -116,6 +123,8 @@ class XcodeSettings(object):
     """Returns the qualified path to the bundle's resource folder. E.g.
     Chromium.app/Contents/Resources. Only valid for bundles."""
     assert self._IsBundle()
+    if self.isIOS:
+      return self.GetBundleContentsFolderPath()
     return os.path.join(self.GetBundleContentsFolderPath(), 'Resources')
 
   def GetBundlePlistPath(self):
@@ -160,7 +169,7 @@ class XcodeSettings(object):
     """Returns the name of the bundle binary of by this target.
     E.g. Chromium.app/Contents/MacOS/Chromium. Only valid for bundles."""
     assert self._IsBundle()
-    if self.spec['type'] in ('shared_library'):
+    if self.spec['type'] in ('shared_library') or self.isIOS:
       path = self.GetBundleContentsFolderPath()
     elif self.spec['type'] in ('executable', 'loadable_module'):
       path = os.path.join(self.GetBundleContentsFolderPath(), 'MacOS')
@@ -224,8 +233,7 @@ class XcodeSettings(object):
 
   def _GetSdkVersionInfoItem(self, sdk, infoitem):
     job = subprocess.Popen(['xcodebuild', '-version', '-sdk', sdk, infoitem],
-                           stdout=subprocess.PIPE,
-                           stderr=subprocess.STDOUT)
+                           stdout=subprocess.PIPE)
     out = job.communicate()[0]
     if job.returncode != 0:
       sys.stderr.write(out + '\n')
@@ -234,6 +242,8 @@ class XcodeSettings(object):
 
   def _SdkPath(self):
     sdk_root = self.GetPerTargetSetting('SDKROOT', default='macosx')
+    if sdk_root.startswith('/'):
+      return sdk_root
     if sdk_root not in XcodeSettings._sdk_path_cache:
       XcodeSettings._sdk_path_cache[sdk_root] = self._GetSdkVersionInfoItem(
           sdk_root, 'Path')

@@ -8,6 +8,7 @@
 Verifies that invalid strings files cause the build to fail.
 """
 
+import TestCmd
 import TestGyp
 
 import sys
@@ -18,7 +19,11 @@ if sys.platform == 'darwin':
   def match(a, b):
     if a == b:
       return True
-    if expected_error in a + b:
+    if not TestCmd.is_List(a):
+      a = a.split('\n')
+    if not TestCmd.is_List(b):
+      b = b.split('\n')
+    if expected_error in '\n'.join(a) + '\n'.join(b):
       saw_expected_error[0] = True
       return True
     return False
