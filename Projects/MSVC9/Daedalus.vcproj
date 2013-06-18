@@ -1304,6 +1304,10 @@
 					Name="W32"
 					>
 					<File
+						RelativePath="..\..\Source\SysW32\Utility\CondW32.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\Source\SysW32\Utility\DISASM86.cpp"
 						>
 					</File>

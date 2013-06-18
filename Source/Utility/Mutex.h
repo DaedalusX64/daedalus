@@ -60,7 +60,7 @@ public:
 		LeaveCriticalSection(&cs);
 	}
 
-protected:
+public:
 	CRITICAL_SECTION cs;
 };
 #elif defined(DAEDALUS_PSP)

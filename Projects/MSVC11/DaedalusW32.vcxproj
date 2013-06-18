@@ -87,7 +87,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>comctl32.lib;shlwapi.lib;winmm.lib;dxguid.lib;dsound.lib;zlibwapi.lib;libpng15.lib;glew32.lib;opengl32.lib;GLFWDLL.lib;WSock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;shlwapi.lib;winmm.lib;dxguid.lib;dsound.lib;zlibwapi.lib;libpng15.lib;glew32.lib;opengl32.lib;glfw3dll.lib;WSock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Builds\PC\DaedalusDebug.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>LIBCD;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -142,7 +142,7 @@ xcopy /I /Y /D /E  /F ..\..\Source\SysGL\HLEGraphics\n64.psh  .\Builds\PC\</Comm
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>shlwapi.lib;winmm.lib;dxguid.lib;dsound.lib;zlibwapi.lib;libpng15.lib;glew32.lib;opengl32.lib;GLFWDLL.lib;WSock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shlwapi.lib;winmm.lib;dxguid.lib;dsound.lib;zlibwapi.lib;libpng15.lib;glew32.lib;opengl32.lib;glfw3dll.lib;WSock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\Builds\PC\Daedalus.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>LIBC;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>

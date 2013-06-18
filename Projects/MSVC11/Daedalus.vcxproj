@@ -235,6 +235,7 @@
     <ClInclude Include="..\..\Source\Test\BatchTest.h" />
     <ClInclude Include="..\..\Source\Utility\Alignment.h" />
     <ClInclude Include="..\..\Source\Utility\AtomicPrimitives.h" />
+	<ClInclude Include="..\..\Source\Utility\Cond.h" />
     <ClInclude Include="..\..\Source\Utility\CRC.h" />
     <ClInclude Include="..\..\Source\Utility\DaedalusTypes.h" />
     <ClInclude Include="..\..\Source\Utility\DataSink.h" />
@@ -386,6 +387,7 @@
       </PrecompiledHeader>
       <CallingConvention Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Cdecl</CallingConvention>
     </ClCompile>
+	<ClCompile Include="..\..\Source\SysW32\Utility\CondW32.cpp" />
     <ClCompile Include="..\..\Source\SysW32\Utility\DISASM86.cpp" />
     <ClCompile Include="..\..\Source\SysW32\Utility\IOW32.cpp" />
     <ClCompile Include="..\..\Source\SysW32\Utility\ThreadW32.cpp" />
