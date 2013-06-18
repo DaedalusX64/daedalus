@@ -12,16 +12,15 @@
 #include "Utility/Thread.h"
 
 //static bool toggle_fullscreen = false;
-
-static void GLFWCALL HandleKeys(int key, int state)
+static void HandleKeys(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
-	if (state)
+	if (action == GLFW_PRESS)
 	{
 		if (key >= '0' && key <= '9')
 		{
 			int idx = key - '0';
 
-			bool ctrl_down = glfwGetKey(GLFW_KEY_LCTRL) || glfwGetKey(GLFW_KEY_RCTRL);
+			bool ctrl_down = (mods & GLFW_MOD_CONTROL) != 0;
 
 			char filename_ss[64];
 			sprintf( filename_ss, "saveslot%u.ss", idx );
@@ -83,9 +82,9 @@ static void GLFWCALL HandleKeys(int key, int state)
 			}
 		}
 #endif
-		if (key == GLFW_KEY_ESC)
+		if (key == GLFW_KEY_ESCAPE)
 		{
-			CPU_Halt("Escape");
+			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
 	}
 }
@@ -93,11 +92,14 @@ static void GLFWCALL HandleKeys(int key, int state)
 static void PollKeyboard(void * arg)
 {
 	glfwPollEvents();
+	if (glfwWindowShouldClose(gWindow))
+		CPU_Halt("Window Closed");
 }
 
 bool UI_Init()
 {
-	glfwSetKeyCallback(&HandleKeys);
+	DAEDALUS_ASSERT(gWindow != NULL, "The GLFW window should already have been initialised");
+	glfwSetKeyCallback(gWindow, &HandleKeys);
 	CPU_RegisterVblCallback(&PollKeyboard, NULL);
 	return true;
 }

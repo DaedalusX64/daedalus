@@ -30,193 +30,35 @@
 #include <stddef.h>
 #include "getopt.h"
 
+#include <GLFW/glfw3.h>
+#include <GL/glext.h>
 
-#define GLFW_NO_GLU 1 
-#include <GL/glfw.h>
-
-/* OpenGL 3.3 support  
- * Functions are effectively mapped in init_opengl() */
-#ifndef GL_VERSION_3_0
-/* no defines */
-#endif
-
-#ifndef GL_VERSION_2_0
-
-typedef char GLchar;
-
-#define GL_BLEND_EQUATION_RGB             0x8009
-#define GL_VERTEX_ATTRIB_ARRAY_ENABLED    0x8622
-#define GL_VERTEX_ATTRIB_ARRAY_SIZE       0x8623
-#define GL_VERTEX_ATTRIB_ARRAY_STRIDE     0x8624
-#define GL_VERTEX_ATTRIB_ARRAY_TYPE       0x8625
-#define GL_CURRENT_VERTEX_ATTRIB          0x8626
-#define GL_VERTEX_PROGRAM_POINT_SIZE      0x8642
-#define GL_VERTEX_ATTRIB_ARRAY_POINTER    0x8645
-#define GL_STENCIL_BACK_FUNC              0x8800
-#define GL_STENCIL_BACK_FAIL              0x8801
-#define GL_STENCIL_BACK_PASS_DEPTH_FAIL   0x8802
-#define GL_STENCIL_BACK_PASS_DEPTH_PASS   0x8803
-#define GL_MAX_DRAW_BUFFERS               0x8824
-#define GL_DRAW_BUFFER0                   0x8825
-#define GL_DRAW_BUFFER1                   0x8826
-#define GL_DRAW_BUFFER2                   0x8827
-#define GL_DRAW_BUFFER3                   0x8828
-#define GL_DRAW_BUFFER4                   0x8829
-#define GL_DRAW_BUFFER5                   0x882A
-#define GL_DRAW_BUFFER6                   0x882B
-#define GL_DRAW_BUFFER7                   0x882C
-#define GL_DRAW_BUFFER8                   0x882D
-#define GL_DRAW_BUFFER9                   0x882E
-#define GL_DRAW_BUFFER10                  0x882F
-#define GL_DRAW_BUFFER11                  0x8830
-#define GL_DRAW_BUFFER12                  0x8831
-#define GL_DRAW_BUFFER13                  0x8832
-#define GL_DRAW_BUFFER14                  0x8833
-#define GL_DRAW_BUFFER15                  0x8834
-#define GL_BLEND_EQUATION_ALPHA           0x883D
-#define GL_MAX_VERTEX_ATTRIBS             0x8869
-#define GL_VERTEX_ATTRIB_ARRAY_NORMALIZED 0x886A
-#define GL_MAX_TEXTURE_IMAGE_UNITS        0x8872
-#define GL_FRAGMENT_SHADER                0x8B30
-#define GL_VERTEX_SHADER                  0x8B31
-#define GL_MAX_FRAGMENT_UNIFORM_COMPONENTS 0x8B49
-#define GL_MAX_VERTEX_UNIFORM_COMPONENTS  0x8B4A
-#define GL_MAX_VARYING_FLOATS             0x8B4B
-#define GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS 0x8B4C
-#define GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS 0x8B4D
-#define GL_SHADER_TYPE                    0x8B4F
-#define GL_FLOAT_VEC2                     0x8B50
-#define GL_FLOAT_VEC3                     0x8B51
-#define GL_FLOAT_VEC4                     0x8B52
-#define GL_INT_VEC2                       0x8B53
-#define GL_INT_VEC3                       0x8B54
-#define GL_INT_VEC4                       0x8B55
-#define GL_BOOL                           0x8B56
-#define GL_BOOL_VEC2                      0x8B57
-#define GL_BOOL_VEC3                      0x8B58
-#define GL_BOOL_VEC4                      0x8B59
-#define GL_FLOAT_MAT2                     0x8B5A
-#define GL_FLOAT_MAT3                     0x8B5B
-#define GL_FLOAT_MAT4                     0x8B5C
-#define GL_SAMPLER_1D                     0x8B5D
-#define GL_SAMPLER_2D                     0x8B5E
-#define GL_SAMPLER_3D                     0x8B5F
-#define GL_SAMPLER_CUBE                   0x8B60
-#define GL_SAMPLER_1D_SHADOW              0x8B61
-#define GL_SAMPLER_2D_SHADOW              0x8B62
-#define GL_DELETE_STATUS                  0x8B80
-#define GL_COMPILE_STATUS                 0x8B81
-#define GL_LINK_STATUS                    0x8B82
-#define GL_VALIDATE_STATUS                0x8B83
-#define GL_INFO_LOG_LENGTH                0x8B84
-#define GL_ATTACHED_SHADERS               0x8B85
-#define GL_ACTIVE_UNIFORMS                0x8B86
-#define GL_ACTIVE_UNIFORM_MAX_LENGTH      0x8B87
-#define GL_SHADER_SOURCE_LENGTH           0x8B88
-#define GL_ACTIVE_ATTRIBUTES              0x8B89
-#define GL_ACTIVE_ATTRIBUTE_MAX_LENGTH    0x8B8A
-#define GL_FRAGMENT_SHADER_DERIVATIVE_HINT 0x8B8B
-#define GL_SHADING_LANGUAGE_VERSION       0x8B8C
-#define GL_CURRENT_PROGRAM                0x8B8D
-#define GL_POINT_SPRITE_COORD_ORIGIN      0x8CA0
-#define GL_LOWER_LEFT                     0x8CA1
-#define GL_UPPER_LEFT                     0x8CA2
-#define GL_STENCIL_BACK_REF               0x8CA3
-#define GL_STENCIL_BACK_VALUE_MASK        0x8CA4
-#define GL_STENCIL_BACK_WRITEMASK         0x8CA5
-#endif 
-
-
-
-#ifndef GL_VERSION_1_5
-
-typedef ptrdiff_t GLintptr;
-typedef ptrdiff_t GLsizeiptr;
-
-#define GL_BUFFER_SIZE                    0x8764
-#define GL_BUFFER_USAGE                   0x8765
-#define GL_QUERY_COUNTER_BITS             0x8864
-#define GL_CURRENT_QUERY                  0x8865
-#define GL_QUERY_RESULT                   0x8866
-#define GL_QUERY_RESULT_AVAILABLE         0x8867
-#define GL_ARRAY_BUFFER                   0x8892
-#define GL_ELEMENT_ARRAY_BUFFER           0x8893
-#define GL_ARRAY_BUFFER_BINDING           0x8894
-#define GL_ELEMENT_ARRAY_BUFFER_BINDING   0x8895
-#define GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING 0x889F
-#define GL_READ_ONLY                      0x88B8
-#define GL_WRITE_ONLY                     0x88B9
-#define GL_READ_WRITE                     0x88BA
-#define GL_BUFFER_ACCESS                  0x88BB
-#define GL_BUFFER_MAPPED                  0x88BC
-#define GL_BUFFER_MAP_POINTER             0x88BD
-#define GL_STREAM_DRAW                    0x88E0
-#define GL_STREAM_READ                    0x88E1
-#define GL_STREAM_COPY                    0x88E2
-#define GL_STATIC_DRAW                    0x88E4
-#define GL_STATIC_READ                    0x88E5
-#define GL_STATIC_COPY                    0x88E6
-#define GL_DYNAMIC_DRAW                   0x88E8
-#define GL_DYNAMIC_READ                   0x88E9
-#define GL_DYNAMIC_COPY                   0x88EA
-#define GL_SAMPLES_PASSED                 0x8914
-#endif 
-
-
-
-
-/* OpenGL 3.0 */
-typedef void (APIENTRY * PFN_glGenVertexArrays)(GLsizei n, GLuint *arrays);
-typedef void (APIENTRY * PFN_glBindVertexArray)(GLuint array);
-typedef void (APIENTRY * PFN_glDeleteVertexArrays)(GLsizei n, GLuint *arrays);
-/* OpenGL 2.0 */
-typedef GLuint (APIENTRY * PFN_glCreateShader)(GLenum type);
-typedef void (APIENTRY * PFN_glDeleteShader)(GLuint shader);
-typedef void (APIENTRY * PFN_glCompileShader)(GLuint shader);
-typedef void (APIENTRY * PFN_glShaderSource)(GLuint shader, GLsizei count, const GLchar* *string, const GLint *length);
-typedef void (APIENTRY * PFN_glGetShaderiv)(GLuint shader, GLenum pname, GLint *params);
-typedef void (APIENTRY * PFN_glGetShaderInfoLog)(GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
-typedef GLuint (APIENTRY * PFN_glCreateProgram)(void);
-typedef void (APIENTRY * PFN_glDeleteProgram)(GLuint program);
-typedef void (APIENTRY * PFN_glAttachShader)(GLuint program, GLuint shader);
-typedef void (APIENTRY * PFN_glLinkProgram)(GLuint program);
-typedef void (APIENTRY * PFN_glGetProgramiv)(GLuint program, GLenum pname, GLint *params);
-typedef void (APIENTRY * PFN_glGetProgramInfoLog)(GLuint shader, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
-typedef void (APIENTRY * PFN_glValidateProgram)(GLuint program);
-typedef void (APIENTRY * PFN_glUseProgram)(GLuint program);
-typedef GLint (APIENTRY * PFN_glGetUniformLocation)(GLuint program, const GLchar *name);
-typedef void (APIENTRY * PFN_glUniformMatrix4fv)(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
-typedef GLint (APIENTRY * PFN_glGetAttribLocation)(GLuint program, const GLchar *name);
-typedef void (APIENTRY * PFN_glEnableVertexAttribArray)(GLuint index);
-typedef void (APIENTRY * PFN_glVertexAttrib1f)(GLuint index, GLfloat x);
-typedef void (APIENTRY * PFN_glVertexAttribPointer)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid *pointer);
-/* OpenGL 1.5 */ 
-typedef void (APIENTRY * PFN_glBindBuffer)(GLenum target, GLuint buffer);
-typedef void (APIENTRY * PFN_glDeleteBuffers)(GLsizei n, const GLuint *buffers);
-typedef void (APIENTRY * PFN_glGenBuffers)(GLsizei n, GLuint *buffers);
-typedef void (APIENTRY * PFN_glBufferData)(GLenum target, GLsizeiptr size, const GLvoid *data, GLenum usage);
-typedef void (APIENTRY * PFN_glBufferSubData)(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid *data);
-
-/* OpenGL function pointers */ 
-static PFN_glGenBuffers                 pglGenBuffers = NULL;
-static PFN_glGenVertexArrays            pglGenVertexArrays = NULL;
-static PFN_glDeleteVertexArrays         pglDeleteVertexArrays = NULL;
-static PFN_glCreateShader               pglCreateShader = NULL;
-static PFN_glShaderSource               pglShaderSource = NULL;
-static PFN_glCompileShader              pglCompileShader = NULL;
-static PFN_glGetShaderiv                pglGetShaderiv = NULL;
-static PFN_glGetShaderInfoLog           pglGetShaderInfoLog = NULL;
-static PFN_glDeleteShader               pglDeleteShader = NULL;
-static PFN_glCreateProgram              pglCreateProgram = NULL;
-static PFN_glAttachShader               pglAttachShader = NULL;
-static PFN_glLinkProgram                pglLinkProgram = NULL;
-static PFN_glUseProgram                 pglUseProgram = NULL;
-static PFN_glGetProgramiv               pglGetProgramiv = NULL;
-static PFN_glGetProgramInfoLog          pglGetProgramInfoLog = NULL;
-static PFN_glDeleteProgram              pglDeleteProgram = NULL;
-static PFN_glGetUniformLocation         pglGetUniformLocation = NULL;
-static PFN_glUniformMatrix4fv           pglUniformMatrix4fv = NULL;
-static PFN_glGetAttribLocation          pglGetAttribLocation = NULL;
+/* OpenGL function pointers */
+static PFNGLGENBUFFERSPROC              pglGenBuffers = NULL;
+static PFNGLGENVERTEXARRAYSPROC         pglGenVertexArrays = NULL;
+static PFNGLDELETEVERTEXARRAYSPROC      pglDeleteVertexArrays = NULL;
+static PFNGLCREATESHADERPROC            pglCreateShader = NULL;
+static PFNGLSHADERSOURCEPROC            pglShaderSource = NULL;
+static PFNGLCOMPILESHADERPROC           pglCompileShader = NULL;
+static PFNGLGETSHADERIVPROC             pglGetShaderiv = NULL;
+static PFNGLGETSHADERINFOLOGPROC        pglGetShaderInfoLog = NULL;
+static PFNGLDELETESHADERPROC            pglDeleteShader = NULL;
+static PFNGLCREATEPROGRAMPROC           pglCreateProgram = NULL;
+static PFNGLATTACHSHADERPROC            pglAttachShader = NULL;
+static PFNGLLINKPROGRAMPROC             pglLinkProgram = NULL;
+static PFNGLUSEPROGRAMPROC              pglUseProgram = NULL;
+static PFNGLGETPROGRAMIVPROC            pglGetProgramiv = NULL;
+static PFNGLGETPROGRAMINFOLOGPROC       pglGetProgramInfoLog = NULL;
+static PFNGLDELETEPROGRAMPROC           pglDeleteProgram = NULL;
+static PFNGLGETUNIFORMLOCATIONPROC      pglGetUniformLocation = NULL;
+static PFNGLUNIFORMMATRIX4FVPROC        pglUniformMatrix4fv = NULL;
+static PFNGLGETATTRIBLOCATIONPROC       pglGetAttribLocation = NULL;
+static PFNGLBINDVERTEXARRAYPROC         pglBindVertexArray = NULL;
+static PFNGLBUFFERDATAPROC              pglBufferData = NULL;
+static PFNGLBINDBUFFERPROC              pglBindBuffer = NULL;
+static PFNGLBUFFERSUBDATAPROC           pglBufferSubData = NULL;
+static PFNGLENABLEVERTEXATTRIBARRAYPROC pglEnableVertexAttribArray = NULL;
+static PFNGLVERTEXATTRIBPOINTERPROC     pglVertexAttribPointer = NULL;
 
 /* Map height updates */
 #define MAX_CIRCLE_SIZE (5.0f)
@@ -235,17 +77,10 @@ static PFN_glGetAttribLocation          pglGetAttribLocation = NULL;
 
 /* OpenGL function pointers */
 
-static PFN_glBindVertexArray            pglBindVertexArray = NULL;
-static PFN_glBufferData                 pglBufferData = NULL;
-static PFN_glBindBuffer                 pglBindBuffer = NULL;
-static PFN_glBufferSubData              pglBufferSubData = NULL;
-static PFN_glEnableVertexAttribArray    pglEnableVertexAttribArray = NULL;
-static PFN_glVertexAttribPointer        pglVertexAttribPointer = NULL;
-
 #define RESOLVE_GL_FCN(type, var, name) \
     if (status == GL_TRUE) \
     {\
-        var = glfwGetProcAddress((name));\
+        var = (type) glfwGetProcAddress((name));\
         if ((var) == NULL)\
         {\
             status = GL_FALSE;\
@@ -256,31 +91,31 @@ static PFN_glVertexAttribPointer        pglVertexAttribPointer = NULL;
 static GLboolean init_opengl(void)
 {
     GLboolean status = GL_TRUE;
-    RESOLVE_GL_FCN(PFN_glCreateShader, pglCreateShader, "glCreateShader");
-    RESOLVE_GL_FCN(PFN_glShaderSource, pglShaderSource, "glShaderSource");
-    RESOLVE_GL_FCN(PFN_glCompileShader, pglCompileShader, "glCompileShader");
-    RESOLVE_GL_FCN(PFN_glGetShaderiv, pglGetShaderiv, "glGetShaderiv");
-    RESOLVE_GL_FCN(PFN_glGetShaderInfoLog, pglGetShaderInfoLog, "glGetShaderInfoLog");
-    RESOLVE_GL_FCN(PFN_glDeleteShader, pglDeleteShader, "glDeleteShader");
-    RESOLVE_GL_FCN(PFN_glCreateProgram, pglCreateProgram, "glCreateProgram");
-    RESOLVE_GL_FCN(PFN_glAttachShader, pglAttachShader, "glAttachShader");
-    RESOLVE_GL_FCN(PFN_glLinkProgram, pglLinkProgram, "glLinkProgram");
-    RESOLVE_GL_FCN(PFN_glUseProgram, pglUseProgram, "glUseProgram");
-    RESOLVE_GL_FCN(PFN_glGetProgramiv, pglGetProgramiv, "glGetProgramiv");
-    RESOLVE_GL_FCN(PFN_glGetProgramInfoLog, pglGetProgramInfoLog, "glGetProgramInfoLog");
-    RESOLVE_GL_FCN(PFN_glDeleteProgram, pglDeleteProgram, "glDeleteProgram");
-    RESOLVE_GL_FCN(PFN_glGetUniformLocation, pglGetUniformLocation, "glGetUniformLocation");
-    RESOLVE_GL_FCN(PFN_glUniformMatrix4fv, pglUniformMatrix4fv, "glUniformMatrix4fv");
-    RESOLVE_GL_FCN(PFN_glGetAttribLocation, pglGetAttribLocation, "glGetAttribLocation");
-    RESOLVE_GL_FCN(PFN_glGenVertexArrays, pglGenVertexArrays, "glGenVertexArrays");
-    RESOLVE_GL_FCN(PFN_glDeleteVertexArrays, pglDeleteVertexArrays, "glDeleteVertexArrays");
-    RESOLVE_GL_FCN(PFN_glBindVertexArray, pglBindVertexArray, "glBindVertexArray");
-    RESOLVE_GL_FCN(PFN_glGenBuffers, pglGenBuffers, "glGenBuffers");
-    RESOLVE_GL_FCN(PFN_glBindBuffer, pglBindBuffer, "glBindBuffer");
-    RESOLVE_GL_FCN(PFN_glBufferData, pglBufferData, "glBufferData");
-    RESOLVE_GL_FCN(PFN_glBufferSubData, pglBufferSubData, "glBufferSubData");
-    RESOLVE_GL_FCN(PFN_glEnableVertexAttribArray, pglEnableVertexAttribArray, "glEnableVertexAttribArray");
-    RESOLVE_GL_FCN(PFN_glVertexAttribPointer, pglVertexAttribPointer, "glVertexAttribPointer");
+    RESOLVE_GL_FCN(PFNGLCREATESHADERPROC, pglCreateShader, "glCreateShader");
+    RESOLVE_GL_FCN(PFNGLSHADERSOURCEPROC, pglShaderSource, "glShaderSource");
+    RESOLVE_GL_FCN(PFNGLCOMPILESHADERPROC, pglCompileShader, "glCompileShader");
+    RESOLVE_GL_FCN(PFNGLGETSHADERIVPROC, pglGetShaderiv, "glGetShaderiv");
+    RESOLVE_GL_FCN(PFNGLGETSHADERINFOLOGPROC, pglGetShaderInfoLog, "glGetShaderInfoLog");
+    RESOLVE_GL_FCN(PFNGLDELETESHADERPROC, pglDeleteShader, "glDeleteShader");
+    RESOLVE_GL_FCN(PFNGLCREATEPROGRAMPROC, pglCreateProgram, "glCreateProgram");
+    RESOLVE_GL_FCN(PFNGLATTACHSHADERPROC, pglAttachShader, "glAttachShader");
+    RESOLVE_GL_FCN(PFNGLLINKPROGRAMPROC, pglLinkProgram, "glLinkProgram");
+    RESOLVE_GL_FCN(PFNGLUSEPROGRAMPROC, pglUseProgram, "glUseProgram");
+    RESOLVE_GL_FCN(PFNGLGETPROGRAMIVPROC, pglGetProgramiv, "glGetProgramiv");
+    RESOLVE_GL_FCN(PFNGLGETPROGRAMINFOLOGPROC, pglGetProgramInfoLog, "glGetProgramInfoLog");
+    RESOLVE_GL_FCN(PFNGLDELETEPROGRAMPROC, pglDeleteProgram, "glDeleteProgram");
+    RESOLVE_GL_FCN(PFNGLGETUNIFORMLOCATIONPROC, pglGetUniformLocation, "glGetUniformLocation");
+    RESOLVE_GL_FCN(PFNGLUNIFORMMATRIX4FVPROC, pglUniformMatrix4fv, "glUniformMatrix4fv");
+    RESOLVE_GL_FCN(PFNGLGETATTRIBLOCATIONPROC, pglGetAttribLocation, "glGetAttribLocation");
+    RESOLVE_GL_FCN(PFNGLGENVERTEXARRAYSPROC, pglGenVertexArrays, "glGenVertexArrays");
+    RESOLVE_GL_FCN(PFNGLDELETEVERTEXARRAYSPROC, pglDeleteVertexArrays, "glDeleteVertexArrays");
+    RESOLVE_GL_FCN(PFNGLBINDVERTEXARRAYPROC, pglBindVertexArray, "glBindVertexArray");
+    RESOLVE_GL_FCN(PFNGLGENBUFFERSPROC, pglGenBuffers, "glGenBuffers");
+    RESOLVE_GL_FCN(PFNGLBINDBUFFERPROC, pglBindBuffer, "glBindBuffer");
+    RESOLVE_GL_FCN(PFNGLBUFFERDATAPROC, pglBufferData, "glBufferData");
+    RESOLVE_GL_FCN(PFNGLBUFFERSUBDATAPROC, pglBufferSubData, "glBufferSubData");
+    RESOLVE_GL_FCN(PFNGLENABLEVERTEXATTRIBARRAYPROC, pglEnableVertexAttribArray, "glEnableVertexAttribArray");
+    RESOLVE_GL_FCN(PFNGLVERTEXATTRIBPOINTERPROC, pglVertexAttribPointer, "glVertexAttribPointer");
     return status;
 }
 /**********************************************************************
@@ -585,7 +420,7 @@ static void update_map(int num_iter)
             if (fabs(pd) <= 1.0f)
             {
                 /* tx,tz is within the circle */
-                GLfloat new_height = disp + ((GLfloat) cos(pd*3.14f) * disp);
+                GLfloat new_height = disp + (float) (cos(pd*3.14f)*disp);
                 map_vertices[1][ii] += new_height;
             }
         }
@@ -642,27 +477,13 @@ static void update_mesh(void)
  * GLFW callback functions
  *********************************************************************/
 
-/* The program runs as long as this is GL_TRUE
- */
-static GLboolean running = GL_TRUE;
-
-/* GLFW Window management functions */
-static int GLFWCALL close_window_callback(void)
-{
-    running = GL_FALSE;
-
-    /* Disallow window closing
-     * The window will be closed when the main loop terminates */
-    return GL_FALSE;
-}
-
-static void GLFWCALL key_callback(int key, int action)
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     switch(key)
     {
-        case GLFW_KEY_ESC:
+        case GLFW_KEY_ESCAPE:
             /* Exit program on Escape */
-            running = GL_FALSE;
+            glfwSetWindowShouldClose(window, GL_TRUE);
             break;
     }
 }
@@ -676,6 +497,7 @@ static void usage(void)
 
 int main(int argc, char** argv)
 {
+    GLFWwindow* window;
     int ch, iter;
     double dt;
     double last_update_time;
@@ -733,7 +555,7 @@ int main(int argc, char** argv)
         }
     }
 
-    if (GL_TRUE != glfwInit())
+    if (!glfwInit())
     {
         fprintf(stderr, "ERROR: Unable to initialize GLFW\n");
         usage();
@@ -743,34 +565,36 @@ int main(int argc, char** argv)
         exit(EXIT_FAILURE);
     }
 
-    glfwEnable(GLFW_AUTO_POLL_EVENTS); /* No explicit call to glfwPollEvents() */
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
 
-    glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, GL_TRUE);
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
-    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
-    glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwOpenWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
-
-    if (GL_TRUE != glfwOpenWindow(800, 600, 0, 0, 0, 0, 0, 0, GLFW_WINDOW))
+    window = glfwCreateWindow(800, 600, "GLFW OpenGL3 Heightmap demo", NULL, NULL);
+    if (! window )
     {
         fprintf(stderr, "ERROR: Unable to create the OpenGL context and associated window\n");
         usage();
 
         free(vertex_shader_src);
         free(fragment_shader_src);
+
+        glfwTerminate();
         exit(EXIT_FAILURE);
     }
 
-    glfwSetWindowTitle("GLFW OpenGL3 Heightmap demo");
     /* Register events callback */
-    glfwSetWindowCloseCallback(close_window_callback);
-    glfwSetKeyCallback(key_callback);
+    glfwSetKeyCallback(window, key_callback);
 
+    glfwMakeContextCurrent(window);
     if (GL_TRUE != init_opengl())
     {
         fprintf(stderr, "ERROR: unable to resolve OpenGL function pointers\n");
         free(vertex_shader_src);
         free(fragment_shader_src);
+
+        glfwTerminate();
         exit(EXIT_FAILURE);
     }
     /* Prepare opengl resources for rendering */
@@ -782,6 +606,8 @@ int main(int argc, char** argv)
     {
         fprintf(stderr, "ERROR: during creation of the shader program\n");
         usage();
+
+        glfwTerminate();
         exit(EXIT_FAILURE);
     }
 
@@ -820,7 +646,7 @@ int main(int argc, char** argv)
     iter = 0;
     dt = last_update_time = glfwGetTime();
 
-    while (running)
+    while (!glfwWindowShouldClose(window))
     {
         ++frame;
         /* render the next frame */
@@ -828,7 +654,8 @@ int main(int argc, char** argv)
         glDrawElements(GL_LINES, 2* MAP_NUM_LINES , GL_UNSIGNED_INT, 0);
 
         /* display and process events through callbacks */
-        glfwSwapBuffers();
+        glfwSwapBuffers(window);
+        glfwPollEvents();
         /* Check the frame rate and update the heightmap if needed */
         dt = glfwGetTime();
         if ((dt - last_update_time) > 0.2)
@@ -845,6 +672,7 @@ int main(int argc, char** argv)
         }
     }
 
+    glfwTerminate();
     exit(EXIT_SUCCESS);
 }
 

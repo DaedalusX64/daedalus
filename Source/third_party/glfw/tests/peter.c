@@ -1,5 +1,5 @@
 //========================================================================
-// Mouse cursor bug test
+// Cursor input bug test
 // Copyright (c) Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -30,106 +30,124 @@
 //
 //========================================================================
 
-#include <GL/glfw.h>
+#include <GLFW/glfw3.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 
-static GLboolean cursor_enabled = GL_TRUE;
-static int cursor_x = 0;
-static int cursor_y = 0;
+static GLboolean reopen = GL_FALSE;
+static double cursor_x;
+static double cursor_y;
 
-static GLboolean open_window(void);
-
-static void toggle_mouse_cursor(void)
+static void toggle_cursor(GLFWwindow* window)
 {
-    if (cursor_enabled)
-        glfwDisable(GLFW_MOUSE_CURSOR);
+    if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
+    {
+        printf("Released cursor\n");
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
     else
-        glfwEnable(GLFW_MOUSE_CURSOR);
-
-    cursor_enabled = !cursor_enabled;
+    {
+        printf("Captured cursor\n");
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
 }
 
-static void GLFWCALL mouse_position_callback(int x, int y)
+static void error_callback(int error, const char* description)
 {
-    printf("Mouse moved to: %i %i offset %i %i\n", x, y, x - cursor_x, y - cursor_y);
+    fprintf(stderr, "Error: %s\n", description);
+}
+
+static void cursor_position_callback(GLFWwindow* window, double x, double y)
+{
+    printf("Cursor moved to: %f %f (%f %f)\n", x, y, x - cursor_x, y - cursor_y);
     cursor_x = x;
     cursor_y = y;
 }
 
-static void GLFWCALL key_callback(int key, int action)
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     switch (key)
     {
         case GLFW_KEY_SPACE:
         {
             if (action == GLFW_PRESS)
-                toggle_mouse_cursor();
+                toggle_cursor(window);
 
             break;
         }
 
-        case 'R':
+        case GLFW_KEY_R:
         {
             if (action == GLFW_PRESS)
-            {
-                glfwCloseWindow();
-                open_window();
-            }
+                reopen = GL_TRUE;
 
             break;
         }
     }
 }
 
-static void GLFWCALL window_size_callback(int width, int height)
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 
-static GLboolean open_window(void)
+static GLFWwindow* open_window(void)
 {
-    if (!glfwOpenWindow(0, 0, 0, 0, 0, 0, 0, 0, GLFW_WINDOW))
-        return GL_FALSE;
+    GLFWwindow* window = glfwCreateWindow(640, 480, "Peter Detector", NULL, NULL);
+    if (!window)
+        return NULL;
 
-    glfwSetWindowTitle("Peter Detector");
-    glfwSetWindowPos(150, 150);
-
-    glfwGetMousePos(&cursor_x, &cursor_y);
-    printf("Mouse position: %i %i\n", cursor_x, cursor_y);
-
-    glfwDisable(GLFW_AUTO_POLL_EVENTS);
-    glfwSetWindowSizeCallback(window_size_callback);
-    glfwSetMousePosCallback(mouse_position_callback);
-    glfwSetKeyCallback(key_callback);
+    glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
 
-    return GL_TRUE;
+    glfwGetCursorPos(window, &cursor_x, &cursor_y);
+    printf("Cursor position: %f %f\n", cursor_x, cursor_y);
+
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, cursor_position_callback);
+    glfwSetKeyCallback(window, key_callback);
+
+    return window;
 }
 
 int main(void)
 {
-    if (!glfwInit())
-    {
-        fprintf(stderr, "Failed to initialize GLFW\n");
-        exit(EXIT_FAILURE);
-    }
+    GLFWwindow* window;
 
-    if (!open_window())
+    glfwSetErrorCallback(error_callback);
+
+    if (!glfwInit())
+        exit(EXIT_FAILURE);
+
+    window = open_window();
+    if (!window)
     {
-        fprintf(stderr, "Failed to open GLFW window\n");
+        glfwTerminate();
         exit(EXIT_FAILURE);
     }
 
     glClearColor(0.f, 0.f, 0.f, 0.f);
 
-    while (glfwGetWindowParam(GLFW_OPENED))
+    while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glfwSwapBuffers();
+        glfwSwapBuffers(window);
         glfwWaitEvents();
+
+        if (reopen)
+        {
+            glfwDestroyWindow(window);
+            window = open_window();
+            if (!window)
+            {
+                glfwTerminate();
+                exit(EXIT_FAILURE);
+            }
+
+            reopen = GL_FALSE;
+        }
     }
 
     glfwTerminate();

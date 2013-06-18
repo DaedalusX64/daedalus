@@ -29,15 +29,34 @@
 //
 //========================================================================
 
-#include <GL/glfw.h>
+#define GLFW_INCLUDE_GLU
+#include <GLFW/glfw3.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 
-static int cursor_x = 0, cursor_y = 0;
+static double cursor_x = 0.0, cursor_y = 0.0;
 static int window_width = 640, window_height = 480;
+static int swap_interval = 1;
 
-static void GLFWCALL window_size_callback(int width, int height)
+static void set_swap_interval(GLFWwindow* window, int interval)
+{
+    char title[256];
+
+    swap_interval = interval;
+    glfwSwapInterval(swap_interval);
+
+    sprintf(title, "Cursor Inaccuracy Detector (interval %i)", swap_interval);
+
+    glfwSetWindowTitle(window, title);
+}
+
+static void error_callback(int error, const char* description)
+{
+    fprintf(stderr, "Error: %s\n", description);
+}
+
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     window_width = width;
     window_height = height;
@@ -49,52 +68,59 @@ static void GLFWCALL window_size_callback(int width, int height)
     gluOrtho2D(0.f, window_width, 0.f, window_height);
 }
 
-static void GLFWCALL mouse_position_callback(int x, int y)
+static void cursor_position_callback(GLFWwindow* window, double x, double y)
 {
     cursor_x = x;
     cursor_y = y;
 }
 
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+        set_swap_interval(window, 1 - swap_interval);
+}
+
 int main(void)
 {
-    if (!glfwInit())
-    {
-        fprintf(stderr, "Failed to initialize GLFW\n");
-        exit(EXIT_FAILURE);
-    }
+    GLFWwindow* window;
+    int width, height;
 
-    if (!glfwOpenWindow(window_width, window_height, 0, 0, 0, 0, 0, 0, GLFW_WINDOW))
+    glfwSetErrorCallback(error_callback);
+
+    if (!glfwInit())
+        exit(EXIT_FAILURE);
+
+    window = glfwCreateWindow(window_width, window_height, "", NULL, NULL);
+    if (!window)
     {
         glfwTerminate();
-
-        fprintf(stderr, "Failed to open GLFW window\n");
         exit(EXIT_FAILURE);
     }
 
-    glfwSetWindowTitle("Cursor Inaccuracy Detector");
-    glfwSetMousePosCallback(mouse_position_callback);
-    glfwSetWindowSizeCallback(window_size_callback);
-    glfwSwapInterval(1);
+    glfwSetCursorPosCallback(window, cursor_position_callback);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetKeyCallback(window, key_callback);
 
-    glClearColor(0, 0, 0, 0);
+    glfwMakeContextCurrent(window);
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    glfwGetFramebufferSize(window, &width, &height);
+    framebuffer_size_callback(window, width, height);
 
-    while (glfwGetWindowParam(GLFW_OPENED))
+    set_swap_interval(window, swap_interval);
+
+    while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glColor3f(1.f, 1.f, 1.f);
-
         glBegin(GL_LINES);
-        glVertex2f(0.f, (GLfloat) window_height - cursor_y);
-        glVertex2f((GLfloat) window_width, (GLfloat) window_height - cursor_y);
+        glVertex2f(0.f, (GLfloat) (window_height - cursor_y));
+        glVertex2f((GLfloat) window_width, (GLfloat) (window_height - cursor_y));
         glVertex2f((GLfloat) cursor_x, 0.f);
         glVertex2f((GLfloat) cursor_x, (GLfloat) window_height);
         glEnd();
 
-        glfwSwapBuffers();
+        glfwSwapBuffers(window);
+        glfwPollEvents();
     }
 
     glfwTerminate();

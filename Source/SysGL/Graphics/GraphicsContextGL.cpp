@@ -12,6 +12,8 @@
 static u32 SCR_WIDTH = 640;
 static u32 SCR_HEIGHT = 480;
 
+// FIXME: This is global to lots of SysGL stuff. Wrap it up elsewhere, and keep this file for the graphics side of things.
+GLFWwindow * gWindow = NULL;
 
 class GraphicsContextGL : public CGraphicsContext
 {
@@ -52,14 +54,27 @@ GraphicsContextGL::~GraphicsContextGL()
 {
 	// glew
 
-	glfwCloseWindow();
+	// FIXME: would be better in an separate SysGL file.
+	if (gWindow)
+	{
+		glfwDestroyWindow(gWindow);
+		gWindow = NULL;
+	}
 
 	glfwTerminate();
 }
 
+static void error_callback(int error, const char* description)
+{
+	fprintf(stderr, "Error: %d - %s\n", error, description);
+}
+
+
 extern bool initgl();
 bool GraphicsContextGL::Initialise()
 {
+	glfwSetErrorCallback(error_callback);
+
 	// Initialise GLFW
 	if( !glfwInit() )
 	{
@@ -67,16 +82,24 @@ bool GraphicsContextGL::Initialise()
 		return false;
 	}
 
-	glfwOpenWindowHint(GLFW_FSAA_SAMPLES,4);
-	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
-	glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
+	glfwWindowHint(GLFW_SAMPLES, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+
+#ifdef DAEDALUS_OSX
+	// OSX 10.7+ only supports 3.2 with core profile/forward compat.
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+	glfwWindowHint(GLFW_DEPTH_BITS, 24);
+	//glfwWindowHint(GLFW_STENCIL_BITS, 0);
 
 	// Open a window and create its OpenGL context
-	if( !glfwOpenWindow( SCR_WIDTH, SCR_HEIGHT,
-						0,0,0,0,			// RGBA bits
-						24,					// Depth bits
-						0,					// Stencil bits
-						GLFW_WINDOW ) )
+	gWindow = glfwCreateWindow( SCR_WIDTH, SCR_HEIGHT,
+								"Daedalus",
+								NULL, NULL );
+	if (!gWindow)
 	{
 		fprintf( stderr, "Failed to open GLFW window\n" );
 
@@ -84,7 +107,7 @@ bool GraphicsContextGL::Initialise()
 		return false;
 	}
 
-	glfwSetWindowTitle( "Daedalus" );
+	glfwMakeContextCurrent(gWindow);
 
 	// Ensure we can capture the escape key being pressed below
 	//glfwEnable( GLFW_STICKY_KEYS );
@@ -98,13 +121,17 @@ bool GraphicsContextGL::Initialise()
 	if (err != GLEW_OK || !GLEW_VERSION_3_2)
 	{
 		fprintf( stderr, "Failed to initialize GLEW\n" );
+		glfwDestroyWindow(gWindow);
+		gWindow = NULL;
+		glfwTerminate();
 		return false;
 	}
 
 	ClearAllSurfaces();
-	
-	if (glfwGetWindowParam(GLFW_FSAA_SAMPLES) != 0)
-		fprintf( stderr, "Full Screen Anti-Aliasing 4X has been enabled\n" );
+
+	// This is not valid in GLFW 3.0, and doesn't work with glfwGetWindowAttrib.
+	//if (glfwGetWindowParam(GLFW_FSAA_SAMPLES) != 0)
+	//	fprintf( stderr, "Full Screen Anti-Aliasing 4X has been enabled\n" );
 
 	// FIXME(strmnnrmn): this needs tidying.
 	return initgl();
@@ -113,7 +140,7 @@ bool GraphicsContextGL::Initialise()
 void GraphicsContextGL::GetScreenSize(u32 * width, u32 * height) const
 {
 	int window_width, window_height;
-	glfwGetWindowSize( &window_width, &window_height );
+	glfwGetFramebufferSize(gWindow, &window_width, &window_height);
 
 	*width  = window_width;
 	*height = window_height;
@@ -163,8 +190,8 @@ void GraphicsContextGL::ClearColBufferAndDepth(const c32 & colour)
 void GraphicsContextGL::BeginFrame()
 {
 	// Get window size (may be different than the requested size)
-	int width, height;
-	glfwGetWindowSize( &width, &height );
+	u32 width, height;
+	GetScreenSize(&width, &height);
 
 	// Special case: avoid division by zero below
 	height = height > 0 ? height : 1;
@@ -179,7 +206,7 @@ void GraphicsContextGL::EndFrame()
 
 void GraphicsContextGL::UpdateFrame( bool wait_for_vbl )
 {
-	glfwSwapBuffers();
+	glfwSwapBuffers(gWindow);
 //	if( gCleanSceneEnabled ) //TODO: This should be optional
 	{
 		ClearColBuffer( c32(0xff000000) ); // ToDo : Use gFillColor instead?

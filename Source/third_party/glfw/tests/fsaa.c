@@ -1,5 +1,5 @@
 //========================================================================
-// Fullscreen multisampling anti-aliasing test
+// Fullscreen anti-aliasing test
 // Copyright (c) Camilla Berglund <elmindreda@elmindreda.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -29,84 +29,127 @@
 //
 //========================================================================
 
-#include <GL/glfw.h>
+#define GLFW_INCLUDE_GLU
+#include <GLFW/glfw3.h>
+#include <GL/glext.h>
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifndef GL_ARB_multisample
-#define GL_MULTISAMPLE_ARB 0x809D
-#endif
+#include "getopt.h"
 
-static void GLFWCALL window_size_callback(int width, int height)
+static void error_callback(int error, const char* description)
+{
+    fprintf(stderr, "Error: %s\n", description);
+}
+
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 
-int main(void)
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    int samples;
+    if (action != GLFW_PRESS)
+        return;
+
+    switch (key)
+    {
+        case GLFW_KEY_SPACE:
+            glfwSetTime(0.0);
+            break;
+    }
+}
+
+static void usage(void)
+{
+    printf("Usage: fsaa [-h] [-s SAMPLES]\n");
+}
+
+int main(int argc, char** argv)
+{
+    int ch, samples = 4;
+    GLFWwindow* window;
+
+    while ((ch = getopt(argc, argv, "hs:")) != -1)
+    {
+        switch (ch)
+        {
+            case 'h':
+                usage();
+                exit(EXIT_SUCCESS);
+            case 's':
+                samples = atoi(optarg);
+                break;
+            default:
+                usage();
+                exit(EXIT_FAILURE);
+        }
+    }
+
+    glfwSetErrorCallback(error_callback);
 
     if (!glfwInit())
-    {
-        fprintf(stderr, "Failed to initialize GLFW\n");
         exit(EXIT_FAILURE);
-    }
 
-    glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4);
+    if (samples)
+        printf("Requesting FSAA with %i samples\n", samples);
+    else
+        printf("Requesting that FSAA not be available\n");
 
-    if (!glfwOpenWindow(400, 400, 0, 0, 0, 0, 0, 0, GLFW_WINDOW))
+    glfwWindowHint(GLFW_SAMPLES, samples);
+
+    window = glfwCreateWindow(800, 400, "Aliasing Detector", NULL, NULL);
+    if (!window)
     {
         glfwTerminate();
-
-        fprintf(stderr, "Failed to open GLFW window\n");
         exit(EXIT_FAILURE);
     }
+
+    glfwSetKeyCallback(window, key_callback);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);
 
     if (!glfwExtensionSupported("GL_ARB_multisample"))
     {
         glfwTerminate();
-
-        fprintf(stderr, "Context reports GL_ARB_multisample is not supported\n");
         exit(EXIT_FAILURE);
     }
 
-    glfwSetWindowTitle("Aliasing Detector");
-    glfwSetWindowSizeCallback(window_size_callback);
-    glfwSwapInterval(1);
-
-    samples = glfwGetWindowParam(GLFW_FSAA_SAMPLES);
+    glGetIntegerv(GL_SAMPLES_ARB, &samples);
     if (samples)
-        printf("Context reports FSAA is supported with %i samples\n", samples);
+        printf("Context reports FSAA is available with %i samples\n", samples);
     else
-        printf("Context reports FSAA is unsupported\n");
+        printf("Context reports FSAA is unavailable\n");
 
     glMatrixMode(GL_PROJECTION);
-    gluOrtho2D(0.f, 1.f, 0.f, 1.f);
+    gluOrtho2D(0.f, 1.f, 0.f, 0.5f);
+    glMatrixMode(GL_MODELVIEW);
 
-    while (glfwGetWindowParam(GLFW_OPENED))
+    while (!glfwWindowShouldClose(window))
     {
         GLfloat time = (GLfloat) glfwGetTime();
 
         glClear(GL_COLOR_BUFFER_BIT);
 
         glLoadIdentity();
-        glTranslatef(0.5f, 0.f, 0.f);
-        glRotatef(time, 0.f, 0.f, 1.f);
-
-        glEnable(GL_MULTISAMPLE_ARB);
-        glColor3f(1.f, 1.f, 1.f);
-        glRectf(-0.25f, -0.25f, 0.25f, 0.25f);
-
-        glLoadIdentity();
-        glTranslatef(-0.5f, 0.f, 0.f);
+        glTranslatef(0.25f, 0.25f, 0.f);
         glRotatef(time, 0.f, 0.f, 1.f);
 
         glDisable(GL_MULTISAMPLE_ARB);
-        glColor3f(1.f, 1.f, 1.f);
-        glRectf(-0.25f, -0.25f, 0.25f, 0.25f);
+        glRectf(-0.15f, -0.15f, 0.15f, 0.15f);
 
-        glfwSwapBuffers();
+        glLoadIdentity();
+        glTranslatef(0.75f, 0.25f, 0.f);
+        glRotatef(time, 0.f, 0.f, 1.f);
+
+        glEnable(GL_MULTISAMPLE_ARB);
+        glRectf(-0.15f, -0.15f, 0.15f, 0.15f);
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
     }
 
     glfwTerminate();

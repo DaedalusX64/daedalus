@@ -30,7 +30,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <GL/glfw.h>
+
+#define GLFW_INCLUDE_GLU
+#include <GLFW/glfw3.h>
 
 
 /*****************************************************************************
@@ -40,7 +42,8 @@
 /* Prototypes */
 void init( void );
 void display( void );
-void GLFWCALL reshape( int w, int h );
+void reshape( GLFWwindow* window, int w, int h );
+void key_callback( GLFWwindow* window, int key, int scancode, int action, int mods );
 void DrawBoingBall( void );
 void BounceBall( double dt );
 void DrawBoingBallBand( GLfloat long_lo, GLfloat long_hi );
@@ -222,7 +225,7 @@ void display(void)
 /*****************************************************************************
  * reshape()
  *****************************************************************************/
-void GLFWCALL reshape( int w, int h )
+void reshape( GLFWwindow* window, int w, int h )
 {
    glViewport( 0, 0, (GLsizei)w, (GLsizei)h );
 
@@ -242,6 +245,11 @@ void GLFWCALL reshape( int w, int h )
               0.0, -1.0, 0.0 );         /* up vector */
 }
 
+void key_callback( GLFWwindow* window, int key, int scancode, int action, int mods )
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GL_TRUE);
+}
 
 /*****************************************************************************
  * Draw the Boing ball.
@@ -328,7 +336,7 @@ void DrawBoingBall( void )
 /*****************************************************************************
  * Bounce the ball.
  *****************************************************************************/
-void BounceBall( double dt )
+void BounceBall( double delta_t )
 {
    GLfloat sign;
    GLfloat deg;
@@ -356,8 +364,8 @@ void BounceBall( double dt )
    }
 
    /* Update ball position */
-   ball_x += ball_x_inc * ((float)dt*ANIMATION_SPEED);
-   ball_y += ball_y_inc * ((float)dt*ANIMATION_SPEED);
+   ball_x += ball_x_inc * ((float)delta_t*ANIMATION_SPEED);
+   ball_y += ball_y_inc * ((float)delta_t*ANIMATION_SPEED);
 
   /*
    * Simulate the effects of gravity on Y movement.
@@ -565,32 +573,37 @@ void DrawGrid( void )
 
 int main( void )
 {
-   int running;
+   GLFWwindow* window;
+   int width, height;
 
    /* Init GLFW */
    if( !glfwInit() )
-   {
-      fprintf( stderr, "Failed to initialize GLFW\n" );
       exit( EXIT_FAILURE );
-   }
 
-   if( !glfwOpenWindow( 400,400, 0,0,0,0, 16,0, GLFW_WINDOW ) )
+   glfwWindowHint(GLFW_DEPTH_BITS, 16);
+
+   window = glfwCreateWindow( 400, 400, "Boing (classic Amiga demo)", NULL, NULL );
+   if (!window)
    {
-       fprintf( stderr, "Failed to open GLFW window\n" );
        glfwTerminate();
        exit( EXIT_FAILURE );
    }
 
-   glfwSetWindowTitle( "Boing (classic Amiga demo)" );
-   glfwSetWindowSizeCallback( reshape );
-   glfwEnable( GLFW_STICKY_KEYS );
+   glfwSetFramebufferSizeCallback(window, reshape);
+   glfwSetKeyCallback(window, key_callback);
+
+   glfwMakeContextCurrent(window);
    glfwSwapInterval( 1 );
+
+   glfwGetFramebufferSize(window, &width, &height);
+   reshape(window, width, height);
+
    glfwSetTime( 0.0 );
 
    init();
 
    /* Main loop */
-   do
+   for (;;)
    {
        /* Timing */
        t = glfwGetTime();
@@ -601,13 +614,13 @@ int main( void )
        display();
 
        /* Swap buffers */
-       glfwSwapBuffers();
+       glfwSwapBuffers(window);
+       glfwPollEvents();
 
        /* Check if we are still running */
-       running = !glfwGetKey( GLFW_KEY_ESC ) &&
-                 glfwGetWindowParam( GLFW_OPENED );
+       if (glfwWindowShouldClose(window))
+           break;
    }
-   while( running );
 
    glfwTerminate();
    exit( EXIT_SUCCESS );

@@ -131,7 +131,7 @@ public:
 		pthread_mutex_unlock(&mMutex);
 	}
 
-private:
+public:
 	pthread_mutex_t  mMutex;
 };
 
