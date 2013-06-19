@@ -162,11 +162,11 @@ static const SysEntityEntry gSysInitTable[] =
 #endif
 	{"ROM Database",		CRomDB::Create,				CRomDB::Destroy},
 	{"ROM Settings",		CRomSettingsDB::Create,		CRomSettingsDB::Destroy},
+	{"InputManager",		CInputManager::Create,		CInputManager::Destroy},
 #ifdef DAEDALUS_PSP
 	{"VideoMemory",			CVideoMemoryManager::Create, NULL},
 #endif
 	{"GraphicsContext",		CGraphicsContext::Create,	CGraphicsContext::Destroy},
-	{"InputManager",		CInputManager::Create,		CInputManager::Destroy},
 #ifdef DAEDALUS_PSP
 	{"Language",			Translate_Init,				NULL},
 #endif

@@ -12,6 +12,7 @@
 #include "Utility/Thread.h"
 
 //static bool toggle_fullscreen = false;
+
 static void HandleKeys(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
 	if (action == GLFW_PRESS)
@@ -47,10 +48,13 @@ static void HandleKeys(GLFWwindow * window, int key, int scancode, int action, i
 				}
 			}
 		}
-// Wait for GLF 3 which adds proper full screen support
+// Proper full screen toggle still not fully implemented in GLF3
+// BUT is in the roadmap for future 3XX release
 #if 0
 		if(key == GLFW_KEY_F1)
 		{
+			GLFWmonitor *monitor = NULL;
+
 			// Toggle fullscreen on/off
 			toggle_fullscreen ^= 1;
 
@@ -58,22 +62,38 @@ static void HandleKeys(GLFWwindow * window, int key, int scancode, int action, i
 			u32 height= 480; //SCR_HEIGHT
 			if(toggle_fullscreen)
 			{
+				monitor = glfwGetPrimaryMonitor();
+
 				// Get destop resolution, this should tell us the max resolution we can use
-				GLFWvidmode info;
-				glfwGetDesktopMode( &info );
-				width = info.Width;
-				height= info.Height;
+				const GLFWvidmode* mode = glfwGetVideoMode(monitor);	
+				width = mode->width;
+				height= mode->height;
 			}
 
 			// Arg need to close and re open window to toggle fullscreen :(
 			// Hopefully future releases of GLFW should make this simpler
-			glfwCloseWindow();
+			glfwDestroyWindow(gWindow);
 
-			if( !glfwOpenWindow( width, height,
-						0,0,0,0,
-						24,
-						0,
-						toggle_fullscreen ?  GLFW_FULLSCREEN : GLFW_WINDOW ) )
+			glfwWindowHint(GLFW_SAMPLES, 4);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+
+		#ifdef DAEDALUS_OSX
+			// OSX 10.7+ only supports 3.2 with core profile/forward compat.
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+		#endif
+
+			glfwWindowHint(GLFW_DEPTH_BITS, 24);
+			//glfwWindowHint(GLFW_STENCIL_BITS, 0);
+
+			// Open a window and create its OpenGL context
+			gWindow = glfwCreateWindow( width, height,
+										"Daedalus",
+										monitor, NULL );
+
+			glfwSetWindowSize(gWindow, width, height);
+			if( !gWindow)
 			{
 				// FIX ME: What to do here? Should exit?
 				fprintf( stderr, "Failed to re open GLFW window!\n" );
