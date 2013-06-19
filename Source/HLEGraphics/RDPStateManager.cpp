@@ -232,7 +232,7 @@ static inline void CopyLineSwap(void * dst, const void * src, u32 bytes)
 	else
 	{
 		// Optimize me: Bomberman, Zelda, and Quest 64 have unaligned copies here
-		DBGConsole_Msg(0, "[WWarning CopyLineSwap: Performing slow copy]" );
+		//DBGConsole_Msg(0, "[WWarning CopyLineSwap: Performing slow copy]" );
 	}
 #endif
 
@@ -674,7 +674,7 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 #endif
 
 #ifdef DAEDALUS_ACCURATE_TMEM
-		ti.Line    = rdp_tile.line;
+		ti.SetLine( rdp_tile.line );
 		// NB: ACCURATE_TMEM doesn't care about pitch - it's already been loaded into tmem.
 		// We only care about line.
 #endif

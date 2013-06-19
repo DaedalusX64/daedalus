@@ -47,16 +47,15 @@ private:
 	u32			Size : 2;			// e.g. 4bpp, 8bpp, 16bpp, 32bpp
 	u32			TLutFmt : 2;		// e.g. ?, ?, RGBA16, IA16
 //	u32			Tile : 3;			// e.g. Tile number (0-7)
+#ifdef DAEDALUS_ACCURATE_TMEM
+	u32			Line : 9;
+#endif
 	bool		Swapped : 1;		// Are odd lines word swapped?
 	bool		EmulateMirrorS : 1;
 	bool		EmulateMirrorT : 1;
 
 	bool		White : 1;			// Force the RGB channels to white (PSP Blender support).
 									// Typically this is set on a copy of the TextureInfo.
-#ifdef DAEDALUS_ACCURATE_TMEM
-public:
-	u32			Line : 9;
-#endif
 
 public:
 	// Pretty gross. Needed so that any padding bytes are consistently zeroed.
@@ -83,6 +82,7 @@ public:
 	inline u32				GetHeight() const				{ return Height; }
 	inline u32				GetPitch() const				{ return Pitch; }
 	inline ETLutFmt			GetTLutFormat() const			{ return (ETLutFmt)TLutFmt; }
+	inline u32				GetLine() const					{ return Line; }
 	inline u32				GetPalette() const				{ return Palette; }
 	inline bool				IsSwapped() const				{ return Swapped; }
 	inline bool				GetEmulateMirrorS() const		{ return EmulateMirrorS; }
@@ -98,6 +98,7 @@ public:
 	inline void				SetHeight( u32 height )			{ Height = height; }
 	inline void				SetPitch( u32 pitch )			{ Pitch = pitch; }
 	inline void				SetTLutFormat( ETLutFmt format ){ TLutFmt = format; }
+	inline void				SetLine( u32 line )				{ Line = line; }
 	inline void				SetPalette( u32 index )			{ Palette = index; }
 	inline void				SetSwapped( bool swapped )		{ Swapped = swapped; }
 	inline void				SetEmulateMirrorS( bool e )		{ EmulateMirrorS = e; }

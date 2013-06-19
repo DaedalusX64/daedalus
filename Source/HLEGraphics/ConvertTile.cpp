@@ -101,7 +101,7 @@ static void ConvertRGBA32(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 dst_row_offset = 0;
 
 	const u8 * src     = gTMEM;
-	u32 src_row_stride = ti.Line<<3;
+	u32 src_row_stride = ti.GetLine()<<3;
 	u32 src_row_offset = ti.GetTmemAddress()<<3;
 
 	// NB! RGBA/32 line needs to be doubled.
@@ -141,7 +141,7 @@ static void ConvertRGBA16(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 dst_row_offset = 0;
 
 	const u8 * src     = gTMEM;
-	u32 src_row_stride = ti.Line<<3;
+	u32 src_row_stride = ti.GetLine()<<3;
 	u32 src_row_offset = ti.GetTmemAddress()<<3;
 
 	u32 row_swizzle = 0;
@@ -180,7 +180,7 @@ static void ConvertCI8T(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 dst_row_offset = 0;
 
 	const u8 * src     = gTMEM;
-	u32 src_row_stride = ti.Line<<3;
+	u32 src_row_stride = ti.GetLine()<<3;
 	u32 src_row_offset = ti.GetTmemAddress()<<3;
 
 	// Convert the palette once, here.
@@ -225,7 +225,7 @@ static void ConvertCI4T(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 dst_row_offset = 0;
 
 	const u8 * src     = gTMEM;
-	u32 src_row_stride = ti.Line<<3;
+	u32 src_row_stride = ti.GetLine()<<3;
 	u32 src_row_offset = ti.GetTmemAddress()<<3;
 
 	// Convert the palette once, here.
@@ -343,7 +343,7 @@ static void ConvertIA16(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 dst_row_offset = 0;
 
 	const u8 * src     = gTMEM;
-	u32 src_row_stride = ti.Line<<3;
+	u32 src_row_stride = ti.GetLine()<<3;
 	u32 src_row_offset = ti.GetTmemAddress()<<3;
 
 	u32 row_swizzle = 0;
@@ -384,7 +384,7 @@ static void ConvertIA8(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 dst_row_offset = 0;
 
 	const u8 * src     = gTMEM;
-	u32 src_row_stride = ti.Line<<3;
+	u32 src_row_stride = ti.GetLine()<<3;
 	u32 src_row_offset = ti.GetTmemAddress()<<3;
 
 	u32 row_swizzle = 0;
@@ -425,7 +425,7 @@ static void ConvertIA4(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 dst_row_offset = 0;
 
 	const u8 * src     = gTMEM;
-	u32 src_row_stride = ti.Line<<3;
+	u32 src_row_stride = ti.GetLine()<<3;
 	u32 src_row_offset = ti.GetTmemAddress()<<3;
 
 	u32 row_swizzle = 0;
@@ -495,7 +495,7 @@ static void ConvertI8(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 dst_row_offset = 0;
 
 	const u8 * src     = gTMEM;
-	u32 src_row_stride = ti.Line<<3;
+	u32 src_row_stride = ti.GetLine()<<3;
 	u32 src_row_offset = ti.GetTmemAddress()<<3;
 
 	u32 row_swizzle = 0;
@@ -534,7 +534,7 @@ static void ConvertI4(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 dst_row_offset = 0;
 
 	const u8 * src     = gTMEM;
-	u32 src_row_stride = ti.Line<<3;
+	u32 src_row_stride = ti.GetLine()<<3;
 	u32 src_row_offset = ti.GetTmemAddress()<<3;
 
 	u32 row_swizzle = 0;
@@ -618,7 +618,7 @@ bool ConvertTile(const TextureInfo & ti,
 	dsti.Pitch   = pitch;
 	dsti.Palette = palette;
 
-	DAEDALUS_ASSERT(ti.Line != 0, "No line");
+	DAEDALUS_ASSERT(ti.GetLine() != 0, "No line");
 
 	const ConvertFunction fn = gConvertFunctions[ (ti.GetFormat() << 2) | ti.GetSize() ];
 	if( fn )
