@@ -731,7 +731,7 @@ void CTextureExplorerDebugMenuOption::Display() const
 			ti.GetLoadAddress(),
 			left, top, ti.GetWidth(), ti.GetHeight(), ti.GetPitch(),
 			ti.GetFormatName(), ti.GetSizeInBits(),
-			ti.GetTmemAddress(), ti.GetTLutIndex() );
+			ti.GetTmemAddress(), ti.GetPalette() );
 	}
 	printf( "%s\n", TERMINAL_WHITE );
 

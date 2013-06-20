@@ -8,4 +8,3 @@ Spiderman characters render funny
 Wetrix doesn't render
 Waverace screen is weirdly stretched
 Characters for name entry screen in Zelda messed up (GL renderer bug)
-Text in Bomberman : The second Attack is not right (Accurate TMEM bug)

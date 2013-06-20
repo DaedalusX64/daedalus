@@ -247,15 +247,22 @@ static inline CRefPtr<CNativeTexture> Load_ObjSprite( const uObjSprite *sprite, 
 {
 	TextureInfo ti;
 
+	// When txtr is NULL, it means TLUT was loaded from ObjLoadTxtr ucode
 	if( txtr == NULL )
 	{
+		// Get ti info from TextureDescriptor since there's no txtr for tile or block (txtr = NULL)
 		ti = gRDPStateManager.GetUpdatedTextureDescriptor( gRenderer->GetTextureTile() );
+#ifdef DAEDALUS_ACCURATE_TMEM
+		// TLUT is loaded from ObjLoadTxtr ucode, so this is a direct load from ram (line = 0)
+		ti.SetLine(0);
+#endif
 	}
 	else
 	{
 		ti.SetFormat           (sprite->imageFmt);
 		ti.SetSize             (sprite->imageSiz);
 		ti.SetLoadAddress      (RDPSegAddr(txtr->block.image) + (sprite->imageAdrs<<3) );
+		//ti.SetLine		   (0);	// Ensure line is 0?
 
 		switch( txtr->block.type )
 		{
@@ -483,8 +490,9 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 #endif
 		gObjTxtr = NULL;
 	}
-	else	// Need to load from ObjTxtr
+	else // (TXTRBLOCK, TXTRTILE)
 	{
+		// Tile or block are loaded from ObjTxtr
 		gObjTxtr = (uObjTxtr*)ObjTxtr;
 	}
 }

@@ -76,7 +76,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib shlwapi.lib winmm.lib dxguid.lib dsound.lib zlibwapi.lib libpng15.lib glew32.lib opengl32.lib GLFWDLL.lib WSock32.lib"
+				AdditionalDependencies="comctl32.lib shlwapi.lib winmm.lib dxguid.lib dsound.lib zlibwapi.lib libpng15.lib glew32.lib opengl32.lib glfw3dll.lib WSock32.lib"
 				OutputFile=".\Builds\PC\DaedalusDebug.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -177,7 +177,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shlwapi.lib winmm.lib dxguid.lib dsound.lib zlibwapi.lib libpng15.lib glew32.lib opengl32.lib GLFWDLL.lib WSock32.lib"
+				AdditionalDependencies="shlwapi.lib winmm.lib dxguid.lib dsound.lib zlibwapi.lib libpng15.lib glew32.lib opengl32.lib glfw3dll.lib WSock32.lib"
 				OutputFile=".\Builds\PC\Daedalus.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

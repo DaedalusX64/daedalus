@@ -40,16 +40,11 @@ public:
 
 	virtual u32					GetConfigurationFromName( const char * name ) const;
 private:
-	void InitGamePad();
 	void GetJoyPad(OSContPad *pPad);
-
-	bool mIsGamePad;
 };
 
 IInputManager::IInputManager()
-:	mIsGamePad( false )
 {
-	InitGamePad();
 }
 
 IInputManager::~IInputManager()
@@ -59,12 +54,6 @@ IInputManager::~IInputManager()
 bool IInputManager::Initialise()
 {
 	return true;
-}
-
-// FIXME: maybe don't have an explicit init step, just check glfwJoystickPresent every frame?
-void IInputManager::InitGamePad()
-{
-	mIsGamePad = glfwJoystickPresent(GLFW_JOYSTICK_1);
 }
 
 void IInputManager::GetJoyPad(OSContPad *pPad)
@@ -77,7 +66,6 @@ void IInputManager::GetJoyPad(OSContPad *pPad)
 	{
 		// gamepad was disconnected?
         DAEDALUS_ERROR("Couldn't read axes");
-		mIsGamePad = false;
         return;
     }
 
@@ -87,7 +75,6 @@ void IInputManager::GetJoyPad(OSContPad *pPad)
 	{
 		// gamepad was disconnected?
 		DAEDALUS_ERROR("Couldn't read buttons");
-		mIsGamePad = false;
 		return;
 	}
 
@@ -100,8 +87,23 @@ void IInputManager::GetJoyPad(OSContPad *pPad)
 	if (buttons[4])		pPad->button |= L_TRIG;
 	if (buttons[5])		pPad->button |= R_TRIG;
 
+	if (buttons[20])	pPad->button |= U_JPAD;
+	if (buttons[22])	pPad->button |= D_JPAD;
+	if (buttons[23])	pPad->button |= L_JPAD;
+	if (buttons[21])	pPad->button |= R_JPAD;
+
+	// Hold O button and use hat buttons for N64 c buttons (same as the PSP)
+	// We could use the second analog stick to map them, but will require to translate asix >=2
+	if(buttons[1])
+	{
+		if (buttons[20])	pPad->button |= U_CBUTTONS;
+		if (buttons[22])	pPad->button |= D_CBUTTONS;
+		if (buttons[23])	pPad->button |= L_CBUTTONS;
+		if (buttons[21])	pPad->button |= R_CBUTTONS;
+	}
+
 	// Used to see key presses, useful to add a different button configuration
-	//for(u32 i = 0; i < num_buttons; i++)
+	//for(int i = 0; i < num_buttons; i++)
 	//{
 	//	if(buttons[i])
 	//		printf("%d\n",i);
@@ -109,9 +111,6 @@ void IInputManager::GetJoyPad(OSContPad *pPad)
 
 	pPad->stick_x =  s8(axes[0] * N64_ANALOGUE_STICK_RANGE);
 	pPad->stick_y =  s8(axes[1] * N64_ANALOGUE_STICK_RANGE);
-
-	//ToDo: Map DPAD and c buttons
-	//DPAD and hat POV are implemented until glfw 3.0 shall we update? :)
 }
 
 void IInputManager::GetState( OSContPad pPad[4] )
@@ -125,7 +124,7 @@ void IInputManager::GetState( OSContPad pPad[4] )
 	}
 
 	// Check if a gamepad is connected, If not fallback to keyboard
-	if(mIsGamePad == true)
+	if(glfwJoystickPresent(GLFW_JOYSTICK_1))
 	{
 		GetJoyPad(&pPad[0]);
 	}
