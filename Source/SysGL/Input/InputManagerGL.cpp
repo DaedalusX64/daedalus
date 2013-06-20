@@ -71,7 +71,7 @@ void IInputManager::GetJoyPad(OSContPad *pPad)
 
     int num_buttons;
 	const u8 * buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &num_buttons);
-	if(!buttons || num_buttons < 12)
+	if(!buttons || num_buttons < 24)
 	{
 		// gamepad was disconnected?
 		DAEDALUS_ERROR("Couldn't read buttons");
