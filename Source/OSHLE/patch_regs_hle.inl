@@ -9,8 +9,7 @@ TEST_DISABLE_REG_FUNCS
 	u32 CurrSR = gCPUState.CPUControl[C0_SR]._u32;
 
 	gCPUState.CPUControl[C0_SR]._u32 = CurrSR & ~SR_IE;
-	gGPR[REG_v0]._u32_0 = CurrSR & SR_IE;
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = (s64)(CurrSR & SR_IE);
 
 	return PATCH_RET_JR_RA;
 }
@@ -25,8 +24,7 @@ TEST_DISABLE_REG_FUNCS
 	u32 CurrSR = gCPUState.CPUControl[C0_SR]._u32;
 
 	gCPUState.CPUControl[C0_SR]._u32 = CurrSR & ~SR_IE;
-	gGPR[REG_v0]._u32_0 = CurrSR & SR_IE;
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = (s64)(CurrSR & SR_IE);
 
 	return PATCH_RET_JR_RA;
 }
@@ -57,8 +55,7 @@ u32 Patch_osGetCount()
 {
 TEST_DISABLE_REG_FUNCS
 
-	gGPR[REG_v0]._u32_0 = gCPUState.CPUControl[C0_COUNT]._u32;
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = (s64)gCPUState.CPUControl[C0_COUNT]._u32;
 
 	return PATCH_RET_JR_RA;
 }
@@ -70,8 +67,7 @@ u32 Patch___osGetCause()
 {
 TEST_DISABLE_REG_FUNCS
 
-	gGPR[REG_v0]._u32_0 = gCPUState.CPUControl[C0_CAUSE]._u32;
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = (s64)gCPUState.CPUControl[C0_CAUSE]._u32;
 
 	return PATCH_RET_JR_RA;
 }
@@ -109,8 +105,7 @@ u32 Patch___osGetSR()
 {
 TEST_DISABLE_REG_FUNCS
 
-	gGPR[REG_v0]._u32_0 = gCPUState.CPUControl[C0_SR]._u32;
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = (s64)gCPUState.CPUControl[C0_SR]._u32;
 	//DBGConsole_Msg(0, "__osGetSR()");
 
 	return PATCH_RET_JR_RA;
@@ -122,9 +117,7 @@ TEST_DISABLE_REG_FUNCS
 u32 Patch___osSetFpcCsr()
 {
 TEST_DISABLE_REG_FUNCS
-	// Why is the CFC1 32bit?
-	gGPR[REG_v0]._u32_0 = gCPUState.FPUControl[31]._u32;
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = (s64)gCPUState.FPUControl[31]._u32;
 
 	gCPUState.FPUControl[31]._u32 = gGPR[REG_a0]._u32_0;
 	DBGConsole_Msg(0, "__osSetFpcCsr()");

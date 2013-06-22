@@ -17,8 +17,7 @@ TEST_DISABLE_UTIL_FUNCS
 		QuickWrite32Bits(p, 0x0, value);
 	}
 
-	gGPR[REG_v0]._u32_0 = result;
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = (s64)result;
 
 	return PATCH_RET_JR_RA;
 }
@@ -34,8 +33,7 @@ TEST_DISABLE_UTIL_FUNCS
 	u32 len = gGPR[REG_a2]._u32_0;
 
 	// Set return val here (return dest)
-	gGPR[REG_v0]._u32_0 = gGPR[REG_a0]._u32_0;
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = (s64)gGPR[REG_a0]._u32_0;
 
 	//NOP! fixes SpiderMan
 	if (len == 0)
@@ -69,8 +67,7 @@ TEST_DISABLE_UTIL_FUNCS
 
 	while (*((u8*)((u32)psrc++^U8_TWIDDLE)) );
 
-	gGPR[REG_v0]._u32_0 = psrc - start - 1;
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = (s64)(psrc - start - 1);
 
 	return PATCH_RET_JR_RA;
 
@@ -102,8 +99,7 @@ TEST_DISABLE_UTIL_FUNCS
 		if( SrcChar == 0 ) break;	//Return NULL address
 	}
 
-	gGPR[REG_v0]._u32_0 = MatchAddr;
-	SIGN64(REG_v0);	//This has to be signed extended!
+	gGPR[REG_v0]._s64 = (s64) MatchAddr;
 
 	return PATCH_RET_JR_RA;
 }
@@ -132,8 +128,7 @@ u32 Patch_strcmp()
 	if (i == len || (A == 0 && Read8Bits(sB + i) == 0))
 		i = 0;
 
-	gGPR[REG_v0]._u32_0 = i;
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = (s64)i;
 
 	return PATCH_RET_JR_RA;
 }
@@ -151,8 +146,7 @@ TEST_DISABLE_UTIL_FUNCS
 	u32 len = gGPR[REG_a2]._u32_0;
 
 	// Set return val here (return dest)
-	gGPR[REG_v0]._u32_0 = gGPR[REG_a1]._u32_0;
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = (s64)gGPR[REG_a1]._u32_0;
 
 	if (len == 0)
 		return PATCH_RET_JR_RA;
@@ -187,7 +181,7 @@ TEST_DISABLE_UTIL_FUNCS
 	}
 
 	// Mmm already returned dest... -Salvy
-	//gGPR[REG_v0]._u32_0 = 0;
+	//gGPR[REG_v0]._s64 = 0;
 
 	return PATCH_RET_JR_RA;
 }
@@ -243,8 +237,7 @@ u32 Patch_bzero()
 #endif
 
 	// return value of dest
-	gGPR[REG_v0]._u32_0 = gGPR[REG_a0]._u32_0;
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = (s64) gGPR[REG_a0]._u32_0;
 
 	return PATCH_RET_JR_RA;
 }

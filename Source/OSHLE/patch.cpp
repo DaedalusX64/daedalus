@@ -99,7 +99,7 @@ u32 gNumOfOSFunctions;
 #define PATCH_RET_ERET RET_JR_ERET()
 
 // Increase this number every time we changed the symbol table
-static const u32 MAGIC_HEADER = 0x80000145;
+static const u32 MAGIC_HEADER = 0x80000146;
 
 static bool gPatchesApplied = false;
 
@@ -118,15 +118,6 @@ static void Patch_FlushCache();
 static void Patch_ApplyPatch(u32 i);
 static u32  nPatchSymbols;
 static u32  nPatchVariables;
-
-//For performance we ignore sign ext in certain patches that are known to return 32bit values (gives upto ~5% speedup in some games ex SSV), but this causes "Branching assumption invalid" errors in interpreter
-//I guess some games expect the hi bits to be cleared? We only ignore sign ext for PSP since performance is a concern, and other than the above assert I haven't noticed any issue. //Salvy
-//#ifndef DAEDALUS_PSP
-#if 1
-#define SIGN64(reg)	gGPR[reg]._s64 = (s64)gGPR[reg]._s32_0
-#else
-#define SIGN64(reg)
-#endif
 
 void Patch_Reset()
 {

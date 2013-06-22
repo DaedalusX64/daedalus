@@ -43,7 +43,7 @@ TEST_DISABLE_SP_FUNCS
 	/*
 	if (IsSpDeviceBusy())
 	{
-		gGPR[REG_v0]._u32_0 = ~0;
+		gGPR[REG_v0]._s64 = -1;
 		return PATCH_RET_JR_RA;
 	}
 	*/
@@ -70,8 +70,7 @@ TEST_DISABLE_SP_FUNCS
 		DMA_SP_CopyFromRDRAM();
 	}
 
-	gGPR[REG_v0]._u32_0 = 0;
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = 0;
 
 	return PATCH_RET_JR_RA;
 }
@@ -83,8 +82,7 @@ u32 Patch___osSpDeviceBusy_Mario()
 {
 TEST_DISABLE_SP_FUNCS
 	
-	gGPR[REG_v0]._u32_0 = IsSpDeviceBusy();
-	SIGN64(REG_v0);	// very important, otherwise it causes a branch assumption error in interpreter
+	gGPR[REG_v0]._s64 = (s64)IsSpDeviceBusy();
 
 	return PATCH_RET_JR_RA;
 }
@@ -97,8 +95,7 @@ u32 Patch___osSpDeviceBusy_Rugrats()
 {
 TEST_DISABLE_SP_FUNCS
 
-	gGPR[REG_v0]._u32_0 = IsSpDeviceBusy();
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = (s64)IsSpDeviceBusy();
 
 	return PATCH_RET_JR_RA;
 }
@@ -112,8 +109,7 @@ u32 Patch___osSpGetStatus_Mario()
 {
 TEST_DISABLE_SP_FUNCS
 
-	gGPR[REG_v0]._u32_0 = SpGetStatus();
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = (s64)SpGetStatus();
 
 	return PATCH_RET_JR_RA;
 }
@@ -126,8 +122,7 @@ u32 Patch___osSpGetStatus_Rugrats()
 {
 TEST_DISABLE_SP_FUNCS
 
-	gGPR[REG_v0]._u32_0 = SpGetStatus();
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = (s64)SpGetStatus();
 
 	return PATCH_RET_JR_RA;
 }
@@ -173,14 +168,13 @@ TEST_DISABLE_SP_FUNCS
 		// Halted, we can safely set the pc:
 		Memory_PC_SetRegister(SP_PC_REG, pc);
 
-		gGPR[REG_v0]._u32_0 = 0;
+		gGPR[REG_v0]._s64 = 0;
 	}
 	else
 	{
-		gGPR[REG_v0]._u32_0 = ~0;
+		gGPR[REG_v0]._s64 = -1;
 	}
 
-	SIGN64(REG_v0);
 	return PATCH_RET_JR_RA;
 }
 
@@ -326,8 +320,7 @@ u32 Patch_osSpTaskYield_Mario()
 {
 TEST_DISABLE_SP_FUNCS
 
-	gGPR[REG_v0]._u32_0 = 0;
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = 0;
 	return PATCH_RET_JR_RA;
 }
 
@@ -338,8 +331,7 @@ u32 Patch_osSpTaskYield_Rugrats()
 {
 TEST_DISABLE_SP_FUNCS
 
-	gGPR[REG_v0]._u32_0 = 0;
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = 0;
 	return PATCH_RET_JR_RA;
 }
 
@@ -353,7 +345,7 @@ TEST_DISABLE_SP_FUNCS
 
 	OSTask * pSrcTask = (OSTask *)ReadAddress(gGPR[REG_a0]._u32_0);
 
-	gGPR[REG_v0]._u32_0 = (pSrcTask->t.flags & OS_TASK_YIELDED);
-	SIGN64(REG_v0);
+	gGPR[REG_v0]._s64 = (s64)(pSrcTask->t.flags & OS_TASK_YIELDED);
+
 	return PATCH_RET_JR_RA;
 }

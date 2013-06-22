@@ -34,8 +34,7 @@ TEST_DISABLE_EEPROM_FUNCS
 	Write16Bits(ContStatus + 0, type);	// type
 	Write8Bits(ContStatus + 2, 0);		// status
 	Write8Bits(ContStatus + 3, data);	// errno
-	gGPR[REG_v0]._u32_0 = data;
-	SIGN64( gGPR[REG_v0]._s64 );
+	gGPR[REG_v0]._s64 = (s64)data;
 
 	return PATCH_RET_JR_RA;
 }
@@ -79,22 +78,22 @@ u32 Patch_osEepromProbe()
 {
 TEST_DISABLE_EEPROM_FUNCS
 	// Returns 1 on EEPROM detected, 0 on error/no eeprom
-	DBGConsole_Msg(0, "osEepromProbe(), ra = 0x%08x", (u32)gGPR[REG_ra]._s64);
+	DBGConsole_Msg(0, "osEepromProbe(), ra = 0x%08x", gGPR[REG_ra]._u32_0);
 
+	u32 data = 0;
 	switch( g_ROM.settings.SaveType )
 	{
 	case SAVE_TYPE_EEP4K:
-		gGPR[REG_v0]._u32_0 = EEPROM_TYPE_4K;
+		data= EEPROM_TYPE_4K;
 		break;
 	case SAVE_TYPE_EEP16K:
-		gGPR[REG_v0]._u32_0 = EEPROM_TYPE_16K;
+		data = EEPROM_TYPE_16K;
 		break;
 	default:			// No Eeprom, SRAM, FlashRam etc. or error..
-		gGPR[REG_v0]._u32_0 = 0;
 		break;
 	}
-	SIGN64(REG_v0);
 
+	gGPR[REG_v0]._s64 = (s64)data;
 	// Side effect From osEepStatus
 	//Write32Bits(VAR_ADDRESS(osEepPifThingamy2), 5);
 
