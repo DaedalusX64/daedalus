@@ -852,7 +852,7 @@ void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 
 	// GL_TRUE to disable z-writes
 	sceGuDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
-	sceGuShadeModel(GU_FLAT);
+	//sceGuShadeModel(GU_FLAT);
 
 	//ToDO: Set alpha/blend states according RenderUsingCurrentBlendMode?
 	sceGuTexFilter(GU_LINEAR, GU_LINEAR);
@@ -917,7 +917,7 @@ void RendererPSP::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1,
 
 	// GL_TRUE to disable z-writes
 	sceGuDepthMask( gRDPOtherMode.z_upd ? GL_FALSE : GL_TRUE );
-	sceGuShadeModel(GU_FLAT);
+	//sceGuShadeModel(GU_FLAT);
 
 	//ToDO: Set alpha/blend states according RenderUsingCurrentBlendMode?
 	sceGuTexFilter(GU_LINEAR, GU_LINEAR);
@@ -966,53 +966,6 @@ void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height,
 		return;
 	}
 
-// 0 Simpler blit algorithm, but doesn't handle big textures as good? (see StarSoldier)
-// 1 More complex algorithm. used in newer versions of TriEngine, fixes the main screen in StarSoldier
-// Note : We ignore handling height > 512 textures for now
-#if 0
-	if ( u1 > 512.f )
-	{
-		s32 off = (u1>u0) ? ((int)u0 & ~31) : ((int)u1 & ~31);
-
-		const u8* data = static_cast<const u8*>( texture->GetData()) + off * GetBitsPerPixel( texture->GetFormat() );
-		u1 -= off;
-		u0 -= off;
-		sceGuTexImage( 0, Min<u32>(512,texture->GetCorrectedWidth()), Min<u32>(512,texture->GetCorrectedHeight()), texture->GetBlockWidth(), data );
-	}
-
-	f32 start, end;
-	f32 cur_u = u0;
-	f32 cur_x = x;
-	f32 x_end = width;
-	f32 slice = 64.f;
-	f32 ustep = (u1-u0)/width * slice;
-
-	// blit maximizing the use of the texture-cache
-	for( start=0, end=width; start<end; start+=slice )
-	{
-		TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(2*sizeof(TextureVtx));
-
-		f32 poly_width = ((cur_x+slice) > x_end) ? (x_end-cur_x) : slice;
-		f32 source_width = ((cur_u+ustep) > u1) ? (u1-cur_u) : ustep;
-
-		p_verts[0].t0.x = cur_u;
-		p_verts[0].t0.y = v0;
-		p_verts[0].pos.x = N64ToScreenX(cur_x);
-		p_verts[0].pos.y = N64ToScreenY(y);
-		p_verts[0].pos.z = 0;
-
-		cur_u += source_width;
-		cur_x += poly_width;
-
-		p_verts[1].t0.x = cur_u;
-		p_verts[1].t0.y = v1;
-		p_verts[1].pos.x = N64ToScreenX(cur_x);
-		p_verts[1].pos.y = N64ToScreenY(height);
-		p_verts[1].pos.z = 0;
-
-		sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 2, 0, p_verts );
-	}
-#else
 	f32 cur_v = v0;
 	f32 cur_y = y;
 	f32 v_end = v1;
@@ -1093,7 +1046,6 @@ void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height,
 			sceGuDrawArray( GU_SPRITES, GU_TEXTURE_32BITF | GU_VERTEX_32BITF | GU_TRANSFORM_2D, 2, 0, p_verts );
 		}
 	}
-#endif
 }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
