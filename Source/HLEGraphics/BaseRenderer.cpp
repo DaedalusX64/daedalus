@@ -1799,17 +1799,20 @@ inline void FixUV(u32 * wrap, s16 * c0_, s16 * c1_, s16 offset, u32 size)
 	// Many texrects already have GU_CLAMP set, so avoid some work.
 	if (*wrap != GU_CLAMP && size > 0)
 	{
-		s16 lowest = Min(c0, c1);
+		// Check if the coord is negative - if so, offset to the range [0,size]
+		if (c0 < 0)
+		{
+			s16 lowest = Min(c0, c1);
 
-		// Figure out by how much to translate so that the lowest of c0/c1 lies in the range [0,size]
-		// If we do lowest%size, we run the risk of implementation dependent behaviour for modulo of negative values.
-		// lowest + (size<<16) just adds a large multiple of size, which guarantees the result is positive.
-		s16 trans = (s16)(((s32)lowest + (size<<16)) % size) - lowest;
+			// Figure out by how much to translate so that the lowest of c0/c1 lies in the range [0,size]
+			// If we do lowest%size, we run the risk of implementation dependent behaviour for modulo of negative values.
+			// lowest + (size<<16) just adds a large multiple of size, which guarantees the result is positive.
+			s16 trans = (s16)(((s32)lowest + (size<<16)) % size) - lowest;
 
-		// NB! we have to apply the same offset to both coords, to preserve direction of mapping (i.e., don't clamp each independently)
-		c0 += trans;
-		c1 += trans;
-
+			// NB! we have to apply the same offset to both coords, to preserve direction of mapping (i.e., don't clamp each independently)
+			c0 += trans;
+			c1 += trans;
+		}
 		// If both coords are in the range [0,size], we can clamp safely.
 		if ((u16)c0 <= size &&
 			(u16)c1 <= size)
