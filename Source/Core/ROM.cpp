@@ -365,10 +365,6 @@ void SpecificGameHacks( const ROMHeader & id )
 		break;
 	case 0x4A54:	//Tom and Jerry
 	case 0x4d4a:	//Earthworm Jim
-		g_ROM.DISABLE_SIM_CVT_D_S = true;
-		g_ROM.LOAD_T1_HACK = true;
-		g_ROM.T1_HACK = true;
-		break;
 	case 0x5150:	//PowerPuff Girls
 		g_ROM.DISABLE_SIM_CVT_D_S = true;
 		g_ROM.LOAD_T1_HACK = true;
@@ -402,6 +398,7 @@ void SpecificGameHacks( const ROMHeader & id )
 		g_ROM.TLUT_HACK = true;
 		g_ROM.GameHacks = SIN_PUNISHMENT;
 		break;
+	case 0x3742:	//Banjo Tooie
 	case 0x5544:	//Duck Dodgers
 	case 0x3653:	//Star soldier - vanishing earth
 	case 0x324C:	//Top Gear Rally 2
