@@ -649,9 +649,8 @@ bool ConvertTexture(const TextureInfo & ti,
 	//Loading a SaveState (OOT -> SSV) dont bring back our TMEM data which causes issues for the first rendered frame.
 	//Checking if the palette pointer is less than 0x1000 (rather than just NULL) fixes it.
 	// Seems to happen on the first frame of Goldeneye too?
-#ifdef DAEDALUS_FAST_TMEM
 	if( (ti.GetFormat() == G_IM_FMT_CI) && (ti.GetTlutAddress() < 0x1000) ) return false;
-#endif
+
 	//memset( texels, 0, buffer_size );
 
 	TextureDestInfo dsti( texture_format );

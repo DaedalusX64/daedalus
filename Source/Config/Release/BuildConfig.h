@@ -40,7 +40,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //#define	DAEDALUS_PROFILE_EXECUTION			// Enable to keep track of various execution stats
 //#define	DAEDALUS_BATCH_TEST_ENABLED			// Enable the batch test
 //#define	ALLOW_TRACES_WHICH_EXCEPT
-#define	DAEDALUS_FAST_TMEM						// Disable for partial TMEM emulation (palettes only) (slower and uses more memory)
 //#define	DAEDALUS_LOG						// Enable various logging
 #define	DAEDALUS_DIALOGS						// Enable this to ask confimation dialogs in the GUI
 #define	DAEDALUS_SILENT							// Undef to enable debug messages. Define this to turn off various debugging features for public release.
