@@ -180,16 +180,16 @@ static void ConvertCI8T(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 dst_row_offset = 0;
 
 	const u8 * src     = gTMEM;
+	const u16 * src16  = (u16*)src;
+
 	u32 src_row_stride = ti.GetLine()<<3;
 	u32 src_row_offset = ti.GetTmemAddress()<<3;
 
 	// Convert the palette once, here.
-	u32 pal_address = 0x100;
-	u32 pal_offset = pal_address << 3;
 	u32 palette[256];
 	for (u32 i = 0; i < 256; ++i)
 	{
-		u16 src_pixel = (src[pal_offset + i*2 + 0]<<8) | src[pal_offset + i*2 + 1];
+		u16 src_pixel = src16[0x400+(i<<2)];
 		palette[i] = PalConvertFn(src_pixel);
 	}
 
@@ -225,22 +225,17 @@ static void ConvertCI4T(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 dst_row_offset = 0;
 
 	const u8 * src     = gTMEM;
+	const u16 * src16  = (u16*)src;
+
 	u32 src_row_stride = ti.GetLine()<<3;
 	u32 src_row_offset = ti.GetTmemAddress()<<3;
 
 	// Convert the palette once, here.
-	u32 pal_address = 0x100 + ((ti.GetPalette() * 16 * 2) >> 3);
-
-	// Animal Crossing, Majora's Mask, SSV, Banjo K's N64 logo
-	// Would be nice to have a proper fix
-	if(g_ROM.TLUT_HACK)
-		pal_address = 0x100 + (ti.GetPalette() << 4);
-
-	u32 pal_offset = pal_address << 3;
+	u32 pal_address = 0x400 + (ti.GetPalette()<<6);
 	u32 palette[16];
 	for (u32 i = 0; i < 16; ++i)
 	{
-		u16 src_pixel = (src[pal_offset + i*2 + 0]<<8) | src[pal_offset + i*2 + 1];
+		u16 src_pixel = src16[pal_address+(i<<2)];
 		palette[i] = PalConvertFn(src_pixel);
 	}
 
