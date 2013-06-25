@@ -651,14 +651,14 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 	u8 *base = g_pu8RamBase + address;
 	f32 r, g, b, x, y, z;
 	bool valid;
-	
+
 	if((g_ROM.GameHacks == ZELDA_MM) && (base[0] == 0x08) && (base[4] == 0xFF))
 	{
 		N64LightMM *light = (N64LightMM*)base;
 		r = light->r;
 		g = light->g;
 		b = light->b;
-		
+
 		x = light->x;
 		y = light->y;
 		z = light->z;
@@ -670,12 +670,12 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 		r = light->r;
 		g = light->g;
 		b = light->b;
-		
+
 		x = light->x;
 		y = light->y;
 		z = light->z;
 		valid = (light->x | light->y | light->z) ? true : false;
-		
+
 	}
 
 	DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d] %s direction",
@@ -944,6 +944,13 @@ void DLParser_TexRect( MicroCodeCommand command )
 
 	// X for upper left corner should be less than X for lower right corner else skip rendering it, seems to happen in Rayman 2 and Star Soldier
 	//if( tex_rect.x0 >= tex_rect.x1 )
+
+	// Fixes black box in SSB when moving far way from the screen
+	if (g_DI.Address == g_CI.Address)
+	{
+		// Clear ZBuffer?
+		return;
+	}
 
 	// Removes offscreen texrect, also fixes several glitches like in John Romero's Daikatana
 	if( tex_rect.x0 >= (scissors.right<<2) ||
