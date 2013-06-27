@@ -28,29 +28,35 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 	#define U8_TWIDDLE 0x0
 	#define U16_TWIDDLE 0x0
+	#define U16H_TWIDDLE 0x0
 	#define BSWAP32(x) x
+	#define BSWAP16(x) x
 
 #elif (DAEDALUS_ENDIAN_MODE == DAEDALUS_ENDIAN_LITTLE)
 	#define U8_TWIDDLE 0x3
 	#define U16_TWIDDLE 0x2
 	#define U16H_TWIDDLE 0x1
 
-	#if defined(DAEDALUS_PSP)
+	#if defined( __GNUC__ ) && !defined(__clang__)
 
 		#define BSWAP32(x) __builtin_bswap32(x)
 
-	#elif defined(DAEDALUS_W32)
-
-		#if defined( _MSC_VER )
-			#define BSWAP32(x) _byteswap_ulong(x)
-		#elif defined( __GNUC__ )
-			#define BSWAP32(x) __builtin_bswap32(x)
+		//__builtin_bswap16 is not defined on the PSP toolchain..
+		#ifdef DAEDALUS_PSP
+			#define BSWAP16(x) __builtin_allegrex_wsbh(x)
 		#else
-			#error "Unhandled compiler type"
-		#endif	
+			#define BSWAP16(x) __builtin_bswap16(x)
+		#endif
+
+	#elif defined( _MSC_VER )
+
+		#define BSWAP32(x) _byteswap_ulong(x)
+		#define BSWAP16(x) _byteswap_ushort(x)
 
 	#else
+		//TODO: Clang?
 		#define BSWAP32(x) ((x >> 24) | ((x >> 8) & 0xFF00) | ((x & 0xFF00) << 8) | (x << 24))
+		#define BSWAP16(x) ((x>>8)|(x<<8))
 	#endif
 
 #else
