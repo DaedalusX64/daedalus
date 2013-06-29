@@ -57,7 +57,7 @@ ALIGNED_GLOBAL(u8, gTMEM[ MAX_TMEM_ADDRESS ], 16);	// 4Kb
 // So it's aligned by definition, we have asserts in place just in case!
 
 // Due to how TMEM is organized, erg the last 3 bits in the address are always "0"
-// It should be safe to assume copies will always be update in qwords
+// It should be safe to assume copies will always be in qwords
 #define FAST_TMEM_COPY
 
 static inline void CopyLineQwords(void * dst, const void * src, u32 qwords)
@@ -154,12 +154,9 @@ static void CopyLineQwordsSwap32(void * dst, const void * src, u32 qwords)
 
 static inline void CopyLine(void * dst, const void * src, u32 bytes)
 {
-	u8* src8 = (u8*)src;
-	u8* dst8 = (u8*)dst;
-
 #ifdef FAST_TMEM_COPY
-	u32* src32 = (u32*)src8;
-	u32* dst32 = (u32*)dst8;
+	u32* src32 = (u32*)src;
+	u32* dst32 = (u32*)dst;
 
 	DAEDALUS_ASSERT((bytes&0x3)==0, "CopyLine: Remaning bytes! (%d)",bytes);
 
@@ -173,12 +170,11 @@ static inline void CopyLine(void * dst, const void * src, u32 bytes)
 			*dst32++ = BSWAP32(src32[0]);
 			src32++;
 		}
-		src8 = (u8*)src32;
 	}
 	else
 	{
 		// Zelda and DK64 have unaligned copies. so let's optimize 'em
-		src32 = (u32*)((uintptr_t)src8 & ~0x3);
+		src32 = (u32*)((uintptr_t)src & ~0x3);
 		u32 src_tmp = *src32++;
 		u32 dst_tmp = 0;
 
@@ -194,11 +190,11 @@ static inline void CopyLine(void * dst, const void * src, u32 bytes)
 			dst_tmp|= src_tmp >> rshift;
 			*dst32++ = BSWAP32(dst_tmp);
 		}
-		src8 = (u8*)src32 - offset;
+		src32 -= offset;
 	}
-	dst8 = (u8*)dst32;
 #else
-
+	u8* src8 = (u8*)src;
+	u8* dst8 = (u8*)dst;
 	while(bytes--)
 	{
 		*dst8++ = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
@@ -209,11 +205,13 @@ static inline void CopyLine(void * dst, const void * src, u32 bytes)
 static inline void CopyLine16(u16 * dst16, const u16 * src16, u32 words)
 {
 #ifdef FAST_TMEM_COPY
+	DAEDALUS_ASSERT( ((uintptr_t)src16&0x1 )==0, "src is not aligned!");
+
 	u32 dwords = words >> 1;
 	while(dwords--)
 	{
-		*(u16*)(dst16 + 0x0) = src16[1];
-		*(u16*)(dst16 + 0x4) = src16[0];
+		dst16[0] = src16[1];
+		dst16[4] = src16[0];
 		dst16+=8;
 		src16+=2;
 	}
@@ -221,13 +219,9 @@ static inline void CopyLine16(u16 * dst16, const u16 * src16, u32 words)
 	// Copy any remaining word
 	words&= 0x1;
 #endif
-	u8* src8 = (u8*)src16;
 	while(words--)
 	{
-		u32 a = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
-		u32 b = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
-
-		*dst16 = ((a << 8) | b);
+		*dst16 = *(u16*)((uintptr_t)src16++ ^ U16_TWIDDLE);
 		dst16+=4;
 	}
 }
@@ -253,27 +247,27 @@ static inline void CopyLineSwap(void * dst, const void * src, u32 bytes)
 		}
 	}
 	else
+#endif
 	{
 		// Optimize me: Bomberman, Zelda, and Quest 64 have unaligned copies here
 		//DBGConsole_Msg(0, "[WWarning CopyLineSwap: Performing slow copy]" );
-	}
-#endif
 
-	u8* src8 = (u8*)src;
-	u8* dst8 = (u8*)dst;
-	while(bytes--)
-	{
-		// Alternate 32 bit words are swapped
-		*(u8*)((uintptr_t)dst8++ ^ 0x4) = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
+		u8* src8 = (u8*)src32;
+		u8* dst8 = (u8*)dst32;
+		while(bytes--)
+		{
+			// Alternate 32 bit words are swapped
+			*(u8*)((uintptr_t)dst8++ ^ 0x4) = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
+		}
 	}
 }
 
 static inline void CopyLineSwap32(void * dst, const void * src, u32 bytes)
 {
-#ifdef FAST_TMEM_COPY
 	u32* src32 = (u32*)(src);
 	u32* dst32 = (u32*)(dst);
 
+#ifdef FAST_TMEM_COPY
 	DAEDALUS_ASSERT((bytes&0x7)==0, "CopyLineSwap32: Remaning bytes! (%d)",bytes);
 
 	if( ((uintptr_t)src32&0x3 )==0)
@@ -300,20 +294,19 @@ static inline void CopyLineSwap32(void * dst, const void * src, u32 bytes)
 		}
 	}
 	else
+#endif
 	{
 		// Have yet to see game with unaligned copies here
-		DBGConsole_Msg(0, "[WWarning CopyLineSwap32: Performing slow copy]" );
-	}
-#else
+		//DBGConsole_Msg(0, "[WWarning CopyLineSwap32: Performing slow copy]" );
 
-	u8* src8 = (u8*)src32;
-	u8* dst8 = (u8*)dst32;
-	while(bytes--)
-	{
-		// Alternate 64 bit words are swapped
-		*(u8*)((uintptr_t)dst8++ ^ 0x8) = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
+		u8* src8 = (u8*)src32;
+		u8* dst8 = (u8*)dst32;
+		while(bytes--)
+		{
+			// Alternate 64 bit words are swapped
+			*(u8*)((uintptr_t)dst8++ ^ 0x8) = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
+		}
 	}
-#endif
 }
 #endif
 
@@ -452,8 +445,9 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 			}
 
 			i           += qwords_to_copy;
-			dst			+= qwords_to_copy * 2;	// 2 32bit words per qword
-			src			+= qwords_to_copy * 2;
+			qwords_to_copy *= 2;				// 2 32bit words per qword
+			dst			+= qwords_to_copy;
+			src			+= qwords_to_copy;
 			odd_row     ^= 0x1;					// Odd lines are word swapped
 		}
 	}
@@ -587,9 +581,6 @@ void CRDPStateManager::LoadTlut(const SetLoadTile & load)
 // See the detailed noted in BaseRenderer::UpdateTileSnapshots for issues relating to this.
 static inline u16 GetTextureDimension( u16 tile_dimension, u8 mask, bool clamp )
 {
-	// FIXME(strmnnrmn): I think this should be fine for all builds (not just
-	// DAEDALUS_ACCURATE_TMEM), but it needs checking.
-#ifdef DAEDALUS_ACCURATE_TMEM
 	if (mask)
 	{
 		u16 mask_dimension = 1 << mask;
@@ -605,9 +596,6 @@ static inline u16 GetTextureDimension( u16 tile_dimension, u8 mask, bool clamp )
 	}
 
 	return tile_dimension;
-#else
-	return mask ? Min< u16 >( 1 << mask, tile_dimension ) : tile_dimension;
-#endif
 }
 
 const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )

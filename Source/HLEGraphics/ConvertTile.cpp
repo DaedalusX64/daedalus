@@ -20,7 +20,7 @@ struct TileDestInfo
 		,	Height( 0 )
 		,	Pitch( 0 )
 		,	Data( NULL )
-		,	Palette( NULL )
+		//,	Palette( NULL )
 	{
 	}
 
@@ -29,7 +29,7 @@ struct TileDestInfo
 	u32					Height;			// Describes the height of the locked area
 	s32					Pitch;			// Specifies the number of bytes on each row (not necessarily bitdepth*width/8)
 	void *				Data;			// Pointer to the top left pixel of the image
-	NativePf8888 *		Palette;
+	//NativePf8888 *		Palette;
 };
 
 static const u8 OneToEight[] = {
@@ -452,6 +452,7 @@ static void ConvertIA4(const TileDestInfo & dsti, const TextureInfo & ti)
 			dst_offset += 2;
 		}
 
+		// Handle trailing pixel, if odd width
 		if (width&1)
 		{
 			u8 src_pixel = src[src_offset^row_swizzle];
@@ -583,7 +584,7 @@ bool ConvertTile(const TextureInfo & ti,
 	dsti.Width   = ti.GetWidth();
 	dsti.Height  = ti.GetHeight();
 	dsti.Pitch   = pitch;
-	dsti.Palette = palette;
+	//dsti.Palette = palette;
 
 	DAEDALUS_ASSERT(ti.GetLine() != 0, "No line");
 
