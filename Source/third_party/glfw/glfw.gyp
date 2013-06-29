@@ -36,9 +36,6 @@
       ],
       'conditions': [
         ['OS=="mac"', {
-          'include_dirs': [
-            'src/',
-          ],
           'link_settings': {
             'libraries': [
               '$(SDKROOT)/System/Library/Frameworks/Cocoa.framework',
@@ -62,9 +59,6 @@
           ],
         }],
         ['OS=="linux"', {
-          'include_dirs': [
-            'src/',
-          ],
           'link_settings': {
             'libraries': [
               '-lX11',
