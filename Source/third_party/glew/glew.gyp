@@ -26,9 +26,16 @@
       ],
       'sources': [
         'src/glew.c',
-        'src/glewinfo.c',
-        'src/visualinfo.c',
       ],
-    }
+      'conditions': [
+        ['OS=="mac"', {
+          'link_settings': {
+            'libraries': [
+              '$(SDKROOT)/System/Library/Frameworks/OpenGL.framework',
+            ],
+          },
+        }],
+      ],
+    },
   ],
 }
