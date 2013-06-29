@@ -4,8 +4,8 @@
     ],
     'targets': [
       {
-        'target_name': 'daedalus',
-        'type': 'executable',
+        'target_name': 'daedalus_lib',
+        'type': 'static_library',
         'dependencies': [
           'SysGL/SysGL.gyp:SysGL',
           'third_party/glew/glew.gyp:glew', # FIXME: should transitively pull in include dir
@@ -21,6 +21,11 @@
         'defines': [
           'DAEDALUS_ACCURATE_TMEM',
         ],
+        'direct_dependent_settings': {
+          'include_dirs': [
+            '.'
+          ],
+        },
         'sources': [
           'Config/ConfigOptions.cpp',
           'Core/Cheats.cpp',
@@ -110,7 +115,6 @@
         'conditions': [
           ['OS=="win"', {
             'sources': [
-              'SysW32/main.cpp',
               'SysW32/HLEAudio/AudioPluginW32.cpp',
               'SysW32/Debug/DaedalusAssertW32.cpp',
               'SysW32/Debug/DebugConsoleW32.cpp',
@@ -126,7 +130,6 @@
               ],
             },
             'sources': [
-              'SysOSX/main.cpp',
               'SysOSX/HLEAudio/AudioPluginOSX.cpp',
               'SysOSX/Debug/DaedalusAssertOSX.cpp',
               'SysOSX/Debug/DebugConsoleOSX.cpp',
@@ -143,7 +146,6 @@
           ['OS=="linux"', {
             'sources': [
               # FIXME - we should move these to a common SysPosix dir...
-              'SysOSX/main.cpp',
               'SysOSX/Debug/DaedalusAssertOSX.cpp',
               'SysOSX/Debug/DebugConsoleOSX.cpp',
               'SysOSX/Debug/WebDebug.cpp',
@@ -198,6 +200,25 @@
               'SysOSX/Debug/Web/js/jquery-1.9.1.min.js',
             ],
           },
+        ],
+      },
+      {
+        'target_name': 'daedalus',
+        'type': 'executable',
+        'dependencies': [
+          'daedalus_lib',
+        ],
+        'conditions': [
+          ['OS=="win"', {
+            'sources': ['SysW32/main.cpp'],
+          }],
+          ['OS=="mac"', {
+            'sources': ['SysOSX/main.cpp'],
+          }],
+          ['OS=="linux"', {
+              # FIXME - we should move these to a common SysPosix dir...
+            'sources': ['SysOSX/main.cpp'],
+          }],
         ],
       },
     ],
