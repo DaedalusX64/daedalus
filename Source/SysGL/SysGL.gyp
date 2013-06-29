@@ -22,23 +22,6 @@
           'Input/InputManagerGL.cpp',
           'Interface/UI.cpp',
         ],
-        'conditions': [
-          ['OS=="win"', {
-            'include_dirs': [
-              '../SysW32/Include',
-            ],
-          }],
-          ['OS=="mac"', {
-            'include_dirs': [
-              '../SysOSX/Include',
-            ],
-          }],
-          ['OS=="linux"', {
-            'include_dirs': [
-              '../SysLinux/Include',
-            ],
-          }],
-        ],
         'copies': [
           {
             'destination': '<(PRODUCT_DIR)/',

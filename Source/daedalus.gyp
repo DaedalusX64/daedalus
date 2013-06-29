@@ -109,9 +109,6 @@
         ],
         'conditions': [
           ['OS=="win"', {
-            'include_dirs': [
-              'SysW32/Include',
-            ],
             'sources': [
               'SysW32/main.cpp',
               'SysW32/HLEAudio/AudioPluginW32.cpp',
@@ -123,9 +120,6 @@
             ],
           }],
           ['OS=="mac"', {
-            'include_dirs': [
-              'SysOSX/Include',
-            ],
             'link_settings': {
               'libraries': [
                 '$(SDKROOT)/System/Library/Frameworks/AudioToolbox.framework',
@@ -147,9 +141,6 @@
             ],
           }],
           ['OS=="linux"', {
-            'include_dirs': [
-              'SysLinux/Include',
-            ],
             'sources': [
               # FIXME - we should move these to a common SysPosix dir...
               'SysOSX/main.cpp',
