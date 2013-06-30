@@ -334,6 +334,12 @@ void RendererPSP::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, b
 			float scale_x = texture->GetScaleX();
 			float scale_y = texture->GetScaleY();
 
+			// Hack to fix the sun in Zelda OOT/MM
+			if( g_ROM.ZELDA_HACK && (gRDPOtherMode.L == 0x0c184241) )	 //&& ti.GetFormat() == G_IM_FMT_I && (ti.GetWidth() == 64)
+			{
+				scale_x *= 0.5f;
+				scale_y *= 0.5f;
+			}
 			sceGuTexOffset( -mTileTopLeft[ 0 ].s * scale_x / 4.f,
 							-mTileTopLeft[ 0 ].t * scale_y / 4.f );
 			sceGuTexScale( scale_x, scale_y );

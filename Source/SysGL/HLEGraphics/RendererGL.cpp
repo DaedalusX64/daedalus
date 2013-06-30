@@ -648,6 +648,9 @@ void RendererGL::RenderDaedalusVtx(int prim, const DaedalusVtx * vertices, int c
 	if (count > kMaxVertices)
 		count = kMaxVertices;
 
+	// Hack to fix the sun in Zelda OOT/MM
+	const f32 scale = ( g_ROM.ZELDA_HACK &&(gRDPOtherMode.L == 0x0c184241) ) ? 16.f : 32.f;
+
 	for (int i = 0; i < count; ++i)
 	{
 		const DaedalusVtx * vtx = &vertices[i];
@@ -657,8 +660,8 @@ void RendererGL::RenderDaedalusVtx(int prim, const DaedalusVtx * vertices, int c
 		gPositionBuffer[i][2] = vtx->Position.z;
 
 		// FIXME(strmnnrmn): maintain the texture coords in 10.5 format.
-		gTexCoordBuffer[i].s = (int)(vtx->Texture.x * 32.f);
-		gTexCoordBuffer[i].t = (int)(vtx->Texture.y * 32.f);
+		gTexCoordBuffer[i].s = (int)(vtx->Texture.x * scale);
+		gTexCoordBuffer[i].t = (int)(vtx->Texture.y * scale);
 
 		gColorBuffer[i] = vtx->Colour.GetColour();
 	}
@@ -1009,25 +1012,25 @@ void RendererGL::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bo
 	if (mTnL.Flags.Texture)
 	{
 		UpdateTileSnapshots( mTextureTile );
-	}
 
-	// FIXME: this should be applied in SetNewVertexInfo, and use TextureScaleX/Y to set the scale
-	if (mTnL.Flags.Light && mTnL.Flags.TexGen)
-	{
-		if (CNativeTexture * texture = mBoundTexture[0])
+		// FIXME: this should be applied in SetNewVertexInfo, and use TextureScaleX/Y to set the scale
+		if (mTnL.Flags.Light && mTnL.Flags.TexGen)
 		{
-			// FIXME(strmnnrmn): I don't understand why the tile t/l is used here,
-			// but without it the Goldeneye Rareware logo looks off.
-			// It implies that the RSP code is checking RDP tile state, which seems wrong.
-			// gsDPSetHilite1Tile might set up some RSP state?
-			float x = (float)mTileTopLeft[0].s / 4.f;
-			float y = (float)mTileTopLeft[0].t / 4.f;
-			float w = (float)texture->GetCorrectedWidth();
-			float h = (float)texture->GetCorrectedHeight();
-			for (u32 i = 0; i < num_vertices; ++i)
+			if (CNativeTexture * texture = mBoundTexture[0])
 			{
-				p_vertices[i].Texture.x = (p_vertices[i].Texture.x * w) + x;
-				p_vertices[i].Texture.y = (p_vertices[i].Texture.y * h) + y;
+				// FIXME(strmnnrmn): I don't understand why the tile t/l is used here,
+				// but without it the Goldeneye Rareware logo looks off.
+				// It implies that the RSP code is checking RDP tile state, which seems wrong.
+				// gsDPSetHilite1Tile might set up some RSP state?
+				float x = (float)mTileTopLeft[0].s / 4.f;
+				float y = (float)mTileTopLeft[0].t / 4.f;
+				float w = (float)texture->GetCorrectedWidth();
+				float h = (float)texture->GetCorrectedHeight();
+				for (u32 i = 0; i < num_vertices; ++i)
+				{
+					p_vertices[i].Texture.x = (p_vertices[i].Texture.x * w) + x;
+					p_vertices[i].Texture.y = (p_vertices[i].Texture.y * h) + y;
+				}
 			}
 		}
 	}
