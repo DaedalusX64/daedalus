@@ -221,5 +221,19 @@
           }],
         ],
       },
+      {
+        'target_name': 'daedalus_test',
+        'type': 'executable',
+        'dependencies': [
+          'daedalus_lib',
+          'third_party/gtest/gtest.gyp:gtest_main',
+        ],
+        'include_dirs': [
+          '.',
+        ],
+        'sources': [
+          'Utility/FastMemcpy_test.cpp',
+        ],
+      }
     ],
   }
