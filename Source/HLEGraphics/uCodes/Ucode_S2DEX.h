@@ -240,6 +240,7 @@ enum ESpriteMode
 };
 
 static uObjTxtr *gObjTxtr = NULL;
+void DLParser_OB_YUV(const uObjSprite *sprite);
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -388,6 +389,14 @@ void DLParser_S2DEX_ObjRectangle( MicroCodeCommand command )
 void DLParser_S2DEX_ObjRectangleR( MicroCodeCommand command )
 {
 	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
+	if (sprite->imageFmt == G_IM_FMT_YUV) 
+	{
+		DLParser_OB_YUV(sprite);
+		return;
+	}
+
+	// Would like to find a game that uses this
+	DAEDALUS_ERROR("S2DEX_ObjRectangleR: Check me");
 
 	CRefPtr<CNativeTexture> texture = Load_ObjSprite( sprite, gObjTxtr );
 	Draw_ObjSprite( sprite, PARTIAL_ROTATION, texture );
@@ -459,7 +468,7 @@ void DLParser_S2DEX_ObjMoveMem( MicroCodeCommand command )
 		mat2D.BaseScaleY = sub->BaseScaleY/1024.0f;
 	}
 }
-\
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -543,6 +552,78 @@ inline void DLParser_Yoshi_MemRect( MicroCodeCommand command )
 	}
 #endif
 
+}
+
+static u16 YUVtoRGBA(u8 y, u8 u, u8 v)
+{
+	f32 r = y + (1.370705f * (v-128));
+	f32 g = y - (0.698001f * (v-128)) - (0.337633f * (u-128));
+	f32 b = y + (1.732446f * (u-128));
+	r *= 0.125f;
+	g *= 0.125f;
+	b *= 0.125f;
+
+	//clipping the result
+	if (r > 32) r = 32;
+	if (g > 32) g = 32;
+	if (b > 32) b = 32;
+	if (r < 0) r = 0;
+	if (g < 0) g = 0;
+	if (b < 0) b = 0;
+
+	return (u16)(((u16)(r) << 11) |((u16)(g) << 6) |((u16)(b) << 1) | 1);
+}
+
+//Ogre Battle needs to copy YUV texture to frame buffer
+void DLParser_OB_YUV(const uObjSprite *sprite)
+{
+	f32 imageW = sprite->imageW / 32.0f;
+	f32 imageH = sprite->imageH / 32.0f;
+	f32 scaleW = sprite->scaleW / 1024.0f;
+	f32 scaleH = sprite->scaleH / 1024.0f;
+
+	f32 objX = sprite->objX / 4.0f;
+	f32 objY = sprite->objY / 4.0f;
+
+	u16 ul_x = (u16)(objX/mat2D.BaseScaleX + mat2D.X);
+	u16 lr_x = (u16)((objX + imageW/scaleW)/mat2D.BaseScaleX + mat2D.X);
+	u16 ul_y = (u16)(objY/mat2D.BaseScaleY + mat2D.Y);
+	u16 lr_y = (u16)((objY + imageH/scaleH)/mat2D.BaseScaleY + mat2D.Y);
+
+	u32 ci_width = g_CI.Width;
+	u32 ci_height = scissors.bottom;
+
+	if( (ul_x >= ci_width) || (ul_y >= ci_height) )
+		return;
+
+	u32 width = 16;
+	u32 height = 16;
+
+	if (lr_x > ci_width)	width = ci_width - ul_x;
+	if (lr_y > ci_height)	height = ci_height - ul_y;
+
+	u32 * mb = (u32*)(g_pu8RamBase + g_TI.Address); //pointer to the first macro block
+	u16 * dst = (u16*)(g_pu8RamBase + g_CI.Address);
+	dst += ul_x + ul_y * ci_width;
+
+	//yuv macro block contains 16x16 texture. we need to put it in the proper place inside cimg
+	for (u16 h = 0; h < 16; h++)
+	{
+		for (u16 w = 0; w < 16; w+=2)
+		{
+			u32 t = *(mb++); //each u32 contains 2 pixels
+			if ((h < height) && (w < width)) //clipping. texture image may be larger than color image
+			{
+				u8 y0 = (u8)t&0xFF;
+				u8 v  = (u8)(t>>8)&0xFF;
+				u8 y1 = (u8)(t>>16)&0xFF;
+				u8 u  = (u8)(t>>24)&0xFF;
+				*(dst++) = YUVtoRGBA(y0, u, v);
+				*(dst++) = YUVtoRGBA(y1, u, v);
+			}
+		}
+		dst += ci_width - 16;
+	}
 }
 
 //*****************************************************************************
