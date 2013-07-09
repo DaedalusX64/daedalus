@@ -29,17 +29,16 @@ void DLDebugOutput::PrintLine(const char * fmt, ...)
 {
 	va_list va;
 	va_start(va, fmt);
-
 	// I've never been confident that this returns a sane value across platforms.
 	/*len = */vsnprintf( mBuffer, kBufferLen, fmt, va );
+	va_end(va);
+
 	// This should be guaranteed...
 	mBuffer[kBufferLen-1] = 0;
 	size_t len = strlen(mBuffer);
 
-	va_end(va);
-
 	// Append a newline, if there's space in the buffer.
-	if (len < 1024)
+	if (len < kBufferLen)
 	{
 		mBuffer[len] = '\n';
 		++len;
@@ -54,14 +53,14 @@ void DLDebugOutput::Print(const char * fmt, ...)
 
 	va_list va;
 	va_start(va, fmt);
-
 	// I've never been confident that this returns a sane value across platforms.
 	/*len = */vsnprintf( mBuffer, kBufferLen, fmt, va );
+	va_end(va);
+
+
 	// This should be guaranteed...
 	mBuffer[kBufferLen-1] = 0;
 	size_t len = strlen(mBuffer);
-
-	va_end(va);
 
 	Write(mBuffer, len);
 }
