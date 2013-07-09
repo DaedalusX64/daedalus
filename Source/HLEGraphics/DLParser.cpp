@@ -649,8 +649,10 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 	DAEDALUS_ASSERT( light_idx < 16, "Warning: invalid light # = %d", light_idx );
 
 	u8 *base = g_pu8RamBase + address;
-	u32 r, g, b;
-	s32 x, y, z;
+
+	// NB: The PSP compiler is really finicky about these. If r,g,b is u32, it generates much worse code.
+	u8 r, g, b;
+	s16 x, y, z;
 
 	if((g_ROM.GameHacks == ZELDA_MM) && (base[0] == 0x08) && (base[4] == 0xFF))
 	{
