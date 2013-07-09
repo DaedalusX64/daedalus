@@ -649,8 +649,8 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 	DAEDALUS_ASSERT( light_idx < 16, "Warning: invalid light # = %d", light_idx );
 
 	u8 *base = g_pu8RamBase + address;
-	f32 r, g, b, x, y, z;
-	bool valid;
+	u32 r, g, b;
+	s32 x, y, z;
 
 	if((g_ROM.GameHacks == ZELDA_MM) && (base[0] == 0x08) && (base[4] == 0xFF))
 	{
@@ -662,7 +662,6 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 		x = light->x;
 		y = light->y;
 		z = light->z;
-		valid = (light->x | light->y | light->z) ? true : false;
 	}
 	else
 	{
@@ -674,9 +673,8 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 		x = light->x;
 		y = light->y;
 		z = light->z;
-		valid = (light->x | light->y | light->z) ? true : false;
-
 	}
+	bool valid = (x | y | z) != 0;
 
 	DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d] %s direction",
 		light_idx, r, g, b, x, y, z,
@@ -703,7 +701,6 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 
 void RDP_MoveMemViewport(u32 address)
 {
-
 	DAEDALUS_ASSERT( address+16 < MAX_RAM_ADDRESS, "MoveMem Viewport, invalid memory" );
 
 	s16 scale[2];
