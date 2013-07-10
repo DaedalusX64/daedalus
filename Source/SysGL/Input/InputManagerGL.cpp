@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "Input/InputManager.h"
 
+#include "Core/CPU.h"
 #include "SysGL/GL.h"
 
 class IInputManager : public CInputManager
@@ -29,7 +30,7 @@ public:
 	virtual ~IInputManager();
 
 	virtual bool				Initialise();
-	virtual void				Finalise()					{}
+	virtual void				Finalise();
 
 	virtual void				GetState( OSContPad pPad[4] );
 
@@ -37,13 +38,17 @@ public:
 	virtual const char *		GetConfigurationName( u32 configuration_idx ) const;
 	virtual const char *		GetConfigurationDescription( u32 configuration_idx ) const;
 	virtual void				SetConfiguration( u32 configuration_idx );
-
 	virtual u32					GetConfigurationFromName( const char * name ) const;
+
+	void						GetGamePadStatus();
+
 private:
 	void GetJoyPad(OSContPad *pPad);
+	bool mGamePadAvailable;
 };
 
 IInputManager::IInputManager()
+:	mGamePadAvailable(false)
 {
 }
 
@@ -51,9 +56,34 @@ IInputManager::~IInputManager()
 {
 }
 
+static void CheckPadStatusVblHandler( void * arg )
+{
+	IInputManager * manager = static_cast< IInputManager * >( arg );
+
+	// Only check the pad status every 60 vbls, otherwise it's too expensive.
+	static u32 count = 0;
+	if ((count % 60) == 0)
+	{
+		manager->GetGamePadStatus();
+	}
+	++count;
+}
+
 bool IInputManager::Initialise()
 {
+	CPU_RegisterVblCallback( &CheckPadStatusVblHandler, this );
 	return true;
+}
+
+void IInputManager::Finalise()
+{
+	CPU_UnregisterVblCallback( &CheckPadStatusVblHandler, this );
+}
+
+
+void IInputManager::GetGamePadStatus()
+{
+	mGamePadAvailable = glfwJoystickPresent(GLFW_JOYSTICK_1);
 }
 
 void IInputManager::GetJoyPad(OSContPad *pPad)
@@ -124,7 +154,7 @@ void IInputManager::GetState( OSContPad pPad[4] )
 	}
 
 	// Check if a gamepad is connected, If not fallback to keyboard
-	if(glfwJoystickPresent(GLFW_JOYSTICK_1))
+	if(mGamePadAvailable)
 	{
 		GetJoyPad(&pPad[0]);
 	}
