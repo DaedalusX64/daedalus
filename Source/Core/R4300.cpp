@@ -485,6 +485,7 @@ bool	R4300_InstructionHandlerNeedsPC( OpCode op_code )
 {
 	switch( op_code.op )
 	{
+	// FIXME: These can potentially trow if memory is accessed through a function call?! //Salvy
 	case OP_LWL:
 	case OP_SWL:
 	case OP_LWR:
