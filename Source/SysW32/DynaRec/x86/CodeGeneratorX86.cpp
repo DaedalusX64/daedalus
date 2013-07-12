@@ -548,14 +548,18 @@ CJumpLocation	CCodeGeneratorX86::GenerateOpCode( const STraceEntry& ti, bool bra
 			handled = GenerateADDIU(rt, rs, s16(op_code.immediate));
 			break;
 
-		/*case OP_SPECOP:
-			{
-				switch(op_code.spec_op)
-				{
-				case SpecOp_JR:
-					handled = GenerateJR(rs); break;
-				}
-			}*/
+		//case OP_SPECOP:
+		//	{
+		//		switch(op_code.spec_op)
+		//		{
+		//		//case SpecOp_JR:		handled = GenerateJR(rs); break;
+
+		//		case SpecOp_SLL:	GenerateSLL( rd, rt, sa );	handled = true; break;
+		//		case SpecOp_SRA:	GenerateSRA( rd, rt, sa );	handled = true; break;
+		//		case SpecOp_SRL:	GenerateSRL( rd, rt, sa );	handled = true; break;
+		//		}
+		//	}
+		//	break;
 	}
 
 	if (!handled)
@@ -801,6 +805,40 @@ bool CCodeGeneratorX86::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate )
 	CDQ();
 	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, EAX_CODE);
 	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, EDX_CODE);
+
+	return true;
+}
+
+bool CCodeGeneratorX86::GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa )
+{
+	MOV_REG_MEM(EAX_CODE, &gCPUState.CPU[rt]._u32_0);
+	SHLI(EAX_CODE, sa);
+	CDQ();
+	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_0, EAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, EDX_CODE);
+
+	return true;
+}
+
+bool CCodeGeneratorX86::GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa )
+{
+	MOV_REG_MEM(EAX_CODE, &gCPUState.CPU[rt]._u32_0);
+	SHRI(EAX_CODE, sa);
+	CDQ();
+	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_0, EAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, EDX_CODE);
+
+	return true;
+}
+
+bool CCodeGeneratorX86::GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa )
+{
+	//printf("yay\n");
+	MOV_REG_MEM(EAX_CODE, &gCPUState.CPU[rt]._u32_0);
+	SARI(EAX_CODE, sa);
+	CDQ();
+	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_0, EAX_CODE);
+	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, EDX_CODE);
 
 	return true;
 }

@@ -97,6 +97,10 @@ class CCodeGeneratorX86 : public CCodeGenerator, public CAssemblyWriterX86
 
 				bool	GenerateJAL( u32 address, u32 target );
 				bool	GenerateJR( EN64Reg rs);
+
+				bool	GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa );
+				bool	GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa );
+				bool	GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa );
 };
 
 #endif // SYSW32_DYNAREC_X86_CODEGENERATORX86_H_
