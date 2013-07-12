@@ -42,7 +42,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #if defined(DAEDALUS_OSX) || defined(DAEDALUS_LINUX)
 #include <fenv.h>
-#define _isnan isnan
+#endif
+
+#ifdef DAEDALUS_W32
+#define isnan _isnan
 #endif
 
 #ifdef DAEDALUS_PSP
@@ -73,14 +76,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define R4300_Rand()		FastRand()
 
-#ifdef DAEDALUS_PSP
+#if defined(DAEDALUS_PSP) && defined(SIM_DOUBLES)
 #define R4300_IsNaN(x) 		pspFpuIsNaN((x))
 #define R4300_Sqrt(x)		pspFpuSqrt((x))
 #define R4300_SqrtD(x)		pspFpuSqrt((x))
 #define R4300_AbsS(x) 		pspFpuAbs((x))
 #define R4300_AbsD(x) 		pspFpuAbs((x))
 #else
-#define R4300_IsNaN(x)		_isnan((x))
+#define R4300_IsNaN(x)		isnan((x))
 #define R4300_Sqrt(x)		Sqrt((x))
 #define R4300_SqrtD(x)		sqrt((x))
 #define R4300_AbsS(x) 		fabsf((x))
