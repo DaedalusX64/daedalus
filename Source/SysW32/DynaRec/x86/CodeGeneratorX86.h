@@ -71,7 +71,7 @@ class CCodeGeneratorX86 : public CCodeGenerator, public CAssemblyWriterX86
 				CJumpLocation		GenerateBranchIfNotEqual32( const u32 * p_var, u32 value, CCodeLabel target );
 				CJumpLocation		GenerateBranchIfNotEqual8( const u32 * p_var, u8 value, CCodeLabel target );
 
-				void				GenerateGenericR4300( u32 address, OpCode op_code, CPU_Instruction p_instruction );
+				void				GenerateGenericR4300( OpCode op_code, CPU_Instruction p_instruction );
 
 				void				GenerateExceptionHander( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps );
 	private:
@@ -95,7 +95,7 @@ class CCodeGeneratorX86 : public CCodeGenerator, public CAssemblyWriterX86
 				bool	GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate );
 				bool	GenerateADDI( EN64Reg rt, EN64Reg rs, s16 immediate );
 
-				bool	GenerateJAL( u32 address, u32 target );
+				bool	GenerateJAL( u32 address );
 				bool	GenerateJR( EN64Reg rs);
 
 				bool	GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa );

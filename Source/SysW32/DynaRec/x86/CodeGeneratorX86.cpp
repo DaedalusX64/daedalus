@@ -338,7 +338,6 @@ void CCodeGeneratorX86::GenerateEretExitCode( u32 num_instructions, CIndirectExi
 //*****************************************************************************
 void CCodeGeneratorX86::GenerateIndirectExitCode( u32 num_instructions, CIndirectExitMap * p_map )
 {
-
 	MOVI(ECX_CODE, num_instructions);
 	CALL( CCodeLabel( CPU_UpdateCounter ) );
 
@@ -487,21 +486,21 @@ CJumpLocation	CCodeGeneratorX86::GenerateBranchIfNotEqual8( const u32 * p_var, u
 CJumpLocation	CCodeGeneratorX86::GenerateOpCode( const STraceEntry& ti, bool branch_delay_slot, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump)
 {
 	u32 address = ti.Address;
+	bool exception = false;
 	OpCode op_code = ti.OpCode;
-	bool	need_pc( R4300_InstructionHandlerNeedsPC( op_code ) );
-
-	if( branch_delay_slot )
-	{
-		SetVar8( &gCPUState.Delay, EXEC_DELAY );
-	}
 
 	if (op_code._u32 == 0)
 	{
 		if( branch_delay_slot )
 		{
-			SetVar( &gCPUState.Delay, NO_DELAY );
+			SetVar8( &gCPUState.Delay, NO_DELAY );
 		}
 		return CJumpLocation();
+	}
+
+	if( branch_delay_slot )
+	{
+		SetVar8( &gCPUState.Delay, EXEC_DELAY );
 	}
 
 	const EN64Reg	rs = EN64Reg( op_code.rs );
@@ -509,8 +508,8 @@ CJumpLocation	CCodeGeneratorX86::GenerateOpCode( const STraceEntry& ti, bool bra
 	const EN64Reg	rd = EN64Reg( op_code.rd );
 	const u32		sa = op_code.sa;
 	const EN64Reg	base = EN64Reg( op_code.base );
-	const u32		jump_target( (address&0xF0000000) | (op_code.target<<2) );
-	const u32		branch_target( address + ( ((s32)(s16)op_code.immediate)<<2 ) + 4);
+	//const u32		jump_target( (address&0xF0000000) | (op_code.target<<2) );
+	//const u32		branch_target( address + ( ((s32)(s16)op_code.immediate)<<2 ) + 4);
 	const u32		ft = op_code.ft;
 
 
@@ -518,34 +517,42 @@ CJumpLocation	CCodeGeneratorX86::GenerateOpCode( const STraceEntry& ti, bool bra
 	switch(op_code.op)
 	{
 		case OP_J:			handled = true; break;
-		case OP_JAL:		handled = GenerateJAL( address, jump_target); break;
+		case OP_JAL:		GenerateJAL( address ); handled = true; break;
 		case OP_CACHE:		GenerateCACHE( base, op_code.immediate, rt ); handled = true; break;
 			
-
+		// For LW, SW, SWC1, LB etc, only generate an exception handler if access wasn't done through the stack (handle = false)
+		// This will have to be reworked once we handle accesses other than the stack!
 		case OP_LW:
 			handled = GenerateLW(rt, base, s16(op_code.immediate));
+			exception = !handled;
 			break;
 		case OP_SW:
 			handled = GenerateSW(rt, base, s16(op_code.immediate));
+			exception = !handled;
 			break;
 		case OP_SWC1:
 			handled = GenerateSWC1(ft, base, s16(op_code.immediate));
+			exception = !handled;
 			break;
 		case OP_LB:
 			handled = GenerateLB(rt, base, s16(op_code.immediate));
+			exception = !handled;
 			break;
 		case OP_LBU:
-			handled = GenerateLBU(rt, base, s16(op_code.immediate));
+			 handled = GenerateLBU(rt, base, s16(op_code.immediate));
+			 exception = !handled;
 			break;
 		case OP_LH:
 			handled = GenerateLH(rt, base, s16(op_code.immediate));
+			exception = !handled;
 			break;
 		case OP_LWC1:
 			handled = GenerateLWC1(ft, base, s16(op_code.immediate));
+			exception = !handled;
 			break;
 		case OP_ADDIU:
 		case OP_ADDI:
-			handled = GenerateADDIU(rt, rs, s16(op_code.immediate));
+			GenerateADDIU(rt, rs, s16(op_code.immediate)); handled = true; break;
 			break;
 
 		//case OP_SPECOP:
@@ -564,16 +571,17 @@ CJumpLocation	CCodeGeneratorX86::GenerateOpCode( const STraceEntry& ti, bool bra
 
 	if (!handled)
 	{
-		if( !need_pc )
+		if( R4300_InstructionHandlerNeedsPC( op_code ) )
 		{
-			address = 0;
+			SetVar( &gCPUState.CurrentPC, address );
+			exception = true;
 		}
-		GenerateGenericR4300( address, op_code, R4300_GetInstructionHandler( op_code ) );
+		GenerateGenericR4300( op_code, R4300_GetInstructionHandler( op_code ) );
 	}
 	CJumpLocation	exception_handler;
 	CCodeLabel		no_target( NULL );
 
-	if( need_pc )
+	if( exception )
 	{
 		exception_handler = GenerateBranchIfSet( const_cast< u32 * >( &gCPUState.StuffToDo ), no_target );
 	}
@@ -623,14 +631,9 @@ CJumpLocation	CCodeGeneratorX86::GenerateOpCode( const STraceEntry& ti, bool bra
 //*****************************************************************************
 //
 //*****************************************************************************
-void	CCodeGeneratorX86::GenerateGenericR4300( u32 address, OpCode op_code, CPU_Instruction p_instruction )
+void	CCodeGeneratorX86::GenerateGenericR4300( OpCode op_code, CPU_Instruction p_instruction )
 {
 	// XXXX Flush all fp registers before a generic call
-
-	if( address != 0 )
-	{
-		SetVar( &gCPUState.CurrentPC, address );
-	}
 
 	// Call function - __fastcall
 	MOVI(ECX_CODE, op_code._u32);
@@ -856,7 +859,7 @@ bool CCodeGeneratorX86::GenerateLWC1( u32 ft, EN64Reg base, s16 offset )
 	return false;
 }
 
-bool	CCodeGeneratorX86::GenerateJAL( u32 address, u32 target )
+bool	CCodeGeneratorX86::GenerateJAL( u32 address )
 {
 	MOVI(EAX_CODE, address + 8);
 	CDQ();
