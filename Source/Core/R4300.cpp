@@ -69,6 +69,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Can we disable this for the PSP? doesn't seem to do anything when dynarec is enabled (trace is active) /Salvy
 #define SPEEDHACK_INTERPRETER
 
+//TODO: Implement accurate cvt for W32/OSX, we should convert using the current rounding mode
+//#define ACCURATE_CVT
+
 #define	R4300_CALL_MAKE_OP( var )	OpCode	var;	var._u32 = op_code_bits
 //*************************************************************************************
 //
@@ -335,7 +338,7 @@ static const PspFpuRoundMode		gNativeRoundingModes[ RM_NUM_MODES ] =
 
 inline void SET_ROUND_MODE( ERoundingMode mode )
 {
-	// I don't think anything is required here?
+	// This is very expensive on the PSP, so is disabled
 	//pspFpuSetRoundmode( gNativeRoundingModes[ mode ] );
 }
 
@@ -353,7 +356,9 @@ inline s32 f32_to_s32_ceil( f32 x )					{ return pspFpuCeil(x); }
 inline s32 f32_to_s32_floor( f32 x )				{ return pspFpuFloor(x); }
 inline s32 f32_to_s32( f32 x, ERoundingMode mode )	{ pspFpuSetRoundmode( gNativeRoundingModes[ mode ] ); return cvt_w_s( x ); }
 
-inline s64 f32_to_s64_trunc( f32 x )				{ return (s64)trunc_w_s( x ); }
+// Not sure why PSP trunc.w.s instruction fails badly in DK64, it breaks the door in the fourth level
+//inline s64 f32_to_s64_trunc( f32 x )				{ return (s64)trunc_w_s( x ); }
+inline s64 f32_to_s64_trunc( f32 x )				{ return (s64)truncf( x ); }
 inline s64 f32_to_s64_round( f32 x )				{ return (s64)round_w_s( x ); }
 inline s64 f32_to_s64_ceil( f32 x )					{ return (s64)ceil_w_s( x ); }
 inline s64 f32_to_s64_floor( f32 x )				{ return (s64)floor_w_s( x ); }
@@ -2530,8 +2535,13 @@ static void R4300_CALL_TYPE R4300_Cop1_CTC1( R4300_CALL_SIGNATURE ) 		// move Co
 		case FPCSR_RM_RM:		gRoundingMode = RM_FLOOR;	break;
 		default:				NODEFAULT;
 		}
-
+// Hack for the PSP, only set rounding mode here, since is very expensive to enable it in SET_ROUND_MODE
+// Fixes collision issues in the final boss of DK64 and camera icon not rotating
+#ifdef DAEDALUS_PSP
+		pspFpuSetRoundmode( gNativeRoundingModes[ gRoundingMode ] );
+#else
 		SET_ROUND_MODE(gRoundingMode);
+#endif
 	}
 	//else
 	//{
