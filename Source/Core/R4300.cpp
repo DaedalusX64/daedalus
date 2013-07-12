@@ -3289,6 +3289,8 @@ static void R4300_CALL_TYPE R4300_Cop1_D_MOV( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
+	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
+
 #if 1
 	//Fast way, just copy registers //Corn
 	gCPUState.FPU[op_code.fd+0]._u32 = gCPUState.FPU[op_code.fs+0]._u32;
@@ -3296,9 +3298,6 @@ static void R4300_CALL_TYPE R4300_Cop1_D_MOV( R4300_CALL_SIGNATURE )
 #else
 	// fd = fs
 	d64 fX = LoadFPR_Double( op_code.fs );
-
-	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
-
 	StoreFPR_Double( op_code.fd, fX );
 #endif
 }
