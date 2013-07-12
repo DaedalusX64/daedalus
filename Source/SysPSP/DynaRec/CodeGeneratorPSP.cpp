@@ -2345,13 +2345,13 @@ inline void	CCodeGeneratorPSP::GenerateCACHE( EN64Reg base, s16 offset, u32 cach
 	//u32 cache_op  = op_code.rt;
 	//u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 
-	//u32 cache = cache_op & 0x3;
-	//u32 action = (cache_op >> 2) & 0x7;
+	u32 cache = cache_op & 0x3;
+	u32 action = (cache_op >> 2) & 0x7;
 
 	// For instruction cache invalidation, make sure we let the CPU know so the whole
 	// dynarec system can be invalidated
-	//if(cache == 0 && action == 0)// && address == 0x80000000)
-	if(!(cache_op & 0x1F))
+	//if(!(cache_op & 0x1F))
+	if(cache == 0 && (action == 0 || action == 4))
 	{
 		FlushAllRegisters(mRegisterCache, true);
 		LoadRegister(PspReg_A0, base, 0);
