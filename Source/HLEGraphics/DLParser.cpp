@@ -648,11 +648,12 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 {
 	DAEDALUS_ASSERT( light_idx < 16, "Warning: invalid light # = %d", light_idx );
 
-	u8 *base = g_pu8RamBase + address;
+	const u8 *base = g_pu8RamBase + address;
 
 	// NB: The PSP compiler is really finicky about these. If r,g,b is u32, it generates much worse code.
 	u8 r, g, b;
 	s16 x, y, z;
+	bool valid;
 
 	if((g_ROM.GameHacks == ZELDA_MM) && (base[0] == 0x08) && (base[4] == 0xFF))
 	{
@@ -676,12 +677,11 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 		y = light->y;
 		z = light->z;
 	}
-	bool valid = (x | y | z) != 0;
 
-	DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d] %s direction",
-		light_idx, r, g, b, x, y, z,
-		valid ? "Valid" : "Invalid"
-		);
+	valid = (x | y | z) != 0;
+
+	DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d]", light_idx, r, g, b, x, y, z);
+	DL_PF("    Light direction is %s",valid ? "valid" : "invalid");
 
 	//Light color
 	gRenderer->SetLightCol( light_idx, r, g, b );
