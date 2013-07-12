@@ -46,6 +46,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_W32
 #define isnan _isnan
+DAEDALUS_FORCEINLINE f64 trunc(f64 x)				{ return (x>0) ? floor(x) : ceil(x); }
+DAEDALUS_FORCEINLINE f32 truncf(f32 x)				{ return (x>0) ? floorf(x) : ceilf(x); }
+DAEDALUS_FORCEINLINE f64 round(f64 x)				{ return floor(x + 0.5); }
+DAEDALUS_FORCEINLINE f32 roundf(f32 x)				{ return floorf(x + 0.5f); }
 #endif
 
 #ifdef DAEDALUS_PSP
@@ -128,6 +132,62 @@ enum ERoundingMode
 	RM_NUM_MODES,
 };
 static ERoundingMode	gRoundingMode( RM_ROUND );
+
+#if defined(DAEDALUS_PSP)
+
+static const PspFpuRoundMode		gNativeRoundingModes[ RM_NUM_MODES ] =
+{
+	PSP_FPU_RN,	// RM_ROUND,
+	PSP_FPU_RZ,	// RM_TRUNC,
+	PSP_FPU_RP,	// RM_CEIL,
+	PSP_FPU_RM,	// RM_FLOOR,
+};
+
+inline void SET_ROUND_MODE( ERoundingMode mode )
+{
+	// This is very expensive on the PSP, so is disabled
+	//pspFpuSetRoundmode( gNativeRoundingModes[ mode ] );
+}
+
+#elif defined(DAEDALUS_W32)
+
+static const int		gNativeRoundingModes[ RM_NUM_MODES ] =
+{
+	_RC_NEAR,	// RM_ROUND,
+	_RC_CHOP,	// RM_TRUNC,
+	_RC_UP,		// RM_CEIL,
+	_RC_DOWN,	// RM_FLOOR,
+};
+
+DAEDALUS_FORCEINLINE void SET_ROUND_MODE( ERoundingMode mode )
+{
+	_controlfp( gNativeRoundingModes[ mode ], _MCW_RC );
+}
+
+#elif defined(DAEDALUS_OSX) || defined(DAEDALUS_LINUX)
+
+static const int		gNativeRoundingModes[ RM_NUM_MODES ] =
+{
+	FE_TONEAREST,	// RM_ROUND,
+	FE_TOWARDZERO,	// RM_TRUNC,
+	FE_UPWARD,		// RM_CEIL,
+	FE_DOWNWARD,	// RM_FLOOR,
+};
+
+inline void SET_ROUND_MODE( ERoundingMode mode )
+{
+	fesetround( gNativeRoundingModes[ mode ] );
+}
+
+#else
+
+// Need defining
+void SET_ROUND_MODE( ERoundingMode mode )
+{
+	DAEDALUS_ERROR( "Floating point rounding modes not implemented on this platform" );
+}
+
+#endif
 
 // If the hardware doesn't support doubles in hardware - use 32 bits floats and accept the loss in precision
 #ifdef SIM_DOUBLES
@@ -326,21 +386,7 @@ DAEDALUS_FORCEINLINE f32 d64_to_f32( d64 x )
 //	Float -> int conversion routines
 //
 //*****************************************************************************
-#if defined(DAEDALUS_PSP)
-
-static const PspFpuRoundMode		gNativeRoundingModes[ RM_NUM_MODES ] =
-{
-	PSP_FPU_RN,	// RM_ROUND,
-	PSP_FPU_RZ,	// RM_TRUNC,
-	PSP_FPU_RP,	// RM_CEIL,
-	PSP_FPU_RM,	// RM_FLOOR,
-};
-
-inline void SET_ROUND_MODE( ERoundingMode mode )
-{
-	// This is very expensive on the PSP, so is disabled
-	//pspFpuSetRoundmode( gNativeRoundingModes[ mode ] );
-}
+#ifdef DAEDALUS_PSP
 
 //These ASM routines converts float to int and puts the value in CPU rather than FPU which is important if one wants to sign extent it to 64bit later //Corn
 inline s32 cvt_w_s( f32 x )							{ s32 r; asm volatile ( "cvt.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
@@ -356,7 +402,9 @@ inline s32 f32_to_s32_ceil( f32 x )					{ return pspFpuCeil(x); }
 inline s32 f32_to_s32_floor( f32 x )				{ return pspFpuFloor(x); }
 inline s32 f32_to_s32( f32 x, ERoundingMode mode )	{ pspFpuSetRoundmode( gNativeRoundingModes[ mode ] ); return cvt_w_s( x ); }
 
-// Not sure why PSP trunc.w.s instruction fails badly in DK64, it breaks the door in the fourth level
+//trunc.w.s instruction fails badly in DK64, since it passes a float which is larger than an int.. it breaks the door in the fourth level
+//TODO: Add asserts where we use the fpu math to detect this hard to find bugs
+
 //inline s64 f32_to_s64_trunc( f32 x )				{ return (s64)trunc_w_s( x ); }
 inline s64 f32_to_s64_trunc( f32 x )				{ return (s64)truncf( x ); }
 inline s64 f32_to_s64_round( f32 x )				{ return (s64)round_w_s( x ); }
@@ -376,114 +424,31 @@ inline s64 d64_to_s64_ceil( d64 x )					{ return (s64)ceilf( x ); }
 inline s64 d64_to_s64_floor( d64 x )				{ return (s64)floorf( x ); }
 inline s64 d64_to_s64( d64 x, ERoundingMode mode )	{ pspFpuSetRoundmode( gNativeRoundingModes[ mode ] ); return (s64)x; }	// XXXX Need to do a cvt really
 
-#elif defined(DAEDALUS_W32)
-
-static const int		gNativeRoundingModes[ RM_NUM_MODES ] =
-{
-	_RC_NEAR,	// RM_ROUND,
-	_RC_CHOP,	// RM_TRUNC,
-	_RC_UP,		// RM_CEIL,
-	_RC_DOWN,	// RM_FLOOR,
-};
-
-DAEDALUS_FORCEINLINE void SET_ROUND_MODE( ERoundingMode mode )
-{
-	_controlfp( gNativeRoundingModes[ mode ], _MCW_RC );
-}
-
-DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x, ERoundingMode mode )	{ SET_ROUND_MODE( mode ); return (s32)x; }
-DAEDALUS_FORCEINLINE s32 f32_to_s32_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)x; }
-DAEDALUS_FORCEINLINE s32 f32_to_s32_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)x; }
-DAEDALUS_FORCEINLINE s32 f32_to_s32_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s32)x; }
-DAEDALUS_FORCEINLINE s32 f32_to_s32_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)x; }
-
-DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s64)x; }
-DAEDALUS_FORCEINLINE s64 f32_to_s64_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s64)x; }
-DAEDALUS_FORCEINLINE s64 f32_to_s64_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s64)x; }
-DAEDALUS_FORCEINLINE s64 f32_to_s64_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s64)x; }
-DAEDALUS_FORCEINLINE s64 f32_to_s64_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s64)x; }
-
-DAEDALUS_FORCEINLINE s32 d64_to_s32( d64 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s32)x; }
-DAEDALUS_FORCEINLINE s32 d64_to_s32_trunc( d64 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)x; }
-DAEDALUS_FORCEINLINE s32 d64_to_s32_round( d64 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)x; }
-DAEDALUS_FORCEINLINE s32 d64_to_s32_ceil( d64 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s32)x; }
-DAEDALUS_FORCEINLINE s32 d64_to_s32_floor( d64 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)x; }
-
-DAEDALUS_FORCEINLINE s64 d64_to_s64( d64 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s64)x; }
-DAEDALUS_FORCEINLINE s64 d64_to_s64_trunc( d64 x ) { SET_ROUND_MODE( RM_TRUNC ); return (s64)x; }
-DAEDALUS_FORCEINLINE s64 d64_to_s64_round( d64 x ) { SET_ROUND_MODE( RM_ROUND ); return (s64)x; }
-DAEDALUS_FORCEINLINE s64 d64_to_s64_ceil( d64 x )  { SET_ROUND_MODE( RM_CEIL ); return (s64)x; }
-DAEDALUS_FORCEINLINE s64 d64_to_s64_floor( d64 x ) { SET_ROUND_MODE( RM_FLOOR ); return (s64)x; }
-
-#elif defined(DAEDALUS_OSX) || defined(DAEDALUS_LINUX)
-
-static const int		gNativeRoundingModes[ RM_NUM_MODES ] =
-{
-	FE_TONEAREST,	// RM_ROUND,
-	FE_TOWARDZERO,	// RM_TRUNC,
-	FE_UPWARD,		// RM_CEIL,
-	FE_DOWNWARD,	// RM_FLOOR,
-};
-
-inline void SET_ROUND_MODE( ERoundingMode mode )
-{
-	fesetround( gNativeRoundingModes[ mode ] );
-}
-
-inline s32 f32_to_s32( f32 x, ERoundingMode mode )	{ SET_ROUND_MODE( mode ); return (s32)x; }
-inline s32 f32_to_s32_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)x; }
-inline s32 f32_to_s32_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)x; }
-inline s32 f32_to_s32_ceil( f32 x )		{ SET_ROUND_MODE( RM_CEIL ); return (s32)x; }
-inline s32 f32_to_s32_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)x; }
-
-inline s64 f32_to_s64( f32 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s64)x; }
-inline s64 f32_to_s64_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s64)x; }
-inline s64 f32_to_s64_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s64)x; }
-inline s64 f32_to_s64_ceil( f32 x )		{ SET_ROUND_MODE( RM_CEIL ); return (s64)x; }
-inline s64 f32_to_s64_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s64)x; }
-
-inline s32 d64_to_s32( d64 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s32)x; }
-inline s32 d64_to_s32_trunc( d64 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)x; }
-inline s32 d64_to_s32_round( d64 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)x; }
-inline s32 d64_to_s32_ceil( d64 x )		{ SET_ROUND_MODE( RM_CEIL ); return (s32)x; }
-inline s32 d64_to_s32_floor( d64 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)x; }
-
-inline s64 d64_to_s64( d64 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s64)x; }
-inline s64 d64_to_s64_trunc( d64 x ) { SET_ROUND_MODE( RM_TRUNC ); return (s64)x; }
-inline s64 d64_to_s64_round( d64 x ) { SET_ROUND_MODE( RM_ROUND ); return (s64)x; }
-inline s64 d64_to_s64_ceil( d64 x )  { SET_ROUND_MODE( RM_CEIL ); return (s64)x; }
-inline s64 d64_to_s64_floor( d64 x ) { SET_ROUND_MODE( RM_FLOOR ); return (s64)x; }
-
 #else
 
-// Need defining
+DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x, ERoundingMode mode )	{ SET_ROUND_MODE( mode ); return (s32)x; }
+DAEDALUS_FORCEINLINE s32 f32_to_s32_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)truncf(x); }
+DAEDALUS_FORCEINLINE s32 f32_to_s32_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)roundf(x); }
+DAEDALUS_FORCEINLINE s32 f32_to_s32_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s32)ceilf(x); }
+DAEDALUS_FORCEINLINE s32 f32_to_s32_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)floorf(x); }
 
+DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s64)x; }
+DAEDALUS_FORCEINLINE s64 f32_to_s64_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s64)truncf(x); }
+DAEDALUS_FORCEINLINE s64 f32_to_s64_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s64)roundf(x); }
+DAEDALUS_FORCEINLINE s64 f32_to_s64_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s64)truncf(x); }
+DAEDALUS_FORCEINLINE s64 f32_to_s64_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s64)truncf(x); }
 
-void SET_ROUND_MODE()	{ DAEDALUS_ERROR( "Floating point rounding modes not implemented on this platform" ); }
+DAEDALUS_FORCEINLINE s32 d64_to_s32( d64 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s32)x; }
+DAEDALUS_FORCEINLINE s32 d64_to_s32_trunc( d64 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)trunc(x); }
+DAEDALUS_FORCEINLINE s32 d64_to_s32_round( d64 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)round(x); }
+DAEDALUS_FORCEINLINE s32 d64_to_s32_ceil( d64 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s32)ceil(x); }
+DAEDALUS_FORCEINLINE s32 d64_to_s32_floor( d64 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)floor(x); }
 
-inline s32 f32_to_s32( f32 x, ERoundingMode mode )	{ SET_ROUND_MODE( mode ); return (s32)x; }
-inline s32 f32_to_s32_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)x; }
-inline s32 f32_to_s32_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)x; }
-inline s32 f32_to_s32_ceil( f32 x )		{ SET_ROUND_MODE( RM_CEIL ); return (s32)x; }
-inline s32 f32_to_s32_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)x; }
-
-inline s64 f32_to_s64( f32 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s64)x; }
-inline s64 f32_to_s64_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s64)x; }
-inline s64 f32_to_s64_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s64)x; }
-inline s64 f32_to_s64_ceil( f32 x )		{ SET_ROUND_MODE( RM_CEIL ); return (s64)x; }
-inline s64 f32_to_s64_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s64)x; }
-
-inline s32 d64_to_s32( d64 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s32)x; }
-inline s32 d64_to_s32_trunc( d64 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)x; }
-inline s32 d64_to_s32_round( d64 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)x; }
-inline s32 d64_to_s32_ceil( d64 x )		{ SET_ROUND_MODE( RM_CEIL ); return (s32)x; }
-inline s32 d64_to_s32_floor( d64 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)x; }
-
-inline s64 d64_to_s64( d64 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s64)x; }
-inline s64 d64_to_s64_trunc( d64 x ) { SET_ROUND_MODE( RM_TRUNC ); return (s64)x; }
-inline s64 d64_to_s64_round( d64 x ) { SET_ROUND_MODE( RM_ROUND ); return (s64)x; }
-inline s64 d64_to_s64_ceil( d64 x )  { SET_ROUND_MODE( RM_CEIL ); return (s64)x; }
-inline s64 d64_to_s64_floor( d64 x ) { SET_ROUND_MODE( RM_FLOOR ); return (s64)x; }
+DAEDALUS_FORCEINLINE s64 d64_to_s64( d64 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s64)x; }
+DAEDALUS_FORCEINLINE s64 d64_to_s64_trunc( d64 x ) { SET_ROUND_MODE( RM_TRUNC ); return (s64)trunc(x); }
+DAEDALUS_FORCEINLINE s64 d64_to_s64_round( d64 x ) { SET_ROUND_MODE( RM_ROUND ); return (s64)round(x); }
+DAEDALUS_FORCEINLINE s64 d64_to_s64_ceil( d64 x )  { SET_ROUND_MODE( RM_CEIL ); return (s64)ceil(x); }
+DAEDALUS_FORCEINLINE s64 d64_to_s64_floor( d64 x ) { SET_ROUND_MODE( RM_FLOOR ); return (s64)floor(x); }
 
 #endif
 
