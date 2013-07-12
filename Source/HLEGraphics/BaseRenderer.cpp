@@ -1482,7 +1482,7 @@ void BaseRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 		case G_MWO_POINT_RGBA:
 			{
 				DL_PF("    Setting RGBA to 0x%08x", val);
-				SetVtxColor( vert, c32( val ) );
+				SetVtxColor( vert, val );
 			}
 			break;
 
@@ -1549,11 +1549,15 @@ void BaseRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void BaseRenderer::SetVtxColor( u32 vert, c32 color )
+inline void BaseRenderer::SetVtxColor( u32 vert, u32 color )
 {
 	DAEDALUS_ASSERT( vert < kMaxN64Vertices, "Vertex index is out of bounds (%d)", vert );
 
-	mVtxProjected[vert].Colour = color.GetColourV4();
+	u8 r = (color>>24)&0xFF;
+	u8 g = (color>>16)&0xFF;
+	u8 b = (color>>8)&0xFF;
+	u8 a = color&0xFF;
+	mVtxProjected[vert].Colour = v4( r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f) );
 }
 
 //*****************************************************************************
