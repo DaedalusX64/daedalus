@@ -399,6 +399,9 @@ void SpecificGameHacks( const ROMHeader & id )
 		g_ROM.GameHacks = SIN_PUNISHMENT;
 		break;
 	case 0x3742:	//Banjo Tooie
+		g_ROM.GameHacks = BANJO_TOOIE;
+		g_ROM.TLUT_HACK = true;
+		break;
 	case 0x5544:	//Duck Dodgers
 	case 0x3653:	//Star soldier - vanishing earth
 	case 0x324C:	//Top Gear Rally 2

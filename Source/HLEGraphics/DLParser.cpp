@@ -944,10 +944,16 @@ void DLParser_TexRect( MicroCodeCommand command )
 	// X for upper left corner should be less than X for lower right corner else skip rendering it, seems to happen in Rayman 2 and Star Soldier
 	//if( tex_rect.x0 >= tex_rect.x1 )
 
-	// Fixes black box in SSB when moving far way from the screen
-	if (g_DI.Address == g_CI.Address)
+	// Hack for Banjo Tooie shadow
+	if (g_ROM.GameHacks == BANJO_TOOIE && gRDPOtherMode.L == 0x00504241)
 	{
-		// Clear ZBuffer?
+		return;
+	}
+
+	// Fixes black box in SSB when moving far way from the screen and offscreen in Conker
+	if (g_DI.Address == g_CI.Address || g_CI.Format != G_IM_FMT_RGBA)
+	{
+		DL_PF("    Ignoring Texrect");
 		return;
 	}
 
@@ -955,8 +961,7 @@ void DLParser_TexRect( MicroCodeCommand command )
 	if( tex_rect.x0 >= (scissors.right<<2) ||
 		tex_rect.y0 >= (scissors.bottom<<2) ||
 		tex_rect.x1 <  (scissors.left<<2) ||
-		tex_rect.y1 <  (scissors.top<<2) ||
-		g_CI.Format != G_IM_FMT_RGBA )
+		tex_rect.y1 <  (scissors.top<<2) )
 	{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		++gNumRectsClipped;
