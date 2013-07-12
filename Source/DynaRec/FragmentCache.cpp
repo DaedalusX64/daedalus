@@ -422,6 +422,12 @@ void CFragmentCacheCoverage::ExtendCoverage( u32 address, u32 len )
 //*************************************************************************************
 bool CFragmentCacheCoverage::IsCovered( u32 address, u32 len ) const
 {
+	if((address - BASE_ADDRESS) == 0)
+	{
+		DBGConsole_Msg( 0, "Cache coverage address is overlapping" );
+		return true;
+	}
+
 	u32 first_entry( AddressToIndex( address ) );
 	u32 last_entry( AddressToIndex( address + len ) );
 
