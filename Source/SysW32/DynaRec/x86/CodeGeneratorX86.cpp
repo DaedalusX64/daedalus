@@ -801,49 +801,40 @@ bool CCodeGeneratorX86::GenerateLH( EN64Reg rt, EN64Reg base, s16 offset )
 	return false;
 }
 
-bool CCodeGeneratorX86::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate )
+void CCodeGeneratorX86::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate )
 {
 	MOV_REG_MEM(EAX_CODE, &gCPUState.CPU[rs]._u32_0);
 	ADDI(EAX_CODE, immediate);
 	CDQ();
 	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_0, EAX_CODE);
 	MOV_MEM_REG(&gCPUState.CPU[rt]._u32_1, EDX_CODE);
-
-	return true;
 }
 
-bool CCodeGeneratorX86::GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa )
+void CCodeGeneratorX86::GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa )
 {
 	MOV_REG_MEM(EAX_CODE, &gCPUState.CPU[rt]._u32_0);
 	SHLI(EAX_CODE, sa);
 	CDQ();
 	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_0, EAX_CODE);
 	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, EDX_CODE);
-
-	return true;
 }
 
-bool CCodeGeneratorX86::GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa )
+void CCodeGeneratorX86::GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa )
 {
 	MOV_REG_MEM(EAX_CODE, &gCPUState.CPU[rt]._u32_0);
 	SHRI(EAX_CODE, sa);
 	CDQ();
 	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_0, EAX_CODE);
 	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, EDX_CODE);
-
-	return true;
 }
 
-bool CCodeGeneratorX86::GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa )
+void CCodeGeneratorX86::GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa )
 {
-	//printf("yay\n");
 	MOV_REG_MEM(EAX_CODE, &gCPUState.CPU[rt]._u32_0);
 	SARI(EAX_CODE, sa);
 	CDQ();
 	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_0, EAX_CODE);
 	MOV_MEM_REG(&gCPUState.CPU[rd]._u32_1, EDX_CODE);
-
-	return true;
 }
 
 bool CCodeGeneratorX86::GenerateLWC1( u32 ft, EN64Reg base, s16 offset )
@@ -859,20 +850,17 @@ bool CCodeGeneratorX86::GenerateLWC1( u32 ft, EN64Reg base, s16 offset )
 	return false;
 }
 
-bool	CCodeGeneratorX86::GenerateJAL( u32 address )
+void	CCodeGeneratorX86::GenerateJAL( u32 address )
 {
 	MOVI(EAX_CODE, address + 8);
 	CDQ();
 	MOV_MEM_REG(&gCPUState.CPU[N64Reg_RA]._u32_0, EAX_CODE);
 	MOV_MEM_REG(&gCPUState.CPU[N64Reg_RA]._u32_1, EDX_CODE);
-
-	return true;
 }
 
-bool	CCodeGeneratorX86::GenerateJR( EN64Reg rs)
+void	CCodeGeneratorX86::GenerateJR( EN64Reg rs)
 {
 	//TODO
-	return false;
 }
 
 

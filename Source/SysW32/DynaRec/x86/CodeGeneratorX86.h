@@ -92,15 +92,14 @@ class CCodeGeneratorX86 : public CCodeGenerator, public CAssemblyWriterX86
 				bool	GenerateLH(EN64Reg rt, EN64Reg base, s16 offset );
 				bool	GenerateLWC1(u32 ft, EN64Reg base, s16 offset );
 
-				bool	GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate );
-				bool	GenerateADDI( EN64Reg rt, EN64Reg rs, s16 immediate );
+				void	GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate );
 
-				bool	GenerateJAL( u32 address );
-				bool	GenerateJR( EN64Reg rs);
+				void	GenerateJAL( u32 address );
+				void	GenerateJR( EN64Reg rs);
 
-				bool	GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa );
-				bool	GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa );
-				bool	GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa );
+				void	GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa );
+				void	GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa );
+				void	GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa );
 };
 
 #endif // SYSW32_DYNAREC_X86_CODEGENERATORX86_H_
