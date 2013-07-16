@@ -36,6 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_PSP
 #include <pspfpu.h>
+#include <limits.h>
 #else
 #include <float.h>
 #endif
@@ -73,8 +74,8 @@ DAEDALUS_FORCEINLINE f32 roundf(f32 x)				{ return floorf(x + 0.5f); }
 // Can we disable this for the PSP? doesn't seem to do anything when dynarec is enabled (trace is active) /Salvy
 #define SPEEDHACK_INTERPRETER
 
-//TODO: Implement accurate cvt for W32/OSX, we should convert using the current rounding mode
-//#define ACCURATE_CVT
+//Accurate cvt for W32/OSX, convert using the rounding mode specified in the Floating Control/Status register (FCSR)
+#define ACCURATE_CVT
 
 #define	R4300_CALL_MAKE_OP( var )	OpCode	var;	var._u32 = op_code_bits
 //*************************************************************************************
@@ -299,21 +300,19 @@ DAEDALUS_FORCEINLINE d64 LoadFPR_Double( u32 reg )
 	}
 }
 
-#ifdef SIM_DOUBLES
 DAEDALUS_FORCEINLINE void StoreFPR_Double( u32 reg, d64 value )
 {
+#ifdef SIM_DOUBLES
 	gCPUState.FPU[reg+0]._u32 = SIMULATESIG;
 	gCPUState.FPU[reg+1]._f32 = f32( value );	//No Coversion
-}
 #else
-DAEDALUS_FORCEINLINE void StoreFPR_Double( u32 reg, f64 value )
-{
 	REG64 r;
 	r._f64 = value;
+
 	gCPUState.FPU[reg+0]._u32 = r._u32_0;
 	gCPUState.FPU[reg+1]._u32 = r._u32_1;
-}
 #endif
+}
 
 //*****************************************************************************
 //
@@ -388,12 +387,13 @@ DAEDALUS_FORCEINLINE f32 d64_to_f32( d64 x )
 //*****************************************************************************
 #ifdef DAEDALUS_PSP
 
-//These ASM routines converts float to int and puts the value in CPU rather than FPU which is important if one wants to sign extent it to 64bit later //Corn
-inline s32 cvt_w_s( f32 x )							{ s32 r; asm volatile ( "cvt.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
-inline s32 trunc_w_s( f32 x )						{ s32 r; asm volatile ( "trunc.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
-inline s32 round_w_s( f32 x )						{ s32 r; asm volatile ( "round.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
-inline s32 ceil_w_s( f32 x )						{ s32 r; asm volatile ( "ceil.w.s  %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
-inline s32 floor_w_s( f32 x )						{ s32 r; asm volatile ( "floor.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
+//These ASM routines convert float to int and puts the value in CPU to sign extend, rather than FPU since the PSP doesn't have 64bit instructions //Corn
+//These can be risky since the N64 is expecting float to int64 and thus float can be larger than int, this happens with trunc_w_s on the 4th level of DK64..
+inline s32 cvt_w_s( f32 x )							{ DAEDALUS_ASSERT( x >= LONG_MIN && x <= LONG_MAX, "Float too large, can't convert with 32bit PSP instruction" );s32 r; asm volatile ( "cvt.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
+inline s32 trunc_w_s( f32 x )						{ DAEDALUS_ASSERT( x >= LONG_MIN && x <= LONG_MAX, "Float too large, can't convert with 32bit PSP instruction" );s32 r; asm volatile ( "trunc.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
+inline s32 round_w_s( f32 x )						{ DAEDALUS_ASSERT( x >= LONG_MIN && x <= LONG_MAX, "Float too large, can't convert with 32bit PSP instruction" );s32 r; asm volatile ( "round.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
+inline s32 ceil_w_s( f32 x )						{ DAEDALUS_ASSERT( x >= LONG_MIN && x <= LONG_MAX, "Float too large, can't convert with 32bit PSP instruction" );s32 r; asm volatile ( "ceil.w.s  %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
+inline s32 floor_w_s( f32 x )						{ DAEDALUS_ASSERT( x >= LONG_MIN && x <= LONG_MAX, "Float too large, can't convert with 32bit PSP instruction" );s32 r; asm volatile ( "floor.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
 
 
 inline s32 f32_to_s32_trunc( f32 x )				{ return pspFpuTrunc(x); }
@@ -401,9 +401,6 @@ inline s32 f32_to_s32_round( f32 x )				{ return pspFpuRound(x); }
 inline s32 f32_to_s32_ceil( f32 x )					{ return pspFpuCeil(x); }
 inline s32 f32_to_s32_floor( f32 x )				{ return pspFpuFloor(x); }
 inline s32 f32_to_s32( f32 x, ERoundingMode mode )	{ pspFpuSetRoundmode( gNativeRoundingModes[ mode ] ); return cvt_w_s( x ); }
-
-//trunc.w.s instruction fails badly in DK64, since it passes a float which is larger than an int.. it breaks the door in the fourth level
-//TODO: Add asserts where we use the fpu math to detect this hard to find bugs
 
 //inline s64 f32_to_s64_trunc( f32 x )				{ return (s64)trunc_w_s( x ); }
 inline s64 f32_to_s64_trunc( f32 x )				{ return (s64)truncf( x ); }
@@ -426,30 +423,86 @@ inline s64 d64_to_s64( d64 x, ERoundingMode mode )	{ pspFpuSetRoundmode( gNative
 
 #else
 
-DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x, ERoundingMode mode )	{ SET_ROUND_MODE( mode ); return (s32)x; }
 DAEDALUS_FORCEINLINE s32 f32_to_s32_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)truncf(x); }
 DAEDALUS_FORCEINLINE s32 f32_to_s32_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)roundf(x); }
 DAEDALUS_FORCEINLINE s32 f32_to_s32_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s32)ceilf(x); }
 DAEDALUS_FORCEINLINE s32 f32_to_s32_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)floorf(x); }
-
-DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s64)x; }
+DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x, ERoundingMode mode )	
+{ 
+#ifdef ACCURATE_CVT
+	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
+	{
+	case FPCSR_RM_RN:		return f32_to_s32_round( x );
+	case FPCSR_RM_RZ:		return f32_to_s32_trunc( x );
+	case FPCSR_RM_RP:		return f32_to_s32_ceil( x );
+	case FPCSR_RM_RM:		return f32_to_s32_floor( x );
+	default:				return (s32)x;
+	}
+#else
+	SET_ROUND_MODE( mode ); 
+	return (s32)x;
+#endif
+}
 DAEDALUS_FORCEINLINE s64 f32_to_s64_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s64)truncf(x); }
 DAEDALUS_FORCEINLINE s64 f32_to_s64_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s64)roundf(x); }
 DAEDALUS_FORCEINLINE s64 f32_to_s64_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s64)ceilf(x); }
 DAEDALUS_FORCEINLINE s64 f32_to_s64_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s64)floorf(x); }
-
-DAEDALUS_FORCEINLINE s32 d64_to_s32( d64 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s32)x; }
+DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x, ERoundingMode mode ) 
+{ 
+#ifdef ACCURATE_CVT
+	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
+	{
+	case FPCSR_RM_RN:		return f32_to_s64_round( x );
+	case FPCSR_RM_RZ:		return f32_to_s64_trunc( x );
+	case FPCSR_RM_RP:		return f32_to_s64_ceil( x );
+	case FPCSR_RM_RM:		return f32_to_s64_floor( x );
+	default:				return (s64)x;
+	}
+#else
+	SET_ROUND_MODE( mode ); 
+	return (s64)x; 
+#endif
+}
 DAEDALUS_FORCEINLINE s32 d64_to_s32_trunc( d64 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)trunc(x); }
 DAEDALUS_FORCEINLINE s32 d64_to_s32_round( d64 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)round(x); }
 DAEDALUS_FORCEINLINE s32 d64_to_s32_ceil( d64 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s32)ceil(x); }
 DAEDALUS_FORCEINLINE s32 d64_to_s32_floor( d64 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)floor(x); }
-
-DAEDALUS_FORCEINLINE s64 d64_to_s64( d64 x, ERoundingMode mode ) { SET_ROUND_MODE( mode ); return (s64)x; }
+DAEDALUS_FORCEINLINE s32 d64_to_s32( d64 x, ERoundingMode mode )
+{
+#ifdef ACCURATE_CVT
+	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
+	{
+	case FPCSR_RM_RN:		return d64_to_s32_round( x );
+	case FPCSR_RM_RZ:		return d64_to_s32_trunc( x );
+	case FPCSR_RM_RP:		return d64_to_s32_ceil( x );
+	case FPCSR_RM_RM:		return d64_to_s32_floor( x );
+	default:				return (s32)x;
+	}
+#else
+	SET_ROUND_MODE( mode ); 
+	return (s32)x; 
+#endif
+}
 DAEDALUS_FORCEINLINE s64 d64_to_s64_trunc( d64 x ) { SET_ROUND_MODE( RM_TRUNC ); return (s64)trunc(x); }
 DAEDALUS_FORCEINLINE s64 d64_to_s64_round( d64 x ) { SET_ROUND_MODE( RM_ROUND ); return (s64)round(x); }
 DAEDALUS_FORCEINLINE s64 d64_to_s64_ceil( d64 x )  { SET_ROUND_MODE( RM_CEIL ); return (s64)ceil(x); }
 DAEDALUS_FORCEINLINE s64 d64_to_s64_floor( d64 x ) { SET_ROUND_MODE( RM_FLOOR ); return (s64)floor(x); }
-
+DAEDALUS_FORCEINLINE s64 d64_to_s64( d64 x, ERoundingMode mode )
+{ 
+#ifdef ACCURATE_CVT
+	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
+	{
+	case FPCSR_RM_RN:		return d64_to_s64_round( x );
+	case FPCSR_RM_RZ:		return d64_to_s64_trunc( x );
+	case FPCSR_RM_RP:		return d64_to_s64_ceil( x );
+	case FPCSR_RM_RM:		return d64_to_s64_floor( x );
+	default:				return (s64)x;
+	}
+#else
+	SET_ROUND_MODE( mode );
+	return (s64)x; 
+#endif
+}
 #endif
 
 static void R4300_CALL_TYPE R4300_Cop1_BCInstr( R4300_CALL_SIGNATURE );
