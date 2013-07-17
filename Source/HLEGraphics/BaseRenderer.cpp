@@ -1168,74 +1168,36 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 		else if (projected.z > projected.w)		clip_flags |= Z_NEG;
 		mVtxProjected[i].ClipFlags = clip_flags;
 
-		// LIGHTING OR COLOR
-		//
-		if ( mTnL.Flags.Light )
+		// TODO : Implement lightning, not just colour
+
+		mVtxProjected[i].Colour.x = (f32)vert.rgba_r * (1.0f / 255.0f);
+		mVtxProjected[i].Colour.y = (f32)vert.rgba_g * (1.0f / 255.0f);
+		mVtxProjected[i].Colour.z = (f32)vert.rgba_b * (1.0f / 255.0f);
+		mVtxProjected[i].Colour.w = (f32)vert.rgba_a * (1.0f / 255.0f);
+
+		// ENV MAPPING
+		if ( mTnL.Flags.TexGen )
 		{
-			v4	result( mTnL.Lights[mTnL.NumLights].Colour );
+			v3 model_normal( mn[((i<<1)+0)^3], mn[((i<<1)+1)^3], vert.normz );
+			v3 vecTransformedNormal = mat_world.TransformNormal( model_normal );
+			vecTransformedNormal.Normalise();
 
-			for ( u32 k = 1; k < mTnL.NumLights; k++ )
+			const v3 & norm = vecTransformedNormal;
+
+			if( mTnL.Flags.TexGenLin )
 			{
-				result.x += mTnL.Lights[k].Colour.x;
-				result.y += mTnL.Lights[k].Colour.y;
-				result.z += mTnL.Lights[k].Colour.z;
-			}
-
-			//Clamp to 1.0
-			if( result.x > 1.0f ) result.x = 1.0f;
-			if( result.y > 1.0f ) result.y = 1.0f;
-			if( result.z > 1.0f ) result.z = 1.0f;
-
-			result.x *= (f32)vert.rgba_r * (1.0f / 255.0f);
-			result.y *= (f32)vert.rgba_g * (1.0f / 255.0f);
-			result.z *= (f32)vert.rgba_b * (1.0f / 255.0f);
-			result.w  = (f32)vert.rgba_a * (1.0f / 255.0f);
-
-			mVtxProjected[i].Colour = result;
-
-			// ENV MAPPING
-			//
-			if ( mTnL.Flags.TexGen )
-			{
-				v3 model_normal( mn[((i<<1)+0)^3], mn[((i<<1)+1)^3], vert.normz );
-				v3 vecTransformedNormal = mat_world.TransformNormal( model_normal );
-				vecTransformedNormal.Normalise();
-
-				const v3 & norm = vecTransformedNormal;
-
-				if( mTnL.Flags.TexGenLin )
-				{
-					//Cheap way to do Acos(x)/Pi //Corn
-					mVtxProjected[i].Texture.x =  0.5f - 0.25f * norm.x - 0.25f * norm.x * norm.x * norm.x;
-					mVtxProjected[i].Texture.y =  0.5f - 0.25f * norm.y - 0.25f * norm.y * norm.y * norm.y;
-				}
-				else
-				{
-					mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x );
-					mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y );
-				}
+				//Cheap way to do Acos(x)/Pi //Corn
+				mVtxProjected[i].Texture.x =  0.5f - 0.25f * norm.x - 0.25f * norm.x * norm.x * norm.x;
+				mVtxProjected[i].Texture.y =  0.5f - 0.25f * norm.y - 0.25f * norm.y * norm.y * norm.y;
 			}
 			else
-			{	//TEXTURE
-				mVtxProjected[i].Texture.x = (float)vert.tu * mTnL.TextureScaleX;
-				mVtxProjected[i].Texture.y = (float)vert.tv * mTnL.TextureScaleY;
+			{
+				mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x );
+				mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y );
 			}
 		}
 		else
-		{
-			if( mTnL.Flags.Shade )
-			{	//FLAT shade
-				mVtxProjected[i].Colour.x = (f32)vert.rgba_r * (1.0f / 255.0f);
-				mVtxProjected[i].Colour.y = (f32)vert.rgba_g * (1.0f / 255.0f);
-				mVtxProjected[i].Colour.z = (f32)vert.rgba_b * (1.0f / 255.0f);
-				mVtxProjected[i].Colour.w = (f32)vert.rgba_a * (1.0f / 255.0f);
-			}
-			else
-			{	//Shade is disabled
-				mVtxProjected[i].Colour = mPrimitiveColour.GetColourV4();
-			}
-
-			//TEXTURE
+		{	//TEXTURE
 			mVtxProjected[i].Texture.x = (float)vert.tu * mTnL.TextureScaleX;
 			mVtxProjected[i].Texture.y = (float)vert.tv * mTnL.TextureScaleY;
 		}
@@ -1453,17 +1415,11 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 		}
 		else
 		{
-			if( mTnL.Flags.Shade )
-			{	//FLAT shade
-				mVtxProjected[i].Colour.x = (f32)col[vert.cidx+3] * (1.0f / 255.0f);
-				mVtxProjected[i].Colour.y = (f32)col[vert.cidx+2] * (1.0f / 255.0f);
-				mVtxProjected[i].Colour.z = (f32)col[vert.cidx+1] * (1.0f / 255.0f);
-				mVtxProjected[i].Colour.w = (f32)col[vert.cidx+0] * (1.0f / 255.0f);
-			}
-			else
-			{	//Shade is disabled
-				mVtxProjected[i].Colour = mPrimitiveColour.GetColourV4();
-			}
+
+			mVtxProjected[i].Colour.x = (f32)col[vert.cidx+3] * (1.0f / 255.0f);
+			mVtxProjected[i].Colour.y = (f32)col[vert.cidx+2] * (1.0f / 255.0f);
+			mVtxProjected[i].Colour.z = (f32)col[vert.cidx+1] * (1.0f / 255.0f);
+			mVtxProjected[i].Colour.w = (f32)col[vert.cidx+0] * (1.0f / 255.0f);
 
 			mVtxProjected[i].Texture.x = (float)vert.tu * mTnL.TextureScaleX;
 			mVtxProjected[i].Texture.y = (float)vert.tv * mTnL.TextureScaleY;
