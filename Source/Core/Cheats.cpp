@@ -81,6 +81,7 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 		if(skip == true)
 		{
 			skip = false;
+			code++;
 			continue;
 		}
 		u32 address = (code->addr & 0xFFFFFF);
