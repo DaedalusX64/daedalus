@@ -308,7 +308,34 @@ struct SAbi2Interleave
 };
 DAEDALUS_STATIC_ASSERT( sizeof( SAbi2Interleave ) == 8 );
 
+struct SAbi3LoadADPCM
+{
+	unsigned		Address : 24;
+	unsigned		: 8;
+	unsigned		Count : 16;
+	unsigned		: 8;			// Unknown/unused
+	unsigned		: 8;			// Command
+};
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi3LoadADPCM ) == 8 );
 
+struct SAbi3SetLoop
+{
+	unsigned		LoopVal : 24;
+	unsigned		: 8;
+	unsigned		: 24;			// Unknown/unused
+	unsigned		: 8;			// Command
+};
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi3SetLoop ) == 8 );
+
+struct SAbi3DmemMove
+{
+	unsigned		Count	: 16;
+	unsigned		Dst		: 16;
+	unsigned		Src		: 16;
+	unsigned		: 8;
+	unsigned		: 8;			// Command
+};
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi3DmemMove ) == 8 );
 
 struct AudioHLECommand
 {
@@ -348,6 +375,9 @@ struct AudioHLECommand
 		SAbi2DmemMove		Abi2DmemMove;
 		SAbi2LoadADPCM		Abi2LoadADPCM;
 
+		SAbi3SetLoop		Abi3SetLoop;
+		SAbi3DmemMove		Abi3DmemMove;
+		SAbi3LoadADPCM		Abi3LoadADPCM;
 
 		struct
 		{

@@ -51,7 +51,7 @@ struct AudioHLEState
 	void	SetLoop( u32 loopval );
 	void	SetBuffer( u8 flags, u16 in, u16 out, u16 count );
 
-	void	DmemMove( u16 dst, u16 src, u16 count );
+	void	DmemMove( u32 dst, u32 src, u16 count );
 	void	LoadADPCM( u32 address, u16 count );
 
 	void	Interleave( u16 laddr, u16 raddr );								// Uses OutBuffer/Count
@@ -68,7 +68,6 @@ private:
 
 public:
 	ALIGNED_TYPE(u8, Buffer[N64_AUDIO_BUFF], 16);
-	s16		MixerWorkArea[256];
 	u16		ADPCMTable[0x88];
 
 	//u32		Segments[16];		// 0x0320

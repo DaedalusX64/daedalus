@@ -266,12 +266,7 @@ void CMP3Decode::InnerLoop()
 	RSP_Vect[0].DW[1] = 0xB504A57E00016A09;
 	RSP_Vect[0].DW[0] = 0x0002D4130005A827;
 	*/
-#ifndef DAEDALUS_SILENT
-	if ((t1 | t2 | t3 | t5 | t6) & 0x1)
-	{
-		DAEDALUS_ERROR( "Unaligned?" );
-	}
-#endif
+
 	// 0x13A8
 	v[1] = 0;
 	v[11] = ((v[16] - v[17]) * 0xB504) >> 0x10;
@@ -500,6 +495,7 @@ void CMP3Decode::InnerLoop()
 		//Clamp(v0);
 		//Clamp(v18);
 		// clamp???
+		//Don't think we need Saturate here //Salvy
 		*(s16 *)(mp3data+(outPtr^2)    ) = Saturate<s16>( v0 );
 		*(s16 *)(mp3data+((outPtr+2)^2)) = Saturate<s16>( v18 );
 		outPtr+=4;
@@ -523,12 +519,12 @@ void CMP3Decode::InnerLoop()
 	if (t4 & 0x2)
 	{
 		v2 = (v2 * *(u32 *)(mp3data+0xCE8)) >> 16;
-		*(s16 *)(mp3data+(outPtr^2)) = Saturate<s16>( v2 );
+		*(s16 *)(mp3data+(outPtr^2)) = v2;
 	}
 	else
 	{
 		v4 = (v4 * *(u32 *)(mp3data+0xCE8)) >> 16;
-		*(s16 *)(mp3data+(outPtr^2)) = Saturate<s16>( v4 );
+		*(s16 *)(mp3data+(outPtr^2)) = v4;
 		mult4 = *(u32 *)(mp3data+0xCE8);
 	}
 	addptr -= 0x50;
@@ -556,6 +552,7 @@ void CMP3Decode::InnerLoop()
 		//Clamp(v0);
 		//Clamp(v18);
 		// clamp???
+		//Don't think we need Saturate here //Salvy
 		*(s16 *)(mp3data+((outPtr+2)^2)) = Saturate<s16>( v0 );
 		*(s16 *)(mp3data+((outPtr+4)^2)) = Saturate<s16>( v18 );
 		outPtr+=4;
@@ -584,7 +581,7 @@ void CMP3Decode::Decode( AudioHLECommand command )
 	// Initialization Code
 	u32 readPtr; // s5
 	u32 writePtr; // s6
-	const u32 Count = 0x0480; // s4
+	//const u32 Count = 0x0480; // s4
 	u32 tmp;
 	//u32 inPtr, outPtr;
 
@@ -597,7 +594,7 @@ void CMP3Decode::Decode( AudioHLECommand command )
 	memcpy(mp3data+0xCE8, rdram+readPtr, 8); // Just do that for efficiency... may remove and use directly later anyway
 	readPtr += 8; // This must be a header byte or whatnot
 
-	for (u32 cnt = 0; cnt < Count; cnt += 0x180)
+	for (u32 cnt = 0; cnt < 0x0480; cnt += 0x180)
 	{
 		memcpy(mp3data+0xCF0, rdram+readPtr, 0x180); // DMA: 0xCF0 <- RDRAM[s5] : 0x180
 		inPtr  = 0xCF0; // s7

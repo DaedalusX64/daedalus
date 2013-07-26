@@ -87,6 +87,8 @@ void	AudioHLEState::EnvMixer( u8 flags, u32 address )
 	s32 LAdderStart, RAdderStart, LAdderEnd, RAdderEnd;
 	s32 oMainR, oMainL, oAuxR, oAuxL;
 
+	s16* buff = (s16*)(rdram+address);
+
 	//envmixcnt++;
 
 	//fprintf (dfile, "\n----------------------------------------------------\n");
@@ -96,7 +98,8 @@ void	AudioHLEState::EnvMixer( u8 flags, u32 address )
 		RVol = ((VolRight * VolRampRight));
 		Wet = EnvWet;
 		Dry = EnvDry; // Save Wet/Dry values
-		LTrg = (VolTrgLeft << 16); RTrg = (VolTrgRight << 16); // Save Current Left/Right Targets
+		LTrg = (VolTrgLeft << 16); 
+		RTrg = (VolTrgRight << 16); // Save Current Left/Right Targets
 		LAdderStart = VolLeft  << 16;
 		RAdderStart = VolRight << 16;
 		LAdderEnd = LVol;
@@ -108,17 +111,16 @@ void	AudioHLEState::EnvMixer( u8 flags, u32 address )
 	{
 		// Load LVol, RVol, LAcc, and RAcc (all 32bit)
 		// Load Wet, Dry, LTrg, RTrg
-		memcpy((u8 *)MixerWorkArea, (rdram+address), 80);
-		Wet			= *(s16 *)(MixerWorkArea +  0); // 0-1
-		Dry			= *(s16 *)(MixerWorkArea +  2); // 2-3
-		LTrg		= *(s32 *)(MixerWorkArea +  4); // 4-5
-		RTrg		= *(s32 *)(MixerWorkArea +  6); // 6-7
-		LRamp		= *(s32 *)(MixerWorkArea +  8); // 8-9 (MixerWorkArea is a 16bit pointer)
-		RRamp		= *(s32 *)(MixerWorkArea + 10); // 10-11
-		LAdderEnd	= *(s32 *)(MixerWorkArea + 12); // 12-13
-		RAdderEnd	= *(s32 *)(MixerWorkArea + 14); // 14-15
-		LAdderStart = *(s32 *)(MixerWorkArea + 16); // 12-13
-		RAdderStart = *(s32 *)(MixerWorkArea + 18); // 14-15
+		Wet			= *(s16 *)(buff +  0); // 0-1
+		Dry			= *(s16 *)(buff +  2); // 2-3
+		LTrg		= *(s32 *)(buff +  4); // 4-5
+		RTrg		= *(s32 *)(buff +  6); // 6-7
+		LRamp		= *(s32 *)(buff +  8); // 8-9 (MixerWorkArea is a 16bit pointer)
+		RRamp		= *(s32 *)(buff + 10); // 10-11
+		LAdderEnd	= *(s32 *)(buff + 12); // 12-13
+		RAdderEnd	= *(s32 *)(buff + 14); // 14-15
+		LAdderStart = *(s32 *)(buff + 16); // 12-13
+		RAdderStart = *(s32 *)(buff + 18); // 14-15
 	}
 
 	if(!(flags&A_AUX))
@@ -290,17 +292,16 @@ void	AudioHLEState::EnvMixer( u8 flags, u32 address )
 	/*LAcc = LAdderEnd;
 	RAcc = RAdderEnd;*/
 
-	*(s16 *)(MixerWorkArea +  0) = Wet; // 0-1
-	*(s16 *)(MixerWorkArea +  2) = Dry; // 2-3
-	*(s32 *)(MixerWorkArea +  4) = LTrg; // 4-5
-	*(s32 *)(MixerWorkArea +  6) = RTrg; // 6-7
-	*(s32 *)(MixerWorkArea +  8) = LRamp; // 8-9 (MixerWorkArea is a 16bit pointer)
-	*(s32 *)(MixerWorkArea + 10) = RRamp; // 10-11
-	*(s32 *)(MixerWorkArea + 12) = LAdderEnd; // 12-13
-	*(s32 *)(MixerWorkArea + 14) = RAdderEnd; // 14-15
-	*(s32 *)(MixerWorkArea + 16) = LAdderStart; // 12-13
-	*(s32 *)(MixerWorkArea + 18) = RAdderStart; // 14-15
-	memcpy(rdram+address, (u8 *)MixerWorkArea,80);
+	*(s16 *)(buff +  0) = Wet; // 0-1
+	*(s16 *)(buff +  2) = Dry; // 2-3
+	*(s32 *)(buff +  4) = LTrg; // 4-5
+	*(s32 *)(buff +  6) = RTrg; // 6-7
+	*(s32 *)(buff +  8) = LRamp; // 8-9 (MixerWorkArea is a 16bit pointer)
+	*(s32 *)(buff + 10) = RRamp; // 10-11
+	*(s32 *)(buff + 12) = LAdderEnd; // 12-13
+	*(s32 *)(buff + 14) = RAdderEnd; // 14-15
+	*(s32 *)(buff + 16) = LAdderStart; // 12-13
+	*(s32 *)(buff + 18) = RAdderStart; // 14-15
 }
 
 #if 1 //1->fast, 0->original Azimer //Corn calc two sample (s16) at once so we get to save a u32
@@ -770,14 +771,20 @@ void	AudioHLEState::SetBuffer( u8 flags, u16 in, u16 out, u16 count )
 	}
 }
 
-void	AudioHLEState::DmemMove( u16 dst, u16 src, u16 count )
+void	AudioHLEState::DmemMove( u32 dst, u32 src, u16 count )
 {
-	memcpy_swizzle(Buffer + dst, Buffer + src, (count + 3) & (N64_AUDIO_BUFF - 4));
-	/*count = (count + 3) & (N64_AUDIO_BUFF - 4);
+	count = (count + 3) & (N64_AUDIO_BUFF - 4);
+
+#if 1	//1->fast, 0->slow
+
+	//Can't use fast_memcpy_swizzle, since this code can run on the ME, and VFPU is not accessible
+	memcpy_swizzle(Buffer + dst, Buffer + src, count);
+#else
 	for (u32 i = 0; i < count; i++)
 	{
 		*(u8 *)(Buffer+((i+dst)^3)) = *(u8 *)(Buffer+((i+src)^3));
-	}*/
+	}
+#endif
 }
 
 void	AudioHLEState::LoadADPCM( u32 address, u16 count )
