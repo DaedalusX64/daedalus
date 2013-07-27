@@ -505,7 +505,7 @@ static void INTERLEAVE2( AudioHLECommand command )  // Needs accuracy verificati
 static void ADDMIXER( AudioHLECommand command )
 {
 	DAEDALUS_ERROR( "ADDMIXER - broken?" );
-	u32 Count     = (command.cmd0 >> 12) & 0x00ff0;
+	/*u32 Count     = (command.cmd0 >> 12) & 0x00ff0;
 	u32 InBuffer  = (command.cmd1 >> 16);
 	u32 OutBuffer = command.cmd1 & 0xffff;
 
@@ -514,9 +514,9 @@ static void ADDMIXER( AudioHLECommand command )
 	for (u32 cntr = 0; cntr < Count; cntr+=2)
 	{
 		//s32 temp = Saturate<s16>( *outp + *inp );
-		//*outp = temp;		// Added this - correct??
+		// *outp = temp;		// Added this - correct??
 		outp++;	inp++;
-	}
+	}*/
 }
 
 static void HILOGAIN( AudioHLECommand command )

@@ -54,7 +54,7 @@ AudioHLEState gAudioHLEState;
 void	AudioHLEState::ClearBuffer( u16 addr, u16 count )
 {
 	// XXXX check endianness
-	memset( Buffer+(addr & (N64_AUDIO_BUFF - 4)), 0, (count+3) & (N64_AUDIO_BUFF - 4));
+	memset( Buffer+(addr & 0xfffc), 0, (count+3) & 0xfffc );
 }
 
 void	AudioHLEState::EnvMixer( u8 flags, u32 address )
@@ -329,7 +329,7 @@ void	AudioHLEState::Resample( u8 flags, u32 pitch, u32 address )
 		accumulator = *(u16 *)(rdram + address + 10);
 	}
 
-	for(u32 i = (((Count + 0xF) & (N64_AUDIO_BUFF - 0x10)) >> 2); i != 0 ; i-- )
+	for(u32 i = (((Count + 0xF) & 0xFFF0) >> 2); i != 0 ; i-- )
 	{
 		tmp =  (in[srcPtr^1] + FixedPointMul16( in[(srcPtr+1)^1] - in[srcPtr^1], accumulator )) << 16;
 		accumulator += pitch;
@@ -418,7 +418,7 @@ void	AudioHLEState::Resample( u8 flags, u32 pitch, u32 address )
 	}
 
 
-	u32		loops( ((Count+0xf) & (N64_AUDIO_BUFF - 0x10))/2 );
+	u32		loops( ((Count+0xf) & 0xFFF0)/2 );
 	for(u32 i = 0; i < loops ; ++i )
 	{
 		u32			location( (accumulator >> 0xa) << 0x3 );
@@ -724,7 +724,7 @@ void	AudioHLEState::LoadBuffer( u16 dram_dst, u32 ram_src, u16 count )
 	if( count > 0 )
 	{
 		// XXXX Masks look suspicious - trying to get around endian issues?
-		memcpy( Buffer+(dram_dst & (N64_AUDIO_BUFF - 4)), rdram+(ram_src&0xfffffc), (count+3) & (N64_AUDIO_BUFF - 4) );
+		memcpy( Buffer+(dram_dst & 0xFFFC), rdram+(ram_src&0xfffffc), (count+3) & 0xFFFC );
 	}
 }
 
@@ -734,7 +734,7 @@ void	AudioHLEState::SaveBuffer( u32 ram_dst, u16 dmem_src, u16 count )
 	if( count > 0 )
 	{
 		// XXXX Masks look suspicious - trying to get around endian issues?
-		memcpy( rdram+(ram_dst & 0xfffffc), Buffer+(dmem_src & (N64_AUDIO_BUFF - 4)), (count+3) & (N64_AUDIO_BUFF - 4));
+		memcpy( rdram+(ram_dst & 0xfffffc), Buffer+(dmem_src & 0xFFFC), (count+3) & 0xFFFC);
 	}
 }
 /*
@@ -773,7 +773,7 @@ void	AudioHLEState::SetBuffer( u8 flags, u16 in, u16 out, u16 count )
 
 void	AudioHLEState::DmemMove( u32 dst, u32 src, u16 count )
 {
-	count = (count + 3) & (N64_AUDIO_BUFF - 4);
+	count = (count + 3) & 0xfffc;
 
 #if 1	//1->fast, 0->slow
 
@@ -833,12 +833,10 @@ void	AudioHLEState::Interleave( u16 laddr, u16 raddr )
 void	AudioHLEState::Mixer( u16 dmemout, u16 dmemin, s32 gain, u16 count )
 {
 #if 1	//1->fast, 0->safe/slow //Corn
-	// Check if outside of buffer (YOSHI)
-	if( ((u32)dmemin + (count >> 1)) & ~(N64_AUDIO_BUFF - 1) ) return;
 
 	// Make sure we are on even address (YOSHI)
-	s16*  in( (s16 *)(Buffer + (dmemin  & (N64_AUDIO_BUFF - 2))) );
-	s16* out( (s16 *)(Buffer + (dmemout & (N64_AUDIO_BUFF - 2))) );
+	s16*  in( (s16 *)(Buffer + dmemin) );
+	s16* out( (s16 *)(Buffer + dmemout) );
 
 	for( u32 x = count >> 1; x != 0; x-- )
 	{
@@ -849,8 +847,8 @@ void	AudioHLEState::Mixer( u16 dmemout, u16 dmemin, s32 gain, u16 count )
 #else
 	for( u32 x=0; x < count; x+=2 )
 	{
-		s16 in( *(s16 *)(Buffer+((dmemin+x) & (N64_AUDIO_BUFF - 2))) );
-		s16 out( *(s16 *)(Buffer+((dmemout+x) & (N64_AUDIO_BUFF - 2))) );
+		s16 in( *(s16 *)(Buffer+(dmemin+x)) );
+		s16 out( *(s16 *)(Buffer+(dmemout+x)) );
 
 		*(s16 *)(Buffer+((dmemout+x) & (N64_AUDIO_BUFF - 2)) ) = Saturate<s16>( FixedPointMul15( in, gain ) + s32( out ) );
 	}
