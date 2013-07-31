@@ -46,7 +46,7 @@ void DLParser_Vtx_PD( MicroCodeCommand command )
 void DLParser_Set_Vtx_CI_PD( MicroCodeCommand command )
 {
 	// PD Color index buf address
-	gAuxAddr = (u32)g_pu8RamBase + RDPSegAddr(command.inst.cmd1);
+	gAuxAddr = RDPSegAddr(command.inst.cmd1);
 }
 
 #endif // HLEGRAPHICS_UCODES_UCODE_PD_H_

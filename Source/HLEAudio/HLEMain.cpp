@@ -75,7 +75,7 @@ extern AudioHLEInstruction ABI3[0x20];
 //
 
 
-AudioHLEInstruction *ABI=ABIUnknown;
+AudioHLEInstruction *ABI = ABIUnknown;
 bool bAudioChanged = false;
 extern bool isMKABI;
 extern bool isZeldaABI;
@@ -93,22 +93,22 @@ void Audio_Reset()
 //*****************************************************************************
 //
 //*****************************************************************************
-void Audio_Ucode_Detect(OSTask * pTask)
+inline void Audio_Ucode_Detect(OSTask * pTask)
 {
 	u8* p_base = g_pu8RamBase + (u32)pTask->t.ucode_data;
 	if (*(u32*)(p_base + 0) != 0x01)
 	{
 		if (*(u32*)(p_base + 0x10) == 0x00000001)
-			ABI=ABIUnknown;
+			ABI = ABIUnknown;
 		else
-			ABI=ABI3;
+			ABI = ABI3;
 	}
 	else
 	{
 		if (*(u32*)(p_base + 0x30) == 0xF0000F00)
-			ABI=ABI1;
+			ABI = ABI1;
 		else
-			ABI=ABI2;
+			ABI = ABI2;
 	}
 }
 
@@ -121,7 +121,7 @@ void Audio_Ucode()
 
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 
-	// Only detect ABI once
+	// Only detect ABI once per game
 	if ( !bAudioChanged )
 	{
 		bAudioChanged = true;
@@ -132,16 +132,18 @@ void Audio_Ucode()
 	//memset( gAudioHLEState.Segments, 0, sizeof( gAudioHLEState.Segments ) );
 
 	u32 * p_alist = (u32 *)(g_pu8RamBase + (u32)pTask->t.data_ptr);
-	u32 ucode_size = (pTask->t.data_size >> 3);
-	if( ucode_size == 0 )	return;	// Musyx..
+	u32 ucode_size = (pTask->t.data_size >> 3);	//ABI5 can return 0 here!!!
 
-	AudioHLECommand command;
-
-	// Very important, do not change this loop do{ }while(..);, otherwise there's static in games ex Zelda
-	do {
+	while( ucode_size )
+	{
+		AudioHLECommand command;
 		command.cmd0 = *p_alist++;
 		command.cmd1 = *p_alist++;
+
 		ABI[command.cmd](command);
+
+		--ucode_size;
+
 		//printf("%08X %08X\n",command.cmd0,command.cmd1);
-	} while (--ucode_size);
+	}
 }

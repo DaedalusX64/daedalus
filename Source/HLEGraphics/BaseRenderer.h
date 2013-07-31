@@ -117,11 +117,15 @@ DAEDALUS_STATIC_ASSERT( sizeof(FiddledVtx) == 16 );
 ALIGNED_TYPE(struct, DaedalusLight, 16)
 {
 	v3		Direction;		// w component is ignored. Should be normalised
-	f32		Padding0;
+	f32		ca;				// Used by CBFD
 	v4		Colour;			// Colour, components in range 0..1
+	v4		Position;		// Position -32768 to 32767
+	u32		nonblack;		// Used by CBFD
+	u32		nonzero;		// Used by CBFD
+	f32		la;
+	f32		qa;
 };
-
-DAEDALUS_STATIC_ASSERT( sizeof( DaedalusLight ) == 32 );
+DAEDALUS_STATIC_ASSERT( sizeof( DaedalusLight ) == 64 );	//Size=64 bytes and order is important or VFPU ASM for PSP will fail
 
 // Order here should be the same as in TnLPSP
 enum ETnLModeFlags
@@ -135,6 +139,7 @@ enum ETnLModeFlags
 	TNL_ZBUFFER		= 1 << 6,
 	TNL_TRICULL		= 1 << 7,
 	TNL_CULLBACK	= 1 << 8,
+	TNL_POINTLIGHT	= 1 << 9,
 };
 
 struct TnLPSP
@@ -152,7 +157,8 @@ struct TnLPSP
 			u32 Zbuffer : 1;		// 0x40
 			u32 TriCull : 1;		// 0x80
 			u32 CullBack : 1;		// 0x100
-			u32 pad0 : 23;			// 0x0
+			u32 PointLight : 1;		// 0x200
+			u32 pad0 : 22;			// 0x0
 		};
 		u32	_u32;
 	};
@@ -164,7 +170,7 @@ ALIGNED_TYPE(struct, TnLParams, 16)
 	u32				NumLights;
 	float			TextureScaleX;
 	float			TextureScaleY;
-	DaedalusLight	Lights[16];	//Conker uses more than 8
+	DaedalusLight	Lights[12];	//Conker uses up to 12 lights
 };
 //DAEDALUS_STATIC_ASSERT( sizeof( TnLParams ) == 32 );
 
@@ -229,7 +235,9 @@ public:
 
 	inline void			SetNumLights(u32 num)					{ mTnL.NumLights = num; }
 	inline void			SetLightCol(u32 l, f32 r, f32 g, f32 b) { mTnL.Lights[l].Colour.x= r/255.0f; mTnL.Lights[l].Colour.y= g/255.0f; mTnL.Lights[l].Colour.z= b/255.0f; mTnL.Lights[l].Colour.w= 1.0f; }
-	inline void			SetLightDirection(u32 l, f32 x, f32 y, f32 z)			{ v3 n(x, y, z); n.Normalise(); mTnL.Lights[l].Direction.x=n.x; mTnL.Lights[l].Direction.y=n.y; mTnL.Lights[l].Direction.z=n.z; mTnL.Lights[l].Padding0=0.0f; }
+	inline void			SetLightDirection(u32 l, f32 x, f32 y, f32 z) { v3 n(x, y, z); n.Normalise(); mTnL.Lights[l].Direction.x=n.x; mTnL.Lights[l].Direction.y=n.y; mTnL.Lights[l].Direction.z=n.z; }
+	inline void			SetLightPosition(u32 l, f32 x, f32 y, f32 z, f32 w) { mTnL.Lights[l].Position.x=x; mTnL.Lights[l].Position.y=y; mTnL.Lights[l].Position.z=z; mTnL.Lights[l].Position.w=w; }
+	inline void			SetLightCBFD(u32 l, u32 nonblack, u32 nonzero) { mTnL.Lights[l].ca=(f32)nonzero; mTnL.Lights[l].nonblack=nonblack; mTnL.Lights[l].nonzero=nonzero; }
 
 	inline void			SetMux( u64 mux )						{ mMux = mux; }
 

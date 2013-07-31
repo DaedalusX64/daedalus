@@ -1119,13 +1119,13 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 
 	// Light is not handled for Conker
 	//
-	const s8 *mn = (s8*)(gAuxAddr);
+	const s8 *mn = (s8*)(g_pu8RamBase + gAuxAddr);
 	_TnLVFPUCBFD( &mat_world, &mat_project, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn, v0<<1 );
 }
 
 #else
 //FPU/CPU version //Corn
-//extern f32 gCoord_Mod[16];
+extern Matrix4x4 gCoord_Mod;
 
 void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
@@ -1138,7 +1138,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
 
 	//Model normal base vector
-	const s8 *mn = (s8*)(gAuxAddr);
+	const s8 *mn = (s8*)(g_pu8RamBase + gAuxAddr);
 
 	// Transform and Project + Lighting or Transform and Project with Colour
 	//
@@ -1146,12 +1146,13 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 	{
 		const FiddledVtx & vert = pVtxBase[i - v0];
 
-		v4 w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
-
 		// VTX Transform
 		//
+		v4 w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
+
 		v4 & transformed( mVtxProjected[i].TransformedPos );
 		transformed = mat_world.Transform( w );
+
 		v4 & projected( mVtxProjected[i].ProjectedPos );
 		projected = mat_project.Transform( transformed );
 
@@ -1168,36 +1169,115 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 		else if (projected.z > projected.w)		clip_flags |= Z_NEG;
 		mVtxProjected[i].ClipFlags = clip_flags;
 
-		// TODO : Implement lightning, not just colour
-
 		mVtxProjected[i].Colour.x = (f32)vert.rgba_r * (1.0f / 255.0f);
 		mVtxProjected[i].Colour.y = (f32)vert.rgba_g * (1.0f / 255.0f);
 		mVtxProjected[i].Colour.z = (f32)vert.rgba_b * (1.0f / 255.0f);
-		mVtxProjected[i].Colour.w = (f32)vert.rgba_a * (1.0f / 255.0f);
-
-		// ENV MAPPING
-		if ( mTnL.Flags.TexGen )
+		mVtxProjected[i].Colour.w = (f32)vert.rgba_a * (1.0f / 255.0f);	//Pass alpha channel unmodified
+			
+		// LIGHTING OR COLOR
+		//
+		if ( mTnL.Flags.Light )
 		{
+			float light_intensity = 0.0f;
+			u32 l;
+			v3 result( mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z );
+
 			v3 model_normal( mn[((i<<1)+0)^3], mn[((i<<1)+1)^3], vert.normz );
 			v3 vecTransformedNormal = mat_world.TransformNormal( model_normal );
 			vecTransformedNormal.Normalise();
-
 			const v3 & norm = vecTransformedNormal;
 
-			if( mTnL.Flags.TexGenLin )
-			{
-				//Cheap way to do Acos(x)/Pi //Corn
-				mVtxProjected[i].Texture.x =  0.5f - 0.25f * norm.x - 0.25f * norm.x * norm.x * norm.x;
-				mVtxProjected[i].Texture.y =  0.5f - 0.25f * norm.y - 0.25f * norm.y * norm.y * norm.y;
+			if ( mTnL.Flags.PointLight )
+			{	//POINT LIGHT
+				for (l = 0; l < mTnL.NumLights-1; l++)
+				{
+					if (!mTnL.Lights[l].nonblack)
+						continue;
+
+					light_intensity = norm.Dot( mTnL.Lights[l].Direction );	//DotProduct (Light vector, Model normal)
+
+					if (light_intensity < 0.0f) 
+						continue;
+					
+					if ( mTnL.Lights[l].nonzero )
+					{
+						float vx = (projected.x + gCoord_Mod.mRaw[8]) * gCoord_Mod.mRaw[12] - mTnL.Lights[l].Position.x;
+						float vy = (projected.y + gCoord_Mod.mRaw[9]) * gCoord_Mod.mRaw[13] - mTnL.Lights[l].Position.y;
+						float vz = (projected.z + gCoord_Mod.mRaw[10])* gCoord_Mod.mRaw[14] - mTnL.Lights[l].Position.z;
+						float vw = (projected.w + gCoord_Mod.mRaw[11])* gCoord_Mod.mRaw[15] - mTnL.Lights[l].Position.w;
+
+						float p_i = mTnL.Lights[l].ca * 4096.0f / (vx*vx+vy*vy+vz*vz+vw*vw);
+						if (p_i > 1.0f) p_i = 1.0f;
+
+						light_intensity *= p_i;
+					}
+					
+					result.x += mTnL.Lights[l].Colour.x * light_intensity;
+					result.y += mTnL.Lights[l].Colour.y * light_intensity;
+					result.z += mTnL.Lights[l].Colour.z * light_intensity;
+				}   
+
+				light_intensity = norm.Dot( mTnL.Lights[l].Direction );	//DotProduct (Light vector, Model normal)
+
+				if (light_intensity > 0.0f) 
+				{
+					result.x += mTnL.Lights[l].Colour.x * light_intensity;
+					result.y += mTnL.Lights[l].Colour.y * light_intensity;
+					result.z += mTnL.Lights[l].Colour.z * light_intensity;
+				}
 			}
 			else
+			{	//NORMAL LIGHT
+				for (l = 0; l < mTnL.NumLights; l++)
+				{
+					if (mTnL.Lights[l].nonblack && mTnL.Lights[l].nonzero)
+					{
+						float vx = (projected.x + gCoord_Mod.mRaw[8]) * gCoord_Mod.mRaw[12] - mTnL.Lights[l].Position.x;
+						float vy = (projected.y + gCoord_Mod.mRaw[9]) * gCoord_Mod.mRaw[13] - mTnL.Lights[l].Position.y;
+						float vz = (projected.z + gCoord_Mod.mRaw[10])* gCoord_Mod.mRaw[14] - mTnL.Lights[l].Position.z;
+						float vw = (projected.w + gCoord_Mod.mRaw[11])* gCoord_Mod.mRaw[15] - mTnL.Lights[l].Position.w;
+						
+						light_intensity = mTnL.Lights[l].ca * 4096.0f / (vx*vx+vy*vy+vz*vz+vw*vw);
+
+						if (light_intensity > 1.0f) light_intensity = 1.0f;
+
+						result.x += mTnL.Lights[l].Colour.x * light_intensity;
+						result.y += mTnL.Lights[l].Colour.y * light_intensity;
+						result.z += mTnL.Lights[l].Colour.z * light_intensity;
+					}   
+				}
+			}
+
+			if( result.x > 1.0f ) result.x = 1.0f;
+			if( result.y > 1.0f ) result.y = 1.0f;
+			if( result.z > 1.0f ) result.z = 1.0f;
+
+			mVtxProjected[i].Colour.x *= result.x;
+			mVtxProjected[i].Colour.y *= result.y;
+			mVtxProjected[i].Colour.z *= result.z;
+
+			// ENV MAPPING
+			if ( mTnL.Flags.TexGen )
 			{
-				mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x );
-				mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y );
+				if( mTnL.Flags.TexGenLin )
+				{
+					mVtxProjected[i].Texture.x =  0.5f - 0.25f * norm.x - 0.25f * norm.x * norm.x * norm.x;	//Cheap way to do ~Acos(x)/Pi //Corn
+					mVtxProjected[i].Texture.y =  0.5f - 0.25f * norm.y - 0.25f * norm.y * norm.y * norm.y;
+				}
+				else
+				{
+					mVtxProjected[i].Texture.x = 0.5f * ( 1.0f + norm.x );
+					mVtxProjected[i].Texture.y = 0.5f * ( 1.0f + norm.y );
+				}
+			}
+			else
+			{	//TEXTURE SCALE
+				mVtxProjected[i].Texture.x = (float)vert.tu * mTnL.TextureScaleX;
+				mVtxProjected[i].Texture.y = (float)vert.tv * mTnL.TextureScaleY;
 			}
 		}
 		else
-		{	//TEXTURE
+		{	//TEXTURE SCALE & COLOR
 			mVtxProjected[i].Texture.x = (float)vert.tu * mTnL.TextureScaleX;
 			mVtxProjected[i].Texture.y = (float)vert.tv * mTnL.TextureScaleY;
 		}
@@ -1333,7 +1413,7 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
 
 	//Model & Color base vector
-	const u8 *mn = (u8*)gAuxAddr;
+	const u8 *mn = (u8*)(g_pu8RamBase + gAuxAddr);
 
 	_TnLVFPUPD( &mat_world, &mat_project, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn );
 }
@@ -1350,9 +1430,9 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
 
 	//Model normal base vector
-	const s8 *mn  = (s8*)(gAuxAddr);
+	const s8 *mn  = (s8*)(g_pu8RamBase + gAuxAddr);
 	//Color base vector
-	const u8 *col = (u8*)(gAuxAddr);
+	const u8 *col = (u8*)(g_pu8RamBase + gAuxAddr);
 
 	for (u32 i = v0; i < v0 + n; i++)
 	{

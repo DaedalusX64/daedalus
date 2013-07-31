@@ -376,6 +376,7 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 	DL_PF("    Texture Gen %s", (gGeometryMode.GBI2_TexGen) ? "On" : "Off");
 	DL_PF("    Texture Gen Linear %s", (gGeometryMode.GBI2_TexGenLin) ? "On" : "Off");
 	DL_PF("    Fog %s", (gGeometryMode.GBI2_Fog) ? "On" : "Off");
+	DL_PF("    PointLight %s", (gGeometryMode.GBI2_PointLight) ? "On" : "Off");
 
 	TnLPSP TnLMode;
 
@@ -388,6 +389,7 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 	TnLMode.Zbuffer		= gGeometryMode.GBI2_Zbuffer;
 	TnLMode.TriCull		= gGeometryMode.GBI2_CullFront | gGeometryMode.GBI2_CullBack;
 	TnLMode.CullBack	= gGeometryMode.GBI2_CullBack;
+	TnLMode.PointLight	= gGeometryMode.GBI2_PointLight;
 
 	gRenderer->SetTnLMode( TnLMode._u32 );
 }

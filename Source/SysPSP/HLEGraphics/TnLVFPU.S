@@ -15,6 +15,7 @@
 #define	TNL_ZBUFFER			0x0040
 #define	TNL_TRICULL			0x0080
 #define	TNL_CULLBACK		0x0100
+#define	TNL_POINTLIGHT		0x0200
 	
 .text
 .set		push
@@ -67,8 +68,8 @@ _TnLVFPU:
 	
 # Calculate the last light index
 	addiu		$t6, $t1, PARAMS_LIGHTS			// pointer to first_light = p_lights
-	sll			$t7, $t7, 5			// num_lights*32
-	addu		$t7, $t6, $t7		// last_light = p_lights + num_lights*32
+	sll			$t7, $t7, 6			// num_lights*64
+	addu		$t7, $t6, $t7		// last_light = p_lights + num_lights*64
 	lv.q		R700, 16($t7)		// Load ambient color
 	
 	sll			$t0, $t0, 4			// count = count * 16
@@ -127,7 +128,7 @@ next_light_:
 	lv.q		R301, 0($t4)				// Load Light normal
 	vdot.t		S303[0:1], R200, R301		// x = clamp(dot(normal,(x,y,z)),0,1)
 	lv.q		R302, 16($t4)				// Load Light colour
-	addiu		$t4, $t4, 32				// Skip to the next light
+	addiu		$t4, $t4, 64				// Skip to the next light
 	vscl.t		R303, R302, S303			// r,g,b = r*x, g*x, b*x
 	bne			$t4, $t7, next_light_
 	vadd.t		R201, R201, R303			// col += r,g,b,a
@@ -379,8 +380,8 @@ _TnLVFPUPD:
 	
 # Calculate the last light index
 	addiu		$t6, $t1, PARAMS_LIGHTS			// pointer to first_light = p_lights
-	sll			$t7, $t7, 5			// num_lights*32
-	addu		$t7, $t6, $t7		// last_light = p_lights + num_lights*32
+	sll			$t7, $t7, 6			// num_lights*64
+	addu		$t7, $t6, $t7		// last_light = p_lights + num_lights*64
 	lv.q		R700, 16($t7)		// Load ambient
 	
 	sll			$v1, $t0, 2			// count * 4
@@ -444,7 +445,7 @@ next_light_PD:
 	lv.q		R301, 0($t4)				// Load Light normal
 	vdot.t		S303[0:1], R200, R301		// x = clamp(dot(normal,(x,y,z)),0,1)
 	lv.q		R302, 16($t4)				// Load Light colour
-	addiu		$t4, $t4, 32				// Skip to the next light
+	addiu		$t4, $t4, 64				// Skip to the next light
 	vscl.t		R303, R302, S303			// r,g,b = r*x, g*x, b*x
 	bne			$t4, $t7, next_light_PD
 	vadd.t		R201, R201, R303			// col += r,g,b,a

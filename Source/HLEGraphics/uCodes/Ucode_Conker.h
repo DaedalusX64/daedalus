@@ -238,13 +238,18 @@ void DLParser_MoveMem_Conker( MicroCodeCommand command )
 	{
 	case G_GBI2_MV_MATRIX:	//Get address to Light Normals
 		{
-			gAuxAddr = (u32)g_pu8RamBase + address;		//Conker VtxZ address
+			gAuxAddr = address;		//Conker VtxZ address
 		}
 		break;
 	case G_GBI2_MV_LIGHT:
 		{
 			u32 offset2 = (command.inst.cmd0 >> 5) & 0x3FFF;
-
+			int n = (offset2 / 48);
+            if (n < 2)
+			{
+				//printf("bad\n");
+				return;
+			}
 			if( offset2 >= 0x30 )
 			{
 				u32 light = (offset2 - 0x30)/0x30;
@@ -256,6 +261,24 @@ void DLParser_MoveMem_Conker( MicroCodeCommand command )
 				// fix me
 				//DBGConsole_Msg(0, "Check me in DLParser_MoveMem_Conker - MoveMem Light");
 			}
+			//u32 n = (offset2 - 0x30)/0x30;
+
+			N64Light *light = (N64Light*)(g_pu8RamBase + address);
+			
+			n -= 2;
+			u8 col_r = light->r;
+			u8 col_g = light->g;
+			u8 col_b = light->b;
+
+			gRenderer->SetLightCol( n, col_r, col_g, col_b );
+
+			gRenderer->SetLightDirection( n, (f32)light->dir_x, (f32)light->dir_y, (f32)light->dir_z );
+			
+			gRenderer->SetLightPosition( n, (f32)light->x, (f32)light->y, (f32)light->z , (f32)light->w);
+
+			u32 nonblack = col_r + col_g + col_b;
+
+			gRenderer->SetLightCBFD( n, nonblack, light->nonzero);
 		}
 		break;
 	default:
@@ -264,20 +287,22 @@ void DLParser_MoveMem_Conker( MicroCodeCommand command )
 	}
 }
 
-
 //*****************************************************************************
 //
 //*****************************************************************************
-//f32 gCoord_Mod[16];
+Matrix4x4 gCoord_Mod;
 
 void DLParser_MoveWord_Conker( MicroCodeCommand command )
 {
 #if 1
-	switch (command.mw2.type)
+	u8 index = (u8)(( command.inst.cmd0 >> 16) & 0xFF);
+	u16 offset = (u16)( command.inst.cmd0 & 0xFFFF);
+	u32 data = command.inst.cmd1;
+	switch (index)
 	{
 	case G_MW_NUMLIGHT:
 		{
-			u32 num_lights = command.inst.cmd1 / 48;
+			u32 num_lights = data / 48;
 			DL_PF("    G_MW_NUMLIGHT: %d", num_lights);
 
 			gRenderer->SetNumLights(num_lights);
@@ -286,14 +311,44 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 
 	case G_MW_SEGMENT:
 		{
-			u32 segment = command.mw2.offset >> 2;
-			u32 address	= command.mw2.value;
+			u32 segment = (offset >> 2) & 0xF;
+			u32 address	= data;
 
 			DL_PF( "    G_MW_SEGMENT Segment[%d] = 0x%08x", segment, address );
 
 			gSegments[segment] = address;
 		}
 		break;
+
+	case 0x10:  // moveword coord mod
+	{
+		DL_PF("     G_MoveWord_Conker: coord mod");
+
+		if ( command.inst.cmd0 & 8 ) return;
+
+		u32 idx = (command.inst.cmd0 >> 1) & 3;
+		u32 pos = command.inst.cmd0 & 0x30;
+
+		if (pos == 0)
+		{
+			gCoord_Mod.mRaw[0+idx] = (short)(command.inst.cmd1 >> 16);
+			gCoord_Mod.mRaw[1+idx] = (short)(command.inst.cmd1 & 0xFFFF);
+		}
+		else if (pos == 0x10)
+		{
+			gCoord_Mod.mRaw[4+idx] = (command.inst.cmd1 >> 16) / 65536.0f;
+			gCoord_Mod.mRaw[5+idx] = (command.inst.cmd1 & 0xFFFF) / 65536.0f;
+			gCoord_Mod.mRaw[12+idx] = gCoord_Mod.mRaw[0+idx] + gCoord_Mod.mRaw[4+idx];
+			gCoord_Mod.mRaw[13+idx] = gCoord_Mod.mRaw[1+idx] + gCoord_Mod.mRaw[5+idx];
+
+		}
+		else if (pos == 0x20)
+		{
+			gCoord_Mod.mRaw[8+idx] = (short)(command.inst.cmd1 >> 16);
+			gCoord_Mod.mRaw[9+idx] = (short)(command.inst.cmd1 & 0xFFFF);
+		}
+	}
+	break;
 
 	/*
 	case G_MW_CLIP:
@@ -317,36 +372,6 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 
 	case G_MW_PERSPNORM:
 		DL_PF("     G_MoveWord_Conker: perspnorm");
-		break;
-
-	case 0x10:  // moveword coord mod
-		{
-			DL_PF("     G_MoveWord_Conker: coord mod");
-
-			if ( command.inst.cmd0 & 8 ) return;
-
-			u32 idx = (command.inst.cmd0 >> 1) & 3;
-			u32 pos = command.inst.cmd0 & 0x30;
-
-			if (pos == 0)
-			{
-				gCoord_Mod[0+idx] = (s16)(command.inst.cmd1 >> 16);
-				gCoord_Mod[1+idx] = (s16)(command.inst.cmd1 & 0xFFFF);
-			}
-			else if (pos == 0x10)
-			{
-				gCoord_Mod[4+idx] = (command.inst.cmd1 >> 16) / 65536.0f;
-				gCoord_Mod[5+idx] = (command.inst.cmd1 & 0xFFFF) / 65536.0f;
-				gCoord_Mod[12+idx] = gCoord_Mod[0+idx] + gCoord_Mod[4+idx];
-				gCoord_Mod[13+idx] = gCoord_Mod[1+idx] + gCoord_Mod[5+idx];
-
-			}
-			else if (pos == 0x20)
-			{
-				gCoord_Mod[8+idx] = (s16)(command.inst.cmd1 >> 16);
-				gCoord_Mod[9+idx] = (s16)(command.inst.cmd1 & 0xFFFF);
-			}
-		}
 		break;
 		*/
 	default:

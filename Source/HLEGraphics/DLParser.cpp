@@ -108,9 +108,12 @@ void RDP_MoveMemLight(u32 light_idx, u32 address);
 
 struct N64Light
 {
-    u8 pad0, b, g, r;		// Colour
-    u8 pad1, b2, g2, r2;	// Unused..
-    s8 pad2, z, y, x;		// Direction
+	u8 pad0, b, g, r;				// Colour
+	u8 pad1, b2, g2, r2;			// Unused..
+	s8 pad2, dir_z, dir_y, dir_x;	// Direction
+	u8 pad3, pad4, pad5, nonzero;
+	s32 pad6, pad7, pad8, pad9;		// Padding..
+	s16 y, x, w, z;					// Position
 };
 
 struct N64LightMM
@@ -213,7 +216,7 @@ u32			gNumInstructionsExecuted = 0;
 //
 //*****************************************************************************
 u32 gRDPFrame		= 0;
-u32 gAuxAddr		= (u32)g_pu8RamBase;
+u32 gAuxAddr		= 0;
 
 extern u32 uViWidth;
 extern u32 uViHeight;

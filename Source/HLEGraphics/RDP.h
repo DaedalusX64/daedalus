@@ -103,7 +103,8 @@ struct RDP_GeometryMode
 				u32 GBI2_TexGenLin : 1;		// 0x80000
 				u32 GBI2_Lod : 1;			// 0x100000
 				u32 GBI2_ShadingSmooth : 1;	// 0x200000
-				u32 GBI2_pad2 : 10;			// 0x0
+				u32 GBI2_PointLight : 1;	// 0x400000
+				u32 GBI2_pad2 : 9;			// 0x0
 			};
 		};
 		u32	_u32;
