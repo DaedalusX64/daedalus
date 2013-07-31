@@ -165,8 +165,8 @@ void DLParser_Tri4_Conker( MicroCodeCommand command )
 	u32 pc = gDlistStack.address[gDlistStackPointer];		// This points to the next instruction
 
 	// If Off screen rendering is true then just skip the whole list of tris //Corn
-	//
-	if( g_CI.Format != G_IM_FMT_RGBA )
+	// Skip shadow as well
+	if( g_CI.Format != G_IM_FMT_RGBA || (gRDPOtherMode.L == CONKER_SHADOW) )
 	{
 		do
 		{
@@ -349,31 +349,6 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 		}
 	}
 	break;
-
-	/*
-	case G_MW_CLIP:
-		//if (offset == 0x04)
-		//{
-		//	rdp.clip_ratio = sqrt((float)rdp.cmd1);
-		//	rdp.update |= UPDATE_VIEWPORT;
-		//}
-		DL_PF("     G_MoveWord_Conker: CLIP");
-		break;
-
-	case G_MW_FOG:
-		//rdp.fog_multiplier = (short)(rdp.cmd1 >> 16);
-		//rdp.fog_offset = (short)(rdp.cmd1 & 0x0000FFFF);
-		DL_PF("     G_MoveWord_Conker: Fog");
-		break;
-
-	case G_MW_POINTS:
-		DL_PF("     G_MoveWord_Conker: forcemtx");
-		break;
-
-	case G_MW_PERSPNORM:
-		DL_PF("     G_MoveWord_Conker: perspnorm");
-		break;
-		*/
 	default:
 		DL_PF("     G_MoveWord_Conker: Unknown");
 		break;
