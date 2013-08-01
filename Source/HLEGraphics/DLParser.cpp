@@ -106,6 +106,12 @@ void RDP_MoveMemLight(u32 light_idx, u32 address);
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 
+struct N64Viewport
+{
+    s16 scale_y, scale_x, scale_w, scale_z;
+	s16 trans_y, trans_x, trans_w, trans_z;
+};
+
 struct N64Light
 {
 	u8 pad0, b, g, r;				// Colour
@@ -703,36 +709,24 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 //        Trans: 640 480 511 0 = 160,120
 //vscale is the scale applied to the normalized homogeneous coordinates after 4x4 projection transformation
 //vtrans is the offset added to the scaled number
-
 void RDP_MoveMemViewport(u32 address)
 {
 	DAEDALUS_ASSERT( address+16 < MAX_RAM_ADDRESS, "MoveMem Viewport, invalid memory" );
 
-	s16 scale[2];
-	s16 trans[2];
-
 	// address is offset into RD_RAM of 8 x 16bits of data...
-	scale[0] = *(s16 *)(g_pu8RamBase + ((address+(0*2))^0x2));
-	scale[1] = *(s16 *)(g_pu8RamBase + ((address+(1*2))^0x2));
-//	scale[2] = *(s16 *)(g_pu8RamBase + ((address+(2*2))^0x2));
-//	scale[3] = *(s16 *)(g_pu8RamBase + ((address+(3*2))^0x2));
-
-	trans[0] = *(s16 *)(g_pu8RamBase + ((address+(4*2))^0x2));
-	trans[1] = *(s16 *)(g_pu8RamBase + ((address+(5*2))^0x2));
-//	trans[2] = *(s16 *)(g_pu8RamBase + ((address+(6*2))^0x2));
-//	trans[3] = *(s16 *)(g_pu8RamBase + ((address+(7*2))^0x2));
+	N64Viewport *vp = (N64Viewport*)(g_pu8RamBase + address);
 
 	// With D3D we had to ensure that the vp coords are positive, so
 	// we truncated them to 0. This happens a lot, as things
 	// seem to specify the scale as the screen w/2 h/2
 
-	v2 vec_scale( scale[0] * 0.25f, scale[1] * 0.25f );
-	v2 vec_trans( trans[0] * 0.25f, trans[1] * 0.25f );
+	v2 vec_scale( vp->scale_x * 0.25f, vp->scale_y * 0.25f );
+	v2 vec_trans( vp->trans_x * 0.25f, vp->trans_y * 0.25f );
 
 	gRenderer->SetN64Viewport( vec_scale, vec_trans );
 
-	DL_PF("    Scale: %d %d", scale[0], scale[1]);
-	DL_PF("    Trans: %d %d", trans[0], trans[1]);
+	DL_PF("    Scale: %d %d", vp->scale_x, vp->scale_y);
+	DL_PF("    Trans: %d %d", vp->trans_x, vp->trans_y);
 }
 
 //*****************************************************************************

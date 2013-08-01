@@ -41,7 +41,7 @@ typedef
 			f32 f_odd;
 			f32 f_even;
 		} f;
-		f32 d;//f64 d;
+		f64 d;
 	}
 __OSfp;
 
