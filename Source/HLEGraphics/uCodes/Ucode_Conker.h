@@ -236,6 +236,12 @@ void DLParser_MoveMem_Conker( MicroCodeCommand command )
 
 	switch ( type )
 	{
+		case G_GBI2_MV_VIEWPORT:
+		{
+			RDP_MoveMemViewport( address );
+		}
+		break;
+
 	case G_GBI2_MV_MATRIX:	//Get address to Light Normals
 		{
 			gAuxAddr = address;		//Conker VtxZ address
@@ -244,45 +250,31 @@ void DLParser_MoveMem_Conker( MicroCodeCommand command )
 	case G_GBI2_MV_LIGHT:
 		{
 			u32 offset2 = (command.inst.cmd0 >> 5) & 0x3FFF;
-			int n = (offset2 / 48);
-            if (n < 2)
+			u32 light_idx = (offset2 / 48);
+			if (light_idx < 2)
 			{
-				//printf("bad\n");
+				DL_PF("    G_MV_LOOKAT" );
 				return;
 			}
-			if( offset2 >= 0x30 )
-			{
-				u32 light = (offset2 - 0x30)/0x30;
-				//DL_PF("    Light %d:", light);
-				RDP_MoveMemLight(light, address);
-			}
-			else
-			{
-				// fix me
-				//DBGConsole_Msg(0, "Check me in DLParser_MoveMem_Conker - MoveMem Light");
-			}
-			//u32 n = (offset2 - 0x30)/0x30;
 
 			N64Light *light = (N64Light*)(g_pu8RamBase + address);
 			
-			n -= 2;
-			u8 col_r = light->r;
-			u8 col_g = light->g;
-			u8 col_b = light->b;
+			light_idx -= 2;
+			u8 r = light->r;
+			u8 g = light->g;
+			u8 b = light->b;
 
-			gRenderer->SetLightCol( n, col_r, col_g, col_b );
+			DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d]", light_idx, r, g, b, light->dir_x, light->dir_y, light->dir_z);
 
-			gRenderer->SetLightDirection( n, (f32)light->dir_x, (f32)light->dir_y, (f32)light->dir_z );
-			
-			gRenderer->SetLightPosition( n, (f32)light->x, (f32)light->y, (f32)light->z , (f32)light->w);
-
-			u32 nonblack = col_r + col_g + col_b;
-
-			gRenderer->SetLightCBFD( n, nonblack, light->nonzero);
+			u32 nonblack = r + g + b;
+			gRenderer->SetLightCol( light_idx, r, g, b );
+			gRenderer->SetLightDirection( light_idx, light->dir_x, light->dir_y, light->dir_z );
+			gRenderer->SetLightPosition( light_idx, light->x, light->y, light->z , light->w);
+			gRenderer->SetLightCBFD( light_idx, nonblack, light->nonzero);
 		}
 		break;
 	default:
-		DLParser_GBI2_MoveMem( command );
+		DL_PF("    GBI2 MoveMem Type: Unknown");
 		break;
 	}
 }

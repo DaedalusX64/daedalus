@@ -264,29 +264,28 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 
 	case G_GBI2_MV_LIGHT:
 		{
-			u32 offset2 = (command.inst.cmd0 >> 5) & 0x3FFF;
-
-		switch (offset2)
-		{
-		case 0x00:
-		case 0x18:
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+			u32 offset2 = (command.inst.cmd0 >> 5) & 0x7F8;
+			u32 light_idx = offset2 / 24;
+			if (light_idx < 2)
 			{
-				s8 * pcBase = g_ps8RamBase + address;
-				DL_PF("    G_MV_LOOKAT %f %f %f", f32(pcBase[8 ^ 0x3]), f32(pcBase[9 ^ 0x3]), f32(pcBase[10 ^ 0x3]));
+				DL_PF("    G_MV_LOOKAT" );
+				return;
 			}
-#endif
-			break;
-		default:		//0x30/48/60
-			{
-				u32 light_idx = (offset2 - 0x30)/0x18;
-				//DL_PF("    Light %d:", light_idx);
-				RDP_MoveMemLight(light_idx, address);
-			}
-			break;
-		}
-		break;
 
+			N64Light *light = (N64Light*)(g_pu8RamBase + address);
+			
+			light_idx -= 2;
+			u8 r = light->r;
+			u8 g = light->g;
+			u8 b = light->b;
+
+			DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d]", light_idx, r, g, b, light->dir_x, light->dir_y, light->dir_z);
+
+			u32 nonblack = r + g + b;
+			gRenderer->SetLightCol( light_idx, r, g, b );
+			gRenderer->SetLightDirection( light_idx, light->dir_x, light->dir_y, light->dir_z );
+			gRenderer->SetLightPosition( light_idx, light->x1, light->y1, light->z1, light->w);
+			gRenderer->SetLightEx(light_idx, light->ca, light->la, light->qa,r+ g+ b);
 		}
 		break;
 

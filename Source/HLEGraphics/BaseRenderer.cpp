@@ -973,6 +973,51 @@ v3 BaseRenderer::LightVert( const v3 & norm ) const
 }
 
 //*****************************************************************************
+//
+//*****************************************************************************
+v3 BaseRenderer::LightPointVert( const v4 & w ) const
+{
+	u32 num = mTnL.NumLights;
+	v3 result( mTnL.Lights[num].Colour.x, mTnL.Lights[num].Colour.y, mTnL.Lights[num].Colour.z );
+
+	f32 fCosT = 0.0f;
+	for ( u32 l = 0; l < num; l++ )
+	{
+		if (mTnL.Lights[l].nonblack)
+		{
+			v3 pos( mTnL.Lights[l].Position.x-w.x, mTnL.Lights[l].Position.y-w.y, mTnL.Lights[l].Position.z-w.z );
+
+			f32 light_len2 = pos.x*pos.x + pos.y*pos.y + pos.z*pos.z;
+			f32 light_len = sqrtf(light_len2);
+
+			f32 at = mTnL.Lights[l].ca + light_len/65535.0f*mTnL.Lights[l].la + light_len2/65535.0f*mTnL.Lights[l].qa;
+			if (at > 0.0f)
+			{
+				fCosT = 1.0f/at;
+				if (fCosT > 0.0f) 
+				{
+					result.x += mTnL.Lights[l].Colour.x * fCosT;
+					result.y += mTnL.Lights[l].Colour.y * fCosT;
+					result.z += mTnL.Lights[l].Colour.z * fCosT;
+				}
+
+			}
+			else
+				fCosT = 0.0f;
+		}
+		else
+			fCosT = 0.0f;
+	}
+
+	//Clamp to 1.0
+	if( result.x > 1.0f ) result.x = 1.0f;
+	if( result.y > 1.0f ) result.y = 1.0f;
+	if( result.z > 1.0f ) result.z = 1.0f;
+
+	return result;
+}
+
+//*****************************************************************************
 // Standard rendering pipeline using FPU/CPU
 //*****************************************************************************
 void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
@@ -1020,11 +1065,19 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		{
 			v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
 
+			v3 col;
 			v3 vecTransformedNormal;
 			vecTransformedNormal = mat_world.TransformNormal( model_normal );
 			vecTransformedNormal.Normalise();
 
-			const v3 col = LightVert(vecTransformedNormal);
+			if ( mTnL.Flags.PointLight )
+			{//POINT LIGHT
+				col = LightPointVert(w); // Majora's Mask uses this
+			}
+			else
+			{//NORMAL LIGHT
+				col = LightVert(vecTransformedNormal);
+			}
 			mVtxProjected[i].Colour.x = col.x; 
 			mVtxProjected[i].Colour.y = col.y; 
 			mVtxProjected[i].Colour.z = col.z; 
@@ -1427,10 +1480,8 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
 
-	//Model normal base vector
-	const s8 *mn  = (s8*)(g_pu8RamBase + gAuxAddr);
-	//Color base vector
-	const u8 *col = (u8*)(g_pu8RamBase + gAuxAddr);
+	//Model normal and color base vector
+	const u8 *mn = (u8*)(g_pu8RamBase + gAuxAddr);
 
 	for (u32 i = v0; i < v0 + n; i++)
 	{
@@ -1470,7 +1521,7 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 			mVtxProjected[i].Colour.x = col.x; 
 			mVtxProjected[i].Colour.y = col.y; 
 			mVtxProjected[i].Colour.z = col.z; 
-			mVtxProjected[i].Colour.w = (f32)col[vert.cidx+0] * (1.0f / 255.0f);
+			mVtxProjected[i].Colour.w = (f32)mn[vert.cidx+0] * (1.0f / 255.0f);
 
 			if ( mTnL.Flags.TexGen )
 			{
@@ -1497,10 +1548,10 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 		else
 		{
 
-			mVtxProjected[i].Colour.x = (f32)col[vert.cidx+3] * (1.0f / 255.0f);
-			mVtxProjected[i].Colour.y = (f32)col[vert.cidx+2] * (1.0f / 255.0f);
-			mVtxProjected[i].Colour.z = (f32)col[vert.cidx+1] * (1.0f / 255.0f);
-			mVtxProjected[i].Colour.w = (f32)col[vert.cidx+0] * (1.0f / 255.0f);
+			mVtxProjected[i].Colour.x = (f32)mn[vert.cidx+3] * (1.0f / 255.0f);
+			mVtxProjected[i].Colour.y = (f32)mn[vert.cidx+2] * (1.0f / 255.0f);
+			mVtxProjected[i].Colour.z = (f32)mn[vert.cidx+1] * (1.0f / 255.0f);
+			mVtxProjected[i].Colour.w = (f32)mn[vert.cidx+0] * (1.0f / 255.0f);
 
 			mVtxProjected[i].Texture.x = (float)vert.tu * mTnL.TextureScaleX;
 			mVtxProjected[i].Texture.y = (float)vert.tv * mTnL.TextureScaleY;

@@ -239,6 +239,7 @@ public:
 	inline void			SetLightDirection(u32 l, f32 x, f32 y, f32 z) { v3 n(x, y, z); n.Normalise(); mTnL.Lights[l].Direction.x=n.x; mTnL.Lights[l].Direction.y=n.y; mTnL.Lights[l].Direction.z=n.z; }
 	inline void			SetLightPosition(u32 l, f32 x, f32 y, f32 z, f32 w) { mTnL.Lights[l].Position.x=x; mTnL.Lights[l].Position.y=y; mTnL.Lights[l].Position.z=z; mTnL.Lights[l].Position.w=w; }
 	inline void			SetLightCBFD(u32 l, u32 nonblack, u32 nonzero) { mTnL.Lights[l].ca=(f32)(nonzero << 12); mTnL.Lights[l].SkipIfZero=nonblack&&nonzero; }
+	inline void			SetLightEx(u32 l, f32 ca, f32 la, f32 qa, u32 nonblack) { mTnL.Lights[l].ca=ca/16.0f;mTnL.Lights[l].la=la; mTnL.Lights[l].qa=qa/8.0f; mTnL.Lights[l].nonblack=nonblack;}
 
 	inline void			SetMux( u64 mux )						{ mMux = mux; }
 
@@ -357,6 +358,7 @@ protected:
 	void				PrepareTrisUnclipped( TempVerts * temp_verts ) const;
 
 	v3					LightVert( const v3 & norm ) const;
+	v3					LightPointVert( const v4 & w ) const;
 
 private:
 	void				InitViewport();

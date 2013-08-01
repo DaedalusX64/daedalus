@@ -114,19 +114,22 @@ struct N64Viewport
 
 struct N64Light
 {
-	u8 pad0, b, g, r;				// Colour
-	u8 pad1, b2, g2, r2;			// Unused..
-	s8 pad2, dir_z, dir_y, dir_x;	// Direction
-	u8 pad3, pad4, pad5, nonzero;
-	s32 pad6, pad7, pad8, pad9;		// Padding..
-	s16 y, x, w, z;					// Position
-};
-
-struct N64LightMM
-{
-    u8 pad0, b, g, r;
-    u8 pad1, b2, g2, r2;
-    s16 y, x, range, z;		// What to do with range?
+	u8 ca, b, g, r;					// Colour and ca (ca is different for conker)
+	u8 la, b2, g2, r2;				
+	union
+	{
+		struct
+		{
+			s8 pad0, dir_z, dir_y, dir_x;	// Direction
+			u8 pad1, qa, pad2, nonzero;
+		};
+		struct
+		{
+			s16 y1, x1, w1, z1;		// Position, GBI2 ex Majora's Mask
+		};
+	};
+	s32 pad4, pad5, pad6, pad7;		// Padding..
+	s16 y, x, w, z; 				// Position, Conker
 };
 
 struct RDP_Scissor
@@ -655,41 +658,20 @@ void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 //*****************************************************************************
 void RDP_MoveMemLight(u32 light_idx, u32 address)
 {
-	DAEDALUS_ASSERT( light_idx < 16, "Warning: invalid light # = %d", light_idx );
+	DAEDALUS_ASSERT( light_idx < 12, "Warning: invalid light # = %d", light_idx );
 
-	const u8 *base = g_pu8RamBase + address;
+	N64Light *light = (N64Light*)(g_pu8RamBase + address);
+	u8 r = light->r;
+	u8 g = light->g;
+	u8 b = light->b;
 
-	// NB: The PSP compiler is really finicky about these. If r,g,b is u32, it generates much worse code.
-	u8 r, g, b;
-	s16 x, y, z;
-	bool valid;
+	s8 dir_x = light->dir_x;
+	s8 dir_y = light->dir_y;
+	s8 dir_z = light->dir_z;
 
-	if((g_ROM.GameHacks == ZELDA_MM) && (base[0] == 0x08) && (base[4] == 0xFF))
-	{
-		N64LightMM *light = (N64LightMM*)base;
-		r = light->r;
-		g = light->g;
-		b = light->b;
+	bool valid = (dir_x | dir_y | dir_z) != 0;
 
-		x = light->x;
-		y = light->y;
-		z = light->z;
-	}
-	else
-	{
-		N64Light *light = (N64Light*)base;
-		r = light->r;
-		g = light->g;
-		b = light->b;
-
-		x = light->dir_x;
-		y = light->dir_y;
-		z = light->dir_z;
-	}
-
-	valid = (x | y | z) != 0;
-
-	DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d]", light_idx, r, g, b, x, y, z);
+	DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d]", light_idx, r, g, b, dir_x, dir_y, dir_z);
 	DL_PF("    Light direction is %s",valid ? "valid" : "invalid");
 
 	//Light color
@@ -697,7 +679,7 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 
 	//Direction
 	if(valid != 0)
-		gRenderer->SetLightDirection( light_idx, x, y, z );
+		gRenderer->SetLightDirection( light_idx, dir_x, dir_y, dir_z );
 }
 
 //*****************************************************************************
