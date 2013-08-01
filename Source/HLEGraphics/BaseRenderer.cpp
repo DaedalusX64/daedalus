@@ -943,15 +943,14 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 //
 //*****************************************************************************
-v4 BaseRenderer::LightVert( const v3 & norm ) const
+v3 BaseRenderer::LightVert( const v3 & norm ) const
 {
 
 	u32 num = mTnL.NumLights;
 
-	v4 result( mTnL.Lights[num].Colour.x,
+	v3 result( mTnL.Lights[num].Colour.x,
 			   mTnL.Lights[num].Colour.y,
-			   mTnL.Lights[num].Colour.z,
-			   mTnL.Lights[num].Colour.w ); // 1.0f
+			   mTnL.Lights[num].Colour.z );
 
 
 	for ( u32 l = 0; l < num; l++ )
@@ -969,7 +968,6 @@ v4 BaseRenderer::LightVert( const v3 & norm ) const
 	if( result.x > 1.0f ) result.x = 1.0f;
 	if( result.y > 1.0f ) result.y = 1.0f;
 	if( result.z > 1.0f ) result.z = 1.0f;
-	//result.w = 1.0f;
 
 	return result;
 }
@@ -1026,7 +1024,10 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 			vecTransformedNormal = mat_world.TransformNormal( model_normal );
 			vecTransformedNormal.Normalise();
 
-			mVtxProjected[i].Colour = LightVert(vecTransformedNormal);
+			const v3 col = LightVert(vecTransformedNormal);
+			mVtxProjected[i].Colour.x = col.x; 
+			mVtxProjected[i].Colour.y = col.y; 
+			mVtxProjected[i].Colour.z = col.z; 
 			mVtxProjected[i].Colour.w = vert.rgba_a * (1.0f / 255.0f);
 
 			// ENV MAPPING
@@ -1178,7 +1179,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 		//
 		if ( mTnL.Flags.Light )
 		{
-			float light_intensity = 0.0f;
+			f32 light_intensity;
 			u32 l;
 			v3 result( mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z );
 
@@ -1191,30 +1192,27 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 			{	//POINT LIGHT
 				for (l = 0; l < mTnL.NumLights-1; l++)
 				{
-					if (!mTnL.Lights[l].nonblack)
-						continue;
-
-					light_intensity = norm.Dot( mTnL.Lights[l].Direction );	//DotProduct (Light vector, Model normal)
-
-					if (light_intensity < 0.0f) 
-						continue;
-					
-					if ( mTnL.Lights[l].nonzero )
+					if ( mTnL.Lights[l].SkipIfZero )
 					{
-						float vx = (projected.x + gCoord_Mod.mRaw[8]) * gCoord_Mod.mRaw[12] - mTnL.Lights[l].Position.x;
-						float vy = (projected.y + gCoord_Mod.mRaw[9]) * gCoord_Mod.mRaw[13] - mTnL.Lights[l].Position.y;
-						float vz = (projected.z + gCoord_Mod.mRaw[10])* gCoord_Mod.mRaw[14] - mTnL.Lights[l].Position.z;
-						float vw = (projected.w + gCoord_Mod.mRaw[11])* gCoord_Mod.mRaw[15] - mTnL.Lights[l].Position.w;
+						light_intensity = norm.Dot( mTnL.Lights[l].Direction );	//DotProduct (Light vector, Model normal)
 
-						float p_i = mTnL.Lights[l].ca * 4096.0f / (vx*vx+vy*vy+vz*vz+vw*vw);
-						if (p_i > 1.0f) p_i = 1.0f;
+						if (light_intensity > 0.0f)
+						{
+							f32 vx = (projected.x + gCoord_Mod.mRaw[8]) * gCoord_Mod.mRaw[12] - mTnL.Lights[l].Position.x;
+							f32 vy = (projected.y + gCoord_Mod.mRaw[9]) * gCoord_Mod.mRaw[13] - mTnL.Lights[l].Position.y;
+							f32 vz = (projected.z + gCoord_Mod.mRaw[10])* gCoord_Mod.mRaw[14] - mTnL.Lights[l].Position.z;
+							f32 vw = (projected.w + gCoord_Mod.mRaw[11])* gCoord_Mod.mRaw[15] - mTnL.Lights[l].Position.w;
 
-						light_intensity *= p_i;
+							f32 p_i = mTnL.Lights[l].ca / (vx*vx+vy*vy+vz*vz+vw*vw);
+							if (p_i > 1.0f) p_i = 1.0f;
+
+							light_intensity *= p_i;
+
+							result.x += mTnL.Lights[l].Colour.x * light_intensity;
+							result.y += mTnL.Lights[l].Colour.y * light_intensity;
+							result.z += mTnL.Lights[l].Colour.z * light_intensity;
+						}
 					}
-					
-					result.x += mTnL.Lights[l].Colour.x * light_intensity;
-					result.y += mTnL.Lights[l].Colour.y * light_intensity;
-					result.z += mTnL.Lights[l].Colour.z * light_intensity;
 				}   
 
 				light_intensity = norm.Dot( mTnL.Lights[l].Direction );	//DotProduct (Light vector, Model normal)
@@ -1230,14 +1228,14 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 			{	//NORMAL LIGHT
 				for (l = 0; l < mTnL.NumLights; l++)
 				{
-					if (mTnL.Lights[l].nonblack && mTnL.Lights[l].nonzero)
+					if ( mTnL.Lights[l].SkipIfZero )
 					{
-						float vx = (projected.x + gCoord_Mod.mRaw[8]) * gCoord_Mod.mRaw[12] - mTnL.Lights[l].Position.x;
-						float vy = (projected.y + gCoord_Mod.mRaw[9]) * gCoord_Mod.mRaw[13] - mTnL.Lights[l].Position.y;
-						float vz = (projected.z + gCoord_Mod.mRaw[10])* gCoord_Mod.mRaw[14] - mTnL.Lights[l].Position.z;
-						float vw = (projected.w + gCoord_Mod.mRaw[11])* gCoord_Mod.mRaw[15] - mTnL.Lights[l].Position.w;
+						f32 vx = (projected.x + gCoord_Mod.mRaw[8]) * gCoord_Mod.mRaw[12] - mTnL.Lights[l].Position.x;
+						f32 vy = (projected.y + gCoord_Mod.mRaw[9]) * gCoord_Mod.mRaw[13] - mTnL.Lights[l].Position.y;
+						f32 vz = (projected.z + gCoord_Mod.mRaw[10])* gCoord_Mod.mRaw[14] - mTnL.Lights[l].Position.z;
+						f32 vw = (projected.w + gCoord_Mod.mRaw[11])* gCoord_Mod.mRaw[15] - mTnL.Lights[l].Position.w;
 						
-						light_intensity = mTnL.Lights[l].ca * 4096.0f / (vx*vx+vy*vy+vz*vz+vw*vw);
+						light_intensity = mTnL.Lights[l].ca / (vx*vx+vy*vy+vz*vz+vw*vw);
 
 						if (light_intensity > 1.0f) light_intensity = 1.0f;
 
@@ -1272,14 +1270,14 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 			}
 			else
 			{	//TEXTURE SCALE
-				mVtxProjected[i].Texture.x = (float)vert.tu * mTnL.TextureScaleX;
-				mVtxProjected[i].Texture.y = (float)vert.tv * mTnL.TextureScaleY;
+				mVtxProjected[i].Texture.x = (f32)vert.tu * mTnL.TextureScaleX;
+				mVtxProjected[i].Texture.y = (f32)vert.tv * mTnL.TextureScaleY;
 			}
 		}
 		else
 		{	//TEXTURE SCALE & COLOR
-			mVtxProjected[i].Texture.x = (float)vert.tu * mTnL.TextureScaleX;
-			mVtxProjected[i].Texture.y = (float)vert.tv * mTnL.TextureScaleY;
+			mVtxProjected[i].Texture.x = (f32)vert.tu * mTnL.TextureScaleX;
+			mVtxProjected[i].Texture.y = (f32)vert.tv * mTnL.TextureScaleY;
 		}
 	}
 }
@@ -1468,7 +1466,10 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 			vecTransformedNormal = mat_world.TransformNormal( model_normal );
 			vecTransformedNormal.Normalise();
 
-			mVtxProjected[i].Colour = LightVert(vecTransformedNormal);
+			const v3 col = LightVert(vecTransformedNormal);
+			mVtxProjected[i].Colour.x = col.x; 
+			mVtxProjected[i].Colour.y = col.y; 
+			mVtxProjected[i].Colour.z = col.z; 
 			mVtxProjected[i].Colour.w = (f32)col[vert.cidx+0] * (1.0f / 255.0f);
 
 			if ( mTnL.Flags.TexGen )

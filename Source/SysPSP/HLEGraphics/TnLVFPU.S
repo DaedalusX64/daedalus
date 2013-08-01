@@ -231,7 +231,14 @@ _TnLVFPUCBFD:
 	
 	lv.q		R701, PARAMS_FLAGS_NLIGHT_TXSCAL($t1)	// Load params [Flags, Num_lights, tscale_x, tscale_y]
 	vmov.p		R721, R721[y,x]					// Swizzle texture X&Y scale 
+//	mfv			$t7, S711						// Num_lights
 	
+# Calculate the last light index
+//	addiu		$t6, $t1, PARAMS_LIGHTS			// pointer to first_light = p_lights
+//	sll			$t7, $t7, 6			// num_lights*64
+//	addu		$t7, $t6, $t7		// last_light = p_lights + num_lights*64
+//	lv.q		R700, 16($t7)		// Load ambient color
+
 # Calculate the last vertex index
 	sll			$t0, $t0, 4			// count = count * 16
 	addu		$t0, $a2, $t0		// end_ptr = start_ptr + count * 16
@@ -382,7 +389,7 @@ _TnLVFPUPD:
 	addiu		$t6, $t1, PARAMS_LIGHTS			// pointer to first_light = p_lights
 	sll			$t7, $t7, 6			// num_lights*64
 	addu		$t7, $t6, $t7		// last_light = p_lights + num_lights*64
-	lv.q		R700, 16($t7)		// Load ambient
+	lv.q		R700, 16($t7)		// Load ambient color
 	
 	sll			$v1, $t0, 2			// count * 4
 	sll			$t0, $t0, 3			// count * 8

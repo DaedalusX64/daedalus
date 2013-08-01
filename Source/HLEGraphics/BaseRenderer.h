@@ -117,8 +117,9 @@ DAEDALUS_STATIC_ASSERT( sizeof(FiddledVtx) == 16 );
 ALIGNED_TYPE(struct, DaedalusLight, 16)
 {
 	v3		Direction;		// w component is ignored. Should be normalised
+	u32		SkipIfZero;		// Used by CBFD
+	v3		Colour;			// Colour, components in range 0..1
 	f32		ca;				// Used by CBFD
-	v4		Colour;			// Colour, components in range 0..1
 	v4		Position;		// Position -32768 to 32767
 	u32		nonblack;		// Used by CBFD
 	u32		nonzero;		// Used by CBFD
@@ -234,10 +235,10 @@ public:
 	inline void			SetFillColour( u32 colour )				{ mFillColour = colour; }
 
 	inline void			SetNumLights(u32 num)					{ mTnL.NumLights = num; }
-	inline void			SetLightCol(u32 l, f32 r, f32 g, f32 b) { mTnL.Lights[l].Colour.x= r/255.0f; mTnL.Lights[l].Colour.y= g/255.0f; mTnL.Lights[l].Colour.z= b/255.0f; mTnL.Lights[l].Colour.w= 1.0f; }
+	inline void			SetLightCol(u32 l, f32 r, f32 g, f32 b) { mTnL.Lights[l].Colour.x= r/255.0f; mTnL.Lights[l].Colour.y= g/255.0f; mTnL.Lights[l].Colour.z= b/255.0f; }
 	inline void			SetLightDirection(u32 l, f32 x, f32 y, f32 z) { v3 n(x, y, z); n.Normalise(); mTnL.Lights[l].Direction.x=n.x; mTnL.Lights[l].Direction.y=n.y; mTnL.Lights[l].Direction.z=n.z; }
 	inline void			SetLightPosition(u32 l, f32 x, f32 y, f32 z, f32 w) { mTnL.Lights[l].Position.x=x; mTnL.Lights[l].Position.y=y; mTnL.Lights[l].Position.z=z; mTnL.Lights[l].Position.w=w; }
-	inline void			SetLightCBFD(u32 l, u32 nonblack, u32 nonzero) { mTnL.Lights[l].ca=(f32)nonzero; mTnL.Lights[l].nonblack=nonblack; mTnL.Lights[l].nonzero=nonzero; }
+	inline void			SetLightCBFD(u32 l, u32 nonblack, u32 nonzero) { mTnL.Lights[l].ca=(f32)(nonzero << 12); mTnL.Lights[l].SkipIfZero=nonblack&&nonzero; }
 
 	inline void			SetMux( u64 mux )						{ mMux = mux; }
 
@@ -355,7 +356,7 @@ protected:
 	void				PrepareTrisClipped( TempVerts * temp_verts ) const;
 	void				PrepareTrisUnclipped( TempVerts * temp_verts ) const;
 
-	v4					LightVert( const v3 & norm ) const;
+	v3					LightVert( const v3 & norm ) const;
 
 private:
 	void				InitViewport();

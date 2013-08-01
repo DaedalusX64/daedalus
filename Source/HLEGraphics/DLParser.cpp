@@ -682,9 +682,9 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 		g = light->g;
 		b = light->b;
 
-		x = light->x;
-		y = light->y;
-		z = light->z;
+		x = light->dir_x;
+		y = light->dir_y;
+		z = light->dir_z;
 	}
 
 	valid = (x | y | z) != 0;
