@@ -128,7 +128,7 @@ ALIGNED_TYPE(struct, DaedalusLight, 16)
 };
 DAEDALUS_STATIC_ASSERT( sizeof( DaedalusLight ) == 64 );	//Size=64 bytes and order is important or VFPU ASM for PSP will fail
 
-// Order here should be the same as in TnLPSP
+// Order here should be the same as in TnLMode
 enum ETnLModeFlags
 {
 	TNL_LIGHT		= 1 << 0,
@@ -143,7 +143,7 @@ enum ETnLModeFlags
 	TNL_POINTLIGHT	= 1 << 9,
 };
 
-struct TnLPSP
+struct TnLMode
 {
 	union
 	{
@@ -167,7 +167,7 @@ struct TnLPSP
 
 ALIGNED_TYPE(struct, TnLParams, 16)
 {
-	TnLPSP			Flags;
+	TnLMode			Flags;
 	u32				NumLights;
 	float			TextureScaleX;
 	float			TextureScaleY;

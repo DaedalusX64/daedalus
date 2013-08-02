@@ -375,20 +375,20 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 	DL_PF("    Fog %s", (gGeometryMode.GBI2_Fog) ? "On" : "Off");
 	DL_PF("    PointLight %s", (gGeometryMode.GBI2_PointLight) ? "On" : "Off");
 
-	TnLPSP TnLMode;
+	TnLMode TnL;
+	TnL._u32 = 0;
 
-	TnLMode.Light		= gGeometryMode.GBI2_Lighting;
-	TnLMode.Texture		= 0;	//Force this to false
-	TnLMode.TexGen		= gGeometryMode.GBI2_TexGen;
-	TnLMode.TexGenLin	= gGeometryMode.GBI2_TexGenLin;
-	TnLMode.Fog			= gGeometryMode.GBI2_Fog;
-	TnLMode.Shade		= !(gGeometryMode.GBI2_TexGenLin/* & (g_ROM.GameHacks != TIGERS_HONEY_HUNT)*/);
-	TnLMode.Zbuffer		= gGeometryMode.GBI2_Zbuffer;
-	TnLMode.TriCull		= gGeometryMode.GBI2_CullFront | gGeometryMode.GBI2_CullBack;
-	TnLMode.CullBack	= gGeometryMode.GBI2_CullBack;
-	TnLMode.PointLight	= gGeometryMode.GBI2_PointLight;
+	TnL.Light		= gGeometryMode.GBI2_Lighting;
+	TnL.TexGen		= gGeometryMode.GBI2_TexGen;
+	TnL.TexGenLin	= gGeometryMode.GBI2_TexGenLin;
+	TnL.Fog			= gGeometryMode.GBI2_Fog;
+	TnL.Shade		= !(gGeometryMode.GBI2_TexGenLin/* & (g_ROM.GameHacks != TIGERS_HONEY_HUNT)*/);
+	TnL.Zbuffer		= gGeometryMode.GBI2_Zbuffer;
+	TnL.TriCull		= gGeometryMode.GBI2_CullFront | gGeometryMode.GBI2_CullBack;
+	TnL.CullBack	= gGeometryMode.GBI2_CullBack;
+	TnL.PointLight	= gGeometryMode.GBI2_PointLight;
 
-	gRenderer->SetTnLMode( TnLMode._u32 );
+	gRenderer->SetTnLMode( TnL._u32 );
 }
 
 //*****************************************************************************
