@@ -980,33 +980,24 @@ v3 BaseRenderer::LightPointVert( const v4 & w ) const
 	u32 num = mTnL.NumLights;
 	v3 result( mTnL.Lights[num].Colour.x, mTnL.Lights[num].Colour.y, mTnL.Lights[num].Colour.z );
 
-	f32 fCosT = 0.0f;
 	for ( u32 l = 0; l < num; l++ )
 	{
-		if (mTnL.Lights[l].nonblack)
+		if ( mTnL.Lights[l].SkipIfZero )
 		{
 			v3 pos( mTnL.Lights[l].Position.x-w.x, mTnL.Lights[l].Position.y-w.y, mTnL.Lights[l].Position.z-w.z );
 
-			f32 light_len2 = pos.x*pos.x + pos.y*pos.y + pos.z*pos.z;
-			f32 light_len = sqrtf(light_len2);
+			f32 light_qlen = pos.x*pos.x + pos.y*pos.y + pos.z*pos.z;
+			f32 light_llen = sqrtf( light_qlen );
 
-			f32 at = mTnL.Lights[l].ca + light_len/65535.0f*mTnL.Lights[l].la + light_len2/65535.0f*mTnL.Lights[l].qa;
+			f32 at = mTnL.Lights[l].ca + mTnL.Lights[l].la * light_llen + mTnL.Lights[l].qa * light_qlen;
 			if (at > 0.0f)
 			{
-				fCosT = 1.0f/at;
-				if (fCosT > 0.0f) 
-				{
-					result.x += mTnL.Lights[l].Colour.x * fCosT;
-					result.y += mTnL.Lights[l].Colour.y * fCosT;
-					result.z += mTnL.Lights[l].Colour.z * fCosT;
-				}
-
+				f32 fCosT = 1.0f/at;
+				result.x += mTnL.Lights[l].Colour.x * fCosT;
+				result.y += mTnL.Lights[l].Colour.y * fCosT;
+				result.z += mTnL.Lights[l].Colour.z * fCosT;
 			}
-			else
-				fCosT = 0.0f;
 		}
-		else
-			fCosT = 0.0f;
 	}
 
 	//Clamp to 1.0
@@ -1255,7 +1246,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 							f32 vz = (projected.z + mTnL.CoordMod[10])* mTnL.CoordMod[14] - mTnL.Lights[l].Position.z;
 							f32 vw = (projected.w + mTnL.CoordMod[11])* mTnL.CoordMod[15] - mTnL.Lights[l].Position.w;
 
-							f32 p_i = mTnL.Lights[l].ca / (vx*vx+vy*vy+vz*vz+vw*vw);
+							f32 p_i = mTnL.Lights[l].Iscale / (vx*vx+vy*vy+vz*vz+vw*vw);
 							if (p_i > 1.0f) p_i = 1.0f;
 
 							light_intensity *= p_i;
@@ -1287,7 +1278,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 						f32 vz = (projected.z + mTnL.CoordMod[10])* mTnL.CoordMod[14] - mTnL.Lights[l].Position.z;
 						f32 vw = (projected.w + mTnL.CoordMod[11])* mTnL.CoordMod[15] - mTnL.Lights[l].Position.w;
 						
-						light_intensity = mTnL.Lights[l].ca / (vx*vx+vy*vy+vz*vz+vw*vw);
+						light_intensity = mTnL.Lights[l].Iscale / (vx*vx+vy*vy+vz*vz+vw*vw);
 
 						if (light_intensity > 1.0f) light_intensity = 1.0f;
 

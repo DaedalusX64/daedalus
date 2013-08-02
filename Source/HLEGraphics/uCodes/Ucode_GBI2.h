@@ -245,10 +245,8 @@ ZeldaMoveMem: 0xdc080008 0x8010e3c0 Type: 08 Len: 08 Off: 4000
 //*****************************************************************************
 //
 //*****************************************************************************
-
 void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 {
-
 	u32 address	 = RDPSegAddr(command.inst.cmd1);
 	//u32 offset = (command.inst.cmd0 >> 8) & 0xFFFF;
 	u32 type	 = (command.inst.cmd0     ) & 0xFE;
@@ -284,8 +282,8 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 			u32 nonblack = r + g + b;
 			gRenderer->SetLightCol( light_idx, r, g, b );
 			gRenderer->SetLightDirection( light_idx, light->dir_x, light->dir_y, light->dir_z );
-			gRenderer->SetLightPosition( light_idx, light->x1, light->y1, light->z1, light->w);
-			gRenderer->SetLightEx(light_idx, light->ca, light->la, light->qa,r+ g+ b);
+			gRenderer->SetLightPosition( light_idx, light->x1, light->y1, light->z1, light->w1);
+			gRenderer->SetLightEx(light_idx, light->ca, light->la, light->qa, nonblack);
 		}
 		break;
 
@@ -370,7 +368,7 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 	DL_PF("    0x%08x 0x%08x =(x & 0x%08x) | 0x%08x", command.inst.cmd0, command.inst.cmd1, command.inst.arg0, command.inst.arg1);
 	DL_PF("    ZBuffer %s", (gGeometryMode.GBI2_Zbuffer) ? "On" : "Off");
 	DL_PF("    Culling %s", (gGeometryMode.GBI2_CullBack) ? "Back face" : (gGeometryMode.GBI2_CullFront) ? "Front face" : "Off");
-	DL_PF("    Flat Shading %s", (gGeometryMode.GBI2_ShadingSmooth) ? "On" : "Off");
+	DL_PF("    Smooth Shading %s", (gGeometryMode.GBI2_ShadingSmooth) ? "On" : "Off");
 	DL_PF("    Lighting %s", (gGeometryMode.GBI2_Lighting) ? "On" : "Off");
 	DL_PF("    Texture Gen %s", (gGeometryMode.GBI2_TexGen) ? "On" : "Off");
 	DL_PF("    Texture Gen Linear %s", (gGeometryMode.GBI2_TexGenLin) ? "On" : "Off");
@@ -444,7 +442,6 @@ void DLParser_GBI2_Texture( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-
 void DLParser_GBI2_DMA_IO( MicroCodeCommand command )
 {
 	DL_UNIMPLEMENTED_ERROR( "G_DMA_IO" );
