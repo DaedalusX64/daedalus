@@ -172,6 +172,7 @@ ALIGNED_TYPE(struct, TnLParams, 16)
 	float			TextureScaleX;
 	float			TextureScaleY;
 	DaedalusLight	Lights[12];	//Conker uses up to 12 lights
+	f32				CoordMod[16];
 };
 //DAEDALUS_STATIC_ASSERT( sizeof( TnLParams ) == 32 );
 
@@ -241,6 +242,8 @@ public:
 	inline void			SetLightCBFD(u32 l, u32 nonblack, u32 nonzero) { mTnL.Lights[l].ca=(f32)(nonzero << 12); mTnL.Lights[l].SkipIfZero=nonblack&&nonzero; }
 	inline void			SetLightEx(u32 l, f32 ca, f32 la, f32 qa, u32 nonblack) { mTnL.Lights[l].ca=ca/16.0f;mTnL.Lights[l].la=la; mTnL.Lights[l].qa=qa/8.0f; mTnL.Lights[l].nonblack=nonblack;}
 
+	inline f32			GetCoordMod( u32 idx )					{ return mTnL.CoordMod[idx]; }
+	inline void			SetCoordMod( u32 idx, f32 mod )			{ mTnL.CoordMod[idx] = mod; }
 	inline void			SetMux( u64 mux )						{ mMux = mux; }
 
 	inline void			SetTextureScale(float fScaleX, float fScaleY)	{ mTnL.TextureScaleX = fScaleX; mTnL.TextureScaleY = fScaleY; }

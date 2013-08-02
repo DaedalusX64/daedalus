@@ -1179,7 +1179,6 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 
 #else
 //FPU/CPU version //Corn
-extern Matrix4x4 gCoord_Mod;
 
 void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
@@ -1251,10 +1250,10 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 
 						if (light_intensity > 0.0f)
 						{
-							f32 vx = (projected.x + gCoord_Mod.mRaw[8]) * gCoord_Mod.mRaw[12] - mTnL.Lights[l].Position.x;
-							f32 vy = (projected.y + gCoord_Mod.mRaw[9]) * gCoord_Mod.mRaw[13] - mTnL.Lights[l].Position.y;
-							f32 vz = (projected.z + gCoord_Mod.mRaw[10])* gCoord_Mod.mRaw[14] - mTnL.Lights[l].Position.z;
-							f32 vw = (projected.w + gCoord_Mod.mRaw[11])* gCoord_Mod.mRaw[15] - mTnL.Lights[l].Position.w;
+							f32 vx = (projected.x + mTnL.CoordMod[8]) * mTnL.CoordMod[12] - mTnL.Lights[l].Position.x;
+							f32 vy = (projected.y + mTnL.CoordMod[9]) * mTnL.CoordMod[13] - mTnL.Lights[l].Position.y;
+							f32 vz = (projected.z + mTnL.CoordMod[10])* mTnL.CoordMod[14] - mTnL.Lights[l].Position.z;
+							f32 vw = (projected.w + mTnL.CoordMod[11])* mTnL.CoordMod[15] - mTnL.Lights[l].Position.w;
 
 							f32 p_i = mTnL.Lights[l].ca / (vx*vx+vy*vy+vz*vz+vw*vw);
 							if (p_i > 1.0f) p_i = 1.0f;
@@ -1283,10 +1282,10 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 				{
 					if ( mTnL.Lights[l].SkipIfZero )
 					{
-						f32 vx = (projected.x + gCoord_Mod.mRaw[8]) * gCoord_Mod.mRaw[12] - mTnL.Lights[l].Position.x;
-						f32 vy = (projected.y + gCoord_Mod.mRaw[9]) * gCoord_Mod.mRaw[13] - mTnL.Lights[l].Position.y;
-						f32 vz = (projected.z + gCoord_Mod.mRaw[10])* gCoord_Mod.mRaw[14] - mTnL.Lights[l].Position.z;
-						f32 vw = (projected.w + gCoord_Mod.mRaw[11])* gCoord_Mod.mRaw[15] - mTnL.Lights[l].Position.w;
+						f32 vx = (projected.x + mTnL.CoordMod[8]) * mTnL.CoordMod[12] - mTnL.Lights[l].Position.x;
+						f32 vy = (projected.y + mTnL.CoordMod[9]) * mTnL.CoordMod[13] - mTnL.Lights[l].Position.y;
+						f32 vz = (projected.z + mTnL.CoordMod[10])* mTnL.CoordMod[14] - mTnL.Lights[l].Position.z;
+						f32 vw = (projected.w + mTnL.CoordMod[11])* mTnL.CoordMod[15] - mTnL.Lights[l].Position.w;
 						
 						light_intensity = mTnL.Lights[l].ca / (vx*vx+vy*vy+vz*vz+vw*vw);
 

@@ -21,14 +21,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define HLEGRAPHICS_UCODES_UCODE_CONKER_H_
 
 // Alot cheaper than check mux
-// Shadow only seems to be drawn by Tr1/2 ucodes
+// TODO: Should handle shadow eventually!
 #define CONKER_SHADOW 0x005049d8//0x00ffe9ffffd21f0fLL
 //*****************************************************************************
 //
 //*****************************************************************************
 void DLParser_Vtx_Conker( MicroCodeCommand command )
 {
-
 	if( g_CI.Format != G_IM_FMT_RGBA || (gRDPOtherMode.L == CONKER_SHADOW) )
 	{
 		DL_PF("    Skipping Conker TnL (Vtx -> Off-Screen/Shadow)");
@@ -36,8 +35,8 @@ void DLParser_Vtx_Conker( MicroCodeCommand command )
 	}
 
 	u32 address = RDPSegAddr(command.inst.cmd1);
-	u32 len    = ((command.inst.cmd0      )& 0xFFF) >> 1;
-	u32 n      = ((command.inst.cmd0 >> 12)& 0xFFF);
+	u32 len    = ((command.inst.cmd0 >> 1 )& 0x7F) ;
+	u32 n      = ((command.inst.cmd0 >> 12)& 0xFF);
 	u32 v0		= len - n;
 
 	DL_PF("    Address[0x%08x] Len[%d] v0[%d] Num[%d]", address, len, v0, n);
@@ -282,19 +281,15 @@ void DLParser_MoveMem_Conker( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-Matrix4x4 gCoord_Mod;
-
 void DLParser_MoveWord_Conker( MicroCodeCommand command )
 {
 #if 1
 	u8 index = (u8)(( command.inst.cmd0 >> 16) & 0xFF);
-	u16 offset = (u16)( command.inst.cmd0 & 0xFFFF);
-	u32 data = command.inst.cmd1;
 	switch (index)
 	{
 	case G_MW_NUMLIGHT:
 		{
-			u32 num_lights = data / 48;
+			u32 num_lights = command.inst.cmd1 / 48;
 			DL_PF("    G_MW_NUMLIGHT: %d", num_lights);
 
 			gRenderer->SetNumLights(num_lights);
@@ -303,41 +298,39 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 
 	case G_MW_SEGMENT:
 		{
+			u16 offset = (u16)( command.inst.cmd0 & 0xFFFF);
 			u32 segment = (offset >> 2) & 0xF;
-			u32 address	= data;
+			DL_PF( "    G_MW_SEGMENT Segment[%d] = 0x%08x", segment, command.inst.cmd1 );
 
-			DL_PF( "    G_MW_SEGMENT Segment[%d] = 0x%08x", segment, address );
-
-			gSegments[segment] = address;
+			gSegments[segment] = command.inst.cmd1;
 		}
 		break;
 
 	case 0x10:  // moveword coord mod
 	{
 		DL_PF("     G_MoveWord_Conker: coord mod");
-
-		if ( command.inst.cmd0 & 8 ) return;
-
-		u32 idx = (command.inst.cmd0 >> 1) & 3;
-		u32 pos = command.inst.cmd0 & 0x30;
-
-		if (pos == 0)
+		if ( (command.inst.cmd0 & 8) == 0 )
 		{
-			gCoord_Mod.mRaw[0+idx] = (short)(command.inst.cmd1 >> 16);
-			gCoord_Mod.mRaw[1+idx] = (short)(command.inst.cmd1 & 0xFFFF);
-		}
-		else if (pos == 0x10)
-		{
-			gCoord_Mod.mRaw[4+idx] = (command.inst.cmd1 >> 16) / 65536.0f;
-			gCoord_Mod.mRaw[5+idx] = (command.inst.cmd1 & 0xFFFF) / 65536.0f;
-			gCoord_Mod.mRaw[12+idx] = gCoord_Mod.mRaw[0+idx] + gCoord_Mod.mRaw[4+idx];
-			gCoord_Mod.mRaw[13+idx] = gCoord_Mod.mRaw[1+idx] + gCoord_Mod.mRaw[5+idx];
+			u32 idx = (command.inst.cmd0 >> 1) & 3;
+			u32 pos = command.inst.cmd0 & 0x30;
 
-		}
-		else if (pos == 0x20)
-		{
-			gCoord_Mod.mRaw[8+idx] = (short)(command.inst.cmd1 >> 16);
-			gCoord_Mod.mRaw[9+idx] = (short)(command.inst.cmd1 & 0xFFFF);
+			switch(pos)
+			{
+			case 0:
+				gRenderer->SetCoordMod( 0+idx, (s16)(command.inst.cmd1 >> 16) );
+				gRenderer->SetCoordMod( 1+idx, (s16)(command.inst.cmd1 & 0xFFFF) );
+				break;
+			case 0x10:
+				gRenderer->SetCoordMod( 4+idx, (command.inst.cmd1 >> 16) / 65536.0f );
+				gRenderer->SetCoordMod( 5+idx, (command.inst.cmd1 & 0xFFFF) / 65536.0f );
+				gRenderer->SetCoordMod( 12+idx, gRenderer->GetCoordMod(0+idx) + gRenderer->GetCoordMod(4+idx) );
+				gRenderer->SetCoordMod( 13+idx, gRenderer->GetCoordMod(1+idx) + gRenderer->GetCoordMod(5+idx) );
+				break;
+			case 0x20:
+				gRenderer->SetCoordMod( 8+idx, (s16)(command.inst.cmd1 >> 16) );
+				gRenderer->SetCoordMod( 9+idx, (s16)(command.inst.cmd1 & 0xFFFF) );
+				break;
+			}
 		}
 	}
 	break;
