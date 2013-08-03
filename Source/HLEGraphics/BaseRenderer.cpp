@@ -986,7 +986,7 @@ v3 BaseRenderer::LightPointVert( const v4 & w ) const
 		{
 			v3 pos( mTnL.Lights[l].Position.x-w.x, mTnL.Lights[l].Position.y-w.y, mTnL.Lights[l].Position.z-w.z );
 
-			f32 light_qlen = pos.x*pos.x + pos.y*pos.y + pos.z*pos.z;
+			f32 light_qlen = pos.LengthSq();
 			f32 light_llen = sqrtf( light_qlen );
 
 			f32 at = mTnL.Lights[l].ca + mTnL.Lights[l].la * light_llen + mTnL.Lights[l].qa * light_qlen;

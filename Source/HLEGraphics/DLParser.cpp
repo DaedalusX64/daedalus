@@ -91,14 +91,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // Mask down to 0x003FFFFF?
 #define RDPSegAddr(seg) ( (gSegments[((seg)>>24)&0x0F]&0x00ffffff) + ((seg)&0x00FFFFFF) )
-//*****************************************************************************
-//
-//*****************************************************************************
-
-void RDP_MoveMemViewport(u32 address);
-void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
-void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
-void RDP_MoveMemLight(u32 light_idx, u32 address);
 
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
@@ -145,6 +137,13 @@ struct DList
 	s32 limit;
 };
 
+//*****************************************************************************
+//
+//*****************************************************************************
+void RDP_MoveMemViewport(u32 address);
+void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
+void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
+void RDP_MoveMemLight(u32 light_idx, const N64Light *light);
 
 // Used to keep track of when we're processing the first display list
 static bool gFirstCall = true;
@@ -656,11 +655,10 @@ void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 //*****************************************************************************
 //
 //*****************************************************************************
-void RDP_MoveMemLight(u32 light_idx, u32 address)
+void RDP_MoveMemLight(u32 light_idx, const N64Light *light)
 {
 	DAEDALUS_ASSERT( light_idx < 12, "Warning: invalid light # = %d", light_idx );
 
-	N64Light *light = (N64Light*)(g_pu8RamBase + address);
 	u8 r = light->r;
 	u8 g = light->g;
 	u8 b = light->b;
@@ -670,6 +668,8 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 	s8 dir_z = light->dir_z;
 
 	bool valid = (dir_x | dir_y | dir_z) != 0;
+	DAEDALUS_USE(valid);
+	DAEDALUS_ASSERT( valid, " Light direction is invalid" );
 
 	DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d]", light_idx, r, g, b, dir_x, dir_y, dir_z);
 	DL_PF("    Light direction is %s",valid ? "valid" : "invalid");
@@ -678,8 +678,7 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 	gRenderer->SetLightCol( light_idx, r, g, b );
 
 	//Direction
-	if(valid != 0)
-		gRenderer->SetLightDirection( light_idx, dir_x, dir_y, dir_z );
+	gRenderer->SetLightDirection( light_idx, dir_x, dir_y, dir_z );
 }
 
 //*****************************************************************************
@@ -691,6 +690,7 @@ void RDP_MoveMemLight(u32 light_idx, u32 address)
 //        Trans: 640 480 511 0 = 160,120
 //vscale is the scale applied to the normalized homogeneous coordinates after 4x4 projection transformation
 //vtrans is the offset added to the scaled number
+
 void RDP_MoveMemViewport(u32 address)
 {
 	DAEDALUS_ASSERT( address+16 < MAX_RAM_ADDRESS, "MoveMem Viewport, invalid memory" );

@@ -169,7 +169,10 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 
 			if (field_offset == 0)
 			{
-				gRenderer->SetLightCol(light_idx, (f32)((command.mw2.value>>24)&0xFF), (f32)((command.mw2.value>>16)&0xFF), (f32)((command.mw2.value>>8)&0xFF) );
+				u8 r = ((command.mw2.value>>24)&0xFF);
+				u8 g = ((command.mw2.value>>16)&0xFF);
+				u8 b = ((command.mw2.value>>8)&0xFF);
+				gRenderer->SetLightCol(light_idx, r, g, b);
 			}
 		}
 		break;
@@ -270,20 +273,12 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 				return;
 			}
 
-			N64Light *light = (N64Light*)(g_pu8RamBase + address);
-			
 			light_idx -= 2;
-			u8 r = light->r;
-			u8 g = light->g;
-			u8 b = light->b;
+			N64Light *light = (N64Light*)(g_pu8RamBase + address);
+			RDP_MoveMemLight(light_idx, light);
 
-			DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d]", light_idx, r, g, b, light->dir_x, light->dir_y, light->dir_z);
-
-			u32 nonblack = r + g + b;
-			gRenderer->SetLightCol( light_idx, r, g, b );
-			gRenderer->SetLightDirection( light_idx, light->dir_x, light->dir_y, light->dir_z );
-			gRenderer->SetLightPosition( light_idx, light->x1, light->y1, light->z1, light->w1);
-			gRenderer->SetLightEx(light_idx, light->ca, light->la, light->qa, nonblack);
+			gRenderer->SetLightPosition(light_idx, light->x1, light->y1, light->z1, 1.0f);
+			gRenderer->SetLightEx(light_idx, light->ca, light->la, light->qa);
 		}
 		break;
 

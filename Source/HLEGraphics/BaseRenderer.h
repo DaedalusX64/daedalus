@@ -236,11 +236,11 @@ public:
 	inline void			SetFillColour( u32 colour )				{ mFillColour = colour; }
 
 	inline void			SetNumLights(u32 num)					{ mTnL.NumLights = num; }
-	inline void			SetLightCol(u32 l, f32 r, f32 g, f32 b) { mTnL.Lights[l].Colour.x= r/255.0f; mTnL.Lights[l].Colour.y= g/255.0f; mTnL.Lights[l].Colour.z= b/255.0f; }
+	inline void			SetLightCol(u32 l, u8 r, u8 g, u8 b)	{  mTnL.Lights[l].SkipIfZero=(r+g+b); mTnL.Lights[l].Colour.x= r/255.0f; mTnL.Lights[l].Colour.y= g/255.0f; mTnL.Lights[l].Colour.z= b/255.0f; }
 	inline void			SetLightDirection(u32 l, f32 x, f32 y, f32 z) { v3 n(x, y, z); n.Normalise(); mTnL.Lights[l].Direction.x=n.x; mTnL.Lights[l].Direction.y=n.y; mTnL.Lights[l].Direction.z=n.z; }
 	inline void			SetLightPosition(u32 l, f32 x, f32 y, f32 z, f32 w) { mTnL.Lights[l].Position.x=x; mTnL.Lights[l].Position.y=y; mTnL.Lights[l].Position.z=z; mTnL.Lights[l].Position.w=w; }
-	inline void			SetLightCBFD(u32 l, u32 nonblack, u32 nonzero) { mTnL.Lights[l].Iscale=(f32)(nonzero << 12); mTnL.Lights[l].SkipIfZero=nonblack&&nonzero; }
-	inline void			SetLightEx(u32 l, f32 ca, f32 la, f32 qa, u32 nonblack) { mTnL.Lights[l].ca=ca/16.0f; mTnL.Lights[l].la=la/65535.0f; mTnL.Lights[l].qa=qa/(8.0f*65535.0f); mTnL.Lights[l].SkipIfZero=nonblack;}
+	inline void			SetLightCBFD(u32 l, u8 nonzero)			{ mTnL.Lights[l].Iscale=(f32)(nonzero << 12); mTnL.Lights[l].SkipIfZero = mTnL.Lights[l].SkipIfZero&&nonzero; }
+	inline void			SetLightEx(u32 l, f32 ca, f32 la, f32 qa) { mTnL.Lights[l].ca=ca/16.0f; mTnL.Lights[l].la=la/65535.0f; mTnL.Lights[l].qa=qa/(8.0f*65535.0f); }
 
 	inline f32			GetCoordMod( u32 idx )					{ return mTnL.CoordMod[idx]; }
 	inline void			SetCoordMod( u32 idx, f32 mod )			{ mTnL.CoordMod[idx] = mod; }

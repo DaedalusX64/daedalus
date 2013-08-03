@@ -256,20 +256,12 @@ void DLParser_MoveMem_Conker( MicroCodeCommand command )
 				return;
 			}
 
-			N64Light *light = (N64Light*)(g_pu8RamBase + address);
-			
 			light_idx -= 2;
-			u8 r = light->r;
-			u8 g = light->g;
-			u8 b = light->b;
-
-			DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d]", light_idx, r, g, b, light->dir_x, light->dir_y, light->dir_z);
-
-			u32 nonblack = r + g + b;
-			gRenderer->SetLightCol( light_idx, r, g, b );
-			gRenderer->SetLightDirection( light_idx, light->dir_x, light->dir_y, light->dir_z );
+			N64Light *light = (N64Light*)(g_pu8RamBase + address);
+			RDP_MoveMemLight(light_idx, light);
+	
 			gRenderer->SetLightPosition( light_idx, light->x, light->y, light->z , light->w);
-			gRenderer->SetLightCBFD( light_idx, nonblack, light->nonzero);
+			gRenderer->SetLightCBFD( light_idx, light->nonzero);
 		}
 		break;
 	default:
