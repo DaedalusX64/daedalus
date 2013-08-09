@@ -925,6 +925,18 @@ void BlendMode_0x00272c603510e37fLL (BLEND_MODE_ARGS)
  //#Q
  */
 
+// Quake 64 - Walls and ground
+//case 0x00117ffffffefc38LL:
+//aRGB0: (Texel0       - 0           ) * Texel1       + Env         
+//aA0  : (0            - 0           ) * 0            + 1           
+//aRGB1: (0            - 0           ) * 0            + Combined    
+//aA1  : (0            - 0           ) * 0            + Combined    
+void BlendMode_0x00117ffffffefc38LL (BLEND_MODE_ARGS)
+{
+	details.ColourAdjuster.SetA( details.PrimColour );
+	sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGB);
+}
+
 // Quest 64 - Bubbles
 // case 0x00629bff1ffcfe38LL:
 //aRGB0: (1            - Texel0      ) * Env          + Texel0
@@ -1847,6 +1859,7 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 			BLEND_MODE(0x001114a7f3fffef8LL); // Sin and Punishment - Sky <----- Needs work
 			BLEND_MODE(0x001147fffffffe38LL); // Command & Conquer - Water
 			//BLEND_MODE(0x00117e80f5fff438LL); // Paper Mario block texture partial fix
+			BLEND_MODE(0x00117ffffffefc38LL); // Quake 64 - Walls and ground
 			BLEND_MODE(0x0011fe2344fe7339LL); // Mortal Kombat 4 - Text
 			BLEND_MODE(0x0011fe2355fefd7eLL); // Mortal Kombat 4 -Character Selection screen background / Tower
 			BLEND_MODE(0x00121603ff5bfff8LL); // Zelda Paths
