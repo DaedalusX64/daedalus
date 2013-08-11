@@ -3,19 +3,25 @@
 
 #include "as_reg_compat.h"
 
+#define LIGHTSZ				6	//1<<6 bytes
 #define PARAMS_FLAGS_NLIGHT_TXSCAL	0x00
 #define PARAMS_LIGHTS		0x10
+#define COORDMOD1		   (16 + 12 * (1<<LIGHTSZ) + 32)
+#define COORDMOD2		   (16 + 12 * (1<<LIGHTSZ) + 48)
+#define LIGHTDIR			0
+#define LIGHTCOL			16
+#define LIGHTPOS			32
 
-#define	TNL_LIGHT			0x0001
-#define	TNL_TEXTURE			0x0002
-#define	TNL_TEXGEN			0x0004
-#define	TNL_TEXGENLIN		0x0008
-#define	TNL_FOG				0x0010
-#define	TNL_SHADE			0x0020
-#define	TNL_ZBUFFER			0x0040
-#define	TNL_TRICULL			0x0080
-#define	TNL_CULLBACK		0x0100
-#define	TNL_POINTLIGHT		0x0200
+#define	TNL_LIGHT			(1<<0)
+#define	TNL_TEXTURE			(1<<1)
+#define	TNL_TEXGEN			(1<<2)
+#define	TNL_TEXGENLIN		(1<<3)
+#define	TNL_FOG				(1<<4)
+#define	TNL_SHADE			(1<<5)
+#define	TNL_ZBUFFER			(1<<6)
+#define	TNL_TRICULL			(1<<7)
+#define	TNL_CULLBACK		(1<<8)
+#define	TNL_POINTLIGHT		(1<<9)
 	
 .text
 .set		push
@@ -52,30 +58,30 @@
 # v0 = TnLFlags
 
 _TnLVFPU:
-	lv.q		R000, 0($a0)		// Load mat world
+	lv.q		R000, 0($a0)				// Load mat world
 	lv.q		R001, 16($a0)
 	lv.q		R002, 32($a0)
 	lv.q		R003, 48($a0)
 
-	lv.q		R100, 0($a1)		// Load mat project
+	lv.q		R100, 0($a1)				// Load mat project
 	lv.q		R101, 16($a1)
 	lv.q		R102, 32($a1)
 	lv.q		R103, 48($a1)
 	
 	lv.q		R701, PARAMS_FLAGS_NLIGHT_TXSCAL($t1)	// Load params [Flags, Num_lights, tscale_x, tscale_y]
-	vmov.p		R721, R721[y,x]					// Swizzle texture X&Y scale 
-	mfv			$t7, S711						// Num_lights
+	vmov.p		R721, R721[y,x]				// Swizzle texture X&Y scale 
+	mfv			$t7, S711					// Num_lights
 	
 # Calculate the last light index
-	addiu		$t6, $t1, PARAMS_LIGHTS			// pointer to first_light = p_lights
-	sll			$t7, $t7, 6			// num_lights*64
-	addu		$t7, $t6, $t7		// last_light = p_lights + num_lights*64
-	lv.q		R700, 16($t7)		// Load ambient color
+	addiu		$t6, $t1, PARAMS_LIGHTS		// pointer to first_light = p_lights
+	sll			$t7, $t7, LIGHTSZ			// num_lights*64
+	addu		$t7, $t6, $t7				// last_light = p_lights + num_lights*64
+	lv.q		R700, 16($t7)				// Load ambient color
 	
-	sll			$t0, $t0, 4			// count = count * 16
-	addu		$t0, $a2, $t0		// end_ptr = start_ptr + count * 16
+	sll			$t0, $t0, 4					// count = count * 16
+	addu		$t0, $a2, $t0				// end_ptr = start_ptr + count * 16
 	beq			$a2, $t0, finished_
-	mfv			$v0, S701						// TnL flags
+	mfv			$v0, S701					// TnL flags
 	
 next_vertex_:
 # Load and transform this vertex position
@@ -125,10 +131,10 @@ next_vertex_:
 	beq			$t6, $t7, done_lighting_	// cur_light == last_light?
 	or			$t4, $t6, $0				// cur_light = p_lights
 next_light_:
-	lv.q		R301, 0($t4)				// Load Light normal
+	lv.q		R301, LIGHTDIR($t4)			// Load Light normal
 	vdot.t		S303[0:1], R200, R301		// x = clamp(dot(normal,(x,y,z)),0,1)
-	lv.q		R302, 16($t4)				// Load Light colour
-	addiu		$t4, $t4, 64				// Skip to the next light
+	lv.q		R302, LIGHTCOL($t4)			// Load Light colour
+	addiu		$t4, $t4, (1<<LIGHTSZ)		// Skip to the next light
 	vscl.t		R303, R302, S303			// r,g,b = r*x, g*x, b*x
 	bne			$t4, $t7, next_light_
 	vadd.t		R201, R201, R303			// col += r,g,b,a
@@ -209,41 +215,54 @@ finished_:
 # M000: World Matrix
 # M100: Projection Matrix
 # R200: Material normal 
-# R201: Accumulated colour
-# R202: ?
-# R203: ?
-# R300: ?
+# R201: Light position 
+# R202: projected
+# R203: store raw material normal
+# R300: color result
+# R301: Light direction
+# R302: Light color
 # R303: Scratch
-# R700: Ambient
+# R400: Accumulated colour
+# R700: Ambient light color
 # R721: Texture X & Y scale
+# R702: Coord [8, 9, 10, 11]
+# R703: Coord [12, 13, 14, 15]
 # v0 = TnLFlags
+# t4 = cur_light
+# t5 = last_light(point light)
+# t6 = first_light
+# t7 = last_light
 
 _TnLVFPUCBFD:
-	lv.q		R000, 0($a0)		// Load mat world
+	lv.q		R000, 0($a0)				// Load mat world
 	lv.q		R001, 16($a0)
 	lv.q		R002, 32($a0)
 	lv.q		R003, 48($a0)
 
-	lv.q		R100, 0($a1)		// Load mat project
+	lv.q		R100, 0($a1)				// Load mat project
 	lv.q		R101, 16($a1)
 	lv.q		R102, 32($a1)
 	lv.q		R103, 48($a1)
 	
 	lv.q		R701, PARAMS_FLAGS_NLIGHT_TXSCAL($t1)	// Load params [Flags, Num_lights, tscale_x, tscale_y]
-	vmov.p		R721, R721[y,x]					// Swizzle texture X&Y scale 
-//	mfv			$t7, S711						// Num_lights
+	vmov.p		R721, R721[y,x]				// Swizzle texture X&Y scale 
+	mfv			$t7, S711					// Num_lights
 	
+# Load Coord Mod vectors
+	lv.q		R702, COORDMOD1($t1)		// Load Coord [8, 9, 10, 11]
+	lv.q		R703, COORDMOD2($t1)		// Load Coord [12, 13, 14, 15]
+
 # Calculate the last light index
-//	addiu		$t6, $t1, PARAMS_LIGHTS			// pointer to first_light = p_lights
-//	sll			$t7, $t7, 6			// num_lights*64
-//	addu		$t7, $t6, $t7		// last_light = p_lights + num_lights*64
-//	lv.q		R700, 16($t7)		// Load ambient color
+	addiu		$t6, $t1, PARAMS_LIGHTS		// pointer to first_light = p_lights
+	sll			$t7, $t7, LIGHTSZ			// num_lights*64
+	addu		$t7, $t6, $t7				// last_light = p_lights + num_lights*64
+	lv.q		R700, 16($t7)				// Load ambient color
 
 # Calculate the last vertex index
-	sll			$t0, $t0, 4			// count = count * 16
-	addu		$t0, $a2, $t0		// end_ptr = start_ptr + count * 16
+	sll			$t0, $t0, 4					// count = count * 16
+	addu		$t0, $a2, $t0				// end_ptr = start_ptr + count * 16
 	beq			$a2, $t0, finished_CBFD
-	mfv			$v0, S701						// TnL flags
+	mfv			$v0, S701					// TnL flags
 	
 next_vertex_CBFD:
 # Load and transform this vertex position
@@ -251,10 +270,14 @@ next_vertex_CBFD:
  	lv.s		S210, 4($a2)				// ulv.q is buggy on PHAT
 	vs2i.p		R200, R200					// R200 = [?,z,y,x]
 	vi2f.q		R200, R200, 16				// int -> float
-	vmov.q		R200, R200[y,x,w,1]
-	vtfm4.q		R201, M000, R200			// World transform
- 	lb			$v1, 4($a2)					// Get vert_norm z
-	mtv			$v1, S223					// Store vertice normal Z 
+	vmov.q		R203, R200[y,x,w,1]			// unswizzle order
+	vtfm4.q		R201, M000, R203			// World transform
+
+#Load & Normalise the vertex RGBA colour
+	lv.s		S200, 12($a2)				// load normal word [w,z,y,x]
+	.word		0xd0380000 | (8<<8) | (40)	// vuc2i.s	R200, S200					// R200 = [a,b,g,r]
+	vi2f.q		R400, R200[w,z,y,x], 31		// int -> float, R403 = [r * 1/256, g * 1/256, b * 1/256, a * 1/256]
+
 	vtfm4.q		R202, M100, R201			// Projection transform
 	sv.q		R201, 0x00($a3)				// Store world transform
 	sv.q		R202, 0x10($a3)				// Store projection transform
@@ -271,12 +294,17 @@ next_vertex_CBFD:
 	andi		$t5, $t5, 0x7				// Mask out the condition codes we don't care about
 	or			$t5, $t4, $t5
 
-#Load vertex Normal or Color
-	andi		$t4, $v0, TNL_TEXGEN		// if( TNL_TEXGEN )
+#LIGHT
+	andi		$t4, $v0, TNL_LIGHT			// if( TNL_LIGHT )
 	beqz		$t4, do_texture_CBFD
 	sw			$t5, 0x38($a3)				// Store ClipFlags
 
-# We use world matrix to calc normals
+#skip to normal light and avoid the model normal transform if only TNL_LIGHT is set
+	andi		$t4, $v0, (TNL_POINTLIGHT | TNL_TEXGEN)			// if( TNL_POINTLIGHT | TNL_TEXGEN )
+	beqz		$t4, do_normallight_CBFD
+	nop
+	
+#Use world matrix to transform model normal
  	xori		$t5, $t3, 0x3				// = v0 ^ 3
 	addu		$t5, $t2, $t5				// += base address
 	lb			$t4, 0($t5)					// get normal x
@@ -286,32 +314,113 @@ next_vertex_CBFD:
 	addu		$t5, $t2, $t5				// += base address
 	lb			$t4, 0($t5)					// get normal y
 	mtv			$t4, S213					// Store vertice normal Y 
+ 	lb			$v1, 4($a2)					// Get vert_norm z
+	mtv			$v1, S223					// Store vertice normal Z 
 	vi2f.t		R203, R203, 0				// int -> float
-	vtfm3.t		R202, M000, R203					// Transform with world matrix, (only need 3x3)
-	vdot.t		S201, R202, R202					// S201 = x*x + y*y + z*z
-	vrsq.s		S201, S201							// S201 = 1/sqrt(x*x + y*y + z*z)
+	vtfm3.t		R200, M000, R203			// Transform with world matrix, (only need 3x3)
+	vdot.t		S201, R200, R200			// S201 = x*x + y*y + z*z
+	vrsq.s		S201, S201					// S201 = 1/sqrt(x*x + y*y + z*z)
 
-	andi		$t4, $v0, TNL_TEXGENLIN				// if( TNL_TEXGENLIN )
+	andi		$t4, $v0, TNL_POINTLIGHT	// if( TNL_POINTLIGHT )
+	beqz		$t4, do_normallight_CBFD
+	vscl.t		R200, R200, S201			// R200 = normalise transformed model vector (x, y, z).
+
+#POINT LIGHT
+	beq			$t6, $t7, done_plight_CBFD	// cur_light == last_light?
+	vmov.q		R300, R700					// Colour = ambient
+
+	addiu		$t5, $t7, -(1<<LIGHTSZ)		// Do one light less with point light
+	beq			$t6, $t5, do_dot_plight_CBFD	// cur_light == last_light?
+	or			$t4, $t6, $0				// cur_light = p_lights
+
+	vadd.q		R202, R202, R702			// Proj + Coord1
+	vmul.q		R202, R202, R703			// * Coord2
+
+next_plight_CBFD:
+	lv.q		R301, LIGHTDIR($t4)			// Load Light direction	& SkipIfZero
+	mfv			$t8, S331					// SkipIfZero
+	beqz		$t8, skip_plight_CBFD
+	nop
+	
+	lv.q		R201, LIGHTPOS($t4)			// Load Light position
+	vsub.q		R201, R202, R201			// ProjCoord - light position
+	vdot.q		S201, R201, R201			// S201 = x*x + y*y + z*z
+	lv.q		R302, LIGHTCOL($t4)			// Load Light colour & scale
+	vrcp.s		S201, S201					// S201 = 1/(x*x + y*y + z*z)
+	vmul.s		S332[0:1], S332, S201		// R332 = p_i clamped 0:1.
+	vdot.t		S303[0:1], R200, R301		// intensity = clamp(dot(normal,(x,y,z)),0,1)
+	vmul.s		S303, S303, S332			// intensity *= p_i
+	vscl.t		R302, R302, S303			// r,g,b = r*i, g*i, b*i
+	vadd.t		R300, R300, R302			// col += r,g,b
+
+skip_plight_CBFD:
+	addiu		$t4, $t4, (1<<LIGHTSZ)		// Skip to the next light
+	bne			$t4, $t5, next_plight_CBFD
+	nop
+	
+do_dot_plight_CBFD:
+	lv.q		R301, LIGHTDIR($t4)			// Load Light normal
+	vdot.t		S303[0:1], R200, R301		// intensity = clamp(dot(normal,(x,y,z)),0,1)
+	lv.q		R302, LIGHTCOL($t4)			// Load Light colour & scale
+	vscl.t		R302, R302, S303			// r,g,b = r*i, g*i, b*i
+	vadd.t		R300[0:1,0:1,0:1], R300, R302	// col += r,g,b (and clamp result)
+
+done_plight_CBFD:
+	b			skip_to_envmap_CBFD
+	vmul.t		R400, R400, R300			// Col *= col and merge with vertex alpha
+	
+#NORMAL LIGHT
+do_normallight_CBFD:
+	beq			$t6, $t7, done_nlight_CBFD	// cur_light == last_light?
+	vmov.q		R300, R700					// Colour = ambient
+
+	or			$t4, $t6, $0				// cur_light = p_lights
+	vadd.q		R202, R202, R702			// Proj + Coord1
+	vmul.q		R202, R202, R703			// * Coord2
+
+next_nlight_CBFD:
+	lv.q		R201, LIGHTPOS($t4)			// Load Light position
+	vsub.q		R201, R202, R201			// ProjCoord - light position
+	vdot.q		S201, R201, R201			// S201 = x*x + y*y + z*z
+	lv.q		R302, LIGHTCOL($t4)			// Load Light colour & scale
+	vrcp.s		S201, S201					// S201 = 1/(x*x + y*y + z*z)
+	vmul.s		S332[0:1], S332, S201		// R332 = p_i clamped 0:1.
+	addiu		$t4, $t4, (1<<LIGHTSZ)		// Skip to the next light
+	vscl.t		R302, R302, S332			// r,g,b = r*i, g*i, b*i
+	bne			$t4, $t7, next_nlight_CBFD
+	vadd.t		R300, R300, R302			// col += r,g,b
+
+	vmov.t		R300[0:1,0:1,0:1], R300
+done_nlight_CBFD:
+	vmul.t		R400, R400, R300			// Col *= col and merge with vertex alpha
+
+#Check environment mapping
+skip_to_envmap_CBFD:
+	andi		$t4, $v0, TNL_TEXGEN		// if( TNL_TEXGEN )
+	beqz		$t4, do_texture_CBFD
+	nop
+	
+	andi		$t4, $v0, TNL_TEXGENLIN		// if( TNL_TEXGENLIN )
 	beqz		$t4, do_texgen_CBFD
-	vscl.p		R202, R202, S201					// R202 = v.normalise() (x & y).
-
+	nop
+	
 # EnvMapped G_TEXTURE_GEN_LINEAR Cheap way to do acos(x)/PI -> 0.5f - 0.25f * x - 0.25f * x * x * x //Corn
-	vmul.p		R222, R202[1/4,1/4], R202			// X * 0.25, Y * 0.25
-	vsub.p		R203, R202[1/2,1/2], R222			// result = 0.5 - X * 0.25
-	vmul.p		R222, R202, R222					// X * X * 0.25, Y * Y * 0.25
-	vmul.p		R222, R202, R222					// X * X * X * 0.25, Y * Y * Y * 0.25
-	vsub.p		R203, R203, R222					// result -= X * X * X * 0.25
-	sv.s		S203, 0x30($a3)						// Store Texture.x
+	vmul.p		R220, R200[1/4,1/4], R200			// X * 0.25, Y * 0.25
+	vsub.p		R201, R200[1/2,1/2], R220			// result = 0.5 - X * 0.25
+	vmul.p		R220, R200, R220					// X * X * 0.25, Y * Y * 0.25
+	vmul.p		R220, R200, R220					// X * X * X * 0.25, Y * Y * Y * 0.25
+	vsub.p		R201, R201, R220					// result -= X * X * X * 0.25
+	sv.s		S201, 0x30($a3)						// Store Texture.x
 	b			vtx_done_CBFD
-	sv.s		S213, 0x34($a3)						// Store Texture.y
+	sv.s		S211, 0x34($a3)						// Store Texture.y
 		
 do_texgen_CBFD:
 # EnvMapped G_TEXTURE_GEN  t.x = 0.5 * (1.0 + n.x) t.y = 0.5 * (1.0 + n.y)
-	vadd.p		R202, R202[1,1], R202				// 1+x, 1+y
-	vmul.p		R202, R202[1/2,1/2], R202			// X * 0.5, Y * 0.25
-	sv.s		S202, 0x30($a3)						// Store Texture.x
+	vadd.p		R200, R200[1,1], R200				// 1+x, 1+y
+	vmul.p		R200, R200[1/2,1/2], R200			// X * 0.5, Y * 0.5
+	sv.s		S200, 0x30($a3)						// Store Texture.x
 	b			vtx_done_CBFD
-	sv.s		S212, 0x34($a3)						// Store Texture.y
+	sv.s		S210, 0x34($a3)						// Store Texture.y
 		
 do_texture_CBFD:
 # Textured t.x = (float)v.tu * mTextureScale.x 	t.y = (float)v.tv * mTextureScale.y
@@ -323,11 +432,7 @@ do_texture_CBFD:
 	sv.s		S202, 0x34($a3)				// Store Texture.y
 
 vtx_done_CBFD:
-# Normalise the RGBA colour
-	lv.s		S200, 12($a2)					// load normal word [w,z,y,x]
-	.word		0xd0380000 | (8<<8) | (40)		// vuc2i.s	R200, S200					// R200 = [a,b,g,r]
-	vi2f.q		R200, R200[w,z,y,x], 31			// int -> float, R200 = [r * 1/256, g * 1/256, b * 1/256, a * 1/256]
-	sv.q		R200, 0x20($a3)					// Store colour
+	sv.q		R400, 0x20($a3)					// Store colour
 
 # Continue with the next vertex
 	addiu		$t3, $t3, 2					// inc v0 counter
@@ -387,7 +492,7 @@ _TnLVFPUPD:
 	
 # Calculate the last light index
 	addiu		$t6, $t1, PARAMS_LIGHTS			// pointer to first_light = p_lights
-	sll			$t7, $t7, 6			// num_lights*64
+	sll			$t7, $t7, LIGHTSZ	// num_lights*64
 	addu		$t7, $t6, $t7		// last_light = p_lights + num_lights*64
 	lv.q		R700, 16($t7)		// Load ambient color
 	
@@ -449,10 +554,10 @@ next_vertex_PD:
 	beq			$t6, $t7, done_lighting_PD	// cur_light == last_light?
 	or			$t4, $t6, $0				// cur_light = p_lights
 next_light_PD:
-	lv.q		R301, 0($t4)				// Load Light normal
+	lv.q		R301, LIGHTDIR($t4)			// Load Light normal
 	vdot.t		S303[0:1], R200, R301		// x = clamp(dot(normal,(x,y,z)),0,1)
-	lv.q		R302, 16($t4)				// Load Light colour
-	addiu		$t4, $t4, 64				// Skip to the next light
+	lv.q		R302, LIGHTCOL($t4)			// Load Light colour
+	addiu		$t4, $t4, (1<<LIGHTSZ)		// Skip to the next light
 	vscl.t		R303, R302, S303			// r,g,b = r*x, g*x, b*x
 	bne			$t4, $t7, next_light_PD
 	vadd.t		R201, R201, R303			// col += r,g,b,a
