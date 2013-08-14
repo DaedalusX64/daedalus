@@ -1,0 +1,178 @@
+﻿//
+// Translation file for DaedalusX64
+// Language :Hungarian
+// Last Updated :2013.08.11
+// Version : 1.0
+// Translation by :Kobudera
+//
+//
+// To modify:
+// Please make sure this file is always encoded as UTF-8
+// To create a new translation please use the Default.lng inside Default.7z as base
+// Do not move/remove or translate the first line named as MAGIC NUMBER
+
+// The hash # for your language is : (Which is used to display your language name in the GUI)
+// Please check hash.txt inside Default.7z for list of hash numbers for most languages
+// Please add it below MAGIC NUMBER and make sure to translate it
+
+00000000,MAGIC NUMBER
+848edfe8,Magyar
+9dc1820c,Nincs megjeleníthetö adat.
+a03fa94a,Boot:
+19db9e32,Nemzetiség:
+09543b05,Méret:
+08d5d6b9,Mentés:
+ee537eb0,(X) -> Betöltés
+ee5b9cf1,([ ]) -> Beállítások
+29d22763,(/\\) -> Fájlnév
+7b3eaf50,(HOME) -> Kilépés
+59466b27,(SELECT) -> Törlés
+183f4586,Valóban kilépsz?
+859c733e,(X) -> Megerősítés
+1e85c445,Nyomj gombot a folytatáshoz
+13b51271,(X) Igen   (O) Nem
+b7ca4f3e,Általános beállítások
+051a94d5,Játékok
+9b692907,Válassz játékot
+c1170d2b,Mentések kezelése
+DAEDDAED,Információ
+993f73ff,Névjegy
+a786de62,A játék betöltése sikertelen.
+dcafd211,Tegyél játékromokat \\N64\\ egy mappába a memóriakártyán,
+df73ecf1,vagy használd Roms mappát a Daedalus mappán belül.
+d72277a0,A Daedalus sok különböző fájltípust ismer fel,
+4f01e7b5,felismer .zip, .z64, .v64, .rom, .bin, .pal, .usa and .jap.
+bdd1275c,Grafika és kép
+ba9c614e,Haladó beállítások
+7f8644c8,Csalások
+e8ad4e74,Emulálás (játék) indítása
+85b79ea0,Beállítások a játék hatékonyabb futtatásához.
+e6fa21a3,Mélyebb beállítások a játék futtatásához.
+037a6ee9,Adj hozzá, vagy használd a meglévö csalásokat.
+88f3a4c2,Inditsd el a kiválasztott játékot.
+bfb757ff,Select the slot in which to save
+4bd9a865,Válaszd ki a betölteni kivánt játékmentést.
+11183fe7,Nincs betölthetö játékmentés.
+72b02b7e,Válaszd ki hova mentenél. [X:Mentés O:Kilépés]
+7d24bdfa,Válaszd ki melyik mentést töltöd be. [X:Betöltés O:Kilépés []:Törlés]
+26145f81,Törléshez háromszög, ha mégsem akkor négyzet.
+0981b45a,Hely
+1670fc01,<üres>
+6c81a8ee,Mentés...
+d44916e4,Betöltés...
+24f6055a,Szünet
+57d4e678,Játékmentések
+da257eb4,Játékmentés
+284f6577,Mentések: Töltése/Törlése
+27df9ed3,Képernyökép mentése
+bb5092ca,Mentsd el az aktuális játékállást.
+24312e7d,Tölts be egy másik játékállást, vagy ha akarod törölheted.
+cdec8d9c,Készíts képernyömentést majd játsz tovább.
+4aaa99d7,Emulálás folytatása
+1e25cde5,Vissza a fömenübe
+79139258,Lépjünk a fömenübe?
+17beb20d,Szerzöi jog: (C) 2008-2012 DaedalusX64 Team
+191b0de3,Szerzöi jog: (C) 2001-2009 StrmnNrmn
+b27fe8d9,Magyarra fordította: Kobudera
+82a39ef2,Tájékozódhatsz a frissítésekröl:
+8eb50a08,Kikapcsolva
+34fcd0e7,Bekapcsolva
+11240414,Aszinkronba
+af304fb7,Szinkronba
+ec4156ec,Ismeretlen
+00001f35,Nem
+000e02bd,Igen
+930db968,Maximális
+e265bfa8,Félerö
+55eef632,Textura butítás 
+ce12dd96,FPS meghatározás
+05985a81,Nagyítás
+492c372a,képfrissítés 
+d62ec48b,Dinamikus kompenzálás
+477417d2,Magas szintü emulálás
+9a686c92,Hang
+28675d34,Irányítás
+e3a9b7b3,A grafikai minőség gyengébb lesz, de lehet jobban fut a ROM.
+37ee9082,Eldöntheted hogyan frissítse az emuláto a játék FPS-ét.
+74b87a6d,Megnövelheted a kép nagyságát, az alap 100%-on túl.
+b950b01f,Limitálhatod a frissitést: 50/25Hz (PAL) vagy 60/30Hz (NTSC).
+48917b8a,A sebbesség dinamikusabbá tétele a futtatás közben.
+ad549ea7,Használatának hatékonysága eltérö, sokszor hibákat idézhet elő.
+e0366a74,Ha bekapcsolod a hangot az futtatásbeli hibákat idézhet elö.
+487f2ed5,Mentés és folytatás
+54a93276,Mégse
+beb13b0c,Beállítások megerösitve, visszalépés a menübe.
+442b79c8,Beállítások elvetve, visszarérés a menübe.
+2462a960,Grafika és kép
+4c3230e6,Csalókód hozzáadása
+c6aa2aab,Apply Cheat Codes Frequency
+04564e07,Aktíváld, hogy használhasd a csalásokat ennél a játéknál.
+b5ca15d7,Elöfordulhat, hogy több kód egyidejüleg nem müködik megfelelöen.
+276e1699,Nincs kiválasztva csalás
+48119424,4:3 unscaled (320x240)
+c9a48cf8,4:3 scaled (362x272)
+c4d3e6cb,Teljes képernyö (480x272)
+1cadb15b,Szeretnél cache ürítést?
+8ade5a3b,Beállításokat alapra?
+7c43b365,Daedalus most kilép!
+22bc6816,Nyomj X-et 
+02123b1a,Classic
+a00e4b11,Fekete
+000cebbf,Piros
+bf706ca5,Zöld
+c6c78d35,Bibor
+041e9694,Kék
+b85ffe49,Türkiz
+1ab89f90,Narancs
+a0d31d90,Lila
+046e1a7f,Szürke
+04dbb2b8,Nincs
+4d60c1e6,Kijelzö információ
+d45b8b73,Képfelbontás
+49ff4d2c,Grafikus hibaszürö
+f096e88f,Kontroller bövítés
+2cd3ab78,Analóg kar holtpont
+23d8d78c,Használj nagy ROM Buffer
+d228ec17,Merülési figyelmeztetés
+2e167ec2,GUI Stilus
+ca887fd8,Háttér színe
+6a4df2ac,Eredeti beállítások
+a3bdb5f5,Bállíthatod milyen információkat mutasson pl. FPS.
+1bfe167d,Válaszd ki a kép nagyságát a PSP kijelzöjéhez képest.
+7f9bdebd,Egy erös szürés amivel megszünhet a csikozodási probléma.
+b4478cb3,Használj MemPak-ot vagy RumblePak-t a mentéshez.
+a342ced3,Az analóg kar érzékelésének beállítása. Nyomj/X-et a szerkesztéshez.
+67c8709b,Disable this for faster loading with a small slowdown during scene changes on large ROMs. Takes effect only when loading ROM.
+a53edd7e,Értesítést kapsz ha alacsony az akkumulátor energiája.
+48580c6c,Visszaállíthatod az alapra ez emulátor beállításait ha szeretnéd.
+e1134e27,Memoriahozzáférés optimalizálása
+f1da3d39,Képtisztázás
+c75e1b17,Dinamikus optimalizálás
+679a7a90,Dupla képernyö nézet
+5936df5c,Videóarány váltás
+931034db,Hangarány váltás
+73180dbe,Elmosás
+d64510cd,Sebességnövekedést hoz létre. (Instabilitást okozhat a játékban).
+6be51f9b,Erös ráhatás, hogy letisztultabb kép jelenjen meg.
+cae93146,Dupla képrenyö ha a játék lehetövé teszi. (A most aktuális.)
+b0b8ff1a,Kiszürheti a kellemetlen hangokat. (Recsegés, pukkanás.)
+1213a2e9,Javít a játék futtatásán. (Használd ha nagyon lassú.)
+1a61c1b8,Ködöt hoz létre vagy oszlat el.(Csak pár játéknál müködik.)
+ba9c614e,Általános beállítások
+3580e011,Állitsd be a min és a max holtpontot. Fel/Le: Megnöveli vagy csökkenti a holtpontot. Bal/Jobb: Minimális vagy maximális holtpont kiválasztása. Triangle: Eredeti beállitások. Start/X: Megerösit. Select/Circle: Mégse"
+f3a27e37,Adjust Stick Deadzone
+f4d401e4,Nyelvválasztás
+0206e784,Nyelv
+15865cd2,16Bit Color Selected
+3f7ccd28,32Bit Color Selected
+7c7ac31a,Hátravan
+657b212f,Akkumulátor
+053916eb,Idö
+f5381b95,Hátravan: --h--m
+5e53f605,Töltés...
+5df55264,Készült: 
+753ea645,Verzió
+f2b17060,DaedalusX64 Módosítás: 
+636197c3,Adjust the minimum and maximum deadzone regions. Up/Down: Increase or decrease the deadzone. Left/Right: Select minimum or maximum deadzone for adjusting. Triangle: Reset to defaults. Start/X: Confirm. Select/Circle: Cancel
+000c2620,Min
+000c2302,Max
