@@ -4,7 +4,6 @@ _ReSharper*
 *.opensdf
 *.sdf
 *.dir
-*.vcxproj*
 *.sln
 Win32
 Debug

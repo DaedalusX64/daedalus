@@ -18,7 +18,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
@@ -45,8 +45,8 @@
     <IntDir>$(ProjectDir)\obj\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(ProjectDir)\bin\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)\obj\$(Configuration)\</IntDir>
+    <OutDir>$(Root)bin\$(Configuration)\</OutDir>
+    <IntDir>$(Root)build\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <BuildLog>
@@ -54,7 +54,7 @@
     </BuildLog>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-	  <AdditionalIncludeDirectories>../../Source/third_party/glew/include;../../Source/third_party/glfw/include;../../Source/third_party/libpng;../../Source/third_party/webby;../../Source/third_party/zlib;../../Source/SysW32/Include;../../Source/Config/Dev;../../Source/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../Source/third_party/glew/include;../../Source/third_party/glfw/include;../../Source/third_party/libpng;../../Source/third_party/webby;../../Source/third_party/zlib;../../Source/third_party/zlib/contrib/minizip;../../Source/SysW32/Include;../../Source/Config/Dev;../../Source/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -73,7 +73,7 @@
     </BuildLog>
     <ClCompile>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <AdditionalIncludeDirectories>../../Source/third_party/glew/include;../../Source/third_party/glfw/include;../../Source/third_party/libpng;../../Source/third_party/webby;../../Source/third_party/zlib;../../Source/SysW32/Include;../../Source/Config/Release;../../Source/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../Source/third_party/glew/include;../../Source/third_party/glfw/include;../../Source/third_party/libpng;../../Source/third_party/webby;../../Source/third_party/zlib;../../Source/third_party/zlib/contrib/minizip;../../Source/SysW32/Include;../../Source/Config/Release;../../Source/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -81,7 +81,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CallingConvention>FastCall</CallingConvention>
+      <CallingConvention>Cdecl</CallingConvention>
       <CompileAs>Default</CompileAs>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -235,7 +235,7 @@
     <ClInclude Include="..\..\Source\Test\BatchTest.h" />
     <ClInclude Include="..\..\Source\Utility\Alignment.h" />
     <ClInclude Include="..\..\Source\Utility\AtomicPrimitives.h" />
-	<ClInclude Include="..\..\Source\Utility\Cond.h" />
+    <ClInclude Include="..\..\Source\Utility\Cond.h" />
     <ClInclude Include="..\..\Source\Utility\CRC.h" />
     <ClInclude Include="..\..\Source\Utility\DaedalusTypes.h" />
     <ClInclude Include="..\..\Source\Utility\DataSink.h" />
@@ -387,7 +387,7 @@
       </PrecompiledHeader>
       <CallingConvention Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Cdecl</CallingConvention>
     </ClCompile>
-	<ClCompile Include="..\..\Source\SysW32\Utility\CondW32.cpp" />
+    <ClCompile Include="..\..\Source\SysW32\Utility\CondW32.cpp" />
     <ClCompile Include="..\..\Source\SysW32\Utility\DISASM86.cpp" />
     <ClCompile Include="..\..\Source\SysW32\Utility\IOW32.cpp" />
     <ClCompile Include="..\..\Source\SysW32\Utility\ThreadW32.cpp" />
@@ -450,7 +450,7 @@
     <ClCompile Include="..\..\Source\SysOSX\HLEGraphics\DisplayListDebugger.cpp" />
     <ClCompile Include="..\..\Source\SysGL\HLEGraphics\GraphicsPluginGL.cpp" />
     <ClCompile Include="..\..\Source\SysGL\HLEGraphics\RendererGL.cpp" />
-	<ClCompile Include="..\..\Source\SysGL\Interface\UI.cpp" />
+    <ClCompile Include="..\..\Source\SysGL\Interface\UI.cpp" />
     <ClCompile Include="..\..\Source\HLEGraphics\TextureCacheWebDebug.cpp" />
     <ClCompile Include="..\..\Source\SysPSP\HLEGraphics\BlendModes.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -637,12 +637,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="DaedalusPSP.vcxproj">
-      <Project>{52a6c596-eda5-4822-a48b-890bd9af9147}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

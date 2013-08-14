@@ -60,7 +60,7 @@ CFragment *	CIndirectExitMap::LookupIndirectExit( u32 exit_address )
 extern "C"
 {
 
-const void *	IndirectExitMap_Lookup( CIndirectExitMap * p_map, u32 exit_address )
+const void *	R4300_CALL_TYPE IndirectExitMap_Lookup( CIndirectExitMap * p_map, u32 exit_address )
 {
 	CFragment *	p_fragment( p_map->LookupIndirectExit( exit_address ) );
 	if( p_fragment != NULL )

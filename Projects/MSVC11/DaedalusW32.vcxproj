@@ -50,10 +50,10 @@
     <TargetName>DaedalusDebug</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(ProjectDir)\Builds\PC\</OutDir>
-    <IntDir>$(ProjectDir)\Builds\PC\</IntDir>
+    <IntDir>$(Root)build\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <TargetName>Daedalus</TargetName>
+    <OutDir>$(Root)bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <BuildLog>
@@ -128,11 +128,11 @@ xcopy /I /Y /D /E  /F ..\..\Source\SysGL\HLEGraphics\n64.psh  .\Builds\PC\</Comm
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <PrecompiledHeader />
-      <ProgramDataBaseFileName>.\Builds\PC\$(TargetName).pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>$(IntDir)vc110.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <CallingConvention>FastCall</CallingConvention>
+      <CallingConvention>Cdecl</CallingConvention>
       <CompileAs>Default</CompileAs>
       <OmitFramePointers>true</OmitFramePointers>
       <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
@@ -142,8 +142,8 @@ xcopy /I /Y /D /E  /F ..\..\Source\SysGL\HLEGraphics\n64.psh  .\Builds\PC\</Comm
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>shlwapi.lib;winmm.lib;dxguid.lib;dsound.lib;zlibwapi.lib;libpng15.lib;glew32.lib;opengl32.lib;glfw3dll.lib;WSock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>.\Builds\PC\Daedalus.exe</OutputFile>
+      <AdditionalDependencies>shlwapi.lib;winmm.lib;dxguid.lib;dsound.lib;zlibwapi.lib;libpng15.lib;glew32s.lib;opengl32.lib;glfw3.lib;WSock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)\Daedalus.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>LIBC;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -155,11 +155,12 @@ xcopy /I /Y /D /E  /F ..\..\Source\SysGL\HLEGraphics\n64.psh  .\Builds\PC\</Comm
       <TargetMachine>MachineX86</TargetMachine>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <AdditionalLibraryDirectories>$(Root)bin\$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y /D /E /C /F ..\..\Data\PC\*.*  .\Builds\PC\
-xcopy /I /Y /D /E  /F ..\..\Source\SysOSX\Debug\Web\*.*  .\Builds\PC\Web\
-xcopy /I /Y /D /E  /F ..\..\Source\SysGL\HLEGraphics\n64.psh  .\Builds\PC\
+      <Command>xcopy /Y /D /E /C /F ..\..\Data\PC\*.*  $(Root)bin\$(Configuration)\
+xcopy /I /Y /D /E  /F ..\..\Source\SysOSX\Debug\Web\*.*  $(Root)bin\$(Configuration)\
+xcopy /I /Y /D /E  /F ..\..\Source\SysGL\HLEGraphics\n64.psh  $(Root)bin\$(Configuration)\
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

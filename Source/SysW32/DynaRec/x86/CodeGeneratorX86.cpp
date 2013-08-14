@@ -864,7 +864,7 @@ void	CCodeGeneratorX86::GenerateJR( EN64Reg rs)
 }
 
 
-void _EnterDynaRec( const void * p_function, const void * p_base_pointer, const void * p_rebased_mem, u32 mem_limit )
+void R4300_CALL_TYPE _EnterDynaRec( const void * p_function, const void * p_base_pointer, const void * p_rebased_mem, u32 mem_limit )
 {
 	typedef void (* FragmentFunction)();
 

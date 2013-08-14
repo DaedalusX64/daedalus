@@ -800,7 +800,7 @@ void CPU_ExecuteOpRaw( u32 count, u32 address, OpCode op_code, CPU_Instruction p
 
 extern "C"
 {
-void CPU_UpdateCounter( u32 ops_executed )
+void R4300_CALL_TYPE CPU_UpdateCounter( u32 ops_executed )
 {
 	DAEDALUS_ASSERT( ops_executed > 0, "Expecting at least one op" );
 	//SYNCH_POINT( DAED_SYNC_FRAGMENT_PC, ops_executed, "Number of executed ops doesn't match" );

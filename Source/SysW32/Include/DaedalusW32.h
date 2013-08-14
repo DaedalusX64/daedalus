@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif // NEW_INLINE_WORKAROUND
 #endif // _DEBUG
 
-//We link GLFWDLL.lib, which requires this to be defined
-#define GLFW_DLL
+//We link glew statically, so define this
+#define GLEW_STATIC
 
 #endif // SYSW32_INCLUDE_DAEDALUSW32_H_
