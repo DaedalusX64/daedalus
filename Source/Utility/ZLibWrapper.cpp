@@ -18,7 +18,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 // This file should not be compiled using precompiled headers.
-// This is a compatibility workaround for the __fastcall calling convention used in DAEDALUS_W32
 
 #include "stdafx.h"
 #include "ZlibWrapper.h"
@@ -28,14 +27,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/MathUtil.h"
 
-//
-//	Although this looks pretty redundant, it allows us to get around
-//	various issues relating to compiling the project with __fastcall
-//	as the default calling convention.
-//
-
-namespace Zlib
-{
 
 // NB: Latest zlib uses a new type for the file handle - it's no longer void *.
 #ifdef DAEDALUS_PSP
@@ -47,49 +38,9 @@ namespace Zlib
 //*****************************************************************************
 //
 //*****************************************************************************
-gzFile	DAEDALUS_ZLIB_CALL_TYPE gzopen( const char * filename, const char * mode )
-{
-	return ::gzopen( filename, mode );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void	DAEDALUS_ZLIB_CALL_TYPE gzclose( gzFile fh )
-{
-	::gzclose( toGzipFile(fh) );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-u32		DAEDALUS_ZLIB_CALL_TYPE gzwrite( gzFile fh, const void * buffer, u32 length )
-{
-	return ::gzwrite( toGzipFile(fh), buffer, length );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-u32		DAEDALUS_ZLIB_CALL_TYPE gzread( gzFile fh, void * buffer, u32 length )
-{
-	return ::gzread( toGzipFile(fh), buffer, length );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-u32		DAEDALUS_ZLIB_CALL_TYPE gzseek( gzFile fh, u32 offset, int whence)
-{
-	return ::gzseek( toGzipFile(fh), offset, whence );
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
 COutStream::COutStream( const char * filename )
 :	mBufferCount( 0 )
-,	mFile( Zlib::gzopen( filename, "wb" ) )
+,	mFile( gzopen( filename, "wb" ) )
 {
 }
 
@@ -101,7 +52,7 @@ COutStream::~COutStream()
 	if ( mFile != NULL )
 	{
 		Flush();
-		Zlib::gzclose( mFile );
+		gzclose( toGzipFile(mFile) );
 	}
 }
 
@@ -120,11 +71,11 @@ bool	COutStream::Flush()
 {
 	DAEDALUS_ASSERT( mBufferCount <= BUFFER_SIZE, "How come the buffer has overflowed?" );
 
-	const u32	count( mBufferCount );
+	const s32	count( mBufferCount );
 
 	mBufferCount = 0;
 
-	return Zlib::gzwrite( mFile, mBuffer, count ) == count;
+	return gzwrite( toGzipFile(mFile), mBuffer, count ) == count;
 }
 
 //*****************************************************************************
@@ -179,7 +130,7 @@ void	COutStream::Reset()
 
 	mBufferCount = 0;
 
-	gzseek(mFile, 0, SEEK_SET);
+	gzseek(toGzipFile(mFile), 0, SEEK_SET);
 }
 
 //*****************************************************************************
@@ -188,7 +139,7 @@ void	COutStream::Reset()
 CInStream::CInStream( const char * filename )
 :	mBufferOffset( 0 )
 ,	mBytesAvailable( 0 )
-,	mFile( Zlib::gzopen( filename, "rb" ) )
+,	mFile( gzopen( filename, "rb" ) )
 {
 }
 
@@ -199,7 +150,7 @@ CInStream::~CInStream()
 {
 	if ( mFile != NULL )
 	{
-		Zlib::gzclose( mFile );
+		gzclose( toGzipFile(mFile) );
 	}
 }
 
@@ -220,7 +171,7 @@ bool	CInStream::Fill()
 
 	mBufferOffset = 0;
 
-	s32	bytes_read( Zlib::gzread( mFile, mBuffer, BUFFER_SIZE ) );
+	s32	bytes_read( gzread( toGzipFile(mFile), mBuffer, BUFFER_SIZE ) );
 	if( bytes_read > 0 )
 	{
 		mBytesAvailable = bytes_read;
@@ -283,7 +234,6 @@ void	CInStream::Reset()
 	mBufferOffset = 0;
 	mBytesAvailable = 0;
 
-	gzseek(mFile, 0, SEEK_SET);
-}
+	gzseek(toGzipFile(mFile), 0, SEEK_SET);
 }
 

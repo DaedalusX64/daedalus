@@ -20,60 +20,46 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef UTILITY_ZLIBWRAPPER_H_
 #define UTILITY_ZLIBWRAPPER_H_
 
-#include "Utility/DaedalusTypes.h"
-
-namespace Zlib
+//
+//	A buffered output stream
+//
+class COutStream
 {
-	typedef void *	gzFile;
+	public:
+		COutStream( const char * filename );
+		~COutStream();
 
-	gzFile	DAEDALUS_ZLIB_CALL_TYPE gzopen( const char * filename, const char * mode );
-	void	DAEDALUS_ZLIB_CALL_TYPE gzclose( gzFile fh );
+		bool					IsOpen() const;
+		bool					Flush();
+		bool					WriteData( const void * data, u32 length );
+		void					Reset();
 
-	u32		DAEDALUS_ZLIB_CALL_TYPE gzwrite( gzFile fh, const void * buffer, u32 length );
-	u32		DAEDALUS_ZLIB_CALL_TYPE gzread( gzFile fh, void * buffer, u32 length );
+	private:
+		static const u32		BUFFER_SIZE = 4096;
+		u8						mBuffer[ BUFFER_SIZE ];
+		u32						mBufferCount;
+		void * const			mFile;
+};
 
-	//
-	//	A buffered output stream
-	//
-	class COutStream
-	{
-		public:
-			COutStream( const char * filename );
-			~COutStream();
+class CInStream
+{
+	public:
+		CInStream( const char * filename );
+		~CInStream();
 
-			bool					IsOpen() const;
-			bool					Flush();
-			bool					WriteData( const void * data, u32 length );
-			void					Reset();
+		bool					IsOpen() const;
+		bool					ReadData( void * data, u32 length );
+		void					Reset();
 
-		private:
-			static const u32		BUFFER_SIZE = 4096;
-			u8						mBuffer[ BUFFER_SIZE ];
-			u32						mBufferCount;
-			gzFile const			mFile;
-	};
+	private:
+		bool					Fill();
 
-	class CInStream
-	{
-		public:
-			CInStream( const char * filename );
-			~CInStream();
-
-			bool					IsOpen() const;
-			bool					ReadData( void * data, u32 length );
-			void					Reset();
-
-		private:
-			bool					Fill();
-
-		private:
-			static const u32		BUFFER_SIZE = 4096;
-			u8						mBuffer[ BUFFER_SIZE ];
-			u32						mBufferOffset;
-			s32						mBytesAvailable;
-			gzFile const			mFile;
-	};
-
-}
+	private:
+		static const u32		BUFFER_SIZE = 4096;
+		u8						mBuffer[ BUFFER_SIZE ];
+		u32						mBufferOffset;
+		s32						mBytesAvailable;
+		void * const			mFile;
+};
 
 #endif // UTILITY_ZLIBWRAPPER_H_

@@ -106,7 +106,7 @@ public:
 	}
 
 private:
-	Zlib::COutStream		mStream;
+	COutStream		mStream;
 };
 
 class SaveState_istream_gzip
@@ -184,7 +184,7 @@ public:
 	}
 
 private:
-	Zlib::CInStream			mStream;
+	CInStream			mStream;
 };
 
 
