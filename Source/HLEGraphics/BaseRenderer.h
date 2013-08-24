@@ -167,18 +167,19 @@ struct TnLMode
 
 ALIGNED_TYPE(struct, TnLParams, 16)
 {
-	TnLMode			Flags;
-	u32				NumLights;
-	float			TextureScaleX;
-	float			TextureScaleY;
-	DaedalusLight	Lights[12];	//Conker uses up to 12 lights
-	f32				CoordMod[16];	//Used by CBFD
+	TnLMode			Flags;			//TnL flags
+	u32				NumLights;		//Number of lights
+	f32				TextureScaleX;	//Texture scale X
+	f32				TextureScaleY;	//Texture scale Y
+	DaedalusLight	Lights[12];		//Conker uses up to 12 lights
+	f32				CoordMod[16];	//Used by CBFD lights
 };
 //DAEDALUS_STATIC_ASSERT( sizeof( TnLParams ) == 32 );
 
 // Bits for clipping
-// +-+-+-
-// xxyyzz
+// 543210
+// +++---
+// zyxzyx
 // NB: These are ordered such that the VFPU can generate them easily - make sure you keep the VFPU code up to date if changing these.
 #define X_NEG  0x01	//left
 #define Y_NEG  0x02	//bottom

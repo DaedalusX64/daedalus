@@ -45,6 +45,29 @@
 
 //#define DOUBLE_CONVERSION // Define to use double and other related conversions.
 
+//Sign of Z coord from cross product normal, used for triangle front/back face culling //Corn
+//(((B.x*ACw - AxBC)*(C.y*ABw - AyBC) - (C.x*ABw - AxBC)*(B.y*ACw - AyBC)) * ABw * C.w)
+//(((Bx - Ax)*(Cy - Ay) - (Cx - Ax)*(By - Ay)) * Aw * Bw * C.w)
+inline float vfpu_TriNormSign(f32 *Base0, f32 *Base1, f32 *Base2) {
+    float result;
+    __asm__ volatile (
+		"lv.q	R000, 0+%1\n"				//load V0 (A)
+		"lv.q	R001, 0+%2\n"				//load V1 (B)
+		"lv.q	R002, 0+%3\n"				//load V2 (C)
+		"vmul.t	R003, C030, C030[z,x,y]\n"	//R003 = ACw, ABw, BCw
+		"vscl.p	R000, R000, S023\n"			//scale Ax and Ay with BCw
+		"vscl.p	R001, R001, S003\n"			//scale Bx and By with ACw 
+		"vscl.p	R002, R002, S013\n"			//scale Cx and Cy with ABw 
+		"vsub.p	R100, R000, R001\n"			//Make 2D vector with A-B
+		"vsub.p R101, R001, R002\n"			//Make 2D vector with B-C 
+		"vdet.p S102, R100, R101\n"			//Calc 2x2 determinant with the two 2D vectors
+        "vmul.s	S003, S003, S031\n"			//create ABCw
+        "vmul.s	S102, S102, S003\n"			//determinant * ABCw
+		"mfv	%0, S102\n"					//Sign determins FRONT or BACK face triangle 
+        : "=r"(result) :"m"(*Base0), "m"(*Base1), "m"(*Base2) );
+    return result;
+}
+
 //Do ACOS(x) ACOS(y) and save in 2D vector on VFPU //Corn
 inline void vfpu_Acos_2Dvec(float x, float y, float *s) {
 	__asm__ volatile (

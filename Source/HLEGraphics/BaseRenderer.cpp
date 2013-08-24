@@ -89,6 +89,7 @@ struct TempVerts
 extern "C"
 {
 void	_TnLVFPU( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
+void	_TnLVFPU_Plight( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params );
 void	_TnLVFPUDKR( u32 num_vertices, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out );
 void	_TnLVFPUDKRB( u32 num_vertices, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out );
 void	_TnLVFPUCBFD( const Matrix4x4 * world_matrix, const Matrix4x4 * projection_matrix, const FiddledVtx * p_in, const DaedalusVtx4 * p_out, u32 num_vertices, const TnLParams * params, const s8 * model_norm, u32 v0 );
@@ -424,6 +425,9 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 		const v4 & B = mVtxProjected[v1].ProjectedPos;
 		const v4 & C = mVtxProjected[v2].ProjectedPos;
 
+#ifdef DAEDALUS_PSP_USE_VFPU
+		const f32 NSign = vfpu_TriNormSign((f32*)&A, (f32*)&B, (f32*)&C);
+#else
 		//Avoid using 1/w, will use five more mults but save three divides //Corn
 		//Precalc reused w combos so compiler does a proper job
 		const f32 ABw  = A.w*B.w;
@@ -431,8 +435,9 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 		const f32 BCw  = B.w*C.w;
 		const f32 AxBC = A.x*BCw;
 		const f32 AyBC = A.y*BCw;
-
-		if( (((B.x*ACw - AxBC)*(C.y*ABw - AyBC) - (C.x*ABw - AxBC)*(B.y*ACw - AyBC)) * ABw * C.w) <= 0.f )
+		const f32 NSign = (((B.x*ACw - AxBC)*(C.y*ABw - AyBC) - (C.x*ABw - AxBC)*(B.y*ACw - AyBC)) * ABw * C.w);
+#endif
+		if( NSign <= 0.f )
 		{
 			if( mTnL.Flags.CullBack )
 			{
@@ -857,9 +862,16 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
-	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
+	DL_PF( "    Light[%d %s] Texture[%s] EnvMap[%s] Fog[%s]", mTnL.NumLights, (mTnL.Flags.Light)? (mTnL.Flags.PointLight)? "Point":"Normal":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
 
-	_TnLVFPU( &mat_world, &mat_world_project, pVtxBase, &mVtxProjected[v0], n, &mTnL );
+	if ( !mTnL.Flags.PointLight )
+	{	//Normal rendering
+		_TnLVFPU( &mat_world, &mat_world_project, pVtxBase, &mVtxProjected[v0], n, &mTnL );
+	}
+	else
+	{	//Point light for Zelda MM
+		_TnLVFPU_Plight( &mat_world, &mat_world_project, pVtxBase, &mVtxProjected[v0], n, &mTnL );
+	}
 }
 
 //*****************************************************************************
@@ -984,18 +996,18 @@ v3 BaseRenderer::LightPointVert( const v4 & w ) const
 	{
 		if ( mTnL.Lights[l].SkipIfZero )
 		{
-			v3 pos( mTnL.Lights[l].Position.x-w.x, mTnL.Lights[l].Position.y-w.y, mTnL.Lights[l].Position.z-w.z );
+			v3 distance_vec( mTnL.Lights[l].Position.x-w.x, mTnL.Lights[l].Position.y-w.y, mTnL.Lights[l].Position.z-w.z );
 
-			f32 light_qlen = pos.LengthSq();
+			f32 light_qlen = distance_vec.LengthSq();
 			f32 light_llen = sqrtf( light_qlen );
 
 			f32 at = mTnL.Lights[l].ca + mTnL.Lights[l].la * light_llen + mTnL.Lights[l].qa * light_qlen;
 			if (at > 0.0f)
 			{
-				f32 fCosT = 1.0f/at;
-				result.x += mTnL.Lights[l].Colour.x * fCosT;
-				result.y += mTnL.Lights[l].Colour.y * fCosT;
-				result.z += mTnL.Lights[l].Colour.z * fCosT;
+				f32 intensity = 1.0f/at;
+				result.x += mTnL.Lights[l].Colour.x * intensity;
+				result.y += mTnL.Lights[l].Colour.y * intensity;
+				result.z += mTnL.Lights[l].Colour.z * intensity;
 			}
 		}
 	}
@@ -1021,7 +1033,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
 
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
-	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
+	DL_PF( "    Light[%d %s] Texture[%s] EnvMap[%s] Fog[%s]", mTnL.NumLights, (mTnL.Flags.Light)? (mTnL.Flags.PointLight)? "Point":"Normal":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
 
 	// Transform and Project + Lighting or Transform and Project with Colour
 	//
@@ -1029,10 +1041,10 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 	{
 		const FiddledVtx & vert = pVtxBase[i - v0];
 
-		v4 w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
-
 		// VTX Transform
 		//
+		v4 w( f32( vert.x ), f32( vert.y ), f32( vert.z ), 1.0f );
+
 		v4 & projected( mVtxProjected[i].ProjectedPos );
 		projected = mat_world_project.Transform( w );
 		mVtxProjected[i].TransformedPos = mat_world.Transform( w );
@@ -1054,12 +1066,12 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		//
 		if ( mTnL.Flags.Light )
 		{
-			v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
-
-			v3 col;
+			v3 model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
 			v3 vecTransformedNormal;
 			vecTransformedNormal = mat_world.TransformNormal( model_normal );
 			vecTransformedNormal.Normalise();
+
+			v3 col;
 
 			if ( mTnL.Flags.PointLight )
 			{//POINT LIGHT
@@ -1110,14 +1122,8 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		}
 		else
 		{
-			//if( mTnL.Flags.Shade )	//FLAT shade
-			{
-				mVtxProjected[i].Colour = v4( vert.rgba_r * (1.0f / 255.0f), vert.rgba_g * (1.0f / 255.0f), vert.rgba_b * (1.0f / 255.0f), vert.rgba_a * (1.0f / 255.0f) );
-			}
-			/*else //Shade is disabled, doesn't work, is it even needed>?
-			{
-				mVtxProjected[i].Colour = mPrimitiveColour.GetColourV4();
-			}*/
+			//Set color
+			mVtxProjected[i].Colour = v4( vert.rgba_r * (1.0f / 255.0f), vert.rgba_g * (1.0f / 255.0f), vert.rgba_b * (1.0f / 255.0f), vert.rgba_a * (1.0f / 255.0f) );
 
 			//Set Texture coordinates
 			mVtxProjected[i].Texture.x = (float)vert.tu * mTnL.TextureScaleX;
@@ -1318,7 +1324,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 			}
 		}
 		else
-		{	//TEXTURE SCALE & COLOR
+		{	//TEXTURE SCALE
 			mVtxProjected[i].Texture.x = (f32)vert.tu * mTnL.TextureScaleX;
 			mVtxProjected[i].Texture.y = (f32)vert.tv * mTnL.TextureScaleY;
 		}
