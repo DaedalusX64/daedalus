@@ -53,18 +53,10 @@ public:
 		return (x*x)+(y*y)+(z*z)+(w*w);
 	}
 
-#ifdef DAEDALUS_PSP
-	float Dot( const v4 & rhs ) const
-	{
-		return vfpu_dot_4Dvec(x,y,z,w,rhs.x,rhs.y,rhs.z,rhs.w);
-	}
-#else
 	float Dot( const v4 & rhs ) const
 	{
 		return (x*rhs.x) + (y*rhs.y) + (z*rhs.z) + (w*rhs.w);
 	}
-#endif
-
 
 	float x, y, z, w;
 };

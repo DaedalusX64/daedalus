@@ -107,18 +107,10 @@ public:
 		}
 	}
 
-#ifdef DAEDALUS_PSP	//PSP=fast, Other=original //Corn
-	float Dot( const v3 & rhs ) const
-	{
-		return vfpu_dot_3Dvec(x,y,z,rhs.x,rhs.y,rhs.z);
-	}
-#else
 	float Dot( const v3 & rhs ) const
 	{
 		return (x*rhs.x) + (y*rhs.y) + (z*rhs.z);
 	}
-#endif
-
 
 	float x, y, z;
 };

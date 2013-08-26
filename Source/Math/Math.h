@@ -46,25 +46,30 @@
 //#define DOUBLE_CONVERSION // Define to use double and other related conversions.
 
 //Sign of Z coord from cross product normal, used for triangle front/back face culling //Corn
+//Note that we pass s32 even if it is a f32! The check for <= 0.0f is valid also with signed integers(bit31 in f32 is sign bit) 
 //(((B.x*ACw - AxBC)*(C.y*ABw - AyBC) - (C.x*ABw - AxBC)*(B.y*ACw - AyBC)) * ABw * C.w)
 //(((Bx - Ax)*(Cy - Ay) - (Cx - Ax)*(By - Ay)) * Aw * Bw * C.w)
-inline float vfpu_TriNormSign(f32 *Base0, f32 *Base1, f32 *Base2) {
-    float result;
+inline s32 vfpu_TriNormSign(u8 *Base, u32 v0, u32 v1, u32 v2) {
+    u8* A= Base + (v0<<6);	//Base + v0 * sizeof( DaedalusVtx4 )
+    u8* B= Base + (v1<<6);	//Base + v1 * sizeof( DaedalusVtx4 )
+    u8* C= Base + (v2<<6);	//Base + v2 * sizeof( DaedalusVtx4 )
+	s32 result;
+
     __asm__ volatile (
-		"lv.q	R000, 0+%1\n"				//load V0 (A)
-		"lv.q	R001, 0+%2\n"				//load V1 (B)
-		"lv.q	R002, 0+%3\n"				//load V2 (C)
-		"vmul.t	R003, C030, C030[z,x,y]\n"	//R003 = ACw, ABw, BCw
-		"vscl.p	R000, R000, S023\n"			//scale Ax and Ay with BCw
-		"vscl.p	R001, R001, S003\n"			//scale Bx and By with ACw 
-		"vscl.p	R002, R002, S013\n"			//scale Cx and Cy with ABw 
+		"lv.q	R000, 16+%1\n"				//load projected V0 (A)
+		"lv.q	R001, 16+%2\n"				//load projected V1 (B)
+		"lv.q	R002, 16+%3\n"				//load projected V2 (C)
+		"vcrs.t	R003, C030, C030\n"			//R003 = BCw, ACw, ABw
+		"vscl.p	R000, R000, S003\n"			//scale Ax and Ay with BCw
+		"vscl.p	R001, R001, S013\n"			//scale Bx and By with ACw 
+		"vscl.p	R002, R002, S023\n"			//scale Cx and Cy with ABw 
 		"vsub.p	R100, R000, R001\n"			//Make 2D vector with A-B
 		"vsub.p R101, R001, R002\n"			//Make 2D vector with B-C 
 		"vdet.p S102, R100, R101\n"			//Calc 2x2 determinant with the two 2D vectors
-        "vmul.s	S003, S003, S031\n"			//create ABCw
+        "vmul.s	S003, S003, S030\n"			//create ABCw (BCw * Aw)
         "vmul.s	S102, S102, S003\n"			//determinant * ABCw
 		"mfv	%0, S102\n"					//Sign determins FRONT or BACK face triangle 
-        : "=r"(result) :"m"(*Base0), "m"(*Base1), "m"(*Base2) );
+        : "=r"(result) :"m"(*A), "m"(*B), "m"(*C) );
     return result;
 }
 

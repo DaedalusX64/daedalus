@@ -421,13 +421,14 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	//
 	if( mTnL.Flags.TriCull )
 	{
+#ifdef DAEDALUS_PSP_USE_VFPU
+		const s32 NSign = vfpu_TriNormSign((u8*)&mVtxProjected[0], v0, v1, v2);
+		if( NSign <= 0 )
+#else
 		const v4 & A = mVtxProjected[v0].ProjectedPos;
 		const v4 & B = mVtxProjected[v1].ProjectedPos;
 		const v4 & C = mVtxProjected[v2].ProjectedPos;
 
-#ifdef DAEDALUS_PSP_USE_VFPU
-		const f32 NSign = vfpu_TriNormSign((f32*)&A, (f32*)&B, (f32*)&C);
-#else
 		//Avoid using 1/w, will use five more mults but save three divides //Corn
 		//Precalc reused w combos so compiler does a proper job
 		const f32 ABw  = A.w*B.w;
@@ -436,8 +437,8 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 		const f32 AxBC = A.x*BCw;
 		const f32 AyBC = A.y*BCw;
 		const f32 NSign = (((B.x*ACw - AxBC)*(C.y*ABw - AyBC) - (C.x*ABw - AxBC)*(B.y*ACw - AyBC)) * ABw * C.w);
+		if( NSign <= 0.0f )
 #endif
-		if( NSign <= 0.f )
 		{
 			if( mTnL.Flags.CullBack )
 			{
@@ -987,7 +988,7 @@ v3 BaseRenderer::LightVert( const v3 & norm ) const
 //*****************************************************************************
 //
 //*****************************************************************************
-v3 BaseRenderer::LightPointVert( const v4 & w ) const
+inline v3 BaseRenderer::LightPointVert( const v4 & w ) const
 {
 	u32 num = mTnL.NumLights;
 	v3 result( mTnL.Lights[num].Colour.x, mTnL.Lights[num].Colour.y, mTnL.Lights[num].Colour.z );

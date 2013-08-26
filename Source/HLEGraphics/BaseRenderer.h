@@ -362,7 +362,7 @@ protected:
 	void				PrepareTrisUnclipped( TempVerts * temp_verts ) const;
 
 	v3					LightVert( const v3 & norm ) const;
-	v3					LightPointVert( const v4 & w ) const;
+	inline v3			LightPointVert( const v4 & w ) const;
 
 private:
 	void				InitViewport();
