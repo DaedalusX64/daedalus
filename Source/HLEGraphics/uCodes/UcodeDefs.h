@@ -412,14 +412,6 @@ struct SetOthermode
 	u32	data;
 };
 
-struct TriDKR
-{
-    u8	v2, v1, v0, flag;
-    s16	t0, s0;
-    s16	t1, s1;
-    s16	t2, s2;
-};
-
 /*
 struct GBI1_LoadUcode
 {

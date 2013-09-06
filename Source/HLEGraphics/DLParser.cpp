@@ -20,8 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "DLParser.h"
 
-#include <vector>
-
 #include "DLDebug.h"
 #include "BaseRenderer.h"
 #include "N64PixelFormat.h"
@@ -124,6 +122,14 @@ struct N64Light
 	s16 y, x, w, z; 				// Position, Conker
 };
 
+struct TriDKR
+{
+    u8	v2, v1, v0, flag;
+    s16	t0, s0;
+    s16	t1, s1;
+    s16	t2, s2;
+};
+
 struct RDP_Scissor
 {
 	u32 left, top, right, bottom;
@@ -186,13 +192,11 @@ inline void FinishRDPJob()
 inline void	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
 {
 	// Current PC is the last value on the stack
-	u32 pc = gDlistStack.address[gDlistStackPointer];
+	u32 & pc( gDlistStack.address[gDlistStackPointer] );
 
 	DAEDALUS_ASSERT(pc < MAX_RAM_ADDRESS, "Display list PC is out of range: 0x%08x", pc );
-
 	*p_command = *(MicroCodeCommand*)(g_pu8RamBase + pc);
-
-	gDlistStack.address[gDlistStackPointer]+= 8;
+	pc+= 8;
 }
 
 //*****************************************************************************
@@ -1041,30 +1045,26 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	gRenderer->TexRectFlip( tex_rect.tile_idx, xy0, xy1, st0, st1 );
 }
 
-void Clear_N64DepthBuffer( MicroCodeCommand command, u32 fill_colour )
+//Clear framebuffer, thanks Gonetz! http://www.emutalk.net/threads/15818-How-to-implement-quot-emulate-clear-quot-Answer-and-Question
+//This fixes the jumpy camera in DK64, also the sun and flames glare in Zelda
+void Clear_N64DepthBuffer( MicroCodeCommand command )
 {
-#if 1
-	//Fast, assumes the whole screen is cleared //Corn
-	u32 * dst = (u32*)(g_pu8RamBase + g_CI.Address);
-	u32 * end = (u32*)(dst + (command.fillrect.y1*(g_CI.Width >> 1)));
-
-	do
-	{
-		*dst++ = fill_colour;
-		*dst++ = fill_colour;
-		*dst++ = fill_colour;
-		*dst++ = fill_colour;
-	} while(dst < end);
-#else
-	u32 x0 = command.fillrect.x0;
-	u32 x1 = command.fillrect.x1;
+	u32 x0 = command.fillrect.x0 + 1;
+	u32 x1 = command.fillrect.x1 + 1;
 	u32 y1 = command.fillrect.y1;
 	u32 y0 = command.fillrect.y0;
+
+	// Using s32 to force min/max to be done in a single op code for the PSP
+	x0 = Min<s32>(Max<s32>(x0, scissors.left), scissors.right);
+	x1 = Min<s32>(Max<s32>(x1, scissors.left), scissors.right);
+	y1 = Min<s32>(Max<s32>(y1, scissors.top), scissors.bottom);
+	y0 = Min<s32>(Max<s32>(y0, scissors.top), scissors.bottom);
+	x0 >>= 1;
+	x1 >>= 1;
 	u32 zi_width_in_dwords = g_CI.Width >> 1;
-
-	u32 * dst = (u32*)(g_pu8RamBase + g_CI.Address);
-	dst += x0 * zi_width_in_dwords;
-
+	u32 fill_colour = gRenderer->GetFillColour();
+	u32 * dst = (u32*)(g_pu8RamBase + g_CI.Address) + y0 * zi_width_in_dwords;
+	
 	for( u32 y = y0; y <y1; y++ )
 	{
 		for( u32 x = x0; x < x1; x++ )
@@ -1073,7 +1073,6 @@ void Clear_N64DepthBuffer( MicroCodeCommand command, u32 fill_colour )
 		}
 		dst += zi_width_in_dwords;
 	}
-#endif
 }
 
 //*****************************************************************************
@@ -1089,21 +1088,18 @@ void DLParser_FillRect( MicroCodeCommand command )
 		return;
 	}
 
-	u32 fill_colour = gRenderer->GetFillColour();
-
 	//Always clear Zbuffer if Depthbuffer is selected //Corn
 	if (g_DI.Address == g_CI.Address)
 	{
 		CGraphicsContext::Get()->ClearZBuffer();
 
-		//Clear framebuffer, thanks Gonetz! http://www.emutalk.net/threads/15818-How-to-implement-quot-emulate-clear-quot-Answer-and-Question
-		//This fixes the jumpy camera in DK64, also the sun and flames glare in Zelda
-		//This always enabled for PC, this should be optional once we have a GUI to disable it!
 #ifdef DAEDALUS_PSP
 		if(gClearDepthFrameBuffer)
+#else
+		if(true)	//This always enabled for PC, this should be optional once we have a GUI to disable it!
 #endif
 		{
-			Clear_N64DepthBuffer(command, fill_colour);
+			Clear_N64DepthBuffer(command);
 		}
 		DL_PF("    Clearing ZBuffer");
 		return;
@@ -1123,14 +1119,15 @@ void DLParser_FillRect( MicroCodeCommand command )
 	{
 		if ( cycle_mode == CYCLE_FILL )
 		{
+			u32 fill_colour = gRenderer->GetFillColour();
 			if(g_CI.Size == G_IM_SIZ_16b)
 			{
-				N64Pf5551	c( (u16)fill_colour );
+				const N64Pf5551	c( (u16)fill_colour );
 				colour = ConvertPixelFormat< c32, N64Pf5551 >( c );
 			}
 			else
 			{
-				N64Pf8888	c( (u32)fill_colour );
+				const N64Pf8888	c( (u32)fill_colour );
 				colour = ConvertPixelFormat< c32, N64Pf8888 >( c );
 			}
 
