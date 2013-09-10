@@ -102,6 +102,22 @@ struct N64Viewport
 	s16 trans_y, trans_x, trans_w, trans_z;
 };
 
+struct N64mat
+{
+	struct _s16
+	{
+		s16 y, x, w, z;
+	};
+
+	struct _u16
+	{
+		u16 y, x, w, z;
+	};
+
+	_s16 h[4];
+	_u16 l[4];
+};
+
 struct N64Light
 {
 	u8 ca, b, g, r;					// Colour and ca (ca is different for conker)
@@ -539,7 +555,7 @@ u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 
 	// Initialise stack
 	gDlistStackPointer=0;
-	gDlistStack.address[gDlistStackPointer] = (u32)pTask->t.data_ptr;
+	gDlistStack.address[0] = (u32)pTask->t.data_ptr;
 	gDlistStack.limit = -1;
 
 	gRDPStateManager.Reset();
@@ -597,61 +613,35 @@ u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 //*****************************************************************************
 void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 {
-
 	DAEDALUS_ASSERT( address+64 < MAX_RAM_ADDRESS, "Mtx: Address invalid (0x%08x)", address);
 
 	const f32 fRecip = 1.0f / 65536.0f;
-
-	struct N64Imat
-	{
-		s16 h[4][4];
-		u16 l[4][4];
-	};
-	const N64Imat *Imat = (N64Imat *)( g_pu8RamBase + address );
+	const N64mat *Imat = (N64mat *)( g_pu8RamBase + address );
 
 	s16 hi;
-	u16 lo;
 	s32 tmp;
-
 	for (u32 i = 0; i < 4; i++)
 	{
-#if 1	// Crappy compiler.. reordring is to optimize the ASM // Corn
-		hi = Imat->h[i][0 ^ U16H_TWIDDLE];
-		lo = Imat->l[i][0 ^ U16H_TWIDDLE];
-		tmp = ((hi << 16) | lo);
-		hi = Imat->h[i][1 ^ U16H_TWIDDLE];
+#if 1	// Crappy compiler.. reordering is to optimize the ASM // Corn
+		tmp = ((Imat->h[i].x << 16) | Imat->l[i].x);
+		hi = Imat->h[i].y;
 		mat.m[i][0] =  tmp * fRecip;
 
-		lo = Imat->l[i][1 ^ U16H_TWIDDLE];
-		tmp = ((hi << 16) | lo);
-		hi = Imat->h[i][2 ^ U16H_TWIDDLE];
+		tmp = ((hi << 16) | Imat->l[i].y);
+		hi = Imat->h[i].z;
 		mat.m[i][1] = tmp * fRecip;
 
-		lo = Imat->l[i][2 ^ U16H_TWIDDLE];
-		tmp = ((hi << 16) | lo);
-		hi = Imat->h[i][3 ^ U16H_TWIDDLE];
+		tmp = ((hi << 16) | Imat->l[i].z);
+		hi = Imat->h[i].w;
 		mat.m[i][2] = tmp * fRecip;
 
-		lo = Imat->l[i][3 ^ U16H_TWIDDLE];
-		tmp = ((hi << 16) | lo);
+		tmp = ((hi << 16) | Imat->l[i].w);
 		mat.m[i][3] = tmp * fRecip;
 #else
-
-		hi = Imat->h[i][0 ^ U16H_TWIDDLE];
-		lo = Imat->l[i][0 ^ U16H_TWIDDLE];
-		mat.m[i][0] =  ((hi << 16) | lo) * fRecip;
-
-		hi = Imat->h[i][1 ^ U16H_TWIDDLE];
-		lo = Imat->l[i][1 ^ U16H_TWIDDLE];
-		mat.m[i][1] = ((hi << 16) | lo) * fRecip;
-
-		hi = Imat->h[i][2 ^ U16H_TWIDDLE];
-		lo = Imat->l[i][2 ^ U16H_TWIDDLE];
-		mat.m[i][2] = ((hi << 16) | lo) * fRecip;
-
-		hi = Imat->h[i][3 ^ U16H_TWIDDLE];
-		lo = Imat->l[i][3 ^ U16H_TWIDDLE];
-		mat.m[i][3] = ((hi << 16) | lo) * fRecip;
+		mat.m[i][0] = ((Imat->h[i].x << 16) | Imat->l[i].x) * fRecip;
+		mat.m[i][1] = ((Imat->h[i].y << 16) | Imat->l[i].y) * fRecip;
+		mat.m[i][2] = ((Imat->h[i].z << 16) | Imat->l[i].z) * fRecip;
+		mat.m[i][3] = ((Imat->h[i].w << 16) | Imat->l[i].w) * fRecip;
 #endif
 	}
 }
@@ -811,11 +801,14 @@ void DLParser_SetScissor( MicroCodeCommand command )
 	scissors.right   = command.scissor.x1>>2;
 	scissors.bottom  = command.scissor.y1>>2;
 
-	// Hack to correct Super Bowling's right screen, left screen needs fb emulation
+	// Hack to correct Super Bowling's right and left screens
 	if ( g_ROM.GameHacks == SUPER_BOWLING && g_CI.Address%0x100 != 0 )
 	{
-		// right half screen
-		RDP_MoveMemViewport( RDPSegAddr(command.inst.cmd1) );
+		scissors.left += 160;
+		scissors.right += 160;
+		v2 vec_trans( 240, 120 );
+		v2 vec_scale( 80, 120 );
+		gRenderer->SetN64Viewport( vec_scale, vec_trans );
 	}
 
 	DL_PF("    x0=%d y0=%d x1=%d y1=%d mode=%d", scissors.left, scissors.top, scissors.right, scissors.bottom, command.scissor.mode);
