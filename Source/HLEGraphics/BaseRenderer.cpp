@@ -958,15 +958,10 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 v3 BaseRenderer::LightVert( const v3 & norm ) const
 {
+	const v3 & col = mTnL.Lights[mTnL.NumLights].Colour;
+	v3 result( col.x, col.y, col.z );
 
-	u32 num = mTnL.NumLights;
-
-	v3 result( mTnL.Lights[num].Colour.x,
-			   mTnL.Lights[num].Colour.y,
-			   mTnL.Lights[num].Colour.z );
-
-
-	for ( u32 l = 0; l < num; l++ )
+	for ( u32 l = 0; l < mTnL.NumLights; l++ )
 	{
 		f32 fCosT = norm.Dot( mTnL.Lights[l].Direction );
 		if (fCosT > 0.0f)
@@ -988,12 +983,12 @@ v3 BaseRenderer::LightVert( const v3 & norm ) const
 //*****************************************************************************
 //
 //*****************************************************************************
-inline v3 BaseRenderer::LightPointVert( const v4 & w ) const
+v3 BaseRenderer::LightPointVert( const v4 & w ) const
 {
-	u32 num = mTnL.NumLights;
-	v3 result( mTnL.Lights[num].Colour.x, mTnL.Lights[num].Colour.y, mTnL.Lights[num].Colour.z );
+	const v3 & col = mTnL.Lights[mTnL.NumLights].Colour;
+	v3 result( col.x, col.y, col.z );
 
-	for ( u32 l = 0; l < num; l++ )
+	for ( u32 l = 0; l < mTnL.NumLights; l++ )
 	{
 		if ( mTnL.Lights[l].SkipIfZero )
 		{
@@ -1005,10 +1000,10 @@ inline v3 BaseRenderer::LightPointVert( const v4 & w ) const
 			f32 at = mTnL.Lights[l].ca + mTnL.Lights[l].la * light_llen + mTnL.Lights[l].qa * light_qlen;
 			if (at > 0.0f)
 			{
-				f32 intensity = 1.0f/at;
-				result.x += mTnL.Lights[l].Colour.x * intensity;
-				result.y += mTnL.Lights[l].Colour.y * intensity;
-				result.z += mTnL.Lights[l].Colour.z * intensity;
+				f32 fCosT = 1.0f/at;
+				result.x += mTnL.Lights[l].Colour.x * fCosT;
+				result.y += mTnL.Lights[l].Colour.y * fCosT;
+				result.z += mTnL.Lights[l].Colour.z * fCosT;
 			}
 		}
 	}
@@ -1123,8 +1118,15 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 		}
 		else
 		{
-			//Set color
-			mVtxProjected[i].Colour = v4( vert.rgba_r * (1.0f / 255.0f), vert.rgba_g * (1.0f / 255.0f), vert.rgba_b * (1.0f / 255.0f), vert.rgba_a * (1.0f / 255.0f) );
+			//if( mTnL.Flags.Shade )	
+			{// FLAT shade
+				mVtxProjected[i].Colour = v4( vert.rgba_r * (1.0f / 255.0f), vert.rgba_g * (1.0f / 255.0f), vert.rgba_b * (1.0f / 255.0f), vert.rgba_a * (1.0f / 255.0f) );
+			}
+			/*else
+			{// PRIM shade, SSV uses this, doesn't seem to do anything????
+				mVtxProjected[i].Colour = mPrimitiveColour.GetColourV4();
+			}*/
+
 
 			//Set Texture coordinates
 			mVtxProjected[i].Texture.x = (float)vert.tu * mTnL.TextureScaleX;
@@ -1189,7 +1191,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
 
 	//Model normal base vector
-	const s8 *mn = (s8*)(g_pu8RamBase + gAuxAddr);
+	const s8 *mn = (const s8*)(g_pu8RamBase + gAuxAddr);
 
 	// Transform and Project + Lighting or Transform and Project with Colour
 	//
@@ -1229,14 +1231,21 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 		//
 		if ( mTnL.Flags.Light )
 		{
-			f32 light_intensity;
-			u32 l;
-			v3 result( mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z );
-
 			v3 model_normal( mn[((i<<1)+0)^3], mn[((i<<1)+1)^3], vert.normz );
 			v3 vecTransformedNormal = mat_world.TransformNormal( model_normal );
 			vecTransformedNormal.Normalise();
 			const v3 & norm = vecTransformedNormal;
+			const v3 & col = mTnL.Lights[mTnL.NumLights].Colour;
+
+			v4 mod;
+			mod.x = (projected.x + mTnL.CoordMod[8]) * mTnL.CoordMod[12];
+			mod.y = (projected.y + mTnL.CoordMod[9]) * mTnL.CoordMod[13];
+			mod.z = (projected.z + mTnL.CoordMod[10])* mTnL.CoordMod[14];
+			mod.w = (projected.w + mTnL.CoordMod[11])* mTnL.CoordMod[15];
+
+			v3 result( col.x, col.y, col.z );
+			f32 fCosT;
+			u32 l;
 
 			if ( mTnL.Flags.PointLight )
 			{	//POINT LIGHT
@@ -1244,34 +1253,26 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 				{
 					if ( mTnL.Lights[l].SkipIfZero )
 					{
-						light_intensity = norm.Dot( mTnL.Lights[l].Direction );	//DotProduct (Light vector, Model normal)
-
-						if (light_intensity > 0.0f)
+						fCosT = norm.Dot( mTnL.Lights[l].Direction );
+						if (fCosT > 0.0f)
 						{
-							f32 vx = (projected.x + mTnL.CoordMod[8]) * mTnL.CoordMod[12] - mTnL.Lights[l].Position.x;
-							f32 vy = (projected.y + mTnL.CoordMod[9]) * mTnL.CoordMod[13] - mTnL.Lights[l].Position.y;
-							f32 vz = (projected.z + mTnL.CoordMod[10])* mTnL.CoordMod[14] - mTnL.Lights[l].Position.z;
-							f32 vw = (projected.w + mTnL.CoordMod[11])* mTnL.CoordMod[15] - mTnL.Lights[l].Position.w;
+							f32 pi = mTnL.Lights[l].Iscale / mod.LengthSq();
+							if (pi > 1.0f)  pi = 1.0f;
+							fCosT *= pi;
 
-							f32 p_i = mTnL.Lights[l].Iscale / (vx*vx+vy*vy+vz*vz+vw*vw);
-							if (p_i > 1.0f) p_i = 1.0f;
-
-							light_intensity *= p_i;
-
-							result.x += mTnL.Lights[l].Colour.x * light_intensity;
-							result.y += mTnL.Lights[l].Colour.y * light_intensity;
-							result.z += mTnL.Lights[l].Colour.z * light_intensity;
+							result.x += mTnL.Lights[l].Colour.x * fCosT;
+							result.y += mTnL.Lights[l].Colour.y * fCosT;
+							result.z += mTnL.Lights[l].Colour.z * fCosT;
 						}
 					}
 				}   
 
-				light_intensity = norm.Dot( mTnL.Lights[l].Direction );	//DotProduct (Light vector, Model normal)
-
-				if (light_intensity > 0.0f) 
+				fCosT = norm.Dot( mTnL.Lights[l].Direction );
+				if (fCosT > 0.0f) 
 				{
-					result.x += mTnL.Lights[l].Colour.x * light_intensity;
-					result.y += mTnL.Lights[l].Colour.y * light_intensity;
-					result.z += mTnL.Lights[l].Colour.z * light_intensity;
+					result.x += mTnL.Lights[l].Colour.x * fCosT;
+					result.y += mTnL.Lights[l].Colour.y * fCosT;
+					result.z += mTnL.Lights[l].Colour.z * fCosT;
 				}
 			}
 			else
@@ -1280,22 +1281,18 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 				{
 					if ( mTnL.Lights[l].SkipIfZero )
 					{
-						f32 vx = (projected.x + mTnL.CoordMod[8]) * mTnL.CoordMod[12] - mTnL.Lights[l].Position.x;
-						f32 vy = (projected.y + mTnL.CoordMod[9]) * mTnL.CoordMod[13] - mTnL.Lights[l].Position.y;
-						f32 vz = (projected.z + mTnL.CoordMod[10])* mTnL.CoordMod[14] - mTnL.Lights[l].Position.z;
-						f32 vw = (projected.w + mTnL.CoordMod[11])* mTnL.CoordMod[15] - mTnL.Lights[l].Position.w;
-						
-						light_intensity = mTnL.Lights[l].Iscale / (vx*vx+vy*vy+vz*vz+vw*vw);
+						f32 pi = mTnL.Lights[l].Iscale / mod.LengthSq();
+						if (pi > 1.0f) pi = 1.0f;
+						fCosT = pi;
 
-						if (light_intensity > 1.0f) light_intensity = 1.0f;
-
-						result.x += mTnL.Lights[l].Colour.x * light_intensity;
-						result.y += mTnL.Lights[l].Colour.y * light_intensity;
-						result.z += mTnL.Lights[l].Colour.z * light_intensity;
+						result.x += mTnL.Lights[l].Colour.x * fCosT;
+						result.y += mTnL.Lights[l].Colour.y * fCosT;
+						result.z += mTnL.Lights[l].Colour.z * fCosT;
 					}   
 				}
 			}
 
+			//Clamp to 1.0
 			if( result.x > 1.0f ) result.x = 1.0f;
 			if( result.y > 1.0f ) result.y = 1.0f;
 			if( result.z > 1.0f ) result.z = 1.0f;

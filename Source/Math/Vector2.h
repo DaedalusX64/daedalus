@@ -2,8 +2,9 @@
 #define MATH_VECTOR2_H_
 
 #include "Math/Math.h"	// VFPU Math
+#include "Utility/Alignment.h"
 
-class v2
+ALIGNED_TYPE(class, v2, 8)
 {
 public:
 	v2() {}

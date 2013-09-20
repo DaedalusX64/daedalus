@@ -50,7 +50,7 @@ struct BackgroundVtx
 	static const u32 Flags = GU_TEXTURE_32BITF|GU_VERTEX_32BITF;
 };
 
-DAEDALUS_STATIC_ASSERT( sizeof(BackgroundVtx) == 20 );
+DAEDALUS_STATIC_ASSERT( sizeof(BackgroundVtx) == 24 );
 
 struct BackgroundColourVtx
 {
