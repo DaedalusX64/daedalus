@@ -58,10 +58,14 @@ private:
 	// For handling large textures.
 	void				Draw2DTextureBlit(f32 x0, f32 y0, f32 x1, f32 y1, f32 u0, f32 v0, f32 u1, f32 v1, const CNativeTexture * texture);
 
+	inline void			RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags );
 	void				RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer );
 	void				RenderUsingRenderSettings( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags );
 
 private:
+	// Temporary vertex storage
+	DaedalusVtx			mVtx_Save[320];
+
 	// BlendMode support
 	//
 	CBlendStates *		mCopyBlendStates;

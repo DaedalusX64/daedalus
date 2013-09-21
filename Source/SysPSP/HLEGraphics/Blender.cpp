@@ -182,26 +182,26 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	case 0xc410:					// Fog * AFog + In * 1-A || :In * AIn + Mem * 1-A		Donald Duck - Stars
 	case 0xc810:					// Fog * AShade + In * 1-A || :In * AIn + Mem * 1-A		SSV - Fog? and MM - Shadows
 	case 0xcb02:					// Fog * AShade + In * 1-A || :In * 0 + In * 1			Doom 64 - Weapons
-		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
 		sceGuEnable( GU_BLEND );
+		sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
 		break;
 #endif
 	//
 	// Default case should handle most blenders, ignore most unknown blenders unless something is messed up
 	//
 	default:
+		sceGuEnable( GU_BLEND );
+
 		// Hack for shadows in ISS64
 		if(g_ROM.GameHacks == ISS64)
 		{
 			if (blendmode == 0xff5a)	// Actual shadow
 			{
 				sceGuBlendFunc(GU_REVERSE_SUBTRACT, GU_SRC_ALPHA,GU_FIX, 0, 0);
-				sceGuEnable( GU_BLEND );
 			}
 			else if (blendmode == 0x0050) // Box that appears under the players..
 			{
 				sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_FIX, 0, 0x00ffffff);
-				sceGuEnable( GU_BLEND );
 			}
 		}
 		else
@@ -211,7 +211,6 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 			DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", blendmode );
 #endif
 			sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-			sceGuEnable( GU_BLEND );
 		}
 		break;
 	}

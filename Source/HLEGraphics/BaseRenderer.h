@@ -173,6 +173,8 @@ ALIGNED_TYPE(struct, TnLParams, 16)
 	f32				TextureScaleY;	//Texture scale Y
 	DaedalusLight	Lights[12];		//Conker uses up to 12 lights
 	f32				CoordMod[16];	//Used by CBFD lights
+	f32				FogMult;		//Fog mult
+	f32				FogOffs;		//Fog offset
 };
 //DAEDALUS_STATIC_ASSERT( sizeof( TnLParams ) == 32 );
 
@@ -214,21 +216,26 @@ public:
 
 	// Various rendering states
 	// Don't think we need to updateshademodel, it breaks tiger's honey hunt
+#ifdef DAEDALUS_PSP
+	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags._u32 = (mTnL.Flags._u32 & TNL_TEXTURE) | mode; /*UpdateFogEnable(); UpdateShadeModel();*/ }
+#else
 	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags._u32 = (mTnL.Flags._u32 & TNL_TEXTURE) | mode; UpdateFogEnable(); /*UpdateShadeModel();*/ }
+#endif
 	inline void			SetTextureEnable(bool enable)			{ mTnL.Flags.Texture = enable; }
 	inline void			SetTextureTile(u32 tile)				{ mTextureTile = tile; }
 	inline u32			GetTextureTile() const					{ return mTextureTile; }
 	inline void			SetCullMode(bool enable, bool mode)		{ mTnL.Flags.TriCull = enable; mTnL.Flags.CullBack = mode; }
 
 	// Fog stuff
-	inline void			SetFogMinMax(float fMin, float fMax)	{ sceGuFog(fMin, fMax, mFogColour.GetColour()); }
+	inline void			SetFogMultOffs(f32 Mult, f32 Offs)		{ mTnL.FogMult=Mult/255.0f; mTnL.FogOffs=Offs/255.0f;}
+	inline void			SetFogMinMax(f32 near, f32 far)			{ sceGuFog(near, far, mFogColour.GetColour()); }
 	inline void			SetFogColour( c32 colour )				{ mFogColour = colour; }
 
 	// PrimDepth will replace the z value if depth_source=1 (z range 32767-0 while PSP depthbuffer range 0-65535)//Corn
 #ifdef DAEDALUS_PSP
 	inline void			SetPrimitiveDepth( u32 z )				{ mPrimDepth = (f32)( ( ( 32767 - z ) << 1) + 1 ); }
 #else
-	inline void			SetPrimitiveDepth( u32 z )				{ mPrimDepth = ((f32)(z)/(f32)0x4000) - 1.0f ;}
+	inline void			SetPrimitiveDepth( u32 z )				{ mPrimDepth = (f32)(z - 0x4000) / (f32)0x4000;}
 #endif
 	inline void			SetPrimitiveLODFraction( f32 f )		{ mPrimLODFraction = f; }
 	inline void			SetPrimitiveColour( c32 colour )		{ mPrimitiveColour = colour; }
@@ -237,7 +244,7 @@ public:
 	inline void			SetFillColour( u32 colour )				{ mFillColour = colour; }
 
 	inline void			SetNumLights(u32 num)					{ mTnL.NumLights = num; }
-	inline void			SetLightCol(u32 l, u8 r, u8 g, u8 b)	{  mTnL.Lights[l].SkipIfZero=(r+g+b); mTnL.Lights[l].Colour.x= r/255.0f; mTnL.Lights[l].Colour.y= g/255.0f; mTnL.Lights[l].Colour.z= b/255.0f; }
+	inline void			SetLightCol(u32 l, u8 r, u8 g, u8 b)	{ mTnL.Lights[l].SkipIfZero=(r+g+b); mTnL.Lights[l].Colour.x= r/255.0f; mTnL.Lights[l].Colour.y= g/255.0f; mTnL.Lights[l].Colour.z= b/255.0f; }
 	inline void			SetLightDirection(u32 l, f32 x, f32 y, f32 z) { v3 n(x, y, z); n.Normalise(); mTnL.Lights[l].Direction.x=n.x; mTnL.Lights[l].Direction.y=n.y; mTnL.Lights[l].Direction.z=n.z; }
 	inline void			SetLightPosition(u32 l, f32 x, f32 y, f32 z, f32 w) { mTnL.Lights[l].Position.x=x; mTnL.Lights[l].Position.y=y; mTnL.Lights[l].Position.z=z; mTnL.Lights[l].Position.w=w; }
 	inline void			SetLightCBFD(u32 l, u8 nonzero)			{ mTnL.Lights[l].Iscale=(f32)(nonzero << 12); mTnL.Lights[l].SkipIfZero = mTnL.Lights[l].SkipIfZero&&nonzero; }
@@ -327,8 +334,7 @@ protected:
 #ifdef DAEDALUS_PSP
 	inline void			UpdateFogEnable()						{ if(gFogEnabled) mTnL.Flags.Fog ? sceGuEnable(GU_FOG) : sceGuDisable(GU_FOG); }
 	inline void			UpdateShadeModel()						{ sceGuShadeModel( mTnL.Flags.Shade ? GU_SMOOTH : GU_FLAT ); }
-#endif
-#ifdef DAEDALUS_GL
+#else
 	inline void			UpdateFogEnable()						{ if(gFogEnabled) mTnL.Flags.Fog ? glEnable(GL_FOG) : glDisable(GL_FOG); }
 	inline void			UpdateShadeModel()						{ glShadeModel( mTnL.Flags.Shade ? GL_SMOOTH : GL_FLAT ); }
 #endif

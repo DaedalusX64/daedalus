@@ -8,6 +8,7 @@
 #define PARAMS_LIGHTS		0x10
 #define COORDMOD1		   (16 + 12 * (1<<LIGHTSZ) + 32)
 #define COORDMOD2		   (16 + 12 * (1<<LIGHTSZ) + 48)
+#define FOGPARAM		   (16 + 12 * (1<<LIGHTSZ) + 64)
 #define LIGHTDIR			0
 #define LIGHTCOL			16
 #define LIGHTPOS			32
@@ -52,8 +53,10 @@
 # R303: Scratch
 # R431: current vertex Alpha value
 # R700: Ambient
+# R701: FogMult & FogOffs
 # R721: Texture X & Y scale
 # R702: Vertex position
+# R703: project transform [x,y,z,w]
 # t4 = cur_light
 # t6 = first_light
 # t7 = last_light
@@ -85,6 +88,9 @@ _TnLVFPU:
 	beq			$a2, $t0, finished_
 	mfv			$v0, S701					// TnL flags
 	
+	lv.s		S701, FOGPARAM($t1)			// Load fog param [FogMult]
+	lv.s		S711, FOGPARAM+4($t1)		// Load fog param [FogOffs]
+
 next_vertex_:
 # Load and transform this vertex position
  	lv.s		S200, 0($a2)				// load word [y,x,?,z]
@@ -93,18 +99,19 @@ next_vertex_:
 	vi2f.q		R200, R200, 16				// int -> float
 	vmov.q		R702, R200[y,x,w,1]			// unfiddle and save for point lighting
 	vtfm4.q		R201, M000, R702			// World transform
-	vtfm4.q		R202, M100, R702			// World*Projection transform
+	vtfm4.q		R703, M100, R702			// World*Projection transform
 	sv.q		R201, 0x00($a3)				// Store world transform
-	sv.q		R202, 0x10($a3)				// Store projection transform
+	sv.q		R703, 0x10($a3)				// Store projection transform
 	
 # Compute the clip flags
-	vcmp.q		LT, R202, R202[-w,-w,-w,0]	// x < -w, y < -w, z < -w
+	vcmp.q		LT, R703, R703[-w,-w,-w,0]	// x < -w, y < -w, z < -w
 	lv.s		S200, 12($a2)				// S200 <- load model normal or color word [w,z,y,x]/[a,b,g,r]
 	mfvc		$t4, $131					// VFPU_CC. Corresponds to X_NEG/Y_NEG/Z_NEG (will become X_POS/Y_POS/Z_POS later)
-	vcmp.q		GT, R202, R202[w,w,w,0]		// x > w, y > w, z > w
+	vcmp.q		GT, R703, R703[w,w,w,0]		// x > w, y > w, z > w, w > 0
 	andi		$t4, $t4, 0x7				// Mask out the condition codes we don't care about
 	sll			$t4, $t4, 3					// Shift up to create X_POS/Y_POS/Z_POS	
 	mfvc		$t5, $131					// VFPU_CC. Corresponds to X_NEG/Y_NEG/Z_NEG
+	andi		$t3, $t5, 0x8				// Keep the condition w > 0 (used for fog)
 	andi		$t5, $t5, 0x7				// Mask out the condition codes we don't care about
 	or			$t5, $t4, $t5
 
@@ -145,7 +152,7 @@ done_lighting_:
 
 	andi		$t4, $v0, TNL_TEXGEN		// if( TNL_TEXGEN )
 	beqz		$t4, do_texture_
-	sv.q		R401, 0x20($a3)				// Store colour
+	nop
 
 # We use worldproject matrix to calc normals it gives a nicer effect (model view result is in R200) //Corn
 	vtfm3.t		R200, M100, R203			// Transform with projworld matrix, looks nicer (only need 3x3)
@@ -178,8 +185,7 @@ do_texgen_:
 do_color_:
 # Normalise the RGBA colour
 	.word		0xd0380000 | (8<<8) | (40)	// vuc2i.s	R200, S200	// R200 = [a,b,g,r]
-	vi2f.q		R200, R200[w,z,y,x], 31		// int -> float, R200 = [r * 1/256, g * 1/256, b * 1/256, a * 1/256]
-	sv.q		R200, 0x20($a3)				// Store colour
+	vi2f.q		R401, R200[w,z,y,x], 31		// int -> float, R200 = [r * 1/256, g * 1/256, b * 1/256, a * 1/256]
 
 do_texture_:
 # Textured t.x = (float)v.tu * mTextureScale.x 	t.y = (float)v.tv * mTextureScale.y
@@ -191,6 +197,21 @@ do_texture_:
 	sv.s		S202, 0x34($a3)				// Store Texture.y
 
 vtx_done_:
+	andi		$t4, $v0, TNL_FOG
+	beqz		$t4, fog_done_
+	nop
+	beqz		$t3, fog_done_
+	vzero.s		S431
+
+#Calculate fog factor and put as alpha
+	vrcp.s		S200, S733					// 1/w
+	vmul.s		S201, S723, S701			// fogmul * z			
+	vmul.s		S201, S201, S200			// fogmul * z * 1/w
+	vadd.s		S431[0:1], S201, S711		// Clamp[0:1] fogmul * z * 1/w + fogoffs	
+
+fog_done_:
+	sv.q		R401, 0x20($a3)				// Store colour
+
 # Continue with the next vertex
 	addiu		$a2, $a2, 16				// Next input vertex
 	bne			$a2, $t0, next_vertex_
@@ -271,10 +292,11 @@ next_vertex_Plight:
 	vcmp.q		LT, R202, R202[-w,-w,-w,0]	// x < -w, y < -w, z < -w
 	lv.s		S200, 12($a2)				// S200 <- load model normal or color word [w,z,y,x]/[a,b,g,r]
 	mfvc		$t4, $131					// VFPU_CC. Corresponds to X_NEG/Y_NEG/Z_NEG (will become X_POS/Y_POS/Z_POS later)
-	vcmp.q		GT, R202, R202[w,w,w,0]		// x > w, y > w, z > w
+	vcmp.q		GT, R202, R202[w,w,w,0]		// x > w, y > w, z > w, w > 0
 	andi		$t4, $t4, 0x7				// Mask out the condition codes we don't care about
 	sll			$t4, $t4, 3					// Shift up to create X_POS/Y_POS/Z_POS	
 	mfvc		$t5, $131					// VFPU_CC. Corresponds to X_NEG/Y_NEG/Z_NEG
+	//andi		$t3, $t5, 0x8				// Keep the condition w > 0 (used for fog)
 	andi		$t5, $t5, 0x7				// Mask out the condition codes we don't care about
 	or			$t5, $t4, $t5
 	sw			$t5, 0x38($a3)				// Store ClipFlags

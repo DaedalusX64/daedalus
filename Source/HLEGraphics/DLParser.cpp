@@ -1218,7 +1218,8 @@ void DLParser_SetFogColor( MicroCodeCommand command )
 {
 	DL_PF("    RGBA: %d %d %d %d", command.color.r, command.color.g, command.color.b, command.color.a);
 
-	c32	fog_colour( command.color.r, command.color.g, command.color.b, command.color.a );
+	//c32	fog_colour( command.color.r, command.color.g, command.color.b, command.color.a );
+	c32	fog_colour( command.color.r, command.color.g, command.color.b, 0 );	//alpha is always 0
 
 	gRenderer->SetFogColour( fog_colour );
 }

@@ -4,7 +4,7 @@
 #include "Math/Math.h"	// VFPU Math
 #include "Utility/Alignment.h"
 
-ALIGNED_TYPE(class, v2, 8)
+class v2
 {
 public:
 	v2() {}

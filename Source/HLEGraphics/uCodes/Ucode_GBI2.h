@@ -142,21 +142,24 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 
 	case G_MW_FOG: // WIP, only works for a few games
 		{
-			f32 a = f32(command.mw2.value >> 16);
-			f32 b = f32(command.mw2.value & 0xFFFF);
+#ifdef DAEDALUS_PSP			
+			f32 mul = (f32)(s16)(command.mw2.value >> 16);	//Fog mult
+			f32 offs = (f32)(s16)(command.mw2.value & 0xFFFF);	//Fog Offset
 
-			//f32 min = b - a;
-			//f32 max = b + a;
-			//min = min * (1.0f / 16.0f);
-			//max = max * (1.0f / 4.0f);
-			f32 min = a / 256.0f;
-			f32 max = b / 6.0f;
+			gRenderer->SetFogMultOffs(mul, offs);
+
+#else		// HW fog, only works for a few games
+			f32 a = (f32)(command.mw2.value >> 16);
+			f32 b = (f32)(command.mw2.value & 0xFFFF);
+
+			f32 near = a / 256.0f;
+			f32 far = b / 6.0f;
+
+			gRenderer->SetFogMinMax(near, far);
 
 			//DL_PF(" G_MW_FOG. Mult = 0x%04x (%f), Off = 0x%04x (%f)", wMult, 255.0f * fMult, wOff, 255.0f * fOff );
-
-			gRenderer->SetFogMinMax(min, max);
-
 			//printf("1Fog %.0f | %.0f || %.0f | %.0f\n", min, max, a, b);
+#endif
 		}
 		break;
 
@@ -376,7 +379,7 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 	TnL.Light		= gGeometryMode.GBI2_Lighting;
 	TnL.TexGen		= gGeometryMode.GBI2_TexGen;
 	TnL.TexGenLin	= gGeometryMode.GBI2_TexGenLin;
-	TnL.Fog			= gGeometryMode.GBI2_Fog;
+	TnL.Fog			= gGeometryMode.GBI2_Fog & gFogEnabled;// && (gRDPOtherMode.c1_m1a==3 || gRDPOtherMode.c1_m2a==3 || gRDPOtherMode.c2_m1a==3 || gRDPOtherMode.c2_m2a==3);
 	TnL.Shade		= !(gGeometryMode.GBI2_TexGenLin/* & (g_ROM.GameHacks != TIGERS_HONEY_HUNT)*/);
 	TnL.Zbuffer		= gGeometryMode.GBI2_Zbuffer;
 	TnL.TriCull		= gGeometryMode.GBI2_CullFront | gGeometryMode.GBI2_CullBack;

@@ -1133,26 +1133,23 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 			mVtxProjected[i].Texture.y = (float)vert.tv * mTnL.TextureScaleY;
 		}
 
-		/*
-		// FOG
-		//
+#ifdef DAEDALUS_PSP
+		//Fog
 		if ( mTnL.Flags.Fog )
 		{
-			float	fog_coeff;
-			//if(fabsf(projected.w) > 0.0f)
+			if(projected.w > 0.0f)	//checking for positive w fixes near plane fog errors //Corn 
 			{
-				float eyespace_z = projected.z / projected.w;
-				fog_coeff = (eyespace_z * mTnL.FogMult) + mTnL.FogOffset;
+				f32 eye_z = projected.z / projected.w;
+				f32 fog_alpha = eye_z * mTnL.FogMult + mTnL.FogOffs;
+				//f32 fog_alpha = eye_z * 20.0f - 19.0f;	//Fog test line
+				mVtxProjected[i].Colour.w = Clamp< f32 >( fog_alpha, 0.0f, 1.0f );
 			}
-			//else
-			//{
-			//	fog_coeff = m_fFogOffset;
-			//}
-
-			// Set the alpha
-			mVtxProjected[i].Colour.w = Clamp< f32 >( fog_coeff, 0.0f, 1.0f );
+			else
+			{
+				mVtxProjected[i].Colour.w = 0.0f;
+			}
 		}
-		*/
+#endif
 	}
 }
 
@@ -1171,8 +1168,6 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
 
-	// Light is not handled for Conker
-	//
 	const s8 *mn = (s8*)(g_pu8RamBase + gAuxAddr);
 	_TnLVFPUCBFD( &mat_world, &mat_project, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn, v0<<1 );
 }
@@ -1237,11 +1232,11 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 			const v3 & norm = vecTransformedNormal;
 			const v3 & col = mTnL.Lights[mTnL.NumLights].Colour;
 
-			v4 mod;
-			mod.x = (projected.x + mTnL.CoordMod[8]) * mTnL.CoordMod[12];
-			mod.y = (projected.y + mTnL.CoordMod[9]) * mTnL.CoordMod[13];
-			mod.z = (projected.z + mTnL.CoordMod[10])* mTnL.CoordMod[14];
-			mod.w = (projected.w + mTnL.CoordMod[11])* mTnL.CoordMod[15];
+			v4 Pos;
+			Pos.x = (projected.x + mTnL.CoordMod[8]) * mTnL.CoordMod[12];
+			Pos.y = (projected.y + mTnL.CoordMod[9]) * mTnL.CoordMod[13];
+			Pos.z = (projected.z + mTnL.CoordMod[10])* mTnL.CoordMod[14];
+			Pos.w = (projected.w + mTnL.CoordMod[11])* mTnL.CoordMod[15];
 
 			v3 result( col.x, col.y, col.z );
 			f32 fCosT;
@@ -1256,10 +1251,9 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 						fCosT = norm.Dot( mTnL.Lights[l].Direction );
 						if (fCosT > 0.0f)
 						{
-							f32 pi = mTnL.Lights[l].Iscale / mod.LengthSq();
-							if (pi > 1.0f)  pi = 1.0f;
-							fCosT *= pi;
-
+							f32 pi = mTnL.Lights[l].Iscale / (Pos - mTnL.Lights[l].Position).LengthSq();
+							if (pi < 1.0f) fCosT *= pi;
+							
 							result.x += mTnL.Lights[l].Colour.x * fCosT;
 							result.y += mTnL.Lights[l].Colour.y * fCosT;
 							result.z += mTnL.Lights[l].Colour.z * fCosT;
@@ -1281,13 +1275,12 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 				{
 					if ( mTnL.Lights[l].SkipIfZero )
 					{
-						f32 pi = mTnL.Lights[l].Iscale / mod.LengthSq();
+						f32 pi = mTnL.Lights[l].Iscale / (Pos - mTnL.Lights[l].Position).LengthSq();
 						if (pi > 1.0f) pi = 1.0f;
-						fCosT = pi;
 
-						result.x += mTnL.Lights[l].Colour.x * fCosT;
-						result.y += mTnL.Lights[l].Colour.y * fCosT;
-						result.z += mTnL.Lights[l].Colour.z * fCosT;
+						result.x += mTnL.Lights[l].Colour.x * pi;
+						result.y += mTnL.Lights[l].Colour.y * pi;
+						result.z += mTnL.Lights[l].Colour.z * pi;
 					}   
 				}
 			}

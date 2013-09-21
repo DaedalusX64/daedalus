@@ -116,13 +116,14 @@ struct RDP_OtherMode
 {
 	union
 	{
+		u64			_u64;
+
 		struct
 		{
-			// Low bits
+			//******Low bits
 			u32		alpha_compare : 2;			// 0..1
 			u32		depth_source : 1;			// 2..2
 
-		//	u32		render_mode : 13;			// 3..15
 			u32		aa_en : 1;					// 3
 			u32		z_cmp : 1;					// 4
 			u32		z_upd : 1;					// 5
@@ -138,9 +139,8 @@ struct RDP_OtherMode
 			u32		tex_edge : 1;				// 15 - Not used
 
 			u32		blender : 16;				// 16..31
-
-
-			// High bits
+			
+			//******High bits
 			u32		blend_mask : 4;				// 0..3 - not supported
 			u32		alpha_dither : 2;			// 4..5
 			u32		rgb_dither : 2;				// 6..7
@@ -161,7 +161,20 @@ struct RDP_OtherMode
 
 		};
 
-		u64			_u64;
+		struct
+		{
+			u32 blpad0 : 3;	// 0..2
+			u32	render_mode : 13;	// 3..15
+			u32	c2_m2b : 2;	//blender bit 0..1
+			u32	c1_m2b : 2;	//blender bit 2..3
+			u32	c2_m2a : 2;	//blender bit 4..5
+			u32	c1_m2a : 2;	//blender bit 6..7
+			u32	c2_m1b : 2;	//blender bit 8..9
+			u32	c1_m1b : 2;	//blender bit 10..11
+			u32	c2_m1a : 2;	//blender bit 12..13
+			u32	c1_m1a : 2;	//blender bit 14..15
+			u32 blpad1 : 32;
+		};
 
 		struct
 		{
