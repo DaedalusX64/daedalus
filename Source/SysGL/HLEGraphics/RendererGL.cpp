@@ -140,7 +140,7 @@ bool initgl()
 }
 
 
-void sceGuFog(float mn, float mx, u32 col)
+void sceGuFog(f32 mn, f32 mx, u32 col)
 {
 	//DAEDALUS_ERROR( "%s: Not implemented", __FUNCTION__ );
 }

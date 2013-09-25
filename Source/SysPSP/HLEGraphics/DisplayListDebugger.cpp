@@ -961,8 +961,6 @@ void IDisplayListDebugger::Run()
 	NTiming::GetPreciseFrequency( &freq );
 	float freq_inv = 1.0f / f32( freq );
 
-	gRendererPSP->SetRecordCombinerStates( true );
-
 	CTimer		timer;
 
 	typedef std::vector< CDebugMenuOption * > DebugMenuOptionVector;
@@ -1220,8 +1218,6 @@ void IDisplayListDebugger::Run()
 
 		pad_state.OldButtons = pad_state.NewButtons;
 	}
-
-	gRendererPSP->SetRecordCombinerStates( false );
 
 	//
 	//	Clean up

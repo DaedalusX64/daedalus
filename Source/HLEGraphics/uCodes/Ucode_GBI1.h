@@ -223,7 +223,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 		}
 		break;
 
-	case G_MW_FOG:
+	case G_MW_FOG:	// WIP, only works for the PSP
 		{
 #ifdef DAEDALUS_PSP			
 			f32 mul = (f32)(s16)(value >> 16);	//Fog mult
@@ -231,15 +231,16 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 
 			gRenderer->SetFogMultOffs(mul, offs);
 
-#else		// HW fog, only works for a few games
+			// HW fog, only works for a few games
+#if 0
 			f32 a = f32(value >> 16);
 			f32 b = f32(value & 0xFFFF);
 
-			f32 near = a / 256.0f;
-			f32 far = b / 6.0f;
+			f32 fog_near = a / 256.0f;
+			f32 fog_far = b / 6.0f;
 
-			gRenderer->SetFogMinMax(near, far);
-
+			gRenderer->SetFogMinMax(fog_near, fog_far);
+#endif
 			//DL_PF(" G_MW_FOG. Mult = 0x%04x (%f), Off = 0x%04x (%f)", wMult, 255.0f * fMult, wOff, 255.0f * fOff );
 			//printf("1Fog %.0f | %.0f || %.0f | %.0f\n", min, max, a, b);
 #endif
@@ -398,7 +399,6 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 	}
 
 	TnLMode TnL;
-	TnL._u32 = 0;
 
 	TnL.Light		= gGeometryMode.GBI1_Lighting;
 	TnL.TexGen		= gGeometryMode.GBI1_TexGen;

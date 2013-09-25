@@ -150,9 +150,6 @@ ALIGNED_GLOBAL(u32,    gSelectedTexture[kPlaceholderSize], DATA_ALIGN);
 #endif // DAEDALUS_DEBUG_DISPLAYLIST
 
 RendererPSP::RendererPSP()
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-:	mRecordCombinerStates( false )
-#endif
 {
 	//
 	//	Set up RGB = T0, A = T0

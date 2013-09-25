@@ -233,7 +233,7 @@ public:
 
 	// Fog stuff
 	inline void			SetFogMultOffs(f32 Mult, f32 Offs)		{ mTnL.FogMult=Mult/255.0f; mTnL.FogOffs=Offs/255.0f;}
-	inline void			SetFogMinMax(f32 near, f32 far)			{ sceGuFog(near, far, mFogColour.GetColour()); }
+	inline void			SetFogMinMax(f32 fog_near, f32 fog_far)	{ sceGuFog(fog_near, fog_far, mFogColour.GetColour()); }
 	inline void			SetFogColour( c32 colour )				{ mFogColour = colour; }
 
 	// PrimDepth will replace the z value if depth_source=1 (z range 32767-0 while PSP depthbuffer range 0-65535)//Corn
@@ -373,7 +373,7 @@ protected:
 	void				PrepareTrisUnclipped( TempVerts * temp_verts ) const;
 
 	v3					LightVert( const v3 & norm ) const;
-	inline v3			LightPointVert( const v4 & w ) const;
+	v3					LightPointVert( const v4 & w ) const;
 
 private:
 	void				InitViewport();
