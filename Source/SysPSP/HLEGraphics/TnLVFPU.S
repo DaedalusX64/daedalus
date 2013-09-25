@@ -15,15 +15,14 @@
 #define LIGHTSCL			48
 
 #define	TNL_LIGHT			(1<<0)
-#define	TNL_TEXTURE			(1<<1)
-#define	TNL_TEXGEN			(1<<2)
-#define	TNL_TEXGENLIN		(1<<3)
-#define	TNL_FOG				(1<<4)
-#define	TNL_SHADE			(1<<5)
-#define	TNL_ZBUFFER			(1<<6)
-#define	TNL_TRICULL			(1<<7)
-#define	TNL_CULLBACK		(1<<8)
-#define	TNL_POINTLIGHT		(1<<9)
+#define	TNL_TEXGEN			(1<<1)
+#define	TNL_TEXGENLIN		(1<<2)
+#define	TNL_FOG				(1<<3)
+#define	TNL_SHADE			(1<<4)
+#define	TNL_ZBUFFER			(1<<5)
+#define	TNL_TRICULL			(1<<6)
+#define	TNL_CULLBACK		(1<<7)
+#define	TNL_POINTLIGHT		(1<<8)
 	
 .text
 .set		push
@@ -198,16 +197,16 @@ do_texture_:
 
 vtx_done_:
 	andi		$t4, $v0, TNL_FOG
-	beqz		$t4, fog_done_
+	beqz		$t4, fog_done_				// if( TNL_FOG )
 	nop
-	beqz		$t3, fog_done_
-	vzero.s		S431
+	beqz		$t3, fog_done_				// if( proj.w > 0.0f )
+	vzero.s		S431						// fog_alpha = 0.0f
 
 #Calculate fog factor and put as alpha
 	vrcp.s		S200, S733					// 1/w
 	vmul.s		S201, S723, S701			// fogmul * z			
 	vmul.s		S201, S201, S200			// fogmul * z * 1/w
-	vadd.s		S431[0:1], S201, S711		// Clamp[0:1] fogmul * z * 1/w + fogoffs	
+	vadd.s		S431[0:1], S201, S711		// fog_alpha = Clamp[0:1] fogmul * z * 1/w + fogoffs	
 
 fog_done_:
 	sv.q		R401, 0x20($a3)				// Store colour
@@ -221,6 +220,7 @@ finished_:
 	jr			$ra
 	nop
 
+#Used by Zelda MM
 ############################
 .global _TnLVFPU_Plight
 ############################
@@ -244,8 +244,10 @@ finished_:
 # R303: Scratch
 # R431: current vertex Alpha value
 # R700: Ambient
+# R701: FogMult & FogOffs
 # R721: Texture X & Y scale
 # R702: Vertex position
+# R703: project transform [x,y,z,w]
 # t4 = cur_light
 # t6 = first_light
 # t7 = last_light
@@ -265,7 +267,10 @@ _TnLVFPU_Plight:
 	lv.q		R701, PARAMS_FLAGS_NLIGHT_TXSCAL($t1)	// Load params [Flags, Num_lights, tscale_x, tscale_y]
 	vmov.p		R721, R721[y,x]				// Swizzle texture X&Y scale 
 	mfv			$t7, S711					// Num_lights
-	
+
+	lv.s		S701, FOGPARAM($t1)			// Load fog param [FogMult]
+	lv.s		S711, FOGPARAM+4($t1)		// Load fog param [FogOffs]
+		
 # Calculate the last light index
 	addiu		$t6, $t1, PARAMS_LIGHTS		// pointer to first_light = p_lights
 	sll			$t7, $t7, LIGHTSZ			// num_lights*64
@@ -284,19 +289,19 @@ next_vertex_Plight:
 	vi2f.q		R200, R200, 16				// int -> float
 	vmov.q		R702, R200[y,x,w,1]			// unfiddle and save for point lighting
 	vtfm4.q		R201, M000, R702			// World transform
-	vtfm4.q		R202, M100, R702			// World*Projection transform
+	vtfm4.q		R703, M100, R702			// World*Projection transform
 	sv.q		R201, 0x00($a3)				// Store world transform
-	sv.q		R202, 0x10($a3)				// Store projection transform
+	sv.q		R703, 0x10($a3)				// Store projection transform
 	
 # Compute the clip flags
-	vcmp.q		LT, R202, R202[-w,-w,-w,0]	// x < -w, y < -w, z < -w
+	vcmp.q		LT, R703, R703[-w,-w,-w,0]	// x < -w, y < -w, z < -w
 	lv.s		S200, 12($a2)				// S200 <- load model normal or color word [w,z,y,x]/[a,b,g,r]
 	mfvc		$t4, $131					// VFPU_CC. Corresponds to X_NEG/Y_NEG/Z_NEG (will become X_POS/Y_POS/Z_POS later)
-	vcmp.q		GT, R202, R202[w,w,w,0]		// x > w, y > w, z > w, w > 0
+	vcmp.q		GT, R703, R703[w,w,w,0]		// x > w, y > w, z > w, w > 0
 	andi		$t4, $t4, 0x7				// Mask out the condition codes we don't care about
 	sll			$t4, $t4, 3					// Shift up to create X_POS/Y_POS/Z_POS	
 	mfvc		$t5, $131					// VFPU_CC. Corresponds to X_NEG/Y_NEG/Z_NEG
-	//andi		$t3, $t5, 0x8				// Keep the condition w > 0 (used for fog)
+	andi		$t3, $t5, 0x8				// Keep the condition w > 0 (used for fog)
 	andi		$t5, $t5, 0x7				// Mask out the condition codes we don't care about
 	or			$t5, $t4, $t5
 	sw			$t5, 0x38($a3)				// Store ClipFlags
@@ -331,7 +336,6 @@ skip_Plight:
 	
 done_Plight:
 	vmov.t		R401[0:1,0:1,0:1], R201		// Clamp 0..1 and merge with vertex alpha in S431
-	sv.q		R401, 0x20($a3)				// Store colour
 
 # Textured t.x = (float)v.tu * mTextureScale.x 	t.y = (float)v.tv * mTextureScale.y
 	lv.s		S202, 8($a2)				// load texture word [tv,tu] (N.B. due to swizzling these are 'backwards' from what you might expect)
@@ -339,7 +343,21 @@ done_Plight:
 	vi2f.p		R202, R202, 16				// int -> float
 	vmul.p		R202, R202, R721			// multiply by mTextureScale
 	sv.s		S212, 0x30($a3)				// Store Texture.x
+
+	andi		$t4, $v0, TNL_FOG
+	beqz		$t4, fog_done_plight		// if( TNL_FOG )
 	sv.s		S202, 0x34($a3)				// Store Texture.y
+	beqz		$t3, fog_done_plight		// if( proj.w > 0.0f )
+	vzero.s		S431						// fog_alpha = 0.0f
+
+#Calculate fog factor and put as alpha
+	vrcp.s		S200, S733					// 1/w
+	vmul.s		S201, S723, S701			// fogmul * z			
+	vmul.s		S201, S201, S200			// fogmul * z * 1/w
+	vadd.s		S431[0:1], S201, S711		// fog_alpha = Clamp[0:1] fogmul * z * 1/w + fogoffs	
+
+fog_done_plight:
+	sv.q		R401, 0x20($a3)				// Store colour
 
 # Continue with the next vertex
 	addiu		$a2, $a2, 16				// Next input vertex

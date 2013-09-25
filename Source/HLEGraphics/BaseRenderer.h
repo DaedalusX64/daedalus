@@ -132,15 +132,14 @@ DAEDALUS_STATIC_ASSERT( sizeof( DaedalusLight ) == 64 );	//Size=64 bytes and ord
 enum ETnLModeFlags
 {
 	TNL_LIGHT		= 1 << 0,
-	TNL_TEXTURE		= 1 << 1,
-	TNL_TEXGEN		= 1 << 2,
-	TNL_TEXGENLIN	= 1 << 3,
-	TNL_FOG			= 1 << 4,
-	TNL_SHADE		= 1 << 5,
-	TNL_ZBUFFER		= 1 << 6,
-	TNL_TRICULL		= 1 << 7,
-	TNL_CULLBACK	= 1 << 8,
-	TNL_POINTLIGHT	= 1 << 9,
+	TNL_TEXGEN		= 1 << 1,
+	TNL_TEXGENLIN	= 1 << 2,
+	TNL_FOG			= 1 << 3,
+	TNL_SHADE		= 1 << 4,
+	TNL_ZBUFFER		= 1 << 5,
+	TNL_TRICULL		= 1 << 6,
+	TNL_CULLBACK	= 1 << 7,
+	TNL_POINTLIGHT	= 1 << 8,
 };
 
 struct TnLMode
@@ -150,17 +149,23 @@ struct TnLMode
 		struct
 		{
 			u32 Light : 1;			// 0x1
-			u32 Texture : 1;		// 0x2
-			u32 TexGen : 1;			// 0x4
-			u32 TexGenLin : 1;		// 0x8
-			u32 Fog : 1;			// 0x10
-			u32 Shade : 1;			// 0x20
-			u32 Zbuffer : 1;		// 0x40
-			u32 TriCull : 1;		// 0x80
-			u32 CullBack : 1;		// 0x100
-			u32 PointLight : 1;		// 0x200
-			u32 pad0 : 22;			// 0x0
+			u32 TexGen : 1;			// 0x2
+			u32 TexGenLin : 1;		// 0x4
+			u32 Fog : 1;			// 0x8
+			u32 Shade : 1;			// 0x10
+			u32 Zbuffer : 1;		// 0x20
+			u32 TriCull : 1;		// 0x40
+			u32 CullBack : 1;		// 0x80
+			u32 PointLight : 1;		// 0x100
+			u32 pad0 : 23;			// 0x0
 		};
+		
+		struct
+		{
+			u16 Modes;
+			u16 Texture;
+		};
+
 		u32	_u32;
 	};
 };
@@ -217,9 +222,9 @@ public:
 	// Various rendering states
 	// Don't think we need to updateshademodel, it breaks tiger's honey hunt
 #ifdef DAEDALUS_PSP
-	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags._u32 = (mTnL.Flags._u32 & TNL_TEXTURE) | mode; /*UpdateFogEnable(); UpdateShadeModel();*/ }
+	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags.Modes = mode; /*UpdateFogEnable(); UpdateShadeModel();*/ }
 #else
-	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags._u32 = (mTnL.Flags._u32 & TNL_TEXTURE) | mode; UpdateFogEnable(); /*UpdateShadeModel();*/ }
+	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags.Modes = mode; UpdateFogEnable(); /*UpdateShadeModel();*/ }
 #endif
 	inline void			SetTextureEnable(bool enable)			{ mTnL.Flags.Texture = enable; }
 	inline void			SetTextureTile(u32 tile)				{ mTextureTile = tile; }
