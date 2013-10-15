@@ -1285,14 +1285,10 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 				}
 			}
 
-			//Clamp to 1.0
-			if( result.x > 1.0f ) result.x = 1.0f;
-			if( result.y > 1.0f ) result.y = 1.0f;
-			if( result.z > 1.0f ) result.z = 1.0f;
-
-			mVtxProjected[i].Colour.x *= result.x;
-			mVtxProjected[i].Colour.y *= result.y;
-			mVtxProjected[i].Colour.z *= result.z;
+			//Clamp result to 1.0
+			if( result.x < 1.0f ) mVtxProjected[i].Colour.x *= result.x;
+			if( result.y < 1.0f ) mVtxProjected[i].Colour.y *= result.y;
+			if( result.z < 1.0f ) mVtxProjected[i].Colour.z *= result.z;
 
 			// ENV MAPPING
 			if ( mTnL.Flags.TexGen )

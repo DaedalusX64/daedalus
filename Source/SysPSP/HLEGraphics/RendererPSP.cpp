@@ -357,15 +357,13 @@ inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, 
 	//
 	//if( gRDPOtherMode.c1_m1a==3 || gRDPOtherMode.c1_m2a==3 || gRDPOtherMode.c2_m1a==3 || gRDPOtherMode.c2_m2a==3 )
 	{
-		//u32 states = sceGuGetAllStatus();	//save current state
-
 		//sceGuShadeModel(GU_SMOOTH);
-		//sceGuDepthFunc(GU_EQUAL);
 		sceGuDepthMask(GL_TRUE);	//GL_TRUE to disable z-writes, no need to write to zbuffer for second pass //Corn
 		sceGuEnable(GU_BLEND);
 		sceGuDisable(GU_TEXTURE_2D);	//Blend triangle without a texture
+		sceGuDisable(GU_ALPHA_TEST);
 		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-
+		
 		u32 FogColor = mFogColour.GetColour();
 		
 		//Copy fog color to vertices
@@ -376,10 +374,6 @@ inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, 
 		}
 
 		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
-		
-		//sceGuDepthFunc(GU_GEQUAL);
-
-		//sceGuSetAllStatus( states );	//restore saved state
 	}
 }
 
