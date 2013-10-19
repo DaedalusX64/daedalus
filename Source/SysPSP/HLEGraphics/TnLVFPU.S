@@ -267,6 +267,7 @@ _TnLVFPU_Plight:
 	lv.q		R701, PARAMS_FLAGS_NLIGHT_TXSCAL($t1)	// Load params [Flags, Num_lights, tscale_x, tscale_y]
 	vmov.p		R721, R721[y,x]				// Swizzle texture X&Y scale 
 	mfv			$t7, S711					// Num_lights
+	mfv			$v0, S701					// TnL Flags
 
 	lv.s		S701, FOGPARAM($t1)			// Load fog param [FogMult]
 	lv.s		S711, FOGPARAM+4($t1)		// Load fog param [FogOffs]

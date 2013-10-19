@@ -358,6 +358,7 @@ inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, 
 	//if( gRDPOtherMode.c1_m1a==3 || gRDPOtherMode.c1_m2a==3 || gRDPOtherMode.c2_m1a==3 || gRDPOtherMode.c2_m2a==3 )
 	{
 		//sceGuShadeModel(GU_SMOOTH);
+		sceGuDepthFunc(GU_EQUAL);	//Make sure to only blend on pixels that has been rendered on first pass //Corn
 		sceGuDepthMask(GL_TRUE);	//GL_TRUE to disable z-writes, no need to write to zbuffer for second pass //Corn
 		sceGuEnable(GU_BLEND);
 		sceGuDisable(GU_TEXTURE_2D);	//Blend triangle without a texture
@@ -374,6 +375,8 @@ inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, 
 		}
 
 		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
+
+		sceGuDepthFunc(GU_GEQUAL);	//Restore default depth function	
 	}
 }
 
