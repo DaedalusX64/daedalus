@@ -3671,11 +3671,11 @@ void R4300_Init()
 #ifdef DAEDALUS_PSP
 	if(g_ROM.SET_ROUND_MODE)
 	{
-		R4300Cop1DInstruction[Cop1OpFunc_ADD]	= R4300_Cop1_CTC1_2;
+		R4300Cop1DInstruction[Cop1Op_CTC1]	= R4300_Cop1_CTC1_2;
 	}
 	else
 	{
-		R4300Cop1DInstruction[Cop1OpFunc_ADD]	= R4300_Cop1_CTC1;
+		R4300Cop1DInstruction[Cop1Op_CTC1]	= R4300_Cop1_CTC1;
 	}
 #endif
 }

@@ -358,6 +358,9 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x4C42: g_ROM.GameHacks = BUCK_BUMBLE;			break;
 	case 0x4441: g_ROM.GameHacks = WORMS_ARMAGEDDON;	break;
 
+	case 0x464A:	// Jet Force Geminy
+		g_ROM.SET_ROUND_MODE = true;
+		break;
 	case 0x4B42:	//Banjo-Kazooie
 		g_ROM.TLUT_HACK = true;
 		g_ROM.DISABLE_LBU_OPT = true;
