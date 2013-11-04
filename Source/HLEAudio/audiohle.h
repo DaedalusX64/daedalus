@@ -384,7 +384,7 @@ struct AudioHLECommand
 			int		: 32;
 			int		: 24;
 			u32		cmd : 5;
-			u32		: 3;
+			u32		top : 3;
 		};
 	};
 };
