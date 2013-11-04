@@ -2503,13 +2503,34 @@ static void R4300_CALL_TYPE R4300_Cop1_CTC1( R4300_CALL_SIGNATURE ) 		// move Co
 	}
 }
 
-// Hack for the PSP, only set rounding mode here, since is very expensive to enable it and causes conflicts with dynarec, see notes in SET_ROUND_MODE
-// Fixes collision issues in the final boss of DK64 and camera icon not rotating, fixes collision issues in Rayman, JFG too
+// Hack for the PSP, set rounding mode here, see notes in SET_ROUND_MODE
+// Fixes collision issues in the final boss of DK64 and camera icon not rotating, fixes collision issues in Rayman, and JFG too
 #ifdef DAEDALUS_PSP
 static void R4300_CALL_TYPE R4300_Cop1_CTC1_2( R4300_CALL_SIGNATURE ) 
 {
-	R4300_Cop1_CTC1( R4300_CALL_ARGUMENTS );
-	pspFpuSetRoundmode( gNativeRoundingModes[ gRoundingMode ] );
+	R4300_CALL_MAKE_OP( op_code );
+
+	DAEDALUS_ASSERT( op_code.fs != 0, "CTC1 : Reg zero unhandled");
+	// Only defined for reg 0 or 31
+	// TODO - Maybe an exception was raised?
+	// Not needed for 0?
+	/*if ( op_code.fs == 0 )
+	{
+		gCPUState.FPUControl[ op_code.fs ]._u64 = gGPR[ op_code.rt ]._u64;
+
+	}*/
+	if ( op_code.fs == 31 )
+	{
+		gCPUState.FPUControl[ 31 ]._u32 = gGPR[ op_code.rt ]._u32_0;
+
+		u32		fpcr( gCPUState.FPUControl[ 31 ]._u32 );
+		gRoundingMode = (ERoundingMode)( fpcr & FPCSR_RM_MASK );
+		pspFpuSetRoundmode( gNativeRoundingModes[ gRoundingMode ] );
+	}
+	else
+	{
+		// Now generate lots of exceptions :-)
+	}
 }
 #endif
 
@@ -3671,11 +3692,11 @@ void R4300_Init()
 #ifdef DAEDALUS_PSP
 	if(g_ROM.SET_ROUND_MODE)
 	{
-		R4300Cop1DInstruction[Cop1Op_CTC1]	= R4300_Cop1_CTC1_2;
+		R4300Cop1Instruction[Cop1Op_CTC1]	= R4300_Cop1_CTC1_2;
 	}
 	else
 	{
-		R4300Cop1DInstruction[Cop1Op_CTC1]	= R4300_Cop1_CTC1;
+		R4300Cop1Instruction[Cop1Op_CTC1]	= R4300_Cop1_CTC1;
 	}
 #endif
 }
