@@ -146,21 +146,26 @@ void	CAssemblyWriterX86::NOT(EIntelReg reg1)
 }
 
 //*****************************************************************************
-//
+// Use short form (0x83c0) if data is just one byte!
 //*****************************************************************************
 void CAssemblyWriterX86::ADDI(EIntelReg reg, s32 data)
 {
 	if (data == 0)
 		return;
 
-	/*if (reg == EAX_CODE)
-		EmitBYTE(0x05);
-	else */
+	if (data <= 127 && data > -127)
+	{
+		EmitBYTE(0x83);
+		EmitBYTE(0xc0 | reg);
+		EmitBYTE((u8)data);
+	}
+	else
 	{
 		EmitBYTE(0x81);
 		EmitBYTE(0xc0 | reg);
+		EmitDWORD(data);
 	}
-	EmitDWORD(data);
+	
 }
 
 //*****************************************************************************
@@ -223,6 +228,7 @@ void CAssemblyWriterX86::ORI(EIntelReg reg, u32 data)
 //*****************************************************************************
 void CAssemblyWriterX86::XOR_I32(EIntelReg reg, u32 data)
 {
+
 	/*if (reg == EAX_CODE)
 		EmitBYTE(0x35);
 	else */
@@ -559,10 +565,7 @@ void	CAssemblyWriterX86::MOV(EIntelReg reg1, EIntelReg reg2)
 void	CAssemblyWriterX86::MOVSX(EIntelReg reg1, EIntelReg reg2, bool _8bit)
 {
 	EmitBYTE(0x0f);
-	if (_8bit)
-		EmitBYTE(0xBE);
-	else
-		EmitBYTE(0xBF);
+	EmitBYTE(_8bit ? 0xBE : 0xBF);
 	EmitBYTE(0xc0 | (reg1<<3) | reg2);
 }
 
@@ -572,10 +575,7 @@ void	CAssemblyWriterX86::MOVSX(EIntelReg reg1, EIntelReg reg2, bool _8bit)
 void	CAssemblyWriterX86::MOVZX(EIntelReg reg1, EIntelReg reg2, bool _8bit)
 {
 	EmitBYTE(0x0f);
-	if (_8bit)
-		EmitBYTE(0xB6);
-	else
-		EmitBYTE(0xB7);
+	EmitBYTE(_8bit ? 0xB6 : 0xB7);
 	EmitBYTE(0xc0 | (reg1<<3) | reg2);
 }
 

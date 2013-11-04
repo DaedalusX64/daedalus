@@ -153,6 +153,7 @@ template< bool TraceEnabled > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 		bool	branch_delay_slot( gCPUState.Delay == EXEC_DELAY );
 
 		R4300_ExecuteInstruction(op_code);
+		gGPR[0]._u64 = 0;	//Ensure r0 is zero
 
 		bool	branch_taken( gCPUState.Delay == DO_DELAY );
 
@@ -163,6 +164,7 @@ template< bool TraceEnabled > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 		DAEDALUS_ASSERT( !gTraceRecorder.IsTraceActive(), "If TraceEnabled is not set, trace should be inactive" );
 
 		R4300_ExecuteInstruction(op_code);
+		gGPR[0]._u64 = 0;	//Ensure r0 is zero
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
 		gTotalInstructionsEmulated++;

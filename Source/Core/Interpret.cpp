@@ -85,7 +85,7 @@ template< bool TranslateOp > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 	SYNCH_POINT( DAED_SYNC_REG_PC, gCPUState.CPUControl[C0_COUNT]._u32, "Count doesn't match" );
 
 	R4300_ExecuteInstruction(op_code);
-	//gGPR[0]._u64 = 0; //Ensure R0 is zero?
+	gGPR[0]._u64 = 0;	//Ensure r0 is zero
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
 		gTotalInstructionsEmulated++;

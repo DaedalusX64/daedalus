@@ -59,17 +59,6 @@ DAEDALUS_FORCEINLINE f32 roundf(f32 x)				{ return floorf(x + 0.5f); }
 #undef SIM_DOUBLES
 #endif
 
-// So far the only games I observed that write to r0 are SF 2049 and Jet Force Gemini
-// Is not worth wasting resources on the PSP checking for r0, we do check for LW though, otherwise SF 2049 crashes when the race is about to start
-// Note: We need to check for R0 in the dynarec as well
-#ifndef DAEDALUS_PSP
-#define DAEDALUS_CHECK_R0
-#endif
-
-// If debug console is enabled, check for r0, so we can still log any writes to r0 when debugging on the PSP
-#ifdef DAEDALUS_DEBUG_CONSOLE
-#define DAEDALUS_CHECK_R0
-#endif
 
 // Can we disable this for the PSP? doesn't seem to do anything when dynarec is enabled (trace is active) /Salvy
 #define SPEEDHACK_INTERPRETER
@@ -110,15 +99,21 @@ DAEDALUS_FORCEINLINE f32 roundf(f32 x)				{ return floorf(x + 0.5f); }
 	#define CATCH_NAN_EXCEPTION(op, valX, valY)
 #endif
  
-#ifdef DAEDALUS_CHECK_R0
-#define CHECK_R0( op ) \
+//Nothing todo, I'll remove this eventually.. We ensure r0 is zero after executing an opcode anyways
+//So far the only game I observed that write to r0 is SF 2049....
+//Note: We need to check for R0 in the dynarec as well..
+#ifdef DAEDALUS_DEBUG_CONSOLE
+#define R4300_CHECK_R0( op ) \
 	if(op == 0)	\
 	{ \
+		/*char msg[128];	 \
+		SprintOpCodeInfo( msg, 0, op_code ); \
+		printf( "R0 write -> %s\n", msg );	 \*/
 		DBGConsole_Msg(0, "Warning: Attempted write to r0!"); \
 		return;	\
 	}
 #else
-	#define CHECK_R0( op )
+	#define R4300_CHECK_R0( op )
 #endif
 
 //
@@ -146,7 +141,9 @@ static const PspFpuRoundMode		gNativeRoundingModes[ RM_NUM_MODES ] =
 
 inline void SET_ROUND_MODE( ERoundingMode mode )
 {
-	// This is very expensive on the PSP, so is disabled
+	//This is very expensive on the PSP, so is disabled, also this is skipt in the dynarec as well.
+	//Note: Do not enable this, since it causes conflicts in the dynarec because we dont set rounding mode there. See Mario Party 3
+	//TODO: Map 1:1 N64 and PSP round mode? perphaps write this in asm and just fiddle with the PSP CTC1 opcode?
 	//pspFpuSetRoundmode( gNativeRoundingModes[ mode ] );
 }
 
@@ -400,26 +397,26 @@ inline s32 f32_to_s32_trunc( f32 x )				{ return pspFpuTrunc(x); }
 inline s32 f32_to_s32_round( f32 x )				{ return pspFpuRound(x); }
 inline s32 f32_to_s32_ceil( f32 x )					{ return pspFpuCeil(x); }
 inline s32 f32_to_s32_floor( f32 x )				{ return pspFpuFloor(x); }
-inline s32 f32_to_s32( f32 x, ERoundingMode mode )	{ pspFpuSetRoundmode( gNativeRoundingModes[ mode ] ); return cvt_w_s( x ); }
+inline s32 f32_to_s32( f32 x )						{ pspFpuSetRoundmode( gNativeRoundingModes[ gRoundingMode ] ); return cvt_w_s( x ); }
 
 //inline s64 f32_to_s64_trunc( f32 x )				{ return (s64)trunc_w_s( x ); }
 inline s64 f32_to_s64_trunc( f32 x )				{ return (s64)truncf( x ); }
 inline s64 f32_to_s64_round( f32 x )				{ return (s64)round_w_s( x ); }
 inline s64 f32_to_s64_ceil( f32 x )					{ return (s64)ceil_w_s( x ); }
 inline s64 f32_to_s64_floor( f32 x )				{ return (s64)floor_w_s( x ); }
-inline s64 f32_to_s64( f32 x, ERoundingMode mode )	{ pspFpuSetRoundmode( gNativeRoundingModes[ mode ] ); return (s64)x; }	// XXXX Need to do a cvt really
+inline s64 f32_to_s64( f32 x )						{ pspFpuSetRoundmode( gNativeRoundingModes[ gRoundingMode ] ); return (s64)x; }	// XXXX Need to do a cvt really
 
 inline s32 d64_to_s32_trunc( d64 x )				{ return pspFpuTrunc( (f32)x ); }
 inline s32 d64_to_s32_round( d64 x )				{ return pspFpuRound( (f32)x ); }
 inline s32 d64_to_s32_ceil( d64 x )					{ return pspFpuCeil( (f32)x ); }
 inline s32 d64_to_s32_floor( d64 x )				{ return pspFpuFloor( (f32)x ); }
-inline s32 d64_to_s32( d64 x, ERoundingMode mode )	{ pspFpuSetRoundmode( gNativeRoundingModes[ mode ] ); return cvt_w_s( (f32)x ); }
+inline s32 d64_to_s32( d64 x )						{ pspFpuSetRoundmode( gNativeRoundingModes[ gRoundingMode ] ); return cvt_w_s( (f32)x ); }
 
 inline s64 d64_to_s64_trunc( d64 x )				{ return (s64)x; }
 inline s64 d64_to_s64_round( d64 x )				{ return (s64)( x + 0.5f ); }
 inline s64 d64_to_s64_ceil( d64 x )					{ return (s64)ceilf( x ); }
 inline s64 d64_to_s64_floor( d64 x )				{ return (s64)floorf( x ); }
-inline s64 d64_to_s64( d64 x, ERoundingMode mode )	{ pspFpuSetRoundmode( gNativeRoundingModes[ mode ] ); return (s64)x; }	// XXXX Need to do a cvt really
+inline s64 d64_to_s64( d64 x )						{ pspFpuSetRoundmode( gNativeRoundingModes[ gRoundingMode ] ); return (s64)x; }	// XXXX Need to do a cvt really
 
 #else
 
@@ -427,7 +424,7 @@ DAEDALUS_FORCEINLINE s32 f32_to_s32_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC );
 DAEDALUS_FORCEINLINE s32 f32_to_s32_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)roundf(x); }
 DAEDALUS_FORCEINLINE s32 f32_to_s32_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s32)ceilf(x); }
 DAEDALUS_FORCEINLINE s32 f32_to_s32_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)floorf(x); }
-DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x, ERoundingMode mode )	
+DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x )	
 { 
 #ifdef ACCURATE_CVT
 	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
@@ -439,7 +436,7 @@ DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x, ERoundingMode mode )
 	default:				return (s32)x;
 	}
 #else
-	SET_ROUND_MODE( mode ); 
+	SET_ROUND_MODE( gRoundingMode ); 
 	return (s32)x;
 #endif
 }
@@ -447,7 +444,7 @@ DAEDALUS_FORCEINLINE s64 f32_to_s64_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC );
 DAEDALUS_FORCEINLINE s64 f32_to_s64_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s64)roundf(x); }
 DAEDALUS_FORCEINLINE s64 f32_to_s64_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s64)ceilf(x); }
 DAEDALUS_FORCEINLINE s64 f32_to_s64_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s64)floorf(x); }
-DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x, ERoundingMode mode ) 
+DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x ) 
 { 
 #ifdef ACCURATE_CVT
 	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
@@ -456,10 +453,10 @@ DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x, ERoundingMode mode )
 	case FPCSR_RM_RZ:		return f32_to_s64_trunc( x );
 	case FPCSR_RM_RP:		return f32_to_s64_ceil( x );
 	case FPCSR_RM_RM:		return f32_to_s64_floor( x );
-	default:				return (s64)x;
+	default:				return NODEFAULT;
 	}
 #else
-	SET_ROUND_MODE( mode ); 
+	SET_ROUND_MODE( gRoundingMode ); 
 	return (s64)x; 
 #endif
 }
@@ -467,7 +464,7 @@ DAEDALUS_FORCEINLINE s32 d64_to_s32_trunc( d64 x )	{ SET_ROUND_MODE( RM_TRUNC );
 DAEDALUS_FORCEINLINE s32 d64_to_s32_round( d64 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)round(x); }
 DAEDALUS_FORCEINLINE s32 d64_to_s32_ceil( d64 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s32)ceil(x); }
 DAEDALUS_FORCEINLINE s32 d64_to_s32_floor( d64 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)floor(x); }
-DAEDALUS_FORCEINLINE s32 d64_to_s32( d64 x, ERoundingMode mode )
+DAEDALUS_FORCEINLINE s32 d64_to_s32( d64 x )
 {
 #ifdef ACCURATE_CVT
 	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
@@ -476,10 +473,10 @@ DAEDALUS_FORCEINLINE s32 d64_to_s32( d64 x, ERoundingMode mode )
 	case FPCSR_RM_RZ:		return d64_to_s32_trunc( x );
 	case FPCSR_RM_RP:		return d64_to_s32_ceil( x );
 	case FPCSR_RM_RM:		return d64_to_s32_floor( x );
-	default:				return (s32)x;
+	default:				return NODEFAULT;
 	}
 #else
-	SET_ROUND_MODE( mode ); 
+	SET_ROUND_MODE( gRoundingMode ); 
 	return (s32)x; 
 #endif
 }
@@ -487,7 +484,7 @@ DAEDALUS_FORCEINLINE s64 d64_to_s64_trunc( d64 x ) { SET_ROUND_MODE( RM_TRUNC );
 DAEDALUS_FORCEINLINE s64 d64_to_s64_round( d64 x ) { SET_ROUND_MODE( RM_ROUND ); return (s64)round(x); }
 DAEDALUS_FORCEINLINE s64 d64_to_s64_ceil( d64 x )  { SET_ROUND_MODE( RM_CEIL ); return (s64)ceil(x); }
 DAEDALUS_FORCEINLINE s64 d64_to_s64_floor( d64 x ) { SET_ROUND_MODE( RM_FLOOR ); return (s64)floor(x); }
-DAEDALUS_FORCEINLINE s64 d64_to_s64( d64 x, ERoundingMode mode )
+DAEDALUS_FORCEINLINE s64 d64_to_s64( d64 x )
 { 
 #ifdef ACCURATE_CVT
 	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
@@ -496,10 +493,10 @@ DAEDALUS_FORCEINLINE s64 d64_to_s64( d64 x, ERoundingMode mode )
 	case FPCSR_RM_RZ:		return d64_to_s64_trunc( x );
 	case FPCSR_RM_RP:		return d64_to_s64_ceil( x );
 	case FPCSR_RM_RM:		return d64_to_s64_floor( x );
-	default:				return (s64)x;
+	default:				return NODEFAULT;
 	}
 #else
-	SET_ROUND_MODE( mode );
+	SET_ROUND_MODE( gRoundingMode );
 	return (s64)x; 
 #endif
 }
@@ -660,7 +657,6 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 	// CHECK COP1 UNUSUABLE
 	if( (gCPUState.CPUControl[C0_SR]._u32 & SR_CU1) == 0 )
 	{
-		// Switch flow control to COP1 unusuable exception handler
 		R4300Instruction[OP_COPRO1] = R4300_CoPro1_Disabled;
 		R4300Instruction[OP_LWC1] = R4300_CoPro1_Disabled;
 		R4300Instruction[OP_LDC1] = R4300_CoPro1_Disabled;
@@ -669,7 +665,6 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 	}
 	else
 	{
-		// Return flow control
 		R4300Instruction[OP_COPRO1] = R4300_CoPro1;
 		R4300Instruction[OP_LWC1] = R4300_LWC1;
 		R4300Instruction[OP_LDC1] = R4300_LDC1;
@@ -859,8 +854,7 @@ static void R4300_CALL_TYPE R4300_BGTZ( R4300_CALL_SIGNATURE ) 			// Branch on G
 static void R4300_CALL_TYPE R4300_DADDI( R4300_CALL_SIGNATURE ) 			// Doubleword ADD Immediate
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	// Check for overflow
 	// Reserved Instruction exception
@@ -872,8 +866,7 @@ static void R4300_CALL_TYPE R4300_DADDI( R4300_CALL_SIGNATURE ) 			// Doubleword
 static void R4300_CALL_TYPE R4300_DADDIU( R4300_CALL_SIGNATURE ) 			// Doubleword ADD Immediate Unsigned
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	// Reserved Instruction exception
 
@@ -884,8 +877,7 @@ static void R4300_CALL_TYPE R4300_DADDIU( R4300_CALL_SIGNATURE ) 			// Doublewor
 static void R4300_CALL_TYPE R4300_ADDI( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	// Generates overflow exception
 
@@ -896,8 +888,7 @@ static void R4300_CALL_TYPE R4300_ADDI( R4300_CALL_SIGNATURE )
 static void R4300_CALL_TYPE R4300_ADDIU( R4300_CALL_SIGNATURE ) 		// Add Immediate Unsigned
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	//rt = rs + immediate
 	gGPR[op_code.rt]._s64 = (s64)(s32)(gGPR[op_code.rs]._s32_0 + (s32)(s16)op_code.immediate);
@@ -906,8 +897,7 @@ static void R4300_CALL_TYPE R4300_ADDIU( R4300_CALL_SIGNATURE ) 		// Add Immedia
 static void R4300_CALL_TYPE R4300_SLTI( R4300_CALL_SIGNATURE ) 			// Set on Less Than Immediate
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	// Cast to s32s to ensure sign is taken into account
 	if (gGPR[op_code.rs]._s64 < (s64)(s32)(s16)op_code.immediate)
@@ -927,8 +917,7 @@ static void R4300_CALL_TYPE R4300_SLTI( R4300_CALL_SIGNATURE ) 			// Set on Less
 static void R4300_CALL_TYPE R4300_SLTIU( R4300_CALL_SIGNATURE ) 		// Set on Less Than Immediate Unsigned
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	// Cast to s32s to ensure sign is taken into account
 	if (gGPR[op_code.rs]._u64 < (u64)(s64)(s32)(s16)op_code.immediate)
@@ -945,8 +934,7 @@ static void R4300_CALL_TYPE R4300_SLTIU( R4300_CALL_SIGNATURE ) 		// Set on Less
 static void R4300_CALL_TYPE R4300_ANDI( R4300_CALL_SIGNATURE ) 				// AND Immediate
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	//rt = rs & immediate
 	gGPR[op_code.rt]._u64 = gGPR[op_code.rs]._u64 & (u64)(u16)op_code.immediate;
@@ -956,8 +944,7 @@ static void R4300_CALL_TYPE R4300_ANDI( R4300_CALL_SIGNATURE ) 				// AND Immedi
 static void R4300_CALL_TYPE R4300_ORI( R4300_CALL_SIGNATURE ) 				// OR Immediate
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	//rt = rs | immediate
 	gGPR[op_code.rt]._u64 = gGPR[op_code.rs]._u64 | (u64)(u16)op_code.immediate;
@@ -966,8 +953,7 @@ static void R4300_CALL_TYPE R4300_ORI( R4300_CALL_SIGNATURE ) 				// OR Immediat
 static void R4300_CALL_TYPE R4300_XORI( R4300_CALL_SIGNATURE ) 				// XOR Immediate
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	//rt = rs ^ immediate
 	gGPR[op_code.rt]._u64 = gGPR[op_code.rs]._u64 ^ (u64)(u16)op_code.immediate;
@@ -976,8 +962,7 @@ static void R4300_CALL_TYPE R4300_XORI( R4300_CALL_SIGNATURE ) 				// XOR Immedi
 static void R4300_CALL_TYPE R4300_LUI( R4300_CALL_SIGNATURE ) 				// Load Upper Immediate
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	gGPR[op_code.rt]._s64 = (s64)(s32)((s32)(s16)op_code.immediate<<16);
 }
@@ -1066,8 +1051,7 @@ static void R4300_CALL_TYPE R4300_BGTZL( R4300_CALL_SIGNATURE ) 		// Branch on G
 static void R4300_CALL_TYPE R4300_LB( R4300_CALL_SIGNATURE ) 			// Load Byte
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 
@@ -1077,8 +1061,7 @@ static void R4300_CALL_TYPE R4300_LB( R4300_CALL_SIGNATURE ) 			// Load Byte
 static void R4300_CALL_TYPE R4300_LBU( R4300_CALL_SIGNATURE ) 			// Load Byte Unsigned -- Zero extend byte...
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate);
 
@@ -1088,8 +1071,7 @@ static void R4300_CALL_TYPE R4300_LBU( R4300_CALL_SIGNATURE ) 			// Load Byte Un
 static void R4300_CALL_TYPE R4300_LH( R4300_CALL_SIGNATURE ) 		// Load Halfword
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 
@@ -1099,8 +1081,7 @@ static void R4300_CALL_TYPE R4300_LH( R4300_CALL_SIGNATURE ) 		// Load Halfword
 static void R4300_CALL_TYPE R4300_LHU( R4300_CALL_SIGNATURE )			// Load Halfword Unsigned -- Zero extend word
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 
@@ -1111,8 +1092,7 @@ static void R4300_CALL_TYPE R4300_LHU( R4300_CALL_SIGNATURE )			// Load Halfword
 static void R4300_CALL_TYPE R4300_LWL( R4300_CALL_SIGNATURE ) 			// Load Word Left
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	u32 adr = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 	u32 nMem = Read32Bits(adr & ~0x3);
@@ -1138,14 +1118,12 @@ static void R4300_CALL_TYPE R4300_LWL( R4300_CALL_SIGNATURE ) 			// Load Word Le
 static void R4300_CALL_TYPE R4300_LDL( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	u32 adr = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 	u64 nMem = Read64Bits(adr & ~0x7);
 
 	u64 nReg = gGPR[op_code.rt]._u64;
-
 #if 1 //1-> tighter code, 0->old way //Corn
 	nReg = (nReg & ~(~0LL << ((adr & 0x7) << 3))) | (nMem << ((adr & 0x7) << 3));
 #else
@@ -1161,7 +1139,6 @@ static void R4300_CALL_TYPE R4300_LDL( R4300_CALL_SIGNATURE )
         case 7: nReg = ((nReg & 0x00FFFFFFFFFFFFFFLL) | (nMem << 56)); break;
    }
 #endif
-
 	gGPR[op_code.rt]._u64 = nReg;
 }
 
@@ -1169,8 +1146,7 @@ static void R4300_CALL_TYPE R4300_LDL( R4300_CALL_SIGNATURE )
 static void R4300_CALL_TYPE R4300_LWR( R4300_CALL_SIGNATURE ) 			// Load Word Right
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	u32 adr = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 	u32 nMem = Read32Bits(adr & ~0x3);
@@ -1196,8 +1172,7 @@ static void R4300_CALL_TYPE R4300_LWR( R4300_CALL_SIGNATURE ) 			// Load Word Ri
 static void R4300_CALL_TYPE R4300_LDR( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	u32 adr = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 	u64 nMem = Read64Bits(adr & ~0x7);
@@ -1220,21 +1195,15 @@ static void R4300_CALL_TYPE R4300_LDR( R4300_CALL_SIGNATURE )
     }
 #endif
 
-	gGPR[op_code.rt]._u64 = nReg;
+	gGPR[op_code.rt]._s64 = nReg;
 }
 
 
 static void R4300_CALL_TYPE R4300_LW( R4300_CALL_SIGNATURE ) 			// Load Word
 {
 	R4300_CALL_MAKE_OP( op_code );
+	R4300_CHECK_R0( op_code.rt );
 
-	CHECK_R0( op_code.rt );
-
-	// This is for San Francisco 2049. An R0 errg.. otherwise it crashes when the race is about to start.
-#ifndef DAEDALUS_CHECK_R0
-	if (op_code.rt == 0)
-		return;
-#endif
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 	gGPR[op_code.rt]._s64 = (s64)(s32)Read32Bits(address);
 }
@@ -1242,8 +1211,7 @@ static void R4300_CALL_TYPE R4300_LW( R4300_CALL_SIGNATURE ) 			// Load Word
 static void R4300_CALL_TYPE R4300_LWU( R4300_CALL_SIGNATURE ) 			// Load Word Unsigned
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 	gGPR[op_code.rt]._u64 = (u64)(u32)Read32Bits(address);
@@ -1440,8 +1408,7 @@ static void R4300_CALL_TYPE R4300_LDC1( R4300_CALL_SIGNATURE )				// Load Double
 static void R4300_CALL_TYPE R4300_LD( R4300_CALL_SIGNATURE ) 				// Load Doubleword
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	u32 address = (u32)( gGPR[op_code.base]._s32_0 + (s32)(s16)op_code.immediate );
 	gGPR[op_code.rt]._u64 = Read64Bits(address);
@@ -1490,11 +1457,10 @@ static void R4300_CALL_TYPE R4300_Special_Unk( R4300_CALL_SIGNATURE ) { WARN_NOE
 static void R4300_CALL_TYPE R4300_Special_SLL( R4300_CALL_SIGNATURE ) 		// Shift word Left Logical
 {
 	R4300_CALL_MAKE_OP( op_code );
+	R4300_CHECK_R0( op_code.rd );
 
 	// NOP!
 	if ( op_code._u32 == 0 ) return;
-
-	CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._s64 = (s64)(s32)( (gGPR[ op_code.rt ]._u32_0 << op_code.sa) & 0xFFFFFFFF );
 }
@@ -1502,8 +1468,7 @@ static void R4300_CALL_TYPE R4300_Special_SLL( R4300_CALL_SIGNATURE ) 		// Shift
 static void R4300_CALL_TYPE R4300_Special_SRL( R4300_CALL_SIGNATURE ) 		// Shift word Right Logical
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rt ]._u32_0 >> op_code.sa );
 }
@@ -1511,8 +1476,7 @@ static void R4300_CALL_TYPE R4300_Special_SRL( R4300_CALL_SIGNATURE ) 		// Shift
 static void R4300_CALL_TYPE R4300_Special_SRA( R4300_CALL_SIGNATURE ) 		// Shift word Right Arithmetic
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rt ]._s32_0 >> op_code.sa );
 }
@@ -1520,8 +1484,7 @@ static void R4300_CALL_TYPE R4300_Special_SRA( R4300_CALL_SIGNATURE ) 		// Shift
 static void R4300_CALL_TYPE R4300_Special_SLLV( R4300_CALL_SIGNATURE ) 		// Shift word Left Logical Variable
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._s64 = (s64)(s32)( (gGPR[ op_code.rt ]._u32_0 << ( gGPR[ op_code.rs ]._u32_0 & 0x1F ) ) & 0xFFFFFFFF );
 }
@@ -1529,8 +1492,7 @@ static void R4300_CALL_TYPE R4300_Special_SLLV( R4300_CALL_SIGNATURE ) 		// Shif
 static void R4300_CALL_TYPE R4300_Special_SRLV( R4300_CALL_SIGNATURE ) 		// Shift word Right Logical Variable
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rt ]._u32_0 >> ( gGPR[ op_code.rs ]._u32_0 & 0x1F ) );
 }
@@ -1538,8 +1500,7 @@ static void R4300_CALL_TYPE R4300_Special_SRLV( R4300_CALL_SIGNATURE ) 		// Shif
 static void R4300_CALL_TYPE R4300_Special_SRAV( R4300_CALL_SIGNATURE ) 		// Shift word Right Arithmetic Variable
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rt ]._s32_0 >> ( gGPR[ op_code.rs ]._u32_0 & 0x1F ) );
 }
@@ -1592,8 +1553,7 @@ static void R4300_CALL_TYPE R4300_Special_SYNC( R4300_CALL_SIGNATURE )
 static void R4300_CALL_TYPE R4300_Special_MFHI( R4300_CALL_SIGNATURE ) 			// Move From MultHI
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._u64 = gCPUState.MultHi._u64;
 }
@@ -1608,8 +1568,7 @@ static void R4300_CALL_TYPE R4300_Special_MTHI( R4300_CALL_SIGNATURE ) 			// Mov
 static void R4300_CALL_TYPE R4300_Special_MFLO( R4300_CALL_SIGNATURE ) 			// Move From MultLO
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._u64 = gCPUState.MultLo._u64;
 }
@@ -1625,8 +1584,7 @@ static void R4300_CALL_TYPE R4300_Special_MTLO( R4300_CALL_SIGNATURE ) 			// Mov
 static void R4300_CALL_TYPE R4300_Special_DSLLV( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	// Reserved Instruction exception
 	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 << ( gGPR[ op_code.rs ]._u32_0 & 0x3F );
@@ -1635,8 +1593,7 @@ static void R4300_CALL_TYPE R4300_Special_DSLLV( R4300_CALL_SIGNATURE )
 static void R4300_CALL_TYPE R4300_Special_DSRLV( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	// Reserved Instruction exception
 	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 >> ( gGPR[ op_code.rs ]._u32_0 & 0x3F );
@@ -1646,8 +1603,7 @@ static void R4300_CALL_TYPE R4300_Special_DSRLV( R4300_CALL_SIGNATURE )
 static void R4300_CALL_TYPE R4300_Special_DSRAV( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	// Reserved Instruction exception
 	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._s64 >> ( gGPR[ op_code.rs ]._u32_0 & 0x3F );
@@ -1720,28 +1676,24 @@ static void R4300_CALL_TYPE R4300_Special_DMULT( R4300_CALL_SIGNATURE ) 		// Dou
 	u64 op1, op2, op3, op4;
 	u64 result1, result2, result3, result4;
 	u64 temp1, temp2, temp3, temp4;
-	s32 sign = 0;
+	bool sign = 0;
 
 	if (rrs < 0)
 	{
-		op2 = -rrs;
+		rrs = -rrs;
 		sign = 1 - sign;
 	}
-	else
-		op2 = rrs;
 
 	if (rrt < 0)
 	{
-		op4 = -rrt;
+		rrt = -rrt;
 		sign = 1 - sign;
 	}
-	else
-		op4 = rrt;
 
-	op1 = op2 & 0xFFFFFFFF;
-	op2 = (op2 >> 32) & 0xFFFFFFFF;
-	op3 = op4 & 0xFFFFFFFF;
-	op4 = (op4 >> 32) & 0xFFFFFFFF;
+	op1 = rrs & 0xFFFFFFFF;
+	op2 = (rrs >> 32) & 0xFFFFFFFF;
+	op3 = rrt & 0xFFFFFFFF;
+	op4 = (rrt >> 32) & 0xFFFFFFFF;
 
 	temp1 = op1 * op3;
 	temp2 = (temp1 >> 32) + op1 * op4;
@@ -1752,6 +1704,7 @@ static void R4300_CALL_TYPE R4300_Special_DMULT( R4300_CALL_SIGNATURE ) 		// Dou
 	result2 = temp2 + (temp3 & 0xFFFFFFFF);
 	result3 = (result2 >> 32) + temp4;
 	result4 = (result3 >> 32);
+
 
 	lo = result1 | (result2 << 32);
 	hi = (result3 & 0xFFFFFFFF) | (result4 << 32);
@@ -1876,7 +1829,7 @@ static void R4300_CALL_TYPE R4300_Special_ADD( R4300_CALL_SIGNATURE ) 			// ADD 
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	// Can generate overflow exception
 	gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rs ]._s32_0 + gGPR[ op_code.rt ]._s32_0 );
@@ -1886,7 +1839,7 @@ static void R4300_CALL_TYPE R4300_Special_ADDU( R4300_CALL_SIGNATURE ) 			// ADD
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rs ]._s32_0 + gGPR[ op_code.rt ]._s32_0 );
 }
@@ -1895,7 +1848,7 @@ static void R4300_CALL_TYPE R4300_Special_SUB( R4300_CALL_SIGNATURE ) 			// SUB 
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	// Can generate overflow exception
 	gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rs ]._s32_0 - gGPR[ op_code.rt ]._s32_0 );
@@ -1906,7 +1859,7 @@ static void R4300_CALL_TYPE R4300_Special_SUBU( R4300_CALL_SIGNATURE ) 			// SUB
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rs ]._s32_0 - gGPR[ op_code.rt ]._s32_0 );
 }
@@ -1915,7 +1868,7 @@ static void R4300_CALL_TYPE R4300_Special_AND( R4300_CALL_SIGNATURE ) 				// log
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 & gGPR[ op_code.rt ]._u64;
 }
@@ -1924,7 +1877,7 @@ static void R4300_CALL_TYPE R4300_Special_OR( R4300_CALL_SIGNATURE ) 				// logi
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 | gGPR[ op_code.rt ]._u64;
 }
@@ -1933,7 +1886,7 @@ static void R4300_CALL_TYPE R4300_Special_XOR( R4300_CALL_SIGNATURE ) 				// log
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 ^ gGPR[ op_code.rt ]._u64;
 }
@@ -1942,7 +1895,7 @@ static void R4300_CALL_TYPE R4300_Special_NOR( R4300_CALL_SIGNATURE ) 				// log
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._u64 = ~( gGPR[ op_code.rs ]._u64 | gGPR[ op_code.rt ]._u64 );
 }
@@ -1951,7 +1904,7 @@ static void R4300_CALL_TYPE R4300_Special_SLT( R4300_CALL_SIGNATURE ) 				// Set
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	// Cast to s32s to ensure sign is taken into account
 	if ( gGPR[ op_code.rs ]._s64 < gGPR[ op_code.rt ]._s64 )
@@ -1968,7 +1921,7 @@ static void R4300_CALL_TYPE R4300_Special_SLTU( R4300_CALL_SIGNATURE ) 				// Se
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	// Treated as unsigned....
 	if ( gGPR[ op_code.rs ]._u64 < gGPR[ op_code.rt ]._u64 )
@@ -1987,7 +1940,7 @@ static void R4300_CALL_TYPE R4300_Special_DADD( R4300_CALL_SIGNATURE )//CYRUS64
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._s64 = gGPR[ op_code.rs ]._s64 + gGPR[ op_code.rt ]._s64;
 }
@@ -1996,7 +1949,7 @@ static void R4300_CALL_TYPE R4300_Special_DADDU( R4300_CALL_SIGNATURE )//CYRUS64
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 + gGPR[ op_code.rt ]._u64;
 
@@ -2011,7 +1964,7 @@ static void R4300_CALL_TYPE R4300_Special_DSUB( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	gGPR[ op_code.rd ]._s64 = gGPR[ op_code.rs ]._s64 - gGPR[ op_code.rt ]._s64;
 }
@@ -2020,7 +1973,7 @@ static void R4300_CALL_TYPE R4300_Special_DSUBU( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	// The order of rs and rt was wrong! It should be rs - rt, not rt - rs!!
 	// It caused several lock ups in games ex Animal Crossing, and Conker to crash in last boss
@@ -2032,7 +1985,7 @@ static void R4300_CALL_TYPE R4300_Special_DSLL( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	// Reserved Instruction exception
 	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 << op_code.sa;
@@ -2042,7 +1995,7 @@ static void R4300_CALL_TYPE R4300_Special_DSRL( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	// Reserved Instruction exception
     gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 >> op_code.sa;
@@ -2052,7 +2005,7 @@ static void R4300_CALL_TYPE R4300_Special_DSRA( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	// Reserved Instruction exception
 	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._s64 >> op_code.sa;
@@ -2062,7 +2015,7 @@ static void R4300_CALL_TYPE R4300_Special_DSLL32( R4300_CALL_SIGNATURE ) 			// D
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	// Reserved Instruction exception
 	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 << ( 32 + op_code.sa );
@@ -2072,7 +2025,7 @@ static void R4300_CALL_TYPE R4300_Special_DSRL32( R4300_CALL_SIGNATURE ) 			// D
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	// Reserved Instruction exception
 	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 >> ( 32 + op_code.sa );
@@ -2082,7 +2035,7 @@ static void R4300_CALL_TYPE R4300_Special_DSRA32( R4300_CALL_SIGNATURE ) 			// D
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rd );
+	R4300_CHECK_R0( op_code.rd );
 
 	// Reserved Instruction exception
 	gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._s64 >> ( 32 + op_code.sa );
@@ -2223,7 +2176,7 @@ static void R4300_CALL_TYPE R4300_Cop0_MFC0( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	if ( op_code.fs == C0_CAUSE )
@@ -2492,8 +2445,7 @@ static void R4300_CALL_TYPE R4300_Cop1_DMTC1( R4300_CALL_SIGNATURE )
 static void R4300_CALL_TYPE R4300_Cop1_MFC1( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	// MFC1 in the manual says this is a sign-extended result
 	gGPR[ op_code.rt ]._s64 = (s64)(s32)LoadFPR_Word( op_code.fs );
@@ -2503,8 +2455,7 @@ static void R4300_CALL_TYPE R4300_Cop1_MFC1( R4300_CALL_SIGNATURE )
 static void R4300_CALL_TYPE R4300_Cop1_DMFC1( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	gGPR[ op_code.rt ]._s64 = LoadFPR_Long( op_code.fs );
 }
@@ -2513,8 +2464,7 @@ static void R4300_CALL_TYPE R4300_Cop1_DMFC1( R4300_CALL_SIGNATURE )
 static void R4300_CALL_TYPE R4300_Cop1_CFC1( R4300_CALL_SIGNATURE ) 		// move Control word From Copro 1
 {
 	R4300_CALL_MAKE_OP( op_code );
-
-	CHECK_R0( op_code.rt );
+	R4300_CHECK_R0( op_code.rt );
 
 	// Only defined for reg 0 or 31
 	if ( op_code.fs == 0 || op_code.fs == 31 )
@@ -2539,35 +2489,29 @@ static void R4300_CALL_TYPE R4300_Cop1_CTC1( R4300_CALL_SIGNATURE ) 		// move Co
 		gCPUState.FPUControl[ op_code.fs ]._u64 = gGPR[ op_code.rt ]._u64;
 
 	}*/
-	//else if ( op_code.fs == 31 )
 	if ( op_code.fs == 31 )
 	{
 		gCPUState.FPUControl[ 31 ]._u32 = gGPR[ op_code.rt ]._u32_0;
 
 		u32		fpcr( gCPUState.FPUControl[ 31 ]._u32 );
-
-		switch ( fpcr & FPCSR_RM_MASK )
-		{
-		case FPCSR_RM_RN:		gRoundingMode = RM_ROUND;	break;
-		case FPCSR_RM_RZ:		gRoundingMode = RM_TRUNC;	break;
-		case FPCSR_RM_RP:		gRoundingMode = RM_CEIL;	break;
-		case FPCSR_RM_RM:		gRoundingMode = RM_FLOOR;	break;
-		default:				NODEFAULT;
-		}
-// Hack for the PSP, only set rounding mode here, since is very expensive to enable it in SET_ROUND_MODE
-// Fixes collision issues in the final boss of DK64 and camera icon not rotating
-#ifdef DAEDALUS_PSP
-		pspFpuSetRoundmode( gNativeRoundingModes[ gRoundingMode ] );
-#else
+		gRoundingMode = (ERoundingMode)( fpcr & FPCSR_RM_MASK );
 		SET_ROUND_MODE(gRoundingMode);
-#endif
 	}
-	//else
-	//{
-	//}
-
-	// Now generate lots of exceptions :-)
+	else
+	{
+		// Now generate lots of exceptions :-)
+	}
 }
+
+// Hack for the PSP, only set rounding mode here, since is very expensive to enable it and causes conflicts with dynarec, see notes in SET_ROUND_MODE
+// Fixes collision issues in the final boss of DK64 and camera icon not rotating, fixes collision issues in Rayman, JFG too
+#ifdef DAEDALUS_PSP
+static void R4300_CALL_TYPE R4300_Cop1_CTC1_2( R4300_CALL_SIGNATURE ) 
+{
+	R4300_Cop1_CTC1( R4300_CALL_ARGUMENTS );
+	pspFpuSetRoundmode( gNativeRoundingModes[ gRoundingMode ] );
+}
+#endif
 
 static void R4300_CALL_TYPE R4300_BC1_BC1F( R4300_CALL_SIGNATURE )		// Branch on FPU False
 {
@@ -2675,7 +2619,6 @@ static void R4300_CALL_TYPE R4300_Cop1_L_CVT_S( R4300_CALL_SIGNATURE )
 	s64 nTemp = LoadFPR_Long( op_code.fs );
 
 	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
-
 	StoreFPR_Single( op_code.fd, s64_to_f32( nTemp ));
 }
 
@@ -2686,7 +2629,6 @@ static void R4300_CALL_TYPE R4300_Cop1_L_CVT_D( R4300_CALL_SIGNATURE )
 	s64 nTemp = LoadFPR_Long( op_code.fs );
 
 	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
-
 	StoreFPR_Double( op_code.fd, s64_to_d64( nTemp ) );
 }
 
@@ -2713,7 +2655,6 @@ static void R4300_CALL_TYPE R4300_Cop1_S_ADD( R4300_CALL_SIGNATURE )
 	f32 fY = LoadFPR_Single( op_code.ft );
 
 	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
-
 	StoreFPR_Single( op_code.fd, fX + fY );
 }
 
@@ -2726,7 +2667,6 @@ static void R4300_CALL_TYPE R4300_Cop1_S_SUB( R4300_CALL_SIGNATURE )
 	f32 fY = LoadFPR_Single( op_code.ft );
 
 	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
-
 	StoreFPR_Single( op_code.fd, fX - fY );
 }
 
@@ -2739,7 +2679,6 @@ static void R4300_CALL_TYPE R4300_Cop1_S_MUL( R4300_CALL_SIGNATURE )
 	f32 fY = LoadFPR_Single( op_code.ft );
 
 	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
-
 	StoreFPR_Single( op_code.fd, fX * fY );
 }
 
@@ -2795,7 +2734,6 @@ static void R4300_CALL_TYPE R4300_Cop1_S_NEG( R4300_CALL_SIGNATURE )
 	f32 fX = LoadFPR_Single( op_code.fs );
 
 	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
-
 	StoreFPR_Single( op_code.fd, -fX );
 }
 
@@ -2806,10 +2744,8 @@ static void R4300_CALL_TYPE R4300_Cop1_S_MOV( R4300_CALL_SIGNATURE )
 	// fd = fs
 	f32 fValue = LoadFPR_Single( op_code.fs );
 
-	// Just copy bits directly?
 	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
-
-	StoreFPR_Single( op_code.fd, fValue );
+	StoreFPR_Single( op_code.fd, fValue );// Just copy bits directly?
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_S_ABS( R4300_CALL_SIGNATURE )
@@ -2819,7 +2755,6 @@ static void R4300_CALL_TYPE R4300_Cop1_S_ABS( R4300_CALL_SIGNATURE )
 	f32 fX = LoadFPR_Single( op_code.fs );
 
 	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
-
 	StoreFPR_Single( op_code.fd, R4300_AbsS(fX) );
 }
 
@@ -2857,7 +2792,6 @@ static void R4300_CALL_TYPE R4300_Cop1_S_ROUND_L( R4300_CALL_SIGNATURE )
 	R4300_CALL_MAKE_OP( op_code );
 
 	f32 fX = LoadFPR_Single( op_code.fs );
-
 	StoreFPR_Long( op_code.fd, f32_to_s64_round( fX ) );
 }
 
@@ -2906,7 +2840,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CVT_L( R4300_CALL_SIGNATURE )
 
 	f32 fX = LoadFPR_Single( op_code.fs );
 
-	StoreFPR_Long( op_code.fd, f32_to_s64( fX, gRoundingMode ) );
+	StoreFPR_Long( op_code.fd, f32_to_s64( fX ) );
 }
 
 // Convert float to word...
@@ -2916,7 +2850,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CVT_W( R4300_CALL_SIGNATURE )
 
 	// XXXX On the PSP, this seem sto be doing trunc.w.s rather than cvt.w.s
 	f32 fX = LoadFPR_Single( op_code.fs );
-	s32	sX = f32_to_s32( fX, gRoundingMode );
+	s32	sX = f32_to_s32( fX );
 
 	StoreFPR_Word( op_code.fd, sX );
 }
@@ -2952,6 +2886,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_CVT_D_2( R4300_CALL_SIGNATURE )
 	gCPUState.FPU[op_code.fd+1]._u32 = r._u32_1;
 }
 #endif
+
 static void R4300_CALL_TYPE R4300_Cop1_S_EQ( R4300_CALL_SIGNATURE ) 				// Compare for Equality
 {
 	R4300_CALL_MAKE_OP( op_code );
@@ -2962,7 +2897,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_EQ( R4300_CALL_SIGNATURE ) 				// Compa
 
 	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
 
-	if( fX == fY ) FPUCTRL |= FPCSR_C;
+	if( R4300_IsNaN(fX + fY) && fX == fY ) FPUCTRL |= FPCSR_C;
 
 	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
@@ -3426,7 +3361,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_CVT_W( R4300_CALL_SIGNATURE )
 
 	d64 fX = LoadFPR_Double( op_code.fs );
 
-	StoreFPR_Word( op_code.fd, d64_to_s32( fX, gRoundingMode ) );
+	StoreFPR_Word( op_code.fd, d64_to_s32( fX ) );
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_D_CVT_L( R4300_CALL_SIGNATURE )
@@ -3435,7 +3370,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_CVT_L( R4300_CALL_SIGNATURE )
 
 	d64 fX = LoadFPR_Double( op_code.fs );
 
-	StoreFPR_Long( op_code.fd, d64_to_s64( fX, gRoundingMode ) );
+	StoreFPR_Long( op_code.fd, d64_to_s64( fX ) );
 }
 
 static void R4300_CALL_TYPE R4300_Cop1_D_EQ( R4300_CALL_SIGNATURE )				// Compare for Equality
@@ -3448,7 +3383,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_EQ( R4300_CALL_SIGNATURE )				// Compar
 
 	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
 
-	if( fX == fY ) FPUCTRL |= FPCSR_C;
+	if( R4300_IsNaN(fX + fY) && fX == fY ) FPUCTRL |= FPCSR_C;
 
 	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
@@ -3710,7 +3645,7 @@ CPU_Instruction	R4300_GetInstructionHandler( OpCode op_code )
 	}
 }
 
-//Used to swap functions(apply hacks) in interpreter mode
+//Used to swap functions(apply hacks) in interpreter mode (used for the PSP only)
 void R4300_Init()
 {
 #ifdef SIM_DOUBLES
@@ -3731,6 +3666,16 @@ void R4300_Init()
 	else
 	{
 		R4300Cop1SInstruction[Cop1OpFunc_CVT_D] = R4300_Cop1_S_CVT_D;
+	}
+#endif
+#ifdef DAEDALUS_PSP
+	if(g_ROM.SET_ROUND_MODE)
+	{
+		R4300Cop1DInstruction[Cop1OpFunc_ADD]	= R4300_Cop1_CTC1_2;
+	}
+	else
+	{
+		R4300Cop1DInstruction[Cop1OpFunc_ADD]	= R4300_Cop1_CTC1;
 	}
 #endif
 }
