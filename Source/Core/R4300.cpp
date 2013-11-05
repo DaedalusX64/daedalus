@@ -2918,7 +2918,7 @@ static void R4300_CALL_TYPE R4300_Cop1_S_EQ( R4300_CALL_SIGNATURE ) 				// Compa
 
 	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
 
-	if( R4300_IsNaN(fX + fY) && fX == fY ) FPUCTRL |= FPCSR_C;
+	if( !R4300_IsNaN(fX + fY) && fX == fY ) FPUCTRL |= FPCSR_C;
 
 	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
@@ -3404,7 +3404,7 @@ static void R4300_CALL_TYPE R4300_Cop1_D_EQ( R4300_CALL_SIGNATURE )				// Compar
 
 	u32 FPUCTRL = gCPUState.FPUControl[31]._u32 & ~FPCSR_C;
 
-	if( R4300_IsNaN(fX + fY) && fX == fY ) FPUCTRL |= FPCSR_C;
+	if( !R4300_IsNaN(fX + fY) && fX == fY ) FPUCTRL |= FPCSR_C;
 
 	gCPUState.FPUControl[31]._u32 = FPUCTRL;
 }
