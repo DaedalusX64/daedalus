@@ -26,14 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 struct OpCode;
 
-// Mmm move these macros somewhere else
-#define IS_SEG_8000(x)			((x & 0xE0000000) == 0x80000000)
-#define IS_SEG_A000(x)			((x & 0xE0000000) == 0xA0000000)
-#define IS_SEG_A000_8000(x)		(((x ^ 0x80000000) & 0xC0000000) == 0)
-
-// Exactly the same as K1_TO_PHYS and K0_TO_PHYS
-#define	SEG_TO_PHYS(x)			((u32)(x)&0x1FFFFFFF)
-
 namespace StaticAnalysis
 {
 	/*enum MemAcess
@@ -68,20 +60,20 @@ namespace StaticAnalysis
 		u32			RegReads;
 		u32			RegWrites;
 		u32			RegBase;
-		bool		Access8000;
 		ER4300BranchType BranchType;
+		bool		Access8000;
 
 		RegisterUsage()
 			:	RegReads( 0 )
 			,	RegWrites( 0 )
 			,	RegBase( 0 )
-			,   Access8000( false )
 			,   BranchType( BT_NOT_BRANCH )
+			,   Access8000( false )
 		{
 		}
 
 		// Ignore floating point for now
-		void		Record( RegDstUse d, RegSrcUse s, RegSrcUse t )
+		inline void		Record( RegDstUse d, RegSrcUse s, RegSrcUse t )
 		{
 			RegWrites = (1<<d.Reg);
 			RegReads = (1<<s.Reg) | (1<<t.Reg);
@@ -91,30 +83,30 @@ namespace StaticAnalysis
 			RegWrites = (1<<d.Reg);
 			RegReads = (1<<s.Reg);
 		}
-		void		Record( RegSrcUse s, RegSrcUse t )
+		inline void		Record( RegSrcUse s, RegSrcUse t )
 		{
 			RegReads = (1<<s.Reg) | (1<<t.Reg);
 		}
-		void		Record( RegSrcUse s )
+		inline void		Record( RegSrcUse s )
 		{
 			RegReads = (1<<s.Reg);
 		}
-		void		Record( RegDstUse d )
+		inline void		Record( RegDstUse d )
 		{
 			RegWrites = (1<<d.Reg);
 		}
-		void		Record( RegBaseUse b, RegDstUse d )
+		inline void		Record( RegBaseUse b, RegDstUse d )
 		{
 			RegWrites = (1<<d.Reg);
 			RegBase = (1<<b.Reg);
 		}
-		void		Record( RegBaseUse b, RegSrcUse s )
+		inline void		Record( RegBaseUse b, RegSrcUse s )
 		{
 			RegReads = (1<<s.Reg);
 			RegBase = (1<<b.Reg);
 		}
 
-		void		Record( RegBaseUse b )
+		inline void		Record( RegBaseUse b )
 		{
 			RegBase = (1<<b.Reg);
 		}
@@ -124,23 +116,10 @@ namespace StaticAnalysis
 			BranchType = type;
 		}
 
-		// Compiler was already inlining this, but just in case..
 		inline void		Access(u32 address)
 		{
-			Access8000 = IS_SEG_8000(address);
-
-			/*
-			if( IS_SEG_8000(address) )
-			{
-				  mAccess_8000 = true;
-			}
-			else if (address >= 0xA0000000 && address < 0xA0000000 + gRamSize)
-			{
-				  mAccess_A000 = true;
-			}
-			*/
-
-			//DAEDALUS_ASSERT(!(RegBase == 1 << 29 && Memory == Segment_Unknown), "Why Stack Point to static segment: 0x%08x", address);
+			Access8000 = ((address >> 23) == 0x100);
+			DAEDALUS_ASSERT((address >= 0x80000000 && address < 0x80000000 + gRamSize) == Access8000, "Access8000 is inconsistent");
 		}
 
 	};

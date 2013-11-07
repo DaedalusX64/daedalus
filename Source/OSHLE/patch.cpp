@@ -99,7 +99,7 @@ u32 gNumOfOSFunctions;
 #define PATCH_RET_ERET RET_JR_ERET()
 
 // Increase this number every time we changed the symbol table
-static const u32 MAGIC_HEADER = 0x80000146;
+static const u32 MAGIC_HEADER = 0x80000149;
 
 static bool gPatchesApplied = false;
 
@@ -1099,9 +1099,13 @@ static u32 RET_JR_ERET()
 
 static u32 ConvertToPhysics(u32 addr)
 {
-	if( IS_SEG_A000_8000(addr) )
+	bool test = (addr >= 0x80000000 && addr < 0x80000000 + gRamSize) || (addr >= 0xA0000000 && addr < 0xA0000000 + gRamSize);
+	DAEDALUS_USE(test);
+	DAEDALUS_ASSERT(IS_K0K1(addr) == test, "IS_K0K1 is inconsistent");
+
+	if( IS_K0K1(addr) )
 	{
-		return SEG_TO_PHYS(addr);
+		return K0_TO_PHYS(addr);	// Same as K1_TO_PHYS
 	}
 	else
 	{

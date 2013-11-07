@@ -336,6 +336,7 @@ void ROM_Unload()
 {
 }
 
+//Most hacks are for the PSP, due the limitations of the hardware, and because we prefer speed over accuracy
 void SpecificGameHacks( const ROMHeader & id )
 {
 	printf("ROM ID[%04X]\n", id.CartID);
@@ -359,6 +360,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x4441: g_ROM.GameHacks = WORMS_ARMAGEDDON;	break;
 
 	case 0x464A:	// Jet Force Geminy
+	case 0x5647:	// Glover
 		g_ROM.SET_ROUND_MODE = true;
 		break;
 	case 0x4B42:	//Banjo-Kazooie

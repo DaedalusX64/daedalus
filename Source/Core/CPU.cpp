@@ -74,7 +74,6 @@ std::vector< DBG_BreakPoint > g_BreakPoints;
 volatile u32 eventQueueLocked = 0;
 
 static bool			gCPURunning        = false;			// CPU is actively running
-u32					gLastPC            = 0xffffffff;
 u8 *				gLastAddress       = NULL;
 std::string			gSaveStateFilename = "";
 
@@ -326,9 +325,7 @@ bool CPU_RomOpen()
 {
 	DBGConsole_Msg(0, "Resetting CPU");
 
-	gLastPC = 0xffffffff;
 	gLastAddress = NULL;
-
 	gCPURunning = false;
 	gCPUStopOnSimpleState = false;
 	RESET_EVENT_QUEUE_LOCK();

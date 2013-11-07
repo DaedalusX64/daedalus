@@ -1930,8 +1930,6 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 
     if( load_op == OP_LWL )
     {
-		//TODO: When there's a LWL and LWR pair, we should be able to optimize that into a single LW.
-
 		if(offset != 0)
 		{
 			ADDIU( PspReg_A0, reg_address, offset );    // base + offset 
@@ -1949,7 +1947,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
         offset = 0;
 		load_op = OP_LW;
 
-		//Dont cache the current pointer to K0 reg becaus address gets mangled
+		//Dont cache the current pointer to K0 reg because address gets mangled
 		if( (n64_base == N64Reg_SP) | (gMemoryAccessOptimisation & mQuickLoad) )
 		{
 			ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
@@ -2604,13 +2602,6 @@ inline void	CCodeGeneratorPSP::GenerateDIV( EN64Reg rs, EN64Reg rt )
 	//	gCPUState.MultLo._u64 = (s64)(s32)(nDividend / nDivisor);
 	//	gCPUState.MultHi._u64 = (s64)(s32)(nDividend % nDivisor);
 	//}
-
-	if ((mRegisterCache.IsKnownValue(rs, 0) & (mRegisterCache.GetKnownValue(rs, 0)._s32 == (s32)0x80000000)) |
-		     (mRegisterCache.IsKnownValue(rt, 0) & (mRegisterCache.GetKnownValue(rt, 0)._s32 == -1)) )
-	{
-		printf("cool\n");
-		return;
-	}
 
 #ifdef DIVZEROCHK
 	EPspReg	reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_V0 ) );

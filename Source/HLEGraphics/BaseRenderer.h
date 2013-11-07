@@ -362,12 +362,10 @@ protected:
 
 	virtual void		RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bool disable_zbuffer ) = 0;
 
-	// Old code, kept for reference
-#ifdef DAEDALUS_IS_LEGACY
 	void 				TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world );
 	template< bool FogEnable, int TextureMode >
 	void ProcessVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world );
-#endif
+
 
 	void				PrepareTrisClipped( TempVerts * temp_verts ) const;
 	void				PrepareTrisUnclipped( TempVerts * temp_verts ) const;

@@ -219,8 +219,7 @@ void StaticAnalysis_LHU( OpCode op_code, RegisterUsage & recorder )			// Load Ha
 void StaticAnalysis_LWL( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Left
 {
 	recorder.Record( RegBaseUse( op_code.base ), RegDstUse( op_code.rt ) );
-	// Causes P Mario to BSOD in intro
-	if( g_ROM.GameHacks != PMARIO ) recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
+	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );
 }
 
 void StaticAnalysis_LDL( OpCode op_code, RegisterUsage & recorder )
@@ -247,7 +246,7 @@ void StaticAnalysis_LW( OpCode op_code, RegisterUsage & recorder ) 			// Load Wo
 
 	// Causes P Mario to BSOD in intro, doesn't happen anymore //Salvy
 	//Should be safe to skip adding "op_code.offset" to check for inrage in RDRAM //Corn
-	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );	// Breaks Paper Mario
+	if( g_ROM.GameHacks != PMARIO )	recorder.Access( gCPUState.CPU[op_code.base]._u32_0 );	// Breaks Paper Mario
 }
 
 void StaticAnalysis_LWU( OpCode op_code, RegisterUsage & recorder ) 			// Load Word Unsigned
