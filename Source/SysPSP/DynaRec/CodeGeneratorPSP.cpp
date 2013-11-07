@@ -1930,43 +1930,66 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 
     if( load_op == OP_LWL )
     {
-        load_op = OP_LW;
-        ADDIU( PspReg_A0, reg_address, offset );    // base + offset
-        ANDI( PspReg_A3, PspReg_A0, 3 );    //copy low 2 bits to A3
-		XOR( PspReg_A0, PspReg_A0, PspReg_A3);	//Zero low 2 bits in address
-        reg_address = PspReg_A0;
-        offset = 0;
-    }
+		//TODO: When there's a LWL and LWR pair, we should be able to optimize that into a single LW.
 
-	if( (n64_base == N64Reg_SP) | (gMemoryAccessOptimisation & mQuickLoad) )
-	{
-		if( swizzle != 0 )
+		if(offset != 0)
 		{
-			if( offset != 0 )
-			{
-				ADDIU( PspReg_A0, reg_address, offset );
-				reg_address = PspReg_A0;
-				offset = 0;
-			}
+			ADDIU( PspReg_A0, reg_address, offset );    // base + offset 
+			ANDI( PspReg_A3, PspReg_A0, 3 );    //copy low 2 bits to A3
+			XOR( PspReg_A0, PspReg_A0, PspReg_A3);	//Zero low 2 bits in addres
 
-			XORI( PspReg_A0, reg_address, swizzle );
-			ADDU( PspReg_A0, PspReg_A0, gMemoryBaseReg );
-			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A0, offset );
-			return;
-		}
-
-		//Re use old base register if consegutive accesses from same base register //Corn
-		if( n64_base == mPreviousLoadBase )
-		{
-			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_K0, offset );
-			return;
 		}
 		else
 		{
-			ADDU( PspReg_K0, reg_address, gMemoryBaseReg );
-			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_K0, offset );
-			mPreviousLoadBase = n64_base;
+			ANDI( PspReg_A3, reg_address, 3 );    //copy low 2 bits to A3
+			XOR( PspReg_A0, reg_address, PspReg_A3);	//Zero low 2 bits in addres
+		}
+
+        reg_address = PspReg_A0;
+        offset = 0;
+		load_op = OP_LW;
+
+		//Dont cache the current pointer to K0 reg becaus address gets mangled
+		if( (n64_base == N64Reg_SP) | (gMemoryAccessOptimisation & mQuickLoad) )
+		{
+			ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
+			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
 			return;
+		}
+
+    }
+	else 
+	{
+		if( (n64_base == N64Reg_SP) | (gMemoryAccessOptimisation & mQuickLoad) )
+		{
+			if( swizzle != 0 )
+			{
+				if( offset != 0 )
+				{
+					ADDIU( PspReg_A0, reg_address, offset );
+					reg_address = PspReg_A0;
+					offset = 0;
+				}
+
+				XORI( PspReg_A0, reg_address, swizzle );
+				ADDU( PspReg_A0, PspReg_A0, gMemoryBaseReg );
+				CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A0, offset );
+				return;
+			}
+			
+			//Re use old base register if consegutive accesses from same base register //Corn
+			if( n64_base == mPreviousLoadBase )
+			{
+				CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_K0, offset );
+				return;
+			}
+			else
+			{
+				ADDU( PspReg_K0, reg_address, gMemoryBaseReg );
+				CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_K0, offset );
+				mPreviousLoadBase = n64_base;
+				return;
+			}
 		}
 	}
 
@@ -2581,6 +2604,13 @@ inline void	CCodeGeneratorPSP::GenerateDIV( EN64Reg rs, EN64Reg rt )
 	//	gCPUState.MultLo._u64 = (s64)(s32)(nDividend / nDivisor);
 	//	gCPUState.MultHi._u64 = (s64)(s32)(nDividend % nDivisor);
 	//}
+
+	if ((mRegisterCache.IsKnownValue(rs, 0) & (mRegisterCache.GetKnownValue(rs, 0)._s32 == (s32)0x80000000)) |
+		     (mRegisterCache.IsKnownValue(rt, 0) & (mRegisterCache.GetKnownValue(rt, 0)._s32 == -1)) )
+	{
+		printf("cool\n");
+		return;
+	}
 
 #ifdef DIVZEROCHK
 	EPspReg	reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
@@ -3890,13 +3920,9 @@ inline void	CCodeGeneratorPSP::GenerateLDC1( u32 address, bool set_branch_delay,
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateLWL( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset )
 {
-	//Have to invalidate previous load base and also make sure we dont cache the current one, thus two invalidates
-	mPreviousLoadBase = N64Reg_R0;	//Invalidate
 
 	//Will return the value in PspReg_V0 and the shift in PspReg_A3
 	GenerateLoad( address, PspReg_V0, base, offset, OP_LWL, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
-
-	mPreviousLoadBase = N64Reg_R0;	//Invalidate
 
 	EPspReg	reg_dst( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
@@ -3916,13 +3942,8 @@ inline void	CCodeGeneratorPSP::GenerateLWL( u32 address, bool set_branch_delay, 
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateLWR( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset )
 {
-	//Have to invalidate previous load base and also make sure we dont cache the current one, thus two invalidates
-	mPreviousLoadBase = N64Reg_R0;	//Invalidate
-
 	//Will return the value in PspReg_V0 and the shift in PspReg_A3
 	GenerateLoad( address, PspReg_V0, base, offset, OP_LWL, 0, set_branch_delay ? ReadBitsDirectBD_u32 : ReadBitsDirect_u32 );
-
-	mPreviousLoadBase = N64Reg_R0;	//Invalidate
 
 	EPspReg	reg_dst( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 

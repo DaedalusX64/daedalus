@@ -407,11 +407,8 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 		return;
 	}
 
-	ram_offset  = address >> 2;  		// Offset in 32 bit words
-	tmem_offset = tmem_offset >> 2;		// Offset in 32 bit words
-
-	u32* dst = ((u32*)gTMEM) + tmem_offset;
-	u32* src = g_pu32RamBase + ram_offset;
+	u32* dst = (u32*)(gTMEM + tmem_offset);
+	u32* src = (u32*)(g_pu8RamBase + ram_offset);
 
 	if (dxt == 0)
 	{
@@ -616,7 +613,6 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		u32		address = info.Address;
 		u32		pitch   = info.Pitch;
 		bool	swapped = info.Swapped;
-		u32		tlut    = TLUT_BASE;
 
 		//Check if tmem_lookup has a valid entry, if not we assume load was done on TMEM[0] and we add the offset //Corn
 		//Games that uses this is Fzero/Space station Silicon Valley/Animal crossing.
@@ -645,13 +641,14 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		u16		tile_height = GetTextureDimension( rdp_tilesize.GetHeight(), rdp_tile.mask_t, rdp_tile.clamp_t );
 
 #ifdef DAEDALUS_ACCURATE_TMEM
-		ti.SetTlutAddress( tlut );
+		ti.SetTlutAddress( TLUT_BASE );
 #else
 		//
 		//If indexed TMEM PAL address is NULL then assume that the base address is stored in
 		//TMEM address 0x100 (gTlutLoadAddresses[ 0 ]) and calculate offset from there with TLutIndex(palette index)
 		//This trick saves us from the need to copy the real palette to TMEM and we just pass the pointer //Corn
 		//
+		u32	tlut= TLUT_BASE;
 		if(rdp_tile.size == G_IM_SIZ_4b)
 		{
 			u32 tlut_idx0 = g_ROM.TLUT_HACK << 1;
