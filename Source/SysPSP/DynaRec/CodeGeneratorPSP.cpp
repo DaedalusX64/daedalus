@@ -1928,34 +1928,29 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 	EPspReg		reg_base( GetRegisterAndLoadLo( n64_base, PspReg_A0 ) );
 	EPspReg		reg_address( reg_base );
 
-    if( load_op == OP_LWL )
+    if( load_op == OP_LWL )	//We handle both LWL & LWR here
     {
 		if(offset != 0)
 		{
-			ADDIU( PspReg_A0, reg_address, offset );    // base + offset 
-			ANDI( PspReg_A3, PspReg_A0, 3 );    //copy low 2 bits to A3
-			XOR( PspReg_A0, PspReg_A0, PspReg_A3);	//Zero low 2 bits in addres
-
-		}
-		else
-		{
-			ANDI( PspReg_A3, reg_address, 3 );    //copy low 2 bits to A3
-			XOR( PspReg_A0, reg_address, PspReg_A3);	//Zero low 2 bits in addres
+			ADDIU( PspReg_A0, reg_address, offset );    //base + offset 
+			reg_address = PspReg_A0;
+			offset = 0;
 		}
 
-        reg_address = PspReg_A0;
-        offset = 0;
-		load_op = OP_LW;
+		ANDI( PspReg_A3, reg_address, 3 );				//copy two LSB bits to A3, used later for mask
+		XOR( PspReg_A0, reg_address, PspReg_A3);		//zero two LSB bits in address
 
-		//Dont cache the current pointer to K0 reg because address gets mangled
+		//Dont cache the current pointer to K0 reg because the address is mangled by the XOR
 		if( (n64_base == N64Reg_SP) | (gMemoryAccessOptimisation & mQuickLoad) )
 		{
-			ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
-			CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
+			ADDU( PspReg_A0, PspReg_A0, gMemoryBaseReg );
+			CAssemblyWriterPSP::LoadRegister( psp_dst, OP_LW, PspReg_A0, 0 );
 			return;
 		}
 
-    }
+		load_op = OP_LW;
+		reg_address = PspReg_A0;
+	}
 	else 
 	{
 		if( (n64_base == N64Reg_SP) | (gMemoryAccessOptimisation & mQuickLoad) )
