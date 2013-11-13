@@ -356,8 +356,8 @@ protected:
 	//*****************************************************************************
 	inline void ConvertN64ToScreen( const v2 & n64_coords, v2 & answ ) const
 	{
-		answ.x = Round( N64ToScreenX( Round( n64_coords.x ) ) );
-		answ.y = Round( N64ToScreenY( Round( n64_coords.y ) ) );
+		answ.x = roundf( N64ToScreenX( roundf( n64_coords.x ) ) );
+		answ.y = roundf( N64ToScreenY( roundf( n64_coords.y ) ) );
 	}
 
 	virtual void		RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bool disable_zbuffer ) = 0;

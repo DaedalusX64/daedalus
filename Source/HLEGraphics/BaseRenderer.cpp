@@ -315,8 +315,8 @@ void BaseRenderer::InitViewport()
 	mN64ToScreenScale.x = gZoomX * mScreenWidth  / fViWidth;
 	mN64ToScreenScale.y = gZoomX * mScreenHeight / fViHeight;
 
-	mN64ToScreenTranslate.x  = (f32)display_x - Round(0.55f * (gZoomX - 1.0f) * fViWidth);
-	mN64ToScreenTranslate.y  = (f32)display_y - Round(0.55f * (gZoomX - 1.0f) * fViHeight);
+	mN64ToScreenTranslate.x  = (f32)display_x - roundf(0.55f * (gZoomX - 1.0f) * fViWidth);
+	mN64ToScreenTranslate.y  = (f32)display_y - roundf(0.55f * (gZoomX - 1.0f) * fViHeight);
 
 	if( gRumblePakActive )
 	{
@@ -1103,8 +1103,8 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 				else
 				{
 					//Cheap way to do Acos(x)/Pi (abs() fixes star in SM64, sort of) //Corn
-					f32 NormX = Abs( norm.x );
-					f32 NormY = Abs( norm.y );
+					f32 NormX = fabsf( norm.x );
+					f32 NormY = fabsf( norm.y );
 					mVtxProjected[i].Texture.x =  0.5f - 0.25f * NormX - 0.25f * NormX * NormX * NormX;
 					mVtxProjected[i].Texture.y =  0.5f - 0.25f * NormY - 0.25f * NormY * NormY * NormY;
 				}

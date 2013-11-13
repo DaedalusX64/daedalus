@@ -705,11 +705,11 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoor
 	v2 screen1;
 	if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
 	{
-		screen0.x = Round( Round( HD_SCALE * xy0.x ) * mN64ToScreenScale.x + 59 );	//59 in translate is an ugly hack that only work on 480x272 display//Corn
-		screen0.y = Round( Round( xy0.y )            * mN64ToScreenScale.y + mN64ToScreenTranslate.y );
+		screen0.x = roundf( roundf( HD_SCALE * xy0.x ) * mN64ToScreenScale.x + 59 );	//59 in translate is an ugly hack that only work on 480x272 display//Corn
+		screen0.y = roundf( roundf( xy0.y )            * mN64ToScreenScale.y + mN64ToScreenTranslate.y );
 
-		screen1.x = Round( Round( HD_SCALE * xy1.x ) * mN64ToScreenScale.x + 59 ); //59 in translate is an ugly hack that only work on 480x272 display//Corn
-		screen1.y = Round( Round( xy1.y )            * mN64ToScreenScale.y + mN64ToScreenTranslate.y );
+		screen1.x = roundf( roundf( HD_SCALE * xy1.x ) * mN64ToScreenScale.x + 59 ); //59 in translate is an ugly hack that only work on 480x272 display//Corn
+		screen1.y = roundf( roundf( xy1.y )            * mN64ToScreenScale.y + mN64ToScreenTranslate.y );
 	}
 	else
 	{

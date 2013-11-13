@@ -40,11 +40,6 @@
 
 */
 
-// Interesting note, if we don't make thse funcs inline, we'll get compiling errors.. weird
-// Its because its a .h file, but inlining these short functions is ok. Means also that they take no space unless used.
-
-//#define DOUBLE_CONVERSION // Define to use double and other related conversions.
-
 //Sign of Z coord from cross product normal, used for triangle front/back face culling //Corn
 //Note that we pass s32 even if it is a f32! The check for <= 0.0f is valid also with signed integers(bit31 in f32 is sign bit) 
 //(((Bx - Ax)*(Cy - Ay) - (Cx - Ax)*(By - Ay)) * Aw * Bw * C.w)
@@ -434,8 +429,6 @@ inline int pspFpuIsNaN(float f)
 	return (v);
 }
 
-#ifdef DOUBLE_CONVERSION
-
 //Yoyo games glog (Mike Dailly), modified Corn
 //Convert Double (float) to 32bit signed integer
 inline s32 Double2Int( f64 *d )
@@ -487,54 +480,41 @@ inline bool IsNaN_Float(float x)
 	 return (Conv.val_I & 0x7fffffff) > 0x7f800000;
 }
 
-#endif // DOUBLE_CONVERSION
+#undef sqrtf
+#undef roundf
+#undef sinf
+#undef cosf
+#undef fabsf
+#undef sincosf
 
-
-#define Sqrt(x)  pspFpuSqrt((x))
-#define Round(x) pspFpuRound((x))		// FIXME(strmnnrmn): results in an int! Alternate version below results in a float!
-#define Sinf(x)  vfpu_sinf((x))
-#define Cosf(x)  vfpu_cosf((x))
-
-#define Abs(x)	pspFpuAbs((x))
-
-inline void SinCos(float x, float * s, float * c)
-{
-	vfpu_sincos(x, s, c);
-}
+// We map these because the compiler doesn't use the fpu math... we have to do it manually
+//
+#define isnanf(x)		pspFpuIsNaN((x))
+#define sqrtf(x)		pspFpuSqrt((x))
+#define roundf(x)		pspFpuRound((x))		// FIXME(strmnnrmn): results in an int! Alternate version below results in a float!
+#define fabsf(x)		pspFpuAbs((x))
+#define sinf(x)			vfpu_sinf((x))
+#define cosf(x)			vfpu_cosf((x))
+#define sincosf(x,s,c)	vfpu_sincos(x, s, c)
 
 #else
 
-inline float Sqrt(float x)
-{
-	return sqrtf( x );
-}
+#ifdef DAEDALUS_W32
+inline f64 trunc(f64 x)				{ return (x>0) ? floor(x) : ceil(x); }
+inline f32 truncf(f32 x)			{ return (x>0) ? floorf(x) : ceilf(x); }
+inline f64 round(f64 x)				{ return floor(x + 0.5); }
+inline f32 roundf(f32 x)			{ return floorf(x + 0.5f); }
+#endif
 
-inline float Round(float x)
-{
-	return floorf(x + 0.5f);
-}
-
-#define Abs(x)	fabsf((x))
-
-inline float InvSqrt(float x)
-{
-	return 1.0f / Sqrt( x );
-}
-
-inline float Sinf(float x)
-{
-	return sinf( x );
-}
-
-inline float Cosf(float x)
-{
-	return cosf( x );
-}
-
-inline void SinCos(float x, float * s, float * c)
+inline void sincosf(float x, float * s, float * c)
 {
 	*s = sinf(x);
 	*c = cosf(x);
+}
+
+inline float InvSqrt(float x)
+{
+	return 1.0f / sqrtf( x );
 }
 
 #endif // DAEDALUS_PSP

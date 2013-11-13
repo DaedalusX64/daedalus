@@ -47,10 +47,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DAEDALUS_W32
 #define isnan _isnan
-DAEDALUS_FORCEINLINE f64 trunc(f64 x)				{ return (x>0) ? floor(x) : ceil(x); }
-DAEDALUS_FORCEINLINE f32 truncf(f32 x)				{ return (x>0) ? floorf(x) : ceilf(x); }
-DAEDALUS_FORCEINLINE f64 round(f64 x)				{ return floor(x + 0.5); }
-DAEDALUS_FORCEINLINE f32 roundf(f32 x)				{ return floorf(x + 0.5f); }
 #endif
 
 #ifdef DAEDALUS_PSP
@@ -58,7 +54,6 @@ DAEDALUS_FORCEINLINE f32 roundf(f32 x)				{ return floorf(x + 0.5f); }
 #else
 #undef SIM_DOUBLES
 #endif
-
 
 // Can we disable this for the PSP? doesn't seem to do anything when dynarec is enabled (trace is active) /Salvy
 #define SPEEDHACK_INTERPRETER
@@ -74,14 +69,14 @@ DAEDALUS_FORCEINLINE f32 roundf(f32 x)				{ return floorf(x + 0.5f); }
 #define R4300_Rand()		FastRand()
 
 #if defined(DAEDALUS_PSP) && defined(SIM_DOUBLES)
-#define R4300_IsNaN(x) 		pspFpuIsNaN((x))
-#define R4300_Sqrt(x)		pspFpuSqrt((x))
-#define R4300_SqrtD(x)		pspFpuSqrt((x))
-#define R4300_AbsS(x) 		pspFpuAbs((x))
-#define R4300_AbsD(x) 		pspFpuAbs((x))
+#define R4300_IsNaN(x) 		isnanf((x))
+#define R4300_Sqrt(x)		sqrtf((x))
+#define R4300_SqrtD(x)		sqrtf((x))
+#define R4300_AbsS(x) 		fabsf((x))
+#define R4300_AbsD(x) 		fabsf((x))
 #else
 #define R4300_IsNaN(x)		isnan((x))
-#define R4300_Sqrt(x)		Sqrt((x))
+#define R4300_Sqrt(x)		sqrtf((x))
 #define R4300_SqrtD(x)		sqrt((x))
 #define R4300_AbsS(x) 		fabsf((x))
 #define R4300_AbsD(x) 		fabs((x))
@@ -106,11 +101,8 @@ DAEDALUS_FORCEINLINE f32 roundf(f32 x)				{ return floorf(x + 0.5f); }
 #define R4300_CHECK_R0( op ) \
 	if(op == 0)	\
 	{ \
-		/*char msg[128];	 \
-		SprintOpCodeInfo( msg, 0, op_code ); \
-		printf( "R0 write -> %s\n", msg );	 \*/
+		/*char msg[128];	SprintOpCodeInfo( msg, 0, op_code );  printf( "R0 write -> %s\n", msg ); */	\
 		DBGConsole_Msg(0, "Warning: Attempted write to r0!"); \
-		return;	\
 	}
 #else
 	#define R4300_CHECK_R0( op )
@@ -453,7 +445,7 @@ DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x )
 	case FPCSR_RM_RZ:		return f32_to_s64_trunc( x );
 	case FPCSR_RM_RP:		return f32_to_s64_ceil( x );
 	case FPCSR_RM_RM:		return f32_to_s64_floor( x );
-	default:				return NODEFAULT;
+	default:				return (s64)x;
 	}
 #else
 	SET_ROUND_MODE( gRoundingMode ); 
@@ -473,7 +465,7 @@ DAEDALUS_FORCEINLINE s32 d64_to_s32( d64 x )
 	case FPCSR_RM_RZ:		return d64_to_s32_trunc( x );
 	case FPCSR_RM_RP:		return d64_to_s32_ceil( x );
 	case FPCSR_RM_RM:		return d64_to_s32_floor( x );
-	default:				return NODEFAULT;
+	default:				return (s32)x;
 	}
 #else
 	SET_ROUND_MODE( gRoundingMode ); 
@@ -493,7 +485,7 @@ DAEDALUS_FORCEINLINE s64 d64_to_s64( d64 x )
 	case FPCSR_RM_RZ:		return d64_to_s64_trunc( x );
 	case FPCSR_RM_RP:		return d64_to_s64_ceil( x );
 	case FPCSR_RM_RM:		return d64_to_s64_floor( x );
-	default:				return NODEFAULT;
+	default:				return (s64)x;
 	}
 #else
 	SET_ROUND_MODE( gRoundingMode );
@@ -1457,11 +1449,11 @@ static void R4300_CALL_TYPE R4300_Special_Unk( R4300_CALL_SIGNATURE ) { WARN_NOE
 static void R4300_CALL_TYPE R4300_Special_SLL( R4300_CALL_SIGNATURE ) 		// Shift word Left Logical
 {
 	R4300_CALL_MAKE_OP( op_code );
-	R4300_CHECK_R0( op_code.rd );
 
 	// NOP!
 	if ( op_code._u32 == 0 ) return;
 
+	R4300_CHECK_R0( op_code.rd );
 	gGPR[ op_code.rd ]._s64 = (s64)(s32)( (gGPR[ op_code.rt ]._u32_0 << op_code.sa) & 0xFFFFFFFF );
 }
 
@@ -1681,13 +1673,13 @@ static void R4300_CALL_TYPE R4300_Special_DMULT( R4300_CALL_SIGNATURE ) 		// Dou
 	if (rrs < 0)
 	{
 		rrs = -rrs;
-		sign = 1 - sign;
+		sign = (1 - sign) ? true : false;
 	}
 
 	if (rrt < 0)
 	{
 		rrt = -rrt;
-		sign = 1 - sign;
+		sign = (1 - sign) ? true : false;
 	}
 
 	op1 = rrs & 0xFFFFFFFF;
