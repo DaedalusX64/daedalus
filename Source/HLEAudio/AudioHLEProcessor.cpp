@@ -654,7 +654,7 @@ void AudioHLEState::ADPCMDecode( u8 flags, u32 address )
 	}
 	else
 	{
-		u32 addr( loop ? (LoopVal&0x7fffff) : address );
+		u32 addr( loop ? LoopVal : address );
 		memcpy( out, &rdram[addr], 32 );
 	}
 

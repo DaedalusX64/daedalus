@@ -453,22 +453,19 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	//
 	if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
 	{
-		// G_AC_THRESHOLD || G_AC_DITHER
-		u8 alpah_threshold = mBlendColour.GetA();
-		sceGuAlphaFunc( (alpah_threshold | g_ROM.ALPHA_HACK) ? GU_GEQUAL : GU_GREATER, alpah_threshold, 0xff);
+		u8 alpha_threshold = mBlendColour.GetA();
+		sceGuAlphaFunc( (alpha_threshold | g_ROM.ALPHA_HACK) ? GU_GEQUAL : GU_GREATER, alpha_threshold, 0xff);
 		sceGuEnable(GU_ALPHA_TEST);
 	}
-	// I think this implies that alpha is coming from
 	else if (gRDPOtherMode.cvg_x_alpha)
 	{
 		// Going over 0x70 breaks OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
-		// ALso going over 0x30 breaks the birds in Tarzan :(. Need to find a better way to leverage this.
+		// Also going over 0x30 breaks the birds in Tarzan :(. Need to find a better way to leverage this.
 		sceGuAlphaFunc(GU_GREATER, 0x70, 0xff);
 		sceGuEnable(GU_ALPHA_TEST);
 	}
 	else
 	{
-		// Use CVG for pixel alpha
 		sceGuDisable(GU_ALPHA_TEST);
 	}
 

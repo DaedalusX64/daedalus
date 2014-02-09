@@ -216,16 +216,18 @@ void BaseRenderer::SetVIScales()
 		hend = (u32)(width / fScaleX);
 	}
 
-	fViWidth  =  (hend-hstart)    * fScaleX;
-	fViHeight =  (vend-vstart)    * fScaleY * 1.0126582f;
+	fViWidth  =  (hend-hstart) * fScaleX;
+	fViHeight =  (vend-vstart) * fScaleY * (240.f/237.f);
 
 	// XXX Need to check PAL games.
 	//if(g_ROM.TvType != OS_TV_NTSC) sRatio = 9/11.0f;
 
-	//This corrects height in various games ex : Megaman 64, CyberTiger
-	if( width > 0x300 )
+	//printf("width[%d] ViWidth[%f] ViHeight[%f]\n", width, fViWidth, fViHeight);
+
+	//This corrects height in various games ex : Megaman 64, Cyber Tiger. 40Winks need width >= ((u32)fViWidth << 1) for menus //Corn
+	if( width > 0x300 || width >= ((u32)fViWidth << 1) )
 	{
-		fViHeight *= 2.0f;
+		fViHeight += fViHeight;
 	}
 
 	//Used to set a limit on Scissors //Corn
