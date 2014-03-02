@@ -27,7 +27,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/ultra_R4300.h"
 
 ALIGNED_GLOBAL(TLBEntry, g_TLBs[32], CACHE_ALIGN);
-//u32 TLBEntry::LastMatched = 0;
 
 void TLBEntry::UpdateValue(u32 _pagemask, u32 _hi, u32 _pfno, u32 _pfne)
 {
@@ -105,6 +104,7 @@ inline bool	TLBEntry::FindTLBEntry( u32 address, u32 * p_idx )
 {
 	static u32 i = 0;
 
+	u8 mask = gCPUState.CPUControl[C0_ENTRYHI]._u32 & TLBHI_PIDMASK;
 	for ( u32 count = 0; count < 32; count++ )
 	{
 		// Hack to check most recently reference entry first
@@ -112,15 +112,14 @@ inline bool	TLBEntry::FindTLBEntry( u32 address, u32 * p_idx )
 		// the end of the tlb array (32 entries)
 		i = (count + i) & 0x1F;
 
-		struct TLBEntry & tlb = g_TLBs[i];
+		const TLBEntry & tlb = g_TLBs[i];
 
 		// Check that the VPN numbers match
 		if ((address & tlb.vpnmask) == tlb.addrcheck)
 		{
 			if (!tlb.g)
 			{
-				if ( (tlb.hi & TLBHI_PIDMASK) !=
-					 (gCPUState.CPUControl[C0_ENTRYHI]._u32 & TLBHI_PIDMASK) )
+				if ( (tlb.hi & TLBHI_PIDMASK) != mask )
 				{
 					// Entries ASID must match.
 					continue;
@@ -146,35 +145,22 @@ u32 TLBEntry::Translate(u32 address, bool& missing)
 	missing = !FindTLBEntry( address, &iMatched );
 	if (!missing)
 	{
-		struct TLBEntry & tlb = g_TLBs[iMatched];
-
-		bool	valid;
-		//bool	dirty;	// Seems unused -Salvy
-		u32		physical_addr;
+		const TLBEntry & tlb = g_TLBs[iMatched];
 
 		// Check for odd/even entry
 		if (address & tlb.checkbit)
 		{
-			//dirty = (tlb.pfno & TLBLO_D) != 0;
-			valid = (tlb.pfno & TLBLO_V) != 0;
-			physical_addr = tlb.pfnohi | (address & tlb.mask2);
+			if( (tlb.pfno & TLBLO_V) != 0 )
+				return  tlb.pfnohi | (address & tlb.mask2);
 		}
 		else
 		{
-			//dirty = (tlb.pfne & TLBLO_D) != 0;
-			valid = (tlb.pfne & TLBLO_V) != 0;
-			physical_addr = tlb.pfnehi | (address & tlb.mask2);
+			if( (tlb.pfne & TLBLO_V) != 0 )
+				return tlb.pfnehi | (address & tlb.mask2);
 		}
 
-		if ( valid )
-		{
-			return physical_addr;
-		}
-		else
-		{
-			// Throw TLB Invalid exception
-			return 0;
-		}
+		// Throw TLB Invalid exception
+		return 0;
 	}
 	else
 	{
