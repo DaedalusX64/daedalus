@@ -18,6 +18,11 @@
           'include/',
         ],
       },
+      'defines': [
+        '_GLFW_USE_OPENGL=1',
+        '_GLFW_VERSION_FULL="3.0.1"',
+        '_GLFW_USE_MENUBAR=1',
+      ],
       'sources': [
         'src/clipboard.c',
         'src/context.c',
