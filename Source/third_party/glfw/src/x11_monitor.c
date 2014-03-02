@@ -1,8 +1,5 @@
 //========================================================================
-// GLFW - An OpenGL library
-// Platform:    X11 (Unix)
-// API version: 3.0
-// WWW:         http://www.glfw.org/
+// GLFW 3.0 X11 - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
 // Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -114,7 +111,11 @@ void _glfwSetVideoMode(_GLFWmonitor* monitor, const GLFWvidmode* desired)
             }
         }
 
-        monitor->x11.oldMode = ci->mode;
+        if (bestMode == ci->mode)
+            return;
+
+        if (monitor->x11.oldMode == None)
+            monitor->x11.oldMode = ci->mode;
 
         XRRSetCrtcConfig(_glfw.x11.display,
                          sr, monitor->x11.crtc,
@@ -140,6 +141,9 @@ void _glfwRestoreVideoMode(_GLFWmonitor* monitor)
         XRRScreenResources* sr;
         XRRCrtcInfo* ci;
 
+        if (monitor->x11.oldMode == None)
+            return;
+
         sr = XRRGetScreenResources(_glfw.x11.display, _glfw.x11.root);
         ci = XRRGetCrtcInfo(_glfw.x11.display, sr, monitor->x11.crtc);
 
@@ -154,6 +158,8 @@ void _glfwRestoreVideoMode(_GLFWmonitor* monitor)
 
         XRRFreeCrtcInfo(ci);
         XRRFreeScreenResources(sr);
+
+        monitor->x11.oldMode = None;
     }
 }
 
@@ -177,7 +183,7 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* count)
         sr = XRRGetScreenResources(_glfw.x11.display, _glfw.x11.root);
         primary = XRRGetOutputPrimary(_glfw.x11.display, _glfw.x11.root);
 
-        monitors = (_GLFWmonitor**) calloc(sr->ncrtc, sizeof(_GLFWmonitor*));
+        monitors = calloc(sr->ncrtc, sizeof(_GLFWmonitor*));
 
         for (i = 0;  i < sr->ncrtc;  i++)
         {
@@ -247,7 +253,7 @@ _GLFWmonitor** _glfwPlatformGetMonitors(int* count)
     }
     else
     {
-        monitors = (_GLFWmonitor**) calloc(1, sizeof(_GLFWmonitor*));
+        monitors = calloc(1, sizeof(_GLFWmonitor*));
         monitors[0] = _glfwCreateMonitor("Display",
                                          DisplayWidthMM(_glfw.x11.display,
                                                         _glfw.x11.screen),
@@ -312,7 +318,7 @@ GLFWvidmode* _glfwPlatformGetVideoModes(_GLFWmonitor* monitor, int* found)
         sr = XRRGetScreenResources(_glfw.x11.display, _glfw.x11.root);
         oi = XRRGetOutputInfo(_glfw.x11.display, sr, monitor->x11.output);
 
-        result = (GLFWvidmode*) malloc(sizeof(GLFWvidmode) * oi->nmode);
+        result = calloc(oi->nmode, sizeof(GLFWvidmode));
 
         for (i = 0;  i < oi->nmode;  i++)
         {
@@ -354,7 +360,7 @@ GLFWvidmode* _glfwPlatformGetVideoModes(_GLFWmonitor* monitor, int* found)
     {
         *found = 1;
 
-        result = (GLFWvidmode*) malloc(sizeof(GLFWvidmode));
+        result = calloc(1, sizeof(GLFWvidmode));
 
         result[0].width = DisplayWidth(_glfw.x11.display, _glfw.x11.screen);
         result[0].height = DisplayHeight(_glfw.x11.display, _glfw.x11.screen);

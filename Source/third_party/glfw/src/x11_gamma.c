@@ -1,8 +1,5 @@
 //========================================================================
-// GLFW - An OpenGL library
-// Platform:    X11
-// API version: 3.0
-// WWW:         http://www.glfw.org/
+// GLFW 3.0 X11 - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
@@ -79,7 +76,7 @@ void _glfwPlatformGetGammaRamp(_GLFWmonitor* monitor, GLFWgammaramp* ramp)
         XRRCrtcGamma* gamma = XRRGetCrtcGamma(_glfw.x11.display,
                                               monitor->x11.crtc);
 
-        _glfwAllocGammaRamp(ramp, size);
+        _glfwAllocGammaArrays(ramp, size);
 
         memcpy(ramp->red, gamma->red, size * sizeof(unsigned short));
         memcpy(ramp->green, gamma->green, size * sizeof(unsigned short));
@@ -92,7 +89,7 @@ void _glfwPlatformGetGammaRamp(_GLFWmonitor* monitor, GLFWgammaramp* ramp)
         int size;
         XF86VidModeGetGammaRampSize(_glfw.x11.display, _glfw.x11.screen, &size);
 
-        _glfwAllocGammaRamp(ramp, size);
+        _glfwAllocGammaArrays(ramp, size);
 
         XF86VidModeGetGammaRamp(_glfw.x11.display,
                                 _glfw.x11.screen,

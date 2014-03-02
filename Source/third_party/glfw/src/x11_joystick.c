@@ -1,8 +1,5 @@
 //========================================================================
-// GLFW - An OpenGL library
-// Platform:    X11
-// API version: 3.0
-// WWW:         http://www.glfw.org/
+// GLFW 3.0 X11 - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2002-2006 Marcus Geelnard
 // Copyright (c) 2006-2010 Camilla Berglund <elmindreda@elmindreda.org>
@@ -80,8 +77,8 @@ static int openJoystickDevice(int joy, const char* path)
     ioctl(fd, JSIOCGBUTTONS, &buttonCount);
     _glfw.x11.joystick[joy].buttonCount = (int) buttonCount;
 
-    _glfw.x11.joystick[joy].axes = (float*) calloc(axisCount, sizeof(float));
-    _glfw.x11.joystick[joy].buttons = (unsigned char*) calloc(buttonCount, 1);
+    _glfw.x11.joystick[joy].axes = calloc(axisCount, sizeof(float));
+    _glfw.x11.joystick[joy].buttons = calloc(buttonCount, 1);
 
     _glfw.x11.joystick[joy].present = GL_TRUE;
 #endif // __linux__
@@ -128,15 +125,6 @@ static void pollJoystickEvents(void)
                 case JS_EVENT_AXIS:
                     _glfw.x11.joystick[i].axes[e.number] =
                         (float) e.value / 32767.0f;
-
-                    // We need to change the sign for the Y axes, so that
-                    // positive = up/forward, according to the GLFW spec.
-                    if (e.number & 1)
-                    {
-                        _glfw.x11.joystick[i].axes[e.number] =
-                            -_glfw.x11.joystick[i].axes[e.number];
-                    }
-
                     break;
 
                 case JS_EVENT_BUTTON:
@@ -159,10 +147,11 @@ static void pollJoystickEvents(void)
 
 // Initialize joystick interface
 //
-int _glfwInitJoysticks(void)
+void _glfwInitJoysticks(void)
 {
 #ifdef __linux__
-    int i, joy = 0;
+    int joy = 0;
+    size_t i;
     regex_t regex;
     DIR* dir;
     const char* dirs[] =
@@ -174,7 +163,7 @@ int _glfwInitJoysticks(void)
     if (regcomp(&regex, "^js[0-9]\\+$", 0) != 0)
     {
         _glfwInputError(GLFW_PLATFORM_ERROR, "X11: Failed to compile regex");
-        return GL_FALSE;
+        return;
     }
 
     for (i = 0;  i < sizeof(dirs) / sizeof(dirs[0]);  i++)
@@ -203,8 +192,6 @@ int _glfwInitJoysticks(void)
 
     regfree(&regex);
 #endif // __linux__
-
-    return GL_TRUE;
 }
 
 // Close all opened joystick handles
