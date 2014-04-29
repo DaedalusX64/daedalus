@@ -12,6 +12,9 @@ homepage: http://wordpress.fx-world.org
 
 #include "Utility/DaedalusTypes.h"
 #include "Utility/Endian.h"
+#include "Utility/Timing.h"
+
+#include <stdio.h>
 
 //*****************************************************************************
 //Copy native N64 memory with CPU only //Corn
@@ -19,11 +22,11 @@ homepage: http://wordpress.fx-world.org
 //*****************************************************************************
 void memcpy_byteswap( void* dst, const void* src, size_t size )
 {
+
 	u8* src8 = (u8*)src;
 	u8* dst8 = (u8*)dst;
 	u32* src32;
 	u32* dst32;
-
 	// < 4 isn't worth trying any optimisations...
 	if(size>=4)
 	{
@@ -33,7 +36,6 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 			*(u8*)((uintptr_t)dst8++ ^ U8_TWIDDLE) = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
 			size--;
 		}
-
 		// We are dst aligned now but need at least 4 bytes to copy
 		if(size>=4)
 		{
@@ -43,7 +45,6 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 			u32 dstTmp;
 			u32 size32 = size >> 2;
 			size &= 0x3;
-
 			switch( (uintptr_t)src8&0x3 )
 			{
 				case 0:	//Both src and dst are aligned to 4 bytes
@@ -51,7 +52,7 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 #if 0 //DAEDALUS_W32
 						// MSVC11 memcpy is almost 50% faster! It takes advantage of SSE2
 						// Mmm breaks wipeout
-						memcpy(dst, src, size & ~0x3);
+						memcpy(dst, src, size);
 #else
 						//This is faster than PSP's GCC memcpy
 						//ToDo: Profile for other plaforms to see if memcpy is faster
@@ -130,3 +131,35 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 		*(u8*)((uintptr_t)dst8++ ^ U8_TWIDDLE) = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
 	}
 }
+#ifdef PROFILE_MEMCPY
+static inline u64 GetCurrent()
+{
+    u64 tick;
+	NTiming::GetPreciseTime(&tick);
+    return tick;
+}
+
+#define MEMCPY_TEST(d, s, n) {													\
+	u32 _fast_memcpy_swizzle = 0;												\
+	{																			\
+		u64 time;																\
+		NTiming::GetPreciseTime(&time);											\
+		for (u32 j=0; j<100; ++j)												\
+			fast_memcpy_swizzle(d, s, n);										\
+		_fast_memcpy_swizzle = (u32)(GetCurrent()-time);						\
+	}																			\
+	u32 _memcpy_byteswap = 0;													\
+	{																			\
+		u64 time = GetCurrent();												\
+		for (u32 j=0; j<100; ++j)												\
+			memcpy_byteswap(d, s, n);											\
+		_memcpy_byteswap = (u32)(GetCurrent()-time);							\
+	}																			\
+	printf("%d bytes | SWIZZLE %d | FASTSWIZZLE %d\n", n, _memcpy_byteswap, _fast_memcpy_swizzle); \
+	}
+
+void memcpy_test( void * dst, const void * src, size_t size )
+{
+	MEMCPY_TEST(dst, src, size);
+}
+#endif // PROFILE_MEMCPY
