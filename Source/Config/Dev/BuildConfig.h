@@ -44,6 +44,5 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //#define	DAEDALUS_DIALOGS					// Enable this to ask confimation dialogs in the GUI
 //#define	DAEDALUS_SILENT						// Define to quiet Debug Messages
 //#define DAEDALUS_ACCURATE_TMEM				// Full tmem emulation(Very accurate, but slighty slower) When this defined, is irrelevant having DAEDALUS_FAST_TMEM defined or not
-//#define	DAEDALUS_IS_LEGACY					// Old code, unused etc.. Kept for reference, undef to save space on the elf. Will remove soon.
 
 #endif // CONFIG_DEV_BUILDCONFIG_H_

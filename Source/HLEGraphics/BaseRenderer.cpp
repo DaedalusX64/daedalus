@@ -216,16 +216,18 @@ void BaseRenderer::SetVIScales()
 		hend = (u32)(width / fScaleX);
 	}
 
-	fViWidth  =  (hend-hstart)    * fScaleX;
-	fViHeight =  (vend-vstart)    * fScaleY * 1.0126582f;
+	fViWidth  =  (hend-hstart) * fScaleX;
+	fViHeight =  (vend-vstart) * fScaleY * (240.f/237.f);
 
 	// XXX Need to check PAL games.
 	//if(g_ROM.TvType != OS_TV_NTSC) sRatio = 9/11.0f;
 
-	//This corrects height in various games ex : Megaman 64, CyberTiger
-	if( width > 0x300 )
+	//printf("width[%d] ViWidth[%f] ViHeight[%f]\n", width, fViWidth, fViHeight);
+
+	//This corrects height in various games ex : Megaman 64, Cyber Tiger. 40Winks need width >= ((u32)fViWidth << 1) for menus //Corn
+	if( width > 0x300 || width >= ((u32)fViWidth << 1) )
 	{
-		fViHeight *= 2.0f;
+		fViHeight += fViHeight;
 	}
 
 	//Used to set a limit on Scissors //Corn
@@ -315,8 +317,8 @@ void BaseRenderer::InitViewport()
 	mN64ToScreenScale.x = gZoomX * mScreenWidth  / fViWidth;
 	mN64ToScreenScale.y = gZoomX * mScreenHeight / fViHeight;
 
-	mN64ToScreenTranslate.x  = (f32)display_x - Round(0.55f * (gZoomX - 1.0f) * fViWidth);
-	mN64ToScreenTranslate.y  = (f32)display_y - Round(0.55f * (gZoomX - 1.0f) * fViHeight);
+	mN64ToScreenTranslate.x  = (f32)display_x - roundf(0.55f * (gZoomX - 1.0f) * fViWidth);
+	mN64ToScreenTranslate.y  = (f32)display_y - roundf(0.55f * (gZoomX - 1.0f) * fViHeight);
 
 	if( gRumblePakActive )
 	{
@@ -1103,8 +1105,8 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 				else
 				{
 					//Cheap way to do Acos(x)/Pi (abs() fixes star in SM64, sort of) //Corn
-					f32 NormX = Abs( norm.x );
-					f32 NormY = Abs( norm.y );
+					f32 NormX = fabsf( norm.x );
+					f32 NormY = fabsf( norm.y );
 					mVtxProjected[i].Texture.x =  0.5f - 0.25f * NormX - 0.25f * NormX * NormX * NormX;
 					mVtxProjected[i].Texture.y =  0.5f - 0.25f * NormY - 0.25f * NormY * NormY * NormY;
 				}
@@ -1285,14 +1287,10 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 				}
 			}
 
-			//Clamp to 1.0
-			if( result.x > 1.0f ) result.x = 1.0f;
-			if( result.y > 1.0f ) result.y = 1.0f;
-			if( result.z > 1.0f ) result.z = 1.0f;
-
-			mVtxProjected[i].Colour.x *= result.x;
-			mVtxProjected[i].Colour.y *= result.y;
-			mVtxProjected[i].Colour.z *= result.z;
+			//Clamp result to 1.0
+			if( result.x < 1.0f ) mVtxProjected[i].Colour.x *= result.x;
+			if( result.y < 1.0f ) mVtxProjected[i].Colour.y *= result.y;
+			if( result.z < 1.0f ) mVtxProjected[i].Colour.z *= result.z;
 
 			// ENV MAPPING
 			if ( mTnL.Flags.TexGen )

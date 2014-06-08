@@ -41,30 +41,30 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
+    <_ProjectFileVersion>11.0.60315.1</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>.\Builds\PC\</OutDir>
-    <IntDir>.\Builds\PC\</IntDir>
+    <OutDir>$(ProjectDir)\bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\obj\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
     <TargetName>DaedalusDebug</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IntDir>$(Root)build\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(ProjectDir)\bin\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)\obj\$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <TargetName>Daedalus</TargetName>
-    <OutDir>$(Root)bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <BuildLog>
-      <Path>$(IntDir)$(ProjectName)BuildLog.htm</Path>
+      <Path>$(IntDir)\$(ProjectName)BuildLog.htm</Path>
     </BuildLog>
     <Midl>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MkTypLibCompatible>true</MkTypLibCompatible>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>Win32</TargetEnvironment>
-      <TypeLibraryName>.\Builds\Debug\Daedalus.tlb</TypeLibraryName>
+      <TypeLibraryName>$(IntDir)Daedalus.tlb</TypeLibraryName>
       <HeaderFileName />
     </Midl>
     <ClCompile>
@@ -75,11 +75,11 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <SmallerTypeCheck>true</SmallerTypeCheck>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <ProgramDataBaseFileName>.\Builds\PC\DaedalusDebug.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>$(OutDir)DaedalusDebug.pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <CallingConvention>FastCall</CallingConvention>
+      <CallingConvention>Cdecl</CallingConvention>
       <CompileAs>Default</CompileAs>
     </ClCompile>
     <ResourceCompile>
@@ -87,33 +87,33 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>comctl32.lib;shlwapi.lib;winmm.lib;dxguid.lib;dsound.lib;zlibwapi.lib;libpng15.lib;glew32.lib;opengl32.lib;glfw3dll.lib;WSock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>.\Builds\PC\DaedalusDebug.exe</OutputFile>
+      <AdditionalDependencies>comctl32.lib;shlwapi.lib;winmm.lib;dxguid.lib;dsound.lib;zlibwapi.lib;libpng15.lib;glew32s.lib;opengl32.lib;glfw3.lib;WSock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)\DaedalusDebug.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>LIBCD;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\Builds\PC\$(TargetName).pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y /D /E /C /F ..\..\Data\PC\*.*  .\Builds\PC\
-xcopy /I /Y /D /E  /F ..\..\Source\SysOSX\Debug\Web\*.*  .\Builds\PC\Web\
-xcopy /I /Y /D /E  /F ..\..\Source\SysGL\HLEGraphics\n64.psh  .\Builds\PC\</Command>
+      <Command>xcopy /Y /D /E /C /F ..\..\Data\PC\*.*  $(OutDir)
+xcopy /I /Y /D /E  /F ..\..\Source\SysOSX\Debug\Web\*.*  $(OutDir)
+xcopy /I /Y /D /E  /F ..\..\Source\SysGL\HLEGraphics\n64.psh  $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <BuildLog>
-      <Path>$(IntDir)$(ProjectName)BuildLog.htm</Path>
+      <Path>$(IntDir)\$(ProjectName)BuildLog.htm</Path>
     </BuildLog>
     <Midl>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MkTypLibCompatible>true</MkTypLibCompatible>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <TargetEnvironment>Win32</TargetEnvironment>
-      <TypeLibraryName>.\Builds\Release\Daedalus.tlb</TypeLibraryName>
+      <TypeLibraryName>$(IntDir)Daedalus.tlb</TypeLibraryName>
       <HeaderFileName />
     </Midl>
     <ClCompile>
@@ -128,14 +128,13 @@ xcopy /I /Y /D /E  /F ..\..\Source\SysGL\HLEGraphics\n64.psh  .\Builds\PC\</Comm
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <PrecompiledHeader />
-      <ProgramDataBaseFileName>$(IntDir)vc110.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName).pdb</ProgramDataBaseFileName>
       <WarningLevel>Level3</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CallingConvention>Cdecl</CallingConvention>
       <CompileAs>Default</CompileAs>
       <OmitFramePointers>true</OmitFramePointers>
-      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -143,24 +142,24 @@ xcopy /I /Y /D /E  /F ..\..\Source\SysGL\HLEGraphics\n64.psh  .\Builds\PC\</Comm
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;winmm.lib;dxguid.lib;dsound.lib;zlibwapi.lib;libpng15.lib;glew32s.lib;opengl32.lib;glfw3.lib;WSock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)\Daedalus.exe</OutputFile>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>LIBC;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <ProgramDatabaseFile>.\Builds\PC\$(TargetName).pdb</ProgramDatabaseFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
-      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalLibraryDirectories>$(Root)bin\$(Configuration)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>$(ProjectDir)\lib\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y /D /E /C /F ..\..\Data\PC\*.*  $(Root)bin\$(Configuration)\
-xcopy /I /Y /D /E  /F ..\..\Source\SysOSX\Debug\Web\*.*  $(Root)bin\$(Configuration)\
-xcopy /I /Y /D /E  /F ..\..\Source\SysGL\HLEGraphics\n64.psh  $(Root)bin\$(Configuration)\
+      <Command>xcopy /Y /D /E /C /F ..\..\Data\PC\*.*  $(OutDir)
+xcopy /I /Y /D /E  /F ..\..\Source\SysOSX\Debug\Web\*.*  $(OutDir)Web\
+xcopy /I /Y /D /E  /F ..\..\Source\SysGL\HLEGraphics\n64.psh  $(OutDir)
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

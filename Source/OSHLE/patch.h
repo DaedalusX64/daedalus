@@ -72,8 +72,6 @@ typedef struct _PatchSymbol
 	u32 				Location;	// What is the address of the symbol?
 	const char * 		Name;		// Symbol name
 
-	OpCode opReplaced;				// The op that was replaced when we were patched in
-
 	PatchSignature *	Signatures; // Crossrefs for this code (Function symbols only)
 
 	PatchFunction 		Function;	// The installed patch Emulated function call (Function symbols only)
@@ -130,7 +128,7 @@ static PatchSignature	g_##name##_sig[] = {
 ///////////////////////////////////////////////////////////////
 
 #define PATCH_SYMBOL_FUNCTION(name) \
-PatchSymbol g_##name##_s = { false, 0, #name, {{0}}, g_##name##_sig, NULL};
+PatchSymbol g_##name##_s = { false, 0, #name, g_##name##_sig, NULL};
 
 #define PATCH_SYMBOL_VARIABLE(name) \
 PatchVariable g_##name##_v = { false, 0, #name, false, 0, false, 0};

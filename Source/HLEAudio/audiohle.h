@@ -49,6 +49,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define A_SETLOOP               15
 */
 #define ACMD_SIZE               32
+//#define BUF_SIZE                16	//Normal 16bit
+//#define ADR_SIZE                24	//Normal 24bit
+#define BUF_SIZE                15;u32 :1	//This will force audio buffer access to only 15bit	//Corn
+#define ADR_SIZE                23;u32 :1	//This will force RDRAM address to 0 -> 0x7FFFFF (8MB) //Corn
 /*
  * Audio flags
  */
@@ -70,9 +74,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 struct SAbi1ClearBuffer
 {
-	unsigned		Count : 16;
+	unsigned		Count : BUF_SIZE;
 	unsigned		: 16;			// Unknown/unused
-	unsigned		Address : 16;
+	unsigned		Address : BUF_SIZE;
 	unsigned		: 8;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
@@ -80,7 +84,7 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi1ClearBuffer ) == 8 );
 
 struct SAbi1EnvMixer
 {
-	unsigned		Address : 24;
+	unsigned		Address : ADR_SIZE;
 	unsigned		: 8;
 	unsigned		: 16;
 	unsigned		Flags : 8;
@@ -91,8 +95,8 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi1EnvMixer ) == 8 );
 
 struct SAbi1Mixer
 {
-	unsigned		DmemOut : 16;
-	unsigned		DmemIn	: 16;
+	unsigned		DmemOut : BUF_SIZE;
+	unsigned		DmemIn	: BUF_SIZE;
 	signed			Gain	: 16;
 	unsigned		: 8;			// Unknown/unused
 	unsigned		: 8;			// Command
@@ -101,7 +105,7 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi1Mixer ) == 8 );
 
 struct SAbi1Resample
 {
-	unsigned		Address : 24;
+	unsigned		Address : ADR_SIZE;
 	unsigned		: 8;
 	unsigned		Pitch : 16;
 	unsigned		Flags : 8;
@@ -111,7 +115,7 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi1Resample ) == 8 );
 
 struct SAbi1ADPCM
 {
-	unsigned		Address : 24;
+	unsigned		Address : ADR_SIZE;
 	unsigned		: 8;
 	unsigned		Gain : 16;
 	unsigned		Flags : 8;
@@ -121,8 +125,8 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi1ADPCM ) == 8 );
 
 struct SAbi2Mixer
 {
-	unsigned		DmemOut : 16;
-	unsigned		DmemIn	: 16;
+	unsigned		DmemOut : BUF_SIZE;
+	unsigned		DmemIn	: BUF_SIZE;
 	signed			Gain	: 16;
 	unsigned		Count	: 8;
 	unsigned		: 8;			// Command
@@ -131,7 +135,7 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi2Mixer ) == 8 );
 
 struct SAbi2Resample
 {
-	unsigned		Address : 24;
+	unsigned		Address : ADR_SIZE;
 	unsigned		: 8;
 	unsigned		Pitch : 16;
 	unsigned		Flags : 8;
@@ -142,7 +146,7 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi2Resample ) == 8 );
 
 struct SAbi1LoadBuffer
 {
-	unsigned		Address : 24;
+	unsigned		Address : ADR_SIZE;
 	unsigned		: 8;
 	unsigned		: 24;			// Unknown/unused
 	unsigned		: 8;			// Command
@@ -151,7 +155,7 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi1LoadBuffer ) == 8 );
 
 struct SAbi1SaveBuffer
 {
-	unsigned		Address : 24;
+	unsigned		Address : ADR_SIZE;
 	unsigned		: 8;
 	unsigned		: 24;			// Unknown/unused
 	unsigned		: 8;			// Command
@@ -160,7 +164,7 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi1SaveBuffer ) == 8 );
 
 struct SAbi1SetSegment
 {
-	unsigned		Address : 24;
+	unsigned		Address : ADR_SIZE;
 	unsigned		Segment : 8;
 	unsigned		: 24;			// Unknown/unused
 	unsigned		: 8;			// Command
@@ -170,7 +174,7 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi1SetSegment ) == 8 );
 
 struct SAbi1SetLoop
 {
-	unsigned		LoopVal : 24;
+	unsigned		LoopVal : ADR_SIZE;
 	unsigned		: 8;
 	unsigned		: 24;			// Unknown/unused
 	unsigned		: 8;			// Command
@@ -179,9 +183,9 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi1SetLoop ) == 8 );
 
 struct SAbi1SetBuffer
 {
-	unsigned		Count	: 16;
-	unsigned		Out		: 16;
-	unsigned		In		: 16;
+	unsigned		Count	: BUF_SIZE;
+	unsigned		Out		: BUF_SIZE;
+	unsigned		In		: BUF_SIZE;
 	unsigned		Flags	: 8;
 	unsigned		: 8;			// Command
 
@@ -190,9 +194,9 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi1SetBuffer ) == 8 );
 
 struct SAbi1DmemMove
 {
-	unsigned		Count	: 16;
-	unsigned		Dst		: 16;
-	unsigned		Src		: 16;
+	unsigned		Count	: BUF_SIZE;
+	unsigned		Dst		: BUF_SIZE;
+	unsigned		Src		: BUF_SIZE;
 	unsigned		: 8;
 	unsigned		: 8;			// Command
 };
@@ -200,9 +204,9 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi1DmemMove ) == 8 );
 
 struct SAbi1LoadADPCM
 {
-	unsigned		Address : 24;
+	unsigned		Address : ADR_SIZE;
 	unsigned		: 8;
-	unsigned		Count : 16;
+	unsigned		Count : BUF_SIZE;
 	unsigned		: 8;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
@@ -210,8 +214,8 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi1LoadADPCM ) == 8 );
 
 struct SAbi1Interleave
 {
-	unsigned		LAddr	: 16;
-	unsigned		RAddr	: 16;
+	unsigned		LAddr	: BUF_SIZE;
+	unsigned		RAddr	: BUF_SIZE;
 	unsigned		: 24;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
@@ -219,9 +223,9 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi1Interleave ) == 8 );
 
 struct SAbi2ClearBuffer
 {
-	unsigned		Count : 16;
+	unsigned		Count : BUF_SIZE;
 	unsigned		: 16;			// Unknown/unused
-	unsigned		Address : 16;
+	unsigned		Address : BUF_SIZE;
 	unsigned		: 8;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
@@ -229,7 +233,7 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi2ClearBuffer ) == 8 );
 
 struct SAbi2LoadBuffer
 {
-	unsigned		SrcAddr : 24;
+	unsigned		SrcAddr : ADR_SIZE;
 	unsigned		: 8;
 	unsigned		DstAddr : 12;
 	unsigned		Count : 12;
@@ -239,7 +243,7 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi2LoadBuffer ) == 8 );
 
 struct SAbi2SaveBuffer
 {
-	unsigned		DstAddr : 24;
+	unsigned		DstAddr : ADR_SIZE;
 	unsigned		: 8;
 	unsigned		SrcAddr : 12;
 	unsigned		Count : 12;
@@ -249,7 +253,7 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi2SaveBuffer ) == 8 );
 
 struct SAbi2SetLoop
 {
-	unsigned		LoopVal : 24;
+	unsigned		LoopVal : ADR_SIZE;
 	unsigned		: 8;
 	unsigned		: 24;			// Unknown/unused
 	unsigned		: 8;			// Command
@@ -258,9 +262,9 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi2SetLoop ) == 8 );
 
 struct SAbi2SetBuffer
 {
-	unsigned		Count	: 16;
-	unsigned		Out		: 16;
-	unsigned		In		: 16;
+	unsigned		Count	: BUF_SIZE;
+	unsigned		Out		: BUF_SIZE;
+	unsigned		In		: BUF_SIZE;
 	unsigned		Flags: 8;		// Actually used?
 	unsigned		: 8;			// Command
 
@@ -269,9 +273,9 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi2SetBuffer ) == 8 );
 
 struct SAbi2DmemMove
 {
-	unsigned		Count	: 16;
-	unsigned		Dst		: 16;
-	unsigned		Src		: 16;
+	unsigned		Count	: BUF_SIZE;
+	unsigned		Dst		: BUF_SIZE;
+	unsigned		Src		: BUF_SIZE;
 	unsigned		: 8;
 	unsigned		: 8;			// Command
 };
@@ -279,9 +283,9 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi2DmemMove ) == 8 );
 
 struct SAbi2LoadADPCM
 {
-	unsigned		Address : 24;
+	unsigned		Address : ADR_SIZE;
 	unsigned		: 8;
-	unsigned		Count : 16;
+	unsigned		Count : BUF_SIZE;
 	unsigned		: 8;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
@@ -289,9 +293,9 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi2LoadADPCM ) == 8 );
 
 struct SAbi2Deinterleave
 {
-	unsigned		Out		: 16;
-	unsigned		In		: 16;
-	unsigned		Count	: 16;
+	unsigned		Out		: BUF_SIZE;
+	unsigned		In		: BUF_SIZE;
+	unsigned		Count	: BUF_SIZE;
 	unsigned		: 8;
 	unsigned		: 8;			// Command
 };
@@ -300,8 +304,8 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi2Deinterleave ) == 8 );
 
 struct SAbi2Interleave
 {
-	unsigned		RAddr	: 16;
-	unsigned		LAddr	: 16;
+	unsigned		RAddr	: BUF_SIZE;
+	unsigned		LAddr	: BUF_SIZE;
 	unsigned		OutAddr : 12;	// XXXX Not sure if this is correct.
 	unsigned		Count   : 12;	// Might be :16 :8 (with count implicitly *16)?
 	unsigned		: 8;			// Command
@@ -310,9 +314,9 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi2Interleave ) == 8 );
 
 struct SAbi3LoadADPCM
 {
-	unsigned		Address : 24;
+	unsigned		Address : ADR_SIZE;
 	unsigned		: 8;
-	unsigned		Count : 16;
+	unsigned		Count : BUF_SIZE;
 	unsigned		: 8;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
@@ -320,7 +324,7 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi3LoadADPCM ) == 8 );
 
 struct SAbi3SetLoop
 {
-	unsigned		LoopVal : 24;
+	unsigned		LoopVal : ADR_SIZE;
 	unsigned		: 8;
 	unsigned		: 24;			// Unknown/unused
 	unsigned		: 8;			// Command
@@ -329,9 +333,9 @@ DAEDALUS_STATIC_ASSERT( sizeof( SAbi3SetLoop ) == 8 );
 
 struct SAbi3DmemMove
 {
-	unsigned		Count	: 16;
-	unsigned		Dst		: 16;
-	unsigned		Src		: 16;
+	unsigned		Count	: BUF_SIZE;
+	unsigned		Dst		: BUF_SIZE;
+	unsigned		Src		: BUF_SIZE;
 	unsigned		: 8;
 	unsigned		: 8;			// Command
 };
@@ -384,7 +388,7 @@ struct AudioHLECommand
 			int		: 32;
 			int		: 24;
 			u32		cmd : 5;
-			u32		: 3;
+			u32		top : 3;
 		};
 	};
 };

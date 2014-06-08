@@ -9,6 +9,9 @@
 
 The @ref GLFWmonitor object represents a currently connected monitor.
 
+
+@section monitor_monitors Retrieving monitors
+
 The primary monitor is returned by @ref glfwGetPrimaryMonitor.  It is usually
 the user's preferred monitor and the one with global UI elements like task bar
 or menu bar.
@@ -25,7 +28,7 @@ GLFWmonitor** monitors = glfwGetMonitors(&count);
 @endcode
 
 
-@section monitor_modes Querying video modes
+@section monitor_modes Retrieving video modes
 
 Although GLFW generally does a good job at selecting a suitable video
 mode for you when you open a full screen window, it is sometimes useful to
@@ -49,12 +52,18 @@ const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 @section monitor_size Monitor physical size
 
 The physical size in millimetres of a monitor, or an approximation of it, can be
-retrieved with @ref glfwGetMonitorPhysicalSize.  This can, for example, be used
-together with the current video mode to calculate DPI.
+retrieved with @ref glfwGetMonitorPhysicalSize.  
 
 @code
 int widthMM, heightMM;
 glfwGetMonitorPhysicalSize(monitor, &widthMM, &heightMM);
+@endcode
+
+This can, for example, be used together with the current video mode to calculate
+the DPI of a monitor. 
+
+@code
+const double dpi = mode->width / (widthMM / 25.4);
 @endcode
 
 

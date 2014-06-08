@@ -12,10 +12,7 @@ homepage: http://wordpress.fx-world.org
 #include "Utility/DaedalusTypes.h"
 
 #include <string.h>
-#include <time.h> // psprtc.h is broken, needs this.
 
-#include <psprtc.h>
-#include <psppower.h>
 
 // Avoid using VFPU in our audio plugin, otherwise the ME will choke
 //
@@ -376,49 +373,3 @@ void memcpy_vfpu_byteswap( void* dst, const void* src, size_t size )
 		*(u8*)((u32)dst8++ ^ 3) = *(u8*)((u32)src8++ ^ 3);
 	}
 }
-
-#ifdef PROFILE_MEMCPY
-//*****************************************************************************
-//
-//*****************************************************************************
-static inline u64 GetCurrent()
-{
-    u64 tick;
-    sceRtcGetCurrentTick(&tick);
-    return (s64)tick;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-#define MEMCPY_TEST(d, s, n) {													\
-	int gcc_elapsed = 0;														\
-	{																			\
-		u64 time = GetCurrent();												\
-		for (int j=0; j<100; ++j)												\
-			memcpy(d, s, n);													\
-		gcc_elapsed = (int)(GetCurrent()-time);									\
-	}																			\
-	int vfpu_elapsed_swizzle = 0;												\
-	{																			\
-		u64 time = GetCurrent();												\
-		for (int j=0; j<100; ++j)												\
-			memcpy_vfpu_byteswap(d, s, n);										\
-		vfpu_elapsed_swizzle = (int)(GetCurrent()-time);						\
-	}																			\
-	int vfpu_elapsed = 0;														\
-	{																			\
-		u64 time = GetCurrent();												\
-		for (int j=0; j<100; ++j)												\
-			memcpy_vfpu(d, s, n);												\
-		vfpu_elapsed = (int)(GetCurrent()-time);								\
-	}																			\
-	scePowerTick(0);															\
-	printf("%6d bytes | GCC%5d | VFPU%5d | VFPUSWIZZLE%5d\n", (int)n, gcc_elapsed, vfpu_elapsed, vfpu_elapsed_swizzle); \
-	}
-
-void memcpy_test( void * dst, const void * src, size_t size )
-{
-	MEMCPY_TEST(dst, src, size);
-}
-#endif // PROFILE_MEMCPY

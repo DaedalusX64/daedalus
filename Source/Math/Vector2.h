@@ -62,7 +62,7 @@ public:
 
 	float Length() const
 	{
-		return Sqrt( (x*x)+(y*y) );
+		return sqrtf( (x*x)+(y*y) );
 	}
 
 	float LengthSq() const

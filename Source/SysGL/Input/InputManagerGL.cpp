@@ -83,7 +83,7 @@ void IInputManager::Finalise()
 
 void IInputManager::GetGamePadStatus()
 {
-	mGamePadAvailable = glfwJoystickPresent(GLFW_JOYSTICK_1);
+	mGamePadAvailable = glfwJoystickPresent(GLFW_JOYSTICK_1) ? true : false;
 }
 
 void IInputManager::GetJoyPad(OSContPad *pPad)

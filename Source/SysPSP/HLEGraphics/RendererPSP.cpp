@@ -150,9 +150,6 @@ ALIGNED_GLOBAL(u32,    gSelectedTexture[kPlaceholderSize], DATA_ALIGN);
 #endif // DAEDALUS_DEBUG_DISPLAYLIST
 
 RendererPSP::RendererPSP()
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-:	mRecordCombinerStates( false )
-#endif
 {
 	//
 	//	Set up RGB = T0, A = T0
@@ -360,15 +357,14 @@ inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, 
 	//
 	//if( gRDPOtherMode.c1_m1a==3 || gRDPOtherMode.c1_m2a==3 || gRDPOtherMode.c2_m1a==3 || gRDPOtherMode.c2_m2a==3 )
 	{
-		//u32 states = sceGuGetAllStatus();	//save current state
-
 		//sceGuShadeModel(GU_SMOOTH);
-		//sceGuDepthFunc(GU_EQUAL);
+		sceGuDepthFunc(GU_EQUAL);	//Make sure to only blend on pixels that has been rendered on first pass //Corn
 		sceGuDepthMask(GL_TRUE);	//GL_TRUE to disable z-writes, no need to write to zbuffer for second pass //Corn
 		sceGuEnable(GU_BLEND);
 		sceGuDisable(GU_TEXTURE_2D);	//Blend triangle without a texture
+		sceGuDisable(GU_ALPHA_TEST);
 		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-
+		
 		u32 FogColor = mFogColour.GetColour();
 		
 		//Copy fog color to vertices
@@ -379,10 +375,8 @@ inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, 
 		}
 
 		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
-		
-		//sceGuDepthFunc(GU_GEQUAL);
 
-		//sceGuSetAllStatus( states );	//restore saved state
+		sceGuDepthFunc(GU_GEQUAL);	//Restore default depth function	
 	}
 }
 
@@ -459,22 +453,19 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	//
 	if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
 	{
-		// G_AC_THRESHOLD || G_AC_DITHER
-		u8 alpah_threshold = mBlendColour.GetA();
-		sceGuAlphaFunc( (alpah_threshold | g_ROM.ALPHA_HACK) ? GU_GEQUAL : GU_GREATER, alpah_threshold, 0xff);
+		u8 alpha_threshold = mBlendColour.GetA();
+		sceGuAlphaFunc( (alpha_threshold | g_ROM.ALPHA_HACK) ? GU_GEQUAL : GU_GREATER, alpha_threshold, 0xff);
 		sceGuEnable(GU_ALPHA_TEST);
 	}
-	// I think this implies that alpha is coming from
 	else if (gRDPOtherMode.cvg_x_alpha)
 	{
 		// Going over 0x70 breaks OOT, but going lesser than that makes lines on games visible...ex: Paper Mario.
-		// ALso going over 0x30 breaks the birds in Tarzan :(. Need to find a better way to leverage this.
+		// Also going over 0x30 breaks the birds in Tarzan :(. Need to find a better way to leverage this.
 		sceGuAlphaFunc(GU_GREATER, 0x70, 0xff);
 		sceGuEnable(GU_ALPHA_TEST);
 	}
 	else
 	{
-		// Use CVG for pixel alpha
 		sceGuDisable(GU_ALPHA_TEST);
 	}
 
@@ -711,11 +702,11 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoor
 	v2 screen1;
 	if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
 	{
-		screen0.x = Round( Round( HD_SCALE * xy0.x ) * mN64ToScreenScale.x + 59 );	//59 in translate is an ugly hack that only work on 480x272 display//Corn
-		screen0.y = Round( Round( xy0.y )            * mN64ToScreenScale.y + mN64ToScreenTranslate.y );
+		screen0.x = roundf( roundf( HD_SCALE * xy0.x ) * mN64ToScreenScale.x + 59 );	//59 in translate is an ugly hack that only work on 480x272 display//Corn
+		screen0.y = roundf( roundf( xy0.y )            * mN64ToScreenScale.y + mN64ToScreenTranslate.y );
 
-		screen1.x = Round( Round( HD_SCALE * xy1.x ) * mN64ToScreenScale.x + 59 ); //59 in translate is an ugly hack that only work on 480x272 display//Corn
-		screen1.y = Round( Round( xy1.y )            * mN64ToScreenScale.y + mN64ToScreenTranslate.y );
+		screen1.x = roundf( roundf( HD_SCALE * xy1.x ) * mN64ToScreenScale.x + 59 ); //59 in translate is an ugly hack that only work on 480x272 display//Corn
+		screen1.y = roundf( roundf( xy1.y )            * mN64ToScreenScale.y + mN64ToScreenTranslate.y );
 	}
 	else
 	{

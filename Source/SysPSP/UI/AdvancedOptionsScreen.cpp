@@ -117,14 +117,14 @@ IAdvancedOptionsScreen::IAdvancedOptionsScreen( CUIContext * p_context, const Ro
 	}
 
 	mElements.Add( new CBoolSetting( &mRomPreferences.MemoryAccessOptimisation, "Dynarec Memory Optimisation", "Enable for speed-up (WARNING, can cause instability and/or crash on certain ROMs).", "Enabled", "Disabled" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecLoopOptimisation, "Dynarec Loop Optimisation", "Enable for speed-up (WARNING, can cause instability and/or crash on certain ROMs).", "Enabled", "Disabled" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecDoublesOptimisation, "Dynarec Doubles Optimisation", "Enable for speed-up (WARNING, Works on most but not all ROMs).", "Enabled", "Disabled" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.CleanSceneEnabled, "Clean Scene", "Force clear of frame buffer before drawing any primitives", "Enabled", "Disabled" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.ClearDepthFrameBuffer, "Clear N64 Depth FrameBuffer", "Low level framebuffer clears for special effects like sun/flames glare in Zelda (WARNING, This can slow down games)", "Enabled", "Disabled" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.DoubleDisplayEnabled, "Double Display Lists", "Double Display Lists enabled for a speed-up (Works on most ROMs)", "Enabled", "Disabled" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.VideoRateMatch, "Video Rate Match", "Whether to match video rate to the frame rate (makes some games less sluggish)", "Yes", "No" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.AudioRateMatch, "Audio Rate Match", "Whether to match audio rate to the frame rate (less pops and clicks)", "Yes", "No" ) );
-	mElements.Add( new CBoolSetting( &mRomPreferences.FogEnabled, "Fog Emulation", "Whether to enable or disable fog emulation (Experimental, only works on a few games)", "Enabled", "Disabled" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecLoopOptimisation, "Dynarec Loop Optimisation", "Enable for speed-up (WARNING, quite unstable and can cause instability and/or crash on many ROMs).", "Enabled", "Disabled" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecDoublesOptimisation, "Dynarec Doubles Optimisation", "Enable for speed-up (WARNING, works on most but not all ROMs).", "Enabled", "Disabled" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.CleanSceneEnabled, "Clean Scene", "Force clear of frame buffer before drawing any primitives (Use it to clear out garbage on screen)", "Enabled", "Disabled" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.ClearDepthFrameBuffer, "Clear N64 Depth Buffer", "Z-buffer clears for special effects like sun/flames glare in Zelda and camera in DK64 (WARNING, don't use it unless needed)", "Enabled", "Disabled" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.DoubleDisplayEnabled, "Double Display Lists", "Double Display Lists enabled for a speed-up (works on most ROMs)", "Enabled", "Disabled" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.VideoRateMatch, "Video Rate Match", "Match video rate to the frame rate (makes some games less sluggish Rayman2/Donald Duck/Tom and Jerry/Earth Worm Jim)", "Yes", "No" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.AudioRateMatch, "Audio Rate Match", "Match audio rate to the frame rate (less pops and clicks)", "Yes", "No" ) );
+	mElements.Add( new CBoolSetting( &mRomPreferences.FogEnabled, "Fog Emulation", "Enable or disable distance fog (works on many ROMs but the extra rendering pass uses more resources)", "Enabled", "Disabled" ) );
 
 	//	mElements.Add( new CUISpacer( 16 ) );
 

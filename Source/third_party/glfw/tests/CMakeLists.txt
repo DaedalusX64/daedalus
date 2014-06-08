@@ -11,10 +11,6 @@ endif()
 include_directories(${GLFW_SOURCE_DIR}/include
                     ${GLFW_SOURCE_DIR}/deps)
 
-if (MSVC)
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-endif()
-
 if (NOT APPLE)
     # HACK: This is NOTFOUND on OS X 10.8
     include_directories(${OPENGL_INCLUDE_DIR})
@@ -27,7 +23,7 @@ set(TINYCTHREAD ${GLFW_SOURCE_DIR}/deps/tinycthread.h
 
 add_executable(clipboard clipboard.c ${GETOPT})
 add_executable(defaults defaults.c)
-add_executable(events events.c)
+add_executable(events events.c ${GETOPT})
 add_executable(fsaa fsaa.c ${GETOPT})
 add_executable(gamma gamma.c ${GETOPT})
 add_executable(glfwinfo glfwinfo.c ${GETOPT})

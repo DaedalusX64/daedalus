@@ -44,6 +44,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	PHYS_TO_K0(x)	((u32)(x)|0x80000000)
 #define	PHYS_TO_K1(x)	((u32)(x)|0xA0000000)
 
+// Optimized version of IS_KSEG0/1
+#define IS_K0K1(x)	(((x ^ K0BASE) & K2BASE) == 0)
+
 #define	IS_KSEG0(x)		((u32)(x) >= K0BASE && (u32)(x) < K1BASE)
 #define	IS_KSEG1(x)		((u32)(x) >= K1BASE && (u32)(x) < K2BASE)
 #define	IS_KSEGDM(x)	((u32)(x) >= K0BASE && (u32)(x) < K2BASE)

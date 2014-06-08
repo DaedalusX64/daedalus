@@ -132,15 +132,14 @@ DAEDALUS_STATIC_ASSERT( sizeof( DaedalusLight ) == 64 );	//Size=64 bytes and ord
 enum ETnLModeFlags
 {
 	TNL_LIGHT		= 1 << 0,
-	TNL_TEXTURE		= 1 << 1,
-	TNL_TEXGEN		= 1 << 2,
-	TNL_TEXGENLIN	= 1 << 3,
-	TNL_FOG			= 1 << 4,
-	TNL_SHADE		= 1 << 5,
-	TNL_ZBUFFER		= 1 << 6,
-	TNL_TRICULL		= 1 << 7,
-	TNL_CULLBACK	= 1 << 8,
-	TNL_POINTLIGHT	= 1 << 9,
+	TNL_TEXGEN		= 1 << 1,
+	TNL_TEXGENLIN	= 1 << 2,
+	TNL_FOG			= 1 << 3,
+	TNL_SHADE		= 1 << 4,
+	TNL_ZBUFFER		= 1 << 5,
+	TNL_TRICULL		= 1 << 6,
+	TNL_CULLBACK	= 1 << 7,
+	TNL_POINTLIGHT	= 1 << 8,
 };
 
 struct TnLMode
@@ -150,17 +149,23 @@ struct TnLMode
 		struct
 		{
 			u32 Light : 1;			// 0x1
-			u32 Texture : 1;		// 0x2
-			u32 TexGen : 1;			// 0x4
-			u32 TexGenLin : 1;		// 0x8
-			u32 Fog : 1;			// 0x10
-			u32 Shade : 1;			// 0x20
-			u32 Zbuffer : 1;		// 0x40
-			u32 TriCull : 1;		// 0x80
-			u32 CullBack : 1;		// 0x100
-			u32 PointLight : 1;		// 0x200
-			u32 pad0 : 22;			// 0x0
+			u32 TexGen : 1;			// 0x2
+			u32 TexGenLin : 1;		// 0x4
+			u32 Fog : 1;			// 0x8
+			u32 Shade : 1;			// 0x10
+			u32 Zbuffer : 1;		// 0x20
+			u32 TriCull : 1;		// 0x40
+			u32 CullBack : 1;		// 0x80
+			u32 PointLight : 1;		// 0x100
+			u32 pad0 : 23;			// 0x0
 		};
+		
+		struct
+		{
+			u16 Modes;
+			u16 Texture;
+		};
+
 		u32	_u32;
 	};
 };
@@ -217,9 +222,9 @@ public:
 	// Various rendering states
 	// Don't think we need to updateshademodel, it breaks tiger's honey hunt
 #ifdef DAEDALUS_PSP
-	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags._u32 = (mTnL.Flags._u32 & TNL_TEXTURE) | mode; /*UpdateFogEnable(); UpdateShadeModel();*/ }
+	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags.Modes = mode; /*UpdateFogEnable(); UpdateShadeModel();*/ }
 #else
-	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags._u32 = (mTnL.Flags._u32 & TNL_TEXTURE) | mode; UpdateFogEnable(); /*UpdateShadeModel();*/ }
+	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags.Modes = mode; UpdateFogEnable(); /*UpdateShadeModel();*/ }
 #endif
 	inline void			SetTextureEnable(bool enable)			{ mTnL.Flags.Texture = enable; }
 	inline void			SetTextureTile(u32 tile)				{ mTextureTile = tile; }
@@ -228,7 +233,7 @@ public:
 
 	// Fog stuff
 	inline void			SetFogMultOffs(f32 Mult, f32 Offs)		{ mTnL.FogMult=Mult/255.0f; mTnL.FogOffs=Offs/255.0f;}
-	inline void			SetFogMinMax(f32 near, f32 far)			{ sceGuFog(near, far, mFogColour.GetColour()); }
+	inline void			SetFogMinMax(f32 fog_near, f32 fog_far)	{ sceGuFog(fog_near, fog_far, mFogColour.GetColour()); }
 	inline void			SetFogColour( c32 colour )				{ mFogColour = colour; }
 
 	// PrimDepth will replace the z value if depth_source=1 (z range 32767-0 while PSP depthbuffer range 0-65535)//Corn
@@ -351,24 +356,22 @@ protected:
 	//*****************************************************************************
 	inline void ConvertN64ToScreen( const v2 & n64_coords, v2 & answ ) const
 	{
-		answ.x = Round( N64ToScreenX( Round( n64_coords.x ) ) );
-		answ.y = Round( N64ToScreenY( Round( n64_coords.y ) ) );
+		answ.x = roundf( N64ToScreenX( roundf( n64_coords.x ) ) );
+		answ.y = roundf( N64ToScreenY( roundf( n64_coords.y ) ) );
 	}
 
 	virtual void		RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, bool disable_zbuffer ) = 0;
 
-	// Old code, kept for reference
-#ifdef DAEDALUS_IS_LEGACY
 	void 				TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world );
 	template< bool FogEnable, int TextureMode >
 	void ProcessVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world );
-#endif
+
 
 	void				PrepareTrisClipped( TempVerts * temp_verts ) const;
 	void				PrepareTrisUnclipped( TempVerts * temp_verts ) const;
 
 	v3					LightVert( const v3 & norm ) const;
-	inline v3			LightPointVert( const v4 & w ) const;
+	v3					LightPointVert( const v4 & w ) const;
 
 private:
 	void				InitViewport();

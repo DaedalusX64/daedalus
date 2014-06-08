@@ -777,7 +777,7 @@ void IController::n64_cic_nus_6105()
 		0xC, 0x9, 0x8, 0x5, 0x6, 0x3, 0xC, 0x9
 	};
 	char challenge[30], response[30];
-	int i=0;
+	u32 i=0;
 	switch (mpPifRam[0x3F])
 	{
 	case 0x02:
@@ -804,6 +804,8 @@ void IController::n64_cic_nus_6105()
 				mod = 0;
 			lut = (mod == 1) ? lut1 : lut0;
 		}
+		mpPifRam[46] = 0;
+		mpPifRam[47] = 0;
 
 		// re-format the 'response' into a byte stream
 		for (i = 0; i < 15; i++)

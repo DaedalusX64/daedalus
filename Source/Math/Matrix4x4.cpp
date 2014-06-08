@@ -153,7 +153,7 @@ Matrix4x4 & Matrix4x4::SetRotateX( float angle )
 {
 	float	s;
 	float	c;
-	SinCos(angle, &s, &c);
+	sincosf(angle, &s, &c);
 
 	m11 = 1;	m12 = 0;	m13 = 0;	m14 = 0;
 	m21 = 0;	m22 = c;	m23 = -s;	m24 = 0;
@@ -166,7 +166,7 @@ Matrix4x4 & Matrix4x4::SetRotateY( float angle )
 {
 	float	s;
 	float	c;
-	SinCos(angle, &s, &c);
+	sincosf(angle, &s, &c);
 
 	m11 = c;	m12 = 0;	m13 = s;	m14 = 0;
 	m21 = 0;	m22 = 1;	m23 = 0;	m24 = 0;
@@ -179,7 +179,7 @@ Matrix4x4 & Matrix4x4::SetRotateZ( float angle )
 {
 	float	s;
 	float	c;
-	SinCos(angle, &s, &c);
+	sincosf(angle, &s, &c);
 
 	m11 = c;	m12 = -s;	m13 = 0;	m14 = 0;
 	m21 = s;	m22 = c;	m23 = 0;	m24 = 0;
@@ -217,7 +217,7 @@ v3 Matrix4x4::Transform( const v3 & vec ) const
 			   vec.x * m13 + vec.y * m23 + vec.z * m33 + m43,
 			   vec.x * m14 + vec.y * m24 + vec.z * m34 + m44 );
 
-	if(Abs(trans.w) > 0.0f)
+	if(fabsf(trans.w) > 0.0f)
 	{
 		return v3( trans.x / trans.w, trans.y / trans.w, trans.z / trans.w );
 	}

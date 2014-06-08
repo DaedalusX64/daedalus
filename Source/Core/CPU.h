@@ -196,7 +196,6 @@ inline void CPU_TakeBranch( u32 new_pc ) { gCPUState.TargetPC = new_pc; gCPUStat
 
 #define COUNTER_INCREMENT_PER_OP			1
 
-extern u32		gLastPC;
 extern u8 *		gLastAddress;
 
 // Take advantage of the cooperative multitasking

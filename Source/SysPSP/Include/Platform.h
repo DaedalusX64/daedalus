@@ -45,6 +45,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define DAEDALUS_HALT			__asm__ __volatile__ ( "break" )
 
+#define DAEDALUS_DYNAREC_HALT	SW(PspReg_R0, PspReg_R0, 0)
+
 #define MAKE_UNCACHED_PTR(x)	(reinterpret_cast< void * >( reinterpret_cast<u32>( (x) ) | 0x40000000 ))
 
 #define DAEDALUS_ATTRIBUTE_PURE   __attribute__((pure))

@@ -498,7 +498,7 @@ u32 Patch_osDestroyThread_Zelda()
 {
 TEST_DISABLE_THREAD_FUNCS
 
-	DBGConsole_Msg(0, "osDestroyThread(0x%08x)", gGPR[REG_a0]._u32_0);
+	DBGConsole_Msg(0, "osDestroyThread_Zelda not implemented (0x%08x)", gGPR[REG_a0]._u32_0);
 
 	return PATCH_RET_NOT_PROCESSED0(osDestroyThread);
 }
@@ -585,15 +585,11 @@ TEST_DISABLE_THREAD_FUNCS
 u32 Patch___osEnqueueAndYield_Mario()
 {
 TEST_DISABLE_THREAD_FUNCS
-	u32 queue = gGPR[REG_a0]._u32_0;
 	// Get the active thread
 	u32 thread = Read32Bits(VAR_ADDRESS(osActiveThread));
 	u8 * pThreadBase = (u8 *)ReadAddress(thread);
 
 	//DBGConsole_Msg(0, "EnqueueAndYield()");
-
-	// Set a1 (necessary if we call osEnqueueThread
-	gGPR[REG_a1]._s64 = (s64)(s32)thread;
 
 	// Store various registers:
 	// For speed, we cache the base pointer!!!
@@ -639,10 +635,14 @@ TEST_DISABLE_THREAD_FUNCS
 	u32 rcp = Memory_MI_GetRegister( MI_INTR_MASK_REG );
 	QuickWrite32Bits(pThreadBase, 0x128,  rcp);
 
-	// Call EnqueueThread if queue is set
-	if (queue != 0)
+
+	u32 queue = gGPR[REG_a0]._u32_0;
+	if (queue != 0)	// Call EnqueueThread if queue is set
 	{
-		//a0/a1 set already
+		//a0 is set already
+		//Set a1 (necessary for osEnqueueThread)
+		gGPR[REG_a1]._u32_0 = thread;
+
 		CALL_PATCHED_FUNCTION(__osEnqueueThread);
 	}
 

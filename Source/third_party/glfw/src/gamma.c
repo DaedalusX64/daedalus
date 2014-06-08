@@ -1,8 +1,5 @@
 //========================================================================
-// GLFW - An OpenGL library
-// Platform:    Any
-// API version: 3.0
-// WWW:         http://www.glfw.org/
+// GLFW 3.0 - www.glfw.org
 //------------------------------------------------------------------------
 // Copyright (c) 2010 Camilla Berglund <elmindreda@elmindreda.org>
 //
@@ -42,15 +39,15 @@
 //////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-void _glfwAllocGammaRamp(GLFWgammaramp* ramp, unsigned int size)
+void _glfwAllocGammaArrays(GLFWgammaramp* ramp, unsigned int size)
 {
-    ramp->red = (unsigned short*) malloc(size * sizeof(unsigned short));
-    ramp->green = (unsigned short*) malloc(size * sizeof(unsigned short));
-    ramp->blue = (unsigned short*) malloc(size * sizeof(unsigned short));
+    ramp->red = calloc(size, sizeof(unsigned short));
+    ramp->green = calloc(size, sizeof(unsigned short));
+    ramp->blue = calloc(size, sizeof(unsigned short));
     ramp->size = size;
 }
 
-void _glfwFreeGammaRamp(GLFWgammaramp* ramp)
+void _glfwFreeGammaArrays(GLFWgammaramp* ramp)
 {
     free(ramp->red);
     free(ramp->green);
@@ -81,18 +78,16 @@ GLFWAPI void glfwSetGamma(GLFWmonitor* handle, float gamma)
 
     for (i = 0;  i < 256;  i++)
     {
-        float value;
+        double value;
 
         // Calculate intensity
-        value = i / 255.f;
+        value = i / 255.0;
         // Apply gamma curve
-        value = (float) pow(value, 1.f / gamma) * 65535.f + 0.5f;
+        value = pow(value, 1.0 / gamma) * 65535.0 + 0.5;
 
         // Clamp to value range
-        if (value < 0.f)
-            value = 0.f;
-        else if (value > 65535.f)
-            value = 65535.f;
+        if (value > 65535.0)
+            value = 65535.0;
 
         values[i] = (unsigned short) value;
     }
@@ -111,7 +106,7 @@ GLFWAPI const GLFWgammaramp* glfwGetGammaRamp(GLFWmonitor* handle)
 
     _GLFW_REQUIRE_INIT_OR_RETURN(NULL);
 
-    _glfwFreeGammaRamp(&monitor->currentRamp);
+    _glfwFreeGammaArrays(&monitor->currentRamp);
     _glfwPlatformGetGammaRamp(monitor, &monitor->currentRamp);
 
     return &monitor->currentRamp;

@@ -4,6 +4,7 @@ _ReSharper*
 *.opensdf
 *.sdf
 *.dir
+*.vcxproj*
 *.sln
 Win32
 Debug
@@ -20,7 +21,7 @@ cmake_uninstall.cmake
 docs/Doxyfile
 docs/html
 docs/warnings.txt
-src/config.h
+src/glfw_config.h
 src/glfw3.pc
 src/glfwConfig.cmake
 src/glfwConfigVersion.cmake
@@ -37,6 +38,7 @@ src/libglfw3.a
 src/glfw3.lib
 src/glfw3.dll
 src/glfw3dll.lib
+src/glfw3dll.a
 examples/*.app
 examples/*.exe
 examples/boing

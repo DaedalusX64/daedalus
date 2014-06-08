@@ -90,7 +90,6 @@ public:
 	void				ToggleDisableCombinerState( u64 state )		{ if( IsCombinerStateDisabled( state )) { EnableCombinerState(state); } else { DisableCombinerState( state ); mNastyTexture = false; } }
 	void				ToggleNastyTexture( bool enable )			{ mNastyTexture = ( enable =! mNastyTexture ); }
 
-	void					SetRecordCombinerStates( bool enable )	{ mRecordCombinerStates = enable; }					// Sets whether combiner states will be recorded for the subsequent frames
 	const std::set<u64> &	GetRecordedCombinerStates() const		{ return mRecordedCombinerStates; }
 
 private:
@@ -106,7 +105,6 @@ private:
 	void				DebugMux( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags, u64 mux);
 
 private:
-	bool				mRecordCombinerStates;		// FIXME(strmnnrmn): this variable never seems to be read from?.
 	std::set< u64 >		mRecordedCombinerStates;
 
 	std::set< u64 >		mDisabledCombinerStates;

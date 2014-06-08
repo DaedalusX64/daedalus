@@ -232,10 +232,12 @@ TEST_DISABLE_MATH_FUNCS
 u32 Patch_sqrtf()
 {
 TEST_DISABLE_MATH_FUNCS
+	// FP12 is input
+	// FP00 is output
 	f32 f = gCPUState.FPU[12]._f32;
+	gCPUState.FPU[00]._f32 = sqrtf(f);
 
-	gCPUState.FPU[00]._f32 = Sqrt(f);
-
+	//DBGConsole_Msg(0, "sqrtf(%f) (ra 0x%08x)", f, gGPR[REG_ra]._u32_0);
 	return PATCH_RET_JR_RA;
 }
 
@@ -248,17 +250,9 @@ TEST_DISABLE_MATH_FUNCS
 	// FP12 is input
 	// FP00 is output
 	f32 f = gCPUState.FPU[12]._f32;
+	gCPUState.FPU[00]._f32 = sinf(f);
 
 	//DBGConsole_Msg(0, "sinf(%f) (ra 0x%08x)", f, gGPR[REG_ra]._u32_0);
-
-	gCPUState.FPU[00]._f32 = Sinf(f);
-
-/*	g_dwNumCosSin++;
-	if ((g_dwNumCosSin % 100000) == 0)
-	{
-		DBGConsole_Msg(0, "%d sin/cos calls intercepted", g_dwNumCosSin);
-	}
-*/
 	return PATCH_RET_JR_RA;
 }
 
@@ -271,16 +265,9 @@ TEST_DISABLE_MATH_FUNCS
 	// FP12 is input
 	// FP00 is output
 	f32 f = gCPUState.FPU[12]._f32;
+	gCPUState.FPU[00]._f32 = cosf(f);
+
 	//DBGConsole_Msg(0, "cosf(%f) (ra 0x%08x)", f, gGPR[REG_ra]._u32_0);
-
-	gCPUState.FPU[00]._f32 = Cosf(f);
-
-/*	g_dwNumCosSin++;
-	if ((g_dwNumCosSin % 100000) == 0)
-	{
-		DBGConsole_Msg(0, "%d sin/cos calls intercepted", g_dwNumCosSin);
-	}
-*/
 	return PATCH_RET_JR_RA;
 
 }
