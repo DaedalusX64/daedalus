@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef UTILITY_ZLIBWRAPPER_H_
 #define UTILITY_ZLIBWRAPPER_H_
 
+#include <zlib.h>
+
 //
 //	A buffered output stream
 //
@@ -38,7 +40,7 @@ class COutStream
 		static const u32		BUFFER_SIZE = 4096;
 		u8						mBuffer[ BUFFER_SIZE ];
 		u32						mBufferCount;
-		void * const			mFile;
+		gzFile					mFile;
 };
 
 class CInStream
@@ -59,7 +61,7 @@ class CInStream
 		u8						mBuffer[ BUFFER_SIZE ];
 		u32						mBufferOffset;
 		s32						mBytesAvailable;
-		void * const			mFile;
+		gzFile					mFile;
 };
 
 #endif // UTILITY_ZLIBWRAPPER_H_

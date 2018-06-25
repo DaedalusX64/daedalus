@@ -1,9 +1,9 @@
 #include <pspmoduleexport.h>
 #define NULL ((void *) 0)
 
-void extern module_start;
-void extern module_stop;
-void extern module_info;
+extern int module_start;
+extern int module_stop;
+extern int module_info;
 static const unsigned int __syslib_exports[6] __attribute__((section(".rodata.sceResident"))) = {
 	0xD632ACDB,
 	0xCEE8593C,
@@ -13,8 +13,8 @@ static const unsigned int __syslib_exports[6] __attribute__((section(".rodata.sc
 	(unsigned int) &module_info,
 };
 
-void extern pspDveMgrCheckVideoOut;
-void extern pspDveMgrSetVideoOut;
+extern int pspDveMgrCheckVideoOut;
+extern int pspDveMgrSetVideoOut;
 static const unsigned int __pspDveManager_exports[4] __attribute__((section(".rodata.sceResident"))) = {
 	0x2ACFCB6D,
 	0xF9C86C73,
@@ -22,8 +22,8 @@ static const unsigned int __pspDveManager_exports[4] __attribute__((section(".ro
 	(unsigned int) &pspDveMgrSetVideoOut,
 };
 
-void extern pspDveMgrCheckVideoOut;
-void extern pspDveMgrSetVideoOut;
+extern int pspDveMgrCheckVideoOut;
+extern int pspDveMgrSetVideoOut;
 static const unsigned int __pspDveManager_driver_exports[4] __attribute__((section(".rodata.sceResident"))) = {
 	0x2ACFCB6D,
 	0xF9C86C73,

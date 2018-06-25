@@ -13,7 +13,7 @@ PRX_EXPORTS = exports.exp
 USE_KERNEL_LIBC = 1
 USE_KERNEL_LIBS = 1
 
-LDFLAGS = -mno-crt0 -nostartfiles
+LDFLAGS = -nostartfiles
 LIBS = -lpspdve_driver -lpsphprm_driver -lpspge_driver -lpspimpose_driver
 
 PSP_FW_VERSION=500
