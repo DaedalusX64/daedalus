@@ -189,13 +189,11 @@ ifdef DEBUG
 				#-Winline -Wcast-align
 
 else
-	CFLAGS	= -O3 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition
-					#-pipe
-					#-Wextra
-					#-fno-builtin
-					#-fgcse-after-reload
-					#-funroll-loops
-	LDFLAGS	= "-Wl,-O1"
+	CFLAGS	= -O3 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition \
+					-Wextra \
+					-funroll-loops 
+#					-ffunction-sections -fdata-sections
+	LDFLAGS	= "-Wl,-O1  -Wl,--gc-sections"
 endif
 endif
 

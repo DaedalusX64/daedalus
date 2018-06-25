@@ -15,7 +15,7 @@ USE_KERNEL_LIBC=1
 USE_KERNEL_LIBS=1 
  
 LIBDIR =
-LDFLAGS = -mno-ctr0 -nostartfiles
+LDFLAGS = -nostartfiles
 LIBS = -lpspctrl_driver
 
 PSP_FW_VERSION=500

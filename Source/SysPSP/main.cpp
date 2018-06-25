@@ -299,7 +299,7 @@ static bool	Initialize()
 
 	// Check for unsupported FW >=4.01 (We use M33 SDK 4.01)
 	// Otherwise PSP model can't be detected correctly
-	DaedalusFWCheck();
+	//DaedalusFWCheck();
 
 	// Initiate MediaEngine
 	//Note: Media Engine is not available for Vita

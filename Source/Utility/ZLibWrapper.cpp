@@ -23,17 +23,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ZlibWrapper.h"
 
 #include <string.h>
-#include <zlib.h>
 
 #include "Math/MathUtil.h"
 
-
-// NB: Latest zlib uses a new type for the file handle - it's no longer void *.
-#ifdef DAEDALUS_PSP
-#define toGzipFile(fh) ((void*)fh)
-#else
 #define toGzipFile(fh) ((gzFile_s*)fh)
-#endif
 
 //*****************************************************************************
 //
