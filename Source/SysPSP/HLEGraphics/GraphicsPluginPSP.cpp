@@ -40,7 +40,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 //#define DAEDALUS_FRAMERATE_ANALYSIS
-extern void battery_warning();
 extern void HandleEndOfFrame();
 
 extern bool gFrameskipActive;
@@ -225,10 +224,6 @@ void CGraphicsPluginImpl::UpdateScreen()
 #endif
 						break;
 				}
-			}
-			if( gGlobalPreferences.BatteryWarning )
-			{
-				battery_warning();
 			}
 			if(gTakeScreenshot)
 			{

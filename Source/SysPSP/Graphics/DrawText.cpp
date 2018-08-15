@@ -96,7 +96,7 @@ u32	CDrawText::Render( EFont font_type, s32 x, s32 y, float scale, const char * 
 	{
 		sceGuEnable(GU_BLEND);
 		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-		intraFontSetStyle( font, scale, colour.GetColour(), drop_colour.GetColour(), INTRAFONT_ALIGN_LEFT );
+		intraFontSetStyle( font, scale, colour.GetColour(), NULL, INTRAFONT_ALIGN_LEFT );
 		return s32( intraFontPrintEx( font,  x, y, Translate( p_str, length ), length) ) - x;
 	}
 
@@ -148,8 +148,8 @@ namespace DrawTextUtilities
 	const c32	TextRed				= c32( 255, 0, 0 );
 	const c32	TextRedDisabled		= c32( 208, 208, 208 );
 
-	static c32 COLOUR_SHADOW_HEAVY = c32( 0x80000000 );
-	static c32 COLOUR_SHADOW_LIGHT = c32( 0x50000000 );
+	static c32 COLOUR_SHADOW_HEAVY = c32( 0x00000000 );
+	static c32 COLOUR_SHADOW_LIGHT = c32( 0x00000000 );
 
 
 	const char *	FindPreviousSpace( const char * p_str_start, const char * p_str_end )

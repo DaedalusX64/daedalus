@@ -44,7 +44,7 @@ namespace
 	const u32				TEXT_AREA_LEFT = 40;
 	const u32				TEXT_AREA_RIGHT = 480-40;
 
-	#define MAX_PSP_MODEL 6
+	#define MAX_PSP_MODEL 7
 
 	const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Revision ";
 	//const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Beta 3 Update";
@@ -53,7 +53,7 @@ namespace
 
 	const char * const		INFO_TEXT[] =
 	{
-		"Copyright (C) 2008-2012 DaedalusX64 Team",
+		"Copyright (C) 2008-2018 DaedalusX64 Team",
 		"Copyright (C) 2001-2009 StrmnNrmn",
 		"Audio HLE code by Azimer",
 		"",
@@ -62,7 +62,7 @@ namespace
 
 	const char * const		pspModel[ MAX_PSP_MODEL ] =
 	{
-		"PSP PHAT", "PSP SLIM", "PSP BRITE", "PSP BRITE", "PSP GO", "UNKNOWN PSP"
+		"PSP PHAT", "PSP SLIM", "PSP BRITE", "PSP BRITE", "PSP GO", "PSP STREET", "UNKNOWN PSP"
 	};
 
 	const char * const		URL_TEXT_1 = "http://DaedalusX64.com/";

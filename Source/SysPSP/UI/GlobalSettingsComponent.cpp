@@ -366,7 +366,6 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.HighlightInexactBlendModes, "Highlight Inexact Blend Modes",	"Replace inexact blend modes with a placeholder texture.", "Yes", "No" ) );
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.CustomBlendModes, "Use Custom Blend Modes",	"Debugging tool to disable custom blendmodes.", "Yes", "No" ) );
 #endif
-	mElements.Add( new CBoolSetting( &gGlobalPreferences.BatteryWarning, "Low Battery Warning",	"Whether to allow Daedalus to notify when the battery is low.", "Yes", "No" ) );
 	mElements.Add( new CColorSetting( "GUI Color", "Change GUI Color" ) );
 	mElements.Add( new CLanguage( "Language", "Press X to load language" ) );
 	mElements.Add( new CResetSetting( mpContext, "Reset Settings", "Will guide you to reset preferences to default, and hle cache files. Note : emulator will exit if resetting settings" ) );
