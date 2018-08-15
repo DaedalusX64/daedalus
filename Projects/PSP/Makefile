@@ -128,7 +128,6 @@ CORE_SRCS = \
 	$(SRCDIR)/SysPSP/UI/UIScreen.cpp \
 	$(SRCDIR)/SysPSP/UI/UISetting.cpp \
 	$(SRCDIR)/SysPSP/Utility/AtomicPrimitives.S \
-	$(SRCDIR)/SysPSP/Utility/BatteryPSP.cpp \
 	$(SRCDIR)/SysPSP/Utility/Buttons.cpp \
 	$(SRCDIR)/SysPSP/Utility/DebugMemory.cpp \
 	$(SRCDIR)/SysPSP/Utility/DisableFPUExceptions.S \
@@ -192,8 +191,7 @@ else
 	CFLAGS	= -O3 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition \
 					-Wextra \
 					-funroll-loops 
-#					-ffunction-sections -fdata-sections
-	LDFLAGS	= "-Wl,-O1  -Wl,--gc-sections"
+	LDFLAGS	= "-Wl,-O3"
 endif
 endif
 
@@ -231,7 +229,7 @@ LIBS = -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lp
 
 EXTRA_TARGETS = EBOOT.PBP dvemgr.prx exception.prx mediaengine.prx imposectrl.prx daedalus.a $(CORE_OBJS)
 
-PSP_EBOOT_TITLE = DaedalusX64 z2442 update
+PSP_EBOOT_TITLE = DaedalusX64
 PSP_EBOOT_ICON  = icon0.png
 PSP_EBOOT_PIC1  = pic1.png
 #PSP_EBOOT_ICON1 = ICON1.PMF
@@ -255,7 +253,7 @@ BUILDS_GAME_DIR = $(BUILDS_PSP_DIR)/GAME
 BUILDS_DX_DIR = $(BUILDS_GAME_DIR)/DaedalusX64
 
 
-VERSION = $(shell git show-ref refs/heads/master | cut -d " " -f 1 | cut -c 31-40)
+VERSION = 1.1.2
 
 ifeq ($(VERSION),)
 	#Windows
