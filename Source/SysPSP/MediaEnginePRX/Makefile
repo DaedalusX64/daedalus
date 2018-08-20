@@ -2,7 +2,7 @@ TARGET = mediaengine
 OBJS = me_stub.o main.o
 
 INCDIR =
-CFLAGS = -O2 -G0 -Wall
+CFLAGS = -O3 -G0 -Wall -ffast-math
 
 
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
