@@ -175,7 +175,7 @@ SRCS = \
 ifdef PSPGPROF
 	CONFIG=Profile
 
-	CFLAGS	= -pg -g -O3 -G0 -D_DEBUG -Wall -MD -ffast-math -fsingle-precision-constant
+	CFLAGS	= -pg -g -Ofast -G0 -D_DEBUG -Wall -MD -ffast-math -fsingle-precision-constant
 
 	CORE_SRCS	+= $(DAED_GPROF_SRCS)
 else
