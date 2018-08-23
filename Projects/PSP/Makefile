@@ -175,7 +175,7 @@ SRCS = \
 ifdef PSPGPROF
 	CONFIG=Profile
 
-	CFLAGS	= -pg -g -Ofast -G0 -D_DEBUG -Wall -MD -ffast-math -fsingle-precision-constant
+	CFLAGS	= -pg -g -O2 -G0 -D_DEBUG -Wall -MD -ffast-math -fsingle-precision-constant
 
 	CORE_SRCS	+= $(DAED_GPROF_SRCS)
 else
@@ -188,10 +188,10 @@ ifdef DEBUG
 				#-Winline -Wcast-align
 
 else
-	CFLAGS	= -O3 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition \
+	CFLAGS	= -O2 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition \
 					-Wextra \
 					-funroll-loops 
-	LDFLAGS	= "-Wl,-O3"
+	LDFLAGS	= "-Wl,-O2"
 endif
 endif
 
@@ -229,7 +229,7 @@ LIBS = -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lp
 
 EXTRA_TARGETS = EBOOT.PBP dvemgr.prx exception.prx mediaengine.prx imposectrl.prx daedalus.a $(CORE_OBJS)
 
-PSP_EBOOT_TITLE = DaedalusX64
+PSP_EBOOT_TITLE = DaedalusX64 v1.1.3
 PSP_EBOOT_ICON  = icon0.png
 PSP_EBOOT_PIC1  = pic1.png
 #PSP_EBOOT_ICON1 = ICON1.PMF
