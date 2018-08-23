@@ -416,7 +416,7 @@ void IGraphicsContext::ViewportType( u32 * d_width, u32 * d_height ) const
 		case VT_UNSCALED_4_3:		// 1:1
 			if ( gGlobalPreferences.TVType == TT_WIDESCREEN )
 			{
-				*d_width = 528;
+				*d_width = 512;
 				*d_height = 448;
 			}
 			else
@@ -727,7 +727,8 @@ bool IGraphicsContext::Initialise()
 		BUF_WIDTH = 768;
 		SCR_WIDTH = 720;
 		SCR_HEIGHT = 480;
-
+		// TODO: Max resolution 720x576 for PAL TVs?
+		
 		// Hack, Tv out doesn't work in 16bit for some reasons so we use 32bit
 		//
 		PIXEL_SIZE = 4;
