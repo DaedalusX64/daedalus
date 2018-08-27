@@ -6,8 +6,8 @@ DaedalusX64 is a Nintendo 64 emulator for Windows, Mac and PSP. The PSP port is 
 
 - Accurate but fast emulation
 - High compatibility
-- TV Mode (PSP) with 720x480p output
-- Active maintenance 
+- Support for PSP TV Mode - up to 720x480 output!
+- Active support and updates
 - Lots of experimental optimizations
 
 And more!
@@ -20,9 +20,13 @@ Next, plug your PSP into your computer and navigate to /PSP/GAME/. Create a fold
 
 Instructions for Windows and Mac coming soon.
 
+## More Info
+
+For information about compatibility, optimal settings and more about the emulator, visit the actively maintained GitHub wiki page: https://github.com/z2442/daedalus/wiki. This is maintained by TheMrIron2, but please feel free to submit reports for how well your favourite games run if they have not already been listed!
+
 ## Credits
 
 - kreationz, salvy6735: Original DaedalusX64 code
-- z2442: Update to compile with modern toolset, optimizations
+- z2442: Compilation improvements and updating, optimizations
 - mrneo240: Optimizations, compilation help
-- TheMrIron2: Optimizations
+- TheMrIron2: Optimizations, wiki maintenance 
