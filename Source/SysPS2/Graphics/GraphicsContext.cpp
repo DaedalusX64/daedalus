@@ -21,9 +21,14 @@
 #include "stdafx.h"
 #include "Graphics/GraphicsContext.h"
 
-#include <pspgu.h>
-#include <pspdisplay.h>
-#include <pspdebug.h>
+//#include <pspgu.h>
+//#include <pspdisplay.h>
+//#include <pspdebug.h>
+#include <gsKit.h>
+#include <malloc.h>
+#include <kernel.h>
+#include <stdio.h>
+#include <dmaKit.h>
 
 #include "Config/ConfigOptions.h"
 #include "Core/ROM.h"
@@ -76,15 +81,19 @@ static u32 SCR_HEIGHT = 480;
 u32 LACED_DRAW;
 u32 LACED_DISP;
 
-/* Video Manager functions */
+// Initialize the DMAC
+dmaKit_chan_init(DMA_CHANNEL_GIF);
+
+/*
+/* Video Manager functions
 extern "C" {
 int pspDveMgrCheckVideoOut();
 int pspDveMgrSetVideoOut(int, int, int, int, int, int, int);
 }
 
 int HAVE_DVE = -1; // default is no DVE Manager
-int PSP_TV_CABLE = -1; // default is no cable
-int PSP_TV_LACED = 0; // default is not interlaced
+//int PSP_TV_CABLE = -1; // default is no cable
+//int PSP_TV_LACED = 0; // default is not interlaced
 
 static const ScePspIMatrix4 dither_matrixA =
 		{{-2, 1,-1, 2},
@@ -96,7 +105,7 @@ static const ScePspIMatrix4 dither_matrixB =
 		 { 1, 2,-1,-2},
 		 {-1,-2, 1, 2},
 		 { 2, 1,-2,-1}};
-
+*/
 // Implementation
 class IGraphicsContext : public CGraphicsContext
 {
@@ -188,7 +197,7 @@ IGraphicsContext::IGraphicsContext()
 //*****************************************************************************
 IGraphicsContext::~IGraphicsContext()
 {
-	sceGuTerm();
+	sceGuTerm(); // ?
 }
 
 //*****************************************************************************
@@ -203,7 +212,8 @@ void IGraphicsContext::ClearAllSurfaces()
 
 	if(gDoubleDisplayEnabled)
 		sceGuStart(GU_CALL,list[listNum]); //Begin other Display List	return;
-
+        //gsKit_init_screen(gsGlobal)
+    
 	for( u32 i = 0; i < 2; ++i )
 	{
 		//Start Frame
@@ -224,18 +234,20 @@ void IGraphicsContext::ClearAllSurfaces()
 //*****************************************************************************
 void IGraphicsContext::ClearToBlack()
 {
-	sceGuClearColor(0xff000000);
-	sceGuClearDepth(0);
-	sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);
+	gsKit_clear(gsGlobal, Black)
+	gsKit_set_test(gsGlobal, GS_ZTEST_OFF)
+    //sceGuClearDepth(0);
+	//sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);
 }
 
 void IGraphicsContext::ClearZBuffer()
 {
-	sceGuClearDepth(0);
-	sceGuClear(GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);
+    gsKit_set_test(gsGlobal, GS_ZTEST_OFF)
+	//sceGuClearDepth(0);
+	//sceGuClear(GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);
 }
 
-void IGraphicsContext::ClearColBuffer(const c32 & colour)
+void IGraphicsContext::ClearColBuffer(const c32 & colour) // todo: ???
 {
 	sceGuClearColor(colour.GetColour());
 	sceGuClear(GU_COLOR_BUFFER_BIT | GU_FAST_CLEAR_BIT);
@@ -243,9 +255,9 @@ void IGraphicsContext::ClearColBuffer(const c32 & colour)
 
 void IGraphicsContext::ClearColBufferAndDepth(const c32 & colour)
 {
-	sceGuClearColor(colour.GetColour());
-	sceGuClearDepth(0);
-	sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);
+	//sceGuClearColor(colour.GetColour());
+	gsKit_set_test(gsGlobal, GS_ZTEST_OFF)
+	//sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT | GU_FAST_CLEAR_BIT);
 }
 
 //*****************************************************************************
@@ -255,8 +267,8 @@ void IGraphicsContext::BeginFrame()
 {
 	if(!gDoubleDisplayEnabled)
 		sceGuStart(GU_DIRECT,list[listNum]);
-	/*else
-	{
+	else
+	{/*
 		sceGuOffset(2048 - (SCR_WIDTH/2),2048 - (SCR_HEIGHT/2));
 		sceGuViewport(2048,2048,SCR_WIDTH,SCR_HEIGHT);
 		sceGuScissor(0,0,SCR_WIDTH,SCR_HEIGHT);	//Make sure we clean the whole screen
@@ -267,7 +279,12 @@ void IGraphicsContext::BeginFrame()
 	}*/
 
 	//Toggle dither matrices between frames to smooth 16bit color even further //Corn
-	sceGuSetDither( listNum? &dither_matrixB : &dither_matrixA );
+	//sceGuSetDither( listNum? &dither_matrixB : &dither_matrixA );
+        
+        // PS2 dynamic dithering
+        for(i = 0; i < 15; i++)
+            gsGlobal->DitherMatrix[i] = (gsGlobal->DitherMatrix[i] + 5) & 7;
+        gsKit_set_dither_matrix(gsGlobal);
 }
 
 //*****************************************************************************
@@ -309,7 +326,7 @@ void IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 		sceDisplayWaitVblankStart();
 	}
 
-	if( PSP_TV_LACED )
+/*	if( PSP_TV_LACED )
 	{
 		u32 src = (u32)MAKE_UNCACHED_PTR((void*)LACED_DRAW);
 		u32 dst = (u32)MAKE_UNCACHED_PTR((void*)LACED_DISP);
@@ -326,8 +343,10 @@ void IGraphicsContext::UpdateFrame( bool wait_for_vbl )
 	else
 	{
 		p_back = sceGuSwapBuffers();
-	}
-
+	}*/
+    // Flip before execution to take advantage of DMA double buffering
+    gsKit_sync_flip(gsGlobal)
+    
 	if( mDumpNextScreen )
 	{
 		mDumpNextScreen--;
@@ -409,10 +428,7 @@ void IGraphicsContext::SetDebugScreenTarget( ETargetSurface buffer )
 //*****************************************************************************
 void IGraphicsContext::ViewportType( u32 * d_width, u32 * d_height ) const
 {
-	if( gGlobalPreferences.TVEnable && PSP_TV_CABLE > 0)
-	{
-		switch ( gGlobalPreferences.ViewportType )
-		{
+    {
 		case VT_UNSCALED_4_3:		// 1:1
 			if ( gGlobalPreferences.TVType == TT_WIDESCREEN )
 			{
@@ -428,22 +444,22 @@ void IGraphicsContext::ViewportType( u32 * d_width, u32 * d_height ) const
 		case VT_SCALED_4_3:		// Largest 4:3
 			if ( gGlobalPreferences.TVType == TT_WIDESCREEN )
 			{
-				*d_width = 542;
-				*d_height = 460;
+				*d_width = 640;
+				*d_height = 480;
 			}
 			else
 			{
-				*d_width = 658;
-				*d_height = 460;
+				*d_width = 640;
+                *d_height = 480; //todo: figure out some of these params
 			}
 			break;
 		case VT_FULLSCREEN:		// Fullscreen
 			*d_width = 720;
-			*d_height = 460; // 460 seems to be the limit due to renderer conversions
+			*d_height = 480; // 460 seems to be the limit due to renderer conversions
 			break;
 		case VT_FULLSCREEN_HD:		// Fullscreen
 			*d_width = 720;
-			*d_height = 460; // 460 seems to be the limit due to renderer conversions
+			*d_height = 480; // 460 seems to be the limit due to renderer conversions
 			break;
  		}
 	}
@@ -456,21 +472,23 @@ void IGraphicsContext::ViewportType( u32 * d_width, u32 * d_height ) const
 			*d_height = 240;
 			break;
 		case VT_SCALED_4_3:		// Largest 4:3
-			*d_width = 362;
-			*d_height = 272;
+			*d_width = 640;
+			*d_height = 480;
 			break;
 		case VT_FULLSCREEN:		// Fullscreen
-			*d_width = 480;
-			*d_height = 272;
+			*d_width = 720;
+			*d_height = 480;
 			break;
 		case VT_FULLSCREEN_HD:		// Fullscreen
-			*d_width = 480;
-			*d_height = 272;
+			*d_width = 720;
+            *d_height = 480; //todo: 1080i/720p GUI with gsKit hi-res
 			break;
  		}
 	}
 }
 
+ 
+ 
 //*****************************************************************************
 // Save current visible screen as PNG
 // From Shazz/71M - thanks guys!
@@ -483,6 +501,7 @@ void IGraphicsContext::SaveScreenshot( const char* filename, s32 x, s32 y, u32 w
 	int unknown = 0;
 
 	sceDisplayWaitVblankStart();  // if framebuf was set with PSP_DISPLAY_SETBUF_NEXTFRAME, wait until it is changed
+    // todo: figure out proper buffer switching on PS2
 	sceDisplayGetFrameBuf( &buffer, &bufferwidth, &pixelformat, unknown );
 
 	ETextureFormat		texture_format;
@@ -550,14 +569,14 @@ void IGraphicsContext::DumpScreenShot()
 	u32		display_width = 0;
 	u32		display_height= 0;
 
-	u32		frame_width = 480;
-	u32		frame_height= 272;
+	u32		frame_width = 720;
+	u32		frame_height= 480;
 
-	if ( PSP_TV_CABLE > 0 )	// Tv Out
+/*	if ( PSP_TV_CABLE > 0 )	// Tv Out
 	{
 		frame_width = 720;
 		frame_height=  480;
-	}
+	}*/
 
 	ViewportType( &display_width, &display_height );
 
@@ -588,18 +607,18 @@ void IGraphicsContext::StoreSaveScreenData()
 	u32		display_width = 0;
 	u32		display_height= 0;
 
-	u32		frame_width = 480;
-	u32		frame_height= 272;
+	u32		frame_width = 720;
+	u32		frame_height= 480;
 
 	// Not supported yet for tv out
-	if ( PSP_TV_CABLE > 0 )
+/*	if ( PSP_TV_CABLE > 0 )
 	{
 		//TODO
 		//frame_width = 720;
 		//frame_height=  480;
 		return;
 	}
-
+*/
 	ViewportType( &display_width, &display_height );
 
 	DAEDALUS_ASSERT( display_width != 0 && display_height != 0, "Unhandled viewport type" );
@@ -713,30 +732,29 @@ bool IGraphicsContext::Initialise()
 	if( g32bitColorMode )
 	{
 		PIXEL_SIZE = 4; /* change this if you change to another screenmode */
-		SCR_MODE = GU_PSM_8888;
+		SCR_MODE = GS_PSM_8888;
 	}
 	else
 	{
 		PIXEL_SIZE = 2; /* change this if you change to another screenmode */
-		SCR_MODE = GU_PSM_5650;
+		SCR_MODE = GS_PSM_5650;
 	}
 
 	// compute and allocate buffers for largest possible frame
-	if ( PSP_TV_CABLE > 0 )
+//	if ( PSP_TV_CABLE > 0 )
 	{
 		BUF_WIDTH = 768;
 		SCR_WIDTH = 720;
 		SCR_HEIGHT = 480;
-		// TODO: Max resolution 720x576 for PAL TVs?
 		
 		// Hack, Tv out doesn't work in 16bit for some reasons so we use 32bit
 		//
 		PIXEL_SIZE = 4;
-		SCR_MODE = GU_PSM_8888;
+		SCR_MODE = GS_PSM_8888;
 	}
 
 	//Alloc all buffers with one call to save alloc list overhead //Corn
-	if ( PSP_TV_CABLE > 0 )
+//	if ( PSP_TV_CABLE > 0 )
 	{
 		CVideoMemoryManager::Get()->Alloc( FRAME_SIZE + LACED_SIZE + DEPTH_SIZE, &draw_buffer, &is_videmem );
 		disp_buffer =  (void*)((u32)draw_buffer + FRAME_SIZE);
@@ -768,8 +786,8 @@ bool IGraphicsContext::Initialise()
 
 	// now initialize in LCD mode
 	BUF_WIDTH = 512;
-	SCR_WIDTH = 480;
-	SCR_HEIGHT = 272;
+	SCR_WIDTH = 720;
+	SCR_HEIGHT = 480;
 
 	if (HAVE_DVE)
 		pspDveMgrSetVideoOut(0, 0, 480, 272, 1, 15, 0); // make sure LCD active
@@ -784,15 +802,16 @@ bool IGraphicsContext::Initialise()
 	else
 	{
 		//Do some dithering to simulate more colors //Corn
-		sceGuSetDither(&dither_matrixA);
-		sceGuEnable(GU_DITHER);
+		/*sceGuSetDither(&dither_matrixA);
+		sceGuEnable(GU_DITHER);*/
+        gsGlobal->Dithering = GS_SETTING_ON;
 	}
 
 	sceGuDrawBuffer(SCR_MODE,draw_buffer_rel,BUF_WIDTH);
 	sceGuDispBuffer(SCR_WIDTH,SCR_HEIGHT,disp_buffer_rel,BUF_WIDTH);
 	sceGuDepthBuffer(depth_buffer_rel,BUF_WIDTH);
 	sceGuOffset(2048 - (SCR_WIDTH/2),2048 - (SCR_HEIGHT/2));
-	sceGuViewport(2048,2048,SCR_WIDTH,SCR_HEIGHT);
+	sceGuViewport(2048,2048,SCR_WIDTH,SCR_HEIGHT); //seemingly no equivalent in gsKit
 	sceGuDepthRange(65535,0);
 	sceGuScissor(0,0,SCR_WIDTH,SCR_HEIGHT);
 	sceGuEnable(GU_SCISSOR_TEST);
