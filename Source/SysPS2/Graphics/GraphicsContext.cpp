@@ -24,6 +24,7 @@
 //#include <pspgu.h>
 //#include <pspdisplay.h>
 //#include <pspdebug.h>
+#include <gs_psm.h>
 #include <gsKit.h>
 #include <malloc.h>
 #include <kernel.h>
@@ -50,15 +51,15 @@ namespace
 	const char *	gScreenDumpDumpPathFormat = "sd%04d.png";
 }
 
-#define DLISTSIZE 1*1024*1024	//Size of PSP Dlist
+#define DLISTSIZE 1*1024*1024	//Size of PSP Dlist - todo: PS2 DList
 
-static u32 PIXEL_SIZE = 2; /* change this if you change to another screenmode */
-static u32 SCR_MODE	  = GU_PSM_5650;
+static u32 PIXEL_SIZE = 2; // todo: ???
+static u32 SCR_MODE	  = GS_PSM_CT16; // 16 bit framebuffer; can increase if needed
 
 #define FRAME_SIZE (BUF_WIDTH * SCR_HEIGHT * PIXEL_SIZE)
 #define DEPTH_SIZE (BUF_WIDTH * SCR_HEIGHT * 2)
 
-#define LACED_HEIGHT 503
+#define LACED_HEIGHT 480
 #define LACED_SIZE (BUF_WIDTH * LACED_HEIGHT * PIXEL_SIZE)
 
 //Get Dlist memory from malloc
@@ -74,7 +75,7 @@ extern bool gTakeScreenshotSS;
 //////////////////////////////////////////////
 //bool CGraphicsContext::CleanScene = false;
 //////////////////////////////////////////////
-static u32 BUF_WIDTH = 512;
+static u32 BUF_WIDTH = 1024; // preliminary value based on the fact PS2 has 2x the VRAM
 static u32 SCR_WIDTH = 640;
 static u32 SCR_HEIGHT = 480;
 
@@ -750,7 +751,7 @@ bool IGraphicsContext::Initialise()
 		// Hack, Tv out doesn't work in 16bit for some reasons so we use 32bit
 		//
 		PIXEL_SIZE = 4;
-		SCR_MODE = GS_PSM_8888;
+		SCR_MODE = GS_PSM_32;
 	}
 
 	//Alloc all buffers with one call to save alloc list overhead //Corn
@@ -789,10 +790,11 @@ bool IGraphicsContext::Initialise()
 	SCR_WIDTH = 720;
 	SCR_HEIGHT = 480;
 
-	if (HAVE_DVE)
+// Cut out PSP TV code
+/*	if (HAVE_DVE)
 		pspDveMgrSetVideoOut(0, 0, 480, 272, 1, 15, 0); // make sure LCD active
 	sceDisplaySetMode(0, 480, 272);
-
+*/
 	sceGuStart(GU_DIRECT,list[0]);
 
 	if( g32bitColorMode )
@@ -801,30 +803,27 @@ bool IGraphicsContext::Initialise()
 	}
 	else
 	{
-		//Do some dithering to simulate more colors //Corn
-		/*sceGuSetDither(&dither_matrixA);
-		sceGuEnable(GU_DITHER);*/
         gsGlobal->Dithering = GS_SETTING_ON;
 	}
 
 	sceGuDrawBuffer(SCR_MODE,draw_buffer_rel,BUF_WIDTH);
 	sceGuDispBuffer(SCR_WIDTH,SCR_HEIGHT,disp_buffer_rel,BUF_WIDTH);
 	sceGuDepthBuffer(depth_buffer_rel,BUF_WIDTH);
-	sceGuOffset(2048 - (SCR_WIDTH/2),2048 - (SCR_HEIGHT/2));
-	sceGuViewport(2048,2048,SCR_WIDTH,SCR_HEIGHT); //seemingly no equivalent in gsKit
+    gsKit_set_display_offset(gsGlobal, 2048 - (SCR_WIDTH/2),2048 - (SCR_HEIGHT/2));
+//	sceGuViewport(2048,2048,SCR_WIDTH,SCR_HEIGHT); //seemingly no equivalent
 	sceGuDepthRange(65535,0);
 	sceGuScissor(0,0,SCR_WIDTH,SCR_HEIGHT);
 	sceGuEnable(GU_SCISSOR_TEST);
-	sceGuDepthFunc(GU_GEQUAL);
-	sceGuEnable(GU_DEPTH_TEST);
-	sceGuFrontFace(GU_CW);
-	sceGuShadeModel(GU_SMOOTH);
-	sceGuEnable(GU_CULL_FACE);
+//	sceGuDepthFunc(GU_GEQUAL);
+//	sceGuEnable(GU_DEPTH_TEST);
+//	sceGuFrontFace(GU_CW);
+//	sceGuShadeModel(GU_SMOOTH);
+//	sceGuEnable(GU_CULL_FACE);
 	sceGuEnable(GU_TEXTURE_2D);
 	sceGuEnable(GU_CLIP_PLANES);
 	sceGuFinish();
 	sceGuSync(0,0);
-
+    // todo: figure out how to properly do this with PS2
 	sceDisplayWaitVblankStart();
 	sceGuDisplay(GU_TRUE);
 
@@ -852,13 +851,13 @@ void IGraphicsContext::SwitchToChosenDisplay()
 
 	sceGuInit();
 
-	if ( gGlobalPreferences.TVEnable && PSP_TV_CABLE > 0)
-	{
+/*	if ( gGlobalPreferences.TVEnable && PSP_TV_CABLE > 0)
+	{*/
 		BUF_WIDTH = 768;
 		SCR_WIDTH = 720;
 		SCR_HEIGHT = 480;
 
-		PSP_TV_LACED = ( gGlobalPreferences.TVLaced || PSP_TV_CABLE == 1 ) ? 1 : 0;
+/*		PSP_TV_LACED = ( gGlobalPreferences.TVLaced || PSP_TV_CABLE == 1 ) ? 1 : 0;
 	}
 
 	if (SCR_WIDTH == 720)
@@ -877,21 +876,21 @@ void IGraphicsContext::SwitchToChosenDisplay()
 			pspDveMgrSetVideoOut(0, 0, 480, 272, 1, 15, 0); // make sure LCD active
 		sceDisplaySetMode(0, 480, 272);
 	}
-
+*/
 	sceGuStart(GU_DIRECT,ilist);
 	sceGuDrawBuffer(SCR_MODE,save_draw_rel,BUF_WIDTH);
 	sceGuDispBuffer(SCR_WIDTH,SCR_HEIGHT,save_disp_rel,BUF_WIDTH);
 	sceGuDepthBuffer(save_depth_rel,BUF_WIDTH);
-	sceGuOffset(2048 - (SCR_WIDTH/2),2048 - (SCR_HEIGHT/2));
+    gsKit_set_display_offset(gsGlobal, 2048 - (SCR_WIDTH/2),2048 - (SCR_HEIGHT/2));
 	sceGuViewport(2048,2048,SCR_WIDTH,SCR_HEIGHT);
 	sceGuDepthRange(65535,0);
 	sceGuScissor(0,0,SCR_WIDTH,SCR_HEIGHT);
 	sceGuEnable(GU_SCISSOR_TEST);
 	sceGuDepthFunc(GU_GEQUAL);
-	sceGuEnable(GU_DEPTH_TEST);
-	sceGuFrontFace(GU_CW);
-	sceGuShadeModel(GU_SMOOTH);
-	sceGuEnable(GU_CULL_FACE);
+//	sceGuEnable(GU_DEPTH_TEST);
+//	sceGuFrontFace(GU_CW);
+//	sceGuShadeModel(GU_SMOOTH);
+//	sceGuEnable(GU_CULL_FACE);
 	sceGuEnable(GU_TEXTURE_2D);
 	sceGuEnable(GU_CLIP_PLANES);
 	sceGuFinish();
@@ -914,34 +913,34 @@ void IGraphicsContext::SwitchToChosenDisplay()
 
 void IGraphicsContext::SwitchToLcdDisplay()
 {
-	if (PSP_TV_CABLE <= 0)
-		return;
+//	if (PSP_TV_CABLE <= 0)
+	//	return;
 
-	sceGuInit();
+    gsKit_init_screen(gsGlobal);
 
 	BUF_WIDTH = 512;
-	SCR_WIDTH = 480;
-	SCR_HEIGHT = 272;
-	PSP_TV_LACED = 0;
+	SCR_WIDTH = 640;
+	SCR_HEIGHT = 480;
+	//PSP_TV_LACED = 0;
 
 	if (HAVE_DVE)
-		pspDveMgrSetVideoOut(0, 0, 480, 272, 1, 15, 0); // make sure LCD active
-	sceDisplaySetMode(0, 480, 272);
+    pspDveMgrSetVideoOut(0, 0, 640, 480, 1, 15, 0); // make sure LCD active
+	sceDisplaySetMode(0, 640, 480);
 
 	sceGuStart(GU_DIRECT,ilist);
 	sceGuDrawBuffer(SCR_MODE,save_draw_rel,BUF_WIDTH);
 	sceGuDispBuffer(SCR_WIDTH,SCR_HEIGHT,save_disp_rel,BUF_WIDTH);
 	sceGuDepthBuffer(save_depth_rel,BUF_WIDTH);
-	sceGuOffset(2048 - (SCR_WIDTH/2),2048 - (SCR_HEIGHT/2));
+	gsKit_set_display_offset(gsGlobal, 2048 - (SCR_WIDTH/2),2048 - (SCR_HEIGHT/2));
 	sceGuViewport(2048,2048,SCR_WIDTH,SCR_HEIGHT);
 	sceGuDepthRange(65535,0);
 	sceGuScissor(0,0,SCR_WIDTH,SCR_HEIGHT);
 	sceGuEnable(GU_SCISSOR_TEST);
 	sceGuDepthFunc(GU_GEQUAL);
-	sceGuEnable(GU_DEPTH_TEST);
-	sceGuFrontFace(GU_CW);
-	sceGuShadeModel(GU_SMOOTH);
-	sceGuEnable(GU_CULL_FACE);
+//	sceGuEnable(GU_DEPTH_TEST);
+//	sceGuFrontFace(GU_CW);
+//	sceGuShadeModel(GU_SMOOTH);
+//	sceGuEnable(GU_CULL_FACE);
 	sceGuEnable(GU_TEXTURE_2D);
 	sceGuEnable(GU_CLIP_PLANES);
 	sceGuFinish();
