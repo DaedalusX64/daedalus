@@ -45,7 +45,14 @@ CJobManager gJobManager( 1024, TM_ASYNC_ME );
 bool InitialiseJobManager()
 {
 #ifdef DAEDALUS_PSP_USE_ME
-
+	
+	//test to disable loading of ME prx on VITA by checking for flash0:/kd/kermit_idstorage.prx
+	int uid = sceIoOpen("flash0:/kd/kermit_idstorage.prx", PSP_O_RDONLY | PSP_O_WRONLY, 0777);
+	if( uid <= 0 ) {
+	//define as vita later
+	}
+	else{
+	
 	if( CModule::Load("mediaengine.prx") < 0 )	return false;
 
 	mei = (volatile struct me_struct *)malloc_64(sizeof(struct me_struct));
@@ -65,6 +72,7 @@ bool InitialiseJobManager()
 #else
 	return false;
 #endif
+	}
 }
 
 
