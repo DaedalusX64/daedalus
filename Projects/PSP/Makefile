@@ -190,7 +190,7 @@ ifdef DEBUG
 else
 	CFLAGS	= -O3 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition \
 					-Wextra \
-					-funroll-loops 
+					#-funroll-loops 
 	LDFLAGS	= "-Wl,-O2"
 endif
 endif
