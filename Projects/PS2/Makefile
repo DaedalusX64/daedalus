@@ -60,74 +60,6 @@ CORE_SRCS = \
 	$(SRCDIR)/OSHLE/OS.cpp \
 	$(SRCDIR)/OSHLE/patch.cpp \
 	$(SRCDIR)/Plugins/GraphicsPlugin.cpp \
-	$(SRCDIR)/SysPSP/Debug/DaedalusAssertPSP.cpp \
-	$(SRCDIR)/SysPSP/Debug/DBGConsolePSP.cpp \
-	$(SRCDIR)/SysPSP/DveMgr/pspDveManager.S \
-	$(SRCDIR)/SysPSP/DynaRec/AssemblyUtilsPSP.cpp \
-	$(SRCDIR)/SysPSP/DynaRec/AssemblyWriterPSP.cpp \
-	$(SRCDIR)/SysPSP/DynaRec/CodeBufferManagerPSP.cpp \
-	$(SRCDIR)/SysPSP/DynaRec/CodeGeneratorPSP.cpp \
-	$(SRCDIR)/SysPSP/DynaRec/DynaRecStubs.S \
-	$(SRCDIR)/SysPSP/DynaRec/DynarecTargetPSP.cpp \
-	$(SRCDIR)/SysPSP/DynaRec/N64RegisterCachePSP.cpp \
-	$(SRCDIR)/SysPSP/Graphics/DrawText.cpp \
-	$(SRCDIR)/SysPSP/Graphics/GraphicsContext.cpp \
-	$(SRCDIR)/SysPSP/Graphics/intraFont/intraFont.c \
-	$(SRCDIR)/SysPSP/Graphics/intraFont/libccc.c \
-	$(SRCDIR)/SysPSP/Graphics/NativeTexturePSP.cpp \
-	$(SRCDIR)/SysPSP/Graphics/VideoMemoryManager.cpp \
-	$(SRCDIR)/SysPSP/HLEAudio/AudioOutput.cpp \
-	$(SRCDIR)/SysPSP/HLEAudio/AudioPluginPSP.cpp \
-	$(SRCDIR)/SysPSP/HLEGraphics/Blender.cpp \
-	$(SRCDIR)/SysPSP/HLEGraphics/BlendModes.cpp \
-	$(SRCDIR)/SysPSP/HLEGraphics/ColourAdjuster.cpp \
-	$(SRCDIR)/SysPSP/HLEGraphics/Combiner/BlendConstant.cpp \
-	$(SRCDIR)/SysPSP/HLEGraphics/Combiner/CombinerExpression.cpp \
-	$(SRCDIR)/SysPSP/HLEGraphics/Combiner/CombinerTree.cpp \
-	$(SRCDIR)/SysPSP/HLEGraphics/Combiner/RenderSettings.cpp \
-	$(SRCDIR)/SysPSP/HLEGraphics/ConvertVertices.S \
-	$(SRCDIR)/SysPSP/HLEGraphics/DisplayListDebugger.cpp \
-	$(SRCDIR)/SysPSP/HLEGraphics/GraphicsPluginPSP.cpp \
-	$(SRCDIR)/SysPSP/HLEGraphics/RendererPSP.cpp \
-	$(SRCDIR)/SysPSP/HLEGraphics/TnLVFPU.S\
-	$(SRCDIR)/SysPSP/HLEGraphics/VectorClipping.S \
-	$(SRCDIR)/SysPSP/Input/InputManagerPSP.cpp \
-	$(SRCDIR)/SysPSP/KernelButtonsPrx/imposectrl.S \
-	$(SRCDIR)/SysPSP/MediaEnginePRX/me.c \
-	$(SRCDIR)/SysPSP/MediaEnginePRX/MediaEngine.S \
-	$(SRCDIR)/SysPSP/UI/AboutComponent.cpp \
-	$(SRCDIR)/SysPSP/UI/AdjustDeadzoneScreen.cpp \
-	$(SRCDIR)/SysPSP/UI/AdvancedOptionsScreen.cpp \
-	$(SRCDIR)/SysPSP/UI/CheatOptionsScreen.cpp \
-	$(SRCDIR)/SysPSP/UI/ColourPulser.cpp \
-	$(SRCDIR)/SysPSP/UI/Dialogs.cpp \
-	$(SRCDIR)/SysPSP/UI/GlobalSettingsComponent.cpp \
-	$(SRCDIR)/SysPSP/UI/MainMenuScreen.cpp \
-	$(SRCDIR)/SysPSP/UI/PauseOptionsComponent.cpp \
-	$(SRCDIR)/SysPSP/UI/PauseScreen.cpp \
-	$(SRCDIR)/SysPSP/UI/RomPreferencesScreen.cpp \
-	$(SRCDIR)/SysPSP/UI/RomSelectorComponent.cpp \
-	$(SRCDIR)/SysPSP/UI/SavestateSelectorComponent.cpp \
-	$(SRCDIR)/SysPSP/UI/SelectedRomComponent.cpp \
-	$(SRCDIR)/SysPSP/UI/SplashScreen.cpp \
-	$(SRCDIR)/SysPSP/UI/UICommand.cpp \
-	$(SRCDIR)/SysPSP/UI/UIComponent.cpp \
-	$(SRCDIR)/SysPSP/UI/UIContext.cpp \
-	$(SRCDIR)/SysPSP/UI/UIElement.cpp \
-	$(SRCDIR)/SysPSP/UI/UIScreen.cpp \
-	$(SRCDIR)/SysPSP/UI/UISetting.cpp \
-	$(SRCDIR)/SysPSP/Utility/AtomicPrimitives.S \
-	$(SRCDIR)/SysPSP/Utility/Buttons.cpp \
-	$(SRCDIR)/SysPSP/Utility/DebugMemory.cpp \
-	$(SRCDIR)/SysPSP/Utility/DisableFPUExceptions.S \
-	$(SRCDIR)/SysPSP/Utility/exception.cpp \
-	$(SRCDIR)/SysPSP/Utility/FastMemcpyPSP.cpp \
-	$(SRCDIR)/SysPSP/Utility/IOPSP.cpp \
-	$(SRCDIR)/SysPSP/Utility/JobManager.cpp \
-	$(SRCDIR)/SysPSP/Utility/ModulePSP.cpp \
-	$(SRCDIR)/SysPSP/Utility/ThreadPSP.cpp \
-	$(SRCDIR)/SysPSP/Utility/TimingPSP.cpp \
-	$(SRCDIR)/SysPSP/Utility/VolatileMemPSP.cpp \
 	$(SRCDIR)/System/Paths.cpp \
 	$(SRCDIR)/System/System.cpp \
 	$(SRCDIR)/Test/BatchTest.cpp \
@@ -163,7 +95,7 @@ EE_BIN = daedalus.elf
 EE_OBJS = $(OBJS)
 
 EE_CFLAGS = -Wno-unused-value
-EE_CXXFLAGS = -fno-exceptions -fno-rtti -iquote$(SRCDIR)/SysPS2/Include -iquote$(SRCDIR)/Config/$(CONFIG) -iquote$(SRCDIR) -iquote$(SRCDIR)/SysPSP
+EE_CXXFLAGS = -fno-exceptions -fno-rtti -iquote$(SRCDIR)/SysPS2/Include -iquote$(SRCDIR)/Config/$(CONFIG) -iquote$(SRCDIR) -iquote$(SRCDIR)/SysPS2
 
 EE_LDFLAGS = -L$(PS2SDK)/ports/lib
 
