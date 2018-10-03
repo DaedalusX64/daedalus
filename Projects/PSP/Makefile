@@ -188,8 +188,8 @@ ifdef DEBUG
 				#-Winline -Wcast-align
 
 else
-	CFLAGS	= -O3 -G0 -DNDEBUG -Wall -MD -ffast-math -fsingle-precision-constant -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition \
-					-Wextra \
+	CFLAGS	= -O3 -G0 -DNDEBUG -Wall -MD -ffast-math -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition \
+					-Wextra \ # todo: -Ofast?
 					#-funroll-loops 
 	LDFLAGS	= "-Wl,-O2"
 endif
