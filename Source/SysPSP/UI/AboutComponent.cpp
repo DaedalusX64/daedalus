@@ -47,7 +47,6 @@ namespace
 	#define MAX_PSP_MODEL 7
 
 	const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Revision ";
-	//const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Beta 3 Update";
 
 	const char * const		DATE_TEXT = "Built ";
 
