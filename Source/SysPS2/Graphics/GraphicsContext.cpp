@@ -456,11 +456,11 @@ void IGraphicsContext::ViewportType( u32 * d_width, u32 * d_height ) const
 			break;
 		case VT_FULLSCREEN:		// Fullscreen
 			*d_width = 720;
-			*d_height = 480; // 460 seems to be the limit due to renderer conversions
+			*d_height = 448; 
 			break;
 		case VT_FULLSCREEN_HD:		// Fullscreen
 			*d_width = 720;
-			*d_height = 480; // 460 seems to be the limit due to renderer conversions
+			*d_height = 448; 
 			break;
  		}
 	}
@@ -482,9 +482,15 @@ void IGraphicsContext::ViewportType( u32 * d_width, u32 * d_height ) const
 			break;
 		case VT_FULLSCREEN_HD:		// Fullscreen
 			*d_width = 720;
-            *d_height = 480; //todo: 1080i/720p GUI with gsKit hi-res
+            *d_height = 480;
 			break;
- 		}
+/*		case VT_HDTV: 
+			*d_width = 1280;
+			*d_height = 704;
+			break;
+*/
+				// HDTV mode is untested; colour bit will need to be 16-bit instead of default 24-bit too
+		}
 	}
 }
 
