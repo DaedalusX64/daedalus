@@ -45,8 +45,6 @@ bool gLoadedMediaEnginePRX = true;
 volatile me_struct *mei;
 #endif
 
-bool g
-
 CJobManager gJobManager( 1024, TM_ASYNC_ME );
 //CJobManager gJobManager( 1024, TM_SYNC );
 
