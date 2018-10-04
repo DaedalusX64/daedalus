@@ -318,17 +318,18 @@ static bool	Initialize()
 	// Check for unsupported FW >=4.01 (We use M33 SDK 4.01)
 	// Otherwise PSP model can't be detected correctly
 	//DaedalusFWCheck();
-
-	// Initiate MediaEngine
-	//Note: Media Engine is not available for Vita
+	
 	//disable loading of ME prx on VITA by checking for flash0:/kd/kermit_idstorage.prx
 	int uid = sceIoOpen("flash0:/kd/kermit_idstorage.prx", PSP_O_RDONLY | PSP_O_WRONLY, 0777);
 	if( uid <= 0 ) {
 	#define VITA
 	}
-	else{
+
+	// Initiate MediaEngine
+	//Note: Media Engine is not available for Vita
 	bool bMeStarted = InitialiseJobManager();
-	}
+	
+	
 		
 // Disable for profiling
 //	srand(time(0));
