@@ -41,7 +41,7 @@ volatile me_struct *mei;
 #endif
 
 #ifdef VITA 
-gLoadedMediaEnginePRX = true;
+bool gLoadedMediaEnginePRX = true;
 volatile me_struct *mei;
 #endif
 
