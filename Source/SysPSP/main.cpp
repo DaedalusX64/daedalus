@@ -320,8 +320,12 @@ static bool	Initialize()
 	//DaedalusFWCheck();
 	
 	//disable loading of ME prx on VITA by checking for flash0:/kd/kermit_idstorage.prx
-	int uid = sceIoOpen("flash0:/kd/kermit_idstorage.prx", PSP_O_RDONLY | PSP_O_WRONLY, 0777);
-	if( uid <= 0 ) {
+	//barrowed example from PSPSDK Documentation 
+	if(!(fd = sceIoOpen("flash0:/kd/kermit_idstorage.prx", PSP2_O_RDONLY, 0777)) {
+    	// error
+ 	}
+	   else
+	{
 	#define VITA
 	}
 
