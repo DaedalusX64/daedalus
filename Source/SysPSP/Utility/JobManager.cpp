@@ -41,8 +41,7 @@ volatile me_struct *mei;
 #endif
 
 #ifdef VITA 
-bool gLoadedMediaEnginePRX = true;
-volatile me_struct *mei;
+#undef DAEDALUS_PSP_USE_ME
 #endif
 
 CJobManager gJobManager( 1024, TM_ASYNC_ME );
