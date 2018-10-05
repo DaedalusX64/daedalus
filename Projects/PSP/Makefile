@@ -246,7 +246,7 @@ PSP_LARGE_MEMORY = 1
 EXTRA_CLEAN=$(DEP_FILES)
 
 
-DATA_DIR = ../../data
+DATA_DIR = ../../Data
 BUILDS_DIR = ./Builds
 BUILDS_PSP_DIR = $(BUILDS_DIR)/PSP
 BUILDS_GAME_DIR = $(BUILDS_PSP_DIR)/GAME
@@ -276,37 +276,16 @@ endif
 psplink: $(PSP_EBOOT) $(TARGET).elf
 	prxtool -y $(TARGET).elf > $(BUILDS_DX_DIR)/$(TARGET).sym
 
-#Need to create dirs one by one because windows can't use mkdir -p
-install: $(PSP_EBOOT) $(TARGET).prx dvemgr.prx exception.prx mediaengine.prx imposectrl.prx $(TARGET).elf
-	-mkdir "$(BUILDS_DIR)"
-	-mkdir "$(BUILDS_PSP_DIR)"
-	-mkdir "$(BUILDS_GAME_DIR)"
-	-mkdir "$(BUILDS_DX_DIR)"
-	svn export --force "$(DATA_DIR)" "$(BUILDS_DX_DIR)"
-	cp $(PSP_EBOOT) "$(BUILDS_DX_DIR)"
-	cp *.prx "$(BUILDS_DX_DIR)"
-
-#this rule should only work with Unix environments such as GNU/Linux, Mac OS, Cygwin, etc...
-#be carefull of probably already compiled files with old rev number
-TMP_BASE_DIR=tmp_build
-TMP_DX_DIR:=$(TMP_BASE_DIR)/PSP/GAME/DaedalusX64_$(VERSION)/
-zip: $(PSP_EBOOT) dvemgr.prx mediaengine.prx exception.prx imposectrl.prx
-	-mkdir tarballs 2> /dev/null
-	-mkdir -p $(TMP_DX_DIR) 2> /dev/null
-	cp $^ $(TMP_DX_DIR)
-	-mkdir $(TMP_DX_DIR)/Resources 2> /dev/null
-	cp $(DATA_DIR)/Resources/logo.png $(TMP_DX_DIR)/Resources
-	-mkdir $(TMP_DX_DIR)/Roms 2> /dev/null
-	svn export $(DATA_DIR)/SaveGames $(TMP_DX_DIR)/SaveGames
-	svn export $(DATA_DIR)/ControllerConfigs $(TMP_DX_DIR)/ControllerConfigs
-	-mkdir $(TMP_DX_DIR)/SaveStates 2> /dev/null
-	cp $(DATA_DIR)/changes.txt \
-		$(DATA_DIR)/copying.txt \
-		$(DATA_DIR)/readme.txt \
-		$(DATA_DIR)/roms.ini $(TMP_DX_DIR)
-	REV=$$(LC_ALL=C svn info | grep Revision | grep -e [0-9]* -o | tr -d '\n') && \
-	    cd tmp_build && zip -r ../tarballs/"DaedalusX64_$$REV.zip" PSP
-	rm -r $(TMP_BASE_DIR) 2>/dev/null
+zip: $(PSP_EBOOT) $(TARGET).prx dvemgr.prx exception.prx mediaengine.prx imposectrl.prx $(TARGET).elf
+        -mkdir "$(BUILDS_DIR)"
+        -mkdir "$(BUILDS_PSP_DIR)"
+        -mkdir "$(BUILDS_GAME_DIR)"
+        -mkdir "$(BUILDS_DX_DIR)"
+        -mkdir "$(BUILDS_DX_DIR)/SaveGames/"
+        cp -r "$(DATA_DIR)/PSP/." "$(BUILDS_DX_DIR)"
+        cp $(PSP_EBOOT) "$(BUILDS_DX_DIR)"
+        cp *.prx "$(BUILDS_DX_DIR)"
+	zip -r DaedalusX64.zip "$(BUILDS_DX_DIR)"
 
 daedalus.a: $(CORE_OBJS)
 	$(AR) cru $@ $(CORE_OBJS)
@@ -338,6 +317,7 @@ allclean: clean
 	$(MAKE) -C $(SRCDIR)/SysPSP/MediaEnginePRX clean
 	$(MAKE) -C $(SRCDIR)/SysPSP/DveMgr clean
 	$(MAKE) -C $(SRCDIR)/SysPSP/KernelButtonsPrx clean
+	rm -rf /Builds/
 
 -include $(DEP_FILES)
 
