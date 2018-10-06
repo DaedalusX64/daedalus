@@ -190,7 +190,7 @@ ifdef DEBUG
 else
 	CFLAGS	= -O3 -G0 -DNDEBUG -Wall -MD -ffast-math -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition \
 					-Wextra # todo: -Ofast?
-					#-funroll-loops 
+					#-funroll-loops
 	LDFLAGS	= "-Wl,-O2"
 endif
 endif
@@ -277,14 +277,14 @@ psplink: $(PSP_EBOOT) $(TARGET).elf
 	prxtool -y $(TARGET).elf > $(BUILDS_DX_DIR)/$(TARGET).sym
 
 zip: $(PSP_EBOOT) $(TARGET).prx dvemgr.prx exception.prx mediaengine.prx imposectrl.prx $(TARGET).elf
-        -mkdir "$(BUILDS_DIR)"
-        -mkdir "$(BUILDS_PSP_DIR)"
-        -mkdir "$(BUILDS_GAME_DIR)"
-        -mkdir "$(BUILDS_DX_DIR)"
-        -mkdir "$(BUILDS_DX_DIR)/SaveGames/"
-        cp -r "$(DATA_DIR)/PSP/." "$(BUILDS_DX_DIR)"
-        cp $(PSP_EBOOT) "$(BUILDS_DX_DIR)"
-        cp *.prx "$(BUILDS_DX_DIR)"
+	-mkdir "$(BUILDS_DIR)"
+	-mkdir "$(BUILDS_PSP_DIR)"
+	-mkdir "$(BUILDS_GAME_DIR)"
+	-mkdir "$(BUILDS_DX_DIR)"
+	-mkdir "$(BUILDS_DX_DIR)/SaveGames/"
+	cp -r "$(DATA_DIR)/PSP/." "$(BUILDS_DX_DIR)"
+	cp $(PSP_EBOOT) "$(BUILDS_DX_DIR)"
+	cp *.prx "$(BUILDS_DX_DIR)"
 	zip -r DaedalusX64.zip "$(BUILDS_DX_DIR)"
 
 daedalus.a: $(CORE_OBJS)
@@ -318,6 +318,5 @@ allclean: clean
 	$(MAKE) -C $(SRCDIR)/SysPSP/DveMgr clean
 	$(MAKE) -C $(SRCDIR)/SysPSP/KernelButtonsPrx clean
 	rm -rf /Builds/
-
--include $(DEP_FILES)
+	-include $(DEP_FILES)
 
