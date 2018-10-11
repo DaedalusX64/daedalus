@@ -65,7 +65,7 @@ namespace
 	};
 
 	const char * const		URL_TEXT_1 = "http://DaedalusX64.com/";
-	const char * const		URL_TEXT_2 = "http://sf.net/projects/daedalusx64/";
+	const char * const		URL_TEXT_2 = "https://github.com/z2442/daedalus/";
 
 	const char * const		LOGO_FILENAME = DAEDALUS_PSP_PATH( "Resources/logo.png" );
 }
