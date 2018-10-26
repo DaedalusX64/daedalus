@@ -282,6 +282,7 @@ zip: $(PSP_EBOOT) $(TARGET).prx dvemgr.prx exception.prx mediaengine.prx imposec
 	-mkdir "$(BUILDS_GAME_DIR)"
 	-mkdir "$(BUILDS_DX_DIR)"
 	-mkdir "$(BUILDS_DX_DIR)/SaveGames/"
+	-mkdir "$(BUILDS_DX_DIR)/Roms/"
 	cp -r "$(DATA_DIR)/PSP/." "$(BUILDS_DX_DIR)"
 	cp $(PSP_EBOOT) "$(BUILDS_DX_DIR)"
 	cp *.prx "$(BUILDS_DX_DIR)"
