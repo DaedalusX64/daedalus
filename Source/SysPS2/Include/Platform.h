@@ -25,18 +25,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //	Make sure this platform is defined correctly
 //
-#ifndef DAEDALUS_PSP
-#define DAEDALUS_PSP
-#endif
+#ifndef DAEDALUS_PS2
+#define DAEDALUS_PS2
+#endif 
 
 #define DAEDALUS_ENABLE_DYNAREC
-#define DAEDALUS_PSP_USE_ME
 #define DAEDALUS_ENABLE_OS_HOOKS
 
 #define DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_LITTLE
-
-// We have a VFPU :)
-#define DAEDALUS_PSP_USE_VFPU
 
 #define DAEDALUS_EXPECT_LIKELY(c) __builtin_expect((c),1)
 #define DAEDALUS_EXPECT_UNLIKELY(c) __builtin_expect((c),0)
@@ -54,4 +50,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define __has_feature(x) 0
 
-#endif // SYSPSP_INCLUDE_PLATFORM_H_
+#endif // SYSPS2_INCLUDE_PLATFORM_H_
