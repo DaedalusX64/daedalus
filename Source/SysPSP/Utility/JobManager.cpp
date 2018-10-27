@@ -205,9 +205,10 @@ void CJobManager::Run()
 				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
 
 				// wait on ME to finish any previous job
-				while ( !CheckME( mei ) )
-					sceKernelDelayThread( 100 ); // give up time while waiting on ME
-
+				do { sceKernelDelayThread( 100 ); // give up time while waiting on ME
+				 } 
+				while( !CheckME( mei ) );
+				
 				// Execute previous job finalised
 				if( run->FiniJob )
 					run->FiniJob( run );
