@@ -801,7 +801,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		float d( 1.0f - powf(0.993f, elapsed_time * 1000.0f) );
 
 		u32		total_height( mRomsList.size() * line_height );
-		s32		min_offset( TEXT_AREA_HEIGHT - total_height );
+		s32		min_offset( (TEXT_AREA_HEIGHT/2) - total_height );
 
 		s32	new_scroll_offset = mCurrentScrollOffset + s32(float(adjust_amount) * d);
 
