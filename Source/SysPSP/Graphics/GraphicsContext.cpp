@@ -413,6 +413,18 @@ void IGraphicsContext::ViewportType( u32 * d_width, u32 * d_height ) const
 	{
 		switch ( gGlobalPreferences.ViewportType )
 		{
+		case VT_NATIVE_240P:
+			if ( gGlobalPreferences.TVType == TT_WIDESCREEN )
+			{
+				*d_width = 320;
+				*d_height = 240;
+			}
+			else
+			{
+				*d_width = 640;
+				*d_height = 448;
+			}
+			break;
 		case VT_UNSCALED_4_3:		// 1:1
 			if ( gGlobalPreferences.TVType == TT_WIDESCREEN )
 			{
