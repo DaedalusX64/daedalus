@@ -23,15 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <stdio.h>
 
-/*
- #ifdef VITA
- #include <psp2/power.h>
- #include <psp2/sysmodule.h>
- #include <psp2/appmgr.h>
- 
- #else
-*/
-
 #include <pspctrl.h>
 #include <psprtc.h>
 #include <psppower.h>
@@ -286,15 +277,7 @@ extern bool InitialiseJobManager();
 //*************************************************************************************
 static bool	Initialize()
 {
-    /*
-     #ifdef VITA
-     scePowerSetArmClockFrequency(444);
-     scePowerSetBusClockFrequency(222);
-     scePowerSetGpuClockFrequency(222);
-     scePowerSetGpuXbarClockFrequency(166);
-     sceSysmoduleLoadModule(SCE_SYSMODULE_NET);
-     #else
-    */
+  
 	strcpy(gDaedalusExePath, DAEDALUS_PSP_PATH( "" ));
 
 	printf( "Cpu was: %dMHz, Bus: %dMHz\n", scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency() );
@@ -320,7 +303,7 @@ static bool	Initialize()
 	DaedalusFWCheck();
 	
 	//disable loading of ME prx on VITA by checking for flash0:/kd/kermit_idstorage.prx
-	//barrowed example from PSPSDK Documentation 
+	//TODO Correct reading of this file on VITA 
 	/*
 	if(!(fd = sceIoOpen("flash0:/kd/kermit_idstorage.prx", PSP2_O_RDONLY, 0777)) {
     	// error
