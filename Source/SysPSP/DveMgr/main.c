@@ -35,7 +35,7 @@ int pspDveMgrCheckVideoOut()
 	return cable;
 }
 
-int pspDveMgrSetVideoOut(int u, int mode, int width, int height, int x, int y, int z)
+int pspDveMgrSetVideoOut(int u, int mode, unsigned int width, unsigned int height, int x, int y, int z)
 {
 	int k1 = pspSdkSetK1(0);
 	int res;
