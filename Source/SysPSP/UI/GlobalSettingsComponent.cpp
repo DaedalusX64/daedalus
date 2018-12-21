@@ -80,6 +80,7 @@ namespace
 				{
 					switch( gGlobalPreferences.ViewportType )
 					{
+					case VT_NATIVE_240P:	return "Native N64 (320x240)";
 					case VT_UNSCALED_4_3:	return "4:3 no overscan (640x448)";
 					case VT_SCALED_4_3:		return "4:3 overscan (658x460)";
 					case VT_FULLSCREEN:		return "16:9 stretch (720x460)";
@@ -92,6 +93,7 @@ namespace
 				{
 					switch( gGlobalPreferences.ViewportType )
 					{
+					case VT_NATIVE_240P:	return "Native N64 (320x240)";
 					case VT_UNSCALED_4_3:	return "4:3 no overscan (528x448)";
 					case VT_SCALED_4_3:		return "4:3 overscan (542x460)";
 					case VT_FULLSCREEN:		return "16:9 stretch (720x460)";
@@ -105,6 +107,7 @@ namespace
 			{
 				switch( gGlobalPreferences.ViewportType )
 				{
+				case VT_NATIVE_240P:	return "Native N64 (320x240)";
 				case VT_UNSCALED_4_3:	return "4:3 unscaled (320x240)";
 				case VT_SCALED_4_3:		return "4:3 scaled (362x272)";
 				case VT_FULLSCREEN:		return "16:9 stretch (480x272)";
