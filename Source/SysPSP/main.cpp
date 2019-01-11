@@ -302,18 +302,19 @@ static bool	Initialize()
 	// Otherwise PSP model can't be detected correctly
 	DaedalusFWCheck();
 	
+	int fd = sceIoOpen("flash0:/kd/kermit_idstorage.prx", PSP_O_RDONLY | PSP_O_WRONLY, 0777);
 	//disable loading of ME prx on VITA by checking for flash0:/kd/kermit_idstorage.prx.
 	//There is probably a better way todo this!
-	if(!(fd = sceIoOpen("flash0:/kd/kermit_idstorage.prx", PSP_O_RDONLY, 0777)) {
-    	
-		//File not found Activate the psp Media Engine.
-		bool bMeStarted = InitialiseJobManager();
+	if(fd < 0) {
+    #define VITA
 		
  	}
-	   else
-	{
-	#define VITA
-	}
+
+	//File not found Activate the psp Media Engine.
+		bool bMeStarted = InitialiseJobManager();
+
+	
+		
 	
 		
 // Disable for profiling
