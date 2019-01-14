@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Interface/RomDB.h"
 #ifdef DAEDALUS_PSP
-#include "Graphics/VideoMemoryManager.h"
+#include "SysPSP/Graphics/VideoMemoryManager.h"
 #endif
 
 #include "Graphics/GraphicsContext.h"
