@@ -19,8 +19,9 @@ foreach(i "psp-config" "mksfo" "pack-pbp" "psp-fixup-imports" "psp-strip" "psp-p
 endforeach()
 
 # set compiler
-set(CMAKE_C_COMPILER psp-gcc)
-set(CMAKE_CXX_COMPILER psp-g++)
+
+set( CMAKE_C_COMPILER "psp-gcc")
+set( CMAKE_CXX_COMPILER "psp-g++")
 
 # set find root path
 set(CMAKE_FIND_ROOT_PATH "")
@@ -59,7 +60,7 @@ endif()
 
 # firmware vesion
 if(NOT PSP_FW_VERSION)
-  set(PSP_FW_VERSION 150) # default
+  set(PSP_FW_VERSION 661) # default
 endif()
 add_definitions("-D _PSP_FW_VERSION=${PSP_FW_VERSION}")
 
@@ -90,7 +91,7 @@ elseif(USE_USER_LIBS)
   set(PSPSDK_LIBRARIES -lpspdebug -lpspctrl -lpspge -lpspctrl -lpspsdk)
   set(PSPSDK_LIBRARIES_2
 	-lpspnet -lpspnet_inet -lpspnet_apctl -lpspnet_resolver
-	-lpsputility -lpspuser)
+	-lpsputility -lpspuser -lpspgu)
 else()
   set(PSPSDK_LIBRARIES -lpspdebug -lpspctrl -lpspge -lpspctrl -lpspsdk)
   set(PSPSDK_LIBRARIES_2

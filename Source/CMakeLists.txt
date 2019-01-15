@@ -34,8 +34,8 @@ set (OSHLE_FILES OSHLE/OS.cpp OSHLE/patch.cpp)
 set (PLUGIN_FILES Plugins/GraphicsPlugin.cpp)
 set (SYSTEM_FILES System/Paths.cpp System/System.cpp)
 set (TEST_FILES Test/BatchTest.cpp)
-set (UTILITY_FILES Utility/CRC.cpp Utility/DataSink.cpp Utility/FastMemcpy.cpp Utility/FastMemcpy_test.cpp Utility/FramerateLimiter.cpp Utility/Hash.cpp Utility/IniFile.cpp Utility/MemoryHeap.cpp Utility/MemoryPool.cpp Utility/Preferences.cpp Utility/PrintOpCode.cpp Utility/Profiler.cpp Utility/ROMFile.cpp Utility/ROMFileCache.cpp Utility/ROMFileCompressed.cpp Utility/ROMFileMemory.cpp Utility/ROMFileUncompressed.cpp Utility/Stream.cpp Utility/StringUtil.cpp Utility/Synchroniser.cpp Utility/Timer.cpp Utility/Translate.cpp Utility/ZLibWrapper.cpp)
-
+set (UTILITY_FILES Utility/CRC.cpp Utility/DataSink.cpp Utility/FastMemcpy.cpp  Utility/FramerateLimiter.cpp Utility/Hash.cpp Utility/IniFile.cpp Utility/MemoryHeap.cpp Utility/Preferences.cpp Utility/PrintOpCode.cpp Utility/Profiler.cpp Utility/ROMFile.cpp Utility/ROMFileCache.cpp Utility/ROMFileCompressed.cpp Utility/ROMFileMemory.cpp Utility/ROMFileUncompressed.cpp Utility/Stream.cpp Utility/StringUtil.cpp Utility/Synchroniser.cpp Utility/Timer.cpp Utility/Translate.cpp Utility/ZLibWrapper.cpp)
+set (UNKNOWN_FILES Utility/FastMemcpy_test.cpp Utility/MemoryPool.cpp)
 
 set (BUILD ${BASE_FILES} ${CONFIG_FILES} ${CORE_FILES} ${DEBUG_FILES} ${DYNAREC_FILES} ${GRAPHICS_FILES} ${HLEAUDIO_FILES} ${HLEGRAPHICS_FILES} ${INTERFACE_FILES} ${MATH_FILES} ${OSHLE_FILES} ${PLUGIN_FILES} ${SYSTEM_FILES} ${TEST_FILES} ${UTILITY_FILES})
 
@@ -49,7 +49,7 @@ set (PSP_INPUTMANAGER_FILES SysPSP/Input/InputManagerPSP.cpp)
 set (PSP_UI_FILES SysPSP/UI/AboutComponent.cpp SysPSP/UI/AdjustDeadzoneScreen.cpp SysPSP/UI/AdvancedOptionsScreen.cpp SysPSP/UI/CheatOptionsScreen.cpp SysPSP/UI/ColourPulser.cpp SysPSP/UI/Dialogs.cpp SysPSP/UI/GlobalSettingsComponent.cpp SysPSP/UI/MainMenuScreen.cpp SysPSP/UI/PauseOptionsComponent.cpp SysPSP/UI/PauseScreen.cpp SysPSP/UI/RomPreferencesScreen.cpp SysPSP/UI/RomSelectorComponent.cpp SysPSP/UI/SavestateSelectorComponent.cpp SysPSP/UI/SelectedRomComponent.cpp SysPSP/UI/SplashScreen.cpp SysPSP/UI/UICommand.cpp SysPSP/UI/UIComponent.cpp SysPSP/UI/UIContext.cpp SysPSP/UI/UIElement.cpp SysPSP/UI/UIScreen.cpp SysPSP/UI/UISetting.cpp)
 set (PSP_UTILITY_FILES SysPSP/Utility/AtomicPrimitives.S SysPSP/Utility/BatteryPSP.cpp SysPSP/Utility/Buttons.cpp SysPSP/Utility/DebugMemory.cpp SysPSP/Utility/DisableFPUExceptions.S SysPSP/Utility/exception.cpp SysPSP/Utility/FastMemcpyPSP.cpp SysPSP/Utility/IOPSP.cpp SysPSP/Utility/JobManager.cpp SysPSP/Utility/ModulePSP.cpp SysPSP/Utility/ThreadPSP.cpp SysPSP/Utility/TimingPSP.cpp SysPSP/Utility/VolatileMemPSP.cpp)
 set (GPROF_SRCS SysPSP/Debug/prof.c SysPSP/Debug/mcount.S )
-
+set (PSP_MAIN_FILES SysPSP/main.cpp)
 set (PSP_BUILD ${PSP_DEBUG_FILES} ${PSP_DYNAREC_FILES} ${PSP_GRAPHICS_FILES} ${PSP_HLEAUDIO_FILES} ${PSP_HLEGRAPHICS_FILES} ${PSP_INPUTMANAGER_FILES} ${PSP_UI_FILES} ${PSP_UTILITY_FILES})
 
 
@@ -110,14 +110,24 @@ include_directories(${PROJECT_SOURCE_DIR}/Utility)
 
 #PSPSDK
 include_directories(/usr/local/pspdev/psp/sdk/include)
+include_directories(/home/ben/daedalus/Projects/PSP/SDK/include/)
 
-option (PSP_RELEASE "Builds PSP Release Build.")
 
+
+
+set(PSP_LIBS -lpsppower -lpspgu -lpspaudio -lpsprtc -lpspfpu -lpspkubridge)
+#Library directories
 if (PSP_RELEASE)
-	message("PSP Release Build..")
+message("PSP Release Build..")
+#target_link_libraries(/usr/local/pspdev/sdk/lib)
+
+add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=500 -DBUILD_PRX=1)
 	add_definitions(-DDAEDALUS_PSP)
-	add_executable(daedalus ${BUILD} ${PSP_BUILD})
+		add_library(daedalus STATIC ${BUILD} ${PSP_BUILD})
+	add_executable(daedalus.elf ${PSP_MAIN_FILES})
+	target_link_libraries(daedalus.elf daedalus stdc++ psppower pspgu pspaudio psprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge)
 endif (PSP_RELEASE)
+
 
 if (PSP_DEBUG)
 	message("PSP Debug Build..")
