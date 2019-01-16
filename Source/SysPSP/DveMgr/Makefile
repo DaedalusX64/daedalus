@@ -5,8 +5,8 @@ CFLAGS = -Os -G0 -Wall -fshort-wchar -fno-pic -mno-check-zero-division -DF_sceGe
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
 
-INCDIR = ../../../Projects/PSP/SDK/include
-LIBDIR = ../../../Projects/PSP/SDK/lib
+INCDIR = ../Include
+LIBDIR = ../Include/lib
 BUILD_PRX = 1
 PRX_EXPORTS = exports.exp
 
