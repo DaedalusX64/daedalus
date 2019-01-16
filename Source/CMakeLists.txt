@@ -109,13 +109,12 @@ include_directories(${PROJECT_SOURCE_DIR}/Test)
 include_directories(${PROJECT_SOURCE_DIR}/Utility)
 
 #PSPSDK
-include_directories(/usr/local/pspdev/psp/sdk/include)
-include_directories(/home/ben/daedalus/Projects/PSP/SDK/include/)
 
 
 
 
-set(PSP_LIBS -lpsppower -lpspgu -lpspaudio -lpsprtc -lpspfpu -lpspkubridge)
+
+
 #Library directories
 if (PSP_RELEASE)
 message("PSP Release Build..")
@@ -124,8 +123,13 @@ message("PSP Release Build..")
 add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=500 -DBUILD_PRX=1)
 	add_definitions(-DDAEDALUS_PSP)
 		add_library(daedalus STATIC ${BUILD} ${PSP_BUILD})
+
+include_directories (BEFORE /home/ben/daedalus/Projects/PSP/SDK/include/)
+		LINK_LIBRARIES( )
+#target_link_libraries(stdc++ psppower pspgu pspaudio psprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge)
 	add_executable(daedalus.elf ${PSP_MAIN_FILES})
-	target_link_libraries(daedalus.elf daedalus stdc++ psppower pspgu pspaudio psprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge)
+			 target_include_directories(daedalus.elf PUBLIC /usr/local/psdev/sdk/include )
+	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge)
 endif (PSP_RELEASE)
 
 
