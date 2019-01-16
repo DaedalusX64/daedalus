@@ -6,7 +6,7 @@
 #include <set>
 
 #include "HLEGraphics/BaseRenderer.h"
-#include "HLEGraphics/BlendModes.h"
+#include "SysPSP/HLEGraphics/BlendModes.h"
 
 class CBlendStates;
 

@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "SysPSP/MediaEnginePRX/me.h"
 #include "SysPSP/Utility/CacheUtil.h"
-#include "Utility/ModulePSP.h"
+#include "SysPSP/Utility/ModulePSP.h"
 #include "Utility/Mutex.h"
 #include "Utility/Thread.h"
 

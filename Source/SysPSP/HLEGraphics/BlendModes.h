@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SYSPSP_HLEGRAPHICS_BLENDMODES_H_
 
 #include "Graphics/ColourValue.h"
-#include "HLEGraphics/ColourAdjuster.h"
+#include "SysPSP/HLEGraphics/ColourAdjuster.h"
 
 struct SBlendModeDetails
 {
