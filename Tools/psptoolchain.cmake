@@ -31,7 +31,7 @@ link_libraries(-lc -lpspuser -lpspkernel -lpspdebug -lpspdisplay -lpspge -lpspct
 
 #Include Directories
 include_directories({${include_directories} . ${PSPSDK}/include )
-#ADD_DEFINITIONS("-G0")
+ADD_DEFINITIONS("-G0")
 
 
 # Set Variables for PSPSDK aplications
@@ -47,7 +47,6 @@ set(PACK_PBP ${PSPBIN}pack-pbp)
 set(FIXUP ${PSPBIN}psp-fixup-imports)
 set(ENC ${PSPBIN}PrxEncrypter)
 
-IF BUILD_PRX =1 )
-  {
-  message("Building PRX")
-  }
+if(DEFINED BUILD_PRX)
+  message("hello")
+endif()
