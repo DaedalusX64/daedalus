@@ -24,21 +24,21 @@ execute_process( COMMAND bash -c "psp-config --pspdev-path" OUTPUT_VARIABLE PSPD
 set(PSPSDK ${PSPDEV}/psp/sdk)
 set(PSPBIN ${PSPDEV}/bin/)
 
-LINK_DIRECTORIES(${PSPSDK}/lib)
-set(PSP_LIBS -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk -lpsputility -lpspuser )
-LINK_LIBRARIES(${PSP_LIBS} -lc -lpspuser -lpspkernel -lc )
-INCLUDE_DIRECTORIES(${PSPSDK}/include /home/ben/daedalus/Projects/PSP/SDK/include/)
+
+#Lib Directories & Libs
+link_directories(${link_directories} . ${PSPSDK}/lib)
+link_libraries(-lc -lpspuser -lpspkernel -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk -lpsputility)
+
+#Include Directories
+include_directories({${include_directories} . ${PSPSDK}/include )
 #ADD_DEFINITIONS("-G0")
 
-#set(CMAKE_SYSTEM_INCLUDE_PATH "${PSPDEV}/include")
-#set(CMAKE_SYSTEM_LIBRARY_PATH "${PSPDEV}/lib")
-#set(CMAKE_SYSTEM_PROGRAM_PATH "${PSPDEV}/bin")
 
 # Set Variables for PSPSDK aplications
 set(CC ${PSPBIN}psp-gcc)
 set(CXX ${PSPBIN}psp-g++)
 set(AS ${PSPBIN}psp-as) ##This was psp-gcc in the build.mak
-set(LD ${PSPBIN}psp-ld) ##This was psp-gcc in the build.mak
+set(LD ${PSPBIN}psp-gcc) ##This was psp-gcc in the build.mak
 set(AR ${PSPBIN}psp-ar)
 set(RANLIB ${PSPBIN}psp-ranlib)
 set(STRIP1 ${PSPBIN}psp-strip) ##can't use STRIP as it's a variable in CMake
@@ -46,3 +46,8 @@ set(MKSFO ${PSPBIN}mksfo)
 set(PACK_PBP ${PSPBIN}pack-pbp)
 set(FIXUP ${PSPBIN}psp-fixup-imports)
 set(ENC ${PSPBIN}PrxEncrypter)
+
+IF BUILD_PRX =1 )
+  {
+  message("Building PRX")
+  }

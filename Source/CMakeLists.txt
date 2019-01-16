@@ -27,7 +27,7 @@ set (DEBUG_FILES Debug/DebugConsoleImpl.cpp Debug/DebugLog.cpp Debug/Dump.cpp)
 set (DYNAREC_FILES DynaRec/BranchType.cpp DynaRec/DynaRecProfile.cpp DynaRec/Fragment.cpp DynaRec/FragmentCache.cpp DynaRec/IndirectExitMap.cpp DynaRec/StaticAnalysis.cpp DynaRec/TraceRecorder.cpp)
 set (GRAPHICS_FILES Graphics/ColourValue.cpp Graphics/PngUtil.cpp Graphics/TextureTransform.cpp)
 set (HLEAUDIO_FILES HLEAudio/ABI1.cpp HLEAudio/ABI2.cpp HLEAudio/ABI3.cpp HLEAudio/ABI3mp3.cpp HLEAudio/AudioBuffer.cpp HLEAudio/AudioHLEProcessor.cpp HLEAudio/HLEMain.cpp)
-set (HLEGRAPHICS_FILES HLEGraphics/BaseRenderer.cpp HLEGraphics/CachedTexture.cpp HLEGraphics/ConvertImage.cpp HLEGraphics/ConvertTile.cpp HLEGraphics/DLDebug.cpp HLEGraphics/DLParser.cpp HLEGraphics/Microcode.cpp HLEGraphics/RDP.cpp  HLEGraphics/RDPStateManager.cpp  HLEGraphics/TextureCache.cpp  HLEGraphics/TextureCacheWebDebug.cpp  HLEGraphics/TextureInfo.cpp)
+set (HLEGRAPHICS_FILES HLEGraphics/BaseRenderer.cpp HLEGraphics/CachedTexture.cpp HLEGraphics/ConvertImage.cpp HLEGraphics/ConvertTile.cpp HLEGraphics/DLDebug.cpp HLEGraphics/DLParser.cpp HLEGraphics/Microcode.cpp HLEGraphics/RDP.cpp  HLEGraphics/RDPStateManager.cpp  HLEGraphics/TextureCache.cpp HLEGraphics/TextureInfo.cpp HLEGraphics/uCodes/Ucode.cpp)
 set (INTERFACE_FILES Interface/RomDB.cpp)
 set (MATH_FILES Math/Matrix4x4.cpp)
 set (OSHLE_FILES OSHLE/OS.cpp OSHLE/patch.cpp)
@@ -41,16 +41,32 @@ set (BUILD ${BASE_FILES} ${CONFIG_FILES} ${CORE_FILES} ${DEBUG_FILES} ${DYNAREC_
 
 #PSP Source files
 set (PSP_DEBUG_FILES SysPSP/Debug/DaedalusAssertPSP.cpp SysPSP/Debug/DBGConsolePSP.cpp)
-set (PSP_DYNAREC_FILES SysPSP/DynaRec/AssemblyUtilsPSP.cpp SysPSP/DynaRec/CodeBufferManagerPSP.cpp SysPSP/DynaRec/CodeGeneratorPSP.cpp SysPSP/DynaRec/DynaRecStubs.S SysPSP/DynaRec/DynarecTargetPSP.cpp SysPSP/DynaRec/N64RegisterCachePSP.cpp)
+set (PSP_DVEMGR_FILES SysPSP/DveMgr/pspDveManager.S)
+set (PSP_DYNAREC_FILES SysPSP/DynaRec/AssemblyWriterPSP.cpp SysPSP/DynaRec/AssemblyUtilsPSP.cpp SysPSP/DynaRec/CodeBufferManagerPSP.cpp SysPSP/DynaRec/CodeGeneratorPSP.cpp SysPSP/DynaRec/DynaRecStubs.S SysPSP/DynaRec/DynarecTargetPSP.cpp SysPSP/DynaRec/N64RegisterCachePSP.cpp)
 set (PSP_GRAPHICS_FILES SysPSP/Graphics/DrawText.cpp SysPSP/Graphics/GraphicsContext.cpp SysPSP/Graphics/NativeTexturePSP.cpp SysPSP/Graphics/VideoMemoryManager.cpp SysPSP/Graphics/intraFont/intraFont.c SysPSP/Graphics/intraFont/libccc.c)
 set (PSP_HLEAUDIO_FILES SysPSP/HLEAudio/AudioOutput.cpp SysPSP/HLEAudio/AudioPluginPSP.cpp)
-set (PSP_HLEGRAPHICS_FILES SysPSP/HLEGraphics/Blender.cpp SysPSP/HLEGraphics/BlendModes.cpp SysPSP/HLEGraphics/ColourAdjuster.cpp SysPSP/HLEGraphics/DisplayListDebugger.cpp SysPSP/HLEGraphics/GraphicsPluginPSP.cpp SysPSP/HLEGraphics/RendererPSP.cpp SysPSP/HLEGraphics/Combiner/BlendConstant.cpp SysPSP/HLEGraphics/Combiner/CombinerExpression.cpp SysPSP/HLEGraphics/Combiner/CombinerTree.cpp SysPSP/HLEGraphics/Combiner/RenderSettings.cpp SysPSP/HLEGraphics/ConvertVertices.S SysPSP/HLEGraphics/TnLVFPU.S SysPSP/HLEGraphics/VectorClipping.S)
+set (PSP_HLEGRAPHICS_FILES SysPSP/HLEGraphics/Blender.cpp SysPSP/HLEGraphics/BlendModes.cpp SysPSP/HLEGraphics/ColourAdjuster.cpp SysPSP/HLEGraphics/ConvertVertices.S SysPSP/HLEGraphics/DisplayListDebugger.cpp SysPSP/HLEGraphics/GraphicsPluginPSP.cpp SysPSP/HLEGraphics/RendererPSP.cpp SysPSP/HLEGraphics/Combiner/BlendConstant.cpp SysPSP/HLEGraphics/Combiner/CombinerExpression.cpp SysPSP/HLEGraphics/Combiner/CombinerTree.cpp SysPSP/HLEGraphics/Combiner/RenderSettings.cpp SysPSP/HLEGraphics/TnLVFPU.S SysPSP/HLEGraphics/VectorClipping.S)
 set (PSP_INPUTMANAGER_FILES SysPSP/Input/InputManagerPSP.cpp)
+set (PSP_KERNELBUTTON_FILES SysPSP/KernelButtonsPrx/imposectrl.S)
+set (PSP_MEDIAENGINEFILES SysPSP/MediaEnginePRX/me.c SysPSP/MediaEnginePRX/MediaEngine.S )
 set (PSP_UI_FILES SysPSP/UI/AboutComponent.cpp SysPSP/UI/AdjustDeadzoneScreen.cpp SysPSP/UI/AdvancedOptionsScreen.cpp SysPSP/UI/CheatOptionsScreen.cpp SysPSP/UI/ColourPulser.cpp SysPSP/UI/Dialogs.cpp SysPSP/UI/GlobalSettingsComponent.cpp SysPSP/UI/MainMenuScreen.cpp SysPSP/UI/PauseOptionsComponent.cpp SysPSP/UI/PauseScreen.cpp SysPSP/UI/RomPreferencesScreen.cpp SysPSP/UI/RomSelectorComponent.cpp SysPSP/UI/SavestateSelectorComponent.cpp SysPSP/UI/SelectedRomComponent.cpp SysPSP/UI/SplashScreen.cpp SysPSP/UI/UICommand.cpp SysPSP/UI/UIComponent.cpp SysPSP/UI/UIContext.cpp SysPSP/UI/UIElement.cpp SysPSP/UI/UIScreen.cpp SysPSP/UI/UISetting.cpp)
 set (PSP_UTILITY_FILES SysPSP/Utility/AtomicPrimitives.S SysPSP/Utility/BatteryPSP.cpp SysPSP/Utility/Buttons.cpp SysPSP/Utility/DebugMemory.cpp SysPSP/Utility/DisableFPUExceptions.S SysPSP/Utility/exception.cpp SysPSP/Utility/FastMemcpyPSP.cpp SysPSP/Utility/IOPSP.cpp SysPSP/Utility/JobManager.cpp SysPSP/Utility/ModulePSP.cpp SysPSP/Utility/ThreadPSP.cpp SysPSP/Utility/TimingPSP.cpp SysPSP/Utility/VolatileMemPSP.cpp)
 set (GPROF_SRCS SysPSP/Debug/prof.c SysPSP/Debug/mcount.S )
 set (PSP_MAIN_FILES SysPSP/main.cpp)
-set (PSP_BUILD ${PSP_DEBUG_FILES} ${PSP_DYNAREC_FILES} ${PSP_GRAPHICS_FILES} ${PSP_HLEAUDIO_FILES} ${PSP_HLEGRAPHICS_FILES} ${PSP_INPUTMANAGER_FILES} ${PSP_UI_FILES} ${PSP_UTILITY_FILES})
+set (PSP_BUILD ${PSP_DEBUG_FILES} ${PSP_DVEMGR_FILES} ${PSP_DYNAREC_FILES} ${PSP_GRAPHICS_FILES} ${PSP_HLEAUDIO_FILES} ${PSP_HLEGRAPHICS_FILES} ${PSP_INPUTMANAGER_FILES} ${PSP_KERNELBUTTON_FILES} ${PSP_MEDIAENGINEFILES} ${PSP_UI_FILES} ${PSP_UTILITY_FILES})
+
+
+#Handle .S files - Probably a better way to do this
+set_property(SOURCE SysPSP/HLEGraphics/ConvertVertices.S PROPERTY LANGUAGE C)
+set_property(SOURCE SysPSP/DynaRec/DynaRecStubs.S PROPERTY LANGUAGE C)
+set_property(SOURCE SysPSP/HLEGraphics/TnLVFPU.S PROPERTY LANGUAGE C)
+set_property(SOURCE SysPSP/HLEGraphics/VectorClipping.S PROPERTY LANGUAGE C)
+set_property(SOURCE SysPSP/Utility/AtomicPrimitives.S PROPERTY LANGUAGE C)
+set_property(SOURCE SysPSP/Utility/DisableFPUExceptions.S PROPERTY LANGUAGE C)
+set_property(SOURCE SysPSP/Debug/mcount.S PROPERTY LANGUAGE C)
+set_property(SOURCE SysPSP/DveMgr/pspDveManager.S PROPERTY LANGUAGE C)
+set_property(SOURCE SysPSP/KernelButtonsPrx/imposectrl.S PROPERTY LANGUAGE C)
+set_property(SOURCE SysPSP/MediaEnginePRX/MediaEngine.S PROPERTY LANGUAGE C)
 
 
 #Windows BUILD
@@ -125,11 +141,9 @@ add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=500 -DBUILD_PRX=1)
 		add_library(daedalus STATIC ${BUILD} ${PSP_BUILD})
 
 include_directories (BEFORE /home/ben/daedalus/Projects/PSP/SDK/include/)
-		LINK_LIBRARIES( )
-#target_link_libraries(stdc++ psppower pspgu pspaudio psprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge)
 	add_executable(daedalus.elf ${PSP_MAIN_FILES})
 			 target_include_directories(daedalus.elf PUBLIC /usr/local/psdev/sdk/include )
-	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge)
+	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge )
 endif (PSP_RELEASE)
 
 
