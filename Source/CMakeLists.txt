@@ -99,53 +99,39 @@ set (SYSGL_INTERFACE SysGL/Interface/UI.cpp)
 
 set (SYSGL_BUILD ${SYSGL_GRAPHICS} ${SYSGL_HLEGRAPHICS} ${SYSGL_INPUT} ${SYSGL_INTERFACE})
 
-##Don't forget to set the build type
-include_directories(${PROJECT_SOURCE_DIR}/Config)
 
 #build as Release for now
-include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/Config/Release)
-include_directories(${PROJECT_SOURCE_DIR}/SysPSP/Include)
-include_directories(${PROJECT_SOURCE_DIR}/Core)
-include_directories(${PROJECT_SOURCE_DIR}/Debug)
-include_directories(${PROJECT_SOURCE_DIR}/DynaRec)
-include_directories(${PROJECT_SOURCE_DIR}/Graphics)
-include_directories(${PROJECT_SOURCE_DIR}/HLEAudio)
-include_directories(${PROJECT_SOURCE_DIR}/HLEGraphics)
-include_directories(${PROJECT_SOURCE_DIR}/HLEGraphics/uCodes)
-include_directories(${PROJECT_SOURCE_DIR}/Input)
-include_directories(${PROJECT_SOURCE_DIR}/Interface)
-include_directories(${PROJECT_SOURCE_DIR}/Math)
-include_directories(${PROJECT_SOURCE_DIR}/OSHLE)
-include_directories(${PROJECT_SOURCE_DIR}/Plugins)
-include_directories(${PROJECT_SOURCE_DIR}/System)
-include_directories(${PROJECT_SOURCE_DIR}/Test)
-include_directories(${PROJECT_SOURCE_DIR}/Utility)
-
-
-
-
 
 
 if (PSP_RELEASE)
 	message("PSP Release Build..")
-	add_definitions("-O2 -DNDEBUG -Wall -MD -ffast-math -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition")
+	add_definitions("-O2 -DNDEBUG -MD -ffast-math -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition")
 	add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=661)
 	add_definitions(-DDAEDALUS_PSP)
-	add_library(daedalus STATIC ${BUILD} ${PSP_BUILD})
-	include_directories (BEFORE /home/ben/daedalus/Projects/PSP/SDK/include/)
-	execute_process(COMMAND bash -c "psp-ar cru $@ daedalus.lib")
+	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include)
+	add_library(daedalus STATIC ${BUILD} ${PSP_BUILD} ${PROJECT_SOURCE_DIR}/SysPSP/Include/lib)
 	add_executable(daedalus.elf ${PSP_MAIN_FILES})
-	target_include_directories(daedalus.elf PUBLIC /usr/local/psdev/sdk/include )
+	target_include_directories(daedalus.elf PUBLIC /usr/local/pspdev/psp/sdk/include )
 	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge )
 endif (PSP_RELEASE)
+
+
+
+
+
+
+
+
+
+
 
 
 if (PSP_DEBUG)
 	add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=661)
 	add_definitions(-DDAEDALUS_PSP)
 	add_library(daedalus STATIC ${BUILD} ${PSP_BUILD})
-	include_directories (BEFORE /home/benslater/daedalus/Projects/PSP/SDK/include/)
+	include_directories (BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/)
 	execute_process(COMMAND bash -c "psp-ar cru $@ daedalus.lib")
 	add_executable(daedalus.elf ${PSP_MAIN_FILES})
 	target_include_directories(daedalus.elf PUBLIC /usr/local/psdev/sdk/include )
