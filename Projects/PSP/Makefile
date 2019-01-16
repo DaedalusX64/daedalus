@@ -221,8 +221,8 @@ DEP_FILES := $(DEP_FILES:.S=.d)
 
 ASFLAGS =
 
-INCDIR = $(PSPDEV)/SDK/include ./SDK/include
-LIBDIR = $(PSPDEV)/SDK/lib ./SDK/lib
+INCDIR = $(PSPDEV)/SDK/include $(SRCDIR)/SysPSP/Include
+LIBDIR = $(PSPDEV)/SDK/lib $(SRCDIR)/SysPSP/Include/lib
 
 
 LIBS = -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge
@@ -258,9 +258,8 @@ VERSION = 1.1.4
 ifeq ($(VERSION),)
 	#Windows
 	EXTRA_TARGETS := svn $(EXTRA_TARGETS)
-	#include $(PSPSDK)/lib/build.mak
-	# Fix for MinPSPW's D support which conflicts with -MD (dependency build) flag..
-	include ./SDK/lib/build.mak
+	include $(PSPSDK)/lib/build.mak
+
 svn:
 	@echo svnversion not found, trying SubWCRev
 	@-SubWCRev . $(SRCDIR)/svnversion.txt $(SRCDIR)/svnversion.h
@@ -318,6 +317,5 @@ allclean: clean
 	$(MAKE) -C $(SRCDIR)/SysPSP/MediaEnginePRX clean
 	$(MAKE) -C $(SRCDIR)/SysPSP/DveMgr clean
 	$(MAKE) -C $(SRCDIR)/SysPSP/KernelButtonsPrx clean
-	rm -rf /Builds/
-	-include $(DEP_FILES)
+	rm -rf /Builds/ 
 
