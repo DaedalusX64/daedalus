@@ -4,7 +4,7 @@
 # Create a directory in the DaedalusX64 root directory and cd into it 'eg: mkdir tmp ~/DaedalusX64'
 # ensure you have cmake installed
 # For PSP:
-# cmake -DCMAKE_TOOLCHAIN_FILE=../Source/psptoolchain.cmake ../Source/ -DPSP_OPTION
+# cmake -DCMAKE_TOOLCHAIN_FILE=../Tools/psptoolchain.cmake ../Source/ -DPSP_OPTION
 
 #Options
 # PSP_RELEASE - Builds PSP Release
@@ -13,8 +13,6 @@ cmake_minimum_required(VERSION 3.7)
 
 project (DaedalusX64)
 
-
-# Compile Definitions
 
 
 #Base Source files
@@ -124,32 +122,32 @@ include_directories(${PROJECT_SOURCE_DIR}/System)
 include_directories(${PROJECT_SOURCE_DIR}/Test)
 include_directories(${PROJECT_SOURCE_DIR}/Utility)
 
-#PSPSDK
 
 
 
 
 
-
-#Library directories
 if (PSP_RELEASE)
-message("PSP Release Build..")
-#target_link_libraries(/usr/local/pspdev/sdk/lib)
-
-set(BUILD_PRX 1)
-add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=500)
+	message("PSP Release Build..")
+	add_definitions("-O2 -DNDEBUG -Wall -MD -ffast-math -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition")
+	add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=661)
 	add_definitions(-DDAEDALUS_PSP)
-		add_library(daedalus STATIC ${BUILD} ${PSP_BUILD})
-include_directories (BEFORE /home/ben/daedalus/Projects/PSP/SDK/include/)
-execute_process(COMMAND bash -c "psp-ar cru $@ daedalus.lib")
+	add_library(daedalus STATIC ${BUILD} ${PSP_BUILD})
+	include_directories (BEFORE /home/ben/daedalus/Projects/PSP/SDK/include/)
+	execute_process(COMMAND bash -c "psp-ar cru $@ daedalus.lib")
 	add_executable(daedalus.elf ${PSP_MAIN_FILES})
-			 target_include_directories(daedalus.elf PUBLIC /usr/local/psdev/sdk/include )
+	target_include_directories(daedalus.elf PUBLIC /usr/local/psdev/sdk/include )
 	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge )
 endif (PSP_RELEASE)
 
 
 if (PSP_DEBUG)
-	message("PSP Debug Build..")
-	add_definitions(-DDAEDALUS_PSP -DDEBUG)
-	add_executable(daedalus ${BUILD} ${PSP_BUILD})
+	add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=661)
+	add_definitions(-DDAEDALUS_PSP)
+	add_library(daedalus STATIC ${BUILD} ${PSP_BUILD})
+	include_directories (BEFORE /home/benslater/daedalus/Projects/PSP/SDK/include/)
+	execute_process(COMMAND bash -c "psp-ar cru $@ daedalus.lib")
+	add_executable(daedalus.elf ${PSP_MAIN_FILES})
+	target_include_directories(daedalus.elf PUBLIC /usr/local/psdev/sdk/include )
+	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge )
 endif (PSP_DEBUG)
