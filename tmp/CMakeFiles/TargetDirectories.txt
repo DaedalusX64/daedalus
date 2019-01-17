@@ -1,4 +1,0 @@
-/home/ben/daedalus/tmp/CMakeFiles/rebuild_cache.dir
-/home/ben/daedalus/tmp/CMakeFiles/edit_cache.dir
-/home/ben/daedalus/tmp/CMakeFiles/daedalus.elf.dir
-/home/ben/daedalus/tmp/CMakeFiles/daedalus.dir
