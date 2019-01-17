@@ -28,7 +28,6 @@ fi
 
 
 if [ "$1" = PSP_RELEASE ]; then
-BUILD_PRX=1
 
 
 echo "Temporarily manually build some additional files via make"
@@ -39,4 +38,15 @@ make -C $PWD/Source/SysPSP/MediaEnginePRX
 cd $PWD/daedbuild 
 cmake -DCMAKE_TOOLCHAIN_FILE=../Tools/psptoolchain.cmake -D$1=1 ../Source
 make
+mkdir -p Daedalus
+mv $PWD/daedalus.elf $PWD
+
+
+
+mksfo ‘Daedalus’ PARAM.SFO
+psp-strip daedalus.elf -o Daedalus_strip.elf
+pack-pbp ../DaedalusX64/EBOOT.PBP PARAM.SFO NULL NULL NULL NULL NULL Daedalus_strip.elf NULL
+
 fi
+
+
