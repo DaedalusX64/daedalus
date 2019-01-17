@@ -109,31 +109,18 @@ if (PSP_RELEASE)
 	add_definitions("-O2 -DNDEBUG -MD -ffast-math -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition")
 	add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=661)
 	add_definitions(-DDAEDALUS_PSP)
+	add_library(pspkubridge STATIC IMPORTED)
+	set_property(TARGET pspkubridge PROPERTY IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/SysPSP/Include/lib/libpspkubridge.a)
 	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include)
-	add_library(daedalus STATIC ${BUILD} ${PSP_BUILD} ${PROJECT_SOURCE_DIR}/SysPSP/Include/lib)
+	add_library(daedalus STATIC ${BUILD} ${PSP_BUILD})
 	add_executable(daedalus.elf ${PSP_MAIN_FILES})
 	target_include_directories(daedalus.elf PUBLIC /usr/local/pspdev/psp/sdk/include )
-	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge )
+	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu pspkubridge )
 endif (PSP_RELEASE)
-
-
-
-
-
-
-
-
-
-
 
 
 if (PSP_DEBUG)
 	add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=661)
 	add_definitions(-DDAEDALUS_PSP)
 add_library(daedalus STATIC ${BUILD} ${PSP_BUILD} ${PROJECT_SOURCE_DIR}/SysPSP/Include/lib)
-	include_directories (BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/)
-	execute_process(COMMAND bash -c "psp-ar cru $@ daedalus.lib")
-	add_executable(daedalus.elf ${PSP_MAIN_FILES})
-	target_include_directories(daedalus.elf PUBLIC /usr/local/psdev/sdk/include )
-	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge )
 endif (PSP_DEBUG)
