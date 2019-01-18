@@ -26,8 +26,7 @@ set(PSPBIN ${PSPDEV}/bin/)
 
 
 #Lib Directories & Libs
-link_directories(${link_directories} . ${PSPSDK}/lib)
-link_libraries(-lc -lpspuser -lpspkernel -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk -lpsputility)
+
 
 #Include Directories
 include_directories({${include_directories} . ${PSPSDK}/include )
@@ -47,68 +46,27 @@ set(PACK_PBP ${PSPBIN}pack-pbp)
 set(FIXUP ${PSPBIN}psp-fixup-imports)
 set(ENC ${PSPBIN}PrxEncrypter)
 
-# target name
-if(NOT PSP_TARGET)
-  SET(PSP_TARGET ${PROJECT_NAME})
-endif()
 
-# EBOOT
-if(NOT PSP_EBOOT_TITLE)
-  set(PSP_EBOOT_TITLE ${PSP_TARGET})
-endif()
-if(NOT PSP_EBOOT_SFO)
-  set(PSP_EBOOT_SFO "PARAM.SFO")
-endif()
-if(NOT PSP_EBOOT_ICON)
-  set(PSP_EBOOT_ICON "NULL")
-endif()
-if(NOT PSP_EBOOT_ICON1)
-  set(PSP_EBOOT_ICON1 "NULL")
-endif()
-if(NOT PSP_EBOOT_UNKPNG)
-  set(PSP_EBOOT_UNKPNG "NULL")
-endif()
-if(NOT PSP_EBOOT_PIC1)
-  set(PSP_EBOOT_PIC1 "NULL")
-endif()
-if(NOT PSP_EBOOT_SND0)
-  set(PSP_EBOOT_SND0 "NULL")
-endif()
-if(NOT PSP_EBOOT_PSAR)
-  set(PSP_EBOOT_PSAR "NULL")
-endif()
-if(NOT PSP_EBOOT)
-  set(PSP_EBOOT "EBOOT.PBP")
-endif()
 
-add_custom_command(OUTPUT ${PSP_EBOOT_SFO}
-  COMMAND ${MKSFO} "'${PSP_EBOOT_TITLE}'" ${PSP_EBOOT_SFO})
 
-if(BUILD_PRX)
-  add_custom_command(OUTPUT ${PSP_TARGET}.prx
-	COMMAND ${PSP_PRXGEN} ${PSP_TARGET}${CMAKE_EXECUTABLE_SUFFIX} ${PSP_TARGET}.prx
-	DEPENDS ${PSP_TARGET})
-  add_custom_command(OUTPUT ${PSP_EBOOT}
-	COMMAND ${PACK_PBP} ${PSP_EBOOT} ${PSP_EBOOT_SFO} ${PSP_EBOOT_ICON}
-	  ${PSP_EBOOT_ICON1} ${PSP_EBOOT_UNKPNG} ${PSP_EBOOT_PIC1}
-	  ${PSP_EBOOT_SND0} ${PSP_TARGET}.prx ${PSP_EBOOT_PSAR}
-	DEPENDS ${PSP_EBOOT_SFO} ${PSP_TARGET}.prx)
-  foreach(i ${PRX_EXPORTS})
-	string(REGEX REPLACE ".exp$" ".c" src ${i})
-	add_custom_command(OUTPUT ${src}
-	  COMMAND ${PSP_BUILD_EXPORTS} -b ${i} > ${src}
-	  DEPENDS ${i})
-  endforeach()
-  string(REGEX REPLACE ".exp" ".c" prx_srcs ${PRX_EXPORTS})
-  add_library(prx_exports ${prx_srcs})
-  target_link_libraries(${PSP_TARGET} prx_exports)
-elseif(BUILD_EBOOT)
-  add_custom_command(OUTPUT ${PSP_EBOOT}
-	COMMAND ${PSP_STRIP} ${PSP_TARGET}${CMAKE_EXECUTABLE_SUFFIX}
-	  -o ${PSP_TARGET}_strip${CMAKE_EXECUTABLE_SUFFIX}
-	COMMAND ${PACK_PBP} ${PSP_EBOOT} ${PSP_EBOOT_SFO} ${PSP_EBOOT_ICON}
-	  $(PSP_EBOOT_ICON1) ${PSP_EBOOT_UNKPNG} $(PSP_EBOOT_PIC1)
-	$(PSP_EBOOT_SND0)  ${TARGET}_strip${CMAKE_EXECUTABLE_SUFFIX} ${PSP_EBOOT_PSAR}
-	COMMAND rm -f ${TARGET}_strip${CMAKE_EXECUTABLE_SUFFIX}
-	DEPENDS ${PSP_EBOOT_SFO} ${PSP_TARGET})
-endif()
+
+#[[
+Logic for PBP Packing
+Not really worried about making PRXS right now
+Logic
+pack-pbp <output.pbp> <param.sfo> <icon0.png> <icon1.pmf> <pic0.png> <pic1.png> <snd0.at3> <data.psp> <data.psar>
+
+#Set the variables to default Daedalus for now - NULL is 0
+
+set(EBOOT_SFO "NULL")
+set(EBOOT_ICON "{PROJECT_SOURCE_DIR}/Resources/icon0.png")
+set(EBOOT_ICON1 "NULL")
+set(EBOOT_PIC0 "{PROJECT_SOURCE_DIR}/Resources/pic1.png")
+set(EBOOT_PIC1 "NULL")
+set(EBOOT_SND0 "NULL")
+set(EBOOT_DATAPSP "NULL")
+set(EBOOT_DATAPSAR "NULL")
+
+#Build the PBP File
+execute_process( COMMAND bash -c "pbp-pack EBOOT.PBP {EBOOT_SFO} {EBOOT_ICON} {EBOOT_ICON1} {EBOOT_PIC0} {EBOOT_PIC1} {EBOOT_SND0} {EBOOT_DATAPSP} {EBOOT_DATAPSAR}")
+]]

@@ -103,7 +103,7 @@ set (SYSGL_BUILD ${SYSGL_GRAPHICS} ${SYSGL_HLEGRAPHICS} ${SYSGL_INPUT} ${SYSGL_I
 #build as Release for now
 include_directories(${PROJECT_SOURCE_DIR}/Config/Release)
 
-
+Set(PSPSDK_LIBS -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk -lpsplibc -lpsputility -lpspuser -lpspkernel )
 if (PSP_RELEASE)
 	message("PSP Release Build..")
 	add_definitions("-O2 -DNDEBUG -MD -ffast-math -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition")
@@ -114,13 +114,20 @@ if (PSP_RELEASE)
 	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include)
 	add_library(daedalus STATIC ${BUILD} ${PSP_BUILD})
 	add_executable(daedalus.elf ${PSP_MAIN_FILES})
+	set_target_properties(daedalus.elf PROPERTIES LINK_FLAGS "-specs=${PSPSDK}/lib/prxspecs -Wl,-q,-T${PSPSDK}/lib/linkfile.prx ${PSPSDK}/lib/prxexports.o -L${PSPSDK}/lib")
 	target_include_directories(daedalus.elf PUBLIC /usr/local/pspdev/psp/sdk/include )
-	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu pspkubridge )
+	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lpng -lz -lg -lm -lpspfpu pspkubridge ${PSPSDK_LIBS})
 endif (PSP_RELEASE)
+
 
 
 if (PSP_DEBUG)
 	add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=661)
 	add_definitions(-DDAEDALUS_PSP)
-add_library(daedalus STATIC ${BUILD} ${PSP_BUILD} ${PROJECT_SOURCE_DIR}/SysPSP/Include/lib)
+	add_library(daedalus STATIC ${BUILD} ${PSP_BUILD})
+	include_directories (BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/)
+	add_executable(daedalus.prx ${PSP_MAIN_FILES})
+	set_target_properties(daedalus.elf  LINK_FLAGS "-specs=${PSPSDK}/lib/prxspecs -Wl,-q,-T${PSPSDK}/lib/linkfile.prx ${PSPSDK}/lib/prxexports.o -L${PSPSDK}/lib")
+	target_include_directories(daedalus.elf PUBLIC /usr/local/psdev/sdk/include )
+	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lc -lpng -lz -lg -lm -lpspfpu -lpspkubridge )
 endif (PSP_DEBUG)
