@@ -41,7 +41,7 @@ make
 if [ -f $PWD/daedalus.elf ]; then 
 
 psp-fixup-imports daedalus.elf
-mksfo DaedalusX64 PARAM.SFO
+mksfoex -d MEMSIZE=1 DaedalusX64 PARAM.SFO
 psp-prxgen daedalus.elf daedalus.prx
 # USAGE: pack-pbp <output.pbp> <param.sfo> <icon0.png> <icon1.pmf> <pic0.png> <pic1.png> <snd0.at3> <data.psp> <data.psar>
 
