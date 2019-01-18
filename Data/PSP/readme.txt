@@ -1,8 +1,8 @@
 Daedalusx64 Pre-Beta 3 Readme File
 Copyright (C) 2001-2013 StrmnNrmn
-Copyright (C) 2008-2013 DaedalusX64 Team
+Copyright (C) 2008-2019 DaedalusX64 Team
 
-This document last edited 31 May 2013
+This document last edited 18 January 2019
 
 What is Daedalus?
 *****************
@@ -12,7 +12,7 @@ the craftsman at King Minos's court who designed the labyrinth for the Minotaur.
 
 Getting the Latest Version
 **************************
-Visit http://sourceforge.net/projects/daedalusx64/ and if you can compile you
+Visit https://github.com/z2442/daedalus and if you can compile you
 may compile the latest alpha otherwise source it off the net elsewhere.
 
 
@@ -32,21 +32,6 @@ missing features that make it far from usable:
 Having said all that, We believe most of these problems can be overcome in the
 near future.
 
-
-Compatibility List / Forums
-http:// compat.daedalusx64.com / http://www.daedalusx64.com
-***************************
-
-Please check the compatibility list frequently as changes may be made to
-specific versions which could mean your favourite game might start working.
-
-We would also like you to register on the forums which would give you many
-benefits such as:
-
-a) ability to update the compatibility list and report bugs.
-b) ability to possibly join the team as a tester / developer if interested.
-c) tell us any ideas you may have for the emulator.
-d) join a great community.
 
 
 Using Daedalusx64
@@ -87,7 +72,7 @@ the Rom Directory.
 Preview Pictures
 ----------------
 
-All previews are included in a stable release or on subversion.
+All previews are included in a stable release
 
 Preview pictures can be found in Resources\Preview which you can modify to your
 liking. The Pictures are required to be in .png format, in a 4:3 aspect ratio.
@@ -171,22 +156,13 @@ file to the Daedalus/ControllerConfigs directory. There are a few examples
 provided which should give an overview of what is possible.
 
 
-Helping us Develop Daedalusx64
-******************************
-
-Join us on the forums, post detailed logs for your title of choice, its
-recommended you include screenshots, save states and if possible debug logs.
-
-To be rewarded official tester Status, you must remain active and post useful,
-clear and precise information for everyone to read then elected by staff.
 
 
 Support, Comments, Chat
 ***********************
 
-www.DaedalusX64.com
-
-irc.freenode.net #daedalusx64
+irc.freenode.net #daedalusx64 
+PSP Community Discord - https://discord.gg/adVv9Z
 
 Credits
 *******
@@ -222,7 +198,7 @@ And many thanks to the following developers who have helped in improving this
 emulator.
 
 Howard0su
-Salvy
+Salv-E
 Corn
 Hlide
 Grazz
