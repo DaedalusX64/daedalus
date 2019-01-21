@@ -72,8 +72,9 @@ EPspTextureFormat	GetPspTextureFormat( ETextureFormat texture_format )
 	case TexFmt_CI4_8888:	return PspTexFmt_T4;
 	case TexFmt_CI8_8888:	return PspTexFmt_T8;
 	}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled texture format" );
+	#endif
 	return PspTexFmt_8888;
 }
 
@@ -106,8 +107,10 @@ EPspTextureFormat	GetPspTextureFormat( ETextureFormat texture_format )
 //*****************************************************************************
 inline void swizzle_fast(u8* out, const u8* in, u32 width, u32 height)
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( (width & 15 ) == 0, "Width is not a multiple of 16 - is %d", width );
 	DAEDALUS_ASSERT( (height & 7 ) == 0, "Height is not a multiple of 8 - is %d", height );
+#endif
 
 #if 1	//1->Raphaels version, 0->Original
 	u32 rowblocks = (width / 16);
@@ -228,7 +231,9 @@ inline bool swizzle(u8* out, const u8* in, u32 width, u32 height)
 //*****************************************************************************
 u32	GetTextureBlockWidth( u32 dimension, ETextureFormat texture_format )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( GetNextPowerOf2( dimension ) == dimension, "This is not a power of 2" );
+#endif
 
 	// Ensure that the pitch is at least 16 bytes
 	while( CalcBytesRequired( dimension, texture_format ) < 16 )
@@ -363,7 +368,9 @@ void	CNativeTexture::InstallTexture() const
 			break;
 
 		default:
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( !IsTextureFormatPalettised( mTextureFormat ), "Unhandled palette texture" );
+			#endif
 			break;
 		}
 	}
@@ -472,13 +479,13 @@ namespace
 
 		png_uint_32 width = png_get_image_width(p_png_struct, p_png_info);//p_png_info->width;
 		png_uint_32 height = png_get_image_height(p_png_struct, p_png_info);//p_png_info->height;
-		
-		CRefPtr<CNativeTexture>	texture = CNativeTexture::Create( width, height, texture_format );
 
+		CRefPtr<CNativeTexture>	texture = CNativeTexture::Create( width, height, texture_format );
+#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( texture->GetWidth() >= width, "Width is unexpectedly small" );
 		DAEDALUS_ASSERT( texture->GetHeight() >= height, "Height is unexpectedly small" );
 		DAEDALUS_ASSERT( texture_format == texture->GetFormat(), "Texture format doesn't match" );
-
+#endif
 		u8 *	p_dest( new u8[ texture->GetBytesRequired() ] );
 		if( !p_dest )
 		{
@@ -555,9 +562,10 @@ void	CNativeTexture::SetData( void * data, void * palette )
 
 		if( mpPalette != NULL )
 		{
+					#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( palette != NULL, "No palette provided" );
 
-			#ifdef DAEDALUS_ENABLE_ASSERTS
+
 				mPaletteSet = true;
 			#endif
 
@@ -584,7 +592,9 @@ void	CNativeTexture::SetData( void * data, void * palette )
 		}
 		else
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( palette == NULL, "Palette provided when not needed" );
+			#endif
 		}
 	}
 }

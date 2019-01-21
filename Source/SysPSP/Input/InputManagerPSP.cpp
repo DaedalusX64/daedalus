@@ -416,8 +416,9 @@ void IInputManager::GetState( OSContPad pPad[4] )
 	pPad[0].stick_x =  s8(stick.x * N64_ANALOGUE_STICK_RANGE);
 	pPad[0].stick_y = -s8(stick.y * N64_ANALOGUE_STICK_RANGE);
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mpControllerConfig != NULL, "We should always have a valid controller" );
-
+#endif
 	SwapJoyStick(&pPad[0], &pad);
 
 	pPad[0].button = mpControllerConfig->GetN64ButtonsState( pad.Buttons );
@@ -434,8 +435,9 @@ void IInputManager::GetState( OSContPad pPad[4] )
 //*****************************************************************************
 template<> bool	CSingleton< CInputManager >::Create()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-
+#endif
 	IInputManager * manager( new IInputManager() );
 
 	if(manager->Initialise())
@@ -586,7 +588,9 @@ void	CButtonMappingExpressionEvaluator::HandleOperator( char op, std::stack<CBut
 		}
 		break;
 	default:
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Unhandled operator" );
+		#endif
 		break;
 	}
 }
@@ -987,9 +991,10 @@ v2	ProjectToUnitSquare( const v2 & in )
 //*************************************************************************************
 v2	ApplyDeadzone( const v2 & in, f32 min_deadzone, f32 max_deadzone )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( min_deadzone >= 0.0f && min_deadzone <= 1.0f, "Invalid min deadzone" );
 	DAEDALUS_ASSERT( max_deadzone >= 0.0f && max_deadzone <= 1.0f, "Invalid max deadzone" );
-
+#endif
 	float	length( in.Length() );
 
 	if( length < min_deadzone )
@@ -1001,4 +1006,3 @@ v2	ApplyDeadzone( const v2 & in, f32 min_deadzone, f32 max_deadzone )
 
 	return ProjectToUnitSquare( in * (scale / length) );
 }
-

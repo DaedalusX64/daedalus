@@ -39,8 +39,9 @@ void	CColourAdjuster::Reset()
 //*****************************************************************************
 void CColourAdjuster::Process( DaedalusVtx * p_vertices, u32 num_verts ) const
 {
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( (mSetMask & mModulateMask & mSubtractMask) == 0, "Setting and modulating the same component" );
-
+#endif
 	switch( mSetMask )
 	{
 		case 0:
@@ -135,7 +136,9 @@ void CColourAdjuster::Process( DaedalusVtx * p_vertices, u32 num_verts ) const
 //*****************************************************************************
 void	CColourAdjuster::Set( u32 mask, c32 colour )
 {
+				#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( (GetMask() & mask) == 0, "These bits have already been set" );
+	#endif
 	mSetMask |= mask;
 
 	u32		current( mSetColour.GetColour() );
@@ -149,7 +152,9 @@ void	CColourAdjuster::Set( u32 mask, c32 colour )
 //*****************************************************************************
 void	CColourAdjuster::Modulate( u32 mask, c32 colour )
 {
+				#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( (GetMask() & mask) == 0, "These bits have already been set" );
+	#endif
 	mModulateMask |= mask;
 
 	u32		current( mModulateColour.GetColour() );
@@ -163,7 +168,9 @@ void	CColourAdjuster::Modulate( u32 mask, c32 colour )
 //*****************************************************************************
 void	CColourAdjuster::Subtract( u32 mask, c32 colour )
 {
+				#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( (GetMask() & mask) == 0, "These bits have already been set" );
+	#endif
 	mSubtractMask |= mask;
 
 	u32		current( mSubtractColour.GetColour() );

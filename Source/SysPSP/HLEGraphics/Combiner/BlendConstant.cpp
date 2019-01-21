@@ -30,8 +30,9 @@ c32 CBlendConstantExpressionValue::Evaluate( c32 shade, c32 primitive, c32 envir
 	case BC_1:					return c32( 0xffffffff );
 	case BC_0:					return c32( 0x00000000 );
 	}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled constant" );
+	#endif
 	return c32( 0xffffffff );
 }
 
@@ -39,7 +40,12 @@ c32 CBlendConstantExpressionValue::EvaluateConstant( c32 primitive, c32 environm
 {
 	switch( mConstant )
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 	case BC_SHADE:				DAEDALUS_ERROR( "Shouldn't be here" ); return c32( 0xffffffff );
+#else
+case BC_SHADE:					return c32( 0xffffffff );
+	#endif
+
 	case BC_PRIMITIVE:			return primitive;
 	case BC_ENVIRONMENT:		return environment;
 	case BC_PRIMITIVE_ALPHA:	return c32( primitive.GetA(), primitive.GetA(), primitive.GetA(), primitive.GetA() );
@@ -48,7 +54,9 @@ c32 CBlendConstantExpressionValue::EvaluateConstant( c32 primitive, c32 environm
 	case BC_0:					return c32( 0x00000000 );
 	}
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled constant" );
+	#endif
 	return c32( 0xffffffff );
 }
 
@@ -64,8 +72,9 @@ bool CBlendConstantExpressionValue::TryEvaluateConstant( const SRenderState & st
 	case BC_1:					*out = c32( 0xffffffff ); return true;
 	case BC_0:					*out = c32( 0x00000000 ); return true;
 	}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled constant" );
+	#endif
 	return false;
 }
 
@@ -107,8 +116,9 @@ std::string CBlendConstantExpressionValue::ToString() const
 	case BC_1:					return "1";
 	case BC_0:					return "0";
 	}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled constant" );
+	#endif
 	return "?";
 }
 
@@ -355,5 +365,3 @@ std::string CBlendConstantExpressionBlend::ToString() const
 template class CBlendConstantExpression2< AddOp >;
 template class CBlendConstantExpression2< SubOp >;
 template class CBlendConstantExpression2< MulOp >;
-
-
