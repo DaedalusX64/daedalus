@@ -58,6 +58,7 @@ IVideoMemoryManager::IVideoMemoryManager()
 ,	mRamMemoryHeap( CMemoryHeap::Create( MAKE_UNCACHED_PTR( (void*)(((u32)malloc_volatile(ERAM + 0xF) + 0xF) & ~0xF) ), ERAM ) )
 //,	mRamMemoryHeap( CMemoryHeap::Create( 1 * 1024 * 1024 ) )
 {
+// This should be left for non debug as it helps see if the thing even loads.
 	printf( "vram base: %p\n", sceGeEdramGetAddr() );
 	printf( "vram size: %d KB\n", sceGeEdramGetSize() / 1024 );
 }
@@ -90,8 +91,9 @@ bool IVideoMemoryManager::Alloc( u32 size, void ** data, bool * isvidmem )
 		return true;
 	}
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Failed to allocate %d bytes of VRAM", size );
-
+#endif
 	// Try to alloc normal RAM
 	mem = mRamMemoryHeap->Alloc( size );
 	if( mem != NULL )
@@ -100,9 +102,9 @@ bool IVideoMemoryManager::Alloc( u32 size, void ** data, bool * isvidmem )
 		*isvidmem = false;
 		return true;
 	}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Failed to allocate %d bytes of RAM (risk for BSOD)", size );
-
+#endif
 	// It failed, there is no MEMORY left
 	*data = NULL;
 	*isvidmem = false;
@@ -126,10 +128,12 @@ void  IVideoMemoryManager::Free(void * ptr)
 	{
 		mRamMemoryHeap->Free( ptr );
 	}
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	else
 	{
 		DAEDALUS_ERROR( "Memory is not from any of our heaps" );
 	}
+	#endif
 }
 
 #ifdef DAEDALUS_DEBUG_MEMORY

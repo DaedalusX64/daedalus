@@ -78,8 +78,9 @@ u32 Patch_osEepromProbe()
 {
 TEST_DISABLE_EEPROM_FUNCS
 	// Returns 1 on EEPROM detected, 0 on error/no eeprom
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "osEepromProbe(), ra = 0x%08x", gGPR[REG_ra]._u32_0);
-
+#endif
 	u32 data = 0;
 	switch( g_ROM.settings.SaveType )
 	{

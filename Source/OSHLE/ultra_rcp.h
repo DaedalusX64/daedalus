@@ -337,7 +337,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	SI_STATUS_INTERRUPT	0x1000
 
 #define SI_LAST_REG		SI_STATUS_REG
-
 #define PIF_ROM_START	0x1FC00000
 #define PIF_ROM_END		0x1FC007BF
 #define PIF_RAM_START	0x1FC007C0

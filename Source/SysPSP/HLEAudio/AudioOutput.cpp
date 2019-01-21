@@ -111,7 +111,9 @@ static void AudioInit()
 	int audioThid = sceKernelCreateThread("audioOutput", audioOutput, 0x15, 0x1800, PSP_THREAD_ATTR_USER, NULL);
 	if(audioThid < 0)
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		printf("FATAL: Cannot create audioOutput thread\n");
+		#endif
 		return; // no audio
 	}
 	sceKernelStartThread(audioThid, 0, NULL);
@@ -124,7 +126,9 @@ static void AudioInit()
 		sceKernelDelayThread(100*1000);
 		sceAudioChRelease(sound_channel);
 		sound_channel = PSP_AUDIO_NEXT_CHANNEL;
+		#ifdef DAEDLAUS_DEBUG_CONSOLE
 		printf("FATAL: Cannot create bufferFilling thread\n");
+		#endif
 		return;
 	}
 	sceKernelStartThread(bufferThid, 0, NULL);
@@ -173,7 +177,9 @@ AudioOutput::~AudioOutput( )
 
 void AudioOutput::SetFrequency( u32 frequency )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg( 0, "Audio frequency: %d", frequency );
+	#endif
 	mFrequency = frequency;
 }
 

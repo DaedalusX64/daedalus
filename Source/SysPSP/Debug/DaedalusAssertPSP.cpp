@@ -76,7 +76,7 @@ EAssertResult DaedalusAssert( const char * expression, const char * file, unsign
 
 	pspDebugScreenSetBackColor( blue );
 	pspDebugScreenSetTextColor( white );
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	pspDebugScreenPrintf( "************************************************************\n" );
 	pspDebugScreenPrintf( "Assert Failed: %s\n", expression );
 	//pspDebugScreenPrintf( "MemFree: Total - %d, Max - %d\n", sceKernelTotalFreeMemSize(), sceKernelMaxFreeMemSize() );
@@ -86,8 +86,7 @@ EAssertResult DaedalusAssert( const char * expression, const char * file, unsign
 	pspDebugScreenPrintf( "\n" );
 	pspDebugScreenPrintf( "Press X to ignore once, [] to ignore forever, O to break\n" );
 	pspDebugScreenPrintf( "************************************************************\n" );
-
-
+#endif
 	printf( "************************************************************\n" );
 	printf( "Assert Failed: %s\n", expression );
 	//printf( "MemFree: Total - %d, Max - %d\n", sceKernelTotalFreeMemSize(), sceKernelMaxFreeMemSize() );

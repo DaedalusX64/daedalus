@@ -153,7 +153,9 @@ void		CAlphaRenderSettings::Apply( bool texture_installed, const SRenderState & 
 
 	if( mUsesTexel0 || mUsesTexel1 )
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ASSERT( texture_installed, "We have a texture, but it's not installed?" );
+#endif
 		out.BlendAlphaMode = PBAM_RGBA;
 	}
 	else
@@ -282,7 +284,9 @@ void		CRenderSettingsModulate::Apply( bool texture_installed, const SRenderState
 		//
 		// Disable texturing
 		//
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ASSERT( mConstantExpression != NULL, "No texture or diffuse" );
+		#endif
 	}
 }
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -352,8 +356,9 @@ CRenderSettingsBlend::~CRenderSettingsBlend()
 //*****************************************************************************
 void		CRenderSettingsBlend::Apply( bool texture_installed, const SRenderState & state, SRenderStateOut & out ) const
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ASSERT( texture_installed, "No texture for blend?" );
-
+#endif
 	//
 	//	Apply expression A as a function of shade.
 	//	Evaluate expression A as a constant

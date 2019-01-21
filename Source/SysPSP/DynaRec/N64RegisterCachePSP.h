@@ -48,8 +48,9 @@ public:
 
 		inline bool	IsValid( EN64Reg reg, u32 lo_hi_idx ) const
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( !mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid || IsCached( reg, lo_hi_idx ), "Checking register is valid but uncached?" );
-
+			#endif
 			return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid;
 		}
 
