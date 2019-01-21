@@ -458,10 +458,9 @@ TEST_DISABLE_GU_FUNCS
 	y._u32 = QuickRead32Bits(pBase, 0x4);
 	z._u32 = QuickRead32Bits(pBase, 0x8);
 
-	// Mmmm can't find any game that uses this :/ <3 you too Salvy
-	#ifdef DAEDALUS_DEBUG_CONSOLE
+	// Mmmm can't find any game that uses this :/
 	DAEDALUS_ERROR("guNormalize_Rugrats: Check me");
-#endif
+
 #ifdef DAEDALUS_PSP_USE_VFPU //Corn
 	vfpu_norm_3Dvec(&x._f32, &y._f32, &z._f32);
 #else

@@ -274,9 +274,7 @@ void RendererPSP::ResetDebugState()
 
 RendererPSP::SBlendStateEntry RendererPSP::LookupBlendState( u64 mux, bool two_cycles )
 {
-	#ifdef DAEDALUS_ENABLE_PROFILER
 	DAEDALUS_PROFILE( "RendererPSP::LookupBlendState" );
-	#endif
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	mRecordedCombinerStates.insert( mux );
 #endif
@@ -366,9 +364,9 @@ inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, 
 		sceGuDisable(GU_TEXTURE_2D);	//Blend triangle without a texture
 		sceGuDisable(GU_ALPHA_TEST);
 		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-
+		
 		u32 FogColor = mFogColour.GetColour();
-
+		
 		//Copy fog color to vertices
 		for(u32 i = 0 ; i < num_vertices ; i++)
 		{
@@ -378,7 +376,7 @@ inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, 
 
 		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
 
-		sceGuDepthFunc(GU_GEQUAL);	//Restore default depth function
+		sceGuDepthFunc(GU_GEQUAL);	//Restore default depth function	
 	}
 }
 
@@ -386,9 +384,8 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 {
 	static bool	ZFightingEnabled( false );
 
-#ifdef DAEDALUS_ENABLE_PROFILER
 	DAEDALUS_PROFILE( "RendererPSP::RenderUsingCurrentBlendMode" );
-#endif
+
 	if ( disable_zbuffer )
 	{
 		sceGuDisable(GU_DEPTH_TEST);
@@ -554,9 +551,7 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	else
 	{
 		// Set default states
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Unhandled blend mode" );
-		#endif
 		sceGuDisable( GU_TEXTURE_2D );
 		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
 	}
@@ -564,9 +559,8 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_flags)
 {
-	#ifdef DAEDALUS_ENABLE_PROFILER
 	DAEDALUS_PROFILE( "RendererPSP::RenderUsingRenderSettings" );
-#endif
+
 	const CAlphaRenderSettings *	alpha_settings( states->GetAlphaSettings() );
 
 	SRenderState	state;
@@ -682,7 +676,7 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 		sceGuTexWrap( mTexWrap[texture_idx].u, mTexWrap[texture_idx].v );
 
 		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
-
+		
 		if ( mTnL.Flags.Fog )
 		{
 			RenderFog( p_FogVtx, num_vertices, triangle_mode, render_flags );
@@ -720,10 +714,9 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoor
 		ConvertN64ToScreen( xy1, screen1 );
 	}
 
-#ifdef DAEDALUS_ENABLE_PROFILER
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
-#endif
+
 	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
 #if 1	//1->SPRITE, 0->STRIP
@@ -864,9 +857,8 @@ void RendererPSP::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	ConvertN64ToScreen( xy0, screen0 );
 	ConvertN64ToScreen( xy1, screen1 );
 
-#ifdef DAEDALUS_ENABLE_PROFILER
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-#endif
+
 	DaedalusVtx * p_vertices = static_cast<DaedalusVtx *>(sceGuGetMemory(2 * sizeof(DaedalusVtx)));
 
 	// No need for Texture.x/y as we don't do any texturing for fillrect
@@ -896,10 +888,9 @@ void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 								f32 u0, f32 v0, f32 u1, f32 v1,
 								const CNativeTexture * texture)
 {
-	#ifdef DAEDALUS_ENABLE_PROFILER
 	DAEDALUS_PROFILE( "RendererPSP::Draw2DTexture" );
-#endif
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
+	
 	// Enable or Disable ZBuffer test
 	if ( (mTnL.Flags.Zbuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd )
 	{
@@ -962,10 +953,9 @@ void RendererPSP::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1,
 								 f32 x2, f32 y2, f32 x3, f32 y3,
 								 f32 s, f32 t)	// With Rotation
 {
-	#ifdef DAEDALUS_ENABLE_PROFILER
 	DAEDALUS_PROFILE( "RendererPSP::Draw2DTextureR" );
-#endif
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
+
 	// Enable or Disable ZBuffer test
 	if ( (mTnL.Flags.Zbuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd )
 	{
@@ -1021,13 +1011,11 @@ void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height,
 									f32 u0, f32 v0, f32 u1, f32 v1,
 									const CNativeTexture * texture)
 {
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 	if (!texture)
 	{
 		DAEDALUS_ERROR("No texture in Draw2DTextureBlit");
 		return;
 	}
-#endif
 
 	f32 cur_v = v0;
 	f32 cur_y = y;
@@ -1119,11 +1107,9 @@ void RendererPSP::SelectPlaceholderTexture( EPlaceholderTextureType type )
 	case PTT_WHITE:			sceGuTexImage(0, kPlaceholderTextureWidth, kPlaceholderTextureHeight, kPlaceholderTextureWidth, gWhiteTexture);       break;
 	case PTT_SELECTED:		sceGuTexImage(0, kPlaceholderTextureWidth, kPlaceholderTextureHeight, kPlaceholderTextureWidth, gSelectedTexture);    break;
 	case PTT_MISSING:		sceGuTexImage(0, kPlaceholderTextureWidth, kPlaceholderTextureHeight, kPlaceholderTextureWidth, gPlaceholderTexture); break;
-#ifdef DAEDALUS_DEBUG_CONSOLE
 	default:
 		DAEDALUS_ERROR( "Unhandled type" );
 		break;
-		#endif
 	}
 }
 #endif // DAEDALUS_DEBUG_DISPLAYLIST
@@ -1237,3 +1223,4 @@ void DestroyRenderer()
 	gRendererPSP = NULL;
 	gRenderer    = NULL;
 }
+

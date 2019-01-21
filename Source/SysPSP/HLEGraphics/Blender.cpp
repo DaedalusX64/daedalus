@@ -133,14 +133,12 @@ inline void DebugBlender( u32 blender )
 
 	if(mBlender != blender)
 	{
-#ifdef DAEDLAUS_DEBUG_CONSOLE
 		printf( "********************************\n\n" );
 		printf( "Unknown Blender: %04x - %s * %s + %s * %s || %s * %s + %s * %s\n",
 				blender,
 				sc_szBlClr[(blender>>14) & 0x3], sc_szBlA1[(blender>>10) & 0x3], sc_szBlClr[(blender>>6) & 0x3], sc_szBlA2[(blender>>2) & 0x3],
 				sc_szBlClr[(blender>>12) & 0x3], sc_szBlA1[(blender>> 8) & 0x3], sc_szBlClr[(blender>>4) & 0x3], sc_szBlA2[(blender   ) & 0x3]);
 		printf( "********************************\n\n" );
-		#endif
 		mBlender = blender;
 	}
 }
@@ -210,7 +208,6 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 		{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			DebugBlender( blendmode );
-
 			DL_PF( "		 Blend: SRCALPHA/INVSRCALPHA (default: 0x%04x)", blendmode );
 #endif
 			sceGuBlendFunc( GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);

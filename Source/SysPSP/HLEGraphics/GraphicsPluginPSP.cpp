@@ -266,9 +266,7 @@ void CGraphicsPluginImpl::UpdateScreen()
 
 void CGraphicsPluginImpl::RomClosed()
 {
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Finalising PSPGraphics");
-	#endif
 	DLParser_Finalise();
 	CTextureCache::Destroy();
 	DestroyRenderer();
@@ -276,9 +274,8 @@ void CGraphicsPluginImpl::RomClosed()
 
 CGraphicsPlugin * CreateGraphicsPlugin()
 {
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg( 0, "Initialising Graphics Plugin [CPSP]" );
-#endif
+
 	CGraphicsPluginImpl * plugin = new CGraphicsPluginImpl;
 	if( !plugin->Initialise() )
 	{
