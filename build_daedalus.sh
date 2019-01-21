@@ -39,6 +39,8 @@ cp ../Source/SysPSP/Resources/eboot_icons/* $PWD
 pack-pbp EBOOT.PBP PARAM.SFO icon0.png NULL NULL pic1.png NULL daedalus.prx NULL
 mv EBOOT.PBP ../DaedalusX64
 cp -r ../Data/PSP/* ../DaedalusX64
+mkdir ../DaedalusX64/SaveStates
+mkdir ../DaedalusX64/SaveGames
 fi
 else
 echo "Usage ./build_daedalus.sh BUILD_TYPE"

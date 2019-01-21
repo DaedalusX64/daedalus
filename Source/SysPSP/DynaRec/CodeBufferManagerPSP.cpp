@@ -79,6 +79,7 @@ struct SCodeBuffer
 		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( mBufferPtr + 32768 <= mBufferSize, "Out of memory for dynamic recompiler" );
 #endif
+
 		return mpBuffer + mBufferPtr;
 	}
 

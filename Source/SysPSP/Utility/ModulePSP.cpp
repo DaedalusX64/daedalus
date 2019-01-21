@@ -35,7 +35,9 @@ namespace CModule
 
 		if(ret < 0)
 		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			printf("Couldn't unload module! : 0x%08X\n",ret);
+			#endif
 		}
 	}
 
@@ -45,13 +47,14 @@ namespace CModule
 
 		if( ret < 0 )
 		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			printf( "Failed to load %s: %d\n",path, ret );
+			#endif
 			return ret; //-1
 		}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		printf( "Successfully loaded %s: %08X\n", path, ret );
-
+#endif
 		return ret;
 	}
 }
-

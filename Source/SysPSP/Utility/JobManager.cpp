@@ -40,7 +40,7 @@ bool gLoadedMediaEnginePRX = false;
 volatile me_struct *mei;
 #endif
 
-#ifdef VITA 
+#ifdef VITA
 #undef DAEDALUS_PSP_USE_ME
 #endif
 
@@ -50,7 +50,7 @@ CJobManager gJobManager( 1024, TM_ASYNC_ME );
 bool InitialiseJobManager()
 {
 #ifdef DAEDALUS_PSP_USE_ME
-	
+
 	if( CModule::Load("mediaengine.prx") < 0 )	return false;
 
 	mei = (volatile struct me_struct *)malloc_64(sizeof(struct me_struct));
@@ -64,7 +64,9 @@ bool InitialiseJobManager()
 	}
 	else
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		printf(" Couldn't initialize MediaEngine Instance\n");
+		#endif
 		return false;
 	}
 #else
@@ -119,8 +121,9 @@ void CJobManager::Start()
 	{
 		mWantQuit = false;
 		mThread = CreateThread( "JobManager", JobMain, this );
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( mThread != kInvalidThreadHandle, "Unable to start JobManager thread!" );
+#endif
 	}
 }
 
@@ -154,8 +157,9 @@ u32 CJobManager::JobMain( void * arg )
 //*****************************************************************************
 bool CJobManager::AddJob( SJob * job, u32 job_size )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( job != NULL, "No job!" );
-
+#endif
 	if( mTaskMode == TM_SYNC )
 	{
 		if( job->InitJob ) job->InitJob( job );
@@ -206,9 +210,9 @@ void CJobManager::Run()
 
 				// wait on ME to finish any previous job
 				do { sceKernelDelayThread( 100 ); // give up time while waiting on ME
-				 } 
+				 }
 				while( !CheckME( mei ) );
-				
+
 				// Execute previous job finalised
 				if( run->FiniJob )
 					run->FiniJob( run );
