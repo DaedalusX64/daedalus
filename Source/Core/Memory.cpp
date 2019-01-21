@@ -196,8 +196,9 @@ bool Memory_Init()
 
 void Memory_Fini(void)
 {
+    #ifdef DAEDALUS_ENABLE_PROFILING
 	DPF(DEBUG_MEMORY, "Freeing Memory");
-
+#endif
 #ifdef DAED_USE_VIRTUAL_ALLOC
 
 	//
@@ -232,12 +233,14 @@ void Memory_Fini(void)
 bool Memory_Reset()
 {
 	u32 main_mem = g_ROM.settings.ExpansionPakUsage != PAK_UNUSED ? MEMORY_8_MEG : MEMORY_4_MEG;
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Reseting Memory - %d MB", main_mem/(1024*1024));
-
+#endif
 	if (main_mem > kMaximumMemSize)
 	{
+#ifdef DAEDLAUS_DEBUG
 		DBGConsole_Msg( 0, "Memory_Reset: Can't reset with more than %dMB ram", kMaximumMemSize / (1024*1024) );
+#endif
 		main_mem = kMaximumMemSize;
 	}
 
@@ -362,8 +365,9 @@ void Memory_InitTables()
 
 	u32 rom_size = RomBuffer::GetRomSize();
 	u32 ram_size = gRamSize;
-
-	DBGConsole_Msg(0, "Initialising %s main memory", (ram_size == MEMORY_8_MEG) ? "8Mb" : "4Mb");
+#ifdef DAEDALUS_DEBUG_CONSOLE
+    DBGConsole_Msg(0, "Initialising %s main memory", (ram_size == MEMORY_8_MEG) ? "8Mb" : "4Mb");
+#endif
 
 	// Init RDRAM
 	// By default we init with EPAK (8Mb)
@@ -690,8 +694,9 @@ void MemoryUpdateSPStatus( u32 flags )
 	//
 	if (start_rsp)
 	{
+#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( (new_status & SP_STATUS_BROKE) == 0, "Unexpected RSP HLE status %08x", new_status );
-
+#endif
 		// Check for tasks whenever the RSP is started
 		RSP_HLE_ProcessTask();
 	}
@@ -744,7 +749,9 @@ void MemoryUpdateDP( u32 flags )
 		u32 status = Memory_SP_GetRegister( SP_STATUS_REG );
 		if((status & SP_STATUS_HALT) == 0)
 		{
+#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( (status & SP_STATUS_BROKE) == 0, "Unexpected RSP HLE status %08x", status );
+#endif
 			RSP_HLE_ProcessTask();
 		}
 	}
@@ -832,14 +839,17 @@ void MemoryUpdatePI( u32 value )
 	if (value & PI_STATUS_RESET)
 	{
 		// What to do when is busy?
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 		DPF( DEBUG_PI, "PI: Resetting Status. PC: 0x%08x", gCPUState.CurrentPC );
+#endif
 		// Reset PIC here
 		Memory_PI_SetRegister(PI_STATUS_REG, 0);
 	}
 	if (value & PI_STATUS_CLR_INTR)
 	{
+        #ifdef DAEDALUS_ENABLE_PROFILING
 		DPF( DEBUG_PI, "PI: Clearing interrupt flag. PC: 0x%08x", gCPUState.CurrentPC );
+#endif
 		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_PI);
 		R4300_Interrupt_UpdateCause3();
 	}
@@ -853,14 +863,17 @@ void MemoryUpdatePIF()
 	if (command == 0x08)
 	{
 		pPIFRam[ 0x3F ^ U8_TWIDDLE ] = 0x00;
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "[GSI Interrupt control value: 0x%02x", command );
+#endif
 		Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
 		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SI);
 		R4300_Interrupt_UpdateCause3();
 	}
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	else
 	{
 		DBGConsole_Msg( 0, "[GUnknown control value: 0x%02x", command );
 	}
+#endif
 }

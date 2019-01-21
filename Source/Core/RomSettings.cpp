@@ -237,7 +237,9 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 	CIniFile * p_ini_file( CIniFile::Create( filename ) );
 	if( p_ini_file == NULL )
 	{
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "Failed to open RomDB from %s\n", filename );
+#endif
 		return false;
 	}
 
@@ -429,10 +431,11 @@ void IRomSettingsDB::Commit()
 void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings & settings, FILE * fh )
 {
 	// Generate the CRC-ID for this rom:
+    #ifdef DAEDALUS_DEBUG_CONSOLE
 	fprintf(fh, "{%08x%08x-%02x}\n", id.CRC[0], id.CRC[1], id.CountryID );
 
 	fprintf(fh, "Name=%s\n", settings.GameName.c_str());
-
+#endif
 	if( !settings.Comment.empty() )				fprintf(fh, "Comment=%s\n", settings.Comment.c_str());
 	if( !settings.Info.empty() )				fprintf(fh, "Info=%s\n", settings.Info.c_str());
 	if( !settings.Preview.empty() )				fprintf(fh, "Preview=%s\n", settings.Preview.c_str());

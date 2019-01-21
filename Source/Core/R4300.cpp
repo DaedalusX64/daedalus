@@ -178,11 +178,12 @@ inline void SET_ROUND_MODE( ERoundingMode mode )
 #else
 
 // Need defining
+#ifdef DAEDALUS_DEBUG_CONSOLE
 void SET_ROUND_MODE( ERoundingMode mode )
 {
 	DAEDALUS_ERROR( "Floating point rounding modes not implemented on this platform" );
 }
-
+#endif
 #endif
 
 // If the hardware doesn't support doubles in hardware - use 32 bits floats and accept the loss in precision
@@ -384,6 +385,7 @@ DAEDALUS_FORCEINLINE f32 d64_to_f32( d64 x )
 
 //These ASM routines convert float to int and puts the value in CPU to sign extend, rather than FPU since the PSP doesn't have 64bit instructions //Corn
 //These can be risky since the N64 is expecting float to int64 and thus float can be larger than int, this happens with trunc_w_s on the 4th level of DK64..
+
 inline s32 cvt_w_s( f32 x )							{ DAEDALUS_ASSERT( x >= LONG_MIN && x <= LONG_MAX, "Float too large, can't convert with 32bit PSP instruction" );s32 r; asm volatile ( "cvt.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
 inline s32 trunc_w_s( f32 x )						{ DAEDALUS_ASSERT( x >= LONG_MIN && x <= LONG_MAX, "Float too large, can't convert with 32bit PSP instruction" );s32 r; asm volatile ( "trunc.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
 inline s32 round_w_s( f32 x )						{ DAEDALUS_ASSERT( x >= LONG_MIN && x <= LONG_MAX, "Float too large, can't convert with 32bit PSP instruction" );s32 r; asm volatile ( "round.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
@@ -682,7 +684,6 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
-
 #define WARN_NOEXIST(inf)	{ DAEDALUS_ASSERT( false, "Instruction Unknown" ); }
 #define WARN_NOIMPL(op)		{ DAEDALUS_ASSERT( false, "Instruction Not Implemented" ); }
 
@@ -1536,8 +1537,9 @@ static void R4300_CALL_TYPE R4300_Special_SYSCALL( R4300_CALL_SIGNATURE )
 static void R4300_CALL_TYPE R4300_Special_BREAK( R4300_CALL_SIGNATURE ) 	// BREAK
 {
 	//R4300_CALL_MAKE_OP( op_code );
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 	DPF( DEBUG_INTR, "BREAK Called. PC: 0x%08x. COUNT: 0x%08x", gCPUState.CurrentPC, gCPUState.CPUControl[C0_COUNT]._u32 );
+#endif
 	R4300_Exception_Break();
 }
 
@@ -2232,7 +2234,9 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 		case C0_WIRED:
 			// Set to top limit on write to wired
 			gCPUState.CPUControl[C0_RAND]._u32 = 31;
+            #ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "Setting Wired register to 0x%08x", new_value);
+#endif
 			gCPUState.CPUControl[C0_WIRED]._u32 = new_value;
 			break;
 
@@ -2241,7 +2245,9 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 		case C0_PRID:
 		case C0_CACHE_ERR:			// Furthermore, this reg must return 0 on reads.
 			// All these registers are read only - make sure that software doesn't write to them
+            #ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "MTC0. Software attempted to write to read only reg %s: 0x%08x", Cop0RegNames[ op_code.fs ], new_value);
+#endif
 			break;
 
 		case C0_CAUSE:
@@ -2249,15 +2255,18 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 			// On writes, set all others to 0. Is this correct?
 			//  Other bits are CE (copro error) BD (branch delay), the other
 			// Interrupt pendings and EscCode.
+            #ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT(new_value == 0, "CAUSE register invalid writing");
-
+#endif
 #ifdef DAEDALUS_DEBUG_CONSOLE
 			if ( (new_value&~(CAUSE_SW1|CAUSE_SW2)) != (gCPUState.CPUControl[C0_CAUSE]._u32&~(CAUSE_SW1|CAUSE_SW2))  )
 			{
 				DBGConsole_Msg( 0, "[MWas previously clobbering CAUSE REGISTER" );
 			}
 #endif
+            #ifdef DAEDALUS_ENABLE_PROFILING
 			DPF( DEBUG_REGS, "CAUSE set to 0x%08x (was: 0x%08x)", new_value, gGPR[ op_code.rt ]._u32_0 );
+#endif
 			gCPUState.CPUControl[C0_CAUSE]._u32 &=             ~(CAUSE_SW1|CAUSE_SW2);
 			gCPUState.CPUControl[C0_CAUSE]._u32 |= (new_value & (CAUSE_SW1|CAUSE_SW2));
 			break;
@@ -2275,7 +2284,9 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 				// When this register is set, we need to check whether the next timed interrupt will
 				//  be due to vertical blank or COMPARE
 				gCPUState.CPUControl[C0_COUNT]._u32 = new_value;
+            #ifdef DAEDALUS_DEBUG_CONSOLE
 				DBGConsole_Msg(0, "Count set - setting int");
+#endif
 				// XXXX Do we need to update any existing events?
 				break;
 			}
@@ -2319,9 +2330,10 @@ static void R4300_CALL_TYPE R4300_TLB_TLBR( R4300_CALL_SIGNATURE ) 				// TLB Re
 	gCPUState.CPUControl[C0_ENTRYHI ]._u32 = g_TLBs[index].hi   & (~g_TLBs[index].pagemask);
 	gCPUState.CPUControl[C0_ENTRYLO0]._u32 = g_TLBs[index].pfne | g_TLBs[index].g;
 	gCPUState.CPUControl[C0_ENTRYLO1]._u32 = g_TLBs[index].pfno | g_TLBs[index].g;
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 	DPF( DEBUG_TLB, "TLBR: INDEX: 0x%04x. PAGEMASK: 0x%08x.", index, gCPUState.CPUControl[C0_PAGEMASK]._u32 );
 	DPF( DEBUG_TLB, "      ENTRYHI: 0x%08x. ENTRYLO1: 0x%08x. ENTRYLO0: 0x%08x", gCPUState.CPUControl[C0_ENTRYHI]._u32, gCPUState.CPUControl[C0_ENTRYLO1]._u32, gCPUState.CPUControl[C0_ENTRYLO0]._u32 );
+#endif
 }
 
 
@@ -2330,8 +2342,9 @@ static void R4300_CALL_TYPE R4300_TLB_TLBWI( R4300_CALL_SIGNATURE )			// TLB Wri
 	//R4300_CALL_MAKE_OP( op_code );
 
 	u32 i = gCPUState.CPUControl[C0_INX]._u32 & 0x1F;
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 	DPF( DEBUG_TLB, "TLBWI: INDEX: 0x%04x. ", i );
+#endif
 
 	g_TLBs[i].UpdateValue(gCPUState.CPUControl[C0_PAGEMASK]._u32,
 						gCPUState.CPUControl[C0_ENTRYHI ]._u32,
@@ -2347,9 +2360,9 @@ static void R4300_CALL_TYPE R4300_TLB_TLBWR( R4300_CALL_SIGNATURE )
 
 	// Select a value for index between wired and 31
 	u32 i = (R4300_Rand()%(32-wired)) + wired;
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 	DPF( DEBUG_TLB, "TLBWR: INDEX: 0x%04x. ", i );
-
+#endif
 	g_TLBs[i].UpdateValue(gCPUState.CPUControl[C0_PAGEMASK]._u32,
 						gCPUState.CPUControl[C0_ENTRYHI ]._u32,
 						gCPUState.CPUControl[C0_ENTRYLO1]._u32,
@@ -2362,23 +2375,26 @@ static void R4300_CALL_TYPE R4300_TLB_TLBP( R4300_CALL_SIGNATURE ) 				// TLB Pr
 	//R4300_CALL_MAKE_OP( op_code );
 
 	u32 entryH = gCPUState.CPUControl[C0_ENTRYHI]._u32;
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 	DPF( DEBUG_TLB, "TLBP: ENTRYHI: 0x%08x", entryH );
-
+#endif
     for( u32 i = 0; i < 32; i++ )
 	{
 		if( ((g_TLBs[i].hi & TLBHI_VPN2MASK) == (entryH & TLBHI_VPN2MASK)) && ( (g_TLBs[i].g)
 			|| ((g_TLBs[i].hi & TLBHI_PIDMASK) ==  (entryH    & TLBHI_PIDMASK))) )
 		{
+            #ifdef DAEDALUS_ENABLE_PROFILING
 			DPF( DEBUG_TLB, "   Found matching TLB Entry - 0x%04x", i );
+#endif
 			gCPUState.CPUControl[C0_INX]._u32 = i;
 			return;
 		}
     }
 
 	gCPUState.CPUControl[C0_INX]._u32 = TLBINX_PROBE;
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 	DPF( DEBUG_TLB, "   No matching TLB Entry Found for 0x%08x", entryH );
+#endif
 }
 
 static void R4300_CALL_TYPE R4300_TLB_ERET( R4300_CALL_SIGNATURE )
@@ -2387,14 +2403,18 @@ static void R4300_CALL_TYPE R4300_TLB_ERET( R4300_CALL_SIGNATURE )
 
 	if( gCPUState.CPUControl[C0_SR]._u32 & SR_ERL )
 	{
+        #ifdef DAEDALUS_ENABLE_PROFILING
 		// Returning from an error trap
 		DPF(DEBUG_INTR, "ERET: Returning from error trap");
+#endif
 		CPU_SetPC( gCPUState.CPUControl[C0_ERROR_EPC]._u32 );
 		gCPUState.CPUControl[C0_SR]._u32 &= ~SR_ERL;
 	}
 	else
 	{
-		DPF(DEBUG_INTR, "ERET: Returning from interrupt/exception");
+        #ifdef DAEDALUS_ENABLE_PROFILING
+        DPF(DEBUG_INTR, "ERET: Returning from interrupt/exception");
+#endif
 		// Returning from an exception
 		CPU_SetPC( gCPUState.CPUControl[C0_EPC]._u32 );
 		gCPUState.CPUControl[C0_SR]._u32 &= ~SR_EXL;
@@ -2472,8 +2492,9 @@ static void R4300_CALL_TYPE R4300_Cop1_CFC1( R4300_CALL_SIGNATURE ) 		// move Co
 static void R4300_CALL_TYPE R4300_Cop1_CTC1( R4300_CALL_SIGNATURE ) 		// move Control word To Copro 1
 {
 	R4300_CALL_MAKE_OP( op_code );
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( op_code.fs != 0, "CTC1 : Reg zero unhandled");
+#endif
 	// Only defined for reg 0 or 31
 	// TODO - Maybe an exception was raised?
 	// Not needed for 0?
@@ -2502,8 +2523,9 @@ static void R4300_CALL_TYPE R4300_Cop1_CTC1( R4300_CALL_SIGNATURE ) 		// move Co
 static void R4300_CALL_TYPE R4300_Cop1_CTC1_2( R4300_CALL_SIGNATURE ) 
 {
 	R4300_CALL_MAKE_OP( op_code );
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( op_code.fs != 0, "CTC1 : Reg zero unhandled");
+#endif
 	// Only defined for reg 0 or 31
 	// TODO - Maybe an exception was raised?
 	// Not needed for 0?
@@ -2708,8 +2730,9 @@ static void R4300_CALL_TYPE R4300_Cop1_S_DIV( R4300_CALL_SIGNATURE )
 
 	// Should we handle if /0? GoldenEye007 and Exitebike does this.
 	// Not sure if is worth to handle this, I have yet to see a game that fails due this..
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(fDivisor != 0.0f, "Float divide by zero");
-
+#endif
 	// Causes excitebike to freeze when entering the menu
 	/*if ( fDivisor == 0 )
 	{
@@ -3233,9 +3256,9 @@ static void R4300_CALL_TYPE R4300_Cop1_D_DIV( R4300_CALL_SIGNATURE )
 	// fd = fs/ft
 	d64 fDividend = LoadFPR_Double( op_code.fs );
 	d64 fDivisor = LoadFPR_Double( op_code.ft );
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(fDivisor != 0, "Double divide by zero");
-
+#endif
 	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 
 	StoreFPR_Double( op_code.fd,  fDividend / fDivisor );

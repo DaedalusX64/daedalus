@@ -141,9 +141,9 @@ void DMA_SI_CopyFromDRAM( )
 	u32 mem = Memory_SI_GetRegister(SI_DRAM_ADDR_REG) & 0x1fffffff;
 	u32 * p_dst = (u32 *)g_pMemoryBuffers[MEM_PIF_RAM];
 	u32 * p_src = (u32 *)(g_pu8RamBase + mem);
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DPF( DEBUG_MEMORY_PIF, "DRAM (0x%08x) -> PIF Transfer ", mem );
-
+#endif
 	// Fuse 4 reads and 4 writes to just one which is a lot faster - Corn
 	for(u32 i = 0; i < 16; i++)
 	{
@@ -167,8 +167,9 @@ void DMA_SI_CopyToDRAM( )
 	u32 * p_src = (u32 *)g_pMemoryBuffers[MEM_PIF_RAM];
 	u32 * p_dst = (u32 *)(g_pu8RamBase + mem);
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DPF( DEBUG_MEMORY_PIF, "PIF -> DRAM (0x%08x) Transfer ", mem );
-
+#endif
 	// Fuse 4 reads and 4 writes to just one which is a lot faster - Corn
 	for(u32 i = 0; i < 16; i++)
 	{
@@ -248,8 +249,9 @@ void DMA_PI_CopyToRDRAM()
 	u32 cart_address = Memory_PI_GetRegister(PI_CART_ADDR_REG)  & 0xFFFFFFFF;
 	u32 pi_length_reg = (Memory_PI_GetRegister(PI_WR_LEN_REG) & 0xFFFFFFFF) + 1;
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DPF( DEBUG_MEMORY_PI, "PI: Copying %d bytes of data from 0x%08x to 0x%08x", pi_length_reg, cart_address, mem_address );
-
+#endif
 	//DAEDALUS_ASSERT(!IsDom1Addr1(cart_address), "The code below doesn't handle dom1/addr1 correctly");
 	//DAEDALUS_ASSERT(!IsDom1Addr3(cart_address), "The code below doesn't handle dom1/addr3 correctly");
 
@@ -266,6 +268,7 @@ void DMA_PI_CopyToRDRAM()
 			else
 				DMA_FLASH_CopyToDRAM(mem_address, cart_address, pi_length_reg);
 		}
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		else if (IsDom1Addr1(cart_address))
 		{
 			DBGConsole_Msg(0, "[YReading from Cart domain 1/addr1] (Ignored)");
@@ -274,6 +277,7 @@ void DMA_PI_CopyToRDRAM()
 		{
 			DBGConsole_Msg(0, "[YUnknown PI Address 0x%08x]", cart_address);
 		}
+#endif
 	}
 	else
 	{
@@ -286,11 +290,13 @@ void DMA_PI_CopyToRDRAM()
 
 			OnCopiedRom();
 		}
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		else
 		{
 			// Paper Mario
 			DBGConsole_Msg(0, "[YReading from Cart domain 1/addr3]");
 		}
+#endif
 	}
 
 	Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
@@ -306,9 +312,9 @@ void DMA_PI_CopyFromRDRAM()
 	u32 mem_address  = Memory_PI_GetRegister(PI_DRAM_ADDR_REG) & 0xFFFFFFFF;
 	u32 cart_address = Memory_PI_GetRegister(PI_CART_ADDR_REG)  & 0xFFFFFFFF;
 	u32 pi_length_reg = (Memory_PI_GetRegister(PI_RD_LEN_REG)  & 0xFFFFFFFF) + 1;
-
+#ifdef DAEDLAUS_DEBUG
 	DPF(DEBUG_MEMORY_PI, "PI: Copying %d bytes of data from 0x%08x to 0x%08x", pi_length_reg, mem_address, cart_address );
-
+#endif
 	/*
 	if(pi_length_reg & 0x1)
 	{
@@ -327,9 +333,9 @@ void DMA_PI_CopyFromRDRAM()
 		u8 *	p_dst( (u8 *)g_pMemoryBuffers[MEM_SAVE] );
 		u32		dst_size( MemoryRegionSizes[MEM_SAVE] );
 		cart_address -= PI_DOM2_ADDR2;
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "[YWriting to Cart domain 2/addr2 0x%08x]", cart_address);
-
+#endif
 		if (g_ROM.settings.SaveType != SAVE_TYPE_FLASH)
 			DMA_HandleTransfer( p_dst, cart_address, dst_size, g_pu8RamBase, mem_address, gRamSize, pi_length_reg );
 		else
@@ -337,11 +343,12 @@ void DMA_PI_CopyFromRDRAM()
 
 		Save_MarkSaveDirty();
 	}
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	else
 	{
 		DBGConsole_Msg(0, "[YUnknown PI Address 0x%08x]", cart_address);
 	}
-
+#endif
 	Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_PI);
 	R4300_Interrupt_UpdateCause3();

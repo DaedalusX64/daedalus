@@ -35,8 +35,9 @@ void TLBEntry::UpdateValue(u32 _pagemask, u32 _hi, u32 _pfno, u32 _pfne)
 	// The TLB entry is loaded with the contents of the EntryHi and EntryLo regs.
 
 	// TLB[INDEX] <- PageMask || (EntryHi AND NOT PageMask) || EntryLo1 || EntryLo0
-	DPF( DEBUG_TLB, "PAGEMASK: 0x%08x ENTRYHI: 0x%08x. ENTRYLO1: 0x%08x. ENTRYLO0: 0x%08x", _pagemask, _hi, _pfno, _pfne);
-
+#ifdef DAEDALUS_ENABLE_PROFILING
+    DPF( DEBUG_TLB, "PAGEMASK: 0x%08x ENTRYHI: 0x%08x. ENTRYLO1: 0x%08x. ENTRYLO0: 0x%08x", _pagemask, _hi, _pfno, _pfne);
+#endif
 	pagemask = _pagemask;
 	hi = _hi;
 	pfne = _pfne;

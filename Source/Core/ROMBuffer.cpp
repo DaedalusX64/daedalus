@@ -187,13 +187,17 @@ bool RomBuffer::Open()
 	ROMFile *    p_rom_file = ROMFile::Create( filename );
 	if(p_rom_file == NULL)
 	{
+        #ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "Failed to create [C%s]\n", filename);
+#endif
 		return false;
 	}
 
 	if( !p_rom_file->Open( messages ) )
 	{
+        #ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "Failed to open [C%s]\n", filename);
+#endif
 		delete p_rom_file;
 		return false;
 	}
@@ -209,7 +213,9 @@ bool RomBuffer::Open()
 #ifndef DAEDALUS_PSP
 		if( !p_rom_file->LoadData( sRomSize, p_bytes, messages ) )
 		{
+            #ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "Failed to load [C%s]\n", filename);
+#endif
 			CROMFileMemory::Get()->Free( p_bytes );
 			delete p_rom_file;
 			return false;
@@ -258,6 +264,7 @@ bool RomBuffer::Open()
 			if(compressed)// || byteswapped)
 			{
 				const char * temp_filename( "daedrom.tmp" );
+                #ifdef DAEDALUS_DEBUG_CONSOLE
 				if(compressed && byteswapped)
 				{
 					DBGConsole_Msg( 0, "Rom is [Mcompressed] and [Mbyteswapped]" );
@@ -271,24 +278,28 @@ bool RomBuffer::Open()
 					DBGConsole_Msg( 0, "Rom is [Mbyteswapped]" );
 				}
 				DBGConsole_Msg( 0, "Decompressing rom to [C%s] (this may take some time)", temp_filename );
-
+#endif
 				CNullOutputStream		local_messages;
 
 				ROMFile * p_new_file = DecompressRom( p_rom_file, temp_filename, local_messages );
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 				DBGConsole_Msg( 0, "messages:\n%s", local_messages.c_str() );
-
+#endif
 				messages << local_messages;
 
 				if(p_new_file != NULL)
 				{
+#ifdef DAEDALUS_DEBUG_CONSOLE
 					DBGConsole_Msg( 0, "Decompression [gsuccessful]. Booting using decompressed rom" );
+#endif
 					delete p_rom_file;
 					p_rom_file = p_new_file;
 				}
 				else
 				{
+                    #ifdef DAEDALUS_DEBUG_CONSOLE
 					DBGConsole_Msg( 0, "Decompression [rfailed]. Booting using original rom" );
+#endif
 				}
 			}
 		}
@@ -297,8 +308,9 @@ bool RomBuffer::Open()
 		spRomFileCache->Open( p_rom_file );
 		sRomFixed = false;
 	}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Opened [C%s]\n", filename);
+#endif
 	sRomLoaded = true;
 	return true;
 }
@@ -367,9 +379,9 @@ namespace
 			u32		offset_into_chunk( src_offset - chunk_offset );
 			u32		bytes_remaining_in_chunk( chunk_size - offset_into_chunk );
 			u32		bytes_this_pass( Min( length, bytes_remaining_in_chunk ) );
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( s32( bytes_this_pass ) > 0, "How come we're trying to copy <= 0 bytes across?" );
-
+#endif
 			// Copy this chunk across
 			memcpy( p_dst + dst_offset, p_chunk_base + offset_into_chunk, bytes_this_pass );
 
@@ -392,8 +404,9 @@ void	RomBuffer::GetRomBytesRaw( void * p_dst, u32 rom_start, u32 length )
 	}
 	else
 	{
+#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( spRomFileCache != NULL, "How come we have no file cache?" );
-
+#endif
 		CopyBytesRaw( spRomFileCache, reinterpret_cast< u8 * >( p_dst ), rom_start, length );
 	}
 }
@@ -403,7 +416,9 @@ void	RomBuffer::GetRomBytesRaw( void * p_dst, u32 rom_start, u32 length )
 //*****************************************************************************
 void	RomBuffer::PutRomBytesRaw( u32 rom_start, const void * p_src, u32 length )
 {
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( IsRomAddressFixed(), "Cannot put rom bytes when the data isn't fixed" );
+#endif
 
 	memcpy( (u8*)spRomData + rom_start, p_src, length );
 
@@ -422,9 +437,10 @@ void * RomBuffer::GetAddressRaw( u32 rom_start )
 		}
 		else
 		{
+    #ifdef DAEDALUS_ENABLE_ASSERTS
 			// Read the cached bytes into our scratch buffer, and return that
 			DAEDALUS_ASSERT( spRomFileCache != NULL, "How come we have no file cache?" );
-
+#endif
 			CopyBytesRaw( spRomFileCache, sScratchBuffer, rom_start, SCRATCH_BUFFER_LENGTH );
 
 			return sScratchBuffer;
@@ -494,9 +510,10 @@ bool RomBuffer::IsRomAddressFixed()
 //*****************************************************************************
 const void * RomBuffer::GetFixedRomBaseAddress()
 {
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( IsRomLoaded(), "The rom isn't loaded" );
-	DAEDALUS_ASSERT( IsRomAddressFixed(), "Trying to access the rom base address when it's not fixed" );
-
+    DAEDALUS_ASSERT( IsRomAddressFixed(), "Trying to access the rom base address when it's not fixed" );
+#endif
 	return spRomData;
 
 }

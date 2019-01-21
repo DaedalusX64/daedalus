@@ -78,20 +78,21 @@ template< bool TranslateOp > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 		}
 	}
 #endif
-
+#ifdef DAEDALUS_ENABLE_SYNCHRONISATION
 	SYNCH_POINT( DAED_SYNC_REG_PC, gCPUState.CurrentPC, "Program Counter doesn't match" );
 	SYNCH_POINT( DAED_SYNC_FRAGMENT_PC, gCPUState.CurrentPC + gCPUState.Delay, "Program Counter/Delay doesn't match while interpreting" );
 
 	SYNCH_POINT( DAED_SYNC_REG_PC, gCPUState.CPUControl[C0_COUNT]._u32, "Count doesn't match" );
-
+#endif
 	R4300_ExecuteInstruction(op_code);
 	gGPR[0]._u64 = 0;	//Ensure r0 is zero
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
 		gTotalInstructionsEmulated++;
 #endif
-
-	SYNCH_POINT( DAED_SYNC_REGS, CPU_ProduceRegisterHash(), "Registers don't match" );
+#ifdef DAEDALUS_ENABLE_SYNCHRONISATION
+    SYNCH_POINT( DAED_SYNC_REGS, CPU_ProduceRegisterHash(), "Registers don't match" );
+#endif
 
 	// Increment count register
 	gCPUState.CPUControl[C0_COUNT]._u32 = gCPUState.CPUControl[C0_COUNT]._u32 + COUNTER_INCREMENT_PER_OP;
@@ -136,8 +137,9 @@ template< bool TranslateOp > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 //*****************************************************************************
 void CPU_Go()
 {
+    #ifdef DAEDALUS_ENABLE_PROFILING
 	DAEDALUS_PROFILE( __FUNCTION__ );
-
+#endif
 	while (CPU_KeepRunning())
 	{
 		//
@@ -167,11 +169,15 @@ void Inter_SelectCore()
 //*****************************************************************************
 void CPU_Skip()
 {
+    #ifdef DAEDALUS_DEBUG_CONSOLE
 	if (CPU_IsRunning())
 	{
+
 		DBGConsole_Msg(0, "Already Running");
-		return;
+
+        return;
 	}
+    #endif
 
 	INCREMENT_PC();
 }
@@ -181,11 +187,14 @@ void CPU_Skip()
 //*****************************************************************************
 void CPU_Step()
 {
-	if (CPU_IsRunning())
+#ifdef DAEDALUS_DEBUG_CONSOLE
+    if (CPU_IsRunning())
 	{
+
 		DBGConsole_Msg(0, "Already Running");
 		return;
 	}
+#endif
 
 	CPU_CheckStuffToDo();
 
