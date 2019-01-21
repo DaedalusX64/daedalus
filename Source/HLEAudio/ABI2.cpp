@@ -504,7 +504,9 @@ static void INTERLEAVE2( AudioHLECommand command )  // Needs accuracy verificati
 // XXXX Doesn't seem to do anything!
 static void ADDMIXER( AudioHLECommand command )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "ADDMIXER - broken?" );
+	#endif
 	/*u32 Count     = (command.cmd0 >> 12) & 0x00ff0;
 	u32 InBuffer  = (command.cmd1 >> 16);
 	u32 OutBuffer = command.cmd1 & 0xffff;

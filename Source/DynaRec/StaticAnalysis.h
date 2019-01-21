@@ -111,7 +111,7 @@ namespace StaticAnalysis
 			RegBase = (1<<b.Reg);
 		}
 
-		inline void	BranchOP(ER4300BranchType type)	
+		inline void	BranchOP(ER4300BranchType type)
 		{
 			BranchType = type;
 		}
@@ -119,7 +119,9 @@ namespace StaticAnalysis
 		inline void		Access(u32 address)
 		{
 			Access8000 = ((address >> 23) == 0x100);
+			#ifdef DAEDLAUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT((address >= 0x80000000 && address < 0x80000000 + gRamSize) == Access8000, "Access8000 is inconsistent");
+			#endif
 		}
 
 	};

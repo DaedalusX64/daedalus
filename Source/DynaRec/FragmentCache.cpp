@@ -123,7 +123,9 @@ CFragment * CFragmentCache::LookupFragment( u32 address ) const
 //*************************************************************************************
 CFragment * CFragmentCache::LookupFragmentQ( u32 address ) const
 {
+	#ifdef DAEDALUS_ENABLE_PROFILING
 	DAEDALUS_PROFILE( "CFragmentCache::LookupFragmentQ" );
+	#endif
 #ifdef HASH_TABLE_STATS
 	static u32 hit=0, miss=0;
 #endif
@@ -185,7 +187,9 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 
 	SFragmentEntry				entry( fragment_address, NULL );
 	FragmentVec::iterator		it( std::lower_bound( mFragments.begin(), mFragments.end(), entry ) );
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( it == mFragments.end() || it->Address != fragment_address, "A fragment with this address already exists" );
+	#endif
 	entry.Fragment = p_fragment;
 	mFragments.insert( it, entry );
 
@@ -215,9 +219,9 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 	{
 		u32				target_address( it->Address );
 		CJumpLocation	jump( it->Jump );
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( jump.IsSet(), "No exit jump?" );
-
+#endif
 #ifdef DAEDALUS_DEBUG_DYNAREC
 		CFragment * p_fragment( LookupFragment( target_address ) );
 #else
@@ -227,7 +231,9 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 		{
 			PatchJumpLongAndFlush( jump, p_fragment->GetEntryTarget() );
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( mJumpMap.find( target_address ) == mJumpMap.end(), "Jump map still contains an entry for this" );
+			#endif
 		}
 		else if( target_address != u32(~0) )
 		{
@@ -422,11 +428,13 @@ void CFragmentCacheCoverage::ExtendCoverage( u32 address, u32 len )
 //*************************************************************************************
 bool CFragmentCacheCoverage::IsCovered( u32 address, u32 len ) const
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	if((address - BASE_ADDRESS) == 0)
 	{
 		DBGConsole_Msg( 0, "Cache coverage address is overlapping" );
 		return true;
 	}
+	#endif
 
 	u32 first_entry( AddressToIndex( address ) );
 	u32 last_entry( AddressToIndex( address + len ) );

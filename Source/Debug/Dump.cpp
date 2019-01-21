@@ -168,18 +168,21 @@ void Dump_Disassemble(u32 start, u32 end, const char * p_file_name)
 	}
 
 	u8 * p_base;
+    #ifdef DAEDALUS_DEBUG_CONSOLE
 	if (!Memory_GetInternalReadAddress(start, (void**)&p_base))
 	{
+
 		DBGConsole_Msg(0, "[Ydis: Invalid base 0x%08x]", start);
 		return;
 	}
+#endif
 
 	FILE * fp( fopen(file_path, "w") );
 	if (fp == NULL)
 		return;
-
+  #ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Disassembling from 0x%08x to 0x%08x ([C%s])", start, end, file_path);
-
+#endif
 	const OpCode * op_start( reinterpret_cast< const OpCode * >( p_base ) );
 	const OpCode * op_end(   reinterpret_cast< const OpCode * >( p_base + (end-start) ) );
 
@@ -243,14 +246,15 @@ void Dump_RSPDisassemble(const char * p_file_name)
 	u32 start = 0xa4000000;
 	u32 end = 0xa4002000;
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	if (!Memory_GetInternalReadAddress(start, (void**)&base))
 	{
 		DBGConsole_Msg(0, "[Yrdis: Invalid base 0x%08x]", start);
 		return;
 	}
-
+#endif
 	IO::Filename file_path;
-
+    
 	if (p_file_name == NULL || strlen(p_file_name) == 0)
 	{
 		Dump_GetDumpDirectory(file_path, "");
@@ -260,9 +264,10 @@ void Dump_RSPDisassemble(const char * p_file_name)
 	{
 		IO::Path::Assign(file_path, p_file_name);
 	}
+#ifdef DAEDALUS_DEBUG_CONSOLE
 
 	DBGConsole_Msg(0, "Disassembling from 0x%08x to 0x%08x ([C%s])", start, end, file_path);
-
+#endif
 	FILE * fp( fopen(file_path, "w") );
 	if (fp == NULL)
 		return;
@@ -301,9 +306,9 @@ void Dump_Strings( const char * p_file_name )
 	{
 		IO::Path::Assign(file_path, p_file_name);
 	}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Dumping strings in rom ([C%s])", file_path);
-
+#endif
 	// Overwrite here
 	fp = fopen(file_path, "w");
 	if (fp == NULL)

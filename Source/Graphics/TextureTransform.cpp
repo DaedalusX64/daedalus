@@ -68,16 +68,19 @@ void Recolour( void * data, void * palette, u32 width, u32 height, u32 stride, E
 	case TexFmt_CI4_8888:	RecolourPalette< NativePf8888 >( palette, 16, colour );					return;
 	case TexFmt_CI8_8888:	RecolourPalette< NativePf8888 >( palette, 256, colour );				return;
 	}
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled texture format" );
+	#endif
 }
 
 template< typename T >
 static void ClampTexels( void * texels, u32 n64_width, u32 n64_height, u32 native_width, u32 native_height, u32 native_stride )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( native_stride >= native_width * sizeof( T ), "Native stride isn't big enough" );
 	DAEDALUS_ASSERT( n64_width <= native_width, "n64 width greater than native width?" );
 	DAEDALUS_ASSERT( n64_height <= native_height, "n64 height greater than native height?" );
-
+#endif
 	T * data = reinterpret_cast< T * >( texels );
 
 	//
@@ -190,7 +193,9 @@ void ClampTexels( void * texels, u32 n64_width, u32 n64_height, u32 native_width
 	case TexFmt_CI4_8888:	ClampTexels< NativePfCI44 >( texels, n64_width, n64_height, native_width, native_height, native_stride ); return;
 	case TexFmt_CI8_8888:	ClampTexels< NativePfCI8 > ( texels, n64_width, n64_height, native_width, native_height, native_stride ); return;
 	}
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled texture format" );
+	#endif
 }
 
 
@@ -235,7 +240,9 @@ void CopyRowReverse( NativePfCI44 * dst, const NativePfCI44 * src, u32 pixels )
 	if( pixels & 1 )
 	{
 		// Odd
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "MirrorS unsupported for odd-width CI4 textures" );
+		#endif
 	}
 	else
 	{
@@ -312,8 +319,9 @@ static void MirrorTexels( void * dst, u32 dst_stride, const void * src, u32 src_
 	case TexFmt_CI4_8888:	MirrorTexelsST< NativePfCI44, MirrorS, MirrorT >( dst, dst_stride, src, src_stride, width, height ); handled = true; break;
 	case TexFmt_CI8_8888:	MirrorTexelsST< NativePfCI8 , MirrorS, MirrorT >( dst, dst_stride, src, src_stride, width, height ); handled = true; break;
 	}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ASSERT( handled, "Unhandled format" );
+	#endif
 }
 
 void MirrorTexels( bool mirror_s, bool mirror_t,

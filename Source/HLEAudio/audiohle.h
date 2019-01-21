@@ -392,8 +392,9 @@ struct AudioHLECommand
 		};
 	};
 };
+#ifdef DAEDALUS_ENABLE_ASSERTS
 DAEDALUS_STATIC_ASSERT( sizeof( AudioHLECommand ) == 8 );
-
+#endif
 typedef void ( * AudioHLEInstruction )( AudioHLECommand command );
 
 // These must be defined...

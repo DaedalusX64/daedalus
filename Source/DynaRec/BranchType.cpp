@@ -254,8 +254,9 @@ ER4300BranchType	GetInverseBranch( ER4300BranchType type )
 
 u32 GetBranchTarget( u32 address, OpCode op_code, ER4300BranchType type )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
-
+#endif
 	// We pass the type in for efficiency - check that it's correct in debug though
 	// This already checked
 	//DAEDALUS_ASSERT( GetBranchType( op_code ) == type, "Specified type is inconsistant with op code" );
@@ -274,4 +275,3 @@ u32 GetBranchTarget( u32 address, OpCode op_code, ER4300BranchType type )
 	// These are all indirect
 	return  0;
 }
-
