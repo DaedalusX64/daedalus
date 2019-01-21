@@ -76,6 +76,7 @@ struct DaedalusVtx
     v3		Position;
 };
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 DAEDALUS_STATIC_ASSERT( sizeof(DaedalusVtx) == 24 );
-
+#endif
 #endif // HLEGRAPHICS_DAEDALUSVTX_H_

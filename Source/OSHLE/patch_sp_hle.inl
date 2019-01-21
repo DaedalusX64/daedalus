@@ -38,8 +38,9 @@ TEST_DISABLE_SP_FUNCS
 		VAddr, PAddr,
 		len);
 	*/
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( !IsSpDeviceBusy(), "Sp Device is BUSY, Need to handle!");
+#endif
 	/*
 	if (IsSpDeviceBusy())
 	{
@@ -50,7 +51,9 @@ TEST_DISABLE_SP_FUNCS
 	u32 PAddr = ConvertToPhysics(VAddr);
 
 	//FIXME
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( PAddr,"Address Translation necessary!");
+#endif
 
 	Memory_SP_SetRegister( SP_MEM_ADDR_REG, SPAddr);
 	Memory_SP_SetRegister( SP_DRAM_ADDR_REG, PAddr);
@@ -70,6 +73,7 @@ TEST_DISABLE_SP_FUNCS
 		DMA_SP_CopyFromRDRAM();
 	}
 
+	
 	gGPR[REG_v0]._s64 = 0;
 
 	return PATCH_RET_JR_RA;
@@ -81,7 +85,7 @@ TEST_DISABLE_SP_FUNCS
 u32 Patch___osSpDeviceBusy_Mario()
 {
 TEST_DISABLE_SP_FUNCS
-	
+
 	gGPR[REG_v0]._s64 = (s64)IsSpDeviceBusy();
 
 	return PATCH_RET_JR_RA;
@@ -195,8 +199,10 @@ TEST_DISABLE_SP_FUNCS
 		// We'd have to loop, and we can't do this...
 		return PATCH_RET_NOT_PROCESSED;
 	}*/
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( (SpGetStatus() & SP_STATUS_HALT), "Sp Device is not HALTED, Need to handle!");
 	DAEDALUS_ASSERT( !IsSpDeviceBusy(), "Sp Device is BUSY, Need to handle!");
+#endif
 
 	u32 temp = VAR_ADDRESS(osSpTaskLoadTempTask);
 	OSTask * pSrcTask = (OSTask *)ReadAddress(task);
@@ -275,7 +281,9 @@ TEST_DISABLE_SP_FUNCS
 u32 Patch_osSpTaskStartGo()
 {
 TEST_DISABLE_SP_FUNCS
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( !IsSpDeviceBusy(), "Sp Device is BUSY, Need to handle!");
+#endif
 	/*
 	if (IsSpDeviceBusy())	// Device busy?
 	{

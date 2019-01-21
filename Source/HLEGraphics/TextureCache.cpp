@@ -169,8 +169,9 @@ public:
 // Otherwise, create surfaces, and load texture into memory
 CachedTexture * CTextureCache::GetOrCreateCachedTexture(const TextureInfo & ti)
 {
+	#ifdef DAEDALUS_ENABLE_PROFILING
 	DAEDALUS_PROFILE( "CTextureCache::GetOrCreateCachedTexture" );
-
+#endif
 	// NB: this is a no-op in normal builds.
 	MutexLock lock(GetDebugMutex());
 

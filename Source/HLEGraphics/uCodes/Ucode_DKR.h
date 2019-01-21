@@ -100,8 +100,9 @@ void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 	}
 
 	v0_idx = ((command.inst.cmd0 >> 9) & 0x1F) + gDKRVtxCount;
+	#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    Address[0x%08x] v0[%d] Num[%d]", address, v0_idx, num_verts);
-
+#endif
 	gRenderer->SetNewVertexInfoDKR(address, v0_idx, num_verts, gDKRBillBoard);
 
 	gDKRVtxCount += num_verts;
@@ -121,10 +122,11 @@ void DLParser_DLInMem( MicroCodeCommand command )
 	gDlistStackPointer++;
 	gDlistStack.address[gDlistStackPointer] = command.inst.cmd1;
 	gDlistStack.limit = (command.inst.cmd0 >> 16) & 0xFF;
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    Address=0x%08x %s", command.inst.cmd1, (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
 	DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
 	DL_PF("    ############################################");
+	#endif
 }
 
 //*****************************************************************************
@@ -162,15 +164,19 @@ void DLParser_MoveWord_DKR( MicroCodeCommand command )
 	{
 	case G_MW_NUMLIGHT:
 		gDKRBillBoard = command.inst.cmd1 & 0x1;
+		#ifdef DAEDALUS_ENABLE_PROFILING
 		DL_PF("    DKR BillBoard: %d", gDKRBillBoard);
+		#endif
 		break;
 
 	case G_MW_LIGHTCOL:
 		{
 		u32 idx = (command.inst.cmd1 >> 6) & 0x3;
 		gRenderer->DKRMtxChanged( idx );
+		#ifdef DAEDALUS_ENABLE_PROFILING
 		DL_PF("    DKR MtxIdx: %d", idx);
-		}
+#endif
+}
 		break;
 
 	default:
@@ -226,13 +232,13 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 		//	//	gRenderer->SetCullMode( true, false );
 		//	//}
 		//}
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 		DL_PF("    Index[%d %d %d] Cull[%s] uv_TexCoord[%0.2f|%0.2f] [%0.2f|%0.2f] [%0.2f|%0.2f]",
 			v0_idx, v1_idx, v2_idx, !(tri->flag & 0x40)? "On":"Off",
 			(f32)tri->s0/32.0f, (f32)tri->t0/32.0f,
 			(f32)tri->s1/32.0f, (f32)tri->t1/32.0f,
 			(f32)tri->s2/32.0f, (f32)tri->t2/32.0f);
-
+#endif
 #if 1	//1->Fixes texture scaling, 0->Render as is and get some texture scaling errors
 		//
 		// This will create problem since some verts will get re-used and over-write new texture coords before previous has been rendered
@@ -284,17 +290,18 @@ void DLParser_GBI1_Texture_DKR( MicroCodeCommand command )
 	// Seems to use 0x01
 	// Force enable texture in DKR Ucode, fixes static texture bug etc
     bool enable = true;
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    Level[%d] Tile[%d] %s", command.texture.level, tile, enable? "enable":"disable");
-
+#endif
 	gRenderer->SetTextureTile( tile);
 	gRenderer->SetTextureEnable( enable);
 
 	f32 scale_s = f32(command.texture.scaleS)  / (65535.0f * 32.0f);
 	f32 scale_t = f32(command.texture.scaleT)  / (65535.0f * 32.0f);
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    ScaleS[%0.4f] ScaleT[%0.4f]", scale_s*32.0f, scale_t*32.0f);
 	gRenderer->SetTextureScale( scale_s, scale_t );
+#endif
 }
 
 #endif // HLEGRAPHICS_UCODES_UCODE_DKR_H_

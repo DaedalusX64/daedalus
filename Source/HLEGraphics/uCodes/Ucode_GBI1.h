@@ -38,14 +38,18 @@ void DLParser_GBI1_Vtx( MicroCodeCommand command )
 	u32 addr = RDPSegAddr(command.vtx1.addr);
 	u32 v0   = command.vtx1.v0;
 	u32 n    = command.vtx1.n;
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    Address 0x%08x, v0: %d, Num: %d, Length: 0x%04x", addr, v0, n, command.vtx1.len);
+	#endif
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( (v0 + n) <= 64, "Warning, attempting to load into invalid vertex positions");
-
+#endif
 	// Wetrix
 	if ( addr > MAX_RAM_ADDRESS )
 	{
+#ifdef DAEDALUS_ENABLE_PROFILING
 		DL_PF("     Address out of range - ignoring load");
+#endif
 		return;
 	}
 
@@ -69,7 +73,9 @@ void DLParser_GBI1_ModifyVtx( MicroCodeCommand command )
 	// Cures crash after swinging in Mario Golf
 	if( vert > 80 )
 	{
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR("ModifyVtx: Invalid vertex number: %d", vert);
+		#endif
 		return;
 	}
 
@@ -82,13 +88,13 @@ void DLParser_GBI1_ModifyVtx( MicroCodeCommand command )
 void DLParser_GBI1_Mtx( MicroCodeCommand command )
 {
 	u32 address = RDPSegAddr(command.mtx1.addr);
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    Command: %s %s %s Length %d Address 0x%08x",
 		command.mtx1.projection == 1 ? "Projection" : "ModelView",
 		command.mtx1.load == 1 ? "Load" : "Mul",
 		command.mtx1.push == 1 ? "Push" : "NoPush",
 		command.mtx1.len, address);
-
+#endif
 	// Load matrix from address
 	if (command.mtx1.projection)
 	{
@@ -105,8 +111,9 @@ void DLParser_GBI1_Mtx( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_PopMtx( MicroCodeCommand command )
 {
+	#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    Command: (%s)",	command.inst.cmd1 ? "Projection" : "ModelView");
-
+#endif
 	// Do any of the other bits do anything?
 	// So far only Extreme-G seems to Push/Pop projection matrices
 	// Can't pop projection matrix
@@ -126,7 +133,9 @@ void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 	{
 		case G_MV_VIEWPORT:
 			{
+				#ifdef DAEDALUS_ENABLE_PROFILING
 				DL_PF("    G_MV_VIEWPORT. Address: 0x%08x", address);
+				#endif
 				RDP_MoveMemViewport( address );
 			}
 			break;
@@ -148,7 +157,9 @@ void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 
 		case G_MV_MATRIX_1:
 			{
+				#ifdef DAEDALUS_ENABLE_PROFILING
 				DL_PF("		Force Matrix(1): addr=%08X", address);
+				#endif
 				// Rayman 2, Donald Duck, Tarzan, all wrestling games use this
 				gRenderer->ForceMatrix( address );
 				// ForceMatrix takes four cmds
@@ -173,11 +184,16 @@ void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 			DL_PF("    G_MV_TXTATT");
 			break;
 */
+				#ifdef DAEDALUS_ENABLE_PROFILING
 		default:
 			{
+
 				DL_PF("    GBI1 MoveMem Type: Ignored!!");
+
 			}
+
 			break;
+										#endif
 	}
 }
 
@@ -194,16 +210,20 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 	{
 	case G_MW_MATRIX:
 		{
+			#ifdef DAEDALUS_ENABLE_PROFILING
 			DL_PF("    G_MW_MATRIX(1)");
+				#endif
 			gRenderer->InsertMatrix(command.inst.cmd0, command.inst.cmd1);
+
 		}
 		break;
 
 	case G_MW_NUMLIGHT:
 		{
 			u32 num_lights = ((value - 0x80000000) >> 5) - 1;
-
+			#ifdef DAEDALUS_ENABLE_PROFILING
 			DL_PF("    G_MW_NUMLIGHT: Val:%d", num_lights);
+			#endif
 			gRenderer->SetNumLights(num_lights);
 
 		}
@@ -218,14 +238,16 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 	case G_MW_SEGMENT:
 		{
 			u32 segment = (offset >> 2) & 0xF;
+						#ifdef DAEDALUS_ENABLE_PROFILING
 			DL_PF("    G_MW_SEGMENT Seg[%d] = 0x%08x", segment, value);
+			#endif
 			gSegments[segment] = value;
 		}
 		break;
 
 	case G_MW_FOG:	// WIP, only works for the PSP
 		{
-#ifdef DAEDALUS_PSP			
+#ifdef DAEDALUS_PSP
 			f32 mul = (f32)(s16)(value >> 16);	//Fog mult
 			f32 offs = (f32)(s16)(value & 0xFFFF);	//Fog Offset
 
@@ -251,9 +273,9 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 		{
 			u32 field_offset = (offset & 0x7);
 			u32 light_idx = offset >> 5;
-
+			#ifdef DAEDALUS_ENABLE_PROFILING
 			DL_PF("    G_MW_LIGHTCOL/0x%08x: 0x%08x", offset, value);
-
+#endif
 			if (field_offset == 0)
 			{
 				// Light col
@@ -267,7 +289,9 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 
 	case G_MW_POINTS:	// Used in FIFA 98
 		{
+						#ifdef DAEDALUS_ENABLE_PROFILING
 			DL_PF("    G_MW_POINTS");
+			#endif
 			gRenderer->ModifyVertexInfo( (offset % 40), (offset / 40), value);
 		}
 		break;
@@ -276,11 +300,15 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 		DL_PF("    G_MW_PERSPNORM");
 		break;
 */
+
 	default:
 		{
+						#ifdef DAEDALUS_ENABLE_PROFILING
 			DL_PF("    GBI1 MoveWord Type: Ignored!!");
+					#endif
 		}
 		break;
+
 	}
 }
 
@@ -291,22 +319,24 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 {
 	u32 first = command.culldl.first;
 	u32 last = command.culldl.end;
-
+			#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    Culling using verts %d to %d\n", first, last);
-
+#endif
 	if( last < first ) return;
 	if( gRenderer->TestVerts( first, last ) )
 	{
+					#ifdef DAEDALUS_ENABLE_PROFILING
 		DL_PF("    Display list is visible, returning");
+		#endif
 		return;
 	}
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++gNumDListsCulled;
 #endif
-
+			#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    No vertices were visible, culling rest of display list");
-
+#endif
 	DLParser_PopDL();
 }
 
@@ -360,9 +390,9 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 	if( gRenderer->GetVtxDepth(command.branchz.vtx) <= (s32)command.branchz.value )
 	{
 		u32 address = RDPSegAddr(gRDPHalf1);
-
+			#ifdef DAEDALUS_ENABLE_PROFILING
 		DL_PF("    Jump -> DisplayList 0x%08x", address);
-
+#endif
 		gDlistStack.address[gDlistStackPointer] = address;
 	}
 }
@@ -390,12 +420,16 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 	if(command.inst.cmd & 1)
 	{
 		gGeometryMode._u32 |= mask;
+					#ifdef DAEDALUS_ENABLE_PROFILING
 		DL_PF("    Setting mask -> 0x%08x", mask);
+		#endif
 	}
 	else
 	{
 		gGeometryMode._u32 &= ~mask;
+					#ifdef DAEDALUS_ENABLE_PROFILING
 		DL_PF("    Clearing mask -> 0x%08x", mask);
+		#endif
 	}
 
 	TnLMode TnL;
@@ -412,7 +446,7 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 	TnL.CullBack	= gGeometryMode.GBI1_CullBack;
 
 	gRenderer->SetTnLMode( TnL._u32 );
-
+			#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    ZBuffer %s",			 (gGeometryMode.GBI1_Zbuffer)		? "On" : "Off");
 	DL_PF("    Culling %s",			 (gGeometryMode.GBI1_CullBack)		? "Back face" : (gGeometryMode.GBI1_CullFront) ? "Front face" : "Off");
 	DL_PF("    Shade %s",			 (gGeometryMode.GBI1_Shade)			? "On" : "Off");
@@ -423,6 +457,7 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 	DL_PF("    Texture Gen Linear %s", (gGeometryMode.GBI1_TexGenLin)	? "On" : "Off");
 	DL_PF("    Fog %s",				 (gGeometryMode.GBI1_Fog)			? "On" : "Off");
 	DL_PF("    LOD %s",				 (gGeometryMode.GBI1_Lod)			? "On" : "Off");
+	#endif
 }
 
 //*****************************************************************************
@@ -458,16 +493,17 @@ void DLParser_GBI1_SetOtherModeH( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_Texture( MicroCodeCommand command )
 {
-
+			#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    Level[%d] Tile[%d] %s", command.texture.level, command.texture.tile, command.texture.enable_gbi0? "enable":"disable");
-
+#endif
 	gRenderer->SetTextureTile( command.texture.tile);
 	gRenderer->SetTextureEnable( command.texture.enable_gbi0);
 
 	f32 scale_s = f32(command.texture.scaleS)  / (65535.0f * 32.0f);
 	f32 scale_t = f32(command.texture.scaleT)  / (65535.0f * 32.0f);
-
+			#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    ScaleS[%0.4f] ScaleT[%0.4f]", scale_s*32.0f, scale_t*32.0f);
+	#endif
 	gRenderer->SetTextureScale( scale_s, scale_t );
 }
 
@@ -477,7 +513,9 @@ void DLParser_GBI1_Texture( MicroCodeCommand command )
 void DLParser_GBI1_Reserved( MicroCodeCommand command )
 {
 	// Not implemented!
+				#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_UNIMPLEMENTED_ERROR( "RDP: Reserved" );
+	#endif
 }
 
 //*****************************************************************************
@@ -568,7 +606,9 @@ void DLParser_GBI1_Line3D( MicroCodeCommand command )
 	{
 		// This removes the tris that cover the screen in Flying Dragon
 		// Actually this wrong, we should support line3D properly here..
+					#ifdef DAEDALUS_ENABLE_PROFILING
 		DAEDALUS_ERROR("Flying Dragon Hack -- Skipping Line3D");
+		#endif
 		return;
 	}
 

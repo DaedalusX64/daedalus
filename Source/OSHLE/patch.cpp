@@ -309,7 +309,7 @@ void Patch_DumpOsThreadInfo()
 		// Hack to avoid null thread
 		if (dwPri == 0xFFFFFFFF)
 			break;
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		if (dwThread == dwCurrentThread)
 		{
 			DBGConsole_Msg(0, "->0x%08x, % 4d, 0x%08x, 0x%04x, 0x%04x, 0x%08x, 0x%08x",
@@ -321,7 +321,7 @@ void Patch_DumpOsThreadInfo()
 				dwThread, dwPri, dwQueue, wState, wFlags, dwID, dwFP);
 		}
 		dwThread = Read32Bits(dwThread + offsetof(OSThread, tlnext));
-
+#endif
 		if (dwThread == dwFirstThread)
 			break;
 	}
@@ -342,10 +342,11 @@ void Patch_DumpOsQueueInfo()
 	u32 dwMsgCount;
 	u32 dwMsg;
 
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "There are %d Queues", g_MessageQueues.size());
 	  DBGConsole_Msg(0, "Queues:   Empty     Full      Valid First MsgCount Msg");
 	//DBGConsole_Msg(0, "01234567, 01234567, 01234567, xxxx, xxxx, xxxx, 01234567",
+#endif
 	for (i = 0; i <	g_MessageQueues.size(); i++)
 	{
 		char fullqueue_buffer[30];
@@ -403,8 +404,10 @@ void Patch_DumpOsQueueInfo()
 				}
 			}
 		}
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "%08x, %s, %s, % 4d, % 4d, % 4d, %08x %s",
 			dwQueue, emptyqueue_buffer, fullqueue_buffer, dwValidCount, dwFirst, dwMsgCount, dwMsg, type_buffer);
+#endif
 	}
 #endif
 }
@@ -417,19 +420,23 @@ void Patch_DumpOsEventInfo()
 
 	if (!VAR_FOUND(osEventMesgArray))
 	{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "osSetEventMesg not patched, event table unknown");
+		#endif
 		return;
 	}
-
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "");
 	DBGConsole_Msg(0, "Events:                      Queue      Message");
+	#endif
 	for (u32 i = 0; i <	23; i++)
 	{
 		dwQueue = Read32Bits(VAR_ADDRESS(osEventMesgArray) + (i * 8) + 0x0);
 		dwMsg   = Read32Bits(VAR_ADDRESS(osEventMesgArray) + (i * 8) + 0x4);
-
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "  %-26s 0x%08x 0x%08x",
 			gEventStrings[i], dwQueue, dwMsg);
+			#endif
 	}
 }
 
@@ -492,9 +499,9 @@ void Patch_RecurseAndFind()
 	s32 nFound;
 	u32 first;
 	u32 last;
-
+#ifdef DAEDLAUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Searching for os functions. This may take several seconds...");
-
+#endif
 	// Keep looping until a pass does not resolve any more symbols
 	nFound = 0;
 
@@ -576,10 +583,11 @@ void Patch_RecurseAndFind()
 					(g_PatchSymbols[i]->Location ==
 					 g_PatchSymbols[j]->Location))
 				{
+						#ifdef DAEDALUS_DEBUG_CONSOLE
 						DBGConsole_Msg(0, "Warning [C%s==%s]",
 							g_PatchSymbols[i]->Name,
 							g_PatchSymbols[j]->Name);
-
+#endif
 					// Don't patch!
 					g_PatchSymbols[i]->Found = false;
 					g_PatchSymbols[j]->Found = false;
@@ -591,8 +599,10 @@ void Patch_RecurseAndFind()
 			//
 			if( Patch_Hacks(g_PatchSymbols[i]) )
 			{
+					#ifdef DAEDALUS_DEBUG_CONSOLE
 				DBGConsole_Msg(0, "[ROS Hack : Disabling %s]", g_PatchSymbols[i]->Name);
 				g_PatchSymbols[i]->Found = false;
+				#endif
 			}
 
 			if (!found_duplicate)
@@ -640,9 +650,11 @@ void Patch_RecurseAndFind()
 					(g_PatchVariables[i]->Location ==
 					 g_PatchVariables[j]->Location))
 				{
+						#ifdef DAEDALUS_DEBUG_CONSOLE
 						DBGConsole_Msg(0, "Warning [C%s==%s]",
 							g_PatchVariables[i]->Name,
 							g_PatchVariables[j]->Name);
+							#endif
 				}
 			}
 
@@ -941,8 +953,9 @@ static void Patch_FlushCache()
 	IO::Filename name;
 
 	Dump_GetSaveDirectory(name, g_ROM.mFileName, ".hle");
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Write OSHLE cache: %s", name);
-
+#endif
 	FILE *fp = fopen(name, "wb");
 
 	if (fp != NULL)
@@ -1001,7 +1014,9 @@ static bool Patch_GetCache()
 
 	if (fp != NULL)
 	{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "Read from OSHLE cache: %s", name);
+		#endif
 		u32 data;
 
 		fread(&data, 1, sizeof(data), fp);
@@ -1049,8 +1064,9 @@ static bool Patch_GetCache()
 
 static u32 RET_NOT_PROCESSED(PatchSymbol* ps)
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( ps != NULL, "Not Supported" );
-
+#endif
 	gCPUState.CurrentPC = PHYS_TO_K0(ps->Location);
 	//DBGConsole_Msg(0, "%s RET_NOT_PROCESSED PC=0x%08x RA=0x%08x", ps->Name, gCPUState.TargetPC, gGPR[REG_ra]._u32_0);
 
@@ -1061,7 +1077,9 @@ static u32 RET_NOT_PROCESSED(PatchSymbol* ps)
 	OpCode op_code;
 	op_code._u32 = Read32Bits(gCPUState.CurrentPC);
 	R4300_ExecuteInstruction(op_code);
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(gCPUState.Delay == NO_DELAY, "OS functions' first op is a JUMP??");
+#endif
 	INCREMENT_PC();
 	gCPUState.TargetPC = gCPUState.CurrentPC;
 
@@ -1099,8 +1117,9 @@ static u32 RET_JR_ERET()
 
 static u32 ConvertToPhysics(u32 addr)
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ASSERT(IS_K0K1(addr) == (IS_KSEG0(addr) | IS_KSEG1(addr)), "IS_K0K1 is inconsistent");
-
+#endif
 	if( IS_K0K1(addr) )
 	{
 		return K0_TO_PHYS(addr);	// Same as K1_TO_PHYS
@@ -1135,7 +1154,9 @@ extern void MemoryUpdateSPStatus( u32 flags );
 u32 Patch___osContAddressCrc()
 {
 TEST_DISABLE_FUNCS
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "__osContAddressCrc(0x%08x)", gGPR[REG_a0]._u32_0);
+	#endif
 	return PATCH_RET_NOT_PROCESSED;
 }
 

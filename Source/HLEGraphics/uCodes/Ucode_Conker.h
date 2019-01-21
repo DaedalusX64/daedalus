@@ -28,19 +28,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 void DLParser_Vtx_Conker( MicroCodeCommand command )
 {
+#ifdef DAEDALUS_ENABLE_PROFILING
 	if( g_CI.Format != G_IM_FMT_RGBA || (gRDPOtherMode.L == CONKER_SHADOW) )
 	{
 		DL_PF("    Skipping Conker TnL (Vtx -> Off-Screen/Shadow)");
 		return;
 	}
+	#endif
 
 	u32 address = RDPSegAddr(command.inst.cmd1);
 	u32 len    = ((command.inst.cmd0 >> 1 )& 0x7F) ;
 	u32 n      = ((command.inst.cmd0 >> 12)& 0xFF);
 	u32 v0		= len - n;
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    Address[0x%08x] Len[%d] v0[%d] Num[%d]", address, len, v0, n);
-
+#endif
 	gRenderer->SetNewVertexInfoConker( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -66,7 +68,9 @@ void DLParser_Tri1_Conker( MicroCodeCommand command )
 	{
 		do
 		{
+			#ifdef DAEDALUS_ENABLE_PROFILING
 			DL_PF("    Tri1 (Culled -> Off-Screen/Shadow)");
+			#endif
 			command.inst.cmd0 = *pCmdBase++;
 			command.inst.cmd1 = *pCmdBase++;
 			pc += 8;
@@ -115,7 +119,9 @@ void DLParser_Tri2_Conker( MicroCodeCommand command )
 	{
 		do
 		{
+			#ifdef DAEDALUS_ENABLE_PROFILING
 			DL_PF("    Tri2 (Culled -> Off-Screen/Shadow)");
+			#endif
 			command.inst.cmd0 = *pCmdBase++;
 			command.inst.cmd1 = *pCmdBase++;
 			pc += 8;
@@ -169,7 +175,9 @@ void DLParser_Tri4_Conker( MicroCodeCommand command )
 	{
 		do
 		{
+			#ifdef DAEDALUS_ENABLE_PROFILING
 			DL_PF("    Tri4 (Culled -> Off-Screen)");
+			#endif
 			command.inst.cmd0 = *(u32 *)(g_pu8RamBase + pc+0);
 			command.inst.cmd1 = *(u32 *)(g_pu8RamBase + pc+4);
 			pc += 8;
@@ -250,23 +258,26 @@ void DLParser_MoveMem_Conker( MicroCodeCommand command )
 		{
 			u32 offset2 = (command.inst.cmd0 >> 5) & 0x3FFF;
 			u32 light_idx = (offset2 / 48);
+			#ifdef DAEDALUS_ENABLE_PROFILING
 			if (light_idx < 2)
 			{
 				DL_PF("    G_MV_LOOKAT" );
 				return;
 			}
-
+#endif
 			light_idx -= 2;
 			N64Light *light = (N64Light*)(g_pu8RamBase + address);
 			RDP_MoveMemLight(light_idx, light);
-	
+
 			gRenderer->SetLightPosition( light_idx, light->x, light->y, light->z , light->w);
 			gRenderer->SetLightCBFD( light_idx, light->nonzero);
 		}
 		break;
+		#ifdef DAEDALUS_ENABLE_PROFILING
 	default:
 		DL_PF("    GBI2 MoveMem Type: Unknown");
 		break;
+		#endif
 	}
 }
 
@@ -282,8 +293,9 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 	case G_MW_NUMLIGHT:
 		{
 			u32 num_lights = command.inst.cmd1 / 48;
+			#ifdef DAEDALUS_ENABLE_PROFILING
 			DL_PF("    G_MW_NUMLIGHT: %d", num_lights);
-
+#endif
 			gRenderer->SetNumLights(num_lights);
 		}
 		break;
@@ -292,15 +304,18 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 		{
 			u16 offset = (u16)( command.inst.cmd0 & 0xFFFF);
 			u32 segment = (offset >> 2) & 0xF;
+			#ifdef DAEDALUS_ENABLE_PROFILING
 			DL_PF( "    G_MW_SEGMENT Segment[%d] = 0x%08x", segment, command.inst.cmd1 );
-
+#endif
 			gSegments[segment] = command.inst.cmd1;
 		}
 		break;
 
 	case 0x10:  // moveword coord mod
 	{
+		#ifdef DAEDALUS_ENABLE_PROFILING
 		DL_PF("     G_MoveWord_Conker: coord mod");
+		#endif
 		if ( (command.inst.cmd0 & 8) == 0 )
 		{
 			u32 idx = (command.inst.cmd0 >> 1) & 3;
@@ -326,9 +341,11 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 		}
 	}
 	break;
+	#ifdef DAEDALUS_ENABLE_PROFILING
 	default:
 		DL_PF("     G_MoveWord_Conker: Unknown");
 		break;
+		#endif
   }
 
 #else
@@ -341,8 +358,9 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 	else
 	{
 		u32 num_lights = command.inst.cmd1 / 48;
+		#ifdef DAEDALUS_ENABLE_PROFILING
 		DL_PF("    G_MW_NUMLIGHT: %d", num_lights);
-
+		#endif
 		gRenderer->SetNumLights(num_lights);
 	}
 #endif

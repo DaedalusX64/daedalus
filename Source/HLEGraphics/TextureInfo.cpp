@@ -45,9 +45,9 @@ u32 TextureInfo::GetSizeInBits() const
 u32 TextureInfo::GenerateHashValue() const
 {
 	//Rewritten to use less recources //Corn
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 	DAEDALUS_PROFILE( "TextureInfo::GenerateHashValue" );
-
+#endif
 	// If CRC checking is disabled, always return 0
 	if ( gCheckTextureHashFrequency == 0 ) return 0;
 
@@ -126,4 +126,3 @@ u32 TextureInfo::GenerateHashValue() const
 	//printf("%08X %d S%d P%d H%d W%d B%d\n", hash_value, step, Size, Pitch, Height, Width, Height * Pitch);
 	return hash_value;
 }
-

@@ -11,9 +11,9 @@ TEST_DISABLE_EEPROM_FUNCS
 
 	u32 ContStatus = gGPR[REG_a1]._u32_0;
 	u32 type, data;
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "osEepStatus(), ra = 0x%08x", (u32)gGPR[REG_ra]._s64);
-
+#endif
 	// Set up ContStatus values
 	switch(g_ROM.settings.SaveType)
 	{

@@ -103,7 +103,10 @@ TEST_DISABLE_TIMER_FUNCS
 	// This avoids using VAR_ADDRESS(osSystemTimeLo) which is NULL for Killer Instinct..
 	u8 * pTimeBase	 = (u8 *)ReadAddress(VAR_ADDRESS(osSystemTimeHi));
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Initialising Timer Services");
+	#endif
+	
 	QuickWrite32Bits(pTimeBase, 0x0, 0);	// TimeHi
 	QuickWrite32Bits(pTimeBase, 0x4, 0);	// TimeLo
 
