@@ -128,12 +128,10 @@ void  IVideoMemoryManager::Free(void * ptr)
 	{
 		mRamMemoryHeap->Free( ptr );
 	}
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 	else
 	{
 		DAEDALUS_ERROR( "Memory is not from any of our heaps" );
 	}
-	#endif
 }
 
 #ifdef DAEDALUS_DEBUG_MEMORY

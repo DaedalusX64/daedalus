@@ -102,7 +102,7 @@ static void RDP_DumpRSPData(char * name, u32 crc, u32 * mem_base, u32 pc_base, u
 //*****************************************************************************
 //
 //*****************************************************************************
-#if 0 || DAEDALUS_DEBUG_CONSOLE
+#if 0 
 static void	RSP_HLE_DumpTaskInfo( const OSTask * pTask )
 {
 	DBGConsole_Msg(0, "DP: Task:%08x Flags:%08x BootCode:%08x BootCodeSize:%08x",
