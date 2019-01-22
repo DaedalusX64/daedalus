@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef DAEDALUS_PSP
 #include "Graphics/GraphicsContext.h"
 #include "SysPSP/Graphics/intraFont/intraFont.h"
+#include "SysPSP/Utility/PSPModel.h"
+
 #endif
 
 #include "Math/MathUtil.h"
@@ -38,10 +40,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/ROMFileMemory.h"
 #include "Utility/Stream.h"
 #include "Utility/IO.h"
-
-#ifdef DAEDALUS_PSP
-extern bool PSP_IS_SLIM;
-#endif
 
 namespace
 {
@@ -61,7 +59,8 @@ namespace
 	bool		ShouldLoadAsFixed( u32 rom_size )
 	{
 #ifdef DAEDALUS_PSP
-		if (PSP_IS_SLIM && !gGlobalPreferences.LargeROMBuffer)
+// We should add Vita support for large buffer
+		if (PSPDetect(1)  && !gGlobalPreferences.LargeROMBuffer)
 			return rom_size <= 32 * 1024 * 1024;
 		else
 			return rom_size <= 2 * 1024 * 1024;

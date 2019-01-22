@@ -35,7 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "svnversion.h"
 
-#include <kubridge.h>
 #include <pspctrl.h>
 #include <pspgu.h>
 
@@ -46,23 +45,19 @@ namespace
 
 	#define MAX_PSP_MODEL 7
 
-	const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Revision ";
+	const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 ";
 
 	const char * const		DATE_TEXT = "Built ";
 
 	const char * const		INFO_TEXT[] =
 	{
-		"Copyright (C) 2008-2018 DaedalusX64 Team",
+		"Copyright (C) 2008-2019 DaedalusX64 Team",
 		"Copyright (C) 2001-2009 StrmnNrmn",
 		"Audio HLE code by Azimer",
 		"",
 		"For news and updates visit:",
 	};
 
-	const char * const		pspModel[ MAX_PSP_MODEL ] =
-	{
-		"PSP PHAT", "PSP SLIM", "PSP BRITE", "PSP BRITE", "PSP GO", "PSP STREET", "UNKNOWN PSP"
-	};
 
 	const char * const		URL_TEXT_1 = "http://DaedalusX64.com/";
 	const char * const		URL_TEXT_2 = "https://github.com/z2442/daedalus/";
@@ -140,7 +135,6 @@ void	IAboutComponent::Update( float elapsed_time, const v2 & stick, u32 old_butt
 //*************************************************************************************
 void	IAboutComponent::Render()
 {
-#define IsPSPModelValid( ver )		( (ver) >= PSP_MODEL_STANDARD && (ver) < MAX_PSP_MODEL )
 
 	u32		text_top( 38 );
 
@@ -165,21 +159,11 @@ void	IAboutComponent::Render()
 
 	y = text_top;
 
-	CFixedString<128>	version( Translate_String(DAEDALUS_VERSION_TEXT) );
-	version += SVNVERSION;
-	version += " - ";
-	version += DAEDALUS_CONFIG_VERSION;
-	//version += ")";
 
 	CFixedString<128>	date( Translate_String(DATE_TEXT) );
 	date += __DATE__;
-	date += " (";
-	date += IsPSPModelValid( kuKernelGetModel() ) ? pspModel[ kuKernelGetModel() ] : "UNKNOWN PSP";
-	date += ")";
-
-	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, version, DrawTextUtilities::TextWhite ); y += line_height;
+// Probably need to add other information here
 	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, date, DrawTextUtilities::TextWhite ); y += line_height;
-	//mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, pspModel[ kuKernelGetModel() ], DrawTextUtilities::TextWhite ); y += line_height;
 
 	// Spacer
 	y += line_height;
