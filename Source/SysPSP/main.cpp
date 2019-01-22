@@ -305,7 +305,7 @@ static bool	Initialize()
 	int fd = sceIoOpen("flash0:/kd/kermit_idstorage.prx", PSP_O_RDONLY | PSP_O_WRONLY, 0777);
 	//disable loading of ME prx on VITA by checking for flash0:/kd/kermit_idstorage.prx.
 	//There is probably a better way todo this!
-	if(fd < 0) {
+	if(fd = 0) {
     #define VITA
 		
  	}
