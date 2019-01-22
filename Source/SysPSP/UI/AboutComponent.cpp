@@ -43,7 +43,6 @@ namespace
 	const u32				TEXT_AREA_LEFT = 40;
 	const u32				TEXT_AREA_RIGHT = 480-40;
 
-	#define MAX_PSP_MODEL 7
 
 	const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 ";
 
@@ -59,8 +58,8 @@ namespace
 	};
 
 
-	const char * const		URL_TEXT_1 = "http://DaedalusX64.com/";
-	const char * const		URL_TEXT_2 = "https://github.com/z2442/daedalus/";
+	const char * const		URL_TEXT_1 = "Chat    - https://discord.gg/nsQ3HtK";
+	const char * const		URL_TEXT_2 = "Web     - https://github.com/z2442/daedalus/";
 
 	const char * const		LOGO_FILENAME = DAEDALUS_PSP_PATH( "Resources/logo.png" );
 }
@@ -179,4 +178,3 @@ void	IAboutComponent::Render()
 	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, URL_TEXT_1, DrawTextUtilities::TextRed, c32( 255,255,255,160 ) );	y += line_height;
 	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, URL_TEXT_2, DrawTextUtilities::TextRed, c32( 255,255,255,255 ) );	y += line_height;
 }
-
