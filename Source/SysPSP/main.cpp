@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspdisplay.h>
 #include <pspgu.h>
 #include <pspkernel.h>
-#include <kubridge.h>
 #include <pspsysmem.h>
 
 #include "Config/ConfigOptions.h"
@@ -54,6 +53,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/UI/UIContext.h"
 #include "SysPSP/Utility/Buttons.h"
 #include "SysPSP/Utility/PathsPSP.h"
+#include "SysPSP/Utility/PSPModel.h"
 #include "System/Paths.h"
 #include "System/System.h"
 #include "Test/BatchTest.h"
@@ -63,6 +63,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Profiler.h"
 #include "Utility/Thread.h"
 #include "Utility/Timer.h"
+
 
 /* Define to enable Exit Callback */
 // Do not enable this, callbacks don't get along with our exit dialog :p
@@ -97,11 +98,10 @@ extern void initExceptionHandler();
 extern int HAVE_DVE;
 extern int PSP_TV_CABLE;
 extern int PSP_TV_LACED;
-
 extern void VolatileMemInit();
 
+
 bool g32bitColorMode = false;
-bool PSP_IS_SLIM = false;
 //*************************************************************************************
 //Set up our initial eviroment settings for the PSP
 //*************************************************************************************
@@ -110,74 +110,11 @@ PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
 //PSP_HEAP_SIZE_KB(20000);// Set Heapsize to 18.5mb
 PSP_HEAP_SIZE_KB(-256);
 
+
 //*************************************************************************************
 //Used to check for compatible FW, we don't allow anything lower than 4.01
-//*************************************************************************************
-static void DaedalusFWCheck()
-{
-// ##define PSP_FIRMWARE Borrowed from Davee
-#define PSP_FIRMWARE(f) ((((f >> 8) & 0xF) << 24) | (((f >> 4) & 0xF) << 16) | ((f & 0xF) << 8) | 0x10)
+//************************************************************************************
 
-	u32 ver = sceKernelDevkitVersion();
-/*
-	FILE * fh = fopen( "firmware.txt", "a" );
-	if ( fh )
-	{
-		fprintf( fh,  "version=%d, firmware=0x%08x\n", kuKernelGetModel(), ver );
-		fclose(fh);
-	}
-*/
-	if( (ver < PSP_FIRMWARE(0x401)) )
-	{
-		pspDebugScreenInit();
-		pspDebugScreenSetTextColor(0xffffff);
-		pspDebugScreenSetBackColor(0x000000);
-		pspDebugScreenSetXY(0, 0);
-		pspDebugScreenClear();
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf("XXXXXXX       XXXXXXX        66666666         444444444\n" );
-		pspDebugScreenPrintf("X:::::X       X:::::X       6::::::6         4::::::::4\n" );
-		pspDebugScreenPrintf("X:::::X       X:::::X      6::::::6         4:::::::::4\n" );
-		pspDebugScreenPrintf("X::::::X     X::::::X     6::::::6         4::::44::::4\n" );
-		pspDebugScreenPrintf("XXX:::::X   X:::::XXX    6::::::6         4::::4 4::::4\n" );
-		pspDebugScreenPrintf("   X:::::X X:::::X      6::::::6         4::::4  4::::4\n" );
-		pspDebugScreenPrintf("    X:::::X:::::X      6::::::6         4::::4   4::::4\n" );
-		pspDebugScreenPrintf("     X:::::::::X      6::::::::66666   4::::444444::::444\n" );
-		pspDebugScreenPrintf("     X:::::::::X     6::::::::::::::66 4::::::::::::::::4\n" );
-		pspDebugScreenPrintf( "   X:::::X:::::X    6::::::66666:::::64444444444:::::444\n" );
-		pspDebugScreenPrintf("   X:::::X X:::::X   6:::::6     6:::::6         4::::4\n" );
-		pspDebugScreenPrintf("XXX:::::X   X:::::XXX6:::::6     6:::::6         4::::4\n" );
-		pspDebugScreenPrintf("X::::::X     X::::::X6::::::66666::::::6         4::::4\n" );
-		pspDebugScreenPrintf("X:::::X       X:::::X 66:::::::::::::66        44::::::44\n" );
-		pspDebugScreenPrintf("X:::::X       X:::::X   66:::::::::66          4::::::::4\n" );
-		pspDebugScreenPrintf("XXXXXXX       XXXXXXX     666666666            4444444444\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "	Unsupported Firmware Detected : 0x%08X\n", ver );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "	Daedalus requires atleast 4.01 M33 Custom Firmware\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
-		sceKernelDelayThread(1000000);
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf( "\n" );
-		pspDebugScreenPrintf("\nPress O to Exit or [] to Ignore");
-		for (;;)
-		{
-			SceCtrlData pad;
-			sceCtrlPeekBufferPositive(&pad, 1);
-			if (pad.Buttons & PSP_CTRL_CIRCLE)
-				break;
-			if (pad.Buttons & PSP_CTRL_SQUARE)
-				return;
-		}
-		sceKernelExitGame();
-	}
-
-}
 #ifdef DAEDALUS_CALLBACKS
 //*************************************************************************************
 //Set up the Exit Callback (Used to allow the Home Button to work)
@@ -271,13 +208,14 @@ static int SetupPanic()
 	return 0;
 }
 
+
 extern bool InitialiseJobManager();
 //*************************************************************************************
 //
 //*************************************************************************************
 static bool	Initialize()
 {
-  
+
 	strcpy(gDaedalusExePath, DAEDALUS_PSP_PATH( "" ));
 
 	printf( "Cpu was: %dMHz, Bus: %dMHz\n", scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency() );
@@ -298,25 +236,22 @@ static bool	Initialize()
 	if( pad.Buttons & PSP_CTRL_CIRCLE ) g32bitColorMode = true;
 	else g32bitColorMode = false;
 
-	// Check for unsupported FW >=4.01 (We use M33 SDK 4.01)
-	// Otherwise PSP model can't be detected correctly
-	DaedalusFWCheck();
-	
-	int fd = sceIoOpen("flash0:/kd/kermit_idstorage.prx", PSP_O_RDONLY | PSP_O_WRONLY, 0777);
+
+	//int fd = sceIoOpen("flash0:/kd/kermit_idstorage.prx", PSP_O_RDONLY | PSP_O_WRONLY, 0777);
 	//disable loading of ME prx on VITA by checking for flash0:/kd/kermit_idstorage.prx.
 	//There is probably a better way todo this!
-	if(fd < 0) {
-    #define VITA
-		
- 	}
+	//if(fd < 0) {
+  //  #define VITA
+
+ 	//}
 
 	//File not found Activate the psp Media Engine.
 		bool bMeStarted = InitialiseJobManager();
 
-	
-		
-	
-		
+
+
+
+
 // Disable for profiling
 //	srand(time(0));
 
@@ -326,7 +261,7 @@ static bool	Initialize()
 
 // This Breaks gdb, better disable it in debug build
 //
-#ifndef DAEDALUS_DEBUG_CONSOLE
+#ifndef FR
 	initExceptionHandler();
 #endif
 
@@ -343,12 +278,13 @@ static bool	Initialize()
 	SetupCallbacks();
 #endif
 
+
 	//Set up the DveMgr (TV Display) and Detect PSP Slim /3K/ Go
-	if ( kuKernelGetModel() > PSP_MODEL_STANDARD )
+	if ( PSPDetect(1) )
 	{
 		// Can't use extra memory if ME isn't available
-		if( bMeStarted )
-			PSP_IS_SLIM = true;
+	//	if( bMeStarted )
+		//	PSP_IS_SLIM = true;
 
 		HAVE_DVE = CModule::Load("dvemgr.prx");
 		if (HAVE_DVE >= 0)
@@ -423,7 +359,7 @@ static void	DumpDynarecStats( float elapsed_time )
 	printf( TERMINAL_SAVE_CURSOR );
 	printf( TERMINAL_TOP_LEFT );
 
-	printf( "Frame: %dms, DynaRec %d%%, Regs cached %d%%, Lookup success %d/%d", u32(elapsed_time * 1000.0f), dynarec_ratio, cached_regs_ratio, gFragmentLookupSuccess, gFragmentLookupFailure );
+	printf( "Fe: %dms, DynaRec %d%%, Regs cached %d%%, Lookup success %d/%d", u32(elapsed_time * 1000.0f), dynarec_ratio, cached_regs_ratio, gFragmentLookupSuccess, gFragmentLookupFailure );
 
 	printf( TERMINAL_RESTORE_CURSOR );
 	fflush( stdout );

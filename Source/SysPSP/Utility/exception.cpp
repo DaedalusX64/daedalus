@@ -8,7 +8,6 @@
 #include <pspkernel.h>
 #include <pspsdk.h>
 #include <pspctrl.h>
-#include <kubridge.h>
 
 #include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
@@ -41,11 +40,6 @@ static const unsigned char regName[32][5] =
     "t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra"
 };
 
-const char * const		pspModel[6] =
-{
-	"PSP PHAT", "PSP SLIM", "PSP BRITE", "PSP BRITE", "PSP GO", "UNKNOWN PSP"
-};
-extern bool PSP_IS_SLIM;
 
 static void DumpInformation(PspDebugRegBlock * regs)
 {
@@ -118,8 +112,7 @@ static void DumpInformation(PspDebugRegBlock * regs)
 	fprintf(fp, "\nPSP Infomation:\n");
 	{
 		fprintf(fp, "\tFirmware:         0x%08x\n", sceKernelDevkitVersion());
-		fprintf(fp, "\tModel:            %s\n", pspModel[ kuKernelGetModel() ]);
-		fprintf(fp, "\t64MB Available:   %s\n", PSP_IS_SLIM ? "Yes" : "No");
+//		fprintf(fp, "\t64MB Available:   %s\n", PSP_IS_SLIM ? "Yes" : "No");
 		fprintf(fp, "\tEmulator Version: "SVNVERSION"\n");
 	}
 
@@ -205,7 +198,7 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 		pspDebugScreenPrintf("Cause[%08X] ", (u32)regs->cause);
 		pspDebugScreenPrintf("Status[%08X] ", (u32)regs->status);
 		pspDebugScreenPrintf("BadVAddr[%08X]\n\n", (u32)regs->badvaddr);
-		
+
 		//Dump CPU registers, "*" marks pointer inside emulated RDRAM
 		for(u32 i = 0; i<32; i+=4)
 		{
@@ -222,7 +215,7 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 		const OpCode * p = (OpCode *)(scroll_epc - (inst_before_epc * 4));
 
 		pspDebugScreenPrintf("\n");
-		
+
 		//Dump ASM at exception, "*" marks the EPC
 		while( p < (OpCode *)(scroll_epc + (inst_after_epc * 4)) )
 		{
