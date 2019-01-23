@@ -17,7 +17,7 @@ int PSPDetect (int PSPModel)
 			// We need to exclude the Vita from this
 
 			PSPModel=1;
-			printf("PSPModel is %d",PSPModel");
+			printf("PSPModel is %d",PSPModel);
 		}
 		//else if (PSPVramSize > 4096 && PSVitaDetect == 0)
 		//{
@@ -26,7 +26,7 @@ int PSPDetect (int PSPModel)
 		else
 		{
 			PSPModel=0; // Fat
-					printf("PSPModel is %d",PSPModel");
+					printf("PSPModel is %d",PSPModel);
 		}
 
 	}

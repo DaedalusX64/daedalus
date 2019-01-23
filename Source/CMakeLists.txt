@@ -107,15 +107,14 @@ if (PSP_RELEASE)
 	add_definitions("-O2 -DNDEBUG -MD -ffast-math -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition -fno-exceptions -fno-rtti")
 	add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=661)
 	add_definitions(-DDAEDALUS_PSP)
-	add_library(pspkubridge STATIC IMPORTED)
-	set_property(TARGET pspkubridge PROPERTY IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}/SysPSP/Include/lib/libpspkubridge.a)
+
 	include_directories(${PROJECT_SOURCE_DIR}/Config/Release)
 	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include)
 	add_library(daedalus STATIC ${BUILD} ${PSP_BUILD})
 	add_executable(daedalus.elf ${PSP_MAIN_FILES})
 	set_target_properties(daedalus.elf PROPERTIES LINK_FLAGS "-specs=${PSPSDK}/lib/prxspecs -Wl,-q,-T${PSPSDK}/lib/linkfile.prx ${PSPSDK}/lib/prxexports.o -L${PSPSDK}/lib")
 	target_include_directories(daedalus.elf PUBLIC /usr/local/pspdev/psp/sdk/include )
-	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lpng -lz -lg -lm -lpspfpu pspkubridge ${PSPSDK_LIBS})
+	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lpng -lz -lg -lm -lpspfpu ${PSPSDK_LIBS})
 endif (PSP_RELEASE)
 
 
