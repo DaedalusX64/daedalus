@@ -6,7 +6,7 @@
 // This is a simple function to replace the kubridge and bring back earlier firmware support.
 
 int PSPVramSize =  sceGeEdramGetSize() / 1024;
-bool PSP_IS_SLIM = false;
+extern bool PSP_IS_SLIM;
 
 int PSPDetect (int PSPModel)
 {

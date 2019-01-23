@@ -104,7 +104,7 @@ Set(PSPSDK_LIBS -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk -lpsplibc -lp
 
 if (PSP_RELEASE)
 	message("PSP Release Build..")
-	add_definitions("-O2 -DNDEBUG -Wall -ffast-math -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition -fno-exceptions -fno-rtti")
+	add_definitions("-O3 -DNDEBUG -ffast-math -fpredictive-commoning -mno-check-zero-division -freorder-blocks-and-partition -fno-exceptions -fno-rtti")
 	add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=661)
 	add_definitions(-DDAEDALUS_PSP)
 

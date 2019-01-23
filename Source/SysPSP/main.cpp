@@ -98,7 +98,8 @@ extern int HAVE_DVE;
 extern int PSP_TV_CABLE;
 extern int PSP_TV_LACED;
 extern void VolatileMemInit();
-extern bool PSP_IS_SLIM;
+bool PSP_IS_SLIM = false;
+
 bool g32bitColorMode = false;
 //*************************************************************************************
 //Set up our initial eviroment settings for the PSP
@@ -109,9 +110,6 @@ PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
 PSP_HEAP_SIZE_KB(-256);
 
 
-//*************************************************************************************
-//Used to check for compatible FW, we don't allow anything lower than 4.01
-//************************************************************************************
 
 #ifdef DAEDALUS_CALLBACKS
 //*************************************************************************************
@@ -122,6 +120,7 @@ static int ExitCallback( int arg1, int arg2, void * common )
 #ifdef DAEDALUS_PSP_GPROF
 	gprof_cleanup();
 #endif
+
 	sceKernelExitGame();
 	return 0;
 }
@@ -269,8 +268,12 @@ static bool	Initialize()
 
 
 	//Set up the DveMgr (TV Display) and Detect PSP Slim /3K/ Go
-	if ( PSPDetect(1)  )
+	if ( PSPDetect(0) )
 	{
+        // Check to see if the PSP is fat, otherwise go ahead and init slim stuff
+    } 
+    else
+    {
 		// Can't use extra memory if ME isn't available
 		if( bMeStarted )
 			PSP_IS_SLIM = true;

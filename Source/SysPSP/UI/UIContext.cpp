@@ -364,7 +364,9 @@ s32		IUIContext::AlignText( s32 min_x, s32 max_x, const char * p_str, u32 length
 		break;
 
 	default:
+  #ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Unhandled alignment type" );
+    #endif
 		x = min_x;
 		break;
 	}
