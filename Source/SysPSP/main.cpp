@@ -29,7 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspsdk.h>
 #include <pspdisplay.h>
 #include <pspgu.h>
-
+#include <pspkernel.h>
+#include <pspsysmem.h>
 #include "Config/ConfigOptions.h"
 #include "Core/Cheats.h"
 #include "Core/CPU.h"
@@ -233,7 +234,6 @@ static bool	Initialize()
 	sceCtrlPeekBufferPositive(&pad, 1);
 	if( pad.Buttons & PSP_CTRL_CIRCLE ) g32bitColorMode = true;
 	else g32bitColorMode = false;
-
 
 	//File not found Activate the psp Media Engine.
 		bool bMeStarted = InitialiseJobManager();
