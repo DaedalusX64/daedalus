@@ -157,10 +157,14 @@ IMainMenuScreen::IMainMenuScreen( CUIContext * p_context )
 	mOptionComponents[ MO_SAVESTATES ]		= CSavestateSelectorComponent::Create( mpContext, CSavestateSelectorComponent::AT_LOADING, new CMemberFunctor1< IMainMenuScreen, const char * >( this, &IMainMenuScreen::OnSavestateSelected ), 0 );
 	mOptionComponents[ MO_ABOUT ]			= CAboutComponent::Create( mpContext );
 
+	#ifdef DAEDALUS_DEBUG_CONSOLE
+	// Is this really needed?
 	for( u32 i = 0; i < NUM_MENU_OPTIONS; ++i )
 	{
 		DAEDALUS_ASSERT( mOptionComponents[ i ] != NULL, "Unhandled screen" );
+
 	}
+		#endif
 }
 
 //*************************************************************************************
@@ -183,8 +187,9 @@ EMenuOption	IMainMenuScreen::AsMenuOption( s32 option )
 	if( m < 0 )
 		m += NUM_MENU_OPTIONS;
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ASSERT( m >= 0 && m < (s32)NUM_MENU_OPTIONS, "Whoops" );
-
+#endif
 	return EMenuOption( m );
 }
 

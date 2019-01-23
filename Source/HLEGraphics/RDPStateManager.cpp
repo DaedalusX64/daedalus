@@ -572,9 +572,11 @@ void CRDPStateManager::LoadTlut(const SetLoadTile & load)
 
 	const RDP_Tile & rdp_tile = mTiles[tile_idx];
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	u32 count = ((lrs - uls)>>2) + 1;
 	DAEDALUS_USE(count);
 	DAEDALUS_USE(lrt);
+#endif
 
 	//Store address of PAL (assuming PAL is only stored in upper half of TMEM) //Corn
 	gTlutLoadAddresses[ (rdp_tile.tmem>>2) & 0x3F ] = (u32*)address;

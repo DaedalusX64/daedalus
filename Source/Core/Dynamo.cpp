@@ -166,7 +166,7 @@ template< bool TraceEnabled > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
         #ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( !gTraceRecorder.IsTraceActive(), "If TraceEnabled is not set, trace should be inactive" );
         #endif
-		
+
         R4300_ExecuteInstruction(op_code);
 		gGPR[0]._u64 = 0;	//Ensure r0 is zero
 
@@ -379,9 +379,13 @@ void CPU_CreateAndAddFragment()
 //*****************************************************************************
 void CPU_UpdateTrace( u32 address, OpCode op_code, bool branch_delay_slot, bool branch_taken )
 {
+	#ifdef DAEDALUS_ENABLE_PROFILER
 	DAEDALUS_PROFILE( "CPU_UpdateTrace" );
+#endif
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q( (gCPUState.Delay == EXEC_DELAY) == branch_delay_slot );
+#endif
 
 #ifdef DAEDALUS_DEBUG_CONSOLE_DYNAREC
 	CFragment * p_address_fragment( gFragmentCache.LookupFragment( address ) );
@@ -555,7 +559,7 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 			}
 #endif
             break;
-            
+
 		}
 	}
 
@@ -597,4 +601,3 @@ void Dynamo_Reset() {}
 void R4300_CALL_TYPE CPU_InvalidateICacheRange( u32 address, u32 length ) {}
 
 #endif //DAEDALUS_ENABLE_DYNAREC
-

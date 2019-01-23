@@ -227,7 +227,9 @@ CachedTexture::~CachedTexture()
 
 bool CachedTexture::Initialise()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpTexture == NULL);
+	#endif
 
 	u32 width  = mTextureInfo.GetWidth();
 	u32 height = mTextureInfo.GetHeight();

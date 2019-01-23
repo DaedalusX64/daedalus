@@ -1227,7 +1227,9 @@ void RendererPSP::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertice
 
 bool CreateRenderer()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(gRenderer == NULL);
+	#endif
 	gRendererPSP = new RendererPSP();
 	gRenderer    = gRendererPSP;
 	return true;

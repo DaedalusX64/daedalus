@@ -9,6 +9,7 @@
 #define DAEDALUS_FORCEINLINE inline __attribute__((always_inline))
 #endif
 
+
 #ifdef DAEDALUS_ENABLE_ASSERTS
 
 #define NODEFAULT		DAEDALUS_ERROR( "No default - we shouldn't be here" )

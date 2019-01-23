@@ -37,7 +37,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static void SPNOOP( AudioHLECommand command )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DBGConsole_Msg( 0, "AudioHLE: Unknown/Unimplemented Audio Command %i in ABI 2", command.cmd );
+	#endif
 }
 
 bool isMKABI = false;

@@ -258,13 +258,14 @@ void DLParser_MoveMem_Conker( MicroCodeCommand command )
 		{
 			u32 offset2 = (command.inst.cmd0 >> 5) & 0x3FFF;
 			u32 light_idx = (offset2 / 48);
-			#ifdef DAEDALUS_ENABLE_PROFILING
+
 			if (light_idx < 2)
 			{
+							#ifdef DAEDALUS_ENABLE_PROFILING
 				DL_PF("    G_MV_LOOKAT" );
+				#endif
 				return;
 			}
-#endif
 			light_idx -= 2;
 			N64Light *light = (N64Light*)(g_pu8RamBase + address);
 			RDP_MoveMemLight(light_idx, light);
@@ -341,11 +342,13 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 		}
 	}
 	break;
-	#ifdef DAEDALUS_ENABLE_PROFILING
+
 	default:
+	#ifdef DAEDALUS_ENABLE_PROFILING
 		DL_PF("     G_MoveWord_Conker: Unknown");
+				#endif
 		break;
-		#endif
+
   }
 
 #else

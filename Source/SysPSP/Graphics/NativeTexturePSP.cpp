@@ -287,26 +287,34 @@ CNativeTexture::CNativeTexture( u32 w, u32 h, ETextureFormat texture_format )
 
 	if( !CVideoMemoryManager::Get()->Alloc( bytes_required, &mpData, &mIsDataVidMem ) )
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Out of memory for texels ( %d bytes)", bytes_required );
+		#endif
 	}
 	switch( texture_format )
 	{
 	case TexFmt_CI4_8888:
 		if( !CVideoMemoryManager::Get()->Alloc( kPalette4BytesRequired, &mpPalette, &mIsPaletteVidMem ) )
 		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR( "Out of memory for 4-bit palette, %d bytes", kPalette4BytesRequired );
+			#endif
 		}
 		break;
 
 	case TexFmt_CI8_8888:
 		if( !CVideoMemoryManager::Get()->Alloc( kPalette8BytesRequired, &mpPalette, &mIsPaletteVidMem ) )
 		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR( "Out of memory for 8-bit palette, %d bytes", kPalette8BytesRequired );
+			#endif
 		}
 		break;
 
 	default:
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( !IsTextureFormatPalettised( texture_format ), "Unhandled palette texture" );
+		#endif
 		break;
 	}
 }
@@ -512,11 +520,15 @@ namespace
 
 			case TexFmt_CI4_8888:
 			case TexFmt_CI8_8888:
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 				DAEDALUS_ERROR( "Can't use palettised format for png." );
+				#endif
 				break;
 
 			default:
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 				DAEDALUS_ERROR( "Unhandled texture format" );
+				#endif
 				break;
 			}
 
@@ -579,7 +591,9 @@ void	CNativeTexture::SetData( void * data, void * palette )
 				break;
 
 			default:
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 				DAEDALUS_ERROR( "Unhandled palette format" );
+				#endif
 				break;
 			}
 

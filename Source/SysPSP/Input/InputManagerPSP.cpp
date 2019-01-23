@@ -487,7 +487,9 @@ u32 GetOperatorPrecedence( char op )
 	case '&':		return 1;
 	case '|':		return 0;
 	default:
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Unhandled operator" );
+		#endif
 		return 0;
 	}
 }
@@ -903,7 +905,9 @@ const char *	IInputManager::GetConfigurationName( u32 configuration_idx ) const
 	}
 	else
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ERROR( "Invalid controller config" );
+		#endif
 		return "?";
 	}
 }
@@ -919,7 +923,9 @@ const char *	IInputManager::GetConfigurationDescription( u32 configuration_idx )
 	}
 	else
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ERROR( "Invalid controller config" );
+		#endif
 		return "?";
 	}
 }
@@ -932,12 +938,16 @@ void			IInputManager::SetConfiguration( u32 configuration_idx )
 	if( configuration_idx < mControllerConfigs.size() )
 	{
 		mpControllerConfig = mControllerConfigs[ configuration_idx ];
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "Setting the controller to [c%s]", mpControllerConfig->GetName() );
+		#endif
 	}
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	else
 	{
 		DAEDALUS_ERROR( "Invalid controller config" );
 	}
+	#endif
 }
 
 //*****************************************************************************

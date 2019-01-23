@@ -147,10 +147,13 @@ IPauseScreen::IPauseScreen( CUIContext * p_context )
 	mOptionComponents[ MO_PAUSE_OPTIONS ]	= CPauseOptionsComponent::Create( mpContext, new CMemberFunctor< IPauseScreen >( this, &IPauseScreen::OnResume ), new CMemberFunctor< IPauseScreen >( this, &IPauseScreen::OnReset ) );
 	mOptionComponents[ MO_ABOUT ]			= CAboutComponent::Create( mpContext );
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
+// Is this really needed?
 	for( u32 i = 0; i < NUM_MENU_OPTIONS; ++i )
 	{
 		DAEDALUS_ASSERT( mOptionComponents[ i ] != NULL, "Unhandled screen" );
 	}
+	#endif
 }
 
 //*************************************************************************************
@@ -269,8 +272,8 @@ void	IPauseScreen::Render()
 
 	// Meh should be big enough regarding if translated..
 	char					info[120];
-	
-        
+
+
 	mpContext->DrawTextAlign( 0, 480, AT_CENTRE, 43, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
 
 	p_option_text = gMenuOptionNames[ previous ];

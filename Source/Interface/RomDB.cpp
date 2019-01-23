@@ -171,7 +171,9 @@ class IRomDB : public CRomDB
 
 template<> bool	CSingleton< CRomDB >::Create()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
+#endif
 
 	mpInstance = new IRomDB();
 
@@ -213,7 +215,9 @@ bool IRomDB::OpenDB( const char * filename )
 	FILE * fh = fopen( filename, "rb" );
 	if ( !fh )
 	{
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "Failed to open RomDB from %s\n", mRomDBFileName );
+		#endif
 		return false;
 	}
 
@@ -224,7 +228,9 @@ bool IRomDB::OpenDB( const char * filename )
 	num_read = fread( &magic, sizeof( magic ), 1, fh );
 	if ( num_read != 1 || magic != ROMDB_MAGIC_NO )
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "RomDB has wrong magic number." );
+		#endif
 		goto fail;
 	}
 
@@ -237,6 +243,7 @@ bool IRomDB::OpenDB( const char * filename )
 	{
 		#ifdef DAEDALUS_DEBUG_CONSOLE
 ///XXX It'd be nice if this were displayed on the GUI
+
 		DBGConsole_Msg( 0, "RomDB has wrong version for this build of Daedalus." );
 #endif
 		goto fail;

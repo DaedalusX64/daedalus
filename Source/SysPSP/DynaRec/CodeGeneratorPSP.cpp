@@ -64,9 +64,9 @@ using namespace AssemblyUtils;
 //#define ALLOW_INTERPRETER_EXCEPTIONS
 
 
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 #define NOT_IMPLEMENTED( x )	DAEDALUS_ERROR( x )
-
+#endif
 extern "C" { const void * g_MemoryLookupTableReadForDynarec = g_MemoryLookupTableRead; }	//Important pointer for Dynarec see DynaRecStubs.s
 
 extern "C" { void _DDIV( s64 Num, s32 Div ); }	//signed 64bit division  //Corn
@@ -856,7 +856,9 @@ inline void CCodeGeneratorPSP::UpdateSimDoubleRegister( EN64FloatReg n64_reg )
 //*****************************************************************************
 const CN64RegisterCachePSP & CCodeGeneratorPSP::GetRegisterCacheFromHandle( RegisterSnapshotHandle snapshot ) const
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( snapshot.Handle < mRegisterSnapshots.size(), "Invalid snapshot handle" );
+	#endif
 	return mRegisterSnapshots[ snapshot.Handle ];
 }
 
@@ -4988,7 +4990,9 @@ inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u3
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateADD_D( u32 fd, u32 fs, u32 ft )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	NOT_IMPLEMENTED( __FUNCTION__ );
+	#endif
 }
 
 //*****************************************************************************
@@ -4996,7 +5000,9 @@ inline void	CCodeGeneratorPSP::GenerateADD_D( u32 fd, u32 fs, u32 ft )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateSUB_D( u32 fd, u32 fs, u32 ft )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	NOT_IMPLEMENTED( __FUNCTION__ );
+	#endif
 }
 
 //*****************************************************************************
@@ -5004,7 +5010,9 @@ inline void	CCodeGeneratorPSP::GenerateSUB_D( u32 fd, u32 fs, u32 ft )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateMUL_D( u32 fd, u32 fs, u32 ft )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	NOT_IMPLEMENTED( __FUNCTION__ );
+	#endif
 }
 
 //*****************************************************************************
@@ -5012,7 +5020,9 @@ inline void	CCodeGeneratorPSP::GenerateMUL_D( u32 fd, u32 fs, u32 ft )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateDIV_D( u32 fd, u32 fs, u32 ft )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	NOT_IMPLEMENTED( __FUNCTION__ );
+	#endif
 }
 
 //*****************************************************************************
@@ -5020,7 +5030,9 @@ inline void	CCodeGeneratorPSP::GenerateDIV_D( u32 fd, u32 fs, u32 ft )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateSQRT_D( u32 fd, u32 fs )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	NOT_IMPLEMENTED( __FUNCTION__ );
+	#endif
 }
 
 //*****************************************************************************
@@ -5028,7 +5040,9 @@ inline void	CCodeGeneratorPSP::GenerateSQRT_D( u32 fd, u32 fs )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateMOV_D( u32 fd, u32 fs )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	NOT_IMPLEMENTED( __FUNCTION__ );
+	#endif
 }
 
 //*****************************************************************************
@@ -5036,7 +5050,9 @@ inline void	CCodeGeneratorPSP::GenerateMOV_D( u32 fd, u32 fs )
 //*****************************************************************************
 inline void	CCodeGeneratorPSP::GenerateNEG_D( u32 fd, u32 fs )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	NOT_IMPLEMENTED( __FUNCTION__ );
+	#endif
 }
 
 

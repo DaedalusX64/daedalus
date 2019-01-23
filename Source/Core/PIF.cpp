@@ -223,8 +223,9 @@ class	IController : public CController
 //*****************************************************************************
 template<> bool	CSingleton< CController >::Create()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-
+#endif
 	mpInstance = new IController();
 
 	return true;
@@ -560,7 +561,7 @@ bool	IController::ProcessEeprom(u8 *cmd)
 		break;
  #ifdef DAEDALUS_DEBUG_CONSOLE
 	default:
-       
+
 		DAEDALUS_ERROR( "Unknown Eeprom command: %02x", cmd[2] );
 		//DPF_PIF( DSPrintf("Unknown controller command: %02x", command) );
 		break;

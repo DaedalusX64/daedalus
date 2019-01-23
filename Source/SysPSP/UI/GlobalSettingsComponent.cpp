@@ -85,8 +85,10 @@ namespace
 					case VT_SCALED_4_3:		return "4:3 overscan (658x460)";
 					case VT_FULLSCREEN:		return "16:9 stretch (720x460)";
 					case VT_FULLSCREEN_HD:	return "16:9 (720x460)";
-					}
+				}
+				#ifdef DAEDALUS_DEBUG_CONSOLE
 					DAEDALUS_ERROR( "Unhandled viewport type" );
+					#endif
 					return "?";
 				}
 				else
@@ -99,7 +101,9 @@ namespace
 					case VT_FULLSCREEN:		return "16:9 stretch (720x460)";
 					case VT_FULLSCREEN_HD:	return "16:9 (720x460)";
 					}
+					#ifdef DAEDALUS_DEBUG_CONSOLE
 					DAEDALUS_ERROR( "Unhandled viewport type" );
+					#endif
 					return "?";
 				}
 			}
@@ -113,7 +117,9 @@ namespace
 				case VT_FULLSCREEN:		return "16:9 stretch (480x272)";
 				case VT_FULLSCREEN_HD:	return "16:9 (480x272)";
 				}
+				#ifdef DAEDALUS_DEBUG_CONSOLE
 				DAEDALUS_ERROR( "Unhandled viewport type" );
+				#endif
 				return "?";
 			}
 		}
@@ -137,7 +143,9 @@ namespace
 			case TT_4_3:			return "4:3 SDTV";
 			case TT_WIDESCREEN:		return "16:9 HDTV";
 			}
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR( "Unhandled TV type" );
+			#endif
 			return "?";
 		}
 	};
@@ -269,7 +277,9 @@ namespace
 				case PURPLE:	return "Purple";
 				case GREY:		return "Grey";
 			}
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR( "Unknown Color" );
+			#endif
 			return "?";
 		}
 	};

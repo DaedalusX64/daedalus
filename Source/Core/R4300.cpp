@@ -55,7 +55,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #undef SIM_DOUBLES
 #endif
 
-// Handles up to 128bit multiplication, have yet to see a game failing by just doing 64bit mult instead.. 
+// Handles up to 128bit multiplication, have yet to see a game failing by just doing 64bit mult instead..
 // So for performance reasons on the PSP we only handle up to 64bit mults
 #ifndef DAEDALUS_PSP
 #define DAEDALUS_128BIT_MULT
@@ -89,7 +89,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 //Nothing todo, I'll remove this eventually..
-//Just log exceptions, so far the only games I obsereved that trow are DK64 and Blast Corps 
+//Just log exceptions, so far the only games I obsereved that trow are DK64 and Blast Corps
 #ifdef DAEDALUS_DEBUG_CONSOLE
 #define CATCH_NAN_EXCEPTION(op, valX, valY) \
 	if(R4300_IsNaN(valX + valY)) \
@@ -99,7 +99,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #else
 	#define CATCH_NAN_EXCEPTION(op, valX, valY)
 #endif
- 
+
 //Nothing todo, I'll remove this eventually.. We ensure r0 is zero after executing an opcode anyways
 //So far the only game I observed that write to r0 is SF 2049....
 //Note: We need to check for R0 in the dynarec as well..
@@ -386,12 +386,19 @@ DAEDALUS_FORCEINLINE f32 d64_to_f32( d64 x )
 //These ASM routines convert float to int and puts the value in CPU to sign extend, rather than FPU since the PSP doesn't have 64bit instructions //Corn
 //These can be risky since the N64 is expecting float to int64 and thus float can be larger than int, this happens with trunc_w_s on the 4th level of DK64..
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 inline s32 cvt_w_s( f32 x )							{ DAEDALUS_ASSERT( x >= LONG_MIN && x <= LONG_MAX, "Float too large, can't convert with 32bit PSP instruction" );s32 r; asm volatile ( "cvt.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
 inline s32 trunc_w_s( f32 x )						{ DAEDALUS_ASSERT( x >= LONG_MIN && x <= LONG_MAX, "Float too large, can't convert with 32bit PSP instruction" );s32 r; asm volatile ( "trunc.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
 inline s32 round_w_s( f32 x )						{ DAEDALUS_ASSERT( x >= LONG_MIN && x <= LONG_MAX, "Float too large, can't convert with 32bit PSP instruction" );s32 r; asm volatile ( "round.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
 inline s32 ceil_w_s( f32 x )						{ DAEDALUS_ASSERT( x >= LONG_MIN && x <= LONG_MAX, "Float too large, can't convert with 32bit PSP instruction" );s32 r; asm volatile ( "ceil.w.s  %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
 inline s32 floor_w_s( f32 x )						{ DAEDALUS_ASSERT( x >= LONG_MIN && x <= LONG_MAX, "Float too large, can't convert with 32bit PSP instruction" );s32 r; asm volatile ( "floor.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
-
+#else
+inline s32 cvt_w_s( f32 x )							{ s32 r; asm volatile ( "cvt.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
+inline s32 trunc_w_s( f32 x )						{ s32 r; asm volatile ( "trunc.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
+inline s32 round_w_s( f32 x )						{ s32 r; asm volatile ( "round.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
+inline s32 ceil_w_s( f32 x )						{ s32 r; asm volatile ( "ceil.w.s  %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
+inline s32 floor_w_s( f32 x )						{ s32 r; asm volatile ( "floor.w.s %1, %1\nmfc1 %0,%1\n" : "=r"(r) : "f"(x) ); return r; }
+#endif
 
 inline s32 f32_to_s32_trunc( f32 x )				{ return pspFpuTrunc(x); }
 inline s32 f32_to_s32_round( f32 x )				{ return pspFpuRound(x); }
@@ -424,8 +431,8 @@ DAEDALUS_FORCEINLINE s32 f32_to_s32_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC );
 DAEDALUS_FORCEINLINE s32 f32_to_s32_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)roundf(x); }
 DAEDALUS_FORCEINLINE s32 f32_to_s32_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s32)ceilf(x); }
 DAEDALUS_FORCEINLINE s32 f32_to_s32_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)floorf(x); }
-DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x )	
-{ 
+DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x )
+{
 #ifdef ACCURATE_CVT
 	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
 	{
@@ -436,7 +443,7 @@ DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x )
 	default:				return (s32)x;
 	}
 #else
-	SET_ROUND_MODE( gRoundingMode ); 
+	SET_ROUND_MODE( gRoundingMode );
 	return (s32)x;
 #endif
 }
@@ -444,8 +451,8 @@ DAEDALUS_FORCEINLINE s64 f32_to_s64_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC );
 DAEDALUS_FORCEINLINE s64 f32_to_s64_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s64)roundf(x); }
 DAEDALUS_FORCEINLINE s64 f32_to_s64_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s64)ceilf(x); }
 DAEDALUS_FORCEINLINE s64 f32_to_s64_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s64)floorf(x); }
-DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x ) 
-{ 
+DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x )
+{
 #ifdef ACCURATE_CVT
 	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
 	{
@@ -456,8 +463,8 @@ DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x )
 	default:				return (s64)x;
 	}
 #else
-	SET_ROUND_MODE( gRoundingMode ); 
-	return (s64)x; 
+	SET_ROUND_MODE( gRoundingMode );
+	return (s64)x;
 #endif
 }
 DAEDALUS_FORCEINLINE s32 d64_to_s32_trunc( d64 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)trunc(x); }
@@ -476,8 +483,8 @@ DAEDALUS_FORCEINLINE s32 d64_to_s32( d64 x )
 	default:				return (s32)x;
 	}
 #else
-	SET_ROUND_MODE( gRoundingMode ); 
-	return (s32)x; 
+	SET_ROUND_MODE( gRoundingMode );
+	return (s32)x;
 #endif
 }
 DAEDALUS_FORCEINLINE s64 d64_to_s64_trunc( d64 x ) { SET_ROUND_MODE( RM_TRUNC ); return (s64)trunc(x); }
@@ -485,7 +492,7 @@ DAEDALUS_FORCEINLINE s64 d64_to_s64_round( d64 x ) { SET_ROUND_MODE( RM_ROUND );
 DAEDALUS_FORCEINLINE s64 d64_to_s64_ceil( d64 x )  { SET_ROUND_MODE( RM_CEIL ); return (s64)ceil(x); }
 DAEDALUS_FORCEINLINE s64 d64_to_s64_floor( d64 x ) { SET_ROUND_MODE( RM_FLOOR ); return (s64)floor(x); }
 DAEDALUS_FORCEINLINE s64 d64_to_s64( d64 x )
-{ 
+{
 #ifdef ACCURATE_CVT
 	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
 	{
@@ -497,7 +504,7 @@ DAEDALUS_FORCEINLINE s64 d64_to_s64( d64 x )
 	}
 #else
 	SET_ROUND_MODE( gRoundingMode );
-	return (s64)x; 
+	return (s64)x;
 #endif
 }
 #endif
@@ -684,22 +691,30 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef DAEDALUS_ENABLE_ASSERTS
 #define WARN_NOEXIST(inf)	{ DAEDALUS_ASSERT( false, "Instruction Unknown" ); }
 #define WARN_NOIMPL(op)		{ DAEDALUS_ASSERT( false, "Instruction Not Implemented" ); }
+#else
+#define WARN_NOEXIST(inf)
+#define WARN_NOIMPL(op)
+#endif
 
 static void R4300_CALL_TYPE R4300_Unk( R4300_CALL_SIGNATURE )     { WARN_NOEXIST("R4300_Unk"); }
 
 static void R4300_CALL_TYPE R4300_CoPro1_Disabled( R4300_CALL_SIGNATURE )
 {
 	// Cop1 Unusable
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Thread accessing Cop1, throwing COP1 unusuable exception");
-
+#endif
+#ifdef DAEDLAUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( (gCPUState.CPUControl[C0_SR]._u32 & SR_CU1) == 0, "COP1 usable flag in inconsistant state!" );
-
+#endif
 	R4300_Exception_CopUnusuable();
 }
 
 // These are the only unimplemented R4300 instructions now:
+#ifdef DAEDALUS_ENABLE_ASSERTS
 static void R4300_CALL_TYPE R4300_LL( R4300_CALL_SIGNATURE ) { WARN_NOIMPL("LL"); }
 static void R4300_CALL_TYPE R4300_LLD( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("LLD"); }
 
@@ -726,7 +741,42 @@ static void R4300_CALL_TYPE R4300_Special_TLT( R4300_CALL_SIGNATURE ) {  WARN_NO
 static void R4300_CALL_TYPE R4300_Special_TLTU( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("TLTU"); }
 static void R4300_CALL_TYPE R4300_Special_TEQ( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("TEQ"); }
 static void R4300_CALL_TYPE R4300_Special_TNE( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("TNE"); }
+static void R4300_CALL_TYPE R4300_LL( R4300_CALL_SIGNATURE ) { WARN_NOIMPL("LL"); }
+static void R4300_CALL_TYPE R4300_LLD( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("LLD"); }
 
+static void R4300_CALL_TYPE R4300_SC( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("SC"); }
+static void R4300_CALL_TYPE R4300_SCD( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("SCD"); }
+
+
+static void R4300_CALL_TYPE R4300_LDC2( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("LDC2"); }
+static void R4300_CALL_TYPE R4300_SDC2( R4300_CALL_SIGNATURE ) {  WARN_NOIMPL("SDC2"); }
+
+#else
+// None of these are used, maybe we need to define them with asserts to see what is missing where
+static void R4300_CALL_TYPE R4300_LL( R4300_CALL_SIGNATURE ) {}
+
+static void R4300_CALL_TYPE R4300_LLD( R4300_CALL_SIGNATURE ) {}
+static void R4300_CALL_TYPE R4300_SC( R4300_CALL_SIGNATURE ) {}
+static void R4300_CALL_TYPE R4300_SCD( R4300_CALL_SIGNATURE ) {}
+static void R4300_CALL_TYPE R4300_LDC2( R4300_CALL_SIGNATURE ) {}
+static void R4300_CALL_TYPE R4300_SDC2( R4300_CALL_SIGNATURE ) {}
+static void R4300_CALL_TYPE R4300_RegImm_TGEI( R4300_CALL_SIGNATURE ) {}
+static void R4300_CALL_TYPE R4300_RegImm_TGEIU( R4300_CALL_SIGNATURE ) {}
+static void R4300_CALL_TYPE R4300_RegImm_TLTI( R4300_CALL_SIGNATURE ) {}
+static void R4300_CALL_TYPE R4300_RegImm_TLTIU( R4300_CALL_SIGNATURE ) {}
+static void R4300_CALL_TYPE R4300_RegImm_TEQI( R4300_CALL_SIGNATURE ) {}
+static void R4300_CALL_TYPE R4300_RegImm_TNEI( R4300_CALL_SIGNATURE ) {}
+
+static void R4300_CALL_TYPE R4300_RegImm_BLTZALL( R4300_CALL_SIGNATURE ) {}
+static void R4300_CALL_TYPE R4300_RegImm_BGEZALL( R4300_CALL_SIGNATURE ) {}
+
+static void R4300_CALL_TYPE R4300_Special_TGE( R4300_CALL_SIGNATURE ) {}
+static void R4300_CALL_TYPE R4300_Special_TGEU( R4300_CALL_SIGNATURE ) {}
+static void R4300_CALL_TYPE R4300_Special_TLT( R4300_CALL_SIGNATURE ) {}
+static void R4300_CALL_TYPE R4300_Special_TLTU( R4300_CALL_SIGNATURE ) {}
+static void R4300_CALL_TYPE R4300_Special_TEQ( R4300_CALL_SIGNATURE ) {}
+static void R4300_CALL_TYPE R4300_Special_TNE( R4300_CALL_SIGNATURE ) {}
+#endif
 
 static void R4300_CALL_TYPE R4300_DBG_Bkpt( R4300_CALL_SIGNATURE )
 {
@@ -757,9 +807,9 @@ static void R4300_CALL_TYPE R4300_DBG_Bkpt( R4300_CALL_SIGNATURE )
 		R4300Instruction[ original_op.op ]( original_op._u32 );
 	}
 #else
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "How did we get here when breakpoints are disabled?" );
-
+#endif
 #endif
 
 }
@@ -1252,7 +1302,7 @@ static void R4300_CALL_TYPE R4300_SWL( R4300_CALL_SIGNATURE ) 			// Store Word L
 	u32 dReg = gGPR[op_code.rt]._u32_0;
 
 #if 1 //1-> tighter code, 0->old way //Corn
-	u32 dNew = (dMem & ~(((u32)~0 >> ((adr & 0x3) << 3)))) | (dReg >> ((adr & 0x3) << 3)); 
+	u32 dNew = (dMem & ~(((u32)~0 >> ((adr & 0x3) << 3)))) | (dReg >> ((adr & 0x3) << 3));
 #else
 	u32 dNew;
 	switch (adr % 4)
@@ -2520,7 +2570,7 @@ static void R4300_CALL_TYPE R4300_Cop1_CTC1( R4300_CALL_SIGNATURE ) 		// move Co
 // Hack for the PSP, set rounding mode here, see notes in SET_ROUND_MODE
 // Fixes collision issues in the final boss of DK64 and camera icon not rotating, fixes collision issues in Rayman, and JFG too
 #ifdef DAEDALUS_PSP
-static void R4300_CALL_TYPE R4300_Cop1_CTC1_2( R4300_CALL_SIGNATURE ) 
+static void R4300_CALL_TYPE R4300_Cop1_CTC1_2( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 #ifdef DAEDALUS_ENABLE_ASSERTS

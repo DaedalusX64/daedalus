@@ -498,7 +498,9 @@ static u32 DLParser_ProcessDList(u32 instruction_limit)
 		{
 			if (--gDlistStack.limit < 0)
 			{
+				#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 				DL_PF("**EndDLInMem");
+				#endif
 				gDlistStackPointer--;
 				// limit is already reset to default -1 at this point
 				//gDlistStack.limit = -1;
@@ -669,8 +671,9 @@ void RDP_MoveMemLight(u32 light_idx, const N64Light *light)
 	s8 dir_z = light->dir_z;
 
 	bool valid = (dir_x | dir_y | dir_z) != 0;
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_USE(valid);
-	#ifdef DAEDALUS_ENABLE_ASSERTS
+
 	DAEDALUS_ASSERT( valid, " Light direction is invalid" );
 #endif
 #ifdef DAEDALUS_ENABLE_PROFILING
@@ -711,8 +714,10 @@ void RDP_MoveMemViewport(u32 address)
 
 	gRenderer->SetN64Viewport( vec_scale, vec_trans );
 
+#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    Scale: %d %d", vp->scale_x, vp->scale_y);
 	DL_PF("    Trans: %d %d", vp->trans_x, vp->trans_y);
+	#endif
 }
 
 //*****************************************************************************
@@ -1026,7 +1031,9 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 	tex_rect.cmd2 = command2.inst.cmd1;
 	tex_rect.cmd3 = command3.inst.cmd1;
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_DL_ASSERT(gRDPOtherMode.cycle_type != CYCLE_COPY || tex_rect.dsdx == (4<<10), "Expecting dsdx of 4<<10 in copy mode, got %d", tex_rect.dsdx);
+#endif
 
 	//Keep integers for as long as possible //Corn
 
@@ -1319,4 +1326,8 @@ void DLParser_SetEnvColor( MicroCodeCommand command )
 //RSP TRI commands..
 //In HLE emulation you NEVER see these commands !
 //*****************************************************************************
+#ifdef DAEDALUS_DEBUG_CONSOLE
 void DLParser_TriRSP( MicroCodeCommand command ){ DL_PF("    RSP Tri: (Ignored)"); }
+#else
+void DLParser_TriRSP( MicroCodeCommand command ) {};
+#endif

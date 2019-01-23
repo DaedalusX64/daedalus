@@ -97,7 +97,9 @@ namespace
 
 	char	GetCategoryLetter( ECategory category )
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ASSERT( category >= 0 && category < NUM_CATEGORIES, "Invalid category" );
+		#endif
 		return gCategoryLetters[ category ];
 	}
 

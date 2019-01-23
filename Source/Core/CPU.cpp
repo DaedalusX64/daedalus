@@ -134,7 +134,9 @@ void CPU_SkipToNextEvent()
 {
 	LOCK_EVENT_QUEUE();
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( gCPUState.NumEvents > 0, "There are no events" );
+	#endif
 	gCPUState.CPUControl[C0_COUNT]._u32 += (gCPUState.Events[ 0 ].mCount - 1);
 	gCPUState.Events[ 0 ].mCount = 1;
 }
@@ -152,9 +154,10 @@ void CPU_AddEvent( s32 count, ECPUEventType event_type )
 {
 	LOCK_EVENT_QUEUE();
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( count > 0, "Count is invalid" );
 	DAEDALUS_ASSERT( gCPUState.NumEvents < MAX_CPU_EVENTS, "Too many events" );
-
+#endif
 	u32 event_idx;
 	for( event_idx = 0; event_idx < gCPUState.NumEvents; ++event_idx )
 	{
@@ -445,7 +448,7 @@ bool CPU_RequestSaveState( const char * filename )
 
 bool CPU_RequestLoadState( const char * filename )
 {
-    
+
 	// Call SaveState_SaveToFile directly if the CPU is not running.
     #ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");
@@ -823,7 +826,7 @@ void R4300_CALL_TYPE CPU_UpdateCounter( u32 ops_executed )
 	DAEDALUS_ASSERT( ops_executed > 0, "Expecting at least one op" );
 	//SYNCH_POINT( DAED_SYNC_FRAGMENT_PC, ops_executed, "Number of executed ops doesn't match" );
 #endif
-    
+
 #ifdef DAEDALUS_PROFILE_EXECUTION
 	gTotalInstructionsExecuted += ops_executed;
 #endif
@@ -908,4 +911,3 @@ bool CPU_IsRunning()
 {
 	return gCPURunning;
 }
-

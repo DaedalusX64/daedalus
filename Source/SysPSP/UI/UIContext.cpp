@@ -321,7 +321,9 @@ void	IUIContext::SetFontStyle( EFontStyle font_style )
 	case FS_HEADING: mCurrentFont = CDrawText::F_LARGE_BOLD;	return;
 	}
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled font style" );
+  #endif
 }
 
 //*************************************************************************************
@@ -433,7 +435,9 @@ namespace
 			case VA_BOTTOM: return top + height - text_height;
 		}
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Unhandled vertical align" );
+    #endif
 		return top;
 	}
 }

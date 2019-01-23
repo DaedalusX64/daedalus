@@ -85,7 +85,9 @@ const char * ROM_GetExpansionPakUsageName( EExpansionPakUsage pak_usage )
 		case PAK_REQUIRED:			return "Required";
 	}
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unknown expansion pak type" );
+	#endif
 	return "?";
 }
 
@@ -102,8 +104,9 @@ const char * ROM_GetSaveTypeName( ESaveType save_type )
 		case SAVE_TYPE_SRAM:		return "SRAM";
 		case SAVE_TYPE_FLASH:		return "FlashRam";
 	}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unknown save type" );
+	#endif
 	return "?";
 }
 
@@ -145,7 +148,9 @@ class IRomSettingsDB : public CRomSettingsDB
 //*****************************************************************************
 template<> bool	CSingleton< CRomSettingsDB >::Create()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
+#endif
 
 	mpInstance = new IRomSettingsDB();
 

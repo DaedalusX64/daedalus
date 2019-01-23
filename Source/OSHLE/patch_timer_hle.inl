@@ -35,8 +35,9 @@ TEST_DISABLE_TIMER_FUNCS
 
 	u64 NewValue    = QuickRead64Bits(pNewTimerBase, 0x10);	// Check ordering is correct?!
 	u64 InsertValue = QuickRead64Bits(pInsertTimerBase, 0x10);
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( InsertTimer, "osInsertTimer with NULL insert timer" );
+	#endif
 	/*
 	if ( InsertTimer == 0 )
 	{
@@ -106,7 +107,7 @@ TEST_DISABLE_TIMER_FUNCS
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Initialising Timer Services");
 	#endif
-	
+
 	QuickWrite32Bits(pTimeBase, 0x0, 0);	// TimeHi
 	QuickWrite32Bits(pTimeBase, 0x4, 0);	// TimeLo
 
