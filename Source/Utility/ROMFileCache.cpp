@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #ifdef DAEDALUS_PSP
-#include "SysPSP/Utility/PSPModel.h"
+extern bool PSP_IS_SLIM;
 #endif
 
 namespace
@@ -70,7 +70,7 @@ ROMFileCache::ROMFileCache()
 {
 #ifdef DAEDALUS_PSP
 	CHUNK_SIZE = 16 * 1024;
-	if(PSPDetect(1))
+	if( PSP_IS_SLIM )
 	{
 		//32MB cache(SLIM)
 		CACHE_SIZE = 2048;

@@ -6,7 +6,7 @@
 // This is a simple function to replace the kubridge and bring back earlier firmware support.
 
 int PSPVramSize =  sceGeEdramGetSize() / 1024;
-
+bool PSP_IS_SLIM = false;
 
 int PSPDetect (int PSPModel)
 {
@@ -16,7 +16,8 @@ int PSPDetect (int PSPModel)
 			// This is a PSP Slim or above including Vita
 			// We need to exclude the Vita from this
 
-			PSPModel=1;
+			PSP_IS_SLIM = true;
+            PSPModel = 1; // Slim
 	//		printf("PSPModel is %d",PSPModel);
 		}
 		//else if (PSPVramSize > 4096 && PSVitaDetect == 0)
@@ -25,7 +26,8 @@ int PSPDetect (int PSPModel)
 		//}
 		else
 		{
-			PSPModel=0; // Fat
+PSP_IS_SLIM = false;
+PSPModel= 0; // Fat
 	//				printf("PSPModel is %d",PSPModel);
 		}
 

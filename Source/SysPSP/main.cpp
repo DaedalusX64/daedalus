@@ -98,8 +98,7 @@ extern int HAVE_DVE;
 extern int PSP_TV_CABLE;
 extern int PSP_TV_LACED;
 extern void VolatileMemInit();
-
-
+extern bool PSP_IS_SLIM;
 bool g32bitColorMode = false;
 //*************************************************************************************
 //Set up our initial eviroment settings for the PSP
@@ -270,11 +269,11 @@ static bool	Initialize()
 
 
 	//Set up the DveMgr (TV Display) and Detect PSP Slim /3K/ Go
-	if ( PSPDetect(1) )
+	if ( PSPDetect(1)  )
 	{
 		// Can't use extra memory if ME isn't available
-	//	if( bMeStarted )
-		//	PSP_IS_SLIM = true;
+		if( bMeStarted )
+			PSP_IS_SLIM = true;
 
 		HAVE_DVE = CModule::Load("dvemgr.prx");
 		if (HAVE_DVE >= 0)
@@ -299,7 +298,7 @@ static bool	Initialize()
 	return true;
 }
 
-//*************************************************************************************
+//*********t****************************************************************************
 //
 //*************************************************************************************
 static void Finalise()

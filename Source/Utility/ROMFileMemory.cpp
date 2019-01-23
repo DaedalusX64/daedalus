@@ -21,11 +21,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "ROMFileMemory.h"
 #include "MemoryHeap.h"
-
+#include "SysPSP/Utility/PSPModel.h"
 #include <stdlib.h>
 
 #ifdef DAEDALUS_PSP
-#include "SysPSP/Utility/PSPModel.h"
+extern bool PSP_IS_SLIM;
 #endif
 //*****************************************************************************
 //
@@ -77,7 +77,7 @@ IROMFileMemory::IROMFileMemory()
 	// Allocate large memory heap for SLIM+ (32Mb) Used for ROM Buffer and ROM Cache
 	// Otherwise allocate small memory heap for PHAT (2Mb) Used for ROM cache only
 	//
-	if(PSPDetect(1))
+	if(PSP_IS_SLIM)
 	{
 		mRomMemoryHeap = CMemoryHeap::Create( 32 * 1024 * 1024 );
 	}
