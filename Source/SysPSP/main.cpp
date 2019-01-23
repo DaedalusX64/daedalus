@@ -104,7 +104,7 @@ bool g32bitColorMode = false;
 //*************************************************************************************
 //Set up our initial eviroment settings for the PSP
 //*************************************************************************************
-PSP_MODULE_INFO( DaedalusX64 Beta 3 Update, 0, 1, 1 );
+PSP_MODULE_INFO( DaedalusX64 1.1.6, 0, 1, 1 );
 PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
 //PSP_HEAP_SIZE_KB(20000);// Set Heapsize to 18.5mb
 PSP_HEAP_SIZE_KB(-256);
@@ -271,7 +271,7 @@ static bool	Initialize()
 	if ( PSPDetect(0) )
 	{
         // Check to see if the PSP is fat, otherwise go ahead and init slim stuff
-    } 
+    }
     else
     {
 		// Can't use extra memory if ME isn't available

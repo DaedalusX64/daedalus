@@ -44,7 +44,7 @@ namespace
 	const u32				TEXT_AREA_RIGHT = 480-40;
 
 
-	const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 ";
+	const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 1.1.6";
 
 	const char * const		DATE_TEXT = "Built ";
 
