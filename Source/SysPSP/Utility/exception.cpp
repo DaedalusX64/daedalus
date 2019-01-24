@@ -16,7 +16,6 @@
 #include "Debug/Dump.h"
 #include "Utility/PrintOpCode.h"
 
-#include "svnversion.h"
 
 PspDebugRegBlock *exception_regs;
 
@@ -113,7 +112,6 @@ static void DumpInformation(PspDebugRegBlock * regs)
 	{
 		fprintf(fp, "\tFirmware:         0x%08x\n", sceKernelDevkitVersion());
 //		fprintf(fp, "\t64MB Available:   %s\n", PSP_IS_SLIM ? "Yes" : "No");
-		fprintf(fp, "\tEmulator Version: "SVNVERSION"\n");
 	}
 
 	fprintf(fp, "\nSettings:\n");
