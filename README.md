@@ -27,6 +27,7 @@ For information about compatibility, optimal settings and more about the emulato
 ## Credits
 
 - kreationz, salvy6735: Original DaedalusX64 code
+- Wally: Optimizations, improvements and ports
 - z2442: Compilation improvements and updating, optimizations
 - mrneo240: Optimizations, compilation help
 - TheMrIron2: Optimizations, wiki maintenance 
