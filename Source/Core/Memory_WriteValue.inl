@@ -398,10 +398,11 @@ static void WriteValue_8480_848F( u32 address, u32 value )
 // 0x1FC0 07C0 to 0x1FC0 07FF PIF RAM
 static void WriteValue_9FC0_9FCF( u32 address, u32 value )
 {
-//	u32 offset = address & 0x0FFF; This is unused
+	u32 offset = address & 0x0FFF; 
 	u32 pif_ram_offset = address & 0x3F;
     #ifdef DAEDALUS_DEBUG_CONSOLE
 	// Writing PIF ROM or outside PIF RAM
+
 	if ((offset < 0x7C0) || (offset > 0x7FF))
 	{
 
