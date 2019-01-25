@@ -309,19 +309,23 @@ void Patch_DumpOsThreadInfo()
 		// Hack to avoid null thread
 		if (dwPri == 0xFFFFFFFF)
 			break;
-#ifdef DAEDALUS_DEBUG_CONSOLE
+
 		if (dwThread == dwCurrentThread)
 		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "->0x%08x, % 4d, 0x%08x, 0x%04x, 0x%04x, 0x%08x, 0x%08x",
 				dwThread, dwPri, dwQueue, wState, wFlags, dwID, dwFP);
+				#endif
 		}
 		else
 		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "  0x%08x, % 4d, 0x%08x, 0x%04x, 0x%04x, 0x%08x, 0x%08x",
 				dwThread, dwPri, dwQueue, wState, wFlags, dwID, dwFP);
+				#endif
 		}
 		dwThread = Read32Bits(dwThread + offsetof(OSThread, tlnext));
-#endif
+
 		if (dwThread == dwFirstThread)
 			break;
 	}
@@ -601,8 +605,9 @@ void Patch_RecurseAndFind()
 			{
 					#ifdef DAEDALUS_DEBUG_CONSOLE
 				DBGConsole_Msg(0, "[ROS Hack : Disabling %s]", g_PatchSymbols[i]->Name);
+						#endif
 				g_PatchSymbols[i]->Found = false;
-				#endif
+
 			}
 
 			if (!found_duplicate)
@@ -862,14 +867,16 @@ bool Patch_VerifyLocation_CheckSignature(PatchSymbol * ps,
 
 			// If pcr->Offset == ~0, then there are no more in the array
 			// This is okay, as the comparison with m above will never match
-#ifdef DAEDALUS_DEBUG_CONSOLE
+				#ifdef DAEDALUS_DEBUG_CONSOLE
 			if (pcr->Offset < last)
 			{
+
 				DBGConsole_Msg(0, "%s: CrossReference offsets out of order", ps->Name);
+
 			}
 
 			last = pcr->Offset;
-#endif
+				#endif
 		}
 		else
 		{

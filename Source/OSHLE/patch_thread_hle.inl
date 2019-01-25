@@ -728,12 +728,13 @@ TEST_DISABLE_THREAD_FUNCS
 			g___osEnqueueThread_s.Function();
 		}
 	}
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 	else
 	{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "  Thread is neither WAITING nor STOPPED");
+		#endif
 	}
-#endif
+
 	// At this point, we check the priority of the current
 	// thread and the highest priority thread on the thread queue. If
 	// the current thread has a higher priority, nothing happens, else
