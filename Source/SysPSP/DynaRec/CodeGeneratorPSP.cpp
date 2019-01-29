@@ -391,7 +391,7 @@ void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register
 					//	If the register is modified anywhere in the fragment, we need
 					//	to mark it as dirty so it's flushed correctly on exit.
 					//
-					if( register_usage.IsModified( n64_reg, lo_hi ) )
+					if( register_usage.IsModified( n64_reg ) )
 					{
 						mRegisterCache.MarkAsDirty( n64_reg, lo_hi_idx, true );
 					}
