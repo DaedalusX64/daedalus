@@ -392,7 +392,6 @@ void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register
 					//	to mark it as dirty so it's flushed correctly on exit.
 					//
 					if( register_usage.IsModified( n64_reg ) )
-					if( register_usage.IsModified( n64_reg, lo_hi ) )
 					{
 						mRegisterCache.MarkAsDirty( n64_reg, lo_hi_idx, true );
 					}
