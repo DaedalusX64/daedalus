@@ -2016,7 +2016,7 @@ void BaseRenderer::SetScissor( u32 x0, u32 y0, u32 x1, u32 y1 )
 	#ifdef DAEDALUS_DEBUG_CONSOLE
 #else
 
-	DAEDALUS_ERROR("Need to implement scissor for this platform.")
+    DAEDALUS_ERROR("Need to implement scissor for this platform.");
 #endif
 #endif
 }

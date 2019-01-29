@@ -77,8 +77,8 @@ set (WIN_BUILD ${WIN_AUDIO} ${WIN_DEBUG} ${WIN_UTILITY})
 #macOS Build
 set (MAC_DEBUG SysOSX/Debug/DaedalusAssertOSX.cpp SysOSX/Debug/DebugConsoleOSX.cpp SysOSX/Debug/WebDebug.cpp SysOSX/Debug/WebDebugTemplate.cpp)
 set (MAC_DYNAREC SysOSX/DynaRec/CodeBufferManagerOSX.cpp)
-set (MAC_HLEGRAPHICS SysOSX/HLEGrahpics/DisplayListDebugger.cpp)
-
+set (MAC_HLEGRAPHICS SysOSX/HLEGraphics/DisplayListDebugger.cpp)
+set (MAC_MAIN_FILES SysOSX/main.cpp)
 set (MAC_BUILD ${MAC_DEBUG} ${MAC_DYNAREC} ${MAC_HLEGRAPHICS} ${POSIX_UTILITY})
 
 #Posix BUILD
@@ -132,3 +132,16 @@ if (PSP_DEBUG)
 	target_include_directories(daedalus.elf PUBLIC /usr/local/pspdev/psp/sdk/include )
 	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lpng -lz -lg -lm -lpspfpu  ${PSPSDK_LIBS})
 endif (PSP_DEBUG)
+
+if (MAC_RELEASE)
+	message("macOS Release Build..")
+
+	include_directories(${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/Debug)
+	add_definitions("-DNDEBUG -O3 -fms-extensions")
+		include_directories(BEFORE /usr/local/include )
+		add_library(daedalus.lib STATIC ${BUILD} ${MAC_BUILD})
+					target_include_directories(daedalus.lib PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/SysOSX/Include )
+			add_executable(daedalus ${MAC_MAIN_FILES})
+					target_include_directories(daedalus PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/SysOSX/Include )
+			target_link_libraries (daedalus daedalus.lib)
+endif (MAC_RELEASE)

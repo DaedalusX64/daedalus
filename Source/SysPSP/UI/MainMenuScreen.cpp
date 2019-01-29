@@ -1,4 +1,4 @@
-/*
+w/*
 Copyright (C) 2006 StrmnNrmn
 
 This program is free software; you can redistribute it and/or
