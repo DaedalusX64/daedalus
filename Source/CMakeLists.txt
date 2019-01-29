@@ -134,14 +134,24 @@ if (PSP_DEBUG)
 endif (PSP_DEBUG)
 
 if (MAC_RELEASE)
+
+	find_library(
+		minizip NAMES minizip
+	PATH "/usr/local/lib"
+	)
 	message("macOS Release Build..")
 
 	include_directories(${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/Debug)
 	add_definitions("-DNDEBUG -O3 -fms-extensions")
 		include_directories(BEFORE /usr/local/include )
+		add_library(glLib STATIC ${SYSGL_BUILD} )
+				target_include_directories(glLib PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/SysOSX/Include )
 		add_library(daedalus.lib STATIC ${BUILD} ${MAC_BUILD})
 					target_include_directories(daedalus.lib PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/SysOSX/Include )
 			add_executable(daedalus ${MAC_MAIN_FILES})
+		set_target_properties(daedalus PROPERTIES LINK_FLAGS -L/usr/local/lib)
 					target_include_directories(daedalus PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/SysOSX/Include )
-			target_link_libraries (daedalus daedalus.lib)
+										link_directories(BEFORE /usr/local/lib)
+										target_link_libraries( daedalus glLib daedalus.lib -lglew -lpng -lglfw3  "-framework Cocoa -framework IOKit -framework CoreVideo -framework AudioToolBox" )
+#			target_link_libraries (daedalus glLib daedalus.lib ${IOKit} ${OPENGL_glu_LIBRARY} ${COCOA_LIBRARY} ${AUDIO_TOOLBOX} ${ZIP_LIBRARY}  ${COREVIDEO} ${OPENGL} -lglfw3 -lglew  -lpng zip)
 endif (MAC_RELEASE)
