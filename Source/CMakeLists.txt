@@ -86,7 +86,7 @@ set (MAC_BUILD ${MAC_DEBUG} ${MAC_DYNAREC} ${MAC_HLEGRAPHICS} ${POSIX_UTILITY})
 
 set (POSIX_UTILITY SysPosix/Utility/CondPosix.cpp SysPosix/Utility/IOPosix.cpp SysPosix/Utility/ThreadPosix.cpp SysPosix/Utility/TimingPosix.cpp)
 
-set (LINUX_AUDIO SYSLinux/HLEAudio/AudioPluginLinux.cpp)
+set (LINUX_AUDIO SysLinux/HLEAudio/AudioPluginLinux.cpp)
 
 set (LINUX_BUILD ${MAC_BUILD} ${LINUX_AUDIO})
 
@@ -135,6 +135,24 @@ if (PSP_DEBUG)
 	target_include_directories(daedalus.elf PUBLIC /usr/local/pspdev/psp/sdk/include )
 	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lpng -lz -lg -lm -lpspfpu  ${PSPSDK_LIBS})
 endif (PSP_DEBUG)
+
+if (LINUX_RELEASE)
+	message("Linux Release Build..")
+	add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/zlib)
+	include_directories(${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/Debug ${PROJECT_SOURCE_DIR}/third_party/zlib ${PROJECT_SOURCE_DIR}/third_party/zlib/contrib/minizip)
+	add_definitions("-DNDEBUG -O3 -pedantic")
+		include_directories(BEFORE /usr/local/include)
+		add_library(glLib STATIC ${SYSGL_BUILD} )
+				target_include_directories(glLib PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Linux/Include )
+		add_library(daedalus.lib STATIC ${BUILD} ${LINUX_BUILD})
+					target_include_directories(daedalus.lib PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/SysLinux/Include )
+			add_executable(daedalus ${MAC_MAIN_FILES})
+		set_target_properties(daedalus PROPERTIES LINK_FLAGS -L/usr/local/lib)
+					target_include_directories(daedalus PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/SysOSX/Include )
+										link_directories(BEFORE /usr/local/lib)
+										target_link_libraries(daedalus daedalus.lib glLib -lglew -lpng z minizip)
+endif (LINUX_RELEASE)
+
 
 if (MAC_RELEASE)
 	message("macOS Release Build..")
