@@ -15,6 +15,7 @@ project (DaedalusX64)
 
 
 
+
 #Base Source files
 
 
@@ -94,11 +95,13 @@ set (SYSGL_GRAPHICS SysGL/Graphics/GraphicsContextGL.cpp SysGL/Graphics/NativeTe
 set (SYSGL_HLEGRAPHICS SysGL/HLEGraphics/GraphicsPluginGL.cpp SysGL/HLEGraphics/RendererGL.cpp)
 set (SYSGL_INPUT SysGL/Input/InputManagerGL.cpp)
 set (SYSGL_INTERFACE SysGL/Interface/UI.cpp)
-
 set (SYSGL_BUILD ${SYSGL_GRAPHICS} ${SYSGL_HLEGRAPHICS} ${SYSGL_INPUT} ${SYSGL_INTERFACE})
 
 
-#build as Release for now
+
+
+
+
 Set(PSPSDK_LIBS -lpspdebug -lpspdisplay -lpspge -lpspctrl -lpspsdk -lpsplibc -lpsputility -lpspuser -lpspkernel )
 
 
@@ -134,14 +137,9 @@ if (PSP_DEBUG)
 endif (PSP_DEBUG)
 
 if (MAC_RELEASE)
-
-	find_library(
-		minizip NAMES minizip
-	PATH "/usr/local/lib"
-	)
 	message("macOS Release Build..")
-
-	include_directories(${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/Debug)
+	add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/zlib)
+	include_directories(${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/Debug ${PROJECT_SOURCE_DIR}/third_party/zlib ${PROJECT_SOURCE_DIR}/third_party/zlib/contrib/minizip)
 	add_definitions("-DNDEBUG -O3 -fms-extensions")
 		include_directories(BEFORE /usr/local/include )
 		add_library(glLib STATIC ${SYSGL_BUILD} )
@@ -152,6 +150,6 @@ if (MAC_RELEASE)
 		set_target_properties(daedalus PROPERTIES LINK_FLAGS -L/usr/local/lib)
 					target_include_directories(daedalus PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/SysOSX/Include )
 										link_directories(BEFORE /usr/local/lib)
-										target_link_libraries( daedalus glLib daedalus.lib -lglew -lpng -lglfw3  "-framework Cocoa -framework IOKit -framework CoreVideo -framework AudioToolBox" )
+										target_link_libraries(daedalus daedalus.lib glLib -lglew "-framework Cocoa -framework IOKit -framework CoreVideo -framework AudioToolBox"  -lpng z minizip)
 #			target_link_libraries (daedalus glLib daedalus.lib ${IOKit} ${OPENGL_glu_LIBRARY} ${COCOA_LIBRARY} ${AUDIO_TOOLBOX} ${ZIP_LIBRARY}  ${COREVIDEO} ${OPENGL} -lglfw3 -lglew  -lpng zip)
 endif (MAC_RELEASE)
