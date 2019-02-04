@@ -166,7 +166,7 @@ TEST_DISABLE_UTIL_FUNCS
 		psrc += len;
 		while(len--)
 		{
-			*(u8*)((u32)pdst-- ^ U8_TWIDDLE) = *(u8*)((uintptr_t)psrc-- ^ U8_TWIDDLE);
+            *(u8*)((uintptr_t)pdst-- ^ U8_TWIDDLE) = *(u8*)((uintptr_t)psrc-- ^ U8_TWIDDLE);
 		}
 	}
 	else
@@ -233,7 +233,7 @@ u32 Patch_bzero()
 	//Write(0) to the unaligned remains(if any), byte by byte...
 	while(len--)
 	{
-		*(u8*)((u32)dst8++ ^ U8_TWIDDLE) = 0;
+	*(u8*)((uintptr_t)dst8++ ^ U8_TWIDDLE) = 0;
 	}
 #endif
 
