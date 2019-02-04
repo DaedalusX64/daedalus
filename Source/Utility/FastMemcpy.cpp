@@ -78,7 +78,7 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 
 				case 1:	//Handle offset by 1
 					{
-						src32 = (u32*)((u32)src8 & ~0x3);
+						src32 = (u32*)((uintptr_t)src8 & ~0x3);
 						srcTmp = *src32++;
 						while(size32--)
 						{
@@ -93,7 +93,7 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 
 				case 2:	//Handle offset by 2
 					{
-						src32 = (u32*)((u32)src8 & ~0x3);
+						src32 = (u32*)((uintptr_t)src8 & ~0x3);
 						srcTmp = *src32++;
 						while(size32--)
 						{
@@ -108,7 +108,7 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 
 				case 3:	//Handle offset by 3
 					{
-						src32 = (u32*)((u32)src8 & ~0x3);
+						src32 = (u32*)((uintptr_t)src8 & ~0x3);
 						srcTmp = *src32++;
 						while(size32--)
 						{

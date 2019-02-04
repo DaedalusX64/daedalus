@@ -98,7 +98,7 @@ TEST_DISABLE_PI_FUNCS
 	}
 	*/
 
-	u32 PAddr = ConvertToPhysics(VAddr);
+	u32 PAddr = ConvertToPhysical(VAddr);
 
 	Memory_PI_SetRegister(PI_CART_ADDR_REG, (PiAddr & 0x0fffffff) | 0x10000000);
 	Memory_PI_SetRegister(PI_DRAM_ADDR_REG, PAddr);

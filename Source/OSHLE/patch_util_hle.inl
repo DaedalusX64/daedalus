@@ -66,7 +66,7 @@ TEST_DISABLE_UTIL_FUNCS
 	const u8 *psrc = (const u8*)ReadAddress(string);
 	const u8 *start = psrc;
 
-	while (*((u8*)((u32)psrc++^U8_TWIDDLE)) );
+	while (*((u8*)((uintptr_t)psrc++^U8_TWIDDLE)) );
 
 	gGPR[REG_v0]._s64 = (s64)(psrc - start - 1);
 
@@ -89,7 +89,7 @@ TEST_DISABLE_UTIL_FUNCS
 
 	for (;; psrc++)
 	{
-		const u8 SrcChar = *((u8*)((u32)psrc^U8_TWIDDLE));
+		const u8 SrcChar = *((u8*)((uintptr_t)psrc^U8_TWIDDLE));
 
 		if( SrcChar == MatchChar )
 		{
@@ -166,7 +166,7 @@ TEST_DISABLE_UTIL_FUNCS
 		psrc += len;
 		while(len--)
 		{
-			*(u8*)((u32)pdst-- ^ U8_TWIDDLE) = *(u8*)((u32)psrc-- ^ U8_TWIDDLE);
+			*(u8*)((u32)pdst-- ^ U8_TWIDDLE) = *(u8*)((uintptr_t)psrc-- ^ U8_TWIDDLE);
 		}
 	}
 	else
@@ -202,9 +202,9 @@ u32 Patch_bzero()
 	memset( dst8, 0, len);
 #else
 	// Align dst on 4 bytes or just resume if already done
-	while(((u32)dst8 & 0x3) && len)
+	while(((uintptr_t)dst8 & 0x3) && len)
 	{
-		*(u8*)((u32)dst8++ ^ U8_TWIDDLE) = 0;
+		*(u8*)((uintptr_t)dst8++ ^ U8_TWIDDLE) = 0;
 		len--;
 	}
 

@@ -139,21 +139,13 @@ void jpeg_decode_PS(OSTask *task)
         return;
     }
 #endif
-#ifndef DAEDALUS_LINUX
-    u32       address          = rdram_read_u32((u32)task->t.data_ptr);
-    const u32 macroblock_count = rdram_read_u32((u32)task->t.data_ptr + 4);
-    const u32 mode             = rdram_read_u32((u32)task->t.data_ptr + 8);
-    const u32 qtableY_ptr      = rdram_read_u32((u32)task->t.data_ptr + 12);
-    const u32 qtableU_ptr      = rdram_read_u32((u32)task->t.data_ptr + 16);
-    const u32 qtableV_ptr      = rdram_read_u32((u32)task->t.data_ptr + 20);
-    #else
-     *(u32 *)       address          = rdram_read_u32(*(u32 *)task->t.data_ptr);
-    const *(u32 *) macroblock_count = rdram_read_u32((u32)task->t.data_ptr + 4);
-    const u32 mode             = rdram_read_u32((u32)task->t.data_ptr + 8);
-    const u32 qtableY_ptr      = rdram_read_u32((u32)task->t.data_ptr + 12);
-    const u32 qtableU_ptr      = rdram_read_u32((u32)task->t.data_ptr + 16);
-    const u32 qtableV_ptr      = rdram_read_u32((u32)task->t.data_ptr + 20);
-//							*(u8 *)((u32)p_mem ^ U8_TWIDDLE) = (u8)value;
+    u32       address          = rdram_read_u32((uintptr_t)task->t.data_ptr);
+    const u32 macroblock_count = rdram_read_u32((uintptr_t)task->t.data_ptr + 4);
+    const u32 mode             = rdram_read_u32((uintptr_t)task->t.data_ptr + 8);
+    const u32 qtableY_ptr      = rdram_read_u32((uintptr_t)task->t.data_ptr + 12);
+    const u32 qtableU_ptr      = rdram_read_u32((uintptr_t)task->t.data_ptr + 16);
+    const u32 qtableV_ptr      = rdram_read_u32((uintptr_t)task->t.data_ptr + 20);
+
 
     #ifdef DAEDALUS_DEBUG_CONSOLE
     if (mode != 0 && mode != 2)

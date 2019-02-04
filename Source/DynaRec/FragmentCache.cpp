@@ -103,11 +103,11 @@ CFragment * CFragmentCache::LookupFragment( u32 address ) const
 
 			// put in hash table
 			mpCacheHashTable[ix].addr = address;
-			mpCacheHashTable[ix].ptr = reinterpret_cast< u32 >( mpCachedFragment );
+			mpCacheHashTable[ix].ptr = mpCachedFragment
 		}
 		else
 		{
-			mpCachedFragment = reinterpret_cast< CFragment * >( mpCacheHashTable[ix].ptr );
+			mpCachedFragment = mpCacheHashTable[ix].ptr;
 		}
 	}
 
@@ -154,14 +154,14 @@ CFragment * CFragmentCache::LookupFragmentQ( u32 address ) const
 
 			// put in hash table
 			mpCacheHashTable[ix].addr = address;
-			mpCacheHashTable[ix].ptr = reinterpret_cast< u32 >( mpCachedFragment );
+			mpCacheHashTable[ix].ptr = mpCachedFragment;
 		}
 		else
 		{
 #ifdef HASH_TABLE_STATS
 			hit++;
 #endif
-			mpCachedFragment = reinterpret_cast< CFragment * >( mpCacheHashTable[ix].ptr );
+			mpCachedFragment = mpCacheHashTable[ix].ptr;
 		}
 
 #ifdef HASH_TABLE_STATS
@@ -196,7 +196,7 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 	// Update the hash table (it stores failed lookups now, so we need to be sure to purge any stale entries in there
 	u32 ix = MakeHashIdx( fragment_address );
 	mpCacheHashTable[ix].addr = fragment_address;
-	mpCacheHashTable[ix].ptr = reinterpret_cast< u32 >( p_fragment );
+	mpCacheHashTable[ix].ptr = p_fragment;
 
 	// Process any jumps for this before inserting new ones
 	JumpMap::iterator	jump_it( mJumpMap.find( fragment_address ) );

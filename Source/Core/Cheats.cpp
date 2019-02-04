@@ -165,12 +165,8 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 					case 0x80:
 						do
 						{
-#ifndef DAEDALUS_LINUX
-							*(u8 *)((u32)p_mem ^ U8_TWIDDLE) = (u8)value;
-#else
-// This breaks on Linux due to new GCC being 64 bit
-							*(u8 *)(*(u32 *)p_mem ^ U8_TWIDDLE) = *(u8 *)value;
-							#endif
+							*(u8 *)((uintptr_t)p_mem ^ U8_TWIDDLE) = (u8)value;
+
 							p_mem += offset;
 							value += (u8)valinc;
 							count--;
@@ -179,11 +175,8 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 					case 0x81:
 						do
 						{
-							#ifndef DAEDALUS_LINUX
-							*(u16 *)((u32)p_mem ^ U16_TWIDDLE) = value;
-							#else
-								*(u16 *)(*(u32 *)p_mem ^ U16_TWIDDLE) = *(u8 *)value;
-								#endif
+							*(u16 *)((uintptr_t)p_mem ^ U16_TWIDDLE) = value;
+
 							p_mem += offset;
 							value += valinc;
 							count--;

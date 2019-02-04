@@ -486,7 +486,7 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 		uObjTxtrTLUT *ObjTlut = (uObjTxtrTLUT*)ObjTxtr;
 
 		// Store TLUT pointer
-		gTlutLoadAddresses[ (ObjTxtr->tlut.phead>>2) & 0x3F ] = (u32*)(g_pu8RamBase + RDPSegAddr(ObjTlut->image));
+		gTlutLoadAddresses[ (ObjTxtr->tlut.phead>>2) & 0x3F ] = RDPSegAddr(ObjTlut->image);
 		gObjTxtr = NULL;
 	}
 	else // (TXTRBLOCK, TXTRTILE)
@@ -532,8 +532,8 @@ inline void DLParser_Yoshi_MemRect( MicroCodeCommand command )
 #if 1	//1->Optimized, 0->Generic
 	// This assumes Yoshi always copy 16 bytes per line and dst is aligned and we force alignment on src!!! //Corn
 	u32 tex_width = rdp_tile.line << 3;
-	u32 texaddr = ((u32)g_pu8RamBase + tile_addr + tex_width * (mem_rect.s >> 5) + (mem_rect.t >> 5) + 3) & ~3;
-	u32 fbaddr = (u32)g_pu8RamBase + g_CI.Address + x0;
+	uintptr_t texaddr = ((uintptr_t)g_pu8RamBase + tile_addr + tex_width * (mem_rect.s >> 5) + (mem_rect.t >> 5) + 3) & ~3;
+	uintptr_t fbaddr = (uintptr_t)g_pu8RamBase + g_CI.Address + x0;
 
 	for (u32 y = y0; y < y1; y++)
 	{

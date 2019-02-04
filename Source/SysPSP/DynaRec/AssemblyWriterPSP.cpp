@@ -252,7 +252,7 @@ CJumpLocation	CAssemblyWriterPSP::JAL( CCodeLabel target, bool insert_delay )
 	PspOpCode	op_code;
 	op_code._u32 = 0;
 	op_code.op = OP_JAL;
-	op_code.target = target.GetTargetU32() >> 2;
+op_code.target = reinterpret_cast<u32>(target.GetTargetU8P()) >> 2;
 	AppendOp( op_code );
 
 	if(insert_delay)
@@ -275,7 +275,7 @@ CJumpLocation	CAssemblyWriterPSP::J( CCodeLabel target, bool insert_delay )
 	PspOpCode	op_code;
 	op_code._u32 = 0;
 	op_code.op = OP_J;
-	op_code.target = target.GetTargetU32() >> 2;
+op_code.target = reinterpret_cast<u32>(target.GetTargetU8P()) >> 2;
 	AppendOp( op_code );
 
 	if(insert_delay)

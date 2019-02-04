@@ -570,13 +570,11 @@ static void ConvertI8(const TextureDestInfo & dsti, const TextureInfo & ti)
 
 static void ConvertCI8(const TextureDestInfo & dsti, const TextureInfo & ti)
 {
-	#ifdef DAEDALUS_DEBUG_CONSOLE
-	DAEDALUS_ASSERT(ti.GetTlutAddress(), "No TLUT address");
-#endif
+
 	NativePf8888 temp_palette[256];
 
 	NativePf8888 *	dst_palette = dsti.Palette ? reinterpret_cast< NativePf8888 * >( dsti.Palette ) : temp_palette;
-	const void * 	src_palette = reinterpret_cast< const void * >( ti.GetTlutAddress() );
+	const void * 	src_palette = g_pu8RamBase + ti.GetTlutAddress();
 
 	ConvertPalette(ti.GetTLutFormat(), dst_palette, src_palette, 256);
 
@@ -610,7 +608,7 @@ static void ConvertCI4(const TextureDestInfo & dsti, const TextureInfo & ti)
 	NativePf8888 temp_palette[16];
 
 	NativePf8888 *	dst_palette = dsti.Palette ? reinterpret_cast< NativePf8888 * >( dsti.Palette ) : temp_palette;
-	const void * 	src_palette = reinterpret_cast< const void * >( ti.GetTlutAddress() );
+	const void * 	src_palette = g_pu8RamBase + ti.GetTlutAddress();
 
 	ConvertPalette(ti.GetTLutFormat(), dst_palette, src_palette, 16);
 

@@ -1343,7 +1343,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 //*****************************************************************************
 void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboard)
 {
-	u32 pVtxBase = u32(g_pu8RamBase + address);
+	uintptr_t pVtxBase = reinterpret_cast<uintptr_t>(g_pu8RamBase + address);
 	const Matrix4x4 & mat_world_project = mModelViewStack[mDKRMatIdx];
 #ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
