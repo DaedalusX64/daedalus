@@ -123,34 +123,42 @@ if (PSP_DEBUG)
 	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lpng -lz -lg -lm -lpspfpu  ${PSPSDK_LIBS})
 endif (PSP_DEBUG)
 
+if (LIBS)
+				message("Including third_party libraries for build")
+				set(third_party ${PROJECT_SOURCE_DIR}/third_party)
+			#glew
+			add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/glew/build/cmake)
+			#glfw
+			set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+			set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+			set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+			add_subdirectory(${third_party}/glfw)
+			include_directories(${third_party}/glfw/include)
+			#zlib + minizip
+			add_subdirectory(${third_party}/zlib)
+			include_directories(${PROJECT_SOURCE_DIR}/third_party/zlib ${PROJECT_SOURCE_DIR}/third_party/zlib/contrib/minizip)
+
+			#png
+			add_subdirectory(${third_party}/libpng16)
+
+endif (LIBS)
+
 if (LINUX_RELEASE)
-	#SysGL Build Requirements
-	#Static Library
-	#Depends on GLEW / GLFW / libPNG
-	#Sources in SysGL are correct
 
-	message("Linux Release Build..")
+		message("Linux Release Build..")
 		add_definitions("-DNDEBUG -O3")
-#Default includes
-#find GLFW
-find_package(PkgConfig REQUIRED)
-pkg_search_module(GLFW REQUIRED glfw3)
 
-include_directories(${GLFW_INCLUDE_DIRS})
-include_directories(${PROJECT_SOURCE_DIR/HLEGraphics})
-include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/SysLinux/Include)
-include_directories(${PROJECT_SOURCE_DIR}/third_party/zlib ${PROJECT_SOURCE_DIR}/third_party/zlib/contrib/minizip)
-
-		#Add in Zlib
-		add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/zlib)
+		include_directories(${PROJECT_SOURCE_DIR/HLEGraphics})
+		include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/SysLinux/Include)
 
 		#Build SysGL Lib
 		add_library(sysGL STATIC ${SYSGL_BUILD})
-		target_link_libraries(sysGL -lGLEW ${GLFW_LIBRARIES} png)
+		target_link_libraries(sysGL -lGLEW ${GLFW_LIBRARIES} ${libpng16})
 
 		#Build Daedalus Lib
 		add_library(daedalus.lib STATIC ${BUILD} ${LINUX_BUILD} )
-	target_link_libraries(daedalus.lib sysGL -lGLEW ${GLFW_LIBRARIES} -lpng z minizip -lpthread)
+	target_link_libraries(daedalus.lib sysGL ${GLFW_LIBRARIES} -lpng z minizip -lpthread)
 
 		#Build and Link Executable
 			add_executable(daedalus ${MAC_MAIN_FILES})
@@ -160,10 +168,8 @@ endif (LINUX_RELEASE)
 
 if (MAC_RELEASE)
 	message("macOS Release Build..")
-	add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/zlib)
-	include_directories(${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/Debug ${PROJECT_SOURCE_DIR}/third_party/zlib ${PROJECT_SOURCE_DIR}/third_party/zlib/contrib/minizip)
+	include_directories(${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/Debug)
 	add_definitions("-DNDEBUG -O3")
-		include_directories(BEFORE /usr/local/include )
 		add_library(glLib STATIC ${SYSGL_BUILD} )
 				target_include_directories(glLib PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/SysOSX/Include )
 		add_library(daedalus.lib STATIC ${BUILD} ${MAC_BUILD})
@@ -171,7 +177,6 @@ if (MAC_RELEASE)
 			add_executable(daedalus ${MAC_MAIN_FILES})
 		set_target_properties(daedalus PROPERTIES LINK_FLAGS -L/usr/local/lib)
 					target_include_directories(daedalus PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/SysOSX/Include )
-										link_directories(BEFORE /usr/local/lib)
-										target_link_libraries(daedalus daedalus.lib glLib -lGLEW "-framework Cocoa -framework IOKit -framework CoreVideo -framework AudioToolBox"  -lpng z minizip)
+										target_link_libraries(daedalus daedalus.lib glLib -lGLEW "-framework Cocoa -framework IOKit -framework CoreVideo -framework AudioToolBox"  ${png16} z minizip)
 #			target_link_libraries (daedalus glLib daedalus.lib ${IOKit} ${OPENGL_glu_LIBRARY} ${COCOA_LIBRARY} ${AUDIO_TOOLBOX} ${ZIP_LIBRARY}  ${COREVIDEO} ${OPENGL} -lglfw3 -lglew  -lpng zip)
 endif (MAC_RELEASE)
