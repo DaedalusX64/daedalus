@@ -69,7 +69,7 @@ project (DaedalusX64)
 				set (SYSGL_HLEGRAPHICS SysGL/HLEGraphics/GraphicsPluginGL.cpp SysGL/HLEGraphics/RendererGL.cpp)
 				set (SYSGL_INPUT SysGL/Input/InputManagerGL.cpp)
 				set (SYSGL_INTERFACE SysGL/Interface/UI.cpp)
-				set (SYSGL_BUILD ${SYSGL_GRAPHICS} ${SYSGL_HLEGRAPHICS} ${SYSGL_INPUT} ${SYSGL_INTERFACE})
+				set (SYSGL_BUILD ${SYSGL_GRAPHICS} ${SYSGL_HLEGRAPHICS} ${SYSGL_INPUT} ${SYSGL_INTERFACE} ${PLUGIN_FILES})
 
 				#Windows -- Not sure if it works yet
 				set (WIN_AUDIO SysW32/HLEAudio/AudioPluginW32.cpp)
@@ -123,42 +123,23 @@ if (PSP_DEBUG)
 	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lpng -lz -lg -lm -lpspfpu  ${PSPSDK_LIBS})
 endif (PSP_DEBUG)
 
-if (LIBS)
-				message("Including third_party libraries for build")
-				set(third_party ${PROJECT_SOURCE_DIR}/third_party)
-			#glew
-			add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/glew/build/cmake)
-			#glfw
-			set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-			set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-			set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-
-			add_subdirectory(${third_party}/glfw)
-			include_directories(${third_party}/glfw/include)
-			#zlib + minizip
-			add_subdirectory(${third_party}/zlib)
-			include_directories(${PROJECT_SOURCE_DIR}/third_party/zlib ${PROJECT_SOURCE_DIR}/third_party/zlib/contrib/minizip)
-
-			#png
-			add_subdirectory(${third_party}/libpng16)
-
-endif (LIBS)
 
 if (LINUX_RELEASE)
-
+	include_directories(${PROJECT_SOURCE_DIR}/third_party/zlib ${PROJECT_SOURCE_DIR}/third_party/zlib/contrib/minizip)
 		message("Linux Release Build..")
 		add_definitions("-DNDEBUG -O3")
 
-		include_directories(${PROJECT_SOURCE_DIR/HLEGraphics})
+#build Png/ GLEW / GLFW /
+		include_directories(${PROJECT_SOURCE_DIR/HLEGraphics} ${GLFW_SOURCE_DIR}/include)
 		include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/SysLinux/Include)
 
 		#Build SysGL Lib
 		add_library(sysGL STATIC ${SYSGL_BUILD})
-		target_link_libraries(sysGL -lGLEW ${GLFW_LIBRARIES} ${libpng16})
+		target_link_libraries(sysGL -lGL -lGLEW glfw3 -ldl -lX11  )
 
 		#Build Daedalus Lib
 		add_library(daedalus.lib STATIC ${BUILD} ${LINUX_BUILD} )
-	target_link_libraries(daedalus.lib sysGL ${GLFW_LIBRARIES} -lpng z minizip -lpthread)
+	target_link_libraries(daedalus.lib sysGL -lGL  -lglfw3 -lGLEW -lpng z minizip -lpthread)
 
 		#Build and Link Executable
 			add_executable(daedalus ${MAC_MAIN_FILES})
