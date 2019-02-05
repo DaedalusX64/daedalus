@@ -108,6 +108,7 @@ if (PSP_RELEASE)
 endif (PSP_RELEASE)
 
 
+#Only difference between PSP Release and Debug is the definitions and Config Dev File - Try and merge
 
 if (PSP_DEBUG)
 	message("PSP Debug Build..")
@@ -148,16 +149,24 @@ endif (LINUX_RELEASE)
 
 
 if (MAC_RELEASE)
-	message("macOS Release Build..")
-	include_directories(${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/Debug)
-	add_definitions("-DNDEBUG -O3")
-		add_library(glLib STATIC ${SYSGL_BUILD} )
-				target_include_directories(glLib PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/SysOSX/Include )
-		add_library(daedalus.lib STATIC ${BUILD} ${MAC_BUILD})
-					target_include_directories(daedalus.lib PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/SysOSX/Include )
+	include_directories(${PROJECT_SOURCE_DIR}/third_party/zlib ${PROJECT_SOURCE_DIR}/third_party/zlib/contrib/minizip)
+		message("Mac Release Build..")
+		add_definitions("-DNDEBUG -O3")
+		include_directories(/usr/local/include)
+		link_directories(/usr/local/lib)
+#build Png/ GLEW / GLFW /
+		include_directories(${PROJECT_SOURCE_DIR/HLEGraphics} ${GLFW_SOURCE_DIR}/include)
+		include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/SysOSX/Include)
+
+		#Build SysGL Lib
+		add_library(sysGL STATIC ${SYSGL_BUILD})
+		target_link_libraries(sysGL -lGL -lGLEW glfw3 -ldl "-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo"  )
+
+		#Build Daedalus Lib
+		add_library(daedalus.lib STATIC ${BUILD} ${LINUX_BUILD} )
+	target_link_libraries(daedalus.lib sysGL -lpng z minizip -lpthread)
+
+		#Build and Link Executable
 			add_executable(daedalus ${MAC_MAIN_FILES})
-		set_target_properties(daedalus PROPERTIES LINK_FLAGS -L/usr/local/lib)
-					target_include_directories(daedalus PRIVATE ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/SysOSX/Include )
-										target_link_libraries(daedalus daedalus.lib glLib -lGLEW "-framework Cocoa -framework IOKit -framework CoreVideo -framework AudioToolBox"  ${png16} z minizip)
-#			target_link_libraries (daedalus glLib daedalus.lib ${IOKit} ${OPENGL_glu_LIBRARY} ${COCOA_LIBRARY} ${AUDIO_TOOLBOX} ${ZIP_LIBRARY}  ${COREVIDEO} ${OPENGL} -lglfw3 -lglew  -lpng zip)
+		target_link_libraries(daedalus LINK_PUBLIC daedalus.lib )
 endif (MAC_RELEASE)
