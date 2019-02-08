@@ -41,7 +41,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <float.h>
 #endif
 
-#if defined(DAEDALUS_OSX) || defined(DAEDALUS_LINUX)
+#if defined(DAEDALUS_POSIX)
 #include <fenv.h>
 #endif
 
@@ -64,7 +64,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Can we disable this for the PSP? doesn't seem to do anything when dynarec is enabled (trace is active) /Salvy
 #define SPEEDHACK_INTERPRETER
 
-//Accurate cvt for W32/OSX, convert using the rounding mode specified in the Floating Control/Status register (FCSR)
+//Accurate cvt for X86, convert using the rounding mode specified in the Floating Control/Status register (FCSR)
 #define ACCURATE_CVT
 
 #define	R4300_CALL_MAKE_OP( var )	OpCode	var;	var._u32 = op_code_bits
@@ -160,7 +160,7 @@ DAEDALUS_FORCEINLINE void SET_ROUND_MODE( ERoundingMode mode )
 	_controlfp( gNativeRoundingModes[ mode ], _MCW_RC );
 }
 
-#elif defined(DAEDALUS_OSX) || defined(DAEDALUS_LINUX)
+#elif defined(DAEDALUS_POSIX)
 
 static const int		gNativeRoundingModes[ RM_NUM_MODES ] =
 {

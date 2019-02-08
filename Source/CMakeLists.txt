@@ -1,4 +1,4 @@
-#CMake File for DaedalusX64
+ #CMake File for DaedalusX64
 
 #Build instructions
 # Create a directory in the DaedalusX64 root directory and cd into it 'eg: mkdir tmp ~/DaedalusX64'
@@ -77,20 +77,17 @@ project (DaedalusX64)
 				set (WIN_UTILITY SysW32/Utility/IOW32.cpp SysW32/Utility/ThreadW32.cpp SysW32/Utility/TimingW32.cpp)
 				set (WIN_BUILD ${WIN_AUDIO} ${WIN_DEBUG} ${WIN_UTILITY})
 
-				#macOS Build -- Compiles but does not link, Debug not tested
-				set (MAC_DEBUG SysOSX/Debug/DaedalusAssertOSX.cpp SysOSX/Debug/DebugConsoleOSX.cpp SysOSX/Debug/WebDebug.cpp SysOSX/Debug/WebDebugTemplate.cpp)
-				set (MAC_DYNAREC SysOSX/DynaRec/CodeBufferManagerOSX.cpp)
-				set (MAC_HLEGRAPHICS SysOSX/HLEGraphics/DisplayListDebugger.cpp)
-				set (MAC_MAIN_FILES SysOSX/main.cpp)
-				set (MAC_AUDIO SysOSX/HLEAudio/AudioPluginOSX.cpp)
-				set (MAC_BUILD ${MAC_DEBUG} ${MAC_DYNAREC} ${MAC_HLEGRAPHICS} ${POSIX_UTILITY} ${MAC_AUDIO})
-
-				#Posix BUILD
+        #Posix
+				set (POSIX_DEBUG SysPosix/Debug/DaedalusAssertPosix.cpp SysPosix/Debug/DebugConsolePosix.cpp SysPosix/Debug/WebDebug.cpp SysPosix/Debug/WebDebugTemplate.cpp)
+				set (POSIX_DYNAREC SysPosix/DynaRec/CodeBufferManagerPosix.cpp)
+				set (POSIX_HLEGRAPHICS SysPosix/HLEGraphics/DisplayListDebugger.cpp)
+				set (POSIX_MAIN_FILES SysPosix/main.cpp)
 				set (POSIX_UTILITY SysPosix/Utility/CondPosix.cpp SysPosix/Utility/IOPosix.cpp SysPosix/Utility/ThreadPosix.cpp SysPosix/Utility/TimingPosix.cpp)
+				set (POSIX_BUILD ${POSIX_DEBUG} ${POSIX_DYNAREC} ${POSIX_HLEGRAPHICS} ${POSIX_UTILITY})
 
-				#Linux Build - compiles but does not link
-				set (LINUX_AUDIO SysLinux/HLEAudio/AudioPluginLinux.cpp)
-				set (LINUX_BUILD ${MAC_DEBUG} ${MAC_DYNAREC} ${MAC_HLEGRAPHICS} ${POSIX_UTILITY} ${LINUX_AUDIO})
+				# These will remain separate for now..
+				set (LINUX_AUDIO SysPosix/HLEAudio/AudioPluginLinux.cpp)
+				set (MAC_AUDIO SysPosix/HLEAudio/AudioPluginOSX.cpp)
 
 
 if (PSP_RELEASE)
@@ -106,6 +103,7 @@ if (PSP_RELEASE)
 	target_include_directories(daedalus.elf PUBLIC /usr/local/pspdev/psp/sdk/include )
 	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lpng -lz -lg -lm -lpspfpu ${PSPSDK_LIBS})
 endif (PSP_RELEASE)
+
 
 
 #Only difference between PSP Release and Debug is the definitions and Config Dev File - Try and merge
@@ -124,49 +122,47 @@ if (PSP_DEBUG)
 	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lpng -lz -lg -lm -lpspfpu  ${PSPSDK_LIBS})
 endif (PSP_DEBUG)
 
+if (MAC_RELEASE OR LINUX_RELEASE)
+
+add_definitions("-DNDEBUG -O3")
+include_directories(${PROJECT_SOURCE_DIR/HLEGraphics})
+include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/SysPosix/Include)
+
+endif (MAC_RELEASE OR LINUX_RELEASE)
 
 if (LINUX_RELEASE)
-	include_directories(${PROJECT_SOURCE_DIR}/third_party/zlib ${PROJECT_SOURCE_DIR}/third_party/zlib/contrib/minizip)
-		message("Linux Release Build..")
-		add_definitions("-DNDEBUG -O3")
 
-#build Png/ GLEW / GLFW /
-		include_directories(${PROJECT_SOURCE_DIR/HLEGraphics} ${GLFW_SOURCE_DIR}/include)
-		include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/SysLinux/Include)
+
+		message("Linux Release Build..")
 
 		#Build SysGL Lib
 		add_library(sysGL STATIC ${SYSGL_BUILD})
-		target_link_libraries(sysGL -lGL -lGLEW glfw -ldl -lX11  )
+		target_link_libraries(sysGL GL GLEW glfw dl X11  )
 
 		#Build Daedalus Lib
-		add_library(daedalus.lib STATIC ${BUILD} ${LINUX_BUILD} )
-	target_link_libraries(daedalus.lib sysGL -lGL  -lglfw -lGLEW -lpng z minizip -lpthread)
+		add_library(daedalus.lib STATIC ${BUILD} ${POSIX_BUILD} ${LINUX_AUDIO} )
+	target_link_libraries(daedalus.lib sysGL -lGL  glfw -lGLEW png z minizip pthread)
 
 		#Build and Link Executable
-			add_executable(daedalus ${MAC_MAIN_FILES})
+			add_executable(daedalus ${POSIX_MAIN_FILES})
 		target_link_libraries(daedalus LINK_PUBLIC daedalus.lib )
 endif (LINUX_RELEASE)
 
 
 if (MAC_RELEASE)
-	include_directories(${PROJECT_SOURCE_DIR}/third_party/zlib ${PROJECT_SOURCE_DIR}/third_party/zlib/contrib/minizip)
 		message("Mac Release Build..")
-		add_definitions("-DNDEBUG -O3")
 		include_directories(/usr/local/include)
 		link_directories(/usr/local/lib)
-#build Png/ GLEW / GLFW /
-		include_directories(${PROJECT_SOURCE_DIR/HLEGraphics} ${GLFW_SOURCE_DIR}/include)
-		include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/SysOSX/Include)
 
 		#Build SysGL Lib
 		add_library(sysGL STATIC ${SYSGL_BUILD})
-		target_link_libraries(sysGL -lGL -lGLEW glfw3 -ldl "-framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo"  )
+		target_link_libraries(sysGL -lGLEW glfw -ldl "-framework AudioToolbox -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo"  )
 
 		#Build Daedalus Lib
-		add_library(daedalus.lib STATIC ${BUILD} ${LINUX_BUILD} )
-	target_link_libraries(daedalus.lib sysGL -lpng z minizip -lpthread)
+		add_library(daedalus.lib STATIC ${BUILD} ${POSIX_BUILD} ${MAC_AUDIO} )
+	target_link_libraries(daedalus.lib sysGL png z minizip pthread)
 
 		#Build and Link Executable
-			add_executable(daedalus ${MAC_MAIN_FILES})
+			add_executable(daedalus ${POSIX_MAIN_FILES})
 		target_link_libraries(daedalus LINK_PUBLIC daedalus.lib )
 endif (MAC_RELEASE)

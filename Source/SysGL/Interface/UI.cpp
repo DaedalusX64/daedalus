@@ -65,7 +65,7 @@ static void HandleKeys(GLFWwindow * window, int key, int scancode, int action, i
 				monitor = glfwGetPrimaryMonitor();
 
 				// Get destop resolution, this should tell us the max resolution we can use
-				const GLFWvidmode* mode = glfwGetVideoMode(monitor);	
+				const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 				width = mode->width;
 				height= mode->height;
 			}

@@ -33,8 +33,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/GraphicsContext.h"
 
-#if defined(DAEDALUS_OSX) || defined(DAEDALUS_W32)
-#include "SysOSX/Debug/WebDebug.h"
+#if defined(DAEDALUS_POSIX) || defined(DAEDALUS_W32)
+#include "SysPosix/Debug/WebDebug.h"
 #include "HLEGraphics/TextureCacheWebDebug.h"
 #include "HLEGraphics/DisplayListDebugger.h"
 #endif
@@ -180,7 +180,7 @@ static const SysEntityEntry gSysInitTable[] =
 	{"Controller",			CController::Create,		CController::Destroy},
 	{"RomBuffer",			RomBuffer::Create,			RomBuffer::Destroy},
 
-#if defined(DAEDALUS_OSX) || defined(DAEDALUS_W32)
+#if defined(DAEDALUS_POSIX) || defined(DAEDALUS_W32)
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	{"WebDebug",			WebDebug_Init, 				WebDebug_Fini},
 	{"TextureCacheWebDebug",TextureCache_RegisterWebDebug, 	NULL},
