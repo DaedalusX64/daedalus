@@ -154,6 +154,7 @@ if (MAC_RELEASE)
 		include_directories(/usr/local/include)
 		link_directories(/usr/local/lib)
 
+    add_definitions("-DDAEDALUS_OSX")
 		#Build SysGL Lib
 		add_library(sysGL STATIC ${SYSGL_BUILD})
 		target_link_libraries(sysGL -lGLEW glfw -ldl "-framework AudioToolbox -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo"  )
