@@ -136,11 +136,11 @@ if (LINUX_RELEASE)
 
 		#Build SysGL Lib
 		add_library(sysGL STATIC ${SYSGL_BUILD})
-		target_link_libraries(sysGL -lGL -lGLEW glfw3 -ldl -lX11  )
+		target_link_libraries(sysGL -lGL -lGLEW glfw -ldl -lX11  )
 
 		#Build Daedalus Lib
 		add_library(daedalus.lib STATIC ${BUILD} ${LINUX_BUILD} )
-	target_link_libraries(daedalus.lib sysGL -lGL  -lglfw3 -lGLEW -lpng z minizip -lpthread)
+	target_link_libraries(daedalus.lib sysGL -lGL  -lglfw -lGLEW -lpng z minizip -lpthread)
 
 		#Build and Link Executable
 			add_executable(daedalus ${MAC_MAIN_FILES})
