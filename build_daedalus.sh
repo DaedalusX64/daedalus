@@ -22,10 +22,10 @@ function finalPrep() {
   mkdir ../DaedalusX64/SaveGames
   mkdir ../DaedalusX64/Roms
     if [ "$1" = PSP_RELEASE ] || [ "$1" = PSP_DEBUG ]; then
-      cp -r ../Data/PSP/* ../DaedalusX64
+      cp -R ../Data/PSP/* ../DaedalusX64
     else
-      cp -r ../Data/PC/* ../DaedalusX64
-      cp ../Source/SysGL/HLEGraphics/N64.psh ../DaedalusX64
+      cp -R ../Data/PC/* ../DaedalusX64
+      cp ../Source/SysGL/HLEGraphics/n64.psh ../DaedalusX64
     fi
 }
 

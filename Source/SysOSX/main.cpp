@@ -113,6 +113,7 @@ int main(int argc, char **argv)
 	}
 	else
 	{
+		printf("Usage: daedalus 'Path to Rom'\n");
 //		result = RunMain();
 	}
 
@@ -143,4 +144,3 @@ void _EnterDynaRec()
 	DAEDALUS_ASSERT(false, "Unimplemented");
 }
 }
-
