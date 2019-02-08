@@ -31,10 +31,10 @@ function finalPrep() {
 
 function buildPSP() {
 
-  make -C "$PWD/Source/SysPSP/DveMgr"
-  make -C "$PWD/Source/SysPSP/ExceptionHandler/prx"
-  make -C "$PWD/Source/SysPSP/KernelButtonsPrx"
-  make -C "$PWD/Source/SysPSP/MediaEnginePRX"
+  make -C "$PWD/../Source/SysPSP/DveMgr"
+  make -C "$PWD/../Source/SysPSP/ExceptionHandler/prx"
+  make -C "$PWD/../Source/SysPSP/KernelButtonsPrx"
+  make -C "$PWD/../Source/SysPSP/MediaEnginePRX"
 
   make
   finalPrep
