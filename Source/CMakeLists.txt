@@ -137,11 +137,11 @@ if (LINUX_RELEASE)
 
 		#Build SysGL Lib
 		add_library(sysGL STATIC ${SYSGL_BUILD})
-		target_link_libraries(sysGL GL GLEW glfw dl X11  )
+		target_link_libraries(sysGL GL GLEW -lSDL2 dl X11  )
 
 		#Build Daedalus Lib
 		add_library(daedalus.lib STATIC ${BUILD} ${POSIX_BUILD} ${LINUX_AUDIO} )
-	target_link_libraries(daedalus.lib sysGL -lGL  glfw -lGLEW png z minizip pthread)
+	target_link_libraries(daedalus.lib sysGL -lGL  -lSDL2 -lGLEW png z minizip pthread)
 
 		#Build and Link Executable
 			add_executable(daedalus ${POSIX_MAIN_FILES})
