@@ -83,30 +83,31 @@ void IInputManager::Finalise()
 
 void IInputManager::GetGamePadStatus()
 {
-	mGamePadAvailable = glfwJoystickPresent(GLFW_JOYSTICK_1) ? true : false;
+	//mGamePadAvailable = glfwJoystickPresent(GLFW_JOYSTICK_1) ? true : false;
 }
 
 void IInputManager::GetJoyPad(OSContPad *pPad)
 {
+	/*
 	static const s32 N64_ANALOGUE_STICK_RANGE =  80;
 
 	int num_axes;
-	const float * axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &num_axes);
-    if(!axes || num_axes < 2)
-	{
+//	const float * axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &num_axes);
+//    if(!axes || num_axes < 2)
+//	{
 		// gamepad was disconnected?
-        DAEDALUS_ERROR("Couldn't read axes");
-        return;
-    }
+  //      DAEDALUS_ERROR("Couldn't read axes");
+    //    return;
+  //  }
 
     int num_buttons;
-	const u8 * buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &num_buttons);
-	if(!buttons || num_buttons < 24)
-	{
+//	const u8 * buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &num_buttons);
+//	if(!buttons || num_buttons < 24)
+//	{
 		// gamepad was disconnected?
-		DAEDALUS_ERROR("Couldn't read buttons");
-		return;
-	}
+//		DAEDALUS_ERROR("Couldn't read buttons");
+//		return;
+//	}
 
 	//ToDo: Different gamepads will need different configuration, this is for PS3/PS2 controller
 	if (buttons[11])	pPad->button |= START_BUTTON;
@@ -141,6 +142,7 @@ void IInputManager::GetJoyPad(OSContPad *pPad)
 
 	pPad->stick_x =  s8(axes[0] * N64_ANALOGUE_STICK_RANGE);
 	pPad->stick_y =  s8(axes[1] * N64_ANALOGUE_STICK_RANGE);
+	*/
 }
 
 void IInputManager::GetState( OSContPad pPad[4] )
@@ -158,8 +160,9 @@ void IInputManager::GetState( OSContPad pPad[4] )
 	{
 		GetJoyPad(&pPad[0]);
 	}
-	else if(GLFWwindow* window = gWindow)
+	else if(SDL_Window* window = gWindow)
 	{
+		/*
 		if (glfwGetKey( window, 'X' ))		pPad[0].button |= A_BUTTON;
 		if (glfwGetKey( window, 'C' ))		pPad[0].button |= B_BUTTON;
 		if (glfwGetKey( window, 'Z' ))		pPad[0].button |= Z_TRIG;
@@ -183,6 +186,7 @@ void IInputManager::GetState( OSContPad pPad[4] )
 		if (glfwGetKey( window, GLFW_KEY_RIGHT ))		pPad[0].stick_x = +80;
 		if (glfwGetKey( window, GLFW_KEY_UP ))			pPad[0].stick_y = +80;
 		if (glfwGetKey( window, GLFW_KEY_DOWN ))		pPad[0].stick_y = -80;
+		*/
 	}
 }
 
