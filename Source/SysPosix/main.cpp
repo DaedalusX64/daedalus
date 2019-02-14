@@ -53,8 +53,9 @@ int main(int argc, char **argv)
 	//ReadConfiguration();
 
 	if (!System_Init())
+	{
 		return 1;
-
+}
 	//
 	// Create the console if it's enabled. Don't care about failures
 	//

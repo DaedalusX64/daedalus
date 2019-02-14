@@ -122,15 +122,15 @@ static void PollKeyboard(void * arg)
 	if (glfwWindowShouldClose(gWindow))
 		CPU_Halt("Window Closed");
 }
-
+*/
 bool UI_Init()
 {
-	DAEDALUS_ASSERT(gWindow != NULL, "The GLFW window should already have been initialised");
-	glfwSetKeyCallback(gWindow, &HandleKeys);
-	CPU_RegisterVblCallback(&PollKeyboard, NULL);
+	DAEDALUS_ASSERT(gWindow != NULL, "The SDL window should already have been initialised");
+	//glfwSetKeyCallback(gWindow, &HandleKeys);
+//	CPU_RegisterVblCallback(&PollKeyboard, NULL);
 	return true;
 }
-*/
+
 void UI_Finalise()
 {
 //	CPU_UnregisterVblCallback(&PollKeyboard, NULL);
