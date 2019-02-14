@@ -12,8 +12,8 @@
 static u32 SCR_WIDTH = 640;
 static u32 SCR_HEIGHT = 480;
 
+// FIXME: This is global to lots of SysGL stuff. Wrap it up elsewhere, and keep this file for the graphics side of things.
 SDL_Window * gWindow = NULL;
-SDL_GLContext gContext;
 
 class GraphicsContextGL : public CGraphicsContext
 {
@@ -55,8 +55,11 @@ GraphicsContextGL::~GraphicsContextGL()
 	// glew
 
 	// FIXME: would be better in an separate SysGL file.
+	if (gWindow)
+	{
 		SDL_DestroyWindow(gWindow);
 		gWindow = NULL;
+	}
 
 SDL_Quit();
 }
@@ -70,57 +73,87 @@ static void error_callback(int error, const char* description)
 extern bool initgl();
 bool GraphicsContextGL::Initialise()
 {
+//	glfwSetErrorCallback(error_callback);
 
-	//Initialize SDL
-	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
+	// Initialise SDL2
+//	if( !SDLInit() )
+//	{
+	//	fprintf() "Failed to initialize SDL, SDL_Error: %s"\n, SDL_GetError() );
+	//	return false;
+	//}
+
+if (SDL_Init(SDL_INIT_VIDEO != 0))
+{
+	printf("SDL failed to initialise: SDL Error %s", SDL_GetError());
+	return false;
+}
+else {
+SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+SDL_GLContext gContext;
+//	glfwWindowHint(GLFW_SAMPLES, 4);
+//	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+//	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+
+//#ifdef DAEDALUS_OSX
+	// OSX 10.7+ only supports 3.2 with core profile/forward compat.
+//	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+//	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+//#endif
+
+	//glfwWindowHint(GLFW_DEPTH_BITS, 24);
+	//glfwWindowHint(GLFW_STENCIL_BITS, 0);
+
+	// Open a window and create its OpenGL context
+	gWindow = SDL_CreateWindow("Daedalus", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL);
+	if (!gWindow)
 	{
-		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
+		printf("Failed to open SDL window, SDL_Error %s\n", SDL_GetError() );
+
+		SDL_Quit();
 		return false;
 	}
-	else
-	{
-		//Use OpenGL 3.1 core
-		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
-		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
-		SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
 
-		//Create window
-		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
-		if( gWindow == NULL )
+//	glfwMakeContextCurrent(gWindow);
+
+	// Ensure we can capture the escape key being pressed below
+	//glfwEnable( GLFW_STICKY_KEYS );
+
+	// Enable vertical sync (on cards that support it)
+//	glfwSwapInterval( 1 );
+
+	// Initialise GLEW
+	//glewExperimental = GL_TRUE;
+ gContext = SDL_GL_CreateContext( gWindow );
+
+ if (gContext == NULL)
+ {
+	 printf(" OpenGL context could not be created! SDL Error: %s\n", SDL_GetError() );
+	 SDL_DestroyWindow(gWindow);
+	 gWindow = NULL;
+	 SDL_Quit();
+	 return false;
+}
+ else
+ {
+		GLenum glewErr = glewInit();
+		if (glewErr != GLEW_OK )
 		{
-			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
-			return false;
+			printf("Error initalizing GLEW! %s\n", glewGetErrorString (glewErr));
 		}
-		else
-		{
-			//Create context
-			gContext = SDL_GL_CreateContext( gWindow );
-			if( gContext == NULL )
-			{
-				printf( "OpenGL context could not be created! SDL Error: %s\n", SDL_GetError() );
-				return false;
-			}
-			else
-			{
-				//Initialize GLEW
-				glewExperimental = GL_TRUE;
-				GLenum glewError = glewInit();
-				if( glewError != GLEW_OK )
-				{
-					printf( "Error initializing GLEW! %s\n", glewGetErrorString( glewError ) );
-				}
 
-				//Use Vsync
-				if( SDL_GL_SetSwapInterval( 1 ) < 0 )
-				{
-					printf( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
-				}
-}
-}
-}
-return initgl();
-}
+	ClearAllSurfaces();
 
+	// This is not valid in GLFW 3.0, and doesn't work with glfwGetWindowAttrib.
+	//if (glfwGetWindowParam(GLFW_FSAA_SAMPLES) != 0)
+	//	fprintf( stderr, "Full Screen Anti-Aliasing 4X has been enabled\n" );
+
+	// FIXME(strmnnrmn): this needs tidying.
+	return initgl();
+}
+}
+}
 
 void GraphicsContextGL::GetScreenSize(u32 * width, u32 * height) const
 {

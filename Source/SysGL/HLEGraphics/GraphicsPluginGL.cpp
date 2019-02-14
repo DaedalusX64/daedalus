@@ -19,6 +19,8 @@
 
 #include "SysGL/GL.h"
 
+extern SDL_Window * gWindow;
+
 EFrameskipValue     gFrameskipValue = FV_DISABLED;
 u32                 gVISyncRate     = 1500;
 bool                gTakeScreenshot = false;
