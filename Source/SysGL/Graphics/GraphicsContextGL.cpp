@@ -87,7 +87,10 @@ if (SDL_Init(SDL_INIT_VIDEO != 0))
 	printf("SDL failed to initialise: SDL Error %s", SDL_GetError());
 	return false;
 }
-
+else {
+SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+SDL_GLContext gContext;
 //	glfwWindowHint(GLFW_SAMPLES, 4);
 //	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 //	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
@@ -121,15 +124,23 @@ if (SDL_Init(SDL_INIT_VIDEO != 0))
 
 	// Initialise GLEW
 	//glewExperimental = GL_TRUE;
-	GLenum err = glewInit();
-	if (err != GLEW_OK || !GLEW_VERSION_3_2)
-	{
-		fprintf( stderr, "Failed to initialize GLEW\n" );
-		SDL_DestroyWindow(gWindow);
-		gWindow = NULL;
-		SDL_Quit();
-		return false;
-	}
+ gContext = SDL_GL_CreateContext( gWindow );
+
+ if (gContext == NULL)
+ {
+	 printf(" OpenGL context could not be created! SDL Error: %s\n", SDL_GetError() );
+	 SDL_DestroyWindow(gWindow);
+	 gWindow = NULL;
+	 SDL_Quit();
+	 return false;
+}
+ else
+ {
+		GLenum glewErr = glewInit();
+		if (glewErr != GLEW_OK )
+		{
+			printf("Error initalizing GLEW! %s\n", glewGetErrorString (glewErr));
+		}
 
 	ClearAllSurfaces();
 
@@ -139,6 +150,8 @@ if (SDL_Init(SDL_INIT_VIDEO != 0))
 
 	// FIXME(strmnnrmn): this needs tidying.
 	return initgl();
+}
+}
 }
 
 void GraphicsContextGL::GetScreenSize(u32 * width, u32 * height) const

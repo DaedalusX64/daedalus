@@ -2,6 +2,7 @@
 #define SYSGL_GL_H_
 
 #include <GL/glew.h>
+#include <SDL2/SDL_opengl.h>
 #include <SDL2/SDL.h>
 
 #include "Utility/DaedalusTypes.h"
