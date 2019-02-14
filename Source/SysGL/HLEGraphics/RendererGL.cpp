@@ -17,7 +17,6 @@
 #include "Utility/Macros.h"
 #include "Utility/Profiler.h"
 
-
 BaseRenderer * gRenderer   = NULL;
 RendererGL *   gRendererGL = NULL;
 
@@ -37,10 +36,11 @@ static const char * 					gN64FramentLibrary = NULL;
 
 static const u32 kNumTextures = 2;
 
+
 #define RESOLVE_GL_FCN(type, var, name) \
     if (status == GL_TRUE) \
     {\
-        var = (type)glfwGetProcAddress((name));\
+        var = (type)SDL_GL_GetProcAddress((name));\
         if ((var) == NULL)\
         {\
             status = GL_FALSE;\

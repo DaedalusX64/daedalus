@@ -150,14 +150,17 @@ endif (LINUX_RELEASE)
 
 
 if (MAC_RELEASE)
+
 		message("Mac Release Build..")
-		include_directories(/usr/local/include)
+FIND_PATH(OPENGL_INCLUDE_DIR gl.h)
+	FIND_LIBRARY(OPENGL_LIBRARY OpenGL)
+		include_directories(/usr/local/include -framework OpenGL)
 		link_directories(/usr/local/lib)
 
     add_definitions("-DDAEDALUS_OSX")
 		#Build SysGL Lib
 		add_library(sysGL STATIC ${SYSGL_BUILD})
-		target_link_libraries(sysGL -lGLEW glfw -ldl "-framework AudioToolbox -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo"  )
+		target_link_libraries(sysGL -lGLEW glfw -ldl ${OPENGL_LIBRARY}"-framework AudioToolbox -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo"  )
 
 		#Build Daedalus Lib
 		add_library(daedalus.lib STATIC ${BUILD} ${POSIX_BUILD} ${MAC_AUDIO} )

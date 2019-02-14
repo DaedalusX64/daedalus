@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Test/BatchTest.h"
 #include "Utility/IO.h"
 
+#include <SDL2/SDL.h>
 #ifdef DAEDALUS_LINUX
 #include <linux/limits.h>
 #endif

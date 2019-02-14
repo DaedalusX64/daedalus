@@ -48,8 +48,10 @@ static void HandleKeys(GLFWwindow * window, int key, int scancode, int action, i
 				}
 			}
 		}
+		// TODO: ADD SDL Window close functions
 // Proper full screen toggle still not fully implemented in GLF3
 // BUT is in the roadmap for future 3XX release
+/*
 #if 0
 		if(key == GLFW_KEY_F1)
 		{
@@ -123,7 +125,7 @@ bool UI_Init()
 	CPU_RegisterVblCallback(&PollKeyboard, NULL);
 	return true;
 }
-
+*/
 void UI_Finalise()
 {
 	CPU_UnregisterVblCallback(&PollKeyboard, NULL);
