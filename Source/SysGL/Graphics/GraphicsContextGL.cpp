@@ -14,7 +14,7 @@ static u32 SCR_WIDTH = 640;
 static u32 SCR_HEIGHT = 480;
 
 SDL_Window * gWindow = NULL;
-SDL_GLContext gContext;
+
 
 class GraphicsContextGL : public CGraphicsContext
 {
@@ -73,45 +73,43 @@ bool GraphicsContextGL::Initialise()
 {
 
 	//Initialize SDL
-	if( SDL_Init( SDL_INIT_VIDEO ) < 0 )
+	if( SDL_Init( SDL_INIT_EVERYTHING ) < 0 )
 	{
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 		return false;
 	}
-	else
-	{
 		//Use OpenGL 3.2 core
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
+		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		//Create window
-		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
+		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL );
+
 		if( gWindow == NULL )
 		{
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
 			return false;
 		}
-		else
-		{
-			//Create context
-			gContext = SDL_GL_CreateContext( gWindow );
-			if( gContext == NULL )
-			{
-				printf( "OpenGL context could not be created! SDL Error: %s\n", SDL_GetError() );
-				return false;
-			}
-			else
-			{
 
-				//Initialize GLEW
-			#ifndef __APPLE__
-					glewExperimental = GL_TRUE;
-					glewInit();
-				#endif
-}
-}
-}
+			//Create context
+	SDL_GLContext	gContext = SDL_GL_CreateContext( gWindow );
+
+	SDL_GL_SetSwapInterval(1);
+
+	GLenum err = glewInit();
+	if (err != GLEW_OK || !GLEW_VERSION_3_2)
+	{
+	//	fprintf( stderr, "Failed to initialize GLEW\n" );
+	SDL_DestroyWindow(gWindow);
+		//glfwDestroyWindow(gWindow);
+		gWindow = NULL;
+		SDL_Quit();
+		return false;
+	}
+
+
 return initgl();
 }
 
@@ -186,7 +184,6 @@ void GraphicsContextGL::EndFrame()
 
 void GraphicsContextGL::UpdateFrame( bool wait_for_vbl )
 {
-	SDL_GL_SetSwapInterval(1);
 	SDL_GL_SwapWindow(gWindow);
 
 //	if( gCleanSceneEnabled ) //TODO: This should be optional

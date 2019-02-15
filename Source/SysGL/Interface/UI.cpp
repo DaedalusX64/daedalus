@@ -11,11 +11,21 @@
 #include "Utility/IO.h"
 #include "Utility/Thread.h"
 
-//static bool toggle_fullscreen = false;
-/*
-static void HandleKeys(SDL_Window * window, int key, int scancode, int action, int mods)
-{
+static bool toggle_fullscreen = false;
 
+static void HandleKeys()
+{
+SDL_Event button;
+while (SDL_PollEvent( &button) != 0)
+{
+		// User requests SDL_Quit
+		if ( button.type == SDL_QUIT)
+		{
+			SDL_Quit();
+		}
+}
+}
+/*
 	if (action == GLFW_PRESS)
 	{
 		if (key >= '0' && key <= '9')
@@ -51,12 +61,12 @@ static void HandleKeys(SDL_Window * window, int key, int scancode, int action, i
 					}
 				}
 			}
-			/*
+
 
 		// TODO: ADD SDL Window close functions
 // Proper full screen toggle still not fully implemented in GLF3
 // BUT is in the roadmap for future 3XX release
-/*
+
 #if 0
 		if(key == GLFW_KEY_F1)
 		{
