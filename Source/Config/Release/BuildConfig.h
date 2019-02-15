@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ///////////////////////////////////////////////////////////////////////////////
 #define DAEDALUS_CONFIG_VERSION		"Release"
 
-//#define	DAEDALUS_DEBUG_CONSOLE				// Enable debug console
+#define	DAEDALUS_DEBUG_CONSOLE				// Enable debug console
 //#define	DAEDALUS_DEBUG_DISPLAYLIST			// Enable the display list debugger
 //#define	DAEDALUS_DEBUG_DYNAREC				// Enable to enable various debugging options for the dynarec
 //#define	DAEDALUS_DEBUG_MEMORY
@@ -40,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //#define	DAEDALUS_PROFILE_EXECUTION			// Enable to keep track of various execution stats
 //#define	DAEDALUS_BATCH_TEST_ENABLED			// Enable the batch test
 //#define	ALLOW_TRACES_WHICH_EXCEPT
-//#define	DAEDALUS_LOG						// Enable various logging
+#define	DAEDALUS_LOG						// Enable various logging
 #define	DAEDALUS_DIALOGS						// Enable this to ask confimation dialogs in the GUI
 #define	DAEDALUS_SILENT							// Undef to enable debug messages. Define this to turn off various debugging features for public release.
 //#define DAEDALUS_ACCURATE_TMEM					// Full tmem emulation(Very accurate, but slighty slower) When this defined, is irrelevant having DAEDALUS_FAST_TMEM defined or not
