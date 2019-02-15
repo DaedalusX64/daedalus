@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "SysGL/GL.h"
+
 #include "Graphics/GraphicsContext.h"
 
 #include "Graphics/ColourValue.h"
@@ -79,13 +80,13 @@ bool GraphicsContextGL::Initialise()
 	}
 	else
 	{
-		//Use OpenGL 3.1 core
+		//Use OpenGL 3.2 core
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
-		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
+		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 2 );
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
-
+		//SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		//Create window
-		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
+		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
 		if( gWindow == NULL )
 		{
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -103,12 +104,11 @@ bool GraphicsContextGL::Initialise()
 			else
 			{
 				//Initialize GLEW
-				glewExperimental = GL_TRUE;
-				GLenum glewError = glewInit();
-				if( glewError != GLEW_OK )
-				{
-					printf( "Error initializing GLEW! %s\n", glewGetErrorString( glewError ) );
-				}
+			#ifndef __APPLE__
+					glewExperimental = GL_TRUE;
+					glewInit();
+				#endif
+
 
 				//Use Vsync
 				if( SDL_GL_SetSwapInterval( 1 ) < 0 )
@@ -140,7 +140,7 @@ void GraphicsContextGL::ClearAllSurfaces()
 {
 	// FIXME: this should clear/flip a couple of times to ensure the front and backbuffers are cleared.
 	// Not sure if it's necessary...
-	ClearToBlack();
+//	ClearToBlack();
 }
 
 void GraphicsContextGL::ClearToBlack()
