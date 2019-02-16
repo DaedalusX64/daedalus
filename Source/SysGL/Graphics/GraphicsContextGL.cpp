@@ -108,8 +108,8 @@ bool GraphicsContextGL::Initialise()
 		SDL_Quit();
 		return false;
 	}
-
-
+//ClearColBufferAndDepth(0,0,0,0);
+UpdateFrame(false);
 return initgl();
 }
 
