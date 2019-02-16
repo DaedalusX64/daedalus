@@ -7,7 +7,6 @@ int CallME(volatile struct me_struct *mei, int func, int param, int prelen, void
 		return -1;
 
 	mei->done = 0;
-	// Warning : Quiet the compiler casting func. The behaviour is still compiler-defined.
 	mei->func = (int (*)(int))func;
 	mei->param = param;
 	mei->result = 0;
@@ -36,7 +35,6 @@ int BeginME(volatile struct me_struct *mei, int func, int param, int prelen, voi
 		return -1;
 
 	mei->done = 0;
-	// Warning : Quiet the compiler casting func. The behaviour is still compiler-defined.
 	mei->func = (int (*)(int))func;
 	mei->param = param;
 	mei->result = 0;

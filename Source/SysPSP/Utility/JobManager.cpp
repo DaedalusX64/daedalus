@@ -57,7 +57,7 @@ bool InitialiseJobManager()
 	mei = (volatile struct me_struct *)(MAKE_UNCACHED_PTR(mei));
 	sceKernelDcacheWritebackInvalidateAll();
 
-	if (InitME(mei) == 0)
+	if (InitME(mei, 660 ) == 0)
 	{
 		gLoadedMediaEnginePRX = true;
 		return true;
@@ -208,7 +208,7 @@ void CJobManager::Run()
 			{
 				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
 
-				while( !CheckME( mei ) );
+				WaitME(mei);
 
 				// Execute previous job finalised
 				if( run->FiniJob )
@@ -227,7 +227,8 @@ void CJobManager::Run()
 					run->InitJob( run );
 
 				// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
-				BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL );
+				BeginME( mei, (int)run->DoJob, (int)run, -1, 0, -1, 0);
+			
 			}
 			else
 #endif
