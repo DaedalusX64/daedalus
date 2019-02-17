@@ -1,0 +1,9 @@
+	.set noreorder
+
+#include "pspstub.s"
+
+	STUB_START "MediaEngine",0x40090000,0x00030005
+	STUB_FUNC  0x284FAFFC,InitME
+	STUB_FUNC  0xE6B12941,KillME
+	STUB_FUNC  0xEDE83CAA,ResetME
+	STUB_END
