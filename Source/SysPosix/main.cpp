@@ -39,10 +39,14 @@ int main(int argc, char **argv)
 	if (argc > 0)
 	{
 		IO::Filename exe_path;
-		realpath(argv[0], exe_path);
 
+		char *argvcopybuffer;
+		argvcopybuffer = strdup(argv[0]);
+
+		strcpy(argvcopybuffer, exe_path);
 		strcpy(gDaedalusExePath, exe_path);
-		IO::Path::RemoveFileSpec(gDaedalusExePath);
+		char (gDaedalusExePath);
+		//IO::Path::RemoveFileSpec(gDaedalusExePath);
 	}
 	else
 	{

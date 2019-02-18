@@ -108,9 +108,12 @@ void Dump_GetSaveDirectory(char * rootdir, const char * rom_filename, const char
 
 	// Form the filename from the file spec (i.e. strip path and replace the extension)
 	IO::Filename file_name;
-	IO::Path::Assign(file_name, IO::Path::FindFileName(rom_filename));
-	IO::Path::SetExtension(file_name, extension);
+	char *romfilebuffer;
+	romfilebuffer = strdup(rom_filename);
 
+	IO::Path::Assign(file_name, romfilebuffer);
+
+	IO::Path::SetExtension(file_name, extension);
 	IO::Path::Combine(rootdir, g_DaedalusConfig.mSaveDir, file_name);
 }
 
@@ -254,7 +257,7 @@ void Dump_RSPDisassemble(const char * p_file_name)
 	}
 #endif
 	IO::Filename file_path;
-    
+
 	if (p_file_name == NULL || strlen(p_file_name) == 0)
 	{
 		Dump_GetDumpDirectory(file_path, "");
@@ -348,4 +351,3 @@ void Dump_Strings( const char * p_file_name )
 	fclose(fp);
 }
 #endif
-
