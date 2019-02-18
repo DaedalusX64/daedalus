@@ -55,12 +55,8 @@ int main(int argc, char **argv)
 	if (!System_Init())
 	{
 		return 1;
-}
-	//
-	// Create the console if it's enabled. Don't care about failures
-	//
-	//DisplayDisclaimer();
-	//DisplayConfig();
+	}
+
 
 	if (argc > 1)
 	{
@@ -116,16 +112,8 @@ int main(int argc, char **argv)
 	else
 	{
 		printf("Usage: daedalus 'Path to Rom'\n");
-//		result = RunMain();
 	}
-
-	//
-	// Write current config out to the registry
-	//
-	//WriteConfiguration();
-
 	System_Finalize();
-
 	return result;
 }
 

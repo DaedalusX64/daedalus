@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Core/CPU.h"
 #include "SysGL/GL.h"
+#include <SDL2/SDL.h>
 
 class IInputManager : public CInputManager
 {
@@ -73,6 +74,7 @@ bool IInputManager::Initialise()
 {
 	CPU_RegisterVblCallback( &CheckPadStatusVblHandler, this );
 	return true;
+
 }
 
 void IInputManager::Finalise()
@@ -162,6 +164,45 @@ void IInputManager::GetState( OSContPad pPad[4] )
 	}
 	else if(SDL_Window* window = gWindow)
 	{
+		SDL_Event key;
+		while (SDL_PollEvent( &key) != 0)
+		{
+			 // User request quit
+			 if (key.type == SDL_QUIT)
+			 {
+	//			 return false;
+			 }
+
+			 else if ( key.type == SDL_KEYDOWN)
+			 {
+				 switch (key.key.keysym.sym )
+			 {
+
+				 case SDLK_x: pPad[0].button |= A_BUTTON; break;
+				 case SDLK_c: pPad[0].button |= B_BUTTON; break;
+				 case SDLK_z: pPad[0].button |= Z_TRIG; break;
+				 case SDLK_a: pPad[0].button |= L_TRIG; break;
+				 case SDLK_s: pPad[0].button |= R_TRIG; break;
+
+				 case SDLK_RETURN: pPad[0].button |= START_BUTTON; break;
+
+				 case SDLK_KP_8: pPad[0].button |= U_JPAD; break;
+				 case SDLK_KP_2: pPad[0].button |= D_JPAD; break;
+				 case SDLK_KP_4: pPad[0].button |= L_JPAD; break;
+				 case SDLK_KP_6: pPad[0].button |= R_JPAD; break;
+
+				 case SDLK_HOME: pPad[0].button = U_CBUTTONS; break;
+				 case SDLK_END: pPad[0].button = D_CBUTTONS; break;
+				 case SDLK_DELETE: pPad[0].button = L_CBUTTONS; break;
+				 case SDLK_PAGEDOWN: pPad[0].button = R_CBUTTONS; break;
+				 case SDLK_UP: pPad[0].stick_y = +80; break;
+				 case SDLK_DOWN: pPad[0].stick_y = -80; break;
+				 case SDLK_LEFT: pPad[0].stick_x = -80; break;
+				 case SDLK_RIGHT: pPad[0].stick_x = +80; break;
+
+			 }
+		}
+
 		/*
 		if (glfwGetKey( window, 'X' ))		pPad[0].button |= A_BUTTON;
 		if (glfwGetKey( window, 'C' ))		pPad[0].button |= B_BUTTON;
@@ -184,12 +225,12 @@ void IInputManager::GetState( OSContPad pPad[4] )
 
 		if (glfwGetKey( window, GLFW_KEY_LEFT ))		pPad[0].stick_x = -80;
 		if (glfwGetKey( window, GLFW_KEY_RIGHT ))		pPad[0].stick_x = +80;
-		if (glfwGetKey( window, GLFW_KEY_UP ))			pPad[0].stick_y = +80;
+		if (glfwGetKey( window, GLFW_KEY_UP ))
 		if (glfwGetKey( window, GLFW_KEY_DOWN ))		pPad[0].stick_y = -80;
 		*/
 	}
 }
-
+}
 template<> bool	CSingleton< CInputManager >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
