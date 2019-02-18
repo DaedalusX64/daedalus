@@ -73,7 +73,7 @@ bool GraphicsContextGL::Initialise()
 {
 
 	//Initialize SDL
-	if( SDL_Init( SDL_INIT_EVERYTHING ) < 0 )
+	if( SDL_Init( SDL_INIT_VIDEO) < 0 )
 	{
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 		return false;
@@ -85,7 +85,7 @@ bool GraphicsContextGL::Initialise()
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		//Create window
-		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL );
+		gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL );
 
 		if( gWindow == NULL )
 		{
@@ -101,9 +101,8 @@ bool GraphicsContextGL::Initialise()
 	GLenum err = glewInit();
 	if (err != GLEW_OK || !GLEW_VERSION_3_2)
 	{
-	//	fprintf( stderr, "Failed to initialize GLEW\n" );
 	SDL_DestroyWindow(gWindow);
-		//glfwDestroyWindow(gWindow);
+
 		gWindow = NULL;
 		SDL_Quit();
 		return false;
