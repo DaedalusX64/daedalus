@@ -172,65 +172,39 @@ void IInputManager::GetState( OSContPad pPad[4] )
 			 {
 				 SDL_Quit();
 			 }
+		 }
 
-			 else if ( key.type == SDL_KEYDOWN)
-			 {
-				 switch (key.key.keysym.sym )
-			 {
 
-				 case SDLK_x: pPad[0].button |= A_BUTTON; break;
-				 case SDLK_c: pPad[0].button |= B_BUTTON; break;
-				 case SDLK_z: pPad[0].button |= Z_TRIG; break;
-				 case SDLK_a: pPad[0].button |= L_TRIG; break;
-				 case SDLK_s: pPad[0].button |= R_TRIG; break;
+const Uint8* keys = SDL_GetKeyboardState( NULL );
 
-				 case SDLK_RETURN: pPad[0].button |= START_BUTTON; break;
+if (keys [ SDL_SCANCODE_UP ] ) {pPad[0].stick_y = +80;}
+if (keys [ SDL_SCANCODE_DOWN ] ) {pPad[0].stick_y = -80;}
+if (keys [ SDL_SCANCODE_LEFT ] ) {pPad[0].stick_x = -80;}
+if (keys [ SDL_SCANCODE_RIGHT ] ) {pPad[0].stick_x = +80;}
 
-				 case SDLK_KP_8: pPad[0].button |= U_JPAD; break;
-				 case SDLK_KP_2: pPad[0].button |= D_JPAD; break;
-				 case SDLK_KP_4: pPad[0].button |= L_JPAD; break;
-				 case SDLK_KP_6: pPad[0].button |= R_JPAD; break;
+if (keys [ SDL_SCANCODE_X ] ) {pPad[0].button |= A_BUTTON;}
+if (keys [ SDL_SCANCODE_C ] ) {pPad[0].button |= B_BUTTON;}
+if (keys [ SDL_SCANCODE_Z ] ) {pPad[0].button |= Z_TRIG;}
+if (keys [ SDL_SCANCODE_A ] ) {pPad[0].button |= L_TRIG;}
+if (keys [ SDL_SCANCODE_S ] ) {pPad[0].button |= R_TRIG;}
 
-				 case SDLK_HOME: pPad[0].button = U_CBUTTONS; break;
-				 case SDLK_END: pPad[0].button = D_CBUTTONS; break;
-				 case SDLK_DELETE: pPad[0].button = L_CBUTTONS; break;
-				 case SDLK_PAGEDOWN: pPad[0].button = R_CBUTTONS; break;
-				 case SDLK_UP: pPad[0].stick_y = +80; break;
-				 case SDLK_DOWN: pPad[0].stick_y = -80; break;
-				 case SDLK_LEFT: pPad[0].stick_x = -80; break;
-				 case SDLK_RIGHT: pPad[0].stick_x = +80; break;
+
+if (keys [ SDL_SCANCODE_RETURN ] ) {pPad[0].button |= START_BUTTON;}
+
+if (keys [ SDL_SCANCODE_KP_8 ] ){  pPad[0].button |= U_JPAD;}
+if (keys [ SDL_SCANCODE_KP_2 ] ){  pPad[0].button |= D_JPAD;}
+if (keys [ SDL_SCANCODE_KP_4 ] ){  pPad[0].button |= L_JPAD;}
+if (keys [ SDL_SCANCODE_KP_6 ] ){  pPad[0].button |= R_JPAD;}
+
+if (keys [ SDL_SCANCODE_HOME ] ){  pPad[0].button |= U_CBUTTONS;}
+if (keys [ SDL_SCANCODE_END ] ){  pPad[0].button |= D_CBUTTONS;}
+if (keys [ SDL_SCANCODE_DELETE ] ){  pPad[0].button |= L_CBUTTONS;}
+if (keys [ SDL_SCANCODE_PAGEDOWN ] ){  pPad[0].button |= R_CBUTTONS;}
+
 
 			 }
 		}
-
-		/*
-		if (glfwGetKey( window, 'X' ))		pPad[0].button |= A_BUTTON;
-		if (glfwGetKey( window, 'C' ))		pPad[0].button |= B_BUTTON;
-		if (glfwGetKey( window, 'Z' ))		pPad[0].button |= Z_TRIG;
-		if (glfwGetKey( window, 'Y' ))		pPad[0].button |= Z_TRIG;		// For German keyboards :)
-		if (glfwGetKey( window, 'A' ))		pPad[0].button |= L_TRIG;
-		if (glfwGetKey( window, 'S' ))		pPad[0].button |= R_TRIG;
-
-		if (glfwGetKey( window, GLFW_KEY_ENTER ))		pPad[0].button |= START_BUTTON;
-
-		if (glfwGetKey( window, GLFW_KEY_KP_8 ))		pPad[0].button |= U_JPAD;
-		if (glfwGetKey( window, GLFW_KEY_KP_2 ))		pPad[0].button |= D_JPAD;
-		if (glfwGetKey( window, GLFW_KEY_KP_4 ))		pPad[0].button |= L_JPAD;
-		if (glfwGetKey( window, GLFW_KEY_KP_6 ))		pPad[0].button |= R_JPAD;
-
-		if (glfwGetKey( window, GLFW_KEY_HOME ))		pPad[0].button |= U_CBUTTONS;
-		if (glfwGetKey( window, GLFW_KEY_END ))			pPad[0].button |= D_CBUTTONS;
-		if (glfwGetKey( window, GLFW_KEY_DELETE ))		pPad[0].button |= L_CBUTTONS;
-		if (glfwGetKey( window, GLFW_KEY_PAGE_DOWN ))	pPad[0].button |= R_CBUTTONS;
-
-		if (glfwGetKey( window, GLFW_KEY_LEFT ))		pPad[0].stick_x = -80;
-		if (glfwGetKey( window, GLFW_KEY_RIGHT ))		pPad[0].stick_x = +80;
-		if (glfwGetKey( window, GLFW_KEY_UP ))
-		if (glfwGetKey( window, GLFW_KEY_DOWN ))		pPad[0].stick_y = -80;
-		*/
-	}
-}
-}
+	
 template<> bool	CSingleton< CInputManager >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);

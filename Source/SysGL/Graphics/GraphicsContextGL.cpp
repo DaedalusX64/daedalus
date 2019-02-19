@@ -53,13 +53,9 @@ template<> bool CSingleton< CGraphicsContext >::Create()
 
 GraphicsContextGL::~GraphicsContextGL()
 {
-	// glew
-
-	// FIXME: would be better in an separate SysGL file.
 		SDL_DestroyWindow(gWindow);
 		gWindow = NULL;
-
-SDL_Quit();
+		SDL_Quit();
 }
 
 static void error_callback(int error, const char* description)
@@ -78,7 +74,7 @@ bool GraphicsContextGL::Initialise()
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 		return false;
 	}
-		//Use OpenGL 3.2 core
+		//Use OpenGL 3.3 core
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
