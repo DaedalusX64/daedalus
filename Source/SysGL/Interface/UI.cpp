@@ -12,19 +12,7 @@
 #include "Utility/Thread.h"
 
 static bool toggle_fullscreen = false;
-
-static void HandleKeys()
-{
-SDL_Event button;
-while (SDL_PollEvent( &button) != 0)
-{
-		// User requests SDL_Quit
-		if ( button.type == SDL_QUIT)
-		{
-			SDL_Quit();
-		}
-}
-}
+static void HandleKeys(){}
 /*
 	if (action == GLFW_PRESS)
 	{
