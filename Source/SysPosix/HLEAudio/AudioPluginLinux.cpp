@@ -13,6 +13,10 @@
 
 EAudioPluginMode gAudioPluginEnabled = APM_DISABLED;
 
+static const u32 kOutputFrequency = 44100;
+static const u32 kAudioBufferSize = 1024 * 1024;	// Circular buffer length. Converts N64 samples out our output rate.
+static const u32 kNumChannels = 2;
+
 
 // How much input we try to keep buffered in the synchronisation code.
 // Setting this too low and we run the risk of skipping.
@@ -25,6 +29,7 @@ static const u32 kMaxBufferLengthMs = 30;
 // audio which can help reduce crackling (empty buffers) at the cost of lag.
 static const u32 kNumBuffers = 3;
 static const u32 kAudioQueueBufferLength = 1 * 1024;
+
 
 class AudioPluginSDL : public CAudioPlugin
 {
@@ -48,8 +53,8 @@ public:
 	static void AudioSyncFunction(void * arg);
 
 private:
-	//CAudioBuffer			mAudioBuffer;
-	//	ThreadHandle 			mAudioThread;
+	CAudioBuffer			mAudioBuffer;
+		ThreadHandle 			mAudioThread;
 	u32						mFrequency;
 	volatile bool			mKeepRunning;	// Should the audio thread keep running?
 	volatile u32 			mBufferLenMs;
@@ -57,9 +62,9 @@ private:
 
 
 AudioPluginSDL::AudioPluginSDL()
-//: mAudioBuffer( kAudioBufferSize )
-: mFrequency ( 44100 )
-// , mAudioThread (kInvalidThreadHandle )
+: mAudioBuffer( kAudioBufferSize )
+, mFrequency ( 44100 )
+, mAudioThread (kInvalidThreadHandle )
 , mKeepRunning ( false )
 , mBufferLenMs ( 0 )
 {
@@ -100,7 +105,7 @@ void AudioPluginSDL::LenChanged()
 		u32 address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
 		u32 length = Memory_AI_GetRegister(AI_LEN_REG);
 
-	///	AddBuffer( g_pu8RamBase + address, length);
+		AddBuffer( g_pu8RamBase + address, length);
 	}
 	else
 	{
@@ -133,6 +138,25 @@ void AudioPluginSDL::LenChanged()
 				return result;
 		}
 
+		void AudioPluginSDL::AddBuffer(void * ptr, u32 length)
+		{
+			if(length == 0)
+			return;
+
+			if (mAudioThread == kInvalidThreadHandle)
+		StartAudio();
+
+		u32 num_samples = length / sizeof( Sample );
+
+		mAudioBuffer.AddSamples( reinterpret_cast<const Sample   *>(ptr), num_samples, mFrequency, kOutputFrequency);
+ 			u32 remaining_samples = mAudioBuffer.GetNumBufferedSamples();
+	mBufferLenMs = ( 1000 * remaining_samples) / kOutputFrequency;
+ float ms = (float)num_samples * 1000.f / (float)mFrequency;
+ //DPF_AUDIO("Queuing %d samples @%dHz - %.2fms - bufferlen now %d\n",
+	 //num_samples, mFrequency, ms, mBufferLenMs);
+
+		}
+
 		void AudioPluginSDL::AudioSyncFunction(void * arg)
 		{
 			AudioPluginSDL * plugin = static_cast<AudioPluginSDL *>(arg);
@@ -161,6 +185,13 @@ void AudioPluginSDL::LenChanged()
 
 		mKeepRunning = true;
 		//XXX  create audio Thread
+	//	mAudioThread = CreateThread("Audio", &AudioThread, this);
+	//	if (mAudioThread == kInvalidThreadHandle)
+	//	{
+		//	DBGConsole_Msg(0, "Failed to start audio thread!");
+			//mKeepRunning = false;
+		//	FramerateLimiter_SetAuxillarySyncFunction(NULL,NULL)
+	//	}
 }
 
 void AudioPluginSDL::StopAudio()
