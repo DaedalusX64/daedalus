@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdio.h>
 
+
 #include <string>
 #include <vector>
 #include <map>
@@ -540,7 +541,7 @@ void IRomSelectorComponent::RenderRomList()
 			else
 			{
 				//colour = mpContext->GetDefaultTextColour();
-				u32 mycol = 0xFF & (0xFF - 12 * abs(i-mCurrentSelection));
+				u32 mycol = 0xFF & (0xFF - 12 * abs(int(i-mCurrentSelection)));
 				colour = c32(mycol, mycol, mycol, mycol);
 			}
 
