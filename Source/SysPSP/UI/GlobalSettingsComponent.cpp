@@ -375,7 +375,7 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.ForceLinearFilter,"Force Linear Filter", "Enable to force linear filter, this can improve the look of textures", "Yes", "No" ) );
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.RumblePak,"Controller add-on", "Enable either MemPak or RumblePak.", "RumblePak", "MemPak" ) );
 	mElements.Add( new CAdjustDeadzoneSetting( mpContext, "Stick Deadzone", "Adjust the size of the deadzone applied to the PSP stick while playing. Press Start/X to edit." ) );
-		if (PSP_IS_SLIM) mElements.Add( new CBoolSetting( &gGlobalPreferences.LargeROMBuffer, "ROM Buffering Mode", "File Cache, faster ROM boot but can stutter due to MS reads. ROM Buffer, no stutter but long boot time loading whole ROM into memory. Takes effect only @ ROM boot.", "File Cache", "ROM Buffer" ) );
+		if (PSP_IS_SLIM > 0) mElements.Add( new CBoolSetting( &gGlobalPreferences.LargeROMBuffer, "ROM Buffering Mode", "File Cache, faster ROM boot but can stutter due to MS reads. ROM Buffer, no stutter but long boot time loading whole ROM into memory. Takes effect only @ ROM boot.", "File Cache", "ROM Buffer" ) );
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.HighlightInexactBlendModes, "Highlight Inexact Blend Modes",	"Replace inexact blend modes with a placeholder texture.", "Yes", "No" ) );
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.CustomBlendModes, "Use Custom Blend Modes",	"Debugging tool to disable custom blendmodes.", "Yes", "No" ) );

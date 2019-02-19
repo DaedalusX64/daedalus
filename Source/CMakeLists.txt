@@ -137,11 +137,11 @@ if (LINUX_RELEASE)
 
 		#Build SysGL Lib
 		add_library(sysGL STATIC ${SYSGL_BUILD})
-		target_link_libraries(sysGL GL GLEW glfw dl X11  )
+		target_link_libraries(sysGL GL GLEW -lSDL2 dl X11  )
 
 		#Build Daedalus Lib
 		add_library(daedalus.lib STATIC ${BUILD} ${POSIX_BUILD} ${LINUX_AUDIO} )
-	target_link_libraries(daedalus.lib sysGL -lGL  glfw -lGLEW png z minizip pthread)
+	target_link_libraries(daedalus.lib sysGL -lGL  -lSDL2 -lGLEW png z minizip pthread)
 
 		#Build and Link Executable
 			add_executable(daedalus ${POSIX_MAIN_FILES})
@@ -150,14 +150,17 @@ endif (LINUX_RELEASE)
 
 
 if (MAC_RELEASE)
+
 		message("Mac Release Build..")
-		include_directories(/usr/local/include)
+FIND_PATH(OPENGL_INCLUDE_DIR gl.h)
+	FIND_LIBRARY(OPENGL_LIBRARY OpenGL)
+		include_directories(/usr/local/include -framework OpenGL)
 		link_directories(/usr/local/lib)
 
-    add_definitions("-DDAEDALUS_OSX")
+    add_definitions("-DDAEDALUS_OSX" -g)
 		#Build SysGL Lib
 		add_library(sysGL STATIC ${SYSGL_BUILD})
-		target_link_libraries(sysGL -lGLEW glfw -ldl "-framework AudioToolbox -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo"  )
+		target_link_libraries(sysGL -lGLEW -lSDL2 -ldl "-framework OpeNGL -framework AudioToolbox -framework Cocoa -framework IOKit -framework CoreVideo"  )
 
 		#Build Daedalus Lib
 		add_library(daedalus.lib STATIC ${BUILD} ${POSIX_BUILD} ${MAC_AUDIO} )

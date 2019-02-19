@@ -27,21 +27,26 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Test/BatchTest.h"
 #include "Utility/IO.h"
 
+#include <SDL2/SDL.h>
 #ifdef DAEDALUS_LINUX
 #include <linux/limits.h>
 #endif
 
 int main(int argc, char **argv)
 {
+	bool quit = false;
 	int result = 0;
 
 	if (argc > 0)
 	{
 		IO::Filename exe_path;
-		realpath(argv[0], exe_path);
 
+		char *argvcopybuffer;
+		argvcopybuffer = strdup(argv[0]);
+
+		strcpy(argvcopybuffer, exe_path);
 		strcpy(gDaedalusExePath, exe_path);
-		IO::Path::RemoveFileSpec(gDaedalusExePath);
+		char (gDaedalusExePath);
 	}
 	else
 	{
@@ -52,13 +57,10 @@ int main(int argc, char **argv)
 	//ReadConfiguration();
 
 	if (!System_Init())
+	{
 		return 1;
+	}
 
-	//
-	// Create the console if it's enabled. Don't care about failures
-	//
-	//DisplayDisclaimer();
-	//DisplayConfig();
 
 	if (argc > 1)
 	{
@@ -114,16 +116,8 @@ int main(int argc, char **argv)
 	else
 	{
 		printf("Usage: daedalus 'Path to Rom'\n");
-//		result = RunMain();
 	}
-
-	//
-	// Write current config out to the registry
-	//
-	//WriteConfiguration();
-
 	System_Finalize();
-
 	return result;
 }
 
