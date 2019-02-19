@@ -47,7 +47,6 @@ int main(int argc, char **argv)
 		strcpy(argvcopybuffer, exe_path);
 		strcpy(gDaedalusExePath, exe_path);
 		char (gDaedalusExePath);
-		//IO::Path::RemoveFileSpec(gDaedalusExePath);
 	}
 	else
 	{
