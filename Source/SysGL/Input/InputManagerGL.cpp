@@ -170,7 +170,7 @@ void IInputManager::GetState( OSContPad pPad[4] )
 			 // User request quit
 			 if (key.type == SDL_QUIT)
 			 {
-	//			 return false;
+				 SDL_Quit();
 			 }
 
 			 else if ( key.type == SDL_KEYDOWN)
