@@ -140,6 +140,7 @@ void AudioPluginSDL::LenChanged()
 
 		void AudioPluginSDL::AddBuffer(void * ptr, u32 length)
 		{
+
 			if(length == 0)
 			return;
 
@@ -159,6 +160,7 @@ void AudioPluginSDL::LenChanged()
 
 		void AudioPluginSDL::AudioSyncFunction(void * arg)
 		{
+
 			AudioPluginSDL * plugin = static_cast<AudioPluginSDL *>(arg);
 
 			#if DEBUG_AUDIO
