@@ -140,6 +140,7 @@ void AudioPluginSDL::LenChanged()
 
 		void AudioPluginSDL::AddBuffer(void * ptr, u32 length)
 		{
+			/*
 
 			if(length == 0)
 			return;
@@ -155,12 +156,12 @@ void AudioPluginSDL::LenChanged()
  float ms = (float)num_samples * 1000.f / (float)mFrequency;
  //DPF_AUDIO("Queuing %d samples @%dHz - %.2fms - bufferlen now %d\n",
 	 //num_samples, mFrequency, ms, mBufferLenMs);
-
+*/
 		}
 
 		void AudioPluginSDL::AudioSyncFunction(void * arg)
 		{
-
+/*
 			AudioPluginSDL * plugin = static_cast<AudioPluginSDL *>(arg);
 
 			#if DEBUG_AUDIO
@@ -177,7 +178,7 @@ void AudioPluginSDL::LenChanged()
 			{
 				ThreadSleepMs(buffer_len - kMaxBufferLengthMs);
 			}
-
+*/
 		}
 
 
