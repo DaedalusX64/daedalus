@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/NativePixelFormat.h"
 #include "Graphics/ColourValue.h"
 #include "VideoMemoryManager.h"
+#include "Utility/FastMemcpy.h"
 
 #include "Math/MathUtil.h"
 
@@ -173,7 +174,7 @@ inline bool swizzle(u8* out, const u8* in, u32 width, u32 height)
 	{
 		//swizzle_slow( out, in, width, height );
 
-		memcpy( out, in, width * height );
+		memcpy_vfpu( out, in, width * height );
 		return false;
 	}
 	else
@@ -584,10 +585,10 @@ void	CNativeTexture::SetData( void * data, void * palette )
 			switch( mTextureFormat )
 			{
 			case TexFmt_CI4_8888:
-				memcpy( mpPalette, palette, kPalette4BytesRequired );
+				memcpy_vfpu( mpPalette, palette, kPalette4BytesRequired );
 				break;
 			case TexFmt_CI8_8888:
-				memcpy( mpPalette, palette, kPalette8BytesRequired );
+				memcpy_vfpu( mpPalette, palette, kPalette8BytesRequired );
 				break;
 
 			default:
