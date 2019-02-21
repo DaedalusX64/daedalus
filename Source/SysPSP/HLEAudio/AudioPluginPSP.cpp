@@ -73,13 +73,6 @@ CAudioPluginPsp::~CAudioPluginPsp()
 	delete mAudioOutput;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-CAudioPluginPsp *	CAudioPluginPsp::Create()
-{
-	return new CAudioPluginPsp();
-}
 
 //*****************************************************************************
 //
@@ -217,5 +210,5 @@ EProcessResult	CAudioPluginPsp::ProcessAList()
 //*****************************************************************************
 CAudioPlugin *		CreateAudioPlugin()
 {
-	return CAudioPluginPsp::Create();
+	return new CAudioPluginPsp();
 }
