@@ -40,6 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Utility/JobManager.h"
 #include "Utility/FramerateLimiter.h"
 #include "Utility/Thread.h"
+#include "SysPSP/Utility/PSPModel.h"
 
 extern u32 gSoundSync;
 
@@ -47,8 +48,11 @@ static const u32	DESIRED_OUTPUT_FREQUENCY = 44100;
 static const u32	MAX_OUTPUT_FREQUENCY = DESIRED_OUTPUT_FREQUENCY * 4;
 
 //static const u32	ADAPTIVE_FREQUENCY_ADJUST = 2000;
-// Large BUFFER_SIZE creates huge delay on sound //Corn
-static const u32	BUFFER_SIZE = 1024 * 1024;
+
+// PSP Slim+ can use a larger buffer for audio
+
+static const u32	BUFFER_SIZE = 1024 * 2;
+
 
 static const u32	PSP_NUM_SAMPLES = 512;
 
