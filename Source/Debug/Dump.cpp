@@ -111,7 +111,7 @@ void Dump_GetSaveDirectory(char * rootdir, const char * rom_filename, const char
 	char *romfilebuffer;
 	romfilebuffer = strdup(rom_filename);
 
-	IO::Path::Assign(file_name, romfilebuffer);
+	IO::Path::Assign(file_name, romfilebuffer + 5);
 
 	IO::Path::SetExtension(file_name, extension);
 	IO::Path::Combine(rootdir, g_DaedalusConfig.mSaveDir, file_name);
