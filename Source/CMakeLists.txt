@@ -10,7 +10,7 @@
 # PSP_RELEASE - Builds PSP Release
 
 cmake_minimum_required(VERSION 3.7)
-
+set(CMAKE_CXX_STANDARD 14)
 project (DaedalusX64)
 
 				#Default Files for build
@@ -36,7 +36,7 @@ project (DaedalusX64)
 				#PSP Build
 				set (PSP_DEBUG_FILES SysPSP/Debug/DaedalusAssertPSP.cpp SysPSP/Debug/DBGConsolePSP.cpp)
 				set (PSP_DVEMGR_FILES SysPSP/DveMgr/pspDveManager.S)
-				set (PSP_DYNAREC_FILES SysPSP/DynaRec/AssemblyWriterPSP.cpp SysPSP/DynaRec/AssemblyUtilsPSP.cpp SysPSP/DynaRec/CodeBufferManagerPSP.cpp SysPSP/DynaRec/CodeGeneratorPSP.cpp SysPSP/DynaRec/DynaRecStubs.S SysPSP/DynaRec/DynarecTargetPSP.cpp SysPSP/DynaRec/N64RegisterCachePSP.cpp)
+				set (PSP_DYNAREC_FILES SysPSP/DynaRec/AssemblyWriterPSP.cpp SysPSP/DynaRec/AssemblyUtilsPSP.cpp SysPSP/DynaRec/CodeBufferManagerPSP.cpp SysPSP/DynaRec/CodeGeneratorPSP.cpp SysPSP/DynaRec/DynaRecStubs.S SysPSP/DynaRec/N64RegisterCachePSP.cpp)
 				set (PSP_GRAPHICS_FILES SysPSP/Graphics/DrawText.cpp SysPSP/Graphics/GraphicsContext.cpp SysPSP/Graphics/NativeTexturePSP.cpp SysPSP/Graphics/VideoMemoryManager.cpp SysPSP/Graphics/intraFont/intraFont.c SysPSP/Graphics/intraFont/libccc.c)
 				set (PSP_HLEAUDIO_FILES SysPSP/HLEAudio/AudioOutput.cpp SysPSP/HLEAudio/AudioPluginPSP.cpp)
 				set (PSP_HLEGRAPHICS_FILES SysPSP/HLEGraphics/Blender.cpp SysPSP/HLEGraphics/BlendModes.cpp SysPSP/HLEGraphics/ColourAdjuster.cpp SysPSP/HLEGraphics/ConvertVertices.S SysPSP/HLEGraphics/DisplayListDebugger.cpp SysPSP/HLEGraphics/GraphicsPluginPSP.cpp SysPSP/HLEGraphics/RendererPSP.cpp SysPSP/HLEGraphics/Combiner/BlendConstant.cpp SysPSP/HLEGraphics/Combiner/CombinerExpression.cpp SysPSP/HLEGraphics/Combiner/CombinerTree.cpp SysPSP/HLEGraphics/Combiner/RenderSettings.cpp SysPSP/HLEGraphics/TnLVFPU.S SysPSP/HLEGraphics/VectorClipping.S)
@@ -111,8 +111,8 @@ endif (PSP_RELEASE)
 if (PSP_DEBUG)
 	message("PSP Debug Build..")
 	include_directories(${PROJECT_SOURCE_DIR}/Config/Dev)
-	add_definitions("-g -O1 -fno-omit-frame-pointer -G0 -D_DEBUG -MD -Wall")
-	add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=661)
+	add_definitions("-g -O2 -fno-omit-frame-pointer -G0 -D_DEBUG -MD -Wall")
+	add_compile_options(-DPSP_FW_VERSION=661)
 	add_definitions(-DDAEDALUS_PSP )
 	include_directories(BEFORE ${PROJECT_SOURCE_DIR}/SysPSP/Include)
 	add_library(daedalus STATIC ${BUILD} ${PSP_BUILD})
