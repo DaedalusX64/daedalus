@@ -19,6 +19,8 @@ me_stub:
 	li		k0, 0xbc100000
 	li		t0, 7
 	sw		t0, 80(k0)
+	li		t0, 2
+	sw		t0, 64(k0)
 	mtc0	zero, TAGLO
 	mtc0	zero, TAGHI
 	li		k1, 8192

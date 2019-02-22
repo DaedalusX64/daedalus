@@ -45,6 +45,7 @@ volatile me_struct *mei;
 #undef DAEDALUS_PSP_USE_ME
 #endif
 
+
 CJobManager gJobManager( 1024, TM_ASYNC_ME );
 //CJobManager gJobManager( 1024, TM_SYNC );
 
@@ -58,7 +59,7 @@ bool InitialiseJobManager()
 	mei = (volatile struct me_struct *)(MAKE_UNCACHED_PTR(mei));
 	sceKernelDcacheWritebackInvalidateAll();
 
-	if (InitME(mei, 660 ) == 0)
+	if (InitME(mei) == 0)
 	{
 		gLoadedMediaEnginePRX = true;
 		return true;
@@ -201,6 +202,8 @@ void CJobManager::Run()
 			SJob *	job( static_cast< SJob * >( mJobBuffer ) );
 
 #ifdef DAEDALUS_PSP_USE_ME
+
+
 			if( gLoadedMediaEnginePRX && mTaskMode == TM_ASYNC_ME )
 			{
 				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
@@ -213,7 +216,7 @@ void CJobManager::Run()
 
 				// copy new job to run buffer
 				memcpy( mRunBuffer, mJobBuffer, mJobBufferSize );
-				//sceKernelDcacheWritebackInvalidateRange(mRunBuffer, mJobBufferSize);
+
 				sceKernelDcacheWritebackInvalidateAll();
 
 				// signal ready for a new job
@@ -224,7 +227,7 @@ void CJobManager::Run()
 					run->InitJob( run );
 
 				// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
-				BeginME( mei, (int)run->DoJob, (int)run, -1, 0, -1, 0);
+				BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL);
 
 			}
 			else
