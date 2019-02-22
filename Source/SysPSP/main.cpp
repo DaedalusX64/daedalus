@@ -63,7 +63,7 @@
 #include "Utility/Profiler.h"
 #include "Utility/Thread.h"
 #include "Utility/Timer.h"
-
+#include "Utility/Translate.h"
 
 /* Define to enable Exit Callback */
 // Do not enable this, callbacks don't get along with our exit dialog :p
@@ -425,9 +425,6 @@ void HandleEndOfFrame()
         //CVideoMemoryManager::Get()->DisplayDebugInfo();
         //#endif
 
-        // No longer needed since we save normally now, and not jsut when entering the pause menu ;)
-        //Save_Flush(true);
-
         // switch back to the LCD display
         CGraphicsContext::Get()->SwitchToLcdDisplay();
 
@@ -479,13 +476,6 @@ static void DisplayRomsAndChoose(bool show_splash)
 
     if(p_context != NULL)
     {
-        // Already set in ClearBackground() @ UIContext.h
-        //const c32        BACKGROUND_COLOUR = c32( 107, 188, 255 );        // blue
-        //const c32        BACKGROUND_COLOUR = c32( 92, 162, 219 );        // blue
-        //const c32        BACKGROUND_COLOUR = c32( 1, 1, 127 );            // dark blue
-        //const c32        BACKGROUND_COLOUR = c32( 1, 127, 1 );            // dark green
-
-        //p_context->SetBackgroundColour( BACKGROUND_COLOUR );
 
         if( show_splash )
         {

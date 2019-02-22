@@ -108,13 +108,22 @@ void Dump_GetSaveDirectory(char * rootdir, const char * rom_filename, const char
 
 	// Form the filename from the file spec (i.e. strip path and replace the extension)
 	IO::Filename file_name;
+
+
+// PSP needs the original setup I believe
+	#ifdef DAEDALUS_PSP
+	IO::Path::Assign(file_name, IO::Path::FindFileName(rom_filename));
+	IO::Path::SetExtension(file_name, extension);
+	#else
 	char *romfilebuffer;
 	romfilebuffer = strdup(rom_filename);
 
-	IO::Path::Assign(file_name, romfilebuffer + 5);
+	IO::Path::Assign(file_name, romfilebuffer);
 
 	IO::Path::SetExtension(file_name, extension);
+	#endif
 	IO::Path::Combine(rootdir, g_DaedalusConfig.mSaveDir, file_name);
+
 }
 
 #ifndef DAEDALUS_SILENT

@@ -366,9 +366,9 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5647:	// Glover
 		g_ROM.SET_ROUND_MODE = true;
 		break;
-	case 0x4B42:	//Banjo-Kazooie
-		g_ROM.TLUT_HACK = true;
-		g_ROM.DISABLE_LBU_OPT = true;
+//	case 0x4B42:	//Banjo-Kazooie
+//		g_ROM.TLUT_HACK = true;
+//		g_ROM.DISABLE_LBU_OPT = true;
 		break;
 	//case 0x5750:	//PilotWings64
 	case 0x4450:	//Perfect Dark
@@ -436,7 +436,11 @@ void SpecificGameHacks( const ROMHeader & id )
 		g_ROM.GameHacks = ANIMAL_CROSSING;
 		break;
 	case 0x4842:	//Body Harvest
+			g_ROM.GameHacks = BODY_HARVEST;
+			break;
 	case 0x434E:	//Nightmare Creatures
+			g_ROM.GameHacks = BODY_HARVEST;
+			break;
 	case 0x5543:	//Cruisn' USA
 		g_ROM.GameHacks = BODY_HARVEST;
 		break;

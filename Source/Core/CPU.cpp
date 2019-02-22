@@ -63,21 +63,21 @@ extern void R4300_Init();
 //	New dynarec engine
 //
 #ifdef DAEDALUS_PROFILE_EXECUTION
-u64					gTotalInstructionsExecuted = 0;
-u64					gTotalInstructionsEmulated = 0;
+u64					gTotalInstructionsExecuted {0};
+u64					gTotalInstructionsEmulated {0};
 #endif
 
 #ifdef DAEDALUS_BREAKPOINTS_ENABLED
 std::vector< DBG_BreakPoint > g_BreakPoints;
 #endif
 
-volatile u32 eventQueueLocked = 0;
+volatile u32 eventQueueLocked {0};
 
-static bool			gCPURunning        = false;			// CPU is actively running
-u8 *				gLastAddress       = NULL;
+static bool	gCPURunning  {false};			// CPU is actively running
+u8 *				gLastAddress {NULL};
 std::string			gSaveStateFilename = "";
 
-static bool			gCPUStopOnSimpleState = false;			// When stopping, try to stop in a 'simple' state (i.e. no RSP running and not in a branch delay slot)
+static bool			gCPUStopOnSimpleState {false};			// When stopping, try to stop in a 'simple' state (i.e. no RSP running and not in a branch delay slot)
 static Mutex		gSaveStateMutex;
 
 enum ESaveStateOperation
@@ -87,11 +87,11 @@ enum ESaveStateOperation
 	SSO_LOAD,
 };
 
-static ESaveStateOperation		gSaveStateOperation = SSO_NONE;
+static ESaveStateOperation		gSaveStateOperation {SSO_NONE};
 
-const  u32			kInitialVIInterruptCycles = 62500;
-static u32			gVerticalInterrupts = 0;
-static u32			VI_INTR_CYCLES = kInitialVIInterruptCycles;
+const  u32			kInitialVIInterruptCycles {62500};
+static u32			gVerticalInterrupts {0};
+static u32			VI_INTR_CYCLES {kInitialVIInterruptCycles};
 
 #ifdef USE_SCRATCH_PAD
 SCPUState *gPtrCPUState = (SCPUState*)0x10000;
