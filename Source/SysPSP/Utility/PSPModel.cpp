@@ -25,14 +25,15 @@ int PSPDetect (int PSPModel)
 		{
 			PSPModel=3; // Vita
 			PSP_IS_SLIM = true;
-    #undef DAEDALUS_PSP_USE_ME // Vita cannot use the MediaEngine. 
+    #undef DAEDALUS_PSP_USE_ME // Vita cannot use the MediaEngine.
 		}
 		else
 		{
 PSP_IS_SLIM = false;
-PSPModel= 0; // Fat
+PSPModel = 0; // Fat
 		}
 
+return PSPModel;
 	}
 
 	#endif
