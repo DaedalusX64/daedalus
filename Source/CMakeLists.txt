@@ -126,7 +126,7 @@ if (MAC_RELEASE OR LINUX_RELEASE)
 
 add_definitions("-DNDEBUG -O3")
 include_directories(${PROJECT_SOURCE_DIR/HLEGraphics})
-include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/SysPosix/Include)
+include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Config/Dev ${PROJECT_SOURCE_DIR}/SysPosix/Include)
 
 endif (MAC_RELEASE OR LINUX_RELEASE)
 

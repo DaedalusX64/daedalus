@@ -80,6 +80,7 @@ buildPSP
 
 elif [ "$1" = "LINUX_RELEASE" ] || [ "$1" = "MAC_RELEASE" ]; then
   pre_prep
+  mkdir "$PWD/daedbuild"
   cd "$PWD/daedbuild"
   cmake -D"$1=1" ../Source
 make
