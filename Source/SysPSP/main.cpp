@@ -65,155 +65,35 @@
 #include "Utility/Timer.h"
 #include "Utility/Translate.h"
 
-/* Define to enable Exit Callback */
-// Do not enable this, callbacks don't get along with our exit dialog :p
-// Only needed for gprof
-//
-#ifdef DAEDALUS_PSP_GPROF
-#define DAEDALUS_CALLBACKS
-#else
-#undef DAEDALUS_CALLBACKS
-#endif
-
-
-extern "C"
-{
-    /* Disable FPU exceptions */
-    void _DisableFPUExceptions();
-
-    /* Video Manager functions */
-    int pspDveMgrCheckVideoOut();
-    int pspDveMgrSetVideoOut(int, int, int, int, int, int, int);
-
-#ifdef DAEDALUS_PSP_GPROF
-    /* Profile with psp-gprof */
-    void gprof_cleanup();
-#endif
-}
-
-/* Kernel Exception Handler functions */
-extern void initExceptionHandler();
-
-/* Video Manager functions */
-extern int HAVE_DVE;
-extern int PSP_TV_CABLE;
-extern int PSP_TV_LACED;
-extern void VolatileMemInit();
-bool PSP_IS_SLIM = false;
-
-bool g32bitColorMode = false;
-//*************************************************************************************
-//Set up our initial eviroment settings for the PSP
-//*************************************************************************************
-PSP_MODULE_INFO( DaedalusX64 1.1.6, 0, 1, 1 );
-PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
-//PSP_HEAP_SIZE_KB(20000);// Set Heapsize to 18.5mb
-PSP_HEAP_SIZE_KB(-256);
+  extern "C"
+  {
+        void _DisableFPUExceptions();
+        int pspDveMgrCheckVideoOut();
+        int pspDveMgrSetVideoOut(int, int, int, int, int, int, int);
+  }
 
 
 
-#ifdef DAEDALUS_CALLBACKS
-//*************************************************************************************
-//Set up the Exit Callback (Used to allow the Home Button to work)
-//*************************************************************************************
-static int ExitCallback( int arg1, int arg2, void * common )
-{
-#ifdef DAEDALUS_PSP_GPROF
-    gprof_cleanup();
-#endif
+  /* Video Manager functions */
+  extern int HAVE_DVE;
+  extern int PSP_TV_CABLE;
+  extern int PSP_TV_LACED;
 
-    sceKernelExitGame();
-    return 0;
-}
-
-//*************************************************************************************
-//Initialise the Exit Callback (Also used to allow the Home Button to work)
-//*************************************************************************************
-static int CallbackThread( SceSize args, void * argp )
-{
-    int cbid;
-
-    cbid = sceKernelCreateCallback( "Exit Callback", ExitCallback, NULL );
-    sceKernelRegisterExitCallback( cbid );
-
-    sceKernelSleepThreadCB();
-
-    return 0;
-}
-
-//*************************************************************************************
-// Sets up the callback thread and returns its thread id
-//*************************************************************************************
-static int SetupCallbacks()
-{
-    int thid = 0;
-
-    thid = sceKernelCreateThread( "CallbackThread", CallbackThread, 0x11, 0xFA0, PSP_THREAD_ATTR_USER, 0 );
-    if(thid >= 0)
-    {
-        sceKernelStartThread(thid, 0, 0);
-    }
-    return thid;
-}
-#endif
-
-//*************************************************************************************
-//Panic button thread quits to the menu when pressed
-//*************************************************************************************
-static int PanicThread( SceSize args, void * argp )
-{
-    const u32 MASK = PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER | PSP_CTRL_START;
-
-    u32 count = 0;
-
-    //Loop 4 ever
-    while(1)
-    {
-        SceCtrlData pad;
-        sceCtrlPeekBufferPositive(&pad, 1);
-
-        if( (pad.Buttons & MASK) == MASK )
-        {
-            if(++count > 5)         //If button press for more that 2sec we return to main menu
-            {
-                count = 0;
-                CGraphicsContext::Get()->ClearAllSurfaces();
-                CPU_Halt("Panic");
-                ThreadSleepMs(2000);
-            }
-        }
-        else count = 0;
-
-        //Idle here, only check button 3 times/sec not to hog CPU time from EMU
-        ThreadSleepMs(300);
-    }
-
-    return 0;
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
-static int SetupPanic()
-{
-    int thidf = sceKernelCreateThread( "PanicThread", PanicThread, 0x18, 0xFA0, PSP_THREAD_ATTR_USER, 0 );
-
-    if(thidf >= 0)
-    {
-        sceKernelStartThread(thidf, 0, 0);
-    }
-
-    return 0;
-}
+  extern void VolatileMemInit();
+  extern void initExceptionHandler();
+  extern bool InitialiseJobManager();
+  bool g32bitColorMode = false;
 
 
-extern bool InitialiseJobManager();
-//*************************************************************************************
-//
-//*************************************************************************************
+  bool PSP_IS_SLIM = false;
+  PSP_MODULE_INFO( DaedalusX64 1.1.6, 0, 1, 1 );
+  PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
+  PSP_HEAP_SIZE_KB(-256);
+
+
+
 static bool    Initialize()
 {
-
     strcpy(gDaedalusExePath, DAEDALUS_PSP_PATH( "" ));
 
     printf( "Cpu was: %dMHz, Bus: %dMHz\n", scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency() );
@@ -223,8 +103,6 @@ static bool    Initialize()
     }
     printf( "Cpu now: %dMHz, Bus: %dMHz\n", scePowerGetCpuClockFrequency(), scePowerGetBusClockFrequency() );
 
-    // Set up our Kernel Home button
-    //ToDo: This doesn't work properly for Vita, there's no longer a "home" button available
     InitHomeButton();
 
     // If (o) is pressed during boot the Emulator will use 32bit
@@ -237,38 +115,23 @@ static bool    Initialize()
     //File not found Activate the psp Media Engine.
     bool bMeStarted = InitialiseJobManager();
 
-
-    // Disable for profiling
-    //    srand(time(0));
-
     //Set the debug output to default
     if( g32bitColorMode ) pspDebugScreenInit();
     else pspDebugScreenInitEx( NULL , GU_PSM_5650, 1); //Sets debug output to 16bit mode
 
     // This Breaks gdb, better disable it in debug build
-    //
-#ifndef FR
+#ifndef DAEDALUS_DEBUG_CONSOLE
     initExceptionHandler();
 #endif
 
     _DisableFPUExceptions();
-
-    //Init Panic button thread
-    SetupPanic();
-
-    // Init volatile memory
     VolatileMemInit();
-
-#ifdef DAEDALUS_CALLBACKS
-    //Set up callback for our thread
-    SetupCallbacks();
-#endif
-
 
     //Set up the DveMgr (TV Display) and Detect PSP Slim /3K/ Go
     if ( PSPDetect(0) )
     {
         // Check to see if the PSP is fat, otherwise go ahead and init slim stuff
+        PSP_IS_SLIM = false;
     }
     else
     {
@@ -290,7 +153,6 @@ static bool    Initialize()
     sceCtrlSetSamplingCycle(0);
     sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
 
-    // Init the savegame directory
     strcpy( g_DaedalusConfig.mSaveDir, DAEDALUS_PSP_PATH( "SaveGames/" ) );
 
     if (!System_Init())
@@ -299,13 +161,7 @@ static bool    Initialize()
     return true;
 }
 
-//*********t****************************************************************************
-//
-//*************************************************************************************
-static void Finalise()
-{
-    System_Finalize();
-}
+static void Finalise() { System_Finalize(); }
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
 //*************************************************************************************
@@ -419,27 +275,15 @@ void HandleEndOfFrame()
 
     if(activate_pause_menu)
     {
-        // See how much texture memory we're using
-        //CTextureCache::Get()->DropTextures();
-        //#ifdef DAEDALUS_DEBUG_MEMORY
-        //CVideoMemoryManager::Get()->DisplayDebugInfo();
-        //#endif
 
-        // switch back to the LCD display
         CGraphicsContext::Get()->SwitchToLcdDisplay();
-
-        // Call this initially, to tidy up any state set by the emulator
         CGraphicsContext::Get()->ClearAllSurfaces();
-
         CDrawText::Initialise();
 
         CUIContext *    p_context( CUIContext::Create() );
 
         if(p_context != NULL)
         {
-            // Already set in ClearBackground() @ UIContext.h
-            //p_context->SetBackgroundColour( c32( 94, 188, 94 ) );        // Nice green :)
-
             CPauseScreen *    pause( CPauseScreen::Create( p_context ) );
             pause->Run();
             delete pause;
@@ -447,24 +291,15 @@ void HandleEndOfFrame()
         }
 
         CDrawText::Destroy();
-
-        //
-        // Commit the preferences database before starting to run
-        //
         CPreferences::Get()->Commit();
     }
-    //
+
     //    Reset the elapsed time to avoid glitches when we restart
-    //
 #ifdef DAEDALUS_PROFILE_EXECUTION
     gTimer.Reset();
 #endif
-
 }
 
-//*************************************************************************************
-// Here's where we load up the GUI
-//*************************************************************************************
 static void DisplayRomsAndChoose(bool show_splash)
 {
     // switch back to the LCD display
@@ -476,7 +311,6 @@ static void DisplayRomsAndChoose(bool show_splash)
 
     if(p_context != NULL)
     {
-
         if( show_splash )
         {
             CSplashScreen *        p_splash( CSplashScreen::Create( p_context ) );
@@ -493,12 +327,7 @@ static void DisplayRomsAndChoose(bool show_splash)
 
     CDrawText::Destroy();
 }
-#include "Utility/Translate.h"
-//*************************************************************************************
-// This is our main loop
-//*************************************************************************************
-extern "C"
-{
+
     int main(int argc, char* argv[])
     {
         if( Initialize() )
@@ -523,27 +352,18 @@ extern "C"
                 return 0;
             }
 #endif
-            //Translate_Init();
             bool show_splash = true;
             for(;;)
             {
                 DisplayRomsAndChoose( show_splash );
                 show_splash = false;
-
-                //
-                // Commit the preferences and roms databases before starting to run
-                //
                 CRomDB::Get()->Commit();
                 CPreferences::Get()->Commit();
-
                 CPU_Run();
                 System_Close();
             }
-
             Finalise();
         }
-
         sceKernelExitGame();
         return 0;
     }
-}
