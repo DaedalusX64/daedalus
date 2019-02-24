@@ -74,6 +74,7 @@ fi
 
 if [ "$1" = "PSP_RELEASE" ] || [ "$1" = "PSP_DEBUG" ]; then
   pre_prep
+    mkdir "$PWD/daedbuild"
     cd "$PWD/daedbuild"
 cmake -DCMAKE_TOOLCHAIN_FILE=../Tools/psptoolchain.cmake -D"$1=1" ../Source
 buildPSP
