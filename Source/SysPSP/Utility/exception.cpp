@@ -17,7 +17,6 @@
 #include "Debug/Dump.h"
 #include "Utility/PrintOpCode.h"
 
-#include "svnversion.h"
 
 PspDebugRegBlock *exception_regs;
 
@@ -120,7 +119,6 @@ static void DumpInformation(PspDebugRegBlock * regs)
 		fprintf(fp, "\tFirmware:         0x%08x\n", sceKernelDevkitVersion());
 		fprintf(fp, "\tModel:            %s\n", pspModel[ kuKernelGetModel() ]);
 		fprintf(fp, "\t64MB Available:   %s\n", PSP_IS_SLIM ? "Yes" : "No");
-		fprintf(fp, "\tEmulator Version: "SVNVERSION"\n");
 	}
 
 	fprintf(fp, "\nSettings:\n");
@@ -199,13 +197,12 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 		//pspDebugScreenPrintf("Firmware  - %08X\n", sceKernelDevkitVersion());
 		//pspDebugScreenPrintf("Model	- %s\n", pspModel[ kuKernelGetModel() ]);
 		//pspDebugScreenPrintf("64MB	 - %s\n", PSP_IS_SLIM ? "Yes" : "No");
-		//pspDebugScreenPrintf("Revision  - "SVNVERSION"\n\n");
 		//pspDebugScreenPrintf("Exception - %s\n",codeTxt[(regs->cause >> 2) & 31]);
 		pspDebugScreenPrintf(" EPC[%08X] ", (u32)regs->epc);
 		pspDebugScreenPrintf("Cause[%08X] ", (u32)regs->cause);
 		pspDebugScreenPrintf("Status[%08X] ", (u32)regs->status);
 		pspDebugScreenPrintf("BadVAddr[%08X]\n\n", (u32)regs->badvaddr);
-		
+
 		//Dump CPU registers, "*" marks pointer inside emulated RDRAM
 		for(u32 i = 0; i<32; i+=4)
 		{
@@ -222,7 +219,7 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 		const OpCode * p = (OpCode *)(scroll_epc - (inst_before_epc * 4));
 
 		pspDebugScreenPrintf("\n");
-		
+
 		//Dump ASM at exception, "*" marks the EPC
 		while( p < (OpCode *)(scroll_epc + (inst_after_epc * 4)) )
 		{
