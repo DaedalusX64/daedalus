@@ -26,10 +26,11 @@ class AudioOutput;
 
 class CAudioPluginPsp : public CAudioPlugin
 {
-
+private:
+	CAudioPluginPsp();
 public:
 	static CAudioPluginPsp *		Create();
-	CAudioPluginPsp();
+
 
 	virtual ~CAudioPluginPsp();
 	virtual bool			StartEmulation();
@@ -48,3 +49,4 @@ private:
 
 
 #endif // SYSPSP_HLEAUDIO_AUDIOPLUGINPSP_H_
+

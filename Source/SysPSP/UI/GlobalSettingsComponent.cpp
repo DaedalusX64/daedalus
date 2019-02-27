@@ -37,7 +37,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "SysPSP/Utility/Buttons.h"
 #include "SysPSP/Utility/PathsPSP.h"
-#include "SysPSP/Utility/PSPModel.h"
 #include "Utility/Thread.h"
 #include "Utility/FramerateLimiter.h"
 #include "Utility/Preferences.h"
@@ -81,30 +80,24 @@ namespace
 				{
 					switch( gGlobalPreferences.ViewportType )
 					{
-					case VT_NATIVE_240P:	return "Native N64 (320x240)";
 					case VT_UNSCALED_4_3:	return "4:3 no overscan (640x448)";
 					case VT_SCALED_4_3:		return "4:3 overscan (658x460)";
 					case VT_FULLSCREEN:		return "16:9 stretch (720x460)";
 					case VT_FULLSCREEN_HD:	return "16:9 (720x460)";
-				}
-				#ifdef DAEDALUS_DEBUG_CONSOLE
+					}
 					DAEDALUS_ERROR( "Unhandled viewport type" );
-					#endif
 					return "?";
 				}
 				else
 				{
 					switch( gGlobalPreferences.ViewportType )
 					{
-					case VT_NATIVE_240P:	return "Native N64 (320x240)";
 					case VT_UNSCALED_4_3:	return "4:3 no overscan (528x448)";
 					case VT_SCALED_4_3:		return "4:3 overscan (542x460)";
 					case VT_FULLSCREEN:		return "16:9 stretch (720x460)";
 					case VT_FULLSCREEN_HD:	return "16:9 (720x460)";
 					}
-					#ifdef DAEDALUS_DEBUG_CONSOLE
 					DAEDALUS_ERROR( "Unhandled viewport type" );
-					#endif
 					return "?";
 				}
 			}
@@ -112,15 +105,12 @@ namespace
 			{
 				switch( gGlobalPreferences.ViewportType )
 				{
-				case VT_NATIVE_240P:	return "Native N64 (320x240)";
 				case VT_UNSCALED_4_3:	return "4:3 unscaled (320x240)";
 				case VT_SCALED_4_3:		return "4:3 scaled (362x272)";
 				case VT_FULLSCREEN:		return "16:9 stretch (480x272)";
 				case VT_FULLSCREEN_HD:	return "16:9 (480x272)";
 				}
-				#ifdef DAEDALUS_DEBUG_CONSOLE
 				DAEDALUS_ERROR( "Unhandled viewport type" );
-				#endif
 				return "?";
 			}
 		}
@@ -144,9 +134,7 @@ namespace
 			case TT_4_3:			return "4:3 SDTV";
 			case TT_WIDESCREEN:		return "16:9 HDTV";
 			}
-			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR( "Unhandled TV type" );
-			#endif
 			return "?";
 		}
 	};
@@ -278,9 +266,7 @@ namespace
 				case PURPLE:	return "Purple";
 				case GREY:		return "Grey";
 			}
-			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR( "Unknown Color" );
-			#endif
 			return "?";
 		}
 	};
@@ -375,11 +361,12 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.ForceLinearFilter,"Force Linear Filter", "Enable to force linear filter, this can improve the look of textures", "Yes", "No" ) );
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.RumblePak,"Controller add-on", "Enable either MemPak or RumblePak.", "RumblePak", "MemPak" ) );
 	mElements.Add( new CAdjustDeadzoneSetting( mpContext, "Stick Deadzone", "Adjust the size of the deadzone applied to the PSP stick while playing. Press Start/X to edit." ) );
-		if (PSP_IS_SLIM > 0) mElements.Add( new CBoolSetting( &gGlobalPreferences.LargeROMBuffer, "ROM Buffering Mode", "File Cache, faster ROM boot but can stutter due to MS reads. ROM Buffer, no stutter but long boot time loading whole ROM into memory. Takes effect only @ ROM boot.", "File Cache", "ROM Buffer" ) );
+	if (PSP_IS_SLIM) mElements.Add( new CBoolSetting( &gGlobalPreferences.LargeROMBuffer, "ROM Buffering Mode", "File Cache, faster ROM boot but can stutter due to MS reads. ROM Buffer, no stutter but long boot time loading whole ROM into memory. Takes effect only @ ROM boot.", "File Cache", "ROM Buffer" ) );
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.HighlightInexactBlendModes, "Highlight Inexact Blend Modes",	"Replace inexact blend modes with a placeholder texture.", "Yes", "No" ) );
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.CustomBlendModes, "Use Custom Blend Modes",	"Debugging tool to disable custom blendmodes.", "Yes", "No" ) );
 #endif
+	mElements.Add( new CBoolSetting( &gGlobalPreferences.BatteryWarning, "Low Battery Warning",	"Whether to allow Daedalus to notify when the battery is low.", "Yes", "No" ) );
 	mElements.Add( new CColorSetting( "GUI Color", "Change GUI Color" ) );
 	mElements.Add( new CLanguage( "Language", "Press X to load language" ) );
 	mElements.Add( new CResetSetting( mpContext, "Reset Settings", "Will guide you to reset preferences to default, and hle cache files. Note : emulator will exit if resetting settings" ) );
@@ -450,3 +437,4 @@ void	IGlobalSettingsComponent::Render()
 	}
 
 }
+

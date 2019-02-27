@@ -58,7 +58,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef DUMPOSFUNCTIONS
 #include "Debug/Dump.h"
-#include "System/IO.h"
+#include "Utility/IO.h"
 
 static const char * const gEventStrings[23] =
 {
@@ -504,7 +504,7 @@ void Patch_RecurseAndFind()
 #ifdef DAEDALUS_PSP
 	// Load our font here, Intrafont used in UI is destroyed when emulation starts
 	intraFont* ltn8  = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ASCII);
-	intraFontSetStyle( ltn8, 1.0f, 0xFFFFFFFF, 0, INTRAFONT_ALIGN_CENTER );
+	intraFontSetStyle( ltn8, 1.0f, 0xFF000000, 0xFFFFFFFF, INTRAFONT_ALIGN_CENTER );
 #endif
 #endif
 
@@ -1097,7 +1097,7 @@ static u32 RET_JR_ERET()
 	return 0;
 }
 
-static u32 ConvertToPhysical(u32 addr)
+static u32 ConvertToPhysics(u32 addr)
 {
 	DAEDALUS_ASSERT(IS_K0K1(addr) == (IS_KSEG0(addr) | IS_KSEG1(addr)), "IS_K0K1 is inconsistent");
 

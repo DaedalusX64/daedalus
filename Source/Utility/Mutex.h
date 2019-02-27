@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifdef DAEDALUS_PSP
 #include <pspthreadman.h>
 #endif
-#if defined(DAEDALUS_POSIX)
+#if defined(DAEDALUS_OSX) || defined(DAEDALUS_LINUX)
 #include <pthread.h>
 #endif
 
@@ -72,17 +72,13 @@ public:
 	Mutex()
 		:	mSemaphore( sceKernelCreateSema( "Mutex", 0, 1, 1, NULL ) )
 	{
-		#ifdef DAEDLAUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( mSemaphore >= 0, "Unable to create semaphore" );
-		#endif
 	}
 
 	explicit Mutex( const char * name )
 		:	mSemaphore( sceKernelCreateSema( name, 0, 1, 1, NULL ) )
 	{
-		#ifdef DAEDLAUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( mSemaphore >= 0, "Unable to create semaphore" );
-		#endif
 	}
 
 	~Mutex()
@@ -104,7 +100,7 @@ private:
 	s32	mSemaphore;
 };
 
-#elif defined(DAEDALUS_POSIX)
+#elif defined(DAEDALUS_OSX) || defined(DAEDALUS_LINUX)
 
 class Mutex
 {

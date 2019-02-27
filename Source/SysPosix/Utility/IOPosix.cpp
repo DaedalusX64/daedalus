@@ -130,7 +130,7 @@ namespace IO
 
 		const char *	FindFileName( const char * p_path )
 		{
-		const	char * p_last_slash = strrchr( p_path, kPathSeparator );
+			char * p_last_slash = strrchr( p_path, kPathSeparator );
 			if ( p_last_slash )
 			{
 				return p_last_slash + 1;
@@ -228,3 +228,5 @@ namespace IO
 		return closedir( static_cast< DIR * >( handle ) ) >= 0;
 	}
 }
+
+

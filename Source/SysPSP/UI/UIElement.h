@@ -64,21 +64,13 @@ public:
 	u32				Add( CUIElement * element )		{ u32 idx = mElements.size(); mElements.push_back( element ); return idx; }
 	void			Clear()	{	mElements.clear(); mSelectedIdx = 0; }
 
-#ifdef DAEDALUS_ENABLE_ASSERTS
 	void			SetSelected( u32 idx )			{ DAEDALUS_ASSERT( idx < mElements.size(), "Invalid idx" ); mSelectedIdx = idx; }
-#else
-void			SetSelected( u32 idx )			{ mSelectedIdx = idx; }
 
-#endif
 	void			SelectNext();
 	void			SelectPrevious();
 
 	u32				GetNumElements() const			{ return mElements.size(); }
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	CUIElement *	GetElement( u32 i ) const		{ DAEDALUS_ASSERT( i < mElements.size(), "Invalid idx" ); return mElements[ i ]; }
-	#else
-	CUIElement *	GetElement( u32 i ) const		{ return mElements[ i ]; }
-	#endif
 	u32		GetSelectedIndex()	{ return mSelectedIdx; }
 	CUIElement *	GetSelectedElement() const		{ if( mSelectedIdx < mElements.size() ) return mElements[ mSelectedIdx ]; return NULL; }
 

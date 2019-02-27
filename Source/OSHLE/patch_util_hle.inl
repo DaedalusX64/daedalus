@@ -4,9 +4,8 @@
 u32 Patch___osAtomicDec()
 {
 TEST_DISABLE_UTIL_FUNCS
-#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "osAtomicDec");
-#endif
+
 	u8 *p = (u8*)ReadAddress(gGPR[REG_a0]._u32_0);
 	u32 value = QuickRead32Bits(p, 0x0);
 	u32 result= 0;
@@ -66,7 +65,7 @@ TEST_DISABLE_UTIL_FUNCS
 	const u8 *psrc = (const u8*)ReadAddress(string);
 	const u8 *start = psrc;
 
-	while (*((u8*)((uintptr_t)psrc++^U8_TWIDDLE)) );
+	while (*((u8*)((u32)psrc++^U8_TWIDDLE)) );
 
 	gGPR[REG_v0]._s64 = (s64)(psrc - start - 1);
 
@@ -89,7 +88,7 @@ TEST_DISABLE_UTIL_FUNCS
 
 	for (;; psrc++)
 	{
-		const u8 SrcChar = *((u8*)((uintptr_t)psrc^U8_TWIDDLE));
+		const u8 SrcChar = *((u8*)((u32)psrc^U8_TWIDDLE));
 
 		if( SrcChar == MatchChar )
 		{
@@ -116,9 +115,9 @@ u32 Patch_strcmp()
 	u32 sB = gGPR[REG_a1]._u32_0;
 	u32 len = gGPR[REG_a2]._u32_0;
 	u8 A, B;
-#ifdef DAEDALUS_DEBUG_CONSOLE
+
 	DBGConsole_Msg(0, "strcmp(%s,%s,%d)", sA, sB, len);
-#endif
+
 	for (i = 0; (A = Read8Bits(sA+i)) != 0 && i < len; i++)
 	{
 		B = Read8Bits(sB + i);
@@ -166,7 +165,7 @@ TEST_DISABLE_UTIL_FUNCS
 		psrc += len;
 		while(len--)
 		{
-            *(u8*)((uintptr_t)pdst-- ^ U8_TWIDDLE) = *(u8*)((uintptr_t)psrc-- ^ U8_TWIDDLE);
+			*(u8*)((u32)pdst-- ^ U8_TWIDDLE) = *(u8*)((u32)psrc-- ^ U8_TWIDDLE);
 		}
 	}
 	else
@@ -202,9 +201,9 @@ u32 Patch_bzero()
 	memset( dst8, 0, len);
 #else
 	// Align dst on 4 bytes or just resume if already done
-	while(((uintptr_t)dst8 & 0x3) && len)
+	while(((u32)dst8 & 0x3) && len)
 	{
-		*(u8*)((uintptr_t)dst8++ ^ U8_TWIDDLE) = 0;
+		*(u8*)((u32)dst8++ ^ U8_TWIDDLE) = 0;
 		len--;
 	}
 
@@ -233,7 +232,7 @@ u32 Patch_bzero()
 	//Write(0) to the unaligned remains(if any), byte by byte...
 	while(len--)
 	{
-	*(u8*)((uintptr_t)dst8++ ^ U8_TWIDDLE) = 0;
+		*(u8*)((u32)dst8++ ^ U8_TWIDDLE) = 0;
 	}
 #endif
 

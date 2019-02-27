@@ -40,6 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 //#define DAEDALUS_FRAMERATE_ANALYSIS
+extern void battery_warning();
 extern void HandleEndOfFrame();
 
 extern bool gFrameskipActive;
@@ -225,6 +226,10 @@ void CGraphicsPluginImpl::UpdateScreen()
 						break;
 				}
 			}
+			if( gGlobalPreferences.BatteryWarning )
+			{
+				battery_warning();
+			}
 			if(gTakeScreenshot)
 			{
 				CGraphicsContext::Get()->DumpNextScreen();
@@ -266,9 +271,7 @@ void CGraphicsPluginImpl::UpdateScreen()
 
 void CGraphicsPluginImpl::RomClosed()
 {
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Finalising PSPGraphics");
-	#endif
 	DLParser_Finalise();
 	CTextureCache::Destroy();
 	DestroyRenderer();
@@ -276,9 +279,8 @@ void CGraphicsPluginImpl::RomClosed()
 
 CGraphicsPlugin * CreateGraphicsPlugin()
 {
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg( 0, "Initialising Graphics Plugin [CPSP]" );
-#endif
+
 	CGraphicsPluginImpl * plugin = new CGraphicsPluginImpl;
 	if( !plugin->Initialise() )
 	{

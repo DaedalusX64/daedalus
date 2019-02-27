@@ -54,9 +54,8 @@ inline u32		GetBitsPerPixel( ETextureFormat texture_format )
 	case TexFmt_CI4_8888:	return 4;
 	case TexFmt_CI8_8888:	return 8;
 	}
-#ifdef DAEDALUS_DEBUG_CONSOLE
+
 	DAEDALUS_ERROR( "Unhandled texture format" );
-	#endif
 	return 8;
 }
 

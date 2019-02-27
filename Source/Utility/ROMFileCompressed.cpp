@@ -57,16 +57,13 @@ ROMFileCompressed::~ROMFileCompressed()
 //*****************************************************************************
 bool ROMFileCompressed::Open( COutputStream & messages )
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mZipFile == NULL, "Opening the zipfile twice?" );
-#endif
+
 	mFoundRom = false;
 	mZipFile = unzOpen(mFilename);
 	if (mZipFile == NULL)
 	{
-			#ifdef DAEDALUS_DEBUG_CONSOLE
 		messages << "Couldn't open " << mFilename;
-		#endif
 		return false;
 	}
 
@@ -77,9 +74,7 @@ bool ROMFileCompressed::Open( COutputStream & messages )
 	err = unzGoToFirstFile(mZipFile);
 	if (err != UNZ_OK)
 	{
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		messages << "error " << err << "with zipfile in unzGoToFirstFile";
-		#endif
 	}
 	else
 	{
@@ -91,9 +86,7 @@ bool ROMFileCompressed::Open( COutputStream & messages )
 										NULL, 0);
 			if (err != UNZ_OK)
 			{
-				#ifdef DAEDALUS_DEBUG_CONSOLE
 				messages << "error " << err << "with zipfile in unzGetCurrentFileInfo";
-				#endif
 				break;
 			}
 
@@ -123,9 +116,7 @@ bool ROMFileCompressed::Open( COutputStream & messages )
 							mFoundRom = true;
 							if (!SetHeaderMagic( magic ))
 							{
-									#ifdef DAEDALUS_DEBUG_CONSOLE
 								DBGConsole_Msg(0, "Bad header magic for [C%s]", rom_filename);
-								#endif
 							}
 							break;
 						}
@@ -157,10 +148,9 @@ bool ROMFileCompressed::Open( COutputStream & messages )
 //*****************************************************************************
 bool ROMFileCompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages )
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mZipFile != NULL, "No open zipfile?" );
 	DAEDALUS_ASSERT( mFoundRom, "Why are we loading data when no rom was found?" );
-#endif
+
 	if (p_bytes == NULL)
     {
         return false;
@@ -174,9 +164,7 @@ bool ROMFileCompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStre
 	{
 		if( bytes_read < 0 )
 		{
-				#ifdef DAEDALUS_DEBUG_CONSOLE
 			messages << "error (" << bytes_read << ") with zipfile in unzReadCurrentFile";
-			#endif
 		}
 		else if( bytes_read == 0 )
 		{
@@ -185,9 +173,7 @@ bool ROMFileCompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStre
 		else if( bytes_read < s32( bytes_to_read ) )
 		{
 			// Not enough bytes read
-				#ifdef DAEDALUS_DEBUG_CONSOLE
 			messages << "Unable to read sufficent bytes from zip.\nRead " << bytes_read << ", wanted " << bytes_to_read;
-			#endif
 		}
 
 		unzCloseCurrentFile(mZipFile);
@@ -201,9 +187,7 @@ bool ROMFileCompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStre
 	err = unzCloseCurrentFile(mZipFile);
 	if( err == UNZ_CRCERROR )
 	{
-			#ifdef DAEDALUS_DEBUG_CONSOLE
 		messages << "CRC Error in ZipFile";
-		#endif
 		unzCloseCurrentFile(mZipFile);
 		return false;
 	}
@@ -220,23 +204,18 @@ bool ROMFileCompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStre
 //*****************************************************************************
 bool	ROMFileCompressed::Seek( u32 offset, u8 * p_scratch_block, u32 block_size )
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mZipFile != NULL, "No open zipfile?" );
-	#endif
 
 	int		err;
 	u32		current_offset( unztell( mZipFile ) );
 
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-
 	DAEDALUS_ASSERT( (current_offset % block_size) == 0, "Performance: Trying to seek and current offset isn't a multiple of the block size" );
 	DAEDALUS_ASSERT( (offset % block_size) == 0, "Performance: Trying to seek to an address which isn't the block size" );
-#endif
+
 	if(current_offset > offset)
 	{
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "[CRomCache - seeking from %08x to %08x in zip", current_offset, offset );
-#endif
+
 		// Annoyingly, have to close and reopen the zip file
 		unzCloseCurrentFile( mZipFile );		// Ignore errors here
 		err = unzOpenCurrentFile( mZipFile );
@@ -262,9 +241,9 @@ bool	ROMFileCompressed::Seek( u32 offset, u8 * p_scratch_block, u32 block_size )
 
 		current_offset += bytes_to_read;
 	}
-	#ifdef DAEDALUS_ENABLE_ASSERTS
+
 	DAEDALUS_ASSERT( u32( unztell( mZipFile ) ) == offset, "Failed to seek to the specified offset" );
-#endif
+
 	return true;
 }
 
@@ -273,10 +252,9 @@ bool	ROMFileCompressed::Seek( u32 offset, u8 * p_scratch_block, u32 block_size )
 //*****************************************************************************
 bool	ROMFileCompressed::ReadChunk( u32 offset, u8 * p_dst, u32 length )
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mZipFile != NULL, "No open zipfile?" );
 	DAEDALUS_ASSERT( mFoundRom, "Why are we loading data when no rom was found?" );
-#endif
+
 	if( !Seek( offset, p_dst, length ) )
 	{
 		return false;

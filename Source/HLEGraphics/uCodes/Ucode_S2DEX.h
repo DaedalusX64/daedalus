@@ -280,9 +280,7 @@ static inline CRefPtr<CNativeTexture> Load_ObjSprite( const uObjSprite *sprite, 
 			break;
 		default:
 			// This should not happen!
-			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR("Unhandled Obj texture\n");
-			#endif
 			return NULL;
 		}
 
@@ -326,10 +324,9 @@ static inline void Draw_ObjSprite( const uObjSprite *sprite, ESpriteMode mode, c
 		x3 = mat2D.A*objX + mat2D.B*objH + mat2D.X;
 		y3 = mat2D.C*objX + mat2D.D*objH + mat2D.Y;
 
-#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( (sprite->imageFlags&1) == 0, "Need to flip X" );
 		DAEDALUS_ASSERT( (sprite->imageFlags&0x10) == 0, "Need to flip Y" );
-#endif
+
 		gRenderer->Draw2DTextureR(x0, y0, x1, y1, x2, y2, x3, y3, imageW, imageH);
 		break;
 
@@ -392,16 +389,14 @@ void DLParser_S2DEX_ObjRectangle( MicroCodeCommand command )
 void DLParser_S2DEX_ObjRectangleR( MicroCodeCommand command )
 {
 	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
-	if (sprite->imageFmt == G_IM_FMT_YUV)
+	if (sprite->imageFmt == G_IM_FMT_YUV) 
 	{
 		DLParser_OB_YUV(sprite);
 		return;
 	}
 
-#ifdef DAEDALUS_DEBUG_CONSOLE
 	// Would like to find a game that uses this
 	DAEDALUS_ERROR("S2DEX_ObjRectangleR: Check me");
-#endif
 
 	CRefPtr<CNativeTexture> texture = Load_ObjSprite( sprite, gObjTxtr );
 	Draw_ObjSprite( sprite, PARTIAL_ROTATION, texture );
@@ -486,7 +481,7 @@ void DLParser_S2DEX_ObjLoadTxtr( MicroCodeCommand command )
 		uObjTxtrTLUT *ObjTlut = (uObjTxtrTLUT*)ObjTxtr;
 
 		// Store TLUT pointer
-		gTlutLoadAddresses[ (ObjTxtr->tlut.phead>>2) & 0x3F ] = RDPSegAddr(ObjTlut->image);
+		gTlutLoadAddresses[ (ObjTxtr->tlut.phead>>2) & 0x3F ] = (u32*)(g_pu8RamBase + RDPSegAddr(ObjTlut->image));
 		gObjTxtr = NULL;
 	}
 	else // (TXTRBLOCK, TXTRTILE)
@@ -525,15 +520,13 @@ inline void DLParser_Yoshi_MemRect( MicroCodeCommand command )
 	if (y1 > scissors.bottom)
 		y1 = scissors.bottom;
 
-#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF ("    MemRect->Addr[0x%08x] (%d, %d -> %d, %d) Width[%d]", tile_addr, x0, y0, mem_rect.x1, y1, g_CI.Width);
-#endif
 
 #if 1	//1->Optimized, 0->Generic
 	// This assumes Yoshi always copy 16 bytes per line and dst is aligned and we force alignment on src!!! //Corn
 	u32 tex_width = rdp_tile.line << 3;
-	uintptr_t texaddr = ((uintptr_t)g_pu8RamBase + tile_addr + tex_width * (mem_rect.s >> 5) + (mem_rect.t >> 5) + 3) & ~3;
-	uintptr_t fbaddr = (uintptr_t)g_pu8RamBase + g_CI.Address + x0;
+	u32 texaddr = ((u32)g_pu8RamBase + tile_addr + tex_width * (mem_rect.s >> 5) + (mem_rect.t >> 5) + 3) & ~3;
+	u32 fbaddr = (u32)g_pu8RamBase + g_CI.Address + x0;
 
 	for (u32 y = y0; y < y1; y++)
 	{
@@ -654,9 +647,7 @@ void DLParser_S2DEX_RDPHalf_0( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_S2DEX_ObjRendermode( MicroCodeCommand command )
 {
-	#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF( "    S2DEX_ObjRendermode (Ignored)" );
-	#endif
 }
 
 //*****************************************************************************
@@ -664,9 +655,7 @@ void DLParser_S2DEX_ObjRendermode( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_S2DEX_SelectDl( MicroCodeCommand command )
 {
-		#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF( "    S2DEX_SelectDl (Ignored)" );
-	#endif
 }
 
 //*****************************************************************************
@@ -674,9 +663,7 @@ void DLParser_S2DEX_SelectDl( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 {
-		#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    DLParser_S2DEX_BgCopy");
-	#endif
 
 	uObjBg *objBg = (uObjBg*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 

@@ -28,24 +28,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspkernel.h>
 
 #include "Debug/DBGConsole.h"
-#include "SysPSP/MediaEnginePRX/me.h"
+#include "SysPSP/PRX/MediaEngine/me.h"
 #include "SysPSP/Utility/CacheUtil.h"
 #include "SysPSP/Utility/ModulePSP.h"
 #include "Utility/Mutex.h"
 #include "Utility/Thread.h"
-#include "Utility/FastMemcpy.h"
 
 #ifdef DAEDALUS_PSP_USE_ME
 bool gLoadedMediaEnginePRX = false;
 
 volatile me_struct *mei;
 #endif
-
-#ifdef VITA
-#undef DAEDALUS_PSP_USE_ME
-#endif
-
-
 CJobManager gJobManager( 1024, TM_ASYNC_ME );
 //CJobManager gJobManager( 1024, TM_SYNC );
 
@@ -66,9 +59,7 @@ bool InitialiseJobManager()
 	}
 	else
 	{
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		printf(" Couldn't initialize MediaEngine Instance\n");
-		#endif
 		return false;
 	}
 #else
@@ -103,9 +94,13 @@ CJobManager::~CJobManager()
 	sceKernelDeleteSema(mWorkReady);
 	sceKernelDeleteSema(mWorkEmpty);
 
-	if( mJobBuffer != NULL || mRunBuffer != NULL )
+	if( mJobBuffer != NULL )
 	{
 		free( mJobBuffer );
+	}
+
+	if( mRunBuffer != NULL )
+	{
 		free( mRunBuffer );
 	}
 }
@@ -119,9 +114,8 @@ void CJobManager::Start()
 	{
 		mWantQuit = false;
 		mThread = CreateThread( "JobManager", JobMain, this );
-#ifdef DAEDALUS_ENABLE_ASSERTS
+
 		DAEDALUS_ASSERT( mThread != kInvalidThreadHandle, "Unable to start JobManager thread!" );
-#endif
 	}
 }
 
@@ -155,9 +149,8 @@ u32 CJobManager::JobMain( void * arg )
 //*****************************************************************************
 bool CJobManager::AddJob( SJob * job, u32 job_size )
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( job != NULL, "No job!" );
-#endif
+
 	if( mTaskMode == TM_SYNC )
 	{
 		if( job->InitJob ) job->InitJob( job );
@@ -176,7 +169,7 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 	// Add job to queue
 	if( job_size <= mJobBufferSize )
 	{
-		memcpy_vfpu( mJobBuffer, job, job_size );
+		memcpy( mJobBuffer, job, job_size );
 		//printf( "Adding job...signaling\n" );
 		sceKernelSignalSema( mWorkReady, 1 );
 
@@ -202,13 +195,13 @@ void CJobManager::Run()
 			SJob *	job( static_cast< SJob * >( mJobBuffer ) );
 
 #ifdef DAEDALUS_PSP_USE_ME
-
-
 			if( gLoadedMediaEnginePRX && mTaskMode == TM_ASYNC_ME )
 			{
 				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
 
-				WaitME(mei);
+				// wait on ME to finish any previous job
+				while ( !CheckME( mei ) )
+					sceKernelDelayThread( 100 ); // give up time while waiting on ME
 
 				// Execute previous job finalised
 				if( run->FiniJob )
@@ -216,7 +209,7 @@ void CJobManager::Run()
 
 				// copy new job to run buffer
 				memcpy( mRunBuffer, mJobBuffer, mJobBufferSize );
-
+				//sceKernelDcacheWritebackInvalidateRange(mRunBuffer, mJobBufferSize);
 				sceKernelDcacheWritebackInvalidateAll();
 
 				// signal ready for a new job
@@ -227,8 +220,7 @@ void CJobManager::Run()
 					run->InitJob( run );
 
 				// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
-				BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL);
-
+				BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL );
 			}
 			else
 #endif

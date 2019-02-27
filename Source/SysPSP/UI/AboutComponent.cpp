@@ -33,7 +33,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/String.h"
 #include "Utility/Translate.h"
 
+#include "svnversion.h"
 
+#include <kubridge.h>
 #include <pspctrl.h>
 #include <pspgu.h>
 
@@ -42,23 +44,29 @@ namespace
 	const u32				TEXT_AREA_LEFT = 40;
 	const u32				TEXT_AREA_RIGHT = 480-40;
 
+	#define MAX_PSP_MODEL 6
 
-	const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 1.1.6";
+	const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Revision ";
+	//const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Beta 3 Update";
 
 	const char * const		DATE_TEXT = "Built ";
 
 	const char * const		INFO_TEXT[] =
 	{
-		"Copyright (C) 2008-2019 DaedalusX64 Team",
+		"Copyright (C) 2008-2012 DaedalusX64 Team",
 		"Copyright (C) 2001-2009 StrmnNrmn",
 		"Audio HLE code by Azimer",
 		"",
 		"For news and updates visit:",
 	};
 
+	const char * const		pspModel[ MAX_PSP_MODEL ] =
+	{
+		"PSP PHAT", "PSP SLIM", "PSP BRITE", "PSP BRITE", "PSP GO", "UNKNOWN PSP"
+	};
 
-	const char * const		URL_TEXT_1 = "Chat    - https://discord.gg/nsQ3HtK";
-	const char * const		URL_TEXT_2 = "Web     - https://github.com/z2442/daedalus/";
+	const char * const		URL_TEXT_1 = "http://DaedalusX64.com/";
+	const char * const		URL_TEXT_2 = "http://sf.net/projects/daedalusx64/";
 
 	const char * const		LOGO_FILENAME = DAEDALUS_PSP_PATH( "Resources/logo.png" );
 }
@@ -84,7 +92,7 @@ class IAboutComponent : public CAboutComponent
 
 //*************************************************************************************
 //
-    //*************************************************************************************
+//*************************************************************************************
 CAboutComponent::CAboutComponent( CUIContext * p_context )
 :	CUIComponent( p_context )
 {
@@ -133,6 +141,7 @@ void	IAboutComponent::Update( float elapsed_time, const v2 & stick, u32 old_butt
 //*************************************************************************************
 void	IAboutComponent::Render()
 {
+#define IsPSPModelValid( ver )		( (ver) >= PSP_MODEL_STANDARD && (ver) < MAX_PSP_MODEL )
 
 	u32		text_top( 38 );
 
@@ -157,11 +166,21 @@ void	IAboutComponent::Render()
 
 	y = text_top;
 
+	CFixedString<128>	version( Translate_String(DAEDALUS_VERSION_TEXT) );
+	version += SVNVERSION;
+	version += " - ";
+	version += DAEDALUS_CONFIG_VERSION;
+	//version += ")";
 
 	CFixedString<128>	date( Translate_String(DATE_TEXT) );
 	date += __DATE__;
-// Probably need to add other information here
+	date += " (";
+	date += IsPSPModelValid( kuKernelGetModel() ) ? pspModel[ kuKernelGetModel() ] : "UNKNOWN PSP";
+	date += ")";
+
+	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, version, DrawTextUtilities::TextWhite ); y += line_height;
 	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, date, DrawTextUtilities::TextWhite ); y += line_height;
+	//mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, pspModel[ kuKernelGetModel() ], DrawTextUtilities::TextWhite ); y += line_height;
 
 	// Spacer
 	y += line_height;
@@ -177,3 +196,4 @@ void	IAboutComponent::Render()
 	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, URL_TEXT_1, DrawTextUtilities::TextRed, c32( 255,255,255,160 ) );	y += line_height;
 	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, URL_TEXT_2, DrawTextUtilities::TextRed, c32( 255,255,255,255 ) );	y += line_height;
 }
+

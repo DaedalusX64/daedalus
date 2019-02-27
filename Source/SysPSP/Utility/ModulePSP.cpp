@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "SysPSP/Utility/ModulePSP.h"
+#include "ModulePSP.h"
 
 #include <stdio.h>
 
@@ -35,9 +35,7 @@ namespace CModule
 
 		if(ret < 0)
 		{
-			#ifdef DAEDALUS_DEBUG_CONSOLE
 			printf("Couldn't unload module! : 0x%08X\n",ret);
-			#endif
 		}
 	}
 
@@ -47,14 +45,12 @@ namespace CModule
 
 		if( ret < 0 )
 		{
-			#ifdef DAEDALUS_DEBUG_CONSOLE
 			printf( "Failed to load %s: %d\n",path, ret );
-			#endif
 			return ret; //-1
 		}
-#ifdef DAEDALUS_DEBUG_CONSOLE
+
 		printf( "Successfully loaded %s: %08X\n", path, ret );
-#endif
+
 		return ret;
 	}
 }

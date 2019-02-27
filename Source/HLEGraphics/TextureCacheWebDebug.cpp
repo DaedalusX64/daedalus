@@ -2,8 +2,8 @@
 
 #include "TextureCache.h"
 
-#include "SysPosix/Debug/WebDebug.h"
-#include "SysPosix/Debug/WebDebugTemplate.h"
+#include "SysOSX/Debug/WebDebug.h"
+#include "SysOSX/Debug/WebDebugTemplate.h"
 
 #include "Utility/Mutex.h"
 #include "Utility/DataSink.h"
@@ -147,3 +147,5 @@ bool TextureCache_RegisterWebDebug()
 #endif
 	return true;
 }
+
+

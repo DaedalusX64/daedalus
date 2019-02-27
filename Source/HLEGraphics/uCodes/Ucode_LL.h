@@ -32,9 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 void DLParser_Last_Legion_0x80( MicroCodeCommand command )
 {
      gDlistStack.address[gDlistStackPointer] += 16;
-     			#ifdef DAEDALUS_ENABLE_PROFILING
 	  DL_PF("    DLParser_RSP_Last_Legion_0x80");
-    #endif
 }
 
 //*****************************************************************************
@@ -44,9 +42,7 @@ void DLParser_Last_Legion_0x00( MicroCodeCommand command )
 {
 
 	gDlistStack.address[gDlistStackPointer] += 16;
-  			#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    DLParser_RSP_Last_Legion_0x00");
-  #endif
 
 	if( (command.inst.cmd0) == 0 && (command.inst.cmd1) )
 	{
@@ -67,11 +63,10 @@ void DLParser_Last_Legion_0x00( MicroCodeCommand command )
 			// Need to call both DL
 			gDlistStackPointer++;
 			gDlistStack.address[gDlistStackPointer] = pc1;
-			#ifdef DAEDALUS_ENABLE_PROFILING
+
 			DL_PF("    Address=0x%08x", pc1);
 			DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
 			DL_PF("    ############################################");
-      #endif
 		}
 
 		if( pc2 && pc2 != 0xffffff && pc2 < MAX_RAM_ADDRESS )
@@ -79,11 +74,10 @@ void DLParser_Last_Legion_0x00( MicroCodeCommand command )
 			// Need to call both DL
 			gDlistStackPointer++;
 			gDlistStack.address[gDlistStackPointer] = pc2;
-			#ifdef DAEDALUS_ENABLE_PROFILING
+
 			DL_PF("    Address=0x%08x", pc2);
 			DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
 			DL_PF("    ############################################");
-      #endif
 		}
 	}
 	else if( (command.inst.cmd1) == 0 )

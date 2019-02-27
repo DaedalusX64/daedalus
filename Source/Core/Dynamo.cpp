@@ -69,7 +69,7 @@ std::map< u32, u32 >				gHotTraceCountMap;
 CFragmentCache						gFragmentCache;
 static bool							gResetFragmentCache = false;
 
-#ifdef DAEDALUS_DEBUG_CONSOLE_DYNAREC
+#ifdef DAEDALUS_DEBUG_DYNAREC
 std::map< u32, u32 >				gAbortedTraceReasons;
 
 void								CPU_DumpFragmentCache();
@@ -140,17 +140,15 @@ template< bool TraceEnabled > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 #ifdef DAEDALUS_BREAKPOINTS_ENABLED
 	op_code = GetCorrectOp( op_code );
 #endif
-#ifdef DAEDALUS_ENABLE_SYNCHRONISATION // XXXX Check if needed
+
 	SYNCH_POINT( DAED_SYNC_REG_PC, gCPUState.CurrentPC, "Program Counter doesn't match" );
 	SYNCH_POINT( DAED_SYNC_FRAGMENT_PC, gCPUState.CurrentPC + gCPUState.Delay, "Program Counter/Delay doesn't match while interpreting" );
 
 	SYNCH_POINT( DAED_SYNC_REG_PC, gCPUState.CPUControl[C0_COUNT]._u32, "Count doesn't match" );
-#endif
+
 	if( TraceEnabled )
 	{
-#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( gTraceRecorder.IsTraceActive(), "If TraceEnabled is set, trace should be active" );
-#endif
 		u32		pc( gCPUState.CurrentPC );
 		bool	branch_delay_slot( gCPUState.Delay == EXEC_DELAY );
 
@@ -163,20 +161,18 @@ template< bool TraceEnabled > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 	}
 	else
 	{
-        #ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( !gTraceRecorder.IsTraceActive(), "If TraceEnabled is not set, trace should be inactive" );
-        #endif
 
-        R4300_ExecuteInstruction(op_code);
+		R4300_ExecuteInstruction(op_code);
 		gGPR[0]._u64 = 0;	//Ensure r0 is zero
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
 		gTotalInstructionsEmulated++;
 #endif
 	}
-#ifdef DAEDALUS_ENABLE_SYNCHRONISATION
+
 	SYNCH_POINT( DAED_SYNC_REGS, CPU_ProduceRegisterHash(), "Registers don't match" );
-#endif
+
 	// Increment count register
 	gCPUState.CPUControl[C0_COUNT]._u32 = gCPUState.CPUControl[C0_COUNT]._u32 + COUNTER_INCREMENT_PER_OP;
 
@@ -249,7 +245,7 @@ template < bool DynaRec, bool TraceEnabled > void CPU_Go()
 		{
 			if(gTraceRecorder.IsTraceActive())
 			{
-#ifdef DAEDALUS_DEBUG_CONSOLE_DYNAREC
+#ifdef DAEDALUS_DEBUG_DYNAREC
 				u32 start_address( gTraceRecorder.GetStartTraceAddress() );
 				//DBGConsole_Msg( 0, "Aborting tracing of [R%08x] - StuffToDo is %08x", start_address, stuff_to_do );
 
@@ -275,7 +271,7 @@ template < bool DynaRec, bool TraceEnabled > void CPU_Go()
 	}
 }
 
-#ifdef DAEDALUS_DEBUG_CONSOLE_DYNAREC
+#ifdef DAEDALUS_DEBUG_DYNAREC
 
 struct SAddressHitCount
 {
@@ -379,15 +375,11 @@ void CPU_CreateAndAddFragment()
 //*****************************************************************************
 void CPU_UpdateTrace( u32 address, OpCode op_code, bool branch_delay_slot, bool branch_taken )
 {
-	#ifdef DAEDALUS_ENABLE_PROFILER
 	DAEDALUS_PROFILE( "CPU_UpdateTrace" );
-#endif
 
-#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q( (gCPUState.Delay == EXEC_DELAY) == branch_delay_slot );
-#endif
 
-#ifdef DAEDALUS_DEBUG_CONSOLE_DYNAREC
+#ifdef DAEDALUS_DEBUG_DYNAREC
 	CFragment * p_address_fragment( gFragmentCache.LookupFragment( address ) );
 #else
 	CFragment * p_address_fragment( gFragmentCache.LookupFragmentQ( address ) );
@@ -395,17 +387,15 @@ void CPU_UpdateTrace( u32 address, OpCode op_code, bool branch_delay_slot, bool 
 	if( gTraceRecorder.UpdateTrace( address, branch_delay_slot, branch_taken, op_code, p_address_fragment ) == CTraceRecorder::UTS_CREATE_FRAGMENT )
 	{
 		CPU_CreateAndAddFragment();
-#ifdef DAEDALUS_ENABLE_ASSERTS
+
 		DAEDALUS_ASSERT( !gTraceRecorder.IsTraceActive(), "Why is a trace still active?" );
-#endif
+
 		CPU_SelectCore();
 	}
-    #ifdef DAEDALUS_ENABLE_ASSERTS
 	else
 	{
 		DAEDALUS_ASSERT( gTraceRecorder.IsTraceActive(), "The trace should still be enabled" );
 	}
-    #endif
 }
 
 //*****************************************************************************
@@ -413,9 +403,8 @@ void CPU_UpdateTrace( u32 address, OpCode op_code, bool branch_delay_slot, bool 
 //*****************************************************************************
 void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 {
-#ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
 	DAEDALUS_PROFILE( "CPU_HandleDynaRecOnBranch" );
-#endif
+
 	bool	start_of_trace( false );
 
 	if( backwards )
@@ -424,20 +413,17 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 	}
 
 	bool	change_core( false );
-#ifdef DAEDALUS_DEBUG_CONSOLE
+
 	DAED_LOG( DEBUG_DYNAREC_CACHE, "CPU_HandleDynaRecOnBranch" );
-#endif
 
 	while( gCPUState.GetStuffToDo() == 0 && gCPUState.Delay == NO_DELAY )
 	{
-        #ifdef DAEDALUS_ENABLE_ASSERTS
-        DAEDALUS_ASSERT( gCPUState.Delay == NO_DELAY, "Why are we entering with a delay slot active?" );
-#endif
+		DAEDALUS_ASSERT( gCPUState.Delay == NO_DELAY, "Why are we entering with a delay slot active?" );
 #ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
 		u32			entry_count( gCPUState.CPUControl[C0_COUNT]._u32 ); // Just used DYNAREC_PROFILE_ENTEREXIT
 #endif
 		u32			entry_address( gCPUState.CurrentPC );
-#ifdef DAEDALUS_DEBUG_CONSOLE_DYNAREC
+#ifdef DAEDALUS_DEBUG_DYNAREC
 		CFragment * p_fragment( gFragmentCache.LookupFragment( entry_address ) );
 #else
 		CFragment * p_fragment( gFragmentCache.LookupFragmentQ( entry_address ) );
@@ -490,7 +476,7 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 							Patch_PatchAll();
 #endif
 						}
-#ifdef DAEDALUS_DEBUG_CONSOLE_CONSOLE
+#ifdef DAEDALUS_DEBUG_CONSOLE
 						else
 						{
 							DBGConsole_Msg(0, "Safely skipped one flush");
@@ -512,9 +498,8 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 					u32 trace_count( ++gHotTraceCountMap[ gCPUState.CurrentPC ] );
 					if( gHotTraceCountMap.size() >= gMaxHotTraceMapSize )
 					{
-#ifdef DAEDALUS_DEBUG_CONSOLE
+
 						DBGConsole_Msg( 0, "Hot trace cache hit %d, dumping", gHotTraceCountMap.size() );
-#endif
 						gHotTraceCountMap.clear();
 						gFragmentCache.Clear();
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
@@ -530,11 +515,9 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 						{
 							change_core = true;
 						}
-#ifdef DAEDALUS_DEBUG_CONSOLE
 						DAED_LOG( DEBUG_DYNAREC_CACHE, "StartTrace( %08x )", gCPUState.CurrentPC );
-#endif
 					}
-#ifdef DAEDALUS_DEBUG_CONSOLE_DYNAREC
+#ifdef DAEDALUS_DEBUG_DYNAREC
 					else if( trace_count > gHotTraceThreshold )
 					{
 						if(gAbortedTraceReasons.find( gCPUState.CurrentPC ) != gAbortedTraceReasons.end() )
@@ -552,14 +535,11 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 #endif //DAEDALUS_DEBUG_DYNAREC
 				}
 			}
-#ifdef DAEDALUS_DEBUG_CONSOLE
 			else
 			{
 				DAED_LOG( DEBUG_DYNAREC_CACHE, "Not start of trace" );
 			}
-#endif
-            break;
-
+			break;
 		}
 	}
 
@@ -575,7 +555,7 @@ void Dynamo_Reset()
 	gFragmentCache.Clear();
 	gResetFragmentCache = false;
 	gTraceRecorder.AbortTrace();
-#ifdef DAEDALUS_DEBUG_CONSOLE_DYNAREC
+#ifdef DAEDALUS_DEBUG_DYNAREC
 	gAbortedTraceReasons.clear();
 #endif
 }
@@ -601,3 +581,4 @@ void Dynamo_Reset() {}
 void R4300_CALL_TYPE CPU_InvalidateICacheRange( u32 address, u32 length ) {}
 
 #endif //DAEDALUS_ENABLE_DYNAREC
+

@@ -196,9 +196,8 @@ bool Memory_Init()
 
 void Memory_Fini(void)
 {
-    #ifdef DAEDALUS_ENABLE_PROFILING
 	DPF(DEBUG_MEMORY, "Freeing Memory");
-#endif
+
 #ifdef DAED_USE_VIRTUAL_ALLOC
 
 	//
@@ -233,14 +232,12 @@ void Memory_Fini(void)
 bool Memory_Reset()
 {
 	u32 main_mem = g_ROM.settings.ExpansionPakUsage != PAK_UNUSED ? MEMORY_8_MEG : MEMORY_4_MEG;
-#ifdef DAEDALUS_DEBUG_CONSOLE
+
 	DBGConsole_Msg(0, "Reseting Memory - %d MB", main_mem/(1024*1024));
-#endif
+
 	if (main_mem > kMaximumMemSize)
 	{
-#ifdef DAEDLAUS_DEBUG
 		DBGConsole_Msg( 0, "Memory_Reset: Can't reset with more than %dMB ram", kMaximumMemSize / (1024*1024) );
-#endif
 		main_mem = kMaximumMemSize;
 	}
 
@@ -290,7 +287,7 @@ static void Memory_Tlb_Hack()
 	   u32 start_addr = 0x7F000000 >> 18;
 	   u32 end_addr   = 0x7FFFFFFF >> 18;
 
-	   u8 * pRead = (u8*)(reinterpret_cast< uintptr_t >(rom_address) + offset - (start_addr << 18));
+	   u8 * pRead = (u8*)(reinterpret_cast< u32 >(rom_address) + offset - (start_addr << 18));
 
 	   for (u32 i = start_addr; i <= end_addr; i++)
 	   {
@@ -298,7 +295,7 @@ static void Memory_Tlb_Hack()
 	   }
 	}
 
-	g_MemoryLookupTableRead[0x70000000 >> 18].pRead = (u8*)(reinterpret_cast< uintptr_t >( g_pMemoryBuffers[MEM_RD_RAM]) - 0x70000000);
+	g_MemoryLookupTableRead[0x70000000 >> 18].pRead = (u8*)(reinterpret_cast< u32 >( g_pMemoryBuffers[MEM_RD_RAM]) - 0x70000000);
 }
 
 static void Memory_InitFunc(u32 start, u32 size, const u32 ReadRegion, const u32 WriteRegion, mReadFunction ReadFunc, mWriteFunction WriteFunc)
@@ -316,14 +313,14 @@ static void Memory_InitFunc(u32 start, u32 size, const u32 ReadRegion, const u32
 
 		if (ReadRegion)
 		{
-			g_MemoryLookupTableRead[start_addr|(0x8000>>2)].pRead = (u8*)(reinterpret_cast< uintptr_t >(g_pMemoryBuffers[ReadRegion]) - (((start>>16)|0x8000) << 16));
-			g_MemoryLookupTableRead[start_addr|(0xA000>>2)].pRead = (u8*)(reinterpret_cast< uintptr_t >(g_pMemoryBuffers[ReadRegion]) - (((start>>16)|0xA000) << 16));
+			g_MemoryLookupTableRead[start_addr|(0x8000>>2)].pRead = (u8*)(reinterpret_cast< u32 >(g_pMemoryBuffers[ReadRegion]) - (((start>>16)|0x8000) << 16));
+			g_MemoryLookupTableRead[start_addr|(0xA000>>2)].pRead = (u8*)(reinterpret_cast< u32 >(g_pMemoryBuffers[ReadRegion]) - (((start>>16)|0xA000) << 16));
 		}
 
 		if (WriteRegion)
 		{
-			g_MemoryLookupTableWrite[start_addr|(0x8000>>2)].pWrite = (u8*)(reinterpret_cast< uintptr_t >(g_pMemoryBuffers[WriteRegion]) - (((start>>16)|0x8000) << 16));
-			g_MemoryLookupTableWrite[start_addr|(0xA000>>2)].pWrite = (u8*)(reinterpret_cast< uintptr_t >(g_pMemoryBuffers[WriteRegion]) - (((start>>16)|0xA000) << 16));
+			g_MemoryLookupTableWrite[start_addr|(0x8000>>2)].pWrite = (u8*)(reinterpret_cast< u32 >(g_pMemoryBuffers[WriteRegion]) - (((start>>16)|0x8000) << 16));
+			g_MemoryLookupTableWrite[start_addr|(0xA000>>2)].pWrite = (u8*)(reinterpret_cast< u32 >(g_pMemoryBuffers[WriteRegion]) - (((start>>16)|0xA000) << 16));
 		}
 
 		start_addr++;
@@ -365,9 +362,8 @@ void Memory_InitTables()
 
 	u32 rom_size = RomBuffer::GetRomSize();
 	u32 ram_size = gRamSize;
-#ifdef DAEDALUS_DEBUG_CONSOLE
-    DBGConsole_Msg(0, "Initialising %s main memory", (ram_size == MEMORY_8_MEG) ? "8Mb" : "4Mb");
-#endif
+
+	DBGConsole_Msg(0, "Initialising %s main memory", (ram_size == MEMORY_8_MEG) ? "8Mb" : "4Mb");
 
 	// Init RDRAM
 	// By default we init with EPAK (8Mb)
@@ -694,9 +690,8 @@ void MemoryUpdateSPStatus( u32 flags )
 	//
 	if (start_rsp)
 	{
-#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( (new_status & SP_STATUS_BROKE) == 0, "Unexpected RSP HLE status %08x", new_status );
-#endif
+
 		// Check for tasks whenever the RSP is started
 		RSP_HLE_ProcessTask();
 	}
@@ -749,9 +744,7 @@ void MemoryUpdateDP( u32 flags )
 		u32 status = Memory_SP_GetRegister( SP_STATUS_REG );
 		if((status & SP_STATUS_HALT) == 0)
 		{
-#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( (status & SP_STATUS_BROKE) == 0, "Unexpected RSP HLE status %08x", status );
-#endif
 			RSP_HLE_ProcessTask();
 		}
 	}
@@ -839,17 +832,14 @@ void MemoryUpdatePI( u32 value )
 	if (value & PI_STATUS_RESET)
 	{
 		// What to do when is busy?
-#ifdef DAEDALUS_ENABLE_PROFILING
+
 		DPF( DEBUG_PI, "PI: Resetting Status. PC: 0x%08x", gCPUState.CurrentPC );
-#endif
 		// Reset PIC here
 		Memory_PI_SetRegister(PI_STATUS_REG, 0);
 	}
 	if (value & PI_STATUS_CLR_INTR)
 	{
-        #ifdef DAEDALUS_ENABLE_PROFILING
 		DPF( DEBUG_PI, "PI: Clearing interrupt flag. PC: 0x%08x", gCPUState.CurrentPC );
-#endif
 		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_PI);
 		R4300_Interrupt_UpdateCause3();
 	}
@@ -863,17 +853,14 @@ void MemoryUpdatePIF()
 	if (command == 0x08)
 	{
 		pPIFRam[ 0x3F ^ U8_TWIDDLE ] = 0x00;
-#ifdef DAEDALUS_DEBUG_CONSOLE
+
 		DBGConsole_Msg( 0, "[GSI Interrupt control value: 0x%02x", command );
-#endif
 		Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
 		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SI);
 		R4300_Interrupt_UpdateCause3();
 	}
-#ifdef DAEDALUS_DEBUG_CONSOLE
 	else
 	{
 		DBGConsole_Msg( 0, "[GUnknown control value: 0x%02x", command );
 	}
-#endif
 }

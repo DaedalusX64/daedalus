@@ -79,7 +79,6 @@ void * operator new( size_t count )
 	SAVE_RA( ra );
 
 	void * p_mem( malloc( count ) );
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 	if(p_mem == NULL)
 	{
 		char msg[ 1024 ];
@@ -87,7 +86,6 @@ void * operator new( size_t count )
 		DAEDALUS_ERROR( msg );
 		printf( "%s\n", msg );
 	}
-	#endif
 
 #ifdef DAEDALUS_LOG_ALLOCATIONS
 	fprintf( GetMemLogFh(), "Allocating   %8d bytes - %p - RA is %08x\n", count, p_mem, ra );
@@ -103,16 +101,14 @@ void * operator new[]( size_t count )
 	SAVE_RA( ra );
 
 	void * p_mem( malloc( count ) );
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 	if(p_mem == NULL)
 	{
 		char msg[ 1024 ];
 		sprintf( msg, "Out of memory (operator new[](%d) - RA is %08x", count, ra );
 		DAEDALUS_ERROR( msg );
 		printf( "%s\n", msg );
-
 	}
-#endif
+
 #ifdef DAEDALUS_LOG_ALLOCATIONS
 	fprintf( GetMemLogFh(), "Allocating[] %8d bytes - %p - RA is %08x\n", count, p_mem, ra );
 #endif

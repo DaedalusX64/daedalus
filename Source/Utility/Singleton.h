@@ -49,9 +49,8 @@ template < class T > class CSingleton
 
 		inline static T * Get()
 		{
-			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT(mpInstance != NULL, "%s", __PRETTY_FUNCTION__ );
-#endif
+
 			return mpInstance;
 		}
 
@@ -61,9 +60,8 @@ template < class T > class CSingleton
 
 		static void Destroy()
 		{
-			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT_Q(mpInstance != NULL);
-#endif
+
 			delete mpInstance;
 			mpInstance = NULL;
 		}
@@ -75,9 +73,8 @@ template < class T > class CSingleton
 
 		static void Attach( T * p )
 		{
-			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT_Q(mpInstance == NULL);
-#endif
+
 			mpInstance = p;
 		}
 

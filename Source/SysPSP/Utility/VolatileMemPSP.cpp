@@ -17,7 +17,7 @@ http://gitorious.org/~jjs/ags/ags-for-psp
 #include <pspsuspend.h>
 
 #include "Debug/DaedalusAssert.h"
-#include "SysPSP/Utility/ModulePSP.h"
+#include "ModulePSP.h"
 
 
 bool bVolatileMem = false;
@@ -34,16 +34,12 @@ void VolatileMemInit()
 	if (result == 0)
 	{
 		scePowerLock(0);	// This used to avoid suspending while we are using the volatile memory
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		printf("Successfully Unlocked Volatile Mem: %d KB\n",size / 1024);
-		#endif
 		bVolatileMem = true;
 	}
 	else
 	{
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		printf( "Failed to unlock volatile mem: %08x\n", result );
-		#endif
 		bVolatileMem = false;
 	}
 
@@ -78,9 +74,7 @@ void* malloc_volatile_PSP(size_t size)
 	{
 
 //		printf("*****failed to allocate %d byte from p5\n", size / 1024);
-#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR("Failed to allocate %d bytes in volatile memory");
-		#endif
 		return NULL;
 	}
 }

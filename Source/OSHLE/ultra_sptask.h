@@ -22,33 +22,29 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Utility/DaedalusTypes.h"
 
-
-// Pointers are 32 bits.
-	typedef	u32 osptr;
-
 typedef struct {
 	u32	type;
 	u32	flags;
 
-	osptr	ucode_boot;
+	u64	*ucode_boot;
 	u32	ucode_boot_size;
 
-	osptr	ucode;
+	u64	*ucode;
 	u32	ucode_size;
 
-	osptr	ucode_data;
+	u64	*ucode_data;
 	u32	ucode_data_size;
 
-	osptr	dram_stack;
+	u64	*dram_stack;
 	u32	dram_stack_size;
 
-	osptr	output_buff;
-	osptr	output_buff_size;
+	u64	*output_buff;
+	u64	*output_buff_size;
 
-	osptr	data_ptr;
+	u64	*data_ptr;
 	u32	data_size;
 
-	osptr	yield_data_ptr;
+	u64	*yield_data_ptr;
 	u32	yield_data_size;
 
 } OSTask_t;

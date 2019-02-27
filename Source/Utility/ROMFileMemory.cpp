@@ -24,10 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdlib.h>
 
-#ifdef DAEDALUS_PSP
-#include "SysPSP/Utility/PSPModel.h"
 extern bool PSP_IS_SLIM;
-#endif
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -60,9 +57,7 @@ private:
 //*****************************************************************************
 template<> bool CSingleton< CROMFileMemory >::Create()
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-#endif
 
 	mpInstance = new IROMFileMemory();
 	return mpInstance != NULL;
@@ -78,7 +73,7 @@ IROMFileMemory::IROMFileMemory()
 	// Allocate large memory heap for SLIM+ (32Mb) Used for ROM Buffer and ROM Cache
 	// Otherwise allocate small memory heap for PHAT (2Mb) Used for ROM cache only
 	//
-	if(PSP_IS_SLIM)
+	if( PSP_IS_SLIM )
 	{
 		mRomMemoryHeap = CMemoryHeap::Create( 32 * 1024 * 1024 );
 	}
