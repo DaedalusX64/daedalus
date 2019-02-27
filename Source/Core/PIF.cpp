@@ -272,7 +272,7 @@ bool IController::OnRomOpen()
 	ESaveType save_type  = g_ROM.settings.SaveType;
 	mpPifRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
 
-	gRumblePakActive = false;
+	//gRumblePakActive = false;
 
 	if ( mpEepromData )
 	{

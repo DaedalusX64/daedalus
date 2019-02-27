@@ -33,8 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/String.h"
 #include "Utility/Translate.h"
 
-#include "svnversion.h"
-
 #include <kubridge.h>
 #include <pspctrl.h>
 #include <pspgu.h>
@@ -167,8 +165,6 @@ void	IAboutComponent::Render()
 	y = text_top;
 
 	CFixedString<128>	version( Translate_String(DAEDALUS_VERSION_TEXT) );
-	version += SVNVERSION;
-	version += " - ";
 	version += DAEDALUS_CONFIG_VERSION;
 	//version += ")";
 
