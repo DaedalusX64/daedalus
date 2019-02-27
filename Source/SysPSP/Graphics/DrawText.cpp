@@ -96,7 +96,7 @@ u32	CDrawText::Render( EFont font_type, s32 x, s32 y, float scale, const char * 
 	{
 		sceGuEnable(GU_BLEND);
 		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-		intraFontSetStyle( font, scale, colour.GetColour(), drop_colour.GetColour(), INTRAFONT_ALIGN_LEFT );
+		intraFontSetStyle( font, scale, colour.GetColour(), 0, INTRAFONT_ALIGN_LEFT );
 		return s32( intraFontPrintEx( font,  x, y, Translate( p_str, length ), length) ) - x;
 	}
 
