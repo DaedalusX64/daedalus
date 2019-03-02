@@ -47,29 +47,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <pspctrl.h>
 #include <pspgu.h>
-
-namespace
-{
-	const u32		TEXT_AREA_TOP = 15+16+16;
-	const u32		TEXT_AREA_LEFT = 40;
-	const u32		TEXT_AREA_RIGHT = 440;
-
-	const s32		DESCRIPTION_AREA_TOP = 0;		// We render text aligned from the bottom, so this is largely irrelevant
-	const s32		DESCRIPTION_AREA_BOTTOM = 272-10;
-	const s32		DESCRIPTION_AREA_LEFT = 16;
-	const s32		DESCRIPTION_AREA_RIGHT = 480-16;
-
-	const char * const		SAVING_TITLE_TEXT  = "Select a Slot to Save To";
-	const char * const		LOADING_TITLE_TEXT = "Select a Slot to Load From";
-}
+#include "PSPMenu.h"
 
 extern bool gTakeScreenshot;
 extern bool gTakeScreenshotSS;
 
 
-//*************************************************************************************
-//
-//*************************************************************************************
 class IPauseOptionsComponent : public CPauseOptionsComponent
 {
 	public:
@@ -110,32 +93,21 @@ class IPauseOptionsComponent : public CPauseOptionsComponent
 		CUIElementBag				mElements;
 };
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 CPauseOptionsComponent::CPauseOptionsComponent( CUIContext * p_context )
 :	CUIComponent( p_context )
-{
-}
+{}
 
-//*************************************************************************************
-//
-//*************************************************************************************
-CPauseOptionsComponent::~CPauseOptionsComponent()
-{
-}
 
-//*************************************************************************************
-//
-//*************************************************************************************
+CPauseOptionsComponent::~CPauseOptionsComponent() {}
+
+
 CPauseOptionsComponent *	CPauseOptionsComponent::Create( CUIContext * p_context, CFunctor * on_resume, CFunctor * on_reset )
 {
 	return new IPauseOptionsComponent( p_context, on_resume, on_reset );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context, CFunctor * on_resume, CFunctor * on_reset )
 :	CPauseOptionsComponent( p_context )
 ,	mOnResume( on_resume )
@@ -183,16 +155,9 @@ IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context, CFunctor
 #endif
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-IPauseOptionsComponent::~IPauseOptionsComponent()
-{
-}
+IPauseOptionsComponent::~IPauseOptionsComponent() {}
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IPauseOptionsComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	if(old_buttons != new_buttons)
@@ -225,9 +190,7 @@ void	IPauseOptionsComponent::Update( float elapsed_time, const v2 & stick, u32 o
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IPauseOptionsComponent::Render()
 {
 
@@ -248,9 +211,7 @@ void	IPauseOptionsComponent::Render()
 	}
 }
 #ifdef DAEDALUS_DIALOGS
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void IPauseOptionsComponent::ExitConfirmation()
 {
 	if(gShowDialog.Render( mpContext,"Return to main menu?", false) )
@@ -259,25 +220,16 @@ void IPauseOptionsComponent::ExitConfirmation()
 	}
 }
 #endif
-//*************************************************************************************
-//
-//*************************************************************************************
-void IPauseOptionsComponent::OnResume()
-{
-	(*mOnResume)();
-}
 
-//*************************************************************************************
-//
-//*************************************************************************************
+void IPauseOptionsComponent::OnResume() { (*mOnResume)(); }
+
+
 void IPauseOptionsComponent::OnReset()
 {
 	(*mOnReset)();
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IPauseOptionsComponent::EditPreferences()
 {
 	CRomPreferencesScreen *	edit_preferences( CRomPreferencesScreen::Create( mpContext, g_ROM.mRomID ) );
@@ -285,9 +237,7 @@ void	IPauseOptionsComponent::EditPreferences()
 	delete edit_preferences;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IPauseOptionsComponent::AdvancedOptions()
 {
 	CAdvancedOptionsScreen *	advanced_options( CAdvancedOptionsScreen::Create( mpContext, g_ROM.mRomID ) );
@@ -295,18 +245,14 @@ void	IPauseOptionsComponent::AdvancedOptions()
 	delete advanced_options;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void	IPauseOptionsComponent::CheatOptions()
 {
 	CCheatOptionsScreen *	cheat_options( CCheatOptionsScreen::Create( mpContext, g_ROM.mRomID ) );
 	cheat_options->Run();
 	delete cheat_options;
 }
-//*************************************************************************************
-//
-//*************************************************************************************
+
+
 void	IPauseOptionsComponent::SaveState()
 {
 	CSavestateSelectorComponent *	component( CSavestateSelectorComponent::Create( mpContext, CSavestateSelectorComponent::AT_SAVING, new CMemberFunctor1< IPauseOptionsComponent, const char * >( this, &IPauseOptionsComponent::OnSaveStateSlotSelected ), g_ROM.settings.GameName.c_str() ) );
@@ -317,9 +263,7 @@ void	IPauseOptionsComponent::SaveState()
 	(*mOnResume)();
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IPauseOptionsComponent::LoadState()
 {
 	CSavestateSelectorComponent *	component( CSavestateSelectorComponent::Create( mpContext, CSavestateSelectorComponent::AT_LOADING, new CMemberFunctor1< IPauseOptionsComponent, const char * >( this, &IPauseOptionsComponent::OnLoadStateSlotSelected ), g_ROM.settings.GameName.c_str() ) );
@@ -329,9 +273,7 @@ void	IPauseOptionsComponent::LoadState()
 	(*mOnResume)();
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IPauseOptionsComponent::OnSaveStateSlotSelected( const char * filename )
 {
 	IO::File::Delete( filename ); // Ensure that we're re-creating the file
@@ -341,17 +283,13 @@ void	IPauseOptionsComponent::OnSaveStateSlotSelected( const char * filename )
 	gTakeScreenshotSS = true;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IPauseOptionsComponent::OnLoadStateSlotSelected( const char * filename )
 {
 	CPU_RequestLoadState( filename );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void IPauseOptionsComponent::TakeScreenshot()
 {
 	gTakeScreenshot = true;
@@ -359,9 +297,7 @@ void IPauseOptionsComponent::TakeScreenshot()
 }
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void IPauseOptionsComponent::DebugDisplayList()
 {
 	DLDebugger_RequestDebug();

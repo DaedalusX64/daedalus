@@ -31,15 +31,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspgu.h>
 
 CDialog	gShowDialog;
-//*************************************************************************************
-//
-//*************************************************************************************
-CDialog::~CDialog()
-{
-}
-//*************************************************************************************
-//
-//*************************************************************************************
+
+
+CDialog::~CDialog() {}
+
 bool CDialog::Render( CUIContext * p_context, const char* message, bool only_dialog )
 {
 	SceCtrlData pad;
@@ -82,4 +77,3 @@ bool CDialog::Render( CUIContext * p_context, const char* message, bool only_dia
 			return false;
 	}
 }
-

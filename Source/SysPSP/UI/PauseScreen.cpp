@@ -45,37 +45,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Utility/Buttons.h"
 #include "Utility/Functor.h"
 #include "Utility/Translate.h"
-
+#include "PSPMenu.h"
 extern void battery_info();
 
-namespace
-{
-	const u32				TEXT_AREA_TOP = 10;
-	const u32				TEXT_AREA_LEFT = 20;
-	const u32				TEXT_AREA_RIGHT = 480-20;
 
-	enum EMenuOption
-	{
-		MO_GLOBAL_SETTINGS = 0,
-		MO_PAUSE_OPTIONS,
-		MO_ABOUT,
-		NUM_MENU_OPTIONS,
-	};
-
-	const EMenuOption	MO_FIRST_OPTION = MO_GLOBAL_SETTINGS;
-	const EMenuOption	MO_LAST_OPTION = MO_ABOUT;
-
-	const char * const	gMenuOptionNames[ NUM_MENU_OPTIONS ] =
-	{
-		"Global Settings",
-		"Paused",
-		"About",
-	};
-}
-
-//*************************************************************************************
 //
-//*************************************************************************************
+
 class IPauseScreen : public CPauseScreen, public CUIScreen
 {
 	public:
@@ -116,24 +91,15 @@ class IPauseScreen : public CPauseScreen, public CUIScreen
 		CUIComponent *				mOptionComponents[ NUM_MENU_OPTIONS ];
 };
 
-//*************************************************************************************
-//
-//*************************************************************************************
-CPauseScreen::~CPauseScreen()
-{
-}
 
-//*************************************************************************************
-//
-//*************************************************************************************
+CPauseScreen::~CPauseScreen() {}
+
 CPauseScreen *	CPauseScreen::Create( CUIContext * p_context )
 {
 	return new IPauseScreen( p_context );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 IPauseScreen::IPauseScreen( CUIContext * p_context )
 :	CUIScreen( p_context )
 ,	mIsFinished( false )
@@ -154,9 +120,6 @@ IPauseScreen::IPauseScreen( CUIContext * p_context )
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 IPauseScreen::~IPauseScreen()
 {
 	for( u32 i = 0; i < NUM_MENU_OPTIONS; ++i )
@@ -166,9 +129,6 @@ IPauseScreen::~IPauseScreen()
 }
 
 
-//*************************************************************************************
-//
-//*************************************************************************************
 EMenuOption		IPauseScreen::GetPreviousValidOption() const
 {
 	bool			looped( false );
@@ -184,9 +144,7 @@ EMenuOption		IPauseScreen::GetPreviousValidOption() const
 	return current_option;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 EMenuOption		IPauseScreen::GetNextValidOption() const
 {
 	bool			looped( false );
@@ -202,17 +160,13 @@ EMenuOption		IPauseScreen::GetNextValidOption() const
 	return current_option;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 bool	IPauseScreen::IsOptionValid( EMenuOption option ) const
 {
 	return true;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IPauseScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	static bool button_released(false);
@@ -245,14 +199,12 @@ void	IPauseScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons
 	mOptionComponents[ mCurrentOption ]->Update( elapsed_time, stick, old_buttons, new_buttons );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IPauseScreen::Render()
 {
 	mpContext->ClearBackground();
 
-	s32			y( TEXT_AREA_TOP );
+	s32			y( PAUSE_TEXT_AREA_TOP );
 
 	const char * p_option_text;
 
@@ -290,45 +242,33 @@ void	IPauseScreen::Render()
 	mpContext->DrawTextAlign( 0, 480, AT_CENTRE, 43, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
 
 	p_option_text = gMenuOptionNames[ previous ];
-	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_LEFT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( previous ) ? valid_colour : invalid_colour );
+	mpContext->DrawTextAlign( PAUSE_TEXT_AREA_LEFT, PAUSE_TEXT_AREA_RIGHT, AT_LEFT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( previous ) ? valid_colour : invalid_colour );
 
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
 	p_option_text = gMenuOptionNames[ current ];
-	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( current ) ? valid_colour : invalid_colour );
+	mpContext->DrawTextAlign( PAUSE_TEXT_AREA_LEFT, PAUSE_TEXT_AREA_RIGHT, AT_CENTRE, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( current ) ? valid_colour : invalid_colour );
 	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
 
 	p_option_text = gMenuOptionNames[ next ];
-	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_RIGHT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( next ) ? valid_colour : invalid_colour );
+	mpContext->DrawTextAlign( PAUSE_TEXT_AREA_LEFT, PAUSE_TEXT_AREA_RIGHT, AT_RIGHT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( next ) ? valid_colour : invalid_colour );
 
 	mOptionComponents[ mCurrentOption ]->Render();
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void	IPauseScreen::Run()
 {
 	mIsFinished = false;
 	CUIScreen::Run();
 
-	// switch back to the emulator display
 	CGraphicsContext::Get()->SwitchToChosenDisplay();
-
-	// Clear everything to black - looks a bit tidier
 	CGraphicsContext::Get()->ClearAllSurfaces();
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void IPauseScreen::OnResume()
 {
 	mIsFinished = true;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void IPauseScreen::OnReset()
 {
 	CPU_Halt("Resetting");

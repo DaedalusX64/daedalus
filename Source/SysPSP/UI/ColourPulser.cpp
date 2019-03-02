@@ -24,28 +24,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/Math.h"	// VFPU Math
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 CColourPulser::CColourPulser( c32 dim_colour, c32 bright_colour, u32 cycle_period )
 :	mTimeCounter( 0 )
 ,	mCyclePeriod( cycle_period )
 ,	mDimColour( dim_colour )
 ,	mBrightColour( bright_colour )
 ,	mCurrentColour( mDimColour )
-{
-}
+{}
 
-//*************************************************************************************
-//
-//*************************************************************************************
-CColourPulser::~CColourPulser()
-{
-}
+CColourPulser::~CColourPulser() {}
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void	CColourPulser::Update( u32 elapsed_ms )
 {
 	mTimeCounter = (mTimeCounter + elapsed_ms) % mCyclePeriod;
