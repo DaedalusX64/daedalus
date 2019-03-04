@@ -28,11 +28,9 @@ const s16 ROM_INFO_TEXT_Y {154};
 
 const s16 CATEGORY_TEXT_TOP {BELOW_MENU_MIN + LIST_TEXT_HEIGHT + 5};
 const s16 CATEGORY_TEXT_LEFT {LIST_TEXT_LEFT};
+const s16 NUM_SAVESTATE_SLOTS {16};
 
 // Old values
-const u32				SAVESTATE_ICON_AREA_LEFT = 240;
-const u32				SAVESTATE_ICON_AREA_WIDTH = 220;
-const u32				SAVESTATE_ICON_AREA_HEIGHT = 136;
 
 const u32		TITLE_AREA_TOP = 10;
 const u32				PAUSE_TEXT_AREA_TOP = 10;
@@ -208,6 +206,6 @@ const char * const		SAVING_STATUS_TEXT  = "Saving...";
 const char * const		LOADING_STATUS_TEXT = "Loading...";
 
 
-const u32				NUM_SAVESTATE_SLOTS = 64;
+
 
 const u32				INVALID_SLOT = u32( -1 );
