@@ -46,10 +46,28 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Functor.h"
 #include "Utility/Translate.h"
 #include "PSPMenu.h"
+
 extern void battery_info();
 
+namespace {
+	enum EMenuOption
+	{
+		MO_GLOBAL_SETTINGS = 0,
+		MO_PAUSE_OPTIONS,
+		MO_ABOUT,
+		NUM_MENU_OPTIONS,
+	};
 
-//
+	const EMenuOption	MO_FIRST_OPTION = MO_GLOBAL_SETTINGS;
+	const EMenuOption	MO_LAST_OPTION = MO_ABOUT;
+
+	const char * const	gMenuOptionNames[ NUM_MENU_OPTIONS ] =
+	{
+		"Global Settings",
+		"Paused",
+		"About",
+	};
+}
 
 class IPauseScreen : public CPauseScreen, public CUIScreen
 {
@@ -204,7 +222,7 @@ void	IPauseScreen::Render()
 {
 	mpContext->ClearBackground();
 
-	s32			y( PAUSE_TEXT_AREA_TOP );
+	s32			y( BELOW_MENU_MIN );
 
 	const char * p_option_text;
 
@@ -242,15 +260,15 @@ void	IPauseScreen::Render()
 	mpContext->DrawTextAlign( 0, 480, AT_CENTRE, 43, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
 
 	p_option_text = gMenuOptionNames[ previous ];
-	mpContext->DrawTextAlign( PAUSE_TEXT_AREA_LEFT, PAUSE_TEXT_AREA_RIGHT, AT_LEFT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( previous ) ? valid_colour : invalid_colour );
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_LEFT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( previous ) ? valid_colour : invalid_colour );
 
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
 	p_option_text = gMenuOptionNames[ current ];
-	mpContext->DrawTextAlign( PAUSE_TEXT_AREA_LEFT, PAUSE_TEXT_AREA_RIGHT, AT_CENTRE, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( current ) ? valid_colour : invalid_colour );
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( current ) ? valid_colour : invalid_colour );
 	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
 
 	p_option_text = gMenuOptionNames[ next ];
-	mpContext->DrawTextAlign( PAUSE_TEXT_AREA_LEFT, PAUSE_TEXT_AREA_RIGHT, AT_RIGHT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( next ) ? valid_colour : invalid_colour );
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_RIGHT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( next ) ? valid_colour : invalid_colour );
 
 	mOptionComponents[ mCurrentOption ]->Render();
 }

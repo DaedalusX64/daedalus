@@ -23,27 +23,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "SysPSP/Graphics/DrawText.h"
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 CUISetting::CUISetting( const char * name, const char * description )
 	:	mName( name )
 	,	mDescription( description )
-{
+{}
 
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
 u32		CUISetting::GetHeight( CUIContext * context ) const
 {
 	return context->GetFontHeight() + 2;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void	CUISetting::Draw( CUIContext * context, s32 min_x, s32 max_x, EAlignType halign, s32 y, bool selected ) const
 {
 	bool		read_only( IsReadOnly() );

@@ -39,7 +39,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspctrl.h>
 #include <pspgu.h>
 #include "PSPMenu.h"
-
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -159,7 +158,7 @@ void	ISelectedRomComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 //*************************************************************************************
 void	ISelectedRomComponent::Render()
 {
-	mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, TEXT_AREA_TOP );
+	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN );
 
 	CUIElement *	element( mElements.GetSelectedElement() );
 	if( element != NULL )

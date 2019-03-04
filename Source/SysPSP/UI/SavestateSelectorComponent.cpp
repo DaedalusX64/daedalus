@@ -236,7 +236,7 @@ void ISavestateSelectorComponent::LoadSlots(){
 		}
 		else
 		{
-			str << Translate_String("<empty>");
+			str << Translate_String("Empty");
 			mSlotEmpty[ i ] = true;
 		}
 
@@ -398,12 +398,7 @@ void	ISavestateSelectorComponent::Render()
 
 	if( mSelectedSlot == INVALID_SLOT )
 	{
-		mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_LEFT, TEXT_AREA_TOP - mElements.GetSelectedIndex()*(font_height+2) );
-
-		/*if( mElements.GetSelectedIndex() > 0 )
-			mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_LEFT, TEXT_AREA_TOP - mElements.GetSelectedIndex()*11 );
-		else
-			mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_LEFT, TEXT_AREA_TOP);*/
+		mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_LEFT, BELOW_MENU_MIN - mElements.GetSelectedIndex()*(font_height+2) );
 
 		CUIElement *	element( mElements.GetSelectedElement() );
 		if( element != NULL )

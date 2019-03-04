@@ -17,6 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+
 #include "stdafx.h"
 #include "RomSelectorComponent.h"
 
@@ -447,7 +448,7 @@ void IRomSelectorComponent::RenderRomList()
 		//
 		// Check if this entry would be onscreen
 		//
-		if(s32(y+line_height) >= s32(BELOW_MENU_MIN) && s32(y-line_height) < s32(BELOW_MENU_MIN + TEXT_AREA_HEIGHT))
+		if(s32(y+line_height) >= s32(BELOW_MENU_MIN) && s32(y-line_height) < s32(BELOW_MENU_MIN + LIST_TEXT_HEIGHT))
 		{
 			c32		colour;
 

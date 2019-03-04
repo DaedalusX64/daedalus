@@ -24,17 +24,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Graphics/DrawText.h"
 
 
-//*************************************************************************************
-//
-//*************************************************************************************
 u32		CUICommand::GetHeight( CUIContext * context ) const
 {
 	return context->GetFontHeight() + 2;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void	CUICommand::Draw( CUIContext * context, s32 min_x, s32 max_x, EAlignType halign, s32 y, bool selected ) const
 {
 	c32	colour;

@@ -33,21 +33,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Utility/Preferences.h"
 #include "SysPSP/Utility/PathsPSP.h"
-
+#include "PSPMenu.h"
 #include <pspctrl.h>
 #include <pspgu.h>
 
+
 extern bool g32bitColorMode;
 
-namespace
-{
-	const char * const		LOGO_FILENAME = DAEDALUS_PSP_PATH( "Resources/logo.png" );
-
-	const float				MAX_TIME = 0.8f;
-}
-
-
-//
 
 class ISplashScreen : public CSplashScreen, public CUIScreen
 {

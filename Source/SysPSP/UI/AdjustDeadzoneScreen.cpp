@@ -233,10 +233,10 @@ void	IAdjustDeadzoneScreen::Render()
 	sprintf( str, "%s: %d, %s: %d", Translate_String("Min"), s32( 100.f * mStickMinDeadzone ), Translate_String("Max"), s32( 100.0f * mStickMaxDeadzone ) );
 	mpContext->DrawText( PSP_CIRCLE_X - DISPLAY_RADIUS, PSP_CIRCLE_Y + DISPLAY_RADIUS + 10, str, DrawTextUtilities::TextWhite );
 
-	mpContext->DrawTextArea( TEXT_AREA_LEFT,
-							 TEXT_AREA_TOP,
-							 TEXT_AREA_RIGHT - TEXT_AREA_LEFT,
-							 TEXT_AREA_BOTTOM - TEXT_AREA_TOP,
+	mpContext->DrawTextArea( LIST_TEXT_LEFT,
+							 BELOW_MENU_MIN,
+							 LIST_TEXT_WIDTH - LIST_TEXT_LEFT,
+							 (ROM_INFO_TEXT_X - 30) - BELOW_MENU_MIN,
 							 INSTRUCTIONS_TEXT,
 							 DrawTextUtilities::TextWhite,
 							 VA_BOTTOM );

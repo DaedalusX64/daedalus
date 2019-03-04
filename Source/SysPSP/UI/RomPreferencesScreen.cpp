@@ -197,9 +197,9 @@ namespace
 	};
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 class IRomPreferencesScreen : public CRomPreferencesScreen, public CUIScreen
 {
 	public:
@@ -230,24 +230,14 @@ class IRomPreferencesScreen : public CRomPreferencesScreen, public CUIScreen
 		CUIElementBag				mElements;
 };
 
-//*************************************************************************************
-//
-//*************************************************************************************
-CRomPreferencesScreen::~CRomPreferencesScreen()
-{
-}
+CRomPreferencesScreen::~CRomPreferencesScreen() {}
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 CRomPreferencesScreen *	CRomPreferencesScreen::Create( CUIContext * p_context, const RomID & rom_id )
 {
 	return new IRomPreferencesScreen( p_context, rom_id );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 IRomPreferencesScreen::IRomPreferencesScreen( CUIContext * p_context, const RomID & rom_id )
 :	CUIScreen( p_context )
 ,	mRomID( rom_id )
@@ -279,16 +269,16 @@ IRomPreferencesScreen::IRomPreferencesScreen( CUIContext * p_context, const RomI
 
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 IRomPreferencesScreen::~IRomPreferencesScreen()
 {
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 void	IRomPreferencesScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	if(old_buttons != new_buttons)
@@ -321,9 +311,9 @@ void	IRomPreferencesScreen::Update( float elapsed_time, const v2 & stick, u32 ol
 	}
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 void	IRomPreferencesScreen::Render()
 {
 	mpContext->ClearBackground();
@@ -335,17 +325,17 @@ void	IRomPreferencesScreen::Render()
 	const char * const title_text = "Rom Preferences";
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
 	u32		heading_height( mpContext->GetFontHeight() );
-	y = TITLE_AREA_TOP + heading_height;
-	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() ); y += heading_height;
+	y = BELOW_MENU_MIN + heading_height;
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() ); y += heading_height;
 	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
 
 	y += 2;
 
-	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, mRomName.c_str(), mpContext->GetDefaultTextColour() ); y += line_height;
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, mRomName.c_str(), mpContext->GetDefaultTextColour() ); y += line_height;
 
 	y += 4;
 
-	mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y );
+	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y );
 
 	CUIElement *	element( mElements.GetSelectedElement() );
 	if( element != NULL )
@@ -362,17 +352,13 @@ void	IRomPreferencesScreen::Render()
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IRomPreferencesScreen::Run()
 {
 	CUIScreen::Run();
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IRomPreferencesScreen::OnConfirm()
 {
 	CPreferences::Get()->SetRomPreferences( mRomID, mRomPreferences );
@@ -384,9 +370,7 @@ void	IRomPreferencesScreen::OnConfirm()
 	mIsFinished = true;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IRomPreferencesScreen::OnCancel()
 {
 	mIsFinished = true;

@@ -1,16 +1,17 @@
 #include "Utility/DaedalusTypes.h"
 #include "SysPSP/Utility/PathsPSP.h"
 
-
-// New UI values
+// User Interface Variables
+// TODO: Adjust so that they scale to other resolutions
 const s16 SCREEN_WIDTH {480};
 const s16 SCREEN_HEIGHT {272};
 
 
 // to do adjust values to suit multiple screens
-const s16 MENU_HEADER_X {13};
-const s16 MENU_HEADER_Y {394};
-const s16 MENU_HEADER_LINE_XY {15};
+const s16 TITLE_HEADER {10};
+const s16 MENU_HEADER_X {13}; // Left
+const s16 MENU_HEADER_Y {394}; // Right
+
 const s16 BELOW_MENU_MIN {33};
 
 const s16 LIST_TEXT_LEFT {13};
@@ -26,36 +27,23 @@ const s16 PREVIEW_IMAGE_HEIGHT {PREVIEW_IMAGE_BOTTOM - BELOW_MENU_MIN};
 const s16 ROM_INFO_TEXT_X {318};
 const s16 ROM_INFO_TEXT_Y {154};
 
+// Splash Screen
+const float	MAX_TIME  {0.8f};
+const char * const	LOGO_FILENAME {DAEDALUS_PSP_PATH( "Resources/logo.png" )};
+
 const s16 CATEGORY_TEXT_TOP {BELOW_MENU_MIN + LIST_TEXT_HEIGHT + 5};
 const s16 CATEGORY_TEXT_LEFT {LIST_TEXT_LEFT};
-const s16 NUM_SAVESTATE_SLOTS {16};
-
-// Old values
-
-const u32		TITLE_AREA_TOP = 10;
-const u32				PAUSE_TEXT_AREA_TOP = 10;
-const u32				PAUSE_TEXT_AREA_LEFT = 20;
-const u32				PAUSE_TEXT_AREA_RIGHT = 460;
+const s16 NUM_SAVESTATE_SLOTS {15};
+const char * const		SAVING_STATUS_TEXT  = "Saving...";
+const char * const		LOADING_STATUS_TEXT = "Loading...";
+const s16				INVALID_SLOT = s16( -1 );
 
 
-const u32				SS_TEXT_AREA_TOP = 272 / 2;
+const s16 DESCRIPTION_AREA_TOP {0};
+const s16 DESCRIPTION_AREA_LEFT {16};
+const s16 DESCRIPTION_AREA_RIGHT { SCREEN_WIDTH - 16};
+const s16 DESCRIPTION_AREA_BOTTOM {SCREEN_HEIGHT - 10};
 
-const s32				SS_DESCRIPTION_AREA_TOP = 272-20;		// We render text aligned from the bottom, so this is largely irrelevant
-
-
-const u32		TEXT_AREA_TOP = 40;
-const u32		TEXT_AREA_LEFT = 40;
-const u32		TEXT_AREA_RIGHT = 440;
-const s32		TEXT_AREA_BOTTOM = 272 - 10;
-
-
-
-const s32		DESCRIPTION_AREA_TOP = 0;		// We render text aligned from the bottom, so this is largely irrelevant
-const s32		DESCRIPTION_AREA_BOTTOM = 272-10;
-const s32		DESCRIPTION_AREA_LEFT = 16;
-const s32		DESCRIPTION_AREA_RIGHT = 480-16;
-
-const u32		GLOBALSETTINGS_TEXT_AREA_TOP = 47;
 
 
 const char * const		SAVING_TITLE_TEXT  = "Select a Slot to Save To";
@@ -87,9 +75,6 @@ const char * const		pspModel[ MAX_PSP_MODEL ] =
 const char * const		URL_TEXT_1 = "http://DaedalusX64.com/";
 const char * const		URL_TEXT_2 = "http://sf.net/projects/daedalusx64/";
 
-const char * const		LOGO_FILENAME = DAEDALUS_PSP_PATH( "Resources/logo.png" );
-
-
 // Adjust Dead Zone Screen
 
 
@@ -119,25 +104,6 @@ const f32				DEADZONE_INCREMENT = 0.01f;
 const f32				DEFAULT_MIN_DEADZONE = 0.28f;		// Kind of gross - share somehow with IInputManager?
 const f32				DEFAULT_MAX_DEADZONE = 1.0f;
 
-
-enum EMenuOption
-{
-  MO_GLOBAL_SETTINGS = 0,
-  MO_PAUSE_OPTIONS,
-  MO_ABOUT,
-  NUM_MENU_OPTIONS,
-};
-
-const EMenuOption	MO_FIRST_OPTION = MO_GLOBAL_SETTINGS;
-const EMenuOption	MO_LAST_OPTION = MO_ABOUT;
-
-const char * const	gMenuOptionNames[ NUM_MENU_OPTIONS ] =
-{
-  "Global Settings",
-  "Paused",
-  "About",
-};
-
 // Rom Selector component
 
 const char * const		gRomsDirectories[] =
@@ -161,24 +127,7 @@ enum ECategory
   NUM_CATEGORIES,
 };
 
-// Savestate Picture component
-const u32				SS_ICON_AREA_LEFT = 480/2;
 
-const u32				ICON_AREA_TOP = 32;
-const u32				ICON_AREA_LEFT = 5;
-const u32				ICON_AREA_WIDTH = 256;
-const u32				ICON_AREA_HEIGHT = 177;
-
-const u32       SAVESTATE_TEXT_AREA_LEFT = 20;
-const u32       SAVESTATE_TEXT_AREA_RIGHT = 460;
-const u32       SAVESTATE_TEXT_AREA_TOP = SCREEN_HEIGHT / 2;
-
-
-
-//const u32				TEXT_AREA_TOP = 32;
-const u32				IMAGE_TEXT_AREA_LEFT = ICON_AREA_LEFT + ICON_AREA_WIDTH + 5;
-const u32				IMAGE_TEXT_AREA_WIDTH = 480 - TEXT_AREA_LEFT;
-const u32				TEXT_AREA_HEIGHT = 216;
 
 const char * const		gNoRomsText[] =
 {
@@ -190,22 +139,9 @@ const char * const		gNoRomsText[] =
   "Daedalus recognises a number of different filetypes,",
   "including .zip, .z64, .v64, .rom, .bin, .pal, .usa and .jap.",
 };
-
-//const u32				CATEGORY_AREA_TOP = TEXT_AREA_TOP + TEXT_AREA_HEIGHT + 5;
-//const u32				CATEGORY_AREA_LEFT = ICON_AREA_LEFT;
+;
 
 const char * const		gPreviewDirectory = DAEDALUS_PSP_PATH( "Resources/Preview/" );
 
 const f32				PREVIEW_SCROLL_WAIT = 0.075f;		// seconds to wait for scrolling to stop before loading preview (prevent thrashing)
 const f32				PREVIEW_FADE_TIME = 0.050f;			// seconds
-
-
-// Save State selector
-
-const char * const		SAVING_STATUS_TEXT  = "Saving...";
-const char * const		LOADING_STATUS_TEXT = "Loading...";
-
-
-
-
-const u32				INVALID_SLOT = u32( -1 );
