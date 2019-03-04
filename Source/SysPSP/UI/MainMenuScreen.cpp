@@ -285,7 +285,7 @@ void	IMainMenuScreen::Render()
 
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
 
-	s32		y( TEXT_AREA_TOP + mpContext->GetFontHeight() );
+	s32		y( MENU_TOP + mpContext->GetFontHeight() );
 
 	for( s32 i = -2; i <= 2; ++i )
 	{
