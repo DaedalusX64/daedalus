@@ -8,6 +8,7 @@ const s16 SCREEN_HEIGHT {272};
 
 
 // to do adjust values to suit multiple screens
+const s16 MENU_TOP {8};
 const s16 TITLE_HEADER {10};
 const s16 MENU_HEADER_X {13}; // Left
 const s16 MENU_HEADER_Y {394}; // Right

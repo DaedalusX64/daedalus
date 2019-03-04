@@ -194,7 +194,7 @@ void	IPauseOptionsComponent::Update( float elapsed_time, const v2 & stick, u32 o
 void	IPauseOptionsComponent::Render()
 {
 
-	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_LEFT, AT_CENTRE, BELOW_MENU_MIN );
+	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN );
 
 	CUIElement *	element( mElements.GetSelectedElement() );
 	if( element != NULL )
