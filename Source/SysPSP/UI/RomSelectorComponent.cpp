@@ -476,8 +476,8 @@ void IRomSelectorComponent::RenderRomList()
 
 void IRomSelectorComponent::RenderCategoryList()
 {
-	s32 x = CATEGORY_AREA_LEFT;
-	s32 y = CATEGORY_AREA_TOP + mpContext->GetFontHeight();
+  s16 x = CATEGORY_TEXT_LEFT;
+	s16 y = CATEGORY_TEXT_TOP + mpContext->GetFontHeight();
 
 	ECategory current_category( GetCurrentCategory() );
 
@@ -543,8 +543,8 @@ void IRomSelectorComponent::Render()
 	}
 #endif
 
-	//Render tool tip
-	//
+	//Tool Tips
+
 	static u32 count = 0;
 
 	const char * const message[] =
@@ -554,15 +554,15 @@ void IRomSelectorComponent::Render()
 		"(SELECT) -> Delete"
 	};
 
-	const c32 color = c32( 255.0f * sinf( 2.0f * 3.1415927f * (count & 0xFF) / 512.0f), 0, 0, 255);
+	const c32 color = c32( 0.0f * sinf( 2.0f * 3.1415927f * (count & 0xFF) / 512.0f), 255.0f, 0, 255);
 
 	if(mRomDelete)
 	{
-		mpContext->DrawTextAlign(0,SCREEN_WIDTH - PREVIEW_IMAGE_LEFT, AT_RIGHT, CATEGORY_AREA_TOP + mpContext->GetFontHeight(), "(X) -> Confirm", color);
+		mpContext->DrawTextAlign(0,SCREEN_WIDTH - LIST_TEXT_LEFT, AT_RIGHT, CATEGORY_TEXT_TOP + mpContext->GetFontHeight(), "(X) -> Confirm", color);
 	}
 	else
 	{
-		mpContext->DrawTextAlign(0,SCREEN_WIDTH - PREVIEW_IMAGE_LEFT, AT_RIGHT, CATEGORY_AREA_TOP + mpContext->GetFontHeight(), message[(count >> 8) % ARRAYSIZE( message )], color);
+		mpContext->DrawTextAlign(0,SCREEN_WIDTH - LIST_TEXT_LEFT, AT_RIGHT, CATEGORY_TEXT_TOP + mpContext->GetFontHeight(), message[(count >> 8) % ARRAYSIZE( message )], color);
 	}
 
 	count++;

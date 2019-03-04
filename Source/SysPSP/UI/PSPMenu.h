@@ -17,8 +17,6 @@ const s16 LIST_TEXT_LEFT {13};
 const s16 LIST_TEXT_WIDTH {SCREEN_WIDTH - LIST_TEXT_LEFT};
 const s16 LIST_TEXT_HEIGHT {216};
 
-
-
 const s16 PREVIEW_IMAGE_LEFT {309};
 const s16 PREVIEW_IMAGE_BOTTOM {140};
 const s16 PREVIEW_IMAGE_RIGHT {464};
@@ -28,6 +26,8 @@ const s16 PREVIEW_IMAGE_HEIGHT {PREVIEW_IMAGE_BOTTOM - BELOW_MENU_MIN};
 const s16 ROM_INFO_TEXT_X {318};
 const s16 ROM_INFO_TEXT_Y {154};
 
+const s16 CATEGORY_TEXT_TOP {BELOW_MENU_MIN + LIST_TEXT_HEIGHT + 5};
+const s16 CATEGORY_TEXT_LEFT {LIST_TEXT_LEFT};
 
 // Old values
 const u32				SAVESTATE_ICON_AREA_LEFT = 240;
@@ -193,8 +193,8 @@ const char * const		gNoRomsText[] =
   "including .zip, .z64, .v64, .rom, .bin, .pal, .usa and .jap.",
 };
 
-const u32				CATEGORY_AREA_TOP = TEXT_AREA_TOP + TEXT_AREA_HEIGHT + 5;
-const u32				CATEGORY_AREA_LEFT = ICON_AREA_LEFT;
+//const u32				CATEGORY_AREA_TOP = TEXT_AREA_TOP + TEXT_AREA_HEIGHT + 5;
+//const u32				CATEGORY_AREA_LEFT = ICON_AREA_LEFT;
 
 const char * const		gPreviewDirectory = DAEDALUS_PSP_PATH( "Resources/Preview/" );
 
