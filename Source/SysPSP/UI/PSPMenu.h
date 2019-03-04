@@ -1,10 +1,38 @@
 #include "Utility/DaedalusTypes.h"
 #include "SysPSP/Utility/PathsPSP.h"
 
-// Pause Screen Options
 
-const u32 SCREEN_WIDTH = 480;
-const u32 SCREEN_HEIGHT = 272;
+// New UI values
+const s16 SCREEN_WIDTH {480};
+const s16 SCREEN_HEIGHT {272};
+
+
+// to do adjust values to suit multiple screens
+const s16 MENU_HEADER_X {13};
+const s16 MENU_HEADER_Y {394};
+const s16 MENU_HEADER_LINE_XY {15};
+const s16 BELOW_MENU_MIN {33};
+
+const s16 LIST_TEXT_LEFT {13};
+const s16 LIST_TEXT_WIDTH {SCREEN_WIDTH - LIST_TEXT_LEFT};
+const s16 LIST_TEXT_HEIGHT {216};
+
+
+
+const s16 PREVIEW_IMAGE_LEFT {309};
+const s16 PREVIEW_IMAGE_BOTTOM {140};
+const s16 PREVIEW_IMAGE_RIGHT {464};
+const s16 PREVIEW_IMAGE_WIDTH {PREVIEW_IMAGE_RIGHT - PREVIEW_IMAGE_LEFT};
+const s16 PREVIEW_IMAGE_HEIGHT {PREVIEW_IMAGE_BOTTOM - BELOW_MENU_MIN};
+
+const s16 ROM_INFO_TEXT_X {318};
+const s16 ROM_INFO_TEXT_Y {154};
+
+
+// Old values
+const u32				SAVESTATE_ICON_AREA_LEFT = 240;
+const u32				SAVESTATE_ICON_AREA_WIDTH = 220;
+const u32				SAVESTATE_ICON_AREA_HEIGHT = 136;
 
 const u32		TITLE_AREA_TOP = 10;
 const u32				PAUSE_TEXT_AREA_TOP = 10;
@@ -34,10 +62,6 @@ const u32		GLOBALSETTINGS_TEXT_AREA_TOP = 47;
 
 const char * const		SAVING_TITLE_TEXT  = "Select a Slot to Save To";
 const char * const		LOADING_TITLE_TEXT = "Select a Slot to Load From";
-
-// Options Screen is unique with this here. Why?
-//const u32		TITLE_AREA_TOP = 10;
-//const s32		DESCRIPTION_AREA_BOTTOM = 272-6;
 
 
 // About components
@@ -150,9 +174,6 @@ const u32				ICON_AREA_HEIGHT = 177;
 const u32       SAVESTATE_TEXT_AREA_LEFT = 20;
 const u32       SAVESTATE_TEXT_AREA_RIGHT = 460;
 const u32       SAVESTATE_TEXT_AREA_TOP = SCREEN_HEIGHT / 2;
-const u32				SAVESTATE_ICON_AREA_LEFT = 240;
-const u32				SAVESTATE_ICON_AREA_WIDTH = 220;
-const u32				SAVESTATE_ICON_AREA_HEIGHT = 136;
 
 
 

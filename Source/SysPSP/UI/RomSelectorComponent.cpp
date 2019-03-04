@@ -345,26 +345,19 @@ ECategory	IRomSelectorComponent::GetCurrentCategory() const
 }
 
 
-//
-
 void IRomSelectorComponent::DrawInfoText(  CUIContext * p_context, s32 y, const char * field_txt, const char * value_txt  )
 {
 	c32			colour(	p_context->GetDefaultTextColour() );
 
-	p_context->DrawTextAlign( ICON_AREA_LEFT, ICON_AREA_LEFT + ICON_AREA_WIDTH, AT_LEFT, y, field_txt, colour );
-	p_context->DrawTextAlign( ICON_AREA_LEFT, ICON_AREA_LEFT + ICON_AREA_WIDTH, AT_RIGHT, y, value_txt, colour );
+	p_context->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, field_txt, colour );
+	p_context->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, value_txt, colour );
 }
 
 
-//
-
 void IRomSelectorComponent::RenderPreview()
 {
-	//mpContext->DrawRect( ICON_AREA_LEFT-2, ICON_AREA_TOP-2, ICON_AREA_WIDTH+4, ICON_AREA_HEIGHT+4, c32::White );
-	//mpContext->DrawRect( ICON_AREA_LEFT-1, ICON_AREA_TOP-1, ICON_AREA_WIDTH+2, ICON_AREA_HEIGHT+2, mpContext->GetBackgroundColour() );
-
-	v2	tl( ICON_AREA_LEFT, ICON_AREA_TOP );
-	v2	wh( ICON_AREA_WIDTH, ICON_AREA_HEIGHT );
+	v2	tl(  PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN );
+	v2	wh( PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT );
 
 	if( mpPreviewTexture != NULL )
 	{
@@ -375,23 +368,22 @@ void IRomSelectorComponent::RenderPreview()
 			colour = c32( 255, 255, 255, u8( mPreviewLoadedTime * 255.f / PREVIEW_FADE_TIME ) );
 		}
 
-		mpContext->DrawRect( ICON_AREA_LEFT, ICON_AREA_TOP, ICON_AREA_WIDTH, ICON_AREA_HEIGHT, c32::Black );
+		mpContext->DrawRect( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, c32::Black );
 		mpContext->RenderTexture( mpPreviewTexture, tl, wh, colour );
 	}
 	else
 	{
-		//mpContext->DrawRect( ICON_AREA_LEFT, ICON_AREA_TOP, ICON_AREA_WIDTH, ICON_AREA_HEIGHT, c32::Black );
-		mpContext->DrawRect( ICON_AREA_LEFT, ICON_AREA_TOP, ICON_AREA_WIDTH, ICON_AREA_HEIGHT, c32::White );
-		mpContext->DrawRect( ICON_AREA_LEFT+2, ICON_AREA_TOP+2, ICON_AREA_WIDTH-4, ICON_AREA_HEIGHT-4, c32::Black );
-		mpContext->DrawTextAlign( ICON_AREA_LEFT, ICON_AREA_LEFT + ICON_AREA_WIDTH, AT_CENTRE, ICON_AREA_TOP+ICON_AREA_HEIGHT/2, "No Preview Available", c32::White );
+		mpContext->DrawRect( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, c32::White );
+		mpContext->DrawRect( PREVIEW_IMAGE_LEFT+2, BELOW_MENU_MIN+2, PREVIEW_IMAGE_WIDTH-4, PREVIEW_IMAGE_HEIGHT-4, c32::Black );
+		mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_CENTRE, BELOW_MENU_MIN+PREVIEW_IMAGE_HEIGHT/2, "No Preview Available", c32::White );
 	}
 
 
 	u32		font_height( mpContext->GetFontHeight() );
 	u32		line_height( font_height + 1 );
 
-	s32 y = ICON_AREA_TOP + ICON_AREA_HEIGHT + 1 + font_height;
-
+	//s32 y = BELOW_MENU_MIN + PREVIEW_IMAGE_HEIGHT + 1 + font_height;
+    s32 rom_info {  BELOW_MENU_MIN + PREVIEW_IMAGE_HEIGHT + 47};
 	if( mCurrentSelection < mRomsList.size() )
 	{
 		SRomInfo *	p_rominfo( mRomsList[ mCurrentSelection ] );
@@ -402,24 +394,21 @@ void IRomSelectorComponent::RenderPreview()
 
 		char buffer[ 32 ];
 
-		sprintf( buffer, "%s %s", country, cic_name);
-		DrawInfoText( mpContext, y, "Country:", buffer );
-		y += line_height;
-		sprintf( buffer, "%d MB", rom_size / (1024*1024) );
-		DrawInfoText( mpContext, y, "Size:", buffer );
-		y += line_height;
-		DrawInfoText( mpContext, y, "Save:", ROM_GetSaveTypeName( p_rominfo->mSettings.SaveType ) );
-
-		//y += line_height;
-		//DrawInfoTextL( mpContext, y, "EPak:", ROM_GetExpansionPakUsageName( p_rominfo->mSettings.ExpansionPakUsage ) );
+		sprintf( buffer, "%s", country);
+		DrawInfoText( mpContext, rom_info, "Country: ", buffer );
+		rom_info += line_height;
+		sprintf( buffer, "%d MB ", rom_size / (1024*1024) );
+		DrawInfoText( mpContext, rom_info, "Size: ", buffer );
+		rom_info += line_height;
+		DrawInfoText( mpContext, rom_info, "Save: ", ROM_GetSaveTypeName( p_rominfo->mSettings.SaveType ) );
 	}
 	else
 	{
-		DrawInfoText( mpContext, y, "Country:", "" );
-		y += line_height;
-		DrawInfoText( mpContext, y, "Size:", "" );
-		y += line_height;
-		DrawInfoText( mpContext, y, "Save:", "" );
+		DrawInfoText( mpContext, rom_info, "Country:", "" );
+		rom_info += line_height;
+		DrawInfoText( mpContext, rom_info, "Size:", "" );
+		rom_info += line_height;
+		DrawInfoText( mpContext, rom_info, "Save:", "" );
 
 		//y += line_height;
 		//DrawInfoTextL( mpContext, y, "EPak:", "" );
@@ -434,11 +423,11 @@ void IRomSelectorComponent::RenderRomList()
 	u32		font_height( scale * mpContext->GetFontHeight() );
 	u32		line_height( font_height + 2 );
 
-	s32		x( IMAGE_TEXT_AREA_LEFT );
-	s32		y( TEXT_AREA_TOP + mCurrentScrollOffset * scale + font_height );
+	s32		x( LIST_TEXT_LEFT );
+	s32		y( BELOW_MENU_MIN + mCurrentScrollOffset * scale + font_height );
 
 	sceGuEnable(GU_SCISSOR_TEST);
-	sceGuScissor(IMAGE_TEXT_AREA_LEFT, TEXT_AREA_TOP, IMAGE_TEXT_AREA_LEFT+IMAGE_TEXT_AREA_WIDTH, TEXT_AREA_TOP+TEXT_AREA_HEIGHT);
+  sceGuScissor(LIST_TEXT_LEFT, BELOW_MENU_MIN, LIST_TEXT_LEFT+LIST_TEXT_WIDTH, BELOW_MENU_MIN+LIST_TEXT_HEIGHT);
 
 	const char * const	ptr_text( ">" );
 	u32					ptr_text_width( mpContext->GetTextWidth( ptr_text ) );
@@ -458,7 +447,7 @@ void IRomSelectorComponent::RenderRomList()
 		//
 		// Check if this entry would be onscreen
 		//
-		if(s32(y+line_height) >= s32(TEXT_AREA_TOP) && s32(y-line_height) < s32(TEXT_AREA_TOP + TEXT_AREA_HEIGHT))
+		if(s32(y+line_height) >= s32(BELOW_MENU_MIN) && s32(y-line_height) < s32(BELOW_MENU_MIN + TEXT_AREA_HEIGHT))
 		{
 			c32		colour;
 
@@ -531,8 +520,7 @@ void IRomSelectorComponent::Render()
 	{
 		s32 offset( 0 );
 		for( u32 i = 0; i < ARRAYSIZE( gNoRomsText ); ++i )
-		{
-			offset += mpContext->DrawTextArea( IMAGE_TEXT_AREA_LEFT, TEXT_AREA_TOP + offset, IMAGE_TEXT_AREA_WIDTH, TEXT_AREA_HEIGHT - offset, gNoRomsText[ i ], DrawTextUtilities::TextWhite, VA_TOP );
+		{			offset += mpContext->DrawTextArea( LIST_TEXT_LEFT, BELOW_MENU_MIN + offset, LIST_TEXT_WIDTH, LIST_TEXT_HEIGHT - offset, gNoRomsText[ i ], DrawTextUtilities::TextWhite, VA_TOP );
 			offset += 4;
 		}
 	}
@@ -570,11 +558,11 @@ void IRomSelectorComponent::Render()
 
 	if(mRomDelete)
 	{
-		mpContext->DrawTextAlign(0,480 - ICON_AREA_LEFT, AT_RIGHT, CATEGORY_AREA_TOP + mpContext->GetFontHeight(), "(X) -> Confirm", color);
+		mpContext->DrawTextAlign(0,SCREEN_WIDTH - PREVIEW_IMAGE_LEFT, AT_RIGHT, CATEGORY_AREA_TOP + mpContext->GetFontHeight(), "(X) -> Confirm", color);
 	}
 	else
 	{
-		mpContext->DrawTextAlign(0,480 - ICON_AREA_LEFT, AT_RIGHT, CATEGORY_AREA_TOP + mpContext->GetFontHeight(), message[(count >> 8) % ARRAYSIZE( message )], color);
+		mpContext->DrawTextAlign(0,SCREEN_WIDTH - PREVIEW_IMAGE_LEFT, AT_RIGHT, CATEGORY_AREA_TOP + mpContext->GetFontHeight(), message[(count >> 8) % ARRAYSIZE( message )], color);
 	}
 
 	count++;
@@ -724,16 +712,16 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 	const u32		font_height( mpContext->GetFontHeight() );
 	const u32		line_height( font_height + 2 );
 
-	if( mRomsList.size() * line_height > TEXT_AREA_HEIGHT )
+	if( mRomsList.size() * line_height > LIST_TEXT_LEFT )
 	{
 		s32		current_selection_y = s32((mCurrentSelection + current_vel * 2) * line_height) + (line_height/2) + mCurrentScrollOffset;
 
-		s32		adjust_amount( (TEXT_AREA_HEIGHT/2) - current_selection_y );
+		s32		adjust_amount( (LIST_TEXT_HEIGHT/2) - current_selection_y );
 
 		float d( 1.0f - powf(0.993f, elapsed_time * 1000.0f) );
 
 		u32		total_height( mRomsList.size() * line_height );
-		s32		min_offset( TEXT_AREA_HEIGHT - total_height );
+		s32		min_offset( LIST_TEXT_HEIGHT - total_height );
 
 		s32	new_scroll_offset = mCurrentScrollOffset + s32(float(adjust_amount) * d);
 
