@@ -171,7 +171,9 @@ class IRomDB : public CRomDB
 
 template<> bool	CSingleton< CRomDB >::Create()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
+#endif
 
 	mpInstance = new IRomDB();
 
@@ -213,7 +215,9 @@ bool IRomDB::OpenDB( const char * filename )
 	FILE * fh = fopen( filename, "rb" );
 	if ( !fh )
 	{
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "Failed to open RomDB from %s\n", mRomDBFileName );
+		#endif
 		return false;
 	}
 
@@ -224,7 +228,9 @@ bool IRomDB::OpenDB( const char * filename )
 	num_read = fread( &magic, sizeof( magic ), 1, fh );
 	if ( num_read != 1 || magic != ROMDB_MAGIC_NO )
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "RomDB has wrong magic number." );
+		#endif
 		goto fail;
 	}
 
@@ -235,7 +241,11 @@ bool IRomDB::OpenDB( const char * filename )
 	num_read = fread( &version, sizeof( version ), 1, fh );
 	if ( num_read != 1 || version != ROMDB_CURRENT_VERSION )
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
+///XXX It'd be nice if this were displayed on the GUI
+
 		DBGConsole_Msg( 0, "RomDB has wrong version for this build of Daedalus." );
+#endif
 		goto fail;
 	}
 
@@ -243,12 +253,16 @@ bool IRomDB::OpenDB( const char * filename )
 	num_read = fread( &num_files, sizeof( num_files ), 1, fh );
 	if ( num_read != 1 )
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "RomDB EOF reading number of files." );
+#endif
 		goto fail;
 	}
 	else if ( num_files > MAX_SENSIBLE_FILES )
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "RomDB has unexpectedly large number of files (%d).", num_files );
+		#endif
 		goto fail;
 	}
 
@@ -264,12 +278,16 @@ bool IRomDB::OpenDB( const char * filename )
 	num_read = fread( &num_details, sizeof( num_details ), 1, fh );
 	if ( num_read != 1 )
 	{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "RomDB EOF reading number of details." );
+		#endif
 		goto fail;
 	}
 	else if ( num_details > MAX_SENSIBLE_DETAILS )
 	{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "RomDB has unexpectedly large number of details (%d).", num_details );
+		#endif
 		goto fail;
 	}
 
@@ -280,9 +298,9 @@ bool IRomDB::OpenDB( const char * filename )
 	}
 	// Redundant?
 	std::sort( mRomDetails.begin(), mRomDetails.end(), SSortDetailsByID() );
-
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg( 0, "RomDB initialised with %d files and %d details.", mRomFiles.size(), mRomDetails.size() );
-
+#endif
 	fclose( fh );
 	return true;
 
@@ -367,7 +385,9 @@ void IRomDB::AddRomEntry( const char * filename, const RomID & id, u32 rom_size,
 
 void IRomDB::AddRomDirectory(const char * directory)
 {
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Adding roms directory [C%s]", directory);
+	#endif
 	std::string			full_path;
 
 	IO::FindHandleT		find_handle;

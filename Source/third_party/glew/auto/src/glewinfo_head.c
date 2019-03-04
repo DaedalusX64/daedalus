@@ -2,10 +2,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <GL/glew.h>
-#if defined(_WIN32)
+#if defined(GLEW_EGL)
+#include <GL/eglew.h>
+#elif defined(GLEW_OSMESA)
+#define GLAPI extern
+#include <GL/osmesa.h>
+#elif defined(_WIN32)
 #include <GL/wglew.h>
-#elif !defined(__APPLE__) || defined(GLEW_APPLE_GLX)
+#elif !defined(__APPLE__) && !defined(__HAIKU__) || defined(GLEW_APPLE_GLX)
 #include <GL/glxew.h>
+#endif
+
+#if defined(__APPLE__)
+#include <AvailabilityMacros.h>
 #endif
 
 #ifdef GLEW_REGAL
@@ -14,29 +23,28 @@
 
 static FILE* f;
 
-#ifdef GLEW_MX
-GLEWContext _glewctx;
-#define glewGetContext() (&_glewctx)
-#ifdef _WIN32
-WGLEWContext _wglewctx;
-#define wglewGetContext() (&_wglewctx)
-#elif !defined(__APPLE__) || defined(GLEW_APPLE_GLX)
-GLXEWContext _glxewctx;
-#define glxewGetContext() (&_glxewctx)
-#endif
-#endif
+/* Command-line parameters for GL context creation */
 
-#if defined(_WIN32)
-GLboolean glewCreateContext (int* pixelformat);
-#elif !defined(__APPLE__) || defined(GLEW_APPLE_GLX)
-GLboolean glewCreateContext (const char* display, int* visual);
-#else
-GLboolean glewCreateContext ();
+struct createParams
+{
+#if defined(GLEW_OSMESA)
+#elif defined(GLEW_EGL)
+#elif defined(_WIN32)
+  int         pixelformat;
+#elif !defined(__APPLE__) && !defined(__HAIKU__) || defined(GLEW_APPLE_GLX)
+  const char* display;
+  int         visual;
 #endif
+  int         major, minor;  /* GL context version number */
 
-#if defined(_WIN32) || !defined(__APPLE__) || defined(GLEW_APPLE_GLX)
-GLboolean glewParseArgs (int argc, char** argv, char** display, int* visual);
-#endif
+  /* https://www.opengl.org/registry/specs/ARB/glx_create_context.txt */
+  int         profile;       /* core = 1, compatibility = 2 */
+  int         flags;         /* debug = 1, forward compatible = 2 */
+};
+
+GLboolean glewCreateContext (struct createParams *params);
+
+GLboolean glewParseArgs (int argc, char** argv, struct createParams *);
 
 void glewDestroyContext ();
 

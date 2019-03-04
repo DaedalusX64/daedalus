@@ -50,10 +50,12 @@ void	CDrawText::Initialise()
 	gFonts[ F_REGULAR ] = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ALL | INTRAFONT_STRING_UTF8 );			// Regular/sans-serif
 	gFonts[ F_LARGE_BOLD ] = intraFontLoad( "flash0:/font/ltn4.pgf", INTRAFONT_CACHE_ALL | INTRAFONT_STRING_UTF8 );		// Large/sans-serif/bold
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	for( u32 i = 0; i < NUM_FONTS; ++i )
 	{
 		DAEDALUS_ASSERT( gFonts[ i ] != NULL, "Unable to load font (or forgot!)" );
 	}
+	#endif
 }
 
 //*************************************************************************************
@@ -89,14 +91,16 @@ u32	CDrawText::Render( EFont font, s32 x, s32 y, float scale, const char * p_str
 //*************************************************************************************
 u32	CDrawText::Render( EFont font_type, s32 x, s32 y, float scale, const char * p_str, u32 length, c32 colour, c32 drop_colour )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font" );
+	#endif
 
 	intraFont * font( gFonts[ font_type ] );
 	if( font )
 	{
 		sceGuEnable(GU_BLEND);
 		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-		intraFontSetStyle( font, scale, colour.GetColour(), NULL, INTRAFONT_ALIGN_LEFT );
+		intraFontSetStyle( font, scale, colour.GetColour(), 0, INTRAFONT_ALIGN_LEFT );
 		return s32( intraFontPrintEx( font,  x, y, Translate( p_str, length ), length) ) - x;
 	}
 
@@ -108,11 +112,13 @@ u32	CDrawText::Render( EFont font_type, s32 x, s32 y, float scale, const char * 
 //*************************************************************************************
 s32		CDrawText::GetTextWidth( EFont font_type, const char * p_str, u32 length )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font" );
+	#endif
 	intraFont * font( gFonts[ font_type ] );
 	if( font )
 	{
-		intraFontSetStyle( font, 1.0f, 0xffffffff, 0xffffffff, INTRAFONT_ALIGN_LEFT );
+		intraFontSetStyle( font, 1.0f, 0xffffffff, 0, INTRAFONT_ALIGN_LEFT );
 		return s32( intraFontMeasureTextEx( font, Translate( p_str, length ), length ) );
 	}
 
@@ -124,8 +130,9 @@ s32		CDrawText::GetTextWidth( EFont font_type, const char * p_str, u32 length )
 //*************************************************************************************
 s32		CDrawText::GetFontHeight( EFont font_type )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font" );
-
+#endif
 	intraFont * font( gFonts[ font_type ] );
 	if( font )
 	{
@@ -241,8 +248,9 @@ namespace DrawTextUtilities
 						break;
 					}
 				}
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 				DAEDALUS_ASSERT( found_chunk, "Didn't find chunk while splitting string for rendering?" );
+				#endif
 			}
 		}
 	}

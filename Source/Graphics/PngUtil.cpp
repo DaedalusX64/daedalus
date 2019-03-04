@@ -101,8 +101,9 @@ static void DAEDALUS_ZLIB_CALL_TYPE PngFlush(png_structp png_ptr)
 //*****************************************************************************
 void PngSaveImage( DataSink * sink, const void * data, const void * palette, ETextureFormat pixelformat, s32 pitch, u32 width, u32 height, bool use_alpha )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( !IsTextureFormatPalettised( pixelformat ) || palette, "No palette specified" );
-
+#endif
 	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 	if (!png_ptr)
 		return;
@@ -170,7 +171,9 @@ void PngSaveImage( const char* filename, const void * data, const void * palette
 	FileSink sink;
 	if (!sink.Open(filename, "wb"))
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Couldn't open file for output" );
+		#endif
 		return;
 	}
 
@@ -179,8 +182,9 @@ void PngSaveImage( const char* filename, const void * data, const void * palette
 
 void PngSaveImage( DataSink * sink, const CNativeTexture * texture )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(texture->HasData(), "Should have a texture");
-
+#endif
 	PngSaveImage( sink, texture->GetData(), texture->GetPalette(),
 		texture->GetFormat(), texture->GetStride(),
 		texture->GetWidth(), texture->GetHeight(), true );
@@ -197,8 +201,9 @@ void FlattenTexture(const CNativeTexture * texture, void * dst, size_t len)
 	u32 height = texture->GetHeight();
 	u32 pitch  = texture->GetStride();
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(len == width * sizeof(NativePf8888) * height, "Unexpected number of bytes.");
-
+#endif
 	u8 * line = static_cast<u8 *>( dst );
 	for ( u32 y = 0; y < height; y++ )
 	{

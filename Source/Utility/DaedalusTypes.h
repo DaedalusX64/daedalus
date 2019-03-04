@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef UTILITY_DAEDALUSTYPES_H_
 #define UTILITY_DAEDALUSTYPES_H_
 
-#include "Debug/DaedalusAssert.h"
+#include "../Debug/DaedalusAssert.h"
 
 
 #if !defined(DAEDALUS_W32) || _MSC_VER >= 1600
@@ -117,7 +117,7 @@ DAEDALUS_STATIC_ASSERT( sizeof( REG32 ) == sizeof( u32 ) );
 
 #if defined(DAEDALUS_PSP)
 #define _strcmpi stricmp
-#elif defined(DAEDALUS_PS3) || defined(DAEDALUS_OSX) || defined(DAEDALUS_LINUX)
+#elif defined(DAEDALUS_PS3) || defined(DAEDALUS_POSIX)
 #define _strcmpi strcasecmp
 #endif
 

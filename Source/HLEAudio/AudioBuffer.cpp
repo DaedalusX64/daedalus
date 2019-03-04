@@ -61,8 +61,9 @@ u32 CAudioBuffer::GetNumBufferedSamples() const
 
 void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 frequency, u32 output_freq )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( frequency <= output_freq, "Input frequency is too high" );
-
+#endif
 	//static FILE * fh = NULL;
 	//if( !fh )
 	//{
@@ -89,8 +90,9 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 
 	for( u32 i = output_samples; i != 0 ; i-- )
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( in_idx + 1 < num_samples, "Input index out of range - %d / %d", in_idx+1, num_samples );
-
+#endif
 #if 0 // 1->Sine tone, 0->Normal
 		//static float c= 0.0f;
 		//c += 100.0f / 44100.0f;
@@ -101,7 +103,9 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 		s16 v = WriteCounter++;
 		if( WriteCounter >= MAX_COUNTER )
 		{
+	 	#ifdef DAEDALUS_DEBUG_CONSOLE
 			printf( "Loop write\n" );
+			#endif
 			WriteCounter = 0;
 		}
 		out.L = out.R = v;

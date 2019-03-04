@@ -12,31 +12,35 @@ GLboolean glxewGetExtension (const char* name)
   return _glewSearchExtension(name, start, end);
 }
 
-GLenum glxewContextInit (GLXEW_CONTEXT_ARG_DEF_LIST)
+GLenum glxewInit ()
 {
+  Display* display;
   int major, minor;
   const GLubyte* extStart;
   const GLubyte* extEnd;
   /* initialize core GLX 1.2 */
-  if (_glewInit_GLX_VERSION_1_2(GLEW_CONTEXT_ARG_VAR_INIT)) return GLEW_ERROR_GLX_VERSION_11_ONLY;
+  if (_glewInit_GLX_VERSION_1_2()) return GLEW_ERROR_GLX_VERSION_11_ONLY;
+  /* check for a display */
+  display = glXGetCurrentDisplay();
+  if (display == NULL) return GLEW_ERROR_NO_GLX_DISPLAY;
   /* initialize flags */
-  CONST_CAST(GLXEW_VERSION_1_0) = GL_TRUE;
-  CONST_CAST(GLXEW_VERSION_1_1) = GL_TRUE;
-  CONST_CAST(GLXEW_VERSION_1_2) = GL_TRUE;
-  CONST_CAST(GLXEW_VERSION_1_3) = GL_TRUE;
-  CONST_CAST(GLXEW_VERSION_1_4) = GL_TRUE;
+  GLXEW_VERSION_1_0 = GL_TRUE;
+  GLXEW_VERSION_1_1 = GL_TRUE;
+  GLXEW_VERSION_1_2 = GL_TRUE;
+  GLXEW_VERSION_1_3 = GL_TRUE;
+  GLXEW_VERSION_1_4 = GL_TRUE;
   /* query GLX version */
-  glXQueryVersion(glXGetCurrentDisplay(), &major, &minor);
+  glXQueryVersion(display, &major, &minor);
   if (major == 1 && minor <= 3)
   {
     switch (minor)
     {
       case 3:
-      CONST_CAST(GLXEW_VERSION_1_4) = GL_FALSE;
+      GLXEW_VERSION_1_4 = GL_FALSE;
       break;
       case 2:
-      CONST_CAST(GLXEW_VERSION_1_4) = GL_FALSE;
-      CONST_CAST(GLXEW_VERSION_1_3) = GL_FALSE;
+      GLXEW_VERSION_1_4 = GL_FALSE;
+      GLXEW_VERSION_1_3 = GL_FALSE;
       break;
       default:
       return GLEW_ERROR_GLX_VERSION_11_ONLY;
@@ -46,7 +50,7 @@ GLenum glxewContextInit (GLXEW_CONTEXT_ARG_DEF_LIST)
   /* query GLX extension string */
   extStart = 0;
   if (glXGetCurrentDisplay != NULL)
-    extStart = (const GLubyte*)glXGetClientString(glXGetCurrentDisplay(), GLX_EXTENSIONS);
+    extStart = (const GLubyte*)glXGetClientString(display, GLX_EXTENSIONS);
   if (extStart == 0)
     extStart = (const GLubyte *)"";
   extEnd = extStart + _glewStrLen(extStart);

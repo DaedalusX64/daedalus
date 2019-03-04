@@ -23,15 +23,15 @@
 #ifndef DEBUG_DAEDALUSASSERT_H_
 #define DEBUG_DAEDALUSASSERT_H_
 
-#include "Utility/Macros.h"
+#include "../Utility/Macros.h"
 
 // Ideas for the ignored assert taken from Game Programming Gems I
 
-#if defined(__clang__) && __has_feature(cxx_static_assert)
+//#if defined(__clang__) && __has_feature(cxx_static_assert)
 
-#define DAEDALUS_STATIC_ASSERT( x ) static_assert((x), "Static Assert")
+//#define DAEDALUS_STATIC_ASSERT( x ) static_assert((x), "Static Assert")
 
-#else
+//#else
 //
 // This static assert is bastardised from Boost:
 // http://www.boost.org/boost/static_assert.hpp
@@ -50,7 +50,7 @@ template<int x> struct static_assert_test{};
 #define DAEDALUS_STATIC_ASSERT( x )								\
    typedef static_assert_test<sizeof(STATIC_ASSERTION_FAILURE< (bool)( x ) >)>	static_assert_typedef_##__COUNTER__
 
-#endif
+//#endif
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
 

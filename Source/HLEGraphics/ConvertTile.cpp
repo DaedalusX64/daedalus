@@ -121,7 +121,7 @@ static u32 I4(u8 v)
 static u32 IA4(u8 v)
 {
 	u32 i = ThreeToEight[(v & 0x0f) >> 1];
-	u32 a = OneToEight[(v & 0x01)];	
+	u32 a = OneToEight[(v & 0x01)];
 
 	return (a<<24) | (i<<16) | (i<<8) | i;
 }
@@ -317,10 +317,13 @@ static void ConvertCI8(const TileDestInfo & dsti, const TextureInfo & ti)
 	case kTT_IA16:
 		ConvertCI8T< IA16 >(dsti, ti);
 		break;
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 	default:
 		DAEDALUS_ERROR("Unhandled tlut format %d/%d", ti.GetTLutFormat());
 		break;
+#endif
 	}
+
 }
 
 static void ConvertCI4(const TileDestInfo & dsti, const TextureInfo & ti)
@@ -333,9 +336,11 @@ static void ConvertCI4(const TileDestInfo & dsti, const TextureInfo & ti)
 	case kTT_IA16:
 		ConvertCI4T< IA16 >(dsti, ti);
 		break;
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 	default:
 		DAEDALUS_ERROR("Unhandled tlut format %d/%d", ti.GetTLutFormat());
 		break;
+		#endif
 	}
 }
 
@@ -577,25 +582,27 @@ bool ConvertTile(const TextureInfo & ti,
 				 ETextureFormat texture_format,
 				 u32 pitch)
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(texture_format == TexFmt_8888, "OSX should only use RGBA 8888 textures");
-
+#endif
 	TileDestInfo dsti( texture_format );
 	dsti.Data    = texels;
 	dsti.Width   = ti.GetWidth();
 	dsti.Height  = ti.GetHeight();
 	dsti.Pitch   = pitch;
 	//dsti.Palette = palette;
-
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(ti.GetLine() != 0, "No line");
-
+#endif
 	const ConvertFunction fn = gConvertFunctions[ (ti.GetFormat() << 2) | ti.GetSize() ];
 	if( fn )
 	{
 		fn( dsti, ti );
 		return true;
 	}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR("Unhandled format %d/%d", ti.GetFormat(), ti.GetSize());
+	#endif
 	return false;
 }
 #endif //DAEDALUS_ACCURATE_TMEM

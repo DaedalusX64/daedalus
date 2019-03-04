@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/NativePixelFormat.h"
 #include "Graphics/ColourValue.h"
 #include "VideoMemoryManager.h"
+#include "Utility/FastMemcpy.h"
 
 #include "Math/MathUtil.h"
 
@@ -72,8 +73,9 @@ EPspTextureFormat	GetPspTextureFormat( ETextureFormat texture_format )
 	case TexFmt_CI4_8888:	return PspTexFmt_T4;
 	case TexFmt_CI8_8888:	return PspTexFmt_T8;
 	}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled texture format" );
+	#endif
 	return PspTexFmt_8888;
 }
 
@@ -106,8 +108,10 @@ EPspTextureFormat	GetPspTextureFormat( ETextureFormat texture_format )
 //*****************************************************************************
 inline void swizzle_fast(u8* out, const u8* in, u32 width, u32 height)
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( (width & 15 ) == 0, "Width is not a multiple of 16 - is %d", width );
 	DAEDALUS_ASSERT( (height & 7 ) == 0, "Height is not a multiple of 8 - is %d", height );
+#endif
 
 #if 1	//1->Raphaels version, 0->Original
 	u32 rowblocks = (width / 16);
@@ -170,7 +174,7 @@ inline bool swizzle(u8* out, const u8* in, u32 width, u32 height)
 	{
 		//swizzle_slow( out, in, width, height );
 
-		memcpy( out, in, width * height );
+		memcpy_vfpu( out, in, width * height );
 		return false;
 	}
 	else
@@ -228,7 +232,9 @@ inline bool swizzle(u8* out, const u8* in, u32 width, u32 height)
 //*****************************************************************************
 u32	GetTextureBlockWidth( u32 dimension, ETextureFormat texture_format )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( GetNextPowerOf2( dimension ) == dimension, "This is not a power of 2" );
+#endif
 
 	// Ensure that the pitch is at least 16 bytes
 	while( CalcBytesRequired( dimension, texture_format ) < 16 )
@@ -282,26 +288,34 @@ CNativeTexture::CNativeTexture( u32 w, u32 h, ETextureFormat texture_format )
 
 	if( !CVideoMemoryManager::Get()->Alloc( bytes_required, &mpData, &mIsDataVidMem ) )
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Out of memory for texels ( %d bytes)", bytes_required );
+		#endif
 	}
 	switch( texture_format )
 	{
 	case TexFmt_CI4_8888:
 		if( !CVideoMemoryManager::Get()->Alloc( kPalette4BytesRequired, &mpPalette, &mIsPaletteVidMem ) )
 		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR( "Out of memory for 4-bit palette, %d bytes", kPalette4BytesRequired );
+			#endif
 		}
 		break;
 
 	case TexFmt_CI8_8888:
 		if( !CVideoMemoryManager::Get()->Alloc( kPalette8BytesRequired, &mpPalette, &mIsPaletteVidMem ) )
 		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR( "Out of memory for 8-bit palette, %d bytes", kPalette8BytesRequired );
+			#endif
 		}
 		break;
 
 	default:
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( !IsTextureFormatPalettised( texture_format ), "Unhandled palette texture" );
+		#endif
 		break;
 	}
 }
@@ -363,7 +377,9 @@ void	CNativeTexture::InstallTexture() const
 			break;
 
 		default:
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( !IsTextureFormatPalettised( mTextureFormat ), "Unhandled palette texture" );
+			#endif
 			break;
 		}
 	}
@@ -472,13 +488,13 @@ namespace
 
 		png_uint_32 width = png_get_image_width(p_png_struct, p_png_info);//p_png_info->width;
 		png_uint_32 height = png_get_image_height(p_png_struct, p_png_info);//p_png_info->height;
-		
-		CRefPtr<CNativeTexture>	texture = CNativeTexture::Create( width, height, texture_format );
 
+		CRefPtr<CNativeTexture>	texture = CNativeTexture::Create( width, height, texture_format );
+#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( texture->GetWidth() >= width, "Width is unexpectedly small" );
 		DAEDALUS_ASSERT( texture->GetHeight() >= height, "Height is unexpectedly small" );
 		DAEDALUS_ASSERT( texture_format == texture->GetFormat(), "Texture format doesn't match" );
-
+#endif
 		u8 *	p_dest( new u8[ texture->GetBytesRequired() ] );
 		if( !p_dest )
 		{
@@ -505,11 +521,15 @@ namespace
 
 			case TexFmt_CI4_8888:
 			case TexFmt_CI8_8888:
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 				DAEDALUS_ERROR( "Can't use palettised format for png." );
+				#endif
 				break;
 
 			default:
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 				DAEDALUS_ERROR( "Unhandled texture format" );
+				#endif
 				break;
 			}
 
@@ -555,23 +575,26 @@ void	CNativeTexture::SetData( void * data, void * palette )
 
 		if( mpPalette != NULL )
 		{
+					#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( palette != NULL, "No palette provided" );
 
-			#ifdef DAEDALUS_ENABLE_ASSERTS
+
 				mPaletteSet = true;
 			#endif
 
 			switch( mTextureFormat )
 			{
 			case TexFmt_CI4_8888:
-				memcpy( mpPalette, palette, kPalette4BytesRequired );
+				memcpy_vfpu( mpPalette, palette, kPalette4BytesRequired );
 				break;
 			case TexFmt_CI8_8888:
-				memcpy( mpPalette, palette, kPalette8BytesRequired );
+				memcpy_vfpu( mpPalette, palette, kPalette8BytesRequired );
 				break;
 
 			default:
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 				DAEDALUS_ERROR( "Unhandled palette format" );
+				#endif
 				break;
 			}
 
@@ -584,7 +607,9 @@ void	CNativeTexture::SetData( void * data, void * palette )
 		}
 		else
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( palette == NULL, "Palette provided when not needed" );
+			#endif
 		}
 	}
 }

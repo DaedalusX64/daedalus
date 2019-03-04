@@ -108,7 +108,7 @@ namespace
 			switch ( *mSetting )
 			{
 				case APM_DISABLED:			return "Disabled";
-				case APM_ENABLED_ASYNC:		return "Asynchronous";
+				case APM_ENABLED_ASYNC:		return "Asynchronous (PSP ONLY)";
 				case APM_ENABLED_SYNC:		return "Synchronous";
 			}
 			return "Unknown";

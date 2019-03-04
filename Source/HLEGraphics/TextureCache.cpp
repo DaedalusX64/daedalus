@@ -37,8 +37,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 template<> bool CSingleton< CTextureCache >::Create()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-
+#endif
 	mpInstance = new CTextureCache();
 	return mpInstance != NULL;
 }
@@ -169,8 +170,9 @@ public:
 // Otherwise, create surfaces, and load texture into memory
 CachedTexture * CTextureCache::GetOrCreateCachedTexture(const TextureInfo & ti)
 {
+	#ifdef DAEDALUS_ENABLE_PROFILING
 	DAEDALUS_PROFILE( "CTextureCache::GetOrCreateCachedTexture" );
-
+#endif
 	// NB: this is a no-op in normal builds.
 	MutexLock lock(GetDebugMutex());
 

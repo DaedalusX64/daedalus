@@ -11,6 +11,8 @@ Source/SysPSP/DveMgr/pspDveManager.S
 Source/SysPSP/DveMgr/pspDveManager_driver.S
 Source/SysPSP/KernelButtonsPrx/imposectrl.S
 Source/SysPSP/MediaEnginePRX/MediaEngine.S
+DaedalusX64/
+daedbuild/
 Dumps/
 Roms
 SaveGames/
@@ -18,3 +20,4 @@ out/
 preferences.ini
 rom.db
 .svn/
+Source/tmp

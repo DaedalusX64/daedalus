@@ -19,7 +19,10 @@ FileSink::~FileSink()
 
 bool FileSink::Open(const char * filename, const char * mode)
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(Handle == NULL, "Alreadh have an open file");
+	#endif
+	
 	Handle = fopen(filename, mode);
 	return Handle != NULL;
 }

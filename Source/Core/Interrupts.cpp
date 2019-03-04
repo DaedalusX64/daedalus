@@ -88,9 +88,10 @@ inline void R4300_JumpToInterruptVector(u32 exception_vector)
 //*****************************************************************************
 void R4300_Exception_Break()
 {
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
 	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
-
+#endif
 	SET_EXCEPTION( CAUSE_EXCMASK, EXC_BREAK );
 
 	gExceptionVector = E_VEC;
@@ -104,9 +105,10 @@ void R4300_Exception_Break()
 //*****************************************************************************
 void R4300_Exception_Syscall()
 {
+    #ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
 	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
-
+#endif
 	SET_EXCEPTION( CAUSE_EXCMASK, EXC_SYSCALL );
 
 	gExceptionVector = E_VEC;
@@ -120,9 +122,10 @@ void R4300_Exception_Syscall()
 //*****************************************************************************
 void R4300_Exception_CopUnusuable()
 {
+    #ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
 	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
-
+#endif
 	// XXXX check we're not inside exception handler before snuffing CAUSE reg?
 	SET_EXCEPTION( (CAUSE_EXCMASK|CAUSE_CEMASK), (EXC_CPU|SR_CU0) );
 
@@ -140,9 +143,10 @@ void R4300_Exception_CopUnusuable()
 //*****************************************************************************
 void R4300_Exception_TLB( u32 virtual_address, u32 exception_code, u32 exception_vector )
 {
+    #ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( gExceptionVector == u32(~0), "Exception vector already set" );
 	DAEDALUS_ASSERT( gExceptionPC == u32(~0), "Exception PC already set" );
-
+#endif
 	gCPUState.CPUControl[C0_BADVADDR]._u32 = virtual_address;
 
 	gCPUState.CPUControl[C0_CONTEXT]._u32 &= 0xFF800000;	// Mask off bottom 23 bits
@@ -164,10 +168,11 @@ void R4300_Exception_TLB( u32 virtual_address, u32 exception_code, u32 exception
 //*****************************************************************************
 void R4300_Handle_Exception()
 {
+    #ifdef DAEDALUS_ENABLE_ASSERTS
 	// These should be set before we end up here...
 	DAEDALUS_ASSERT( gExceptionVector != u32(~0), "Exception vector not set: %08x", gCPUState.GetStuffToDo() );
 	DAEDALUS_ASSERT( gExceptionPC != u32(~0), "Exception PC not set" );
-
+#endif
 #ifdef DAEDALUS_PROFILE_EXECUTION
 	gNumExceptions++;
 #endif

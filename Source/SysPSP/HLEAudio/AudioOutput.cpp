@@ -40,6 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Utility/JobManager.h"
 #include "Utility/FramerateLimiter.h"
 #include "Utility/Thread.h"
+#include "SysPSP/Utility/PSPModel.h"
 
 extern u32 gSoundSync;
 
@@ -47,8 +48,11 @@ static const u32	DESIRED_OUTPUT_FREQUENCY = 44100;
 static const u32	MAX_OUTPUT_FREQUENCY = DESIRED_OUTPUT_FREQUENCY * 4;
 
 //static const u32	ADAPTIVE_FREQUENCY_ADJUST = 2000;
-// Large BUFFER_SIZE creates huge delay on sound //Corn
+
+// PSP Slim+ can use a larger buffer for audio
+
 static const u32	BUFFER_SIZE = 1024 * 2;
+
 
 static const u32	PSP_NUM_SAMPLES = 512;
 
@@ -111,7 +115,9 @@ static void AudioInit()
 	int audioThid = sceKernelCreateThread("audioOutput", audioOutput, 0x15, 0x1800, PSP_THREAD_ATTR_USER, NULL);
 	if(audioThid < 0)
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		printf("FATAL: Cannot create audioOutput thread\n");
+		#endif
 		return; // no audio
 	}
 	sceKernelStartThread(audioThid, 0, NULL);
@@ -124,7 +130,9 @@ static void AudioInit()
 		sceKernelDelayThread(100*1000);
 		sceAudioChRelease(sound_channel);
 		sound_channel = PSP_AUDIO_NEXT_CHANNEL;
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		printf("FATAL: Cannot create bufferFilling thread\n");
+		#endif
 		return;
 	}
 	sceKernelStartThread(bufferThid, 0, NULL);
@@ -173,7 +181,9 @@ AudioOutput::~AudioOutput( )
 
 void AudioOutput::SetFrequency( u32 frequency )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg( 0, "Audio frequency: %d", frequency );
+	#endif
 	mFrequency = frequency;
 }
 

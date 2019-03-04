@@ -43,7 +43,7 @@ RDP_OtherMode		gRDPOtherMode;
 #define MAX_TMEM_ADDRESS 4096
 
 //Granularity down to 24bytes is good enuff also only need to address the upper half of TMEM for palettes//Corn
-u32* gTlutLoadAddresses[ MAX_TMEM_ADDRESS >> 6 ];
+u32 gTlutLoadAddresses[ MAX_TMEM_ADDRESS >> 6 ];
 
 
 #ifdef DAEDALUS_ACCURATE_TMEM
@@ -65,9 +65,9 @@ static inline void CopyLineQwords(void * dst, const void * src, u32 qwords)
 #ifdef FAST_TMEM_COPY
 	u32* src32 = (u32*)src;
 	u32* dst32 = (u32*)dst;
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( ((uintptr_t)src32&0x3)==0, "src is not aligned!");
-
+#endif
 	while(qwords--)
 	{
 		dst32[0] = BSWAP32(src32[0]);
@@ -91,9 +91,9 @@ static void CopyLineQwordsSwap(void * dst, const void * src, u32 qwords)
 #ifdef FAST_TMEM_COPY
 	u32* src32 = (u32*)src;
 	u32* dst32 = (u32*)dst;
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( ((uintptr_t)src32&0x3 )==0, "src is not aligned!");
-
+#endif
 	while(qwords--)
 	{
 		dst32[1]  = BSWAP32(src32[0]);
@@ -117,9 +117,9 @@ static void CopyLineQwordsSwap32(void * dst, const void * src, u32 qwords)
 #ifdef FAST_TMEM_COPY
 	u32* src32 = (u32*)src;
 	u32* dst32 = (u32*)dst;
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( ((uintptr_t)src32&0x3 )==0, "src is not aligned!");
-
+#endif
 	u32 size128 = qwords >>1;
 
 	while(size128--)
@@ -157,9 +157,9 @@ static inline void CopyLine(void * dst, const void * src, u32 bytes)
 #ifdef FAST_TMEM_COPY
 	u32* src32 = (u32*)src;
 	u32* dst32 = (u32*)dst;
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT((bytes&0x3)==0, "CopyLine: Remaning bytes! (%d)",bytes);
-
+#endif
 	u32 size32 = bytes >> 2;
 	u32 src_alignment = (uintptr_t)src32&0x3;
 
@@ -205,8 +205,9 @@ static inline void CopyLine(void * dst, const void * src, u32 bytes)
 static inline void CopyLine16(u16 * dst16, const u16 * src16, u32 words)
 {
 #ifdef FAST_TMEM_COPY
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( ((uintptr_t)src16&0x1 )==0, "src is not aligned!");
-
+#endif
 	u32 dwords = words >> 1;
 	while(dwords--)
 	{
@@ -232,8 +233,9 @@ static inline void CopyLineSwap(void * dst, const void * src, u32 bytes)
 	u32* dst32 = (u32*)dst;
 
 #ifdef FAST_TMEM_COPY
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT((bytes&0x7)==0, "CopyLineSwap: Remaning bytes! (%d)",bytes);
-
+#endif
 	if( ((uintptr_t)src32&0x3 )==0)
 	{
 		u32 size64 = bytes >> 3;
@@ -268,8 +270,9 @@ static inline void CopyLineSwap32(void * dst, const void * src, u32 bytes)
 	u32* dst32 = (u32*)(dst);
 
 #ifdef FAST_TMEM_COPY
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT((bytes&0x7)==0, "CopyLineSwap32: Remaning bytes! (%d)",bytes);
-
+#endif
 	if( ((uintptr_t)src32&0x3 )==0)
 	{
 		u32 size128 = bytes >> 4;
@@ -364,7 +367,7 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 	//u32 ByteSize	= (load.sh + 1) << (g_TI.Size == G_IM_SIZ_32b);
 
 	bool	swapped = (dxt) ? false : true;
-
+#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    Tile[%d] (%d,%d - %d) DXT[0x%04x] = [%d]Bytes/line => [%d]Pixels/line Address[0x%08x]",
 		tile_idx,
 		uls, ult,
@@ -373,6 +376,7 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 		(g_TI.Width << g_TI.Size >> 1),
 		bytes2pixels( (g_TI.Width << g_TI.Size >> 1), g_TI.Size ),
 		address);
+		#endif
 
 	InvalidateAllTileTextureInfo();		// Can potentially invalidate all texture infos
 
@@ -393,17 +397,19 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 #ifdef DAEDALUS_ACCURATE_TMEM
 	u32 lrs    = load.sh;
 	u32 bytes  = ((lrs+1) << g_TI.Size) >> 1;
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_DL_ASSERT( bytes <= 4096, "Suspiciously large loadblock: %d bytes", bytes );
 	DAEDALUS_DL_ASSERT( bytes, "LoadBLock: No bytes??" );
-
+#endif
 	u32 qwords = (bytes+7) / 8;
 	u32 tmem_offset = (rdp_tile.tmem << 3);
 	u32 ram_offset  = address;
 
 	if (( (address + bytes) > MAX_RAM_ADDRESS) || (tmem_offset + bytes) > MAX_TMEM_ADDRESS )
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "[WWarning LoadBlock address is invalid]" );
+		#endif
 		return;
 	}
 
@@ -425,8 +431,9 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 
 		u32 qwords_per_line = (2048 + dxt-1) / dxt;
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT(qwords_per_line == (u32)ceilf(2048.f / (float)dxt), "Broken DXT calc");
-
+#endif
 		u32 odd_row = 0;
 		for (u32 i = 0; i < qwords; /* updated in loop */)
 		{
@@ -460,18 +467,20 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	u32 tile_idx = load.tile;
 	u32 address  = g_TI.GetAddress( uls / 4, ult / 4 );
 	u32 pitch    = g_TI.GetPitch();
-
+	#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    Tile[%d] (%d,%d)->(%d,%d) [%d x %d] Address[0x%08x]",
 		tile_idx,
 		load.sl / 4, load.tl / 4, load.sh / 4 + 1, load.th / 4 + 1,
 		(load.sh - load.sl) / 4 + 1, (load.th - load.tl) / 4 + 1,
 		address);
-
+#endif
 	InvalidateAllTileTextureInfo();		// Can potentially invalidate all texture infos
 
 	const RDP_Tile & rdp_tile = mTiles[tile_idx];
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_DL_ASSERT( (rdp_tile.size > 0) || (uls & 4) == 0, "Expecting an even Left for 4bpp formats (left is %f)", uls / 4.f );
+#endif
 
 	u32	tmem_lookup = rdp_tile.tmem >> 4;
 	SetValidEntry( tmem_lookup );
@@ -491,10 +500,11 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	u32 bytes       = ((h * w) << g_TI.Size) >> 1;
 
 	DAEDALUS_USE(bytes);
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_DL_ASSERT( bytes <= MAX_TMEM_ADDRESS,
 		"Suspiciously large texture load: %d bytes (%dx%d, %dbpp)",
 		bytes, w, h, (1<<(g_TI.Size+2)) );
-
+#endif
 	u32  tmem_offset = rdp_tile.tmem << 3;
 	u32  ram_offset  = ram_address;
 	u32 bytes_per_tmem_line = rdp_tile.line << 3;
@@ -512,11 +522,15 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	}
 
 	u32 bytes_to_copy = (bytes_per_tmem_line * h);
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 	if ((address + bytes_to_copy) > MAX_RAM_ADDRESS || (tmem_offset + bytes_to_copy) > MAX_TMEM_ADDRESS)
 	{
+
 		DBGConsole_Msg(0, "[WWarning LoadTile address is invalid]" );
+
 		return;
 	}
+		#endif
 
 	u8* dst = gTMEM + tmem_offset;
 	u8* src = g_pu8RamBase + ram_offset;
@@ -558,18 +572,22 @@ void CRDPStateManager::LoadTlut(const SetLoadTile & load)
 
 	const RDP_Tile & rdp_tile = mTiles[tile_idx];
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	u32 count = ((lrs - uls)>>2) + 1;
 	DAEDALUS_USE(count);
 	DAEDALUS_USE(lrt);
+#endif
 
 	//Store address of PAL (assuming PAL is only stored in upper half of TMEM) //Corn
-	gTlutLoadAddresses[ (rdp_tile.tmem>>2) & 0x3F ] = (u32*)address;
-
+	gTlutLoadAddresses[ (rdp_tile.tmem>>2) & 0x3F ] = ram_offset;
+#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF("    TLut Addr[0x%08x] TMEM[0x%03x] Tile[%d] Count[%d] Format[%s] (%d,%d)->(%d,%d)",
 		address, rdp_tile.tmem, tile_idx, count, kTLUTTypeName[gRDPOtherMode.text_tlut], uls >> 2, ult >> 2, lrs >> 2, lrt >> 2);
-
+#endif
 #ifdef DAEDALUS_ACCURATE_TMEM
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_DL_ASSERT( (rdp_tile.tmem + count) <= (MAX_TMEM_ADDRESS/8), "LoadTlut address is invalid" );
+#endif
 
 	u16* dst = (u16*)(((u64*)gTMEM) + rdp_tile.tmem);
 	u16* src = (u16*)(address);
@@ -601,7 +619,9 @@ static inline u16 GetTextureDimension( u16 tile_dimension, u8 mask, bool clamp )
 
 const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( idx < ARRAYSIZE( mTileTextureInfoValid ), "Invalid index %d", idx );
+#endif
 	if( !mTileTextureInfoValid[ idx ] )
 	{
 		TextureInfo &			ti           = mTileTextureInfo[ idx ];
@@ -652,7 +672,7 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		if(rdp_tile.size == G_IM_SIZ_4b)
 		{
 			u32 tlut_idx0 = g_ROM.TLUT_HACK << 1;
-			u32 tlut_idx1 = (u32)gTlutLoadAddresses[ rdp_tile.palette << tlut_idx0 ];
+			u32 tlut_idx1 = gTlutLoadAddresses[ rdp_tile.palette << tlut_idx0 ];
 
 			//If pointer == NULL(=invalid entry) add offset to base address (TMEM[0] + offset)
 			if(tlut_idx1 == 0)

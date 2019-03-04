@@ -33,8 +33,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Graphics/GraphicsContext.h"
 
-#if defined(DAEDALUS_OSX) || defined(DAEDALUS_W32)
-#include "SysOSX/Debug/WebDebug.h"
+#if defined(DAEDALUS_POSIX) || defined(DAEDALUS_W32)
+#include "SysPosix/Debug/WebDebug.h"
 #include "HLEGraphics/TextureCacheWebDebug.h"
 #include "HLEGraphics/DisplayListDebugger.h"
 #endif
@@ -64,7 +64,9 @@ CAudioPlugin	* gAudioPlugin		= NULL;
 
 static bool InitAudioPlugin()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( gAudioPlugin == NULL, "Why is there already an audio plugin?" );
+	#endif
 	CAudioPlugin * audio_plugin = CreateAudioPlugin();
 	if( audio_plugin != NULL )
 	{
@@ -80,7 +82,9 @@ static bool InitAudioPlugin()
 
 static bool InitGraphicsPlugin()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( gGraphicsPlugin == NULL, "The graphics plugin should not be initialised at this point" );
+	#endif
 	CGraphicsPlugin * graphics_plugin = CreateGraphicsPlugin();
 	if( graphics_plugin != NULL )
 	{
@@ -176,7 +180,7 @@ static const SysEntityEntry gSysInitTable[] =
 	{"Controller",			CController::Create,		CController::Destroy},
 	{"RomBuffer",			RomBuffer::Create,			RomBuffer::Destroy},
 
-#if defined(DAEDALUS_OSX) || defined(DAEDALUS_W32)
+#if defined(DAEDALUS_POSIX) || defined(DAEDALUS_W32)
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	{"WebDebug",			WebDebug_Init, 				WebDebug_Fini},
 	{"TextureCacheWebDebug",TextureCache_RegisterWebDebug, 	NULL},
@@ -226,11 +230,15 @@ bool System_Init()
 
 		if (entry.init())
 		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "==>Initialized %s", entry.name);
+			#endif
 		}
 		else
 		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "==>Initialize %s Failed", entry.name);
+			#endif
 			return false;
 		}
 	}
@@ -248,10 +256,14 @@ bool System_Open(const char * filename)
 		if (entry.open == NULL)
 			continue;
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "==>Open %s", entry.name);
+		#endif
 		if (!entry.open())
 		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "==>Open %s [RFAILED]", entry.name);
+			#endif
 			return false;
 		}
 	}
@@ -267,8 +279,9 @@ void System_Close()
 
 		if (entry.close == NULL)
 			continue;
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "==>Close %s", entry.name);
+		#endif
 		entry.close();
 	}
 }
@@ -282,8 +295,9 @@ void System_Finalize()
 		if (entry.final == NULL)
 			continue;
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "==>Finalize %s", entry.name);
+		#endif
 		entry.final();
 	}
 }
-

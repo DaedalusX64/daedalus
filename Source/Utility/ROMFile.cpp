@@ -87,8 +87,9 @@ bool ROMFile::LoadData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages
 
 bool ROMFile::RequiresSwapping() const
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mHeaderMagic != 0, "The header magic hasn't been set" );
-
+#endif
 	return mHeaderMagic != 0x80371240;
 }
 
@@ -126,9 +127,12 @@ void ROMFile::CorrectSwap( u8 * p_bytes, u32 length )
 	case 0x12408037:
 		ByteSwap_2301( p_bytes, length );
 		break;
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 	default:
+
 		DAEDALUS_ERROR( "Unhandled swapping mode: %08x", mHeaderMagic );
 		break;
+				#endif
 	}
 }
 

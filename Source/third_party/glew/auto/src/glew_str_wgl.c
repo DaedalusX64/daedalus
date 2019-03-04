@@ -4,15 +4,11 @@
   return ret;
 }
 
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(GLEW_EGL) && !defined(GLEW_OSMESA)
 
-#if defined(GLEW_MX)
-GLboolean GLEWAPIENTRY wglewContextIsSupported (const WGLEWContext* ctx, const char* name)
-#else
 GLboolean GLEWAPIENTRY wglewIsSupported (const char* name)
-#endif
 {
-  GLubyte* pos = (GLubyte*)name;
+  const GLubyte* pos = (const GLubyte*)name;
   GLuint len = _glewStrLen(pos);
   GLboolean ret = GL_TRUE;
   while (ret && len > 0)

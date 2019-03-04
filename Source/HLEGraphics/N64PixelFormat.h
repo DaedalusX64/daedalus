@@ -73,8 +73,9 @@ struct N64Pf5551
 	static const u32	BitsB = 5;
 	static const u32	BitsA = 1;
 };
+#ifdef DAEDALUS_ENABLE_ASSERTS
 DAEDALUS_STATIC_ASSERT( sizeof( N64Pf5551 ) == 2 );
-
+#endif
 struct N64Pf8888
 {
 	union
@@ -137,8 +138,9 @@ struct N64Pf8888
 	static const u32	BitsB = 8;
 	static const u32	BitsA = 8;
 };
+#ifdef DAEDALUS_ENABLE_ASSERTS
 DAEDALUS_STATIC_ASSERT( sizeof( N64Pf8888 ) == 4 );
-
+#endif
 struct N64PfIA8
 {
 	u8	Bits;
@@ -195,7 +197,9 @@ struct N64PfIA16
 	static const u32	BitsI = 8;
 	static const u32	BitsA = 8;
 };
+#ifdef DAEDALUS_ENABLE_ASSERTS
 DAEDALUS_STATIC_ASSERT( sizeof( N64PfIA16 ) == 2 );
+#endif
 
 struct N64PfI8
 {
@@ -223,6 +227,7 @@ struct N64PfI8
 
 	static const u32	BitsI = 8;
 };
+#ifdef DAEDALUS_ENABLE_ASSERTS
 DAEDALUS_STATIC_ASSERT( sizeof( N64PfI8 ) == 1 );
-
+#endif
 #endif // HLEGRAPHICS_N64PIXELFORMAT_H_

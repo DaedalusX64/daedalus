@@ -150,7 +150,9 @@ private:
 //*************************************************************************************
 template<> bool CSingleton< CGraphicsContext >::Create()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
+	#endif
 
 	mpInstance = new IGraphicsContext();
 	return mpInstance->Initialise();
@@ -396,7 +398,9 @@ void IGraphicsContext::SetDebugScreenTarget( ETargetSurface buffer )
 	}
 	else
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Unknown buffer" );
+		#endif
 		p_target = mpCurrentBackBuffer;
 	}
 
@@ -568,7 +572,9 @@ void IGraphicsContext::DumpScreenShot()
 
 	ViewportType( &display_width, &display_height );
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( display_width != 0 && display_height != 0, "Unhandled viewport type" );
+#endif
 
 	s32		display_x( (frame_width - display_width)/2 );
 	s32		display_y( (frame_height - display_height)/2 );
@@ -608,9 +614,9 @@ void IGraphicsContext::StoreSaveScreenData()
 	}
 
 	ViewportType( &display_width, &display_height );
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( display_width != 0 && display_height != 0, "Unhandled viewport type" );
-
+#endif
 	s32	x( (frame_width - display_width)/2 );
 	s32	y( (frame_height - display_height)/2 );
 
@@ -735,7 +741,7 @@ bool IGraphicsContext::Initialise()
 		SCR_WIDTH = 720;
 		SCR_HEIGHT = 480;
 		// TODO: Max resolution 720x576 for PAL TVs?
-		
+
 		// Hack, Tv out doesn't work in 16bit for some reasons so we use 32bit
 		//
 		PIXEL_SIZE = 4;

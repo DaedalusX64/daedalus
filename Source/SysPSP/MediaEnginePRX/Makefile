@@ -29,4 +29,4 @@ MediaEngine.S : $(PRX_EXPORTS)
 	psp-build-exports --build-stubs $(PRX_EXPORTS)
 
 all: $(FINAL_TARGET) MediaEngine.S
-	cp $(FINAL_TARGET) "../../../Projects/PSP"
+	cp $(FINAL_TARGET) "../../../DaedalusX64/"

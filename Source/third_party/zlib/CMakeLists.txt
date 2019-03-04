@@ -3,7 +3,7 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
 project(zlib C)
 
-set(VERSION "1.2.8")
+set(VERSION "1.2.11")
 
 option(ASM686 "Enable building i686 assembly implementation")
 option(AMD64 "Enable building amd64 assembly implementation")
@@ -93,6 +93,9 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 set(ZLIB_PUBLIC_HDRS
     ${CMAKE_CURRENT_BINARY_DIR}/zconf.h
     zlib.h
+    contrib/minizip/zip.h
+    contrib/minizip/unzip.h
+    contrib/minizip/ioapi.h
 )
 set(ZLIB_PRIVATE_HDRS
     crc32.h
@@ -122,6 +125,15 @@ set(ZLIB_SRCS
     uncompr.c
     zutil.c
 )
+set(MINIZIP_SRC
+    contrib/minizip/ioapi.c
+    contrib/minizip/ioapi.h
+    contrib/minizip/unzip.c
+    contrib/minizip/unzip.h
+    contrib/minizip/zip.c
+    contrib/minizip/zip.h
+  )
+
 
 if(NOT MINGW)
     set(ZLIB_DLL_SRCS
@@ -185,6 +197,7 @@ endif(MINGW)
 
 add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
 add_library(zlibstatic STATIC ${ZLIB_SRCS} ${ZLIB_ASMS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
+add_library(minizip STATIC ${MINIZIP_SRC})
 set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
 set_target_properties(zlib PROPERTIES SOVERSION 1)
 
@@ -211,7 +224,7 @@ elseif(BUILD_SHARED_LIBS AND WIN32)
 endif()
 
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
-    install(TARGETS zlib zlibstatic
+    install(TARGETS zlib zlibstatic minizip
         RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
         LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )

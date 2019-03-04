@@ -108,10 +108,22 @@ void Dump_GetSaveDirectory(char * rootdir, const char * rom_filename, const char
 
 	// Form the filename from the file spec (i.e. strip path and replace the extension)
 	IO::Filename file_name;
+
+
+// PSP needs the original setup I believe
+	#ifdef DAEDALUS_PSP
 	IO::Path::Assign(file_name, IO::Path::FindFileName(rom_filename));
 	IO::Path::SetExtension(file_name, extension);
+	#else
+	char *romfilebuffer;
+	romfilebuffer = strdup(rom_filename);
 
+	IO::Path::Assign(file_name, romfilebuffer);
+
+	IO::Path::SetExtension(file_name, extension);
+	#endif
 	IO::Path::Combine(rootdir, g_DaedalusConfig.mSaveDir, file_name);
+
 }
 
 #ifndef DAEDALUS_SILENT
@@ -168,18 +180,21 @@ void Dump_Disassemble(u32 start, u32 end, const char * p_file_name)
 	}
 
 	u8 * p_base;
+    #ifdef DAEDALUS_DEBUG_CONSOLE
 	if (!Memory_GetInternalReadAddress(start, (void**)&p_base))
 	{
+
 		DBGConsole_Msg(0, "[Ydis: Invalid base 0x%08x]", start);
 		return;
 	}
+#endif
 
 	FILE * fp( fopen(file_path, "w") );
 	if (fp == NULL)
 		return;
-
+  #ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Disassembling from 0x%08x to 0x%08x ([C%s])", start, end, file_path);
-
+#endif
 	const OpCode * op_start( reinterpret_cast< const OpCode * >( p_base ) );
 	const OpCode * op_end(   reinterpret_cast< const OpCode * >( p_base + (end-start) ) );
 
@@ -243,12 +258,13 @@ void Dump_RSPDisassemble(const char * p_file_name)
 	u32 start = 0xa4000000;
 	u32 end = 0xa4002000;
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	if (!Memory_GetInternalReadAddress(start, (void**)&base))
 	{
 		DBGConsole_Msg(0, "[Yrdis: Invalid base 0x%08x]", start);
 		return;
 	}
-
+#endif
 	IO::Filename file_path;
 
 	if (p_file_name == NULL || strlen(p_file_name) == 0)
@@ -260,9 +276,10 @@ void Dump_RSPDisassemble(const char * p_file_name)
 	{
 		IO::Path::Assign(file_path, p_file_name);
 	}
+#ifdef DAEDALUS_DEBUG_CONSOLE
 
 	DBGConsole_Msg(0, "Disassembling from 0x%08x to 0x%08x ([C%s])", start, end, file_path);
-
+#endif
 	FILE * fp( fopen(file_path, "w") );
 	if (fp == NULL)
 		return;
@@ -301,9 +318,9 @@ void Dump_Strings( const char * p_file_name )
 	{
 		IO::Path::Assign(file_path, p_file_name);
 	}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Dumping strings in rom ([C%s])", file_path);
-
+#endif
 	// Overwrite here
 	fp = fopen(file_path, "w");
 	if (fp == NULL)
@@ -343,4 +360,3 @@ void Dump_Strings( const char * p_file_name )
 	fclose(fp);
 }
 #endif
-

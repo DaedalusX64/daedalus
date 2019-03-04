@@ -32,7 +32,7 @@ class	CCodeBufferManager;
 struct FHashT
 {
 	u32	addr;
-	u32 ptr;
+	CFragment* ptr;
 };
 
 //*************************************************************************************

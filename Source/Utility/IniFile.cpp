@@ -189,8 +189,9 @@ bool	IIniFileSection::FindProperty( const char * p_name, const CIniFileProperty 
 void	IIniFileSection::AddProperty( const IIniFileProperty * p_property )
 {
 	PropertyVec::iterator it( std::lower_bound( mProperties.begin(), mProperties.end(), p_property->GetName(), SCompareProperties() ) );
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( it == mProperties.end() || strcmp( (*it)->mName.c_str(), p_property->GetName() ) != 0, "This property already exists" );
-
+#endif
 	mProperties.insert( it, p_property );
 }
 
@@ -370,8 +371,9 @@ bool IIniFile::Open( const char * filename )
 				Tidy( key );
 				Tidy( value );
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 				DAEDALUS_ASSERT( p_current_section != NULL, "There is no current section" );
-
+#endif
 				IIniFileProperty * p_property( new IIniFileProperty( key, value ) );
 
 				p_current_section->AddProperty( p_property );
@@ -408,7 +410,9 @@ const CIniFileSection *	IIniFile::GetSection( u32 section_idx ) const
 		return mSections[ section_idx ];
 	}
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Invalid section index" );
+	#endif
 	return NULL;
 }
 
@@ -428,4 +432,3 @@ const CIniFileSection *		IIniFile::GetSectionByName( const char * section_name )
 
 	return NULL;
 }
-

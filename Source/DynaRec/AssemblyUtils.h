@@ -38,7 +38,6 @@ public:
 	bool			IsSet() const				{ return mpLocation != NULL; }
 	const void *	GetTarget() const			{ return mpLocation; }
 	const u8 *		GetTargetU8P() const		{ return reinterpret_cast< const u8 * >( mpLocation ); }
-	u32				GetTargetU32() const		{ return reinterpret_cast< u32 >( mpLocation ); }
 
 
 

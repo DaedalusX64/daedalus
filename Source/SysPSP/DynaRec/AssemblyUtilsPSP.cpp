@@ -46,7 +46,7 @@ bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
 
 	if( op_code.op == OP_J || op_code.op == OP_JAL )
 	{
-		op_code.target = target.GetTargetU32() >> 2;
+		op_code.target = reinterpret_cast<u32>(target.GetTargetU8P()) >> 2;
 	}
 	else
 	{
@@ -73,7 +73,9 @@ bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
 		//
 		if( offset < SHRT_MIN || offset > SHRT_MAX )
 		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR(" PatchJump out of range!!!");
+			#endif
 			return false;
 		}
 		op_code.offset = s16(offset);	// Already divided by 4
@@ -114,7 +116,7 @@ void		ReplaceBranchWithJump( CJumpLocation branch, CCodeLabel target )
 
 	// Sanity check this is actually a branch?
 	op_code.op = OP_J;
-	op_code.target = target.GetTargetU32() >> 2;
+	op_code.target = reinterpret_cast<u32>(target.GetTargetU8P()) >> 2;
 
 //	sceKernelDcacheWritebackRange( branch.GetTargetU8P(), 4 );
 //	sceKernelIcacheInvalidateRange( branch.GetTargetU8P(), 4 );

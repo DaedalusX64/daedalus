@@ -204,14 +204,18 @@ template< u32 MAX_LENGTH > class CFixedString
 
 		void Copy( CConstString string )
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( string.Length() <= MAX_LENGTH, "String '%s' is too long for copy, truncation will occur", string.c_str() );
+			#endif
 			strncpy( mpString, string, MAX_LENGTH );
 			mpString[ MAX_LENGTH ] = '\0';
 		}
 
 		void Append( CConstString string )
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( Length() + string.Length() < MAX_LENGTH, "String '%s' is too long append, truncation will occur", string.c_str() );
+			#endif
 			strncat( mpString, string, MAX_LENGTH );
 			mpString[ MAX_LENGTH ] = '\0';
 		}
@@ -270,8 +274,9 @@ class CString
 		CString & operator+=( const CString & string )
 		{
 			// Check for a += a
+#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( this != &string, "Appending self - unhandled" );
-
+#endif
 			Append( string );
 			return *this;
 		}
@@ -391,8 +396,9 @@ class CString
 
 		void Resize( u32 length )
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( length > Length(), "Resize should always increase buffer length" );
-
+#endif
 			char * p_new = new char[ length + 1 ];
 
 			if ( mpString == NULL )

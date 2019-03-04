@@ -38,8 +38,9 @@ static inline CRefPtr<CNativeTexture> LoadFrameBuffer(u32 origin)
 	//ToDO: We should use uViWidth+1 and uViHeight+1
 #define FB_WIDTH  320
 #define FB_HEIGHT 240
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(g_CI.Size == G_IM_SIZ_16b,"32b frame buffer is not supported");
+	#endif
 	//DAEDALUS_ASSERT((uViWidth+1) == FB_WIDTH,"Variable width is not handled");
 	//DAEDALUS_ASSERT((uViHeight+1) == FB_HEIGHT,"Variable height is not handled");
 

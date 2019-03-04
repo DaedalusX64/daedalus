@@ -12,11 +12,11 @@
 #include "HLEGraphics/RDPStateManager.h"
 #include "OSHLE/ultra_gbi.h"
 #include "SysGL/GL.h"
+#include <GL/glew.h>
 #include "System/Paths.h"
 #include "Utility/IO.h"
 #include "Utility/Macros.h"
 #include "Utility/Profiler.h"
-
 
 BaseRenderer * gRenderer   = NULL;
 RendererGL *   gRendererGL = NULL;
@@ -24,9 +24,9 @@ RendererGL *   gRendererGL = NULL;
 static bool gAccurateUVPipe = true;
 
 /* OpenGL 3.0 */
-typedef void (APIENTRY * PFN_glGenVertexArrays)(GLsizei n, GLuint *arrays);
-typedef void (APIENTRY * PFN_glBindVertexArray)(GLuint array);
-typedef void (APIENTRY * PFN_glDeleteVertexArrays)(GLsizei n, GLuint *arrays);
+typedef void (GLAPIENTRY * PFN_glGenVertexArrays)(GLsizei n, GLuint *arrays);
+typedef void (GLAPIENTRY * PFN_glBindVertexArray)(GLuint array);
+typedef void (GLAPIENTRY * PFN_glDeleteVertexArrays)(GLsizei n, GLuint *arrays);
 
 static PFN_glGenVertexArrays            pglGenVertexArrays = NULL;
 static PFN_glBindVertexArray            pglBindVertexArray = NULL;
@@ -37,10 +37,11 @@ static const char * 					gN64FramentLibrary = NULL;
 
 static const u32 kNumTextures = 2;
 
+
 #define RESOLVE_GL_FCN(type, var, name) \
     if (status == GL_TRUE) \
     {\
-        var = (type)glfwGetProcAddress((name));\
+        var = (type)SDL_GL_GetProcAddress((name));\
         if ((var) == NULL)\
         {\
             status = GL_FALSE;\
@@ -119,9 +120,9 @@ bool initgl()
 
 	// FIXME(strmnnrmn): we shouldn't need these with GLEW, but they don't seem to resolve on OSX.
     GLboolean status = GL_TRUE;
-    RESOLVE_GL_FCN(PFN_glGenVertexArrays, pglGenVertexArrays, "glGenVertexArrays");
-    RESOLVE_GL_FCN(PFN_glDeleteVertexArrays, pglDeleteVertexArrays, "glDeleteVertexArrays");
-    RESOLVE_GL_FCN(PFN_glBindVertexArray, pglBindVertexArray, "glBindVertexArray");
+   RESOLVE_GL_FCN(PFN_glGenVertexArrays, pglGenVertexArrays, "glGenVertexArrays");
+   RESOLVE_GL_FCN(PFN_glDeleteVertexArrays, pglDeleteVertexArrays, "glDeleteVertexArrays");
+   RESOLVE_GL_FCN(PFN_glBindVertexArray, pglBindVertexArray, "glBindVertexArray");
 
 	pglGenVertexArrays(1, &gVAO);
 	pglBindVertexArray(gVAO);

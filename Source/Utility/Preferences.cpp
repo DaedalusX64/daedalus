@@ -89,7 +89,9 @@ class IPreferences : public CPreferences
 
 template<> bool	CSingleton< CPreferences >::Create()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
+#endif
 
 	mpInstance = new IPreferences();
 
@@ -592,8 +594,8 @@ const char * Preferences_GetFrameskipDescription( EFrameskipValue value )
 	case NUM_FRAMESKIP_VALUES:
 		break;
 	}
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled frameskip value" );
+	#endif
 	return "?";
 }
-
-

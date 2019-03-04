@@ -255,8 +255,9 @@ struct SConvert
 	template < typename OutT, u32 InFiddle, u32 OutFiddle >
 	static inline void ConvertRow( OutT * dst, const u8 * src, u32 src_offset, u32 width )
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_DL_ASSERT( IsAligned( src_offset, sizeof( InT ) ), "Offset should be correctly aligned" );
-
+#endif
 		//
 		//	Need to be careful of this - ensure that it's doing the right thing in all cases and not overflowing rows.
 		//	This is to ensure that we correctly convert all the texels in a row, even when we're fiddling.
@@ -300,8 +301,9 @@ struct SConvert
 		case TexFmt_CI8_8888: break;
 
 		}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_DL_ERROR( "Unhandled format" );
+		#endif
 	}
 };
 
@@ -361,8 +363,9 @@ struct SConvertIA4
 		case TexFmt_CI8_8888: break;
 
 		}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_DL_ERROR( "Unhandled format" );
+		#endif
 	}
 };
 
@@ -424,8 +427,9 @@ struct SConvertI4
 		case TexFmt_CI8_8888: break;
 
 		}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_DL_ERROR( "Unhandled format" );
+		#endif
 	}
 };
 
@@ -476,7 +480,9 @@ static void ConvertCI4_Row( NativePfCI44 * dst, const u8 * src, u32 src_offset, 
 template< u32 F >
 static void ConvertCI4_Row_To_8888( NativePf8888 * dst, const u8 * src, u32 src_offset, u32 width, const NativePf8888 * palette )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ASSERT(palette, "No palette");
+	#endif
 
 	for (u32 x = 0; x+1 < width; x+=2)
 	{
@@ -515,8 +521,9 @@ static void ConvertCI8_Row( NativePfCI8 * dst, const u8 * src, u32 src_offset, u
 template< u32 F >
 static  void ConvertCI8_Row_To_8888( NativePf8888 * dst, const u8 * src, u32 src_offset, u32 width, const NativePf8888 * palette )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ASSERT(palette, "No palette");
-
+#endif
 	for (u32 x = 0; x < width; x++)
 	{
 		u8 b     = src[src_offset ^ F];
@@ -563,12 +570,11 @@ static void ConvertI8(const TextureDestInfo & dsti, const TextureInfo & ti)
 
 static void ConvertCI8(const TextureDestInfo & dsti, const TextureInfo & ti)
 {
-	DAEDALUS_ASSERT(ti.GetTlutAddress(), "No TLUT address");
 
 	NativePf8888 temp_palette[256];
 
 	NativePf8888 *	dst_palette = dsti.Palette ? reinterpret_cast< NativePf8888 * >( dsti.Palette ) : temp_palette;
-	const void * 	src_palette = reinterpret_cast< const void * >( ti.GetTlutAddress() );
+	const void * 	src_palette = g_pu8RamBase + ti.GetTlutAddress();
 
 	ConvertPalette(ti.GetTLutFormat(), dst_palette, src_palette, 256);
 
@@ -585,21 +591,24 @@ static void ConvertCI8(const TextureDestInfo & dsti, const TextureInfo & ti)
 							   ConvertCI8_Row< 0x4 | 0x3 >,
 							   ConvertCI8_Row< 0x3 > );
 		break;
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	default:
+
 		DAEDALUS_ERROR( "Unhandled format for CI8 textures" );
 		break;
+		#endif
 	}
 }
 
 static void ConvertCI4(const TextureDestInfo & dsti, const TextureInfo & ti)
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(ti.GetTlutAddress(), "No TLUT address");
-
+#endif
 	NativePf8888 temp_palette[16];
 
 	NativePf8888 *	dst_palette = dsti.Palette ? reinterpret_cast< NativePf8888 * >( dsti.Palette ) : temp_palette;
-	const void * 	src_palette = reinterpret_cast< const void * >( ti.GetTlutAddress() );
+	const void * 	src_palette = g_pu8RamBase + ti.GetTlutAddress();
 
 	ConvertPalette(ti.GetTLutFormat(), dst_palette, src_palette, 16);
 
@@ -616,10 +625,11 @@ static void ConvertCI4(const TextureDestInfo & dsti, const TextureInfo & ti)
 							   ConvertCI4_Row< 0x4 | 0x3 >,
 							   ConvertCI4_Row< 0x3 > );
 		break;
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	default:
 		DAEDALUS_ERROR( "Unhandled format for CI4 textures" );
 		break;
+		#endif
 	}
 }
 
@@ -669,4 +679,3 @@ bool ConvertTexture(const TextureInfo & ti,
 
 	return false;
 }
-
