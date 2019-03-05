@@ -221,7 +221,7 @@ void	IAdjustDeadzoneScreen::Render()
 {
 	mpContext->ClearBackground();
 
-	mpContext->DrawTextAlign( 0, 480, AT_CENTRE, TITLE_Y, TITLE_TEXT, DrawTextUtilities::TextWhite );
+	mpContext->DrawTextAlign( 0, SCREEN_WIDTH, AT_CENTRE, TITLE_Y, TITLE_TEXT, DrawTextUtilities::TextWhite );
 
 	mpContext->DrawText( PSP_TITLE_X, PSP_TITLE_Y, "PSP", DrawTextUtilities::TextWhite );
 	mpContext->DrawText( N64_TITLE_X, N64_TITLE_Y, "N64", DrawTextUtilities::TextWhite );

@@ -389,7 +389,7 @@ void	IGlobalSettingsComponent::Update( float elapsed_time, const v2 & stick, u32
 
 void	IGlobalSettingsComponent::Render()
 {
-	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN );
+	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, MENU_TOP );
 
 	CUIElement *	element( mElements.GetSelectedElement() );
 	if( element != NULL )

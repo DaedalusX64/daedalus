@@ -709,24 +709,21 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 	//	Scroll to keep things in view
 	//	We add on 'current_vel * 2' to keep the selection highlight as close to the
 	//	center as possible (as if we're predicting 2 frames ahead)
-	//
+
+
 	const u32		font_height( mpContext->GetFontHeight() );
 	const u32		line_height( font_height + 2 );
 
 	if( mRomsList.size() * line_height > LIST_TEXT_LEFT )
 	{
-		s32		current_selection_y = s32((mCurrentSelection + current_vel * 2) * line_height) + (line_height/2) + mCurrentScrollOffset;
-
-		s32		adjust_amount( (LIST_TEXT_HEIGHT/2) - current_selection_y );
-
+		s32		current_selection_y = s32((mCurrentSelection + current_vel * 2) * line_height) + mCurrentScrollOffset;
+		s32		adjust_amount( (LIST_TEXT_HEIGHT) - current_selection_y );
 		float d( 1.0f - powf(0.993f, elapsed_time * 1000.0f) );
-
 		u32		total_height( mRomsList.size() * line_height );
 		s32		min_offset( LIST_TEXT_HEIGHT - total_height );
-
 		s32	new_scroll_offset = mCurrentScrollOffset + s32(float(adjust_amount) * d);
 
-		mCurrentScrollOffset = Clamp( new_scroll_offset, min_offset, s32(0) );
+	mCurrentScrollOffset = Clamp( new_scroll_offset, min_offset, s32(0) );
 	}
 	else
 	{
@@ -736,6 +733,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 	//
 	//	Increase a timer is the current selection is still the same (i.e. if we've not scrolled)
 	//
+  
 	if( initial_selection == mCurrentSelection )
 	{
 		mTimeSinceScroll += elapsed_time;

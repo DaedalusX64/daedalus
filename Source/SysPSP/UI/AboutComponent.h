@@ -31,4 +31,5 @@ class CAboutComponent : public CUIComponent
 		static CAboutComponent *	Create( CUIContext * p_context );
 };
 
+
 #endif // SYSPSP_UI_ABOUTCOMPONENT_H_

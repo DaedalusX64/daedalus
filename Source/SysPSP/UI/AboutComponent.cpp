@@ -94,7 +94,7 @@ void	IAboutComponent::Render()
 		f32		scale( desired_height / f32( h ) );
 
 		v2		wh( f32( w ) * scale, f32( h ) * scale );
-		v2		tl( f32( (480 - wh.x)/2 ), f32( text_top ) );
+		v2		tl( f32( (SCREEN_WIDTH - wh.x)/2 ), f32( text_top ) );
 
 		mpContext->RenderTexture( mpTexture, tl, wh, c32::White );
 

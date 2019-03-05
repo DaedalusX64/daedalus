@@ -257,20 +257,14 @@ void ISavestateSelectorComponent::LoadSlots(){
 
 		mElements.Add( element );
 	}
-
-
 }
 
-
-//
 
 ISavestateSelectorComponent::~ISavestateSelectorComponent()
 {
 	delete mOnSlotSelected;
 }
 
-
-//
 
 void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {

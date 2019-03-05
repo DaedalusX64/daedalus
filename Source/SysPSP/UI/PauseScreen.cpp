@@ -222,7 +222,7 @@ void	IPauseScreen::Render()
 {
 	mpContext->ClearBackground();
 
-	s32			y( BELOW_MENU_MIN );
+	s32			y( MENU_TOP );
 
 	const char * p_option_text;
 
@@ -257,7 +257,7 @@ void	IPauseScreen::Render()
 			Translate_String("Remaining: --h--m") );
 	}
 
-	mpContext->DrawTextAlign( 0, SCREEN_HEIGHT, AT_CENTRE, 43, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
+	mpContext->DrawTextAlign( 0, SCREEN_WIDTH, AT_CENTRE, 43, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
 
 	p_option_text = gMenuOptionNames[ previous ];
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_LEFT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( previous ) ? valid_colour : invalid_colour );
