@@ -8,10 +8,8 @@ const s16 SCREEN_HEIGHT {272};
 
 
 // to do adjust values to suit multiple screens
-const s16 MENU_TOP {8};
+const s16 MENU_TOP {0};
 const s16 TITLE_HEADER {10};
-const s16 MENU_HEADER_X {13}; // Left
-const s16 MENU_HEADER_Y {394}; // Right
 
 const s16 BELOW_MENU_MIN {33};
 
@@ -27,7 +25,7 @@ const s16 PREVIEW_IMAGE_HEIGHT {PREVIEW_IMAGE_BOTTOM - BELOW_MENU_MIN};
 
 const s16 ROM_INFO_TEXT_X {318};
 const s16 ROM_INFO_TEXT_Y {154};
-
+const s16 BATTERY_INFO {200};
 // Splash Screen
 const float	MAX_TIME  {0.8f};
 const char * const	LOGO_FILENAME {DAEDALUS_PSP_PATH( "Resources/logo.png" )};
@@ -78,7 +76,7 @@ const char * const		URL_TEXT_2 = "http://sf.net/projects/daedalusx64/";
 // Adjust Dead Zone Screen
 
 
-const char * const			INSTRUCTIONS_TEXT = "Adjust the minimum and maximum deadzone regions. Up/Down: Increase or decrease the deadzone. Left/Right: Select minimum or maximum deadzone for adjusting. Triangle: Reset to defaults. Start/X: Confirm. Select/Circle: Cancel";
+const char * const	INSTRUCTIONS_TEXT = "Adjust the minimum and maximum deadzone regions. Up/Down: Increase or decrease the deadzone. Left/Right: Select minimum or maximum deadzone for adjusting. Triangle: Reset to defaults. Start/X: Confirm. Select/Circle: Cancel";
 const char * const		TITLE_TEXT = "Adjust Stick Deadzone";
 
 const u32				TITLE_Y = 10;

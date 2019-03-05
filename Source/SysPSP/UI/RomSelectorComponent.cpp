@@ -411,8 +411,6 @@ void IRomSelectorComponent::RenderPreview()
 		rom_info += line_height;
 		DrawInfoText( mpContext, rom_info, "Save:", "" );
 
-		//y += line_height;
-		//DrawInfoTextL( mpContext, y, "EPak:", "" );
 	}
 }
 
@@ -585,8 +583,8 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 	  without it, the accumulator gets weirdly set to a NaN value and
 	  everything is blocked... So it keeps the accumulator out of a NaN value.
 	  */
-	if( !(mSelectionAccumulator<0) && !(mSelectionAccumulator>0))
-	  mSelectionAccumulator=0.0f;
+	//if( !(mSelectionAccumulator<0) && !(mSelectionAccumulator>0))
+//	  mSelectionAccumulator=0.0f;
 
 	ECategory current_category( GetCurrentCategory() );
 
@@ -711,6 +709,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 	//	center as possible (as if we're predicting 2 frames ahead)
 
 
+
 	const u32		font_height( mpContext->GetFontHeight() );
 	const u32		line_height( font_height + 2 );
 
@@ -733,7 +732,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 	//
 	//	Increase a timer is the current selection is still the same (i.e. if we've not scrolled)
 	//
-  
+
 	if( initial_selection == mCurrentSelection )
 	{
 		mTimeSinceScroll += elapsed_time;

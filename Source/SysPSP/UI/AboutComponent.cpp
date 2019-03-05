@@ -83,12 +83,12 @@ void	IAboutComponent::Render()
 {
 #define IsPSPModelValid( ver )		( (ver) >= PSP_MODEL_STANDARD && (ver) < MAX_PSP_MODEL )
 
-	u32		text_top( 38 );
+		s16 text_top( 38 );
 
 	if(mpTexture != NULL)
 	{
-		u32		w( mpTexture->GetWidth() );
-		u32		h( mpTexture->GetHeight() );
+		s16		w( mpTexture->GetWidth() );
+		s16		h( mpTexture->GetHeight() );
 
 		f32		desired_height = 60.0f;
 		f32		scale( desired_height / f32( h ) );
@@ -101,8 +101,8 @@ void	IAboutComponent::Render()
 		text_top += u32( wh.y + 10.0f );
 	}
 
-	s32			y;
-	const u32	line_height( mpContext->GetFontHeight() + 2 );
+	s16			y;
+	const s16	line_height( mpContext->GetFontHeight() + 2 );
 
 	y = text_top;
 
@@ -123,7 +123,7 @@ void	IAboutComponent::Render()
 	// Spacer
 	y += line_height;
 
-	for( u32 i = 0; i < ARRAYSIZE( INFO_TEXT ); ++i )
+	for( s16 i = 0; i < ARRAYSIZE( INFO_TEXT ); ++i )
 	{
 		const char * str( INFO_TEXT[ i ] );
 

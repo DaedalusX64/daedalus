@@ -240,9 +240,8 @@ void	ICheatOptionsScreen::Render()
 {
 	mpContext->ClearBackground();
 
-	//u32		font_height( mpContext->GetFontHeight() );
-	//u32		line_height( font_height + 2 );
-	s32		y;
+
+ s16		y;
 
 	const char * const title_text = "Cheat Options";
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
@@ -253,7 +252,6 @@ void	ICheatOptionsScreen::Render()
 
 	y += 2;
 
-	//mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, mRomName.c_str(), mpContext->GetDefaultTextColour() ); y += line_height;
 
 	y += 4;
 

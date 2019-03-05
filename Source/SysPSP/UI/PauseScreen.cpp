@@ -233,9 +233,6 @@ void	IPauseScreen::Render()
 	EMenuOption		current( GetCurrentOption() );
 	EMenuOption		next( GetNextOption() );
 
-	/* Time & Battery info*/
-	pspTime s;
-	sceRtcGetCurrentClockLocalTime(&s);
 	s32 bat = scePowerGetBatteryLifePercent();
 	s32 batteryLifeTime = scePowerGetBatteryLifeTime();
 
@@ -244,20 +241,19 @@ void	IPauseScreen::Render()
 
 	if(!scePowerIsBatteryCharging())
 	{
-		sprintf(info,"[%s %d:%02d%c%02d]  [%s %d%% %0.2fV %dC]  [%s %2dh %2dm]",
-			Translate_String("Time"), s.hour, s.minutes, (' '/*s.seconds&1?':':' '*/), s.seconds,
+		sprintf(info," [%s %d%% %0.2fV %dC]  [%s %2dh %2dm]",
 			Translate_String("Battery"), bat, (f32) scePowerGetBatteryVolt() / 1000.0f, scePowerGetBatteryTemp(),
 			Translate_String("Remaining"), batteryLifeTime / 60, batteryLifeTime - 60 * (batteryLifeTime / 60));
 	}
 	else
 	{
-		sprintf(info, "[%s %d:%02d%c%02d]  [%s]  [%s]",
-			Translate_String("Time"), s.hour, s.minutes, (' '/*s.seconds&1?':':' '*/), s.seconds,
+		sprintf(info, "[%s]  [%s]",
 			Translate_String("Charging..."),
 			Translate_String("Remaining: --h--m") );
 	}
 
-	mpContext->DrawTextAlign( 0, SCREEN_WIDTH, AT_CENTRE, 43, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
+// Battery Info
+	mpContext->DrawTextAlign( 0, SCREEN_WIDTH, AT_CENTRE, BATTERY_INFO, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
 
 	p_option_text = gMenuOptionNames[ previous ];
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_LEFT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( previous ) ? valid_colour : invalid_colour );
