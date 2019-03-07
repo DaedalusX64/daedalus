@@ -64,7 +64,7 @@ inline void dcache_inv_range(void *addr, int size)
 {
    int i, j = (int)addr;
    for(i = j; i < size+j; i += 64)
-      __builtin_allegrex_cache(0x19, i);
+      __builtin_allegrex_cache(0x1b, i);
 }
 #endif
 
