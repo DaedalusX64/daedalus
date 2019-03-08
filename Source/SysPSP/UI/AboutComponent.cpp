@@ -108,7 +108,6 @@ void	IAboutComponent::Render()
 
 	CFixedString<128>	version( Translate_String(DAEDALUS_VERSION_TEXT) );
 	version += DAEDALUS_CONFIG_VERSION;
-	//version += ")";
 
 	CFixedString<128>	date( Translate_String(DATE_TEXT) );
 	date += __DATE__;

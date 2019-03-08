@@ -272,9 +272,7 @@ IRomPreferencesScreen::IRomPreferencesScreen( CUIContext * p_context, const RomI
 
 //
 
-IRomPreferencesScreen::~IRomPreferencesScreen()
-{
-}
+IRomPreferencesScreen::~IRomPreferencesScreen() {}
 
 
 //

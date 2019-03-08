@@ -123,12 +123,11 @@ IPauseOptionsComponent::IPauseOptionsComponent( CUIContext * p_context, CFunctor
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::DebugDisplayList ), "Debug Display List", "Debug display list on resume." ) );
 #endif
-#ifdef DAEDALUS_KERNEL_MODE
-#endif
 
-	#ifdef DAEDALUS_DEBUG_CONSOLE
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		mElements.Add( new CUICommandImpl( new CStaticFunctor( CPU_DumpFragmentCache ), "Dump Fragment Cache", "Dump the contents of the dynarec fragment cache to disk." ) );
 		mElements.Add( new CUICommandImpl( new CStaticFunctor( CPU_ResetFragmentCache ), "Clear Fragment Cache", "Clear the contents of the dynarec fragment cache." ) );
+		mElements.Add( new CUICommandImpl( new CMemberFunctor< IPauseOptionsComponent >( this, &IPauseOptionsComponent::ProfileNextFrame ), "Profile Frame", "Profile the next frame on resume." ) );
 #endif
 
 	mElements.Add( new CUISpacer( 16 ) );

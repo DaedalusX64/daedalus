@@ -90,17 +90,6 @@ void BlendMode_0x0062fe043f15f9ffLL( BLEND_MODE_ARGS )
 {
 	// Won't work unless witout install texture..
 	details.InstallTexture = false;
-	/*c32		blend( details.PrimColour.Interpolate( c32::White, details.EnvColour ) );
-
-	if( num_cycles == 1 )
-	{
-		details.ColourAdjuster.SetRGB( blend );
-	}
-	else
-	{
-		details.ColourAdjuster.ModulateRGB( blend );
-		details.ColourAdjuster.ModulateA( details.EnvColour );
-	}*/
 }
 
 // Banjo Kazooie - Paths
@@ -532,18 +521,6 @@ void BlendMode_0x00309e045ffefdf8LL (BLEND_MODE_ARGS)
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGB);
 }
 
-//Kirby 64 - Far Terrain
-//Breaks Rocket-Robot on wheels
-//case 0x0040fe8155fefd7eLL:
-//aRGB0: (Shade        - Env         ) * Texel0       + Env
-//aA0  : (0            - 0           ) * 0            + 1
-//aRGB1: (Shade        - Env         ) * Texel0       + Env
-//aA1  : (0            - 0           ) * 0            + 1
-//void BlendMode_0x0040fe8155fefd7eLL (BLEND_MODE_ARGS)
-//{
-//	details.ColourAdjuster.SetRGB(details.EnvColour);
-//	sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGB);
-//}
 
 // Kirby - Air seeds, Ridge Racer 64 menu text
 //case 0x0030b2615566db6dLL:
@@ -557,12 +534,7 @@ void BlendMode_0x0030b2615566db6dLL( BLEND_MODE_ARGS )
 	//Proper fix for Kirby 64 seeds without breaking RR64.
 	details.ColourAdjuster.SetRGBA(details.PrimColour);
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
-	// I didn't see any adverse effects to RR64, but just in case, I'll leave the previous blend below.
-	// Modulate the texture*shade for RGBA
-	//details.ColourAdjuster.SetRGB( details.EnvColour );
-	//details.ColourAdjuster.SetA( details.PrimColour );
-	//sceGuTexEnvColor( details.PrimColour.GetColour() );
-	//sceGuTexFunc(GU_TFX_BLEND,GU_TCC_RGBA);			// XXXX Argh - need to interpolate alpha too!? We're just doing modulate(t,prim) for now
+
 }
 
 /*
@@ -927,10 +899,10 @@ void BlendMode_0x00272c603510e37fLL (BLEND_MODE_ARGS)
 
 // Quake 64 - Walls and ground
 //case 0x00117ffffffefc38LL:
-//aRGB0: (Texel0       - 0           ) * Texel1       + Env         
-//aA0  : (0            - 0           ) * 0            + 1           
-//aRGB1: (0            - 0           ) * 0            + Combined    
-//aA1  : (0            - 0           ) * 0            + Combined    
+//aRGB0: (Texel0       - 0           ) * Texel1       + Env
+//aA0  : (0            - 0           ) * 0            + 1
+//aRGB1: (0            - 0           ) * 0            + Combined
+//aA1  : (0            - 0           ) * 0            + Combined
 void BlendMode_0x00117ffffffefc38LL (BLEND_MODE_ARGS)
 {
 	details.ColourAdjuster.SetA( details.PrimColour );
@@ -1807,9 +1779,6 @@ void BlendMode_0x0015fea3f00ff23fLL( BLEND_MODE_ARGS )
 }
 
 
-//*****************************************************************************
-// Check if Inexact blend is using default blend
-//*****************************************************************************
 bool	IsInexactDefault( OverrideBlendModeFn Fn )
 {
 	return Fn == BlendMode_Generic;
@@ -1979,4 +1948,3 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux )
 
 	return NULL;
 }
-
