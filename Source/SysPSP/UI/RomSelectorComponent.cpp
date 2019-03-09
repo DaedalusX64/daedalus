@@ -468,7 +468,6 @@ void IRomSelectorComponent::RenderRomList()
 
 	// Restore scissoring
 	sceGuScissor(0,0, SCREEN_WIDTH,SCREEN_HEIGHT);
-  sceGuEnable(GU_SCISSOR_TEST);
 }
 
 
@@ -712,33 +711,25 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 	const u32		font_height( mpContext->GetFontHeight() );
 	const u32		line_height( font_height + 2 );
 
-	if( mRomsList.size() * line_height > BELOW_MENU_MIN )
+	if( mRomsList.size() * line_height > LIST_TEXT_HEIGHT )
 	{
 		s32		current_selection_y = s32((mCurrentSelection + current_vel * 2) * line_height) + (line_height/2) + mCurrentScrollOffset;
 
-		s32		adjust_amount( (BELOW_MENU_MIN/2) - current_selection_y );
+		s32		adjust_amount( (LIST_TEXT_HEIGHT/2) - current_selection_y );
 
 		float d( 1.0f - powf(0.993f, elapsed_time * 1000.0f) );
 
 		u32		total_height( mRomsList.size() * line_height );
-		s32		min_offset( (BELOW_MENU_MIN/2) - total_height );
+		s32		min_offset( (LIST_TEXT_HEIGHT/2) - total_height );
 
 		s32	new_scroll_offset = mCurrentScrollOffset + s32(float(adjust_amount) * d);
 
 		mCurrentScrollOffset = Clamp( new_scroll_offset, min_offset, s32(0) );
 	}
-	else
-	if( initial_selection == mCurrentSelection )
-	{
-		mTimeSinceScroll += elapsed_time;
-	}
-	else
-	{
-		mTimeSinceScroll = 0;
-	}
-	{
-		mCurrentScrollOffset = 0;
-	}
+  	else
+  	{
+  		mCurrentScrollOffset = 0;
+  	}
 
 	//
 	//	Increase a timer is the current selection is still the same (i.e. if we've not scrolled)
