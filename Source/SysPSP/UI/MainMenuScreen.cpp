@@ -369,4 +369,5 @@ void	IMainMenuScreen::OnStartEmulation()
 {
 	System_Open(mRomFilename.c_str());
 	mIsFinished = true;
+
 }

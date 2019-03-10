@@ -504,7 +504,8 @@ void Patch_RecurseAndFind()
 #ifdef DAEDALUS_PSP
 	// Load our font here, Intrafont used in UI is destroyed when emulation starts
 	intraFont* ltn8  = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ASCII);
-	intraFontSetStyle( ltn8, 1.0f, 0xFF000000, 0, 0.f, INTRAFONT_ALIGN_CENTER );
+	intraFontSetStyle( ltn8, 1.0f, 0xFF000000, NULL, 0.f, INTRAFONT_ALIGN_CENTER );
+	(intraFont *font, float size, unsigned int color, unsigned int shadowColor,
 #endif
 #endif
 

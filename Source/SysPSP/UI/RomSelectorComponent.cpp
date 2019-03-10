@@ -40,6 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
+#include "Debug/DBGConsole.h"
 #include "Graphics/ColourValue.h"
 #include "Graphics/NativeTexture.h"
 #include "Input/InputManager.h"
@@ -145,7 +146,7 @@ static bool SortByGameName( const SRomInfo * a, const SRomInfo * b )
 }
 
 
-//Lifting this out makes it remmember last choosen ROM
+//Lifting this out makes it remember last chosen ROM
 //Could probably be fixed better but C++ is giving me an attitude //Corn
 static u32 mCurrentSelection = 0;
 
@@ -224,6 +225,7 @@ IRomSelectorComponent::IRomSelectorComponent( CUIContext * p_context, CFunctor1<
 ,	mPreviewLoadedTime( 0.0f )
 ,	mTimeSinceScroll( 0.0f )
 ,	mRomDelete(false)
+, mRomsList(0)
 #ifdef DAEDALUS_DIALOGS
 ,	mQuitTriggered(false)
 #endif
@@ -380,10 +382,9 @@ void IRomSelectorComponent::RenderPreview()
 	}
 
 
-	u32		font_height( mpContext->GetFontHeight() );
+	u32		font_height( mpContext->GetFontHeight() ); // 12
 	u32		line_height( font_height + 1 );
-
-	//s32 y = BELOW_MENU_MIN + PREVIEW_IMAGE_HEIGHT + 1 + font_height;
+font_height;
     s32 rom_info {  BELOW_MENU_MIN + PREVIEW_IMAGE_HEIGHT + 47};
 	if( mCurrentSelection < mRomsList.size() )
 	{
@@ -575,7 +576,6 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 
 	/*Apply stick deadzone preference in the RomSelector menu*/
 	v2 stick_dead(ApplyDeadzone( stick, gGlobalPreferences.StickMinDeadzone, gGlobalPreferences.StickMaxDeadzone ));
-
 	mSelectionAccumulator += stick_dead.y * SCROLL_RATE_PER_SECOND * elapsed_time;
 
 	/*Tricky thing to get the stick to work in every cases
@@ -599,9 +599,10 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		if(new_buttons & PSP_CTRL_LEFT)
 		{
 			// Search for the next valid predecessor
-			while(current_category > 0)
+			while(current_category < mRomsList.size() + 1)
 			{
 				current_category = ECategory( current_category - 1 );
+
 				AlphaMap::const_iterator it( mRomCategoryMap.find( current_category ) );
 				if( it != mRomCategoryMap.end() )
 				{
@@ -614,7 +615,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		if(new_buttons & PSP_CTRL_RIGHT)
 		{
 			// Search for the next valid predecessor
-			while(current_category < NUM_CATEGORIES-1)
+      while	(current_category < mRomsList.size() -  1)
 			{
 				current_category = ECategory( current_category + 1 );
 				AlphaMap::const_iterator it( mRomCategoryMap.find( current_category ) );
@@ -628,7 +629,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 
 		if(new_buttons & PSP_CTRL_UP)
 		{
-			if(mCurrentSelection > 0)
+		if(mCurrentSelection < mRomsList.size() - 1)
 			{
 				mCurrentSelection--;
 			}
@@ -680,51 +681,43 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 			}
 		}
 	}
-	//
-	//	Apply the selection accumulator
-	//
-	f32		current_vel( mSelectionAccumulator );
-	while(mSelectionAccumulator >= 1.0f)
-	{
-		if(mCurrentSelection < mRomsList.size() - 1)
-		{
-			mCurrentSelection++;
-		}
-		mSelectionAccumulator -= 1.0f;
-		mRomDelete = false;
-	}
-	while(mSelectionAccumulator <= -1.0f)
-	{
-		if(mCurrentSelection > 0)
-		{
-			mCurrentSelection--;
-		}
-		mSelectionAccumulator += 1.0f;
-		mRomDelete = false;
-	}
 
-	//
-	//	Scroll to keep things in view
-	//	We add on 'current_vel * 2' to keep the selection highlight as close to the
-	//	center as possible (as if we're predicting 2 frames ahead)
-	// Adjusted to 4 ~Wally
-	const u32		font_height( mpContext->GetFontHeight() );
+	f32		current_vel {mSelectionAccumulator };
+
+	//	Scroll to keep things in view Velocity is adjusted as per performance
+
+  const u32		font_height( mpContext->GetFontHeight() );
 	const u32		line_height( font_height + 2 );
 
-	if( mRomsList.size() * line_height > LIST_TEXT_HEIGHT )
+	if( mRomsList.size() > LIST_TEXT_HEIGHT )
 	{
-		s32		current_selection_y = s32((mCurrentSelection + current_vel * 4) * line_height) + (line_height/2) + mCurrentScrollOffset;
-
+		s32		current_selection_y = s32((mCurrentSelection + current_vel * 10) * line_height) + (line_height/2) + mCurrentScrollOffset;
 		s32		adjust_amount( (LIST_TEXT_HEIGHT/2) - current_selection_y );
-
 		float d( 1.0f - powf(0.993f, elapsed_time * 1000.0f) );
-
-		u32		total_height( mRomsList.size() * LIST_TEXT_HEIGHT/2 );
+		u32		total_height( mRomsList.size() * LIST_TEXT_HEIGHT * line_height);
 		s32		min_offset( (LIST_TEXT_HEIGHT/2) - total_height );
 
 		s32	new_scroll_offset = mCurrentScrollOffset + s32(float(adjust_amount) * d);
 
-		mCurrentScrollOffset = Clamp( new_scroll_offset, min_offset, s32(0) );
+		mCurrentScrollOffset = Clamp( 0, min_offset, new_scroll_offset);
+    while(mSelectionAccumulator >= 1.0f)
+    {
+      if(mCurrentSelection < mRomsList.size() - 1)
+      {
+        mCurrentSelection++;
+      }
+      mSelectionAccumulator -= 1.0f;
+      mRomDelete = false;
+    }
+    while(mSelectionAccumulator <= -1.0f)
+    {
+      if(mCurrentSelection < mRomsList.size() + 1)
+      {
+        mCurrentSelection--;
+      }
+      mSelectionAccumulator += 1.0f;
+      mRomDelete = false;
+    }
 	}
   	else
   	{
