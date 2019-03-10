@@ -78,7 +78,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern "C"
 {
 	/* Disable FPU exceptions */
-//	void _DisableFPUExceptions();
+	void _DisableFPUExceptions();
 
 	/* Video Manager functions */
 	int pspDveMgrCheckVideoOut();
@@ -318,7 +318,7 @@ static bool	Initialize()
 	initExceptionHandler();
 #endif
 
-//	_DisableFPUExceptions();
+	_DisableFPUExceptions();
 
 	//Init Panic button thread
 	SetupPanic();

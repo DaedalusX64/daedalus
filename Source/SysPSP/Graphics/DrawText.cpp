@@ -133,7 +133,7 @@ s32		CDrawText::GetFontHeight( EFont font_type )
 		return pixels;
 	}
 
-	return 16;		// Return a reasonable value. Better off just returning 0?
+	return 0;		// Return a reasonable value. Better off just returning 0?
 }
 
 //*************************************************************************************
