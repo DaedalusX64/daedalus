@@ -226,6 +226,9 @@ void CJobManager::Run()
 
 				// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
 				BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL );
+
+					run->FiniJob( run );
+					run->FiniJob = NULL; // so it doesn't get run again later
 			}
 			else
 #endif
@@ -245,6 +248,16 @@ void CJobManager::Run()
 
 				// signal ready for a new job
 				sceKernelSignalSema( mWorkEmpty, 1 );
+
+				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
+
+				// Execute job finalised if ME done
+				if( run->FiniJob && CheckME( mei ) )
+				{
+					run->FiniJob( run );
+					run->FiniJob = NULL; // so it doesn't get run again later
+}
+
 			}
 		}
 
