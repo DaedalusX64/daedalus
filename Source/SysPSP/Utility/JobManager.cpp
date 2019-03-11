@@ -206,6 +206,11 @@ void CJobManager::Run()
 				// Execute previous job finalised
 				if( run->FiniJob )
 					run->FiniJob( run );
+					KillME(mei);
+					sceKernelDelayThread( 100 );
+					InitME(mei);
+					sceKernelDelayThread( 100 );
+					sceKernelDcacheWritebackInvalidateAll();
 
 				// copy new job to run buffer
 				memcpy( mRunBuffer, mJobBuffer, mJobBufferSize );
