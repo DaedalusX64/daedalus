@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/NativePixelFormat.h"
 #include "Graphics/ColourValue.h"
 #include "VideoMemoryManager.h"
+#include "Utility/FastMemcpy.h"
 
 #include "Math/MathUtil.h"
 
@@ -170,7 +171,7 @@ inline bool swizzle(u8* out, const u8* in, u32 width, u32 height)
 	{
 		//swizzle_slow( out, in, width, height );
 
-		memcpy( out, in, width * height );
+		memcpy_vfpu( out, in, width * height );
 		return false;
 	}
 	else
@@ -503,7 +504,7 @@ namespace
 				case TexFmt_8888:
 					ReadPngData< NativePf8888 >( width, height, stride, png_get_rows(p_png_struct, p_png_info), png_get_color_type(p_png_struct, p_png_info), reinterpret_cast< NativePf8888 * >( p_dest ) );
 					break;
-					
+
 			case TexFmt_CI4_8888:
 			case TexFmt_CI8_8888:
 				DAEDALUS_ERROR( "Can't use palettised format for png." );
@@ -565,10 +566,10 @@ void	CNativeTexture::SetData( void * data, void * palette )
 			switch( mTextureFormat )
 			{
 			case TexFmt_CI4_8888:
-				memcpy( mpPalette, palette, kPalette4BytesRequired );
+				memcpy_vfpu( mpPalette, palette, kPalette4BytesRequired );
 				break;
 			case TexFmt_CI8_8888:
-				memcpy( mpPalette, palette, kPalette8BytesRequired );
+				memcpy_vfpu( mpPalette, palette, kPalette8BytesRequired );
 				break;
 
 			default:

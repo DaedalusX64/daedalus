@@ -253,7 +253,7 @@ void	IPauseScreen::Render()
 	}
 
 // Battery Info
-	mpContext->DrawTextAlign( 0, SCREEN_WIDTH, AT_CENTRE, BATTERY_INFO, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
+	mpContext->DrawTextAlign( 0, SCREEN_WIDTH - LIST_TEXT_LEFT, AT_LEFT, CATEGORY_TEXT_TOP, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
 
 	p_option_text = gMenuOptionNames[ previous ];
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_LEFT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( previous ) ? valid_colour : invalid_colour );

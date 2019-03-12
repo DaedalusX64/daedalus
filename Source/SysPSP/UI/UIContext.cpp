@@ -110,10 +110,10 @@ class IUIContext : public CUIContext
 
 		virtual void				SetFontStyle( EFontStyle font_style );
 
-		virtual u32					DrawText( s32 x, s32 y, const char * text, u32 lenght, c32 colour );
-		virtual u32					DrawText( s32 x, s32 y, const char * text, u32 lenght, c32 colour, c32 drop_colour );
-		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 lenght, c32 colour );
-		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 lenght, c32 colour, c32 drop_colour );
+		virtual u32					DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour );
+		virtual u32					DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour );
+		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 length, c32 colour );
+		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 length, c32 colour, c32 drop_colour );
 		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour );
 		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour );
 		virtual s32					DrawTextArea( s32 left, s32 top, u32 width, u32 height, const char * text, c32 colour, EVerticalAlign vertical_align );

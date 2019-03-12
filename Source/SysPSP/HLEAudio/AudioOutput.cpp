@@ -48,7 +48,7 @@ static const u32	MAX_OUTPUT_FREQUENCY = DESIRED_OUTPUT_FREQUENCY * 4;
 
 //static const u32	ADAPTIVE_FREQUENCY_ADJUST = 2000;
 // Large BUFFER_SIZE creates huge delay on sound //Corn
-static const u32	BUFFER_SIZE = 1024 * 2;
+static const u32	BUFFER_SIZE = 2048;
 
 static const u32	PSP_NUM_SAMPLES = 512;
 
