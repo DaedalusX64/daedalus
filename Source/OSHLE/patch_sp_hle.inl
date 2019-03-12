@@ -47,7 +47,7 @@ TEST_DISABLE_SP_FUNCS
 		return PATCH_RET_JR_RA;
 	}
 	*/
-	u32 PAddr = ConvertToPhysical(VAddr);
+	u32 PAddr = ConvertToPhysics(VAddr);
 
 	//FIXME
 	DAEDALUS_ASSERT( PAddr,"Address Translation necessary!");
@@ -81,7 +81,7 @@ TEST_DISABLE_SP_FUNCS
 u32 Patch___osSpDeviceBusy_Mario()
 {
 TEST_DISABLE_SP_FUNCS
-
+	
 	gGPR[REG_v0]._s64 = (s64)IsSpDeviceBusy();
 
 	return PATCH_RET_JR_RA;
@@ -206,25 +206,25 @@ TEST_DISABLE_SP_FUNCS
 	fast_memcpy(pDstTask, pSrcTask, sizeof(OSTask));
 
 	if (pDstTask->t.ucode != 0)
-		pDstTask->t.ucode = ConvertToPhysical(pDstTask->t.ucode);
+		pDstTask->t.ucode = (u64 *)ConvertToPhysics((u32)pDstTask->t.ucode);
 
 	if (pDstTask->t.ucode_data != 0)
-		pDstTask->t.ucode_data = ConvertToPhysical(pDstTask->t.ucode_data);
+		pDstTask->t.ucode_data = (u64 *)ConvertToPhysics((u32)pDstTask->t.ucode_data);
 
 	if (pDstTask->t.dram_stack != 0)
-		pDstTask->t.dram_stack = ConvertToPhysical(pDstTask->t.dram_stack);
+		pDstTask->t.dram_stack = (u64 *)ConvertToPhysics((u32)pDstTask->t.dram_stack);
 
 	if (pDstTask->t.output_buff != 0)
-		pDstTask->t.output_buff = ConvertToPhysical(pDstTask->t.output_buff);
+		pDstTask->t.output_buff = (u64 *)ConvertToPhysics((u32)pDstTask->t.output_buff);
 
 	if (pDstTask->t.output_buff_size != 0)
-		pDstTask->t.output_buff_size = ConvertToPhysical(pDstTask->t.output_buff_size);
+		pDstTask->t.output_buff_size = (u64 *)ConvertToPhysics((u32)pDstTask->t.output_buff_size);
 
 	if (pDstTask->t.data_ptr != 0)
-		pDstTask->t.data_ptr = ConvertToPhysical(pDstTask->t.data_ptr);
+		pDstTask->t.data_ptr = (u64 *)ConvertToPhysics((u32)pDstTask->t.data_ptr);
 
 	if (pDstTask->t.yield_data_ptr != 0)
-		pDstTask->t.yield_data_ptr = ConvertToPhysical(pDstTask->t.yield_data_ptr);
+		pDstTask->t.yield_data_ptr = (u64 *)ConvertToPhysics((u32)pDstTask->t.yield_data_ptr);
 
 	// If yielded, use the yield data info
 	if (pSrcTask->t.flags & OS_TASK_YIELDED)

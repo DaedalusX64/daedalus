@@ -7,7 +7,7 @@
 #define PI   3.141592653589793f
 
 #ifdef DAEDALUS_PSP
-
+#include <pspfpu.h>
 // VFPU Math :D
 //
 // Todo : Move to SysPSP ?
@@ -41,7 +41,7 @@
 */
 
 //Sign of Z coord from cross product normal, used for triangle front/back face culling //Corn
-//Note that we pass s32 even if it is a f32! The check for <= 0.0f is valid also with signed integers(bit31 in f32 is sign bit) 
+//Note that we pass s32 even if it is a f32! The check for <= 0.0f is valid also with signed integers(bit31 in f32 is sign bit)
 //(((Bx - Ax)*(Cy - Ay) - (Cx - Ax)*(By - Ay)) * Aw * Bw * C.w)
 inline s32 vfpu_TriNormSign(u8 *Base, u32 v0, u32 v1, u32 v2) {
     u8* A= Base + (v0<<6);	//Base + v0 * sizeof( DaedalusVtx4 )
@@ -58,11 +58,11 @@ inline s32 vfpu_TriNormSign(u8 *Base, u32 v0, u32 v1, u32 v2) {
 		"vscl.p	R001, R001, S013\n"			//scale Bx and By with ACw to avoid divide with Bw
 		"vscl.p	R002, R002, S023\n"			//scale Cx and Cy with ABw to avoid divide with Cw
 		"vsub.p	R100, R000, R001\n"			//Make 2D vector with A-B
-		"vsub.p R101, R001, R002\n"			//Make 2D vector with B-C 
+		"vsub.p R101, R001, R002\n"			//Make 2D vector with B-C
 		"vdet.p S102, R100, R101\n"			//Calc 2x2 determinant with the two 2D vectors
         "vmul.s	S003, S003, S030\n"			//create ABCw (BCw * Aw)
         "vmul.s	S102, S102, S003\n"			//determinant * ABCw
-		"mfv	%0, S102\n"					//Sign determins FRONT or BACK face triangle(Note we pass a float as s32 here since -0+ check works regardless!) 
+		"mfv	%0, S102\n"					//Sign determins FRONT or BACK face triangle(Note we pass a float as s32 here since -0+ check works regardless!)
         : "=r"(result) :"m"(*A), "m"(*B), "m"(*C) );
     return result;
 }
@@ -320,14 +320,14 @@ Check above notes for cycles/comparison
 */
 
 #if 1	//0=fast, 1=original
-extern "C" inline float pspFpuSqrt(float fs)
+inline float pspFpuSqrt(float fs)
 {
 	return (__builtin_allegrex_sqrt_s(fs));
 }
 #else
 inline float pspFpuSqrt(float fs)
 {
-	
+	union
         {
         int tmp;
         float fpv;
@@ -339,7 +339,7 @@ inline float pspFpuSqrt(float fs)
 #endif
 
 #if 1	//0=fast, 1=original //Corn
-extern "C" inline float pspFpuAbs(float fs)
+inline float pspFpuAbs(float fs)
 {
 	register float fd;
 	asm (
@@ -368,22 +368,22 @@ inline float pspFpuAbs(float fs)
 //*****************************************************************************
 // Misc
 
-extern "C" inline int pspFpuFloor(float fs)
+inline int pspFpuFloor(float fs)
 {
 	return (__builtin_allegrex_floor_w_s(fs));
 }
 
-extern "C" inline int pspFpuCeil(float fs)
+inline int pspFpuCeil(float fs)
 {
 	return (__builtin_allegrex_ceil_w_s(fs));
 }
 
-extern "C" inline int pspFpuTrunc(float fs)
+inline int pspFpuTrunc(float fs)
 {
 	return (__builtin_allegrex_trunc_w_s(fs));
 }
 
-extern "C" inline int pspFpuRound(float fs)
+inline int pspFpuRound(float fs)
 {
 	return (__builtin_allegrex_round_w_s(fs));
 }
@@ -405,7 +405,7 @@ inline float pspFpuMin(float fs1, float fs2)
 	return (fd);
 }
 */
-extern "C" inline int pspFpuIsNaN(float f)
+inline int pspFpuIsNaN(float f)
 {
 	int v;
 	asm (
@@ -520,4 +520,3 @@ inline float InvSqrt(float x)
 #endif // DAEDALUS_PSP
 
 #endif // MATH_MATH_H_
-

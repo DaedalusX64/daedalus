@@ -46,6 +46,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Functor.h"
 #include "Utility/Translate.h"
 
+extern void battery_info();
 
 namespace
 {
@@ -147,13 +148,10 @@ IPauseScreen::IPauseScreen( CUIContext * p_context )
 	mOptionComponents[ MO_PAUSE_OPTIONS ]	= CPauseOptionsComponent::Create( mpContext, new CMemberFunctor< IPauseScreen >( this, &IPauseScreen::OnResume ), new CMemberFunctor< IPauseScreen >( this, &IPauseScreen::OnReset ) );
 	mOptionComponents[ MO_ABOUT ]			= CAboutComponent::Create( mpContext );
 
-#ifdef DAEDALUS_DEBUG_CONSOLE
-// Is this really needed?
 	for( u32 i = 0; i < NUM_MENU_OPTIONS; ++i )
 	{
 		DAEDALUS_ASSERT( mOptionComponents[ i ] != NULL, "Unhandled screen" );
 	}
-	#endif
 }
 
 //*************************************************************************************
@@ -268,11 +266,26 @@ void	IPauseScreen::Render()
 	/* Time & Battery info*/
 	pspTime s;
 	sceRtcGetCurrentClockLocalTime(&s);
-
+	s32 bat = scePowerGetBatteryLifePercent();
+	s32 batteryLifeTime = scePowerGetBatteryLifeTime();
 
 	// Meh should be big enough regarding if translated..
 	char					info[120];
 
+	if(!scePowerIsBatteryCharging())
+	{
+		sprintf(info,"[%s %d:%02d%c%02d]  [%s %d%% %0.2fV %dC]  [%s %2dh %2dm]",
+			Translate_String("Time"), s.hour, s.minutes, (' '/*s.seconds&1?':':' '*/), s.seconds,
+			Translate_String("Battery"), bat, (f32) scePowerGetBatteryVolt() / 1000.0f, scePowerGetBatteryTemp(),
+			Translate_String("Remaining"), batteryLifeTime / 60, batteryLifeTime - 60 * (batteryLifeTime / 60));
+	}
+	else
+	{
+		sprintf(info, "[%s %d:%02d%c%02d]  [%s]  [%s]",
+			Translate_String("Time"), s.hour, s.minutes, (' '/*s.seconds&1?':':' '*/), s.seconds,
+			Translate_String("Charging..."),
+			Translate_String("Remaining: --h--m") );
+	}
 
 	mpContext->DrawTextAlign( 0, 480, AT_CENTRE, 43, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
 

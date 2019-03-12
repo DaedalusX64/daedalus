@@ -50,9 +50,8 @@ CUIScreen::~CUIScreen()
 //*************************************************************************************
 void	CUIScreen::Run()
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mpContext != NULL, "No context" );
-#endif
+
 	const u32 PSP_BUTTONS_MASK( 0xffff );		// Mask off e.g. PSP_CTRL_HOME, PSP_CTRL_HOLD etc
 
 	SceCtrlData		pad;

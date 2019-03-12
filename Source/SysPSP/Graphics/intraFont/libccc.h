@@ -15,11 +15,13 @@
 extern "C" {
 #endif
 
+#include <string.h>
+
 /** @defgroup character code conversion library
  *  @{
  */
 
-typedef unsigned short cccUCS2;
+typedef unsigned short cccUCS2; 
 typedef unsigned char  cccCode;
 
 /* supported codepages */
@@ -46,11 +48,11 @@ typedef unsigned char  cccCode;
 
 
 /**
- * Character counting
+ * Character counting 
  *
  * @param str - zero terminated string
  *
- * @param cp - codepage
+ * @param cp - codepage 
  *
  * @returns number of characters in the string
  */
@@ -61,18 +63,18 @@ int cccStrlenKOR(cccCode const * str);
 int cccStrlenBIG5(cccCode const * str);
 int cccStrlenUTF8(cccCode const * str);
 int cccStrlenCode(cccCode const * str, unsigned char cp);
-int cccStrlenUCS2(cccUCS2 const * str);
+int cccStrlenUCS2(cccUCS2 const * str); 
 
 /**
- * Character code conversion
+ * Character code conversion 
  *
- * @param dst - output string
+ * @param dst - output string 
  *
  * @param count - size of output buffer
  *
  * @param str - input string
  *
- * @param cp - codepage
+ * @param cp - codepage 
  *
  * @returns number of converted character codes
  */
@@ -81,7 +83,7 @@ int cccGBKtoUCS2 (cccUCS2 * dst, size_t count, cccCode const * str);
 int cccKORtoUCS2 (cccUCS2 * dst, size_t count, cccCode const * str);
 int cccBIG5toUCS2(cccUCS2 * dst, size_t count, cccCode const * str);
 int cccUTF8toUCS2(cccUCS2 * dst, size_t count, cccCode const * str);
-int cccCodetoUCS2(cccUCS2 * dst, size_t count, cccCode const * str, unsigned char cp);
+int cccCodetoUCS2(cccUCS2 * dst, size_t count, cccCode const * str, unsigned char cp); 
 
 /**
  * Set error character (character that's used for code points where conversion failed)

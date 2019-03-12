@@ -45,7 +45,6 @@ static const bool	gAudioEnabled	 = true;
 static void RDP_DumpRSPCode(char * name, u32 crc, u32 * mem_base, u32 pc_base, u32 len)
 {
 	char filename[100];
-    
 	sprintf(filename, "task_dump_%s_crc_0x%08x.txt", name, crc);
 
 	IO::Filename filepath;
@@ -102,7 +101,7 @@ static void RDP_DumpRSPData(char * name, u32 crc, u32 * mem_base, u32 pc_base, u
 //*****************************************************************************
 //
 //*****************************************************************************
-#if 0 
+#if 0
 static void	RSP_HLE_DumpTaskInfo( const OSTask * pTask )
 {
 	DBGConsole_Msg(0, "DP: Task:%08x Flags:%08x BootCode:%08x BootCodeSize:%08x",
@@ -301,19 +300,16 @@ void RSP_HLE_ProcessTask()
 			result = RSP_HLE_Jpeg(pTask);
 			break;
 
-#ifdef DAEDALUS_ENABLE_ASSERTS
 		default:
 			// This can be easily handled, need to find first a game that uses this though
 			DAEDALUS_ASSERT( pTask->t.type != M_FBTASK, "FB task is not handled");
 
 			// Can't handle
 			DBGConsole_Msg(0, "Unknown task: %08x", pTask->t.type );
-
 			//	RSP_HLE_DumpTaskInfo( pTask );
 			//	RDP_DumpRSPCode("boot",    0xDEAFF00D, (u32*)(g_pu8RamBase + (((u32)pTask->t.ucode_boot)&0x00FFFFFF)), 0x04001000, pTask->t.ucode_boot_size);
 			//	RDP_DumpRSPCode("unkcode", 0xDEAFF00D, (u32*)(g_pu8RamBase + (((u32)pTask->t.ucode)&0x00FFFFFF)),      0x04001080, 0x1000 - 0x80);//pTask->t.ucode_size);
 			break;
-            #endif
 	}
 
 	// Started and completed. No need to change cores. [synchronously]

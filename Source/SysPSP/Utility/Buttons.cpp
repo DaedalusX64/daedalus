@@ -41,15 +41,22 @@ extern "C"
 bool InitHomeButton()
 {
 	// Start our stack for either kernel or usermode buttons
+	//
 	int impose = CModule::Load("imposectrl.prx");
 
+	//
 	// if imposectrl.prx loaded correctly, let's do some magic to take (forcely) control of HOME button
+	//
 	if(impose >= 0)
 	{
+		//
 		// Unset home button and imposed to allow use it as normal button
+		//
 		SetImposeHomeButton();
 
+		//
 		// Stop and unload imposectrl.prx since we only needed it once to impose HOME button
+		//
 		CModule::Unload( impose );
 
 		return true;
@@ -57,6 +64,9 @@ bool InitHomeButton()
 
 	//
 	// Errg for some reasons we couldn't load imposectrl.prx, OFW?
+	// Anyways it'll sort of works in >=6XX
+	// BTW We didn't load anything.. so no point to unload anything at this point
+	//
 	return false;	// In < 5XX Daedalus will be crippled.. warn user what up..
 }
 

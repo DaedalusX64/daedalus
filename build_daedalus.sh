@@ -49,10 +49,10 @@ function finalPrep() {
 
 function buildPSP() {
 
-  make -C "$PWD/../Source/SysPSP/DveMgr"
-  make -C "$PWD/../Source/SysPSP/ExceptionHandler/prx"
-  make -C "$PWD/../Source/SysPSP/KernelButtonsPrx"
-  make -C "$PWD/../Source/SysPSP/MediaEnginePRX"
+  make -C "$PWD/../Source/SysPSP/PRX/DveMgr"
+  make -C "$PWD/../Source/SysPSP/PRX/ExceptionHandler"
+  make -C "$PWD/../Source/SysPSP/PRX/KernelButtons"
+  make -C "$PWD/../Source/SysPSP/PRX/MediaEngine"
 
   make
   #No point continuing if the elf file doesn't exist

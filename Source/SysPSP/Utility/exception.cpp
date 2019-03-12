@@ -8,6 +8,7 @@
 #include <pspkernel.h>
 #include <pspsdk.h>
 #include <pspctrl.h>
+#include <kubridge.h>
 
 #include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
@@ -39,6 +40,11 @@ static const unsigned char regName[32][5] =
     "t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra"
 };
 
+const char * const		pspModel[6] =
+{
+	"PSP PHAT", "PSP SLIM", "PSP BRITE", "PSP BRITE", "PSP GO", "UNKNOWN PSP"
+};
+extern bool PSP_IS_SLIM;
 
 static void DumpInformation(PspDebugRegBlock * regs)
 {
@@ -111,7 +117,8 @@ static void DumpInformation(PspDebugRegBlock * regs)
 	fprintf(fp, "\nPSP Infomation:\n");
 	{
 		fprintf(fp, "\tFirmware:         0x%08x\n", sceKernelDevkitVersion());
-//		fprintf(fp, "\t64MB Available:   %s\n", PSP_IS_SLIM ? "Yes" : "No");
+		fprintf(fp, "\tModel:            %s\n", pspModel[ kuKernelGetModel() ]);
+		fprintf(fp, "\t64MB Available:   %s\n", PSP_IS_SLIM ? "Yes" : "No");
 	}
 
 	fprintf(fp, "\nSettings:\n");
@@ -190,7 +197,6 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 		//pspDebugScreenPrintf("Firmware  - %08X\n", sceKernelDevkitVersion());
 		//pspDebugScreenPrintf("Model	- %s\n", pspModel[ kuKernelGetModel() ]);
 		//pspDebugScreenPrintf("64MB	 - %s\n", PSP_IS_SLIM ? "Yes" : "No");
-		//pspDebugScreenPrintf("Revision  - "SVNVERSION"\n\n");
 		//pspDebugScreenPrintf("Exception - %s\n",codeTxt[(regs->cause >> 2) & 31]);
 		pspDebugScreenPrintf(" EPC[%08X] ", (u32)regs->epc);
 		pspDebugScreenPrintf("Cause[%08X] ", (u32)regs->cause);

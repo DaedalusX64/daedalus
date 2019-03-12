@@ -19,10 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static void WriteValueInvalid( u32 address, u32 value )
 {
-#ifdef DAEDALUS_DEBUG_CONSOLE
 	DPF( DEBUG_MEMORY, "Illegal Memory Access Tried to Write To 0x%08x PC: 0x%08x", address, gCPUState.CurrentPC );
 	DBGConsole_Msg(0, "Illegal Memory Access: Tried to Write To 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC);
-#endif
 }
 
 static void WriteValueMapped( u32 address, u32 value )
@@ -53,26 +51,20 @@ static void WriteValue_8000_807F( u32 address, u32 value )
 // 0x03F0 0000 to 0x03FF FFFF  RDRAM registers
 static void WriteValue_83F0_83F0( u32 address, u32 value )
 {
-    #ifdef DAEDALUS_ENABLE_PROFILING
 	DPF( DEBUG_MEMORY_RDRAM_REG, "Writing to MEM_RD_REG: 0x%08x", address );
-#endif
 	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_RD_REG0] + (address & 0xFF)) = value;
 }
 
 // 0x0400 0000 to 0x0400 FFFF  SP registers
 static void WriteValue_8400_8400( u32 address, u32 value )
 {
-    #ifdef DAEDALUS_ENABLE_PROFILING
 	DPF( DEBUG_MEMORY_SP_IMEM, "Writing to SP_MEM: 0x%08x", address );
-    #endif
 	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_SP_MEM] + (address & 0x1FFF)) = value;
 }
 
 static void WriteValue_8404_8404( u32 address, u32 value )
 {
-    #ifdef DAEDALUS_ENABLE_PROFILING
 	DPF( DEBUG_MEMORY_SP_REG, "Writing to SP_REG: 0x%08x/0x%08x", address, value );
-#endif
 	u32 offset = address & 0xFF;
 
 	switch (offset)
@@ -111,18 +103,14 @@ static void WriteValue_8404_8404( u32 address, u32 value )
 // 0x04080004 to 0x04080007  SP_IBIST_REG
 static void WriteValue_8408_8408( u32 address, u32 value )
 {
-    #ifdef DAEDALUS_ENABLE_PROFILING
 	DPF( DEBUG_MEMORY_SP_REG, "Writing to SP_PC_REG: 0x%08x/0x%08x", address, value );
-#endif
 	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_SP_PC_REG] + (address & 0xFF)) = value;
 }
 
 // 0x0410 0000 to 0x041F FFFF DP Command Registers
 static void WriteValue_8410_841F( u32 address, u32 value )
 {
-    #ifdef DAEDALUS_ENABLE_PROFILING
-    DPF( DEBUG_MEMORY_DP, "Writing to DP_COMMAND_REG: 0x%08x", address );
-#endif
+	DPF( DEBUG_MEMORY_DP, "Writing to DP_COMMAND_REG: 0x%08x", address );
 	u32 offset = address & 0xFF;
 
 	switch (offset)
@@ -138,10 +126,8 @@ static void WriteValue_8410_841F( u32 address, u32 value )
 		Memory_DPC_SetRegister( DPC_END_REG, value );
 		//
 		// ToDo : Implement ProcessRDPList (LLE DList)
-            //
-    #ifdef DAEDALUS_DEBUG_CONSOLE
+		//
 		DBGConsole_Msg( 0, "Wrote to [WDPC_END_REG] 0x%08x", value );
-    #endif
 		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_DP);
 		R4300_Interrupt_UpdateCause3();
 		break;
@@ -165,18 +151,15 @@ static void WriteValue_8410_841F( u32 address, u32 value )
 // 0x0420 0000 to 0x042F FFFF DP Span Registers
 static void WriteValue_8420_842F( u32 address, u32 value )
 {
-    #ifdef DAEDALUS_DEBUG_CONSOLE
-	DBGConsole_Msg(0, "Write to DP Span Registers is unhandled (0x%08x, PC: 0x%08x)", address, gCPUState.CurrentPC);
-#endif
+	DBGConsole_Msg(0, "Write to DP Span Registers is unhandled (0x%08x, PC: 0x%08x)",
+		address, gCPUState.CurrentPC);
 }
 
 
 // 0x0430 0000 to 0x043F FFFF MIPS Interface (MI) Registers
 static void WriteValue_8430_843F( u32 address, u32 value )
 {
-#ifdef DAEDALUS_ENABLE_PROFILING
 	DPF( DEBUG_MEMORY_MI, "Writing to MI Registers: 0x%08x", address );
-#endif
 	u32 offset = address & 0xFF;
 
 	switch (offset)
@@ -220,9 +203,7 @@ static void WriteValue_8440_844F( u32 address, u32 value )
 	switch (offset)
 	{
 	case 0x0:	// VI_CONTROL_REG
-            #ifdef DAEDALUS_ENABLE_PROFILING
 		DPF( DEBUG_VI, "VI_CONTROL_REG set to 0x%08x", value );
-#endif
 #ifdef DAEDALUS_LOG
 		DisplayVIControlInfo(value);
 #endif
@@ -233,10 +214,9 @@ static void WriteValue_8440_844F( u32 address, u32 value )
 		break;
 
 	case 0x4:	// VI_ORIGIN_REG
-            #ifdef DAEDALUS_ENABLE_PROFILING
 		DPF( DEBUG_VI, "VI_ORIGIN_REG set to %d", value );
-#endif
-            // NB: if no display lists executed, inte#rpret framebuffer
+
+		 // NB: if no display lists executed, interpret framebuffer
 		if( gRDPFrame == 0 )
 		{
 			RenderFrameBuffer(value & 0x7FFFFF);
@@ -251,9 +231,7 @@ static void WriteValue_8440_844F( u32 address, u32 value )
 		break;
 
 	case 0x8:	// VI_WIDTH_REG
-            #ifdef DAEDALUS_ENABLE_PROFILING
 		DPF( DEBUG_VI, "VI_WIDTH_REG set to %d pixels", value );
-#endif
 		if (gGraphicsPlugin != NULL)
 		{
 			gGraphicsPlugin->ViWidthChanged();
@@ -261,12 +239,11 @@ static void WriteValue_8440_844F( u32 address, u32 value )
 		break;
 
 	case 0x10:	// VI_CURRENT_REG
-#ifdef DAEDALUS_ENABLE_PROFILING
 		DPF( DEBUG_VI, "VI_CURRENT_REG set to 0x%08x", value );
 
 		// Any write clears interrupt line...
 		DPF( DEBUG_VI, "VI: Clearing interrupt flag. PC: 0x%08x", gCPUState.CurrentPC );
-#endif
+
 		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_VI);
 		R4300_Interrupt_UpdateCause3();
 		return;
@@ -279,9 +256,7 @@ static void WriteValue_8440_844F( u32 address, u32 value )
 // 0x0450 0000 to 0x045F FFFF Audio Interface (AI) Registers
 static void WriteValue_8450_845F( u32 address, u32 value )
 {
-    #ifdef DAEDALUS_ENABLE_PROFILING
 	DPF( DEBUG_MEMORY_AI, "Writing to AI Registers: 0x%08x", address );
-    #endif
 	u32 offset = address & 0xFF;
 
 	switch (offset)
@@ -353,18 +328,15 @@ static void WriteValue_8460_846F( u32 address, u32 value )
 // 0x0470 0000 to 0x047F FFFF RDRAM Interface (RI) Registers
 static void WriteValue_8470_847F( u32 address, u32 value )
 {
-    #ifdef DAEDALUS_ENABLE_PROFILING
 	DPF( DEBUG_MEMORY_RI, "Writing to MEM_RI_REG: 0x%08x", address );
-#endif
 	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_RI_REG] + (address & 0xFF)) = value;
 }
 
 // 0x0480 0000 to 0x048F FFFF Serial Interface (SI) Registers
 static void WriteValue_8480_848F( u32 address, u32 value )
 {
-    #ifdef DAEDALUS_ENABLE_PROFILING
 	DPF( DEBUG_MEMORY_SI, "Writing to MEM_SI_REG: 0x%08x", address );
-    #endif
+
 	u32 offset = address & 0xFF;
 	switch (offset)
 	{
@@ -398,22 +370,18 @@ static void WriteValue_8480_848F( u32 address, u32 value )
 // 0x1FC0 07C0 to 0x1FC0 07FF PIF RAM
 static void WriteValue_9FC0_9FCF( u32 address, u32 value )
 {
-	u32 offset = address & 0x0FFF; 
+	u32 offset = address & 0x0FFF;
 	u32 pif_ram_offset = address & 0x3F;
-    #ifdef DAEDALUS_DEBUG_CONSOLE
-	// Writing PIF ROM or outside PIF RAM
 
+	// Writing PIF ROM or outside PIF RAM
 	if ((offset < 0x7C0) || (offset > 0x7FF))
 	{
-
 		DBGConsole_Msg(0, "[GWrite to PIF (0x%08x) is invalid", address);
 		return;
 	}
-#endif
-    #ifdef DAEDALUS_ENABLE_PROFILING
+
 	DPF( DEBUG_MEMORY_PIF, "Writing to MEM_PIF_RAM: 0x%08x", address );
-#endif
-    *(u32 *)((u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + pif_ram_offset) = value;
+	*(u32 *)((u8 *)g_pMemoryBuffers[MEM_PIF_RAM] + pif_ram_offset) = value;
 	if (pif_ram_offset == 0x3C)
 	{
 		MemoryUpdatePIF();
@@ -431,9 +399,7 @@ static void WriteValue_FlashRam( u32 address, u32 value )
 			return;
 		}
 	}
-#ifdef DAEDALUS_DEBUG_CONSOLE
-    DBGConsole_Msg(0, "[GWrite to FlashRam (0x%08x) is invalid", address);
-#endif
+	DBGConsole_Msg(0, "[GWrite to FlashRam (0x%08x) is invalid", address);
 }
 
 static void WriteValue_ROM( u32 address, u32 value )
@@ -441,8 +407,7 @@ static void WriteValue_ROM( u32 address, u32 value )
 	// Write to ROM support
 	// A Bug's Life and Toy Story 2 write to ROM, add support by storing written value which is used when reading from Rom.
 	g_pWriteRom = value;
-#ifdef DAEDALUS_DEBUG_CONSOLE
+
 	DBGConsole_Msg(0, "[YWarning : Wrote to ROM -> [0x%08x]", value);
-#endif
 	g_RomWritten = true;
 }

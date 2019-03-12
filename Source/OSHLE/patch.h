@@ -111,7 +111,7 @@ static PatchCrossRef g_##label##_x[] = {
 { offset, PX_VARIABLE_HI, NULL, &g_##symbol##_v },
 
 #define END_PATCH_XREFS() \
-{ static_cast<u32>(~0), PX_JUMP, NULL, NULL }	\
+	{ static_cast<u32>(~0), PX_JUMP, NULL, NULL }		\
 };
 
 /////////////////////////////////////////////////////////////////

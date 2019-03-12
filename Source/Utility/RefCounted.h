@@ -36,9 +36,7 @@ class CRefCounted
 	protected:
 		virtual ~CRefCounted()
 		{
-			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( mRefCount == 0, "Prematurely deleting refcounted object?" );
-			#endif
 		}
 
 	public:
@@ -48,9 +46,7 @@ class CRefCounted
 		}
 		u32		Release()
 		{
-			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( mRefCount > 0, "RefCount underflow!" );
-			#endif
 			mRefCount--;
 			u32	ref_count( mRefCount );
 

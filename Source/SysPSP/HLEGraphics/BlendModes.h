@@ -41,4 +41,3 @@ OverrideBlendModeFn		LookupOverrideBlendModeInexact( u64 mux );
 OverrideBlendModeFn		LookupOverrideBlendModeForced( u64 mux );
 
 #endif // SYSPSP_HLEGRAPHICS_BLENDMODES_H_
-

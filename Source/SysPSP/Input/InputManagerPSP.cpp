@@ -416,9 +416,8 @@ void IInputManager::GetState( OSContPad pPad[4] )
 	pPad[0].stick_x =  s8(stick.x * N64_ANALOGUE_STICK_RANGE);
 	pPad[0].stick_y = -s8(stick.y * N64_ANALOGUE_STICK_RANGE);
 
-#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mpControllerConfig != NULL, "We should always have a valid controller" );
-#endif
+
 	SwapJoyStick(&pPad[0], &pad);
 
 	pPad[0].button = mpControllerConfig->GetN64ButtonsState( pad.Buttons );
@@ -435,9 +434,8 @@ void IInputManager::GetState( OSContPad pPad[4] )
 //*****************************************************************************
 template<> bool	CSingleton< CInputManager >::Create()
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-#endif
+
 	IInputManager * manager( new IInputManager() );
 
 	if(manager->Initialise())
@@ -487,9 +485,7 @@ u32 GetOperatorPrecedence( char op )
 	case '&':		return 1;
 	case '|':		return 0;
 	default:
-#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Unhandled operator" );
-		#endif
 		return 0;
 	}
 }
@@ -590,9 +586,7 @@ void	CButtonMappingExpressionEvaluator::HandleOperator( char op, std::stack<CBut
 		}
 		break;
 	default:
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Unhandled operator" );
-		#endif
 		break;
 	}
 }
@@ -905,9 +899,7 @@ const char *	IInputManager::GetConfigurationName( u32 configuration_idx ) const
 	}
 	else
 	{
-		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ERROR( "Invalid controller config" );
-		#endif
 		return "?";
 	}
 }
@@ -923,9 +915,7 @@ const char *	IInputManager::GetConfigurationDescription( u32 configuration_idx )
 	}
 	else
 	{
-		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ERROR( "Invalid controller config" );
-		#endif
 		return "?";
 	}
 }
@@ -938,16 +928,12 @@ void			IInputManager::SetConfiguration( u32 configuration_idx )
 	if( configuration_idx < mControllerConfigs.size() )
 	{
 		mpControllerConfig = mControllerConfigs[ configuration_idx ];
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "Setting the controller to [c%s]", mpControllerConfig->GetName() );
-		#endif
 	}
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 	else
 	{
 		DAEDALUS_ERROR( "Invalid controller config" );
 	}
-	#endif
 }
 
 //*****************************************************************************
@@ -1001,10 +987,9 @@ v2	ProjectToUnitSquare( const v2 & in )
 //*************************************************************************************
 v2	ApplyDeadzone( const v2 & in, f32 min_deadzone, f32 max_deadzone )
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( min_deadzone >= 0.0f && min_deadzone <= 1.0f, "Invalid min deadzone" );
 	DAEDALUS_ASSERT( max_deadzone >= 0.0f && max_deadzone <= 1.0f, "Invalid max deadzone" );
-#endif
+
 	float	length( in.Length() );
 
 	if( length < min_deadzone )
@@ -1016,3 +1001,4 @@ v2	ApplyDeadzone( const v2 & in, f32 min_deadzone, f32 max_deadzone )
 
 	return ProjectToUnitSquare( in * (scale / length) );
 }
+

@@ -61,9 +61,8 @@ bool FramerateLimiter_Reset()
 
 	if(NTiming::GetPreciseFrequency(&frequency))
 	{
-		#ifdef DAEDALUS_ENABLE_ASSERTS
-		DAEDALUS_ASSERT(g_ROM.TvType <= sizeof(gTvFrequencies) / sizeof(u32), "Unknown TV type: %d", g_ROM.TvType);
-		#endif
+		DAEDALUS_ASSERT(g_ROM.TvType <= sizeof(gTvFrequencies) / sizeof(u32), "Unknow TV type: %d", g_ROM.TvType);
+
 		gTicksBetweenVbls = (u32)(frequency / (u64)gTvFrequencies[ g_ROM.TvType ]);
 		gTicksPerSecond = (u32)frequency;
 	}

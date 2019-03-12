@@ -2,12 +2,11 @@
 #define SYSGL_GL_H_
 
 #include <GL/glew.h>
-#include <SDL2/SDL_opengl.h>
-#include <SDL2/SDL.h>
+#include <GLFW/glfw3.h>
 
 #include "Utility/DaedalusTypes.h"
 
-extern SDL_Window * gWindow;
+extern GLFWwindow * gWindow;
 
 // FIXME: burn all of this with fire.
 

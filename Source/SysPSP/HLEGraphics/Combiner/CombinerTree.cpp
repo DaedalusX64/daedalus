@@ -495,9 +495,7 @@ void	CCombinerTree::GenerateRenderSettings( CBlendStates * states, const CCombin
 			// Recurse
 			if( sum->IsTermNegated( i ) )
 			{
-				#ifdef DAEDALUS_DEBUG_CONSOLE
 				printf( "Negative term!!\n" );
-				#endif
 				COutputStringStream	str;
 				str << "- ";
 				sum->Stream( str );

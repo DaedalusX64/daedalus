@@ -37,9 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static void SPNOOP( AudioHLECommand command )
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DBGConsole_Msg( 0, "AudioHLE: Unknown/Unimplemented Audio Command %i in ABI 2", command.cmd );
-	#endif
 }
 
 bool isMKABI = false;
@@ -506,9 +504,7 @@ static void INTERLEAVE2( AudioHLECommand command )  // Needs accuracy verificati
 // XXXX Doesn't seem to do anything!
 static void ADDMIXER( AudioHLECommand command )
 {
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "ADDMIXER - broken?" );
-	#endif
 	/*u32 Count     = (command.cmd0 >> 12) & 0x00ff0;
 	u32 InBuffer  = (command.cmd1 >> 16);
 	u32 OutBuffer = command.cmd1 & 0xffff;

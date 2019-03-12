@@ -149,11 +149,10 @@ static bool GenerateTexels(void ** p_texels,
 
 static void UpdateTexture( const TextureInfo & ti, CNativeTexture * texture )
 {
-	#ifdef DAEDALUS_ENABLE_PROFILING
 	DAEDALUS_PROFILE( "Texture Conversion" );
 
 	DAEDALUS_ASSERT( texture != NULL, "No texture" );
-#endif
+
 	if ( texture != NULL && texture->HasData() )
 	{
 		ETextureFormat	format = texture->GetFormat();
@@ -195,13 +194,11 @@ static void UpdateTexture( const TextureInfo & ti, CNativeTexture * texture )
 
 CachedTexture * CachedTexture::Create( const TextureInfo & ti )
 {
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 	if( ti.GetWidth() == 0 || ti.GetHeight() == 0 )
 	{
 		DAEDALUS_ERROR( "Trying to create 0 width/height texture" );
 		return NULL;
 	}
-	#endif
 
 	CachedTexture *	texture = new CachedTexture( ti );
 	if (!texture->Initialise())
@@ -227,9 +224,7 @@ CachedTexture::~CachedTexture()
 
 bool CachedTexture::Initialise()
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpTexture == NULL);
-	#endif
 
 	u32 width  = mTextureInfo.GetWidth();
 	u32 height = mTextureInfo.GetHeight();

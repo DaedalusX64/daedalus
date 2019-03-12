@@ -73,6 +73,26 @@ CAudioPluginPsp::~CAudioPluginPsp()
 	delete mAudioOutput;
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
+CAudioPluginPsp *	CAudioPluginPsp::Create()
+{
+	return new CAudioPluginPsp();
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+/*
+void	CAudioPluginPsp::SetAdaptFrequecy( bool adapt )
+{
+	mAudioOutput->SetAdaptFrequency( adapt );
+}
+*/
+//*****************************************************************************
+//
+//*****************************************************************************
 bool		CAudioPluginPsp::StartEmulation()
 {
 	return true;
@@ -107,8 +127,8 @@ void	CAudioPluginPsp::LenChanged()
 	{
 		//mAudioOutput->SetAdaptFrequency( gAdaptFrequency );
 
-		u32		address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
-		u32	length  = Memory_AI_GetRegister(AI_LEN_REG);
+		u32		address( Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF );
+		u32		length(Memory_AI_GetRegister(AI_LEN_REG));
 
 		mAudioOutput->AddBuffer( g_pu8RamBase + address, length );
 	}
@@ -169,7 +189,7 @@ EProcessResult	CAudioPluginPsp::ProcessAList()
 {
 	Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_HALT);
 
-	EProcessResult	result = PR_NOT_STARTED;
+	EProcessResult	result( PR_NOT_STARTED );
 
 	switch( gAudioPluginEnabled )
 	{
@@ -197,5 +217,5 @@ EProcessResult	CAudioPluginPsp::ProcessAList()
 //*****************************************************************************
 CAudioPlugin *		CreateAudioPlugin()
 {
-	return new CAudioPluginPsp();
+	return CAudioPluginPsp::Create();
 }
