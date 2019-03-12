@@ -423,6 +423,7 @@ void IRomSelectorComponent::RenderRomList()
 	u32		line_height( font_height + 2 );
 
 	s32		x( LIST_TEXT_LEFT );
+
 	s32		y( BELOW_MENU_MIN + mCurrentScrollOffset * scale + font_height );
 
 	sceGuEnable(GU_SCISSOR_TEST);
@@ -687,7 +688,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
   const u32		font_height( mpContext->GetFontHeight() );
 	const u32		line_height( font_height + 2 );
 
-	if( mRomsList.size() > LIST_TEXT_HEIGHT )
+	if( mRomsList.size() * line_height > LIST_TEXT_HEIGHT )
 	{
 		s32		current_selection_y = s32((mCurrentSelection + current_vel * 10) * line_height) + (line_height/2) + mCurrentScrollOffset;
 		s32		adjust_amount( (LIST_TEXT_HEIGHT/2) - current_selection_y );
@@ -701,7 +702,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 
     while(mSelectionAccumulator >= 1.0f)
     {
-      if(mCurrentSelection < mRomsList.size())
+    	if(mCurrentSelection < mRomsList.size() - 1)
       {
         mCurrentSelection++;
       }
