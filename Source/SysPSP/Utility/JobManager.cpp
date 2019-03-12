@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Utility/ModulePSP.h"
 #include "Utility/Mutex.h"
 #include "Utility/Thread.h"
+#include "Utility/FastMemcpy.h"
 
 #ifdef DAEDALUS_PSP_USE_ME
 bool gLoadedMediaEnginePRX = false;
@@ -173,7 +174,7 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 	// Add job to queue
 	if( job_size <= mJobBufferSize )
 	{
-		memcpy( mJobBuffer, job, job_size );
+		memcpy_vfpu( mJobBuffer, job, job_size );
 		//printf( "Adding job...signaling\n" );
 		sceKernelSignalSema( mWorkReady, 1 );
 
