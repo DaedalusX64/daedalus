@@ -572,6 +572,7 @@ void IRomSelectorComponent::Render()
 
 void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
+
 	static const float	SCROLL_RATE_PER_SECOND = 20.0f;		// 25 roms/second
 
 	/*Apply stick deadzone preference in the RomSelector menu*/
@@ -660,15 +661,12 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		else if((new_buttons & PSP_CTRL_START) ||
 			(new_buttons & PSP_CTRL_CROSS))
 		{
-			if(mCurrentSelection < mRomsList.size())
-			{
 				mSelectedRom = mRomsList[ mCurrentSelection ]->mFilename;
 
 				if(OnRomSelected != NULL)
 				{
 					(*OnRomSelected)( mSelectedRom.c_str() );
 				}
-			}
 		}
 
 		if(new_buttons != 0) mRomDelete = false; // DONT CHANGE ORDER clear it if any button has been pressed
@@ -700,10 +698,10 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		s32	new_scroll_offset = mCurrentScrollOffset + s32(float(adjust_amount) * d);
 
 		mCurrentScrollOffset = Clamp( 0, min_offset, new_scroll_offset);
-    
+
     while(mSelectionAccumulator >= 1.0f)
     {
-      if(mCurrentSelection < mRomsList.size() - 1)
+      if(mCurrentSelection < mRomsList.size())
       {
         mCurrentSelection++;
       }
@@ -728,14 +726,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 	//
 	//	Increase a timer is the current selection is still the same (i.e. if we've not scrolled)
 	//
-	if( initial_selection == mCurrentSelection )
-	{
-		mTimeSinceScroll += elapsed_time;
-	}
-	else
-	{
-		mTimeSinceScroll = 0;
-	}
+
 
 	//
 	//	If the current selection is different from the preview, invalidate the picture.
