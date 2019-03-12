@@ -1,13 +1,13 @@
-Daedalusx64 Pre-Beta 3 Readme File
-Copyright (C) 2001-2013 StrmnNrmn
-Copyright (C) 2008-2013 DaedalusX64 Team
+Daedalusx64 1.1.7 Readme
+Copyright (C) 2001-2019 StrmnNrmn
+Copyright (C) 2008-2019 DaedalusX64 Team
 
-This document last edited 31 May 2013
+This document last edited 12 March 2019
 
 What is Daedalus?
 *****************
 
-Daedalus is a Nintendo 64 emulator for Windows and PSP. Daedalus is named after
+Daedalus is a Nintendo 64 emulator for Windows, macOS, Linux and PSP. Daedalus is named after
 the craftsman at King Minos's court who designed the labyrinth for the Minotaur.
 
 Getting the Latest Version
@@ -33,22 +33,6 @@ Having said all that, We believe most of these problems can be overcome in the
 near future.
 
 
-Compatibility List / Forums
-http:// compat.daedalusx64.com / http://www.daedalusx64.com
-***************************
-
-Please check the compatibility list frequently as changes may be made to
-specific versions which could mean your favourite game might start working.
-
-We would also like you to register on the forums which would give you many
-benefits such as:
-
-a) ability to update the compatibility list and report bugs.
-b) ability to possibly join the team as a tester / developer if interested.
-c) tell us any ideas you may have for the emulator.
-d) join a great community.
-
-
 Using Daedalusx64
 **************
 
@@ -57,8 +41,7 @@ Installation
 
 Copy the Daedalus folder to the \PSP\GAME\ folder on your PSP.
 
-Daedalus requires Custom Firmware 4.00 or higher, failing to install CFW 4.00 or
-higher will mean Daedalus does not load past the firmware check screen.
+Daedalus requires Custom Firmware 4.00 or higher and will not work on earlier firmwares
 
 
 Upgrade Procedure
@@ -181,12 +164,6 @@ To be rewarded official tester Status, you must remain active and post useful,
 clear and precise information for everyone to read then elected by staff.
 
 
-Support, Comments, Chat
-***********************
-
-www.DaedalusX64.com
-
-irc.freenode.net #daedalusx64
 
 Credits
 *******
@@ -230,6 +207,8 @@ Chilly Willy
 Maxi_Jack
 Wally
 Kreationz
+z2442
+
 
 Copying
 *******

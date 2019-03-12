@@ -572,7 +572,7 @@ void IRomSelectorComponent::Render()
 
 void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
-	static const float	SCROLL_RATE_PER_SECOND = 25.0f;		// 25 roms/second
+	static const float	SCROLL_RATE_PER_SECOND = 20.0f;		// 25 roms/second
 
 	/*Apply stick deadzone preference in the RomSelector menu*/
 	v2 stick_dead(ApplyDeadzone( stick, gGlobalPreferences.StickMinDeadzone, gGlobalPreferences.StickMaxDeadzone ));
@@ -629,7 +629,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 
 		if(new_buttons & PSP_CTRL_UP)
 		{
-		if(mCurrentSelection < mRomsList.size() - 1)
+		if(mCurrentSelection > 0)
 			{
 				mCurrentSelection--;
 			}
@@ -700,6 +700,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		s32	new_scroll_offset = mCurrentScrollOffset + s32(float(adjust_amount) * d);
 
 		mCurrentScrollOffset = Clamp( 0, min_offset, new_scroll_offset);
+    
     while(mSelectionAccumulator >= 1.0f)
     {
       if(mCurrentSelection < mRomsList.size() - 1)
@@ -711,7 +712,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
     }
     while(mSelectionAccumulator <= -1.0f)
     {
-      if(mCurrentSelection < mRomsList.size() + 1)
+      if(mCurrentSelection > 0)
       {
         mCurrentSelection--;
       }
