@@ -320,6 +320,7 @@ CGlobalSettingsComponent *	CGlobalSettingsComponent::Create( CUIContext * p_cont
 IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 :	CGlobalSettingsComponent( p_context )
 {
+
 	mElements.Add( new CInfoSetting( "Display Info", "Whether to show additional info while the rom is running. Some modes are only available in DEBUG mode") );
 	mElements.Add( new CViewPortSetting( "Viewport Size", "The size of the viewport on the PSP." ) );
 
@@ -389,7 +390,7 @@ void	IGlobalSettingsComponent::Update( float elapsed_time, const v2 & stick, u32
 
 void	IGlobalSettingsComponent::Render()
 {
-	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, MENU_TOP );
+	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN );
 
 	CUIElement *	element( mElements.GetSelectedElement() );
 	if( element != NULL )

@@ -2,16 +2,14 @@
 #include "SysPSP/Utility/PathsPSP.h"
 
 // User Interface Variables
-// TODO: Adjust so that they scale to other resolutions
 const s16 SCREEN_WIDTH {480};
 const s16 SCREEN_HEIGHT {272};
-
 
 // to do adjust values to suit multiple screens
 const s16 MENU_TOP {0};
 const s16 TITLE_HEADER {10};
 
-const s16 BELOW_MENU_MIN {33};
+const s16 BELOW_MENU_MIN {33}; // Rename this as it's confusing
 
 const s16 LIST_TEXT_LEFT {13};
 const s16 LIST_TEXT_WIDTH {SCREEN_WIDTH - LIST_TEXT_LEFT};
@@ -23,25 +21,41 @@ const s16 PREVIEW_IMAGE_RIGHT {464};
 const s16 PREVIEW_IMAGE_WIDTH {PREVIEW_IMAGE_RIGHT - PREVIEW_IMAGE_LEFT};
 const s16 PREVIEW_IMAGE_HEIGHT {PREVIEW_IMAGE_BOTTOM - BELOW_MENU_MIN};
 
+const s16 DESCRIPTION_AREA_TOP {0};
+const s16 DESCRIPTION_AREA_LEFT {16};
+const s16 DESCRIPTION_AREA_RIGHT {SCREEN_WIDTH - 16};
+const s16 DESCRIPTION_AREA_BOTTOM {SCREEN_HEIGHT - 10};
+
 const s16 ROM_INFO_TEXT_X {318};
 const s16 ROM_INFO_TEXT_Y {154};
 const s16 BATTERY_INFO {200};
-// Splash Screen
-const float	MAX_TIME  {0.8f};
-const char * const	LOGO_FILENAME {DAEDALUS_PSP_PATH( "Resources/logo.png" )};
 
 const s16 CATEGORY_TEXT_TOP {BELOW_MENU_MIN + LIST_TEXT_HEIGHT + 5};
 const s16 CATEGORY_TEXT_LEFT {LIST_TEXT_LEFT};
+
+const char		gCategoryLetters[] = "#abcdefghijklmnopqrstuvwxyz?";
+
+enum ECategory
+{
+  C_NUMBERS = 0,
+  C_A, C_B, C_C, C_D, C_E, C_F, C_G, C_H, C_I, C_J, C_K, C_L, C_M,
+  C_N, C_O, C_P, C_Q, C_R, C_S, C_T, C_U, C_V, C_W, C_X, C_Y, C_Z,
+  C_UNK,
+  NUM_CATEGORIES,
+};
+
+// Splash Screen
+
+const float	MAX_TIME  {0.8f}; // Rename to something more sane
+const char * const	LOGO_FILENAME {DAEDALUS_PSP_PATH( "Resources/logo.png" )};
+
+
+
+
 const s16 NUM_SAVESTATE_SLOTS {15};
 const char * const		SAVING_STATUS_TEXT  = "Saving...";
 const char * const		LOADING_STATUS_TEXT = "Loading...";
 const s16				INVALID_SLOT = s16( -1 );
-
-
-const s16 DESCRIPTION_AREA_TOP {0};
-const s16 DESCRIPTION_AREA_LEFT {16};
-const s16 DESCRIPTION_AREA_RIGHT { SCREEN_WIDTH - 16};
-const s16 DESCRIPTION_AREA_BOTTOM {SCREEN_HEIGHT - 10};
 
 
 
@@ -56,28 +70,32 @@ const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Revision ";
 
 const char * const		DATE_TEXT = "Built ";
 
+const char * const		URL_TEXT_1 = "http://DaedalusX64.com/";
+const char * const		URL_TEXT_2 = "http://sf.net/projects/daedalusx64/";
+
 const char * const		INFO_TEXT[] =
 {
-  "Copyright (C) 2008-2012 DaedalusX64 Team",
+  "Copyright (C) 2008-2019 DaedalusX64 Team",
   "Copyright (C) 2001-2009 StrmnNrmn",
   "Audio HLE code by Azimer",
   "",
   "For news and updates visit:",
 };
 
+
 const char * const		pspModel[ MAX_PSP_MODEL ] =
 {
   "PSP PHAT", "PSP SLIM", "PSP BRITE", "PSP BRITE", "PSP GO", "UNKNOWN PSP"
 };
 
-const char * const		URL_TEXT_1 = "http://DaedalusX64.com/";
-const char * const		URL_TEXT_2 = "http://sf.net/projects/daedalusx64/";
+
 
 // Adjust Dead Zone Screen
 
 
 const char * const	INSTRUCTIONS_TEXT = "Adjust the minimum and maximum deadzone regions. Up/Down: Increase or decrease the deadzone. Left/Right: Select minimum or maximum deadzone for adjusting. Triangle: Reset to defaults. Start/X: Confirm. Select/Circle: Cancel";
-const char * const		TITLE_TEXT = "Adjust Stick Deadzone";
+const char * const		TITLE_TEXT = "Adjust Stick Deadzone"; // Make more sane
+
 
 const u32				TITLE_Y = 10;
 
@@ -101,7 +119,6 @@ const f32				DEADZONE_INCREMENT = 0.01f;
 
 const f32				DEFAULT_MIN_DEADZONE = 0.28f;		// Kind of gross - share somehow with IInputManager?
 const f32				DEFAULT_MAX_DEADZONE = 1.0f;
-
 // Rom Selector component
 
 const char * const		gRomsDirectories[] =
@@ -114,16 +131,7 @@ const char * const		gRomsDirectories[] =
 #endif
 };
 
-const char		gCategoryLetters[] = "#abcdefghijklmnopqrstuvwxyz?";
 
-enum ECategory
-{
-  C_NUMBERS = 0,
-  C_A, C_B, C_C, C_D, C_E, C_F, C_G, C_H, C_I, C_J, C_K, C_L, C_M,
-  C_N, C_O, C_P, C_Q, C_R, C_S, C_T, C_U, C_V, C_W, C_X, C_Y, C_Z,
-  C_UNK,
-  NUM_CATEGORIES,
-};
 
 
 
@@ -141,5 +149,5 @@ const char * const		gNoRomsText[] =
 
 const char * const		gPreviewDirectory = DAEDALUS_PSP_PATH( "Resources/Preview/" );
 
-const f32				PREVIEW_SCROLL_WAIT = 0.075f;		// seconds to wait for scrolling to stop before loading preview (prevent thrashing)
-const f32				PREVIEW_FADE_TIME = 0.050f;			// seconds
+const f32				PREVIEW_SCROLL_WAIT = 0.500f;		// seconds to wait for scrolling to stop before loading preview (prevent thrashing)
+const f32				PREVIEW_FADE_TIME = 0.50f;			// seconds
