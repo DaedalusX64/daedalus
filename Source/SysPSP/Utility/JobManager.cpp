@@ -200,8 +200,6 @@ void CJobManager::Run()
 		{
 			SJob *	job( static_cast< SJob * >( mJobBuffer ) );
 
-#ifdef DAEDALUS_PSP_USE_ME
-
 			if( CheckME( mei ))
 			{
 				printf("run on me\n");
@@ -211,11 +209,11 @@ void CJobManager::Run()
 				if( run->FiniJob )
 					run->FiniJob( run );
 
-					sceKernelDcacheWritebackInvalidateAll();
+				sceKernelDcacheWritebackInvalidateAll();
 
 				// copy new job to run buffer
 				memcpy( mRunBuffer, mJobBuffer, mJobBufferSize );
-				//sceKernelDcacheWritebackInvalidateRange(mRunBuffer, mJobBufferSize);
+
 				sceKernelDcacheWritebackInvalidateAll();
 
 				// signal ready for a new job
@@ -228,13 +226,13 @@ void CJobManager::Run()
 				// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
 				BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL );
 
-					run->FiniJob( run );
-					run->FiniJob = NULL; // so it doesn't get run again later
+				run->FiniJob( run );
+				run->FiniJob = NULL; // so it doesn't get run again later
+
 			}
 			else
-#endif
 			{
-				printf("run on main cpu \n");
+				printf("Media Engine is busy run on main cpu \n");
 				// Execute job initialise
 				if( job->InitJob )
 					job->InitJob( job );
@@ -257,7 +255,7 @@ void CJobManager::Run()
 				{
 					run->FiniJob( run );
 					run->FiniJob = NULL; // so it doesn't get run again later
-}
+				}
 
 			}
 		}
