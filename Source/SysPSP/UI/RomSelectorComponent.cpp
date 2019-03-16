@@ -17,78 +17,96 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-
 #include "stdafx.h"
 #include "RomSelectorComponent.h"
-
-#include <stdio.h>
-
-#include <string>
-#include <vector>
-#include <map>
-#include <algorithm>
+#include "UIContext.h"
+#include "UIScreen.h"
 
 #include <psptypes.h>
 #include <pspkernel.h>
 #include <pspctrl.h>
 #include <pspdisplay.h>
+#include <psputility.h>
 #include <pspgu.h>
 
-#include "UIContext.h"
-#include "UIScreen.h"
-#include "Dialogs.h"
+#include "Math/Vector2.h"
+#include "SysPSP/Graphics/DrawText.h"
+#include "Graphics/ColourValue.h"
+#include "Graphics/NativeTexture.h"
 
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
-#include "Debug/DBGConsole.h"
-#include "Graphics/ColourValue.h"
-#include "Graphics/NativeTexture.h"
-#include "Input/InputManager.h"
-#include "Math/MathUtil.h"
-#include "Math/Vector2.h"
-#include "SysPSP/Graphics/DrawText.h"
+
+#include "../../Input/InputManager.h"
+#include "../../Utility/Preferences.h"
+
+#include "Utility/IO.h"
+#include "Utility/ROMFile.h"
+
 #include "SysPSP/Utility/Buttons.h"
 #include "SysPSP/Utility/PathsPSP.h"
-#include "Utility/IO.h"
-#include "Utility/Macros.h"
-#include "Utility/Preferences.h"
-#include "Utility/ROMFile.h"
-#include "Utility/String.h"
+
+#include "Math/MathUtil.h"
+
+#include <string>
+#include <vector>
+#include <map>
+#include <algorithm>
 #include "PSPMenu.h"
+int romselmenuani = 0;
+int romselmenufs = 31;
+int romselmenudir = 0;
+bool sortbyletter = 0;
+float romseltextoffset = 0.0f;
+float romseltextrepos = 0.0f;
+float romseltextscale = 0.0f;
+bool isnextset = 0;
+char catstr[85] = " #  a  b  c  d  e  f  g  h  i  j  k  l  m  n  o  p  q  r  s  t  u  v  w  x  y  z  ? ";
 
-namespace {
-DAEDALUS_STATIC_ASSERT( ARRAYSIZE( gCategoryLetters ) == NUM_CATEGORIES +1 );
+pspUtilityMsgDialogParams RomSelPopUp; //Message Pop Up.
 
-ECategory		GetCategory( char c )
+namespace
 {
-  if( isalpha( c ) )
-  {
-    c = tolower( c );
-    return ECategory( C_A + (c - 'a') );
-  }
-  else if( c >= '0' && c <= '9' )
-  {
-    return C_NUMBERS;
-  }
-  else
-  {
-    return C_UNK;
-  }
-}
-};
 
-char	GetCategoryLetter( ECategory category )
-{
-  DAEDALUS_ASSERT( category >= 0 && category < NUM_CATEGORIES, "Invalid category" );
-  return gCategoryLetters[ category ];
+
+	DAEDALUS_STATIC_ASSERT( ARRAYSIZE( gCategoryLetters ) == NUM_CATEGORIES +1 );
+
+	ECategory		GetCategory( char c )
+	{
+		if( isalpha( c ) )
+		{
+			c = tolower( c );
+			return ECategory( C_A + (c - 'a') );
+		}
+		else if( c >= '0' && c <= '9' )
+		{
+			return C_NUMBERS;
+		}
+		else
+		{
+			return C_UNK;
+		}
+	}
+
+	char	GetCategoryLetter( ECategory category )
+	{
+		DAEDALUS_ASSERT( category >= 0 && category < NUM_CATEGORIES, "Invalid category" );
+		return gCategoryLetters[ category ];
+	}
+
 }
 
+//*************************************************************************************
+//
+//*************************************************************************************
 struct SRomInfo
 {
 	CFixedString<100>		mFilename;
+
 	RomID			mRomID;
 	u32				mRomSize;
 	ECicType		mCicType;
+
 	RomSettings		mSettings;
 
 	SRomInfo( const char * filename )
@@ -124,7 +142,9 @@ struct SRomInfo
 	}
 };
 
-
+//*************************************************************************************
+//
+//*************************************************************************************
 static ECategory Categorise( const char * name )
 {
 	char	c( name[ 0 ] );
@@ -145,8 +165,10 @@ static bool SortByGameName( const SRomInfo * a, const SRomInfo * b )
 	return ( strcmp( a->mSettings.GameName.c_str(), b->mSettings.GameName.c_str() ) < 0 );
 }
 
-
-//Lifting this out makes it remember last chosen ROM
+//*************************************************************************************
+//
+//*************************************************************************************
+//Lifting this out makes it remmember last choosen ROM
 //Could probably be fixed better but C++ is giving me an attitude //Corn
 static u32 mCurrentSelection = 0;
 
@@ -184,7 +206,7 @@ class IRomSelectorComponent : public CRomSelectorComponent
 		std::string					mSelectedRom;
 
 		bool						mDisplayFilenames;
-//		bool						mDisplayInfo;
+		bool						mDisplayInfo;
 
 		CRefPtr<CNativeTexture>		mpPreviewTexture;
 		u32							mPreviewIdx;
@@ -192,28 +214,36 @@ class IRomSelectorComponent : public CRomSelectorComponent
 		float						mTimeSinceScroll;		//
 
 		bool						mRomDelete;
-#ifdef DAEDALUS_DIALOGS
 		bool						mQuitTriggered;
-#endif
+		bool						mQuitInit;
 };
 
-
+//*************************************************************************************
+//
+//*************************************************************************************
 CRomSelectorComponent::CRomSelectorComponent( CUIContext * p_context )
 :	CUIComponent( p_context )
-{}
+{
+}
 
+//*************************************************************************************
+//
+//*************************************************************************************
+CRomSelectorComponent::~CRomSelectorComponent()
+{
+}
 
-CRomSelectorComponent::~CRomSelectorComponent(){}
-
-
+//*************************************************************************************
+//
+//*************************************************************************************
 CRomSelectorComponent *	CRomSelectorComponent::Create( CUIContext * p_context, CFunctor1< const char * > * on_rom_selected )
 {
 	return new IRomSelectorComponent( p_context, on_rom_selected );
 }
 
-
+//*************************************************************************************
 //
-
+//*************************************************************************************
 IRomSelectorComponent::IRomSelectorComponent( CUIContext * p_context, CFunctor1< const char * > * on_rom_selected )
 :	CRomSelectorComponent( p_context )
 ,	OnRomSelected( on_rom_selected )
@@ -225,10 +255,8 @@ IRomSelectorComponent::IRomSelectorComponent( CUIContext * p_context, CFunctor1<
 ,	mPreviewLoadedTime( 0.0f )
 ,	mTimeSinceScroll( 0.0f )
 ,	mRomDelete(false)
-, mRomsList(0)
-#ifdef DAEDALUS_DIALOGS
 ,	mQuitTriggered(false)
-#endif
+,	mQuitInit(false)
 {
 	for( u32 i = 0; i < ARRAYSIZE( gRomsDirectories ); ++i )
 	{
@@ -250,9 +278,9 @@ IRomSelectorComponent::IRomSelectorComponent( CUIContext * p_context, CFunctor1<
 	}
 }
 
-
+//*************************************************************************************
 //
-
+//*************************************************************************************
 IRomSelectorComponent::~IRomSelectorComponent()
 {
 	for(RomInfoList::iterator it = mRomsList.begin(); it != mRomsList.end(); ++it)
@@ -266,9 +294,9 @@ IRomSelectorComponent::~IRomSelectorComponent()
 	delete OnRomSelected;
 }
 
-
+//*************************************************************************************
 //Refresh ROM list //Corn
-
+//*************************************************************************************
 void	IRomSelectorComponent::UpdateROMList()
 {
 	for(RomInfoList::iterator it = mRomsList.begin(); it != mRomsList.end(); ++it)
@@ -304,9 +332,9 @@ void	IRomSelectorComponent::UpdateROMList()
 	}
 }
 
-
+//*************************************************************************************
 //
-
+//*************************************************************************************
 void	IRomSelectorComponent::AddRomDirectory(const char * p_roms_dir, RomInfoList & roms)
 {
 	std::string			full_path;
@@ -334,9 +362,9 @@ void	IRomSelectorComponent::AddRomDirectory(const char * p_roms_dir, RomInfoList
 	}
 }
 
-
+//*************************************************************************************
 //
-
+//*************************************************************************************
 ECategory	IRomSelectorComponent::GetCurrentCategory() const
 {
 	if( !mRomsList.empty() )
@@ -347,7 +375,9 @@ ECategory	IRomSelectorComponent::GetCurrentCategory() const
 	return C_NUMBERS;
 }
 
-
+//*************************************************************************************
+//
+//*************************************************************************************
 void IRomSelectorComponent::DrawInfoText(  CUIContext * p_context, s32 y, const char * field_txt, const char * value_txt  )
 {
 	c32			colour(	p_context->GetDefaultTextColour() );
@@ -356,10 +386,19 @@ void IRomSelectorComponent::DrawInfoText(  CUIContext * p_context, s32 y, const 
 	p_context->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, value_txt, colour );
 }
 
-
+//*************************************************************************************
+//
+//*************************************************************************************
 void IRomSelectorComponent::RenderPreview()
 {
-	v2	tl(  PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN );
+	c32	clrGREY = c32( 195, 195, 195, 0 );
+	c32	clrORANGE = c32( 255, 128, 0, 0 );
+	c32	clrYELLOW = c32( 255, 255, 0, 0 );
+
+	//mpContext->DrawRect( PREVIEW_IMAGE_LEFT-2, BELOW_MENU_MIN-2, PREVIEW_IMAGE_WIDTH+4, PREVIEW_IMAGE_HEIGHT+4, c32::White );
+	//mpContext->DrawRect( PREVIEW_IMAGE_LEFT-1, BELOW_MENU_MIN-1, PREVIEW_IMAGE_WIDTH+2, PREVIEW_IMAGE_HEIGHT+2, mpContext->GetBackgroundColour() );
+
+	v2	tl( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN );
 	v2	wh( PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT );
 
 	if( mpPreviewTexture != NULL )
@@ -376,16 +415,18 @@ void IRomSelectorComponent::RenderPreview()
 	}
 	else
 	{
+		//mpContext->DrawRect( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, c32::Black );
 		mpContext->DrawRect( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, c32::White );
 		mpContext->DrawRect( PREVIEW_IMAGE_LEFT+2, BELOW_MENU_MIN+2, PREVIEW_IMAGE_WIDTH-4, PREVIEW_IMAGE_HEIGHT-4, c32::Black );
 		mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_CENTRE, BELOW_MENU_MIN+PREVIEW_IMAGE_HEIGHT/2, "No Preview Available", c32::White );
 	}
 
 
-	u32		font_height( mpContext->GetFontHeight() ); // 12
+	u32		font_height( mpContext->GetFontHeight() );
 	u32		line_height( font_height + 1 );
-font_height;
-    s32 rom_info {  BELOW_MENU_MIN + PREVIEW_IMAGE_HEIGHT + 47};
+
+	s32 y = BELOW_MENU_MIN + PREVIEW_IMAGE_HEIGHT + 1 + font_height;
+
 	if( mCurrentSelection < mRomsList.size() )
 	{
 		SRomInfo *	p_rominfo( mRomsList[ mCurrentSelection ] );
@@ -395,41 +436,416 @@ font_height;
 		u32				rom_size( p_rominfo->mRomSize );
 
 		char buffer[ 32 ];
+		sprintf( buffer, "%d MB", rom_size / (1024*1024) );
 
-		sprintf( buffer, "%s", country);
-		DrawInfoText( mpContext, rom_info, "Country: ", buffer );
-		rom_info += line_height;
-		sprintf( buffer, "%d MB ", rom_size / (1024*1024) );
-		DrawInfoText( mpContext, rom_info, "Size: ", buffer );
-		rom_info += line_height;
-		DrawInfoText( mpContext, rom_info, "Save: ", ROM_GetSaveTypeName( p_rominfo->mSettings.SaveType ) );
+		DrawInfoText( mpContext, y, "Boot:", cic_name );	y += line_height;
+		DrawInfoText( mpContext, y, "Country:", country );	y += line_height;
+		DrawInfoText( mpContext, y, "Size:", buffer );	y += line_height;
+
+		DrawInfoText( mpContext, y, "Save:", ROM_GetSaveTypeName( p_rominfo->mSettings.SaveType ) ); y += line_height;
+		DrawInfoText( mpContext, y, "EPak:", ROM_GetExpansionPakUsageName( p_rominfo->mSettings.ExpansionPakUsage ) ); y += line_height;
+		//DrawInfoText( mpContext, y, "Dynarec:", p_rominfo->mSettings.DynarecSupported ? "Supported" : "Unsupported" ); y += line_height;
 	}
 	else
 	{
-		DrawInfoText( mpContext, rom_info, "Country:", "" );
-		rom_info += line_height;
-		DrawInfoText( mpContext, rom_info, "Size:", "" );
-		rom_info += line_height;
-		DrawInfoText( mpContext, rom_info, "Save:", "" );
+		DrawInfoText( mpContext, y, "Boot:", "" );		y += line_height;
+		DrawInfoText( mpContext, y, "Country:", "" );	y += line_height;
+		DrawInfoText( mpContext, y, "Size:", "" );		y += line_height;
 
+		DrawInfoText( mpContext, y, "Save:", "" );		y += line_height;
+		DrawInfoText( mpContext, y, "EPak:", "" );		y += line_height;
+		//DrawInfoText( mpContext, y, "Dynarec:", "" );	y += line_height;
 	}
-}
 
-//
+	if (mDisplayInfo)
+	{
+		mpContext->DrawRect( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN, PREVIEW_IMAGE_WIDTH + 1, LIST_TEXT_HEIGHT + 3, c32::Black );
+
+		SRomInfo *	p_rominfo( mRomsList[ mCurrentSelection ] );
+
+		s32 y = BELOW_MENU_MIN + font_height;
+
+		if (( p_rominfo->mSettings.Comment[0] != '0' ) &&( p_rominfo->mSettings.Comment[0] != '1' ) && ( p_rominfo->mSettings.Comment[0] != '2' ) && ( p_rominfo->mSettings.Comment[0] != '3' ) && ( p_rominfo->mSettings.Comment[0] != '4' ) && ( p_rominfo->mSettings.Comment[0] != '5' ))
+		{
+			DrawInfoText( mpContext, y, "    Compatibility Info", "" ); y += line_height + 1;
+			DrawInfoText( mpContext, y, "       Not Available", "" ); y += line_height + 1;
+		}
+		else
+		{
+			if ( p_rominfo->mSettings.Comment[0] == '0' )
+			{
+				DrawInfoText( mpContext, y, "Compatibility:", "" );
+				mpContext->DrawRect( PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH - 10, y - 10, 10, 10, clrGREY ); y += line_height + 1;
+			}
+			else if ( p_rominfo->mSettings.Comment[0] == '1' )
+			{
+				DrawInfoText( mpContext, y, "Compatibility:", "" );
+				mpContext->DrawRect( PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH - 10, y - 10, 10, 10, c32::Red ); y += line_height + 1;
+			}
+			else if ( p_rominfo->mSettings.Comment[0] == '2' )
+			{
+				DrawInfoText( mpContext, y, "Compatibility:", "" );
+				mpContext->DrawRect( PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH - 10, y - 10, 10, 10, clrORANGE ); y += line_height + 1;
+			}
+			else if ( p_rominfo->mSettings.Comment[0] == '3' )
+			{
+				DrawInfoText( mpContext, y, "Compatibility:", "" );
+				mpContext->DrawRect( PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH - 10, y - 10, 10, 10, clrYELLOW ); y += line_height + 1;
+			}
+			else if ( p_rominfo->mSettings.Comment[0] == '4' )
+			{
+				DrawInfoText( mpContext, y, "Compatibility:", "" );
+				mpContext->DrawRect( PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH - 10, y - 10, 10, 10, c32::Green ); y += line_height + 1;
+			}
+			else if ( p_rominfo->mSettings.Comment[0] == '5' )
+			{
+				DrawInfoText( mpContext, y, "Compatibility:", "" );
+				mpContext->DrawRect( PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH - 10, y - 10, 10, 10, c32::Blue ); y += line_height + 1;
+			}
+				//DrawInfoText( mpContext, y, "Hold     for more info.", "" );
+				//mpContext->DrawRect( LIST_TEXT_LEFT + 36, y - 8, 7, 7, c32::White );
+				//mpContext->DrawRect( LIST_TEXT_LEFT + 37, y - 7, 5, 5, c32::Black ); y += line_height + 5;
+
+			if ( p_rominfo->mSettings.Comment[1] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Texture Update:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[1] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Every Frame", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[1] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Every 2 Frames", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[1] == '3' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Every 3 Frames", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[1] == '4' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Every 4 Frames", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[1] == '5' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Every 5 Frames", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[1] == '6' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Every 10 Frames", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[1] == '7' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Every 15 Frames", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[1] == '8' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Every 20 Frames", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[1] == '9' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Every 30 Frames", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[2] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "FrameSkip:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[2] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Auto", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[2] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "1", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[2] == '3' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "2", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[2] == '4' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "3", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[2] == '5' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "4", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[2] == '6' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "5", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[3] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Zoom:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[3] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "101%", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[3] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "102%", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[3] == '3' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "103%", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[3] == '4' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "104%", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[3] == '5' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "105%", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[3] == '6' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "106%", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[3] == '7' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "107%", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[3] == '8' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "108%", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[3] == '9' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "109%", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[4] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Zoom:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[4] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "110%", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[4] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "111%", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[4] == '3' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "112%", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[4] == '4' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "113%", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[4] == '5' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "114%", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[4] == '6' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "115%", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[4] == '7' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "116%", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[4] == '8' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "117%", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[4] == '9' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "118%", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[5] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Zoom:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[5] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Enabled", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[5] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Disabled", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[6] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Limit Framerate:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[6] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Yes", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[6] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "No", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[7] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Dynamic Recomp:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[7] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Enabled", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[7] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Disabled", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[8] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Dyn Stack Opt:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[8] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Enabled", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[8] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Disabled", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[9] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Hi Level Emu:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[9] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Enabled", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[9] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Disabled", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[10] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Audio:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[10] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Async", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[10] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Sync", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[10] == '3' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Disabled", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[11] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Ctrl:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[11] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "CButtons", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[11] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Default Z+L Swap", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[11] == '3' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "DPad", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[11] == '4' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "DPad and Buttons", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[11] == '5' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "DPad and Buttons Inv", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[12] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Clean Scene:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[12] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Enabled", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[12] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Disabled", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[13] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Inc VI Event:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[13] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Enabled", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[13] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Disabled", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[14] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Dyn Loop Opt:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[14] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Enabled", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[14] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Disabled", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[15] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Double Disp:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[15] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Enabled", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[15] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Disabled", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[16] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Disable N64 FP Usage:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[16] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Yes", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[16] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "No", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[17] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Basic TMEM Emu:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[17] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Enabled", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[17] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Disabled", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[18] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Audio Rate Match:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[18] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Yes", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[18] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "No", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[19] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Fog Emulation:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[19] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Enabled", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[19] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Disabled", c32::White );  y += line_height + 1;
+				}
+			}
+
+			if ( p_rominfo->mSettings.Comment[20] != '0' ) {
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, "Notes:", c32::White );
+
+				if ( p_rominfo->mSettings.Comment[20] == '1' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Crash", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[20] == '2' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Doesn't Boot", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[20] == '3' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Unplayable", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[20] == '4' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Slow", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[20] == '5' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "No Sound", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[20] == '6' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Graphics Errors", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[20] == '7' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Unstable", c32::White );  y += line_height + 1;
+				}
+				else if ( p_rominfo->mSettings.Comment[20] == '8' ) {
+					mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, "Error Free", c32::White );  y += line_height + 1;
+				}
+			}
+		}
+	}//end of mDisplayInfo
+}
 void IRomSelectorComponent::RenderRomList()
 {
-	const f32	scale( 0.8333333f );
-	u32		font_height( scale * mpContext->GetFontHeight() );
+	u32		font_height( mpContext->GetFontHeight() );
 	u32		line_height( font_height + 2 );
 
-	s32		x( LIST_TEXT_LEFT );
-
-	s32		y( BELOW_MENU_MIN + mCurrentScrollOffset * scale + font_height );
+	s32		x,y;
+	x = LIST_TEXT_LEFT;
+	y = BELOW_MENU_MIN + mCurrentScrollOffset + font_height;
 
 	sceGuEnable(GU_SCISSOR_TEST);
 	sceGuScissor(LIST_TEXT_LEFT, BELOW_MENU_MIN, LIST_TEXT_LEFT+LIST_TEXT_WIDTH, BELOW_MENU_MIN+LIST_TEXT_HEIGHT);
 
-	const char * const	ptr_text( ">" );
+	const char * const	ptr_text( ">>" );
 	u32					ptr_text_width( mpContext->GetTextWidth( ptr_text ) );
 
 	for(u32 i = 0; i < mRomsList.size(); ++i)
@@ -454,31 +870,25 @@ void IRomSelectorComponent::RenderRomList()
 			if(i == mCurrentSelection)
 			{
 				colour = mpContext->GetSelectedTextColour();
-				mpContext->DrawTextScale( x, y, scale, ptr_text, colour );
+				mpContext->DrawText( x, y, ptr_text, colour );
 			}
 			else
 			{
-				//colour = mpContext->GetDefaultTextColour();
-				u32 mycol = 0xFF & (0xFF - 12 * abs(int(i-mCurrentSelection)));
-				colour = c32(mycol, mycol, mycol, mycol);
+				colour = mpContext->GetDefaultTextColour();
 			}
-
-			mpContext->DrawTextScale( x + ptr_text_width, y, scale, p_gamename, colour );
+			mpContext->DrawText( x + ptr_text_width, y, p_gamename, colour );
 		}
 		y += line_height;
 	}
 
 	// Restore scissoring
-	sceGuScissor(0,0, SCREEN_WIDTH,SCREEN_HEIGHT);
+	sceGuScissor(0,0, 480,272);
 }
-
-
-//
 
 void IRomSelectorComponent::RenderCategoryList()
 {
-  s16 x = CATEGORY_TEXT_LEFT;
-	s16 y = CATEGORY_TEXT_TOP + mpContext->GetFontHeight();
+	s32 x = CATEGORY_TEXT_LEFT;
+	s32 y = CATEGORY_TEXT_TOP + mpContext->GetFontHeight();
 
 	ECategory current_category( GetCurrentCategory() );
 
@@ -510,18 +920,26 @@ void IRomSelectorComponent::RenderCategoryList()
 	}
 }
 
-
-//
-
 void IRomSelectorComponent::Render()
 {
+	static u32 count=0;
+
+	const char * const		message[] =
+	{	"(X) -> Load",
+		"([ ]) -> Settings",
+		"(/\\) -> File Names",
+		"(HOME) -> Quit",
+		"(SELECT) -> Delete"};
+
+
 	RenderPreview();
 
 	if( mRomsList.empty() )
 	{
 		s32 offset( 0 );
 		for( u32 i = 0; i < ARRAYSIZE( gNoRomsText ); ++i )
-		{			offset += mpContext->DrawTextArea( LIST_TEXT_LEFT, BELOW_MENU_MIN + offset, LIST_TEXT_WIDTH, LIST_TEXT_HEIGHT - offset, gNoRomsText[ i ], DrawTextUtilities::TextWhite, VA_TOP );
+		{
+			offset += mpContext->DrawTextArea( LIST_TEXT_LEFT, BELOW_MENU_MIN + offset, LIST_TEXT_WIDTH, LIST_TEXT_HEIGHT - offset, gNoRomsText[ i ], DrawTextUtilities::TextWhite, VA_TOP );
 			offset += 4;
 		}
 	}
@@ -533,51 +951,34 @@ void IRomSelectorComponent::Render()
 	RenderCategoryList();
 
 
-#ifdef DAEDALUS_DIALOGS
-	if(mQuitTriggered)
-	{
-		if(gShowDialog.Render( mpContext,"Do you want to exit?", false) )
-		{
-			sceKernelExitGame();
-		}
-		mQuitTriggered=false;
-	}
-#endif
-
-	//Tool Tips
-
-	static u32 count = 0;
-
-	const char * const message[] =
-	{	"(X) -> Load",
-		"(/\\) -> File Names",
-		"(HOME) -> Quit",
-		"(SELECT) -> Delete"
-	};
-
-	const c32 color = c32( 0.0f * sinf( 2.0f * 3.1415927f * (count & 0xFF) / 512.0f), 255.0f, 0, 255);
+	//Show tool tip
+	c32 color;
+	if(count & 0x80) color = c32( ~count<<1, 0, 0, 255);
+	else color = c32( count<<1, 0, 0, 255);
 
 	if(mRomDelete)
 	{
-		mpContext->DrawTextAlign(0,SCREEN_WIDTH - LIST_TEXT_LEFT, AT_RIGHT, CATEGORY_TEXT_TOP + mpContext->GetFontHeight(), "(X) -> Confirm", color);
+		mpContext->DrawTextAlign(0,470,AT_RIGHT,CATEGORY_TEXT_TOP + mpContext->GetFontHeight(),"(X) -> Confirm", color);
 	}
 	else
 	{
-		mpContext->DrawTextAlign(0,SCREEN_WIDTH - LIST_TEXT_LEFT, AT_RIGHT, CATEGORY_TEXT_TOP + mpContext->GetFontHeight(), message[(count >> 8) % ARRAYSIZE( message )], color);
+		mpContext->DrawTextAlign(0,470,AT_RIGHT,CATEGORY_TEXT_TOP + mpContext->GetFontHeight(),	message[(count >> 8) % ARRAYSIZE( message )], color);
 	}
 
 	count++;
 }
 
-//
 
+//*************************************************************************************
+//
+//*************************************************************************************
 void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
-
-	static const float	SCROLL_RATE_PER_SECOND = 20.0f;		// 25 roms/second
+	static const float	SCROLL_RATE_PER_SECOND = 25.0f;		// 25 roms/second
 
 	/*Apply stick deadzone preference in the RomSelector menu*/
 	v2 stick_dead(ApplyDeadzone( stick, gGlobalPreferences.StickMinDeadzone, gGlobalPreferences.StickMaxDeadzone ));
+
 	mSelectionAccumulator += stick_dead.y * SCROLL_RATE_PER_SECOND * elapsed_time;
 
 	/*Tricky thing to get the stick to work in every cases
@@ -594,17 +995,16 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 
 	mDisplayFilenames = (new_buttons & PSP_CTRL_TRIANGLE) != 0;
 
-//	mDisplayInfo = (new_buttons & PSP_CTRL_SQUARE) != 0;
+	mDisplayInfo = (new_buttons & PSP_CTRL_SQUARE) != 0;
 
 	if(old_buttons != new_buttons)
 	{
 		if(new_buttons & PSP_CTRL_LEFT)
 		{
 			// Search for the next valid predecessor
-			while(current_category < mRomsList.size() + 1)
+			while(current_category > 0)
 			{
 				current_category = ECategory( current_category - 1 );
-
 				AlphaMap::const_iterator it( mRomCategoryMap.find( current_category ) );
 				if( it != mRomCategoryMap.end() )
 				{
@@ -617,7 +1017,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		if(new_buttons & PSP_CTRL_RIGHT)
 		{
 			// Search for the next valid predecessor
-      while	(current_category < mRomsList.size() -  1)
+			while(current_category < NUM_CATEGORIES-1)
 			{
 				current_category = ECategory( current_category + 1 );
 				AlphaMap::const_iterator it( mRomCategoryMap.find( current_category ) );
@@ -631,7 +1031,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 
 		if(new_buttons & PSP_CTRL_UP)
 		{
-		if(mCurrentSelection > 0)
+			if(mCurrentSelection > 0)
 			{
 				mCurrentSelection--;
 			}
@@ -644,15 +1044,12 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 				mCurrentSelection++;
 			}
 		}
+#ifndef DAEDALUS_PSP_GPROF
 		if(new_buttons & PSP_CTRL_HOME)
 		{
-#ifdef DAEDALUS_DIALOGS
-			mQuitTriggered = true;
-#else
 			sceKernelExitGame();
-#endif
 		}
-
+#endif
 		if(new_buttons & PSP_CTRL_CROSS && mRomDelete)	// DONT CHANGE ORDER
 		{
 			remove( mSelectedRom.c_str() );
@@ -662,12 +1059,15 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 		else if((new_buttons & PSP_CTRL_START) ||
 			(new_buttons & PSP_CTRL_CROSS))
 		{
+			if(mCurrentSelection < mRomsList.size())
+			{
 				mSelectedRom = mRomsList[ mCurrentSelection ]->mFilename;
 
 				if(OnRomSelected != NULL)
 				{
 					(*OnRomSelected)( mSelectedRom.c_str() );
 				}
+			}
 		}
 
 		if(new_buttons != 0) mRomDelete = false; // DONT CHANGE ORDER clear it if any button has been pressed
@@ -680,54 +1080,68 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 			}
 		}
 	}
+	//
+	//	Apply the selection accumulator
+	//
+	f32		current_vel( mSelectionAccumulator );
+	while(mSelectionAccumulator >= 1.0f)
+	{
+		if(mCurrentSelection < mRomsList.size() - 1)
+		{
+			mCurrentSelection++;
+		}
+		mSelectionAccumulator -= 1.0f;
+		mRomDelete = false;
+	}
+	while(mSelectionAccumulator <= -1.0f)
+	{
+		if(mCurrentSelection > 0)
+		{
+			mCurrentSelection--;
+		}
+		mSelectionAccumulator += 1.0f;
+		mRomDelete = false;
+	}
 
-	f32		current_vel {mSelectionAccumulator };
-
-	//	Scroll to keep things in view Velocity is adjusted as per performance
-
-  const u32		font_height( mpContext->GetFontHeight() );
+	//
+	//	Scroll to keep things in view
+	//	We add on 'current_vel * 2' to keep the selection highlight as close to the
+	//	center as possible (as if we're predicting 2 frames ahead)
+	//
+	const u32		font_height( mpContext->GetFontHeight() );
 	const u32		line_height( font_height + 2 );
 
 	if( mRomsList.size() * line_height > LIST_TEXT_HEIGHT )
 	{
-		s32		current_selection_y = s32((mCurrentSelection + current_vel * 10) * line_height) + (line_height/2) + mCurrentScrollOffset;
+		s32		current_selection_y = s32((mCurrentSelection + current_vel * 2) * line_height) + (line_height/2) + mCurrentScrollOffset;
+
 		s32		adjust_amount( (LIST_TEXT_HEIGHT/2) - current_selection_y );
+
 		float d( 1.0f - powf(0.993f, elapsed_time * 1000.0f) );
-		u32		total_height( mRomsList.size() * LIST_TEXT_HEIGHT * line_height);
-		s32		min_offset( (LIST_TEXT_HEIGHT/2) - total_height );
+
+		u32		total_height( mRomsList.size() * line_height );
+		s32		min_offset( LIST_TEXT_HEIGHT - total_height );
 
 		s32	new_scroll_offset = mCurrentScrollOffset + s32(float(adjust_amount) * d);
 
-		mCurrentScrollOffset = Clamp( 0, min_offset, new_scroll_offset);
-
-    while(mSelectionAccumulator >= 1.0f)
-    {
-    	if(mCurrentSelection < mRomsList.size() - 1)
-      {
-        mCurrentSelection++;
-      }
-      mSelectionAccumulator -= 1.0f;
-      mRomDelete = false;
-    }
-    while(mSelectionAccumulator <= -1.0f)
-    {
-      if(mCurrentSelection > 0)
-      {
-        mCurrentSelection--;
-      }
-      mSelectionAccumulator += 1.0f;
-      mRomDelete = false;
-    }
+		mCurrentScrollOffset = Clamp( new_scroll_offset, min_offset, s32(0) );
 	}
-  	else
-  	{
-  		mCurrentScrollOffset = 0;
-  	}
+	else
+	{
+		mCurrentScrollOffset = 0;
+	}
 
 	//
 	//	Increase a timer is the current selection is still the same (i.e. if we've not scrolled)
 	//
-
+	if( initial_selection == mCurrentSelection )
+	{
+		mTimeSinceScroll += elapsed_time;
+	}
+	else
+	{
+		mTimeSinceScroll = 0;
+	}
 
 	//
 	//	If the current selection is different from the preview, invalidate the picture.
@@ -735,7 +1149,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 	//
 	if( mCurrentSelection < mRomsList.size() && mPreviewIdx != mCurrentSelection )
 	{
-		mPreviewIdx = u32(-1);
+		//mPreviewIdx = u32(-1);
 
 		mPreviewLoadedTime -= elapsed_time;
 		if(mPreviewLoadedTime < 0.0f)
@@ -753,7 +1167,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 
 			if( !mRomsList[ mCurrentSelection ]->mSettings.Preview.empty() )
 			{
-				IO::Filename preview_filename;
+	IO::Filename preview_filename;
 				IO::Path::Combine( preview_filename, gPreviewDirectory, mRomsList[ mCurrentSelection ]->mSettings.Preview.c_str() );
 
 				mpPreviewTexture = CNativeTexture::CreateFromPng( preview_filename, TexFmt_8888 );
