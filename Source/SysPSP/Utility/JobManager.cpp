@@ -149,7 +149,12 @@ u32 CJobManager::JobMain( void * arg )
 //*****************************************************************************
 bool CJobManager::AddJob( SJob * job, u32 job_size )
 {
-	DAEDALUS_ASSERT( job != NULL, "No job!" );
+	bool	success( false );
+
+	if( job == NULL ){
+		success = true;
+		return success;
+	}
 
 	if( mTaskMode == TM_SYNC )
 	{
@@ -160,8 +165,6 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 	}
 
 	Start();
-
-	bool	success( false );
 
 	//printf( "Adding job...waiting for empty\n" );
 	sceKernelWaitSema( mWorkEmpty, 1, NULL );
