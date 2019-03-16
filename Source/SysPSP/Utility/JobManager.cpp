@@ -41,11 +41,7 @@ bool gLoadedMediaEnginePRX = false;
 volatile me_struct *mei;
 #endif
 CJobManager gJobManager( 1024, TM_ASYNC_ME );
-//CJobManager gJobManager( 1024, TM_SYNC );
-static int me_Dummy(int v)
-{
-	return v;
-}
+
 bool InitialiseJobManager()
 {
 #ifdef DAEDALUS_PSP_USE_ME
@@ -58,7 +54,6 @@ bool InitialiseJobManager()
 
 	if (InitME(mei) == 0)
 	{
-		//CallME(mei, (int)(&me_Dummy),0, -1, NULL, -1, NULL);
 		gLoadedMediaEnginePRX = true;
 		return true;
 	}
@@ -177,7 +172,6 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 		memcpy_vfpu( mJobBuffer, job, job_size );
 		//printf( "Adding job...signaling\n" );
 		sceKernelSignalSema( mWorkReady, 1 );
-
 		success = true;
 	}
 
@@ -202,7 +196,9 @@ void CJobManager::Run()
 
 			if( CheckME( mei ))
 			{
-				printf("run on me\n");
+
+				//printf("Run Job on Media Engine\n");
+
 				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
 
 				// Execute previous job finalised
@@ -232,7 +228,9 @@ void CJobManager::Run()
 			}
 			else
 			{
-				printf("Media Engine is busy run on main cpu \n");
+
+				//printf("Media Engine is busy run on main CPU \n");
+
 				// Execute job initialise
 				if( job->InitJob )
 					job->InitJob( job );
