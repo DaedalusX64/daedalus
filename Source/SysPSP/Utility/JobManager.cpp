@@ -262,8 +262,11 @@ void CJobManager::Run()
 		}
 
 		// This thread needs to be terminated, so break this loop
-		if( mWantQuit )
+		if( mWantQuit ){
+			KillME(mei);
 			break;
+		}
+			
 	}
 	sceKernelExitDeleteThread(0);
 }
