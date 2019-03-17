@@ -6,7 +6,7 @@ const s16 SCREEN_WIDTH {480};
 const s16 SCREEN_HEIGHT {272};
 
 // to do adjust values to suit multiple screens
-const s16 MENU_TOP {0};
+const s16 MENU_TOP {5};
 const s16 TITLE_HEADER {10};
 
 const s16 BELOW_MENU_MIN {33}; // Rename this as it's confusing
@@ -70,8 +70,8 @@ const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Revision ";
 
 const char * const		DATE_TEXT = "Built ";
 
-const char * const		URL_TEXT_1 = "http://DaedalusX64.com/";
-const char * const		URL_TEXT_2 = "http://sf.net/projects/daedalusx64/";
+const char * const		URL_TEXT_1 = "https://github.com/z2442/daedalus/";
+const char * const		URL_TEXT_2 = "https://discord.gg/AHWDYmB";
 
 const char * const		INFO_TEXT[] =
 {
@@ -130,8 +130,6 @@ const char * const		gRomsDirectories[] =
   "host1:/",
 #endif
 };
-
-
 
 
 

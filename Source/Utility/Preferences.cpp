@@ -428,22 +428,22 @@ void SGlobalPreferences::Apply() const
 SRomPreferences::SRomPreferences()
 	:	PatchesEnabled( true )
 	,	DynarecEnabled( true )
-	,	DynarecLoopOptimisation( false )
-	,	DynarecDoublesOptimisation( false )
+	,	DynarecLoopOptimisation( true )
+	,	DynarecDoublesOptimisation( true )
 	,	DoubleDisplayEnabled( true )
 	,	CleanSceneEnabled( false )
 	,	ClearDepthFrameBuffer( false )
 	,	AudioRateMatch( false )
 	,	VideoRateMatch( false )
 	,	FogEnabled( false )
-	,   MemoryAccessOptimisation( false )
+	,   MemoryAccessOptimisation( true )
 	,	CheatsEnabled( false )
 //	,	AudioAdaptFrequency( false )
 	,	CheckTextureHashFrequency( kDefaultTextureHashFrequency )
 	,	Frameskip( FV_DISABLED )
 	,	AudioEnabled( kDefaultAudioPluginMode )
 	,	ZoomX( 1.0f )
-	,	SpeedSyncEnabled( 0 )
+	,	SpeedSyncEnabled( 1 )
 	,	ControllerIndex( 0 )
 {
 }
@@ -451,17 +451,17 @@ SRomPreferences::SRomPreferences()
 void SRomPreferences::Reset()
 {
 	PatchesEnabled             = true;
-	SpeedSyncEnabled           = 0;
+	SpeedSyncEnabled           = 1;
 	DynarecEnabled             = true;
-	DynarecLoopOptimisation    = false;
-	DynarecDoublesOptimisation = false;
+	DynarecLoopOptimisation    = true;
+	DynarecDoublesOptimisation = true;
 	DoubleDisplayEnabled       = true;
 	CleanSceneEnabled          = false;
 	ClearDepthFrameBuffer	   = false;
 	AudioRateMatch             = false;
 	VideoRateMatch             = false;
 	FogEnabled                 = false;
-	MemoryAccessOptimisation   = false;
+	MemoryAccessOptimisation   = true;
 	CheckTextureHashFrequency  = kDefaultTextureHashFrequency;
 	Frameskip                  = FV_DISABLED;
 	AudioEnabled               = kDefaultAudioPluginMode;
@@ -595,5 +595,3 @@ const char * Preferences_GetFrameskipDescription( EFrameskipValue value )
 	DAEDALUS_ERROR( "Unhandled frameskip value" );
 	return "?";
 }
-
-

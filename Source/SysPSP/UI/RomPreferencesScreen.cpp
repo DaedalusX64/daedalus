@@ -37,9 +37,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Input/InputManager.h"
 #include "SysPSP/Graphics/DrawText.h"
 #include "Utility/Preferences.h"
-#include "PSPMenu.h"
+
 namespace
 {
+	const u32		TITLE_AREA_TOP = 10;
+
+	const u32		TEXT_AREA_LEFT = 40;
+	const u32		TEXT_AREA_RIGHT = 440;
+
+	const s32		DESCRIPTION_AREA_TOP = 0;		// We render text aligned from the bottom, so this is largely irrelevant
+	const s32		DESCRIPTION_AREA_BOTTOM = 272-6;
+	const s32		DESCRIPTION_AREA_LEFT = 16;
+	const s32		DESCRIPTION_AREA_RIGHT = 480-16;
 
 
 	class CTextureHashFrequency : public CUISetting
@@ -230,13 +239,21 @@ class IRomPreferencesScreen : public CRomPreferencesScreen, public CUIScreen
 		CUIElementBag				mElements;
 };
 
-CRomPreferencesScreen::~CRomPreferencesScreen() {}
 
+//
+
+CRomPreferencesScreen::~CRomPreferencesScreen()
+{
+}
+
+
+//
 
 CRomPreferencesScreen *	CRomPreferencesScreen::Create( CUIContext * p_context, const RomID & rom_id )
 {
 	return new IRomPreferencesScreen( p_context, rom_id );
 }
+
 
 IRomPreferencesScreen::IRomPreferencesScreen( CUIContext * p_context, const RomID & rom_id )
 :	CUIScreen( p_context )
@@ -259,7 +276,6 @@ IRomPreferencesScreen::IRomPreferencesScreen( CUIContext * p_context, const RomI
 	mElements.Add( new CBoolSetting( &mRomPreferences.DynarecEnabled, "Dynamic Recompilation", "Dynamic recompilation gives a considerable speed-up for the ROM emulation.", "Enabled", "Disabled" ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.PatchesEnabled, "High Level Emulation", "Whether to use replicated OS function calls (faster) instead of emulating the real ones (slower) (WARNING, can cause instability and/or crash on certain ROMs).", "Enabled", "Disabled" ) );
 	mElements.Add( new CAudioSetting( &mRomPreferences.AudioEnabled, "Audio", "Whether or not to enable audio emulation, and whether to process the audio asynchronously(fast/buggy) or synchronously(slow)." ) );
-//	mElements.Add( new CAdjustFrequencySetting( &mRomPreferences.AudioAdaptFrequency, &mRomPreferences.AudioEnabled, " Adjust Frequency", "When enabled, this mode tries to avoid gaps in the audio by adjusting the pitch of the audio stream." ) );  //Not Used May be restored separately later
 	mElements.Add( new CAdjustControllerSetting( &mRomPreferences.ControllerIndex, "Controller" ) );
 
 //	mElements.Add( new CUISpacer( 16 ) );
@@ -272,7 +288,9 @@ IRomPreferencesScreen::IRomPreferencesScreen( CUIContext * p_context, const RomI
 
 //
 
-IRomPreferencesScreen::~IRomPreferencesScreen() {}
+IRomPreferencesScreen::~IRomPreferencesScreen()
+{
+}
 
 
 //
@@ -323,17 +341,17 @@ void	IRomPreferencesScreen::Render()
 	const char * const title_text = "Rom Preferences";
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
 	u32		heading_height( mpContext->GetFontHeight() );
-	y = MENU_TOP + heading_height;
-	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() ); y += heading_height;
+	y = TITLE_AREA_TOP + heading_height;
+	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() ); y += heading_height;
 	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
 
-	y += 12;
+	y += 2;
 
-	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, mRomName.c_str(), mpContext->GetDefaultTextColour() ); y += line_height;
+	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, mRomName.c_str(), mpContext->GetDefaultTextColour() ); y += line_height;
 
 	y += 4;
 
-	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y );
+	mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y );
 
 	CUIElement *	element( mElements.GetSelectedElement() );
 	if( element != NULL )
@@ -351,11 +369,15 @@ void	IRomPreferencesScreen::Render()
 }
 
 
+//
+
 void	IRomPreferencesScreen::Run()
 {
 	CUIScreen::Run();
 }
 
+
+//
 
 void	IRomPreferencesScreen::OnConfirm()
 {
@@ -368,6 +390,8 @@ void	IRomPreferencesScreen::OnConfirm()
 	mIsFinished = true;
 }
 
+
+//
 
 void	IRomPreferencesScreen::OnCancel()
 {

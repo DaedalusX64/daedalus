@@ -334,7 +334,6 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 	{
 		gGlobalPreferences.TVEnable = false;
 	}
-
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.ForceLinearFilter,"Force Linear Filter", "Enable to force linear filter, this can improve the look of textures", "Yes", "No" ) );
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.RumblePak,"Controller add-on", "Enable either MemPak or RumblePak.", "RumblePak", "MemPak" ) );
 	mElements.Add( new CAdjustDeadzoneSetting( mpContext, "Stick Deadzone", "Adjust the size of the deadzone applied to the PSP stick while playing. Press Start/X to edit." ) );
