@@ -365,7 +365,7 @@ void SpecificGameHacks( const ROMHeader & id )
 		break;
 	case 0x4B42:	//Banjo-Kazooie
 		g_ROM.TLUT_HACK = true;
-		g_ROM.DISABLE_LBU_OPT = true;
+	//	g_ROM.DISABLE_LBU_OPT = true;
 		break;
 	//case 0x5750:	//PilotWings64
 	case 0x4450:	//Perfect Dark

@@ -2,10 +2,10 @@ Daedalusx64 1.1.7 Readme
 Copyright (C) 2001-2019 StrmnNrmn
 Copyright (C) 2008-2019 DaedalusX64 Team
 
-This document last edited 12 March 2019
+This document last edited 18 March 2019
 
 What is Daedalus?
-*****************
+
 
 Daedalus is a Nintendo 64 emulator for Windows, macOS, Linux and PSP. Daedalus is named after
 the craftsman at King Minos's court who designed the labyrinth for the Minotaur.

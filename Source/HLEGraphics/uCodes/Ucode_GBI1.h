@@ -225,7 +225,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 
 	case G_MW_FOG:	// WIP, only works for the PSP
 		{
-#ifdef DAEDALUS_PSP			
+#ifdef DAEDALUS_PSP
 			f32 mul = (f32)(s16)(value >> 16);	//Fog mult
 			f32 offs = (f32)(s16)(value & 0xFFFF);	//Fog Offset
 
@@ -249,6 +249,8 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 
 	case G_MW_LIGHTCOL:
 		{
+
+
 			u32 field_offset = (offset & 0x7);
 			u32 light_idx = offset >> 5;
 
@@ -260,6 +262,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 				u8 r = ((value>>24)&0xFF);
 				u8 g = ((value>>16)&0xFF);
 				u8 b = ((value>>8)&0xFF);
+				u8 a = 255;
 				gRenderer->SetLightCol(light_idx, r, g, b);
 			}
 		}

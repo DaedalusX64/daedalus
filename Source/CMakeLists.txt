@@ -103,7 +103,7 @@ set_property(TARGET pspkubridge PROPERTY IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}
 	add_executable(daedalus.elf ${PSP_MAIN_FILES})
 	set_target_properties(daedalus.elf PROPERTIES LINK_FLAGS "-specs=${PSPSDK}/lib/prxspecs -Wl,-q,-T${PSPSDK}/lib/linkfile.prx ${PSPSDK}/lib/prxexports.o -L${PSPSDK}/lib")
 	target_include_directories(daedalus.elf PUBLIC /usr/local/pspdev/psp/sdk/include )
-	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lpng -lz -lg -lm -lpspfpu pspkubridge ${PSPSDK_LIBS})
+	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lpng -lz -lc -lg -lm -lpspfpu pspkubridge ${PSPSDK_LIBS})
 endif (PSP_RELEASE)
 
 
@@ -123,7 +123,7 @@ set_property(TARGET pspkubridge PROPERTY IMPORTED_LOCATION ${PROJECT_SOURCE_DIR}
 	add_executable(daedalus.elf ${PSP_MAIN_FILES})
 	set_target_properties(daedalus.elf PROPERTIES LINK_FLAGS "-specs=${PSPSDK}/lib/prxspecs -Wl,-q,-T${PSPSDK}/lib/linkfile.prx ${PSPSDK}/lib/prxexports.o -L${PSPSDK}/lib")
 	target_include_directories(daedalus.elf PUBLIC /usr/local/pspdev/psp/sdk/include )
-	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lpng -lz -lg -lm -lpspfpu pspkubridge ${PSPSDK_LIBS})
+	target_link_libraries(daedalus.elf daedalus -lstdc++ -lpsppower -lpspgu -lpspaudio -lpsprtc -lpng -lz -lc -lg -lm -lpspfpu pspkubridge ${PSPSDK_LIBS})
 endif (PSP_DEBUG)
 
 if (MAC_RELEASE OR LINUX_RELEASE)

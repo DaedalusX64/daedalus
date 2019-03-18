@@ -423,7 +423,7 @@ void IRomSelectorComponent::RenderPreview()
 
 		DrawInfoText( mpContext, y, "Save:", ROM_GetSaveTypeName( p_rominfo->mSettings.SaveType ) ); y += line_height;
 		DrawInfoText( mpContext, y, "EPak:", ROM_GetExpansionPakUsageName( p_rominfo->mSettings.ExpansionPakUsage ) ); y += line_height;
-		//DrawInfoText( mpContext, y, "Dynarec:", p_rominfo->mSettings.DynarecSupported ? "Supported" : "Unsupported" ); y += line_height;
+
 	}
 	else
 	{
@@ -433,7 +433,6 @@ void IRomSelectorComponent::RenderPreview()
 
 		DrawInfoText( mpContext, y, "Save:", "" );		y += line_height;
 		DrawInfoText( mpContext, y, "EPak:", "" );		y += line_height;
-		//DrawInfoText( mpContext, y, "Dynarec:", "" );	y += line_height;
 	}
 }
 void IRomSelectorComponent::RenderRomList()
@@ -448,7 +447,7 @@ void IRomSelectorComponent::RenderRomList()
 	sceGuEnable(GU_SCISSOR_TEST);
 	sceGuScissor(LIST_TEXT_LEFT, BELOW_MENU_MIN, LIST_TEXT_LEFT+LIST_TEXT_WIDTH, BELOW_MENU_MIN+LIST_TEXT_HEIGHT);
 
-	const char * const	ptr_text( ">>" );
+	const char * const	ptr_text( ">" );
 	u32					ptr_text_width( mpContext->GetTextWidth( ptr_text ) );
 
 	for(u32 i = 0; i < mRomsList.size(); ++i)
