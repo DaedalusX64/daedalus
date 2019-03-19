@@ -168,12 +168,15 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 
 	//printf( "Adding job...waiting for empty\n" );
 	sceKernelWaitSema( mWorkEmpty, 1, NULL );
-
+	// Add job to queue
+	if( job_size <= mJobBufferSize )
+	{
 		// Add job to queue
 		memcpy_vfpu( mJobBuffer, job, job_size );
 		//printf( "Adding job...signaling\n" );
 		sceKernelSignalSema( mWorkReady, 1 );
 		success = true;
+	}
 
 	//printf( "Adding job...done\n" );
 	return success;
