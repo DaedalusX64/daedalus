@@ -98,7 +98,7 @@ void	AudioHLEState::EnvMixer( u8 flags, u32 address )
 		RVol = ((VolRight * VolRampRight));
 		Wet = EnvWet;
 		Dry = EnvDry; // Save Wet/Dry values
-		LTrg = (VolTrgLeft << 16); 
+		LTrg = (VolTrgLeft << 16);
 		RTrg = (VolTrgRight << 16); // Save Current Left/Right Targets
 		LAdderStart = VolLeft  << 16;
 		RAdderStart = VolRight << 16;

@@ -447,7 +447,7 @@ void IRomSelectorComponent::RenderRomList()
 	sceGuEnable(GU_SCISSOR_TEST);
 	sceGuScissor(LIST_TEXT_LEFT, BELOW_MENU_MIN, LIST_TEXT_LEFT+LIST_TEXT_WIDTH, BELOW_MENU_MIN+LIST_TEXT_HEIGHT);
 
-	const char * const	ptr_text( ">" );
+	const char * const	ptr_text( "> " );
 	u32					ptr_text_width( mpContext->GetTextWidth( ptr_text ) );
 
 	for(u32 i = 0; i < mRomsList.size(); ++i)

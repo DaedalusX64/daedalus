@@ -112,7 +112,7 @@ void	ISplashScreen::Render()
 	mpContext->RenderTexture( mpTexture, (480 - 328)/2, (272-90)/2, colour );
 
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
-	mpContext->DrawTextAlign(0,480,AT_CENTRE,272-50,g32bitColorMode? "32Bit Color Selected" : "16Bit Color Selected",DrawTextUtilities::TextWhite);
+	mpContext->DrawTextAlign(0,SCREEN_WIDTH,AT_CENTRE,SCREEN_HEIGHT-50,g32bitColorMode? "32Bit Color Selected" : "16Bit Color Selected",DrawTextUtilities::TextWhite);
 }
 
 void	ISplashScreen::Run()

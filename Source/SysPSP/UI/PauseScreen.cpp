@@ -241,19 +241,14 @@ void	IPauseScreen::Render()
 
 	if(!scePowerIsBatteryCharging())
 	{
-		sprintf(info," [%s %d%% %0.2fV %dC]  [%s %2dh %2dm]",
-			Translate_String("Battery"), bat, (f32) scePowerGetBatteryVolt() / 1000.0f, scePowerGetBatteryTemp(),
-			Translate_String("Remaining"), batteryLifeTime / 60, batteryLifeTime - 60 * (batteryLifeTime / 60));
-	}
-	else
-	{
-		sprintf(info, "[%s]  [%s]",
-			Translate_String("Charging..."),
-			Translate_String("Remaining: --h--m") );
+			sprintf(info," [%s %d%% %s %2dh %2dm]",
+			Translate_String("Battery / "), bat,
+			Translate_String("Time"), batteryLifeTime / 60, batteryLifeTime - 60 * (batteryLifeTime / 60));
 	}
 
 // Battery Info
-	mpContext->DrawTextAlign( 0, SCREEN_WIDTH - LIST_TEXT_LEFT, AT_LEFT, CATEGORY_TEXT_TOP, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
+	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
+	mpContext->DrawTextAlign( 0, SCREEN_WIDTH - LIST_TEXT_LEFT, AT_RIGHT, CATEGORY_TEXT_TOP, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
 
 	p_option_text = gMenuOptionNames[ previous ];
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_LEFT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( previous ) ? valid_colour : invalid_colour );
