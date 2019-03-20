@@ -168,13 +168,19 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 
 	//printf( "Adding job...waiting for empty\n" );
 	sceKernelWaitSema( mWorkEmpty, 1, NULL );
+
 	// Add job to queue
 	if( job_size <= mJobBufferSize )
 	{
 		// Add job to queue
 		memcpy_vfpu( mJobBuffer, job, job_size );
+
+		//clear the Cache
+		sceKernelDcacheWritebackInvalidateAll();
+
 		//printf( "Adding job...signaling\n" );
 		sceKernelSignalSema( mWorkReady, 1 );
+
 		success = true;
 	}
 
@@ -190,13 +196,16 @@ void CJobManager::Run()
 
 	while( true )
 	{
+		//This wait time sets the amount of time between checking for the next job. Waiting to long will cause a crash.
 		SceUInt timeout = 5*1000;  // Microseconds
 
 		// Check for work with a timeout, in case we want to quit and no more work comes in
 		if( sceKernelWaitSema( mWorkReady, 1, &timeout ) >= 0 )
 		{
+			//Set job to ME Buffer
 			SJob *	job( static_cast< SJob * >( mJobBuffer ) );
 
+			//Check if the Media Engine CPU is free if so run audio job on it.
 			if( CheckME( mei ))
 			{
 
@@ -208,11 +217,13 @@ void CJobManager::Run()
 				if( run->FiniJob )
 					run->FiniJob( run );
 
+				//clear Cache
 				sceKernelDcacheWritebackInvalidateAll();
 
-				// copy new job to run buffer
+				// copy new job to run buffer for Media Engine
 				memcpy( mRunBuffer, mJobBuffer, mJobBufferSize );
 
+				//clear Cache -> this one is very important without it the CheckME(mei) will not return with the ME status.
 				sceKernelDcacheWritebackInvalidateAll();
 
 				// signal ready for a new job
@@ -225,12 +236,14 @@ void CJobManager::Run()
 				// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
 				BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL );
 
+				//Mark Job(run) from Mrunbuffer as Finished
 				run->FiniJob( run );
 				run->FiniJob = NULL; // so it doesn't get run again later
 
 			}
+
 			else
-			{
+				{
 
 				//printf("Media Engine is busy run on main CPU \n");
 
@@ -249,6 +262,7 @@ void CJobManager::Run()
 				// signal ready for a new job
 				sceKernelSignalSema( mWorkEmpty, 1 );
 
+				// Switch back to Job from ME to see if the me is done and mark the job finished
 				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
 
 				// Execute job finalised if ME done
@@ -261,7 +275,7 @@ void CJobManager::Run()
 			}
 		}
 
-		// This thread needs to be terminated, so break this loop
+		// This thread needs to be terminated, so break this loop & kill the me
 		if( mWantQuit ){
 			KillME(mei);
 			break;
