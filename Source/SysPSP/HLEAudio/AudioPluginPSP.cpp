@@ -110,9 +110,9 @@ void	CAudioPluginPsp::StopEmulation()
 void	CAudioPluginPsp::DacrateChanged( int SystemType )
 {
 //	printf( "DacrateChanged( %s )\n", (SystemType == ST_NTSC) ? "NTSC" : "PAL" );
-	u32 type = (SystemType == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK;
-	u32 dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
-	u32	frequency = type / (dacrate + 1);
+	u32 type {(SystemType == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK};
+	u32 dacrate {Memory_AI_GetRegister(AI_DACRATE_REG)};
+	u32	frequency {type / (dacrate + 1)};
 
 	mAudioOutput->SetFrequency( frequency );
 }
