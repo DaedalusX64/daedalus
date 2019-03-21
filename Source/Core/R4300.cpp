@@ -55,14 +55,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #undef SIM_DOUBLES
 #endif
 
-// Handles up to 128bit multiplication, have yet to see a game failing by just doing 64bit mult instead.. 
+// Handles up to 128bit multiplication, have yet to see a game failing by just doing 64bit mult instead..
 // So for performance reasons on the PSP we only handle up to 64bit mults
 #ifndef DAEDALUS_PSP
 #define DAEDALUS_128BIT_MULT
+#define SPEEDHACK_INTERPRETER
 #endif
 
 // Can we disable this for the PSP? doesn't seem to do anything when dynarec is enabled (trace is active) /Salvy
-#define SPEEDHACK_INTERPRETER
+
 
 //Accurate cvt for W32/OSX, convert using the rounding mode specified in the Floating Control/Status register (FCSR)
 #define ACCURATE_CVT
@@ -89,7 +90,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 //Nothing todo, I'll remove this eventually..
-//Just log exceptions, so far the only games I obsereved that trow are DK64 and Blast Corps 
+//Just log exceptions, so far the only games I obsereved that trow are DK64 and Blast Corps
 #ifdef DAEDALUS_DEBUG_CONSOLE
 #define CATCH_NAN_EXCEPTION(op, valX, valY) \
 	if(R4300_IsNaN(valX + valY)) \
@@ -99,7 +100,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #else
 	#define CATCH_NAN_EXCEPTION(op, valX, valY)
 #endif
- 
+
 //Nothing todo, I'll remove this eventually.. We ensure r0 is zero after executing an opcode anyways
 //So far the only game I observed that write to r0 is SF 2049....
 //Note: We need to check for R0 in the dynarec as well..
@@ -422,8 +423,8 @@ DAEDALUS_FORCEINLINE s32 f32_to_s32_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC );
 DAEDALUS_FORCEINLINE s32 f32_to_s32_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s32)roundf(x); }
 DAEDALUS_FORCEINLINE s32 f32_to_s32_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s32)ceilf(x); }
 DAEDALUS_FORCEINLINE s32 f32_to_s32_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s32)floorf(x); }
-DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x )	
-{ 
+DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x )
+{
 #ifdef ACCURATE_CVT
 	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
 	{
@@ -434,7 +435,7 @@ DAEDALUS_FORCEINLINE s32 f32_to_s32( f32 x )
 	default:				return (s32)x;
 	}
 #else
-	SET_ROUND_MODE( gRoundingMode ); 
+	SET_ROUND_MODE( gRoundingMode );
 	return (s32)x;
 #endif
 }
@@ -442,8 +443,8 @@ DAEDALUS_FORCEINLINE s64 f32_to_s64_trunc( f32 x )	{ SET_ROUND_MODE( RM_TRUNC );
 DAEDALUS_FORCEINLINE s64 f32_to_s64_round( f32 x )	{ SET_ROUND_MODE( RM_ROUND ); return (s64)roundf(x); }
 DAEDALUS_FORCEINLINE s64 f32_to_s64_ceil( f32 x )	{ SET_ROUND_MODE( RM_CEIL ); return (s64)ceilf(x); }
 DAEDALUS_FORCEINLINE s64 f32_to_s64_floor( f32 x )	{ SET_ROUND_MODE( RM_FLOOR ); return (s64)floorf(x); }
-DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x ) 
-{ 
+DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x )
+{
 #ifdef ACCURATE_CVT
 	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
 	{
@@ -454,8 +455,8 @@ DAEDALUS_FORCEINLINE s64 f32_to_s64( f32 x )
 	default:				return (s64)x;
 	}
 #else
-	SET_ROUND_MODE( gRoundingMode ); 
-	return (s64)x; 
+	SET_ROUND_MODE( gRoundingMode );
+	return (s64)x;
 #endif
 }
 DAEDALUS_FORCEINLINE s32 d64_to_s32_trunc( d64 x )	{ SET_ROUND_MODE( RM_TRUNC ); return (s32)trunc(x); }
@@ -474,8 +475,8 @@ DAEDALUS_FORCEINLINE s32 d64_to_s32( d64 x )
 	default:				return (s32)x;
 	}
 #else
-	SET_ROUND_MODE( gRoundingMode ); 
-	return (s32)x; 
+	SET_ROUND_MODE( gRoundingMode );
+	return (s32)x;
 #endif
 }
 DAEDALUS_FORCEINLINE s64 d64_to_s64_trunc( d64 x ) { SET_ROUND_MODE( RM_TRUNC ); return (s64)trunc(x); }
@@ -483,7 +484,7 @@ DAEDALUS_FORCEINLINE s64 d64_to_s64_round( d64 x ) { SET_ROUND_MODE( RM_ROUND );
 DAEDALUS_FORCEINLINE s64 d64_to_s64_ceil( d64 x )  { SET_ROUND_MODE( RM_CEIL ); return (s64)ceil(x); }
 DAEDALUS_FORCEINLINE s64 d64_to_s64_floor( d64 x ) { SET_ROUND_MODE( RM_FLOOR ); return (s64)floor(x); }
 DAEDALUS_FORCEINLINE s64 d64_to_s64( d64 x )
-{ 
+{
 #ifdef ACCURATE_CVT
 	switch ( gCPUState.FPUControl[31]._u32 & FPCSR_RM_MASK )
 	{
@@ -495,7 +496,7 @@ DAEDALUS_FORCEINLINE s64 d64_to_s64( d64 x )
 	}
 #else
 	SET_ROUND_MODE( gRoundingMode );
-	return (s64)x; 
+	return (s64)x;
 #endif
 }
 #endif
@@ -1251,7 +1252,7 @@ static void R4300_CALL_TYPE R4300_SWL( R4300_CALL_SIGNATURE ) 			// Store Word L
 	u32 dReg = gGPR[op_code.rt]._u32_0;
 
 #if 1 //1-> tighter code, 0->old way //Corn
-	u32 dNew = (dMem & ~(((u32)~0 >> ((adr & 0x3) << 3)))) | (dReg >> ((adr & 0x3) << 3)); 
+	u32 dNew = (dMem & ~(((u32)~0 >> ((adr & 0x3) << 3)))) | (dReg >> ((adr & 0x3) << 3));
 #else
 	u32 dNew;
 	switch (adr % 4)
@@ -2499,7 +2500,7 @@ static void R4300_CALL_TYPE R4300_Cop1_CTC1( R4300_CALL_SIGNATURE ) 		// move Co
 // Hack for the PSP, set rounding mode here, see notes in SET_ROUND_MODE
 // Fixes collision issues in the final boss of DK64 and camera icon not rotating, fixes collision issues in Rayman, and JFG too
 #ifdef DAEDALUS_PSP
-static void R4300_CALL_TYPE R4300_Cop1_CTC1_2( R4300_CALL_SIGNATURE ) 
+static void R4300_CALL_TYPE R4300_Cop1_CTC1_2( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 

@@ -20,17 +20,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "N64RegisterCachePSP.h"
 
-//*****************************************************************************
-//
-//*****************************************************************************
 CN64RegisterCachePSP::CN64RegisterCachePSP()
 {
 	Reset();
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void	CN64RegisterCachePSP::Reset()
 {
 	for( u32 lo_hi_idx = 0; lo_hi_idx < 2; ++lo_hi_idx )
@@ -52,9 +47,9 @@ void	CN64RegisterCachePSP::Reset()
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CN64RegisterCachePSP::ClearCachedReg( EN64Reg n64_reg, u32 lo_hi_idx )
 {
 	DAEDALUS_ASSERT( IsCached( n64_reg, lo_hi_idx ), "This register is not currently cached" );
