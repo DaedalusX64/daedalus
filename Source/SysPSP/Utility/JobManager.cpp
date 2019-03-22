@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/FastMemcpy.h"
 
 #ifdef DAEDALUS_PSP_USE_ME
-bool gLoadedMediaEnginePRX = false;
+bool gLoadedMediaEnginePRX {false};
 
 volatile me_struct *mei;
 #endif
@@ -197,7 +197,7 @@ void CJobManager::Run()
 	while( true )
 	{
 		//This wait time sets the amount of time between checking for the next job. Waiting to long will cause a crash.
-		SceUInt timeout = 5*1000;  // Microseconds
+		SceUInt timeout {5*1000};  // Microseconds
 
 		// Check for work with a timeout, in case we want to quit and no more work comes in
 		if( sceKernelWaitSema( mWorkReady, 1, &timeout ) >= 0 )
