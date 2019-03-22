@@ -5,7 +5,7 @@ INCDIR =
 CFLAGS = -O2 -G0 -Wall
 
 
-CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
+CXXFLAGS = $(CFLAGS)
 ASFLAGS = $(CFLAGS)
 
 BUILD_PRX = 1

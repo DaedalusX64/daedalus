@@ -1585,8 +1585,8 @@ void BaseRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 			{
 				if( g_ROM.GameHacks == TARZAN ) return;
 
-				s16 x {(u16)(val >> 16) >> 2};
-				s16 y {(u16)(val & 0xFFFF) >> 2};
+				u32 x {(val >> 16) >> 2};
+				u32 y {(val & 0xFFFF) >> 2};
 
 				// Fixes the blocks lining up backwards in New Tetris
 				//
@@ -1644,10 +1644,10 @@ inline void BaseRenderer::SetVtxColor( u32 vert, u32 color )
 {
 	DAEDALUS_ASSERT( vert < kMaxN64Vertices, "Vertex index is out of bounds (%d)", vert );
 
-	u8 r {(color>>24)&0xFF};
-	u8 g {(color>>16)&0xFF};
-	u8 b {(color>>8)&0xFF};
-	u8 a {color&0xFF};
+	u32 r {(color>>24)&0xFF};
+	u32 g {(color>>16)&0xFF};
+	u32 b {(color>>8)&0xFF};
+	u32 a {(color)&0xFF};
 	mVtxProjected[vert].Colour = v4( r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f) );
 }
 
@@ -1884,14 +1884,14 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 // of the texture width/height until the uvs are positive. Then if the resulting UVs
 // are in the range [(0,0),(w,h)] we can update mTexWrap to GL_CLAMP_TO_EDGE/GU_CLAMP
 // and everything works correctly.
-inline void FixUV(u32 * wrap, s16 * c0_, s16 * c1_, s16 offset, u32 size)
+inline void FixUV(u32 * wrap, s16 * c0_, s16 * c1_, s16 offset, s32 size)
 {
 	DAEDALUS_ASSERT(size > 0, "Texture has crazy width/height");
 
-	s16 offset_10_5 {offset << 3};
+	s32 offset_10_5 {offset << 3};
 
-	s16 c0 {*c0_ - offset_10_5};
-	s16 c1 {*c1_ - offset_10_5};
+	s32 c0 {*c0_ - offset_10_5};
+	s32 c1 {*c1_ - offset_10_5};
 
 	// Many texrects already have GU_CLAMP set, so avoid some work.
 	if (*wrap != GU_CLAMP && size > 0)
@@ -1899,12 +1899,12 @@ inline void FixUV(u32 * wrap, s16 * c0_, s16 * c1_, s16 offset, u32 size)
 		// Check if the coord is negative - if so, offset to the range [0,size]
 		if (c0 < 0)
 		{
-			s16 lowest {Min(c0, c1)};
+			s32 lowest {Min(c0, c1)};
 
 			// Figure out by how much to translate so that the lowest of c0/c1 lies in the range [0,size]
 			// If we do lowest%size, we run the risk of implementation dependent behaviour for modulo of negative values.
 			// lowest + (size<<16) just adds a large multiple of size, which guarantees the result is positive.
-			s16 trans {(s16)(((s32)lowest + (size<<16)) % size) - lowest};
+			s32 trans {((lowest + (size<<16)) % size) - lowest};
 
 			// NB! we have to apply the same offset to both coords, to preserve direction of mapping (i.e., don't clamp each independently)
 			c0 += trans;

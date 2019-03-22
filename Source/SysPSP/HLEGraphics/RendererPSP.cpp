@@ -274,8 +274,8 @@ void RendererPSP::ResetDebugState()
 
 RendererPSP::SBlendStateEntry RendererPSP::LookupBlendState( u64 mux, bool two_cycles )
 {
+	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DAEDALUS_PROFILE( "RendererPSP::LookupBlendState" );
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	mRecordedCombinerStates.insert( mux );
 #endif
 

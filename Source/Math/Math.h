@@ -7,7 +7,7 @@
 #define PI   3.141592653589793f
 
 #ifdef DAEDALUS_PSP
-
+#include <pspfpu.h>
 // VFPU Math :D
 //
 // Todo : Move to SysPSP ?
@@ -44,9 +44,9 @@
 //Note that we pass s32 even if it is a f32! The check for <= 0.0f is valid also with signed integers(bit31 in f32 is sign bit)
 //(((Bx - Ax)*(Cy - Ay) - (Cx - Ax)*(By - Ay)) * Aw * Bw * C.w)
 inline s32 vfpu_TriNormSign(u8 *Base, u32 v0, u32 v1, u32 v2) {
-    u8* A {Base + (v0<<6)};	//Base + v0 * sizeof( DaedalusVtx4 )
-    u8* B {Base + (v1<<6)};	//Base + v1 * sizeof( DaedalusVtx4 )
-    u8* C {Base + (v2<<6)};	//Base + v2 * sizeof( DaedalusVtx4 )
+    u8* A= Base + (v0<<6);	//Base + v0 * sizeof( DaedalusVtx4 )
+    u8* B= Base + (v1<<6);	//Base + v1 * sizeof( DaedalusVtx4 )
+    u8* C= Base + (v2<<6);	//Base + v2 * sizeof( DaedalusVtx4 )
 	s32 result;
 
     __asm__ volatile (
@@ -320,14 +320,14 @@ Check above notes for cycles/comparison
 */
 
 #if 1	//0=fast, 1=original
-extern "C" inline float pspFpuSqrt(float fs)
+inline float pspFpuSqrt(float fs)
 {
 	return (__builtin_allegrex_sqrt_s(fs));
 }
 #else
 inline float pspFpuSqrt(float fs)
 {
-
+	union
         {
         int tmp;
         float fpv;
@@ -339,7 +339,7 @@ inline float pspFpuSqrt(float fs)
 #endif
 
 #if 1	//0=fast, 1=original //Corn
-extern "C" inline float pspFpuAbs(float fs)
+inline float pspFpuAbs(float fs)
 {
 	register float fd;
 	asm (
@@ -368,22 +368,22 @@ inline float pspFpuAbs(float fs)
 //*****************************************************************************
 // Misc
 
-extern "C" inline int pspFpuFloor(float fs)
+inline int pspFpuFloor(float fs)
 {
 	return (__builtin_allegrex_floor_w_s(fs));
 }
 
-extern "C" inline int pspFpuCeil(float fs)
+inline int pspFpuCeil(float fs)
 {
 	return (__builtin_allegrex_ceil_w_s(fs));
 }
 
-extern "C" inline int pspFpuTrunc(float fs)
+inline int pspFpuTrunc(float fs)
 {
 	return (__builtin_allegrex_trunc_w_s(fs));
 }
 
-extern "C" inline int pspFpuRound(float fs)
+inline int pspFpuRound(float fs)
 {
 	return (__builtin_allegrex_round_w_s(fs));
 }
@@ -405,7 +405,7 @@ inline float pspFpuMin(float fs1, float fs2)
 	return (fd);
 }
 */
-extern "C" inline int pspFpuIsNaN(float f)
+inline int pspFpuIsNaN(float f)
 {
 	int v;
 	asm (
@@ -444,7 +444,7 @@ inline s32 Double2Int( f64 *d )
 
 	if( exp < 0 ) return 0;				// ONLY a fraction
 
-	s64 t0 = ((s64)uni.pD) & 0x000fffffffffffffLL;
+	s64 t0 = *((s64*)uni.pD) & 0x000fffffffffffffLL;
 	t0 |= 0x0010000000000000LL;
 	s32 shift = 52 - exp;
 	t0 = t0 >> shift;
