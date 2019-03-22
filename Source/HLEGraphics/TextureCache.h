@@ -70,8 +70,8 @@ private:
 	//	We implement a 2-way skewed associative cache.
 	//	Each TextureInfo is hashed using two different methods, to reduce the chance of collisions
 	//
-	static const u32 HASH_TABLE_BITS = 9;
-	static const u32 HASH_TABLE_SIZE = 1<<HASH_TABLE_BITS;
+	static const u32 HASH_TABLE_BITS {9};
+	static const u32 HASH_TABLE_SIZE {1<<HASH_TABLE_BITS};
 
 	inline static u32 MakeHashIdxA( const TextureInfo & ti );
 	inline static u32 MakeHashIdxB( const TextureInfo & ti );

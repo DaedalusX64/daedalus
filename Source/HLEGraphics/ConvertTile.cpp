@@ -96,60 +96,60 @@ ALIGNED_EXTERN(u8, gTMEM[4096], 16);
 
 u32 RGBA16(u16 v)
 {
-	u32 r = FiveToEight[(v>>11)&0x1f];
-	u32 g = FiveToEight[(v>> 6)&0x1f];
-	u32 b = FiveToEight[(v>> 1)&0x1f];
-	u32 a = ((v     )&0x01)? 255 : 0;
+	u32 r {FiveToEight[(v>>11)&0x1f]};
+	u32 g {FiveToEight[(v>> 6)&0x1f]};
+	u32 b {FiveToEight[(v>> 1)&0x1f]};
+	u32 a {((v     )&0x01)? 255 : 0};
 
 	return (a<<24) | (b<<16) | (g<<8) | r;
 }
 
 u32 IA16(u16 v)
 {
-	u32 i = (v>>8)&0xff;
-	u32 a = (v   )&0xff;
+	u32 i {(v>>8)&0xff};
+	u32 a {(v   )&0xff};
 
 	return (a<<24) | (i<<16) | (i<<8) | i;
 }
 
 static u32 I4(u8 v)
 {
-	u32 i = FourToEight[v & 0x0F];
+	u32 i {FourToEight[v & 0x0F]};
 	return (i<<24) | (i<<16) | (i<<8) | i;
 }
 
 static u32 IA4(u8 v)
 {
-	u32 i = ThreeToEight[(v & 0x0f) >> 1];
-	u32 a = OneToEight[(v & 0x01)];	
+	u32 i {ThreeToEight[(v & 0x0f) >> 1]};
+	u32 a {OneToEight[(v & 0x01)]};
 
 	return (a<<24) | (i<<16) | (i<<8) | i;
 }
 
 static void ConvertRGBA32(const TileDestInfo & dsti, const TextureInfo & ti)
 {
-	u32 width = dsti.Width;
-	u32 height = dsti.Height;
+	u32 width {dsti.Width};
+	u32 height {dsti.Height};
 
-	u8 * dst = static_cast<u8*>(dsti.Data);
-	u32 dst_row_stride = dsti.Pitch;
-	u32 dst_row_offset = 0;
+	u8 * dst {static_cast<u8*>(dsti.Data)};
+	u32 dst_row_stride {dsti.Pitch};
+	u32 dst_row_offset {};
 
-	const u8 * src     = gTMEM;
-	u32 src_row_stride = ti.GetLine()<<3;
-	u32 src_row_offset = ti.GetTmemAddress()<<3;
+	const u8 * src    {gTMEM};
+	u32 src_row_stride {ti.GetLine()<<3};
+	u32 src_row_offset {ti.GetTmemAddress()<<3};
 
 	// NB! RGBA/32 line needs to be doubled.
 	src_row_stride *= 2;
 
-	u32 row_swizzle = 0;
+	u32 row_swizzle {};
 	for (u32 y = 0; y < height; ++y)
 	{
-		u32 src_offset = src_row_offset;
-		u32 dst_offset = dst_row_offset;
-		for (u32 x = 0; x < width; ++x)
+		u32 src_offset {src_row_offset};
+		u32 dst_offset {dst_row_offset};
+		for (u32 x {}; x < width; ++x)
 		{
-			u32 o = src_offset^row_swizzle;
+			u32 o {src_offset^row_swizzle};
 
 			dst[dst_offset+0] = src[o];
 			dst[dst_offset+1] = src[o+1];
@@ -168,25 +168,25 @@ static void ConvertRGBA32(const TileDestInfo & dsti, const TextureInfo & ti)
 
 static void ConvertRGBA16(const TileDestInfo & dsti, const TextureInfo & ti)
 {
-	u32 width = dsti.Width;
-	u32 height = dsti.Height;
+	u32 width {dsti.Width};
+	u32 height {dsti.Height};
 
-	u32 * dst = static_cast<u32*>(dsti.Data);
-	u32 dst_row_stride = dsti.Pitch / sizeof(u32);
-	u32 dst_row_offset = 0;
+	u32 * dst {static_cast<u32*>(dsti.Data)};
+	u32 dst_row_stride {dsti.Pitch / sizeof(u32)};
+	u32 dst_row_offset {};
 
-	const u16 * src     = (u16*)gTMEM;
-	u32 src_row_stride = ti.GetLine()<<2;
-	u32 src_row_offset = ti.GetTmemAddress()<<2;
+	const u16 * src     {(u16*)gTMEM};
+	u32 src_row_stride {ti.GetLine()<<2};
+	u32 src_row_offset {ti.GetTmemAddress()<<2};
 
-	u32 row_swizzle = 0;
-	for (u32 y = 0; y < height; ++y)
+	u32 row_swizzle {};
+	for (u32 y {}; y < height; ++y)
 	{
-		u32 src_offset = src_row_offset;
-		u32 dst_offset = dst_row_offset;
-		for (u32 x = 0; x < width; ++x)
+		u32 src_offset {src_row_offset};
+		u32 dst_offset {dst_row_offset};
+		for (u32 x {}; x < width; ++x)
 		{
-			u16 src_pixel = BSWAP16( src[src_offset^row_swizzle] );
+			u16 src_pixel {BSWAP16( src[src_offset^row_swizzle] )};
 
 			dst[dst_offset+0] = RGBA16(src_pixel);
 
@@ -203,35 +203,35 @@ static void ConvertRGBA16(const TileDestInfo & dsti, const TextureInfo & ti)
 template <u32 (*PalConvertFn)(u16)>
 static void ConvertCI8T(const TileDestInfo & dsti, const TextureInfo & ti)
 {
-	u32 width = dsti.Width;
-	u32 height = dsti.Height;
+	u32 width {dsti.Width};
+	u32 height {dsti.Height};
 
-	u32 * dst = static_cast<u32*>(dsti.Data);
-	u32 dst_row_stride = dsti.Pitch / sizeof(u32);
-	u32 dst_row_offset = 0;
+	u32 * dst {static_cast<u32*>(dsti.Data)};
+	u32 dst_row_stride {dsti.Pitch / sizeof(u32)};
+	u32 dst_row_offset {};
 
-	const u8 * src     = gTMEM;
-	const u16 * src16  = (u16*)src;
+	const u8 * src     {gTMEM};
+	const u16 * src16  {(u16*)src};
 
-	u32 src_row_stride = ti.GetLine()<<3;
-	u32 src_row_offset = ti.GetTmemAddress()<<3;
+	u32 src_row_stride {ti.GetLine()<<3};
+	u32 src_row_offset {ti.GetTmemAddress()<<3};
 
 	// Convert the palette once, here.
-	u32 palette[256];
-	for (u32 i = 0; i < 256; ++i)
+	u32 palette[256] {};
+	for (u32 i {}; i < 256; ++i)
 	{
-		u16 src_pixel = src16[0x400+(i<<2)];
+		u16 src_pixel {src16[0x400+(i<<2)]};
 		palette[i] = PalConvertFn(src_pixel);
 	}
 
-	u32 row_swizzle = 0;
-	for (u32 y = 0; y < height; ++y)
+	u32 row_swizzle {};
+	for (u32 y {}; y < height; ++y)
 	{
-		u32 src_offset = src_row_offset;
-		u32 dst_offset = dst_row_offset;
-		for (u32 x = 0; x < width; ++x)
+		u32 src_offset {src_row_offset};
+		u32 dst_offset {dst_row_offset};
+		for (u32 x {}; x < width; ++x)
 		{
-			u8 src_pixel = src[src_offset^row_swizzle];
+			u8 src_pixel {src[src_offset^row_swizzle]};
 
 			dst[dst_offset+0] = palette[src_pixel];
 
@@ -248,39 +248,39 @@ static void ConvertCI8T(const TileDestInfo & dsti, const TextureInfo & ti)
 template <u32 (*PalConvertFn)(u16)>
 static void ConvertCI4T(const TileDestInfo & dsti, const TextureInfo & ti)
 {
-	u32 width = dsti.Width;
-	u32 height = dsti.Height;
+	u32 width {dsti.Width};
+	u32 height {dsti.Height};
 
-	u32 * dst = static_cast<u32*>(dsti.Data);
-	u32 dst_row_stride = dsti.Pitch / sizeof(u32);
-	u32 dst_row_offset = 0;
+	u32 * dst {static_cast<u32*>(dsti.Data)};
+	u32 dst_row_stride {dsti.Pitch / sizeof(u32)};
+	u32 dst_row_offset {};
 
-	const u8 * src     = gTMEM;
-	const u16 * src16  = (u16*)src;
+	const u8 * src  {gTMEM};
+	const u16 * src16 {(u16*)src};
 
-	u32 src_row_stride = ti.GetLine()<<3;
-	u32 src_row_offset = ti.GetTmemAddress()<<3;
+	u32 src_row_stride {ti.GetLine()<<3;
+	u32 src_row_offset {ti.GetTmemAddress()<<3};
 
 	// Convert the palette once, here.
-	u32 pal_address = 0x400 + (ti.GetPalette()<<6);
-	u32 palette[16];
-	for (u32 i = 0; i < 16; ++i)
+	u32 pal_address {0x400 + (ti.GetPalette()<<6)};
+	u32 palette[16] {};
+	for (u32 i {}; i < 16; ++i)
 	{
-		u16 src_pixel = src16[pal_address+(i<<2)];
+		u16 src_pixel {src16[pal_address+(i<<2)]};
 		palette[i] = PalConvertFn(src_pixel);
 	}
 
 
-	u32 row_swizzle = 0;
-	for (u32 y = 0; y < height; ++y)
+	u32 row_swizzle {};
+	for (u32 y {}; y < height; ++y)
 	{
-		u32 src_offset = src_row_offset;
-		u32 dst_offset = dst_row_offset;
+		u32 src_offset {src_row_offset};
+		u32 dst_offset {dst_row_offset};
 
 		// Process 2 pixels at a time
-		for (u32 x = 0; x+1 < width; x += 2)
+		for (u32 x {}; x+1 < width; x += 2)
 		{
-			u16 src_pixel = src[src_offset^row_swizzle];
+			u16 src_pixel {src[src_offset^row_swizzle]};
 
 			dst[dst_offset+0] = palette[(src_pixel&0xf0)>>4];
 			dst[dst_offset+1] = palette[(src_pixel&0x0f)>>0];
@@ -292,7 +292,7 @@ static void ConvertCI4T(const TileDestInfo & dsti, const TextureInfo & ti)
 		// Handle trailing pixel, if odd width
 		if (width&1)
 		{
-			u8 src_pixel = src[src_offset^row_swizzle];
+			u8 src_pixel {src[src_offset^row_swizzle]};
 
 			dst[dst_offset+0] = palette[(src_pixel&0xf0)>>4];
 
@@ -343,28 +343,28 @@ static void ConvertCI4(const TileDestInfo & dsti, const TextureInfo & ti)
 
 static void ConvertIA16(const TileDestInfo & dsti, const TextureInfo & ti)
 {
-	u32 width = dsti.Width;
-	u32 height = dsti.Height;
+	u32 width {dsti.Width};
+	u32 height {dsti.Height};
 
-	u8 * dst = static_cast<u8*>(dsti.Data);
-	u32 dst_row_stride = dsti.Pitch;
-	u32 dst_row_offset = 0;
+	u8 * dst {static_cast<u8*>(dsti.Data)};
+	u32 dst_row_stride {dsti.Pitch};
+	u32 dst_row_offset {};
 
-	const u8 * src     = gTMEM;
-	u32 src_row_stride = ti.GetLine()<<3;
-	u32 src_row_offset = ti.GetTmemAddress()<<3;
+	const u8 * src     {gTMEM};
+	u32 src_row_stride {ti.GetLine()<<3};
+	u32 src_row_offset {ti.GetTmemAddress()<<3};
 
-	u32 row_swizzle = 0;
-	for (u32 y = 0; y < height; ++y)
+	u32 row_swizzle = {};
+	for (u32 y {}; y < height; ++y)
 	{
-		u32 src_offset = src_row_offset;
-		u32 dst_offset = dst_row_offset;
-		for (u32 x = 0; x < width; ++x)
+		u32 src_offset {src_row_offset};
+		u32 dst_offset {dst_row_offset};
+		for (u32 x {}; x < width; ++x)
 		{
-			u32 o        = src_offset^row_swizzle;
+			u32 o        {src_offset^row_swizzle};
 
-			u8 i = src[o+0];
-			u8 a = src[o+1];
+			u8 i {src[o+0]};
+			u8 a {src[o+1]};
 
 			dst[dst_offset+0] = i;
 			dst[dst_offset+1] = i;
@@ -383,28 +383,28 @@ static void ConvertIA16(const TileDestInfo & dsti, const TextureInfo & ti)
 
 static void ConvertIA8(const TileDestInfo & dsti, const TextureInfo & ti)
 {
-	u32 width = dsti.Width;
-	u32 height = dsti.Height;
+	u32 width {dsti.Width};
+	u32 height {dsti.Height};
 
-	u8 * dst = static_cast<u8*>(dsti.Data);
-	u32 dst_row_stride = dsti.Pitch;
-	u32 dst_row_offset = 0;
+	u8 * dst {static_cast<u8*>(dsti.Data)};
+	u32 dst_row_stride {dsti.Pitch};
+	u32 dst_row_offset {};
 
-	const u8 * src     = gTMEM;
-	u32 src_row_stride = ti.GetLine()<<3;
-	u32 src_row_offset = ti.GetTmemAddress()<<3;
+	const u8 * src     {gTMEM};
+	u32 src_row_stride {ti.GetLine()<<3};
+	u32 src_row_offset {ti.GetTmemAddress()<<3};
 
-	u32 row_swizzle = 0;
-	for (u32 y = 0; y < height; ++y)
+	u32 row_swizzle {};
+	for (u32 y {}; y < height; ++y)
 	{
-		u32 src_offset = src_row_offset;
-		u32 dst_offset = dst_row_offset;
-		for (u32 x = 0; x < width; ++x)
+		u32 src_offset {src_row_offset};
+		u32 dst_offset {dst_row_offset};
+		for (u32 x {}; x < width; ++x)
 		{
-			u8 src_pixel = src[src_offset^row_swizzle];
+			u8 src_pixel {src[src_offset^row_swizzle]};
 
-			u8 i = FourToEight[(src_pixel>>4)&0xf];
-			u8 a = FourToEight[(src_pixel   )&0xf];
+			u8 i {FourToEight[(src_pixel>>4)&0xf]};
+			u8 a {FourToEight[(src_pixel   )&0xf]};
 
 			dst[dst_offset+0] = i;
 			dst[dst_offset+1] = i;
@@ -423,27 +423,27 @@ static void ConvertIA8(const TileDestInfo & dsti, const TextureInfo & ti)
 
 static void ConvertIA4(const TileDestInfo & dsti, const TextureInfo & ti)
 {
-	u32 width = dsti.Width;
-	u32 height = dsti.Height;
+	u32 width {dsti.Width};
+	u32 height {dsti.Height};
 
-	u32 * dst = static_cast<u32*>(dsti.Data);
-	u32 dst_row_stride = dsti.Pitch / sizeof(u32);
-	u32 dst_row_offset = 0;
+	u32 * dst {static_cast<u32*>(dsti.Data)};
+	u32 dst_row_stride {dsti.Pitch / sizeof(u32)};
+	u32 dst_row_offset {};
 
-	const u8 * src     = gTMEM;
-	u32 src_row_stride = ti.GetLine()<<3;
-	u32 src_row_offset = ti.GetTmemAddress()<<3;
+	const u8 * src     {gTMEM};
+	u32 src_row_stride {ti.GetLine()<<3};
+	u32 src_row_offset {ti.GetTmemAddress()<<3};
 
-	u32 row_swizzle = 0;
-	for (u32 y = 0; y < height; ++y)
+	u32 row_swizzle {};
+	for (u32 y {}; y < height; ++y)
 	{
-		u32 src_offset = src_row_offset;
-		u32 dst_offset = dst_row_offset;
+		u32 src_offset {src_row_offset};
+		u32 dst_offset {dst_row_offset};
 
 		// Process 2 pixels at a time
-		for (u32 x = 0; x+1 < width; x += 2)
+		for (u32 x {}; x+1 < width; x += 2)
 		{
-			u8 src_pixel = src[src_offset^row_swizzle];
+			u8 src_pixel {src[src_offset^row_swizzle]};
 
 			dst[dst_offset+0] = IA4(src_pixel>>4);
 			dst[dst_offset+1] = IA4((src_pixel&0xf));
@@ -455,7 +455,7 @@ static void ConvertIA4(const TileDestInfo & dsti, const TextureInfo & ti)
 		// Handle trailing pixel, if odd width
 		if (width&1)
 		{
-			u8 src_pixel = src[src_offset^row_swizzle];
+			u8 src_pixel {src[src_offset^row_swizzle]};
 
 			dst[dst_offset+0] = IA4(src_pixel>>4);
 
@@ -472,23 +472,23 @@ static void ConvertIA4(const TileDestInfo & dsti, const TextureInfo & ti)
 
 static void ConvertI8(const TileDestInfo & dsti, const TextureInfo & ti)
 {
-	u32 width = dsti.Width;
-	u32 height = dsti.Height;
+	u32 width {dsti.Width};
+	u32 height {dsti.Height};
 
-	u8 * dst = static_cast<u8*>(dsti.Data);
-	u32 dst_row_stride = dsti.Pitch;
-	u32 dst_row_offset = 0;
+	u8 * dst {static_cast<u8*>(dsti.Data)};
+	u32 dst_row_stride {dsti.Pitch};
+	u32 dst_row_offset {};
 
-	const u8 * src     = gTMEM;
-	u32 src_row_stride = ti.GetLine()<<3;
-	u32 src_row_offset = ti.GetTmemAddress()<<3;
+	const u8 * src     {gTMEM};
+	u32 src_row_stride {ti.GetLine()<<3};
+	u32 src_row_offset {ti.GetTmemAddress()<<3};
 
-	u32 row_swizzle = 0;
-	for (u32 y = 0; y < height; ++y)
+	u32 row_swizzle = {};
+	for (u32 y {}; y < height; ++y)
 	{
-		u32 src_offset = src_row_offset;
-		u32 dst_offset = dst_row_offset;
-		for (u32 x = 0; x < width; ++x)
+		u32 src_offset {src_row_offset};
+		u32 dst_offset {dst_row_offset};
+		for (u32 x {}; x < width; ++x)
 		{
 			u8 i = src[src_offset^row_swizzle];
 
@@ -509,28 +509,28 @@ static void ConvertI8(const TileDestInfo & dsti, const TextureInfo & ti)
 
 static void ConvertI4(const TileDestInfo & dsti, const TextureInfo & ti)
 {
-	u32 width = dsti.Width;
-	u32 height = dsti.Height;
+	u32 width {dsti.Width};
+	u32 height {dsti.Height};
 
-	u32 * dst = static_cast<u32*>(dsti.Data);
-	u32 dst_row_stride = dsti.Pitch / sizeof(u32);
-	u32 dst_row_offset = 0;
+	u32 * dst {static_cast<u32*>(dsti.Data)};
+	u32 dst_row_stride {dsti.Pitch / sizeof(u32)};
+	u32 dst_row_offset {};
 
-	const u8 * src     = gTMEM;
+	const u8 * src     {gTMEM};
 
-	u32 src_row_stride = ti.GetLine()<<3;
-	u32 src_row_offset = ti.GetTmemAddress()<<3;
+	u32 src_row_stride {ti.GetLine()<<3};
+	u32 src_row_offset {ti.GetTmemAddress()<<3};
 
-	u32 row_swizzle = 0;
-	for (u32 y = 0; y < height; ++y)
+	u32 row_swizzle {};
+	for (u32 y {}; y < height; ++y)
 	{
-		u32 src_offset = src_row_offset;
-		u32 dst_offset = dst_row_offset;
+		u32 src_offset {src_row_offset};
+		u32 dst_offset {dst_row_offset};
 
 		// Process 2 pixels at a time
-		for (u32 x = 0; x+1 < width; x += 2)
+		for (u32 x {}; x+1 < width; x += 2)
 		{
-			u8 src_pixel = src[src_offset^row_swizzle];
+			u8 src_pixel {src[src_offset^row_swizzle]};
 
 			dst[dst_offset+0] = I4(src_pixel>>4);
 			dst[dst_offset+1] = I4((src_pixel&0xf));
@@ -542,7 +542,7 @@ static void ConvertI4(const TileDestInfo & dsti, const TextureInfo & ti)
 		// Handle trailing pixel, if odd width
 		if (width&1)
 		{
-			u8 src_pixel = src[src_offset^row_swizzle];
+			u8 src_pixel {src[src_offset^row_swizzle]};
 
 			dst[dst_offset+0] = I4(src_pixel>>4);
 

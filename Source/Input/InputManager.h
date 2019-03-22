@@ -12,17 +12,17 @@ class CInputManager : public CSingleton< CInputManager >
 		virtual ~CInputManager() {}
 
 #ifdef DAEDALUS_PSP
-		virtual u32				GetNumConfigurations() const = 0;
-		virtual const char *	GetConfigurationName( u32 configuration_idx ) const = 0;
-		virtual const char *	GetConfigurationDescription( u32 configuration_idx ) const = 0;
-		virtual void			SetConfiguration( u32 configuration_idx ) = 0;
+		virtual u32				GetNumConfigurations() const {};
+		virtual const char *	GetConfigurationName( u32 configuration_idx ) const {};
+		virtual const char *	GetConfigurationDescription( u32 configuration_idx ) const {};
+		virtual void			SetConfiguration( u32 configuration_idx ) {};
 
-		virtual u32				GetConfigurationFromName( const char * name ) const = 0;
+		virtual u32				GetConfigurationFromName( const char * name ) const {};
 #endif
-		virtual bool Initialise() = 0;
-		virtual void Finalise() = 0;
+		virtual bool Initialise() {};
+		virtual void Finalise() {};
 
-		virtual void GetState( OSContPad pPad[4] ) = 0;
+		virtual void GetState( OSContPad pPad[4] ) {};
 
 		static bool Init() { return CInputManager::Get()->Initialise();}
 		static void Fini() { CInputManager::Get()->Finalise();}
