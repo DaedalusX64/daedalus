@@ -44,9 +44,9 @@
 //Note that we pass s32 even if it is a f32! The check for <= 0.0f is valid also with signed integers(bit31 in f32 is sign bit)
 //(((Bx - Ax)*(Cy - Ay) - (Cx - Ax)*(By - Ay)) * Aw * Bw * C.w)
 inline s32 vfpu_TriNormSign(u8 *Base, u32 v0, u32 v1, u32 v2) {
-    u8* A= Base + (v0<<6);	//Base + v0 * sizeof( DaedalusVtx4 )
-    u8* B= Base + (v1<<6);	//Base + v1 * sizeof( DaedalusVtx4 )
-    u8* C= Base + (v2<<6);	//Base + v2 * sizeof( DaedalusVtx4 )
+    u8* A {Base + (v0<<6)};	//Base + v0 * sizeof( DaedalusVtx4 )
+    u8* B {Base + (v1<<6)};	//Base + v1 * sizeof( DaedalusVtx4 )
+    u8* C {Base + (v2<<6)};	//Base + v2 * sizeof( DaedalusVtx4 )
 	s32 result;
 
     __asm__ volatile (
