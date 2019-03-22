@@ -28,9 +28,9 @@ CN64RegisterCachePSP::CN64RegisterCachePSP()
 
 void	CN64RegisterCachePSP::Reset()
 {
-	for( u32 lo_hi_idx = 0; lo_hi_idx < 2; ++lo_hi_idx )
+	for( u32 lo_hi_idx {}; lo_hi_idx < 2; ++lo_hi_idx )
 	{
-		for( u32 i = 0; i < NUM_N64_REGS; ++i )
+		for( u32 i {}; i < NUM_N64_REGS; ++i )
 		{
 			mRegisterCacheInfo[ i ][ lo_hi_idx ].PspRegister = PspReg_R0;
 			mRegisterCacheInfo[ i ][ lo_hi_idx ].Valid = false;
@@ -39,7 +39,7 @@ void	CN64RegisterCachePSP::Reset()
 		}
 	}
 
-	for( u32 i = 0; i < NUM_N64_FP_REGS; ++i )
+	for( u32 i {}; i < NUM_N64_FP_REGS; ++i )
 	{
 		mFPRegisterCacheInfo[ i ].Valid = false;
 		mFPRegisterCacheInfo[ i ].Dirty = false;
