@@ -59,9 +59,7 @@ int CheckME(volatile struct me_struct *mei)
 
 unsigned int SignalME(volatile struct me_struct *mei, unsigned int sigmask, unsigned int sigset)
 {
-	unsigned int signals;
-
-	signals = mei->signals;
+unsigned int signals = mei->signals;
 	mei->signals = (mei->signals & ~sigmask) | (sigset & sigmask);
 
 	return signals;
