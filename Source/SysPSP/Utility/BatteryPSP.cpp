@@ -30,15 +30,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 void battery_warning()
 {
 	if( scePowerIsBatteryCharging() ) return;
-	int bat = scePowerGetBatteryLifePercent();
+	int bat {scePowerGetBatteryLifePercent()};
 	if (bat > 9) return;	//No warning unless battery is under 10%
 
-	static u32 counter = 0;
+	static u32 counter {0};
 
 	if ((++counter & 63) < 50)	// Make it flash
 	{
-		const u32 red	=	0x000000ff;	//  Red..
-		const u32 white =	0xffffffff;	//  White..
+		const u32 red	{0x000000ff};	//  Red..
+		const u32 white	{0xffffffff};	//  White..
 
 		pspDebugScreenSetXY(50, 0);		// Allign to the left, becareful not touch the edges
 		pspDebugScreenSetBackColor( red );
