@@ -262,6 +262,8 @@ void CJobManager::Run()
 				// signal ready for a new job
 				sceKernelSignalSema( mWorkEmpty, 1 );
 
+				sceKernelDcacheWritebackInvalidateAll();
+
 				// Switch back to Job from ME to see if the me is done and mark the job finished
 				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
 
