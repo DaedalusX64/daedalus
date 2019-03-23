@@ -80,7 +80,7 @@ public:
 	void skip( size_t size )
 	{
 		const size_t	MAX_ZEROES = 512;
-		char	zeroes[ MAX_ZEROES ];
+		char			zeroes[ MAX_ZEROES ];
 		if( mStream.IsOpen() )
 		{
 			memset( zeroes, 0, sizeof( zeroes ) );
@@ -149,7 +149,7 @@ public:
 	{
 		for( u32 i = 0; i < MemoryRegionSizes[buffernum]; i += 4 )
 		{
-			u32 value {};
+			u32 value;
 			*this >> value;
 			Write32Bits(address + i, value);
 		}
@@ -255,20 +255,18 @@ bool SaveState_SaveToFile( const char * filename )
 // Now that is fixed this been added for compatibility reasons for any ss created within those revs..
 static void Swap_PIF()
 {
-	u8 * pPIFRam {(u8 *)g_pMemoryBuffers[MEM_PIF_RAM]};
+	u8 * pPIFRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
 
-#ifdef DAEDALUS_DEBUG_CONSOLE
 	if(pPIFRam[0] & 0xC0)
 	{
 		printf("No need to swap\n");
 		return;
 	}
-	#endif
 
-	u8 temp[64] {};
+	u8 temp[64];
 	memcpy( temp, pPIFRam, 64 );
 
-	for (u32 i {}; i < 64; i++)
+	for (u32 i = 0; i < 64; i++)
 	{
 		pPIFRam[i] = temp[ i ^ U8_TWIDDLE ];
 	}
@@ -281,13 +279,11 @@ bool SaveState_LoadFromFile( const char * filename )
 	if( !stream.IsValid() )
 		return false;
 
-	u32 value {};
+	u32 value;
 	stream >> value;
 	if(value != SAVESTATE_PROJECT64_MAGIC_NUMBER)
 	{
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "Wrong magic number - savestate could be damaged or not in Daedalus/Project64 format" );
-		#endif
 		return false;
 	}
 	stream >> gRamSize;
@@ -306,13 +302,13 @@ bool SaveState_LoadFromFile( const char * filename )
 		return false;
 	}
 
-	u32 count {};
+	u32 count = 0;
 	stream >> count;
 	CPU_SetVideoInterruptEventCount( count );
 	stream >> value;
 	CPU_SetPC(value);
 	stream.read(gGPR, 256);
-	int i {};
+	int i;
 	for(i = 0; i < 32; i++)
 	{
 		stream >> value;
@@ -407,12 +403,12 @@ RomID SaveState_GetRomID( const char * filename )
 	if( !stream.IsValid() )
 		return RomID();
 
-	u32 value {};
+	u32 value;
 	stream >> value;
 	if(value != SAVESTATE_PROJECT64_MAGIC_NUMBER)
 		return RomID();
 
-	u32 ram_size {};
+	u32 ram_size;
 	stream >> ram_size;
 
 	ROMHeader rom_header;
@@ -429,12 +425,12 @@ const char* SaveState_GetRom( const char * filename )
 	if( !stream.IsValid() )
 		return NULL;
 
-	u32 value {};
+	u32 value;
 	stream >> value;
 	if(value != SAVESTATE_PROJECT64_MAGIC_NUMBER)
 		return NULL;
 
-	u32 ram_size {};
+	u32 ram_size;
 	stream >> ram_size;
 
 	ROMHeader rom_header;
