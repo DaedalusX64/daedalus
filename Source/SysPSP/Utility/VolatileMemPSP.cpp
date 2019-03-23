@@ -20,7 +20,7 @@ http://gitorious.org/~jjs/ags/ags-for-psp
 #include "ModulePSP.h"
 
 
-bool bVolatileMem = false;
+bool bVolatileMem  {false};
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -28,8 +28,8 @@ void VolatileMemInit()
 {
 	// Unlock memory partition 5
 	void* pointer = NULL;
-	int size = 0;
-	int result = sceKernelVolatileMemLock(0, &pointer, &size);
+	int size {0};
+	int result {sceKernelVolatileMemLock(0, &pointer, &size)};
 
 	if (result == 0)
 	{
@@ -65,7 +65,7 @@ void* malloc_volatile_PSP(size_t size)
 //		printf("getting memory from p5 %d KBS\n", size / 1024);
 //		malloc_p5_memory_used += size;
 
-		u32* pointer = (u32*)sceKernelGetBlockHeadAddr(uid);
+		u32* pointer {(u32*)sceKernelGetBlockHeadAddr(uid)};
 		*pointer = uid;
 		*(pointer + 4) = size;
 		return (void*)(pointer + 8);
