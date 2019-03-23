@@ -262,6 +262,7 @@ void CJobManager::Run()
 				// signal ready for a new job
 				sceKernelSignalSema( mWorkEmpty, 1 );
 
+				//clear the cache again before checking the ME
 				sceKernelDcacheWritebackInvalidateAll();
 
 				// Switch back to Job from ME to see if the me is done and mark the job finished
