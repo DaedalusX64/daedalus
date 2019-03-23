@@ -47,7 +47,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
    *NOTICE* We should try to find out why Demos' frequencies are always wrong
    They tend to rely on a default frequency, apparently, never the same one ;)*/
 
-#define DEFAULT_FREQUENCY 33600	// Taken from Mupen64 : )
+#define DEFAULT_FREQUENCY 44100	// Taken from Mupen64 : )
 
 //*****************************************************************************
 //

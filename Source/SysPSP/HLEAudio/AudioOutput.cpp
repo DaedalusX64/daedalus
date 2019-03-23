@@ -233,6 +233,8 @@ void AudioOutput::AddBuffer( u8 *start, u32 length )
 	u32 num_samples {length / sizeof( Sample )};
 
 	//Adapt Audio to sync% //Corn
+	//		output_freq = DESIRED_OUTPUT_FREQUENCY;
+			/*
 	u32 output_freq {};
 	if (gAudioRateMatch)
 	{
@@ -242,9 +244,9 @@ void AudioOutput::AddBuffer( u8 *start, u32 length )
 	}
 	else
 	{
-		output_freq = DESIRED_OUTPUT_FREQUENCY;
-	}
 
+	}
+*/
 	switch( gAudioPluginEnabled )
 	{
 	case APM_DISABLED:
@@ -252,7 +254,7 @@ void AudioOutput::AddBuffer( u8 *start, u32 length )
 
 	case APM_ENABLED_ASYNC:
 		{
-			SAddSamplesJob	job( mAudioBufferUncached, reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, output_freq );
+			SAddSamplesJob	job( mAudioBufferUncached, reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, 44100 );
 
 			gJobManager.AddJob( &job, sizeof( job ) );
 		}
@@ -260,7 +262,7 @@ void AudioOutput::AddBuffer( u8 *start, u32 length )
 
 	case APM_ENABLED_SYNC:
 		{
-			mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, output_freq );
+			mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, 44100 );
 		}
 		break;
 	}
