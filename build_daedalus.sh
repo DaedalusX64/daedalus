@@ -54,7 +54,7 @@ function buildPSP() {
   make -C "$PWD/../Source/SysPSP/PRX/KernelButtons"
   make -C "$PWD/../Source/SysPSP/PRX/MediaEngine"
 
-  make
+  make -j8
   #No point continuing if the elf file doesn't exist
   if [ -f "$PWD/daedalus.elf" ]; then
     #Pack PBP

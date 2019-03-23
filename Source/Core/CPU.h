@@ -83,7 +83,9 @@ struct CPUEvent
 	s32						mCount;
 	ECPUEventType			mEventType;
 };
+#ifdef DAEDALUS_ENABLE_ASSERTS
 DAEDALUS_STATIC_ASSERT( sizeof( CPUEvent ) == 8 );
+#endif
 
 typedef REG64 register_32x64[32];
 typedef REG64 register_16x64[16];
@@ -153,7 +155,7 @@ ALIGNED_EXTERN(SCPUState, gCPUState, CACHE_ALIGN);
 //
 //*****************************************************************************
 bool	CPU_RomOpen();
-void	CPU_RomClose();
+//void	CPU_RomClose();
 void	CPU_Step();
 void	CPU_Skip();
 bool	CPU_Run();

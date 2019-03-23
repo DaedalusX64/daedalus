@@ -46,7 +46,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //*****************************************************************************
 template< bool TranslateOp > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 {
-	u8 * p_Instruction;
+	u8 * p_Instruction {};
 
 	CPU_FETCH_INSTRUCTION( p_Instruction, gCPUState.CurrentPC );
 	OpCode op_code = *(OpCode*)p_Instruction;
