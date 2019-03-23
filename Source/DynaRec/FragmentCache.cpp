@@ -123,7 +123,9 @@ CFragment * CFragmentCache::LookupFragment( u32 address ) const
 //*************************************************************************************
 CFragment * CFragmentCache::LookupFragmentQ( u32 address ) const
 {
+	#ifdef DAEDALUS_DEBUG_DYNAREC
 	DAEDALUS_PROFILE( "CFragmentCache::LookupFragmentQ" );
+	#endif
 #ifdef HASH_TABLE_STATS
 	static u32 hit=0, miss=0;
 #endif
@@ -132,7 +134,7 @@ CFragment * CFragmentCache::LookupFragmentQ( u32 address ) const
 		mCachedFragmentAddress = address;
 
 		// check if in hash table
-		u32 ix = MakeHashIdx( address );
+		u32 ix {MakeHashIdx( address )};
 
 		if ( address != mpCacheHashTable[ix].addr )
 		{
@@ -185,12 +187,14 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 
 	SFragmentEntry				entry( fragment_address, NULL );
 	FragmentVec::iterator		it( std::lower_bound( mFragments.begin(), mFragments.end(), entry ) );
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( it == mFragments.end() || it->Address != fragment_address, "A fragment with this address already exists" );
+	#endif
 	entry.Fragment = p_fragment;
 	mFragments.insert( it, entry );
 
 	// Update the hash table (it stores failed lookups now, so we need to be sure to purge any stale entries in there
-	u32 ix = MakeHashIdx( fragment_address );
+	u32 ix {MakeHashIdx( fragment_address )};
 	mpCacheHashTable[ix].addr = fragment_address;
 	mpCacheHashTable[ix].ptr = reinterpret_cast< u32 >( p_fragment );
 
@@ -216,7 +220,9 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 		u32				target_address( it->Address );
 		CJumpLocation	jump( it->Jump );
 
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( jump.IsSet(), "No exit jump?" );
+		#endif
 
 #ifdef DAEDALUS_DEBUG_DYNAREC
 		CFragment * p_fragment( LookupFragment( target_address ) );
@@ -227,7 +233,9 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 		{
 			PatchJumpLongAndFlush( jump, p_fragment->GetEntryTarget() );
 
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( mJumpMap.find( target_address ) == mJumpMap.end(), "Jump map still contains an entry for this" );
+			#endif
 		}
 		else if( target_address != u32(~0) )
 		{

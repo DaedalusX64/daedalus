@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 template< typename T >
 static void WritePngRow( u8 * line, const void * src, u32 width )
 {
-	u32 i = 0;
+	u32 i {};
 
 	const T *	p_src( reinterpret_cast< const T * >( src ) );
 

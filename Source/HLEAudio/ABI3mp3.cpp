@@ -633,5 +633,3 @@ void MP3( AudioHLECommand command )
 {
 	gMP3Decode.Decode( command );
 }
-
-

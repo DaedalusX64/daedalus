@@ -26,27 +26,29 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Debug/DBGConsole.h"
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 CIndirectExitMap::CIndirectExitMap()
 :	mpCache( NULL )
 {
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 CIndirectExitMap::~CIndirectExitMap()
 {
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 CFragment *	CIndirectExitMap::LookupIndirectExit( u32 exit_address )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ASSERT( mpCache != NULL, "Why do we have no cache?" );
+	#endif
 	CFragment * p( mpCache->LookupFragmentQ( exit_address ) );
 
 	DYNAREC_PROFILE_LOGLOOKUP( exit_address, p );
@@ -54,9 +56,9 @@ CFragment *	CIndirectExitMap::LookupIndirectExit( u32 exit_address )
 	return p;
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 extern "C"
 {
 

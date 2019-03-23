@@ -79,7 +79,7 @@ void	CheckForNewFrame()
 
 
 
-		for(u32 i = 0; i < LookupList.size(); ++i)
+		for(int i {}; i < LookupList.size(); ++i)
 		{
 				DAED_LOG( DEBUG_DYNAREC_PROF, "%08x: %d lookups", LookupList[ i ].Address, LookupList[ i ].Count );
 		}
