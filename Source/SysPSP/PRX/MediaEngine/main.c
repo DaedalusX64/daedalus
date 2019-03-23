@@ -79,7 +79,8 @@ void dcache_wbinv_range(void *addr, int size)
 
 static void me_loop(volatile struct me_struct *mei)
 {
-	unsigned int k1 = pspSdkSetK1(0);
+	unsigned int k1;
+	k1 = pspSdkSetK1(0);
 
 	while (mei->init) // ME runs this loop until killed
 	{
@@ -111,7 +112,9 @@ static void me_loop(volatile struct me_struct *mei)
 
 int InitME(volatile struct me_struct *mei)
 {
-unsigned int k1 = pspSdkSetK1(0);
+unsigned int k1;
+
+k1 = pspSdkSetK1(0);
 
 	if (mei == 0)
 	{

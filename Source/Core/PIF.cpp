@@ -643,7 +643,7 @@ u8 IController::CalculateDataCrc(u8 * pBuf)
 
 void	IController::CommandReadMemPack(u32 channel, u8 *cmd)
 {
-	u32 addr {((cmd[3] << 8) | cmd[4])};
+	u32 addr {((cmd[3] << 8) | (u32)cmd[4])};
 	u8* data {&cmd[5]};
 
 	if (addr == 0x8001)
@@ -673,7 +673,7 @@ void	IController::CommandReadMemPack(u32 channel, u8 *cmd)
 
 void	IController::CommandWriteMemPack(u32 channel, u8 *cmd)
 {
-	u32 addr {((cmd[3] << 8) | cmd[4])};
+	u32 addr {((cmd[3] << 8) | (u32)cmd[4])};
 	u8* data {&cmd[5]};
 
 	if (addr != 0x8001)
@@ -700,7 +700,7 @@ void	IController::CommandWriteMemPack(u32 channel, u8 *cmd)
 
 void	IController::CommandReadRumblePack(u8 *cmd)
 {
-	u32 addr {((cmd[3] << 8) | cmd[4]) & 0xFFE0};
+	u32 addr {((cmd[3] << 8) | (u32)cmd[4]) & 0xFFE0};
 
 	memset( &cmd[5], (addr == 0x8000) ? 0x80 : 0x00, 32 );
 	cmd[37] = CalculateDataCrc(&cmd[5]);
@@ -712,7 +712,7 @@ void	IController::CommandReadRumblePack(u8 *cmd)
 
 void	IController::CommandWriteRumblePack(u8 *cmd)
 {
-	u32 addr {((cmd[3] << 8) | cmd[4]) & 0xFFE0};
+	u32 addr {((cmd[3] << 8) | (u32)cmd[4]) & 0xFFE0};
 
 	if ( addr == 0xC000 )
 	{

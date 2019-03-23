@@ -482,8 +482,8 @@ static void ConvertCI4_Row_To_8888( NativePf8888 * dst, const u8 * src, u32 src_
 	{
 		u8 b {src[src_offset ^ F]};
 
-		u8 bhi {(b&0xf0)>>4};
-		u8 blo {(b&0x0f)};
+		u32 bhi {(b&0xf0)>>4};
+		u32 blo {(b&0x0f)};
 
 		dst[ x + 0 ] = palette[ bhi ];	// Remember palette has already been swapped
 		dst[ x + 1 ] = palette[ blo ];

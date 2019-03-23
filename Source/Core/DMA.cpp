@@ -237,7 +237,7 @@ static void OnCopiedRom()
 #endif
 
 		// Set RDRAM size
-		u32 addr {(g_ROM.cic_chip != CIC_6105) ? 0x318 : 0x3F0};
+		u32 addr {(g_ROM.cic_chip != CIC_6105) ? (u32)0x318 : (u32)0x3F0};
 		*(u32 *)(g_pu8RamBase + addr) = gRamSize;
 
 		// Azimer's DK64 hack, it makes DK64 boot!

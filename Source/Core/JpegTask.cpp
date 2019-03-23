@@ -205,11 +205,11 @@ void jpeg_decode_OB(OSTask *task)
 
 	u32  address  {(u32)task->t.data_ptr};
 	const u32 macroblock_count {task->t.data_size};
-	const int  qscale   {task->t.yield_data_size};
+	const u32  qscale   {task->t.yield_data_size};
 
-    if (qscale != 0)
+    if (task->t.yield_data_size != 0 )
     {
-        if (qscale > 0)
+        if (task->t.yield_data_size > 0)
         {
             ScaleSubBlock(qtable, DEFAULT_QTABLE, qscale);
         }
