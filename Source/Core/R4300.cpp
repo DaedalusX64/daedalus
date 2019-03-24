@@ -2306,7 +2306,7 @@ static void R4300_CALL_TYPE R4300_Cop1_L_CVT_S( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	s64 nTemp {LoadFPR_Long( op_code.fs )};
+	s64 nTemp {(s64)LoadFPR_Long( op_code.fs )};
 
 // 	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 	StoreFPR_Single( op_code.fd, s64_to_f32( nTemp ));
@@ -2316,7 +2316,7 @@ static void R4300_CALL_TYPE R4300_Cop1_L_CVT_D( R4300_CALL_SIGNATURE )
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	s64 nTemp {LoadFPR_Long( op_code.fs )};
+	s64 nTemp {(s64)LoadFPR_Long( op_code.fs )};
 
 // 	SET_ROUND_MODE( gRoundingMode );		//XXXX Is this needed?
 	StoreFPR_Double( op_code.fd, s64_to_d64( nTemp ) );

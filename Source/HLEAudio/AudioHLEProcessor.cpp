@@ -142,7 +142,7 @@ void	AudioHLEState::EnvMixer( u8 flags, u32 address )
 			//LAdderStart = ((s64)LAcc * (s64)LRamp) >> 16;
 
 			// Assembly code which this replaces slightly different from commented out code above...
-			u32 orig_ladder_end {LAdderEnd};
+			u32 orig_ladder_end {(u32)LAdderEnd};
 			LAcc = LAdderStart;
 			LVol = (LAdderEnd - LAdderStart) >> 3;
 			LAdderEnd = FixedPointMulFull16( LAdderEnd, LRamp );
@@ -162,7 +162,7 @@ void	AudioHLEState::EnvMixer( u8 flags, u32 address )
 			//RAdderEnd   = ((s64)RAdderEnd * (s64)RRamp) >> 16;
 			//RAdderStart = ((s64)RAcc * (s64)RRamp) >> 16;
 
-			u32 orig_radder_end {RAdderEnd};
+			u32 orig_radder_end {(u32)RAdderEnd};
 			RAcc = RAdderStart;
 			RVol = (orig_radder_end - RAdderStart) >> 3;
 			RAdderEnd = FixedPointMulFull16( RAdderEnd, RRamp );
@@ -494,7 +494,7 @@ void AudioHLEState::ADPCMDecode( u8 flags, u32 address )
 													// the values we calculated the last time
 
 		u8 code {Buffer[(InBuffer+inPtr)^3]};
-		u32 index {code&0xf};							// index into the adpcm code table
+		u32 index {(u32)code&0xf};							// index into the adpcm code table
 		s16 * book1 {(s16 *)&ADPCMTable[index<<4]};
 		s16 * book2 {book1+8};
 		code >>= 4 ;									// upper nibble is scale

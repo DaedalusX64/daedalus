@@ -288,7 +288,7 @@ static void SETLOOP3( AudioHLECommand command )
 // Verified to be 100% Accurate...
 static void ADPCM3( AudioHLECommand command )
 {
-	u8 Flags {(u8)(command.cmd1>>0x1c)&0xff};
+	u8 Flags {(u8)((command.cmd1>>0x1c)&0xff)};
 	//u16 Gain=(u16)(command.cmd0&0xffff);
 	u32 Address {(command.cmd0 & 0xffffff)};// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 	u32 inPtr {(command.cmd1>>12)&0xf};

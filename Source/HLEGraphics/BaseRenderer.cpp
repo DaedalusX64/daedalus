@@ -299,8 +299,8 @@ void BaseRenderer::InitViewport()
 
 #ifdef DAEDALUS_PSP
 	// Centralise the viewport in the display.
-	u32 frame_width  {gGlobalPreferences.TVEnable ? 720 : 480};
-	u32 frame_height {gGlobalPreferences.TVEnable ? 480 : 272};
+	u32 frame_width  {(u32)(gGlobalPreferences.TVEnable ? 720 : 480)};
+	u32 frame_height {(u32)(gGlobalPreferences.TVEnable ? 480 : 272)};
 
 	s32 display_x {(s32)(frame_width  - display_width)  / 2};
 	s32 display_y {(s32)(frame_height - display_height) / 2};
@@ -1826,8 +1826,8 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 
 	// Initialise the clamping state. When the mask is 0, it forces clamp mode.
 	//
-	u32 mode_u {(rdp_tile.clamp_s | (rdp_tile.mask_s == 0)) ? GU_CLAMP : GU_REPEAT};
-	u32 mode_v {(rdp_tile.clamp_t | (rdp_tile.mask_t == 0)) ? GU_CLAMP : GU_REPEAT};
+	u32 mode_u {(u32)((rdp_tile.clamp_s | (rdp_tile.mask_s == 0)) ? GU_CLAMP : GU_REPEAT)};
+	u32 mode_v {(u32)((rdp_tile.clamp_t | (rdp_tile.mask_t == 0)) ? GU_CLAMP : GU_REPEAT)};
 
 	//	In CRDPStateManager::GetTextureDescriptor, we limit the maximum dimension of a
 	//	texture to that define by the mask_s/mask_t value.

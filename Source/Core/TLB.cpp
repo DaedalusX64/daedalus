@@ -120,7 +120,7 @@ inline bool	TLBEntry::FindTLBEntry( u32 address, u32 * p_idx )
 {
 	static u32 i {};
 
-	u8 mask {gCPUState.CPUControl[C0_ENTRYHI]._u32 & TLBHI_PIDMASK};
+	u8 mask {(u8)(gCPUState.CPUControl[C0_ENTRYHI]._u32 & TLBHI_PIDMASK)};
 	for ( u32 count {}; count < 32; count++ )
 	{
 		// Hack to check most recently reference entry first

@@ -555,7 +555,7 @@ v2 = v4 = v6 = v8 = 0;
 		addptr -= 0x50;
 	}
 
-	int tmp {outPtr};
+	int tmp {(int)outPtr};
 	s32 hi0 {mult6};
 	s32 hi1 {mult4};
 	hi0 = (int)hi0 >> 0x10;

@@ -233,7 +233,7 @@ static void ADPCM2( AudioHLECommand command )
 	s32 a[8] = { 0,0,0,0,0,0,out[15],out[14] };		// XXXX Endian issues - should be 14/15^TWIDDLE?
 
 	out+=16;
-	short count {gAudioHLEState.Count};
+	short count {(short)gAudioHLEState.Count};
 	while(count>0)
 	{
 		u8 idx_code {gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr)^3]};
@@ -374,7 +374,7 @@ static void ENVMIXER2( AudioHLECommand command )
 	v2[2] = 0 - (s16)((command.cmd0 & 0x8) >> 1);
 	v2[3] = 0 - (s16)((command.cmd0 & 0x4) >> 1);
 
-	s32 count {(command.cmd0 >> 8) & 0xff};
+	s32 count {(s32)(command.cmd0 >> 8) & 0xff};
 
 	u32 adder {};
 	if (!isMKABI)

@@ -952,8 +952,8 @@ void DLParser_TexRect( MicroCodeCommand command )
 		return;
 	};
 
-	s16 rect_s0 {tex_rect.s};
-	s16 rect_t0 {tex_rect.t};
+	s16 rect_s0 {(s16)tex_rect.s};
+	s16 rect_t0 {(s16)tex_rect.t};
 
 	s32 rect_dsdx {tex_rect.dsdx};
 	s32 rect_dtdy {tex_rect.dtdy};
@@ -973,8 +973,8 @@ void DLParser_TexRect( MicroCodeCommand command )
 		tex_rect.y1 += 4;
 	}
 
-	s16 rect_s1 {rect_s0 + (rect_dsdx * ( tex_rect.x1 - tex_rect.x0 ) >> 7)};	// 7 = (>>10)=1/1024, (>>2)=1/4 and (<<5)=32
-	s16 rect_t1 {rect_t0 + (rect_dtdy * ( tex_rect.y1 - tex_rect.y0 ) >> 7)};
+	s16 rect_s1 {(s16)(rect_s0 + (rect_dsdx * ( tex_rect.x1 - tex_rect.x0 ) >> 7))};	// 7 = (>>10)=1/1024, (>>2)=1/4 and (<<5)=32
+	s16 rect_t1 {(s16)(rect_t0 + (rect_dtdy * ( tex_rect.y1 - tex_rect.y0 ) >> 7))};
 
 	TexCoord st0( rect_s0, rect_t0 );
 	TexCoord st1( rect_s1, rect_t1 );
@@ -1011,8 +1011,8 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 #endif
 	//Keep integers for as long as possible //Corn
 
-	s16 rect_s0 {tex_rect.s};
-	s16 rect_t0 {tex_rect.t};
+	s16 rect_s0 {(s16)tex_rect.s};
+	s16 rect_t0 {(s16)tex_rect.t};
 
 	s32 rect_dsdx {tex_rect.dsdx};
 	s32 rect_dtdy {tex_rect.dtdy};
@@ -1032,8 +1032,8 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 		tex_rect.y1 += 4;
 	}
 
-	s16 rect_s1 {rect_s0 + (rect_dsdx * ( tex_rect.y1 - tex_rect.y0 ) >> 7)};	// Flip - use y
-	s16 rect_t1 {rect_t0 + (rect_dtdy * ( tex_rect.x1 - tex_rect.x0 ) >> 7)};	// Flip - use x
+	s16 rect_s1 {(s16)(rect_s0 + (rect_dsdx * ( tex_rect.y1 - tex_rect.y0 ) >> 7))};	// Flip - use y
+	s16 rect_t1 {(s16)(rect_t0 + (rect_dtdy * ( tex_rect.x1 - tex_rect.x0 ) >> 7))};	// Flip - use x
 
 	TexCoord st0( rect_s0, rect_t0 );
 	TexCoord st1( rect_s1, rect_t1 );
@@ -1053,8 +1053,8 @@ void DLParser_TexRectFlip( MicroCodeCommand command )
 //This fixes the jumpy camera in DK64, also the sun and flames glare in Zelda
 void Clear_N64DepthBuffer( MicroCodeCommand command )
 {
-	u32 x0 {command.fillrect.x0 + 1};
-	u32 x1 {command.fillrect.x1 + 1};
+	u32 x0 {(u32)(command.fillrect.x0 + 1)};
+	u32 x1 {(u32)(command.fillrect.x1 + 1)};
 	u32 y1 {command.fillrect.y1};
 	u32 y0 {command.fillrect.y0};
 

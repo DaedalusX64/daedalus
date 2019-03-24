@@ -380,7 +380,7 @@ void CRDPStateManager::LoadBlock(const SetLoadTile & load)
 
 	const RDP_Tile & rdp_tile {mTiles[tile_idx]};
 
-	u32	tmem_lookup {rdp_tile.tmem >> 4};
+	u32	tmem_lookup {(u32)(rdp_tile.tmem >> 4)};
 
 	//Invalidate load info after current TMEM address to the end of TMEM (fixes Fzero and SSV) //Corn
 	ClearEntries( tmem_lookup );
@@ -477,7 +477,7 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DAEDALUS_DL_ASSERT( (rdp_tile.size > 0) || (uls & 4) == 0, "Expecting an even Left for 4bpp formats (left is %f)", uls / 4.f );
 #endif
-	u32	tmem_lookup {rdp_tile.tmem >> 4};
+	u32	tmem_lookup {(u32)(rdp_tile.tmem >> 4)};
 	SetValidEntry( tmem_lookup );
 
 	TimgLoadDetails & info = mTmemLoadInfo[ tmem_lookup ];
@@ -593,7 +593,7 @@ static inline u16 GetTextureDimension( u16 tile_dimension, u8 mask, bool clamp )
 {
 	if (mask)
 	{
-		u16 mask_dimension {1 << mask};
+		u16 mask_dimension {(u16)(1 << mask)};
 
 		// If clamp is enabled, the maximum addressable texel is the
 		// smaller of the mask dimension and the tile dimension.
@@ -616,7 +616,7 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		TextureInfo &			ti           {mTileTextureInfo[ idx ]};
 		const RDP_Tile &		rdp_tile     {mTiles[ idx ]};
 		const RDP_TileSize &	rdp_tilesize {mTileSizes[ idx ]};
-		const u32				tmem_lookup  {rdp_tile.tmem >> 4};
+		const u32				tmem_lookup  {(u32)(rdp_tile.tmem >> 4)};
 		const TimgLoadDetails &	info  {mTmemLoadInfo[ tmem_lookup ]};
 
 		u32		address {info.Address};
@@ -660,7 +660,7 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		u32	tlut {TLUT_BASE};
 		if(rdp_tile.size == G_IM_SIZ_4b)
 		{
-			u32 tlut_idx0 {g_ROM.TLUT_HACK << 1};
+			u32 tlut_idx0 {(u32)(g_ROM.TLUT_HACK << 1)};
 			u32 tlut_idx1 {(u32)gTlutLoadAddresses[ rdp_tile.palette << tlut_idx0 ]};
 
 			//If pointer == NULL(=invalid entry) add offset to base address (TMEM[0] + offset)

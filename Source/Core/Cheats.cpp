@@ -148,7 +148,7 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 		case 0x50:
 			{
 				skip		= true;
-				s32	count	{(address & 0x0000FF00) >> 8};	// repeat count
+				s32	count	{(s32)(address & 0x0000FF00) >> 8};	// repeat count
 				u32	offset	{(address & 0x000000FF)};
 				u16	valinc	{value};
 
