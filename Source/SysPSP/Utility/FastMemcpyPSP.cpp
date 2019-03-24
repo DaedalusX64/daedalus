@@ -307,9 +307,9 @@ void memcpy_vfpu_byteswap( void* dst, const void* src, size_t size )
 				dst32 = (u32*)dst8;
 				src32 = (u32*)((u32)src8 & ~0x3);
 
-				u32 srcTmp = *src32++;
-				u32 dstTmp = 0;
-				u32 size32 = size >> 2; // Size in dwords (to avoid a sltiu in loop)
+				u32 srcTmp {*src32++};
+				u32 dstTmp {0};
+				u32 size32 {size >> 2}; // Size in dwords (to avoid a sltiu in loop)
 
 				size &= 0x3; // Update remaining bytes if any..
 

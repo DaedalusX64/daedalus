@@ -35,15 +35,13 @@
 #include "Utility/ROMFile.h"
 #include "Utility/Stream.h"
 
-static const u64 ROMDB_MAGIC_NO	= 0x42444D5244454144LL; //DAEDRMDB		// 44 41 45 44 52 4D 44 42
-static const u32 ROMDB_CURRENT_VERSION = 4;
+static const u64 ROMDB_MAGIC_NO	{0x42444D5244454144LL}; //DAEDRMDB		// 44 41 45 44 52 4D 44 42
+static const u32 ROMDB_CURRENT_VERSION {4};
 
-static const u32 MAX_SENSIBLE_FILES = 2048;
-static const u32 MAX_SENSIBLE_DETAILS = 2048;
+static const u32 MAX_SENSIBLE_FILES {2048};
+static const u32 MAX_SENSIBLE_DETAILS {2048};
 
-CRomDB::~CRomDB()
-{
-}
+CRomDB::~CRomDB() {}
 
 class IRomDB : public CRomDB
 {
@@ -102,7 +100,7 @@ class IRomDB : public CRomDB
 			}
 
 			// This is actually IO::Path::kMaxPathLen+1, but we need to ensure that it doesn't change if we ever change the kMaxPathLen constant.
-			static const u32 kMaxFilenameLen = 260;
+			static const u32 kMaxFilenameLen {260};
 			char		FileName[ kMaxFilenameLen + 1 ];
 			RomID		ID;
 		};

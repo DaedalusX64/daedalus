@@ -80,9 +80,7 @@ const c32		COLOUR_SELECTION_DIM	= c32( 0xe0, 0xe0, 0x80 );
 const c32		COLOUR_SELECTION_BRIGHT	= c32( 0xff, 0xff, 0x80 );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 class IUIContext : public CUIContext
 {
 	public:
@@ -112,10 +110,10 @@ class IUIContext : public CUIContext
 
 		virtual void				SetFontStyle( EFontStyle font_style );
 
-		virtual u32					DrawText( s32 x, s32 y, const char * text, u32 lenght, c32 colour );
-		virtual u32					DrawText( s32 x, s32 y, const char * text, u32 lenght, c32 colour, c32 drop_colour );
-		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 lenght, c32 colour );
-		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 lenght, c32 colour, c32 drop_colour );
+		virtual u32					DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour );
+		virtual u32					DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour );
+		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 length, c32 colour );
+		virtual u32					DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 length, c32 colour, c32 drop_colour );
 		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour );
 		virtual u32					DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour );
 		virtual s32					DrawTextArea( s32 left, s32 top, u32 width, u32 height, const char * text, c32 colour, EVerticalAlign vertical_align );
@@ -132,34 +130,18 @@ class IUIContext : public CUIContext
 		c32							mBackgroundColour;
 };
 
-//*************************************************************************************
-//
-//*************************************************************************************
-CUIContext::~CUIContext()
-{
-}
+CUIContext::~CUIContext() {}
+CUIContext *	CUIContext::Create() { return new IUIContext; }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-CUIContext *	CUIContext::Create()
-{
-	return new IUIContext;
-}
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 IUIContext::IUIContext()
 :	mCurrentFont( CDrawText::F_REGULAR )
 ,	mColourPulser( COLOUR_SELECTION_DIM, COLOUR_SELECTION_BRIGHT, MS_PER_COLOUR_CYCLE )
 ,	mBackgroundColour( 0,0,0 )
-{
-}
+{}
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 IUIContext::~IUIContext()
 {
 	// Clear everything to black
@@ -172,18 +154,14 @@ IUIContext::~IUIContext()
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IUIContext::Update( float elapsed_time )
 {
 	s32		elapsed_ms = s32( 1000.0f * elapsed_time );
 	mColourPulser.Update( elapsed_ms );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IUIContext::RenderTexture( const CNativeTexture * texture, s32 x, s32 y, c32 colour )
 {
 	if(texture == NULL)
@@ -195,9 +173,6 @@ void	IUIContext::RenderTexture( const CNativeTexture * texture, s32 x, s32 y, c3
 	RenderTexture( texture, tl, wh, colour );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void	IUIContext::RenderTexture( const CNativeTexture * texture, const v2 & tl, const v2 & wh, c32 colour )
 {
 	if(texture == NULL)
@@ -225,7 +200,6 @@ void	IUIContext::RenderTexture( const CNativeTexture * texture, const v2 & tl, c
 	sceGuTexFunc(GU_TFX_MODULATE,GU_TCC_RGBA);
 
 	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
-	//sceGumOrtho(0, 480 +1, 272 +1, 0, 0.0f, -1.0f);
 
 	v2		tex_uv0( (float)0, (float)0 );
 	v2		tex_uv1( (float)width, (float)height );
@@ -242,17 +216,12 @@ void	IUIContext::RenderTexture( const CNativeTexture * texture, const v2 & tl, c
 }
 
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void	IUIContext::ClearBackground( c32 colour )
 {
 	CGraphicsContext::Get()->ClearColBufferAndDepth( colour );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IUIContext::DrawRect( s32 x, s32 y, u32 w, u32 h, c32 colour )
 {
 	u32						num_verts( 2 );
@@ -268,7 +237,6 @@ void	IUIContext::DrawRect( s32 x, s32 y, u32 w, u32 h, c32 colour )
 	sceGuDisable(GU_BLEND);
 
 	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
-	//sceGumOrtho(0, 480 +1, 272 +1, 0, 0.0f, -1.0f);
 
 	p_verts[0].pos = v3( float( x ), float( y ), 0.0f );
 	p_verts[0].colour = colour;
@@ -280,9 +248,6 @@ void	IUIContext::DrawRect( s32 x, s32 y, u32 w, u32 h, c32 colour )
 
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void	IUIContext::DrawLine( s32 x0, s32 y0, s32 x1, s32 y1, c32 colour )
 {
 	u32						num_verts( 2 );
@@ -298,7 +263,6 @@ void	IUIContext::DrawLine( s32 x0, s32 y0, s32 x1, s32 y1, c32 colour )
 	sceGuDisable(GU_BLEND);
 
 	sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &gMatrixIdentity ) );
-	//sceGumOrtho(0, 480 +1, 272 +1, 0, 0.0f, -1.0f);
 
 	p_verts[0].pos = v3( float( x0 ), float( y0 ), 0.0f );
 	p_verts[0].colour = colour;
@@ -310,9 +274,7 @@ void	IUIContext::DrawLine( s32 x0, s32 y0, s32 x1, s32 y1, c32 colour )
 
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IUIContext::SetFontStyle( EFontStyle font_style )
 {
 	switch( font_style )
@@ -324,25 +286,16 @@ void	IUIContext::SetFontStyle( EFontStyle font_style )
 	DAEDALUS_ERROR( "Unhandled font style" );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 u32		IUIContext::GetFontHeight() const
 {
 	return CDrawText::GetFontHeight( mCurrentFont );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 u32		IUIContext::GetTextWidth( const char * text ) const
 {
 	return CDrawText::GetTextWidth( mCurrentFont, text );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 s32		IUIContext::AlignText( s32 min_x, s32 max_x, const char * p_str, u32 length, EAlignType align_type )
 {
 	s32		x;
@@ -370,41 +323,27 @@ s32		IUIContext::AlignText( s32 min_x, s32 max_x, const char * p_str, u32 length
 	return x;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 u32	IUIContext::DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour )
 {
 	return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 u32	IUIContext::DrawText( s32 x, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour )
 {
 	return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour, drop_colour );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 u32	IUIContext::DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 length, c32 colour )
 {
 	return CDrawText::Render( mCurrentFont, x, y, scale, text, length, colour );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 u32	IUIContext::DrawTextScale( s32 x, s32 y, float scale, const char * text, u32 length, c32 colour, c32 drop_colour )
 {
 	return CDrawText::Render( mCurrentFont, x, y, scale, text, length, colour, drop_colour );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour )
 {
 	s32 x( AlignText( min_x, max_x, text, length, align_type ) );
@@ -412,9 +351,6 @@ u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 
 	return CDrawText::Render( mCurrentFont, x, y, 1.0f, text, length, colour );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 u32	IUIContext::DrawTextAlign( s32 min_x, s32 max_x, EAlignType align_type, s32 y, const char * text, u32 length, c32 colour, c32 drop_colour )
 {
 	s32 x( AlignText( min_x, max_x, text, length, align_type ) );
@@ -437,9 +373,8 @@ namespace
 		return top;
 	}
 }
-//*************************************************************************************
-//
-//*************************************************************************************
+
+
 s32		IUIContext::DrawTextArea( s32 left, s32 top, u32 width, u32 height, const char * text, c32 colour, EVerticalAlign vertical_align )
 {
 	const u32			font_height( CDrawText::GetFontHeight( mCurrentFont ) );
@@ -471,17 +406,15 @@ s32		IUIContext::DrawTextArea( s32 left, s32 top, u32 width, u32 height, const c
 
 	return y - top;
 }
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 void	IUIContext::BeginRender()
 {
 	CGraphicsContext::Get()->BeginFrame();
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IUIContext::EndRender()
 {
 	CGraphicsContext::Get()->EndFrame();

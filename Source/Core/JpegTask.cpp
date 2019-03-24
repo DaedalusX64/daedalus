@@ -129,28 +129,31 @@ const u32 TRANSPOSE_TABLE[SUBBLOCK_SIZE] =
  **************************************************************************/
 void jpeg_decode_PS(OSTask *task)
 {
-	s16 *macroblock;
+	s16 *macroblock {};
     s16 qtables[3][SUBBLOCK_SIZE];
-    u32 mb;
+    u32 mb {};
 
+    #ifdef DAEDALUS_DEBUG_CONSOLE
     if (task->t.flags & 0x1)
     {
         DBGConsole_Msg(0, "jpeg_decode_PS: task yielding not implemented");
         return;
     }
+    #endif
+    u32       address          {rdram_read_u32((u32)task->t.data_ptr)};
+    const u32 macroblock_count {rdram_read_u32((u32)task->t.data_ptr + 4)};
+    const u32 mode             {rdram_read_u32((u32)task->t.data_ptr + 8)};
+    const u32 qtableY_ptr      {rdram_read_u32((u32)task->t.data_ptr + 12)};
+    const u32 qtableU_ptr      {rdram_read_u32((u32)task->t.data_ptr + 16)};
+    const u32 qtableV_ptr      {rdram_read_u32((u32)task->t.data_ptr + 20)};
 
-    u32       address          = rdram_read_u32((u32)task->t.data_ptr);
-    const u32 macroblock_count = rdram_read_u32((u32)task->t.data_ptr + 4);
-    const u32 mode             = rdram_read_u32((u32)task->t.data_ptr + 8);
-    const u32 qtableY_ptr      = rdram_read_u32((u32)task->t.data_ptr + 12);
-    const u32 qtableU_ptr      = rdram_read_u32((u32)task->t.data_ptr + 16);
-    const u32 qtableV_ptr      = rdram_read_u32((u32)task->t.data_ptr + 20);
-
+    #ifdef DAEDALUS_DEBUG_CONSOLE
     if (mode != 0 && mode != 2)
     {
         DBGConsole_Msg(0, "jpeg_decode_PS: invalid mode %d", mode);
         return;
     }
+    #endif
 
     rdram_read_many_u16((u16*)qtables[0], qtableY_ptr, SUBBLOCK_SIZE);
     rdram_read_many_u16((u16*)qtables[1], qtableU_ptr, SUBBLOCK_SIZE);
@@ -167,15 +170,17 @@ void jpeg_decode_PS(OSTask *task)
 		EmitTilesMode =  EmitTilesMode2;
 	}
 
-	const u32 subblock_count = mode + 4;
-	const u32 macroblock_size = 2*subblock_count*SUBBLOCK_SIZE;
+	const u32 subblock_count {mode + 4};
+	const u32 macroblock_size {2*subblock_count*SUBBLOCK_SIZE};
 
 	macroblock = (s16 *)malloc(sizeof(*macroblock) * macroblock_size);
+  #ifdef DAEDALUS_DEBUG_CONSOLE
 	if (!macroblock)
 	{
 		DBGConsole_Msg(0, "jpeg_decode_PS: could not allocate macroblock");
 		return;
 	}
+  #endif
 
     for (mb = 0; mb < macroblock_count; ++mb)
     {
@@ -193,20 +198,18 @@ void jpeg_decode_PS(OSTask *task)
  **************************************************************************/
 void jpeg_decode_OB(OSTask *task)
 {
-    s16 qtable[SUBBLOCK_SIZE];
-    u32 mb;
+    s16 qtable[SUBBLOCK_SIZE] {};
+    u32 mb {};
 
-    s32 y_dc = 0;
-    s32 u_dc = 0;
-    s32 v_dc = 0;
+    s32 y_dc {}, u_dc {}, v_dc {};
 
-	u32  address  = (u32)task->t.data_ptr;
-	const u32 macroblock_count = task->t.data_size;
-	const int  qscale   = task->t.yield_data_size;
+	u32  address  {(u32)task->t.data_ptr};
+	const u32 macroblock_count {task->t.data_size};
+	const u32  qscale   {task->t.yield_data_size};
 
-    if (qscale != 0)
+    if (task->t.yield_data_size != 0 )
     {
-        if (qscale > 0)
+        if (task->t.yield_data_size > 0)
         {
             ScaleSubBlock(qtable, DEFAULT_QTABLE, qscale);
         }
@@ -274,7 +277,7 @@ static u16 GetRGBA(s16 y, s16 u, s16 v)
 
 static void EmitYUVTileLine(const s16 *y, const s16 *u, u32 address)
 {
-    u32 uyvy[8];
+    u32 uyvy[8] {};
 
     const s16 * const v  = u + SUBBLOCK_SIZE;
     const s16 * const y2 = y + SUBBLOCK_SIZE;
@@ -312,7 +315,7 @@ static void EmitYUVTileLine_SwapY1Y2(const s16 *y, const s16 *u, u32 address)
 */
 static void EmitRGBATileLine(const s16 *y, const s16 *u, u32 address)
 {
-    u16 rgba[16];
+    u16 rgba[16] {};
 
     const s16 * const v  = u + SUBBLOCK_SIZE;
     const s16 * const y2 = y + SUBBLOCK_SIZE;
@@ -356,12 +359,11 @@ static void EmitTilesMode0(const tile_line_emitter_t emit_line, const s16 *macro
 
 static void EmitTilesMode2(const tile_line_emitter_t emit_line, const s16 *macroblock, u32 address)
 {
-    u32 i;
 
-    u32 y_offset = 0;
-    u32 u_offset = 4*SUBBLOCK_SIZE;
+    u32 y_offset {0};
+    u32 u_offset {4*SUBBLOCK_SIZE};
 
-    for (i = 0; i < 8; ++i)
+    for (u32 i = 0; i < 8; ++i)
     {
         emit_line(&macroblock[y_offset],     &macroblock[u_offset], address);
         emit_line(&macroblock[y_offset + 8], &macroblock[u_offset], address + 32);
@@ -374,14 +376,13 @@ static void EmitTilesMode2(const tile_line_emitter_t emit_line, const s16 *macro
 
 static void DecodeMacroblock1(s16 *macroblock, s32 *y_dc, s32 *u_dc, s32 *v_dc, const s16 *qtable)
 {
-    int sb;
 
-    for (sb = 0; sb < 6; ++sb)
+    for (u32 sb = 0; sb < 6; ++sb)
     {
-        s16 tmp_sb[SUBBLOCK_SIZE];
+        s16 tmp_sb[SUBBLOCK_SIZE] {};
 
         /* update DC */
-        s32 dc = (s32)macroblock[0];
+        s32 dc {(s32)macroblock[0]};
         switch(sb)
         {
         case 0: case 1: case 2: case 3:
@@ -401,12 +402,11 @@ static void DecodeMacroblock1(s16 *macroblock, s32 *y_dc, s32 *u_dc, s32 *v_dc, 
 
 static void DecodeMacroblock2(s16 *macroblock, u32 subblock_count, const s16 qtables[3][SUBBLOCK_SIZE])
 {
-    u32 sb;
-    u32 q = 0;
+    u32 q {};
 
-    for (sb = 0; sb < subblock_count; ++sb)
+    for (u32 sb = 0; sb < subblock_count; ++sb)
     {
-        s16 tmp_sb[SUBBLOCK_SIZE];
+        s16 tmp_sb[SUBBLOCK_SIZE] {};
         const int isChromaSubBlock = (subblock_count - sb <= 2);
 
         if (isChromaSubBlock) { ++q; }
@@ -462,12 +462,10 @@ static void ZigZagSubBlock(s16 *dst, const s16 *src)
 
 static void ReorderSubBlock(s16 *dst, const s16 *src, const u32 *table)
 {
-    u32 i;
-
     /* source and destination sublocks cannot overlap */
     //assert(abs(dst - src) > SUBBLOCK_SIZE);
 
-    for (i = 0; i < SUBBLOCK_SIZE; ++i)
+    for (u32 i {}; i < SUBBLOCK_SIZE; ++i)
     {
         dst[i] = src[table[i]];
     }
@@ -475,31 +473,27 @@ static void ReorderSubBlock(s16 *dst, const s16 *src, const u32 *table)
 
 static void MultSubBlocks(s16 *dst, const s16 *src1, const s16 *src2, u32 shift)
 {
-    u32 i;
 
-    for (i = 0; i < SUBBLOCK_SIZE; ++i)
+    for (u32 i {}; i < SUBBLOCK_SIZE; ++i)
     {
-        s32 v = src1[i] * src2[i];
+        s32 v {src1[i] * src2[i]};
         dst[i] = clamp_s16(v) << shift;
     }
 }
 
 static void ScaleSubBlock(s16 *dst, const s16 *src, s16 scale)
 {
-    u32 i;
-
-    for (i = 0; i < SUBBLOCK_SIZE; ++i)
+    for (u32 i {}; i < SUBBLOCK_SIZE; ++i)
     {
-        s32 v = src[i] * scale;
+        s32 v {src[i] * scale};
         dst[i] = clamp_s16(v);
     }
 }
 
 static void RShiftSubBlock(s16 *dst, const s16 *src, u32 shift)
 {
-    u32 i;
 
-    for (i = 0; i < SUBBLOCK_SIZE; ++i)
+    for (u32 i {}; i < SUBBLOCK_SIZE; ++i)
     {
         dst[i] = src[i] >> shift;
     }
@@ -527,9 +521,9 @@ static void RShiftSubBlock(s16 *dst, const s16 *src, u32 shift)
 #define K10 -2.562915448f   // -C1-C3
 static void InverseDCT1D(const float * const x, float *dst, u32 stride)
 {
-    float e[4];
-    float f[4];
-    float x26, x1357, x15, x37, x17, x35;
+    float e[4] {};
+    float f[4] {};
+    float x26 {}, x1357 {}, x15 {}, x37 {}, x17 {}, x35 {};
 
     x15   =  K3 * (x[1] + x[5]);
     x37   =  K4 * (x[3] + x[7]);
@@ -572,9 +566,9 @@ static void InverseDCT1D(const float * const x, float *dst, u32 stride)
 
 static void InverseDCTSubBlock(s16 *dst, const s16 *src)
 {
-    float x[8];
-    float block[SUBBLOCK_SIZE];
-    u32 i, j;
+    float x[8] {};
+    float block[SUBBLOCK_SIZE] {};
+    u32 i {}, j {};
 
     /* idct 1d on rows (+transposition) */
     for (i = 0; i < 8; ++i)
@@ -633,12 +627,12 @@ static void RescaleUVSubBlock(s16 *dst, const s16 *src)
 //ToDo: fast_memcpy_swizzle?
 static void rdram_read_many_u16(u16 *dst, u32 address, u32 count)
 {
-	const u8 *src = g_pu8RamBase + (address& MEMMASK);
+	const u8 *src {g_pu8RamBase + (address& MEMMASK)};
 
     while (count != 0)
     {
-		u32 a = *(u8*)((uintptr_t)src++ ^ U8_TWIDDLE);
-		u32 b = *(u8*)((uintptr_t)src++ ^ U8_TWIDDLE);
+		u32 a {*(u8*)((uintptr_t)src++ ^ U8_TWIDDLE)};
+		u32 b {*(u8*)((uintptr_t)src++ ^ U8_TWIDDLE)};
 
 		*(dst++) = ((a << 8) | b);
 		--count;
@@ -647,7 +641,7 @@ static void rdram_read_many_u16(u16 *dst, u32 address, u32 count)
 
 static void rdram_write_many_u16(const u16 *src, u32 address, u32 count)
 {
-	u8 *dst = g_pu8RamBase + (address& MEMMASK);
+	u8 *dst {g_pu8RamBase + (address& MEMMASK)};
     while (count != 0)
     {
        *(u8*)((uintptr_t)dst++ ^ U8_TWIDDLE) = (u8)(*src >> 8);
@@ -659,19 +653,19 @@ static void rdram_write_many_u16(const u16 *src, u32 address, u32 count)
 
 static u32 rdram_read_u32(u32 address)
 {
-	const u8 *src = g_pu8RamBase + (address& MEMMASK);
+	const u8 *src {g_pu8RamBase + (address& MEMMASK)};
 
-	u32 a = *(u8*)((uintptr_t)src++ ^ U8_TWIDDLE);
-	u32 b = *(u8*)((uintptr_t)src++ ^ U8_TWIDDLE);
-	u32 c = *(u8*)((uintptr_t)src++ ^ U8_TWIDDLE);
-	u32 d = *(u8*)((uintptr_t)src++ ^ U8_TWIDDLE);
+	u32 a {*(u8*)((uintptr_t)src++ ^ U8_TWIDDLE)};
+	u32 b {*(u8*)((uintptr_t)src++ ^ U8_TWIDDLE)};
+	u32 c {*(u8*)((uintptr_t)src++ ^ U8_TWIDDLE)};
+	u32 d {*(u8*)((uintptr_t)src++ ^ U8_TWIDDLE)};
 
     return (a << 24) | (b << 16) | (c << 8) | d;
 }
 
 static void rdram_write_many_u32(const u32 *src, u32 address, u32 count)
 {
-	u8 *dst = g_pu8RamBase + (address& MEMMASK);
+	u8 *dst {g_pu8RamBase + (address& MEMMASK)};
     while (count != 0)
     {
        *(u8*)((uintptr_t)dst++ ^ U8_TWIDDLE) = (u8)(*src >> 24);

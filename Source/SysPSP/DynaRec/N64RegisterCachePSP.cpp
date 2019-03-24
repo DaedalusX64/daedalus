@@ -20,22 +20,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "N64RegisterCachePSP.h"
 
-//*****************************************************************************
-//
-//*****************************************************************************
 CN64RegisterCachePSP::CN64RegisterCachePSP()
 {
 	Reset();
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 void	CN64RegisterCachePSP::Reset()
 {
-	for( u32 lo_hi_idx = 0; lo_hi_idx < 2; ++lo_hi_idx )
+	for( u32 lo_hi_idx {}; lo_hi_idx < 2; ++lo_hi_idx )
 	{
-		for( u32 i = 0; i < NUM_N64_REGS; ++i )
+		for( u32 i {}; i < NUM_N64_REGS; ++i )
 		{
 			mRegisterCacheInfo[ i ][ lo_hi_idx ].PspRegister = PspReg_R0;
 			mRegisterCacheInfo[ i ][ lo_hi_idx ].Valid = false;
@@ -44,7 +39,7 @@ void	CN64RegisterCachePSP::Reset()
 		}
 	}
 
-	for( u32 i = 0; i < NUM_N64_FP_REGS; ++i )
+	for( u32 i {}; i < NUM_N64_FP_REGS; ++i )
 	{
 		mFPRegisterCacheInfo[ i ].Valid = false;
 		mFPRegisterCacheInfo[ i ].Dirty = false;
@@ -52,14 +47,15 @@ void	CN64RegisterCachePSP::Reset()
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CN64RegisterCachePSP::ClearCachedReg( EN64Reg n64_reg, u32 lo_hi_idx )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( IsCached( n64_reg, lo_hi_idx ), "This register is not currently cached" );
 	DAEDALUS_ASSERT( !IsDirty( n64_reg, lo_hi_idx ), "This register is being cleared while still dirty" );
-
+#endif
 	mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].PspRegister = PspReg_R0;
 	mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].Valid = false;
 	mRegisterCacheInfo[ n64_reg ][ lo_hi_idx ].Dirty = false;

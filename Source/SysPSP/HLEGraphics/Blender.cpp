@@ -163,7 +163,10 @@ void InitBlenderMode( u32 blendmode )					// Set Alpha Blender mode
 	case 0xc702:					// Fog * AFog + In * 1-A || :In * 0 + In * 1			Donald Duck - Sky
 	//case 0xc811:					// ?
 	case 0xfa00:					// Fog * AShade + In * 1-A || :Fog * AShade + In * 1-A	F-Zero - Power Roads
+	//case 0x050: 					// In * AIn + Mem * 1-A || In * AIn + Mem * 1-A Power Pro Yakkau 2000
+
 	//case 0x07c2:					// In * AFog + Fog * 1-A || In * 0 + In * 1				Conker - ??
+
 		sceGuDisable( GU_BLEND );
 		break;
 

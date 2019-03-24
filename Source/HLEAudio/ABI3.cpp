@@ -48,7 +48,7 @@ static void SPNOOP( AudioHLECommand command )
 
 static void SETVOL3( AudioHLECommand command )
 {
-	u8 Flags = (u8)(command.cmd0 >> 0x10);
+	u8 Flags {(u8)(command.cmd0 >> 0x10)};
 	if (Flags & 0x4)
 	{ // 288
 		if (Flags & 0x2)
@@ -73,31 +73,25 @@ static void SETVOL3( AudioHLECommand command )
 
 static void ENVMIXER3( AudioHLECommand command )
 {
-	u8 flags = (u8)((command.cmd0 >> 16) & 0xff);
-	u32 addy = (command.cmd1 & 0xFFFFFF);
+	u8 flags {(u8)((command.cmd0 >> 16) & 0xff)};
+	u32 addy {(command.cmd1 & 0xFFFFFF)};
 
- 	s16 *inp=(s16 *)(gAudioHLEState.Buffer+0x4F0);
-	s16 *out=(s16 *)(gAudioHLEState.Buffer+0x9D0);
-	s16 *aux1=(s16 *)(gAudioHLEState.Buffer+0xB40);
-	s16 *aux2=(s16 *)(gAudioHLEState.Buffer+0xCB0);
-	s16 *aux3=(s16 *)(gAudioHLEState.Buffer+0xE20);
-	s32 MainR;
-	s32 MainL;
-	s32 AuxR;
-	s32 AuxL;
-	s32 i1,o1,a1,a2,a3;
+ 	s16 *inp {(s16 *)(gAudioHLEState.Buffer+0x4F0)};
+	s16 *out {(s16 *)(gAudioHLEState.Buffer+0x9D0)};
+	s16 *aux1 {(s16 *)(gAudioHLEState.Buffer+0xB40)};
+	s16 *aux2 {(s16 *)(gAudioHLEState.Buffer+0xCB0)};
+	s16 *aux3 {(s16 *)(gAudioHLEState.Buffer+0xE20)};
 
-	s32 LAdder, LAcc, LVol;
-	s32 RAdder, RAcc, RVol;
-	s16 RSig, LSig; // Most significant part of the Ramp Value
-	s16 Wet, Dry;
-	s16 LTrg, RTrg;
+	s32 MainR {},MainL {},AuxR {}, AuxL {};
+	s32 i1 {}, o1 {}, a1 {}, a2 {}, a3 {};
+	s32 LAdder {}, LAcc {}, LVol {}, RAdder {}, RAcc {}, RVol {};
+	s16 RSig {}, LSig {}, Wet {}, Dry {}, LTrg {}, RTrg {};
 
 	gAudioHLEState.VolRight = (s16)command.cmd0;
 
-	s16* buff = (s16*)(rdram+addy);
+	s16* buff {(s16*)(rdram+addy)};
 
-	if (flags & A_INIT) 
+	if (flags & A_INIT)
 	{
 		LAdder = gAudioHLEState.VolRampLeft / 8;
 		LAcc  = 0;
@@ -112,8 +106,8 @@ static void ENVMIXER3( AudioHLECommand command )
 		Wet = gAudioHLEState.EnvWet;
 		Dry = gAudioHLEState.EnvDry; // Save Wet/Dry values
 		LTrg = gAudioHLEState.VolTrgLeft; RTrg = gAudioHLEState.VolTrgRight; // Save Current Left/Right Targets
-	} 
-	else 
+	}
+	else
 	{
 		Wet    = *(s16 *)(buff +  0); // 0-1
 		Dry    = *(s16 *)(buff +  2); // 2-3
@@ -138,7 +132,7 @@ static void ENVMIXER3( AudioHLECommand command )
 	//	aux2=aux3=zero;
 	//}
 
-	for (s32 y = 0; y < (0x170/2); y++) {
+	for (s32 y {}; y < (0x170/2); y++) {
 
 		// Left
 		LAcc += LAdder;
@@ -246,20 +240,23 @@ static void MIXER3( AudioHLECommand command )
 
 static void LOADBUFF3( AudioHLECommand command )
 {
-	u32 v0;
-	u32 cnt = (((command.cmd0 >> 0xC)+3)&0xFFC);
+	u32 v0 {};
+	u32 cnt {(((command.cmd0 >> 0xC)+3)&0xFFC)};
 	v0 = (command.cmd1 & 0xfffffc);
-	u32 src = (command.cmd0&0xffc)+0x4f0;
+	u32 src {(command.cmd0&0xffc)+0x4f0};
 	memcpy (gAudioHLEState.Buffer+src, rdram+v0, cnt);
+
 }
 
 static void SAVEBUFF3( AudioHLECommand command )
 {
-	u32 v0;
-	u32 cnt = (((command.cmd0 >> 0xC)+3)&0xFFC);
+	u32 v0 {};
+	u32 cnt {(((command.cmd0 >> 0xC)+3)&0xFFC)};
 	v0 = (command.cmd1 & 0xfffffc);
-	u32 src = (command.cmd0&0xffc)+0x4f0;
+	u32 src {(command.cmd0&0xffc)+0x4f0};
+
 	memcpy (rdram+v0, gAudioHLEState.Buffer+src, cnt);
+
 }
 
 // Loads an ADPCM table - Works 100% Now 03-13-01
@@ -267,7 +264,7 @@ static void LOADADPCM3( AudioHLECommand command )
 {
 	u32		address(command.Abi3LoadADPCM.Address );// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 	u16		count( command.Abi3LoadADPCM.Count );
-	
+
 	gAudioHLEState.LoadADPCM( address, count );
 }
 
@@ -291,33 +288,31 @@ static void SETLOOP3( AudioHLECommand command )
 // Verified to be 100% Accurate...
 static void ADPCM3( AudioHLECommand command )
 {
-	u8 Flags=(u8)(command.cmd1>>0x1c)&0xff;
+	u8 Flags {(u8)((command.cmd1>>0x1c)&0xff)};
 	//u16 Gain=(u16)(command.cmd0&0xffff);
-	u32 Address=(command.cmd0 & 0xffffff);// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
-	u32 inPtr=(command.cmd1>>12)&0xf;
+	u32 Address {(command.cmd0 & 0xffffff)};// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+	u32 inPtr {(command.cmd1>>12)&0xf};
 	//s16 *out=(s16 *)(testbuff+(gAudioHLEState.OutBuffer>>2));
-	s16 *out=(s16 *)(gAudioHLEState.Buffer+(command.cmd1&0xfff)+0x4f0);
+	s16 *out {(s16 *)(gAudioHLEState.Buffer+(command.cmd1&0xfff)+0x4f0)};
 	//u8 *in=(u8 *)(gAudioHLEState.Buffer+((command.cmd1>>12)&0xf)+0x4f0);
-	s16 count=(s16)((command.cmd1 >> 16)&0xfff);
-	u8 icode;
-	u8 code;
-	s32 vscale;
-	u16 index;
-	u16 j;
-	s32 a[8];
-	s16 *book1,*book2;
+	s16 count {(s16)((command.cmd1 >> 16)&0xfff)};
+	u8 icode {}, code {};
+	s32 vscale {};
+	u16 index {}, j {};
+	s32 a[8] {};
+	s16 *book1 {},*book2 {};
 
 	memset(out,0,32);
 
 	if(!(Flags&0x1))
 	{
-		memcpy(out,&rdram[(Flags&0x2) ? gAudioHLEState.LoopVal : Address],32);
+			memcpy(out,&rdram[(Flags&0x2) ? gAudioHLEState.LoopVal : Address],32);
 	}
 
-	s32 l1=out[15];
-	s32 l2=out[14];
-	s32 inp1[8];
-	s32 inp2[8];
+	s32 l1 {out[15]};
+	s32 l2 {out[14]};
+	s32 inp1[8] {};
+	s32 inp2[8] {};
 	out+=16;
 	while(count>0)
 	{
@@ -326,13 +321,13 @@ static void ADPCM3( AudioHLECommand command )
 													// area of memory in the case of A_LOOP or just
 													// the values we calculated the last time
 
-		code=gAudioHLEState.Buffer[(0x4f0+inPtr)^3];
-		index=code&0xf;
-		index<<=4;									// index into the adpcm code table
-		book1=(s16 *)&gAudioHLEState.ADPCMTable[index];
-		book2=book1+8;
-		code>>=4;									// upper nibble is scale
-		vscale=(0x8000>>((12-code)-1));				// very strange. 0x8000 would be .5 in 16:16 format
+		code = gAudioHLEState.Buffer[(0x4f0+inPtr)^3];
+		index =  code&0xf;
+		index <<= 4;									// index into the adpcm code table
+		book1 = (s16 *)&gAudioHLEState.ADPCMTable[index];
+		book2 = book1+8;
+		code >>= 4;									// upper nibble is scale
+		vscale = (0x8000>>((12-code)-1));				// very strange. 0x8000 would be .5 in 16:16 format
 													// so this appears to be a fractional scale based
 													// on the 12 based inverse of the scale value.  note
 													// that this could be negative, in which case we do
@@ -340,29 +335,28 @@ static void ADPCM3( AudioHLECommand command )
 													// if(code>12) check below
 
 		inPtr++;									// coded adpcm data lies next
-		j=0;
+		j = 0;
 		while(j<8)									// loop of 8, for 8 coded nibbles from 4 bytes
 													// which yields 8 s16 pcm values
 		{
-			icode=gAudioHLEState.Buffer[(0x4f0+inPtr)^3];
+			icode = gAudioHLEState.Buffer[(0x4f0+inPtr)^3];
 			inPtr++;
 
 			inp1[j]=(s16)((icode&0xf0)<<8);			// this will in effect be signed
 
 			// Conker and Banjo set this!
-			if(code<12)
-				inp1[j]=((s32)((s32)inp1[j]*(s32)vscale)>>16);
-
+			if ( code < 12 )
+				inp1[j] = ((s32)((s32)inp1[j]*(s32)vscale)>>16);
 			j++;
 
-			inp1[j]=(s16)((icode&0xf)<<12);
+			inp1[j] = (s16)((icode&0xf) << 12);
 
-			inp1[j]=((s32)((s32)inp1[j]*(s32)vscale)>>16);
+			inp1[j] = ((s32)((s32)inp1[j]*(s32)vscale) >> 16);
 			j++;
 		}
 
-		j=0;
-		while(j<8)
+		j = 0;
+		while(j < 8)
 		{
 			icode=gAudioHLEState.Buffer[(0x4f0+inPtr)^3];
 			inPtr++;
@@ -521,22 +515,22 @@ static void ADPCM3( AudioHLECommand command )
 		count-=32;
 	}
 	out-=16;
+
 	memcpy(&rdram[Address],out,32);
 }
 
-#if 1 //1->fast, 0->original Azimer //Corn
 static void RESAMPLE3( AudioHLECommand command )
 {
-	u8 Flags=(u8)((command.cmd1>>0x1e));
-	u32 Pitch=((command.cmd1>>0xe)&0xffff) << 1;
-	u32 addy = (command.cmd0 & 0xffffff);
-	u32 Accum;
-	s16 *dst;
-	s16 *src;
-	dst=(s16 *)(gAudioHLEState.Buffer);
-	src=(s16 *)(gAudioHLEState.Buffer);
-	u32 srcPtr=((((command.cmd1>>2)&0xfff)+0x4f0)/2);
-	u32 dstPtr;//=(gAudioHLEState.OutBuffer/2);
+	u8 Flags {(u8)((command.cmd1>>0x1e))};
+	u32 Pitch {((command.cmd1>>0xe)&0xffff) << 1};
+	u32 addy {(command.cmd0 & 0xffffff)};
+	u32 Accum {};
+	s16 *dst {};
+	s16 *src {};
+	dst = (s16 *)(gAudioHLEState.Buffer);
+	src = (s16 *)(gAudioHLEState.Buffer);
+	u32 srcPtr{ ((((command.cmd1>>2)&0xfff)+0x4f0)/2)};
+	u32 dstPtr {};//=(gAudioHLEState.OutBuffer/2);
 
 	srcPtr -= 1;
 
@@ -554,7 +548,7 @@ static void RESAMPLE3( AudioHLECommand command )
 		Accum = 0;
 	}
 
-	for(u32 i=0;i < 0x170/2;i++)
+	for(u32 i {} ; i < 0x170/2;i++)
 	{
 		dst[dstPtr^1] = src[srcPtr^1] + FixedPointMul16( src[(srcPtr+1)^1] - src[srcPtr^1], Accum );
 		++dstPtr;
@@ -566,96 +560,6 @@ static void RESAMPLE3( AudioHLECommand command )
 	((u16 *)rdram)[((addy/2))^1] = src[srcPtr^1];
 	*(u16 *)(rdram+addy+10) = u16( Accum );
 }
-
-#else
-static void RESAMPLE3( AudioHLECommand command )
-{
-	u8 Flags=(u8)((command.cmd1>>0x1e));
-	u32 Pitch=((command.cmd1>>0xe)&0xffff)<<1;
-	u32 addy = (command.cmd0 & 0xffffff);
-	u32 Accum=0;
-	u32 location;
-	s16 *lut;
-	s16 *dst;
-	s16 *src;
-	dst=(s16 *)(gAudioHLEState.Buffer);
-	src=(s16 *)(gAudioHLEState.Buffer);
-	u32 srcPtr=((((command.cmd1>>2)&0xfff)+0x4f0)/2);
-	u32 dstPtr;//=(gAudioHLEState.OutBuffer/2);
-	s32 temp;
-
-	//if (addy > (1024*1024*8))
-	//	addy = (command.cmd1 & 0xffffff);
-
-	srcPtr -= 4;
-
-	if (command.cmd1 & 0x3) {
-		dstPtr = 0x660/2;
-	} else {
-		dstPtr = 0x4f0/2;
-	}
-
-	if ((Flags & 0x1) == 0) {
-		for (s32 x=0; x < 4; x++) //memcpy (src+srcPtr, rdram+addy, 0x8);
-			src[(srcPtr+x)^1] = ((u16 *)rdram)[((addy/2)+x)^1];
-		Accum = *(u16 *)(rdram+addy+10);
-	} else {
-		for (s32 x=0; x < 4; x++)
-			src[(srcPtr+x)^1] = 0;//*(u16 *)(rdram+((addy+x)^2));
-	}
-
-	//if ((Flags & 0x2))
-	//	__asm int 3;
-
-	for(s32 i=0;i < 0x170/2;i++)	{
-		location = (((Accum * 0x40) >> 0x10) * 8);
-		//location = (Accum >> 0xa) << 0x3;
-		lut = (s16 *)(((u8 *)ResampleLUT) + location);
-
-		temp =  ((s32)*(s16*)(src+((srcPtr+0)^1))*((s32)((s16)lut[0])));
-		s32 accum = (s32)(temp >> 15);
-
-		temp = ((s32)*(s16*)(src+((srcPtr+1)^1))*((s32)((s16)lut[1])));
-		accum += (s32)(temp >> 15);
-
-		temp = ((s32)*(s16*)(src+((srcPtr+2)^1))*((s32)((s16)lut[2])));
-		accum += (s32)(temp >> 15);
-
-		temp = ((s32)*(s16*)(src+((srcPtr+3)^1))*((s32)((s16)lut[3])));
-		accum += (s32)(temp >> 15);
-/*		temp =  ((s64)*(s16*)(src+((srcPtr+0)^1))*((s64)((s16)lut[0]<<1)));
-		if (temp & 0x8000) temp = (temp^0x8000) + 0x10000;
-		else temp = (temp^0x8000);
-		accum = Saturate<s16>( temp >> 16 );
-
-		temp = ((s64)*(s16*)(src+((srcPtr+1)^1))*((s64)((s16)lut[1]<<1)));
-		if (temp & 0x8000) temp = (temp^0x8000) + 0x10000;
-		else temp = (temp^0x8000);
-		accum += Saturate<s16>( temp >> 16 );
-
-		temp = ((s64)*(s16*)(src+((srcPtr+2)^1))*((s64)((s16)lut[2]<<1)));
-		if (temp & 0x8000) temp = (temp^0x8000) + 0x10000;
-		else temp = (temp^0x8000);
-		accum += Saturate<s16>( temp >> 16 );
-
-		temp = ((s64)*(s16*)(src+((srcPtr+3)^1))*((s64)((s16)lut[3]<<1)));
-		if (temp & 0x8000) temp = (temp^0x8000) + 0x10000;
-		else temp = (temp^0x8000);
-		accum += Saturate<s16>( temp >> 16 );
-*/
-		dst[dstPtr^1] = Saturate<s16>( accum );
-		dstPtr++;
-		Accum += Pitch;
-		srcPtr += (Accum>>16);
-		Accum&=0xffff;
-	}
-	for (s32 x=0; x < 4; x++)
-	{
-		((u16 *)rdram)[((addy/2)+x)^1] = src[(srcPtr+x)^1];
-	}
-	*(u16 *)(rdram+addy+10) = u16( Accum );
-}
-#endif
 
 static void INTERLEAVE3( AudioHLECommand command )
 {
@@ -710,18 +614,18 @@ void MP3( AudioHLECommand command );
 
 FFT = Fast Fourier Transform
 DCT = Discrete Cosine Transform
-MPEG-1 Layer 3 retains Layer 2’s 1152-sample window, as well as the FFT polyphase filter for
-backward compatibility, but adds a modified DCT filter. DCT’s advantages over DFTs (discrete
+MPEG-1 Layer 3 retains Layer 2ï¿½s 1152-sample window, as well as the FFT polyphase filter for
+backward compatibility, but adds a modified DCT filter. DCTï¿½s advantages over DFTs (discrete
 Fourier transforms) include half as many multiply-accumulate operations and half the
 generated coefficients because the sinusoidal portion of the calculation is absent, and DCT
-generally involves simpler math. The finite lengths of a conventional DCTs’ bandpass impulse
+generally involves simpler math. The finite lengths of a conventional DCTsï¿½ bandpass impulse
 responses, however, may result in block-boundary effects. MDCTs overlap the analysis blocks
 and lowpass-filter the decoded audio to remove aliases, eliminating these effects. MDCTs also
 have a higher transform coding gain than the standard DCT, and their basic functions
 correspond to better bandpass response.
 
-MPEG-1 Layer 3’s DCT sub-bands are unequally sized, and correspond to the human auditory
-system’s critical bands. In Layer 3 decoders must support both constant- and variable-bit-rate
+MPEG-1 Layer 3ï¿½s DCT sub-bands are unequally sized, and correspond to the human auditory
+systemï¿½s critical bands. In Layer 3 decoders must support both constant- and variable-bit-rate
 bit streams. (However, many Layer 1 and 2 decoders also handle variable bit rates). Finally,
 Layer 3 encoders Huffman-code the quantized coefficients before archiving or transmission for
 additional lossless compression. Bit streams range from 32 to 320 kbps, and 128-kbps rates

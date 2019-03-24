@@ -192,9 +192,8 @@ void CMP3Decode::MP3AB0()
 	const u16 LUT2[8] = { 0xFEC4, 0xF4FA, 0xC5E4, 0xE1C4,
 						  0x1916, 0x4A50, 0xA268, 0x78AE };
 	const u16 LUT3[4] = { 0xFB14, 0xD4DC, 0x31F2, 0x8E3A };
-	int i;
 
-	for (i = 0; i < 8; i++)
+	for (int i {}; i < 8; i++)
 	{
 		v[16+i] = v[0+i] + v[8+i];
 		v[24+i] = ((v[0+i] - v[8+i]) * LUT2[i]) >> 0x10;
@@ -202,7 +201,7 @@ void CMP3Decode::MP3AB0()
 
 	// Part 3: 4-wide butterflies
 
-	for (i=0; i < 4; i++)
+	for (int i {}; i < 4; i++)
 	{
 		v[0+i]  = v[16+i] + v[20+i];
 		v[4+i]  = ((v[16+i] - v[20+i]) * LUT3[i]) >> 0x10;
@@ -213,7 +212,7 @@ void CMP3Decode::MP3AB0()
 
 	// Part 4: 2-wide butterflies - 100% Accurate
 
-	for (i = 0; i < 16; i+=4)
+	for (int i {}; i < 16; i+=4)
 	{
 		v[16+i] = v[0+i] + v[2+i];
 		v[18+i] = ((v[0+i] - v[2+i]) * 0xEC84) >> 0x10;
@@ -227,7 +226,7 @@ void CMP3Decode::InnerLoop()
 {
 	// Part 1: 100% Accurate
 
-	int i;
+
 	v[0] = *(s16 *)(mp3data+inPtr+(0x00^2)); v[31] = *(s16 *)(mp3data+inPtr+(0x3E^2)); v[0] += v[31];
 	v[1] = *(s16 *)(mp3data+inPtr+(0x02^2)); v[30] = *(s16 *)(mp3data+inPtr+(0x3C^2)); v[1] += v[30];
 	v[2] = *(s16 *)(mp3data+inPtr+(0x06^2)); v[28] = *(s16 *)(mp3data+inPtr+(0x38^2)); v[2] += v[28];
@@ -254,10 +253,10 @@ void CMP3Decode::InnerLoop()
 
 	// Part 5 - 1-Wide Butterflies - 100% Accurate but need SSVs!!!
 
-	u32 t0 = t6 + 0x100;
-	u32 t1 = t6 + 0x200;
-	u32 t2 = t5 + 0x100;
-	u32 t3 = t5 + 0x200;
+	u32 t0 {t6 + 0x100};
+	u32 t1 {t6 + 0x200};
+	u32 t2 {t5 + 0x100};
+	u32 t3 {t5 + 0x200};
 	/*RSP_GPR[0x8].W = t0;
 	RSP_GPR[0x9].W = t1;
 	RSP_GPR[0xA].W = t2;
@@ -376,7 +375,7 @@ void CMP3Decode::InnerLoop()
 						   0xBDAE, 0xCDA0, 0xE76C, 0xDB94,
 						   0x1920, 0x4B20, 0xAC7C, 0x7C68,
 						   0xABEC, 0x9880, 0xDAE8, 0x839C };
-	for (i = 0; i < 16; i++) {
+	for (int i {}; i < 16; i++) {
 		v[0+i] = (v[0+i] * LUT6[i]) >> 0x10;
 	}
 	v[0] = v[0] + v[0];
@@ -470,19 +469,16 @@ void CMP3Decode::InnerLoop()
 	// Step 8 - Dewindowing
 
 	//u64 *DW = (u64 *)&DeWindowLUT[0x10-(t4>>1)];
-	u32 offset = 0x10-(t4>>1);
+	u32 offset {0x10-(t4>>1)};
+	u32 addptr {t6 & 0xFFE0};
+	s32 v2 {}, v4 {}, v6 {}, v8 {};
 
-	u32 addptr = t6 & 0xFFE0;
-
-	s32 v2=0, v4=0, v6=0, v8=0;
-
-	for (int x = 0; x < 8; x++)
+	for (int x {}; x < 8; x++)
 	{
-		v2 = v4 = v6 = v8 = 0;
-
+v2 = v4 = v6 = v8 = 0;
 		//addptr = t1;
 
-		for (i = 7; i >= 0; i--)
+		for (int i {7}; i >= 0; i--)
 		{
 			v2 += ((int)*(s16 *)(mp3data+(addptr)+0x00) * (short)DeWindowLUT[offset+0x00] + 0x4000) >> 0xF;
 			v4 += ((int)*(s16 *)(mp3data+(addptr)+0x10) * (short)DeWindowLUT[offset+0x08] + 0x4000) >> 0xF;
@@ -490,8 +486,8 @@ void CMP3Decode::InnerLoop()
 			v8 += ((int)*(s16 *)(mp3data+(addptr)+0x30) * (short)DeWindowLUT[offset+0x28] + 0x4000) >> 0xF;
 			addptr+=2; offset++;
 		}
-		s32 v0  = v2 + v4;
-		s32 v18 = v6 + v8;
+		s32 v0  {v2 + v4};
+		s32 v18 {v6 + v8};
 		//Clamp(v0);
 		//Clamp(v18);
 		// clamp???
@@ -505,7 +501,7 @@ void CMP3Decode::InnerLoop()
 
 	offset = 0x10-(t4>>1) + 8*0x40;
 	v2 = v4 = 0;
-	for (i = 0; i < 4; i++)
+	for (int i {}; i < 4; i++)
 	{
 		v2 += ((int)*(s16 *)(mp3data+(addptr)+0x00) * (short)DeWindowLUT[offset+0x00] + 0x4000) >> 0xF;
 		v2 += ((int)*(s16 *)(mp3data+(addptr)+0x10) * (short)DeWindowLUT[offset+0x08] + 0x4000) >> 0xF;
@@ -514,8 +510,8 @@ void CMP3Decode::InnerLoop()
 		v4 += ((int)*(s16 *)(mp3data+(addptr)+0x10) * (short)DeWindowLUT[offset+0x08] + 0x4000) >> 0xF;
 		addptr+=2; offset++;
 	}
-	s32 mult6 = *(s32 *)(mp3data+0xCE8);
-	s32 mult4 = *(s32 *)(mp3data+0xCEC);
+	s32 mult6 {*(s32 *)(mp3data+0xCE8)};
+	s32 mult4 {*(s32 *)(mp3data+0xCEC)};
 	if (t4 & 0x2)
 	{
 		v2 = (v2 * *(u32 *)(mp3data+0xCE8)) >> 16;
@@ -529,13 +525,13 @@ void CMP3Decode::InnerLoop()
 	}
 	addptr -= 0x50;
 
-	for (int x = 0; x < 8; x++)
+	for (int x {}; x < 8; x++)
 	{
 		v2 = v4 = v6 = v8 = 0;
 
 		offset = (0x22F-(t4>>1) + x*0x40);
 
-		for (i = 0; i < 4; i++)
+		for (int i {}; i < 4; i++)
 		{
 			v2 += ((int)*(s16 *)(mp3data+(addptr    )+0x20) * (short)DeWindowLUT[offset+0x00] + 0x4000) >> 0xF;
 			v2 -= ((int)*(s16 *)(mp3data+((addptr+2))+0x20) * (short)DeWindowLUT[offset+0x01] + 0x4000) >> 0xF;
@@ -547,8 +543,8 @@ void CMP3Decode::InnerLoop()
 			v8 -= ((int)*(s16 *)(mp3data+((addptr+2))+0x10) * (short)DeWindowLUT[offset+0x29] + 0x4000) >> 0xF;
 			addptr+=4; offset+=2;
 		}
-		s32 v0  = v2 + v4;
-		s32 v18 = v6 + v8;
+		s32 v0  {v2 + v4};
+		s32 v18 {v6 + v8};
 		//Clamp(v0);
 		//Clamp(v18);
 		// clamp???
@@ -559,12 +555,12 @@ void CMP3Decode::InnerLoop()
 		addptr -= 0x50;
 	}
 
-	int tmp = outPtr;
-	s32 hi0 = mult6;
-	s32 hi1 = mult4;
+	int tmp {(int)outPtr};
+	s32 hi0 {mult6};
+	s32 hi1 {mult4};
 	hi0 = (int)hi0 >> 0x10;
 	hi1 = (int)hi1 >> 0x10;
-	for (i = 0; i < 8; i++)
+	for (int i {}; i < 8; i++)
 	{
 		*(s16 *)((u8 *)mp3data+((tmp-0x40)^2)) = Saturate<s16>( (*(s16 *)(mp3data+((tmp-0x40)^2)) * hi0) );
 		*(s16 *)((u8 *)mp3data+((tmp-0x30)^2)) = Saturate<s16>( (*(s16 *)(mp3data+((tmp-0x30)^2)) * hi0) );
@@ -579,11 +575,8 @@ void CMP3Decode::InnerLoop()
 void CMP3Decode::Decode( AudioHLECommand command )
 {
 	// Initialization Code
-	u32 readPtr; // s5
-	u32 writePtr; // s6
-	//const u32 Count = 0x0480; // s4
-	u32 tmp;
-	//u32 inPtr, outPtr;
+	u32 readPtr {}, writePtr {}, tmp {}; // s5
+
 
 	t6 = 0x08A0; // I think these are temporary storage buffers
 	t5 = 0x0AC0;
@@ -594,13 +587,13 @@ void CMP3Decode::Decode( AudioHLECommand command )
 	memcpy(mp3data+0xCE8, rdram+readPtr, 8); // Just do that for efficiency... may remove and use directly later anyway
 	readPtr += 8; // This must be a header byte or whatnot
 
-	for (u32 cnt = 0; cnt < 0x0480; cnt += 0x180)
+	for (u32 cnt {}; cnt < 0x0480; cnt += 0x180)
 	{
 		memcpy(mp3data+0xCF0, rdram+readPtr, 0x180); // DMA: 0xCF0 <- RDRAM[s5] : 0x180
 		inPtr  = 0xCF0; // s7
 		outPtr = 0xE70; // s3
 
-		for (int cnt2 = 0; cnt2 < 0x180; cnt2 += 0x40)
+		for (int cnt2 {}; cnt2 < 0x180; cnt2 += 0x40)
 		{
 			t6 &= 0xFFE0;
 			t5 &= 0xFFE0;
@@ -633,5 +626,3 @@ void MP3( AudioHLECommand command )
 {
 	gMP3Decode.Decode( command );
 }
-
-

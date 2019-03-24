@@ -45,15 +45,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Utility/Buttons.h"
 #include "Utility/Functor.h"
 #include "Utility/Translate.h"
+#include "PSPMenu.h"
 
 extern void battery_info();
 
-namespace
-{
-	const u32				TEXT_AREA_TOP = 10;
-	const u32				TEXT_AREA_LEFT = 20;
-	const u32				TEXT_AREA_RIGHT = 480-20;
-
+namespace {
 	enum EMenuOption
 	{
 		MO_GLOBAL_SETTINGS = 0,
@@ -73,9 +69,6 @@ namespace
 	};
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 class IPauseScreen : public CPauseScreen, public CUIScreen
 {
 	public:
@@ -116,24 +109,15 @@ class IPauseScreen : public CPauseScreen, public CUIScreen
 		CUIComponent *				mOptionComponents[ NUM_MENU_OPTIONS ];
 };
 
-//*************************************************************************************
-//
-//*************************************************************************************
-CPauseScreen::~CPauseScreen()
-{
-}
 
-//*************************************************************************************
-//
-//*************************************************************************************
+CPauseScreen::~CPauseScreen() {}
+
 CPauseScreen *	CPauseScreen::Create( CUIContext * p_context )
 {
 	return new IPauseScreen( p_context );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 IPauseScreen::IPauseScreen( CUIContext * p_context )
 :	CUIScreen( p_context )
 ,	mIsFinished( false )
@@ -154,9 +138,6 @@ IPauseScreen::IPauseScreen( CUIContext * p_context )
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 IPauseScreen::~IPauseScreen()
 {
 	for( u32 i = 0; i < NUM_MENU_OPTIONS; ++i )
@@ -166,9 +147,6 @@ IPauseScreen::~IPauseScreen()
 }
 
 
-//*************************************************************************************
-//
-//*************************************************************************************
 EMenuOption		IPauseScreen::GetPreviousValidOption() const
 {
 	bool			looped( false );
@@ -184,9 +162,7 @@ EMenuOption		IPauseScreen::GetPreviousValidOption() const
 	return current_option;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 EMenuOption		IPauseScreen::GetNextValidOption() const
 {
 	bool			looped( false );
@@ -202,17 +178,13 @@ EMenuOption		IPauseScreen::GetNextValidOption() const
 	return current_option;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 bool	IPauseScreen::IsOptionValid( EMenuOption option ) const
 {
 	return true;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IPauseScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	static bool button_released(false);
@@ -245,14 +217,12 @@ void	IPauseScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons
 	mOptionComponents[ mCurrentOption ]->Update( elapsed_time, stick, old_buttons, new_buttons );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IPauseScreen::Render()
 {
 	mpContext->ClearBackground();
 
-	s32			y( TEXT_AREA_TOP );
+	s32			y( MENU_TOP );
 
 	const char * p_option_text;
 
@@ -263,9 +233,6 @@ void	IPauseScreen::Render()
 	EMenuOption		current( GetCurrentOption() );
 	EMenuOption		next( GetNextOption() );
 
-	/* Time & Battery info*/
-	pspTime s;
-	sceRtcGetCurrentClockLocalTime(&s);
 	s32 bat = scePowerGetBatteryLifePercent();
 	s32 batteryLifeTime = scePowerGetBatteryLifeTime();
 
@@ -274,61 +241,43 @@ void	IPauseScreen::Render()
 
 	if(!scePowerIsBatteryCharging())
 	{
-		sprintf(info,"[%s %d:%02d%c%02d]  [%s %d%% %0.2fV %dC]  [%s %2dh %2dm]",
-			Translate_String("Time"), s.hour, s.minutes, (' '/*s.seconds&1?':':' '*/), s.seconds,
-			Translate_String("Battery"), bat, (f32) scePowerGetBatteryVolt() / 1000.0f, scePowerGetBatteryTemp(),
-			Translate_String("Remaining"), batteryLifeTime / 60, batteryLifeTime - 60 * (batteryLifeTime / 60));
-	}
-	else
-	{
-		sprintf(info, "[%s %d:%02d%c%02d]  [%s]  [%s]",
-			Translate_String("Time"), s.hour, s.minutes, (' '/*s.seconds&1?':':' '*/), s.seconds,
-			Translate_String("Charging..."),
-			Translate_String("Remaining: --h--m") );
+			sprintf(info," [%s %d%% %s %2dh %2dm]",
+			Translate_String("Battery / "), bat,
+			Translate_String("Time"), batteryLifeTime / 60, batteryLifeTime - 60 * (batteryLifeTime / 60));
 	}
 
-	mpContext->DrawTextAlign( 0, 480, AT_CENTRE, 43, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
+// Battery Info
+	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
+	mpContext->DrawTextAlign( 0, SCREEN_WIDTH - LIST_TEXT_LEFT, AT_RIGHT, CATEGORY_TEXT_TOP, info, DrawTextUtilities::TextWhiteDisabled, DrawTextUtilities::TextBlueDisabled );
 
 	p_option_text = gMenuOptionNames[ previous ];
-	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_LEFT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( previous ) ? valid_colour : invalid_colour );
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_LEFT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( previous ) ? valid_colour : invalid_colour );
 
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
 	p_option_text = gMenuOptionNames[ current ];
-	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( current ) ? valid_colour : invalid_colour );
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( current ) ? valid_colour : invalid_colour );
 	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
 
 	p_option_text = gMenuOptionNames[ next ];
-	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_RIGHT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( next ) ? valid_colour : invalid_colour );
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_RIGHT, y + mpContext->GetFontHeight(), p_option_text, IsOptionValid( next ) ? valid_colour : invalid_colour );
 
 	mOptionComponents[ mCurrentOption ]->Render();
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void	IPauseScreen::Run()
 {
 	mIsFinished = false;
 	CUIScreen::Run();
 
-	// switch back to the emulator display
 	CGraphicsContext::Get()->SwitchToChosenDisplay();
-
-	// Clear everything to black - looks a bit tidier
 	CGraphicsContext::Get()->ClearAllSurfaces();
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void IPauseScreen::OnResume()
 {
 	mIsFinished = true;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void IPauseScreen::OnReset()
 {
 	CPU_Halt("Resetting");

@@ -206,7 +206,7 @@ static const RomEntityEntry gRomInitTable[] =
 	{"Graphics",			InitGraphicsPlugin,		DisposeGraphicsPlugin},
 	{"FramerateLimiter",	FramerateLimiter_Reset,	NULL},
 	//{"RSP", RSP_Reset, NULL},
-	{"CPU",					CPU_RomOpen,			CPU_RomClose},
+	{"CPU",					CPU_RomOpen},
 	{"ROM",					ROM_ReBoot,				ROM_Unload},
 	{"Controller",			CController::Reset,		CController::RomClose},
 	{"Save",				Save_Reset,				Save_Fini},

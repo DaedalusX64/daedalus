@@ -58,20 +58,20 @@ struct N64Pf5551
 	u8	GetB() const { u8 b( u8( ( Bits & MaskB ) >> ShiftB ) ); return (b << (8 - BitsB)) | (b >> (BitsB - (8 - BitsB))); }
 	u8	GetA() const { return (Bits & MaskA) ? 255 : 0; }
 
-	static const u32	MaskR = 0xf800;
-	static const u32	MaskG = 0x07c0;
-	static const u32	MaskB = 0x003e;
-	static const u32	MaskA = 0x0001;
+	static const u32	MaskR {0xf800};
+	static const u32	MaskG {0x07c0};
+	static const u32	MaskB {0x003e};
+	static const u32	MaskA {0x0001};
 
-	static const u32	ShiftR = 11;
-	static const u32	ShiftG = 6;
-	static const u32	ShiftB = 1;
-	static const u32	ShiftA = 0;
+	static const u32	ShiftR {11};
+	static const u32	ShiftG {6};
+	static const u32	ShiftB {1};
+	static const u32	ShiftA {};
 
-	static const u32	BitsR = 5;
-	static const u32	BitsG = 5;
-	static const u32	BitsB = 5;
-	static const u32	BitsA = 1;
+	static const u32	BitsR {5};
+	static const u32	BitsG {5};
+	static const u32	BitsB {5};
+	static const u32	BitsA {1};
 };
 DAEDALUS_STATIC_ASSERT( sizeof( N64Pf5551 ) == 2 );
 
@@ -122,20 +122,20 @@ struct N64Pf8888
 	u8	GetB() const { return B; }
 	u8	GetA() const { return A; }
 
-	static const u32	MaskR = 0xff000000;
-	static const u32	MaskG = 0x00ff0000;
-	static const u32	MaskB = 0x0000ff00;
-	static const u32	MaskA = 0x000000ff;
+	static const u32	MaskR {0xff000000};
+	static const u32	MaskG {0x00ff0000};
+	static const u32	MaskB {0x0000ff00};
+	static const u32	MaskA {0x000000ff};
 
-	static const u32	ShiftR = 24;
-	static const u32	ShiftG = 16;
-	static const u32	ShiftB = 8;
-	static const u32	ShiftA = 0;
+	static const u32	ShiftR {24};
+	static const u32	ShiftG {16};
+	static const u32	ShiftB {8};
+	static const u32	ShiftA {0};
 
-	static const u32	BitsR = 8;
-	static const u32	BitsG = 8;
-	static const u32	BitsB = 8;
-	static const u32	BitsA = 8;
+	static const u32	BitsR {8};
+	static const u32	BitsG {8};
+	static const u32	BitsB {8};
+	static const u32	BitsA {8};
 };
 DAEDALUS_STATIC_ASSERT( sizeof( N64Pf8888 ) == 4 );
 
@@ -154,14 +154,14 @@ struct N64PfIA8
 	u8	GetI() const { u8 i( ( Bits & MaskI ) >> ShiftI ); return (i << (8 - BitsI)) | (i >> (BitsI - (8 - BitsI))); }
 	u8	GetA() const { u8 a( ( Bits & MaskA ) >> ShiftA ); return (a << (8 - BitsA)) | (a >> (BitsA - (8 - BitsA))); }
 
-	static const u32	MaskI = 0xf0;
-	static const u32	MaskA = 0x0f;
+	static const u32	MaskI {0xf0};
+	static const u32	MaskA {0x0f};
 
-	static const u32	ShiftI = 4;
-	static const u32	ShiftA = 0;
+	static const u32	ShiftI {4};
+	static const u32	ShiftA {};
 
-	static const u32	BitsI = 4;
-	static const u32	BitsA = 4;
+	static const u32	BitsI {4};
+	static const u32	BitsA {4};
 };
 DAEDALUS_STATIC_ASSERT( sizeof( N64PfIA8 ) == 1 );
 
@@ -186,14 +186,14 @@ struct N64PfIA16
 	u8	GetB() const { return I; }
 	u8	GetA() const { return A; }
 
-	static const u32	MaskI = 0xff00;
-	static const u32	MaskA = 0x00ff;
+	static const u32	MaskI {0xff00};
+	static const u32	MaskA {0x00ff};
 
-	static const u32	ShiftI = 8;
-	static const u32	ShiftA = 0;
+	static const u32	ShiftI {8};
+	static const u32	ShiftA {};
 
-	static const u32	BitsI = 8;
-	static const u32	BitsA = 8;
+	static const u32	BitsI {8};
+	static const u32	BitsA {8};
 };
 DAEDALUS_STATIC_ASSERT( sizeof( N64PfIA16 ) == 2 );
 
@@ -217,11 +217,11 @@ struct N64PfI8
 	u8	GetB() const { return I; }
 	u8	GetA() const { return I; }		// Always I and not 255?
 
-	static const u32	MaskI = 0xff;
+	static const u32	MaskI {0xff};
 
-	static const u32	ShiftI = 0;
+	static const u32	ShiftI {};
 
-	static const u32	BitsI = 8;
+	static const u32	BitsI {};
 };
 DAEDALUS_STATIC_ASSERT( sizeof( N64PfI8 ) == 1 );
 

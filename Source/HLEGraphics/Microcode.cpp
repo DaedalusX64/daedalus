@@ -64,14 +64,14 @@ static bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char
 
 	const s8 * ram( g_ps8RamBase );
 
-	for ( u32 i = 0; i+2 < data_size; i++ )
+	for ( u32 i {}; i+2 < data_size; i++ )
 	{
 		if ( ram[ (data_base + i+0) ^ 3 ] == 'R' &&
 			 ram[ (data_base + i+1) ^ 3 ] == 'S' &&
 			 ram[ (data_base + i+2) ^ 3 ] == 'P' )
 		{
-			char * p = str;
-			char * e = str+str_len;
+			char * p {str};
+			char * e {str+str_len};
 
 			// Loop while we haven't filled our buffer, and there's space for our terminator
 			while (p+1 < e)
@@ -97,7 +97,7 @@ static u32 GBIMicrocode_MicrocodeHash(u32 code_base, u32 code_size)
 
 	const u8 * ram( g_pu8RamBase );
 
-	u32 hash = 0;
+	u32 hash {};
 	for (u32 i = 0; i < code_size; ++i)
 	{
 		hash = (hash << 4) + hash + ram[ (code_base+i) ^ U8_TWIDDLE ];   // Best hash ever!
@@ -120,35 +120,35 @@ struct MicrocodeData
 	u32	hash;
 };
 
-static const MicrocodeData gMicrocodeData[] = 
+static const MicrocodeData gMicrocodeData[] =
 {
 	//
 	//	The only games that need defining are custom ucodes and incorrectly detected ones
 	//	If you believe a title should be here post the line for it from ucodes.txt @ http://www.daedalusx64.com
 	//	Note - Games are in alphabetical order by game title
 	//
-	{ GBI_CONKER,	GBI_2,	0x60256efc	},	//"RSP Gfx ucode F3DEXBG.NoN fifo 2.08  Yoshitaka Yasumoto 1999 Nintendo.", "Conker's Bad Fur Day"}, 
+	{ GBI_CONKER,	GBI_2,	0x60256efc	},	//"RSP Gfx ucode F3DEXBG.NoN fifo 2.08  Yoshitaka Yasumoto 1999 Nintendo.", "Conker's Bad Fur Day"},
 	{ GBI_LL,		GBI_1,	0x6d8bec3e	},	//"", "Dark Rift"},
-	{ GBI_DKR,		GBI_0,	0x0c10181a	},	//"", "Diddy Kong Racing (v1.0)"}, 
-	{ GBI_DKR,		GBI_0,	0x713311dc	},	//"", "Diddy Kong Racing (v1.1)"}, 
-	{ GBI_GE,		GBI_0,	0x23f92542	},	//"RSP SW Version: 2.0G, 09-30-96", "GoldenEye 007"}, 
-	{ GBI_DKR,		GBI_0,	0x169dcc9d	},	//"", "Jet Force Gemini"},														
-	{ GBI_LL,		GBI_1,	0x26da8a4c	},	//"", "Last Legion UX"},							
-	{ GBI_PD,		GBI_0,	0xcac47dc4	},	//"", "Perfect Dark (v1.1)"}, 
-	{ GBI_SE,		GBI_0,	0x6cbb521d	},	//"RSP SW Version: 2.0D, 04-01-96", "Star Wars - Shadows of the Empire (v1.0)"}, 
-	{ GBI_LL,		GBI_1,	0xdd560323	},	//"", "Toukon Road - Brave Spirits"},											
+	{ GBI_DKR,		GBI_0,	0x0c10181a	},	//"", "Diddy Kong Racing (v1.0)"},
+	{ GBI_DKR,		GBI_0,	0x713311dc	},	//"", "Diddy Kong Racing (v1.1)"},
+	{ GBI_GE,		GBI_0,	0x23f92542	},	//"RSP SW Version: 2.0G, 09-30-96", "GoldenEye 007"},
+	{ GBI_DKR,		GBI_0,	0x169dcc9d	},	//"", "Jet Force Gemini"},
+	{ GBI_LL,		GBI_1,	0x26da8a4c	},	//"", "Last Legion UX"},
+	{ GBI_PD,		GBI_0,	0xcac47dc4	},	//"", "Perfect Dark (v1.1)"},
+	{ GBI_SE,		GBI_0,	0x6cbb521d	},	//"RSP SW Version: 2.0D, 04-01-96", "Star Wars - Shadows of the Empire (v1.0)"},
+	{ GBI_LL,		GBI_1,	0xdd560323	},	//"", "Toukon Road - Brave Spirits"},
 	{ GBI_WR,		GBI_0,	0x64cc729d	},	//"RSP SW Version: 2.0D, 04-01-96", "Wave Race 64"},
 };
 
 u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size, CustomMicrocodeCallback custom_callback )
 {
 	// I think only checking code_base should be enough..
-	u32 idx = code_base + data_base;
+	u32 idx {code_base + data_base};
 
 	// Cheap way to cache ucodes, don't check for strings (too slow!) but check last used ucode entries which is alot faster than string comparison.
 	// This only needed for GBI1/2/SDEX ucodes that use LoadUcode, else we only check when code_base changes, which usually never happens
 	//
-	u32 i;
+	u32 i ;
 	for( i = 0; i < MAX_UCODE_CACHE_ENTRIES; i++ )
 	{
 		const UcodeInfo &used( gUcodeInfo[ i ] );
@@ -194,10 +194,10 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 		// If it wasn't a custom ucode
 		// See if we can identify it by string, if no match was found set default for Fast3D ucode
 		//
-		const char  *ucodes[] = { "F3", "L3", "S2DEX" };
-		char 		*match = 0;
+		const char  *ucodes[] { "F3", "L3", "S2DEX" };
+		char 		*match {};
 
-		for(u32 j = 0; j<3;j++)
+		for(u32 j {}; j<3;j++)
 		{
 			if( (match = strstr(str, ucodes[j])) )
 				break;
@@ -243,4 +243,3 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 
 	return ucode_version;
 }
-

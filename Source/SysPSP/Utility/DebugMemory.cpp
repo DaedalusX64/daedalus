@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #if defined( DAEDALUS_LOG_ALLOCATIONS ) || defined( _DEBUG )
 
 #define SAVE_RA( ra )						\
-		u32 ra;								\
+		u32 ra {0};								\
 		asm volatile						\
 			 (								\
 			 "sw $ra, %0\n"					\

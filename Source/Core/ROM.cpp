@@ -52,13 +52,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #if defined(DAEDALUS_ENABLE_DYNAREC_PROFILE) || defined(DAEDALUS_W32)
 // This isn't really the most appropriate place. Need to check with
 // the graphics plugin really
-u32 g_dwNumFrames = 0;
+u32 g_dwNumFrames {};
 #endif
 
 RomInfo g_ROM;
 
 static void DumpROMInfo( const ROMHeader & header )
 {
+	// Leave this in public build, it's useful information
 	// The "Header" is actually something to do with the PI_DOM_*_OFS values...
 	DBGConsole_Msg(0, "Header:          0x%02x%02x%02x%02x", header.x1, header.x2, header.x3, header.x4);
 	DBGConsole_Msg(0, "Clockrate:       0x%08x", header.ClockRate);
@@ -85,8 +86,8 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 		   RAMROM_BOOTSTRAP_OFFSET,
 		   RAMROM_GAME_OFFSET - RAMROM_BOOTSTRAP_OFFSET );
 
-	// Need to copy crap to SP_IMEM for CIC-6105 boot.
-	u8 * pIMemBase = (u8*)g_pMemoryBuffers[ MEM_SP_MEM ] + 0x1000;
+	// Need to copy to SP_IMEM for CIC-6105 boot.
+	u8 * pIMemBase {(u8*)g_pMemoryBuffers[ MEM_SP_MEM ] + 0x1000};
 
 	//FIX ME: Some of these are redundant, see CPU_RomOpen
 	//
@@ -365,7 +366,7 @@ void SpecificGameHacks( const ROMHeader & id )
 		break;
 	case 0x4B42:	//Banjo-Kazooie
 		g_ROM.TLUT_HACK = true;
-		g_ROM.DISABLE_LBU_OPT = true;
+	//	g_ROM.DISABLE_LBU_OPT = true;
 		break;
 	//case 0x5750:	//PilotWings64
 	case 0x4450:	//Perfect Dark
@@ -616,7 +617,7 @@ static const CountryIDInfo g_CountryCodeInfo[] =
 // Get a string representing the country name from an ID value
 const char * ROM_GetCountryNameFromID( u8 country_id )
 {
-	for (u32 i = 0; i < ARRAYSIZE( g_CountryCodeInfo ); i++)
+	for (u32 i {}; i < ARRAYSIZE( g_CountryCodeInfo ); i++)
 	{
 		if (g_CountryCodeInfo[i].CountryID == country_id)
 		{
@@ -629,7 +630,7 @@ const char * ROM_GetCountryNameFromID( u8 country_id )
 
 u32 ROM_GetTvTypeFromID( u8 country_id )
 {
-	for (u32 i = 0; i < ARRAYSIZE( g_CountryCodeInfo ); i++)
+	for (u32 i {}; i < ARRAYSIZE( g_CountryCodeInfo ); i++)
 	{
 		if (g_CountryCodeInfo[i].CountryID == country_id)
 		{

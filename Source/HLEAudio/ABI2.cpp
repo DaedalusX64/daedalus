@@ -37,21 +37,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 static void SPNOOP( AudioHLECommand command )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg( 0, "AudioHLE: Unknown/Unimplemented Audio Command %i in ABI 2", command.cmd );
+	#endif
 }
 
-bool isMKABI = false;
-bool isZeldaABI = false;
+bool isMKABI {false};
+bool isZeldaABI {false};
 
-static u32 gEnv_t3, gEnv_s5, gEnv_s6;
-static u16 env[8];
+static u32 gEnv_t3 {}, gEnv_s5 {}, gEnv_s6 {};
+static u16 env[8] {};
 
 inline u16 Sample_Mask( u32 x )
 {
 	return (u16)( x & 0xffff );
 }
-
-
 
 static void LOADADPCM2( AudioHLECommand command )
 {
@@ -140,10 +140,10 @@ static void Decode8( int (&inp1)[8], u32 icode_a, u32 icode_b, u32 icode_c, u32 
 
 static void ADPCM2_Decode4( int (&inp1)[8], int (&inp2)[8], u32 inPtr, u8 code )
 {
-	u32 icode_a=gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+0)^3];
-	u32 icode_b=gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+1)^3];
-	u32 icode_c=gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+2)^3];
-	u32 icode_d=gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+3)^3];
+	u32 icode_a {gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+0)^3]};
+	u32 icode_b {gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+1)^3]};
+	u32 icode_c {gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+2)^3]};
+	u32 icode_d {gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+3)^3]};
 
 	if( code < 0xE )
 	{
@@ -160,14 +160,14 @@ static void ADPCM2_Decode4( int (&inp1)[8], int (&inp2)[8], u32 inPtr, u8 code )
 
 static void ADPCM2_Decode8( int (&inp1)[8], int (&inp2)[8], u32 inPtr, u8 code )
 {
-	u32 icode_a=gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+0)^3];
-	u32 icode_b=gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+1)^3];
-	u32 icode_c=gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+2)^3];
-	u32 icode_d=gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+3)^3];
-	u32 icode_e=gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+4)^3];
-	u32 icode_f=gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+5)^3];
-	u32 icode_g=gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+6)^3];
-	u32 icode_h=gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+7)^3];
+	u32 icode_a {gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+0)^3]};
+	u32 icode_b {gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+1)^3]};
+	u32 icode_c {gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+2)^3]};
+	u32 icode_d {gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+3)^3]};
+	u32 icode_e {gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+4)^3]};
+	u32 icode_f {gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+5)^3]};
+	u32 icode_g {gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+6)^3]};
+	u32 icode_h {gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr+7)^3]};
 
 	if( code < 0xC )
 	{
@@ -198,9 +198,9 @@ static void ADPCM2_Loop( s32 (&a)[8], int (&i1)[8], const s16 * b1, const s16 * 
 	a[6] = ((int)b1[6]*l1) + ((int)b2[6]*l2) + ((int)b2[5]*i1[0]) + ((int)b2[4]*i1[1]) + ((int)b2[3]*i1[2]) + ((int)b2[2]*i1[3]) + ((int)b2[1]*i1[4]) + ((int)b2[0]*i1[5]) + ((int)i1[6]*scl);
 	a[7] = ((int)b1[7]*l1) + ((int)b2[7]*l2) + ((int)b2[6]*i1[0]) + ((int)b2[5]*i1[1]) + ((int)b2[4]*i1[2]) + ((int)b2[3]*i1[3]) + ((int)b2[2]*i1[4]) + ((int)b2[1]*i1[5]) + ((int)b2[0]*i1[6]) + ((int)i1[7]*scl);
 
-	for(u32 j=0;j<8;j++)
+	for(u32 j {}; j<8; j++)
 	{
-		s16 r = Saturate<s16>( a[j^1] >> 11 );
+		s16 r {Saturate<s16>( a[j^1] >> 11 )};
 		a[j^1] = r;
 		out[j]=r;		// XXXX endian issues
 	}
@@ -209,9 +209,9 @@ static void ADPCM2_Loop( s32 (&a)[8], int (&i1)[8], const s16 * b1, const s16 * 
 static void ADPCM2( AudioHLECommand command )
 {
 	// Verified to be 100% Accurate...
-	u8 Flags=(u8)((command.cmd0>>16)&0xff);
+	u8 Flags {(u8)((command.cmd0>>16)&0xff)};
 	//u16 Gain=(u16)(command.cmd0&0xffff);	// XXXX Unused
-	u32 Address=(command.cmd1 & 0xffffff);// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
+	u32 Address {(command.cmd1 & 0xffffff)};// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
 
 	bool init( (Flags&0x1) != 0 );
 	bool loop( (Flags&0x2) != 0 );
@@ -228,26 +228,26 @@ static void ADPCM2( AudioHLECommand command )
 		memcpy(out,&rdram[src_addr],32);		// XXXX Endian issues?
 	}
 
-	u16 inPtr=0;
+	u16 inPtr {};
 
 	s32 a[8] = { 0,0,0,0,0,0,out[15],out[14] };		// XXXX Endian issues - should be 14/15^TWIDDLE?
 
 	out+=16;
-	short count=gAudioHLEState.Count;
+	short count {(short)gAudioHLEState.Count};
 	while(count>0)
 	{
-		u8 idx_code=gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr)^3];
+		u8 idx_code {gAudioHLEState.Buffer[(gAudioHLEState.InBuffer+inPtr)^3]};
 		inPtr++;
 
 		u16 index((idx_code&0xf)<<4);
 		u8	code(idx_code>>=4);
 
-		s16 * book1=(s16 *)&gAudioHLEState.ADPCMTable[index];
-		s16 * book2=book1+8;
+		s16 * book1 {(s16 *)&gAudioHLEState.ADPCMTable[index]};
+		s16 * book2 {book1+8};
 
 		// Decode inputs
-		int inp1[8];
-		int inp2[8];
+		int inp1[8] {};
+		int inp2[8] {};
 
 		if( decode4 )
 		{
@@ -335,7 +335,7 @@ static void ENVSETUP1( AudioHLECommand command )
 {
 	//fprintf (dfile, "ENVSETUP1: cmd0 = %08X, cmd1 = %08X\n", command.cmd0, command.cmd1);
 	gEnv_t3 = command.cmd0 & 0xFFFF;
-	u32 tmp	= (command.cmd0 >> 0x8) & 0xFF00;
+	u32 tmp	{(command.cmd0 >> 0x8) & 0xFF00};
 	env[4] = Sample_Mask(tmp);
 	env[5] = Sample_Mask(tmp + gEnv_t3);
 	gEnv_s5 = command.cmd1 >> 0x10;
@@ -346,11 +346,11 @@ static void ENVSETUP1( AudioHLECommand command )
 static void ENVSETUP2( AudioHLECommand command )
 {
 	//fprintf (dfile, "ENVSETUP2: cmd0 = %08X, cmd1 = %08X\n", command.cmd0, command.cmd1);
-	u32 tmp1 = (command.cmd1 >> 0x10);
+	u32 tmp1 {(command.cmd1 >> 0x10)};
 	env[0] = Sample_Mask(tmp1);
 	env[1] = Sample_Mask(tmp1 + gEnv_s5);
 
-	u32 tmp2 = command.cmd1 & 0xffff;
+	u32 tmp2 {command.cmd1 & 0xffff};
 	env[2] = Sample_Mask(tmp2);
 	env[3] = Sample_Mask(tmp2 + gEnv_s6);
 	//fprintf (dfile, "	env[0] = %X / env[1] = %X / env[2] = %X / env[3] = %X\n", env[0], env[1], env[2], env[3]);
@@ -359,24 +359,24 @@ static void ENVSETUP2( AudioHLECommand command )
 static void ENVMIXER2( AudioHLECommand command )
 {
 	//fprintf (dfile, "ENVMIXER: cmd0 = %08X, cmd1 = %08X\n", command.cmd0, command.cmd1);
-	s16 vec9, vec10;
+	s16 vec9 {}, vec10 {};
 
-	s16 *buffs3 = (s16 *)(gAudioHLEState.Buffer + ((command.cmd0 >> 0x0c)&0x0ff0));
-	s16 *bufft6 = (s16 *)(gAudioHLEState.Buffer + ((command.cmd1 >> 0x14)&0x0ff0));
-	s16 *bufft7 = (s16 *)(gAudioHLEState.Buffer + ((command.cmd1 >> 0x0c)&0x0ff0));
-	s16 *buffs0 = (s16 *)(gAudioHLEState.Buffer + ((command.cmd1 >> 0x04)&0x0ff0));
-	s16 *buffs1 = (s16 *)(gAudioHLEState.Buffer + ((command.cmd1 << 0x04)&0x0ff0));
+	s16 *buffs3 {(s16 *)(gAudioHLEState.Buffer + ((command.cmd0 >> 0x0c)&0x0ff0))};
+	s16 *bufft6 {(s16 *)(gAudioHLEState.Buffer + ((command.cmd1 >> 0x14)&0x0ff0))};
+	s16 *bufft7 {(s16 *)(gAudioHLEState.Buffer + ((command.cmd1 >> 0x0c)&0x0ff0))};
+	s16 *buffs0 {(s16 *)(gAudioHLEState.Buffer + ((command.cmd1 >> 0x04)&0x0ff0))};
+	s16 *buffs1 {(s16 *)(gAudioHLEState.Buffer + ((command.cmd1 << 0x04)&0x0ff0))};
 
 
-	s16 v2[8];
+	s16 v2[8] {};
 	v2[0] = 0 - (s16)((command.cmd0 & 0x2) >> 1);
 	v2[1] = 0 - (s16)((command.cmd0 & 0x1));
 	v2[2] = 0 - (s16)((command.cmd0 & 0x8) >> 1);
 	v2[3] = 0 - (s16)((command.cmd0 & 0x4) >> 1);
 
-	s32 count = (command.cmd0 >> 8) & 0xff;
+	s32 count {(s32)(command.cmd0 >> 8) & 0xff};
 
-	u32 adder;
+	u32 adder {};
 	if (!isMKABI)
 	{
 		gEnv_s5 *= 2; gEnv_s6 *= 2; gEnv_t3 *= 2;
@@ -392,7 +392,7 @@ static void ENVMIXER2( AudioHLECommand command )
 
 	while (count > 0)
 	{
-		int temp;
+		int temp {};
 		for (int x=0; x < 0x8; x++)
 		{
 			vec9  = (s16)(((s32)buffs3[x^1] * (u32)env[0]) >> 0x10) ^ v2[0];
@@ -420,7 +420,7 @@ static void ENVMIXER2( AudioHLECommand command )
 		}
 
 		if (!isMKABI)
-		for (int x=0x8; x < 0x10; x++)
+		for (int x = 0x8; x < 0x10; x++)
 		{
 			vec9  = (s16)(((s32)buffs3[x^1] * (u32)env[1]) >> 0x10) ^ v2[0];
 			vec10 = (s16)(((s32)buffs3[x^1] * (u32)env[3]) >> 0x10) ^ v2[1];
@@ -459,11 +459,11 @@ static void ENVMIXER2( AudioHLECommand command )
 
 static void DUPLICATE2( AudioHLECommand command )
 {
-	u32 Count = (command.cmd0 >> 16) & 0xff;
-	u32 In  = command.cmd0&0xffff;
-	u32 Out = command.cmd1>>16;
+	u32 Count {(command.cmd0 >> 16) & 0xff};
+	u32 In  {command.cmd0&0xffff};
+	u32 Out {command.cmd1>>16};
 
-	u16 buff[64];
+	u16 buff[64] {};
 
 	memcpy(buff,gAudioHLEState.Buffer+In,128);
 
@@ -504,7 +504,9 @@ static void INTERLEAVE2( AudioHLECommand command )  // Needs accuracy verificati
 // XXXX Doesn't seem to do anything!
 static void ADDMIXER( AudioHLECommand command )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "ADDMIXER - broken?" );
+	#endif
 	/*u32 Count     = (command.cmd0 >> 12) & 0x00ff0;
 	u32 InBuffer  = (command.cmd1 >> 16);
 	u32 OutBuffer = command.cmd1 & 0xffff;
@@ -521,11 +523,10 @@ static void ADDMIXER( AudioHLECommand command )
 
 static void HILOGAIN( AudioHLECommand command )
 {
-	u32 count = command.cmd0 & 0xffff;
-	s32 hi  = (s16)((command.cmd0 >> 4) & 0xf000);
-	u32 lo  = (command.cmd0 >> 20) & 0xf;
-
-	u32 out = (command.cmd1 >> 16) & 0xffff;
+	u32 count {command.cmd0 & 0xffff};
+	s32 hi  {(s16)((command.cmd0 >> 4) & 0xf000)};
+	u32 lo  {(command.cmd0 >> 20) & 0xf};
+	u32 out {(command.cmd1 >> 16) & 0xffff};
 	s16 *src = (s16 *)(gAudioHLEState.Buffer+out);
 
 	while( count )
@@ -539,11 +540,11 @@ static void HILOGAIN( AudioHLECommand command )
 
 static void FILTER2( AudioHLECommand command )
 {
-	static int cnt = 0;
-	static s16 *lutt6;
-	static s16 *lutt5;
-	u8 *save = (rdram+(command.cmd1&0xFFFFFF));
-	u8 t4 = (u8)((command.cmd0 >> 0x10) & 0xFF);
+	static int cnt {};
+	static s16 *lutt6 {};
+	static s16 *lutt5 {};
+	u8 *save {(rdram+(command.cmd1&0xFFFFFF))};
+	u8 t4 {(u8)((command.cmd0 >> 0x10) & 0xFF)};
 
 	if (t4 > 1) { // Then set the cnt variable
 		cnt = (command.cmd0 & 0xFFFF);
@@ -562,18 +563,17 @@ static void FILTER2( AudioHLECommand command )
 //			lutt5 = (short *)(dmem + 0xFC0);
 //			lutt6 = (short *)(dmem + 0xFE0);
 	for (int x = 0; x < 8; x++) {
-		s32 a;
-		a = (lutt5[x] + lutt6[x]) >> 1;
+		s32 a = (lutt5[x] + lutt6[x]) >> 1;
 		lutt5[x] = lutt6[x] = (short)a;
 	}
-	short *inp1, *inp2;
-	s32 out1[8];
+	short *inp1 {}, *inp2 {};
+	s32 out1[8] {};
 	s16 outbuff[0x3c0], *outp;
-	u32 inPtr = (u32)(command.cmd0&0xffff);
+	u32 inPtr {(u32)(command.cmd0&0xffff)};
 	inp1 = (short *)(save);
 	outp = outbuff;
 	inp2 = (short *)(gAudioHLEState.Buffer+inPtr);
-	for (int x = 0; x < cnt; x+=0x10) {
+	for (int x {}; x < cnt; x+=0x10) {
 		out1[1] =  inp1[0]*lutt6[6];
 		out1[1] += inp1[3]*lutt6[7];
 		out1[1] += inp1[2]*lutt6[4];

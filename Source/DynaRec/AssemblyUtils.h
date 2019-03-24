@@ -68,7 +68,6 @@ public:
 		//return reinterpret_cast< u8 * >( mpLocation );
 	}
 
-
 private:
 	void *			mpLocation;		// This is the location of a jump instruction
 };

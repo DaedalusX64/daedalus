@@ -38,24 +38,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <pspctrl.h>
 #include <pspgu.h>
+#include "PSPMenu.h"
 
-namespace
-{
-	const u32		TEXT_AREA_TOP = 15+16+16;
-	const u32		TEXT_AREA_LEFT = 40;
-	const u32		TEXT_AREA_RIGHT = 440;
-
-	const s32		DESCRIPTION_AREA_TOP = 0;		// We render text aligned from the bottom, so this is largely irrelevant
-	const s32		DESCRIPTION_AREA_BOTTOM = 272-10;
-	const s32		DESCRIPTION_AREA_LEFT = 16;
-	const s32		DESCRIPTION_AREA_RIGHT = 480-16;
-
-
-}
-
-//*************************************************************************************
 //
-//*************************************************************************************
+
 class ISelectedRomComponent : public CSelectedRomComponent
 {
 	public:
@@ -83,32 +69,32 @@ class ISelectedRomComponent : public CSelectedRomComponent
 		RomID						mRomID;
 };
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 CSelectedRomComponent::CSelectedRomComponent( CUIContext * p_context )
 :	CUIComponent( p_context )
 {
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 CSelectedRomComponent::~CSelectedRomComponent()
 {
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 CSelectedRomComponent *	CSelectedRomComponent::Create( CUIContext * p_context, CFunctor * on_start_emulation )
 {
 	return new ISelectedRomComponent( p_context, on_start_emulation );
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 ISelectedRomComponent::ISelectedRomComponent( CUIContext * p_context, CFunctor * on_start_emulation )
 :	CSelectedRomComponent( p_context )
 ,	OnStartEmulation( on_start_emulation )
@@ -124,17 +110,13 @@ ISelectedRomComponent::ISelectedRomComponent( CUIContext * p_context, CFunctor *
 	mElements.SetSelected( i );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 ISelectedRomComponent::~ISelectedRomComponent()
 {
 	delete OnStartEmulation;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	ISelectedRomComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	if(old_buttons != new_buttons)
@@ -167,12 +149,12 @@ void	ISelectedRomComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 	}
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 void	ISelectedRomComponent::Render()
 {
-	mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, TEXT_AREA_TOP );
+	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN );
 
 	CUIElement *	element( mElements.GetSelectedElement() );
 	if( element != NULL )
@@ -189,9 +171,6 @@ void	ISelectedRomComponent::Render()
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void	ISelectedRomComponent::EditPreferences()
 {
 	CRomPreferencesScreen *	edit_preferences( CRomPreferencesScreen::Create( mpContext, mRomID ) );
@@ -199,9 +178,7 @@ void	ISelectedRomComponent::EditPreferences()
 	delete edit_preferences;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	ISelectedRomComponent::AdvancedOptions()
 {
 	CAdvancedOptionsScreen *	advanced_options( CAdvancedOptionsScreen::Create( mpContext, mRomID ) );
@@ -209,18 +186,14 @@ void	ISelectedRomComponent::AdvancedOptions()
 	delete advanced_options;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void	ISelectedRomComponent::CheatOptions()
 {
 	CCheatOptionsScreen *	cheat_options( CCheatOptionsScreen::Create( mpContext, mRomID ) );
 	cheat_options->Run();
 	delete cheat_options;
 }
-//*************************************************************************************
-//
-//*************************************************************************************
+
+
 void	ISelectedRomComponent::StartEmulation()
 {
 	if(OnStartEmulation != NULL)

@@ -44,6 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Translate.h"
 
 #include "Input/InputManager.h"
+#include "PSPMenu.h"
 
 extern u32 HAVE_DVE;
 extern u32 PSP_TV_CABLE;
@@ -52,14 +53,6 @@ extern bool PSP_IS_SLIM;
 
 namespace
 {
-	const u32		TEXT_AREA_TOP = 15+16+16;
-	const u32		TEXT_AREA_LEFT = 40;
-	const u32		TEXT_AREA_RIGHT = 440;
-
-	const s32		DESCRIPTION_AREA_TOP = 0;		// We render text aligned from the bottom, so this is largely irrelevant
-	const s32		DESCRIPTION_AREA_BOTTOM = 272-10;
-	const s32		DESCRIPTION_AREA_LEFT = 16;
-	const s32		DESCRIPTION_AREA_RIGHT = 480-16;
 
 	class CViewPortSetting : public CUISetting
 	{
@@ -201,7 +194,6 @@ namespace
 
 		virtual	void			OnSelected()
 		{
-//#ifdef DAEDALUS_DIALOGS
 			if(gShowDialog.Render( mpContext,"Reset HLE cache?", false) )
 			{
 				IO::Path::DeleteRecursive("SaveGames",".hle");
@@ -229,7 +221,6 @@ namespace
 
 				sceKernelExitGame();
 			}
-//#endif
 		}
 
 		virtual const char *	GetSettingName() const
@@ -297,9 +288,6 @@ namespace
 
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 class IGlobalSettingsComponent : public CGlobalSettingsComponent
 {
 	public:
@@ -315,35 +303,24 @@ class IGlobalSettingsComponent : public CGlobalSettingsComponent
 		CUIElementBag				mElements;
 };
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 CGlobalSettingsComponent::CGlobalSettingsComponent( CUIContext * p_context )
 :	CUIComponent( p_context )
-{
-}
+{}
 
-//*************************************************************************************
-//
-//*************************************************************************************
-CGlobalSettingsComponent::~CGlobalSettingsComponent()
-{
-}
 
-//*************************************************************************************
-//
-//*************************************************************************************
+CGlobalSettingsComponent::~CGlobalSettingsComponent() {}
+
+
 CGlobalSettingsComponent *	CGlobalSettingsComponent::Create( CUIContext * p_context )
 {
 	return new IGlobalSettingsComponent( p_context );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 :	CGlobalSettingsComponent( p_context )
 {
+
 	mElements.Add( new CInfoSetting( "Display Info", "Whether to show additional info while the rom is running. Some modes are only available in DEBUG mode") );
 	mElements.Add( new CViewPortSetting( "Viewport Size", "The size of the viewport on the PSP." ) );
 
@@ -357,7 +334,6 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 	{
 		gGlobalPreferences.TVEnable = false;
 	}
-
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.ForceLinearFilter,"Force Linear Filter", "Enable to force linear filter, this can improve the look of textures", "Yes", "No" ) );
 	mElements.Add( new CBoolSetting( &gGlobalPreferences.RumblePak,"Controller add-on", "Enable either MemPak or RumblePak.", "RumblePak", "MemPak" ) );
 	mElements.Add( new CAdjustDeadzoneSetting( mpContext, "Stick Deadzone", "Adjust the size of the deadzone applied to the PSP stick while playing. Press Start/X to edit." ) );
@@ -373,16 +349,10 @@ IGlobalSettingsComponent::IGlobalSettingsComponent( CUIContext * p_context )
 
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-IGlobalSettingsComponent::~IGlobalSettingsComponent()
-{
-}
 
-//*************************************************************************************
-//
-//*************************************************************************************
+IGlobalSettingsComponent::~IGlobalSettingsComponent() {}
+
+
 void	IGlobalSettingsComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	if(old_buttons != new_buttons)
@@ -416,12 +386,10 @@ void	IGlobalSettingsComponent::Update( float elapsed_time, const v2 & stick, u32
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IGlobalSettingsComponent::Render()
 {
-	mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, TEXT_AREA_TOP );
+	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN );
 
 	CUIElement *	element( mElements.GetSelectedElement() );
 	if( element != NULL )
@@ -437,4 +405,3 @@ void	IGlobalSettingsComponent::Render()
 	}
 
 }
-

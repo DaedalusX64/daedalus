@@ -63,12 +63,12 @@ private:
 private:
 	void *			mJobBuffer;
 	void *			mRunBuffer;
-	u32				mJobBufferSize;
+	u32				mJobBufferSize {};
 
 	ETaskMode		mTaskMode;
-	s32				mThread;
-	s32				mWorkReady;
-	s32				mWorkEmpty;
+	s32				mThread {};
+	s32				mWorkReady {};
+	s32				mWorkEmpty {};
 
 	volatile bool	mWantQuit;
 };

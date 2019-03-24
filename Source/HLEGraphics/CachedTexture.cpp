@@ -42,7 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/IO.h"
 #include "Utility/Profiler.h"
 
-static std::vector<u8>		gTexelBuffer;
+static std::vector<u8>		gTexelBuffer {};
 static NativePf8888			gPaletteBuffer[ 256 ];
 
 // NB: On the PSP we generate a lightweight hash of the texture data before
@@ -156,7 +156,7 @@ static void UpdateTexture( const TextureInfo & ti, CNativeTexture * texture )
 	if ( texture != NULL && texture->HasData() )
 	{
 		ETextureFormat	format = texture->GetFormat();
-		u32 			stride = texture->GetStride();
+		u32 			stride {texture->GetStride()};
 
 		void *	texels;
 		void *	palette;
@@ -180,8 +180,8 @@ static void UpdateTexture( const TextureInfo & ti, CNativeTexture * texture )
 			//
 			//	Mirror the texels if required (in-place)
 			//
-			bool mirror_s = ti.GetEmulateMirrorS();
-			bool mirror_t = ti.GetEmulateMirrorT();
+			bool mirror_s {ti.GetEmulateMirrorS()};
+			bool mirror_t {ti.GetEmulateMirrorT()};
 			if( mirror_s || mirror_t )
 			{
 				MirrorTexels( mirror_s, mirror_t, texels, stride, texels, stride, format, ti.GetWidth(), ti.GetHeight() );
@@ -226,8 +226,8 @@ bool CachedTexture::Initialise()
 {
 	DAEDALUS_ASSERT_Q(mpTexture == NULL);
 
-	u32 width  = mTextureInfo.GetWidth();
-	u32 height = mTextureInfo.GetHeight();
+	u32 width  {mTextureInfo.GetWidth()};
+	u32 height {mTextureInfo.GetHeight()};
 
 	if (mTextureInfo.GetEmulateMirrorS()) width  *= 2;
 	if (mTextureInfo.GetEmulateMirrorT()) height *= 2;
@@ -259,8 +259,8 @@ bool CachedTexture::UpdateTextureHash()
 		return true;
 	}
 
-	u32 new_hash_value = mTextureInfo.GenerateHashValue();
-	bool changed       = new_hash_value != mTextureContentsHash;
+	u32 new_hash_value {mTextureInfo.GenerateHashValue()};
+	bool changed       {new_hash_value != mTextureContentsHash};
 
 	mTextureContentsHash = new_hash_value;
 	return changed;

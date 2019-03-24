@@ -41,9 +41,9 @@ namespace
 }
 CTraceRecorder				gTraceRecorder;
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 CTraceRecorder::CTraceRecorder()
 :	mTracing( false )
 ,	mStartTraceAddress( 0 )
@@ -54,9 +54,9 @@ CTraceRecorder::CTraceRecorder()
 {
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 void	CTraceRecorder::StartTrace( u32 address )
 {
 	DAEDALUS_PROFILE( "CTraceRecorder::StartTrace" );
@@ -73,9 +73,9 @@ void	CTraceRecorder::StartTrace( u32 address )
 	mExpectedExitTraceAddress = address + 4;
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 																 bool branch_delay_slot,
 																 bool branch_taken,
@@ -199,8 +199,9 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 		else
 		{
 			// Must be conditional, direct
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( IsBranchTypeDirect( branch_type ), "Not expecting an indirect branch here" );
-
+			#endif
 			if( branch_taken )
 			{
 				// XXXXXX should be able to get this some other way?
@@ -220,7 +221,7 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 			u32		branch_target_address( GetBranchTarget( address, op_code, branch_type ) );
 			u32		fallthrough_address( address + 8 );
 
-			u32		target_address;
+			u32		target_address {};
 			if( branch_taken )
 			{
 				// We're following the branch.
@@ -265,26 +266,30 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 	return UTS_CONTINUE_TRACE;
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 void	CTraceRecorder::StopTrace( u32 exit_address )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mTracing, "We're not tracing" );
 	DAEDALUS_ASSERT( mActiveBranchIdx == INVALID_IDX, "Stopping trace when a branch is active" );
-
+#endif
 	mTracing = false;
 	mExpectedExitTraceAddress = exit_address;
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 CFragment *		CTraceRecorder::CreateFragment( CCodeBufferManager * p_manager )
 {
+	#ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
 	DAEDALUS_PROFILE( "CTraceRecorder::CreateFragment" );
-
+#endif
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( !mTraceBuffer.empty(), "No trace ready for creation?" );
+	#endif
 
 	SRegisterUsageInfo	register_usage;
 	Analyse( register_usage );
@@ -306,13 +311,14 @@ CFragment *		CTraceRecorder::CreateFragment( CCodeBufferManager * p_manager )
 	return p_frament;
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 void	CTraceRecorder::AbortTrace()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_PROFILE( "CTraceRecorder::AbortTrace" );
-
+#endif
 	if( mTracing )
 	{
 #ifdef LOG_ABORTED_TRACES
@@ -365,19 +371,20 @@ void	CTraceRecorder::AbortTrace()
 
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 void CTraceRecorder::Analyse( SRegisterUsageInfo & register_usage )
 {
+	#ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
 	DAEDALUS_PROFILE( "CTraceRecorder::Analyse" );
-
+#endif
 	std::pair< s32, s32 >		reg_spans[ NUM_N64_REGS ];
 	std::pair< s32, s32 >		invalid_span( std::pair< s32, s32 >( mTraceBuffer.size(), -1 ) );
 
 	std::fill( reg_spans, reg_spans + NUM_N64_REGS, invalid_span );		// Set the interval to an invalid range
 
-	for( u32 i = 0; i < mTraceBuffer.size(); ++i )
+	for( u32 i {}; i < mTraceBuffer.size(); ++i )
 	{
 		const STraceEntry & ti( mTraceBuffer[ i ] );
 		const StaticAnalysis::RegisterUsage&	usage = ti.Usage;
@@ -403,7 +410,7 @@ void CTraceRecorder::Analyse( SRegisterUsageInfo & register_usage )
 	register_usage.SpanList.reserve( NUM_N64_REGS );
 
 	// Iterate through registers, inserting all that are used into span list
-	for( u32 i = 0; i < NUM_N64_REGS; ++i )
+	for( u32 i {}; i < NUM_N64_REGS; ++i )
 	{
 		s32		start( reg_spans[ i ].first );
 		s32		end( reg_spans[ i ].second );

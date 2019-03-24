@@ -25,15 +25,15 @@ const T * AddByteOffset( const T * p, s32 offset )
 template< typename T >
 static void RecolourTexture( void * p_data, u32 width, u32 height, u32 stride, c32 c )
 {
-	u8		r = c.GetR();
-	u8		g = c.GetG();
-	u8		b = c.GetB();
+	u8		r {c.GetR()};
+	u8		g {c.GetG()};
+	u8		b {c.GetB()};
 
 	T *		data = reinterpret_cast< T * >( p_data );
 
-	for( u32 y = 0; y < height; ++y )
+	for( u32 y {}; y < height; ++y )
 	{
-		for( u32 x = 0; x < width; ++x )
+		for( u32 x {}; x < width; ++x )
 		{
 			data[x] = T( r, g, b, data[x].GetA() );
 		}
@@ -45,13 +45,13 @@ static void RecolourTexture( void * p_data, u32 width, u32 height, u32 stride, c
 template< typename T >
 static void RecolourPalette( void * p_data, u32 num_entries, c32 c )
 {
-	u8		r = c.GetR();
-	u8		g = c.GetG();
-	u8		b = c.GetB();
+	u8		r {c.GetR()};
+	u8		g {c.GetG()};
+	u8		b {c.GetB()};
 
 	T *		data = reinterpret_cast< T * >( p_data );
 
-	for( u32 x = 0; x < num_entries; ++x )
+	for( u32 x {}; x < num_entries; ++x )
 	{
 		data[x] = T( r, g, b, data[x].GetA() );
 	}
@@ -68,15 +68,20 @@ void Recolour( void * data, void * palette, u32 width, u32 height, u32 stride, E
 	case TexFmt_CI4_8888:	RecolourPalette< NativePf8888 >( palette, 16, colour );					return;
 	case TexFmt_CI8_8888:	RecolourPalette< NativePf8888 >( palette, 256, colour );				return;
 	}
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled texture format" );
+	#endif
 }
+
 
 template< typename T >
 static void ClampTexels( void * texels, u32 n64_width, u32 n64_height, u32 native_width, u32 native_height, u32 native_stride )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( native_stride >= native_width * sizeof( T ), "Native stride isn't big enough" );
 	DAEDALUS_ASSERT( n64_width <= native_width, "n64 width greater than native width?" );
 	DAEDALUS_ASSERT( n64_height <= native_height, "n64 height greater than native height?" );
+	#endif
 
 	T * data = reinterpret_cast< T * >( texels );
 
@@ -86,7 +91,7 @@ static void ClampTexels( void * texels, u32 n64_width, u32 n64_height, u32 nativ
 	//
 	if( native_width > n64_width )
 	{
-		for( u32 y = 0; y < n64_height; ++y )
+		for( u32 y {}; y < n64_height; ++y )
 		{
 			T	colour( data[ n64_width - 1 ] );
 
@@ -109,7 +114,7 @@ static void ClampTexels( void * texels, u32 n64_width, u32 n64_height, u32 nativ
 	//
 	if( native_height > n64_height )
 	{
-		const void * last_row = AddByteOffset( texels, ( n64_height - 1 ) * native_stride );
+		const void * last_row {AddByteOffset( texels, ( n64_height - 1 ) * native_stride )};
 
 		for( u32 y = n64_height; y < native_height; ++y )
 		{
@@ -131,7 +136,7 @@ void ClampTexels< NativePfCI44 >( void * texels, u32 n64_width, u32 n64_height, 
 	//
 	if( native_width > n64_width )
 	{
-		for( u32 y = 0; y < n64_height; ++y )
+		for( u32 y {}; y < n64_height; ++y )
 		{
 			NativePfCI44	colour0( data[ (n64_width - 1)] );
 			u8				colour;
@@ -190,7 +195,9 @@ void ClampTexels( void * texels, u32 n64_width, u32 n64_height, u32 native_width
 	case TexFmt_CI4_8888:	ClampTexels< NativePfCI44 >( texels, n64_width, n64_height, native_width, native_height, native_stride ); return;
 	case TexFmt_CI8_8888:	ClampTexels< NativePfCI8 > ( texels, n64_width, n64_height, native_width, native_height, native_stride ); return;
 	}
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled texture format" );
+	#endif
 }
 
 
@@ -203,7 +210,7 @@ static void CopyRow( T * dst, const T * src, u32 pixels )
 template<>
 void CopyRow( NativePfCI44 * dst, const NativePfCI44 * src, u32 pixels )
 {
-	for( u32 i = 0; i+1 < pixels; i += 2 )
+	for( u32 i {}; i+1 < pixels; i += 2 )
 	{
 		dst[ i/2 ] = src[ i/2 ];
 	}
@@ -221,9 +228,9 @@ void CopyRow( NativePfCI44 * dst, const NativePfCI44 * src, u32 pixels )
 template< typename T >
 static void CopyRowReverse( T * dst, const T * src, u32 pixels )
 {
-	u32 last_pixel = pixels * 2 - 1;
+	u32 last_pixel {pixels * 2 - 1};
 
-	for( u32 i = 0; i < pixels; ++i )
+	for( u32 i {}; i < pixels; ++i )
 	{
 		dst[ last_pixel - i ] = src[ i ];
 	}
@@ -232,27 +239,32 @@ static void CopyRowReverse( T * dst, const T * src, u32 pixels )
 template<>
 void CopyRowReverse( NativePfCI44 * dst, const NativePfCI44 * src, u32 pixels )
 {
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 	if( pixels & 1 )
 	{
 		// Odd
+
 		DAEDALUS_ERROR( "MirrorS unsupported for odd-width CI4 textures" );
+
 	}
 	else
 	{
+				#endif
 		// Even number of pixels
 
 		const u32	first_pair_idx( 0 );
 		const u32	last_pair_idx( pixels * 2 - 2 );
 
-		for( u32 i = 0; i < pixels; i += 2 )
+		for( u32 i {}; i < pixels; i += 2 )
 		{
 			u8		s( src[ (first_pair_idx + i) / 2 ].Bits );
 			u8		d( (s>>4) | (s<<4) );		// Swap
 
 			dst[ (last_pair_idx - i) / 2 ].Bits = d;
 		}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	}
+	#endif
 }
 
 
@@ -263,7 +275,7 @@ static void MirrorTexelsST( void * dst, u32 dst_stride, const void * src, u32 sr
 	T *			p_dst = reinterpret_cast< T * >( dst );
 	const T *	p_src = reinterpret_cast< const T * >( src );
 
-	for( u32 y = 0; y < height; ++y )
+	for( u32 y {}; y < height; ++y )
 	{
 		// Copy regular pixels
 		CopyRow< T >( p_dst, p_src, width );
@@ -280,7 +292,7 @@ static void MirrorTexelsST( void * dst, u32 dst_stride, const void * src, u32 sr
 	if( MirrorT )
 	{
 		// Copy remaining rows in reverse order
-		for( u32 y = 0; y < height; ++y )
+		for( u32 y {}; y < height; ++y )
 		{
 			p_src = AddByteOffset( p_src, -s32(src_stride) );
 
@@ -300,7 +312,7 @@ static void MirrorTexelsST( void * dst, u32 dst_stride, const void * src, u32 sr
 template< bool MirrorS, bool MirrorT >
 static void MirrorTexels( void * dst, u32 dst_stride, const void * src, u32 src_stride, ETextureFormat tex_fmt, u32 width, u32 height )
 {
-	bool handled = false;
+	bool handled {false};
 
 	switch(tex_fmt)
 	{
@@ -313,8 +325,11 @@ static void MirrorTexels( void * dst, u32 dst_stride, const void * src, u32 src_
 	case TexFmt_CI8_8888:	MirrorTexelsST< NativePfCI8 , MirrorS, MirrorT >( dst, dst_stride, src, src_stride, width, height ); handled = true; break;
 	}
 
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( handled, "Unhandled format" );
+	#endif
 }
+
 
 void MirrorTexels( bool mirror_s, bool mirror_t,
 				   void * dst, u32 dst_stride,

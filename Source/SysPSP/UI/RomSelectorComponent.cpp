@@ -19,62 +19,45 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 #include "RomSelectorComponent.h"
-
-#include <stdio.h>
-
-#include <string>
-#include <vector>
-#include <map>
-#include <algorithm>
+#include "UIContext.h"
+#include "UIScreen.h"
 
 #include <psptypes.h>
 #include <pspkernel.h>
 #include <pspctrl.h>
 #include <pspdisplay.h>
+#include <psputility.h>
 #include <pspgu.h>
 
-#include "UIContext.h"
-#include "UIScreen.h"
-#include "Dialogs.h"
+#include "Math/Vector2.h"
+#include "SysPSP/Graphics/DrawText.h"
+#include "Graphics/ColourValue.h"
+#include "Graphics/NativeTexture.h"
 
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
-#include "Graphics/ColourValue.h"
-#include "Graphics/NativeTexture.h"
-#include "Input/InputManager.h"
-#include "Math/MathUtil.h"
-#include "Math/Vector2.h"
-#include "SysPSP/Graphics/DrawText.h"
+
+#include "../../Input/InputManager.h"
+#include "../../Utility/Preferences.h"
+
+#include "Utility/IO.h"
+#include "Utility/ROMFile.h"
+
 #include "SysPSP/Utility/Buttons.h"
 #include "SysPSP/Utility/PathsPSP.h"
-#include "Utility/IO.h"
-#include "Utility/Macros.h"
-#include "Utility/Preferences.h"
-#include "Utility/ROMFile.h"
-#include "Utility/String.h"
+
+#include "Math/MathUtil.h"
+
+#include <string>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include "PSPMenu.h"
+
 
 namespace
 {
-	const char * const		gRomsDirectories[] =
-	{
-		"ms0:/n64/",
-		DAEDALUS_PSP_PATH( "Roms/" ),
-#ifndef DAEDALUS_SILENT
-		// For ease of developing with multiple source trees, common folder for roms can be placed at host1: in usbhostfs
-		"host1:/",
-#endif
-	};
 
-	const char		gCategoryLetters[] = "#abcdefghijklmnopqrstuvwxyz?";
-
-	enum ECategory
-	{
-		C_NUMBERS = 0,
-		C_A, C_B, C_C, C_D, C_E, C_F, C_G, C_H, C_I, C_J, C_K, C_L, C_M,
-		C_N, C_O, C_P, C_Q, C_R, C_S, C_T, C_U, C_V, C_W, C_X, C_Y, C_Z,
-		C_UNK,
-		NUM_CATEGORIES,
-	};
 
 	DAEDALUS_STATIC_ASSERT( ARRAYSIZE( gCategoryLetters ) == NUM_CATEGORIES +1 );
 
@@ -101,34 +84,6 @@ namespace
 		return gCategoryLetters[ category ];
 	}
 
-	const u32				ICON_AREA_TOP = 32;
-	const u32				ICON_AREA_LEFT = 5;
-	const u32				ICON_AREA_WIDTH = 256;
-	const u32				ICON_AREA_HEIGHT = 177;
-
-	const u32				TEXT_AREA_TOP = 32;
-	const u32				TEXT_AREA_LEFT = ICON_AREA_LEFT + ICON_AREA_WIDTH + 5;
-	const u32				TEXT_AREA_WIDTH = 480 - TEXT_AREA_LEFT;
-	const u32				TEXT_AREA_HEIGHT = 216;
-
-	const char * const		gNoRomsText[] =
-	{
-		"Daedalus could not find any roms to load.",
-		"You can add roms to the \\N64\\ directory on your memory stick,",
-		"(e.g. P:\\N64\\)",
-		"or the Roms directory within the Daedalus folder.",
-		"(e.g. P:\\PSP\\GAME\\Daedalus\\Roms\\)",
-		"Daedalus recognises a number of different filetypes,",
-		"including .zip, .z64, .v64, .rom, .bin, .pal, .usa and .jap.",
-	};
-
-	const u32				CATEGORY_AREA_TOP = TEXT_AREA_TOP + TEXT_AREA_HEIGHT + 5;
-	const u32				CATEGORY_AREA_LEFT = ICON_AREA_LEFT;
-
-	const char * const		gPreviewDirectory = DAEDALUS_PSP_PATH( "Resources/Preview/" );
-
-	const f32				PREVIEW_SCROLL_WAIT = 0.075f;		// seconds to wait for scrolling to stop before loading preview (prevent thrashing)
-	const f32				PREVIEW_FADE_TIME = 0.050f;			// seconds
 }
 
 //*************************************************************************************
@@ -241,7 +196,7 @@ class IRomSelectorComponent : public CRomSelectorComponent
 		std::string					mSelectedRom;
 
 		bool						mDisplayFilenames;
-//		bool						mDisplayInfo;
+	//	bool						mDisplayInfo;
 
 		CRefPtr<CNativeTexture>		mpPreviewTexture;
 		u32							mPreviewIdx;
@@ -249,9 +204,8 @@ class IRomSelectorComponent : public CRomSelectorComponent
 		float						mTimeSinceScroll;		//
 
 		bool						mRomDelete;
-#ifdef DAEDALUS_DIALOGS
 		bool						mQuitTriggered;
-#endif
+		bool						mQuitInit;
 };
 
 //*************************************************************************************
@@ -259,19 +213,11 @@ class IRomSelectorComponent : public CRomSelectorComponent
 //*************************************************************************************
 CRomSelectorComponent::CRomSelectorComponent( CUIContext * p_context )
 :	CUIComponent( p_context )
-{
-}
+{}
 
-//*************************************************************************************
-//
-//*************************************************************************************
-CRomSelectorComponent::~CRomSelectorComponent()
-{
-}
+CRomSelectorComponent::~CRomSelectorComponent() {}
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 CRomSelectorComponent *	CRomSelectorComponent::Create( CUIContext * p_context, CFunctor1< const char * > * on_rom_selected )
 {
 	return new IRomSelectorComponent( p_context, on_rom_selected );
@@ -291,9 +237,8 @@ IRomSelectorComponent::IRomSelectorComponent( CUIContext * p_context, CFunctor1<
 ,	mPreviewLoadedTime( 0.0f )
 ,	mTimeSinceScroll( 0.0f )
 ,	mRomDelete(false)
-#ifdef DAEDALUS_DIALOGS
 ,	mQuitTriggered(false)
-#endif
+,	mQuitInit(false)
 {
 	for( u32 i = 0; i < ARRAYSIZE( gRomsDirectories ); ++i )
 	{
@@ -419,8 +364,8 @@ void IRomSelectorComponent::DrawInfoText(  CUIContext * p_context, s32 y, const 
 {
 	c32			colour(	p_context->GetDefaultTextColour() );
 
-	p_context->DrawTextAlign( ICON_AREA_LEFT, ICON_AREA_LEFT + ICON_AREA_WIDTH, AT_LEFT, y, field_txt, colour );
-	p_context->DrawTextAlign( ICON_AREA_LEFT, ICON_AREA_LEFT + ICON_AREA_WIDTH, AT_RIGHT, y, value_txt, colour );
+	p_context->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_LEFT, y, field_txt, colour );
+	p_context->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_RIGHT, y, value_txt, colour );
 }
 
 //*************************************************************************************
@@ -428,11 +373,13 @@ void IRomSelectorComponent::DrawInfoText(  CUIContext * p_context, s32 y, const 
 //*************************************************************************************
 void IRomSelectorComponent::RenderPreview()
 {
-	//mpContext->DrawRect( ICON_AREA_LEFT-2, ICON_AREA_TOP-2, ICON_AREA_WIDTH+4, ICON_AREA_HEIGHT+4, c32::White );
-	//mpContext->DrawRect( ICON_AREA_LEFT-1, ICON_AREA_TOP-1, ICON_AREA_WIDTH+2, ICON_AREA_HEIGHT+2, mpContext->GetBackgroundColour() );
+	c32	clrGREY = c32( 195, 195, 195, 0 );
+	c32	clrORANGE = c32( 255, 128, 0, 0 );
+	c32	clrYELLOW = c32( 255, 255, 0, 0 );
 
-	v2	tl( ICON_AREA_LEFT, ICON_AREA_TOP );
-	v2	wh( ICON_AREA_WIDTH, ICON_AREA_HEIGHT );
+
+	v2	tl( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN );
+	v2	wh( PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT );
 
 	if( mpPreviewTexture != NULL )
 	{
@@ -443,22 +390,21 @@ void IRomSelectorComponent::RenderPreview()
 			colour = c32( 255, 255, 255, u8( mPreviewLoadedTime * 255.f / PREVIEW_FADE_TIME ) );
 		}
 
-		mpContext->DrawRect( ICON_AREA_LEFT, ICON_AREA_TOP, ICON_AREA_WIDTH, ICON_AREA_HEIGHT, c32::Black );
+		mpContext->DrawRect( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, c32::Black );
 		mpContext->RenderTexture( mpPreviewTexture, tl, wh, colour );
 	}
 	else
 	{
-		//mpContext->DrawRect( ICON_AREA_LEFT, ICON_AREA_TOP, ICON_AREA_WIDTH, ICON_AREA_HEIGHT, c32::Black );
-		mpContext->DrawRect( ICON_AREA_LEFT, ICON_AREA_TOP, ICON_AREA_WIDTH, ICON_AREA_HEIGHT, c32::White );
-		mpContext->DrawRect( ICON_AREA_LEFT+2, ICON_AREA_TOP+2, ICON_AREA_WIDTH-4, ICON_AREA_HEIGHT-4, c32::Black );
-		mpContext->DrawTextAlign( ICON_AREA_LEFT, ICON_AREA_LEFT + ICON_AREA_WIDTH, AT_CENTRE, ICON_AREA_TOP+ICON_AREA_HEIGHT/2, "No Preview Available", c32::White );
+		mpContext->DrawRect( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, c32::White );
+		mpContext->DrawRect( PREVIEW_IMAGE_LEFT+2, BELOW_MENU_MIN+2, PREVIEW_IMAGE_WIDTH-4, PREVIEW_IMAGE_HEIGHT-4, c32::Black );
+		mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_CENTRE, BELOW_MENU_MIN+PREVIEW_IMAGE_HEIGHT/2, "No Preview Available", c32::White );
 	}
 
 
 	u32		font_height( mpContext->GetFontHeight() );
 	u32		line_height( font_height + 1 );
 
-	s32 y = ICON_AREA_TOP + ICON_AREA_HEIGHT + 1 + font_height;
+	s32 y = BELOW_MENU_MIN + PREVIEW_IMAGE_HEIGHT + 1 + font_height;
 
 	if( mCurrentSelection < mRomsList.size() )
 	{
@@ -469,46 +415,39 @@ void IRomSelectorComponent::RenderPreview()
 		u32				rom_size( p_rominfo->mRomSize );
 
 		char buffer[ 32 ];
-
-		sprintf( buffer, "%s %s", country, cic_name);
-		DrawInfoText( mpContext, y, "Country:", buffer );
-		y += line_height;
 		sprintf( buffer, "%d MB", rom_size / (1024*1024) );
-		DrawInfoText( mpContext, y, "Size:", buffer );
-		y += line_height;
-		DrawInfoText( mpContext, y, "Save:", ROM_GetSaveTypeName( p_rominfo->mSettings.SaveType ) );
 
-		//y += line_height;
-		//DrawInfoTextL( mpContext, y, "EPak:", ROM_GetExpansionPakUsageName( p_rominfo->mSettings.ExpansionPakUsage ) );
+		DrawInfoText( mpContext, y, "Boot:", cic_name );	y += line_height;
+		DrawInfoText( mpContext, y, "Country:", country );	y += line_height;
+		DrawInfoText( mpContext, y, "Size:", buffer );	y += line_height;
+
+		DrawInfoText( mpContext, y, "Save:", ROM_GetSaveTypeName( p_rominfo->mSettings.SaveType ) ); y += line_height;
+		DrawInfoText( mpContext, y, "EPak:", ROM_GetExpansionPakUsageName( p_rominfo->mSettings.ExpansionPakUsage ) ); y += line_height;
+
 	}
 	else
 	{
-		DrawInfoText( mpContext, y, "Country:", "" );
-		y += line_height;
-		DrawInfoText( mpContext, y, "Size:", "" );
-		y += line_height;
-		DrawInfoText( mpContext, y, "Save:", "" );
+		DrawInfoText( mpContext, y, "Boot:", "" );		y += line_height;
+		DrawInfoText( mpContext, y, "Country:", "" );	y += line_height;
+		DrawInfoText( mpContext, y, "Size:", "" );		y += line_height;
 
-		//y += line_height;
-		//DrawInfoTextL( mpContext, y, "EPak:", "" );
+		DrawInfoText( mpContext, y, "Save:", "" );		y += line_height;
+		DrawInfoText( mpContext, y, "EPak:", "" );		y += line_height;
 	}
 }
-//*************************************************************************************
-//
-//*************************************************************************************
 void IRomSelectorComponent::RenderRomList()
 {
-	const f32	scale( 0.8333333f );
-	u32		font_height( scale * mpContext->GetFontHeight() );
+	u32		font_height( mpContext->GetFontHeight() );
 	u32		line_height( font_height + 2 );
 
-	s32		x( TEXT_AREA_LEFT );
-	s32		y( TEXT_AREA_TOP + mCurrentScrollOffset * scale + font_height );
+	s32		x,y;
+	x = LIST_TEXT_LEFT;
+	y = BELOW_MENU_MIN + mCurrentScrollOffset + font_height;
 
 	sceGuEnable(GU_SCISSOR_TEST);
-	sceGuScissor(TEXT_AREA_LEFT, TEXT_AREA_TOP, TEXT_AREA_LEFT+TEXT_AREA_WIDTH, TEXT_AREA_TOP+TEXT_AREA_HEIGHT);
+	sceGuScissor(LIST_TEXT_LEFT, BELOW_MENU_MIN, LIST_TEXT_LEFT+LIST_TEXT_WIDTH, BELOW_MENU_MIN+LIST_TEXT_HEIGHT);
 
-	const char * const	ptr_text( ">" );
+	const char * const	ptr_text( "> " );
 	u32					ptr_text_width( mpContext->GetTextWidth( ptr_text ) );
 
 	for(u32 i = 0; i < mRomsList.size(); ++i)
@@ -526,23 +465,20 @@ void IRomSelectorComponent::RenderRomList()
 		//
 		// Check if this entry would be onscreen
 		//
-		if(s32(y+line_height) >= s32(TEXT_AREA_TOP) && s32(y-line_height) < s32(TEXT_AREA_TOP + TEXT_AREA_HEIGHT))
+		if(s32(y+line_height) >= s32(BELOW_MENU_MIN) && s32(y-line_height) < s32(BELOW_MENU_MIN + LIST_TEXT_HEIGHT))
 		{
 			c32		colour;
 
 			if(i == mCurrentSelection)
 			{
 				colour = mpContext->GetSelectedTextColour();
-				mpContext->DrawTextScale( x, y, scale, ptr_text, colour );
+				mpContext->DrawText( x, y, ptr_text, colour );
 			}
 			else
 			{
-				//colour = mpContext->GetDefaultTextColour();
-				u32 mycol = 0xFF & (0xFF - 12 * abs(int (i-mCurrentSelection)));
-				colour = c32(mycol, mycol, mycol, mycol);
+				colour = mpContext->GetDefaultTextColour();
 			}
-
-			mpContext->DrawTextScale( x + ptr_text_width, y, scale, p_gamename, colour );
+			mpContext->DrawText( x + ptr_text_width, y, p_gamename, colour );
 		}
 		y += line_height;
 	}
@@ -550,13 +486,11 @@ void IRomSelectorComponent::RenderRomList()
 	// Restore scissoring
 	sceGuScissor(0,0, 480,272);
 }
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void IRomSelectorComponent::RenderCategoryList()
 {
-	s32 x = CATEGORY_AREA_LEFT;
-	s32 y = CATEGORY_AREA_TOP + mpContext->GetFontHeight();
+	s32 x = CATEGORY_TEXT_LEFT;
+	s32 y = CATEGORY_TEXT_TOP + mpContext->GetFontHeight();
 
 	ECategory current_category( GetCurrentCategory() );
 
@@ -588,11 +522,18 @@ void IRomSelectorComponent::RenderCategoryList()
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void IRomSelectorComponent::Render()
 {
+	static u32 count=0;
+
+	const char * const		message[] =
+	{	"(X) -> Load",
+		"([ ]) -> Settings",
+		"(/\\) -> File Names",
+		"(HOME) -> Quit",
+		"(SELECT) -> Delete"};
+
+
 	RenderPreview();
 
 	if( mRomsList.empty() )
@@ -600,7 +541,7 @@ void IRomSelectorComponent::Render()
 		s32 offset( 0 );
 		for( u32 i = 0; i < ARRAYSIZE( gNoRomsText ); ++i )
 		{
-			offset += mpContext->DrawTextArea( TEXT_AREA_LEFT, TEXT_AREA_TOP + offset, TEXT_AREA_WIDTH, TEXT_AREA_HEIGHT - offset, gNoRomsText[ i ], DrawTextUtilities::TextWhite, VA_TOP );
+			offset += mpContext->DrawTextArea( LIST_TEXT_LEFT, BELOW_MENU_MIN + offset, LIST_TEXT_WIDTH, LIST_TEXT_HEIGHT - offset, gNoRomsText[ i ], DrawTextUtilities::TextWhite, VA_TOP );
 			offset += 4;
 		}
 	}
@@ -612,41 +553,24 @@ void IRomSelectorComponent::Render()
 	RenderCategoryList();
 
 
-#ifdef DAEDALUS_DIALOGS
-	if(mQuitTriggered)
-	{
-		if(gShowDialog.Render( mpContext,"Do you want to exit?", false) )
-		{
-			sceKernelExitGame();
-		}
-		mQuitTriggered=false;
-	}
-#endif
-
-	//Render tool tip
-	//
-	static u32 count = 0;
-
-	const char * const message[] =
-	{	"(X) -> Load",
-		"(/\\) -> File Names",
-		"(HOME) -> Quit",
-		"(SELECT) -> Delete"
-	};
-
-	const c32 color = c32( 255.0f * sinf( 2.0f * 3.1415927f * (count & 0xFF) / 512.0f), 0, 0, 255);
+	//Show tool tip
+	c32 color;
+	if(count & 0x80) color = c32( ~count<<1, 0, 0, 255);
+	else color = c32( count<<1, 0, 0, 255);
 
 	if(mRomDelete)
 	{
-		mpContext->DrawTextAlign(0,480 - ICON_AREA_LEFT, AT_RIGHT, CATEGORY_AREA_TOP + mpContext->GetFontHeight(), "(X) -> Confirm", color);
+		mpContext->DrawTextAlign(0,470,AT_RIGHT,CATEGORY_TEXT_TOP + mpContext->GetFontHeight(),"(X) -> Confirm", color);
 	}
 	else
 	{
-		mpContext->DrawTextAlign(0,480 - ICON_AREA_LEFT, AT_RIGHT, CATEGORY_AREA_TOP + mpContext->GetFontHeight(), message[(count >> 8) % ARRAYSIZE( message )], color);
+		mpContext->DrawTextAlign(0,470,AT_RIGHT,CATEGORY_TEXT_TOP + mpContext->GetFontHeight(),	message[(count >> 8) % ARRAYSIZE( message )], color);
 	}
 
 	count++;
 }
+
+
 //*************************************************************************************
 //
 //*************************************************************************************
@@ -673,7 +597,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 
 	mDisplayFilenames = (new_buttons & PSP_CTRL_TRIANGLE) != 0;
 
-//	mDisplayInfo = (new_buttons & PSP_CTRL_SQUARE) != 0;
+	//mDisplayInfo = (new_buttons & PSP_CTRL_SQUARE) != 0;
 
 	if(old_buttons != new_buttons)
 	{
@@ -722,15 +646,12 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 				mCurrentSelection++;
 			}
 		}
+#ifndef DAEDALUS_PSP_GPROF
 		if(new_buttons & PSP_CTRL_HOME)
 		{
-#ifdef DAEDALUS_DIALOGS
-			mQuitTriggered = true;
-#else
 			sceKernelExitGame();
-#endif
 		}
-
+#endif
 		if(new_buttons & PSP_CTRL_CROSS && mRomDelete)	// DONT CHANGE ORDER
 		{
 			remove( mSelectedRom.c_str() );
@@ -792,16 +713,16 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 	const u32		font_height( mpContext->GetFontHeight() );
 	const u32		line_height( font_height + 2 );
 
-	if( mRomsList.size() * line_height > TEXT_AREA_HEIGHT )
+	if( mRomsList.size() * line_height > LIST_TEXT_HEIGHT )
 	{
 		s32		current_selection_y = s32((mCurrentSelection + current_vel * 2) * line_height) + (line_height/2) + mCurrentScrollOffset;
 
-		s32		adjust_amount( (TEXT_AREA_HEIGHT/2) - current_selection_y );
+		s32		adjust_amount( (LIST_TEXT_HEIGHT/2) - current_selection_y );
 
 		float d( 1.0f - powf(0.993f, elapsed_time * 1000.0f) );
 
 		u32		total_height( mRomsList.size() * line_height );
-		s32		min_offset( TEXT_AREA_HEIGHT - total_height );
+		s32		min_offset( LIST_TEXT_HEIGHT - total_height );
 
 		s32	new_scroll_offset = mCurrentScrollOffset + s32(float(adjust_amount) * d);
 
@@ -848,7 +769,7 @@ void	IRomSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 ol
 
 			if( !mRomsList[ mCurrentSelection ]->mSettings.Preview.empty() )
 			{
-				IO::Filename preview_filename;
+	IO::Filename preview_filename;
 				IO::Path::Combine( preview_filename, gPreviewDirectory, mRomsList[ mCurrentSelection ]->mSettings.Preview.c_str() );
 
 				mpPreviewTexture = CNativeTexture::CreateFromPng( preview_filename, TexFmt_8888 );

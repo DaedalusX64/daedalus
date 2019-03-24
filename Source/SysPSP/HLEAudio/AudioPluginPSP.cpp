@@ -47,7 +47,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
    *NOTICE* We should try to find out why Demos' frequencies are always wrong
    They tend to rely on a default frequency, apparently, never the same one ;)*/
 
-#define DEFAULT_FREQUENCY 33600	// Taken from Mupen64 : )
+#define DEFAULT_FREQUENCY 44100	// Taken from Mupen64 : )
 
 //*****************************************************************************
 //
@@ -110,9 +110,9 @@ void	CAudioPluginPsp::StopEmulation()
 void	CAudioPluginPsp::DacrateChanged( int SystemType )
 {
 //	printf( "DacrateChanged( %s )\n", (SystemType == ST_NTSC) ? "NTSC" : "PAL" );
-	u32 type = (SystemType == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK;
-	u32 dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
-	u32	frequency = type / (dacrate + 1);
+	u32 type {(u32)((SystemType == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK)};
+	u32 dacrate {Memory_AI_GetRegister(AI_DACRATE_REG)};
+	u32	frequency {type / (dacrate + 1)};
 
 	mAudioOutput->SetFrequency( frequency );
 }

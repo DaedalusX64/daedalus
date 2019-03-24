@@ -162,11 +162,12 @@ void	CFragment::SetCache( const CFragmentCache * p_cache )
 // 5.33     25.96     3.49   557781     0.00     0.00  CFragment::Execute()
 void CFragment::Execute()
 {
+	#ifdef DAEDALUS_ENABLE_DYNAREC_PROFILE
 	DAEDALUS_PROFILE( "CFragment::Execute" );
 
 	SYNCH_POINT( DAED_SYNC_FRAGMENT_PC, gCPUState.CurrentPC + gCPUState.Delay, "Program Counter/Delay doesn't match on entry to fragment" );
 	DAEDALUS_ASSERT( gCPUState.Delay == NO_DELAY, "Why are we entering with a delay slot active?" );
-
+#endif
 #ifdef FRAGMENT_SIMULATE_EXECUTION
 
 	CFragment * p_fragment( this );
@@ -175,8 +176,9 @@ void CFragment::Execute()
 	{
 		CFragment * next = p_fragment->Simulate();
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( next == NULL || gCPUState.Delay == NO_DELAY, "Why are we entering with a delay slot active?" );
-
+#endif
 		p_fragment = next;
 	}
 
@@ -187,7 +189,9 @@ void CFragment::Execute()
 	_EnterDynaRec( mEntryPoint.GetTarget(), &gCPUState, p, upper );
 #endif // FRAGMENT_SIMULATE_EXECUTION
 
+#ifdef DAEDALUS_DEBUG_DYNAREC
 	SYNCH_POINT( DAED_SYNC_FRAGMENT_PC, gCPUState.CurrentPC + gCPUState.Delay, "Program Counter/Delay doesn't match on exit from fragment" );
+#endif
 	//if(gCPUState.Delay != NO_DELAY)
 	//{
 	//	SYNCH_POINT( DAED_SYNC_FRAGMENT_PC, gCPUState.TargetPC, "New Program Counter doesn't match on exit from fragment" );
@@ -235,7 +239,9 @@ namespace
 	{
 		if( (gCPUState.CPUControl[C0_SR]._u32_0 & SR_CU1) == 0 )
 		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR( "Benign: Cop1 unusable fired - check logic" );
+			#endif
 			R4300_Exception_CopUnusuable();
 		}
 
@@ -248,10 +254,11 @@ namespace
 //*************************************************************************************
 CFragment * CFragment::Simulate()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( gCPUState.GetStuffToDo() == 0, "Entering when there is stuff to do?" );
 	DAEDALUS_ASSERT( gCPUState.CurrentPC == mEntryAddress, "Why are we entering at the wrong address?" );
 	DAEDALUS_ASSERT( gCPUState.Delay == NO_DELAY, "Why are we entering with a delay slot active?" );
-
+#endif
 #ifdef FRAGMENT_RETAIN_ADDITIONAL_INFO
 	mHitCount++;
 #endif
@@ -269,14 +276,15 @@ CFragment * CFragment::Simulate()
 
 	OpCode		last_executed_op;
 
-	for( u32 i = 0; i < mTraceBuffer.size(); ++i)
+	for( auto i {}; i < mTraceBuffer.size(); ++i)
 	{
 		const STraceEntry & ti( mTraceBuffer[ i ] );
 		OpCode				op_code( ti.OpCode );
 		u32					branch_idx( ti.BranchIdx );
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( op_code._u32 == *(u32*)ReadAddress( ti.Address ), "Self modifying code detected but not handled" );
-
+#endif
 		bool				branch_taken;
 
 		if( ti.BranchDelaySlot )
@@ -316,7 +324,9 @@ CFragment * CFragment::Simulate()
 		// Break out of the loop if this is a branch instruction and it was taken
 		if( branch_idx != INVALID_IDX )
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( branch_idx < mBranchBuffer.size(), "Branch index is out of bounds" );
+			#endif
 			const SBranchDetails &	details( mBranchBuffer[ branch_idx ] );
 
 			// Check whether we want to invert the status of this branch
@@ -344,28 +354,32 @@ CFragment * CFragment::Simulate()
 		}
 		else
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( !branch_taken, "Why are we branching with no branch details?" );
+			#endif
 			if(ti.BranchDelaySlot)
 			{
 				gCPUState.Delay = NO_DELAY;
 			}
 		}
 	}
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( (GetBranchType(last_executed_op) == BT_NOT_BRANCH) || branch_idx_taken != INVALID_IDX, "The last instruction was a branch, but no branch index on exit" );
-
+#endif
 	//
 	//	Now we're leaving the fragment, handle the exit stubs
 	//
 	CFragment * p_target_fragment( NULL );
-	u32			exit_address;
-	u32			exit_delay;
+	u32			exit_address {};
+	u32			exit_delay {};
 	if( branch_idx_taken != INVALID_IDX )
 	{
 		//
 		//	A branch was taken - this means we have to execute it's delay op
 		//
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( branch_idx_taken < mBranchBuffer.size(), "The branch index is invalid?" );
+#endif
 
 		SBranchDetails &	details( mBranchBuffer[ branch_idx_taken ] );
 		bool				executed_delay_op( true );
@@ -408,9 +422,10 @@ CFragment * CFragment::Simulate()
 		{
 			if( details.Eret )
 			{
+				#ifdef DAEDALUS_ENABLE_ASSERTS
 				DAEDALUS_ASSERT( instructions_executed == mTraceBuffer.size(), "Why wasn't ERET the last instruction?" );
 				DAEDALUS_ASSERT( details.DelaySlotTraceIndex == -1, "Why does this ERET have a return instruction?" );
-
+				#endif
 				exit_address = gCPUState.CurrentPC + 4;
 				p_target_fragment = mpIndirectExitMap->LookupIndirectExit( exit_address );
 			}
@@ -464,8 +479,9 @@ CFragment * CFragment::Simulate()
 	}
 	else
 	{
-		DAEDALUS_ASSERT( instructions_executed == mTraceBuffer.size(), "Didn't handle the expected number of instructions" );
-
+		#ifdef DAEDALUS_ENABLE_ASSERTS
+			DAEDALUS_ASSERT( instructions_executed == mTraceBuffer.size(), "Didn't handle the expected number of instructions" );
+		#endif
 		p_target_fragment = mpCache->LookupFragmentQ( mExitAddress );
 		exit_address = mExitAddress;
 		exit_delay = NO_DELAY;
@@ -478,15 +494,17 @@ CFragment * CFragment::Simulate()
 	//
 	//	Finally set up all the registers required for transferring control to the next branch
 	//
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( exit_address != u32( ~0 ), "Invalid exit address" );
-
+#endif
 	gCPUState.CurrentPC = exit_address;
 	gCPUState.Delay = exit_delay;
 
 	if( exit_address == mEntryAddress )
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( gCPUState.Delay == NO_DELAY, "Branching to self with delay slot active?" );
+		#endif
 		p_target_fragment = this;
 	}
 
@@ -597,7 +615,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 	std::vector< SBranchHandlerInfo >	branch_handler_info( branch_details.size() );
 //	bool								checked_cop1_usable( false );
 
-	for( u32 i = 0; i < trace.size(); ++i )
+	for( u32 i {}; i < trace.size(); ++i )
 	{
 		const STraceEntry & ti( trace[ i ] );
 		u32	branch_idx( ti.BranchIdx );
@@ -631,20 +649,23 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 			{
 				case SHACK_SKIPTOEVENT:
 					{
+						#ifdef DAEDALUS_DEBUG_CONSOLE
 					printf("Speedhack event (skip busy loop)\n");
-					char opinfo[128];
+
+					char opinfo[128] {};
 					SprintOpCodeInfo( opinfo, trace[i].Address, trace[i].OpCode );
 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i].Address, trace[i].OpCode._u32, opinfo);
 
 					SprintOpCodeInfo( opinfo, trace[i+1].Address, trace[i+1].OpCode );
 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i+1].Address, trace[i+1].OpCode._u32, opinfo);
-
+					#endif
 					p_generator->ExecuteNativeFunction( CCodeLabel( reinterpret_cast< const void * >( CPU_SkipToNextEvent ) ) );
 					}
 					break;
 
 				case SHACK_COPYREG:
 					{
+						#ifdef DAEDALUS_DEBUG_CONSOLE
 					printf("Speedhack copyreg (not handled)\n");
 					char opinfo[128];
 					SprintOpCodeInfo( opinfo, trace[i].Address, trace[i].OpCode );
@@ -652,11 +673,13 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 
 					SprintOpCodeInfo( opinfo, trace[i+1].Address, trace[i+1].OpCode );
 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i+1].Address, trace[i+1].OpCode._u32, opinfo);
+					#endif
 					}
 					break;
 
 				case SHACK_POSSIBLE:
 					{
+						#ifdef DAEDALUS_DEBUG_CONSOLE
 					printf("Speedhack unknown (not handled)\n");
 					char opinfo[128];
 					SprintOpCodeInfo( opinfo, trace[i].Address, trace[i].OpCode );
@@ -664,6 +687,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 
 					SprintOpCodeInfo( opinfo, trace[i+1].Address, trace[i+1].OpCode );
 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i+1].Address, trace[i+1].OpCode._u32, opinfo);
+					#endif
 					}
 					break;
 
@@ -711,7 +735,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 	//
 	//	Generate handlers for each exit branch
 	//
-	for( u32 i = 0; i < branch_details.size(); ++i )
+	for( u32 i {}; i < branch_details.size(); ++i )
 	{
 		const SBranchDetails &	details( branch_details[ i ] );
 		u32						instruction_idx( branch_handler_info[ i ].Index );
@@ -722,8 +746,10 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 			continue;
 		}
 
-		DAEDALUS_ASSERT( instruction_idx < trace.size(), "The instruction index is invalid" );
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
+		DAEDALUS_ASSERT( instruction_idx < trace.size(), "The instruction index is invalid" );
+#endif
 		u32					branch_instruction_address( trace[ instruction_idx ].Address );
 		u32					num_instructions_executed( instruction_idx + 1 );
 
@@ -767,8 +793,8 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 
 		if( details.Likely )
 		{
-			u32				exit_address;
-			CJumpLocation	jump_location;
+			u32				exit_address {};
+			CJumpLocation	jump_location {};
 
 			if( details.ConditionalBranchTaken )
 			{
@@ -792,12 +818,16 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 		}
 		else
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( mpIndirectExitMap != NULL, "There is no indirect exit map!" );
-
+			#endif
 			if( details.Eret )
 			{
+					#ifdef DAEDALUS_ENABLE_ASSERTS
 				DAEDALUS_ASSERT( details.DelaySlotTraceIndex == -1, "Why does this ERET have a return instruction?" );
+				#endif
 				p_generator->GenerateEretExitCode( num_instructions_executed, mpIndirectExitMap );
+
 			}
 			else
 			{
@@ -895,9 +925,9 @@ const char * Sanitise( const char * str )
 extern char *disasmx86(u8 *opcode1,int codeoff1,int *len);
 void DisassembleBuffer( const u8 * buf, int buf_size, FILE * fh )
 {
-	int pos = 0;             /* current position in buffer */
+	int pos  {};             /* current position in buffer */
 	char *strbuf;
-	int len = 0;
+	int len {};
 
 	const u32	base_address( reinterpret_cast< u32 >( buf ) );
 
@@ -913,7 +943,7 @@ void DisassembleBuffer( const u8 * buf, int buf_size, FILE * fh )
 
 void DisassembleBuffer( const u8 * buf, int buf_size, FILE * fh )
 {
-	const int	STRBUF_LEN = 1024;
+	const int	STRBUF_LEN {1024};
 	char		strbuf[STRBUF_LEN+1];
 
 	const OpCode *	p_op( reinterpret_cast< const OpCode * >( buf ) );
@@ -1117,4 +1147,3 @@ void CFragment::DumpFragmentInfoHtml( FILE * fh, u64 total_cycles ) const
 	fputs( "</body></html>\n", fh );
 }
 #endif // DAEDALUS_DEBUG_DYNAREC
-

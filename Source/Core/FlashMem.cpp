@@ -24,9 +24,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ROM.h"
 #include "Save.h"
 
-u32 FlashStatus[2];
-u32 FlashRAM_Offset;
-u8  FlashBlock[128];
+u32 FlashStatus[2] {};
+u32 FlashRAM_Offset {};
+u8  FlashBlock[128] {};
 
 enum TFlashRam_Modes {
 	FLASHRAM_MODE_NOPES = 0,
@@ -83,7 +83,9 @@ void Flash_DoCommand(u32 FlashRAM_Command)
 	switch (FlashRAM_Command & 0xFF000000) {
 	case 0xD2000000:
 		switch (FlashFlag) {
+				#ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "Writing %X to flash ram command register\nFlashFlag: %d",FlashRAM_Command,FlashFlag);
+			#endif
 			case FLASHRAM_MODE_NOPES:
 				break;
 			case FLASHRAM_MODE_READ:
@@ -98,8 +100,11 @@ void Flash_DoCommand(u32 FlashRAM_Command)
 				memcpy((u8*)g_pMemoryBuffers[MEM_SAVE] + FlashRAM_Offset, FlashBlock, 128);
 				Save_MarkSaveDirty();
 				break;
+								#ifdef DAEDALUS_DEBUG_CONSOLE
 			default:
+
 				DBGConsole_Msg(0, "Writing %X to flash ram command register\nFlashFlag: %d",FlashRAM_Command,FlashFlag);
+				#endif
 		}
 		FlashFlag = FLASHRAM_MODE_NOPES;
 		break;

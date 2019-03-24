@@ -277,9 +277,9 @@ const EPspReg	gRegistersToUseForCaching[] =
 //u32		gTotalRegistersCached = 0;
 //u32		gTotalRegistersUncached = 0;
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 CCodeGeneratorPSP::CCodeGeneratorPSP( CAssemblyBuffer * p_buffer_a, CAssemblyBuffer * p_buffer_b )
 :	CCodeGenerator( )
 ,	CAssemblyWriterPSP( p_buffer_a, p_buffer_b )
@@ -291,9 +291,9 @@ CCodeGeneratorPSP::CCodeGeneratorPSP( CAssemblyBuffer * p_buffer_a, CAssemblyBuf
 {
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::Initialise( u32 entry_address, u32 exit_address, u32 * hit_counter, const void * p_base, const SRegisterUsageInfo & register_usage )
 {
 	mEntryAddress = entry_address;
@@ -314,21 +314,23 @@ void	CCodeGeneratorPSP::Initialise( u32 entry_address, u32 exit_address, u32 * h
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::Finalise( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps )
 {
 	// We handle exceptions directly with _ReturnFromDynaRecIfStuffToDo - we should never get here on the psp
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( exception_handler_jumps.empty(), "Not expecting to have any exception handler jumps to process" );
+	#endif
 	GenerateAddressCheckFixups();
 
 	CAssemblyWriterPSP::Finalise();
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register_usage, bool loops_to_self )
 {
 	mRegisterSpanList = register_usage.SpanList;
@@ -340,8 +342,10 @@ void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register
 
 	// Push all the available registers in reverse order (i.e. use temporaries later)
 	// Use temporaries first so we can avoid flushing them in case of a funcion call //Corn
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mAvailableRegisters.empty(), "Why isn't the available register list empty?" );
-	for( u32 i = 0; i < NUM_CACHE_REGS; i++ )
+	#endif
+	for( u32 i {0}; i < NUM_CACHE_REGS; i++ )
 	{
 		mAvailableRegisters.push( gRegistersToUseForCaching[ i ] );
 	}
@@ -351,7 +355,7 @@ void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register
 	{
 		mUseFixedRegisterAllocation = true;
 		u32		cache_reg_idx( 0 );
-		u32		HiLo = 0;
+		u32		HiLo {0};
 		while ( HiLo<2 )		// If there are still unused registers, assign to high part of reg
 		{
 			RegisterSpanList::const_iterator span_it = mRegisterSpanList.begin();
@@ -372,11 +376,11 @@ void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register
 		//	Pull all the cached registers into memory
 		//
 		// Skip r0
-		u32 i = 1;
+		u32 i {1};
 		while( i < NUM_N64_REGS )
 		{
 			EN64Reg	n64_reg = EN64Reg( i );
-			u32 lo_hi_idx = 0;
+			u32 lo_hi_idx {};
 			while( lo_hi_idx < 2)
 			{
 				if( mRegisterCache.IsCached( n64_reg, lo_hi_idx ) )
@@ -400,9 +404,9 @@ void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register
 	} //End of Loop optimization code
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::ExpireOldIntervals( u32 instruction_idx )
 {
 	// mActiveIntervals is held in order of increasing end point
@@ -428,9 +432,9 @@ void	CCodeGeneratorPSP::ExpireOldIntervals( u32 instruction_idx )
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::SpillAtInterval( const SRegisterSpan & live_span )
 {
 	DAEDALUS_ASSERT( !mActiveIntervals.empty(), "There are no active intervals" );
@@ -458,9 +462,9 @@ void	CCodeGeneratorPSP::SpillAtInterval( const SRegisterSpan & live_span )
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::UpdateRegisterCaching( u32 instruction_idx )
 {
 	if( !mUseFixedRegisterAllocation )
@@ -503,9 +507,9 @@ void	CCodeGeneratorPSP::UpdateRegisterCaching( u32 instruction_idx )
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 RegisterSnapshotHandle	CCodeGeneratorPSP::GetRegisterSnapshot()
 {
 	RegisterSnapshotHandle	handle( mRegisterSnapshots.size() );
@@ -515,33 +519,33 @@ RegisterSnapshotHandle	CCodeGeneratorPSP::GetRegisterSnapshot()
 	return handle;
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 CCodeLabel	CCodeGeneratorPSP::GetEntryPoint() const
 {
 	return GetAssemblyBuffer()->GetStartAddress();
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 CCodeLabel	CCodeGeneratorPSP::GetCurrentLocation() const
 {
 	return GetAssemblyBuffer()->GetLabel();
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 u32	CCodeGeneratorPSP::GetCompiledCodeSize() const
 {
 	return GetAssemblyBuffer()->GetSize();
 }
 
-//*****************************************************************************
+
 //Get a (cached) N64 register mapped to a PSP register(usefull for dst register)
-//*****************************************************************************
+
 EPspReg	CCodeGeneratorPSP::GetRegisterNoLoad( EN64Reg n64_reg, u32 lo_hi_idx, EPspReg scratch_reg )
 {
 	if( mRegisterCache.IsCached( n64_reg, lo_hi_idx ) )
@@ -554,9 +558,9 @@ EPspReg	CCodeGeneratorPSP::GetRegisterNoLoad( EN64Reg n64_reg, u32 lo_hi_idx, EP
 	}
 }
 
-//*****************************************************************************
+
 //Load value from an emulated N64 register or known value to a PSP register
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::GetRegisterValue( EPspReg psp_reg, EN64Reg n64_reg, u32 lo_hi_idx )
 {
 	if( mRegisterCache.IsKnownValue( n64_reg, lo_hi_idx ) )
@@ -576,10 +580,10 @@ void	CCodeGeneratorPSP::GetRegisterValue( EPspReg psp_reg, EN64Reg n64_reg, u32 
 	}
 }
 
-//*****************************************************************************
+
 //Get (cached) N64 register value mapped to a PSP register (or scratch reg)
 //and also load the value if not loaded yet(usefull for src register)
-//*****************************************************************************
+
 EPspReg	CCodeGeneratorPSP::GetRegisterAndLoad( EN64Reg n64_reg, u32 lo_hi_idx, EPspReg scratch_reg )
 {
 	EPspReg		reg;
@@ -616,9 +620,9 @@ EPspReg	CCodeGeneratorPSP::GetRegisterAndLoad( EN64Reg n64_reg, u32 lo_hi_idx, E
 	return reg;
 }
 
-//*****************************************************************************
+
 //	Similar to GetRegisterAndLoad, but ALWAYS loads into the specified psp register
-//*****************************************************************************
+
 void CCodeGeneratorPSP::LoadRegister( EPspReg psp_reg, EN64Reg n64_reg, u32 lo_hi_idx )
 {
 	if( mRegisterCache.IsCached( n64_reg, lo_hi_idx ) )
@@ -651,11 +655,11 @@ void CCodeGeneratorPSP::LoadRegister( EPspReg psp_reg, EN64Reg n64_reg, u32 lo_h
 	}
 }
 
-//*****************************************************************************
+
 //	This function pulls in a cached register so that it can be used at a later point.
 //	This is usally done when we have a branching instruction - it guarantees that
 //	the register is valid regardless of whether or not the branch is taken.
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::PrepareCachedRegister( EN64Reg n64_reg, u32 lo_hi_idx )
 {
 	if( mRegisterCache.IsCached( n64_reg, lo_hi_idx ) )
@@ -671,9 +675,9 @@ void	CCodeGeneratorPSP::PrepareCachedRegister( EN64Reg n64_reg, u32 lo_hi_idx )
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void CCodeGeneratorPSP::StoreRegister( EN64Reg n64_reg, u32 lo_hi_idx, EPspReg psp_reg )
 {
 	mRegisterCache.ClearKnownValue( n64_reg, lo_hi_idx );
@@ -702,28 +706,28 @@ void CCodeGeneratorPSP::StoreRegister( EN64Reg n64_reg, u32 lo_hi_idx, EPspReg p
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void CCodeGeneratorPSP::SetRegister64( EN64Reg n64_reg, s32 lo_value, s32 hi_value )
 {
 	SetRegister( n64_reg, 0, lo_value );
 	SetRegister( n64_reg, 1, hi_value );
 }
 
-//*****************************************************************************
+
 //	Set the low 32 bits of a register to a known value (and hence the upper
 //	32 bits are also known though sign extension)
-//*****************************************************************************
+
 inline void CCodeGeneratorPSP::SetRegister32s( EN64Reg n64_reg, s32 value )
 {
 	//SetRegister64( n64_reg, value, value >= 0 ? 0 : 0xffffffff );
 	SetRegister64( n64_reg, value, value >> 31 );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void CCodeGeneratorPSP::SetRegister( EN64Reg n64_reg, u32 lo_hi_idx, u32 value )
 {
 	mRegisterCache.SetKnownValue( n64_reg, lo_hi_idx, value );
@@ -734,9 +738,9 @@ inline void CCodeGeneratorPSP::SetRegister( EN64Reg n64_reg, u32 lo_hi_idx, u32 
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void CCodeGeneratorPSP::UpdateRegister( EN64Reg n64_reg, EPspReg psp_reg, bool options )
 {
 	//if(n64_reg == N64Reg_R0) return;	//Try to modify R0!!!
@@ -762,9 +766,9 @@ void CCodeGeneratorPSP::UpdateRegister( EN64Reg n64_reg, EPspReg psp_reg, bool o
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 EPspFloatReg	CCodeGeneratorPSP::GetFloatRegisterAndLoad( EN64FloatReg n64_reg )
 {
 	EPspFloatReg	psp_reg = EPspFloatReg( n64_reg );	// 1:1 mapping
@@ -779,9 +783,9 @@ EPspFloatReg	CCodeGeneratorPSP::GetFloatRegisterAndLoad( EN64FloatReg n64_reg )
 	return psp_reg;
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void CCodeGeneratorPSP::UpdateFloatRegister( EN64FloatReg n64_reg )
 {
 	mRegisterCache.MarkFPAsDirty( n64_reg, true );
@@ -789,9 +793,9 @@ inline void CCodeGeneratorPSP::UpdateFloatRegister( EN64FloatReg n64_reg )
 	mRegisterCache.MarkFPAsSim( n64_reg, false );
 }
 
-//*****************************************************************************
+
 //Get Double or SimDouble and add code to convert to simulated double if needed //Corn
-//*****************************************************************************
+
 #define SIMULATESIG 0x1234	//Reduce signature to load value with one OP
 EPspFloatReg	CCodeGeneratorPSP::GetSimFloatRegisterAndLoad( EN64FloatReg n64_reg )
 {
@@ -834,9 +838,9 @@ EPspFloatReg	CCodeGeneratorPSP::GetSimFloatRegisterAndLoad( EN64FloatReg n64_reg
 	return psp_reg;
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void CCodeGeneratorPSP::UpdateSimDoubleRegister( EN64FloatReg n64_reg )
 {
 	mRegisterCache.MarkFPAsValid( n64_reg, true );
@@ -846,19 +850,19 @@ inline void CCodeGeneratorPSP::UpdateSimDoubleRegister( EN64FloatReg n64_reg )
 	mRegisterCache.MarkFPAsDirty( EN64FloatReg(n64_reg + 1), true );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 const CN64RegisterCachePSP & CCodeGeneratorPSP::GetRegisterCacheFromHandle( RegisterSnapshotHandle snapshot ) const
 {
 	DAEDALUS_ASSERT( snapshot.Handle < mRegisterSnapshots.size(), "Invalid snapshot handle" );
 	return mRegisterSnapshots[ snapshot.Handle ];
 }
 
-//*****************************************************************************
+
 //	Flush a specific register back to memory if dirty.
 //	Clears the dirty flag and invalidates the contents if specified
-//*****************************************************************************
+
 void CCodeGeneratorPSP::FlushRegister( CN64RegisterCachePSP & cache, EN64Reg n64_reg, u32 lo_hi_idx, bool invalidate )
 {
 	if( cache.IsDirty( n64_reg, lo_hi_idx ) )
@@ -897,13 +901,13 @@ void CCodeGeneratorPSP::FlushRegister( CN64RegisterCachePSP & cache, EN64Reg n64
 	}
 }
 
-//*****************************************************************************
+
 //	This function flushes all dirty registers back to memory
 //	If the invalidate flag is set this also invalidates the known value/cached
 //	register. This is primarily to ensure that we keep the register set
 //	in a consistent set across calls to generic functions. Ideally we need
 //	to reimplement generic functions with specialised code to avoid the flush.
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::FlushAllRegisters( CN64RegisterCachePSP & cache, bool invalidate )
 {
 	mFloatCMPIsValid = false;	//invalidate float compare register
@@ -921,15 +925,15 @@ void	CCodeGeneratorPSP::FlushAllRegisters( CN64RegisterCachePSP & cache, bool in
 	FlushAllFloatingPointRegisters( cache, invalidate );
 }
 
-//*****************************************************************************
+
 // Floating-point arguments are placed in $f12-$f15.
 // Floating-point return values go into $f0-$f1.
 // $f0-$f19 are caller-saved.
 // $f20-$f31 are callee-saved.
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::FlushAllFloatingPointRegisters( CN64RegisterCachePSP & cache, bool invalidate )
 {
-	for( u32 i = 0; i < NUM_N64_FP_REGS; i++ )
+	for( u32 i {0}; i < NUM_N64_FP_REGS; i++ )
 	{
 		EN64FloatReg	n64_reg = EN64FloatReg( i );
 		if( cache.IsFPDirty( n64_reg ) )
@@ -952,14 +956,14 @@ void	CCodeGeneratorPSP::FlushAllFloatingPointRegisters( CN64RegisterCachePSP & c
 	}
 }
 
-//*****************************************************************************
+
 //	This function flushes all dirty *temporary* registers back to memory, and
 //	marks them as invalid.
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::FlushAllTemporaryRegisters( CN64RegisterCachePSP & cache, bool invalidate )
 {
 	// Skip r0
-	for( u32 i = 1; i < NUM_N64_REGS; i++ )
+	for( u32 i {1}; i < NUM_N64_REGS; i++ )
 	{
 		EN64Reg	n64_reg = EN64Reg( i );
 
@@ -978,13 +982,13 @@ void	CCodeGeneratorPSP::FlushAllTemporaryRegisters( CN64RegisterCachePSP & cache
 	FlushAllFloatingPointRegisters( cache, invalidate );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::RestoreAllRegisters( CN64RegisterCachePSP & current_cache, CN64RegisterCachePSP & new_cache )
 {
 	// Skip r0
-	for( u32 i = 1; i < NUM_N64_REGS; i++ )
+	for( u32 i {1}; i < NUM_N64_REGS; i++ )
 	{
 		EN64Reg	n64_reg = EN64Reg( i );
 
@@ -999,7 +1003,7 @@ void	CCodeGeneratorPSP::RestoreAllRegisters( CN64RegisterCachePSP & current_cach
 	}
 
 	// XXXX some fp regs are preserved across function calls?
-	for( u32 i = 0; i < NUM_N64_FP_REGS; ++i )
+	for( u32 i {0}; i < NUM_N64_FP_REGS; ++i )
 	{
 		EN64FloatReg	n64_reg = EN64FloatReg( i );
 		if( new_cache.IsFPValid( n64_reg ) && !current_cache.IsFPValid( n64_reg ) )
@@ -1011,9 +1015,9 @@ void	CCodeGeneratorPSP::RestoreAllRegisters( CN64RegisterCachePSP & current_cach
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_address, u32 num_instructions, CCodeLabel next_fragment )
 {
 	//DAEDALUS_ASSERT( exit_address != u32( ~0 ), "Invalid exit address" );
@@ -1033,7 +1037,7 @@ CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_ad
 		//	Pull in any registers which may have been flushed for whatever reason.
 		//
 		// Skip r0
-		for( u32 i = 1; i < NUM_N64_REGS; i++ )
+		for( u32 i {1}; i < NUM_N64_REGS; i++ )
 		{
 			EN64Reg	n64_reg = EN64Reg( i );
 
@@ -1125,9 +1129,9 @@ CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_ad
 
 }
 
-//*****************************************************************************
+
 // Handle branching back to the interpreter after an ERET
-//*****************************************************************************
+
 void CCodeGeneratorPSP::GenerateEretExitCode( u32 num_instructions, CIndirectExitMap * p_map )
 {
 	FlushAllRegisters( mRegisterCache, false );
@@ -1141,9 +1145,9 @@ void CCodeGeneratorPSP::GenerateEretExitCode( u32 num_instructions, CIndirectExi
 	ADDIU( PspReg_A2, PspReg_A2, 4 );		// Delay slot
 }
 
-//*****************************************************************************
+
 // Handle branching back to the interpreter after an indirect jump
-//*****************************************************************************
+
 void CCodeGeneratorPSP::GenerateIndirectExitCode( u32 num_instructions, CIndirectExitMap * p_map )
 {
 	FlushAllRegisters( mRegisterCache, false );
@@ -1167,9 +1171,9 @@ void CCodeGeneratorPSP::GenerateIndirectExitCode( u32 num_instructions, CIndirec
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::GenerateBranchHandler( CJumpLocation branch_handler_jump, RegisterSnapshotHandle snapshot )
 {
 	DAEDALUS_ASSERT( branch_handler_jump.IsSet(), "Why is the branch handler jump not set?" );
@@ -1188,35 +1192,35 @@ void	CCodeGeneratorPSP::GenerateBranchHandler( CJumpLocation branch_handler_jump
 
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 CJumpLocation	CCodeGeneratorPSP::GenerateBranchAlways( CCodeLabel target )
 {
 	return J( target, true );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 CJumpLocation	CCodeGeneratorPSP::GenerateBranchIfSet( const u32 * p_var, CCodeLabel target )
 {
 	GetVar( PspReg_V0, p_var );
 	return BNE( PspReg_V0, PspReg_R0, target, true );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 CJumpLocation	CCodeGeneratorPSP::GenerateBranchIfNotSet( const u32 * p_var, CCodeLabel target )
 {
 	GetVar( PspReg_V0, p_var );
 	return BEQ( PspReg_V0, PspReg_R0, target, true );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 CJumpLocation	CCodeGeneratorPSP::GenerateBranchIfEqual( const u32 * p_var, u32 value, CCodeLabel target )
 {
 	GetVar( PspReg_V0, p_var );
@@ -1224,9 +1228,9 @@ CJumpLocation	CCodeGeneratorPSP::GenerateBranchIfEqual( const u32 * p_var, u32 v
 	return BEQ( PspReg_V0, PspReg_A0, target, true );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 CJumpLocation	CCodeGeneratorPSP::GenerateBranchIfNotEqual( const u32 * p_var, u32 value, CCodeLabel target )
 {
 	GetVar( PspReg_V0, p_var );
@@ -1234,9 +1238,9 @@ CJumpLocation	CCodeGeneratorPSP::GenerateBranchIfNotEqual( const u32 * p_var, u3
 	return BNE( PspReg_V0, PspReg_A0, target, true );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 CJumpLocation	CCodeGeneratorPSP::GenerateBranchIfNotEqual( EPspReg reg_a, u32 value, CCodeLabel target )
 {
 	EPspReg	reg_b( reg_a == PspReg_V0 ? PspReg_A0 : PspReg_V0 );		// Make sure we don't use the same reg
@@ -1245,9 +1249,9 @@ CJumpLocation	CCodeGeneratorPSP::GenerateBranchIfNotEqual( EPspReg reg_a, u32 va
 	return BNE( reg_a, reg_b, target, true );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::SetVar( u32 * p_var, EPspReg reg_src )
 {
 	//DAEDALUS_ASSERT( reg_src != PspReg_AT, "Whoops, splattering source register" );
@@ -1259,9 +1263,9 @@ void	CCodeGeneratorPSP::SetVar( u32 * p_var, EPspReg reg_src )
 	SW( reg_src, reg_base, base_offset );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::SetVar( u32 * p_var, u32 value )
 {
 	EPspReg		reg_value;
@@ -1283,9 +1287,9 @@ void	CCodeGeneratorPSP::SetVar( u32 * p_var, u32 value )
 	SW( reg_value, reg_base, base_offset );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::SetFloatVar( f32 * p_var, EPspFloatReg reg_src )
 {
 	EPspReg		reg_base;
@@ -1295,9 +1299,9 @@ void	CCodeGeneratorPSP::SetFloatVar( f32 * p_var, EPspFloatReg reg_src )
 	SWC1( reg_src, reg_base, base_offset );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::GetVar( EPspReg dst_reg, const u32 * p_var )
 {
 	EPspReg		reg_base;
@@ -1307,9 +1311,9 @@ void	CCodeGeneratorPSP::GetVar( EPspReg dst_reg, const u32 * p_var )
 	LW( dst_reg, reg_base, base_offset );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::GetFloatVar( EPspFloatReg dst_reg, const f32 * p_var )
 {
 	EPspReg		reg_base;
@@ -1319,9 +1323,9 @@ void	CCodeGeneratorPSP::GetFloatVar( EPspFloatReg dst_reg, const f32 * p_var )
 	LWC1( dst_reg, reg_base, base_offset );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::GetBaseRegisterAndOffset( const void * p_address, EPspReg * p_reg, s16 * p_offset )
 {
 	s32		base_pointer_offset( reinterpret_cast< const u8 * >( p_address ) - mpBasePointer );
@@ -1360,9 +1364,9 @@ void	CCodeGeneratorPSP::GetBaseRegisterAndOffset( const void * p_address, EPspRe
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 /*void	CCodeGeneratorPSP::UpdateAddressAndDelay( u32 address, bool set_branch_delay )
 {
 	DAEDALUS_ASSERT( !set_branch_delay || (address != 0), "Have branch delay and no address?" );
@@ -1382,10 +1386,10 @@ void	CCodeGeneratorPSP::GetBaseRegisterAndOffset( const void * p_address, EPspRe
 	}
 }*/
 
-//*****************************************************************************
+
 //	Generates instruction handler for the specified op code.
 //	Returns a jump location if an exception handler is required
-//*****************************************************************************
+
 CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool branch_delay_slot, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	DAEDALUS_PROFILE( "CCodeGeneratorPSP::GenerateOpCode" );
@@ -1766,12 +1770,12 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	return CJumpLocation();
 }
 
-//*****************************************************************************
+
 //
 //	NB - This assumes that the address and branch delay have been set up before
 //	calling this function.
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::GenerateGenericR4300( OpCode op_code, CPU_Instruction p_instruction )
 {
 	mPreviousLoadBase = N64Reg_R0;	//Invalidate
@@ -1801,9 +1805,9 @@ void	CCodeGeneratorPSP::GenerateGenericR4300( OpCode op_code, CPU_Instruction p_
 }
 
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 CJumpLocation CCodeGeneratorPSP::ExecuteNativeFunction( CCodeLabel speed_hack, bool check_return )
 {
 	JAL( speed_hack, true );
@@ -1815,9 +1819,9 @@ CJumpLocation CCodeGeneratorPSP::ExecuteNativeFunction( CCodeLabel speed_hack, b
 
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline bool	CCodeGeneratorPSP::GenerateDirectLoad( EPspReg psp_dst, EN64Reg base, s16 offset, OpCodeValue load_op, u32 swizzle )
 {
 	if(mRegisterCache.IsKnownValue( base, 0 ))
@@ -1857,9 +1861,9 @@ inline bool	CCodeGeneratorPSP::GenerateDirectLoad( EPspReg psp_dst, EN64Reg base
 	return false;
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::GenerateSlowLoad( u32 current_pc, EPspReg psp_dst, EPspReg reg_address, ReadMemoryFunction p_read_memory )
 {
 	// We need to flush all the regular registers AND invalidate all the temp regs.
@@ -1906,9 +1910,9 @@ void	CCodeGeneratorPSP::GenerateSlowLoad( u32 current_pc, EPspReg psp_dst, EPspR
 	mRegisterCache = current_regs;
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 										 EPspReg psp_dst,
 										 EN64Reg n64_base,
@@ -1932,7 +1936,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
     {
 		if(offset != 0)
 		{
-			ADDIU( PspReg_A0, reg_address, offset );    //base + offset 
+			ADDIU( PspReg_A0, reg_address, offset );    //base + offset
 			reg_address = PspReg_A0;
 			offset = 0;
 		}
@@ -1951,7 +1955,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 		load_op = OP_LW;
 		reg_address = PspReg_A0;
 	}
-	else 
+	else
 	{
 		if( (n64_base == N64Reg_SP) | (gMemoryAccessOptimisation & mQuickLoad) )
 		{
@@ -1969,7 +1973,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 				CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A0, offset );
 				return;
 			}
-			
+
 			//Re use old base register if consegutive accesses from same base register //Corn
 			if( n64_base == mPreviousLoadBase )
 			{
@@ -2087,20 +2091,20 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void CCodeGeneratorPSP::GenerateAddressCheckFixups()
 {
-	for( u32 i = 0; i < mAddressCheckFixups.size(); ++i )
+	for( u32 i {0}; i < mAddressCheckFixups.size(); ++i )
 	{
 		GenerateAddressCheckFixup( mAddressCheckFixups[ i ] );
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void CCodeGeneratorPSP::GenerateAddressCheckFixup( const SAddressCheckFixup & fixup )
 {
 	CAssemblyWriterPSP::SetBufferA();
@@ -2146,9 +2150,9 @@ inline void CCodeGeneratorPSP::GenerateAddressCheckFixup( const SAddressCheckFix
 }
 
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline bool	CCodeGeneratorPSP::GenerateDirectStore( EPspReg psp_src, EN64Reg base, s16 offset, OpCodeValue store_op, u32 swizzle )
 {
 	if(mRegisterCache.IsKnownValue( base, 0 ))
@@ -2180,9 +2184,9 @@ inline bool	CCodeGeneratorPSP::GenerateDirectStore( EPspReg psp_src, EN64Reg bas
 	return false;
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSlowStore( u32 current_pc, EPspReg psp_src, EPspReg reg_address, WriteMemoryFunction p_write_memory )
 {
 	// We need to flush all the regular registers AND invalidate all the temp regs.
@@ -2223,9 +2227,9 @@ inline void	CCodeGeneratorPSP::GenerateSlowStore( u32 current_pc, EPspReg psp_sr
 	mRegisterCache = current_regs;
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 										  EPspReg psp_src,
 										  EN64Reg n64_base,
@@ -2353,9 +2357,9 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateCACHE( EN64Reg base, s16 offset, u32 cache_op )
 {
 	//u32 cache_op  = op_code.rt;
@@ -2381,9 +2385,9 @@ inline void	CCodeGeneratorPSP::GenerateCACHE( EN64Reg base, s16 offset, u32 cach
 	//}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateJAL( u32 address )
 {
 	//gGPR[REG_ra]._s64 = (s64)(s32)(gCPUState.CurrentPC + 8);		// Store return address
@@ -2396,9 +2400,9 @@ inline void	CCodeGeneratorPSP::GenerateJAL( u32 address )
 	SetRegister32s(N64Reg_RA, address + 8);
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateJR( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	//u32	new_pc( gGPR[ op_code.rs ]._u32_0 );
@@ -2416,9 +2420,9 @@ inline void	CCodeGeneratorPSP::GenerateJR( EN64Reg rs, const SBranchDetails * p_
 	*p_branch_jump = GenerateBranchIfNotEqual( reg_lo, p_branch->TargetAddress, CCodeLabel() );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateJALR( EN64Reg rs, EN64Reg rd, u32 address, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	// Jump And Link
@@ -2439,9 +2443,9 @@ inline void	CCodeGeneratorPSP::GenerateJALR( EN64Reg rs, EN64Reg rd, u32 address
 	*p_branch_jump = GenerateBranchIfNotEqual( reg_lo, p_branch->TargetAddress, CCodeLabel() );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateMFLO( EN64Reg rd )
 {
 	//gGPR[ op_code.rd ]._u64 = gCPUState.MultLo._u64;
@@ -2464,9 +2468,9 @@ inline void	CCodeGeneratorPSP::GenerateMFLO( EN64Reg rd )
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateMFHI( EN64Reg rd )
 {
 	//gGPR[ op_code.rd ]._u64 = gCPUState.MultHi._u64;
@@ -2489,9 +2493,9 @@ inline void	CCodeGeneratorPSP::GenerateMFHI( EN64Reg rd )
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateMTLO( EN64Reg rs )
 {
 	mMultIsValid = false;
@@ -2505,9 +2509,9 @@ inline void	CCodeGeneratorPSP::GenerateMTLO( EN64Reg rs )
 	SetVar( &gCPUState.MultLo._u32_1, reg_hi );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateMTHI( EN64Reg rs )
 {
 	mMultIsValid = false;
@@ -2521,9 +2525,9 @@ inline void	CCodeGeneratorPSP::GenerateMTHI( EN64Reg rs )
 	SetVar( &gCPUState.MultHi._u32_1, reg_hi );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateMULT( EN64Reg rs, EN64Reg rt )
 {
 	mMultIsValid = true;
@@ -2552,9 +2556,9 @@ inline void	CCodeGeneratorPSP::GenerateMULT( EN64Reg rs, EN64Reg rt )
 #endif
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateMULTU( EN64Reg rs, EN64Reg rt )
 {
 	mMultIsValid = true;
@@ -2582,9 +2586,9 @@ inline void	CCodeGeneratorPSP::GenerateMULTU( EN64Reg rs, EN64Reg rt )
 	SetVar( &gCPUState.MultHi._u32_1, PspReg_A0 );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateDIV( EN64Reg rs, EN64Reg rt )
 {
 	mMultIsValid = true;
@@ -2644,9 +2648,9 @@ inline void	CCodeGeneratorPSP::GenerateDIV( EN64Reg rs, EN64Reg rt )
 #endif
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateDIVU( EN64Reg rs, EN64Reg rt )
 {
 	mMultIsValid = true;
@@ -2705,9 +2709,9 @@ inline void	CCodeGeneratorPSP::GenerateDIVU( EN64Reg rs, EN64Reg rt )
 #endif
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
 	if (mRegisterCache.IsKnownValue(rs, 0)
@@ -2757,9 +2761,9 @@ inline void	CCodeGeneratorPSP::GenerateADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
 	if (mRegisterCache.IsKnownValue(rs, 0)
@@ -2778,9 +2782,9 @@ inline void	CCodeGeneratorPSP::GenerateSUBU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	UpdateRegister( rd, reg_lo_d, URO_HI_SIGN_EXTEND );
 }
 
-//*****************************************************************************
+
 //64bit unsigned division //Corn
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateDDIVU( EN64Reg rs, EN64Reg rt )
 {
 	mMultIsValid = false;
@@ -2796,9 +2800,9 @@ inline void	CCodeGeneratorPSP::GenerateDDIVU( EN64Reg rs, EN64Reg rt )
 	JAL( CCodeLabel( (void*)_DDIVU ), true );
 }
 
-//*****************************************************************************
+
 //64bit signed division //Corn
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateDDIV( EN64Reg rs, EN64Reg rt )
 {
 	mMultIsValid = false;
@@ -2814,9 +2818,9 @@ inline void	CCodeGeneratorPSP::GenerateDDIV( EN64Reg rs, EN64Reg rt )
 	JAL( CCodeLabel( (void*)_DDIV ), true );
 }
 
-//*****************************************************************************
+
 //64bit unsigned multiply //Corn
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateDMULTU( EN64Reg rs, EN64Reg rt )
 {
 	mMultIsValid = false;
@@ -2834,9 +2838,9 @@ inline void	CCodeGeneratorPSP::GenerateDMULTU( EN64Reg rs, EN64Reg rt )
 	JAL( CCodeLabel( (void*)_DMULTU ), true );
 }
 
-//*****************************************************************************
+
 //64bit signed multiply //Corn
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateDMULT( EN64Reg rs, EN64Reg rt )
 {
 	mMultIsValid = false;
@@ -2854,9 +2858,9 @@ inline void	CCodeGeneratorPSP::GenerateDMULT( EN64Reg rs, EN64Reg rt )
 	JAL( CCodeLabel( (void*)_DMULT ), true );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateDADDIU( EN64Reg rt, EN64Reg rs, s16 immediate )
 {
 	if( rs == N64Reg_R0 )
@@ -2889,9 +2893,9 @@ inline void	CCodeGeneratorPSP::GenerateDADDIU( EN64Reg rt, EN64Reg rs, s16 immed
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateDADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
 	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rt ]._u64 + gGPR[ op_code.rs ]._u64
@@ -2922,9 +2926,9 @@ inline void	CCodeGeneratorPSP::GenerateDADDU( EN64Reg rd, EN64Reg rs, EN64Reg rt
 	StoreRegisterHi( rd, reg_hi_d );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateAND( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
 	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 & gGPR[ op_code.rt ]._u64;
@@ -2978,9 +2982,9 @@ inline void	CCodeGeneratorPSP::GenerateAND( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeGeneratorPSP::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
 	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 | gGPR[ op_code.rt ]._u64;
@@ -3096,9 +3100,9 @@ void	CCodeGeneratorPSP::GenerateOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateXOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
 	//gGPR[ op_code.rd ]._u64 = gGPR[ op_code.rs ]._u64 ^ gGPR[ op_code.rt ]._u64;
@@ -3147,9 +3151,9 @@ inline void	CCodeGeneratorPSP::GenerateXOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateNOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
 	//gGPR[ op_code.rd ]._u64 = ~(gGPR[ op_code.rs ]._u64 | gGPR[ op_code.rt ]._u64);
@@ -3184,9 +3188,9 @@ inline void	CCodeGeneratorPSP::GenerateNOR( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSLT( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
 #ifdef ENABLE_64BIT
@@ -3240,9 +3244,9 @@ inline void	CCodeGeneratorPSP::GenerateSLT( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	UpdateRegister( rd, reg_lo_d, URO_HI_CLEAR );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSLTU( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
 #ifdef ENABLE_64BIT
@@ -3296,9 +3300,9 @@ inline void	CCodeGeneratorPSP::GenerateSLTU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	UpdateRegister( rd, reg_lo_d, URO_HI_CLEAR );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immediate )
 {
 	//gGPR[op_code.rt]._s64 = (s64)(s32)(gGPR[op_code.rs]._s32_0 + (s32)(s16)op_code.immediate);
@@ -3323,9 +3327,9 @@ inline void	CCodeGeneratorPSP::GenerateADDIU( EN64Reg rt, EN64Reg rs, s16 immedi
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateANDI( EN64Reg rt, EN64Reg rs, u16 immediate )
 {
 	//gGPR[op_code.rt]._u64 = gGPR[op_code.rs]._u64 & (u64)(u16)op_code.immediate;
@@ -3347,9 +3351,9 @@ inline void	CCodeGeneratorPSP::GenerateANDI( EN64Reg rt, EN64Reg rs, u16 immedia
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateORI( EN64Reg rt, EN64Reg rs, u16 immediate )
 {
 	//gGPR[op_code.rt]._u64 = gGPR[op_code.rs]._u64 | (u64)(u16)op_code.immediate;
@@ -3385,9 +3389,9 @@ inline void	CCodeGeneratorPSP::GenerateORI( EN64Reg rt, EN64Reg rs, u16 immediat
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateXORI( EN64Reg rt, EN64Reg rs, u16 immediate )
 {
 	//gGPR[op_code.rt]._u64 = gGPR[op_code.rs]._u64 ^ (u64)(u16)op_code.immediate;
@@ -3419,9 +3423,9 @@ inline void	CCodeGeneratorPSP::GenerateXORI( EN64Reg rt, EN64Reg rs, u16 immedia
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateLUI( EN64Reg rt, s16 immediate )
 {
 	//gGPR[op_code.rt]._s64 = (s64)(s32)((s32)(s16)op_code.immediate<<16);
@@ -3429,9 +3433,9 @@ inline void	CCodeGeneratorPSP::GenerateLUI( EN64Reg rt, s16 immediate )
 	SetRegister32s( rt, s32( immediate ) << 16 );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSLTI( EN64Reg rt, EN64Reg rs, s16 immediate )
 {
 #ifdef ENABLE_64BIT
@@ -3494,9 +3498,9 @@ inline void	CCodeGeneratorPSP::GenerateSLTI( EN64Reg rt, EN64Reg rs, s16 immedia
 	UpdateRegister( rt, reg_lo_d, URO_HI_CLEAR );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSLTIU( EN64Reg rt, EN64Reg rs, s16 immediate )
 {
 #ifdef ENABLE_64BIT
@@ -3557,9 +3561,9 @@ inline void	CCodeGeneratorPSP::GenerateSLTIU( EN64Reg rt, EN64Reg rs, s16 immedi
 	UpdateRegister( rt, reg_lo_d, URO_HI_CLEAR );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa )
 {
 	//gGPR[ op_code.rd ]._s64 = (s64)(s32)( (gGPR[ op_code.rt ]._u32_0 << op_code.sa) & 0xFFFFFFFF );
@@ -3576,9 +3580,9 @@ inline void	CCodeGeneratorPSP::GenerateSLL( EN64Reg rd, EN64Reg rt, u32 sa )
 	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
 }
 
-//*****************************************************************************
+
 //Double Shift Left Logical (Doom64)
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateDSLL( EN64Reg rd, EN64Reg rt, u32 sa )
 {
 	//gGPR[ op_code.rd ]._s64 = (s64)(s32)( (gGPR[ op_code.rt ]._u32_0 << op_code.sa) & 0xFFFFFFFF );
@@ -3604,9 +3608,9 @@ inline void	CCodeGeneratorPSP::GenerateDSLL( EN64Reg rd, EN64Reg rt, u32 sa )
 	StoreRegisterHi( rd, reg_hi_rd);
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateDSLL32( EN64Reg rd, EN64Reg rt, u32 sa )
 {
 	EPspReg reg_hi_rd( GetRegisterNoLoadHi( rd, PspReg_V0 ) );
@@ -3617,9 +3621,9 @@ inline void	CCodeGeneratorPSP::GenerateDSLL32( EN64Reg rd, EN64Reg rt, u32 sa )
 	StoreRegisterHi( rd, reg_hi_rd );	//Store result
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa )
 {
 	//gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rt ]._u32_0 >> op_code.sa );
@@ -3636,9 +3640,9 @@ inline void	CCodeGeneratorPSP::GenerateSRL( EN64Reg rd, EN64Reg rt, u32 sa )
 	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
 }
 
-//*****************************************************************************
+
 //Double Shift Right Arithmetic (Doom64)
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateDSRA( EN64Reg rd, EN64Reg rt, u32 sa )
 {
 	//gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rt ]._s32_0 >> op_code.sa );
@@ -3664,9 +3668,9 @@ inline void	CCodeGeneratorPSP::GenerateDSRA( EN64Reg rd, EN64Reg rt, u32 sa )
 	StoreRegisterHi( rd, reg_hi_rd);
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateDSRA32( EN64Reg rd, EN64Reg rt, u32 sa )
 {
 	EPspReg reg_lo_rd( GetRegisterNoLoadLo( rd, PspReg_V0 ) );
@@ -3676,9 +3680,9 @@ inline void	CCodeGeneratorPSP::GenerateDSRA32( EN64Reg rd, EN64Reg rt, u32 sa )
 	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa )
 {
 	//gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rt ]._s32_0 >> op_code.sa );
@@ -3695,9 +3699,9 @@ inline void	CCodeGeneratorPSP::GenerateSRA( EN64Reg rd, EN64Reg rt, u32 sa )
 	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSLLV( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
 	//gGPR[ op_code.rd ]._s64 = (s64)(s32)( (gGPR[ op_code.rt ]._u32_0 << ( gGPR[ op_code.rs ]._u32_0 & 0x1F ) ) & 0xFFFFFFFF );
@@ -3718,9 +3722,9 @@ inline void	CCodeGeneratorPSP::GenerateSLLV( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSRLV( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
 	//gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rt ]._u32_0 >> ( gGPR[ op_code.rs ]._u32_0 & 0x1F ) );
@@ -3741,9 +3745,9 @@ inline void	CCodeGeneratorPSP::GenerateSRLV( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSRAV( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 {
 	//gGPR[ op_code.rd ]._s64 = (s64)(s32)( gGPR[ op_code.rt ]._s32_0 >> ( gGPR[ op_code.rs ]._u32_0 & 0x1F ) );
@@ -3764,9 +3768,9 @@ inline void	CCodeGeneratorPSP::GenerateSRAV( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	UpdateRegister( rd, reg_lo_rd, URO_HI_SIGN_EXTEND );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateLB( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset )
 {
 	EPspReg	reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
@@ -3776,9 +3780,9 @@ inline void	CCodeGeneratorPSP::GenerateLB( u32 address, bool set_branch_delay, E
 	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateLBU( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset )
 {
 	EPspReg	reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
@@ -3788,9 +3792,9 @@ inline void	CCodeGeneratorPSP::GenerateLBU( u32 address, bool set_branch_delay, 
 	UpdateRegister( rt, reg_dst, URO_HI_CLEAR );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateLH( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset )
 {
 	EPspReg	reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
@@ -3800,9 +3804,9 @@ inline void	CCodeGeneratorPSP::GenerateLH( u32 address, bool set_branch_delay, E
 	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateLHU( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset )
 {
 	EPspReg	reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
@@ -3812,9 +3816,9 @@ inline void	CCodeGeneratorPSP::GenerateLHU( u32 address, bool set_branch_delay, 
 	UpdateRegister( rt, reg_dst, URO_HI_CLEAR );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateLW( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset )
 {
 	EPspReg	reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
@@ -3831,9 +3835,9 @@ inline void	CCodeGeneratorPSP::GenerateLW( u32 address, bool set_branch_delay, E
 	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateLD( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset )
 {
 	EPspReg	reg_dst_hi( GetRegisterNoLoadHi( rt, PspReg_V0 ) );	// Use V0 to avoid copying return value if reg is not cached
@@ -3846,9 +3850,9 @@ inline void	CCodeGeneratorPSP::GenerateLD( u32 address, bool set_branch_delay, E
 	StoreRegisterLo( rt, reg_dst_lo );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateLWC1( u32 address, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset )
 {
 	EN64FloatReg	n64_ft = EN64FloatReg( ft );
@@ -3874,9 +3878,9 @@ inline void	CCodeGeneratorPSP::GenerateLWC1( u32 address, bool set_branch_delay,
 #endif
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 #ifdef ENABLE_LDC1
 inline void	CCodeGeneratorPSP::GenerateLDC1( u32 address, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset )
 {
@@ -3901,9 +3905,9 @@ inline void	CCodeGeneratorPSP::GenerateLDC1( u32 address, bool set_branch_delay,
 #endif
 
 #ifdef ENABLE_LWR_LWL
-//*****************************************************************************
+
 //Unaligned load Left //Corn
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateLWL( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset )
 {
 
@@ -3923,9 +3927,9 @@ inline void	CCodeGeneratorPSP::GenerateLWL( u32 address, bool set_branch_delay, 
 	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
 
-//*****************************************************************************
+
 //Unaligned load Right //Corn
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateLWR( u32 address, bool set_branch_delay, EN64Reg rt, EN64Reg base, s16 offset )
 {
 	//Will return the value in PspReg_V0 and the shift in PspReg_A3
@@ -3945,9 +3949,9 @@ inline void	CCodeGeneratorPSP::GenerateLWR( u32 address, bool set_branch_delay, 
 }
 #endif
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSB( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset )
 {
 	EPspReg		reg_value( GetRegisterAndLoadLo( rt, PspReg_A1 ) );
@@ -3955,9 +3959,9 @@ inline void	CCodeGeneratorPSP::GenerateSB( u32 current_pc, bool set_branch_delay
 	GenerateStore( current_pc, reg_value, base, offset, OP_SB, 3, set_branch_delay ? WriteBitsDirectBD_u8 : WriteBitsDirect_u8 );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSH( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset )
 {
 	EPspReg		reg_value( GetRegisterAndLoadLo( rt, PspReg_A1 ) );
@@ -3965,9 +3969,9 @@ inline void	CCodeGeneratorPSP::GenerateSH( u32 current_pc, bool set_branch_delay
 	GenerateStore( current_pc, reg_value, base, offset, OP_SH, 2, set_branch_delay ? WriteBitsDirectBD_u16 : WriteBitsDirect_u16 );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSW( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset )
 {
 	EPspReg		reg_value( GetRegisterAndLoadLo( rt, PspReg_A1 ) );
@@ -3975,9 +3979,9 @@ inline void	CCodeGeneratorPSP::GenerateSW( u32 current_pc, bool set_branch_delay
 	GenerateStore( current_pc, reg_value, base, offset, OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSD( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset )
 {
 	EPspReg		reg_value_hi( GetRegisterAndLoadHi( rt, PspReg_A1 ) );
@@ -3988,9 +3992,9 @@ inline void	CCodeGeneratorPSP::GenerateSD( u32 current_pc, bool set_branch_delay
 	GenerateStore( current_pc, reg_value_lo, base, offset + 4, OP_SW, 0, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSWC1( u32 current_pc, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset )
 {
 	EN64FloatReg	n64_ft = EN64FloatReg( ft );
@@ -4006,9 +4010,9 @@ inline void	CCodeGeneratorPSP::GenerateSWC1( u32 current_pc, bool set_branch_del
 #endif
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 #ifdef ENABLE_SDC1
 inline void	CCodeGeneratorPSP::GenerateSDC1( u32 current_pc, bool set_branch_delay, u32 ft, EN64Reg base, s32 offset )
 {
@@ -4026,9 +4030,9 @@ inline void	CCodeGeneratorPSP::GenerateSDC1( u32 current_pc, bool set_branch_del
 }
 #endif
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 #ifdef ENABLE_SWR_SWL
 inline void	CCodeGeneratorPSP::GenerateSWL( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset )
 {
@@ -4037,9 +4041,9 @@ inline void	CCodeGeneratorPSP::GenerateSWL( u32 current_pc, bool set_branch_dela
 	GenerateStore( current_pc, reg_value, base, offset, OP_SWL, 3, set_branch_delay ? WriteBitsDirectBD_u32 : WriteBitsDirect_u32 );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSWR( u32 current_pc, bool set_branch_delay, EN64Reg rt, EN64Reg base, s32 offset )
 {
 	EPspReg		reg_value( GetRegisterAndLoadLo( rt, PspReg_A1 ) );
@@ -4048,9 +4052,9 @@ inline void	CCodeGeneratorPSP::GenerateSWR( u32 current_pc, bool set_branch_dela
 }
 #endif
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateMFC1( EN64Reg rt, u32 fs )
 {
 	//gGPR[ op_code.rt ]._s64 = (s64)(s32)gCPUState.FPU[fs]._s32_0
@@ -4065,9 +4069,9 @@ inline void	CCodeGeneratorPSP::GenerateMFC1( EN64Reg rt, u32 fs )
 	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateMTC1( u32 fs, EN64Reg rt )
 {
 	//gCPUState.FPU[fs]._s32_0 = gGPR[ op_code.rt ]._s32_0;
@@ -4080,9 +4084,9 @@ inline void	CCodeGeneratorPSP::GenerateMTC1( u32 fs, EN64Reg rt )
 	UpdateFloatRegister( n64_fs );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateCFC1( EN64Reg rt, u32 fs )
 {
 	if( (fs == 0) | (fs == 31) )
@@ -4098,9 +4102,9 @@ inline void	CCodeGeneratorPSP::GenerateCFC1( EN64Reg rt, u32 fs )
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 // This breaks BombreMan Hero, not sure how to fix it though, maybe because we don't set the rounding mode?
 // http://forums.daedalusx64.com/viewtopic.php?f=77&t=2258&p=36374&hilit=GenerateCTC1#p36374
 //
@@ -4119,9 +4123,9 @@ void	CCodeGeneratorPSP::GenerateCTC1( u32 fs, EN64Reg rt )
 	// Change the rounding mode
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateBEQ( EN64Reg rs, EN64Reg rt, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
@@ -4145,9 +4149,9 @@ inline void	CCodeGeneratorPSP::GenerateBEQ( EN64Reg rs, EN64Reg rt, const SBranc
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateBNE( EN64Reg rs, EN64Reg rt, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
@@ -4171,9 +4175,9 @@ inline void	CCodeGeneratorPSP::GenerateBNE( EN64Reg rs, EN64Reg rt, const SBranc
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateBLEZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
@@ -4194,9 +4198,9 @@ inline void	CCodeGeneratorPSP::GenerateBLEZ( EN64Reg rs, const SBranchDetails * 
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateBGTZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
@@ -4244,9 +4248,9 @@ inline void	CCodeGeneratorPSP::GenerateBGTZ( EN64Reg rs, const SBranchDetails * 
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateBLTZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
@@ -4267,9 +4271,9 @@ inline void	CCodeGeneratorPSP::GenerateBLTZ( EN64Reg rs, const SBranchDetails * 
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateBGEZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
@@ -4290,9 +4294,9 @@ inline void	CCodeGeneratorPSP::GenerateBGEZ( EN64Reg rs, const SBranchDetails * 
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateBC1F( const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
@@ -4332,9 +4336,9 @@ inline void	CCodeGeneratorPSP::GenerateBC1F( const SBranchDetails * p_branch, CJ
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateBC1T( const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
@@ -4374,9 +4378,9 @@ inline void	CCodeGeneratorPSP::GenerateBC1T( const SBranchDetails * p_branch, CJ
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateADD_D_Sim( u32 fd, u32 fs, u32 ft )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4395,9 +4399,9 @@ inline void	CCodeGeneratorPSP::GenerateADD_D_Sim( u32 fd, u32 fs, u32 ft )
 	UpdateSimDoubleRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSUB_D_Sim( u32 fd, u32 fs, u32 ft )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4416,9 +4420,9 @@ inline void	CCodeGeneratorPSP::GenerateSUB_D_Sim( u32 fd, u32 fs, u32 ft )
 	UpdateSimDoubleRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateMUL_D_Sim( u32 fd, u32 fs, u32 ft )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4437,9 +4441,9 @@ inline void	CCodeGeneratorPSP::GenerateMUL_D_Sim( u32 fd, u32 fs, u32 ft )
 	UpdateSimDoubleRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateDIV_D_Sim( u32 fd, u32 fs, u32 ft )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4458,9 +4462,9 @@ inline void	CCodeGeneratorPSP::GenerateDIV_D_Sim( u32 fd, u32 fs, u32 ft )
 	UpdateSimDoubleRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSQRT_D_Sim( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4477,9 +4481,9 @@ inline void	CCodeGeneratorPSP::GenerateSQRT_D_Sim( u32 fd, u32 fs )
 	UpdateSimDoubleRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateABS_D_Sim( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4496,9 +4500,9 @@ inline void	CCodeGeneratorPSP::GenerateABS_D_Sim( u32 fd, u32 fs )
 	UpdateSimDoubleRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateMOV_D_Sim( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4534,9 +4538,9 @@ inline void	CCodeGeneratorPSP::GenerateMOV_D_Sim( u32 fd, u32 fs )
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateNEG_D_Sim( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4553,9 +4557,9 @@ inline void	CCodeGeneratorPSP::GenerateNEG_D_Sim( u32 fd, u32 fs )
 	UpdateSimDoubleRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //Convert Double to s32(TRUNC)
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateTRUNC_W_D_Sim( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4571,9 +4575,9 @@ inline void	CCodeGeneratorPSP::GenerateTRUNC_W_D_Sim( u32 fd, u32 fs )
 	UpdateFloatRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //Convert Double to s32
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateCVT_W_D_Sim( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4589,9 +4593,9 @@ inline void	CCodeGeneratorPSP::GenerateCVT_W_D_Sim( u32 fd, u32 fs )
 	UpdateFloatRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //Convert Double to Float
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateCVT_S_D_Sim( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4607,9 +4611,9 @@ inline void	CCodeGeneratorPSP::GenerateCVT_S_D_Sim( u32 fd, u32 fs )
 	UpdateFloatRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateCMP_D_Sim( u32 fs, ECop1OpFunction cmp_op, u32 ft )
 {
 	mFloatCMPIsValid = true;
@@ -4645,9 +4649,9 @@ inline void	CCodeGeneratorPSP::GenerateCMP_D_Sim( u32 fs, ECop1OpFunction cmp_op
 #endif
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateADD_S( u32 fd, u32 fs, u32 ft )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4665,9 +4669,9 @@ inline void	CCodeGeneratorPSP::GenerateADD_S( u32 fd, u32 fs, u32 ft )
 	UpdateFloatRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSUB_S( u32 fd, u32 fs, u32 ft )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4685,9 +4689,9 @@ inline void	CCodeGeneratorPSP::GenerateSUB_S( u32 fd, u32 fs, u32 ft )
 	UpdateFloatRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateMUL_S( u32 fd, u32 fs, u32 ft )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4705,9 +4709,9 @@ inline void	CCodeGeneratorPSP::GenerateMUL_S( u32 fd, u32 fs, u32 ft )
 	UpdateFloatRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateDIV_S( u32 fd, u32 fs, u32 ft )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4725,9 +4729,9 @@ inline void	CCodeGeneratorPSP::GenerateDIV_S( u32 fd, u32 fs, u32 ft )
 	UpdateFloatRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSQRT_S( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4743,9 +4747,9 @@ inline void	CCodeGeneratorPSP::GenerateSQRT_S( u32 fd, u32 fs )
 	UpdateFloatRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateABS_S( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4761,9 +4765,9 @@ inline void	CCodeGeneratorPSP::GenerateABS_S( u32 fd, u32 fs )
 	UpdateFloatRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateMOV_S( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4779,9 +4783,9 @@ inline void	CCodeGeneratorPSP::GenerateMOV_S( u32 fd, u32 fs )
 	UpdateFloatRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateNEG_S( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4797,9 +4801,9 @@ inline void	CCodeGeneratorPSP::GenerateNEG_S( u32 fd, u32 fs )
 	UpdateFloatRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //Convert Float to s32
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateTRUNC_W_S( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4815,9 +4819,9 @@ inline void	CCodeGeneratorPSP::GenerateTRUNC_W_S( u32 fd, u32 fs )
 	UpdateFloatRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //Convert Float to s32
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateFLOOR_W_S( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4832,9 +4836,9 @@ inline void	CCodeGeneratorPSP::GenerateFLOOR_W_S( u32 fd, u32 fs )
 
 	UpdateFloatRegister( n64_fd );
 }
-//*****************************************************************************
+
 //Convert Float to s32
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateCVT_W_S( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4850,9 +4854,9 @@ inline void	CCodeGeneratorPSP::GenerateCVT_W_S( u32 fd, u32 fs )
 	UpdateFloatRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //Convert s32 to (simulated)Double
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateCVT_D_W_Sim( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4869,9 +4873,9 @@ inline void	CCodeGeneratorPSP::GenerateCVT_D_W_Sim( u32 fd, u32 fs )
 	UpdateSimDoubleRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //Convert Float to (simulated)Double
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateCVT_D_S_Sim( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4891,9 +4895,9 @@ inline void	CCodeGeneratorPSP::GenerateCVT_D_S_Sim( u32 fd, u32 fs )
 	UpdateSimDoubleRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //Convert Float to Double
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateCVT_D_S( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -4916,9 +4920,9 @@ inline void	CCodeGeneratorPSP::GenerateCVT_D_S( u32 fd, u32 fs )
 	mRegisterCache.MarkFPAsDirty( EN64FloatReg(n64_fd + 1), true );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u32 ft )
 {
 	mFloatCMPIsValid = true;
@@ -4953,66 +4957,66 @@ inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u3
 #endif
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateADD_D( u32 fd, u32 fs, u32 ft )
 {
 	NOT_IMPLEMENTED( __FUNCTION__ );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSUB_D( u32 fd, u32 fs, u32 ft )
 {
 	NOT_IMPLEMENTED( __FUNCTION__ );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateMUL_D( u32 fd, u32 fs, u32 ft )
 {
 	NOT_IMPLEMENTED( __FUNCTION__ );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateDIV_D( u32 fd, u32 fs, u32 ft )
 {
 	NOT_IMPLEMENTED( __FUNCTION__ );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateSQRT_D( u32 fd, u32 fs )
 {
 	NOT_IMPLEMENTED( __FUNCTION__ );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateMOV_D( u32 fd, u32 fs )
 {
 	NOT_IMPLEMENTED( __FUNCTION__ );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateNEG_D( u32 fd, u32 fs )
 {
 	NOT_IMPLEMENTED( __FUNCTION__ );
 }
 
 
-//*****************************************************************************
+
 //Convert s32 to Float
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateCVT_S_W( u32 fd, u32 fs )
 {
 	EN64FloatReg	n64_fs = EN64FloatReg( fs );
@@ -5028,9 +5032,9 @@ inline void	CCodeGeneratorPSP::GenerateCVT_S_W( u32 fd, u32 fs )
 	UpdateFloatRegister( n64_fd );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateMFC0( EN64Reg rt, u32 fs )
 {
 	// Never seen this to happen, no reason to bother to handle it
@@ -5042,9 +5046,9 @@ inline void	CCodeGeneratorPSP::GenerateMFC0( EN64Reg rt, u32 fs )
 	UpdateRegister( rt, reg_dst, URO_HI_SIGN_EXTEND );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 inline void	CCodeGeneratorPSP::GenerateMTC0( EN64Reg rt, u32 fs )
 {
 	EPspReg reg_src( GetRegisterAndLoadLo( rt, PspReg_V0 ) );

@@ -34,10 +34,10 @@ extern "C" { void _DaedalusICacheInvalidate( const void * address, u32 length );
 namespace AssemblyUtils
 {
 
-//*****************************************************************************
+
 //	Patch a long jump to target the specified location.
 //	Return true if the patching succeeded (i.e. within range), false otherwise
-//*****************************************************************************
+
 bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
 {
 	// Get an uncached pointer
@@ -82,9 +82,9 @@ bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
 	return true;
 }
 
-//*****************************************************************************
+
 //	As above but invalidates the instruction cache for the specified address.
-//*****************************************************************************
+
 bool	PatchJumpLongAndFlush( CJumpLocation jump, CCodeLabel target )
 {
 	if( PatchJumpLong( jump, target ) )
@@ -103,9 +103,8 @@ bool	PatchJumpLongAndFlush( CJumpLocation jump, CCodeLabel target )
 	return false;
 }
 
-//*****************************************************************************
+
 //	Replace a branch instruction with an unconditional jump
-//*****************************************************************************
 void		ReplaceBranchWithJump( CJumpLocation branch, CCodeLabel target )
 {
 	// Get an uncached pointer

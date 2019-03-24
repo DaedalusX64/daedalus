@@ -102,8 +102,8 @@ static void RESAMPLE( AudioHLECommand command )
 static void SETVOL( AudioHLECommand command )
 {
 // Might be better to unpack these depending on the flags...
-	u8 flags = (u8)((command.cmd0 >> 16) & 0xff);
-	s16 vol = (s16)(command.cmd0 & 0xffff);
+	u8 flags {(u8)((command.cmd0 >> 16) & 0xff)};
+	s16 vol {(s16)(command.cmd0 & 0xffff)};
 //	u16 voltgt =(u16)((command.cmd1 >> 16)&0xffff);
 	u16 volrate = (u16)((command.cmd1 & 0xffff));
 
@@ -257,4 +257,3 @@ AudioHLEInstruction ABI1[0x20] =
     SPNOOP , SPNOOP, SPNOOP   , SPNOOP    , SPNOOP  , SPNOOP    , SPNOOP  , SPNOOP,
     SPNOOP , SPNOOP, SPNOOP   , SPNOOP    , SPNOOP  , SPNOOP    , SPNOOP  , SPNOOP
 };
-

@@ -92,8 +92,8 @@ const u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 u32			gRamSize =  kMaximumMemSize;	// Size of emulated RAM
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
-u32			gTLBReadHit  = 0;
-u32			gTLBWriteHit = 0;
+u32			gTLBReadHit  {};
+u32			gTLBWriteHit {};
 #endif
 
 #ifdef DAED_USE_VIRTUAL_ALLOC
@@ -156,9 +156,9 @@ bool Memory_Init()
 
 #else
 	//u32 count = 0;
-	for (u32 m = 0; m < NUM_MEM_BUFFERS; m++)
+	for (u32 m {}; m < NUM_MEM_BUFFERS; m++)
 	{
-		u32 region_size = MemoryRegionSizes[m];
+		u32 region_size {MemoryRegionSizes[m]};
 		// Skip zero sized areas. An example of this is the cart rom
 		if (region_size > 0)
 		{
@@ -196,8 +196,9 @@ bool Memory_Init()
 
 void Memory_Fini(void)
 {
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 	DPF(DEBUG_MEMORY, "Freeing Memory");
-
+#endif
 #ifdef DAED_USE_VIRTUAL_ALLOC
 
 	//
@@ -213,7 +214,7 @@ void Memory_Fini(void)
 	gMemBase = NULL;
 
 #else
-	for (u32 m = 0; m < NUM_MEM_BUFFERS; m++)
+	for (u32 m {}; m < NUM_MEM_BUFFERS; m++)
 	{
 		if (g_pMemoryBuffers[m] != NULL)
 		{
@@ -231,13 +232,15 @@ void Memory_Fini(void)
 
 bool Memory_Reset()
 {
-	u32 main_mem = g_ROM.settings.ExpansionPakUsage != PAK_UNUSED ? MEMORY_8_MEG : MEMORY_4_MEG;
-
+	u32 main_mem {g_ROM.settings.ExpansionPakUsage != PAK_UNUSED ? MEMORY_8_MEG : MEMORY_4_MEG};
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Reseting Memory - %d MB", main_mem/(1024*1024));
-
+#endif
 	if (main_mem > kMaximumMemSize)
 	{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "Memory_Reset: Can't reset with more than %dMB ram", kMaximumMemSize / (1024*1024) );
+		#endif
 		main_mem = kMaximumMemSize;
 	}
 
@@ -250,7 +253,7 @@ bool Memory_Reset()
 
 	// Required - virtual alloc gives zeroed memory but this is also used when resetting
 	// Clear memory
-	for (u32 i = 0; i < NUM_MEM_BUFFERS; i++)
+	for (u32 i {}; i < NUM_MEM_BUFFERS; i++)
 	{
 		if (g_pMemoryBuffers[i])
 		{
@@ -268,12 +271,12 @@ void Memory_Cleanup()
 
 static void Memory_Tlb_Hack()
 {
-	bool RomBaseKnown = RomBuffer::IsRomLoaded() && RomBuffer::IsRomAddressFixed();
+	bool RomBaseKnown {RomBuffer::IsRomLoaded() && RomBuffer::IsRomAddressFixed()};
 
 	const void * rom_address = RomBaseKnown ? RomBuffer::GetFixedRomBaseAddress() : NULL;
 	if (rom_address != NULL)
 	{
-	   u32 offset = 0;
+	   u32 offset {};
 	   switch(g_ROM.rh.CountryID)
 	   {
 	   case 0x45: offset = 0x34b30; break;
@@ -284,10 +287,10 @@ static void Memory_Tlb_Hack()
 		   return;
 	   }
 
-	   u32 start_addr = 0x7F000000 >> 18;
-	   u32 end_addr   = 0x7FFFFFFF >> 18;
+	   u32 start_addr {0x7F000000 >> 18};
+	   u32 end_addr   {0x7FFFFFFF >> 18};
 
-	   u8 * pRead = (u8*)(reinterpret_cast< u32 >(rom_address) + offset - (start_addr << 18));
+	   u8 * pRead {(u8*)(reinterpret_cast< u32 >(rom_address) + offset - (start_addr << 18))};
 
 	   for (u32 i = start_addr; i <= end_addr; i++)
 	   {
@@ -300,8 +303,8 @@ static void Memory_Tlb_Hack()
 
 static void Memory_InitFunc(u32 start, u32 size, const u32 ReadRegion, const u32 WriteRegion, mReadFunction ReadFunc, mWriteFunction WriteFunc)
 {
-	u32	start_addr = (start >> 18);
-	u32	end_addr   = ((start + size - 1) >> 18);
+	u32	start_addr {(start >> 18)};
+	u32	end_addr   {((start + size - 1) >> 18)};
 
 	while (start_addr <= end_addr)
 	{
@@ -332,7 +335,7 @@ void Memory_InitTables()
 	memset(g_MemoryLookupTableRead, 0, sizeof(MemFuncRead) * 0x4000);
 	memset(g_MemoryLookupTableWrite, 0, sizeof(MemFuncWrite) * 0x4000);
 
-	u32 i;
+	u32 i {};
 	for (i = 0; i < (0x10000 >> 2); i++)
 	{
 		g_MemoryLookupTableRead[i].pRead = NULL;
@@ -360,11 +363,12 @@ void Memory_InitTables()
 		g_MemoryLookupTableWrite[i].WriteFunc	= WriteValueMapped;
 	}
 
-	u32 rom_size = RomBuffer::GetRomSize();
-	u32 ram_size = gRamSize;
+	u32 rom_size {RomBuffer::GetRomSize()};
+	u32 ram_size {gRamSize};
 
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Initialising %s main memory", (ram_size == MEMORY_8_MEG) ? "8Mb" : "4Mb");
-
+	#endif
 	// Init RDRAM
 	// By default we init with EPAK (8Mb)
 	Memory_InitFunc
@@ -632,11 +636,8 @@ void MemoryUpdateSPStatus( u32 flags )
 
 	// If !HALT && !BROKE
 
-	bool start_rsp = false;
-	bool stop_rsp = false;
-
-	u32	clr_bits = 0;
-	u32	set_bits = 0;
+	bool start_rsp {false}, stop_rsp {false};
+	u32	clr_bits {}, set_bits {};
 
 	if (flags & SP_CLR_HALT)
 	{
@@ -690,8 +691,9 @@ void MemoryUpdateSPStatus( u32 flags )
 	//
 	if (start_rsp)
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( (new_status & SP_STATUS_BROKE) == 0, "Unexpected RSP HLE status %08x", new_status );
-
+		#endif
 		// Check for tasks whenever the RSP is started
 		RSP_HLE_ProcessTask();
 	}
@@ -704,8 +706,8 @@ void MemoryUpdateDP( u32 flags )
 	// Ignore address, as this is only called with DPC_STATUS_REG write
 	// DBGConsole_Msg(0, "DP Status: 0x%08x", flags);
 
-	u32 dpc_status  =  Memory_DPC_GetRegister(DPC_STATUS_REG);
-	bool unfreeze_task  = false;
+	u32 dpc_status  {Memory_DPC_GetRegister(DPC_STATUS_REG)};
+	bool unfreeze_task  {false};
 
 	// ToDO : Avoid branching
 	if (flags & DPC_CLR_XBUS_DMEM_DMA)			dpc_status &= ~DPC_STATUS_XBUS_DMEM_DMA;
@@ -741,10 +743,12 @@ void MemoryUpdateDP( u32 flags )
 
 	if (unfreeze_task)
 	{
-		u32 status = Memory_SP_GetRegister( SP_STATUS_REG );
+		u32 status {Memory_SP_GetRegister( SP_STATUS_REG )};
 		if((status & SP_STATUS_HALT) == 0)
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( (status & SP_STATUS_BROKE) == 0, "Unexpected RSP HLE status %08x", status );
+			#endif
 			RSP_HLE_ProcessTask();
 		}
 	}
@@ -752,11 +756,11 @@ void MemoryUpdateDP( u32 flags )
 
 void MemoryUpdateMI( u32 value )
 {
-	u32 mi_intr_mask_reg = Memory_MI_GetRegister(MI_INTR_MASK_REG);
-	u32 mi_intr_reg		 = Memory_MI_GetRegister(MI_INTR_REG);
+	u32 mi_intr_mask_reg {Memory_MI_GetRegister(MI_INTR_MASK_REG)};
+	u32 mi_intr_reg	{Memory_MI_GetRegister(MI_INTR_REG)};
 
-	u32 clr;
-	u32 set;
+
+	u32 clr {}, set {};
 
 	// From Corn - nicer way to avoid branching
 	clr  = (value & MI_INTR_MASK_CLR_SP) >> 0;
@@ -787,7 +791,7 @@ void MemoryUpdateMI( u32 value )
 
 void MemoryModeRegMI( u32 value )
 {
-	u32 mi_mode_reg = Memory_MI_GetRegister(MI_MODE_REG);
+	u32 mi_mode_reg {Memory_MI_GetRegister(MI_MODE_REG)};
 
 	// TODO : Avoid branching
 		 if (value & MI_SET_RDRAM)	mi_mode_reg |=  MI_MODE_RDRAM;
@@ -832,14 +836,17 @@ void MemoryUpdatePI( u32 value )
 	if (value & PI_STATUS_RESET)
 	{
 		// What to do when is busy?
-
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 		DPF( DEBUG_PI, "PI: Resetting Status. PC: 0x%08x", gCPUState.CurrentPC );
+		#endif
 		// Reset PIC here
 		Memory_PI_SetRegister(PI_STATUS_REG, 0);
 	}
 	if (value & PI_STATUS_CLR_INTR)
 	{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 		DPF( DEBUG_PI, "PI: Clearing interrupt flag. PC: 0x%08x", gCPUState.CurrentPC );
+		#endif
 		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_PI);
 		R4300_Interrupt_UpdateCause3();
 	}
@@ -848,19 +855,23 @@ void MemoryUpdatePI( u32 value )
 // The PIF control byte has been written to - process this command
 void MemoryUpdatePIF()
 {
-	u8 * pPIFRam = (u8 *)g_pMemoryBuffers[MEM_PIF_RAM];
-	u8 command = pPIFRam[ 0x3F ^ U8_TWIDDLE];
+	u8 * pPIFRam {(u8 *)g_pMemoryBuffers[MEM_PIF_RAM]};
+	u8 command {pPIFRam[ 0x3F ^ U8_TWIDDLE]};
 	if (command == 0x08)
 	{
 		pPIFRam[ 0x3F ^ U8_TWIDDLE ] = 0x00;
 
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "[GSI Interrupt control value: 0x%02x", command );
+		#endif
 		Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
 		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SI);
 		R4300_Interrupt_UpdateCause3();
 	}
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 	else
 	{
 		DBGConsole_Msg( 0, "[GUnknown control value: 0x%02x", command );
 	}
+	#endif
 }

@@ -37,12 +37,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 namespace
 {
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 EExpansionPakUsage	ExpansionPakUsageFromString( const char * str )
 {
-	for( u32 i = 0; i < NUM_EXPANSIONPAK_USAGE_TYPES; ++i )
+	for( u32 i {}; i < NUM_EXPANSIONPAK_USAGE_TYPES; ++i )
 	{
 		EExpansionPakUsage	pak_usage = EExpansionPakUsage( i );
 
@@ -57,7 +57,7 @@ EExpansionPakUsage	ExpansionPakUsageFromString( const char * str )
 
 ESaveType	SaveTypeFromString( const char * str )
 {
-	for( u32 i = 0; i < NUM_SAVE_TYPES; ++i )
+	for( u32 i {}; i < NUM_SAVE_TYPES; ++i )
 	{
 		ESaveType	save_type = ESaveType( i );
 
@@ -72,9 +72,9 @@ ESaveType	SaveTypeFromString( const char * str )
 
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 const char * ROM_GetExpansionPakUsageName( EExpansionPakUsage pak_usage )
 {
 	switch( pak_usage )
@@ -85,13 +85,15 @@ const char * ROM_GetExpansionPakUsageName( EExpansionPakUsage pak_usage )
 		case PAK_REQUIRED:			return "Required";
 	}
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unknown expansion pak type" );
+	#endif
 	return "?";
 }
 
-//*****************************************************************************
+
 // Get the name of a save type from an ESaveType enum
-//*****************************************************************************
+
 const char * ROM_GetSaveTypeName( ESaveType save_type )
 {
 	switch ( save_type )
@@ -102,14 +104,15 @@ const char * ROM_GetSaveTypeName( ESaveType save_type )
 		case SAVE_TYPE_SRAM:		return "SRAM";
 		case SAVE_TYPE_FLASH:		return "FlashRam";
 	}
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unknown save type" );
+	#endif
 	return "?";
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 class IRomSettingsDB : public CRomSettingsDB
 {
 	public:
@@ -140,13 +143,14 @@ class IRomSettingsDB : public CRomSettingsDB
 
 
 
-//*****************************************************************************
+
 // Singleton creator
-//*****************************************************************************
+
 template<> bool	CSingleton< CRomSettingsDB >::Create()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-
+	#endif
 	mpInstance = new IRomSettingsDB();
 
 	IO::Filename	ini_filename;
@@ -157,17 +161,9 @@ template<> bool	CSingleton< CRomSettingsDB >::Create()
 }
 
 
-//*****************************************************************************
-// Constructor
-//*****************************************************************************
-IRomSettingsDB::IRomSettingsDB()
-:	mDirty( false )
-{
-}
+IRomSettingsDB::IRomSettingsDB() :	mDirty( false ) {}
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 IRomSettingsDB::~IRomSettingsDB()
 {
 	if ( mDirty )
@@ -176,18 +172,17 @@ IRomSettingsDB::~IRomSettingsDB()
 	}
 }
 
-//*****************************************************************************
+
 //	Remove the specified characters from p_string
-//*****************************************************************************
 static bool	trim( char * p_string, const char * p_trim_chars )
 {
-	u32 num_trims = strlen( p_trim_chars );
-	char * pin = p_string;
-	char * pout = p_string;
-	bool found;
+	u32 num_trims {strlen( p_trim_chars )};
+	char * pin {p_string};
+	char * pout {p_string};
+	bool found {false};
 	while ( *pin )
 	{
-		char c = *pin;
+		char c {*pin};
 
 		found = false;
 		for ( u32 i = 0; i < num_trims; i++ )
@@ -214,9 +209,9 @@ static bool	trim( char * p_string, const char * p_trim_chars )
 	return true;
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 static RomID	RomIDFromString( const char * str )
 {
 	u32 crc1, crc2, country;
@@ -224,20 +219,17 @@ static RomID	RomIDFromString( const char * str )
 	return RomID( crc1, crc2, (u8)country );
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 {
-	//
-	// Remember the filename
-	//
+
 	strcpy(mFilename, filename);
 
 	CIniFile * p_ini_file( CIniFile::Create( filename ) );
 	if( p_ini_file == NULL )
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "Failed to open RomDB from %s\n", filename );
+		#endif
 		return false;
 	}
 
@@ -334,9 +326,9 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 	return true;
 }
 
-//*****************************************************************************
+
 //	Write out the .ini file, keeping the original comments intact
-//*****************************************************************************
+
 void IRomSettingsDB::Commit()
 {
 	IO::Filename filename_tmp;
@@ -423,9 +415,9 @@ void IRomSettingsDB::Commit()
 	mDirty = false;
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings & settings, FILE * fh )
 {
 	// Generate the CRC-ID for this rom:
@@ -456,10 +448,10 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 	fprintf(fh, "\n");			// Spacer
 }
 
-//*****************************************************************************
+
 // Retreive the settings for the specified rom. Returns false if the rom is
 // not in the database
-//*****************************************************************************
+
 bool	IRomSettingsDB::GetSettings( const RomID & id, RomSettings * p_settings ) const
 {
 	SettingsMap::const_iterator	it( mSettings.find( id ) );
@@ -474,9 +466,9 @@ bool	IRomSettingsDB::GetSettings( const RomID & id, RomSettings * p_settings ) c
 	}
 }
 
-//*****************************************************************************
+
 // Update the settings for the specified rom - creates a new entry if necessary
-//*****************************************************************************
+
 void	IRomSettingsDB::SetSettings( const RomID & id, const RomSettings & settings )
 {
 	SettingsMap::iterator	it( mSettings.find( id ) );
@@ -492,14 +484,14 @@ void	IRomSettingsDB::SetSettings( const RomID & id, const RomSettings & settings
 	mDirty = true;
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 RomSettings::RomSettings()
 :	ExpansionPakUsage( PAK_STATUS_UNKNOWN )
 ,	SaveType( SAVE_TYPE_UNKNOWN )
 ,	PatchesEnabled( true )
-,	SpeedSyncEnabled( 0 )
+,	SpeedSyncEnabled( 1 )
 ,	DynarecSupported( true )
 ,	DynarecLoopOptimisation( false )
 ,	DynarecDoublesOptimisation( false )
@@ -514,16 +506,11 @@ RomSettings::RomSettings()
 {
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-RomSettings::~RomSettings()
-{
-}
 
-//*****************************************************************************
 //
-//*****************************************************************************
+
+RomSettings::~RomSettings() {}
+
 void	RomSettings::Reset()
 {
 	GameName = "";

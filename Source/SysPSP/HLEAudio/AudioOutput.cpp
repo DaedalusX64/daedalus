@@ -43,33 +43,33 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern u32 gSoundSync;
 
-static const u32	DESIRED_OUTPUT_FREQUENCY = 44100;
-static const u32	MAX_OUTPUT_FREQUENCY = DESIRED_OUTPUT_FREQUENCY * 4;
+static const u32	DESIRED_OUTPUT_FREQUENCY {44100};
+static const u32	MAX_OUTPUT_FREQUENCY {DESIRED_OUTPUT_FREQUENCY * 4};
 
 //static const u32	ADAPTIVE_FREQUENCY_ADJUST = 2000;
 // Large BUFFER_SIZE creates huge delay on sound //Corn
-static const u32	BUFFER_SIZE = 1024 * 2;
+static const u32	BUFFER_SIZE {1024 * 2};
 
-static const u32	PSP_NUM_SAMPLES = 512;
+static const u32	PSP_NUM_SAMPLES {512};
 
 // Global variables
-static SceUID bufferEmpty;
+static SceUID bufferEmpty {};
 
-static s32 sound_channel = PSP_AUDIO_NEXT_CHANNEL;
-static volatile s32 sound_volume = PSP_AUDIO_VOLUME_MAX;
-static volatile u32 sound_status = 0;
+static s32 sound_channel {PSP_AUDIO_NEXT_CHANNEL};
+static volatile s32 sound_volume {PSP_AUDIO_VOLUME_MAX};
+static volatile u32 sound_status {0};
 
-static volatile int pcmflip = 0;
+static volatile int pcmflip {0};
 static s16 __attribute__((aligned(16))) pcmout1[PSP_NUM_SAMPLES * 2]; // # of stereo samples
 static s16 __attribute__((aligned(16))) pcmout2[PSP_NUM_SAMPLES * 2];
 
-static bool audio_open = false;
+static bool audio_open {false};
 
 static AudioOutput * ac;
 
 static int fillBuffer(SceSize args, void *argp)
 {
-	s16 *fillbuf;
+	s16 *fillbuf {0};
 
 	while(sound_status != 0xDEADBEEF)
 	{
@@ -84,7 +84,7 @@ static int fillBuffer(SceSize args, void *argp)
 
 static int audioOutput(SceSize args, void *argp)
 {
-	s16 *playbuf;
+	s16 *playbuf {0};
 
 	while(sound_status != 0xDEADBEEF)
 	{
@@ -230,10 +230,12 @@ void AudioOutput::AddBuffer( u8 *start, u32 length )
 	if (!mAudioPlaying)
 		StartAudio();
 
-	u32 num_samples = length / sizeof( Sample );
+	u32 num_samples {length / sizeof( Sample )};
 
 	//Adapt Audio to sync% //Corn
-	u32 output_freq;
+	//		output_freq = DESIRED_OUTPUT_FREQUENCY;
+			/*
+	u32 output_freq {};
 	if (gAudioRateMatch)
 	{
 		if (gSoundSync > 88200)			output_freq = 88200;	//limit upper rate
@@ -242,9 +244,9 @@ void AudioOutput::AddBuffer( u8 *start, u32 length )
 	}
 	else
 	{
-		output_freq = DESIRED_OUTPUT_FREQUENCY;
-	}
 
+	}
+*/
 	switch( gAudioPluginEnabled )
 	{
 	case APM_DISABLED:
@@ -252,7 +254,7 @@ void AudioOutput::AddBuffer( u8 *start, u32 length )
 
 	case APM_ENABLED_ASYNC:
 		{
-			SAddSamplesJob	job( mAudioBufferUncached, reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, output_freq );
+			SAddSamplesJob	job( mAudioBufferUncached, reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, 44100 );
 
 			gJobManager.AddJob( &job, sizeof( job ) );
 		}
@@ -260,7 +262,7 @@ void AudioOutput::AddBuffer( u8 *start, u32 length )
 
 	case APM_ENABLED_SYNC:
 		{
-			mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, output_freq );
+			mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, 44100 );
 		}
 		break;
 	}

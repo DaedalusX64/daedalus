@@ -46,8 +46,7 @@ extern void me_stub_end(void);
 
 void dcache_inv_all()
 {
-   int i;
-   for(i = 0; i < 16384; i += 64) {
+   for(int i = 0; i < 16384; i += 64) {
       store_tag(i, 0, 0);
       __builtin_allegrex_cache(0x13, i);
       __builtin_allegrex_cache(0x11, i);
@@ -56,15 +55,14 @@ void dcache_inv_all()
 
 void dcache_inv_range(void *addr, int size)
 {
-   int i, j = (int)addr;
+   int i, j =(int)addr;
    for(i = j; i < size+j; i += 64)
       __builtin_allegrex_cache(0x19, i);
 }
 
 void dcache_wbinv_all()
 {
-   int i;
-   for(i = 0; i < 8192; i += 64)
+   for(int i = 0; i < 8192; i += 64)
    {
       __builtin_allegrex_cache(0x14, i);
       __builtin_allegrex_cache(0x14, i);
@@ -82,7 +80,6 @@ void dcache_wbinv_range(void *addr, int size)
 static void me_loop(volatile struct me_struct *mei)
 {
 	unsigned int k1;
-
 	k1 = pspSdkSetK1(0);
 
 	while (mei->init) // ME runs this loop until killed
@@ -115,9 +112,9 @@ static void me_loop(volatile struct me_struct *mei)
 
 int InitME(volatile struct me_struct *mei)
 {
-	unsigned int k1;
+unsigned int k1;
 
-	k1 = pspSdkSetK1(0);
+k1 = pspSdkSetK1(0);
 
 	if (mei == 0)
 	{
@@ -154,9 +151,8 @@ int InitME(volatile struct me_struct *mei)
 
 void KillME(volatile struct me_struct *mei)
 {
-	unsigned int k1;
 
-	k1 = pspSdkSetK1(0);
+	unsigned int k1 = pspSdkSetK1(0);
 
 	if (mei == 0)
 	{

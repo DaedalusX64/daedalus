@@ -33,14 +33,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Utility/ModulePSP.h"
 #include "Utility/Mutex.h"
 #include "Utility/Thread.h"
+#include "Utility/FastMemcpy.h"
 
 #ifdef DAEDALUS_PSP_USE_ME
-bool gLoadedMediaEnginePRX = false;
+bool gLoadedMediaEnginePRX {false};
 
 volatile me_struct *mei;
 #endif
 CJobManager gJobManager( 1024, TM_ASYNC_ME );
-//CJobManager gJobManager( 1024, TM_SYNC );
 
 bool InitialiseJobManager()
 {
@@ -149,7 +149,12 @@ u32 CJobManager::JobMain( void * arg )
 //*****************************************************************************
 bool CJobManager::AddJob( SJob * job, u32 job_size )
 {
-	DAEDALUS_ASSERT( job != NULL, "No job!" );
+	bool	success( false );
+
+	if( job == NULL ){
+		success = true;
+		return success;
+	}
 
 	if( mTaskMode == TM_SYNC )
 	{
@@ -161,15 +166,18 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 
 	Start();
 
-	bool	success( false );
-
 	//printf( "Adding job...waiting for empty\n" );
 	sceKernelWaitSema( mWorkEmpty, 1, NULL );
 
 	// Add job to queue
 	if( job_size <= mJobBufferSize )
 	{
-		memcpy( mJobBuffer, job, job_size );
+		// Add job to queue
+		memcpy_vfpu( mJobBuffer, job, job_size );
+
+		//clear the Cache
+		sceKernelDcacheWritebackInvalidateAll();
+
 		//printf( "Adding job...signaling\n" );
 		sceKernelSignalSema( mWorkReady, 1 );
 
@@ -185,31 +193,37 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 //*****************************************************************************
 void CJobManager::Run()
 {
+
 	while( true )
 	{
-		SceUInt timeout = 5*1000;  // Microseconds
+		//This wait time sets the amount of time between checking for the next job. Waiting to long will cause a crash.
+		SceUInt timeout {5*1000};  // Microseconds
 
 		// Check for work with a timeout, in case we want to quit and no more work comes in
 		if( sceKernelWaitSema( mWorkReady, 1, &timeout ) >= 0 )
 		{
+			//Set job to ME Buffer
 			SJob *	job( static_cast< SJob * >( mJobBuffer ) );
 
-#ifdef DAEDALUS_PSP_USE_ME
-			if( gLoadedMediaEnginePRX && mTaskMode == TM_ASYNC_ME )
+			//Check if the Media Engine CPU is free if so run audio job on it.
+			if( CheckME( mei ))
 			{
-				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
 
-				// wait on ME to finish any previous job
-				while ( !CheckME( mei ) )
-					sceKernelDelayThread( 100 ); // give up time while waiting on ME
+				//printf("Run Job on Media Engine\n");
+
+				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
 
 				// Execute previous job finalised
 				if( run->FiniJob )
 					run->FiniJob( run );
 
-				// copy new job to run buffer
+				//clear Cache
+				sceKernelDcacheWritebackInvalidateAll();
+
+				// copy new job to run buffer for Media Engine
 				memcpy( mRunBuffer, mJobBuffer, mJobBufferSize );
-				//sceKernelDcacheWritebackInvalidateRange(mRunBuffer, mJobBufferSize);
+
+				//clear Cache -> this one is very important without it the CheckME(mei) will not return with the ME status.
 				sceKernelDcacheWritebackInvalidateAll();
 
 				// signal ready for a new job
@@ -221,10 +235,18 @@ void CJobManager::Run()
 
 				// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
 				BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL );
+
+				//Mark Job(run) from Mrunbuffer as Finished
+				run->FiniJob( run );
+				run->FiniJob = NULL; // so it doesn't get run again later
+
 			}
+
 			else
-#endif
-			{
+				{
+
+				//printf("Media Engine is busy run on main CPU \n");
+
 				// Execute job initialise
 				if( job->InitJob )
 					job->InitJob( job );
@@ -239,16 +261,11 @@ void CJobManager::Run()
 
 				// signal ready for a new job
 				sceKernelSignalSema( mWorkEmpty, 1 );
-			}
-		}
-		else
-		{
-			//printf( "Timed out\n" );
 
-			// check if finished function and ME finished
-#ifdef DAEDALUS_PSP_USE_ME
-			if( gLoadedMediaEnginePRX && mTaskMode == TM_ASYNC_ME )
-			{
+				//clear the cache again before checking the ME
+				sceKernelDcacheWritebackInvalidateAll();
+
+				// Switch back to Job from ME to see if the me is done and mark the job finished
 				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
 
 				// Execute job finalised if ME done
@@ -257,13 +274,16 @@ void CJobManager::Run()
 					run->FiniJob( run );
 					run->FiniJob = NULL; // so it doesn't get run again later
 				}
+
 			}
-#endif
 		}
 
-		// This thread needs to be terminated, so break this loop
-		if( mWantQuit )
+		// This thread needs to be terminated, so break this loop & kill the me
+		if( mWantQuit ){
+			KillME(mei);
 			break;
+		}
+
 	}
 	sceKernelExitDeleteThread(0);
 }

@@ -38,7 +38,7 @@ class CAssemblyBuffer
 
 		inline void	PadTo16Bytes()
 		{
-			// FIXME: warning: operation on ‘((CAssemblyBuffer*)this)->CAssemblyBuffer::mCurrentPos’ may be undefined [-Wsequence-point]
+			// FIXME: warning: operation on ï¿½((CAssemblyBuffer*)this)->CAssemblyBuffer::mCurrentPosï¿½ may be undefined [-Wsequence-point]
 			mCurrentPos = (--mCurrentPos & 0xfffffff0) + 0x10; // align to 16-byte boundary
 		}
 

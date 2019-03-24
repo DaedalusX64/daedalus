@@ -440,4 +440,3 @@ const char* SaveState_GetRom( const char * filename )
 	return CRomDB::Get()->QueryFilenameFromID(
 		RomID( rom_header.CRC1, rom_header.CRC2, rom_header.CountryID ));
 }
-

@@ -127,17 +127,17 @@ private:
 	CAssemblyBuffer				mAssemblyBufferB;
 };
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 CCodeBufferManager *	CCodeBufferManager::Create()
 {
 	return new CCodeBufferManagerPSP;
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 bool	CCodeBufferManagerPSP::Initialise()
 {
 #ifdef DAEDALUS_DEBUG_DYNAREC
@@ -152,27 +152,27 @@ bool	CCodeBufferManagerPSP::Initialise()
 	return true;
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeBufferManagerPSP::Reset()
 {
 	mPrimaryBuffer.Reset();
 	mSecondaryBuffer.Reset();
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 void	CCodeBufferManagerPSP::Finalise()
 {
 	mPrimaryBuffer.Finalise();
 	mSecondaryBuffer.Finalise();
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 CCodeGenerator * CCodeBufferManagerPSP::StartNewBlock()
 {
 	u8 * primary( mPrimaryBuffer.StartNewBlock() );
@@ -183,9 +183,9 @@ CCodeGenerator * CCodeBufferManagerPSP::StartNewBlock()
 	return new CCodeGeneratorPSP( &mAssemblyBufferA, &mAssemblyBufferB );
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 u32 CCodeBufferManagerPSP::FinaliseCurrentBlock()
 {
 	const u8 *		p_base_a( mAssemblyBufferA.GetStartAddress().GetTargetU8P() );

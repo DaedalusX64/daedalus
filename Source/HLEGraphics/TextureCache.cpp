@@ -108,12 +108,12 @@ void CTextureCache::DropTextures()
 {
 	MutexLock lock(GetDebugMutex());
 
-	for( u32 i = 0; i < mTextures.size(); ++i)
+	for( u32 i {}; i < mTextures.size(); ++i)
 	{
 		delete mTextures[i];
 	}
 	mTextures.clear();
-	for( u32 i = 0; i < HASH_TABLE_SIZE; ++i )
+	for( u32 i {}; i < HASH_TABLE_SIZE; ++i )
 	{
 		mpCacheHashTable[i] = NULL;
 	}
@@ -124,9 +124,7 @@ void CTextureCache::DropTextures()
 
 static void TextureCacheStat( u32 l1_hit, u32 l2_hit, u32 size )
 {
-	static u32 total_lookups = 0;
-	static u32 total_l1_hits = 0;
-	static u32 total_l2_hits = 0;
+	static u32 total_lookups {}, total_l1_hits {}, total_l2_hits {};
 
 	total_l1_hits += l1_hit;
 	total_l2_hits += l2_hit;
@@ -169,15 +167,16 @@ public:
 // Otherwise, create surfaces, and load texture into memory
 CachedTexture * CTextureCache::GetOrCreateCachedTexture(const TextureInfo & ti)
 {
-	DAEDALUS_PROFILE( "CTextureCache::GetOrCreateCachedTexture" );
-
+	#ifdef DAEDALUS_ENABLE_PROFILING
+		DAEDALUS_PROFILE( "CTextureCache::GetOrCreateCachedTexture" );
+	#endif
 	// NB: this is a no-op in normal builds.
 	MutexLock lock(GetDebugMutex());
 
 	//
 	// Retrieve the texture from the cache (if it already exists)
 	//
-	u32	ixa = MakeHashIdxA( ti );
+	u32	ixa {MakeHashIdxA( ti )};
 	if( mpCacheHashTable[ixa] && mpCacheHashTable[ixa]->GetTextureInfo() == ti )
 	{
 		RECORD_CACHE_HIT( 1, 0 );
@@ -186,7 +185,7 @@ CachedTexture * CTextureCache::GetOrCreateCachedTexture(const TextureInfo & ti)
 		return mpCacheHashTable[ixa];
 	}
 
-	u32 ixb = MakeHashIdxB( ti );
+	u32 ixb {MakeHashIdxB( ti )};
 	if( mpCacheHashTable[ixb] && mpCacheHashTable[ixb]->GetTextureInfo() == ti )
 	{
 		RECORD_CACHE_HIT( 1, 0 );

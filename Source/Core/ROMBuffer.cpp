@@ -217,7 +217,7 @@ bool RomBuffer::Open()
 #else
 		u32 offset( 0 );
 		u32 length_remaining( sRomSize );
-		const u32 TEMP_BUFFER_SIZE = 128 * 1024;
+		const u32 TEMP_BUFFER_SIZE {128 * 1024};
 
 		intraFont* ltn8  = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ASCII);
 		intraFontSetStyle( ltn8, 1.5f, 0xFF000000, 0, 0.f, INTRAFONT_ALIGN_CENTER );
@@ -326,21 +326,8 @@ void	RomBuffer::Close()
 	sRomFixed  = false;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
-bool	RomBuffer::IsRomLoaded()
-{
-	return sRomLoaded;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-u32		RomBuffer::GetRomSize()
-{
-	return sRomSize;
-}
+bool	RomBuffer::IsRomLoaded() { return sRomLoaded; }
+u32		RomBuffer::GetRomSize() { return sRomSize; }
 
 namespace
 {
@@ -353,9 +340,9 @@ namespace
 		// Similar algorithm to below - we don't care about byte swapping though
 		while(length > 0)
 		{
-			u8 *	p_chunk_base;
-			u32		chunk_offset;
-			u32		chunk_size;
+			u8 *	p_chunk_base {};
+			u32		chunk_offset {};
+			u32		chunk_size {};
 
 			if( !p_cache->GetChunk( src_offset, &p_chunk_base, &chunk_offset, &chunk_size ) )
 			{
@@ -392,8 +379,9 @@ void	RomBuffer::GetRomBytesRaw( void * p_dst, u32 rom_start, u32 length )
 	}
 	else
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( spRomFileCache != NULL, "How come we have no file cache?" );
-
+		#endif
 		CopyBytesRaw( spRomFileCache, reinterpret_cast< u8 * >( p_dst ), rom_start, length );
 	}
 }
@@ -403,7 +391,9 @@ void	RomBuffer::GetRomBytesRaw( void * p_dst, u32 rom_start, u32 length )
 //*****************************************************************************
 void	RomBuffer::PutRomBytesRaw( u32 rom_start, const void * p_src, u32 length )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( IsRomAddressFixed(), "Cannot put rom bytes when the data isn't fixed" );
+	#endif
 
 	memcpy( (u8*)spRomData + rom_start, p_src, length );
 
@@ -423,8 +413,9 @@ void * RomBuffer::GetAddressRaw( u32 rom_start )
 		else
 		{
 			// Read the cached bytes into our scratch buffer, and return that
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( spRomFileCache != NULL, "How come we have no file cache?" );
-
+				#endif
 			CopyBytesRaw( spRomFileCache, sScratchBuffer, rom_start, SCRATCH_BUFFER_LENGTH );
 
 			return sScratchBuffer;
@@ -450,9 +441,9 @@ void RomBuffer::CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_off
 	{
 		while(length > 0)
 		{
-			u8 *	p_chunk_base;
-			u32		chunk_offset;
-			u32		chunk_size;
+			u8 *	p_chunk_base {};
+			u32		chunk_offset {};
+			u32		chunk_size {};
 
 			if( !spRomFileCache->GetChunk( src_offset, &p_chunk_base, &chunk_offset, &chunk_size ) )
 			{
@@ -494,9 +485,10 @@ bool RomBuffer::IsRomAddressFixed()
 //*****************************************************************************
 const void * RomBuffer::GetFixedRomBaseAddress()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( IsRomLoaded(), "The rom isn't loaded" );
 	DAEDALUS_ASSERT( IsRomAddressFixed(), "Trying to access the rom base address when it's not fixed" );
-
+#endif
 	return spRomData;
 
 }

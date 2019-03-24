@@ -159,7 +159,7 @@ struct TnLMode
 			u32 PointLight : 1;		// 0x100
 			u32 pad0 : 23;			// 0x0
 		};
-		
+
 		struct
 		{
 			u16 Modes;

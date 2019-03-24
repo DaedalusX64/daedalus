@@ -38,26 +38,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/IO.h"
 #include "Utility/Preferences.h"
 #include "Utility/Stream.h"
+#include "PSPMenu.h"
 
 
-namespace
-{
-	const u32		TITLE_AREA_TOP = 10;
-
-	const u32		TEXT_AREA_LEFT = 40;
-	const u32		TEXT_AREA_RIGHT = 440;
-
-	const s32		DESCRIPTION_AREA_TOP = 0;		// We render text aligned from the bottom, so this is largely irrelevant
-	const s32		DESCRIPTION_AREA_BOTTOM = 272-6;
-	const s32		DESCRIPTION_AREA_LEFT = 16;
-	const s32		DESCRIPTION_AREA_RIGHT = 480-16;
-
-	const u32		TEXT_AREA_TOP = 272 / 2;
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
 class ICheatOptionsScreen : public CCheatOptionsScreen, public CUIScreen
 {
 	public:
@@ -74,21 +57,17 @@ class ICheatOptionsScreen : public CCheatOptionsScreen, public CUIScreen
 		virtual bool				IsFinished() const									{ return mIsFinished; }
 
 	private:
-				void				OnConfirm();
-				void				OnCancel();
-
-	private:
+		void				OnConfirm();
+		void				OnCancel();
 		RomID						mRomID;
 		std::string					mRomName;
 		SRomPreferences				mRomPreferences;
-
 		bool						mIsFinished;
-
 		CUIElementBag				mElements;
 };
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 class CCheatType : public CUISetting
 {
 public:
@@ -136,9 +115,6 @@ private:
 };
 
 
-//*************************************************************************************
-//
-//*************************************************************************************
 class CCheatNotFound : public CUISetting
 	{
 	public:
@@ -147,9 +123,7 @@ class CCheatNotFound : public CUISetting
 		{
 		}
 		// Always show as read only when no cheats are found
-		//
 		virtual bool			IsReadOnly()	const	{ return true; }
-
 		virtual bool			IsSelectable()	const	{ return false; }
 		virtual	void			OnSelected()			{ }
 
@@ -158,24 +132,15 @@ class CCheatNotFound : public CUISetting
 		virtual const char *	GetSettingName() const	{ return "Disabled";	}
 	};
 
-//*************************************************************************************
-//
-//*************************************************************************************
-CCheatOptionsScreen::~CCheatOptionsScreen()
-{
-}
 
-//*************************************************************************************
-//
-//*************************************************************************************
+CCheatOptionsScreen::~CCheatOptionsScreen() {}
+
 CCheatOptionsScreen *	CCheatOptionsScreen::Create( CUIContext * p_context, const RomID & rom_id )
 {
 	return new ICheatOptionsScreen( p_context, rom_id );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & rom_id )
 :	CUIScreen( p_context )
 ,	mRomID( rom_id )
@@ -226,16 +191,16 @@ ICheatOptionsScreen::ICheatOptionsScreen( CUIContext * p_context, const RomID & 
 
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 ICheatOptionsScreen::~ICheatOptionsScreen()
 {
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 void	ICheatOptionsScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	if(old_buttons != new_buttons)
@@ -268,36 +233,34 @@ void	ICheatOptionsScreen::Update( float elapsed_time, const v2 & stick, u32 old_
 	}
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 void	ICheatOptionsScreen::Render()
 {
 	mpContext->ClearBackground();
 
-	//u32		font_height( mpContext->GetFontHeight() );
-	//u32		line_height( font_height + 2 );
-	s32		y;
+
+ s16		y;
 
 	const char * const title_text = "Cheat Options";
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
 	u32		heading_height( mpContext->GetFontHeight() );
-	y = TITLE_AREA_TOP + heading_height;
-	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() ); y += heading_height;
+	y = MENU_TOP + heading_height;
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() ); y += heading_height;
 	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
 
 	y += 2;
 
-	//mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, mRomName.c_str(), mpContext->GetDefaultTextColour() ); y += line_height;
 
 	y += 4;
 
 	// Very basic scroller for cheats, note ROM tittle is disabled since it overlaps when scrolling - FIX ME
 	//
 	if( mElements.GetSelectedIndex() > 1 )
-		mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, TEXT_AREA_TOP - mElements.GetSelectedIndex()*11 );
+		mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN - mElements.GetSelectedIndex()*11 );
 	else
-		mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, TEXT_AREA_TOP - mElements.GetSelectedIndex());
+		mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, BELOW_MENU_MIN - mElements.GetSelectedIndex());
 
 	//mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y );
 
@@ -316,18 +279,18 @@ void	ICheatOptionsScreen::Render()
 	}
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 void	ICheatOptionsScreen::Run()
 {
 	CUIScreen::Run();
 }
 
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 void	ICheatOptionsScreen::OnConfirm()
 {
 	CPreferences::Get()->SetRomPreferences( mRomID, mRomPreferences );
@@ -339,9 +302,9 @@ void	ICheatOptionsScreen::OnConfirm()
 	mIsFinished = true;
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 void	ICheatOptionsScreen::OnCancel()
 {
 	mIsFinished = true;

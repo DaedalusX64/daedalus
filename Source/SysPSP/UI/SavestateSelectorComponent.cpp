@@ -39,41 +39,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/IO.h"
 #include "Utility/Stream.h"
 #include "Utility/Translate.h"
+#include "PSPMenu.h"
 
-namespace
-{
-	//const char *			INSTRUCTIONS_TEXT = "Select a game from the list"; //ToDo - Not Currently Used
 
-	const char * const		SAVING_STATUS_TEXT  = "Saving...";
-	const char * const		LOADING_STATUS_TEXT = "Loading...";
-
-	const u32				TEXT_AREA_TOP = 272 / 2;
-	const u32				TEXT_AREA_LEFT = 20;
-	const u32				TEXT_AREA_RIGHT = 460;
-
-	const s32				DESCRIPTION_AREA_TOP = 272-20;		// We render text aligned from the bottom, so this is largely irrelevant
-	const s32				DESCRIPTION_AREA_BOTTOM = 272-10;
-	const s32				DESCRIPTION_AREA_LEFT = 16;
-	const s32				DESCRIPTION_AREA_RIGHT = 480-16;
-
-	const u32				ICON_AREA_TOP = 40;
-	const u32				ICON_AREA_LEFT = 480/2;
-	const u32				ICON_AREA_WIDTH = 220;
-	const u32				ICON_AREA_HEIGHT = 136;
-
-	const u32				NUM_SAVESTATE_SLOTS = 64;
-
-	const u32				INVALID_SLOT = u32( -1 );
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
 class ISavestateSelectorComponent : public CSavestateSelectorComponent
 {
 	public:
 
-		ISavestateSelectorComponent( CUIContext * p_context, EAccessType access_type, CFunctor1< const char * > * on_slot_selected, const char *running_rom );
+		ISavestateSelectorComponent( CUIContext * p_context, EAccessType accetype, CFunctor1< const char * > * on_slot_selected, const char *running_rom );
 		~ISavestateSelectorComponent();
 
 		// CUIScreen
@@ -109,35 +82,23 @@ class ISavestateSelectorComponent : public CSavestateSelectorComponent
 		u32						mLastPreviewLoad;
 };
 
-//*************************************************************************************
-//
-//*************************************************************************************
-CSavestateSelectorComponent::~CSavestateSelectorComponent()
-{
-}
 
-//*************************************************************************************
-//
-//*************************************************************************************
+CSavestateSelectorComponent::~CSavestateSelectorComponent() {}
+
+
 CSavestateSelectorComponent::CSavestateSelectorComponent( CUIContext * p_context )
 :	CUIComponent( p_context )
+{}
+
+
+CSavestateSelectorComponent *	CSavestateSelectorComponent::Create( CUIContext * p_context, EAccessType accetype, CFunctor1< const char * > * on_slot_selected, const char *running_rom )
 {
+	return new ISavestateSelectorComponent( p_context, accetype, on_slot_selected, running_rom );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-CSavestateSelectorComponent *	CSavestateSelectorComponent::Create( CUIContext * p_context, EAccessType access_type, CFunctor1< const char * > * on_slot_selected, const char *running_rom )
-{
-	return new ISavestateSelectorComponent( p_context, access_type, on_slot_selected, running_rom );
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
 namespace
 {
-	void MakeSaveSlotPath(char * ss_path, char * png_path, u32 slot_idx, char *slot_path )
+	void MakeSaveSlotPath(char * path, char * png_path, u32 slot_idx, char *slot_path )
 	{
 		IO::Filename	filename_png;
 		IO::Filename	filename_ss;
@@ -147,27 +108,24 @@ namespace
 		sprintf( sub_path, "SaveStates/%s", slot_path);
 		if(!IO::Directory::IsDirectory( "ms0:/n64/SaveStates/" ))
 		{
-			IO::Path::Combine( ss_path, gDaedalusExePath, sub_path );
+			IO::Path::Combine( path, gDaedalusExePath, sub_path );
 			IO::Path::Combine( png_path, gDaedalusExePath, sub_path );
-			IO::Directory::EnsureExists( ss_path );		// Ensure this dir exists
+			IO::Directory::EnsureExists( path );		// Ensure this dir exists
 		}
 		else
 		{
-			IO::Path::Combine( ss_path, "ms0:/n64/", sub_path );
+			IO::Path::Combine( path, "ms0:/n64/", sub_path );
 			IO::Path::Combine( png_path, "ms0:/n64/", sub_path );
-			IO::Directory::EnsureExists( ss_path );		// Ensure this dir exists
+			IO::Directory::EnsureExists( path );		// Ensure this dir exists
 		}
-		IO::Path::Append( ss_path, filename_ss );
+		IO::Path::Append( path, filename_ss );
 		IO::Path::Append( png_path, filename_png );
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-ISavestateSelectorComponent::ISavestateSelectorComponent( CUIContext * p_context, EAccessType access_type, CFunctor1< const char * > * on_slot_selected, const char *running_rom )
+ISavestateSelectorComponent::ISavestateSelectorComponent( CUIContext * p_context, EAccessType accetype, CFunctor1< const char * > * on_slot_selected, const char *running_rom )
 :	CSavestateSelectorComponent( p_context )
-,	mAccessType( access_type )
+,	mAccessType( accetype )
 ,	mOnSlotSelected( on_slot_selected )
 ,	mSelectedSlot( INVALID_SLOT )
 ,	mIsFinished( false )
@@ -190,13 +148,16 @@ ISavestateSelectorComponent::ISavestateSelectorComponent( CUIContext * p_context
 void ISavestateSelectorComponent::LoadFolders(){
 	IO::FindHandleT		find_handle;
 	IO::FindDataT		find_data;
-	u32 i=0;
+	u32 i {0};
 	const char * description_text( mAccessType == AT_SAVING ? "Select the slot in which to save" : "Select the slot from which to load" );
 	IO::Filename full_path;
 	// We're using the same vector for directory names and slots, so we have to clear it
 	mElements.Clear();
-	for( u32 i = 0; i < NUM_SAVESTATE_SLOTS; ++i ) mPVExists[ i ] = 0;
-	mLastPreviewLoad = ~0;
+	for( u32 i {0}; i < NUM_SAVESTATE_SLOTS; ++i)
+	{
+		mPVExists[ i ] = 0;
+		mLastPreviewLoad = ~0 ;
+}
 
 	if (IO::FindFileOpen( "ms0:/n64/SaveStates" , &find_handle, find_data))
 	{
@@ -205,12 +166,11 @@ void ISavestateSelectorComponent::LoadFolders(){
 			IO::Path::Combine( full_path, "ms0:/n64/SaveStates", find_data.Name);
 			if(IO::Directory::IsDirectory(full_path) && strlen( find_data.Name ) > 2 )
 			{
-				COutputStringStream             str;
-				CUIElement *    		element;
+				COutputStringStream str;
+				CUIElement * element;
 				str << find_data.Name;
 				CFunctor1< u32 > *	functor_1( new CMemberFunctor1< ISavestateSelectorComponent, u32 >( this, &ISavestateSelectorComponent::OnFolderSelected ) );
 				CFunctor *		curried( new CCurriedFunctor< u32 >( functor_1, i++ ) );
-
 				element = new CUICommandImpl( curried, str.c_str(), description_text );
 				mElements.Add( element );
 				mElementTitle.push_back(find_data.Name);
@@ -226,12 +186,11 @@ void ISavestateSelectorComponent::LoadFolders(){
 			IO::Path::Combine( full_path, "SaveStates", find_data.Name);
 			if(IO::Directory::IsDirectory(full_path) && strlen( find_data.Name ) > 2 )
 			{
-				COutputStringStream             str;
-				CUIElement *    		element;
+				COutputStringStream str;
+				CUIElement *element;
 				str << find_data.Name;
-				CFunctor1< u32 > *	functor_1( new CMemberFunctor1< ISavestateSelectorComponent, u32 >( this, &ISavestateSelectorComponent::OnFolderSelected ) );
-				CFunctor *		curried( new CCurriedFunctor< u32 >( functor_1, i++ ) );
-
+				CFunctor1< u32 > *functor_1( new CMemberFunctor1< ISavestateSelectorComponent, u32 >( this, &ISavestateSelectorComponent::OnFolderSelected ) );
+				CFunctor *curried( new CCurriedFunctor< u32 >( functor_1, i++ ) );
 				element = new CUICommandImpl( curried, str.c_str(), description_text );
 				mElements.Add( element );
 				mElementTitle.push_back(find_data.Name);
@@ -242,7 +201,7 @@ void ISavestateSelectorComponent::LoadFolders(){
 	}
 	else
 	{
-		CUIElement *                    element;
+		CUIElement *element;
 		element = new CUICommandDummy( "There are no Savestates to load", "There are no Savestates to load" );
 		mElements.Add( element );
 	}
@@ -264,13 +223,10 @@ void ISavestateSelectorComponent::LoadSlots(){
 
 		IO::Filename filename_ss;
 		MakeSaveSlotPath( filename_ss, mPVFilename[ i ], i, current_slot_path);
-
 		mPVExists[ i ] = IO::File::Exists( mPVFilename[ i ] ) ? 1 : -1;
-
-		RomID			rom_id( SaveState_GetRomID( filename_ss ) );
-		RomSettings		settings;
-
-		CUIElement *	element;
+		RomID	rom_id( SaveState_GetRomID( filename_ss ) );
+		RomSettings	settings;
+		CUIElement *element;
 		if( !rom_id.Empty() && CRomSettingsDB::Get()->GetSettings( rom_id, &settings ) )
 		{
 			IO::File::Stat(filename_ss, &file_stat);
@@ -280,7 +236,7 @@ void ISavestateSelectorComponent::LoadSlots(){
 		}
 		else
 		{
-			str << Translate_String("<empty>");
+			str << Translate_String("Empty");
 			mSlotEmpty[ i ] = true;
 		}
 
@@ -301,21 +257,15 @@ void ISavestateSelectorComponent::LoadSlots(){
 
 		mElements.Add( element );
 	}
-
-
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 ISavestateSelectorComponent::~ISavestateSelectorComponent()
 {
 	delete mOnSlotSelected;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	//
@@ -401,7 +351,7 @@ void	ISavestateSelectorComponent::Update( float elapsed_time, const v2 & stick, 
 
 void	ISavestateSelectorComponent::deleteSlot(u32 id_ss)
 {
-    IO::Filename	ss_path;
+    IO::Filename	path;
     IO::Filename	png_path;
     IO::Filename	filename_ss;
     IO::Filename	filename_png;
@@ -411,20 +361,20 @@ void	ISavestateSelectorComponent::deleteSlot(u32 id_ss)
     sprintf( sub_path, "SaveStates/%s", current_slot_path);
 	if(!IO::Directory::IsDirectory( "ms0:/n64/SaveStates/" ))
 	{
-		IO::Path::Combine( ss_path, gDaedalusExePath, sub_path );
+		IO::Path::Combine( path, gDaedalusExePath, sub_path );
 		IO::Path::Combine( png_path, gDaedalusExePath, sub_path );
 	}
 	else
 	{
-		IO::Path::Combine( ss_path, "ms0:/n64/", sub_path );
+		IO::Path::Combine( path, "ms0:/n64/", sub_path );
 		IO::Path::Combine( png_path, "ms0:/n64/", sub_path );
 	}
-	IO::Path::Append( ss_path, filename_ss );
+	IO::Path::Append( path, filename_ss );
 	IO::Path::Append( png_path, filename_png );
 
-	if (IO::File::Exists(ss_path))
+	if (IO::File::Exists(path))
     {
-      remove(ss_path);
+      remove(path);
       deleteButtonTriggered=false;
       LoadSlots();
     }
@@ -436,23 +386,13 @@ void	ISavestateSelectorComponent::deleteSlot(u32 id_ss)
       LoadSlots();
     }
 }
-
-
-//*************************************************************************************
-//
-//*************************************************************************************
 void	ISavestateSelectorComponent::Render()
 {
 	const u32	font_height( mpContext->GetFontHeight() );
 
 	if( mSelectedSlot == INVALID_SLOT )
 	{
-		mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_LEFT, TEXT_AREA_TOP - mElements.GetSelectedIndex()*(font_height+2) );
-
-		/*if( mElements.GetSelectedIndex() > 0 )
-			mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_LEFT, TEXT_AREA_TOP - mElements.GetSelectedIndex()*11 );
-		else
-			mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_LEFT, TEXT_AREA_TOP);*/
+		mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_LEFT, BELOW_MENU_MIN - mElements.GetSelectedIndex()*(font_height+2) );
 
 		CUIElement *	element( mElements.GetSelectedElement() );
 		if( element != NULL )
@@ -460,8 +400,8 @@ void	ISavestateSelectorComponent::Render()
 
 			if( mPVExists[ mElements.GetSelectedIndex() ] == 1 )
 			{
-				v2	tl( ICON_AREA_LEFT+2, ICON_AREA_TOP+2 );
-				v2	wh( ICON_AREA_WIDTH-4, ICON_AREA_HEIGHT-4 );
+				v2	tl( PREVIEW_IMAGE_LEFT+2, BELOW_MENU_MIN+2 );
+				v2	wh( PREVIEW_IMAGE_WIDTH-4, PREVIEW_IMAGE_HEIGHT-4 );
 
 				if( mPreviewTexture == NULL || mElements.GetSelectedIndex() != mLastPreviewLoad )
 				{
@@ -469,14 +409,14 @@ void	ISavestateSelectorComponent::Render()
 					mLastPreviewLoad = mElements.GetSelectedIndex();
 				}
 
-				mpContext->DrawRect( ICON_AREA_LEFT, ICON_AREA_TOP, ICON_AREA_WIDTH, ICON_AREA_HEIGHT, c32::White );
+				mpContext->DrawRect( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, c32::White );
 				mpContext->RenderTexture( mPreviewTexture, tl, wh, c32::White );
 			}
 			else if( mPVExists[ mElements.GetSelectedIndex() ] == -1 && mElements.GetSelectedIndex() < NUM_SAVESTATE_SLOTS )
 			{
-				mpContext->DrawRect( ICON_AREA_LEFT, ICON_AREA_TOP, ICON_AREA_WIDTH, ICON_AREA_HEIGHT, c32::White );
-				mpContext->DrawRect( ICON_AREA_LEFT+2, ICON_AREA_TOP+2, ICON_AREA_WIDTH-4, ICON_AREA_HEIGHT-4, c32::Black );
-				mpContext->DrawTextAlign( ICON_AREA_LEFT, ICON_AREA_LEFT + ICON_AREA_WIDTH, AT_CENTRE, ICON_AREA_TOP+ICON_AREA_HEIGHT/2, "No Preview Available", c32::White );
+				mpContext->DrawRect( PREVIEW_IMAGE_LEFT, BELOW_MENU_MIN, PREVIEW_IMAGE_WIDTH, PREVIEW_IMAGE_HEIGHT, c32::White );
+				mpContext->DrawRect( PREVIEW_IMAGE_LEFT+2, BELOW_MENU_MIN+2, PREVIEW_IMAGE_WIDTH-4, PREVIEW_IMAGE_HEIGHT-4, c32::Black );
+				mpContext->DrawTextAlign( PREVIEW_IMAGE_LEFT, PREVIEW_IMAGE_LEFT + PREVIEW_IMAGE_WIDTH, AT_CENTRE, BELOW_MENU_MIN+PREVIEW_IMAGE_HEIGHT/2, "No Preview Available", c32::White );
 			}
 
 			const char *p_description( element->GetDescription() );
@@ -501,9 +441,7 @@ void	ISavestateSelectorComponent::Render()
 	  mpContext->DrawTextAlign(0,480,AT_CENTRE,135,"Press Triangle to delete this savestate",DrawTextUtilities::TextRed,DrawTextUtilities::TextWhite);
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	ISavestateSelectorComponent::OnSlotSelected( u32 slot_idx )
 {
 	if( slot_idx >= NUM_SAVESTATE_SLOTS )

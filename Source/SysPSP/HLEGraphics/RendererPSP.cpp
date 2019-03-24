@@ -274,8 +274,8 @@ void RendererPSP::ResetDebugState()
 
 RendererPSP::SBlendStateEntry RendererPSP::LookupBlendState( u64 mux, bool two_cycles )
 {
+	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DAEDALUS_PROFILE( "RendererPSP::LookupBlendState" );
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	mRecordedCombinerStates.insert( mux );
 #endif
 
@@ -364,9 +364,9 @@ inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, 
 		sceGuDisable(GU_TEXTURE_2D);	//Blend triangle without a texture
 		sceGuDisable(GU_ALPHA_TEST);
 		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-		
+
 		u32 FogColor = mFogColour.GetColour();
-		
+
 		//Copy fog color to vertices
 		for(u32 i = 0 ; i < num_vertices ; i++)
 		{
@@ -376,7 +376,7 @@ inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, 
 
 		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
 
-		sceGuDepthFunc(GU_GEQUAL);	//Restore default depth function	
+		sceGuDepthFunc(GU_GEQUAL);	//Restore default depth function
 	}
 }
 
@@ -550,8 +550,10 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	}
 	else
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		// Set default states
 		DAEDALUS_ERROR( "Unhandled blend mode" );
+		#endif
 		sceGuDisable( GU_TEXTURE_2D );
 		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
 	}
@@ -676,7 +678,7 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 		sceGuTexWrap( mTexWrap[texture_idx].u, mTexWrap[texture_idx].v );
 
 		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
-		
+
 		if ( mTnL.Flags.Fog )
 		{
 			RenderFog( p_FogVtx, num_vertices, triangle_mode, render_flags );
@@ -890,7 +892,7 @@ void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 {
 	DAEDALUS_PROFILE( "RendererPSP::Draw2DTexture" );
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
-	
+
 	// Enable or Disable ZBuffer test
 	if ( (mTnL.Flags.Zbuffer & gRDPOtherMode.z_cmp) | gRDPOtherMode.z_upd )
 	{
@@ -1223,4 +1225,3 @@ void DestroyRenderer()
 	gRendererPSP = NULL;
 	gRenderer    = NULL;
 }
-

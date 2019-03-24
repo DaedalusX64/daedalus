@@ -17,8 +17,8 @@ function pre_prep(){
         echo "Removing previous build attempt"
         rm -r "$PWD/daedbuild"
         mkdir "$PWD/daedbuild"
-    fi 
-  
+    fi
+
     if [ -d $PWD/DaedalusX64 ]; then
         rm -r $PWD/DaedalusX64/EBOOT.PBP
     else
@@ -40,9 +40,9 @@ function finalPrep() {
 
     if [ -f "$PWD/EBOOT.PBP" ]; then
         mv "$PWD/EBOOT.PBP" ../DaedalusX64/
-        cp -r ../Data/PSP/* ../DaedalusX64/
+        cp -r ../Data/* ../DaedalusX64/
     else
-        cp -r ../Data/PC/* ../DaedalusX64/
+        cp -r ../Data/* ../DaedalusX64/
         cp ../Source/SysGL/HLEGraphics/n64.psh ../DaedalusX64
     fi
 }
@@ -54,7 +54,7 @@ function buildPSP() {
   make -C "$PWD/../Source/SysPSP/PRX/KernelButtons"
   make -C "$PWD/../Source/SysPSP/PRX/MediaEngine"
 
-  make
+  make -j8
   #No point continuing if the elf file doesn't exist
   if [ -f "$PWD/daedalus.elf" ]; then
     #Pack PBP

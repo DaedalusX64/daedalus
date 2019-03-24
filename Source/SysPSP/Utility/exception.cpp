@@ -52,8 +52,8 @@ static void DumpInformation(PspDebugRegBlock * regs)
 	if (fp == NULL)
 		return;
 
-	const u32 RDRAM_base = (u32)g_pu8RamBase;
-	const u32 RDRAM_end = (u32)g_pu8RamBase + 8 * 1024 * 1024 - 1;
+	const u32 RDRAM_base {(u32)g_pu8RamBase};
+	const u32 RDRAM_end {(u32)g_pu8RamBase + 8 * 1024 * 1024 - 1};
 
 	fprintf(fp, "Exception details:\n");
 	{
@@ -67,7 +67,7 @@ static void DumpInformation(PspDebugRegBlock * regs)
 	// output CPU Regs
 	fprintf(fp, "\nCPU registers (PSP): ('*' -> pointing inside RDRAM else ':')\n");
 	{
-		for(int i=0; i<32; i+=4)
+		for(int i {0}; i<32; i+=4)
 			fprintf(fp, "\t%s%s%08X %s%s%08X %s%s%08X %s%s%08X\n",
 				regName[i+0], ( ((u32)regs->r[i+0] >= RDRAM_base) & ((u32)regs->r[i+0] <= RDRAM_end) ) ? "*" : ":", (int)regs->r[i+0],
 				regName[i+1], ( ((u32)regs->r[i+1] >= RDRAM_base) & ((u32)regs->r[i+1] <= RDRAM_end) ) ? "*" : ":", (int)regs->r[i+1],
@@ -97,7 +97,7 @@ static void DumpInformation(PspDebugRegBlock * regs)
 	// output FPU Regs
 	fprintf(fp, "\nFPU registers (PSP):\n");
 	{
-		for(int i=0; i<32; i+=4)
+		for(int i {0}; i<32; i+=4)
 			fprintf(fp, "\t%#+12.7f %#+12.7f %#+12.7f %#+12.7f\n", (f32)regs->fpr[i+0], (f32)regs->fpr[i+1], (f32)regs->fpr[i+2], (f32)regs->fpr[i+3]);
 	}
 
@@ -134,7 +134,7 @@ static void DumpInformation(PspDebugRegBlock * regs)
 
 	fprintf(fp, "\nCPU State (N64):\n");
 	{
-		for(int i=0; i<32; i+=4)
+		for(int i {0}; i<32; i+=4)
 			fprintf(fp, "\t%s:%08X-%08X %s:%08X-%08X %s:%08X-%08X %s:%08X-%08X\n",
 			regName[i+0], gCPUState.CPU[i+0]._u32_1, gCPUState.CPU[i+0]._u32_0,
 			regName[i+1], gCPUState.CPU[i+1]._u32_1, gCPUState.CPU[i+1]._u32_0,
@@ -172,10 +172,10 @@ static void DumpInformation(PspDebugRegBlock * regs)
 
 void ExceptionHandler(PspDebugRegBlock * regs)
 {
-	const u32 RDRAM_base = (u32)g_pu8RamBase;
-	const u32 RDRAM_end = (u32)g_pu8RamBase + 8 * 1024 * 1024 - 1;
+	const u32 RDRAM_base {(u32)g_pu8RamBase};
+	const u32 RDRAM_end {(u32)g_pu8RamBase + 8 * 1024 * 1024 - 1};
     SceCtrlData pad;
-	bool exit = false;
+	bool exit {false};
 
 	pspDebugScreenInit();
     pspDebugScreenSetBackColor(0x00FF0000);
@@ -186,7 +186,7 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 	sceKernelDelayThread(1000000);	//Delay to avoid accidental button pressing
 
 #ifndef DAEDALUS_SILENT
-	u32 scroll_epc	= (u32)regs->epc;
+	u32 scroll_epc	{(u32)regs->epc};
 #endif
 
 	while( !exit )
@@ -204,7 +204,7 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 		pspDebugScreenPrintf("BadVAddr[%08X]\n\n", (u32)regs->badvaddr);
 
 		//Dump CPU registers, "*" marks pointer inside emulated RDRAM
-		for(u32 i = 0; i<32; i+=4)
+		for(u32 i {0}; i<32; i+=4)
 		{
 			pspDebugScreenPrintf(" %s%s%08X %s%s%08X %s%s%08X %s%s%08X\n",
 				regName[i+0], ( ((u32)regs->r[i+0] >= RDRAM_base) & ((u32)regs->r[i+0] <= RDRAM_end) ) ? "*" : ":", (u32)regs->r[i+0],
@@ -214,8 +214,8 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 		}
 
 #ifndef DAEDALUS_SILENT
-		u32 inst_before_epc = 15;
-		u32 inst_after_epc = 4;
+		u32 inst_before_epc {15};
+		u32 inst_after_epc {4};
 		const OpCode * p = (OpCode *)(scroll_epc - (inst_before_epc * 4));
 
 		pspDebugScreenPrintf("\n");
@@ -236,7 +236,7 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 		pspDebugScreenPrintf("\nPress (X)->exception.txt (O)->Quit Up/Down->Scroll ASM");
 
 		//Wait until a button is pressed
-		bool update = false;
+		bool update {false};
 		while( !update )
 		{
 			sceCtrlReadBufferPositive(&pad, 1);
@@ -266,7 +266,7 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 
 		pspDebugScreenPrintf("\nPress (X) to dump info to exception.txt or (O) to quit");
 
-		bool update = false;
+		bool update {false};
 		while( !update )
 		{
 			sceCtrlReadBufferPositive(&pad, 1);
@@ -292,7 +292,7 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 void initExceptionHandler()
 {
    SceKernelLMOption option;
-   int args[2], fd, modid;
+   int args[2], fd {0}, modid {0};
 
    memset(&option, 0, sizeof(option));
    option.size = sizeof(option);

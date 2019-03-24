@@ -19,7 +19,7 @@ static void TextureHandler(void * arg, WebDebugConnection * connection)
 
 	// Yes, this is pretty dodgy. Any random pointer can be passed in so we
 	// validated ptr against the list of textures below.
-	void * ptr = 0;
+	void * ptr {};
 	if (sscanf(params, "ptr=%p", &ptr) != 1)
 	{
 		printf("Couldn't parse pointer: %s\n", params);
@@ -34,7 +34,7 @@ static void TextureHandler(void * arg, WebDebugConnection * connection)
 		{
 			std::vector<CTextureCache::STextureInfoSnapshot> textures;
 			CTextureCache::Get()->Snapshot(lock, textures);
-			for (size_t i = 0; i < textures.size(); ++i)
+			for (size_t i {}; i < textures.size(); ++i)
 			{
 				CTextureCache::STextureInfoSnapshot & snap = textures[i];
 				if ((CNativeTexture*)snap.Texture == ptr)
@@ -98,7 +98,7 @@ static void TextureCacheHandler(void * arg, WebDebugConnection * connection)
 		std::vector<CTextureCache::STextureInfoSnapshot> textures;
 		CTextureCache::Get()->Snapshot(lock, textures);
 
-		for (size_t i = 0; i < textures.size(); ++i)
+		for (size_t i {}; i < textures.size(); ++i)
 		{
 			CTextureCache::STextureInfoSnapshot & snap = textures[i];
 			const TextureInfo & ti = snap.Info;
@@ -147,5 +147,3 @@ bool TextureCache_RegisterWebDebug()
 #endif
 	return true;
 }
-
-

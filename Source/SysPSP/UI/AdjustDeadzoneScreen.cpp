@@ -35,47 +35,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Graphics/DrawText.h"
 #include "Utility/Preferences.h"
 #include "Utility/Translate.h"
+#include "PSPMenu.h"
 
 
-namespace
-{
-	const s32				TEXT_AREA_LEFT = 40;
-	const s32				TEXT_AREA_TOP = 0;		// We render text aligned from the bottom, so this is largely irrelevant
-	const s32				TEXT_AREA_RIGHT = 480 - 40;
-	const s32				TEXT_AREA_BOTTOM = 272 - 10;
-
-	const char *			INSTRUCTIONS_TEXT = "Adjust the minimum and maximum deadzone regions. Up/Down: Increase or decrease the deadzone. Left/Right: Select minimum or maximum deadzone for adjusting. Triangle: Reset to defaults. Start/X: Confirm. Select/Circle: Cancel";
-
-
-	const char * const		TITLE_TEXT = "Adjust Stick Deadzone";
-	const u32				TITLE_Y = 10;
-
-	const u32				HALF_WIDTH( 480 / 2 );
-	const u32				CENTRE_X( 480 / 2 );
-	const u32				DISPLAY_WIDTH( 128 );
-	const u32				DISPLAY_RADIUS( DISPLAY_WIDTH / 2 );
-
-	const u32				PSP_CIRCLE_X = DISPLAY_RADIUS + ((HALF_WIDTH - DISPLAY_WIDTH) / 2);
-	const u32				PSP_CIRCLE_Y = 120;
-
-	const u32				N64_CIRCLE_X = CENTRE_X + DISPLAY_RADIUS + ((HALF_WIDTH - DISPLAY_WIDTH) / 2);
-	const u32				N64_CIRCLE_Y = 120;
-
-	const u32				PSP_TITLE_X = PSP_CIRCLE_X - DISPLAY_RADIUS;
-	const u32				PSP_TITLE_Y = PSP_CIRCLE_Y - DISPLAY_RADIUS - 16;
-	const u32				N64_TITLE_X = N64_CIRCLE_X - DISPLAY_RADIUS;
-	const u32				N64_TITLE_Y = N64_CIRCLE_Y - DISPLAY_RADIUS - 16;
-
-	const f32				DEADZONE_INCREMENT = 0.01f;
-
-	const f32				DEFAULT_MIN_DEADZONE = 0.28f;		// Kind of gross - share somehow with IInputManager?
-	const f32				DEFAULT_MAX_DEADZONE = 1.0f;
-
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
 class IAdjustDeadzoneScreen : public CAdjustDeadzoneScreen, public CUIScreen
 {
 	public:
@@ -83,10 +45,7 @@ class IAdjustDeadzoneScreen : public CAdjustDeadzoneScreen, public CUIScreen
 		IAdjustDeadzoneScreen( CUIContext * p_context );
 		~IAdjustDeadzoneScreen();
 
-		// CAdjustDeadzoneScreen
 		virtual void				Run();
-
-		// CUIScreen
 		virtual void				Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons );
 		virtual void				Render();
 		virtual bool				IsFinished() const									{ return mIsFinished; }
@@ -105,24 +64,20 @@ class IAdjustDeadzoneScreen : public CAdjustDeadzoneScreen, public CUIScreen
 		f32							mStickMaxDeadzone;
 };
 
-//*************************************************************************************
-//
-//*************************************************************************************
-CAdjustDeadzoneScreen::~CAdjustDeadzoneScreen()
-{
-}
 
-//*************************************************************************************
+CAdjustDeadzoneScreen::~CAdjustDeadzoneScreen() {}
+
+
 //
-//*************************************************************************************
+
 CAdjustDeadzoneScreen *	CAdjustDeadzoneScreen::Create( CUIContext * p_context )
 {
 	return new IAdjustDeadzoneScreen( p_context );
 }
 
-//*************************************************************************************
+
 //
-//*************************************************************************************
+
 IAdjustDeadzoneScreen::IAdjustDeadzoneScreen( CUIContext * p_context )
 :	CUIScreen( p_context )
 ,	mIsFinished( false )
@@ -134,16 +89,9 @@ IAdjustDeadzoneScreen::IAdjustDeadzoneScreen( CUIContext * p_context )
 {
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-IAdjustDeadzoneScreen::~IAdjustDeadzoneScreen()
-{
-}
+IAdjustDeadzoneScreen::~IAdjustDeadzoneScreen() {}
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IAdjustDeadzoneScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	if(new_buttons & PSP_CTRL_DOWN)
@@ -211,9 +159,7 @@ void	IAdjustDeadzoneScreen::Update( float elapsed_time, const v2 & stick, u32 ol
 	mN64Stick = ApplyDeadzone( mPspStick, mStickMinDeadzone, mStickMaxDeadzone );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IAdjustDeadzoneScreen::DrawCircle( s32 x, s32 y, s32 r, c32 colour )
 {
 	const u32 NUM_POINTS = 32;
@@ -234,9 +180,7 @@ void	IAdjustDeadzoneScreen::DrawCircle( s32 x, s32 y, s32 r, c32 colour )
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IAdjustDeadzoneScreen::DrawCrosshair( s32 x, s32 y, c32 colour )
 {
 	mpContext->DrawLine( x - 4, y, x - 1, y, colour );
@@ -245,9 +189,7 @@ void	IAdjustDeadzoneScreen::DrawCrosshair( s32 x, s32 y, c32 colour )
 	mpContext->DrawLine( x, y + 4, x, y + 1, colour );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IAdjustDeadzoneScreen::DrawStick( s32 x, s32 y, s32 r, const v2 & stick, f32 min_deadzone, f32 max_deadzone )
 {
 	c32		white( 255, 255, 255 );
@@ -274,14 +216,12 @@ void	IAdjustDeadzoneScreen::DrawStick( s32 x, s32 y, s32 r, const v2 & stick, f3
 	DrawCrosshair( stick_x, stick_y, white );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IAdjustDeadzoneScreen::Render()
 {
 	mpContext->ClearBackground();
 
-	mpContext->DrawTextAlign( 0, 480, AT_CENTRE, TITLE_Y, TITLE_TEXT, DrawTextUtilities::TextWhite );
+	mpContext->DrawTextAlign( 0, SCREEN_WIDTH, AT_CENTRE, TITLE_Y, TITLE_TEXT, DrawTextUtilities::TextWhite );
 
 	mpContext->DrawText( PSP_TITLE_X, PSP_TITLE_Y, "PSP", DrawTextUtilities::TextWhite );
 	mpContext->DrawText( N64_TITLE_X, N64_TITLE_Y, "N64", DrawTextUtilities::TextWhite );
@@ -293,18 +233,16 @@ void	IAdjustDeadzoneScreen::Render()
 	sprintf( str, "%s: %d, %s: %d", Translate_String("Min"), s32( 100.f * mStickMinDeadzone ), Translate_String("Max"), s32( 100.0f * mStickMaxDeadzone ) );
 	mpContext->DrawText( PSP_CIRCLE_X - DISPLAY_RADIUS, PSP_CIRCLE_Y + DISPLAY_RADIUS + 10, str, DrawTextUtilities::TextWhite );
 
-	mpContext->DrawTextArea( TEXT_AREA_LEFT,
-							 TEXT_AREA_TOP,
-							 TEXT_AREA_RIGHT - TEXT_AREA_LEFT,
-							 TEXT_AREA_BOTTOM - TEXT_AREA_TOP,
+	mpContext->DrawTextArea( LIST_TEXT_LEFT,
+							 BELOW_MENU_MIN,
+							 LIST_TEXT_WIDTH - LIST_TEXT_LEFT,
+							 (ROM_INFO_TEXT_X - 30) - BELOW_MENU_MIN,
 							 INSTRUCTIONS_TEXT,
 							 DrawTextUtilities::TextWhite,
 							 VA_BOTTOM );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IAdjustDeadzoneScreen::Run()
 {
 	CUIScreen::Run();

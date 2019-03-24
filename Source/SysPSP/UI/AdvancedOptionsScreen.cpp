@@ -35,26 +35,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Input/InputManager.h"
 #include "SysPSP/Graphics/DrawText.h"
 #include "Utility/Preferences.h"
+#include "PSPMenu.h"
 
 
-namespace
-{
-	const u32		TITLE_AREA_TOP = 10;
-
-	const u32		TEXT_AREA_LEFT = 40;
-	const u32		TEXT_AREA_RIGHT = 440;
-
-	const s32		DESCRIPTION_AREA_TOP = 0;		// We render text aligned from the bottom, so this is largely irrelevant
-	const s32		DESCRIPTION_AREA_BOTTOM = 272-6;
-	const s32		DESCRIPTION_AREA_LEFT = 16;
-	const s32		DESCRIPTION_AREA_RIGHT = 480-16;
-
-
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
 class IAdvancedOptionsScreen : public CAdvancedOptionsScreen, public CUIScreen
 {
 	public:
@@ -84,24 +67,14 @@ class IAdvancedOptionsScreen : public CAdvancedOptionsScreen, public CUIScreen
 		CUIElementBag				mElements;
 };
 
-//*************************************************************************************
-//
-//*************************************************************************************
-CAdvancedOptionsScreen::~CAdvancedOptionsScreen()
-{
-}
+CAdvancedOptionsScreen::~CAdvancedOptionsScreen() {}
 
-//*************************************************************************************
-//
-//*************************************************************************************
 CAdvancedOptionsScreen *	CAdvancedOptionsScreen::Create( CUIContext * p_context, const RomID & rom_id )
 {
 	return new IAdvancedOptionsScreen( p_context, rom_id );
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 IAdvancedOptionsScreen::IAdvancedOptionsScreen( CUIContext * p_context, const RomID & rom_id )
 :	CUIScreen( p_context )
 ,	mRomID( rom_id )
@@ -125,24 +98,15 @@ IAdvancedOptionsScreen::IAdvancedOptionsScreen( CUIContext * p_context, const Ro
 	mElements.Add( new CBoolSetting( &mRomPreferences.VideoRateMatch, "Video Rate Match", "Match video rate to the frame rate (makes some games less sluggish Rayman2/Donald Duck/Tom and Jerry/Earth Worm Jim)", "Yes", "No" ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.AudioRateMatch, "Audio Rate Match", "Match audio rate to the frame rate (less pops and clicks)", "Yes", "No" ) );
 	mElements.Add( new CBoolSetting( &mRomPreferences.FogEnabled, "Fog Emulation", "Enable or disable distance fog (works on many ROMs but the extra rendering pass uses more resources)", "Enabled", "Disabled" ) );
-
-	//	mElements.Add( new CUISpacer( 16 ) );
-
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< IAdvancedOptionsScreen >( this, &IAdvancedOptionsScreen::OnConfirm ), "Save & Return", "Confirm changes to settings and return." ) );
 	mElements.Add( new CUICommandImpl( new CMemberFunctor< IAdvancedOptionsScreen >( this, &IAdvancedOptionsScreen::OnCancel ), "Cancel", "Cancel changes to settings and return." ) );
 
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
-IAdvancedOptionsScreen::~IAdvancedOptionsScreen()
-{
-}
 
-//*************************************************************************************
-//
-//*************************************************************************************
+IAdvancedOptionsScreen::~IAdvancedOptionsScreen() {}
+
+
 void	IAdvancedOptionsScreen::Update( float elapsed_time, const v2 & stick, u32 old_buttons, u32 new_buttons )
 {
 	if(old_buttons != new_buttons)
@@ -175,31 +139,28 @@ void	IAdvancedOptionsScreen::Update( float elapsed_time, const v2 & stick, u32 o
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void	IAdvancedOptionsScreen::Render()
 {
 	mpContext->ClearBackground();
 
-	u32		font_height( mpContext->GetFontHeight() );
-	u32		line_height( font_height + 2 );
-	s32		y;
+	s16		font_height( mpContext->GetFontHeight() );
+	s16		line_height( font_height + 2 );
+	s16		y;
 
 	const char * const title_text = "Advanced Options";
 	mpContext->SetFontStyle( CUIContext::FS_HEADING );
-	u32		heading_height( mpContext->GetFontHeight() );
-	y = TITLE_AREA_TOP + heading_height;
-	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() ); y += heading_height;
+	s16		heading_height( mpContext->GetFontHeight() );
+	y = MENU_TOP + heading_height;
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, title_text, mpContext->GetDefaultTextColour() ); y += heading_height;
 	mpContext->SetFontStyle( CUIContext::FS_REGULAR );
 
 	y += 2;
 
-	mpContext->DrawTextAlign( TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y, mRomName.c_str(), mpContext->GetDefaultTextColour() ); y += line_height;
+	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, mRomName.c_str(), mpContext->GetDefaultTextColour() ); y += line_height;
 
 	y += 4;
 
-	mElements.Draw( mpContext, TEXT_AREA_LEFT, TEXT_AREA_RIGHT, AT_CENTRE, y );
+	mElements.Draw( mpContext, LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y );
 
 	CUIElement *	element( mElements.GetSelectedElement() );
 	if( element != NULL )
@@ -216,32 +177,21 @@ void	IAdvancedOptionsScreen::Render()
 	}
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
+
 void	IAdvancedOptionsScreen::Run()
 {
 	CUIScreen::Run();
 }
 
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void	IAdvancedOptionsScreen::OnConfirm()
 {
 	CPreferences::Get()->SetRomPreferences( mRomID, mRomPreferences );
-
 	CPreferences::Get()->Commit();
-
 	mRomPreferences.Apply();
-
 	mIsFinished = true;
 }
 
-//*************************************************************************************
-//
-//*************************************************************************************
 void	IAdvancedOptionsScreen::OnCancel()
 {
 	mIsFinished = true;

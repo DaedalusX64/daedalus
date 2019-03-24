@@ -37,10 +37,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/PrintOpCode.h"
 #include "Utility/Profiler.h"
 
-static const bool	gGraphicsEnabled = true;
-static const bool	gAudioEnabled	 = true;
+static const bool	gGraphicsEnabled {true};
+static const bool	gAudioEnabled	 {true};
 
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 #if 0
 static void RDP_DumpRSPCode(char * name, u32 crc, u32 * mem_base, u32 pc_base, u32 len)
 {
@@ -98,9 +98,9 @@ static void RDP_DumpRSPData(char * name, u32 crc, u32 * mem_base, u32 pc_base, u
 }
 #endif
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 #if 0
 static void	RSP_HLE_DumpTaskInfo( const OSTask * pTask )
 {
@@ -118,9 +118,9 @@ static void	RSP_HLE_DumpTaskInfo( const OSTask * pTask )
 }
 #endif
 
-//*****************************************************************************
+#endif
 //
-//*****************************************************************************
+
 void RSP_HLE_Finished(u32 setbits)
 {
 	// Need to point to last instr?
@@ -141,9 +141,9 @@ void RSP_HLE_Finished(u32 setbits)
 	}
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 static EProcessResult RSP_HLE_Graphics()
 {
 	DAEDALUS_PROFILE( "HLE: Graphics" );
@@ -170,9 +170,9 @@ static EProcessResult RSP_HLE_Graphics()
 	return PR_COMPLETED;
 }
 
-//*****************************************************************************
+
 //
-//*****************************************************************************
+
 static EProcessResult RSP_HLE_Audio()
 {
 	DAEDALUS_PROFILE( "HLE: Audio" );
@@ -184,13 +184,10 @@ static EProcessResult RSP_HLE_Audio()
 	return PR_COMPLETED;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
 // RSP_HLE_Jpeg and RSP_HLE_CICX105 were borrowed from Mupen64plus
 static u32 sum_bytes(const u8 *bytes, u32 size)
 {
-    u32 sum = 0;
+    u32 sum {};
     const u8 * const bytes_end = bytes + size;
 
     while (bytes != bytes_end)
@@ -199,9 +196,8 @@ static u32 sum_bytes(const u8 *bytes, u32 size)
     return sum;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
+
 EProcessResult RSP_HLE_Jpeg(OSTask * task)
 {
 void jpeg_decode_PS(OSTask *task);
@@ -209,7 +205,7 @@ void jpeg_decode_OB(OSTask *task);
 
 	// most ucode_boot procedure copy 0xf80 bytes of ucode whatever the ucode_size is.
 	// For practical purpose we use a ucode_size = min(0xf80, task->ucode_size)
-	u32 sum = sum_bytes(g_pu8RamBase + (u32)task->t.ucode , Min<u32>(task->t.ucode_size, 0xf80) >> 1);
+	u32 sum {sum_bytes(g_pu8RamBase + (u32)task->t.ucode , Min<u32>(task->t.ucode_size, 0xf80) >> 1)};
 
 	//DBGConsole_Msg(0, "JPEG Task: Sum=0x%08x", sum);
 	switch(sum)
@@ -225,12 +221,11 @@ void jpeg_decode_OB(OSTask *task);
 	return PR_COMPLETED;
 }
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
+
 EProcessResult RSP_HLE_CICX105(OSTask * task)
 {
-    const u32 sum = sum_bytes(g_pu8SpImemBase, 0x1000 >> 1);
+    const u32 sum {sum_bytes(g_pu8SpImemBase, 0x1000 >> 1)};
 
     switch(sum)
     {
@@ -239,8 +234,8 @@ EProcessResult RSP_HLE_CICX105(OSTask * task)
         case 0x9f2: /* CIC 7105 */
 			{
 				u32 i;
-				u8 * dst = g_pu8RamBase + 0x2fb1f0;
-				u8 * src = g_pu8SpImemBase + 0x120;
+				u8 * dst {g_pu8RamBase + 0x2fb1f0};
+				u8 * src {g_pu8SpImemBase + 0x120};
 
 				/* dma_read(0x1120, 0x1e8, 0x1e8) */
 				memcpy(g_pu8SpImemBase + 0x120, g_pu8RamBase + 0x1e8, 0x1f0);
@@ -260,9 +255,8 @@ EProcessResult RSP_HLE_CICX105(OSTask * task)
 
 	return PR_COMPLETED;
 }
-//*****************************************************************************
-//
-//*****************************************************************************
+
+
 void RSP_HLE_ProcessTask()
 {
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
@@ -299,8 +293,9 @@ void RSP_HLE_ProcessTask()
 		case M_JPGTASK:
 			result = RSP_HLE_Jpeg(pTask);
 			break;
-
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		default:
+
 			// This can be easily handled, need to find first a game that uses this though
 			DAEDALUS_ASSERT( pTask->t.type != M_FBTASK, "FB task is not handled");
 
@@ -309,7 +304,9 @@ void RSP_HLE_ProcessTask()
 			//	RSP_HLE_DumpTaskInfo( pTask );
 			//	RDP_DumpRSPCode("boot",    0xDEAFF00D, (u32*)(g_pu8RamBase + (((u32)pTask->t.ucode_boot)&0x00FFFFFF)), 0x04001000, pTask->t.ucode_boot_size);
 			//	RDP_DumpRSPCode("unkcode", 0xDEAFF00D, (u32*)(g_pu8RamBase + (((u32)pTask->t.ucode)&0x00FFFFFF)),      0x04001080, 0x1000 - 0x80);//pTask->t.ucode_size);
+
 			break;
+			#endif
 	}
 
 	// Started and completed. No need to change cores. [synchronously]
