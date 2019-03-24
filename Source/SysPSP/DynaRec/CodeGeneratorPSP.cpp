@@ -320,7 +320,9 @@ void	CCodeGeneratorPSP::Initialise( u32 entry_address, u32 exit_address, u32 * h
 void	CCodeGeneratorPSP::Finalise( ExceptionHandlerFn p_exception_handler_fn, const std::vector< CJumpLocation > & exception_handler_jumps )
 {
 	// We handle exceptions directly with _ReturnFromDynaRecIfStuffToDo - we should never get here on the psp
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( exception_handler_jumps.empty(), "Not expecting to have any exception handler jumps to process" );
+	#endif
 	GenerateAddressCheckFixups();
 
 	CAssemblyWriterPSP::Finalise();
@@ -340,7 +342,9 @@ void	CCodeGeneratorPSP::SetRegisterSpanList( const SRegisterUsageInfo & register
 
 	// Push all the available registers in reverse order (i.e. use temporaries later)
 	// Use temporaries first so we can avoid flushing them in case of a funcion call //Corn
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mAvailableRegisters.empty(), "Why isn't the available register list empty?" );
+	#endif
 	for( u32 i {0}; i < NUM_CACHE_REGS; i++ )
 	{
 		mAvailableRegisters.push( gRegistersToUseForCaching[ i ] );
