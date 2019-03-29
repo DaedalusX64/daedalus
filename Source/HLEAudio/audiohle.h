@@ -402,7 +402,7 @@ extern s16 pack_signed(s32 slice);
 typedef void ( * AudioHLEInstruction )( AudioHLECommand command );
 
 // ABI Functions
-// void ADDMIXER(AudioHLECommand command );
+ void ADDMIXER(AudioHLECommand command );
  void ADPCM(AudioHLECommand command); void ADPCM2(AudioHLECommand command ); void ADPCM3(AudioHLECommand command );
 void CLEARBUFF(AudioHLECommand command ); void CLEARBUFF2(AudioHLECommand command); void CLEARBUFF3(AudioHLECommand command);
 void DMEMMOVE(AudioHLECommand command); void DMEMMOVE2(AudioHLECommand command); void DMEMMOVE3(AudioHLECommand command);
@@ -410,12 +410,12 @@ void DUPLICATE2(AudioHLECommand command);
 void ENVMIXER(AudioHLECommand command); void ENVMIXER2(AudioHLECommand command); void ENVMIXER3(AudioHLECommand command); void ENVMIXER_GE(AudioHLECommand command);
 void ENVSETUP1(AudioHLECommand command ); void ENVSETUP2(AudioHLECommand command );
  void FILTER2(AudioHLECommand command );
-// void HILOGAIN(AudioHLECommand command );
-// void INTERL2(AudioHLECommand command );
-// void INTERLEAVE(AudioHLECommand command); void INTERLEAVE2(AudioHLECommand command); void INTERLEAVE3(AudioHLECommand command);
+ void HILOGAIN(AudioHLECommand command );
+ void INTERL2(AudioHLECommand command );
+ void INTERLEAVE(AudioHLECommand command); void INTERLEAVE2(AudioHLECommand command); void INTERLEAVE3(AudioHLECommand command);
  void LOADADPCM(AudioHLECommand command); void LOADADPCM2(AudioHLECommand command); void LOADADPCM3(AudioHLECommand command );
 void LOADBUFF(AudioHLECommand command); void LOADBUFF2(AudioHLECommand command); void LOADBUFF3(AudioHLECommand command );
-// void MIXER(AudioHLECommand command); void MIXER2(AudioHLECommand command); void MIXER3(AudioHLECommand command );
+ void MIXER(AudioHLECommand command); void MIXER2(AudioHLECommand command); void MIXER3(AudioHLECommand command );
 // void MP3(AudioHLECommand command );
 // void MP3ADDY(AudioHLECommand command );
 // void POLEF(AudioHLECommand command );

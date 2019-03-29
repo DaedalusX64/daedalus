@@ -86,25 +86,6 @@ static void RESAMPLE( AudioHLECommand command )
 static void UNKNOWN( AudioHLECommand command ) {}
 
 
-// Works... - 3-11-01
-static void INTERLEAVE( AudioHLECommand command )
-{
-	u16 inL( command.Abi1Interleave.LAddr );
-	u16 inR( command.Abi1Interleave.RAddr );
-
-	gAudioHLEState.Interleave( inL, inR );
-}
-
-// Fixed a sign issue... 03-14-01
-static void MIXER( AudioHLECommand command )
-{
-	u16 dmemin( command.Abi1Mixer.DmemIn );
-	u16 dmemout( command.Abi1Mixer.DmemOut );
-	s32 gain( command.Abi1Mixer.Gain );
-
-	gAudioHLEState.Mixer( dmemout, dmemin, gain );
-}
-
 // TOP Performance Hogs:
 //Command: ADPCM    - Calls:  48 - Total Time: 331226 - Avg Time:  6900.54 - Percent: 31.53%
 //Command: ENVMIXER - Calls:  48 - Total Time: 408563 - Avg Time:  8511.73 - Percent: 38.90%

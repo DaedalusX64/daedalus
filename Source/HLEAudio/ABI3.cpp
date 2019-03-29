@@ -47,25 +47,6 @@ static void SPNOOP( AudioHLECommand command )
 }
 
 
-static void MIXER3( AudioHLECommand command )
-{
-	// Needs accuracy verification...
-	u16 dmemin  = (u16)(command.cmd1 >> 0x10)  + 0x4f0;
-	u16 dmemout = (u16)(command.cmd1 & 0xFFFF) + 0x4f0;
-	//u8  flags   = (u8)((command.cmd0 >> 16) & 0xff);
-	s32 gain    = (s16)(command.cmd0 & 0xFFFF);
-
-	gAudioHLEState.Mixer( dmemout, dmemin, gain, 0x170 );		// NB - did mult gain by 2 above, then shifted by 16 inside mixer.
-}
-
-
-
-
-
-
-
-
-
 static void RESAMPLE3( AudioHLECommand command )
 {
 	u8 Flags {(u8)((command.cmd1>>0x1e))};
@@ -108,14 +89,6 @@ static void RESAMPLE3( AudioHLECommand command )
 	*(u16 *)(rdram+addy+10) = u16( Accum );
 }
 
-static void INTERLEAVE3( AudioHLECommand command )
-{
-	// Needs accuracy verification...
-	//inR = command.cmd1 & 0xFFFF;
-	//inL = (command.cmd1 >> 16) & 0xFFFF;
-
-	gAudioHLEState.Interleave( 0x4f0, 0x9d0, 0xb40, 0x170 );
-}
 
 /*
 typedef struct {
