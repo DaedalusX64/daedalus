@@ -27,8 +27,9 @@ void ENVSETUP1(AudioHLECommand command)
   //fprintf (dfile, "ENVSETUP1: cmd0 = %08X, cmd1 = %08X\n", command.cmd0, command.cmd1);
   	gEnv_t3 = command.cmd0 & 0xFFFF;
   	u32 tmp	= (command.cmd0 >> 0x8) & 0xFF00;
-  	env[4] = Sample_Mask(tmp);
-  	env[5] = Sample_Mask(tmp + gEnv_t3);
+  	env[4] = (u16)tmp;
+		tmp += gEnv_t3;
+  	env[5] = (u16)tmp;
   	gEnv_s5 = command.cmd1 >> 0x10;
   	gEnv_s6 = command.cmd1 & 0xFFFF;
   	//fprintf (dfile, "	gEnv_t3 = %X / gEnv_s5 = %X / gEnv_s6 = %X / env[4] = %X / env[5] = %X\n", gEnv_t3, gEnv_s5, gEnv_s6, env[4], env[5]);
@@ -36,20 +37,16 @@ void ENVSETUP1(AudioHLECommand command)
 
 void ENVSETUP2(AudioHLECommand command)
 {
-  //fprintf (dfile, "ENVSETUP2: cmd0 = %08X, cmd1 = %08X\n", command.cmd0, command.cmd1);
-	u32 tmp1 = (command.cmd1 >> 0x10);
-	env[0] = Sample_Mask(tmp1);
-	env[1] = Sample_Mask(tmp1 + gEnv_s5);
-
-	u32 tmp2 = command.cmd1 & 0xffff;
-	env[2] = Sample_Mask(tmp2);
-	env[3] = Sample_Mask(tmp2 + gEnv_s6);
+	  //fprintf (dfile, "ENVSETUP2: cmd0 = %08X, cmd1 = %08X\n", command.cmd0, command.cmd1);
+	u16	tmp = command.cmd1 >> 0x10;
+		env[0] = (u16)tmp;
+		tmp += gEnv_s5;
+		env[1] = (u16)tmp;
+		tmp = command.cmd1 & 0xffff;
+		env[2] = (u16)tmp;
+		tmp += gEnv_s6;
+		env[3] = (u16)tmp;
 	//fprintf (dfile, "	env[0] = %X / env[1] = %X / env[2] = %X / env[3] = %X\n", env[0], env[1], env[2], env[3]);
-}
-
-void ENVSETUP3(AudioHLECommand command)
-{
-
 }
 
 
@@ -157,16 +154,13 @@ void ENVMIXER2(AudioHLECommand command)
   				buffs1[x^1] = Saturate<s16>( temp );
   			}
   		}
-  		bufft6 += adder; bufft7 += adder;
-  		buffs0 += adder; buffs1 += adder;
-  		buffs3 += adder; count  -= adder;
-  		env[0] = Sample_Mask(env[0] + gEnv_s5);
-  		env[1] = Sample_Mask(env[1] + gEnv_s5);
-  		env[2] = Sample_Mask(env[2] + gEnv_s6);
-  		env[3] = Sample_Mask(env[3] + gEnv_s6);
-  		env[4] = Sample_Mask(env[4] + gEnv_t3);
-  		env[5] = Sample_Mask(env[5] + gEnv_t3);
-  	}
+			bufft6 += adder; bufft7 += adder;
+			buffs0 += adder; buffs1 += adder;
+			buffs3 += adder; count -= adder;
+			env[0] += gEnv_s5; env[1] += gEnv_s5;
+			env[2] += gEnv_s6; env[3] += gEnv_s6;
+			env[4] += gEnv_t3; env[5] += gEnv_t3;
+		}
 }
 
 void ENVMIXER3(AudioHLECommand command)
@@ -225,9 +219,6 @@ void ENVMIXER3(AudioHLECommand command)
   		RVol   = *(s32 *)(buff + 18); // 18-19
   		LSig   = *(s16 *)(buff + 20); // 20-21
   		RSig   = *(s16 *)(buff + 22); // 22-23
-  		//u32 test  = *(s32 *)(buff + 24); // 22-23
-  		//if (test != 0x13371337)
-  		//	__asm int 3;
   	}
 
 
@@ -328,26 +319,23 @@ void SETVOL(AudioHLECommand command)
 {
   // Might be better to unpack these depending on the flags...
   	u8 flags = (u8)((command.cmd0 >> 16) & 0xff);
-  	s16 vol = (s16)(command.cmd0 & 0xffff);
-  //	u16 voltgt =(u16)((command.cmd1 >> 16)&0xffff);
-  	u16 volrate = (u16)((command.cmd1 & 0xffff));
 
   	if (flags & A_AUX)
   	{
-  		gAudioHLEState.EnvDry = vol;				// m_MainVol
-  		gAudioHLEState.EnvWet = (s16)volrate;		// m_AuxVol
+  		gAudioHLEState.EnvDry = (s16)(command.cmd0 & 0xffff);				// m_MainVol
+  		gAudioHLEState.EnvWet = (s16)(command.cmd1 & 0xffff);		// m_AuxVol
   	}
   	else if(flags & A_VOL)
   	{
   		// Set the Source(start) Volumes
   		if(flags & A_LEFT)
   		{
-  			gAudioHLEState.VolLeft = vol;
+  			gAudioHLEState.VolLeft = (s16)(command.cmd0 & 0xffff);
   		}
   		else
   		{
   			// A_RIGHT
-  			gAudioHLEState.VolRight = vol;
+  			gAudioHLEState.VolRight = (s16)(command.cmd0 & 0xffff);
   		}
   	}
   	else
@@ -355,13 +343,13 @@ void SETVOL(AudioHLECommand command)
   		// Set the Ramping values Target, Ramp
   		if(flags & A_LEFT)
   		{
-  			gAudioHLEState.VolTrgLeft  = (s16)(command.cmd0 & 0xffff);		// m_LeftVol
+  			gAudioHLEState.VolTrgLeft  = (s16)(command.cmd0 & 0x0000FFFF);		// m_LeftVol
   			gAudioHLEState.VolRampLeft = command.cmd1;
   		}
   		else
   		{
   			// A_RIGHT
-  			gAudioHLEState.VolTrgRight  = (s16)(command.cmd0 & 0xffff);		// m_RightVol
+  			gAudioHLEState.VolTrgRight  = (s16)(command.cmd0 & 0x0000FFFF);		// m_RightVol
   			gAudioHLEState.VolRampRight = command.cmd1;
   		}
   	}

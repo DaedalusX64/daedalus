@@ -34,6 +34,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/MathUtil.h"
 #include "Utility/FastMemcpy.h"
 
+bool isMKABI {false};
+bool isZeldaABI {false};
 inline s32		FixedPointMulFull16( s32 a, s32 b )
 {
 	return s32( ( (s64)a * (s64)b ) >> 16 );
@@ -56,7 +58,6 @@ AudioHLEState gAudioHLEState;
 
 void	AudioHLEState::ClearBuffer( u16 addr, u16 count )
 {
-	// XXXX check endianness
 	memset( Buffer+(addr & 0xfffc), 0, (count+3) & 0xfffc );
 }
 
@@ -393,7 +394,7 @@ const u16 ResampleLUT[0x200] =
 void	AudioHLEState::Resample( u8 flags, u32 pitch, u32 address )
 {
 	bool	init( (flags & 0x1) != 0 );
-	DAEDALUS_ASSERT( (flags & 0x2) == 0, "Resample: unhandled flags %02x", flags );		// Was breakpoint - StrmnNrmn
+//	DAEDALUS_ASSERT( (flags & 0x2) == 0, "Resample: unhandled flags %02x", flags );		// Was breakpoint - StrmnNrmn
 
 	pitch *= 2;
 
