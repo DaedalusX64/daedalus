@@ -33,6 +33,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Math/MathUtil.h"
 #include "Utility/FastMemcpy.h"
+#include "AudioTypes.h"
+u8 BufferSpace[0x10000];
 
 inline s32		FixedPointMulFull16( s32 a, s32 b )
 {
@@ -48,6 +50,15 @@ inline s32		FixedPointMul15( s32 a, s32 b )
 {
 	return s32( ( a * b ) >> 15 );
 }
+s16* LoadBufferSpace(u16 offset)
+{
+	return (s16 *)(BufferSpace + offset);
+}
+
+s16 GetVec(s16 vec, u16 envValue, s16 v2Value)
+{
+	return (s16)(((s32)vec  * (u32)envValue) >> 0x10) ^ v2Value;
+}
 
 AudioHLEState gAudioHLEState;
 
@@ -55,251 +66,6 @@ void	AudioHLEState::ClearBuffer( u16 addr, u16 count )
 {
 	// XXXX check endianness
 	memset( Buffer+(addr & 0xfffc), 0, (count+3) & 0xfffc );
-}
-
-void	AudioHLEState::EnvMixer( u8 flags, u32 address )
-{
-	//static
-	// ********* Make sure these conditions are met... ***********
-	/*if ((InBuffer | OutBuffer | AuxA | AuxC | AuxE | Count) & 0x3) {
-	MessageBox (NULL, "Unaligned EnvMixer... please report this to Azimer with the following information: RomTitle, Place in the rom it occurred, and any save state just before the error", "AudioHLE Error", MB_OK);
-	}*/
-	// ------------------------------------------------------------
-	s16 *inp {(s16 *)(Buffer+InBuffer)};
-	s16 *out {(s16 *)(Buffer+OutBuffer)};
-	s16 *aux1 {(s16 *)(Buffer+AuxA)};
-	s16 *aux2 {(s16 *)(Buffer+AuxC)};
-	s16 *aux3 {(s16 *)(Buffer+AuxE)};
-	s32 MainR {}, MainL {}, AuxR {}, AuxL {};
-
-	s32 i1 {},o1 {},a1 {},a2 {},a3 {};
-	u16 AuxIncRate{1};
-	s16 zero[8] {};
-	memset(zero,0,16);
-	s32 LVol {}, RVol {};
-	s32 LAcc {}, RAcc {};
-	s32 LTrg {}, RTrg {};
-	s16 Wet {}, Dry {};
-	u32 ptr {};
-	s32 RRamp {}, LRamp {};
-	s32 LAdderStart{} , RAdderStart {}, LAdderEnd {}, RAdderEnd {};
-	s32 oMainR {}, oMainL {}, oAuxR {}, oAuxL {};
-
-	s16* buff {(s16*)(rdram+address)};
-
-	//envmixcnt++;
-
-	//fprintf (dfile, "\n----------------------------------------------------\n");
-	if (flags & A_INIT)
-	{
-		LVol = ((VolLeft  * VolRampLeft));
-		RVol = ((VolRight * VolRampRight));
-		Wet = EnvWet;
-		Dry = EnvDry; // Save Wet/Dry values
-		LTrg = (VolTrgLeft << 16);
-		RTrg = (VolTrgRight << 16); // Save Current Left/Right Targets
-		LAdderStart = VolLeft  << 16;
-		RAdderStart = VolRight << 16;
-		LAdderEnd = LVol;
-		RAdderEnd = RVol;
-		RRamp = VolRampRight;
-		LRamp = VolRampLeft;
-	}
-	else
-	{
-		// Load LVol, RVol, LAcc, and RAcc (all 32bit)
-		// Load Wet, Dry, LTrg, RTrg
-		Wet			= *(s16 *)(buff +  0); // 0-1
-		Dry			= *(s16 *)(buff +  2); // 2-3
-		LTrg		= *(s32 *)(buff +  4); // 4-5
-		RTrg		= *(s32 *)(buff +  6); // 6-7
-		LRamp		= *(s32 *)(buff +  8); // 8-9 (MixerWorkArea is a 16bit pointer)
-		RRamp		= *(s32 *)(buff + 10); // 10-11
-		LAdderEnd	= *(s32 *)(buff + 12); // 12-13
-		RAdderEnd	= *(s32 *)(buff + 14); // 14-15
-		LAdderStart = *(s32 *)(buff + 16); // 12-13
-		RAdderStart = *(s32 *)(buff + 18); // 14-15
-	}
-
-	if(!(flags&A_AUX))
-	{
-		AuxIncRate = 0;
-		aux2 = aux3 = zero;
-	}
-
-	oMainL = (Dry * (LTrg>>16) + 0x4000) >> 15;
-	oAuxL  = (Wet * (LTrg>>16) + 0x4000) >> 15;
-	oMainR = (Dry * (RTrg>>16) + 0x4000) >> 15;
-	oAuxR  = (Wet * (RTrg>>16) + 0x4000) >> 15;
-
-	for (s32 y {}; y < Count; y += 0x10)
-	{
-		if (LAdderStart != LTrg)
-		{
-			//LAcc = LAdderStart;
-			//LVol = (LAdderEnd - LAdderStart) >> 3;
-			//LAdderEnd   = ((s64)LAdderEnd * (s64)LRamp) >> 16;
-			//LAdderStart = ((s64)LAcc * (s64)LRamp) >> 16;
-
-			// Assembly code which this replaces slightly different from commented out code above...
-			u32 orig_ladder_end {(u32)LAdderEnd};
-			LAcc = LAdderStart;
-			LVol = (LAdderEnd - LAdderStart) >> 3;
-			LAdderEnd = FixedPointMulFull16( LAdderEnd, LRamp );
-			LAdderStart = orig_ladder_end;
-
-		}
-		else
-		{
-			LAcc = LTrg;
-			LVol = 0;
-		}
-
-		if (RAdderStart != RTrg)
-		{
-			//RAcc = RAdderStart;
-			//RVol = (RAdderEnd - RAdderStart) >> 3;
-			//RAdderEnd   = ((s64)RAdderEnd * (s64)RRamp) >> 16;
-			//RAdderStart = ((s64)RAcc * (s64)RRamp) >> 16;
-
-			u32 orig_radder_end {(u32)RAdderEnd};
-			RAcc = RAdderStart;
-			RVol = (orig_radder_end - RAdderStart) >> 3;
-			RAdderEnd = FixedPointMulFull16( RAdderEnd, RRamp );
-			RAdderStart = orig_radder_end;
-		}
-		else
-		{
-			RAcc = RTrg;
-			RVol = 0;
-		}
-
-		for (s32 x {}; x < 8; x++)
-		{
-			i1=(s32)inp[ptr^1];
-			o1=(s32)out[ptr^1];
-			a1=(s32)aux1[ptr^1];
-			if (AuxIncRate)
-			{
-				a2=(s32)aux2[ptr^1];
-				a3=(s32)aux3[ptr^1];
-			}
-			// TODO: here...
-			//LAcc = LTrg;
-			//RAcc = RTrg;
-
-			LAcc += LVol;
-			RAcc += RVol;
-
-			if (LVol <= 0)
-			{
-				// Decrementing
-				if (LAcc < LTrg)
-				{
-					LAcc = LTrg;
-					LAdderStart = LTrg;
-					MainL = oMainL;
-					AuxL  = oAuxL;
-				}
-				else
-				{
-					MainL = (Dry * ((s32)LAcc>>16) + 0x4000) >> 15;
-					AuxL  = (Wet * ((s32)LAcc>>16) + 0x4000) >> 15;
-				}
-			}
-			else
-			{
-				if (LAcc > LTrg)
-				{
-					LAcc = LTrg;
-					LAdderStart = LTrg;
-					MainL = oMainL;
-					AuxL  = oAuxL;
-				}
-				else
-				{
-					MainL = (Dry * ((s32)LAcc>>16) + 0x4000) >> 15;
-					AuxL  = (Wet * ((s32)LAcc>>16) + 0x4000) >> 15;
-				}
-			}
-
-			if (RVol <= 0)
-			{
-				// Decrementing
-				if (RAcc < RTrg)
-				{
-					RAcc = RTrg;
-					RAdderStart = RTrg;
-					MainR = oMainR;
-					AuxR  = oAuxR;
-				}
-				else
-				{
-					MainR = (Dry * ((s32)RAcc>>16) + 0x4000) >> 15;
-					AuxR  = (Wet * ((s32)RAcc>>16) + 0x4000) >> 15;
-				}
-			}
-			else
-			{
-				if (RAcc > RTrg)
-				{
-					RAcc = RTrg;
-					RAdderStart = RTrg;
-					MainR = oMainR;
-					AuxR  = oAuxR;
-				}
-				else
-				{
-					MainR = (Dry * ((s32)RAcc>>16) + 0x4000) >> 15;
-					AuxR  = (Wet * ((s32)RAcc>>16) + 0x4000) >> 15;
-				}
-			}
-
-			//fprintf (dfile, "%04X ", (LAcc>>16));
-
-			o1 += (/*(o1*0x7fff)+*/(i1*MainR) + 0x4000) >> 15;
-			a1 += (/*(a1*0x7fff)+*/ (i1*MainL) + 0x4000) >> 15;
-
-			/*		o1=((s64)(((s64)o1*0xfffe)+((s64)i1*MainR*2)+0x8000)>>16);
-
-			a1=((s64)(((s64)a1*0xfffe)+((s64)i1*MainL*2)+0x8000)>>16);*/
-
-			o1 = Saturate<s16>( o1 );
-			a1 = Saturate<s16>( a1 );
-
-			out[ptr^1]=o1;
-			aux1[ptr^1]=a1;
-			if (AuxIncRate)
-			{
-				//a2=((s64)(((s64)a2*0xfffe)+((s64)i1*AuxR*2)+0x8000)>>16);
-
-				//a3=((s64)(((s64)a3*0xfffe)+((s64)i1*AuxL*2)+0x8000)>>16);
-				a2+=(/*(a2*0x7fff)+*/(i1*AuxR)+0x4000)>>15;
-				a3+=(/*(a3*0x7fff)+*/(i1*AuxL)+0x4000)>>15;
-
-				a2 = Saturate<s16>( a2 );
-				a3 = Saturate<s16>( a3 );
-
-				aux2[ptr^1]=a2;
-				aux3[ptr^1]=a3;
-			}
-			ptr++;
-		}
-	}
-
-	/*LAcc = LAdderEnd;
-	RAcc = RAdderEnd;*/
-
-	*(s16 *)(buff +  0) = Wet; // 0-1
-	*(s16 *)(buff +  2) = Dry; // 2-3
-	*(s32 *)(buff +  4) = LTrg; // 4-5
-	*(s32 *)(buff +  6) = RTrg; // 6-7
-	*(s32 *)(buff +  8) = LRamp; // 8-9 (MixerWorkArea is a 16bit pointer)
-	*(s32 *)(buff + 10) = RRamp; // 10-11
-	*(s32 *)(buff + 12) = LAdderEnd; // 12-13
-	*(s32 *)(buff + 14) = RAdderEnd; // 14-15
-	*(s32 *)(buff + 16) = LAdderStart; // 12-13
-	*(s32 *)(buff + 18) = RAdderStart; // 14-15
 }
 
 void	AudioHLEState::Resample( u8 flags, u32 pitch, u32 address )

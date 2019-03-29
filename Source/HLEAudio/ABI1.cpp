@@ -71,24 +71,8 @@ static void SPNOOP( AudioHLECommand command )
 	//DBGConsole_Msg( 0, "AudioHLE: Unknown/Unimplemented Audio Command %i in ABI 1", command.cmd );
 }
 
-void CLEARBUFF( AudioHLECommand command )
-{
-	u16 addr( command.Abi1ClearBuffer.Address );
-	u16 count( command.Abi1ClearBuffer.Count );
-
-	gAudioHLEState.ClearBuffer( addr, count );
-}
 
 //FILE *dfile = fopen ("d:\\envmix.txt", "wt");
-
-static void ENVMIXER( AudioHLECommand command )
-{
-	//static int envmixcnt = 0;
-	u8	flags( command.Abi1EnvMixer.Flags );
-	u32 address( command.Abi1EnvMixer.Address );// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
-
-	gAudioHLEState.EnvMixer( flags, address );
-}
 
 static void RESAMPLE( AudioHLECommand command )
 {
@@ -99,124 +83,8 @@ static void RESAMPLE( AudioHLECommand command )
 	gAudioHLEState.Resample( flags, pitch, address );
 }
 
-static void SETVOL( AudioHLECommand command )
-{
-// Might be better to unpack these depending on the flags...
-	u8 flags {(u8)((command.cmd0 >> 16) & 0xff)};
-	s16 vol {(s16)(command.cmd0 & 0xffff)};
-//	u16 voltgt =(u16)((command.cmd1 >> 16)&0xffff);
-	u16 volrate = (u16)((command.cmd1 & 0xffff));
+static void UNKNOWN( AudioHLECommand command ) {}
 
-	if (flags & A_AUX)
-	{
-		gAudioHLEState.EnvDry = vol;				// m_MainVol
-		gAudioHLEState.EnvWet = (s16)volrate;		// m_AuxVol
-	}
-	else if(flags & A_VOL)
-	{
-		// Set the Source(start) Volumes
-		if(flags & A_LEFT)
-		{
-			gAudioHLEState.VolLeft = vol;
-		}
-		else
-		{
-			// A_RIGHT
-			gAudioHLEState.VolRight = vol;
-		}
-	}
-	else
-	{
-		// Set the Ramping values Target, Ramp
-		if(flags & A_LEFT)
-		{
-			gAudioHLEState.VolTrgLeft  = (s16)(command.cmd0 & 0xffff);		// m_LeftVol
-			gAudioHLEState.VolRampLeft = command.cmd1;
-		}
-		else
-		{
-			// A_RIGHT
-			gAudioHLEState.VolTrgRight  = (s16)(command.cmd0 & 0xffff);		// m_RightVol
-			gAudioHLEState.VolRampRight = command.cmd1;
-		}
-	}
-}
-
-static void UNKNOWN( AudioHLECommand command )
-{
-}
-
-static void SETLOOP( AudioHLECommand command )
-{
-	u32	loopval( command.Abi1SetLoop.LoopVal );// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
-
-	gAudioHLEState.SetLoop( loopval );
-}
-
-static void ADPCM( AudioHLECommand command ) // Work in progress! :)
-{
-	u8		flags( command.Abi1ADPCM.Flags );
-	//u16	gain( command.Abi1ADPCM.Gain );		// Not used?
-	u32		address( command.Abi1ADPCM.Address );// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
-
-	gAudioHLEState.ADPCMDecode( flags, address );
-}
-
-// memcpy causes static... endianess issue :(
-static void LOADBUFF( AudioHLECommand command )
-{
-	u32 addr(command.Abi1LoadBuffer.Address );// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
-
-	gAudioHLEState.LoadBuffer( addr );
-}
-
-// memcpy causes static... endianess issue :(
-static void SAVEBUFF( AudioHLECommand command )
-{
-	u32 addr(command.Abi1SaveBuffer.Address );// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
-
-	gAudioHLEState.SaveBuffer( addr );
-}
-
-// Should work
-/*
-static void SEGMENT( AudioHLECommand command )
-{
-	u8	segment( command.Abi1SetSegment.Segment & 0xf );
-	u32	address( command.Abi1SetSegment.Address );
-
-	gAudioHLEState.SetSegment( segment, address );
-}
-*/
-// Should work ;-)
-static void SETBUFF( AudioHLECommand command )
-{
-	u8		flags( command.Abi1SetBuffer.Flags );
-	u16		in( command.Abi1SetBuffer.In );
-	u16		out( command.Abi1SetBuffer.Out );
-	u16		count( command.Abi1SetBuffer.Count );
-
-	gAudioHLEState.SetBuffer( flags, in, out, count );
-}
-
-// Doesn't sound just right?... will fix when HLE is ready - 03-11-01
-static void DMEMMOVE( AudioHLECommand command )
-{
-	u16 src( command.Abi1DmemMove.Src );
-	u16 dst( command.Abi1DmemMove.Dst );
-	u16 count( command.Abi1DmemMove.Count );
-
-	gAudioHLEState.DmemMove( dst, src, count );
-}
-
-// Loads an ADPCM table - Works 100% Now 03-13-01
-static void LOADADPCM( AudioHLECommand command )
-{
-	u32		address(command.Abi1LoadADPCM.Address );// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
-	u16		count( command.Abi1LoadADPCM.Count );
-
-	gAudioHLEState.LoadADPCM( address, count );
-}
 
 // Works... - 3-11-01
 static void INTERLEAVE( AudioHLECommand command )
@@ -236,7 +104,6 @@ static void MIXER( AudioHLECommand command )
 
 	gAudioHLEState.Mixer( dmemout, dmemin, gain );
 }
-
 
 // TOP Performance Hogs:
 //Command: ADPCM    - Calls:  48 - Total Time: 331226 - Avg Time:  6900.54 - Percent: 31.53%

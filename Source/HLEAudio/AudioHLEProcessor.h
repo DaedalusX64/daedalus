@@ -44,7 +44,7 @@ struct AudioHLEState
 	void	LoadBuffer( u16 dram_dst, u32 ram_src, u16 count );
 	void	SaveBuffer( u32 ram_dst, u16 dmem_src, u16 count );
 
-	//void	SetSegment( u8 segment, u32 address );
+	void	SetSegment( u8 segment, u32 address );
 	void	SetLoop( u32 loopval );
 	void	SetBuffer( u8 flags, u16 in, u16 out, u16 count );
 
@@ -64,7 +64,7 @@ private:
 
 
 public:
-	ALIGNED_TYPE(u8, Buffer[0x10000], 16);	// Seems excesively large? 0x1000 should be enough, but will require to make many changes, ex update the bitfields 
+	ALIGNED_TYPE(s16, Buffer[0x10000], 16);	// Seems excesively large? 0x1000 should be enough, but will require to make many changes, ex update the bitfields
 	u16		ADPCMTable[0x88];
 
 	//u32		Segments[16];		// 0x0320

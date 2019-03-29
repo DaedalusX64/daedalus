@@ -148,4 +148,48 @@ void Audio_Ucode()
 
 		//printf("%08X %08X\n",command.cmd0,command.cmd1);
 	}
-}
+	}
+
+	inline s32 sats_over(s32 slice)
+	{
+	#ifdef TWOS_COMPLEMENT_NEGATION
+	    s32 adder, mask;
+
+	    adder  = +32767 - slice;
+	    mask  =  ((s32)adder >> 31); /* if (+32767 - x < 0 */
+	    mask &= ~((s32)slice >> 31); /*  && x >= 0) */
+	    adder &= mask;
+	    return (s32)(slice + adder); /* slice + (+32767 - slice) == +32767 */
+	#else
+	    if (slice > +32767)
+	        return +32767;
+	    return (slice);
+	#endif
+	}
+
+	inline s32 sats_under(s32 slice)
+	{
+	#ifdef TWOS_COMPLEMENT_NEGATION
+	    s32 adder, mask;
+
+	    adder  = +32768 + slice;
+	    mask  =  ((s32)adder >> 31); /* if (x + 32768 < 0 */
+	    mask &=  ((s32)slice >> 31); /*  && x < 0) */
+	    adder &= mask;
+	    return (s32)(slice - adder); /* slice - (slice + 32768) == -32768 */
+	#else
+	    if (slice < -32768)
+	        return -32768;
+	    return (slice);
+	#endif
+	}
+
+	s16 pack_signed(s32 slice)
+	{
+	    s32 result;
+
+	    result = slice;
+	    result = sats_under(result);
+	    result = sats_over (result);
+	    return (s16)(result & 0x0000FFFFul);
+	}
