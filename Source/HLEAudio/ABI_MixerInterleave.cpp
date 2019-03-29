@@ -14,8 +14,8 @@ extern bool isZeldaABI;
 
 void ADDMIXER( AudioHLECommand command)
 {
-//  DAEDALUS_ERROR( "ADDMIXER - broken?" );
-	u32 Count     = (command.cmd0 >> 12) & 0x00ff0;
+  DAEDALUS_ERROR( "ADDMIXER - broken?" );
+	/*u32 Count     = (command.cmd0 >> 12) & 0x00ff0;
 	u32 InBuffer  = (command.cmd1 >> 16);
 	u32 OutBuffer = command.cmd1 & 0xffff;
 
@@ -26,7 +26,7 @@ void ADDMIXER( AudioHLECommand command)
 		//s32 temp = Saturate<s16>( *outp + *inp );
 		// *outp = temp;		// Added this - correct??
 		outp++;	inp++;
-	}
+	}*/
 }
 
 void HILOGAIN( AudioHLECommand command)
@@ -55,7 +55,7 @@ void INTERLEAVE( AudioHLECommand command)
   	gAudioHLEState.Interleave( inL, inR );
 }
 
-void DEINTERLEAVE2( AudioHLECommand command)
+void INTERL2( AudioHLECommand command)
 {
   u16 count( command.Abi2Deinterleave.Count );
 	u16 out( command.Abi2Deinterleave.Out );
