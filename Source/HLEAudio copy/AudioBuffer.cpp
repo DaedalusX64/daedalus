@@ -49,7 +49,7 @@ u32 CAudioBuffer::GetNumBufferedSamples() const
 #endif
 
 	// Safe? What if we read mWrite, and then mRead moves to start of buffer?
-	s32 diff = mWritePtr - mReadPtr;
+	s32 diff {mWritePtr - mReadPtr};
 
 	if( diff < 0 )
 	{
@@ -89,8 +89,9 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 
 	for( u32 i = output_samples; i != 0 ; i-- )
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( in_idx + 1 < num_samples, "Input index out of range - %d / %d", in_idx+1, num_samples );
-
+		#endif
 #if 0 // 1->Sine tone, 0->Normal
 		//static float c= 0.0f;
 		//c += 100.0f / 44100.0f;
@@ -98,10 +99,12 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 		//  c-=1.f;
 		//s16 v( s16( SHRT_MAX * sinf( c * 3.141f*2 ) ) );
 		Sample	out;
-		s16 v = WriteCounter++;
+		s16 v {WriteCounter++};
 		if( WriteCounter >= MAX_COUNTER )
 		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			printf( "Loop write\n" );
+			#endif
 			WriteCounter = 0;
 		}
 		out.L = out.R = v;
@@ -121,7 +124,7 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 		write_ptr++;
 		if( write_ptr >= mBufferEnd )
 			write_ptr = mBufferBegin;
-
+		/*
 		while( write_ptr == read_ptr )
 		{
 			// The buffer is full - spin until the read pointer advances.
@@ -135,7 +138,7 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 
 			read_ptr = mReadPtr;
 		}
-
+*/
 		*write_ptr = out;
 	}
 

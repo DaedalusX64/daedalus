@@ -49,9 +49,6 @@ inline s32		FixedPointMul15( s32 a, s32 b )
 	return s32( ( a * b ) >> 15 );
 }
 
-void SPNOOP( AudioHLECommand command ) {}
-void UNKNOWN( AudioHLECommand command ) {}
-
 AudioHLEState gAudioHLEState;
 
 void	AudioHLEState::ClearBuffer( u16 addr, u16 count )
@@ -101,7 +98,7 @@ void	AudioHLEState::EnvMixer( u8 flags, u32 address )
 		RVol = ((VolRight * VolRampRight));
 		Wet = EnvWet;
 		Dry = EnvDry; // Save Wet/Dry values
-		LTrg = (VolTrgLeft << 16);
+		LTrg = (VolTrgLeft << 16); 
 		RTrg = (VolTrgRight << 16); // Save Current Left/Right Targets
 		LAdderStart = VolLeft  << 16;
 		RAdderStart = VolRight << 16;

@@ -38,25 +38,30 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern bool isZeldaABI;
 extern bool isMKABI;
 
+inline s32		FixedPointMul15( s32 a, s32 b )
+{
+	return s32( ( a * b ) >> 15 );
+}
+
 // Readded 26/03/19 - Looks correct
 // XXX Saturate should probably be replaced with Azi's function for consistency
 void ADDMIXER( AudioHLECommand command )
 {
 
-	u32 Count     = (command.cmd0 >> 12) & 0x00ff0;
-	u32 InBuffer  = (command.cmd1 >> 16);
-	u32 OutBuffer = command.cmd1 & 0xffff;
-
-	s16 *inp  = (s16 *)(gAudioHLEState.Buffer + InBuffer);
-	s16 *outp = (s16 *)(gAudioHLEState.Buffer + OutBuffer);
-	s32 temp;
-	for (u32 cntr = 0; cntr < Count; cntr+=2)
-	{
-
-	s32 temp = Saturate<s16>( *outp + *inp );
-		 *outp = temp;
-		outp++;	inp++;
-	}
+	// u32 Count     = (command.cmd0 >> 12) & 0x00ff0;
+	// u32 InBuffer  = (command.cmd1 >> 16);
+	// u32 OutBuffer = command.cmd1 & 0xffff;
+	//
+	// s16 *inp  = (s16 *)(gAudioHLEState.Buffer + InBuffer);
+	// s16 *outp = (s16 *)(gAudioHLEState.Buffer + OutBuffer);
+	// s32 temp;
+	// for (u32 cntr = 0; cntr < Count; cntr+=2)
+	// {
+	//
+	// s32 temp = Saturate<s16>( *outp + *inp );
+	// 	 *outp = temp;
+	// 	outp++;	inp++;
+	// }
 }
 
 // XXX Looks Correct 26/03/19

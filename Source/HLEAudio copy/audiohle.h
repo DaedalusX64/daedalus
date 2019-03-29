@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Utility/DaedalusTypes.h"
 
+
+
 //
 //	N.B. This source code is derived from Azimer's Audio plugin (v0.55?)
 //	and modified by StrmnNrmn to work with Daedalus PSP. Thanks Azimer!
@@ -69,6 +71,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define A_NOAUX			0x00
 #define A_MAIN			0x00
 #define A_MIX			0x10
+
 
 //------------------------------------------------------------------------------------------
 
@@ -392,38 +395,61 @@ struct AudioHLECommand
 		};
 	};
 };
+
+extern s16 pack_signed(s32 slice);
 //DAEDALUS_STATIC_ASSERT( sizeof( AudioHLECommand ) == 8 );
 
 typedef void ( * AudioHLEInstruction )( AudioHLECommand command );
 
-void ADDMIXER(AudioHLECommand command );
-void ADPCM(AudioHLECommand command); void ADPCM2(AudioHLECommand command ); void ADPCM3(AudioHLECommand command );
+// ABI Functions
+ void ADDMIXER(AudioHLECommand command );
+ void ADPCM(AudioHLECommand command); void ADPCM2(AudioHLECommand command ); void ADPCM3(AudioHLECommand command );
 void CLEARBUFF(AudioHLECommand command ); void CLEARBUFF2(AudioHLECommand command); void CLEARBUFF3(AudioHLECommand command);
 void DMEMMOVE(AudioHLECommand command); void DMEMMOVE2(AudioHLECommand command); void DMEMMOVE3(AudioHLECommand command);
 void DUPLICATE2(AudioHLECommand command);
 void ENVMIXER(AudioHLECommand command); void ENVMIXER2(AudioHLECommand command); void ENVMIXER3(AudioHLECommand command); void ENVMIXER_GE(AudioHLECommand command);
 void ENVSETUP1(AudioHLECommand command ); void ENVSETUP2(AudioHLECommand command );
-void FILTER2(AudioHLECommand command );
-void HILOGAIN(AudioHLECommand command );
-void INTERL2(AudioHLECommand command );
-void INTERLEAVE(AudioHLECommand command); void INTERLEAVE2(AudioHLECommand command); void INTERLEAVE3(AudioHLECommand command);
-void LOADADPCM(AudioHLECommand command); void LOADADPCM2(AudioHLECommand command); void LOADADPCM3(AudioHLECommand command );
+ void FILTER2(AudioHLECommand command );
+ void HILOGAIN(AudioHLECommand command );
+ void INTERL2(AudioHLECommand command );
+ void INTERLEAVE(AudioHLECommand command); void INTERLEAVE2(AudioHLECommand command); void INTERLEAVE3(AudioHLECommand command);
+ void LOADADPCM(AudioHLECommand command); void LOADADPCM2(AudioHLECommand command); void LOADADPCM3(AudioHLECommand command );
 void LOADBUFF(AudioHLECommand command); void LOADBUFF2(AudioHLECommand command); void LOADBUFF3(AudioHLECommand command );
-void MIXER(AudioHLECommand command); void MIXER2(AudioHLECommand command); void MIXER3(AudioHLECommand command );
-void MP3(AudioHLECommand command );
+ void MIXER(AudioHLECommand command); void MIXER2(AudioHLECommand command); void MIXER3(AudioHLECommand command );
+ void MP3(AudioHLECommand command );
 //	void MP3ADDY(AudioHLECommand command );
 // void POLEF(AudioHLECommand command );
-void RESAMPLE(AudioHLECommand command); void RESAMPLE2(AudioHLECommand command); void RESAMPLE3(AudioHLECommand command);
-void SAVEBUFF(AudioHLECommand command); void SAVEBUFF2(AudioHLECommand command); void SAVEBUFF3(AudioHLECommand command);
-void SEGMENT(AudioHLECommand command); void SEGMENT2(AudioHLECommand command);
-void SETBUFF(AudioHLECommand command); void SETBUFF2(AudioHLECommand command);
-void SETLOOP(AudioHLECommand command); void SETLOOP2(AudioHLECommand command); void SETLOOP3(AudioHLECommand command);
+ void RESAMPLE(AudioHLECommand command); void RESAMPLE2(AudioHLECommand command); void RESAMPLE3(AudioHLECommand command);
+ void SAVEBUFF(AudioHLECommand command); void SAVEBUFF2(AudioHLECommand command); void SAVEBUFF3(AudioHLECommand command);
+ void SEGMENT(AudioHLECommand command); void SEGMENT2(AudioHLECommand command);
+ void SETBUFF(AudioHLECommand command); void SETBUFF2(AudioHLECommand command);
+ void SETLOOP(AudioHLECommand command); void SETLOOP2(AudioHLECommand command); void SETLOOP3(AudioHLECommand command);
 void SETVOL(AudioHLECommand command); void SETVOL3(AudioHLECommand command);
-void SPNOOP(AudioHLECommand command);
-void UNKNOWN(AudioHLECommand command);
+ void SPNOOP(AudioHLECommand command);
+ void UNKNOWN(AudioHLECommand command);
 
 // These must be defined...
 #include "Core/Memory.h"
+
+#ifndef ENDIAN_M
+#if defined(__BIG_ENDIAN__) | (__BYTE_ORDER != __LITTLE_ENDIAN)
+#define ENDIAN_M    ( 0)
+#else
+#define ENDIAN_M    (~0)
+#endif
+#endif
+
+#define ENDIAN_SWAP_BYTE    (ENDIAN_M & 0x7 & 3)
+#define ENDIAN_SWAP_HALF    (ENDIAN_M & 0x6 & 2)
+#define ENDIAN_SWAP_BIMI    (ENDIAN_M & 0x5 & 1)
+#define ENDIAN_SWAP_WORD    (ENDIAN_M & 0x4 & 0)
+
+#define BES(address)    ((address) ^ ENDIAN_SWAP_BYTE)
+#define HES(address)    ((address) ^ ENDIAN_SWAP_HALF)
+#define MES(address)    ((address) ^ ENDIAN_SWAP_BIMI)
+#define WES(address)    ((address) ^ ENDIAN_SWAP_WORD)
+
+
 
 // MMmm, why not use the defines from Memory.h?
 // ToDo : remove these and use the ones already provided by the core?
@@ -431,8 +457,11 @@ void UNKNOWN(AudioHLECommand command);
 #define imem	((u8*)g_pMemoryBuffers[MEM_SP_MEM] + SP_DMA_IMEM)
 #define rdram	((u8*)g_pMemoryBuffers[MEM_RD_RAM])
 
+
 // Use these functions to interface with the HLE Audio...
 void Audio_Ucode();
 void Audio_Reset();
+
+
 
 #endif // HLEAUDIO_AUDIOHLE_H_

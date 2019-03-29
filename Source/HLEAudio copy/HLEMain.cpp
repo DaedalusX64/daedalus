@@ -95,7 +95,7 @@ void Audio_Reset()
 //*****************************************************************************
 inline void Audio_Ucode_Detect(OSTask * pTask)
 {
-	u8* p_base = g_pu8RamBase + (u32)pTask->t.ucode_data;
+	u8* p_base {g_pu8RamBase + (u32)pTask->t.ucode_data};
 	if (*(u32*)(p_base + 0) != 0x01)
 	{
 		if (*(u32*)(p_base + 0x10) == 0x00000001)
@@ -117,7 +117,9 @@ inline void Audio_Ucode_Detect(OSTask * pTask)
 //*****************************************************************************
 void Audio_Ucode()
 {
+	#ifdef DAEDALUS_ENABLE_PROFILER
 	DAEDALUS_PROFILE( "HLEMain::Audio_Ucode" );
+	#endif
 
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 
@@ -131,8 +133,8 @@ void Audio_Ucode()
 	gAudioHLEState.LoopVal = 0;
 	//memset( gAudioHLEState.Segments, 0, sizeof( gAudioHLEState.Segments ) );
 
-	u32 * p_alist = (u32 *)(g_pu8RamBase + (u32)pTask->t.data_ptr);
-	u32 ucode_size = (pTask->t.data_size >> 3);	//ABI5 can return 0 here!!!
+	u32 * p_alist {(u32 *)(g_pu8RamBase + (u32)pTask->t.data_ptr)};
+	u32 ucode_size {(pTask->t.data_size >> 3)};	//ABI5 can return 0 here!!!
 
 	while( ucode_size )
 	{
@@ -146,4 +148,48 @@ void Audio_Ucode()
 
 		//printf("%08X %08X\n",command.cmd0,command.cmd1);
 	}
-}
+	}
+
+	inline s32 sats_over(s32 slice)
+	{
+	#ifdef TWOS_COMPLEMENT_NEGATION
+	    s32 adder, mask;
+
+	    adder  = +32767 - slice;
+	    mask  =  ((s32)adder >> 31); /* if (+32767 - x < 0 */
+	    mask &= ~((s32)slice >> 31); /*  && x >= 0) */
+	    adder &= mask;
+	    return (s32)(slice + adder); /* slice + (+32767 - slice) == +32767 */
+	#else
+	    if (slice > +32767)
+	        return +32767;
+	    return (slice);
+	#endif
+	}
+
+	inline s32 sats_under(s32 slice)
+	{
+	#ifdef TWOS_COMPLEMENT_NEGATION
+	    s32 adder, mask;
+
+	    adder  = +32768 + slice;
+	    mask  =  ((s32)adder >> 31); /* if (x + 32768 < 0 */
+	    mask &=  ((s32)slice >> 31); /*  && x < 0) */
+	    adder &= mask;
+	    return (s32)(slice - adder); /* slice - (slice + 32768) == -32768 */
+	#else
+	    if (slice < -32768)
+	        return -32768;
+	    return (slice);
+	#endif
+	}
+
+	s16 pack_signed(s32 slice)
+	{
+	    s32 result;
+
+	    result = slice;
+	    result = sats_under(result);
+	    result = sats_over (result);
+	    return (s16)(result & 0x0000FFFFul);
+	}

@@ -80,7 +80,7 @@ struct SAbi1ClearBuffer
 	unsigned		: 8;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi1ClearBuffer ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi1ClearBuffer ) == 8 );
 
 struct SAbi1EnvMixer
 {
@@ -91,7 +91,7 @@ struct SAbi1EnvMixer
 	unsigned		: 8;			// Command
 
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi1EnvMixer ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi1EnvMixer ) == 8 );
 
 struct SAbi1Mixer
 {
@@ -101,7 +101,7 @@ struct SAbi1Mixer
 	unsigned		: 8;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi1Mixer ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi1Mixer ) == 8 );
 
 struct SAbi1Resample
 {
@@ -111,7 +111,7 @@ struct SAbi1Resample
 	unsigned		Flags : 8;
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi1Resample ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi1Resample ) == 8 );
 
 struct SAbi1ADPCM
 {
@@ -121,7 +121,7 @@ struct SAbi1ADPCM
 	unsigned		Flags : 8;
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi1ADPCM ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi1ADPCM ) == 8 );
 
 struct SAbi2Mixer
 {
@@ -131,7 +131,7 @@ struct SAbi2Mixer
 	unsigned		Count	: 8;
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi2Mixer ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi2Mixer ) == 8 );
 
 struct SAbi2Resample
 {
@@ -141,7 +141,7 @@ struct SAbi2Resample
 	unsigned		Flags : 8;
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi2Resample ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi2Resample ) == 8 );
 
 
 struct SAbi1LoadBuffer
@@ -151,7 +151,7 @@ struct SAbi1LoadBuffer
 	unsigned		: 24;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi1LoadBuffer ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi1LoadBuffer ) == 8 );
 
 struct SAbi1SaveBuffer
 {
@@ -160,7 +160,7 @@ struct SAbi1SaveBuffer
 	unsigned		: 24;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi1SaveBuffer ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi1SaveBuffer ) == 8 );
 
 struct SAbi1SetSegment
 {
@@ -170,7 +170,7 @@ struct SAbi1SetSegment
 	unsigned		: 8;			// Command
 
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi1SetSegment ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi1SetSegment ) == 8 );
 
 struct SAbi1SetLoop
 {
@@ -179,7 +179,7 @@ struct SAbi1SetLoop
 	unsigned		: 24;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi1SetLoop ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi1SetLoop ) == 8 );
 
 struct SAbi1SetBuffer
 {
@@ -190,7 +190,7 @@ struct SAbi1SetBuffer
 	unsigned		: 8;			// Command
 
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi1SetBuffer ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi1SetBuffer ) == 8 );
 
 struct SAbi1DmemMove
 {
@@ -200,7 +200,7 @@ struct SAbi1DmemMove
 	unsigned		: 8;
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi1DmemMove ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi1DmemMove ) == 8 );
 
 struct SAbi1LoadADPCM
 {
@@ -210,7 +210,7 @@ struct SAbi1LoadADPCM
 	unsigned		: 8;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi1LoadADPCM ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi1LoadADPCM ) == 8 );
 
 struct SAbi1Interleave
 {
@@ -219,7 +219,7 @@ struct SAbi1Interleave
 	unsigned		: 24;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi1Interleave ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi1Interleave ) == 8 );
 
 struct SAbi2ClearBuffer
 {
@@ -229,7 +229,7 @@ struct SAbi2ClearBuffer
 	unsigned		: 8;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi2ClearBuffer ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi2ClearBuffer ) == 8 );
 
 struct SAbi2LoadBuffer
 {
@@ -239,7 +239,7 @@ struct SAbi2LoadBuffer
 	unsigned		Count : 12;
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi2LoadBuffer ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi2LoadBuffer ) == 8 );
 
 struct SAbi2SaveBuffer
 {
@@ -249,7 +249,7 @@ struct SAbi2SaveBuffer
 	unsigned		Count : 12;
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi2SaveBuffer ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi2SaveBuffer ) == 8 );
 
 struct SAbi2SetLoop
 {
@@ -258,7 +258,7 @@ struct SAbi2SetLoop
 	unsigned		: 24;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi2SetLoop ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi2SetLoop ) == 8 );
 
 struct SAbi2SetBuffer
 {
@@ -269,7 +269,7 @@ struct SAbi2SetBuffer
 	unsigned		: 8;			// Command
 
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi2SetBuffer ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi2SetBuffer ) == 8 );
 
 struct SAbi2DmemMove
 {
@@ -279,7 +279,7 @@ struct SAbi2DmemMove
 	unsigned		: 8;
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi2DmemMove ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi2DmemMove ) == 8 );
 
 struct SAbi2LoadADPCM
 {
@@ -289,7 +289,7 @@ struct SAbi2LoadADPCM
 	unsigned		: 8;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi2LoadADPCM ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi2LoadADPCM ) == 8 );
 
 struct SAbi2Deinterleave
 {
@@ -299,7 +299,7 @@ struct SAbi2Deinterleave
 	unsigned		: 8;
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi2Deinterleave ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi2Deinterleave ) == 8 );
 
 
 struct SAbi2Interleave
@@ -310,7 +310,7 @@ struct SAbi2Interleave
 	unsigned		Count   : 12;	// Might be :16 :8 (with count implicitly *16)?
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi2Interleave ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi2Interleave ) == 8 );
 
 struct SAbi3LoadADPCM
 {
@@ -320,7 +320,7 @@ struct SAbi3LoadADPCM
 	unsigned		: 8;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi3LoadADPCM ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi3LoadADPCM ) == 8 );
 
 struct SAbi3SetLoop
 {
@@ -329,7 +329,7 @@ struct SAbi3SetLoop
 	unsigned		: 24;			// Unknown/unused
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi3SetLoop ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi3SetLoop ) == 8 );
 
 struct SAbi3DmemMove
 {
@@ -339,7 +339,7 @@ struct SAbi3DmemMove
 	unsigned		: 8;
 	unsigned		: 8;			// Command
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( SAbi3DmemMove ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( SAbi3DmemMove ) == 8 );
 
 struct AudioHLECommand
 {
@@ -392,35 +392,9 @@ struct AudioHLECommand
 		};
 	};
 };
-//DAEDALUS_STATIC_ASSERT( sizeof( AudioHLECommand ) == 8 );
+DAEDALUS_STATIC_ASSERT( sizeof( AudioHLECommand ) == 8 );
 
 typedef void ( * AudioHLEInstruction )( AudioHLECommand command );
-
-void ADDMIXER(AudioHLECommand command );
-void ADPCM(AudioHLECommand command); void ADPCM2(AudioHLECommand command ); void ADPCM3(AudioHLECommand command );
-void CLEARBUFF(AudioHLECommand command ); void CLEARBUFF2(AudioHLECommand command); void CLEARBUFF3(AudioHLECommand command);
-void DMEMMOVE(AudioHLECommand command); void DMEMMOVE2(AudioHLECommand command); void DMEMMOVE3(AudioHLECommand command);
-void DUPLICATE2(AudioHLECommand command);
-void ENVMIXER(AudioHLECommand command); void ENVMIXER2(AudioHLECommand command); void ENVMIXER3(AudioHLECommand command); void ENVMIXER_GE(AudioHLECommand command);
-void ENVSETUP1(AudioHLECommand command ); void ENVSETUP2(AudioHLECommand command );
-void FILTER2(AudioHLECommand command );
-void HILOGAIN(AudioHLECommand command );
-void INTERL2(AudioHLECommand command );
-void INTERLEAVE(AudioHLECommand command); void INTERLEAVE2(AudioHLECommand command); void INTERLEAVE3(AudioHLECommand command);
-void LOADADPCM(AudioHLECommand command); void LOADADPCM2(AudioHLECommand command); void LOADADPCM3(AudioHLECommand command );
-void LOADBUFF(AudioHLECommand command); void LOADBUFF2(AudioHLECommand command); void LOADBUFF3(AudioHLECommand command );
-void MIXER(AudioHLECommand command); void MIXER2(AudioHLECommand command); void MIXER3(AudioHLECommand command );
-void MP3(AudioHLECommand command );
-//	void MP3ADDY(AudioHLECommand command );
-// void POLEF(AudioHLECommand command );
-void RESAMPLE(AudioHLECommand command); void RESAMPLE2(AudioHLECommand command); void RESAMPLE3(AudioHLECommand command);
-void SAVEBUFF(AudioHLECommand command); void SAVEBUFF2(AudioHLECommand command); void SAVEBUFF3(AudioHLECommand command);
-void SEGMENT(AudioHLECommand command); void SEGMENT2(AudioHLECommand command);
-void SETBUFF(AudioHLECommand command); void SETBUFF2(AudioHLECommand command);
-void SETLOOP(AudioHLECommand command); void SETLOOP2(AudioHLECommand command); void SETLOOP3(AudioHLECommand command);
-void SETVOL(AudioHLECommand command); void SETVOL3(AudioHLECommand command);
-void SPNOOP(AudioHLECommand command);
-void UNKNOWN(AudioHLECommand command);
 
 // These must be defined...
 #include "Core/Memory.h"
