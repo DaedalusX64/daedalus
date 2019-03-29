@@ -35,6 +35,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/FastMemcpy.h"
 #include "AudioTypes.h"
 u8 BufferSpace[0x10000];
+void SPNOOP( AudioHLECommand command ) {}
+void UNKNOWN( AudioHLECommand command ) {}
+
 
 inline s32		FixedPointMulFull16( s32 a, s32 b )
 {
@@ -61,6 +64,9 @@ s16 GetVec(s16 vec, u16 envValue, s16 v2Value)
 }
 
 AudioHLEState gAudioHLEState;
+
+// These are generic unknow
+
 
 void	AudioHLEState::ClearBuffer( u16 addr, u16 count )
 {

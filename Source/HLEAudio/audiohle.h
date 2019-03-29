@@ -416,17 +416,17 @@ void ENVSETUP1(AudioHLECommand command ); void ENVSETUP2(AudioHLECommand command
  void LOADADPCM(AudioHLECommand command); void LOADADPCM2(AudioHLECommand command); void LOADADPCM3(AudioHLECommand command );
 void LOADBUFF(AudioHLECommand command); void LOADBUFF2(AudioHLECommand command); void LOADBUFF3(AudioHLECommand command );
  void MIXER(AudioHLECommand command); void MIXER2(AudioHLECommand command); void MIXER3(AudioHLECommand command );
-// void MP3(AudioHLECommand command );
-// void MP3ADDY(AudioHLECommand command );
+ void MP3(AudioHLECommand command );
+//	void MP3ADDY(AudioHLECommand command );
 // void POLEF(AudioHLECommand command );
-// void RESAMPLE(AudioHLECommand command); void RESAMPLE2(AudioHLECommand command); void RESAMPLE3(AudioHLECommand command);
+ void RESAMPLE(AudioHLECommand command); void RESAMPLE2(AudioHLECommand command); void RESAMPLE3(AudioHLECommand command);
  void SAVEBUFF(AudioHLECommand command); void SAVEBUFF2(AudioHLECommand command); void SAVEBUFF3(AudioHLECommand command);
  void SEGMENT(AudioHLECommand command); void SEGMENT2(AudioHLECommand command);
  void SETBUFF(AudioHLECommand command); void SETBUFF2(AudioHLECommand command);
  void SETLOOP(AudioHLECommand command); void SETLOOP2(AudioHLECommand command); void SETLOOP3(AudioHLECommand command);
 void SETVOL(AudioHLECommand command); void SETVOL3(AudioHLECommand command);
-// void SPNOOP(AudioHLECommand command);
-// void UNKNOWN();
+ void SPNOOP(AudioHLECommand command);
+ void UNKNOWN(AudioHLECommand command);
 
 // These must be defined...
 #include "Core/Memory.h"

@@ -35,12 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Debug/DBGConsole.h"
 
-static void SPNOOP( AudioHLECommand command )
-{
-	#ifdef DAEDALUS_DEBUG_CONSOLE
-	DBGConsole_Msg( 0, "AudioHLE: Unknown/Unimplemented Audio Command %i in ABI 2", command.cmd );
-	#endif
-}
 
 bool isMKABI {false};
 bool isZeldaABI {false};
@@ -49,42 +43,13 @@ static u32 gEnv_t3 {}, gEnv_s5 {}, gEnv_s6 {};
 static u16 env[8] {};
 
 
-static void RESAMPLE2( AudioHLECommand command )
-{
-	u8 flags(command.Abi2Resample.Flags);
-	u32 pitch(command.Abi2Resample.Pitch);
-	u32 address(command.Abi2Resample.Address);// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
-
-	gAudioHLEState.Resample( flags, pitch, address );
-}
-
-
-
-// OK 26/03/19 - Wally
-
-static void DEINTERLEAVE2( AudioHLECommand command )
-{
-	u16 count( command.Abi2Deinterleave.Count );
-	u16 out( command.Abi2Deinterleave.Out );
-	u16 in( command.Abi2Deinterleave.In );
-
-	gAudioHLEState.Deinterleave( out, in, count );
-}
-
-
-
-
-
-static void UNKNOWN( AudioHLECommand command )
-{
-}
 
 AudioHLEInstruction ABI2[0x20] =
 {
     SPNOOP , ADPCM2, CLEARBUFF2, UNKNOWN, ADDMIXER, RESAMPLE2, UNKNOWN, SEGMENT2,
     SETBUFF2 , DUPLICATE2, DMEMMOVE2, LOADADPCM2, MIXER2, INTERLEAVE2, HILOGAIN, SETLOOP2,
-    SPNOOP, DEINTERLEAVE2 , ENVSETUP1, ENVMIXER2, LOADBUFF2, SAVEBUFF2, ENVSETUP2, SPNOOP,
-    HILOGAIN , SPNOOP, DUPLICATE2 , UNKNOWN    , SPNOOP  , SPNOOP    , SPNOOP  , SPNOOP
+    SPNOOP, INTERL2 , ENVSETUP1, ENVMIXER2, LOADBUFF2, SAVEBUFF2, ENVSETUP2, SPNOOP,
+    HILOGAIN , SPNOOP, DUPLICATE2 , UNKNOWN , SPNOOP  , SPNOOP    , SPNOOP  , SPNOOP
 };
 
 /* NOTES:

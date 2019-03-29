@@ -88,7 +88,14 @@ void INTERLEAVE( AudioHLECommand command )
 	gAudioHLEState.Interleave( inL, inR );
 }
 
+void INTERL2( AudioHLECommand command )
+{
+	u16 count( command.Abi2Deinterleave.Count );
+	u16 out( command.Abi2Deinterleave.Out );
+	u16 in( command.Abi2Deinterleave.In );
 
+	gAudioHLEState.Deinterleave( out, in, count );
+}
 
 void INTERLEAVE2( AudioHLECommand command )  // Needs accuracy verification...
 {
