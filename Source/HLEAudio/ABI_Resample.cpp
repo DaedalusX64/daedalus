@@ -38,7 +38,7 @@ gAudioHLEState.Resample( flags, pitch, address );
 
 void RESAMPLE3(AudioHLECommand command)
 {
-  	u8 Flags=(u8)((command.cmd1>>0x1e));
+  u8 Flags=(u8)((command.cmd1>>0x1e));
   	u32 Pitch=((command.cmd1>>0xe)&0xffff) << 1;
   	u32 addy = (command.cmd0 & 0xffffff);
   	u32 Accum;

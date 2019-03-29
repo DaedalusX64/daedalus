@@ -34,6 +34,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/MathUtil.h"
 #include "Utility/FastMemcpy.h"
 
+u8 BufferSpace[0x10000];
+void SPNOOP( AudioHLECommand command ) {}
+void UNKNOWN( AudioHLECommand command ) {}
+
 inline s32		FixedPointMulFull16( s32 a, s32 b )
 {
 	return s32( ( (s64)a * (s64)b ) >> 16 );
@@ -48,9 +52,6 @@ inline s32		FixedPointMul15( s32 a, s32 b )
 {
 	return s32( ( a * b ) >> 15 );
 }
-
-void SPNOOP( AudioHLECommand command ) {}
-void UNKNOWN( AudioHLECommand command ) {}
 
 AudioHLEState gAudioHLEState;
 
