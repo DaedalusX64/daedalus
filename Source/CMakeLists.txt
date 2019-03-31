@@ -94,7 +94,7 @@ project (DaedalusX64)
 
 if (PSP_RELEASE)
 	message("PSP Release Build..")
-	add_definitions("-DNDEBUG  -march=allegrex -O3 -msingle-float -mfix-r4000  ")
+	add_definitions("-DNDEBUG  -march=allegrex -O2 -msingle-float -mfix-r4000  ")
 	add_compile_options(-DPSP_LARGE_MEMORY=1 -DPSP_FW_VERSION=661)
 	add_definitions(-DDAEDALUS_PSP)
 	include_directories(${PROJECT_SOURCE_DIR}/Config/Release)
