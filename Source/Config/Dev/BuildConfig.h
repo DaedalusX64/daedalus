@@ -30,8 +30,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DAEDALUS_CONFIG_VERSION		"Dev"
 
 #define	DAEDALUS_DEBUG_CONSOLE				// Enable debug console
-#define	DAEDALUS_DEBUG_DISPLAYLIST			// Enable the display list debugger
-//#define DEBUG_AUDIO
+//#define	DAEDALUS_DEBUG_DISPLAYLIST			// Enable the display list debugger
+#define DEBUG_AUDIO
 //#define	DAEDALUS_DEBUG_DYNAREC				// Enable to enable various debugging options for the dynarec
 //#define	DAEDALUS_DEBUG_MEMORY
 //#define	DAEDALUS_DEBUG_PIF					// Enable to enable various debugging options for PIF (Peripheral interface)
