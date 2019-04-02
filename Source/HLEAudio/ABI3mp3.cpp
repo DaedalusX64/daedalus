@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 
 #include "Math/MathUtil.h"
+#include "Debug/DBGConsole.h"
 
 namespace
 {
@@ -188,6 +189,9 @@ static const u16 DeWindowLUT [0x420] =
 
 void CMP3Decode::MP3AB0()
 {
+	#ifdef DEBUG_AUDIO
+		DBGConsole_Msg(0, "MP3AB0");
+		#endif
 	// Part 2 - 100% Accurate
 	const u16 LUT2[8] = { 0xFEC4, 0xF4FA, 0xC5E4, 0xE1C4,
 						  0x1916, 0x4A50, 0xA268, 0x78AE };
@@ -631,7 +635,8 @@ CMP3Decode		gMP3Decode;
 
 void MP3( AudioHLECommand command )
 {
+	#ifdef DEBUG_AUDIO
+		DBGConsole_Msg(0, "MP3 ");
+		#endif
 	gMP3Decode.Decode( command );
 }
-
-

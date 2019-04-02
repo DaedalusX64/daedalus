@@ -15,6 +15,10 @@ extern bool isZeldaABI;
 
 void FILTER2(AudioHLECommand command)
 {
+  #ifdef DEBUG_AUDIO
+  	DBGConsole_Msg(0, "FILTER2");
+    #endif
+
   static int cnt = 0;
 	static s16 *lutt6;
 	static s16 *lutt5;
@@ -140,5 +144,11 @@ void FILTER2(AudioHLECommand command)
 	memcpy (gAudioHLEState.Buffer+(command.cmd0&0xffff), outbuff, cnt);
 }
 
-// Not impelemnted
-//void POLEF () {}
+
+void POLEF (AudioHLECommand command)
+
+{
+  #ifdef DEBUG_AUDIO
+    DBGConsole_Msg(0, "POLEF - Not implemented");
+    #endif
+}

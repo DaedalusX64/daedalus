@@ -20,6 +20,9 @@ inline s32		FixedPointMul16( s32 a, s32 b )
 
 void RESAMPLE(AudioHLECommand command)
 {
+	#ifdef DEBUG_AUDIO
+		DBGConsole_Msg(0, "RESAMPLE");
+		#endif
   u8 flags(command.Abi1Resample.Flags);
 	u32 pitch(command.Abi1Resample.Pitch);
 	u32 address(command.Abi1Resample.Address);// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
@@ -29,6 +32,9 @@ void RESAMPLE(AudioHLECommand command)
 
 void RESAMPLE2(AudioHLECommand command)
 {
+	#ifdef DEBUG_AUDIO
+		DBGConsole_Msg(0, "RESAMPLE2");
+		#endif
 u8 flags(command.Abi2Resample.Flags);
 u32 pitch(command.Abi2Resample.Pitch);
 u32 address(command.Abi2Resample.Address);// + gAudioHLEState.Segments[(command.cmd1>>24)&0xf];
@@ -38,6 +44,9 @@ gAudioHLEState.Resample( flags, pitch, address );
 
 void RESAMPLE3(AudioHLECommand command)
 {
+	#ifdef DEBUG_AUDIO
+		DBGConsole_Msg(0, "RESAMPLE3");
+		#endif
   u8 Flags=(u8)((command.cmd1>>0x1e));
   	u32 Pitch=((command.cmd1>>0xe)&0xffff) << 1;
   	u32 addy = (command.cmd0 & 0xffffff);
