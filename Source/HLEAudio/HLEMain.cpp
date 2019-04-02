@@ -117,8 +117,9 @@ inline void Audio_Ucode_Detect(OSTask * pTask)
 //*****************************************************************************
 void Audio_Ucode()
 {
+	#ifdef DAEDALUS_PROFILE
 	DAEDALUS_PROFILE( "HLEMain::Audio_Ucode" );
-
+#endif
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
 
 	// Only detect ABI once per game

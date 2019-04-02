@@ -44,9 +44,9 @@ CAudioBuffer::~CAudioBuffer()
 u32 CAudioBuffer::GetNumBufferedSamples() const
 {
 	 //Todo: Check Cache Routines
-#ifdef DAEDALUS_PSP
-	dcache_wbinv_all();
-#endif
+// #ifdef DAEDALUS_PSP
+// 	dcache_wbinv_all();
+// #endif
 
 	// Safe? What if we read mWrite, and then mRead moves to start of buffer?
 	s32 diff = mWritePtr - mReadPtr;
@@ -91,22 +91,22 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 	{
 		DAEDALUS_ASSERT( in_idx + 1 < num_samples, "Input index out of range - %d / %d", in_idx+1, num_samples );
 
-#if 0 // 1->Sine tone, 0->Normal
+//#if 0 // 1->Sine tone, 0->Normal
 		//static float c= 0.0f;
 		//c += 100.0f / 44100.0f;
 		//if( c >= 1.0f )
 		//  c-=1.f;
 		//s16 v( s16( SHRT_MAX * sinf( c * 3.141f*2 ) ) );
-		Sample	out;
-		s16 v = WriteCounter++;
-		if( WriteCounter >= MAX_COUNTER )
-		{
-			printf( "Loop write\n" );
-			WriteCounter = 0;
-		}
-		out.L = out.R = v;
-
-#else
+		// Sample	out;
+		// s16 v = WriteCounter++;
+		// if( WriteCounter >= MAX_COUNTER )
+		// {
+		// 	printf( "Loop write\n" );
+		// 	WriteCounter = 0;
+		// }
+		// out.L = out.R = v;
+		//
+// #else
 		// Resample in integer mode (faster & less ASM code) //Corn
 		Sample	out;
 
@@ -116,7 +116,7 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 		s += r;
 		in_idx += s >> 12;
 		s &= 4095;
-#endif
+// #endif
 
 		write_ptr++;
 		if( write_ptr >= mBufferEnd )
@@ -131,7 +131,7 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 			// ToDo: Adjust Audio Frequency/ Look at Turok in this regard.
 			// We might want to put a Sleep in when executing on the SC?
 			//Give time to other threads when using SYNC mode.
-			if ( gAudioPluginEnabled == APM_ENABLED_SYNC )	ThreadYield();
+		ThreadYield();
 
 			read_ptr = mReadPtr;
 		}
