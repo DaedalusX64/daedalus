@@ -87,7 +87,7 @@ public:
   CAudioBuffer * mAudioBufferUncached;
 
 private:
-  CAudioBuffer * mAudioBuffer;
+//  CAudioBuffer * mAudioBuffer;
   bool mAudioPlaying;
   bool mExitAudioThread;
   u32 mFrequency;
@@ -122,6 +122,50 @@ static s16 __attribute__((aligned(16))) pcmout2[PSP_NUM_SAMPLES * 2];
 static bool audio_open {false};
 static AudioPluginPSP * ac;
 
+AudioPluginPSP::AudioPluginPSP()
+: mAudioPlaying ( false )
+, mFrequency (44100)
+{
+	// Allocate audio buffer with malloc_64 to avoid cached/uncached aliasing
+	void * mem = malloc_64( sizeof( CAudioBuffer ) );
+	mAudioBuffer = new( mem ) CAudioBuffer( BUFFER_SIZE );
+	mAudioBufferUncached = (CAudioBuffer*)MAKE_UNCACHED_PTR(mem);
+	// Ideally we could just invalidate this range?
+	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
+}
+
+AudioPluginPSP::~AudioPluginPSP()
+{
+  StopAudio();
+}
+
+bool		AudioPluginPSP::StartEmulation()
+{
+	return true;
+}
+
+void	AudioPluginPSP::StopEmulation()
+{
+	Audio_Reset();
+	StopAudio();
+}
+
+void	AudioPluginPSP::DacrateChanged( int system_type )
+{
+
+  u32 clock = (system_type == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK;
+  u32 dacrate = Memory_AI_GetRegister(AI_DACRATE_REG);
+  u32 frequency = clock / (dacrate + 1);
+
+  #ifdef DAEDALUS_DEBUG_CONSOLE
+    DBGConsole_Msg(0, "Audio Frequency: %d", frequency);
+    #endif
+  mFrequency = frequency;
+}
+
+
+
+
 static int fillBuffer(SceSize args, void *argp)
 {
 	s16 *fillbuf {0};
@@ -137,27 +181,50 @@ static int fillBuffer(SceSize args, void *argp)
 	return 0;
 }
 
-
-AudioPluginPSP::~AudioPluginPSP()
+void	AudioPluginPSP::LenChanged()
 {
-  StopAudio();
+	if( gAudioPluginEnabled > APM_DISABLED )
+	{
 
-	mAudioBuffer->~CAudioBuffer();
-	free( mAudioBuffer );
+		u32		address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
+		u32		length = Memory_AI_GetRegister(AI_LEN_REG);
+
+	AddBuffer( g_pu8RamBase + address, length );
+	}
+else
+	{
+    StopAudio();
+	}
 }
 
-AudioPluginPSP::AudioPluginPSP()
-: mAudioPlaying ( false )
-, mFrequency (44100)
+EProcessResult	AudioPluginPSP::ProcessAList()
 {
-	// Allocate audio buffer with malloc_64 to avoid cached/uncached aliasing
-	void * mem = malloc_64( sizeof( CAudioBuffer ) );
-	mAudioBuffer = new( mem ) CAudioBuffer( BUFFER_SIZE );
-	mAudioBufferUncached = (CAudioBuffer*)MAKE_UNCACHED_PTR(mem);
-	// Ideally we could just invalidate this range?
-	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
-}
+	Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_HALT);
 
+	EProcessResult	result = PR_NOT_STARTED;
+
+	switch( gAudioPluginEnabled )
+	{
+		case APM_DISABLED:
+			result = PR_COMPLETED;
+			break;
+		case APM_ENABLED_ASYNC:
+			{
+      Audio_Ucode(); // ME is disabled for now, just use Sync as a failsafe
+		  //SHLEStartJob	job;
+	    //gJobManager.AddJob( &job, sizeof( job ) );
+      result = PR_COMPLETED;
+			}
+			result = PR_STARTED;
+			break;
+		case APM_ENABLED_SYNC:
+			Audio_Ucode();
+			result = PR_COMPLETED;
+			break;
+	}
+
+	return result;
+}
 
 
 
@@ -232,50 +299,6 @@ static void AudioExit()
 
 
 
-void AudioPluginPSP::SetFrequency( u32 frequency )
-{
-	DBGConsole_Msg( 0, "Audio frequency: %d", frequency );
-	mFrequency = frequency;
-}
-
-
-bool		AudioPluginPSP::StartEmulation()
-{
-	return true;
-}
-void	AudioPluginPSP::StopEmulation()
-{
-	Audio_Reset();
-	StopAudio();
-}
-
-void	AudioPluginPSP::DacrateChanged( int SystemType )
-{
-//	printf( "DacrateChanged( %s )\n", (SystemType == ST_NTSC) ? "NTSC" : "PAL" );
-	u32 type {(u32)((SystemType == ST_NTSC) ? VI_NTSC_CLOCK : VI_PAL_CLOCK)};
-	u32 dacrate {Memory_AI_GetRegister(AI_DACRATE_REG)};
-	u32	frequency {type / (dacrate + 1)};
-
-	SetFrequency( frequency );
-}
-
-
-void	AudioPluginPSP::LenChanged()
-{
-	if( gAudioPluginEnabled > APM_DISABLED )
-	{
-		//SetAdaptFrequency( gAdaptFrequency );
-
-		u32		address( Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF );
-		u32		length(Memory_AI_GetRegister(AI_LEN_REG));
-
-	AddBuffer( g_pu8RamBase + address, length );
-	}
-	else
-	{
- StopAudio();
-	}
-}
 
 
 u32		AudioPluginPSP::ReadLength()
@@ -283,33 +306,6 @@ u32		AudioPluginPSP::ReadLength()
 	return 0;
 }
 
-
-EProcessResult	AudioPluginPSP::ProcessAList()
-{
-	Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_HALT);
-
-	EProcessResult	result( PR_NOT_STARTED );
-
-	switch( gAudioPluginEnabled )
-	{
-		case APM_DISABLED:
-			result = PR_COMPLETED;
-			break;
-		case APM_ENABLED_ASYNC:
-			{
-		//		SHLEStartJob	job;
-	//			gJobManager.AddJob( &job, sizeof( job ) );
-			}
-			result = PR_STARTED;
-			break;
-		case APM_ENABLED_SYNC:
-			Audio_Ucode();
-			result = PR_COMPLETED;
-			break;
-	}
-
-	return result;
-}
 
 void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 {
