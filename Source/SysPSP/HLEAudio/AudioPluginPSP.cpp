@@ -33,7 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspaudio.h>
 
 
-#include "AudioOutput.h"
 #include "HLEAudio/audiohle.h"
 #include "Plugins/AudioPlugin.h"
 
@@ -58,7 +57,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define DEFAULT_FREQUENCY 44100	// Taken from Mupen64 : )
 
-static AudioOutput * ac;
+struct Sample;
+class CAudioBuffer;
 
 class AudioPluginPSP : public CAudioPlugin
 {
@@ -74,21 +74,27 @@ public:
 	virtual u32				ReadLength();
 	virtual EProcessResult	ProcessAList();
 
+   void SetFrequency ( u32 frequency );
+   void AddBuffer ( u8 * start, u32 length);
+
+  void StopAudio();
+   void StartAudio();
+
+ void FillBuffer( Sample * buffer, u32 num_samples);
+
 //			void			SetAdaptFrequecy( bool adapt );
+public:
+  CAudioBuffer * mAudioBufferUncached;
 
 private:
-	AudioOutput *			mAudioOutput;
+  CAudioBuffer * mAudioBuffer;
+  bool mAudioPlaying;
+  bool mExitAudioThread;
+  u32 mFrequency;
 };
 
 
 EAudioPluginMode gAudioPluginEnabled( APM_DISABLED );
-
-
-AudioPluginPSP::~AudioPluginPSP() {}
-
-AudioPluginPSP::AudioPluginPSP()
-:	mAudioOutput( new AudioOutput )
-{}
 
 
 extern u32 gSoundSync;
@@ -114,8 +120,7 @@ static s16 __attribute__((aligned(16))) pcmout1[PSP_NUM_SAMPLES * 2]; // # of st
 static s16 __attribute__((aligned(16))) pcmout2[PSP_NUM_SAMPLES * 2];
 
 static bool audio_open {false};
-
-
+static AudioPluginPSP * ac;
 
 static int fillBuffer(SceSize args, void *argp)
 {
@@ -131,6 +136,30 @@ static int fillBuffer(SceSize args, void *argp)
 	sceKernelExitDeleteThread(0);
 	return 0;
 }
+
+
+AudioPluginPSP::~AudioPluginPSP()
+{
+  StopAudio();
+
+	mAudioBuffer->~CAudioBuffer();
+	free( mAudioBuffer );
+}
+
+AudioPluginPSP::AudioPluginPSP()
+: mAudioPlaying ( false )
+, mFrequency (44100)
+{
+	// Allocate audio buffer with malloc_64 to avoid cached/uncached aliasing
+	void * mem = malloc_64( sizeof( CAudioBuffer ) );
+	mAudioBuffer = new( mem ) CAudioBuffer( BUFFER_SIZE );
+	mAudioBufferUncached = (CAudioBuffer*)MAKE_UNCACHED_PTR(mem);
+	// Ideally we could just invalidate this range?
+	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
+}
+
+
+
 
 static int audioOutput(SceSize args, void *argp)
 {
@@ -201,27 +230,9 @@ static void AudioExit()
 	sceKernelDeleteSema(bufferEmpty);
 }
 
-AudioOutput::AudioOutput()
-:	mAudioPlaying( false )
-,	mFrequency( 44100 )
-{
-	// Allocate audio buffer with malloc_64 to avoid cached/uncached aliasing
-	void * mem = malloc_64( sizeof( CAudioBuffer ) );
-	mAudioBuffer = new( mem ) CAudioBuffer( BUFFER_SIZE );
-	mAudioBufferUncached = (CAudioBuffer*)MAKE_UNCACHED_PTR(mem);
-	// Ideally we could just invalidate this range?
-	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
-}
 
-AudioOutput::~AudioOutput( )
-{
-	StopAudio();
 
-	mAudioBuffer->~CAudioBuffer();
-	free( mAudioBuffer );
-}
-
-void AudioOutput::SetFrequency( u32 frequency )
+void AudioPluginPSP::SetFrequency( u32 frequency )
 {
 	DBGConsole_Msg( 0, "Audio frequency: %d", frequency );
 	mFrequency = frequency;
@@ -235,7 +246,7 @@ bool		AudioPluginPSP::StartEmulation()
 void	AudioPluginPSP::StopEmulation()
 {
 	Audio_Reset();
-	mAudioOutput->StopAudio();
+	StopAudio();
 }
 
 void	AudioPluginPSP::DacrateChanged( int SystemType )
@@ -245,7 +256,7 @@ void	AudioPluginPSP::DacrateChanged( int SystemType )
 	u32 dacrate {Memory_AI_GetRegister(AI_DACRATE_REG)};
 	u32	frequency {type / (dacrate + 1)};
 
-	mAudioOutput->SetFrequency( frequency );
+	SetFrequency( frequency );
 }
 
 
@@ -253,16 +264,16 @@ void	AudioPluginPSP::LenChanged()
 {
 	if( gAudioPluginEnabled > APM_DISABLED )
 	{
-		//mAudioOutput->SetAdaptFrequency( gAdaptFrequency );
+		//SetAdaptFrequency( gAdaptFrequency );
 
 		u32		address( Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF );
 		u32		length(Memory_AI_GetRegister(AI_LEN_REG));
 
-		mAudioOutput->AddBuffer( g_pu8RamBase + address, length );
+	AddBuffer( g_pu8RamBase + address, length );
 	}
 	else
 	{
-		mAudioOutput->StopAudio();
+ StopAudio();
 	}
 }
 
@@ -300,7 +311,7 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 	return result;
 }
 
-void AudioOutput::AddBuffer( u8 *start, u32 length )
+void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 {
 	if (length == 0)
 		return;
@@ -332,19 +343,17 @@ void AudioOutput::AddBuffer( u8 *start, u32 length )
 	}
 }
 
-void AudioOutput::StartAudio()
+void AudioPluginPSP::StartAudio()
 {
 	if (mAudioPlaying)
 		return;
 
 	mAudioPlaying = true;
 
-	ac = this;
-
 	AudioInit();
 }
 
-void AudioOutput::StopAudio()
+void AudioPluginPSP::StopAudio()
 {
 	if (!mAudioPlaying)
 		return;
