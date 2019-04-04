@@ -135,7 +135,7 @@ void AudioPluginOSX::DacrateChanged(int system_type)
 }
 
 void AudioPluginOSX::LenChanged()
-{
+{kOutputFre
 	if (gAudioPluginEnabled > APM_DISABLED)
 	{
 		u32	address = Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF;
