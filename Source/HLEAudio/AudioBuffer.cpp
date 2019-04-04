@@ -44,12 +44,12 @@ CAudioBuffer::~CAudioBuffer()
 u32 CAudioBuffer::GetNumBufferedSamples() const
 {
 	 //Todo: Check Cache Routines
-#ifdef DAEDALUS_PSP
-	dcache_wbinv_all();
-#endif
+// #ifdef DAEDALUS_PSP
+// 	dcache_wbinv_all();
+// #endif
 
 	// Safe? What if we read mWrite, and then mRead moves to start of buffer?
-	s32 diff {mWritePtr - mReadPtr};
+	s32 diff = mWritePtr - mReadPtr;
 
 	if( diff < 0 )
 	{
@@ -61,8 +61,9 @@ u32 CAudioBuffer::GetNumBufferedSamples() const
 
 void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 frequency, u32 output_freq )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( frequency <= output_freq, "Input frequency is too high" );
-
+#endif
 	//static FILE * fh = NULL;
 	//if( !fh )
 	//{
@@ -91,25 +92,23 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 	{
 		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( in_idx + 1 < num_samples, "Input index out of range - %d / %d", in_idx+1, num_samples );
-		#endif
-#if 0 // 1->Sine tone, 0->Normal
+#endif
+//#if 0 // 1->Sine tone, 0->Normal
 		//static float c= 0.0f;
 		//c += 100.0f / 44100.0f;
 		//if( c >= 1.0f )
 		//  c-=1.f;
 		//s16 v( s16( SHRT_MAX * sinf( c * 3.141f*2 ) ) );
-		Sample	out;
-		s16 v {WriteCounter++};
-		if( WriteCounter >= MAX_COUNTER )
-		{
-			#ifdef DAEDALUS_DEBUG_CONSOLE
-			printf( "Loop write\n" );
-			#endif
-			WriteCounter = 0;
-		}
-		out.L = out.R = v;
-
-#else
+		// Sample	out;
+		// s16 v = WriteCounter++;
+		// if( WriteCounter >= MAX_COUNTER )
+		// {
+		// 	printf( "Loop write\n" );
+		// 	WriteCounter = 0;
+		// }
+		// out.L = out.R = v;
+		//
+// #else
 		// Resample in integer mode (faster & less ASM code) //Corn
 		Sample	out;
 
@@ -119,12 +118,12 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 		s += r;
 		in_idx += s >> 12;
 		s &= 4095;
-#endif
+// #endif
 
 		write_ptr++;
 		if( write_ptr >= mBufferEnd )
 			write_ptr = mBufferBegin;
-		/*
+
 		while( write_ptr == read_ptr )
 		{
 			// The buffer is full - spin until the read pointer advances.
@@ -134,11 +133,11 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 			// ToDo: Adjust Audio Frequency/ Look at Turok in this regard.
 			// We might want to put a Sleep in when executing on the SC?
 			//Give time to other threads when using SYNC mode.
-			if ( gAudioPluginEnabled == APM_ENABLED_SYNC )	ThreadYield();
+		ThreadYield();
 
 			read_ptr = mReadPtr;
 		}
-*/
+
 		*write_ptr = out;
 	}
 
@@ -148,62 +147,6 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 
 	mWritePtr = write_ptr;		// Needs cache wbinv
 }
-
-#ifdef DAEDALUS_PSP
-u32	CAudioBuffer::Drain( Sample * samples, u32 num_samples )
-{
-	//Todo: Check Cache Routines
-	// Ideally we could just invalidate this range?
-	//dcache_wbinv_range_unaligned( mBufferBegin, mBufferEnd );
-
-	const Sample *	read_ptr( mReadPtr );		// No need to invalidate, as this is uncached/volatile
-	const Sample *	write_ptr( mWritePtr );		//
-
-	Sample *	out_ptr( samples );
-	u32			samples_required( num_samples );
-	static Sample	LastSample_old;
-	Sample	LastSample(LastSample_old);
-
-	while( samples_required > 0 )
-	{
-		// Check if empty
-		if( read_ptr == write_ptr )
-			break;
-
-		LastSample = *read_ptr++;
-		*out_ptr++ = LastSample;
-
-		if( read_ptr >= mBufferEnd )
-			read_ptr = mBufferBegin;
-
-		samples_required--;
-	}
-
-	//static FILE * fh = NULL;
-	//if( !fh )
-	//{
-	//	fh = fopen( "audio_out.raw", "wb" );
-	//}
-	//fwrite( samples, sizeof( Sample ), (num_samples-samples_required), fh );
-	//fflush( fh );
-
-	mReadPtr = read_ptr;		// No need to invalidate, as this is uncached
-
-	//Pad with last sample if not enought samples to avoid pops and clicks //Corn
-	//
-	while( samples_required > 0 )
-	{
-		*out_ptr++ = LastSample;
-		samples_required--;
-	}
-
-	LastSample_old = LastSample;
-
-	// Return the number of samples written
-	return num_samples - samples_required;
-}
-
-#else
 
 u32	CAudioBuffer::Drain( Sample * samples, u32 num_samples )
 {
@@ -255,5 +198,3 @@ u32	CAudioBuffer::Drain( Sample * samples, u32 num_samples )
 	// Return the number of samples written
 	return num_samples - samples_required;
 }
-
-#endif
