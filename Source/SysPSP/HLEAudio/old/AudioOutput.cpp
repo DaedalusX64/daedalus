@@ -56,12 +56,12 @@ static const u32	PSP_NUM_SAMPLES {512};
 static SceUID bufferEmpty {};
 
 static s32 sound_channel {PSP_AUDIO_NEXT_CHANNEL};
-static volatile s32 sound_volume {PSP_AUDIO_VOLUME_MAX};
+static volatile s32 sound_volume {PSP_VOLUME_MAX};
 static volatile u32 sound_status {0};
 
 static volatile int pcmflip {0};
-static s16 __attribute__((aligned(16))) pcmout1[PSP_NUM_SAMPLES * 2]; // # of stereo samples
-static s16 __attribute__((aligned(16))) pcmout2[PSP_NUM_SAMPLES * 2];
+static s16 __attribute__((aligned(16))) pcmout1[PSP_NUM_AUDIO_SAMPLES]; // # of stereo samples
+static s16 __attribute__((aligned(16))) pcmout2[PSP_NUM_AUDIO_SAMPLES];
 
 static bool audio_open {false};
 
