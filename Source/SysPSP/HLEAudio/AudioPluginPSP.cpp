@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <new>
 
 #include <pspkernel.h>
+#include <pspaudiolib.h>
 #include <pspaudio.h>
 
 #include "Plugins/AudioPlugin.h"
@@ -94,6 +95,7 @@ public:
 
 	void SetFrequency(u32 frequency);
 	void AddBuffer( u8 * start, u32 length);
+	void FillBuffer( Sample * buffer, u32 num_samples);
 
 	void StopAudio();
 	void StartAudio();
@@ -106,6 +108,7 @@ private:
 	bool mExitAudioThread;
 	u32 mFrequency;
 	s32 mAudioThread;
+	s32 mSemaphore;
 //	u32 mBufferLenMs;
 };
 
@@ -156,19 +159,13 @@ struct SAddSamplesJob : public SJob
 
 static AudioPluginPSP * ac;
 
-static int fillBuffer(SceSize args, void *argp)
+void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 {
-	s16 *fillbuf {0};
+	sceKernelWaitSema( mSemaphore, 1, NULL );
 
-	while(sound_status != 0xDEADBEEF)
-	{
-		sceKernelWaitSema(bufferEmpty, 1, 0);
-		fillbuf = pcmflip ? pcmout2 : pcmout1;
+	mAudioBuffer->Drain( buffer, num_samples );
 
-		ac->mAudioBufferUncached->Drain( reinterpret_cast< Sample * >( fillbuf ), PSP_NUM_SAMPLES );
-	}
-	sceKernelExitDeleteThread(0);
-	return 0;
+	sceKernelSignalSema( mSemaphore, 1 );
 }
 
 
@@ -179,6 +176,7 @@ AudioPluginPSP::AudioPluginPSP()
 :mKeepRunning (false)
 //: mAudioBuffer( kAudioBufferSize )
 , mFrequency( 44100 )
+,	mSemaphore( sceKernelCreateSema( "AudioPluginPSP", 0, 1, 1, NULL ) )
 //, mAudioThread ( kInvalidThreadHandle )
 //, mKeepRunning( false )
 //, mBufferLenMs ( 0 )
@@ -317,6 +315,13 @@ static int audioOutput(SceSize args, void *argp)
 }
 
 
+void audioCallback( void * buf, unsigned int length, void * userdata )
+{
+	AudioPluginPSP * ac( reinterpret_cast< AudioPluginPSP * >( userdata ) );
+
+	ac->FillBuffer( reinterpret_cast< Sample * >( buf ), length );
+}
+
 
 void AudioPluginPSP::StartAudio()
 {
@@ -327,35 +332,13 @@ void AudioPluginPSP::StartAudio()
 
 	ac = this;
 
-	// Init semaphore
-	bufferEmpty = sceKernelCreateSema("Buffer Empty", 0, 1, 1, 0);
-
 	// reserve audio channel
 	sound_channel = sceAudioChReserve(sound_channel, PSP_NUM_SAMPLES, PSP_AUDIO_FORMAT_STEREO);
 
 	sound_status = 0; // threads running
 
-	// create audio playback thread to provide timing
-	int audioThid = sceKernelCreateThread("audioOutput", audioOutput, 0x15, 0x1800, PSP_THREAD_ATTR_USER, NULL);
-	if(audioThid < 0)
-	{
-		printf("FATAL: Cannot create audioOutput thread\n");
-		return; // no audio
-	}
-	sceKernelStartThread(audioThid, 0, NULL);
-
-	// Start streaming thread
-	int bufferThid = sceKernelCreateThread("bufferFilling", fillBuffer, 0x14, 0x1800, PSP_THREAD_ATTR_USER, NULL);
-	if(bufferThid < 0)
-	{
-		sound_status = 0xDEADBEEF; // kill the audioOutput thread
-		sceKernelDelayThread(100*1000);
-		sceAudioChRelease(sound_channel);
-		sound_channel = PSP_AUDIO_NEXT_CHANNEL;
-		printf("FATAL: Cannot create bufferFilling thread\n");
-		return;
-	}
-	sceKernelStartThread(bufferThid, 0, NULL);
+pspAudioInit();
+pspAudioSetChannelCallback( 0, audioCallback, this );
 
 	// Everything OK
 	audio_open = true;
@@ -408,14 +391,7 @@ void AudioPluginPSP::StopAudio()
 
 	mKeepRunning = false;
 	// Stop stream
-	if (audio_open)
-	{
-		sound_status = 0xDEADBEEF;
-		sceKernelSignalSema(bufferEmpty, 1); // fillbuffer thread is probably waiting.
-		sceKernelDelayThread(100*1000);
-		sceAudioChRelease(sound_channel);
-		sound_channel = PSP_AUDIO_NEXT_CHANNEL;
-	}
+pspAudioEnd();
 
 	audio_open = false;
 
