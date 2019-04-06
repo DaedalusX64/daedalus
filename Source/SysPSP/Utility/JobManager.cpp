@@ -173,7 +173,7 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 	if( job_size <= mJobBufferSize )
 	{
 		// Add job to queue
-		memcpy( mJobBuffer, job, job_size );
+		memcpy_vfpu( mJobBuffer, job, job_size );
 
 		//clear the Cache
 		sceKernelDcacheWritebackInvalidateAll();
@@ -194,65 +194,23 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 void CJobManager::Run()
 {
 
-	while( true )
+	while( 1 )
 	{
 		//This wait time sets the amount of time between checking for the next job. Waiting to long will cause a crash.
-		SceUInt timeout {5*1000};  // Microseconds
+		SceUInt timeout {10*1000};  // Microseconds
 
 		// Check for work with a timeout, in case we want to quit and no more work comes in
 		if( sceKernelWaitSema( mWorkReady, 1, &timeout ) >= 0 )
 		{
 
-			//Check if the ME CPU is busy then run the job on the main cpu
-			if( !CheckME( mei ))
-			{
-				//Set job to ME Buffer
-			SJob *	job( static_cast< SJob * >( mJobBuffer ) );
-
-			//printf("Media Engine is busy run on main CPU \n");
-
-			// Execute job initialise
-			if( job->InitJob )
-				job->InitJob( job );
-
-			// Do the job itself
-			if( job->DoJob )
-				job->DoJob( job );
-
-			// Execute job finalised
-			if( job->FiniJob )
-				job->FiniJob( job );
-
-			// signal ready for a new job
-			sceKernelSignalSema( mWorkEmpty, 1 );
-
-			//clear the cache again before checking the ME
-			sceKernelDcacheWritebackInvalidateAll();
-
-			// Switch back to Job from ME to see if the me is done and mark the job finished
-			SJob *	run( static_cast< SJob * >( mRunBuffer ) );
-
-			// Execute job finalised if ME done
-			if( run->FiniJob && CheckME( mei ) )
-			{
-				run->FiniJob( run );
-				run->FiniJob = NULL; // so it doesn't get run again later
-			}
-
-		}
 
 				//printf("Run Job on Media Engine\n");
 
 				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
 
-				// Execute previous job finalised
-				if( run->FiniJob )
-					run->FiniJob( run );
-
 				//clear Cache
 				sceKernelDcacheWritebackInvalidateAll();
 
-				// copy new job to run buffer for Media Engine
 				memcpy( mRunBuffer, mJobBuffer, mJobBufferSize );
 
 				//clear Cache -> this one is very important without it the CheckME(mei) will not return with the ME status.
@@ -266,7 +224,14 @@ void CJobManager::Run()
 					run->InitJob( run );
 
 				// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
-				BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL );
+				if(BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL ) < 0){
+					SJob *	job( static_cast< SJob * >( mJobBuffer ) );
+					if( job->InitJob ) job->InitJob( job );
+					if( job->DoJob )   job->DoJob( job );
+					if( job->FiniJob ) job->FiniJob( job );
+					sceKernelSignalSema( mWorkEmpty, 1 );
+				}
+
 
 				//Mark Job(run) from Mrunbuffer as Finished
 				run->FiniJob( run );
