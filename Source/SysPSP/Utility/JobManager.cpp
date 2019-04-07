@@ -197,12 +197,11 @@ void CJobManager::Run()
 	while( 1 )
 	{
 		//This wait time sets the amount of time between checking for the next job. Waiting to long will cause a crash.
-		SceUInt timeout {10*1000};  // Microseconds
+		SceUInt timeout {5*1000};  // Microseconds
 
 		// Check for work with a timeout, in case we want to quit and no more work comes in
 		if( sceKernelWaitSema( mWorkReady, 1, &timeout ) >= 0 )
 		{
-
 
 				//printf("Run Job on Media Engine\n");
 
@@ -224,12 +223,15 @@ void CJobManager::Run()
 					run->InitJob( run );
 
 				// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
-				if(BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL ) < 0){
+				while(1){
+					if(BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL ) < 0){
 					SJob *	job( static_cast< SJob * >( mJobBuffer ) );
 					if( job->InitJob ) job->InitJob( job );
 					if( job->DoJob )   job->DoJob( job );
 					if( job->FiniJob ) job->FiniJob( job );
 					sceKernelSignalSema( mWorkEmpty, 1 );
+				}
+				break;
 				}
 
 
@@ -238,13 +240,10 @@ void CJobManager::Run()
 				run->FiniJob = NULL; // so it doesn't get run again later
 
 
-
-
 		}
 
 		// This thread needs to be terminated, so break this loop & kill the me
 		if( mWantQuit ){
-			KillME(mei);
 			break;
 		}
 
