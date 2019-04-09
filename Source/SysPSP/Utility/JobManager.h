@@ -35,8 +35,9 @@ enum ETaskMode
 struct SJob;
 typedef int (*JobFunction)( SJob * job );
 
-struct SJob
+class SJob
 {
+public:
 	JobFunction			InitJob;
 	JobFunction			DoJob;
 	JobFunction			FiniJob;

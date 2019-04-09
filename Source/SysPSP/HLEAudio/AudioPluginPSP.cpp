@@ -112,7 +112,7 @@ private:
 //	u32 mBufferLenMs;
 };
 
-struct SAddSamplesJob : public SJob
+class SAddSamplesJob : public SJob
 {
 	CAudioBuffer *		mBuffer;
 	const Sample *		mSamples;
@@ -120,6 +120,7 @@ struct SAddSamplesJob : public SJob
 	u32					mFrequency;
 	u32					mOutputFreq;
 
+public:
 	SAddSamplesJob( CAudioBuffer * buffer, const Sample * samples, u32 num_samples, u32 frequency, u32 output_freq )
 		:	mBuffer( buffer )
 		,	mSamples( samples )
@@ -237,8 +238,9 @@ void	AudioPluginPSP::LenChanged()
 }
 
 
-struct SHLEStartJob : public SJob
+class SHLEStartJob : public SJob
 {
+public:
 	SHLEStartJob()
 	{
 		 InitJob = NULL;
