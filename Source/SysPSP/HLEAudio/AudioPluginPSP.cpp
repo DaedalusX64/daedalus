@@ -55,20 +55,6 @@ extern u32 gSoundSync;
 static const u32	kOutputFrequency {44100};
 static const u32	MAX_OUTPUT_FREQUENCY {kOutputFrequency * 4};
 
-//static const u32	ADAPTIVE_FREQUENCY_ADJUST = 2000;
-
-static const u32	PSP_NUM_SAMPLES {512};
-
-// Global variables
-static SceUID bufferEmpty {};
-
-static s32 sound_channel {PSP_AUDIO_NEXT_CHANNEL};
-static volatile s32 sound_volume {PSP_AUDIO_VOLUME_MAX};
-static volatile u32 sound_status {0};
-
-static volatile int pcmflip {0};
-static s16 __attribute__((aligned(16))) pcmout1[PSP_NUM_SAMPLES * 2]; // # of stereo samples
-static s16 __attribute__((aligned(16))) pcmout2[PSP_NUM_SAMPLES * 2];
 
 static bool audio_open {false};
 
@@ -76,7 +62,6 @@ static bool audio_open {false};
 // Large kAudioBufferSize creates huge delay on sound //Corn
 static const u32	kAudioBufferSize {1024 * 2}; // OSX uses a circular buffer length, 1024 * 1024
 
-struct Sample;
 class CAudioBuffer;
 
 class AudioPluginPSP : public CAudioPlugin
@@ -99,8 +84,6 @@ public:
 
 	void StopAudio();
 	void StartAudio();
-
-	CAudioBuffer * mAudioBufferUncached;
 
 private:
 	CAudioBuffer * mAudioBuffer;
@@ -185,14 +168,15 @@ AudioPluginPSP::AudioPluginPSP()
 	// Allocate audio buffer with malloc_64 to avoid cached/uncached aliasing
 	void * mem = malloc_64( sizeof( CAudioBuffer ) );
 	mAudioBuffer = new( mem ) CAudioBuffer( kAudioBufferSize );
-	mAudioBufferUncached = (CAudioBuffer*)MAKE_UNCACHED_PTR(mem);
 	// Ideally we could just invalidate this range?
 	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
 }
 
 AudioPluginPSP::~AudioPluginPSP( )
 {
+
 	StopAudio();
+
 //	mAudioBuffer->~CAudioBuffer();
 //	free( mAudioBuffer );
 }
@@ -301,21 +285,6 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 	return result;
 }
 
-static int audioOutput(SceSize args, void *argp)
-{
-	s16 *playbuf {0};
-
-	while(sound_status != 0xDEADBEEF)
-	{
-		playbuf = pcmflip ? pcmout1 : pcmout2;
-		pcmflip ^= 1;
-		sceKernelSignalSema(bufferEmpty, 1);
-		sceAudioOutputBlocking(sound_channel, sound_volume, playbuf);
-	}
-	sceKernelExitDeleteThread(0);
-	return 0;
-}
-
 
 void audioCallback( void * buf, unsigned int length, void * userdata )
 {
@@ -334,10 +303,6 @@ void AudioPluginPSP::StartAudio()
 
 	ac = this;
 
-	// reserve audio channel
-	sound_channel = sceAudioChReserve(sound_channel, PSP_NUM_SAMPLES, PSP_AUDIO_FORMAT_STEREO);
-
-	sound_status = 0; // threads running
 
 pspAudioInit();
 pspAudioSetChannelCallback( 0, audioCallback, this );
@@ -363,7 +328,7 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 
 	case APM_ENABLED_ASYNC:
 		{
-			SAddSamplesJob	job( mAudioBufferUncached, reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
+			SAddSamplesJob	job( mAudioBuffer, reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
 
 			gJobManager.AddJob( &job, sizeof( job ) );
 		}
@@ -371,7 +336,7 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 
 	case APM_ENABLED_SYNC:
 		{
-			mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
+			mAudioBuffer->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
 		}
 		break;
 	}
@@ -393,12 +358,16 @@ void AudioPluginPSP::StopAudio()
 
 	mKeepRunning = false;
 	// Stop stream
-pspAudioEnd();
+
+if (audio_open)
+{
+			sceKernelSignalSema(mSemaphore, 1); // fillbuffer thread is probably waiting.
+}
 
 	audio_open = false;
 
-	// Delete semaphore
-	sceKernelDeleteSema(bufferEmpty);
+	pspAudioEnd();
+	sceKernelDeleteSema(mSemaphore);
 }
 
 CAudioPlugin *		CreateAudioPlugin()
