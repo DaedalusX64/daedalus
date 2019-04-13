@@ -32,7 +32,7 @@ enum ETaskMode
 	TM_ASYNC_ME,	// Asynchronous on ME
 };
 
-struct SJob;
+class SJob;
 typedef int (*JobFunction)( SJob * job );
 
 class SJob

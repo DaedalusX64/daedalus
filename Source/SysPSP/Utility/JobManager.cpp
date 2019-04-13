@@ -223,15 +223,12 @@ void CJobManager::Run()
 					run->InitJob( run );
 
 				// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
-				while(1){
 					if(BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL ) < 0){
 					SJob *	job( static_cast< SJob * >( mJobBuffer ) );
 					if( job->InitJob ) job->InitJob( job );
 					if( job->DoJob )   job->DoJob( job );
 					if( job->FiniJob ) job->FiniJob( job );
 					sceKernelSignalSema( mWorkEmpty, 1 );
-				}
-				break;
 				}
 
 
