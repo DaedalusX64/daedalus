@@ -378,9 +378,11 @@ void CPU_UpdateTrace( u32 address, OpCode op_code, bool branch_delay_slot, bool 
 {
 	#ifdef DAEDALUS_PROFILE
 	DAEDALUS_PROFILE( "CPU_UpdateTrace" );
-
+		#endif
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q( (gCPUState.Delay == EXEC_DELAY) == branch_delay_slot );
 	#endif
+
 
 #ifdef DAEDALUS_DEBUG_DYNAREC
 	CFragment * p_address_fragment( gFragmentCache.LookupFragment( address ) );

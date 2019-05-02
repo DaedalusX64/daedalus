@@ -443,8 +443,9 @@ bool CPU_RequestSaveState( const char * filename )
 bool CPU_RequestLoadState( const char * filename )
 {
 	// Call SaveState_SaveToFile directly if the CPU is not running.
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(gCPURunning, "Expecting the CPU to be running at this point");
-
+	#endif
 	MutexLock lock( &gSaveStateMutex );
 
 	// Abort if already in the process of loading/saving
@@ -476,7 +477,9 @@ static void HandleSaveStateOperationOnVerticalBlank()
 	switch( gSaveStateOperation )
 	{
 	case SSO_NONE:
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Unreachable" );
+		#endif
 		break;
 	case SSO_SAVE:
 		#ifdef DAEDALUS_DEBUG_CONSOLE
@@ -642,8 +645,9 @@ extern "C"
 {
 void CPU_HANDLE_COUNT_INTERRUPT()
 {
-	DAEDALUS_ASSERT( gCPUState.NumEvents > 0, "Should always have at least one event queued up" );
-
+	#ifdef DAEDALUS_ENABLE_ASSERTS
+		DAEDALUS_ASSERT( gCPUState.NumEvents > 0, "Should always have at least one event queued up" );
+	#endif
 	switch (CPU_PopEvent())
 	{
 	case CPU_EVENT_VBL:

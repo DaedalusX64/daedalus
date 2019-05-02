@@ -86,8 +86,9 @@ inline bool IsConditionalBranch( ER4300BranchType type )
 
 inline bool IsBranchTypeDirect( ER4300BranchType type )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( type != BT_NOT_BRANCH, "This is not a valid branch type" );
-
+#endif
 	if( type >= BT_JR )
 		return false;
 	else

@@ -167,12 +167,13 @@ void Inter_SelectCore()
 //*****************************************************************************
 void CPU_Skip()
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	if (CPU_IsRunning())
 	{
 		DBGConsole_Msg(0, "Already Running");
 		return;
 	}
-
+#endif
 	INCREMENT_PC();
 }
 
@@ -181,11 +182,13 @@ void CPU_Skip()
 //*****************************************************************************
 void CPU_Step()
 {
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 	if (CPU_IsRunning())
 	{
 		DBGConsole_Msg(0, "Already Running");
 		return;
 	}
+#endif
 
 	CPU_CheckStuffToDo();
 

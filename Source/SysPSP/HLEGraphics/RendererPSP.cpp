@@ -800,9 +800,10 @@ void RendererPSP::TexRectFlip( u32 tile_idx, const v2 & xy0, const v2 & xy1, Tex
 	ConvertN64ToScreen( xy0, screen0 );
 	ConvertN64ToScreen( xy1, screen1 );
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
-
+#endif
 	DaedalusVtx * p_vertices = static_cast<DaedalusVtx *>(sceGuGetMemory(4 * sizeof(DaedalusVtx)));
 
 	p_vertices[0].Position.x = screen0.x;

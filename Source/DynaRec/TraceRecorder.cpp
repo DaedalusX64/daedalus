@@ -59,10 +59,12 @@ CTraceRecorder::CTraceRecorder()
 
 void	CTraceRecorder::StartTrace( u32 address )
 {
+	#ifdef DAEDALUS_PROFILE
 	DAEDALUS_PROFILE( "CTraceRecorder::StartTrace" );
-
+#endif
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( !mTracing, "We're already tracing" );
-
+#endif
 	mTraceBuffer.clear();
 	mBranchDetails.clear();
 	mNeedIndirectExitMap = false;
@@ -82,20 +84,25 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 																 OpCode op_code,
 																 CFragment * p_fragment )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mTracing, "We're not tracing" );
-
+#endif
 	bool				want_to_stop( p_fragment != NULL );
 
 	if( mTraceBuffer.size() > MAX_TRACE_LENGTH )
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "Hit max trace size!");
+		#endif
 		want_to_stop = true;
 	}
 
 	// Terminate if the current instruction is in the fragment cache or the trace reaches a specified size
 	if( want_to_stop && (mActiveBranchIdx == INVALID_IDX) )
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( mActiveBranchIdx == INVALID_IDX, "Exiting trace while in the middle of handling branch!" );
+		#endif
 		// Stop immediately so we can be sure of linking up with fragment
 		mTracing = false;
 		mExpectedExitTraceAddress = address;
@@ -257,8 +264,9 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 
 	if( stop_trace_on_exit )
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( branch_type == BT_ERET || mActiveBranchIdx == INVALID_IDX, "Exiting trace while in the middle of handling branch!" );
-
+#endif
 		mTracing = false;
 		return UTS_CREATE_FRAGMENT;
 	}
@@ -336,20 +344,22 @@ void	CTraceRecorder::AbortTrace()
 
 				if( branch_index != INVALID_IDX )
 				{
+					#ifdef DAEDALUS_ENABLE_ASSERTS
 					DAEDALUS_ASSERT( branch_index < mBranchDetails.size(), "The branch index is out of range" );
-
+					#endif
 					const SBranchDetails &	details( mBranchDetails[ branch_index ] );
-
+					#ifdef DAEDALUS_DEBUG_CONSOLE
 					fprintf( fh, " BRANCH %d -> %08x\n", branch_index, details.TargetAddress );
+					#endif
 				}
 
 				char		buf[100];
 				SprintOpCodeInfo( buf, address, op_code );
 
 				bool		is_jump( address != last_address + 4 );
-
+				#ifdef DAEDALUS_DEBUG_CONSOLE
 				fprintf( fh, "%08x: %c%s\n", address, is_jump ? '*' : ' ', buf );
-
+				#endif
 				last_address = address;
 			}
 

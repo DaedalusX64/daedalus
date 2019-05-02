@@ -251,8 +251,9 @@ extern	void (* g_pCPUCore)();
 inline bool CPU_ProcessEventCycles( u32 cycles )
 {
 	LOCK_EVENT_QUEUE();
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( gCPUState.NumEvents > 0, "There are no events" );
+	#endif
 	gCPUState.Events[ 0 ].mCount -= cycles;
 	return gCPUState.Events[ 0 ].mCount <= 0;
 }

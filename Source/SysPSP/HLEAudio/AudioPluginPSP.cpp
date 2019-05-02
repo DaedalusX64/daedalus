@@ -68,7 +68,7 @@ class AudioPluginPSP : public CAudioPlugin
 {
 public:
 
-	AudioPluginPSP();
+ AudioPluginPSP();
 	virtual ~AudioPluginPSP();
 	virtual bool			StartEmulation();
 	virtual void			StopEmulation();
@@ -78,12 +78,12 @@ public:
 	virtual u32				ReadLength() {return 0;}
 	virtual EProcessResult	ProcessAList();
 
-	void SetFrequency(u32 frequency);
-	void AddBuffer( u8 * start, u32 length);
-	void FillBuffer( Sample * buffer, u32 num_samples);
+	//virtual void SetFrequency(u32 frequency);
+	virtual void AddBuffer( u8 * start, u32 length);
+	virtual void FillBuffer( Sample * buffer, u32 num_samples);
 
-	void StopAudio();
-	void StartAudio();
+	virtual void StopAudio();
+	virtual void StartAudio();
 
 private:
 	CAudioBuffer * mAudioBuffer;
@@ -115,6 +115,11 @@ public:
 		DoJob = &DoAddSamplesStatic;
 		FiniJob = &DoJobComplete;
 	}
+
+  ~SAddSamplesJob()
+  {
+
+  }
 
 	static int DoAddSamplesStatic( SJob * arg )
 	{
@@ -175,10 +180,10 @@ AudioPluginPSP::AudioPluginPSP()
 AudioPluginPSP::~AudioPluginPSP( )
 {
 
-	StopAudio();
-
-//	mAudioBuffer->~CAudioBuffer();
-//	free( mAudioBuffer );
+delete [] mAudioBuffer;
+mAudioBuffer = nullptr;
+sceKernelDeleteSema(mSemaphore);
+pspAudioEnd();
 }
 
 bool		AudioPluginPSP::StartEmulation()
@@ -357,17 +362,8 @@ void AudioPluginPSP::StopAudio()
 		return;
 
 	mKeepRunning = false;
-	// Stop stream
-
-if (audio_open)
-{
-			sceKernelSignalSema(mSemaphore, 1); // fillbuffer thread is probably waiting.
-}
 
 	audio_open = false;
-
-	pspAudioEnd();
-	sceKernelDeleteSema(mSemaphore);
 }
 
 CAudioPlugin *		CreateAudioPlugin()

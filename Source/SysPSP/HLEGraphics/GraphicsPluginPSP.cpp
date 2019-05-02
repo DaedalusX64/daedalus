@@ -120,12 +120,10 @@ static void	UpdateFramerate()
 class CGraphicsPluginImpl : public CGraphicsPlugin
 {
 	public:
-		~CGraphicsPluginImpl();
+	virtual	~CGraphicsPluginImpl();
 
-				bool		Initialise();
-
+		virtual 	bool		Initialise();
 		virtual bool		StartEmulation()		{ return true; }
-
 		virtual void		ViStatusChanged()		{}
 		virtual void		ViWidthChanged()		{}
 		virtual void		ProcessDList();

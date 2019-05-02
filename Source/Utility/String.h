@@ -270,8 +270,9 @@ class CString
 		CString & operator+=( const CString & string )
 		{
 			// Check for a += a
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( this != &string, "Appending self - unhandled" );
-
+			#endif
 			Append( string );
 			return *this;
 		}
@@ -391,8 +392,9 @@ class CString
 
 		void Resize( u32 length )
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( length > Length(), "Resize should always increase buffer length" );
-
+			#endif
 			char * p_new = new char[ length + 1 ];
 
 			if ( mpString == NULL )

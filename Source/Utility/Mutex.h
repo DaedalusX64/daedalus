@@ -72,13 +72,17 @@ public:
 	Mutex()
 		:	mSemaphore( sceKernelCreateSema( "Mutex", 0, 1, 1, NULL ) )
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( mSemaphore >= 0, "Unable to create semaphore" );
+				#endif
 	}
 
 	explicit Mutex( const char * name )
 		:	mSemaphore( sceKernelCreateSema( name, 0, 1, 1, NULL ) )
 	{
+				#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( mSemaphore >= 0, "Unable to create semaphore" );
+		#endif
 	}
 
 	~Mutex()

@@ -81,7 +81,7 @@ CJobManager::CJobManager( u32 job_buffer_size, ETaskMode task_mode )
 ,	mWorkEmpty( sceKernelCreateSema( "JMWorkEmpty", 0, 1, 1, NULL ) )	// Initval is 1 - i.e. work done
 ,	mWantQuit( false )
 {
-	memset( mRunBuffer, 0, mJobBufferSize );
+//	memset( mRunBuffer, 0, mJobBufferSize );
 }
 
 //*****************************************************************************

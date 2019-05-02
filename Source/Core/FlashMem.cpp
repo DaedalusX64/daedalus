@@ -59,7 +59,9 @@ bool DMA_FLASH_CopyToDRAM(u32 dest, u32 StartOffset, u32 len)
 			return true;
 		}
 	case FLASHRAM_MODE_STATUS:
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT(len == sizeof(u32) * 2, "Len is not correct when fetch status.");
+		#endif
 		*(u32 *)(g_pu8RamBase + dest) = FlashStatus[0];
 		*(u32 *)(g_pu8RamBase + dest + sizeof(u32)) = FlashStatus[1];
 		return true;
@@ -102,7 +104,6 @@ void Flash_DoCommand(u32 FlashRAM_Command)
 				break;
 								#ifdef DAEDALUS_DEBUG_CONSOLE
 			default:
-
 				DBGConsole_Msg(0, "Writing %X to flash ram command register\nFlashFlag: %d",FlashRAM_Command,FlashFlag);
 				#endif
 		}
@@ -133,7 +134,10 @@ void Flash_DoCommand(u32 FlashRAM_Command)
 		break;
 	case 0x00000000:
 		break;
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 	default:
+
 		DBGConsole_Msg(0, "Writing %X to flash ram command register",FlashRAM_Command);
+		#endif
 	}
 }
