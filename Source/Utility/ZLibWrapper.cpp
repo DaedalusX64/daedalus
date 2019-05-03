@@ -63,8 +63,9 @@ bool	COutStream::IsOpen() const
 //*****************************************************************************
 bool	COutStream::Flush()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mBufferCount <= BUFFER_SIZE, "How come the buffer has overflowed?" );
-
+	#endif
 	const s32	count( mBufferCount );
 
 	mBufferCount = 0;
@@ -161,8 +162,9 @@ bool	CInStream::IsOpen() const
 //*****************************************************************************
 bool	CInStream::Fill()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mBytesAvailable == 0, "How come we're refilling with a non-empty buffer?" );
-
+	#endif
 	mBufferOffset = 0;
 
 	s32	bytes_read( gzread( toGzipFile(mFile), mBuffer, BUFFER_SIZE ) );
@@ -195,8 +197,9 @@ bool	CInStream::ReadData( void * data, u32 length )
 
 			if( bytes_to_process > 0 )
 			{
+				#ifdef DAEDALUS_ENABLE_ASSERTS
 				DAEDALUS_ASSERT( mBufferOffset + bytes_to_process <= u32(BUFFER_SIZE), "Reading too many bytes" );
-
+				#endif
 				memcpy( current_ptr, mBuffer + mBufferOffset, bytes_to_process );
 
 				current_ptr += bytes_to_process;

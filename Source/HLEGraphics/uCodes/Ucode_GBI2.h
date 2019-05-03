@@ -33,18 +33,22 @@ void DLParser_GBI2_Vtx( MicroCodeCommand command )
 	u32 n      = command.vtx2.n;
 	u32 v0	   = vend - n;
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF( "    Address[0x%08x] vEnd[%d] v0[%d] Num[%d]", address, vend, v0, n );
-
+#endif
 	if ( vend > 64 )
 	{
-		DL_PF( "    *Warning, attempting to load into invalid vertex positions" );
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "DLParser_GBI2_Vtx: Warning, attempting to load into invalid vertex positions: %d -> %d", v0, v0+n );
+		#endif
 		return;
 	}
 
 	// Check that address is valid...
 	// Only games I seen that set this are Mario Golf/Tennis, but it looks like is caused by a dynarec issue, anyways they crash eventually
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( (address + (n*16) ) < MAX_RAM_ADDRESS, "Address out of range (0x%08x)", address );
+	#endif
 
 	gRenderer->SetNewVertexInfo( address, v0, n );
 
@@ -61,13 +65,13 @@ void DLParser_GBI2_Vtx( MicroCodeCommand command )
 void DLParser_GBI2_Mtx( MicroCodeCommand command )
 {
 	u32 address = RDPSegAddr(command.mtx2.addr);
-
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    Command: %s %s %s Length %d Address 0x%08x",
 		command.mtx2.projection ? "Projection" : "ModelView",
 		command.mtx2.load ? "Load" : "Mul",
 		command.mtx2.nopush == 0 ? "Push" : "No Push",
 		command.mtx2.len, address);
-
+#endif
 	// Load matrix from address
 	if (command.mtx2.projection)
 	{
@@ -83,8 +87,9 @@ void DLParser_GBI2_Mtx( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_PopMtx( MicroCodeCommand command )
 {
+	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    Command: (%s)",	command.inst.cmd1 ? "Projection" : "ModelView");
-
+	#endif
 	// Banjo Tooie, pops more than one matrix
 	u32 num = command.inst.cmd1>>6;
 
@@ -104,7 +109,9 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 	{
 	case G_MW_MATRIX:
 		{
+			#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			DL_PF("    G_MW_MATRIX(2)");
+			#endif
 			gRenderer->InsertMatrix(command.inst.cmd0, command.inst.cmd1);
 		}
 		break;
@@ -117,8 +124,9 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 			// 0x30 = 48 = 2 lights
 
 			u32 num_lights = command.mw2.value / 24;
-
+			#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			DL_PF("    G_MW_NUMLIGHT: %d", num_lights);
+			#endif
 			gRenderer->SetNumLights(num_lights);
 		}
 		break;
@@ -133,16 +141,16 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 		{
 			u32 segment = command.mw2.offset >> 2;
 			u32 address	= command.mw2.value;
-
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			DL_PF( "    G_MW_SEGMENT Segment[%d] = 0x%08x", segment, address );
-
+#endif
 			gSegments[segment] = address;
 		}
 		break;
 
 	case G_MW_FOG: // WIP, only works for the PSP
 		{
-#ifdef DAEDALUS_PSP			
+#ifdef DAEDALUS_PSP
 			f32 mul = (f32)(s16)(command.mw2.value >> 16);	//Fog mult
 			f32 offs = (f32)(s16)(command.mw2.value & 0xFFFF);	//Fog Offset
 
@@ -168,9 +176,9 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 		{
 			u32 light_idx = command.mw2.offset / 0x18;
 			u32 field_offset = (command.mw2.offset & 0x7);
-
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			DL_PF("    G_MW_LIGHTCOL/0x%08x: 0x%08x", command.mw2.offset, command.mw2.value);
-
+#endif
 			if (field_offset == 0)
 			{
 				u8 r = ((command.mw2.value>>24)&0xFF);
@@ -191,8 +199,9 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 */
 	default:
 		{
+			#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			DL_PF("    Ignored!!");
-
+			#endif
 		}
 		break;
 	}
@@ -273,7 +282,9 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 			u32 light_idx = offset2 / 24;
 			if (light_idx < 2)
 			{
+				#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 				DL_PF("    G_MV_LOOKAT" );
+				#endif
 				return;
 			}
 
@@ -288,7 +299,9 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 
 	case G_GBI2_MV_MATRIX:
 		{
+			#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			DL_PF("    Force Matrix(2): addr=%08X", address);
+			#endif
 			// Rayman 2, Donald Duck, Tarzan, all wrestling games use this
 			gRenderer->ForceMatrix( address );
 			// ForceMatrix takes two cmds
@@ -326,8 +339,9 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 		break;
 
 	default:
-		DL_PF("    GBI2 MoveMem Type: Unknown");
+	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		DBGConsole_Msg(0, "GBI2 MoveMem: Unknown Type. 0x%08x 0x%08x", command.inst.cmd0, command.inst.cmd1);
+		#endif
 		break;
 	}
 }
@@ -343,17 +357,20 @@ void DLParser_GBI2_DL_Count( MicroCodeCommand command )
 	// For SSB and Kirby, otherwise we'll end up scrapping the pc
 	if (address == 0)
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR("Invalid DL Count");
+		#endif
 		return;
 	}
 
 	gDlistStackPointer++;
 	gDlistStack.address[gDlistStackPointer] = address;
 	gDlistStack.limit = (command.inst.cmd0) & 0xFFFF;
-
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    Address=0x%08x %s", address, (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
 	DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
 	DL_PF("    ############################################");
+	#endif
 }
 
 //*****************************************************************************
@@ -363,7 +380,7 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 {
 	gGeometryMode._u32 &= command.inst.arg0;
 	gGeometryMode._u32 |= command.inst.arg1;
-
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    0x%08x 0x%08x =(x & 0x%08x) | 0x%08x", command.inst.cmd0, command.inst.cmd1, command.inst.arg0, command.inst.arg1);
 	DL_PF("    ZBuffer %s", (gGeometryMode.GBI2_Zbuffer) ? "On" : "Off");
 	DL_PF("    Culling %s", (gGeometryMode.GBI2_CullBack) ? "Back face" : (gGeometryMode.GBI2_CullFront) ? "Front face" : "Off");
@@ -373,7 +390,7 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 	DL_PF("    Texture Gen Linear %s", (gGeometryMode.GBI2_TexGenLin) ? "On" : "Off");
 	DL_PF("    Fog %s", (gGeometryMode.GBI2_Fog) ? "On" : "Off");
 	DL_PF("    PointLight %s", (gGeometryMode.GBI2_PointLight) ? "On" : "Off");
-
+#endif
 	TnLMode TnL;
 
 	TnL.Light		= gGeometryMode.GBI2_Lighting;
@@ -424,16 +441,17 @@ void DLParser_GBI2_SetOtherModeH( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_Texture( MicroCodeCommand command )
 {
-
+	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    Level[%d] Tile[%d] %s", command.texture.level, command.texture.tile, command.texture.enable_gbi2 ? "enable":"disable");
-
+	#endif
 	gRenderer->SetTextureTile( command.texture.tile );
 	gRenderer->SetTextureEnable( command.texture.enable_gbi2 );
 
 	f32 scale_s = f32(command.texture.scaleS) / (65535.0f * 32.0f);
 	f32 scale_t = f32(command.texture.scaleT)  / (65535.0f * 32.0f);
-
+	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    ScaleS[%0.4f], ScaleT[%0.4f]", scale_s*32.0f, scale_t*32.0f);
+	#endif
 	gRenderer->SetTextureScale( scale_s, scale_t );
 }
 
@@ -442,7 +460,9 @@ void DLParser_GBI2_Texture( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_DMA_IO( MicroCodeCommand command )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DL_UNIMPLEMENTED_ERROR( "G_DMA_IO" );
+	#endif
 }
 
 //*****************************************************************************

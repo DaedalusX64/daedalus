@@ -610,7 +610,9 @@ static inline u16 GetTextureDimension( u16 tile_dimension, u8 mask, bool clamp )
 
 const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( idx < ARRAYSIZE( mTileTextureInfoValid ), "Invalid index %d", idx );
+	#endif
 	if( !mTileTextureInfoValid[ idx ] )
 	{
 		TextureInfo &			ti           {mTileTextureInfo[ idx ]};

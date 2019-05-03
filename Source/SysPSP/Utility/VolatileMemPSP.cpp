@@ -74,7 +74,9 @@ void* malloc_volatile_PSP(size_t size)
 	{
 
 //		printf("*****failed to allocate %d byte from p5\n", size / 1024);
+#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR("Failed to allocate %d bytes in volatile memory");
+		#endif
 		return NULL;
 	}
 }

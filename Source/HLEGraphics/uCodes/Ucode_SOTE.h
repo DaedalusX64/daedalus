@@ -29,10 +29,12 @@ void DLParser_GBI0_Vtx_SOTE( MicroCodeCommand command )
 	u32 n		= ((command.inst.cmd0 >> 4) & 0xfff) / 33 + 1;
 	u32 v0		= 0;
 
+			#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    Address[0x%08x] v0[%d] Num[%d]", address, v0, n);
-
+#endif
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( n < 32, "Warning, attempting to load into invalid vertex positions" );
-
+#endif
 	gRenderer->SetNewVertexInfo( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST

@@ -15,17 +15,17 @@ TEST_DISABLE_THREAD_FUNCS
 
 	u8 * pThreadListBase = (u8 *)ReadAddress(VAR_ADDRESS(osGlobalThreadList));
 	u8 * pThreadBase  = (u8 *)ReadAddress(thread);
-	
+
 
 	// Stack is arg 4
 	u32 stack = QuickRead32Bits(pStackBase, 4*4);
 
 	// Pri is arg 5
 	u32 pri = QuickRead32Bits(pStackBase, 4*5);
-
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "[WosCreateThread](0x%08x, %d, 0x%08x(), 0x%08x, 0x%08x, %d)",
 		thread, id, func, arg, stack, pri );
-
+#endif
 	// fp used - we now HLE the Cop1 Unusable exception and set this
 	// when the thread first accesses the FP unit
 	QuickWrite32Bits(pThreadBase, offsetof(OSThread, fp), 0);						// pThread->fp
@@ -440,8 +440,9 @@ TEST_DISABLE_THREAD_FUNCS
 	{
 		thread = ActiveThread;
 	}
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "osDestroyThread(0x%08x)", thread);
-
+#endif
 	state = Read16Bits(thread + offsetof(OSThread, state));
 	if (state != OS_STATE_STOPPED)
 	{
@@ -497,9 +498,9 @@ TEST_DISABLE_THREAD_FUNCS
 u32 Patch_osDestroyThread_Zelda()
 {
 TEST_DISABLE_THREAD_FUNCS
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "osDestroyThread_Zelda not implemented (0x%08x)", gGPR[REG_a0]._u32_0);
-
+#endif
 	return PATCH_RET_NOT_PROCESSED0(osDestroyThread);
 }
 
@@ -725,11 +726,12 @@ TEST_DISABLE_THREAD_FUNCS
 			g___osEnqueueThread_s.Function();
 		}
 	}
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	else
 	{
 		DBGConsole_Msg(0, "  Thread is neither WAITING nor STOPPED");
 	}
-
+#endif
 	// At this point, we check the priority of the current
 	// thread and the highest priority thread on the thread queue. If
 	// the current thread has a higher priority, nothing happens, else
@@ -795,5 +797,3 @@ TEST_DISABLE_THREAD_FUNCS
 
 	return PATCH_RET_JR_RA;
 }
-
-

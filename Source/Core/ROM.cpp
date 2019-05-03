@@ -59,8 +59,8 @@ RomInfo g_ROM;
 
 static void DumpROMInfo( const ROMHeader & header )
 {
-	// Leave this in public build, it's useful information
 	// The "Header" is actually something to do with the PI_DOM_*_OFS values...
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Header:          0x%02x%02x%02x%02x", header.x1, header.x2, header.x3, header.x4);
 	DBGConsole_Msg(0, "Clockrate:       0x%08x", header.ClockRate);
 	DBGConsole_Msg(0, "BootAddr:        0x%08x", SwapEndian(header.BootAddress));
@@ -77,6 +77,7 @@ static void DumpROMInfo( const ROMHeader & header )
 	DBGConsole_Msg(0, "CartID:          0x%04x", header.CartID);
 	DBGConsole_Msg(0, "CountryID:       0x%02x - '%c'", header.CountryID, (char)header.CountryID);
 	DBGConsole_Msg(0, "Unknown5:        0x%02x", header.Unknown5);
+	#endif
 }
 
 static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
@@ -492,16 +493,18 @@ void ROM_UnloadFile()
 
 bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRomPreferences & preferences )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Reading rom image: [C%s]", g_ROM.mFileName);
-
+	#endif
 	// Get information about the rom header
 	RomBuffer::GetRomBytesRaw( &g_ROM.rh, 0, sizeof(ROMHeader) );
 
 	//	Swap into native format
 	ROMFile::ByteSwap_3210( &g_ROM.rh, sizeof(ROMHeader) );
 
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( RomID( g_ROM.rh ) == rom_id, "Why is the rom id incorrect?" );
-
+	#endif
 	// Copy across various bits
 	g_ROM.mRomID   = rom_id;
 	g_ROM.settings = settings;
@@ -523,6 +526,7 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 		CheatCodes_Read( g_ROM.settings.GameName.c_str(), "Daedalus.cht", g_ROM.rh.CountryID );
 	}
 
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "[G%s]", g_ROM.settings.GameName.c_str());
 	DBGConsole_Msg(0, "This game has been certified as [G%s] (%s)", g_ROM.settings.Comment.c_str(), g_ROM.settings.Info.c_str());
 	DBGConsole_Msg(0, "SaveType: [G%s]", ROM_GetSaveTypeName( g_ROM.settings.SaveType ) );
@@ -531,7 +535,7 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 	DBGConsole_Msg(0, "SpeedSync: [G%d]", gSpeedSyncEnabled);
 	DBGConsole_Msg(0, "DynaRec: [G%s]", gDynarecEnabled ? "on" : "off");
 	DBGConsole_Msg(0, "Cheats: [G%s]", gCheatsEnabled ? "on" : "off");
-
+	#endif
 	//Patch_ApplyPatches();
 
 	return true;

@@ -57,8 +57,10 @@ private:
 //*****************************************************************************
 template<> bool CSingleton< CROMFileMemory >::Create()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-
+	#endif
+	
 	mpInstance = new IROMFileMemory();
 	return mpInstance != NULL;
 }

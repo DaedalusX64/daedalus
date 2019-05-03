@@ -34,14 +34,16 @@ TEST_DISABLE_AI_FUNCS
 	u32 len  = gGPR[REG_a1]._u32_0;
 
 	// If Ai interface is busy, stop the dma operation, can this happen??
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( IsAiDeviceBusy()==0, "Warning: AI Interace is busy, can't DMA'd" );
-
+	#endif
 	//DBGConsole_Msg(0, "osAiNextBuffer() %08X len %d bytes",addr,len);
 
 	Memory_AI_SetRegister( AI_LEN_REG, len );
 	Memory_AI_SetRegister( AI_DRAM_ADDR_REG, addr );
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( gAudioPlugin, "Audio plugin is not initialized");
+	#endif
 	gAudioPlugin->LenChanged();
 
 	// Return 0 if succesfully DMA'd audio, otherwise -1 if busy
@@ -77,4 +79,3 @@ TEST_DISABLE_AI_FUNCS
 
 	return PATCH_RET_JR_RA;
 }
-

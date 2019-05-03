@@ -641,7 +641,9 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 		const SBranchDetails * p_branch( NULL );
 		if( branch_idx != INVALID_IDX )
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( branch_idx < branch_details.size(), "Branch index is out of bounds" );
+			#endif
 			p_branch = &branch_details[ branch_idx ];
 
 #ifndef DAEDALUS_SILENT

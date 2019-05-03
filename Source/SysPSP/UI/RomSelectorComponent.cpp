@@ -58,9 +58,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 namespace
 {
 
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_STATIC_ASSERT( ARRAYSIZE( gCategoryLetters ) == NUM_CATEGORIES +1 );
-
+#endif
 	ECategory		GetCategory( char c )
 	{
 		if( isalpha( c ) )
@@ -80,7 +80,9 @@ namespace
 
 	char	GetCategoryLetter( ECategory category )
 	{
+#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( category >= 0 && category < NUM_CATEGORIES, "Invalid category" );
+		#endif
 		return gCategoryLetters[ category ];
 	}
 

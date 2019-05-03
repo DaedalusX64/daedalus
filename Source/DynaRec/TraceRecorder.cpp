@@ -119,7 +119,9 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 	//
 	if( mActiveBranchIdx != INVALID_IDX )
 	{
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( mActiveBranchIdx < mBranchDetails.size(), "Branch index is out of bounds" );
+		#endif
 		mBranchDetails[ mActiveBranchIdx ].DelaySlotTraceIndex = mTraceBuffer.size();
 
 		if (mBranchDetails[ mActiveBranchIdx ].SpeedHack == SHACK_POSSIBLE)

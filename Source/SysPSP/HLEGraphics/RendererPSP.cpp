@@ -716,9 +716,10 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoor
 		ConvertN64ToScreen( xy1, screen1 );
 	}
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
-
+#endif
 	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
 
 #if 1	//1->SPRITE, 0->STRIP
@@ -860,8 +861,9 @@ void RendererPSP::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 	ConvertN64ToScreen( xy0, screen0 );
 	ConvertN64ToScreen( xy1, screen1 );
 
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
-
+#endif
 	DaedalusVtx * p_vertices = static_cast<DaedalusVtx *>(sceGuGetMemory(2 * sizeof(DaedalusVtx)));
 
 	// No need for Texture.x/y as we don't do any texturing for fillrect
@@ -1016,7 +1018,9 @@ void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height,
 {
 	if (!texture)
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR("No texture in Draw2DTextureBlit");
+		#endif
 		return;
 	}
 
@@ -1215,7 +1219,9 @@ void RendererPSP::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertice
 
 bool CreateRenderer()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(gRenderer == NULL);
+	#endif
 	gRendererPSP = new RendererPSP();
 	gRenderer    = gRendererPSP;
 	return true;

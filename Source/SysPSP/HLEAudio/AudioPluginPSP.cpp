@@ -62,7 +62,6 @@ static bool audio_open {false};
 // Large kAudioBufferSize creates huge delay on sound //Corn
 static const u32	kAudioBufferSize {1024 * 2}; // OSX uses a circular buffer length, 1024 * 1024
 
-class CAudioBuffer;
 
 class AudioPluginPSP : public CAudioPlugin
 {
@@ -118,7 +117,6 @@ public:
 
   ~SAddSamplesJob()
   {
-
   }
 
 	static int DoAddSamplesStatic( SJob * arg )
@@ -179,9 +177,8 @@ AudioPluginPSP::AudioPluginPSP()
 
 AudioPluginPSP::~AudioPluginPSP( )
 {
-
-delete [] mAudioBuffer;
-mAudioBuffer = nullptr;
+	mAudioBuffer->~CAudioBuffer();
+free(mAudioBuffer);
 sceKernelDeleteSema(mSemaphore);
 pspAudioEnd();
 }

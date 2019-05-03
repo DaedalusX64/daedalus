@@ -282,8 +282,9 @@ void	IUIContext::SetFontStyle( EFontStyle font_style )
 	case FS_REGULAR: mCurrentFont = CDrawText::F_REGULAR;		return;
 	case FS_HEADING: mCurrentFont = CDrawText::F_LARGE_BOLD;	return;
 	}
-
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled font style" );
+  #endif
 }
 
 u32		IUIContext::GetFontHeight() const
@@ -315,7 +316,9 @@ s32		IUIContext::AlignText( s32 min_x, s32 max_x, const char * p_str, u32 length
 		break;
 
 	default:
+  	#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Unhandled alignment type" );
+    #endif
 		x = min_x;
 		break;
 	}
@@ -368,8 +371,9 @@ namespace
 			case VA_TOP:	return top;
 			case VA_BOTTOM: return top + height - text_height;
 		}
-
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Unhandled vertical align" );
+    #endif
 		return top;
 	}
 }

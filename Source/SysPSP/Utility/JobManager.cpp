@@ -59,7 +59,9 @@ bool InitialiseJobManager()
 	}
 	else
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		printf(" Couldn't initialize MediaEngine Instance\n");
+		#endif
 		return false;
 	}
 #else
@@ -114,8 +116,9 @@ void CJobManager::Start()
 	{
 		mWantQuit = false;
 		mThread = CreateThread( "JobManager", JobMain, this );
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( mThread != kInvalidThreadHandle, "Unable to start JobManager thread!" );
+		#endif
 	}
 }
 

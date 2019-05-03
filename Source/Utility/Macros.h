@@ -11,8 +11,9 @@
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 #define NODEFAULT		DAEDALUS_ERROR( "No default - we shouldn't be here" )
-
+#endif
 #else
 
 #ifdef _MSC_VER

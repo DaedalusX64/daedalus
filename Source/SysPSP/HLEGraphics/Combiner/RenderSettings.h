@@ -197,13 +197,20 @@ public:
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	void					Print() const;
 #endif
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	void					SetAlphaSettings( const CAlphaRenderSettings * alpha_settings )				{ DAEDALUS_ASSERT( mAlphaSettings == NULL, "Overwriting settings" ); mAlphaSettings = alpha_settings; }
+#else
+void					SetAlphaSettings( const CAlphaRenderSettings * alpha_settings )				{ mAlphaSettings = alpha_settings; }
+#endif
 	void					AddColourSettings( const CRenderSettings * colour_settings )				{ mColourSettings.push_back( colour_settings ); }
 
 	u32								GetNumStates() const												{ return mColourSettings.size(); }
 	const CAlphaRenderSettings *	GetAlphaSettings() const											{ return mAlphaSettings; }
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	const CRenderSettings *			GetColourSettings( u32 i ) const									{ DAEDALUS_ASSERT( i < mColourSettings.size(), "Invalid idx" ); return mColourSettings[ i ]; }
-
+#else
+	const CRenderSettings *			GetColourSettings( u32 i ) const									{ return mColourSettings[ i ]; }
+	#endif
 private:
 	const CAlphaRenderSettings *			mAlphaSettings;
 	std::vector<const CRenderSettings *>	mColourSettings;

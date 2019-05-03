@@ -131,8 +131,9 @@ const u32 crc_table[256] = {0x00000000,0x77073096,0xEE0E612C,0x990951BA,0x076DC4
 /* ========================================================================= */
 u32 daedalus_crc32(u32 crc, const u8 *buf, u32 len)
 {
+	#ifdef DAEDLAUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( buf, "CRC buf pointer is NULL");
-
+	#endif
 #ifdef CALC_CRC_TABLE
 	static bool crc_table_empty = true;
 	if (crc_table_empty)

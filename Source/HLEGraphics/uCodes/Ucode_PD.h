@@ -29,9 +29,9 @@ void DLParser_Vtx_PD( MicroCodeCommand command )
 	u32 v0 =  ((command.inst.cmd0)>>16)&0x0F;
 	u32 n  = (((command.inst.cmd0)>>20)&0x0F)+1;
 	u32 len = (command.inst.cmd0)&0xFFFF;
-
+			#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    Address[0x%08x] Len[%d] v0[%d] Num[%d]", address, len, v0, n);
-
+#endif
 	gRenderer->SetNewVertexInfoPD( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST

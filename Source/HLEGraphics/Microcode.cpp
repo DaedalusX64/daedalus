@@ -60,8 +60,9 @@ static UcodeInfo gUcodeInfo[ MAX_UCODE_CACHE_ENTRIES ];
 
 static bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char * str, u32 str_len )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( data_base < MAX_RAM_ADDRESS + 0x1000 ,"GBIMicrocode out of bound %08X", data_base );
-
+	#endif
 	const s8 * ram( g_ps8RamBase );
 
 	for ( u32 i {}; i+2 < data_size; i++ )
@@ -228,8 +229,9 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 	gUcodeInfo[ i ].index = idx;
 	gUcodeInfo[ i ].ucode = ucode_version;
 	gUcodeInfo[ i ].set = true;
-
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0,"Detected %s Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]",ucode_offset == u32(~0) ? "" :"Custom", ucode_version, code_hash, str, g_ROM.settings.GameName.c_str() );
+	#endif
 // This is no longer needed as we now have an auto ucode detector, I'll leave it as reference ~Salvy
 //
 /*

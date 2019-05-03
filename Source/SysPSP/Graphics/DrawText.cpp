@@ -241,8 +241,9 @@ namespace DrawTextUtilities
 						break;
 					}
 				}
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 				DAEDALUS_ASSERT( found_chunk, "Didn't find chunk while splitting string for rendering?" );
+				#endif
 			}
 		}
 	}

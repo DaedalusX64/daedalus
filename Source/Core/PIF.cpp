@@ -223,8 +223,9 @@ class	IController : public CController
 
 template<> bool	CSingleton< CController >::Create()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
-
+	#endif
 	mpInstance = new IController();
 
 	return true;

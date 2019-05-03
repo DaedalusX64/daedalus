@@ -78,7 +78,9 @@ bool ROMFile::LoadData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages
 {
 	if( !LoadRawData( bytes_to_read, p_bytes, messages ) )
 	{
+
 		messages << "Unable to get rom info from '" << mFilename << "'";
+
 		return false;
 	}
 
@@ -87,8 +89,9 @@ bool ROMFile::LoadData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages
 
 bool ROMFile::RequiresSwapping() const
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mHeaderMagic != 0, "The header magic hasn't been set" );
-
+	#endif
 	return mHeaderMagic != 0x80371240;
 }
 
@@ -104,8 +107,10 @@ bool ROMFile::SetHeaderMagic( u32 magic )
 	case 0x12408037:
 		break;
 	default:
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Unhandled swapping mode %08x for %s", magic, mFilename );
 		DBGConsole_Msg(0, "[CUnknown ROM format for %s: 0x%08x", mFilename, magic);
+		#endif
 			return false;
 	}
 #endif
@@ -127,7 +132,9 @@ void ROMFile::CorrectSwap( u8 * p_bytes, u32 length )
 		ByteSwap_2301( p_bytes, length );
 		break;
 	default:
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Unhandled swapping mode: %08x", mHeaderMagic );
+		#endif
 		break;
 	}
 }

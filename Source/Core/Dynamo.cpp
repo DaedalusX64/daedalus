@@ -148,7 +148,9 @@ template< bool TraceEnabled > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 	#endif
 	if( TraceEnabled )
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( gTraceRecorder.IsTraceActive(), "If TraceEnabled is set, trace should be active" );
+		#endif
 		u32		pc( gCPUState.CurrentPC ) ;
 		bool	branch_delay_slot( gCPUState.Delay == EXEC_DELAY );
 

@@ -437,8 +437,9 @@ void	CCodeGeneratorPSP::ExpireOldIntervals( u32 instruction_idx )
 
 void	CCodeGeneratorPSP::SpillAtInterval( const SRegisterSpan & live_span )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( !mActiveIntervals.empty(), "There are no active intervals" );
-
+	#endif
 	const SRegisterSpan &	last_span( mActiveIntervals.back() );		// Spill the last active interval (it has the greatest end point)
 
 	if( last_span.SpanEnd > live_span.SpanEnd )
@@ -855,7 +856,9 @@ inline void CCodeGeneratorPSP::UpdateSimDoubleRegister( EN64FloatReg n64_reg )
 
 const CN64RegisterCachePSP & CCodeGeneratorPSP::GetRegisterCacheFromHandle( RegisterSnapshotHandle snapshot ) const
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( snapshot.Handle < mRegisterSnapshots.size(), "Invalid snapshot handle" );
+	#endif
 	return mRegisterSnapshots[ snapshot.Handle ];
 }
 
@@ -875,17 +878,19 @@ void CCodeGeneratorPSP::FlushRegister( CN64RegisterCachePSP & cache, EN64Reg n64
 		}
 		else if( cache.IsCached( n64_reg, lo_hi_idx ) )
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( cache.IsValid( n64_reg, lo_hi_idx ), "Register is dirty but not valid?" );
-
+			#endif
 			EPspReg	cached_reg( cache.GetCachedReg( n64_reg, lo_hi_idx ) );
 
 			SetVar( lo_hi_idx ? &gGPR[ n64_reg ]._u32_1 : &gGPR[ n64_reg ]._u32_0, cached_reg );
 		}
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		else
 		{
 			DAEDALUS_ERROR( "Register is dirty, but not known or cached" );
 		}
-
+		#endif
 		// We're no longer dirty
 		cache.MarkAsDirty( n64_reg, lo_hi_idx, false );
 	}
@@ -938,8 +943,9 @@ void	CCodeGeneratorPSP::FlushAllFloatingPointRegisters( CN64RegisterCachePSP & c
 		EN64FloatReg	n64_reg = EN64FloatReg( i );
 		if( cache.IsFPDirty( n64_reg ) )
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( cache.IsFPValid( n64_reg ), "Register is dirty but not valid?" );
-
+			#endif
 			EPspFloatReg	psp_reg = EPspFloatReg( n64_reg );
 
 			SetFloatVar( &gCPUState.FPU[n64_reg]._f32, psp_reg );
@@ -1020,13 +1026,15 @@ void	CCodeGeneratorPSP::RestoreAllRegisters( CN64RegisterCachePSP & current_cach
 
 CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_address, u32 num_instructions, CCodeLabel next_fragment )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	//DAEDALUS_ASSERT( exit_address != u32( ~0 ), "Invalid exit address" );
 	DAEDALUS_ASSERT( !next_fragment.IsSet() || jump_address == 0, "Shouldn't be specifying a jump address if we have a next fragment?" );
-
+	#endif
 	if( (exit_address == mEntryAddress) & mLoopTop.IsSet() )
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( mUseFixedRegisterAllocation, "Have mLoopTop but unfixed register allocation?" );
-
+		#endif
 		FlushAllFloatingPointRegisters( mRegisterCache, false );
 
 		// Check if we're ok to continue, without flushing any registers
@@ -1176,8 +1184,9 @@ void CCodeGeneratorPSP::GenerateIndirectExitCode( u32 num_instructions, CIndirec
 
 void	CCodeGeneratorPSP::GenerateBranchHandler( CJumpLocation branch_handler_jump, RegisterSnapshotHandle snapshot )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( branch_handler_jump.IsSet(), "Why is the branch handler jump not set?" );
-
+	#endif
 	CCodeGeneratorPSP::SetBufferA();
 	CCodeLabel	current_label( GetAssemblyBuffer()->GetLabel() );
 
@@ -1351,13 +1360,13 @@ void	CCodeGeneratorPSP::GetBaseRegisterAndOffset( const void * p_address, EPspRe
 		hi_bits += lo_bits >> 15;
 
 		s32		long_offset( address - ((s32)hi_bits<<16) );
-
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( long_offset >= SHRT_MIN && long_offset <= SHRT_MAX, "Offset is out of range!" );
-
+		#endif
 		s16		offset( (s16)long_offset );
-
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( ((s32)hi_bits<<16) + offset == (s32)address, "Incorrect address calculation" );
-
+		#endif
 		LUI( PspReg_A0, hi_bits );
 		*p_reg = PspReg_A0;
 		*p_offset = offset;
@@ -1392,8 +1401,9 @@ void	CCodeGeneratorPSP::GetBaseRegisterAndOffset( const void * p_address, EPspRe
 
 CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool branch_delay_slot, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
+	#ifdef DAEDALUS_PROFILE
 	DAEDALUS_PROFILE( "CCodeGeneratorPSP::GenerateOpCode" );
-
+	#endif
 	u32 address = ti.Address;
 	OpCode op_code = ti.OpCode;
 	bool	handled( false );
@@ -1693,7 +1703,9 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 	//
 	if( !handled )
 	{
-#if 0 //1->Show not handled OP codes (Require that DAEDALUS_SILENT flag is undefined)
+
+#if 0
+//1->Show not handled OP codes (Require that DAEDALUS_SILENT flag is undefined)
 	  // Note: Cop1Op_DInstr are handled elsewhere!
 		char msg[128];
 		SprintOpCodeInfo( msg, address, op_code );
@@ -3826,7 +3838,9 @@ inline void	CCodeGeneratorPSP::GenerateLW( u32 address, bool set_branch_delay, E
 	// This is for San Francisco 2049, otherwise it crashes when the race is about to start.
 	if(rt == N64Reg_R0)
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR("Attempted write to r0!");
+		#endif
 		return;
 	}
 
@@ -4110,8 +4124,9 @@ inline void	CCodeGeneratorPSP::GenerateCFC1( EN64Reg rt, u32 fs )
 //
 void	CCodeGeneratorPSP::GenerateCTC1( u32 fs, EN64Reg rt )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( fs == 31, "CTC1 register is invalid");
-
+	#endif
 	EPspReg			psp_rt_lo( GetRegisterAndLoadLo( rt, PspReg_V0 ) );
 	SetVar( &gCPUState.FPUControl[ fs ]._u32, psp_rt_lo );
 
@@ -4128,9 +4143,10 @@ void	CCodeGeneratorPSP::GenerateCTC1( u32 fs, EN64Reg rt )
 
 inline void	CCodeGeneratorPSP::GenerateBEQ( EN64Reg rs, EN64Reg rt, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BEQ?" );
-
+	#endif
 	// One or other of these may be r0 - we don't really care for optimisation purposes though
 	// as ultimately the register load regs factored out
 	EPspReg		reg_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
@@ -4154,9 +4170,10 @@ inline void	CCodeGeneratorPSP::GenerateBEQ( EN64Reg rs, EN64Reg rt, const SBranc
 
 inline void	CCodeGeneratorPSP::GenerateBNE( EN64Reg rs, EN64Reg rt, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BNE?" );
-
+	#endif
 	// One or other of these may be r0 - we don't really care for optimisation purposes though
 	// as ultimately the register load regs factored out
 	EPspReg		reg_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
@@ -4180,9 +4197,10 @@ inline void	CCodeGeneratorPSP::GenerateBNE( EN64Reg rs, EN64Reg rt, const SBranc
 
 inline void	CCodeGeneratorPSP::GenerateBLEZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BLEZ?" );
-
+	#endif
 	EPspReg		reg_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
 
 	// XXXX This may actually need to be a 64 bit compare, but this is what R4300.cpp does
@@ -4203,9 +4221,10 @@ inline void	CCodeGeneratorPSP::GenerateBLEZ( EN64Reg rs, const SBranchDetails * 
 
 inline void	CCodeGeneratorPSP::GenerateBGTZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BGTZ?" );
-
+	#endif
 	EPspReg		reg_lo( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
 
 	//64bit compare is needed for DK64 or DK can walk trough walls
@@ -4253,9 +4272,10 @@ inline void	CCodeGeneratorPSP::GenerateBGTZ( EN64Reg rs, const SBranchDetails * 
 
 inline void	CCodeGeneratorPSP::GenerateBLTZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BLTZ?" );
-
+	#endif
 	EPspReg		reg_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
 
 	// XXXX This should actually need to be a 64 bit compare???
@@ -4276,9 +4296,10 @@ inline void	CCodeGeneratorPSP::GenerateBLTZ( EN64Reg rs, const SBranchDetails * 
 
 inline void	CCodeGeneratorPSP::GenerateBGEZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BGEZ?" );
-
+	#endif
 	EPspReg		reg_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
 
 	// XXXX This should actually need to be a 64 bit compare???
@@ -4299,9 +4320,10 @@ inline void	CCodeGeneratorPSP::GenerateBGEZ( EN64Reg rs, const SBranchDetails * 
 
 inline void	CCodeGeneratorPSP::GenerateBC1F( const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BC1F?" );
-
+	#endif
 	//If compare was done in current fragment then use BC1T or BC1F directly //Corn
 	if( mFloatCMPIsValid )
 	{
@@ -4341,9 +4363,10 @@ inline void	CCodeGeneratorPSP::GenerateBC1F( const SBranchDetails * p_branch, CJ
 
 inline void	CCodeGeneratorPSP::GenerateBC1T( const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BC1T?" );
-
+	#endif
 	//If compare was done in current fragment then use BC1T or BC1F directly //Corn
 	if( mFloatCMPIsValid )
 	{
@@ -4962,7 +4985,9 @@ inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u3
 
 inline void	CCodeGeneratorPSP::GenerateADD_D( u32 fd, u32 fs, u32 ft )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	NOT_IMPLEMENTED( __FUNCTION__ );
+	#endif
 }
 
 
@@ -4970,7 +4995,9 @@ inline void	CCodeGeneratorPSP::GenerateADD_D( u32 fd, u32 fs, u32 ft )
 
 inline void	CCodeGeneratorPSP::GenerateSUB_D( u32 fd, u32 fs, u32 ft )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	NOT_IMPLEMENTED( __FUNCTION__ );
+	#endif
 }
 
 
@@ -4978,7 +5005,9 @@ inline void	CCodeGeneratorPSP::GenerateSUB_D( u32 fd, u32 fs, u32 ft )
 
 inline void	CCodeGeneratorPSP::GenerateMUL_D( u32 fd, u32 fs, u32 ft )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	NOT_IMPLEMENTED( __FUNCTION__ );
+	#endif
 }
 
 
@@ -4986,7 +5015,9 @@ inline void	CCodeGeneratorPSP::GenerateMUL_D( u32 fd, u32 fs, u32 ft )
 
 inline void	CCodeGeneratorPSP::GenerateDIV_D( u32 fd, u32 fs, u32 ft )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	NOT_IMPLEMENTED( __FUNCTION__ );
+	#endif
 }
 
 
@@ -4994,7 +5025,9 @@ inline void	CCodeGeneratorPSP::GenerateDIV_D( u32 fd, u32 fs, u32 ft )
 
 inline void	CCodeGeneratorPSP::GenerateSQRT_D( u32 fd, u32 fs )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	NOT_IMPLEMENTED( __FUNCTION__ );
+	#endif
 }
 
 
@@ -5002,7 +5035,9 @@ inline void	CCodeGeneratorPSP::GenerateSQRT_D( u32 fd, u32 fs )
 
 inline void	CCodeGeneratorPSP::GenerateMOV_D( u32 fd, u32 fs )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	NOT_IMPLEMENTED( __FUNCTION__ );
+	#endif
 }
 
 
@@ -5010,7 +5045,9 @@ inline void	CCodeGeneratorPSP::GenerateMOV_D( u32 fd, u32 fs )
 
 inline void	CCodeGeneratorPSP::GenerateNEG_D( u32 fd, u32 fs )
 {
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	NOT_IMPLEMENTED( __FUNCTION__ );
+	#endif
 }
 
 
@@ -5037,9 +5074,10 @@ inline void	CCodeGeneratorPSP::GenerateCVT_S_W( u32 fd, u32 fs )
 
 inline void	CCodeGeneratorPSP::GenerateMFC0( EN64Reg rt, u32 fs )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	// Never seen this to happen, no reason to bother to handle it
 	DAEDALUS_ASSERT( fs != C0_RAND, "Reading MFC0 random register is unhandled");
-
+	#endif
 	EPspReg reg_dst( GetRegisterNoLoadLo( rt, PspReg_V0 ) );
 
 	GetVar( reg_dst, &gCPUState.CPUControl[ fs ]._u32 );

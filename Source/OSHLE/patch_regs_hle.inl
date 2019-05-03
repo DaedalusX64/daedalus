@@ -120,8 +120,8 @@ TEST_DISABLE_REG_FUNCS
 	gGPR[REG_v0]._s64 = (s64)gCPUState.FPUControl[31]._u32;
 
 	gCPUState.FPUControl[31]._u32 = gGPR[REG_a0]._u32_0;
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "__osSetFpcCsr()");
-
+#endif
 	return PATCH_RET_JR_RA;
 }
-

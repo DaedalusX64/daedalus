@@ -575,9 +575,14 @@ void R4300_CALL_TYPE R4300_SetSR( u32 new_value )
 	}
 }
 
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 #define WARN_NOEXIST(inf)	{ DAEDALUS_ASSERT( false, "Instruction Unknown" ); }
 #define WARN_NOIMPL(op)		{ DAEDALUS_ASSERT( false, "Instruction Not Implemented" ); }
+#else
+#define WARN_NOEXIST(inf) {}
+#define WARN_NOIMPL(op) {}
+#endif
+
 static void R4300_CALL_TYPE R4300_Unk( R4300_CALL_SIGNATURE )     { WARN_NOEXIST("R4300_Unk"); }
 static void R4300_CALL_TYPE R4300_CoPro1_Disabled( R4300_CALL_SIGNATURE )
 
@@ -585,7 +590,6 @@ static void R4300_CALL_TYPE R4300_CoPro1_Disabled( R4300_CALL_SIGNATURE )
 	// Cop1 Unusable
 	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Thread accessing Cop1, throwing COP1 unusuable exception");
-
 	DAEDALUS_ASSERT( (gCPUState.CPUControl[C0_SR]._u32 & SR_CU1) == 0, "COP1 usable flag in inconsistant state!" );
 #endif
 	R4300_Exception_CopUnusuable();
@@ -1926,7 +1930,9 @@ static void R4300_CALL_TYPE R4300_Cop0_MTC0( R4300_CALL_SIGNATURE )
 		case C0_WIRED:
 			// Set to top limit on write to wired
 			gCPUState.CPUControl[C0_RAND]._u32 = 31;
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "Setting Wired register to 0x%08x", new_value);
+			#endif
 			gCPUState.CPUControl[C0_WIRED]._u32 = new_value;
 			break;
 

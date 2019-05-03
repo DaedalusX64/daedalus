@@ -62,7 +62,6 @@ bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
 																		 op_code.cop1_bc == Cop1BCOp_BC1FL ||
 																		 op_code.cop1_bc == Cop1BCOp_BC1T  ||
 																		 op_code.cop1_bc == Cop1BCOp_BC1TL ) );
-
 		DAEDALUS_ASSERT( is_standard_branch || is_regimm_branch || is_cop1_branch, "Unhandled branch type" );
 #endif
 
@@ -73,7 +72,9 @@ bool	PatchJumpLong( CJumpLocation jump, CCodeLabel target )
 		//
 		if( offset < SHRT_MIN || offset > SHRT_MAX )
 		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR(" PatchJump out of range!!!");
+			#endif
 			return false;
 		}
 		op_code.offset = s16(offset);	// Already divided by 4

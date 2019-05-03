@@ -161,7 +161,7 @@ BaseRenderer::BaseRenderer()
 ,	mNastyTexture(false)
 #endif
 {
-#ifdef DAEDALUS_PSP
+#ifdef DAEDALUS_DEBUG_CONSOLE && DAEDALUS_PSP
 	DAEDALUS_ASSERT( IsPointerAligned( &mTnL, 16 ), "Oops, mTnL should be 16-byte aligned" );
 #endif
 	for ( u32 i {}; i < kNumBoundTextures; i++ )
@@ -292,7 +292,9 @@ void BaseRenderer::InitViewport()
 	u32 display_width  {}, display_height {};
 	CGraphicsContext::Get()->ViewportType(&display_width, &display_height);
 
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( display_width && display_height, "Unhandled viewport type" );
+	#endif
 
 	mScreenWidth  = (f32)display_width;
 	mScreenHeight = (f32)display_height;
@@ -382,9 +384,11 @@ void BaseRenderer::UpdateViewport()
 	sceGuOffset(vx - (vp_w/2),vy - (vp_h/2));
 	sceGuViewport(vx + vp_x, vy + vp_y, vp_w, vp_h);
 #elif defined(DAEDALUS_GL)
-	glViewport(vp_x, (s32)mScreenHeight - (vp_h + vp_y), vp_w, vp_h);
+	glViewport(vp_x, (s32)mScreenHeight - (vp_h + vp_y), vp_w, vp_h)
 #else
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR("Code to set viewport not implemented on this platform");
+	#endif
 #endif
 }
 
@@ -395,10 +399,11 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 {
 	//DAEDALUS_PROFILE( "BaseRenderer::AddTri" );
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( v0 < kMaxN64Vertices, "Vertex index is out of bounds (%d)", v0 );
 	DAEDALUS_ASSERT( v1 < kMaxN64Vertices, "Vertex index is out of bounds (%d)", v1 );
 	DAEDALUS_ASSERT( v2 < kMaxN64Vertices, "Vertex index is out of bounds (%d)", v2 );
-
+#endif
 	const u32 & f0 = mVtxProjected[v0].ClipFlags;
 	const u32 & f1 = mVtxProjected[v1].ClipFlags;
 	const u32 & f2 = mVtxProjected[v2].ClipFlags;
@@ -459,9 +464,9 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	DL_PF("    Tri: %d,%d,%d (Rendered)", v0, v1, v2);
 	++mNumTrisRendered;
 #endif
-
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mNumIndices + 3 < kMaxIndices, "Array overflow, too many Indices" );
-
+	#endif
 	mIndexBuffer[ mNumIndices++ ] = (u16)v0;
 	mIndexBuffer[ mNumIndices++ ] = (u16)v1;
 	mIndexBuffer[ mNumIndices++ ] = (u16)v2;
@@ -485,8 +490,9 @@ void BaseRenderer::FlushTris()
 		return;
 	}
 	*/
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mNumIndices, "Call to FlushTris() with nothing to render" );
-
+	#endif
 	TempVerts temp_verts;
 
 	// If any bit is set here it means we have to clip the trianlges since PSP HW clipping sux!
@@ -530,8 +536,9 @@ void BaseRenderer::FlushTris()
 
 	//
 	// Check for depth source, this is for Nascar games, hopefully won't mess up anything
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( !gRDPOtherMode.depth_source, " Warning : Using depth source in flushtris" );
-
+	#endif
 	//
 	//	Render out our vertices
 	RenderTriangles( temp_verts.Verts, temp_verts.Count, gRDPOtherMode.depth_source ? true : false );
@@ -729,11 +736,13 @@ void BaseRenderer::PrepareTrisClipped( TempVerts * temp_verts ) const
 
 			// Retesselate
 			u32 new_num_vertices( num_vertices + (out - 3) * 3 );
+						#ifdef DAEDALUS_DEBUG_CONSOLE
 			if( new_num_vertices > MAX_CLIPPED_VERTS )
 			{
 				DAEDALUS_ERROR( "Too many clipped verts: %d", new_num_vertices );
 				break;
 			}
+					#endif
 			//Make new triangles from the vertices we got back from clipping the original triangle
 			for( u32 j {}; j <= out - 3; ++j)
 			{
@@ -764,11 +773,14 @@ void BaseRenderer::PrepareTrisClipped( TempVerts * temp_verts ) const
 		}
 		else	//Triangle is inside the clipbox so we just add it as it is.
 		{
+					#ifdef DAEDALUS_DEBUG_CONSOLE
 			if( num_vertices > (MAX_CLIPPED_VERTS - 3) )
 			{
+
 				DAEDALUS_ERROR( "Too many clipped verts: %d", num_vertices + 3 );
 				break;
 			}
+					#endif
 
 #ifdef DAEDALUS_PSP_USE_VFPU
 			_ConvertVertice( &clip_vtx[ num_vertices++ ], &mVtxProjected[ idx0 ]);
@@ -813,8 +825,9 @@ void BaseRenderer::PrepareTrisClipped( TempVerts * temp_verts ) const
 void BaseRenderer::PrepareTrisUnclipped( TempVerts * temp_verts ) const
 {
 	DAEDALUS_PROFILE( "BaseRenderer::PrepareTrisUnclipped" );
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mNumIndices > 0, "The number of indices should have been checked" );
-
+	#endif
 	const u32		num_vertices = mNumIndices;
 	DaedalusVtx *	p_vertices   = temp_verts->Alloc(num_vertices);
 
@@ -1642,8 +1655,9 @@ void BaseRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 
 inline void BaseRenderer::SetVtxColor( u32 vert, u32 color )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( vert < kMaxN64Vertices, "Vertex index is out of bounds (%d)", vert );
-
+#endif
 	u32 r {(color>>24)&0xFF};
 	u32 g {(color>>16)&0xFF};
 	u32 b {(color>>8)&0xFF};
@@ -1663,12 +1677,12 @@ inline void BaseRenderer::SetVtxZ( u32 vert, float z )
 }
 */
 
-//
 
 inline void BaseRenderer::SetVtxXY( u32 vert, float x, float y )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( vert < kMaxN64Vertices, "Vertex index is out of bounds (%d)", vert );
-
+	#endif
 	mVtxProjected[vert].TransformedPos.x = x;
 	mVtxProjected[vert].TransformedPos.y = y;
 }
@@ -1783,10 +1797,10 @@ static void T1Hack(const TextureInfo & ti0, CNativeTexture * texture0,
 void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 {
 	DAEDALUS_PROFILE( "BaseRenderer::UpdateTileSnapshot" );
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( tile_idx < 8, "Invalid tile index %d", tile_idx );
 	DAEDALUS_ASSERT( index < kNumBoundTextures, "Invalid texture index %d", index );
-
+	#endif
 	// This hapens a lot! Even for index 0 (i.e. the main texture!)
 	// It might just be code that lazily does a texrect with Primcolour (i.e. not using either T0 or T1)?
 	// DAEDALUS_ASSERT( gRDPStateManager.IsTileInitialised( tile_idx ), "Tile %d hasn't been set up (index %d)", tile_idx, index );
@@ -1798,13 +1812,13 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	// Avoid texture update, if texture is the same as last time around.
 	if( mBoundTexture[ index ] == NULL || mBoundTextureInfo[ index ] != ti )
 	{
-		// Check for 0 width/height textures
-		if( ti.GetWidth() == 0 || ti.GetHeight() == 0 )
-		{
-			DAEDALUS_DL_ERROR( "Loading texture with bad width/height %dx%d in slot %d", ti.GetWidth(), ti.GetHeight(), index );
-		}
-		else
-		{
+		// // Check for 0 width/height textures
+		// if( ti.GetWidth() == 0 || ti.GetHeight() == 0 )
+		// {
+		// 	DAEDALUS_DL_ERROR( "Loading texture with bad width/height %dx%d in slot %d", ti.GetWidth(), ti.GetHeight(), index );
+		// }
+		// else
+		// {
 			CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
 
 			if( texture != NULL && texture != mBoundTexture[ index ] )
@@ -1820,7 +1834,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 					T1Hack(mBoundTextureInfo[0], mBoundTexture[0], mBoundTextureInfo[1], mBoundTexture[1]);
 				}
 #endif
-			}
+			// }
 		}
 	}
 
@@ -1886,8 +1900,9 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 // and everything works correctly.
 inline void FixUV(u32 * wrap, s16 * c0_, s16 * c1_, s16 offset, s32 size)
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(size > 0, "Texture has crazy width/height");
-
+	#endif
 	s32 offset_10_5 {offset << 3};
 
 	s32 c0 {*c0_ - offset_10_5};
@@ -1956,8 +1971,9 @@ void BaseRenderer::PrepareTexRectUVs(TexCoord * puv0, TexCoord * puv1)
 CRefPtr<CNativeTexture> BaseRenderer::LoadTextureDirectly( const TextureInfo & ti )
 {
 	CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( texture, "texture is NULL" );
-
+#endif
 	texture->InstallTexture();
 
 	mBoundTexture[0] = texture;

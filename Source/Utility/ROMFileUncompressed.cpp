@@ -47,8 +47,9 @@ ROMFileUncompressed::~ROMFileUncompressed()
 //*****************************************************************************
 bool ROMFileUncompressed::Open( COutputStream & messages )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mFH == NULL, "Opening the file twice?" );
-
+	#endif
 	// Open the file and read in the data
 	mFH = fopen( mFilename, "rb" );
 	if(mFH == NULL)
@@ -90,8 +91,9 @@ bool ROMFileUncompressed::Open( COutputStream & messages )
 //*****************************************************************************
 bool ROMFileUncompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputStream & messages )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mFH != NULL, "Reading data when Open failed?" );
-
+	#endif
 	if (p_bytes == NULL)
 	{
 		return false;
@@ -103,7 +105,9 @@ bool ROMFileUncompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputSt
 	u32 bytes_read( fread( p_bytes, 1, bytes_to_read, mFH ) );
 	if (bytes_read != bytes_to_read)
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT(false, "Bytes to read don't match bytes read!");
+		#endif
 		return false;
 	}
 
@@ -118,8 +122,9 @@ bool ROMFileUncompressed::LoadRawData( u32 bytes_to_read, u8 *p_bytes, COutputSt
 //*****************************************************************************
 bool	ROMFileUncompressed::ReadChunk( u32 offset, u8 * p_dst, u32 length )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mFH != NULL, "Reading data when Open failed?" );
-
+	#endif
 	// Try and read in data - reset to the specified offset
 	fseek( mFH, offset, SEEK_SET );
 

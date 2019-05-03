@@ -132,10 +132,12 @@ IPauseScreen::IPauseScreen( CUIContext * p_context )
 	mOptionComponents[ MO_PAUSE_OPTIONS ]	= CPauseOptionsComponent::Create( mpContext, new CMemberFunctor< IPauseScreen >( this, &IPauseScreen::OnResume ), new CMemberFunctor< IPauseScreen >( this, &IPauseScreen::OnReset ) );
 	mOptionComponents[ MO_ABOUT ]			= CAboutComponent::Create( mpContext );
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	for( u32 i = 0; i < NUM_MENU_OPTIONS; ++i )
 	{
 		DAEDALUS_ASSERT( mOptionComponents[ i ] != NULL, "Unhandled screen" );
 	}
+	#endif
 }
 
 IPauseScreen::~IPauseScreen()

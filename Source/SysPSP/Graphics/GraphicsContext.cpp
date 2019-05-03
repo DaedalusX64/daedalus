@@ -396,7 +396,9 @@ void IGraphicsContext::SetDebugScreenTarget( ETargetSurface buffer )
 	}
 	else
 	{
+		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Unknown buffer" );
+		#endif
 		p_target = mpCurrentBackBuffer;
 	}
 
@@ -561,8 +563,9 @@ void IGraphicsContext::DumpScreenShot()
 
 	ViewportType( &display_width, &display_height );
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( display_width != 0 && display_height != 0, "Unhandled viewport type" );
-
+#endif
 	s32		display_x( (frame_width - display_width)/2 );
 	s32		display_y( (frame_height - display_height)/2 );
 
@@ -601,9 +604,9 @@ void IGraphicsContext::StoreSaveScreenData()
 	}
 
 	ViewportType( &display_width, &display_height );
-
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( display_width != 0 && display_height != 0, "Unhandled viewport type" );
-
+	#endif
 	s32	x( (frame_width - display_width)/2 );
 	s32	y( (frame_height - display_height)/2 );
 

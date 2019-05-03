@@ -258,7 +258,9 @@ namespace IO
 
 	bool	FindFileNext( FindHandleT handle, FindDataT & data )
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( handle >= 0, "Cannot search with invalid directory handle" );
+		#endif
 
 		if( sceIoDread( handle, &gDirEntry.Dirent ) > 0 )
 		{
@@ -271,10 +273,10 @@ namespace IO
 
 	bool	FindFileClose( FindHandleT handle )
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( handle >= 0, "Trying to close an invalid directory handle" );
-
+		#endif
 		return ( sceIoDclose( handle ) >= 0 );
 	}
 
 }
-

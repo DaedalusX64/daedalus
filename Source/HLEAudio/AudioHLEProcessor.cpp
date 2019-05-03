@@ -310,8 +310,9 @@ void	AudioHLEState::EnvMixer( u8 flags, u32 address )
 #if 1 //1->fast, 0->original Azimer //Corn calc two sample (s16) at once so we get to save a u32
 void	AudioHLEState::Resample( u8 flags, u32 pitch, u32 address )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( (flags & 0x2) == 0, "Resample: unhandled flags %02x", flags );		// Was breakpoint - StrmnNrmn
-
+	#endif
 	pitch *= 2;
 
 	s16 *	in ( (s16 *)(Buffer) );
@@ -393,8 +394,9 @@ const u16 ResampleLUT[0x200] =
 void	AudioHLEState::Resample( u8 flags, u32 pitch, u32 address )
 {
 	bool	init( (flags & 0x1) != 0 );
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( (flags & 0x2) == 0, "Resample: unhandled flags %02x", flags );		// Was breakpoint - StrmnNrmn
-
+	#endif
 	pitch *= 2;
 
 	s16 *	buffer( (s16 *)(Buffer) );

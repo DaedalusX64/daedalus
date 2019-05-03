@@ -48,8 +48,9 @@ public:
 
 		inline bool	IsValid( EN64Reg reg, u32 lo_hi_idx ) const
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( !mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid || IsCached( reg, lo_hi_idx ), "Checking register is valid but uncached?" );
-
+			#endif
 			return mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid;
 		}
 
@@ -81,15 +82,17 @@ public:
 
 		inline EPspReg	GetCachedReg( EN64Reg reg, u32 lo_hi_idx ) const
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( IsCached( reg, lo_hi_idx ), "Trying to retreive an uncached register" );
-
+			#endif
 			return mRegisterCacheInfo[ reg ][ lo_hi_idx ].PspRegister;
 		}
 
 		inline void	MarkAsValid( EN64Reg reg, u32 lo_hi_idx, bool valid )
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( IsCached( reg, lo_hi_idx ), "Changing valid flag on uncached register?" );
-
+			#endif
 			mRegisterCacheInfo[ reg ][ lo_hi_idx ].Valid = valid;
 		}
 

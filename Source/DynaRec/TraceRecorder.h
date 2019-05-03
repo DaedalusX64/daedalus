@@ -51,9 +51,11 @@ public:
 	void				AbortTrace();
 
 	bool				IsTraceActive() const						{ return mTracing; }
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	u32					GetStartTraceAddress() const				{ DAEDALUS_ASSERT_Q( mTracing ); return mStartTraceAddress; }
-
+#else
+	u32					GetStartTraceAddress() const {return mStartTraceAddress;}
+	#endif
 private:
 	bool							mTracing;
 	u32								mStartTraceAddress;

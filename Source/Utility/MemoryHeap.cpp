@@ -208,7 +208,9 @@ void* IMemoryHeap::Alloc( u32 size )
 
 	if( adr + size > mBasePtr + mTotalSize )
 	{
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( false, "Out of VRAM/RAM memory" );
+		#endif
 		return NULL;
 	}
 
@@ -224,8 +226,9 @@ void* IMemoryHeap::Alloc( u32 size )
 //*****************************************************************************
 void  IMemoryHeap::Free( void * ptr )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( ptr == NULL || IsFromHeap( ptr ), "Memory is not from this heap" );
-
+#endif
 	if( ptr == NULL )
 		return;
 

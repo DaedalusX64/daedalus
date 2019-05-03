@@ -160,8 +160,9 @@ EMenuOption	IMainMenuScreen::AsMenuOption( s32 option )
 	if( m < 0 )
 		m += NUM_MENU_OPTIONS;
 
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( m >= 0 && m < (s32)NUM_MENU_OPTIONS, "Whoops" );
-
+#endif
 	return EMenuOption( m );
 }
 
