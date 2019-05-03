@@ -79,8 +79,8 @@ CJobManager::CJobManager( u32 job_buffer_size, ETaskMode task_mode )
 ,	mJobBufferSize( job_buffer_size )
 ,	mTaskMode( task_mode )
 ,	mThread( kInvalidThreadHandle )
-,	mWorkReady( sceKernelCreateSema( "JMWorkReady", 0, 0, 1, NULL ) )	// Initval is 0 - i.e. no work ready
-,	mWorkEmpty( sceKernelCreateSema( "JMWorkEmpty", 0, 1, 1, NULL ) )	// Initval is 1 - i.e. work done
+,	mWorkReady( sceKernelCreateSema( "JMWorkReady", 0, 0, 1, 0) )	// Initval is 0 - i.e. no work ready
+,	mWorkEmpty( sceKernelCreateSema( "JMWorkEmpty", 0, 1, 1, 0 ) )	// Initval is 1 - i.e. work done
 ,	mWantQuit( false )
 {
 //	memset( mRunBuffer, 0, mJobBufferSize );
@@ -96,12 +96,12 @@ CJobManager::~CJobManager()
 	sceKernelDeleteSema(mWorkReady);
 	sceKernelDeleteSema(mWorkEmpty);
 
-	if( mJobBuffer != NULL )
+	if( mJobBuffer != nullptr )
 	{
 		free( mJobBuffer );
 	}
 
-	if( mRunBuffer != NULL )
+	if( mRunBuffer != nullptr )
 	{
 		free( mRunBuffer );
 	}
@@ -154,7 +154,7 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 {
 	bool	success( false );
 
-	if( job == NULL ){
+	if( job == nullptr ){
 		success = true;
 		return success;
 	}
@@ -170,7 +170,7 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 	Start();
 
 	//printf( "Adding job...waiting for empty\n" );
-	sceKernelWaitSema( mWorkEmpty, 1, NULL );
+	sceKernelWaitSema( mWorkEmpty, 1, nullptr );
 
 	// Add job to queue
 	if( job_size <= mJobBufferSize )
@@ -226,7 +226,7 @@ void CJobManager::Run()
 					run->InitJob( run );
 
 				// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
-					if(BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL ) < 0){
+					if(BeginME( mei, (int)run->DoJob, (int)run, -1, 0, -1, 0 ) < 0){
 					SJob *	job( static_cast< SJob * >( mJobBuffer ) );
 					if( job->InitJob ) job->InitJob( job );
 					if( job->DoJob )   job->DoJob( job );
@@ -237,7 +237,7 @@ void CJobManager::Run()
 
 				//Mark Job(run) from Mrunbuffer as Finished
 				run->FiniJob( run );
-				run->FiniJob = NULL; // so it doesn't get run again later
+				run->FiniJob = nullptr; // so it doesn't get run again later
 
 
 		}
