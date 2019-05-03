@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 #include <stdio.h>
-
+#include <new>
 
 #include <pspkernel.h>
 #include <pspaudiolib.h>
@@ -90,15 +90,13 @@ private:
 	bool mExitAudioThread;
 	u32 mFrequency;
 	s32 mAudioThread;
-  u32 kAudioBufferSize;
 	s32 mSemaphore;
 //	u32 mBufferLenMs;
 };
 
-class SAddSamplesJob : public SJob, public AudioPluginPSP
+class SAddSamplesJob : public SJob
 {
 	CAudioBuffer *		mBuffer;
-
 	const Sample *		mSamples;
 	u32					mNumSamples;
 	u32					mFrequency;
@@ -112,7 +110,6 @@ public:
 		,	mFrequency( frequency )
 		,	mOutputFreq( output_freq )
 	{
-
 		InitJob = NULL;
 		DoJob = &DoAddSamplesStatic;
 		FiniJob = &DoJobComplete;
@@ -120,14 +117,11 @@ public:
 
   ~SAddSamplesJob()
   {
-    delete mBuffer;
-    mBuffer = nullptr;
-
   }
 
 	static int DoAddSamplesStatic( SJob * arg )
 	{
-		SAddSamplesJob *job( static_cast< SAddSamplesJob * >( arg ) );
+		SAddSamplesJob *	job( static_cast< SAddSamplesJob * >( arg ) );
 		return job->DoAddSamples();
 	}
 
@@ -166,8 +160,8 @@ EAudioPluginMode gAudioPluginEnabled( APM_DISABLED );
 
 
 AudioPluginPSP::AudioPluginPSP()
-: mAudioBuffer (new CAudioBuffer(1024 * 2))
-,mKeepRunning (false)
+:mKeepRunning (false)
+//: mAudioBuffer( kAudioBufferSize )
 , mFrequency( 44100 )
 ,	mSemaphore( sceKernelCreateSema( "AudioPluginPSP", 0, 1, 1, NULL ) )
 //, mAudioThread ( kInvalidThreadHandle )
@@ -175,16 +169,17 @@ AudioPluginPSP::AudioPluginPSP()
 //, mBufferLenMs ( 0 )
 {
 	// Allocate audio buffer with malloc_64 to avoid cached/uncached aliasing
-//	void * mem = malloc_64( sizeof( CAudioBuffer ) );
-	//mAudioBuffer = new CAudioBuffer(1024);
+	void * mem = malloc_64( sizeof( CAudioBuffer ) );
+	mAudioBuffer = new( mem ) CAudioBuffer( kAudioBufferSize );
 	// Ideally we could just invalidate this range?
-//	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
+	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
 }
 
-AudioPluginPSP::~AudioPluginPSP()
+AudioPluginPSP::~AudioPluginPSP( )
 {
+	mAudioBuffer->~CAudioBuffer();
+free(mAudioBuffer);
 sceKernelDeleteSema(mSemaphore);
-
 pspAudioEnd();
 }
 
@@ -197,11 +192,7 @@ bool		AudioPluginPSP::StartEmulation()
 void	AudioPluginPSP::StopEmulation()
 {
 	Audio_Reset();
-  	StopAudio();
-delete mAudioBuffer;
-mAudioBuffer = nullptr;
-
-
+	StopAudio();
 }
 
 void	AudioPluginPSP::DacrateChanged( int system_type )
