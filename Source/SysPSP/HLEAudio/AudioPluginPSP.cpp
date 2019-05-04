@@ -110,7 +110,7 @@ public:
 		,	mFrequency( frequency )
 		,	mOutputFreq( output_freq )
 	{
-		InitJob = NULL;
+		InitJob = nullptr;
 		DoJob = &DoAddSamplesStatic;
 		FiniJob = &DoJobComplete;
 	}
@@ -148,7 +148,7 @@ static AudioPluginPSP * ac;
 
 void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 {
-	sceKernelWaitSema( mSemaphore, 1, NULL );
+	sceKernelWaitSema( mSemaphore, 1, nullptr );
 
 	mAudioBuffer->Drain( buffer, num_samples );
 
@@ -163,7 +163,7 @@ AudioPluginPSP::AudioPluginPSP()
 :mKeepRunning (false)
 //: mAudioBuffer( kAudioBufferSize )
 , mFrequency( 44100 )
-,	mSemaphore( sceKernelCreateSema( "AudioPluginPSP", 0, 1, 1, NULL ) )
+,	mSemaphore( sceKernelCreateSema( "AudioPluginPSP", 0, 1, 1, nullptr ) )
 //, mAudioThread ( kInvalidThreadHandle )
 //, mKeepRunning( false )
 //, mBufferLenMs ( 0 )
@@ -235,7 +235,7 @@ class SHLEStartJob : public SJob
 public:
 	SHLEStartJob()
 	{
-		 InitJob = NULL;
+		 InitJob = nullptr;
 		 DoJob = &DoHLEStartStatic;
 		 FiniJob = &DoHLEFinishedStatic;
 	}
