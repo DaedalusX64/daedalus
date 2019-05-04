@@ -55,13 +55,13 @@ namespace
 
 FILE * GetMemLogFh()
 {
-	static FILE * gMemLogFh = NULL;
-	if( gMemLogFh == NULL )
+	static FILE * gMemLogFh = nullptr;
+	if( gMemLogFh == nullptr )
 	{
 		gMemLogFh = fopen( "memorylog.txt", "w" );
 	}
 
-	if( gMemLogFh != NULL )
+	if( gMemLogFh != nullptr )
 	{
 		return gMemLogFh;
 	}
@@ -79,7 +79,7 @@ void * operator new( size_t count )
 	SAVE_RA( ra );
 
 	void * p_mem( malloc( count ) );
-	if(p_mem == NULL)
+	if(p_mem == nullptr)
 	{
 		char msg[ 1024 ];
 		sprintf( msg, "Out of memory (operator new(%d)) - RA is %08x", count, ra );
@@ -101,7 +101,7 @@ void * operator new[]( size_t count )
 	SAVE_RA( ra );
 
 	void * p_mem( malloc( count ) );
-	if(p_mem == NULL)
+	if(p_mem == nullptr)
 	{
 		char msg[ 1024 ];
 		sprintf( msg, "Out of memory (operator new[](%d) - RA is %08x", count, ra );
@@ -124,7 +124,7 @@ void operator delete[]( void * p_mem )
 	SAVE_RA( ra );
 	#endif
 
-	if( p_mem != NULL )
+	if( p_mem != nullptr )
 	{
 	#ifdef DAEDALUS_LOG_ALLOCATIONS
 		fprintf( GetMemLogFh(), "Freeing[] %p - RA is %08x\n", p_mem, ra );
@@ -142,7 +142,7 @@ void operator delete( void * p_mem )
 	SAVE_RA( ra );
 	#endif
 
-	if( p_mem != NULL )
+	if( p_mem != nullptr )
 	{
 	#ifdef DAEDALUS_LOG_ALLOCATIONS
 		fprintf( GetMemLogFh(), "Freeing   %p - RA is %08x\n", p_mem, ra );

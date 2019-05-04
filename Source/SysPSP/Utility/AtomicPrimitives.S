@@ -6,8 +6,8 @@
 	.global _AtomicDecrement
 	.global _AtomicBitSet
 
-    .set push 
-    .set noreorder 
+    .set push
+    .set noreorder
 
 ###############################################################################
 #
@@ -15,12 +15,12 @@
 #	Not safe for calling from the ME.
 #
 #	Arguments
-#		a0		p		- pointer to int to adjust. Must be cached. 
+#		a0		p		- pointer to int to adjust. Must be cached.
 #
 #	Returns
 #		Incremented value
 #
-_AtomicIncrement: 
+_AtomicIncrement:
 	ll		$t1, 0($a0)
 	add		$t2, $t1, 1
 	or		$v0, $t2, $0		# Copy for return value
@@ -36,12 +36,12 @@ _AtomicIncrement:
 #	Not safe for calling from the ME.
 #
 #	Arguments
-#		a0		p		- pointer to int to adjust. Must be cached. 
+#		a0		p		- pointer to int to adjust. Must be cached.
 #
 #	Returns
 #		Decremented value
 #
-_AtomicDecrement: 
+_AtomicDecrement:
 	ll		$t1, 0($a0)
 	add		$t2, $t1, -1
 	or		$v0, $t2, $0		# Copy for return value
@@ -58,14 +58,14 @@ _AtomicDecrement:
 #	Not safe for calling from the ME.
 #
 #	Arguments
-#		a0		p			- pointer to int to adjust. Must be cached. 
+#		a0		p			- pointer to int to adjust. Must be cached.
 #		a1		and_bits	- bits to and with
 #		a2		or_bits		- bits to or with
 #
 #	Returns
 #		Resulting value
 #
-_AtomicBitSet: 
+_AtomicBitSet:
 	ll		$t1, 0($a0)
 	and		$t2, $t1, $a1
 	or		$t3, $t2, $a2
@@ -77,5 +77,4 @@ _AtomicBitSet:
 	nop
 
 
-    .set pop 
-
+    .set pop

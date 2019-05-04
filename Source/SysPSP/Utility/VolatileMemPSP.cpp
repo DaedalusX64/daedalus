@@ -27,7 +27,7 @@ bool bVolatileMem  {false};
 void VolatileMemInit()
 {
 	// Unlock memory partition 5
-	void* pointer = NULL;
+	void* pointer = nullptr;
 	int size {0};
 	int result {sceKernelVolatileMemLock(0, &pointer, &size)};
 
@@ -58,7 +58,7 @@ void* malloc_volatile_PSP(size_t size)
 //	printf("used memory %d of %d - %d\n", info.usmblks + info.uordblks, info.arena, malloc_p5_memory_used);
 
 
-	SceUID uid = sceKernelAllocPartitionMemory(5, "", PSP_SMEM_Low, size + 8, NULL);
+	SceUID uid = sceKernelAllocPartitionMemory(5, "", PSP_SMEM_Low, size + 8, nullptr);
 	if (uid >= 0)
 	{
 
@@ -77,7 +77,7 @@ void* malloc_volatile_PSP(size_t size)
 #ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR("Failed to allocate %d bytes in volatile memory");
 		#endif
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -88,7 +88,7 @@ void free_volatile_PSP(void* ptr)
 {
 	if (!bVolatileMem)
 	{
-		_free_r(NULL, ptr);
+		_free_r(nullptr, ptr);
 		return;
 	}
 
@@ -97,7 +97,7 @@ void free_volatile_PSP(void* ptr)
 
 	if (ptr >= (void*)0x08800000)
 	{
-		_free_r(NULL, ptr);
+		_free_r(nullptr, ptr);
 	}
 	else
 	{

@@ -29,7 +29,7 @@ namespace CModule
 	void Unload( int id )
 	{
 		int ret {0}, status {0};
-		sceKernelStopModule(id, 0, NULL, &status, NULL);	// Stop module first before unloading it
+		sceKernelStopModule(id, 0, nullptr, &status, nullptr);	// Stop module first before unloading it
 
 		ret = sceKernelUnloadModule(id);
 

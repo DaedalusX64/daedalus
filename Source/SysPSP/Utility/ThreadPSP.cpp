@@ -61,7 +61,7 @@ static int StartThreadFunc( SceSize args, void *argp )
 
 s32		CreateThread( const char * name, DaedThread function, void * argument )
 {
-	s32	thid( ::sceKernelCreateThread( name, StartThreadFunc, gThreadPriorities[TP_NORMAL], 0x10000, 0, NULL ) );
+	s32	thid( ::sceKernelCreateThread( name, StartThreadFunc, gThreadPriorities[TP_NORMAL], 0x10000, 0, nullptr ) );
 
 	if(thid >= 0)
 	{

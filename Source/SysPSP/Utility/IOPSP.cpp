@@ -150,7 +150,7 @@ namespace IO
 			}
 			else
 			{
-				return NULL;
+				return nullptr;
 			}
 		}
 
@@ -166,7 +166,7 @@ namespace IO
 				}
 				return p_last_char;
 			}
-			return NULL;
+			return nullptr;
 		}
 
 		bool	RemoveFileSpec( char * p_path )

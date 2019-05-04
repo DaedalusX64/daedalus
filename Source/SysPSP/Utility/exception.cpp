@@ -49,7 +49,7 @@ extern bool PSP_IS_SLIM;
 static void DumpInformation(PspDebugRegBlock * regs)
 {
 	FILE *fp = fopen("exception.txt", "wt");
-	if (fp == NULL)
+	if (fp == nullptr)
 		return;
 
 	const u32 RDRAM_base {(u32)g_pu8RamBase};
@@ -305,6 +305,6 @@ void initExceptionHandler()
    {
       args[0] = (int)ExceptionHandler;
       args[1] = (int)&exception_regs;
-      sceKernelStartModule(modid, 8, args, &fd, NULL);
+      sceKernelStartModule(modid, 8, args, &fd, nullptr);
    }
 }
