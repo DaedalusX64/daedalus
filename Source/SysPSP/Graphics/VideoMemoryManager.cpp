@@ -44,10 +44,10 @@ private:
 //*****************************************************************************
 template<> bool CSingleton< CVideoMemoryManager >::Create()
 {
-	DAEDALUS_ASSERT_Q(mpInstance == NULL);
+	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 
 	mpInstance = new IVideoMemoryManager();
-	return mpInstance != NULL;
+	return mpInstance != nullptr;
 }
 
 //*****************************************************************************
@@ -83,7 +83,7 @@ bool IVideoMemoryManager::Alloc( u32 size, void ** data, bool * isvidmem )
 
 	// Try to alloc fast VRAM
 	mem = mVideoMemoryHeap->Alloc( size );
-	if( mem != NULL )
+	if( mem != nullptr )
 	{
 		*data = mem;
 		*isvidmem = true;
@@ -94,7 +94,7 @@ bool IVideoMemoryManager::Alloc( u32 size, void ** data, bool * isvidmem )
 #endif
 	// Try to alloc normal RAM
 	mem = mRamMemoryHeap->Alloc( size );
-	if( mem != NULL )
+	if( mem != nullptr )
 	{
 		*data = mem;
 		*isvidmem = false;
@@ -104,7 +104,7 @@ bool IVideoMemoryManager::Alloc( u32 size, void ** data, bool * isvidmem )
 	DAEDALUS_ERROR( "Failed to allocate %d bytes of RAM (risk for BSOD)", size );
 #endif
 	// It failed, there is no MEMORY left
-	*data = NULL;
+	*data = nullptr;
 	*isvidmem = false;
 	return false;
 }
@@ -114,7 +114,7 @@ bool IVideoMemoryManager::Alloc( u32 size, void ** data, bool * isvidmem )
 //*****************************************************************************
 void  IVideoMemoryManager::Free(void * ptr)
 {
-	if( ptr == NULL )
+	if( ptr == nullptr )
 	{
 
 	}

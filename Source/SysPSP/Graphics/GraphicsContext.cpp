@@ -150,7 +150,7 @@ private:
 //*************************************************************************************
 template<> bool CSingleton< CGraphicsContext >::Create()
 {
-	DAEDALUS_ASSERT_Q(mpInstance == NULL);
+	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 
 	mpInstance = new IGraphicsContext();
 	return mpInstance->Initialise();
@@ -162,11 +162,11 @@ template<> bool CSingleton< CGraphicsContext >::Create()
 
 IGraphicsContext::IGraphicsContext()
 :	mInitialised(false)
-,	mpCurrentBackBuffer(NULL)
+,	mpCurrentBackBuffer(nullptr)
 ,	mDumpNextScreen( false )
 {
-	mpBuffers[ 0 ] = NULL;
-	mpBuffers[ 1 ] = NULL;
+	mpBuffers[ 0 ] = nullptr;
+	mpBuffers[ 1 ] = nullptr;
 
 #if 1 //1->alloc in volatile memory, 0->alloc in VRAM //Corn
 	//Set up PSP Dlists in the extra 4MB space and make sure pointer are aligned to 16 bytes
@@ -518,7 +518,7 @@ void IGraphicsContext::SaveScreenshot( const char* filename, s32 x, s32 y, u32 w
 
 	buffer = reinterpret_cast< u8 * >( buffer ) + (y * pitch) + (x * bpp);
 
-	PngSaveImage( filename, buffer, NULL, texture_format, pitch, width, height, false );
+	PngSaveImage( filename, buffer, nullptr, texture_format, pitch, width, height, false );
 }
 
 //*****************************************************************************
@@ -680,7 +680,7 @@ void IGraphicsContext::StoreSaveScreenData()
 		break;
 	}
 
-	PngSaveImage( pngfile, (void*)pngbuffer, NULL, texture_format, pitch, display_width, display_height, false );
+	PngSaveImage( pngfile, (void*)pngbuffer, nullptr, texture_format, pitch, display_width, display_height, false );
 }
 
 //*****************************************************************************

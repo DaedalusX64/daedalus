@@ -37,7 +37,7 @@ struct SCodeBuffer
 	u32							mBufferSize;
 
 	SCodeBuffer()
-		:	mpBuffer( NULL )
+		:	mpBuffer( nullptr )
 		,	mBufferPtr( 0 )
 		,	mBufferSize( 0 )
 	{
@@ -53,10 +53,10 @@ struct SCodeBuffer
 	void	Finalise()
 	{
 		sceKernelIcacheInvalidateRange( mpBuffer, mBufferPtr );
-		if (mpBuffer != NULL)
+		if (mpBuffer != nullptr)
 		{
 			delete [] mpBuffer;
-			mpBuffer = NULL;
+			mpBuffer = nullptr;
 		}
 		mBufferPtr = 0;
 		mBufferSize = 0;

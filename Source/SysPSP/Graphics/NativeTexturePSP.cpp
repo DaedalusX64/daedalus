@@ -269,7 +269,7 @@ CNativeTexture::CNativeTexture( u32 w, u32 h, ETextureFormat texture_format )
 ,	mCorrectedWidth( CorrectDimension( w ) )
 ,	mCorrectedHeight( CorrectDimension( h ) )
 ,	mTextureBlockWidth( GetTextureBlockWidth( mCorrectedWidth, texture_format ) )
-,	mpPalette( NULL )
+,	mpPalette( nullptr )
 ,	mIsPaletteVidMem( false )
 ,	mIsSwizzled( true )
 #ifdef DAEDALUS_ENABLE_ASSERTS
@@ -321,7 +321,7 @@ CNativeTexture::~CNativeTexture()
 //*****************************************************************************
 bool	CNativeTexture::HasData() const
 {
-	return mpData != NULL && (!IsTextureFormatPalettised( mTextureFormat ) || mpPalette != NULL );
+	return mpData != nullptr && (!IsTextureFormatPalettised( mTextureFormat ) || mpPalette != nullptr );
 }
 
 //*****************************************************************************
@@ -432,44 +432,44 @@ namespace
 		u8	signature[ SIGNATURE_SIZE ];
 
 		FILE * fh( fopen( p_filename,"rb" ) );
-		if(fh == NULL)
+		if(fh == nullptr)
 		{
-			return NULL;
+			return nullptr;
 		}
 
 		if (fread( signature, sizeof(u8), SIGNATURE_SIZE, fh ) != SIGNATURE_SIZE)
 		{
 			fclose(fh);
-			return NULL;
+			return nullptr;
 		}
 
 		if ( !png_check_sig( signature, SIGNATURE_SIZE ) )
 		{
-			return NULL;
+			return nullptr;
 		}
 
-		png_struct * p_png_struct( png_create_read_struct( PNG_LIBPNG_VER_STRING, NULL, NULL, NULL ) );
-		if ( p_png_struct == NULL)
+		png_struct * p_png_struct( png_create_read_struct( PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr ) );
+		if ( p_png_struct == nullptr)
 		{
-			return NULL;
+			return nullptr;
 		}
 
 		png_info * p_png_info( png_create_info_struct( p_png_struct ) );
-		if ( p_png_info == NULL )
+		if ( p_png_info == nullptr )
 		{
-			png_destroy_read_struct( &p_png_struct, NULL, NULL );
-			return NULL;
+			png_destroy_read_struct( &p_png_struct, nullptr, nullptr );
+			return nullptr;
 		}
 
 		if ( setjmp( png_jmpbuf(p_png_struct) ) != 0 )
 		{
-			png_destroy_read_struct( &p_png_struct, NULL, NULL );
-			return NULL;
+			png_destroy_read_struct( &p_png_struct, nullptr, nullptr );
+			return nullptr;
 		}
 
 		png_init_io( p_png_struct, fh );
 		png_set_sig_bytes( p_png_struct, SIGNATURE_SIZE );
-		png_read_png( p_png_struct, p_png_info, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND | PNG_TRANSFORM_BGR, NULL );
+		png_read_png( p_png_struct, p_png_info, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING | PNG_TRANSFORM_EXPAND | PNG_TRANSFORM_BGR, nullptr );
 
 		png_uint_32 width = png_get_image_width(p_png_struct, p_png_info);//p_png_info->width;
 		png_uint_32 height = png_get_image_height(p_png_struct, p_png_info);//p_png_info->height;
@@ -484,7 +484,7 @@ namespace
 		u8 *	p_dest( new u8[ texture->GetBytesRequired() ] );
 		if( !p_dest )
 		{
-			texture = NULL;
+			texture = nullptr;
 		}
 		else
 		{
@@ -515,14 +515,14 @@ namespace
 				break;
 			}
 
-			texture->SetData( p_dest, NULL );
+			texture->SetData( p_dest, nullptr );
 		}
 
 		//
 		// Cleanup
 		//
 		delete [] p_dest;
-		png_destroy_read_struct( &p_png_struct, &p_png_info, NULL );
+		png_destroy_read_struct( &p_png_struct, &p_png_info, nullptr );
 		fclose(fh);
 
 		return texture;
@@ -555,9 +555,9 @@ void	CNativeTexture::SetData( void * data, void * palette )
 			sceGuTexFlush();
 		}
 
-		if( mpPalette != NULL )
+		if( mpPalette != nullptr )
 		{
-			DAEDALUS_ASSERT( palette != NULL, "No palette provided" );
+			DAEDALUS_ASSERT( palette != nullptr, "No palette provided" );
 
 			#ifdef DAEDALUS_ENABLE_ASSERTS
 				mPaletteSet = true;
@@ -586,7 +586,7 @@ void	CNativeTexture::SetData( void * data, void * palette )
 		}
 		else
 		{
-			DAEDALUS_ASSERT( palette == NULL, "Palette provided when not needed" );
+			DAEDALUS_ASSERT( palette == nullptr, "Palette provided when not needed" );
 		}
 	}
 }

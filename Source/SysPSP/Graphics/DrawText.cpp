@@ -35,8 +35,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 intraFont *	gFonts[] =
 {
-	NULL,
-	NULL,
+	nullptr,
+	nullptr,
 };
 DAEDALUS_STATIC_ASSERT( ARRAYSIZE( gFonts ) == CDrawText::NUM_FONTS );
 
@@ -52,7 +52,7 @@ void	CDrawText::Initialise()
 
 	for( u32 i = 0; i < NUM_FONTS; ++i )
 	{
-		DAEDALUS_ASSERT( gFonts[ i ] != NULL, "Unable to load font (or forgot!)" );
+		DAEDALUS_ASSERT( gFonts[ i ] != nullptr, "Unable to load font (or forgot!)" );
 	}
 }
 
@@ -164,7 +164,7 @@ namespace DrawTextUtilities
 		}
 
 		// Not found
-		return NULL;
+		return nullptr;
 	}
 
 	void	WrapText( CDrawText::EFont font, s32 width, const char * p_str, u32 length, std::vector<u32> & lengths, bool & match )
@@ -215,7 +215,7 @@ namespace DrawTextUtilities
 				{
 					const char * p_space( FindPreviousSpace( p_line_str, p_chunk_end ) );
 
-					if( p_space != NULL )
+					if( p_space != nullptr )
 					{
 						u32		chunk_length( p_space + 1 - p_line_str );
 						chunk_width = CDrawText::GetTextWidth( font, p_line_str, chunk_length );

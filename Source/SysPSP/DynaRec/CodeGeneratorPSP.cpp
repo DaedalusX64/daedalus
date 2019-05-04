@@ -283,10 +283,10 @@ const EPspReg	gRegistersToUseForCaching[] =
 CCodeGeneratorPSP::CCodeGeneratorPSP( CAssemblyBuffer * p_buffer_a, CAssemblyBuffer * p_buffer_b )
 :	CCodeGenerator( )
 ,	CAssemblyWriterPSP( p_buffer_a, p_buffer_b )
-,	mpBasePointer( NULL )
+,	mpBasePointer( nullptr )
 ,	mBaseRegister( PspReg_S8 )		// TODO
 ,	mEntryAddress( 0 )
-,	mLoopTop( NULL )
+,	mLoopTop( nullptr )
 ,	mUseFixedRegisterAllocation( false )
 {
 }
@@ -306,7 +306,7 @@ void	CCodeGeneratorPSP::Initialise( u32 entry_address, u32 exit_address, u32 * h
 	mFloatCMPIsValid = false;
 	mMultIsValid = false;
 
-	if( hit_counter != NULL )
+	if( hit_counter != nullptr )
 	{
 		GetVar( PspReg_V0, hit_counter );
 		ADDIU( PspReg_V0, PspReg_V0, 1 );
@@ -822,7 +822,7 @@ EPspFloatReg	CCodeGeneratorPSP::GetSimFloatRegisterAndLoad( EN64FloatReg n64_reg
 	{
 		MFC1( PspReg_A0, psp_reg_sig );	//Get lo part of double
 		LoadConstant( PspReg_A1, SIMULATESIG );	//Get signature
-		CJumpLocation test_reg( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(NULL), false ) );	//compare float to signature
+		CJumpLocation test_reg( BEQ( PspReg_A0, PspReg_A1, CCodeLabel(nullptr), false ) );	//compare float to signature
 		MTC1( psp_reg_sig , PspReg_A1 );	//Always write back signature to float reg
 
 		JAL( CCodeLabel( reinterpret_cast< const void * >( _DoubleToFloat ) ), false );	//Convert Double to Float
@@ -1085,7 +1085,7 @@ CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_ad
 		//
 		//	Return an invalid jump location to indicate we've handled our own linking.
 		//
-		return CJumpLocation( NULL );
+		return CJumpLocation( nullptr );
 	}
 
 	FlushAllRegisters( mRegisterCache, true );
@@ -1124,7 +1124,7 @@ CJumpLocation CCodeGeneratorPSP::GenerateExitCode( u32 exit_address, u32 jump_ad
 		AppendOp( op2 );
 	}
 
-	// This jump may be NULL, in which case we patch it below
+	// This jump may be nullptr, in which case we patch it below
 	// This gets patched with a jump to the next fragment if the target is later found
 	CJumpLocation jump_to_next_fragment( J( next_fragment, true ) );
 
@@ -1194,7 +1194,7 @@ void	CCodeGeneratorPSP::GenerateBranchHandler( CJumpLocation branch_handler_jump
 
 	mRegisterCache = GetRegisterCacheFromHandle( snapshot );
 
-	CJumpLocation	jump_to_b( J( CCodeLabel( NULL ), true ) );
+	CJumpLocation	jump_to_b( J( CCodeLabel( nullptr ), true ) );
 	CCodeGeneratorPSP::SetBufferB();
 	current_label = GetAssemblyBuffer()->GetLabel();
 	PatchJumpLong( jump_to_b, current_label );
@@ -1742,9 +1742,9 @@ CJumpLocation	CCodeGeneratorPSP::GenerateOpCode( const STraceEntry& ti, bool bra
 		}
 
 		// Check whether we want to invert the status of this branch
-		if( p_branch != NULL )
+		if( p_branch != nullptr )
 		{
-			CCodeLabel		no_target( NULL );
+			CCodeLabel		no_target( nullptr );
 			//
 			// Check if the branch has been taken
 			//
@@ -1825,9 +1825,9 @@ CJumpLocation CCodeGeneratorPSP::ExecuteNativeFunction( CCodeLabel speed_hack, b
 	JAL( speed_hack, true );
 
 	if( check_return )
-		return BEQ(PspReg_V0, PspReg_R0, CCodeLabel(NULL), true);
+		return BEQ(PspReg_V0, PspReg_R0, CCodeLabel(nullptr), true);
 	else
-		return CJumpLocation(NULL);
+		return CJumpLocation(nullptr);
 
 }
 
@@ -2029,7 +2029,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 		//	in the situations where the condition holds)
 		//
 		SLT( PspReg_V1, reg_address, gMemUpperBoundReg );	// t1 = upper < address
-		CJumpLocation branch( BEQ( PspReg_V1, PspReg_R0, CCodeLabel( NULL ), false ) );		// branch to jump to handler
+		CJumpLocation branch( BEQ( PspReg_V1, PspReg_R0, CCodeLabel( nullptr ), false ) );		// branch to jump to handler
 		ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
 		CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
 
@@ -2077,7 +2077,7 @@ void	CCodeGeneratorPSP::GenerateLoad( u32 current_pc,
 		//
 		SLT( PspReg_V1, reg_address, gMemUpperBoundReg );	// t1 = upper < address
 		ADDU( PspReg_A1, reg_address, gMemoryBaseReg );
-		CJumpLocation branch( BNEL( PspReg_V1, PspReg_R0, CCodeLabel( NULL ), false ) );
+		CJumpLocation branch( BNEL( PspReg_V1, PspReg_R0, CCodeLabel( nullptr ), false ) );
 		CAssemblyWriterPSP::LoadRegister( psp_dst, load_op, PspReg_A1, offset );
 
 		if( offset != 0 )
@@ -2309,7 +2309,7 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 	if( CAssemblyWriterPSP::IsBufferA() )
 	{
 		SLT( PspReg_V1, reg_address, gMemUpperBoundReg );	// V1 = upper < address
-		CJumpLocation branch( BEQ( PspReg_V1, PspReg_R0, CCodeLabel( NULL ), false ) );
+		CJumpLocation branch( BEQ( PspReg_V1, PspReg_R0, CCodeLabel( nullptr ), false ) );
 		ADDU( PspReg_V0, reg_address, gMemoryBaseReg );
 		CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_V0, offset );
 
@@ -2348,7 +2348,7 @@ void	CCodeGeneratorPSP::GenerateStore( u32 current_pc,
 	{
 		SLT( PspReg_V1, reg_address, gMemUpperBoundReg );	// V1 = upper < address
 		ADDU( PspReg_V0, reg_address, gMemoryBaseReg );
-		CJumpLocation branch( BNEL( PspReg_V1, PspReg_R0, CCodeLabel( NULL ), false ) );
+		CJumpLocation branch( BNEL( PspReg_V1, PspReg_R0, CCodeLabel( nullptr ), false ) );
 		CAssemblyWriterPSP::StoreRegister( psp_src, store_op, PspReg_V0, offset );
 
 		if( offset != 0 )
@@ -2618,7 +2618,7 @@ inline void	CCodeGeneratorPSP::GenerateDIV( EN64Reg rs, EN64Reg rt )
 	EPspReg	reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
 	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
-	CJumpLocation	branch( BEQ( reg_lo_rt, PspReg_R0, CCodeLabel(NULL), true ) );		// Can use branch delay for something?
+	CJumpLocation	branch( BEQ( reg_lo_rt, PspReg_R0, CCodeLabel(nullptr), true ) );		// Can use branch delay for something?
 
 	DIV( reg_lo_rs, reg_lo_rt );
 
@@ -2679,7 +2679,7 @@ inline void	CCodeGeneratorPSP::GenerateDIVU( EN64Reg rs, EN64Reg rt )
 	EPspReg	reg_lo_rs( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
 	EPspReg	reg_lo_rt( GetRegisterAndLoadLo( rt, PspReg_A0 ) );
 
-	CJumpLocation	branch( BEQ( reg_lo_rt, PspReg_R0, CCodeLabel(NULL), true ) );		// Can use branch delay for something?
+	CJumpLocation	branch( BEQ( reg_lo_rt, PspReg_R0, CCodeLabel(nullptr), true ) );		// Can use branch delay for something?
 
 	DIVU( reg_lo_rs, reg_lo_rt );
 
@@ -3225,7 +3225,7 @@ inline void	CCodeGeneratorPSP::GenerateSLT( EN64Reg rd, EN64Reg rs, EN64Reg rt )
 	EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_V0 ) );
 	EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_A0 ) );
 
-	CJumpLocation	branch( BNE( reg_hi_a, reg_hi_b, CCodeLabel(NULL), false ) );
+	CJumpLocation	branch( BNE( reg_hi_a, reg_hi_b, CCodeLabel(nullptr), false ) );
 	SLT( reg_lo_d, reg_hi_a, reg_hi_b );		// In branch delay slot
 
 	// If the branch was not taken, it means that the high part of the registers was equal, so compare bottom half
@@ -3281,7 +3281,7 @@ inline void	CCodeGeneratorPSP::GenerateSLTU( EN64Reg rd, EN64Reg rs, EN64Reg rt 
 	EPspReg	reg_hi_a( GetRegisterAndLoadHi( rs, PspReg_V0 ) );
 	EPspReg	reg_hi_b( GetRegisterAndLoadHi( rt, PspReg_A0 ) );
 
-	CJumpLocation	branch( BNE( reg_hi_a, reg_hi_b, CCodeLabel(NULL), false ) );
+	CJumpLocation	branch( BNE( reg_hi_a, reg_hi_b, CCodeLabel(nullptr), false ) );
 	SLTU( reg_lo_d, reg_hi_a, reg_hi_b );		// In branch delay slot
 
 	// If the branch was not taken, it means that the high part of the registers was equal, so compare bottom half
@@ -3472,14 +3472,14 @@ inline void	CCodeGeneratorPSP::GenerateSLTI( EN64Reg rt, EN64Reg rs, s16 immedia
 	if( immediate >= 0 )
 	{
 		// Positive data - we can avoid a contant load here
-		branch = BNE( reg_hi_a, PspReg_R0, CCodeLabel(NULL), false );
+		branch = BNE( reg_hi_a, PspReg_R0, CCodeLabel(nullptr), false );
 		SLTI( reg_lo_d, reg_hi_a, 0x0000 );		// In branch delay slot
 	}
 	else
 	{
 		// Negative data
 		LoadConstant( PspReg_A0, -1 );
-		branch = BNE( reg_hi_a, PspReg_A0, CCodeLabel(NULL), false );
+		branch = BNE( reg_hi_a, PspReg_A0, CCodeLabel(nullptr), false );
 		SLTI( reg_lo_d, reg_hi_a, 0xffff );		// In branch delay slot
 	}
 	// If the branch was not taken, it means that the high part of the registers was equal, so compare bottom half
@@ -3537,14 +3537,14 @@ inline void	CCodeGeneratorPSP::GenerateSLTIU( EN64Reg rt, EN64Reg rs, s16 immedi
 	if( immediate >= 0 )
 	{
 		// Positive data - we can avoid a contant load here
-		branch = BNE( reg_hi_a, PspReg_R0, CCodeLabel(NULL), false );
+		branch = BNE( reg_hi_a, PspReg_R0, CCodeLabel(nullptr), false );
 		SLTIU( reg_lo_d, reg_hi_a, 0x0000 );		// In branch delay slot
 	}
 	else
 	{
 		// Negative data
 		LoadConstant( PspReg_A0, -1 );
-		branch = BNE( reg_hi_a, PspReg_A0, CCodeLabel(NULL), false );
+		branch = BNE( reg_hi_a, PspReg_A0, CCodeLabel(nullptr), false );
 		SLTIU( reg_lo_d, reg_hi_a, 0xffff );		// In branch delay slot
 	}
 	// If the branch was not taken, it means that the high part of the registers was equal, so compare bottom half
@@ -4144,7 +4144,7 @@ void	CCodeGeneratorPSP::GenerateCTC1( u32 fs, EN64Reg rt )
 inline void	CCodeGeneratorPSP::GenerateBEQ( EN64Reg rs, EN64Reg rt, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
+	DAEDALUS_ASSERT( p_branch != nullptr, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BEQ?" );
 	#endif
 	// One or other of these may be r0 - we don't really care for optimisation purposes though
@@ -4157,11 +4157,11 @@ inline void	CCodeGeneratorPSP::GenerateBEQ( EN64Reg rs, EN64Reg rt, const SBranc
 	if( p_branch->ConditionalBranchTaken )
 	{
 		// Flip the sign of the test -
-		*p_branch_jump = BNE( reg_a, reg_b, CCodeLabel(NULL), true );
+		*p_branch_jump = BNE( reg_a, reg_b, CCodeLabel(nullptr), true );
 	}
 	else
 	{
-		*p_branch_jump = BEQ( reg_a, reg_b, CCodeLabel(NULL), true );
+		*p_branch_jump = BEQ( reg_a, reg_b, CCodeLabel(nullptr), true );
 	}
 }
 
@@ -4171,7 +4171,7 @@ inline void	CCodeGeneratorPSP::GenerateBEQ( EN64Reg rs, EN64Reg rt, const SBranc
 inline void	CCodeGeneratorPSP::GenerateBNE( EN64Reg rs, EN64Reg rt, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
+	DAEDALUS_ASSERT( p_branch != nullptr, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BNE?" );
 	#endif
 	// One or other of these may be r0 - we don't really care for optimisation purposes though
@@ -4184,11 +4184,11 @@ inline void	CCodeGeneratorPSP::GenerateBNE( EN64Reg rs, EN64Reg rt, const SBranc
 	if( p_branch->ConditionalBranchTaken )
 	{
 		// Flip the sign of the test -
-		*p_branch_jump = BEQ( reg_a, reg_b, CCodeLabel(NULL), true );
+		*p_branch_jump = BEQ( reg_a, reg_b, CCodeLabel(nullptr), true );
 	}
 	else
 	{
-		*p_branch_jump = BNE( reg_a, reg_b, CCodeLabel(NULL), true );
+		*p_branch_jump = BNE( reg_a, reg_b, CCodeLabel(nullptr), true );
 	}
 }
 
@@ -4198,7 +4198,7 @@ inline void	CCodeGeneratorPSP::GenerateBNE( EN64Reg rs, EN64Reg rt, const SBranc
 inline void	CCodeGeneratorPSP::GenerateBLEZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
+	DAEDALUS_ASSERT( p_branch != nullptr, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BLEZ?" );
 	#endif
 	EPspReg		reg_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
@@ -4208,11 +4208,11 @@ inline void	CCodeGeneratorPSP::GenerateBLEZ( EN64Reg rs, const SBranchDetails * 
 	if( p_branch->ConditionalBranchTaken )
 	{
 		// Flip the sign of the test -
-		*p_branch_jump = BGTZ( reg_a, CCodeLabel(NULL), true );
+		*p_branch_jump = BGTZ( reg_a, CCodeLabel(nullptr), true );
 	}
 	else
 	{
-		*p_branch_jump = BLEZ( reg_a, CCodeLabel(NULL), true );
+		*p_branch_jump = BLEZ( reg_a, CCodeLabel(nullptr), true );
 	}
 }
 
@@ -4222,7 +4222,7 @@ inline void	CCodeGeneratorPSP::GenerateBLEZ( EN64Reg rs, const SBranchDetails * 
 inline void	CCodeGeneratorPSP::GenerateBGTZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
+	DAEDALUS_ASSERT( p_branch != nullptr, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BGTZ?" );
 	#endif
 	EPspReg		reg_lo( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
@@ -4245,11 +4245,11 @@ inline void	CCodeGeneratorPSP::GenerateBGTZ( EN64Reg rs, const SBranchDetails * 
 		if( p_branch->ConditionalBranchTaken )
 		{
 			// Flip the sign of the test -
-			*p_branch_jump = BLEZ( PspReg_V1, CCodeLabel(NULL), true );
+			*p_branch_jump = BLEZ( PspReg_V1, CCodeLabel(nullptr), true );
 		}
 		else
 		{
-			*p_branch_jump = BGTZ( PspReg_V1, CCodeLabel(NULL), true );
+			*p_branch_jump = BGTZ( PspReg_V1, CCodeLabel(nullptr), true );
 		}
 	}
 	else
@@ -4258,11 +4258,11 @@ inline void	CCodeGeneratorPSP::GenerateBGTZ( EN64Reg rs, const SBranchDetails * 
 		if( p_branch->ConditionalBranchTaken )
 		{
 			// Flip the sign of the test -
-			*p_branch_jump = BLEZ( reg_lo, CCodeLabel(NULL), true );
+			*p_branch_jump = BLEZ( reg_lo, CCodeLabel(nullptr), true );
 		}
 		else
 		{
-			*p_branch_jump = BGTZ( reg_lo, CCodeLabel(NULL), true );
+			*p_branch_jump = BGTZ( reg_lo, CCodeLabel(nullptr), true );
 		}
 	}
 }
@@ -4273,7 +4273,7 @@ inline void	CCodeGeneratorPSP::GenerateBGTZ( EN64Reg rs, const SBranchDetails * 
 inline void	CCodeGeneratorPSP::GenerateBLTZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
+	DAEDALUS_ASSERT( p_branch != nullptr, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BLTZ?" );
 	#endif
 	EPspReg		reg_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
@@ -4283,11 +4283,11 @@ inline void	CCodeGeneratorPSP::GenerateBLTZ( EN64Reg rs, const SBranchDetails * 
 	if( p_branch->ConditionalBranchTaken )
 	{
 		// Flip the sign of the test -
-		*p_branch_jump = BGEZ( reg_a, CCodeLabel(NULL), true );
+		*p_branch_jump = BGEZ( reg_a, CCodeLabel(nullptr), true );
 	}
 	else
 	{
-		*p_branch_jump = BLTZ( reg_a, CCodeLabel(NULL), true );
+		*p_branch_jump = BLTZ( reg_a, CCodeLabel(nullptr), true );
 	}
 }
 
@@ -4297,7 +4297,7 @@ inline void	CCodeGeneratorPSP::GenerateBLTZ( EN64Reg rs, const SBranchDetails * 
 inline void	CCodeGeneratorPSP::GenerateBGEZ( EN64Reg rs, const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
+	DAEDALUS_ASSERT( p_branch != nullptr, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BGEZ?" );
 	#endif
 	EPspReg		reg_a( GetRegisterAndLoadLo( rs, PspReg_V0 ) );
@@ -4307,11 +4307,11 @@ inline void	CCodeGeneratorPSP::GenerateBGEZ( EN64Reg rs, const SBranchDetails * 
 	if( p_branch->ConditionalBranchTaken )
 	{
 		// Flip the sign of the test -
-		*p_branch_jump = BLTZ( reg_a, CCodeLabel(NULL), true );
+		*p_branch_jump = BLTZ( reg_a, CCodeLabel(nullptr), true );
 	}
 	else
 	{
-		*p_branch_jump = BGEZ( reg_a, CCodeLabel(NULL), true );
+		*p_branch_jump = BGEZ( reg_a, CCodeLabel(nullptr), true );
 	}
 }
 
@@ -4321,7 +4321,7 @@ inline void	CCodeGeneratorPSP::GenerateBGEZ( EN64Reg rs, const SBranchDetails * 
 inline void	CCodeGeneratorPSP::GenerateBC1F( const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
+	DAEDALUS_ASSERT( p_branch != nullptr, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BC1F?" );
 	#endif
 	//If compare was done in current fragment then use BC1T or BC1F directly //Corn
@@ -4330,11 +4330,11 @@ inline void	CCodeGeneratorPSP::GenerateBC1F( const SBranchDetails * p_branch, CJ
 		if( p_branch->ConditionalBranchTaken )
 		{
 			// Flip the sign of the test -
-			*p_branch_jump = BC1T( CCodeLabel(NULL), true );
+			*p_branch_jump = BC1T( CCodeLabel(nullptr), true );
 		}
 		else
 		{
-			*p_branch_jump = BC1F( CCodeLabel(NULL), true );
+			*p_branch_jump = BC1F( CCodeLabel(nullptr), true );
 		}
 	}
 	else
@@ -4349,11 +4349,11 @@ inline void	CCodeGeneratorPSP::GenerateBC1F( const SBranchDetails * p_branch, CJ
 		if( p_branch->ConditionalBranchTaken )
 		{
 			// Flip the sign of the test -
-			*p_branch_jump = BNE( PspReg_V0, PspReg_R0, CCodeLabel(NULL), true );
+			*p_branch_jump = BNE( PspReg_V0, PspReg_R0, CCodeLabel(nullptr), true );
 		}
 		else
 		{
-			*p_branch_jump = BEQ( PspReg_V0, PspReg_R0, CCodeLabel(NULL), true );
+			*p_branch_jump = BEQ( PspReg_V0, PspReg_R0, CCodeLabel(nullptr), true );
 		}
 	}
 }
@@ -4364,7 +4364,7 @@ inline void	CCodeGeneratorPSP::GenerateBC1F( const SBranchDetails * p_branch, CJ
 inline void	CCodeGeneratorPSP::GenerateBC1T( const SBranchDetails * p_branch, CJumpLocation * p_branch_jump )
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( p_branch != NULL, "No branch details?" );
+	DAEDALUS_ASSERT( p_branch != nullptr, "No branch details?" );
 	DAEDALUS_ASSERT( p_branch->Direct, "Indirect branch for BC1T?" );
 	#endif
 	//If compare was done in current fragment then use BC1T or BC1F directly //Corn
@@ -4373,11 +4373,11 @@ inline void	CCodeGeneratorPSP::GenerateBC1T( const SBranchDetails * p_branch, CJ
 		if( p_branch->ConditionalBranchTaken )
 		{
 			// Flip the sign of the test -
-			*p_branch_jump = BC1F( CCodeLabel(NULL), true );
+			*p_branch_jump = BC1F( CCodeLabel(nullptr), true );
 		}
 		else
 		{
-			*p_branch_jump = BC1T( CCodeLabel(NULL), true );
+			*p_branch_jump = BC1T( CCodeLabel(nullptr), true );
 		}
 	}
 	else
@@ -4392,11 +4392,11 @@ inline void	CCodeGeneratorPSP::GenerateBC1T( const SBranchDetails * p_branch, CJ
 		if( p_branch->ConditionalBranchTaken )
 		{
 			// Flip the sign of the test -
-			*p_branch_jump = BEQ( PspReg_V0, PspReg_R0, CCodeLabel(NULL), true );
+			*p_branch_jump = BEQ( PspReg_V0, PspReg_R0, CCodeLabel(nullptr), true );
 		}
 		else
 		{
-			*p_branch_jump = BNE( PspReg_V0, PspReg_R0, CCodeLabel(NULL), true );
+			*p_branch_jump = BNE( PspReg_V0, PspReg_R0, CCodeLabel(nullptr), true );
 		}
 	}
 }
@@ -4660,7 +4660,7 @@ inline void	CCodeGeneratorPSP::GenerateCMP_D_Sim( u32 fs, ECop1OpFunction cmp_op
 #else //Improved version with only one branch //Corn
 	GetVar( PspReg_V0, &gCPUState.FPUControl[31]._u32 );
 	LoadConstant( PspReg_A0, FPCSR_C );
-	CJumpLocation	test_condition( BC1T( CCodeLabel( NULL ), false ) );
+	CJumpLocation	test_condition( BC1T( CCodeLabel( nullptr ), false ) );
 	OR( PspReg_V0, PspReg_V0, PspReg_A0 );		// flag |= c
 
 	NOR( PspReg_A0, PspReg_A0, PspReg_V0 );		// c = !c
@@ -4968,7 +4968,7 @@ inline void	CCodeGeneratorPSP::GenerateCMP_S( u32 fs, ECop1OpFunction cmp_op, u3
 #else //Improved version with only one branch //Corn
 	GetVar( PspReg_V0, &gCPUState.FPUControl[31]._u32 );
 	LoadConstant( PspReg_A0, FPCSR_C );
-	CJumpLocation	test_condition( BC1T( CCodeLabel( NULL ), false ) );
+	CJumpLocation	test_condition( BC1T( CCodeLabel( nullptr ), false ) );
 	OR( PspReg_V0, PspReg_V0, PspReg_A0 );		// flag |= c
 
 	NOR( PspReg_A0, PspReg_A0, PspReg_R0 );		// c = !c
