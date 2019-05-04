@@ -148,7 +148,7 @@ class	IController : public CController
 		void			CommandReadRTC(u8 *cmd);
 
 		u8				CalculateDataCrc(const u8 * pBuf) DAEDALUS_ATTRIBUTE_CONST;
-		bool			IsEepromPresent() const						{ return mpEepromData != NULL; }
+		bool			IsEepromPresent() const						{ return mpEepromData != nullptr; }
 
 		void			n64_cic_nus_6105();
 		u8				Byte2Bcd(s32 n)								{ n %= 100; return ((n / 10) << 4) | (n % 10); }
@@ -224,7 +224,7 @@ class	IController : public CController
 template<> bool	CSingleton< CController >::Create()
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT_Q(mpInstance == NULL);
+	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 	#endif
 	mpInstance = new IController();
 
@@ -235,8 +235,8 @@ template<> bool	CSingleton< CController >::Create()
 // Constructor
 
 IController::IController() :
-	mpPifRam( NULL ),
-	mpEepromData( NULL )
+	mpPifRam( nullptr ),
+	mpEepromData( nullptr )
 {
 #ifdef DAEDALUS_DEBUG_PIF
 	mDebugFile = fopen( "controller.txt", "w" );
@@ -258,7 +258,7 @@ IController::IController() :
 IController::~IController()
 {
 #ifdef DAEDALUS_DEBUG_PIF
-	if( mDebugFile != NULL )
+	if( mDebugFile != nullptr )
 	{
 		fclose( mDebugFile );
 	}
@@ -277,7 +277,7 @@ bool IController::OnRomOpen()
 
 	if ( mpEepromData )
 	{
-		mpEepromData = NULL;
+		mpEepromData = nullptr;
 	}
 
 	if ( save_type == SAVE_TYPE_EEP4K )
@@ -299,7 +299,7 @@ bool IController::OnRomOpen()
 	}
 	else
 	{
-		mpEepromData = NULL;
+		mpEepromData = nullptr;
 		mEepromContType = 0x00;
 	}
 

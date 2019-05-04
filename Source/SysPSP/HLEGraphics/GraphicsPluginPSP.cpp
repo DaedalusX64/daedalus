@@ -64,7 +64,7 @@ namespace
 #ifdef DAEDALUS_FRAMERATE_ANALYSIS
 	u32					gTotalFrames = 0;
 	u64					gFirstFrameTime = 0;
-	FILE *				gFramerateFile = NULL;
+	FILE *				gFramerateFile = nullptr;
 #endif
 
 static void	UpdateFramerate()
@@ -87,7 +87,7 @@ static void	UpdateFramerate()
 	}
 
 #ifdef DAEDALUS_FRAMERATE_ANALYSIS
-	if( gFramerateFile == NULL )
+	if( gFramerateFile == nullptr )
 	{
 		gFirstFrameTime = now;
 		gFramerateFile = fopen( "framerate.csv", "w" );
@@ -107,7 +107,7 @@ static void	UpdateFramerate()
 		gLastFramerateCalcTime = now;
 
 #ifdef DAEDALUS_FRAMERATE_ANALYSIS
-		if( gFramerateFile != NULL )
+		if( gFramerateFile != nullptr )
 		{
 			fflush( gFramerateFile );
 		}
@@ -287,7 +287,7 @@ CGraphicsPlugin * CreateGraphicsPlugin()
 	if( !plugin->Initialise() )
 	{
 		delete plugin;
-		plugin = NULL;
+		plugin = nullptr;
 	}
 
 	return plugin;

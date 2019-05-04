@@ -655,7 +655,7 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		ti.SetTlutAddress( TLUT_BASE );
 #else
 		//
-		//If indexed TMEM PAL address is NULL then assume that the base address is stored in
+		//If indexed TMEM PAL address is nullptr then assume that the base address is stored in
 		//TMEM address 0x100 (gTlutLoadAddresses[ 0 ]) and calculate offset from there with TLutIndex(palette index)
 		//This trick saves us from the need to copy the real palette to TMEM and we just pass the pointer //Corn
 		//
@@ -665,7 +665,7 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 			u32 tlut_idx0 {(u32)(g_ROM.TLUT_HACK << 1)};
 			u32 tlut_idx1 {(u32)gTlutLoadAddresses[ rdp_tile.palette << tlut_idx0 ]};
 
-			//If pointer == NULL(=invalid entry) add offset to base address (TMEM[0] + offset)
+			//If pointer == nullptr(=invalid entry) add offset to base address (TMEM[0] + offset)
 			if(tlut_idx1 == 0)
 			{
 				tlut += (rdp_tile.palette << (5 + tlut_idx0) );

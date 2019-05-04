@@ -72,7 +72,7 @@ bool Save_Reset()
 		Dump_GetSaveDirectory(gSaveFileName, g_ROM.mFileName, ext);
 
 		FILE * fp = fopen(gSaveFileName, "rb");
-		if (fp != NULL)
+		if (fp != nullptr)
 		{
 			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "Loading save from [C%s]", gSaveFileName);
@@ -104,7 +104,7 @@ bool Save_Reset()
 	{
 		Dump_GetSaveDirectory(gMempackFileName, g_ROM.mFileName, ".mpk");
 		FILE * fp = fopen(gMempackFileName, "rb");
-		if (fp != NULL)
+		if (fp != nullptr)
 		{
 			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "Loading MemPack from [C%s]", gMempackFileName);
@@ -151,7 +151,7 @@ void Save_Flush(bool force)
 		#endif
 
 		FILE * fp = fopen(gSaveFileName, "wb");
-		if (fp != NULL)
+		if (fp != nullptr)
 		{
 			u8 buffer[2048];
 			u8 * src = (u8*)g_pMemoryBuffers[MEM_SAVE];
@@ -176,7 +176,7 @@ void Save_Flush(bool force)
 		#endif
 
 		FILE * fp = fopen(gMempackFileName, "wb");
-		if (fp != NULL)
+		if (fp != nullptr)
 		{
 			fwrite(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);
 			fclose(fp);

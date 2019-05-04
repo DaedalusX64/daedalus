@@ -30,8 +30,8 @@
 #define GL_TRUE                           1
 #define GL_FALSE                          0
 
-BaseRenderer * gRenderer    = NULL;
-RendererPSP  * gRendererPSP = NULL;
+BaseRenderer * gRenderer    = nullptr;
+RendererPSP  * gRendererPSP = nullptr;
 
 extern void InitBlenderMode( u32 blender );
 
@@ -309,7 +309,7 @@ RendererPSP::SBlendStateEntry RendererPSP::LookupBlendState( u64 mux, bool two_c
 	}
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	printf( "Adding %08x%08x - %d cycles - %s\n", u32(mux>>32), u32(mux), two_cycles ? 2 : 1, entry.States->IsInexact() ?  IsCombinerStateDefault(mux) ? "Inexact(Default)" : "Inexact(Override)" : entry.OverrideFunction==NULL ? "Auto" : "Forced");
+	printf( "Adding %08x%08x - %d cycles - %s\n", u32(mux>>32), u32(mux), two_cycles ? 2 : 1, entry.States->IsInexact() ?  IsCombinerStateDefault(mux) ? "Inexact(Default)" : "Inexact(Override)" : entry.OverrideFunction==nullptr ? "Auto" : "Forced");
 #endif
 
 	//Add blend mode to the Blend States Map
@@ -374,7 +374,7 @@ inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, 
 			p_vertices[i].Colour = (c32)(alpha | FogColor);
 		}
 
-		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
+		sceGuDrawArray( triangle_mode, render_flags, num_vertices, nullptr, p_vertices );
 
 		sceGuDepthFunc(GU_GEQUAL);	//Restore default depth function
 	}
@@ -490,7 +490,7 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 	// This check is for inexact blends which were handled either by a custom blendmode or auto blendmode thing
 	//
-	if( blend_entry.OverrideFunction != NULL )
+	if( blend_entry.OverrideFunction != nullptr )
 	{
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		// Used for dumping mux and highlight inexact blend
@@ -535,16 +535,16 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 			DaedalusVtx * p_FogVtx = static_cast<DaedalusVtx *>(sceGuGetMemory(num_vertices * sizeof(DaedalusVtx)));
 			memcpy( p_FogVtx, p_vertices, num_vertices * sizeof( DaedalusVtx ) );
 			details.ColourAdjuster.Process( p_vertices, num_vertices );
-			sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
+			sceGuDrawArray( triangle_mode, render_flags, num_vertices, nullptr, p_vertices );
 			RenderFog( p_FogVtx, num_vertices, triangle_mode, render_flags );
 		}
 		else
 		{
 			details.ColourAdjuster.Process( p_vertices, num_vertices );
-			sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
+			sceGuDrawArray( triangle_mode, render_flags, num_vertices, nullptr, p_vertices );
 		}
 	}
-	else if( blend_entry.States != NULL )
+	else if( blend_entry.States != nullptr )
 	{
 		RenderUsingRenderSettings( blend_entry.States, p_vertices, num_vertices, triangle_mode, render_flags );
 	}
@@ -555,7 +555,7 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		DAEDALUS_ERROR( "Unhandled blend mode" );
 		#endif
 		sceGuDisable( GU_TEXTURE_2D );
-		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
+		sceGuDrawArray( triangle_mode, render_flags, num_vertices, nullptr, p_vertices );
 	}
 }
 
@@ -604,11 +604,11 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 			memcpy( p_vertices, p_FogVtx, num_vertices * sizeof( DaedalusVtx ) );
 		}
 
-		if(out.VertexExpressionRGB != NULL)
+		if(out.VertexExpressionRGB != nullptr)
 		{
 			out.VertexExpressionRGB->ApplyExpressionRGB( state );
 		}
-		if(out.VertexExpressionA != NULL)
+		if(out.VertexExpressionA != nullptr)
 		{
 			out.VertexExpressionA->ApplyExpressionAlpha( state );
 		}
@@ -665,7 +665,7 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 				texture = mBoundTexture[ texture_idx ];
 			}
 
-			if(texture != NULL)
+			if(texture != nullptr)
 			{
 				texture->InstallTexture();
 				installed_texture = true;
@@ -677,7 +677,7 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 
 		sceGuTexWrap( mTexWrap[texture_idx].u, mTexWrap[texture_idx].v );
 
-		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
+		sceGuDrawArray( triangle_mode, render_flags, num_vertices, nullptr, p_vertices );
 
 		if ( mTnL.Flags.Fog )
 		{
@@ -1135,7 +1135,7 @@ bool RendererPSP::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u3
 			SelectPlaceholderTexture( PTT_SELECTED );
 			sceGuTexFunc(GU_TFX_REPLACE,GU_TCC_RGBA);
 			sceGuTexMode(GU_PSM_8888,0,0,GL_TRUE);		// maxmips/a2/swizzle = 0
-			sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
+			sceGuDrawArray( triangle_mode, render_flags, num_vertices, nullptr, p_vertices );
 		}
 		else
 		{
@@ -1155,7 +1155,7 @@ bool RendererPSP::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u3
 
 			if( details.InstallTexture )
 			{
-				if( mBoundTexture[0] != NULL )
+				if( mBoundTexture[0] != nullptr )
 				{
 					mBoundTexture[0]->InstallTexture();
 					installed_texture = true;
@@ -1166,7 +1166,7 @@ bool RendererPSP::DebugBlendmode( DaedalusVtx * p_vertices, u32 num_vertices, u3
 			if( !installed_texture ) sceGuDisable( GU_TEXTURE_2D );
 
 			details.ColourAdjuster.Process( p_vertices, num_vertices );
-			sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
+			sceGuDrawArray( triangle_mode, render_flags, num_vertices, nullptr, p_vertices );
 		}
 
 		return true;
@@ -1192,7 +1192,7 @@ void RendererPSP::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertice
 			IO::Path::Append(filepath, "missing_mux.txt");
 
 			FILE * fh = fopen(filepath, mUnhandledCombinerStates.empty() ? "w" : "a");
-			if (fh != NULL)
+			if (fh != nullptr)
 			{
 				DLDebug_PrintMux( fh, mux );
 				fclose(fh);
@@ -1207,7 +1207,7 @@ void RendererPSP::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertice
 		// Use the nasty placeholder texture
 		SelectPlaceholderTexture( PTT_MISSING );
 		sceGuTexFunc( GU_TFX_REPLACE, GU_TCC_RGBA );
-		sceGuDrawArray( triangle_mode, render_flags, num_vertices, NULL, p_vertices );
+		sceGuDrawArray( triangle_mode, render_flags, num_vertices, nullptr, p_vertices );
 	}
 }
 
@@ -1220,7 +1220,7 @@ void RendererPSP::DebugMux( const CBlendStates * states, DaedalusVtx * p_vertice
 bool CreateRenderer()
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT_Q(gRenderer == NULL);
+	DAEDALUS_ASSERT_Q(gRenderer == nullptr);
 	#endif
 	gRendererPSP = new RendererPSP();
 	gRenderer    = gRendererPSP;
@@ -1229,6 +1229,6 @@ bool CreateRenderer()
 void DestroyRenderer()
 {
 	delete gRendererPSP;
-	gRendererPSP = NULL;
-	gRenderer    = NULL;
+	gRendererPSP = nullptr;
+	gRenderer    = nullptr;
 }

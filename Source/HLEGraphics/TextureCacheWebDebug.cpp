@@ -142,8 +142,8 @@ static void TextureCacheHandler(void * arg, WebDebugConnection * connection)
 bool TextureCache_RegisterWebDebug()
 {
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	WebDebug_Register( "/texture_cache", &TextureCacheHandler, NULL );
-	WebDebug_Register( "/texture", &TextureHandler, NULL );
+	WebDebug_Register( "/texture_cache", &TextureCacheHandler, nullptr );
+	WebDebug_Register( "/texture", &TextureHandler, nullptr );
 #endif
 	return true;
 }

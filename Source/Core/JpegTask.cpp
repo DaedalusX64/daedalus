@@ -224,7 +224,7 @@ void jpeg_decode_OB(OSTask *task)
         s16 macroblock[6*SUBBLOCK_SIZE];
 
         rdram_read_many_u16((u16*)macroblock, address, 6*SUBBLOCK_SIZE);
-        DecodeMacroblock1(macroblock, &y_dc, &u_dc, &v_dc, (qscale != 0) ? qtable : NULL);
+        DecodeMacroblock1(macroblock, &y_dc, &u_dc, &v_dc, (qscale != 0) ? qtable : nullptr);
         EmitTilesMode2(EmitYUVTileLine, macroblock, address);
 
         address += (2*6*SUBBLOCK_SIZE);
@@ -392,7 +392,7 @@ static void DecodeMacroblock1(s16 *macroblock, s32 *y_dc, s32 *u_dc, s32 *v_dc, 
         }
 
         ZigZagSubBlock(tmp_sb, macroblock);
-        if (qtable != NULL) { MultSubBlocks(tmp_sb, tmp_sb, qtable, 0); }
+        if (qtable != nullptr) { MultSubBlocks(tmp_sb, tmp_sb, qtable, 0); }
         TransposeSubBlock(macroblock, tmp_sb);
         InverseDCTSubBlock(macroblock, macroblock);
 

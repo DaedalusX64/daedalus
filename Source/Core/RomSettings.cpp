@@ -149,7 +149,7 @@ class IRomSettingsDB : public CRomSettingsDB
 template<> bool	CSingleton< CRomSettingsDB >::Create()
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT_Q(mpInstance == NULL);
+	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 	#endif
 	mpInstance = new IRomSettingsDB();
 
@@ -225,7 +225,7 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 	strcpy(mFilename, filename);
 
 	CIniFile * p_ini_file( CIniFile::Create( filename ) );
-	if( p_ini_file == NULL )
+	if( p_ini_file == nullptr )
 	{
 		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "Failed to open RomDB from %s\n", filename );
@@ -338,13 +338,13 @@ void IRomSettingsDB::Commit()
 	sprintf(filename_del, "%s.del", mFilename);
 
 	FILE * fh_src = fopen(mFilename, "r");
-	if (fh_src == NULL)
+	if (fh_src == nullptr)
 	{
 		return;
 	}
 
 	FILE * fh_dst = fopen(filename_tmp, "w");
-	if (fh_dst == NULL)
+	if (fh_dst == nullptr)
 	{
 		fclose(fh_src);
 		return;

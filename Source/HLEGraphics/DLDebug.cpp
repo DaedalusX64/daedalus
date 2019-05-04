@@ -14,7 +14,7 @@
 #include "Utility/Macros.h"
 
 
-DLDebugOutput * gDLDebugOutput = NULL;
+DLDebugOutput * gDLDebugOutput = nullptr;
 
 void DLDebug_SetOutput(DLDebugOutput * output)
 {
@@ -261,14 +261,14 @@ static const OtherModeData kOtherModeLData[] = {
 	{ "force_bl",      1, 14,						kOnOffValues },
 	{ "tex_edge",      1, 15,						kOnOffValues },
 #else
-	{ "render_mode",   13, G_MDSFT_RENDERMODE,		NULL, &DumpRenderMode },
+	{ "render_mode",   13, G_MDSFT_RENDERMODE,		nullptr, &DumpRenderMode },
 #endif
 
-	{ "blender",      16, G_MDSFT_BLENDER,			NULL, &DumpBlender }, // Custom output
+	{ "blender",      16, G_MDSFT_BLENDER,			nullptr, &DumpBlender }, // Custom output
 };
 
 static const OtherModeData kOtherModeHData[] = {
-	{ "blend_mask",    4, G_MDSFT_BLENDMASK,		NULL },
+	{ "blend_mask",    4, G_MDSFT_BLENDMASK,		nullptr },
 	{ "alpha_dither",  2, G_MDSFT_ALPHADITHER,		kAlphaDitherValues },
 	{ "rgb_dither",    2, G_MDSFT_RGBDITHER,		kRGBDitherValues },
 	{ "comb_key",      1, G_MDSFT_COMBKEY,			kCombKeyValues },
@@ -279,7 +279,7 @@ static const OtherModeData kOtherModeHData[] = {
 	{ "text_detail",   2, G_MDSFT_TEXTDETAIL,		kTextureDetailValues },
 	{ "text_persp",    1, G_MDSFT_TEXTPERSP,		kOnOffValues },
 	{ "cycle_type",    2, G_MDSFT_CYCLETYPE,		kCycleTypeValues },
-	{ "color_dither",  1, G_MDSFT_COLORDITHER,		NULL },
+	{ "color_dither",  1, G_MDSFT_COLORDITHER,		nullptr },
 	{ "pipeline",      1, G_MDSFT_PIPELINE,			kPipelineValues },
 };
 
@@ -494,7 +494,7 @@ DLDebugOutput * DLDebug_CreateFileOutput()
 	{
 		delete output;
 		DBGConsole_Msg(0, "RDP: Couldn't create dumpfile %s", filepath);
-		return NULL;
+		return nullptr;
 	}
 
 	DBGConsole_Msg(0, "RDP: Dumping Display List as %s", filepath);

@@ -53,7 +53,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 struct TempVerts
 {
 	TempVerts()
-	:	Verts(NULL)
+	:	Verts(nullptr)
 	,	Count(0)
 	{
 	}
@@ -275,7 +275,7 @@ void BaseRenderer::EndScene()
 	for( u32 i {}; i < kNumBoundTextures; i++ )
 	{
 		mBoundTextureInfo[ i ] = TextureInfo();
-		mBoundTexture[ i ]     = NULL;
+		mBoundTexture[ i ]     = nullptr;
 	}
 }
 
@@ -1810,7 +1810,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 	const RDP_TileSize & tile_size {gRDPStateManager.GetTileSize( tile_idx )};
 
 	// Avoid texture update, if texture is the same as last time around.
-	if( mBoundTexture[ index ] == NULL || mBoundTextureInfo[ index ] != ti )
+	if( mBoundTexture[ index ] == nullptr || mBoundTextureInfo[ index ] != ti )
 	{
 		// // Check for 0 width/height textures
 		// if( ti.GetWidth() == 0 || ti.GetHeight() == 0 )
@@ -1821,7 +1821,7 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 		// {
 			CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
 
-			if( texture != NULL && texture != mBoundTexture[ index ] )
+			if( texture != nullptr && texture != mBoundTexture[ index ] )
 			{
 				mBoundTextureInfo[index] = ti;
 				mBoundTexture[index]     = texture;
@@ -1972,7 +1972,7 @@ CRefPtr<CNativeTexture> BaseRenderer::LoadTextureDirectly( const TextureInfo & t
 {
 	CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
 #ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( texture, "texture is NULL" );
+	DAEDALUS_ASSERT( texture, "texture is nullptr" );
 #endif
 	texture->InstallTexture();
 

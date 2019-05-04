@@ -60,7 +60,7 @@ public:
 	void		Snapshot(const MutexLock & lock, std::vector< STextureInfoSnapshot > & snapshot) const;
 #else
 	// Don't bother locking if we're not debugging.
-	Mutex * 	GetDebugMutex()		{ return NULL; }
+	Mutex * 	GetDebugMutex()		{ return nullptr; }
 #endif
 
 private:

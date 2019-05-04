@@ -31,6 +31,6 @@ bool DLParser_Initialise();
 void DLParser_Finalise();
 
 const u32 kUnlimitedInstructionCount = u32( ~0 );
-u32 DLParser_Process(u32 instruction_limit = kUnlimitedInstructionCount, DLDebugOutput * debug_output = NULL);
+u32 DLParser_Process(u32 instruction_limit = kUnlimitedInstructionCount, DLDebugOutput * debug_output = nullptr);
 
 #endif // HLEGRAPHICS_DLPARSER_H_

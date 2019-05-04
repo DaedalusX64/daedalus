@@ -104,14 +104,14 @@ void PngSaveImage( DataSink * sink, const void * data, const void * palette, ETe
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( !IsTextureFormatPalettised( pixelformat ) || palette, "No palette specified" );
 	#endif
-	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	if (!png_ptr)
 		return;
 
 	png_infop info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr)
 	{
-		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+		png_destroy_write_struct(&png_ptr, (png_infopp)nullptr);
 		return;
 	}
 
@@ -159,9 +159,9 @@ void PngSaveImage( DataSink * sink, const void * data, const void * palette, ETe
 	}
 
 	free(line);
-	line = NULL;
+	line = nullptr;
 	png_write_end(png_ptr, info_ptr);
-	png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+	png_destroy_write_struct(&png_ptr, (png_infopp)nullptr);
 }
 
 void PngSaveImage( const char* filename, const void * data, const void * palette,

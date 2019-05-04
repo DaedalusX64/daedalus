@@ -97,7 +97,7 @@ u32			gTLBWriteHit {};
 #endif
 
 #ifdef DAED_USE_VIRTUAL_ALLOC
-static void *	gMemBase = NULL;				// Virtual memory base
+static void *	gMemBase = nullptr;				// Virtual memory base
 #endif
 
 // ROM write support
@@ -105,8 +105,8 @@ u32	  g_pWriteRom;
 bool  g_RomWritten;
 
 // Ram base, offset by 0x80000000 and 0xa0000000
-u8 * g_pu8RamBase_8000 = NULL;
-//u8 * g_pu8RamBase_A000 = NULL;
+u8 * g_pu8RamBase_8000 = nullptr;
+//u8 * g_pu8RamBase_A000 = nullptr;
 
 MemFuncRead  	g_MemoryLookupTableRead[0x4000];
 MemFuncWrite 	g_MemoryLookupTableWrite[0x4000];
@@ -126,7 +126,7 @@ bool Memory_Init()
 
 #ifdef DAED_USE_VIRTUAL_ALLOC
 	gMemBase = VirtualAlloc(0, 512*1024*1024, MEM_RESERVE, PAGE_READWRITE);
-	if (gMemBase == NULL)
+	if (gMemBase == nullptr)
 	{
 		return false;
 	}
@@ -151,7 +151,7 @@ bool Memory_Init()
 	//g_pMemoryBuffers[MEM_CARTROM  ] = (u8*)VirtualAlloc( (void*)(base+0x10000000),	cart_size,	MEM_COMMIT, PAGE_READWRITE);
 	g_pMemoryBuffers[ MEM_PIF_RAM   ] = (u8*)VirtualAlloc( (void*)(base+0x1FC00000),	0x40,		MEM_COMMIT, PAGE_READWRITE );
 	//cartDom4                        = (u8*)VirtualAlloc( (void*)(base+0x1FD00000),	0x10000,	MEM_COMMIT, PAGE_READWRITE );
-	g_pMemoryBuffers[ MEM_MEMPACK   ] = (u8*)VirtualAlloc( NULL,						0x20000,	MEM_COMMIT, PAGE_READWRITE );
+	g_pMemoryBuffers[ MEM_MEMPACK   ] = (u8*)VirtualAlloc( nullptr,						0x20000,	MEM_COMMIT, PAGE_READWRITE );
 	g_pMemoryBuffers[ MEM_UNUSED    ] = new u8[ MemoryRegionSizes[MEM_UNUSED] ];
 
 #else
@@ -166,7 +166,7 @@ bool Memory_Init()
 			g_pMemoryBuffers[m] = new u8[region_size];
 			//g_pMemoryBuffers[m] = Memory_AllocRegion(region_size);
 
-			if (g_pMemoryBuffers[m] == NULL)
+			if (g_pMemoryBuffers[m] == nullptr)
 			{
 				return false;
 			}
@@ -207,25 +207,25 @@ void Memory_Fini(void)
 	if (g_pMemoryBuffers[MEM_UNUSED])
 	{
 		delete [] reinterpret_cast< u8 * >( g_pMemoryBuffers[MEM_UNUSED] );
-		g_pMemoryBuffers[MEM_UNUSED] = NULL;
+		g_pMemoryBuffers[MEM_UNUSED] = nullptr;
 	}
 
 	VirtualFree( gMemBase, 0, MEM_RELEASE );
-	gMemBase = NULL;
+	gMemBase = nullptr;
 
 #else
 	for (u32 m {}; m < NUM_MEM_BUFFERS; m++)
 	{
-		if (g_pMemoryBuffers[m] != NULL)
+		if (g_pMemoryBuffers[m] != nullptr)
 		{
 			delete [] (u8*)(g_pMemoryBuffers[m]);
-			g_pMemoryBuffers[m] = NULL;
+			g_pMemoryBuffers[m] = nullptr;
 		}
 	}
 #endif
 
-	g_pu8RamBase_8000 = NULL;
-	//g_pu8RamBase_A000 = NULL;
+	g_pu8RamBase_8000 = nullptr;
+	//g_pu8RamBase_A000 = nullptr;
 
 	memset( g_pMemoryBuffers, 0, sizeof( g_pMemoryBuffers ) );
 }
@@ -273,8 +273,8 @@ static void Memory_Tlb_Hack()
 {
 	bool RomBaseKnown {RomBuffer::IsRomLoaded() && RomBuffer::IsRomAddressFixed()};
 
-	const void * rom_address = RomBaseKnown ? RomBuffer::GetFixedRomBaseAddress() : NULL;
-	if (rom_address != NULL)
+	const void * rom_address = RomBaseKnown ? RomBuffer::GetFixedRomBaseAddress() : nullptr;
+	if (rom_address != nullptr)
 	{
 	   u32 offset {};
 	   switch(g_ROM.rh.CountryID)
@@ -338,8 +338,8 @@ void Memory_InitTables()
 	u32 i {};
 	for (i = 0; i < (0x10000 >> 2); i++)
 	{
-		g_MemoryLookupTableRead[i].pRead = NULL;
-		g_MemoryLookupTableWrite[i].pWrite = NULL;
+		g_MemoryLookupTableRead[i].pRead = nullptr;
+		g_MemoryLookupTableWrite[i].pWrite = nullptr;
 	}
 
 	// 0x00000000 - 0x7FFFFFFF Mapped Memory

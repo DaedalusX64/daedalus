@@ -74,7 +74,7 @@ std::vector< DBG_BreakPoint > g_BreakPoints;
 volatile u32 eventQueueLocked {};
 
 static bool			gCPURunning      {false};			// CPU is actively running
-u8 *				gLastAddress       {NULL};
+u8 *				gLastAddress       {nullptr};
 std::string			gSaveStateFilename {""};
 
 static bool			gCPUStopOnSimpleState {false};			// When stopping, try to stop in a 'simple' state (i.e. no RSP running and not in a branch delay slot)
@@ -334,7 +334,7 @@ bool CPU_RomOpen()
 	DBGConsole_Msg(0, "Resetting CPU");
 #endif
 
-	gLastAddress = NULL;
+	gLastAddress = nullptr;
 	gCPURunning = false;
 	gCPUStopOnSimpleState = false;
 	RESET_EVENT_QUEUE_LOCK();
@@ -676,7 +676,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 
 			FramerateLimiter_Limit();
 #ifdef DAEDALUS_W32
-			if (gAudioPlugin != NULL)
+			if (gAudioPlugin != nullptr)
 				gAudioPlugin->Update(false);
 #endif
 			Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_VI);

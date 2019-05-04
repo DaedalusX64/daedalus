@@ -43,8 +43,8 @@ struct TextureDestInfo
 		,	Width( 0 )
 		,	Height( 0 )
 		,	Pitch( 0 )
-		,	Data( NULL )
-		,	Palette( NULL )
+		,	Data( nullptr )
+		,	Palette( nullptr )
 	{
 	}
 
@@ -644,14 +644,14 @@ typedef void ( *ConvertFunction )( const TextureDestInfo & dsti, const TextureIn
 static const ConvertFunction gConvertFunctions[ 32 ] =
 {
 	// 4bpp				8bpp			16bpp				32bpp
-	NULL,			NULL,			ConvertRGBA16,		ConvertRGBA32,			// RGBA
-	NULL,			NULL,			NULL,				NULL,					// YUV
-	ConvertCI4,		ConvertCI8,		NULL,				NULL,					// CI
-	ConvertIA4,		ConvertIA8,		ConvertIA16,		NULL,					// IA
-	ConvertI4,		ConvertI8,		NULL,				NULL,					// I
-	NULL,			NULL,			NULL,				NULL,					// ?
-	NULL,			NULL,			NULL,				NULL,					// ?
-	NULL,			NULL,			NULL,				NULL					// ?
+	nullptr,			nullptr,			ConvertRGBA16,		ConvertRGBA32,			// RGBA
+	nullptr,			nullptr,			nullptr,				nullptr,					// YUV
+	ConvertCI4,		ConvertCI8,		nullptr,				nullptr,					// CI
+	ConvertIA4,		ConvertIA8,		ConvertIA16,		nullptr,					// IA
+	ConvertI4,		ConvertI8,		nullptr,				nullptr,					// I
+	nullptr,			nullptr,			nullptr,				nullptr,					// ?
+	nullptr,			nullptr,			nullptr,				nullptr,					// ?
+	nullptr,			nullptr,			nullptr,				nullptr					// ?
 };
 
 bool ConvertTexture(const TextureInfo & ti,
@@ -660,9 +660,9 @@ bool ConvertTexture(const TextureInfo & ti,
 					ETextureFormat texture_format,
 					u32 pitch)
 {
-	//Do nothing if palette address is NULL or close to NULL in a palette texture //Corn
+	//Do nothing if palette address is nullptr or close to nullptr in a palette texture //Corn
 	//Loading a SaveState (OOT -> SSV) dont bring back our TMEM data which causes issues for the first rendered frame.
-	//Checking if the palette pointer is less than 0x1000 (rather than just NULL) fixes it.
+	//Checking if the palette pointer is less than 0x1000 (rather than just nullptr) fixes it.
 	// Seems to happen on the first frame of Goldeneye too?
 	if( (ti.GetFormat() == G_IM_FMT_CI) && (ti.GetTlutAddress() < 0x1000) ) return false;
 

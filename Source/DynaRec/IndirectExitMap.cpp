@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 CIndirectExitMap::CIndirectExitMap()
-:	mpCache( NULL )
+:	mpCache( nullptr )
 {
 }
 
@@ -47,7 +47,7 @@ CIndirectExitMap::~CIndirectExitMap()
 CFragment *	CIndirectExitMap::LookupIndirectExit( u32 exit_address )
 {
 	#ifdef DAEDALUS_DEBUG_CONSOLE
-	DAEDALUS_ASSERT( mpCache != NULL, "Why do we have no cache?" );
+	DAEDALUS_ASSERT( mpCache != nullptr, "Why do we have no cache?" );
 	#endif
 	CFragment * p( mpCache->LookupFragmentQ( exit_address ) );
 
@@ -65,12 +65,12 @@ extern "C"
 const void *	R4300_CALL_TYPE IndirectExitMap_Lookup( CIndirectExitMap * p_map, u32 exit_address )
 {
 	CFragment *	p_fragment( p_map->LookupIndirectExit( exit_address ) );
-	if( p_fragment != NULL )
+	if( p_fragment != nullptr )
 	{
 		return p_fragment->GetEntryTarget().GetTarget();
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 }

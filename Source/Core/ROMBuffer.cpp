@@ -46,10 +46,10 @@ extern bool PSP_IS_SLIM;
 namespace
 {
 	bool			sRomLoaded( false );
-	u8 *			spRomData( NULL );
+	u8 *			spRomData( nullptr );
 	u32				sRomSize( 0 );
 	bool			sRomFixed( false );
-	ROMFileCache *	spRomFileCache( NULL );
+	ROMFileCache *	spRomFileCache( nullptr );
 
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
 	static bool		DECOMPRESS_ROMS( true );
@@ -73,10 +73,10 @@ namespace
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
 	ROMFile *	DecompressRom( ROMFile * p_rom_file, const char * temp_filename, COutputStream & messages )
 	{
-		ROMFile *	p_new_file( NULL );
+		ROMFile *	p_new_file( nullptr );
 		FILE *		fh( fopen( temp_filename, "wb" ) );
 
-		if( fh == NULL )
+		if( fh == nullptr )
 		{
 			messages << "Unable to create temporary rom '" << temp_filename << "' for decompression\n";
 		}
@@ -137,7 +137,7 @@ namespace
 				//	Open the newly created file
 				//
 				p_new_file = ROMFile::Create( temp_filename );
-				if( p_new_file == NULL )
+				if( p_new_file == nullptr )
 				{
 					messages << "Failed to open temporary rom '" << temp_filename << "' we just created\n";
 				}
@@ -147,7 +147,7 @@ namespace
 					{
 						messages << "Failed to open temporary rom '" << temp_filename << "' we just created\n";
 						delete p_new_file;
-						p_new_file = NULL;
+						p_new_file = nullptr;
 					}
 				}
 			}
@@ -185,7 +185,7 @@ bool RomBuffer::Open()
 	CNullOutputStream messages;
 	const char * filename   = g_ROM.mFileName;
 	ROMFile *    p_rom_file = ROMFile::Create( filename );
-	if(p_rom_file == NULL)
+	if(p_rom_file == nullptr)
 	{
 		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "Failed to create [C%s]\n", filename);
@@ -288,7 +288,7 @@ bool RomBuffer::Open()
 				#endif
 				messages << local_messages;
 
-				if(p_new_file != NULL)
+				if(p_new_file != nullptr)
 				{
 					#ifdef DAEDALUS_DEBUG_CONSOLE
 					DBGConsole_Msg( 0, "Decompression [gsuccessful]. Booting using decompressed rom" );
@@ -324,14 +324,14 @@ void	RomBuffer::Close()
 	if (spRomData)
 	{
 		CROMFileMemory::Get()->Free( spRomData );
-		spRomData = NULL;
+		spRomData = nullptr;
 	}
 
 	if (spRomFileCache)
 	{
 		spRomFileCache->Close();
 		delete spRomFileCache;
-		spRomFileCache = NULL;
+		spRomFileCache = nullptr;
 	}
 
 	sRomSize   = 0;
@@ -394,7 +394,7 @@ void	RomBuffer::GetRomBytesRaw( void * p_dst, u32 rom_start, u32 length )
 	else
 	{
 		#ifdef DAEDALUS_ENABLE_ASSERTS
-		DAEDALUS_ASSERT( spRomFileCache != NULL, "How come we have no file cache?" );
+		DAEDALUS_ASSERT( spRomFileCache != nullptr, "How come we have no file cache?" );
 		#endif
 		CopyBytesRaw( spRomFileCache, reinterpret_cast< u8 * >( p_dst ), rom_start, length );
 	}
@@ -428,7 +428,7 @@ void * RomBuffer::GetAddressRaw( u32 rom_start )
 		{
 			// Read the cached bytes into our scratch buffer, and return that
 			#ifdef DAEDALUS_ENABLE_ASSERTS
-			DAEDALUS_ASSERT( spRomFileCache != NULL, "How come we have no file cache?" );
+			DAEDALUS_ASSERT( spRomFileCache != nullptr, "How come we have no file cache?" );
 				#endif
 			CopyBytesRaw( spRomFileCache, sScratchBuffer, rom_start, SCRATCH_BUFFER_LENGTH );
 
@@ -436,7 +436,7 @@ void * RomBuffer::GetAddressRaw( u32 rom_start )
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 //*****************************************************************************

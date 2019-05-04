@@ -19,8 +19,8 @@ struct TileDestInfo
 		,	Width( 0 )
 		,	Height( 0 )
 		,	Pitch( 0 )
-		,	Data( NULL )
-		//,	Palette( NULL )
+		,	Data( nullptr )
+		//,	Palette( nullptr )
 	{
 	}
 
@@ -561,14 +561,14 @@ typedef void ( *ConvertFunction )(const TileDestInfo & dsti, const TextureInfo &
 static const ConvertFunction gConvertFunctions[ 32 ] =
 {
 	// 4bpp				8bpp			16bpp				32bpp
-	NULL,			NULL,			ConvertRGBA16,		ConvertRGBA32,			// RGBA
-	NULL,			NULL,			NULL,				NULL,					// YUV
-	ConvertCI4,		ConvertCI8,		NULL,				NULL,					// CI
-	ConvertIA4,		ConvertIA8,		ConvertIA16,		NULL,					// IA
-	ConvertI4,		ConvertI8,		NULL,				NULL,					// I
-	NULL,			NULL,			NULL,				NULL,					// ?
-	NULL,			NULL,			NULL,				NULL,					// ?
-	NULL,			NULL,			NULL,				NULL					// ?
+	nullptr,			nullptr,			ConvertRGBA16,		ConvertRGBA32,			// RGBA
+	nullptr,			nullptr,			nullptr,				nullptr,					// YUV
+	ConvertCI4,		ConvertCI8,		nullptr,				nullptr,					// CI
+	ConvertIA4,		ConvertIA8,		ConvertIA16,		nullptr,					// IA
+	ConvertI4,		ConvertI8,		nullptr,				nullptr,					// I
+	nullptr,			nullptr,			nullptr,				nullptr,					// ?
+	nullptr,			nullptr,			nullptr,				nullptr,					// ?
+	nullptr,			nullptr,			nullptr,				nullptr					// ?
 };
 
 bool ConvertTile(const TextureInfo & ti,

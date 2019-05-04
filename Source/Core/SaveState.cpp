@@ -428,12 +428,12 @@ const char* SaveState_GetRom( const char * filename )
 	SaveState_istream_gzip stream( filename );
 
 	if( !stream.IsValid() )
-		return NULL;
+		return nullptr;
 
 	u32 value;
 	stream >> value;
 	if(value != SAVESTATE_PROJECT64_MAGIC_NUMBER)
-		return NULL;
+		return nullptr;
 
 	u32 ram_size;
 	stream >> ram_size;

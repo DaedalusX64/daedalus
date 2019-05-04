@@ -84,11 +84,11 @@ CFragment::CFragment( CCodeBufferManager * p_manager,
 					  const BranchBuffer & branch_details,
 					  bool need_indirect_exit_map )
 :	mEntryAddress( entry_address )
-,	mEntryPoint( NULL )
+,	mEntryPoint( nullptr )
 ,	mInputLength( trace.size() * sizeof( OpCode ) )
 ,	mOutputLength( 0 )
 ,	mFragmentFunctionLength( 0 )
-,	mpIndirectExitMap( need_indirect_exit_map ? new CIndirectExitMap : NULL )
+,	mpIndirectExitMap( need_indirect_exit_map ? new CIndirectExitMap : nullptr )
 #ifdef FRAGMENT_RETAIN_ADDITIONAL_INFO
 ,	mHitCount( 0 )
 ,	mTraceBuffer( trace )
@@ -96,7 +96,7 @@ CFragment::CFragment( CCodeBufferManager * p_manager,
 ,	mExitAddress( exit_address )
 #endif
 #ifdef FRAGMENT_SIMULATE_EXECUTION
-,	mpCache( NULL )
+,	mpCache( nullptr )
 #endif
 {
 #ifdef FRAGMENT_RETAIN_ADDITIONAL_INFO
@@ -119,12 +119,12 @@ CFragment::CFragment(CCodeBufferManager * p_manager, u32 entry_address,
 	,	mpIndirectExitMap( new CIndirectExitMap )
 #ifdef FRAGMENT_RETAIN_ADDITIONAL_INFO
 	,	mHitCount( 0 )
-	,	mTraceBuffer( NULL )
-	,	mBranchBuffer( NULL )
+	,	mTraceBuffer( nullptr )
+	,	mBranchBuffer( nullptr )
 	,	mExitAddress( 0 )
 #endif
 #ifdef FRAGMENT_SIMULATE_EXECUTION
-	,	mpCache( NULL )
+	,	mpCache( nullptr )
 #endif
 {
 	Assemble(p_manager, CCodeLabel(function_Ptr));
@@ -147,7 +147,7 @@ void	CFragment::SetCache( const CFragmentCache * p_cache )
 	mpCache = p_cache;
 #endif
 
-	if( mpIndirectExitMap != NULL )
+	if( mpIndirectExitMap != nullptr )
 	{
 		mpIndirectExitMap->SetCache( p_cache );
 	}
@@ -172,12 +172,12 @@ void CFragment::Execute()
 
 	CFragment * p_fragment( this );
 
-	while( p_fragment != NULL )
+	while( p_fragment != nullptr )
 	{
 		CFragment * next = p_fragment->Simulate();
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
-		DAEDALUS_ASSERT( next == NULL || gCPUState.Delay == NO_DELAY, "Why are we entering with a delay slot active?" );
+		DAEDALUS_ASSERT( next == nullptr || gCPUState.Delay == NO_DELAY, "Why are we entering with a delay slot active?" );
 #endif
 		p_fragment = next;
 	}
@@ -302,7 +302,7 @@ CFragment * CFragment::Simulate()
 			if(gCPUState.GetStuffToDo() != 0)
 			{
 				UpdateCountAndHandleException_Counter( instructions_executed );
-				return NULL;
+				return nullptr;
 			}
 		}
 
@@ -318,7 +318,7 @@ CFragment * CFragment::Simulate()
 		if(gCPUState.GetStuffToDo() != 0)
 		{
 			UpdateCountAndHandleException_Counter( instructions_executed );
-			return NULL;
+			return nullptr;
 		}
 
 		// Break out of the loop if this is a branch instruction and it was taken
@@ -369,7 +369,7 @@ CFragment * CFragment::Simulate()
 	//
 	//	Now we're leaving the fragment, handle the exit stubs
 	//
-	CFragment * p_target_fragment( NULL );
+	CFragment * p_target_fragment( nullptr );
 	u32			exit_address {};
 	u32			exit_delay {};
 	if( branch_idx_taken != INVALID_IDX )
@@ -410,7 +410,7 @@ CFragment * CFragment::Simulate()
 				//p_target_fragment = mpCache->LookupFragmentQ( exit_address );
 			}
 			executed_delay_op = false;
-			//return NULL;
+			//return nullptr;
 		}
 		else if( details.Direct )
 		{
@@ -457,7 +457,7 @@ CFragment * CFragment::Simulate()
 				if(gCPUState.GetStuffToDo() != 0)
 				{
 					UpdateCountAndHandleException_Counter( instructions_executed );
-					return NULL;
+					return nullptr;
 				}
 			}
 
@@ -471,7 +471,7 @@ CFragment * CFragment::Simulate()
 			if(gCPUState.GetStuffToDo() != 0)
 			{
 				UpdateCountAndHandleException_Counter( instructions_executed );
-				return NULL;
+				return nullptr;
 			}
 
 			gCPUState.Delay = NO_DELAY;
@@ -511,7 +511,7 @@ CFragment * CFragment::Simulate()
 	if( gCPUState.GetStuffToDo() != 0 )
 	{
 		// Quit to the interpreter if there are CPU jobs to do
-		p_target_fragment = NULL;
+		p_target_fragment = nullptr;
 	}
 
 	return p_target_fragment;
@@ -586,7 +586,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 #ifdef FRAGMENT_RETAIN_ADDITIONAL_INFO
 	p_generator->Initialise( mEntryAddress, exit_address, &mHitCount, &gCPUState, register_usage );
 #else
-	p_generator->Initialise( mEntryAddress, exit_address, NULL, &gCPUState, register_usage );
+	p_generator->Initialise( mEntryAddress, exit_address, nullptr, &gCPUState, register_usage );
 #endif
 
 	//Trace: (3 ops, 13 hits)
@@ -638,7 +638,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 		}
 		*/
 
-		const SBranchDetails * p_branch( NULL );
+		const SBranchDetails * p_branch( nullptr );
 		if( branch_idx != INVALID_IDX )
 		{
 			#ifdef DAEDALUS_ENABLE_ASSERTS
@@ -704,7 +704,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 #endif
 		}
 
-		CJumpLocation	branch_jump( NULL );
+		CJumpLocation	branch_jump( nullptr );
  //PSP, We handle exceptions directly with _ReturnFromDynaRecIfStuffToDo
 #ifdef DAEDALUS_PSP
 		p_generator->GenerateOpCode( ti, ti.BranchDelaySlot, p_branch, &branch_jump);
@@ -718,7 +718,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 #endif
 
 		// Check whether we want to invert the status of this branch
-		if( p_branch != NULL )
+		if( p_branch != nullptr )
 		{
 			branch_handler_info[ branch_idx ].Index = i;
 			branch_handler_info[ branch_idx ].Jump = branch_jump;
@@ -729,7 +729,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 		mInstructionStartLocations.push_back( p_generator->GetCurrentLocation().GetTargetU8P() );
 #endif
 
-	CCodeLabel		no_next_fragment( NULL );
+	CCodeLabel		no_next_fragment( nullptr );
 	CJumpLocation	exit_jump( p_generator->GenerateExitCode( exit_address, NO_JUMP_ADDRESS, trace.size(), no_next_fragment ) );
 
 	AddPatch( exit_address, exit_jump );
@@ -780,9 +780,9 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 			*/
  //PSP, We handle exceptions directly with _ReturnFromDynaRecIfStuffToDo
 #ifdef DAEDALUS_PSP
-			p_generator->GenerateOpCode( ti, true, NULL, NULL);
+			p_generator->GenerateOpCode( ti, true, nullptr, nullptr);
 #else
-			CJumpLocation	exception_handler_jump( p_generator->GenerateOpCode( ti, true, NULL, NULL) );
+			CJumpLocation	exception_handler_jump( p_generator->GenerateOpCode( ti, true, nullptr, nullptr) );
 
 			if( exception_handler_jump.IsSet() )
 			{
@@ -821,7 +821,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 		else
 		{
 			#ifdef DAEDALUS_ENABLE_ASSERTS
-			DAEDALUS_ASSERT( mpIndirectExitMap != NULL, "There is no indirect exit map!" );
+			DAEDALUS_ASSERT( mpIndirectExitMap != nullptr, "There is no indirect exit map!" );
 			#endif
 			if( details.Eret )
 			{
@@ -862,7 +862,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager, CCodeLabel function_pt
 #ifdef FRAGMENT_RETAIN_ADDITIONAL_INFO
 		p_generator->Initialise( mEntryAddress, 0, &mHitCount, &gCPUState,  register_usage);
 #else
-		p_generator->Initialise( mEntryAddress, 0, NULL, &gCPUState, register_usage );
+		p_generator->Initialise( mEntryAddress, 0, nullptr, &gCPUState, register_usage );
 #endif
 
 	CJumpLocation jump = p_generator->ExecuteNativeFunction(function_ptr, true);
@@ -892,7 +892,7 @@ const char * Sanitise( const char * str )
 	//	Quickly check to see if there are any illegal characters in the string
 	//
 	const char * b( str );
-	const char * e( str + strlen(str) );		//  Point to null char
+	const char * e( str + strlen(str) );		//  Point to nullptr char
 	const char * s = std::find_first_of( b, e, gIllegalChars, gIllegalChars+ARRAYSIZE(gIllegalChars));
 	if( s == e )
 	{

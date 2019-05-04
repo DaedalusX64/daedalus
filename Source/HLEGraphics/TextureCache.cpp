@@ -38,10 +38,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 template<> bool CSingleton< CTextureCache >::Create()
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT_Q(mpInstance == NULL);
+	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
 #endif
 	mpInstance = new CTextureCache();
-	return mpInstance != NULL;
+	return mpInstance != nullptr;
 }
 
 CTextureCache::CTextureCache()
@@ -91,11 +91,11 @@ void CTextureCache::PurgeOldTextures()
 
 			if( mpCacheHashTable[ixa] == texture )
 			{
-				mpCacheHashTable[ixa] = NULL;
+				mpCacheHashTable[ixa] = nullptr;
 			}
 			if( mpCacheHashTable[ixb] == texture )
 			{
-				mpCacheHashTable[ixb] = NULL;
+				mpCacheHashTable[ixb] = nullptr;
 			}
 
 			mTextures.erase( mTextures.begin() + i );
@@ -116,7 +116,7 @@ void CTextureCache::DropTextures()
 	mTextures.clear();
 	for( u32 i {}; i < HASH_TABLE_SIZE; ++i )
 	{
-		mpCacheHashTable[i] = NULL;
+		mpCacheHashTable[i] = nullptr;
 	}
 }
 
@@ -195,7 +195,7 @@ CachedTexture * CTextureCache::GetOrCreateCachedTexture(const TextureInfo & ti)
 		return mpCacheHashTable[ixb];
 	}
 
-	CachedTexture *	texture = NULL;
+	CachedTexture *	texture = nullptr;
 	TextureVec::iterator	it = std::lower_bound( mTextures.begin(), mTextures.end(), ti, SSortTextureEntries() );
 	if( it != mTextures.end() && (*it)->GetTextureInfo() == ti )
 	{
@@ -205,7 +205,7 @@ CachedTexture * CTextureCache::GetOrCreateCachedTexture(const TextureInfo & ti)
 	else
 	{
 		texture = CachedTexture::Create( ti );
-		if (texture != NULL)
+		if (texture != nullptr)
 		{
 			mTextures.insert( it, texture );
 		}
@@ -229,7 +229,7 @@ CRefPtr<CNativeTexture> CTextureCache::GetOrCreateTexture(const TextureInfo & ti
 {
 	CachedTexture * base_texture = GetOrCreateCachedTexture(ti);
 	if (!base_texture)
-		return NULL;
+		return nullptr;
 
 	return base_texture->GetTexture();
 }

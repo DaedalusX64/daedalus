@@ -267,22 +267,22 @@ void CCombinerExplorerDebugMenuOption::Display() const
 		DLDebug_PrintMux( stdout, selected_mux );
 
 		RendererPSP::SBlendStateEntry entry1( gRendererPSP->LookupBlendState( selected_mux, false ) );
-		if( entry1.OverrideFunction != NULL )
+		if( entry1.OverrideFunction != nullptr )
 		{
 			printf( "1 Cycle: Overridden\n" );
 		}
-		else if( entry1.States != NULL )
+		else if( entry1.States != nullptr )
 		{
 			printf( "1 Cycle:\n" );
 			entry1.States->Print();
 		}
 
 		RendererPSP::SBlendStateEntry	entry2( gRendererPSP->LookupBlendState( selected_mux, true ) );
-		if( entry2.OverrideFunction != NULL )
+		if( entry2.OverrideFunction != nullptr )
 		{
 			printf( "2 Cycles: Overridden\n" );
 		}
-		else if( entry2.States != NULL )
+		else if( entry2.States != nullptr )
 		{
 			printf( "2 Cycles:\n" );
 			entry2.States->Print();
@@ -572,10 +572,10 @@ CTextureExplorerDebugMenuOption::CTextureExplorerDebugMenuOption()
 {
 	mCheckerTexture = CNativeTexture::Create( gCheckTextureWidth, gCheckTextureHeight, TexFmt_4444 );
 
-	if( mCheckerTexture != NULL )
+	if( mCheckerTexture != nullptr )
 	{
 		DAEDALUS_ASSERT( mCheckerTexture->GetBytesRequired() == sizeof( gCheckTexture ), "Incorrect size for checker texture" );
-		mCheckerTexture->SetData( gCheckTexture, NULL );
+		mCheckerTexture->SetData( gCheckTexture, nullptr );
 	}
 
 	{
@@ -633,7 +633,7 @@ bool CTextureExplorerDebugMenuOption::OverrideDisplay() const
 	const f32		screen_width( 480.0f );
 	const f32		screen_height( 272.0f );
 
-	if ( mCheckerTexture != NULL )
+	if ( mCheckerTexture != nullptr )
 	{
 		u32				num_verts( 2 );
 		TextureVtx*	p_verts = (TextureVtx*)sceGuGetMemory(num_verts*sizeof(TextureVtx));
@@ -649,10 +649,10 @@ bool CTextureExplorerDebugMenuOption::OverrideDisplay() const
 		p_verts[1].pos = v3( screen_width, screen_height, 0.0f );
 		p_verts[1].t0 = v2( screen_width, screen_height );
 
-		sceGuDrawArray(GU_SPRITES,TEXTURE_VERTEX_FLAGS|GU_TRANSFORM_2D,num_verts,NULL,p_verts);
+		sceGuDrawArray(GU_SPRITES,TEXTURE_VERTEX_FLAGS|GU_TRANSFORM_2D,num_verts,nullptr,p_verts);
 	}
 
-	if( texture != NULL )
+	if( texture != nullptr )
 	{
 		u32		num_verts( 2 );
 		TextureVtx*	p_verts = (TextureVtx*)sceGuGetMemory(num_verts*sizeof(TextureVtx));
@@ -680,7 +680,7 @@ bool CTextureExplorerDebugMenuOption::OverrideDisplay() const
 		p_verts[1].pos = v3( left_offset + display_width, top_offset + display_height, 0.0f );
 		p_verts[1].t0 = v2( (float)texture_width, (float)texture_height );
 
-		sceGuDrawArray(GU_SPRITES,TEXTURE_VERTEX_FLAGS|GU_TRANSFORM_2D,num_verts,NULL,p_verts);
+		sceGuDrawArray(GU_SPRITES,TEXTURE_VERTEX_FLAGS|GU_TRANSFORM_2D,num_verts,nullptr,p_verts);
 	}
 	CGraphicsContext::Get()->EndFrame();
 
@@ -976,7 +976,7 @@ void IDisplayListDebugger::Run()
 	menu_options.push_back( new CDecalOffsetDebugMenuOption );
 
 	u32		highlighted_option( 0 );
-	CDebugMenuOption *			p_current_option( NULL );
+	CDebugMenuOption *			p_current_option( nullptr );
 
 	// Remain paused until the Select button is pressed again
 	bool	need_update_display( true );
@@ -993,7 +993,7 @@ void IDisplayListDebugger::Run()
 			CGraphicsContext::Get()->DumpScreenShot();
 		}
 
-		DLDebugOutput * debug_output = NULL;
+		DLDebugOutput * debug_output = nullptr;
 
 		if( dump_texture_dlist )
 		{
@@ -1032,7 +1032,7 @@ void IDisplayListDebugger::Run()
 		//	Re-render the current frame
 		//
 		bool	render_dlist( true );
-		if( p_current_option != NULL )
+		if( p_current_option != nullptr )
 		{
 			if( p_current_option->OverrideDisplay() )
 			{
@@ -1046,7 +1046,7 @@ void IDisplayListDebugger::Run()
 
 			// We can delete the sink as soon as we're done with it.
 			delete debug_output;
-			debug_output = NULL;
+			debug_output = nullptr;
 		}
 
 		u64			time_after;
@@ -1093,7 +1093,7 @@ void IDisplayListDebugger::Run()
 		//
 		//	Update input
 		//
-		if( p_current_option != NULL )
+		if( p_current_option != nullptr )
 		{
 			p_current_option->Update( pad_state, actual_elapsed_time );
 			if(p_current_option->NeedsUpdateDisplay())
@@ -1112,7 +1112,7 @@ void IDisplayListDebugger::Run()
 			printf( "Dlist took %dms (%fHz) [%d/%d]\n", s32(elapsed_ms), framerate, instruction_limit, total_instruction_count );
 			printf( "\n" );
 
-			if( p_current_option != NULL )
+			if( p_current_option != nullptr )
 			{
 				p_current_option->UpdateDisplay();
 			}
@@ -1150,13 +1150,13 @@ void IDisplayListDebugger::Run()
 		//
 		//	Input
 		//
-		if( p_current_option != NULL )
+		if( p_current_option != nullptr )
 		{
 			if(pad_state.OldButtons != pad_state.NewButtons)
 			{
 				if(pad_state.NewButtons & PSP_CTRL_SQUARE)
 				{
-					p_current_option = NULL;
+					p_current_option = nullptr;
 					need_update_display = true;
 				}
 			}

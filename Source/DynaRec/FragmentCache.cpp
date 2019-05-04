@@ -49,14 +49,14 @@ CFragmentCache::CFragmentCache()
 ,	mInputLength( 0 )
 ,	mOutputLength( 0 )
 ,	mCachedFragmentAddress( 0 )
-,	mpCachedFragment( NULL )
+,	mpCachedFragment( nullptr )
 {
 	memset( mpCacheHashTable, 0, sizeof(mpCacheHashTable) );
 
 	mFragments.reserve( 2000 );
 
 	mpCodeBufferManager = CCodeBufferManager::Create();
-	if(mpCodeBufferManager != NULL)
+	if(mpCodeBufferManager != nullptr)
 	{
 		mpCodeBufferManager->Initialise();
 	}
@@ -90,7 +90,7 @@ CFragment * CFragmentCache::LookupFragment( u32 address ) const
 
 		if ( address != mpCacheHashTable[ix].addr )
 		{
-			SFragmentEntry				entry( address, NULL );
+			SFragmentEntry				entry( address, nullptr );
 			FragmentVec::const_iterator	it( std::lower_bound( mFragments.begin(), mFragments.end(), entry ) );
 			if( it != mFragments.end() && it->Address == address )
 			{
@@ -98,7 +98,7 @@ CFragment * CFragmentCache::LookupFragment( u32 address ) const
 			}
 			else
 			{
-				mpCachedFragment = NULL;
+				mpCachedFragment = nullptr;
 			}
 
 			// put in hash table
@@ -141,7 +141,7 @@ CFragment * CFragmentCache::LookupFragmentQ( u32 address ) const
 #ifdef HASH_TABLE_STATS
 			miss++;
 #endif
-			SFragmentEntry				entry( address, NULL );
+			SFragmentEntry				entry( address, nullptr );
 			FragmentVec::const_iterator	it( std::lower_bound( mFragments.begin(), mFragments.end(), entry ) );
 			if( it != mFragments.end() && it->Address == address )
 			{
@@ -149,7 +149,7 @@ CFragment * CFragmentCache::LookupFragmentQ( u32 address ) const
 			}
 			else
 			{
-				mpCachedFragment = NULL;
+				mpCachedFragment = nullptr;
 			}
 
 			// put in hash table
@@ -185,7 +185,7 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 
 	mCacheCoverage.ExtendCoverage( fragment_address, p_fragment->GetInputLength() );
 
-	SFragmentEntry				entry( fragment_address, NULL );
+	SFragmentEntry				entry( fragment_address, nullptr );
 	FragmentVec::iterator		it( std::lower_bound( mFragments.begin(), mFragments.end(), entry ) );
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( it == mFragments.end() || it->Address != fragment_address, "A fragment with this address already exists" );
@@ -229,7 +229,7 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 #else
 		CFragment * p_fragment( LookupFragmentQ( target_address ) );
 #endif
-		if( p_fragment != NULL )
+		if( p_fragment != nullptr )
 		{
 			PatchJumpLongAndFlush( jump, p_fragment->GetEntryTarget() );
 
@@ -291,7 +291,7 @@ void CFragmentCache::Clear()
 	mInputLength = 0;
 	mOutputLength = 0;
 	mCachedFragmentAddress = 0;
-	mpCachedFragment = NULL;
+	mpCachedFragment = nullptr;
 	memset( mpCacheHashTable, 0, sizeof(mpCacheHashTable) );
 	mJumpMap.clear();
 
@@ -389,7 +389,7 @@ void CFragmentCache::DumpStats( const char * outputdir ) const
 			IO::Path::Combine( fragment_path, fragments_dir, fragment_name );
 
 			FILE * fragment_fh( fopen( fragment_path, "w" ) );
-			if( fragment_fh != NULL )
+			if( fragment_fh != nullptr )
 			{
 				fragment->DumpFragmentInfoHtml( fragment_fh, total_cycles );
 				fclose( fragment_fh );

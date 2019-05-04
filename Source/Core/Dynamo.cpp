@@ -308,7 +308,7 @@ void	CPU_DumpFragmentCache()
 	IO::Directory::EnsureExists( "DynarecDump" );
 
 	FILE  * fh( fopen( "DynarecDump/hot_trace_map.html", "w" ) );
-	if( fh != NULL )
+	if( fh != nullptr )
 	{
 		std::vector< SAddressHitCount >	hit_counts;
 
@@ -364,7 +364,7 @@ void CPU_CreateAndAddFragment()
 {
 	CFragment * p_fragment( gTraceRecorder.CreateFragment( gFragmentCache.GetCodeBufferManager() ) );
 
-	if( p_fragment != NULL )
+	if( p_fragment != nullptr )
 	{
 		gHotTraceCountMap.erase( p_fragment->GetEntryAddress() );
 		gFragmentCache.InsertFragment( p_fragment );
@@ -439,7 +439,7 @@ void CPU_HandleDynaRecOnBranch( bool backwards, bool trace_already_enabled )
 #else
 		CFragment * p_fragment( gFragmentCache.LookupFragmentQ( entry_address ) );
 #endif
-		if( p_fragment != NULL )
+		if( p_fragment != nullptr )
 		{
 		#ifdef DAEDALUS_PROFILE_EXECUTION
 			gFragmentLookupSuccess++;

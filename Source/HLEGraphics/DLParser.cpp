@@ -183,7 +183,7 @@ static u32				gLastUcodeBase   {};
 static SImageDescriptor g_CI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 static SImageDescriptor g_DI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 
-const MicroCodeInstruction *gUcodeFunc = NULL;
+const MicroCodeInstruction *gUcodeFunc = nullptr;
 MicroCodeInstruction gCustomInstruction[256] {};
 
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
@@ -444,7 +444,7 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 SProfileItemHandle * gpProfileItemHandles[ 256 ];
 
 #define PROFILE_DL_CMD( cmd )								\
-	if(gpProfileItemHandles[ (cmd) ] == NULL)				\
+	if(gpProfileItemHandles[ (cmd) ] == nullptr)				\
 	{														\
 		gpProfileItemHandles[ (cmd) ] = new SProfileItemHandle( CProfiler::Get()->AddItem( gUcodeName[ cmd ] ));		\
 	}														\
@@ -593,7 +593,7 @@ u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 	FinishRDPJob();
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DLDebug_SetOutput(NULL);
+	DLDebug_SetOutput(nullptr);
 
 	// NB: only update gNumInstructionsExecuted when we rendered something.
 	// I'd really like to get rid of gNumInstructionsExecuted.

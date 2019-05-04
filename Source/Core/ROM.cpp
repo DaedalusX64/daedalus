@@ -444,7 +444,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	}
 }
 
-// Copy across text, null terminate, and strip spaces
+// Copy across text, nullptr terminate, and strip spaces
 void ROM_GetRomNameFromHeader( std::string & rom_name, const ROMHeader & header )
 {
 	char	buffer[20+1];
@@ -544,7 +544,7 @@ bool ROM_LoadFile(const RomID & rom_id, const RomSettings & settings, const SRom
 bool ROM_GetRomName( const char * filename, std::string & game_name )
 {
 	ROMFile * p_rom_file = ROMFile::Create( filename );
-	if (p_rom_file == NULL)
+	if (p_rom_file == nullptr)
 	{
 		return false;
 	}

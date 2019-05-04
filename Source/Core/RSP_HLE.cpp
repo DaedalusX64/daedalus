@@ -52,7 +52,7 @@ static void RDP_DumpRSPCode(char * name, u32 crc, u32 * mem_base, u32 pc_base, u
 	IO::Path::Append(filepath, filename);
 
 	FILE * fp = fopen(filepath, "w");
-	if (fp == NULL)
+	if (fp == nullptr)
 		return;
 
 	for (u32 i = 0; i < len; i+=4)
@@ -83,7 +83,7 @@ static void RDP_DumpRSPData(char * name, u32 crc, u32 * mem_base, u32 pc_base, u
 	IO::Path::Append(filepath, filename);
 
 	FILE * fp = fopen(filepath, "w");
-	if (fp == NULL)
+	if (fp == nullptr)
 		return;
 
 	for (u32 i = 0; i < len; i+=4)
@@ -148,7 +148,7 @@ static EProcessResult RSP_HLE_Graphics()
 {
 	DAEDALUS_PROFILE( "HLE: Graphics" );
 
-	if (gGraphicsEnabled && gGraphicsPlugin != NULL)
+	if (gGraphicsEnabled && gGraphicsPlugin != nullptr)
 	{
 		gGraphicsPlugin->ProcessDList();
 	}
@@ -177,7 +177,7 @@ static EProcessResult RSP_HLE_Audio()
 {
 	DAEDALUS_PROFILE( "HLE: Audio" );
 
-	if (gAudioEnabled && gAudioPlugin != NULL)
+	if (gAudioEnabled && gAudioPlugin != nullptr)
 	{
 		return gAudioPlugin->ProcessAList();
 	}

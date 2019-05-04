@@ -64,7 +64,7 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( frequency <= output_freq, "Input frequency is too high" );
 #endif
-	//static FILE * fh = NULL;
+	//static FILE * fh = nullptr;
 	//if( !fh )
 	//{
 	//	fh = fopen( "audio_in.raw", "wb" );
@@ -174,7 +174,7 @@ u32	CAudioBuffer::Drain( Sample * samples, u32 num_samples )
 		samples_required--;
 	}
 
-	//static FILE * fh = NULL;
+	//static FILE * fh = nullptr;
 	//if( !fh )
 	//{
 	//	fh = fopen( "audio_out.raw", "wb" );

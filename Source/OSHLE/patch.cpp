@@ -93,7 +93,7 @@ u32 gNumOfOSFunctions;
 #define TEST_DISABLE_FUNCS //return PATCH_RET_NOT_PROCESSED;
 
 
-#define PATCH_RET_NOT_PROCESSED RET_NOT_PROCESSED(NULL)
+#define PATCH_RET_NOT_PROCESSED RET_NOT_PROCESSED(nullptr)
 #define PATCH_RET_NOT_PROCESSED0(name) RET_NOT_PROCESSED(&PATCH_SYMBOL_FUNCTION_ENTRY(name))
 #define PATCH_RET_JR_RA RET_JR_RA()
 #define PATCH_RET_ERET RET_JR_ERET()
@@ -129,14 +129,14 @@ void Patch_Reset()
 void Patch_ResetSymbolTable()
 {
 	u32 i = 0;
-	// Loops through all symbols, until name is null
-	for (i = 0; g_PatchSymbols[i] != NULL; i++)
+	// Loops through all symbols, until name is nullptr
+	for (i = 0; g_PatchSymbols[i] != nullptr; i++)
 	{
 		g_PatchSymbols[i]->Found = false;
 	}
 	nPatchSymbols = i;
 
-	for (i = 0; g_PatchVariables[i] != NULL; i++)
+	for (i = 0; g_PatchVariables[i] != nullptr; i++)
 	{
 		g_PatchVariables[i]->Found = false;
 		g_PatchVariables[i]->FoundHi = false;
@@ -306,7 +306,7 @@ void Patch_DumpOsThreadInfo()
 		dwID = Read32Bits(dwThread + offsetof(OSThread, id));
 		dwFP = Read32Bits(dwThread + offsetof(OSThread, fp));
 
-		// Hack to avoid null thread
+		// Hack to avoid nullptr thread
 		if (dwPri == 0xFFFFFFFF)
 			break;
 
@@ -370,12 +370,12 @@ void Patch_DumpOsQueueInfo()
 			continue;
 		}
 
-		if (dwFullQ == VAR_ADDRESS(osNullMsgQueue))
+		if (dwFullQ == VAR_ADDRESS(osnullptrMsgQueue))
 			sprintf(fullqueue_buffer, "       -");
 		else
 			sprintf(fullqueue_buffer, "%08x", dwFullQ);
 
-		if (dwEmptyQ == VAR_ADDRESS(osNullMsgQueue))
+		if (dwEmptyQ == VAR_ADDRESS(osnullptrMsgQueue))
 			sprintf(emptyqueue_buffer, "       -");
 		else
 			sprintf(emptyqueue_buffer, "%08x", dwEmptyQ);
@@ -508,7 +508,7 @@ void Patch_RecurseAndFind()
 #endif
 #endif
 
-	// Loops through all symbols, until name is null
+	// Loops through all symbols, until name is nullptr
 	for (u32 i = 0; i < nPatchSymbols && !gCPUState.IsJobSet( CPU_STOP_RUNNING ); i++)
 	{
 
@@ -759,9 +759,9 @@ bool Patch_VerifyLocation_CheckSignature(PatchSymbol * ps,
 
 	const u32 * code_base( g_pu32RamBase );
 
-	PatchCrossRef dummy_cr = {static_cast<u32>(~0), PX_JUMP, NULL };
+	PatchCrossRef dummy_cr = {static_cast<u32>(~0), PX_JUMP, nullptr };
 
-	if (pcr == NULL)
+	if (pcr == nullptr)
 		pcr = &dummy_cr;
 
 #ifdef DAEDALUS_DEBUG_CONSOLE
@@ -954,7 +954,7 @@ static void Patch_FlushCache()
 #endif
 	FILE *fp = fopen(name, "wb");
 
-	if (fp != NULL)
+	if (fp != nullptr)
 	{
 		u32 data = MAGIC_HEADER;
 		fwrite(&data, 1, sizeof(data), fp);
@@ -1008,7 +1008,7 @@ static bool Patch_GetCache()
 	Dump_GetSaveDirectory(name, g_ROM.mFileName, ".hle");
 	FILE *fp = fopen(name, "rb");
 
-	if (fp != NULL)
+	if (fp != nullptr)
 	{
 		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "Read from OSHLE cache: %s", name);
@@ -1061,7 +1061,7 @@ static bool Patch_GetCache()
 static u32 RET_NOT_PROCESSED(PatchSymbol* ps)
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( ps != NULL, "Not Supported" );
+	DAEDALUS_ASSERT( ps != nullptr, "Not Supported" );
 	#endif
 	gCPUState.CurrentPC = PHYS_TO_K0(ps->Location);
 	//DBGConsole_Msg(0, "%s RET_NOT_PROCESSED PC=0x%08x RA=0x%08x", ps->Name, gCPUState.TargetPC, gGPR[REG_ra]._u32_0);

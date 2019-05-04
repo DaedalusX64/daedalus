@@ -231,10 +231,10 @@ static void CheatCodes_Clear()
 {
 	codegroupcount = 0;
 
-	if(codegrouplist != NULL)
+	if(codegrouplist != nullptr)
 	{
 		free_volatile(codegrouplist);
-		codegrouplist = NULL;
+		codegrouplist = nullptr;
 	}
 }
 
@@ -290,12 +290,12 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 	IO::Path::Combine(path, gDaedalusExePath, file);
 
 	stream = fopen(path, "rt");
-	if(stream == NULL)
+	if(stream == nullptr)
 	{
 		// File does not exist, try to create a new empty one
 		stream = fopen(path, "wt");
 
-		if(stream == NULL)
+		if(stream == nullptr)
 		{
 			//printf("Cannot find Daedalus.cht file and cannot create it.");
 			return false;
@@ -365,7 +365,7 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 		//
 //		printf("number of cheats loaded %d | %d kbs used of memory\n",numberofgroups,(numberofgroups *sizeof(CODEGROUP))/ 1024);
 		codegrouplist = (CODEGROUP *) malloc_volatile(numberofgroups *sizeof(CODEGROUP));
-		if(codegrouplist == NULL)
+		if(codegrouplist == nullptr)
 		{
 			//printf("Cannot allocate memory to load cheat code");
 			return false;

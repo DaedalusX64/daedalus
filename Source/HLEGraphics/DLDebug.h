@@ -49,7 +49,7 @@ private:
 
 extern DLDebugOutput * gDLDebugOutput;
 
-inline bool DLDebug_IsActive() { return gDLDebugOutput != NULL; }
+inline bool DLDebug_IsActive() { return gDLDebugOutput != nullptr; }
 
 #define DL_PF(...)										\
 	do {												\

@@ -30,8 +30,8 @@ class CAssemblyBuffer
 {
 	public:
 		CAssemblyBuffer()
-		:	mpCodeBuffer(NULL)
-		,	mpWritePointer(NULL)
+		:	mpCodeBuffer(nullptr)
+		,	mpWritePointer(nullptr)
 		,	mCurrentPos( 0 )
 		{
 		}

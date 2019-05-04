@@ -87,7 +87,7 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mTracing, "We're not tracing" );
 #endif
-	bool				want_to_stop( p_fragment != NULL );
+	bool				want_to_stop( p_fragment != nullptr );
 
 	if( mTraceBuffer.size() > MAX_TRACE_LENGTH )
 	{

@@ -29,13 +29,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 class CCodeLabel
 {
 public:
-	CCodeLabel () : mpLocation( NULL ) {}
+	CCodeLabel () : mpLocation( nullptr ) {}
 	explicit CCodeLabel( const void * p_location )
 		:	mpLocation( p_location )
 	{
 	}
 
-	bool			IsSet() const				{ return mpLocation != NULL; }
+	bool			IsSet() const				{ return mpLocation != nullptr; }
 	const void *	GetTarget() const			{ return mpLocation; }
 	const u8 *		GetTargetU8P() const		{ return reinterpret_cast< const u8 * >( mpLocation ); }
 	u32				GetTargetU32() const		{ return reinterpret_cast< u32 >( mpLocation ); }
@@ -49,14 +49,14 @@ private:
 class CJumpLocation
 {
 public:
-	CJumpLocation () : mpLocation( NULL ) {}
+	CJumpLocation () : mpLocation( nullptr ) {}
 
 	explicit CJumpLocation( void * p_location )
 		:	mpLocation( p_location )
 	{
 	}
 
-	bool			IsSet() const				{ return mpLocation != NULL; }
+	bool			IsSet() const				{ return mpLocation != nullptr; }
 	s32				GetOffset( const CCodeLabel & label ) const	{ return label.GetTargetU8P() - GetTargetU8P();	}
 
 	const u8 *		GetTargetU8P() const		{ return reinterpret_cast< const u8 * >( mpLocation ); }

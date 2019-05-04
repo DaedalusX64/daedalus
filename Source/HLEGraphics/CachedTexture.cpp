@@ -117,7 +117,7 @@ static bool GenerateTexels(void ** p_texels,
 	}
 
 	void *			texels  = &gTexelBuffer[0];
-	NativePf8888 *	palette = IsTextureFormatPalettised( texture_format ) ? gPaletteBuffer : NULL;
+	NativePf8888 *	palette = IsTextureFormatPalettised( texture_format ) ? gPaletteBuffer : nullptr;
 
 #ifdef DAEDALUS_ACCURATE_TMEM
 	// NB: if line is 0, it implies this is a direct load from ram (e.g. DLParser_Sprite2DDraw etc)
@@ -153,9 +153,9 @@ static void UpdateTexture( const TextureInfo & ti, CNativeTexture * texture )
 	DAEDALUS_PROFILE( "Texture Conversion" );
 	#endif
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( texture != NULL, "No texture" );
+	DAEDALUS_ASSERT( texture != nullptr, "No texture" );
 	#endif
-	if ( texture != NULL && texture->HasData() )
+	if ( texture != nullptr && texture->HasData() )
 	{
 		ETextureFormat	format = texture->GetFormat();
 		u32 			stride {texture->GetStride()};
@@ -201,13 +201,13 @@ CachedTexture * CachedTexture::Create( const TextureInfo & ti )
 		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Trying to create 0 width/height texture" );
 		#endif
-		return NULL;
+		return nullptr;
 	}
 
 	CachedTexture *	texture = new CachedTexture( ti );
 	if (!texture->Initialise())
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	return texture;
@@ -215,7 +215,7 @@ CachedTexture * CachedTexture::Create( const TextureInfo & ti )
 
 CachedTexture::CachedTexture( const TextureInfo & ti )
 :	mTextureInfo( ti )
-,	mpTexture(NULL)
+,	mpTexture(nullptr)
 ,	mTextureContentsHash( 0 )
 ,	mFrameLastUpToDate( gRDPFrame )
 ,	mFrameLastUsed( gRDPFrame )
@@ -229,7 +229,7 @@ CachedTexture::~CachedTexture()
 bool CachedTexture::Initialise()
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT_Q(mpTexture == NULL);
+	DAEDALUS_ASSERT_Q(mpTexture == nullptr);
 	#endif
 	u32 width  {mTextureInfo.GetWidth()};
 	u32 height {mTextureInfo.GetHeight()};
@@ -238,7 +238,7 @@ bool CachedTexture::Initialise()
 	if (mTextureInfo.GetEmulateMirrorT()) height *= 2;
 
 	mpTexture = CNativeTexture::Create( width, height, SelectNativeFormat(mTextureInfo) );
-	if( mpTexture != NULL )
+	if( mpTexture != nullptr )
 	{
 		// If this we're performing Texture updated checks, randomly offset the
 		// 'FrameLastUpToDate' time. This ensures when lots of textures are
@@ -252,7 +252,7 @@ bool CachedTexture::Initialise()
 		UpdateTexture( mTextureInfo, mpTexture );
 	}
 
-	return mpTexture != NULL;
+	return mpTexture != nullptr;
 }
 
 // Update the hash of the texture. Returns true if the texture should be updated.
@@ -333,9 +333,9 @@ bool CachedTexture::HasExpired() const
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 void CachedTexture::DumpTexture( const TextureInfo & ti, const CNativeTexture * texture )
 {
-	DAEDALUS_ASSERT(texture != NULL, "Should have a texture");
+	DAEDALUS_ASSERT(texture != nullptr, "Should have a texture");
 
-	if( texture != NULL && texture->HasData() )
+	if( texture != nullptr && texture->HasData() )
 	{
 		IO::Filename filename;
 		IO::Filename filepath;
