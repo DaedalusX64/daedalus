@@ -433,23 +433,7 @@ inline int pspFpuIsNaN(float f)
 //Convert Double (float) to 32bit signed integer
 inline s32 Double2Int( f64 *d )
 {
-	union
-	{
-		f64 d;
-		u32 pD[2];
-	}uni = {*d};
-
-	u32	s = uni.pD[1] & 0x80000000;
-	s32	exp = ((uni.pD[1] >> 20) & 0x7ff) - 1023;		// get exponent
-
-	if( exp < 0 ) return 0;				// ONLY a fraction
-
-	s64 t0 = *((s64*)uni.pD) & 0x000fffffffffffffLL;
-	t0 |= 0x0010000000000000LL;
-	s32 shift = 52 - exp;
-	t0 = t0 >> shift;
-	if( s != 0 ) t0 = -t0;
-	return (s32)t0;
+    return (s32) *d;
 }
 
 //Fast way to check IsNaN on doubles //Corn
