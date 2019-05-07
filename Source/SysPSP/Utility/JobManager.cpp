@@ -226,7 +226,7 @@ void CJobManager::Run()
 					run->InitJob( run );
 
 				// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
-					if(BeginME( mei, (int)run->DoJob, (int)run, -1, 0, -1, 0 ) < 0){
+					if(BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL) < 0){
 					SJob *	job( static_cast< SJob * >( mJobBuffer ) );
 					if( job->InitJob ) job->InitJob( job );
 					if( job->DoJob )   job->DoJob( job );
