@@ -107,9 +107,10 @@ EPspTextureFormat	GetPspTextureFormat( ETextureFormat texture_format )
 //*****************************************************************************
 inline void swizzle_fast(u8* out, const u8* in, u32 width, u32 height)
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( (width & 15 ) == 0, "Width is not a multiple of 16 - is %d", width );
 	DAEDALUS_ASSERT( (height & 7 ) == 0, "Height is not a multiple of 8 - is %d", height );
-
+	#endif
 #if 1	//1->Raphaels version, 0->Original
 	u32 rowblocks = (width / 16);
 	u32 rowblocks_add = (rowblocks - 1) * 128;
@@ -229,8 +230,9 @@ inline bool swizzle(u8* out, const u8* in, u32 width, u32 height)
 //*****************************************************************************
 u32	GetTextureBlockWidth( u32 dimension, ETextureFormat texture_format )
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( GetNextPowerOf2( dimension ) == dimension, "This is not a power of 2" );
-
+	#endif
 	// Ensure that the pitch is at least 16 bytes
 	while( CalcBytesRequired( dimension, texture_format ) < 16 )
 	{
@@ -283,27 +285,34 @@ CNativeTexture::CNativeTexture( u32 w, u32 h, ETextureFormat texture_format )
 
 	if( !CVideoMemoryManager::Get()->Alloc( bytes_required, &mpData, &mIsDataVidMem ) )
 	{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR( "Out of memory for texels ( %d bytes)", bytes_required );
+		#endif
 	}
 	switch( texture_format )
 	{
 	case TexFmt_CI4_8888:
 		if( !CVideoMemoryManager::Get()->Alloc( kPalette4BytesRequired, &mpPalette, &mIsPaletteVidMem ) )
 		{
+				#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR( "Out of memory for 4-bit palette, %d bytes", kPalette4BytesRequired );
+			#endif
 		}
 		break;
 
 	case TexFmt_CI8_8888:
 		if( !CVideoMemoryManager::Get()->Alloc( kPalette8BytesRequired, &mpPalette, &mIsPaletteVidMem ) )
 		{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DAEDALUS_ERROR( "Out of memory for 8-bit palette, %d bytes", kPalette8BytesRequired );
+			#endif
 		}
 		break;
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	default:
 		DAEDALUS_ASSERT( !IsTextureFormatPalettised( texture_format ), "Unhandled palette texture" );
 		break;
+		#endif
 	}
 }
 
@@ -363,9 +372,11 @@ void	CNativeTexture::InstallTexture() const
 			sceGuClutLoad( 256/8, mpPalette );
 			break;
 
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		default:
 			DAEDALUS_ASSERT( !IsTextureFormatPalettised( mTextureFormat ), "Unhandled palette texture" );
 			break;
+			#endif
 		}
 	}
 }

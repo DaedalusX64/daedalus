@@ -451,18 +451,6 @@ inline bool IsNaN_Double(double x)
  }
 
 //Fast way to check IsNaN on floats //Corn
-inline bool IsNaN_Float(float x)
-{
-     union
-	 {
-		 f32 val_F;
-		 u32 val_I;
-	 }Conv;
-
-	 Conv.val_F = x;
-
-	 return (Conv.val_I & 0x7fffffff) > 0x7f800000;
-}
 
 #undef sqrtf
 #undef roundf
