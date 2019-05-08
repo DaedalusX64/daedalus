@@ -75,6 +75,7 @@ bool InitialiseJobManager()
 //*****************************************************************************
 CJobManager::CJobManager( u32 job_buffer_size, ETaskMode task_mode )
 :	mJobBuffer( malloc_64( job_buffer_size ) )
+, mJobBufferuncached (MAKE_UNCACHED_PTR(mJobBuffer))
 ,	mRunBuffer( malloc_64( job_buffer_size ) )
 , mRunBufferuncached (MAKE_UNCACHED_PTR(mRunBuffer))
 ,	mJobBufferSize( job_buffer_size )
@@ -228,7 +229,8 @@ void CJobManager::Run()
 
 				// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
 					if(BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL) < 0){
-					SJob *	job( static_cast< SJob * >( mJobBuffer ) );
+					memcpy( mJobBufferuncached, mJobBuffer, mJobBufferSize );
+					SJob *	job( static_cast< SJob * >( mJobBufferuncached ) );
 					if( job->InitJob ) job->InitJob( job );
 					if( job->DoJob )   job->DoJob( job );
 					if( job->FiniJob ) job->FiniJob( job );
