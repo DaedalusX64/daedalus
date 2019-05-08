@@ -84,6 +84,9 @@ public:
 	virtual void StopAudio();
 	virtual void StartAudio();
 
+public:
+  CAudioBuffer *		mAudioBufferUncached;
+
 private:
 	CAudioBuffer * mAudioBuffer;
 	bool mKeepRunning;
@@ -150,7 +153,7 @@ void AudioPluginPSP::FillBuffer(Sample * buffer, u32 num_samples)
 {
 	sceKernelWaitSema( mSemaphore, 1, nullptr );
 
-	mAudioBuffer->Drain( buffer, num_samples );
+	mAudioBufferUncached->Drain( buffer, num_samples );
 
 	sceKernelSignalSema( mSemaphore, 1 );
 }
@@ -171,6 +174,7 @@ AudioPluginPSP::AudioPluginPSP()
 	// Allocate audio buffer with malloc_64 to avoid cached/uncached aliasing
 	void * mem = malloc_64( sizeof( CAudioBuffer ) );
 	mAudioBuffer = new( mem ) CAudioBuffer( kAudioBufferSize );
+  mAudioBufferUncached = (CAudioBuffer*)MAKE_UNCACHED_PTR(mem);
 	// Ideally we could just invalidate this range?
 	dcache_wbinv_range_unaligned( mAudioBuffer, mAudioBuffer+sizeof( CAudioBuffer ) );
 }
@@ -336,7 +340,7 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 
 	case APM_ENABLED_ASYNC:
 		{
-			SAddSamplesJob	job( mAudioBuffer, reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
+			SAddSamplesJob	job( mAudioBufferUncached, reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
 
 			gJobManager.AddJob( &job, sizeof( job ) );
 		}
@@ -344,7 +348,7 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 
 	case APM_ENABLED_SYNC:
 		{
-			mAudioBuffer->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
+			mAudioBufferUncached->AddSamples( reinterpret_cast< const Sample * >( start ), num_samples, mFrequency, kOutputFrequency );
 		}
 		break;
 	}
