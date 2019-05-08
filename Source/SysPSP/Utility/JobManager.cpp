@@ -76,6 +76,7 @@ bool InitialiseJobManager()
 CJobManager::CJobManager( u32 job_buffer_size, ETaskMode task_mode )
 :	mJobBuffer( malloc_64( job_buffer_size ) )
 ,	mRunBuffer( malloc_64( job_buffer_size ) )
+, mRunBufferuncached (MAKE_UNCACHED_PTR(mRunBuffer))
 ,	mJobBufferSize( job_buffer_size )
 ,	mTaskMode( task_mode )
 ,	mThread( kInvalidThreadHandle )
@@ -208,12 +209,12 @@ void CJobManager::Run()
 
 				//printf("Run Job on Media Engine\n");
 
-				SJob *	run( static_cast< SJob * >( mRunBuffer ) );
+				SJob *	run( static_cast< SJob * >( mRunBufferuncached ) );
 
 				//clear Cache
 				sceKernelDcacheWritebackInvalidateAll();
 
-				memcpy( mRunBuffer, mJobBuffer, mJobBufferSize );
+				memcpy( mRunBufferuncached, mJobBuffer, mJobBufferSize );
 
 				//clear Cache -> this one is very important without it the CheckME(mei) will not return with the ME status.
 				sceKernelDcacheWritebackInvalidateAll();
