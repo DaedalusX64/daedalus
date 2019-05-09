@@ -40,7 +40,7 @@ bool gLoadedMediaEnginePRX {false};
 
 volatile me_struct *mei;
 #endif
-CJobManager gJobManager( 1024, TM_ASYNC_ME );
+CJobManager gJobManager( 2048, TM_ASYNC_ME );
 
 bool InitialiseJobManager()
 {
@@ -215,7 +215,7 @@ void CJobManager::Run()
 				//clear Cache
 				sceKernelDcacheWritebackInvalidateAll();
 
-				memcpy( mRunBufferuncached, mJobBuffer, mJobBufferSize );
+				memmove( mRunBufferuncached, mJobBuffer, mJobBufferSize );
 
 				//clear Cache -> this one is very important without it the CheckME(mei) will not return with the ME status.
 				sceKernelDcacheWritebackInvalidateAll();
@@ -229,7 +229,7 @@ void CJobManager::Run()
 
 				// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
 					if(BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL) < 0){
-					memcpy( mJobBufferuncached, mJobBuffer, mJobBufferSize );
+					memmove( mJobBufferuncached, mJobBuffer, mJobBufferSize );
 					SJob *	job( static_cast< SJob * >( mJobBufferuncached ) );
 					if( job->InitJob ) job->InitJob( job );
 					if( job->DoJob )   job->DoJob( job );

@@ -97,11 +97,11 @@ void DUPLICATE2( AudioHLECommand command )
 
 	u16 buff[64];
 
-	memcpy(buff,gAudioHLEState.Buffer+In,128);
+	memmove(buff,gAudioHLEState.Buffer+In,128);
 
 	while(Count)
 	{
-		memcpy(gAudioHLEState.Buffer+Out,buff,128);
+		memmove(gAudioHLEState.Buffer+Out,buff,128);
 		Out+=128;
 		Count--;
 	}
@@ -139,7 +139,7 @@ void LOADBUFF3( AudioHLECommand command )
 	u32 cnt = (((command.cmd0 >> 0xC)+3)&0xFFC);
 	v0 = (command.cmd1 & 0xfffffc);
 	u32 src = (command.cmd0&0xffc)+0x4f0;
-	memcpy (gAudioHLEState.Buffer+src, rdram+v0, cnt);
+	memmove (gAudioHLEState.Buffer+src, rdram+v0, cnt);
 }
 
 void SAVEBUFF( AudioHLECommand command )
@@ -173,7 +173,7 @@ void SAVEBUFF3( AudioHLECommand command )
 	u32 cnt = (((command.cmd0 >> 0xC)+3)&0xFFC);
 	u32 v0 = (command.cmd1 & 0xfffffc);
 	u32 src = (command.cmd0&0xffc)+0x4f0;
-	memcpy (rdram+v0, gAudioHLEState.Buffer+src, cnt);
+	memmove (rdram+v0, gAudioHLEState.Buffer+src, cnt);
 }
 
 void SEGMENT( AudioHLECommand command )

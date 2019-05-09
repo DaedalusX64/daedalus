@@ -660,7 +660,7 @@ void AudioHLEState::ADPCMDecode( u8 flags, u32 address )
 	else
 	{
 		u32 addr( loop ? LoopVal : address );
-		memcpy( out, &rdram[addr], 32 );
+		memmove( out, &rdram[addr], 32 );
 	}
 
 	s32 l1=out[15];
@@ -711,7 +711,7 @@ void AudioHLEState::ADPCMDecode( u8 flags, u32 address )
 		count-=32;
 	}
 	out-=16;
-	memcpy(&rdram[address],out,32);
+	memmove(&rdram[address],out,32);
 }
 
 void	AudioHLEState::LoadBuffer( u32 address )
@@ -729,7 +729,7 @@ void	AudioHLEState::LoadBuffer( u16 dram_dst, u32 ram_src, u16 count )
 	if( count > 0 )
 	{
 		// XXXX Masks look suspicious - trying to get around endian issues?
-		memcpy( Buffer+(dram_dst & 0xFFFC), rdram+(ram_src&0xfffffc), (count+3) & 0xFFFC );
+		memmove( Buffer+(dram_dst & 0xFFFC), rdram+(ram_src&0xfffffc), (count+3) & 0xFFFC );
 	}
 }
 
@@ -739,7 +739,7 @@ void	AudioHLEState::SaveBuffer( u32 ram_dst, u16 dmem_src, u16 count )
 	if( count > 0 )
 	{
 		// XXXX Masks look suspicious - trying to get around endian issues?
-		memcpy( rdram+(ram_dst & 0xfffffc), Buffer+(dmem_src & 0xFFFC), (count+3) & 0xFFFC);
+		memmove( rdram+(ram_dst & 0xfffffc), Buffer+(dmem_src & 0xFFFC), (count+3) & 0xFFFC);
 	}
 }
 /*

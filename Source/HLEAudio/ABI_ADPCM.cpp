@@ -163,7 +163,7 @@ void ADPCM2(AudioHLECommand command)
   	else
   	{
   		u32		src_addr( loop ? gAudioHLEState.LoopVal : Address );
-  		memcpy(out,&rdram[src_addr],32);		// XXXX Endian issues?
+  		memmove(out,&rdram[src_addr],32);		// XXXX Endian issues?
   	}
 
   	u16 inPtr=0;
@@ -206,7 +206,7 @@ void ADPCM2(AudioHLECommand command)
   		count-=32;
   	}
   	out-=16;
-  	memcpy(&rdram[Address],out,32);
+  	memmove(&rdram[Address],out,32);
 
 }
 
@@ -232,7 +232,7 @@ void ADPCM3(AudioHLECommand command)
 
   	if(!(Flags&0x1))
   	{
-  		memcpy(out,&rdram[(Flags&0x2) ? gAudioHLEState.LoopVal : Address],32);
+  		memmove(out,&rdram[(Flags&0x2) ? gAudioHLEState.LoopVal : Address],32);
   	}
 
   	s32 l1=out[15];
@@ -442,7 +442,7 @@ void ADPCM3(AudioHLECommand command)
   		count-=32;
   	}
   	out-=16;
-  	memcpy(&rdram[Address],out,32);
+  	memmove(&rdram[Address],out,32);
 }
 
 void LOADADPCM(AudioHLECommand command)
