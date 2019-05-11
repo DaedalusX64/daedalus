@@ -648,8 +648,8 @@ static void R4300_CALL_TYPE R4300_J( R4300_CALL_SIGNATURE ) 				// Jump
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	u32 pc( gCPUState.CurrentPC );
-	u32 new_pc( (pc & 0xF0000000) | (op_code.target<<2) );
+	u32 pc {gCPUState.CurrentPC};
+	u32 new_pc {(pc & 0xF0000000) | (op_code.target<<2) };
 
 	//SpeedHack(pc, new_pc);	// PMario and Tarzan use this, is it worth?
 	CPU_TakeBranch( new_pc );
@@ -659,9 +659,9 @@ static void R4300_CALL_TYPE R4300_JAL( R4300_CALL_SIGNATURE ) 				// Jump And Li
 {
 	R4300_CALL_MAKE_OP( op_code );
 
-	u32 pc( gCPUState.CurrentPC );
+	u32 pc {gCPUState.CurrentPC };
 	gGPR[REG_ra]._s64 = (s64)(s32)(pc + 8);		// Store return address
-	u32	new_pc( (pc & 0xF0000000) | (op_code.target<<2) );
+	u32	new_pc {(pc & 0xF0000000) | (op_code.target<<2) };
 	//ToDo: SpeedHack?
 	CPU_TakeBranch( new_pc );
 }
@@ -672,9 +672,9 @@ static void R4300_CALL_TYPE R4300_BEQ( R4300_CALL_SIGNATURE ) 		// Branch on Equ
 
 	if ( gGPR[op_code.rs]._u64 == gGPR[op_code.rt]._u64 )
 	{
-		s16 offset( (s16)op_code.immediate );
-		u32 pc( gCPUState.CurrentPC );
-		u32 new_pc( pc + ((s32)offset<<2) + 4 );
+		s16 offset {(s16)op_code.immediate };
+		u32 pc {gCPUState.CurrentPC};
+		u32 new_pc { pc + ((s32)offset<<2) + 4 };
 
 		SpeedHack(pc, new_pc);
 		CPU_TakeBranch( new_pc );
@@ -688,9 +688,9 @@ static void R4300_CALL_TYPE R4300_BNE( R4300_CALL_SIGNATURE )             // Bra
 	//branch if rs <> rt
 	if ( gGPR[op_code.rs]._u64 != gGPR[op_code.rt]._u64 )
 	{
-		s16 offset( (s16)op_code.immediate );
-		u32 pc( gCPUState.CurrentPC );
-		u32 new_pc( pc + ((s32)offset<<2) + 4 );
+		s16 offset {(s16)op_code.immediate};
+		u32 pc {gCPUState.CurrentPC};
+		u32 new_pc {pc + ((s32)offset<<2) + 4};
 
 		SpeedHack(pc, new_pc);
 		CPU_TakeBranch( new_pc );
@@ -720,9 +720,9 @@ static void R4300_CALL_TYPE R4300_BGTZ( R4300_CALL_SIGNATURE ) 			// Branch on G
 	//if (gGPR[op_code.rs]._s32_0 > 0)
 	if (gGPR[op_code.rs]._s64 > 0)
 	{
-		s16 offset( (s16)op_code.immediate );
-		u32 pc( gCPUState.CurrentPC );
-		u32 new_pc( pc + ((s32)offset<<2) + 4 );
+		s16 offset{ (s16)op_code.immediate };
+		u32 pc{ gCPUState.CurrentPC };
+		u32 new_pc{ pc + ((s32)offset<<2) + 4 };
 
 		SpeedHack(pc, new_pc);
 		CPU_TakeBranch( new_pc );
@@ -847,12 +847,11 @@ static void R4300_CALL_TYPE R4300_BNEL( R4300_CALL_SIGNATURE ) 			// Branch on N
 	//branch if rs <> rt
 	if ( gGPR[op_code.rs]._u64 != gGPR[op_code.rt]._u64 )
 	{
-		s16 offset( (s16)op_code.immediate );
-		u32 pc( gCPUState.CurrentPC );
-		u32 new_pc( pc + ((s32)offset<<2) + 4 );
-
-		SpeedHack(pc, new_pc);
+		s16 offset{ (s16)op_code.immediate};
+		u32 pc {gCPUState.CurrentPC};
+		u32 new_pc {pc + ((s32)offset<<2) + 4 };
 		CPU_TakeBranch( new_pc );
+		SpeedHack(pc, new_pc);
 	}
 	else
 	{
@@ -868,9 +867,9 @@ static void R4300_CALL_TYPE R4300_BLEZL( R4300_CALL_SIGNATURE ) 		// Branch on L
 	//branch if rs <= 0
 	if ( gGPR[op_code.rs]._s64 <= 0 )
 	{
-		s16 offset( (s16)op_code.immediate );
-		u32 pc( gCPUState.CurrentPC );
-		u32 new_pc( pc + ((s32)offset<<2) + 4 );
+		s16 offset{ (s16)op_code.immediate };
+		u32 pc{ gCPUState.CurrentPC };
+		u32 new_pc{ pc + ((s32)offset<<2) + 4 };
 
 		SpeedHack(pc, new_pc);
 		CPU_TakeBranch( new_pc );
@@ -890,7 +889,7 @@ static void R4300_CALL_TYPE R4300_BGTZL( R4300_CALL_SIGNATURE ) 		// Branch on G
 	if ( gGPR[op_code.rs]._s64 > 0 )
 	{
 		//ToDo : SpeedHack?
-		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
+		u32	new_pc { gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 };
 		CPU_TakeBranch( new_pc );
 	}
 	else
@@ -1433,11 +1432,7 @@ static void R4300_CALL_TYPE R4300_Special_DMULT( R4300_CALL_SIGNATURE ) 		// Dou
 #else
 	s64 rrs {gGPR[ op_code.rs ]._s64};
 	s64 rrt {gGPR[ op_code.rt ]._s64};
-	s64 lo {}, hi {};
 
-	u64 op1 {}, op2 {}, op3 {}, op4 {};
-	u64 result1 {}, result2 {}, result3 {}, result4 {};
-	u64 temp1 {}, temp2 {}, temp3 {}, temp4 {};
 	bool sign {};
 
 	if (rrs < 0)
@@ -1452,23 +1447,23 @@ static void R4300_CALL_TYPE R4300_Special_DMULT( R4300_CALL_SIGNATURE ) 		// Dou
 		sign = sign ? false : true;
 	}
 
-	op1 = rrs & 0xFFFFFFFF;
-	op2 = (rrs >> 32) & 0xFFFFFFFF;
-	op3 = rrt & 0xFFFFFFFF;
-	op4 = (rrt >> 32) & 0xFFFFFFFF;
+	u64 op1 {rrs & 0xFFFFFFFF};
+	u64 op2 {(rrs >> 32) & 0xFFFFFFFF};
+	u64 op3 {rrt & 0xFFFFFFFF};
+	u64 op4 ={(rrt >> 32) & 0xFFFFFFFF};
 
-	temp1 = op1 * op3;
-	temp2 = (temp1 >> 32) + op1 * op4;
-	temp3 = op2 * op3;
-	temp4 = (temp3 >> 32) + op2 * op4;
+u64 temp1 {op1 * op3};
+u64	temp2 {(temp1 >> 32) + op1 * op4};
+u64	temp3 {op2 * op3};
+u64	temp4 {(temp3 >> 32) + op2 * op4};
 
-	result1 = temp1 & 0xFFFFFFFF;
-	result2 = temp2 + (temp3 & 0xFFFFFFFF);
-	result3 = (result2 >> 32) + temp4;
-	result4 = (result3 >> 32);
+u64	result1 {temp1 & 0xFFFFFFFF};
+u64	result2 {temp2 + (temp3 & 0xFFFFFFFF)};
+u64	result3 {(result2 >> 32) + temp4};
+u64	result4 {(result3 >> 32)};
 
-	lo = result1 | (result2 << 32);
-	hi = (result3 & 0xFFFFFFFF) | (result4 << 32);
+s64	lo {result1 | (result2 << 32)};
+s64	hi {(result3 & 0xFFFFFFFF) | (result4 << 32)};
 	if (sign)
 	{
 		hi = ~hi;
@@ -1495,24 +1490,20 @@ static void R4300_CALL_TYPE R4300_Special_DMULTU( R4300_CALL_SIGNATURE ) 			// D
 	s64 rrs = gGPR[ op_code.rs ]._s64;
 	s64 rrt = gGPR[ op_code.rt ]._s64;
 
-	u64 op1 {}, op2 {}, op3 {}, op4 {};
-	u64 result1 {}, result2 {}, result3 {}, result4 {};
-	u64 temp1, temp2, temp3, temp4;
+u64	op1 {rrs & 0xFFFFFFFF};
+u64	op2 {(rrs >> 32) & 0xFFFFFFFF};
+u64	op3 {rrt & 0xFFFFFFFF};
+u64	op4 {(rrt >> 32) & 0xFFFFFFFF};
 
-	op1 = rrs & 0xFFFFFFFF;
-	op2 = (rrs >> 32) & 0xFFFFFFFF;
-	op3 = rrt & 0xFFFFFFFF;
-	op4 = (rrt >> 32) & 0xFFFFFFFF;
+u64	temp1 {op1 * op3};
+u64	temp2 {(temp1 >> 32) + op1 * op4};
+u64	temp3 {op2 * op3};
+u64	temp4 {(temp3 >> 32) + op2 * op4};
 
-	temp1 = op1 * op3;
-	temp2 = (temp1 >> 32) + op1 * op4;
-	temp3 = op2 * op3;
-	temp4 = (temp3 >> 32) + op2 * op4;
-
-	result1 = temp1 & 0xFFFFFFFF;
-	result2 = temp2 + (temp3 & 0xFFFFFFFF);
-	result3 = (result2 >> 32) + temp4;
-	result4 = (result3 >> 32);
+u64	result1 {temp1 & 0xFFFFFFFF};
+u64	result2 {temp2 + (temp3 & 0xFFFFFFFF)};
+u64	result3 {(result2 >> 32) + temp4};
+u64	result4 {(result3 >> 32)};
 
 	gCPUState.MultLo._s64 = result1 | (result2 << 32);
 	gCPUState.MultHi._s64 = (result3 & 0xFFFFFFFF) | (result4 << 32);
@@ -1766,9 +1757,9 @@ static void R4300_CALL_TYPE R4300_RegImm_BLTZ( R4300_CALL_SIGNATURE ) 			// Bran
 	//branch if rs < 0
 	if ( gGPR[ op_code.rs ]._s64 < 0 )
 	{
-		s16 offset( (s16)op_code.immediate );
-		u32 pc( gCPUState.CurrentPC );
-		u32 new_pc( pc + ((s32)offset<<2) + 4 );
+		s16 offset {(s16)op_code.immediate };
+		u32 pc {gCPUState.CurrentPC};
+		u32 new_pc {pc + ((s32)offset<<2) + 4};
 
 		SpeedHack(pc, new_pc);
 		CPU_TakeBranch( new_pc );
@@ -1783,7 +1774,7 @@ static void R4300_CALL_TYPE R4300_RegImm_BLTZL( R4300_CALL_SIGNATURE ) 			// Bra
 	if ( gGPR[ op_code.rs ]._s64 < 0 )
 	{
 		//ToDo: SpeedHack?
-		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
+		u32	new_pc {gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 };
 		CPU_TakeBranch( new_pc );
 	}
 	else
@@ -1806,7 +1797,7 @@ static void R4300_CALL_TYPE R4300_RegImm_BLTZAL( R4300_CALL_SIGNATURE ) 		// Bra
 	if ( gGPR[ op_code.rs ]._s64 < 0 )
 	{
 		//ToDo: SpeedHack?
-		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
+		u32	new_pc {gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 };
 		CPU_TakeBranch( new_pc );
 	}
 }
@@ -1818,9 +1809,9 @@ static void R4300_CALL_TYPE R4300_RegImm_BGEZ( R4300_CALL_SIGNATURE ) 			// Bran
 	//branch if rs >= 0
 	if ( gGPR[ op_code.rs ]._s64 >= 0 )
 	{
-		s16 offset( (s16)op_code.immediate );
-		u32 pc( gCPUState.CurrentPC );
-		u32 new_pc( pc + ((s32)offset<<2) + 4 );
+		s16 offset {(s16)op_code.immediate};
+		u32 pc {gCPUState.CurrentPC };
+		u32 new_pc {pc + ((s32)offset<<2) + 4};
 
 		SpeedHack(pc, new_pc);
 		CPU_TakeBranch( new_pc );
@@ -1835,7 +1826,7 @@ static void R4300_CALL_TYPE R4300_RegImm_BGEZL( R4300_CALL_SIGNATURE ) 			// Bra
 	if ( gGPR[ op_code.rs ]._s64 >= 0 )
 	{
 		//ToDO: SpeedHack?
-		u32	new_pc( gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4 );
+		u32	new_pc {gCPUState.CurrentPC + ((s32)(s16)op_code.immediate<<2) + 4};
 		CPU_TakeBranch( new_pc );
 	}
 	else
@@ -1873,8 +1864,8 @@ static void R4300_CALL_TYPE R4300_Cop0_MFC0( R4300_CALL_SIGNATURE )
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	if ( op_code.fs == C0_CAUSE )
 	{
-		bool	mi_interrupt_set( (Memory_MI_GetRegister(MI_INTR_MASK_REG) & Memory_MI_GetRegister(MI_INTR_REG)) != 0 );
-		bool	cause_int_3_set( (gCPUState.CPUControl[C0_CAUSE]._u32 & CAUSE_IP3) != 0 );
+		bool	mi_interrupt_set {(Memory_MI_GetRegister(MI_INTR_MASK_REG) & Memory_MI_GetRegister(MI_INTR_REG)) != 0 };
+		bool	cause_int_3_set( {gCPUState.CPUControl[C0_CAUSE]._u32 & CAUSE_IP3) != 0};
 
 		DAEDALUS_ASSERT( mi_interrupt_set == cause_int_3_set, "CAUSE_IP3 inconsistant with MI_INTR_REG" );
 
@@ -2242,7 +2233,7 @@ static void R4300_CALL_TYPE R4300_BC1_BC1F( R4300_CALL_SIGNATURE )		// Branch on
 
 	if ( !(gCPUState.FPUControl[31]._u32 & FPCSR_C) )
 	{
-		u32	new_pc( gCPUState.CurrentPC + (s32)(s16)op_code.immediate*4 + 4 );
+		u32	new_pc {gCPUState.CurrentPC + (s32)(s16)op_code.immediate*4 + 4};
 		CPU_TakeBranch( new_pc );
 	}
 }
@@ -2253,7 +2244,7 @@ static void R4300_CALL_TYPE R4300_BC1_BC1T( R4300_CALL_SIGNATURE )	// Branch on 
 
 	if ( gCPUState.FPUControl[31]._u32 & FPCSR_C )
 	{
-		u32	new_pc( gCPUState.CurrentPC + (s32)(s16)op_code.immediate*4 + 4 );
+		u32	new_pc {gCPUState.CurrentPC + (s32)(s16)op_code.immediate*4 + 4};
 		CPU_TakeBranch( new_pc );
 	}
 }
@@ -2264,7 +2255,7 @@ static void R4300_CALL_TYPE R4300_BC1_BC1FL( R4300_CALL_SIGNATURE )	// Branch on
 
 	if ( !(gCPUState.FPUControl[31]._u32 & FPCSR_C) )
 	{
-		u32	new_pc( gCPUState.CurrentPC + (s32)(s16)op_code.immediate*4 + 4 );
+		u32	new_pc {gCPUState.CurrentPC + (s32)(s16)op_code.immediate*4 + 4};
 		CPU_TakeBranch( new_pc );
 	}
 	else
@@ -2280,7 +2271,7 @@ static void R4300_CALL_TYPE R4300_BC1_BC1TL( R4300_CALL_SIGNATURE )		// Branch o
 
 	if ( gCPUState.FPUControl[31]._u32 & FPCSR_C )
 	{
-		u32	new_pc( gCPUState.CurrentPC + (s32)(s16)op_code.immediate*4 + 4 );
+		u32	new_pc {gCPUState.CurrentPC + (s32)(s16)op_code.immediate*4 + 4};
 		CPU_TakeBranch( new_pc );
 	}
 	else
