@@ -118,32 +118,24 @@ public:
 		FiniJob = &DoJobComplete;
 	}
 
-  ~SAddSamplesJob()
+  ~SAddSamplesJob() {}
+
+  static int DoAddSamplesStatic( SJob * arg )
   {
+    SAddSamplesJob *    job( static_cast< SAddSamplesJob * >( arg ) );
+    return job->DoAddSamples();
   }
 
-	static int DoAddSamplesStatic( SJob * arg )
-	{
-		SAddSamplesJob *	job( static_cast< SAddSamplesJob * >( arg ) );
-		return job->DoAddSamples();
-	}
+  int DoAddSamples()
+  {
+    mBuffer->AddSamples( mSamples, mNumSamples, mFrequency, mOutputFreq );
+    return 0;
+  }
 
-	static int DoJobComplete( SJob * arg )
-	{
-		SAddSamplesJob *	job( static_cast< SAddSamplesJob * >( arg ) );
-		return job->DoJobComplete();
-	}
+  static int DoJobComplete( SJob * arg )
+   {
+   }
 
-	int DoAddSamples()
-	{
-		mBuffer->AddSamples( mSamples, mNumSamples, mFrequency, mOutputFreq );
-		return 0;
-	}
-
-	int DoJobComplete()
-	{
-		return 0;
-	}
 
 };
 
