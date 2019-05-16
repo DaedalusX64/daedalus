@@ -88,18 +88,12 @@ static void me_loop(volatile struct me_struct *mei)
 		mei->start = 0;
 		if (mei->precache_len)
 		{
-			if (mei->precache_len < 0)
 				dcache_inv_all();
-			else
-				dcache_inv_range(mei->precache_addr, mei->precache_len);
 		}
 		mei->result = mei->func(mei->param); // run function
 		if (mei->postcache_len)
 		{
-			if (mei->postcache_len < 0)
 				dcache_wbinv_all();
-			else
-				dcache_wbinv_range(mei->postcache_addr, mei->postcache_len);
 		}
 		mei->done = 1;
 	}

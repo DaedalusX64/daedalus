@@ -123,7 +123,8 @@ public:
   static int DoAddSamplesStatic( SJob * arg )
   {
     SAddSamplesJob *    job( static_cast< SAddSamplesJob * >( arg ) );
-    return job->DoAddSamples();
+    job->DoAddSamples();
+    return 0;
   }
 
   int DoAddSamples()
@@ -174,9 +175,9 @@ AudioPluginPSP::AudioPluginPSP()
 AudioPluginPSP::~AudioPluginPSP( )
 {
 	mAudioBuffer->~CAudioBuffer();
-free(mAudioBuffer);
-sceKernelDeleteSema(mSemaphore);
-pspAudioEnd();
+  free(mAudioBuffer);
+  sceKernelDeleteSema(mSemaphore);
+  pspAudioEnd();
 }
 
 bool		AudioPluginPSP::StartEmulation()
@@ -191,8 +192,8 @@ void	AudioPluginPSP::StopEmulation()
   	StopAudio();
     sceKernelDeleteSema(mSemaphore);
     pspAudioEndPre();
-sceKernelDelayThread(100000);
-pspAudioEnd();
+    sceKernelDelayThread(100000);
+    pspAudioEnd();
 
 
 }
@@ -239,13 +240,15 @@ public:
 	static int DoHLEStartStatic( SJob * arg )
 	{
 		 SHLEStartJob *  job( static_cast< SHLEStartJob * >( arg ) );
-		 return job->DoHLEStart();
+		 job->DoHLEStart();
+     return 0;
 	}
 
 	static int DoHLEFinishedStatic( SJob * arg )
 	{
 		 SHLEStartJob *  job( static_cast< SHLEStartJob * >( arg ) );
-		 return job->DoHLEFinish();
+		 job->DoHLEFinish();
+     return 0;
 	}
 
 	int DoHLEStart()
