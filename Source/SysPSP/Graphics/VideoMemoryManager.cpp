@@ -44,8 +44,9 @@ private:
 //*****************************************************************************
 template<> bool CSingleton< CVideoMemoryManager >::Create()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
-
+#endif
 	mpInstance = new IVideoMemoryManager();
 	return mpInstance != nullptr;
 }

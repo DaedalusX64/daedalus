@@ -101,7 +101,6 @@ extern int PSP_TV_CABLE;
 extern int PSP_TV_LACED;
 
 
-
 bool g32bitColorMode = false;
 bool PSP_IS_SLIM = false;
 
@@ -332,13 +331,6 @@ void HandleEndOfFrame()
 
 	if(activate_pause_menu)
 	{
-		// See how much texture memory we're using
-		//CTextureCache::Get()->DropTextures();
-//#ifdef DAEDALUS_DEBUG_MEMORY
-		//CVideoMemoryManager::Get()->DisplayDebugInfo();
-//#endif
-
-
 
 		CGraphicsContext::Get()->SwitchToLcdDisplay();
 		CGraphicsContext::Get()->ClearAllSurfaces();

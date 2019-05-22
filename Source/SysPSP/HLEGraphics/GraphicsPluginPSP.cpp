@@ -57,7 +57,7 @@ namespace
 	//u32					gVblCount = 0;
 	u32					gFlipCount {};
 	//float				gCurrentVblrate = 0.0f;
-	float				gCurrentFramerate = 0.0f;
+	float				gCurrentFramerate {0.0f};
 	u64					gLastFramerateCalcTime {};
 	u64					gTicksPerSecond {};
 
@@ -74,7 +74,7 @@ static void	UpdateFramerate()
 #endif
 	gFlipCount++;
 
-	u64			now;
+	u64			now {};
 	NTiming::GetPreciseTime( &now );
 
 	if(gLastFramerateCalcTime == 0)
@@ -238,7 +238,7 @@ void CGraphicsPluginImpl::UpdateScreen()
 			HandleEndOfFrame();
 		}
 
-		static u32 current_frame = 0;
+		static u32 current_frame {};
 		current_frame++;
 
 

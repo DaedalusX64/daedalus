@@ -324,12 +324,12 @@ void RendererPSP::RenderTriangles( DaedalusVtx * p_vertices, u32 num_vertices, b
 	{
 		UpdateTileSnapshots( mTextureTile );
 
-		const CNativeTexture * texture = mBoundTexture[0];
+		const CNativeTexture * texture {mBoundTexture[0]};
 
 		if( texture && (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) != (TNL_LIGHT|TNL_TEXGEN) )
 		{
-			float scale_x = texture->GetScaleX();
-			float scale_y = texture->GetScaleY();
+			float scale_x {texture->GetScaleX()};
+			float scale_y {texture->GetScaleY()};
 
 			// Hack to fix the sun in Zelda OOT/MM
 			if( g_ROM.ZELDA_HACK && (gRDPOtherMode.L == 0x0c184241) )	 //&& ti.GetFormat() == G_IM_FMT_I && (ti.GetWidth() == 64)
@@ -365,12 +365,12 @@ inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, 
 		sceGuDisable(GU_ALPHA_TEST);
 		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
 
-		u32 FogColor = mFogColour.GetColour();
+		u32 FogColor {mFogColour.GetColour()};
 
 		//Copy fog color to vertices
-		for(u32 i = 0 ; i < num_vertices ; i++)
+		for(u32 i {} ; i < num_vertices ; i++)
 		{
-			u32 alpha = p_vertices[i].Colour.GetColour() & 0xFF000000;
+			u32 alpha {p_vertices[i].Colour.GetColour() & 0xFF000000};
 			p_vertices[i].Colour = (c32)(alpha | FogColor);
 		}
 
@@ -382,7 +382,7 @@ inline void RendererPSP::RenderFog( DaedalusVtx * p_vertices, u32 num_vertices, 
 
 void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num_vertices, u32 triangle_mode, u32 render_mode, bool disable_zbuffer )
 {
-	static bool	ZFightingEnabled( false );
+	static bool	ZFightingEnabled {false};
 
 	DAEDALUS_PROFILE( "RendererPSP::RenderUsingCurrentBlendMode" );
 
@@ -436,7 +436,7 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		sceGuTexFilter(GU_NEAREST,GU_NEAREST);
 	}
 
-	u32 cycle_mode = gRDPOtherMode.cycle_type;
+	u32 cycle_mode {gRDPOtherMode.cycle_type};
 
 	// Initiate Blender
 	//
@@ -453,7 +453,7 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 	//
 	if( (gRDPOtherMode.alpha_compare == G_AC_THRESHOLD) && !gRDPOtherMode.alpha_cvg_sel )
 	{
-		u8 alpha_threshold = mBlendColour.GetA();
+		u8 alpha_threshold {mBlendColour.GetA()};
 		sceGuAlphaFunc( (alpha_threshold | g_ROM.ALPHA_HACK) ? GU_GEQUAL : GU_GREATER, alpha_threshold, 0xff);
 		sceGuEnable(GU_ALPHA_TEST);
 	}
@@ -479,7 +479,7 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 		case CYCLE_2CYCLE:		blend_entry = LookupBlendState( mMux, true ); break;
 	}
 
-	u32 render_flags( GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF | render_mode );
+	u32 render_flags {GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF | render_mode};
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	// Used for Blend Explorer, or Nasty texture
@@ -508,11 +508,11 @@ void RendererPSP::RenderUsingCurrentBlendMode( DaedalusVtx * p_vertices, u32 num
 
 		blend_entry.OverrideFunction( details );
 
-		bool installed_texture( false );
+		bool installed_texture {false};
 
 		if( details.InstallTexture )
 		{
-			u32 texture_idx = g_ROM.T1_HACK ? 1 : 0;
+			u32 texture_idx {g_ROM.T1_HACK ? 1 : 0};
 
 			if( mBoundTexture[ texture_idx ] )
 			{
@@ -584,7 +584,7 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 		memcpy( mVtx_Save, p_vertices, num_vertices * sizeof( DaedalusVtx ) );
 	}
 
-	for( u32 i = 0; i < states->GetNumStates(); ++i )
+	for( u32 i {}; i < states->GetNumStates(); ++i )
 	{
 		const CRenderSettings *		settings( states->GetColourSettings( i ) );
 
@@ -613,13 +613,13 @@ void RendererPSP::RenderUsingRenderSettings( const CBlendStates * states, Daedal
 			out.VertexExpressionA->ApplyExpressionAlpha( state );
 		}
 
-		bool installed_texture = false;
+		bool installed_texture {false};
 
-		u32 texture_idx = 0;
+		u32 texture_idx {};
 
 		if(install_texture0 || install_texture1)
 		{
-			u32	tfx( GU_TFX_MODULATE );
+			u32	tfx {GU_TFX_MODULATE};
 			switch( out.BlendMode )
 			{
 			case PBM_MODULATE:		tfx = GU_TFX_MODULATE; break;
@@ -720,7 +720,7 @@ void RendererPSP::TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoor
 	DL_PF( "    Screen:  %.1f,%.1f -> %.1f,%.1f", screen0.x, screen0.y, screen1.x, screen1.y );
 	DL_PF( "    Texture: %.1f,%.1f -> %.1f,%.1f", uv0.x, uv0.y, uv1.x, uv1.y );
 #endif
-	const f32 depth = gRDPOtherMode.depth_source ? mPrimDepth : 0.0f;
+	const f32 depth {gRDPOtherMode.depth_source ? mPrimDepth : 0.0f};
 
 #if 1	//1->SPRITE, 0->STRIP
 	DaedalusVtx * p_vertices = static_cast<DaedalusVtx *>(sceGuGetMemory(2 * sizeof(DaedalusVtx)));
@@ -1024,30 +1024,30 @@ void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height,
 		return;
 	}
 
-	f32 cur_v = v0;
-	f32 cur_y = y;
-	f32 v_end = v1;
-	f32 y_end = height;
-	f32 vslice = 512.f;
-	f32 ystep = (height/(v1-v0) * vslice);
-	f32 vstep = ((v1-v0) > 0 ? vslice : -vslice);
+	f32 cur_v {v0};
+	f32 cur_y {y};
+	f32 v_end {v1};
+	f32 y_end {height};
+	f32 vslice {512.f};
+	f32 ystep {(height/(v1-v0) * vslice)};
+	f32 vstep {(v1-v0) > 0 ? vslice : -vslice};
 
-	f32 x_end = width;
-	f32 uslice = 64.f;
+	f32 x_end {width};
+	f32 uslice {64.f};
 	//f32 ustep = (u1-u0)/width * xslice;
-	f32 xstep = (width/(u1-u0) * uslice);
-	f32 ustep = ((u1-u0) > 0 ? uslice : -uslice);
+	f32 xstep {(width/(u1-u0) * uslice)};
+	f32 ustep {(u1-u0) > 0 ? uslice : -uslice};
 
-	const u8* data = static_cast<const u8*>(texture->GetData());
+	const u8* data {static_cast<const u8*>(texture->GetData())};
 
 	for ( ; cur_y < y_end; cur_y+=ystep, cur_v+=vstep )
 	{
-		f32 cur_u = u0;
-		f32 cur_x = x;
-		f32 u_end = u1;
+		f32 cur_u {u0};
+		f32 cur_x {x};
+		f32 u_end {u1};
 
-		f32 poly_height = ((cur_y+ystep) > y_end) ? (y_end-cur_y) : ystep;
-		f32 source_height = vstep;
+		f32 poly_height {((cur_y+ystep) > y_end) ? (y_end-cur_y) : ystep};
+		f32 source_height {vstep};
 
 		// support negative vsteps
 		if ((vstep > 0) && (cur_v+vstep > v_end))
@@ -1059,7 +1059,7 @@ void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height,
 			source_height = (cur_v-v_end);
 		}
 
-		const u8* udata = data;
+		const u8* udata {data};
 		// blit maximizing the use of the texture-cache
 		for( ; cur_x < x_end; cur_x+=xstep, cur_u+=ustep )
 		{
@@ -1076,8 +1076,8 @@ void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height,
 			TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(2*sizeof(TextureVtx));
 
 			//f32 poly_width = ((cur_x+xstep) > x_end) ? (x_end-cur_x) : xstep;
-			f32 poly_width = xstep;
-			f32 source_width = ustep;
+			f32 poly_width {xstep};
+			f32 source_width {ustep};
 
 			// support negative usteps
 			if ((ustep > 0) && (cur_u+ustep > u_end))

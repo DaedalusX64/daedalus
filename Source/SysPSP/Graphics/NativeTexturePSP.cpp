@@ -74,7 +74,9 @@ EPspTextureFormat	GetPspTextureFormat( ETextureFormat texture_format )
 	case TexFmt_CI8_8888:	return PspTexFmt_T8;
 	}
 
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR( "Unhandled texture format" );
+	#endif
 	return PspTexFmt_8888;
 }
 
@@ -488,10 +490,11 @@ namespace
 
 		CRefPtr<CNativeTexture>	texture = CNativeTexture::Create( width, height, texture_format );
 
+		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( texture->GetWidth() >= width, "Width is unexpectedly small" );
 		DAEDALUS_ASSERT( texture->GetHeight() >= height, "Height is unexpectedly small" );
 		DAEDALUS_ASSERT( texture_format == texture->GetFormat(), "Texture format doesn't match" );
-
+		#endif
 		u8 *	p_dest( new u8[ texture->GetBytesRequired() ] );
 		if( !p_dest )
 		{
@@ -518,11 +521,15 @@ namespace
 
 			case TexFmt_CI4_8888:
 			case TexFmt_CI8_8888:
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 				DAEDALUS_ERROR( "Can't use palettised format for png." );
+				#endif
 				break;
 
 			default:
+						#ifdef DAEDALUS_DEBUG_CONSOLE
 				DAEDALUS_ERROR( "Unhandled texture format" );
+				#endif
 				break;
 			}
 
@@ -568,10 +575,9 @@ void	CNativeTexture::SetData( void * data, void * palette )
 
 		if( mpPalette != nullptr )
 		{
-			DAEDALUS_ASSERT( palette != nullptr, "No palette provided" );
-
 			#ifdef DAEDALUS_ENABLE_ASSERTS
-				mPaletteSet = true;
+			DAEDALUS_ASSERT( palette != nullptr, "No palette provided" );
+			mPaletteSet = true;
 			#endif
 
 			switch( mTextureFormat )
@@ -584,7 +590,9 @@ void	CNativeTexture::SetData( void * data, void * palette )
 				break;
 
 			default:
+				#ifdef DAEDALUS_DEBUG_CONSOLE
 				DAEDALUS_ERROR( "Unhandled palette format" );
+				#endif
 				break;
 			}
 
@@ -597,7 +605,9 @@ void	CNativeTexture::SetData( void * data, void * palette )
 		}
 		else
 		{
+			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( palette == nullptr, "Palette provided when not needed" );
+			#endif
 		}
 	}
 }

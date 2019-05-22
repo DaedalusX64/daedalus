@@ -131,9 +131,9 @@ IMainMenuScreen::IMainMenuScreen( CUIContext * p_context )
 ,	mCurrentOption( MO_ROMS )
 ,	mCurrentDisplayOption( mCurrentOption )
 {
-	for( u32 i = 0; i < NUM_MENU_OPTIONS; ++i )
+	for( u32 i {0}; i < NUM_MENU_OPTIONS; ++i )
 	{
-		mOptionComponents[ i ] = NULL;
+		mOptionComponents[ i ] = nullptr;
 	}
 
 	mSelectedRomComponent = CSelectedRomComponent::Create( mpContext, new CMemberFunctor< IMainMenuScreen >( this, &IMainMenuScreen::OnStartEmulation ) );

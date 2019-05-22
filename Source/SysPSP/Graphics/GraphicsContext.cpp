@@ -150,8 +150,9 @@ private:
 //*************************************************************************************
 template<> bool CSingleton< CGraphicsContext >::Create()
 {
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == nullptr);
-
+#endif
 	mpInstance = new IGraphicsContext();
 	return mpInstance->Initialise();
 }
