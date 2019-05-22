@@ -151,51 +151,6 @@ static void DaedalusFWCheck()
 
 }
 
-static int PanicThread( SceSize args, void * argp )
-{
-	const u32 MASK = PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER | PSP_CTRL_START;
-
-	u32 count = 0;
-
-	//Loop 4 ever
-	while(1)
-	{
-		SceCtrlData pad;
-		sceCtrlPeekBufferPositive(&pad, 1);
-
-		if( (pad.Buttons & MASK) == MASK )
-		{
-			 if(++count > 5)         //If button press for more that 2sec we return to main menu
-			{
-				count = 0;
-				CGraphicsContext::Get()->ClearAllSurfaces();
-				CPU_Halt("Panic");
-				ThreadSleepMs(2000);
-			}
-		}
-		else count = 0;
-
-		//Idle here, only check button 3 times/sec not to hog CPU time from EMU
-		ThreadSleepMs(300);
-	}
-
-	return 0;
-}
-
-//*************************************************************************************
-//
-//*************************************************************************************
-static int SetupPanic()
-{
-	int thidf = sceKernelCreateThread( "PanicThread", PanicThread, 0x18, 0xFA0, PSP_THREAD_ATTR_USER, 0 );
-
-	if(thidf >= 0)
-	{
-		sceKernelStartThread(thidf, 0, 0);
-	}
-
-	return 0;
-}
 
 extern bool InitialiseJobManager();
 //*************************************************************************************
@@ -234,7 +189,6 @@ static bool	Initialize()
 #ifdef DAEDALUS_DEBUG_CONSOLE
 extern void initExceptionHandler();
 	initExceptionHandler();
-		SetupPanic();
 #endif
 
 	_DisableFPUExceptions();
@@ -245,8 +199,8 @@ extern void initExceptionHandler();
 	SetupCallbacks();
 #endif
 
-	//Set up the DveMgr (TV Display) and Detect PSP Slim /3K/ Go
-	if ( kuKernelGetModel() > PSP_MODEL_STANDARD )
+		// Detect PSP greater than PSP 1000
+	if ( kuKernelGetModel() > 0 )
 	{
 		// Can't use extra memory if ME isn't available
 		if( bMeStarted )
@@ -349,7 +303,6 @@ void HandleEndOfFrame()
 
 
 
-	bool		activate_pause_menu( false );
 	//
 	//	Figure out how long the last frame took
 	//
@@ -361,7 +314,7 @@ void HandleEndOfFrame()
 	//
 	static u32 oldButtons = 0;
 	SceCtrlData pad;
-
+			bool		activate_pause_menu {false};
 	sceCtrlPeekBufferPositive(&pad, 1);
 
 	// If kernelbuttons.prx couldn't be loaded, allow select button to be used instead
@@ -374,18 +327,8 @@ void HandleEndOfFrame()
 		}
 
 		if(pad.Buttons & PSP_CTRL_HOME)
-		{
-			while(!activate_pause_menu)
-			{
-				sceCtrlPeekBufferPositive(&pad, 1);
-				if(!(pad.Buttons & PSP_CTRL_HOME))
-				{
-					activate_pause_menu = true;
-				}
-			}
-		}
+				activate_pause_menu = true;
 	}
-	oldButtons = pad.Buttons;
 
 	if(activate_pause_menu)
 	{
