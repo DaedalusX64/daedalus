@@ -22,6 +22,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef SYSPSP_INCLUDE_PLATFORM_H_
 #define SYSPSP_INCLUDE_PLATFORM_H_
 
+
+enum PspModel
+{
+    PSP_MODEL_STANDARD = 0,
+    PSP_MODEL_SLIM_AND_LITE = 1,
+    PSP_MODEL_BRITE = 8,
+    PSP_MODEL_GO = 4,
+    PSP_MODEL_STREET = 10
+};
 //
 //	Make sure this platform is defined correctly
 //

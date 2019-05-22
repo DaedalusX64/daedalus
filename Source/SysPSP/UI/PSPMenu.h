@@ -64,13 +64,13 @@ const char * const		LOADING_TITLE_TEXT = "Select a Slot to Load From";
 
 
 // About components
-#define MAX_PSP_MODEL 6
+#define MAX_PSP_MODEL 11
 
 const char * const DAEDALUS_VERSION_TEXT = "DaedalusX64 Revision ";
 
 const char * const		DATE_TEXT = "Built ";
 
-const char * const		URL_TEXT_1 = "https://github.com/z2442/daedalus/";
+const char * const		URL_TEXT_1 = "https://github.com/daedalusx64/daedalus/";
 const char * const		URL_TEXT_2 = "https://discord.gg/AHWDYmB";
 
 const char * const		INFO_TEXT[] =
@@ -85,7 +85,7 @@ const char * const		INFO_TEXT[] =
 
 const char * const		pspModel[ MAX_PSP_MODEL ] =
 {
-  "PSP PHAT", "PSP SLIM", "PSP BRITE", "PSP BRITE", "PSP GO", "UNKNOWN PSP"
+  "PSP PHAT (01g)", "PSP 2000 (02g)", "PSP BRITE(03g)", "PSP BRITE (04g)", "PSP GO (05G)", "UNKNOWN PSP", "PSP BRITE (07g)", "UNKNOWN PSP",  "PSP BRITE (09g)", "UNKNOWN PSP", "PSP STREET (11g)"
 };
 
 
