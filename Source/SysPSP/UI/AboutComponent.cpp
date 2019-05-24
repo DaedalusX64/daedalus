@@ -38,7 +38,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspctrl.h>
 #include <pspgu.h>
 
-
 class IAboutComponent : public CAboutComponent
 {
 	public:
@@ -112,7 +111,14 @@ void	IAboutComponent::Render()
 	CFixedString<128>	date( Translate_String(DATE_TEXT) );
 	date += __DATE__;
 	date += " (";
+	int vitaprx = sceIoOpen("flash0:/kd/registry.prx", PSP_O_RDONLY | PSP_O_WRONLY, 0777);
+	if(vitaprx >= 0){
+	sceIoClose(vitaprx);
+	date += "PS VITA (PSP2)";
+	}
+	else {
 	date += IsPSPModelValid( kuKernelGetModel() ) ? pspModel[ kuKernelGetModel() ] : "UNKNOWN PSP";
+	}
 	date += ")";
 
 	mpContext->DrawTextAlign( LIST_TEXT_LEFT, LIST_TEXT_WIDTH, AT_CENTRE, y, version, DrawTextUtilities::TextWhite ); y += line_height;

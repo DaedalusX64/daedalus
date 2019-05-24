@@ -205,6 +205,12 @@ extern void initExceptionHandler();
 		if( bMeStarted )
 			PSP_IS_SLIM = true;
 
+	int vitaprx = sceIoOpen("flash0:/kd/registry.prx", PSP_O_RDONLY | PSP_O_WRONLY, 0777);
+	if(vitaprx >= 0){
+	sceIoClose(vitaprx);
+
+	}
+	else {
 		HAVE_DVE = CModule::Load("dvemgr.prx");
 		if (HAVE_DVE >= 0)
 			PSP_TV_CABLE = pspDveMgrCheckVideoOut();
@@ -212,7 +218,8 @@ extern void initExceptionHandler();
 			PSP_TV_LACED = 1; // composite cable => interlaced
 		else if( PSP_TV_CABLE == 0 )
 			CModule::Unload( HAVE_DVE );	// Stop and unload dvemgr.prx since if no video cable is connected
-	}
+		}
+}
 
 	HAVE_DVE = (HAVE_DVE < 0) ? 0 : 1; // 0 == no dvemgr, 1 == dvemgr
 
