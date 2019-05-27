@@ -9,7 +9,7 @@
 #include <winsock2.h>
 #endif
 
-#ifdef DAEDALUS_OSX
+#ifdef DAEDALUS_POSIX
 #include <unistd.h>
 #endif
 

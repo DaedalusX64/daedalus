@@ -204,7 +204,7 @@ if (keys [ SDL_SCANCODE_PAGEDOWN ] ){  pPad[0].button |= R_CBUTTONS;}
 
 			 }
 		}
-
+	
 template<> bool	CSingleton< CInputManager >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);

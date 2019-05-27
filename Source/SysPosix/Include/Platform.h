@@ -19,14 +19,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef SYSOSX_INCLUDE_PLATFORM_H_
-#define SYSOSX_INCLUDE_PLATFORM_H_
+#ifndef SYSPOSIX_INCLUDE_PLATFORM_H_
+#define SYSPOSIX_INCLUDE_PLATFORM_H_
 
 //
 //	Make sure this platform is defined correctly
 //
-#ifndef DAEDALUS_OSX
-#define DAEDALUS_OSX
+#ifndef DAEDALUS_POSIX
+#define DAEDALUS_POSIX
 #endif
 
 #define DAEDALUS_COMPRESSED_ROM_SUPPORT
@@ -45,4 +45,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //#define DAEDALUS_HALT			__builtin_debugger()
 #define DAEDALUS_GL
 
-#endif // SYSOSX_INCLUDE_PLATFORM_H_
+#endif // SYSPOSIX_INCLUDE_PLATFORM_H_

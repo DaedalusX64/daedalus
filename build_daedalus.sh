@@ -86,7 +86,7 @@ elif [ "$1" = "LINUX_RELEASE" ] || [ "$1" = "MAC_RELEASE" ]; then
   cmake -D"$1=1" ../Source
 make
 finalPrep
-cp daedalus ../DaedalusX64
+cp "$PWD/daedbuild/daedalus" DaedalusX64
 else
 usage
 fi
