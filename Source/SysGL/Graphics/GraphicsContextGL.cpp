@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "SysGL/GL.h"
+
 #include "Graphics/GraphicsContext.h"
 
 #include "Graphics/ColourValue.h"
@@ -12,8 +13,8 @@
 static u32 SCR_WIDTH = 640;
 static u32 SCR_HEIGHT = 480;
 
-// FIXME: This is global to lots of SysGL stuff. Wrap it up elsewhere, and keep this file for the graphics side of things.
 SDL_Window * gWindow = NULL;
+
 
 class GraphicsContextGL : public CGraphicsContext
 {
@@ -52,16 +53,9 @@ template<> bool CSingleton< CGraphicsContext >::Create()
 
 GraphicsContextGL::~GraphicsContextGL()
 {
-	// glew
-
-	// FIXME: would be better in an separate SysGL file.
-	if (gWindow)
-	{
-	SDL_DestroyWindow(gWindow);
-		gWindow = nullptr;
-	}
-
-	SDL_Quit();
+		SDL_DestroyWindow(gWindow);
+		gWindow = NULL;
+		SDL_Quit();
 }
 
 static void error_callback(int error, const char* description)
@@ -73,72 +67,47 @@ static void error_callback(int error, const char* description)
 extern bool initgl();
 bool GraphicsContextGL::Initialise()
 {
-	// glfwSetErrorCallback(error_callback);
 
-	// Initialise GLFW
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+	//Initialize SDL
+	if( SDL_Init( SDL_INIT_VIDEO) < 0 )
 	{
-		SDL_Log("Unable to initalize SDL: %s", SDL_GetError());
-		return 1;
-	}
-
-
-	// glfwWindowHint(GLFW_SAMPLES, 4);
-	// glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	// glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-
-#ifdef DAEDALUS_OSX
-	// OSX 10.7+ only supports 3.2 with core profile/forward compat.
-	// glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	// glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
-	// glfwWindowHint(GLFW_DEPTH_BITS, 24);
-	//glfwWindowHint(GLFW_STENCIL_BITS, 0);
-
-	// Open a window and create its OpenGL context
-	// gWindow = glfwCreateWindow( SCR_WIDTH, SCR_HEIGHT,
-	// 							"Daedalus",
-	// 							NULL, NULL );
-
-	gWindow = SDL_CreateWindow ("Daedalus", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL);
-	if (!gWindow)
-	{
-		fprintf( stderr, "Failed to open SDL window\n" );
-
-		SDL_Quit();
+		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
 		return false;
 	}
+		//Use OpenGL 3.3 core
+		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
+		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
+		SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
+		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+		//Create window
+		gWindow = SDL_CreateWindow( "Daedalus", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCR_WIDTH, SCR_HEIGHT, SDL_WINDOW_OPENGL );
 
-	// glfwMakeContextCurrent(gWindow);
+		if( gWindow == NULL )
+		{
+			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
+			return false;
+		}
 
-	// Ensure we can capture the escape key being pressed below
-	//glfwEnable( GLFW_STICKY_KEYS );
+			//Create context
+	SDL_GLContext	gContext = SDL_GL_CreateContext( gWindow );
 
-	// Enable vertical sync (on cards that support it)
 	SDL_GL_SetSwapInterval(1);
 
-	// Initialise GLEW
-	//glewExperimental = GL_TRUE;
 	GLenum err = glewInit();
 	if (err != GLEW_OK || !GLEW_VERSION_3_2)
 	{
-		fprintf( stderr, "Failed to initialize GLEW\n" );
 	SDL_DestroyWindow(gWindow);
+
 		gWindow = NULL;
 		SDL_Quit();
 		return false;
 	}
-
-	ClearAllSurfaces();
-
-	// This is not valid in GLFW 3.0, and doesn't work with glfwGetWindowAttrib.
-	//if (glfwGetWindowParam(GLFW_FSAA_SAMPLES) != 0)
-	//	fprintf( stderr, "Full Screen Anti-Aliasing 4X has been enabled\n" );
-
-	// FIXME(strmnnrmn): this needs tidying.
-	return initgl();
+//ClearColBufferAndDepth(0,0,0,0);
+UpdateFrame(false);
+return initgl();
 }
+
 
 void GraphicsContextGL::GetScreenSize(u32 * width, u32 * height) const
 {
@@ -160,6 +129,7 @@ void GraphicsContextGL::ClearAllSurfaces()
 	// Not sure if it's necessary...
 	ClearToBlack();
 }
+
 
 void GraphicsContextGL::ClearToBlack()
 {
@@ -209,10 +179,10 @@ void GraphicsContextGL::EndFrame()
 
 void GraphicsContextGL::UpdateFrame( bool wait_for_vbl )
 {
-	//glfwSwapBuffers(gWindow);
 	SDL_GL_SwapWindow(gWindow);
+
 //	if( gCleanSceneEnabled ) //TODO: This should be optional
-	{
-		ClearColBuffer( c32(0xff000000) ); // ToDo : Use gFillColor instead?
-	}
+//	{
+	//	ClearColBuffer( c32(0xff000000) ); // ToDo : Use gFillColor instead?
+	//}
 }

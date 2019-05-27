@@ -19,6 +19,8 @@
 
 #include "SysGL/GL.h"
 
+extern SDL_Window * gWindow;
+
 EFrameskipValue     gFrameskipValue = FV_DISABLED;
 u32                 gVISyncRate     = 1500;
 bool                gTakeScreenshot = false;
@@ -163,7 +165,7 @@ void CGraphicsPluginImpl::UpdateScreen()
 		char string[22];
 		sprintf(string, "Daedalus | FPS %#.1f", gCurrentFramerate);
 
-		SDL_SetWindowTitle(gWindow, string);
+	SDL_SetWindowTitle(gWindow, string);
 
 		if (gTakeScreenshot)
 		{
