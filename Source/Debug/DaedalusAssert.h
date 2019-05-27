@@ -27,7 +27,7 @@
 
 // Ideas for the ignored assert taken from Game Programming Gems I
 
-#if defined(__clang__) && __has_feature(cxx_static_assert)
+#if defined(__clang__) 
 
 #define DAEDALUS_STATIC_ASSERT( x ) static_assert((x), "Static Assert")
 

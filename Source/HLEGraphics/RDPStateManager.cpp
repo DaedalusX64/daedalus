@@ -663,7 +663,7 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		if(rdp_tile.size == G_IM_SIZ_4b)
 		{
 			u32 tlut_idx0 {(u32)(g_ROM.TLUT_HACK << 1)};
-			u32 tlut_idx1 {(u32)gTlutLoadAddresses[ rdp_tile.palette << tlut_idx0 ]};
+			u32 tlut_idx1 {(uintptr_t)gTlutLoadAddresses[ rdp_tile.palette << tlut_idx0 ]};
 
 			//If pointer == nullptr(=invalid entry) add offset to base address (TMEM[0] + offset)
 			if(tlut_idx1 == 0)

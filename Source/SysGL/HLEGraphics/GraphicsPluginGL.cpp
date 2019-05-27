@@ -163,7 +163,7 @@ void CGraphicsPluginImpl::UpdateScreen()
 		char string[22];
 		sprintf(string, "Daedalus | FPS %#.1f", gCurrentFramerate);
 
-		glfwSetWindowTitle(gWindow, string);
+		SDL_SetWindowTitle(gWindow, string);
 
 		if (gTakeScreenshot)
 		{
@@ -198,4 +198,3 @@ class CGraphicsPlugin *	CreateGraphicsPlugin()
 
 	return plugin;
 }
-

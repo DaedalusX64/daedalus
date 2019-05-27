@@ -82,10 +82,10 @@ u32 TextureInfo::GenerateHashValue() const
 
 	u32 step {(u32)(Height * Pitch)};	//Get size in bytes, seems to be more accurate (alternative -> Height * Width * (1<<Size) >> 1;)
 
-	if((u32)ptr_u8 & 0x3)	//Check if aligned to 4 bytes if not then align
+	if((uintptr_t)ptr_u8 & 0x3)	//Check if aligned to 4 bytes if not then align
 	{
-		ptr_u8 += 4 - ((u32)ptr_u8 & 0x3);
-		step   -= 4 - ((u32)ptr_u8 & 0x3);
+		ptr_u8 += 4 - ((uintptr_t)ptr_u8 & 0x3);
+		step   -= 4 - ((uintptr_t)ptr_u8 & 0x3);
 	}
 
 	u32 *ptr_u32 {(u32*)ptr_u8};	//use 32bit access

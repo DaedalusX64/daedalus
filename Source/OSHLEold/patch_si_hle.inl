@@ -9,7 +9,7 @@ TEST_DISABLE_SI_FUNCS
 #ifdef DAED_OS_MESSAGE_QUEUES
 
 	Write32Bits(VAR_ADDRESS(osSiAccessQueueCreated), 1);
-#ifdef DAEDALUS_DEBUG_CONSOLE
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Creating Si Access Queue");
 #endif
 	OS_HLE_osCreateMesgQueue(VAR_ADDRESS(osSiAccessQueue), VAR_ADDRESS(osSiAccessQueueBuffer), 1);
@@ -172,10 +172,9 @@ u32 Patch___osSiRawStartDma_Mario()
 {
 	u32 RWflag = gGPR[REG_a0]._u32_0;
 	u32 SIAddr = gGPR[REG_a1]._u32_0;
-
-#ifdef DAEDALUS_DEBUG_CONSOLE
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( !IsSiDeviceBusy(), "Si Device is BUSY, Need to handle!");
-#endif
+	#endif
 	/*
 	if (IsSiDeviceBusy())
 	{
@@ -210,7 +209,7 @@ u32 Patch___osSiRawStartDma_Rugrats()
 {
 	u32 RWflag = gGPR[REG_a0]._u32_0;
 	u32 SIAddr = gGPR[REG_a1]._u32_0;
-#ifdef DAEDALUS_DEBUG_CONSOLE
+	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( !IsSiDeviceBusy(), "Si Device is BUSY, Need to handle!");
 	#endif
 	/*

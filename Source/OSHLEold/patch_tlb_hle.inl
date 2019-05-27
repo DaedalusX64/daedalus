@@ -15,7 +15,7 @@ TEST_DISABLE_TLB_FUNCS
 	u32 a = Read32Bits(gGPR[REG_sp]._u32_0 + 0x10);
 	u32 b = Read32Bits(gGPR[REG_sp]._u32_0 + 0x14);
 
-	DBGConsole_Msg(0, "[WosMapTLB(0x%08x,0x%08x,0x%0#8x,0x%08x,0x%08x,0x%08x)]",
+	DBGConsole_Msg(0, "[WosMapTLB(0x%08x,0x%08x,0x%08x,0x%08x,0x%08x,0x%08x)]",
 		w,x,y,z,a,b);
 #endif
 	return PATCH_RET_NOT_PROCESSED;

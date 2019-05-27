@@ -203,7 +203,7 @@ TEST_DISABLE_SP_FUNCS
 	OSTask * pDstTask = (OSTask *)ReadAddress(temp);
 
 	// Translate virtual addresses to physical...
-	fast_memcpy(pDstTask, pSrcTask, sizeof(OSTask));
+	memcpy(pDstTask, pSrcTask, sizeof(OSTask));
 
 	if (pDstTask->t.ucode != 0)
 		pDstTask->t.ucode = ConvertToPhysical(pDstTask->t.ucode);

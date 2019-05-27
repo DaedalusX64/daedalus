@@ -116,9 +116,11 @@ u32 Patch_strcmp()
 	u32 sB = gGPR[REG_a1]._u32_0;
 	u32 len = gGPR[REG_a2]._u32_0;
 	u8 A, B;
-#ifdef DAEDALUS_DEBUG_CONSOLE
+
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "strcmp(%s,%s,%d)", sA, sB, len);
-#endif
+	#endif
+
 	for (i = 0; (A = Read8Bits(sA+i)) != 0 && i < len; i++)
 	{
 		B = Read8Bits(sB + i);
@@ -166,7 +168,7 @@ TEST_DISABLE_UTIL_FUNCS
 		psrc += len;
 		while(len--)
 		{
-            *(u8*)((uintptr_t)pdst-- ^ U8_TWIDDLE) = *(u8*)((uintptr_t)psrc-- ^ U8_TWIDDLE);
+			*(u8*)((u32)pdst-- ^ U8_TWIDDLE) = *(u8*)((uintptr_t)psrc-- ^ U8_TWIDDLE);
 		}
 	}
 	else
@@ -176,7 +178,7 @@ TEST_DISABLE_UTIL_FUNCS
 #else
 		while(len--)
 		{
-			*(u8*)((u32)pdst++ ^ U8_TWIDDLE) = *(u8*)((u32)psrc++ ^ U8_TWIDDLE);
+			*(u8*)((u32)pdst++ ^ U8_TWIDDLE) = *(u8*)((uintptr_t)psrc++ ^ U8_TWIDDLE);
 		}
 #endif
 	}
@@ -202,7 +204,7 @@ u32 Patch_bzero()
 	memset( dst8, 0, len);
 #else
 	// Align dst on 4 bytes or just resume if already done
-	while(((uintptr_t)dst8 & 0x3) && len)
+	while(((u32)dst8 & 0x3) && len)
 	{
 		*(u8*)((uintptr_t)dst8++ ^ U8_TWIDDLE) = 0;
 		len--;
@@ -233,7 +235,7 @@ u32 Patch_bzero()
 	//Write(0) to the unaligned remains(if any), byte by byte...
 	while(len--)
 	{
-	*(u8*)((uintptr_t)dst8++ ^ U8_TWIDDLE) = 0;
+		*(u8*)((u32)dst8++ ^ U8_TWIDDLE) = 0;
 	}
 #endif
 

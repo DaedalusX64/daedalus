@@ -534,9 +534,9 @@ u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 	if( g_ROM.GameHacks != CHAMELEON_TWIST_2 ) gGraphicsPlugin->UpdateScreen();
 
 	OSTask * pTask {(OSTask *)(g_pu8SpMemBase + 0x0FC0)};
-	u32 code_base {(u32)pTask->t.ucode & 0x1fffffff};
+	u32 code_base {(uintptr_t)pTask->t.ucode & 0x1fffffff};
 	u32 code_size {pTask->t.ucode_size};
-	u32 data_base {(u32)pTask->t.ucode_data & 0x1fffffff};
+	u32 data_base {(uintptr_t)pTask->t.ucode_data & 0x1fffffff};
 	u32 data_size {pTask->t.ucode_data_size};
 	u32 stack_size {pTask->t.dram_stack_size >> 6};
 
@@ -557,7 +557,7 @@ u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 
 	// Initialise stack
 	gDlistStackPointer=0;
-	gDlistStack.address[0] = (u32)pTask->t.data_ptr;
+	gDlistStack.address[0] = (uintptr_t)pTask->t.data_ptr;
 	gDlistStack.limit = -1;
 
 	gRDPStateManager.Reset();

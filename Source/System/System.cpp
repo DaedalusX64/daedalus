@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/GraphicsContext.h"
 
 #if defined(DAEDALUS_OSX) || defined(DAEDALUS_W32)
-#include "SysOSX/Debug/WebDebug.h"
+#include "SysPosix/Debug/WebDebug.h"
 #include "HLEGraphics/TextureCacheWebDebug.h"
 #include "HLEGraphics/DisplayListDebugger.h"
 #endif

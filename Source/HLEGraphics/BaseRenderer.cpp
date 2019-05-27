@@ -384,7 +384,7 @@ void BaseRenderer::UpdateViewport()
 	sceGuOffset(vx - (vp_w/2),vy - (vp_h/2));
 	sceGuViewport(vx + vp_x, vy + vp_y, vp_w, vp_h);
 #elif defined(DAEDALUS_GL)
-	glViewport(vp_x, (s32)mScreenHeight - (vp_h + vp_y), vp_w, vp_h)
+	glViewport(vp_x, (s32)mScreenHeight - (vp_h + vp_y), vp_w, vp_h);
 #else
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	DAEDALUS_ERROR("Code to set viewport not implemented on this platform");
@@ -607,7 +607,7 @@ static u32 clipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, u
 	DaedalusVtx4 * out(dest);
 
 	const DaedalusVtx4 * a {};
-	const DaedalusVtx4 * b(source) {};
+	const DaedalusVtx4 *b(source);
 
 	f32 bDotPlane = b->ProjectedPos.Dot( plane );
 
@@ -1289,7 +1289,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 			}
 			else
 			{	//NORMAL LIGHT
-				for (l {}; l < mTnL.NumLights; l++)
+				for (l = 0; l < mTnL.NumLights; l++)
 				{
 					if ( mTnL.Lights[l].SkipIfZero )
 					{
@@ -1343,7 +1343,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 
 void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboard)
 {
-	u32 pVtxBase {u32(g_pu8RamBase + address)};
+	u32 pVtxBase {uintptr_t(g_pu8RamBase + address)};
 	const Matrix4x4 & mat_world_project {mModelViewStack[mDKRMatIdx]};
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST

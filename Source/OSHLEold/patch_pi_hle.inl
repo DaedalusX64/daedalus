@@ -9,9 +9,10 @@ TEST_DISABLE_PI_FUNCS
 
 #ifdef DAED_OS_MESSAGE_QUEUES
 	Write32Bits(VAR_ADDRESS(osPiAccessQueueCreated), 1);
-#ifdef DAEDALUS_DEBUG_CONSOLE
+
+	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "Creating Pi Access Queue");
-#endif
+	#endif
 	OS_HLE_osCreateMesgQueue(VAR_ADDRESS(osPiAccessQueue), VAR_ADDRESS(osPiAccessQueueBuffer), 1);
 
 	//u32 dwQueue     = gGPR[REG_a0]._u32_0;
@@ -87,6 +88,7 @@ TEST_DISABLE_PI_FUNCS
 	u32 PiAddr = gGPR[REG_a1]._u32_0;
 	u32 VAddr  = gGPR[REG_a2]._u32_0;
 	u32 len    = gGPR[REG_a3]._u32_0;
+
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( !IsPiDeviceBusy(), "Pi Device is BUSY, Need to handle!");
 #endif
