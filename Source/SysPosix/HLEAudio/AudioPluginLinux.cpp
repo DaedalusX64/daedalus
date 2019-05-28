@@ -9,7 +9,7 @@
 #include "HLEAudio/audiohle.h"
 #include "Utility/FramerateLimiter.h"
 #include "Utility/Thread.h"
-#include "UTility/Timing.h"
+#include "Utility/Timing.h"
 
 
 EAudioPluginMode gAudioPluginEnabled = APM_DISABLED;
@@ -35,7 +35,7 @@ setting this too high we'll run the risk of being laggy
 static const u32 kMAxBufferLengthMs = 30;
 
 
-class AudioPluginSDL : publig CAudioPlugin
+class AudioPluginSDL : public CAudioPlugin
 {
 public:
 		AudioPluginSDL();
@@ -59,7 +59,7 @@ public:
 		u32 mFrequency;
 		ThreadHandle mAudioThread;
 		volatile bool mKeepRunning;
-		volatile u32 mBufferLenMS;
+		volatile u32 mBufferLenMs;
 
 	};
 
@@ -81,7 +81,7 @@ bool AudioPluginSDL::StartEmulation()
 	return true;
 }
 
-bool AudioPluginSDL::StopEmulation()
+void AudioPluginSDL::StopEmulation()
 {
 	Audio_Reset();
 	StopAudio();
@@ -104,7 +104,7 @@ void AudioPluginSDL::LenChanged()
 		u32 address {Memory_AI_GetRegister(AI_DRAM_ADDR_REG) & 0xFFFFFF};
 		u32 length {Memory_AI_GetRegister(AI_LEN_REG)};
 
-		AddBuffer( g_puRamBase + address, length);
+		AddBuffer( g_pu8RamBase + address, length);
 	}
 	else
 	{
@@ -112,7 +112,7 @@ void AudioPluginSDL::LenChanged()
 	}
 }
 
-EProcessREsult AudioPluginSDL::ProcessAList()
+EProcessResult AudioPluginSDL::ProcessAList()
 {
 		Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_HALT);
 
@@ -129,14 +129,56 @@ EProcessREsult AudioPluginSDL::ProcessAList()
 					result = PR_COMPLETED;
 					break;
 				case APM_ENABLED_SYNC:
-					Audio_UCode();
+					Audio_Ucode();
 					result = PR_COMPLETED;
 					break;
 		}
 		return result;
 }
+void AudioPluginSDL::AddBuffer( void * ptr, u32 length)
+{
+	if (length == 0)
+		return;
+
+		if (mAudioThread == kInvalidThreadHandle)
+			StartAudio();
+
+		u32 num_samples {length / sizeof (Sample)};
+		mAudioBuffer.AddSamples( reinterpret_cast<const Sample *>(ptr), num_samples, mFrequency, kOutputFrequency);
+		u32 remaining_samples {mAudioBuffer.GetNumBufferedSamples()};
+		mBufferLenMs = (1000 * remaining_samples) / kOutputFrequency;
+		float ms {(float)num_samples * 1000.0f / (float)mFrequency};
+		DPF_AUDIO("Queing %d Samples @%dHz - %.2fms - bufferlen now %d\n", num_samples, mFrequency, ms, mBufferLenMs);
+	}
 
 
+void AudioPluginSDL::StartAudio()
+{
+	mKeepRunning = true;
+//	mAudioThread == CreateThread("Audio", &AudioThread, this);
+	if (mAudioThread == kInvalidThreadHandle)
+	{
+		DBGConsole_Msg(0, "Failed to start audio thread");
+		mKeepRunning = false;
+		FramerateLimiter_SetAuxillarySyncFunction(NULL, NULL);
+	}
+}
+
+void AudioPluginSDL::StopAudio()
+{
+	if (mAudioThread == kInvalidThreadHandle)
+		return;
+
+		mKeepRunning = false;
+
+		if (mAudioThread != kInvalidThreadHandle)
+		{
+			JoinThread(mAudioThread, -1);
+			mAudioThread = kInvalidThreadHandle;
+		}
+
+		FramerateLimiter_SetAuxillarySyncFunction(NULL, NULL);
+}
 CAudioPlugin * CreateAudioPlugin()
 {
 	return NULL;
