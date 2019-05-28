@@ -93,7 +93,6 @@ CJobManager::CJobManager( u32 job_buffer_size, ETaskMode task_mode )
 //*****************************************************************************
 CJobManager::~CJobManager()
 {
-	Stop();
 
 	sceKernelDeleteSema(mWorkReady);
 	sceKernelDeleteSema(mWorkEmpty);
@@ -112,39 +111,9 @@ CJobManager::~CJobManager()
 //*****************************************************************************
 //
 //*****************************************************************************
-void CJobManager::Start()
-{
-	if( mThread == kInvalidThreadHandle )
-	{
-		mWantQuit = false;
-		mThread = CreateThread( "JobManager", JobMain, this );
-#ifdef DAEDALUS_ENABLE_ASSERTS
-		DAEDALUS_ASSERT( mThread != kInvalidThreadHandle, "Unable to start JobManager thread!" );
-		#endif
-	}
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void CJobManager::Stop()
-{
-	if( mThread != kInvalidThreadHandle )
-	{
-		mWantQuit = true;
-		sceKernelWaitThreadEnd(mThread, 0);
-		mThread = kInvalidThreadHandle;
-	}
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
 u32 CJobManager::JobMain( void * arg )
 {
 	CJobManager *	job_manager( static_cast< CJobManager * >( arg ) );
-
-	job_manager->Run();
 
 	return 0;
 }
@@ -169,11 +138,6 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 		return true;
 	}
 
-	Start();
-
-	//printf( "Adding job...waiting for empty\n" );
-	sceKernelWaitSema( mWorkEmpty, 1, nullptr );
-
 	// Add job to queue
 	if( job_size <= mJobBufferSize )
 	{
@@ -183,73 +147,42 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 		//clear the Cache
 		sceKernelDcacheWritebackInvalidateAll();
 
-		//printf( "Adding job...signaling\n" );
-		sceKernelSignalSema( mWorkReady, 1 );
-
 		success = true;
 	}
 
+	//printf("Run Job on Media Engine\n");
+
+	SJob *	run( static_cast< SJob * >( mRunBufferuncached ) );
+
+	//clear Cache
+	sceKernelDcacheWritebackInvalidateAll();
+
+	memmove( mRunBufferuncached, mJobBuffer, mJobBufferSize );
+
+	//clear Cache -> this one is very important without it the CheckME(mei) will not return with the ME status.
+	sceKernelDcacheWritebackInvalidateAll();
+
+	// signal ready for a new job
+	sceKernelSignalSema( mWorkEmpty, 1 );
+
+	// Execute job initialise
+	if( run->InitJob )
+		run->InitJob( run );
+
+	// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
+		if(BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL) < 0){
+		memmove( mJobBufferuncached, mJobBuffer, mJobBufferSize );
+		SJob *	job( static_cast< SJob * >( mJobBufferuncached ) );
+		if( job->InitJob ) job->InitJob( job );
+		if( job->DoJob )   job->DoJob( job );
+		if( job->FiniJob ) job->FiniJob( job );
+		sceKernelSignalSema( mWorkEmpty, 1 );
+	}
+
+	//Mark Job(run) from Mrunbuffer as Finished
+	run->FiniJob( run );
+	run->FiniJob = nullptr; // so it doesn't get run again later
+
 	//printf( "Adding job...done\n" );
 	return success;
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void CJobManager::Run()
-{
-
-	while( 1 )
-	{
-		//This wait time sets the amount of time between checking for the next job. Waiting to long will cause a crash.
-		SceUInt timeout {5*1000};  // Microseconds
-
-		// Check for work with a timeout, in case we want to quit and no more work comes in
-		if( sceKernelWaitSema( mWorkReady, 1, &timeout ) >= 0 )
-		{
-
-				//printf("Run Job on Media Engine\n");
-
-				SJob *	run( static_cast< SJob * >( mRunBufferuncached ) );
-
-				//clear Cache
-				sceKernelDcacheWritebackInvalidateAll();
-
-				memmove( mRunBufferuncached, mJobBuffer, mJobBufferSize );
-
-				//clear Cache -> this one is very important without it the CheckME(mei) will not return with the ME status.
-				sceKernelDcacheWritebackInvalidateAll();
-
-				// signal ready for a new job
-				sceKernelSignalSema( mWorkEmpty, 1 );
-
-				// Execute job initialise
-				if( run->InitJob )
-					run->InitJob( run );
-
-				// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
-					if(BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL) < 0){
-					memmove( mJobBufferuncached, mJobBuffer, mJobBufferSize );
-					SJob *	job( static_cast< SJob * >( mJobBufferuncached ) );
-					if( job->InitJob ) job->InitJob( job );
-					if( job->DoJob )   job->DoJob( job );
-					if( job->FiniJob ) job->FiniJob( job );
-					sceKernelSignalSema( mWorkEmpty, 1 );
-				}
-
-
-				//Mark Job(run) from Mrunbuffer as Finished
-				run->FiniJob( run );
-				run->FiniJob = nullptr; // so it doesn't get run again later
-
-
-		}
-
-		// This thread needs to be terminated, so break this loop & kill the me
-		if( mWantQuit ){
-			break;
-		}
-
-	}
-	sceKernelExitDeleteThread(0);
 }
