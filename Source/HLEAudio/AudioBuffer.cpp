@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Thread.h"
 
 #ifdef DAEDALUS_PSP
+#include <pspsdk.h>
+#include <pspkernel.h>
 #include "SysPSP/Utility/CacheUtil.h"
 #endif
 
@@ -71,7 +73,10 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 	//}
 	//fwrite( samples, sizeof( Sample ), num_samples, fh );
 	//fflush( fh );
-
+	//clear the Cache
+	#ifdef DAEDALUS_PSP
+	sceKernelDcacheWritebackInvalidateAll();
+	#endif
 	const Sample *	read_ptr( mReadPtr );		// No need to invalidate, as this is uncached/volatile
 	Sample *		write_ptr( mWritePtr );
 
@@ -152,7 +157,10 @@ u32	CAudioBuffer::Drain( Sample * samples, u32 num_samples )
 {
 	//Todo: Check Cache Routines
 	// Ideally we could just invalidate this range?
-	//dcache_wbinv_range_unaligned( mBufferBegin, mBufferEnd );
+	//clear the Cache
+	#ifdef DAEDALUS_PSP
+	sceKernelDcacheWritebackInvalidateAll();
+	#endif
 
 	const Sample *	read_ptr( mReadPtr );		// No need to invalidate, as this is uncached/volatile
 	const Sample *	write_ptr( mWritePtr );		//
@@ -183,7 +191,10 @@ u32	CAudioBuffer::Drain( Sample * samples, u32 num_samples )
 	//fflush( fh );
 
 	mReadPtr = read_ptr;		// No need to invalidate, as this is uncached
-
+	//clear the Cache
+	#ifdef DAEDALUS_PSP
+	sceKernelDcacheWritebackInvalidateAll();
+	#endif
 	//
 	//	If there weren't enough samples, zero out the buffer
 	//	FIXME(strmnnrmn): Unnecessary on OSX...
