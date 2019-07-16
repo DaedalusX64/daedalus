@@ -14,7 +14,7 @@ And more!
  
 ## Usage
  
-To install Daedalus to your PSP, download the latest release from the Releases page: https://github.com/z2442/daedalus/releases
+To install Daedalus to your PSP, download the latest release from the Releases page: https://github.com/DaedalusX64/daedalus/releases
  
 Next, plug your PSP into your computer and navigate to /PSP/GAME/. Create a folder called "daedalus" there, and place the EBOOT.PBP file inside. Place your ROM files in daedalus/Roms/ and they will automatically appear in Daedalus.
  
@@ -22,7 +22,7 @@ Note: If the release is a ZIP file with a folder containing an EBOOT.PBP file wh
  
 ## More Info
  
-For information about compatibility, optimal settings and more about the emulator, visit the actively maintained GitHub wiki page: https://github.com/z2442/daedalus/wiki. This is maintained primarily by TheMrIron2, but please feel free to submit reports for how well your favourite games run if they have not already been listed!
+For information about compatibility, optimal settings and more about the emulator, visit the actively maintained GitHub wiki page: https://github.com/daedalusx64/Daedalus/wiki Feel free to submit reports for how well your favourite games run if they have not already been listed!
  
 Join our Discord server to talk to other Daedalus users and the developers!
  
