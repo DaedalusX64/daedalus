@@ -26,7 +26,7 @@ For information about compatibility, optimal settings and more about the emulato
  
 Join our Discord server to talk to other Daedalus users and the developers!
  
-Invite link: https://discord.gg/436njAr
+Invite link: https://discord.gg/FrVTpBV
  
 ## Credits
  
