@@ -22,7 +22,7 @@ Note: If the release is a ZIP file with a folder containing an EBOOT.PBP file wh
  
 ## More Info
  
-For information about compatibility, optimal settings and more about the emulator, visit the actively maintained GitHub wiki page: https://github.com/daedalusx64/Daedalus/wiki Feel free to submit reports for how well your favourite games run if they have not already been listed!
+For information about compatibility, optimal settings and more about the emulator, visit the actively maintained GitHub wiki page: https://github.com/DaedalusX64/daedalus/wiki Feel free to submit reports for how well your favourite games run if they have not already been listed!
  
 Join our Discord server to talk to other Daedalus users and the developers!
  
