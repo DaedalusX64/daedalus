@@ -75,7 +75,7 @@ void CAudioBuffer::AddSamples( const Sample * samples, u32 num_samples, u32 freq
 	//fflush( fh );
 	//clear the Cache
 	#ifdef DAEDALUS_PSP
-	sceKernelDcacheWritebackInvalidateAll();
+	//sceKernelDcacheWritebackInvalidateAll();
 	#endif
 	const Sample *	read_ptr( mReadPtr );		// No need to invalidate, as this is uncached/volatile
 	Sample *		write_ptr( mWritePtr );
@@ -159,7 +159,7 @@ u32	CAudioBuffer::Drain( Sample * samples, u32 num_samples )
 	// Ideally we could just invalidate this range?
 	//clear the Cache
 	#ifdef DAEDALUS_PSP
-	sceKernelDcacheWritebackInvalidateAll();
+	//sceKernelDcacheWritebackInvalidateAll();
 	#endif
 
 	const Sample *	read_ptr( mReadPtr );		// No need to invalidate, as this is uncached/volatile
@@ -193,7 +193,7 @@ u32	CAudioBuffer::Drain( Sample * samples, u32 num_samples )
 	mReadPtr = read_ptr;		// No need to invalidate, as this is uncached
 	//clear the Cache
 	#ifdef DAEDALUS_PSP
-	sceKernelDcacheWritebackInvalidateAll();
+	//sceKernelDcacheWritebackInvalidateAll();
 	#endif
 	//
 	//	If there weren't enough samples, zero out the buffer

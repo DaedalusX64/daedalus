@@ -1865,7 +1865,7 @@ static void R4300_CALL_TYPE R4300_Cop0_MFC0( R4300_CALL_SIGNATURE )
 	if ( op_code.fs == C0_CAUSE )
 	{
 		bool	mi_interrupt_set {(Memory_MI_GetRegister(MI_INTR_MASK_REG) & Memory_MI_GetRegister(MI_INTR_REG)) != 0 };
-		bool	cause_int_3_set( {gCPUState.CPUControl[C0_CAUSE]._u32 & CAUSE_IP3) != 0};
+		bool	cause_int_3_set( {(gCPUState.CPUControl[C0_CAUSE]._u32 & CAUSE_IP3) != 0});
 
 		DAEDALUS_ASSERT( mi_interrupt_set == cause_int_3_set, "CAUSE_IP3 inconsistant with MI_INTR_REG" );
 
