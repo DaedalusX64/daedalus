@@ -662,7 +662,7 @@ static void R4300_CALL_TYPE R4300_JAL( R4300_CALL_SIGNATURE ) 				// Jump And Li
 	u32 pc {gCPUState.CurrentPC };
 	gGPR[REG_ra]._s64 = (s64)(s32)(pc + 8);		// Store return address
 	u32	new_pc {(pc & 0xF0000000) | (op_code.target<<2) };
-	//ToDo: SpeedHack?
+	SpeedHack(pc, new_pc);
 	CPU_TakeBranch( new_pc );
 }
 

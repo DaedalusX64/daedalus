@@ -63,9 +63,6 @@ private:
 
 private:
 	void *			mJobBuffer;
-	void * 			mJobBufferuncached;
-	void *			mRunBuffer;
-	void * 			mRunBufferuncached;
 	u32				mJobBufferSize {};
 
 	ETaskMode		mTaskMode;
