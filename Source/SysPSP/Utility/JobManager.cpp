@@ -136,7 +136,7 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 	{
 		// Add job to queue
 		memcpy_vfpu( mJobBuffer, job, job_size );
-		
+
 		//clear the Cache
 		sceKernelDcacheWritebackInvalidateAll();
 
@@ -153,6 +153,7 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 		run->InitJob( run );
 
 	// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
+	// if the me is busy run the job on the main cpu so we don't stall
 	if(BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL) < 0){
 		if( job->InitJob ) job->InitJob( job );
 		if( job->DoJob )   job->DoJob( job );
