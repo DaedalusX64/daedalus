@@ -135,7 +135,12 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 	if( job_size <= mJobBufferSize )
 	{
 		// Add job to queue
+		if (!job == 0){
 		memcpy_vfpu( mJobBuffer, job, job_size );
+		}
+		else{
+			return true;
+		}
 
 		//clear the Cache
 		sceKernelDcacheWritebackInvalidateAll();
