@@ -40,7 +40,7 @@ bool gLoadedMediaEnginePRX {false};
 
 volatile me_struct *mei;
 #endif
-CJobManager gJobManager( 2048, TM_ASYNC_ME );
+CJobManager gJobManager( 256, TM_ASYNC_ME );
 
 bool InitialiseJobManager()
 {
@@ -75,9 +75,6 @@ bool InitialiseJobManager()
 //*****************************************************************************
 CJobManager::CJobManager( u32 job_buffer_size, ETaskMode task_mode )
 :	mJobBuffer( malloc_64( job_buffer_size ) )
-, mJobBufferuncached (MAKE_UNCACHED_PTR(mJobBuffer))
-,	mRunBuffer( malloc_64( job_buffer_size ) )
-, mRunBufferuncached (MAKE_UNCACHED_PTR(mRunBuffer))
 ,	mJobBufferSize( job_buffer_size )
 ,	mTaskMode( task_mode )
 ,	mThread( kInvalidThreadHandle )
@@ -102,10 +99,6 @@ CJobManager::~CJobManager()
 		free( mJobBuffer );
 	}
 
-	if( mRunBuffer != nullptr )
-	{
-		free( mRunBuffer );
-	}
 }
 
 //*****************************************************************************
@@ -142,7 +135,12 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 	if( job_size <= mJobBufferSize )
 	{
 		// Add job to queue
+		if (!job == 0){
 		memcpy_vfpu( mJobBuffer, job, job_size );
+		}
+		else{
+			return true;
+		}
 
 		//clear the Cache
 		sceKernelDcacheWritebackInvalidateAll();
@@ -150,33 +148,22 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 		success = true;
 	}
 
-	//printf("Run Job on Media Engine\n");
-
-	SJob *	run( static_cast< SJob * >( mRunBufferuncached ) );
-
-	//clear Cache
-	sceKernelDcacheWritebackInvalidateAll();
-
-	memmove( mRunBufferuncached, mJobBuffer, mJobBufferSize );
+	SJob *	run( static_cast< SJob * >( mJobBuffer) );
 
 	//clear Cache -> this one is very important without it the CheckME(mei) will not return with the ME status.
 	sceKernelDcacheWritebackInvalidateAll();
-
-	// signal ready for a new job
-	sceKernelSignalSema( mWorkEmpty, 1 );
 
 	// Execute job initialise
 	if( run->InitJob )
 		run->InitJob( run );
 
 	// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
-		if(BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL) < 0){
-		memmove( mJobBufferuncached, mJobBuffer, mJobBufferSize );
-		SJob *	job( static_cast< SJob * >( mJobBufferuncached ) );
+	// if the me is busy run the job on the main cpu so we don't stall
+	if(BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL) < 0){
 		if( job->InitJob ) job->InitJob( job );
 		if( job->DoJob )   job->DoJob( job );
 		if( job->FiniJob ) job->FiniJob( job );
-		sceKernelSignalSema( mWorkEmpty, 1 );
+		return success;
 	}
 
 	//Mark Job(run) from Mrunbuffer as Finished

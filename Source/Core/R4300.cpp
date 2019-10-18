@@ -662,7 +662,7 @@ static void R4300_CALL_TYPE R4300_JAL( R4300_CALL_SIGNATURE ) 				// Jump And Li
 	u32 pc {gCPUState.CurrentPC };
 	gGPR[REG_ra]._s64 = (s64)(s32)(pc + 8);		// Store return address
 	u32	new_pc {(pc & 0xF0000000) | (op_code.target<<2) };
-	//ToDo: SpeedHack?
+	SpeedHack(pc, new_pc);
 	CPU_TakeBranch( new_pc );
 }
 
@@ -1865,7 +1865,7 @@ static void R4300_CALL_TYPE R4300_Cop0_MFC0( R4300_CALL_SIGNATURE )
 	if ( op_code.fs == C0_CAUSE )
 	{
 		bool	mi_interrupt_set {(Memory_MI_GetRegister(MI_INTR_MASK_REG) & Memory_MI_GetRegister(MI_INTR_REG)) != 0 };
-		bool	cause_int_3_set( {gCPUState.CPUControl[C0_CAUSE]._u32 & CAUSE_IP3) != 0};
+		bool	cause_int_3_set( {(gCPUState.CPUControl[C0_CAUSE]._u32 & CAUSE_IP3) != 0});
 
 		DAEDALUS_ASSERT( mi_interrupt_set == cause_int_3_set, "CAUSE_IP3 inconsistant with MI_INTR_REG" );
 

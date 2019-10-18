@@ -213,7 +213,9 @@ void jpeg_decode_OB(OSTask *task);
 	case 0x2caa6: // Zelda OOT, Pokemon Stadium {1,2} jpg decompression
 		jpeg_decode_PS(task);
 		break;
-    case 0x130de: // Ogre Battle background decompression
+		 // Ogre Battle & Buttom of the 9th background decompression
+		case 0x130de:
+		case 0x278b0:
         jpeg_decode_OB(task);
 		break;
 	}
