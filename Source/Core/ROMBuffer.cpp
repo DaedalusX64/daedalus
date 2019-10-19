@@ -226,7 +226,7 @@ bool RomBuffer::Open()
 		const u32 TEMP_BUFFER_SIZE {128 * 1024};
 
 		intraFont* ltn8  = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ASCII);
-		intraFontSetStyle( ltn8, 1.5f, 0xFF000000, 0, 0.f, INTRAFONT_ALIGN_CENTER );
+		intraFontSetStyle( ltn8, 1.5f, 0xFFFFFFFF, 0, 0.f, INTRAFONT_ALIGN_CENTER );
 
 		while( offset < sRomSize )
 		{
