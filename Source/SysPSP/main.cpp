@@ -104,7 +104,7 @@ extern int PSP_TV_LACED;
 bool g32bitColorMode = false;
 bool PSP_IS_SLIM = false;
 
-PSP_MODULE_INFO( DaedalusX64 1.1.7, 0, 1, 1 );
+PSP_MODULE_INFO( DaedalusX64 1.1.8, 0, 1, 1 );
 PSP_MAIN_THREAD_ATTR( PSP_THREAD_ATTR_USER | PSP_THREAD_ATTR_VFPU );
 PSP_HEAP_SIZE_KB(-256);
 
