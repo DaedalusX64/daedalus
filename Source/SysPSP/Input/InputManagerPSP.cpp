@@ -329,6 +329,14 @@ void IInputManager::SwapJoyStick(OSContPad *pPad, SceCtrlData *pad)
 	switch( mpControllerConfig->GetJoySwap() )
 	{
 		case 'A':	//No swap (default)
+
+		//PS vita Right Stick
+		if(pad->Rsrv[0] - 128 > 40) pad->Buttons |= PSP_CTRL_RIGHT;
+		if(pad->Rsrv[0] - 128 < -40) pad->Buttons |= PSP_CTRL_LEFT;
+
+		if(pad->Rsrv[1] - 128 > -40) pad->Buttons |= PSP_CTRL_UP;
+		if(pad->Rsrv[1] - 128 < 40) pad->Buttons |= PSP_CTRL_DOWN;
+
 			break;
 
 		case 'B':	//Swap Joystick with PSP Dpad
