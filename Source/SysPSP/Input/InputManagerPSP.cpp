@@ -380,7 +380,7 @@ void IInputManager::SwapJoyStick(OSContPad *pPad, SceCtrlData *pad)
 			}
 			break;
 
-			case 'D' //Map Vita Right stick to C buttons
+			case 'D': //Map Vita Right stick to C buttons
 			{
 				//PS vita Right Stick
 				if(pad->Rsrv[0] - 128 > 40) pad->Buttons |= PSP_CTRL_RIGHT;
@@ -390,7 +390,7 @@ void IInputManager::SwapJoyStick(OSContPad *pPad, SceCtrlData *pad)
 				if(pad->Rsrv[1] - 128 < 40) pad->Buttons |= PSP_CTRL_DOWN;
 			}
 			break;
-			
+
 		default:
 			break;
 	}
