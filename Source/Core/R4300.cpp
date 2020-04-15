@@ -1447,10 +1447,10 @@ static void R4300_CALL_TYPE R4300_Special_DMULT( R4300_CALL_SIGNATURE ) 		// Dou
 		sign = sign ? false : true;
 	}
 
-	u64 op1 {rrs & 0xFFFFFFFF};
-	u64 op2 {(rrs >> 32) & 0xFFFFFFFF};
-	u64 op3 {rrt & 0xFFFFFFFF};
-	u64 op4 ={(rrt >> 32) & 0xFFFFFFFF};
+	u64 op1 {(u64)rrs & 0xFFFFFFFF};
+	u64 op2 {(u64)(rrs >> 32) & 0xFFFFFFFF};
+	u64 op3 {(u64)rrt & 0xFFFFFFFF};
+	u64 op4 ={(u64)(rrt >> 32) & 0xFFFFFFFF};
 
 u64 temp1 {op1 * op3};
 u64	temp2 {(temp1 >> 32) + op1 * op4};
@@ -1462,8 +1462,8 @@ u64	result2 {temp2 + (temp3 & 0xFFFFFFFF)};
 u64	result3 {(result2 >> 32) + temp4};
 u64	result4 {(result3 >> 32)};
 
-s64	lo {result1 | (result2 << 32)};
-s64	hi {(result3 & 0xFFFFFFFF) | (result4 << 32)};
+s64	lo {(s64)result1 | ((s64)result2 << 32)};
+s64	hi {((s64)result3 & 0xFFFFFFFF) | ((s64)result4 << 32)};
 	if (sign)
 	{
 		hi = ~hi;
@@ -1490,10 +1490,10 @@ static void R4300_CALL_TYPE R4300_Special_DMULTU( R4300_CALL_SIGNATURE ) 			// D
 	s64 rrs = gGPR[ op_code.rs ]._s64;
 	s64 rrt = gGPR[ op_code.rt ]._s64;
 
-u64	op1 {rrs & 0xFFFFFFFF};
-u64	op2 {(rrs >> 32) & 0xFFFFFFFF};
-u64	op3 {rrt & 0xFFFFFFFF};
-u64	op4 {(rrt >> 32) & 0xFFFFFFFF};
+u64	op1 {(u64)rrs & 0xFFFFFFFF};
+u64	op2 {(u64)(rrs >> 32) & 0xFFFFFFFF};
+u64	op3 {(u64)rrt & 0xFFFFFFFF};
+u64	op4 {(u64)(rrt >> 32) & 0xFFFFFFFF};
 
 u64	temp1 {op1 * op3};
 u64	temp2 {(temp1 >> 32) + op1 * op4};

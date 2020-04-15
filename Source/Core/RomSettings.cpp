@@ -176,7 +176,7 @@ IRomSettingsDB::~IRomSettingsDB()
 //	Remove the specified characters from p_string
 static bool	trim( char * p_string, const char * p_trim_chars )
 {
-	u32 num_trims {strlen( p_trim_chars )};
+	u32 num_trims {(u32)strlen( p_trim_chars )};
 	char * pin {p_string};
 	char * pout {p_string};
 	bool found {false};

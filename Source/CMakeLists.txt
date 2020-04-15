@@ -167,7 +167,7 @@ FIND_PATH(OPENGL_INCLUDE_DIR gl.h)
 		include_directories(/usr/local/include -framework OpenGL)
 		link_directories(/usr/local/lib)
 
-    add_definitions("-DDAEDALUS_OSX" -g)
+    add_definitions("-DDAEDALUS_OSX -DDAEDALUS_GL -g")
 		#Build SysGL Lib
 		add_library(sysGL STATIC ${SYSGL_BUILD})
 		target_link_libraries(sysGL -lGLEW -lSDL2 -ldl "-framework OpeNGL -framework AudioToolbox -framework Cocoa -framework IOKit -framework CoreVideo"  )

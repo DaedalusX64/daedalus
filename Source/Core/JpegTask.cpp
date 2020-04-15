@@ -203,7 +203,7 @@ void jpeg_decode_OB(OSTask *task)
 
     s32 y_dc {}, u_dc {}, v_dc {};
 
-	u32  address  {(uintptr_t)task->t.data_ptr};
+	u32  address  {(u32)task->t.data_ptr};
 	const u32 macroblock_count {task->t.data_size};
 	const u32  qscale   {task->t.yield_data_size};
 
