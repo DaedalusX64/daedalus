@@ -228,7 +228,7 @@ extern void initExceptionHandler();
 
 	// Init the savegame directory -- We probably should create this on the fly if not as it causes issues.
 	strcpy( g_DaedalusConfig.mSaveDir, DAEDALUS_PSP_PATH( "SaveGames/" ) );
-
+	strcpy( g_DaedalusConfig.mCacheDir, DAEDALUS_PSP_PATH( "Cache/" ) );
 	if (!System_Init())
 		return false;
 

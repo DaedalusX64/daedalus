@@ -103,15 +103,26 @@ void Dump_GetSaveDirectory(char * rootdir, const char * rom_filename, const char
 #endif
 		}
 	}
+}
+	void Dump_GetCacheDirectory(char * rootdir, const char * rom_filename, const char * extension)
+	{
+		// If the Save path has not yet been set up, prompt user
+		if (strlen(g_DaedalusConfig.mCacheDir) == 0)
+		{
+				// Default to rom path
+				IO::Path::Assign(g_DaedalusConfig.mCacheDir, rom_filename);
+				IO::Path::RemoveFileSpec(g_DaedalusConfig.mCacheDir);
+		}
 
-	IO::Directory::EnsureExists(g_DaedalusConfig.mSaveDir);
+
+	IO::Directory::EnsureExists(g_DaedalusConfig.mCacheDir);
 
 	// Form the filename from the file spec (i.e. strip path and replace the extension)
 	IO::Filename file_name;
 	IO::Path::Assign(file_name, IO::Path::FindFileName(rom_filename));
 	IO::Path::SetExtension(file_name, extension);
 
-	IO::Path::Combine(rootdir, g_DaedalusConfig.mSaveDir, file_name);
+	IO::Path::Combine(rootdir, g_DaedalusConfig.mCacheDir, file_name);
 }
 
 #ifndef DAEDALUS_SILENT
@@ -343,4 +354,3 @@ void Dump_Strings( const char * p_file_name )
 	fclose(fp);
 }
 #endif
-

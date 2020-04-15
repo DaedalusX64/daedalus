@@ -204,7 +204,7 @@ namespace
 		{
 			if(gShowDialog.Render( mpContext,"Reset HLE cache?", false) )
 			{
-				IO::Path::DeleteRecursive("SaveGames",".hle");
+				IO::Path::DeleteRecursive("Cache",".hle");
 				ThreadSleepMs(1000);	//safety wait for s
 
 				if(gShowDialog.Render( mpContext,"Reset settings?", false) )
