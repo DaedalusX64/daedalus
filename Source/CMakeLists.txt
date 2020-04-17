@@ -131,7 +131,7 @@ endif (PSP_DEBUG)
 
 if (MAC_RELEASE OR LINUX_RELEASE)
 
-add_definitions("-DNDEBUG -O3 -DDAEDALUS_POSIX")
+add_definitions("-D_DEBUG -g -DDAEDALUS_POSIX")
 	add_definitions(-DDAEDALUS_POSIX)
 		include_directories(${PROJECT_SOURCE_DIR}/Config/Release)
 include_directories(${PROJECT_SOURCE_DIR/HLEGraphics})
