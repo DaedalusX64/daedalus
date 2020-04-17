@@ -8,6 +8,8 @@ function usage() {
     echo "PSP Debug = PSP_DEBUG"
     echo "Linux Release = LINUX_RELEASE"
     echo "Mac Release = MAC_RELEASE"
+    echo "Linux Release = LINUX_DEBUG"
+    echo "Mac Release = MAC_DEBUG"
     exit
 }
 
@@ -79,14 +81,14 @@ if [ "$1" = "PSP_RELEASE" ] || [ "$1" = "PSP_DEBUG" ]; then
 cmake -DCMAKE_TOOLCHAIN_FILE=../Tools/psptoolchain.cmake -D"$1=1" ../Source
 buildPSP
 
-elif [ "$1" = "LINUX_RELEASE" ] || [ "$1" = "MAC_RELEASE" ]; then
+elif [ "$1" = "LINUX_RELEASE" ] || [ "$1" = "MAC_RELEASE" ] || [ "$1" = "LINUX_DEBUG" ] || [ "$1" = "MAC_DEBUG" ]; then
   pre_prep
   mkdir "$PWD/daedbuild"
   cd "$PWD/daedbuild"
   cmake -D"$1=1" ../Source
 make
 finalPrep
-cp "$PWD/daedbuild/daedalus" DaedalusX64
+cp "$PWD/daedalus" ../DaedalusX64
 else
 usage
 fi

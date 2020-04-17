@@ -131,7 +131,7 @@ endif (PSP_DEBUG)
 
 if (MAC_RELEASE OR LINUX_RELEASE)
 
-add_definitions("-D_DEBUG -g -DDAEDALUS_POSIX")
+add_definitions("-DNDEBUG -O3 -DDAEDALUS_POSIX")
 	add_definitions(-DDAEDALUS_POSIX)
 		include_directories(${PROJECT_SOURCE_DIR}/Config/Release)
 include_directories(${PROJECT_SOURCE_DIR/HLEGraphics})
@@ -139,7 +139,18 @@ include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Config/Release $
 
 endif (MAC_RELEASE OR LINUX_RELEASE)
 
-if (LINUX_RELEASE)
+if (MAC_DEBUG OR LINUX_DEBUG)
+
+add_definitions("-D_DEBUG -g -DDAEDALUS_POSIX")
+	add_definitions(-DDAEDALUS_POSIX)
+		include_directories(${PROJECT_SOURCE_DIR}/Config/Release)
+include_directories(${PROJECT_SOURCE_DIR/HLEGraphics})
+include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/SysPosix/Include)
+
+endif (MAC_DEBUG OR LINUX_DEBUG)
+
+
+if (LINUX_RELEASE OR LINUX_DEBUG)
 
 
 		message("Linux Release Build..")
@@ -156,10 +167,10 @@ if (LINUX_RELEASE)
 		#Build and Link Executable
 			add_executable(daedalus ${POSIX_MAIN_FILES})
 		target_link_libraries(daedalus LINK_PUBLIC daedalus.lib )
-endif (LINUX_RELEASE)
+endif (LINUX_RELEASE OR LINUX_DEBUG)
 
 
-if (MAC_RELEASE)
+if (MAC_RELEASE OR MAC_DEBUG)
 
 		message("Mac Release Build..")
 FIND_PATH(OPENGL_INCLUDE_DIR gl.h)
@@ -179,4 +190,4 @@ FIND_PATH(OPENGL_INCLUDE_DIR gl.h)
 		#Build and Link Executable
 			add_executable(daedalus ${POSIX_MAIN_FILES})
 		target_link_libraries(daedalus LINK_PUBLIC daedalus.lib )
-endif (MAC_RELEASE)
+endif (MAC_RELEASE OR MAC_DEBUG)
