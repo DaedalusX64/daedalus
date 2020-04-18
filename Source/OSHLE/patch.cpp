@@ -1111,7 +1111,7 @@ static u32 RET_JR_ERET()
 	return 0;
 }
 
-static u32 ConvertToPhysics(u32 addr)
+static u32 ConvertToPhysical(u32 addr)
 {
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(IS_K0K1(addr) == (IS_KSEG0(addr) | IS_KSEG1(addr)), "IS_K0K1 is inconsistent");
