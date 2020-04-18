@@ -11,10 +11,9 @@
 #include "Utility/IO.h"
 #include "Utility/Thread.h"
 
-//static bool toggle_fullscreen = false;
-
-static void HandleKeys(GLFWwindow * window, int key, int scancode, int action, int mods)
-{
+static bool toggle_fullscreen = false;
+static void HandleKeys(){}
+/*
 	if (action == GLFW_PRESS)
 	{
 		if (key >= '0' && key <= '9')
@@ -47,9 +46,15 @@ static void HandleKeys(GLFWwindow * window, int key, int scancode, int action, i
 					CPU_RequestLoadState(filename);
 				}
 			}
-		}
+					}
+				}
+			}
+
+
+		// TODO: ADD SDL Window close functions
 // Proper full screen toggle still not fully implemented in GLF3
 // BUT is in the roadmap for future 3XX release
+
 #if 0
 		if(key == GLFW_KEY_F1)
 		{
@@ -65,7 +70,7 @@ static void HandleKeys(GLFWwindow * window, int key, int scancode, int action, i
 				monitor = glfwGetPrimaryMonitor();
 
 				// Get destop resolution, this should tell us the max resolution we can use
-				const GLFWvidmode* mode = glfwGetVideoMode(monitor);	
+				const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 				width = mode->width;
 				height= mode->height;
 			}
@@ -115,16 +120,16 @@ static void PollKeyboard(void * arg)
 	if (glfwWindowShouldClose(gWindow))
 		CPU_Halt("Window Closed");
 }
-
+*/
 bool UI_Init()
 {
-	DAEDALUS_ASSERT(gWindow != NULL, "The GLFW window should already have been initialised");
-	glfwSetKeyCallback(gWindow, &HandleKeys);
-	CPU_RegisterVblCallback(&PollKeyboard, NULL);
+	DAEDALUS_ASSERT(gWindow != NULL, "The SDL window should already have been initialised");
+	//glfwSetKeyCallback(gWindow, &HandleKeys);
+//	CPU_RegisterVblCallback(&PollKeyboard, NULL);
 	return true;
 }
 
 void UI_Finalise()
 {
-	CPU_UnregisterVblCallback(&PollKeyboard, NULL);
+//	CPU_UnregisterVblCallback(&PollKeyboard, NULL);
 }

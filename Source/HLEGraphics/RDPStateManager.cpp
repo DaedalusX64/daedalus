@@ -659,11 +659,11 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		//TMEM address 0x100 (gTlutLoadAddresses[ 0 ]) and calculate offset from there with TLutIndex(palette index)
 		//This trick saves us from the need to copy the real palette to TMEM and we just pass the pointer //Corn
 		//
-		u32	tlut {TLUT_BASE};
+		u32	tlut {(u32)TLUT_BASE};
 		if(rdp_tile.size == G_IM_SIZ_4b)
 		{
 			u32 tlut_idx0 {(u32)(g_ROM.TLUT_HACK << 1)};
-			u32 tlut_idx1 {(u32)gTlutLoadAddresses[ rdp_tile.palette << tlut_idx0 ]};
+			u32 tlut_idx1 {(u32)(uintptr_t)gTlutLoadAddresses[ rdp_tile.palette << tlut_idx0 ]};
 
 			//If pointer == nullptr(=invalid entry) add offset to base address (TMEM[0] + offset)
 			if(tlut_idx1 == 0)

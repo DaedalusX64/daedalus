@@ -557,7 +557,7 @@ u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 
 	// Initialise stack
 	gDlistStackPointer=0;
-	gDlistStack.address[0] = (u32)pTask->t.data_ptr;
+	gDlistStack.address[0] = (uintptr_t)pTask->t.data_ptr;
 	gDlistStack.limit = -1;
 
 	gRDPStateManager.Reset();

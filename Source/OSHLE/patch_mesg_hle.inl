@@ -161,8 +161,9 @@ TEST_DISABLE_MESG_FUNCS
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( MsgCount != 0, "Invalid message count" );
 	DAEDALUS_ASSERT( MsgCount != u32(~0) && first+ValidCount != 0x80000000, "Invalid message count" );
-	#endif
+#endif
 	// Point first to the next valid message
+
 	/*if (MsgCount == 0)
 	{
 		DBGConsole_Msg(0, "Invalid message count");

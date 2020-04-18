@@ -22,7 +22,7 @@ TEST_DISABLE_THREAD_FUNCS
 
 	// Pri is arg 5
 	u32 pri = QuickRead32Bits(pStackBase, 4*5);
-	#ifdef DAEDALUS_DEBUG_CONSOLE
+#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "[WosCreateThread](0x%08x, %d, 0x%08x(), 0x%08x, 0x%08x, %d)",
 		thread, id, func, arg, stack, pri );
 #endif
@@ -443,6 +443,7 @@ TEST_DISABLE_THREAD_FUNCS
 	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "osDestroyThread(0x%08x)", thread);
 #endif
+
 	state = Read16Bits(thread + offsetof(OSThread, state));
 	if (state != OS_STATE_STOPPED)
 	{
@@ -501,6 +502,7 @@ TEST_DISABLE_THREAD_FUNCS
 #ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "osDestroyThread_Zelda not implemented (0x%08x)", gGPR[REG_a0]._u32_0);
 #endif
+
 	return PATCH_RET_NOT_PROCESSED0(osDestroyThread);
 }
 
@@ -726,12 +728,13 @@ TEST_DISABLE_THREAD_FUNCS
 			g___osEnqueueThread_s.Function();
 		}
 	}
-#ifdef DAEDALUS_DEBUG_CONSOLE
 	else
 	{
+			#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "  Thread is neither WAITING nor STOPPED");
+		#endif
 	}
-#endif
+
 	// At this point, we check the priority of the current
 	// thread and the highest priority thread on the thread queue. If
 	// the current thread has a higher priority, nothing happens, else

@@ -165,7 +165,7 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 					case 0x80:
 						do
 						{
-							*(u8 *)((u32)p_mem ^ U8_TWIDDLE) = (u8)value;
+							*(u8 *)((uintptr_t)p_mem ^ U8_TWIDDLE) = (u8)value;
 							p_mem += offset;
 							value += (u8)valinc;
 							count--;
@@ -174,7 +174,7 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 					case 0x81:
 						do
 						{
-							*(u16 *)((u32)p_mem ^ U16_TWIDDLE) = value;
+							*(u16 *)((uintptr_t)p_mem ^ U16_TWIDDLE) = value;
 							p_mem += offset;
 							value += valinc;
 							count--;

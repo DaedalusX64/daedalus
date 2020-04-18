@@ -3,8 +3,8 @@
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #include "HLEGraphics/DisplayListDebugger.h"
 
-#include "SysOSX/Debug/WebDebug.h"
-#include "SysOSX/Debug/WebDebugTemplate.h"
+#include "SysPosix/Debug/WebDebug.h"
+#include "SysPosix/Debug/WebDebugTemplate.h"
 
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"

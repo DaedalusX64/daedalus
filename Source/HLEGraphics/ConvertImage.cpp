@@ -453,6 +453,7 @@ static void ConvertPalette(ETLutFmt tlut_format, NativePf8888 * dst, const void 
 		{
 			dst[ i ] = NativePf8888::Make( palette[ i ^ U16H_TWIDDLE ] );
 		}
+		
 	}
 }
 

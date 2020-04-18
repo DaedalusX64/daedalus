@@ -16,7 +16,7 @@ project (DaedalusX64)
 				#Default Files for build
 				set (BASE_FILES StdAfx.cpp)
 				set (CONFIG_FILES Config/ConfigOptions.cpp)
-				set (CORE_FILES Core/Cheats.cpp Core/CPU.cpp Core/DMA.cpp Core/Dynamo.cpp Core/FlashMem.cpp Core/Interpret.cpp Core/Interrupts.cpp Core/JpegTask.cpp Core/Memory.cpp Core/PIF.cpp Core/R4300.cpp Core/ROM.cpp Core/ROMBuffer.cpp Core/ROMImage.cpp Core/RomSettings.cpp Core/RSP_HLE.cpp Core/Save.cpp Core/SaveState.cpp Core/TLB.cpp)
+				set (CORE_FILES Core/Cheats.cpp Core/CPU.cpp Core/DMA.cpp Core/Dynamo.cpp Core/FlashMem.cpp Core/Interpret.cpp Core/Interrupts.cpp Core/JpegTask.cpp Core/Memory.cpp Core/PIF.cpp Core/R4300.cpp Core/Registers.cpp Core/ROM.cpp Core/ROMBuffer.cpp Core/ROMImage.cpp Core/RomSettings.cpp Core/RSP_HLE.cpp Core/Save.cpp Core/SaveState.cpp Core/TLB.cpp)
 				set (DEBUG_FILES Debug/DebugConsoleImpl.cpp Debug/DebugLog.cpp Debug/Dump.cpp)
 				set (DYNAREC_FILES DynaRec/BranchType.cpp DynaRec/DynaRecProfile.cpp DynaRec/Fragment.cpp DynaRec/FragmentCache.cpp DynaRec/IndirectExitMap.cpp DynaRec/StaticAnalysis.cpp DynaRec/TraceRecorder.cpp)
 				set (GRAPHICS_FILES Graphics/ColourValue.cpp Graphics/PngUtil.cpp Graphics/TextureTransform.cpp)
@@ -131,16 +131,30 @@ endif (PSP_DEBUG)
 
 if (MAC_RELEASE OR LINUX_RELEASE)
 
-add_definitions("-DNDEBUG -O3")
+add_definitions("-DNDEBUG -O3 -DDAEDALUS_POSIX")
+	add_definitions(-DDAEDALUS_POSIX)
+		include_directories(${PROJECT_SOURCE_DIR}/Config/Release)
 include_directories(${PROJECT_SOURCE_DIR/HLEGraphics})
 include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/SysPosix/Include)
 
 endif (MAC_RELEASE OR LINUX_RELEASE)
 
-if (LINUX_RELEASE)
+if (MAC_DEBUG OR LINUX_DEBUG)
+
+add_definitions("-D_DEBUG -g -DDAEDALUS_POSIX")
+	add_definitions(-DDAEDALUS_POSIX)
+		include_directories(${PROJECT_SOURCE_DIR}/Config/Release)
+include_directories(${PROJECT_SOURCE_DIR/HLEGraphics})
+include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/Config/Release ${PROJECT_SOURCE_DIR}/SysPosix/Include)
+
+endif (MAC_DEBUG OR LINUX_DEBUG)
+
+
+if (LINUX_RELEASE OR LINUX_DEBUG)
 
 
 		message("Linux Release Build..")
+		    add_definitions("-DDAEDALUS_LINUX" "-DDAEDALUS_GL" -g)
 
 		#Build SysGL Lib
 		add_library(sysGL STATIC ${SYSGL_BUILD})
@@ -153,10 +167,10 @@ if (LINUX_RELEASE)
 		#Build and Link Executable
 			add_executable(daedalus ${POSIX_MAIN_FILES})
 		target_link_libraries(daedalus LINK_PUBLIC daedalus.lib )
-endif (LINUX_RELEASE)
+endif (LINUX_RELEASE OR LINUX_DEBUG)
 
 
-if (MAC_RELEASE)
+if (MAC_RELEASE OR MAC_DEBUG)
 
 		message("Mac Release Build..")
 FIND_PATH(OPENGL_INCLUDE_DIR gl.h)
@@ -164,7 +178,7 @@ FIND_PATH(OPENGL_INCLUDE_DIR gl.h)
 		include_directories(/usr/local/include -framework OpenGL)
 		link_directories(/usr/local/lib)
 
-    add_definitions("-DDAEDALUS_OSX" -g)
+    add_definitions("-DDAEDALUS_OSX -DDAEDALUS_GL -g")
 		#Build SysGL Lib
 		add_library(sysGL STATIC ${SYSGL_BUILD})
 		target_link_libraries(sysGL -lGLEW -lSDL2 -ldl "-framework OpeNGL -framework AudioToolbox -framework Cocoa -framework IOKit -framework CoreVideo"  )
@@ -176,4 +190,4 @@ FIND_PATH(OPENGL_INCLUDE_DIR gl.h)
 		#Build and Link Executable
 			add_executable(daedalus ${POSIX_MAIN_FILES})
 		target_link_libraries(daedalus LINK_PUBLIC daedalus.lib )
-endif (MAC_RELEASE)
+endif (MAC_RELEASE OR MAC_DEBUG)
