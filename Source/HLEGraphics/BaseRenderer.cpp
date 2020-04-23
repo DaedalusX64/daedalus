@@ -299,6 +299,9 @@ void BaseRenderer::InitViewport()
 #ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( display_width && display_height, "Unhandled viewport type" );
 #endif
+
+	if(mScreenWidth != display_width || mScreenHeight != display_height){
+
 	mScreenWidth  = (f32)display_width;
 	mScreenHeight = (f32)display_height;
 
@@ -337,6 +340,8 @@ void BaseRenderer::InitViewport()
 		  -1.0f,       1.f,     0.f,     1.f
 	);
 #endif
+
+	}
 
 	UpdateViewport();
 }
