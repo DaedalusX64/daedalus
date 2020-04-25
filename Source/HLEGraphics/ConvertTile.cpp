@@ -258,7 +258,7 @@ static void ConvertCI4T(const TileDestInfo & dsti, const TextureInfo & ti)
 	const u8 * src  {gTMEM};
 	const u16 * src16 {(u16*)src};
 
-	u32 src_row_stride {ti.GetLine()<<3;
+	u32 src_row_stride = ti.GetLine()<<3;
 	u32 src_row_offset {ti.GetTmemAddress()<<3};
 
 	// Convert the palette once, here.

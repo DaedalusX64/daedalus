@@ -313,8 +313,7 @@ void BaseRenderer::InitViewport()
 	s32 display_x = (s32)(frame_width  - display_width)  / 2;
 	s32 display_y = (s32)(frame_height - display_height) / 2;
 #else
-	s32 display_x = 0;
-	s32 display_y = 0;
+	s32 display_x = 0, display_y = 0;
 #endif
 
 	mN64ToScreenScale.x = gZoomX * mScreenWidth  / fViWidth;

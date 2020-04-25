@@ -489,7 +489,7 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	u32 lrs    {load.sh};
 	u32 lrt    {load.th};
 
-	u32 ram_address {address;
+	u32 ram_address = address;
 	u32 h           {((lrt-ult)>>2) + 1};
 	u32 w           {((lrs-uls)>>2) + 1};
 	u32 bytes       {((h * w) << g_TI.Size) >> 1};
