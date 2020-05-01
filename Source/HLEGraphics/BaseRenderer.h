@@ -233,8 +233,10 @@ public:
 
 	// Fog stuff
 	inline void			SetFogMultOffs(f32 Mult, f32 Offs)		{ mTnL.FogMult=Mult/255.0f; mTnL.FogOffs=Offs/255.0f;}
-	inline void			SetFogMinMax(f32 fog_near, f32 fog_far)	{ sceGuFog(fog_near / 1000.0f, fog_far / 1000.0f, mFogColour.GetColour()); }
+	#ifdef DAEDALUS_PSP
+	inline void			SetFogMinMax(f32 fog_near, f32 fog_far)	{ sceGuFog(fog_near, fog_far, mFogColour.GetColour()); }
 	inline void			SetFogColour( c32 colour )				{ mFogColour = colour; }
+	#endif
 
 	// PrimDepth will replace the z value if depth_source=1 (z range 32767-0 while PSP depthbuffer range 0-65535)//Corn
 #ifdef DAEDALUS_PSP
@@ -337,7 +339,7 @@ public:
 
 protected:
 #ifdef DAEDALUS_PSP
-	inline void			UpdateFogEnable()						{ /*if(gFogEnabled) */mTnL.Flags.Fog ? sceGuEnable(GU_FOG) : sceGuDisable(GU_FOG); }
+	inline void			UpdateFogEnable()						{ if(gFogEnabled) mTnL.Flags.Fog ? sceGuEnable(GU_FOG) : sceGuDisable(GU_FOG); }
 	inline void			UpdateShadeModel()						{ sceGuShadeModel( mTnL.Flags.Shade ? GU_SMOOTH : GU_FLAT ); }
 #else
 	inline void			UpdateFogEnable()						{ if(gFogEnabled) mTnL.Flags.Fog ? glEnable(GL_FOG) : glDisable(GL_FOG); }
