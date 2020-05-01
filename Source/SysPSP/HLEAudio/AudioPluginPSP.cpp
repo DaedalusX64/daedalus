@@ -281,7 +281,7 @@ EProcessResult	AudioPluginPSP::ProcessAList()
 				SHLEStartJob	job;
 				gJobManager.AddJob( &job, sizeof( job ) );
 			}
-			result = PR_COMPLETED;
+			result = PR_STARTED;
 			break;
 		case APM_ENABLED_SYNC:
 			Audio_Ucode();
