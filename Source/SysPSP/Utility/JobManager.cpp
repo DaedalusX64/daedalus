@@ -34,11 +34,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Mutex.h"
 #include "Utility/Thread.h"
 #include "Utility/FastMemcpy.h"
+#include <queue>
 
 #ifdef DAEDALUS_PSP_USE_ME
 bool gLoadedMediaEnginePRX {false};
 
 volatile me_struct *mei;
+
+std::queue<void *> meq;
 #endif
 CJobManager gJobManager( 256, TM_ASYNC_ME );
 
@@ -111,6 +114,20 @@ u32 CJobManager::JobMain( void * arg )
 	return 0;
 }
 
+static int mefunloop( SJob * job ){
+		while(!meq.empty()){
+		dcache_inv_range(&meq,sizeof(meq));
+		SJob *	run( static_cast< SJob * >( meq.front() ));
+		if( run->InitJob ) run->InitJob( run );
+		if( run->DoJob )   run->DoJob( run );
+		meq.pop();
+		dcache_wbinv_all();
+		}
+	
+	return 0;
+}
+
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -137,38 +154,22 @@ bool CJobManager::AddJob( SJob * job, u32 job_size )
 		// Add job to queue
 		if (!job == 0){
 		memcpy_vfpu( mJobBuffer, job, job_size );
+		meq.push(mJobBuffer);
 		}
 		else{
 			return true;
 		}
 
 		//clear the Cache
-		sceKernelDcacheWritebackInvalidateAll();
+		sceKernelDcacheWritebackAll();
 
 		success = true;
 	}
 
-	SJob *	run( static_cast< SJob * >( mJobBuffer) );
-
-	//clear Cache -> this one is very important without it the CheckME(mei) will not return with the ME status.
-	sceKernelDcacheWritebackInvalidateAll();
-
-	// Execute job initialise
-	if( run->InitJob )
-		run->InitJob( run );
-
 	// Start the job on the ME - inv_all dcache on entry, wbinv_all on exit
 	// if the me is busy run the job on the main cpu so we don't stall
-	if(BeginME( mei, (int)run->DoJob, (int)run, -1, NULL, -1, NULL) < 0){
-		if( job->InitJob ) job->InitJob( job );
-		if( job->DoJob )   job->DoJob( job );
-		if( job->FiniJob ) job->FiniJob( job );
-		return success;
-	}
-
-	//Mark Job(run) from Mrunbuffer as Finished
-	run->FiniJob( run );
-	run->FiniJob = nullptr; // so it doesn't get run again later
+	if(CheckME(mei));
+	BeginME( mei, (int)mefunloop, (int)NULL, -1, NULL, -1, NULL);
 
 	//printf( "Adding job...done\n" );
 	return success;
