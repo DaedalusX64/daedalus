@@ -24,7 +24,7 @@ static void * ReadInvalid( u32 address )
 	DBGConsole_Msg(0, "Illegal Memory Access - Tried to Read From 0x%08x (PC: 0x%08x)", address, gCPUState.CurrentPC);
 	#endif
 
-	u8* temp {(u8 *)g_pMemoryBuffers[MEM_UNUSED]};
+	u8* temp = (u8 *)g_pMemoryBuffers[MEM_UNUSED];
 
 	// 0xa5000508 is 64DD region.. set -1 fixes F-Zero U
 	*(u32*)(temp) = (address == 0xa5000508) ? ~0 : 0;
@@ -39,7 +39,7 @@ static void * ReadMapped( u32 address )
 	gTLBReadHit++;
 #endif
 
-	u32 physical_addr {TLBEntry::Translate(address, missing)};
+	u32 physical_addr = TLBEntry::Translate(address, missing);
 	if (physical_addr != 0)
 	{
 		return g_pu8RamBase + (physical_addr & 0x007FFFFF);
@@ -124,14 +124,14 @@ static void * Read_8440_844F( u32 address )
 	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DPF( DEBUG_MEMORY_VI, "Reading from MEM_VI_REG: 0x%08x", address );
 	#endif
-	u32 offset {address & 0xFF};
+	u32 offset = address & 0xFF;
 	u8* temp = (u8 *)g_pMemoryBuffers[MEM_VI_REG] + offset;
 
 	if (offset == 0x10)	// VI_CURRENT_REG
 	{
 		//u64 count_to_vbl = (VID_CLOCK-1) - (g_qwNextVBL - gCPUState.CPUControl[C0_COUNT]);
 		//vi_pos = (u32)((count_to_vbl*512)/VID_CLOCK);
-		u32 vi_pos {Memory_VI_GetRegister(VI_CURRENT_REG)};
+		u32 vi_pos = Memory_VI_GetRegister(VI_CURRENT_REG);
 		vi_pos = (vi_pos + 2) % 512;
 
 		//DBGConsole_Msg(0, "Reading vi pos: %d", vi_pos);
@@ -179,7 +179,7 @@ static void * Read_8480_848F( u32 address )
 
 static void * ReadFlashRam( u32 address )
 {
-	u32 offset {address & 0xFF};
+	u32 offset = address & 0xFF;
 	if (g_ROM.settings.SaveType == SAVE_TYPE_FLASH && offset == 0)
 	{
 		if ((address&0x1FFFFFFF) == FLASHRAM_READ_ADDR)
@@ -205,8 +205,8 @@ static void * ReadROM( u32 address )
 // 0x1FC0 07C0 to 0x1FC0 07FF PIF RAM
 static void * Read_9FC0_9FCF( u32 address )
 {
-	u32 offset {address & 0x0FFF};
-	u32 pif_ram_offset {address & 0x3F};
+	u32 offset = address & 0x0FFF;
+	u32 pif_ram_offset = address & 0x3F;
 
 	// Reading PIF ROM or outside PIF RAM
 	if ((offset < 0x7C0) || (offset > 0x7FF))

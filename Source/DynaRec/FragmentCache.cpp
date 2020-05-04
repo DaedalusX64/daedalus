@@ -134,7 +134,7 @@ CFragment * CFragmentCache::LookupFragmentQ( u32 address ) const
 		mCachedFragmentAddress = address;
 
 		// check if in hash table
-		u32 ix {MakeHashIdx( address )};
+		u32 ix = MakeHashIdx( address );
 
 		if ( address != mpCacheHashTable[ix].addr )
 		{
@@ -194,7 +194,7 @@ void CFragmentCache::InsertFragment( CFragment * p_fragment )
 	mFragments.insert( it, entry );
 
 	// Update the hash table (it stores failed lookups now, so we need to be sure to purge any stale entries in there
-	u32 ix {MakeHashIdx( fragment_address )};
+	u32 ix = MakeHashIdx( fragment_address );
 	mpCacheHashTable[ix].addr = fragment_address;
 	mpCacheHashTable[ix].ptr = reinterpret_cast< uintptr_t >( p_fragment );
 

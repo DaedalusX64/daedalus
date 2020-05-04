@@ -276,7 +276,7 @@ CFragment * CFragment::Simulate()
 
 	OpCode		last_executed_op;
 
-	for( auto i {}; i < mTraceBuffer.size(); ++i)
+	for( auto i = 0; i < mTraceBuffer.size(); ++i)
 	{
 		const STraceEntry & ti( mTraceBuffer[ i ] );
 		OpCode				op_code( ti.OpCode );
@@ -370,8 +370,8 @@ CFragment * CFragment::Simulate()
 	//	Now we're leaving the fragment, handle the exit stubs
 	//
 	CFragment * p_target_fragment( nullptr );
-	u32			exit_address {};
-	u32			exit_delay {};
+	u32			exit_address = 0;
+	u32			exit_delay = 0;
 	if( branch_idx_taken != INVALID_IDX )
 	{
 		//
@@ -615,7 +615,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 	std::vector< SBranchHandlerInfo >	branch_handler_info( branch_details.size() );
 //	bool								checked_cop1_usable( false );
 
-	for( u32 i {}; i < trace.size(); ++i )
+	for( u32 i = 0; i < trace.size(); ++i )
 	{
 		const STraceEntry & ti( trace[ i ] );
 		u32	branch_idx( ti.BranchIdx );
@@ -654,7 +654,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 						#ifdef DAEDALUS_DEBUG_CONSOLE
 					printf("Speedhack event (skip busy loop)\n");
 
-					char opinfo[128] {};
+					char opinfo[128];
 					SprintOpCodeInfo( opinfo, trace[i].Address, trace[i].OpCode );
 					printf("\t%p: <0x%08x> %s\n", (u32*)trace[i].Address, trace[i].OpCode._u32, opinfo);
 
@@ -737,7 +737,7 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 	//
 	//	Generate handlers for each exit branch
 	//
-	for( u32 i {}; i < branch_details.size(); ++i )
+	for( u32 i = 0; i < branch_details.size(); ++i )
 	{
 		const SBranchDetails &	details( branch_details[ i ] );
 		u32						instruction_idx( branch_handler_info[ i ].Index );
@@ -795,8 +795,8 @@ void CFragment::Assemble( CCodeBufferManager * p_manager,
 
 		if( details.Likely )
 		{
-			u32				exit_address {};
-			CJumpLocation	jump_location {};
+			u32				exit_address = 0;
+			CJumpLocation	jump_location;
 
 			if( details.ConditionalBranchTaken )
 			{
@@ -927,9 +927,9 @@ const char * Sanitise( const char * str )
 extern char *disasmx86(u8 *opcode1,int codeoff1,int *len);
 void DisassembleBuffer( const u8 * buf, int buf_size, FILE * fh )
 {
-	int pos  {};             /* current position in buffer */
+	int pos  = 0;             /* current position in buffer */
 	char *strbuf;
-	int len {};
+	int len = 0;
 
 	const u32	base_address( reinterpret_cast< u32 >( buf ) );
 
@@ -945,7 +945,7 @@ void DisassembleBuffer( const u8 * buf, int buf_size, FILE * fh )
 
 void DisassembleBuffer( const u8 * buf, int buf_size, FILE * fh )
 {
-	const int	STRBUF_LEN {1024};
+	const int	STRBUF_LEN = 1024;
 	char		strbuf[STRBUF_LEN+1];
 
 	const OpCode *	p_op( reinterpret_cast< const OpCode * >( buf ) );

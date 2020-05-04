@@ -65,14 +65,14 @@ static bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char
 	#endif
 	const s8 * ram( g_ps8RamBase );
 
-	for ( u32 i {}; i+2 < data_size; i++ )
+	for ( u32 i = 0; i+2 < data_size; i++ )
 	{
 		if ( ram[ (data_base + i+0) ^ 3 ] == 'R' &&
 			 ram[ (data_base + i+1) ^ 3 ] == 'S' &&
 			 ram[ (data_base + i+2) ^ 3 ] == 'P' )
 		{
-			char * p {str};
-			char * e {str+str_len};
+			char * p = str;
+			char * e = str+str_len;
 
 			// Loop while we haven't filled our buffer, and there's space for our terminator
 			while (p+1 < e)
@@ -98,7 +98,7 @@ static u32 GBIMicrocode_MicrocodeHash(u32 code_base, u32 code_size)
 
 	const u8 * ram( g_pu8RamBase );
 
-	u32 hash {};
+	u32 hash = 0;
 	for (u32 i = 0; i < code_size; ++i)
 	{
 		hash = (hash << 4) + hash + ram[ (code_base+i) ^ U8_TWIDDLE ];   // Best hash ever!
@@ -144,7 +144,7 @@ static const MicrocodeData gMicrocodeData[] =
 u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size, CustomMicrocodeCallback custom_callback )
 {
 	// I think only checking code_base should be enough..
-	u32 idx {code_base + data_base};
+	u32 idx = code_base + data_base;
 
 	// Cheap way to cache ucodes, don't check for strings (too slow!) but check last used ucode entries which is alot faster than string comparison.
 	// This only needed for GBI1/2/SDEX ucodes that use LoadUcode, else we only check when code_base changes, which usually never happens
@@ -196,9 +196,9 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 		// See if we can identify it by string, if no match was found set default for Fast3D ucode
 		//
 		const char  *ucodes[] { "F3", "L3", "S2DEX" };
-		char 		*match {};
+		char 		*match = 0;
 
-		for(u32 j {}; j<3;j++)
+		for(u32 j = 0; j<3;j++)
 		{
 			if( (match = strstr(str, ucodes[j])) )
 				break;

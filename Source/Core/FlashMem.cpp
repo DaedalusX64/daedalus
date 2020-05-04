@@ -24,9 +24,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "ROM.h"
 #include "Save.h"
 
-u32 FlashStatus[2] {};
-u32 FlashRAM_Offset {};
-u8  FlashBlock[128] {};
+u32 FlashStatus[2];
+u32 FlashRAM_Offset = 0;
+u8  FlashBlock[128];
 
 enum TFlashRam_Modes {
 	FLASHRAM_MODE_NOPES = 0,

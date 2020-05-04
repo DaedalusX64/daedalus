@@ -37,8 +37,8 @@ inline void SET_EXCEPTION(u32 mask, u32 exception)
 }
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
-u32 gNumExceptions {};
-u32 gNumInterrupts {};
+u32 gNumExceptions = 0;
+u32 gNumInterrupts = 0;
 #endif
 
 static u32		gExceptionPC( ~0 );

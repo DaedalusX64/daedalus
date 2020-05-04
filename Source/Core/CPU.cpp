@@ -63,22 +63,22 @@ extern void R4300_Init();
 //	New dynarec engine
 //
 #ifdef DAEDALUS_PROFILE_EXECUTION
-u64					gTotalInstructionsExecuted {};
-u64					gTotalInstructionsEmulated {};
+u64					gTotalInstructionsExecuted = 0;
+u64					gTotalInstructionsEmulated = 0;
 #endif
 
 #ifdef DAEDALUS_BREAKPOINTS_ENABLED
 std::vector< DBG_BreakPoint > g_BreakPoints;
 #endif
 
-volatile u32 eventQueueLocked {};
+volatile u32 eventQueueLocked = 0;
 
-static bool			gCPURunning      {false};			// CPU is actively running
-u8 *				gLastAddress       {nullptr};
-std::string			gSaveStateFilename {""};
+static bool			gCPURunning   = false;			// CPU is actively running
+u8 *				gLastAddress     = nullptr;
+std::string			gSaveStateFilename  = "";
 
-static bool			gCPUStopOnSimpleState {false};			// When stopping, try to stop in a 'simple' state (i.e. no RSP running and not in a branch delay slot)
-static Mutex		gSaveStateMutex {};
+static bool			gCPUStopOnSimpleState = false;			// When stopping, try to stop in a 'simple' state (i.e. no RSP running and not in a branch delay slot)
+static Mutex		gSaveStateMutex;
 
 enum ESaveStateOperation
 {
@@ -87,14 +87,14 @@ enum ESaveStateOperation
 	SSO_LOAD,
 };
 
-static ESaveStateOperation		gSaveStateOperation {SSO_NONE};
+static ESaveStateOperation		gSaveStateOperation(SSO_NONE);
 
-const  u32			kInitialVIInterruptCycles {62500};
-static u32			gVerticalInterrupts {};
-static u32			VI_INTR_CYCLES {kInitialVIInterruptCycles};
+const  u32			kInitialVIInterruptCycles = 62500;
+static u32			gVerticalInterrupts = 0;
+static u32			VI_INTR_CYCLES(kInitialVIInterruptCycles);
 
 #ifdef USE_SCRATCH_PAD
-SCPUState *gPtrCPUState {(SCPUState*)0x10000};
+SCPUState *gPtrCPUState = (SCPUState*)0x10000;
 #else
 ALIGNED_GLOBAL(SCPUState, gCPUState, CACHE_ALIGN);
 #endif
@@ -157,7 +157,7 @@ void CPU_AddEvent( s32 count, ECPUEventType event_type )
 	DAEDALUS_ASSERT( count > 0, "Count is invalid" );
 	DAEDALUS_ASSERT( gCPUState.NumEvents < MAX_CPU_EVENTS, "Too many events" );
 #endif
-	u32 event_idx {};
+	u32 event_idx = 0;
 	for( event_idx = 0; event_idx < gCPUState.NumEvents; ++event_idx )
 	{
 		CPUEvent & event = gCPUState.Events[ event_idx ];
@@ -170,7 +170,7 @@ void CPU_AddEvent( s32 count, ECPUEventType event_type )
 			//
 			event.mCount -= count;
 
-			u32 num_to_copy {gCPUState.NumEvents - event_idx};
+			u32 num_to_copy  = gCPUState.NumEvents - event_idx;
 			if( num_to_copy > 0 )
 			{
 				memmove( &gCPUState.Events[ event_idx+1 ], &gCPUState.Events[ event_idx ], num_to_copy * sizeof( CPUEvent ) );
@@ -202,7 +202,7 @@ static void CPU_SetCompareEvent( s32 count )
 		//
 		//	Remove any existing compare events. Need to adjust any subsequent timer's count.
 		//
-		for( u32 i {}; i < gCPUState.NumEvents; ++i )
+		for( u32 i = 0; i < gCPUState.NumEvents; ++i )
 		{
 			if( gCPUState.Events[ i ].mEventType == CPU_EVENT_COMPARE )
 			{
@@ -212,7 +212,7 @@ static void CPU_SetCompareEvent( s32 count )
 				if( i+1 < gCPUState.NumEvents )
 				{
 					gCPUState.Events[ i+1 ].mCount += gCPUState.Events[ i ].mCount;
-					u32 num_to_copy {gCPUState.NumEvents - (i+1)};
+					u32 num_to_copy = gCPUState.NumEvents - (i+1);
 					memmove( &gCPUState.Events[ i ], &gCPUState.Events[ i+1 ], num_to_copy * sizeof( CPUEvent ) );
 				}
 				gCPUState.NumEvents--;
@@ -236,7 +236,7 @@ static ECPUEventType CPU_PopEvent()
 
 	ECPUEventType event_type = gCPUState.Events[ 0 ].mEventType;
 
-	u32	num_to_copy {gCPUState.NumEvents - 1};
+	u32	num_to_copy = gCPUState.NumEvents - 1;
 	if( num_to_copy > 0 )
 	{
 		memmove( &gCPUState.Events[ 0 ], &gCPUState.Events[ 1 ], num_to_copy * sizeof( CPUEvent ) );
@@ -249,7 +249,7 @@ static ECPUEventType CPU_PopEvent()
 // XXXX This is for savestate. Looks very suspicious to me
 u32 CPU_GetVideoInterruptEventCount()
 {
-	for( u32 i {}; i < gCPUState.NumEvents; ++i )
+	for( u32 i = 0; i < gCPUState.NumEvents; ++i )
 	{
 		if(gCPUState.Events[ i ].mEventType == CPU_EVENT_VBL)
 		{
@@ -263,7 +263,7 @@ u32 CPU_GetVideoInterruptEventCount()
 // XXXX This is for savestate. Looks very suspicious to me
 void CPU_SetVideoInterruptEventCount( u32 count )
 {
-	for( u32 i {}; i < gCPUState.NumEvents; ++i )
+	for( u32 i = 0; i < gCPUState.NumEvents; ++i )
 	{
 		if(gCPUState.Events[ i ].mEventType == CPU_EVENT_VBL)
 		{
@@ -312,7 +312,7 @@ void SCPUState::Dump()
 
 	DBGConsole_Msg(0, "Emulation CPU State:");
 	{
-		for(int i=0; i<32; i+=4)
+		for(int i = 0; i < 32; i += 4)
 		{
 			DBGConsole_Msg(0, "%s:%08X %s:%08X %s:%08X %s:%08X",
 			kRegisterNames[i+0], gCPUState.CPU[i+0]._u32_0,
@@ -345,7 +345,7 @@ bool CPU_RomOpen()
 	gCPUState.MultHi._u64 = 0;
 	gCPUState.MultLo._u64 = 0;
 
-	for(u32 i {}; i < 32; i++)
+	for(u32 i = 0; i < 32; i++)
 	{
 		gCPUState.CPU[i]._u64        = 0;
 		gCPUState.CPUControl[i]._u32 = 0;
@@ -354,7 +354,7 @@ bool CPU_RomOpen()
 	}
 
 	// Init TLBs:
-	for (u32 i {}; i < 32; i++)
+	for (u32 i = 0; i < 32; i++)
 	{
 		g_TLBs[i].Reset();
 	}
@@ -653,7 +653,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 	case CPU_EVENT_VBL:
 		{
 			//Todo: Work on VI_INTR_CYCLES should be 62500 * (60/Real game FPS)
-			u32 vertical_sync_reg {Memory_VI_GetRegister( VI_V_SYNC_REG )};
+			u32 vertical_sync_reg = Memory_VI_GetRegister( VI_V_SYNC_REG );
 			if (vertical_sync_reg == 0)
 			{
 				VI_INTR_CYCLES = 62500;
@@ -695,7 +695,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 				Save_Flush();
 
 				//TESTING
-			for (size_t i {}; i < gVblCallbacks.size(); ++i)
+			for (size_t i = 0; i < gVblCallbacks.size(); ++i)
 			{
 				VblCallback & callback = gVblCallbacks[i];
 				callback.Fn(callback.Arg);
@@ -712,7 +712,7 @@ void CPU_HANDLE_COUNT_INTERRUPT()
 		break;
 	case CPU_EVENT_AUDIO:
 		{
-			u32 status {Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_TASKDONE|SP_STATUS_YIELDED|SP_STATUS_BROKE|SP_STATUS_HALT)};
+			u32 status = Memory_SP_SetRegisterBits(SP_STATUS_REG, SP_STATUS_TASKDONE|SP_STATUS_YIELDED|SP_STATUS_BROKE|SP_STATUS_HALT);
 			if( status & SP_STATUS_INTR_BREAK )
 				CPU_AddEvent(4000, CPU_EVENT_SPINT);
 		}
@@ -750,7 +750,7 @@ void CPU_SetCompare(u32 value)
 		{
 			// NB, value can be less than COUNT here, which indicates that the counter is close to wrapping.
 			// Don't do anything special to handle this - just treat delta as an unsigned value.
-			u32 delta {value - gCPUState.CPUControl[C0_COUNT]._u32};
+			u32 delta = value - gCPUState.CPUControl[C0_COUNT]._u32;
 
 			// This fires a lot for Zelda OoT. It's benign.
 			// If seems to keep setting a delta of 140624981 when the counter is close to wrapping.
@@ -828,7 +828,7 @@ void R4300_CALL_TYPE CPU_UpdateCounter( u32 ops_executed )
 	gTotalInstructionsExecuted += ops_executed;
 #endif
 
-	const u32 cycles {ops_executed * COUNTER_INCREMENT_PER_OP};
+	const u32 cycles = ops_executed * COUNTER_INCREMENT_PER_OP;
 
 	// Increment count register
 	gCPUState.CPUControl[C0_COUNT]._u32 += cycles;
@@ -847,7 +847,7 @@ void CPU_UpdateCounterNoInterrupt( u32 ops_executed )
 
 	if( ops_executed > 0 )
 	{
-		const u32 cycles {ops_executed * COUNTER_INCREMENT_PER_OP};
+		const u32 cycles  =ops_executed * COUNTER_INCREMENT_PER_OP};
 
 #ifdef DAEDALUS_PROFILE_EXECUTION
 		gTotalInstructionsExecuted += ops_executed;

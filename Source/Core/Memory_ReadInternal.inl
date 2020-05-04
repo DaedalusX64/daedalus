@@ -73,7 +73,7 @@ static bool InternalReadROM( u32 address, void ** translated )
 
 static bool InternalRead_8400_8400( u32 address, void ** translated )
 {
-	u32 offset;
+	u32 offset = 0;
 
 	// 0x0400 0000 to 0x0400 FFFF  SP registers
 	if ((address&0x1FFFFFFF) < 0x4002000)
@@ -91,7 +91,7 @@ static bool InternalRead_8400_8400( u32 address, void ** translated )
 
 static bool InternalRead_9FC0_9FCF( u32 address, void ** translated )
 {
-	u32 offset;
+	u32 offset = 0;
 
 	if ((address&0x1FFFFFFF) <= PIF_ROM_END)
 	{

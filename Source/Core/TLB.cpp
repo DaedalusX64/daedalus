@@ -118,10 +118,10 @@ void TLBEntry::Reset()
 //*****************************************************************************
 inline bool	TLBEntry::FindTLBEntry( u32 address, u32 * p_idx )
 {
-	static u32 i {};
+	static u32 i = 0;
 
-	u8 mask {(u8)(gCPUState.CPUControl[C0_ENTRYHI]._u32 & TLBHI_PIDMASK)};
-	for ( u32 count {}; count < 32; count++ )
+	u8 mask = (u8)(gCPUState.CPUControl[C0_ENTRYHI]._u32 & TLBHI_PIDMASK);
+	for ( u32 count = 0; count < 32; count++ )
 	{
 		// Hack to check most recently reference entry first
 		// This gives some speedup if the matched address is near
@@ -156,12 +156,12 @@ inline bool	TLBEntry::FindTLBEntry( u32 address, u32 * p_idx )
 //*****************************************************************************
 u32 TLBEntry::Translate(u32 address, bool& missing)
 {
-	u32 iMatched {};
+	u32 iMatched = 0;
 
 	missing = !FindTLBEntry( address, &iMatched );
 	if (!missing)
 	{
-		const TLBEntry & tlb {g_TLBs[iMatched]};
+		const TLBEntry & tlb = g_TLBs[iMatched];
 
 		// Check for odd/even entry
 		if (address & tlb.checkbit)

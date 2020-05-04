@@ -329,7 +329,7 @@ bool IController::OnRomOpen()
 	}
 
 
-	for ( u32 channel {}; channel < NUM_CONTROLLERS; channel++ )
+	for ( u32 channel = 0; channel < NUM_CONTROLLERS; channel++ )
 	{
 		mMemPack[channel] = (u8*)g_pMemoryBuffers[MEM_MEMPACK] + channel * 0x400 * 32;
 	}
@@ -442,7 +442,7 @@ void IController::Process()
 #ifdef DAEDALUS_DEBUG_PIF
 	DPF_PIF("Before | After:");
 
-	for ( u32 x {}; x < 64; x+=8 )
+	for ( u32 x = 0; x < 64; x+=8 )
 	{
 		DPF_PIF( "0x%02x%02x%02x%02x : 0x%02x%02x%02x%02x  |  0x%02x%02x%02x%02x : 0x%02x%02x%02x%02x",
 			mpInput[(x + 0)],  mpInput[(x + 1)],  mpInput[(x + 2)],  mpInput[(x + 3)],
@@ -787,8 +787,8 @@ void IController::n64_cic_nus_6105()
 			challenge[i*2+1] =  mpPifRam[48+i]       & 0x0f;
 		}
 
-		char key {}, *lut {};
-		int sgn {}, mag {}, mod {};
+		char key = 0, *lut = 0;
+		int sgn = 0, mag = 0, mod = 0;
 
 		for (key = 0xB, lut = lut0, i = 0; i < (CHL_LEN - 2); i++)
 		{

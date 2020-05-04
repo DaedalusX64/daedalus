@@ -36,11 +36,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 
 
-bool isMKABI {false};
-bool isZeldaABI {false};
+bool isMKABI = false;
+bool isZeldaABI = false;
 
-static u32 gEnv_t3 {}, gEnv_s5 {}, gEnv_s6 {};
-static u16 env[8] {};
+static u32 gEnv_t3 = 0, gEnv_s5 = 0, gEnv_s6 = 0;
+static u16 env[8];
 
 
 

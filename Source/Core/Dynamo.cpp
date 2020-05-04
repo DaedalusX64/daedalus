@@ -58,9 +58,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define TRACE_SIZE 1024
 #endif
 
-static const u32					gMaxFragmentCacheSize {(8192 + 1024)}; //Maximum amount of fragments in the cache
-static const u32					gMaxHotTraceMapSize {(2048 + TRACE_SIZE)};
-static const u32					gHotTraceThreshold {10};	//How many times interpreter has to loop a trace before it becomes hot and sent to dynarec
+static const u32					gMaxFragmentCacheSize = (8192 + 1024); //Maximum amount of fragments in the cache
+static const u32					gMaxHotTraceMapSize = (2048 + TRACE_SIZE);
+static const u32					gHotTraceThreshold = 10;	//How many times interpreter has to loop a trace before it becomes hot and sent to dynarec
 
 //typedef CMemoryPoolAllocator< std::pair< const u32, u32 > > MyAllocator;
 //std::map< u32, u32, std::less<u32>, MyAllocator >				gHotTraceCountMap;
@@ -130,7 +130,7 @@ void R4300_CALL_TYPE CPU_InvalidateICacheRange( u32 address, u32 length )
 template< bool TraceEnabled > DAEDALUS_FORCEINLINE void CPU_EXECUTE_OP()
 {
 
-	u8 * p_Instruction {};
+	u8 * p_Instruction = 0;
 	CPU_FETCH_INSTRUCTION( p_Instruction, gCPUState.CurrentPC );
 	OpCode op_code = *(OpCode*)p_Instruction;
 
@@ -278,8 +278,8 @@ template < bool DynaRec, bool TraceEnabled > void CPU_Go()
 
 struct SAddressHitCount
 {
-	u32		Address {};
-	u32		HitCount {};
+	u32		Address = 0;
+	u32		HitCount = 0;
 
 	SAddressHitCount( u32 address, u32 hitcount ) : Address( address ), HitCount( hitcount ) {}
 

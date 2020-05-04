@@ -13,8 +13,8 @@
 extern bool isMKABI;
 extern bool isZeldaABI;
 
-static u32 gEnv_t3 {}, gEnv_s5 {}, gEnv_s6 {};
-static u16 env[8] {};
+static u32 gEnv_t3 = 0, gEnv_s5 = 0, gEnv_s6 = 0;
+static u16 env[8];
 
 inline u16 Sample_Mask( u32 x )
 {

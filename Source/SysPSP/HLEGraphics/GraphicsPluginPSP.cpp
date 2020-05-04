@@ -45,21 +45,21 @@ extern void HandleEndOfFrame();
 
 extern bool gFrameskipActive;
 
-u32		gSoundSync {44100};
-u32		gVISyncRate {1500};
-bool	gTakeScreenshot {false};
-bool	gTakeScreenshotSS {false};
+u32		gSoundSync = 44100;
+u32		gVISyncRate =1500;
+bool	gTakeScreenshot = false;
+bool	gTakeScreenshotSS = false;
 
 EFrameskipValue		gFrameskipValue = FV_DISABLED;
 
 namespace
 {
 	//u32					gVblCount = 0;
-	u32					gFlipCount {};
+	u32					gFlipCount = 0;
 	//float				gCurrentVblrate = 0.0f;
-	float				gCurrentFramerate {0.0f};
-	u64					gLastFramerateCalcTime {};
-	u64					gTicksPerSecond {};
+	float				gCurrentFramerate = 0.0f;
+	u64					gLastFramerateCalcTime = 0;
+	u64					gTicksPerSecond = 0;
 
 #ifdef DAEDALUS_FRAMERATE_ANALYSIS
 	u32					gTotalFrames = 0;
@@ -74,12 +74,12 @@ static void	UpdateFramerate()
 #endif
 	gFlipCount++;
 
-	u64			now {};
+	u64			now = 0;
 	NTiming::GetPreciseTime( &now );
 
 	if(gLastFramerateCalcTime == 0)
 	{
-		u64		freq {};
+		u64		freq = 0;
 		gLastFramerateCalcTime = now;
 
 		NTiming::GetPreciseFrequency( &freq );
@@ -179,10 +179,10 @@ void CGraphicsPluginImpl::UpdateScreen()
 {
 	//gVblCount++;
 
-	static u32		last_origin {};
+	static u32		last_origin = 0;
 	u32 current_origin = Memory_VI_GetRegister(VI_ORIGIN_REG);
-	static bool Old_FrameskipActive {false};
-	static bool Older_FrameskipActive {false};
+	static bool Old_FrameskipActive = false;
+	static bool Older_FrameskipActive =false;
 
 	if( current_origin != last_origin )
 	{
@@ -193,9 +193,9 @@ void CGraphicsPluginImpl::UpdateScreen()
 		const f32 Fsync = FramerateLimiter_GetSync();
 
 		//Calc sync rates for audio and game speed //Corn
-		const f32 inv_Fsync {1.0f / Fsync};
-		gSoundSync = {(u32)(44100.0f * inv_Fsync)};
-		gVISyncRate = {(u32)(1500.0f * inv_Fsync)};
+		const f32 inv_Fsync = 1.0f / Fsync;
+		gSoundSync = (u32)(44100.0f * inv_Fsync);
+		gVISyncRate = (u32)(1500.0f * inv_Fsync);
 		if( gVISyncRate > 4000 ) gVISyncRate = 4000;
 		else if ( gVISyncRate < 1500 ) gVISyncRate = 1500;
 
@@ -238,7 +238,7 @@ void CGraphicsPluginImpl::UpdateScreen()
 			HandleEndOfFrame();
 		}
 
-		static u32 current_frame {};
+		static u32 current_frame = 0;
 		current_frame++;
 
 

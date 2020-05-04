@@ -78,7 +78,7 @@ bool Save_Reset()
 			DBGConsole_Msg(0, "Loading save from [C%s]", gSaveFileName);
 			#endif
 
-			u8 buffer[2048] {};
+			u8 buffer[2048];
 			u8 * dst = (u8*)g_pMemoryBuffers[MEM_SAVE];
 
 			for (u32 d = 0; d < gSaveSize; d += sizeof(buffer))

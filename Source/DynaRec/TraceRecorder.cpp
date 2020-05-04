@@ -230,7 +230,7 @@ CTraceRecorder::EUpdateTraceStatus	CTraceRecorder::UpdateTrace( u32 address,
 			u32		branch_target_address( GetBranchTarget( address, op_code, branch_type ) );
 			u32		fallthrough_address( address + 8 );
 
-			u32		target_address {};
+			u32		target_address = 0;
 			if( branch_taken )
 			{
 				// We're following the branch.
@@ -396,7 +396,7 @@ void CTraceRecorder::Analyse( SRegisterUsageInfo & register_usage )
 
 	std::fill( reg_spans, reg_spans + NUM_N64_REGS, invalid_span );		// Set the interval to an invalid range
 
-	for( u32 i {}; i < mTraceBuffer.size(); ++i )
+	for( u32 i  = 0; i < mTraceBuffer.size(); ++i )
 	{
 		const STraceEntry & ti( mTraceBuffer[ i ] );
 		const StaticAnalysis::RegisterUsage&	usage = ti.Usage;
@@ -422,7 +422,7 @@ void CTraceRecorder::Analyse( SRegisterUsageInfo & register_usage )
 	register_usage.SpanList.reserve( NUM_N64_REGS );
 
 	// Iterate through registers, inserting all that are used into span list
-	for( u32 i {}; i < NUM_N64_REGS; ++i )
+	for( u32 i = 0; i < NUM_N64_REGS; ++i )
 	{
 		s32		start( reg_spans[ i ].first );
 		s32		end( reg_spans[ i ].second );

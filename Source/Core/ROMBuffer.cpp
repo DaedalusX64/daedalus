@@ -223,7 +223,7 @@ bool RomBuffer::Open()
 #else
 		u32 offset( 0 );
 		u32 length_remaining( sRomSize );
-		const u32 TEMP_BUFFER_SIZE {128 * 1024};
+		const u32 TEMP_BUFFER_SIZE = 128 * 1024;
 
 		intraFont* ltn8  = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ASCII);
 		intraFontSetStyle( ltn8, 1.5f, 0xFFFFFFFF, 0, 0.f, INTRAFONT_ALIGN_CENTER );
@@ -353,9 +353,9 @@ namespace
 		// Similar algorithm to below - we don't care about byte swapping though
 		while(length > 0)
 		{
-			u8 *	p_chunk_base {};
-			u32		chunk_offset {};
-			u32		chunk_size {};
+			u8 *	p_chunk_base = 0;
+			u32		chunk_offset = 0;
+			u32		chunk_size = 0;
 
 			if( !p_cache->GetChunk( src_offset, &p_chunk_base, &chunk_offset, &chunk_size ) )
 			{
@@ -455,9 +455,9 @@ void RomBuffer::CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_off
 	{
 		while(length > 0)
 		{
-			u8 *	p_chunk_base {};
-			u32		chunk_offset {};
-			u32		chunk_size {};
+			u8 *	p_chunk_base = 0;
+			u32		chunk_offset = 0;
+			u32		chunk_size = 0;
 
 			if( !spRomFileCache->GetChunk( src_offset, &p_chunk_base, &chunk_offset, &chunk_size ) )
 			{

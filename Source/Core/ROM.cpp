@@ -52,7 +52,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #if defined(DAEDALUS_ENABLE_DYNAREC_PROFILE) || defined(DAEDALUS_W32)
 // This isn't really the most appropriate place. Need to check with
 // the graphics plugin really
-u32 g_dwNumFrames {};
+u32 g_dwNumFrames = 0;
 #endif
 
 RomInfo g_ROM;
@@ -88,7 +88,7 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 		   RAMROM_GAME_OFFSET - RAMROM_BOOTSTRAP_OFFSET );
 
 	// Need to copy to SP_IMEM for CIC-6105 boot.
-	u8 * pIMemBase {(u8*)g_pMemoryBuffers[ MEM_SP_MEM ] + 0x1000};
+	u8 * pIMemBase = (u8*)g_pMemoryBuffers[ MEM_SP_MEM ] + 0x1000;
 
 	//FIX ME: Some of these are redundant, see CPU_RomOpen
 	//
@@ -621,7 +621,7 @@ static const CountryIDInfo g_CountryCodeInfo[] =
 // Get a string representing the country name from an ID value
 const char * ROM_GetCountryNameFromID( u8 country_id )
 {
-	for (u32 i {}; i < ARRAYSIZE( g_CountryCodeInfo ); i++)
+	for (u32 i = 0; i < ARRAYSIZE( g_CountryCodeInfo ); i++)
 	{
 		if (g_CountryCodeInfo[i].CountryID == country_id)
 		{
@@ -634,7 +634,7 @@ const char * ROM_GetCountryNameFromID( u8 country_id )
 
 u32 ROM_GetTvTypeFromID( u8 country_id )
 {
-	for (u32 i {}; i < ARRAYSIZE( g_CountryCodeInfo ); i++)
+	for (u32 i = 0; i < ARRAYSIZE( g_CountryCodeInfo ); i++)
 	{
 		if (g_CountryCodeInfo[i].CountryID == country_id)
 		{

@@ -42,7 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define CHEAT_CODE_MAGIC_VALUE 0xDEAD
 
 CODEGROUP *codegrouplist;
-u32		codegroupcount		{};
+u32	codegroupcount = 0;
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -71,9 +71,9 @@ u32		codegroupcount		{};
 static void CheatCodes_Apply(u32 index, u32 mode)
 {
 	CHEATCODENODE *code = (CHEATCODENODE*)codegrouplist[index].codelist;
-	u32 num {codegrouplist[index].codecount}; // number of codes
-	bool enable {codegrouplist[index].enable};
-	bool skip {false};
+	u32 num = codegrouplist[index].codecount; // number of codes
+	bool enable = codegrouplist[index].enable;
+	bool skip = false;
 
 	while(num--)
 	{
@@ -84,10 +84,10 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 			code++;
 			continue;
 		}
-		u32 address {(code->addr & 0xFFFFFF)};
-		u16 value	{code->val};
-		u32 type	{(code->addr >> 24) & 0xFF};
-		u8* p_mem	{g_pu8RamBase + address}; // addr is already pre-swapped
+		u32 address = (code->addr & 0xFFFFFF);
+		u16 value	= code->val;
+		u32 type	= (code->addr >> 24) & 0xFF;
+		u8* p_mem	= g_pu8RamBase + address; // addr is already pre-swapped
 
 		switch(type)
 		{
@@ -148,9 +148,9 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 		case 0x50:
 			{
 				skip		= true;
-				s32	count	{(s32)(address & 0x0000FF00) >> 8};	// repeat count
-				u32	offset	{(address & 0x000000FF)};
-				u16	valinc	{value};
+				s32	count  = (s32)(address & 0x0000FF00) >> 8;	// repeat count
+				u32	offset =	(address & 0x000000FF);
+				u16	valinc =	value;
 
 				if( (num - 1) > 0)
 				{
@@ -196,7 +196,7 @@ static void CheatCodes_Apply(u32 index, u32 mode)
 //*****************************************************************************
 void CheatCodes_Activate( CHEAT_MODE mode )
 {
-	for(u32 i {}; i < codegroupcount; i++)
+	for(u32 i = 0; i < codegroupcount; i++)
 	{
 		// Apply only activated cheats
 		if(codegrouplist[i].active)
@@ -261,10 +261,11 @@ void CheatCodes_Delete(u32 index)
 //*****************************************************************************
 bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 {
-	char			current_rom_name[128] {};
-	static char		last_rom_name[128] {};
+	char			current_rom_name[128];
+	static char		last_rom_name[128];
 
-	char			line[2048] {}, romname[256] {}/*, errormessage[400]*/;	//changed line length to 2048 previous was 256
+	char			line[2048];
+	char  romname[256];/*, errormessage[400]*/;	//changed line length to 2048 previous was 256
 	bool			bfound;
 	u32				c1 {}, c2 {};
 	FILE			*stream {};
@@ -332,7 +333,7 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 
 	if( bfound )
 	{
-		u32 numberofgroups {};
+		u32 numberofgroups = 0;
 
 		// First step, read the number of (cheat) groups for the current rom
 		//
@@ -390,7 +391,7 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 			if(line[c1 + 1] == '"')
 			{
 				// we have a note for this cheat code group
-				u32 c3;
+				u32 c3 = 0;
 
 				for(c3 = 0; line[c3 + c1 + 2] != '"' && line[c3 + c1 + 2] != '\0'; c3++)
 				{
@@ -405,7 +406,7 @@ bool CheatCodes_Read(const char *rom_name, const char *file, u8 countryID)
 				codegrouplist[codegroupcount].note[0] = '\0';
 			}
 
-			u32 addr {}, value {};
+			u32 addr = 0, value = 0;
 			codegrouplist[codegroupcount].active = (line[c1 + 1] - '0') ? true : false;
 			codegrouplist[codegroupcount].enable = false;
 			codegrouplist[codegroupcount].codecount = 0;

@@ -52,15 +52,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define RSP_AUDIO_INTR_CYCLES     1
 extern u32 gSoundSync;
 
-static const u32	kOutputFrequency {44100};
-static const u32	MAX_OUTPUT_FREQUENCY {kOutputFrequency * 4};
+static const u32	kOutputFrequency = 44100;
+static const u32	MAX_OUTPUT_FREQUENCY = kOutputFrequency * 4;
 
 
-static bool audio_open {false};
+static bool audio_open = false;
 
 
 // Large kAudioBufferSize creates huge delay on sound //Corn
-static const u32	kAudioBufferSize {1024 * 2}; // OSX uses a circular buffer length, 1024 * 1024
+static const u32	kAudioBufferSize = 1024 * 2; // OSX uses a circular buffer length, 1024 * 1024
 
 
 class AudioPluginPSP : public CAudioPlugin
@@ -326,7 +326,7 @@ void AudioPluginPSP::AddBuffer( u8 *start, u32 length )
 	if (!mKeepRunning)
 		StartAudio();
 
-	u32 num_samples {length / sizeof( Sample )};
+	u32 num_samples = length / sizeof( Sample );
 
 	switch( gAudioPluginEnabled )
 	{

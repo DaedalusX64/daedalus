@@ -49,7 +49,7 @@ void CColourAdjuster::Process( DaedalusVtx * p_vertices, u32 num_verts ) const
 
 		case COL32_MASK_RGBA:
 			{
-				for(u32 v {} ; v < num_verts; v++)
+				for(u32 v = 0 ; v < num_verts; v++)
 				{
 					p_vertices[v].Colour = mSetColour;
 				}
@@ -58,10 +58,10 @@ void CColourAdjuster::Process( DaedalusVtx * p_vertices, u32 num_verts ) const
 
 		default:
 			{
-				u32		clear_bits {~mSetMask};
-				u32		set_bits {mSetColour.GetColour() & mSetMask};
+				u32		clear_bits = ~mSetMask;
+				u32		set_bits = mSetColour.GetColour() & mSetMask;
 
-				for(u32 v {}; v < num_verts; v++)
+				for(u32 v = 0; v < num_verts; v++)
 				{
 					p_vertices[v].Colour = c32( (p_vertices[v].Colour.GetColour() & clear_bits) | set_bits );
 				}
@@ -73,7 +73,7 @@ void CColourAdjuster::Process( DaedalusVtx * p_vertices, u32 num_verts ) const
 	{
 		case COL32_MASK_RGB:
 			{
-				for(u32 v {}; v < num_verts; v++)
+				for(u32 v = 0; v < num_verts; v++)
 				{
 					p_vertices[v].Colour = p_vertices[v].Colour.SubRGB( mSubtractColour );
 				}
@@ -82,7 +82,7 @@ void CColourAdjuster::Process( DaedalusVtx * p_vertices, u32 num_verts ) const
 
 		case COL32_MASK_A:
 			{
-				for(u32 v {}; v < num_verts; v++)
+				for(u32 v = 0; v < num_verts; v++)
 				{
 					p_vertices[v].Colour = p_vertices[v].Colour.SubA( mSubtractColour );
 				}
@@ -112,7 +112,7 @@ void CColourAdjuster::Process( DaedalusVtx * p_vertices, u32 num_verts ) const
 
 		case COL32_MASK_A:
 			{
-				for(u32 v {}; v < num_verts; v++)
+				for(u32 v = 0; v < num_verts; v++)
 				{
 					p_vertices[v].Colour = p_vertices[v].Colour.ModulateA( mModulateColour );
 				}
@@ -121,7 +121,7 @@ void CColourAdjuster::Process( DaedalusVtx * p_vertices, u32 num_verts ) const
 
 		case COL32_MASK_RGBA:
 			{
-				for(u32 v {}; v < num_verts; v++)
+				for(u32 v = 0; v < num_verts; v++)
 				{
 					p_vertices[v].Colour = p_vertices[v].Colour.Modulate( mModulateColour );
 				}
@@ -141,8 +141,8 @@ void	CColourAdjuster::Set( u32 mask, c32 colour )
 	#endif
 	mSetMask |= mask;
 
-	u32		current {mSetColour.GetColour()};
-	u32		col {colour.GetColour()};
+	u32		current = mSetColour.GetColour();
+	u32		col = colour.GetColour();
 
 	mSetColour = c32( ( current & ~mask) | (col & mask) );
 }
@@ -157,8 +157,8 @@ void	CColourAdjuster::Modulate( u32 mask, c32 colour )
 	#endif
 	mModulateMask |= mask;
 
-	u32		current {mModulateColour.GetColour()};
-	u32		col {colour.GetColour()};
+	u32		current = mModulateColour.GetColour();
+	u32		col = colour.GetColour();
 
 	mModulateColour = c32( ( current & ~mask) | (col & mask) );
 }
@@ -173,8 +173,8 @@ void	CColourAdjuster::Subtract( u32 mask, c32 colour )
 	#endif
 	mSubtractMask |= mask;
 
-	u32		current {mSubtractColour.GetColour()};
-	u32		col {colour.GetColour() };
+	u32		current = mSubtractColour.GetColour();
+	u32		col = colour.GetColour() ;
 
 	mSubtractColour = c32( ( current & ~mask) | (col & mask) );
 }

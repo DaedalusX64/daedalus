@@ -45,9 +45,9 @@ bool gDMAUsed {false};
 //*****************************************************************************
 void DMA_SP_CopyFromRDRAM()
 {
-	u32 spmem_address_reg {Memory_SP_GetRegister(SP_MEM_ADDR_REG)};
-	u32 rdram_address_reg {Memory_SP_GetRegister(SP_DRAM_ADDR_REG)};
-	u32 rdlen_reg         {Memory_SP_GetRegister(SP_RD_LEN_REG)};
+	u32 spmem_address_reg  = Memory_SP_GetRegister(SP_MEM_ADDR_REG);
+	u32 rdram_address_reg = Memory_SP_GetRegister(SP_DRAM_ADDR_REG);
+	u32 rdlen_reg         = Memory_SP_GetRegister(SP_RD_LEN_REG);
 
 #ifdef DAEDALUS_PSP
 	// Ignore IMEM for speed (we don't do low-level RSP anyways on the PSP)
@@ -60,13 +60,13 @@ void DMA_SP_CopyFromRDRAM()
 	}
 #else
 
-	u32 rdram_address {(rdram_address_reg&0x00FFFFFF)	& ~7};	// Align to 8 byte boundary
-	u32 spmem_address {(spmem_address_reg&0x1FFF)		& ~7};	// Align to 8 byte boundary
-	u32 length {((rdlen_reg    &0x0FFF) | 7)+1};					// Round up to 8 bytes
-	u32 count  {((rdlen_reg>>12)&0x00FF)+1};
-	u32 skip   {((rdlen_reg>>20)&0x0FFF)};
+	u32 rdram_address = (rdram_address_reg&0x00FFFFFF)	& ~7};	// Align to 8 byte boundary
+	u32 spmem_address = (spmem_address_reg&0x1FFF)		& ~7};	// Align to 8 byte boundary
+	u32 length = ((rdlen_reg    &0x0FFF) | 7)+1;					// Round up to 8 bytes
+	u32 count  = ((rdlen_reg>>12)&0x00FF)+1;
+	u32 skip   = ((rdlen_reg>>20)&0x0FFF);
 
-	for (u32 c {}; c < count; c++ )
+	for (u32 c = 0; c < count; c++ )
 	{
 		// Conker needs this
 		if ( rdram_address  > gRamSize )
@@ -92,9 +92,9 @@ void DMA_SP_CopyFromRDRAM()
 //*****************************************************************************
 void DMA_SP_CopyToRDRAM()
 {
-	u32 spmem_address_reg {Memory_SP_GetRegister(SP_MEM_ADDR_REG)};
-	u32 rdram_address_reg {Memory_SP_GetRegister(SP_DRAM_ADDR_REG)};
-	u32 wrlen_reg         {Memory_SP_GetRegister(SP_WR_LEN_REG)};
+	u32 spmem_address_reg = Memory_SP_GetRegister(SP_MEM_ADDR_REG);
+	u32 rdram_address_reg = Memory_SP_GetRegister(SP_DRAM_ADDR_REG);
+	u32 wrlen_reg         = Memory_SP_GetRegister(SP_WR_LEN_REG);
 
 #ifdef DAEDALUS_PSP
 	// Ignore IMEM for speed (we don't do low-level RSP anyways on the PSP)
@@ -107,13 +107,13 @@ void DMA_SP_CopyToRDRAM()
 	}
 
 #else
-	u32 rdram_address {(rdram_address_reg&0x00FFFFFF)	& ~7};	// Align to 8 byte boundary
-	u32 spmem_address {(spmem_address_reg&0x1FFF)		& ~7};	// Align to 8 byte boundary
-	u32 length {((wrlen_reg    &0x0FFF) | 7)+1};				// Round up to 8 bytes
-	u32 count  {((wrlen_reg>>12)&0x00FF)+1};
-	u32 skip   {((wrlen_reg>>20)&0x0FFF)};
+	u32 rdram_address = (rdram_address_reg&0x00FFFFFF)	& ~7;	// Align to 8 byte boundary
+	u32 spmem_address = (spmem_address_reg&0x1FFF)		& ~7;	// Align to 8 byte boundary
+	u32 length = ((wrlen_reg    &0x0FFF) | 7)+1;				// Round up to 8 bytes
+	u32 count  = ((wrlen_reg>>12)&0x00FF)+1;
+	u32 skip   = ((wrlen_reg>>20)&0x0FFF);
 
-	for ( u32 c {}; c < count; c++ )
+	for ( u32 c = 0; c < count; c++ )
 	{
 		#ifdef DAEDALUS_DEBUG_CONSOLE
 		if ( rdram_address  > gRamSize )
@@ -140,15 +140,15 @@ void DMA_SP_CopyToRDRAM()
 //*****************************************************************************
 void DMA_SI_CopyFromDRAM( )
 {
-	u32 mem {Memory_SI_GetRegister(SI_DRAM_ADDR_REG) & 0x1fffffff};
-	u32 * p_dst {(u32 *)g_pMemoryBuffers[MEM_PIF_RAM]};
-	u32 * p_src {(u32 *)(g_pu8RamBase + mem)};
+	u32 mem  = Memory_SI_GetRegister(SI_DRAM_ADDR_REG) & 0x1fffffff;
+	u32 * p_dst = (u32 *)g_pMemoryBuffers[MEM_PIF_RAM];
+	u32 * p_src = (u32 *)(g_pu8RamBase + mem);
 
 #ifdef DAEDLAUS_PROFILER
 	DPF( DEBUG_MEMORY_PIF, "DRAM (0x%08x) -> PIF Transfer ", mem );
 #endif
 	// Fuse 4 reads and 4 writes to just one which is a lot faster - Corn
-	for(u32 i {}; i < 16; i++)
+	for(u32 i = 0; i < 16; i++)
 	{
 		p_dst[i] = BSWAP32(p_src[i]);
 	}
@@ -166,15 +166,15 @@ void DMA_SI_CopyToDRAM( )
 	// Check controller status!
 	CController::Get()->Process();
 
-	u32 mem {Memory_SI_GetRegister(SI_DRAM_ADDR_REG) & 0x1fffffff};
-	u32 * p_src {(u32 *)g_pMemoryBuffers[MEM_PIF_RAM]};
-	u32 * p_dst {(u32 *)(g_pu8RamBase + mem)};
+	u32 mem = Memory_SI_GetRegister(SI_DRAM_ADDR_REG) & 0x1fffffff;
+	u32 * p_src = (u32 *)g_pMemoryBuffers[MEM_PIF_RAM];
+	u32 * p_dst = (u32 *)(g_pu8RamBase + mem);
 
 #ifdef DAEDLAUS_PROFILER
 	DPF( DEBUG_MEMORY_PIF, "PIF -> DRAM (0x%08x) Transfer ", mem );
 #endif
 	// Fuse 4 reads and 4 writes to just one which is a lot faster - Corn
-	for(u32 i {}; i < 16; i++)
+	for(u32 i = 0; i < 16; i++)
 	{
 		p_dst[i] = BSWAP32(p_src[i]);
 	}
@@ -237,7 +237,7 @@ static void OnCopiedRom()
 #endif
 
 		// Set RDRAM size
-		u32 addr {(g_ROM.cic_chip != CIC_6105) ? (u32)0x318 : (u32)0x3F0};
+		u32 addr = (g_ROM.cic_chip != CIC_6105) ? (u32)0x318 : (u32)0x3F0;
 		*(u32 *)(g_pu8RamBase + addr) = gRamSize;
 
 		// Azimer's DK64 hack, it makes DK64 boot!
@@ -248,9 +248,9 @@ static void OnCopiedRom()
 
 void DMA_PI_CopyToRDRAM()
 {
-	u32 mem_address  {Memory_PI_GetRegister(PI_DRAM_ADDR_REG) & 0x00FFFFFF};
-	u32 cart_address {Memory_PI_GetRegister(PI_CART_ADDR_REG)  & 0xFFFFFFFF};
-	u32 pi_length_reg {(Memory_PI_GetRegister(PI_WR_LEN_REG) & 0xFFFFFFFF) + 1};
+	u32 mem_address  = Memory_PI_GetRegister(PI_DRAM_ADDR_REG) & 0x00FFFFFF;
+	u32 cart_address = Memory_PI_GetRegister(PI_CART_ADDR_REG)  & 0xFFFFFFFF;
+	u32 pi_length_reg = (Memory_PI_GetRegister(PI_WR_LEN_REG) & 0xFFFFFFFF) + 1;
 
 #ifdef DAEDLAUS_PROFILER
 	DPF( DEBUG_MEMORY_PI, "PI: Copying %d bytes of data from 0x%08x to 0x%08x", pi_length_reg, cart_address, mem_address );
@@ -262,7 +262,7 @@ void DMA_PI_CopyToRDRAM()
     {
 		if (IsFlashDomAddr(cart_address))
 		{
-           	const u8 *	p_src( (const u8 *)g_pMemoryBuffers[MEM_SAVE] );
+      const u8 *	p_src( (const u8 *)g_pMemoryBuffers[MEM_SAVE] );
 			u32			src_size( ( MemoryRegionSizes[MEM_SAVE] ) );
 			cart_address -= PI_DOM2_ADDR2;
 
@@ -312,9 +312,9 @@ void DMA_PI_CopyToRDRAM()
 //*****************************************************************************
 void DMA_PI_CopyFromRDRAM()
 {
-	u32 mem_address  {Memory_PI_GetRegister(PI_DRAM_ADDR_REG) & 0xFFFFFFFF};
-	u32 cart_address {Memory_PI_GetRegister(PI_CART_ADDR_REG)  & 0xFFFFFFFF};
-	u32 pi_length_reg {(Memory_PI_GetRegister(PI_RD_LEN_REG)  & 0xFFFFFFFF) + 1};
+	u32 mem_address = Memory_PI_GetRegister(PI_DRAM_ADDR_REG) & 0xFFFFFFFF;
+	u32 cart_address = Memory_PI_GetRegister(PI_CART_ADDR_REG)  & 0xFFFFFFFF;
+	u32 pi_length_reg = (Memory_PI_GetRegister(PI_RD_LEN_REG)  & 0xFFFFFFFF) + 1;
 
 #ifdef DAEDALUS_PROFILER
 	DPF(DEBUG_MEMORY_PI, "PI: Copying %d bytes of data from 0x%08x to 0x%08x", pi_length_reg, mem_address, cart_address );

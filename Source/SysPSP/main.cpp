@@ -320,7 +320,7 @@ void HandleEndOfFrame()
 	//
 	static u32 oldButtons = 0;
 	SceCtrlData pad;
-			bool		activate_pause_menu {false};
+			bool		activate_pause_menu = false;
 	sceCtrlPeekBufferPositive(&pad, 1);
 
 	// If kernelbuttons.prx couldn't be loaded, allow select button to be used instead
