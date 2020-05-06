@@ -150,6 +150,45 @@ static void DaedalusFWCheck()
 
 }
 
+static void DaedalusVitaCheck()
+{
+	int vitaprx = sceIoOpen("flash0:/kd/registry.prx", PSP_O_RDONLY | PSP_O_WRONLY, 0777);
+	if(vitaprx >= 0){
+	{
+		pspDebugScreenInit();
+		pspDebugScreenSetTextColor(0xffffff);
+		pspDebugScreenSetBackColor(0x000000);
+		pspDebugScreenSetXY(0, 0);
+		pspDebugScreenClear();
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf( "The Playstation Vita has a native version of Daedalus.\n");
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf( "Vita support has been deprecated from the PSP build and is no longer supported\n");
+		pspDebugScreenPrintf( "Please visit https://github.com/rinnegatamante/daedalusx64-vita for Vita builds\n" );
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf( "--------------------------------------------------------------------\n" );
+		sceKernelDelayThread(1000000);
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf( "\n" );
+		pspDebugScreenPrintf("\nPress O to Exit or [] to Ignore");
+		for (;;)
+		{
+			SceCtrlData pad;
+			sceCtrlPeekBufferPositive(&pad, 1);
+			if (pad.Buttons & PSP_CTRL_CIRCLE)
+				break;
+			if (pad.Buttons & PSP_CTRL_SQUARE)
+				return;
+		}
+		sceKernelExitGame();
+	}
+
+  }
+}
+
 
 extern bool InitialiseJobManager();
 //*************************************************************************************
@@ -171,6 +210,8 @@ static bool	Initialize()
 
 // Check for firmware lower than 4.01
 	DaedalusFWCheck();
+	// Check for PSVita in PSP Mode
+	DaedalusVitaCheck();
 
 	// Initiate MediaEngine
 	//Note: Media Engine is not available for Vita
@@ -205,11 +246,6 @@ extern void initExceptionHandler();
 		if( bMeStarted )
 			PSP_IS_SLIM = true;
 
-	int vitaprx = sceIoOpen("flash0:/kd/registry.prx", PSP_O_RDONLY | PSP_O_WRONLY, 0777);
-	if(vitaprx >= 0){
-	sceIoClose(vitaprx);
-
-	}
 	else {
 		HAVE_DVE = CModule::Load("dvemgr.prx");
 		if (HAVE_DVE >= 0)
