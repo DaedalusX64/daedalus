@@ -234,7 +234,7 @@ public:
 	// Fog stuff
 	inline void			SetFogMultOffs(f32 Mult, f32 Offs)		{ mTnL.FogMult=Mult/255.0f; mTnL.FogOffs=Offs/255.0f;}
 	#ifdef DAEDALUS_PSP
-	inline void			SetFogMinMax(f32 fog_near, f32 fog_far)	{ sceGuFog(fog_near, fog_far, mFogColour.GetColour()); }
+	inline void			SetFogMinMax(f32 fog_near, f32 fog_far)	{ sceGuFog(-fog_near /2000, +fog_far /2000 , mFogColour.GetColour()); }
 	inline void			SetFogColour( c32 colour )				{ mFogColour = colour; }
 	#endif
 

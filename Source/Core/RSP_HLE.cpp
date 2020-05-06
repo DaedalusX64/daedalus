@@ -40,6 +40,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 static const bool	gGraphicsEnabled = true;
 static const bool	gAudioEnabled	 = true;
 
+extern void jpeg_decode_PS(OSTask *task);
+extern void jpeg_decode_PS0(OSTask *task);
+extern void jpeg_decode_OB(OSTask *task);
+
 #ifdef DAEDALUS_DEBUG_CONSOLE
 #if 0
 static void RDP_DumpRSPCode(char * name, u32 crc, u32 * mem_base, u32 pc_base, u32 len)
@@ -187,7 +191,7 @@ static EProcessResult RSP_HLE_Audio()
 // RSP_HLE_Jpeg and RSP_HLE_CICX105 were borrowed from Mupen64plus
 static u32 sum_bytes(const u8 *bytes, u32 size)
 {
-    u32 sum = 0;
+    u32 sum {};
     const u8 * const bytes_end = bytes + size;
 
     while (bytes != bytes_end)
@@ -196,26 +200,23 @@ static u32 sum_bytes(const u8 *bytes, u32 size)
     return sum;
 }
 
-
-
 EProcessResult RSP_HLE_Jpeg(OSTask * task)
 {
-void jpeg_decode_PS(OSTask *task);
-void jpeg_decode_OB(OSTask *task);
-
 	// most ucode_boot procedure copy 0xf80 bytes of ucode whatever the ucode_size is.
 	// For practical purpose we use a ucode_size = min(0xf80, task->ucode_size)
-	u32 sum {sum_bytes(g_pu8RamBase + (uintptr_t)task->t.ucode , Min<u32>(task->t.ucode_size, 0xf80) >> 1)};
+	u32 sum = sum_bytes(g_pu8RamBase + (u32)task->t.ucode , Min<u32>(task->t.ucode_size, 0xf80) >> 1);
 
 	//DBGConsole_Msg(0, "JPEG Task: Sum=0x%08x", sum);
 	switch(sum)
 	{
+	case 0x2c85a: // Pokemon Stadium Jap Exclusive jpg decompression
+		jpeg_decode_PS0(task);
+		break;
 	case 0x2caa6: // Zelda OOT, Pokemon Stadium {1,2} jpg decompression
 		jpeg_decode_PS(task);
 		break;
-		 // Ogre Battle & Buttom of the 9th background decompression
-		case 0x130de:
-		case 0x278b0:
+	case 0x130de: // Ogre Battle & Buttom of the 9th background decompression
+	case 0x278b0:
         jpeg_decode_OB(task);
 		break;
 	}
@@ -223,11 +224,9 @@ void jpeg_decode_OB(OSTask *task);
 	return PR_COMPLETED;
 }
 
-
-
 EProcessResult RSP_HLE_CICX105(OSTask * task)
 {
-    const u32 sum  = sum_bytes(g_pu8SpImemBase, 0x1000 >> 1);
+    const u32 sum {sum_bytes(g_pu8SpImemBase, 0x1000 >> 1)};
 
     switch(sum)
     {
@@ -236,8 +235,8 @@ EProcessResult RSP_HLE_CICX105(OSTask * task)
         case 0x9f2: /* CIC 7105 */
 			{
 				u32 i;
-				u8 * dst = g_pu8RamBase + 0x2fb1f0;
-				u8 * src = g_pu8SpImemBase + 0x120;
+				u8 * dst {g_pu8RamBase + 0x2fb1f0};
+				u8 * src {g_pu8SpImemBase + 0x120};
 
 				/* dma_read(0x1120, 0x1e8, 0x1e8) */
 				memcpy(g_pu8SpImemBase + 0x120, g_pu8RamBase + 0x1e8, 0x1f0);
@@ -257,7 +256,6 @@ EProcessResult RSP_HLE_CICX105(OSTask * task)
 
 	return PR_COMPLETED;
 }
-
 
 void RSP_HLE_ProcessTask()
 {

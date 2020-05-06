@@ -32,6 +32,7 @@
 #include "stdafx.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "Debug/DBGConsole.h"
 #include "Memory.h"
@@ -50,7 +51,7 @@ static void rdram_write_many_u32(const u32 *src, u32 address, u32 count);
 
 /* helper functions */
 static u8 clamp_u8(s16 x);
-//static s16 clamp_s12(s16 x);
+static s16 clamp_s12(s16 x);
 static s16 clamp_s16(s32 x);
 static u16 clamp_RGBA_component(s16 x);
 
@@ -64,9 +65,9 @@ static void EmitYUVTileLine(const s16 *y, const s16 *u, u32 address);
 static void EmitRGBATileLine(const s16 *y, const s16 *u, u32 address);
 
 /* macroblocks operations */
-static void DecodeMacroblock1(s16 *macroblock, s32 *y_dc, s32 *u_dc, s32 *v_dc, const s16 *qtable);
-static void DecodeMacroblock2(s16 *macroblock, u32 subblock_count, const s16 qtables[3][SUBBLOCK_SIZE]);
-//static void DecodeMacroblock3(s16 *macroblock, u32 subblock_count, const s16 qtables[3][SUBBLOCK_SIZE]);
+static void DecodeMacroblockOB(s16 *macroblock, s32 *y_dc, s32 *u_dc, s32 *v_dc, const s16 *qtable);
+static void DecodeMacroblockPS(s16 *macroblock, u32 subblock_count, const s16 qtables[3][SUBBLOCK_SIZE]);
+static void DecodeMacroblockPS0(s16 *macroblock, u32 subblock_count, const s16 qtables[3][SUBBLOCK_SIZE]);
 static void EmitTilesMode0(const tile_line_emitter_t emit_line, const s16 *macroblock, u32 address);
 static void EmitTilesMode2(const tile_line_emitter_t emit_line, const s16 *macroblock, u32 address);
 
@@ -79,8 +80,8 @@ static void ScaleSubBlock(s16 *dst, const s16 *src, s16 scale);
 static void RShiftSubBlock(s16 *dst, const s16 *src, u32 shift);
 static void InverseDCT1D(const float * const x, float *dst, u32 stride);
 static void InverseDCTSubBlock(s16 *dst, const s16 *src);
-//static void RescaleYSubBlock(s16 *dst, const s16 *src);
-//static void RescaleUVSubBlock(s16 *dst, const s16 *src);
+static void RescaleYSubBlock(s16 *dst, const s16 *src);
+static void RescaleUVSubBlock(s16 *dst, const s16 *src);
 
 /* transposed dequantization table */
 const s16 DEFAULT_QTABLE[SUBBLOCK_SIZE] =
@@ -121,17 +122,12 @@ const u32 TRANSPOSE_TABLE[SUBBLOCK_SIZE] =
     7, 15, 23, 31, 39, 47, 55, 63
 };
 
-
-
 /***************************************************************************
- * JPEG decoding ucode found in Ocarina of Time, Pokemon Stadium 1 and
- * Pokemon Stadium 2.
+ * JPEG decoding ucode found in Japanese exclusive version of Pokemon Stadium.
  **************************************************************************/
-void jpeg_decode_PS(OSTask *task)
+void jpeg_decode_PS0(OSTask *task)
 {
-	s16 *macroblock = 0;
     s16 qtables[3][SUBBLOCK_SIZE];
-    u32 mb = 0;
 
     #ifdef DAEDALUS_DEBUG_CONSOLE
     if (task->t.flags & 0x1)
@@ -140,12 +136,12 @@ void jpeg_decode_PS(OSTask *task)
         return;
     }
     #endif
-    u32       address          = rdram_read_u32((uintptr_t)task->t.data_ptr);
-    const u32 macroblock_count = rdram_read_u32((uintptr_t)task->t.data_ptr + 4);
-    const u32 mode             = rdram_read_u32((uintptr_t)task->t.data_ptr + 8);
-    const u32 qtableY_ptr      = rdram_read_u32((uintptr_t)task->t.data_ptr + 12);
-    const u32 qtableU_ptr      = rdram_read_u32((uintptr_t)task->t.data_ptr + 16);
-    const u32 qtableV_ptr      = rdram_read_u32((uintptr_t)task->t.data_ptr + 20);
+    u32       address          = rdram_read_u32((u32)task->t.data_ptr);
+    const u32 macroblock_count = rdram_read_u32((u32)task->t.data_ptr + 4);
+    const u32 mode             = rdram_read_u32((u32)task->t.data_ptr + 8);
+    const u32 qtableY_ptr      = rdram_read_u32((u32)task->t.data_ptr + 12);
+    const u32 qtableU_ptr      = rdram_read_u32((u32)task->t.data_ptr + 16);
+    const u32 qtableV_ptr      = rdram_read_u32((u32)task->t.data_ptr + 20);
 
     #ifdef DAEDALUS_DEBUG_CONSOLE
     if (mode != 0 && mode != 2)
@@ -161,36 +157,79 @@ void jpeg_decode_PS(OSTask *task)
 
 	void (*EmitTilesMode)(const tile_line_emitter_t, const s16 *, u32);
 
-	if (mode == 0)
-	{
-		EmitTilesMode =  EmitTilesMode0;
-	}
-	else
-	{
-		EmitTilesMode =  EmitTilesMode2;
-	}
+	if (mode == 0) EmitTilesMode =  EmitTilesMode0;
+	else EmitTilesMode =  EmitTilesMode2;
 
 	const u32 subblock_count = mode + 4;
-	const u32 macroblock_size = 2*subblock_count*SUBBLOCK_SIZE;
+	const u32 macroblock_size = subblock_count * SUBBLOCK_SIZE;
 
-	macroblock = (s16 *)malloc(sizeof(*macroblock) * macroblock_size);
-  #ifdef DAEDALUS_DEBUG_CONSOLE
-	if (!macroblock)
-	{
-		DBGConsole_Msg(0, "jpeg_decode_PS: could not allocate macroblock");
-		return;
-	}
-  #endif
+	/* macroblock contains at most 6 subblocks */
+   s16 macroblock[6 * SUBBLOCK_SIZE];
 
-    for (mb = 0; mb < macroblock_count; ++mb)
+    for (u32 mb = 0; mb < macroblock_count; ++mb)
     {
-        rdram_read_many_u16((u16*)macroblock, address, macroblock_size >> 1);
-        DecodeMacroblock2(macroblock, subblock_count, (const s16 (*)[SUBBLOCK_SIZE])qtables);
+        rdram_read_many_u16((u16*)macroblock, address, macroblock_size);
+        DecodeMacroblockPS0(macroblock, subblock_count, (const s16 (*)[SUBBLOCK_SIZE])qtables);
+		EmitTilesMode(EmitYUVTileLine, macroblock, address);
+
+        address += 2 * macroblock_size;
+    }
+}
+
+
+/***************************************************************************
+ * JPEG decoding ucode found in Ocarina of Time, Pokemon Stadium 1 and
+ * Pokemon Stadium 2.
+ **************************************************************************/
+void jpeg_decode_PS(OSTask *task)
+{
+    s16 qtables[3][SUBBLOCK_SIZE];
+
+    #ifdef DAEDALUS_DEBUG_CONSOLE
+    if (task->t.flags & 0x1)
+    {
+        DBGConsole_Msg(0, "jpeg_decode_PS: task yielding not implemented");
+        return;
+    }
+    #endif
+    u32       address          = rdram_read_u32((u32)task->t.data_ptr);
+    const u32 macroblock_count = rdram_read_u32((u32)task->t.data_ptr + 4);
+    const u32 mode             = rdram_read_u32((u32)task->t.data_ptr + 8);
+    const u32 qtableY_ptr      = rdram_read_u32((u32)task->t.data_ptr + 12);
+    const u32 qtableU_ptr      = rdram_read_u32((u32)task->t.data_ptr + 16);
+    const u32 qtableV_ptr      = rdram_read_u32((u32)task->t.data_ptr + 20);
+
+    #ifdef DAEDALUS_DEBUG_CONSOLE
+    if (mode != 0 && mode != 2)
+    {
+        DBGConsole_Msg(0, "jpeg_decode_PS: invalid mode %d", mode);
+        return;
+    }
+    #endif
+
+    rdram_read_many_u16((u16*)qtables[0], qtableY_ptr, SUBBLOCK_SIZE);
+    rdram_read_many_u16((u16*)qtables[1], qtableU_ptr, SUBBLOCK_SIZE);
+    rdram_read_many_u16((u16*)qtables[2], qtableV_ptr, SUBBLOCK_SIZE);
+
+	void (*EmitTilesMode)(const tile_line_emitter_t, const s16 *, u32);
+
+	if (mode == 0) EmitTilesMode =  EmitTilesMode0;
+	else EmitTilesMode =  EmitTilesMode2;
+
+	const u32 subblock_count = mode + 4;
+	const u32 macroblock_size = subblock_count * SUBBLOCK_SIZE;
+
+	/* macroblock contains at most 6 subblocks */
+   s16 macroblock[6 * SUBBLOCK_SIZE];
+
+    for (u32 mb = 0; mb < macroblock_count; ++mb)
+    {
+        rdram_read_many_u16((u16*)macroblock, address, macroblock_size);
+        DecodeMacroblockPS(macroblock, subblock_count, (const s16 (*)[SUBBLOCK_SIZE])qtables);
 		EmitTilesMode(EmitRGBATileLine, macroblock, address);
 
-        address += macroblock_size;
+        address += 2 * macroblock_size;
     }
-	free(macroblock);
 }
 
 /***************************************************************************
@@ -199,17 +238,16 @@ void jpeg_decode_PS(OSTask *task)
 void jpeg_decode_OB(OSTask *task)
 {
     s16 qtable[SUBBLOCK_SIZE];
-    u32 mb = 0;
 
     s32 y_dc = 0, u_dc = 0, v_dc = 0;
 
 	u32  address = (u32)task->t.data_ptr;
 	const u32 macroblock_count = task->t.data_size;
-	const u32  qscale = task->t.yield_data_size;
+	const int qscale = task->t.yield_data_size;
 
-    if (task->t.yield_data_size != 0 )
+    if (qscale != 0)
     {
-        if (task->t.yield_data_size > 0)
+        if (qscale > 0)
         {
             ScaleSubBlock(qtable, DEFAULT_QTABLE, qscale);
         }
@@ -218,16 +256,15 @@ void jpeg_decode_OB(OSTask *task)
             RShiftSubBlock(qtable, DEFAULT_QTABLE, -qscale);
         }
     }
-
-    for (mb = 0; mb < macroblock_count; ++mb)
+	
+    for (u32 mb = 0; mb < macroblock_count; ++mb)
     {
-        s16 macroblock[6*SUBBLOCK_SIZE];
-
-        rdram_read_many_u16((u16*)macroblock, address, 6*SUBBLOCK_SIZE);
-        DecodeMacroblock1(macroblock, &y_dc, &u_dc, &v_dc, (qscale != 0) ? qtable : nullptr);
+        s16 macroblock[6 * SUBBLOCK_SIZE];
+        rdram_read_many_u16((u16*)macroblock, address, 6 * SUBBLOCK_SIZE);
+        DecodeMacroblockOB(macroblock, &y_dc, &u_dc, &v_dc, (qscale != 0) ? qtable : nullptr);
         EmitTilesMode2(EmitYUVTileLine, macroblock, address);
 
-        address += (2*6*SUBBLOCK_SIZE);
+        address += (2 * 6 * SUBBLOCK_SIZE);
     }
 }
 
@@ -236,11 +273,11 @@ static u8 clamp_u8(s16 x)
     return (x & (0xff00)) ? ((-x) >> 15) & 0xff : x;
 }
 
-//static s16 clamp_s12(s16 x)
-//{
-//    if (x < -0x800) { x = -0x800; } else if (x > 0x7f0) { x = 0x7f0; }
-//    return x;
-//}
+static s16 clamp_s12(s16 x)
+{
+    if (x < -0x800) { x = -0x800; } else if (x > 0x7f0) { x = 0x7f0; }
+    return x;
+}
 
 static s16 clamp_s16(s32 x)
 {
@@ -279,8 +316,8 @@ static void EmitYUVTileLine(const s16 *y, const s16 *u, u32 address)
 {
     u32 uyvy[8];
 
-    const s16 * const v  = u + SUBBLOCK_SIZE;
-    const s16 * const y2 = y + SUBBLOCK_SIZE;
+    const s16 *const v  = u + SUBBLOCK_SIZE;
+    const s16 *const y2 = y + SUBBLOCK_SIZE;
 
     uyvy[0] = GetUYVY(y[0],  y[1],  u[0], v[0]);
     uyvy[1] = GetUYVY(y[2],  y[3],  u[1], v[1]);
@@ -342,12 +379,10 @@ static void EmitRGBATileLine(const s16 *y, const s16 *u, u32 address)
 
 static void EmitTilesMode0(const tile_line_emitter_t emit_line, const s16 *macroblock, u32 address)
 {
-    u32 i = 0;
-
     u32 y_offset = 0;
     u32 u_offset = 2 * SUBBLOCK_SIZE;
 
-    for (i = 0; i < 8; ++i)
+    for (u32 i = 0; i < 8; ++i)
     {
         emit_line(&macroblock[y_offset], &macroblock[u_offset], address);
 
@@ -359,7 +394,6 @@ static void EmitTilesMode0(const tile_line_emitter_t emit_line, const s16 *macro
 
 static void EmitTilesMode2(const tile_line_emitter_t emit_line, const s16 *macroblock, u32 address)
 {
-
     u32 y_offset = 0;
     u32 u_offset = 4 * SUBBLOCK_SIZE;
 
@@ -368,39 +402,56 @@ static void EmitTilesMode2(const tile_line_emitter_t emit_line, const s16 *macro
         emit_line(&macroblock[y_offset],     &macroblock[u_offset], address);
         emit_line(&macroblock[y_offset + 8], &macroblock[u_offset], address + 32);
 
-        y_offset += (i == 3) ? SUBBLOCK_SIZE+16 : 16;
+        y_offset += (i == 3) ? SUBBLOCK_SIZE + 16 : 16;
         u_offset += 8;
         address += 64;
     }
 }
 
-static void DecodeMacroblock1(s16 *macroblock, s32 *y_dc, s32 *u_dc, s32 *v_dc, const s16 *qtable)
+static void DecodeMacroblockOB(s16 *macroblock, s32 *y_dc, s32 *u_dc, s32 *v_dc, const s16 *qtable)
 {
 
-    for (u32 sb = 0; sb < 6; ++sb)
-    {
-        s16 tmp_sb[SUBBLOCK_SIZE];
+	for (int sb = 0; sb < 6; ++sb)
+	{
+		s16 tmp_sb[SUBBLOCK_SIZE];
 
-        /* update DC */
-        s32 dc = (s32)macroblock[0];
-        switch(sb)
-        {
-        case 0: case 1: case 2: case 3:
-                *y_dc += dc; macroblock[0] = *y_dc & 0xffff; break;
-        case 4: *u_dc += dc; macroblock[0] = *u_dc & 0xffff; break;
-        case 5: *v_dc += dc; macroblock[0] = *v_dc & 0xffff; break;
-        }
+		/* update DC */
+		s32 dc = (s32)macroblock[0];
+		switch(sb) {
+		case 0:
+		case 1:
+		case 2:
+		case 3:
+			{
+				y_dc[0] += dc;
+				macroblock[0] = y_dc[0] & 0xffff;
+				break;
+			}
+		case 4:
+			{
+				u_dc[0] += dc;
+				macroblock[0] = u_dc[0] & 0xffff;
+				break;
+			}
+		case 5:
+			{
+				v_dc[0] += dc;
+				macroblock[0] = v_dc[0] & 0xffff;
+				break;
+			}
+		}
 
-        ZigZagSubBlock(tmp_sb, macroblock);
-        if (qtable != nullptr) { MultSubBlocks(tmp_sb, tmp_sb, qtable, 0); }
-        TransposeSubBlock(macroblock, tmp_sb);
-        InverseDCTSubBlock(macroblock, macroblock);
+		ZigZagSubBlock(tmp_sb, macroblock);
+		if (qtable != nullptr)
+			MultSubBlocks(tmp_sb, tmp_sb, qtable, 0);
+		TransposeSubBlock(macroblock, tmp_sb);
+		InverseDCTSubBlock(macroblock, macroblock);
 
-        macroblock += SUBBLOCK_SIZE;
-    }
+		macroblock += SUBBLOCK_SIZE;
+	}
 }
 
-static void DecodeMacroblock2(s16 *macroblock, u32 subblock_count, const s16 qtables[3][SUBBLOCK_SIZE])
+static void DecodeMacroblockPS(s16 *macroblock, u32 subblock_count, const s16 qtables[3][SUBBLOCK_SIZE])
 {
     u32 q = 0;
 
@@ -409,7 +460,8 @@ static void DecodeMacroblock2(s16 *macroblock, u32 subblock_count, const s16 qta
         s16 tmp_sb[SUBBLOCK_SIZE];
         const int isChromaSubBlock = (subblock_count - sb <= 2);
 
-        if (isChromaSubBlock) { ++q; }
+        if (isChromaSubBlock)
+			++q;
 
         MultSubBlocks(macroblock, macroblock, qtables[q], 4);
         ZigZagSubBlock(tmp_sb, macroblock);
@@ -419,8 +471,8 @@ static void DecodeMacroblock2(s16 *macroblock, u32 subblock_count, const s16 qta
     }
 
 }
-/*
-static void DecodeMacroblock3(s16 *macroblock, u32 subblock_count, const s16 qtables[3][SUBBLOCK_SIZE])
+
+static void DecodeMacroblockPS0(s16 *macroblock, u32 subblock_count, const s16 qtables[3][SUBBLOCK_SIZE])
 {
     u32 sb;
     u32 q = 0;
@@ -448,7 +500,6 @@ static void DecodeMacroblock3(s16 *macroblock, u32 subblock_count, const s16 qta
         macroblock += SUBBLOCK_SIZE;
     }
 }
-*/
 
 static void TransposeSubBlock(s16 *dst, const s16 *src)
 {
@@ -476,7 +527,7 @@ static void MultSubBlocks(s16 *dst, const s16 *src1, const s16 *src2, u32 shift)
 
     for (u32 i = 0; i < SUBBLOCK_SIZE; ++i)
     {
-        s32 v {src1[i] * src2[i]};
+        s32 v = src1[i] * src2[i];
         dst[i] = clamp_s16(v) << shift;
     }
 }
@@ -485,7 +536,7 @@ static void ScaleSubBlock(s16 *dst, const s16 *src, s16 scale)
 {
     for (u32 i = 0; i < SUBBLOCK_SIZE; ++i)
     {
-        s32 v {src[i] * scale};
+        s32 v = src[i] * scale;
         dst[i] = clamp_s16(v);
     }
 }
@@ -523,7 +574,7 @@ static void InverseDCT1D(const float * const x, float *dst, u32 stride)
 {
     float e[4];
     float f[4];
-    float x26 = 0, x1357 = 0, x15 = 0, x37 = 0, x17 = 0, x35 = 0;
+    float x26, x1357, x15, x37, x17, x35;
 
     x15   =  K3 * (x[1] + x[5]);
     x37   =  K4 * (x[3] + x[7]);
@@ -568,12 +619,11 @@ static void InverseDCTSubBlock(s16 *dst, const s16 *src)
 {
     float x[8];
     float block[SUBBLOCK_SIZE];
-    u32 i = 0, j = 0;
 
     /* idct 1d on rows (+transposition) */
-    for (i = 0; i < 8; ++i)
+    for (u32 i = 0; i < 8; ++i)
     {
-        for (j = 0; j < 8; ++j)
+        for (u32 j = 0; j < 8; ++j)
         {
             x[j] = (float)src[i*8+j];
         }
@@ -582,52 +632,41 @@ static void InverseDCTSubBlock(s16 *dst, const s16 *src)
     }
 
     /* idct 1d on columns (thanks to previous transposition) */
-    for (i = 0; i < 8; ++i)
+    for (u32 i = 0; i < 8; ++i)
     {
         InverseDCT1D(&block[i*8], x, 1);
 
         /* C4 = 1 normalization implies a division by 8 */
-        for (j = 0; j < 8; ++j)
+        for (u32 j = 0; j < 8; ++j)
         {
             dst[i+j*8] = (s16)x[j] >> 3;
         }
     }
 }
-/*
+
 static void RescaleYSubBlock(s16 *dst, const s16 *src)
 {
-    u32 i;
-
-    for (i = 0; i < SUBBLOCK_SIZE; ++i)
+    for (u32 i = 0; i < SUBBLOCK_SIZE; ++i)
     {
-#if 0
         dst[i] = (((u32)(clamp_s12(src[i]) + 0x800) * 0xdb0) >> 16) + 0x10;
-#else
-        // FIXME: ! DIRTY HACK ! (compensate for too dark pictures)
-        dst[i] = (((u32)(clamp_s12(src[i]) + 0x800) * 0xdb0) >> 16) + 0x50;
-#endif
     }
 }
 
 static void RescaleUVSubBlock(s16 *dst, const s16 *src)
 {
-    u32 i;
-
-    for (i = 0; i < SUBBLOCK_SIZE; ++i)
+    for (u32 i = 0; i < SUBBLOCK_SIZE; ++i)
     {
         dst[i] = (((int)clamp_s12(src[i]) * 0xe00) >> 16) + 0x80;
     }
 }
-*/
-
 
 /* FIXME: assume presence of expansion pack */
-#define MEMMASK 0x7fffff
+#define MEMMASK 0x7FFFFF
 
 //ToDo: fast_memcpy_swizzle?
 static void rdram_read_many_u16(u16 *dst, u32 address, u32 count)
 {
-	const u8 *src {g_pu8RamBase + (address& MEMMASK)};
+	const u8 *src = g_pu8RamBase + (address & MEMMASK);
 
     while (count != 0)
     {
@@ -641,7 +680,7 @@ static void rdram_read_many_u16(u16 *dst, u32 address, u32 count)
 
 static void rdram_write_many_u16(const u16 *src, u32 address, u32 count)
 {
-	u8 *dst = g_pu8RamBase + (address& MEMMASK);
+	u8 *dst = g_pu8RamBase + (address & MEMMASK);
     while (count != 0)
     {
        *(u8*)((uintptr_t)dst++ ^ U8_TWIDDLE) = (u8)(*src >> 8);
@@ -653,7 +692,7 @@ static void rdram_write_many_u16(const u16 *src, u32 address, u32 count)
 
 static u32 rdram_read_u32(u32 address)
 {
-	const u8 *src = g_pu8RamBase + (address& MEMMASK);
+	const u8 *src {g_pu8RamBase + (address& MEMMASK)};
 
 	u32 a = *(u8*)((uintptr_t)src++ ^ U8_TWIDDLE);
 	u32 b = *(u8*)((uintptr_t)src++ ^ U8_TWIDDLE);
@@ -665,7 +704,7 @@ static u32 rdram_read_u32(u32 address)
 
 static void rdram_write_many_u32(const u32 *src, u32 address, u32 count)
 {
-	u8 *dst {g_pu8RamBase + (address& MEMMASK)};
+	u8 *dst = g_pu8RamBase + (address & MEMMASK);
     while (count != 0)
     {
        *(u8*)((uintptr_t)dst++ ^ U8_TWIDDLE) = (u8)(*src >> 24);

@@ -23,6 +23,7 @@ Copyright (C) 2001 StrmnNrmn
 
 #include "DLDebug.h"
 #include "Core/Memory.h"
+#include "Debug/DBGConsole.h"
 
 #include "RDP.h"
 #include "N64PixelFormat.h"
@@ -32,6 +33,19 @@ Copyright (C) 2001 StrmnNrmn
 #include "Math/MathUtil.h"
 
 #include "OSHLE/ultra_gbi.h"
+
+uint32_t ConvertYUV16ToRGBA8888(int Y, int U, int V)
+{
+    int R = int(Y + (1.370705f * (V-128)));
+    int G = int(Y - (0.698001f * (V-128)) - (0.337633f * (U-128)));
+    int B = int(Y + (1.732446f * (U-128)));
+
+    R = R < 0 ? 0 : (R>255 ? 255 : R);
+    G = G < 0 ? 0 : (G>255 ? 255 : G);
+    B = B < 0 ? 0 : (B>255 ? 255 : B);
+
+    return (0xFF << 24) | (B << 16) | (G << 8) | R;
+}
 
 namespace
 {
@@ -128,7 +142,7 @@ static void ConvertGeneric( const TextureDestInfo & dsti,
 							ConvertRowFunction unswapped_fn )
 {
 	OutT *		dst        = reinterpret_cast< OutT * >( dsti.Data );
-	const u8 *	src = g_pu8RamBase;
+	const u8 *	src  = g_pu8RamBase;
 	u32			src_offset = ti.GetLoadAddress();
 	u32			src_pitch  = ti.GetPitch();
 
@@ -161,6 +175,35 @@ static void ConvertGeneric( const TextureDestInfo & dsti,
 	}
 }
 
+// FIXME: This function assumes dst is RGBA and little endian machine
+static void ConvertGenericYUVBlocks( const TextureDestInfo & dsti, const TextureInfo & ti)
+{
+	u32 *		dst  = reinterpret_cast< u32 * >( dsti.Data );
+	const u8 *	src  = g_pu8RamBase;
+	u32			src_offset = ti.GetLoadAddress();
+	
+	u32 width = ti.GetWidth();
+	u32 height = ti.GetHeight();
+	
+	u32 *mb = (u32*)(src + src_offset);
+	
+	//yuv macro block contains 16x16 texture.
+	for (u16 h = 0; h < ti.GetHeight(); h++)
+	{
+		for (u16 w = 0; w < ti.GetWidth(); w+=2)
+		{
+			u32 t = *(mb++); //each u32 contains 2 pixels
+			u8 y1 = (u8)(t    )&0xFF;
+			u8 v  = (u8)(t>>8 )&0xFF;
+			u8 y0 = (u8)(t>>16)&0xFF;
+			u8 u  = (u8)(t>>24)&0xFF;
+			*(dst++) = (u32)ConvertYUV16ToRGBA8888(y0, u, v);
+			*(dst++) = (u32)ConvertYUV16ToRGBA8888(y1, u, v);
+		}
+	}
+	
+}
+
 };
 
 typedef void (*ConvertPalettisedRowFunction)( NativePf8888 * dst, const u8 * src, u32 src_offset, u32 width, const NativePf8888 * palette );
@@ -177,7 +220,7 @@ static void ConvertPalettisedTo8888( const TextureDestInfo & dsti, const Texture
 
 	if (ti.IsSwapped())
 	{
-		for (u32 y = 0; y < ti.GetHeight(); y++)
+		for (u32 y {}; y < ti.GetHeight(); y++)
 		{
 			if ((y&1) == 0)
 			{
@@ -194,7 +237,7 @@ static void ConvertPalettisedTo8888( const TextureDestInfo & dsti, const Texture
 	}
 	else
 	{
-		for (u32 y = 0; y < ti.GetHeight(); y++)
+		for (u32 y {}; y < ti.GetHeight(); y++)
 		{
 			unswapped_fn( dst, src, src_offset, ti.GetWidth(), palette );
 
@@ -216,7 +259,7 @@ static void ConvertPalettisedToCI( const TextureDestInfo & dsti, const TextureIn
 
 	if (ti.IsSwapped())
 	{
-		for (u32 y = 0; y < ti.GetHeight(); y++)
+		for (u32 y {}; y < ti.GetHeight(); y++)
 		{
 			if ((y&1) == 0)
 			{
@@ -233,7 +276,7 @@ static void ConvertPalettisedToCI( const TextureDestInfo & dsti, const TextureIn
 	}
 	else
 	{
-		for (u32 y = 0; y < ti.GetHeight(); y++)
+		for (u32 y {}; y < ti.GetHeight(); y++)
 		{
 			unswapped_fn( dst, src, src_offset, ti.GetWidth() );
 
@@ -287,9 +330,21 @@ struct SConvert
 												 ConvertRow< OutT, Fiddle, Swizzle >,
 												 ConvertRow< OutT, Fiddle, 0 > );
 	}
+	
+	template < typename OutT >
+	static inline void ConvertYUVTextureT( const TextureDestInfo & dsti, const TextureInfo & ti )
+	{
+		SConvertGeneric< OutT >::ConvertGenericYUVBlocks( dsti, ti);
+	}
 
 	static void ConvertTexture( const TextureDestInfo & dsti, const TextureInfo & ti )
 	{
+		if (ti.GetFormat() == G_IM_FMT_YUV)
+		{
+			ConvertYUVTextureT< NativePf8888 >( dsti, ti ); // NOTE: Hardcoded to RGB8888
+			return;
+		}
+		
 		switch( dsti.Format )
 		{
 		case TexFmt_5650:	ConvertTextureT< NativePf5650 >( dsti, ti ); return;
@@ -315,7 +370,7 @@ struct SConvertIA4
 	static inline void ConvertRow( OutT * dst, const u8 * src, u32 src_offset, u32 width )
 	{
 		// Do two pixels at a time
-		for (u32 x = 0; x < width; x+=2)
+		for (u32 x {}; x < width; x+=2)
 		{
 			u8 b = src[src_offset ^ F];
 
@@ -334,7 +389,7 @@ struct SConvertIA4
 
 		if(width & 1)
 		{
-			u8 b = src[src_offset ^ F];
+			u8 b {src[src_offset ^ F]};
 
 			// Even
 			dst[width-1] = OutT( ThreeToEight[(b & 0xE0) >> 5],
@@ -377,9 +432,9 @@ struct SConvertI4
 	static inline void ConvertRow( OutT * dst, const u8 * src, u32 src_offset, u32 width )
 	{
 		// Do two pixels at a time
-		for ( u32 x = 0; x+1 < width; x+=2 )
+		for ( u32 x {}; x+1 < width; x+=2 )
 		{
-			u8 b = src[src_offset ^ F];
+			u8 b {src[src_offset ^ F]};
 
 			// Even
 			dst[x + 0] = OutT( FourToEight[(b & 0xF0)>>4],
@@ -397,7 +452,7 @@ struct SConvertI4
 
 		if(width & 1)
 		{
-			u8 b = src[src_offset ^ F];
+			u8 b {src[src_offset ^ F]};
 
 			// Even
 			dst[width-1] = OutT( FourToEight[(b & 0xF0)>>4],
@@ -439,7 +494,7 @@ static void ConvertPalette(ETLutFmt tlut_format, NativePf8888 * dst, const void 
 	{
 		const N64PfIA16 * palette = static_cast< const N64PfIA16 * >( src );
 
-		for( u32 i = 0; i < count; ++i )
+		for( u32 i {}; i < count; ++i )
 		{
 			dst[ i ] = NativePf8888::Make( palette[ i ^ U16H_TWIDDLE ] );
 		}
@@ -449,18 +504,17 @@ static void ConvertPalette(ETLutFmt tlut_format, NativePf8888 * dst, const void 
 		// NB: assume RGBA for all other tlut_formats.
 		const N64Pf5551 * palette = static_cast< const N64Pf5551 * >( src );
 
-		for( u32 i =0 ; i < count; ++i )
+		for( u32 i {}; i < count; ++i )
 		{
 			dst[ i ] = NativePf8888::Make( palette[ i ^ U16H_TWIDDLE ] );
 		}
-
 	}
 }
 
 template< u32 F >
 static void ConvertCI4_Row( NativePfCI44 * dst, const u8 * src, u32 src_offset, u32 width )
 {
-	for (u32 x = 0; x+1 < width; x+=2)
+	for (u32 x {}; x+1 < width; x+=2)
 	{
 		u8 b = src[src_offset ^ F];
 
@@ -472,7 +526,7 @@ static void ConvertCI4_Row( NativePfCI44 * dst, const u8 * src, u32 src_offset, 
 	// Handle any remaining odd pixels
 	if( width & 1 )
 	{
-		u8 b = src[src_offset ^ F];
+		u8 b {src[src_offset ^ F]};
 
 		dst[ width/2 ].Bits = (b >> 4) | 0;
 	}
@@ -528,7 +582,7 @@ static  void ConvertCI8_Row_To_8888( NativePf8888 * dst, const u8 * src, u32 src
 
 	for (u32 x = 0; x < width; x++)
 	{
-		u8 b   = src[src_offset ^ F];
+		u8 b     {src[src_offset ^ F]};
 		dst[ x ] = palette[ b ];	// Remember palette has already been swapped
 		src_offset++;
 	}
@@ -605,9 +659,14 @@ static void ConvertCI8(const TextureDestInfo & dsti, const TextureInfo & ti)
 	}
 }
 
+static void ConvertYUV16(const TextureDestInfo & dsti, const TextureInfo & ti)
+{
+	SConvert< N64Pf8888 >::ConvertTexture( dsti, ti ); // NOTE: Passeed format is just bogus
+}
+
 static void ConvertCI4(const TextureDestInfo & dsti, const TextureInfo & ti)
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT(ti.GetTlutAddress(), "No TLUT address");
 #endif
 	NativePf8888 temp_palette[16];
@@ -644,15 +703,15 @@ static void ConvertCI4(const TextureDestInfo & dsti, const TextureInfo & ti)
 typedef void ( *ConvertFunction )( const TextureDestInfo & dsti, const TextureInfo & ti);
 static const ConvertFunction gConvertFunctions[ 32 ] =
 {
-	// 4bpp				8bpp			16bpp				32bpp
-	nullptr,			nullptr,			ConvertRGBA16,		ConvertRGBA32,			// RGBA
-	nullptr,			nullptr,			nullptr,				nullptr,					// YUV
-	ConvertCI4,		ConvertCI8,		nullptr,				nullptr,					// CI
-	ConvertIA4,		ConvertIA8,		ConvertIA16,		nullptr,					// IA
-	ConvertI4,		ConvertI8,		nullptr,				nullptr,					// I
-	nullptr,			nullptr,			nullptr,				nullptr,					// ?
-	nullptr,			nullptr,			nullptr,				nullptr,					// ?
-	nullptr,			nullptr,			nullptr,				nullptr					// ?
+	    // 4bpp             8bpp              16bpp				32bpp
+	   nullptr,         nullptr,      ConvertRGBA16,    ConvertRGBA32,		// RGBA
+	   nullptr,         nullptr,       ConvertYUV16,          nullptr,		// YUV
+	ConvertCI4,      ConvertCI8,            nullptr,          nullptr,		// CI
+	ConvertIA4,      ConvertIA8,        ConvertIA16,          nullptr,		// IA
+	 ConvertI4,       ConvertI8,            nullptr,          nullptr,		// I
+	   nullptr,         nullptr,            nullptr,          nullptr,		// ?
+	   nullptr,         nullptr,            nullptr,          nullptr,		// ?
+	   nullptr,         nullptr,            nullptr,          nullptr		// ?
 };
 
 bool ConvertTexture(const TextureInfo & ti,
