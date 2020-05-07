@@ -60,8 +60,8 @@ void DMA_SP_CopyFromRDRAM()
 	}
 #else
 
-	u32 rdram_address = (rdram_address_reg&0x00FFFFFF)	& ~7};	// Align to 8 byte boundary
-	u32 spmem_address = (spmem_address_reg&0x1FFF)		& ~7};	// Align to 8 byte boundary
+	u32 rdram_address = (rdram_address_reg&0x00FFFFFF)	& ~7;	// Align to 8 byte boundary
+	u32 spmem_address = (spmem_address_reg&0x1FFF)		& ~7;	// Align to 8 byte boundary
 	u32 length = ((rdlen_reg    &0x0FFF) | 7)+1;					// Round up to 8 bytes
 	u32 count  = ((rdlen_reg>>12)&0x00FF)+1;
 	u32 skip   = ((rdlen_reg>>20)&0x0FFF);
