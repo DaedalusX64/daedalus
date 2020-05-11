@@ -235,9 +235,9 @@ public:
 	inline void			SetFogMultOffs(f32 Mult, f32 Offs)		{ mTnL.FogMult=Mult/255.0f; mTnL.FogOffs=Offs/255.0f;}
 	#ifdef DAEDALUS_PSP
 	inline void			SetFogMinMax(f32 fog_near, f32 fog_far)	{ sceGuFog(-fog_near /2000, +fog_far /2000 , mFogColour.GetColour()); }
-	inline void			SetFogColour( c32 colour )				{ mFogColour = colour; }
 	#endif
-
+	inline void			SetFogColour( c32 colour )				{ mFogColour = colour; }
+	
 	// PrimDepth will replace the z value if depth_source=1 (z range 32767-0 while PSP depthbuffer range 0-65535)//Corn
 #ifdef DAEDALUS_PSP
 	inline void			SetPrimitiveDepth( u32 z )				{ mPrimDepth = (f32)( ( ( 32767 - z ) << 1) + 1 ); }

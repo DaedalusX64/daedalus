@@ -40,12 +40,11 @@ int main(int argc, char **argv)
 	if (argc > 0)
 	{
 		IO::Filename exe_path;
-
 		char *argvcopybuffer;
 		argvcopybuffer = strdup(argv[0]);
-
-		strcpy(argvcopybuffer, exe_path);
-		strcpy(gDaedalusExePath, exe_path);
+	
+		strcmp(argvcopybuffer, exe_path);
+		strcmp(gDaedalusExePath, exe_path);
 		char (gDaedalusExePath);
 	}
 	else
