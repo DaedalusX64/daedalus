@@ -177,7 +177,6 @@ static DList			gDlistStack;
 static s32				gDlistStackPointer = -1;
 static u32				gVertexStride	 = 0;
 static u32				gRDPHalf1		 = 0;
-static u32				gLastUcodeBase   = 0;
 
        SImageDescriptor g_TI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
 static SImageDescriptor g_CI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
@@ -357,11 +356,13 @@ void DLParser_Finalise()
 //*************************************************************************************
 static void DLParser_SetCustom( u32 ucode, u32 offset )
 {
-	memcpy( &gCustomInstruction, &gNormalInstruction[offset], 1024 ); // sizeof(gNormalInstruction)/MAX_UCODE
-
+	for (u32 i = 0; i < 256; i++)
+	{
+		gCustomInstruction[i] = gNormalInstruction[offset][i];
 #if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-	memcpy( gCustomInstructionName, gNormalInstructionName[ offset ], 1024 );
+		gCustomInstructionName[i] = gNormalInstructionName[offset][i];
 #endif
+	}
 
 	// Start patching to create our custom ucode table ;)
 	switch( ucode )
@@ -429,7 +430,6 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 	u32 ucode = GBIMicrocode_DetectVersion( code_base, code_size, data_base, data_size, &DLParser_SetCustom );
 
 	gVertexStride  = ucode_stride[ucode];
-	gLastUcodeBase = code_base;
 	gUcodeFunc	   = IS_CUSTOM_UCODE(ucode) ? gCustomInstruction : gNormalInstruction[ucode];
 
 	// Used for fetching ucode names (Debug Only)
@@ -538,10 +538,7 @@ u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 	u32 data_size = pTask->t.ucode_data_size;
 	u32 stack_size = pTask->t.dram_stack_size >> 6;
 
-	if ( gLastUcodeBase != code_base )
-	{
-		DLParser_InitMicrocode( code_base, code_size, data_base, data_size );
-	}
+	DLParser_InitMicrocode( code_base, code_size, data_base, data_size );
 
 	//
 	// Not sure what to init this with. We should probably read it from the dmem
