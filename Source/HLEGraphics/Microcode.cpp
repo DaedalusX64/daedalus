@@ -51,7 +51,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 struct UcodeInfo
 {
-	u32	ucode;
 	u32 code_base;
 	u32 data_base;
 	u32 ucode_version;
@@ -175,7 +174,7 @@ u32	GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32
 			break;
 
 		if( used.data_base == data_base && used.code_base == code_base)
-			return used.ucode;
+			return used.ucode_version;
 	}
 
 	//
