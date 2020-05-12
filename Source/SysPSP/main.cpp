@@ -208,8 +208,9 @@ static bool	Initialize()
 	if( pad.Buttons & PSP_CTRL_CIRCLE ) g32bitColorMode = true;
 	else g32bitColorMode = false;
 
-// Check for firmware lower than 4.01
+	// Check for firmware lower than 4.01
 	DaedalusFWCheck();
+
 	// Check for PSVita in PSP Mode
 	DaedalusVitaCheck();
 
@@ -239,14 +240,12 @@ extern void initExceptionHandler();
 	SetupCallbacks();
 #endif
 
-		// Detect PSP greater than PSP 1000
+	// Detect PSP greater than PSP 1000
 	if ( kuKernelGetModel() > 0 )
 	{
 		// Can't use extra memory if ME isn't available
-		if( bMeStarted )
-			PSP_IS_SLIM = true;
+		PSP_IS_SLIM = bMeStarted;
 
-	else {
 		HAVE_DVE = CModule::Load("dvemgr.prx");
 		if (HAVE_DVE >= 0)
 			PSP_TV_CABLE = pspDveMgrCheckVideoOut();
@@ -254,8 +253,7 @@ extern void initExceptionHandler();
 			PSP_TV_LACED = 1; // composite cable => interlaced
 		else if( PSP_TV_CABLE == 0 )
 			CModule::Unload( HAVE_DVE );	// Stop and unload dvemgr.prx since if no video cable is connected
-		}
-}
+	}
 
 	HAVE_DVE = (HAVE_DVE < 0) ? 0 : 1; // 0 == no dvemgr, 1 == dvemgr
 
