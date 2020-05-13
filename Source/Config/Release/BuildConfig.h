@@ -43,6 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //#define	DAEDALUS_LOG						// Enable various logging
 #define	DAEDALUS_DIALOGS						// Enable this to ask confimation dialogs in the GUI
 //#define	DAEDALUS_SILENT							// Undef to enable debug messages. Define this to turn off various debugging features for public release.
-//#define DAEDALUS_ACCURATE_TMEM					// Full tmem emulation(Very accurate, but slighty slower) When this defined, is irrelevant having DAEDALUS_FAST_TMEM defined or not
-
+#ifdef DAEDALUS_POSIX
+#define DAEDALUS_ACCURATE_TMEM				// Full tmem emulation(Very accurate, but slighty slower) When this defined, is irrelevant having DAEDALUS_FAST_TMEM defined or not
+#endif
 #endif // CONFIG_RELEASE_BUILDCONFIG_H_
