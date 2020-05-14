@@ -33,7 +33,7 @@ void DLParser_DumpVtxInfoDKR(u32 address, u32 v0_idx, u32 num_verts)
 {
 	if (DLDebug_IsActive())
 	{
-		u32 psSrc = (u32)(g_pu8RamBase + address);
+		uintptr_t psSrc = (uintptr_t)(g_pu8RamBase + address);
 
 		for ( u32 idx = v0_idx; idx < v0_idx + num_verts; idx++ )
 		{
