@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "System/System.h"
 #include "Test/BatchTest.h"
 #include "Utility/IO.h"
+#include "Utility/PathsPosix.h"
+#include "Config/ConfigOptions.h"
 
 #include <SDL2/SDL.h>
 #ifdef DAEDALUS_LINUX
@@ -42,10 +44,13 @@ int main(int argc, char **argv)
 		IO::Filename exe_path;
 		char *argvcopybuffer;
 		argvcopybuffer = strdup(argv[0]);
-	
+
 		strcmp(argvcopybuffer, exe_path);
 		strcmp(gDaedalusExePath, exe_path);
 		char (gDaedalusExePath);
+
+		strcpy( g_DaedalusConfig.mSaveDir, DAEDALUS_POSIX_PATH( "SaveGames/" ) );
+		strcpy( g_DaedalusConfig.mCacheDir, DAEDALUS_POSIX_PATH( "Cache/" ) );
 	}
 	else
 	{
