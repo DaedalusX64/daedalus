@@ -120,8 +120,8 @@ static bool GenerateTexels(void ** p_texels,
 	NativePf8888 *	palette = IsTextureFormatPalettised( texture_format ) ? gPaletteBuffer : nullptr;
 
 #ifdef DAEDALUS_ACCURATE_TMEM
-	// NB: if line is 0, it implies this is a direct load from ram (e.g. DLParser_Sprite2DDraw etc)
-	// This check isn't robust enough, SSV set ti.Line == 0 in game without calling Sprite2D
+	// NB: if line is 0, it implies this is a direct load from ram (e.g. S2DEX and Sprite2D ucodes)
+	// Some games set ti.Line = 0 on LoadTile, ex SSV and Paper Mario
 	if (ti.GetLine() > 0)
 	{
 		if (ConvertTile(ti, texels, palette, texture_format, pitch))

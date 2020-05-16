@@ -48,7 +48,7 @@ static inline CRefPtr<CNativeTexture> LoadFrameBuffer(u32 origin)
 
 	ti.SetSwapped			(0);
 	ti.SetPalette			(0);
-	ti.SetTlutAddress		(TLUT_BASE);
+	ti.SetTlutAddress		(gTlutLoadAddresses[0]);
 	ti.SetTLutFormat		(kTT_RGBA16);
 	ti.SetFormat			(0);
 	ti.SetSize				(2);

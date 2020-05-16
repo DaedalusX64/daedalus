@@ -220,7 +220,7 @@ static void ConvertPalettisedTo8888( const TextureDestInfo & dsti, const Texture
 
 	if (ti.IsSwapped())
 	{
-		for (u32 y {}; y < ti.GetHeight(); y++)
+		for (u32 y = 0; y < ti.GetHeight(); y++)
 		{
 			if ((y&1) == 0)
 			{
@@ -237,7 +237,7 @@ static void ConvertPalettisedTo8888( const TextureDestInfo & dsti, const Texture
 	}
 	else
 	{
-		for (u32 y {}; y < ti.GetHeight(); y++)
+		for (u32 y = 0; y < ti.GetHeight(); y++)
 		{
 			unswapped_fn( dst, src, src_offset, ti.GetWidth(), palette );
 
@@ -259,7 +259,7 @@ static void ConvertPalettisedToCI( const TextureDestInfo & dsti, const TextureIn
 
 	if (ti.IsSwapped())
 	{
-		for (u32 y {}; y < ti.GetHeight(); y++)
+		for (u32 y = 0; y < ti.GetHeight(); y++)
 		{
 			if ((y&1) == 0)
 			{
@@ -276,7 +276,7 @@ static void ConvertPalettisedToCI( const TextureDestInfo & dsti, const TextureIn
 	}
 	else
 	{
-		for (u32 y {}; y < ti.GetHeight(); y++)
+		for (u32 y = 0; y < ti.GetHeight(); y++)
 		{
 			unswapped_fn( dst, src, src_offset, ti.GetWidth() );
 
@@ -370,7 +370,7 @@ struct SConvertIA4
 	static inline void ConvertRow( OutT * dst, const u8 * src, u32 src_offset, u32 width )
 	{
 		// Do two pixels at a time
-		for (u32 x {}; x < width; x+=2)
+		for (u32 x = 0; x < width; x+=2)
 		{
 			u8 b = src[src_offset ^ F];
 
@@ -432,7 +432,7 @@ struct SConvertI4
 	static inline void ConvertRow( OutT * dst, const u8 * src, u32 src_offset, u32 width )
 	{
 		// Do two pixels at a time
-		for ( u32 x {}; x+1 < width; x+=2 )
+		for ( u32 x = 0; x+1 < width; x+=2 )
 		{
 			u8 b {src[src_offset ^ F]};
 
@@ -494,7 +494,7 @@ static void ConvertPalette(ETLutFmt tlut_format, NativePf8888 * dst, const void 
 	{
 		const N64PfIA16 * palette = static_cast< const N64PfIA16 * >( src );
 
-		for( u32 i {}; i < count; ++i )
+		for( u32 i = 0; i < count; ++i )
 		{
 			dst[ i ] = NativePf8888::Make( palette[ i ^ U16H_TWIDDLE ] );
 		}
@@ -504,7 +504,7 @@ static void ConvertPalette(ETLutFmt tlut_format, NativePf8888 * dst, const void 
 		// NB: assume RGBA for all other tlut_formats.
 		const N64Pf5551 * palette = static_cast< const N64Pf5551 * >( src );
 
-		for( u32 i {}; i < count; ++i )
+		for( u32 i = 0; i < count; ++i )
 		{
 			dst[ i ] = NativePf8888::Make( palette[ i ^ U16H_TWIDDLE ] );
 		}
@@ -514,7 +514,7 @@ static void ConvertPalette(ETLutFmt tlut_format, NativePf8888 * dst, const void 
 template< u32 F >
 static void ConvertCI4_Row( NativePfCI44 * dst, const u8 * src, u32 src_offset, u32 width )
 {
-	for (u32 x {}; x+1 < width; x+=2)
+	for (u32 x = 0; x+1 < width; x+=2)
 	{
 		u8 b = src[src_offset ^ F];
 
@@ -626,14 +626,11 @@ static void ConvertI8(const TextureDestInfo & dsti, const TextureInfo & ti)
 
 static void ConvertCI8(const TextureDestInfo & dsti, const TextureInfo & ti)
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT(ti.GetTlutAddress(), "No TLUT address");
-	#endif
 
 	NativePf8888 temp_palette[256];
 
 	NativePf8888 *	dst_palette = dsti.Palette ? reinterpret_cast< NativePf8888 * >( dsti.Palette ) : temp_palette;
-	const void * 	src_palette = reinterpret_cast< const void * >( ti.GetTlutAddress() );
+	const void * 	src_palette = g_pu8RamBase + ti.GetTlutAddress();
 
 	ConvertPalette(ti.GetTLutFormat(), dst_palette, src_palette, 256);
 
@@ -666,13 +663,10 @@ static void ConvertYUV16(const TextureDestInfo & dsti, const TextureInfo & ti)
 
 static void ConvertCI4(const TextureDestInfo & dsti, const TextureInfo & ti)
 {
-#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT(ti.GetTlutAddress(), "No TLUT address");
-#endif
 	NativePf8888 temp_palette[16];
 
 	NativePf8888 *	dst_palette = dsti.Palette ? reinterpret_cast< NativePf8888 * >( dsti.Palette ) : temp_palette;
-	const void * 	src_palette = reinterpret_cast< const void * >( ti.GetTlutAddress() );
+	const void * 	src_palette = g_pu8RamBase + ti.GetTlutAddress();
 
 	ConvertPalette(ti.GetTLutFormat(), dst_palette, src_palette, 16);
 

@@ -43,7 +43,7 @@ RDP_OtherMode		gRDPOtherMode;
 #define MAX_TMEM_ADDRESS 4096
 
 //Granularity down to 24bytes is good enuff also only need to address the upper half of TMEM for palettes//Corn
-u32* gTlutLoadAddresses[ MAX_TMEM_ADDRESS >> 6 ];
+u32 gTlutLoadAddresses[ MAX_TMEM_ADDRESS >> 6 ];
 
 
 #ifdef DAEDALUS_ACCURATE_TMEM
@@ -486,9 +486,13 @@ void CRDPStateManager::LoadTile(const SetLoadTile & load)
 	info.Swapped = false;
 
 #ifdef DAEDALUS_ACCURATE_TMEM
+	if (rdp_tile.line == 0)
+	{
+		return;
+	}
+
 	u32 lrs   = load.sh;
 	u32 lrt   = load.th;
-
 	u32 ram_address = address;
 	u32 h           = ((lrt-ult)>>2) + 1;
 	u32 w           = ((lrs-uls)>>2) + 1;
@@ -554,34 +558,29 @@ void CRDPStateManager::LoadTlut(const SetLoadTile & load)
 	// Format is always 16bpp - RGBA16 or IA16:
 	//DAEDALUS_DL_ASSERT(g_TI.Size == G_IM_SIZ_16b, "Crazy tlut load - not 16bpp");
 
-	u32    uls       = load.sl;		//Left
-	u32    ult       = load.tl;		//Top
-	u32    lrs       = load.sh;		//Right
-	u32	   lrt		  = load.th;	    //Bottom
-	u32    tile_idx  = load.tile;
-	u32    ram_offset = g_TI.GetAddress16bpp(uls >> 2, ult >> 2);
-	u8*	   address	  = g_pu8RamBase + ram_offset;
+	u32 uls       = load.sl;		//Left
+	u32 ult       = load.tl;		//Top
+	u32 lrs       = load.sh;		//Right
+	u32	lrt		  = load.th;	    //Bottom
+	u32 tile_idx  = load.tile;
+	u32 ram_offset = g_TI.GetAddress16bpp(uls >> 2, ult >> 2);
+	u32	count = ((lrs - uls)>>2) + 1;
+	DAEDALUS_USE(count);
+	DAEDALUS_USE(lrt);
 
 	const RDP_Tile & rdp_tile = mTiles[tile_idx];
 
-	u32 count = ((lrs - uls)>>2) + 1;
-
-	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DAEDALUS_USE(count);
-	DAEDALUS_USE(lrt);
-#endif
-
 	//Store address of PAL (assuming PAL is only stored in upper half of TMEM) //Corn
-	gTlutLoadAddresses[ (rdp_tile.tmem>>2) & 0x3F ] = (u32*)address;
-	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	gTlutLoadAddresses[ (rdp_tile.tmem>>2) & 0x3F ] = ram_offset;
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    TLut Addr[0x%08x] TMEM[0x%03x] Tile[%d] Count[%d] Format[%s] (%d,%d)->(%d,%d)",
-		address, rdp_tile.tmem, tile_idx, count, kTLUTTypeName[gRDPOtherMode.text_tlut], uls >> 2, ult >> 2, lrs >> 2, lrt >> 2);
+		ram_offset, rdp_tile.tmem, tile_idx, count, kTLUTTypeName[gRDPOtherMode.text_tlut], uls >> 2, ult >> 2, lrs >> 2, lrt >> 2);
 #endif
 #ifdef DAEDALUS_ACCURATE_TMEM
 	DAEDALUS_DL_ASSERT( (rdp_tile.tmem + count) <= (MAX_TMEM_ADDRESS/8), "LoadTlut address is invalid" );
 
 	u16* dst = (u16*)(((u64*)gTMEM) + rdp_tile.tmem);
-	u16* src = (u16*)(address);
+	u16* src = (u16*)(g_pu8RamBase + ram_offset);
 
 	CopyLine16(dst, src, count);
 #endif
@@ -651,33 +650,35 @@ const TextureInfo & CRDPStateManager::GetUpdatedTextureDescriptor( u32 idx )
 		u16		tile_height = GetTextureDimension( rdp_tilesize.GetHeight(), rdp_tile.mask_t, rdp_tile.clamp_t );
 
 #ifdef DAEDALUS_ACCURATE_TMEM
-		ti.SetTlutAddress( TLUT_BASE );
+		ti.SetTlutAddress( gTlutLoadAddresses[0] );
 #else
 		//
 		//If indexed TMEM PAL address is nullptr then assume that the base address is stored in
 		//TMEM address 0x100 (gTlutLoadAddresses[ 0 ]) and calculate offset from there with TLutIndex(palette index)
 		//This trick saves us from the need to copy the real palette to TMEM and we just pass the pointer //Corn
 		//
-		u32	tlut {(u32)TLUT_BASE};
+		u32	tlut_base = gTlutLoadAddresses[0];
 		if(rdp_tile.size == G_IM_SIZ_4b)
 		{
-			u32 tlut_idx0 = (u32)(g_ROM.TLUT_HACK << 1);
-			u32 tlut_idx1 = (u32)(uintptr_t)gTlutLoadAddresses[ rdp_tile.palette << tlut_idx0 ];
+			const u32 tlut_idx0 = g_ROM.TLUT_HACK << 1;
+			const u32 tlut_idx1 = gTlutLoadAddresses[ rdp_tile.palette << tlut_idx0 ];
 
 			//If pointer == nullptr(=invalid entry) add offset to base address (TMEM[0] + offset)
 			if(tlut_idx1 == 0)
 			{
-				tlut += (rdp_tile.palette << (5 + tlut_idx0) );
+				tlut_base += (rdp_tile.palette << (5 + tlut_idx0) );
 			}
 			else
 			{
-				tlut = tlut_idx1;
+				tlut_base = tlut_idx1;
 			}
 		}
-		ti.SetTlutAddress( tlut );
+		ti.SetTlutAddress( tlut_base );
 #endif
 
 #ifdef DAEDALUS_ACCURATE_TMEM
+
+
 		ti.SetLine( rdp_tile.line );
 		// NB: ACCURATE_TMEM doesn't care about pitch - it's already been loaded into tmem.
 		// We only care about line.

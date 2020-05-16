@@ -90,8 +90,7 @@ private:
 extern CRDPStateManager		gRDPStateManager;
 extern RDP_OtherMode		gRDPOtherMode;
 
-extern u32* gTlutLoadAddresses[ 4096 >> 6 ];
-#define TLUT_BASE ((uintptr_t)(gTlutLoadAddresses[0]))
+extern u32 gTlutLoadAddresses[ 4096 >> 6 ];
 
 
 #endif // HLEGRAPHICS_RDPSTATEMANAGER_H_

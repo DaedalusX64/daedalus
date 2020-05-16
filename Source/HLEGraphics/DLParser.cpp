@@ -324,7 +324,8 @@ void DLParser_DumpVtxInfo(u32 address, u32 v0_idx, u32 num_verts)
 bool DLParser_Initialise()
 {
 	gFirstCall = true;
-
+	gRDPFrame = 0;
+	
 	// Reset scissor to default
 	scissors.top = 0;
 	scissors.left = 0;
@@ -332,11 +333,8 @@ bool DLParser_Initialise()
 	scissors.bottom = 240;
 
 	GBIMicrocode_Reset();
-
-#ifdef DAEDALUS_FAST_TMEM
 	//Clear pointers in TMEM block //Corn
 	memset(gTlutLoadAddresses, 0, sizeof(gTlutLoadAddresses));
-#endif
 	return true;
 }
 
@@ -457,7 +455,6 @@ SProfileItemHandle * gpProfileItemHandles[ 256 ];
 
 #endif
 
-
 //*****************************************************************************
 //	Process the entire display list in one go
 //*****************************************************************************
@@ -506,6 +503,7 @@ static u32 DLParser_ProcessDList(u32 instruction_limit)
 
 	return current_instruction_count;
 }
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -660,7 +658,7 @@ void RDP_MoveMemLight(u32 light_idx, const N64Light *light)
 
 	bool valid = (dir_x | dir_y | dir_z) != 0;
 	DAEDALUS_USE(valid);
-	DAEDALUS_ASSERT( valid, " Light direction is invalid" );
+	//DAEDALUS_ASSERT( valid, " Light direction is invalid" );
 
 	DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d]", light_idx, r, g, b, dir_x, dir_y, dir_z);
 	DL_PF("    Light direction is %s",valid ? "valid" : "invalid");
