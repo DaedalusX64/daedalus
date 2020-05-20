@@ -442,14 +442,14 @@ void * RomBuffer::GetAddressRaw( u32 rom_start )
 //*****************************************************************************
 //
 //*****************************************************************************
-void RomBuffer::CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_offset, u32 length )
+bool RomBuffer::CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_offset, u32 length )
 {
 	if( sRomFixed )
 	{
-		const u8 *	p_src( (const u8 *)spRomData );
-		u32			src_size( sRomSize );
+		const u8* p_src = (const u8 *)spRomData ;
+		u32	src_size = sRomSize;
 
-		DMA_HandleTransfer( p_dst, dst_offset, dst_size, p_src, src_offset, src_size, length );
+		return DMA_HandleTransfer( p_dst, dst_offset, dst_size, p_src, src_offset, src_size, length );
 	}
 	else
 	{
@@ -483,6 +483,26 @@ void RomBuffer::CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_off
 			src_offset += bytes_this_pass;
 			length -= bytes_this_pass;
 		}
+		return length == 0;
+	}
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+bool RomBuffer::CopyFromRam( u32 dst_offset, const u8 * p_src, u32 src_offset, u32 src_size, u32 length )
+{
+	if( IsRomAddressFixed() )
+	{
+		u8 * p_dst = (u8 *)spRomData;
+		u32	dst_size = GetRomSize();
+
+		return DMA_HandleTransfer( p_dst, dst_offset, dst_size, p_src, src_offset, src_size, length );
+	}
+	else
+	{
+		DAEDALUS_ERROR( "Cannot put rom bytes when the data isn't fixed" );
+		return false;
 	}
 }
 
