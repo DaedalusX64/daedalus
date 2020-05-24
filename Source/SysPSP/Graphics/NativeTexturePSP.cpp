@@ -458,12 +458,14 @@ namespace
 
 		if ( !png_check_sig( signature, SIGNATURE_SIZE ) )
 		{
+			fclose(fh);
 			return nullptr;
 		}
 
 		png_struct * p_png_struct( png_create_read_struct( PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr ) );
 		if ( p_png_struct == nullptr)
 		{
+			fclose(fh);
 			return nullptr;
 		}
 
@@ -471,12 +473,14 @@ namespace
 		if ( p_png_info == nullptr )
 		{
 			png_destroy_read_struct( &p_png_struct, nullptr, nullptr );
+			fclose(fh);
 			return nullptr;
 		}
 
 		if ( setjmp( png_jmpbuf(p_png_struct) ) != 0 )
 		{
 			png_destroy_read_struct( &p_png_struct, nullptr, nullptr );
+			fclose(fh);
 			return nullptr;
 		}
 
