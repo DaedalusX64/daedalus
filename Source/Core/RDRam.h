@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2008 StrmnNrmn
+Copyright (C) 2020 Rinnegatamante
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,30 +19,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
-#ifndef SYSPOSIX_INCLUDE_PLATFORM_H_
-#define SYSPOSIX_INCLUDE_PLATFORM_H_
+#ifndef RDRAM_H_
+#define RDRAM_H_
 
-//
-//	Make sure this platform is defined correctly
-//
-#ifndef DAEDALUS_POSIX
-#define DAEDALUS_POSIX
-#endif
+/* Helper functions */
+u8 clamp_u8(s16 x);
+s16 clamp_s12(s16 x);
+s16 clamp_s16(s32 x);
+u16 clamp_RGBA_component(s16 x);
 
-#define DAEDALUS_COMPRESSED_ROM_SUPPORT
-//#define DAEDALUS_ENABLE_OS_HOOKS
+/* RDRam operations */
+void rdram_read_many_u8(u8 *dst, u32 address, u32 count);
+void rdram_read_many_u16(u16 *dst, u32 address, u32 count);
+void rdram_write_many_u16(const u16 *src, u32 address, u32 count);
+u32 rdram_read_u32(u32 address);
+void rdram_write_many_u32(const u32 *src, u32 address, u32 count);
+void rdram_read_many_u32(u32 *dst, u32 address, u32 count);
 
-#define DAEDALUS_ENDIAN_MODE DAEDALUS_ENDIAN_LITTLE
-
-#ifdef __GNUC__
-#define DAEDALUS_EXPECT_LIKELY(c) __builtin_expect((c),1)
-#define DAEDALUS_EXPECT_UNLIKELY(c) __builtin_expect((c),0)
-
-#define DAEDALUS_ATTRIBUTE_NOINLINE __attribute__((noinline))
-#endif
-
-#define DAEDALUS_HALT			__builtin_trap()
-//#define DAEDALUS_HALT			__builtin_debugger()
-
-
-#endif // SYSPOSIX_INCLUDE_PLATFORM_H_
+#endif // CORE_MEMORY_H_

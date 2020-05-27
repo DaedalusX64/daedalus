@@ -90,21 +90,28 @@ static void ROM_SimulatePIFBoot( ECicType cic_chip, u32 Country )
 	// Need to copy to SP_IMEM for CIC-6105 boot.
 	u8 * pIMemBase = (u8*)g_pMemoryBuffers[ MEM_SP_MEM ] + 0x1000;
 
-	//FIX ME: Some of these are redundant, see CPU_RomOpen
-	//
-	// gCPUState.CPUControl[C0_SR]		= 0x34000000;	//*SR_FR |*/ SR_ERL | SR_CU2|SR_CU1|SR_CU0;
-	R4300_SetSR(0x34000000);
-	gCPUState.CPUControl[C0_CONFIG]._u32	= 0x0006E463;	// 0x00066463;
-
+	gCPUState.CPUControl[C0_RAND]._u32 = 0x1F;
 	gCPUState.CPUControl[C0_COUNT]._u32 = 0x5000;
+	Memory_MI_SetRegister(MI_VERSION_REG, 0x02020102);
+	Memory_SP_SetRegister(SP_STATUS_REG, SP_STATUS_HALT);
 	gCPUState.CPUControl[C0_CAUSE]._u32 = 0x0000005C;
-	//ENTRYHI_REGISTER	  = 0xFFFFE0FF;
 	gCPUState.CPUControl[C0_CONTEXT]._u32 = 0x007FFFF0;
 	gCPUState.CPUControl[C0_EPC]._u32 = 0xFFFFFFFF;
-	gCPUState.CPUControl[C0_BADVADDR]._u32 = 0xFFFFFFFF;
-	gCPUState.CPUControl[C0_ERROR_EPC]._u32= 0xFFFFFFFF;
-	gCPUState.CPUControl[C0_CONFIG]._u32= 0x0006E463;
-	//
+	gCPUState.CPUControl[C0_BADVADDR]._u32 	= 0xFFFFFFFF;
+	gCPUState.CPUControl[C0_ERROR_EPC]._u32	= 0xFFFFFFFF;
+	gCPUState.CPUControl[C0_CONFIG]._u32	= 0x0006E463;
+	gCPUState.CPUControl[C0_SR]._u32		= 0x34000000;	//*SR_FR |*/ SR_ERL | SR_CU2|SR_CU1|SR_CU0;
+	//R4300_SetSR(0x34000000);
+
+	// From R4300 manual
+	//gCPUState.CPUControl[C0_SR]._u32   = 0x70400004;	//*SR_FR |*/ SR_ERL | SR_CU2|SR_CU1|SR_CU0;
+	R4300_SetSR(0x70400004);
+	gCPUState.CPUControl[C0_PRID]._u32   = 0x00000b10;	// Was 0xb00 - test rom reports 0xb10!!
+	gCPUState.CPUControl[C0_WIRED]._u32  = 0x0;
+
+	gCPUState.FPUControl[0]._u32 = 0x00000511;
+
+	((u32 *)g_pMemoryBuffers[MEM_RI_REG])[3] = 1;					// RI_CONFIG_REG Skips most of init
 
 	gGPR[0]._u64=0x0000000000000000LL;
 	gGPR[1]._u64=0x0000000000000000LL;

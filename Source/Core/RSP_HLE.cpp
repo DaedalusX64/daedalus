@@ -44,6 +44,15 @@ extern void jpeg_decode_PS(OSTask *task);
 extern void jpeg_decode_PS0(OSTask *task);
 extern void jpeg_decode_OB(OSTask *task);
 
+
+/* RE2Task.cpp + HqvmTask.cpp */
+extern "C" {
+	//extern void resize_bilinear_task(OSTask *task);
+	//extern void decode_video_frame_task(OSTask *task);
+	//extern void fill_video_double_buffer_task(OSTask *task);
+	extern void hvqm2_decode_sp1_task(OSTask *task);
+};
+
 #ifdef DAEDALUS_DEBUG_CONSOLE
 #if 0
 static void RDP_DumpRSPCode(char * name, u32 crc, u32 * mem_base, u32 pc_base, u32 len)
@@ -191,7 +200,7 @@ static EProcessResult RSP_HLE_Audio()
 // RSP_HLE_Jpeg and RSP_HLE_CICX105 were borrowed from Mupen64plus
 static u32 sum_bytes(const u8 *bytes, u32 size)
 {
-    u32 sum {};
+    u32 sum = 0;
     const u8 * const bytes_end = bytes + size;
 
     while (bytes != bytes_end)
@@ -257,10 +266,16 @@ EProcessResult RSP_HLE_CICX105(OSTask * task)
 	return PR_COMPLETED;
 }
 
+// Pokemon Puzzle League uses this
+EProcessResult RSP_HLE_Hvqm(OSTask * task)
+{
+	hvqm2_decode_sp1_task(task);
+	return PR_COMPLETED;
+}
+
 void RSP_HLE_ProcessTask()
 {
 	OSTask * pTask = (OSTask *)(g_pu8SpMemBase + 0x0FC0);
-
 	EProcessResult	result( PR_NOT_STARTED );
 
 	// non task
@@ -290,15 +305,14 @@ void RSP_HLE_ProcessTask()
 			// Can't handle
 			break;
 
+		case M_FBTASK:
+			result = RSP_HLE_Hvqm(pTask);
+			break;
+
 		case M_JPGTASK:
 			result = RSP_HLE_Jpeg(pTask);
 			break;
-		#ifdef DAEDALUS_ENABLE_ASSERTS
 		default:
-
-			// This can be easily handled, need to find first a game that uses this though
-			DAEDALUS_ASSERT( pTask->t.type != M_FBTASK, "FB task is not handled");
-
 			// Can't handle
 			DBGConsole_Msg(0, "Unknown task: %08x", pTask->t.type );
 			//	RSP_HLE_DumpTaskInfo( pTask );
@@ -306,7 +320,6 @@ void RSP_HLE_ProcessTask()
 			//	RDP_DumpRSPCode("unkcode", 0xDEAFF00D, (u32*)(g_pu8RamBase + (((u32)pTask->t.ucode)&0x00FFFFFF)),      0x04001080, 0x1000 - 0x80);//pTask->t.ucode_size);
 
 			break;
-			#endif
 	}
 
 	// Started and completed. No need to change cores. [synchronously]
