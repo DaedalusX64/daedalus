@@ -17,19 +17,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "stdafx.h"
-#include "Dynamo.h"
-
+#include <algorithm>
 #include <stdio.h>
 
-#include <algorithm>
+#include "stdafx.h"
+#include "Core/Dynamo.h"
 
-#include "CPU.h"
-#include "Registers.h"					// For REG_?? defines
-#include "Memory.h"
-#include "Interrupt.h"
-#include "R4300.h"
 
+
+
+#include "Core/CPU.h"
+			// For REG_?? defines
+#include "Core/Memory.h"
+#include "Core/Interrupt.h"
+#include "Core/R4300.h"
+#include "Core/Registers.h"		
 #include "Config/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"

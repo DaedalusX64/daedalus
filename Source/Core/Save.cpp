@@ -19,10 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "ROM.h"
-#include "Memory.h"
-#include "Save.h"
-
+#include "Core/ROM.h"
+#include "Core/Memory.h"
+#include "Core/Save.h"
 #include "Config/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/Dump.h"

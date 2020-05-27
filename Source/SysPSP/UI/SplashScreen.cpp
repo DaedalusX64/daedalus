@@ -18,24 +18,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "SplashScreen.h"
 
-#include "Graphics/GraphicsContext.h"
-
-#include "UIContext.h"
-#include "UIScreen.h"
-#include "Graphics/ColourValue.h"
-#include "Graphics/NativeTexture.h"
-
-#include "SysPSP/Graphics/DrawText.h"
-
-#include "Math/Math.h"	// VFPU Math
-
-#include "Utility/Preferences.h"
-#include "SysPSP/Utility/PathsPSP.h"
-#include "PSPMenu.h"
 #include <pspctrl.h>
 #include <pspgu.h>
+
+#include "Graphics/ColourValue.h"
+#include "Graphics/GraphicsContext.h"
+#include "Graphics/NativeTexture.h"
+#include "Math/Math.h"	// VFPU Math
+#include "SysPSP/Graphics/DrawText.h"
+#include "SysPSP/UI/PSPMenu.h"
+#include "SysPSP/UI/SplashScreen.h"
+#include "SysPSP/UI/UIContext.h"
+#include "SysPSP/UI/UIScreen.h"
+#include "SysPSP/Utility/PathsPSP.h"
+#include "Utility/Preferences.h"
+
 
 
 extern bool g32bitColorMode;

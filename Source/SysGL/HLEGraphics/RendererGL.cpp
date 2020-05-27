@@ -1,7 +1,8 @@
 #include "stdafx.h"
-#include "RendererGL.h"
+
 
 #include <vector>
+#include <GL/glew.h>
 
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
@@ -12,7 +13,8 @@
 #include "HLEGraphics/RDPStateManager.h"
 #include "OSHLE/ultra_gbi.h"
 #include "SysGL/GL.h"
-#include <GL/glew.h>
+#include "SysGL/HLEGraphics/RendererGL.h"
+
 #include "System/Paths.h"
 #include "Utility/IO.h"
 #include "Utility/Macros.h"

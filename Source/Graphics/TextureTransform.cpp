@@ -1,11 +1,13 @@
 #include "stdafx.h"
-#include "TextureTransform.h"
+
 
 #include <string.h>
 
-#include "ColourValue.h"
-#include "NativePixelFormat.h"
-#include "TextureFormat.h"
+#include "Graphics/ColourValue.h"
+#include "Graphics/NativePixelFormat.h"
+#include "Graphics/TextureFormat.h"
+#include "Graphics/TextureTransform.h"
+
 
 template< typename T >
 T * AddByteOffset( T * p, s32 offset )

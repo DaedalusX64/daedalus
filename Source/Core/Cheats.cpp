@@ -18,14 +18,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
-#include "stdafx.h"
-#include "Cheats.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "Memory.h"
-#include "ROM.h"
+#include "stdafx.h"
+#include "Core/Cheats.h"
+
+
+
+#include "Core/Memory.h"
+#include "Core/ROM.h"
 #include "Config/ConfigOptions.h"
 
 #include "OSHLE/ultra_R4300.h"

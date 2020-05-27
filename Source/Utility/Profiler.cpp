@@ -2,21 +2,25 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "stdafx.h"
-#include "Profiler.h"
-
-#ifdef DAEDALUS_ENABLE_PROFILING
-
-#include "Debug/DBGConsole.h"
-#include "Utility/Timing.h"
-#include "Utility/Hash.h"
-
 #include <vector>
 #include <string>
 #include <stack>
 #include <set>
 #include <map>
 #include <algorithm>
+
+#include "stdafx.h"
+
+
+#ifdef DAEDALUS_ENABLE_PROFILING
+
+#include "Debug/DBGConsole.h"
+#include "Utility/Hash.h"
+#include "Utility/Profiler.h"
+#include "Utility/Timing.h"
+
+
+
 
 static u64 GetNow()
 {

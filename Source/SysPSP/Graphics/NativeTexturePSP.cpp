@@ -17,20 +17,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "stdafx.h"
-#include "Graphics/NativeTexture.h"
-#include "Graphics/NativePixelFormat.h"
-#include "Graphics/ColourValue.h"
-#include "VideoMemoryManager.h"
-#include "Utility/FastMemcpy.h"
-
-#include "Math/MathUtil.h"
-
 #include <png.h>
-
 #include <pspgu.h>
 #include <pspdebug.h>
 #include <pspkernel.h>
+
+#include "stdafx.h"
+
+#include "Graphics/NativeTexture.h"
+#include "Graphics/NativePixelFormat.h"
+#include "Graphics/ColourValue.h"
+#include "Math/MathUtil.h"
+#include "SysPSP/Graphics/VideoMemoryManager.h"
+#include "Utility/FastMemcpy.h"
+
 
 //*****************************************************************************
 //

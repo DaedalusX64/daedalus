@@ -18,15 +18,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "patch.h"
+
 
 #ifdef DAEDALUS_ENABLE_OS_HOOKS
 
 #include <stddef.h>		// offsetof
-
-#include "patch_symbols.h"
-#include "OS.h"
-#include "OSMesgQueue.h"
 
 #include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
@@ -41,6 +37,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/Fragment.h"
 #include "DynaRec/FragmentCache.h"
 #include "Math/Math.h"	// VFPU Math
+#include "OSHLE/OS.h"
+#include "OSHLE/OSMesgQueue.h"
+#include "OSHLE/patch.h"
+#include "OSHLE/patch_symbols.h"
 #include "OSHLE/ultra_os.h"
 #include "OSHLE/ultra_R4300.h"
 #include "OSHLE/ultra_rcp.h"

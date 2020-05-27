@@ -18,12 +18,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "RDPStateManager.h"
-#include "DLDebug.h"
+
+
 
 #include "Core/Memory.h"
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
+#include "HLEGraphics/DLDebug.h"
+#include "HLEGraphics/RDPStateManager.h"
 #include "HLEGraphics/uCodes/UcodeDefs.h"
 #include "Math/MathUtil.h"
 #include "OSHLE/ultra_gbi.h"

@@ -18,15 +18,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "TraceRecorder.h"
-#include "Fragment.h"
-#include "BranchType.h"
+
 
 #include "Core/CPU.h"			// For dubious use of PC/NewPC
 #include "Core/Registers.h"
-
 #include "Debug/DBGConsole.h"
-
+#include "DynaRec/BranchType.h"
+#include "DynaRec/Fragment.h"
+#include "DynaRec/TraceRecorder.h"
 #include "Utility/Profiler.h"
 #include "Utility/PrintOpCode.h"
 

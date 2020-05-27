@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "stdafx.h"
-#include "CodeGeneratorX86.h"
+
 
 #include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/Trace.h"
 #include "OSHLE/ultra_R4300.h"
 
+#include "SysW32/DynaRec/x86/CodeGeneratorX86.h"
 
 using namespace AssemblyUtils;
 
@@ -519,7 +520,7 @@ CJumpLocation	CCodeGeneratorX86::GenerateOpCode( const STraceEntry& ti, bool bra
 		case OP_J:			handled = true; break;
 		case OP_JAL:		GenerateJAL( address ); handled = true; break;
 		case OP_CACHE:		GenerateCACHE( base, op_code.immediate, rt ); handled = true; break;
-			
+
 		// For LW, SW, SWC1, LB etc, only generate an exception handler if access wasn't done through the stack (handle = false)
 		// This will have to be reworked once we handle accesses other than the stack!
 		case OP_LW:

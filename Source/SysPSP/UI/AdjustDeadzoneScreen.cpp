@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "AdjustDeadzoneScreen.h"
+#include "SysPSP/UI/AdjustDeadzoneScreen.h"
 
 #include <stdio.h>
 
@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysPSP/Graphics/DrawText.h"
 #include "Utility/Preferences.h"
 #include "Utility/Translate.h"
-#include "PSPMenu.h"
+#include "SysPSP/UI/PSPMenu.h"
 
 
 class IAdjustDeadzoneScreen : public CAdjustDeadzoneScreen, public CUIScreen

@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "ROMFileMemory.h"
-#include "MemoryHeap.h"
+#include "Utility/ROMFileMemory.h"
+#include "Utility/MemoryHeap.h"
 
 #include <stdlib.h>
 
@@ -60,7 +60,7 @@ template<> bool CSingleton< CROMFileMemory >::Create()
 	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);
 	#endif
-	
+
 	mpInstance = new IROMFileMemory();
 	return mpInstance != NULL;
 }

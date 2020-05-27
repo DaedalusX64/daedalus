@@ -17,18 +17,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "stdafx.h"
-#include "UIScreen.h"
-#include "UIContext.h"
-
-#include "Math/Vector2.h"
-
-#include "Utility/Timer.h"
-#include "Graphics/GraphicsContext.h"
-
-#include "SysPSP/Utility/Buttons.h"
-
 #include <pspctrl.h>
+
+#include "stdafx.h"
+
+
+#include "Graphics/GraphicsContext.h"
+#include "Math/Vector2.h"
+#include "SysPSP/UI/UIContext.h"
+#include "SysPSP/UI/UIScreen.h"
+#include "SysPSP/Utility/Buttons.h"
+#include "Utility/Timer.h"
+
+
+
 
 
 CUIScreen::CUIScreen( CUIContext * p_context )

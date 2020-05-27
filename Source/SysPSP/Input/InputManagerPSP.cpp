@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Input/InputManager.h"
+
 
 #include <stack>
 #include <string>
@@ -11,6 +11,7 @@
 
 #include "Config/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
+#include "Input/InputManager.h"
 #include "Math/Math.h"	// VFPU Math
 #include "Math/MathUtil.h"
 #include "SysPSP/Utility/PathsPSP.h"

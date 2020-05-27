@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef HLEGRAPHICS_TEXTURECACHE_H_
 #define HLEGRAPHICS_TEXTURECACHE_H_
 
-#include "CachedTexture.h"
+#include "HLEGraphics/CachedTexture.h"
 
 #include "Utility/Singleton.h"
 #include "Utility/RefCounted.h"

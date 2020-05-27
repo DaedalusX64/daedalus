@@ -17,11 +17,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "stdafx.h"
-#include "RomSelectorComponent.h"
-#include "UIContext.h"
-#include "UIScreen.h"
-
+#include <string>
+#include <vector>
+#include <map>
+#include <algorithm>
 #include <psptypes.h>
 #include <pspkernel.h>
 #include <pspctrl.h>
@@ -29,30 +28,28 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <psputility.h>
 #include <pspgu.h>
 
-#include "Math/Vector2.h"
-#include "SysPSP/Graphics/DrawText.h"
-#include "Graphics/ColourValue.h"
-#include "Graphics/NativeTexture.h"
+#include "stdafx.h"
 
 #include "Core/ROM.h"
 #include "Core/RomSettings.h"
-
-#include "../../Input/InputManager.h"
-#include "../../Utility/Preferences.h"
-
-#include "Utility/IO.h"
-#include "Utility/ROMFile.h"
-
+#include "Graphics/ColourValue.h"
+#include "Graphics/NativeTexture.h"
+#include "Input/InputManager.h"
+#include "Math/MathUtil.h"
+#include "Math/Vector2.h"
+#include "SysPSP/Graphics/DrawText.h"
+#include "SysPSP/UI/PSPMenu.h"
+#include "SysPSP/UI/RomSelectorComponent.h"
+#include "SysPSP/UI/UIContext.h"
+#include "SysPSP/UI/UIScreen.h"
 #include "SysPSP/Utility/Buttons.h"
 #include "SysPSP/Utility/PathsPSP.h"
+#include "Utility/IO.h"
+#include "Utility/Preferences.h"
+#include "Utility/ROMFile.h"
 
-#include "Math/MathUtil.h"
 
-#include <string>
-#include <vector>
-#include <map>
-#include <algorithm>
-#include "PSPMenu.h"
+
 
 
 namespace

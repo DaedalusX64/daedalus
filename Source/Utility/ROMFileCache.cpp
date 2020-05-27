@@ -18,14 +18,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "ROMFileCache.h"
-
-#include "ROMFile.h"
-#include "ROMFileMemory.h"
-
-#include "Math/MathUtil.h"
 
 #include "Debug/DBGConsole.h"
+#include "Math/MathUtil.h"
+#include "Utility/ROMFile.h"
+#include "Utility/ROMFileCache.h"
+#include "Utility/ROMFileMemory.h"
+
 
 #ifdef DAEDALUS_PSP
 extern bool PSP_IS_SLIM;
@@ -269,7 +268,7 @@ bool	ROMFileCache::GetChunk( u32 rom_offset, u8 ** p_p_chunk_base, u32 * p_chunk
 		DAEDALUS_ASSERT( AddressToChunkMapIndex( chunk_info.StartOffset ) == chunk_map_idx, "Inconsistant map indices" );
 		DAEDALUS_ASSERT( chunk_info.ContainsAddress( rom_offset ), "Address is out of range for chunk" );
 		#endif
-		
+
 		u32		storage_offset( idx * CHUNK_SIZE );
 
 		*p_p_chunk_base = mpStorage + storage_offset;

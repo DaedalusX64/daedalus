@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 #include "stdafx.h"
-#include "JobManager.h"
+
 
 #include <string.h>
 #include <stdio.h>
@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "SysPSP/PRX/MediaEngine/me.h"
 #include "SysPSP/Utility/CacheUtil.h"
+#include "SysPSP/Utility/JobManager.h"
 #include "SysPSP/Utility/ModulePSP.h"
 #include "Utility/Mutex.h"
 #include "Utility/Thread.h"

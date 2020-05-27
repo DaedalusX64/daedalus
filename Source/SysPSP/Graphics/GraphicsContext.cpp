@@ -19,7 +19,7 @@
 */
 
 #include "stdafx.h"
-#include "Graphics/GraphicsContext.h"
+
 
 #include <pspgu.h>
 #include <pspdisplay.h>
@@ -30,6 +30,7 @@
 #include "Debug/DBGConsole.h"
 #include "Debug/Dump.h"
 #include "Graphics/ColourValue.h"
+#include "Graphics/GraphicsContext.h"
 #include "Graphics/PngUtil.h"
 #include "SysPSP/Graphics/VideoMemoryManager.h"
 #include "Utility/IO.h"

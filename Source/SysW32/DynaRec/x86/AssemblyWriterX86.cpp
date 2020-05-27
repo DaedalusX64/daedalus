@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "AssemblyWriterX86.h"
+#include "SysW32/DynaRec/x86/AssemblyWriterX86.h"
 
 //*****************************************************************************
 //
@@ -165,7 +165,7 @@ void CAssemblyWriterX86::ADDI(EIntelReg reg, s32 data)
 		EmitBYTE(0xc0 | reg);
 		EmitDWORD(data);
 	}
-	
+
 }
 
 //*****************************************************************************

@@ -2,13 +2,13 @@
 
 #include <string.h>
 
-#include "audiohle.h"
-#include "AudioHLEProcessor.h"
-
 #include "Core/Memory.h"
+#include "Debug/DBGConsole.h"
+#include "HLEAudio/audiohle.h"
+#include "HLEAudio/AudioHLEProcessor.h"
 #include "Math/MathUtil.h"
 
-#include "Debug/DBGConsole.h"
+
 
 extern bool isMKABI;
 extern bool isZeldaABI;

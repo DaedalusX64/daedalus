@@ -1,4 +1,4 @@
 #include "stdafx.h"
-#include "Paths.h"
+#include "System/Paths.h"
 
 IO::Filename gDaedalusExePath;

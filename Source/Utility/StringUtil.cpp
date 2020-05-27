@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "StringUtil.h"
+#include "Utility/StringUtil.h"
 
 char * Tidy(char * s)
 {

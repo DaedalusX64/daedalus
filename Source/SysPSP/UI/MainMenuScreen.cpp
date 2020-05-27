@@ -18,20 +18,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "MainMenuScreen.h"
+
 
 #include <string>
 
 #include <pspctrl.h>
 #include <pspgu.h>
-
-#include "UIContext.h"
-#include "UIScreen.h"
-#include "AboutComponent.h"
-#include "GlobalSettingsComponent.h"
-#include "RomSelectorComponent.h"
-#include "SelectedRomComponent.h"
-#include "SavestateSelectorComponent.h"
 
 #include "Core/CPU.h"
 #include "Core/ROM.h"
@@ -41,9 +33,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/GraphicsContext.h"
 #include "Math/MathUtil.h"
 #include "SysPSP/Graphics/DrawText.h"
+#include "SysPSP/UI/AboutComponent.h"
+#include "SysPSP/UI/GlobalSettingsComponent.h"
+#include "SysPSP/UI/MainMenuScreen.h"
+#include "SysPSP/UI/PSPMenu.h"
+#include "SysPSP/UI/RomSelectorComponent.h"
+#include "SysPSP/UI/SelectedRomComponent.h"
+#include "SysPSP/UI/SavestateSelectorComponent.h"
+#include "SysPSP/UI/UIContext.h"
+#include "SysPSP/UI/UIScreen.h"
 #include "System/System.h"
 #include "Utility/Preferences.h"
-#include "PSPMenu.h"
+
 
 namespace
 {

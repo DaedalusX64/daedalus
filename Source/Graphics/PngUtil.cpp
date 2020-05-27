@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "PngUtil.h"
+
 
 #include <stdlib.h>
 #include <png.h>
@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/TextureFormat.h"
 #include "Graphics/NativePixelFormat.h"
 #include "Graphics/NativeTexture.h"
+#include "Graphics/PngUtil.h"
 #include "Utility/DataSink.h"
 
 template< typename T >

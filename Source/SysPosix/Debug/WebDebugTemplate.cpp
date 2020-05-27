@@ -1,8 +1,8 @@
 #include "stdafx.h"
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-#include "WebDebugTemplate.h"
-#include "WebDebug.h"
+#include "SysPosix/Debug/WebDebugTemplate.h"
+#include "SysPosix/Debug/WebDebug.h"
 
 void WriteStandardHeader(WebDebugConnection * connection, const char * title)
 {

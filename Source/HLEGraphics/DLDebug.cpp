@@ -1,14 +1,13 @@
 #include "stdafx.h"
-#include "DLDebug.h"
+#include "HLEGraphics/DLDebug.h"
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-
 #include <stdarg.h>
 
-#include "RDP.h"
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/Dump.h"
+#include "HLEGraphics/RDP.h"
 #include "OSHLE/ultra_gbi.h"
 #include "Utility/IO.h"
 #include "Utility/Macros.h"

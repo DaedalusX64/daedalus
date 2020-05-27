@@ -18,23 +18,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "GlobalSettingsComponent.h"
+
 
 #include <stdio.h>
-
 #include <pspkernel.h>
 #include <pspctrl.h>
 #include <pspgu.h>
 
-#include "UIContext.h"
-#include "UIScreen.h"
-#include "UISetting.h"
-#include "Dialogs.h"
-
-#include "AdjustDeadzoneScreen.h"
-#include "SysPSP/Graphics/DrawText.h"
 #include "Graphics/ColourValue.h"
 
+#include "SysPSP/UI/AdjustDeadzoneScreen.h"
+#include "SysPSP/UI/GlobalSettingsComponent.h"
+#include "SysPSP/Graphics/DrawText.h"
+#include "SysPSP/UI/Dialogs.h"
+#include "SysPSP/UI/UIContext.h"
+#include "SysPSP/UI/UIScreen.h"
+#include "SysPSP/UI/UISetting.h"
+#include "SysPSP/UI/PSPMenu.h"
 #include "SysPSP/Utility/Buttons.h"
 #include "SysPSP/Utility/PathsPSP.h"
 #include "Utility/Thread.h"
@@ -44,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Translate.h"
 
 #include "Input/InputManager.h"
-#include "PSPMenu.h"
+
 
 extern u32 HAVE_DVE;
 extern u32 PSP_TV_CABLE;

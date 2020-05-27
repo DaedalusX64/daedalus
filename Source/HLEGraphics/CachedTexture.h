@@ -21,10 +21,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef HLEGRAPHICS_CACHEDTEXTURE_H_
 #define HLEGRAPHICS_CACHEDTEXTURE_H_
 
-#include "Utility/RefCounted.h"
 
 #include "Graphics/NativeTexture.h"
-#include "TextureInfo.h"
+#include "HLEGraphics/TextureInfo.h"
+#include "Utility/RefCounted.h"
 
 extern u32 gRDPFrame;
 

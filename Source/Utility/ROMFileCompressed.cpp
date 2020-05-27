@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "ROMFileCompressed.h"
+#include "Utility/ROMFileCompressed.h"
 
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
 

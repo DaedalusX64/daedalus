@@ -23,12 +23,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "TextureCache.h"
-#include "TextureInfo.h"
+#include "HLEGraphics/DLDebug.h"
+#include "HLEGraphics/TextureCache.h"
+#include "HLEGraphics/TextureInfo.h"
 
 #include "Utility/Profiler.h"
-
-#include "DLDebug.h"
 
 #include <vector>
 #include <algorithm>

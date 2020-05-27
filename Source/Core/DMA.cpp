@@ -21,23 +21,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "DMA.h"
-#include "Memory.h"
-#include "RSP_HLE.h"
-#include "CPU.h"
-#include "ROM.h"
-#include "ROMBuffer.h"
-#include "PIF.h"
-#include "Interrupt.h"
-#include "Save.h"
-
-#include "Utility/FastMemcpy.h"
-
+#include "Core/DMA.h"
+#include "Core/Memory.h"
+#include "Core/RSP_HLE.h"
+#include "Core/CPU.h"
+#include "Core/ROM.h"
+#include "Core/ROMBuffer.h"
+#include "Core/PIF.h"
+#include "Core/Interrupt.h"
+#include "Core/Save.h"
 #include "Debug/DebugLog.h"
 #include "Debug/DBGConsole.h"
-
 #include "OSHLE/OSTask.h"
 #include "OSHLE/patch.h"
+#include "Utility/FastMemcpy.h"
+
 
 bool gDMAUsed {false};
 //*****************************************************************************
@@ -292,7 +290,7 @@ void DMA_PI_CopyToRDRAM()
 		CPU_InvalidateICacheRange( 0x80000000 | mem_address, pi_length_reg );
 		copy_succeeded = RomBuffer::CopyToRam( g_pu8RamBase, mem_address, gRamSize, cart_address, pi_length_reg );
 
-		
+
 	}
 	else if ( IsDom1Addr3( cart_address ) )
 	{

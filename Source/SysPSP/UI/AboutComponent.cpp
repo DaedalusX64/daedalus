@@ -18,10 +18,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "AboutComponent.h"
+#include "SysPSP/UI/AboutComponent.h"
 
-#include "UIContext.h"
-#include "UIScreen.h"
+#include "SysPSP/UI/UIContext.h"
+#include "SysPSP/UI/UIScreen.h"
 
 #include "Graphics/ColourValue.h"
 #include "Graphics/NativeTexture.h"
@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Macros.h"
 #include "Utility/String.h"
 #include "Utility/Translate.h"
-#include "PSPMenu.h"
+#include "SysPSP/UI/PSPMenu.h"
 
 #include <kubridge.h>
 #include <pspctrl.h>

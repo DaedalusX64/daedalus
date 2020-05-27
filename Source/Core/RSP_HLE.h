@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef CORE_RSP_HLE_H_
 #define CORE_RSP_HLE_H_
 
-#include "Memory.h"
+#include "Core/Memory.h"
 
 // Returns true if the rsp is running either LLE or HLE
 inline bool RSP_IsRunning(){ return (Memory_SP_GetRegister( SP_STATUS_REG ) & SP_STATUS_HALT) == 0; }

@@ -23,9 +23,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define SYSW32_DYNAREC_X86_CODEGENERATORX86_H_
 
 #include "DynaRec/CodeGenerator.h"
-#include "AssemblyWriterX86.h"
-#include "DynarecTargetX86.h"
 #include "DynaRec/TraceRecorder.h"
+#include "SysW32/DynaRec/x86/AssemblyWriterX86.h"
+#include "SysW32/DynaRec/x86/DynarecTargetX86.h"
 
 // XXXX For GenerateCompare_S/D
 #define FLAG_SWAP			0x100

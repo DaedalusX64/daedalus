@@ -30,8 +30,8 @@
 #include <string.h>
 
 #include "Debug/DBGConsole.h"
-#include "Memory.h"
-#include "RDRam.h"
+#include "Core/Memory.h"
+#include "Core/RDRam.h"
 #include "OSHLE/ultra_sptask.h"
 
 /* FIXME: assume presence of expansion pack */

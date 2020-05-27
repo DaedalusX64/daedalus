@@ -32,9 +32,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <pspaudiolib.h>
 #include <pspaudio.h>
 
-#include "Plugins/AudioPlugin.h"
-#include "HLEAudio/audiohle.h"
-
 #include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
 #include "Core/Interrupt.h"
@@ -42,7 +39,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Core/ROM.h"
 #include "Core/RSP_HLE.h"
 #include "Debug/DBGConsole.h"
+#include "HLEAudio/audiohle.h"
 #include "HLEAudio/AudioBuffer.h"
+#include "Plugins/AudioPlugin.h"
 #include "SysPSP/Utility/JobManager.h"
 #include "SysPSP/Utility/CacheUtil.h"
 #include "SysPSP/Utility/JobManager.h"

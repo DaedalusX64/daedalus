@@ -17,16 +17,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#include "stdafx.h"
-#include "CheatOptionsScreen.h"
-
 #include <pspctrl.h>
 
-#include "UIContext.h"
-#include "UIScreen.h"
-#include "UISetting.h"
-#include "UISpacer.h"
-#include "UICommand.h"
+#include "stdafx.h"
+
+#include "SysPSP/UI/CheatOptionsScreen.h"
+#include "SysPSP/UI/PSPMenu.h"
+#include "SysPSP/UI/UIContext.h"
+#include "SysPSP/UI/UIScreen.h"
+#include "SysPSP/UI/UISetting.h"
+#include "SysPSP/UI/UISpacer.h"
+#include "SysPSP/UI/UICommand.h"
 
 #include "Config/ConfigOptions.h"
 #include "Core/Cheats.h"
@@ -38,7 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/IO.h"
 #include "Utility/Preferences.h"
 #include "Utility/Stream.h"
-#include "PSPMenu.h"
+
 
 
 class ICheatOptionsScreen : public CCheatOptionsScreen, public CUIScreen

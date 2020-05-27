@@ -17,7 +17,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 #include "stdafx.h"
-#include "Microcode.h"
+#include "HLEGraphics/Microcode.h"
 
 #include "Core/ROM.h"
 #include "Core/Memory.h"
@@ -146,7 +146,7 @@ void GBIMicrocode_Cache(u32 index, u32 code_base, u32 data_base, u32 ucode_versi
 	//
 	// If the max of ucode entries is reached, spread it randomly
 	// Otherwise we'll keep overriding the last entry
-	// 
+	//
 	if (index >= MAX_UCODE_CACHE_ENTRIES)
 	{
 		DBGConsole_Msg(0, "Reached max of ucode entries, spreading entry..");

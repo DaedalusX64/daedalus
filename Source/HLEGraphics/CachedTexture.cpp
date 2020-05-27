@@ -18,23 +18,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "CachedTexture.h"
 
 #include <vector>
 
-#include "TextureInfo.h"
-#include "ConvertImage.h"
-#include "ConvertTile.h"
-#include "Graphics/ColourValue.h"
-#include "Graphics/NativePixelFormat.h"
-#include "Graphics/NativeTexture.h"
-#include "Graphics/PngUtil.h"
-#include "Graphics/TextureTransform.h"
 
 #include "Config/ConfigOptions.h"
 #include "Core/ROM.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/Dump.h"
+#include "HLEGraphics/CachedTexture.h"
+#include "HLEGraphics/ConvertImage.h"
+#include "HLEGraphics/ConvertTile.h"
+#include "HLEGraphics/TextureInfo.h"
+#include "Graphics/ColourValue.h"
+#include "Graphics/NativePixelFormat.h"
+#include "Graphics/NativeTexture.h"
+#include "Graphics/PngUtil.h"
+#include "Graphics/TextureTransform.h"
 #include "Math/Math.h"
 #include "Math/MathUtil.h"
 #include "OSHLE/ultra_gbi.h"

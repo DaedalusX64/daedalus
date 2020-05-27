@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "TextureCache.h"
+#include "HLEGraphics/TextureCache.h"
 
 #include "SysPosix/Debug/WebDebug.h"
 #include "SysPosix/Debug/WebDebugTemplate.h"

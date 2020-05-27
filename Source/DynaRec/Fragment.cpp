@@ -18,27 +18,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "Fragment.h"
+
 
 #include <stdio.h>
 
 #include <algorithm>
 
-#include "FragmentCache.h"
-#include "BranchType.h"
-#include "StaticAnalysis.h"
-#include "IndirectExitMap.h"
-
 #include "Core/Registers.h"
 #include "Core/CPU.h"			// Try to remove this cyclic dependency
 #include "Core/R4300.h"
 #include "Core/Interrupt.h"
-
 #include "Debug/DBGConsole.h"
-
 #include "DynaRec/CodeBufferManager.h"
 #include "DynaRec/CodeGenerator.h"
-
+#include "DynaRec/BranchType.h"
+#include "DynaRec/FragmentCache.h"
+#include "DynaRec/Fragment.h"
+#include "DynaRec/IndirectExitMap.h"
+#include "DynaRec/StaticAnalysis.h"
 #include "Utility/Macros.h"
 #include "Utility/PrintOpCode.h"
 #include "Utility/Profiler.h"

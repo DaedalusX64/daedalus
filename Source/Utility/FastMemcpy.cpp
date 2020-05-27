@@ -8,10 +8,11 @@ homepage: http://wordpress.fx-world.org
 */
 
 #include "stdafx.h"
-#include "FastMemcpy.h"
+
 
 #include "Utility/DaedalusTypes.h"
 #include "Utility/Endian.h"
+#include "Utility/FastMemcpy.h"
 #include "Utility/Timing.h"
 
 #include <stdio.h>

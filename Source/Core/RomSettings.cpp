@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "RomSettings.h"
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <map>
 
 #include "Core/ROM.h"
+#include "Core/RomSettings.h"
 #include "Debug/DBGConsole.h"
 #include "Interface/RomDB.h"
 #include "System/Paths.h"

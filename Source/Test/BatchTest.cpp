@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "BatchTest.h"
+
 
 #ifdef DAEDALUS_BATCH_TEST_ENABLED
 
@@ -34,6 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/Dump.h"
 #include "HLEGraphics/DLParser.h"
 #include "System/System.h"
+#include "Test/BatchTest.h"
 #include "Utility/Hash.h"
 #include "Utility/IO.h"
 #include "Utility/ROMFile.h"

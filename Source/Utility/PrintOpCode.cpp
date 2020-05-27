@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // Code to format opcodes and display them nicely
 #include "stdafx.h"
-#include "PrintOpCode.h"
+#include "Utility/PrintOpCode.h"
 
 //
 //	Exclude this from public release builds to save a little on the elf size
@@ -1153,4 +1153,3 @@ void SprintRSPOpCodeInfo(char *str, u32 address, OpCode op)
 }
 
 #endif // DAEDALUS_SILENT
-

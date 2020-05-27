@@ -1,6 +1,7 @@
 #include "stdafx.h"
-#include "DataSink.h"
+
 #include "Debug/DaedalusAssert.h"
+#include "Utility/DataSink.h"
 
 DataSink::~DataSink()
 {

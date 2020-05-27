@@ -17,12 +17,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+#include <SDL2/SDL.h>
+
 #include "stdafx.h"
 #include "Input/InputManager.h"
 
 #include "Core/CPU.h"
 #include "SysGL/GL.h"
-#include <SDL2/SDL.h>
+
 
 class IInputManager : public CInputManager
 {
@@ -204,7 +206,7 @@ if (keys [ SDL_SCANCODE_PAGEDOWN ] ){  pPad[0].button |= R_CBUTTONS;}
 
 			 }
 		}
-	
+
 template<> bool	CSingleton< CInputManager >::Create()
 {
 	DAEDALUS_ASSERT_Q(mpInstance == NULL);

@@ -27,8 +27,8 @@ struct	SBranchDetails;
 class	CIndirectExitMap;
 
 #include "Core/R4300Instruction.h"
-#include "AssemblyUtils.h"
-#include "RegisterSpan.h"
+#include "DynaRec/AssemblyUtils.h"
+#include "DynaRec/RegisterSpan.h"
 #include "DynaRec/TraceRecorder.h"
 
 //

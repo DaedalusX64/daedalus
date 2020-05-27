@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "RendererPSP.h"
 
 #include <pspgu.h>
 
@@ -15,6 +14,7 @@
 #include "HLEGraphics/RDPStateManager.h"
 #include "HLEGraphics/TextureCache.h"
 #include "Math/MathUtil.h"
+#include "SysPSP/HLEGraphics/RendererPSP.h"
 #include "OSHLE/ultra_gbi.h"
 #include "Utility/IO.h"
 #include "Utility/Profiler.h"

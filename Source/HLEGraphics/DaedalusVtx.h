@@ -20,10 +20,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef HLEGRAPHICS_DAEDALUSVTX_H_
 #define HLEGRAPHICS_DAEDALUSVTX_H_
 
+#include "Graphics/ColourValue.h"
 #include "Math/Vector2.h"
 #include "Math/Vector3.h"
 #include "Math/Vector4.h"
-#include "Graphics/ColourValue.h"
+
 
 // The ordering of these elements is required for the VectorTnL code.
 ALIGNED_TYPE(struct, DaedalusVtx4, 16)

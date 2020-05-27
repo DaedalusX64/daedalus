@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "StaticAnalysis.h"
+#include "DynaRec/StaticAnalysis.h"
 
 #include "Core/R4300OpCode.h"
 #include "Core/CPU.h"

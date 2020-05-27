@@ -18,12 +18,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-
-#include "TLB.h"
-#include "CPU.h"
+#include "Core/CPU.h"
+#include "Core/TLB.h"
 #include "Debug/DebugLog.h"
 #include "Debug/DBGConsole.h"
-
 #include "OSHLE/ultra_R4300.h"
 
 ALIGNED_GLOBAL(TLBEntry, g_TLBs[32], CACHE_ALIGN);

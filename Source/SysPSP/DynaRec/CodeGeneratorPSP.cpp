@@ -18,14 +18,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "CodeGeneratorPSP.h"
 
 #include <limits.h>
 #include <stdio.h>
 
 #include <algorithm>
-
-#include "N64RegisterCachePSP.h"
 
 #include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
@@ -38,6 +35,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "DynaRec/Trace.h"
 #include "Math/MathUtil.h"
 #include "OSHLE/ultra_R4300.h"
+#include "SysPSP/DynaRec/CodeGeneratorPSP.h"
+#include "SysPSP/DynaRec/N64RegisterCachePSP.h"
 #include "Utility/Macros.h"
 #include "Utility/PrintOpCode.h"
 #include "Utility/Profiler.h"

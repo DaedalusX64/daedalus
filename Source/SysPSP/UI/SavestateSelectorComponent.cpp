@@ -18,28 +18,29 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "SavestateSelectorComponent.h"
+
 
 #include <stdio.h>
 
 #include <pspctrl.h>
 #include <pspgu.h>
 
-#include "UIContext.h"
-#include "UIScreen.h"
-#include "UIElement.h"
-#include "UICommand.h"
-
 #include "Core/ROM.h"
 #include "Core/SaveState.h"
 #include "Graphics/NativeTexture.h"
 #include "Math/Vector2.h"
 #include "SysPSP/Graphics/DrawText.h"
+#include "SysPSP/UI/UICommand.h"
+#include "SysPSP/UI/UIContext.h"
+#include "SysPSP/UI/UIElement.h"
+#include "SysPSP/UI/UIScreen.h"
+#include "SysPSP/UI/PSPMenu.h"
+#include "SysPSP/UI/SavestateSelectorComponent.h"
 #include "System/Paths.h"
 #include "Utility/IO.h"
 #include "Utility/Stream.h"
 #include "Utility/Translate.h"
-#include "PSPMenu.h"
+
 
 
 class ISavestateSelectorComponent : public CSavestateSelectorComponent

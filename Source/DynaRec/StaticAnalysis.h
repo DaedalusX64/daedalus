@@ -21,8 +21,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef DYNAREC_STATICANALYSIS_H_
 #define DYNAREC_STATICANALYSIS_H_
 
-#include "BranchType.h"
 #include "Core/Memory.h"
+#include "DynaRec/BranchType.h"
+
 
 struct OpCode;
 

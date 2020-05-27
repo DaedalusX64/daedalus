@@ -19,10 +19,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "RSP_HLE.h"
+#include "Core/RSP_HLE.h"
 
-#include "Interrupt.h"
-#include "Memory.h"
+#include "Core/Interrupt.h"
+#include "Core/Memory.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
 #include "Debug/Dump.h"			// For Dump_GetDumpDirectory()

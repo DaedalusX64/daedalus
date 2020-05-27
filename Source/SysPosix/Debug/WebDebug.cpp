@@ -1,8 +1,8 @@
 #include "stdafx.h"
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-#include "WebDebug.h"
-#include "WebDebugTemplate.h"
+#include "SysPosix/Debug/WebDebug.h"
+#include "SysPosix/Debug/WebDebugTemplate.h"
 #include "third_party/webby/webby.h"
 
 #ifdef DAEDALUS_W32

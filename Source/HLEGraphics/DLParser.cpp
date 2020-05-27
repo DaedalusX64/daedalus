@@ -18,19 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "DLParser.h"
 
-#include "DLDebug.h"
-#include "BaseRenderer.h"
-#include "N64PixelFormat.h"
-#include "Graphics/NativePixelFormat.h"
-#include "RDP.h"
-#include "RDPStateManager.h"
-#include "TextureCache.h"
-#include "ConvertImage.h"			// Convert555ToRGBA
-#include "Microcode.h"
-#include "uCodes/UcodeDefs.h"
-#include "uCodes/Ucode.h"
 
 #include "Config/ConfigOptions.h"
 #include "Core/CPU.h"
@@ -39,18 +27,28 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "Debug/Dump.h"
 #include "Graphics/GraphicsContext.h"
+#include "Graphics/NativePixelFormat.h"
+#include "HLEGraphics/ConvertImage.h"			// Convert555ToRGBA
+#include "HLEGraphics/DLDebug.h"
+#include "HLEGraphics/DLParser.h"
+#include "HLEGraphics/BaseRenderer.h"
+#include "HLEGraphics/Microcode.h"
+#include "HLEGraphics/N64PixelFormat.h"
+#include "HLEGraphics/TextureCache.h"
+#include "HLEGraphics/RDP.h"
+#include "HLEGraphics/RDPStateManager.h"
 #include "Math/MathUtil.h"
 #include "OSHLE/ultra_gbi.h"
 #include "OSHLE/ultra_rcp.h"
 #include "OSHLE/ultra_sptask.h"
 #include "Plugins/GraphicsPlugin.h"
 #include "Test/BatchTest.h"
+#include "uCodes/UcodeDefs.h"
+#include "uCodes/Ucode.h"
 #include "Utility/IO.h"
 #include "Utility/Profiler.h"
 
-//*****************************************************************************
-//
-//*****************************************************************************
+
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 #define DL_UNIMPLEMENTED_ERROR( msg )			\
 {												\
@@ -325,7 +323,7 @@ bool DLParser_Initialise()
 {
 	gFirstCall = true;
 	gRDPFrame = 0;
-	
+
 	// Reset scissor to default
 	scissors.top = 0;
 	scissors.left = 0;

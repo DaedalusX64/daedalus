@@ -18,21 +18,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "Translate.h"
 
 #include <stdio.h>
 
 #include <vector>
 #include <string>
-
-#include "IO.h"
-#include "StringUtil.h"
-#include "VolatileMem.h"
-
 #include "System/Paths.h"
-#include "SysPSP/Utility/PathsPSP.h"
-#include "Utility/Macros.h"
 
+#include "Utility/IO.h"
+#include "Utility/StringUtil.h"
+#include "Utility/Translate.h"
+#include "Utility/VolatileMem.h"
+
+#include "SysPSP/Utility/PathsPSP.h"
+
+#include "Utility/Macros.h"
 #define TRANSLATE_DUMP_VALUE 0xDAEDDAED
 //*****************************************************************************
 //

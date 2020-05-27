@@ -20,14 +20,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Various stuff to map an address onto the correct memory region
 
 #include "stdafx.h"
-#include "Memory.h"
 
-#include "CPU.h"
-#include "DMA.h"
-#include "Interrupt.h"
-#include "ROM.h"
-#include "ROMBuffer.h"
 
+#include "Core/CPU.h"
+#include "Core/DMA.h"
+#include "Core/Interrupt.h"
+#include "Core/Memory.h"
+#include "Core/ROM.h"
+#include "Core/ROMBuffer.h"
 #include "Config/ConfigOptions.h"
 #include "Debug/DBGConsole.h"
 #include "Debug/DebugLog.h"
@@ -638,10 +638,10 @@ void MemoryUpdateSPStatus( u32 flags )
 
 	bool start_rsp = false;
 	bool stop_rsp = false;
-	
+
 	u32 clr_bits = 0;
 	u32 set_bits = 0;
-	
+
 	if (flags & SP_CLR_HALT)
 	{
 		clr_bits |= SP_STATUS_HALT;
@@ -654,23 +654,23 @@ void MemoryUpdateSPStatus( u32 flags )
 		stop_rsp = true;
 	}
 
-	if (flags & SP_CLR_BROKE)	
+	if (flags & SP_CLR_BROKE)
 	{
 		clr_bits |= SP_STATUS_BROKE;
 		start_rsp = true;
 	}
 
 	// No SP_SET_BROKE
-	
-	if (flags & SP_CLR_INTR)				
-	{ 
-		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_SP); 
-		R4300_Interrupt_UpdateCause3(); 
+
+	if (flags & SP_CLR_INTR)
+	{
+		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_SP);
+		R4300_Interrupt_UpdateCause3();
 	}
 	if (flags & SP_SET_INTR)				// Shouldn't ever set this?
-	{ 
-		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SP); 
-		R4300_Interrupt_UpdateCause3(); 
+	{
+		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SP);
+		R4300_Interrupt_UpdateCause3();
 	}
 	if (flags & SP_CLR_SSTEP)				clr_bits |= SP_STATUS_SSTEP;
 	if (flags & SP_SET_SSTEP)				set_bits |= SP_STATUS_SSTEP;
@@ -710,7 +710,7 @@ void MemoryUpdateSPStatus( u32 flags )
 		// Check for tasks whenever the RSP is started
 		RSP_HLE_ProcessTask();
 	}
-#ifdef DAEDALUS_ENABLE_ASSERTS	
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	else if ( stop_rsp )
 	{
 		//DAEDALUS_ASSERT( !RSP_IsRunningHLE(), "Stopping RSP while HLE task still running. Not good!" );

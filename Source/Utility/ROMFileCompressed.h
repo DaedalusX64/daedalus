@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //This should be pulled from the system's include directory..
 #include <minizip/unzip.h>
 
-#include "ROMFile.h"
+#include "Utility/ROMFile.h"
 
 class ROMFileCompressed : public ROMFile
 {

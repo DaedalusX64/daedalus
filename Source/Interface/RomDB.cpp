@@ -19,16 +19,15 @@
 */
 
 #include "stdafx.h"
-#include "RomDB.h"
 
-#include <stdio.h>
-
-#include <vector>
 #include <algorithm>
+#include <stdio.h>
+#include <vector>
 
 #include "Core/ROM.h"
 #include "Core/ROMImage.h"
 #include "Debug/DBGConsole.h"
+#include "Interface/RomDB.h"
 #include "Math/MathUtil.h"
 #include "System/Paths.h"
 #include "Utility/IO.h"

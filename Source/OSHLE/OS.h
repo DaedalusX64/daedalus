@@ -20,8 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef OSHLE_OS_H_
 #define OSHLE_OS_H_
 
-#include "patch.h"
-#include "patch_symbols.h"
+#include "OSHLE/patch.h"
+#include "OSHLE/patch_symbols.h"
 
 #include <vector>
 

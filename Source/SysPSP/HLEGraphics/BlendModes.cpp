@@ -20,14 +20,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "BlendModes.h"
-#include "HLEGraphics/BaseRenderer.h"
-
-#include "Graphics/NativeTexture.h"
-#include "Graphics/ColourValue.h"
 
 #include "Core/ROM.h"
-
+#include "Graphics/NativeTexture.h"
+#include "Graphics/ColourValue.h"
+#include "HLEGraphics/BaseRenderer.h"
+#include "SysPSP/HLEGraphics/BlendModes.h"
 #include "Utility/Preferences.h"
 
 #include <pspgu.h>

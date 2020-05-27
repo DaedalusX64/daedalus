@@ -18,27 +18,30 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "SelectedRomComponent.h"
-
-#include "RomPreferencesScreen.h"
-#include "AdvancedOptionsScreen.h"
-#include "CheatOptionsScreen.h"
-
-#include "UIContext.h"
-#include "UIScreen.h"
-#include "UISetting.h"
-#include "UICommand.h"
-#include "UISpacer.h"
-#include "SysPSP/Graphics/DrawText.h"
-#include "Graphics/ColourValue.h"
 
 #include "Core/ROM.h"
-
+#include "Graphics/ColourValue.h"
 #include "Input/InputManager.h"
+#include "SysPSP/Graphics/DrawText.h"
+#include "SysPSP/UI/AdvancedOptionsScreen.h"
+#include "SysPSP/UI/CheatOptionsScreen.h"
+#include "SysPSP/UI/PSPMenu.h"
+#include "SysPSP/UI/RomPreferencesScreen.h"
+#include "SysPSP/UI/SelectedRomComponent.h"
+#include "SysPSP/UI/UIContext.h"
+#include "SysPSP/UI/UIScreen.h"
+#include "SysPSP/UI/UISetting.h"
+#include "SysPSP/UI/UICommand.h"
+#include "SysPSP/UI/UISpacer.h"
+
+
+
+
+
 
 #include <pspctrl.h>
 #include <pspgu.h>
-#include "PSPMenu.h"
+
 
 //
 

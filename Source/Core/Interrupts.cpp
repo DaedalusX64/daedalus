@@ -20,10 +20,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Handle interrupts etc
 #include "stdafx.h"
 
-#include "Debug/DebugLog.h"
 
-#include "CPU.h"
-#include "Interrupt.h"
+
+#include "Core/CPU.h"
+#include "Core/Interrupt.h"
+#include "Debug/DebugLog.h"
 #include "OSHLE/ultra_rcp.h"
 #include "OSHLE/ultra_R4300.h"
 #include "R4300.h"

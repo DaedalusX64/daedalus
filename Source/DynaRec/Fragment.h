@@ -20,12 +20,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef DYNAREC_FRAGMENT_H_
 #define DYNAREC_FRAGMENT_H_
 
-#include "Trace.h"
-#include "RegisterSpan.h"
+
 
 #include "Core/R4300Instruction.h"
 
-#include "AssemblyUtils.h"
+#include "DynaRec/AssemblyUtils.h"
+#include "DynaRec/Trace.h"
+#include "DynaRec/RegisterSpan.h"
 
 #include <vector>
 

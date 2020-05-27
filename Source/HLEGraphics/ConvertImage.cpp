@@ -18,20 +18,16 @@ Copyright (C) 2001 StrmnNrmn
 */
 
 #include "stdafx.h"
-#include "ConvertImage.h"
-#include "TextureInfo.h"
 
 #include "DLDebug.h"
 #include "Core/Memory.h"
 #include "Debug/DBGConsole.h"
-
-#include "RDP.h"
-#include "N64PixelFormat.h"
-
 #include "Graphics/NativePixelFormat.h"
-
+#include "HLEGraphics/ConvertImage.h"
+#include "HLEGraphics/N64PixelFormat.h"
+#include "HLEGraphics/RDP.h"
+#include "HLEGraphics/TextureInfo.h"
 #include "Math/MathUtil.h"
-
 #include "OSHLE/ultra_gbi.h"
 
 uint32_t ConvertYUV16ToRGBA8888(int Y, int U, int V)
@@ -181,12 +177,12 @@ static void ConvertGenericYUVBlocks( const TextureDestInfo & dsti, const Texture
 	u32 *		dst  = reinterpret_cast< u32 * >( dsti.Data );
 	const u8 *	src  = g_pu8RamBase;
 	u32			src_offset = ti.GetLoadAddress();
-	
+
 	u32 width = ti.GetWidth();
 	u32 height = ti.GetHeight();
-	
+
 	u32 *mb = (u32*)(src + src_offset);
-	
+
 	//yuv macro block contains 16x16 texture.
 	for (u16 h = 0; h < ti.GetHeight(); h++)
 	{
@@ -201,7 +197,7 @@ static void ConvertGenericYUVBlocks( const TextureDestInfo & dsti, const Texture
 			*(dst++) = (u32)ConvertYUV16ToRGBA8888(y1, u, v);
 		}
 	}
-	
+
 }
 
 };
@@ -330,7 +326,7 @@ struct SConvert
 												 ConvertRow< OutT, Fiddle, Swizzle >,
 												 ConvertRow< OutT, Fiddle, 0 > );
 	}
-	
+
 	template < typename OutT >
 	static inline void ConvertYUVTextureT( const TextureDestInfo & dsti, const TextureInfo & ti )
 	{
@@ -344,7 +340,7 @@ struct SConvert
 			ConvertYUVTextureT< NativePf8888 >( dsti, ti ); // NOTE: Hardcoded to RGB8888
 			return;
 		}
-		
+
 		switch( dsti.Format )
 		{
 		case TexFmt_5650:	ConvertTextureT< NativePf5650 >( dsti, ti ); return;

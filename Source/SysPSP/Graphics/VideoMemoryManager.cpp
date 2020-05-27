@@ -1,15 +1,14 @@
 // Taken from http://svn.ps2dev.org/filedetails.php?repname=psp&path=%2Ftrunk%2Fpspgl%2Fpspgl_vidmem.c&rev=0&sc=0
 
 #include "stdafx.h"
-#include "VideoMemoryManager.h"
 
 #include <stdio.h>
-
 #include <pspge.h>
 
 #include "Utility/VolatileMem.h"
 #include "Utility/MemoryHeap.h"
 #include "Math/MathUtil.h"
+#include "SysPSP/Graphics/VideoMemoryManager.h"
 
 const u32 ERAM(3 * 512 * 1024);	//Amount of extra (volatile)RAM to use for textures in addition to VRAM //Corn
 //*****************************************************************************

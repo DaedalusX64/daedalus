@@ -19,9 +19,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 
-#include "DebugLog.h"
-#include "Dump.h"
-#include "DBGConsole.h"
+#include "Debug/DebugLog.h"
+#include "Debug/Dump.h"
+#include "Debug/DBGConsole.h"
 
 #include "Utility/IO.h"
 

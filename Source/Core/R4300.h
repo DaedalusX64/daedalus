@@ -20,8 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef CORE_R4300_H_
 #define CORE_R4300_H_
 
-#include "R4300OpCode.h"
-#include "R4300Instruction.h"
+#include "Core/R4300OpCode.h"
+#include "Core/R4300Instruction.h"
 
 void R4300_CALL_TYPE R4300_SetSR( u32 new_value );
 

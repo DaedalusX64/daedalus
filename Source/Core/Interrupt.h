@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef CORE_INTERRUPT_H_
 #define CORE_INTERRUPT_H_
 
-#include "CPU.h"
+#include "Core/CPU.h"
 #include "OSHLE/ultra_R4300.h"
 
 

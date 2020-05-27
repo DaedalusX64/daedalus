@@ -20,7 +20,7 @@
 #define HLEGRAPHICS_UCODES_UCODE_H_
 
 #include "stdafx.h"
-#include "UcodeDefs.h"
+#include "HLEGraphics/uCodes/UcodeDefs.h"
 
 // Increase this everytime a new ucode table is added !
 // Do not add any custom ucode table here! instead just patch any of these 5 tables for all your custom ucode needs..

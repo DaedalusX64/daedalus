@@ -18,21 +18,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "Synchroniser.h"
+#include "Utility/Synchroniser.h"
 
 #ifdef DAEDALUS_ENABLE_SYNCHRONISATION
 
-#include "ZlibWrapper.h"
-
-#include "Math/MathUtil.h"
-
-#include "Utility/IO.h"
-
-#include "Debug/DBGConsole.h"
-#include "Debug/Dump.h"
-
 #include "Core/CPU.h"
 #include "Core/ROM.h"
+#include "Debug/DBGConsole.h"
+#include "Debug/Dump.h"
+#include "Math/MathUtil.h"
+#include "Utility/IO.h"
+#include "Utility/ZlibWrapper.h"
 
 
 //*****************************************************************************

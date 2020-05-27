@@ -18,12 +18,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "IndirectExitMap.h"
 
-#include "DynaRecProfile.h"
-#include "FragmentCache.h"
-#include "Fragment.h"
 
+#include "DynaRec/DynaRecProfile.h"
+#include "DynaRec/FragmentCache.h"
+#include "DynaRec/Fragment.h"
+#include "DynaRec/IndirectExitMap.h"
 #include "Debug/DBGConsole.h"
 
 

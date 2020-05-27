@@ -1,9 +1,10 @@
 #ifndef OSHLE_OSMESGQUEUE_H_
 #define OSHLE_OSMESGQUEUE_H_
 
-#include "ultra_os.h"
+
 
 #include "Core/Memory.h"
+#include "OSHLE/ultra_os.h"
 
 #include <stddef.h>		// ofsetof
 

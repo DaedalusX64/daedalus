@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // settings.
 
 #include "stdafx.h"
-#include "ConfigOptions.h"
+#include "Config/ConfigOptions.h"
 
 u32		gSpeedSyncEnabled			= 0;		// Enable to limit frame rate.
 bool	gDynarecEnabled				= true;		// Use dynamic recompilation

@@ -18,7 +18,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "UIContext.h"
 
 #include <psptypes.h>
 #include <pspkernel.h>
@@ -33,6 +32,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativeTexture.h"
 #include "SysPSP/Graphics/DrawText.h"
+#include "SysPSP/UI/UIContext.h"
+
 
 #define GL_TRUE                           1
 #define GL_FALSE                          0

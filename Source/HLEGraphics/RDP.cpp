@@ -19,6 +19,6 @@
 */
 
 #include "stdafx.h"
-#include "RDP.h"
+#include "HLEGraphics/RDP.h"
 
 // This needs a huge clean up or be removed as is now, it only holds debug code..

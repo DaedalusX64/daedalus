@@ -21,12 +21,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdio.h>
 
-#include "SaveState.h"
-#include "Memory.h"
-#include "CPU.h"
-#include "ROM.h"
-#include "R4300.h"
-
+#include "Core/SaveState.h"
+#include "Core/Memory.h"
+#include "Core/CPU.h"
+#include "Core/ROM.h"
+#include "Core/R4300.h"
 #include "Debug/DBGConsole.h"
 #include "Interface/RomDB.h"
 #include "Math/MathUtil.h"

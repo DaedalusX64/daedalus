@@ -18,7 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "PauseScreen.h"
+
 
 #include <stdio.h>
 
@@ -29,11 +29,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <string>
 
-#include "UIContext.h"
-#include "UIScreen.h"
-#include "AboutComponent.h"
-#include "GlobalSettingsComponent.h"
-#include "PauseOptionsComponent.h"
 
 #include "Core/CPU.h"
 #include "Core/ROM.h"
@@ -42,6 +37,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Graphics/GraphicsContext.h"
 #include "Math/MathUtil.h"
 #include "SysPSP/Graphics/DrawText.h"
+#include "SysPSP/UI/UIContext.h"
+#include "SysPSP/UI/UIScreen.h"
+#include "SysPSP/UI/AboutComponent.h"
+#include "SysPSP/UI/GlobalSettingsComponent.h"
+#include "SysPSP/UI/PauseOptionsComponent.h"
+#include "SysPSP/UI/PauseScreen.h"
 #include "SysPSP/Utility/Buttons.h"
 #include "Utility/Functor.h"
 #include "Utility/Translate.h"

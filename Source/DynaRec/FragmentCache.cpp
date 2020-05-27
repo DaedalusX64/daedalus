@@ -18,23 +18,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "stdafx.h"
-#include "FragmentCache.h"
+
 
 #include <stdio.h>
-
 #include <algorithm>
 
-#include "Fragment.h"
-#include "CodeBufferManager.h"
-#include "DynaRecProfile.h"
-
+#include "DynaRec/AssemblyUtils.h"
+#include "DynaRec/CodeBufferManager.h"
+#include "DynaRec/DynaRecProfile.h"
+#include "DynaRec/Fragment.h"
+#include "DynaRec/FragmentCache.h"
 #include "Debug/DBGConsole.h"
-
 #include "Utility/Profiler.h"
 #include "Utility/IO.h"
-
-#include "AssemblyUtils.h"
-
 
 //Define to show hash table statistics cache hit/miss
 //#define HASH_TABLE_STATS
