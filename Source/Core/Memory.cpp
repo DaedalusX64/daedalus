@@ -636,67 +636,86 @@ void MemoryUpdateSPStatus( u32 flags )
 
 	// If !HALT && !BROKE
 
-	bool start_rsp = false, stop_rsp = false;
-	u32	clr_bits = 0, set_bits = 0;
-
+	bool start_rsp = false;
+	bool stop_rsp = false;
+	
+	u32 clr_bits = 0;
+	u32 set_bits = 0;
+	
 	if (flags & SP_CLR_HALT)
 	{
 		clr_bits |= SP_STATUS_HALT;
 		start_rsp = true;
 	}
-	else if (flags & SP_SET_HALT)
+
+	if (flags & SP_SET_HALT)
 	{
 		set_bits |= SP_STATUS_HALT;
 		stop_rsp = true;
 	}
 
-	if (flags & SP_SET_INTR)	// Shouldn't ever set this?
+	if (flags & SP_CLR_BROKE)	
 	{
-		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SP);
-		R4300_Interrupt_UpdateCause3();
-	}
-	else if (flags & SP_CLR_INTR)
-	{
-		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_SP);
-		R4300_Interrupt_UpdateCause3();
+		clr_bits |= SP_STATUS_BROKE;
+		start_rsp = true;
 	}
 
-	clr_bits |= (flags & SP_CLR_BROKE) >> 1;
-	clr_bits |= (flags & SP_CLR_SSTEP);
-	clr_bits |= (flags & SP_CLR_INTR_BREAK) >> 1;
-	clr_bits |= (flags & SP_CLR_SIG0) >> 2;
-	clr_bits |= (flags & SP_CLR_SIG1) >> 3;
-	clr_bits |= (flags & SP_CLR_SIG2) >> 4;
-	clr_bits |= (flags & SP_CLR_SIG3) >> 5;
-	clr_bits |= (flags & SP_CLR_SIG4) >> 6;
-	clr_bits |= (flags & SP_CLR_SIG5) >> 7;
-	clr_bits |= (flags & SP_CLR_SIG6) >> 8;
-	clr_bits |= (flags & SP_CLR_SIG7) >> 9;
+	// No SP_SET_BROKE
+	
+	if (flags & SP_CLR_INTR)				
+	{ 
+		Memory_MI_ClrRegisterBits(MI_INTR_REG, MI_INTR_SP); 
+		R4300_Interrupt_UpdateCause3(); 
+	}
+	if (flags & SP_SET_INTR)				// Shouldn't ever set this?
+	{ 
+		Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SP); 
+		R4300_Interrupt_UpdateCause3(); 
+	}
+	if (flags & SP_CLR_SSTEP)				clr_bits |= SP_STATUS_SSTEP;
+	if (flags & SP_SET_SSTEP)				set_bits |= SP_STATUS_SSTEP;
+	if (flags & SP_CLR_INTR_BREAK)			clr_bits |= SP_STATUS_INTR_BREAK;
+	if (flags & SP_SET_INTR_BREAK)			set_bits |= SP_STATUS_INTR_BREAK;
+	if (flags & SP_CLR_SIG0)				clr_bits |= SP_STATUS_SIG0;
+	if (flags & SP_SET_SIG0)				set_bits |= SP_STATUS_SIG0;
+	if (flags & SP_CLR_SIG1)				clr_bits |= SP_STATUS_SIG1;
+	if (flags & SP_SET_SIG1)				set_bits |= SP_STATUS_SIG1;
+	if (flags & SP_CLR_SIG2)				clr_bits |= SP_STATUS_SIG2;
+	if (flags & SP_SET_SIG2)				set_bits |= SP_STATUS_SIG2;
+	if (flags & SP_CLR_SIG3)				clr_bits |= SP_STATUS_SIG3;
+	if (flags & SP_SET_SIG3)				set_bits |= SP_STATUS_SIG3;
+	if (flags & SP_CLR_SIG4)				clr_bits |= SP_STATUS_SIG4;
+	if (flags & SP_SET_SIG4)				set_bits |= SP_STATUS_SIG4;
+	if (flags & SP_CLR_SIG5)				clr_bits |= SP_STATUS_SIG5;
+	if (flags & SP_SET_SIG5)				set_bits |= SP_STATUS_SIG5;
+	if (flags & SP_CLR_SIG6)				clr_bits |= SP_STATUS_SIG6;
+	if (flags & SP_SET_SIG6)				set_bits |= SP_STATUS_SIG6;
+	if (flags & SP_CLR_SIG7)				clr_bits |= SP_STATUS_SIG7;
+	if (flags & SP_SET_SIG7)				set_bits |= SP_STATUS_SIG7;
 
-	set_bits |= (flags & SP_SET_SSTEP) >> 1;
-	set_bits |= (flags & SP_SET_INTR_BREAK) >> 2;
-	set_bits |= (flags & SP_SET_SIG0) >> 3;
-	set_bits |= (flags & SP_SET_SIG1) >> 4;
-	set_bits |= (flags & SP_SET_SIG2) >> 5;
-	set_bits |= (flags & SP_SET_SIG3) >> 6;
-	set_bits |= (flags & SP_SET_SIG4) >> 7;
-	set_bits |= (flags & SP_SET_SIG5) >> 8;
-	set_bits |= (flags & SP_SET_SIG6) >> 9;
-	set_bits |= (flags & SP_SET_SIG7) >> 10;
-
+#ifdef DAEDALUS_ENABLE_ASSERTS
 	u32 new_status = Memory_SP_SetRegisterBits( SP_STATUS_REG, ~clr_bits, set_bits );
-
+#else
+	Memory_SP_SetRegisterBits( SP_STATUS_REG, ~clr_bits, set_bits );
+#endif
 	//
 	// We execute the task here, after we've written to the SP status register.
 	//
-	if (start_rsp)
+	if( start_rsp )
 	{
-		#ifdef DAEDALUS_ENABLE_ASSERTS
-		DAEDALUS_ASSERT( (new_status & SP_STATUS_BROKE) == 0, "Unexpected RSP HLE status %08x", new_status );
-		#endif
+#ifdef DAEDALUS_ENABLE_ASSERTS
+		//DAEDALUS_ASSERT( !gRSPHLEActive, "RSP HLE already active. Status was %08x, now %08x", status, new_status );
+#endif
+
 		// Check for tasks whenever the RSP is started
 		RSP_HLE_ProcessTask();
 	}
+#ifdef DAEDALUS_ENABLE_ASSERTS	
+	else if ( stop_rsp )
+	{
+		//DAEDALUS_ASSERT( !RSP_IsRunningHLE(), "Stopping RSP while HLE task still running. Not good!" );
+	}
+#endif
 }
 
 #undef DISPLAY_DPC_WRITES
