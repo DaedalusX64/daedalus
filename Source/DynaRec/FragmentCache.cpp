@@ -99,11 +99,11 @@ CFragment * CFragmentCache::LookupFragment( u32 address ) const
 
 			// put in hash table
 			mpCacheHashTable[ix].addr = address;
-			mpCacheHashTable[ix].ptr = reinterpret_cast< u32 >( mpCachedFragment );
+			mpCacheHashTable[ix].ptr = mpCachedFragment;
 		}
 		else
 		{
-			mpCachedFragment = reinterpret_cast< CFragment * >( mpCacheHashTable[ix].ptr );
+			mpCachedFragment = mpCacheHashTable[ix].ptr;
 		}
 	}
 

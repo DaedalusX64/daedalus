@@ -512,7 +512,7 @@ inline void DLParser_Yoshi_MemRect( MicroCodeCommand command )
 	mem_rect.cmd2 = pCmdBase[1];
 
 	const RDP_Tile & rdp_tile( gRDPStateManager.GetTile( mem_rect.tile_idx ) );
-	
+
 	u32	x0 = mem_rect.x0;
 	u32	y0 = mem_rect.y0;
 	u32	y1 = mem_rect.y1;
@@ -526,8 +526,7 @@ inline void DLParser_Yoshi_MemRect( MicroCodeCommand command )
 #if 1	//1->Optimized, 0->Generic
 	// This assumes Yoshi always copy 16 bytes per line and dst is aligned and we force alignment on src!!! //Corn
 	u32 tex_width = rdp_tile.line << 3;
-	uintptr_t texaddr =
-		((uintptr_t)g_pu8RamBase + tile_addr + tex_width * (mem_rect.s >> 5) + (mem_rect.t >> 5) + 3) & ~3;
+	uintptr_t texaddr = ((uintptr_t)g_pu8RamBase + tile_addr + tex_width * (mem_rect.s >> 5) + (mem_rect.t >> 5) + 3) & ~3;
 	uintptr_t fbaddr = (uintptr_t)g_pu8RamBase + g_CI.Address + x0;
 	for (u32 y = y0; y < y1; y++)
 	{
