@@ -222,7 +222,7 @@ public:
 	// Various rendering states
 	// Don't think we need to updateshademodel, it breaks tiger's honey hunt
 #ifdef DAEDALUS_PSP
-	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags.Modes = mode; UpdateFogEnable(); /*UpdateShadeModel();*/ }
+	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags.Modes = mode; /*UpdateFogEnable(); UpdateShadeModel();*/ }
 #else
 	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags.Modes = mode; UpdateFogEnable(); /*UpdateShadeModel();*/ }
 #endif
@@ -237,7 +237,7 @@ public:
 	inline void			SetFogMinMax(f32 fog_near, f32 fog_far)	{ sceGuFog(-fog_near /2000, +fog_far /2000 , mFogColour.GetColour()); }
 	#endif
 	inline void			SetFogColour( c32 colour )				{ mFogColour = colour; }
-	
+
 	// PrimDepth will replace the z value if depth_source=1 (z range 32767-0 while PSP depthbuffer range 0-65535)//Corn
 #ifdef DAEDALUS_PSP
 	inline void			SetPrimitiveDepth( u32 z )				{ mPrimDepth = (f32)( ( ( 32767 - z ) << 1) + 1 ); }
@@ -339,7 +339,7 @@ public:
 
 protected:
 #ifdef DAEDALUS_PSP
-	inline void			UpdateFogEnable()						{ /*if(gFogEnabled) */mTnL.Flags.Fog ? sceGuEnable(GU_FOG) : sceGuDisable(GU_FOG); }
+	inline void			UpdateFogEnable()						{ if(gFogEnabled) mTnL.Flags.Fog ? sceGuEnable(GU_FOG) : sceGuDisable(GU_FOG); }
 	inline void			UpdateShadeModel()						{ sceGuShadeModel( mTnL.Flags.Shade ? GU_SMOOTH : GU_FLAT ); }
 #else
 	inline void			UpdateFogEnable()						{ if(gFogEnabled) mTnL.Flags.Fog ? glEnable(GL_FOG) : glDisable(GL_FOG); }

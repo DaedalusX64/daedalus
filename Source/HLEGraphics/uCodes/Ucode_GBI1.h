@@ -110,7 +110,7 @@ void DLParser_GBI1_Mtx( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_PopMtx( MicroCodeCommand command )
 {
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    Command: (%s)",	command.inst.cmd1 ? "Projection" : "ModelView");
 #endif
 	// Do any of the other bits do anything?
@@ -200,9 +200,6 @@ void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 {
-	static f32 old_fog_mult;
-	static f32 old_fog_offs;
-	
 	// Type of movement is in low 8bits of cmd0.
 	u32 value  = command.mw1.value;
 	u32 offset = command.mw1.offset;
@@ -247,26 +244,32 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 
 	case G_MW_FOG:	// WIP, only works for the PSP
 		{
+#ifdef DAEDALUS_PSP
 			f32 mul = (f32)(s16)(value >> 16);	//Fog mult
 			f32 offs = (f32)(s16)(value & 0xFFFF);	//Fog Offset
-			if ((old_fog_mult != mul) || (old_fog_offs != offs)) {
-				old_fog_mult = mul;
-				old_fog_offs = offs;
-#ifndef DAEDALUS_PSP
-				gRenderer->SetFogMultOffs(mul, offs);
-#else
-				f32 rng = 128000.0f / mul;
-			
-				f32 fog_near = 500 - (offs * rng / 256.0f);
-				f32 fog_far = rng + fog_near;
-				gRenderer->SetFogMinMax(fog_near, fog_far);
+
+			gRenderer->SetFogMultOffs(mul, offs);
+
+			// HW fog, only works for a few games
+#if 0
+			f32 a = f32(value >> 16);
+			f32 b = f32(value & 0xFFFF);
+
+			f32 fog_near = a / 256.0f;
+			f32 fog_far = b / 6.0f;
+
+			gRenderer->SetFogMinMax(fog_near, fog_far);
 #endif
-			}
+			//DL_PF(" G_MW_FOG. Mult = 0x%04x (%f), Off = 0x%04x (%f)", wMult, 255.0f * fMult, wOff, 255.0f * fOff );
+			//printf("1Fog %.0f | %.0f || %.0f | %.0f\n", min, max, a, b);
+#endif
 		}
 		break;
 
 	case G_MW_LIGHTCOL:
 		{
+
+
 			u32 field_offset = (offset & 0x7);
 			u32 light_idx = offset >> 5;
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
@@ -435,11 +438,7 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 	TnL.Light		= gGeometryMode.GBI1_Lighting;
 	TnL.TexGen		= gGeometryMode.GBI1_TexGen;
 	TnL.TexGenLin   = gGeometryMode.GBI1_TexGenLin;
-#ifdef DAEDALUS_PSP
-	TnL.Fog			= gGeometryMode.GBI2_Fog;
-#else
-	TnL.Fog			= gGeometryMode.GBI2_Fog & gFogEnabled;// && (gRDPOtherMode.c1_m1a==3 || gRDPOtherMode.c1_m2a==3 || gRDPOtherMode.c2_m1a==3 || gRDPOtherMode.c2_m2a==3);
-#endif
+	TnL.Fog			= gGeometryMode.GBI1_Fog & gFogEnabled;// && (gRDPOtherMode.c1_m1a==3 || gRDPOtherMode.c1_m2a==3 || gRDPOtherMode.c2_m1a==3 || gRDPOtherMode.c2_m2a==3);
 	TnL.Shade		= gGeometryMode.GBI1_Shade/* & gGeometryMode.GBI1_ShadingSmooth*/;
 	TnL.Zbuffer		= gGeometryMode.GBI1_Zbuffer;
 
@@ -459,7 +458,7 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 	DL_PF("    Texture Gen Linear %s", (gGeometryMode.GBI1_TexGenLin)	? "On" : "Off");
 	DL_PF("    Fog %s",				 (gGeometryMode.GBI1_Fog)			? "On" : "Off");
 	DL_PF("    LOD %s",				 (gGeometryMode.GBI1_Lod)			? "On" : "Off");
-#endif
+	#endif
 }
 
 //*****************************************************************************
@@ -506,7 +505,7 @@ void DLParser_GBI1_Texture( MicroCodeCommand command )
 	f32 scale_t = f32(command.texture.scaleT)  / (65535.0f * 32.0f);
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    ScaleS[%0.4f] ScaleT[%0.4f]", scale_s*32.0f, scale_t*32.0f);
-#endif
+	#endif
 	gRenderer->SetTextureScale( scale_s, scale_t );
 
 }
