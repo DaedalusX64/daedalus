@@ -36,8 +36,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "OSHLE/patch.h"
 #include "Utility/FastMemcpy.h"
 
+// 1 - Ignores IMEM for speed, its not needed for HLE RSP
+// 2 - Forces a linear transfer which assumes a count of 0 and skip of 0
+// 3 - Uses non swizle memcpy since alignment and size constrains are met 
+#ifdef DAEDALUS_PSP
+#define FAST_DMA_SP
+#endif
 
-bool gDMAUsed {false};
+bool gDMAUsed = false;
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -47,37 +53,33 @@ void DMA_SP_CopyFromRDRAM()
 	u32 rdram_address_reg = Memory_SP_GetRegister(SP_DRAM_ADDR_REG);
 	u32 rdlen_reg         = Memory_SP_GetRegister(SP_RD_LEN_REG);
 
-#ifdef DAEDALUS_PSP
-	// Ignore IMEM for speed (we don't do low-level RSP anyways on the PSP)
+	u32 rdram_address = (rdram_address_reg&0x00FFFFFF)	& ~7;	// Align to 8 byte boundary
+	u32 spmem_address = (spmem_address_reg&0x0FFF)		& ~7;	// Align to 8 byte boundary
+	u32 length = ((rdlen_reg    &0x0FFF) | 7)+1;				// Round up to 8 bytes
+
+#ifdef FAST_DMA_SP
 	if((spmem_address_reg & 0x1000) == 0)
 	{
-		//FIXME(strmnnrmn): shouldn't this be using _swizzle?
-		//No swizzle is okay since alignment and size constrains are met //Salvy
-		fast_memcpy(&g_pu8SpMemBase[(spmem_address_reg & 0xFFF)],
-					&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)], (rdlen_reg & 0xFFF) + 1);
+		fast_memcpy(&g_pu8SpMemBase[spmem_address], &g_pu8RamBase[rdram_address], length);
 	}
 #else
-
-	u32 rdram_address = (rdram_address_reg&0x00FFFFFF)	& ~7;	// Align to 8 byte boundary
-	u32 spmem_address = (spmem_address_reg&0x1FFF)		& ~7;	// Align to 8 byte boundary
-	u32 length = ((rdlen_reg    &0x0FFF) | 7)+1;					// Round up to 8 bytes
 	u32 count  = ((rdlen_reg>>12)&0x00FF)+1;
 	u32 skip   = ((rdlen_reg>>20)&0x0FFF);
+	u32 rdram_address_end = rdram_address + ((length + skip) * count);
+
+	// Conker needs this
+	if ( rdram_address_end > gRamSize )
+	{
+		DBGConsole_Msg( 0, "SP DMA from RDRAM (0x%08x) overflows", rdram_address );
+		return;
+	}
 
 	for (u32 c = 0; c < count; c++ )
 	{
-		// Conker needs this
-		if ( rdram_address  > gRamSize )
-		{
-			//DBGConsole_Msg( 0, "(0x%08x) (0x%08x)", spmem_address, rdram_address );
-			break;
-		}
 		fast_memcpy_swizzle( &g_pu8SpMemBase[spmem_address], &g_pu8RamBase[rdram_address], length );
-
 		rdram_address += length + skip;
 		spmem_address += length;
 	}
-
 #endif
 
 	//Clear the DMA Busy
@@ -94,37 +96,32 @@ void DMA_SP_CopyToRDRAM()
 	u32 rdram_address_reg = Memory_SP_GetRegister(SP_DRAM_ADDR_REG);
 	u32 wrlen_reg         = Memory_SP_GetRegister(SP_WR_LEN_REG);
 
-#ifdef DAEDALUS_PSP
-	// Ignore IMEM for speed (we don't do low-level RSP anyways on the PSP)
+	u32 rdram_address = (rdram_address_reg&0x00FFFFFF)	& ~7;	// Align to 8 byte boundary
+	u32 spmem_address = (spmem_address_reg&0x0FFF)		& ~7;	// Align to 8 byte boundary
+	u32 length = ((wrlen_reg    &0x0FFF) | 7)+1;				// Round up to 8 bytes
+
+#ifdef FAST_DMA_SP
 	if((spmem_address_reg & 0x1000) == 0)
 	{
-		//FIXME(strmnnrmn): shouldn't this be using _swizzle?
-		//No swizzle is okay since alignment and size constrains are met //Salvy
-		fast_memcpy(&g_pu8RamBase[(rdram_address_reg & 0xFFFFFF)],
-					&g_pu8SpMemBase[(spmem_address_reg & 0xFFF)], (wrlen_reg & 0xFFF) + 1);
+		fast_memcpy(&g_pu8RamBase[rdram_address], &g_pu8SpMemBase[spmem_address], length);
 	}
-
 #else
-	u32 rdram_address = (rdram_address_reg&0x00FFFFFF)	& ~7;	// Align to 8 byte boundary
-	u32 spmem_address = (spmem_address_reg&0x1FFF)		& ~7;	// Align to 8 byte boundary
-	u32 length = ((wrlen_reg    &0x0FFF) | 7)+1;				// Round up to 8 bytes
 	u32 count  = ((wrlen_reg>>12)&0x00FF)+1;
 	u32 skip   = ((wrlen_reg>>20)&0x0FFF);
+	u32 rdram_address_end = rdram_address + ((length + skip) * count);
+
+	if ( rdram_address_end > gRamSize )
+	{
+		DBGConsole_Msg( 0, "SP DMA to RDRAM (0x%08x) overflows", rdram_address );
+		return;
+	}
 
 	for ( u32 c = 0; c < count; c++ )
 	{
-		#ifdef DAEDALUS_DEBUG_CONSOLE
-		if ( rdram_address  > gRamSize )
-		{
-			//DBGConsole_Msg( 0, "(0x%08x) (0x%08x)", spmem_address, rdram_address );
-			break;
-		}
-		#endif
 		fast_memcpy_swizzle( &g_pu8RamBase[rdram_address], &g_pu8SpMemBase[spmem_address], length );
 		rdram_address += length + skip;
 		spmem_address += length;
 	}
-
 #endif
 
 	//Clear the DMA Busy
@@ -139,16 +136,15 @@ void DMA_SP_CopyToRDRAM()
 void DMA_SI_CopyFromDRAM( )
 {
 	u32 mem  = Memory_SI_GetRegister(SI_DRAM_ADDR_REG) & 0x1fffffff;
-	u32 * p_dst = (u32 *)g_pMemoryBuffers[MEM_PIF_RAM];
-	u32 * p_src = (u32 *)(g_pu8RamBase + mem);
+	u32 * dst = (u32 *)g_pMemoryBuffers[MEM_PIF_RAM];
+	u32 * src = (u32 *)(g_pu8RamBase + mem);
 
 #ifdef DAEDLAUS_PROFILER
 	DPF( DEBUG_MEMORY_PIF, "DRAM (0x%08x) -> PIF Transfer ", mem );
 #endif
-	// Fuse 4 reads and 4 writes to just one which is a lot faster - Corn
 	for(u32 i = 0; i < 16; i++)
 	{
-		p_dst[i] = BSWAP32(p_src[i]);
+		dst[i] = BSWAP32(src[i]);
 	}
 
 	Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
@@ -165,18 +161,16 @@ void DMA_SI_CopyToDRAM( )
 	CController::Get()->Process();
 
 	u32 mem = Memory_SI_GetRegister(SI_DRAM_ADDR_REG) & 0x1fffffff;
-	u32 * p_src = (u32 *)g_pMemoryBuffers[MEM_PIF_RAM];
-	u32 * p_dst = (u32 *)(g_pu8RamBase + mem);
+	u32 * src = (u32 *)g_pMemoryBuffers[MEM_PIF_RAM];
+	u32 * dst = (u32 *)(g_pu8RamBase + mem);
 
 #ifdef DAEDLAUS_PROFILER
 	DPF( DEBUG_MEMORY_PIF, "PIF -> DRAM (0x%08x) Transfer ", mem );
 #endif
-	// Fuse 4 reads and 4 writes to just one which is a lot faster - Corn
 	for(u32 i = 0; i < 16; i++)
 	{
-		p_dst[i] = BSWAP32(p_src[i]);
+		dst[i] = BSWAP32(src[i]);
 	}
-
 
 	Memory_SI_SetRegisterBits(SI_STATUS_REG, SI_STATUS_INTERRUPT);
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_SI);
@@ -251,6 +245,12 @@ void DMA_PI_CopyToRDRAM()
 	u32 pi_length_reg = (Memory_PI_GetRegister(PI_WR_LEN_REG) & 0xFFFFFFFF) + 1;
 	bool copy_succeeded = false;
 
+	if( pi_length_reg & 0x1 )
+	{
+		DBGConsole_Msg(0, "PI DMA odd length");
+		pi_length_reg++;
+	}
+
 	DPF( DEBUG_MEMORY_PI, "PI: Copying %d bytes of data from 0x%08x to 0x%08x", pi_length_reg, cart_address, mem_address );
 
 	if ( IsDom2Addr1( cart_address ))
@@ -270,7 +270,6 @@ void DMA_PI_CopyToRDRAM()
 	}
 	else if ( IsDom2Addr2( cart_address ) )
 	{
-
 		//DBGConsole_Msg(0, "[YReading from Cart domain 2/addr2]");
 		const u8* p_src    = (const u8*)g_pMemoryBuffers[MEM_SAVE];
 		u32       src_size = (MemoryRegionSizes[MEM_SAVE]);
@@ -281,7 +280,6 @@ void DMA_PI_CopyToRDRAM()
 		else
 			copy_succeeded = DMA_FLASH_CopyToDRAM(mem_address, cart_address, pi_length_reg);
 
-
 	}
 	else if ( IsDom1Addr2( cart_address ) )
 	{
@@ -289,7 +287,6 @@ void DMA_PI_CopyToRDRAM()
 		cart_address -= PI_DOM1_ADDR2;
 		CPU_InvalidateICacheRange( 0x80000000 | mem_address, pi_length_reg );
 		copy_succeeded = RomBuffer::CopyToRam( g_pu8RamBase, mem_address, gRamSize, cart_address, pi_length_reg );
-
 
 	}
 	else if ( IsDom1Addr3( cart_address ) )
@@ -308,6 +305,7 @@ void DMA_PI_CopyToRDRAM()
 	{
 		OnCopiedRom();
 	}
+#ifdef DAEDALUS_DEBUG_CONSOLE	
 	else
 	{
 		DBGConsole_Msg(0, "PI: Copying 0x%08x bytes of data from 0x%08x to 0x%08x",
@@ -318,7 +316,7 @@ void DMA_PI_CopyToRDRAM()
 		DBGConsole_Msg(0, "PIXFer: Not copying, but issuing interrupt");
 		DAEDALUS_ERROR("x");
 	}
-
+#endif
 	Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_PI);
 	R4300_Interrupt_UpdateCause3();
@@ -332,6 +330,13 @@ void DMA_PI_CopyFromRDRAM()
 	u32 cart_address = Memory_PI_GetRegister(PI_CART_ADDR_REG)  & 0xFFFFFFFF;
 	u32 pi_length_reg = (Memory_PI_GetRegister(PI_RD_LEN_REG)  & 0xFFFFFFFF) + 1;
 	bool copy_succeeded = false;
+
+	if( pi_length_reg & 0x1 )
+	{
+		//This makes Doraemon 3 work
+		DBGConsole_Msg(0, "PI DMA odd length");
+		pi_length_reg++;
+	}
 
 	DPF(DEBUG_MEMORY_PI, "PI: Copying %d bytes of data from 0x%08x to 0x%08x", pi_length_reg, mem_address, cart_address );
 
@@ -362,6 +367,7 @@ void DMA_PI_CopyFromRDRAM()
 			copy_succeeded = DMA_HandleTransfer( p_dst, cart_address, dst_size, g_pu8RamBase, mem_address, gRamSize, pi_length_reg );
 		else
 			copy_succeeded = DMA_FLASH_CopyFromDRAM(mem_address, pi_length_reg);
+
 		Save_MarkSaveDirty();
 	}
 	else if ( IsDom1Addr2( cart_address ) )
@@ -381,18 +387,15 @@ void DMA_PI_CopyFromRDRAM()
 		DBGConsole_Msg(0, "[YUnknown PI Address 0x%08x]", cart_address);
 	}
 
-	if(copy_succeeded)
-	{
-		// Nothing todo
-	}
-	else
+#ifdef DAEDALUS_DEBUG_CONSOLE
+	if(!copy_succeeded)
 	{
 		DBGConsole_Msg(0, "PI: Copying %d bytes of data from 0x%08x to 0x%08x",
 			pi_length_reg, mem_address, cart_address);
 		DBGConsole_Msg(0, "PIXFer: Copy overlaps RAM/ROM boundary");
 		DBGConsole_Msg(0, "PIXFer: Not copying, but issuing interrupt");
 	}
-
+#endif
 	Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);
 	Memory_MI_SetRegisterBits(MI_INTR_REG, MI_INTR_PI);
 	R4300_Interrupt_UpdateCause3();
