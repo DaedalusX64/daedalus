@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "Core/CPU.h"
 #include "Core/DMA.h"
+#include "Core/FlashMem.h"
 #include "Core/Interrupt.h"
 #include "Core/Memory.h"
 #include "Core/ROM.h"
@@ -58,11 +59,6 @@ static void MemoryUpdatePI( u32 value );
 static void MemoryUpdatePIF();
 
 static void Memory_InitTables();
-
-// Flash RAM Support
-extern u32 FlashStatus[2];
-void Flash_DoCommand(u32);
-void Flash_Init();
 
 const u32 MemoryRegionSizes[NUM_MEM_BUFFERS] =
 {

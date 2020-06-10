@@ -421,8 +421,7 @@ static void WriteValue_9FC0_9FCF( u32 address, u32 value )
 
 static void WriteValue_FlashRam( u32 address, u32 value )
 {
-	u32 offset = address & 0xFF;
-	if (g_ROM.settings.SaveType == SAVE_TYPE_FLASH && offset == 0)
+	if (g_ROM.settings.SaveType == SAVE_TYPE_FLASH)
 	{
 		if ((address&0x1FFFFFFF) == FLASHRAM_WRITE_ADDR)
 		{
@@ -430,18 +429,20 @@ static void WriteValue_FlashRam( u32 address, u32 value )
 			return;
 		}
 	}
-	#ifdef DAEDALUS_DEBUG_CONSOLE
+	else
+	{
+		DAEDALUS_ERROR("ROM is accessing a Flashram region, but save type is not correct");
+	}
+	
 	DBGConsole_Msg(0, "[GWrite to FlashRam (0x%08x) is invalid", address);
-	#endif
 }
 
 static void WriteValue_ROM( u32 address, u32 value )
 {
 	// Write to ROM support
 	// A Bug's Life and Toy Story 2 write to ROM, add support by storing written value which is used when reading from Rom.
+	// TODO: Make this more robust.. // Salvy
 	g_pWriteRom = value;
-	#ifdef DAEDALUS_DEBUG_CONSOLE
 	DBGConsole_Msg(0, "[YWarning : Wrote to ROM -> [0x%08x]", value);
-	#endif
 	g_RomWritten = true;
 }

@@ -179,26 +179,39 @@ static void * Read_8480_848F( u32 address )
 
 static void * ReadFlashRam( u32 address )
 {
-	u32 offset = address & 0xFF;
-	if (g_ROM.settings.SaveType == SAVE_TYPE_FLASH && offset == 0)
+	if (g_ROM.settings.SaveType == SAVE_TYPE_FLASH)
 	{
 		if ((address&0x1FFFFFFF) == FLASHRAM_READ_ADDR)
+		{
 			return (u8 *)&FlashStatus[0];
+		}
 	}
-#ifdef DAEDALUS_DEBUG_CONSOLE
+	else
+	{
+		DAEDALUS_ERROR("ROM is accessing a Flashram region, but save type is not correct");
+	}
+
 	DBGConsole_Msg(0, "[GRead from FlashRam (0x%08x) is invalid", address);
-	#endif
-	return ReadInvalid(address);
+	return g_pMemoryBuffers[MEM_UNUSED];
 }
 
 static void * ReadROM( u32 address )
 {
+	// TODO: Make this more robust.. // Salvy
 	if (g_RomWritten)
 	{
 		g_RomWritten = false;
 		return (u8 *)&g_pWriteRom;
 	}
-	return RomBuffer::GetAddressRaw( (address & 0x03FFFFFF) );
+
+	void * p_mem = RomBuffer::GetAddressRaw( (address & 0x03FFFFFF) );
+	if (p_mem != nullptr)
+	{
+		return p_mem;
+	}
+
+	DBGConsole_Msg(0, "[GRead from Rom its out of range!] 0x%08x 0x%08x", address, RomBuffer::GetRomSize());
+	return g_pMemoryBuffers[MEM_UNUSED];
 }
 
 // 0x1FC0 0000 to 0x1FC0 07BF PIF Boot ROM (Ignored)

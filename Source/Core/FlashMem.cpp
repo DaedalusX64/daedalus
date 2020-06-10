@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 #include "Debug/DBGConsole.h"
+#include "Core/FlashMem.h"
 #include "Core/Memory.h"
 #include "Core/DMA.h"
 #include "Core/ROM.h"
@@ -26,9 +27,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 u32 FlashStatus[2];
 u32 FlashRAM_Offset = 0;
-u8  FlashBlock[128];
+static u8 FlashBlock[128];
 
-enum TFlashRam_Modes {
+enum TFlashRam_Types
+{
+    MX29L1100_ID = 0x00c2001e,
+    MX29L1101_ID = 0x00c2001d,
+    MN63F8MPN_ID = 0x003200f1,
+};
+
+enum TFlashRam_Modes 
+{
 	FLASHRAM_MODE_NOPES = 0,
 	FLASHRAM_MODE_ERASE = 1,
 	FLASHRAM_MODE_WRITE,
@@ -37,15 +46,12 @@ enum TFlashRam_Modes {
 };
 TFlashRam_Modes FlashFlag = FLASHRAM_MODE_NOPES;
 
-#define FLASH_COMMAND_XXX 0x
-
-#define SetFlashStatus(x) FlashStatus[0] = (u32)((x)>> 32), FlashStatus[1] = (u32)(x)
-
 void Flash_Init()
 {
 	FlashFlag = FLASHRAM_MODE_NOPES;
+	FlashRAM_Offset = 0;
 	FlashStatus[0] = 0;
-	FlashStatus[1] = 0;
+	FlashStatus[1] = MX29L1100_ID;	// Default to MX29L1100 as it is the most common one and is what pj64 uses
 }
 
 bool DMA_FLASH_CopyToDRAM(u32 dest, u32 StartOffset, u32 len)
@@ -55,13 +61,10 @@ bool DMA_FLASH_CopyToDRAM(u32 dest, u32 StartOffset, u32 len)
 	case FLASHRAM_MODE_READ:
 		{
 			StartOffset = StartOffset << 1;
-			DMA_HandleTransfer( g_pu8RamBase, dest, gRamSize, (u8*)g_pMemoryBuffers[MEM_SAVE], StartOffset, MemoryRegionSizes[MEM_SAVE], len );
-			return true;
+			return DMA_HandleTransfer( g_pu8RamBase, dest, gRamSize, (u8*)g_pMemoryBuffers[MEM_SAVE], StartOffset, MemoryRegionSizes[MEM_SAVE], len );
 		}
 	case FLASHRAM_MODE_STATUS:
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT(len == sizeof(u32) * 2, "Len is not correct when fetch status.");
-		#endif
 		*(u32 *)(g_pu8RamBase + dest) = FlashStatus[0];
 		*(u32 *)(g_pu8RamBase + dest + sizeof(u32)) = FlashStatus[1];
 		return true;
@@ -74,24 +77,21 @@ bool DMA_FLASH_CopyFromDRAM(u32 dest, u32 len)
 {
 	if(FlashFlag == FLASHRAM_MODE_WRITE )
 	{
-		DMA_HandleTransfer( FlashBlock, 0, 128, g_pu8RamBase, dest, gRamSize, len );
-		return true;
+		return DMA_HandleTransfer( FlashBlock, 0, 128, g_pu8RamBase, dest, gRamSize, len );
 	}
 	return false;
 }
 
 void Flash_DoCommand(u32 FlashRAM_Command)
 {
-	switch (FlashRAM_Command & 0xFF000000) {
+	switch (FlashRAM_Command & 0xFF000000) 
+	{
 	case 0xD2000000:
-		switch (FlashFlag) {
-				#ifdef DAEDALUS_DEBUG_CONSOLE
-			DBGConsole_Msg(0, "Writing %X to flash ram command register\nFlashFlag: %d",FlashRAM_Command,FlashFlag);
-			#endif
+		switch (FlashFlag) 
+		{
+			//DBGConsole_Msg(0, "Writing to FlashRam command: 0x%08x - mode: %d",FlashRAM_Command, FlashFlag);
 			case FLASHRAM_MODE_NOPES:
-				break;
 			case FLASHRAM_MODE_READ:
-				break;
 			case FLASHRAM_MODE_STATUS:
 				break;
 			case FLASHRAM_MODE_ERASE:
@@ -102,42 +102,38 @@ void Flash_DoCommand(u32 FlashRAM_Command)
 				memcpy((u8*)g_pMemoryBuffers[MEM_SAVE] + FlashRAM_Offset, FlashBlock, 128);
 				Save_MarkSaveDirty();
 				break;
-								#ifdef DAEDALUS_DEBUG_CONSOLE
 			default:
-				DBGConsole_Msg(0, "Writing %X to flash ram command register\nFlashFlag: %d",FlashRAM_Command,FlashFlag);
-				#endif
+				DBGConsole_Msg(0, "Warning: Unknown FlashRam mode: %d", FlashFlag);
+				break;
 		}
 		FlashFlag = FLASHRAM_MODE_NOPES;
 		break;
 	case 0xE1000000:
 		FlashFlag = FLASHRAM_MODE_STATUS;
-		SetFlashStatus(0x1111800100C20000LL);
+		FlashStatus[0] = 0x11118001;
 		break;
 	case 0xF0000000:
 		FlashFlag = FLASHRAM_MODE_READ;
-		SetFlashStatus(0x11118004F0000000LL);
+		FlashStatus[0] = 0x11118004;
 		break;
 	case 0x4B000000:
-		//FlashFlag = FLASHRAM_MODE_ERASE;
 		FlashRAM_Offset = (FlashRAM_Command & 0xffff) * 128;
 		break;
 	case 0x78000000:
 		FlashFlag = FLASHRAM_MODE_ERASE;
-		SetFlashStatus(0x1111800800C20000LL);
+		FlashStatus[0] = 0x11118008;
 		break;
 	case 0xB4000000:
-		FlashFlag = FLASHRAM_MODE_WRITE; //????
+		FlashFlag = FLASHRAM_MODE_WRITE;
 		break;
 	case 0xA5000000:
 		FlashRAM_Offset = (FlashRAM_Command & 0xffff) * 128;
-		SetFlashStatus(0x1111800400C20000LL);
+		FlashStatus[0] = 0x11118004;
 		break;
 	case 0x00000000:
 		break;
-			#ifdef DAEDALUS_DEBUG_CONSOLE
 	default:
-
-		DBGConsole_Msg(0, "Writing %X to flash ram command register",FlashRAM_Command);
-		#endif
+		DBGConsole_Msg(0, "Warning: Unknown FlashRam command: 0x%08x",FlashRAM_Command);
+		break;
 	}
 }
