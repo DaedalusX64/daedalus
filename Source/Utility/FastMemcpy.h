@@ -4,7 +4,6 @@
 
 #include <stdlib.h>
 
-// Define to profile memcpys (PSP only!)
 //#define PROFILE_MEMCPY
 
 #ifdef PROFILE_MEMCPY

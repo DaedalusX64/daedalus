@@ -60,7 +60,7 @@ void DMA_SP_CopyFromRDRAM()
 #ifdef FAST_DMA_SP
 	if((spmem_address_reg & 0x1000) == 0)
 	{
-		fast_memcpy(&g_pu8SpMemBase[spmem_address], &g_pu8RamBase[rdram_address], length);
+		fast_memcpy(&g_pu8SpDmemBase[spmem_address], &g_pu8RamBase[rdram_address], length);
 	}
 #else
 	u32 count  = ((rdlen_reg>>12)&0x00FF)+1;
@@ -74,11 +74,14 @@ void DMA_SP_CopyFromRDRAM()
 		return;
 	}
 
+	u8 *spmem = (spmem_address_reg & 0x1000)  == 0 ? g_pu8SpDmemBase + spmem_address : g_pu8SpImemBase + spmem_address;
+    u8 *rdram = g_pu8RamBase + rdram_address;
+
 	for (u32 c = 0; c < count; c++ )
 	{
-		fast_memcpy_swizzle( &g_pu8SpMemBase[spmem_address], &g_pu8RamBase[rdram_address], length );
-		rdram_address += length + skip;
-		spmem_address += length;
+		fast_memcpy_swizzle( spmem, rdram, length );
+		rdram += length + skip;
+		spmem += length;
 	}
 #endif
 
@@ -103,7 +106,7 @@ void DMA_SP_CopyToRDRAM()
 #ifdef FAST_DMA_SP
 	if((spmem_address_reg & 0x1000) == 0)
 	{
-		fast_memcpy(&g_pu8RamBase[rdram_address], &g_pu8SpMemBase[spmem_address], length);
+		fast_memcpy(&g_pu8RamBase[rdram_address], &g_pu8SpDmemBase[spmem_address], length);
 	}
 #else
 	u32 count  = ((wrlen_reg>>12)&0x00FF)+1;
@@ -116,18 +119,20 @@ void DMA_SP_CopyToRDRAM()
 		return;
 	}
 
+	u8 *spmem = (spmem_address_reg & 0x1000) == 0 ? g_pu8SpDmemBase + spmem_address : g_pu8SpImemBase + spmem_address;
+    u8 *rdram = g_pu8RamBase + rdram_address;
+
 	for ( u32 c = 0; c < count; c++ )
 	{
-		fast_memcpy_swizzle( &g_pu8RamBase[rdram_address], &g_pu8SpMemBase[spmem_address], length );
-		rdram_address += length + skip;
-		spmem_address += length;
+		fast_memcpy_swizzle( rdram, spmem, length );
+		rdram += length + skip;
+		spmem += length;
 	}
 #endif
 
 	//Clear the DMA Busy
 	Memory_SP_SetRegister(SP_DMA_BUSY_REG, 0);
 	Memory_SP_ClrRegisterBits(SP_STATUS_REG, SP_STATUS_DMA_BUSY);
-
 }
 
 //*****************************************************************************
