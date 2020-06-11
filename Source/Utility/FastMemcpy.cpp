@@ -41,11 +41,12 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 		if(size>=4)
 		{
 			u32 src_alignment = (uintptr_t)src8&0x3;
-			if (src_alignment == 0)	//Both src and dst are aligned to 4 bytes
+			if (src_alignment == 0)		// We are now both dst and src aligned and >= 4 bytes to copy 
 			{
-#if defined(DAEDALUS_POSIX) || defined(DAEDALUS_W32)	// memcpy is almost 50% faster for windows and linux
+#if defined(DAEDALUS_POSIX) || defined(DAEDALUS_W32)	
 				u32 size_aligned = (size & ~0x3);
-
+				
+				// memcpy is almost 50% faster for windows and linux
 				memcpy(dst8, src8, size_aligned);
 				src8 += size_aligned;
 				dst8 += size_aligned;
@@ -76,60 +77,53 @@ void memcpy_byteswap( void* dst, const void* src, size_t size )
 				dst8 = (u8*)dst32;
 #endif
 			}
-			else	//We are now dst =aligned and src unligned and >= 4 bytes to copy
+			else	// We are now dst aligned and src unligned and >= 4 bytes to copy
 			{
 				u32* src32 = (u32*)((uintptr_t)src8 & ~0x3);
 				u32* dst32 = (u32*)dst8;
 				u32 srcTmp = *src32++;
 				u32 dstTmp = 0;
 				u32 size32 = size >> 2;
-
+	
 				switch( src_alignment )
 				{
 				case 1:
+					while(size32--)
 					{
-						while(size32--)
-						{
-							dstTmp = srcTmp << 8;
-							srcTmp = *src32++;
-							*dst32++ = dstTmp | (srcTmp >> 24);
-						}
+						dstTmp = srcTmp << 8;
+						srcTmp = *src32++;
+						*dst32++ = dstTmp | (srcTmp >> 24);
 					}
 					break;
-
 				case 2:
+					while(size32--)
 					{
-						while(size32--)
-						{
-							dstTmp = srcTmp << 16;
-							srcTmp = *src32++;
-							*dst32++ = dstTmp | (srcTmp >> 16);
-						}
+						dstTmp = srcTmp << 16;
+						srcTmp = *src32++;
+						*dst32++ = dstTmp | (srcTmp >> 16);
 					}
 					break;
-
 				case 3:
+					while(size32--)
 					{
-						while(size32--)
-						{
-							dstTmp = srcTmp << 24;
-							srcTmp = *src32++;
-							*dst32++ = dstTmp | (srcTmp >> 8);
-						}
+						dstTmp = srcTmp << 24;
+						srcTmp = *src32++;
+						*dst32++ = dstTmp | (srcTmp >> 8);
+						
 					}
 					break;
 				}
-				src8 = (u8*)(src32 - (4 - src_alignment));
+				src8 = (u8*)src32 - (4-src_alignment);
 				dst8 = (u8*)dst32;
 			}
 		}
 	}
 
 	// Copy any remaining byte by byte...
-	while(size & 0x3)
+	size &= 0x03;
+	while(size--)
 	{
 		*(u8*)((uintptr_t)dst8++ ^ U8_TWIDDLE) = *(u8*)((uintptr_t)src8++ ^ U8_TWIDDLE);
-		size--;
 	}
 }
 
@@ -168,7 +162,7 @@ static inline u64 GetCurrent()
 			byteswap_copy(d, s, n);												\
 		_copy_byteswap = (u32)(GetCurrent()-time);								\
 	}																			\
-	printf("%ld bytes | BYTE COPY %d | MEMCPY SWIZZLE %d\n", n, _copy_byteswap, _fast_memcpy_swizzle); \
+	printf("%ld bytes | BYTESWAP COPY %d | MEMCPY SWIZZLE %d\n", n, _copy_byteswap, _fast_memcpy_swizzle); \
 	}
 
 void memcpy_test( void * dst, const void * src, size_t size )
