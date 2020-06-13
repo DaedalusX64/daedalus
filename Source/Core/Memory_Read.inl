@@ -197,20 +197,13 @@ static void * ReadFlashRam( u32 address )
 
 static void * ReadROM( u32 address )
 {
-	// TODO: Make this more robust.. // Salvy
-	if (g_RomWritten)
-	{
-		g_RomWritten = false;
-		return (u8 *)&g_pWriteRom;
-	}
-
-	void * p_mem = RomBuffer::GetAddressRaw( (address & 0x03FFFFFF) );
+	void * p_mem = RomBuffer::GetAddressRaw( address & 0x03FFFFFF );
 	if (p_mem != nullptr)
 	{
 		return p_mem;
 	}
 
-	DBGConsole_Msg(0, "[GRead from Rom its out of range!] 0x%08x 0x%08x", address, RomBuffer::GetRomSize());
+	DBGConsole_Msg(0, "[GRead from Rom (0x%08x) is invalid", address);
 	return g_pMemoryBuffers[MEM_UNUSED];
 }
 

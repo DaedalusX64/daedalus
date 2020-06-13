@@ -441,8 +441,6 @@ static void WriteValue_ROM( u32 address, u32 value )
 {
 	// Write to ROM support
 	// A Bug's Life and Toy Story 2 write to ROM, add support by storing written value which is used when reading from Rom.
-	// TODO: Make this more robust.. // Salvy
-	g_pWriteRom = value;
-	DBGConsole_Msg(0, "[YWarning : Wrote to ROM -> [0x%08x]", value);
-	g_RomWritten = true;
+	DBGConsole_Msg(0, "[YWarning : Wrote to ROM ->] 0x%08x", value);
+	RomBuffer::SaveRomValue( value );
 }

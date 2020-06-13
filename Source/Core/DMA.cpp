@@ -74,8 +74,8 @@ void DMA_SP_CopyFromRDRAM()
 		return;
 	}
 
-	u8 *spmem = (spmem_address_reg & 0x1000)  == 0 ? g_pu8SpDmemBase + spmem_address : g_pu8SpImemBase + spmem_address;
-    u8 *rdram = g_pu8RamBase + rdram_address;
+	u8 * rdram = g_pu8RamBase + rdram_address;
+	u8 * spmem = (spmem_address_reg & 0x1000)  == 0 ? g_pu8SpDmemBase + spmem_address : g_pu8SpImemBase + spmem_address;
 
 	for (u32 c = 0; c < count; c++ )
 	{
@@ -119,8 +119,8 @@ void DMA_SP_CopyToRDRAM()
 		return;
 	}
 
-	u8 *spmem = (spmem_address_reg & 0x1000) == 0 ? g_pu8SpDmemBase + spmem_address : g_pu8SpImemBase + spmem_address;
-    u8 *rdram = g_pu8RamBase + rdram_address;
+	u8 * rdram = g_pu8RamBase + rdram_address;
+	u8 * spmem = (spmem_address_reg & 0x1000)  == 0 ? g_pu8SpDmemBase + spmem_address : g_pu8SpImemBase + spmem_address;
 
 	for ( u32 c = 0; c < count; c++ )
 	{
@@ -144,9 +144,8 @@ void DMA_SI_CopyFromDRAM( )
 	u32 * dst = (u32 *)g_pMemoryBuffers[MEM_PIF_RAM];
 	u32 * src = (u32 *)(g_pu8RamBase + mem);
 
-#ifdef DAEDLAUS_PROFILER
 	DPF( DEBUG_MEMORY_PIF, "DRAM (0x%08x) -> PIF Transfer ", mem );
-#endif
+
 	for(u32 i = 0; i < 16; i++)
 	{
 		dst[i] = BSWAP32(src[i]);
@@ -169,9 +168,8 @@ void DMA_SI_CopyToDRAM( )
 	u32 * src = (u32 *)g_pMemoryBuffers[MEM_PIF_RAM];
 	u32 * dst = (u32 *)(g_pu8RamBase + mem);
 
-#ifdef DAEDLAUS_PROFILER
 	DPF( DEBUG_MEMORY_PIF, "PIF -> DRAM (0x%08x) Transfer ", mem );
-#endif
+
 	for(u32 i = 0; i < 16; i++)
 	{
 		dst[i] = BSWAP32(src[i]);
@@ -319,7 +317,6 @@ void DMA_PI_CopyToRDRAM()
 			Memory_PI_GetRegister(PI_DRAM_ADDR_REG));
 		DBGConsole_Msg(0, "PIXFer: Copy overlaps RAM/ROM boundary");
 		DBGConsole_Msg(0, "PIXFer: Not copying, but issuing interrupt");
-		DAEDALUS_ERROR("x");
 	}
 #endif
 	Memory_PI_ClrRegisterBits(PI_STATUS_REG, PI_STATUS_DMA_BUSY);

@@ -40,14 +40,16 @@ extern bool PSP_IS_SLIM;
 
 namespace
 {
-	bool			sRomLoaded( false );
-	u8 *			spRomData( nullptr );
-	u32				sRomSize( 0 );
-	bool			sRomFixed( false );
-	ROMFileCache *	spRomFileCache( nullptr );
+	bool			sRomLoaded	= false;
+	u8 *			spRomData	= nullptr;
+	u32				sRomSize	= 0;
+	bool			sRomFixed	= false;
+	bool			sRomWritten	= false;
+	u32				sRomValue	= 0;
+	ROMFileCache *	spRomFileCache	= nullptr;
 
 #ifdef DAEDALUS_COMPRESSED_ROM_SUPPORT
-	static bool		DECOMPRESS_ROMS( true );
+	static bool		DECOMPRESS_ROMS	= true;
 #endif
 	// Maximum read length is 8 bytes (i.e. double, u64)
 	const u32		SCRATCH_BUFFER_LENGTH = 16;
@@ -182,17 +184,14 @@ bool RomBuffer::Open()
 	ROMFile *    p_rom_file = ROMFile::Create( filename );
 	if(p_rom_file == nullptr)
 	{
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "Failed to create [C%s]\n", filename);
-		#endif
 		return false;
 	}
 
 	if( !p_rom_file->Open( messages ) )
 	{
-		#ifdef DAEDALUS_DEBUG_CONSOLE
+
 		DBGConsole_Msg(0, "Failed to open [C%s]\n", filename);
-		#endif
 		delete p_rom_file;
 		return false;
 	}
@@ -304,9 +303,8 @@ bool RomBuffer::Open()
 		spRomFileCache->Open( p_rom_file );
 		sRomFixed = false;
 	}
-	#ifdef DAEDALUS_DEBUG_CONSOLE
+
 	DBGConsole_Msg(0, "Opened [C%s]\n", filename);
-	#endif
 	sRomLoaded = true;
 	return true;
 }
@@ -332,6 +330,8 @@ void	RomBuffer::Close()
 	sRomSize   = 0;
 	sRomLoaded = false;
 	sRomFixed  = false;
+	sRomWritten = false;
+	sRomValue	= 0;
 }
 
 bool	RomBuffer::IsRomLoaded() { return sRomLoaded; }
@@ -363,9 +363,8 @@ namespace
 			u32		bytes_remaining_in_chunk( chunk_size - offset_into_chunk );
 			u32		bytes_this_pass( Min( length, bytes_remaining_in_chunk ) );
 
-			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( s32( bytes_this_pass ) > 0, "How come we're trying to copy <= 0 bytes across?" );
-			#endif
+		
 			// Copy this chunk across
 			memcpy( p_dst + dst_offset, p_chunk_base + offset_into_chunk, bytes_this_pass );
 
@@ -388,9 +387,8 @@ void	RomBuffer::GetRomBytesRaw( void * p_dst, u32 rom_start, u32 length )
 	}
 	else
 	{
-		#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT( spRomFileCache != nullptr, "How come we have no file cache?" );
-		#endif
+
 		CopyBytesRaw( spRomFileCache, reinterpret_cast< u8 * >( p_dst ), rom_start, length );
 	}
 }
@@ -398,14 +396,19 @@ void	RomBuffer::GetRomBytesRaw( void * p_dst, u32 rom_start, u32 length )
 //*****************************************************************************
 //
 //*****************************************************************************
+void	RomBuffer::SaveRomValue( u32 value )
+{
+	sRomWritten = true;
+	sRomValue	= value;
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
 void	RomBuffer::PutRomBytesRaw( u32 rom_start, const void * p_src, u32 length )
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( IsRomAddressFixed(), "Cannot put rom bytes when the data isn't fixed" );
-	#endif
-
+	DAEDALUS_ASSERT( sRomFixed, "Cannot put rom bytes when the data isn't fixed" );
 	memcpy( (u8*)spRomData + rom_start, p_src, length );
-
 }
 
 //*****************************************************************************
@@ -413,6 +416,13 @@ void	RomBuffer::PutRomBytesRaw( u32 rom_start, const void * p_src, u32 length )
 //*****************************************************************************
 void * RomBuffer::GetAddressRaw( u32 rom_start )
 {
+	if (sRomWritten)
+	{
+		sRomWritten = false;
+
+		return (u8 *)&sRomValue;
+	}
+
 	if( rom_start < sRomSize )
 	{
 		if( sRomFixed )
@@ -422,9 +432,7 @@ void * RomBuffer::GetAddressRaw( u32 rom_start )
 		else
 		{
 			// Read the cached bytes into our scratch buffer, and return that
-			#ifdef DAEDALUS_ENABLE_ASSERTS
 			DAEDALUS_ASSERT( spRomFileCache != nullptr, "How come we have no file cache?" );
-				#endif
 			CopyBytesRaw( spRomFileCache, sScratchBuffer, rom_start, SCRATCH_BUFFER_LENGTH );
 
 			return sScratchBuffer;
@@ -464,9 +472,9 @@ bool RomBuffer::CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_off
 			u32		offset_into_chunk( src_offset - chunk_offset );
 			u32		bytes_remaining_in_chunk( chunk_size - offset_into_chunk );
 			u32		bytes_this_pass( Min( length, bytes_remaining_in_chunk ) );
-			#ifdef DAEDALUS_ENABLE_ASSERTS
+
 			DAEDALUS_ASSERT( s32( bytes_this_pass ) > 0, "How come we're trying to copy <= 0 bytes across?" );
-			#endif
+
 			// Copy this chunk across
 			if( !DMA_HandleTransfer( p_dst, dst_offset, dst_size, p_chunk_base, offset_into_chunk, chunk_size, bytes_this_pass  ) )
 			{
@@ -487,10 +495,10 @@ bool RomBuffer::CopyToRam( u8 * p_dst, u32 dst_offset, u32 dst_size, u32 src_off
 //*****************************************************************************
 bool RomBuffer::CopyFromRam( u32 dst_offset, const u8 * p_src, u32 src_offset, u32 src_size, u32 length )
 {
-	if( IsRomAddressFixed() )
+	if( sRomFixed )
 	{
 		u8 * p_dst = (u8 *)spRomData;
-		u32	dst_size = GetRomSize();
+		u32	dst_size = sRomSize;
 
 		return DMA_HandleTransfer( p_dst, dst_offset, dst_size, p_src, src_offset, src_size, length );
 	}
@@ -514,10 +522,8 @@ bool RomBuffer::IsRomAddressFixed()
 //*****************************************************************************
 const void * RomBuffer::GetFixedRomBaseAddress()
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( IsRomLoaded(), "The rom isn't loaded" );
-	DAEDALUS_ASSERT( IsRomAddressFixed(), "Trying to access the rom base address when it's not fixed" );
-#endif
-	return spRomData;
+	DAEDALUS_ASSERT( sRomLoaded, "The rom isn't loaded" );
+	DAEDALUS_ASSERT( sRomFixed, "Trying to access the rom base address when it's not fixed" );
 
+	return spRomData;
 }
