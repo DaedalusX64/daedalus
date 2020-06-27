@@ -136,14 +136,6 @@ struct N64Light
 	s16 y, x, w, z; 				// Position, Conker
 };
 
-struct TriDKR
-{
-    u8	v2, v1, v0, flag;
-    s16	t0, s0;
-    s16	t1, s1;
-    s16	t2, s2;
-};
-
 struct RDP_Scissor
 {
 	u32 left, top, right, bottom;
@@ -188,7 +180,39 @@ static const char ** gUcodeName = gNormalInstructionName[ 0 ];
 static const char * gCustomInstructionName[256];
 #endif
 
-bool					gFrameskipActive = false;
+bool gFrameskipActive = false;
+
+// TODO: Call this function before referencing an N64 ram location
+// Ex DLParser_FetchNextCommand: IsAddressValid(pc, 8, "FetchNextCommand")
+static inline bool IsAddressValid(u32 address, u32 size, const char * name)
+{
+	if ((address + size) > MAX_RAM_ADDRESS) 
+	{
+		DBGConsole_Msg(0,"%s: Address is out of range (0x%08x)", name, address);
+		return false;
+	}
+
+	return true;
+}
+
+// Same as above but adds coverage for n (vert num) and checks the vertex index
+// NB: We call this earlier on the pipeline to prevent passing an invalid vertex info the Dlist debugger!
+static bool IsVertexInfoValid(u32 address, u32 size, u32 v0, u32 n)
+{
+	if ((address + (n * size)) > MAX_RAM_ADDRESS) 
+	{
+		DBGConsole_Msg(0,"VertexInfo: Address is out of range (0x%08x)", address);
+		return false;
+	}
+
+	if ((n + v0) > kMaxN64Vertices) 
+	{
+		DAEDALUS_ERROR("VertexInfo: Vertex index is out of bounds (%d)", (n + v0));
+		return false;
+	}
+	
+	return true;
+}
 
 //*****************************************************************************
 //

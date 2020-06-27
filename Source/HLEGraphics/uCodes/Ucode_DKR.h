@@ -83,12 +83,7 @@ void DLParser_DumpVtxInfoDKR(u32 address, u32 v0_idx, u32 num_verts)
 //*****************************************************************************
 void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 {
-	u32 address		= command.inst.cmd1 + gAuxAddr;
-	u32 num_verts   = ((command.inst.cmd0 >> 19) & 0x1F);
-	u32 v0_idx		= 0;
-
-	// Increase by one num verts for DKR
-	if( g_ROM.GameHacks == DKR ) num_verts++;
+	u32 address	= RDPSegAddr(command.inst.cmd1) + gAuxAddr;
 
 	if( command.inst.cmd0 & 0x00010000 )
 	{
@@ -99,19 +94,25 @@ void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 	{
 		gDKRVtxCount = 0;
 	}
+	
+	u32 v0 = ((command.inst.cmd0 >> 9) & 0x1F) + gDKRVtxCount;
+	u32 n = ((command.inst.cmd0 >> 19) & 0x1F);
 
-	v0_idx = ((command.inst.cmd0 >> 9) & 0x1F) + gDKRVtxCount;
-	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DL_PF("    Address[0x%08x] v0[%d] Num[%d]", address, v0_idx, num_verts);
-	#endif
-	gRenderer->SetNewVertexInfoDKR(address, v0_idx, num_verts, gDKRBillBoard);
+	// Increase by one num verts for DKR
+	if( g_ROM.GameHacks == DKR ) n++;
 
-	gDKRVtxCount += num_verts;
+
+	DL_PF("    Address[0x%08x] v0[%d] Num[%d]", address, v0, n);
+	if (IsVertexInfoValid(address, 10, v0, n))
+	{
+		gRenderer->SetNewVertexInfoDKR(address, v0, n, gDKRBillBoard);
+		gDKRVtxCount += n;
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	gNumVertices += num_verts;
-	DLParser_DumpVtxInfoDKR(address, v0_idx, num_verts);
+		gNumVertices += n;
+		DLParser_DumpVtxInfoDKR(address, v0, n);
 #endif
+	}
 
 }
 
@@ -121,13 +122,13 @@ void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 void DLParser_DLInMem( MicroCodeCommand command )
 {
 	gDlistStackPointer++;
-	gDlistStack.address[gDlistStackPointer] = command.inst.cmd1;
+	gDlistStack.address[gDlistStackPointer] = RDPSegAddr(command.inst.cmd1);
 	gDlistStack.limit = (command.inst.cmd0 >> 16) & 0xFF;
-	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DL_PF("    Address=0x%08x %s", command.inst.cmd1, (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
+
+	DL_PF("    Address=0x%08x %s", RDPSegAddr(command.inst.cmd1), (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
 	DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
 	DL_PF("    ############################################");
-	#endif
+
 }
 
 //*****************************************************************************
@@ -135,9 +136,8 @@ void DLParser_DLInMem( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_Mtx_DKR( MicroCodeCommand command )
 {
-	u32 address		= command.inst.cmd1 + RDPSegAddr(gDKRMatrixAddr);
+	u32 address	= RDPSegAddr(command.inst.cmd1) + gDKRMatrixAddr;
 	u32 mtx_command = (command.inst.cmd0 >> 16) & 0x3;
-	//u32 length      = (command.inst.cmd0      )& 0xFFFF;
 
 	bool mul = false;
 
@@ -163,26 +163,24 @@ void DLParser_MoveWord_DKR( MicroCodeCommand command )
 {
 	switch( command.inst.cmd0 & 0xFF )
 	{
-	case G_MW_NUMLIGHT:
-		gDKRBillBoard = command.inst.cmd1 & 0x1;
-		#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DL_PF("    DKR BillBoard: %d", gDKRBillBoard);
-		#endif
-		break;
-
-	case G_MW_LIGHTCOL:
+		case G_MW_NUMLIGHT:
 		{
-		u32 idx = (command.inst.cmd1 >> 6) & 0x3;
-		gRenderer->DKRMtxChanged( idx );
-		#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DL_PF("    DKR MtxIdx: %d", idx);
-		#endif
+			gDKRBillBoard = command.inst.cmd1 & 0x1;
+			DL_PF("    DKR BillBoard: %d", gDKRBillBoard);
 		}
 		break;
 
-	default:
-		DLParser_GBI1_MoveWord( command );
+		case G_MW_LIGHTCOL:
+		{
+			u32 idx = (command.inst.cmd1 >> 6) & 0x3;
+			DL_PF("    DKR MtxIdx: %d", idx);
+			gRenderer->DKRMtxChanged( idx );
+		}
 		break;
+
+		default:
+			DLParser_GBI1_MoveWord( command );
+			break;
 	}
 }
 //*****************************************************************************
@@ -191,7 +189,7 @@ void DLParser_MoveWord_DKR( MicroCodeCommand command )
 void DLParser_Set_Addr_DKR( MicroCodeCommand command )
 {
 	gDKRMatrixAddr  = command.inst.cmd0 & 0x00FFFFFF;
-	gAuxAddr		= RDPSegAddr(command.inst.cmd1 & 0x00FFFFFF);
+	gAuxAddr		= command.inst.cmd1 & 0x00FFFFFF;
 	gDKRVtxCount	= 0;
 }
 
@@ -203,8 +201,10 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 	u32 address = RDPSegAddr(command.inst.cmd1);
 	u32 count = (command.inst.cmd0 >> 4) & 0x1F;	//Count should never exceed 16
 
-	TriDKR *tri = (TriDKR*)(g_pu8RamBase + address);
+	if( !IsAddressValid(address, (count * 16), "DMA_Tri_DKR") )
+		return;
 
+	const TriDKR *tri = (const TriDKR*)(g_pu8RamBase + address);
 	bool tris_added = false;
 
 	for (u32 i = 0; i < count; i++)
@@ -233,13 +233,11 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 		//	//	gRenderer->SetCullMode( true, false );
 		//	//}
 		//}
-		#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		DL_PF("    Index[%d %d %d] Cull[%s] uv_TexCoord[%0.2f|%0.2f] [%0.2f|%0.2f] [%0.2f|%0.2f]",
 			v0_idx, v1_idx, v2_idx, !(tri->flag & 0x40)? "On":"Off",
 			(f32)tri->s0/32.0f, (f32)tri->t0/32.0f,
 			(f32)tri->s1/32.0f, (f32)tri->t1/32.0f,
 			(f32)tri->s2/32.0f, (f32)tri->t2/32.0f);
-			#endif
 
 #if 1	//1->Fixes texture scaling, 0->Render as is and get some texture scaling errors
 		//
@@ -290,19 +288,17 @@ void DLParser_GBI1_Texture_DKR( MicroCodeCommand command )
 	u32 tile    = command.texture.tile;
 
 	// Seems to use 0x01
-	// Force enable texture in DKR Ucode, fixes static texture bug etc
+	// FIX ME, this is wasteful.. Force enable texture in DKR Ucode, fixes static texture bug etc
     bool enable = true;
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+
 	DL_PF("    Level[%d] Tile[%d] %s", command.texture.level, tile, enable? "enable":"disable");
-#endif
 	gRenderer->SetTextureTile( tile);
 	gRenderer->SetTextureEnable( enable);
 
 	f32 scale_s = f32(command.texture.scaleS)  / (65535.0f * 32.0f);
 	f32 scale_t = f32(command.texture.scaleT)  / (65535.0f * 32.0f);
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+
 	DL_PF("    ScaleS[%0.4f] ScaleT[%0.4f]", scale_s*32.0f, scale_t*32.0f);
-	#endif
 	gRenderer->SetTextureScale( scale_s, scale_t );
 }
 

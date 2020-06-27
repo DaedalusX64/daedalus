@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef HLEGRAPHICS_UCODES_UCODE_SOTE_H_
 #define HLEGRAPHICS_UCODES_UCODE_SOTE_H_
 
+//FIX ME: SOTE ucode implementation its wrong.. See WRUS ucode implementation
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -29,18 +31,16 @@ void DLParser_GBI0_Vtx_SOTE( MicroCodeCommand command )
 	u32 n		= ((command.inst.cmd0 >> 4) & 0xfff) / 33 + 1;
 	u32 v0		= 0;
 
-			#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    Address[0x%08x] v0[%d] Num[%d]", address, v0, n);
-#endif
-#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( n < 32, "Warning, attempting to load into invalid vertex positions" );
-#endif
-	gRenderer->SetNewVertexInfo( address, v0, n );
+	if (IsVertexInfoValid(address, 16, v0, n))
+	{
+		gRenderer->SetNewVertexInfo( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	gNumVertices += n;
-	DLParser_DumpVtxInfo( address, v0, n );
+		gNumVertices += n;
+		DLParser_DumpVtxInfo( address, v0, n );
 #endif
+	}
 }
 
 //*****************************************************************************

@@ -30,9 +30,7 @@ void DLParser_Vtx_Conker( MicroCodeCommand command )
 {
 	if( g_CI.Format != G_IM_FMT_RGBA || (gRDPOtherMode.L == CONKER_SHADOW) )
 	{
-		#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		DL_PF("    Skipping Conker TnL (Vtx -> Off-Screen/Shadow)");
-		#endif
 		return;
 	}
 
@@ -40,17 +38,17 @@ void DLParser_Vtx_Conker( MicroCodeCommand command )
 	u32 len    = ((command.inst.cmd0 >> 1 )& 0x7F) ;
 	u32 n      = ((command.inst.cmd0 >> 12)& 0xFF);
 	u32 v0		= len - n;
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+
 	DL_PF("    Address[0x%08x] Len[%d] v0[%d] Num[%d]", address, len, v0, n);
-	#endif
-
-	gRenderer->SetNewVertexInfoConker( address, v0, n );
+	if (IsVertexInfoValid(address, 16, v0, n))
+	{
+		gRenderer->SetNewVertexInfoConker( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	  gNumVertices += n;
-	  DLParser_DumpVtxInfo( address, v0, n );
+	  	gNumVertices += n;
+	  	DLParser_DumpVtxInfo( address, v0, n );
 #endif
-
+	}
 }
 
 //*****************************************************************************

@@ -33,30 +33,16 @@ void DLParser_GBI2_Vtx( MicroCodeCommand command )
 	u32 n      = command.vtx2.n;
 	u32 v0	   = vend - n;
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF( "    Address[0x%08x] vEnd[%d] v0[%d] Num[%d]", address, vend, v0, n );
-#endif
-	if ( vend > 64 )
+	if (IsVertexInfoValid(address, 16, v0, n))
 	{
-		#ifdef DAEDALUS_DEBUG_CONSOLE
-		DBGConsole_Msg( 0, "DLParser_GBI2_Vtx: Warning, attempting to load into invalid vertex positions: %d -> %d", v0, v0+n );
-		#endif
-		return;
-	}
-
-	// Check that address is valid...
-	// Only games I seen that set this are Mario Golf/Tennis, but it looks like is caused by a dynarec issue, anyways they crash eventually
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( (address + (n*16) ) < MAX_RAM_ADDRESS, "Address out of range (0x%08x)", address );
-	#endif
-
-	gRenderer->SetNewVertexInfo( address, v0, n );
+		gRenderer->SetNewVertexInfo( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	gNumVertices += n;
-	DLParser_DumpVtxInfo( address, v0, n );
+		gNumVertices += n;
+		DLParser_DumpVtxInfo( address, v0, n );
 #endif
-
+	}
 }
 
 //*****************************************************************************

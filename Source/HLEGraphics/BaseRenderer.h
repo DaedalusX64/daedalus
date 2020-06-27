@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "SysGL/GL.h"
 #endif
 
-#define HD_SCALE                          0.754166f
+#define HD_SCALE 0.754166f
 
 class CNativeTexture;
 struct TempVerts;
@@ -48,7 +48,16 @@ struct TextureVtx
 	v3  pos;
 };
 
-//Can't be used for DKR since pointer start as odd and even addresses //Corn
+struct TriDKR
+{
+    u8	v2, v1, v0, flag;
+    s16	t0, s0;
+    s16	t1, s1;
+    s16	t2, s2;
+};
+DAEDALUS_STATIC_ASSERT( sizeof(TriDKR) == 16 );
+
+//Can't be used for DKR since pointer start as odd and even addresses :( //Corn
 struct FiddledVtxDKR
 {
 	s16 y;

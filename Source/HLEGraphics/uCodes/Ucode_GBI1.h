@@ -35,29 +35,20 @@ void DLParser_GBI1_Vtx( MicroCodeCommand command )
 	//u32 num_verts = (length + 1) / 0x410;
 	//u32 v0_idx    = ((command.inst.cmd0>>16)&0x3f)/2;
 
-	u32 addr = RDPSegAddr(command.vtx1.addr);
+	u32 address = RDPSegAddr(command.vtx1.addr);
 	u32 v0   = command.vtx1.v0;
 	u32 n    = command.vtx1.n;
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DL_PF("    Address 0x%08x, v0: %d, Num: %d, Length: 0x%04x", addr, v0, n, command.vtx1.len);
-	DAEDALUS_ASSERT( (v0 + n) <= 64, "Warning, attempting to load into invalid vertex positions");
-#endif
-	// Wetrix
-	if ( addr > MAX_RAM_ADDRESS )
+	DL_PF("    Address 0x%08x, v0: %d, Num: %d, Length: 0x%04x", address, v0, n, command.vtx1.len);
+	if (IsVertexInfoValid(address, 16, v0, n))
 	{
-		#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DL_PF("     Address out of range - ignoring load");
-		#endif
-		return;
-	}
-
-	gRenderer->SetNewVertexInfo( addr, v0, n );
+		gRenderer->SetNewVertexInfo( address, v0, n );
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	gNumVertices += n;
-	DLParser_DumpVtxInfo( addr, v0, n );
+		gNumVertices += n;
+		DLParser_DumpVtxInfo( address, v0, n );
 #endif
+	}
 }
 
 //*****************************************************************************
@@ -68,15 +59,6 @@ void DLParser_GBI1_ModifyVtx( MicroCodeCommand command )
 	u32 offset = command.modifyvtx.offset;
 	u32 vert   = command.modifyvtx.vtx;
 	u32 value  = command.modifyvtx.value;
-
-	// Cures crash after swinging in Mario Golf
-	if( vert > 80 )
-	{
-		#ifdef DAEDALUS_DEBUG_CONSOLE
-		DAEDALUS_ERROR("ModifyVtx: Invalid vertex number: %d", vert);
-		#endif
-		return;
-	}
 
 	gRenderer->ModifyVertexInfo( offset, vert, value );
 }
@@ -208,9 +190,7 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 	{
 	case G_MW_MATRIX:
 		{
-			#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			DL_PF("    G_MW_MATRIX(1)");
-			#endif
 			gRenderer->InsertMatrix(command.inst.cmd0, command.inst.cmd1);
 		}
 		break;
@@ -218,26 +198,22 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 	case G_MW_NUMLIGHT:
 		{
 			u32 num_lights = ((value - 0x80000000) >> 5) - 1;
-			#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			DL_PF("    G_MW_NUMLIGHT: Val:%d", num_lights);
-			#endif
 			gRenderer->SetNumLights(num_lights);
 
 		}
 		break;
-/*
+
 	case G_MW_CLIP:	// Seems to be unused?
 		{
-			DL_PF("    G_MW_CLIP  ?   : 0x%08x", value);
+			DL_PF("    G_MW_CLIP: 0x%08x", value);
 		}
 		break;
-*/
+
 	case G_MW_SEGMENT:
 		{
 			u32 segment = (offset >> 2) & 0xF;
-			#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			DL_PF("    G_MW_SEGMENT Seg[%d] = 0x%08x", segment, value);
-			#endif
 			gSegments[segment] = value;
 		}
 		break;
@@ -272,9 +248,8 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 
 			u32 field_offset = (offset & 0x7);
 			u32 light_idx = offset >> 5;
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			DL_PF("    G_MW_LIGHTCOL/0x%08x: 0x%08x", offset, value);
-#endif
+			
 			if (field_offset == 0)
 			{
 				// Light col
@@ -289,26 +264,22 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 
 	case G_MW_POINTS:	// Used in FIFA 98
 		{
-			#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-			DL_PF("    G_MW_POINTS");
-			#endif
-			gRenderer->ModifyVertexInfo( (offset % 40), (offset / 40), value);
+			u32 where = offset % 40;
+			u32 vert  = offset / 40;
+			DL_PF("		G_MW_POINTS (%d, %d, 0x%08x);", vert, where, value);
+			gRenderer->ModifyVertexInfo(where, vert, value);
 		}
 		break;
-/*
+
 	case G_MW_PERSPNORM:
-		DL_PF("    G_MW_PERSPNORM");
+		{
+			DL_PF("    G_MW_PERSPNORM");
+		}
 		break;
-*/
 
 	default:
-		{
-			#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-			DL_PF("    GBI1 MoveWord Type: Ignored!!");
-					#endif
-		}
+		DL_PF("Unknown GBI1 MoveWord: (type: %d, offset: %d, value: 0x%08x)", command.mw1.type, offset, value);
 		break;
-
 	}
 }
 
