@@ -61,6 +61,7 @@ struct FiddledVtxDKR
 	u8 g;
 	u8 r;
 };
+DAEDALUS_STATIC_ASSERT( sizeof(FiddledVtxDKR) == 10 );
 
 struct FiddledVtxPD
 {
@@ -74,6 +75,7 @@ struct FiddledVtxPD
 	s16 tv;
 	s16 tu;
 };
+DAEDALUS_STATIC_ASSERT( sizeof(FiddledVtxPD) == 12 );
 
 struct FiddledVtx
 {
@@ -204,6 +206,7 @@ enum CycleType
 	CYCLE_FILL,
 };
 
+static const u32 kMaxN64Vertices = 80;		// F3DLP.Rej supports up to 80 verts!
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -309,7 +312,7 @@ public:
 	//void				Line3D( u32 v0, u32 v1, u32 width );
 
 	// Returns true if bounding volume is visible within NDC box, false if culled
-	inline bool			TestVerts( u32 v0, u32 vn ) const		{ u32 f=mVtxProjected[v0].ClipFlags; for( u32 i=v0+1; i<=vn; i++ ) f&=mVtxProjected[i].ClipFlags; return f==0; }
+	bool				TestVerts( u32 v0, u32 vn ) const;
 	inline s32			GetVtxDepth( u32 i ) const				{ return (s32)mVtxProjected[ i ].ProjectedPos.z; }
 	inline v4			GetTransformedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].TransformedPos; }
 	inline v4			GetProjectedVtxPos( u32 i ) const		{ return mVtxProjected[ i ].ProjectedPos; }
@@ -380,11 +383,8 @@ private:
 	void				UpdateViewport();
 
 	inline void			UpdateWorldProject();
-	inline void 		PokeWorldProject();
 
 protected:
-	static const u32 kMaxN64Vertices = 80;		// F3DLP.Rej supports up to 80 verts!
-
 	TnLParams			mTnL;
 
 	v2					mN64ToScreenScale;

@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Math/Math.h"			// VFPU Math
 #include "Math/MathUtil.h"
 #include "OSHLE/ultra_gbi.h"
+#include "OSHLE/ultra_os.h"		// System type
 #include "Utility/Profiler.h"
 #include "Utility/AuxFunc.h"
 
@@ -186,8 +187,6 @@ BaseRenderer::~BaseRenderer()
 //*****************************************************************************
 void BaseRenderer::SetVIScales()
 {
-	u32 width = Memory_VI_GetRegister( VI_WIDTH_REG );
-
 	u32 ScaleX = Memory_VI_GetRegister( VI_X_SCALE_REG ) & 0xFFF;
 	u32 ScaleY = Memory_VI_GetRegister( VI_Y_SCALE_REG ) & 0xFFF;
 
@@ -199,33 +198,39 @@ void BaseRenderer::SetVIScales()
 
 	u32	hstart = HStartReg >> 16;
 	u32	hend = HStartReg & 0xffff;
-
+	
 	u32	vstart = VStartReg >> 16;
 	u32	vend = VStartReg & 0xffff;
+	
+	u32 width = Memory_VI_GetRegister( VI_WIDTH_REG );
 
 	// Sometimes HStartReg can be zero.. ex PD, Lode Runner, Cyber Tiger
 	if (hend == hstart)
 	{
-		hend = (u32)(width / fScaleX);
+		hend = (u32)((f32)width / fScaleX);
 	}
 
-	fViWidth  =  (hend-hstart) * fScaleX;
-	fViHeight =  (vend-vstart) * fScaleY * (240.f/237.f);
+	f32 vi_width = (hend-hstart) * fScaleX;
+	f32 vi_height = (vend-vstart) * fScaleY * (g_ROM.TvType == OS_TV_PAL ? 1.0041841f : 1.0126582f);
 
-	// XXX Need to check PAL games.
-	//if(g_ROM.TvType != OS_TV_NTSC) sRatio = 9/11.0f;
+	//printf("width[%d] ViWidth[%f] ViHeight[%f]\n", width, vi_width, vi_height);
 
-	//printf("width[%d] ViWidth[%f] ViHeight[%f]\n", width, fViWidth, fViHeight);
-
-	//This corrects height in various games ex : Megaman 64, Cyber Tiger. 40Winks need width >= ((u32)fViWidth << 1) for menus //Corn
-	if( width > 0x300 || width >= ((u32)fViWidth << 1) )
+	//This corrects height in various games ex : Megaman 64, Cyber Tiger. 40Winks need width >= ((u32)vi_width << 1) for menus //Corn
+	if (width > 768 || width >= ((u32)vi_width * 2))
 	{
-		fViHeight += fViHeight;
+		vi_height *= 2;
 	}
+
+	// Avoid a divide by zero in the viewport code.
+	if (vi_width == 0.0f) vi_width = 320.0f;
+	if (vi_height == 0.0f) vi_height = 240.0f;
+
+	fViWidth  = vi_width;
+	fViHeight = vi_height;
 
 	//Used to set a limit on Scissors //Corn
-	uViWidth  = (u32)fViWidth - 1;
-	uViHeight = (u32)fViHeight - 1;
+	uViWidth  = (u32)vi_width - 1;
+	uViHeight = (u32)vi_height - 1;
 }
 
 //*****************************************************************************
@@ -390,26 +395,46 @@ void BaseRenderer::UpdateViewport()
 }
 
 //*****************************************************************************
+// Returns true if bounding volume is visible within NDC box, false if culled
+//*****************************************************************************
+bool BaseRenderer::TestVerts(u32 v0, u32 vn) const
+{
+	if (v0 >= kMaxN64Vertices)
+	{
+		DAEDALUS_ERROR("Vertex index is out of bounds (%d)", v0 );
+		return false;
+	}
+
+	u32 f = mVtxProjected[v0].ClipFlags;
+	for (u32 i = (v0 + 1); i <= vn && i < kMaxN64Vertices; i++)
+	{
+		f &= mVtxProjected[i].ClipFlags;
+	}
+	return f == 0;
+}
+
+//*****************************************************************************
 // Returns true if triangle visible and rendered, false otherwise
 //*****************************************************************************
 bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 {
 	//DAEDALUS_PROFILE( "BaseRenderer::AddTri" );
-#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( v0 < kMaxN64Vertices, "Vertex index is out of bounds (%d)", v0 );
-	DAEDALUS_ASSERT( v1 < kMaxN64Vertices, "Vertex index is out of bounds (%d)", v1 );
-	DAEDALUS_ASSERT( v2 < kMaxN64Vertices, "Vertex index is out of bounds (%d)", v2 );
-#endif
 
+	if (v0 >= kMaxN64Vertices || v1 >= kMaxN64Vertices || v2 >= kMaxN64Vertices)
+	{
+		DAEDALUS_ERROR("Vertex index is out of bounds (v0: %d) (v1: %d) (v2: %d)", v0, v1, v2);
+		return false;
+	}
+	
 	const u32 & f0 = mVtxProjected[v0].ClipFlags;
 	const u32 & f1 = mVtxProjected[v1].ClipFlags;
 	const u32 & f2 = mVtxProjected[v2].ClipFlags;
 
 	if ( f0 & f1 & f2 )
 	{
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		DL_PF("    Tri: %d,%d,%d (Culled -> NDC box)", v0, v1, v2);
-		++mNumTrisClipped;
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST		
+		mNumTrisClipped++;
 #endif
 		return false;
 	}
@@ -420,8 +445,8 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 	if( mTnL.Flags.TriCull )
 	{
 #ifdef DAEDALUS_PSP_USE_VFPU
-		const s32 NSign = vfpu_TriNormSign((u8*)&mVtxProjected[0], v0, v1, v2);
-		if( NSign <= 0 )
+		const s32 sign = vfpu_TriNormSign((u8*)&mVtxProjected[0], v0, v1, v2);
+		if( sign <= 0 )
 #else
 		const v4 & A = mVtxProjected[v0].ProjectedPos;
 		const v4 & B = mVtxProjected[v1].ProjectedPos;
@@ -429,48 +454,52 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 
 		//Avoid using 1/w, will use five more mults but save three divides //Corn
 		//Precalc reused w combos so compiler does a proper job
-		const f32 ABw  = A.w*B.w;
-		const f32 ACw  = A.w*C.w;
-		const f32 BCw  = B.w*C.w;
-		const f32 AxBC = A.x*BCw;
-		const f32 AyBC = A.y*BCw;
-		const f32 NSign = (((B.x*ACw - AxBC)*(C.y*ABw - AyBC) - (C.x*ABw - AxBC)*(B.y*ACw - AyBC)) * ABw * C.w);
-		if( NSign <= 0.0f )
+		const f32 ABw   = A.w * B.w;
+		const f32 ACw   = A.w * C.w;
+		const f32 BCw   = B.w * C.w;
+		const f32 AxBC  = A.x * BCw;
+		const f32 AyBC  = A.y * BCw;
+		const f32 cross = (B.x * ACw - AxBC) * (C.y * ABw - AyBC) - (C.x * ABw - AxBC) * (B.y * ACw - AyBC);
+		const f32 sign  = cross * ABw * C.w;
+		if( sign <= 0.0f )
 #endif
 		{
 			if( mTnL.Flags.CullBack )
 			{
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 				DL_PF("    Tri: %d,%d,%d (Culled -> Back Face)", v0, v1, v2);
-				++mNumTrisClipped;
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST				
+				mNumTrisClipped++;
 #endif
 				return false;
 			}
 		}
 		else if( !mTnL.Flags.CullBack )
 		{
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 			DL_PF("    Tri: %d,%d,%d (Culled -> Front Face)", v0, v1, v2);
-			++mNumTrisClipped;
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST			
+			mNumTrisClipped++;
 #endif
 			return false;
 		}
 	}
 
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    Tri: %d,%d,%d (Rendered)", v0, v1, v2);
-	++mNumTrisRendered;
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST		
+	mNumTrisRendered++;
 #endif
-
-#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( mNumIndices + 3 < kMaxIndices, "Array overflow, too many Indices" );
-#endif
-	mIndexBuffer[ mNumIndices++ ] = (u16)v0;
-	mIndexBuffer[ mNumIndices++ ] = (u16)v1;
-	mIndexBuffer[ mNumIndices++ ] = (u16)v2;
+	
+	if (mNumIndices + 3 <= kMaxIndices)
+	{
+		mIndexBuffer[mNumIndices++] = (u16)v0;
+		mIndexBuffer[mNumIndices++] = (u16)v1;
+		mIndexBuffer[mNumIndices++] = (u16)v2;
+	}
+	else
+	{
+		DAEDALUS_ERROR("Array overflow, too many Indices");
+	}
 
 	mVtxClipFlagsUnion |= f0 | f1 | f2;
-
 	return true;
 }
 
@@ -479,20 +508,9 @@ bool BaseRenderer::AddTri(u32 v0, u32 v1, u32 v2)
 //*****************************************************************************
 void BaseRenderer::FlushTris()
 {
-	#ifdef DAEDALUS_ENABLE_PROFILING
 	DAEDALUS_PROFILE( "BaseRenderer::FlushTris" );
-#endif
-	/*
-	if ( mNumIndices == 0 )
-	{
-		DAEDALUS_ERROR("Call to FlushTris() with nothing to render");
-		mVtxClipFlagsUnion = 0; // Reset software clipping detector
-		return;
-	}
-	*/
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( mNumIndices, "Call to FlushTris() with nothing to render" );
-#endif
+
 	TempVerts temp_verts;
 
 	// If any bit is set here it means we have to clip the trianlges since PSP HW clipping sux!
@@ -536,9 +554,7 @@ void BaseRenderer::FlushTris()
 
 	//
 	// Check for depth source, this is for Nascar games, hopefully won't mess up anything
-	#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( !gRDPOtherMode.depth_source, " Warning : Using depth source in flushtris" );
-#endif
 	//
 	//	Render out our vertices
 	RenderTriangles( temp_verts.Verts, temp_verts.Count, gRDPOtherMode.depth_source ? true : false );
@@ -584,8 +600,81 @@ u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
 	return vOut;
 }
 
-#else	// FPU/CPU(slower)
+/*void BaseRenderer::TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world )
+{
+	bool	env_map( (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) == (TNL_LIGHT|TNL_TEXGEN) );
 
+	u32 vend( v0 + num );
+	for (u32 i = v0; i < vend; i++)
+	{
+		const FiddledVtx & vert = verts[i - v0];
+		const v4 &	projected( mVtxProjected[i].ProjectedPos );
+
+		if (mTnL.Flags.Fog)
+		{
+			float eyespace_z = projected.z / projected.w;
+			float fog_coeff = (eyespace_z * mTnL.FogMult) + mTnL.FogOffset;
+
+			// Set the alpha
+			f32 value = Clamp< f32 >( fog_coeff, 0.0f, 1.0f );
+
+			if( Abs( value - mVtxProjected[i].Colour.w ) > 0.01f )
+			{
+				printf( "Fog wrong: %f != %f\n", mVtxProjected[i].Colour.w, value );
+			}
+		}
+
+		if (mTnL.Flags.Texture)
+		{
+			// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
+
+			// If the vert is already lit, then there is no normal (and hence we
+			// can't generate tex coord)
+			float tx, ty;
+			if (env_map)
+			{
+				v3 vecTransformedNormal;		// Used only when TNL_LIGHT set
+				v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
+
+				vecTransformedNormal = mat_world.TransformNormal( model_normal );
+				vecTransformedNormal.Normalise();
+
+				const v3 & norm = vecTransformedNormal;
+
+				// Assign the spheremap's texture coordinates
+				tx = (0.5f * ( 1.0f + ( norm.x*mat_world.m11 +
+										norm.y*mat_world.m21 +
+										norm.z*mat_world.m31 ) ));
+
+				ty = (0.5f * ( 1.0f - ( norm.x*mat_world.m12 +
+										norm.y*mat_world.m22 +
+										norm.z*mat_world.m32 ) ));
+			}
+			else
+			{
+				tx = (float)vert.tu * mTnL.TextureScaleX;
+				ty = (float)vert.tv * mTnL.TextureScaleY;
+			}
+
+			if( Abs(tx - mVtxProjected[i].Texture.x ) > 0.0001f ||
+				Abs(ty - mVtxProjected[i].Texture.y ) > 0.0001f )
+			{
+				printf( "tx/y wrong : %f,%f != %f,%f (%s)\n", mVtxProjected[i].Texture.x, mVtxProjected[i].Texture.y, tx, ty, env_map ? "env" : "scale" );
+			}
+		}
+
+		//
+		//	Initialise the clipping flags (always done on the VFPU, so skip here)
+		//
+		//u32 flags = CalcClipFlags( projected );
+		//if( flags != mVtxProjected[i].ClipFlags )
+		//{
+		//	printf( "flags wrong: %02x != %02x\n", mVtxProjected[i].ClipFlags, flags );
+		//}
+	}
+}*/
+
+#else	// FPU/CPU(slower)
 //*****************************************************************************
 //CPU interpolate line parameters
 //*****************************************************************************
@@ -858,111 +947,7 @@ void BaseRenderer::PrepareTrisUnclipped( TempVerts * temp_verts ) const
  #endif
 }
 
-//*****************************************************************************
-// Standard rendering pipeline using VFPU(fast)
-//*****************************************************************************
-#ifdef DAEDALUS_PSP_USE_VFPU
-void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
-{
-	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
-
-	UpdateWorldProject();
-	PokeWorldProject();
-
-	const Matrix4x4 & mat_world_project = mWorldProject;
-	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
-#ifdef DAEDALUS_ENABLE_PROFILING
-	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
-	DL_PF( "    Light[%d %s] Texture[%s] EnvMap[%s] Fog[%s]", mTnL.NumLights, (mTnL.Flags.Light)? (mTnL.Flags.PointLight)? "Point":"Normal":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
-#endif
-	if ( !mTnL.Flags.PointLight )
-	{	//Normal rendering
-		_TnLVFPU( &mat_world, &mat_world_project, pVtxBase, &mVtxProjected[v0], n, &mTnL );
-	}
-	else
-	{	//Point light for Zelda MM
-		_TnLVFPU_Plight( &mat_world, &mat_world_project, pVtxBase, &mVtxProjected[v0], n, &mTnL );
-	}
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-/*void BaseRenderer::TestVFPUVerts( u32 v0, u32 num, const FiddledVtx * verts, const Matrix4x4 & mat_world )
-{
-	bool	env_map( (mTnL.Flags._u32 & (TNL_LIGHT|TNL_TEXGEN)) == (TNL_LIGHT|TNL_TEXGEN) );
-
-	u32 vend( v0 + num );
-	for (u32 i = v0; i < vend; i++)
-	{
-		const FiddledVtx & vert = verts[i - v0];
-		const v4 &	projected( mVtxProjected[i].ProjectedPos );
-
-		if (mTnL.Flags.Fog)
-		{
-			float eyespace_z = projected.z / projected.w;
-			float fog_coeff = (eyespace_z * mTnL.FogMult) + mTnL.FogOffset;
-
-			// Set the alpha
-			f32 value = Clamp< f32 >( fog_coeff, 0.0f, 1.0f );
-
-			if( Abs( value - mVtxProjected[i].Colour.w ) > 0.01f )
-			{
-				printf( "Fog wrong: %f != %f\n", mVtxProjected[i].Colour.w, value );
-			}
-		}
-
-		if (mTnL.Flags.Texture)
-		{
-			// Update texture coords n.b. need to divide tu/tv by bogus scale on addition to buffer
-
-			// If the vert is already lit, then there is no normal (and hence we
-			// can't generate tex coord)
-			float tx, ty;
-			if (env_map)
-			{
-				v3 vecTransformedNormal;		// Used only when TNL_LIGHT set
-				v3	model_normal(f32( vert.norm_x ), f32( vert.norm_y ), f32( vert.norm_z ) );
-
-				vecTransformedNormal = mat_world.TransformNormal( model_normal );
-				vecTransformedNormal.Normalise();
-
-				const v3 & norm = vecTransformedNormal;
-
-				// Assign the spheremap's texture coordinates
-				tx = (0.5f * ( 1.0f + ( norm.x*mat_world.m11 +
-										norm.y*mat_world.m21 +
-										norm.z*mat_world.m31 ) ));
-
-				ty = (0.5f * ( 1.0f - ( norm.x*mat_world.m12 +
-										norm.y*mat_world.m22 +
-										norm.z*mat_world.m32 ) ));
-			}
-			else
-			{
-				tx = (float)vert.tu * mTnL.TextureScaleX;
-				ty = (float)vert.tv * mTnL.TextureScaleY;
-			}
-
-			if( Abs(tx - mVtxProjected[i].Texture.x ) > 0.0001f ||
-				Abs(ty - mVtxProjected[i].Texture.y ) > 0.0001f )
-			{
-				printf( "tx/y wrong : %f,%f != %f,%f (%s)\n", mVtxProjected[i].Texture.x, mVtxProjected[i].Texture.y, tx, ty, env_map ? "env" : "scale" );
-			}
-		}
-
-		//
-		//	Initialise the clipping flags (always done on the VFPU, so skip here)
-		//
-		//u32 flags = CalcClipFlags( projected );
-		//if( flags != mVtxProjected[i].ClipFlags )
-		//{
-		//	printf( "flags wrong: %02x != %02x\n", mVtxProjected[i].ClipFlags, flags );
-		//}
-	}
-}*/
-
-#else	//Transform using VFPU(fast) or FPU/CPU(slow)
+#ifndef DAEDALUS_PSP_USE_VFPU
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -1025,22 +1010,34 @@ v3 BaseRenderer::LightPointVert( const v4 & w ) const
 
 	return result;
 }
+#endif
 
 //*****************************************************************************
 // Standard rendering pipeline using FPU/CPU
 //*****************************************************************************
 void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 {
-	const FiddledVtx * pVtxBase = (const FiddledVtx*)(g_pu8RamBase + address);
 	UpdateWorldProject();
-	PokeWorldProject();
-
 	const Matrix4x4 & mat_world_project = mWorldProject;
 	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
-#ifdef DAEDALUS_ENABLE_PROFILING
+
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%d %s] Texture[%s] EnvMap[%s] Fog[%s]", mTnL.NumLights, (mTnL.Flags.Light)? (mTnL.Flags.PointLight)? "Point":"Normal":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
-#endif
+	
+	const FiddledVtx * pVtxBase = (const FiddledVtx*)(g_pu8RamBase + address);
+
+#ifdef DAEDALUS_PSP_USE_VFPU
+	if ( !mTnL.Flags.PointLight )
+	{	
+		//Normal rendering
+		_TnLVFPU( &mat_world, &mat_world_project, pVtxBase, &mVtxProjected[v0], n, &mTnL );
+	}
+	else
+	{	
+		//Point light for Zelda MM
+		_TnLVFPU_Plight( &mat_world, &mat_world_project, pVtxBase, &mVtxProjected[v0], n, &mTnL );
+	}
+#else
 	// Transform and Project + Lighting or Transform and Project with Colour
 	//
 	for (u32 i = v0; i < v0 + n; i++)
@@ -1159,45 +1156,29 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 				mVtxProjected[i].Colour.w = 0.0f;
 			}
 		}
-#endif
+#endif // DAEDALUS_PSP
 	}
+#endif // DAEDALUS_PSP_USE_VFPU
 }
-
-#endif // Transform VFPU/FPU
 
 //*****************************************************************************
 // Conker Bad Fur Day rendering pipeline
 //*****************************************************************************
-#ifdef DAEDALUS_PSP_USE_VFPU
 void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 {
-	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
 	const Matrix4x4 & mat_project = mProjectionMat;
 	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
-#ifdef DAEDALUS_ENABLE_PROFILING
+
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
-#endif
-	const s8 *mn = (s8*)(g_pu8RamBase + gAuxAddr);
-	_TnLVFPUCBFD( &mat_world, &mat_project, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn, v0<<1 );
-}
-
-#else
-//FPU/CPU version //Corn
-
-void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
-{
-	//DBGConsole_Msg(0, "In SetNewVertexInfo");
-	const FiddledVtx * const pVtxBase( (const FiddledVtx*)(g_pu8RamBase + address) );
-	const Matrix4x4 & mat_project = mProjectionMat;
-	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
-#ifdef DAEDALUS_ENABLE_PROFILING
-	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
-	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
-#endif
+	
 	//Model normal base vector
 	const s8 *mn = (const s8*)(g_pu8RamBase + gAuxAddr);
-
+	const FiddledVtx * pVtxBase = (const FiddledVtx*)(g_pu8RamBase + address);
+	
+#ifdef DAEDALUS_PSP_USE_VFPU	
+	_TnLVFPUCBFD( &mat_world, &mat_project, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn, v0<<1 );
+#else
 	// Transform and Project + Lighting or Transform and Project with Colour
 	//
 	for (u32 i = v0; i < v0 + n; i++)
@@ -1326,24 +1307,25 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 			mVtxProjected[i].Texture.y = (f32)vert.tv * mTnL.TextureScaleY;
 		}
 	}
-}
 #endif
+}
 
 //*****************************************************************************
-// Assumes address has already been checked!
 // DKR/Jet Force Gemini rendering pipeline
 //*****************************************************************************
 void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboard)
-{
-	uintptr_t pVtxBase = reinterpret_cast<uintptr_t>(g_pu8RamBase + address);
+{	
 	const Matrix4x4 & mat_world_project = mModelViewStack[mDKRMatIdx];
-#ifdef DAEDALUS_ENABLE_PROFILING
+
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
 	DL_PF( "    CMtx[%d] Add base[%s]", mDKRMatIdx, billboard? "On":"Off");
-#endif
+
+	uintptr_t pVtxBase = reinterpret_cast<uintptr_t>(g_pu8RamBase + address);
+	
 	if( billboard )
-	{	//Copy vertices adding base vector and the color data
+	{	
+		//Copy vertices adding base vector and the color data
 		mWPmodified = false;
 
 #ifdef DAEDALUS_PSP_USE_VFPU
@@ -1395,9 +1377,11 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 #endif
 	}
 	else
-	{	//Normal path for transform of triangles
+	{	
+		//Normal path for transform of triangles
 		if( mWPmodified )
-		{	//Only reload matrix if it has been changed and no billbording //Corn
+		{	
+			//Only reload matrix if it has been changed and no billbording //Corn
 			mWPmodified = false;
 			sceGuSetMatrix( GU_PROJECTION, reinterpret_cast< const ScePspFMatrix4 * >( &mat_world_project) );
 		}
@@ -1445,38 +1429,21 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 //*****************************************************************************
 // Perfect Dark rendering pipeline
 //*****************************************************************************
-#ifdef DAEDALUS_PSP_USE_VFPU
 void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 {
-	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + address);
-
 	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
 	const Matrix4x4 & mat_project = mProjectionMat;
 
-#ifdef DAEDALUS_ENABLE_PROFILING
 	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
 	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
-#endif
-	//Model & Color base vector
-	const u8 *mn = (u8*)(g_pu8RamBase + gAuxAddr);
 
-	_TnLVFPUPD( &mat_world, &mat_project, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn );
-}
-
-#else
-void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
-{
-	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + address);
-
-	const Matrix4x4 & mat_world = mModelViewStack[mModelViewTop];
-	const Matrix4x4 & mat_project = mProjectionMat;
-#ifdef DAEDALUS_ENABLE_PROFILING
-	DL_PF( "    Ambient color RGB[%f][%f][%f] Texture scale X[%f] Texture scale Y[%f]", mTnL.Lights[mTnL.NumLights].Colour.x, mTnL.Lights[mTnL.NumLights].Colour.y, mTnL.Lights[mTnL.NumLights].Colour.z, mTnL.TextureScaleX, mTnL.TextureScaleY);
-	DL_PF( "    Light[%s] Texture[%s] EnvMap[%s] Fog[%s]", (mTnL.Flags.Light)? "On":"Off", (mTnL.Flags.Texture)? "On":"Off", (mTnL.Flags.TexGen)? (mTnL.Flags.TexGenLin)? "Linear":"Spherical":"Off", (mTnL.Flags.Fog)? "On":"Off");
-#endif
 	//Model normal and color base vector
-	const u8 *mn = (u8*)(g_pu8RamBase + gAuxAddr);
+	const u8 *mn = (const u8*)(g_pu8RamBase + gAuxAddr);
+	const FiddledVtxPD * const pVtxBase = (const FiddledVtxPD*)(g_pu8RamBase + address);
 
+#ifdef DAEDALUS_PSP_USE_VFPU	
+	_TnLVFPUPD( &mat_world, &mat_project, pVtxBase, &mVtxProjected[v0], n, &mTnL, mn );
+#else
 	for (u32 i = v0; i < v0 + n; i++)
 	{
 		const FiddledVtxPD & vert = pVtxBase[i - v0];
@@ -1551,21 +1518,25 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 			mVtxProjected[i].Texture.y = (float)vert.tv * mTnL.TextureScaleY;
 		}
 	}
-}
 #endif
+}
 
 //*****************************************************************************
 //
 //*****************************************************************************
 void BaseRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 {
+	if (vert >= kMaxN64Vertices) 
+	{
+		DAEDALUS_ERROR("Vertex index is out of bounds (%d)", vert);
+		return;
+	}
+
 	switch ( whered )
 	{
 		case G_MWO_POINT_RGBA:
 			{
-				#ifdef DAEDALUS_ENABLE_PROFILING
 				DL_PF("    Setting RGBA to 0x%08x", val);
-				#endif
 				SetVtxColor( vert, val );
 			}
 			break;
@@ -1574,9 +1545,8 @@ void BaseRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 			{
 				s16 tu = s16(val >> 16);
 				s16 tv = s16(val & 0xFFFF);
-					#ifdef DAEDALUS_ENABLE_PROFILING
+
 				DL_PF( "    Setting tu/tv to %f, %f", tu/32.0f, tv/32.0f );
-				#endif
 				SetVtxTextureCoord( vert, tu, tv );
 			}
 			break;
@@ -1592,25 +1562,10 @@ void BaseRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 				//
 				x -= uViWidth / 2;
 				y = uViHeight / 2 - y;
-	#ifdef DAEDALUS_ENABLE_PROFILING
 				DL_PF("    Modify vert %d: x=%d, y=%d", vert, x, y);
-#endif
-#if 1
+
 				// Megaman and other games
 				SetVtxXY( vert, f32(x<<1) / fViWidth, f32(y<<1) / fViHeight );
-#else
-				u32 current_scale = Memory_VI_GetRegister(VI_X_SCALE_REG);
-				if((current_scale&0xF) != 0 )
-				{
-					// Tarzan... I don't know why is so different...
-					SetVtxXY( vert, f32(x) / fViWidth, f32(y) / fViHeight );
-				}
-				else
-				{
-					// Megaman and other games
-					SetVtxXY( vert, f32(x<<1) / fViWidth, f32(y<<1) / fViHeight );
-				}
-#endif
 			}
 			break;
 
@@ -1618,20 +1573,15 @@ void BaseRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 			{
 				//s32 z = val >> 16;
 				//DL_PF( "      Setting ZScreen to 0x%08x", z );
-					#ifdef DAEDALUS_ENABLE_PROFILING
 				DL_PF( "    Setting ZScreen");
-				#endif
 				//Not sure about the scaling here //Corn
 				//SetVtxZ( vert, (( (f32)z / 0x03FF ) + 0.5f ) / 2.0f );
 				//SetVtxZ( vert, (( (f32)z ) + 0.5f ) / 2.0f );
 			}
 			break;
-
 		default:
-		#ifdef DAEDALUS_DEBUG_CONSOLE
-			DBGConsole_Msg( 0, "ModifyVtx - Setting vert data where: 0x%02x, vert: 0x%08x, val: 0x%08x", whered, vert, val );
+			DBGConsole_Msg( 0, "Unknown ModifyVtx - Setting vert data where: 0x%02x, vert: 0x%08x, val: 0x%08x", whered, vert, val );
 			DL_PF( "    Setting unknown value: where: 0x%02x, vert: 0x%08x, val: 0x%08x", whered, vert, val );
-			#endif
 			break;
 	}
 }
@@ -1641,10 +1591,6 @@ void BaseRenderer::ModifyVertexInfo(u32 whered, u32 vert, u32 val)
 //*****************************************************************************
 inline void BaseRenderer::SetVtxColor( u32 vert, u32 color )
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( vert < kMaxN64Vertices, "Vertex index is out of bounds (%d)", vert );
-#endif
-
 	u8 r = (color>>24)&0xFF;
 	u8 g = (color>>16)&0xFF;
 	u8 b = (color>>8)&0xFF;
@@ -1668,9 +1614,6 @@ inline void BaseRenderer::SetVtxZ( u32 vert, float z )
 //*****************************************************************************
 inline void BaseRenderer::SetVtxXY( u32 vert, float x, float y )
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( vert < kMaxN64Vertices, "Vertex index is out of bounds (%d)", vert );
-#endif
 	mVtxProjected[vert].TransformedPos.x = x;
 	mVtxProjected[vert].TransformedPos.y = y;
 }
@@ -1680,11 +1623,11 @@ inline void BaseRenderer::SetVtxXY( u32 vert, float x, float y )
 //*****************************************************************************
 void BaseRenderer::ResetMatrices(u32 size)
 {
-	//Tigger's Honey Hunt
-	if(size == 0)
+	//Tigger's Honey Hunt and SSV does this...
+	if(size == 0 || size > MATRIX_STACK_SIZE)
 		size = MATRIX_STACK_SIZE;
 
-	mMatStackSize = (size > MATRIX_STACK_SIZE) ? MATRIX_STACK_SIZE : size;
+	mMatStackSize = size;
 	mModelViewTop = 0;
 	mProjectionMat = mModelViewStack[0] = gMatrixIdentity;
 	mWorldProjectValid = false;
@@ -1962,17 +1905,20 @@ void BaseRenderer::PrepareTexRectUVs(TexCoord * puv0, TexCoord * puv1)
 CRefPtr<CNativeTexture> BaseRenderer::LoadTextureDirectly( const TextureInfo & ti )
 {
 	CRefPtr<CNativeTexture> texture = CTextureCache::Get()->GetOrCreateTexture( ti );
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( texture, "texture is NULL" );
-#endif
-	texture->InstallTexture();
+	if (texture)
+	{
+		texture->InstallTexture();
+	}
+	else
+	{
+		DAEDALUS_ERROR("Texture is null");
+	}
 
 	mBoundTexture[0] = texture;
 	mBoundTextureInfo[0] = ti;
 
 	return texture;
 }
-
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -2157,18 +2103,17 @@ inline void BaseRenderer::UpdateWorldProject()
 		}
 		MatrixMultiplyAligned( &mWorldProject, &mModelViewStack[mModelViewTop], &mProjectionMat );
 	}
-}
 
-//If WoldProjectmatrix has been modified due to insert or force matrix (Kirby, SSB / Tarzan, Rayman2, Donald duck, SW racer, Robot on wheels)
-//we need to update sceGU projmtx //Corn
-inline void BaseRenderer::PokeWorldProject()
-{
+	//If WoldProjectmatrix has been modified due to insert or force matrix (Kirby, SSB / Tarzan, Rayman2, Donald duck, SW racer, Robot on wheels)
+	//We need to also pdate sceGU projmtx //Corn
 	if( mWPmodified )
 	{
 		mWPmodified = false;
 		mReloadProj = true;
+
+		//proper 16:9 scale
 		if( gGlobalPreferences.ViewportType == VT_FULLSCREEN_HD )
-		{	//proper 16:9 scale
+		{
 			mWorldProject.mRaw[0] *= HD_SCALE;
 			mWorldProject.mRaw[4] *= HD_SCALE;
 			mWorldProject.mRaw[8] *= HD_SCALE;
@@ -2178,7 +2123,6 @@ inline void BaseRenderer::PokeWorldProject()
 		mModelViewStack[mModelViewTop] = gMatrixIdentity;
 	}
 }
-
 
 //*****************************************************************************
 //
