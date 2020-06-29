@@ -22,22 +22,11 @@
 #include "stdafx.h"
 #include "HLEGraphics/uCodes/UcodeDefs.h"
 
-// Increase this everytime a new ucode table is added !
-// Do not add any custom ucode table here! instead just patch any of these 5 tables for all your custom ucode needs..
-// See DLParser_SetUcode for more info
-//
-#define MAX_UCODE_TABLE		5
-#define IS_CUSTOM_UCODE(x)	(x>=MAX_UCODE_TABLE)
-
 typedef void(*MicroCodeInstruction)(MicroCodeCommand);
 #define UcodeFunc(name)	void name(MicroCodeCommand)
 
-extern const u32 ucode_stride[];
-extern const MicroCodeInstruction gNormalInstruction[MAX_UCODE_TABLE][256];
-
-#if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-extern const char * gNormalInstructionName[MAX_UCODE_TABLE][256];
-#endif
+extern const MicroCodeInstruction gNormalInstruction[5][256];
+extern const char * gNormalInstructionName[5][256];
 
 UcodeFunc( DLParser_GBI1_CullDL );
 UcodeFunc( DLParser_GBI1_DL );
@@ -78,7 +67,6 @@ UcodeFunc( DLParser_GBI1_Line3D );
 // New GBI2 ucodes
 //*****************************************************************************
 UcodeFunc( DLParser_GBI2_DL_Count );
-//UcodeFunc( DLParser_GBI2_0x8 );
 
 //*****************************************************************************
 // GBI1
@@ -160,14 +148,13 @@ UcodeFunc( DLParser_SetZImg );
 UcodeFunc( DLParser_SetCImg );
 
 //*****************************************************************************
-// RSP Tri Command
+// RSP Tri Command (LLE)
 //*****************************************************************************
 UcodeFunc( DLParser_TriRSP );
 
 //*****************************************************************************
 // Custom
 //*****************************************************************************
-UcodeFunc( DLParser_GBI0_DL_SOTE );
 UcodeFunc( DLParser_GBI0_Vtx_SOTE );
 //UcodeFunc( DLParser_GBI0_Line3D_SOTE );
 //UcodeFunc( DLParser_GBI0_Tri1_SOTE );
@@ -183,7 +170,6 @@ UcodeFunc( DLParser_GBI1_Texture_DKR );
 UcodeFunc( DLParser_GBI0_Vtx_DKR );
 UcodeFunc( DLParser_GBI0_Vtx_WRUS );
 UcodeFunc( DLParser_DMA_Tri_DKR );
-//UcodeFunc( DLParser_GBI0_Vtx_Gemini );
 UcodeFunc( DLParser_Tri1_Conker );
 UcodeFunc( DLParser_Tri2_Conker );
 UcodeFunc( DLParser_Tri4_Conker );
@@ -193,6 +179,5 @@ UcodeFunc( DLParser_Vtx_Conker );
 UcodeFunc( DLParser_Set_Vtx_CI_PD );
 UcodeFunc( DLParser_Vtx_PD );
 //UcodeFunc( DLParser_Tri4_PD );
-UcodeFunc( DLParser_SetTImg_SOTE );
 
 #endif // HLEGRAPHICS_UCODES_UCODE_H___

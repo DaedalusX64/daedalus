@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef HLEGRAPHICS_MICROCODE_H_
 #define HLEGRAPHICS_MICROCODE_H_
 
+#include "HLEGraphics/uCodes/Ucode.h"
 #include "Utility/DaedalusTypes.h"
 
 //*****************************************************************************
@@ -40,14 +41,21 @@ enum GBIVersion
 	GBI_CONKER,
 	GBI_PD
 };
+
+struct UcodeInfo
+{
+	u32 version;
+	u32 stride;
+
+	const MicroCodeInstruction * func;
+	const char ** name;
+};
+
 //*****************************************************************************
 // Function
 //*****************************************************************************
-typedef void (*CustomMicrocodeCallback)( u32 ucode, u32 offset );
 
-u32	 GBIMicrocode_DetectVersion( u32 code_base, u32 code_size,
-								 u32 data_base, u32 data_size,
-								 CustomMicrocodeCallback custom_callback );
+UcodeInfo GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
 void GBIMicrocode_Reset();
 
 #endif // HLEGRAPHICS_MICROCODE_H_

@@ -20,30 +20,15 @@
 #include "stdafx.h"
 
 #include "HLEGraphics/uCodes/Ucode.h"
-//*************************************************************************************
-//
-//*************************************************************************************
-// This is the multiplier applied to vertex indices
-const u32 ucode_stride[] =
-{
-	10,		// Super Mario 64, Tetrisphere, Demos
-	2,		// Mario Kart, Star Fox
-	2,		// Zelda, and newer games
-	2,		// Yoshi's Story, Pokemon Puzzle League
-	2,		// Neon Evangelion, Kirby
-	5,		// Wave Racer USA
-	10,		// Diddy Kong Racing, Gemini, and Mickey
-	2,		// Last Legion, Toukon, Toukon 2
-	5,		// Shadows of the Empire (SOTE)
-	10,		// Golden Eye
-	2,		// Conker BFD
-	10,		// Perfect Dark
-};
+
+// Only the official ucode tables are defined here, 5 in total
+// Please do not add any new ucode tables here, doing so will just waste memory
+// If you want to add a custom ucode table, just patch any of official ucode tables with GBIMicrocode_SetCustomArray
 
 //*************************************************************************************
 //
 //*************************************************************************************
-const MicroCodeInstruction gNormalInstruction[MAX_UCODE_TABLE][256] =
+const MicroCodeInstruction gNormalInstruction[5][256] =
 {
 	// uCode 0 - RSP SW 2.0X
 	// Games: Super Mario 64, Tetrisphere, Demos
@@ -473,8 +458,7 @@ const MicroCodeInstruction gNormalInstruction[MAX_UCODE_TABLE][256] =
 //*************************************************************************************
 //
 //*************************************************************************************
-#if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_PROFILING)
-const char * gNormalInstructionName[MAX_UCODE_TABLE][256] =
+const char * gNormalInstructionName[5][256] =
 {
 	// uCode 0 - RSP SW 2.0X
 	// Games: Super Mario 64, Tetrisphere, Demos
@@ -876,4 +860,3 @@ const char * gNormalInstructionName[MAX_UCODE_TABLE][256] =
 		"G_SetCombine", "G_SetTImg", "G_SetZImg", "G_SetCImg"
 	}
 };
-#endif
