@@ -33,10 +33,9 @@ enum GBIVersion
 	GBI_2,
 	GBI_1_S2DEX,
 	GBI_2_S2DEX,
-	GBI_WR,
+	GBI_BETA,
 	GBI_DKR,
 	GBI_LL,
-	GBI_SE,
 	GBI_GE,
 	GBI_CONKER,
 	GBI_PD

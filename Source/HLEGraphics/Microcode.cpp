@@ -104,7 +104,7 @@ static bool	GBIMicrocode_DetectVersionString( u32 data_base, u32 data_size, char
 
 static u32 GBIMicrocode_MicrocodeHash(u32 code_base, u32 code_size)
 {
-	const s8 *ram = g_ps8RamBase;
+	const u8 * ram = g_pu8RamBase;
 	u32 hash = 0;
 
 	for (u32 i = 0; i < code_size; ++i)
@@ -148,9 +148,9 @@ static const MicrocodeData gMicrocodeData[] =
 	{ GBI_DKR,		GBI_0,	10,	0x169dcc9d,	"RSP Gfx ucode: Unknown"},			//"Jet Force Gemini"
 	{ GBI_LL,		GBI_1,	2,	0x26da8a4c,	"RSP Gfx ucode: Unknown"},			//"Last Legion UX"}
 	{ GBI_PD,		GBI_0,	10,	0xcac47dc4,	"RSP Gfx ucode: Unknown"},			//"Perfect Dark (v1.1)"
-	{ GBI_SE,		GBI_0,	5,	0x6cbb521d,	"RSP SW Version: 2.0D, 04-01-96"},	//"Star Wars - Shadows of the Empire (v1.0)"
+	{ GBI_BETA,		GBI_0,	5,	0x6cbb521d,	"RSP SW Version: 2.0D, 04-01-96"},	//"Star Wars - Shadows of the Empire (v1.0)"
 	{ GBI_LL,		GBI_1,	2,	0xdd560323,	"RSP Gfx ucode: Unknown"},			//"Toukon Road - Brave Spirits"
-	{ GBI_WR,		GBI_0,	5,	0x64cc729d,	"RSP SW Version: 2.0D, 04-01-96"},	//"Wave Race 64"
+	{ GBI_BETA,		GBI_0,	5,	0x64cc729d,	"RSP SW Version: 2.0D, 04-01-96"},	//"Wave Race 64 (v1.1)"
 };
 
 UcodeInfo GBIMicrocode_SetCache(u32 index, u32 code_base, u32 data_base, u32 ucode_stride, u32 ucode_version, 
@@ -228,7 +228,7 @@ UcodeInfo GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_bas
 	char str[256] = "";
 	if( !GBIMicrocode_DetectVersionString( data_base, data_size, str, 256 ) ) 
 	{
-		DBGConsole_Msg(0, "Unable to detect Ucode: [Y Version string its missing, defaulting to Fast3D ucode.. expect errors]");
+		DBGConsole_Msg(0, "Unable to detect Ucode: [Y Version string its missing, defaulting to Fast3D ucode, expect errors]");
 	}
 	else
 	{
@@ -289,12 +289,11 @@ static void GBIMicrocode_SetCustomArray( u32 ucode_version, u32 ucode_offset )
 		case GBI_GE:
 			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye, "G_RDPHalf1_GoldenEye" );
 			break;
-		case GBI_WR:
-			SetCommand( 0x04, DLParser_GBI0_Vtx_WRUS, "G_Vtx_WRUS" );
-			SetCommand( 0xb1, DLParser_Nothing,		  "G_Nothing" ); // FIX ME
-			break;
-		case GBI_SE:
-			SetCommand( 0x04, DLParser_GBI0_Vtx_SOTE, "G_Vtx_SOTE" );
+		case GBI_BETA:
+			SetCommand( 0x04, DLParser_GBI0_Vtx_Beta, "G_Vtx_Beta" );
+			SetCommand( 0xbf, DLParser_GBI0_Tri1_Beta, "G_Tri1_Beta" );
+			SetCommand( 0xb1, DLParser_GBI0_Tri2_Beta, "G_Tri2_Beta" );
+			SetCommand( 0xb5, DLParser_GBI0_Line3D_Beta, "G_Line3_Beta" );
 			break;
 		case GBI_LL:
 			SetCommand( 0x80, DLParser_Last_Legion_0x80,	"G_Last_Legion_0x80" );

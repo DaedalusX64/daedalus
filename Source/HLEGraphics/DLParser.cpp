@@ -272,8 +272,7 @@ extern u32 uViHeight;
 #include "uCodes/Ucode_PD.h"
 #include "uCodes/Ucode_Conker.h"
 #include "uCodes/Ucode_LL.h"
-#include "uCodes/Ucode_WRUS.h"
-#include "uCodes/Ucode_SOTE.h"
+#include "uCodes/Ucode_Beta.h"
 #include "uCodes/Ucode_Sprite2D.h"
 #include "uCodes/Ucode_S2DEX.h"
 
