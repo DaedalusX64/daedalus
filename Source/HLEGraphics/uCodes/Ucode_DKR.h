@@ -137,14 +137,13 @@ void DLParser_DLInMem( MicroCodeCommand command )
 void DLParser_Mtx_DKR( MicroCodeCommand command )
 {
 	u32 address	= RDPSegAddr(command.inst.cmd1) + gDKRMatrixAddr;
-	u32 mtx_command = (command.inst.cmd0 >> 16) & 0x3;
-
+	u32 index = (command.inst.cmd0 >> 16) & 0xF;
 	bool mul = false;
 
-	if (mtx_command == 0)
+	if (index == 0)
 	{
 		//DKR : no mult
-		mtx_command = (command.inst.cmd0 >> 22) & 0x3;
+		index = (command.inst.cmd0 >> 22) & 0x3;
 	}
 	else
 	{
@@ -153,7 +152,7 @@ void DLParser_Mtx_DKR( MicroCodeCommand command )
 	}
 
 	// Load matrix from address
-	gRenderer->SetDKRMat(address, mul, mtx_command);
+	gRenderer->SetDKRMat(address, mul, index);
 }
 
 //*****************************************************************************

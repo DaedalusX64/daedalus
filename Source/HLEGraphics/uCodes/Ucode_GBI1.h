@@ -114,9 +114,7 @@ void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 	{
 		case G_MV_VIEWPORT:
 			{
-				#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 				DL_PF("    G_MV_VIEWPORT. Address: 0x%08x", address);
-				#endif
 				RDP_MoveMemViewport( address );
 			}
 			break;
@@ -131,16 +129,14 @@ void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 		case G_MV_L7:
 			{
 				u32 light_idx = (type-G_MV_L0) >> 1;
-				N64Light *light = (N64Light*)(g_pu8RamBase + address);
-				RDP_MoveMemLight(light_idx, light);
+				RDP_MoveMemLight< POINT_LIGHT_NONE, 6 >(address, light_idx); 
 			}
 			break;
 
 		case G_MV_MATRIX_1:
 			{
-				#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 				DL_PF("		Force Matrix(1): addr=%08X", address);
-				#endif
+				
 				// Rayman 2, Donald Duck, Tarzan, all wrestling games use this
 				gRenderer->ForceMatrix( address );
 				// ForceMatrix takes four cmds
@@ -168,9 +164,7 @@ void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 
 		default:
 			{
-				#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 				DL_PF("    GBI1 MoveMem Type: Ignored!!");
-				#endif
 			}
 			break;
 

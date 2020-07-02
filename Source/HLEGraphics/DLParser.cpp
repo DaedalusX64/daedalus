@@ -127,6 +127,8 @@ struct N64Light
 	s16 y, x, w, z; 				// Position, Conker
 };
 
+DAEDALUS_STATIC_ASSERT( sizeof(N64Light) == 40 );
+
 struct RDP_Scissor
 {
 	u32 left, top, right, bottom;
@@ -146,7 +148,17 @@ struct DList
 void RDP_MoveMemViewport(u32 address);
 void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address );
 void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 data_size );
-void RDP_MoveMemLight(u32 light_idx, const N64Light *light);
+
+enum LightSource
+{
+	POINT_LIGHT_NONE = 0,	// No Point Light
+	POINT_LIGHT_MM,			// Majora's Mask Point Light
+	POINT_LIGHT_CBFD,		// Conker's Point Light
+	POINT_LIGHT_ACCLAIM		// Acclaim's Point Light (unsupported ATM)
+};
+template< LightSource Source, u32 LightSize > 
+void RDP_MoveMemLight(u32 address, u32 light_idx);
+
 
 // Used to keep track of when we're processing the first display list
 static bool gFirstCall = true;
@@ -594,30 +606,57 @@ void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 //*****************************************************************************
 //
 //*****************************************************************************
-void RDP_MoveMemLight(u32 light_idx, const N64Light *light)
+template< LightSource Source, u32 LightSize > 
+void RDP_MoveMemLight(u32 address, u32 light_idx)
 {
-	DAEDALUS_ASSERT( light_idx < 12, "Warning: invalid light # = %d", light_idx );
+	if( Source == POINT_LIGHT_ACCLAIM )
+	{
+		DAEDALUS_ERROR("ACCLAIM Lightning not supported");
+		return;
 
-	u8 r = light->r;
-	u8 g = light->g;
-	u8 b = light->b;
+	}
 
-	s8 dir_x = light->dir_x;
-	s8 dir_y = light->dir_y;
-	s8 dir_z = light->dir_z;
+	if( light_idx >= LightSize )
+	{
+		DBGConsole_Msg(0, "Warning: invalid light # = %d, Max light # = %d", light_idx, LightSize);
+	}
+	else
+	{
+		if( !IsAddressValid(address, 40, "RDP_MoveMemLight") )
+			return;
 
-	bool valid = (dir_x | dir_y | dir_z) != 0;
-	DAEDALUS_USE(valid);
-	//DAEDALUS_ASSERT( valid, " Light direction is invalid" );
+		const N64Light *light = (const N64Light*)(g_pu8RamBase + address);
 
-	DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d]", light_idx, r, g, b, dir_x, dir_y, dir_z);
-	DL_PF("    Light direction is %s",valid ? "valid" : "invalid");
+		u8 r = light->r;
+		u8 g = light->g;
+		u8 b = light->b;
 
-	//Light color
-	gRenderer->SetLightCol( light_idx, r, g, b );
+		s8 dir_x = light->dir_x;
+		s8 dir_y = light->dir_y;
+		s8 dir_z = light->dir_z;
 
-	//Direction
-	gRenderer->SetLightDirection( light_idx, dir_x, dir_y, dir_z );
+		DL_PF("    Light[%d] RGB[%d, %d, %d] x[%d] y[%d] z[%d]", light_idx, r, g, b, dir_x, dir_y, dir_z);
+
+		//Color
+		gRenderer->SetLightCol( light_idx, r, g, b );
+
+		//Direction
+		gRenderer->SetLightDirection( light_idx, dir_x, dir_y, dir_z );
+
+		//Position and Ambient light for Majora's Mask
+		if( Source == POINT_LIGHT_MM )
+		{ 
+			gRenderer->SetLightPosition(light_idx, light->x1, light->y1, light->z1, 1.0f);
+			gRenderer->SetLightEx(light_idx, light->ca, light->la, light->qa);
+		}
+
+		//Position and Ambient light for Conker
+		if( Source == POINT_LIGHT_CBFD )
+		{ 
+			gRenderer->SetLightPosition( light_idx, light->x, light->y, light->z , light->w);
+			gRenderer->SetLightCBFD( light_idx, light->nonzero);
+		}
+	}
 }
 
 //*****************************************************************************

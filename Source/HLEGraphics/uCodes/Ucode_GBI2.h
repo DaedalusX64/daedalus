@@ -250,9 +250,7 @@ ZeldaMoveMem: 0xdc080008 0x8010e3c0 Type: 08 Len: 08 Off: 4000
 void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 {
 	u32 address	 = RDPSegAddr(command.inst.cmd1);
-	//u32 offset = (command.inst.cmd0 >> 8) & 0xFFFF;
 	u32 type	 = (command.inst.cmd0     ) & 0xFE;
-	//u32 length  = (command.inst.cmd0 >> 16) & 0xFF;
 
 	switch (type)
 	{
@@ -268,18 +266,10 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 			u32 light_idx = offset2 / 24;
 			if (light_idx < 2)
 			{
-				#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 				DL_PF("    G_MV_LOOKAT" );
-				#endif
 				return;
 			}
-
-			light_idx -= 2;
-			N64Light *light = (N64Light*)(g_pu8RamBase + address);
-			RDP_MoveMemLight(light_idx, light);
-
-			gRenderer->SetLightPosition(light_idx, light->x1, light->y1, light->z1, 1.0f);
-			gRenderer->SetLightEx(light_idx, light->ca, light->la, light->qa);
+			RDP_MoveMemLight< POINT_LIGHT_MM, 6 >(address, light_idx - 2);
 		}
 		break;
 

@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/DBGConsole.h"
 #include "Utility/AuxFunc.h"
 
+#include "OSHLE/ultra_gbi.h"
+
 // Limit cache ucode entries to 6
 // In theory we should never reach this max
 #define MAX_UCODE_CACHE_ENTRIES 6
@@ -148,6 +150,7 @@ static const MicrocodeData gMicrocodeData[] =
 	{ GBI_DKR,		GBI_0,	10,	0x169dcc9d,	"RSP Gfx ucode: Unknown"},			//"Jet Force Gemini"
 	{ GBI_LL,		GBI_1,	2,	0x26da8a4c,	"RSP Gfx ucode: Unknown"},			//"Last Legion UX"}
 	{ GBI_PD,		GBI_0,	10,	0xcac47dc4,	"RSP Gfx ucode: Unknown"},			//"Perfect Dark (v1.1)"
+	{ GBI_RS,		GBI_1,	2,	0xc62a1631, "RSP Gfx ucode: Unknown"},			// Star Wars - Rogue Squadron
 	{ GBI_BETA,		GBI_0,	5,	0x6cbb521d,	"RSP SW Version: 2.0D, 04-01-96"},	//"Star Wars - Shadows of the Empire (v1.0)"
 	{ GBI_LL,		GBI_1,	2,	0xdd560323,	"RSP Gfx ucode: Unknown"},			//"Toukon Road - Brave Spirits"
 	{ GBI_BETA,		GBI_0,	5,	0x64cc729d,	"RSP SW Version: 2.0D, 04-01-96"},	//"Wave Race 64 (v1.1)"
@@ -287,55 +290,46 @@ static void GBIMicrocode_SetCustomArray( u32 ucode_version, u32 ucode_offset )
 	switch( ucode_version )
 	{
 		case GBI_GE:
-			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye, "G_RDPHalf1_GoldenEye" );
+			SetCommand( G_GBI1_RDPHALF_1, DLParser_RDPHalf1_GoldenEye,	"G_RDPHalf1_GoldenEye" );
 			break;
 		case GBI_BETA:
-			SetCommand( 0x04, DLParser_GBI0_Vtx_Beta, "G_Vtx_Beta" );
-			SetCommand( 0xbf, DLParser_GBI0_Tri1_Beta, "G_Tri1_Beta" );
-			SetCommand( 0xb1, DLParser_GBI0_Tri2_Beta, "G_Tri2_Beta" );
-			SetCommand( 0xb5, DLParser_GBI0_Line3D_Beta, "G_Line3_Beta" );
+			SetCommand( G_GBI1_VTX,	DLParser_GBI0_Vtx_Beta, 			"G_Vtx_Beta" );
+			SetCommand( G_GBI1_TRI1, DLParser_GBI0_Tri1_Beta, 			"G_Tri1_Beta" );
+			SetCommand( G_GBI1_TRI2, DLParser_GBI0_Tri2_Beta, 			"G_Tri2_Beta" );
+			SetCommand( G_GBI1_LINE3D, DLParser_GBI0_Line3D_Beta,		"G_Line3_Beta" );
 			break;
 		case GBI_LL:
-			SetCommand( 0x80, DLParser_Last_Legion_0x80,	"G_Last_Legion_0x80" );
-			SetCommand( 0x00, DLParser_Last_Legion_0x00,	"G_Last_Legion_0x00" );
-			SetCommand( 0xe4, DLParser_TexRect_Last_Legion,	"G_TexRect_Last_Legion" );
+			SetCommand( 0x80, DLParser_Last_Legion_0x80,				"G_Last_Legion_0x80" );
+			SetCommand( 0x00, DLParser_Last_Legion_0x00,				"G_Last_Legion_0x00" );
+			SetCommand( G_RDP_TEXRECT, DLParser_TexRect_Last_Legion,	"G_TexRect_Last_Legion" );
 			break;
 		case GBI_PD:
-			SetCommand( 0x04, DLParser_Vtx_PD,				"G_Vtx_PD" );
-			SetCommand( 0x07, DLParser_Set_Vtx_CI_PD,		"G_Set_Vtx_CI_PD" );
-			SetCommand( 0xb4, DLParser_RDPHalf1_GoldenEye,	"G_RDPHalf1_GoldenEye" );
+			SetCommand( G_GBI1_VTX, DLParser_Vtx_PD,					"G_Vtx_PD" );
+			SetCommand( G_PD_VTXBASE, DLParser_Set_Vtx_CI_PD,			"G_Set_Vtx_CI_PD" );
+			SetCommand( G_GBI1_RDPHALF_1, DLParser_RDPHalf1_GoldenEye,	"G_RDPHalf1_GoldenEye" );
 			break;
 		case GBI_DKR:
-			SetCommand( 0x01, DLParser_Mtx_DKR,		 "G_Mtx_DKR" );
-			SetCommand( 0x04, DLParser_GBI0_Vtx_DKR, "G_Vtx_DKR" );
-			SetCommand( 0x05, DLParser_DMA_Tri_DKR,  "G_DMA_Tri_DKR" );
-			SetCommand( 0x07, DLParser_DLInMem,		 "G_DLInMem" );
-			SetCommand( 0xbc, DLParser_MoveWord_DKR, "G_MoveWord_DKR" );
-			SetCommand( 0xbf, DLParser_Set_Addr_DKR, "G_Set_Addr_DKR" );
-			SetCommand( 0xbb, DLParser_GBI1_Texture_DKR,"G_Texture_DKR" );
+			SetCommand( G_GBI1_MTX, DLParser_Mtx_DKR,		 			"G_Mtx_DKR" );
+			SetCommand( G_GBI1_VTX, DLParser_GBI0_Vtx_DKR, 				"G_Vtx_DKR" );
+			SetCommand( G_DKR_DMATRI, DLParser_DMA_Tri_DKR,  			"G_DMA_Tri_DKR" );
+			SetCommand( G_DKR_DLINMEM, DLParser_DLInMem,		 		"G_DLInMem" );
+			SetCommand( G_GBI1_MOVEWORD, DLParser_MoveWord_DKR, 		"G_MoveWord_DKR" );
+			SetCommand( G_GBI1_TRI1, DLParser_Set_Addr_DKR, 			"G_Set_Addr_DKR" );
+			SetCommand( G_GBI1_TEXTURE, DLParser_GBI1_Texture_DKR,		"G_Texture_DKR" );
 			break;
 		case GBI_CONKER:
-			SetCommand( 0x01, DLParser_Vtx_Conker,	"G_Vtx_Conker" );
-			SetCommand( 0x05, DLParser_Tri1_Conker, "G_Tri1_Conker" );
-			SetCommand( 0x06, DLParser_Tri2_Conker, "G_Tri2_Conker" );
-			SetCommand( 0x10, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x11, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x12, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x13, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x14, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x15, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x16, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x17, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x18, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x19, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1a, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1b, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1c, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1d, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1e, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0x1f, DLParser_Tri4_Conker, "G_Tri4_Conker" );
-			SetCommand( 0xdb, DLParser_MoveWord_Conker,  "G_MoveWord_Conker");
-			SetCommand( 0xdc, DLParser_MoveMem_Conker,   "G_MoveMem_Conker" );
+			SetCommand( G_GBI2_VTX,	DLParser_Vtx_Conker, 				"G_Vtx_Conker" );
+			SetCommand( G_GBI2_TRI1, DLParser_Tri1_Conker, 				"G_Tri1_Conker" );
+			SetCommand( G_GBI2_TRI2, DLParser_Tri2_Conker,				"G_Tri2_Conker" );
+			SetCommand( G_GBI2_MOVEWORD, DLParser_MoveWord_Conker,		"G_MoveWord_Conker");
+			SetCommand( G_GBI2_MOVEMEM, DLParser_MoveMem_Conker,		"G_MoveMem_Conker" );
+			for (u32 i = 0; i < 16; i++)
+			{
+				SetCommand( G_CONKER_QUAD + i, DLParser_Tri4_Conker, "G_Tri4_Conker" );
+			}
+			break;
+		case GBI_ACCLAIM:
+			//SetCommand( G_GBI2_MOVEMEM, DLParser_MoveMem_Acclaim, "G_MoveMem_Acclaim" );
 			break;
 		default:
 			DAEDALUS_ERROR("Unknown custom ucode set:%d [Y Did you forget to define it?]");
