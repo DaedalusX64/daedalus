@@ -392,19 +392,16 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 	if(command.inst.cmd & 1)
 	{
 		gGeometryMode._u32 |= mask;
-		#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		DL_PF("    Setting mask -> 0x%08x", mask);
-		#endif
 	}
 	else
 	{
 		gGeometryMode._u32 &= ~mask;
-		#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		DL_PF("    Clearing mask -> 0x%08x", mask);
-		#endif
 	}
 
 	TnLMode TnL;
+	TnL._u32 = 0;
 
 	TnL.Light		= gGeometryMode.GBI1_Lighting;
 	TnL.TexGen		= gGeometryMode.GBI1_TexGen;
@@ -429,7 +426,7 @@ void DLParser_GBI1_GeometryMode( MicroCodeCommand command )
 	DL_PF("    Texture Gen Linear %s", (gGeometryMode.GBI1_TexGenLin)	? "On" : "Off");
 	DL_PF("    Fog %s",				 (gGeometryMode.GBI1_Fog)			? "On" : "Off");
 	DL_PF("    LOD %s",				 (gGeometryMode.GBI1_Lod)			? "On" : "Off");
-	#endif
+#endif
 }
 
 //*****************************************************************************

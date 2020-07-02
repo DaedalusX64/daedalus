@@ -366,6 +366,7 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 {
 	gGeometryMode._u32 &= command.inst.arg0;
 	gGeometryMode._u32 |= command.inst.arg1;
+
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    0x%08x 0x%08x =(x & 0x%08x) | 0x%08x", command.inst.cmd0, command.inst.cmd1, command.inst.arg0, command.inst.arg1);
 	DL_PF("    ZBuffer %s", (gGeometryMode.GBI2_Zbuffer) ? "On" : "Off");
@@ -377,7 +378,9 @@ void DLParser_GBI2_GeometryMode( MicroCodeCommand command )
 	DL_PF("    Fog %s", (gGeometryMode.GBI2_Fog) ? "On" : "Off");
 	DL_PF("    PointLight %s", (gGeometryMode.GBI2_PointLight) ? "On" : "Off");
 #endif
+
 	TnLMode TnL;
+	TnL._u32 = 0;
 
 	TnL.Light		= gGeometryMode.GBI2_Lighting;
 	TnL.TexGen		= gGeometryMode.GBI2_TexGen;

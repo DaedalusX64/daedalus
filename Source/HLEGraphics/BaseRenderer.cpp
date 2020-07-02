@@ -155,9 +155,8 @@ BaseRenderer::BaseRenderer()
 ,	mNastyTexture(false)
 #endif
 {
-#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( IsPointerAligned( &mTnL, 16 ), "Oops, mTnL should be 16-byte aligned" );
-#endif
+
 	for ( u32 i = 0; i < kNumBoundTextures; i++ )
 	{
 		mTileTopLeft[i].s = 0;
@@ -166,13 +165,12 @@ BaseRenderer::BaseRenderer()
 		mTexWrap[i].v = 0;
 		mActiveTile[i] = 0;
 	}
-
+	memset( &mTnL, 0, sizeof(mTnL) );
+	
 	mTnL.Flags._u32 = 0;
 	mTnL.NumLights = 0;
 	mTnL.TextureScaleX = 1.0f;
 	mTnL.TextureScaleY = 1.0f;
-
-	memset( mTnL.Lights, 0, sizeof(mTnL.Lights) );
 }
 
 //*****************************************************************************
