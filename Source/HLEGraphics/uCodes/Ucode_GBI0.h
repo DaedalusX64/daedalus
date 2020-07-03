@@ -39,8 +39,47 @@ void DLParser_GBI0_Vtx( MicroCodeCommand command )
 		DLParser_DumpVtxInfo( address, v0, n );
 #endif
 	}
-
 }
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_GBI0_CullDL( MicroCodeCommand command )
+{
+	u32 first = (command.inst.cmd0 & 0x00FFFFFF) / 40;
+	u32 last = (command.inst.cmd1 / 40) - 1;
+
+	DL_PF("    Culling using verts: %d to %d", first, last);
+	if( gRenderer->TestVerts( first, last ) )
+	{
+		DL_PF("    Display list is visible, returning");
+		return;
+	}
+
+#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	++gNumDListsCulled;
+#endif
+
+	DL_PF("    No vertices were visible, culling rest of display list");
+	DLParser_PopDL();
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_GBI0_Tri1( MicroCodeCommand command )
+{
+	DLParser_GBI1_Tri1_T< 10 >(command);
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_GBI0_Line3D( MicroCodeCommand command )
+{
+	DLParser_GBI1_Line3D_T< 10 >(command);
+}
+
 //*****************************************************************************
 //
 //*****************************************************************************
@@ -110,15 +149,5 @@ void DLParser_GBI0_Tri4( MicroCodeCommand command )
 		gRenderer->FlushTris();
 	}
 }
-
-//*****************************************************************************
-// Actually line3d, not supported I think.
-//*****************************************************************************
-/*
-void DLParser_GBI0_Quad( MicroCodeCommand command )
-{
-	DAEDALUS_ERROR("GBI0_Quad : Not supported in ucode0 ? ( Ignored )");
-}
-*/
 
 #endif // HLEGRAPHICS_UCODES_UCODE_GBI0_H_

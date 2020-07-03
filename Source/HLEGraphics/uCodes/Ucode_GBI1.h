@@ -129,7 +129,7 @@ void DLParser_GBI1_MoveMem( MicroCodeCommand command )
 		case G_MV_L7:
 			{
 				u32 light_idx = (type-G_MV_L0) >> 1;
-				RDP_MoveMemLight< POINT_LIGHT_NONE, 6 >(address, light_idx); 
+				RDP_MoveMemLight< POINT_LIGHT_NONE, 8 >(address, light_idx); 
 			}
 			break;
 
@@ -284,25 +284,21 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 {
 	u32 first = command.culldl.first;
 	u32 last = command.culldl.end;
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+
 	DL_PF("    Culling using verts %d to %d\n", first, last);
-#endif
+
 	if( last < first ) return;
 	if( gRenderer->TestVerts( first, last ) )
 	{
-		#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 		DL_PF("    Display list is visible, returning");
-		#endif
 		return;
 	}
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	++gNumDListsCulled;
 #endif
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DL_PF("    No vertices were visible, culling rest of display list");
-	#endif
 
+	DL_PF("    No vertices were visible, culling rest of display list");
 	DLParser_PopDL();
 }
 

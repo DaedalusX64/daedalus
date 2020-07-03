@@ -269,7 +269,7 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 				DL_PF("    G_MV_LOOKAT" );
 				return;
 			}
-			RDP_MoveMemLight< POINT_LIGHT_MM, 6 >(address, light_idx - 2);
+			RDP_MoveMemLight< POINT_LIGHT_MM, 8 >(address, light_idx - 2);
 		}
 		break;
 

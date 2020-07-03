@@ -90,9 +90,9 @@ const MicroCodeInstruction gNormalInstruction[5][256] =
 		DLParser_Nothing, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,
 		//b0
 		DLParser_Nothing,DLParser_GBI0_Tri4, DLParser_GBI1_RDPHalf_Cont, DLParser_GBI1_RDPHalf_2,
-		DLParser_GBI1_RDPHalf_1, DLParser_GBI1_Line3D, DLParser_GBI1_GeometryMode, DLParser_GBI1_GeometryMode,
+		DLParser_GBI1_RDPHalf_1, DLParser_GBI0_Line3D, DLParser_GBI1_GeometryMode, DLParser_GBI1_GeometryMode,
 		DLParser_GBI1_EndDL, DLParser_GBI1_SetOtherModeL, DLParser_GBI1_SetOtherModeH, DLParser_GBI1_Texture,
-		DLParser_GBI1_MoveWord, DLParser_GBI1_PopMtx, DLParser_GBI1_CullDL, DLParser_GBI1_Tri1,
+		DLParser_GBI1_MoveWord, DLParser_GBI1_PopMtx, DLParser_GBI0_CullDL, DLParser_GBI0_Tri1,
 
 		//c0
 		DLParser_GBI1_Noop, DLParser_Nothing, DLParser_Nothing, DLParser_Nothing,

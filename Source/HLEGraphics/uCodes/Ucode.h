@@ -35,6 +35,12 @@ void DLParser_GBI1_Tri2_T( MicroCodeCommand command );
 template< u32 VertexStride > 
 void DLParser_GBI1_Line3D_T( MicroCodeCommand command );
 
+UcodeFunc( DLParser_GBI0_Vtx );
+UcodeFunc( DLParser_GBI0_CullDL );
+UcodeFunc( DLParser_GBI0_Tri1 );
+UcodeFunc( DLParser_GBI0_Line3D );
+UcodeFunc( DLParser_GBI0_Tri4 );
+
 UcodeFunc( DLParser_GBI1_CullDL );
 UcodeFunc( DLParser_GBI1_DL );
 UcodeFunc( DLParser_GBI1_BranchZ );
@@ -50,7 +56,6 @@ UcodeFunc( DLParser_GBI2_SetOtherModeH );
 UcodeFunc( DLParser_GBI1_Texture );
 UcodeFunc( DLParser_GBI2_Texture );
 
-UcodeFunc( DLParser_GBI0_Vtx );
 UcodeFunc( DLParser_GBI1_Vtx );
 UcodeFunc( DLParser_GBI2_Vtx );
 UcodeFunc( DLParser_GBI1_ModifyVtx );
@@ -58,8 +63,6 @@ UcodeFunc( DLParser_GBI1_ModifyVtx );
 UcodeFunc( DLParser_GBI1_Mtx );
 UcodeFunc( DLParser_GBI2_Mtx );
 UcodeFunc( DLParser_GBI1_PopMtx );
-
-UcodeFunc( DLParser_GBI0_Tri4 );
 
 UcodeFunc( DLParser_GBI2_Quad );
 UcodeFunc( DLParser_GBI2_Line3D );
