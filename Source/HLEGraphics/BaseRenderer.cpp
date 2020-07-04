@@ -397,7 +397,7 @@ void BaseRenderer::UpdateViewport()
 //*****************************************************************************
 bool BaseRenderer::TestVerts(u32 v0, u32 vn) const
 {
-	if ((vn + v0) > kMaxN64Vertices) 
+	if ((vn + v0) >= kMaxN64Vertices) 
 	{
 		DAEDALUS_ERROR("Vertex index is out of bounds (%d)", (vn + v0));
 		return false;
@@ -410,7 +410,7 @@ bool BaseRenderer::TestVerts(u32 v0, u32 vn) const
 	for (u32 i = (v0+1); i <= vn; i++)
 	{
 		flags &= mVtxProjected[i].ClipFlags;
-		if ((flags & CLIP_TEST_FLAGS) == 0)
+		if (flags == 0)
 			return true;
 	}
 
@@ -753,7 +753,7 @@ static u32 clipToHyperPlane( DaedalusVtx4 * dest, const DaedalusVtx4 * source, u
 //*****************************************************************************
 //CPU tris clip to frustum
 //*****************************************************************************
-u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
+static u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
 {
 	u32 vOut = 3;
 
@@ -766,6 +766,25 @@ u32 clip_tri_to_frustum( DaedalusVtx4 * v0, DaedalusVtx4 * v1 )
 
 	return vOut;
 }
+
+//*****************************************************************************
+// Set Clipflags
+//*****************************************************************************
+static u32 set_clip_flags(const v4 & projected)
+{
+	u32 clip_flags = 0;
+	if		(projected.x < -projected.w)	clip_flags |= X_POS;
+	else if (projected.x > projected.w)		clip_flags |= X_NEG;
+
+	if		(projected.y < -projected.w)	clip_flags |= Y_POS;
+	else if (projected.y > projected.w)		clip_flags |= Y_NEG;
+
+	if		(projected.z < -projected.w)	clip_flags |= Z_POS;
+	else if (projected.z > projected.w)		clip_flags |= Z_NEG;
+
+	return clip_flags;
+}
+
 #endif // CPU clip
 
 //*****************************************************************************
@@ -1058,16 +1077,7 @@ void BaseRenderer::SetNewVertexInfo(u32 address, u32 v0, u32 n)
 
 		//	Initialise the clipping flags
 		//
-		u32 clip_flags = 0;
-		if		(projected.x < -projected.w)	clip_flags |= X_POS;
-		else if (projected.x > projected.w)		clip_flags |= X_NEG;
-
-		if		(projected.y < -projected.w)	clip_flags |= Y_POS;
-		else if (projected.y > projected.w)		clip_flags |= Y_NEG;
-
-		if		(projected.z < -projected.w)	clip_flags |= Z_POS;
-		else if (projected.z > projected.w)		clip_flags |= Z_NEG;
-		mVtxProjected[i].ClipFlags = clip_flags;
+		mVtxProjected[i].ClipFlags = set_clip_flags( projected );
 
 		// LIGHTING OR COLOR
 		//
@@ -1201,16 +1211,7 @@ void BaseRenderer::SetNewVertexInfoConker(u32 address, u32 v0, u32 n)
 
 		//	Initialise the clipping flags
 		//
-		u32 clip_flags = 0;
-		if		(projected.x < -projected.w)	clip_flags |= X_POS;
-		else if (projected.x > projected.w)		clip_flags |= X_NEG;
-
-		if		(projected.y < -projected.w)	clip_flags |= Y_POS;
-		else if (projected.y > projected.w)		clip_flags |= Y_NEG;
-
-		if		(projected.z < -projected.w)	clip_flags |= Z_POS;
-		else if (projected.z > projected.w)		clip_flags |= Z_NEG;
-		mVtxProjected[i].ClipFlags = clip_flags;
+		mVtxProjected[i].ClipFlags = set_clip_flags( projected );
 
 		mVtxProjected[i].Colour.x = (f32)vert.rgba_r * (1.0f / 255.0f);
 		mVtxProjected[i].Colour.y = (f32)vert.rgba_g * (1.0f / 255.0f);
@@ -1404,16 +1405,7 @@ void BaseRenderer::SetNewVertexInfoDKR(u32 address, u32 v0, u32 n, bool billboar
 			projected = mat_world_project.Transform( transformed );	//Do projection
 
 			// Set Clipflags
-			u32 clip_flags = 0;
-			if		(projected.x < -projected.w)	clip_flags |= X_POS;
-			else if (projected.x > projected.w)		clip_flags |= X_NEG;
-
-			if		(projected.y < -projected.w)	clip_flags |= Y_POS;
-			else if (projected.y > projected.w)		clip_flags |= Y_NEG;
-
-			if		(projected.z < -projected.w)	clip_flags |= Z_POS;
-			else if (projected.z > projected.w)		clip_flags |= Z_NEG;
-			mVtxProjected[i].ClipFlags = clip_flags;
+			mVtxProjected[i].ClipFlags = set_clip_flags( projected );
 
 			// Assign true vert colour
 			const u32 WL = *(u16*)((pVtxBase + 6) ^ 2);
@@ -1463,16 +1455,7 @@ void BaseRenderer::SetNewVertexInfoPD(u32 address, u32 v0, u32 n)
 
 
 		// Set Clipflags //Corn
-		u32 clip_flags = 0;
-		if		(projected.x < -projected.w)	clip_flags |= X_POS;
-		else if (projected.x > projected.w)		clip_flags |= X_NEG;
-
-		if		(projected.y < -projected.w)	clip_flags |= Y_POS;
-		else if (projected.y > projected.w)		clip_flags |= Y_NEG;
-
-		if		(projected.z < -projected.w)	clip_flags |= Z_POS;
-		else if (projected.z > projected.w)		clip_flags |= Z_NEG;
-		mVtxProjected[i].ClipFlags = clip_flags;
+		mVtxProjected[i].ClipFlags = set_clip_flags( projected );
 
 		if( mTnL.Flags.Light )
 		{

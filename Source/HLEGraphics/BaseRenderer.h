@@ -206,8 +206,8 @@ ALIGNED_TYPE(struct, TnLParams, 16)
 #define Y_POS  0x10	//top
 #define Z_POS  0x20	//near
 
-// Test all, including Z_NEG (near plane)? (TODO: Check No Near Plane microcodes)
-static const u32 CLIP_TEST_FLAGS = (X_POS | X_NEG | Y_POS | Y_NEG | Z_NEG);
+// Test all, including Z_NEG (far plane)? (TODO: Check No Near Plane microcodes)
+static const u32 CLIP_TEST_FLAGS = ( X_POS | X_NEG | Y_POS | Y_NEG | Z_POS | Z_NEG );
 
 
 enum CycleType
