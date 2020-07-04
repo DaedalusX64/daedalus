@@ -397,18 +397,24 @@ void BaseRenderer::UpdateViewport()
 //*****************************************************************************
 bool BaseRenderer::TestVerts(u32 v0, u32 vn) const
 {
-	if (v0 >= kMaxN64Vertices)
+	if ((vn + v0) > kMaxN64Vertices) 
 	{
-		DAEDALUS_ERROR("Vertex index is out of bounds (%d)", v0 );
+		DAEDALUS_ERROR("Vertex index is out of bounds (%d)", (vn + v0));
 		return false;
 	}
 
-	u32 f = mVtxProjected[v0].ClipFlags;
-	for (u32 i = (v0 + 1); i <= vn && i < kMaxN64Vertices; i++)
+	if (vn < v0)
+		Swap< u32 >( vn, v0 );
+
+	u32 flags =  mVtxProjected[v0].ClipFlags;
+	for (u32 i = (v0+1); i <= vn; i++)
 	{
-		f &= mVtxProjected[i].ClipFlags;
+		flags &= mVtxProjected[i].ClipFlags;
+		if ((flags & CLIP_TEST_FLAGS) == 0)
+			return true;
 	}
-	return f == 0;
+
+	return false;
 }
 
 //*****************************************************************************

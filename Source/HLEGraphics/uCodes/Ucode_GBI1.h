@@ -286,8 +286,6 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 	u32 last = command.culldl.end;
 
 	DL_PF("    Culling using verts %d to %d\n", first, last);
-
-	if( last < first ) return;
 	if( gRenderer->TestVerts( first, last ) )
 	{
 		DL_PF("    Display list is visible, returning");
