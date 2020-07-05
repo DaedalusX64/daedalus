@@ -102,7 +102,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define G_DKR_DMATRI	0x05
 #define G_DKR_DLINMEM	0x07
-
+#define G_GE_Tri4       0xb1
 #define G_PD_VTXBASE    0x07
 #define G_CONKER_QUAD   0x10
 

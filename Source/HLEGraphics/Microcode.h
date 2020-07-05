@@ -45,9 +45,6 @@ enum GBIVersion
 
 struct UcodeInfo
 {
-	u32 version;
-	u32 stride;
-
 	const MicroCodeInstruction * func;
 	const char ** name;
 };

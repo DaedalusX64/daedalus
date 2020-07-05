@@ -20,13 +20,81 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef HLEGRAPHICS_UCODES_UCODE_GE_H_
 #define HLEGRAPHICS_UCODES_UCODE_GE_H_
 
-#undef __GE_NOTHING
 //*****************************************************************************
 //
 //*****************************************************************************
+// GE and PD have alot of empty tris...
+inline bool AddTri4( u32 v0, u32 v1, u32 v2 )
+{
+	if( v0 == v1 )
+	{
+		DL_PF("    Tris: v0:%d, v1:%d, v2:%d (Culled -> Empty)",v0, v1, v2);
+		return false;
+	}
 
+	return gRenderer->AddTri(v0, v1, v2);
+}
 
-void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
+//*****************************************************************************
+//
+//*****************************************************************************
+//FIX ME: See TriX implementation in GlideN64
+void DLParser_Tri4_GE( MicroCodeCommand command )
+{
+	// While the next command pair is Tri4, add vertices
+	u32 pc = gDlistStack.address[gDlistStackPointer];
+	u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
+
+	bool tris_added = false;
+	do
+	{
+		//DL_PF("    0x%08x: %08x %08x Flag: 0x%02x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, (command.inst.cmd0 >> 16) & 0xFF, "G_GBI1_TRI4");
+
+		//Tri #1
+		u32 v0 = command.tri4.v0;
+		u32 v1 = command.tri4.v1;
+		u32 v2 = command.tri4.v2;
+
+		tris_added |= gRenderer->AddTri(v0, v1, v2);
+
+		//Tri #2
+		u32 v3 = command.tri4.v3;
+		u32 v4 = command.tri4.v4;
+		u32 v5 = command.tri4.v5;
+
+		tris_added |= AddTri4(v3, v4, v5);
+
+		//Tri #3
+		u32 v6 = command.tri4.v6;
+		u32 v7 = command.tri4.v7;
+		u32 v8 = command.tri4.v8;
+
+		tris_added |= AddTri4(v6, v7, v8);
+
+		//Tri #4
+		u32 v9  = command.tri4.v9;
+		u32 v10 = command.tri4.v10;
+		u32 v11 = command.tri4.v11;
+
+		tris_added |= AddTri4(v9, v10, v11);
+
+		command.inst.cmd0 = *pCmdBase++;
+		command.inst.cmd1 = *pCmdBase++;
+		pc += 8;
+	} while ( command.inst.cmd == G_GE_Tri4 );
+
+	gDlistStack.address[gDlistStackPointer] = pc-8;
+
+	if (tris_added)
+	{
+		gRenderer->FlushTris();
+	}
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_RDPHalf1_GE( MicroCodeCommand command )
 {
 	// Check for invalid address
 	if ( (command.inst.cmd1)>>24 != 0xce )
@@ -38,17 +106,6 @@ void DLParser_RDPHalf1_GoldenEye( MicroCodeCommand command )
 	// Indices
 	u32 a1 = *Cmd+8*0+4;
 	u32 a3 = *Cmd+8*2+4;
-
-	// Unused for now
-#ifdef __GE_NOTHING
-	u32 a2 = *Cmd+8*1+4;
-	u32 a4 = *Cmd+8*3+4;
-	u32 a5 = *Cmd+8*4+4;
-	u32 a6 = *Cmd+8*5+4;
-	u32 a7 = *Cmd+8*6+4;
-	u32 a8 = *Cmd+8*7+4;
-	u32 a9 = *Cmd+8*8+4;
-#endif
 
 	// Note : Color itself is handled elsewhere N.B Blendmode.cpp
 	//

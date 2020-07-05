@@ -130,7 +130,6 @@ struct MicrocodeData
 {
 	u32	ucode;
 	u32 offset;
-	u32 stride;
 	u32	hash;
 
 	const char *ucode_name;
@@ -142,21 +141,21 @@ static const MicrocodeData gMicrocodeData[] =
 	//	The only games that need defining here are custom ucodes or ucodes that lack a version string in the microcode data
 	//	Note - Games are in alphabetical order by game title
 	//
-	{ GBI_CONKER,	GBI_2,	2,	0x60256efc,	"RSP Gfx ucode F3DEXBG.NoN fifo 2.08  Yoshitaka Yasumoto 1999 Nintendo."},	// Conker's Bad Fur Day
-	{ GBI_LL,		GBI_1,	2,	0x6d8bec3e,	"RSP Gfx ucode: Unknown"},			//"Dark Rift"
-	{ GBI_DKR,		GBI_0,	10,	0x0c10181a,	"RSP Gfx ucode: Unknown"},			//"Diddy Kong Racing (v1.0)"
-	{ GBI_DKR,		GBI_0,	10,	0x713311dc,	"RSP Gfx ucode: Unknown"},			//"Diddy Kong Racing (v1.1)"
-	{ GBI_GE,		GBI_0,	10,	0x23f92542,	"RSP SW Version: 2.0G, 09-30-96"},	//"GoldenEye 007"
-	{ GBI_DKR,		GBI_0,	10,	0x169dcc9d,	"RSP Gfx ucode: Unknown"},			//"Jet Force Gemini"
-	{ GBI_LL,		GBI_1,	2,	0x26da8a4c,	"RSP Gfx ucode: Unknown"},			//"Last Legion UX"}
-	{ GBI_PD,		GBI_0,	10,	0xcac47dc4,	"RSP Gfx ucode: Unknown"},			//"Perfect Dark (v1.1)"
-	{ GBI_RS,		GBI_1,	2,	0xc62a1631, "RSP Gfx ucode: Unknown"},			// Star Wars - Rogue Squadron
-	{ GBI_BETA,		GBI_0,	5,	0x6cbb521d,	"RSP SW Version: 2.0D, 04-01-96"},	//"Star Wars - Shadows of the Empire (v1.0)"
-	{ GBI_LL,		GBI_1,	2,	0xdd560323,	"RSP Gfx ucode: Unknown"},			//"Toukon Road - Brave Spirits"
-	{ GBI_BETA,		GBI_0,	5,	0x64cc729d,	"RSP SW Version: 2.0D, 04-01-96"},	//"Wave Race 64 (v1.1)"
+	{ GBI_CONKER,	GBI_2,	0x60256efc,	"RSP Gfx ucode F3DEXBG.NoN fifo 2.08  Yoshitaka Yasumoto 1999 Nintendo."},	// Conker's Bad Fur Day
+	{ GBI_LL,		GBI_1,	0x6d8bec3e,	"RSP Gfx ucode: Unknown"},			//"Dark Rift"
+	{ GBI_DKR,		GBI_0,	0x0c10181a,	"RSP Gfx ucode: Unknown"},			//"Diddy Kong Racing (v1.0)"
+	{ GBI_DKR,		GBI_0,	0x713311dc,	"RSP Gfx ucode: Unknown"},			//"Diddy Kong Racing (v1.1)"
+	{ GBI_GE,		GBI_0,	0x23f92542,	"RSP SW Version: 2.0G, 09-30-96"},	//"GoldenEye 007"
+	{ GBI_DKR,		GBI_0,	0x169dcc9d,	"RSP Gfx ucode: Unknown"},			//"Jet Force Gemini"
+	{ GBI_LL,		GBI_1,	0x26da8a4c,	"RSP Gfx ucode: Unknown"},			//"Last Legion UX"}
+	{ GBI_PD,		GBI_0,	0xcac47dc4,	"RSP Gfx ucode: Unknown"},			//"Perfect Dark (v1.1)"
+	{ GBI_RS,		GBI_1,	0xc62a1631, "RSP Gfx ucode: Unknown"},			// Star Wars - Rogue Squadron
+	{ GBI_BETA,		GBI_0,	0x6cbb521d,	"RSP SW Version: 2.0D, 04-01-96"},	//"Star Wars - Shadows of the Empire (v1.0)"
+	{ GBI_LL,		GBI_1,	0xdd560323,	"RSP Gfx ucode: Unknown"},			//"Toukon Road - Brave Spirits"
+	{ GBI_BETA,		GBI_0,	0x64cc729d,	"RSP SW Version: 2.0D, 04-01-96"},	//"Wave Race 64 (v1.1)"
 };
 
-UcodeInfo GBIMicrocode_SetCache(u32 index, u32 code_base, u32 data_base, u32 ucode_stride, u32 ucode_version, 
+UcodeInfo GBIMicrocode_SetCache(u32 index, u32 code_base, u32 data_base, 
 	const MicroCodeInstruction * ucode_function, const char ** name )
 {
 	//
@@ -175,9 +174,7 @@ UcodeInfo GBIMicrocode_SetCache(u32 index, u32 code_base, u32 data_base, u32 uco
 	used.data_base = data_base;
 	
 	used.info.func = ucode_function;
-	used.info.stride = ucode_stride;
 	used.info.name = name;
-	//used.info.version = ucode_version; // unused for now
 	return used.info;
 }
 
@@ -209,13 +206,12 @@ UcodeInfo GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_bas
 		if ( code_hash == gMicrocodeData[i].hash )
 		{
 			u32 ucode_version = gMicrocodeData[i].ucode;
-			u32 ucode_stride = gMicrocodeData[i].stride;
 			u32 ucode_offset = gMicrocodeData[i].offset;
 
 			GBIMicrocode_SetCustomArray( ucode_version, ucode_offset ); 
 			DBGConsole_Msg(0, "Detected Custom Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]", ucode_version, code_hash, 
 				gMicrocodeData[i].ucode_name, g_ROM.settings.GameName.c_str());
-			return GBIMicrocode_SetCache( index, code_base, data_base, ucode_stride, ucode_version, gCustomInstruction, gCustomInstructionName );
+			return GBIMicrocode_SetCache( index, code_base, data_base, gCustomInstruction, gCustomInstructionName );
 		}
 	}
 	
@@ -226,7 +222,6 @@ UcodeInfo GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_bas
 
 	// Select Fast3D ucode in case there's no match or if the version string its missing
 	u32 ucode_version = GBI_0;
-	u32 ucode_stride = 10;
 
 	char str[256] = "";
 	if( !GBIMicrocode_DetectVersionString( data_base, data_size, str, 256 ) ) 
@@ -246,8 +241,6 @@ UcodeInfo GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_bas
 
 		if( match )
 		{
-			ucode_stride = 2;
-
 			if( strstr(match, "fifo") || strstr(match, "xbus") )
 			{
 				if( !strncmp(match, "S2DEX", 5) )
@@ -266,7 +259,7 @@ UcodeInfo GBIMicrocode_DetectVersion( u32 code_base, u32 code_size, u32 data_bas
 	}
 	DBGConsole_Msg(0, "Detected Ucode is: [M Ucode %d, 0x%08x, \"%s\", \"%s\"]", ucode_version, code_hash, 
 		str, g_ROM.settings.GameName.c_str());
-	return GBIMicrocode_SetCache(index, code_base, data_base, ucode_stride, ucode_version, gNormalInstruction[ ucode_version ], gNormalInstructionName[ ucode_version ]);
+	return GBIMicrocode_SetCache(index, code_base, data_base, gNormalInstruction[ ucode_version ], gNormalInstructionName[ ucode_version ]);
 }
 
 //****************************************************'*********************************
@@ -290,7 +283,8 @@ static void GBIMicrocode_SetCustomArray( u32 ucode_version, u32 ucode_offset )
 	switch( ucode_version )
 	{
 		case GBI_GE:
-			SetCommand( G_GBI1_RDPHALF_1, DLParser_RDPHalf1_GoldenEye,	"G_RDPHalf1_GoldenEye" );
+			SetCommand( G_GBI1_RDPHALF_1, DLParser_RDPHalf1_GE,			"G_RDPHalf1_GE" );
+			SetCommand( G_GE_Tri4, DLParser_Tri4_GE,					"G_Tri4_GE" );
 			break;
 		case GBI_BETA:
 			SetCommand( G_GBI1_VTX,	DLParser_GBI0_Vtx_Beta, 			"G_Vtx_Beta" );
@@ -306,7 +300,8 @@ static void GBIMicrocode_SetCustomArray( u32 ucode_version, u32 ucode_offset )
 		case GBI_PD:
 			SetCommand( G_GBI1_VTX, DLParser_Vtx_PD,					"G_Vtx_PD" );
 			SetCommand( G_PD_VTXBASE, DLParser_Set_Vtx_CI_PD,			"G_Set_Vtx_CI_PD" );
-			SetCommand( G_GBI1_RDPHALF_1, DLParser_RDPHalf1_GoldenEye,	"G_RDPHalf1_GoldenEye" );
+			SetCommand( G_GBI1_RDPHALF_1, DLParser_RDPHalf1_GE,			"G_RDPHalf1_GE" );
+			SetCommand( G_GE_Tri4, DLParser_Tri4_GE,					"G_Tri4_GE" );
 			break;
 		case GBI_DKR:
 			SetCommand( G_GBI1_MTX, DLParser_Mtx_DKR,		 			"G_Mtx_DKR" );

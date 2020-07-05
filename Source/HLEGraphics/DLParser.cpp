@@ -168,7 +168,6 @@ static RDP_Scissor		scissors;
 static RDP_GeometryMode gGeometryMode;
 static DList			gDlistStack;
 static s32				gDlistStackPointer = -1;
-static u32				gVertexStride = 10;
 static u32				gRDPHalf1 = 0;
 
        SImageDescriptor g_TI = { G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, 0 };
@@ -362,7 +361,6 @@ bool DLParser_Initialise()
 	GBIMicrocode_Reset();
 
 	// Init with Fast 3D ucode incase of a failure to start the ucode detection
-	gVertexStride = 10;
 	gUcodeFunc = gNormalInstruction[ GBI_0 ];
 	gUcodeName = gNormalInstructionName[ GBI_0 ];
 
@@ -390,8 +388,6 @@ void DLParser_InitMicrocode( u32 code_base, u32 code_size, u32 data_base, u32 da
 		return;
 	}
 	const UcodeInfo& ucode_info( GBIMicrocode_DetectVersion(code_base, code_size, data_base, data_size) );
-	
-	gVertexStride = ucode_info.stride;
 	gUcodeFunc = ucode_info.func;
 	gUcodeName = ucode_info.name;
 }

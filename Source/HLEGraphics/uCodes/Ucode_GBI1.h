@@ -515,12 +515,34 @@ void DLParser_GBI1_RDPHalf_1( MicroCodeCommand command )
 	gRDPHalf1 = command.inst.cmd1;
 }
 
+//*****************************************************************************
 //
-// TODO: Use these _T functions to apply the vertex stride at compile time 
-// This will allow to remove gVertexStride and will allow the compiler to better optimize the vertex indices
-// PS: Vertex stride its divide by 10 for GBI0, 5 for GBI0 Beta and 2 for GBI1/2
-//
+//*****************************************************************************
+void DLParser_GBI1_Tri2( MicroCodeCommand command )
+{
+	DLParser_GBI1_Tri2_T< 2 >(command);
+}
 
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_GBI1_Line3D( MicroCodeCommand command )
+{
+	DLParser_GBI1_Line3D_T< 2 >(command);
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+void DLParser_GBI1_Tri1( MicroCodeCommand command )
+{
+	DLParser_GBI1_Tri1_T< 2 >(command);
+}
+
+//*****************************************************************************
+// These are used to avoid duplicate code for microcodes with a different vertex stride ex 10 for GBI0 and 2 for GBI1
+// Also to optimize the vertex indices at compile time
+//*****************************************************************************
 template< u32 VertexStride > 
 void DLParser_GBI1_Tri1_T( MicroCodeCommand command )
 {
@@ -528,7 +550,6 @@ void DLParser_GBI1_Tri1_T( MicroCodeCommand command )
 
 	// While the next command pair is Tri1, add vertices
 	u32 pc	= gDlistStack.address[gDlistStackPointer];
-	u32 stride = gVertexStride;
 	u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
 
 	bool tris_added = false;
@@ -555,6 +576,9 @@ void DLParser_GBI1_Tri1_T( MicroCodeCommand command )
 	}
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 template< u32 VertexStride > 
 void DLParser_GBI1_Tri2_T( MicroCodeCommand command )
 {
@@ -594,14 +618,24 @@ void DLParser_GBI1_Tri2_T( MicroCodeCommand command )
 	}
 }
 
+//*****************************************************************************
+//
+//*****************************************************************************
 template< u32 VertexStride > 
 void DLParser_GBI1_Line3D_T( MicroCodeCommand command )
 {
 	//DAEDALUS_PROFILE( "DLParser_GBI1_Line3D_T" );
+	if( command.gbi1line3d.v3 == 0 )
+	{
+		// This removes the tris that cover the screen in Flying Dragon
+		// Actually this wrong, we should support line3D properly here..
+		DAEDALUS_ERROR("Flying Dragon Hack -- Skipping Line3D");
+		return;
+	}
+
 
 	// While the next command pair is Tri1, add vertices
 	u32 pc	= gDlistStack.address[gDlistStackPointer];
-	u32 stride = gVertexStride;
 	u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
 
 	bool tris_added = false;
@@ -621,98 +655,6 @@ void DLParser_GBI1_Line3D_T( MicroCodeCommand command )
 		command.inst.cmd1 = *pCmdBase++;
 		pc += 8;
 	} while ( command.inst.cmd == G_GBI1_LINE3D );
-
-	gDlistStack.address[gDlistStackPointer] = pc-8;
-
-	if (tris_added)
-	{
-		gRenderer->FlushTris();
-	}
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_GBI1_Tri2( MicroCodeCommand command )
-{
-	DLParser_GBI1_Tri2_T< 2 >(command);
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_GBI1_Line3D( MicroCodeCommand command )
-{
-	if( command.gbi1line3d.v3 == 0 )
-	{
-		// This removes the tris that cover the screen in Flying Dragon
-		// Actually this wrong, we should support line3D properly here..
-		#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-		DAEDALUS_ERROR("Flying Dragon Hack -- Skipping Line3D");
-		#endif
-		return;
-	}
-
-	// While the next command pair is Tri1, add vertices
-	u32 pc	= gDlistStack.address[gDlistStackPointer];
-	u32 stride = gVertexStride;
-	u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
-
-	bool tris_added = false;
-
-	do
-	{
-		//DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_LINE3D");
-
-		u32 v0_idx   = command.gbi1line3d.v0 / stride;
-		u32 v1_idx   = command.gbi1line3d.v1 / stride;
-		u32 v2_idx   = command.gbi1line3d.v2 / stride;
-		u32 v3_idx   = command.gbi1line3d.v3 / stride;
-
-		tris_added |= gRenderer->AddTri(v0_idx, v1_idx, v2_idx);
-		tris_added |= gRenderer->AddTri(v2_idx, v3_idx, v0_idx);
-
-		command.inst.cmd0 = *pCmdBase++;
-		command.inst.cmd1 = *pCmdBase++;
-		pc += 8;
-	} while ( command.inst.cmd == G_GBI1_LINE3D );
-
-	gDlistStack.address[gDlistStackPointer] = pc-8;
-
-	if (tris_added)
-	{
-		gRenderer->FlushTris();
-	}
-}
-
-//*****************************************************************************
-//
-//*****************************************************************************
-void DLParser_GBI1_Tri1( MicroCodeCommand command )
-{
-	//DAEDALUS_PROFILE( "DLParser_GBI1_Tri1_T" );
-	// While the next command pair is Tri1, add vertices
-	u32 pc	= gDlistStack.address[gDlistStackPointer];
-	u32 stride = gVertexStride;
-	u32 * pCmdBase = (u32 *)( g_pu8RamBase + pc );
-
-	bool tris_added = false;
-
-	do
-	{
-		//DL_PF("    0x%08x: %08x %08x %-10s", pc-8, command.inst.cmd0, command.inst.cmd1, "G_GBI1_TRI1");
-
-		// Vertex indices are multiplied by 10 for Mario64, by 2 for MarioKart
-		u32 v0_idx = command.gbi1tri1.v0 / stride;
-		u32 v1_idx = command.gbi1tri1.v1 / stride;
-		u32 v2_idx = command.gbi1tri1.v2 / stride;
-
-		tris_added |= gRenderer->AddTri(v0_idx, v1_idx, v2_idx);
-
-		command.inst.cmd0= *pCmdBase++;
-		command.inst.cmd1= *pCmdBase++;
-		pc += 8;
-	} while ( command.inst.cmd == G_GBI1_TRI1 );
 
 	gDlistStack.address[gDlistStackPointer] = pc-8;
 

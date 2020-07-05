@@ -125,6 +125,7 @@ UcodeFunc( DLParser_S2DEX_RDPHalf_0 );
 UcodeFunc( DLParser_S2DEX_ObjMoveMem );
 UcodeFunc( DLParser_S2DEX_Bg1cyc );
 UcodeFunc( DLParser_S2DEX_ObjRectangleR );
+
 //*****************************************************************************
 // RDP Commands
 //*****************************************************************************
@@ -172,7 +173,6 @@ UcodeFunc( DLParser_GBI0_Tri2_Beta );
 UcodeFunc( DLParser_Last_Legion_0x80 );
 UcodeFunc( DLParser_Last_Legion_0x00 );
 UcodeFunc( DLParser_TexRect_Last_Legion );
-UcodeFunc( DLParser_RDPHalf1_GoldenEye );
 UcodeFunc( DLParser_DLInMem );
 UcodeFunc( DLParser_Mtx_DKR );
 UcodeFunc( DLParser_MoveWord_DKR );
@@ -188,6 +188,7 @@ UcodeFunc( DLParser_MoveWord_Conker );
 UcodeFunc( DLParser_Vtx_Conker );
 UcodeFunc( DLParser_Set_Vtx_CI_PD );
 UcodeFunc( DLParser_Vtx_PD );
-//UcodeFunc( DLParser_Tri4_PD );
+UcodeFunc( DLParser_Tri4_GE );
+UcodeFunc( DLParser_RDPHalf1_GE );
 
 #endif // HLEGRAPHICS_UCODES_UCODE_H___
