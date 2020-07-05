@@ -188,7 +188,7 @@ UcodeFunc( DLParser_MoveWord_Conker );
 UcodeFunc( DLParser_Vtx_Conker );
 UcodeFunc( DLParser_Set_Vtx_CI_PD );
 UcodeFunc( DLParser_Vtx_PD );
-UcodeFunc( DLParser_Tri4_GE );
+UcodeFunc( DLParser_Trix_GE );
 UcodeFunc( DLParser_RDPHalf1_GE );
 
 #endif // HLEGRAPHICS_UCODES_UCODE_H___

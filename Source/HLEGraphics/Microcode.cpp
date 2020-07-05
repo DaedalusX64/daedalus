@@ -284,7 +284,7 @@ static void GBIMicrocode_SetCustomArray( u32 ucode_version, u32 ucode_offset )
 	{
 		case GBI_GE:
 			SetCommand( G_GBI1_RDPHALF_1, DLParser_RDPHalf1_GE,			"G_RDPHalf1_GE" );
-			SetCommand( G_GE_Tri4, DLParser_Tri4_GE,					"G_Tri4_GE" );
+			SetCommand( G_GE_TriX, DLParser_Trix_GE,					"G_TriX_GE" );
 			break;
 		case GBI_BETA:
 			SetCommand( G_GBI1_VTX,	DLParser_GBI0_Vtx_Beta, 			"G_Vtx_Beta" );
@@ -301,7 +301,7 @@ static void GBIMicrocode_SetCustomArray( u32 ucode_version, u32 ucode_offset )
 			SetCommand( G_GBI1_VTX, DLParser_Vtx_PD,					"G_Vtx_PD" );
 			SetCommand( G_PD_VTXBASE, DLParser_Set_Vtx_CI_PD,			"G_Set_Vtx_CI_PD" );
 			SetCommand( G_GBI1_RDPHALF_1, DLParser_RDPHalf1_GE,			"G_RDPHalf1_GE" );
-			SetCommand( G_GE_Tri4, DLParser_Tri4_GE,					"G_Tri4_GE" );
+			SetCommand( G_GE_TriX, DLParser_Trix_GE,					"G_TriX_GE" );
 			break;
 		case GBI_DKR:
 			SetCommand( G_GBI1_MTX, DLParser_Mtx_DKR,		 			"G_Mtx_DKR" );
