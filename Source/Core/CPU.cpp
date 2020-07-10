@@ -870,37 +870,40 @@ bool CPU_CheckStuffToDo()
 {
 	// We do this in a slightly different order to ensure that
 	// any interrupts are taken care of before we execute an op
-// Process Interrupts/Exceptions on a priority basis
-		// Call most likely first!
+	u32 stuff_to_do = gCPUState.GetStuffToDo();
+	DAEDALUS_ASSERT( stuff_to_do, "Check Me: Should always have something to do");
 
-		if( gCPUState.GetStuffToDo() & CPU_CHECK_INTERRUPTS )
-		{
-			R4300_Handle_Interrupt();
-			gCPUState.ClearJob( CPU_CHECK_INTERRUPTS );
-		}
-		else if( gCPUState.GetStuffToDo() & CPU_CHECK_EXCEPTIONS )
-		{
-			R4300_Handle_Exception();
-			gCPUState.ClearJob( CPU_CHECK_EXCEPTIONS );
-		}
-		else if( gCPUState.GetStuffToDo() & CPU_CHANGE_CORE )
-		{
-			gCPUState.ClearJob( CPU_CHANGE_CORE );
-			return true;
-		}
-		else if( gCPUState.GetStuffToDo() & CPU_STOP_RUNNING )
-		{
-			gCPUState.ClearJob( CPU_STOP_RUNNING );
-			gCPURunning = false;
-			return true;
-		}
-		// Clear stuff_to_do?
+	// Process Interrupts/Exceptions on a priority basis
+	// Call most likely first!
+	if (stuff_to_do & CPU_CHECK_INTERRUPTS)
+	{
+		R4300_Handle_Interrupt();
+		gCPUState.ClearJob(CPU_CHECK_INTERRUPTS);
+	}
+	else if (stuff_to_do & CPU_CHECK_EXCEPTIONS)
+	{
+		R4300_Handle_Exception();
+		gCPUState.ClearJob(CPU_CHECK_EXCEPTIONS);
+	}
+	else if (stuff_to_do & CPU_CHANGE_CORE)
+	{
+		gCPUState.ClearJob(CPU_CHANGE_CORE);
+		return true;
+	}
+	else if (stuff_to_do & CPU_STOP_RUNNING)
+	{
+		gCPUState.ClearJob(CPU_STOP_RUNNING);
+		gCPURunning = false;
+		return true;
+	}
+	// Clear\stuff_to_do?
 
 	return false;
 }
 
+// FIX ME: This gets called alot
 // Return true if the CPU is running
-bool CPU_IsRunning()
-{
-	return gCPURunning;
+bool CPU_IsRunning()	
+{	
+	return gCPURunning;	
 }

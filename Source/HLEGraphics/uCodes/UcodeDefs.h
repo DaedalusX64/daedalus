@@ -145,7 +145,17 @@ struct GBI1_BranchZ
     u32 vtx:11;
     u32 pad1:12;
     u32 cmd:8;
-    u32 value:32;
+	u32 pad2:16;
+    u32 value:16;
+};
+
+struct GBI2_BranchW
+{
+	u32 pad0:1;
+	u32 vtx:7;
+	u32 pad1:16;
+	u32 cmd:8;
+	u32 value:32;
 };
 
 struct GBI1_ModifyVtx
@@ -429,6 +439,7 @@ union MicroCodeCommand
 	GBI2_Vtx		vtx2;
 	GBI1_ModifyVtx	modifyvtx;
 	GBI1_BranchZ	branchz;
+	GBI2_BranchW	branchw;
 	GBI1_Matrix		mtx1;
 	GBI2_Matrix		mtx2;
 	//GBI1_PopMatrix	popmtx;
