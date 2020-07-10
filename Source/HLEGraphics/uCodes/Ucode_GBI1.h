@@ -305,21 +305,25 @@ void DLParser_GBI1_CullDL( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_DL( MicroCodeCommand command )
 {
-#if defined(DAEDALUS_DEBUG_DISPLAYLIST) || defined(DAEDALUS_ENABLE_ASSERTS)
-	u32 addr = RDPSegAddr(command.dlist.addr);
-	DAEDALUS_ASSERT( addr < MAX_RAM_ADDRESS, "Dlist address out of range" );
-	DAEDALUS_ASSERT( gDlistStackPointer < 9, "Dlist array is getting too deep"  );
+	u32 address = RDPSegAddr(command.dlist.addr);
+	if( !IsAddressValid(address, 8, "DL") )
+		return;
 
-	DL_PF("    Address=0x%08x %s", addr, (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
+	// TODO: Add proper check for the pc stacklist size, it should be 10 for F3D and 18 for F3DEX
+	DAEDALUS_ASSERT( gDlistStackPointer < 9, "Dlist array is getting too deep" );
+
+	// TODO
+	DAEDALUS_ASSERT( gDlistStack.address[gDlistStackPointer] != address + 8, "DL: Infinite loop detected" );
+
+	DL_PF("    Address=0x%08x %s", address, (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
 	DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
 	DL_PF("    ############################################");
-#endif
+
 
 	if( command.dlist.param == G_DL_PUSH )
 		gDlistStackPointer++;
 
-	// Compiler gives much better asm if RDPSegAddr.. is sticked directly here
-	gDlistStack.address[gDlistStackPointer] = RDPSegAddr(command.dlist.addr) & (MAX_RAM_ADDRESS-1);
+	gDlistStack.address[gDlistStackPointer] = address;
 }
 
 //*****************************************************************************
@@ -344,8 +348,10 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 		if (gRenderer->GetVtxWeight(command.branchw.vtx) < (f32)command.branchw.value) 
 		{
 			u32 address = RDPSegAddr(gRDPHalf1);
-			if( IsAddressValid(address, 8, "BranchW") )
-				gDlistStack.address[gDlistStackPointer] = address;
+			if( !IsAddressValid(address, 8, "BranchW") )
+				return;
+
+			gDlistStack.address[gDlistStackPointer] = address;
 		}
 	} 
 	else 
@@ -359,8 +365,10 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 		if (zTest > 0x3FF || zTest <= command.branchz.value)
 		{
 			u32 address = RDPSegAddr(gRDPHalf1);
-			if( IsAddressValid(address, 8, "BranchZ") )
-				gDlistStack.address[gDlistStackPointer] = address;
+			if( !IsAddressValid(address, 8, "BranchZ") )
+				return;
+				
+			gDlistStack.address[gDlistStackPointer] = address;
 		}
 	}
 }

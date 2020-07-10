@@ -136,7 +136,7 @@ void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 	// NB Glover calls RDP Sync before draw for the sky.. so checks were added
 	do
 	{
-		address = RDPSegAddr(command.inst.cmd1) & (MAX_RAM_ADDRESS-1);
+		address = RDPSegAddr(command.inst.cmd1);
 		sprite = (Sprite2DStruct *)(g_ps8RamBase + address);
 
 		// Fetch Sprite2D Flip

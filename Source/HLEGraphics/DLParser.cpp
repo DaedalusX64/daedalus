@@ -76,8 +76,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define N64COL_GETB_F( col )	(N64COL_GETB(col) * (1.0f/255.0f))
 #define N64COL_GETA_F( col )	(N64COL_GETA(col) * (1.0f/255.0f))
 
-// Mask down to 0x003FFFFF?
-#define RDPSegAddr(seg) ( (gSegments[((seg)>>24)&0x0F]&0x00ffffff) + ((seg)&0x00FFFFFF) )
+#define RDPSegAddr(seg)	( (gSegments[(seg >> 24) & 0x0F] + (seg & (MAX_RAM_ADDRESS-1))) & (MAX_RAM_ADDRESS-1))
 
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
@@ -90,6 +89,8 @@ struct N64Viewport
     s16 scale_y, scale_x, scale_w, scale_z;
 	s16 trans_y, trans_x, trans_w, trans_z;
 };
+
+DAEDALUS_STATIC_ASSERT( sizeof(N64Viewport) == 16 );
 
 struct N64mat
 {
@@ -106,6 +107,8 @@ struct N64mat
 	_s16 h[4];
 	_u16 l[4];
 };
+
+DAEDALUS_STATIC_ASSERT( sizeof(N64mat) == 64 );
 
 struct N64Light
 {
@@ -566,36 +569,18 @@ u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 //*****************************************************************************
 void MatrixFromN64FixedPoint( Matrix4x4 & mat, u32 address )
 {
-	DAEDALUS_ASSERT( address+64 < MAX_RAM_ADDRESS, "Mtx: Address invalid (0x%08x)", address);
+	if( !IsAddressValid(address, 64, "MatrixFromN64FixedPoint") )
+		return;
 
 	const f32 fRecip = 1.0f / 65536.0f;
 	const N64mat *Imat = (N64mat *)( g_pu8RamBase + address );
 
-	s16 hi;
-	s32 tmp;
 	for (u32 i = 0; i < 4; i++)
 	{
-#if 1	// Crappy compiler.. reordering is to optimize the ASM // Corn
-		tmp = ((Imat->h[i].x << 16) | Imat->l[i].x);
-		hi = Imat->h[i].y;
-		mat.m[i][0] =  tmp * fRecip;
-
-		tmp = ((hi << 16) | Imat->l[i].y);
-		hi = Imat->h[i].z;
-		mat.m[i][1] = tmp * fRecip;
-
-		tmp = ((hi << 16) | Imat->l[i].z);
-		hi = Imat->h[i].w;
-		mat.m[i][2] = tmp * fRecip;
-
-		tmp = ((hi << 16) | Imat->l[i].w);
-		mat.m[i][3] = tmp * fRecip;
-#else
 		mat.m[i][0] = ((Imat->h[i].x << 16) | Imat->l[i].x) * fRecip;
 		mat.m[i][1] = ((Imat->h[i].y << 16) | Imat->l[i].y) * fRecip;
 		mat.m[i][2] = ((Imat->h[i].z << 16) | Imat->l[i].z) * fRecip;
 		mat.m[i][3] = ((Imat->h[i].w << 16) | Imat->l[i].w) * fRecip;
-#endif
 	}
 }
 
@@ -667,7 +652,8 @@ void RDP_MoveMemLight(u32 address, u32 light_idx)
 
 void RDP_MoveMemViewport(u32 address)
 {
-	DAEDALUS_ASSERT( address+16 < MAX_RAM_ADDRESS, "MoveMem Viewport, invalid memory" );
+	if( !IsAddressValid(address, 16, "RDP_MoveMemViewport") )
+		return;
 
 	// address is offset into RD_RAM of 8 x 16bits of data...
 	N64Viewport *vp = (N64Viewport*)(g_pu8RamBase + address);
@@ -842,7 +828,7 @@ void DLParser_SetTImg( MicroCodeCommand command )
 	g_TI.Format		= command.img.fmt;
 	g_TI.Size		= command.img.siz;
 	g_TI.Width		= command.img.width + 1;
-	g_TI.Address	= RDPSegAddr(command.img.addr) & (MAX_RAM_ADDRESS-1);
+	g_TI.Address	= RDPSegAddr(command.img.addr);
 	//g_TI.bpl		= g_TI.Width << g_TI.Size >> 1;
 
 	DL_PF("    TImg Adr[0x%08x] Format[%s/%s] Width[%d] Pitch[%d] Bytes/line[%d]",
@@ -1138,10 +1124,8 @@ void DLParser_FillRect( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_SetZImg( MicroCodeCommand command )
 {
-	DL_PF("    ZImg Adr[0x%08x]", RDPSegAddr(command.inst.cmd1));
-
-	// No need check for (MAX_RAM_ADDRESS-1) here, since g_DI.Address is never used to reference a RAM location
 	g_DI.Address = RDPSegAddr(command.inst.cmd1);
+	DL_PF("    ZImg Adr[0x%08x]", g_DI.Address);
 }
 
 //*****************************************************************************
@@ -1152,10 +1136,10 @@ void DLParser_SetCImg( MicroCodeCommand command )
 	g_CI.Format = command.img.fmt;
 	g_CI.Size   = command.img.siz;
 	g_CI.Width  = command.img.width + 1;
-	g_CI.Address = RDPSegAddr(command.img.addr) & (MAX_RAM_ADDRESS-1);
+	g_CI.Address = RDPSegAddr(command.img.addr);
 	//g_CI.Bpl		= g_CI.Width << g_CI.Size >> 1;
 
-	DL_PF("    CImg Adr[0x%08x] Format[%s] Size[%s] Width[%d]", RDPSegAddr(command.inst.cmd1), gFormatNames[ g_CI.Format ], gSizeNames[ g_CI.Size ], g_CI.Width);
+	DL_PF("    CImg Adr[0x%08x] Format[%s] Size[%s] Width[%d]", g_CI.Address, gFormatNames[ g_CI.Format ], gSizeNames[ g_CI.Size ], g_CI.Width);
 }
 
 //*****************************************************************************
