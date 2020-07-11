@@ -36,19 +36,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 int main(int argc, char **argv)
 {
-	bool quit = false;
 	int result = 0;
 
 	if (argc > 0)
 	{
-		IO::Filename exe_path;
-		char *argvcopybuffer;
-		argvcopybuffer = strdup(argv[0]);
+		char* exe_path = realpath(argv[0], nullptr);
+		strcpy(gDaedalusExePath, exe_path);
+		free(exe_path);
+		
+		IO::Path::RemoveFileSpec(gDaedalusExePath);
 
-		strcmp(argvcopybuffer, exe_path);
-		strcmp(gDaedalusExePath, exe_path);
-		char (gDaedalusExePath);
-
+		// Init save paths
 		strcpy( g_DaedalusConfig.mSaveDir, DAEDALUS_POSIX_PATH( "SaveGames/" ) );
 		strcpy( g_DaedalusConfig.mCacheDir, DAEDALUS_POSIX_PATH( "Cache/" ) );
 	}
@@ -62,6 +60,7 @@ int main(int argc, char **argv)
 
 	if (!System_Init())
 	{
+		fprintf(stderr, "System_Init failed\n");
 		return 1;
 	}
 
@@ -86,13 +85,12 @@ int main(int argc, char **argv)
 				{
 					if (i+1 < argc)
 					{
-						const char * relative_path = argv[i+1];
+						const char *relative_path = argv[i+1];
 						++i;
 
-						IO::Filename	dir;
-						realpath(relative_path, dir);
-
+						char* dir = realpath(relative_path, nullptr);
 						CRomDB::Get()->AddRomDirectory(dir);
+						free(dir);
 					}
 				}
 			}
@@ -104,15 +102,22 @@ int main(int argc, char **argv)
 
 		if (batch_test)
 		{
-			#ifdef DAEDALUS_BATCH_TEST_ENABLED
+#ifdef DAEDALUS_BATCH_TEST_ENABLED
 				BatchTestMain(argc, argv);
-			#else
+#else
 				fprintf(stderr, "BatchTest mode is not present in this build.\n");
-			#endif
+#endif
 		}
 		else if (filename)
 		{
 			System_Open( filename );
+
+			//
+			// Commit the preferences and roms databases before starting to run
+			//
+			CRomDB::Get()->Commit();
+			//CPreferences::Get()->Commit();
+
 			CPU_Run();
 			System_Close();
 		}

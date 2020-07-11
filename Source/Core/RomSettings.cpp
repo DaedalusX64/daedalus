@@ -222,15 +222,12 @@ static RomID	RomIDFromString( const char * str )
 
 bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 {
-
 	strcpy(mFilename, filename);
 
 	CIniFile * p_ini_file( CIniFile::Create( filename ) );
 	if( p_ini_file == nullptr )
 	{
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg( 0, "Failed to open RomDB from %s\n", filename );
-		#endif
 		return false;
 	}
 
@@ -329,14 +326,13 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 
 
 //	Write out the .ini file, keeping the original comments intact
-
 void IRomSettingsDB::Commit()
 {
 	IO::Filename filename_tmp;
 	IO::Filename filename_del;
 
-	sprintf(filename_tmp, "%s.tmp", mFilename);
-	sprintf(filename_del, "%s.del", mFilename);
+	IO::Path::AddExtension(filename_tmp, ".tmp");
+	IO::Path::AddExtension(filename_del, ".del");
 
 	FILE * fh_src = fopen(mFilename, "r");
 	if (fh_src == nullptr)
@@ -415,9 +411,6 @@ void IRomSettingsDB::Commit()
 
 	mDirty = false;
 }
-
-
-//
 
 void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings & settings, FILE * fh )
 {
