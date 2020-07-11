@@ -294,9 +294,10 @@ void DLParser_MoveWord_Conker( MicroCodeCommand command )
 		{
 			u16 offset = (u16)( command.inst.cmd0 & 0xFFFF);
 			u32 segment = (offset >> 2) & 0xF;
+			u32 address	= command.inst.cmd1 & 0x00FFFFFF;
 			
-			DL_PF( "    G_MW_SEGMENT Segment[%d] = 0x%08x", segment, command.inst.cmd1 );
-			gSegments[segment] = command.inst.cmd1;
+			DL_PF( "    G_MW_SEGMENT Segment[%d] = 0x%08x", segment, address );
+			gSegments[segment] = address;
 		}
 		break;
 

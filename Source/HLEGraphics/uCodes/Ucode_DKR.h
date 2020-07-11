@@ -284,20 +284,16 @@ void DLParser_DMA_Tri_DKR( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_Texture_DKR( MicroCodeCommand command )
 {
-	u32 tile    = command.texture.tile;
+	DL_PF("    Texture its enabled: Level[%d] Tile[%d]", command.texture.level, command.texture.tile);
 
-	// Seems to use 0x01
-	// FIX ME, this is wasteful.. Force enable texture in DKR Ucode, fixes static texture bug etc
-    bool enable = true;
+	// Force enable texture in DKR Ucode, fixes static texture bug etc
+	gRenderer->SetTextureEnable( true );
+	gRenderer->SetTextureTile( command.texture.tile );
 
-	DL_PF("    Level[%d] Tile[%d] %s", command.texture.level, tile, enable? "enable":"disable");
-	gRenderer->SetTextureTile( tile);
-	gRenderer->SetTextureEnable( enable);
+	f32 scale_s = f32(command.texture.scaleS) / (65536.0f * 32.0f);
+	f32 scale_t = f32(command.texture.scaleT)  / (65536.0f * 32.0f);
 
-	f32 scale_s = f32(command.texture.scaleS)  / (65535.0f * 32.0f);
-	f32 scale_t = f32(command.texture.scaleT)  / (65535.0f * 32.0f);
-
-	DL_PF("    ScaleS[%0.4f] ScaleT[%0.4f]", scale_s*32.0f, scale_t*32.0f);
+	DL_PF("    ScaleS[%0.4f], ScaleT[%0.4f]", scale_s*32.0f, scale_t*32.0f);
 	gRenderer->SetTextureScale( scale_s, scale_t );
 }
 

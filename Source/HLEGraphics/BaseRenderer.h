@@ -241,8 +241,14 @@ public:
 #else
 	inline void			SetTnLMode(u32 mode)					{ mTnL.Flags.Modes = mode; UpdateFogEnable(); /*UpdateShadeModel();*/ }
 #endif
+	// Texture stuff
 	inline void			SetTextureEnable(bool enable)			{ mTnL.Flags.Texture = enable; }
 	inline void			SetTextureTile(u32 tile)				{ mTextureTile = tile; }
+	inline void			SetTextureScale(float fScaleX, float fScaleY)	
+	{ 
+		mTnL.TextureScaleX = fScaleX == 0 ? 1/32.0f : fScaleX;
+		mTnL.TextureScaleY = fScaleY == 0 ? 1/32.0f : fScaleY; 
+	}
 	inline u32			GetTextureTile() const					{ return mTextureTile; }
 	inline void			SetCullMode(bool enable, bool mode)		{ mTnL.Flags.TriCull = enable; mTnL.Flags.CullBack = mode; }
 
@@ -275,8 +281,6 @@ public:
 	inline f32			GetCoordMod( u32 idx )					{ return mTnL.CoordMod[idx]; }
 	inline void			SetCoordMod( u32 idx, f32 mod )			{ mTnL.CoordMod[idx] = mod; }
 	inline void			SetMux( u64 mux )						{ mMux = mux; }
-
-	inline void			SetTextureScale(float fScaleX, float fScaleY)	{ mTnL.TextureScaleX = fScaleX; mTnL.TextureScaleY = fScaleY; }
 
 	// TextRect stuff
 	virtual void		TexRect( u32 tile_idx, const v2 & xy0, const v2 & xy1, TexCoord st0, TexCoord st1 ) = 0;
@@ -407,7 +411,7 @@ protected:
 	v2					mVpTrans;
 
 	u64					mMux;
-
+	
 	u32					mTextureTile;
 
 	f32					mPrimDepth;

@@ -126,10 +126,9 @@ void DLParser_GBI2_MoveWord( MicroCodeCommand command )
 	case G_MW_SEGMENT:
 		{
 			u32 segment = command.mw2.offset >> 2;
-			u32 address	= command.mw2.value;
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+			u32 address	= command.mw2.value & 0x00FFFFFF;
+
 			DL_PF( "    G_MW_SEGMENT Segment[%d] = 0x%08x", segment, address );
-#endif
 			gSegments[segment] = address;
 		}
 		break;
@@ -420,17 +419,22 @@ void DLParser_GBI2_SetOtherModeH( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_Texture( MicroCodeCommand command )
 {
-	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DL_PF("    Level[%d] Tile[%d] %s", command.texture.level, command.texture.tile, command.texture.enable_gbi2 ? "enable":"disable");
-	#endif
-	gRenderer->SetTextureTile( command.texture.tile );
-	gRenderer->SetTextureEnable( command.texture.enable_gbi2 );
+	bool enabled = command.texture.enable_gbi2;
+	if (!enabled)
+	{
+		DL_PF("    Texture its disabled -> Ignored");
+		gRenderer->SetTextureEnable( false );
+		return;
+	}
 
-	f32 scale_s = f32(command.texture.scaleS) / (65535.0f * 32.0f);
-	f32 scale_t = f32(command.texture.scaleT)  / (65535.0f * 32.0f);
-	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
+	DL_PF("    Texture its enabled: Level[%d] Tile[%d]", command.texture.level, command.texture.tile);
+	gRenderer->SetTextureEnable( true );
+	gRenderer->SetTextureTile( command.texture.tile );
+
+	f32 scale_s = f32(command.texture.scaleS) / (65536.0f * 32.0f);
+	f32 scale_t = f32(command.texture.scaleT)  / (65536.0f * 32.0f);
+
 	DL_PF("    ScaleS[%0.4f], ScaleT[%0.4f]", scale_s*32.0f, scale_t*32.0f);
-	#endif
 	gRenderer->SetTextureScale( scale_s, scale_t );
 }
 

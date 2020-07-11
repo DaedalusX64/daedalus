@@ -207,8 +207,10 @@ void DLParser_GBI1_MoveWord( MicroCodeCommand command )
 	case G_MW_SEGMENT:
 		{
 			u32 segment = (offset >> 2) & 0xF;
-			DL_PF("    G_MW_SEGMENT Seg[%d] = 0x%08x", segment, value);
-			gSegments[segment] = value;
+			u32 address	= value & 0x00FFFFFF;
+			
+			DL_PF("    G_MW_SEGMENT Seg[%d] = 0x%08x", segment, address);
+			gSegments[segment] = address;
 		}
 		break;
 
@@ -352,6 +354,7 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 				return;
 
 			gDlistStack.address[gDlistStackPointer] = address;
+			DL_PF("    BranchW: Jump -> DisplayList 0x%08x", address);
 		}
 	} 
 	else 
@@ -367,8 +370,9 @@ void DLParser_GBI1_BranchZ( MicroCodeCommand command )
 			u32 address = RDPSegAddr(gRDPHalf1);
 			if( !IsAddressValid(address, 8, "BranchZ") )
 				return;
-				
+			
 			gDlistStack.address[gDlistStackPointer] = address;
+			DL_PF("    BranchZ: Jump -> DisplayList 0x%08x", address);
 		}
 	}
 }
@@ -466,20 +470,23 @@ void DLParser_GBI1_SetOtherModeH( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI1_Texture( MicroCodeCommand command )
 {
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DL_PF("    Level[%d] Tile[%d] %s", command.texture.level, command.texture.tile, command.texture.enable_gbi0? "enable":"disable");
-#endif
+	bool enabled = command.texture.enable_gbi0;
+	if (!enabled)
+	{
+		DL_PF("    Texture its disabled -> Ignored");
+		gRenderer->SetTextureEnable( false );
+		return;
+	}
 
-	gRenderer->SetTextureTile( command.texture.tile);
-	gRenderer->SetTextureEnable( command.texture.enable_gbi0);
+	DL_PF("    Texture its enabled: Level[%d] Tile[%d]", command.texture.level, command.texture.tile);
+	gRenderer->SetTextureEnable( true );
+	gRenderer->SetTextureTile( command.texture.tile );
 
-	f32 scale_s = f32(command.texture.scaleS)  / (65535.0f * 32.0f);
-	f32 scale_t = f32(command.texture.scaleT)  / (65535.0f * 32.0f);
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DL_PF("    ScaleS[%0.4f] ScaleT[%0.4f]", scale_s*32.0f, scale_t*32.0f);
-	#endif
+	f32 scale_s = f32(command.texture.scaleS) / (65536.0f * 32.0f);
+	f32 scale_t = f32(command.texture.scaleT)  / (65536.0f * 32.0f);
+
+	DL_PF("    ScaleS[%0.4f], ScaleT[%0.4f]", scale_s*32.0f, scale_t*32.0f);
 	gRenderer->SetTextureScale( scale_s, scale_t );
-
 }
 
 //*****************************************************************************
