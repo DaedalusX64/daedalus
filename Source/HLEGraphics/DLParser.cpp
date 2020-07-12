@@ -64,17 +64,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define DL_UNIMPLEMENTED_ERROR( msg )
 #endif
 
-#define MAX_DL_STACK_SIZE	32
-
-#define N64COL_GETR( col )		(u8((col) >> 24))
-#define N64COL_GETG( col )		(u8((col) >> 16))
-#define N64COL_GETB( col )		(u8((col) >>  8))
-#define N64COL_GETA( col )		(u8((col)      ))
-
-#define N64COL_GETR_F( col )	(N64COL_GETR(col) * (1.0f/255.0f))
-#define N64COL_GETG_F( col )	(N64COL_GETG(col) * (1.0f/255.0f))
-#define N64COL_GETB_F( col )	(N64COL_GETB(col) * (1.0f/255.0f))
-#define N64COL_GETA_F( col )	(N64COL_GETA(col) * (1.0f/255.0f))
+#define MAX_DL_STACK_SIZE 32
 
 #define RDPSegAddr(seg)	( (gSegments[(seg >> 24) & 0x0F] + (seg & (MAX_RAM_ADDRESS-1))) & (MAX_RAM_ADDRESS-1))
 
@@ -182,35 +172,41 @@ static const char ** gUcodeName = gNormalInstructionName[ GBI_0 ];
 
 bool gFrameskipActive = false;
 
-// TODO: Call this function before referencing an N64 ram location
-// Ex DLParser_FetchNextCommand: IsAddressValid(pc, 8, "FetchNextCommand")
+// Define this to validate an address before referencing an N64 ram location
+#ifndef DAEDALUS_PSP
+#define VALIDATE_ADDRESS_SEG
+#endif
+
+// Always call this function before referencing an N64 ram location
+// In most cases we are already in range, see RDPSegAddr. No need to call this when size its 0
 static inline bool IsAddressValid(u32 address, u32 size, const char * name)
 {
+#ifdef VALIDATE_ADDRESS_SEG	
 	if ((address + size) > MAX_RAM_ADDRESS) 
 	{
 		DBGConsole_Msg(0,"%s: Address is out of range (0x%08x)", name, address);
 		return false;
 	}
-
+#endif
 	return true;
 }
 
 // Same as above but adds coverage for n (vert num) and checks the vertex index
-// NB: We call this earlier on the pipeline to prevent passing an invalid vertex info the Dlist debugger!
-static bool IsVertexInfoValid(u32 address, u32 size, u32 v0, u32 n)
+// We call this earlier on the pipeline to prevent passing an invalid vertex info to the Dlist debugger!
+static inline bool IsVertexInfoValid(u32 address, u32 size, u32 v0, u32 n)
 {
+#ifdef VALIDATE_ADDRESS_SEG	
 	if ((address + (n * size)) > MAX_RAM_ADDRESS) 
 	{
 		DBGConsole_Msg(0,"VertexInfo: Address is out of range (0x%08x)", address);
 		return false;
 	}
-
+#endif
 	if ((n + v0) > kMaxN64Vertices) 
 	{
 		DAEDALUS_ERROR("VertexInfo: Vertex index is out of bounds (%d)", (n + v0));
 		return false;
 	}
-	
 	return true;
 }
 
@@ -230,15 +226,13 @@ inline bool	DLParser_FetchNextCommand( MicroCodeCommand * p_command )
 {
 	// Current PC is the last value on the stack
 	u32 & pc( gDlistStack.address[gDlistStackPointer] );
-	if( IsAddressValid(pc, 8, "FetchNextCommand") )
-	{
-		*p_command = *(MicroCodeCommand*)(g_pu8RamBase + pc);
-		pc += 8;
+	if( !IsAddressValid(pc, 8, "FetchNextCommand") )
+		return false;
 
-		return true;
-	}
+	*p_command = *(MicroCodeCommand*)(g_pu8RamBase + pc);
+	pc += 8;
 
-	return false;
+	return true;
 }
 
 //*****************************************************************************
@@ -538,13 +532,14 @@ u32 DLParser_Process(u32 instruction_limit, DLDebugOutput * debug_output)
 		count = DLParser_ProcessDList(instruction_limit);
 		gRenderer->EndScene();
 	}
+	else
+	{
+		FinishRDPJob();
+	}
 
 	// Hack for Chameleon Twist 2, only works if screen is update at last
-	//
-	if( g_ROM.GameHacks == CHAMELEON_TWIST_2 ) gGraphicsPlugin->UpdateScreen();
-
-	// Do this regardless!
-	FinishRDPJob();
+	if( g_ROM.GameHacks == CHAMELEON_TWIST_2 ) 
+		gGraphicsPlugin->UpdateScreen();
 
 #ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DLDebug_SetOutput(NULL);
@@ -747,11 +742,8 @@ void DLParser_RDPTileSync( MicroCodeCommand command )	{ /*DL_PF("    TileSync: (
 //*****************************************************************************
 void DLParser_RDPFullSync( MicroCodeCommand command )
 {
-	// We now do this regardless
-	// This is done after DLIST processing anyway
-	//FinishRDPJob();
-
-	/*DL_PF("    FullSync: (Generating Interrupt)");*/
+	DL_PF("    FullSync: (Generating Interrupt)");
+	FinishRDPJob();
 }
 
 //*****************************************************************************

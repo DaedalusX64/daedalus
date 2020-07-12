@@ -326,26 +326,17 @@ void DLParser_GBI2_MoveMem( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_GBI2_DL_Count( MicroCodeCommand command )
 {
-	u32 address  = RDPSegAddr(command.inst.cmd1);
-	//u32 count	 = command.inst.cmd0 & 0xFFFF;
-
-	// For SSB and Kirby, otherwise we'll end up scrapping the pc
-	if (address == 0)
-	{
-		#ifdef DAEDALUS_DEBUG_CONSOLE
-		DAEDALUS_ERROR("Invalid DL Count");
-		#endif
+	u32 address = RDPSegAddr(command.inst.cmd1);
+	if (address == 0 || !IsAddressValid(address, 8, "DL_Count"))
 		return;
-	}
 
 	gDlistStackPointer++;
 	gDlistStack.address[gDlistStackPointer] = address;
-	gDlistStack.limit = (command.inst.cmd0) & 0xFFFF;
-#ifdef DAEDALUS_DEBUG_DISPLAYLIST
-	DL_PF("    Address=0x%08x %s", address, (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
+	gDlistStack.limit = command.inst.cmd0 & 0xFFFF;
+
+	DL_PF("    DL Count: Push -> DisplayList 0x%08x", address);
 	DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
 	DL_PF("    ############################################");
-	#endif
 }
 
 //*****************************************************************************

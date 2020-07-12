@@ -121,11 +121,15 @@ void DLParser_GBI0_Vtx_DKR( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_DLInMem( MicroCodeCommand command )
 {
+	u32 address = RDPSegAddr(command.inst.cmd1);
+	if (address == 0 || !IsAddressValid(address, 8, "DLInMem"))
+		return;
+
 	gDlistStackPointer++;
-	gDlistStack.address[gDlistStackPointer] = RDPSegAddr(command.inst.cmd1);
+	gDlistStack.address[gDlistStackPointer] = address;
 	gDlistStack.limit = (command.inst.cmd0 >> 16) & 0xFF;
 
-	DL_PF("    Address=0x%08x %s", RDPSegAddr(command.inst.cmd1), (command.dlist.param==G_DL_NOPUSH)? "Jump" : (command.dlist.param==G_DL_PUSH)? "Push" : "?");
+	DL_PF("    DLInMem: Push -> DisplayList 0x%08x", address);
 	DL_PF("    \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/ \\/");
 	DL_PF("    ############################################");
 
