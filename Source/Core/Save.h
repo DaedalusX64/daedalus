@@ -25,4 +25,4 @@ void Save_Fini();
 void Save_MarkSaveDirty();
 void Save_MarkMempackDirty();
 
-void Save_Flush(bool force = false);
+void Save_Flush();

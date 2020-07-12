@@ -46,9 +46,8 @@ int main(int argc, char **argv)
 		
 		IO::Path::RemoveFileSpec(gDaedalusExePath);
 
-		// Init save paths
+		// Init save path
 		strcpy( g_DaedalusConfig.mSaveDir, DAEDALUS_POSIX_PATH( "SaveGames/" ) );
-		strcpy( g_DaedalusConfig.mCacheDir, DAEDALUS_POSIX_PATH( "Cache/" ) );
 	}
 	else
 	{

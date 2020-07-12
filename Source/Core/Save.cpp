@@ -61,10 +61,8 @@ bool Save_Reset()
 		gSaveSize = 0;
 		break;
 	}
-
-#ifdef DAEDALUS_ENABLE_ASSERTS
 	DAEDALUS_ASSERT( gSaveSize <= MemoryRegionSizes[MEM_SAVE], "Save size is larger than allocated memory");
-	#endif
+
 	gSaveDirty = false;
 	if (gSaveSize > 0)
 	{
@@ -73,9 +71,7 @@ bool Save_Reset()
 		FILE * fp = fopen(gSaveFileName, "rb");
 		if (fp != nullptr)
 		{
-			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "Loading save from [C%s]", gSaveFileName);
-			#endif
 
 			u8 buffer[2048];
 			u8 * dst = (u8*)g_pMemoryBuffers[MEM_SAVE];
@@ -91,45 +87,40 @@ bool Save_Reset()
 			}
 			fclose(fp);
 		}
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		else
 		{
 			DBGConsole_Msg(0, "Save File [C%s] cannot be found.", gSaveFileName);
 		}
-		#endif
 	}
 
-	// init mempack
-	if (g_ROM.settings.SaveType == SAVE_TYPE_UNKNOWN )
+	// init mempack, we always assume the presence of the mempack for simplicity 
 	{
 		Dump_GetSaveDirectory(gMempackFileName, g_ROM.mFileName, ".mpk");
 		FILE * fp = fopen(gMempackFileName, "rb");
 		if (fp != nullptr)
 		{
-			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "Loading MemPack from [C%s]", gMempackFileName);
-			#endif
 			fread(g_pMemoryBuffers[MEM_MEMPACK], MemoryRegionSizes[MEM_MEMPACK], 1, fp);
 			fclose(fp);
 			gMempackDirty = false;
 		}
 		else
 		{
-			#ifdef DAEDALUS_DEBUG_CONSOLE
 			DBGConsole_Msg(0, "MemPack File [C%s] cannot be found.", gMempackFileName);
-			#endif
 			InitMempackContent();
 			gMempackDirty = true;
 		}
 	}
-
 
 	return true;
 }
 
 void Save_Fini()
 {
-	Save_Flush(true);
+	gSaveDirty = true;
+	gMempackDirty = true;
+	
+	Save_Flush();
 }
 
 void Save_MarkSaveDirty()
@@ -142,13 +133,11 @@ void Save_MarkMempackDirty()
 	gMempackDirty = true;
 }
 
-void Save_Flush(bool force)
+void Save_Flush()
 {
-	if ((gSaveDirty || force) && g_ROM.settings.SaveType != SAVE_TYPE_UNKNOWN)
+	if (gSaveDirty && g_ROM.settings.SaveType != SAVE_TYPE_UNKNOWN)
 	{
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "Saving to [C%s]", gSaveFileName);
-		#endif
 
 		FILE * fp = fopen(gSaveFileName, "wb");
 		if (fp != nullptr)
@@ -169,11 +158,9 @@ void Save_Flush(bool force)
 		gSaveDirty = false;
 	}
 
-	if (gMempackDirty || force)
+	if (gMempackDirty)
 	{
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DBGConsole_Msg(0, "Saving MemPack to [C%s]", gMempackFileName);
-		#endif
 
 		FILE * fp = fopen(gMempackFileName, "wb");
 		if (fp != nullptr)
@@ -225,9 +212,7 @@ static void InitMempackContent()
 			mempack[i+1] = 0x03;
 		}
 
-#ifdef DAEDALUS_ENABLE_ASSERTS
 		DAEDALUS_ASSERT(dst_off + 0x8000 <= MemoryRegionSizes[MEM_MEMPACK], "Buffer overflow");
 		DAEDALUS_ASSERT(dst_off + sizeof(gMempackInitialize) <= MemoryRegionSizes[MEM_MEMPACK], "Buffer overflow");
-#endif
 	}
 }

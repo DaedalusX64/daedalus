@@ -31,7 +31,6 @@ struct DaedalusConfig
 	// FIXME(strmnnrmn): We never seem to assign to mRomsDir?!
 	IO::Filename		mRomsDir;
 	IO::Filename		mSaveDir;
-	IO::Filename		mCacheDir;
 };
 
 extern DaedalusConfig	g_DaedalusConfig;

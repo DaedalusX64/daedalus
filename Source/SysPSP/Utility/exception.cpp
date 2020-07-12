@@ -104,7 +104,7 @@ static void DumpInformation(PspDebugRegBlock * regs)
 	fprintf(fp, "\nRom Infomation:\n");
 	{
 		fprintf(fp, "\tClockrate:       0x%08x\n", g_ROM.rh.ClockRate);
-		fprintf(fp, "\tBootAddr:        0x%08x\n", SwapEndian(g_ROM.rh.BootAddress));
+		fprintf(fp, "\tBootAddr:        0x%08x\n", BSWAP32(g_ROM.rh.BootAddress));
 		fprintf(fp, "\tRelease:         0x%08x\n", g_ROM.rh.Release);
 		fprintf(fp, "\tCRC1:            0x%08x\n", g_ROM.rh.CRC1);
 		fprintf(fp, "\tCRC2:            0x%08x\n", g_ROM.rh.CRC2);
