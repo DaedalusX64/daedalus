@@ -167,9 +167,14 @@ public:
 // Otherwise, create surfaces, and load texture into memory
 CachedTexture * CTextureCache::GetOrCreateCachedTexture(const TextureInfo & ti)
 {
-	#ifdef DAEDALUS_ENABLE_PROFILING
-		DAEDALUS_PROFILE( "CTextureCache::GetOrCreateCachedTexture" );
-	#endif
+	DAEDALUS_PROFILE( "CTextureCache::GetOrCreateCachedTexture" );
+
+	if (ti.GetWidth() > 4096 || ti.GetHeight() > 4096)
+	{
+		DAEDALUS_ERROR("Texture is too large: %d x %d", ti.GetWidth(), ti.GetHeight());
+		return nullptr;
+	}
+
 	// NB: this is a no-op in normal builds.
 	MutexLock lock(GetDebugMutex());
 
