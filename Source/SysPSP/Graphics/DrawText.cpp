@@ -33,40 +33,40 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Utility/Preferences.h"
 #include "Utility/Translate.h"
 
-intraFont *	gFonts[] =
-{
-	nullptr,
-	nullptr,
+intraFont *gFonts[] =
+	{
+		nullptr,
+		nullptr,
 };
 #ifdef DAEDALUS_ENABLE_ASSERTS
-DAEDALUS_STATIC_ASSERT( ARRAYSIZE( gFonts ) == CDrawText::NUM_FONTS );
+DAEDALUS_STATIC_ASSERT(ARRAYSIZE(gFonts) == CDrawText::NUM_FONTS);
 #endif
 //*************************************************************************************
 //
 //*************************************************************************************
-void	CDrawText::Initialise()
+void CDrawText::Initialise()
 {
-    intraFontInit();
+	intraFontInit();
 
-	gFonts[ F_REGULAR ] = intraFontLoad( "flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ALL | INTRAFONT_STRING_UTF8 );			// Regular/sans-serif
-	gFonts[ F_LARGE_BOLD ] = intraFontLoad( "flash0:/font/ltn4.pgf", INTRAFONT_CACHE_ALL | INTRAFONT_STRING_UTF8 );		// Large/sans-serif/bold
+	gFonts[F_REGULAR] = intraFontLoad("flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ALL | INTRAFONT_STRING_UTF8);	// Regular/sans-serif
+	gFonts[F_LARGE_BOLD] = intraFontLoad("flash0:/font/ltn4.pgf", INTRAFONT_CACHE_ALL | INTRAFONT_STRING_UTF8); // Large/sans-serif/bold
 
 #ifdef DAEDALUS_ENABLE_ASSERTS
-	for( u32 i = 0; i < NUM_FONTS; ++i )
+	for (u32 i = 0; i < NUM_FONTS; ++i)
 	{
-		DAEDALUS_ASSERT( gFonts[ i ] != nullptr, "Unable to load font (or forgot!)" );
+		DAEDALUS_ASSERT(gFonts[i] != nullptr, "Unable to load font (or forgot!)");
 	}
-	#endif
+#endif
 }
 
 //*************************************************************************************
 //
 //*************************************************************************************
-void	CDrawText::Destroy()
+void CDrawText::Destroy()
 {
-	for( u32 i = 0; i < NUM_FONTS; ++i )
+	for (u32 i = 0; i < NUM_FONTS; ++i)
 	{
-		intraFontUnload( gFonts[ i ] );
+		intraFontUnload(gFonts[i]);
 	}
 	intraFontShutdown();
 }
@@ -74,73 +74,73 @@ void	CDrawText::Destroy()
 //*************************************************************************************
 //
 //*************************************************************************************
-const char * CDrawText::Translate( const char * dest, u32 & length )
+const char *CDrawText::Translate(const char *dest, u32 &length)
 {
-	return Translate_Strings( dest, length );
+	return Translate_Strings(dest, length);
 }
 
 //*************************************************************************************
 //
 //*************************************************************************************
-u32	CDrawText::Render( EFont font, s32 x, s32 y, float scale, const char * p_str, u32 length, c32 colour )
+u32 CDrawText::Render(EFont font, s32 x, s32 y, float scale, const char *p_str, u32 length, c32 colour)
 {
-	return Render( font, x, y, scale, p_str, length, colour, c32( 0,0,0,160 ) );
+	return Render(font, x, y, scale, p_str, length, colour, c32(0, 0, 0, 160));
 }
 
 //*************************************************************************************
 //
 //*************************************************************************************
-u32	CDrawText::Render( EFont font_type, s32 x, s32 y, float scale, const char * p_str, u32 length, c32 colour, c32 drop_colour )
+u32 CDrawText::Render(EFont font_type, s32 x, s32 y, float scale, const char *p_str, u32 length, c32 colour, c32 drop_colour)
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font" );
+#ifdef DAEDALUS_ENABLE_ASSERTS
+	DAEDALUS_ASSERT(font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font");
 #endif
-	intraFont * font( gFonts[ font_type ] );
-	if( font )
+	intraFont *font(gFonts[font_type]);
+	if (font)
 	{
 		sceGuEnable(GU_BLEND);
 		sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-		intraFontSetStyle( font, scale, colour.GetColour(), 0,0, INTRAFONT_ALIGN_LEFT );
-		return s32( intraFontPrintEx( font,  x, y, Translate( p_str, length ), length) ) - x;
+		intraFontSetStyle(font, scale, colour.GetColour(), drop_colour.GetColour(), 0, INTRAFONT_ALIGN_LEFT);
+		return s32(intraFontPrintEx(font, x, y, Translate(p_str, length), length)) - x;
 	}
 
-	return strlen( p_str ) * 16;		// Guess. Better off just returning 0?
+	return strlen(p_str) * 16; // Guess. Better off just returning 0?
 }
 
 //*************************************************************************************
 //
 //*************************************************************************************
-s32		CDrawText::GetTextWidth( EFont font_type, const char * p_str, u32 length )
+s32 CDrawText::GetTextWidth(EFont font_type, const char *p_str, u32 length)
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font" );
-	#endif
-	intraFont * font( gFonts[ font_type ] );
-	if( font )
+#ifdef DAEDALUS_ENABLE_ASSERTS
+	DAEDALUS_ASSERT(font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font");
+#endif
+	intraFont *font(gFonts[font_type]);
+	if (font)
 	{
-		intraFontSetStyle( font, 1.0f, 0xffffffff, 0,0, INTRAFONT_ALIGN_LEFT );
-		return s32( intraFontMeasureTextEx( font, Translate( p_str, length ), length ) );
+		intraFontSetStyle(font, 1.0f, 0xffffffff, 0xffffffff, 0, INTRAFONT_ALIGN_LEFT);
+		return s32(intraFontMeasureTextEx(font, Translate(p_str, length), length));
 	}
 
-	return strlen( p_str ) * 16;		// Return a reasonable value. Better off just returning 0?
+	return strlen(p_str) * 16; // Return a reasonable value. Better off just returning 0?
 }
 
 //*************************************************************************************
 //
 //*************************************************************************************
-s32		CDrawText::GetFontHeight( EFont font_type )
+s32 CDrawText::GetFontHeight(EFont font_type)
 {
-		#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT( font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font" );
-	#endif
-	intraFont * font( gFonts[ font_type ] );
-	if( font )
+#ifdef DAEDALUS_ENABLE_ASSERTS
+	DAEDALUS_ASSERT(font_type >= 0 && font_type < (s32)NUM_FONTS, "Invalid font");
+#endif
+	intraFont *font(gFonts[font_type]);
+	if (font)
 	{
-		s32		pixels( ( s32( font->advancey ) + 3 ) / 4 );
+		s32 pixels((s32(font->advancey) + 3) / 4);
 		return pixels;
 	}
 
-	return 0;		// Return a reasonable value. Better off just returning 0?
+	return 0; // Return a reasonable value. Better off just returning 0?
 }
 
 //*************************************************************************************
@@ -148,22 +148,21 @@ s32		CDrawText::GetFontHeight( EFont font_type )
 //*************************************************************************************
 namespace DrawTextUtilities
 {
-	const c32	TextWhite			= c32( 255, 255, 255 );
-	const c32	TextWhiteDisabled	= c32( 208, 208, 208 );
-	const c32	TextBlue			= c32(  80,  80, 208 );
-	const c32	TextBlueDisabled	= c32(  80,  80, 178 );
-	const c32	TextRed				= c32( 255, 0, 0 );
-	const c32	TextRedDisabled		= c32( 208, 208, 208 );
+	const c32 TextWhite = c32(255, 255, 255);
+	const c32 TextWhiteDisabled = c32(208, 208, 208);
+	const c32 TextBlue = c32(80, 80, 208);
+	const c32 TextBlueDisabled = c32(80, 80, 178);
+	const c32 TextRed = c32(255, 0, 0);
+	const c32 TextRedDisabled = c32(208, 208, 208);
 
-	static c32 COLOUR_SHADOW_HEAVY = c32( 0x80000000 );
-	static c32 COLOUR_SHADOW_LIGHT = c32( 0x50000000 );
+	static c32 COLOUR_SHADOW_HEAVY = c32(0x80000000);
+	static c32 COLOUR_SHADOW_LIGHT = c32(0x50000000);
 
-
-	const char *	FindPreviousSpace( const char * p_str_start, const char * p_str_end )
+	const char *FindPreviousSpace(const char *p_str_start, const char *p_str_end)
 	{
-		while( p_str_end > p_str_start )
+		while (p_str_end > p_str_start)
 		{
-			if( *p_str_end == ' ' )
+			if (*p_str_end == ' ')
 			{
 				return p_str_end;
 			}
@@ -174,12 +173,12 @@ namespace DrawTextUtilities
 		return nullptr;
 	}
 
-	void	WrapText( CDrawText::EFont font, s32 width, const char * p_str, u32 length, std::vector<u32> & lengths, bool & match )
+	void WrapText(CDrawText::EFont font, s32 width, const char *p_str, u32 length, std::vector<u32> &lengths, bool &match)
 	{
 		lengths.clear();
 
 		// Manual line breaking (Used for translations)
-		if(gGlobalPreferences.Language != 0)
+		if (gGlobalPreferences.Language != 0)
 		{
 			u32 i, j;
 			for (i = 0, j = 0; i < length; i++)
@@ -188,47 +187,47 @@ namespace DrawTextUtilities
 				if (p_str[i] == '\n')
 				{
 					j++;
-					lengths.push_back( match );
+					lengths.push_back(match);
 				}
 			}
-			if( match )
+			if (match)
 			{
-				lengths.push_back( match );
+				lengths.push_back(match);
 			}
 
 			return;
 		}
 
 		// Auto-linebreaking
-		const char *	p_line_str( p_str );
-		const char *	p_str_end( p_str + length );
+		const char *p_line_str(p_str);
+		const char *p_str_end(p_str + length);
 
-		while( p_line_str < p_str_end )
+		while (p_line_str < p_str_end)
 		{
-			u32		length_remaining( p_str_end - p_line_str );
-			s32		chunk_width( CDrawText::GetTextWidth( font, p_line_str, length_remaining ) );
+			u32 length_remaining(p_str_end - p_line_str);
+			s32 chunk_width(CDrawText::GetTextWidth(font, p_line_str, length_remaining));
 
-			if( chunk_width <= width )
+			if (chunk_width <= width)
 			{
-				lengths.push_back( length_remaining );
+				lengths.push_back(length_remaining);
 				p_line_str += length_remaining;
 			}
 			else
 			{
 				// Search backwards until we find a break
-				const char *	p_chunk_end( p_str_end );
-				bool			found_chunk( false );
-				while( p_chunk_end > p_line_str )
+				const char *p_chunk_end(p_str_end);
+				bool found_chunk(false);
+				while (p_chunk_end > p_line_str)
 				{
-					const char * p_space( FindPreviousSpace( p_line_str, p_chunk_end ) );
+					const char *p_space(FindPreviousSpace(p_line_str, p_chunk_end));
 
-					if( p_space != nullptr )
+					if (p_space != nullptr)
 					{
-						u32		chunk_length( p_space + 1 - p_line_str );
-						chunk_width = CDrawText::GetTextWidth( font, p_line_str, chunk_length );
-						if( chunk_width <= width )
+						u32 chunk_length(p_space + 1 - p_line_str);
+						chunk_width = CDrawText::GetTextWidth(font, p_line_str, chunk_length);
+						if (chunk_width <= width)
 						{
-							lengths.push_back( chunk_length );
+							lengths.push_back(chunk_length);
 							p_line_str += chunk_length;
 							found_chunk = true;
 							break;
@@ -242,17 +241,17 @@ namespace DrawTextUtilities
 					else
 					{
 						// No more spaces - just render the whole chunk
-						lengths.push_back( p_chunk_end - p_line_str );
+						lengths.push_back(p_chunk_end - p_line_str);
 						p_line_str = p_chunk_end;
 						found_chunk = true;
 						break;
 					}
 				}
 #ifdef DAEDALUS_ENABLE_ASSERTS
-				DAEDALUS_ASSERT( found_chunk, "Didn't find chunk while splitting string for rendering?" );
-				#endif
+				DAEDALUS_ASSERT(found_chunk, "Didn't find chunk while splitting string for rendering?");
+#endif
 			}
 		}
 	}
 
-}
+} // namespace DrawTextUtilities
