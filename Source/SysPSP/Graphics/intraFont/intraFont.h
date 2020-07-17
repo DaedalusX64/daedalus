@@ -39,6 +39,7 @@ extern "C" {
 #define INTRAFONT_WIDTH_FIX        0x00000800 //set your custom fixed witdh to 24 pixels: INTRAFONT_WIDTH_FIX | 24 
                                               //(max is 255, set to 0 to use default fixed width, this width will be scaled by size)
 #define INTRAFONT_ACTIVE           0x00001000 //assumes the font-texture resides inside sceGuTex already, prevents unecessary reloading -> very small speed-gain                     
+#define INTRAFONT_DIRTY            0x00000001 //for desktop, assume texture needs upload to vram                     
 #define INTRAFONT_CACHE_MED        0x00000000 //default: 256x256 texture (enough to cache about 100 chars)
 #define INTRAFONT_CACHE_LARGE      0x00004000 //512x512 texture(enough to cache all chars of ltn0.pgf or ... or ltn15.pgf or kr0.pgf)
 #define INTRAFONT_CACHE_ASCII      0x00008000 //try to cache all ASCII chars during fontload (uses less memory and is faster to draw text, but slower to load font)
@@ -139,42 +140,49 @@ typedef struct {
   //currently no need ;
 } PGF_Header;
 
+typedef struct fontVertex fontVertex;
+
 /**
  * A Font struct
+ * Order is ruined but packs better - mrneo240
  */
 typedef struct intraFont {
   char* filename;
-  unsigned char fileType;          /**< FILETYPE_PGF or FILETYPE_BWFON */
   unsigned char* fontdata;
   
   unsigned char* texture;          /**< The bitmap data */
+  unsigned int textureID;          /**< OpenGL texture id */
   unsigned int texWidth;           /**< Texture size (power2) */
   unsigned int texHeight;          /**< Texture height (power2) */  
-  unsigned short texX;
-  unsigned short texY;
-  unsigned short texYSize;
-  
-  unsigned short n_chars;
-  char advancex;                   /**< in quarterpixels */
-  char advancey;                   /**< in quarterpixels */
-  unsigned char charmap_compr_len; /**< length of compression info */
+
   unsigned short* charmap_compr;   /**< Compression info on compressed charmap */  
   unsigned short* charmap;         /**< Character map */  
   Glyph* glyph;                    /**< Character glyphs */
   GlyphBW* glyphBW;
-    
-  unsigned short n_shadows;
-  unsigned char shadowscale;       /**< shadows in pgf file (width, height, left and top properties as well) are scaled by factor of (shadowscale>>6) */  
-  Glyph* shadowGlyph;              /**<  Shadow glyph(s) */  
+  Glyph* shadowGlyph;              /**<  Shadow glyph(s) */
+  struct intraFont* altFont;
+  fontVertex *v;
+  unsigned int v_size;
   
   float size;
   unsigned int color;
   unsigned int shadowColor;
   float angle, Rsin, Rcos;                /**< For rotation */
-  short isRotated;
   unsigned int options;
 
-  struct intraFont* altFont;
+  short isRotated;
+  unsigned short texX;
+  unsigned short texY;
+  unsigned short texYSize;
+  unsigned short n_chars;
+  unsigned short n_shadows;
+
+  unsigned char fileType;          /**< FILETYPE_PGF or FILETYPE_BWFON */
+  
+  char advancex;                   /**< in quarterpixels */
+  char advancey;                   /**< in quarterpixels */
+  unsigned char charmap_compr_len; /**< length of compression info */
+  unsigned char shadowscale;       /**< shadows in pgf file (width, height, left and top properties as well) are scaled by factor of (shadowscale>>6) */  
 } intraFont;
 
 
@@ -200,19 +208,6 @@ void intraFontShutdown(void);
  * @returns A ::intraFont struct
  */
 intraFont* intraFontLoad(const char *filename,unsigned int options);
-
-/**
- * Load a pgf font from mem.
- *
- * @param filename - Path to the font
- * @param font_buffer - Font in mem
- * @param filesize - Size of buffer
- *
- * @param  options - INTRAFONT_XXX flags as defined above including flags related to CACHE (ored together)
- *
- * @returns A ::intraFont struct
- */
-intraFont* intraFontLoadMem(const char *filename, const char *font_buffer, unsigned int filesize, unsigned int options);
 
 /**
  * Free the specified font.

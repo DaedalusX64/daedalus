@@ -78,12 +78,12 @@ int cccStrlenUCS2(cccUCS2 const * str);
  *
  * @returns number of converted character codes
  */
-int cccSJIStoUCS2(cccUCS2 * dst, size_t count, cccCode const * str);
-int cccGBKtoUCS2 (cccUCS2 * dst, size_t count, cccCode const * str);
-int cccKORtoUCS2 (cccUCS2 * dst, size_t count, cccCode const * str);
-int cccBIG5toUCS2(cccUCS2 * dst, size_t count, cccCode const * str);
-int cccUTF8toUCS2(cccUCS2 * dst, size_t count, cccCode const * str);
-int cccCodetoUCS2(cccUCS2 * dst, size_t count, cccCode const * str, unsigned char cp); 
+int cccSJIStoUCS2(cccUCS2 * dst, int count, cccCode const * str);
+int cccGBKtoUCS2 (cccUCS2 * dst, int count, cccCode const * str);
+int cccKORtoUCS2 (cccUCS2 * dst, int count, cccCode const * str);
+int cccBIG5toUCS2(cccUCS2 * dst, int count, cccCode const * str);
+int cccUTF8toUCS2(cccUCS2 * dst, int count, cccCode const * str);
+int cccCodetoUCS2(cccUCS2 * dst, int count, cccCode const * str, unsigned char cp); 
 
 /**
  * Set error character (character that's used for code points where conversion failed)
