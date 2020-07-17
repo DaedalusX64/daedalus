@@ -93,7 +93,7 @@ static const u8 FiveToEight[] = {
 ALIGNED_EXTERN(u8, gTMEM[4096], 16);
 
 
-u32 RGBA16(u16 v)
+static u32 RGBA16(u16 v)
 {
 	u32 r = FiveToEight[(v>>11)&0x1f];
 	u32 g = FiveToEight[(v>> 6)&0x1f];
@@ -103,7 +103,7 @@ u32 RGBA16(u16 v)
 	return (a<<24) | (b<<16) | (g<<8) | r;
 }
 
-u32 IA16(u16 v)
+static u32 IA16(u16 v)
 {
 	u32 i = (v>>8)&0xff;
 	u32 a = (v   )&0xff;
@@ -174,7 +174,7 @@ static void ConvertRGBA16(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 dst_row_stride = dsti.Pitch / sizeof(u32);
 	u32 dst_row_offset = 0;
 
-	const u16 * src = (u16*)gTMEM;
+	const u16 * src16 = reinterpret_cast<const u16*>(gTMEM);
 	u32 src_row_stride = ti.GetLine()<<2;
 	u32 src_row_offset = ti.GetTmemAddress()<<2;
 
@@ -185,7 +185,7 @@ static void ConvertRGBA16(const TileDestInfo & dsti, const TextureInfo & ti)
 		u32 dst_offset = dst_row_offset;
 		for (u32 x = 0; x < width; ++x)
 		{
-			u16 src_pixel = BSWAP16( src[src_offset^row_swizzle] );
+			u16 src_pixel = BSWAP16( src16[src_offset^row_swizzle] );
 
 			dst[dst_offset+0] = RGBA16(src_pixel);
 
@@ -195,7 +195,7 @@ static void ConvertRGBA16(const TileDestInfo & dsti, const TextureInfo & ti)
 		src_row_offset += src_row_stride;
 		dst_row_offset += dst_row_stride;
 
-		row_swizzle ^= 0x2;   // Alternate lines are word-swapped
+		row_swizzle ^= 0x2;   // Alternate lines are half word-swapped
 	}
 }
 
@@ -338,20 +338,18 @@ static void ConvertCI4(const TileDestInfo & dsti, const TextureInfo & ti)
 	}
 }
 
-
-
 static void ConvertIA16(const TileDestInfo & dsti, const TextureInfo & ti)
 {
 	u32 width = dsti.Width;
 	u32 height = dsti.Height;
 
-	u8 * dst = static_cast<u8*>(dsti.Data);
-	u32 dst_row_stride = dsti.Pitch;
+	u32 * dst = static_cast<u32*>(dsti.Data);
+	u32 dst_row_stride = dsti.Pitch / sizeof(u32);
 	u32 dst_row_offset = 0;
 
-	const u8 * src     = gTMEM;
-	u32 src_row_stride = ti.GetLine()<<3;
-	u32 src_row_offset = ti.GetTmemAddress()<<3;
+	const u16 * src16 = reinterpret_cast<const u16*>(gTMEM);
+	u32 src_row_stride = ti.GetLine()<<2;
+	u32 src_row_offset = ti.GetTmemAddress()<<2;
 
 	u32 row_swizzle = 0;
 	for (u32 y = 0; y < height; ++y)
@@ -360,23 +358,16 @@ static void ConvertIA16(const TileDestInfo & dsti, const TextureInfo & ti)
 		u32 dst_offset = dst_row_offset;
 		for (u32 x = 0; x < width; ++x)
 		{
-			u32 o   = src_offset^row_swizzle;
+			u16 src_pixel = BSWAP16( src16[src_offset^row_swizzle] );
 
-			u8 i = src[o+0];
-			u8 a = src[o+1];
-
-			dst[dst_offset+0] = i;
-			dst[dst_offset+1] = i;
-			dst[dst_offset+2] = i;
-			dst[dst_offset+3] = a;
-
-			src_offset += 2;
-			dst_offset += 4;
+			dst[dst_offset+0] = IA16(src_pixel);
+			src_offset += 1;
+			dst_offset += 1;
 		}
 		src_row_offset += src_row_stride;
 		dst_row_offset += dst_row_stride;
 
-		row_swizzle ^= 0x4;   // Alternate lines are word-swapped
+		row_swizzle ^= 0x2;   // Alternate lines are half word-swapped
 	}
 }
 
@@ -560,14 +551,14 @@ typedef void ( *ConvertFunction )(const TileDestInfo & dsti, const TextureInfo &
 static const ConvertFunction gConvertFunctions[ 32 ] =
 {
 	// 4bpp				8bpp			16bpp				32bpp
-	nullptr,			nullptr,			ConvertRGBA16,		ConvertRGBA32,			// RGBA
-	nullptr,			nullptr,			nullptr,				nullptr,					// YUV
-	ConvertCI4,		ConvertCI8,		nullptr,				nullptr,					// CI
-	ConvertIA4,		ConvertIA8,		ConvertIA16,		nullptr,					// IA
-	ConvertI4,		ConvertI8,		nullptr,				nullptr,					// I
-	nullptr,			nullptr,			nullptr,				nullptr,					// ?
-	nullptr,			nullptr,			nullptr,				nullptr,					// ?
-	nullptr,			nullptr,			nullptr,				nullptr					// ?
+	nullptr,			nullptr,		ConvertRGBA16,		ConvertRGBA32,			// RGBA
+	nullptr,			nullptr,		nullptr,			nullptr,				// YUV
+	ConvertCI4,			ConvertCI8,		nullptr,			nullptr,				// CI
+	ConvertIA4,			ConvertIA8,		ConvertIA16,		nullptr,				// IA
+	ConvertI4,			ConvertI8,		nullptr,			nullptr,				// I
+	nullptr,			nullptr,		nullptr,			nullptr,				// ?
+	nullptr,			nullptr,		nullptr,			nullptr,				// ?
+	nullptr,			nullptr,		nullptr,			nullptr					// ?
 };
 
 bool ConvertTile(const TextureInfo & ti,

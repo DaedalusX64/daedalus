@@ -24,6 +24,7 @@
 #ifndef HLEGRAPHICS_RDP_H_
 #define HLEGRAPHICS_RDP_H_
 
+#include "HLEGraphics/DLDebug.h"
 #include "Utility/DaedalusTypes.h"
 
 inline u32 pixels2bytes( u32 pixels, u32 size )
@@ -54,13 +55,15 @@ struct SImageDescriptor
 		return Address + y * ((Width << Size) >> 1) + ((x << Size) >> 1);
 	}
 
-	// Optimised version when Size == G_IM_SIZ_16b
+	// Optimised versions when Size == G_IM_SIZ_16b
 	inline u32 GetPitch16bpp() const
 	{
+		DAEDALUS_DL_ASSERT(Size == 2, "Incorrect expected size - not 16bpp");
 		return Width << 1;
 	}
 	inline u32 GetAddress16bpp(u32 x, u32 y) const
 	{
+		DAEDALUS_DL_ASSERT(Size == 2, "Incorrect expected size - not 16bpp");
 		return Address + ((y * Width + x) << 1);
 	}
 
