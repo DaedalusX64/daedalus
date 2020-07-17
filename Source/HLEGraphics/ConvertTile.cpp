@@ -125,6 +125,20 @@ static u32 IA4(u8 v)
 	return (a<<24) | (i<<16) | (i<<8) | i;
 }
 
+static u32 YUV16(s32 Y, s32 U, s32 V)
+{
+    s32 R = s32(Y + (1.370705f * (V-128)));
+    s32 G = s32(Y - (0.698001f * (V-128)) - (0.337633f * (U-128)));
+    s32 B = s32(Y + (1.732446f * (U-128)));
+
+    R = R < 0 ? 0 : (R>255 ? 255 : R);
+    G = G < 0 ? 0 : (G>255 ? 255 : G);
+    B = B < 0 ? 0 : (B>255 ? 255 : B);
+
+    return (0xff << 24) | (B << 16) | (G << 8) | R;
+}
+
+
 static void ConvertRGBA32(const TileDestInfo & dsti, const TextureInfo & ti)
 {
 	u32 width = dsti.Width;
@@ -547,12 +561,54 @@ static void ConvertI4(const TileDestInfo & dsti, const TextureInfo & ti)
 	}
 }
 
+static void ConvertYUV16(const TileDestInfo & dsti, const TextureInfo & ti)
+{
+	u32 width = dsti.Width;
+	u32 height = dsti.Height;
+
+	u32 * dst = static_cast<u32*>(dsti.Data);
+	u32 dst_row_stride = dsti.Pitch / sizeof(u32);
+	u32 dst_row_offset = 0;
+
+	const u8 * src     = gTMEM;
+	u32 src_row_stride = ti.GetLine()<<3;
+	u32 src_row_offset = ti.GetTmemAddress()<<3;
+
+	// NB! YUV/16 line needs to be doubled.
+	src_row_stride *= 2;
+	u32 row_swizzle = 0;
+
+	for (u32 y = 0; y < height; ++y)
+	{
+		u32 src_offset = src_row_offset;
+		u32 dst_offset = dst_row_offset;
+		for (u32 x = 0; x < width; ++x)
+		{
+			u32 o = src_offset^row_swizzle;
+			s32 y0 = src[o+1];
+			s32 y1 = src[o+3];
+			s32 u0 = src[o+0];
+			s32 v0 = src[o+2];
+
+			dst[dst_offset+0] = YUV16(y0,u0,v0);
+            dst[dst_offset+1] = YUV16(y1,u0,v0);
+
+			src_offset += 4;
+			dst_offset += 2;
+		}
+		src_row_offset += src_row_stride;
+		dst_row_offset += dst_row_stride;
+
+		row_swizzle ^= 0x4;   // Alternate lines are word-swapped
+	}
+}
+
 typedef void ( *ConvertFunction )(const TileDestInfo & dsti, const TextureInfo & ti);
 static const ConvertFunction gConvertFunctions[ 32 ] =
 {
 	// 4bpp				8bpp			16bpp				32bpp
 	nullptr,			nullptr,		ConvertRGBA16,		ConvertRGBA32,			// RGBA
-	nullptr,			nullptr,		nullptr,			nullptr,				// YUV
+	nullptr,			nullptr,		ConvertYUV16,		nullptr,				// YUV
 	ConvertCI4,			ConvertCI8,		nullptr,			nullptr,				// CI
 	ConvertIA4,			ConvertIA8,		ConvertIA16,		nullptr,				// IA
 	ConvertI4,			ConvertI8,		nullptr,			nullptr,				// I
