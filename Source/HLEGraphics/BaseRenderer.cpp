@@ -227,8 +227,8 @@ void BaseRenderer::SetVIScales()
 	fViHeight = vi_height;
 
 	//Used to set a limit on Scissors //Corn
-	uViWidth  = (u32)vi_width - 1;
-	uViHeight = (u32)vi_height - 1;
+	uViWidth  = (u32)vi_width;
+	uViHeight = (u32)vi_height;
 }
 
 //*****************************************************************************
@@ -1599,7 +1599,7 @@ inline void BaseRenderer::SetVtxZ( u32 vert, float z )
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void BaseRenderer::SetVtxXY( u32 vert, float x, float y )
+inline void BaseRenderer::SetVtxXY( u32 vert, f32 x, f32 y )
 {
 	mVtxProjected[vert].TransformedPos.x = x;
 	mVtxProjected[vert].TransformedPos.y = y;
@@ -1821,9 +1821,8 @@ void BaseRenderer::UpdateTileSnapshot( u32 index, u32 tile_idx )
 // and everything works correctly.
 inline void FixUV(u32 * wrap, s16 * c0_, s16 * c1_, s16 offset, u32 size)
 {
-	#ifdef DAEDALUS_ENABLE_ASSERTS
-	DAEDALUS_ASSERT(size > 0, "Texture has crazy width/height");
-#endif
+	DAEDALUS_ASSERT(size > 0, "Texture has crazy width/height: %d", size);
+
 	s16 offset_10_5 = offset << 3;
 
 	s16 c0 = *c0_ - offset_10_5;

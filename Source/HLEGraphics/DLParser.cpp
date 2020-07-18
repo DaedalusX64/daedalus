@@ -776,6 +776,8 @@ void DLParser_SetScissor( MicroCodeCommand command )
 	{
 		gRenderer->SetScissor( scissors.left, scissors.top, scissors.right, scissors.bottom );
 	}
+	else
+		printf("BAD\n");
 }
 //*****************************************************************************
 //
@@ -1033,14 +1035,6 @@ void Clear_N64DepthBuffer( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_FillRect( MicroCodeCommand command )
 {
-	//
-	// Removes annoying rect that appears in Conker and fillrects that cover screen in banjo tooie
-	if( g_CI.Format != G_IM_FMT_RGBA )
-	{
-		DL_PF("    Ignoring Fillrect ");
-		return;
-	}
-
 	//Always clear Zbuffer if Depthbuffer is selected //Corn
 	if (g_DI.Address == g_CI.Address)
 	{
@@ -1058,18 +1052,31 @@ void DLParser_FillRect( MicroCodeCommand command )
 		return;
 	}
 
-	// Note, in some modes, the right/bottom lines aren't drawn
+	// Removes annoying rect that appears in Conker and fillrects that cover screen in banjo tooie
+	if( g_CI.Format != G_IM_FMT_RGBA )
+	{
+		DL_PF("    Ignoring Fillrect ");
+		return;
+	}
 
+	u32 x0 = command.fillrect.x0;
+	u32 x1 = command.fillrect.x1;
+	u32 y1 = command.fillrect.y1;
+	u32 y0 = command.fillrect.y0;
+
+	// Note, in some modes, the right/bottom lines aren't drawn
 	// TODO - Check colour image format to work out how this should be decoded!
 	// Should we init with Prim or Blend colour? Doesn't work well see Mk64 transition before a race
-	c32		colour = c32(0);
-
+	c32	colour = c32(0);
 	u32 cycle_mode = gRDPOtherMode.cycle_type;
 	//
 	// In Fill/Copy mode the coordinates are inclusive (i.e. add 1.0f to the w/h)
 	//
 	if ( cycle_mode >= CYCLE_COPY )
 	{
+		x1++;
+		y1++;
+
 		if ( cycle_mode == CYCLE_FILL )
 		{
 			u32 fill_colour = gRenderer->GetFillColour();
@@ -1084,26 +1091,19 @@ void DLParser_FillRect( MicroCodeCommand command )
 				colour = ConvertPixelFormat< c32, N64Pf8888 >( c );
 			}
 
-			u32 clear_screen_x = command.fillrect.x1 - command.fillrect.x0;
-			u32 clear_screen_y = command.fillrect.y1 - command.fillrect.y0;
-
-			// Clear color buffer (screen clear)
-			if( uViWidth == clear_screen_x && uViHeight == clear_screen_y )
+			// Clear the screen if its just a large rectangle
+			if( (x1 - x0) == uViWidth && (y1 - y0) == uViHeight )
 			{
 				CGraphicsContext::Get()->ClearColBuffer( colour );
 				DL_PF("    Clearing Colour Buffer");
 				return;
 			}
 		}
-
-		command.fillrect.x1++;
-		command.fillrect.y1++;
 	}
-	DL_PF("    Filling Rectangle (%d,%d)->(%d,%d)", command.fillrect.x0, command.fillrect.y0, command.fillrect.x1, command.fillrect.y1);
+	DL_PF("    Filling Rectangle (%d,%d)->(%d,%d)", x0, y0, x1, y1);
 
-	//Converting int->float with bitfields, gives some damn good asm on the PSP
-	v2 xy0( (f32)command.fillrect.x0, (f32)command.fillrect.y0 );
-	v2 xy1( (f32)command.fillrect.x1, (f32)command.fillrect.y1 );
+	v2 xy0( (f32)x0, (f32)y0 );
+	v2 xy1( (f32)x1, (f32)y1 );
 
 	// TODO - In 1/2cycle mode, skip bottom/right edges!?
 	// This is done in BaseRenderer.
