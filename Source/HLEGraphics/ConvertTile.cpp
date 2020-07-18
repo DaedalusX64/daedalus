@@ -92,6 +92,9 @@ static const u8 FiveToEight[] = {
 
 ALIGNED_EXTERN(u8, gTMEM[4096], 16);
 
+// convert rgba values (0-255 per channel) to a dword in A8R8G8B8 order..
+#define CONVERT_RGBA(r,g,b,a)  (a<<24) | (b<<16) | (g<<8) | r
+
 
 static u32 RGBA16(u16 v)
 {
@@ -99,43 +102,39 @@ static u32 RGBA16(u16 v)
 	u32 g = FiveToEight[(v>> 6)&0x1f];
 	u32 b = FiveToEight[(v>> 1)&0x1f];
 	u32 a = ((v     )&0x01)? 255 : 0;
-
-	return (a<<24) | (b<<16) | (g<<8) | r;
+	return CONVERT_RGBA(r, g, b, a);
 }
 
 static u32 IA16(u16 v)
 {
 	u32 i = (v>>8)&0xff;
 	u32 a = (v   )&0xff;
-
-	return (a<<24) | (i<<16) | (i<<8) | i;
+	return CONVERT_RGBA(i, i, i, a);
 }
 
 static u32 I4(u8 v)
 {
 	u32 i = FourToEight[v & 0x0F];
-	return (i<<24) | (i<<16) | (i<<8) | i;
+	return CONVERT_RGBA(i, i, i, i);
 }
 
 static u32 IA4(u8 v)
 {
 	u32 i = ThreeToEight[(v & 0x0f) >> 1];
 	u32 a = OneToEight[(v & 0x01)];
-
-	return (a<<24) | (i<<16) | (i<<8) | i;
+	return CONVERT_RGBA(i, i, i, a);
 }
 
 static u32 YUV16(s32 Y, s32 U, s32 V)
 {
-    s32 R = s32(Y + (1.370705f * (V-128)));
-    s32 G = s32(Y - (0.698001f * (V-128)) - (0.337633f * (U-128)));
-    s32 B = s32(Y + (1.732446f * (U-128)));
+    s32 r = s32(Y + (1.370705f * (V-128)));
+    s32 g = s32(Y - (0.698001f * (V-128)) - (0.337633f * (U-128)));
+    s32 b = s32(Y + (1.732446f * (U-128)));
 
-    R = R < 0 ? 0 : (R>255 ? 255 : R);
-    G = G < 0 ? 0 : (G>255 ? 255 : G);
-    B = B < 0 ? 0 : (B>255 ? 255 : B);
-
-    return (0xff << 24) | (B << 16) | (G << 8) | R;
+    r = r < 0 ? 0 : (r > 255 ? 255 : r);
+    g = g < 0 ? 0 : (g > 255 ? 255 : g);
+    b = b < 0 ? 0 : (b > 255 ? 255 : b);
+    return CONVERT_RGBA(r, g, b, 255);
 }
 
 
@@ -164,10 +163,10 @@ static void ConvertRGBA32(const TileDestInfo & dsti, const TextureInfo & ti)
 		{
 			u32 o = src_offset^row_swizzle;
 
-			dst[dst_offset+0] = src[o];
-			dst[dst_offset+1] = src[o+1];
-			dst[dst_offset+2] = src[o+2];
-			dst[dst_offset+3] = src[o+3];
+			dst[dst_offset+0] = src[(o+0)&0xfff];
+			dst[dst_offset+1] = src[(o+1)&0xfff];
+			dst[dst_offset+2] = src[(o+2)&0xfff];
+			dst[dst_offset+3] = src[(o+3)&0xfff];
 
 			src_offset += 4;
 			dst_offset += 4;
@@ -188,9 +187,9 @@ static void ConvertRGBA16(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 dst_row_stride = dsti.Pitch / sizeof(u32);
 	u32 dst_row_offset = 0;
 
-	const u16 * src16 = reinterpret_cast<const u16*>(gTMEM);
-	u32 src_row_stride = ti.GetLine()<<2;
-	u32 src_row_offset = ti.GetTmemAddress()<<2;
+	const u8 * src = gTMEM;
+	u32 src_row_stride = ti.GetLine()<<3;
+	u32 src_row_offset = ti.GetTmemAddress()<<3;
 
 	u32 row_swizzle = 0;
 	for (u32 y = 0; y < height; ++y)
@@ -199,17 +198,20 @@ static void ConvertRGBA16(const TileDestInfo & dsti, const TextureInfo & ti)
 		u32 dst_offset = dst_row_offset;
 		for (u32 x = 0; x < width; ++x)
 		{
-			u16 src_pixel = BSWAP16( src16[src_offset^row_swizzle] );
+			u32 o = src_offset^row_swizzle;
+			u32 src_pixel_hi = src[(o+0)&0xfff];
+			u32 src_pixel_lo = src[(o+1)&0xfff];
+			u16 src_pixel = (src_pixel_hi << 8) | src_pixel_lo;
 
 			dst[dst_offset+0] = RGBA16(src_pixel);
 
-			src_offset += 1;
+			src_offset += 2;
 			dst_offset += 1;
 		}
 		src_row_offset += src_row_stride;
 		dst_row_offset += dst_row_stride;
 
-		row_swizzle ^= 0x2;   // Alternate lines are half word-swapped
+		row_swizzle ^= 0x4;   // Alternate lines are word-swapped
 	}
 }
 
@@ -244,7 +246,8 @@ static void ConvertCI8T(const TileDestInfo & dsti, const TextureInfo & ti)
 		u32 dst_offset = dst_row_offset;
 		for (u32 x = 0; x < width; ++x)
 		{
-			u8 src_pixel = src[src_offset^row_swizzle];
+			u32 o = src_offset^row_swizzle;
+			u8 src_pixel = src[o&0xfff];
 
 			dst[dst_offset+0] = palette[src_pixel];
 
@@ -283,7 +286,6 @@ static void ConvertCI4T(const TileDestInfo & dsti, const TextureInfo & ti)
 		palette[i] = PalConvertFn(src_pixel);
 	}
 
-
 	u32 row_swizzle = 0;
 	for (u32 y = 0; y < height; ++y)
 	{
@@ -293,7 +295,8 @@ static void ConvertCI4T(const TileDestInfo & dsti, const TextureInfo & ti)
 		// Process 2 pixels at a time
 		for (u32 x = 0; x+1 < width; x += 2)
 		{
-			u16 src_pixel = src[src_offset^row_swizzle];
+			u32 o = src_offset^row_swizzle;
+			u8 src_pixel = src[o&0xfff];
 
 			dst[dst_offset+0] = palette[(src_pixel&0xf0)>>4];
 			dst[dst_offset+1] = palette[(src_pixel&0x0f)>>0];
@@ -305,7 +308,8 @@ static void ConvertCI4T(const TileDestInfo & dsti, const TextureInfo & ti)
 		// Handle trailing pixel, if odd width
 		if (width&1)
 		{
-			u8 src_pixel = src[src_offset^row_swizzle];
+			u32 o = src_offset^row_swizzle;
+			u8 src_pixel = src[o&0xfff];
 
 			dst[dst_offset+0] = palette[(src_pixel&0xf0)>>4];
 
@@ -361,9 +365,9 @@ static void ConvertIA16(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 dst_row_stride = dsti.Pitch / sizeof(u32);
 	u32 dst_row_offset = 0;
 
-	const u16 * src16 = reinterpret_cast<const u16*>(gTMEM);
-	u32 src_row_stride = ti.GetLine()<<2;
-	u32 src_row_offset = ti.GetTmemAddress()<<2;
+	const u8 * src     = gTMEM;
+	u32 src_row_stride = ti.GetLine()<<3;
+	u32 src_row_offset = ti.GetTmemAddress()<<3;
 
 	u32 row_swizzle = 0;
 	for (u32 y = 0; y < height; ++y)
@@ -372,16 +376,20 @@ static void ConvertIA16(const TileDestInfo & dsti, const TextureInfo & ti)
 		u32 dst_offset = dst_row_offset;
 		for (u32 x = 0; x < width; ++x)
 		{
-			u16 src_pixel = BSWAP16( src16[src_offset^row_swizzle] );
+			u32 o = src_offset^row_swizzle;
+			u32 src_pixel_hi = src[(o+0)&0xfff];
+			u32 src_pixel_lo = src[(o+1)&0xfff];
+			u16 src_pixel = (src_pixel_hi << 8) | src_pixel_lo;
 
 			dst[dst_offset+0] = IA16(src_pixel);
-			src_offset += 1;
+
+			src_offset += 2;
 			dst_offset += 1;
 		}
 		src_row_offset += src_row_stride;
 		dst_row_offset += dst_row_stride;
 
-		row_swizzle ^= 0x2;   // Alternate lines are half word-swapped
+		row_swizzle ^= 0x4;   // Alternate lines are word-swapped
 	}
 }
 
@@ -405,7 +413,8 @@ static void ConvertIA8(const TileDestInfo & dsti, const TextureInfo & ti)
 		u32 dst_offset = dst_row_offset;
 		for (u32 x = 0; x < width; ++x)
 		{
-			u8 src_pixel = src[src_offset^row_swizzle];
+			u32 o = src_offset^row_swizzle;
+			u8 src_pixel = src[o&0xfff];
 
 			u8 i = FourToEight[(src_pixel>>4)&0xf];
 			u8 a = FourToEight[(src_pixel   )&0xf];
@@ -447,7 +456,8 @@ static void ConvertIA4(const TileDestInfo & dsti, const TextureInfo & ti)
 		// Process 2 pixels at a time
 		for (u32 x = 0; x+1 < width; x += 2)
 		{
-			u8 src_pixel = src[src_offset^row_swizzle];
+			u32 o = src_offset^row_swizzle;
+			u8 src_pixel = src[o&0xfff];
 
 			dst[dst_offset+0] = IA4(src_pixel>>4);
 			dst[dst_offset+1] = IA4((src_pixel&0xf));
@@ -459,7 +469,8 @@ static void ConvertIA4(const TileDestInfo & dsti, const TextureInfo & ti)
 		// Handle trailing pixel, if odd width
 		if (width&1)
 		{
-			u8 src_pixel = src[src_offset^row_swizzle];
+			u32 o = src_offset^row_swizzle;
+			u8 src_pixel = src[o&0xfff];
 
 			dst[dst_offset+0] = IA4(src_pixel>>4);
 
@@ -494,7 +505,8 @@ static void ConvertI8(const TileDestInfo & dsti, const TextureInfo & ti)
 		u32 dst_offset = dst_row_offset;
 		for (u32 x = 0; x < width; ++x)
 		{
-			u8 i = src[src_offset^row_swizzle];
+			u32 o = src_offset^row_swizzle;
+			u8 i = src[o&0xfff];
 
 			dst[dst_offset+0] = i;
 			dst[dst_offset+1] = i;
@@ -534,7 +546,8 @@ static void ConvertI4(const TileDestInfo & dsti, const TextureInfo & ti)
 		// Process 2 pixels at a time
 		for (u32 x = 0; x+1 < width; x += 2)
 		{
-			u8 src_pixel = src[src_offset^row_swizzle];
+			u32 o = src_offset^row_swizzle;
+			u8 src_pixel = src[o&0xfff];
 
 			dst[dst_offset+0] = I4(src_pixel>>4);
 			dst[dst_offset+1] = I4((src_pixel&0xf));
@@ -546,7 +559,8 @@ static void ConvertI4(const TileDestInfo & dsti, const TextureInfo & ti)
 		// Handle trailing pixel, if odd width
 		if (width&1)
 		{
-			u8 src_pixel = src[src_offset^row_swizzle];
+			u32 o = src_offset^row_swizzle;
+			u8 src_pixel = src[o&0xfff];
 
 			dst[dst_offset+0] = I4(src_pixel>>4);
 
@@ -585,13 +599,13 @@ static void ConvertYUV16(const TileDestInfo & dsti, const TextureInfo & ti)
 		for (u32 x = 0; x < width; ++x)
 		{
 			u32 o = src_offset^row_swizzle;
-			s32 y0 = src[o+1];
-			s32 y1 = src[o+3];
-			s32 u0 = src[o+0];
-			s32 v0 = src[o+2];
+			s32 y0 = src[(o+1)&0xfff];
+			s32 y1 = src[(o+3)&0xfff];
+			s32 u0 = src[(o+0)&0xfff];
+			s32 v0 = src[(o+2)&0xfff];
 
 			dst[dst_offset+0] = YUV16(y0,u0,v0);
-            dst[dst_offset+1] = YUV16(y1,u0,v0);
+			dst[dst_offset+1] = YUV16(y1,u0,v0);
 
 			src_offset += 4;
 			dst_offset += 2;
