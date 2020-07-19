@@ -372,33 +372,34 @@ void IPreferences::Commit()
 // not in the database
 bool IPreferences::GetRomPreferences( const RomID & id, SRomPreferences * preferences ) const
 {
-	PreferencesMap::const_iterator	it( mPreferences.find( id ) );
-	if ( it != mPreferences.end() )
+	for ( PreferencesMap::const_iterator it = mPreferences.begin(); it != mPreferences.end(); ++it )
 	{
-		*preferences = it->second;
-		return true;
+		if ( it->first == id )
+		{
+			*preferences = it->second;
+			return true;
+		}
 	}
-	else
-	{
-		return false;
-	}
+	
+	return false;
 }
 
 // Update the preferences for the specified rom - creates a new entry if necessary
 void IPreferences::SetRomPreferences( const RomID & id, const SRomPreferences & preferences )
 {
-	PreferencesMap::iterator	it( mPreferences.find( id ) );
-	if ( it != mPreferences.end() )
+	for ( PreferencesMap::iterator it = mPreferences.begin(); it != mPreferences.end(); ++it )
 	{
-		it->second = preferences;
-	}
-	else
-	{
-		mPreferences[ id ] = preferences;
+		if ( it->first == id )
+		{
+			it->second = preferences;
+			return;
+		}
 	}
 
+	mPreferences[id] = preferences;
 	mDirty = true;
 }
+
 
 SGlobalPreferences::SGlobalPreferences()
 :	DisplayFramerate( 0 )

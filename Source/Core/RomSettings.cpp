@@ -227,7 +227,7 @@ bool IRomSettingsDB::OpenSettingsFile( const char * filename )
 	CIniFile * p_ini_file( CIniFile::Create( filename ) );
 	if( p_ini_file == nullptr )
 	{
-		DBGConsole_Msg( 0, "Failed to open RomDB from %s\n", filename );
+		DBGConsole_Msg( 0, "Failed to open roms.ini from %s\n", filename );
 		return false;
 	}
 
@@ -445,36 +445,34 @@ void IRomSettingsDB::OutputSectionDetails( const RomID & id, const RomSettings &
 
 // Retreive the settings for the specified rom. Returns false if the rom is
 // not in the database
-
 bool	IRomSettingsDB::GetSettings( const RomID & id, RomSettings * p_settings ) const
 {
-	SettingsMap::const_iterator	it( mSettings.find( id ) );
-	if ( it != mSettings.end() )
+	for ( SettingsMap::const_iterator it = mSettings.begin(); it != mSettings.end(); ++it )
 	{
-		*p_settings = it->second;
-		return true;
+		if ( it->first == id )
+		{
+			*p_settings = it->second;
+			return true;
+		}
 	}
-	else
-	{
-		return false;
-	}
+	
+	return false;
 }
 
 
 // Update the settings for the specified rom - creates a new entry if necessary
-
 void	IRomSettingsDB::SetSettings( const RomID & id, const RomSettings & settings )
 {
-	SettingsMap::iterator	it( mSettings.find( id ) );
-	if ( it != mSettings.end() )
+	for ( SettingsMap::iterator it = mSettings.begin(); it != mSettings.end(); ++it )
 	{
-		it->second = settings;
-	}
-	else
-	{
-		mSettings[ id ] = settings;
+		if ( it->first == id )
+		{
+			it->second = settings;
+			return;
+		}
 	}
 
+	mSettings[id] = settings;
 	mDirty = true;
 }
 
