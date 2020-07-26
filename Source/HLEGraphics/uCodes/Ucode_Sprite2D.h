@@ -79,21 +79,20 @@ void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo &info, 
 
 	SImageDescriptor	desc = { sprite->format, sprite->size, sprite->stride, address };
 
-	ti.SetFormat           (sprite->format);
-	ti.SetSize             (sprite->size);
+	ti.SetFormat(sprite->format);
+	ti.SetSize(sprite->size);
 
-	ti.SetLoadAddress      (desc.GetAddress(sprite->imageX, sprite->imageY));
+	ti.SetLoadAddress(desc.GetAddress(sprite->imageX, sprite->imageY));
 
-	ti.SetWidth            (sprite->width);
-	ti.SetHeight           (sprite->height);
-	ti.SetPitch            (sprite->stride << sprite->size >> 1);
+	ti.SetWidth(sprite->width);
+	ti.SetHeight(sprite->height);
+	ti.SetPitch((sprite->stride << sprite->size) >> 1);
 
-	ti.SetSwapped          (0);
+	ti.SetSwapped(false);
 
-	ti.SetPalette		   (0);
-	ti.SetTlutAddress      (RDPSegAddr(sprite->tlut));
-
-	ti.SetTLutFormat       (kTT_RGBA16);
+	ti.SetPalette(0);
+	ti.SetTlutAddress(RDPSegAddr(sprite->tlut));
+	ti.SetTLutFormat(kTT_RGBA16);
 
 	CRefPtr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
 
@@ -102,10 +101,10 @@ void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo &info, 
 	u16 pw = (u16)(sprite->width / info.scaleX);
 	u16 ph = (u16)(sprite->height / info.scaleY);
 
-	s32 frameX              = px;
-	s32 frameY              = py;
-	s32 frameW              = px + pw;
-	s32 frameH              = py + ph;
+	s32 frameX = px;
+	s32 frameY = py;
+	s32 frameW = px + pw;
+	s32 frameH = py + ph;
 
 	// SSV uses this
 	if( info.flipX )

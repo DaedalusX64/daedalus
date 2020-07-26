@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Debug/Dump.h"
 #include "Graphics/GraphicsContext.h"
 #include "Graphics/NativePixelFormat.h"
-#include "HLEGraphics/ConvertImage.h"			// Convert555ToRGBA
+#include "HLEGraphics/ConvertFormats.h"			// YUVtoRGBA
 #include "HLEGraphics/DLDebug.h"
 #include "HLEGraphics/DLParser.h"
 #include "HLEGraphics/BaseRenderer.h"
@@ -776,8 +776,6 @@ void DLParser_SetScissor( MicroCodeCommand command )
 	{
 		gRenderer->SetScissor( scissors.left, scissors.top, scissors.right, scissors.bottom );
 	}
-	else
-		printf("BAD\n");
 }
 //*****************************************************************************
 //
@@ -823,10 +821,9 @@ void DLParser_SetTImg( MicroCodeCommand command )
 	g_TI.Size		= command.img.siz;
 	g_TI.Width		= command.img.width + 1;
 	g_TI.Address	= RDPSegAddr(command.img.addr);
-	//g_TI.bpl		= g_TI.Width << g_TI.Size >> 1;
 
-	DL_PF("    TImg Adr[0x%08x] Format[%s/%s] Width[%d] Pitch[%d] Bytes/line[%d]",
-		g_TI.Address, gFormatNames[g_TI.Format], gSizeNames[g_TI.Size], g_TI.Width, g_TI.GetPitch(), g_TI.Width << g_TI.Size >> 1 );
+	DL_PF("    TImg Adr[0x%08x] Format[%s/%s] Width[%d] Pitch[%d]",
+		g_TI.Address, gFormatNames[g_TI.Format], gSizeNames[g_TI.Size], g_TI.Width, g_TI.GetPitch());
 }
 
 //*****************************************************************************

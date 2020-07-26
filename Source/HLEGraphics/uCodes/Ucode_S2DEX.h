@@ -387,7 +387,6 @@ void DLParser_S2DEX_ObjRectangle( MicroCodeCommand command )
 //*****************************************************************************
 //
 //*****************************************************************************
-// Untested.. I can't find any game that uses this.. but it should work fine
 void DLParser_S2DEX_ObjRectangleR( MicroCodeCommand command )
 {
 	uObjSprite *sprite = (uObjSprite*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
@@ -397,10 +396,10 @@ void DLParser_S2DEX_ObjRectangleR( MicroCodeCommand command )
 		return;
 	}
 
-	// Would like to find a game that uses this
-	#ifdef DAEDALUS_DEBUG_CONSOLE
+	// Untested.. I can't find any game that uses this.. but it should work fine
+	// Would like to find a game that uses this though
 	DAEDALUS_ERROR("S2DEX_ObjRectangleR: Check me");
- 	#endif
+
 	CRefPtr<CNativeTexture> texture = Load_ObjSprite( sprite, gObjTxtr );
 	Draw_ObjSprite( sprite, PARTIAL_ROTATION, texture );
 }
@@ -555,26 +554,6 @@ inline void DLParser_Yoshi_MemRect( MicroCodeCommand command )
 
 }
 
-static u16 YUVtoRGBA(u8 y, u8 u, u8 v)
-{
-	f32 r = y + (1.370705f * (v-128));
-	f32 g = y - (0.698001f * (v-128)) - (0.337633f * (u-128));
-	f32 b = y + (1.732446f * (u-128));
-	r *= 0.125f;
-	g *= 0.125f;
-	b *= 0.125f;
-
-	//clipping the result
-	if (r > 32) r = 32;
-	if (g > 32) g = 32;
-	if (b > 32) b = 32;
-	if (r < 0) r = 0;
-	if (g < 0) g = 0;
-	if (b < 0) b = 0;
-
-	return (u16)(((u16)(r) << 11) |((u16)(g) << 6) |((u16)(b) << 1) | 1);
-}
-
 //Ogre Battle needs to copy YUV texture to frame buffer
 void DLParser_OB_YUV(const uObjSprite *sprite)
 {
@@ -598,10 +577,12 @@ void DLParser_OB_YUV(const uObjSprite *sprite)
 		return;
 
 	u32 width = 16;
-	u32 height = 16;
+	if (lr_x > ci_width)	
+		width = ci_width - ul_x;
 
-	if (lr_x > ci_width)	width = ci_width - ul_x;
-	if (lr_y > ci_height)	height = ci_height - ul_y;
+	u32 height = 16;
+	if (lr_y > ci_height)	
+		height = ci_height - ul_y;
 
 	u32 * mb = (u32*)(g_pu8RamBase + g_TI.Address); //pointer to the first macro block
 	u16 * dst = (u16*)(g_pu8RamBase + g_CI.Address);
@@ -648,9 +629,7 @@ void DLParser_S2DEX_RDPHalf_0( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_S2DEX_ObjRendermode( MicroCodeCommand command )
 {
-	#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF( "    S2DEX_ObjRendermode (Ignored)" );
-	#endif
 }
 
 //*****************************************************************************
@@ -658,9 +637,8 @@ void DLParser_S2DEX_ObjRendermode( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_S2DEX_SelectDl( MicroCodeCommand command )
 {
-				#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF( "    S2DEX_SelectDl (Ignored)" );
-	#endif
+	DAEDALUS_ERROR("S2DEX_SelectDl: Check me");
 }
 
 //*****************************************************************************
@@ -668,9 +646,7 @@ void DLParser_S2DEX_SelectDl( MicroCodeCommand command )
 //*****************************************************************************
 void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 {
-				#ifdef DAEDALUS_DEBUG_DISPLAYLIST
 	DL_PF("    DLParser_S2DEX_BgCopy");
-#endif
 	uObjBg *objBg = (uObjBg*)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
 	u16 imageX = objBg->imageX >> 5;
@@ -686,19 +662,19 @@ void DLParser_S2DEX_BgCopy( MicroCodeCommand command )
 
 	TextureInfo ti;
 
-	ti.SetFormat           (objBg->imageFmt);
-	ti.SetSize             (objBg->imageSiz);
+	ti.SetFormat(objBg->imageFmt);
+	ti.SetSize(objBg->imageSiz);
 
-	ti.SetLoadAddress      (RDPSegAddr(objBg->imagePtr));
-	ti.SetWidth            (imageW);
-	ti.SetHeight           (imageH);
-	ti.SetPitch			   (((imageW << objBg->imageSiz >> 1)>>3)<<3); //force 8-bit alignment
+	ti.SetLoadAddress(RDPSegAddr(objBg->imagePtr));
+	ti.SetWidth(imageW);
+	ti.SetHeight(imageH);
+	ti.SetPitch((((imageW << objBg->imageSiz) >> 1)>>3)<<3); //force 8-bit alignment
 
-	ti.SetSwapped          (0);
+	ti.SetSwapped(false);
 
-	ti.SetPalette          (objBg->imagePal);
-	ti.SetTlutAddress	   (gTlutLoadAddresses[0]);
-	ti.SetTLutFormat       (kTT_RGBA16);
+	ti.SetPalette(objBg->imagePal);
+	ti.SetTlutAddress(gTlutLoadAddresses[0]);
+	ti.SetTLutFormat(kTT_RGBA16);
 
 	CRefPtr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
 	gRenderer->Draw2DTexture( (float)frameX, (float)frameY, (float)frameW, (float)frameH,
@@ -733,19 +709,19 @@ void DLParser_S2DEX_Bg1cyc( MicroCodeCommand command )
 
 	TextureInfo ti;
 
-	ti.SetFormat           (objBg->imageFmt);
-	ti.SetSize             (objBg->imageSiz);
+	ti.SetFormat(objBg->imageFmt);
+	ti.SetSize(objBg->imageSiz);
 
-	ti.SetLoadAddress      (RDPSegAddr(objBg->imagePtr));
-	ti.SetWidth            (objBg->imageW/4);
-	ti.SetHeight           (objBg->imageH/4);
-	ti.SetPitch			   (((objBg->imageW/4 << ti.GetSize() >> 1)>>3)<<3); //force 8-bit alignment, this what sets our correct viewport.
+	ti.SetLoadAddress(RDPSegAddr(objBg->imagePtr));
+	ti.SetWidth(objBg->imageW/4);
+	ti.SetHeight(objBg->imageH/4);
+	ti.SetPitch((((objBg->imageW/4 << ti.GetSize()) >> 1)>>3)<<3); //force 8-bit alignment, this what sets our correct viewport.
 
-	ti.SetSwapped          (0);
+	ti.SetSwapped(false);
 
-	ti.SetPalette		   (objBg->imagePal);
-	ti.SetTlutAddress	   (gTlutLoadAddresses[0]);
-	ti.SetTLutFormat       (kTT_RGBA16);
+	ti.SetPalette(objBg->imagePal);
+	ti.SetTlutAddress(gTlutLoadAddresses[0]);
+	ti.SetTLutFormat(kTT_RGBA16);
 
 	CRefPtr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
 
