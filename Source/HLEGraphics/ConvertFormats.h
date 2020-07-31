@@ -85,6 +85,11 @@ static const u8 FiveToEight[] = {
 	0xff  // 11111 -> 11111111
  };
 
+ static inline u32 RGBA32(u8 a, u8 b, u8 g, u8 r)
+ {
+	 return CONVERT_RGBA(r, g, b, a);
+ }
+
 static inline u32 RGBA16(u16 v)
 {
 	u32 r = FiveToEight[(v>>11)&0x1f];
@@ -136,12 +141,9 @@ static inline u16 YUVtoRGBA(u8 y, u8 u, u8 v)
 	b *= 0.125f;
 
 	//clipping the result
-	if (r > 32) r = 32;
-	if (g > 32) g = 32;
-	if (b > 32) b = 32;
-	if (r < 0) r = 0;
-	if (g < 0) g = 0;
-	if (b < 0) b = 0;
+	r = r < 0 ? 0 : (r > 32 ? 32 : r);
+    g = g < 0 ? 0 : (g > 32 ? 32 : g);
+    b = b < 0 ? 0 : (b > 32 ? 32 : b);
 
 	return (u16)(((u16)(r) << 11) |((u16)(g) << 6) |((u16)(b) << 1) | 1);
 }

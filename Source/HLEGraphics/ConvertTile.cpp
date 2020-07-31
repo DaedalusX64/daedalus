@@ -40,8 +40,8 @@ static void ConvertRGBA32(const TileDestInfo & dsti, const TextureInfo & ti)
 	u32 width = dsti.Width;
 	u32 height = dsti.Height;
 
-	u8 * dst = static_cast<u8*>(dsti.Data);
-	u32 dst_row_stride = dsti.Pitch;
+	u32 * dst = static_cast<u32*>(dsti.Data);
+	u32 dst_row_stride = dsti.Pitch / sizeof(u32);
 	u32 dst_row_offset = 0;
 
 	const u8 * src = gTMEM;
@@ -59,14 +59,15 @@ static void ConvertRGBA32(const TileDestInfo & dsti, const TextureInfo & ti)
 		for (u32 x = 0; x < width; ++x)
 		{
 			u32 o = src_offset^row_swizzle;
+			u8 r = src[(o+3)&0xfff];
+			u8 b = src[(o+1)&0xfff];
+			u8 g = src[(o+2)&0xfff];
+			u8 a = src[(o+0)&0xfff];
 
-			dst[dst_offset+0] = src[(o+0)&0xfff];
-			dst[dst_offset+1] = src[(o+1)&0xfff];
-			dst[dst_offset+2] = src[(o+2)&0xfff];
-			dst[dst_offset+3] = src[(o+3)&0xfff];
+			dst[dst_offset+0] = RGBA32(r, g, b, a);
 
 			src_offset += 4;
-			dst_offset += 4;
+			dst_offset += 1;
 		}
 		src_row_offset += src_row_stride;
 		dst_row_offset += dst_row_stride;
@@ -96,8 +97,8 @@ static void ConvertRGBA16(const TileDestInfo & dsti, const TextureInfo & ti)
 		for (u32 x = 0; x < width; ++x)
 		{
 			u32 o = src_offset^row_swizzle;
-			u32 src_pixel_hi = src[(o+0)&0xfff];
-			u32 src_pixel_lo = src[(o+1)&0xfff];
+			u8 src_pixel_hi = src[(o+0)&0xfff];
+			u8 src_pixel_lo = src[(o+1)&0xfff];
 			u16 src_pixel = (src_pixel_hi << 8) | src_pixel_lo;
 
 			dst[dst_offset+0] = RGBA16(src_pixel);
@@ -274,8 +275,8 @@ static void ConvertIA16(const TileDestInfo & dsti, const TextureInfo & ti)
 		for (u32 x = 0; x < width; ++x)
 		{
 			u32 o = src_offset^row_swizzle;
-			u32 src_pixel_hi = src[(o+0)&0xfff];
-			u32 src_pixel_lo = src[(o+1)&0xfff];
+			u8 src_pixel_hi = src[(o+0)&0xfff];
+			u8 src_pixel_lo = src[(o+1)&0xfff];
 			u16 src_pixel = (src_pixel_hi << 8) | src_pixel_lo;
 
 			dst[dst_offset+0] = IA16(src_pixel);
@@ -493,7 +494,9 @@ static void ConvertYUV16(const TileDestInfo & dsti, const TextureInfo & ti)
 	{
 		u32 src_offset = src_row_offset;
 		u32 dst_offset = dst_row_offset;
-		for (u32 x = 0; x < width; ++x)
+		
+		// Process 2 pixels at a time
+		for (u32 x = 0; x < width; x += 2)
 		{
 			u32 o = src_offset^row_swizzle;
 			s32 y0 = src[(o+1)&0xfff];
