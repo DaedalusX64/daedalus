@@ -67,7 +67,7 @@ static void DLParser_Sprite2DScaleFlip( MicroCodeCommand command, Sprite2DInfo *
 //*****************************************************************************
 //
 //*****************************************************************************
-static void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo info, const Sprite2DStruct *sprite )
+static CRefPtr<CNativeTexture> Load_Sprite2D( const Sprite2DStruct *sprite, const Sprite2DInfo info )
 {
 	TextureInfo ti;
 	ti.SetLoadAddress(RDPSegAddr(sprite->address));
@@ -76,14 +76,31 @@ static void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo 
 	ti.SetWidth(sprite->stride);
 	ti.SetHeight(sprite->imageH + sprite->imageY);
 	ti.SetPitch((sprite->stride << sprite->size) >> 1);
-	ti.SetSwapped(false);
 
+	if(g_ROM.GameHacks == WCW_NITRO)
+	{
+		u32 scaleY = (u32)info.scaleY;
+		ti.SetWidth(sprite->stride * scaleY);
+		ti.SetHeight(ti.GetHeight() / scaleY);
+		ti.SetPitch(ti.GetPitch() * scaleY);
+	}
+
+	ti.SetSwapped(false);
 	ti.SetPalette(0);
 	ti.SetTlutAddress(RDPSegAddr(sprite->tlut));
 	ti.SetTLutFormat(kTT_RGBA16);
 
-	CRefPtr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
+	DL_PF( "    Sprite2D Texture:[Width:%d, Height:%d] -> Address[0x%08x] Format[%s] TLUT[0x%x] Pitch[%d]",
+		ti.GetWidth(), ti.GetHeight(), ti.GetLoadAddress(), ti.GetFormatName(), ti.GetTlutAddress(), ti.GetPitch());
 
+	return gRenderer->LoadTextureDirectly(ti);
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+static void Draw_Sprite2D( MicroCodeCommand command, const Sprite2DStruct *sprite, const Sprite2DInfo info, const CNativeTexture * texture )
+{
 	f32 frameX = ((s16)((command.inst.cmd1>>16)&0xFFFF)) / 4.0f;
 	f32 frameY = ((s16)(command.inst.cmd1&0xFFFF)) / 4.0f;
 	f32 frameW = (u16)(sprite->imageW / info.scaleX);
@@ -111,15 +128,28 @@ static void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo 
 		lry = frameY + frameH;
 	}
 
-	f32 uls = sprite->imageX;						//left
-	f32 ult = sprite->imageY;						//top
-	f32 lrs = sprite->imageX + sprite->imageW - 1;	//right
-	f32 lrt = sprite->imageY + sprite->imageH - 1;	//bottom
-
-	DL_PF("    Screen(%.1f, %.1f) -> (%.1f, %.1f)", ulx, uly, lrx, lry);
-	DL_PF("    Tex:(%.1f, %.1f) -> (%.1f, %.1f): Width[%d] Height[%d]", uls, lrs, ult, lrt, ti.GetWidth(), ti.GetHeight());
+	f32 uls = sprite->imageX; //left
+	f32 ult = sprite->imageY; //top
+	f32 lrs = sprite->imageX + sprite->imageW - 1; //right
+	f32 lrt = sprite->imageY + sprite->imageH - 1; //bottom
+	if (g_ROM.GameHacks == WCW_NITRO)
+	{
+		ult /= info.scaleY;
+		lrt /= info.scaleY;
+	}
+	DL_PF("    Sprite2D Screen(%.1f, %.1f) -> (%.1f, %.1f)", ulx, uly, lrx, lry);
+	DL_PF("    Sprite2D Tex:(%.1f, %.1f) -> (%.1f, %.1f)", uls, lrs, ult, lrt);
 	
 	gRenderer->Draw2DTexture( ulx, uly, lrx, lry, uls, ult, lrs, lrt, texture );
+}
+
+//*****************************************************************************
+//
+//*****************************************************************************
+static void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo info, const Sprite2DStruct *sprite )
+{
+	CRefPtr<CNativeTexture> texture = Load_Sprite2D( sprite, info );
+	Draw_Sprite2D( command, sprite, info, texture );
 }
 
 //*****************************************************************************
@@ -136,9 +166,9 @@ void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 	{
 		u32 address = RDPSegAddr(command.inst.cmd1);
 		if (!IsAddressValid(address, 24, "Sprite2DBase") || 
-				!IsAddressValid(pc, 24, "Sprite2D - FetchNextCommand"))
+			!IsAddressValid(pc, 24, "Sprite2D - FetchNextCommand"))
 		{
-			break;
+			return;
 		}
 		const Sprite2DStruct *sprite = (const Sprite2DStruct *)(g_pu8RamBase + address);
 

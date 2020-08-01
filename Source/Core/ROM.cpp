@@ -366,6 +366,7 @@ void SpecificGameHacks( const ROMHeader & id )
 	case 0x5359: g_ROM.GameHacks = YOSHI;				break;
 	case 0x4C42: g_ROM.GameHacks = BUCK_BUMBLE;			break;
 	case 0x4441: g_ROM.GameHacks = WORMS_ARMAGEDDON;	break;
+	case 0x3357: g_ROM.GameHacks = WCW_NITRO;			break;
 
 	case 0x464A:	// Jet Force Geminy
 	case 0x5647:	// Glover
