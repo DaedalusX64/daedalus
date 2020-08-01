@@ -28,19 +28,21 @@ struct Sprite2DStruct
 	u32 address;
 	u32 tlut;
 
-	u16 width;
-	u16 stride;
+	s16 imageW;
+	s16 stride;
 
-	u8  size;
-	u8  format;
-	u16 height;
+	s8  size;
+	s8  format;
+	s16 imageH;
 
-	u16 imageY;
-	u16 imageX;
+	s16 imageY;
+	s16 imageX;
 
-	char dummy[4];
-};
+	s8 dummy[4];
+};  
 
+DAEDALUS_STATIC_ASSERT( sizeof(Sprite2DStruct) == 24 );
+ 
 struct Sprite2DInfo
 {
 	f32 scaleX;
@@ -53,41 +55,27 @@ struct Sprite2DInfo
 //*****************************************************************************
 //
 //*****************************************************************************
-inline void DLParser_Sprite2DScaleFlip( MicroCodeCommand command, Sprite2DInfo *info )
+static void DLParser_Sprite2DScaleFlip( MicroCodeCommand command, Sprite2DInfo *info )
 {
-	info->scaleX = (((command.inst.cmd1)>>16)   &0xFFFF)/1024.0f;
-	info->scaleY = ( (command.inst.cmd1)        &0xFFFF)/1024.0f;
+	info->scaleX = ((command.inst.cmd1>>16)&0xFFFF) / 1024.0f;
+	info->scaleY = (command.inst.cmd1&0xFFFF) / 1024.0f;
 
-	info->flipX = (u8)(((command.inst.cmd0)>>8)     &0xFF);
-	info->flipY = (u8)( (command.inst.cmd0)         &0xFF);
+	info->flipX = ((command.inst.cmd0>>8)&0xFF);
+	info->flipY = (command.inst.cmd0&0xFF);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo &info, Sprite2DStruct *sprite )
+static void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo info, const Sprite2DStruct *sprite )
 {
-
-	// Wipeout.
-	if(sprite->width == 0)
-		return;
-
-	// ToDO : Cache ti state as Sprite2D is mostly used for static BGs
 	TextureInfo ti;
-
-	u32 address = RDPSegAddr(sprite->address);
-
-	SImageDescriptor	desc = { sprite->format, sprite->size, sprite->stride, address };
-
+	ti.SetLoadAddress(RDPSegAddr(sprite->address));
 	ti.SetFormat(sprite->format);
 	ti.SetSize(sprite->size);
-
-	ti.SetLoadAddress(desc.GetAddress(sprite->imageX, sprite->imageY));
-
-	ti.SetWidth(sprite->width);
-	ti.SetHeight(sprite->height);
+	ti.SetWidth(sprite->stride);
+	ti.SetHeight(sprite->imageH + sprite->imageY);
 	ti.SetPitch((sprite->stride << sprite->size) >> 1);
-
 	ti.SetSwapped(false);
 
 	ti.SetPalette(0);
@@ -96,26 +84,42 @@ void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo &info, 
 
 	CRefPtr<CNativeTexture> texture = gRenderer->LoadTextureDirectly(ti);
 
-	s16 px = (s16)((command.inst.cmd1>>16)&0xFFFF)/4;
-	s16 py = (s16)(command.inst.cmd1 &0xFFFF)/4;
-	u16 pw = (u16)(sprite->width / info.scaleX);
-	u16 ph = (u16)(sprite->height / info.scaleY);
+	f32 frameX = ((s16)((command.inst.cmd1>>16)&0xFFFF)) / 4.0f;
+	f32 frameY = ((s16)(command.inst.cmd1&0xFFFF)) / 4.0f;
+	f32 frameW = (u16)(sprite->imageW / info.scaleX);
+	f32 frameH = (u16)(sprite->imageH / info.scaleY);
 
-	s32 frameX = px;
-	s32 frameY = py;
-	s32 frameW = px + pw;
-	s32 frameH = py + ph;
+	f32 ulx, lrx, uly, lry;
+	if (info.flipX)
+	{
+		ulx = frameX + frameW;
+		lrx = frameX;
+	} 
+	else 
+	{
+		ulx = frameX;
+		lrx = frameX + frameW;
+	}
+	if (info.flipY) 
+	{
+		uly = frameY + frameH;
+		lry = frameY;
+	} 
+	else 
+	{
+		uly = frameY;
+		lry = frameY + frameH;
+	}
 
-	// SSV uses this
-	if( info.flipX )
-		Swap< s32 >( frameX, frameW );
+	f32 uls = sprite->imageX;						//left
+	f32 ult = sprite->imageY;						//top
+	f32 lrs = sprite->imageX + sprite->imageW - 1;	//right
+	f32 lrt = sprite->imageY + sprite->imageH - 1;	//bottom
 
-	if( info.flipY )
-		Swap< s32 >( frameY, frameH );
-
-	gRenderer->Draw2DTexture( (f32)frameX, (f32)frameY, (f32)frameW, (f32)frameH,
-							  0.0f, 0.0f, (f32)sprite->width, (f32)sprite->height,
-							  texture );
+	DL_PF("    Screen(%.1f, %.1f) -> (%.1f, %.1f)", ulx, uly, lrx, lry);
+	DL_PF("    Tex:(%.1f, %.1f) -> (%.1f, %.1f): Width[%d] Height[%d]", uls, lrs, ult, lrt, ti.GetWidth(), ti.GetHeight());
+	
+	gRenderer->Draw2DTexture( ulx, uly, lrx, lry, uls, ult, lrs, lrt, texture );
 }
 
 //*****************************************************************************
@@ -124,43 +128,42 @@ void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo &info, 
 // Used by Flying Dragon
 void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 {
-	u32 address;
-	Sprite2DInfo info;
-	Sprite2DStruct *sprite;
-
-	u32 pc = gDlistStack.address[gDlistStackPointer];
-	u32 * pCmdBase = (u32 *)(g_pu8RamBase + pc);
-
-	// Try to execute as many sprite2d ucodes as possible, I seen chains over 200! in FB
-	// NB Glover calls RDP Sync before draw for the sky.. so checks were added
+	u32 pc = gDlistStack.address[gDlistStackPointer]; // This points to the next instruction
+	MicroCodeCommand * pCmdBase = (MicroCodeCommand*)(g_pu8RamBase + pc);
+	
+	// Try to execute as many sprite2d instructions as possible, I seen chains of over 700! in FB
 	do
 	{
-		address = RDPSegAddr(command.inst.cmd1);
-		sprite = (Sprite2DStruct *)(g_ps8RamBase + address);
-
-		// Fetch Sprite2D Flip
-		command.inst.cmd0= *pCmdBase++;
-		command.inst.cmd1= *pCmdBase++;
-		if(command.inst.cmd != G_GBI1_SPRITE2D_SCALEFLIP)
+		u32 address = RDPSegAddr(command.inst.cmd1);
+		if (!IsAddressValid(address, 24, "Sprite2DBase") || 
+				!IsAddressValid(pc, 24, "Sprite2D - FetchNextCommand"))
 		{
-			pc += 8;
 			break;
 		}
-		DLParser_Sprite2DScaleFlip( command, &info );
+		const Sprite2DStruct *sprite = (const Sprite2DStruct *)(g_pu8RamBase + address);
 
-		// Fetch Sprite2D Draw
-		command.inst.cmd0= *pCmdBase++;
-		command.inst.cmd1= *pCmdBase++;
-		if(command.inst.cmd != G_GBI1_SPRITE2D_DRAW)
+		// Fetch the next 2 instructions at once (Sprite2D Flip and Sprite2D Draw)
+		MicroCodeCommand command2 = *pCmdBase++;
+		MicroCodeCommand command3 = *pCmdBase++;
+
+		// Nothing todo if either next instruction is invalid
+		// Glover does this by calling RDP Sync before drawing the sky
+		if (command2.inst.cmd != G_GBI1_SPRITE2D_SCALEFLIP || 
+			command3.inst.cmd != G_GBI1_SPRITE2D_DRAW)
 		{
-			pc += 16;	//We have executed atleast 2 instructions at this point
+			pc += 16;
 			break;
 		}
-		DLParser_Sprite2DDraw( command, info, sprite );
 
-		// Fetch Sprite2D Base
-		command.inst.cmd0= *pCmdBase++;
-		command.inst.cmd1= *pCmdBase++;
+		// Avoid division by zero
+		if (sprite->stride > 0)
+		{
+			Sprite2DInfo info;
+			DLParser_Sprite2DScaleFlip( command2, &info );
+			DLParser_Sprite2DDraw( command3, info, sprite );
+		}
+		
+		command = *pCmdBase++;
 		pc += 24;
 	}while(command.inst.cmd == G_GBI1_SPRITE2D_BASE);
 
@@ -168,3 +171,4 @@ void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 }
 
 #endif // HLEGRAPHICS_UCODES_UCODE_SPRITE2D_H_
+
