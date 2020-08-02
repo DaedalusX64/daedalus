@@ -1187,8 +1187,7 @@ void RendererGL::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 }
 
 void RendererGL::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
-							   f32 u0, f32 v0, f32 u1, f32 v1,
-							   const CNativeTexture * texture)
+							   f32 u0, f32 v0, f32 u1, f32 v1)
 {
 	DAEDALUS_PROFILE( "RendererGL::Draw2DTexture" );
 

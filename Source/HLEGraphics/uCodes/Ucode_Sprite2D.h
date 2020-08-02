@@ -67,39 +67,43 @@ static void DLParser_Sprite2DScaleFlip( MicroCodeCommand command, Sprite2DInfo *
 //*****************************************************************************
 //
 //*****************************************************************************
-static CRefPtr<CNativeTexture> Load_Sprite2D( const Sprite2DStruct *sprite, const Sprite2DInfo info )
+static void Load_Sprite2D( const Sprite2DStruct *sprite, const Sprite2DInfo info )
 {
 	TextureInfo ti;
 	ti.SetLoadAddress(RDPSegAddr(sprite->address));
 	ti.SetFormat(sprite->format);
 	ti.SetSize(sprite->size);
-	ti.SetWidth(sprite->stride);
-	ti.SetHeight(sprite->imageH + sprite->imageY);
-	ti.SetPitch((sprite->stride << sprite->size) >> 1);
-
-	if(g_ROM.GameHacks == WCW_NITRO)
-	{
-		u32 scaleY = (u32)info.scaleY;
-		ti.SetWidth(sprite->stride * scaleY);
-		ti.SetHeight(ti.GetHeight() / scaleY);
-		ti.SetPitch(ti.GetPitch() * scaleY);
-	}
-
 	ti.SetSwapped(false);
 	ti.SetPalette(0);
 	ti.SetTlutAddress(RDPSegAddr(sprite->tlut));
 	ti.SetTLutFormat(kTT_RGBA16);
 
+	u32 width = sprite->stride;
+	u32 height = sprite->imageH + sprite->imageY;
+	u32 pitch = (sprite->stride << sprite->size) >> 1;
+
+	if(g_ROM.GameHacks == WCW_NITRO)
+	{
+		u32 scaleY = (u32)info.scaleY;
+		width *= scaleY;
+		height /= scaleY;
+		pitch *= scaleY;
+	}
+
+	ti.SetWidth(width);
+	ti.SetHeight(height);
+	ti.SetPitch(pitch);
+
 	DL_PF( "    Sprite2D Texture:[Width:%d, Height:%d] -> Address[0x%08x] Format[%s] TLUT[0x%x] Pitch[%d]",
 		ti.GetWidth(), ti.GetHeight(), ti.GetLoadAddress(), ti.GetFormatName(), ti.GetTlutAddress(), ti.GetPitch());
 
-	return gRenderer->LoadTextureDirectly(ti);
+	gRenderer->LoadTextureDirectly(ti);
 }
 
 //*****************************************************************************
 //
 //*****************************************************************************
-static void Draw_Sprite2D( MicroCodeCommand command, const Sprite2DStruct *sprite, const Sprite2DInfo info, const CNativeTexture * texture )
+static void Draw_Sprite2D( MicroCodeCommand command, const Sprite2DStruct *sprite, const Sprite2DInfo info )
 {
 	f32 frameX = ((s16)((command.inst.cmd1>>16)&0xFFFF)) / 4.0f;
 	f32 frameY = ((s16)(command.inst.cmd1&0xFFFF)) / 4.0f;
@@ -140,7 +144,7 @@ static void Draw_Sprite2D( MicroCodeCommand command, const Sprite2DStruct *sprit
 	DL_PF("    Sprite2D Screen(%.1f, %.1f) -> (%.1f, %.1f)", ulx, uly, lrx, lry);
 	DL_PF("    Sprite2D Tex:(%.1f, %.1f) -> (%.1f, %.1f)", uls, lrs, ult, lrt);
 	
-	gRenderer->Draw2DTexture( ulx, uly, lrx, lry, uls, ult, lrs, lrt, texture );
+	gRenderer->Draw2DTexture( ulx, uly, lrx, lry, uls, ult, lrs, lrt );
 }
 
 //*****************************************************************************
@@ -148,8 +152,8 @@ static void Draw_Sprite2D( MicroCodeCommand command, const Sprite2DStruct *sprit
 //*****************************************************************************
 static void DLParser_Sprite2DDraw( MicroCodeCommand command, const Sprite2DInfo info, const Sprite2DStruct *sprite )
 {
-	CRefPtr<CNativeTexture> texture = Load_Sprite2D( sprite, info );
-	Draw_Sprite2D( command, sprite, info, texture );
+	Load_Sprite2D( sprite, info );
+	Draw_Sprite2D( command, sprite, info );
 }
 
 //*****************************************************************************
@@ -164,13 +168,7 @@ void DLParser_GBI1_Sprite2DBase( MicroCodeCommand command )
 	// Try to execute as many sprite2d instructions as possible, I seen chains of over 700! in FB
 	do
 	{
-		u32 address = RDPSegAddr(command.inst.cmd1);
-		if (!IsAddressValid(address, 24, "Sprite2DBase") || 
-			!IsAddressValid(pc, 24, "Sprite2D - FetchNextCommand"))
-		{
-			return;
-		}
-		const Sprite2DStruct *sprite = (const Sprite2DStruct *)(g_pu8RamBase + address);
+		const Sprite2DStruct *sprite = (const Sprite2DStruct *)(g_pu8RamBase + RDPSegAddr(command.inst.cmd1));
 
 		// Fetch the next 2 instructions at once (Sprite2D Flip and Sprite2D Draw)
 		MicroCodeCommand command2 = *pCmdBase++;

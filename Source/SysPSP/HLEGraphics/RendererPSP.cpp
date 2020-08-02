@@ -890,8 +890,7 @@ void RendererPSP::FillRect( const v2 & xy0, const v2 & xy1, u32 color )
 }
 
 void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
-								f32 u0, f32 v0, f32 u1, f32 v1,
-								const CNativeTexture * texture)
+								f32 u0, f32 v0, f32 u1, f32 v1)
 {
 	DAEDALUS_PROFILE( "RendererPSP::Draw2DTexture" );
 	TextureVtx *p_verts = (TextureVtx*)sceGuGetMemory(4*sizeof(TextureVtx));
@@ -919,13 +918,16 @@ void RendererPSP::Draw2DTexture(f32 x0, f32 y0, f32 x1, f32 y1,
 	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
 
 	// Handle large images (width > 512) with blitting, since the PSP HW can't handle
-	// Handling height > 512 doesn't work well? Ignore for now.
-	if( u1 >= 512 )
+	// Handling height > 512 doesn't work well? Ignore for now
+	if( u1 >= 512.f )
 	{
-
+		const CNativeTexture * texture = mBoundTexture[0];
 		Draw2DTextureBlit( x0, y0, x1, y1, u0, v0, u1, v1, texture );
 		return;
 	}
+
+	//TODO: Investigate why handeling (height > 512) doesn't work?
+	DAEDALUS_ASSERT(v1 < 512.f, "Large textures with with height %d not supported",v1);
 
 	p_verts[0].pos.x = N64ToScreenX(x0);
 	p_verts[0].pos.y = N64ToScreenY(y0);
@@ -983,6 +985,13 @@ void RendererPSP::Draw2DTextureR(f32 x0, f32 y0, f32 x1, f32 y1,
 	sceGuEnable(GU_BLEND);
 	sceGuTexWrap(GU_CLAMP, GU_CLAMP);
 
+	// Why are we not blitting large textures here?
+#ifdef DAEDALUS_ENABLE_ASSERTS	
+	if (s > 512.f || t > 512.f)
+	{
+		DAEDALUS_ERROR("Large texture isn't handled correctly %d x %d",s,t);
+	}
+#endif
 	p_verts[0].pos.x = N64ToScreenX(x0);
 	p_verts[0].pos.y = N64ToScreenY(y0);
 	p_verts[0].pos.z = 0.0f;
@@ -1016,11 +1025,9 @@ void RendererPSP::Draw2DTextureBlit(f32 x, f32 y, f32 width, f32 height,
 									f32 u0, f32 v0, f32 u1, f32 v1,
 									const CNativeTexture * texture)
 {
-	if (!texture)
+	if (texture == nullptr)
 	{
-		#ifdef DAEDALUS_DEBUG_CONSOLE
 		DAEDALUS_ERROR("No texture in Draw2DTextureBlit");
-		#endif
 		return;
 	}
 
